@@ -3740,6 +3740,16 @@ This is the static half: kickoff tasks 1-6, which play-test 2 did not run.
   are staged, each under a `-- June effect C3x-1` comment (delete those lines to restore). BOM and CRLF are kept; `luasrc.py refresh` was run; `ledger --check` / `core --check` PASS.
   `PACK OK data040` (~1 changed: WorldData.lua); `COPY OK data040`: md5 8ee697d67da3412893fa0a65ef654d01. No C++ change.
 
+### C3x-1 - play-test 2 (2016-03-15 clock, 20:37-20:38; Freils unit 18 + reyaa unit 12; exe fd280c95): PASSED, festival = June's light only
+
+- `offline_server.log`: 6 `JUNE_FX C3x-1` lines: Ruben 258 (x2), Elder 263, Elder rest 494, Besma 262 and Ranox 582 all opened `<base>_Festival.lua`. 0 mesh/texture errors in ErrorLog; 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (known), 0 EXCEPTION.
+- User: villages and rest areas show the recoloured light but no decorations. **That is June's own content.**
+  - Every Festival script except Elder village uses the same objects as its base. The only additions are `SetLightColor_LUA` / `SetOriginColor_LUA` / `SetUseWorldColor`.
+  - Elder village Festival (180 objects vs 29) loaded its full set (State.log: `Elder_Village_Gr1..Gr7_*`, `AD_Board`, `NPC_Platform`); its ad-board texture waits on the asset port (data216).
+  - Decorations (X-trees, snow) are only in the XMAS variants, which need code event 46 (never offline).
+- Save after the 2016 clock: `unit.last_date` (units 12 / 18), `unit_riding_pet.last_unsummon` (pets 5 / 17) and `unit_buff` 122 (start = end) carry 2016 stamps. All harmless, so no restore.
+  The backup `db_backup/els_db_20261015_203055_pre_c3x1_before_clockback.sql` is kept.
+
 ## C3y - census: June-only dungeons no registry reaches, and the Sander secret boss world
 
 **Moved 2026-10-11 (user):** the open content ports of this census (C3y-1b, 1c, 2, 3, 4, 5, C3z-1b, C3z-4t, C3z-5b) now run as the `june-dungeons` plan
