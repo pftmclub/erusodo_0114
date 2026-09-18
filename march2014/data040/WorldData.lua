@@ -3019,3 +3019,24 @@ g_pWorldManager:AddWorldData({
 	worldID = WORLD_ID.WI_BATTLE_FIELD_RANOX_FIELD_03
 })
 --}}
+--{{ Iruha : 2026-09-19 // Ranox port Phase 11 -- WORLD_ID -> dataFileName for
+-- the GateWay PVP map. Phase 9's own catch-up block explicitly left this
+-- WORLD_ID out too (same list as the Phase 10 field entries above). This
+-- phase's own kickoff prompt named march2014/data036/BattleFieldData.lua as
+-- a second registry needing a patch here -- checked and that premise is
+-- wrong (same class of error as Phase 10's own self-correction): neither
+-- March2014's nor June2017's BattleFieldData.lua has ever had a PVP entry --
+-- grepped both decompiled copies for every Ranox/GateWay/PVPMAP WORLD_ID
+-- used here, zero hits in either. BattleFieldData.lua registers open-field
+-- monster spawns (NPC_TABLE_FILE_NAME, portal info, BATTLE_FIELD_ID); PVP
+-- arena maps only need this AddWorldData entry (so CX2WorldManager can find
+-- the scene file) plus a PVP_Map_List.lua row for the map-select UI -- see
+-- that file's own Phase 11 patch. WI_ELYSION_FIELD_PVPMAP, June2017's very
+-- next PVP_MAP_LIST/WorldData entry after this one, is not ported -- next
+-- content chapter, out of this port's scope.
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_GATEWAY_PVPMAP",
+	dataFileName = "PVP_Ranox_GateWay.lua",
+	worldID = WORLD_ID.WI_RANOX_GATEWAY_PVPMAP
+})
+--}}

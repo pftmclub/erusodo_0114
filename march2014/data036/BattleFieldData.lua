@@ -2026,3 +2026,14 @@ g_pBattleFieldManager:AddBattleFieldData({
 	-- a missing enum member" class as Phase 2's Hero-mode filter omission in
 	-- DLG_Map_Local_Ranox_Back_NEW.lua.
 })
+-- SERV_IRUHADEV_RANOX_PORT (2026-09-19): Ranox port Phase 11 (PVP GateWay map)
+-- deliberately adds nothing to this file. Checked both clients' own copies of
+-- BattleFieldData.lua for a PVP-map entry (grepped every PVP/GateWay WORLD_ID
+-- the map uses, and the string "pvp" case-insensitively) -- zero hits in
+-- either, including here even after the 4 field entries above (this file's
+-- own Ranox content, all from Phase 10) were added. This file registers
+-- open-field monster spawns; it has never had a PVP arena entry, in either
+-- client. A GateWay PVP row instead went to march2014/data040/WorldData.lua
+-- (AddWorldData, so the scene file can be found) and
+-- march2014/data036/PVP_Map_List.lua (the map-select UI row) -- see
+-- RANOX_PORT_PLAN.md's Phase 11 findings for the full check.

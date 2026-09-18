@@ -2214,6 +2214,117 @@ patched files to ./march2014/data036/BattleFieldData.lua and
 
 ---
 
+### Phase 11 findings (executed 2026-09-19)
+
+**Both files landed and compile** (`compile-batch -v mar-2014`, individually
+and together with both registry patches): `PVP_Ranox_GateWay.lua` (pure scene
+geometry — `g_pWorld`/`g_pWorldLayer`/`g_pObjectMesh`/`g_pRenderParam` calls
+only, zero engine gaps, round-trips byte-identical to June2017's own source)
+and `PVP_Ranox_GateWay_LineMap.lua` (27 lines, one of which needed the
+documented `LT_FIRE_GROUND` fix below). Every `TABLE.MEMBER` token across both
+files was checked against `march2014/data036/Enum.lua` (`X2_LAYER`,
+`D3DBLEND`, `LINE_TYPE`, `LINEMAP_DIRECTION_OPTION` — the scene file's own
+`XL_SKY_WORLD_BASE_0/1/2`, `XL_SKY_WORLD_OBJECT_OVER_EFFECT_0`,
+`D3DBLEND_SRCALPHA/DESTALPHA` all present), and every `:Method(` call (31
+distinct, all standard `CKTDGObject`/`CX2WorldObjectMesh`/`CKTDGLineMap`
+methods already used throughout this client's own corpus — `SetXMesh`,
+`SetFog`, `AddLine_LUA`, `AddStartPos`, etc.) — zero misses beyond the one
+enum gap the kickoff prompt already flagged.
+
+**`LINE_TYPE.LT_FIRE_GROUND` resolved as "genuinely new engine feature,"
+not "dormant."** Checked both halves the kickoff prompt asked for:
+
+- **Lua**: June2017's own `Enum.lua` defines `LINE_TYPE` with `LT_JUMP_DOWN = 11`
+  and `LT_FIRE_GROUND = 12` immediately after `LT_CLIFF = 10` — March2014's own
+  top value. The two new members continue the sequence rather than filling a
+  gap inside it, which is what "added later" looks like, not "renumbered" or
+  "always there but unused."
+- **C++**: `KTDXLIB/KTDGLineMap.h`'s `LINE_TYPE` enum (line 40) independently
+  confirms this — it also ends at `LT_CLIFF`, with no member for either new
+  value, and `KTDGLineMap.cpp`'s line-type `switch` statements (the
+  `LT_UNIT_ROAD` cases at lines 794/865/924/1570/1655/1760, all of them) have
+  no `case` for `LT_FIRE_GROUND` anywhere. This is the first phase in the plan
+  to actually check the engine gap table's claims against `X2Lib`/`KTDXLIB`
+  source rather than only against `Enum.lua` — worth doing for the remaining
+  7 gaps too, when their phases come up, rather than assuming all 8 are the
+  same shape.
+
+Resolved by changing that one line's `LINE_TYPE` from
+`LINE_TYPE.LT_FIRE_GROUND` to `LINE_TYPE.LT_NORMAL`, documented inline with a
+`SERV_IRUHADEV_RANOX_PORT` comment (RANOX_PORT_PLAN.md's now-established
+convention). The line segment stays walkable — it's the 23rd of 27 lines
+crossing the arena's lava-side platform — just without whatever hazard
+behavior (presumably periodic burn damage) the real feature would have given
+it. **`CAN_DOWN = FALSE`, the other unusual field on that same line entry, is
+unrelated and was kept as-is**: it's a pre-existing, already-bound field
+(`KTDXLIB/KTDGLineMap.cpp:221`, `KncWX2Server/GameClient/Lib/KTDGLineMap.cpp:102`,
+both `LUA_GET_VALUE(..., "CAN_DOWN", pLineData->bCanDown, true)`), read
+independently of `LINE_TYPE` — confirmed before assuming the two fields were
+part of the same missing feature.
+
+**This phase's own kickoff prompt was wrong about needing a
+`BattleFieldData.lua` patch — same class of self-correction as Phase 10's
+finding on its own kickoff prompt.** Checked both clients' decompiled
+`BattleFieldData.lua` for any PVP-related entry (grepped for every PVP/GateWay
+`WORLD_ID` this map uses, and for the string `"pvp"` case-insensitively) —
+zero hits in either March2014's or June2017's copy. Confirmed instead, by
+reading how March2014's own `pvp_winter_Velder.lua` is registered, that PVP
+arena maps only need two things: a `g_pWorldManager:AddWorldData` entry (so
+`CX2WorldManager::CreateWorld` can find the scene file — added to
+`march2014/data040/WorldData.lua`, in a new phase-tagged block right after
+Phase 10's own, which had explicitly deferred this exact `WORLD_ID`) and a
+`PVP_MAP_LIST` row (the map-select UI — added to
+`march2014/data036/PVP_Map_List.lua`, transcribed verbatim from June2017's own
+file, immediately before its `WI_ELYSION_FIELD_PVPMAP` entry, which is not
+ported). `BattleFieldData.lua` itself is untouched this phase — `git status`
+confirms no diff against Phase 10's own copy.
+
+**One forward-reference to Elysion, the same out-of-scope-chapter class Phase
+10 already flagged twice**: June2017's `PVP_Map_List.lua` carries a
+`WI_ELYSION_FIELD_PVPMAP` row (`MAP_SELECT_ELISION`) directly after Ranox's
+own — omitted, not ported, documented inline in the patch.
+
+**`STR_ID` range flag carried forward, not re-closed**: this entry's
+`m_MapName`/`m_MapDesc` (`STR_ID_44260`/`44261`) are higher than every band
+Phases 5–8 already flagged (`STR_ID_337xx`/`386xx`/`437xx`) — March2014's own
+`data036/StringTable.lua` is still bytecode, still unchecked. Cosmetic only if
+unresolved (blank map name/description in the PVP map-select screen).
+
+**Verification performed**: `compile-batch -v mar-2014` succeeded on all 4
+files (the 2 new scene files plus both registry patches) individually and
+together; the scene file round-trips byte-identical to June2017's source
+(`compile` → `decompile`, diffed); the LineMap file's compiled-then-decompiled
+form was checked line-by-line to confirm `LT_FIRE_GROUND` appears nowhere in
+the live code (only in the explanatory comment) and all 27 lines resolve to
+`LT_NORMAL`. `git diff --stat` on `march2014/data040/WorldData.lua` confirms
+the patch is purely additive (21 insertions, 0 deletions).
+
+**`LT_NORMAL` isn't just a reasonable substitute, it's the engine's own
+default for this exact situation.** `KTDGLineMap.cpp:212`'s
+`LUA_GET_VALUE_ENUM( luaManager, "LINE_TYPE", pLineData->lineType, LINE_TYPE, LT_NORMAL )`
+falls back to `LT_NORMAL` whenever the Lua field is absent or `nil` — which is
+exactly what `LINE_TYPE.LT_FIRE_GROUND` would have evaluated to at runtime if
+left as-is (indexing a nonexistent key in March2014's `LINE_TYPE` table is
+legal Lua, returns `nil`, and `compile-batch` would have accepted it silently
+— it's a bytecode compiler, not the game engine, so this gap would not have
+surfaced as a build failure). Writing `LT_NORMAL` explicitly, rather than
+leaving the reference dangling and trusting the fallback, is still the right
+call — an explicit, documented value survives being read in isolation, while
+a silent `nil` only resolves correctly by accident of this one macro's
+default and would look like an oversight to the next person reading the file.
+
+**One new asset dependency this phase's own file introduced, flagged for
+Phase 13 rather than left to fall through its sweep**: `PVP_Map_List.lua`'s
+new row uses `m_MapTexName = "DLG_New_PVP_Image09.dds"` — a texture that
+doesn't exist anywhere in March2014 (`PVP_Map_List` there tops out at
+`Image05.dds`). Found in June2017's tree at `data215_kom/DLG_New_PVP_Image09.dds`
+— an archive number Phase 13's asset-sweep list (and its own Appendix A
+inventory) didn't previously name, since neither predates this phase's own
+`PVP_Map_List.lua` patch. Added to both Phase 13's file list and Appendix A
+above so it isn't missed.
+
+---
+
 ### Phase 12 — Remaining UI + deferred/optional content
 
 **Remaining UI** (not yet ported by an earlier phase):
@@ -2284,7 +2395,10 @@ can't self-resolve.
    standalone `data002_kom` (Secret-boss diorama assets),
    `data036_kom/Ranox.xml`, `eventscene/npc_ranox_png.swf`,
    `eventscene/ranox.swf`, `movie/movie_ranox_clear.avi` (see Appendix A for
-   the full per-archive counts).
+   the full per-archive counts), **plus `data215_kom/DLG_New_PVP_Image09.dds`**
+   — the map-select texture Phase 11's `PVP_Map_List.lua` patch references
+   (`m_MapTexName`), found this phase, not part of the original inventory
+   below; without it that entry's UI tile is a missing texture.
 3. **Name** (do not attempt to build) the server-side monster stat/drop
    dependency: list every new `NPC_UNIT_ID` that's a real monster (exclude
    props like chests/gates/chains) and state plainly that neither client has
@@ -2315,7 +2429,9 @@ data153_kom/data181_kom, textures in data057_kom/data130_kom/data023_kom/
 data156_kom/data063_kom/data065_kom, audio in data096_kom/data155_kom/
 data078_kom/music/, the data002_kom Secret-boss diorama assets,
 data036_kom/Ranox.xml, eventscene/npc_ranox_png.swf, eventscene/ranox.swf,
-and movie/movie_ranox_clear.avi. Full per-archive file counts are in
+and movie/movie_ranox_clear.avi, plus data215_kom/DLG_New_PVP_Image09.dds
+(Phase 11's PVP map-select texture, found after this inventory was written --
+see Phase 11 findings). Full per-archive file counts are in
 RANOX_PORT_PLAN.md's Appendix A. (3) Produce a short list of every new
 NPC_UNIT_ID that is a real monster (not a prop like a chest/gate/chain), and
 state clearly that neither client has a per-Ranox-dungeon stat/drop table --
@@ -2505,7 +2621,8 @@ lines), `data155_kom` 62 (voice/audio), `data057_kom` 62 (world-map UI art),
 (ambience audio), `data002_kom` 11 (Secret-boss diorama), `data156_kom` 10,
 `music/` 7 (BGM), `data181_kom` 4, `data063_kom` 4 (raid/field art),
 `eventscene/` 2 (`.swf`), `data065_kom` 2, `movie/` 1 (`.avi`). Plus
-standalone: `data036_kom/Ranox.xml`.
+standalone: `data036_kom/Ranox.xml`, `data215_kom/DLG_New_PVP_Image09.dds`
+(found by Phase 11, not part of this inventory's original count).
 
 ## Appendix B — New `NPC_UNIT_ID`s (135), grouped by dungeon line/field
 
