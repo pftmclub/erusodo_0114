@@ -359,6 +359,109 @@ DLG_Map_Local_Ranox_Icon_NEW.lua to ./march2014/update/data217/ (keep the
 
 ---
 
+### Phase 2 findings (executed 2026-09-18)
+
+**The village→dungeon mechanism, answered.** `Ranox_Village.lua` and
+`Ranox_Village_LineMap.lua` are, as suspected, pure scene geometry — grepping
+both for `NPC|Portal|Gate|WORLD_ID|DUNGEON_ID|CreateNPC|TRIGGER` returns
+nothing (one incidental `WorldLayer_Velder_Gate.tga` texture name in the
+scene file, not a gate object). Checking `Field_Ranox_Stage0.lua` and its
+LineMap the same way also comes up empty, ruling out "the portal is in the
+open field instead." There is no in-world portal or quest-NPC entry point
+anywhere in Ranox's 125-file inventory. The real mechanism is the same
+World Map / Local Map UI overlay every other chapter already uses, assembled
+from three independent pieces, all now landed by this phase:
+
+1. **`MapData:AddLocalMapInfo(LOCAL_MAP_ID.LMI_RANOX, ...)`** (in
+   `march2014/data036/MapData.lua`) is the authoritative list of which
+   `DUNGEON_ID`s are unlockable/enterable for the Ranox region — this is what
+   the server-side/engine dungeon-entry logic actually checks, independent of
+   any UI.
+2. **`DungeonIDList`** in `march2014/update/data217/DLG_Map_Local_Ranox.lua`
+   is the separate, parallel list of which dungeon icons are drawn on the
+   region's local-map screen — a visual/UI list, not a gate. The two lists
+   were ported to agree (both carry BurndedForest/AshesVillage/Geyser/
+   Gateway/FireTemple/FinalHall/Secret Hell, Normal-tier-triggering only).
+3. **`EnterCondition`** in that same file (`RequireUnitLevel = 68`,
+   `RequireClearDungeonID = { DUNGEON_ID.DI_SANDER_BEHIMOSS_HEART_NORMAL }`)
+   is the actual gate on the *region* being reachable from the world map at
+   all — a player has to be level 68 and have cleared Sander's last dungeon
+   before Ranox's entry even appears as clickable, which is also why Sander's
+   own `AddMapData` `AFTER` field was repointed at `VMI_RANOX` in this phase
+   (previously `VMI_NONE`, dead-ending the chapter chain at Sander).
+
+In short: villages in this client are non-interactive backdrops; "walking
+into a dungeon" is a UI fiction. The actual flow is world map → local map
+(gated by `EnterCondition`) → dungeon icon (drawn per `DungeonIDList`,
+enterable per `AddLocalMapInfo`) → room list. No repo-side (C++) change is
+implicated by this — the mechanism is 100% pre-existing engine plumbing that
+every other chapter already exercises; Ranox only needed its own data-table
+rows.
+
+**Enum gap not caught by Phase 1's audit**: `LOCAL_MAP_ID.LMI_RANOX` (needed
+by `MapData:AddLocalMapInfo`, item 1 above) was outside Phase 1's stated
+scope (`NPC_UNIT_ID`/`WORLD_ID`/`VILLAGE_MAP_ID`/`DUNGEON_ID` only) and had no
+entry in `march2014/data036/Enum.lua`. Added inline this phase at June2017's
+own verbatim value, `10008` — confirmed free (March2014's own `LOCAL_MAP_ID`
+table only runs `LMI_RUBEN`..`LMI_SANDER`, `10000`..`10007`).
+
+**File found to be load-bearing but not named in the phase brief**:
+`data034_kom/DLG_Map_Local_Ranox_Back_NEW.lua`. `DLG_Map_Local_Ranox_Icon_NEW.lua`
+is never loaded on its own — `..._Back_NEW.lua` is what `IncludeLua("DLG_Map_Local_Ranox_Icon_NEW.lua")`s
+it in, the same way March2014's own `DLG_Map_Local_Sander_Back_NEW.lua` pulls
+in `..._Sander_Icon_NEW.lua`. Ported to `march2014/update/data034/` (keeping
+data034, matching where its Sander equivalent already lives in this client —
+this file has no data217 counterpart in June2017 either).
+
+**Two documented, deliberate omissions, both `SERV_IRUHADEV_RANOX_PORT`-tagged
+comments in the ported files, neither part of the 8-gap table**:
+
+- `DLG_Map_Local_Ranox_Icon_NEW.lua`'s `g_pStatic_Event_01`/`02` blocks
+  (Halloween "Mission Impossible" title overlays) call
+  `AddDummyInt(DETAIL_LOCAL_TYPE.DLT_EVENT_DUNGEON_TITLE)` — this **is** the
+  already-known `DLT_EVENT_DUNGEON_TITLE` gap from the Findings table,
+  encountered here for the first time chronologically (Phase 9 was where the
+  plan expected it to resurface). Omitted per the plan's own instruction to
+  revisit in Phase 9; the two working "Mission Impossible" dungeon buttons
+  that don't touch the missing enum member (`g_pButton_Event_Dummy01`/`02`,
+  using only `DLT_DUNGEON` and pre-existing March2014 dungeon IDs) were kept.
+- `DLG_Map_Local_Ranox_Back_NEW.lua`'s `g_pStatic_HeroMode_Filter` block is a
+  new-since-March-2014 Hero-mode UI overlay with no engine support to check
+  against (not one of the 8 gaps, since it's not a missing enum member —
+  it's a whole absent feature). Omitted per this document's own "Hero
+  difficulty tier: out of scope by default" call; March2014's own Sander
+  equivalent has no such block either, confirming it postdates this client.
+
+**Verification performed** (beyond `compile-batch -v mar-2014` succeeding on
+all 8 output files, individually and together): every `TABLE.MEMBER`-shaped
+token and every `:Method(`/bare-global-call token used across all 6 new/
+ported files was checked against March2014's own decompiled corpus (its
+`Villeage_Sander`/`Besma_Village`/`ruben_village`/`Velder_village`/
+`Elder_village`/`Altera_Village` scene+LineMap files, and its
+`DLG_UI_FIELD_MAP_Besma_Village_NEW`/`DLG_Map_Local_Sander*` UI files) —
+zero misses once the corpus included a real popup-dialog file (`SetSize`,
+`SetModal`, `SetFront`, `SetEnableMoveByDrag`, `SetDraggingRange*` etc. don't
+appear in the simpler `IncludeLua`-target files, only in a standalone
+`DLG_UI_FIELD_MAP_*` dialog). `IconAni` and `SetNameStrID` (both bare/method
+calls, meaning a missing definition would abort the whole script rather than
+silently read `nil`) were separately confirmed present and used identically
+in March2014's own `DLG_Map_Local_Sander_Icon_NEW.lua`. The three base files
+patched here (`data036/MapData.lua`, `data040/WorldData.lua`,
+`data036/Enum.lua`'s pre-Phase-1 original) were also re-decompiled fresh
+from their `.lua` bytecode into a clean scratch path and diffed
+byte-identical against the `.src.lua` siblings used as this phase's base,
+ruling out contamination from the abandoned prior attempt.
+
+**One additional registration added while in `MapData.lua`**:
+`CheckCOBOExpressTicketMapID` (the paid express-ticket cost lookup) gained an
+`elseif slot0 == VILLAGE_MAP_ID.VMI_RANOX then return 15` branch, matching
+June2017's own value (which continues this build's existing 1-per-chapter
+numbering, `..., VMI_SANDER → 13/14, VMI_RANOX → 15`) verbatim. Ranox's
+battlefield/spa `VILLAGE_MAP_ID` entries are intentionally not added to this
+function yet since those maps aren't ported until later phases.
+
+---
+
 ### Phase 3 — AshesVillage dungeon line (first fully playable dungeon)
 
 **Goal**: the entry-point dungeon line, zero engine gaps — the MVP spine's
