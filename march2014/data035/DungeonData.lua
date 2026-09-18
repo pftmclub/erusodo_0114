@@ -14046,3 +14046,282 @@ g_pDungeonManager:AddDungeonData({
 	ENDING_SPEECH0 = {}
 })
 --}}
+--{{ Iruha : 2026-09-18 // Ranox port Phase 6 -- FireTemple dungeon line, Normal/Hard/Expert only (Hero tier deferred per plan)
+g_pDungeonManager:AddDungeonData({
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_FireTemple_01.tga",
+	m_PieceName = "Ranox_FireTemple",
+	m_MaxLevel = 77,
+	m_MinLevel = 75,
+	dataFileName = "Dungeon_Ranox_FireTemple_Normal.lua",
+	m_NPCLevel = 75,
+	m_RequireItemLevel = 65,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_FireTemple_02.tga",
+	dungeonName = STR_ID_34172,
+	difficulty = DIFFICULTY_LEVEL.DL_NORMAL,
+	dungeonID = DUNGEON_ID.DI_RANOX_FIRETEMPLE_NORMAL,
+	m_DungeonDescription = STR_ID_34168,
+	EXTRA_REQUIRE_DUNGEON_ID = {
+		DUNGEON_ID.DI_RANOX_GATEWAY_NORMAL
+	},
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30360,
+			30361,
+			30362
+		},
+		ELSWORD = {},
+		AISHA = {},
+		RENA = {},
+		RAVEN = {
+			30369
+		},
+		EVE = {
+			30370
+		},
+		CHUNG = {
+			30371
+		},
+		ARA = {
+			30372
+		},
+		ELESIS = {},
+		ADD = {
+			30374
+		},
+		LUCIEL = {},
+		AIN = {
+			30588
+		}
+	},
+	ENDING_SPEECH0 = {
+		ELSWORD = {
+			{
+				STR_ID_34078
+			},
+			{
+				STR_ID_34079
+			},
+			{
+				STR_ID_34080
+			}
+		},
+		AISHA = {
+			{
+				STR_ID_34081
+			},
+			{
+				STR_ID_34082
+			},
+			{
+				STR_ID_34083
+			}
+		},
+		RENA = {
+			{
+				STR_ID_34084
+			},
+			{
+				STR_ID_34085
+			},
+			{
+				STR_ID_34086
+			}
+		},
+		RAVEN = {
+			{
+				STR_ID_34087
+			},
+			{
+				STR_ID_34088
+			},
+			{
+				STR_ID_34089
+			}
+		},
+		EVE = {
+			{
+				STR_ID_34090
+			},
+			{
+				STR_ID_34091
+			},
+			{
+				STR_ID_34092
+			}
+		},
+		CHUNG = {
+			{
+				STR_ID_34093
+			},
+			{
+				STR_ID_34094
+			},
+			{
+				STR_ID_34095
+			}
+		},
+		ARA = {
+			{
+				STR_ID_34137
+			},
+			{
+				STR_ID_34138
+			},
+			{
+				STR_ID_34139
+			}
+		},
+		ELESIS = {
+			{
+				STR_ID_34096
+			},
+			{
+				STR_ID_34097
+			},
+			{
+				STR_ID_34098
+			}
+		},
+		ADD = {
+			{
+				STR_ID_34099
+			},
+			{
+				STR_ID_34100
+			}
+		},
+		LUCIEL = {
+			{
+				LU = STR_ID_34101,
+				CIEL = STR_ID_34104
+			},
+			{
+				LU = STR_ID_34102,
+				CIEL = STR_ID_34105
+			},
+			{
+				LU = STR_ID_34103,
+				CIEL = STR_ID_34106
+			}
+		},
+		ROSE = {
+			{
+				STR_ID_38645
+			},
+			{
+				STR_ID_38646
+			},
+			{
+				STR_ID_38647
+			}
+		},
+		AIN = {
+			{
+				STR_ID_43789
+			}
+		}
+	}
+})
+g_pDungeonManager:AddDungeonData({
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_FireTemple_01.tga",
+	m_PieceName = "Ranox_FireTemple",
+	m_MaxLevel = 77,
+	m_MinLevel = 75,
+	dataFileName = "Dungeon_Ranox_FireTemple_Hard.lua",
+	m_NPCLevel = 75,
+	m_RequireItemLevel = 66,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_FireTemple_02.tga",
+	dungeonName = STR_ID_34172,
+	difficulty = DIFFICULTY_LEVEL.DL_HARD,
+	dungeonID = DUNGEON_ID.DI_RANOX_FIRETEMPLE_HARD,
+	m_DungeonDescription = STR_ID_32316,
+	EXTRA_REQUIRE_DUNGEON_ID = {
+		DUNGEON_ID.DI_RANOX_GATEWAY_NORMAL
+	},
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30360,
+			30361,
+			30362
+		},
+		ELSWORD = {},
+		AISHA = {},
+		RENA = {},
+		RAVEN = {
+			30369
+		},
+		EVE = {
+			30370
+		},
+		CHUNG = {
+			30371
+		},
+		ARA = {
+			30372
+		},
+		ELESIS = {},
+		ADD = {
+			30374
+		},
+		LUCIEL = {},
+		AIN = {
+			30588
+		}
+	},
+	ENDING_SPEECH0 = {}
+})
+g_pDungeonManager:AddDungeonData({
+	MaxAdequateMemberCount = 4,
+	m_PieceName = "Ranox_FireTemple",
+	MinAdequateMemberCount = 1,
+	m_RequireItemLevel = 67,
+	m_MaxLevel = 77,
+	m_NPCLevel = 75,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_FireTemple_02.tga",
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_FireTemple_01.tga",
+	dataFileName = "Dungeon_Ranox_FireTemple_Expert.lua",
+	m_MinLevel = 75,
+	dungeonName = STR_ID_34172,
+	difficulty = DIFFICULTY_LEVEL.DL_EXPERT,
+	FixMaximumDifficulty = TRUE,
+	dungeonID = DUNGEON_ID.DI_RANOX_FIRETEMPLE_EXPERT,
+	m_DungeonDescription = STR_ID_32316,
+	EXTRA_REQUIRE_DUNGEON_ID = {
+		DUNGEON_ID.DI_RANOX_GATEWAY_NORMAL
+	},
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30360,
+			30361,
+			30362
+		},
+		ELSWORD = {},
+		AISHA = {},
+		RENA = {},
+		RAVEN = {
+			30369
+		},
+		EVE = {
+			30370
+		},
+		CHUNG = {
+			30371
+		},
+		ARA = {
+			30372
+		},
+		ELESIS = {},
+		ADD = {
+			30374
+		},
+		LUCIEL = {},
+		AIN = {
+			30588
+		}
+	},
+	ENDING_SPEECH0 = {}
+})
+--}}

@@ -949,6 +949,212 @@ NUI_MOUNT_FIREBIRD, NUI_MOUNT_FIREBIRD_FIRETEMPLE. All new files ->
 
 ---
 
+### Phase 6 findings (executed 2026-09-18)
+
+**All 16 new files landed and compile** (`compile-batch -v mar-2014`, individually
+and together with the patched `DungeonData.lua`): 3 dungeon-difficulty
+containers, 8 stage+LineMap files, and 5 monster/mount unit-definition files.
+`.src.lua` siblings for the 11 dungeon/stage/LineMap files already existed from
+the original bulk-decompile; the 5 unit-definition files (outside that
+125-file inventory, same as every phase since 4) were decompiled fresh this
+phase. All `DI_RANOX_FIRETEMPLE_{NORMAL,HARD,EXPERT}`, `WI_RANOX_FIRETEMPLE_*`,
+and every `NPC_UNIT_ID` this line references (including this phase's five new
+names — `NUI_FIRE_DEVIL_BERSERKER_FIRETEMPLE`, `NUI_FIRE_DEVIL_CHAIN_IPLITAN`,
+`NUI_FIRE_DEVIL_FIGHTER_FIRETEMPLE`, `NUI_MOUNT_FIREBIRD`,
+`NUI_MOUNT_FIREBIRD_FIRETEMPLE` — and Phase 5's shared `NUI_FIRE_DEVIL_*`
+family) were already in `march2014/data036/{Enum,DungeonEnum}.lua` — zero new
+enum-*value* work needed. Reachability was already wired by Phase 2 (both
+`MapData:AddLocalMapInfo` and `DLG_Map_Local_Ranox.lua`'s `DungeonIDList`
+already carry `DI_RANOX_FIRETEMPLE_*`), so `DungeonData.lua` registration
+(ported verbatim from June2017, including `EXTRA_REQUIRE_DUNGEON_ID = {
+DUNGEON_ID.DI_RANOX_GATEWAY_NORMAL }` on all three difficulties — FireTemple
+requires GateWay cleared first, Phase 8, not yet landed; same forward
+reference shape Phase 5 already established is fine to port ahead of its
+dependency landing) was the only registry work this phase needed.
+
+**The two `Ranox_FireTemple_Stage1_LineMap.lua` engine gaps, resolved by
+omission with an added finding beyond what the plan anticipated.** Checked
+both `TRIGGER_ETC_ACTION_TYPE.TAT_ETC_NPC_AI_ON_OFF` and
+`TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TYPE` against the underlying C++,
+not just against Lua enum tables, per this plan's own repo-phase instruction:
+**both are genuinely absent from March2014's C++ enums**, not just unbound
+under another name — `KTDXLIB/KTDGLineMap.h:95-104`'s `TRIGGER_LINE_ACTION_TYPE`
+stops at `TAT_LINE_CHANGE_TELEPORT`, and `:106-113`'s `TRIGGER_ETC_ACTION_TYPE`
+stops at `TAT_ETC_ACTIVE_LAYER` — no dormant support to wire up. **Separately
+found, reading `KTDGLineMap.cpp`'s `AddTrigger_LUA` and
+`KncWX2Server/Common/Lua/KLuaManager.h`'s `LUA_GET_VALUE_ENUM` macro**: a
+missing enum member here would *not* have aborted the file's load even if left
+in verbatim — `TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TYPE` is a plain table
+index into an existing, real Lua table (`TRIGGER_LINE_ACTION_TYPE` itself,
+confirmed present in `march2014/data036/Enum.lua`, just missing this one key),
+which evaluates to `nil` rather than erroring, and `LUA_GET_VALUE_ENUM`
+gracefully defaults a failed/nil read to `TAT_LINE_NONE`/`TAT_ETC_NONE`. This
+is a different (safer) gap shape than the method-call gaps Phases 4/5 found,
+which do abort on a call to a genuinely unbound method. Despite that, the
+omission was still made explicit and documented rather than left implicit, to
+match this port's established convention and keep the gap auditable: removed
+`TRIGGER_DATA_LINE1/2/3` (the three `TAT_LINE_CHANGE_TYPE` entries, both
+occurrences of the pattern, on `TRIGGER_ID` 0 and 1) and `TRIGGER_DATA_ETC2`
+(the `TAT_ETC_NPC_AI_ON_OFF` entry, same two `TRIGGER_ID`s) entirely, and
+emptied `TRIGGER_ID` 2 and 3's `TRIGGER_DATA0` to `{}` since their sole
+content was this same NPC-AI-toggle action — both triggers are kept (still
+referenced by index elsewhere in the file) but now fire as no-ops. Net effect:
+the scripted line-type reclassification on lines 11/12/13/33/34/35 and the
+NPC-AI on/off toggle cues (4 trigger fires) don't happen; every other trigger
+sub-action in this file (mesh animation swaps, line enable/disable, camera
+shake, ambient sound) is untouched and verified present in
+`march2014/data036/Enum.lua`. Verified via a sorted-multiset diff against
+June2017's own decompile that these omissions are the *only* content
+difference (beyond the plan's already-documented benign table-key-reordering
+artifact) — nothing else in the file's ~650 lines was altered. Flagged inline
+(`SERV_IRUHADEV_RANOX_PORT`-tagged) for the repo/engine integration phase
+group, same convention as every prior phase's omissions.
+
+**Three more unbound-method gaps found in this phase's own unit-definition
+files, outside the Findings' 8-gap table** (same class every phase since 4 has
+found — files outside the original 125-file Appendix A inventory need their
+own audit). All three are confined to `FIRE_DEVIL_CHAIN_IPLITAN.lua` (the
+boss); the other 4 new unit-def files
+(`FIRE_DEVIL_BERSERKER_FIRETEMPLE`/`FIRE_DEVIL_FIGHTER_FIRETEMPLE`/
+`MOUNT_FIREBIRD`/`MOUNT_FIREBIRD_FIRETEMPLE`) came back clean on both the
+enum-table-existence and method-binding audits and were ported 100% verbatim.
+Each is `SERV_IRUHADEV_RANOX_PORT`-tagged inline:
+
+- `SetActiveTrigger_LUA` (2 occurrences) — arms a LineMap trigger by index from
+  the boss's own state handlers (once on its start state ending, once mid-fight
+  before a special attack). Not bound anywhere in `X2Lib`/`KTDXLIB` (not just
+  unbound — not declared at all, checked both trees). First occurrence sits
+  alongside three bound `SetFlag_LUA`/`SetVector_LUA` calls that are kept; the
+  second occurrence was the sole content (with `InitStateCoolTime`, next
+  bullet) of its handler, which is now an empty no-op.
+- `InitStateCoolTime` — same already-documented-elsewhere gap as Phase 4's
+  `RAGE_DRYADKENTA.lua` and Phase 5's `FIRE_DEVIL_SKA.lua`; paired with the
+  second `SetActiveTrigger_LUA` call above as this state's entire body.
+- `DeleteNonControlDebuff` — a debuff-clear call alongside a bound
+  `SetFlag_LUA` call (kept) at the start of an attack-event state. Not bound
+  anywhere in `X2Lib`/`KTDXLIB`.
+
+**Verification performed**: all 17 files (16 new + the patched registry file)
+individually `compile-batch -v mar-2014` clean, then re-verified together in
+one batch invocation after all edits landed. A compile→decompile round-trip
+on the edited `Ranox_FireTemple_Stage1_LineMap.lua` (via the sorted-multiset
+diff described above) confirmed the only differences from June2017's own
+source are the documented omissions. The enum-table/member audit for this
+phase's 5 new unit-definition files (48 distinct `TABLE.MEMBER` tokens) found
+one false positive worth noting for future phases: `INIT_PHYSIC.{JUMP_SPEED,
+RUN_SPEED,WALK_SPEED}` is not a global `Enum.lua` table reference at all — it's
+a local table literal (`INIT_PHYSIC = { JUMP_SPEED = ..., ... }`) defined
+earlier in the same file and indexed from within it. A naive `TABLE.MEMBER`
+grep flags this as a missing global; check for a same-file local definition
+before concluding a table is absent from `Enum.lua`. The method-binding audit
+(25 distinct `:Method(` calls across the 5 files) was checked against a fresh
+scrape of `class_def<...>` bindings from `X2Lib`/`KTDXLIB` (1309 unique names
+this session's scrape found — a different count than Phase 5's 1385, most
+likely the same multi-line-`class_def`-call underscan Phase 5's own note
+already flagged as a risk, not evidence of a shrinking bind surface; the three
+gaps above were independently confirmed absent by name via a direct
+whole-tree `grep`, not just by missing from the scrape, so this discrepancy
+doesn't put their disposition in question).
+
+**Windows path-length note for whoever runs `compile-batch` next**: this
+session's default scratchpad path (nested under
+`AppData\Local\Temp\claude\<long project-derived name>\<uuid>\scratchpad\`)
+combined with a `.luac.tmp` output filename hit exactly 260 characters and
+made `elstools.exe compile-batch` fail with a `luajit: ...: No such file or
+directory` on roughly every other file in a batch (alternating pass/fail by
+index, not by file content — a red herring worth not chasing as a content bug
+first). Copying the same files to a short path (`C:\tmp\...`) before compiling
+fixed it immediately for every file, gap-edited or not. Not specific to this
+phase's files — worth remembering for any future phase's own verification
+pass, especially once a phase's working set is large enough that the default
+scratch path's length becomes the binding constraint rather than content.
+
+**Major addendum, found post-review: a third registry this plan's Output
+Convention section never named, and it's load-bearing — `NPCTemplet.lua`
+(`data037`).** `g_pUnitManager:AddNPCTemplet({ NPC_ID = NPC_UNIT_ID.NUI_X,
+LUA_FILE_NAME = "X.lua", ... })` is what actually tells the client which
+script file to run for a given `NPC_UNIT_ID` — confirmed by reading
+`CX2UnitManager::AddNPCTemplet_LUA` (`X2Lib/X2UnitManager.cpp:621`, reads
+`LUA_FILE_NAME` into `m_LuaFileName`) and its only two consumers,
+`X2Lib/X2GUNPC.cpp:1735` and `:1864` (`CX2GUNPC`'s constructor uses
+`m_templet.m_LuaFileName` to actually load the unit's script). **A ported
+unit-definition file with no `AddNPCTemplet` entry exists on disk but is never
+loaded for its `NPC_UNIT_ID` — the same class of silent gap this plan's own
+Findings section warns about for `MASS_FILE_FIRST`/loose-file precedence, just
+in a different registry.** This phase adds it retroactively for its own 10
+FireTemple-referenced NPCs (`NUI_MOUNT_GATE`, `NUI_FIRE_DEVIL_BERSERKER`,
+`NUI_FIRE_DEVIL_SNIKER`, `NUI_FIRE_DEVIL_JIN`, `NUI_FIRE_DEVIL_IN`,
+`NUI_FIRE_DEVIL_CHAIN_IPLITAN`, `NUI_FIRETEMPLE_GATE`,
+`NUI_FIRE_DEVIL_FIGHTER_FIRETEMPLE`, `NUI_FIRE_DEVIL_BERSERKER_FIRETEMPLE`,
+`NUI_MOUNT_FIREBIRD_FIRETEMPLE`) plus `NUI_MOUNT_FIREBIRD` (plain — unused by
+FireTemple's own content, confirmed by exhaustive grep, but its unit-def file
+was ported this phase per the plan's own file list and Phase 8 reuses it), to
+`march2014/data037/NPCTemplet.lua` — all 11 entries copied verbatim from
+June2017's own `data037_kom/NPCTemplet.lua` (`MOTION`/`NAME`/`DESC` text
+included), each confirmed appearing exactly once there and not colliding with
+any of the base file's existing ~2100 entries. Verified compiles clean
+(`compile-batch -v mar-2014`) and that the first 16929 lines are byte-identical
+to a fresh decompile of March2014's own original file (i.e. purely additive).
+This is an existing March2014 file being patched in place, so it follows
+Output Convention rule 1 (`march2014/data037/NPCTemplet.lua`) even though the
+convention section's explicit file list didn't name it — that list should be
+treated as incomplete, not exhaustive; add `NPCTemplet.lua` to it.
+
+**This same gap almost certainly affects every monster/object `NPC_UNIT_ID`
+ported by Phases 3, 4, and 5 too** — none of their findings mention
+`NPCTemplet.lua`, and this phase's own kickoff prompt didn't know to ask for
+it either. This wasn't re-derived or fixed for those phases here (out of
+scope for "port the FireTemple line" — would mean auditing and patching
+`NPCTemplet.lua` for AshesVillage's 11, BurnedForest's 10, and FinalHall's 23
+`NPC_UNIT_ID`s, none of which this phase touched). **Recommend a dedicated
+catch-up pass — either its own phase or folded into whichever phase runs
+next — that greps every already-ported `update/data037/*.lua` filename
+against `march2014/data037/NPCTemplet.lua` and files an `AddNPCTemplet` entry
+for any that are missing, the same way this phase just did for its own 11.**
+Until that lands, AshesVillage/BurnedForest/FinalHall's monsters exist as
+files but their NPCs cannot actually spawn with working AI/behavior in-game.
+
+**Three smaller findings-completeness notes, none blocking:**
+
+- `Dungeon_Ranox_FireTemple_Hard.lua` and `_Expert.lua` are byte-identical in
+  June2017's own source (confirmed via `diff`, and both compile to the same
+  8097 bytes) — ported verbatim per this plan's "transcribe, don't tidy" rule,
+  noted explicitly here rather than left to look like an accidental duplicate.
+- `Dungeon_Ranox_FireTemple_Normal.lua`'s `STAGE0.SUB_STAGE0` has three
+  consecutive `NPC_REWARD_RATE = { ... }` table-constructor assignments (one
+  each for `NUI_FIRE_DEVIL_FIGHTER_FIRETEMPLE`, `NUI_FIRE_DEVIL_BERSERKER_FIRETEMPLE`,
+  `NUI_FIRE_DEVIL_SNIKER`) — Lua's last-assignment-wins for a duplicate table
+  key, so only the last of the three is ever live. This is June2017's own data
+  (ported verbatim, correctly, per "transcribe don't tidy"), but it also means
+  this plan's tooling-section claim that table-key *reordering* is
+  "semantically inert for named-key table literals" doesn't extend to
+  duplicate keys — a decompile→recompile round-trip on a file with this
+  pattern is only guaranteed to preserve whichever duplicate the decompiler
+  happened to emit last, not necessarily the original bytecode's winner. Not
+  chased further (verbatim is correct either way; the *client's own* file
+  already has this property), but worth a future phase knowing about if a
+  reward-rate value looks wrong after a round-trip.
+- FireTemple's `STR_ID_34168`/`34172` and speech-block IDs (`34078`-`34106`,
+  `34137`-`34139`, `38645`-`38647`, `43789`) fall in the same unverified range
+  Phase 5 flagged (`STR_ID_341xx`/`386xx`/`437xx`, above what Phases 3/4 used)
+  — March2014's `data036/StringTable.lua` still hasn't been decompiled to
+  confirm these resolve to real strings. Carrying Phase 5's open flag forward
+  rather than re-closing it. Cosmetic only if unresolved (blank text, no
+  crash).
+
+**Appendix B correction**: its FIRETEMPLE bucket (12 names) includes
+`NUI_FIRE_DEVIL_FIGHTER` (plain, non-`_FIRETEMPLE`-suffixed) alongside
+`NUI_FIRE_DEVIL_FIGHTER_FIRETEMPLE`. Exhaustive grep of every file this phase
+ported (dungeon defs, stage/LineMap files, and all 5 new unit-def files) found
+zero references to plain `NUI_FIRE_DEVIL_FIGHTER` anywhere in FireTemple's own
+content — it's a real, already-ported `NPC_UNIT_ID` (Phase 5, for FinalHall)
+that Appendix B's loose "shared family" grouping over-attributed to this line
+too. No action needed here since FireTemple doesn't spawn it, but noting the
+bucket is approximate, not a second source to double-check against for future
+phases' own completeness claims.
+
+---
+
 ### Phase 7 — Geyser line (has 3 engine gaps)
 
 3 engine gaps, all in `Ranox_Geyser_stage0_linemap.lua` (note the source's
