@@ -2978,3 +2978,44 @@ g_pWorldManager:AddWorldData({
 	worldID = WORLD_ID.WI_RANOX_SECRET_EXTRA_BOSS_STAGE
 })
 --}}
+--{{ Iruha : 2026-09-19 // Ranox port Phase 10 -- WORLD_ID -> dataFileName for
+-- the 4 open fields + their shared rest hub. Phase 9's own catch-up block
+-- above explicitly left these 5 out ("Field/Spa/PVP WORLD_IDs ... are NOT
+-- included -- those belong to Phases 10/11/12"); this closes that gap for
+-- the field WORLD_IDs. dataFileName values transcribed verbatim from
+-- June2017's own WorldData.lua. June2017's WI_BATTLE_FIELD_RANOX_FIELD_REST_00
+-- entry also carries a dataFileName_Festival = "Field_Ranox_rest_Festival.lua"
+-- field, dropped here the same way Phase 2 dropped WI_VILLAGE_RANOX's own
+-- dataFileName_Festival/dataFileName_CodeEvent fields -- that file is
+-- deferred (Phase 12), not ported, so pointing to it here would dangle.
+-- Actual field registration (NPC_TABLE_FILE_NAME, LINE_MAP_FILE_NAME,
+-- BATTLE_FIELD_ID, portal info) lives in BattleFieldData.lua, not here --
+-- see that file's own Phase 10 patch. This block only lets
+-- CX2WorldManager::CreateWorld(WORLD_ID) find a scene file for each of these
+-- 4 field WORLD_IDs at all.
+g_pWorldManager:AddWorldData({
+	worldName = "WI_BATTLE_FIELD_RANOX_FIELD_00",
+	dataFileName = "Field_Ranox_Stage0.lua",
+	worldID = WORLD_ID.WI_BATTLE_FIELD_RANOX_FIELD_00
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_BATTLE_FIELD_RANOX_FIELD_01",
+	dataFileName = "Field_Ranox_Stage1.lua",
+	worldID = WORLD_ID.WI_BATTLE_FIELD_RANOX_FIELD_01
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_BATTLE_FIELD_RANOX_FIELD_REST_00",
+	dataFileName = "Field_Ranox_rest.lua",
+	worldID = WORLD_ID.WI_BATTLE_FIELD_RANOX_FIELD_REST_00
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_BATTLE_FIELD_RANOX_FIELD_02",
+	dataFileName = "Field_Ranox_Stage2.lua",
+	worldID = WORLD_ID.WI_BATTLE_FIELD_RANOX_FIELD_02
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_BATTLE_FIELD_RANOX_FIELD_03",
+	dataFileName = "Field_Ranox_Stage3.lua",
+	worldID = WORLD_ID.WI_BATTLE_FIELD_RANOX_FIELD_03
+})
+--}}

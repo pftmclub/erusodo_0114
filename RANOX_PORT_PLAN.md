@@ -2097,6 +2097,87 @@ file to ./march2014/data040/WorldData.lua.
 
 ---
 
+### Phase 10 findings (executed 2026-09-19)
+
+**All 55 files landed and compile** (`compile-batch -v mar-2014`, individually
+and together): 4 spawner scripts (`Ranox_Field_00-03.lua`), 8 stage+LineMap
+files plus the rest hub and its LineMap (10 files total), 33 monster/object
+unit-def files for the `NUI_LOW_*_FD` family, 6 story-NPC/event unit-def
+files (`UI_EDEL`, `UI_FACEOFF`, `UI_IGNIA`, `UI_STEEL`, `UI_SYOTA`,
+`UI_MUL_MAI`), and 2 patched registry files. All `NPC_UNIT_ID`s this phase
+needed were already in `march2014/data036/Enum.lua` from Phase 1 — zero new
+enum-value work needed.
+
+**The kickoff prompt's own premise was wrong: a separate FieldData registry
+does exist.** It's `march2014/data036/BattleFieldData.lua`
+(`g_pBattleFieldManager:AddBattleFieldData({...})`), not a section of
+`WorldData.lua` — confirmed by decompiling March2014's own copy and finding
+the existing Ruben/Elder/Besma/Velder field entries there, each carrying
+`NPC_TABLE_FILE_NAME` (the spawner script), `LINE_MAP_FILE_NAME`,
+`BATTLE_FIELD_ID`, `WORLD_ID`, and portal-moving info. `WorldData.lua` only
+maps `WORLD_ID` to a scene `dataFileName` — that part of the kickoff prompt's
+instruction was followed too (Phase 9's own catch-up block had explicitly
+left the 5 field/rest `WORLD_ID`s out, "belong to Phases 10/11/12"), but it
+is not where a field becomes enterable with monsters in it. Both files were
+patched this phase: `march2014/data036/BattleFieldData.lua` (new — March2014
+had no prior Ranox content there) gained 4 `AddBattleFieldData` entries (one
+per field; the rest hub gets no entry of its own, matching every other
+region's rest hub in this client — confirmed by checking Elder/Besma/Ruben's
+own rest areas, none of which have a `BATTLE_FIELD_ID` either), and
+`march2014/data040/WorldData.lua` gained the 5 `AddWorldData` entries Phase 9
+deferred.
+
+**Two forward-references to the next content chapter (Elysion, unported and
+out of this whole port's scope), found only by reading past the fields'
+own portal/boss tables into their trailing keys — not caught by the
+Findings section's 8-gap table, which only audited Appendix A's 125-file
+dungeon/stage/LineMap inventory and never looked at `BattleFieldData.lua`:**
+
+- Field_03's (`WI_BATTLE_FIELD_RANOX_FIELD_03`) own
+  `BATTLE_FIELD_PORTAL_MOVING_INFO` has a second portal continuing forward to
+  `VILLAGE_MAP_ID.VMI_BATTLE_FIELD_ELYSION_REST_00` — confirmed absent from
+  this client's `Enum.lua` by direct grep. Same gap class as
+  `LINE_TYPE.LT_FIRE_GROUND` (Phase 11): omitted just that one portal entry,
+  kept the other (back to Field_03 itself), so the field stays enterable and
+  exitable, just without an exit past the currently-ported chapter.
+- The same entry's `BATTLE_FIELD_DIRECTION_INFO` block
+  (`NEED_ONGOING_QUEST_ID = 22218`, `DIRECTION_NPC_ID` naming
+  `NUI_ELSION_EVENT_00`/`01`) was omitted in full — not a missing enum member
+  on an otherwise-valid table shape, but a whole table key that appears
+  nowhere else in this client's own `BattleFieldData.lua` at all (checked by
+  grep), tied to Elysion's own quest and NPC IDs (also absent from
+  `Enum.lua`). Same "whole absent feature" class as Phase 2's Hero-mode
+  filter omission.
+
+**One method-binding gap, in exactly the shape Phase 4 established the audit
+technique for, hit twice.** `LOW_GEYSER_ALUMINUM_FD_BOSS.lua` and
+`LOW_SMITH_ALUMINUM_FD_BOSS.lua` (the FD-tier variants of monster families
+already ported in Phases 3 and 7) both carry the same
+`slot2:GetStoredGUUser()` fallback already found and fixed in
+`SMITH_ALUMINUM.lua` (Phase 3) and `GEYSER_ALUMINUM.lua` (Phase 7) — not
+bound in this client. Fixed the same way: the call is omitted, `slot3` stays
+`nil` in the no-target case, and the reorientation block that follows is
+skipped rather than falling back to a stale stored target. All other 81
+distinct method calls across every new file in this phase (82 total,
+including `GetStoredGUUser` itself) were checked against the existing corpus
+and are all common, already-used methods.
+
+**Verification performed**: every `TABLE.MEMBER`-shaped token across all 55
+files (spawners, stage/LineMap/rest scenes, all 39 unit-def files, both
+registry patches) was checked against `march2014/data036/Enum.lua` and
+`DungeonEnum.lua`, including `BUFF_FACTOR_ID` and every other non-`NPC_UNIT_ID`
+table this time, not just the four tables Phase 1 scoped (per Phase 4's own
+note that this class of gap needs checking on every phase) — zero misses
+beyond the two documented Elysion forward-references above, both of which
+are genuine out-of-scope forward references rather than something this port
+could resolve. `git diff --stat` on `march2014/data040/WorldData.lua`
+confirms the patch is purely additive (41 insertions, 0 deletions); the
+other 3 enum/registry files this phase read but did not modify
+(`Enum.lua`, `DungeonEnum.lua`, `EnumString.lua`, `MapData.lua`) show no
+changes in `git status`.
+
+---
+
 ### Phase 11 — PVP GateWay map
 
 **Source → Target**:
