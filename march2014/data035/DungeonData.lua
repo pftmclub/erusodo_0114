@@ -14505,3 +14505,234 @@ g_pDungeonManager:AddDungeonData({
 })
 
 --}}
+--{{ Iruha : 2026-09-18 // Ranox port Phase 8 -- GateWay dungeon line, Normal/Hard/Expert only (Hero tier deferred per plan)
+g_pDungeonManager:AddDungeonData({
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_Ranox_GateWay1.tga",
+	m_PieceName = "Ranox_Gateway",
+	m_MaxLevel = 75,
+	m_MinLevel = 73,
+	dataFileName = "Dungeon_Ranox_Gateway_Normal.lua",
+	m_NPCLevel = 73,
+	m_RequireItemLevel = 63,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_Ranox_GateWay2.tga",
+	dungeonName = STR_ID_33776,
+	difficulty = DIFFICULTY_LEVEL.DL_NORMAL,
+	dungeonID = DUNGEON_ID.DI_RANOX_GATEWAY_NORMAL,
+	m_DungeonDescription = STR_ID_33774,
+	EXTRA_REQUIRE_DUNGEON_ID = {
+		DUNGEON_ID.DI_RANOX_GEYSER_NORMAL
+	},
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30357,
+			30358,
+			30359
+		},
+		RAVEN = {},
+		EVE = {},
+		CHUNG = {},
+		ARA = {},
+		ADD = {}
+	},
+	ENDING_SPEECH0 = {
+		ELSWORD = {
+			{
+				STR_ID_33802
+			},
+			{
+				STR_ID_33803
+			}
+		},
+		AISHA = {
+			{
+				STR_ID_33804
+			},
+			{
+				STR_ID_33805
+			}
+		},
+		RENA = {
+			{
+				STR_ID_33806
+			},
+			{
+				STR_ID_33807
+			}
+		},
+		RAVEN = {
+			{
+				STR_ID_33808
+			},
+			{
+				STR_ID_33809
+			}
+		},
+		EVE = {
+			{
+				STR_ID_33810
+			},
+			{
+				STR_ID_33811
+			}
+		},
+		CHUNG = {
+			{
+				STR_ID_33812
+			},
+			{
+				STR_ID_33813
+			}
+		},
+		ARA = {
+			{
+				STR_ID_33814
+			},
+			{
+				STR_ID_33815
+			}
+		},
+		ELESIS = {
+			{
+				STR_ID_33816
+			},
+			{
+				STR_ID_33817
+			}
+		},
+		ADD = {
+			{
+				STR_ID_33818
+			},
+			{
+				STR_ID_33819
+			}
+		},
+		LUCIEL = {
+			{
+				LU = STR_ID_33820,
+				CIEL = STR_ID_33822
+			},
+			{
+				LU = STR_ID_33821,
+				CIEL = STR_ID_33823
+			}
+		},
+		ROSE = {
+			{
+				STR_ID_38643
+			},
+			{
+				STR_ID_38644
+			}
+		},
+		AIN = {
+			{
+				STR_ID_43788
+			}
+		}
+	}
+})
+g_pDungeonManager:AddDungeonData({
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_Ranox_GateWay1.tga",
+	m_PieceName = "Ranox_Gateway",
+	m_MaxLevel = 75,
+	m_MinLevel = 73,
+	dataFileName = "Dungeon_Ranox_Gateway_Hard.lua",
+	m_NPCLevel = 74,
+	m_RequireItemLevel = 64,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_Ranox_GateWay2.tga",
+	dungeonName = STR_ID_33776,
+	difficulty = DIFFICULTY_LEVEL.DL_HARD,
+	dungeonID = DUNGEON_ID.DI_RANOX_GATEWAY_HARD,
+	m_DungeonDescription = STR_ID_33774,
+	EXTRA_REQUIRE_DUNGEON_ID = {
+		DUNGEON_ID.DI_RANOX_GEYSER_NORMAL
+	},
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30357,
+			30358,
+			30359
+		},
+		ELSWORD = {
+			30366
+		},
+		AISHA = {
+			30367
+		},
+		RENA = {
+			30368
+		},
+		RAVEN = {},
+		EVE = {},
+		CHUNG = {},
+		ARA = {},
+		ELESIS = {
+			30373
+		},
+		ADD = {},
+		LUCIEL = {
+			30375
+		},
+		ROSE = {
+			30536
+		}
+	},
+	ENDING_SPEECH0 = {}
+})
+g_pDungeonManager:AddDungeonData({
+	MaxAdequateMemberCount = 4,
+	m_PieceName = "Ranox_Gateway",
+	MinAdequateMemberCount = 1,
+	m_RequireItemLevel = 65,
+	m_MaxLevel = 75,
+	m_NPCLevel = 75,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_Ranox_GateWay2.tga",
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_Ranox_GateWay1.tga",
+	dataFileName = "Dungeon_Ranox_Gateway_Expert.lua",
+	m_MinLevel = 73,
+	dungeonName = STR_ID_33776,
+	difficulty = DIFFICULTY_LEVEL.DL_EXPERT,
+	FixMaximumDifficulty = TRUE,
+	dungeonID = DUNGEON_ID.DI_RANOX_GATEWAY_EXPERT,
+	m_DungeonDescription = STR_ID_33774,
+	EXTRA_REQUIRE_DUNGEON_ID = {
+		DUNGEON_ID.DI_RANOX_GEYSER_NORMAL
+	},
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30357,
+			30358,
+			30359
+		},
+		ELSWORD = {
+			30366
+		},
+		AISHA = {
+			30367
+		},
+		RENA = {
+			30368
+		},
+		RAVEN = {},
+		EVE = {},
+		CHUNG = {},
+		ARA = {},
+		ELESIS = {
+			30373
+		},
+		ADD = {},
+		LUCIEL = {
+			30375
+		},
+		ROSE = {
+			30536
+		}
+	},
+	ENDING_SPEECH0 = {}
+})
+
+--}}

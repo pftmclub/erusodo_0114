@@ -2753,3 +2753,49 @@ g_pWorldManager:AddWorldData({
 	dataFileName = "Field_BossRaid_Valley_Of_Abyss",
 	worldID = WORLD_ID.WI_FIELD_BOSSRAID_VALLEY_OF_ABYSS
 })
+--{{ Iruha : 2026-09-18 // Ranox port Phase 8 -- WORLD_ID -> dataFileName registration
+-- for the GateWay line's 4 stage worlds. Without an entry here,
+-- CX2WorldManager::CreateWorld(WORLD_ID) (X2Lib/X2WorldManager.cpp) has no
+-- dataFileName to open for that WORLD_ID at all -- confirmed by reading
+-- CreateWorld/AddWorldData_LUA/GetWorldData, the same "exists on disk but is
+-- never loaded for its ID" gap class Phase 6 first found for NPCTemplet.lua,
+-- just for scene files instead of NPC unit files. Phase 2 already registered
+-- WI_VILLAGE_RANOX (see above) the same way, so the convention was known --
+-- it was simply never applied to any dungeon line's stage worlds since.
+-- IMPORTANT, not chased further here: AshesVillage/BurnedForest/FinalHall/
+-- FireTemple/Geyser's own stage WORLD_IDs (Phases 3-7) are equally
+-- unregistered in this file -- none of those phases' findings mention
+-- WorldData.lua, and this phase only closes the gap for the 4 names it
+-- itself needs. All 5 of those lines' dungeons are non-functional in-game
+-- until a dedicated catch-up pass adds their entries too (same shape as
+-- Phase 6/7's still-open NPCTemplet.lua catch-up for Phases 3/4).
+-- dataFileName below is transcribed verbatim from June2017's own WorldData.lua,
+-- which spells it "Ranox_Gateway_Stage0.lua" (lowercase "way") even though the
+-- actual scene file on disk (ported this phase) is "Ranox_GateWay_Stage0.lua"
+-- ("GateWay" -- see the plan's own note on this line's inconsistent
+-- capitalization). Kept as shipped rather than "corrected" per this port's
+-- "transcribe, don't tidy" rule; KGCMassFileManager's file lookups are
+-- expected to be case-insensitive like the rest of this archive format, so
+-- this should resolve correctly, but it's unverified against this repo's own
+-- lookup code and worth flagging if this specific line ever fails to load.
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_GATEWAY_STAGE0",
+	dataFileName = "Ranox_Gateway_Stage0.lua",
+	worldID = WORLD_ID.WI_RANOX_GATEWAY_STAGE0
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_GATEWAY_STAGE1",
+	dataFileName = "Ranox_Gateway_Stage1.lua",
+	worldID = WORLD_ID.WI_RANOX_GATEWAY_STAGE1
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_GATEWAY_STAGE2",
+	dataFileName = "Ranox_Gateway_Stage2.lua",
+	worldID = WORLD_ID.WI_RANOX_GATEWAY_STAGE2
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_GATEWAY_STAGEBOSS",
+	dataFileName = "Ranox_Gateway_StageBoss.lua",
+	worldID = WORLD_ID.WI_RANOX_GATEWAY_STAGEBOSS
+})
+--}}

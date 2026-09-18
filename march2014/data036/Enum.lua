@@ -8936,7 +8936,12 @@ BUFF_FACTOR_ID = {
 	-- and FIRE_DEVIL_IGNIA*.lua reference these, missing from March2014's Enum.lua;
 	-- added at June2017's verbatim values
 	BFI_BUFF_DEVIL_CHAIN_BALL = 553,
-	BFI_BUFF_DEVIL_IGNIA_BUFF = 537
+	BFI_BUFF_DEVIL_IGNIA_BUFF = 537,
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 8 (GateWay) -- SAMETEAM_IGNIA.lua
+	-- references these, missing from March2014's Enum.lua; added at June2017's
+	-- verbatim values, confirmed free within this table
+	BFI_BUFF_IGNIA_ATTACK_SUPERARMOR = 530,
+	BFI_BUFF_IGNIA_HP_MP = 531
 }
 SMS_TYPE = {
 	SMS_NONE = -1,

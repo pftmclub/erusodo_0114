@@ -1454,6 +1454,242 @@ they already exist under ./march2014/). All new files ->
 
 ---
 
+### Phase 8 findings (executed 2026-09-18)
+
+**All 17 new/ported files landed and compile** (`compile-batch -v mar-2014`,
+individually and together with the three patched registry files, 20 total —
+matching the tool's own `"total":20`): 3 dungeon-difficulty containers, 8
+stage+LineMap files, and 6 monster/mount/event unit-definition files
+(`EVENT_GATEWAY_BOSS`, `MOUNT_MAG_CHARGER`, `MOUNT_MAG_NOM`,
+`MOUNT_MAG_STONE`, `MOUNT_POINT_STAGE_BOSS`, `SAMETEAM_IGNIA`). `.src.lua`
+siblings for the 11 dungeon/stage/LineMap files already existed from the
+original bulk-decompile; the 6 unit-definition files (outside that 125-file
+inventory, same as every phase since 4) were decompiled fresh this phase.
+`DI_RANOX_GATEWAY_{NORMAL,HARD,EXPERT}`, `WI_RANOX_GATEWAY_*`, and every
+`NPC_UNIT_ID` this line references (its 6 new names plus the 6 reused ones
+from Phases 5/6) were already in `march2014/data036/{Enum,DungeonEnum}.lua`
+from Phase 1 — zero new enum-*value* work needed for those. Reachability was
+already wired by Phase 2 (both `MapData:AddLocalMapInfo` and
+`DLG_Map_Local_Ranox.lua`'s `DungeonIDList` already carry `DI_RANOX_GATEWAY_*`),
+so `DungeonData.lua` registration (Normal/Hard/Expert, ported verbatim from
+June2017 including `EXTRA_REQUIRE_DUNGEON_ID = { DUNGEON_ID.DI_RANOX_GEYSER_NORMAL }`
+on all three difficulties — GateWay requires Geyser cleared first, continuing
+the Phase 5/6/7-established sequential chain; Hero-tier entries skipped per
+this plan's default) was the only *DungeonData* registry work this phase
+needed.
+
+**The one known engine gap (`TRIGGER_MESH_ACTION_TYPE.TAT_MESH_MOVE` in
+`Ranox_GateWay_Stage1_LineMap.lua`), resolved by omission, same technique as
+Phases 6/7.** Checked against the underlying C++, not just Lua enum tables:
+genuinely absent from both — `KTDXLIB/KTDGLineMap.h:89-94`'s
+`TRIGGER_MESH_ACTION_TYPE` stops at `TAT_MESH_CHANGE_SPEED` (no `MOVE`), and,
+more severely than Phase 6/7's own two gaps in this same table-family, the
+`TRIGGER_DATA_MESH` C++ struct (`:125-145`) **has no `MOVE_POS`-equivalent
+member at all** — even a wired-up enum value would have nowhere to land a
+target position. Same safe-degrade shape Phase 6/7 already documented for
+this table (`KTDGLineMap.cpp:2637`'s `LUA_GET_VALUE_ENUM` defaults a
+failed/nil read to `TAT_MESH_NONE`, so leaving it in verbatim would not have
+aborted the file's load) — omitted and documented explicitly anyway, per this
+port's established convention. Two `TRIGGER_DATA_MESH1` entries removed
+(`TRIGGER_ID` 0 and 1, one each), both alongside an intact, untouched
+`TRIGGER_DATA_MESH0` (`TAT_MESH_CHANGE_ANIM`) and their `TRIGGER_DATA_LINE0-3`
+siblings. Verified via a comments-stripped sorted-multiset diff against
+June2017's own decompile that these two removed entries are the *only*
+content difference. Net effect: the two `GATEWAY_1STAGE_ROCK_ANI0{1,2}.x`
+meshes (see next finding) never get relocated by their triggers; they still
+receive the paired `TAT_MESH_CHANGE_ANIM` cue but stay wherever they were
+spawned.
+
+**A new, related gap this phase found: `SetIsForceNotCull`, called twice in
+`Ranox_GateWay_Stage1.lua` on the same two rock meshes the gapped triggers
+above were meant to move.** Extending the method-binding audit to this
+phase's own stage files (the same audit class Phase 7 first ran against
+scene files, finding `SetTriggerID`/`SetShowObject`) found this name doesn't
+exist anywhere in this repo's C++ at all — not just unbound, checked
+`X2Lib`/`KTDXLIB` exhaustively. The closest analog,
+`CKTDGObject::SetIsCulled(bool)` (`KTDXLIB/KTDGObject.h:357`), is itself never
+bound to Lua under any name, and has inverted semantics anyway (marks an
+object as culled, not "force **not** culled") — so there's no dormant path to
+wire up even by binding an existing method under this name. Both call sites
+are the last statement in their block (each immediately after a bound
+`SetForceShow(true)`), so both were omitted outright and
+`SERV_IRUHADEV_RANOX_PORT`-tagged inline. **Confirmed cosmetically inert given
+the trigger gap above**: both affected objects are spawned at `y = -50000`
+(see their `SetPos` calls) specifically to be moved into position by the
+now-gapped `TAT_MESH_MOVE` trigger — since that never fires either, the
+objects stay hidden below the map regardless of whether their
+force-render-when-offscreen flag is set. Flagged for the repo/engine
+integration phase group as a new item alongside Phase 7's `SetTriggerID`/
+`SetShowObject` finding: `SetIsForceNotCull` would need new C++ (there is no
+existing method to bind, unlike `SetShowObject`).
+
+**No new method-binding or enum-table gaps found in the 6 unit-definition
+files beyond two already-known, recurring gap classes**, both
+`SERV_IRUHADEV_RANOX_PORT`-tagged inline, same disposition as their prior
+occurrences:
+
+- `GetHostGameUnit` (`SAMETEAM_IGNIA.lua`, 2 occurrences) — the same
+  unbound-method gap first found in Phase 4/5. First occurrence
+  (`SAMETEAM_IGNIA_ATTACK_C_NOT_SHOW_FRAME_MOVE`) is a "reposition relative to
+  the room host" block; omitted, leaving the already-assigned
+  `slot5 = slot2:GetPos()` default in place instead of the host-relative
+  override. Second occurrence (a compound `and` condition gating a
+  retreat-to-ready state transition once every 2 seconds) can't be partially
+  evaluated since the unbound call is the first operand — omitted along with
+  its whole `if`, falling through unconditionally to the
+  `slot2:SetTimerRestart(0)` that follows, the same path June2017's own code
+  takes whenever the condition is false.
+- `SetMovieDescriptionData` (`EVENT_GATEWAY_BOSS.lua`, 3 occurrences) — the
+  same cutscene-subtitle gap first found in Phase 5, recurring in every
+  "_BOSS" event-cutscene file since. Each `AnimEventTimer_LUA(...)`
+  `if`/`elseif` condition is kept, only the caption-text call in each body is
+  dropped (all three become empty branches). The cutscene itself still plays
+  via `ANIM_NAME`/`EFFECT_SET_LIST`, both bound.
+
+`MOUNT_MAG_CHARGER.lua`, `MOUNT_MAG_NOM.lua`, `MOUNT_MAG_STONE.lua`, and
+`MOUNT_POINT_STAGE_BOSS.lua` came back clean on both audits and were ported
+100% verbatim.
+
+**`NPCTemplet.lua` catch-up, continuing Phase 6/7's established practice of
+closing this gap for whatever a phase itself spawns.** All 6 of this phase's
+new `NPC_UNIT_ID`s needed entries (none existed). Auditing the line's 6
+*reused* names from Phases 5/6 turned up 3 more still missing —
+`NUI_FIRE_DEVIL_BERSERKER_BOSS`, `NUI_FIRE_DEVIL_FIGHTER`, and
+`NUI_FIRE_DEVIL_IGNIA` (all plain/non-suffixed forms; the other 3 reused names
+— `NUI_FIRE_DEVIL_BERSERKER`, `NUI_MOUNT_FIREBIRD`, `NUI_MOUNT_GATE` — already
+had entries from Phases 5/6). All 9 entries added to
+`march2014/data037/NPCTemplet.lua`, copied verbatim from June2017's own file
+(`MOTION`/`NAME`/`DESC` text included), confirmed not colliding with any
+pre-existing entry. **AshesVillage/BurnedForest's own `NPC_UNIT_ID`s (Phases
+3/4) still lack `NPCTemplet.lua` entries at all** — this phase closes the gap
+for the 9 names it itself needs, not Phase 6/7's full remaining backlog for
+those two lines; a dedicated catch-up pass is still recommended and still
+open.
+
+**The `NUI_FIRE_DEVIL_IGNIA_BOSS` anomaly does not recur here**: exhaustive
+grep of every file this phase ported found zero references to that name —
+GateWay's own boss encounter uses plain `NUI_FIRE_DEVIL_IGNIA` (`STAGE3`'s
+`READY_NPC`/`NPC_GROUP`), not the ambiguous `_BOSS` suffix Phase 5 had to
+resolve for FinalHall. Nothing to fix.
+
+**STR_ID range flag carried forward, not re-closed**: GateWay's
+`DungeonData.lua` entries use `STR_ID_337xx` (dungeon name/description/ending
+speech), `STR_ID_38643`/`38644`, and `STR_ID_43788` — the same unverified
+`386xx`/`437xx` bands (and, newly, a `337xx` band) Phases 5-7 already flagged
+(March2014's own `data036/StringTable.lua` still hasn't been decompiled to
+confirm these resolve to real display strings). Cosmetic only if unresolved
+(blank text, no crash) — same disposition as its three prior occurrences.
+
+**A fourth registry, missed by every phase since Phase 2, and load-bearing:
+`WorldData.lua` (`data040`).** `WORLD_ID.WI_RANOX_GATEWAY_STAGE0`
+(and `_STAGE1`/`_STAGE2`/`_STAGEBOSS`) are valid integers from Phase 1's
+`Enum.lua`, but nothing bound them to `Ranox_GateWay_Stage0.lua` etc. until
+this phase — confirmed by reading `CX2WorldManager::CreateWorld`,
+`AddWorldData_LUA`, and `GetWorldData` (`X2Lib/X2WorldManager.cpp`):
+`CreateWorld(WORLD_ID)` looks the ID up in `m_WorldDataList` (populated only
+by `g_pWorldManager:AddWorldData({worldName=..., dataFileName=...,
+worldID=...})` calls in `WorldData.lua`) to get the `dataFileName` it then
+opens — with no entry, there's no file to open for that `WORLD_ID` at all.
+Same "exists on disk but is never loaded for its ID" gap class Phase 6 first
+found for `NPCTemplet.lua`, just one layer up (scene files, not NPC unit
+files). **Phase 2 already registered `WI_VILLAGE_RANOX` this exact way** (see
+`march2014/data040/WorldData.lua`'s existing entry), so the convention was
+established and known — it was simply never applied to any dungeon line's
+own stage worlds in Phases 3-7 either. Added this phase's own 4 entries only,
+copied verbatim from June2017's own `WorldData.lua` (including its
+`dataFileName` spelling, `"Ranox_Gateway_Stage0.lua"` etc. — lowercase "way",
+differing from the actual ported scene file's own "GateWay" capitalization;
+kept as shipped per "transcribe, don't tidy," expected to resolve via
+case-insensitive file lookup but not verified against this repo's own lookup
+code). **AshesVillage/BurnedForest/FinalHall/FireTemple/Geyser's own stage
+`WORLD_ID`s (Phases 3-7) are equally unregistered in this file and were not
+fixed here** — none of those phases' findings mention `WorldData.lua` at all,
+meaning **all 5 of those dungeon lines are non-functional in-game as things
+stand**, not just missing polish. A dedicated catch-up pass (same shape as
+Phase 6/7's still-open `NPCTemplet.lua` catch-up for Phases 3/4) is strongly
+recommended and should be treated as higher priority than that one, since
+this gap blocks a line from loading at all rather than degrading a monster's
+AI.
+
+**Verification performed**: all 21 files (17 new/ported + the four patched
+registry files, `DungeonData.lua`/`Enum.lua`/`NPCTemplet.lua`/`WorldData.lua`)
+individually
+`compile-batch -v mar-2014` clean, copied to a short (`C:\tmp\...`) path first
+per Phase 6's own path-length lesson, then re-verified together in one
+combined batch invocation. A compile→decompile round-trip was run on every
+edited file (`Ranox_GateWay_Stage1_LineMap.lua`, `Ranox_GateWay_Stage1.lua`,
+`EVENT_GATEWAY_BOSS.lua`, `SAMETEAM_IGNIA.lua`) and confirmed the only content
+differences from June2017's own decompile are the documented omissions above,
+plus the same benign trailing-comma-placement and register-renumbering
+artifacts this plan's tooling section and Phase 5/6 already documented (e.g.
+`SAMETEAM_IGNIA.lua`'s `slot6`/`slot7` shifting after a removed assignment
+upstream). A round-trip on an untouched verbatim file
+(`Ranox_GateWay_Stage2.lua`) came back byte-identical (sorted). The
+enum-table/member audit covered both categories of file this phase touched —
+the 6 unit-def files (37 distinct `TABLE.MEMBER` tokens, only the two known
+`BUFF_FACTOR_ID` gaps below) and the 11 dungeon/stage/LineMap files separately
+(58 distinct tokens, only the one known `TAT_MESH_MOVE` gap) — and confirmed
+Phase 6's own `INIT_PHYSIC` false-positive note still applies (local table,
+not a missing global, in `EVENT_GATEWAY_BOSS.lua`/`SAMETEAM_IGNIA.lua`). The
+method-binding audit (39 distinct `:Method(` calls across the 11 dungeon/
+stage/LineMap files, 39 distinct calls across the 6 unit-def files — checked
+separately, matching Phase 7's own extension of the audit to scene files, not
+just monster files) found the `SetIsForceNotCull` gap (scene files) and the
+two recurring gaps (unit-def files) documented above.
+
+**One new `BUFF_FACTOR_ID` member gap, same class Phase 4/5 already
+established**: `SAMETEAM_IGNIA.lua` references
+`BUFF_FACTOR_ID.BFI_BUFF_IGNIA_ATTACK_SUPERARMOR` and `.BFI_BUFF_IGNIA_HP_MP`,
+both missing from March2014's existing `BUFF_FACTOR_ID` table (the table
+itself already exists, just not these two members). Added at June2017's own
+verbatim values (`530`, `531`), confirmed free within that specific table by
+re-checking with a comma-agnostic pattern (`grep -oE "= 53[01],?$"` scoped to
+the table's own line range) — the original free-value check used a
+comma-anchored pattern that silently can't see a table's *last* entry (no
+trailing comma there), which happened to be exactly this table's tail in
+Phase 4/5's own additions; the comma-agnostic re-check confirms the only two
+matches are this phase's own new lines, so `530`/`531` are genuinely free, but
+future phases should use the comma-agnostic form from the start, not repeat
+this near-miss (March2014's `Enum.lua` also uses `530`/`531` in `WORLD_ID` and
+`NPC_UNIT_ID`, which don't collide with `BUFF_FACTOR_ID`'s own numbering
+space — different tables, not a real collision). Same inert-in-this-build
+caveat Phase 4 already established for this class of gap: the buff's actual
+effect depends on a separate Lua data table (`CX2BuffTemplet::ParsingScript`),
+not on this enum value alone, and adding that data table is out of scope here
+for the same reason it was out of scope in Phase 4.
+
+**A retroactive completeness note, not a defect**: this phase's own
+`NUI_FIRE_DEVIL_BERSERKER_BOSS`/`NUI_FIRE_DEVIL_FIGHTER`/`NUI_FIRE_DEVIL_IGNIA`
+`NPCTemplet.lua` additions (above) are entries for unit-def files Phase 5
+already ported to disk (`FIRE_DEVIL_BERSERKER_BOSS.lua`, `FIRE_DEVIL_FIGHTER.lua`,
+`FIRE_DEVIL_IGNIA.lua`) — this phase only added their *registry* entries, it
+did not re-port or re-audit the files themselves (Phase 5's own method-binding
+and enum audits for those three already stand).
+
+**A findings-completeness note, not chased further, same disposition as
+Phase 6's parallel observation for FireTemple**: `Dungeon_Ranox_Gateway_Normal.lua`
+has the duplicate-`NPC_REWARD_RATE`-key pattern Phase 6 flagged, more
+extensively — four consecutive `NPC_REWARD_RATE = { ... }` assignments in
+`STAGE0.SUB_STAGE0` (and the same four-way pattern repeated in `STAGE1`'s
+three sub-stages and `STAGE2`'s two sub-stages), plus two in `STAGE3`. Lua's
+last-assignment-wins means only the last of each group is ever live
+(`NUI_MOUNT_FIREBIRD` at `0.875` in the four-way groups) — `NUI_MOUNT_MAG_NOM`/
+`_STONE`/`_CHARGER`'s own rates are always shadowed. This is June2017's own
+data, ported verbatim per "transcribe, don't tidy," not a porting error. As
+Phase 6 already noted for its own instance of this pattern: this plan's
+tooling-section claim that table-key *reordering* is semantically inert for
+named-key table literals doesn't extend to *duplicate* keys, so the
+compile→decompile round-trip performed above cannot itself confirm which
+duplicate the original bytecode's winner was — only that some winner survives
+the round-trip. Not chased further here (verbatim is correct regardless of
+which duplicate wins, since the client's own shipped file already has this
+property); `Dungeon_Ranox_Gateway_Hard.lua`/`_Expert.lua` are otherwise
+identical to `_Normal.lua` except for the one `MONSTER_GRADE`/boss-variant
+swap already noted, matching Phase 6's own "Hard and Expert byte-identical"
+observation for FireTemple in spirit if not in exact byte count.
+
+---
+
 ### Phase 9 — Secret Hell (raid) dungeon — do last among the dungeon lines
 
 Largest and structurally distinct file (`Dungeon_Ranox_Secret_Hell.lua`,
@@ -1761,6 +1997,14 @@ need doing," not the specifics of how):
    phase before Phase 7 audited scene-file method calls at all (only
    monster/object unit-def files were checked) — Phases 3-6's own stage files
    were never re-checked against this audit either.
+3b. **Resolve `SetIsForceNotCull`**, the same gap class as item 3 but found by
+   Phase 8 in `Ranox_GateWay_Stage1.lua`. Unlike `SetShowObject`, there is no
+   existing C++ method to bind under this name at all — checked
+   `X2Lib`/`KTDXLIB` exhaustively; the closest analog,
+   `CKTDGObject::SetIsCulled(bool)` (`KTDXLIB/KTDGObject.h:357`), is itself
+   unbound and has inverted semantics ("force culled," not "force **not**
+   culled"). Needs new C++ (a member function plus a binding), same shape as
+   `SetTriggerID` above, not the cheaper `SetShowObject` shape.
 4. **Offline-emulator / world-map hookup**, since this build's
    `SERV_IRUHADEV_OFFLINE` mode may need dungeon-clear and village-entry
    handling wired for Ranox's new `WORLD_ID`/`DUNGEON_ID` values the same

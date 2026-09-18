@@ -17138,3 +17138,86 @@ g_pUnitManager:AddNPCTemplet({
 	IS_NPC = FALSE
 })
 --}}
+--{{ Iruha : 2026-09-18 // Ranox port Phase 8 -- NPC_UNIT_ID -> LUA_FILE_NAME registration for the GateWay line's new monsters/objects, same gap class Phase 6 first found (CX2UnitManager::AddNPCTemplet_LUA's LUA_FILE_NAME is what CX2GUNPC actually loads per NPC_UNIT_ID). Also includes NUI_FIRE_DEVIL_BERSERKER_BOSS, NUI_FIRE_DEVIL_FIGHTER, and NUI_FIRE_DEVIL_IGNIA (all plain, non-suffixed) -- these are reused from Phase 5 (FinalHall)'s unit-def files, which this line also spawns, and were still missing an entry here (part of the catch-up debt Phase 6/7 flagged as still open; this phase closes it for the three names it itself needs, not the full remaining backlog). AshesVillage/BurnedForest's own NPC_UNIT_IDs (Phases 3/4) still lack NPCTemplet.lua entries -- that catch-up pass is still owed.
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MOUNT_MAG_NOM.x",
+	NAME = "Volcanic Mag Norm",
+	LUA_FILE_NAME = "MOUNT_MAG_NOM.lua",
+	DESC = "Volcanic Mag Norm",
+	NPC_ID = NPC_UNIT_ID.NUI_MOUNT_MAG_NOM,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MOUNT_MAG_STONE.x",
+	NAME = "Volcanic Mag Stone",
+	LUA_FILE_NAME = "MOUNT_MAG_STONE.lua",
+	DESC = "Volcanic Mag Stone",
+	NPC_ID = NPC_UNIT_ID.NUI_MOUNT_MAG_STONE,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MOUNT_MAG_CHARGER.x",
+	NAME = "Volcanic Mag Charger",
+	LUA_FILE_NAME = "MOUNT_MAG_CHARGER.lua",
+	DESC = "Volcanic Mag Charger",
+	NPC_ID = NPC_UNIT_ID.NUI_MOUNT_MAG_CHARGER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_BERSERKER_BOSS.x",
+	NAME = "Berserker Armageddon",
+	LUA_FILE_NAME = "FIRE_DEVIL_BERSERKER_BOSS.lua",
+	DESC = "Berserker Armageddon",
+	NPC_ID = NPC_UNIT_ID.NUI_FIRE_DEVIL_BERSERKER_BOSS,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_IGNIA.x",
+	NAME = "Traitor Ignia",
+	LUA_FILE_NAME = "FIRE_DEVIL_IGNIA.lua",
+	DESC = "Traitor Ignia",
+	NPC_ID = NPC_UNIT_ID.NUI_FIRE_DEVIL_IGNIA,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_IGNIA.x",
+	NAME = "Fire Priestess Ignia",
+	LUA_FILE_NAME = "SAMETEAM_IGNIA.lua",
+	DESC = "Fire Priestess Ignia",
+	NPC_ID = NPC_UNIT_ID.NUI_SAMETEAM_IGNIA,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GateWay_2stage_magma03.X",
+	NAME = "",
+	LUA_FILE_NAME = "MOUNT_POINT_STAGE_BOSS.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_MOUNT_POINT_STAGE_BOSS,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = FALSE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_FIGHTER.x",
+	NAME = "Steel Lava Fighter",
+	LUA_FILE_NAME = "FIRE_DEVIL_FIGHTER.lua",
+	DESC = "Steel Lava Fighter",
+	NPC_ID = NPC_UNIT_ID.NUI_FIRE_DEVIL_FIGHTER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_Ranox_MOUNT_Boss_Stage_Direct.x",
+	NAME = "",
+	LUA_FILE_NAME = "EVENT_GATEWAY_BOSS.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_EVENT_GATEWAY_BOSS,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = FALSE
+})
+--}}
