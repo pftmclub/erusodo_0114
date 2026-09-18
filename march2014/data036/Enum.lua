@@ -8558,7 +8558,10 @@ BUFF_TEMPLET_ID = {
 	BTI_DEBUFF_EVENT_BIG_HEAD = 179,
 	BTI_BUFF_WHEN_RIDE_ON_PET_FOR_ONLY_MASTER = 205,
 	BTI_DEBUFF_SPRIGGAN_ENTANGLE = 146,
-	BTI_DEBUFF_ELIXIR_ICE_BALL_OF_DENIPH = 199
+	BTI_DEBUFF_ELIXIR_ICE_BALL_OF_DENIPH = 199,
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 5 (FinalHall) -- FIRE_DEVIL_CHAIN_BALL.lua
+	-- references this, missing from March2014's Enum.lua; added at June2017's verbatim value
+	BTI_BUFF_DEVIL_CHAIN_BALL = 484
 }
 BUFF_FACTOR_ID = {
 	BFI_SI_P_AEM_ELEMENTAL_FRIENDSHIP_ATTACK = 254,
@@ -8928,7 +8931,12 @@ BUFF_FACTOR_ID = {
 	BFI_DEBUFF_BORN_TO_BLOOD = 261,
 	BFI_SI_SA_ABM_MAGICAL_MAKEUP = 33,
 	BFI_SI_P_AEM_ENERGY_OF_THE_PLENTY_3 = 16,
-	BFI_BUFF_MAG_STONE_ATTACK_B = 512
+	BFI_BUFF_MAG_STONE_ATTACK_B = 512,
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 5 (FinalHall) -- FIRE_DEVIL_CHAIN_BALL.lua
+	-- and FIRE_DEVIL_IGNIA*.lua reference these, missing from March2014's Enum.lua;
+	-- added at June2017's verbatim values
+	BFI_BUFF_DEVIL_CHAIN_BALL = 553,
+	BFI_BUFF_DEVIL_IGNIA_BUFF = 537
 }
 SMS_TYPE = {
 	SMS_NONE = -1,
@@ -9155,3 +9163,37 @@ EMBLEM_POPUP_SOUND_TYPE = {
 	EPST_NONE = 0,
 	EPST_RELATIVE_UNIT_TYPE_RANDOM = 1
 }
+--{{ Iruha : 2026-09-18 // Ranox port Phase 5 (FinalHall) -- these two whole tables don't
+-- exist anywhere in March2014's Enum.lua at all (not just individual missing members, the
+-- entire table). FIRE_DEVIL_CHAIN_BALL.lua indexes DELETE_CONDITION_SOUND.DCS_CUSTOM_STATE
+-- (inside its SOUND_PLAY_EX entry), and FIRE_DEVIL_BERSERKER.lua/_INCHANT.lua/
+-- FIRE_DEVIL_FIGHTER.lua/_INCHANT.lua index SKIN_MESH_RENDER_TYPE.SMRT_UV_ANIM (as
+-- SKIN_MESH_RENDERTYPE), both as part of a table constructor -- indexing a nil global there
+-- would abort the whole file load, unlike a missing member of an existing table. Added both
+-- tables verbatim from June2017's own Enum.lua so the files load. Checked whether the C++
+-- already reads either key (X2Lib/KTDXLIB, both June2017-only Lua keys, not just enum
+-- names): neither "SOUND_PLAY_EX" nor "SKIN_MESH_RENDERTYPE" is parsed anywhere in this
+-- March2014 client (compare "SOUND_PLAY"/"SOUND_PLAY_LOOP", which are, and "RENDER_PARAM",
+-- which is the mesh-render-type key this build's C++ actually reads) -- so both values are
+-- inert data here: this fix stops the crash but the sound-delete-condition and mesh-render
+-- variant these files ask for don't actually take effect in this build.
+DELETE_CONDITION_SOUND = {
+	DCS_DAMAGE_REACT = 1,
+	DCS_SKILL_STATE_END = 5,
+	DCS_STATE_END = 2,
+	DCS_NONE = 0,
+	DCS_DIE = 3,
+	DCS_CUSTOM_STATE = 4
+}
+SKIN_MESH_RENDER_TYPE = {
+	SMRT_UV_ANIM = 3,
+	SMRT_DESTALPHA_SRCALPHA_CCW = 5,
+	SMRT_CARTOON_ALPHA = 7,
+	SMRT_REAL_COLOR = 0,
+	SMRT_INVSRC_ALPHA_NOT_CULL = 4,
+	SMRT_CARTOON_BLACK_EDGE_ALPHA = 2,
+	SMRT_NONE = -1,
+	SMRT_CARTOON_BLACK_EDGE = 1,
+	SMRT_CUSTOM = 6
+}
+--}}

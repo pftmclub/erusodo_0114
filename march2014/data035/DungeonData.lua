@@ -13833,4 +13833,216 @@ g_pDungeonManager:AddDungeonData({
 		}
 	}
 })
+--{{ Iruha : 2026-09-18 // Ranox port Phase 5 -- FinalHall dungeon line, Normal/Hard/Expert only (Hero tier deferred per plan)
+g_pDungeonManager:AddDungeonData({
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_FinalHall_01.tga",
+	m_PieceName = "Ranox_FinalHall",
+	m_MaxLevel = 78,
+	m_MinLevel = 76,
+	dataFileName = "Dungeon_Ranox_FinalHall_Normal.lua",
+	m_NPCLevel = 76,
+	m_RequireItemLevel = 66,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_FinalHall_02.tga",
+	dungeonName = STR_ID_34173,
+	difficulty = DIFFICULTY_LEVEL.DL_NORMAL,
+	dungeonID = DUNGEON_ID.DI_RANOX_FINALHALL_NORMAL,
+	m_DungeonDescription = STR_ID_34170,
+	EXTRA_REQUIRE_DUNGEON_ID = {
+		DUNGEON_ID.DI_RANOX_FIRETEMPLE_NORMAL
+	},
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30363,
+			30364,
+			30365
+		}
+	},
+	ENDING_SPEECH0 = {
+		ELSWORD = {
+			{
+				STR_ID_34107
+			},
+			{
+				STR_ID_34108
+			},
+			{
+				STR_ID_34109
+			}
+		},
+		AISHA = {
+			{
+				STR_ID_34110
+			},
+			{
+				STR_ID_34111
+			},
+			{
+				STR_ID_34112
+			}
+		},
+		RENA = {
+			{
+				STR_ID_34113
+			},
+			{
+				STR_ID_34114
+			},
+			{
+				STR_ID_34115
+			}
+		},
+		RAVEN = {
+			{
+				STR_ID_34116
+			},
+			{
+				STR_ID_34117
+			},
+			{
+				STR_ID_34118
+			}
+		},
+		EVE = {
+			{
+				STR_ID_34119
+			},
+			{
+				STR_ID_34120
+			},
+			{
+				STR_ID_34121
+			}
+		},
+		CHUNG = {
+			{
+				STR_ID_34122
+			},
+			{
+				STR_ID_34123
+			},
+			{
+				STR_ID_34124
+			}
+		},
+		ARA = {
+			{
+				STR_ID_34140
+			},
+			{
+				STR_ID_34141
+			},
+			{
+				STR_ID_34142
+			}
+		},
+		ELESIS = {
+			{
+				STR_ID_34125
+			},
+			{
+				STR_ID_34126
+			},
+			{
+				STR_ID_34127
+			}
+		},
+		ADD = {
+			{
+				STR_ID_34128
+			},
+			{
+				STR_ID_34129
+			},
+			{
+				STR_ID_34130
+			}
+		},
+		LUCIEL = {
+			{
+				LU = STR_ID_34131,
+				CIEL = STR_ID_34134
+			},
+			{
+				LU = STR_ID_34132,
+				CIEL = STR_ID_34135
+			},
+			{
+				LU = STR_ID_34133,
+				CIEL = STR_ID_34136
+			}
+		},
+		ROSE = {
+			{
+				STR_ID_38648
+			},
+			{
+				STR_ID_38649
+			},
+			{
+				STR_ID_38650
+			}
+		},
+		AIN = {
+			{
+				STR_ID_43790
+			}
+		}
+	}
+})
+g_pDungeonManager:AddDungeonData({
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_FinalHall_01.tga",
+	m_PieceName = "Ranox_FinalHall",
+	m_MaxLevel = 78,
+	m_MinLevel = 76,
+	dataFileName = "Dungeon_Ranox_FinalHall_Hard.lua",
+	m_NPCLevel = 76,
+	m_RequireItemLevel = 67,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_FinalHall_02.tga",
+	dungeonName = STR_ID_34173,
+	difficulty = DIFFICULTY_LEVEL.DL_HARD,
+	dungeonID = DUNGEON_ID.DI_RANOX_FINALHALL_HARD,
+	m_DungeonDescription = STR_ID_32316,
+	EXTRA_REQUIRE_DUNGEON_ID = {
+		DUNGEON_ID.DI_RANOX_FIRETEMPLE_NORMAL
+	},
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30363,
+			30364,
+			30365
+		}
+	},
+	ENDING_SPEECH0 = {}
+})
+g_pDungeonManager:AddDungeonData({
+	MaxAdequateMemberCount = 4,
+	m_PieceName = "Ranox_FinalHall",
+	MinAdequateMemberCount = 1,
+	m_RequireItemLevel = 68,
+	m_MaxLevel = 78,
+	m_NPCLevel = 76,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_FinalHall_02.tga",
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_FinalHall_01.tga",
+	dataFileName = "Dungeon_Ranox_FinalHall_Expert.lua",
+	m_MinLevel = 76,
+	dungeonName = STR_ID_34173,
+	difficulty = DIFFICULTY_LEVEL.DL_EXPERT,
+	FixMaximumDifficulty = TRUE,
+	dungeonID = DUNGEON_ID.DI_RANOX_FINALHALL_EXPERT,
+	m_DungeonDescription = STR_ID_32316,
+	EXTRA_REQUIRE_DUNGEON_ID = {
+		DUNGEON_ID.DI_RANOX_FIRETEMPLE_NORMAL
+	},
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30363,
+			30364,
+			30365
+		}
+	},
+	ENDING_SPEECH0 = {}
+})
 --}}

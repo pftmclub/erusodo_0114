@@ -707,6 +707,195 @@ don't re-port the shared ones. All new files -> ./march2014/update/
 
 ---
 
+### Phase 5 findings (executed 2026-09-18)
+
+**All 36 files landed and compile** (`compile-batch -v mar-2014`, individually
+and together with the two patched registry files): 3 dungeon-difficulty
+containers, 10 stage+LineMap files, and 23 monster/object unit-definition
+files — the 22 named in the kickoff prompt plus `EVENT_FINALHALL_BOSS2.lua`/
+`EVENT_FINALHALL_BOSS3.lua` (grouped with `EVENT_FINALHALL_BOSS.lua` under one
+`NUI_EVENT_FINALHALL_BOSS{,2,3}` bullet in the prompt, but are three separate
+files). None of these 23 unit-def files had pre-existing `.src.lua` siblings
+from the original 125-file bulk-decompile (that pass only covered the
+Appendix A inventory, which by construction excludes monster/object
+definitions) — decompiled fresh this phase. `DI_RANOX_FINALHALL_{NORMAL,HARD,EXPERT}`
+and all 22 `NPC_UNIT_ID`s were already in `march2014/data036/{Enum,DungeonEnum}.lua`
+from Phase 1 — zero new *enum-value* work needed for the names the kickoff
+prompt already knew about. Reachability was already wired by Phase 2 (both
+`MapData:AddLocalMapInfo` and `DLG_Map_Local_Ranox.lua`'s `DungeonIDList`
+already carry `DI_RANOX_FINALHALL_*`), so `DungeonData.lua` registration was
+the only registry work this phase needed — ported verbatim from June2017,
+including its `EXTRA_REQUIRE_DUNGEON_ID = { DUNGEON_ID.DI_RANOX_FIRETEMPLE_NORMAL }`
+on all three difficulties (FinalHall requires FireTemple cleared first, not
+the reverse — this is just what June2017's own data says; the enum value
+exists from Phase 1 regardless of whether Phase 6 has landed yet).
+
+**The `NUI_FIRE_DEVIL_IGNIA_BOSS` anomaly, resolved as planned.** All three
+`Dungeon_Ranox_FinalHall_{Normal,Hard,Expert}.lua` files reference the
+undefined `NPC_UNIT_ID.NUI_FIRE_DEVIL_IGNIA_BOSS` once each, inside a
+`READY_NPC` preload list (confirmed via exhaustive grep — no other file in
+this phase's set references it). All three resolved to
+`NUI_FIRE_DEVIL_IGNIA_BOSS_FINALHALL` with an inline
+`SERV_IRUHADEV_RANOX_PORT`-tagged comment, per the plan's own Findings note.
+
+**Two new enum-audit gaps found, outside Phase 1's four-table scope and
+outside the Findings' 8-gap table** (same class Phase 4 flagged and warned
+future phases to expect, from monster unit-definition files the 125-file
+Appendix A audit doesn't cover):
+
+- `BUFF_TEMPLET_ID.BTI_BUFF_DEVIL_CHAIN_BALL` and
+  `BUFF_FACTOR_ID.BFI_BUFF_DEVIL_CHAIN_BALL` / `BFI_BUFF_DEVIL_IGNIA_BUFF`
+  (`FIRE_DEVIL_CHAIN_BALL.lua`, `FIRE_DEVIL_IGNIA*.lua`) — missing *members*
+  of tables that already existed in March2014's Enum.lua, same shape as
+  Phase 4's `BFI_BUFF_MAG_STONE_ATTACK_B`. Added at June2017's own verbatim
+  values (`484`, `553`, `537`), all confirmed free within their tables.
+- **A more severe variant, not seen in Phases 1-4: two entire tables missing,
+  not just members.** `DELETE_CONDITION_SOUND` (indexed by
+  `FIRE_DEVIL_CHAIN_BALL.lua` for `.DCS_CUSTOM_STATE`, inside its
+  `SOUND_PLAY_EX` entry) and `SKIN_MESH_RENDER_TYPE` (indexed by
+  `FIRE_DEVIL_BERSERKER.lua`/`_INCHANT.lua`/`FIRE_DEVIL_FIGHTER.lua`/`_INCHANT.lua`
+  for `.SMRT_UV_ANIM`, as `SKIN_MESH_RENDERTYPE`) don't exist anywhere in
+  March2014's Enum.lua at all — confirmed absent from the whole client tree,
+  not just Enum.lua, via a recursive search. Both exist as complete tables in
+  June2017's Enum.lua. This is more dangerous than a missing member: since
+  both references sit inside a table-constructor field assignment, indexing a
+  nil global there aborts the whole file's load, not just evaluates to `nil`.
+  Added both tables to March2014's Enum.lua in full, verbatim from June2017
+  (not just the two referenced members), so the files load — see the tagged
+  comment block at the end of `march2014/data036/Enum.lua`. **Checked whether
+  this repo's C++ already reads either underlying Lua key** (not just the
+  enum name, per this plan's own repo-phase instruction to check for a
+  dormant C++ implementation first): neither `"SOUND_PLAY_EX"` nor
+  `"SKIN_MESH_RENDERTYPE"` is parsed anywhere in `X2Lib`/`KTDXLIB` (compare
+  `"SOUND_PLAY"`/`"SOUND_PLAY_LOOP"`, which are, in `X2GUNPC.cpp`; and
+  `"RENDER_PARAM"`, the key this build's C++ actually reads for mesh render
+  type, via `CKTDGXRenderer::RENDER_TYPE`). So **both added values are inert
+  in this build**: the fix stops the load-time crash, but the sound
+  delete-condition and the UV-animation render variant these files ask for
+  don't actually take effect here — cosmetic/audio-only degradation, not a
+  gameplay one.
+
+**Eight unbound-method gaps, all in the newly-decompiled monster/object
+files** (this phase's method-call audit — cross-checking every `:Method(`
+call against `lua_tinker::class_def<...>` bindings across all of
+`X2Lib`/`KTDXLIB`, not just the two top-level `.cpp` files Phase 4 checked —
+`X2Lib/Offline/*.cpp` and `KTDXLIB/KTDXApp.cpp` etc. also bind methods).
+Each is `SERV_IRUHADEV_RANOX_PORT`-tagged inline, same convention as Phases 2
+and 4:
+
+- `GetHostGameUnit` (5 occurrences across `FIRE_DEVIL_IGNIA.lua`,
+  `FIRE_DEVIL_IGNIA_BOSS_FINALHALL.lua`, `FIRE_DEVIL_SKA.lua`,
+  `FIRE_DEVIL_SNIKER.lua`, `FIRE_DEVIL_SNIKER_INCHANT.lua`) — a
+  target-loss fallback, same shape as Phase 4's `GetStoredGUUser` gap;
+  exists as a *different* class's C++ method (`CX2Game::GetHostGameUnit`,
+  `X2Lib/X2Game.h`) but was never bound to Lua for any class. Omitted; the
+  already-computed defaults (or, in `FIRE_DEVIL_SKA.lua`'s `GetUser` helper,
+  a `nil` return) are kept instead of the host-unit override.
+- `InitStateCoolTime` (`FIRE_DEVIL_SKA.lua`) and `ChangeMotion_LUA`
+  (`FIRE_DEVIL_SKA.lua`) — same already-documented-elsewhere gap
+  (`InitStateCoolTime`, from Phase 4's `RAGE_DRYADKENTA.lua`) and a new one
+  respectively; both were the sole statement in their `STATE_START`/
+  `STATE_END` handler, so both handlers degrade to empty (no-op) bodies.
+- `GetNowStateID_LUA` and `GetIsLastStage` (`FIRE_DEVIL_BERSERKER.lua`,
+  `FIRE_DEVIL_BERSERKER_BOSS.lua`, `FIRE_DEVIL_FIGHTER.lua`) — a
+  "check whether this is the GateWay line's last stage before starting"
+  gate, inside `..._VER_GATEWAY_{START_,}READY_STATE_START` handlers.
+  **Confirmed these are GateWay-line-only state names FinalHall's own content
+  never enters** (no FinalHall file references `"VER_GATEWAY"` at all) — they
+  exist in these three files only because the whole unit-definition file is
+  shared with Phase 8, which reuses it per this plan's own instruction not to
+  re-port. `GetIsLastStage` doesn't exist anywhere in this repo's C++ at all
+  (not just unbound — the concept isn't implemented); `GetNowStateID_LUA`
+  isn't bound under that name for any class (`GetNowStateID`, no suffix, is
+  bound, but only on `CX2GUNPC`). June2017 only skips the `StateChange_LUA`
+  transition when `GetIsLastStage()` is true; since that can't be evaluated,
+  all three files were changed to always transition, on the reasoning that
+  risking a permanently-inactive elite/boss NPC is worse than an extra,
+  harmless transition. The paired `SetFlag_LUA(9, ...)` bookkeeping is also
+  dropped in all three. **This is a guess made without being able to exercise
+  the real (GateWay) code path — flagged inline for Phase 8 to re-check once
+  its own GateWay content lands and can actually be tested.**
+- `GetIsGoNextPacketSended_LUA` and `Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ`
+  (`FIRETEMPLE_REGIEON_POINT.lua`) — checked the underlying feature, not just
+  the name, per this plan's repo-phase instruction: `EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ`
+  **is** a real, already-wired packet in this repo —
+  `CX2DungeonGame::Handler_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ`
+  (`X2Lib/X2DungeonGame.cpp`) sends it and the offline emulator
+  (`X2Lib/Offline/Handlers_Room.cpp`) answers it — but that C++ method takes
+  two `int` args and already fires automatically from `CX2DungeonGame`'s own
+  per-frame update (gated on `m_bGoNextPacketSended` and a
+  `TouchStartLineMapSet()` line-touch check), and was never exposed to Lua
+  under this zero-arg `"Send_..."` name. Real gap, not a misnamed lookup.
+  **Confirmed this does not strand FinalHall progression**: every `SUB_STAGE`
+  this NPC appears in (`STAGE3`, all three difficulties) clears via the
+  ordinary `CLEAR_COND0 = CLEAR_CONDITION.CC_KILL_ALL_ACTIVE_NPC` +
+  `CLEAR_TYPE.CT_SUB_STAGE` mechanism, which is engine-driven and independent
+  of this NPC's Lua. The omitted block was an additional, redundant
+  "teleport players to the next line immediately once my summons die"
+  convenience on top of that, not the actual gate — losing it means players
+  walk to the next sub-stage's start line themselves instead of being
+  auto-teleported there. The whole ~40-line block was block-commented out
+  (`--[[ ]]`) rather than deleted, flagged inline for the repo/engine
+  integration phase group as a candidate small wrapper binding (call the
+  existing two-int-arg C++ method with the dungeon's own before/after
+  sub-stage indices) if the convenience is wanted back.
+- `SetMovieDescriptionData` (`EVENT_FINALHALL_BOSS.lua`, 3 call sites) —
+  cutscene subtitle text timed to the boss-intro cutscene's animation. The
+  cutscene itself (driven by `ANIM_NAME`/`EFFECT_SET_LIST`, both present and
+  bound) is unaffected; only the on-screen caption text is lost. The
+  `AnimEventTimer_LUA(...)` condition calls themselves were kept (only the
+  `SetMovieDescriptionData` call inside each branch was removed), since the
+  timer call may have a consumption side effect independent of its return
+  value.
+
+**Note for Phase 6 (FireTemple), as instructed**: all 23 unit-definition
+files under the shared `NUI_FIRE_DEVIL_*`/`NUI_FIRETEMPLE_*`/`NUI_MOUNT_GATE`
+family are now ported to `march2014/update/data037/` — do not re-port them.
+Phase 6's own kickoff prompt already lists only its FireTemple-specific new
+names (`NUI_FIRE_DEVIL_BERSERKER_FIRETEMPLE`, `NUI_FIRE_DEVIL_CHAIN_IPLITAN`,
+`NUI_FIRE_DEVIL_FIGHTER_FIRETEMPLE`, `NUI_MOUNT_FIREBIRD{,_FIRETEMPLE}`), so
+this requires no change there — but Phase 6 should re-run this phase's same
+two audits (Enum-table-existence, not just Enum-member-existence; and
+method-binding) against whatever *its own* new stage/dungeon files reference,
+since both gap classes found here came from files outside the original
+125-file inventory that the plan's Findings section audited.
+
+**No gate/switch object file exists for FinalHall itself**, confirmed by
+inventory search — it reuses `FIRETEMPLE_GATE.lua` and `MOUNT_GATE.lua`
+(both ported this phase) rather than having its own, matching the plan's own
+note to double-check rather than assume one was missing.
+
+**Verification performed**: all 38 files (35 new/ported + the two patched
+registry files) individually `compile-batch -v mar-2014` clean. A
+compile→decompile round-trip was also run (same technique as Phases 2-4):
+`Ranox_FinalHall_Stage0.lua` (an untouched, verbatim-ported file) came back
+byte-for-byte line-identical to June2017's own decompile once sorted; the
+edited `FIRE_DEVIL_SKA.lua` came back semantically identical to its own
+source with the comments stripped (as expected — bytecode doesn't preserve
+comments) modulo the same benign table-key-reordering and register-numbering
+artifacts this plan's tooling section already documents. Every `:Method(`
+call across all 36 non-registry files was checked against
+`lua_tinker::class_def<...>` bindings scraped from every `.cpp` in
+`X2Lib`/`KTDXLIB` including subdirectories (`X2Lib/Offline/`, etc. —
+1385 unique bound names, cross-checked against a raw `class_def<` line count
+to rule out multi-line binding calls or macro/token-paste names being missed;
+none were).
+
+**One low-priority, unverified cosmetic risk, noted rather than chased
+further** (same non-verification precedent as Phases 3/4, which didn't check
+string-table existence for their own `dungeonName`/`m_DungeonDescription`
+either): FinalHall's `STR_ID_341xx`/`STR_ID_386xx`/`STR_ID_437xx` values are
+well above the `STR_ID_322xx` range Phases 3/4 used. March2014's own
+`data036/StringTable.lua` couldn't be grepped as plain text (still bytecode,
+not decompiled this phase) to confirm these IDs resolve to real display
+strings. If they don't, the affected fields (dungeon name/description,
+ending-speech lines, cutscene captions) would render blank rather than error
+— cosmetic only, `nil` in a table constructor doesn't crash Lua — so this
+wasn't chased further, but a later phase populating/checking the string
+table should be aware FinalHall's IDs are unverified.
+
+---
+
 ### Phase 6 — FireTemple line (has 2 engine gaps)
 
 2 engine gaps confined to `Ranox_FireTemple_Stage1_LineMap.lua`:
