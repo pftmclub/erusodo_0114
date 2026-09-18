@@ -14325,3 +14325,183 @@ g_pDungeonManager:AddDungeonData({
 	ENDING_SPEECH0 = {}
 })
 --}}
+--{{ Iruha : 2026-09-18 // Ranox port Phase 7 -- Geyser dungeon line, Normal/Hard/Expert only (Hero tier deferred per plan)
+g_pDungeonManager:AddDungeonData({
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_Ranox_Geyser1.tga",
+	m_PieceName = "Ranox_Geyser",
+	m_MaxLevel = 74,
+	m_MinLevel = 72,
+	dataFileName = "Dungeon_Ranox_Geyser_Normal.lua",
+	m_NPCLevel = 72,
+	m_RequireItemLevel = 62,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_Ranox_Geyser2.tga",
+	dungeonName = STR_ID_33775,
+	difficulty = DIFFICULTY_LEVEL.DL_NORMAL,
+	dungeonID = DUNGEON_ID.DI_RANOX_GEYSER_NORMAL,
+	m_DungeonDescription = STR_ID_33773,
+	EXTRA_REQUIRE_DUNGEON_ID = {
+		DUNGEON_ID.DI_RANOX_ASHESVILLAGE_NORMAL
+	},
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30354,
+			30355,
+			30356
+		}
+	},
+	ENDING_SPEECH0 = {
+		ELSWORD = {
+			{
+				STR_ID_33780
+			},
+			{
+				STR_ID_33781
+			}
+		},
+		AISHA = {
+			{
+				STR_ID_33782
+			},
+			{
+				STR_ID_33783
+			}
+		},
+		RENA = {
+			{
+				STR_ID_33784
+			},
+			{
+				STR_ID_33785
+			}
+		},
+		RAVEN = {
+			{
+				STR_ID_33786
+			},
+			{
+				STR_ID_33787
+			}
+		},
+		EVE = {
+			{
+				STR_ID_33788
+			},
+			{
+				STR_ID_33789
+			}
+		},
+		CHUNG = {
+			{
+				STR_ID_33790
+			},
+			{
+				STR_ID_33791
+			}
+		},
+		ARA = {
+			{
+				STR_ID_33792
+			},
+			{
+				STR_ID_33793
+			}
+		},
+		ELESIS = {
+			{
+				STR_ID_33794
+			},
+			{
+				STR_ID_33795
+			}
+		},
+		ADD = {
+			{
+				STR_ID_33796
+			},
+			{
+				STR_ID_33797
+			}
+		},
+		LUCIEL = {
+			{
+				LU = STR_ID_33798,
+				CIEL = STR_ID_33800
+			},
+			{
+				LU = STR_ID_33799,
+				CIEL = STR_ID_33801
+			}
+		},
+		ROSE = {
+			{
+				STR_ID_38641
+			},
+			{
+				STR_ID_38642
+			}
+		},
+		AIN = {
+			{
+				STR_ID_43787
+			}
+		}
+	}
+})
+g_pDungeonManager:AddDungeonData({
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_Ranox_Geyser1.tga",
+	m_PieceName = "Ranox_Geyser",
+	m_MaxLevel = 74,
+	m_MinLevel = 72,
+	dataFileName = "Dungeon_Ranox_Geyser_Hard.lua",
+	m_NPCLevel = 73,
+	m_RequireItemLevel = 63,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_Ranox_Geyser2.tga",
+	dungeonName = STR_ID_33775,
+	difficulty = DIFFICULTY_LEVEL.DL_HARD,
+	dungeonID = DUNGEON_ID.DI_RANOX_GEYSER_HARD,
+	m_DungeonDescription = STR_ID_33773,
+	EXTRA_REQUIRE_DUNGEON_ID = {
+		DUNGEON_ID.DI_RANOX_ASHESVILLAGE_NORMAL
+	},
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30354,
+			30355,
+			30356
+		}
+	},
+	ENDING_SPEECH0 = {}
+})
+g_pDungeonManager:AddDungeonData({
+	MaxAdequateMemberCount = 4,
+	m_PieceName = "Ranox_Geyser",
+	MinAdequateMemberCount = 1,
+	m_RequireItemLevel = 64,
+	m_MaxLevel = 74,
+	m_NPCLevel = 74,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_Ranox_Geyser2.tga",
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_Ranox_Geyser1.tga",
+	dataFileName = "Dungeon_Ranox_Geyser_Expert.lua",
+	m_MinLevel = 72,
+	dungeonName = STR_ID_33775,
+	difficulty = DIFFICULTY_LEVEL.DL_EXPERT,
+	FixMaximumDifficulty = TRUE,
+	dungeonID = DUNGEON_ID.DI_RANOX_GEYSER_EXPERT,
+	m_DungeonDescription = STR_ID_33773,
+	EXTRA_REQUIRE_DUNGEON_ID = {
+		DUNGEON_ID.DI_RANOX_ASHESVILLAGE_NORMAL
+	},
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30354,
+			30355,
+			30356
+		}
+	},
+	ENDING_SPEECH0 = {}
+})
+
+--}}

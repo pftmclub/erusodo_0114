@@ -17028,3 +17028,113 @@ g_pUnitManager:AddNPCTemplet({
 	IS_NPC = TRUE
 })
 --}}
+--{{ Iruha : 2026-09-18 // Ranox port Phase 7 -- NPC_UNIT_ID -> LUA_FILE_NAME registration for the Geyser line's monsters/objects (this registry, g_pUnitManager:AddNPCTemplet, was not in the plan's Output Convention list -- CX2UnitManager::AddNPCTemplet_LUA's LUA_FILE_NAME is what CX2GUNPC actually loads per NPC_UNIT_ID, confirmed in X2Lib/X2UnitManager.cpp and X2Lib/X2GUNPC.cpp; without an entry here, a ported unit-def .lua file exists on disk but is never loaded for its NPC_UNIT_ID -- gap class first found in Phase 6). NUI_GEYSER_MULSAYRENA_CALL's MOTION/NAME/DESC ("Motion_GEYSER_MULLOCK_CALL.x" / "Entranced Merman") are reused verbatim from NUI_GEYSER_MULLOCK_CALL's own entry -- this is June2017's own copy-paste, transcribed as-is per this plan's "transcribe, don't tidy" rule, not a porting error. AshesVillage/BurnedForest/FinalHall's own NPC_UNIT_IDs (Phases 3/4/5) still lack NPCTemplet.lua entries -- Phase 6's own recommended catch-up pass for those is still owed, out of scope for this phase.
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_LITTLEWORKER.x",
+	NAME = "Entranced Petty Worker",
+	LUA_FILE_NAME = "GEYSER_LITTLEWORKER.lua",
+	DESC = "Entranced Petty Worker",
+	NPC_ID = NPC_UNIT_ID.NUI_GEYSER_LITTLEWORKER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_WORKER.x",
+	NAME = "Entranced Worker",
+	LUA_FILE_NAME = "GEYSER_WORKER.lua",
+	DESC = "Entranced Worker",
+	NPC_ID = NPC_UNIT_ID.NUI_GEYSER_WORKER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_RUNNER.x",
+	NAME = "Entranced Messenger",
+	LUA_FILE_NAME = "GEYSER_RUNNER.lua",
+	DESC = "Entranced Messenger",
+	NPC_ID = NPC_UNIT_ID.NUI_GEYSER_RUNNER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_SCIENCE.x",
+	NAME = "Entranced Mechanic",
+	LUA_FILE_NAME = "GEYSER_SCIENCE.lua",
+	DESC = "Entranced Mechanic",
+	NPC_ID = NPC_UNIT_ID.NUI_GEYSER_SCIENCE,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_MULLOCK.x",
+	NAME = "Entranced Murloch",
+	LUA_FILE_NAME = "GEYSER_MULLOCK.lua",
+	DESC = "Entranced Murloch",
+	NPC_ID = NPC_UNIT_ID.NUI_GEYSER_MULLOCK,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_MULLOCK_CALL.x",
+	NAME = "Entranced Merman",
+	LUA_FILE_NAME = "GEYSER_MULLOCK_CALL.lua",
+	DESC = "Entranced Merman",
+	NPC_ID = NPC_UNIT_ID.NUI_GEYSER_MULLOCK_CALL,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_MULMAI.x",
+	NAME = "Entranced Mermaid",
+	LUA_FILE_NAME = "GEYSER_MULMAI.lua",
+	DESC = "Entranced Mermaid",
+	NPC_ID = NPC_UNIT_ID.NUI_GEYSER_MULMAI,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_ALUMINUM.x",
+	NAME = "Entranced Aluminu",
+	LUA_FILE_NAME = "GEYSER_ALUMINUM.lua",
+	DESC = "Entranced Aluminu",
+	NPC_ID = NPC_UNIT_ID.NUI_GEYSER_ALUMINUM,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_MULSAYRENA.x",
+	NAME = "Entranced Sirena",
+	LUA_FILE_NAME = "GEYSER_MULSAYRENA.lua",
+	DESC = "Entranced Sirena",
+	NPC_ID = NPC_UNIT_ID.NUI_GEYSER_MULSAYRENA,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_GATE.x",
+	NAME = "",
+	LUA_FILE_NAME = "GEYSER_GATE.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_GEYSER_GATE,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_THING_GATE,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_MULLOCK_CALL.x",
+	NAME = "Entranced Merman",
+	LUA_FILE_NAME = "GEYSER_MULSAYRENA_CALL.lua",
+	DESC = "Entranced Merman",
+	NPC_ID = NPC_UNIT_ID.NUI_GEYSER_MULSAYRENA_CALL,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_Ranox_Geyser_Boss_Stage_Direct",
+	NAME = "",
+	LUA_FILE_NAME = "EVENT_GAYSER_BOSS.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_EVENT_GAYSER_BOSS,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = FALSE
+})
+--}}

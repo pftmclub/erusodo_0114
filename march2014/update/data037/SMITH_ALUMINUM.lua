@@ -569,8 +569,21 @@ function CF_SMITH_ALUMINUM_ATTACK_B_READY_DASH_END(slot0, slot1, slot2)
 end
 
 function SMITH_ALUMINUM_ATTACK_B_READY_DASH_STATE_START(slot0, slot1, slot2)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): retroactive fix, found during
+	-- Phase 7's method-binding audit -- June2017's fallback to
+	-- slot2:GetStoredGUUser() when there's no current target is omitted --
+	-- that method isn't bound in this March2014 client (checked X2Lib/KTDXLIB,
+	-- not found; a missing method call aborts the whole script, unlike a
+	-- missing enum member). This file shipped with the call still present in
+	-- Phase 3 (AshesVillage), before the method-binding audit technique was
+	-- established in Phase 4 -- same gap class as
+	-- march2014/update/data037/RAGE_DRYADKENTA.lua (Phase 4) and
+	-- march2014/update/data037/GEYSER_ALUMINUM.lua /
+	-- march2014/update/data037/GEYSER_MULLOCK.lua (Phase 7). slot3 simply
+	-- stays nil in the no-target case, so the reorientation block below
+	-- (slot3 ~= nil) is skipped instead of falling back to a stale stored
+	-- target.
 	if slot2:GetTargetUser() == nil then
-		slot3 = slot2:GetStoredGUUser()
 	end
 
 	if slot3 ~= nil then

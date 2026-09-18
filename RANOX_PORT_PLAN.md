@@ -1206,6 +1206,205 @@ register in ./march2014/data035/DungeonData.lua.
 
 ---
 
+### Phase 7 findings (executed 2026-09-18)
+
+**All 23 new files landed and compile** (`compile-batch -v mar-2014`, individually
+and together with the two patched registry files): 3 dungeon-difficulty
+containers, 8 stage+LineMap files, and 12 monster/object unit-definition
+files. `.src.lua` siblings for the 11 dungeon/stage/LineMap files already
+existed from the original bulk-decompile; the 12 unit-definition files
+(outside that 125-file inventory, same as every phase since 4) were
+decompiled fresh this phase. All `DI_RANOX_GEYSER_{NORMAL,HARD,EXPERT}` and
+every `NPC_UNIT_ID` this line references were already in
+`march2014/data036/{Enum,DungeonEnum}.lua` from Phase 1 — zero new
+enum-*value* work needed. Reachability was already wired by Phase 2 (both
+`MapData:AddLocalMapInfo` and `DLG_Map_Local_Ranox.lua`'s `DungeonIDList`
+already carry `DI_RANOX_GEYSER_*`), so `DungeonData.lua` registration
+(Normal/Hard/Expert, ported verbatim from June2017 including
+`EXTRA_REQUIRE_DUNGEON_ID = { DUNGEON_ID.DI_RANOX_ASHESVILLAGE_NORMAL }` on
+all three difficulties; Hero-tier entries skipped per this plan's default)
+was the only *DungeonData* registry work this phase needed. `NUI_CHEST`,
+referenced by several of the unit-def files, is confirmed one of the ~10
+pre-existing shared NPCs the Findings section already identified — zero new
+work.
+
+**The three `Ranox_Geyser_stage0_linemap.lua` engine gaps, resolved by
+omission, same technique as Phase 6.** Checked all three
+(`TRIGGER_ETC_ACTION_TYPE.TAT_ETC_PLAY_EFFECTSET`, `.TAT_ETC_TALK_BOX`,
+`TRIGGER_MESH_ACTION_TYPE.TAT_MESH_MOVE`) against the underlying C++, not
+just Lua enum tables: all three are genuinely absent from March2014's C++
+enums too — `KTDXLIB/KTDGLineMap.h:91-94`'s `TRIGGER_MESH_ACTION_TYPE` stops
+at `TAT_MESH_CHANGE_SPEED` (no `MOVE`), and `:108-113`'s
+`TRIGGER_ETC_ACTION_TYPE` stops at `TAT_ETC_ACTIVE_LAYER` (no
+`PLAY_EFFECTSET` or `TALK_BOX`) — no dormant support to wire up, same verdict
+as Phase 6's own two gaps in these same two tables. Same safer gap shape
+Phase 6 documented (a missing member of an *existing* Lua table evaluates to
+`nil`, not a load-time error, and `LUA_GET_VALUE_ENUM` defaults a failed read
+to `TAT_ETC_NONE`/`TAT_MESH_NONE`) — but omitted and documented explicitly
+anyway, to keep the gap auditable per this port's established convention.
+Three triggers affected: `TRIGGER_ID` 0 and 2 each lost one
+`TRIGGER_DATA_ETC0` (`TAT_ETC_TALK_BOX`, a work-end speech-bubble cue) while
+keeping their two `TRIGGER_DATA_MESH0/1` mesh-animation-swap entries intact;
+`TRIGGER_ID` 1's entire `TRIGGER_DATA0` body was all three gapped members at
+once (`TAT_ETC_PLAY_EFFECTSET` ×2, `TAT_MESH_MOVE` ×1), so it collapsed to
+`TRIGGER_DATA0 = {}` — the trigger is kept (still referenced by `TRIGGER_ID`
+elsewhere in this file's `AddLine_LUA` calls) but now fires as a no-op.
+Verified via a comments-stripped sorted-multiset diff against June2017's own
+decompile that these omissions are the *only* content difference.
+
+**A new, more severe gap class this phase found: two methods missing not
+just from Lua binding but from the C++ class itself, in *scene* files, not
+monster unit-definitions.** Neither the Findings' 8-gap table (enum-only) nor
+any prior phase's method-binding audit (which only ever covered monster/
+object unit-def files, per Phases 4-6's own notes) would have caught this —
+it took extending the method-binding audit to this phase's *dungeon/stage*
+files too, which no phase had done before. `Ranox_Geyser_stage0.lua` (3
+occurrences) and `Ranox_Geyser_Stage1.lua` (1 occurrence) call
+`g_pObjectSkinMesh:SetTriggerID(n)` and `:SetShowObject(false, true)` on a
+`CX2WorldObjectSkinMesh` instance (the class behind `g_pWorld:CreateObjectSkinMesh()`,
+`X2Lib/X2WorldObjectSkinMesh.h`/`.cpp`). The two methods turned out to have
+different gap shapes, worth being precise about rather than lumping together
+as "both nonexistent" (an earlier draft of this finding made exactly that
+overgeneralization from a `head`-truncated grep before being corrected):
+
+- `SetTriggerID` doesn't exist anywhere in this repo's C++ at all — checked
+  `X2Lib`/`KTDXLIB` exhaustively (not head-limited), zero hits. Not a binding
+  gap; the method itself was never implemented in this build.
+- `SetShowObject` **does** exist in C++, as `CKTDGObject::SetShowObject(bool
+  bShow, bool bForce = false)` (`KTDXLIB/KTDGObject.h:305`), and
+  `CX2WorldObjectSkinMesh`'s inheritance chain does reach it in lua_tinker —
+  `class_inh<CX2WorldObjectSkinMesh, CX2WorldObject>` and
+  `class_inh<CX2WorldObject, CKTDGObject>` are both registered
+  (`X2Lib/X2Main.cpp:3694`, `:3645`). But `CKTDGObject`'s own 5-entry
+  `class_def<CKTDGObject>` block (`KTDXLIB/KTDXApp.cpp:1651-1655` — `SetLayer`,
+  `SetForceLayer`, `SetAlphaObject`, `SetScale`, `SetOverUI`) doesn't bind it,
+  so the Lua name `"SetShowObject"` resolves to nothing through this object's
+  chain. Checked whether it's bound anywhere else under that name at all
+  (exhaustive, not truncated): it isn't. A similar-looking pair of bindings on
+  `CX2GUNPC`/`CX2GUUser` (`X2Lib/X2Main.cpp:4231`, `:4574`) map those classes'
+  own `SetShowObject` C++ methods to the *different* Lua name `"SetShow"`, and
+  neither class is an ancestor of `CX2WorldObjectSkinMesh` anyway.
+
+Both still abort the whole script's load if called (same rule this port has
+established throughout for any unresolved Lua method name), so all 4 call
+sites were omitted and `SERV_IRUHADEV_RANOX_PORT`-tagged inline regardless of
+which of the two gap shapes applies. Effect: these steel-pump/pump props now
+play their `WorkLoop` animation continuously from spawn and start visible
+immediately, instead of starting hidden and being armed by their paired
+LineMap trigger (the same `TRIGGER_ID`s 0/2 already gap-omitted above) —
+cosmetic-only, no script-load failure. One `SetTriggerID(3)` call in
+`Ranox_Geyser_stage0.lua` was found to reference a `TRIGGER_ID` that doesn't
+even exist in this file's own paired LineMap (`Ranox_Geyser_stage0_linemap.lua`
+only defines `TRIGGER_ID` 0/1/2) — confirmed as June2017's own orphaned
+reference, not something this port introduced, and transcribed verbatim per
+this plan's "transcribe, don't tidy" rule rather than silently corrected.
+**Flagged for the repo/engine integration phase group as a new item**: this
+gap class (scene-file calls to unresolved `CX2WorldObjectSkinMesh` Lua method
+names) should be added to that group's checklist alongside the 8 enum gaps,
+since it wasn't discovered until this phase. `SetTriggerID` would need new
+C++ (a member function plus a binding); `SetShowObject` would need only a
+new `class_def<CKTDGObject>` binding line, since the C++ method already
+exists.
+
+**Three already-known method-binding gaps recurred, all
+`SERV_IRUHADEV_RANOX_PORT`-tagged inline, same disposition as their prior
+occurrences:**
+
+- `GetStoredGUUser` (`GEYSER_ALUMINUM.lua`, `GEYSER_MULLOCK.lua`, one
+  occurrence each) — the same target-loss-fallback gap Phase 4 first found in
+  `RAGE_DRYADKENTA.lua`. Omitted the same way: the `if slot2:GetTargetUser()
+  == nil then ... end` block's body is emptied, leaving `slot3` `nil` in the
+  no-target case instead of falling back to a stale stored target.
+- `SetMovieDescriptionData` (`EVENT_GAYSER_BOSS.lua`, 6 occurrences) — the
+  same cutscene-subtitle gap Phase 5 first found in
+  `EVENT_FINALHALL_BOSS.lua`. Omitted the same way: each
+  `if/elseif slot2:AnimEventTimer_LUA(...) then` condition is kept (the timer
+  call may have a side effect independent of its return value, per Phase 5's
+  own reasoning) but its body (the `SetMovieDescriptionData` call) is emptied.
+  The cutscene itself still plays via `ANIM_NAME`/`EFFECT_SET_LIST`; only the
+  on-screen caption text is lost.
+
+**A retroactive fix to already-shipped Phase 3 content, found by this
+phase's own audit, not scoped to Geyser at all**: `SMITH_ALUMINUM.lua`
+(AshesVillage's aluminum-golem monster, ported in Phase 3) has the exact same
+unaddressed `GetStoredGUUser` call this phase found twice in its own Geyser
+siblings — same function name (`*_ATTACK_B_READY_DASH_STATE_START`), same
+shape, presumably the same shared monster archetype reskinned across dungeon
+lines. Phase 3 predates Phase 4's discovery of the method-binding-audit
+technique, so it shipped with the call still present — meaning
+`SMITH_ALUMINUM.lua` has had a script-load-aborting call sitting in already-
+deployed content since Phase 3. Fixed here the same way as its Geyser
+siblings, tagged inline as a retroactive fix with the phase and reason noted.
+**Worth a future audit pass**: since Phase 3 shipped before the method-
+binding-audit technique existed, its other 10 unit-def files
+(`SMITH_CART/LITTLEWORKER/MACHINE/REGIEON_POINT/RUNNER/SCIENCE/STAIN/WORKER`
+plus the two gate files) were never checked against `class_def<...>`
+bindings either — this phase only checked the one file its own cross-
+reference (`GetStoredGUUser` search across all of `data037_kom`) happened to
+surface. A dedicated pass re-running Phase 4's audit technique against all of
+Phase 3's output is recommended, same shape as Phase 6's still-open
+`NPCTemplet.lua` catch-up below.
+
+**Confirmed load-bearing, same as Phase 6's own finding: this line's 12
+`NPCTemplet.lua` entries were also missing and are added here.** Same
+registry, same reasoning Phase 6 established (`g_pUnitManager:AddNPCTemplet`'s
+`LUA_FILE_NAME` is what `CX2GUNPC` actually loads per `NPC_UNIT_ID`; a ported
+unit-def file with no entry here exists on disk but never loads). All 12
+entries ported verbatim from June2017's own `NPCTemplet.lua`
+(`MOTION`/`NAME`/`DESC` text included) to `march2014/data037/NPCTemplet.lua`,
+appended after Phase 6's own block, and confirmed not colliding with any of
+the March2014 base file's pre-existing entries (checked both by `NPC_ID` and
+by `LUA_FILE_NAME`, same two axes Phase 6 checked for its own 11 additions).
+One verbatim-transcribed oddity worth
+flagging rather than silently fixing: `NUI_GEYSER_MULSAYRENA_CALL`'s entry
+carries `NUI_GEYSER_MULLOCK_CALL`'s own `MOTION`/`NAME`/`DESC` text
+("Motion_GEYSER_MULLOCK_CALL.x" / "Entranced Merman") — June2017's own
+copy-paste, not a porting error, kept per "transcribe, don't tidy."
+**Phase 6's own catch-up recommendation is still open and still out of
+scope here**: AshesVillage/BurnedForest/FinalHall's `NPC_UNIT_ID`s (Phases
+3-5) still have no `NPCTemplet.lua` entries at all, so those lines' monsters
+still exist as files but can't actually spawn with working AI in-game. A
+dedicated catch-up pass (or folding it into whichever phase runs next) is
+still recommended.
+
+**STR_ID range flag carried forward, not re-closed**: Geyser's
+`DungeonData.lua` entries use `STR_ID_38641`/`38642` and `STR_ID_43787`, the
+same unverified `386xx`/`437xx` bands Phases 5 and 6 both flagged (March2014's
+own `data036/StringTable.lua` still hasn't been decompiled to confirm these
+resolve to real display strings). Cosmetic only if unresolved (blank ending-
+speech text, no crash) — same disposition as its two prior occurrences.
+
+**Verification performed**: all 26 files (23 new/ported + the three patched
+registry files, `DungeonData.lua`/`NPCTemplet.lua`/`SMITH_ALUMINUM.lua`)
+individually `compile-batch -v mar-2014` clean, then re-verified together in
+one combined batch invocation after every edit landed. A comments-stripped,
+sorted-multiset diff against June2017's own decompile was run on every edited
+file (`Ranox_Geyser_stage0_linemap.lua`, `Ranox_Geyser_stage0.lua`,
+`Ranox_Geyser_Stage1.lua`, `GEYSER_ALUMINUM.lua`, `GEYSER_MULLOCK.lua`,
+`EVENT_GAYSER_BOSS.lua`, `SMITH_ALUMINUM.lua`) and confirmed the only
+differences are the documented omissions, plus the benign trailing-comma-
+placement and register-numbering artifacts this plan's tooling section
+already documents. A sorted-multiset diff on an untouched verbatim file
+(`Ranox_Geyser_Stage2.lua`, one of the stage files not affected by the
+`SetTriggerID`/`SetShowObject` gap above) came back byte-identical. The
+enum-table/member audit
+covered both categories of file this phase touched — the 12 unit-def files
+(48 distinct `TABLE.MEMBER` tokens, all present except the 3 known gaps) and
+the 11 dungeon/stage/LineMap files separately (41 distinct tokens, same 3
+known gaps, nothing else missing) — extending Phase 6's own note that the
+125-file Appendix A inventory doesn't cover monster files to also explicitly
+re-run the dungeon/stage files, which hadn't been separately re-audited since
+Phase 1's original methodology (enum-*value* existence only, not enum-
+*table*-member completeness) was established. The method-binding audit (56
+distinct `:Method(` calls across the 12 unit-def files, 1385 unique bound
+names scraped from `X2Lib`/`KTDXLIB` — matches Phase 5's own scrape count
+exactly, a useful cross-session sanity check that the bind surface hasn't
+drifted) found the three known-class gaps; extending that same audit to the
+11 dungeon/stage/LineMap files (their own distinct `:Method(` calls) is what
+surfaced the new `SetTriggerID`/`SetShowObject` gap class documented above.
+
+---
+
 ### Phase 8 — GateWay line (has 1 engine gap)
 
 1 engine gap: `TRIGGER_MESH_ACTION_TYPE.TAT_MESH_MOVE` in
@@ -1537,7 +1736,32 @@ need doing," not the specifics of how):
    confirm whether the C++ implementation already exists and just isn't
    exposed via a matching `Enum.lua` entry (cheap to check, might mean zero
    C++ work), before assuming new engine code is needed.
-3. **Offline-emulator / world-map hookup**, since this build's
+3. **Resolve the two `CX2WorldObjectSkinMesh` method gaps** Phase 7 found in
+   `Ranox_Geyser_stage0.lua`/`Ranox_Geyser_Stage1.lua` — `SetTriggerID` and
+   `SetShowObject`. These have *different* fixes, confirm both individually
+   rather than assuming they're the same gap:
+   - `SetTriggerID` doesn't exist anywhere in this repo's C++ — needs a new
+     member function plus a `lua_tinker::class_def<CX2WorldObjectSkinMesh>`
+     binding, same shape as the 8 enum gaps' "needs real engine work" cases.
+   - `SetShowObject` already exists in C++
+     (`CKTDGObject::SetShowObject(bool,bool)`, `KTDXLIB/KTDGObject.h:305`,
+     inherited by `CX2WorldObjectSkinMesh` via the already-registered
+     `class_inh<CX2WorldObjectSkinMesh, CX2WorldObject>` /
+     `class_inh<CX2WorldObject, CKTDGObject>` chain) — it's missing only a
+     `lua_tinker::class_def<CKTDGObject>( L, "SetShowObject", &CKTDGObject::SetShowObject )`
+     binding line (`KTDXLIB/KTDXApp.cpp`'s existing 5-entry
+     `class_def<CKTDGObject>` block), no new C++ logic needed. Cheaper than
+     `SetTriggerID` — verify this before assuming both need the same amount
+     of work.
+
+   A different gap class from the 8-gap table either way (method, not enum),
+   so treat as separate checklist items, not folded into item 2. Also worth a
+   quick check whether other, not-yet-ported dungeon lines' stage files call
+   the same or similarly-absent `CX2WorldObjectSkinMesh` methods, since no
+   phase before Phase 7 audited scene-file method calls at all (only
+   monster/object unit-def files were checked) — Phases 3-6's own stage files
+   were never re-checked against this audit either.
+4. **Offline-emulator / world-map hookup**, since this build's
    `SERV_IRUHADEV_OFFLINE` mode may need dungeon-clear and village-entry
    handling wired for Ranox's new `WORLD_ID`/`DUNGEON_ID` values the same
    way it's wired for existing content — investigate current repo state
