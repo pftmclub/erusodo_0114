@@ -398,6 +398,15 @@ implicated by this — the mechanism is 100% pre-existing engine plumbing that
 every other chapter already exercises; Ranox only needed its own data-table
 rows.
 
+**Corrected by Phase 12**: that "no repo-side change" verdict holds for the
+Local Map layer (region selector) described above, but not for the layer
+above it — the clickable Village **UI dialog**
+(`DLG_UI_FIELD_MAP_Ranox_Village_NEW.lua`, landed by this phase, see below) is
+a different manager class (`X2WorldMapUI.cpp`) with a hardcoded, Ranox-less
+C++ switch, and has been unreachable in-game since this phase landed it.
+Fixing it is repo/engine work, tracked as item 4b in that phase group. See
+Phase 12's own findings for the full trace.
+
 **Enum gap not caught by Phase 1's audit**: `LOCAL_MAP_ID.LMI_RANOX` (needed
 by `MapData:AddLocalMapInfo`, item 1 above) was outside Phase 1's stated
 scope (`NPC_UNIT_ID`/`WORLD_ID`/`VILLAGE_MAP_ID`/`DUNGEON_ID` only) and had no
@@ -2378,6 +2387,132 @@ instead).
 
 ---
 
+### Phase 12 findings (executed 2026-09-19)
+
+**Part 1 (remaining UI) files landed; a reachability gap affecting both this
+phase and Phase 2 was found while verifying them — read this before
+Phase 2's own findings.** Of the 6 files named in the phase brief,
+`DLG_Map_Local_Ranox_Back_NEW.lua` turned out to already be landed —
+Phase 2's own findings note it was ported there as a load-bearing file found
+outside that phase's original scope (`march2014/update/data034/`, still
+present, unchanged this phase). The remaining 5 —
+`DLG_UI_FIELD_MAP_Ranox_{01,02,03,04}_NEW.lua` and
+`DLG_UI_FIELD_MAP_Ranox_Rest_NEW.lua` — landed at
+`march2014/update/data034/`, all compiling under `compile-batch -v mar-2014`
+individually and together, and round-tripping (compile → decompile)
+content-identical to June2017's own source modulo the same benign table-key-order
+artifact this plan's tooling section already documents (verified for all 5,
+individually diffed against June2017's own decompile). Every `TABLE.MEMBER`
+token across all 5 (`X2_DIALOG_LAYER`, `WORLD_MAP_UI_CUSTOM_MSG`,
+`VILLAGE_MAP_ID`, `NPC_UNIT_ID`) and every `:Method(` call checked against
+`march2014/data036/Enum.lua` and the corpus of already-verified dialog files
+from Phase 2 (`DLG_UI_FIELD_MAP_Ranox_Village_NEW.lua`,
+`DLG_Map_Local_Ranox_Back_NEW.lua`) — zero misses, one gap below.
+
+**Reachability gap (new discovery, corrects Phase 2 too): none of these 6
+`DLG_UI_FIELD_MAP_Ranox_*` dialogs can currently open in-game — a hardcoded
+C++ switch has no Ranox case at all, for any of them, including the Village
+screen Phase 2 already landed.** This wasn't caught earlier because every
+prior phase's engine-gap checking was scoped to `Enum.lua` membership and
+`:Method(` binding existence (per the Findings section's own audit
+methodology) — never to whether the *dialog itself* is reachable, which is a
+third, separate class of gap this plan hadn't checked for until this phase.
+Traced it down after this session's advisor flagged that nothing yet
+references these 5 new filenames by string: `X2Lib/X2WorldMapUI.cpp`'s field-map
+dialog factory (~line 690, cached in `m_mapDLGFieldMap`, keyed by
+`VILLAGE_MAP_ID`) is a single giant `switch( iFieldID )` with one hardcoded
+`case` and literal `new CKTDGUIDialog(..., L"DLG_UI_FIELD_MAP_<Name>_NEW.lua")`
+call per already-shipped region (Ruben through Sander, the latter itself gated
+behind `#ifdef VILLAGE_SANDER`/`#ifdef SANDER_DUNGEON_5_6` — this repo's own
+precedent for adding a new region here behind a feature flag) — the source
+literally comments `"note!! 일단은 하드코딩"` ("note!! hardcoded for now") above
+it. A `grep -n RANOX X2Lib/X2WorldMapUI.cpp` returns **zero hits**; the
+`default:` case is `ASSERT(!L"iFieldID is Invalid")` then `pDialog = NULL`.
+This is unambiguously repo-side (C++) work, not something fixable from Lua —
+**added as a new, concretely-scoped item to the Repo/engine integration phase
+group below** (6 new `case` entries: `VMI_RANOX`,
+`VMI_BATTLE_FIELD_RANOX_FIELD_01..04`, `VMI_BATTLE_FIELD_RANOX_REST_00`).
+**This means Phase 2's "village scene loads in-game" done-condition was met
+only for the raw 3D scene (`Ranox_Village.lua`); the clickable Village UI
+screen players actually interact with (`DLG_UI_FIELD_MAP_Ranox_Village_NEW.lua`)
+has been unreachable since Phase 2 landed it, and remains so until this C++
+work lands** — Phase 2's own file is correct and unchanged, only its
+completeness claim needed this correction.
+
+Checked the sibling system this could have also affected and confirmed it's
+fine: `X2LocalMapUI.cpp` (the region-selector "Local Map" layer —
+`DLG_Map_Local_Ranox.lua`/`DLG_Map_Local_Ranox_Back_NEW.lua`, what Phase 2's
+`EnterCondition`/`DungeonIDList` findings describe) is fully data-driven —
+`CX2LocationManager::LocalParsing` (`X2Lib/X2LocationManager.cpp:189`) reads
+the dialog filename itself out of a `"Local"` table in `WorldData.lua`-shaped
+Lua, not a C++ switch (`grep -n "VMI_SANDER\|VMI_RANOX" X2Lib/X2LocationManager.cpp
+X2Lib/X2LocalMapUI.cpp` — zero hits in both, confirming no hardcoded region
+list exists at this layer at all). Phase 2's finding that region entry is
+"100% pre-existing engine plumbing" is correct **for the Local Map layer**;
+the correction above is specifically about the one layer up
+(`X2WorldMapUI.cpp`'s field-map screens), a different manager class this
+plan hadn't distinguished from the Local Map layer before now.
+
+**One apparent bug checked and dismissed as pre-existing, not port-introduced**:
+`DLG_UI_FIELD_MAP_Ranox_Rest_NEW.lua`'s `g_pUIDialog:SetName(...)` call reads
+`"DLG_UI_FIELD_MAP_SANDER_Rest"` — Sander's name, not Ranox's. Before
+"fixing" it, decompiled March2014's own
+`data034/DLG_UI_FIELD_MAP_Sander_Rest_NEW.lua` for comparison: it carries the
+exact same literal string. This is a pre-existing studio copy-paste artifact
+in the shipped Sander file, faithfully reproduced (not introduced) by
+June2017's own Ranox port of the template, and harmless in practice — dialogs
+here are looked up by `VILLAGE_MAP_ID` through `X2WorldMapUI.cpp`'s switch
+(see above), never by this internal `SetName` string. Transcribed verbatim
+per this plan's own convention, not tidied.
+
+**One forward-reference to Elysion, the same out-of-scope-chapter class
+Phases 10 and 11 already flagged.** `DLG_UI_FIELD_MAP_Ranox_04_NEW.lua`'s
+right/next-field button (`g_pButtonRight`) points at
+`VILLAGE_MAP_ID.VMI_BATTLE_FIELD_ELYSION_REST_00` — not in
+`march2014/data036/Enum.lua`, and Ranox is this port's last chapter, so
+adding it would dangle. Checked March2014's own equivalent boundary case
+before deciding how to omit it, rather than guessing: its own
+`DLG_UI_FIELD_MAP_Sander_04_NEW.lua` (Sander was the prior last chapter, before
+this port) has **no `g_pButtonRight` block at all** — not a button with an
+empty/omitted `AddDummyInt`, the whole button is absent. Matched that
+precedent exactly: deleted the whole block (`g_pButtonRight` through
+`AddDummyInt`, 36 lines) rather than leaving a button with no destination,
+documented inline with a `SERV_IRUHADEV_RANOX_PORT` comment. Confirmed by
+decompiling the compiled output that the block is gone from the live bytecode,
+not just the source comment.
+
+**Tooling note for future phases**: `compile-batch`/`decompile-batch` failed
+with `luajit: cannot open ... No such file or` against this session's default
+scratchpad path — the concatenated path was 262 characters, over Windows'
+260-character `MAX_PATH`. Re-running from a short path (`C:\tmp\...`) fixed
+it immediately. Watch for this specifically when a phase's scratch path is
+deeply nested; it fails silently as a generic "cannot open" with no length
+diagnostic.
+
+**Part 2 (deferred cosmetic content) is a user decision per this phase's own
+brief** — asked in this session's response, not resolved unilaterally. See
+conversation for the user's answer; whoever picks this back up should check
+for it before re-asking.
+
+**Part 3 (Hero difficulty tier) investigated and resolved as repo/engine
+work, not Lua.** `CX2Dungeon::DIFFICULTY_LEVEL` (`X2Lib/X2Dungeon.h:24`) is a
+closed 3-value C++ enum (`DL_NORMAL`/`DL_HARD`/`DL_EXPERT`) switched on by
+name across dozens of sites in `X2Lib` (dungeon logic, party UI, quest
+manager, dungeon room/result states), including a bounded loop
+(`X2UIQuestNew.cpp:3520`) that assumes exactly 3 values. This is a genuinely
+different shape from Secret Hell (Phase 9), which needed no C++ change
+because Hell-mode dungeons are standalone `DUNGEON_ID`s outside the
+Normal/Hard/Expert selector (gated by a `DungeonData.lua` `IS_HELL_MODE`
+flag, not a 4th enum member) — whereas June2017's own `DUNGEON_ID` naming for
+Hero (`_HERO_{NORMAL,HARD,EXPERT,HELL}`, a modifier *on top of* the existing
+three) and its dedicated `g_pStatic_HeroMode_Filter` UI block (omitted by
+Phase 2, a filter/toggle alongside the difficulty buttons) both point at a
+4th selectable tier, not a side door. Not attempted here — added as item 5 to
+the Repo/engine integration phase group below instead, per this phase's own
+instruction.
+
+---
+
 ### Phase 13 — Asset sweep + monster stat/drop dependency
 
 **Goal**: catch every straggler and hand off the one dependency this port
@@ -2523,6 +2658,68 @@ need doing," not the specifics of how):
    handling wired for Ranox's new `WORLD_ID`/`DUNGEON_ID` values the same
    way it's wired for existing content — investigate current repo state
    fresh rather than assuming a shape.
+4b. **Add Ranox cases to `X2WorldMapUI.cpp`'s field-map dialog switch** —
+   found by Phase 12 while verifying its own UI-file output, and it also
+   retroactively blocks Phase 2's Village screen (see Phase 12's findings
+   above for the full trace). The function around `X2Lib/X2WorldMapUI.cpp:690`
+   (cached in `m_mapDLGFieldMap`, keyed by `VILLAGE_MAP_ID`) is a hardcoded
+   `switch( iFieldID )` with one literal `case` + `new CKTDGUIDialog(...,
+   L"DLG_UI_FIELD_MAP_<Name>_NEW.lua")` per shipped region — Ranox has zero
+   cases (`grep -n RANOX X2Lib/X2WorldMapUI.cpp` returns nothing), so none of
+   its 6 `DLG_UI_FIELD_MAP_Ranox_*` dialogs (Village, 01–04, Rest — all
+   already ported, at `march2014/update/data034/`) can open in-game yet,
+   regardless of how correct their Lua is. The count is 6, not more: checked
+   against `march2014/update/data217/DLG_Map_Local_Ranox.lua` (the templet
+   file `CX2LocationManager::LocalParsing`, `X2Lib/X2LocationManager.cpp:189`,
+   actually reads `VILLAGE_MAP_ID`s out of) rather than trusting the 8-entry
+   `Enum.lua` list alone — it declares `VillageData.ID = VMI_RANOX`,
+   `BattleFieldRestData.ID = VMI_BATTLE_FIELD_RANOX_REST_00`, and
+   `BattleFieldIDList = { ...FIELD_01..04 }`, exactly the 6, and has no
+   `VillageDGData`/`VillageDungeonLoungeData` table — so
+   `VMI_DUNGEON_LOUNGE_RANOX` (also in `Enum.lua`) never reaches this code
+   path and needs no case. Its `SpaData.ID = VMI_SPA_RANOX` table is parsed by
+   nothing in `X2Lib` at all (`grep -n SpaData X2Lib` — zero hits) — dead
+   until Spa is actually ported (Phase 12's deferred content), so it's out of
+   this item's scope too; re-check this if that content lands later. Add the
+   6 `case` entries (`VMI_RANOX`, `VMI_BATTLE_FIELD_RANOX_FIELD_01..04`,
+   `VMI_BATTLE_FIELD_RANOX_REST_00`) pointing at the already-ported filenames,
+   following the file's own precedent of gating a new region behind a feature
+   flag (Sander uses `#ifdef VILLAGE_SANDER`/`SANDER_DUNGEON_5_6`; use this
+   repo's own `SERV_IRUHADEV_` convention instead, per CLAUDE.md). Cheap,
+   mechanical, and unlike items 2/3/3b/3c/3d above, requires no new rendering
+   or binding logic — it's the same shape as item 1 (a values-only sync), just
+   in a different file. **Note this is a separate mechanism from the Local
+   Map layer** (`X2LocalMapUI.cpp`/`X2LocationManager.cpp`), which Phase 2
+   confirmed is already fully data-driven (`WorldData.lua`'s `"Local"` table)
+   and needs no C++ change — don't conflate the two when doing this.
+5. **Add a "Hero" difficulty tier** (Phase 12 deferred this here after
+   checking — confirmed genuine engine work, not a data-only addition,
+   unlike Secret Hell). `CX2Dungeon::DIFFICULTY_LEVEL` (`X2Lib/X2Dungeon.h:24`)
+   is a closed 3-value enum (`DL_NORMAL`, `DL_HARD`, `DL_EXPERT`, no `DL_HELL`
+   or `DL_HERO` member), and it's switched on by name across dozens of sites in
+   `X2Dungeon.cpp`, `X2DungeonManager.cpp`, `X2Game.cpp`, `X2PartyUI.cpp`,
+   `X2QuestManager.cpp`, `X2StateDungeonGame.cpp`, `X2StateDungeonResult.cpp`,
+   and `X2StateDungeonRoom.cpp` — including at least one bounded loop
+   (`X2UIQuestNew.cpp:3520`, `for (iDifficultyLevel = DL_NORMAL; iDifficultyLevel
+   <= DL_EXPERT; ++iDifficultyLevel)`) that would silently skip a 4th value
+   rather than fail to compile. **This is why Hero is not the same shape as
+   Secret Hell's raid dungeons**: Hell-mode dungeons (`IS_HELL_MODE` in
+   `DungeonData.lua`, read at `X2DungeonManager.cpp:137`) get their own
+   standalone `DUNGEON_ID` outside the Normal/Hard/Expert selector entirely,
+   so they needed no `DIFFICULTY_LEVEL` change — Hero, per June2017's own
+   `DUNGEON_ID` naming (`_HERO_{NORMAL,HARD,EXPERT,HELL}`, i.e. a modifier on
+   top of the existing three, not a peer of them) and its UI
+   (`DLG_Map_Local_Ranox_Back_NEW.lua`'s omitted `g_pStatic_HeroMode_Filter`
+   block — a filter/toggle alongside the difficulty buttons, per Phase 2's
+   findings), looks like a fourth selectable tier, which this enum's closed
+   shape and its dozens of call sites don't accommodate without C++ changes.
+   Start by adding `DL_HERO` to the enum and working outward through every
+   `switch`/loop that assumes exactly 3 values (the list above is a starting
+   point from a text search during Phase 12, not a verified-complete
+   inventory — re-derive it, don't trust it blindly) before touching any Lua.
+   Only once that lands does Phase 1's skipped `DI_RANOX_*_HERO_*`
+   `DungeonEnum.lua` entries (see Phase 1's Appendix C.5) and the omitted
+   `g_pStatic_HeroMode_Filter` UI block become addable.
 
 **Kickoff prompt** (for whenever this group starts):
 ```
@@ -2548,7 +2745,13 @@ TAT_ETC_PLAY_EFFECTSET, TAT_ETC_TALK_BOX, TAT_MESH_MOVE, CTT_RIM_LIGHT_BLUE,
 DLT_EVENT_DUNGEON_TITLE), determine whether this repo's C++ already
 implements the underlying feature and it's just missing from March2014's
 Enum.lua binding, or whether real engine work is needed -- report findings
-before implementing anything speculative. (3) Investigate what this build's
+before implementing anything speculative. (2b) Add Ranox's 6 cases
+(VMI_RANOX, VMI_BATTLE_FIELD_RANOX_FIELD_01..04, VMI_BATTLE_FIELD_RANOX_REST_00)
+to the hardcoded dialog-filename switch in X2Lib/X2WorldMapUI.cpp (~line 690,
+see RANOX_PORT_PLAN.md's Repo/engine integration section, item 4b, for the
+exact shape and precedent) -- without this, none of the already-ported
+DLG_UI_FIELD_MAP_Ranox_* dialogs (Village, 01-04, Rest) can open in-game, no
+matter how correct their Lua is. (3) Investigate what this build's
 offline emulator (X2Lib/Offline/, see CLAUDE.md) needs for Ranox's new
 village/dungeon content to work under SERV_IRUHADEV_OFFLINE, following the
 same "play until something breaks, grep UNHANDLED in offline_packets.log"
