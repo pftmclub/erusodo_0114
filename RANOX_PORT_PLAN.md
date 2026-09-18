@@ -1756,6 +1756,297 @@ files found and ported the same way as earlier phases. Register in
 
 ---
 
+### Phase 9 findings (executed 2026-09-18)
+
+**All 55 files landed and compile** (`compile-batch -v mar-2014`, individually
+and together, `"ok":55,"failed":0`): the 3064-line `Dungeon_Ranox_Secret_Hell.lua`,
+14 stage/LineMap files, 34 monster/object unit-definition files, the
+fever-gauge UI (`DLG_UI_RANOX_SECRET_FEVER_GAGE.lua`), and 4 patched
+registries (`DungeonData.lua`, `Enum.lua`, `NPCTemplet.lua`, `WorldData.lua`)
+plus a comment-only revisit of `DLG_Map_Local_Ranox_Icon_NEW.lua`. `.src.lua`
+siblings for all 14 stage/LineMap files and the dungeon-def file already
+existed from the original bulk-decompile; the 34 unit-def files and the UI
+file (outside that 125-file inventory, same as every phase since 4) were
+decompiled fresh this phase — 32 cleanly, 2 (see below) only with a scratch
+decompiler patch. `DI_RANOX_SECRET_HELL` and the 28 `NPC_UNIT_ID`s Appendix B
+named were already in `march2014/data036/{Enum,DungeonEnum}.lua` from Phase
+1 — zero new enum-*value* work needed for those. Reachability was already
+wired by Phase 2 (`MapData:AddLocalMapInfo` and `DLG_Map_Local_Ranox.lua`'s
+`DungeonIDList` both already carry `DI_RANOX_SECRET_HELL`, checked directly
+rather than assumed).
+
+**`DI_RANOX_SECRET_COMMON` is not owed anywhere — resolved, not deferred.**
+Appendix C.5 flagged this as needing a Phase 9 check. June2017's
+`DungeonData.lua` does carry a second `AddDungeonData` block for
+`Dungeon_Ranox_Secret_Hell.lua`, but keyed off `dungeonID =
+UNUSED_DUNGEON_ID.DI_RANOX_SECRET_COMMON` — a table, `UNUSED_DUNGEON_ID`,
+that June2017 introduced as a graveyard for deprecated IDs across many
+chapters (dozens of unrelated `DI_*` names sit in it) and that **does not
+exist as a concept in March2014's own original `DungeonEnum.lua` at all**
+(checked before any Phase 1 edits). Porting that block verbatim would index
+a nil global the instant `DungeonData.lua` loads, aborting the load of
+*every* dungeon in the game, not just Ranox's — and the block is already
+`m_bForbidEnterDungeon = TRUE` in June2017's own data, i.e. dead weight even
+there. Omitted outright, tagged and explained inline in
+`march2014/data035/DungeonData.lua`; only the real `DUNGEON_ID.DI_RANOX_SECRET_HELL`
+block was ported. `41270` is not added to `DungeonEnum.lua`.
+
+**The LineMap question the plan flagged as unresolved is settled by direct
+code, not inference.** `Ranox_Secret_Extra_Boss_Stage.lua` and
+`Ranox_Secret_Extra_Stage{1,2,3}.lua` each open with an explicit
+`g_pWorld:SetLineMap(...)` call reusing another stage's own LineMap
+(`Extra_Boss_Stage` → `Ranox_Secret_Boss_Stage_LineMap.lua`; `Extra_Stage1/2/3`
+→ `Ranox_Secret_Stage{1,2,3}_LineMap.lua` respectively) — found by grepping
+each file directly, not by the March2014 precedent (`Hamel_Secret_Extra_Stage3.lua`/
+`Hamel_Secret_Extra_Boss_Stage.lua`, which turn out to do the exact same thing
+once checked) that motivated the search. Better than the plan's own framing
+of "no LineMap needed" — they need one, and reuse an existing one by name.
+
+**The two named engine gaps, resolved by omission, same technique as Phases
+6-8:**
+
+- `TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TYPE` in
+  `Ranox_Secret_Stage2_LineMap.lua` (one occurrence, `TRIGGER_ID` 2's
+  `TRIGGER_DATA_LINE1`) — the exact same C++ gap Phase 6 already found and
+  cited, not re-derived (`KTDXLIB/KTDGLineMap.h:95-104` stops at
+  `TAT_LINE_CHANGE_TELEPORT`). Same safe-degrade shape (a nil table-field
+  read defaults to `TAT_LINE_NONE`, no load abort) but omitted and documented
+  anyway. `TRIGGER_ID` 2's sibling `TRIGGER_DATA_LINE0`
+  (`TAT_LINE_CHANGE_TELEPORT`) is untouched — the teleport itself still
+  fires, only this line's reclassification-to-`LT_POTAL` cue is lost.
+- `CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE` in `Ranox_Secret_Boss_Stage.lua` — a
+  **different, more severe gap shape than every prior enum gap in this
+  port**, confirmed by checking where the token is actually used: it's not a
+  table-field read, it's the sole argument to
+  `g_pWorld:SetRimLightTextureIndex(...)`, and that method **does not exist
+  anywhere in this repo's C++ at all** (checked `X2Lib`/`KTDXLIB`
+  exhaustively, including a bare `"RimLight"` grep — zero hits, not even
+  dormant under another name). `CARTOON_TEX_TYPE` itself has no
+  `CTT_RIM_LIGHT*` sibling either (its table tops out at `CTT_END = 10`) —
+  this is a whole absent rendering feature, not a missing member of an
+  existing one. Calling an unbound method aborts the script; the call itself
+  was omitted, not just left with a missing argument. Flagged for the
+  repo/engine integration phase group as a new item, same severity class as
+  Phase 7/8's `SetTriggerID`/`SetIsForceNotCull` (needs new C++, not just a
+  binding) — cosmetic effect: the boss stage's blue screen-edge rim-light
+  tint never gets set.
+
+**A new method-binding gap class this phase found in scene files, alongside
+the one named engine gap**: `SetRimLightTextureIndex` above was found by
+extending Phase 7/8's scene-file method-binding audit to this phase's own 14
+stage/LineMap files (38 distinct `:Method(` calls checked); it was the only
+gap in that set.
+
+**The decompiler itself failed on 2 of the 34 unit-def files — a new class
+of problem this port hadn't hit before, worked around, not routed around.**
+`SECRET_MAGI_BOSS.lua` and `SECRET_SCENE_DUMMY.lua` both crashed
+`elstools.exe decompile-batch` with a truncated
+`assert iterator.opcode in (ins.ITERC.opcode, ins.ITERN.opcode)` traceback
+(`elstools/vendor/ljd/ljd/ast/builder.py:375`). Diagnosed by patching a
+**scratch copy** of the vendored `ljd` tool (never the tracked copy in this
+repo) with `--catch_asserts` (which itself needed a one-line Python
+3.10+-compat fix to `ljd/lua/writer.py`'s `traceback.format_exception` call
+to not crash a second time) to get a best-effort decompile with an inline
+error marker naming the exact failing function, and by instrumenting the
+assert directly to print the actual opcode: it resolves to `USETV` (opcode
+44, an upvalue-set instruction), not an ITER-family opcode at all — so this
+isn't a one-line "add the missing opcode" fix, and wasn't pursued as one.
+Two functions were affected, given two different dispositions rather than
+one blanket treatment:
+
+- `TableCopy()` (in both files, identical) — **reconstructed**, not
+  invented, from direct bytecode evidence: the pseudo-asm for this
+  prototype shows exactly "1 args, 0 upvalues, 9 slots", then `TNEW` (new
+  empty table), `GGET _env["pairs"]`, and a `CALL` passing the sole argument
+  to it. Two call sites in the shipped files
+  (`g_arrSummonPos = TableCopy(g_arrSummonPosOrigin)` and
+  `#TableCopy(slot3)`/`slot5 = TableCopy(slot3)`) both require a returned,
+  `#`-countable shallow copy, which is the only behavior consistent with
+  that bytecode shape. Implemented as `local copy = {} for k, v in
+  pairs(t) do copy[k] = v end return copy`. A repo-wide grep (both client
+  trees, `.src.lua` corpus) found no other file defining this exact
+  function to copy verbatim instead.
+- `SummonMonsterFrameMoveWithMaxCount()` (`SECRET_SCENE_DUMMY.lua` only) —
+  **not** reconstructed; a behavior deletion, stated as such in its own
+  inline comment. Unlike `TableCopy`, this is real, non-trivial gameplay
+  logic (a periodic summon-cap gate, per its name and its one call site's
+  arguments — `NPC_UNIT_ID.NUI_SECRET_MAGI_OBJECT`, `g_iSummomMagiGapTime`,
+  `g_iSummomMagiMaxNum`), and guessing its body from the name alone would be
+  inventing dungeon behavior, which this port does not do. Left as a no-op
+  with the 5 parameters its call site implies, so the call doesn't abort the
+  whole script with "attempt to call a nil value" — same disposition
+  Phases 6-8 gave an unbound C++ method's call site, extended here to a
+  whole function body for the first time. Effect: the periodic magi-minion
+  summon wave this gate controlled never fires.
+
+**A decompiler *mislabeling*, not a crash, found and corrected while auditing
+`SECRET_SCENE_DUMMY.lua`**: `SECRET_SCENE_DUMMY_DYING_READY_END_FUNC`
+decompiled as a bare `slot2:GetNowHP(0)` — a zero-argument getter
+(confirmed real and already used elsewhere in this same file as
+`slot2:GetNowHP() > 0`) called with a phantom argument and its return
+discarded, i.e. a statement that provably does nothing, as the sole content
+of a "_READY_END_FUNC" handler for a dying-state sequence. Corrected to
+`SetNowHP(0)` — the verbatim call this same file's own
+`SECRET_SCENE_DUMMY_SUMMON_TYPE3` branch already uses for the identical
+"finish killing this NPC" purpose, both real, distinct, bound methods
+(`X2Lib/X2Main.cpp`'s `class_def<CX2GameUnit>` block). Tagged inline as a
+tooling-artifact correction, not a data "improvement."
+
+**A major finding this phase's own audit surfaced, not named anywhere in the
+plan: 7 more `NPC_UNIT_ID`s outside Appendix B's 28, each with its own real
+unit-def file, found only by reading `SECRET_SCENE_DUMMY.lua`'s own script
+content (a "prop" NPC's Lua, not a dungeon-def or stage file — outside the
+125-file inventory Appendix B was built from).** `NUI_SECRET_SUMMON_{MAG_NOM,
+FIGHTER,FIREBIRD,SNIKER,BERSERKER}` (June2017 values `2227`/`2229`/`2232`/
+`2231`/`2230`) and `NUI_SECRET_MAGI_OBJECT`/`NUI_SECRET_MAGI_OBJECT_GROUB`
+(`2249`/`2257`, the latter carrying June2017's own `"GROUB"` typo, kept
+verbatim same as `BURNDED`/`GAYSER`) all resolved to real, distinct
+`LUA_FILE_NAME`s in June2017's `NPCTemplet.lua` (`SECRET_SUMMON_MAG_NOM.lua`
+etc., `SECRET_MAGI_OBJECT.lua`, `SECRET_MAGI_OBJECT_GROUB.lua` — not
+reused copies of the "plain" `SECRET_MAG_NOM.lua`/etc. files), decompiled,
+audited, and ported the same as the other 27. All 7 values confirmed free in
+`march2014/data036/Enum.lua`'s `NPC_UNIT_ID` table and added there (in
+alphabetical position, matching this table's own convention) — **this is
+new enum-value work Phase 1 could not have scoped**, unlike every prior
+phase's "already in Enum.lua from Phase 1" finding.
+
+**Two more `BUFF_TEMPLET_ID`/`BUFF_FACTOR_ID` gaps, same class Phase 4/5/8
+already established, found across the enum-table audit of all 34 unit-def
+files**: `BFI_BUFF_RANOX_SECRET_FEVER` (`BUFF_FACTOR_ID`, June2017 value
+`817`) and `BTI_BUFF_RANOX_SECRET_FEVER`/`BTI_DEBUFF_RANOX_MAGI_BOSS_SPEED_DOWN`
+(`BUFF_TEMPLET_ID`, `792`/`796`) — all three confirmed free within their own
+tables and appended at each table's own tail, matching Phase 4/5/8's own
+convention exactly (a fresh comma-agnostic check per Phase 8's own
+established lesson, not the comma-anchored one Phase 8 flagged as a
+near-miss).
+
+**14 method-binding gaps found across the full 34-file audit, most
+concentrated in the fever-gauge display logic — the largest single cluster
+of unbound-method gaps any phase has hit, because an entire UI subsystem is
+missing, not just individual calls.** `CreateSimpleDLG`/`GetSimpleDLG`/
+`SetShow_LUA`/`SetNumberInGageStatic_LUA`/`SetNumberInNumberStatic_LUA` do
+not exist anywhere in this repo's C++ (a bare `"SimpleDLG"` grep across both
+client trees' C++ returns zero hits) — this whole "NPC-script-opens-a-UI-dialog-
+and-drives-it" mechanism is absent from this build, not unbound under
+another name. Every call site gated on it was omitted (11 sites across
+`SECRET_SCENE_DUMMY.lua`, `SECRET_MAGI_OBJECT.lua`); most are pure
+UI-display updates with no gameplay consequence, but **one is not**: the
+"count to 5" fever-trigger check in `SECRET_SCENE_DUMMY_SUMMON_TYPE3_FRAME_MOVE`
+reads its live counter directly off the dialog's own number-static widget
+(`slot3:GetNumber_LUA()`) with no separate state variable anywhere in this
+dungeon's data — so with no dialog, there is no substitute counter to gate
+on without inventing a new mechanism, which this port does not do. Omitting
+that whole block means the magi-boss group-object spawn
+(`CreateNPCReq_LUA(NUI_SECRET_MAGI_OBJECT_GROUB, ...)`) and the transition
+into the fever buff sequence (`SECRET_SCENE_DUMMY_SUMMON_TYPE3_BUFF_READY`
+and everything downstream of it) **never fire** — a substantial,
+prominently-flagged behavior loss, not a cosmetic one, and named as a
+repo/engine integration candidate (either a substitute counter or resolving
+the SimpleDLG gap itself would restore it). The remaining 3 gap classes
+recur from prior phases, same disposition each time: `SetActiveTrigger_LUA`
+(8 sites across `SECRET_SCENE_DUMMY.lua`, `SECRET_MAGI_BOSS.lua`,
+`SECRET_MAGI_SCENE_{A,B,C}.lua` — each just un-arms one LineMap trigger
+index), `GetNowStateName` (7 sites — 3 in `SECRET_SCENE_DUMMY.lua`'s
+SCENE_A/B/C summon logic, 1 in its `CF_SECRET_SCENE_DUMMY_SUMMON_TYPE3_BUFF`
+early-exit condition kept safe by the buff's own `STATE_TIME_OVER` timer, 5
+in the newly-found `SECRET_SUMMON_*.lua` files' own fever-buff-application
+checks), `GetHostGameUnit` (3 sites, the same target-loss fallback Phase 4/5
+established, recurring in `SECRET_SNIKER.lua`/`SECRET_CRUEL_SNIKER.lua`/
+`SECRET_SUMMON_SNIKER.lua`), `FadeOriginWorldColor_LUA` (2 sites, world-tint
+fade cosmetics), `CrashAndColorChange_LUA`/`EraseAllBuffAndExtraDamage`/
+`GetDyingStart` (1 site each), and `SetForceInvincible`/`SetMovieDescriptionData`
+(3 and 1 sites respectively, the latter the same cutscene-subtitle gap every
+`_BOSS`/cutscene file has carried since Phase 5).
+
+**Verification performed**: all 55 files (34 unit-def + 14 stage/LineMap + 1
+dungeon-def + 1 UI + 4 patched registries, plus the comment-only
+`DLG_Map_Local_Ranox_Icon_NEW.lua` revisit) `compile-batch -v mar-2014` clean
+individually and together (`"ok":55,"failed":0`), from a short `C:\tmp\...`
+path per Phase 6's own lesson. A round-trip (compile → decompile) on the two
+heaviest-edited files, `SECRET_SCENE_DUMMY.lua` and `SECRET_MAGI_BOSS.lua`,
+both succeeded clean, confirming the reconstructed `TableCopy`, the
+`SummonMonsterFrameMoveWithMaxCount` stub, and the `GetNowHP`→`SetNowHP`
+correction all produce valid mar-2014 bytecode. The enum-table/member audit
+covered the dungeon-def file (52 distinct tokens, zero gaps beyond the two
+already known), the 14 stage/LineMap files (31 distinct tokens, same two),
+and the 34 unit-def files (97 distinct tokens, the `BUFF_FACTOR_ID`/
+`BUFF_TEMPLET_ID` gaps above plus the already-known `INIT_PHYSIC` local-table
+false positive Phase 6 first flagged). The method-binding audit covered the
+same three file categories separately (38/56/96 distinct `:Method(` calls
+respectively, cross-checked against both a ~1300-name `class_def<...>`
+scrape and, for every candidate gap, a direct exhaustive
+`grep -rc "\"MethodName\""` across `X2Lib`/`KTDXLIB` to rule out the
+scrape's own known multi-line-call undercount risk).
+
+**Two registries closed beyond this phase's own scope, per this session's
+own recommendation to stop re-flagging the same backlog:**
+
+- **`WorldData.lua` closed in full for every remaining dungeon-line stage
+  world, not just this phase's own 9.** Phase 8 first found and fixed this
+  gap for GateWay and flagged that AshesVillage/BurnedForest/FinalHall/
+  FireTemple/Geyser (Phases 3-7, 22 `WORLD_ID`s total) were equally
+  unregistered and left unfixed for a future catch-up. This is the last
+  dungeon-line phase in the plan and no later phase is scoped to catch it,
+  so all 22 were added here alongside this phase's own 9 Secret entries (31
+  total, one tagged block), transcribed verbatim from June2017's own
+  `WorldData.lua` including its casing mismatches against the actual ported
+  filenames (`Ranox_Geyser_Stage0.lua` vs. the Phase-7-ported
+  `Ranox_Geyser_stage0.lua`; `Ranox_Gateway_Stage*.lua` vs. the
+  Phase-8-ported `Ranox_GateWay_Stage*.lua`) — kept as shipped per
+  "transcribe, don't tidy," same disposition Phase 8 already gave its own
+  instance of this. Field/Spa/PVP `WORLD_ID`s were deliberately **not**
+  included — those belong to Phases 10/11/12, not yet ported.
+- **`NPCTemplet.lua` closed only for this phase's own 35 `NPC_UNIT_ID`s**
+  (the 28 from Appendix B plus the 7 newly-discovered names above) — **not**
+  for Phases 3-5's still-open backlog (AshesVillage/BurnedForest/FinalHall's
+  own `NPC_UNIT_ID`s), which remains unrelated to this dungeon and is still
+  open, same as every prior phase's own note on it. Unlike `WorldData.lua`
+  (which blocks a line from loading at all), a missing `NPCTemplet.lua`
+  entry only degrades one NPC's spawn behavior, so this phase closes its own
+  gap without taking on that other backlog.
+
+**A third audit axis, run after the enum-table and method-binding ones,
+found no gaps but one self-inflicted regression, since corrected.** Every
+prior phase's method-binding audit only ever checked `slotN:Method(`/
+`g_pXxx:Method(` calls; nothing had checked *bare* global-function calls
+(no `:`/`.` before the identifier) — the class Phase 2's own findings
+already named as higher-severity than an enum gap ("a missing definition
+would abort the whole script"). Run across all 34 unit-def files and 14
+stage/LineMap files (subtracting each file's own `function NAME(`
+definitions and Lua/D3DX builtins): one true bare call,
+`GetDistance_LUA(...)` in `SECRET_MAGI_BOSS.lua` — confirmed bound as a
+**global** function (`lua_tinker::def(L, "GetDistance_LUA", &GetDistance_LUA)`,
+`KTDXLIB/KTDXApp.cpp:1738`, distinct from the `class_def<...>` bindings every
+other audit this port has run checks), not a gap. Everything else that
+matched was this port's own inline comments mentioning a method name in
+prose without a `slotN:` prefix — a false-positive class worth remembering
+for whoever runs this audit next. The one real thing this axis caught:
+`SECRET_MAGI_SCENE_C.lua`'s own `GET_ALL_TRIGGER_INDEX()` call (a real,
+file-local function, not a gap) was in a loop whose earlier omission
+(above, the `SetActiveTrigger_LUA` fix) had deleted the whole loop rather
+than matching `SECRET_MAGI_SCENE_B.lua`'s sibling disposition for the exact
+same gap (keep the `GET_ALL_TRIGGER_INDEX()` call and its loop, omit only
+the unbound call inside) — inconsistent treatment of the same gap across
+two sibling files, corrected to match B's shape. Re-verified
+`compile-batch -v mar-2014` clean after the fix.
+
+**One completeness note on the dungeon-def file itself**: `Dungeon_Ranox_Secret_Hell.lua`
+has 18 `NPC_REWARD_RATE = {...}` table-constructor assignments, checked
+individually for the duplicate-key-in-one-table pattern Phase 6/8 both found
+in other lines' `DungeonData`-adjacent files — none found here (each of the
+18 sits in its own distinct `SUB_STAGE`, roughly one per sub-stage across
+this file's 9 stage entries, not stacked as sibling duplicate keys). Nothing
+to flag.
+
+**Not chased further, matching this port's own established scope
+boundary**: server-side monster stat/drop tables for this dungeon's real
+monsters (as opposed to props like `NUI_SECRET_STAGE0_GATE`/`NUI_SECRET_STAGE1_CHAIN1/2`/
+`NUI_SECRET_LAVA_DUMMY`/`NUI_SECRET_SCENE_DUMMY`/`NUI_SECRET_SCENE_1_0/1_1`)
+are out of this port's scope for the same reason Phase 4 first established —
+named as a Phase 13 dependency, not invented here.
+
+---
+
 ### Phase 10 — Open fields
 
 **Source → Target**:
@@ -2005,6 +2296,31 @@ need doing," not the specifics of how):
    unbound and has inverted semantics ("force culled," not "force **not**
    culled"). Needs new C++ (a member function plus a binding), same shape as
    `SetTriggerID` above, not the cheaper `SetShowObject` shape.
+3c. **Resolve `SetRimLightTextureIndex`**, the same gap class as items 3/3b
+   but found by Phase 9 in `Ranox_Secret_Boss_Stage.lua`. No existing C++
+   method to bind under this name either — checked `X2Lib`/`KTDXLIB`
+   exhaustively, including a bare `"RimLight"` grep (zero hits, not even
+   dormant under another name). `CARTOON_TEX_TYPE` also has no
+   `CTT_RIM_LIGHT*` sibling member (tops out at `CTT_END = 10`) — this is a
+   whole absent rendering feature, not just an unbound method, so resolving
+   it means adding both a C++ method and the enum member(s) it would take,
+   not a one-line binding fix.
+3d. **Add `SetForceInvincible`/`EraseAllBuffAndExtraDamage` bindings and,
+   separately, consider a substitute for the "SimpleDLG" NPC-to-UI-dialog
+   mechanism.** Phase 9 found `SetForceInvincible`/`EraseAllBuffAndExtraDamage`
+   (`SECRET_MAGI_BOSS.lua`) unbound, same class as items 3/3b/3c — checked
+   exhaustively, no C++-side method exists to bind under either name. More
+   significant: `CreateSimpleDLG`/
+   `GetSimpleDLG`/`SetShow_LUA`/`SetNumberInGageStatic_LUA`/
+   `SetNumberInNumberStatic_LUA` are entirely absent (a bare `"SimpleDLG"`
+   grep across both client trees' C++ returns zero hits) — this is a whole
+   subsystem (an NPC script opening and driving its own UI dialog), not a
+   single method, and Secret Hell's fever-buff trigger sequence depends on
+   it for its live counter with no substitute state variable anywhere in
+   the ported data (see Phase 9's own findings). Resolving this for real
+   gameplay (not just cosmetic UI) means either binding the whole SimpleDLG
+   call surface or adding a substitute counter mechanism — bigger scope
+   than items 3/3b/3c, flagged separately for that reason.
 4. **Offline-emulator / world-map hookup**, since this build's
    `SERV_IRUHADEV_OFFLINE` mode may need dungeon-clear and village-entry
    handling wired for Ranox's new `WORLD_ID`/`DUNGEON_ID` values the same
@@ -2184,6 +2500,19 @@ FireTemple, and GateWay).
 `NUI_SECRET_SCENE_1_1`, `NUI_SECRET_SCENE_DUMMY`, `NUI_SECRET_SNIKER`,
 `NUI_SECRET_STAGE0_CHAIN_OBJECT`, `NUI_SECRET_STAGE0_GATE`,
 `NUI_SECRET_STAGE1_CHAIN1`, `NUI_SECRET_STAGE1_CHAIN2`.
+
+**Correction, Phase 9 (2026-09-18): this bucket is incomplete by 7 names.**
+This 28-name list was extracted from Appendix A's 125-file inventory
+(dungeon-def/stage/LineMap files), which by construction excludes
+monster/object unit-definition files — the same blind spot Phase 6 first
+flagged for `BUFF_FACTOR_ID`. Reading `SECRET_SCENE_DUMMY.lua`'s own script
+content (Phase 9) surfaced 7 more, each with its own real unit-def file, not
+a reused copy of a plain-named sibling: `NUI_SECRET_SUMMON_MAG_NOM`,
+`NUI_SECRET_SUMMON_FIGHTER`, `NUI_SECRET_SUMMON_FIREBIRD`,
+`NUI_SECRET_SUMMON_SNIKER`, `NUI_SECRET_SUMMON_BERSERKER`,
+`NUI_SECRET_MAGI_OBJECT`, `NUI_SECRET_MAGI_OBJECT_GROUB` (the last carrying
+June2017's own `"GROUB"` typo, kept verbatim). All 7 ported and registered
+in Phase 9's own findings — not a new backlog.
 
 **FIELD** (39, the `_FD` open-field tier plus story NPCs also seen in
 fields): `NUI_EDEL`, `NUI_FACEOFF`, `NUI_IGNIA`,

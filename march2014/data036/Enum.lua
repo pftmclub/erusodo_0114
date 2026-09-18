@@ -4337,6 +4337,12 @@ NPC_UNIT_ID = {
 	NUI_SECRET_JIN = 2239,
 	NUI_SECRET_LAVA_DUMMY = 2248,
 	NUI_SECRET_MAGI_BOSS = 2241,
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 -- NUI_SECRET_MAGI_OBJECT/
+	-- _GROUB were outside Appendix B's 28-name list (found only by reading
+	-- Secret Hell's own unit-def scripts, not the dungeon-def/stage-file
+	-- inventory Appendix B was built from). June2017 values, confirmed free.
+	NUI_SECRET_MAGI_OBJECT = 2249,
+	NUI_SECRET_MAGI_OBJECT_GROUB = 2257,
 	NUI_SECRET_MAGI_SCENE_A = 2243,
 	NUI_SECRET_MAGI_SCENE_B = 2244,
 	NUI_SECRET_MAGI_SCENE_C = 2245,
@@ -4351,6 +4357,14 @@ NPC_UNIT_ID = {
 	NUI_SECRET_STAGE0_GATE = 2291,
 	NUI_SECRET_STAGE1_CHAIN1 = 2292,
 	NUI_SECRET_STAGE1_CHAIN2 = 2293,
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 -- NUI_SECRET_SUMMON_*
+	-- (5), same discovery-source note as NUI_SECRET_MAGI_OBJECT above --
+	-- outside Appendix B's 28-name list. June2017 values, confirmed free.
+	NUI_SECRET_SUMMON_BERSERKER = 2230,
+	NUI_SECRET_SUMMON_FIGHTER = 2229,
+	NUI_SECRET_SUMMON_FIREBIRD = 2232,
+	NUI_SECRET_SUMMON_MAG_NOM = 2227,
+	NUI_SECRET_SUMMON_SNIKER = 2231,
 	NUI_SMITH_ALUMINUM = 1692,
 	NUI_SMITH_CART = 1704,
 	NUI_SMITH_LITTLEWORKER = 1687,
@@ -8561,7 +8575,14 @@ BUFF_TEMPLET_ID = {
 	BTI_DEBUFF_ELIXIR_ICE_BALL_OF_DENIPH = 199,
 	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 5 (FinalHall) -- FIRE_DEVIL_CHAIN_BALL.lua
 	-- references this, missing from March2014's Enum.lua; added at June2017's verbatim value
-	BTI_BUFF_DEVIL_CHAIN_BALL = 484
+	BTI_BUFF_DEVIL_CHAIN_BALL = 484,
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 (Secret Hell) --
+	-- SECRET_SCENE_DUMMY.lua/SECRET_MAGI_BOSS.lua and this dungeon's
+	-- SECRET_SUMMON_*.lua files reference these, missing from March2014's
+	-- Enum.lua; added at June2017's verbatim values, confirmed free within
+	-- this table
+	BTI_BUFF_RANOX_SECRET_FEVER = 792,
+	BTI_DEBUFF_RANOX_MAGI_BOSS_SPEED_DOWN = 796
 }
 BUFF_FACTOR_ID = {
 	BFI_SI_P_AEM_ELEMENTAL_FRIENDSHIP_ATTACK = 254,
@@ -8941,7 +8962,12 @@ BUFF_FACTOR_ID = {
 	-- references these, missing from March2014's Enum.lua; added at June2017's
 	-- verbatim values, confirmed free within this table
 	BFI_BUFF_IGNIA_ATTACK_SUPERARMOR = 530,
-	BFI_BUFF_IGNIA_HP_MP = 531
+	BFI_BUFF_IGNIA_HP_MP = 531,
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 (Secret Hell) -- several
+	-- of this dungeon's unit-def files reference this, missing from
+	-- March2014's Enum.lua; added at June2017's verbatim value, confirmed
+	-- free within this table
+	BFI_BUFF_RANOX_SECRET_FEVER = 817
 }
 SMS_TYPE = {
 	SMS_NONE = -1,

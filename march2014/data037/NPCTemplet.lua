@@ -17221,3 +17221,332 @@ g_pUnitManager:AddNPCTemplet({
 	IS_NPC = FALSE
 })
 --}}
+--{{ Iruha : 2026-09-18 // Ranox port Phase 9 -- NPCTemplet.lua entries for
+-- Secret Hell's 28 Appendix-B NPC_UNIT_IDs plus the 7 discovered outside
+-- Appendix B (NUI_SECRET_SUMMON_*, NUI_SECRET_MAGI_OBJECT{,_GROUB} -- found
+-- only by reading this dungeon's own unit-def scripts). Same registry,
+-- same reasoning Phase 6 first established: g_pUnitManager:AddNPCTemplet's
+-- LUA_FILE_NAME is what CX2GUNPC actually loads per NPC_UNIT_ID; a ported
+-- unit-def file with no entry here exists on disk but never loads. All 35
+-- entries copied verbatim from June2017's own NPCTemplet.lua
+-- (MOTION/NAME/DESC text included, Korean-language DESC strings kept as-is)
+-- -- confirmed not colliding with any pre-existing entry by both NPC_ID and
+-- LUA_FILE_NAME. Phase 3-5's own backlog (AshesVillage/BurnedForest/
+-- FinalHall's NPC_UNIT_IDs) is unrelated to this dungeon and NOT closed
+-- here -- still open, same as every prior phase's own note on it.
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_BERSERKER_FIRETEMPLE.x",
+	NAME = "Steel Lava Berserker",
+	LUA_FILE_NAME = "SECRET_BERSERKER.lua",
+	DESC = "Steel Lava Berserker",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_BERSERKER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Dummy_Ani_Wait.x",
+	NAME = "",
+	LUA_FILE_NAME = "SECRET_BOSS_LAVA.lua",
+	DESC = "연출용 몬스터",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_BOSS_LAVA,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_THING_TRAP,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_BERSERKER.x",
+	NAME = "Brutal Steel Lava Berserker",
+	LUA_FILE_NAME = "SECRET_CRUEL_BERSERKER.lua",
+	DESC = "Brutal Steel Lava Berserker",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_CRUEL_BERSERKER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_FIGHTER_FIRETEMPLE.x",
+	NAME = "Brutal Steel Lava Champion",
+	LUA_FILE_NAME = "SECRET_CRUEL_FIGHTER.lua",
+	DESC = "Brutal Steel Lava Champion",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_CRUEL_FIGHTER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MAG_CHARGER.x",
+	NAME = "Brutal Volcanic Mag Charger",
+	LUA_FILE_NAME = "SECRET_CRUEL_MAG_CHARGER.lua",
+	DESC = "Brutal Volcanic Mag Charger",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_CRUEL_MAG_CHARGER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MAG_NOM.x",
+	NAME = "Brutal Volcanic Mag Norm",
+	LUA_FILE_NAME = "SECRET_CRUEL_MAG_NOM.lua",
+	DESC = "Brutal Volcanic Mag Norm",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_CRUEL_MAG_NOM,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_SNIKER.x",
+	NAME = "Brutal Steel Lava Scout",
+	LUA_FILE_NAME = "SECRET_CRUEL_SNIKER.lua",
+	DESC = "Brutal Steel Lava Scout",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_CRUEL_SNIKER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_EXTRA_MAGI_BOSS.x",
+	NAME = "Mutated Demon Form",
+	LUA_FILE_NAME = "SECRET_MAGI_BOSS.lua",
+	DESC = "Mutated Demon Form",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_EXTRA_MAGI_BOSS,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_FIGHTER_FIRETEMPLE.x",
+	NAME = "Steel Lava Champion",
+	LUA_FILE_NAME = "SECRET_FIGHTER.lua",
+	DESC = "Steel Lava Champion",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_FIGHTER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MOUNT_FIREBIRD.x",
+	NAME = "Volcanic Fire Bird",
+	LUA_FILE_NAME = "SECRET_FIREBIRD.lua",
+	DESC = "Volcanic Fire Bird",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_FIREBIRD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_IN.x",
+	NAME = "Enslaved Demon In",
+	LUA_FILE_NAME = "SECRET_IN.lua",
+	DESC = "Enslaved Demon In",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_IN,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_JIN.x",
+	NAME = "Entranced Demon Jin",
+	LUA_FILE_NAME = "SECRET_JIN.lua",
+	DESC = "Entranced Demon Jin",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_JIN,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Dummy_Ani_Wait.X",
+	NAME = "",
+	LUA_FILE_NAME = "SECRET_LAVA_DUMMY.lua",
+	DESC = "연출용 몬스터",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_LAVA_DUMMY,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_THING_TRAP,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_MAGI_BOSS.x",
+	NAME = "Mutated Demon Form",
+	LUA_FILE_NAME = "SECRET_MAGI_BOSS.lua",
+	DESC = "Mutated Demon Form",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_MAGI_BOSS,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_MAGI_SCENE_A.x",
+	NAME = "Demon Form",
+	LUA_FILE_NAME = "SECRET_MAGI_SCENE_A.lua",
+	DESC = "연출용 몬스터",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_MAGI_SCENE_A,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_MAGI_SCENE_B.x",
+	NAME = "Demon Form",
+	LUA_FILE_NAME = "SECRET_MAGI_SCENE_B.lua",
+	DESC = "연출용 몬스터",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_MAGI_SCENE_B,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_MAGI_SCENE_C.x",
+	NAME = "Demon Form",
+	LUA_FILE_NAME = "SECRET_MAGI_SCENE_C.lua",
+	DESC = "연출용 몬스터",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_MAGI_SCENE_C,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_MAGI_SUMMON.x",
+	NAME = "",
+	LUA_FILE_NAME = "SECRET_MAGI_SUMMON.lua",
+	DESC = "연출용 몬스터",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_MAGI_SUMMON,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MAG_CHARGER.x",
+	NAME = "Volcanic Mag Charger",
+	LUA_FILE_NAME = "SECRET_MAG_CHARGER.lua",
+	DESC = "Volcanic Mag Charger",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_MAG_CHARGER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MAG_NOM.x",
+	NAME = "Volcanic Mag Norm",
+	LUA_FILE_NAME = "SECRET_MAG_NOM.lua",
+	DESC = "Volcanic Mag Norm",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_MAG_NOM,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_SCENE_1_0.x",
+	NAME = "",
+	LUA_FILE_NAME = "SECRET_SCENE_1_0.lua",
+	DESC = "연출용 몬스터",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_SCENE_1_0,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_SCENE_1_1.x",
+	NAME = "",
+	LUA_FILE_NAME = "SECRET_SCENE_1_1.lua",
+	DESC = "연출용 몬스터",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_SCENE_1_1,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_SCENE_DUMMY.x",
+	NAME = "",
+	LUA_FILE_NAME = "SECRET_SCENE_DUMMY.lua",
+	DESC = "연출용 몬스터",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_SCENE_DUMMY,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_SNIKER.x",
+	NAME = "Steel Lava Scout",
+	LUA_FILE_NAME = "SECRET_SNIKER.lua",
+	DESC = "Steel Lava Scout",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_SNIKER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_STAGE0_CHAIN_OBJECT.x",
+	NAME = "",
+	LUA_FILE_NAME = "SECRET_STAGE0_CHAIN_OBJECT.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_STAGE0_CHAIN_OBJECT,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_STAGE0_GATE.x",
+	NAME = "",
+	LUA_FILE_NAME = "SECRET_STAGE0_GATE.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_STAGE0_GATE,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_STAH1_CHAIN1.x",
+	NAME = "",
+	LUA_FILE_NAME = "SECRET_STAGE1_CHAIN1.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_STAGE1_CHAIN1,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_STAH1_CHAIN2.x",
+	NAME = "",
+	LUA_FILE_NAME = "SECRET_STAGE1_CHAIN2.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_STAGE1_CHAIN2,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MAG_NOM.x",
+	NAME = "Eroded Volcanic Mag Norm",
+	LUA_FILE_NAME = "SECRET_SUMMON_MAG_NOM.lua",
+	DESC = "Eroded Volcanic Mag Norm",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_SUMMON_MAG_NOM,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_FIGHTER_FIRETEMPLE.x",
+	NAME = "Eroded Steel Lava Champion",
+	LUA_FILE_NAME = "SECRET_SUMMON_FIGHTER.lua",
+	DESC = "Eroded Steel Lava Champion",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_SUMMON_FIGHTER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MOUNT_FIREBIRD.x",
+	NAME = "Eroded Volcanic Fire Bird",
+	LUA_FILE_NAME = "SECRET_SUMMON_FIREBIRD.lua",
+	DESC = "Eroded Volcanic Fire Bird",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_SUMMON_FIREBIRD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_SNIKER.x",
+	NAME = "Eroded Steel Lava Scout",
+	LUA_FILE_NAME = "SECRET_SUMMON_SNIKER.lua",
+	DESC = "Eroded Steel Lava Scout",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_SUMMON_SNIKER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_BERSERKER_FIRETEMPLE.x",
+	NAME = "Eroded Steel Lava Berserker",
+	LUA_FILE_NAME = "SECRET_SUMMON_BERSERKER.lua",
+	DESC = "Eroded Steel Lava Berserker",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_SUMMON_BERSERKER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_MAGI_OBJECT.x",
+	NAME = "Demonic Sealing Orb",
+	LUA_FILE_NAME = "SECRET_MAGI_OBJECT.lua",
+	DESC = "마기 결속구",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_MAGI_OBJECT,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SECRET_MAGI_OBJECT_GROUB.x",
+	NAME = "",
+	LUA_FILE_NAME = "SECRET_MAGI_OBJECT_GROUB.lua",
+	DESC = "비던 마기오브젝트 연출 몬스터",
+	NPC_ID = NPC_UNIT_ID.NUI_SECRET_MAGI_OBJECT_GROUB,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+--}}

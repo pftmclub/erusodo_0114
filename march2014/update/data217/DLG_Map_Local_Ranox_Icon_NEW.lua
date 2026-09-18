@@ -393,9 +393,18 @@ g_pPictureTitleBG_Title_Secret:SetPoint({
 -- omitted here. Both called AddDummyInt(DETAIL_LOCAL_TYPE.DLT_EVENT_DUNGEON_TITLE),
 -- which is confirmed absent from March2014's DETAIL_LOCAL_TYPE enum (only
 -- DLT_VILLAGE/DLT_DUNGEON/DLT_ARCADE exist) -- see RANOX_PORT_PLAN.md's
--- engine-gap table, resolved in Phase 9. The Mission Impossible dungeon
+-- engine-gap table, revisited in Phase 9. The Mission Impossible dungeon
 -- buttons themselves (g_pButton_Event_Dummy01/02, above) use only DLT_DUNGEON
 -- and IDs that already exist in March2014's DungeonEnum.lua, so they are kept.
+-- Phase 9 revisit: confirmed this gap does not affect Secret Hell's own icon
+-- treatment -- g_pButton_Ranox_Secret_Dungeon,
+-- g_pButton_Ranox_Secret_Dungeon_Desc, and g_pButton_TitleBG (this dungeon's
+-- own icon/description/title-background buttons, all in this same file) use
+-- only DUNGEON_ID.DI_RANOX_SECRET_HELL + DETAIL_LOCAL_TYPE.DLT_DUNGEON, the
+-- same plain pattern every other dungeon icon on this map already uses --
+-- not DLT_EVENT_DUNGEON_TITLE at all. Nothing is owed here beyond this
+-- confirmation; the gap remains confined to the two already-omitted
+-- Halloween overlay blocks.
 
 g_pButton_STAR2 = g_pUIDialog:CreateStatic()
 

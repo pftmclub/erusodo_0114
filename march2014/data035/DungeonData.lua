@@ -14736,3 +14736,154 @@ g_pDungeonManager:AddDungeonData({
 })
 
 --}}
+--{{ Iruha : 2026-09-18 // Ranox port Phase 9 -- Secret Hell raid dungeon (no
+-- difficulty split; a single AddDungeonData block covers all players).
+-- June2017's DungeonData.lua also carries a *second* AddDungeonData block for
+-- this same dataFileName ("Dungeon_Ranox_Secret_Hell.lua") keyed off
+-- dungeonID = UNUSED_DUNGEON_ID.DI_RANOX_SECRET_COMMON instead of DUNGEON_ID --
+-- deliberately NOT ported. UNUSED_DUNGEON_ID is a graveyard table for
+-- deprecated dungeon IDs that June2017 itself introduced across many
+-- chapters; it does not exist as a concept in March2014 at all (checked
+-- March2014's own original DungeonEnum.lua before any Phase 1 edits -- no
+-- such table). Porting that block verbatim would index a nil global the
+-- moment this file loads and abort DungeonData.lua's load entirely --
+-- breaking every dungeon in the game, not just Ranox, not only this one. The
+-- block is also already forbidden in June2017's own data
+-- (m_bForbidEnterDungeon = TRUE) -- dead weight even in the source client.
+-- Appendix C.5's own note ("check DungeonData.lua's structure in Phase 9 to
+-- see if both are needed") is answered: no, only DI_RANOX_SECRET_HELL is
+-- needed; DI_RANOX_SECRET_COMMON is not owed anywhere (not in DUNGEON_ID, not
+-- as a new UNUSED_DUNGEON_ID table, nothing).
+-- ROSE/AIN keys in ENDING_SPEECH0 below are June2017-only characters that
+-- don't exist in this March2014 build (checked: zero ROSE/AIN keys anywhere
+-- else in this file) -- kept verbatim per "transcribe, don't tidy"; they are
+-- inert plain table keys, never read by a character this build doesn't have.
+g_pDungeonManager:AddDungeonData({
+	m_MaxLevel = 99,
+	m_PieceName = "RANOX_MAGI_pit",
+	m_LocalStarPosX = 795,
+	m_LocalStarPosY = 281,
+	requireItemCount = 1,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_FINALHALL_Magi_02.tga",
+	m_TextureName = "DLG_UI_Dungeon_Image11.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_FINALHALL_Magi_01.tga",
+	dataFileName = "Dungeon_Ranox_Secret_Hell.lua",
+	m_MinLevel = 70,
+	requireItemID = 700015,
+	m_SuitableLevelFixValue = 0,
+	m_RequireItemLevel = 90,
+	dungeonID = DUNGEON_ID.DI_RANOX_SECRET_HELL,
+	dungeonName = STR_ID_39949,
+	difficulty = DIFFICULTY_LEVEL.DL_HARD,
+	m_eDungeonType = DUNGEON_TYPE.DT_SECRET,
+	m_bRelativeMonsterLevel = TRUE,
+	m_DungeonDescription = STR_ID_39950,
+	m_eDefaultDungeonLoungeWorldID = WORLD_ID.WI_RANOX_SECRET_BOSS_STAGE,
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			154066,
+			700009,
+			700010,
+			700013,
+			700014
+		}
+	},
+	ENDING_SPEECH0 = {
+		ELSWORD = {
+			{
+				STR_ID_39951
+			},
+			{
+				STR_ID_39952
+			}
+		},
+		AISHA = {
+			{
+				STR_ID_39953
+			},
+			{
+				STR_ID_39954
+			}
+		},
+		RENA = {
+			{
+				STR_ID_39955
+			},
+			{
+				STR_ID_39956
+			}
+		},
+		RAVEN = {
+			{
+				STR_ID_39957
+			},
+			{
+				STR_ID_39958
+			}
+		},
+		EVE = {
+			{
+				STR_ID_39959
+			},
+			{
+				STR_ID_39960
+			}
+		},
+		CHUNG = {
+			{
+				STR_ID_39961
+			},
+			{
+				STR_ID_39962
+			}
+		},
+		ARA = {
+			{
+				STR_ID_39963
+			},
+			{
+				STR_ID_39964
+			}
+		},
+		ELESIS = {
+			{
+				STR_ID_39965
+			},
+			{
+				STR_ID_39966
+			}
+		},
+		ADD = {
+			{
+				STR_ID_39967
+			},
+			{
+				STR_ID_39968
+			}
+		},
+		LUCIEL = {
+			{
+				LU = STR_ID_39969,
+				CIEL = STR_ID_39971
+			},
+			{
+				LU = STR_ID_39970,
+				CIEL = STR_ID_39972
+			}
+		},
+		ROSE = {
+			{
+				STR_ID_39973
+			},
+			{
+				STR_ID_39974
+			}
+		},
+		AIN = {
+			{
+				STR_ID_43790
+			}
+		}
+	}
+})
+--}}

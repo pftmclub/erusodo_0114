@@ -1,0 +1,227 @@
+function GET_ALL_TRIGGER_INDEX()
+	return {
+		1,
+		2,
+		3
+	}
+end
+
+INIT_SYSTEM = {
+	UNIT_SCALE = 1,
+	UNIT_LAYER = X2_LAYER.XL_UNIT_0,
+	ALPHA_BLEND = TRUE
+}
+INIT_DEVICE = {
+	READY_TEXTURE = {
+		"Magi_P01.dds",
+		"SKA_flame7.dds",
+		"secretVelder_alchemystBoss_magicAttackA_dust.dds"
+	},
+	READY_XMESH = {},
+	READY_XSKIN_MESH = {},
+	READY_SOUND = {
+		"Ranox_Sphere01.ogg",
+		"Ranox_Sphere02.ogg",
+		"Ranox_Sphere03.ogg",
+		"Chainball_Loop01.ogg"
+	}
+}
+INIT_MOTION = {
+	MOTION_FILE_NAME = "Motion_SECRET_MAGI_SCENE_A.X"
+}
+INIT_PHYSIC = {
+	RUN_SPEED = 0,
+	RELOAD_ACCEL = 2000,
+	DASH_JUMP_SPEED = 0,
+	WALK_SPEED = 0,
+	G_ACCEL = 4000,
+	MAX_G_SPEED = -2000,
+	JUMP_SPEED = 0
+}
+INIT_COMPONENT = {
+	MAX_HP = 30000,
+	MP_CHANGE_RATE = 1,
+	MP_CHARGE_RATE = 130,
+	MAX_HYPER_MODE_TIME = 30,
+	HYPER_MODE_COUNT = 0,
+	USE_SLASH_TRACE = FALSE,
+	HITTED_TYPE = HITTED_TYPE.HTD_STONE,
+	NOT_CULL = TRUE
+}
+INIT_STATE = {
+	{
+		STATE_NAME = "SECRET_MAGI_SCENE_C_START",
+		LUA_STATE_START_FUNC = "SECRET_MAGI_SCENE_C_START_START_FUNC"
+	},
+	{
+		STATE_NAME = "SECRET_MAGI_SCENE_C_ACTION"
+	},
+	{
+		STATE_NAME = "SECRET_MAGI_SCENE_C_ACTION_WAIT",
+		LUA_STATE_END_FUNC = "SECRET_MAGI_SCENE_C_ACTION_WAIT_END_FUNC"
+	},
+	{
+		STATE_NAME = "SECRET_MAGI_SCENE_C_DYING",
+		LUA_STATE_START_FUNC = "SECRET_MAGI_SCENE_C_DYING_START_START",
+		LUA_STATE_END_FUNC = "SECRET_MAGI_SCENE_C_DYING_END_FUNC"
+	},
+	START_STATE = "SECRET_MAGI_SCENE_C_START",
+	BIG_DAMAGE_LAND_BACK = "SECRET_MAGI_SCENE_C_START",
+	SMALL_DAMAGE_AIR = "SECRET_MAGI_SCENE_C_START",
+	DOWN_DAMAGE_LAND_FRONT = "SECRET_MAGI_SCENE_C_START",
+	DAMAGE_REVENGE = "",
+	DOWN_DAMAGE_AIR_LANDING = "SECRET_MAGI_SCENE_C_START",
+	DOWN_DAMAGE_AIR = "SECRET_MAGI_SCENE_C_START",
+	DYING_SKY = "SECRET_MAGI_SCENE_C_DYING",
+	SMALL_DAMAGE_LAND_FRONT = "SECRET_MAGI_SCENE_C_START",
+	DOWN_DAMAGE_LAND_BACK = "SECRET_MAGI_SCENE_C_START",
+	FLY_DAMAGE_BACK = "SECRET_MAGI_SCENE_C_START",
+	FLY_DAMAGE_FRONT = "SECRET_MAGI_SCENE_C_START",
+	WAIT_STATE = "SECRET_MAGI_SCENE_C_DYING",
+	BIG_DAMAGE_LAND_FRONT = "SECRET_MAGI_SCENE_C_START",
+	SMALL_DAMAGE_LAND_BACK = "SECRET_MAGI_SCENE_C_START",
+	BIG_DAMAGE_AIR = "SECRET_MAGI_SCENE_C_START",
+	DYING_LAND_BACK = "SECRET_MAGI_SCENE_C_DYING",
+	UP_DAMAGE = "SECRET_MAGI_SCENE_C_START",
+	DYING_LAND_FRONT = "SECRET_MAGI_SCENE_C_DYING"
+}
+INIT_AI = {
+	NO_BRAIN = TRUE
+}
+SECRET_MAGI_SCENE_C_START = {
+	ANIM_NAME = "Wait",
+	PLAY_TYPE = XSKIN_ANIM_PLAYTYPE.XAP_ONE_WAIT,
+	LAND_CONNECT = FALSE,
+	SHOW = FALSE,
+	INVINCIBLE = {
+		0,
+		100
+	},
+	CAN_PUSH_UNIT = FALSE,
+	CAN_PASS_UNIT = TRUE,
+	NEVER_MOVE = TRUE,
+	RIGHT = FALSE,
+	IMMADIATE_PACKET_SEND = TRUE,
+	EFFECT_SET_LIST = {}
+}
+
+function SECRET_MAGI_SCENE_C_START_START_FUNC(slot0, slot1, slot2)
+end
+
+SECRET_MAGI_SCENE_C_ACTION = {
+	ANIM_NAME = "Start",
+	PLAY_TYPE = XSKIN_ANIM_PLAYTYPE.XAP_ONE_WAIT,
+	LAND_CONNECT = FALSE,
+	SHOW = TRUE,
+	INVINCIBLE = {
+		0,
+		100
+	},
+	CAN_PUSH_UNIT = FALSE,
+	CAN_PASS_UNIT = TRUE,
+	NEVER_MOVE = TRUE,
+	RIGHT = FALSE,
+	IMMADIATE_PACKET_SEND = TRUE,
+	EVENT_PROCESS = {
+		{
+			STATE_CHANGE_TYPE.SCT_MOTION_END,
+			"SECRET_MAGI_SCENE_C_ACTION_WAIT"
+		}
+	},
+	EFFECT_SET_LIST_EX = {
+		{
+			"EffectSet_Ranox_Secret_Magi_Wait",
+			0,
+			DELETE_CONDITION_EFFECT_SET.DCES_CUSTOM_STATE
+		}
+	},
+	SOUND_PLAY0 = {
+		0.001,
+		"Chainball_Loop01.ogg"
+	}
+}
+SECRET_MAGI_SCENE_C_ACTION_WAIT = {
+	ANIM_NAME = "Wait",
+	PLAY_TYPE = XSKIN_ANIM_PLAYTYPE.XAP_ONE_WAIT,
+	LAND_CONNECT = FALSE,
+	SHOW = TRUE,
+	INVINCIBLE = {
+		0,
+		100
+	},
+	CAN_PUSH_UNIT = FALSE,
+	CAN_PASS_UNIT = TRUE,
+	NEVER_MOVE = TRUE,
+	RIGHT = FALSE,
+	IMMADIATE_PACKET_SEND = TRUE,
+	EVENT_PROCESS = {
+		{
+			STATE_CHANGE_TYPE.SCT_MOTION_END,
+			"SECRET_MAGI_SCENE_C_DYING"
+		}
+	},
+	SOUND_PLAY0 = {
+		0.001,
+		"Chainball_Loop01.ogg"
+	}
+}
+
+function SECRET_MAGI_SCENE_C_ACTION_WAIT_END_FUNC(slot0, slot1, slot2)
+	slot2:SetNowHP(0)
+end
+
+SECRET_MAGI_SCENE_C_DYING = {
+	ANIM_NAME = "Block_Broken",
+	PLAY_TYPE = XSKIN_ANIM_PLAYTYPE.XAP_ONE_WAIT,
+	TRANSITION = FALSE,
+	LAND_CONNECT = FALSE,
+	INVINCIBLE = {
+		0,
+		100
+	},
+	CAN_PUSH_UNIT = FALSE,
+	CAN_PASS_UNIT = TRUE,
+	DYING_END = TRUE,
+	IMMADIATE_PACKET_SEND = TRUE,
+	CUSTOM_STATE_DELETE_EFFECT_SET = TRUE,
+	EFFECT_SET_LIST = {
+		"EffectSet_Ranox_Secret_Magi_Fire",
+		0
+	},
+	SOUND_PLAY0 = {
+		0.001,
+		"Ranox_Sphere01.ogg"
+	},
+	SOUND_PLAY1 = {
+		0.001,
+		"Ranox_Sphere02.ogg"
+	},
+	SOUND_PLAY2 = {
+		2.1,
+		"Ranox_Sphere03.ogg"
+	}
+}
+
+function SECRET_MAGI_SCENE_C_DYING_START_START(slot0, slot1, slot2)
+end
+
+function SECRET_MAGI_SCENE_C_DYING_END_FUNC(slot0, slot1, slot2)
+	slot3 = GET_ALL_TRIGGER_INDEX()
+
+	for slot7 = 1, #slot3 do
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 (Secret Hell) --
+		-- SetActiveTrigger_LUA does not exist anywhere in this repo's C++
+		-- (checked X2Lib/KTDXLIB exhaustively). Omitted; none of this
+		-- stage's LineMap trigger indices get armed by this loop. Kept the
+		-- "slot3 = GET_ALL_TRIGGER_INDEX()" assignment and the loop bound
+		-- (matching SECRET_MAGI_SCENE_B.lua's own sibling disposition for
+		-- this same gap, which keeps its own GET_ALL_TRIGGER_INDEX() call
+		-- and prints) rather than deleting the whole loop, per a fresh
+		-- audit finding: the original decompile had "slot3[slot7]" indexed
+		-- with no assignment to slot3 anywhere in this function -- a
+		-- decompiler artifact (a dropped assignment line), not a deliberate
+		-- omission of one. GET_ALL_TRIGGER_INDEX itself is a real,
+		-- file-local function (defined at the top of this file), not a
+		-- gap.
+	end
+end

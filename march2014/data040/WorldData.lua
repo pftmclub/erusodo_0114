@@ -2799,3 +2799,182 @@ g_pWorldManager:AddWorldData({
 	worldID = WORLD_ID.WI_RANOX_GATEWAY_STAGEBOSS
 })
 --}}
+--{{ Iruha : 2026-09-18 // Ranox port Phase 9 -- WORLD_ID -> dataFileName
+-- catch-up for Phases 3-7's own dungeon-line stage worlds, plus this phase's
+-- own 9 Secret Hell worlds. Phase 8 first found and fixed this gap for its
+-- own GateWay line (see that block above) and flagged that AshesVillage/
+-- BurnedForest/FinalHall/FireTemple/Geyser (Phases 3-7) were equally
+-- unregistered and left unfixed. Closed here in full: this is the last
+-- dungeon-line phase in the plan, and no later phase is scoped to catch it.
+-- Without an entry, CX2WorldManager::CreateWorld(WORLD_ID) has no
+-- dataFileName to open for that WORLD_ID at all -- these 22 lines' stage
+-- worlds (all 5 lines' STAGE0-3/StageBoss, Phases 3-7) were non-functional
+-- in-game until this block landed. Field/Spa/PVP WORLD_IDs
+-- (WI_BATTLE_FIELD_RANOX_FIELD_*, WI_SPA_RANOX, WI_RANOX_GATEWAY_PVPMAP) are
+-- NOT included -- those belong to Phases 10/11/12, not yet ported.
+-- dataFileName values are transcribed verbatim from June2017's own
+-- WorldData.lua, including its casing inconsistencies against the actual
+-- ported filenames on disk (e.g. "Ranox_Geyser_Stage0.lua" here vs. the
+-- Phase-7-ported "Ranox_Geyser_stage0.lua", lowercase "s" -- Phase 7's own
+-- finding on this line's inconsistent capitalization) and
+-- "Ranox_Gateway_Stage*.lua" (lowercase "w") vs. the Phase-8-ported
+-- "Ranox_GateWay_Stage*.lua" already noted in that block above -- kept as
+-- shipped per "transcribe, don't tidy"; expected to resolve via
+-- case-insensitive file lookup but not verified against this repo's own
+-- lookup code.
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_ASHESVILLAGE_STAGE0",
+	dataFileName = "Ranox_AshesVillage_Stage0.lua",
+	worldID = WORLD_ID.WI_RANOX_ASHESVILLAGE_STAGE0
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_ASHESVILLAGE_STAGE1",
+	dataFileName = "Ranox_AshesVillage_Stage1.lua",
+	worldID = WORLD_ID.WI_RANOX_ASHESVILLAGE_STAGE1
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_ASHESVILLAGE_STAGE2",
+	dataFileName = "Ranox_AshesVillage_Stage2.lua",
+	worldID = WORLD_ID.WI_RANOX_ASHESVILLAGE_STAGE2
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_ASHESVILLAGE_STAGE3",
+	dataFileName = "Ranox_AshesVillage_Stage3.lua",
+	worldID = WORLD_ID.WI_RANOX_ASHESVILLAGE_STAGE3
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_ASHESVILLAGE_STAGEBOSS",
+	dataFileName = "Ranox_AshesVillage_StageBoss.lua",
+	worldID = WORLD_ID.WI_RANOX_ASHESVILLAGE_STAGEBOSS
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_BURNDEDFOREST_STAGE0",
+	dataFileName = "Ranox_BurnedForest_Stage0.lua",
+	worldID = WORLD_ID.WI_RANOX_BURNDEDFOREST_STAGE0
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_BURNDEDFOREST_STAGE1",
+	dataFileName = "Ranox_BurnedForest_Stage1.lua",
+	worldID = WORLD_ID.WI_RANOX_BURNDEDFOREST_STAGE1
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_BURNDEDFOREST_STAGE2",
+	dataFileName = "Ranox_BurnedForest_Stage2.lua",
+	worldID = WORLD_ID.WI_RANOX_BURNDEDFOREST_STAGE2
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_BURNDEDFOREST_STAGEBOSS",
+	dataFileName = "Ranox_BurnedForest_StageBoss.lua",
+	worldID = WORLD_ID.WI_RANOX_BURNDEDFOREST_STAGEBOSS
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_GEYSER_STAGE0",
+	dataFileName = "Ranox_Geyser_Stage0.lua",
+	worldID = WORLD_ID.WI_RANOX_GEYSER_STAGE0
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_GEYSER_STAGE1",
+	dataFileName = "Ranox_Geyser_Stage1.lua",
+	worldID = WORLD_ID.WI_RANOX_GEYSER_STAGE1
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_GEYSER_STAGE2",
+	dataFileName = "Ranox_Geyser_Stage2.lua",
+	worldID = WORLD_ID.WI_RANOX_GEYSER_STAGE2
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_GEYSER_STAGEBOSS",
+	dataFileName = "Ranox_Geyser_StageBoss.lua",
+	worldID = WORLD_ID.WI_RANOX_GEYSER_STAGEBOSS
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_FIRETEMPLE_STAGE0",
+	dataFileName = "Ranox_FireTemple_Stage0.lua",
+	worldID = WORLD_ID.WI_RANOX_FIRETEMPLE_STAGE0
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_FIRETEMPLE_STAGE1",
+	dataFileName = "Ranox_FireTemple_Stage1.lua",
+	worldID = WORLD_ID.WI_RANOX_FIRETEMPLE_STAGE1
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_FIRETEMPLE_STAGE2",
+	dataFileName = "Ranox_FireTemple_Stage2.lua",
+	worldID = WORLD_ID.WI_RANOX_FIRETEMPLE_STAGE2
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_FIRETEMPLE_STAGEBOSS",
+	dataFileName = "Ranox_FireTemple_StageBoss.lua",
+	worldID = WORLD_ID.WI_RANOX_FIRETEMPLE_STAGEBOSS
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_FINALHALL_STAGE0",
+	dataFileName = "Ranox_FinalHall_Stage0.lua",
+	worldID = WORLD_ID.WI_RANOX_FINALHALL_STAGE0
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_FINALHALL_STAGE1",
+	dataFileName = "Ranox_FinalHall_Stage1.lua",
+	worldID = WORLD_ID.WI_RANOX_FINALHALL_STAGE1
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_FINALHALL_STAGE2",
+	dataFileName = "Ranox_FinalHall_Stage2.lua",
+	worldID = WORLD_ID.WI_RANOX_FINALHALL_STAGE2
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_FINALHALL_STAGE3",
+	dataFileName = "Ranox_FinalHall_Stage3.lua",
+	worldID = WORLD_ID.WI_RANOX_FINALHALL_STAGE3
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_FINALHALL_STAGEBOSS",
+	dataFileName = "Ranox_FinalHall_StageBoss.lua",
+	worldID = WORLD_ID.WI_RANOX_FINALHALL_STAGEBOSS
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_SECRET_STAGE0",
+	dataFileName = "Ranox_Secret_Stage0.lua",
+	worldID = WORLD_ID.WI_RANOX_SECRET_STAGE0
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_SECRET_STAGE1",
+	dataFileName = "Ranox_Secret_Stage1.lua",
+	worldID = WORLD_ID.WI_RANOX_SECRET_STAGE1
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_SECRET_STAGE2",
+	dataFileName = "Ranox_Secret_Stage2.lua",
+	worldID = WORLD_ID.WI_RANOX_SECRET_STAGE2
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_SECRET_STAGE3",
+	dataFileName = "Ranox_Secret_Stage3.lua",
+	worldID = WORLD_ID.WI_RANOX_SECRET_STAGE3
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_SECRET_BOSS_STAGE",
+	dataFileName = "Ranox_Secret_Boss_Stage.lua",
+	worldID = WORLD_ID.WI_RANOX_SECRET_BOSS_STAGE
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_SECRET_EXTRA_STAGE1",
+	dataFileName = "Ranox_Secret_Extra_Stage1.lua",
+	worldID = WORLD_ID.WI_RANOX_SECRET_EXTRA_STAGE1
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_SECRET_EXTRA_STAGE2",
+	dataFileName = "Ranox_Secret_Extra_Stage2.lua",
+	worldID = WORLD_ID.WI_RANOX_SECRET_EXTRA_STAGE2
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_SECRET_EXTRA_STAGE3",
+	dataFileName = "Ranox_Secret_Extra_Stage3.lua",
+	worldID = WORLD_ID.WI_RANOX_SECRET_EXTRA_STAGE3
+})
+g_pWorldManager:AddWorldData({
+	worldName = "WI_RANOX_SECRET_EXTRA_BOSS_STAGE",
+	dataFileName = "Ranox_Secret_Extra_Boss_Stage.lua",
+	worldID = WORLD_ID.WI_RANOX_SECRET_EXTRA_BOSS_STAGE
+})
+--}}
