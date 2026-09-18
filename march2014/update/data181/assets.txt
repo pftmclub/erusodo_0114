@@ -1,0 +1,4 @@
+NPC_ARanox_RETEA_10.tga
+NPC_ARanox_RETEA_closeeye.tga
+NPC_Ranox_IGNIA_CloseEye.tga
+NPC_Ranox_IGNIA_hard.tga

@@ -1,0 +1,6 @@
+DLG_Common_Button04_NEW.tga
+DLG_Common_Button05_NEW.tga
+RaidField_Open_Ranox_0.dds
+RaidField_Open_Ranox_1.dds
+RaidField_Open_Ranox_2.dds
+RaidField_Open_Ranox_3.dds

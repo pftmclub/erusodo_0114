@@ -17550,3 +17550,683 @@ g_pUnitManager:AddNPCTemplet({
 	IS_NPC = TRUE
 })
 --}}
+--{{ Iruha : 2026-09-19 // Ranox port Phase 13 -- catch-up pass for the NPCTemplet.lua registration debt flagged (and partly paid down) by Phases 6/7/8/9: AshesVillage/BurnedForest/FinalHall's (Phases 3/4/5) NPC_UNIT_IDs never got a g_pUnitManager:AddNPCTemplet entry, so CX2UnitManager::AddNPCTemplet_LUA has no LUA_FILE_NAME for them and CX2GUNPC can never load their already-ported unit-def .lua files. Transcribed verbatim from June2017's own data037_kom/NPCTemplet.src.lua, in its own file order, including its own duplicate entries (NUI_RANOX_ASHESVILLAGE_GATE and NUI_RANOX_BURNDEDFOREST_GATE each have two back-to-back blocks differing only in MOTION filename casing -- kept both, per this plan's transcribe-dont-tidy rule; the second silently wins at runtime either way). NUI_FIRE_DEVIL_IGNIA_BOSS intentionally has no entry here -- confirmed absent from June2017's own NPCTemplet.lua too, consistent with the dead/typo anomaly already documented in this plan's Findings section.
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MAG_NOM.x",
+	NAME = "Mag Norm",
+	LUA_FILE_NAME = "MAG_NOM.lua",
+	DESC = "Mag Norm",
+	NPC_ID = NPC_UNIT_ID.NUI_MAG_NOM,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MAG_STONE.x",
+	NAME = "Mag Stone",
+	LUA_FILE_NAME = "MAG_STONE.lua",
+	DESC = "Mag Stone",
+	NPC_ID = NPC_UNIT_ID.NUI_MAG_STONE,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MAG_CHARGER.x",
+	NAME = "Mag Charger",
+	LUA_FILE_NAME = "MAG_CHARGER.lua",
+	DESC = "Mag Charger",
+	NPC_ID = NPC_UNIT_ID.NUI_MAG_CHARGER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_RAGE_BABYFIG.x",
+	NAME = "Angry Gripig",
+	LUA_FILE_NAME = "RAGE_BABYFIG.lua",
+	DESC = "Angry Gripig",
+	NPC_ID = NPC_UNIT_ID.NUI_RAGE_BABYFIG,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_RAGE_DRYAD.x",
+	NAME = "Angry Dryad",
+	LUA_FILE_NAME = "RAGE_DRYAD.lua",
+	DESC = "Angry Dryad",
+	NPC_ID = NPC_UNIT_ID.NUI_RAGE_DRYAD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_RAGE_MOTHER_FIG.x",
+	NAME = "Angry Mother Pig",
+	LUA_FILE_NAME = "RAGE_MOTHERFIG.lua",
+	DESC = "Angry Mother Pig",
+	NPC_ID = NPC_UNIT_ID.NUI_RAGE_MOTHERFIG,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_RAGE_DRYADKENTA.x",
+	NAME = "Dryad Kenta",
+	LUA_FILE_NAME = "RAGE_DRYADKENTA.lua",
+	DESC = "Dryad Kenta",
+	NPC_ID = NPC_UNIT_ID.NUI_RAGE_DRYADKENTA,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_LITTLEWORKER.x",
+	NAME = "Steel Petty Worker",
+	LUA_FILE_NAME = "SMITH_LITTLEWORKER.lua",
+	DESC = "Steel Petty Worker",
+	NPC_ID = NPC_UNIT_ID.NUI_SMITH_LITTLEWORKER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_WORKER.x",
+	NAME = "Steel Worker",
+	LUA_FILE_NAME = "SMITH_WORKER.lua",
+	DESC = "Steel Worker",
+	NPC_ID = NPC_UNIT_ID.NUI_SMITH_WORKER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_RUNNER.x",
+	NAME = "Steel Messenger",
+	LUA_FILE_NAME = "SMITH_RUNNER.lua",
+	DESC = "Steel Messenger",
+	NPC_ID = NPC_UNIT_ID.NUI_SMITH_RUNNER,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_SCIENCE.x",
+	NAME = "Steel Mechanic",
+	LUA_FILE_NAME = "SMITH_SCIENCE.lua",
+	DESC = "Steel Engineer",
+	NPC_ID = NPC_UNIT_ID.NUI_SMITH_SCIENCE,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_MACHINE.x",
+	NAME = "X2 Death Machine",
+	LUA_FILE_NAME = "SMITH_MACHINE.lua",
+	DESC = "X2 Death Machine",
+	NPC_ID = NPC_UNIT_ID.NUI_SMITH_MACHINE,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_ALUMINUM.x",
+	NAME = "Supervisor Aluminu",
+	LUA_FILE_NAME = "SMITH_ALUMINUM.lua",
+	DESC = "Supervisor Aluminu",
+	NPC_ID = NPC_UNIT_ID.NUI_SMITH_ALUMINUM,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_STAIN.x",
+	NAME = "The Steel Anvil Sdeing",
+	LUA_FILE_NAME = "SMITH_STAIN.lua",
+	DESC = "The Steel Anvil Sdeing",
+	NPC_ID = NPC_UNIT_ID.NUI_SMITH_STAIN,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_Ranox_BurnedForest_Gate.x",
+	NAME = "",
+	LUA_FILE_NAME = "RANOX_BURNDEDFOREST_GATE.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_RANOX_BURNDEDFOREST_GATE,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_THING_GATE,
+	IS_NPC = FALSE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_Ranox_AshesVillage_Gate.x",
+	NAME = "",
+	LUA_FILE_NAME = "RANOX_ASHESVILLAGE_GATE.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_RANOX_ASHESVILLAGE_GATE,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_THING_GATE,
+	IS_NPC = FALSE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Dummy_Ani_Wait.X",
+	NAME = "Undying Ember",
+	LUA_FILE_NAME = "TRAP_FIRE_SMALL.lua",
+	DESC = "Undying Flames",
+	NPC_ID = NPC_UNIT_ID.NUI_TRAP_FIRE_SMALL,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Dummy_Ani_Wait.X",
+	NAME = "Burning Ember",
+	LUA_FILE_NAME = "TRAP_FIRE_BIG.lua",
+	DESC = "Burning Embers",
+	NPC_ID = NPC_UNIT_ID.NUI_TRAP_FIRE_BIG,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_CART.lua.x",
+	NAME = "Steel Cart Pusher",
+	LUA_FILE_NAME = "SMITH_CART.lua",
+	DESC = "Steel Equipment Store",
+	NPC_ID = NPC_UNIT_ID.NUI_SMITH_CART,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_RANOX_BURNDEDFOREST_GATE.x",
+	NAME = "",
+	LUA_FILE_NAME = "RANOX_BURNDEDFOREST_GATE.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_RANOX_BURNDEDFOREST_GATE,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_THING_GATE,
+	IS_NPC = FALSE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_RANOX_ASHESVILLAGE_GATE.x",
+	NAME = "",
+	LUA_FILE_NAME = "RANOX_ASHESVILLAGE_GATE.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_RANOX_ASHESVILLAGE_GATE,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_THING_GATE,
+	IS_NPC = FALSE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_RANOX_ASHESVILLAG_SWITCH_GATE.x",
+	NAME = "",
+	LUA_FILE_NAME = "RANOX_ASHESVILLAG_SWITCH_GATE.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_RANOX_ASHESVILLAG_SWITCH_GATE,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_THING_GATE,
+	IS_NPC = FALSE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Dummy_Ani_Wait.X",
+	NAME = "Steel Infiltrator",
+	LUA_FILE_NAME = "SMITH_REGIEON_POINT.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_SMITH_REGIEON_POINT,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_FIGHTER.x",
+	NAME = "Steel Lava Fighter",
+	LUA_FILE_NAME = "FIRE_DEVIL_FIGHTER_INCHANT.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_FIRE_DEVIL_FIGHTER_INCHANT,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_BERSERKER.x",
+	NAME = "Steel Lava Berserker",
+	LUA_FILE_NAME = "FIRE_DEVIL_BERSERKER_INCHANT.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_FIRE_DEVIL_BERSERKER_INCHANT,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_SNIKER.x",
+	NAME = "Steel Lava Scout",
+	LUA_FILE_NAME = "FIRE_DEVIL_SNIKER_INCHANT.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_FIRE_DEVIL_SNIKER_INCHANT,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_CHAIN_BALL.x",
+	NAME = "Sphere of Unity",
+	LUA_FILE_NAME = "FIRE_DEVIL_CHAIN_BALL.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_FIRE_DEVIL_CHAIN_BALL,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_CHAIN_STONE.x",
+	NAME = "Compacted Mag Stone",
+	LUA_FILE_NAME = "FIRE_DEVIL_CHAIN_STONE.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_FIRE_DEVIL_CHAIN_STONE,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_BERSERKER_BOSS.x",
+	NAME = "Berserker Armageddon",
+	LUA_FILE_NAME = "FIRE_DEVIL_BERSERKER_BOSS_FINALHALL.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_FIRE_DEVIL_BERSERKER_BOSS_FINALHALL,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_IGNIA_BOSS.x",
+	NAME = "Traitor Ignia",
+	LUA_FILE_NAME = "FIRE_DEVIL_IGNIA_BOSS_FINALHALL.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_FIRE_DEVIL_IGNIA_BOSS_FINALHALL,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_JIN.x",
+	NAME = "Entranced Demon Jin",
+	LUA_FILE_NAME = "FIRE_DEVIL_JIN_FINALHALL.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_FIRE_DEVIL_JIN_FINALHALL,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_IN.x",
+	NAME = "Enslaved Demon In",
+	LUA_FILE_NAME = "FIRE_DEVIL_IN_FINALHALL.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_FIRE_DEVIL_IN_FINALHALL,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_SKA.x",
+	NAME = "Demon General Scar",
+	LUA_FILE_NAME = "FIRE_DEVIL_SKA.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_FIRE_DEVIL_SKA,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_EVENT_FINALHALL_BOSS.x",
+	NAME = "",
+	LUA_FILE_NAME = "EVENT_FINALHALL_BOSS.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_EVENT_FINALHALL_BOSS,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Dummy_Ani_Wait.X",
+	NAME = "",
+	LUA_FILE_NAME = "FIRETEMPLE_REGIEON_POINT.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_FIRETEMPLE_REGIEON_POINT,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_EVENT_FINALHALL_BOSS2.x",
+	NAME = "",
+	LUA_FILE_NAME = "EVENT_FINALHALL_BOSS2.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_EVENT_FINALHALL_BOSS2,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_EVENT_FINALHALL_BOSS3.x",
+	NAME = "",
+	LUA_FILE_NAME = "EVENT_FINALHALL_BOSS3.lua",
+	DESC = "",
+	NPC_ID = NPC_UNIT_ID.NUI_EVENT_FINALHALL_BOSS3,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MAG_NOM.x",
+	NAME = "Stray Mag Norm",
+	LUA_FILE_NAME = "LOW_MAG_NOM_FD.lua",
+	DESC = "Stray Mag Norm",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_MAG_NOM_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MAG_STONE.x",
+	NAME = "Stray Mag Stone",
+	LUA_FILE_NAME = "LOW_MAG_STONE_FD.lua",
+	DESC = "Stray Mag Stone",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_MAG_STONE_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MAG_CHARGER.x",
+	NAME = "Stray Mag Charger",
+	LUA_FILE_NAME = "LOW_MAG_CHARGER_FD.lua",
+	DESC = "Stray Mag Charger",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_MAG_CHARGER_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_RAGE_BABYFIG.x",
+	NAME = "Stray Gripig",
+	LUA_FILE_NAME = "LOW_RAGE_BABYFIG_FD.lua",
+	DESC = "Stray Gripig",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_RAGE_BABYFIG_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_RAGE_DRYAD.x",
+	NAME = "Stray Dryad",
+	LUA_FILE_NAME = "LOW_RAGE_DRYAD_FD.lua",
+	DESC = "Stray Dryad",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_RAGE_DRYAD_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_RAGE_MOTHER_FIG.x",
+	NAME = "Angry Father Pig",
+	LUA_FILE_NAME = "LOW_RAGE_FATHERFIG_FD_BOSS.lua",
+	DESC = "Angry Father Pig",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_RAGE_FATHERFIG_FD_BOSS,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_LITTLEWORKER.x",
+	NAME = "Stray Petty Worker",
+	LUA_FILE_NAME = "LOW_SMITH_LITTLEWORKER_FD.lua",
+	DESC = "Stray Petty Worker",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_SMITH_LITTLEWORKER_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_WORKER.x",
+	NAME = "Stray Worker",
+	LUA_FILE_NAME = "LOW_SMITH_WORKER_FD.lua",
+	DESC = "Stray Worker",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_SMITH_WORKER_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_RUNNER.x",
+	NAME = "Stray Messenger",
+	LUA_FILE_NAME = "LOW_SMITH_RUNNER_FD.lua",
+	DESC = "Stray Messenger",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_SMITH_RUNNER_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_SCIENCE.x",
+	NAME = "Stray Engineer",
+	LUA_FILE_NAME = "LOW_SMITH_SCIENCE_FD.lua",
+	DESC = "Stray Engineer",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_SMITH_SCIENCE_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_MACHINE.x",
+	NAME = "Stray X2 Death Machine",
+	LUA_FILE_NAME = "LOW_SMITH_MACHINE_FD.lua",
+	DESC = "Stray X2 Death Machine",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_SMITH_MACHINE_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_ALUMINUM.x",
+	NAME = "Fugitive Hoil",
+	LUA_FILE_NAME = "LOW_SMITH_ALUMINUM_FD_BOSS.lua",
+	DESC = "Fugitive Hoil",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_SMITH_ALUMINUM_FD_BOSS,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_LITTLEWORKER.x",
+	NAME = "Phantasmal Petty Worker",
+	LUA_FILE_NAME = "LOW_GEYSER_LITTLEWORKER_FD.lua",
+	DESC = "Phantasmal Petty Worker",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_GEYSER_LITTLEWORKER_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_WORKER.x",
+	NAME = "Phantasmal Worker",
+	LUA_FILE_NAME = "LOW_GEYSER_WORKER_FD.lua",
+	DESC = "Phantasmal Worker",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_GEYSER_WORKER_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_RUNNER.x",
+	NAME = "Phantasmal Messenger",
+	LUA_FILE_NAME = "LOW_GEYSER_RUNNER_FD.lua",
+	DESC = "Phantasmal Messenger",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_GEYSER_RUNNER_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_SMITH_SCIENCE.x",
+	NAME = "Phantasmal Mechanic",
+	LUA_FILE_NAME = "LOW_GEYSER_SCIENCE_FD.lua",
+	DESC = "Phantasmal Mechanic",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_GEYSER_SCIENCE_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_MULLOCK.x",
+	NAME = "Phantasmal Murloch",
+	LUA_FILE_NAME = "LOW_GEYSER_MULLOCK_FD.lua",
+	DESC = "Phantasmal Murloch",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_GEYSER_MULLOCK_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_MULMAI.x",
+	NAME = "Phantasmal Mermaid",
+	LUA_FILE_NAME = "LOW_GEYSER_MULMAI_FD.lua",
+	DESC = "Phantasmal Mermaid",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_GEYSER_MULMAI_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_ALUMINUM.x",
+	NAME = "Phantasmal Hoil",
+	LUA_FILE_NAME = "LOW_GEYSER_ALUMINUM_FD_BOSS.lua",
+	DESC = "Phantasmal Hoil",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_GEYSER_ALUMINUM_FD_BOSS,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_GEYSER_MULLOCK_CALL.x",
+	NAME = "Phantasmal Merman",
+	LUA_FILE_NAME = "LOW_GEYSER_MULLOCK_CALL_FD.lua",
+	DESC = "Phantasmal Merman",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_GEYSER_MULLOCK_CALL_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MAG_NOM.x",
+	NAME = "Gorge Mag Norm",
+	LUA_FILE_NAME = "LOW_MOUNT_NOM_FD.lua",
+	DESC = "Gorge Mag Norm",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_MOUNT_NOM_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MAG_STONE.x",
+	NAME = "Gorge Mag Stone",
+	LUA_FILE_NAME = "LOW_MOUNT_STONE_FD.lua",
+	DESC = "Gorge Mag Stone",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_MOUNT_STONE_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MAG_CHARGER.x",
+	NAME = "Gorge Mag Charger",
+	LUA_FILE_NAME = "LOW_MOUNT_CHARGER_FD.lua",
+	DESC = "Gorge Mag Charger",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_MOUNT_CHARGER_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MOUNT_FIREBIRD.x",
+	NAME = "Gorge Fire Bird",
+	LUA_FILE_NAME = "LOW_MOUNT_FIREBIRD_FD.lua",
+	DESC = "Gorge Fire Bird",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_MOUNT_FIREBIRD_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_FIGHTER.x",
+	NAME = "Straggling Demon Fighter",
+	LUA_FILE_NAME = "LOW_MOUNT_FIGHTER_FD.lua",
+	DESC = "Straggling Demon Fighter",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_MOUNT_FIGHTER_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_BERSERKER.x",
+	NAME = "Straggling Demon Berserker",
+	LUA_FILE_NAME = "LOW_MOUNT_BERSERKER_FD.lua",
+	DESC = "Straggling Demon Berserker",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_MOUNT_BERSERKER_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_BERSERKER_BOSS.x",
+	NAME = "Drifter Blaze Hand",
+	LUA_FILE_NAME = "LOW_MOUNT_BERSERKER_BOSS.lua",
+	DESC = "Drifter Blaze Hand",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_MOUNT_BERSERKER_BOSS,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_FIGHTER.x",
+	NAME = "Twilight Demon Fighter",
+	LUA_FILE_NAME = "LOW_FINALHALL_FIGHTER_FD.lua",
+	DESC = "Twilight Demon Fighter",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_FINALHALL_FIGHTER_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_BERSERKER.x",
+	NAME = "Twilight Demon Berserker",
+	LUA_FILE_NAME = "LOW_FINALHALL_BERSERKER_FD.lua",
+	DESC = "Twilight Demon Berserker",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_FINALHALL_BERSERKER_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_SNIKER.x",
+	NAME = "Twilight Demon Scout",
+	LUA_FILE_NAME = "LOW_FINALHALL_SNIKER_FD.lua",
+	DESC = "Twilight Demon Scout",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_FINALHALL_SNIKER_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_MOUNT_FIREBIRD.x",
+	NAME = "Twilight Fire Bird",
+	LUA_FILE_NAME = "LOW_FINALHALL_FIREBIRD_FD.lua",
+	DESC = "Twilight Fire Bird",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_FINALHALL_FIREBIRD_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_FIRE_DEVIL_CHAIN_STONE.x",
+	NAME = "Twilight Mag Stone",
+	LUA_FILE_NAME = "LOW_FINALHALL_STONE_FD.lua",
+	DESC = "Twilight Mag Stone",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_FINALHALL_STONE_FD,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	MOTION = "Motion_LOW_FINALHALL_IGNIA_BOSS.x",
+	NAME = "Evil Apparition",
+	LUA_FILE_NAME = "LOW_FINALHALL_IGNIA_BOSS.lua",
+	DESC = "Evil Apparition",
+	NPC_ID = NPC_UNIT_ID.NUI_LOW_FINALHALL_IGNIA_BOSS,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = TRUE
+})
+g_pUnitManager:AddNPCTemplet({
+	LUA_FILE_NAME_UI = "UI_EDEL.lua",
+	NAME = "Edel & Sebastian",
+	DESC = "Chief of Lanox",
+	NPC_ID = NPC_UNIT_ID.NUI_EDEL,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = FALSE
+})
+g_pUnitManager:AddNPCTemplet({
+	LUA_FILE_NAME_UI = "UI_STEEL.lua",
+	NAME = "Steel",
+	DESC = "Steel Equipment Store",
+	NPC_ID = NPC_UNIT_ID.NUI_STEEL,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = FALSE
+})
+g_pUnitManager:AddNPCTemplet({
+	LUA_FILE_NAME_UI = "UI_FACEOFF.lua",
+	NAME = "Pesop",
+	DESC = "Mysterious Alchemy Shop",
+	NPC_ID = NPC_UNIT_ID.NUI_FACEOFF,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = FALSE
+})
+g_pUnitManager:AddNPCTemplet({
+	LUA_FILE_NAME_UI = "UI_SYOTA.lua",
+	NAME = "Ryota",
+	DESC = "Black Market Accessory Shop",
+	NPC_ID = NPC_UNIT_ID.NUI_SYOTA,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = FALSE
+})
+g_pUnitManager:AddNPCTemplet({
+	LUA_FILE_NAME_UI = "UI_IGNIA.lua",
+	NAME = "Ignia",
+	DESC = "Fire Priestess",
+	NPC_ID = NPC_UNIT_ID.NUI_IGNIA,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = FALSE
+})
+g_pUnitManager:AddNPCTemplet({
+	LUA_FILE_NAME_UI = "UI_MUL_MAI.lua",
+	NAME = "Mei & Meiseu",
+	DESC = "Charming Geyser (Hot Spring) Entrance",
+	NPC_ID = NPC_UNIT_ID.NUI_MUL_MAI_EVENT,
+	CLASS_TYPE = NPC_CLASS_TYPE.NCT_BASIC,
+	IS_NPC = FALSE
+})
+--}}

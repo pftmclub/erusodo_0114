@@ -2577,6 +2577,340 @@ do not invent stat numbers.
 
 ---
 
+### Phase 13 findings (executed 2026-09-19)
+
+**1. Unit-definition cross-check: 0 files missing, but a real registration gap found and fixed instead.**
+All 142 new `NPC_UNIT_ID`s from Appendix B (the "135" count in this phase's own
+brief is pre-Phase-9-correction; the actual total after Phase 9's 7-name
+addition is 142) resolve to a real, ported script:
+- 134 have their own `.lua` in `march2014/update/data037/`.
+- 6 (`NUI_EDEL`, `NUI_FACEOFF`, `NUI_IGNIA`, `NUI_MUL_MAI_EVENT`, `NUI_STEEL`,
+  `NUI_SYOTA`) are story/quest NPCs with no combat unit at all — only a
+  `UI_<Name>.lua` dialog script in `data039`, confirmed against March2014's own
+  identical pattern (`UI_ADAMS.lua`/`UI_ARIEL.lua` with no matching
+  `ADAMS.lua`/`ARIEL.lua` in `data037` either). Already ported by Phase 2.
+- `NUI_SECRET_EXTRA_MAGI_BOSS` has no file of its own — `NPCTemplet.lua`
+  (both clients') explicitly redirects it to reuse `SECRET_MAGI_BOSS.lua`
+  (`LUA_FILE_NAME = "SECRET_MAGI_BOSS.lua"`), confirmed byte-identical between
+  June2017's and this repo's copy. A standalone `data037_kom/SECRET_EXTRA_MAGI_BOSS.lua`
+  does exist in June2017 but is referenced by nothing anywhere in that tree —
+  dead/unused content, correctly not ported.
+- `NUI_FIRE_DEVIL_IGNIA_BOSS` is the already-documented dead/typo'd anomaly
+  (Findings section) — no file needed, resolved to `_FINALHALL` in Phase 5.
+
+**But cross-checking "has a script file" isn't the same as "can load."**
+`march2014/data037/NPCTemplet.lua` (the patched, full ~2000-entry registry) is
+what `CX2UnitManager::AddNPCTemplet_LUA` reads to map an `NPC_UNIT_ID` to its
+`LUA_FILE_NAME` — confirmed exhaustive, not an override table, by checking 5
+arbitrary pre-existing March2014 monster IDs (`NUI_SAND_SEAL`, `NUI_ANU_BOSS`,
+`NUI_ANGER_SIRAPE`, `NUI_BESMA_ROCK_BIG_COMMON`, `NUI_ANU`), all 5 present.
+Phases 6/7/8/9 already found and partly paid down this same gap for their own
+lines (their own trailing comments say so explicitly), but explicitly left
+**AshesVillage/BurnedForest/FinalHall (Phases 3/4/5) — 74 IDs — still
+unregistered**, i.e. their already-ported `.lua` files existed on disk but
+would never load in-game. This phase closed that backlog: all 74 entries
+(76 `AddNPCTemplet` blocks — `NUI_RANOX_ASHESVILLAGE_GATE` and
+`NUI_RANOX_BURNDEDFOREST_GATE` each carry two back-to-back blocks in
+June2017's own registry, differing only in `MOTION` filename casing; both
+kept, per this plan's transcribe-don't-tidy rule, since the second silently
+wins at runtime either way) were transcribed verbatim from June2017's own
+`data037_kom/NPCTemplet.src.lua`, in its own file order, and appended to
+`march2014/data037/NPCTemplet.lua`. Verified: `compile-batch -v mar-2014`
+succeeds on the patched file, and a fresh regex sweep confirms all 141
+resolvable IDs (everything except `NUI_FIRE_DEVIL_IGNIA_BOSS`, which has no
+entry in June2017's own registry either) now have one. The file's own CRLF/UTF-8
+byte format was preserved (raw byte-append, not a Read/Edit round-trip).
+
+**2. Asset sweep: Appendix A's counts matched exactly, but that filter itself
+turned out to be badly incomplete — three progressively broader follow-up
+passes were needed before the sweep was actually done.**
+
+**Pass 0 (the phase brief's own instruction).** Every archive's
+`*ranox*`-matching file count (`data002`–`data181`, plus `music/`,
+`eventscene/`, `movie/`, `data036_kom/Ranox.xml`,
+`data215_kom/DLG_New_PVP_Image09.dds`) matched Appendix A's own per-archive
+numbers exactly, and all 950 copied files were verified byte-identical
+against their June2017 source via `md5sum` (every file, individually, not
+sampled). **This match is circular** — Appendix A's own counts were
+generated the same way, by filename containing "ranox." Monster meshes,
+motions, and sounds are named after the monster, not the region (e.g.
+`MAG_STONE.lua`'s own `READY_SOUND` list includes `"MagStone_Impact1.ogg"`),
+so this filter systematically misses exactly the assets a monster-heavy
+phase like this one cares most about, and scene/stage files' set-piece
+meshes are named after the dungeon area (`"ashs_Village_S0_AP_Ashes01.Y"`,
+`"FinalHall_0stage_Fire01.Y"`) rather than "ranox" either.
+
+**Pass 1: keyed fields in unit-def files, first attempt — badly
+undercounted by a regex bug.** Extracted `MOTION_FILE_NAME` /
+`MOTION_MULTI_TEX_XET` / `READY_XMESH` / `READY_XSKIN_MESH` /
+`READY_TEXTURE` / `READY_SOUND` / `SHADOW_FILE_NAME` values from every
+ported unit-def/stage `.lua`, but the first regex only matched a bare
+`KEY = "value"` shape and silently skipped every `KEY = { "a", "b", "c" }`
+table shape — which is how `READY_TEXTURE`/`READY_XMESH`/`READY_XSKIN_MESH`/
+`READY_SOUND` are actually written in every unit-def file checked (e.g.
+`MAG_STONE.lua`'s `READY_SOUND` block is 8 separate `.ogg` filenames inside
+`{ }`, none of them caught). This pass reported only 77 referenced
+filenames and 62 missing; both numbers were wrong. Fixed the regex to also
+match brace-wrapped tables and re-ran: **685 referenced filenames, 433
+missing.** 412 of those 433 were found by exact (case-insensitive) name in
+the June2017 tree, mostly voice lines and shared VFX meshes/textures — not
+concentrated in one archive this time: `data104` (162 files — a voice-line
+archive not previously touched by this port at all), `data155` (+171 beyond
+what pass 0 already copied), `data002` (+53), plus smaller counts in
+`data096`, `data132`, `data142`, `data153`, `data157`, `data118`, `data147`.
+All copied and verified byte-identical individually.
+
+An earlier, even broader variant of pass 1 that also swept `NPCTemplet.lua`'s
+own `MOTION` field (rather than only the unit-def file's own
+`INIT_MOTION`/`INIT_DEVICE` block) turned up 17 extra "missing" names that
+all traced back to that field disagreeing with the unit's own real motion —
+e.g. `SECRET_MAGI_SCENE_B.lua`/`_C.lua` both actually load
+`Motion_SECRET_MAGI_SCENE_A.X`, matching their shared "Demon Form" display
+name, while `NPCTemplet.lua`'s own registry entries claim
+`Motion_SECRET_MAGI_SCENE_B/C.x`; `SECRET_MAGI_SUMMON.lua` actually loads a
+pre-existing shared asset, `Motion_AVALANCHE_Stone.X`. June2017's own
+`NPCTemplet.lua` carries this same inconsistency, so it's shipped-client
+noise, not a porting error — that `MOTION` field isn't what's actually
+rendered, and was excluded from every later pass.
+
+**Pass 2: everything pass 1's keyed-field regex still couldn't see —
+`g_pWorld:Create*` scene-object calls.** Stage/LineMap files place meshes,
+particle sets, and ambient sounds via method calls with positional string
+arguments (`g_pObjectMesh:SetXMesh("ashs_Village_S0_AP_Ashes01.Y")`,
+`:SetXMeshLOD(...)`, and equivalents for sound/skin-mesh objects) — a
+completely different shape from unit-def files' named `KEY = ...` fields, so
+no field-name-based regex catches them. Ran an unrestricted sweep instead:
+every quoted string ending in `.x`/`.X`/`.xet`/`.tga`/`.dds`/`.ogg`/`.y`/
+`.avi`/`.swf` anywhere in any ported `.lua` file (1808 distinct names — this
+is deliberately noisy, since it can't distinguish a real asset load from a
+coincidentally-suffixed string, but a lookup that only copies names actually
+present in the June2017 tree is self-filtering: a false positive just
+returns "not found" and costs nothing). 700 were still missing after pass 1;
+661 resolved to a real June2017 file (mostly stage-scenery `.Y`/`.X` meshes
+and particle sets for AshesVillage/FinalHall/FireTemple/Geyser/GateWay,
+landing across `data002`, `data014`, `data043`, `data044`, `data063`,
+`data065`, `data070`, `data096`, `data118`, `data147`, `data153`, `data154`
+(+536 beyond pass 0's 525), `data155`, `data156`, `data157`, `data215`,
+`music/`) and were copied and verified byte-identical individually, same as
+every prior pass.
+
+**Two genuine gaps remain, both confirmed absent from June2017 too, not
+fixable from this tree** — same class of anomaly as `NUI_FIRE_DEVIL_IGNIA_BOSS`,
+transcribed as-is rather than invented around:
+- `MOUNT_GATE.lua`'s `MOTION_MULTI_TEX_XET = "Motion_RANOX_MOUNT_GATE.xet"` —
+  checked exhaustively (217,597-file index of every non-`.lua` file in the
+  June2017 tree). The gate's own primary mesh (`Motion_RANOX_MOUNT_GATE.x`)
+  is present and was copied; only this secondary multi-texture overlay
+  (cosmetic — a glow/emissive animation layer, not a missing model) is gone.
+- **38 more names**, found only by the final, full re-run of the
+  unrestricted sweep after every prior pass's copies landed: several more
+  `.xet` companions (`SECRET_CRUEL_FIGHTER.xet`, `SECRET_CRUEL_SNIKER.xet`,
+  `SECRET_IN.xet`, `SECRET_JIN.xet`, `SECRET_SUMMON_BERSERKER.xet` — the same
+  "primary mesh present, multi-tex overlay absent" shape as `MOUNT_GATE`
+  above), several `SmithMachine_Voice_*`/`SmithStain_Voice_*`/
+  `BERSERKER_FIRETEMPLE_Voice_*`/`SECRET_MAGI_Voice_*`/`SECRET_BOSS_LAVA_Bubble`/
+  `SECRET_LAVA_DUMMY_Bubble`/`SECRET_STAGE1_CHAIN{1,2}_Bubble` voice/ambient
+  lines, and a handful of stray references (`test_UI02.tga`,
+  `besma_secret_red02.tga`, `WorldLayer_Velder_Gate2.tga`,
+  `Ranox_FinalHall_Stage3.ogg`) that may be dead/unused code in the source
+  client rather than real loads — not chased further, since by construction
+  they don't exist to find. One item worth flagging rather than silently
+  omitting: `data104_kom/SmithMachine_Voice_AttackA01_INT.ogg` **does**
+  exist (found while checking why the plain name didn't) — an `_INT`-suffixed
+  regional-voice variant, not a name match, so not copied; if this build's
+  audio loader falls back from the base name to an `_INT` suffix when the
+  base is absent (unverified — a client-code question, not a data one),
+  that file may already be usable as-is under its own name.
+
+Final per-archive counts (`march2014/update/`, files only, after all three
+passes): `data002` 65, `data013` 46, `data014` 10, `data023` 49, `data034` 8,
+`data035` 19, `data036` 5, `data037` 134, `data039` 6, `data040` 80,
+`data043` 11, `data044` 4, `data057` 62, `data063` 6, `data065` 2, `data070` 1,
+`data078` 20, `data096` 83, `data104` 158, `data118` 1, `data130` 51,
+`data132` 9, `data142` 6, `data147` 1, `data153` 137, `data154` 1061,
+`data155` 238, `data156` 10, `data157` 5, `data181` 4, `data215` 5,
+`data217` 2, `eventscene` 2, `movie` 1, `music` 18 — **2320 files total**,
+up from the 1272 the phase brief's own `*ranox*`-filtered inventory would
+have produced.
+
+**Pass 3: the patched registry files themselves.** All four sweeps above only
+globbed `march2014/update/**/*.lua` — the six patched base-client registry
+files (`data036/MapData.lua`, `data036/BattleFieldData.lua`,
+`data036/PVP_Map_List.lua`, `data036/EnumString.lua`,
+`data035/DungeonData.lua`, `data040/WorldData.lua`) live outside that glob
+entirely, in `march2014/<archive>/`, and were never scanned. There was
+already a proof this surface holds real, missable assets:
+`data215_kom/DLG_New_PVP_Image09.dds`, the one standalone file named outside
+Appendix A's own inventory, was found by a person noticing Phase 11's
+`PVP_Map_List.lua` referenced it — not by any systematic scan. Scoped the
+same unrestricted extension sweep to just each file's Ranox-added content
+(from its first `--{{ Iruha` change-block marker to EOF, for the three files
+that use that convention; a ±3-line window around every `ranox`-matching
+line for `MapData.lua`/`PVP_Map_List.lua`/`EnumString.lua`, which don't) to
+avoid the same base-game contamination `NPCTemplet.lua` had. Found 19
+asset-like references, all real (loading-screen art and a field-name label
+texture — `MapData.lua`'s own Ranox rows are pure ID references with no
+asset strings at all). 11 were missing: `DLG_UI_Common_Texture_Fieldname_7.tga`
+(`data057`) and 10 `HQ_LoadingDungeon_*` per-dungeon loading-screen images
+(`data156`, two per line for AshesVillage/BurnedForest/FinalHall/FireTemple
+— `DLG_New_PVP_Image09.dds` and the two `Ranox_GateWay*`/`Ranox_Geyser*`
+loading images were already covered by earlier passes). All 11 found by
+exact name in June2017 and copied — including two, the FinalHall pair, that
+resolved via case-insensitive lookup to a differently-cased real filename
+(`HQ_LoadingDungeon_FINALHALL_0{1,2}.tga`, all-caps, not the `.lua`'s own
+`FinalHall` casing — copied under the source's actual on-disk name, per this
+plan's own case-preservation convention). All 11 verified byte-identical.
+Re-ran the full scoped sweep afterward: zero remaining.
+
+Final total after all four passes: **2331 files** under `march2014/update/`.
+
+**One handoff detail that changes the user's packing step**: the archive
+list to repack grew from the 25 directories Appendix A named to **35** —
+`data014`, `data043`, `data044`, `data070`, `data104`, `data118`, `data132`,
+`data142`, `data147`, `data157` are new to this deliverable and appear
+nowhere in Appendix A (`data104` alone carries 158 files, entirely voice
+lines). Name these explicitly when packing rather than relying on Appendix
+A's own archive list, which this phase's findings now supersede for asset
+purposes.
+
+**3. The monster/prop split, and the server-side stat/drop dependency it feeds.**
+
+Classification method: for each of the 142 new IDs, read its unit-def file's
+`INIT_STATE` state-machine (a real monster has `ATTACK`/`DAMAGE`/`DYING`/
+movement states with directional variants; a cutscene actor or spawn marker
+has only `START`/`DYING` or `SUMMON`/`DYING`), `MAX_HP`, and — where present —
+`NPCTemplet.lua`'s `CLASS_TYPE`/`NAME`. Cross-checked against static
+`NPC_GROUP`/`MONSTER_ID` placement in the 19 ported dungeon-difficulty files
+and the 4 field tables (`Ranox_Field_0{0-3}.lua`) as a control, not as the
+primary signal — every gate/chain/trap/marker/cutscene-actor name below
+*does* appear in a `NPC_GROUP` list too (this engine places any NPC-type
+object that way, monster or not), so placement alone doesn't discriminate.
+
+**101 real monsters** (93 statically placed + 8 dynamically summoned —
+`NUI_GEYSER_MULLOCK_CALL`, `NUI_GEYSER_MULSAYRENA_CALL`,
+`NUI_SECRET_MAGI_SUMMON`, `NUI_SECRET_SUMMON_{BERSERKER,FIGHTER,FIREBIRD,MAG_NOM,SNIKER}`
+— spawned from within a boss's own attack-state script, not pre-placed, but
+confirmed real combat units by full move/attack state machines and HP):
+
+`NUI_FIRE_DEVIL_BERSERKER`, `NUI_FIRE_DEVIL_BERSERKER_BOSS`,
+`NUI_FIRE_DEVIL_BERSERKER_BOSS_FINALHALL`, `NUI_FIRE_DEVIL_BERSERKER_FIRETEMPLE`,
+`NUI_FIRE_DEVIL_BERSERKER_INCHANT`, `NUI_FIRE_DEVIL_FIGHTER`,
+`NUI_FIRE_DEVIL_FIGHTER_FIRETEMPLE`, `NUI_FIRE_DEVIL_FIGHTER_INCHANT`,
+`NUI_FIRE_DEVIL_IGNIA`, `NUI_FIRE_DEVIL_IGNIA_BOSS_FINALHALL`,
+`NUI_FIRE_DEVIL_IN`, `NUI_FIRE_DEVIL_IN_FINALHALL`, `NUI_FIRE_DEVIL_JIN`,
+`NUI_FIRE_DEVIL_JIN_FINALHALL`, `NUI_FIRE_DEVIL_SKA`, `NUI_FIRE_DEVIL_SNIKER`,
+`NUI_FIRE_DEVIL_SNIKER_INCHANT`, `NUI_GEYSER_ALUMINUM`,
+`NUI_GEYSER_LITTLEWORKER`, `NUI_GEYSER_MULLOCK`, `NUI_GEYSER_MULLOCK_CALL`,
+`NUI_GEYSER_MULMAI`, `NUI_GEYSER_MULSAYRENA`, `NUI_GEYSER_MULSAYRENA_CALL`,
+`NUI_GEYSER_RUNNER`, `NUI_GEYSER_SCIENCE`, `NUI_GEYSER_WORKER`,
+`NUI_LOW_FINALHALL_BERSERKER_FD`, `NUI_LOW_FINALHALL_FIGHTER_FD`,
+`NUI_LOW_FINALHALL_FIREBIRD_FD`, `NUI_LOW_FINALHALL_IGNIA_BOSS`,
+`NUI_LOW_FINALHALL_SNIKER_FD`, `NUI_LOW_FINALHALL_STONE_FD`,
+`NUI_LOW_GEYSER_ALUMINUM_FD_BOSS`, `NUI_LOW_GEYSER_LITTLEWORKER_FD`,
+`NUI_LOW_GEYSER_MULLOCK_CALL_FD`, `NUI_LOW_GEYSER_MULLOCK_FD`,
+`NUI_LOW_GEYSER_MULMAI_FD`, `NUI_LOW_GEYSER_RUNNER_FD`,
+`NUI_LOW_GEYSER_SCIENCE_FD`, `NUI_LOW_GEYSER_WORKER_FD`,
+`NUI_LOW_MAG_CHARGER_FD`, `NUI_LOW_MAG_NOM_FD`, `NUI_LOW_MAG_STONE_FD`,
+`NUI_LOW_MOUNT_BERSERKER_BOSS`, `NUI_LOW_MOUNT_BERSERKER_FD`,
+`NUI_LOW_MOUNT_CHARGER_FD`, `NUI_LOW_MOUNT_FIGHTER_FD`,
+`NUI_LOW_MOUNT_FIREBIRD_FD`, `NUI_LOW_MOUNT_NOM_FD`, `NUI_LOW_MOUNT_STONE_FD`,
+`NUI_LOW_RAGE_BABYFIG_FD`, `NUI_LOW_RAGE_DRYAD_FD`,
+`NUI_LOW_RAGE_FATHERFIG_FD_BOSS`, `NUI_LOW_SMITH_ALUMINUM_FD_BOSS`,
+`NUI_LOW_SMITH_LITTLEWORKER_FD`, `NUI_LOW_SMITH_MACHINE_FD`,
+`NUI_LOW_SMITH_RUNNER_FD`, `NUI_LOW_SMITH_SCIENCE_FD`,
+`NUI_LOW_SMITH_WORKER_FD`, `NUI_MAG_CHARGER`, `NUI_MAG_NOM`, `NUI_MAG_STONE`,
+`NUI_MOUNT_FIREBIRD`, `NUI_MOUNT_FIREBIRD_FIRETEMPLE`, `NUI_MOUNT_MAG_CHARGER`,
+`NUI_MOUNT_MAG_NOM`, `NUI_MOUNT_MAG_STONE`, `NUI_RAGE_BABYFIG`,
+`NUI_RAGE_DRYAD`, `NUI_RAGE_DRYADKENTA`, `NUI_RAGE_MOTHERFIG`,
+`NUI_SECRET_BERSERKER`, `NUI_SECRET_CRUEL_BERSERKER`,
+`NUI_SECRET_CRUEL_FIGHTER`, `NUI_SECRET_CRUEL_MAG_CHARGER`,
+`NUI_SECRET_CRUEL_MAG_NOM`, `NUI_SECRET_CRUEL_SNIKER`,
+`NUI_SECRET_EXTRA_MAGI_BOSS`, `NUI_SECRET_FIGHTER`, `NUI_SECRET_FIREBIRD`,
+`NUI_SECRET_IN`, `NUI_SECRET_JIN`, `NUI_SECRET_MAGI_BOSS`,
+`NUI_SECRET_MAGI_SUMMON`, `NUI_SECRET_MAG_CHARGER`, `NUI_SECRET_MAG_NOM`,
+`NUI_SECRET_SNIKER`, `NUI_SECRET_SUMMON_BERSERKER`, `NUI_SECRET_SUMMON_FIGHTER`,
+`NUI_SECRET_SUMMON_FIREBIRD`, `NUI_SECRET_SUMMON_MAG_NOM`,
+`NUI_SECRET_SUMMON_SNIKER`, `NUI_SMITH_ALUMINUM`, `NUI_SMITH_CART` (a
+dash/ram hazard unit — `DASH_ATTACK`/`DAMAGE`/`DYING` states and 4500 HP,
+included despite the "cart" name), `NUI_SMITH_LITTLEWORKER`,
+`NUI_SMITH_MACHINE`, `NUI_SMITH_RUNNER`, `NUI_SMITH_SCIENCE`,
+`NUI_SMITH_STAIN`, `NUI_SMITH_WORKER`.
+
+**41 non-monsters**, with reasons (borderline calls flagged rather than
+silently bucketed, per the classification method above):
+
+- **Gates** (7): `NUI_RANOX_ASHESVILLAGE_GATE`, `NUI_RANOX_ASHESVILLAG_SWITCH_GATE`,
+  `NUI_RANOX_BURNDEDFOREST_GATE`, `NUI_GEYSER_GATE`, `NUI_FIRETEMPLE_GATE`,
+  `NUI_MOUNT_GATE`, `NUI_SECRET_STAGE0_GATE`.
+- **Chains** (6): `NUI_FIRE_DEVIL_CHAIN_BALL`, `NUI_FIRE_DEVIL_CHAIN_STONE`,
+  `NUI_FIRE_DEVIL_CHAIN_IPLITAN`, `NUI_SECRET_STAGE0_CHAIN_OBJECT`,
+  `NUI_SECRET_STAGE1_CHAIN1`, `NUI_SECRET_STAGE1_CHAIN2`.
+- **Traps** (4): `NUI_TRAP_FIRE_BIG`, `NUI_TRAP_FIRE_SMALL`,
+  `NUI_SECRET_BOSS_LAVA`, `NUI_SECRET_LAVA_DUMMY` (both `NPCTemplet.lua`
+  `CLASS_TYPE.NCT_THING_TRAP`).
+- **Spawn/region markers** (3): `NUI_SMITH_REGIEON_POINT`,
+  `NUI_FIRETEMPLE_REGIEON_POINT` (`SUMMON`/`DYING` states only — a trigger
+  point, not a combatant), `NUI_MOUNT_POINT_STAGE_BOSS` (`START`/`DYING`
+  only).
+- **Cutscene/event stand-ins** (5): `NUI_EVENT_FINALHALL_BOSS{,2,3}`,
+  `NUI_EVENT_GATEWAY_BOSS`, `NUI_EVENT_GAYSER_BOSS` — `START`/`DYING` states
+  only, no attack/damage AI at all despite 30000 `MAX_HP` and a "BOSS" name;
+  a pre-fight camera actor, not the fought boss.
+- **Scene/dummy objects** (6): `NUI_SECRET_MAGI_SCENE_{A,B,C}` (`START`/
+  `ACTION`/`DYING` only, shared "Demon Form" display name — cutscene stand-ins),
+  `NUI_SECRET_SCENE_{1_0,1_1}` (same shape), `NUI_SECRET_SCENE_DUMMY`
+  (`SUMMON_TYPE1/2/3` states — a spawner-controller object, not itself fought).
+- **Interactive fight-mechanic objects, no HP pool** (2):
+  `NUI_SECRET_MAGI_OBJECT` (display name "Demonic Sealing Orb" — has
+  `DAMAGE`/`FEVER`/`DYING` states but no `MAX_HP` field at all, unlike every
+  real monster checked; a scripted-state mechanic prop, not conventionally
+  damageable), `NUI_SECRET_MAGI_OBJECT_GROUB` (same file shape, no display
+  name).
+- **Ally, not an enemy** (1): `NUI_SAMETEAM_IGNIA` (display name "Fire
+  Priestess Ignia" — full combat state machine, real HP, but "SAMETEAM" and
+  its own state names indicate a friendly unit fighting alongside the
+  player, not something killed for loot).
+- **Story/quest dialog NPCs, no combat unit** (6): `NUI_EDEL`, `NUI_FACEOFF`,
+  `NUI_IGNIA`, `NUI_MUL_MAI_EVENT`, `NUI_STEEL`, `NUI_SYOTA` — see item 1
+  above.
+- **Dead/typo reference** (1): `NUI_FIRE_DEVIL_IGNIA_BOSS` — see the
+  Findings section anomaly and item 1 above.
+
+**The stat/drop dependency itself.** Neither client has a per-dungeon table;
+confirmed instead that the *server-side* mechanism is spread across three
+existing `KncWX2Server/ServerResource/US/` files, none of which take a
+simple "add 101 rows" shape:
+
+- **`AttribNpcTable.lua`** — the file that actually assigns monster combat
+  stats, but keyed by `(DUNGEON_TYPE, DIFFICULTY_LEVEL, stage-slot index,
+  level, NPC_ABILITY_ID)` via `g_pAttribNpcManager:AddAttribNpcInfo_LUA(...)`
+  and `:SetAttribSubStageCount(...)` — **not by individual `NPC_UNIT_ID`**.
+  The only per-NPC-ID calls in this file are `AddNoDropNpc(NPC_UNIT_ID[...])`
+  exceptions (859 `NPC_UNIT_ID`-token matches total, but that's this
+  opt-out list, not a stat table). Whether Ranox's monsters inherit stats
+  automatically once its `DUNGEON_TYPE`/`DIFFICULTY_LEVEL` combination has
+  bulk coverage here, or need their own new bulk rows, is a server-side
+  question this data-only phase can't answer without reading
+  `CAttribNpcManager`'s C++ — out of scope per this plan's own "did not
+  consult repo C++" rule.
+- **`DropTable.lua`** — the actual item drop pools
+  (`DropTable:AddToGroup(groupID, itemID, weight)`), keyed by an opaque
+  group ID and item ID, **not by `NPC_UNIT_ID` at all** (0 matches). What
+  maps a monster to a drop group isn't in this file.
+- **`DropData.lua`** — a `DropTable:AddManyEDDropNpc(NPC_UNIT_ID[...],
+  multiplier, count)` per-NPC event-multiplier override list, but every
+  existing entry is commented out — optional, not required for baseline
+  drops to function.
+
+None of these were touched — this phase only **names** them, per CLAUDE.md's
+convention for server-owned data the user authors and packs. The 101 real
+monsters listed above are the ones that dependency covers; the 41 non-monsters
+above don't need stat/drop entries at all (several, like the gates and
+traps, are already excluded from drops in spirit — they're not meant to be
+farmed).
+
+---
+
 ## Repo/engine integration (separate phase group — start fresh, do not reuse this document's characterization of repo internals)
 
 Not started during this planning pass, and none of the content phases above

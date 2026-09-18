@@ -1,0 +1,5 @@
+DLG_BossState_02.tga
+DLG_New_PVP_Image09.dds
+DLG_UI_Common_Texture93_NEW.tga
+DLG_UI_Image_01.tga
+DLG_UI_Image_08.tga

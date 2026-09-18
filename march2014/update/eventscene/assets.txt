@@ -1,0 +1,2 @@
+npc_ranox_png.swf
+ranox.swf
