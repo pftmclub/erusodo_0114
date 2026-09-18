@@ -13554,4 +13554,283 @@ g_pDungeonManager:AddDungeonData({
 		}
 	}
 })
+--{{ Iruha : 2026-09-18 // Ranox port Phase 4 -- BurnedForest dungeon line, Normal/Hard/Expert only (Hero tier deferred per plan)
+g_pDungeonManager:AddDungeonData({
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_Burned_Forest_01.tga",
+	m_PieceName = "Ranox_Burned_Forest",
+	m_MaxLevel = 72,
+	dataFileName = "Dungeon_Ranox_BurnedForest_Normal.lua",
+	m_MinLevel = 70,
+	m_NPCLevel = 70,
+	m_RequireItemLevel = 60,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_Burned_Forest_02.tga",
+	dungeonName = STR_ID_32273,
+	difficulty = DIFFICULTY_LEVEL.DL_NORMAL,
+	dungeonID = DUNGEON_ID.DI_RANOX_BURNDEDFOREST_NORMAL,
+	m_DungeonDescription = STR_ID_32315,
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30329,
+			30330,
+			30331
+		},
+		LUCIEL = {},
+		ROSE = {}
+	},
+	ENDING_SPEECH0 = {
+		ELSWORD = {
+			{
+				STR_ID_32603
+			},
+			{
+				STR_ID_32604
+			},
+			{
+				STR_ID_32605
+			},
+			{
+				STR_ID_32606
+			}
+		},
+		AISHA = {
+			{
+				STR_ID_32611
+			},
+			{
+				STR_ID_32612
+			},
+			{
+				STR_ID_32613
+			},
+			{
+				STR_ID_32614
+			}
+		},
+		RENA = {
+			{
+				STR_ID_32607
+			},
+			{
+				STR_ID_32608
+			},
+			{
+				STR_ID_32609
+			},
+			{
+				STR_ID_32610
+			}
+		},
+		RAVEN = {
+			{
+				STR_ID_32615
+			},
+			{
+				STR_ID_32616
+			},
+			{
+				STR_ID_32617
+			},
+			{
+				STR_ID_32618
+			}
+		},
+		EVE = {
+			{
+				STR_ID_32619
+			},
+			{
+				STR_ID_32620
+			},
+			{
+				STR_ID_32621
+			},
+			{
+				STR_ID_32622
+			}
+		},
+		CHUNG = {
+			{
+				STR_ID_32623
+			},
+			{
+				STR_ID_32624
+			},
+			{
+				STR_ID_32625
+			},
+			{
+				STR_ID_32626
+			}
+		},
+		ARA = {
+			{
+				STR_ID_32627
+			},
+			{
+				STR_ID_32628
+			},
+			{
+				STR_ID_32629
+			},
+			{
+				STR_ID_32630
+			}
+		},
+		ELESIS = {
+			{
+				STR_ID_32631
+			},
+			{
+				STR_ID_32632
+			},
+			{
+				STR_ID_32633
+			},
+			{
+				STR_ID_32634
+			}
+		},
+		ADD = {
+			{
+				STR_ID_32635
+			},
+			{
+				STR_ID_32636
+			},
+			{
+				STR_ID_32637
+			},
+			{
+				STR_ID_32638
+			}
+		},
+		LUCIEL = {
+			{
+				LU = STR_ID_33303,
+				CIEL = STR_ID_33305
+			},
+			{
+				LU = STR_ID_33304,
+				CIEL = STR_ID_33306
+			}
+		},
+		ROSE = {
+			{
+				STR_ID_38633
+			},
+			{
+				STR_ID_38634
+			},
+			{
+				STR_ID_38635
+			},
+			{
+				STR_ID_38636
+			}
+		},
+		AIN = {
+			{
+				STR_ID_43785
+			}
+		}
+	}
+})
+g_pDungeonManager:AddDungeonData({
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_Burned_Forest_01.tga",
+	m_PieceName = "Ranox_Burned_Forest",
+	m_MaxLevel = 72,
+	dataFileName = "Dungeon_Ranox_BurnedForest_Hard.lua",
+	m_MinLevel = 70,
+	m_NPCLevel = 71,
+	m_RequireItemLevel = 61,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_Burned_Forest_02.tga",
+	dungeonName = STR_ID_32273,
+	difficulty = DIFFICULTY_LEVEL.DL_HARD,
+	dungeonID = DUNGEON_ID.DI_RANOX_BURNDEDFOREST_HARD,
+	m_DungeonDescription = STR_ID_32315,
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30329,
+			30330,
+			30331
+		},
+		ELSWORD = {},
+		AISHA = {},
+		RENA = {
+			30337
+		},
+		RAVEN = {
+			30338
+		},
+		EVE = {},
+		CHUNG = {},
+		ARA = {
+			30341
+		},
+		ELESIS = {
+			30342
+		},
+		ADD = {
+			30343
+		},
+		LUCIEL = {
+			30353
+		},
+		ROSE = {
+			30443
+		}
+	}
+})
+g_pDungeonManager:AddDungeonData({
+	m_MaxLevel = 72,
+	m_RequireItemLevel = 62,
+	MaxAdequateMemberCount = 4,
+	m_PieceName = "Ranox_Burned_Forest",
+	MinAdequateMemberCount = 1,
+	m_NPCLevel = 72,
+	m_LoadingScreenFileName2 = "HQ_LoadingDungeon_Burned_Forest_02.tga",
+	m_TextureName = "DLG_UI_Dungeon_Image10.dds",
+	m_LoadingScreenFileName = "HQ_LoadingDungeon_Burned_Forest_01.tga",
+	dataFileName = "Dungeon_Ranox_BurnedForest_Expert.lua",
+	m_MinLevel = 70,
+	dungeonName = STR_ID_32273,
+	difficulty = DIFFICULTY_LEVEL.DL_EXPERT,
+	FixMaximumDifficulty = TRUE,
+	dungeonID = DUNGEON_ID.DI_RANOX_BURNDEDFOREST_EXPERT,
+	m_DungeonDescription = STR_ID_32315,
+	BOSS_DROP_ITEM = {
+		COMMON = {
+			30329,
+			30330,
+			30331
+		},
+		ELSWORD = {},
+		AISHA = {},
+		RENA = {
+			30337
+		},
+		RAVEN = {
+			30338
+		},
+		EVE = {},
+		CHUNG = {},
+		ARA = {
+			30341
+		},
+		ELESIS = {
+			30342
+		},
+		ADD = {
+			30343
+		},
+		LUCIEL = {
+			30353
+		},
+		ROSE = {
+			30443
+		}
+	}
+})
 --}}

@@ -574,6 +574,84 @@ patched file to ./march2014/data035/DungeonData.lua.
 
 ---
 
+### Phase 4 findings (executed 2026-09-18)
+
+**All 20 files landed and compile** (`compile-batch -v mar-2014`, individually
+and together with the two patched registry files): 3 dungeon-difficulty
+containers, 8 stage+LineMap files, the gate object, and 9 monster
+unit-definition files (`MAG_CHARGER`, `MAG_NOM`, `MAG_STONE`, `RAGE_BABYFIG`,
+`RAGE_DRYAD`, `RAGE_DRYADKENTA`, `RAGE_MOTHERFIG`, `TRAP_FIRE_BIG`,
+`TRAP_FIRE_SMALL` — all found in `data037_kom`, named after the monster, same
+shape as Phase 3's `SMITH_*` files). All 20 also round-trip
+(compile → decompile) content-identical to their June2017 source, modulo Lua
+table key reordering — the same benign artifact this plan's tooling section
+already documents. `DI_RANOX_BURNDEDFOREST_{NORMAL,HARD,EXPERT}` and all 10
+`NPC_UNIT_ID`s were already in `march2014/data036/{Enum,DungeonEnum}.lua`
+from Phase 1 — zero new enum work needed there. Reachability was already
+wired by Phase 2: both `MapData:AddLocalMapInfo` and
+`DLG_Map_Local_Ranox.lua`'s `DungeonIDList` already carry
+`DI_RANOX_BURNDEDFOREST_*`, so this line needed no additional registry work
+beyond `DungeonData.lua`. `DungeonData.lua`'s June2017 entries carry no
+`EXTRA_REQUIRE_DUNGEON_ID` for BurnedForest (unlike AshesVillage, which
+requires `DI_RANOX_BURNDEDFOREST_NORMAL`) — ported verbatim; this is
+consistent with Phase 2's finding that region entry is gated once, by
+`EnterCondition` on the region itself, not by a per-dungeon chain.
+
+**One enum gap this phase's own scope exposed, outside Phase 1's audit**:
+`BUFF_FACTOR_ID.BFI_BUFF_MAG_STONE_ATTACK_B`, referenced twice in
+`MAG_STONE.lua`. The Findings section's 8-gap table only audited the 125-file
+Appendix A inventory, which by construction excludes every monster
+unit-definition file (they're named after the monster, not "Ranox" or a
+dungeon-line name) — so this was never checked. Added to
+`march2014/data036/Enum.lua`'s existing `BUFF_FACTOR_ID` table at June2017's
+own verbatim value, `512` — confirmed free within that table (a couple of
+*other* tables already use `512` for unrelated IDs, which don't collide).
+**Phases 5–9 should expect more of this class** as they port `NUI_FIRE_DEVIL_*`,
+`NUI_SECRET_*`, etc. unit-definition files — audit `BUFF_FACTOR_ID` (and any
+other non-`NPC_UNIT_ID`/`WORLD_ID`/`VILLAGE_MAP_ID`/`DUNGEON_ID` table) the
+same way, not just the four tables Phase 1 scoped.
+
+**Two method-level gaps, found only by checking every `:Method(` call in the
+9 monster files against this client's actual C++ bindings (`lua_tinker::class_def`
+in `X2Lib`/`KTDXLIB`), not just against enum tables.** This check isn't in
+Phase 1's audit or the Findings' 8-gap table at all — both are enum-only —
+and it matters more than an enum gap: a call to an unbound method aborts the
+whole script, per the Findings' own C++-code-reading caveat for bare/method
+calls, whereas a missing *enum member* just makes that one expression `nil`.
+Both gaps are confined to `RAGE_DRYADKENTA.lua` (the BurnedForest boss):
+
+- `slot2:GetStoredGUUser()` (line ~754, the target-loss fallback in
+  `RAGE_DRYADKENTA_ATTACK_A_ATTACK_DASH_STATE_START`) — not bound anywhere in
+  `X2Lib`/`KTDXLIB`. Omitted; `slot4` now simply stays `nil` when there's no
+  current target, so the reorientation block that follows is skipped instead
+  of falling back to a stored target — the same behavior every other state in
+  this file already has when it only checks `GetTargetUser()`.
+- `slot2:InitStateCoolTime(...)` (two call sites in
+  `RAGE_DRYADKENTA_COMMON_FRAMEMOVE`, both immediately before a
+  `StateChange_LUA` into the same dash-attack state) — also not bound.
+  Omitted; the `StateChange_LUA`/`SetFlag_LUA` calls that follow are kept, so
+  the boss's phase-transition dash attack still triggers at the same HP/cooldown
+  thresholds, just without whatever cooldown-priming the missing call did for
+  the target state.
+
+Both are `SERV_IRUHADEV_RANOX_PORT`-tagged inline comments in the ported file,
+same convention as Phase 2's documented omissions. Re-verified
+`compile-batch -v mar-2014` succeeds on the file after both edits.
+
+**One data-table gap, noted but out of scope for this phase**: the buff
+factor system doesn't key off `X2BuffFactor.h`'s C++ enum at all —
+`CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID` looks the ID up at
+runtime via `CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr()`, which
+is itself populated by `CX2BuffTemplet::ParsingScript(KLuaManager&)` — a Lua
+data table, not a fixed enum. A missing ID there degrades safely (the lookup
+returns `NULL`, the function returns `false`, no crash, no script abort) but
+means `BFI_BUFF_MAG_STONE_ATTACK_B`'s actual buff effect (duration, magnitude)
+won't apply even with the enum value now present, unless that Lua table also
+gets an entry — the same shape as this plan's Findings section already calls
+out for monster stat/drop tables, and out of scope here for the same reason.
+
+---
+
 ### Phase 5 — FinalHall line
 
 Shares its `NUI_FIRE_DEVIL_*` monster family with FireTemple (Phase 6) —
