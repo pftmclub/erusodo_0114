@@ -853,6 +853,35 @@ CKTDGUIDialogType CX2WorldMapUI::GetFieldMapDlg( int iFieldID )
 		} break;
 #endif //SANDER_DUNGEON_5_6
 
+//{{ Iruha : 2026-09-19 // Ranox village + battlefield dialog cases (Phase 16)
+#ifdef SERV_IRUHADEV_RANOX_PORT
+	case SEnum::VMI_RANOX:
+		{
+			pDialog = new CKTDGUIDialog( m_pStage, L"DLG_UI_FIELD_MAP_Ranox_Village_NEW.lua" );
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_01:
+		{
+			pDialog = new CKTDGUIDialog( m_pStage, L"DLG_UI_FIELD_MAP_Ranox_01_NEW.lua" );
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_02:
+		{
+			pDialog = new CKTDGUIDialog( m_pStage, L"DLG_UI_FIELD_MAP_Ranox_02_NEW.lua" );
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_03:
+		{
+			pDialog = new CKTDGUIDialog( m_pStage, L"DLG_UI_FIELD_MAP_Ranox_03_NEW.lua" );
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_04:
+		{
+			pDialog = new CKTDGUIDialog( m_pStage, L"DLG_UI_FIELD_MAP_Ranox_04_NEW.lua" );
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00:
+		{
+			pDialog = new CKTDGUIDialog( m_pStage, L"DLG_UI_FIELD_MAP_Ranox_Rest_NEW.lua" );
+		} break;
+#endif SERV_IRUHADEV_RANOX_PORT
+//}}
+
 	default:
 		ASSERT( !L"iFieldID is Invalid" );
 		pDialog = NULL;
