@@ -3322,6 +3322,159 @@ change and confirm no errors -- touch X2Lib/stdafx.cpp first since these are
 header edits inside the PCH.
 ```
 
+**Executed 2026-09-19.** One load-bearing correction to this phase's own
+kickoff prompt, found before writing any code: **nothing in this repo commits
+a numeric value for any of the six identifiers** -- not
+`march2014/data036/Enum.lua`, not anywhere else (a scoped grep across
+`X2Lib`, `KTDXLIB`, `KncWX2Server`, `march2014` and this file returned zero
+hits). The names exist only inside this port's own `-- omitted --` comments
+in the Ranox `LineMap.lua` files, each one individually confirming the C++
+enum member is genuinely absent (not just unbound). This session owns the
+numbering: each new member was appended positionally after its enum's last
+existing member (`TAT_MESH_MOVE=3`, `TAT_LINE_CHANGE_TYPE=7`,
+`TAT_ETC_NPC_AI_ON_OFF=6`, `TAT_ETC_PLAY_EFFECTSET=7`, `TAT_ETC_TALK_BOX=8`),
+with an **explicit `= N`** on each even though the file's own style is
+positional-after-first -- required here (unlike the plain style elsewhere in
+this same enum) because each new member sits behind its *own* flag, and an
+explicit value keeps one flag's on/off state from silently renumbering a
+different flag's member. **Consequence for later phases: a C++ enum member
+alone changes nothing.** The Ranox data reads these through the Lua table
+(`TRIGGER_ETC_ACTION_TYPE.TAT_ETC_NPC_AI_ON_OFF`), so `LUA_GET_VALUE_ENUM`
+sees a nil global and falls back to `TAT_..._NONE` until a packed `Enum.lua`
+carries the same names at the same integers and the commented-out trigger
+entries are restored -- both still outstanding, per this repo's standing
+Lua-packing rule.
+
+Five flags landed, one per gap, all in `KTDXLIB/Always.h`:
+`SERV_IRUHADEV_RANOX_TRIGGER_NPC_AI_ON_OFF`,
+`SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE`,
+`SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET`,
+`SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX`,
+`SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE`. Each gates its enum member (both
+copies), its `KTDGLineMap.cpp::AddTrigger_LUA` parse case, and its
+`X2World.cpp::DoTrigger{Mesh,Line,Etc}` runtime case. `DLT_EVENT_DUNGEON_TITLE`
+got **no flag and no code**: `DLG_Map_Local_Ranox_Icon_NEW.lua`'s own comment
+(added during Phase 9) already established that Ranox's own dungeon-icon
+content never uses it -- only the unrelated, already-omitted Halloween
+overlay blocks do -- so minting a `DETAIL_LOCAL_TYPE` value and a
+`X2LocalMapUI.cpp::UpdateDungeonButtons` branch here would be inventing a
+feature with nothing in this port's data to exercise it. That verdict, not a
+flag, is the deliverable for this item.
+
+Per-item resolution, deviating from the kickoff prompt's citations where this
+session's own re-check found something sharper:
+
+- **`TAT_ETC_NPC_AI_ON_OFF`** -- the kickoff prompt's "reuse
+  `m_wstrActionName` as NPC target name" doesn't match the actual Ranox data:
+  every commented-out use (`Ranox_FireTemple_Stage1_LineMap.lua`) carries only
+  `NPC_AI_ENABLE`, no name/ID field at all -- "wake up **this trigger's**
+  NPCs" plural, unnamed. Implemented as a blanket toggle over
+  `g_pX2Game->GetNPCUnit(i)` for `i` in `[0, GetNPCUnitListSize())`, not a
+  by-name lookup. No new struct field: `NPC_AI_ENABLE` (a Lua boolean) is read
+  into a local `bool` in the parse switch, then cast into the existing
+  `m_iDummyValue01` -- avoids adding a field for what the kickoff prompt
+  correctly predicted needed none, while still handling the boolean-vs-int
+  mismatch `KLuaManager::GetValue` requires.
+- **`TAT_LINE_CHANGE_TYPE`** -- matched the kickoff prompt exactly. New
+  `CHANGE_LINE_TYPE` Lua field, new `TRIGGER_DATA_LINE::m_iChangeLineType`
+  (type `LINE_TYPE`), parsed the same way `AddTrigger_LUA`'s own commented-out
+  `LUA_GET_VALUE_ENUM(..., "LINE_TYPE", ...)` at `KTDGLineMap.cpp:2620`
+  already shows for `AddLine_LUA`.
+- **`TAT_ETC_PLAY_EFFECTSET`** -- `CX2EffectSet::PlayEffectSet` hard-requires
+  a non-null `CX2GameUnit*` (`X2EffectSet.cpp` ~1810-1811) to source its
+  skin-anim parent, **even when `bCustomPosition` fully overrides the
+  rendered position** (~1895-1904, ~2780-2782) -- a world/line-map trigger has
+  no NPC/player context of its own to supply one. Resolved (confirmed sound
+  via advisor review before writing it) by passing
+  `g_pX2Game->GetMyUnit()` purely as that required anchor; the effect's actual
+  on-screen position comes entirely from the new `EFFECT_POS_X/Y/Z` fields
+  (new `TRIGGER_DATA_ETC::m_vEffectPosition`), not the anchor's own position.
+  Cost of the workaround: effect lifetime is tied to the anchor's skin anim,
+  acceptable for a one-shot environmental burst. Calls the native
+  `PlayEffectSet(wstring, ...)` overload directly (not the `_LUA`-suffixed
+  `char*` one, which exists only for the lua_tinker bridge) since the trigger
+  data is already a `wstring`.
+- **`TAT_ETC_TALK_BOX`** -- binds to `g_pX2Game->GetTalkBoxManager()`
+  (`CX2Game::GetTalkBoxManager`, `X2Game.h:875`), **not** the kickoff prompt's
+  cited `X2TFieldNpc.cpp`/`g_pTFieldGame` precedent: Ranox's own LineMap files
+  needing this (`Ranox_Geyser_stage0_linemap.lua`, `Ranox_FireTemple_Stage1_LineMap.lua`)
+  are dungeons, and `g_pTFieldGame` is village/field-only, so copying that
+  line verbatim would have been a silent no-op in a dungeon.
+  `CX2WeddingGame::PopOfficiantTalkBox` (`X2WeddingGame.cpp:753`) turned out to
+  be the cleaner precedent than the `NPC_TalkBox`/`X2RelationshipManager`'s
+  `TBT_TALKBOX_EFFECT` styling: `m_OwnerUnitUID=-1`, `m_bTraceUnit=true`,
+  `m_vTalkBoxPosition` set explicitly so `GetTalkBoxPosByCostomPos`
+  (`ADDED_RELATIONSHIP_SYSTEM`, confirmed unconditionally defined in this
+  build) supplies the position instead of tracing a unit. New `MESSAGE`
+  str-id field reuses `m_iDummyValue01`; new `TALK_POS_X/Y/Z` fields feed a
+  new `m_vTalkBoxPosition` member.
+- **`TAT_MESH_MOVE`** -- matched the kickoff prompt: binds to the already
+  Lua-bound `CX2WorldObject::SetPos`, called directly in C++ (no Lua
+  round-trip needed for a same-process C++ call). New `MOVE_POS_X/Y/Z` Lua
+  fields (component-wise, **not** a single `MOVE_POS` vector as the original
+  live client's commented-out data implies) feed a new
+  `TRIGGER_DATA_MESH::m_vMovePos` field -- `KLuaManager::GetValue` has no
+  `D3DXVECTOR3` overload at all (confirmed by grep), and the codebase's own
+  precedent for a vector-valued trigger field
+  (`TAT_LINE_CHANGE_JUMPSPEED`'s `m_vJumpSpeed`) already reads it
+  component-wise (`LINE_JUMPSPEED_X`/`_Y`) for exactly this reason.
+
+A second correction, this one about the server-side copy: gating
+`XSLLineMap.h`'s three enum blocks behind the same
+`SERV_IRUHADEV_RANOX_TRIGGER_*` names **reproduces Phase 1's own known
+asymmetry**, not a new one -- these flags are defined only in
+`KTDXLIB/Always.h`, which is unreachable from the `KncWX2Server` build the
+same way `SERV_IRUHADEV_RANOX_PORT` already is (see that item's own
+server-side `#ifdef` blocks in `XSLUnitManager.h`/`DungeonEnum.h`/`Enum.h`).
+The server-side additions here are therefore inert until that separate,
+not-yet-done fix lands; they're inspection-verified only (`file` confirmed
+`XSLLineMap.h`'s encoding unchanged, VS2003 not installed in this
+environment so no compile check is possible either way).
+
+**Encoding discipline note**: the first attempt at this phase's header edits
+used the normal Edit tool directly on `KTDGLineMap.h` and `XSLLineMap.h` and
+hit exactly the failure mode `CLAUDE.md`'s CP949 warning describes -- both
+files silently re-encoded to UTF-8 (`git diff --stat` ballooned to
+hundreds of lines for a handful of intended insertions). Caught before
+committing, both files restored to pristine bytes via `git show HEAD:<path> >
+<path>` (`git checkout --` itself was blocked by this environment's
+destructive-action guard), and every edit in this phase was redone with a
+byte-level Python script (`open(path, 'rb'/'wb')`, exact-bytes
+`bytes.replace()`, one assert-single-occurrence check per replacement) --
+`file` and `git diff --stat` re-confirmed clean (`ISO-8859 text`/`Non-ISO
+extended-ASCII text` unchanged, pure insertions only) after every write in
+this phase.
+
+**Build verification**: `KTDXLIB` and `X2Lib` (both `US_SERVICE`, in that
+order, after `touch KTDXLIB/stdafx.cpp` and `touch X2Lib/stdafx.cpp` to
+invalidate both PCHs) built clean -- **0 errors** on both, only pre-existing
+warnings (deprecated CRT calls, a signed/unsigned comparison, the `Purple`
+billing SDK's duplicate-symbol link warnings, all already noted in this
+file's item-1 build verification above). `X2/KTDXLIB.lib` and `X2/X2Lib.lib`
+both freshly dated 2026-09-19. `X2/X2_2010.vcxproj` (the final `.exe`) was
+deliberately not built or deployed this session, matching item 1's own
+rationale -- these are header/source-only changes with no packed Lua yet to
+exercise them at runtime, so linking the exe adds nothing further to confirm,
+and per this repo's standing policy the exe is never auto-launched without
+asking first regardless.
+
+**Not owed by this phase, flagged for whoever packs the data**: the six
+integers this session chose (`TAT_MESH_MOVE=3`, `TAT_LINE_CHANGE_TYPE=7`,
+`TAT_ETC_NPC_AI_ON_OFF=6`, `TAT_ETC_PLAY_EFFECTSET=7`, `TAT_ETC_TALK_BOX=8`)
+need to land at the same values in whatever `Enum.lua` actually gets packed
+into `data036.kom` -- if a later/different client's `Enum.lua` is packed
+instead of an edited copy of March2014's, these numbers need reconciling
+against it first, the same client/server-contract caution `CLAUDE.md` gives
+for any shared numbering. The five commented-out Ranox trigger blocks this
+phase's gaps were found from (`Ranox_FireTemple_Stage1_LineMap.lua` ×2,
+`Ranox_GateWay_Stage1_LineMap.lua` ×2, `Ranox_Geyser_stage0_linemap.lua` ×3,
+`Ranox_Secret_Stage2_LineMap.lua` ×1) also still need their
+`-- omitted --`/`-- SERV_IRUHADEV_RANOX_PORT ... --` blocks restored to real
+trigger data using the new field names this phase settled on
+(`NPC_AI_ENABLE`, `CHANGE_LINE_TYPE`, `EFFECT_NAME`/`EFFECT_POS_X/Y/Z`,
+`MESSAGE`/`TALK_POS_X/Y/Z`, `MOVE_POS_X/Y/Z`) -- this phase did not touch
+those `.lua` files themselves.
+
 ---
 
 ### Phase 15 — 8-engine-gap real work (the 2 hard items)

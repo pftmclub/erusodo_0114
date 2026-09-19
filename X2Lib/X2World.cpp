@@ -1590,6 +1590,13 @@ void CX2World::DoTriggerMesh(CKTDGLineMap::TRIGGER_DATA_MESH &triggerMesh)
 			pWorldMesh->SetAnimSpeed( triggerMesh.m_fAnimSpeed );
 		}
 		break;
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE
+	case CKTDGLineMap::TAT_MESH_MOVE:
+		{
+			pWorldMesh->SetPos( triggerMesh.m_vMovePos );
+		}
+		break;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE
 	default:
 		break;
 	}
@@ -1637,6 +1644,13 @@ void CX2World::DoTriggerLine(CKTDGLineMap::TRIGGER_DATA_LINE &triggerLine)
 			pLineData->m_iTeleportLineIndex = triggerLine.m_iCamera;
 		}
 		break;
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
+	case CKTDGLineMap::TAT_LINE_CHANGE_TYPE:
+		{
+			pLineData->lineType = triggerLine.m_iChangeLineType;
+		}
+		break;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
 	default:
 		break;
 	}
@@ -1701,6 +1715,51 @@ void CX2World::DoTriggerEtc(CKTDGLineMap::TRIGGER_DATA_ETC &triggerEtc)
 #endif
 		}
 		break;
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_NPC_AI_ON_OFF
+	case CKTDGLineMap::TAT_ETC_NPC_AI_ON_OFF:
+		{
+			if( g_pX2Game != NULL )
+			{
+				for( int i = 0; i < g_pX2Game->GetNPCUnitListSize(); ++i )
+				{
+					CX2GUNPC* pGUNPC = g_pX2Game->GetNPCUnit( i );
+					if( pGUNPC != NULL )
+						pGUNPC->SetAIEnable( triggerEtc.m_iDummyValue01 != 0 );
+				}
+			}
+		}
+		break;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_NPC_AI_ON_OFF
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
+	case CKTDGLineMap::TAT_ETC_PLAY_EFFECTSET:
+		{
+			if( g_pX2Game != NULL && g_pX2Game->GetEffectSet() != NULL && g_pX2Game->GetMyUnit() != NULL &&
+				false == triggerEtc.m_wstrActionName.empty() )
+			{
+				g_pX2Game->GetEffectSet()->PlayEffectSet( triggerEtc.m_wstrActionName, g_pX2Game->GetMyUnit(), NULL, false, -1.f, -1.f,
+					D3DXVECTOR3( 1, 1, 1 ), true, triggerEtc.m_vEffectPosition );
+			}
+		}
+		break;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX
+	case CKTDGLineMap::TAT_ETC_TALK_BOX:
+		{
+			if( g_pX2Game != NULL && g_pX2Game->GetTalkBoxManager() != NULL )
+			{
+				CX2TalkBoxManagerImp::TalkBox talkBox;
+				talkBox.m_OwnerUnitUID		= -1;
+				talkBox.m_wstrTalkContent	= GET_STRING( triggerEtc.m_iDummyValue01 );
+				talkBox.m_bTraceUnit		= true;
+				talkBox.m_TalkBoxType		= CX2TalkBoxManagerImp::TBT_FROM_DOWN_LEFT;
+#ifdef ADDED_RELATIONSHIP_SYSTEM
+				talkBox.m_vTalkBoxPosition	= triggerEtc.m_vTalkBoxPosition;
+#endif ADDED_RELATIONSHIP_SYSTEM
+				g_pX2Game->GetTalkBoxManager()->Push( talkBox );
+			}
+		}
+		break;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX
 	default:
 		break;
 	}

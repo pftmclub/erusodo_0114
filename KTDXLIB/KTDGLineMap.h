@@ -91,6 +91,9 @@ class CKTDGLineMap : public CKTDGObject
 			TAT_MESH_NONE = 0,
 			TAT_MESH_CHANGE_ANIM,
 			TAT_MESH_CHANGE_SPEED,
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE
+			TAT_MESH_MOVE = 3,
+#endif SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE
 		};
 		enum TRIGGER_LINE_ACTION_TYPE
 		{
@@ -102,6 +105,9 @@ class CKTDGLineMap : public CKTDGObject
 			TAT_LINE_CHANGE_CANPASS,
 			TAT_LINE_CHANGE_TELEPORT,
 
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
+			TAT_LINE_CHANGE_TYPE = 7,
+#endif SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
 		};
 		enum TRIGGER_ETC_ACTION_TYPE
 		{
@@ -111,6 +117,15 @@ class CKTDGLineMap : public CKTDGObject
 			TAT_ETC_CAMERA,
 			TAT_ETC_CAMERA_SHAKE,
 			TAT_ETC_ACTIVE_LAYER,
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_NPC_AI_ON_OFF
+			TAT_ETC_NPC_AI_ON_OFF = 6,
+#endif SERV_IRUHADEV_RANOX_TRIGGER_NPC_AI_ON_OFF
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
+			TAT_ETC_PLAY_EFFECTSET = 7,
+#endif SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX
+			TAT_ETC_TALK_BOX = 8,
+#endif SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX
 		};
 
 #ifdef ADD_LINEMAP_JUMPUP_DIRECTION
@@ -131,6 +146,9 @@ class CKTDGLineMap : public CKTDGObject
 			int				m_iPlayType;			
 			float			m_fAnimSpeed;
 			bool			m_bDone;
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE
+			D3DXVECTOR3		m_vMovePos;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE
 
 			TRIGGER_DATA_MESH()
 			{
@@ -141,6 +159,9 @@ class CKTDGLineMap : public CKTDGObject
 				m_wstrMeshName			= L"";
 				m_fAnimSpeed			= 1.f;
 				m_bDone					= false;
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE
+				m_vMovePos				= D3DXVECTOR3(0.f, 0.f, 0.f);
+#endif SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE
 			}
 		};
 		struct TRIGGER_DATA_LINE
@@ -153,6 +174,9 @@ class CKTDGLineMap : public CKTDGObject
 			D3DXVECTOR3		m_vJumpSpeed;
 			int				m_iCamera;
 			bool			m_bDone;
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
+			LINE_TYPE		m_iChangeLineType;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
 
 			TRIGGER_DATA_LINE()
 			{
@@ -164,6 +188,9 @@ class CKTDGLineMap : public CKTDGObject
 				m_vJumpSpeed			= D3DXVECTOR3(0.f, 0.f, 0.f);
 				m_iCamera				= -1;
 				m_bDone					= false;
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
+				m_iChangeLineType		= LT_NORMAL;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
 			}
 		};
 		struct TRIGGER_DATA_ETC
@@ -174,6 +201,12 @@ class CKTDGLineMap : public CKTDGObject
 			int				m_iDummyValue01;
 			float			m_fDummyValue01;
 			bool			m_bDone;
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
+			D3DXVECTOR3		m_vEffectPosition;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX
+			D3DXVECTOR3		m_vTalkBoxPosition;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX
 
 			TRIGGER_DATA_ETC()
 			{
@@ -183,6 +216,12 @@ class CKTDGLineMap : public CKTDGObject
 				m_iDummyValue01		= -1;
 				m_fDummyValue01		= 0.f;
 				m_bDone					= false;
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
+				m_vEffectPosition		= D3DXVECTOR3(0.f, 0.f, 0.f);
+#endif SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX
+				m_vTalkBoxPosition		= D3DXVECTOR3(0.f, 0.f, 0.f);
+#endif SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX
 			}
 		};
 		struct TRIGGER_DATA

@@ -3911,3 +3911,95 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              mount just logs KEM_ERROR143 and is skipped).
 #define SERV_IRUHADEV_KOM_FILE_COUNT_226
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-19
+// Description: Ranox/Lanox port -- engine-gap wiring 1/5. Binds
+//              TRIGGER_ETC_ACTION_TYPE.TAT_ETC_NPC_AI_ON_OFF (=6,
+//              KTDXLIB/KTDGLineMap.h) to the already-existing
+//              CX2GUNPC::SetAIEnable(bool). Ranox's own commented-out Lua
+//              trigger data (march2014/update/data040/
+//              Ranox_FireTemple_Stage1_LineMap.lua) carries only an
+//              NPC_AI_ENABLE flag, no NPC-name/target field, so this
+//              toggles AI for every NPC currently in the game
+//              (g_pX2Game->GetNPCUnit(i) for i in
+//              [0, GetNPCUnitListSize())), not one selected by name.
+#define SERV_IRUHADEV_RANOX_TRIGGER_NPC_AI_ON_OFF
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-19
+// Description: Ranox/Lanox port -- engine-gap wiring 2/5. Binds
+//              TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TYPE (=7,
+//              KTDXLIB/KTDGLineMap.h) to reassigning
+//              CKTDGLineMap::LineData::lineType at runtime, the same
+//              one-field-assignment shape as the 5 existing
+//              TAT_LINE_CHANGE_* cases (X2World.cpp DoTriggerLine). New
+//              Lua trigger field CHANGE_LINE_TYPE, parsed the same way
+//              AddLine_LUA's own (commented-out) LINE_TYPE field would be
+//              (KTDGLineMap.cpp:2620).
+#define SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-19
+// Description: Ranox/Lanox port -- engine-gap wiring 3/5. Binds
+//              TRIGGER_ETC_ACTION_TYPE.TAT_ETC_PLAY_EFFECTSET (=7,
+//              KTDXLIB/KTDGLineMap.h) to
+//              CX2EffectSet::PlayEffectSetWithCustomPos_LUA at a new
+//              EFFECT_NAME (reuses TRIGGER_DATA_ETC::m_wstrActionName) /
+//              EFFECT_POS_X/Y/Z (new m_vEffectPosition field) Lua trigger
+//              data. PlayEffectSet( ) hard-requires a non-null
+//              CX2GameUnit* to source its skin-anim parent
+//              (X2EffectSet.cpp ~1810) even when bCustomPosition
+//              overrides the actual render position (~1895-1904,
+//              ~2780) -- a world/line-map trigger has no NPC/player
+//              context of its own, so this passes g_pX2Game->GetMyUnit()
+//              purely as that required anchor; the effect's on-screen
+//              position is fully governed by EFFECT_POS_*, not the
+//              anchor's own position. Effect lifetime is tied to the
+//              anchor's skin anim, the accepted cost of this workaround
+//              for a one-shot environmental burst.
+#define SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-19
+// Description: Ranox/Lanox port -- engine-gap wiring 4/5. Binds
+//              TRIGGER_ETC_ACTION_TYPE.TAT_ETC_TALK_BOX (=8,
+//              KTDXLIB/KTDGLineMap.h) to
+//              g_pX2Game->GetTalkBoxManager()->Push(...), same recipe as
+//              CX2WeddingGame::PopOfficiantTalkBox (X2WeddingGame.cpp:753)
+//              -- m_OwnerUnitUID=-1, m_bTraceUnit=true,
+//              m_vTalkBoxPosition set from custom world position (so
+//              GetTalkBoxPosByCostomPos, ADDED_RELATIONSHIP_SYSTEM,
+//              supplies it instead of tracing a unit), text from
+//              GET_STRING() of a new MESSAGE str-id Lua field (reuses
+//              TRIGGER_DATA_ETC::m_iDummyValue01), position from new
+//              TALK_POS_X/Y/Z fields (new m_vTalkBoxPosition field).
+//              Uses g_pX2Game->GetTalkBoxManager() (CX2Game, X2Game.h:875)
+//              rather than g_pTFieldGame's -- Ranox's own LineMap files
+//              needing this (Ranox_Geyser_stage0_linemap.lua) are
+//              dungeons, not village fields, so g_pTFieldGame would be
+//              NULL there.
+#define SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-19
+// Description: Ranox/Lanox port -- engine-gap wiring 5/5. Binds
+//              TRIGGER_MESH_ACTION_TYPE.TAT_MESH_MOVE (=3,
+//              KTDXLIB/KTDGLineMap.h) to the already Lua-bound
+//              CX2WorldObject::SetPos (X2WorldObject.h), called directly
+//              in C++ from X2World.cpp's DoTriggerMesh. New MOVE_POS_X/Y/Z
+//              Lua trigger fields (new TRIGGER_DATA_MESH::m_vMovePos
+//              field) -- component-wise like the existing
+//              LINE_JUMPSPEED_X/_Y fields, since KLuaManager::GetValue
+//              has no D3DXVECTOR3 overload.
+#define SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE
+//////////////////////////////////////////////////////////////////////////

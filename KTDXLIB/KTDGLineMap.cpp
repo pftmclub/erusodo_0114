@@ -2640,6 +2640,11 @@ bool CKTDGLineMap::AddTrigger_LUA()
 			LUA_GET_VALUE(		luaManager,	"MESH_NAME",	triggerDataMesh.m_wstrMeshName,			L"" );
 			LUA_GET_VALUE(		luaManager,	"ANIM_NAME",	triggerDataMesh.m_wstrName,				L"" );			
 			LUA_GET_VALUE(		luaManager,	"ANIM_SPEED",	triggerDataMesh.m_fAnimSpeed,			1 );
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE
+			LUA_GET_VALUE(		luaManager,	"MOVE_POS_X",	triggerDataMesh.m_vMovePos.x,		0.f );
+			LUA_GET_VALUE(		luaManager,	"MOVE_POS_Y",	triggerDataMesh.m_vMovePos.y,		0.f );
+			LUA_GET_VALUE(		luaManager,	"MOVE_POS_Z",	triggerDataMesh.m_vMovePos.z,		0.f );
+#endif SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE
 
 			triggerData.m_vecTriggerMesh.push_back( triggerDataMesh );
 
@@ -2692,6 +2697,13 @@ bool CKTDGLineMap::AddTrigger_LUA()
 					LUA_GET_VALUE(		luaManager,	"LINE_TELEPORT",	triggerDataLine.m_iCamera,				-1 );
 				}
 				break;
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
+			case TAT_LINE_CHANGE_TYPE:
+				{
+					LUA_GET_VALUE_ENUM( luaManager, "CHANGE_LINE_TYPE",	triggerDataLine.m_iChangeLineType,	LINE_TYPE, LT_NORMAL );
+				}
+				break;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
 			default:
 				break;
 			}
@@ -2740,6 +2752,35 @@ bool CKTDGLineMap::AddTrigger_LUA()
 					LUA_GET_VALUE(		luaManager,	"FADE_TIME",				triggerDataEtc.m_fDummyValue01,	0.f );
 				}
 				break;
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_NPC_AI_ON_OFF
+			case TAT_ETC_NPC_AI_ON_OFF:
+				{
+					bool bNPCAIEnable = true;
+					LUA_GET_VALUE(		luaManager,	"NPC_AI_ENABLE",		bNPCAIEnable,	true );
+					triggerDataEtc.m_iDummyValue01 = bNPCAIEnable ? 1 : 0;
+				}
+				break;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_NPC_AI_ON_OFF
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
+			case TAT_ETC_PLAY_EFFECTSET:
+				{
+					LUA_GET_VALUE(		luaManager,	"EFFECT_NAME",		triggerDataEtc.m_wstrActionName,	L"" );
+					LUA_GET_VALUE(		luaManager,	"EFFECT_POS_X",	triggerDataEtc.m_vEffectPosition.x,	0.f );
+					LUA_GET_VALUE(		luaManager,	"EFFECT_POS_Y",	triggerDataEtc.m_vEffectPosition.y,	0.f );
+					LUA_GET_VALUE(		luaManager,	"EFFECT_POS_Z",	triggerDataEtc.m_vEffectPosition.z,	0.f );
+				}
+				break;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX
+			case TAT_ETC_TALK_BOX:
+				{
+					LUA_GET_VALUE(		luaManager,	"MESSAGE",		triggerDataEtc.m_iDummyValue01,		-1 );
+					LUA_GET_VALUE(		luaManager,	"TALK_POS_X",	triggerDataEtc.m_vTalkBoxPosition.x,	0.f );
+					LUA_GET_VALUE(		luaManager,	"TALK_POS_Y",	triggerDataEtc.m_vTalkBoxPosition.y,	0.f );
+					LUA_GET_VALUE(		luaManager,	"TALK_POS_Z",	triggerDataEtc.m_vTalkBoxPosition.z,	0.f );
+				}
+				break;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX
 			}
 			
 			
