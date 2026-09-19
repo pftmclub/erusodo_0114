@@ -3094,6 +3094,541 @@ loop CLAUDE.md documents for other offline-mode work.
 
 ---
 
+### Repo/engine integration findings (executed 2026-09-19)
+
+Ran with the scope this session's user explicitly confirmed: items 1/2/3
+above, strictly — not 2b, not 3/3b/3c/3d, not 5 (all deferred to their own
+phases below, never silently dropped). One provenance note up front: an
+Explore agent used during item 1's research examined the forbidden
+`mods/lanox-offline` branch despite this document's standing instruction not
+to; every finding below relies only on independently-verified evidence from
+this branch's own current files, and anything sourced from that branch
+(a flag name, a numeric range) was discarded rather than used.
+
+**Item 1 — built.** All four ID families (`WORLD_ID`, `DUNGEON_ID`,
+`NPC_UNIT_ID`, `VILLAGE_MAP_ID`+`LOCAL_MAP_ID`) turned out to have a genuine,
+hand-maintained C++ mirror, confirmed by the pre-existing Sander entries
+already baked into each file — Phase 1's Lua-only additions were not
+sufficient by themselves. Added, each gated behind a new flag,
+`SERV_IRUHADEV_RANOX_PORT` (defined in `KTDXLIB/Always.h`; first real use of
+that name as a `#define` — it previously existed only as an inert
+documentation tag in `march2014/*.lua` comments, since a `#define` doesn't
+gate Lua):
+
+- `X2Lib/X2World.h` — 43 new `WI_RANOX_*`/`WI_VILLAGE_RANOX`/`WI_SPA_RANOX`/
+  `WI_BATTLE_FIELD_RANOX_*` entries, appended before `WI_END`.
+- `X2Lib/X2UnitManager.h` (client) and
+  `KncWX2Server/Common/X2Data/XSLUnitManager.h` (server) — 141 new `NUI_*`
+  entries each (not the ~135 originally estimated in the Findings section —
+  Phase 9/13 both found extra names outside the original audit's scope; 141
+  is the fully-reconciled count, confirmed independently two ways: a direct
+  diff against the pristine March2014 `Enum.lua`, and cross-checked against
+  Phase 13's own "142 total, minus the dead `NUI_FIRE_DEVIL_IGNIA_BOSS`
+  anomaly = 141 resolvable" tally). Client file appended before the
+  `NUI_MAX_LIMIT` sentinel (confirmed not an array-sizing risk — checked its
+  two consumers, `X2ItemManager_Preprocessing.cpp:1501` and a
+  `BOOST_STATIC_ASSERT( NUI_MAX_LIMIT <= 65536 )`, both still satisfied);
+  server file has no such sentinel, appended directly after its last entry.
+- `KncWX2Server/Common/Enum/DungeonEnum.h` — 19 new `DI_RANOX_*` entries
+  (Normal/Hard/Expert × 6 lines + `DI_RANOX_SECRET_HELL`; Hero-tier entries
+  correctly skipped, matching Phase 1's own deferral), appended before
+  `DI_END`.
+- `KncWX2Server/Common/Enum/Enum.h` — 8 new `VILLAGE_MAP_ID`-family entries
+  (`VMI_RANOX`, `VMI_BATTLE_FIELD_RANOX_REST_00`, `VMI_SPA_RANOX`,
+  `VMI_DUNGEON_LOUNGE_RANOX`, `VMI_BATTLE_FIELD_RANOX_FIELD_01..04`) spliced
+  into their five matching pre-existing sub-blocks (battle-field rest,
+  village, dungeon lounge, battle field, plus a new small Spa sub-block with
+  no existing analog to follow), plus `LMI_RANOX` in `LOCAL_MAP_ID`.
+  **`BATTLE_FIELD_ID` (`BFI_*`) deliberately not touched** — checked it
+  first and found it was never extended for Sander either (stops at Hamel),
+  so extending it for Ranox now would break the "match the established
+  precedent" approach this whole item leaned on; it also has zero client-side
+  callers (confirmed separately during item 3's investigation).
+
+Every new entry carries an explicit `= N` initializer copied verbatim from
+the already-committed `march2014/data036/{Enum,DungeonEnum}.lua` — never
+positional continuation, confirmed necessary (not just cautious) by finding
+real gaps in this client's own numbering that positional continuation would
+have silently gotten wrong (e.g. `VMI_DUNGEON_LOUNGE_RANOX` skips a value
+positional continuation would have produced). All five edited files were
+re-verified with `file` after editing (encoding unchanged — `ISO-8859 text`
+or `Non-ISO extended-ASCII text`, never flipped to UTF-8) and `git diff
+--stat` (pure insertions, no unexplained rewrites) — see `MODS.md`-style
+verification discipline in `CLAUDE.md`'s CP949 warning.
+
+**Why "append immediately before the terminal member" is load-bearing, not
+just tidy**: `WI_END`, `VMI_VILLAGE_MAP_END`, `VMI_BATTLE_FIELD_END`, and
+`VMI_BATTLE_FIELD_REST_END` are all real, live **exclusive-upper-bound
+validity checks** — not inert sentinels — consumed at ~12 call sites across
+`X2Lib` (`X2BattleFieldGame.cpp:291,295,454,457`, `X2State.cpp:6786,11732`,
+`X2StateBeginning.cpp:3985`, `X2StateField.cpp:1293,2354`,
+`X2StateServerSelect.cpp:5530,7359,11416`, `X2PartyManager.cpp:2605`,
+`X2TFieldGame.cpp:1676`, `X2LocationManager.h:491,513`) and one server-side
+(`KncWX2Server/Common/X2Data/XSLFieldBossData.cpp:160`) — all of the shape
+`if (id >= FIRST && id < *_END)` to decide whether an ID is a
+recognized world/village/battlefield ID at all. Because every new Ranox
+entry in this item was inserted immediately before its family's terminal
+sentinel, each sentinel's own (positional) value shifted up automatically
+(`WI_END` 572→752, `VMI_VILLAGE_MAP_END` 20008→20009,
+`VMI_BATTLE_FIELD_END` 40028→40033, `VMI_BATTLE_FIELD_REST_END` 1007→1008)
+— which means every one of those ~12 checks now **correctly and
+automatically classifies Ranox's new IDs as valid**, with no separate fix
+needed anywhere. This was verified by grepping for each sentinel name
+directly (not assumed) after the edit landed. The one place this still
+needs a real rebuild to take effect: `XSLFieldBossData.cpp:160` is compiled
+into the *server*, so a server binary built against the old (unshifted)
+`Enum.h` would classify Ranox's battlefield IDs differently than a rebuilt
+one — the exact silent-desync `CLAUDE.md`'s client/server contract rule
+warns about. Not exercisable in this environment (VS2003 absent) but now a
+named, checkable item rather than an abstract caveat.
+
+**Build verification**: `X2ServerProtocol` (`X2TOOL`), `KTDXLIB`
+(`US_SERVICE`), and `X2Lib` (`US_SERVICE`) all built clean against the
+edited headers (`X2World.h`, `Enum.h`, `DungeonEnum.h` are all reached by
+the client build; `XSLUnitManager.h` is server-only and was **not**
+exercised by this build — VS2003 is not installed in this environment, so
+that file's edit is verified by inspection and by matching the exact
+existing-entry syntax, not by compilation). All three builds (`X2ServerProtocol`
+`X2TOOL`, `KTDXLIB` `US_SERVICE`, `X2Lib` `US_SERVICE`, in that order, after
+`touch X2Lib/stdafx.cpp` to invalidate the PCH) completed with **exit code
+0** — `X2/KTDXLIB.lib` and `X2/X2Lib.lib` both freshly dated 2026-09-19 —
+with only pre-existing warnings unrelated to this change (deprecated CRT
+calls in vendored `tinyxml`, a signed/unsigned comparison in
+`X2UserSkillTree.cpp`, duplicate-symbol link warnings from the `Purple`
+billing SDK). **`X2/X2_2010.vcxproj` (the final `.exe`) was deliberately not
+built this session** — this is a header-only change, `X2Lib` compiling
+clean is the verification that matters for it, and linking the full exe
+adds nothing further to confirm.
+
+**Item 2 — reported, not built** (per the user's explicit "report before
+implementing anything speculative" instruction). All 8 engine gaps
+investigated: 6 turned out to be cheap wiring against already-working C++
+features (`TAT_ETC_NPC_AI_ON_OFF`, `TAT_LINE_CHANGE_TYPE`,
+`TAT_ETC_PLAY_EFFECTSET`, `TAT_ETC_TALK_BOX`, `TAT_MESH_MOVE`,
+`DLT_EVENT_DUNGEON_TITLE`), 2 need genuine new engine work
+(`LT_FIRE_GROUND` — no ground-damage mechanic exists anywhere in this
+engine; `CTT_RIM_LIGHT_BLUE` — no rim-light rendering capability exists at
+all). Full per-item verdicts, file:line citations, and the discovery that
+all six affected enums live in **two byte-identical copies**
+(`KTDXLIB/KTDGLineMap.h` client, `KncWX2Server/Common/LineMap/XSLLineMap.h`
+server) are in this session's own investigation record; condensed into
+Phase 14/15's kickoff prompts below rather than duplicated here.
+
+**Item 3 — investigated, two concrete follow-up edits identified, neither
+built this session** (nothing is packed yet, so nothing here is verifiable
+by the usual play-test loop; see Phase 19 below). Village/dungeon
+entry, monster spawning, and clear-reward logic in `X2Lib/Offline/` are
+generically data-driven and should "just work" once packed — the two
+closest historical precedents (`74620b8`, `f75f46b`) were both generic bugs,
+not per-region special cases, and Ranox's own staged content was checked
+against both fixes' preconditions and found not to trigger either bug class.
+One genuine, high-confidence gap found: `X2Lib/Offline/X2OfflineLuaEnumSeed.h`
+hand-seeds a truncated, independently-maintained copy of `VILLAGE_MAP_ID`
+that clobbers the real (Ranox-complete) table the first time almost any
+server-Lua-loader fires — silent, produces no `offline_packets.log` line at
+all. A second: `KncWX2Server/ServerResource/US/MapData.lua` (a separate,
+server-owned file from the client-archive-bound one Phase 2 already patched)
+still has zero Ranox entries in its own `CheckCOBOExpressTicketMapID`/
+`AddLocalMapInfo` calls.
+
+---
+
+### Phase 14 — 8-engine-gap wiring (the 6 cheap items)
+
+**Goal**: wire the 6 engine gaps this session's investigation confirmed are
+already-implemented C++ features missing only their `Enum.lua` binding and a
+dispatch-switch case — not new engine capability.
+
+**What's already known** (from this session's investigation, condensed —
+treat as established fact, don't re-derive):
+- All six affected enums (`LINE_TYPE`, `TRIGGER_MESH_ACTION_TYPE`,
+  `TRIGGER_LINE_ACTION_TYPE`, `TRIGGER_ETC_ACTION_TYPE` — the last three are
+  this phase's concern; `CARTOON_TEX_TYPE` and `DETAIL_LOCAL_TYPE` are
+  Phase 15/already-resolved respectively) live in
+  `KTDXLIB/KTDGLineMap.h`, byte-identically duplicated in
+  `KncWX2Server/Common/LineMap/XSLLineMap.h`. Numeric agreement with
+  `march2014/data036/Enum.lua` is by explicit value, so appending a new
+  member at the next free integer needs no renumbering.
+- Load-time parsing switches live in `KTDXLIB/KTDGLineMap.cpp::AddTrigger_LUA()`
+  (mesh section ~:2637, line switch ~:2660-2697, etc switch ~:2714-2743);
+  runtime execution switches live in
+  `X2Lib/X2World.cpp::DoTriggerMesh/DoTriggerLine/DoTriggerEtc` (~:1581-1706).
+  Both layers are silent-no-op safe for an unhandled value (confirmed
+  exhaustively) — so this phase's work is purely additive, no risk to
+  existing trigger behavior even if a case is missed.
+- `TAT_ETC_NPC_AI_ON_OFF`: bind to `CX2GUNPC::SetAIEnable(bool)`
+  (`X2Lib/X2GUNPC.h:2076`), already Lua-bound at `X2Main.cpp:4167`. Reuse
+  `TRIGGER_DATA_ETC`'s existing generic `m_wstrActionName` (NPC target name)
+  and `m_iDummyValue01` (on/off flag) — no new struct fields needed.
+- `TAT_LINE_CHANGE_TYPE`: reassign `LineData::lineType`
+  (`KTDXLIB/KTDGLineMap.h:283`), the same one-line-field-assignment pattern
+  as the 5 existing `TAT_LINE_CHANGE_*` cases in `DoTriggerLine`
+  (`X2World.cpp:1608-1642`). Needs one new int field on `TRIGGER_DATA_LINE`.
+- `TAT_ETC_PLAY_EFFECTSET`: bind to the existing `PlayEffectSet_LUA`/
+  `PlayEffectSetWithCustomPos_LUA`/`PlayEffectSetTraceTarget_LUA` family
+  (`X2Lib/X2EffectSet.h:682-695`).
+- `TAT_ETC_TALK_BOX`: bind to `CX2TalkBoxManager::Push(TalkBox&)`, already
+  used by NPCs for fixed-text display exactly this way
+  (`X2Lib/X2TFieldNpc.cpp:1349-1378`, gated by `TALK_BOX_VILLAGE_NPC` —
+  confirmed unconditionally defined in this build, `Always.h:2489`).
+- `TAT_MESH_MOVE`: bind to `CX2WorldObjectSkinMesh`'s inherited `SetPos`/
+  `GetPos` (`X2Lib/X2WorldObject.h:62,99`, already Lua-bound for the base
+  class). Needs a new position field on `TRIGGER_DATA_MESH`. If Ranox's
+  actual use is an instant reposition (plausible — affected objects
+  reportedly spawn off-screen and pop into place), this is cheap; confirm
+  against `Ranox_Geyser_stage0.lua`/`Ranox_GateWay_Stage1.lua`'s actual
+  trigger data before assuming smooth interpolation is needed.
+- `DLT_EVENT_DUNGEON_TITLE`: **not a real C++ enum at all** —
+  `DETAIL_LOCAL_TYPE` has no C++ definition anywhere; its only consumer
+  (`X2Lib/X2LocalMapUI.cpp::UpdateDungeonButtons`, ~:634-636) reads a
+  generic opaque int (`GetDummyInt(1)`) with bare integer comparisons.
+  Adding the Lua constant needs **zero C++ changes** to exist safely — it's
+  already safe today, nil coerces to 0. An actual visual "event dungeon
+  title" effect (rather than just not-crashing) needs a new branch in
+  `UpdateDungeonButtons`, same pattern as the existing `DLT_DUNGEON` case.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox/Lanox village+dungeon port. Read RANOX_PORT_PLAN.md in
+the repo root in full, especially "Repo/engine integration findings
+(executed 2026-09-19)" and this "Phase 14" section -- both contain
+file:line citations and verdicts from prior investigation; treat them as
+established fact, not something to re-derive. Do NOT consult
+NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch.
+
+This phase group explores this repo's actual current C++ source directly
+(X2Lib, KTDXLIB, KncWX2Server) -- confirm the plan's citations still hold
+(files/line numbers may have drifted since 2026-09-19) rather than trusting
+them blindly, but don't re-run the full investigation from scratch.
+
+Your task: wire the 6 cheap engine gaps -- TAT_ETC_NPC_AI_ON_OFF,
+TAT_LINE_CHANGE_TYPE, TAT_ETC_PLAY_EFFECTSET, TAT_ETC_TALK_BOX,
+TAT_MESH_MOVE, DLT_EVENT_DUNGEON_TITLE. For each: (1) add the enum member to
+the two byte-identical copies of the affected table
+(KTDXLIB/KTDGLineMap.h and KncWX2Server/Common/LineMap/XSLLineMap.h -- skip
+this file for DLT_EVENT_DUNGEON_TITLE, it isn't a real C++ enum), at the
+same explicit value march2014/data036/Enum.lua already commits to; (2) add
+the dispatch-switch case in both the load-parse switch
+(KTDXLIB/KTDGLineMap.cpp::AddTrigger_LUA) and the runtime-execution switch
+(X2Lib/X2World.cpp::DoTriggerMesh/DoTriggerLine/DoTriggerEtc), calling the
+already-existing C++ feature named above; (3) add any new TRIGGER_DATA_*
+struct field the case needs. Gate every change behind its own
+SERV_IRUHADEV_RANOX_TRIGGER_<NAME> flag (one flag per gap, per CLAUDE.md's
+"one flag per logical change" rule -- do not fold into
+SERV_IRUHADEV_RANOX_PORT, which is reserved for the values-only ID sync),
+defined in KTDXLIB/Always.h. Build KTDXLIB and X2Lib (US_SERVICE) after each
+change and confirm no errors -- touch X2Lib/stdafx.cpp first since these are
+header edits inside the PCH.
+```
+
+---
+
+### Phase 15 — 8-engine-gap real work (the 2 hard items)
+
+**Goal**: `LT_FIRE_GROUND` and `CTT_RIM_LIGHT_BLUE` need genuine new engine
+capability, not wiring — this phase is design work first, implementation
+second. Do not treat it as more of Phase 14's mechanical pattern.
+
+**What's already known**:
+- `LT_FIRE_GROUND`: checked dozens of `lineType`-consuming switch/if sites
+  across `X2Lib` (`X2BattleFieldGame.cpp`, `X2GUAra.cpp`, `X2GUUser.cpp`,
+  `X2GUNPC.cpp`, `X2SimplePathFinder.cpp`, `X2Pet.cpp`, `X2TFieldGame.cpp`) —
+  none implement any per-frame damage/DOT effect tied to standing on a line;
+  the existing `LINE_TYPE` members are purely rendering-color tags,
+  portal/hole/jump/bungee/cliff collision classification, and
+  monster/unit-road path filtering. No "damage ground" concept exists
+  anywhere to piggyback on (confirmed via a `FireGround`/`GroundFire`/
+  `DamageGround`/`DamageZone` grep too). This needs new per-frame
+  damage-tick logic wherever player/monster on-line state is currently
+  resolved.
+- `CTT_RIM_LIGHT_BLUE`: a case-insensitive `rimlight`/`rim_light`/`rim light`
+  grep across `X2Lib`, `KTDXLIB`, `KncWX2Server` (including any `.fx` shader
+  files, of which none exist in these trees) returns zero hits.
+  `CARTOON_TEX_TYPE`'s real members (`KTDXLIB/KTDGXRenderer.h:39-52`) are
+  cel-shading color-tint texture selectors, a different mechanism from a
+  rim-light glow. The Lua call site this would feed
+  (`g_pWorld:SetRimLightTextureIndex(...)`) has no corresponding C++ method
+  on any world/renderer class at all — this is the same underlying gap as
+  the deferred item 3c/`SetRimLightTextureIndex` from `RANOX_PORT_PLAN.md`'s
+  original Repo/engine integration section; resolving one should resolve
+  both together. `CTT_END` (`KTDXLIB/KTDGXRenderer.h:51`) is a real array
+  bound (`m_pCartoonTexList[CTT_END]`, plus loop bounds in
+  `KTDGXRenderer.cpp:113,145`) — any new member must be inserted **before**
+  it, not after.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox/Lanox village+dungeon port. Read RANOX_PORT_PLAN.md in
+the repo root in full, especially "Repo/engine integration findings
+(executed 2026-09-19)" and this "Phase 15" section. Do NOT consult
+NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch.
+
+Unlike most of this port's planning, this phase explores this repo's actual
+current C++ source directly. Both items here were confirmed to need genuine
+new engine work, not wiring -- START by proposing a concrete design (what
+the ground-damage tick looks like and where it hooks in for LT_FIRE_GROUND;
+what a minimal rim-light render pass/parameter looks like for
+CTT_RIM_LIGHT_BLUE, ideally covering the related SetRimLightTextureIndex gap
+too) and get it reviewed/approved before writing code -- these are real
+engine-design decisions, not a mechanical port step.
+
+Your task: (1) LT_FIRE_GROUND -- design and implement a per-frame
+ground-damage mechanic triggered by standing on a LT_FIRE_GROUND line,
+following whatever pattern this engine already uses for periodic
+damage-over-time elsewhere (check X2GameUnit's damage-application path).
+(2) CTT_RIM_LIGHT_BLUE + SetRimLightTextureIndex -- design and implement a
+minimal rim-light rendering capability: a new CARTOON_TEX_TYPE member
+(inserted before CTT_END) plus whatever render-pass/shader-parameter work is
+needed to actually produce the visual effect, plus the SetRimLightTextureIndex
+method + lua_tinker binding Ranox's Secret Hell boss stage calls. Gate each
+under its own flag (SERV_IRUHADEV_RANOX_FIRE_GROUND,
+SERV_IRUHADEV_RANOX_RIM_LIGHT), defined in KTDXLIB/Always.h -- these are
+separate logical changes from each other and from SERV_IRUHADEV_RANOX_PORT.
+```
+
+---
+
+### Phase 16 — `X2WorldMapUI.cpp` dialog-switch cases
+
+**Goal**: make the 6 already-ported `DLG_UI_FIELD_MAP_Ranox_*` dialogs
+(Village, 01-04, Rest) openable in-game. This is `RANOX_PORT_PLAN.md`'s
+original item 2b, out of this session's scope by the user's explicit choice
+— cheap and mechanical, same shape as item 1 (a values-only sync), just in
+a different file.
+
+**What's already known**: the function around `X2Lib/X2WorldMapUI.cpp:690`
+(cached in `m_mapDLGFieldMap`, keyed by `VILLAGE_MAP_ID`) is a hardcoded
+`switch( iFieldID )` with one literal `case` + `new CKTDGUIDialog(...,
+L"DLG_UI_FIELD_MAP_<Name>_NEW.lua")` per shipped region — Ranox has zero
+cases. The 6 needed: `VMI_RANOX`, `VMI_BATTLE_FIELD_RANOX_FIELD_01..04`,
+`VMI_BATTLE_FIELD_RANOX_REST_00` (all now exist in `Enum.h` as of this
+session's item 1 work). Follow the file's own precedent of gating a new
+region behind a feature flag (Sander uses `#ifdef VILLAGE_SANDER`/
+`SANDER_DUNGEON_5_6`; use `SERV_IRUHADEV_RANOX_PORT` instead, per this
+repo's `SERV_IRUHADEV_` convention — this is the same values-only-sync
+logical change as item 1, just landing in a different file, so it reuses
+that flag rather than minting a new one).
+
+**Kickoff prompt**:
+```
+Continuing the Ranox/Lanox village+dungeon port. Read RANOX_PORT_PLAN.md in
+the repo root in full, especially "Repo/engine integration findings
+(executed 2026-09-19)" and this "Phase 16" section. Do NOT consult
+NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch.
+
+Your task: add Ranox's 6 cases (VMI_RANOX, VMI_BATTLE_FIELD_RANOX_FIELD_01..04,
+VMI_BATTLE_FIELD_RANOX_REST_00) to the hardcoded dialog-filename switch in
+X2Lib/X2WorldMapUI.cpp (~line 690, confirm the exact line -- it may have
+drifted). Point each case at its already-ported dialog file under
+march2014/update/data034/ (DLG_UI_FIELD_MAP_Ranox_Village_NEW.lua,
+_01.._04, _Rest -- confirm exact filenames on disk). Gate behind
+SERV_IRUHADEV_RANOX_PORT (already defined in KTDXLIB/Always.h -- this is the
+same values-only-sync logical change as the enum sync, not a new one).
+Build KTDXLIB and X2Lib (US_SERVICE) and confirm no errors.
+```
+
+---
+
+### Phase 17 — `CX2WorldObjectSkinMesh`-family method gaps
+
+**Goal**: resolve the 5 unbound-method gaps `RANOX_PORT_PLAN.md`'s original
+Repo/engine integration section listed as items 3/3b/3c/3d — out of this
+session's scope by the user's explicit choice. These are a different gap
+class from Phase 14/15's enum gaps: a missing *method binding* aborts the
+whole Lua script that calls it, not a silent no-op.
+
+**What's already known** (from `RANOX_PORT_PLAN.md`'s own prior
+investigation — re-verify before building, these citations predate this
+session):
+- `SetShowObject` — **cheapest of the five**. Already exists in C++
+  (`CKTDGObject::SetShowObject(bool,bool)`, `KTDXLIB/KTDGObject.h:305`),
+  inherited by `CX2WorldObjectSkinMesh` via the already-registered
+  `class_inh` chain. Missing only a
+  `lua_tinker::class_def<CKTDGObject>(L, "SetShowObject", &CKTDGObject::SetShowObject)`
+  binding line in `KTDXLIB/KTDXApp.cpp`'s existing `class_def<CKTDGObject>`
+  block. No new C++ logic.
+- `SetTriggerID` — doesn't exist anywhere in this repo's C++. Needs a new
+  member function on `CX2WorldObjectSkinMesh` plus a `class_def` binding.
+- `SetIsForceNotCull` — no existing C++ method under this name; the closest
+  analog, `CKTDGObject::SetIsCulled(bool)` (`KTDXLIB/KTDGObject.h:357`), is
+  itself unbound and has inverted semantics ("force culled," not "force not
+  culled"). Needs new C++.
+- `SetRimLightTextureIndex` — same underlying gap as Phase 15's
+  `CTT_RIM_LIGHT_BLUE`; resolve together, not twice.
+- `SetForceInvincible`/`EraseAllBuffAndExtraDamage` — no existing C++ method
+  under either name (`SECRET_MAGI_BOSS.lua`, Secret Hell). Needs new C++.
+- **SimpleDLG subsystem** — the largest item here, a different shape from
+  the other four (a method binding vs. a whole absent subsystem).
+  `CreateSimpleDLG`/`GetSimpleDLG`/`SetShow_LUA`/`SetNumberInGageStatic_LUA`/
+  `SetNumberInNumberStatic_LUA` are entirely absent — a bare `"SimpleDLG"`
+  grep across both client trees' C++ returns zero hits. This is an
+  NPC-script-driven UI-dialog mechanism with no existing analog anywhere in
+  this engine. Secret Hell's fever-buff live-counter trigger sequence
+  depends on it for real gameplay (not just cosmetic UI), with no
+  substitute state variable anywhere in the ported data. Resolving this for
+  real means either binding the whole SimpleDLG call surface (large) or
+  designing a substitute counter mechanism (smaller, but changes Secret
+  Hell's actual behavior from the source client's) — this choice needs
+  explicit sign-off before implementation, not an assumption.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox/Lanox village+dungeon port. Read RANOX_PORT_PLAN.md in
+the repo root in full, especially its original "Repo/engine integration"
+section (items 3/3b/3c/3d) and this "Phase 17" section -- the former has the
+original file:line citations, predating a 2026-09-19 session that covered
+different items (1/2/3) and explicitly left these alone; re-verify every
+citation against current source before building on it. Do NOT consult
+NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch.
+
+Your task: resolve the 5 CX2WorldObjectSkinMesh-family method gaps.
+(1) SetShowObject: add the one-line lua_tinker binding in KTDXLIB/KTDXApp.cpp
+-- no new C++ logic needed, confirm this before assuming otherwise.
+(2) SetTriggerID, SetIsForceNotCull, SetForceInvincible/
+EraseAllBuffAndExtraDamage: each needs a new C++ member function plus a
+binding -- design each individually, they are not interchangeable despite
+the similar shape. (3) SetRimLightTextureIndex: coordinate with (or wait on)
+Phase 15's CTT_RIM_LIGHT_BLUE work, same underlying gap. (4) SimpleDLG: this
+is the largest item in this phase -- STOP and get explicit direction on
+whether to bind the full SimpleDLG call surface or design a substitute
+counter mechanism for Secret Hell's fever-buff sequence before writing any
+code for it; do not assume either approach. Gate each logical change behind
+its own SERV_IRUHADEV_RANOX_<NAME> flag defined in KTDXLIB/Always.h -- these
+are five (or six, if SimpleDLG splits) separate changes, not one.
+```
+
+---
+
+### Phase 18 — Hero difficulty tier
+
+**Goal**: add a 4th selectable difficulty tier. Deferred by
+`RANOX_PORT_PLAN.md`'s own Findings section as "out of scope by default,"
+and confirmed by its Repo/engine integration section to be genuine engine
+work, not a data-only addition (unlike Secret Hell's raid dungeons, which
+needed no `DIFFICULTY_LEVEL` change at all).
+
+**What's already known**: `CX2Dungeon::DIFFICULTY_LEVEL`
+(`X2Lib/X2Dungeon.h:24`) is a closed 3-value enum (`DL_NORMAL`, `DL_HARD`,
+`DL_EXPERT`) switched on by name across dozens of sites in
+`X2Dungeon.cpp`, `X2DungeonManager.cpp`, `X2Game.cpp`, `X2PartyUI.cpp`,
+`X2QuestManager.cpp`, `X2StateDungeonGame.cpp`, `X2StateDungeonResult.cpp`,
+`X2StateDungeonRoom.cpp` — including at least one bounded loop
+(`X2UIQuestNew.cpp:3520`) that would silently skip a 4th value rather than
+fail to compile. Only once this lands do Phase 1's skipped
+`DI_RANOX_*_HERO_*` `DungeonEnum.lua` entries and the omitted
+`g_pStatic_HeroMode_Filter` UI block (`DLG_Map_Local_Ranox_Back_NEW.lua`)
+become addable.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox/Lanox village+dungeon port. Read RANOX_PORT_PLAN.md in
+the repo root in full, especially the "Repo/engine integration" section's
+item 5 and this "Phase 18" section. Do NOT consult NEW_VILLAGE_PLAN.md,
+NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the mods/lanox-offline branch.
+
+This is confirmed real engine work, not a data-only addition. Start by
+re-deriving (don't trust blindly) the full list of switches/loops in X2Lib
+that assume DIFFICULTY_LEVEL has exactly 3 values -- the file list above is
+a starting point from a text search, not a verified-complete inventory.
+
+Your task: add DL_HERO to CX2Dungeon::DIFFICULTY_LEVEL and update every
+switch/loop that assumes exactly 3 values to handle it correctly (not just
+compile without warning -- verify the actual behavior at each site makes
+sense for a 4th tier). Only once this is solid, add Phase 1's
+previously-skipped DI_RANOX_*_HERO_* entries to
+KncWX2Server/Common/Enum/DungeonEnum.h (values are in RANOX_PORT_PLAN.md's
+Appendix C.5) and enable the omitted g_pStatic_HeroMode_Filter UI block.
+Gate under a new SERV_IRUHADEV_RANOX_HERO_TIER flag, defined in
+KTDXLIB/Always.h -- this is a substantial, separate logical change from
+everything else in this port.
+```
+
+---
+
+### Phase 19 — Offline-emulator Ranox hookup
+
+**Goal**: turn this session's item 3 findings into the two concrete edits
+they identified, plus run the post-pack verification loop once the user has
+packed Ranox's content.
+
+**What's already known** (from this session's investigation — re-verify
+line numbers, they may have drifted):
+- `X2Lib/Offline/X2OfflineLuaEnumSeed.h`'s `VILLAGE_MAP_ID[]` array
+  (~line 459-526) needs Ranox's rows appended:
+  `VMI_RANOX`, `VMI_DUNGEON_LOUNGE_RANOX`, `VMI_BATTLE_FIELD_RANOX_FIELD_01..04`,
+  `VMI_BATTLE_FIELD_RANOX_REST_00`, at the same values this session's item 1
+  work put in `Enum.h`. Without this, `CX2OfflineLuaEnum::Publish()`
+  silently clobbers the real (Ranox-complete) `VILLAGE_MAP_ID` Lua global
+  down to a stale, pre-Ranox table the first time almost any server-Lua
+  loader fires (`X2OfflineMapData`, `X2OfflineDropTable`, etc.) — a failure
+  with no `offline_packets.log` line at all, since it's a pure client-Lua
+  table lookup inside a UI dialog script, not a packet.
+- `KncWX2Server/ServerResource/US/MapData.lua` (a server-owned file,
+  separate from the client-archive-bound `march2014/data036/MapData.lua`
+  Phase 2 already patched) needs the same Ranox additions Phase 2 made to
+  the client copy: a `VMI_RANOX -> 15` branch in
+  `CheckCOBOExpressTicketMapID` (~line 485-605), and matching
+  `AddLocalMapInfo`/`AddMapData` rows (~line 240-480) — confirmed this file
+  currently has zero Ranox references. This is server-side Lua the client
+  needs, per `CLAUDE.md`'s rule — edit it directly (it's a plain-text file
+  already in this repo, not something requiring XOR/packing), following the
+  existing Sander entries' exact shape.
+- Both closest historical analogs to "new content breaks the offline
+  emulator" (`74620b8` Sander zero-monster-spawn, `f75f46b` field-NPC
+  load-probe) were confirmed **generic** bugs, already fixed on this
+  branch, and Ranox's own staged content doesn't trigger either bug class
+  (plain `NPC_GROUP`, not `NPC_GROUP_RATE`; `m_NPCLevel` set correctly in
+  18/19 dungeon entries, the 19th using the already-generic
+  `m_bRelativeMonsterLevel` path). One pre-existing, non-Ranox-specific
+  limitation to expect and not mistake for a new bug: Secret Hell's drop
+  rows, if authored via `AddExtraStageMonsterDropInfo_LUA`/
+  `AddHenirMonsterDropInfo_LUA` in `DropTable.lua` (matching other
+  secret/extra-stage lines), will have their item/ED/EXP drops silently
+  absent offline — those two entry points are read-and-discard stubs for
+  every dungeon that uses them, not just Ranox.
+
+**Precondition**: this phase can only be *finished* once Ranox's
+`march2014/` content is packed into the live `.kom` archives (the user's
+job, per `CLAUDE.md`) — the two edits above can and should land regardless,
+but the actual play-test verification loop needs the pack step first.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox/Lanox village+dungeon port. Read RANOX_PORT_PLAN.md in
+the repo root in full, especially "Repo/engine integration findings
+(executed 2026-09-19)" and this "Phase 19" section -- both have the file:line
+citations from prior investigation; re-verify before building on them. Do
+NOT consult NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch.
+
+First, check whether Ranox's march2014/ content has been packed into the
+live .kom archives yet -- ask the user if unclear, since it changes whether
+this phase's verification step is runnable.
+
+Your task: (1) Append Ranox's VILLAGE_MAP_ID rows to
+X2Lib/Offline/X2OfflineLuaEnumSeed.h's VILLAGE_MAP_ID[] array, at the same
+values KncWX2Server/Common/Enum/Enum.h already carries (added 2026-09-19).
+(2) Add Ranox's CheckCOBOExpressTicketMapID branch and AddLocalMapInfo/
+AddMapData rows to KncWX2Server/ServerResource/US/MapData.lua, mirroring
+what march2014/data036/MapData.lua already has for Ranox (Phase 2) and what
+this file's own existing Sander entries look like. Both of these are plain
+Lua edits, not gated behind a C++ #define -- CLAUDE.md's SERV_IRUHADEV_ flag
+rule is for client C++ code, not server Lua data. (3) If march2014/ has been
+packed by this point, build and deploy the client (ask before launching
+X2_offline.exe, every time) and run the post-pack verification loop CLAUDE.md
+documents: navigate world map -> Ranox local map -> each dungeon line's room
+list -> enter AshesVillage at Normal; grep offline_packets.log for
+UNHANDLED/EXCEPTION; check offline_server.log's WARP-tagged lines to confirm
+the MapData.lua fix loaded; check monster spawn count and clear-reward. If
+not yet packed, stop after (1) and (2) and name what's still needed.
+```
+
+---
+
 ## Appendix A — Full June2017 Ranox file inventory (125 `.lua` files)
 
 Grouped by category and containing `data0NN_kom` archive. All 125 were

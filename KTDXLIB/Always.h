@@ -3880,3 +3880,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              never touches a regular monster or summon.
 #define SERV_IRUHADEV_PARTY_BOT_MP_REGEN
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-19
+// Description: Ranox/Lanox village+dungeon port -- repo/engine integration.
+//              Gates the C++-side mirror of the new WORLD_ID, DUNGEON_ID,
+//              NPC_UNIT_ID, VILLAGE_MAP_ID and LOCAL_MAP_ID (BATTLE_FIELD_ID
+//              deliberately excluded -- it was never extended for Sander either)
+//              values that march2014/data036/{Enum,DungeonEnum}.lua already
+//              carry for Ranox (see RANOX_PORT_PLAN.md), added in
+//              X2Lib/X2World.h, X2Lib/X2UnitManager.h,
+//              KncWX2Server/Common/X2Data/XSLUnitManager.h,
+//              KncWX2Server/Common/Enum/DungeonEnum.h and
+//              KncWX2Server/Common/Enum/Enum.h. Values-only sync, no new
+//              capability -- a separate flag covers any actual new engine
+//              work this port later needs.
+#define SERV_IRUHADEV_RANOX_PORT
+//////////////////////////////////////////////////////////////////////////

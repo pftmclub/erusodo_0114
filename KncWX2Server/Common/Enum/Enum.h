@@ -206,12 +206,26 @@ namespace SEnum
 		VMI_BATTLE_FIELD_VELDER_REST_00	= 1004,	/// 시계탑 광장
 		VMI_BATTLE_FIELD_HAMEL_REST_00	= 1005,	/// 치유의 샘터
 		VMI_BATTLE_FIELD_SANDER_REST_00	= 1006,	/// 윈드스톤 유적지
+	//{{ Iruha : 2026-09-19 // Ranox/Lanox port -- new VILLAGE_MAP_ID (battle field rest) values,
+	//             verbatim from march2014/data036/Enum.lua (zero collisions
+	//             confirmed against this file's own pre-Ranox values). See RANOX_PORT_PLAN.md.
+#ifdef SERV_IRUHADEV_RANOX_PORT
+		VMI_BATTLE_FIELD_RANOX_REST_00					= 1007,
+#endif SERV_IRUHADEV_RANOX_PORT
+	//}}
 
 		VMI_BATTLE_FIELD_REST_END,
 		//////////////////////////////////////////////////////////////////////////
 
 		//{{ QUEST 개편 - 김민성
 //#ifdef SERV_REFORM_QUEST
+	//{{ Iruha : 2026-09-19 // Ranox/Lanox port -- new VILLAGE_MAP_ID (spa, Ranox-only -- deferred content, no existing analog section) values,
+	//             verbatim from march2014/data036/Enum.lua (zero collisions
+	//             confirmed against this file's own pre-Ranox values). See RANOX_PORT_PLAN.md.
+#ifdef SERV_IRUHADEV_RANOX_PORT
+		VMI_SPA_RANOX					= 1501,
+#endif SERV_IRUHADEV_RANOX_PORT
+	//}}
 		VMI_TUTORIAL = 2000,			// 캐릭터 생성 시 최초 발급 MID
 //#endif SERV_REFORM_QUEST
 		//}}
@@ -226,6 +240,13 @@ namespace SEnum
 		VMI_PEITA,
 		VMI_HAMEL,
 		VMI_SANDER,
+	//{{ Iruha : 2026-09-19 // Ranox/Lanox port -- new VILLAGE_MAP_ID (village) values,
+	//             verbatim from march2014/data036/Enum.lua (zero collisions
+	//             confirmed against this file's own pre-Ranox values). See RANOX_PORT_PLAN.md.
+#ifdef SERV_IRUHADEV_RANOX_PORT
+		VMI_RANOX					= 20008,
+#endif SERV_IRUHADEV_RANOX_PORT
+	//}}
 
 		VMI_VILLAGE_MAP_END,
 		//////////////////////////////////////////////////////////////////////////
@@ -248,6 +269,13 @@ namespace SEnum
 		VMI_DUNGEON_LOUNGE_PEITA,
 		VMI_DUNGEON_LOUNGE_VELDER,
 		VMI_DUNGEON_LOUNGE_HAMEL,
+	//{{ Iruha : 2026-09-19 // Ranox/Lanox port -- new VILLAGE_MAP_ID (dungeon lounge) values,
+	//             verbatim from march2014/data036/Enum.lua (zero collisions
+	//             confirmed against this file's own pre-Ranox values). See RANOX_PORT_PLAN.md.
+#ifdef SERV_IRUHADEV_RANOX_PORT
+		VMI_DUNGEON_LOUNGE_RANOX					= 30008,
+#endif SERV_IRUHADEV_RANOX_PORT
+	//}}
 		
 		//////////////////////////////////////////////////////////////////////////
 		// BATTLE FIELD
@@ -280,6 +308,16 @@ namespace SEnum
 
 		VMI_FIELD_BOSSRAID_KINGDOM_OF_NASOD	= 40026,	// 보스 레이드 필드
 		VMI_FIELD_BOSSRAID_VALLEY_OF_ABYSS	= 40027,	// 보스 레이드 필드
+	//{{ Iruha : 2026-09-19 // Ranox/Lanox port -- new VILLAGE_MAP_ID (battle field) values,
+	//             verbatim from march2014/data036/Enum.lua (zero collisions
+	//             confirmed against this file's own pre-Ranox values). See RANOX_PORT_PLAN.md.
+#ifdef SERV_IRUHADEV_RANOX_PORT
+		VMI_BATTLE_FIELD_RANOX_FIELD_01					= 40029,
+		VMI_BATTLE_FIELD_RANOX_FIELD_02					= 40030,
+		VMI_BATTLE_FIELD_RANOX_FIELD_03					= 40031,
+		VMI_BATTLE_FIELD_RANOX_FIELD_04					= 40032,
+#endif SERV_IRUHADEV_RANOX_PORT
+	//}}
 
 		VMI_BATTLE_FIELD_END,
 		//////////////////////////////////////////////////////////////////////////
@@ -332,6 +370,13 @@ namespace SEnum
 		LMI_VELDER					= 10005,
 		LMI_HAMEL					= 10006,
 		LMI_SANDER					= 10007,
+	//{{ Iruha : 2026-09-19 // Ranox/Lanox port -- new LOCAL_MAP_ID values,
+	//             verbatim from march2014/data036/Enum.lua (zero collisions
+	//             confirmed against this file's own pre-Ranox values). See RANOX_PORT_PLAN.md.
+#ifdef SERV_IRUHADEV_RANOX_PORT
+		LMI_RANOX					= 10008,
+#endif SERV_IRUHADEV_RANOX_PORT
+	//}}
 	};
 //#endif SERV_BATTLE_FIELD_SYSTEM
 	//}}
