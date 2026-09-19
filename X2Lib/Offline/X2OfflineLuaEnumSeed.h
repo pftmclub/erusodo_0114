@@ -523,6 +523,22 @@ namespace X2OfflineLuaEnumSeed
 		{ "VMI_BATTLE_FIELD_SANDER_FIELD_03",         40024 },
 		{ "VMI_BATTLE_FIELD_SANDER_FIELD_04",         40025 },
 		{ "VMI_BATTLE_FIELD_END",                     40026 },
+
+	//{{ Iruha : 2026-09-19 // Ranox/Lanox port -- new VILLAGE_MAP_ID rows, verbatim
+	//             from KncWX2Server/Common/Enum/Enum.h's own Ranox additions (not
+	//             positionally continued -- that enum's Ranox values are
+	//             non-contiguous, see RANOX_PORT_PLAN.md's Repo/engine
+	//             integration findings). Not yet exercised: march2014/ has not
+	//             been packed into the live .kom archives as of this writing.
+		{ "VMI_BATTLE_FIELD_RANOX_REST_00",          1007 },
+		{ "VMI_SPA_RANOX",                           1501 },
+		{ "VMI_RANOX",                               20008 },
+		{ "VMI_DUNGEON_LOUNGE_RANOX",                30008 },
+		{ "VMI_BATTLE_FIELD_RANOX_FIELD_01",         40029 },
+		{ "VMI_BATTLE_FIELD_RANOX_FIELD_02",         40030 },
+		{ "VMI_BATTLE_FIELD_RANOX_FIELD_03",         40031 },
+		{ "VMI_BATTLE_FIELD_RANOX_FIELD_04",         40032 },
+	//}}
 	};
 
 }
