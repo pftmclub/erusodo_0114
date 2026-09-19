@@ -6168,6 +6168,15 @@ void CX2StateMenu::InitWarpList()
 	pControl->SetShow(false);
 #endif NO_SANDER_VILLIAGE
 #endif //VILLAGE_SANDER
+#ifdef SERV_IRUHADEV_RANOX_PORT
+	// Iruha : 2026-09-19 : Ranox/Lanox port -- hide by default, same as every other village above (RANOX_PORT_PLAN.md Phase 21)
+	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_20008");	//VMI_RANOX
+	if( pControl != NULL )
+		pControl->SetShow(false);
+	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_1007");	//VMI_BATTLE_FIELD_RANOX_REST_00
+	if( pControl != NULL )
+		pControl->SetShow(false);
+#endif SERV_IRUHADEV_RANOX_PORT
 }
 
 void CX2StateMenu::CreateWarpDest()
@@ -6499,6 +6508,33 @@ void CX2StateMenu::CreateWarpDest()
 #endif NO_SANDER_VILLIAGE
 #endif //VILLAGE_SANDER
 #endif //SERV_SANDER_AUTO_OPEN_HARD_CODE
+#ifdef SERV_IRUHADEV_RANOX_PORT
+			// Iruha : 2026-09-19 : Ranox/Lanox port -- warp-dest entry, mirrors the live Sander block above (RANOX_PORT_PLAN.md Phase 21)
+			pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_RANOX );
+			if( pLocalMapTemplet != NULL )
+			{
+				if( iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel )
+				{
+					// Ranox town
+					pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_20008");	//VMI_RANOX
+					if( pControl != NULL )
+					{
+						pControl->SetShow(false);
+						AddWarpList( pControlList, row, SEnum::VMI_RANOX );
+						++row;
+					}
+
+					// Ranox battle field rest stop
+					pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_1007");	//VMI_BATTLE_FIELD_RANOX_REST_00
+					if( pControl != NULL )
+					{
+						pControl->SetShow(false);
+						AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_RANOX_REST_00 );
+						++row;
+					}
+				}
+			}
+#endif SERV_IRUHADEV_RANOX_PORT
 			pControlList->SetIndex(0, 0);				
 		}
 	}	

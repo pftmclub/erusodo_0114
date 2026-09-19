@@ -4517,6 +4517,221 @@ controls are new and depend on step (1) landing correctly; degrade to
 
 ---
 
+### Phase 21 findings (executed 2026-09-19)
+
+**1. Lua transcribed, but the March-2014 source needed decompiling first —
+the plan's own "already hand-decrypted" note was wrong.** March-2014's
+`kom_contents/datai014/DLG_Destination_byButton.lua` has the mar-2014 LuaJIT
+magic (`1B 4B 4C 81`) and is genuine bytecode, not plaintext; `elstools
+decompile-batch` handled it cleanly (543 lines, no `.src.lua` sibling
+existed yet). Confirmed its content matches this document's prior claim
+exactly: only Sander's two controls (`Village_20007` town,
+`Village_1006` battlefield-rest) exist, nothing for Ranox.
+
+June-2017's `data034_kom/DLG_Destination_byButton.src.lua` (sibling already
+existed) has **two** Ranox blocks, not one — resolving this phase's own
+"don't assume symmetry with Sander's two-control pattern" caveat in favor of
+symmetry after all:
+- `Village_20008` (town, blue `D3DXCOLOR(0, 0.5, 1, 0.9)`) — `STR_ID_32562`,
+  texture `("DLG_UI_Button17.TGA", "RANOX_ICON")`.
+- `Village_1007` (battlefield-rest, red `D3DXCOLOR(0.7, 0, 0, 0.9)`) —
+  `STR_ID_33882`, same texture/swatch.
+
+Both control names encode real `VILLAGE_MAP_ID` values, checked against
+`KncWX2Server/Common/Enum/Enum.h` before transcribing rather than trusted
+from June's filename alone (a real risk — `VMI_DUNGEON_LOUNGE_RANOX` in this
+same file is `30008`, a completely different family, and would have been the
+wrong enum to reach for): `VMI_RANOX = 20008` (`Enum.h:247`) matches
+`Village_20008` exactly, and `VMI_BATTLE_FIELD_RANOX_REST_00 = 1007`
+(`Enum.h:213`) matches `Village_1007` exactly — both added in the
+"Repo/engine integration findings" item 1 pass, confirmed still present at
+those values. No renumbering needed; June's names transcribe verbatim.
+
+A third Ranox block exists in June's file — `Village_1501` ("Spa_Ranox",
+also `RANOX_ICON`, `STR_ID_43065`) — **not transcribed, out of scope for this
+phase.** Two independent reasons: it sits *before* every village control in
+June's own file (right after `Button_Mini_Win_Exit`, paired with
+`Village_1500`/"Spa_Ruben"), not after Sander's block as this phase's
+insertion point assumes; and March-2014's file has no Spa section at all for
+*any* village, including Ruben's — landing a lone Ranox spa control with no
+surrounding Spa infrastructure would be inventing a feature this build
+doesn't have yet. `VMI_SPA_RANOX = 1501` (`Enum.h:226`) already exists from
+the earlier ID-sync pass, matching `Village_1501` exactly if a later phase
+ever does take this on.
+
+Written to `march2014/datai014/DLG_Destination_byButton.lua` (new file, new
+directory): March-2014's decompiled 543 lines verbatim, plus the two Ranox
+blocks appended after Sander's, byte-for-byte matching June's field values
+and this file's own existing blank-line/tab separator convention (checked
+byte-by-byte against Sander's block before writing, not assumed). CRLF
+throughout, matching every other `march2014/` plaintext Lua file. Test-compiled
+a scratch copy with `elstools compile-batch -v mar-2014` — succeeds, 10888
+bytes — without touching the repo file itself (compile-batch works in place,
+so the check was run against a throwaway copy in the scratchpad directory).
+
+**Missing asset dependency found — named, not substituted, per this repo's
+Lua rule.** `RANOX_ICON` is a swatch inside the shared texture atlas pair
+`data056_kom/DLG_UI_Button17.tga`+`.tet` (and its alpha companion,
+`datai020_kom/DLG_UI_Button17_A.tga`+`.tet`) — the same atlas Sander's own
+`SANDER_ICON` lives in. Neither archive appears in Phase 13's asset-sweep
+inventory (which was scoped to *new* archives, not existing shared ones a new
+swatch gets added to). Confirmed the March-2014 and June-2017 copies differ,
+not just assumed from the swatch name being absent from a grep — the `.tet`
+region-table file is a different **size** between builds (March
+`DLG_UI_Button17.tet` is 4416 bytes, June's is 4708; the `_A` pair is same
+size, 640 bytes, but different content by hash), and both `.tga` pairs are
+same size but different pixel hash. Because the `.tet` sizes differ, this
+isn't a same-offset superset — copying June's atlas pair in whole could
+relocate or invalidate every other swatch already in it, `SANDER_ICON`
+included, so this needs an atlas *merge* (adding one region, not a file
+swap), which is exactly the kind of build-tool job the studio's own content
+tools (`X2MassFileTool`/`X2ItemTool`-adjacent workflow) are for, not a hand
+edit here. **Named for the user**: `data056_kom/DLG_UI_Button17.tga` +
+`.tet`, and `datai020_kom/DLG_UI_Button17_A.tga` + `.tet`, both need
+`RANOX_ICON` merged in from June-2017's copies before the two new controls
+above will show an icon instead of a blank swatch.
+
+**2. STR_IDs verified directly — both genuinely undefined in this build, and
+the text isn't recoverable from any Lua file in either client tree.**
+`march2014/data036/StringTable.lua` is the exact filename (confirmed: no
+other `*String*` candidate under `data036` fits), decompiled it directly
+rather than trusting this document's own "never been decompiled/checked"
+note as still true — but it decompiles to **0 bytes of source** in both
+March-2014 and June-2017 (both copies are an identical 18-byte bytecode
+stub). It is not where any `STR_ID_*` text lives in this build; flagging this
+so a future phase doesn't waste time on it again.
+
+The real numeric-ID registry is `data036/StringID_def.lua`
+(March: 632KB bytecode, decompile not needed — a raw byte search for the
+literal strings `STR_ID_32562` and `STR_ID_33882` in the undecompiled
+bytecode returned **no match for either**, which is stronger evidence than a
+decompiled-text grep miss: the identifier doesn't exist anywhere in this
+build's string-constant pool at all, not just unbound). `EnumString.lua`
+(March's `.src.lua` sibling already existed) was checked too and is
+unrelated — it maps enum *names* to their C++ values for reflection
+(`g_pEnumManager:AddWorldEnumData_LUA{ ENUM_STRING = "WI_NONE", ENUM_ID = ... }`),
+never localized text, and has no entry for either ID either.
+
+June-2017's `data036_kom/StringID_def.lua` (decompiled fresh, 45162 lines) has
+both: `STR_ID_32562 = 32562` and `STR_ID_33882 = 33882` — bare positional
+numeric declarations, confirming the ID *numbers* are legitimately reserved
+for these two strings, not a coincidence or a collision risk with anything
+else in this build. But `StringID_def.lua` in *both* clients is only ever
+`STR_ID_N = N` — it is not, and was never going to be, a source of the actual
+display text in either version. Checked every `*String*`/`*string*` file
+under June's own `data036_kom` (`EnumString.lua`, `StringID_def_LA.lua`,
+`StringTable.lua`) and none carry text either — June's `StringTable.lua` is
+the same 18-byte stub as March's. **The localized text for these two IDs is
+not present as Lua in either client's tree**; it lives in whatever
+binary/database resource the studio's `StringDBManager` compiles from (per
+`CLAUDE.md`'s Tooling section — an Access/SQL-Server-backed tool, not a file
+in this repo), and no local copy of that resource exists here to read
+either. Report to the user by ID number, not by guessed text: **`STR_ID_32562`
+(Ranox town label, styled like Sander's blue `Village_20007`) and
+`STR_ID_33882` (Ranox battlefield-rest label, styled like Sander's red
+`Village_1006`) both need adding via `StringDBManager`** with the intended
+English text — this document has no way to source or verify what that text
+should read, and inventing it would violate this repo's own
+transcribe-don't-invent rule for exactly this kind of gap.
+
+**Confirmed the "renders blank, doesn't crash" claim directly, per this
+phase's own instruction not to carry it forward again.**
+`CKTDGUIControl::SetStringData_()` (`KTDXLIB/KTDGUIControl.cpp:852`) does
+`LUA_GET_VALUE( luaManager, "MSG", iIndex, STR_ID_EMPTY )` — a Lua table
+field set to an undefined global (`MSG = STR_ID_32562` when that global is
+`nil`) is indistinguishable from an absent key, since Lua never stores a
+`nil` table value; the macro falls back to `STR_ID_EMPTY`, the code then
+falls into the `"STRING"` field branch (also absent, defaults to `L""`), and
+`pStringData->msg` ends up an empty wstring. No crash anywhere in this path —
+confirmed by reading the function, not assumed.
+
+**3. `CX2StateMenu::CreateWarpDest()` and `InitWarpList()` — both edited,
+gated behind `SERV_IRUHADEV_RANOX_PORT`, built clean.** The live Sander
+`#else` block's line numbers (`X2Lib/X2StateMenu.cpp`) held as cited
+(`~6478-6500`, confirmed at `6478-6501` — the one-line difference is just
+this phase's own count of where the `#endif` chain ends, not drift). Re-read
+directly rather than trusted, and confirmed live exactly as this document
+already recorded: outer `#ifdef SERV_SANDER_AUTO_OPEN_HARD_CODE`/`#else`, inner
+`#ifdef VILLAGE_SANDER`/`#ifndef NO_SANDER_VILLIAGE`, both conditions
+satisfied for this build (`VILLAGE_SANDER` unconditionally defined,
+`Always.h:2108`; neither `NO_SANDER_VILLIAGE` nor
+`SERV_SANDER_AUTO_OPEN_HARD_CODE` defined anywhere reachable — both are
+BR/ID/TH-only). New Ranox block inserted immediately after this live block's
+closing `#endif //SERV_SANDER_AUTO_OPEN_HARD_CODE`, mirroring its shape
+exactly (`GetLocalMapTemplet( CX2LocationManager::LMI_RANOX )` →
+level-gate → per-control `GetControl`/`SetShow`/`AddWarpList`/`++row`), with
+one deliberate deviation from the mirror per this phase's own instruction:
+every `GetControl(...)` result is null-checked before use, wrapping the
+`SetShow`/`AddWarpList`/`++row` triplet in an `if( pControl != NULL )` rather
+than dereferencing unconditionally the way every existing block (Sander's
+included) does. Both new controls registered:
+`AddWarpList( pControlList, row, SEnum::VMI_RANOX )` for `Village_20008`, and
+`AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_RANOX_REST_00 )` for
+`Village_1007` — the kickoff prompt named only `VMI_RANOX`, but Sander's own
+block registers both of its controls this same way, and the second enum
+value was already available from the earlier ID-sync pass, so both are wired
+for full symmetry with the precedent rather than a partial one-control port.
+
+**Found and fixed one thing the kickoff prompt didn't ask for, because
+skipping it would reintroduce a level-gate bypass**: `InitWarpList()`
+(called from inside `CreateWarpDest()`, `X2StateMenu.cpp:6196` prior to this
+edit) unconditionally hides every village's controls
+(`pControl->SetShow(false)`) before `CreateWarpDest()`'s level-gated logic
+selectively re-shows the ones a player qualifies for. `CKTDGUIControl`'s
+constructor defaults `m_bShow = true` (`KTDXLIB/KTDGUIControl.cpp:16`), so a
+control nobody explicitly hides starts out **visible**. Without a matching
+Ranox entry in `InitWarpList()`, the two new Ranox controls (once the Lua
+above is packed) would show unconditionally in the warp-destination list
+regardless of the player's level or Sander clear status — a real level-gate
+bypass, not a cosmetic gap. Added the same two `GetControl`/null-check/
+`SetShow(false)` pairs there, same flag, same file. This is the one place
+this phase's own work went beyond the kickoff prompt's literal three steps;
+flagging it explicitly rather than folding it in silently, since it wasn't
+asked for by name.
+
+**Build verification**: `X2Lib` (`US_SERVICE`) rebuilt after the edit —
+`X2StateMenu.cpp`'s `.obj` and `X2/X2Lib.lib` both freshly dated, **exit code
+0, 0 errors, 0 warnings** attributable to this change (only the pre-existing
+unrelated `PurpleForClientD.lib`/`PurpleForClient.lib` duplicate-symbol link
+warnings, matching every prior phase's build). No header was touched, so no
+`KTDXLIB` rebuild or `stdafx.cpp` touch was needed this time — confirmed by
+checking the diff is scoped entirely to `X2StateMenu.cpp`.
+
+**Exit code 0 alone doesn't prove the guarded block compiled in — this is
+the first `.cpp` call site for this flag (every prior use was in a header),
+and `SEnum::VMI_RANOX` is defined behind the same flag, so a flag-off build
+would drop both the new block and its only reference together and still
+link clean.** Checked the actual object file rather than trusting the exit
+code: `X2Lib/US_SERVICE/X2StateMenu.obj` contains the wide-string literals
+`L"Village_20008"` and `L"Village_1007"` (grepped for the UTF-16LE byte
+pattern directly), which only exist inside this phase's new
+`#ifdef SERV_IRUHADEV_RANOX_PORT` block — confirms the flag reached this
+translation unit and the block is genuinely in the compiled binary, not
+preprocessed away.
+
+**Verified the edit is a pure insertion despite `git diff --stat` initially
+reporting `+37 -1`.** The lone reported deletion is a line-splitting
+artifact, not a dropped byte: the original file has an isolated `\r` after
+`#endif //SERV_SANDER_AUTO_OPEN_HARD_CODE` (mid-file, LF elsewhere) that this
+edit's insertion point sits directly before, so the new content's insertion
+relocates that single `\r` to the end of the inserted block rather than
+deleting it. Confirmed by reconstruction, not assumption, per this
+project's own "diff deletions on pure insertion are never cosmetic" rule:
+stripping the two inserted blocks back out of the edited file byte-for-byte
+reproduces `git show HEAD:X2Lib/X2StateMenu.cpp` exactly. `file` also
+confirms the encoding line is unchanged (`ISO-8859 text, with CRLF, LF line
+terminators`, same as before).
+
+**Not done, correctly out of scope for this phase**: packing
+`march2014/datai014/DLG_Destination_byButton.lua` into `datai014.kom` (the
+user's step, per `CLAUDE.md`'s Lua-packing rule) — this phase's Lua edit is
+unverified by play-test until that lands. Also outstanding: the two missing
+`RANOX_ICON` atlas files named above, and the two `STR_ID`s that need adding
+through `StringDBManager`. All three are Phase 22 preconditions in addition
+to the ones it already lists.
+
+---
+
 ### Phase 22 — Build, deploy, verify Ranox reachability
 
 **Goal**: once Phases 20 and 21 have landed and the user has repacked the
