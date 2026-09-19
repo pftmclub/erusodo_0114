@@ -4110,6 +4110,362 @@ not yet packed, stop after (1) and (2) and name what's still needed.
 
 ---
 
+### Phase 19 findings (executed 2026-09-19)
+
+**Precondition check: not packed.** Three independent negatives, checked
+before touching anything: the game directory has no archive above
+`data150.kom`/`datai023.kom`; the packing workspace (`kom_contents/`, one
+subfolder per archive number) also tops out at `data150`; and a recursive
+`*ranox*` search across that workspace returns zero hits. `cf676cb`
+(same-day commit raising the mount ceiling to 226/32) reads as past tense —
+"Ranox's new content was packed past the old ... ceiling" — but that wording
+is aspirational, not a record of a completed pack: `offline_packets.log`/
+`offline_server.log` are both stamped the same minute as that commit (a
+client run right after it landed) and contain zero `ranox` hits and no
+mount-failure lines for 151–226 either, meaning that run saw no Ranox
+content to fail on, packed or not. Treat that commit message as describing
+what the ceiling raise was *for*, not what had already happened, if reading
+it in a future session.
+
+**Item (1) — built.** `X2Lib/Offline/X2OfflineLuaEnumSeed.h`'s
+`VILLAGE_MAP_ID[]` array (flat, `sizeof(arr)/sizeof(arr[0])`-counted, no
+terminating sentinel — confirmed via `X2OfflineLuaEnum.cpp:62-63` before
+editing) got all 8 of `Enum.h`'s own Ranox additions appended, not just the
+7 the plan's "what's already known" note listed — `VMI_SPA_RANOX` included
+too, since this array is a flat mirror of the whole shared enum with no
+sub-block filtering (unlike `MapData.lua`'s per-region tables, which only
+reference what they actually use). All 8 values were re-read directly out of
+`KncWX2Server/Common/Enum/Enum.h` rather than trusted from this document —
+good thing, since they're non-contiguous
+(`VMI_BATTLE_FIELD_RANOX_REST_00`=1007, `VMI_SPA_RANOX`=1501, `VMI_RANOX`=20008,
+`VMI_DUNGEON_LOUNGE_RANOX`=30008, `VMI_BATTLE_FIELD_RANOX_FIELD_01..04`=40029..40032
+— note the FIELD block starts at 40029, not 40028, skipping a value the same
+way `DUNGEON_LOUNGE_RANOX` does). File re-verified `ASCII text` after editing
+(it already was, no BOM/CP949 risk here) and `git diff --stat` was pure
+insertion (16 lines).
+
+**Item (2) — built.** `KncWX2Server/ServerResource/US/MapData.lua` (UTF-8
+BOM, mixed CRLF/LF — edited via a byte-level Python script keyed on exact
+string anchors, never the Edit tool, per `CLAUDE.md`'s corruption warning)
+got four changes, each mirroring `march2014/data036/MapData.lua`'s own
+Ranox entries (which have only ever added a *village* entry, never a
+battle-field/rest one — Ranox has no `VMI_BATTLE_FIELD_RANOX_*`/`VMI_SPA_RANOX`
+rows in either `AddMapData` or `CheckCOBOExpressTicketMapID` on the client
+side, so none were added here either):
+
+1. Sander's existing `AddMapData` block: `AFTER = VILLAGE_MAP_ID["VMI_NONE"]`
+   → `VILLAGE_MAP_ID["VMI_RANOX"]`, chaining Sander to Ranox the same way
+   the client copy's Phase 2 edit did. (`VMI_NONE` isn't a real enum member —
+   it evaluates to `nil` in Lua, i.e. functionally "no next village" — so this
+   is a genuine content change, not a typo fix, and needed for the
+   world-map next/prev chain to reach Ranox at all.)
+2. A new `AddMapData` block for `VMI_RANOX` (`BEFORE = VMI_SANDER`,
+   `AFTER = VMI_INVALID`, `REQUIRE_LEVEL` 65–75), inserted between the Sander
+   village block and the pre-existing Sander battle-field-rest block — the
+   same position march2014's copy uses.
+3. 19 `AddLocalMapInfo` rows for `LMI_RANOX`, one per `DI_RANOX_*` entry
+   `KncWX2Server/Common/Enum/DungeonEnum.h` already carries (18 Normal/Hard/
+   Expert across the 6 dungeon lines + `DI_RANOX_SECRET_HELL` under
+   `DM_SECRET_HELL`), appended after Sander's own block, verbatim order from
+   the client copy.
+4. One new `CheckCOBOExpressTicketMapID` branch, `VMI_RANOX -> return 15`,
+   added after Sander's `return 14` — matches the client copy's decompiled
+   `elseif slot0 == VILLAGE_MAP_ID.VMI_RANOX then return 15` exactly, the
+   next sequential rank after Sander's 13/14.
+
+Verified after editing: `file` still reports `UTF-8 (with BOM) text, with
+CRLF, LF line terminators` (unchanged), the existing Korean comments read
+back intact (spot-checked via a `utf-8-sig` decode, no U+FFFD replacement
+characters), and `git diff --stat` shows 46 insertions / 1 deletion for a
+change that's genuinely almost all new lines (the "1 deletion" is the
+`VMI_NONE`→`VMI_RANOX` line, the one deliberate non-additive edit).
+
+**Not done, correctly per the precondition**: the client build/deploy and
+play-test verification loop (step 3 of the kickoff prompt). Still needed
+before that's runnable: `march2014/`'s Ranox content packed into `.kom`
+archives numbered above the current 150 (`data*.kom`) / 23 (`datai*.kom`)
+ceiling and placed in the live game data directory — this is the user's
+step, per `CLAUDE.md`'s Lua-packing rule. Once that lands, a fresh
+phase should build+deploy (`US_SERVICE`, per `CLAUDE.md`'s *Toolchains*),
+then run the loop this phase's kickoff prompt already specifies: world map →
+Ranox local map → each dungeon line's room list → enter AshesVillage at
+Normal, grep `offline_packets.log` for `UNHANDLED`/`EXCEPTION`, and check
+`offline_server.log`'s WARP-tagged lines to confirm this phase's `MapData.lua`
+fix loaded.
+
+---
+
+### Phase 20 — World Map / Local Map reachability for Ranox
+
+**Context**: after Phase 19 landed and the user packed and play-tested,
+Ranox turned out to be unreachable two independent ways — this phase and
+Phase 21 are the fix. Investigated fresh in a follow-up session
+(2026-09-19, same day as Phase 19): the World Map screen never shows Ranox
+as a destination at all after clearing Sander's last dungeon
+(`DI_SANDER_BEHIMOSS_HEART_NORMAL`), and Ranox is absent from the Cobo
+Express transportation list (Phase 21). This corrects Phase 2's
+characterization of Ranox's entry chain as "100% pre-existing data-table
+wiring" — that investigation's stated scope was the per-region files only
+and never opened the two shared master-index files this phase found
+missing a Ranox row.
+
+**Goal**: wire `CX2LocationManager`'s Lua-driven local-map discovery chain
+so Ranox is recognized as a real local map at all. This is the actual root
+cause of "no teleport to Ranox after Sander's last field" — there is no
+missing per-field arrow to fix; the whole local map is invisible to the
+traversal system until this lands.
+
+**What's already known** (verified in the follow-up session — re-verify
+line numbers before building on them):
+- `CX2LocationManager::OpenScript()` (`X2Lib/X2LocationManager.cpp:129`)
+  loads `DLG_Map_World.lua`, reads `World[WMI_ELLIOS]` (this build's only
+  `WORLD_MAP_ID` value — `X2LocationManager.h:129-135`) for a per-world
+  filename, loads that file, reads its `LocalIDList` array, then for each
+  `LOCAL_MAP_ID` in it looks up `DLG_Map_Local.lua`'s `Local` table for a
+  per-region filename and loads that (`LocalParsing`,
+  `X2LocationManager.cpp:189`).
+- Both `DLG_Map_World.lua` and `DLG_Map_Local.lua` already exist in
+  March-2014, at `kom_contents/data034/` — confirmed by listing.
+  `DLG_Map_Local_Ranox.lua` (the per-region file `DLG_Map_Local.lua`'s
+  `Local` table needs to point at) is already ported and correct, at
+  `march2014/update/data217/DLG_Map_Local_Ranox.lua` (Phase 2's work) — its
+  `EnterCondition` (`RequireUnitLevel = 68`,
+  `RequireClearDungeonID = { DUNGEON_ID.DI_SANDER_BEHIMOSS_HEART_NORMAL }`)
+  is the actual gate the user described as "Behemoth crater."
+- June-2017's equivalent per-world file is named `DLG_Map_World_Elios.lua`
+  (`data034_kom`), but March-2014's `data034` folder has no file by that
+  exact name — the split between `DLG_Map_World.lua` and its per-world file
+  may not be identical between the two client versions. Confirm
+  March-2014's actual `World[]` value before assuming a filename.
+- Attempted decompile in the follow-up session: March-2014's
+  `kom_contents/data034/DLG_Map_World.lua` and `DLG_Map_Local.lua` both came
+  back **"not LuaJIT bytecode"** from `elstools.exe decompile-batch` —
+  unexplained, flagged rather than chased further. This needs resolving
+  first (wrong path, a different container format, already-plaintext, or a
+  genuinely different bytecode dialect) before the rest of this phase can
+  proceed. By contrast, June-2017's own copies decompiled cleanly this same
+  session (`data034_kom/DLG_Map_World.lua` 4 lines,
+  `data034_kom/DLG_Map_World_Elios.lua` 17 lines, `data217_kom/DLG_Map_Local.lua`
+  15 lines) — `.src.lua` siblings should already exist next to each, check
+  before re-running.
+- `X2LocationManager.h`'s **C++** `LOCAL_MAP_ID` enum
+  (`X2Lib/X2LocationManager.h:115-127`, separate from the Lua-side global
+  Phase 2 already added to `Enum.lua`) has no `LMI_RANOX` member at all.
+  **Value collision, confirmed safe**: `LMI_SANDER = 10007` (positional
+  from `LMI_RUBEN = 10000`), and the very next member, `LMI_CHINA`,
+  continues positionally to `10008` — the exact value Phase 2 gave Lua's
+  `LOCAL_MAP_ID.LMI_RANOX`. Confirmed `LMI_CHINA`'s only use site,
+  `X2PartyUI.cpp:1940`, is gated behind `SERV_CHINA_ADVENTURE`, which is
+  never `#define`d anywhere reachable by this client (checked
+  `X2Lib`/`KTDXLIB`/`X2` headers) — dead code, so adding
+  `LMI_RANOX = 10008` explicitly (not positional continuation) right after
+  `LMI_CHINA`, leaving `LMI_CHINA` itself untouched, is safe: no
+  duplicate-case-value risk anywhere in this build.
+- Related finding, not this phase's goal: `X2PartyUI.cpp:1940`'s
+  field-name-icon switch also has no Ranox case (falls to
+  `default: ASSERT(!"invalid dungeon ID")`, likely a no-op in this NDEBUG
+  build but unverified) — cosmetic only (a party-UI location icon), flagged
+  for a later pass, not fixed here.
+- **Strict data-flow rule for this whole phase group (20-22)**: `kom_contents/`
+  (the live client install) is decompiled for reading only. The moment a
+  file needs a change, copy its decompiled content into this repo under
+  `march2014/dataXXX/<name>.lua` **first**, and make every edit only on that
+  git-tracked copy — never leave edited output inside `kom_contents/`.
+  Compiling back to bytecode and repacking `.kom` archives stays the user's
+  job, done from the repo copy.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox/Lanox village+dungeon port. Read RANOX_PORT_PLAN.md in
+the repo root in full, especially "Repo/engine integration findings
+(executed 2026-09-19)" and this "Phase 20" section -- both have file:line
+citations and prior investigation results; re-verify before building on
+them (in particular, the "not LuaJIT bytecode" decompile failure noted
+below needs resolving fresh, it was never explained). Do NOT consult
+NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch. Follow this repo's strict data-flow rule:
+decompile March-2014's live kom_contents/ files for reading only, copy the
+decompiled content into march2014/dataXXX/<name>.lua (git-tracked) FIRST,
+and make every edit only on that repo copy -- never leave edited output
+inside kom_contents/. Port every Ranox-specific Lua value as close to
+verbatim as possible from the June-2017 reference client
+(F:\elsword stuff\elsword_2014\els_2014\237311\14JUN17\data), never invented.
+
+Your task: (1) Resolve why elstools.exe decompile-batch reported
+kom_contents/data034/DLG_Map_World.lua and DLG_Map_Local.lua as "not LuaJIT
+bytecode" -- confirm the real format before proceeding (it may need a
+different elstools flag, or these may already be plaintext/a different
+container). (2) Once readable, copy both into march2014/data034/ and, on
+that copy, add LOCAL_MAP_ID.LMI_RANOX to whichever file/table holds the
+per-world LocalIDList (confirm exact filename -- may not be
+DLG_Map_World.lua itself, see "what's already known") and add
+Local[LOCAL_MAP_ID.LMI_RANOX] = "DLG_Map_Local_Ranox.lua" to
+DLG_Map_Local.lua's Local table, matching June-2017's exact array/table
+shape (decompile June-2017's data034_kom/DLG_Map_World.lua,
+data034_kom/DLG_Map_World_Elios.lua, and data217_kom/DLG_Map_Local.lua for
+reference -- these decompiled cleanly already, .src.lua siblings may
+already exist next to them, check first). (3) Add
+LMI_RANOX = 10008 to CX2LocationManager::LOCAL_MAP_ID
+(X2Lib/X2LocationManager.h), immediately after LMI_CHINA, with a comment
+noting the intentional value alias and why it's safe (see "what's already
+known"). No SERV_IRUHADEV_ guard needed for a pure enum-member addition
+nothing branches on. touch X2Lib/stdafx.cpp before rebuilding X2Lib, since
+this edits a header it includes.
+```
+
+---
+
+### Phase 21 — Cobo Express transportation for Ranox
+
+**Goal**: add Ranox to the Cobo Express warp-destination list — the
+hardcoded C++ list currently has zero Ranox entries, which is the actual
+cause of "not in the list of cobo transportation." Independent of Phase 20
+(different code path — the warp-by-button dialog, not the World Map/Local
+Map traversal chain) but shares this phase group's data-flow rule and
+tooling.
+
+**What's already known** (verified in the follow-up session — re-verify
+line numbers before building on them):
+- `CX2StateMenu::CreateWarpDest()` (`X2Lib/X2StateMenu.cpp:6173`) builds the
+  warp-destination dialog by calling `GetControl(L"Village_NNNNN")` on named
+  UI statics and `AddWarpList(...)` once per village/rest-stop, gated by
+  `GetLocalMapTemplet(...)->m_RequireUnitLevel`. Two nested blocks exist for
+  Sander (`#ifdef SERV_SANDER_AUTO_OPEN_HARD_CODE` / `#else`); confirmed
+  **only the `#else` block (lines 6478-6500) is live** —
+  `SERV_SANDER_AUTO_OPEN_HARD_CODE` is never defined for the client (only
+  appears in unrelated server `ServerDefine_*.h` files), and
+  `NO_SANDER_VILLIAGE` is never defined either. Mirror the live block, not
+  the dead one.
+- The dialog's own UI file, `DLG_Destination_byButton.lua`, is March-2014
+  archive `datai014` (confirmed present, already hand-decrypted by the user
+  in the follow-up session — read: contains only Sander's
+  `Village_20007`/`Village_1006` controls, no Ranox controls at all).
+  **Archive-number drift confirmed**: June-2017 ships this same file in
+  `data034_kom`, not `datai014_kom` — the reference tree is for content
+  only; the target stays March-2014's own `datai014`, per this project's
+  file-placement convention.
+- June-2017's `data034_kom/DLG_Destination_byButton.lua` decompiled cleanly
+  in the follow-up session (654 lines) — `.src.lua` sibling should already
+  exist, check before re-running. Use it to get Ranox's exact control
+  name(s), icon texture/atlas reference, and STR_ID(s) verbatim. Confirm
+  whether it defines a battlefield-rest control at all — Phase 2 found no
+  `VMI_BATTLE_FIELD_RANOX_REST_00` entries anywhere in June-2017's
+  `CheckCOBOExpressTicketMapID`/`AddMapData`, so this dialog may only have a
+  village control too; don't assume symmetry with Sander's two-control
+  pattern.
+- `CreateWarpDest`'s `GetControl(...)` calls have **no null check** anywhere
+  in the function (confirmed by reading every existing block) — a missing
+  control would null-deref and crash the moment a player opens the warp
+  dialog. The new Ranox block must null-check defensively, since its
+  controls don't exist in the live client until this phase's Lua edit is
+  written, compiled, repacked, and loaded.
+- The label text needs a STR_ID that this build's own string table may or
+  may not define. `march2014/data036/StringTable.lua` (confirm exact
+  filename) has never been decompiled/checked anywhere in this whole port.
+  Every prior phase flagged similar STR_ID risks and carried them forward
+  (a missing STR_ID renders blank, doesn't crash) — this phase should
+  verify directly rather than carrying it forward again, since it blocks
+  confirming the new UI control's label actually shows anything.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox/Lanox village+dungeon port. Read RANOX_PORT_PLAN.md in
+the repo root in full, especially "Repo/engine integration findings
+(executed 2026-09-19)" and this "Phase 21" section -- both have file:line
+citations and prior investigation results; re-verify before building on
+them. Do NOT consult NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md,
+or the mods/lanox-offline branch. Follow this repo's strict data-flow rule:
+decompile March-2014's live kom_contents/datai014/DLG_Destination_byButton.lua
+for reading only (it's already hand-decrypted -- confirm it's still there
+and still plaintext before assuming), copy its content into
+march2014/datai014/DLG_Destination_byButton.lua (git-tracked) FIRST, and make
+every edit only on that repo copy -- never leave edited output inside
+kom_contents/. Port every Ranox-specific Lua value as close to verbatim as
+possible from June-2017's own data034_kom/DLG_Destination_byButton.lua
+(already decompiled, F:\elsword stuff\elsword_2014\els_2014\237311\14JUN17\data
+-- check for an existing .src.lua sibling before re-decompiling).
+
+Your task: (1) From June-2017's decompiled DLG_Destination_byButton.lua,
+find Ranox's control block(s) and transcribe them verbatim into the
+March-2014 repo copy, inserted after Sander's existing block, following the
+exact CreateStatic()/AddControl/SetName/AddPicture/AddString shape already
+in the file. If June-2017's block references a texture atlas/swatch name
+not already part of this build's ported Ranox UI assets (check
+RANOX_PORT_PLAN.md's asset-sweep phase inventory first), name the missing
+asset rather than inventing a substitute, per CLAUDE.md's Lua rule. (2)
+Verify the STR_ID(s) that block uses: decompile March-2014's own string
+table (confirm exact filename under data036) for reading only and check
+whether the ID(s) already resolve to real text. If missing, decompile
+June-2017's string table for the same ID(s) to get the source text and
+report to the user by name -- it needs adding via the studio's own
+StringDBManager/localization tool per CLAUDE.md's Tooling section, not a
+hand-edit. (3) Add a new block to CX2StateMenu::CreateWarpDest()
+(X2Lib/X2StateMenu.cpp, immediately after the live Sander block ~line 6500),
+gated behind the existing SERV_IRUHADEV_RANOX_PORT flag (reuse, don't define
+a new one), mirroring the live (non-dead) Sander #else block's shape, using
+CX2LocationManager::LMI_RANOX (added in Phase 20) as the templet lookup key
+and SEnum::VMI_RANOX for AddWarpList. Null-check every GetControl(...)
+result before using it -- the existing Sander blocks don't, but Ranox's
+controls are new and depend on step (1) landing correctly; degrade to
+"silently absent from the list" rather than crash.
+```
+
+---
+
+### Phase 22 — Build, deploy, verify Ranox reachability
+
+**Goal**: once Phases 20 and 21 have landed and the user has repacked the
+affected archives, build+deploy the client and confirm Ranox is actually
+reachable end to end.
+
+**What's already known**:
+- Precondition: Phases 20/21's Lua output (`march2014/data034/DLG_Map_World.lua`
+  or whichever file actually holds `LocalIDList`,
+  `march2014/data034/DLG_Map_Local.lua`,
+  `march2014/datai014/DLG_Destination_byButton.lua`, and
+  `march2014/data036/StringTable.lua` if Phase 21 needed it) must be
+  compiled back to March-2014 bytecode
+  (`elstools/elstools.exe compile-batch -v mar-2014 -i <file>`) and repacked
+  into `data034.kom`/`datai014.kom`/`data036.kom` by the user — check with
+  the user before assuming this is done, same discipline as Phase 19's own
+  precondition check.
+- Build order and config: `X2ServerProtocol` (X2TOOL) → `KTDXLIB`
+  (US_SERVICE) → `X2Lib` (US_SERVICE) → `X2` (US_SERVICE), per
+  `CLAUDE.md`'s *Toolchains* section. `touch X2Lib/stdafx.cpp` first since
+  Phase 20 edits a header.
+- Deploy as `X2_offline.exe` in the game data directory, confirmed
+  programmatically (size/mtime), never launched without asking first, per
+  `CLAUDE.md`'s cautions and this repo's own standing rule.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox/Lanox village+dungeon port. Read RANOX_PORT_PLAN.md in
+the repo root in full, especially "Repo/engine integration findings
+(executed 2026-09-19)", "Phase 20", "Phase 21", and this "Phase 22" section.
+Do NOT consult NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch.
+
+First, confirm with the user whether Phase 20/21's Lua output has been
+compiled back to March-2014 bytecode and repacked into the live
+data034.kom/datai014.kom (and data036.kom if Phase 21 needed a string-table
+change) -- this phase's verification step is not runnable until that's done.
+
+Your task: (1) Build X2ServerProtocol (X2TOOL) -> KTDXLIB (US_SERVICE) ->
+X2Lib (US_SERVICE) -> X2 (US_SERVICE), per CLAUDE.md's Toolchains section,
+touching X2Lib/stdafx.cpp first. Confirm exit code 0 and a freshly dated
+x2.exe. (2) Ask before launching X2_offline.exe, every time -- deploy it to
+the game data directory first (confirmed programmatically: size/mtime match,
+sole X2_*.exe present) and wait for explicit go-ahead to run it. (3) Once
+running: navigate the world map, confirm Ranox now appears as a reachable
+local map after Sander (Behemoth crater / DI_SANDER_BEHIMOSS_HEART_NORMAL
+cleared, level 68+), open the Cobo Express warp-by-button dialog and confirm
+Ranox is listed and warping succeeds. Grep offline_packets.log for
+UNHANDLED/EXCEPTION and check offline_server.log for any new errors, per
+CLAUDE.md's standard offline-mode verification loop.
+```
+
+---
+
 ## Appendix A — Full June2017 Ranox file inventory (125 `.lua` files)
 
 Grouped by category and containing `data0NN_kom` archive. All 125 were
