@@ -4031,3 +4031,74 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Hell boss stage makes.
 #define SERV_IRUHADEV_RANOX_RIM_LIGHT
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-19
+// Description: Ranox/Lanox port -- Phase 17 item 1/6. CX2WorldObjectSkinMesh
+//              method gap: CKTDGObject::SetShowObject(bool,bool)
+//              (KTDXLIB/KTDGObject.h) already exists and is already reached
+//              by CX2WorldObjectSkinMesh's lua_tinker inheritance chain --
+//              only the class_def binding on CKTDGObject itself
+//              (KTDXLIB/KTDXApp.cpp) was missing. No new C++ logic.
+#define SERV_IRUHADEV_RANOX_SHOW_OBJECT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-19
+// Description: Ranox/Lanox port -- Phase 17 item 2/6. CX2WorldObjectSkinMesh
+//              method gap: new CX2WorldObjectSkinMesh::SetTriggerID(int)
+//              (X2Lib/X2WorldObjectSkinMesh.h) plus lua_tinker binding
+//              (X2Lib/X2Main.cpp). Storage-only -- unblocks
+//              Ranox_Geyser_stage0.lua/_Stage1.lua's script load, but no
+//              runtime code reads the stored value; GetTriggerMesh() still
+//              resolves trigger-mesh targets by skin-mesh name
+//              (X2World.cpp), a separate mechanism this ID does not feed.
+#define SERV_IRUHADEV_RANOX_TRIGGER_ID
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-19
+// Description: Ranox/Lanox port -- Phase 17 item 3/6. CX2WorldObjectSkinMesh
+//              method gap: new CKTDGObject::SetIsForceNotCull(bool)/
+//              GetIsForceNotCull() (KTDXLIB/KTDGObject.h), checked at the
+//              top of CKTDGObject::IsInFrustum (the live frustum test under
+//              X2OPTIMIZE_CULLING_WORLDOBJECTMESH_SUBSET, unconditionally
+//              defined in this build) to force the object always-visible,
+//              bypassing the sphere/frustum check entirely. Inverted from
+//              (and independent of) the existing, still-unbound
+//              SetIsCulled(bool). Unblocks Ranox_GateWay_Stage1.lua and,
+//              incidentally, two already-live (uncommented, previously
+//              broken) calls in Ranox_FireTemple_Stage1.lua that Phase 6
+//              never audited.
+#define SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-19
+// Description: Ranox/Lanox port -- Phase 17 item 4/6. SECRET_MAGI_BOSS.lua
+//              method gap: SetForceInvincible turned out to already exist
+//              as CX2GameUnit::SetForceInvincible(float) (X2GameUnit.h) --
+//              the plan's original "needs new C++" verdict was wrong,
+//              corrected by this session's re-verification (the June2017
+//              call sites pass exactly one float, matching this overload,
+//              not CX2GUNPC's unrelated two-float SetForceInvincible name
+//              hiding it). Missing only the lua_tinker binding
+//              (X2Lib/X2Main.cpp), same shape as SetShowObject above.
+#define SERV_IRUHADEV_RANOX_FORCE_INVINCIBLE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-19
+// Description: Ranox/Lanox port -- Phase 17 item 5/6. SECRET_MAGI_BOSS.lua
+//              method gap: new CX2GameUnit::EraseAllBuffAndExtraDamage()
+//              (X2GameUnit.h/.cpp) plus lua_tinker binding (X2Lib/X2Main.cpp).
+//              Combines the existing FinishAndClearAllBuff() with an
+//              AccessExtraDamagePack().Init() reset, the same two-call shape
+//              already used together at unit respawn (X2GUUser.cpp).
+#define SERV_IRUHADEV_RANOX_ERASE_BUFF
+//////////////////////////////////////////////////////////////////////////

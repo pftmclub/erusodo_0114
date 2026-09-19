@@ -3725,6 +3725,9 @@ void CX2Main::RegisterLuabind()
 #endif
 	lua_tinker::class_def<CX2WorldObjectSkinMesh>( L, "SetCartoonRender",		&CX2WorldObjectSkinMesh::SetCartoonRender );
 	lua_tinker::class_def<CX2WorldObjectSkinMesh>( L, "PlayLocalInterval",		&CX2WorldObjectSkinMesh::SetAnimPlayLocalInterval );
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_ID
+	lua_tinker::class_def<CX2WorldObjectSkinMesh>( L, "SetTriggerID",			&CX2WorldObjectSkinMesh::SetTriggerID );
+#endif SERV_IRUHADEV_RANOX_TRIGGER_ID
 
 	lua_tinker::class_add<CX2WorldObjectLightFlow>( L, "CX2WorldObjectLightFlow" );
 	lua_tinker::class_inh<CX2WorldObjectLightFlow, CX2WorldObject>( L );
@@ -4136,6 +4139,14 @@ void CX2Main::RegisterLuabind()
 #ifdef USER_LEVEL_IN_LUA
 	lua_tinker::class_def<CX2GameUnit>( L, "GetUnitLevel",				&CX2GameUnit::GetUnitLevel );
 #endif USER_LEVEL_IN_LUA
+
+#ifdef SERV_IRUHADEV_RANOX_FORCE_INVINCIBLE
+	lua_tinker::class_def<CX2GameUnit>( L, "SetForceInvincible",		&CX2GameUnit::SetForceInvincible );
+#endif SERV_IRUHADEV_RANOX_FORCE_INVINCIBLE
+
+#ifdef SERV_IRUHADEV_RANOX_ERASE_BUFF
+	lua_tinker::class_def<CX2GameUnit>( L, "EraseAllBuffAndExtraDamage",	&CX2GameUnit::EraseAllBuffAndExtraDamage );
+#endif SERV_IRUHADEV_RANOX_ERASE_BUFF
 
 	//{{ GUNPC Start
 	lua_tinker::class_add<CX2GUNPC>( L, "CX2GUNPC" );

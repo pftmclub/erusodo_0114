@@ -1653,6 +1653,12 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 	lua_tinker::class_def<CKTDGObject>( L, "SetAlphaObject",			&CKTDGObject::SetAlphaObject );
 	lua_tinker::class_def<CKTDGObject>( L, "SetScale",					&CKTDGObject::SetScale );
 	lua_tinker::class_def<CKTDGObject>( L, "SetOverUI",					&CKTDGObject::SetOverUI );
+#ifdef SERV_IRUHADEV_RANOX_SHOW_OBJECT
+	lua_tinker::class_def<CKTDGObject>( L, "SetShowObject",			&CKTDGObject::SetShowObject );
+#endif SERV_IRUHADEV_RANOX_SHOW_OBJECT
+#ifdef SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
+	lua_tinker::class_def<CKTDGObject>( L, "SetIsForceNotCull",		&CKTDGObject::SetIsForceNotCull );
+#endif SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
 
 
 	//½ºÄ«ÀÌµ¼

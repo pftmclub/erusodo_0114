@@ -114,6 +114,10 @@ class CX2WorldObjectSkinMesh : public CX2WorldObject
 		void SetOccasionalEventTime(float val) { m_fOccasionalEventTime = val; }
 		int GetOccasionalPlayRate() const { return m_iOccasionalPlayRate; }
 		void SetOccasionalPlayRate(int val) { m_iOccasionalPlayRate = val; }
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_ID
+		int GetTriggerID() const { return m_iTriggerID; }
+		void SetTriggerID(int val) { m_iTriggerID = val; }
+#endif SERV_IRUHADEV_RANOX_TRIGGER_ID
 
 #ifdef FOG_WORLD
         void SetFog(float xNear, float xFar, float yNear, float yFar, D3DXCOLOR color = D3DXCOLOR(0xd3, 0xe3, 0xf3, 0xff), float density = 0.0f);
@@ -200,6 +204,9 @@ class CX2WorldObjectSkinMesh : public CX2WorldObject
 		float							m_fElapsedLastOccansionalEventTime;
 		float							m_fOccasionalEventTime;
 		int 							m_iOccasionalPlayRate;
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_ID
+		int							m_iTriggerID;			// Ranox port -- storage only, no runtime consumer yet
+#endif SERV_IRUHADEV_RANOX_TRIGGER_ID
 //#ifdef UNIT_BACKGROUND_LOADING_TEST // 2008-12-11
 	private:		
 		std::wstring					    m_wstrModelXSkinMeshName;

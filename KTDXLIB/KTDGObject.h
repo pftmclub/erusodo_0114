@@ -355,6 +355,10 @@ class CKTDGObject
 //}} robobeg :: 2008-10-17
 
 		void			SetIsCulled( bool bCulled ) { m_bCulled = bCulled; }  
+#ifdef SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
+		void			SetIsForceNotCull( bool bForceNotCull ) { m_bForceNotCull = bForceNotCull; }
+		bool			GetIsForceNotCull() const { return m_bForceNotCull; }
+#endif SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
         bool            IsCulled() const { return ( m_pManagerObject != NULL ) ? m_pManagerObject->IsCulled() : m_bCulled; }
         //{{ seojt: 2008.10.23
         //double          GetLastAccessTime() const { return m_dwLastAccessTime; }
@@ -445,6 +449,9 @@ class CKTDGObject
 //}} robobeg : 2009-01-10
 
         bool            m_bCulled;				// 디버깅 용도로 화면 출력 때에만 사용함 
+#ifdef SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
+        bool            m_bForceNotCull;			// Ranox port -- forces IsInFrustum() to always report visible
+#endif SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
         //{{ seojt: 2008.10.23
         //double          m_dwLastAccessTime;
         //}} seojt
@@ -469,6 +476,14 @@ class CKTDGObject
 			if( GetShowObject() == false )
 				return false;
 
+#ifdef SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
+			if( GetIsForceNotCull() )
+			{
+				SetIsCulled( false );
+				return true;
+			}
+
+#endif SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
 			D3DXVECTOR3 center;
 			float fScale = 0.f;
 

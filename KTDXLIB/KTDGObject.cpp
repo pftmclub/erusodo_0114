@@ -44,6 +44,9 @@ CKTDGObject::CKTDGObject( CKTDGObject* pManagerObject_ )
 
 
     m_bCulled           = false;
+#ifdef SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
+    m_bForceNotCull     = false;
+#endif SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
     //{{ seojt: 2008.10.23
     //m_dwLastAccessTime  = 0.0;
     //}} seojt

@@ -46,6 +46,9 @@ CX2WorldObjectSkinMesh::CX2WorldObjectSkinMesh( bool bBackgroundLoad_ )
 	m_NowPlayAnimIndex	= 0;
 
 	m_iOccasionalPlayRate	= 0;
+#ifdef SERV_IRUHADEV_RANOX_TRIGGER_ID
+	m_iTriggerID			= -1;
+#endif SERV_IRUHADEV_RANOX_TRIGGER_ID
 	m_fOccasionalEventTime	= 0.f;
 	m_fElapsedLastOccansionalEventTime = 0.f;
 

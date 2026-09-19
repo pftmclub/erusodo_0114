@@ -12714,6 +12714,20 @@ void CX2GameUnit::FinishAndClearAllBuff()
 #endif //BUFF_ICON_UI
 }
 
+#ifdef SERV_IRUHADEV_RANOX_ERASE_BUFF
+/** @function : EraseAllBuffAndExtraDamage
+	@brief : Ranox port -- SECRET_MAGI_BOSS.lua method gap. Clears all
+	active buffs (FinishAndClearAllBuff) and resets every ExtraDamageData
+	slot (m_ExtraDamagePack.Init), the same two-call combination already
+	used together at unit respawn (see CX2GUUser.cpp).
+*/
+void CX2GameUnit::EraseAllBuffAndExtraDamage()
+{
+	FinishAndClearAllBuff();
+	m_ExtraDamagePack.Init();
+}
+#endif SERV_IRUHADEV_RANOX_ERASE_BUFF
+
 /** @function : ApplyRenderParam
 	@brief : 버프에 의해 적용되야할 RenderParam 값이 있으면 제일 마지막 것을 적용하고 없으면 기본RenderParam을 적용하는 함수
 	@param : SkinAnim의 RenderParam 포인터(pRenderParam_)

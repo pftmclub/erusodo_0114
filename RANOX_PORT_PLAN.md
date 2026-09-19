@@ -3816,6 +3816,174 @@ are five (or six, if SimpleDLG splits) separate changes, not one.
 
 ---
 
+### Phase 17 findings (executed 2026-09-19)
+
+**4 of 5 items built and verified; 1 (rim light) was already done by Phase 15;
+SimpleDLG stopped on, per this phase's own instruction — no code written for
+it.** Re-verified every citation from the original Repo/engine integration
+section against current source before touching anything, per this phase's own
+instruction; one of them turned out to be wrong (below), which is exactly why
+that instruction was there.
+
+**`SetShowObject` — confirmed cheapest, built as described.** One line,
+`lua_tinker::class_def<CKTDGObject>( L, "SetShowObject", &CKTDGObject::SetShowObject )`,
+added to `KTDXLIB/KTDXApp.cpp`'s existing 5-entry `class_def<CKTDGObject>`
+block. No new C++ logic, gated `SERV_IRUHADEV_RANOX_SHOW_OBJECT`.
+
+**`SetTriggerID` — new storage-only property, no consumer.** Added
+`CX2WorldObjectSkinMesh::m_iTriggerID` (default `-1`) with `GetTriggerID()`/
+`SetTriggerID(int)` (`X2Lib/X2WorldObjectSkinMesh.h/.cpp`) plus the
+`class_def` binding (`X2Lib/X2Main.cpp`), gated
+`SERV_IRUHADEV_RANOX_TRIGGER_ID`. Confirmed before writing anything that this
+ID is unrelated to the LineMap trigger-dispatch system's own object
+resolution — `CX2World::GetTriggerMesh` (`X2World.cpp:1567`) matches a
+trigger's target mesh by `GetXSkinMeshName()` (a case-insensitive string
+match against the mesh's own `.x` filename), not by any per-object numeric
+ID — so this binding unblocks the two Geyser files' script load and nothing
+else; no runtime code anywhere reads the value back. Framed that way
+deliberately in case a future phase is tempted to treat "SetTriggerID now
+works" as "the Geyser triggers now work."
+
+**`SetIsForceNotCull` — new `CKTDGObject` member, built as designed.** Added
+`bool CKTDGObject::m_bForceNotCull` (default `false`) with
+`SetIsForceNotCull(bool)`/`GetIsForceNotCull() const`
+(`KTDXLIB/KTDGObject.h/.cpp`), checked at the top of
+`CKTDGObject::IsInFrustum(const D3DXVECTOR3&, const CKTDGFrustum&)`
+(`KTDXLIB/KTDGObject.h:467`, the live culling path under
+`X2OPTIMIZE_CULLING_WORLDOBJECTMESH_SUBSET`, unconditionally defined in this
+build) — when set, the sphere/frustum test is skipped entirely and the object
+is unconditionally reported visible (`SetIsCulled(false); return true;`), the
+same early-return shape already used for the existing `GetBoundingRadius() <= 0`
+case just below it. Plus the `class_def<CKTDGObject>` binding
+(`KTDXLIB/KTDXApp.cpp`). Gated `SERV_IRUHADEV_RANOX_FORCE_NOT_CULL`.
+**Incidental find while confirming this call site**: `Ranox_FireTemple_Stage1.lua`
+(Phase 6) calls `SetIsForceNotCull(true)` twice, *uncommented* — Phase 6
+never audited that scene file's own method calls (only the LineMap's enum
+gaps and the 5 new unit-def files' method bindings were checked), so this
+call was live-broken (would abort the script's load) from the moment Phase 6
+landed it. This phase's binding fixes both call sites as a side effect.
+
+**`SetForceInvincible` — the plan's original verdict was wrong; corrected
+here, cheap like `SetShowObject`.** The Repo/engine integration section's
+item 3d stated no C++ method exists under this name. It does:
+`CX2GameUnit::SetForceInvincible( float fTime )` (`X2GameUnit.h:2363`,
+virtual, single-float), already called from ~40 sites across nearly every
+`X2GU*.cpp` player-class file and `X2Game.cpp`. `CX2GUNPC` separately
+declares its own non-virtual two-float `SetForceInvincible( float, float )`
+(`X2GUNPC.h:2901`) that name-hides the base one-float version by ordinary
+C++ lookup rules — but that's irrelevant to the June2017 Lua, whose two
+`SECRET_MAGI_BOSS.lua` call sites (`slot2:SetForceInvincible(0.01)`,
+`slot2:SetForceInvincible(10)`) pass exactly one argument, matching the base
+class's version, and `class_inh<CX2GUNPC, CX2GameUnit>` was already
+registered (`X2Main.cpp:4142`), so a `class_def<CX2GameUnit>` binding is
+reached through the same inheritance chain lua_tinker already knows about
+from a `CX2GUNPC` instance regardless of the C++-side name hiding (lua_tinker
+resolves through its own registered chain, not C++ overload resolution).
+Added `lua_tinker::class_def<CX2GameUnit>( L, "SetForceInvincible", &CX2GameUnit::SetForceInvincible )`
+to the end of the existing `class_def<CX2GameUnit>` block (`X2Lib/X2Main.cpp`,
+right before the `//{{ GUNPC Start` marker), gated
+`SERV_IRUHADEV_RANOX_FORCE_INVINCIBLE`. No new C++ logic — the plan's "needs
+new C++" framing for this one item does not hold up.
+
+**`EraseAllBuffAndExtraDamage` — new C++, genuinely absent as the plan said.**
+Added `void CX2GameUnit::EraseAllBuffAndExtraDamage()` (`X2GameUnit.h/.cpp`),
+body `FinishAndClearAllBuff(); m_ExtraDamagePack.Init();` — the same
+two-call combination already used together at unit respawn
+(`X2GUUser.cpp:17604` calls `m_ExtraDamagePack.Init()` alone; buff-clearing
+is handled separately elsewhere in that same reset path). Deliberately does
+not chase the per-effect particle handles (`m_hSeqPoisonBody` etc.) `Init()`
+doesn't touch — the respawn precedent doesn't either, and per-frame state
+checks already stop re-triggering them once the pack is reset. Plus the
+`class_def<CX2GameUnit>` binding (`X2Lib/X2Main.cpp`). Gated
+`SERV_IRUHADEV_RANOX_ERASE_BUFF`.
+
+**`SetRimLightTextureIndex` — already resolved, nothing to do.** Confirmed
+the `Ranox_Secret_Boss_Stage.lua` call site is `g_pWorld:SetRimLightTextureIndex(...)`
+— a `CX2World` method, not `CX2WorldObjectSkinMesh` — and Phase 15 already
+built exactly this (`CX2World::SetRimLightTextureIndex(int)`, gated
+`SERV_IRUHADEV_RANOX_RIM_LIGHT`). No new work; this item folds into Phase
+15's, as that phase's own writeup anticipated.
+
+**SimpleDLG — stopped, per this phase's explicit instruction. No code
+written.** This needs a decision from the user before either path is built:
+
+- **Bind the real surface** (`CreateSimpleDLG`/`GetSimpleDLG`/`SetShow_LUA`/
+  `SetNumberInGageStatic_LUA`/`SetNumberInNumberStatic_LUA`) — the dialog
+  itself (`DLG_UI_RANOX_SECRET_FEVER_GAGE.lua`, already ported) is a plain
+  `CKTDGUIDialog` built from ordinary `CreateStatic`/`CreatePicture` widgets,
+  nothing exotic — so the work is a per-NPC dialog-ownership handle on the
+  boss/dummy unit plus the five bound methods driving those widgets by name.
+  Restores June2017's exact behavior, gauge included.
+- **Substitute counter** — the dummy NPC already uses a `SetInt_LUA`/
+  `GetInt_LUA` pair for unrelated state (`SECRET_SCENE_DUMMY.lua:195` area,
+  `slot2:SetInt_LUA(4, 0)` etc.); an unused slot in that same array could hold
+  the "count to 5" the fever sequence gates on. Restores the sequence as
+  *gameplay* (the magi-object spawns, the buff fires), but the on-screen
+  gauge stays invisible, and it means editing already-ported Lua to add the
+  substitute, diverging from source-client behavior — the plan's own
+  "transcribe, don't tidy" bar this port has held to everywhere else.
+
+Not pre-built either way. Whoever answers should say which, and whether the
+substitute (if chosen) should still leave the omitted `CreateSimpleDLG`/etc.
+comments in place for a later real fix, or replace them outright.
+
+**Build verification**: `KTDXLIB` and `X2Lib` (both `US_SERVICE`, in that
+order, after `touch`ing both projects' `stdafx.cpp`) built clean — **0
+errors** on both, only pre-existing warnings (deprecated CRT calls, an
+`ASSERT` macro redefinition, the `Purple` billing SDK's duplicate-symbol link
+warnings — all already noted in this file's item-1/Phase-15 build
+verifications). `X2/KTDXLIB.lib` and `X2/X2Lib.lib` both freshly dated
+2026-09-19. All 9 touched files (`KTDXLIB/Always.h`, `KTDXLIB/KTDGObject.h`,
+`KTDXLIB/KTDGObject.cpp`, `KTDXLIB/KTDXApp.cpp`, `X2Lib/X2WorldObjectSkinMesh.h`,
+`X2Lib/X2WorldObjectSkinMesh.cpp`, `X2Lib/X2GameUnit.h`, `X2Lib/X2GameUnit.cpp`,
+`X2Lib/X2Main.cpp`) were edited at the byte level (not through a plain
+text-editing tool) after an initial edit to `Always.h` was caught
+re-encoding that CP949 file to UTF-8 mid-session — same failure mode
+`CLAUDE.md` warns about — and reverted before it could compound; every file
+was re-verified after editing with `file` (encoding unchanged in all 9) and
+`git diff --stat` (133 insertions, 0 deletions total). `X2/X2_2010.vcxproj`
+(the final `.exe`) was deliberately not built or deployed this session —
+header/source-only changes, nothing packed yet to exercise them at runtime,
+and this repo's standing policy is to never auto-launch the deployed exe
+without asking regardless.
+
+**Not owed by this phase, flagged for whoever packs the data** — the same
+"binding the C++ side doesn't restore the Lua call sites" gap Phase 15 flagged
+for its own two items. Each of the following ported files has the
+corresponding call(s) removed with a `SERV_IRUHADEV_RANOX_PORT`-tagged
+comment in place of the original; restoring them (deleting the comment,
+putting the real call back) is a data-packing-time edit, not a code change:
+
+1. `Ranox_Geyser_stage0.lua` — `SetTriggerID(0)`, `SetTriggerID(2)`,
+   `SetShowObject(false, true)` ×2, `SetTriggerID(3)` (the orphaned-reference
+   one, transcribed as-is per the plan's own note).
+2. `Ranox_Geyser_Stage1.lua` — `SetTriggerID(0)`, `SetShowObject(false, true)`.
+3. `Ranox_GateWay_Stage1.lua` — `SetIsForceNotCull(true)` ×2.
+4. `SECRET_MAGI_BOSS.lua` — `SetForceInvincible(0.01)` ×2,
+   `SetForceInvincible(10)`, `EraseAllBuffAndExtraDamage()` ×1.
+5. `Ranox_Secret_Boss_Stage.lua` — already on Phase 15's own list (rim
+   light); not duplicated here.
+
+**Also flagged, not fixed — a second, unrelated live-broken call pair in the
+same file item 3 above touches.** `Ranox_FireTemple_Stage1.lua` (Phase 6,
+lines 120-121 and 143-144) calls `SetBoundingRadius(300)` twice (same value
+both times) and `SetCenter(...)` twice (different vectors, as expected for
+two different mesh instances), all four *uncommented* — exhaustively grepped
+(`SetBoundingRadius|SetCenter|SetIsForceNotCull` across the whole file, and
+`SetBoundingRadius|SetCenter` across all of `march2014/update/` — this file
+is the only one affected). Neither `SetBoundingRadius` nor `SetCenter` (both
+plain public methods on `CKTDGObject`, `KTDXLIB/KTDGObject.h:177-178`) has
+ever been given a `class_def` binding anywhere in this build. This means
+FireTemple Stage1 does not load today and will not load after this phase's
+`SetIsForceNotCull` fix either — that fix only addresses the two
+`SetIsForceNotCull(true)` calls (lines 122, 145) in the same file. Out of
+this phase's named scope (not one of the 5/6 listed items) so not built, but
+it's the cheapest possible follow-up on record: two more one-line
+`class_def<CX2WorldObject>` bindings (both already-public inherited
+`CKTDGObject` methods), same shape as `SetShowObject` above.
+
+---
+
 ### Phase 18 — Hero difficulty tier
 
 **Goal**: add a 4th selectable difficulty tier. Deferred by

@@ -3661,6 +3661,9 @@ public:
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 		virtual void	ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ );
 		void	FinishAndClearAllBuff();
+#ifdef SERV_IRUHADEV_RANOX_ERASE_BUFF
+		void	EraseAllBuffAndExtraDamage();
+#endif SERV_IRUHADEV_RANOX_ERASE_BUFF
 
 		UINT	GetUnitSlashTraceDataSize() const
 		{
