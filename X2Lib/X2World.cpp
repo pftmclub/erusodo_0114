@@ -124,6 +124,14 @@ CX2World::~CX2World(void)
 	SAFE_DELETE_KTDGOBJECT( m_pLineMap );
 	SAFE_DELETE_KTDGOBJECT( m_pLineMapFuture );
 
+#ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
+	/// Iruha 2026-09-19: the override is renderer-global (CKTDGXRenderer outlives any one CX2World), so
+	/// it must be cleared here or a blue rim-light tint set in Ranox's Secret Hell would follow the
+	/// player out into every later map's cel-shaded units.
+	if ( g_pKTDXApp && g_pKTDXApp->GetDGManager() && g_pKTDXApp->GetDGManager()->GetXRenderer() )	/// Iruha 2026-09-19: guarded like this destructor's own g_pData check above -- GetDGManager() is set NULL during app teardown (KTDXApp.cpp's stage-chain cleanup), and a world can still be getting destroyed then.
+		g_pKTDXApp->GetDGManager()->GetXRenderer()->SetRimLightTexType( CKTDGXRenderer::CTT_END );
+#endif SERV_IRUHADEV_RANOX_RIM_LIGHT
+
 
 	for( int i = 0; i < (int)m_SkyDomeList.size(); i++ )
 	{
@@ -403,6 +411,16 @@ HRESULT CX2World::OnLostDevice()
 
 	return S_OK;
 }
+
+#ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
+/// Iruha 2026-09-19: Ranox port Phase 15. Forwards to the renderer-wide override consulted by
+/// CKTDGXRenderer::BeginRender's 3 cartoon-tex sites -- storage lives there, not on CX2World,
+/// since the effect is global to every cel-shaded unit currently on screen, not just this world.
+void CX2World::SetRimLightTextureIndex( int nCartoonTexIndex )
+{
+	g_pKTDXApp->GetDGManager()->GetXRenderer()->SetRimLightTexType( (CKTDGXRenderer::CARTOON_TEX_TYPE)nCartoonTexIndex );
+}
+#endif SERV_IRUHADEV_RANOX_RIM_LIGHT
 
 void CX2World::SetMapDetail( CX2GameOption::OptionLevel optionLevel )
 {

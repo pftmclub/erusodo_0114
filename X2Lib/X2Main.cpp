@@ -3623,6 +3623,9 @@ void CX2Main::RegisterLuabind()
     lua_tinker::class_def<CX2World>( L, "CreateWorldLayer",				&CX2World::CreateWorldLayer );    
 #endif
 	lua_tinker::class_def<CX2World>( L, "SetWorldColor",				&CX2World::SetWorldColor );
+#ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
+	lua_tinker::class_def<CX2World>( L, "SetRimLightTextureIndex",	&CX2World::SetRimLightTextureIndex );
+#endif SERV_IRUHADEV_RANOX_RIM_LIGHT
 	lua_tinker::class_def<CX2World>( L, "GetRenderLineMap",				&CX2World::GetRenderLineMap );
 	lua_tinker::class_def<CX2World>( L, "SetRenderLineMap",				&CX2World::SetRenderLineMap );
 #ifdef FOG_WORLD

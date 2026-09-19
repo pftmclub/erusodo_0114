@@ -20568,6 +20568,9 @@ void CX2GUUser::PhysicProcess()
 	//PhysicProcess_FastUpwardWind(pLineMap);
 	PhysicProcess_Jumping(pLineMap);
 	PhysicProcess_Bungee(pLineMap);
+#ifdef SERV_IRUHADEV_RANOX_FIRE_GROUND
+	PhysicProcess_FireGround(pLineMap);
+#endif SERV_IRUHADEV_RANOX_FIRE_GROUND
 	//PhysicProcess_Portal(pLineMap);
 
 	if ( m_delegatePhysicProcessPortalByGameType )
@@ -20778,6 +20781,35 @@ void CX2GUUser::PhysicProcess_Bungee( CKTDGLineMap* pLineMap )
 		}
 	}
 }
+
+
+
+#ifdef SERV_IRUHADEV_RANOX_FIRE_GROUND
+/// Iruha 2026-09-19: Ranox port Phase 15. Per-frame ground-damage tick for LINE_TYPE.LT_FIRE_GROUND,
+/// same shape as CommonFrameMoveFuture_ExtraDamage's m_Fire DOT tick (UpNowHp scaled by m_fElapsedTime,
+/// floor at 1 HP so it can't kill by itself) but line-triggered instead of buff-timer-triggered, so it
+/// doesn't touch the ExtraDamageData/buff system at all -- that would collide with a real Fire-attack
+/// debuff active at the same time. SERV_IRUHADEV_RANOX_FIRE_GROUND_DAMAGE_PER_SEC (X2Define.h) is an
+/// unsourced flat tuning constant -- LineData carries no per-line damage value for any LINE_TYPE.
+void CX2GUUser::PhysicProcess_FireGround( CKTDGLineMap* pLineMap )
+{
+	if( true == m_FrameDataFuture.unitCondition.bFootOnLine && GetNowHp() > 0.f )
+	{
+		const CKTDGLineMap::LineData* pLineData = pLineMap->GetLineData( m_FrameDataFuture.syncData.lastTouchLineIndex );
+		if( NULL != pLineData && CKTDGLineMap::LT_FIRE_GROUND == pLineData->lineType )
+		{
+			float fBeforeHP = GetNowHp();
+			UpNowHp( -1.0f * SERV_IRUHADEV_RANOX_FIRE_GROUND_DAMAGE_PER_SEC * m_fElapsedTime );
+
+			if( fBeforeHP > 0.0f && GetNowHp() < 1.0f )
+				SetNowHp( 1.0f );
+
+			if ( IsMyUnit() )
+				CX2GageManager::GetInstance()->CrashMyStateGageUI( D3DXVECTOR2( -7, -7 ), D3DXVECTOR2( 7, 7 ), D3DXCOLOR( 1, 0, 0, 1) );
+		}
+	}
+}
+#endif SERV_IRUHADEV_RANOX_FIRE_GROUND
 
 
 

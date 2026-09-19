@@ -4003,3 +4003,31 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              has no D3DXVECTOR3 overload.
 #define SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-19
+// Description: Ranox/Lanox port -- Phase 15 hard item 1/2. Per-frame
+//              ground-damage tick for LINE_TYPE.LT_FIRE_GROUND (new
+//              member, KTDXLIB/KTDGLineMap.h), applied in
+//              CX2GUUser::PhysicProcess_FireGround (X2GUUser.cpp), called
+//              from PhysicProcess() alongside PhysicProcess_Bungee. Flat
+//              tuning constant in X2Define.h, no ExtraDamageData/buff
+//              system reuse (would collide with real Fire-attack DOT).
+#define SERV_IRUHADEV_RANOX_FIRE_GROUND
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-19
+// Description: Ranox/Lanox port -- Phase 15 hard item 2/2. New
+//              CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE member
+//              (KTDXLIB/KTDGXRenderer.h) plus a renderer-wide override
+//              (CKTDGXRenderer::SetRimLightTexType) substituted for
+//              CTT_NORMAL in the 3 cartoon-tex render sites in
+//              CKTDGXRenderer::BeginRender, so every cel-shaded unit in
+//              the scene picks up the tint. CX2World::SetRimLightTextureIndex
+//              (X2World.cpp) + lua_tinker binding (X2Main.cpp) is the
+//              g_pWorld:SetRimLightTextureIndex(...) call Ranox's Secret
+//              Hell boss stage makes.
+#define SERV_IRUHADEV_RANOX_RIM_LIGHT
+//////////////////////////////////////////////////////////////////////////

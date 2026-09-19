@@ -48,6 +48,9 @@ public:
 			CTT_PETRIFIED,			/// CartoonPetrified.bmp
 			CTT_SKYBLUE,			///	CartoonSkyBlue.bmp
 			CTT_SCARLET,			/// CartoonScarlet.bmp
+#ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
+			CTT_RIM_LIGHT_BLUE = 10,	/// Iruha 2026-09-19: Ranox port Phase 15. No committed number anywhere in this repo (march2014/data036/Enum.lua's CARTOON_TEX_TYPE table has no such member) -- this session owns the numbering. Reuses CartoonSkyBlue.bmp, loaded already for CTT_SKYBLUE.
+#endif SERV_IRUHADEV_RANOX_RIM_LIGHT
 			CTT_END,
 		};
 
@@ -198,6 +201,16 @@ public:
 		virtual HRESULT BeginRender( const CKTDGXRenderer::RenderParam& InRenderParam_, const D3DXMATRIX* pInMatrix_ = NULL );
 		virtual HRESULT NextRender();
 
+#ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
+		void    SetRimLightTexType( CARTOON_TEX_TYPE eInType_ )
+		{
+			/// Iruha 2026-09-19: bounds-check here, not just at the BeginRender consumption sites -- eInType_ ultimately
+			/// comes from a Lua int (CX2World::SetRimLightTextureIndex), so it can't be trusted to already be in range.
+			m_eRimLightOverrideTexType = ( eInType_ >= CARTOON_TEX_TYPE(0) && eInType_ < CTT_END ) ? eInType_ : CTT_END;
+		}
+		CARTOON_TEX_TYPE GetRimLightTexType() const { return m_eRimLightOverrideTexType; }
+#endif SERV_IRUHADEV_RANOX_RIM_LIGHT
+
 #ifdef X2OPTIMIZE_CULLING_WORLDOBJECTMESH_SUBSET
 		HRESULT OnFrameRender( const RenderParam& InRenderParam_, const D3DXMATRIX& mInWorld_, CKTDXDeviceXMesh& pXMesh, 
 			CKTDXDeviceXET* pTexChangeXET = NULL, CKTDXDeviceXET* pMultiTexXET = NULL, 
@@ -246,6 +259,10 @@ public:
 		LPD3DXEFFECT				m_pEffect;
 
 		CKTDXDeviceTexture*			m_pCartoonTexList[CTT_END]; 
+
+#ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
+		CARTOON_TEX_TYPE			m_eRimLightOverrideTexType;	/// Iruha 2026-09-19: Ranox port Phase 15. CTT_END = disabled (sentinel); substituted for CTT_NORMAL in BeginRender's 3 cartoon-tex sites.
+#endif SERV_IRUHADEV_RANOX_RIM_LIGHT
 
         D3DXHANDLE                  m_ahTechniques[RT_END];
         D3DXHANDLE                  m_ahEffectParameters[EP_END];

@@ -115,6 +115,10 @@ CKTDGXRenderer::CKTDGXRenderer( LPDIRECT3DDEVICE9 pd3dDevice )
 		m_pCartoonTexList[i] = NULL;
 	}
 
+#ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
+	m_eRimLightOverrideTexType = CTT_END;	/// Iruha 2026-09-19: Ranox port Phase 15. CTT_END = disabled.
+#endif SERV_IRUHADEV_RANOX_RIM_LIGHT
+
     ZeroMemory( m_ahTechniques, sizeof( m_ahTechniques ) );
     ZeroMemory( m_ahEffectParameters, sizeof( m_ahEffectParameters ) );
 
@@ -449,7 +453,18 @@ HRESULT CKTDGXRenderer::BeginRender(  const CKTDGXRenderer::RenderParam& InRende
 				m_pEffect->SetVector( EPHANDLE( g_LightPos ),		&lightPos );
 				m_pEffect->SetFloat( EPHANDLE( g_fOutLineWide ),	InRenderParam_.fOutLineWide );
 
+#ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
+				{
+					/// Iruha 2026-09-19: Ranox port Phase 15. World-wide rim-light override (CX2World::SetRimLightTextureIndex) wins over CTT_NORMAL only, so a unit's own damage/invincible/petrified tint keeps priority.
+					CARTOON_TEX_TYPE eEffectiveCartoonTexType = InRenderParam_.cartoonTexType;
+					if( CTT_NORMAL == eEffectiveCartoonTexType && CTT_END != m_eRimLightOverrideTexType )
+						eEffectiveCartoonTexType = m_eRimLightOverrideTexType;
+					if( NULL != m_pCartoonTexList[eEffectiveCartoonTexType] )
+						m_pCartoonTexList[eEffectiveCartoonTexType]->SetDeviceTexture( 1 );
+				}
+#else SERV_IRUHADEV_RANOX_RIM_LIGHT
 				m_pCartoonTexList[InRenderParam_.cartoonTexType]->SetDeviceTexture( 1 );
+#endif SERV_IRUHADEV_RANOX_RIM_LIGHT
 
 				D3DXVECTOR4 texOffset01;
 				texOffset01.x = InRenderParam_.texOffsetStage0.x;
@@ -480,7 +495,18 @@ HRESULT CKTDGXRenderer::BeginRender(  const CKTDGXRenderer::RenderParam& InRende
 				m_pEffect->SetVector( EPHANDLE( g_OutLineColor ),	&(D3DXVECTOR4)InRenderParam_.outLineColor );
 				m_pEffect->SetFloat( EPHANDLE( g_fOutLineWide ),	InRenderParam_.fOutLineWide );
 
+#ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
+				{
+					/// Iruha 2026-09-19: Ranox port Phase 15. World-wide rim-light override (CX2World::SetRimLightTextureIndex) wins over CTT_NORMAL only, so a unit's own damage/invincible/petrified tint keeps priority.
+					CARTOON_TEX_TYPE eEffectiveCartoonTexType = InRenderParam_.cartoonTexType;
+					if( CTT_NORMAL == eEffectiveCartoonTexType && CTT_END != m_eRimLightOverrideTexType )
+						eEffectiveCartoonTexType = m_eRimLightOverrideTexType;
+					if( NULL != m_pCartoonTexList[eEffectiveCartoonTexType] )
+						m_pCartoonTexList[eEffectiveCartoonTexType]->SetDeviceTexture( 1 );
+				}
+#else SERV_IRUHADEV_RANOX_RIM_LIGHT
 				m_pCartoonTexList[InRenderParam_.cartoonTexType]->SetDeviceTexture( 1 );
+#endif SERV_IRUHADEV_RANOX_RIM_LIGHT
 
 				D3DXVECTOR4 texOffset01;
 				texOffset01.x = InRenderParam_.texOffsetStage0.x;
@@ -509,7 +535,18 @@ HRESULT CKTDGXRenderer::BeginRender(  const CKTDGXRenderer::RenderParam& InRende
                 SetColor( InRenderParam_.color );
 				m_pEffect->SetVector( EPHANDLE( g_LightPos ),		&lightPos );
 
+#ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
+				{
+					/// Iruha 2026-09-19: Ranox port Phase 15. World-wide rim-light override (CX2World::SetRimLightTextureIndex) wins over CTT_NORMAL only, so a unit's own damage/invincible/petrified tint keeps priority.
+					CARTOON_TEX_TYPE eEffectiveCartoonTexType = InRenderParam_.cartoonTexType;
+					if( CTT_NORMAL == eEffectiveCartoonTexType && CTT_END != m_eRimLightOverrideTexType )
+						eEffectiveCartoonTexType = m_eRimLightOverrideTexType;
+					if( NULL != m_pCartoonTexList[eEffectiveCartoonTexType] )
+						m_pCartoonTexList[eEffectiveCartoonTexType]->SetDeviceTexture( 1 );
+				}
+#else SERV_IRUHADEV_RANOX_RIM_LIGHT
 				m_pCartoonTexList[InRenderParam_.cartoonTexType]->SetDeviceTexture( 1 );
+#endif SERV_IRUHADEV_RANOX_RIM_LIGHT
 				
 				D3DXVECTOR4 texOffset01;
 				texOffset01.x = InRenderParam_.texOffsetStage0.x;
@@ -1266,6 +1303,14 @@ HRESULT CKTDGXRenderer::OnResetDevice()
 		m_pCartoonTexList[CTT_SCARLET] = g_pKTDXApp->GetDeviceManager()->OpenTexture( L"CartoonScarlet.bmp" );		
 	}
 #endif ELSWORD_WAY_OF_SWORD
+
+#ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
+	if( m_pCartoonTexList[CTT_RIM_LIGHT_BLUE] == NULL )
+	{
+		/// Iruha 2026-09-19: Ranox port Phase 15. Reuses the already-shipped CartoonSkyBlue.bmp asset -- no new texture file needed to be packed for this.
+		m_pCartoonTexList[CTT_RIM_LIGHT_BLUE] = g_pKTDXApp->GetDeviceManager()->OpenTexture( L"CartoonSkyBlue.bmp" );
+	}
+#endif SERV_IRUHADEV_RANOX_RIM_LIGHT
 
 
 	return m_pEffect->OnResetDevice(); 

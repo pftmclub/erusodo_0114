@@ -36,6 +36,9 @@ class CXSLLineMap
 			LT_OTHER_ROAD,
 #endif
 			LT_CLIFF,
+#ifdef SERV_IRUHADEV_RANOX_FIRE_GROUND
+			LT_FIRE_GROUND = 12,	/// Iruha 2026-09-19: Ranox port Phase 15, kept in sync with KTDXLIB/KTDGLineMap.h's client copy. Inert here the same way SERV_IRUHADEV_RANOX_PORT already is server-side -- the flag is defined only in KTDXLIB/Always.h.
+#endif SERV_IRUHADEV_RANOX_FIRE_GROUND
 		};
 
 		enum LINE_DUST_TYPE

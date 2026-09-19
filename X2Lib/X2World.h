@@ -900,6 +900,10 @@ public:
 			m_fFadeTime		= 0.0f;
 		}
 
+#ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
+		void				SetRimLightTextureIndex( int nCartoonTexIndex );	/// Iruha 2026-09-19: Ranox port Phase 15. g_pWorld:SetRimLightTextureIndex(CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE) call site in Ranox_Secret_Boss_Stage.lua.
+#endif SERV_IRUHADEV_RANOX_RIM_LIGHT
+
 		void				FadeOriginWorldColor( D3DXCOLOR color, float fTime )
 		{
 			m_FadeOriginColor = color;	

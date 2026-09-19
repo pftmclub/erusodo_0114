@@ -2111,3 +2111,13 @@ const int   SERV_IRUHADEV_OFFLINE_STATIC_DROP_DRAWS = 3;
 const float SERV_IRUHADEV_OFFLINE_QUEST_ITEM_RATE   = 3.0f;
 #endif SERV_IRUHADEV_OFFLINE_DROP_BOOST
 //}} Iruha : 2026-09-06
+
+//{{ Iruha : 2026-09-19
+#ifdef SERV_IRUHADEV_RANOX_FIRE_GROUND
+//   Flat rate for LINE_TYPE.LT_FIRE_GROUND's per-frame ground-damage tick
+//   (X2GUUser::PhysicProcess_FireGround). Unsourced -- LineData carries no
+//   per-line damage value for any LINE_TYPE, so there is nothing to read
+//   this from; tune by play-test once the Ranox PVP map is packed.
+const float SERV_IRUHADEV_RANOX_FIRE_GROUND_DAMAGE_PER_SEC = 500.0f;
+#endif SERV_IRUHADEV_RANOX_FIRE_GROUND
+//}} Iruha : 2026-09-19

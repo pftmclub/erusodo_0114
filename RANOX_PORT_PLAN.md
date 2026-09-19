@@ -3543,6 +3543,166 @@ separate logical changes from each other and from SERV_IRUHADEV_RANOX_PORT.
 
 ---
 
+### Phase 15 findings (executed 2026-09-19)
+
+**Both engine gaps built, gated, and verified by rebuilding `KTDXLIB` and
+`X2Lib` (`US_SERVICE`) clean — 0 errors on the final pass.** Design was
+reviewed before writing code, per this phase's own instruction; one design
+choice changed during review (below), and one real bug (a dropped closing
+brace) was caught by the build, not by inspection — see *What went wrong*
+below.
+
+**1. `LT_FIRE_GROUND` — a bespoke per-frame tick, not the buff/`ExtraDamageData`
+system.** `CX2GUUser::PhysicProcess_FireGround( CKTDGLineMap* pLineMap )`
+(`X2GUUser.cpp`, called from `PhysicProcess()` right after
+`PhysicProcess_Bungee`, same precedent that function already established for
+a per-line-type handler) checks `bFootOnLine` and
+`pLineData->lineType == LT_FIRE_GROUND`, then applies
+`UpNowHp( -SERV_IRUHADEV_RANOX_FIRE_GROUND_DAMAGE_PER_SEC * m_fElapsedTime )`
+— the exact shape `CommonFrameMoveFuture_ExtraDamage`'s own `m_Fire` DOT tick
+already uses (floor at 1 HP so it can't kill by itself, `CrashMyStateGageUI`
+red flash while `IsMyUnit()`), but line-triggered instead of
+buff-timer-triggered. Deliberately does **not** touch `m_ExtraDamagePack.m_Fire`
+or any other `ExtraDamageData` slot — reusing it would collide with a real
+Fire-attack debuff active on the same unit at the same time (whichever set it
+last would silently overwrite the other's timer/rate). `CX2GUUser`-only, not
+`CX2GUNPC` — Ranox's only current use (`PVP_Ranox_GateWay_LineMap.lua`'s lava
+platform) is player-facing, and monsters have their own separate
+`PhysicProcess()`; revisit if a later phase gives a monster-facing dungeon
+line the same type.
+
+- `LINE_TYPE.LT_FIRE_GROUND = 12` added to both copies (`KTDXLIB/KTDGLineMap.h`
+  client, `KncWX2Server/Common/LineMap/XSLLineMap.h` server), gated
+  `SERV_IRUHADEV_RANOX_FIRE_GROUND`. Value matches June2017's own `Enum.lua`
+  exactly (`LT_CLIFF = 10`, `LT_JUMP_DOWN = 11`, `LT_FIRE_GROUND = 12`) —
+  explicit `= 12`, not positional, so `11` (`LT_JUMP_DOWN`, which this client
+  doesn't need and doesn't have) stays deliberately unclaimed rather than
+  getting silently absorbed by a positional append. The server-side copy is
+  inert the same way `SERV_IRUHADEV_RANOX_PORT`'s server additions already
+  are — the flag is defined only in `KTDXLIB/Always.h` — kept in sync anyway
+  per Phase 14's own precedent, inspection-verified only (VS2003 not
+  installed here).
+- `SERV_IRUHADEV_RANOX_FIRE_GROUND_DAMAGE_PER_SEC = 500.0f` added to
+  `X2Lib/X2Define.h`. Unsourced flat constant, same shape as
+  `X2DungeonGame.cpp:2442`'s existing `2000.f`/sec dungeon-timeout damage —
+  `LineData` carries no per-line damage value for any `LINE_TYPE`, so there is
+  nothing to read this from. Tune by play-test once packed.
+- **Side effect, confirmed desirable, not a bug**: `X2GUUser.cpp`'s spawn/respawn
+  line resolution (`:2437/2445`, `:2476/2484`) already excludes any
+  `lineType != LT_NORMAL` line as a spawn point, falling back to the nearest
+  `LT_NORMAL` line instead. A real `LT_FIRE_GROUND` line therefore can never
+  be picked as a respawn point — exactly what you want for a lava platform,
+  and pre-existing engine behavior this phase didn't need to add.
+
+**2. `CTT_RIM_LIGHT_BLUE` + `SetRimLightTextureIndex` — a renderer-wide
+override consumed at the existing per-object cel-shading sites, not a new
+render pass.** Initial design considered a full-screen `CX2WorldLayer`
+overlay (self-contained, already used for atmosphere layers) but rejected it
+on review: `CartoonSkyBlue.bmp` is a toon-shading ramp texture, not a
+vignette asset, and stretched full-screen it would read as a smear, not a
+tint. Landed instead on `CKTDGXRenderer::SetRimLightTexType(CARTOON_TEX_TYPE)`
+— a renderer member substituted for `CTT_NORMAL` only, at the 3 existing
+`m_pCartoonTexList[cartoonTexType]->SetDeviceTexture(1)` sites inside
+`CKTDGXRenderer::BeginRender` (`RT_CARTOON_BLACK_EDGE`/`RT_ADD_CARTOON_BLACK_EDGE`,
+`RT_CARTOON_COLOR_EDGE`/`RT_ADD_CARTOON_COLOR_EDGE`, `RT_CARTOON`/`RT_ADD_CARTOON`
+— confirmed these 3 are the only consumers and are reached only under
+`RT_CARTOON*` types, and that `RenderParam::Init()` defaults `cartoonTexType`
+to `CTT_NORMAL`). This means every cel-shaded unit currently on screen in
+Ranox's Secret Hell boss room picks up the blue tint, while a unit's own
+active tint (damage flash, invincibility, petrify — anything that isn't
+`CTT_NORMAL`) keeps priority over the room-wide override. `CX2World`'s own
+storage was dropped in favor of this — the effect is global to the renderer,
+not scoped to one world.
+
+- `CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE = 10` added before `CTT_END` in
+  `KTDXLIB/KTDGXRenderer.h`, gated `SERV_IRUHADEV_RANOX_RIM_LIGHT`. **No
+  committed number exists anywhere in this repo** —
+  `march2014/data036/Enum.lua`'s own `CARTOON_TEX_TYPE` table has no such
+  member and currently commits `CTT_END = 10` — this session owns the
+  numbering. `CTT_END` shifts `10 → 11` positionally as a result (same
+  mechanism, and same reason it's safe, as the `WI_END`/`VMI_*_END`
+  sentinel-shift this session's own item 1 already used).
+- The lazy texture loader (`KTDGXRenderer.cpp`, next to the existing
+  `CTT_SKYBLUE`/`CTT_SCARLET` block) loads `m_pCartoonTexList[CTT_RIM_LIGHT_BLUE]`
+  from `"CartoonSkyBlue.bmp"` — the same, already-shipped asset `CTT_SKYBLUE`
+  uses (confirmed loaded in this build: `ELSWORD_WAY_OF_SWORD`, which gates
+  that whole block, is unconditionally defined in `Always.h`). Consequence,
+  stated plainly rather than left to be noticed later: **the rim-light tint
+  will look visually identical to `CTT_SKYBLUE`'s existing skill-state tint**
+  until/unless a dedicated rim-light texture asset is authored and packed.
+- `CKTDGXRenderer::SetRimLightTexType` bounds-checks its argument itself
+  (`eInType_ >= 0 && eInType_ < CTT_END`, else stores the `CTT_END` "disabled"
+  sentinel) rather than trusting the caller — the value ultimately comes from
+  a Lua `int` via `CX2World::SetRimLightTextureIndex`, so it can't be assumed
+  already in range. `BeginRender`'s 3 substitution sites additionally
+  NULL-check `m_pCartoonTexList[...]` before dereferencing.
+- `CX2World::SetRimLightTextureIndex(int)` (`X2World.cpp`, bound to Lua in
+  `X2Main.cpp` as `SetRimLightTextureIndex`) just forwards to the renderer.
+  `CX2World`'s destructor resets the override back to `CTT_END` on teardown —
+  otherwise the tint would follow the player out of Ranox into every later
+  map's cel-shaded units, since the renderer (and its override) outlives any
+  one world. That reset call is guarded (`g_pKTDXApp && GetDGManager() &&
+  GetXRenderer()`), matching this same destructor's own pre-existing
+  `g_pData && g_pData->GetWorldManager()` guard style a few lines above it —
+  `GetDGManager()` is set `NULL` during `CKTDXApp`'s own stage-chain teardown
+  (`KTDXApp.cpp`), and a world can still be getting destroyed at that point.
+
+**What went wrong, and how it was caught.** The first attempt at
+`PhysicProcess_FireGround`'s byte-level insertion replaced
+`PhysicProcess_Bungee`'s entire trailing byte sequence — including that
+function's own 6 closing braces — with the new function's text, instead of
+reproducing those closing braces first. This left `PhysicProcess_Bungee`
+unclosed, and every function defined later in the 26,000-line file was
+misparsed as a "local function definition" (`error C2601`), cascading into
+100+ errors far downstream of the actual bug. **`git diff --stat` reporting 3
+deletions on what was supposed to be a pure insertion was the first signal**
+and was wrongly dismissed in the moment as a cosmetic diff-algorithm artifact
+(the closing-brace lines being textually identical to lines elsewhere in the
+same file, which can genuinely happen); the compiler, not re-reading the
+diff, is what actually caught it. Fixed by re-inserting the missing 6 lines
+immediately before the new function; re-verified with a clean
+`git diff --stat` (0 deletions) before rebuilding. Lesson for future
+byte-anchored edits: a reported deletion on an intended pure insertion is
+never safe to assume cosmetic — read the actual diff content, not just the
+stat line, before trusting it.
+
+**Build verification**: `KTDXLIB` and `X2Lib` (both `US_SERVICE`, in that
+order, after `touch`ing both projects' `stdafx.cpp` to invalidate their PCHs)
+built clean — **0 errors** on the final pass, only pre-existing warnings
+(deprecated CRT calls, a signed/unsigned comparison, the `Purple` billing
+SDK's duplicate-symbol link warnings, all already noted in this file's item-1
+build verification). `X2/KTDXLIB.lib` and `X2/X2Lib.lib` both freshly dated
+2026-09-19. All 11 touched files re-verified with `file` (encoding
+unchanged — `ISO-8859 text`/`Non-ISO extended-ASCII text`, never flipped to
+UTF-8) and a clean `git diff --stat` (165 insertions, 0 deletions) across the
+whole change. `X2/X2_2010.vcxproj` (the final `.exe`) was deliberately not
+built or deployed this session — these are header/source-only changes with
+no packed Lua yet to exercise them at runtime, matching this repo's standing
+practice for this kind of change, and per this repo's standing policy the
+exe is never auto-launched without asking first regardless.
+
+**Not owed by this phase, flagged for whoever packs the data — four items:**
+
+1. `march2014/data036/Enum.lua` needs both new members added, at the same
+   values this session minted: `LINE_TYPE.LT_FIRE_GROUND = 12` and
+   `CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE = 10`. **`CTT_END` in that same table
+   must also move from `10` to `11`** — it does not update itself, and a
+   packed `Enum.lua` that adds `CTT_RIM_LIGHT_BLUE` without also bumping
+   `CTT_END` would disagree with the C++ side's shifted sentinel.
+2. `PVP_Ranox_GateWay_LineMap.lua`'s Phase 11 `LT_NORMAL` substitution (line
+   23 of 27, the lava-side platform) needs reverting back to
+   `LINE_TYPE.LT_FIRE_GROUND` now that the real member and the C++ mechanic
+   both exist.
+3. `Ranox_Secret_Boss_Stage.lua`'s omitted
+   `g_pWorld:SetRimLightTextureIndex(CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE)`
+   call needs restoring now that the method and enum member both exist.
+4. Both `Enum.lua` changes above need to land in whatever copy actually gets
+   XOR-encrypted and packed into `data036.kom` — per this repo's standing
+   Lua-packing rule, that packing step is the user's, not owed by this
+   phase, and nothing here should be treated as blocking on it.
+
+---
+
 ### Phase 16 — `X2WorldMapUI.cpp` dialog-switch cases
 
 **Goal**: make the 6 already-ported `DLG_UI_FIELD_MAP_Ranox_*` dialogs

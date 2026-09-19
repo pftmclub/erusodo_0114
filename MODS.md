@@ -30,6 +30,8 @@ column.
 | `SERV_IRUHADEV_OFFLINE_FETCH_AURA_ALWAYS` | 2026-09-08 | `KTDXLIB/Always.h:2672` (nested under `SERV_IRUHADEV_OFFLINE`) | `X2Lib/Offline/Handlers_Social.cpp:1541` (the force, in `MakePetInfo`), `:1574` (`IsPetPastCrystalStage`), `:1620` (the per-pet log line), `X2Lib/Offline/Handlers_Inventory.cpp:872` (item 500720 refused), `X2Lib/Offline/X2OfflineServer.h:490` | -- |
 | `SERV_IRUHADEV_FIX_CHAR_SELECT_DELETE_BUTTON` | 2026-09-11 | `KTDXLIB/Always.h:3684` | `X2Lib/X2StateServerSelect.cpp:11097-11103` (`CreateUnitButtonNew`) | -- |
 | `SERV_IRUHADEV_PENDING_DELETE_UNIT_MENU` | 2026-09-11, amended 2026-09-16 (twice) | `KTDXLIB/Always.h:3728` (nested under `SERV_UNIT_WAIT_DELETE`) | `X2Lib/X2StateServerSelect.cpp:1407` (down-state reset), `:2210`, `:3203`, `:3319`, `:3434` (immediate confirm on select), `:11196`, `:11234`, `:11303`; the first 2026-09-16 amendment also touches `X2Lib/Offline/X2OfflineDB.h:401-419,512`, `X2Lib/Offline/X2OfflineDB.cpp:1119-1145,1272-1285`, `X2Lib/Offline/Handlers_Unit.cpp:420-425,552-556` | -- |
+| `SERV_IRUHADEV_RANOX_FIRE_GROUND` | 2026-09-19 | `KTDXLIB/Always.h:4016`; damage-rate constant in `X2Lib/X2Define.h` | `KTDXLIB/KTDGLineMap.h` (`LINE_TYPE.LT_FIRE_GROUND` member), `X2Lib/X2GUUser.h` and `X2Lib/X2GUUser.cpp` (`PhysicProcess_FireGround`, called from `PhysicProcess()`) | `KncWX2Server/Common/LineMap/XSLLineMap.h` (inert -- flag not reachable from the server build, kept in sync only) |
+| `SERV_IRUHADEV_RANOX_RIM_LIGHT` | 2026-09-19 | `KTDXLIB/Always.h:4032` | `KTDXLIB/KTDGXRenderer.h`/`.cpp` (`CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE` member, `CKTDGXRenderer::SetRimLightTexType` and its 3 `BeginRender` substitution sites), `X2Lib/X2World.h`/`.cpp` (`CX2World::SetRimLightTextureIndex`, forwards to the renderer; destructor resets the override), `X2Lib/X2Main.cpp` (lua_tinker binding) | -- |
 
 What each one does:
 
@@ -223,6 +225,28 @@ What each one does:
   `GetOriginalMPChangeRate()`, which reads the member the clone never touched.
   See the *Deploying the offline client* section of `CLAUDE.md` for the
   diagnostic pattern.
+- **`SERV_IRUHADEV_RANOX_FIRE_GROUND`** -- standing on a `LINE_TYPE.LT_FIRE_GROUND`
+  line (new member, `KTDXLIB/KTDGLineMap.h`) deals
+  `SERV_IRUHADEV_RANOX_FIRE_GROUND_DAMAGE_PER_SEC` (500/s, `X2Lib/X2Define.h`)
+  per second to a player unit, floored at 1 HP so it can't kill by itself --
+  the same shape as the existing `m_Fire` burn-debuff tick, but line-triggered
+  in `CX2GUUser::PhysicProcess_FireGround` rather than buff-timer-triggered,
+  and deliberately not routed through the `ExtraDamageData`/buff system so it
+  can't collide with a real Fire-attack debuff on the same unit. Built for
+  the Ranox port's PVP GateWay map (`RANOX_PORT_PLAN.md` Phase 15); the flag
+  has no effect until the corresponding `LINE_TYPE.LT_FIRE_GROUND` value is
+  packed into `data036.kom`'s `Enum.lua`.
+- **`SERV_IRUHADEV_RANOX_RIM_LIGHT`** -- adds `CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE`
+  (new member, `KTDXLIB/KTDGXRenderer.h`) and a renderer-wide override
+  (`CKTDGXRenderer::SetRimLightTexType`) substituted for `CTT_NORMAL` at the
+  engine's existing per-object cel-shading sites, so every cel-shaded unit on
+  screen picks up a blue tint while a room-wide rim-light is active, without
+  overriding any unit's own damage/invincible/petrify tint. Exposed to Lua as
+  `g_pWorld:SetRimLightTextureIndex(...)`, which Ranox's Secret Hell boss
+  stage calls (`RANOX_PORT_PLAN.md` Phase 15). Currently reuses the
+  already-shipped `CartoonSkyBlue.bmp` texture, so the tint looks identical
+  to the existing `CTT_SKYBLUE` skill-state tint until a dedicated asset is
+  authored.
 
 ### Offline fetch aura on every pet
 

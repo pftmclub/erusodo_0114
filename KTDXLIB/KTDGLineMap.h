@@ -57,6 +57,9 @@ class CKTDGLineMap : public CKTDGObject
 			LT_OTHER_ROAD,
 //#endif
 			LT_CLIFF,
+#ifdef SERV_IRUHADEV_RANOX_FIRE_GROUND
+			LT_FIRE_GROUND = 12,	/// Iruha 2026-09-19: Ranox port Phase 15. Value matches June2017's own Enum.lua (LT_CLIFF=10, LT_JUMP_DOWN=11 unclaimed here, LT_FIRE_GROUND=12) so a later packed Enum.lua lines up without renumbering.
+#endif SERV_IRUHADEV_RANOX_FIRE_GROUND
 		};
 
 		enum LINE_DUST_TYPE

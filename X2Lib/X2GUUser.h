@@ -2936,6 +2936,9 @@ public:
 		//void PhysicProcess_FastUpwardWind( CKTDGLineMap* pLineMap );
 		void PhysicProcess_Jumping( CKTDGLineMap* pLineMap );
 		void PhysicProcess_Bungee( CKTDGLineMap* pLineMap );
+#ifdef SERV_IRUHADEV_RANOX_FIRE_GROUND
+		void PhysicProcess_FireGround( CKTDGLineMap* pLineMap );
+#endif SERV_IRUHADEV_RANOX_FIRE_GROUND
 		void PhysicProcess_Portal( CKTDGLineMap* pLineMap );
 		void PhysicProcess_PortalInBattleField( CKTDGLineMap* pLineMap );
 
