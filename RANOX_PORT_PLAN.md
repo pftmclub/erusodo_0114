@@ -4315,6 +4315,111 @@ this edits a header it includes.
 
 ---
 
+### Phase 20 findings (executed 2026-09-19)
+
+**"Not LuaJIT bytecode" — not reproducible, root cause unresolved.** Ran
+`elstools.exe decompile-batch` fresh on `kom_contents/data034/DLG_Map_World.lua`
+and `DLG_Map_Local.lua` with no flags beyond `-i`: both decompiled cleanly
+(`"mar-2014 4 lines"` / `"mar-2014 11 lines"`), and a raw byte dump of both
+files' headers (`1B 4B 4C 81`) is byte-identical to known-good siblings
+(`DLG_Map_World_Elios.lua`, `DLG_Map_Local_Sander.lua`) — this **is** valid
+mar-2014 bytecode, not a different container or already-plaintext. One thing
+flagged rather than chased further, since it isn't blocking: both files'
+`kom_contents` timestamps are `2026-09-19 15:01`, ~15 minutes before this
+phase started and a day after every neighboring file in the same folder
+(`2026-09-18 05:39`) — something touched them in between the prior session's
+failed attempt and this one. `elstools/err1.txt` (a leftover Python traceback
+with a matching-sounding "Invalid magic, not a LuaJIT format" error) predates
+even the prior session (`2026-09-17 21:08`) and was ruled out as the cause on
+timestamp grounds alone. Whatever produced the original failure is gone by
+the time of this investigation; note this if it recurs.
+
+**Filename correction to this document's own prior claim.** March-2014's
+`data034` **does** contain a file named `DLG_Map_World_Elios.lua` — the
+earlier "no file by that exact name" note above was wrong (a plain `ls` was
+enough to show it). More importantly, decompiling confirmed it — not
+`DLG_Map_World.lua` — is the actual home of `LocalIDList`:
+`DLG_Map_World.lua` is just `World = { [WMI_ELLIOS] = "DLG_Map_World_Elios.lua" }`,
+4 lines, no per-region list at all. `DLG_Map_World_Elios.lua` decompiled to
+`LocalIDList = { LMI_RUBEN, ..., LMI_HAMEL, LMI_SANDER }` (8 entries, no
+trailing comma on `LMI_SANDER`) — exactly June-2017's own
+`data034_kom/DLG_Map_World_Elios.lua`, minus June's four newer entries
+(`LMI_RANOX, LMI_ELYSION, LMI_EVENT, LMI_SPECIAL`, in that order, right after
+`LMI_SANDER`). `DLG_Map_Local.lua` (`data217_kom` in June2017, but
+March-2014's own copy is `data034`, per this file's `kom_contents` location)
+matched the same pattern: an 8-entry `Local` table identical through
+`LMI_SANDER`, June2017 appending the same four names after it.
+
+**Written**, both as plain decompiled-then-hand-edited text, CRLF preserved,
+matching the repo's own `march2014/data036/Enum.lua`-style plaintext
+convention:
+- `march2014/data034/DLG_Map_World_Elios.lua` — `LocalIDList` gets
+  `LOCAL_MAP_ID.LMI_RANOX` appended immediately after `LMI_SANDER` (comma
+  moved onto the `LMI_SANDER` line, no trailing comma after `LMI_RANOX`,
+  matching June2017's own comma placement for its last-of-the-moment entry).
+- `march2014/data034/DLG_Map_Local.lua` — `Local` table gets
+  `[LOCAL_MAP_ID.LMI_RANOX] = "DLG_Map_Local_Ranox.lua"` appended the same
+  way, immediately after the `LMI_SANDER` row. `DLG_Map_Local_Ranox.lua`
+  itself was already ported correctly in Phase 2
+  (`march2014/update/data217/DLG_Map_Local_Ranox.lua`) — this just makes it
+  reachable.
+- `DLG_Map_World.lua` itself needed **no edit** (already points
+  `WMI_ELLIOS` at `DLG_Map_World_Elios.lua`, which is this build's only
+  `WORLD_MAP_ID` anyway) and so was **not** added to `march2014/`, per the
+  Output convention's "only the files being edited in place" rule — it's
+  correctly absent, not an oversight.
+- Both edits made byte-level (anchor-matched Python, not the Edit tool) even
+  though neither file carries non-ASCII bytes — kept for consistency with
+  this phase group's other edits, not because these two specifically needed
+  it.
+
+**C++ enum — built and verified.** `X2Lib/X2LocationManager.h`'s
+`LOCAL_MAP_ID` (nested inside `CX2LocationManager`, distinct from the
+already-Ranox-complete server-side `LOCAL_MAP_ID` in
+`KncWX2Server/Common/Enum/Enum.h:362-380`) gets one new line,
+`LMI_RANOX = 10008,` immediately after `LMI_CHINA` (itself untouched), with
+an inline comment naming the alias and citing `SERV_CHINA_ADVENTURE`'s
+dead-code status. Matches the value the server-side enum already uses for
+`LMI_RANOX` (added in an earlier phase, `Enum.h:377`) — confirmed by reading
+that file, not assumed. No `SERV_IRUHADEV_` guard, per this phase's own
+instruction: nothing branches on this member's mere existence. Edited via
+the same byte-anchored Python approach (this file **is** CP949-ish —
+`ISO-8859 text` per `file`, Korean comments on neighboring lines) rather than
+the Edit tool, per `CLAUDE.md`'s CP949 corruption warning; re-verified
+`file`'s encoding line unchanged and `git diff --stat` at exactly
+`1 insertion(+)` afterward. `touch X2Lib/stdafx.cpp` then a full `X2Lib`
+`US_SERVICE` rebuild completed at **exit code 0, 0 errors, 0 warnings**
+attributable to this change (pre-existing unrelated warnings only, matching
+prior phases' builds). `X2/X2_2010.vcxproj` (the final `.exe`) was not built
+this phase — same rationale as Item 1's build verification above, a
+header-only addition needs nothing more.
+
+**Lua-side value and parser re-verified, not just assumed from this
+document.** `march2014/data036/Enum.lua:4899` already has
+`LOCAL_MAP_ID.LMI_RANOX = 10008` (an earlier phase's work) — matches the C++
+value added this phase exactly, checked by reading the file rather than
+trusting this plan's own earlier "Phase 2 gave Lua's `LOCAL_MAP_ID.LMI_RANOX`
+[10008]" claim, given this same phase already caught this document wrong once
+today. Also read `CX2LocationManager::OpenScript()`/`LocalParsing()`
+directly (`X2LocationManager.cpp:129-235`): `LocalIDList` is parsed as a
+plain 1-based Lua array with no upper-bound/range check on the `LOCAL_MAP_ID`
+values it contains (the only bound in this function, `worldID < WMI_END`, is
+on the unrelated `WORLD_MAP_ID` loop variable) — so there is no hardcoded
+gate anywhere in this path that would silently drop `LMI_RANOX`. Both new
+files are safe to pack as written.
+
+**Not done, out of this phase's scope, flagged for awareness only**: while
+confirming `DLG_Map_World_Elios.lua`'s location, `kom_contents/data034` was
+seen to also contain `DLG_Map_Local_Ranox_Back_NEW.lua` as **plaintext**
+(not bytecode) with a recent timestamp — an apparent violation of this phase
+group's own "never leave edited output inside `kom_contents/`" rule, from
+some earlier phase (not this one; this phase never wrote to that filename).
+Not investigated or corrected here since it's a different file from either
+of this phase's two targets — worth a look before the next phase that
+touches `kom_contents/data034`.
+
+---
+
 ### Phase 21 — Cobo Express transportation for Ranox
 
 **Goal**: add Ranox to the Cobo Express warp-destination list — the

@@ -124,6 +124,7 @@ class CX2LocationManager
 			LMI_HAMEL,			/// 하멜
 			LMI_SANDER,			/// 샌더
 			LMI_CHINA,			/// 중국이벤트 천조
+			LMI_RANOX = 10008,	/// SERV_IRUHADEV_RANOX_PORT: intentional value alias of LMI_CHINA (dead code -- SERV_CHINA_ADVENTURE is never #defined; only use site X2PartyUI.cpp:1940)
 		};
 
 		enum WORLD_MAP_ID
