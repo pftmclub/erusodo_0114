@@ -780,7 +780,11 @@ m_pMemoryHolder( NULL )
 	m_KOMList.push_back( wszINTKomFileName );
 #endif //ONLY_INT_KOM
 
+#ifdef SERV_IRUHADEV_KOM_FILE_COUNT_226
+    const int KOM_FILE_COUNT = 226;
+#else
     const int KOM_FILE_COUNT = 150;
+#endif SERV_IRUHADEV_KOM_FILE_COUNT_226
     for( int i=1; i<=KOM_FILE_COUNT; i++ )
     {
         if( i < 10 )
@@ -799,7 +803,11 @@ m_pMemoryHolder( NULL )
         m_KOMList.push_back( wszKomFileName );
     }
 
+#ifdef SERV_IRUHADEV_KOM_FILE_COUNT_226
+    const int iKOM_FILE_COUNT = 32;
+#else
     const int iKOM_FILE_COUNT = 23;
+#endif SERV_IRUHADEV_KOM_FILE_COUNT_226
     for( int i=1; i<=iKOM_FILE_COUNT; i++ )
     {
         if( i < 10 )

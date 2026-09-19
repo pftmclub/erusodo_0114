@@ -3898,3 +3898,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              work this port later needs.
 #define SERV_IRUHADEV_RANOX_PORT
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-19
+// Description: Raise the client's .kom mass-file mount count so the Ranox
+//              port's new archives (packed past the old 150/23 ceiling)
+//              actually get opened at startup. X2Main.cpp's KOM_FILE_COUNT
+//              150->226 and iKOM_FILE_COUNT 23->32; missing numbers in that
+//              range are not fatal under US_SERVICE (see AddMassFile call
+//              site - _SERVICE_ is undefined for this config, so a failed
+//              mount just logs KEM_ERROR143 and is skipped).
+#define SERV_IRUHADEV_KOM_FILE_COUNT_226
+//////////////////////////////////////////////////////////////////////////
