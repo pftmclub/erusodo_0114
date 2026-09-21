@@ -320,6 +320,109 @@ Camilla and Ariel now appear (static pose is acceptable for this pass;
 absence is not). Grep `ErrorLog.txt` for `KEM_ERROR246` after the play-test —
 any remaining hits name the next mesh to root-cause.
 
+**Execution notes, 2026-09-22:**
+
+- **Bug A confirmed not packed.** Extracted the live `data034.kom` from
+  `$DATA`, decompiled `DLG_Map_House.lua`, and confirmed `HI_CAMILLA_PVP_HOUSE`
+  still has only the 8 pre-existing world rows in `COMMON_NPC_LOCATION` — no
+  `WI_VILLAGE_RANOX` row. The 10 `WI_VILLAGE_RANOX` hits already present in
+  the live archive all belong to Ranox-exclusive houses (`HI_EDEL`,
+  `HI_STEEL`, `HI_FACEOFF`, `HI_SYOTA`, `HI_IGNIA`, `HI_GUILD_MARK`,
+  `HI_SPA_SIGN_RANOX`, `HI_EVENT_GUILD_EDAN_VILAGE`,
+  `HI_EVENT_BLESS_OF_SOLACE`, `HI_MU`), none of the 5 target houses. Repo's
+  `march2014/data034/DLG_Map_House.lua` test-compiles clean via
+  `elstools compile-batch -v mar-2014` (60,560 bytes) — data fix is correct
+  and ready, only the repack (the user's step, per established convention —
+  see `RANOX_PORT_PLAN.md` Phase 22) is outstanding.
+- **Bug B built and deployed.** Re-enabled the flag (byte-level edit,
+  `KTDXLIB/Always.h`, verified `file`/`git diff --stat` before and after).
+  Confirmed the flag actually reaches `KTDXDeviceXSkinMesh.cpp` before
+  trusting a rebuild: a temporary `#pragma message` inside the `#ifdef`,
+  built KTDXLIB alone, read `RANOX_ANIM_DEGRADE_PROBE_SKINMESH ON` in the
+  compiler output, then removed the probe (clean diff after removal).
+  **Touching only `X2Lib/stdafx.cpp` is not enough** — both `#ifdef` call
+  sites (`KTDXAnimationController.cpp`, `KTDXDeviceXSkinMesh.cpp`) are in
+  `KTDXLIB`, which has its own PCH through `KTDXLIB/stdafx.cpp`; touch both.
+  Full rebuild (`X2ServerProtocol` X2TOOL → `KTDXLIB` → `X2Lib` → `X2`, all
+  US_SERVICE except the first) hit one **unrelated pre-existing bug**:
+  `X2Lib/X2Main.cpp:454` had `wcsrchr( wszSelfPath, L'\' )` — an unescaped
+  backslash character literal (`L'\'` closes the literal on the escaped
+  quote, so the compiler reads past the line: `C2001: newline in constant`).
+  Introduced in `0eab90f` ("Recover CP949-corrupted files, reapply Ranox
+  guard + crash-log fix"), unrelated to this phase's own edits but blocking
+  every build since. Fixed byte-level to `L'\\'` (confirmed 1-line diff,
+  encoding intact). With that fixed, `X2ServerProtocol`/`KTDXLIB`/`X2Lib`/`X2`
+  all built exit 0 (warnings only — pre-existing deprecation/PurpleSDK
+  duplicate-symbol noise). Deployed `X2/US_SERVICE/x2.exe` → `$DATA/
+  X2_offline.exe`, confirmed programmatically (size 18,822,656 bytes match,
+  sole `X2_*.exe` present).
+- **Root-cause, settled — not the same class of question the phase posed.**
+  Parsed `KTDXAnimationController`'s on-disk layout by hand (`KSMHeader` →
+  `KACHeader` → last `KACKeyframedAnimationSet` → its name-string offset) for
+  both files, extracted from the *live* `.kom`, from this repo's own
+  pre-Ranox full archive (`data013_packed.kom`), and from June2017's
+  pristine, never-repacked `data013_kom_ori`. **All three copies of each
+  file are byte-for-byte identical** — nothing in this project's port or
+  repack pipeline truncated them. But the files' own internal metadata
+  independently overruns physical EOF: `Motion_Npc_All_Camilla.x`'s last
+  animation set's name string overruns by **exactly 2 bytes** — the identical
+  signature already confirmed for `Motion_NPC_Ranox_SYOTA.x`/`FACEOFF.x` —
+  and `Motion_Npc_All_Ariel.x`'s overruns by **1 byte**. This is a defect in
+  the original KOG-exported asset itself (present since at least June2017,
+  likely since March 2014 — nothing Ranox-specific about it), not a repack
+  or truncation bug. `SERV_IRUHADEV_RANOX_ANIM_DEGRADE` is therefore the
+  correct general fix, not a Ranox-scoped band-aid that happens to also
+  help here — its comment was just scoped too narrowly when first written.
+  Updated the flag's own comment in `Always.h` to record this. **No further
+  C++ work is owed by this phase.**
+- **Play-tested — both bugs confirmed fixed.** User repacked `data034.kom`
+  (06:14) and play-tested; `ErrorLog.txt` for that session shows zero
+  `KEM_ERROR246` hits. Re-extracted the live `data034.kom` afterward and
+  confirmed `HI_CAMILLA_PVP_HOUSE` now has 15 `WI_VILLAGE_RANOX` mentions
+  total across the file (10 pre-existing Ranox-only houses + the 5 new rows),
+  and decompiled the specific block to confirm the new row landed. Phase 1
+  (Bug A + Bug B) is done.
+
+**New minor issue found in the same play-test session, deferred —
+Camilla's interact prompt doesn't appear in Lanox.** Her mesh renders
+correctly (Bug B's fix), but walking up to her never shows the "press to
+talk" prompt, even though the identical prompt works for her in Hamel.
+Root-caused with a short-lived diagnostic (`SERV_IRUHADEV_CAMILLA_JOINAREA_
+DEBUG`, since reverted — logged `CX2TFieldGame::OnFrameMove`'s
+`fNpcDistance`/`m_NPCJoinArea`/`GetInArea()` for `NUI_CAMILLA` once/sec to
+`ErrorLog.txt`, not `offline_server.log` — `CX2OfflineLog::Server` doesn't
+cover this code path either):
+
+- In Ranox (`world=582`), the closest the player could get was **dist=437.8**
+  against a **joinArea=400** — the prompt's proximity check
+  (`X2TFieldGame.cpp:1839`, `fNpcDistance <= pNpcNode->m_NPCJoinArea`) never
+  passes. The player visibly stalled at ~438 for several seconds (repeated
+  near-identical position samples), consistent with a collision obstacle
+  (the shop counter) blocking closer approach.
+- In Hamel (`world=417`) the same house's per-world row carries a `700`
+  join-area override (`X2LocationManager.h:179-181`'s `m_fLocalJoinArea`,
+  gated by `LOCAL_NPC_JOIN_AREA` which this build has defined) — comfortably
+  covering Hamel's own approach distance.
+- **Checked June2017's own `DLG_Map_House.lua` for the Ranox row we ported
+  from — it carries no join-area override either** (Camilla's row is 7
+  fields, no 8th; Ariel's has an explicit `0`). So this isn't a porting
+  mistake relative to the source — either the original game has the same
+  tight margin, or (more likely) the actual difference is in the ported
+  Ranox collision/LineMap geometry around that counter, not the NPC data.
+- **Deferred, per the user's own call** — not fixed this session. Two
+  honest options for whoever picks this up: (a) add a measured, explicit
+  per-world join-area override (empirically justified by the ~438 distance,
+  e.g. `500`, matching the granularity already used elsewhere) to
+  `march2014/data034/DLG_Map_House.lua`'s `HI_CAMILLA_PVP_HOUSE` Ranox row —
+  quick, but the number isn't sourced from any file; or (b) root-cause
+  whether Ranox's ported collision/LineMap places the counter slightly
+  wrong relative to Camilla's position, which would be the more correct fix
+  and might affect other interactions at that counter too (Ariel sits at
+  the mirrored `-460` position behind the same counter — worth checking
+  once this is picked back up). The debug flag and its `X2TFieldGame.cpp`
+  instrumentation were fully reverted (verified clean `git diff`) and the
+  client rebuilt/redeployed without it before this was left open.
+
 **Kickoff prompt**:
 ```
 Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the

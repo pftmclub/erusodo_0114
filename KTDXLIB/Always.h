@@ -4144,7 +4144,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // (This block was reconstructed 2026-09-21 after the file's working-copy
 // text was destroyed by a UTF-8 mis-decode/re-encode round trip; behavior
 // is unchanged, only this comment is rewritten.)
-//#define SERV_IRUHADEV_RANOX_ANIM_DEGRADE
+// Re-enabled 2026-09-22: root-caused. Motion_Npc_All_Camilla.x and
+// Motion_Npc_All_Ariel.x -- pre-existing, all-village assets, not
+// Ranox-ported files -- hit the identical failure. Parsed both files'
+// KTDXAnimationController block by hand: Camilla's last animation set's
+// name string overruns physical EOF by exactly 2 bytes (matching SYOTA/
+// FACEOFF's signature exactly); Ariel's overruns by 1 byte. Confirmed
+// byte-for-byte identical between the live .kom, this repo's own
+// pre-port full archive, and June2017's pristine _kom_ori copy -- so this
+// is a defect in the original asset itself (a KOG export-tool quirk),
+// not something the Ranox port or any repack step introduced. This flag
+// is therefore the correct general fix, not a Ranox-specific band-aid;
+// its scope was just described too narrowly when first written. See
+// LANOX_DEFECT_PHASES.md Phase 1.
+#define SERV_IRUHADEV_RANOX_ANIM_DEGRADE
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

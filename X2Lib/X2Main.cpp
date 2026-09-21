@@ -451,7 +451,7 @@ inline BOOL WINAPI CrashReportCallback(LPVOID lpvState)
 	// numbers. See VILLAGE_ENTRY_TROUBLESHOOTING.md.
 	WCHAR wszSelfPath[MAX_PATH] = L"";
 	GetModuleFileName( NULL, wszSelfPath, MAX_PATH );
-	WCHAR* pSelfName = wcsrchr( wszSelfPath, L'\' );
+	WCHAR* pSelfName = wcsrchr( wszSelfPath, L'\\' );
 	pSelfName = ( pSelfName != NULL ) ? pSelfName + 1 : wszSelfPath;
 	GetUsingMemorySize( pSelfName, currMemSize, peakMemSize );
 #else
