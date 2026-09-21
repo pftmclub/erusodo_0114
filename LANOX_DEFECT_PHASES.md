@@ -89,7 +89,7 @@ visibly if the file isn't there yet; don't stop and wait.
 | `HOUSE_ID` drifted between C++ and Lua | No — 0 mismatches; `Enum.lua` has one extra (`HI_EVENT_BLESS_OF_SOLACE`) |
 | `StringID_def.lua` renumbered the string table | No — repo file is a strict **superset** of April's (30952 → 45161 entries), **0** renumbered IDs |
 | New `STR_ID`s resolve to empty strings | No — `general.ess` in the game dir has **45160** lines, matching `StringID_def.lua`'s max (45159) |
-| The `SERV_IRUHADEV_FIELDNPC_EMPTY_NPCLIST_GUARD` reapplication widened behaviour | No — `git diff dcde7b3^ HEAD -- X2Lib/X2TFieldNpc.cpp` shows the `#else` arm is the verbatim original; the guard only adds `&& m_NPCList.empty() == false` |
+| The `SERV_IRUHADEV_FIELDNPC_EMPTY_NPCLIST_GUARD` reapplication widened behaviour | No — `git diff dcde7b3^ HEAD -- X2Lib/X2TFieldNpc.cpp` shows the `#else` arm is the verbatim original; the guard only adds `&& m_NPCList.empty() == false`. Re-checked 2026-09-22 against the *old-village* NPC reports: the guard's degrade path fires only for `HI_GUILD_MARK`/`HI_EVENT_GUILD_EDAN_VILAGE`/`HI_EVENT_BLESS_OF_SOLACE`, each of which appears exactly once in `DLG_Map_Village.lua`, inside `VMI_RANOX`'s own `HouseIDList` — it cannot fire for Elder/Bethma/Feita/Hamel/Silent Night Shelter at all, since those villages never instantiate these houses |
 | A missing house block aborts `HouseParsing` (`MessageBox` + `return`, `X2LocationManager.cpp:1109-1113`) | Not triggered — every `HOUSE_ID` in every village's list has a block in `DLG_Map_House.lua` (64 blocks) |
 
 Also, for issue 5 specifically, five more are dead (see Phase 5's own table).
@@ -99,7 +99,22 @@ Also, for issue 5 specifically, five more are dead (see Phase 5's own table).
 - **Issue 1** (no Cobo NPCs in Lanox) → the five shared "common NPC" house
   blocks are in `VMI_RANOX`'s `HouseIDList` but have **no `WI_VILLAGE_RANOX`
   row** in their `COMMON_NPC_LOCATION` table. Luriel is Elder-only *by
-  design*, not a regression.
+  design*, not a regression. **Superseded 2026-09-22 — this was only half the
+  bug.** The user has since reproduced NPCs going missing in Elder, Bethma,
+  Feita, Hamel, and Silent Night Shelter too, which the Lua-row fix above
+  cannot touch (those villages' rows were never missing). Root cause proven
+  from a live `ErrorLog.txt` session: `SERV_IRUHADEV_RANOX_ANIM_DEGRADE`
+  (`KTDXLIB/Always.h:4147`) is currently **commented out** ("Reverted
+  2026-09-20: undefined pending root-cause fix"), so any NPC mesh whose
+  animation-controller section fails to parse (`KEM_ERROR410`/`KEM_ERROR246`)
+  fails its **entire** mesh open instead of degrading — the NPC node is still
+  created but has no mesh, i.e. it's invisible. This is currently hitting
+  `Motion_Npc_All_Camilla.x` and `Motion_Npc_All_Ariel.x` — not Ranox-only
+  ported files — in Hamel, Elder, and Besma alike. **Not**
+  `SERV_IRUHADEV_FIELDNPC_EMPTY_NPCLIST_GUARD`: its degrade path only fires
+  for `HI_GUILD_MARK`/`HI_EVENT_GUILD_EDAN_VILAGE`/`HI_EVENT_BLESS_OF_SOLACE`,
+  which are in `VMI_RANOX`'s `HouseIDList` only (confirmed by grep), and even
+  when it fires it never gates mesh creation. See Phase 1's rewrite.
 - **Issue 2** (dead "Yes"/"Yes" dialog buttons) → ported Ranox house blocks
   carry June-2017 affinity-system flags (`EVENT2`/`EVENT3 = TRUE`) whose
   handlers are empty stubs in this build.
@@ -115,11 +130,20 @@ Also, for issue 5 specifically, five more are dead (see Phase 5's own table).
   `VMI_BATTLE_FIELD_RANOX_REST_00`, so its zone is 0 and the pair is refused.
 - **Issue 7** (crash entering Ashen Land) → 18 missing mesh/motion assets for
   9 field-battle monster types, plus a separately-broken `DLG_UI_BUTTON17.TGA`.
+  **Update 2026-09-22:** the user has packed/fixed the asset problem and can
+  now enter every Lanox field with no crash. New symptom found once the
+  fields actually load: field monsters spawn and die immediately, suspected
+  zero/undefined HP. Opened as Phase 7d — see Phase 7's rewrite.
 - **Issue 8** (no signboard at Behemoth Crater's Lanox end) → not a data gap;
   no code in this build reads a direction-board table at all. The one
   in-engine "points elsewhere" mechanism (`QUEST_GUIDE` indicator) is already
   correctly fed and is merely off by default until the player opens the
-  quick-quest window.
+  quick-quest window. **Clarified 2026-09-22:** the user means the literal
+  physical signboard prop next to the field-end teleport (the "go left/go
+  right" direction marker), not the quest signboard — this was already the
+  correct reading; see Phase 8's rewrite for the added confirmation that
+  `Field_Sander_Stage3_LineMap.lua` (Behemoth Crater's linemap) carries no
+  object/prop table of any kind, only procedural collision/start-pos calls.
 - **Issue 9** (leftmost Lanox teleport lands at the crater's start, not end)
   → the offline emulator drops `m_bNowBattleFieldPositionInfoStartPosition`
   from the join-battlefield ACK; a start-pos *key* is then reinterpreted as a
@@ -139,11 +163,19 @@ data" (Phase 7c).
 
 ---
 
-## Phase 1 — Cobo NPCs missing in Lanox (Luriel / Camilla / Ariel) [issue 1]
+## Phase 1 — NPCs missing across villages (Luriel / Camilla / Ariel / others) [issue 1]
 
 **Paste with:** Starting context + this section.
 
-**Premise correction — this is Lanox-only, not "all villages":**
+**Revision, 2026-09-22 — this is two separate bugs, not one.** The user has
+now confirmed missing NPCs while playing Elder, Bethma, Feita, Hamel, and
+Silent Night Shelter, not just Lanox. The original "Lanox-only" premise below
+is **wrong as a blanket claim** — it correctly diagnosed the Ranox-side gap
+(bug A), but the old-village reports are a second, unrelated bug (bug B) that
+this phase's original Lua fix cannot touch. Both are documented here; do not
+collapse them into one fix.
+
+### Bug A — Ranox's shared houses had no world row (original finding, fixed in data, not yet packed/tested)
 
 - `HI_LUICHEL_HOUSE` (Luriel) appears in `VMI_ELDER` **only**, with **no
   `COMMON_NPC_LOCATION` table at all** — single-village house by design,
@@ -188,20 +220,93 @@ rest.
 existing `WI_VILLAGE_SANDER` row and taking coordinates from June2017's
 `DLG_Map_House.lua` Ranox rows. Do not restructure the table.
 
-**The "all villages" half of the original report is settled by data, not by
-asking.** Old villages' `COMMON_NPC_LOCATION` rows are byte-identical to
-April's, so there's no data cause for Camilla/Ariel to be missing in
-Ruben/Elder — best explained as "missing where the player was standing," i.e.
-Lanox. Do not block on this; fix the Ranox rows and make the scope check a
-step of this phase's own play-test (below). If Camilla/Ariel are *still*
-absent in Elder after the fix, that's a second, runtime defect — open it as
-**Phase 10**, starting from `AddFieldNpc`'s other early-outs
-(`m_HouseList` population in `CX2LocationManager::VillageParsing`, then
-`CreateFieldNpc` returning NULL), not from the Lua.
+**This half is settled by data and still correct as far as it goes:**
+`COMMON_NPC_LOCATION` rows for Elder/Besma/Altera/Peita/Velder/Hamel/Sander
+are present and byte-correct for `HI_CAMILLA_PVP_HOUSE` (confirmed by reading
+the live block, `DLG_Map_House.lua:880-950` — all 9 world rows present
+including the Ranox one this phase added). So bug A's mechanism
+(`CX2TFieldGame::AddFieldNpc`'s `bFindNpcPos` gate, `X2TFieldGame.cpp:3140-3157`)
+is **not** what's hiding Camilla/Ariel in old villages — there's no missing
+row for it to catch. That's what makes this bug B, below, rather than the
+same bug showing up twice.
 
-**Verify:** pack, extract the live `.kom`, confirm bytecode + row present.
+### Bug B — old-village NPCs are invisible because their mesh fails to load, proven from a live session
+
+**Not the guard flag.** `SERV_IRUHADEV_FIELDNPC_EMPTY_NPCLIST_GUARD`
+(`X2TFieldNpc.cpp:1861`, sibling in `X2TFieldNpcShop.cpp:257`) was the first
+suspect named for this investigation. Ruled out on two independent grounds:
+
+1. **Scope.** The guard's degrade path only fires for a house whose
+   `NPC_ID_LIST` is empty or names an ID this build doesn't define — and the
+   three houses that actually hit that (`HI_GUILD_MARK`,
+   `HI_EVENT_GUILD_EDAN_VILAGE`, `HI_EVENT_BLESS_OF_SOLACE`) each appear
+   exactly once in `DLG_Map_Village.lua`, inside `VMI_RANOX`'s own
+   `HouseIDList` (confirmed by grep across the whole file). Elder, Bethma,
+   Feita, Hamel, and Silent Night Shelter never instantiate these houses, so
+   the guard's degrade branch cannot execute there at all.
+2. **Effect.** Even where it does fire, the guard only sets `m_iNpcIndex =
+   -1` and an empty display name — it does not gate mesh creation.
+   `CreateFieldNpc` (`X2TFieldNpc.cpp:1736-1908`) opens `m_pMesh` from
+   `pHouseTemplate->m_NPCMeshName` unconditionally, before the guarded block
+   even runs. A degraded house still renders a mesh; it's just nameless.
+
+**The real cause, found in the game directory's own `ErrorLog.txt`
+(session `2026/9/21 22:15`–`22:22`, `$DATA/ErrorLog.txt`):**
+`Motion_Npc_All_Camilla.x` and `Motion_Npc_All_Ariel.x` — the shared,
+all-village Camilla/Ariel mesh, **not** a Ranox-ported file — fail their
+animation-controller load (`KEM_ERROR410` then `KEM_ERROR246`,
+`KTDXAnimationController.cpp:1525`/`KTDXDeviceXSkinMesh.cpp:1177`) three
+separate times in that one session: once right after `MOTION_NPC_HAMEL_*`
+loads (Hamel), once right after `MOTION_NPC_ELDER_HOFMANN.X` (Elder), and
+once right after `MOTION_NPC_BESMA_CHACHABUK.X` (Besma/Bethma). The exact
+degrade for this failure already exists —
+`SERV_IRUHADEV_RANOX_ANIM_DEGRADE` — but it is currently **commented out**
+(`KTDXLIB/Always.h:4147`):
+
+```
+// Reverted 2026-09-20: undefined pending root-cause fix; the #ifdef
+// blocks in KTDXAnimationController.cpp / KTDXDeviceXSkinMesh.cpp stay in
+// place.
+//#define SERV_IRUHADEV_RANOX_ANIM_DEGRADE
+```
+
+With the flag off, `KTDXDeviceXSkinMesh.cpp:1176-1185`'s `#else` branch
+returns `E_FAIL` on this failure instead of degrading to a static mesh —
+which fails the **entire** X-file open, not just the animation. `m_pMesh`
+comes back NULL, `CreateFieldNpc`'s `if( m_pMesh != NULL )` block never runs,
+and the NPC node exists with nothing to draw: exactly "the NPC is missing,"
+in every village that places Camilla or Ariel, independent of Ranox.
+
+This flag's own comment names it as covering *"some ported June2017 motion
+files... confirmed: `Motion_NPC_Ranox_SYOTA.x`, `FACEOFF.x`"* — i.e. it was
+scoped to Ranox-ported files when written. `Motion_Npc_All_Camilla.x` and
+`Motion_Npc_All_Ariel.x` are pre-existing, all-village assets, so either the
+same 2-byte-short truncation defect (confirmed for SYOTA/FACEOFF) also
+affects these two unrelated files, or a different defect happens to raise the
+same error code. **Not yet distinguished — this is the next open question**,
+not a settled fact; check the two files' tail bytes / size against a
+known-good reference (June2017's copies, or the pre-port March originals)
+before assuming it's the identical corruption.
+
+**Fix, in two parts, same shape as Phase 7b/7a's split:**
+
+1. **Re-enable `SERV_IRUHADEV_RANOX_ANIM_DEGRADE`** (uncomment
+   `KTDXLIB/Always.h:4147`) as the immediate, already-written fix for the
+   visibility symptom — `touch X2Lib/stdafx.cpp`, rebuild, redeploy. This is
+   a KTDXLIB (studio-code) flag, so it stays scoped to the existing
+   `#ifdef`/`#else` sites already in place; no new call sites needed.
+2. **Root-cause why these two non-ported files hit the same failure** — this
+   is the part the flag itself says is still owed ("pending root-cause
+   fix"). Do not consider Bug B closed on step 1 alone; a degraded (static,
+   unanimated) Camilla/Ariel is progress, not the fix.
+
+**Verify:** pack Bug A's Lua fix, extract the live `.kom`, confirm bytecode +
+row present. Rebuild with `SERV_IRUHADEV_RANOX_ANIM_DEGRADE` re-enabled.
 Play-test: walk into Lanox — Camilla, Ariel, postbox, bank, billboard all
-present; walk into Elder — same NPCs still there (scope check).
+present; walk into Elder, Bethma, Feita, Hamel, and Silent Night Shelter —
+Camilla and Ariel now appear (static pose is acceptable for this pass;
+absence is not). Grep `ErrorLog.txt` for `KEM_ERROR246` after the play-test —
+any remaining hits name the next mesh to root-cause.
 
 ---
 
@@ -468,6 +573,13 @@ Silent Night Shelter from Lanox town and back, for a sane, non-zero cost.
 
 **Paste with:** Starting context + this section.
 
+**Update, 2026-09-22 — 7a/7b/7c confirmed done.** The user has fixed the
+asset-loading problem (7a) and can now access every Lanox field with no
+crash. Treat 7a/7b/7c below as closed; do not re-open them without new
+evidence. A **new** issue surfaced once the fields actually load: field
+monsters spawn and die immediately. Opened as **7d**, after the original
+three items.
+
 Three work items. **Do 7b before 7a** — once the assets are packed the crash
 disappears and the NULL-guard becomes unverifiable, i.e. you'd ship an
 untested guard. Order: implement 7b → build/deploy → enter Ashen Land →
@@ -519,11 +631,69 @@ Then pack 7a's assets + 7c's re-exported TGA, extract/confirm, play-test again
 — Ashen Land loads clean, `ErrorLog.txt` gains no new entries for this
 battlefield.
 
+**7d — field monsters spawn and die immediately (new, 2026-09-22).** Not yet
+root-caused; this is the investigation trail so far, not a fix.
+
+- Field-battle monster HP is **not** carried on the spawn request. In the
+  offline emulator, `CX2OfflineBattleField::PickFromGroup`
+  (`X2Lib/Offline/X2OfflineBattleField.cpp:725-761`) fills `KNPCUnitReq` with
+  `m_NPCID`, `m_Level = iStandardMonsterLevel + pChosen->m_iAddLevel`,
+  position, and flags — **no HP field at all**. HP has to be resolved
+  client-side, from `m_NPCID` + `m_Level`, once the request becomes a live
+  unit — that resolution point hasn't been located yet.
+- **`CX2OfflineStatTable::GetUnitStat`
+  (`X2Lib/Offline/X2OfflineStatTable.cpp:298-357`) is probably not the
+  culprit even if it is in this path** — every miss case (`m_mapStat` empty,
+  class not found, level not found) falls back to `SyntheticStat`, which
+  always returns a large positive HP (11250 at level 1 and up). It cannot
+  produce the zero/near-zero HP "dies immediately" implies, so if HP really
+  does resolve through here, something upstream is producing a bad
+  `iUnitClass` for these monsters specifically, not this function itself.
+- The 9 field-monster types named in 7a (`MAG_CHARGER`, `MAG_NOM`,
+  `RAGE_BABYFIG`, `RAGE_DRYAD`, `SMITH_LITTLEWORKER`, `SMITH_MACHINE`,
+  `SMITH_RUNNER`, `SMITH_SCIENCE`, `SMITH_WORKER`) are new `NPC_UNIT_ID`
+  entries added by the port (confirmed present in
+  `march2014/data036/Enum.lua`). If their stat/templet rows were never
+  transcribed into whatever table actually backs monster HP (client-side
+  `CX2UnitManager`/`NPCUnitTemplet` data, or a server-side `StatTable.lua`
+  row keyed by their `UNIT_CLASS`), that's the same "server Lua the client
+  needs" shape as the rule at the top of `CLAUDE.md` — do not hardcode a
+  number for these 9 monsters if that's where this lands.
+- **Next steps, in order:** (1) grep `offline_server.log` /
+  `offline_packets.log` for `STAT` or `WARNING` lines during a Lanox-field
+  play session — `GetUnitStat`'s own `WARNING no rows for class=%d` line
+  would settle whether this function is even in the path. (2) If it's not,
+  find the client-side call site that turns a `KNPCUnitReq` (or its P2P
+  equivalent) into a live `CX2Unit` with initialized HP — likely in
+  `CX2Game`/`CX2BattleFieldGame`'s monster-creation handler — and read what
+  it does when the monster's `UNIT_CLASS` has no matching row. (3) Only once
+  the actual zero-HP mechanism is identified, decide whether the fix is a
+  missing table row (pack it, per the server-Lua rule) or a code gap in the
+  new-monster path.
+
+**Verify (7d):** not yet actionable — no fix exists to test. Once diagnosed,
+fold into a play-test the same way as 7a-c: enter a Lanox field, confirm
+monsters take visible damage over more than one hit and survive contact
+briefly rather than dying on spawn.
+
 ---
 
 ## Phase 8 — No signboard at the Lanox end of Behemoth Crater [issue 8]
 
 **Paste with:** Starting context + this section.
+
+**Clarified, 2026-09-22:** the user means the literal physical signboard
+prop next to the field-end teleport portal — the "go left / go right"
+direction marker model, not the quest-log signboard NPC (`HI_BILLBOARD`).
+This was already the correct reading below; the finding is confirmed, not
+revised. Added confirmation: `march2014/data040/Field_Sander_Stage3_LineMap.lua`
+(Behemoth Crater's own linemap, the file Phase 9 already reads for its
+`AddStartPos` line data) contains **only** procedural `g_pLineMap:` calls —
+`SetLandHeight`, `SetTeamStartPos`, `AddStartPos` — no object, prop, or
+decoration table of any kind, at any line. There is nowhere in this file (or
+any file this build loads, per the search below) for a signboard placement
+to have been dropped from. This closes off the last plausible "maybe it's a
+data table after all" reading.
 
 **There is nothing in the data to fix; this phase is a verification step,
 not a code change.** June2017's `BATTLE_FIELD_DIRECTION_INFO` /
@@ -645,21 +815,26 @@ its start.
 
 ## Verification — batching
 
-**Batch the play-tests — each one costs a "may I launch?" round-trip.** Three
-batches, not nine:
+**Batch the play-tests — each one costs a "may I launch?" round-trip.**
+Updated 2026-09-22 to fold in Phase 1's Bug B and to drop 7a/7b/7c (done):
 
-1. **Lua batch** (phases 1, 2, 3, 4, 6): one `compile-batch` + repack + one
-   play-test covering Lanox common NPCs, Edel/Ignia's dialog buttons,
+1. **Lua batch** (phases 1 Bug A, 2, 3, 4, 6): one `compile-batch` + repack +
+   one play-test covering Lanox common NPCs, Edel/Ignia's dialog buttons,
    Steel/Faceoff/Syota's shops, the dungeon-list tab, the Cobo hop to Silent
    Night Shelter — and Elder, for Phase 1's scope check.
-2. **C++ batch** (phases 7b and 9): one build/deploy/play-test — enter Ashen
-   Land (expect `ErrorLogMsg` lines, no crash) and take the leftmost Lanox
-   teleport (expect the crater's end).
-3. **Asset batch** (7a, 7c, and Phase 4's atlas merge): repack, one
-   play-test.
+2. **C++ batch** (phases 1 Bug B — re-enable `SERV_IRUHADEV_RANOX_ANIM_DEGRADE`
+   — and 9): one build/deploy/play-test — Camilla/Ariel visible (even if
+   static) in Lanox, Elder, Bethma, Feita, Hamel, and Silent Night Shelter;
+   and take the leftmost Lanox teleport (expect the crater's end).
+3. **Asset batch** (Phase 4's atlas merge only — 7a/7c already shipped):
+   repack, one play-test.
 
 Phase 5 may need a fourth pass once its instrumentation lands, but only if
-batch 1 doesn't already resolve it via Phase 4.
+batch 1 doesn't already resolve it via Phase 4. Phase 7d has no batch yet —
+it isn't diagnosed far enough to have a fix to test; add it to whichever
+batch is next once step (2) of its investigation names the actual code path.
+Phase 8 needs no play-test batch at all — it was closed by static reading,
+confirmed rather than revised by the user's clarification.
 
 For every batch: `elstools compile-batch -v mar-2014` → repack → **extract
 the live `.kom` and confirm the bytes** (never trust `kom_contents/` staging)
@@ -676,10 +851,14 @@ presents as the loader's own success line simply vanishing from
 hand-edit.
 
 **Acceptance, defect by defect:** Camilla/Ariel/postbox/bank/billboard
-visible in Lanox; Edel's dialog shows no dead Event buttons and Ignia shows
-its intended ones; Steel/Faceoff/Syota shops list stock; a Lanox tab appears
-in the dungeon list; BurnedForest is selectable at level ≥ 68; Cobo Express
-reaches Silent Night Shelter; Ashen Land loads without crashing and
-`ErrorLog.txt` is clean of the 18 assets; the Behemoth Crater quest-guide
-particle appears when toggled on (signboard itself is out of scope — art
-task); the leftmost Lanox teleport lands at the crater's end.
+visible in Lanox, **and also in Elder, Bethma, Feita, Hamel, and Silent Night
+Shelter** (Phase 1, both bugs); Edel's dialog shows no dead Event buttons and
+Ignia shows its intended ones; Steel/Faceoff/Syota shops list stock; a Lanox
+tab appears in the dungeon list; BurnedForest is selectable at level ≥ 68;
+Cobo Express reaches Silent Night Shelter; Ashen Land loads without crashing
+and `ErrorLog.txt` is clean of the 18 assets (done); field monsters survive
+more than one hit rather than dying on spawn (Phase 7d, still open — no
+acceptance criterion until it's diagnosed further); the Behemoth Crater
+quest-guide particle appears when toggled on (the physical signboard itself
+is confirmed out of scope — art task, not a bug); the leftmost Lanox teleport
+lands at the crater's end.
