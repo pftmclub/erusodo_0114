@@ -1858,9 +1858,46 @@ void CX2TFieldNpc::CreateFieldNpc(CX2World *pWorld, CX2LocationManager::HouseTem
 	    }
     }//if.. else..
 
+#ifdef SERV_IRUHADEV_FIELDNPC_EMPTY_NPCLIST_GUARD
+	// Iruha : 2026-09-21 : a house whose DLG_Map_House.lua block has no
+	// NPC_ID_LIST (HI_GUILD_MARK) or whose first NPC_UNIT_ID is undefined
+	// in this build (HI_EVENT_GUILD_EDAN_VILAGE, HI_EVENT_BLESS_OF_SOLACE)
+	// parses m_NPCList to an empty vector -- confirmed cause of the Ranox
+	// village-entry hang (m_NPCList[0] out-of-bounds, then a NULL
+	// GetNPCUnitTemplet() dereference). Degrade to an unnamed NPC instead
+	// of faulting. See VILLAGE_ENTRY_TROUBLESHOOTING.md.
+	if(m_bStaticMesh == false && pHouseTemplate->m_NPCList.empty() == false)
+	{
+		m_iNpcIndex = pHouseTemplate->m_NPCList[0];
+		const CX2UnitManager::NPCUnitTemplet* pNpcTemplet =
+			g_pData->GetUnitManager()->GetNPCUnitTemplet( (CX2UnitManager::NPC_UNIT_ID)m_iNpcIndex );
+		if( pNpcTemplet != NULL )
+		{
+			m_strNpcName = pNpcTemplet->m_Name;
+		}
+		else
+		{
+			m_strNpcName = L"";
+			std::wstringstream strstm;
+			strstm << L"[RANOXDBG] house " << (int)pHouseTemplate->m_ID << L" NPC " << m_iNpcIndex << L" has no NPCTemplet row";
+			ErrorLogMsg( 0, strstm.str().c_str() );
+		}
+	}
+	else
+	{
+		m_iNpcIndex = -1;
+		m_strNpcName = L"";
+		if( m_bStaticMesh == false )
+		{
+			std::wstringstream strstm;
+			strstm << L"[RANOXDBG] house " << (int)pHouseTemplate->m_ID << L" has an empty NPC_ID_LIST - unnamed NPC";
+			ErrorLogMsg( 0, strstm.str().c_str() );
+		}
+	}
+#else
 	if(m_bStaticMesh == false)
 	{
-		m_iNpcIndex = pHouseTemplate->m_NPCList[0];		
+		m_iNpcIndex = pHouseTemplate->m_NPCList[0];
 		m_strNpcName = g_pData->GetUnitManager()->GetNPCUnitTemplet( (CX2UnitManager::NPC_UNIT_ID)m_iNpcIndex )->m_Name;
 	}
 	else
@@ -1868,6 +1905,7 @@ void CX2TFieldNpc::CreateFieldNpc(CX2World *pWorld, CX2LocationManager::HouseTem
 		m_iNpcIndex = -1;
 		m_strNpcName = L"";
 	}
+#endif SERV_IRUHADEV_FIELDNPC_EMPTY_NPCLIST_GUARD
 	
 	m_bEventNpc = pHouseTemplate->m_bEventNpc;
 

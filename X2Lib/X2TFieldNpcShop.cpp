@@ -250,11 +250,29 @@ void CX2TFieldNpcShop::RegisterLuaBind()
     lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(),  "g_pTFieldNpcShop", this );
 }
 
-void CX2TFieldNpcShop::SetNpcId(int npcId, wstring houseName) 
-{ 
-	m_iNpcID = npcId; 
+void CX2TFieldNpcShop::SetNpcId(int npcId, wstring houseName)
+{
+	m_iNpcID = npcId;
 
+#ifdef SERV_IRUHADEV_FIELDNPC_EMPTY_NPCLIST_GUARD
+	// Iruha : 2026-09-21 : sibling of the X2TFieldNpc.cpp:1861 guard -- a
+	// house degraded to m_iNpcIndex == -1 (no NPC_ID_LIST, or an
+	// NPC_UNIT_ID undefined in this build) reaches here via
+	// CreateFieldNpc's SetNpcId() call, and GetNPCUnitTemplet(-1) is a map
+	// lookup miss (NULL). strShopName below is dead -- never read after
+	// this point -- so the NULL-safe fix is simply not to deref it.
+	// See VILLAGE_ENTRY_TROUBLESHOOTING.md.
+	const CX2UnitManager::NPCUnitTemplet* pNpcTemplet =
+		g_pData->GetUnitManager()->GetNPCUnitTemplet( (CX2UnitManager::NPC_UNIT_ID)m_iNpcID );
+	if( pNpcTemplet == NULL )
+	{
+		std::wstringstream strstm;
+		strstm << L"[RANOXDBG] SetNpcId: npc " << m_iNpcID << L" has no NPCTemplet row (house '" << houseName << L"')";
+		ErrorLogMsg( 0, strstm.str().c_str() );
+	}
+#else
 	wstring strShopName = g_pData->GetUnitManager()->GetNPCUnitTemplet( (CX2UnitManager::NPC_UNIT_ID)m_iNpcID )->m_Name;
+#endif SERV_IRUHADEV_FIELDNPC_EMPTY_NPCLIST_GUARD
 	wstring strHouseName = houseName;
 
 	SetHouseName(strHouseName);

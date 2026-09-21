@@ -440,7 +440,23 @@ void CALLBACK CrashPostCallBack(INT_PTR nErrHandlerParam)
 inline BOOL WINAPI CrashReportCallback(LPVOID lpvState)
 {
 	SIZE_T currMemSize=0, peakMemSize=0;
+#ifdef SERV_IRUHADEV_CRASHLOG_REAL_EXE_NAME
+	// Iruha : 2026-09-21 : GetUsingMemorySize() matches by substring against
+	// the running module's full path. The literal "X2.exe" never matches a
+	// deployed "X2_offline.exe" (or any other X2_*.exe build in the game
+	// directory), so every "mem: curr-N, peak-N" line in State.log read
+	// curr-0, peak-0 during the Ranox village-entry hang. Use this
+	// process's own module name instead, so the fault counter that line
+	// already is (one per CrashReportCallback invocation) carries real
+	// numbers. See VILLAGE_ENTRY_TROUBLESHOOTING.md.
+	WCHAR wszSelfPath[MAX_PATH] = L"";
+	GetModuleFileName( NULL, wszSelfPath, MAX_PATH );
+	WCHAR* pSelfName = wcsrchr( wszSelfPath, L'\' );
+	pSelfName = ( pSelfName != NULL ) ? pSelfName + 1 : wszSelfPath;
+	GetUsingMemorySize( pSelfName, currMemSize, peakMemSize );
+#else
 	GetUsingMemorySize( L"X2.exe", currMemSize, peakMemSize );
+#endif SERV_IRUHADEV_CRASHLOG_REAL_EXE_NAME
 	WCHAR wszText[64] = L"";
 	swprintf( wszText, sizeof(wszText)/sizeof(WCHAR)-1, L"mem: curr-%d, peak-%d", currMemSize, peakMemSize );
 	StateLog( wszText );
