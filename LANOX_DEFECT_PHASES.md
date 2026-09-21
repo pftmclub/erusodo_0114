@@ -161,6 +161,18 @@ When all phases are complete, fold results back into
 `DLG_UI_BUTTON17.TGA` entry from "not merged yet" to "present but invalid
 data" (Phase 7c).
 
+**Kickoff prompt** (only once every other phase you care about is actually
+done — this is bookkeeping, not a bug fix):
+```
+Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
+repo root in full. Phase 0 (writing that document) is already done; the only
+work it still owes is folding the finished phases' results back into
+LANOX_TROUBLESHOOTING.md's "Known-open items" section -- in particular
+promoting the DLG_UI_BUTTON17.TGA entry from "not merged yet" to "present but
+invalid data" (Phase 7c). Do this once, summarizing what each closed phase
+changed; don't touch phases that are still open.
+```
+
 ---
 
 ## Phase 1 — NPCs missing across villages (Luriel / Camilla / Ariel / others) [issue 1]
@@ -308,6 +320,47 @@ Camilla and Ariel now appear (static pose is acceptable for this pass;
 absence is not). Grep `ErrorLog.txt` for `KEM_ERROR246` after the play-test —
 any remaining hits name the next mesh to root-cause.
 
+**Kickoff prompt**:
+```
+Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
+repo root in full -- especially the "Starting context" block, the
+"Investigation ledger" section (do not re-derive the 9 disproved hypotheses
+or re-litigate the already-proven root causes there), and "Phase 1". Branch:
+mods/lanox-port. Do NOT consult NEW_VILLAGE_PLAN.md,
+NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the mods/lanox-offline branch.
+
+Fix philosophy: stay as close to the original/studio code as possible -- no
+hardcoded tables, no invented curves, no guessed values. Never launch
+X2_offline.exe without asking first, every time.
+
+Your task: Phase 1 is two separate bugs, not one -- do not collapse them.
+
+Bug A (Ranox's own shared houses) is already fixed in data (DLG_Map_House.lua
+rows added for HI_CAMILLA_PVP_HOUSE, HI_ARIEL_EVENT_HOUSE, HI_POSTBOX,
+HI_PRIVATE_BANK, HI_BILLBOARD) but not yet packed or play-tested -- confirm
+it's packed (elstools compile-batch -v mar-2014, then extract the LIVE .kom
+and confirm the bytes, never trust kom_contents/ staging) and verify in a
+play-test.
+
+Bug B (Elder/Bethma/Feita/Hamel/Silent Night Shelter missing Camilla/Ariel)
+is a client-code fix: re-enable SERV_IRUHADEV_RANOX_ANIM_DEGRADE
+(KTDXLIB/Always.h:4147, currently commented out), touch X2Lib/stdafx.cpp,
+rebuild US_SERVICE in order (X2ServerProtocol X2TOOL -> KTDXLIB -> X2Lib ->
+X2), redeploy, and play-test. Re-enabling the flag is NOT the whole fix --
+the phase also owes a root-cause for why Motion_Npc_All_Camilla.x and
+Motion_Npc_All_Ariel.x (pre-existing, all-village assets, not Ranox-ported
+files) hit the same animation-controller failure as the Ranox-ported
+SYOTA/FACEOFF files the flag was written for. Compare these two files' tail
+bytes/size against a known-good reference (June2017's copies, or the
+pre-port March originals) before assuming it's the identical 2-byte-short
+truncation defect.
+
+Verify: play-test Lanox (Camilla/Ariel/postbox/bank/billboard present) and
+Elder/Bethma/Feita/Hamel/Silent Night Shelter (Camilla/Ariel now appear,
+static pose acceptable for this pass). Grep ErrorLog.txt for KEM_ERROR246
+afterward -- any remaining hits name the next mesh to root-cause.
+```
+
 ---
 
 ## Phase 2 — Lanox NPC dialog shows two dead "Yes"/"Yes" buttons [issue 2]
@@ -345,6 +398,35 @@ actually reads) and add it.
 
 **Verify:** pack, extract, confirm. Play-test: talk to Edel — no dead Event
 buttons; talk to Ignia — has its intended buttons.
+
+**Kickoff prompt**:
+```
+Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
+repo root in full -- especially "Starting context", the "Investigation
+ledger", and "Phase 2". Branch: mods/lanox-port. Do NOT consult
+NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch.
+
+Fix philosophy: stay as close to the original/studio code as possible -- no
+hardcoded tables, no invented curves, no guessed values. Never launch
+X2_offline.exe without asking first, every time.
+
+Your task: remove EVENT2 = TRUE / EVENT3 = TRUE and their orphaned affinity
+keys (NPC_TALK_LIST0..3, Receive_*_Gift_Talk, Gift_UI_Talk,
+Every_Day_Reward_Talk, Level_Up_Talk) from the ported Ranox house blocks in
+DLG_Map_House.lua: HI_EDEL, HI_STEEL, HI_FACEOFF, HI_SYOTA,
+HI_EVENT_GUILD_EDAN_VILAGE. Do NOT implement NMUM_EVENT2/3 -- they're entry
+points to a system this build doesn't have; implementing them would be new
+functionality, not a port fix. Separately, HI_IGNIA has no menu flags at all
+-- determine the correct flag set from June2017's block (filtered to keys
+this build actually reads) and add it.
+
+Pack with elstools compile-batch -v mar-2014, repack, extract the LIVE .kom
+and confirm the bytes (never kom_contents/ staging).
+
+Verify: play-test -- talk to Edel (no dead Event buttons), talk to Ignia
+(has its intended buttons).
+```
 
 ---
 
@@ -393,6 +475,34 @@ the fallback path would otherwise have populated something.
 **Verify:** pack, extract, confirm. Play-test: Steel/Faceoff/Syota all list
 real, purchasable stock.
 
+**Kickoff prompt**:
+```
+Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
+repo root in full -- especially "Starting context", the "Investigation
+ledger", and "Phase 3". Branch: mods/lanox-port. Do NOT consult
+NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch.
+
+Fix philosophy: stay as close to the original/studio code as possible -- no
+hardcoded tables, no invented curves, no guessed values. Never launch
+X2_offline.exe without asking first, every time.
+
+Your task: extract the live ShopItem.lua from its .kom and add an
+AddShopItemList_LUA{ VILLIAGE_ID = VILLAGE_MAP_ID["VMI_RANOX"], ... } block
+modelled byte-for-byte on the existing VMI_SANDER block, with SALE_ITEM_NPC
+rows for Steel (NUI_STEEL/HI_STEEL), Faceoff (NUI_FACEOFF/HI_FACEOFF), and
+Syota (NUI_SYOTA/HI_SYOTA) -- see Phase 3's table for each NPC's flags. Item
+IDs come from June2017's ShopItem.lua, filtered to items that exist in this
+build's ItemTemplet -- drop entries that don't resolve, never invent
+replacements. Check whether VMI_BATTLE_FIELD_RANOX_REST_00 needs its own
+vendor block too (the file is keyed per map, not per region).
+
+Pack with elstools compile-batch -v mar-2014, repack, extract the LIVE .kom
+and confirm the bytes (never kom_contents/ staging).
+
+Verify: play-test -- Steel/Faceoff/Syota all list real, purchasable stock.
+```
+
 ---
 
 ## Phase 4 — No Lanox tab in the dungeon list [issue 4]
@@ -433,6 +543,41 @@ Related latent gap, log but don't fix here: `X2LocationManager.h:487`
 
 **Verify:** pack + atlas repack, extract, confirm. Play-test: dungeon list
 shows a Lanox tab alongside Sander's.
+
+**Kickoff prompt**:
+```
+Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
+repo root in full -- especially "Starting context", the "Investigation
+ledger", and "Phase 4". Branch: mods/lanox-port. Do NOT consult
+NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch.
+
+Fix philosophy: stay as close to the original/studio code as possible -- no
+hardcoded tables, no invented curves, no guessed values. Never launch
+X2_offline.exe without asking first, every time.
+
+Your task: stage data034/DLG_UI_Local_Map_NEW.lua from
+.../237311/24965799/march_data/data034/ and hand-add a 9th CreateRadioButton
+(AddDummyInt(LOCAL_MAP_ID.LMI_RANOX), SetCustomMsgChecked with
+LMUCM_DUNGEON_GATE_SELECTED, same SetGroupID as the other 8). Do NOT copy
+June2017's file wholesale -- it references LMUCM_LOCAL_MAP_ARROW_LEFT/RIGHT
+and LMI_ELYSION/LMI_EVENT/LMI_SPECIAL, none of which exist in this build.
+Also merge RANOX_BTN_NORMAL/OVER/DOWN into March's DLG_UI_Button20_NEW.tga
+(June uses a different atlas/button naming). Phase 7's 2026-09-22 update
+marked its TGA-format finding (7c, DLG_UI_BUTTON17.TGA failing
+D3DXERR_INVALIDDATA) as CLOSED -- read that finding before this merge and
+carry forward whatever format fix it used (bit depth / RLE / origin bit /
+non-power-of-two), since this atlas merge presumably goes through the same
+export path.
+
+Pack with elstools compile-batch -v mar-2014, repack the atlas, extract the
+LIVE .kom and confirm the bytes (never kom_contents/ staging).
+
+Verify: play-test -- dungeon list shows a Lanox tab alongside Sander's. Note
+(don't fix here): X2LocationManager.h:487 IsVillageField() and
+X2WorldMapUI.cpp:2457 both bound VMI_RUBEN..VMI_SANDER, excluding VMI_RANOX
+-- zero callers today, just log it.
+```
 
 ---
 
@@ -501,6 +646,40 @@ scalar `requireDungeonID` would diverge from the studio's own data pattern.
 **Verify:** after Phase 4's fix, re-test the dungeon tab directly. If still
 locked, apply steps 2-3, rebuild, redeploy, re-test.
 
+**Kickoff prompt**:
+```
+Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
+repo root in full -- especially "Starting context", the "Investigation
+ledger" (Phase 5 has its own table of 5 additional dead hypotheses -- do not
+redo any of those either), and "Phase 5". Branch: mods/lanox-port. Do NOT
+consult NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch.
+
+Fix philosophy: stay as close to the original/studio code as possible -- no
+hardcoded tables, no invented curves, no guessed values. Never launch
+X2_offline.exe without asking first, every time.
+
+Your task: do Phase 4 first (or confirm it's already landed) and re-observe
+-- with no LMI_RANOX radio button, what the user saw as "locked" was most
+likely the Lanox local-map gates (DLG_Map_Local_Ranox.lua) rather than the
+dungeon-list dialog, so Phase 4's fix may make this phase evaporate. If
+still locked after that: check the gate-to-dungeon wiring in
+DLG_Map_Local_Ranox.lua against a working region's file (does each gate's
+dungeon binding name a DUNGEON_ID this build has; is the unconditional
+Ranox_SECRET_DUNGEON_LOCK sprite drawn over more buttons than just Secret
+Hell's). Only then instrument: add a short-lived
+SERV_IRUHADEV_RANOXDBG_DUNGEON flag logging, per Ranox DUNGEON_ID, whether
+GetDungeonData returned NULL and what IsActiveDungeon decided -- use
+ErrorLogMsg, not CX2OfflineLog::Server (it isn't open during this parsing
+path). Do NOT "fix" GetNextDungeon -- ignoring m_vecExtraRequireDungeonID is
+a pre-existing engine quirk March's own Sander chain also relies on.
+
+Verify: re-test the dungeon tab directly after Phase 4. If still locked,
+apply the wiring check and instrumentation, rebuild (touch
+X2Lib/stdafx.cpp, US_SERVICE order X2ServerProtocol -> KTDXLIB -> X2Lib ->
+X2), redeploy, re-test -- BurnedForest should be selectable at level >= 68.
+```
+
 ---
 
 ## Phase 6 — Cobo Express into Silent Night Shelter refused [issue 6]
@@ -566,6 +745,36 @@ copy, editing it is optional bookkeeping.
 
 **Verify:** pack, extract, confirm bytecode. Play-test: Cobo Express reaches
 Silent Night Shelter from Lanox town and back, for a sane, non-zero cost.
+
+**Kickoff prompt**:
+```
+Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
+repo root in full -- especially "Starting context", the "Investigation
+ledger", and "Phase 6". Branch: mods/lanox-port. Do NOT consult
+NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch.
+
+Fix philosophy: stay as close to the original/studio code as possible -- no
+hardcoded tables, no invented curves, no guessed values. Never launch
+X2_offline.exe without asking first, every time.
+
+Your task, both parts in the same pass or you trade one bug for another:
+(1) add VMI_RANOX + its 4 fields returning zone 15, and
+VMI_BATTLE_FIELD_RANOX_REST_00 returning zone 16, to the
+CheckCOBOExpressTicketMapID ladder in data036/MapData.lua (follow the Sander
+13/14 precedent verbatim; zone 16 is safe, every C++ consumer only compares
+against 0). (2) Restore ComputeCOBOExpressTicketCost in the same file -- it's
+a broken decompile (references an unassigned slot6) -- from the
+un-decompiled original at KncWX2Server/ServerResource/US/MapData.lua:642+
+(d = math.abs(iDesID - iSrcID)). Skipping part 2 turns the fixed refusal
+into a silent free warp once part 1 makes the Lua reachable.
+
+Pack with elstools compile-batch -v mar-2014, repack, extract the LIVE .kom
+and confirm the bytecode (never kom_contents/ staging).
+
+Verify: play-test -- Cobo Express reaches Silent Night Shelter from Lanox
+town and back, for a sane non-zero cost.
+```
 
 ---
 
@@ -676,6 +885,45 @@ fold into a play-test the same way as 7a-c: enter a Lanox field, confirm
 monsters take visible damage over more than one hit and survive contact
 briefly rather than dying on spawn.
 
+**Kickoff prompt** (scoped to 7d only — 7a/7b/7c are closed):
+```
+Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
+repo root in full -- especially "Starting context", the "Investigation
+ledger", and "Phase 7". Branch: mods/lanox-port. Do NOT consult
+NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch.
+
+Fix philosophy: stay as close to the original/studio code as possible -- no
+hardcoded tables, no invented curves, no guessed values. Where the true fix
+is server-side data the user must pack, implement the whole feature with a
+degrade-if-missing path anyway. Never launch X2_offline.exe without asking
+first, every time.
+
+7a/7b/7c are CLOSED -- the user has already fixed asset loading and can
+enter every Lanox field with no crash. Do not re-open them without new
+evidence; this kickoff is scoped to 7d only.
+
+Your task (7d): field monsters spawn and die immediately in Lanox fields.
+Not yet root-caused. Next steps, in order: (1) grep offline_server.log /
+offline_packets.log for STAT or WARNING lines during a Lanox-field play
+session -- CX2OfflineStatTable::GetUnitStat's own "WARNING no rows for
+class=%d" line would settle whether this function is even in the path (it
+probably isn't the culprit even if it is in the path -- every miss case
+falls back to SyntheticStat, which always returns a large positive HP). (2)
+If it's not in the path, find the client-side call site that turns a
+KNPCUnitReq (or its P2P equivalent) into a live CX2Unit with initialized HP
+-- likely in CX2Game/CX2BattleFieldGame's monster-creation handler -- and
+read what it does when the monster's UNIT_CLASS has no matching row. (3)
+Only once the actual zero-HP mechanism is identified, decide whether the fix
+is a missing table row (this is the server-Lua-the-client-needs shape --
+pack it, name the exact file when reporting done, do not hardcode a number
+for these 9 monsters) or a code gap in the new-monster path.
+
+Verify: not yet actionable until diagnosed. Once a fix exists, play-test --
+enter a Lanox field, confirm monsters take visible damage over more than one
+hit and survive contact briefly rather than dying on spawn.
+```
+
 ---
 
 ## Phase 8 — No signboard at the Lanox end of Behemoth Crater [issue 8]
@@ -746,6 +994,31 @@ the game, not just Lanox's.
 
 **Verify:** the quick-quest toggle check above, no rebuild needed.
 
+**Kickoff prompt**:
+```
+Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
+repo root in full -- especially "Starting context", the "Investigation
+ledger", and "Phase 8". Branch: mods/lanox-port. Do NOT consult
+NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch.
+
+This phase is a verification step, not a code change -- there is nothing in
+the data or engine to fix; do not add BATTLE_FIELD_DIRECTION_INFO rows
+(nothing reads them in this build) and do not weaken the
+m_bUserShowQuickQuestDLG gate to force the guide particle on (that changes
+behaviour for every field in the game, not just Lanox's).
+
+Your task: in Sander Field 04 (Behemoth Crater), toggle the quick-quest
+window on and look for the QUEST_GUIDE guide particle near the field's end.
+The data (BattleFieldData.lua's PMT_MOVE_TO_VILLAGE portal to VMI_RANOX at
+LINE_NUMBER=124) is already confirmed correct, so if the particle appears,
+record that the engine-side pointer works and the phase is closed. The
+physical signboard prop itself is scene geometry in the map mesh -- an art
+task the user owns, not a code or data fix; do not attempt one.
+
+Verify: the quick-quest toggle check above. No rebuild needed.
+```
+
 ---
 
 ## Phase 9 — Leftmost Lanox teleport lands at the crater's start, not end [issue 9]
@@ -810,6 +1083,43 @@ studio code and definitely gets its own flag.)
 **Verify:** build/deploy, play-test: take the leftmost Lanox teleport into
 Behemoth Crater, confirm arrival at the field's *end* (near line 122), not
 its start.
+
+**Kickoff prompt**:
+```
+Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
+repo root in full -- especially "Starting context", the "Investigation
+ledger", and "Phase 9". Branch: mods/lanox-port. Do NOT consult
+NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
+mods/lanox-offline branch.
+
+Fix philosophy: stay as close to the original/studio code as possible -- no
+hardcoded tables, no invented curves, no guessed values. Never launch
+X2_offline.exe without asking first, every time.
+
+This is an offline-emulator bug, not Lanox data -- the Lua
+(DLG_Map_Village.lua's Lanox west-exit block, Field_Sander_Stage3_LineMap's
+AddStartPos(177,...)) is already correct and must not be changed.
+
+Your task: in X2Lib/Offline/Handlers_Room.cpp, at both
+Handler_EGS_JOIN_BATTLE_FIELD_REQ ACK builders (around line 1278 and line
+1365), echo m_bNowBattleFieldPositionInfoStartPosition and
+m_usBattleFieldPositionValue from kReq -- they're currently left zeroed,
+which is why a start-pos key (177) gets reinterpreted as a raw line index
+and resolves to NULL. This also un-breaks the portal-re-entry path, which
+loses its position value the same way. Before editing, check how the
+nearest existing fixes in Handlers_Room.cpp are marked (a nested
+SERV_IRUHADEV_* flag, or a plain //{{ Iruha : <date> block) and match that
+style -- X2Lib/Offline/ is entirely ours and already lives inside
+SERV_IRUHADEV_OFFLINE, so this doesn't need its own new flag the way a
+KTDXLIB studio-code fix would.
+
+Build (touch X2Lib/stdafx.cpp if you touched any header, US_SERVICE order
+X2ServerProtocol -> KTDXLIB -> X2Lib -> X2), deploy, and ask before
+launching.
+
+Verify: play-test -- take the leftmost Lanox teleport into Behemoth Crater,
+confirm arrival at the field's end (near line 122), not its start.
+```
 
 ---
 
