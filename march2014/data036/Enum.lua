@@ -4815,7 +4815,22 @@ HOUSE_ID = {
 	HI_DAISY = 40042,
 	HI_EVENT_NPC2 = 40023,
 	HI_LUCY = 40041,
-	HI_EVENT_BENDERS = 40058
+	HI_EVENT_BENDERS = 40058,
+--{{ Iruha : 2026-09-19 // Ranox port Phase 28 -- 11 HOUSE_ID values Ranox
+-- town HouseIDList references but this build never defined. Values verbatim
+-- from June2017 Enum.lua, checked for zero collisions against every value
+-- this table already assigns. See LANOX_TROUBLESHOOTING.md.
+	HI_EDEL = 40074,
+	HI_STEEL = 40075,
+	HI_FACEOFF = 40076,
+	HI_SYOTA = 40077,
+	HI_IGNIA = 40078,
+	HI_GUILD_MARK = 40083,
+	HI_STORY_QUEST = 40130,
+	HI_TRANSCEND_QUEST = 40140,
+	HI_SPA_SIGN_RANOX = 40142,
+	HI_EVENT_GUILD_EDAN_VILAGE = 40090,
+	HI_EVENT_BLESS_OF_SOLACE = 40129
 }
 VILLAGE_MAP_ID = {
 	VMI_DUNGEON_LOUNGE_HAMEL = 30006,

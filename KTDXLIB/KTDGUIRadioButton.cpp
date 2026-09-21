@@ -251,7 +251,27 @@ HRESULT CKTDGUIRadioButton::OnFrameRender()
 		D3DXVECTOR2 pos;
 		pos = m_pStringData->pos + m_pDialog->GetPos() + m_OffsetPos;		
 		//pFont->Draw2DText( m_pStringData->msg.c_str(), (int)pos.x, (int)pos.y, tempColor, tempOutLineColor, m_pStringData->sortFlag, m_pStringData->fontStyle );
+#ifdef SERV_IRUHADEV_RADIOBUTTON_FONT_DEGRADE
+		// Iruha : 2026-09-20 : GetUKFont() (KTDGUIDialogManager.h) uses
+		// std::map::operator[] and returns NULL for any unregistered
+		// fontIndex -- confirmed cause of a real crash (0xC0000005 inside
+		// this function, per Windows Error Reporting + a linker map lookup)
+		// hit while loading the Lanox village. Log which control/fontIndex
+		// hit it and skip the draw instead of crashing. See
+		// LANOX_TROUBLESHOOTING.md.
+		if ( pFont != NULL )
+		{
+			pFont->OutTextMultiline( (int)pos.x, (int)pos.y, m_pStringData->msg.c_str(), tempColor, m_pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, m_pStringData->sortFlag );
+		}
+		else
+		{
+			std::wstringstream strstm;
+			strstm << L"[RANOXDBG] RadioButton GetUKFont NULL fontIndex=" << m_pStringData->fontIndex << L" msg=" << m_pStringData->msg;
+			ErrorLogMsg( 0, strstm.str().c_str() );
+		}
+#else
 		pFont->OutTextMultiline( (int)pos.x, (int)pos.y, m_pStringData->msg.c_str(), tempColor, m_pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, m_pStringData->sortFlag );
+#endif SERV_IRUHADEV_RADIOBUTTON_FONT_DEGRADE
 	}
 	
 

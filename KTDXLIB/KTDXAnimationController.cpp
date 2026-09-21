@@ -1591,8 +1591,20 @@ static HRESULT _ReadFromMemoryDeserializer( const KMemoryDeserializer& kInMemory
             if ( pszName == NULL )
             {
                 ErrorLog( KEM_ERROR410 );
+#ifdef SERV_IRUHADEV_RANOX_ANIM_DEGRADE
+                // Iruha : 2026-09-20 : some ported June2017 motion files
+                // (confirmed: Motion_NPC_Ranox_SYOTA.x, FACEOFF.x) are short
+                // by exactly 2 bytes at the end of the file -- only the LAST
+                // animation set's name string is affected, since nothing
+                // follows it in the buffer to absorb a missing trailing
+                // alignment pad older exports apparently included. A name is
+                // optional data (D3DX accepts NULL); degrade to unnamed
+                // instead of aborting the whole animation set. pszName stays
+                // NULL (its own initializer). See LANOX_TROUBLESHOOTING.md.
+#else
                 ASSERT( !"invalid name format" );
                 return E_FAIL;
+#endif SERV_IRUHADEV_RANOX_ANIM_DEGRADE
             }//if
         }//if
 

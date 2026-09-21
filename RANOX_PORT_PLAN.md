@@ -4786,6 +4786,51 @@ CLAUDE.md's standard offline-mode verification loop.
 
 ---
 
+### Phase 22 execution notes (2026-09-19) — build/deploy done, play-test surfaced a Phase 20 miss
+
+**Build+deploy**: `X2ServerProtocol` (X2TOOL) → `KTDXLIB` (US_SERVICE) → `X2Lib` (US_SERVICE, full rebuild after `touch stdafx.cpp`) → `X2` (US_SERVICE) all built exit 0. `X2/US_SERVICE/x2.exe` (18,805,248 bytes) confirmed to contain the UTF-16LE literals `Village_20008`/`Village_1007` (Phase 21's flag-gated code survived linking, not just compiling). Deployed to the game directory as `X2_offline.exe`, confirmed programmatically (size match, sole `X2_*.exe` present). `data034.kom`/`datai014.kom` mtimes (15:53:38-39) indicated the user had already repacked Phase 20/21's Lua before the play-test below.
+
+**Play-test result**: user reported (1) no teleport waypoint at the end of Behemoth crater (World Map never shows Ranox as reachable) and (2) Cobo Express lists 2 Ranox entries with no icon/label and warping doesn't work. `offline_server.log`/`offline_packets.log` for this session (16:05:59-16:06:40, character `reyaa` lv80) show zero `UNHANDLED`/`EXCEPTION` lines and, notably, **no World Map or Cobo Express interaction at all** — the whole session was character-select → enter `Sander_Field_03` → close, ~40 seconds. This matters for (2) below.
+
+**Root cause of (1), found this session — Phase 20 fixed the wrong World Map.** `CX2LocationManager`/`DLG_Map_World.lua`/`DLG_Map_World_Elios.lua`/`DLG_Map_Local.lua` (what Phase 20 edited) is a **legacy** screen: `DLG_UI_World_Map_NEW.lua`'s own decompile shows only 4 hardcoded buttons (Velder_East/Ruben, Velder_North/Elder... — actually Ruben/Elder/Besma/Altera groupings), nothing past Altera Island — Peita/Velder/Hamel/Sander/Ranox were never buttons on it. The screen the player actually opens from the menu is **`CX2WorldMapUI`** (`X2Lib/X2WorldMapUI.cpp`), which loads `DLG_UI_World_Map_NEW.lua` + `DLG_UI_World_Map_Front_NEW.lua` (`X2WorldMapUI.cpp:383,389`) and is **fully generic**: it walks every `CKTDGUIButton` in the loaded dialog with `WMUCM_VILLAGE_CLICKED`/`WMUCM_DUNGEON_GATE_CLICKED`, reads its `DummyInt(0)` as a `VILLAGE_MAP_ID`, maps it to a `LOCAL_MAP_ID` via `GetLocalMapID`, and gates visibility purely off `GetLocalMapTemplet(...)->m_RequireUnitLevel` (`X2WorldMapUI.cpp:603-650`) — no per-region C++ list at all (the one `#ifdef NO_SANDER_VILLIAGE` block is dead, same as Phase 21 found for `CreateWarpDest`). March2014's `DLG_UI_World_Map_NEW.lua` (`kom_contents/data034`, decompiled fresh this session, 2121 lines) simply **has no Ranox button/static/cloud block at all** — it ends at `g_pStatic_SANDER_CLOUD`. That is the actual reason nothing appears after clearing the Behemoth crater: there was never a pin to show or hide.
+
+**Fixed.** Decompiled June2017's `data034_kom/DLG_UI_World_Map_NEW.lua` (2196 lines) and found Ranox's complete block at lines 1557-1840 (town button+static, 4 field-battle button+static pairs, 1 rest button+static, 1 "cloud" fog-of-war static gated by the same `AddDummyInt(1)` marker `X2WorldMapUI.cpp:514/623` checks) — immediately followed by Elysion's block at 1842, confirming clean boundaries. Wrote `march2014/data034/DLG_UI_World_Map_NEW.lua` (new file, patch-to-existing-March2014-file convention, `data034` archive matching `kom_contents`) as March's full decompiled 2120-line file with June's verbatim Ranox block spliced in immediately after `g_pStatic_SANDER_CLOUD:AddDummyInt(1)`, before the generic `g_pButtonMyChar` trailer — single-blank-line separators matching the file's own convention exactly (checked byte-by-byte, not assumed). Test-compiled via `elstools compile-batch` against a scratch copy — succeeds, 47667 bytes. **No C++ change needed or made** — `CX2WorldMapUI` is generic, confirmed by reading both control-iteration loops in the file (the second, ~line 1000-1090, for a related but different field-map screen, is equally generic). `WMUCM_VILLAGE_MOUSE_OVER`/`_MOUSE_OUT` (which the ported block references) already exist as globals in this build — confirmed by grepping March's own file, where every other region's block already uses them.
+
+**Coordinate placement — ported verbatim, deliberately not transformed, flagged as unverified.** Checked whether March's and June's copies of this file use the same coordinate space by extracting every `AddDummyPos` and pairing by control name across both files (30 common names): most deltas are exactly `(0,0)`, but several (Sander town `(70,10)`, Elder town `(0,40)`, Hamel rest `(0,56)`, Velder field 03 `(26,35)`, etc.) are not, and show no consistent pattern (not a uniform translation or scale). **This means no legitimate transform exists to place Ranox "correctly" on March's canvas** — deriving one from Sander's own delta (as a single-anchor guess) was considered and rejected as exactly the kind of invented number this project's Lua rule forbids. Since most nodes *are* unchanged, the background art is almost certainly the same between versions, so June's raw coordinates (`D3DXVECTOR3(1197, 970, 0)` for the town button, etc., all transcribed verbatim into the file above) are the closest available honest placement — but this is **not independently confirmed against March's actual background bitmap content** in the Ranox screen region, only against the fact that most other nodes didn't move. Flag this if the pin renders in a visually wrong spot (e.g. over ocean/existing terrain) once packed — it would need real per-node art-referenced correction, not a numeric fix.
+
+**Second atlas-merge dependency found, same class as Phase 21's `RANOX_ICON`.** The ported block's pictures reference `DLG_UI_Common_Texture71_NEW.tga` swatches `TOWN_RANOX`, `FIELD_NAME_RANOX_0..3`, `FIELD_REST_RANOX` — archive `data057`. Confirmed March/June copies differ the same way Phase 21's `DLG_UI_Button17` pair did: `.TET` sizes differ (March 2864 bytes vs June 3738 bytes), `.tga` same size (1048620 bytes) but different pixel hash — a real atlas merge, not a file swap (swapping would relocate/break Sander's own existing swatches in the same atlas). `Cloud_Ranox.tga`/`.TET` (the fog-of-war graphic) is **already covered** — it was ported in an earlier phase and is already listed in `march2014/update/data057/assets.txt`. `DLG_Common_Button02_NEW.tga` (generic per-type button skins: town/battle/rest normal/over) needs **no** new swatches — it's a shared, category-generic atlas already used identically by every other region including Sander.
+
+**Addressed the user's `assets.txt` complaint directly.** Per the user's report this session ("the icon is not [merged] because you haven't updated any assets.txt so i dont know"), prose-only naming in this plan document (Phase 21's approach) isn't discoverable through their own workflow. Copied the actual June2017 source bytes for **both** pending atlas merges into the repo, following the Output convention's standard `march2014/update/dataXXX/` placement for non-Lua assets (an initial pass this session used a custom `MERGE_SOURCE_do_not_pack_directly` subfolder instead; the user asked for it to match the normal convention like every other ported asset, so it was redone):
+- `march2014/update/data056/{DLG_UI_Button17.tga,.tet}` + `assets.txt`
+- `march2014/update/datai020/{DLG_UI_Button17_A.tga,.tet}` + `assets.txt`
+- `march2014/update/data057/{DLG_UI_Common_Texture71_NEW.tga,.TET}` — appended to the archive's existing `assets.txt` (already tracked 63 other Ranox map-texture entries from an earlier phase), inserted alphabetically, `git diff --stat` confirmed as a clean `2 insertions(+)`.
+
+**These are not final pack-ready files, unlike the rest of this convention's usual contents** — per the `.tet`-size finding above, packing any of these three pairs directly over the live archive entry would corrupt every other swatch already in that atlas (Sander's own icon included), unlike every *other* file under `march2014/update/`, which genuinely is pack-ready as-is. They exist so the user's own merge tooling has the source pixels/region-table to merge *from*, not to *replace with* — flagged here since the folder convention itself no longer carries that distinction visually. The actual merge (add one region to March's existing atlas, keep everything else byte-identical) is the same studio-tool job Phase 21 already named and is still the user's step.
+
+**Cobo Express "can't warp" — investigated, not resolved, and the blank-icon theory was checked and doesn't hold up.** Read how `CX2StateMenu::AddWarpList` actually wires a destination row (`X2StateMenu.cpp:6084-6134`): the `Village_NNNNN` static (the one with the icon/label Phase 21 added) is purely a **display** row inserted into a `CKTDGUIContolList`; the actual clickable hit-target is a separate, generic `ListControl_Button` cloned fresh from `DLG_Destination_Control_byButton.lua` for every row and tagged with `AddDummyInt(iVillageId)` — unrelated to the static's own icon/texture. So a blank `RANOX_ICON`/empty `STR_ID` should be cosmetic only, not a click blocker, contradicting this session's first-pass guess (recorded and now corrected here rather than silently dropped). Traced the confirm path too: `SMUCM_WARP_DEST_SELECT` → `SMUCM_WARP_DEST` (gated on `m_iCurrentVillageWarpIndex != -1`, set inside `AddWarpList` when a row's village matches `GetCurrentVillageID()`/`GetReturnVillageId()`) → `UseWarpPopup` → `SMUCM_WARP_DEST_OK` → `Handler_EGS_WARP_BY_BUTTON_REQ`. `SERV_ADD_WARP_BUTTON` (which gates this whole chain) is unconditionally defined in `Always_Global.h:452`, so the mechanism itself is live in this build. **Not diagnosable further from this session's logs**: `offline_packets.log`/`offline_server.log` show no World Map or Cobo Express interaction of any kind in the play-tested session (see above) — no `EGS_WARP_BY_BUTTON_REQ`, no exception, nothing between the field-entry lines and shutdown. Whatever the user saw when clicking, it produced no client-to-server traffic, which is itself informative (the failure is upstream of `Handler_EGS_WARP_BY_BUTTON_REQ`, or the attempt never actually completed) but not enough to localize further without a fresh, targeted reproduction.
+
+**Follow-up needed before this can be re-verified**: (a) user repacks `march2014/data034/DLG_UI_World_Map_NEW.lua` into `data034.kom`; (b) the two new atlas merges (`data056`+`datai020` Button17 pair, `data057` Texture71 pair) plus the two `STR_ID`s from Phase 21 remain outstanding but are cosmetic-only per the analysis above; (c) a fresh play-test specifically exercising World Map (after clearing `DI_SANDER_BEHIMOSS_HEART_NORMAL` at level 68+) and Cobo Express (select Ranox, press confirm/warp, note exactly what happens on screen) is needed, ideally as its own short session so the resulting `offline_packets.log`/`offline_server.log` isolate just that interaction.
+
+---
+
+### Post-Phase-22 debugging (2026-09-19, same day, follow-up session) — a debug chat-warp tool found two more genuine engine gaps
+
+User asked for a debug-only tool: typing `lanox` into the chatbox and pressing Enter warps free-of-charge to `SEnum::VMI_RANOX`, bypassing Cobo Express and the World Map screen entirely, to isolate whether the remaining "can't reach Ranox" symptom was a UI-click problem or something deeper.
+
+**Added**: `SERV_IRUHADEV_CHAT_WARP_DEBUG` (`KTDXLIB/Always.h`). In `CX2ChatBox::UICustomEventProc`'s `PUM_CHAT_ENTER` case (`X2Lib/X2ChatBox.cpp`, right after the empty-message early-return), an exact case-insensitive match on `"lanox"` intercepts the text (never sent as real chat) and sends `EGS_WARP_BY_BUTTON_REQ` for `VMI_RANOX` with `m_bFreeWarp = true`, reusing the identical packet pipeline Cobo Express uses. Both this file and `KTDXLIB/Always.h` are CP949/ISO-8859-ish — edited byte-level per this repo's CP949 rule. **Caught the corruption trap live**: the first attempt at the `Always.h` edit used the Edit tool and silently re-encoded the entire file to UTF-8 (`file` went from `Non-ISO extended-ASCII text` to `Unicode text, UTF-8 text`, `git diff --stat` showed ~1880 insertions/deletions for a 10-line addition) — caught immediately by the standard `file`/`git diff --stat` check, reverted with the user's go-ahead (`git checkout --`), redone as a byte-anchored Python append. Real, reproducible instance of the exact failure mode this document's CP949 warning describes.
+
+**First bug found this way — `CX2LocationManager::IsValidWarpField()` had no `VMI_RANOX` case at all.** (`X2Lib/X2LocationManager.cpp:1500`) is a hardcoded switch over every valid warp destination (`VMI_RUBEN`, `VMI_ELDER`, ..., `VMI_SANDER`) with `default: return false`. `Handler_EGS_WARP_BY_BUTTON_ACK` only performs the actual client-side map transition if this returns true for the ACK's `m_iWarpPointMapID` — so the debug tool's first play-test showed the REQ/ACK round-trip completing successfully server-side (`WARP unitUID=12 button warp 40025 -> 20008, cost=0`) with **no visible effect at all**, proving the failure was purely client-side and downstream of a successful ACK. **This is also a second, independent blocker for Cobo Express** on top of whatever prevents its click from registering at all — even a fixed Cobo Express click would have silently failed here too. Fixed: added `case SEnum::VMI_RANOX:` and `case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00:` right after Sander's case, gated behind `SERV_IRUHADEV_RANOX_PORT`. Built (`X2Lib`, `X2`, both exit 0), deployed. Byte-anchored edit (file is `ISO-8859 text`), confirmed `git diff --stat` at `4 insertions(+)`.
+
+**Second bug found, one layer deeper — `DLG_Map_Village.lua` (a third, previously-untouched shared registry file) has no Ranox entries.** After the `IsValidWarpField` fix, the debug tool produced a **real** transition (`EGS_STATE_CHANGE_FIELD_REQ`/`ACK` exchanged, unlike every prior attempt) — but the user still saw no screen change, only "a fast dialog" (this is `CX2State::Handler_EGS_STATE_CHANGE_FIELD_ACK`'s `CreateStateChangeDLG(STR_ID_541)` transition popup). Traced the handler (`X2Lib/X2State.cpp:6755`): after a valid ACK, it calls `GetLocationManager()->GetVillage()` then `GetWorldID(eVillageId)`, and **only actually fires `XGM_STATE_CHANGE` to `XS_VILLAGE_MAP` if the resolved world ID is in range** (`WI_NONE < id < WI_END`). `GetWorldID()` (`X2LocationManager.cpp:1477`) looks up a `std::map<int,int> m_mapWorldMap` populated by `VillageParsing()`, which is called once per local map from inside `LocalParsing()` — but critically, `VillageParsing`'s `BeginTable("Village")` reads not from the per-region file (`DLG_Map_Local_Ranox.lua`, which has no `Village` table at all — confirmed identical schema on Sander's own file, so this isn't a porting gap) but from **whatever Lua globals are already loaded in the shared `kLuamanager` state** — and `CX2LocationManager::OpenScript()` (`X2LocationManager.cpp:142`) loads exactly one file that defines a global `Village` table: `DLG_Map_Village.lua`. This file has never been mentioned in any phase of this port. March's copy (`kom_contents/data034`, decompiled fresh, 3978 lines) has entries for every region through Sander and nothing for Ranox at all.
+
+Ported from June2017's copy (`data034_kom/DLG_Map_Village.lua`, decompiled fresh, 4570 lines) into `march2014/data034/DLG_Map_Village.lua` (new file, patch-to-existing-March2014-file convention): the `[VILLAGE_MAP_ID.VMI_RANOX]` town block (79 lines, June 912-990, spliced in immediately after Sander's town block / before `VMI_DUNGEON_LOUNGE_RUBEN`) and the `[VILLAGE_MAP_ID.VMI_BATTLE_FIELD_RANOX_REST_00]` block (55 lines, June 4273-4327, spliced in immediately after Sander's rest-stop block / before the table's closing `}`), both verbatim. `WORLD_ID.WI_VILLAGE_RANOX` and `WORLD_ID.WI_BATTLE_FIELD_RANOX_FIELD_REST_00` (the two values these blocks set) were already present on both the C++ side (`X2World.h:779,803`) and Lua side (`march2014/data036/Enum.lua:2248,2272`) from the original "Repo/engine integration findings" item 1 pass — no enum work needed here, purely a missing-registry-entry problem. Test-compiled via `elstools compile-batch` against a scratch copy: **first attempt failed** (`'}' expected... near '['` at the seam) because March's `VMI_BATTLE_FIELD_SANDER_REST_00` block was previously the table's *last* entry and had no trailing comma — added one (`\t}` → `\t},` at the seam only, confirmed by anchor uniqueness before writing); second attempt compiled clean, 48692 bytes.
+
+**Named, not fixed — 11 `HOUSE_ID` values referenced by Ranox's town `HouseIDList` don't exist anywhere in this build's `Enum.lua`**: `HI_EDEL`, `HI_STEEL`, `HI_FACEOFF`, `HI_SYOTA`, `HI_IGNIA`, `HI_GUILD_MARK`, `HI_STORY_QUEST`, `HI_TRANSCEND_QUEST`, `HI_SPA_SIGN_RANOX`, `HI_EVENT_GUILD_EDAN_VILAGE`, `HI_EVENT_BLESS_OF_SOLACE` (checked by grep, not assumed absent). The other 9 house references in both new blocks — `HI_CAMILLA_PVP_HOUSE`, `HI_ARIEL_EVENT_HOUSE`, `HI_POSTBOX`, `HI_BILLBOARD`, `HI_PRIVATE_BANK`, `HI_ADAMS_HOUSE`, `HI_MU`, `HI_GLAVE_HOUSE`, `HI_HELLEN_SHOP_HOUSE` — already exist and needed no work. `HOUSE_ID` has exactly one C++ mirror, `CX2LocationManager::HOUSE_ID` (`X2LocationManager.h:19`, client-only, no server-side twin — houses are a pure client rendering/UI concept), not yet extended for these 11. **Not blocking**: a missing key on a Lua table (`HOUSE_ID.HI_EDEL` where `HI_EDEL` was never assigned) evaluates to `nil`, not a script error — `DLG_Map_Village.lua` still loads and `WORLD_ID` still resolves correctly either way. The effect of leaving this unfixed is cosmetic: those specific building icons won't appear on Ranox's town screen. Deferred to a future phase rather than fixed now, per this session's priority (unblock the warp itself first) — flagged here by name rather than invented around, per this repo's Lua rule.
+
+**Status**: `X2LocationManager.cpp`'s fix is built and deployed (`x2.exe` in the game directory). `march2014/data034/DLG_Map_Village.lua` is a new Lua file needing the same repack `DLG_UI_World_Map_NEW.lua` is still waiting on — **both live in `data034`, so one repack of `data034.kom` covers both fixes at once.** Not yet re-verified by play-test as of this writing.
+
+---
+
 ## Appendix A — Full June2017 Ranox file inventory (125 `.lua` files)
 
 Grouped by category and containing `data0NN_kom` archive. All 125 were
@@ -5101,3 +5146,78 @@ re-deriving the answer:
   `DLG_UI_MINIMAP_Sander_Village.lua` — the latter lives in `datai014` (the
   CN-variant locale archive series, not `data034`) — note this one lives in
   a different archive series than the rest.
+
+---
+
+## Phases 23–31 — Lanox reachability failures (2026-09-19, follow-up session)
+
+User reported two remaining symptoms after Phase 22 / post-Phase-22 debugging:
+Cobo Express (B-menu) showed two blank, inert Ranox rows, and Sander's last
+field (Behemoth Crater) had no portal onward to Lanox. A fresh investigation
+(full plan: `LANOX_TROUBLESHOOTING.md`'s predecessor working document,
+`C:\Users\Iruha\.claude\plans\right-now-i-have-binary-lake.md` — since folded
+into this section and into `LANOX_TROUBLESHOOTING.md`) found **six distinct
+root causes**, several of which correct earlier phases' conclusions:
+
+1. **267 packed `.lua` files across 8 archives were plain text, never
+   compiled to mar-2014 bytecode** — every Ranox scene, linemap, unit
+   definition, and dungeon definition among them. This is a packing-step
+   omission, not a porting error, and is almost certainly why the Lanox
+   village scene didn't render even though the minimap correctly showed
+   Lanox (`DoMemory`'s XOR-then-fallback-to-plaintext path masked the defect
+   for simple data tables like `DLG_Map_Village.lua`, but the direct
+   `Info->pRealData` reads used for scene/world loading do not have that
+   fallback). **Fixed this session**: all 267 recompiled in place with
+   `elstools compile-batch -v mar-2014`, verified byte-identical in content
+   to their pre-compile source (comments excepted — comments do not survive
+   Lua bytecode compilation, confirmed on two representative files). The 25
+   `.src.lua`/25 `.std.luac` decompiler-leftover files that had also been
+   shipped into `kom_contents/` were deleted. **Standing rule going forward**:
+   every `.lua` must go through `compile-batch -v mar-2014` before packing,
+   and `.src.lua`/`.std.luac` must never ship in an archive.
+
+2. **`RANOX_PORT_PLAN.md`'s Phase 21/22 conclusion that a blank
+   `STR_ID`-driven label is cosmetic is wrong.** March2014's
+   `data036/StringID_def.lua` only defines `STR_ID_0`..`STR_ID_30631`; 282
+   distinct `STR_ID_*` values referenced by ported Ranox content are above
+   that ceiling and evaluate to Lua `nil` → `STR_ID_EMPTY` → an empty
+   `wstring`. `CX2StateMenu::UseWarpPopup` (`X2StateMenu.cpp:6047`)
+   early-returns on an empty village name with **no popup, no packet, no log
+   line** — so the missing `STR_ID` was the actual Cobo Express click
+   blocker, not a cosmetic gap. June2017's `StringID_def.lua` is a verified
+   strict superset of March's (name-for-name, value-for-value, zero
+   disagreements) and the deployed `general.ess` already carries the correct
+   text at every one of the 282 IDs (`26436` = "Behemoth Crater", `32562` =
+   "Lanox Village", `33882` = "Silent Night Shelter", etc.) — so the fix is
+   adopting June's `StringID_def.lua` verbatim, not a `StringDBManager`
+   request as Phase 21 concluded.
+
+3. **Sander Field 04 (Behemoth Crater) never had a forward portal at all.**
+   `BATTLE_FIELD_PORTAL_MOVING_INFO` only ever had the back-to-Field-03 row;
+   June2017's copy adds a `PMT_MOVE_TO_VILLAGE → VMI_RANOX` row plus a
+   linemap change (`LINE_NUM 124`: `LINE_TYPE.LT_NORMAL` → `LT_POTAL`).
+
+4. **`march2014/data034/DLG_Map_Village.lua`'s Ranox start-positions use
+   June2017's renamed keys** (`OtherPlaceID`/`OtherPlaceStartLineIndex`)
+   where this client's `VillageParsing` (`X2LocationManager.cpp:389`) still
+   reads the old names (`BattleFieldId`/`BattleFieldStartLineIndex`) — so 4 of
+   Lanox's 5 field/village exits were silently inert.
+
+5. **`HouseIDList` truncation, not just cosmetic omission as Post-Phase-22's
+   debugging section concluded.** `while(GetValue(i))`-style list parsing
+   stops at the first `nil` hole rather than skipping it; Ranox's town
+   `HouseIDList` has an undefined `HOUSE_ID.HI_EDEL` at position 6 of 18, so
+   13 entries are dropped — including `HI_ADAMS_HOUSE`/`HI_MU`/
+   `HI_GLAVE_HOUSE`/`HI_HELLEN_SHOP_HOUSE`, which already exist in this build
+   and would otherwise have rendered fine.
+
+6. **A second, entirely separate warp-destination implementation exists**
+   (`CX2UIInventory::CreateWarpDest`/`DLG_Destination.lua`, the in-village
+   warp NPC) that Phase 21 never touched — only the Cobo Express / B-menu
+   path (`CX2StateMenu::CreateWarpDest`/`DLG_Destination_byButton.lua`) was
+   patched.
+
+Full root-cause detail, the fix for each, phase-by-phase execution, and the
+troubleshooting checklist live in `LANOX_TROUBLESHOOTING.md` — consult that
+document (not this section) for anything Ranox-reachability-related from this
+point forward. This section is the historical record of why it was needed.

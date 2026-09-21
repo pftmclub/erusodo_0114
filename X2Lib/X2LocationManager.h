@@ -110,6 +110,22 @@ class CX2LocationManager
 			HI_EVENT_LIRE_NIGHT_WATCHER	=   40063, //--ALWAYS_EVENT_LIRE_NIGHT_WATCHER_NPC
 			HI_EVENT_ADAMS_UI_SHOP	= 40064, // --ALWAYS_EVENT_ADAMS_UI_SHOP
 			HI_EVENT_DIMENSION_WITCH = 40065, //EVENT_NPC_STANDING_VILLAGE
+			//{{ Iruha : 2026-09-19 // Ranox port Phase 28 -- HOUSE_ID mirror of
+			// march2014/data036/Enum.lua's own Phase 28 addition. Explicit values,
+			// not positional continuation, matching the Lua side exactly. See
+			// LANOX_TROUBLESHOOTING.md.
+			HI_EDEL = 40074,
+			HI_STEEL = 40075,
+			HI_FACEOFF = 40076,
+			HI_SYOTA = 40077,
+			HI_IGNIA = 40078,
+			HI_GUILD_MARK = 40083,
+			HI_STORY_QUEST = 40130,
+			HI_TRANSCEND_QUEST = 40140,
+			HI_SPA_SIGN_RANOX = 40142,
+			HI_EVENT_GUILD_EDAN_VILAGE = 40090,
+			HI_EVENT_BLESS_OF_SOLACE = 40129
+			//}}
 		};
 
 		enum LOCAL_MAP_ID
@@ -438,6 +454,9 @@ class CX2LocationManager
 
 		const CX2LocationManager::VillageStartPos* GetVillageStartPos(int startPos) const;
 		SEnum::VILLAGE_MAP_ID GetMapId(int startPos) const;
+#ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
+		void DebugProbeRanox();
+#endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
 		void GetVecLinkedPos(std::vector<int>& vStart);
 		void GetVecMarketPos(std::vector<int>& vStart);
 		D3DXVECTOR3 GetStartPosLoc(int startPos) const;

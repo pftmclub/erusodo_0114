@@ -1,5 +1,7 @@
 Cloud_Ranox.TET
 Cloud_Ranox.tga
+DLG_UI_Common_Texture71_NEW.TET
+DLG_UI_Common_Texture71_NEW.tga
 DLG_UI_Common_Texture_Fieldname_7.tga
 DLG_UI_FIELD_MAP_RANOX_01_01.TET
 DLG_UI_FIELD_MAP_RANOX_01_01.dds

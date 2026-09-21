@@ -13963,6 +13963,15 @@ void CX2UIInventory::InitWarpList()
 	pControl->SetShow(false);
 #endif NO_SANDER_VILLIAGE
 #endif //VILLAGE_SANDER
+#ifdef SERV_IRUHADEV_RANOX_PORT
+	// Iruha : 2026-09-19 : Ranox/Lanox port -- hide by default, same as every other village above (Phase 29, mirrors Phase 21's CX2StateMenu::InitWarpList)
+	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_20008");	//VMI_RANOX
+	if( pControl != NULL )
+		pControl->SetShow(false);
+	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_1007");	//VMI_BATTLE_FIELD_RANOX_REST_00
+	if( pControl != NULL )
+		pControl->SetShow(false);
+#endif SERV_IRUHADEV_RANOX_PORT
 }
 
 void CX2UIInventory::CreateWarpDest()
@@ -14141,7 +14150,33 @@ void CX2UIInventory::CreateWarpDest()
 			}
 #endif NO_SANDER_VILLIAGE
 #endif //VILLAGE_SANDER
-			pControlList->SetIndex(0, 0);				
+			pControlList->SetIndex(0, 0);
+#ifdef SERV_IRUHADEV_RANOX_PORT
+			// Iruha : 2026-09-19 : Ranox/Lanox port -- mirrors Sander's block above (Phase 29, RANOX_PORT_PLAN.md / LANOX_TROUBLESHOOTING.md), null-checked since these controls only exist once DLG_Destination.lua is repacked
+			pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_RANOX );
+			if( pLocalMapTemplet != NULL )
+			{
+				if( iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel )
+				{
+					pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_20008");	//VMI_RANOX
+					if( pControl != NULL )
+					{
+						pControl->SetShow(false);
+						AddWarpList( pControlList, row, SEnum::VMI_RANOX );
+						++row;
+					}
+
+					pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_1007");	//VMI_BATTLE_FIELD_RANOX_REST_00
+					if( pControl != NULL )
+					{
+						pControl->SetShow(false);
+						AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_RANOX_REST_00 );
+						++row;
+					}
+				}
+			}
+#endif SERV_IRUHADEV_RANOX_PORT
+				
 		}
 	}	
 }

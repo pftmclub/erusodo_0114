@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include "X2ChatBox.h"
+#ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
 
 
 
@@ -1057,6 +1060,45 @@ bool CX2ChatBox::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 				return true;
 			}
+
+#ifdef SERV_IRUHADEV_CHAT_WARP_DEBUG
+			if( boost::iequals( wstrChatMsg, L"lanox" ) )
+			{
+				KEGS_WARP_BY_BUTTON_REQ kPacket;
+				kPacket.m_iCurrentVillageWarpIndex = SEnum::VMI_RANOX;
+				kPacket.m_bFreeWarp = true;
+				g_pData->GetServerProtocol()->SendPacket( EGS_WARP_BY_BUTTON_REQ, kPacket );
+				g_pMain->AddServerPacket( EGS_WARP_BY_BUTTON_ACK );
+				return true;
+			}
+#endif SERV_IRUHADEV_CHAT_WARP_DEBUG
+#ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
+			if( boost::iequals( wstrChatMsg, L"ranoxdbg" ) )
+			{
+				CX2LocationManager* pLM = g_pData->GetLocationManager();
+				if( pLM != NULL )
+				{
+					CX2LocationManager::VillageTemplet* pTemplet = pLM->GetVillageMapTemplet( SEnum::VMI_RANOX );
+					int worldId = pLM->GetWorldID( SEnum::VMI_RANOX );
+					const CX2LocationManager::VillageStartPos* pStartPos140 = pLM->GetVillageStartPos( 140 );
+					SEnum::VILLAGE_MAP_ID mapId140 = pLM->GetMapId( 140 );
+					CX2OfflineLog::Server( L"[RANOXDBG] ranoxdbg templet=%d worldId=%d startPos140=%d startPos140.VillageID=%d mapId140=%d currentVillage=%d",
+						( pTemplet != NULL ), worldId, ( pStartPos140 != NULL ),
+						( pStartPos140 != NULL ? (int)pStartPos140->m_VillageID : -999 ),
+						(int)mapId140, (int)pLM->GetCurrentVillageID() );
+				}
+				return true;
+			}
+#endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
+#ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
+			if( boost::iequals( wstrChatMsg, L"ranoxprobe" ) )
+			{
+				CX2LocationManager* pLM2 = g_pData->GetLocationManager();
+				if( pLM2 != NULL )
+					pLM2->DebugProbeRanox();
+				return true;
+			}
+#endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
 
 			bool bEmotionCommand = IsEmotionID(wstrChatMsg);
 

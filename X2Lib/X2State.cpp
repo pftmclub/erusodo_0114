@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2state.h"
+#ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
 
 //extern bool g_bIsDXUTDeveloper;
 //extern bool g_bIsDXUTSpecialUser;
@@ -6788,6 +6791,10 @@ bool CX2State::Handler_EGS_STATE_CHANGE_FIELD_ACK( HWND hWnd, UINT uMsg, WPARAM 
 				// 마을을 생성할 수 없음
 				bCanCreateWorld = false;
 			}
+
+#ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
+			CX2OfflineLog::Server( L"[RANOXDBG] STATE_CHANGE_FIELD_ACK eVillageId=%d eWorldId=%d bCanCreateWorld=%d", (int)eVillageId, (int)eWorldId, (int)bCanCreateWorld );
+#endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
 
 			// 마을 생성		
 			if(bCanCreateWorld == true)

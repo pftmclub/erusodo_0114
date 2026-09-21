@@ -1175,8 +1175,15 @@ HRESULT CKTDXDeviceXSkinMesh::XSkinMeshProxy::LoadKSkinnedMesh( const void* pInD
         if ( FAILED( hr ) )
         {
             ErrorLogMsg(KEM_ERROR246, m_DeviceID.c_str());
+#ifdef SERV_IRUHADEV_RANOX_ANIM_DEGRADE
+            // Iruha : 2026-09-20 : degrade to a static (non-animated) mesh
+            // instead of aborting the whole load -- m_pAC is already NULL
+            // here (ReadFromMemory resets it on failure). See Always.h and
+            // LANOX_TROUBLESHOOTING.md.
+#else
             ASSERT( !"Loading D3DXAnimationController failed" );
             return E_FAIL;
+#endif SERV_IRUHADEV_RANOX_ANIM_DEGRADE
         }//if
     }//if
 

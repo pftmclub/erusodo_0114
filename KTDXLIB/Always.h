@@ -4102,3 +4102,89 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              already used together at unit respawn (X2GUUser.cpp).
 #define SERV_IRUHADEV_RANOX_ERASE_BUFF
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-20
+// Description: "lanox" chat command free-warps the local player straight
+// to VMI_RANOX for debugging the Ranox port without playing through to it.
+// See X2ChatBox.cpp.
+// (This block was reconstructed 2026-09-21 after the file's working-copy
+// text was destroyed by a UTF-8 mis-decode/re-encode round trip; behavior
+// is unchanged, only this comment is rewritten.)
+#define SERV_IRUHADEV_CHAT_WARP_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-20
+// Description: [RANOXDBG] tracing through CX2LocationManager's
+// LocalParsing/VillageParsing/HouseParsing, a DebugProbeRanox() dump
+// (templet/worldId/startPos140/mapId140), the "ranoxdbg"/"ranoxprobe"
+// chat commands, and STATE_CHANGE_FIELD_ACK / MoveToOtherPlace logging in
+// X2State.cpp / X2StateBattleField.cpp. See LANOX_TROUBLESHOOTING.md and
+// VILLAGE_ENTRY_TROUBLESHOOTING.md.
+// (This block was reconstructed 2026-09-21 after the file's working-copy
+// text was destroyed by a UTF-8 mis-decode/re-encode round trip; behavior
+// is unchanged, only this comment is rewritten.)
+#define SERV_IRUHADEV_RANOX_SCENE_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-20
+// Description: some ported June2017 motion files (confirmed:
+// Motion_NPC_Ranox_SYOTA.x, FACEOFF.x) are short by exactly 2 bytes at the
+// end of the file -- only the last animation set's name string is
+// affected. Degrades KTDXAnimationController's name-format failure
+// (KEM_ERROR410) and KTDXDeviceXSkinMesh's animation-controller-load
+// failure (KEM_ERROR246) to an unnamed/static mesh instead of aborting.
+// Reverted 2026-09-20: undefined pending root-cause fix; the #ifdef
+// blocks in KTDXAnimationController.cpp / KTDXDeviceXSkinMesh.cpp stay in
+// place. See LANOX_TROUBLESHOOTING.md.
+// (This block was reconstructed 2026-09-21 after the file's working-copy
+// text was destroyed by a UTF-8 mis-decode/re-encode round trip; behavior
+// is unchanged, only this comment is rewritten.)
+//#define SERV_IRUHADEV_RANOX_ANIM_DEGRADE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-20
+// Description: GetUKFont() (KTDGUIDialogManager.h) uses std::map::
+// operator[] and returns NULL for any unregistered fontIndex -- observed
+// as a crash (0xC0000005 inside KTDGUIRadioButton::OnFrameRender, per
+// Windows Error Reporting + a linker map lookup) hit while loading the
+// Lanox village. Log which control/fontIndex hit it and skip the draw
+// instead of crashing. See LANOX_TROUBLESHOOTING.md. Confirmed live in
+// the shipped exe 2026-09-21 but its NULL branch did not fire during the
+// Ranox village-entry hang -- see VILLAGE_ENTRY_TROUBLESHOOTING.md.
+// (This block was reconstructed 2026-09-21 after the file's working-copy
+// text was destroyed by a UTF-8 mis-decode/re-encode round trip; behavior
+// is unchanged, only this comment is rewritten.)
+#define SERV_IRUHADEV_RADIOBUTTON_FONT_DEGRADE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-21
+// Description: CX2TFieldNpc::CreateFieldNpc indexes m_NPCList[0] and
+// dereferences GetNPCUnitTemplet() without checking either. A house whose
+// DLG_Map_House.lua block has no NPC_ID_LIST (HI_GUILD_MARK) or whose
+// first NPC_UNIT_ID is undefined in this build (HI_EVENT_GUILD_EDAN_
+// VILAGE, HI_EVENT_BLESS_OF_SOLACE) parses to an empty vector and faults
+// -- confirmed cause of the Ranox village-entry hang. Degrade to an
+// unnamed NPC and log it instead. See VILLAGE_ENTRY_TROUBLESHOOTING.md.
+#define SERV_IRUHADEV_FIELDNPC_EMPTY_NPCLIST_GUARD
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-21
+// Description: CrashReportCallback's GetUsingMemorySize() call is matched
+// by substring against the running module's full path; the hardcoded
+// literal "X2.exe" never matches a deployed "X2_offline.exe", so every
+// "mem: curr-N, peak-N" fault-counter line in State.log read curr-0,
+// peak-0. Use the process's own module name instead. See X2Main.cpp and
+// VILLAGE_ENTRY_TROUBLESHOOTING.md.
+#define SERV_IRUHADEV_CRASHLOG_REAL_EXE_NAME
+//////////////////////////////////////////////////////////////////////////

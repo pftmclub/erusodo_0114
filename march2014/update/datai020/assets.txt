@@ -1,0 +1,2 @@
+DLG_UI_Button17_A.tet
+DLG_UI_Button17_A.tga

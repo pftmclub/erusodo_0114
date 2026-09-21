@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2statebattlefield.h"
+#ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
 //{{ robobeg : 2008-10-13
 static const CKTDGStateManager::KState s_akStates[] = 
 {
@@ -1196,6 +1199,9 @@ FORCEINLINE void CX2StateBattleField::MoveToOtherPlace()
 
 					case CX2BattleFieldManager::PMT_MOVE_TO_VILLAGE:
 						{
+#ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
+							CX2OfflineLog::Server( L"[RANOXDBG] MoveToOtherPlace PMT_MOVE_TO_VILLAGE placeIdToMove=%u positionIndexToMove=%u", pBattleFieldPortalMovingInfoPtr->GetPlaceIdToMove(), pBattleFieldPortalMovingInfoPtr->GetPositionIndexToMove() );
+#endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
 							Handler_EGS_STATE_CHANGE_FIELD_REQ( pBattleFieldPortalMovingInfoPtr->GetPlaceIdToMove(), pBattleFieldPortalMovingInfoPtr->GetPositionIndexToMove() );
 							SetNowMovingToOtherPlace( true );
 						} break;

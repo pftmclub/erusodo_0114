@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 #include ".\x2locationmanager.h"
 #include <algorithm>
+#ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
 
 CX2LocationManager::CX2LocationManager(void) :
 m_eCurrentVillage( SEnum::VMI_INVALID ),
@@ -306,6 +309,9 @@ void CX2LocationManager::LocalParsing( KLuaManager& kLuamanager, const vector< L
 			kLuamanager.EndTable(); // EnterCondition
 		}
 
+#ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
+		CX2OfflineLog::Server( L"[RANOXDBG] LocalParsing localMapID=%d villageID=%d villageDGID=%d villageDungeonLoungeID=%d iBattleFieldRestID=%d", localMapID, villageID, villageDGID, villageDungeonLoungeID, iBattleFieldRestID );
+#endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
 		m_mapLocalMapTemplet.insert( std::make_pair( (CX2LocationManager::LOCAL_MAP_ID)localMapID, pLocalMapTemplet ) );
 
 		if( -1 != villageID )
@@ -511,6 +517,9 @@ void CX2LocationManager::VillageParsing( KLuaManager& kLuamanager, const int vil
 				m_mapVillageTemplet.find( (SEnum::VILLAGE_MAP_ID)villageID );
 			ASSERT( it_temp == m_mapVillageTemplet.end() );
 #endif HEAVY_LOG_TEST
+#ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
+			CX2OfflineLog::Server( L"[RANOXDBG] VillageParsing insert villageID=%d worldId=%d", villageID, worldId );
+#endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
 
 
 			m_mapVillageTemplet.insert( std::make_pair( (SEnum::VILLAGE_MAP_ID)villageID, pVillageTemplet ) );
@@ -519,6 +528,9 @@ void CX2LocationManager::VillageParsing( KLuaManager& kLuamanager, const int vil
 		}
 		else
 		{
+#ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
+			CX2OfflineLog::Server( L"[RANOXDBG] VillageParsing BeginTable(villageID) FAILED for villageID=%d", villageID );
+#endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
 			MessageBox( g_pKTDXApp->GetHWND(), L"CX2LocationManager Village OpenScript Error", L"Error", MB_OK );
 			return;
 		}
@@ -1107,6 +1119,55 @@ void CX2LocationManager::HouseParsing( KLuaManager& kLuamanager, const vector< H
 	}
 }
 
+#ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
+void CX2LocationManager::DebugProbeRanox()
+{
+	// Iruha : 2026-09-20 : Ranox port debug -- mirrors LocalParsing/VillageParsing
+	// step by step, in a fresh isolated KLuaManager (bInNewEnv_=true, same as
+	// OpenScript()'s own usage), so it never touches the live Village/Local
+	// globals. Called on demand from the "ranoxprobe" chat command (X2ChatBox.cpp)
+	// since OpenScript() itself runs before the offline log is open. See
+	// LANOX_TROUBLESHOOTING.md.
+	CX2OfflineLog::Server( L"[RANOXDBG] probe start" );
+
+	KLuaManager kLuamanager( g_pKTDXApp->GetLuaBinder()->GetLuaState(), 0, true );
+
+	bool bLoadedLocal = g_pKTDXApp->LoadAndDoMemory( &kLuamanager, L"DLG_Map_Local_Ranox.lua" );
+	CX2OfflineLog::Server( L"[RANOXDBG] probe LoadAndDoMemory(DLG_Map_Local_Ranox.lua)=%d", (int)bLoadedLocal );
+
+	int villageID = -1;
+	if( kLuamanager.BeginTable( "VillageData" ) == true )
+	{
+		LUA_GET_VALUE( kLuamanager, "ID", villageID, -1 );
+		kLuamanager.EndTable();
+	}
+	CX2OfflineLog::Server( L"[RANOXDBG] probe VillageData.ID=%d", villageID );
+
+	bool bLoadedVillage = g_pKTDXApp->LoadAndDoMemory( &kLuamanager, L"DLG_Map_Village.lua" );
+	CX2OfflineLog::Server( L"[RANOXDBG] probe LoadAndDoMemory(DLG_Map_Village.lua)=%d", (int)bLoadedVillage );
+
+	bool bBeginVillage = kLuamanager.BeginTable( "Village" );
+	CX2OfflineLog::Server( L"[RANOXDBG] probe BeginTable(Village)=%d", (int)bBeginVillage );
+
+	if( bBeginVillage )
+	{
+		bool bBeginID = kLuamanager.BeginTable( villageID );
+		CX2OfflineLog::Server( L"[RANOXDBG] probe BeginTable(villageID=%d)=%d", villageID, (int)bBeginID );
+
+		if( bBeginID )
+		{
+			int worldId = -1;
+			LUA_GET_VALUE_ENUM( kLuamanager, "WORLD_ID", worldId, CX2World::WORLD_ID, CX2World::WI_NONE );
+			CX2OfflineLog::Server( L"[RANOXDBG] probe WORLD_ID=%d", worldId );
+			kLuamanager.EndTable();
+		}
+		kLuamanager.EndTable();
+	}
+
+	CX2OfflineLog::Server( L"[RANOXDBG] probe end" );
+}
+#endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
+
 SEnum::VILLAGE_MAP_ID CX2LocationManager::GetDungeonLoungeIDByDungeonID(  const SEnum::DUNGEON_ID eDungeonId_ )
 {
 	map< LOCAL_MAP_ID,	LocalMapTemplet* >::const_iterator cmItr = m_mapLocalMapTemplet.begin();
@@ -1518,6 +1579,10 @@ bool CX2LocationManager::IsValidWarpField( int iVillageId )
 	case SEnum::VMI_HAMEL:
 #endif
 	case SEnum::VMI_SANDER:
+#ifdef SERV_IRUHADEV_RANOX_PORT
+	case SEnum::VMI_RANOX:
+	case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00:
+#endif SERV_IRUHADEV_RANOX_PORT
 
 		return true;
 	default:
