@@ -936,6 +936,16 @@ House = {
 				0,
 				0,
 				700
+			},
+			{
+				WORLD_ID.WI_VILLAGE_RANOX,
+				400,
+				945,
+				-2635,
+				0,
+				0,
+				0,
+				0
 			}
 		},
 		NPC_ID_LIST = {
@@ -1049,6 +1059,16 @@ House = {
 				0,
 				0,
 				700
+			},
+			{
+				WORLD_ID.WI_VILLAGE_RANOX,
+				-460,
+				945,
+				-2635,
+				0,
+				0,
+				0,
+				0
 			}
 		},
 		NPC_ID_LIST = {
@@ -1853,6 +1873,15 @@ House = {
 				-1024.214,
 				22380.662,
 				-59183.211
+			},
+			{
+				WORLD_ID.WI_VILLAGE_RANOX,
+				425,
+				1745,
+				450,
+				0,
+				0,
+				0
 			}
 		},
 		TALK_BOX = {}
@@ -2339,6 +2368,15 @@ House = {
 				636.496,
 				22383.838,
 				-59183.211
+			},
+			{
+				WORLD_ID.WI_VILLAGE_RANOX,
+				2815,
+				670,
+				-1735,
+				0,
+				-55,
+				0
 			}
 		},
 		NPC_ID_LIST = {
@@ -2588,6 +2626,12 @@ House = {
 				0,
 				90,
 				0
+			},
+			{
+				WORLD_ID.WI_VILLAGE_RANOX,
+				1565,
+				1900,
+				555
 			}
 		},
 		NPC_ID_LIST = {
@@ -4193,62 +4237,6 @@ House = {
 		Bye_Talk = STR_ID_32395,
 		Quest_Talk = STR_ID_32396,
 		TALK_BOX = {},
-		EVENT3 = TRUE,
-		EVENT2 = TRUE,
-		NPC_TALK_LIST0 = {
-			Main_Talk = {
-				STR_ID_38032,
-				STR_ID_38033,
-				STR_ID_38034
-			},
-			Receive_Like_Gift_Talk = STR_ID_38049,
-			Receive_DisLike_Gift_Talk = STR_ID_38053,
-			Receive_Normal_Gift_Talk = STR_ID_38056,
-			Receive_Cash_Gift_Talk = STR_ID_38059,
-			Level_Up_Talk = STR_ID_38045
-		},
-		NPC_TALK_LIST1 = {
-			Main_Talk = {
-				STR_ID_38035,
-				STR_ID_38036,
-				STR_ID_38037
-			},
-			Receive_Like_Gift_Talk = STR_ID_38050,
-			Receive_DisLike_Gift_Talk = STR_ID_38054,
-			Receive_Normal_Gift_Talk = STR_ID_38057,
-			Receive_Cash_Gift_Talk = STR_ID_38060,
-			Level_Up_Talk = STR_ID_38046
-		},
-		NPC_TALK_LIST2 = {
-			Main_Talk = {
-				STR_ID_38038,
-				STR_ID_38039,
-				STR_ID_38040
-			},
-			Receive_Like_Gift_Talk = STR_ID_38051,
-			Receive_DisLike_Gift_Talk = STR_ID_38055,
-			Receive_Normal_Gift_Talk = STR_ID_38058,
-			Receive_Cash_Gift_Talk = STR_ID_38061,
-			Level_Up_Talk = STR_ID_38047
-		},
-		NPC_TALK_LIST3 = {
-			Main_Talk = {
-				STR_ID_38041,
-				STR_ID_38042,
-				STR_ID_38043
-			},
-			Receive_Like_Gift_Talk = STR_ID_38051,
-			Receive_DisLike_Gift_Talk = STR_ID_38055,
-			Receive_Normal_Gift_Talk = STR_ID_38058,
-			Receive_Cash_Gift_Talk = STR_ID_38061,
-			Level_Up_Talk = STR_ID_38047
-		},
-		NPC_COMMON_TALK = {
-			Every_Day_Reward_Talk = STR_ID_38044,
-			After_Talk = STR_ID_38048,
-			Reject_Gift_Talk = STR_ID_38052,
-			Gift_UI_Talk = STR_ID_38062
-		}
 	},
 	[HOUSE_ID.HI_STEEL] = {
 		NPCTextureKey = "NUI_STEEL",
@@ -4317,62 +4305,6 @@ House = {
 				0
 			}
 		},
-		EVENT3 = TRUE,
-		EVENT2 = TRUE,
-		NPC_TALK_LIST0 = {
-			Main_Talk = {
-				STR_ID_38094,
-				STR_ID_38095,
-				STR_ID_38096
-			},
-			Receive_Like_Gift_Talk = STR_ID_38111,
-			Receive_DisLike_Gift_Talk = STR_ID_38115,
-			Receive_Normal_Gift_Talk = STR_ID_38118,
-			Receive_Cash_Gift_Talk = STR_ID_38121,
-			Level_Up_Talk = STR_ID_38107
-		},
-		NPC_TALK_LIST1 = {
-			Main_Talk = {
-				STR_ID_38097,
-				STR_ID_38098,
-				STR_ID_38099
-			},
-			Receive_Like_Gift_Talk = STR_ID_38112,
-			Receive_DisLike_Gift_Talk = STR_ID_38116,
-			Receive_Normal_Gift_Talk = STR_ID_38119,
-			Receive_Cash_Gift_Talk = STR_ID_38122,
-			Level_Up_Talk = STR_ID_38108
-		},
-		NPC_TALK_LIST2 = {
-			Main_Talk = {
-				STR_ID_38100,
-				STR_ID_38101,
-				STR_ID_38102
-			},
-			Receive_Like_Gift_Talk = STR_ID_38113,
-			Receive_DisLike_Gift_Talk = STR_ID_38117,
-			Receive_Normal_Gift_Talk = STR_ID_38120,
-			Receive_Cash_Gift_Talk = STR_ID_38123,
-			Level_Up_Talk = STR_ID_38109
-		},
-		NPC_TALK_LIST3 = {
-			Main_Talk = {
-				STR_ID_38103,
-				STR_ID_38104,
-				STR_ID_38105
-			},
-			Receive_Like_Gift_Talk = STR_ID_38113,
-			Receive_DisLike_Gift_Talk = STR_ID_38117,
-			Receive_Normal_Gift_Talk = STR_ID_38120,
-			Receive_Cash_Gift_Talk = STR_ID_38123,
-			Level_Up_Talk = STR_ID_38109
-		},
-		NPC_COMMON_TALK = {
-			Every_Day_Reward_Talk = STR_ID_38106,
-			After_Talk = STR_ID_38110,
-			Reject_Gift_Talk = STR_ID_38114,
-			Gift_UI_Talk = STR_ID_38124
-		}
 	},
 	[HOUSE_ID.HI_FACEOFF] = {
 		EventQuestInfoPosY = 248,
@@ -4442,62 +4374,6 @@ House = {
 			}
 		},
 		TALK_BOX = {},
-		EVENT3 = TRUE,
-		EVENT2 = TRUE,
-		NPC_TALK_LIST0 = {
-			Main_Talk = {
-				STR_ID_38063,
-				STR_ID_38064,
-				STR_ID_38065
-			},
-			Receive_Like_Gift_Talk = STR_ID_38080,
-			Receive_DisLike_Gift_Talk = STR_ID_38084,
-			Receive_Normal_Gift_Talk = STR_ID_38087,
-			Receive_Cash_Gift_Talk = STR_ID_38090,
-			Level_Up_Talk = STR_ID_38076
-		},
-		NPC_TALK_LIST1 = {
-			Main_Talk = {
-				STR_ID_38066,
-				STR_ID_38067,
-				STR_ID_38068
-			},
-			Receive_Like_Gift_Talk = STR_ID_38081,
-			Receive_DisLike_Gift_Talk = STR_ID_38085,
-			Receive_Normal_Gift_Talk = STR_ID_38088,
-			Receive_Cash_Gift_Talk = STR_ID_38091,
-			Level_Up_Talk = STR_ID_38077
-		},
-		NPC_TALK_LIST2 = {
-			Main_Talk = {
-				STR_ID_38069,
-				STR_ID_38070,
-				STR_ID_38071
-			},
-			Receive_Like_Gift_Talk = STR_ID_38082,
-			Receive_DisLike_Gift_Talk = STR_ID_38086,
-			Receive_Normal_Gift_Talk = STR_ID_38089,
-			Receive_Cash_Gift_Talk = STR_ID_38092,
-			Level_Up_Talk = STR_ID_38078
-		},
-		NPC_TALK_LIST3 = {
-			Main_Talk = {
-				STR_ID_38072,
-				STR_ID_38073,
-				STR_ID_38074
-			},
-			Receive_Like_Gift_Talk = STR_ID_38082,
-			Receive_DisLike_Gift_Talk = STR_ID_38086,
-			Receive_Normal_Gift_Talk = STR_ID_38089,
-			Receive_Cash_Gift_Talk = STR_ID_38092,
-			Level_Up_Talk = STR_ID_38078
-		},
-		NPC_COMMON_TALK = {
-			Every_Day_Reward_Talk = STR_ID_38075,
-			After_Talk = STR_ID_38079,
-			Reject_Gift_Talk = STR_ID_38083,
-			Gift_UI_Talk = STR_ID_38093
-		}
 	},
 	[HOUSE_ID.HI_SYOTA] = {
 		NPCTextureKey = "NUI_SYOTA",
@@ -4561,62 +4437,6 @@ House = {
 		Make_Talk = STR_ID_32413,
 		Upgrade_Talk = STR_ID_39201,
 		TALK_BOX = {},
-		EVENT3 = TRUE,
-		EVENT2 = TRUE,
-		NPC_TALK_LIST0 = {
-			Main_Talk = {
-				STR_ID_38001,
-				STR_ID_38002,
-				STR_ID_38003
-			},
-			Receive_Like_Gift_Talk = STR_ID_38018,
-			Receive_DisLike_Gift_Talk = STR_ID_38022,
-			Receive_Normal_Gift_Talk = STR_ID_38025,
-			Receive_Cash_Gift_Talk = STR_ID_38028,
-			Level_Up_Talk = STR_ID_38014
-		},
-		NPC_TALK_LIST1 = {
-			Main_Talk = {
-				STR_ID_38004,
-				STR_ID_38005,
-				STR_ID_38006
-			},
-			Receive_Like_Gift_Talk = STR_ID_38019,
-			Receive_DisLike_Gift_Talk = STR_ID_38023,
-			Receive_Normal_Gift_Talk = STR_ID_38026,
-			Receive_Cash_Gift_Talk = STR_ID_38029,
-			Level_Up_Talk = STR_ID_38015
-		},
-		NPC_TALK_LIST2 = {
-			Main_Talk = {
-				STR_ID_38007,
-				STR_ID_38008,
-				STR_ID_38009
-			},
-			Receive_Like_Gift_Talk = STR_ID_38020,
-			Receive_DisLike_Gift_Talk = STR_ID_38024,
-			Receive_Normal_Gift_Talk = STR_ID_38027,
-			Receive_Cash_Gift_Talk = STR_ID_38030,
-			Level_Up_Talk = STR_ID_38016
-		},
-		NPC_TALK_LIST3 = {
-			Main_Talk = {
-				STR_ID_38010,
-				STR_ID_38011,
-				STR_ID_38012
-			},
-			Receive_Like_Gift_Talk = STR_ID_38020,
-			Receive_DisLike_Gift_Talk = STR_ID_38024,
-			Receive_Normal_Gift_Talk = STR_ID_38027,
-			Receive_Cash_Gift_Talk = STR_ID_38030,
-			Level_Up_Talk = STR_ID_38016
-		},
-		NPC_COMMON_TALK = {
-			Every_Day_Reward_Talk = STR_ID_38013,
-			After_Talk = STR_ID_38017,
-			Reject_Gift_Talk = STR_ID_38021,
-			Gift_UI_Talk = STR_ID_38031
-		}
 	},
 	[HOUSE_ID.HI_IGNIA] = {
 		NPCMeshName = "Motion_NPC_Ranox_IGNIA.x",
