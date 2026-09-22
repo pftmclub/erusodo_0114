@@ -1,2 +1,4 @@
 DLG_UI_Button17.tet
 DLG_UI_Button17.tga
+DLG_UI_Button20_NEW.TET
+DLG_UI_Button20_NEW.tga

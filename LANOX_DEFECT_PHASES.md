@@ -647,6 +647,104 @@ Related latent gap, log but don't fix here: `X2LocationManager.h:487`
 **Verify:** pack + atlas repack, extract, confirm. Play-test: dungeon list
 shows a Lanox tab alongside Sander's.
 
+**Execution notes, 2026-09-22:**
+
+- **Lua staged.** `march2014/data034/DLG_UI_Local_Map_NEW.lua` now carries a 9th
+  `CreateRadioButton` block, modeled on the sander block (not ruben — ruben's
+  `RIGHT_BOTTOM y=25` is a lone outlier; every other button uses 34), with
+  `RANOX_BTN_NORMAL/OVER/DOWN`, `SetGroupID(1)` (same as the other 8),
+  `SetCustomMsgChecked(LMUCM_DUNGEON_GATE_SELECTED)`,
+  `AddDummyInt(LOCAL_MAP_ID.LMI_RANOX)`, and the studio's own `SetName("ruben")`
+  quirk preserved verbatim (all 8 existing buttons pass the literal string
+  `"ruben"` to `SetName` regardless of village — transcribed, not tidied).
+  Position follows the established +65 step: `BGPoint`/`RBPoint` `LEFT_TOP =
+  (528, 9)`, `RBPoint RIGHT_BOTTOM = (592, 34)`, `CheckPoint LEFT_TOP = (528,
+  7)`. Two things beyond the task's own description, both sourced from the
+  file's existing structure rather than invented: (1) a 9th quest-notice
+  picture in `g_pStatic_Quest` (`LEFT_TOP = (520, -10)`,
+  `SetIndex(LOCAL_MAP_ID.LMI_RANOX)`) — the other 8 buttons each have one, so
+  omitting a 9th would silently drop Ranox's quest badge; (2) the panel
+  background's center/right pieces (`BG_CENTER_TOP/MIDDLE/BOTTOM`,
+  `BG_RIGHT_TOP/MIDDLE/BOTTOM`) stretched by the same 65px one more button
+  needs (`ADD_SIZE_X 500→565`/`510→575`, right pieces `x 551→616`) — without
+  this the 9th tab would render past the dialog's own background. Test-compiled
+  clean via `elstools compile-batch -v mar-2014` (10753 bytes) and
+  decompiled the compiled output back to source to confirm a clean round trip
+  (all 3 `RANOX` references present, nothing else changed). **Owed:** `.kom`
+  packing into `data034.kom` is the user's step, per this project's established
+  convention.
+- **Atlas merged, not just staged.** Reverse-engineered the `.TET` sidecar
+  format from `KTDXLIB/KTDXDeviceTET_Preprocessing.h/.cpp` (`KTETFormatHeader`
+  + a sorted `DWORD` key-offset array + a `KTETFormatTextureUV` array + a
+  length-prefixed wide-string table — `GetTexUV` binary-searches the key array,
+  so it must stay sorted by wide-string comparison) and the atlas's own layout
+  (columns of 65px-wide village buttons; `SANDER` occupies a second row-band
+  below `RUBEN`'s column because an 8th 65px column doesn't fit the 512px
+  width — `7*66=462`, `+65` would overrun to 527). Placed `RANOX_BTN_NORMAL`
+  (`leftTop=(1,179)`), `_OVER` (`(1,208)`), `_DOWN` (`(1,237)`), each 58×28,
+  directly below `SANDER`'s column, mirroring its own spacing convention.
+  Source pixels are June2017's `data056_kom/DLG_UI_Button21.tga` keys
+  `BTN_RANOX_N/O/D` (`leftTop=(1,336)/(1,365)/(1,394)`, also 58×28 — cropped
+  verbatim, not rescaled to match the 65px column width; the click hit-box
+  (`RBPoint`) doesn't need to match the texture's own width, and `ruben`'s
+  existing 56-vs-64 mismatch shows the engine already tolerates this —
+  cosmetically, expect the Lanox tab to sit ~7px narrower than its neighbours
+  since the drawn quad follows the TET `rectSize`, not the 65px slot; that's
+  not a placement bug worth re-opening, just June's art being narrower).
+  Verified
+  the coordinate space empirically before trusting it: cropped the known
+  `RUBEN_BTN_NORMAL` region and rendered its alpha channel as ASCII art —
+  a clean rounded-button silhouette confirmed the TET's `(x,y)` is top-left-
+  origin, UI-space, and the TGA (`imageDescriptor 0x08`, bit5 clear) stores
+  rows bottom-up, so cropping/pasting needs a `height-1-y` row flip; same check
+  on June's 3 source crops confirmed legible button shapes before use.
+  Produced `march2014/update/data056/DLG_UI_Button20_NEW.{tga,TET}`, appended
+  to that folder's existing `assets.txt`. Verified before staging: all 49 of
+  March's existing `.TET` keys round-trip byte-identical (parsed, compared
+  field-by-field); the 3 new keys carry the expected rects; only TGA rows
+  179–264 differ from the live archive's copy, and within those rows only
+  `x∈[1,59)` changed; header (18 bytes) and 26-byte footer are byte-identical;
+  file size unchanged (1,048,620 bytes). **This pair is pack-ready as a direct
+  replacement** — unlike the `DLG_UI_Button17`/`_A` pair already sitting in
+  `march2014/update/data056/` and `.../datai020/` (Phase 7c), which are
+  explicitly *merge source only* per `RANOX_PORT_PLAN.md`'s note, because
+  June's Button21 atlas has a different `.TET` size/layout than March's and a
+  blind file-swap would destroy March's own existing swatches. This merge
+  instead parsed March's real TET, preserved every existing entry unmodified,
+  and only appended — confirmed by the byte-identical round-trip above, not
+  assumed.
+- **Phase 7c is not actually closed — correcting the 2026-09-22 update
+  above.** Read Phase 7c's finding before this atlas merge, as instructed, and
+  it doesn't hold up: extracted the **live** `data056.kom`/`datai020.kom`
+  (mtime 2026-09-19 16:33) and both `DLG_UI_Button17.tga`/`_A.tga` are still
+  the exact same malformed bytes originally reported —
+  `D3DXERR_INVALIDDATA` would still fire. The phase's own hypothesis list
+  (bit depth / RLE / origin bit / non-power-of-two) was also wrong; none of
+  those is the defect. The real defect: the entire file (header through
+  footer) is XOR'd with the same repeating 12-byte key already known from
+  script encryption — `02 AA F8 C6 DC AB 47 26 EF BB 00 98`. Decrypting the
+  live `DLG_UI_Button17.tga` with that key byte-for-byte recovers a textbook
+  TGA — the header becomes byte-identical to `DLG_UI_Button20_NEW.tga`'s
+  (`00 00 02 00 00 00 00 00 00 00 00 00 00 02 00 02 20 08`), the
+  `TRUEVISION-XFILE.` footer signature appears exactly where it should, and
+  the midfile bytes decode to plausible grayscale BGRA button pixels — not
+  noise. The good news: **the fix already exists, staged and un-packed.**
+  `march2014/update/data056/DLG_UI_Button17.tga` and
+  `march2014/update/datai020/DLG_UI_Button17_A.tga` (written 2026-09-19
+  16:21, 12 minutes *before* the live `.kom`s were last packed at 16:33) both
+  have the clean header already — the repack at 16:33 simply didn't pick up
+  this fix. This needs a re-pack of `data056.kom` and `datai020.kom` from the
+  currently-staged files, not new work. My own atlas merge above targets
+  `DLG_UI_Button20_NEW.tga`, a separate, already-clean file in the same
+  archive — confirmed unaffected by this XOR corruption before merging into
+  it.
+- **Logged, not fixed (per the task):** `X2LocationManager.h:487`
+  `IsVillageField()` and `X2WorldMapUI.cpp:2457` both bound
+  `VMI_RUBEN..VMI_SANDER`, excluding `VMI_RANOX`. Zero callers today.
+- **Owed:** pack `data034.kom` (Lua) and `data056.kom` (atlas, and while
+  it's open, the Button17 re-pack above) and play-test — dungeon list should
+  show a Lanox tab alongside Sander's.
+
 **Kickoff prompt**:
 ```
 Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
