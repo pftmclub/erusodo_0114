@@ -472,6 +472,15 @@ void CX2LocalMapUI::UpdateLocalMapDLG()
 
 				if( NULL != pLocalMapTemplet )
 				{
+#ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON
+					if( pControl->GetDummyInt( 0 ) == (int) CX2LocationManager::LMI_RANOX )
+					{
+						WCHAR buff[256] = {0};
+						StringCchPrintf( buff, 256, L"[RANOXDBG] region-tab localMapID=%d requireUnitLevel=%d unitLevel=%d",
+							pControl->GetDummyInt( 0 ), pLocalMapTemplet->m_RequireUnitLevel, g_pData->GetSelectUnitLevel() );
+						ErrorLogMsg( XEM_ERROR142, buff );
+					}
+#endif SERV_IRUHADEV_RANOXDBG_DUNGEON
 #ifdef FIX_LOCALMAP_OPEN_CONDITION
 					if( g_pData->GetSelectUnitLevel() < pLocalMapTemplet->m_RequireUnitLevel )
 					{
@@ -616,6 +625,14 @@ CKTDGUIDialogType CX2LocalMapUI::GetLocalMapDLG( CX2LocationManager::LOCAL_MAP_I
 void CX2LocalMapUI::UpdateDungeonButtons( CX2LocationManager::LOCAL_MAP_ID eLocalMapID )
 {
 	CKTDGUIDialogType pDialog = GetLocalMapDLG( eLocalMapID );
+#ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON
+	if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+	{
+		WCHAR buff[256] = {0};
+		StringCchPrintf( buff, 256, L"[RANOXDBG] UpdateDungeonButtons localMapID=%d pDialog=%s", (int)eLocalMapID, ( NULL == pDialog ) ? L"NULL" : L"OK" );
+		ErrorLogMsg( XEM_ERROR142, buff );
+	}
+#endif SERV_IRUHADEV_RANOXDBG_DUNGEON
 	if( NULL == pDialog )
 		return; 
 
@@ -637,6 +654,14 @@ void CX2LocalMapUI::UpdateDungeonButtons( CX2LocationManager::LOCAL_MAP_ID eLoca
 
 		SEnum::DUNGEON_ID eDungeonID = (SEnum::DUNGEON_ID) pControl->GetDummyInt( 0 );
 		const CX2Dungeon::DungeonData* pDungeonData = g_pData->GetDungeonManager()->GetDungeonData( eDungeonID );
+#ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON
+		if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+		{
+			WCHAR buff[256] = {0};
+			StringCchPrintf( buff, 256, L"[RANOXDBG] control=%s dungeonID=%d pDungeonData=%s", pControl->GetName(), (int)eDungeonID, ( NULL == pDungeonData ) ? L"NULL" : L"OK" );
+			ErrorLogMsg( XEM_ERROR142, buff );
+		}
+#endif SERV_IRUHADEV_RANOXDBG_DUNGEON
 		if( NULL == pDungeonData )
 		{
 #ifdef SCRIPT_SELECT
@@ -669,6 +694,14 @@ void CX2LocalMapUI::UpdateDungeonButtons( CX2LocationManager::LOCAL_MAP_ID eLoca
 		// 디펜스 던전 인 경우
 		if( NULL != g_pData->GetDungeonManager() && true == g_pData->GetDungeonManager()->IsDefenceDungeon( eDungeonID ) )
 		{
+#ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON
+			if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+			{
+				WCHAR buff[256] = {0};
+				StringCchPrintf( buff, 256, L"[RANOXDBG] control=%s dungeonID=%d routed-through=IsDefenceDungeon", pControl->GetName(), (int)eDungeonID );
+				ErrorLogMsg( XEM_ERROR142, buff );
+			}
+#endif SERV_IRUHADEV_RANOXDBG_DUNGEON
 			const bool bActiveDefenceDungeon = g_pData->GetWorldMissionManager()->IsActiveDefenceDungeon();
 
 			if ( true == UpdateDefenceDungeonIcon( pControl, bActiveDefenceDungeon ) )
@@ -682,6 +715,17 @@ void CX2LocalMapUI::UpdateDungeonButtons( CX2LocationManager::LOCAL_MAP_ID eLoca
 		//}} kimhc // 2011-04-27 // 디펜스 던전 시간에 따라, 던전 아이콘 비/활성화 여부 결정
 
 
+#ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON
+		if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+		{
+			bool bDbgIsActive = g_pData->GetDungeonManager()->IsActiveDungeon( (int) eDungeonID, 0 );
+			WCHAR buff[256] = {0};
+			StringCchPrintf( buff, 256, L"[RANOXDBG] control=%s dungeonID=%d minLevel=%d unitLevel=%d isActive=%d authOperator=%d",
+				pControl->GetName(), (int)eDungeonID, pDungeonData->m_MinLevel, g_pData->GetSelectUnitLevel(), (int)bDbgIsActive,
+				(int)( g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_OPERATOR ) );
+			ErrorLogMsg( XEM_ERROR142, buff );
+		}
+#endif SERV_IRUHADEV_RANOXDBG_DUNGEON
 		if( g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_OPERATOR ||
 			true == g_pData->GetDungeonManager()->IsActiveDungeon( (int) eDungeonID, 0 ) )
 		{

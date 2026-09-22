@@ -4201,3 +4201,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // VILLAGE_ENTRY_TROUBLESHOOTING.md.
 #define SERV_IRUHADEV_CRASHLOG_REAL_EXE_NAME
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-22
+// Description: Short-lived diagnostic for Phase 5 (all Lanox dungeons
+// appear locked). Logs, per Ranox DUNGEON_ID in CX2LocalMapUI, whether
+// GetLocalMapDLG/GetDungeonData returned NULL and what IsActiveDungeon
+// decided, plus the Ranox region-tab RequireUnitLevel check. Remove once
+// Phase 5 is settled. See LANOX_DEFECT_PHASES.md Phase 5.
+#define SERV_IRUHADEV_RANOXDBG_DUNGEON
+//////////////////////////////////////////////////////////////////////////

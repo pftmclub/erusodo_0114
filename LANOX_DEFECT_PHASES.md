@@ -715,21 +715,53 @@ shows a Lanox tab alongside Sander's.
   origin, UI-space, and the TGA (`imageDescriptor 0x08`, bit5 clear) stores
   rows bottom-up, so cropping/pasting needs a `height-1-y` row flip; same check
   on June's 3 source crops confirmed legible button shapes before use.
-  Produced `march2014/update/data056/DLG_UI_Button20_NEW.{tga,TET}`, appended
-  to that folder's existing `assets.txt`. Verified before staging: all 49 of
-  March's existing `.TET` keys round-trip byte-identical (parsed, compared
+  Produced `march2014/update/data056/DLG_UI_Button20_NEW.{tga,TET}` in a
+  working location, appended a matching entry to that folder's `assets.txt`
+  (later migrated into `_manifest.json`), and verified before staging: all 49
+  of March's existing `.TET` keys round-trip byte-identical (parsed, compared
   field-by-field); the 3 new keys carry the expected rects; only TGA rows
   179–264 differ from the live archive's copy, and within those rows only
   `x∈[1,59)` changed; header (18 bytes) and 26-byte footer are byte-identical;
-  file size unchanged (1,048,620 bytes). **This pair is pack-ready as a direct
-  replacement** — unlike the `DLG_UI_Button17`/`_A` pair already sitting in
-  `march2014/update/data056/` and `.../datai020/` (Phase 7c), which are
-  explicitly *merge source only* per `RANOX_PORT_PLAN.md`'s note, because
-  June's Button21 atlas has a different `.TET` size/layout than March's and a
-  blind file-swap would destroy March's own existing swatches. This merge
-  instead parsed March's real TET, preserved every existing entry unmodified,
-  and only appended — confirmed by the byte-identical round-trip above, not
-  assumed.
+  file size unchanged (1,048,620 bytes). Unlike the `DLG_UI_Button17`/`_A`
+  pair already sitting in `march2014/update/data056/` and `.../datai020/`
+  (Phase 7c), which are explicitly *merge source only* per
+  `RANOX_PORT_PLAN.md`'s note (June's Button21 atlas has a different `.TET`
+  size/layout than March's, so a blind file-swap would destroy March's own
+  existing swatches), this merge parsed March's real TET, preserved every
+  existing entry unmodified, and only appended.
+
+  **Correction, 2026-09-22 (later session) — this pair was never actually
+  committed or packed, despite the write-up above.** `git log --all
+  --full-history -- march2014/update/data056/DLG_UI_Button20_NEW*` returns
+  nothing, the files are absent from `march2014/update/data056/` on disk, and
+  the live `data056.kom` (extracted fresh, repacked 2026-09-22 20:42, well
+  after the Phase 4 commit) still has a 49-entry `.TET`
+  (`KTETFormatHeader.m_dwNumTextureUV = 49`, confirmed by parsing the header
+  bytes directly) with no `RANOX_BTN_NORMAL/OVER/DOWN` keys — a UTF-16LE scan
+  of the whole file found zero `RANOX` matches. The `.lua` half of Phase 4
+  (the 9th `LMI_RANOX` radio button in `DLG_UI_Local_Map_NEW.lua`) **is**
+  live in the current `data034.kom` (decompiled and confirmed: `AddDummyInt(
+  LOCAL_MAP_ID.LMI_RANOX )` present) — only the atlas art half regressed.
+  `march2014/update/data056/_manifest.json` still lists
+  `DLG_UI_Button20_NEW.TET`/`.tga` as expected files that don't exist on
+  disk, so whatever repacks from that manifest will skip or fail on them
+  silently.
+
+  **Verified non-blocking, not re-done this session.** `SetRBPoint` on the
+  Ranox radio button sets `USE_TEXTURE_SIZE = FALSE` with an explicit
+  `RIGHT_BOTTOM` (`(528,9)-(592,34)`, immediately right of Sander's
+  `(463,9)-(527,34)`), so the click hit-box does not depend on the missing
+  TET keys and the tab is still selectable. `SetBGPoint`/`SetNormalTex`/
+  `SetOverTex`/`SetCheckedTex` do rely on `GetTexUV` succeeding — with the
+  key missing, `CKTDGUIRadioButton::SetTextureKey` leaves `texSize` at its
+  default `(0,0)`, so the tab draws **nothing visible**, not merely the
+  wrong art. The panel-background stretch Phase 4 also added (`BG_CENTER_*`/
+  `BG_RIGHT_*`, `ADD_SIZE_X` 500→565/510→575) is packed and does make room
+  for it, so there is a blank clickable strip immediately right of Sander's
+  tab. Redoing the atlas merge (regenerate the `.tga`/`.TET` pair, stage
+  them in `march2014/update/data056/`, repack) is still owed — it just
+  doesn't block reaching Ranox's local map, so this session deferred it in
+  favor of Phase 5.
 - **Phase 7c is not actually closed — correcting the 2026-09-22 update
   above.** Read Phase 7c's finding before this atlas merge, as instructed, and
   it doesn't hold up: extracted the **live** `data056.kom`/`datai020.kom`
@@ -863,6 +895,109 @@ scalar `requireDungeonID` would diverge from the studio's own data pattern.
 
 **Verify:** after Phase 4's fix, re-test the dungeon tab directly. If still
 locked, apply steps 2-3, rebuild, redeploy, re-test.
+
+**Root-caused and fixed in data, 2026-09-22 (later session) — not a logic bug
+at all.** Phase 4's own 9th `LMI_RANOX` radio button *is* live (confirmed by
+decompiling the live `data034.kom`), so the player could reach Ranox's local
+map. The `SERV_IRUHADEV_RANOXDBG_DUNGEON` instrumentation (added this
+session, `KTDXLIB/Always.h` + 4 log points in `X2Lib/X2LocalMapUI.cpp` —
+region-tab level check, `GetLocalMapDLG` NULL check, `GetDungeonData` NULL
+check, `IsDefenceDungeon` reroute, final `IsActiveDungeon` decision) proved
+the C++ gate logic is correct: a live play-test's `ErrorLog.txt` showed
+`control=Burnded_Forest dungeonID=33270 minLevel=70 unitLevel=80 isActive=1
+authOperator=0` — `IsActiveDungeon` returns **true**, exactly as the static
+analysis above predicted. Yet the user reported **zero** dungeon icons
+rendering on the Ranox local map at all (not just BurnedForest) — "it only
+renders `Ranox_Local`, no active dungeon icon, not like Sander which shows
+Bonghun_temple/Screw_corridor etc."
+
+**Real cause: the Ranox dungeon-gate icon textures were never actually
+merged into their atlases — same defect class as Phase 4's tab-icon gap,
+but blocking here instead of cosmetic.** `march2014/update/data217/
+DLG_Map_Local_Ranox_Icon_NEW.lua`'s 8 dungeon buttons (`Burnded_Forest`,
+`Ashes_Village`, `Geyser`, `Gateway`, `SantilusShip`/FireTemple,
+`BehimossHeart`/FinalHall, `Ranox_Secret_Dungeon` ×2) reference texture keys
+(`Ranox_Burned_Forest_N/O`, etc.) on three atlases —
+`DLG_Common_Button03_NEW.tga`, `_04_NEW.tga`, `_05_NEW.tga` — and, critically,
+these buttons use plain `SetNormalPoint`/`SetOverPoint` (no `SetRBPoint`
+override), so with `USE_TEXTURE_SIZE` defaulting `true` and no texture UV to
+size from, `CKTDGUIButton`'s rect resolves to `texSize=(0,0)`: **both the
+draw and the hit-box collapse to nothing**, unlike the tab radio button whose
+explicit `SetRBPoint(USE_TEXTURE_SIZE=FALSE, RIGHT_BOTTOM=...)` kept it
+clickable despite missing art. Confirmed empirically from the live archive:
+
+- `DLG_Common_Button03_NEW.TET` (extracted from the live `data063.kom`,
+  repacked 2026-09-22 20:42) has 18 keys — all pre-existing Sander/event
+  content, **zero** `RANOX_*` keys, and no Ranox pixel data at all (only the
+  Lua's target coordinates were ever chosen, never populated).
+- `DLG_Common_Button04_NEW.tga`/`_05_NEW.tga` exist in the live archive with
+  **no `.TET` sidecar at all** — any key lookup on either fails
+  unconditionally.
+- `march2014/update/data063/_manifest.json` already listed `Button04_NEW.tga`/
+  `Button05_NEW.tga` as expected (from `RANOX_PORT_PLAN.md`'s final asset
+  sweep, which did a byte-identical June2017→March copy of these two files)
+  but never listed a `.TET` for either, and never staged `Button03_NEW.tga`/
+  `.TET` at all.
+
+**Fix, verified sourced rather than invented:**
+
+- `DLG_Common_Button04_NEW.tga`/`_05_NEW.tga` in `march2014/update/data063/`
+  are **byte-identical** to June2017's own copies (`cmp` confirmed). June2017's
+  own `.TET` sidecars for these two files were therefore copied verbatim —
+  zero computation, since the pixel layout already matches exactly. Confirmed
+  `RANOX_FINALHALL_N/O`, `RANOX_FIRETEMPLE_N/O`, `RANOX_SECRET_DUNGEON_N/O`
+  (Button04_NEW) and `RANOX_SECRET_DUNGEON_LOCK` (Button05_NEW) are present.
+  Note `Ranox_FIRETEMPLE` has Normal/Over swapped relative to every sibling
+  (`SetNormalTex(...,"_O")`, `SetOverTex(...,"_N")`) — transcribed as-is,
+  studio/port data, not "corrected."
+- `DLG_Common_Button03_NEW.tga`/`.TET` needed a real merge (same technique as
+  Phase 4's `Button20_NEW` work). First confirmed the two atlases share a
+  common ancestor: all 18 of March's existing keys have **byte-identical**
+  UV rects in June's copy of the same file, and pixel content is identical
+  up to the exact row where June's Ranox additions begin — so June's own
+  chosen coordinates for the 8 Ranox icons already sit in March's unused
+  space, no free-space search needed. Copied the 8 rects
+  (`RANOX_ASHES_VILLAGE_N/O`, `RANOX_BURNED_FOREST_N/O`, `RANOX_GATEWAY_N/O`,
+  `RANOX_GEYSER_N/O`) pixel-for-pixel from June's TGA into March's at the
+  same coordinates (`(HEIGHT-1-y)` row-flip per the TGA's bottom-up origin,
+  same as Phase 4), leaving March's original 512×512 header/footer and all
+  212,764 unrelated pixel bytes untouched (verified byte-for-byte). Rendered
+  `RANOX_BURNED_FOREST_N`'s merged alpha channel as ASCII art — a clean tree
+  silhouette, not noise. Rebuilt the `.TET` from scratch: 18 original entries
+  + 8 new ones (UVs taken verbatim from June's TET, same coordinates the
+  pixel copy used), re-sorted by key (required — `GetTexUV` binary-searches
+  assuming sorted order), verified by parsing the output back and confirming
+  all 26 entries round-trip exactly, the 18 original entries are byte-for-byte
+  unchanged, and the key order is sorted.
+- All 4 files staged in `march2014/update/data063/`
+  (`DLG_Common_Button03_NEW.tga`/`.TET` new, `Button04_NEW.TET`/
+  `Button05_NEW.TET` new — `Button04_NEW.tga`/`Button05_NEW.tga` were already
+  staged and untouched), `_manifest.json` updated to list all 6 (CRLF,
+  2-space indent, no trailing newline, matching the house format). Per
+  `.gitignore` (`march2014/** ... !march2014/**/*.lua !.../\_manifest.json`),
+  these binary files are intentionally not tracked in git — only the
+  manifest update is a real diff; this matches every other binary asset
+  already in this tree.
+
+**No C++ changes were needed or made for this half of the fix** — the
+`SERV_IRUHADEV_RANOXDBG_DUNGEON` instrumentation added this session stays in
+place (still short-lived/removable) since it's what proved the gate logic
+was never the problem.
+
+**Correcting Phase 4's own entry**: its "non-blocking, deferred" framing for
+the world-map tab's missing `DLG_UI_Button20_NEW.tga`/`.TET` art is still
+accurate **for that specific control**, because the tab is a `RadioButton`
+with an explicit `SetRBPoint(USE_TEXTURE_SIZE=FALSE, ...)` override — but the
+underlying mechanism (an atlas merge that was planned/referenced but never
+actually produced) is the same defect that turned out to be fully blocking
+here, on the plain `CKTDGUIButton`s that have no such override. The tab's own
+atlas gap is still open and still cosmetic-only; don't conflate the two.
+
+**Owed:** pack `data063.kom` from the files above (plus `data034.kom` and
+`data056.kom` remain owed from Phase 4, independent of this fix) and
+play-test — Ranox's local map should now show all 8 dungeon gate icons,
+with BurnedForest selectable at level ≥ 68 per the confirmed `isActive=1`
+log line above.
 
 **Kickoff prompt**:
 ```
