@@ -1,2 +1,0 @@
-DLG_New_Region_Ranox_01.TET
-DLG_New_Region_Ranox_01.dds

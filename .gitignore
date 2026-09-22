@@ -33,12 +33,12 @@
 # ---- march2014/ carries ported Ranox mesh/texture/audio assets alongside its
 # .lua source -- track the .lua, keep the (large, binary, re-derivable from
 # the June2017 client) assets out of the repo. Each folder that holds ignored
-# assets gets its own assets.txt (generated, listing just the filenames in
-# that folder) so the set is still visible without the weight.
+# assets gets its own _manifest.json (generated, mapping filename -> "2" for
+# .lua or "0" otherwise) so the set is still visible without the weight.
 march2014/**
 !march2014/**/
 !march2014/**/*.lua
-!march2014/**/assets.txt
+!march2014/**/_manifest.json
 
 # ---- narrow allowlist into KNCSDK (709 MB / 1234 files) for just the files -
 # the VS2010 server port touched, rather than admitting the whole vendored
