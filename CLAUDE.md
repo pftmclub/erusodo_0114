@@ -419,6 +419,10 @@ sqlite3 els_db.sql "select unit_uid, nickname, level from unit;"
 - Prefix by layer: `CKTDX*` / `KTDG*` engine, `CX2*` client gameplay, `K*` server and KNCSDK.
 - Wide strings (`std::wstring`, `WCHAR`) throughout; `#pragma pack(push,1)` around every packet struct.
 
+## `march2014/update/` manifests
+
+Each `data###/` directory under `march2014/update/` holds a `_manifest.json` listing every file in that directory: key is the filename, value is `"2"` for `.lua` files and `"0"` for anything else. Several `data###/` directories are missing this file entirely (found by diffing directory listings against sibling `_manifest.json`s — not tracked anywhere else). When adding one, match the existing format byte-for-byte: `{\r\n  "filename": "value",\r\n  ...\r\n}` — CRLF line endings, 2-space indent, no trailing newline after the closing `}`. Regenerating with a naive JSON dump (compact single-line, or LF, or trailing newline) produces a file that reads correctly but diffs as a full rewrite against the house convention.
+
 ## Tooling
 
 Content tools are separate executables, mostly with their own solutions. C++ world/content editors: `X2WorldTool`, `X2DungeonTool`, `X2EffectTool`, `X2ItemTool`, `X2LineMapTool`, `X2ScenarioTool`, `X2EventSceneTool`, `X2Viewer`, `X2MassFileTool` (`.kom` archive packing). C# WinForms data managers over Access/Excel and SQL Server: `ScriptDBManager`, `StringDBManager`, `TextureStringManager`, `Localization/DBManager`, `TransDBManagerForWeb`, `ContentSelector`, `ReleaseTool`, `BillingTool`, `NetErrorDBManager`. Balance and table data ships as `.xls` / `.xlsm` / `.mdb` in `ScriptData/`. Client patching: `X2Patcher`.
