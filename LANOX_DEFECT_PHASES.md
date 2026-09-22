@@ -134,6 +134,23 @@ Also, for issue 5 specifically, five more are dead (see Phase 5's own table).
   now enter every Lanox field with no crash. New symptom found once the
   fields actually load: field monsters spawn and die immediately, suspected
   zero/undefined HP. Opened as Phase 7d — see Phase 7's rewrite.
+  **Root-caused and fixed in data 2026-09-22, across all 4 chained Lanox
+  fields:** field monster types have an `AddNPCTemplet` row (so they spawn
+  with working AI) but no `AddNPCStat` row, so `m_stat` defaults to
+  `MAX_HP = 0` and they resolve to 0 HP the instant `SetHardLevel` runs —
+  sent back as `KILL_SELF`, not combat death. Fixed 25 of 33 distinct
+  monster `NPC_ID`s spawned across `Ranox_Field_00`/`_02`/`_03.lua` (a first
+  pass wrongly targeted 9 *base-name* siblings instead of the `_FD` variants
+  the fields actually spawn — caught and corrected before packing) by
+  staging `march2014/data037/NPCStat.src.lua` with rows transcribed verbatim
+  from June2017. **8 `NUI_LOW_GEYSER_*_FD` monsters in `Ranox_Field_01.lua`
+  remain unfixed and will still die on spawn** — neither March nor June has
+  any stat data for the Geyser monster family, so there is nothing to
+  transcribe; not a regression, a documented and currently-unsourceable gap.
+  Not yet packed or play-tested; see Phase 7's own execution notes for the
+  full trace, the sanity check, and a found-but-deferred 35-entry wider
+  version of the same registry gap (FireTemple/BurnedForest, still locked by
+  Phase 5).
 - **Issue 8** (no signboard at Behemoth Crater's Lanox end) → not a data gap;
   no code in this build reads a direction-board table at all. The one
   in-engine "points elsewhere" mechanism (`QUEST_GUIDE` indicator) is already
@@ -1086,6 +1103,200 @@ fold into a play-test the same way as 7a-c: enter a Lanox field, confirm
 monsters take visible damage over more than one hit and survive contact
 briefly rather than dying on spawn.
 
+**Execution notes, 2026-09-22 — root-caused and fixed in data, not yet
+packed/tested.**
+
+- **Mechanism, traced end to end.** A fresh play session's `offline_server.log`
+  showed the exact symptom: 26 field NPCs (`id=5154..5164`, `lv=70`) all
+  `died: KILL_SELF` within 350ms of "loading complete, play start" — not combat
+  damage. Zero `WARNING no rows for class=` lines, confirming
+  `CX2OfflineStatTable::GetUnitStat` is not in the path, exactly as this
+  phase's own step (1) predicted. The real path is entirely client-side:
+  `CX2BattleFieldGame::CreateBattleFieldNpc` (`X2Lib/X2BattleFieldGame.cpp:782`)
+  calls `pBattleFieldNpc->SetHardLevel( kNpcUnitData_.m_Level, true )`, which
+  reads `GetNPCUnitStat()` = `m_pNPCUnitInfo->m_stat`
+  (`X2Lib/X2GUNPC.h:1945`) and computes
+  `HP = ( statMaxHP + hardLevel.m_fHP * level ) * fHPScale`
+  (`X2Lib/X2GUNPC.cpp:7036`). `m_stat` is populated **only** by
+  `CX2UnitManager::AddNPCStat_LUA` (`X2Lib/X2UnitManager.cpp:679`), called from
+  Lua; with no row for a given `NPC_ID`, `m_stat` stays default-constructed —
+  `m_fMaxHP = 0`, `HardLevel.m_fHP = 0` — so `HP` resolves to exactly `0`.
+  `SetNowHp(0)` drives the NPC straight into a dying state; `DyingStart()`
+  (`X2Lib/X2GUNPC.cpp:13221`) finds no attacker
+  (`GetGameUnitWhoAttackedMe() == NULL`, since nothing hit it) and sends
+  `KEGS_NPC_UNIT_DIE_REQ` with reason `NDS_KILL_SELF` — the exact line seen in
+  the log.
+- **Root cause: the field's own spawn table has no row in `NPCStat.lua` for
+  any `NPC_ID` it spawns, the same "silent gap" class of bug
+  `RANOX_PORT_PLAN.md` already named for `NPCTemplet.lua` (its own "major
+  addendum"), but this is a different registry that addendum never checked.**
+  `data037`'s `NPCTemplet.lua` (which supplies `LUA_FILE_NAME`, i.e. which AI
+  script runs) already has entries for every relevant `NPC_ID` here — which is
+  why the NPCs spawn with working AI at all (uid assigned, `ErrorLog.txt` shows
+  no NULL-templet failures). `data037`'s sibling file, `NPCStat.lua` (681KB,
+  1817 `AddNPCStat` blocks, confirmed via `elstools decompile-batch` against
+  the **live** `data037.kom` — matches the `kom_contents` staging copy
+  byte-for-byte, so no staleness) has **zero** rows for the ones this field
+  actually spawns. Load order confirmed safe either way:
+  `CX2Data::ResetUnitManager` → `CX2UnitManager::OpenNPCFiles`
+  (`X2Lib/X2UnitManager.cpp:258-266`) opens `NPCTemplet.lua` before
+  `NPCStat.lua`, and `AddNPCStat_LUA` itself bails
+  (`X2Lib/X2UnitManager.cpp:697`) if the templet entry isn't there yet — so
+  appending stat rows at the end of the file, after the templet is fully
+  loaded, is the correct and only shape.
+- **Self-correction, same session — the first pass fixed the wrong 9 IDs.**
+  7a's own asset-list writeup names the 9 field monster **families**
+  (`MAG_CHARGER`, `MAG_NOM`, `RAGE_BABYFIG`, `RAGE_DRYAD`,
+  `SMITH_LITTLEWORKER`, `SMITH_MACHINE`, `SMITH_RUNNER`, `SMITH_SCIENCE`,
+  `SMITH_WORKER`), and the first attempt at this fix added stat rows for
+  exactly those 9 base-name `NPC_ID`s. That was wrong: those base names are
+  BurnedForest **dungeon** monsters (still unreachable — Phase 5 has all Lanox
+  dungeons locked), not what the Ashen Land field itself spawns.
+  `march2014/update/data036/Ranox_Field_00.src.lua`'s own `MONSTER_ID` list
+  (the field's actual spawn table, same shape as March's own
+  `Sander_Field_03.lua`) names 12 **`_FD`-suffixed** siblings instead:
+  `NUI_LOW_MAG_CHARGER_FD`, `NUI_LOW_MAG_NOM_FD`, `NUI_LOW_MAG_STONE_FD`,
+  `NUI_LOW_RAGE_BABYFIG_FD`, `NUI_LOW_RAGE_DRYAD_FD`,
+  `NUI_LOW_RAGE_FATHERFIG_FD_BOSS`, `NUI_LOW_SMITH_ALUMINUM_FD_BOSS`,
+  `NUI_LOW_SMITH_LITTLEWORKER_FD`, `NUI_LOW_SMITH_MACHINE_FD`,
+  `NUI_LOW_SMITH_RUNNER_FD`, `NUI_LOW_SMITH_SCIENCE_FD`,
+  `NUI_LOW_SMITH_WORKER_FD` — the `_FD` suffix matches 7a's own missing-asset
+  filenames (`NUI_LOW_*_FD_A.XET`) and March's own field convention
+  (`Sander_Field_03.lua` spawns `NUI_ICOOS_FD`/`NUI_ANU_FD`, not base names).
+  10 of these 12 match the session's own distinct `id=` values in
+  `offline_server.log` (2 — the `_BOSS` pair — hadn't spawned yet in that
+  session; the log's own "middle boss reserved" line shows one was queued).
+  All 12 already have `NPCTemplet.src.lua` entries too (confirmed). Caught
+  before packing — a stronger reviewer flagged that the base-name fix would
+  have survived a full pack/deploy cycle and only failed at play-test, with
+  the symptom indistinguishable from having done nothing. **Reverted the
+  base-name rows; the shipped fix targets the 12 `_FD` IDs above.** The 9
+  base-name rows aren't wrong data (June has real stat rows for them, and
+  they'll be needed once Phase 5 unlocks BurnedForest), just not what this
+  field needed — left for the deferred catch-up below rather than packed now
+  ahead of any evidence they're reachable.
+- **Fix (data only, no C++, no flag — same class as Phase 1 Bug A / Phase 3 /
+  Phase 4's Lua fixes, not the "server Lua the client needs" rule: this is
+  ordinary client `.kom` Lua with no `DoMemory` loader or degrade path).**
+  Staged `march2014/data037/NPCStat.src.lua` (new file — patches an existing
+  March file in place, same convention as `NPCTemplet.src.lua`) as the live
+  `data037.kom`'s own `NPCStat.lua` (confirmed byte-identical prefix) plus 12
+  appended `AddNPCStat` blocks, copied **verbatim** from June2017's own
+  `data037_kom/NPCStat.lua` (`MAX_HP = 8620`, `HARD_LEVEL.HP = 1297.6`,
+  identical for all 12 — studio's own repeated-block data, transcribed not
+  tidied), one per `NPC_ID`, in the order June's file has them.
+- **Sanity-checked the magnitude before trusting June's numbers** (per the
+  risk that a 2014→2017 stat rescale could ship unkillable monsters instead of
+  dead-on-spawn ones). Compared against `NUI_ICOOS_FD`, one of March's own
+  existing Sander Field 03 spawns (`STANDARD_MONSTER_LEVEL = 68`, the field
+  immediately before Ranox's own `STANDARD_MONSTER_LEVEL = 70`, and itself an
+  `_FD`-suffixed field monster — the correct comparison family): March's own
+  data gives it `MAX_HP = 12320`, `HARD_LEVEL.HP = 1848`, resolving to
+  `12320 + 1848*68 ≈ 138,000` HP at level 68. June's numbers for the 12 Lanox
+  field monsters resolve to `8620 + 1297.6*70 ≈ 99,000` HP at level 70 — same
+  order of magnitude as a comparable existing March field monster, not 10× off
+  in either direction. Passed; shipped as-is.
+- **Verified additive and round-trip clean**, same bar as `NPCTemplet.lua`'s
+  own precedent: the new file's first 962,773 bytes (49059 lines) are a byte-
+  for-byte prefix match against the live `data037.kom`'s own `NPCStat.lua`;
+  compiled clean via `elstools compile-batch -v mar-2014`; decompiled the
+  compiled output back and confirmed all 1817 pre-existing blocks parse to the
+  identical key/value content as the live file (some keys reordered by the
+  decompiler — cosmetic, not semantic, same as `NPCTemplet.lua`'s prior
+  finding on this), and the 12 new blocks carry the intended `NPC_ID`s with
+  `MAX_HP = 8620` / `HARD_LEVEL.HP = 1297.6`.
+- **Found, not fixed here — a wider version of the same registry gap.**
+  Cross-referencing every `NPC_ID` in `NPCTemplet.src.lua` against the live
+  `NPCStat.lua` found 242 templet entries with no stat row. Filtered against
+  June's own `NPCStat.lua` to separate signal from noise: **182 are non-combat
+  NPCs missing a stat row in June's client too** (village NPCs like
+  `NUI_CAMILLA`/`NUI_ARIEL`/`NUI_BILLBOARD`, event props, etc. — by design,
+  not a bug, since they never take damage). The remaining **60 are genuine
+  port gaps** — `NPC_ID`s with a real stat row in June that never made it into
+  March's `NPCStat.lua`.
+
+- **Second, wider pass, same session — "Lanox field" is a 4-field chain, not
+  one field, and the first pass only fixed field 1 of 4.** The diagnostic
+  session only walked into `Ranox_Field_00.lua`'s own zone (the entrance —
+  `BATTLE_FIELD_ID = VMI_BATTLE_FIELD_RANOX_FIELD_01`). But
+  `march2014/data036/BattleFieldData.src.lua` registers three more, chained by
+  portal (`Field_00`'s own `LINE_NUMBER=63` portal → `Field_02`'s
+  `BATTLE_FIELD_ID`, i.e. `Ranox_Field_01.lua`; that field's own portal →
+  `Ranox_Field_02.lua`; that field's own portal →
+  `Ranox_Field_03.lua`) — all reachable by walking the same zone forward from
+  where the diagnostic session stopped, not a separate dungeon requiring
+  Phase 5. Checking all 4 `march2014/update/data036/Ranox_Field_0{0..3}.lua`
+  files' own `MONSTER_ID` spawn tables found **33 distinct `NPC_ID`s total**,
+  all with `NPCTemplet.src.lua` rows (none would fail to spawn), but only the
+  12 in `Field_00` had been fixed. Fixed 13 more from the same verbatim-from-
+  June approach, same family (`MAX_HP = 8620` / `HARD_LEVEL.HP = 1297.6`,
+  confirmed identical to the already-shipped 12, so the sanity check above
+  covers these too without rechecking):
+  - `Field_02` (`Ranox_Field_01.lua` → `Ranox_Field_02.lua`'s spawn table),
+    7 IDs: `NUI_LOW_MOUNT_NOM_FD`, `_STONE_FD`, `_CHARGER_FD`, `_FIREBIRD_FD`,
+    `_FIGHTER_FD`, `_BERSERKER_FD`, `_BERSERKER_BOSS`.
+  - `Field_03` (`Ranox_Field_02.lua` → `Ranox_Field_03.lua`'s spawn table),
+    6 IDs: `NUI_LOW_FINALHALL_FIGHTER_FD`, `_BERSERKER_FD`, `_SNIKER_FD`,
+    `_FIREBIRD_FD`, `_STONE_FD`, `_IGNIA_BOSS`.
+  Verified the same way as the first 12: appended to
+  `march2014/data037/NPCStat.src.lua`, prefix-match confirmed against the
+  live `.kom` still holds, compiled clean, round-tripped with 0 semantic
+  mismatches across all 1817 pre-existing blocks. **File now carries 25 new
+  rows total (12 + 13), 1842 `AddNPCStat` blocks overall.**
+- **8 IDs found that this fix cannot cover — no source data exists in either
+  client.** `Ranox_Field_01.lua`'s own spawn table (the field between
+  `Field_00` and `Field_02`) names 8 `NUI_LOW_GEYSER_*_FD` monsters
+  (`_ALUMINUM_FD_BOSS`, `_LITTLEWORKER_FD`, `_MULLOCK_CALL_FD`, `_MULLOCK_FD`,
+  `_MULMAI_FD`, `_RUNNER_FD`, `_SCIENCE_FD`, `_WORKER_FD`). All 8 have
+  `NPCTemplet.src.lua` rows (they spawn), but **neither March's live
+  `NPCStat.lua` nor June2017's own copy has a stat row for any Geyser
+  monster at all — base name or `_FD` — confirmed by direct search of both
+  files.** This is not a port gap the same shape as the other 25: there is
+  nowhere to transcribe from. Per this project's own rule against hardcoded
+  tables, invented curves, or guessed values, **no stat rows were added for
+  these 8, and none should be until a real source turns up** (a different
+  client snapshot, or the user's own live-DB/asset access, per the
+  `DataBase/`/`ScriptData/` rule in `CLAUDE.md` if this ever turns out to be
+  server-sourced data after all — unlikely here since `NPCStat.lua` is
+  ordinary client `.kom` Lua, not server data, but worth ruling out before
+  calling this permanently blocked). **These 8 will still die on spawn with
+  `KILL_SELF` after this fix is packed** — walking far enough into the Lanox
+  field chain to reach `Ranox_Field_01.lua`'s zone will reproduce the exact
+  same symptom this phase just fixed, for these 8 specifically. This is a
+  known, named gap, not a regression.
+- **Found, not fixed here — the still-wider version of the same registry
+  gap.** Cross-referencing every `NPC_ID` in `NPCTemplet.src.lua` against the
+  live `NPCStat.lua` originally found 242 templet entries with no stat row;
+  filtered against June's own `NPCStat.lua`, 182 are non-combat NPCs missing a
+  stat row in June's client too (by design, not a bug) and 60 are genuine
+  port gaps. This session's 25 (Field_00's 12 + Field_02/03's 13) are now
+  fixed. **35 remain** — the FireTemple/BurnedForest families
+  (`NUI_FIRE_DEVIL_*`, the 9 BurnedForest base names this session's first,
+  reverted pass targeted, `NUI_MOUNT_FIREBIRD_FIRETEMPLE`,
+  `NUI_FIRETEMPLE_GATE`/`_REGIEON_POINT`) — none reachable yet per Phase 5's
+  dungeon lock, so none has produced an observed symptom. The 8 Geyser `_FD`
+  IDs above are a **separate, permanently-blocked** bucket (no source data),
+  not part of this 35. Recommend a dedicated catch-up pass once Phase 5 is
+  closed and those dungeons are actually playable, the same shape as this
+  note and as `RANOX_PORT_PLAN.md`'s own still-open `NPCTemplet.lua` catch-up
+  recommendation.
+- **Owed:** `march2014/data037/NPCStat.src.lua` needs `elstools compile-batch
+  -v mar-2014` (produces `NPCStat.lua`) and packing that into `data037.kom` —
+  the user's step, per this project's established convention. Then play-test:
+  walk the full Lanox field chain (`Field_00` → `Field_02` → `Field_03`, all
+  reachable by portal from the entrance already tested), confirm every
+  monster in those three fields' spawn tables takes visible damage over more
+  than one hit and survives contact briefly rather than dying on spawn —
+  including the four `_BOSS`/boss-tier variants
+  (`NUI_LOW_RAGE_FATHERFIG_FD_BOSS`, `NUI_LOW_SMITH_ALUMINUM_FD_BOSS`,
+  `NUI_LOW_MOUNT_BERSERKER_BOSS`, `NUI_LOW_FINALHALL_IGNIA_BOSS`) that may
+  need a longer play session or a middle-boss spawn to trigger. **Do not
+  expect `Ranox_Field_01.lua`'s zone (the Geyser-monster field) to be fixed**
+  — confirm its monsters still die with `KILL_SELF` and that this matches the
+  known, documented gap above, not a new regression. Grep the post-play-test
+  `offline_server.log` for `KILL_SELF` — any hit **outside** the 8 known-
+  blocked Geyser IDs names a `NPC_ID` this fix missed.
+
 **Kickoff prompt** (scoped to 7d only — 7a/7b/7c are closed):
 ```
 Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
@@ -1341,9 +1552,12 @@ Updated 2026-09-22 to fold in Phase 1's Bug B and to drop 7a/7b/7c (done):
    repack, one play-test.
 
 Phase 5 may need a fourth pass once its instrumentation lands, but only if
-batch 1 doesn't already resolve it via Phase 4. Phase 7d has no batch yet —
-it isn't diagnosed far enough to have a fix to test; add it to whichever
-batch is next once step (2) of its investigation names the actual code path.
+batch 1 doesn't already resolve it via Phase 4. Phase 7d now has a fix
+staged (`march2014/data037/NPCStat.src.lua`, 25 rows across 3 of the 4
+chained Lanox fields — the 4th, `Ranox_Field_01.lua`'s Geyser monsters,
+remains a documented, unsourceable gap) — fold it into the Lua batch above
+(add it to `compile-batch`'s file list) rather than running it alone, since
+it's the same data-only shape as batch 1's other fixes.
 Phase 8 needs no play-test batch at all — it was closed by static reading,
 confirmed rather than revised by the user's clarification.
 
@@ -1367,9 +1581,13 @@ Shelter** (Phase 1, both bugs); Edel's dialog shows no dead Event buttons and
 Ignia shows its intended ones; Steel/Faceoff/Syota shops list stock; a Lanox
 tab appears in the dungeon list; BurnedForest is selectable at level ≥ 68;
 Cobo Express reaches Silent Night Shelter; Ashen Land loads without crashing
-and `ErrorLog.txt` is clean of the 18 assets (done); field monsters survive
-more than one hit rather than dying on spawn (Phase 7d, still open — no
-acceptance criterion until it's diagnosed further); the Behemoth Crater
+and `ErrorLog.txt` is clean of the 18 assets (done); the Lanox field chain's
+monsters survive more than one hit rather than dying on spawn in
+`Ranox_Field_00`/`_02`/`_03.lua` (Phase 7d, 25 IDs fixed in data 2026-09-22 —
+`march2014/data037/NPCStat.src.lua` needs compiling and packing and
+play-testing before this criterion can be marked met) — **except**
+`Ranox_Field_01.lua`'s 8 `NUI_LOW_GEYSER_*_FD` monsters, a known, documented,
+currently-unsourceable gap, not part of this criterion; the Behemoth Crater
 quest-guide particle appears when toggled on (the physical signboard itself
 is confirmed out of scope — art task, not a bug); the leftmost Lanox teleport
 lands at the crater's end.
