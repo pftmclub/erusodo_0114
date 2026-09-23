@@ -1,0 +1,6 @@
+# Regenerable from Ghidra via regen.sh
+funcs.txt
+methods.txt
+ghidra/
+# Decompiled June lua (regenerate with elstools decompile-batch)
+june_lua/

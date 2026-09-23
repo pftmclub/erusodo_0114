@@ -29,6 +29,7 @@
 !/VS2003_to_VS2010_Port_Guide.md
 !/*.md
 !/march2014/
+!/june2017_re/
 
 # ---- march2014/ carries ported Ranox mesh/texture/audio assets alongside its
 # .lua source -- track the .lua, keep the (large, binary, re-derivable from
