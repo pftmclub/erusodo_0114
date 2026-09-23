@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include ".\x2effectset.h"
+#include "Offline/X2OfflineLog.h"
 
 
 
@@ -1805,7 +1806,19 @@ CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetNa
 {
 	EffectSetData* pEffectSetData = GetEffectSetTemplet( wstrEffectSetName );
 	if( NULL == pEffectSetData )
+	{
+#ifdef SERV_IRUHADEV_RANOX_EFFECT_DEBUG
+		static map<wstring, DWORD> s_mapLastLoggedTime;
+		DWORD dwNow = timeGetTime();
+		map<wstring, DWORD>::iterator itThrottle = s_mapLastLoggedTime.find( wstrEffectSetName );
+		if( itThrottle == s_mapLastLoggedTime.end() || dwNow - itThrottle->second >= 1000 )
+		{
+			s_mapLastLoggedTime[ wstrEffectSetName ] = dwNow;
+			CX2OfflineLog::Server( L"[RANOX_EFFECT_MISSING] EffectSet not found: %s", wstrEffectSetName.c_str() );
+		}
+#endif SERV_IRUHADEV_RANOX_EFFECT_DEBUG
 		return INVALID_EFFECTSET_HANDLE;
+	}
 
 	if( NULL == pGameUnit )
 		return INVALID_EFFECTSET_HANDLE;

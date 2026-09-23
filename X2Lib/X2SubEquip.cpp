@@ -17,6 +17,10 @@ m_pFrameMatrix( pFrameMatrix )
 	m_pSkinModel = NULL;
 	m_bSkinMesh = false;
 #endif
+#ifdef SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
+	m_bUVAnimGlow = false;
+	m_fUVAnimTexOffset = 0.f;
+#endif SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
 }
 
 #ifdef ATTACH_SKINMESH
@@ -57,6 +61,11 @@ m_pFrameMatrix( pFrameMatrix )
 	m_fScale = 1.f;
 	m_vRotate = D3DXVECTOR3(0.f, 0.f, 0.f);
 	m_vOffset = D3DXVECTOR3(0.f, 0.f, 0.f);
+
+#ifdef SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
+	m_bUVAnimGlow = false;
+	m_fUVAnimTexOffset = 0.f;
+#endif SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
 }
 #endif
 
@@ -146,6 +155,27 @@ HRESULT CX2SubEquip::OnFrameMove( double fTime, float fElapsedTime )
 	{
 		m_pSkinAnim->SetDXMatrix( *m_pFrameMatrix );
 		m_pSkinAnim->OnFrameMove( fTime, fElapsedTime );
+
+#ifdef SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
+		// Ranox FIRE_DEVIL_*/SECRET_* fighter+berserker glow overlay (ATTACH_SKIN_MESH0,
+		// SKIN_MESH_RENDER_TYPE.SMRT_UV_ANIM). Scroll speed matches X2Eqip.cpp's own
+		// #else fallback for the enchanted-weapon glow (X2Eqip.cpp:414,
+		// ADD_UPGRADE_WEAPON_PARTICLE not defined here) rather than inventing a new one.
+		// CX2SubEquip has only one render pass (unlike CX2Eqip's separate
+		// m_EnchantRenderParam), so this replaces rather than overlays the normal
+		// cel-shaded look -- disclosed in RANOX_EFFECT_ENGINE_GAPS.md, not tuned further.
+		if( m_bUVAnimGlow == true )
+		{
+			m_fUVAnimTexOffset += fElapsedTime * 1.0f;
+
+			CKTDGXRenderer::RenderParam* pRenderParam = m_pSkinAnim->GetRenderParam();
+			if( pRenderParam != NULL )
+			{
+				pRenderParam->texOffsetStage2.y	= m_fUVAnimTexOffset;
+				pRenderParam->renderType			= CKTDGXRenderer::RT_LIGHT_FLOW_LOCAL_Z;
+			}
+		}
+#endif SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
 	}
 
 	return S_OK;

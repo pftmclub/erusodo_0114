@@ -600,6 +600,61 @@ box (`STR_ID_30401`) on a pending slot; the character stays recoverable only by
 undeleting through direct DB access, since there is still no in-game
 final-delete path either way.
 
+### Ranox monster effects: missing effect-set diagnostic + skin-mesh glow attach
+
+Two independent fixes for the Ranox (Lanox) monster family's missing effects and
+damage, investigated and planned in full in `RANOX_EFFECT_ENGINE_GAPS.md`
+(the standing gap inventory) -- this entry covers only the two C++ flags; the
+data-side fix (the 196 effect sets / 92 damage templets / 381 particle
+sequences merged into `march2014/data036/EffectSet.src.lua`,
+`DamageEffect.src.lua`, `GameMajorXMeshPlayer.txt` and `GameMajorParticle23.txt`)
+is a pure content change with no flag.
+
+**`SERV_IRUHADEV_RANOX_EFFECT_DEBUG`** (`KTDXLIB/Always.h`) -- a throttled
+diagnostic in `CX2EffectSet::PlayEffectSet` (`X2Lib/X2EffectSet.cpp`), at the
+existing `NULL == pEffectSetData` early return that used to fail completely
+silently (no log, no assert -- the reason the Mag Charger's death effect and
+its damage both simply vanished with no trace to grep for). Logs
+`[RANOX_EFFECT_MISSING] EffectSet not found: <name>` to `offline_server.log`
+via `CX2OfflineLog::Server`, once per name per second (`static
+map<wstring,DWORD>` + `timeGetTime()`). Short-lived by design -- remove once a
+play-test's log shows only the handful of effect sets `RANOX_EFFECT_ENGINE_GAPS.md`
+already lists as unrecoverable in both clients.
+
+**`SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH`** (`KTDXLIB/Always.h`,
+`X2Lib/X2GUNPC.cpp`, `X2Lib/X2SubEquip.h`, `X2Lib/X2SubEquip.cpp`) -- the
+`FIRE_DEVIL_*`/`SECRET_*` fighter and berserker family's Lua carries an
+`ATTACH_SKIN_MESH0` block (a second, skinned whole-body shell -- the missing
+glow overlay reported for Demon Fighter) that this build's NPC parser never
+read at all; only the sibling `ATTACH_MESH` (rigid, bone-anchored) loop
+existed. Added a second loop in `CX2GUNPC`'s constructor reading
+`ATTACH_SKIN_MESH0`'s `ATTACH_MESH_NAME`/`SKIN_MESH_RENDERTYPE` and reusing
+the studio's own pre-existing (unconditionally compiled, not part of this
+mod) `ATTACH_SKINMESH` mechanism -- the same skinned-sub-equip machinery
+`X2Eqip.cpp` already uses for player equipment -- anchored to the unit's root
+frame (`GetCloneFrameRoot()`, since the block gives no bone name). When
+`SKIN_MESH_RENDERTYPE == SKIN_MESH_RENDER_TYPE.SMRT_UV_ANIM`, `CX2SubEquip`
+now scrolls `texOffsetStage2.y` per frame under `RT_LIGHT_FLOW_LOCAL_Z`
+(`CX2SubEquip::SetUVAnimGlow`), the same UV-scroll idiom
+`X2Eqip.cpp:412-419` uses for the enchanted-weapon glow, at the same fallback
+speed (`1.0f`/sec, `X2Eqip.cpp:414`).
+
+**Known, disclosed limitation, not a bug to chase further**: `CX2SubEquip` has
+only one render pass, unlike `CX2Eqip`'s separate `m_EnchantRenderParam` for
+its glow -- so the scrolling UV render type *replaces* the attached shell's
+normal cel-shaded look rather than layering on top of it, as the enchant glow
+does. If that reads wrong in play-test, the documented fallback is to drop the
+`SetUVAnimGlow` call and leave the shell on the default `RT_REAL_COLOR` --
+still attached and visible, just without the scroll. See
+`RANOX_EFFECT_ENGINE_GAPS.md` §4 for the full inference chain, including the
+unexplained `VALUE = 0.01` field this mod does not use.
+
+Client-only; no server rebuild -- neither flag touches anything under
+`KncWX2Server/Common/`. Reverting either flag independently is safe: the
+effect-set fix is a pure logging addition (removing it returns to the old
+silent-failure behavior, not a new one), and the skin-mesh fix drops back to
+skipping `ATTACH_SKIN_MESH0` entirely, the pre-mod behavior.
+
 
 ## Reverting to stock
 

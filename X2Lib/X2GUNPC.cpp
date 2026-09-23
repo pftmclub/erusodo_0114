@@ -4423,6 +4423,46 @@ void CX2GUNPC::InitComponent()
 			m_LuaManager.EndTable();
 			++iAttachIndex;
 		}
+
+#ifdef SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
+		// FIRE_DEVIL_*/SECRET_* fighter+berserker family also carries an ATTACH_SKIN_MESH0
+		// block -- a second, skinned whole-body shell (the missing "glow" overlay) that
+		// this build never parsed at all. No ATTACH_BONE_NAME is given, so anchor it to
+		// the unit's root frame instead of a specific bone. See RANOX_EFFECT_ENGINE_GAPS.md.
+		if( true == m_LuaManager.BeginTable( "ATTACH_SKIN_MESH0" ) )
+		{
+			wstring wstrAttachSkinMeshName = L"";
+			int iSkinMeshRenderType = -1;	// SKIN_MESH_RENDER_TYPE.SMRT_NONE, march2014/data036/Enum.src.lua
+
+			LUA_GET_VALUE( m_LuaManager, "ATTACH_MESH_NAME",		wstrAttachSkinMeshName,	L"" );
+			LUA_GET_VALUE( m_LuaManager, "SKIN_MESH_RENDERTYPE",	iSkinMeshRenderType,	-1 );
+
+			if( false == wstrAttachSkinMeshName.empty() && m_pXSkinAnim != NULL )
+			{
+				CKTDXDeviceXSkinMesh::MultiAnimFrame* pRootFrame = m_pXSkinAnim->GetCloneFrameRoot();
+				if( pRootFrame != NULL )
+				{
+					CX2SubEquip* pSubEquip = CX2SubEquip::CreateSubEquip( &pRootFrame->combineMatrix, wstrAttachSkinMeshName, true );
+					if( pSubEquip != NULL )
+					{
+						m_vecAttachMesh.push_back( pSubEquip );
+
+						pSubEquip->SetManagerObject( this );
+						g_pKTDXApp->GetDGManager()->AddObjectChain( pSubEquip );
+
+						pSubEquip->SetLayer( GetLayer() );
+
+						const int SMRT_UV_ANIM_VALUE = 3;	// SKIN_MESH_RENDER_TYPE.SMRT_UV_ANIM, march2014/data036/Enum.src.lua
+						if( SMRT_UV_ANIM_VALUE == iSkinMeshRenderType )
+							pSubEquip->SetUVAnimGlow( true );
+					}
+				}
+			}
+
+			m_LuaManager.EndTable(); // ATTACH_SKIN_MESH0
+		}
+#endif SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
+
 #ifdef SEASON3_MONSTER_2011_7
 		LUA_GET_VALUE( m_LuaManager, "ABSORB_MAGIC_MONSTER", m_bAbsorbMagicMonster, false );
 #endif SEASON3_MONSTER_2011_7

@@ -4211,3 +4211,29 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Phase 5 is settled. See LANOX_DEFECT_PHASES.md Phase 5.
 #define SERV_IRUHADEV_RANOXDBG_DUNGEON
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-23
+// Description: Short-lived diagnostic for the Ranox effect-set audit
+// (RANOX_EFFECT_ENGINE_GAPS.md). Logs the effect-set name whenever
+// CX2EffectSet::PlayEffectSet fails to resolve it, throttled per name, so
+// a play-test's offline_server.log can be grepped for anything the
+// EffectSet.lua/DamageEffect.lua merge missed. Remove once the log comes
+// back clean.
+#define SERV_IRUHADEV_RANOX_EFFECT_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-23
+// Description: This build's X2GUNPC.cpp only parses ATTACH_MESH blocks in
+// an NPC state's ATTACH_MESH_LIST; the FIRE_DEVIL_*/SECRET_* fighter and
+// berserker family also carries ATTACH_SKIN_MESH0 blocks (a second,
+// skinned body shell -- the missing "glow" overlay), which were silently
+// skipped. Parse them alongside ATTACH_MESH and route
+// SKIN_MESH_RENDER_TYPE.SMRT_UV_ANIM through the same texOffsetStage2.y
+// UV-scroll mechanism used for enchanted-weapon glow (X2Eqip.cpp). See
+// RANOX_EFFECT_ENGINE_GAPS.md.
+#define SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
+//////////////////////////////////////////////////////////////////////////

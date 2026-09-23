@@ -34,6 +34,12 @@ public:
 	bool GetIsSkinMesh() { return m_bSkinMesh; }
 #endif
 
+#ifdef SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
+	// Ranox FIRE_DEVIL_*/SECRET_* fighter+berserker ATTACH_SKIN_MESH0 glow overlay.
+	// See RANOX_EFFECT_ENGINE_GAPS.md.
+	void SetUVAnimGlow( bool bVal ) { m_bUVAnimGlow = bVal; }
+#endif SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
+
 	void SetScale(float fVal) { m_fScale = fVal; }
 	void SetRotate(D3DXVECTOR3 vRot) { m_vRotate = vRot; }
 	void SetOffset(D3DXVECTOR3 vOffset) { m_vOffset = vOffset; }
@@ -49,6 +55,11 @@ private:
 	CKTDGXSkinAnim			*m_pSkinAnim;
 	CKTDXDeviceXSkinMesh	*m_pSkinModel;
 #endif
+
+#ifdef SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
+	bool					m_bUVAnimGlow;
+	float					m_fUVAnimTexOffset;
+#endif SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
 
 	float		m_fScale;
 	D3DXVECTOR3 m_vRotate;
