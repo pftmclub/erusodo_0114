@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2damageeffect.h"
+#ifdef SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
 
 CX2DamageEffect::CX2DamageEffect(void)
 //{{ robobeg : 2008-10-28
@@ -817,6 +820,19 @@ CX2DamageEffect::CEffect* CX2DamageEffect::CreateInstanceParabolic( CX2GameUnit*
 
 		if( pCEffect->GetLive() == false )
 		{
+#ifdef SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
+			{
+			static map<wstring, DWORD> s_mapLastLoggedTime_livecheck;
+			DWORD dwNow_livecheck = timeGetTime();
+			wstring wstrKey_livecheck = pName;
+			map<wstring, DWORD>::iterator itThrottle_livecheck = s_mapLastLoggedTime_livecheck.find( wstrKey_livecheck );
+			if( itThrottle_livecheck == s_mapLastLoggedTime_livecheck.end() || dwNow_livecheck - itThrottle_livecheck->second >= 1000 )
+			{
+				s_mapLastLoggedTime_livecheck[ wstrKey_livecheck ] = dwNow_livecheck;
+				CX2OfflineLog::Server( L"[RANOX_FX] effect not live: %s", pName );
+			}
+			}
+#endif SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
 			SAFE_DELETE( pCEffect );
 			m_LuaManager.EndTable();
 			return NULL;
@@ -935,6 +951,19 @@ CX2DamageEffect::CEffect* CX2DamageEffect::CreateInstance( CX2GameUnit* pGameUni
 
 		if( pCEffect->GetLive() == false )
 		{
+#ifdef SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
+			{
+			static map<wstring, DWORD> s_mapLastLoggedTime_livecheck;
+			DWORD dwNow_livecheck = timeGetTime();
+			wstring wstrKey_livecheck = pName;
+			map<wstring, DWORD>::iterator itThrottle_livecheck = s_mapLastLoggedTime_livecheck.find( wstrKey_livecheck );
+			if( itThrottle_livecheck == s_mapLastLoggedTime_livecheck.end() || dwNow_livecheck - itThrottle_livecheck->second >= 1000 )
+			{
+				s_mapLastLoggedTime_livecheck[ wstrKey_livecheck ] = dwNow_livecheck;
+				CX2OfflineLog::Server( L"[RANOX_FX] effect not live: %s", pName );
+			}
+			}
+#endif SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
 			SAFE_DELETE( pCEffect );
 			m_LuaManager.EndTable();
 			return NULL;
@@ -1043,6 +1072,20 @@ CX2DamageEffect::CEffect* CX2DamageEffect::CreateInstance( CX2GameUnit* pGameUni
 	}
 #endif // EFFECT_USE_LOG
 
+#ifdef SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
+	if( NULL == pCEffect )
+	{
+		static map<wstring, DWORD> s_mapLastLoggedTime_noblock;
+		DWORD dwNow_noblock = timeGetTime();
+		wstring wstrKey_noblock = pName;
+		map<wstring, DWORD>::iterator itThrottle_noblock = s_mapLastLoggedTime_noblock.find( wstrKey_noblock );
+		if( itThrottle_noblock == s_mapLastLoggedTime_noblock.end() || dwNow_noblock - itThrottle_noblock->second >= 1000 )
+		{
+			s_mapLastLoggedTime_noblock[ wstrKey_noblock ] = dwNow_noblock;
+			CX2OfflineLog::Server( L"[RANOX_FX] no DamageEffect block: %s", pName );
+		}
+	}
+#endif SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
 
 	return pCEffect;
 }
@@ -1410,6 +1453,18 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 
 	if( NULL == pMeshInst )
 	{
+#ifdef SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
+		{
+		static map<wstring, DWORD> s_mapLastLoggedTime_nomesh;
+		DWORD dwNow_nomesh = timeGetTime();
+		map<wstring, DWORD>::iterator itThrottle_nomesh = s_mapLastLoggedTime_nomesh.find( mainEffName );
+		if( itThrottle_nomesh == s_mapLastLoggedTime_nomesh.end() || dwNow_nomesh - itThrottle_nomesh->second >= 1000 )
+		{
+			s_mapLastLoggedTime_nomesh[ mainEffName ] = dwNow_nomesh;
+			CX2OfflineLog::Server( L"[RANOX_FX] no XMesh templet: %s", mainEffName.c_str() );
+		}
+		}
+#endif SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
 		m_bLive = false;
 	}
 	else

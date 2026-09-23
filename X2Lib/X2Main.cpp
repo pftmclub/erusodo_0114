@@ -3684,6 +3684,15 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2WorldObject>( L, "SetOriginalColorFactor",		&CX2WorldObject::SetOriginalColorFactor );
 #endif
 
+//{{ Iruha : 2026-09-23 // Ranox_FireTemple_Stage1.lua calls these on a
+// CX2WorldObject-derived object but this build never bound them, aborting
+// the whole script before it declares anything past that point.
+#ifdef SERV_IRUHADEV_RANOX_WORLD_METHODS
+	lua_tinker::class_def<CX2WorldObject>( L, "SetBoundingRadius",			&CX2WorldObject::SetBoundingRadius );
+	lua_tinker::class_def<CX2WorldObject>( L, "SetCenter",					&CX2WorldObject::SetCenter );
+#endif SERV_IRUHADEV_RANOX_WORLD_METHODS
+//}} Iruha : 2026-09-23
+
 
 
 #ifdef WORLD_LAYER
@@ -3744,6 +3753,15 @@ void CX2Main::RegisterLuabind()
 #ifdef SERV_IRUHADEV_RANOX_TRIGGER_ID
 	lua_tinker::class_def<CX2WorldObjectSkinMesh>( L, "SetTriggerID",			&CX2WorldObjectSkinMesh::SetTriggerID );
 #endif SERV_IRUHADEV_RANOX_TRIGGER_ID
+
+//{{ Iruha : 2026-09-23 // Ranox_AshesVillage_Stage2.lua calls SetTransition
+// but this build never bound it, aborting the script one line before it
+// declares the cart mesh (ASHS_VILLAGE_S2_CART.X). The C++ setter
+// (SetTransition_LUA) already existed, unused.
+#ifdef SERV_IRUHADEV_RANOX_WORLD_METHODS
+	lua_tinker::class_def<CX2WorldObjectSkinMesh>( L, "SetTransition",			&CX2WorldObjectSkinMesh::SetTransition_LUA );
+#endif SERV_IRUHADEV_RANOX_WORLD_METHODS
+//}} Iruha : 2026-09-23
 
 	lua_tinker::class_add<CX2WorldObjectLightFlow>( L, "CX2WorldObjectLightFlow" );
 	lua_tinker::class_inh<CX2WorldObjectLightFlow, CX2WorldObject>( L );

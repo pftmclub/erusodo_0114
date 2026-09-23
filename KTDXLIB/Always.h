@@ -4237,3 +4237,32 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // RANOX_EFFECT_ENGINE_GAPS.md.
 #define SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-23
+// Description: Ranox port -- bind three CX2WorldObject(SkinMesh) Lua methods
+// that scene scripts call but this build never bound, which aborts the whole
+// Lua chunk at that call (lua_tinker has no method -> the chunk stops, and
+// everything declared after it in the script is never created). Confirmed by
+// name-audit against every lua_tinker::class_def in X2Main.cpp/KTDXApp.cpp --
+// SetAlphaObject/SetIsForceNotCull ARE already bound (KTDXApp.cpp), but
+// SetTransition/SetBoundingRadius/SetCenter are not. SetTransition fixes
+// Ranox_AshesVillage_Stage2.lua (the cart never appears because the script
+// aborts one line before declaring it); SetBoundingRadius/SetCenter fix
+// Ranox_FireTemple_Stage1.lua the same way. See LANOX_DEFECT_PHASES.md.
+#define SERV_IRUHADEV_RANOX_WORLD_METHODS
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-23
+// Description: Short-lived diagnostic for the Ranox mesh-player templet
+// merge (LANOX_DEFECT_PHASES.md Root Cause 1). CX2DamageEffect::CreateInstance
+// silently drops both the visual and the hitbox when MAIN_EFFECT_NAME does not
+// resolve against GetMajorXMeshPlayer() -- this logs the name whenever that
+// happens, throttled per name, so a play-test's offline_server.log can be
+// grepped for anything the GameMajorXMeshPlayer.txt merge/repack missed.
+// Remove once the log comes back clean.
+#define SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
+//////////////////////////////////////////////////////////////////////////
