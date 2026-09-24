@@ -4,3 +4,5 @@ methods.txt
 ghidra/
 # Decompiled June lua (regenerate with elstools decompile-batch)
 june_lua/
+# Python bytecode from importing xordecrypt / ljd_jun2017 / reconcile
+__pycache__/

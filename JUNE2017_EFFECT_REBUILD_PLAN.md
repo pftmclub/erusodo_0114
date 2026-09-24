@@ -63,7 +63,8 @@ and they decrypt mechanically. So the June engine can now be read rather than gu
     curl -s --noproxy '*' -m 10 "http://127.0.0.1:8080/methods?limit=1"
     ```
   - **Quote the `'*'`.** Unquoted, the shell globs it and you get a Cloudflare 302 instead
-    of Ghidra. The skill file itself shows the broken unquoted form until Phase 0 fixes it.
+    of Ghidra. Inside a variable run as `$C`, quotes don't help. The skill file therefore
+    uses `--noproxy 127.0.0.1`, since Phase 0.
   - If the check fails, stop and ask the user to start Ghidra and the server. Don't loop.
   - `decompile_function` fails on large functions (the CEffect ctor and up). Ask the user
     to raise Edit → Tool Options → Decompiler → timeout and max payload. Until then,
@@ -75,6 +76,11 @@ and they decrypt mechanically. So the June engine can now be read rather than gu
 - **Lua tooling:** `elstools/elstools.exe`.
   - `decompile-batch -i <file.lua>` writes `<file>.src.lua` next to the input. Copy June
     files into `june2017_re/june_lua/` first, so the June directory is not littered.
+  - **For June (`KL\x82`) files, use `june2017_re/ljd_jun2017.py`** on the `.std.luac`
+    that `decompile-batch` leaves behind. elstools 1.0.0 mis-maps KOG opcodes
+    `0x2f`–`0x37` in both directions, so its decompile fails on any `for … in` loop, and
+    `compile-batch -v jun-*` emits broken bytecode. `mar-2014` is unaffected. See
+    `june2017_re/README.md`, "June LuaJIT opcode table".
   - `compile-batch -v mar-2014 -i <file.lua>` compiles **in place**.
 - **Client build** (default `US_SERVICE`, see CLAUDE.md *Toolchains*):
   ```sh
@@ -178,17 +184,24 @@ The full table, with evidence, is in `june2017_re/README.md`. Summary:
 | `321e48e0` | `AddEffectSetTemplet_LUA` (39 KB) | confirmed (bind table in `FUN_31d95080`) |
 | `31f7aab0` | `CEffect::CEffect` (20 KB) | confirmed |
 | `31f7fc60`, `31f7ff60` | `CreateInstance*` | confirmed (only callers of the ctor) |
-| `31f71930` | lock-on loader | confirmed (called by ctor) |
-| `31f637e0` | drag loader | confirmed (called by ctor) |
-| `31f64200` | sine-move loader | confirmed (called by ctor) |
-| `31f73f30` | sound loader | confirmed (called by ctor) |
-| `31f6ac60` | die damage-effect loader (`LOOP_*`, `SET_DIE_WHEN_MASTER_EFFECT_DIE`) | confirmed (called by ctor) |
-| `31f76a90` | passive-particle loader | confirmed (called by ctor) |
-| `31f74a80` | after-image loader | confirmed (called by ctor) |
-| `31f66700` | die-condition parser | confirmed (called by ctor) |
-| `31f68f30` | hit damage-effect loader | via wrapper `31f6e7e0`; key set only |
-| `31f66e60` | particle loader | via four wrappers; key set only |
-| `32632390` | `CX2DamageManager::SetDamageData` (11.9k disasm lines) | confirmed |
+| `31f71930` | `LoadLockOnData` (`LOCK_ON_DATA`) | confirmed (called by ctor) |
+| `31f637e0` | `LoadBlackHoleData` (`BLACKHOLE_DATA`; its keys are `DRAGGING_*`) | confirmed (called by ctor) |
+| `31f64200` | `LoadSinMoveData` (`SIN_MOVE_DATA`) | confirmed (called by ctor) |
+| `31f73f30` | `LoadSoundData` (`SOUND%d`) | confirmed (called by ctor) |
+| `31f6ac60` | `LoadDamageEffect`: the **`CREATE_DAMAGE_EFFECT%d`** loader (`LOOP_*`, `SET_DIE_WHEN_MASTER_EFFECT_DIE`, `INHERIT_*`) | confirmed (called by ctor) |
+| `31f76a90` | **`TOUCH_LAND_DAMAGE_EFFECT`** loader (June-only) | confirmed (called by ctor) |
+| `31f74a80` | `LoadAfterImage` (`AFTER_IMAGE`) | confirmed (called by ctor) |
+| `31f66700` | die-condition parser (`DAMAGE_EFFECT_DIE_CHECK_CONDITION`, `CONDITION_%d`) | confirmed (called by ctor) |
+| `31f68f30` | `LoadDieDamageEffect` per-entry body, via wrapper `31f6e7e0` (`DIE_DAMAGE_EFFECT`) | confirmed (ctor → `31f6e7e0` @`31f7e7f7`) |
+| `31f6ceb0` | `LoadHitDamageEffect` per-entry body, via wrapper `31f6e850` (`HIT_DAMAGE_EFFECT`) | confirmed (ctor → `31f6e850` @`31f7e84d`) |
+| `31f66e60` | `LoadParticleTable`, via `START_`/`PASSIVE_`/`TIME_`/`HIT_PARTICLE` wrappers | confirmed |
+| `32632390` | `CX2DamageManager::SetDamageDataFromLUA` (11.9k disasm lines; this plan calls it "SetDamageData") | confirmed |
+
+**Phase 0 corrected this table** (2026-09-24). Sub-table names turned out to be plaintext, and
+each loader's role is pinned by the one it opens. `31f6ac60` is the `CREATE_DAMAGE_EFFECT`
+loader, not the die loader. `31f68f30` is the **die** body, not the hit one. `31f76a90` is
+`TOUCH_LAND_DAMAGE_EFFECT`, not passive particles. `june2017_re/funcmap.tsv` is
+authoritative, with 46 rows of evidence; this table only summarises it.
 | `31f88790` | CEffect deleting dtor; CEffect's **only** virtual | confirmed (vtable `3346f008`, COL `33615530`) |
 | `31f85910` | `CEffect::OnFrameMove`? | **candidate** (size and call count only) |
 | `31f83aa0` | other CEffect runtime? | **candidate** |
@@ -214,7 +227,7 @@ are here so the size of each phase is understood.
   - `IGNORE_MI_HUGE`, `USE_ADVANCE_COLLISIOIN_CHECK`
   - `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`
   - `APPLIED_SKILL_ID`, `APPLIED_SKILL_ID_NOT_AFFECT_MEMO`
-- **Die damage-effect (`31f6ac60`):**
+- **`CREATE_DAMAGE_EFFECT%d` (`31f6ac60`):**
   - `LOOP_INTERVAL`, `LOOP_END_COUNT`, `LOOP_END_TIME`, `LOOP_ADD_POS_X/Y/Z`
   - `SET_DIE_WHEN_MASTER_EFFECT_DIE`
   - `INHERIT_LIFE_TIME`, `INHERIT_DAMAGE`, `INHERIT_BUFF_FACTOR`
@@ -271,6 +284,11 @@ not let it shrink scope.
 ---
 
 ## Phase 0 — RE tooling: a decryptor you can trust, and the function map as data
+
+**Status: done 2026-09-24.** Outputs are in `june2017_re/`: `xordecrypt.py` →
+`xorstrings.tsv` (6,180 of 6,240 buffers `ok`; three controls, one of them wide),
+`ljd_jun2017.py` (all 14 June files decompiled), `reconcile.py` → `reconcile.md`, and
+`funcmap.tsv`. Read `june2017_re/README.md` for what changed in the function map.
 
 **Paste with:** Starting context + this section.
 
@@ -652,24 +670,30 @@ Update the matrix and MODS.md.
 
 ---
 
-## Phase 6a — Sub-loaders I: die and hit damage effects, die conditions
+## Phase 6a — Sub-loaders I: CREATE_DAMAGE_EFFECT, die and hit damage effects, die conditions
 
 **Paste with:** Starting context + this section.
 
-- **June source:**
-  - `FUN_31f6ac60`: the die damage-effect loader (`LOOP_*`, `SET_DIE_WHEN_MASTER_EFFECT_DIE`,
-    `INHERIT_*`, `SET_GROUP_ID`, `AUTO_DIE`, `APPLY_ROTATED_OFFSET`, `APPLY_ROTATE_ORIGIN`).
-  - `FUN_31f68f30`, reached through wrapper `FUN_31f6e7e0`: the hit damage-effect loader.
-    Confirm the wrapper's caller first and add it to `funcmap.tsv`.
+- **June source** (roles corrected in Phase 0; see `funcmap.tsv`):
+  - `FUN_31f6ac60`: the **`CREATE_DAMAGE_EFFECT%d`** loader. It opens plaintext
+    `CREATE_DAMAGE_EFFECT` @`31f6acc5` and reads `LOOP_*`, `SET_DIE_WHEN_MASTER_EFFECT_DIE`,
+    `INHERIT_*`, `SET_GROUP_ID`, `AUTO_DIE`, `APPLY_ROTATED_OFFSET`, `APPLY_ROTATE_ORIGIN`.
+  - `FUN_31f68f30`, reached through wrapper `FUN_31f6e7e0`: the **die** damage-effect
+    loader (`DIE_DAMAGE_EFFECT[_ULTIMATE]`). The ctor calls the wrapper @`31f7e7f7`.
+  - `FUN_31f6ceb0`, reached through wrapper `FUN_31f6e850`: the **hit** damage-effect loader
+    (`HIT_DAMAGE_EFFECT[_ULTIMATE]`). The ctor calls the wrapper @`31f7e84d`.
   - `FUN_31f66700`: the die-condition parser. The `DAMAGE_EFFECT_DIE_CONDITION_TYPE` enum
     values come from the June `Enum.lua`, and the comparison semantics come from this
     function.
-- **March target:** `LoadDieDamageEffect` (`:6624`), `LoadHitDamageEffect` (`:6900`), the
-  `DamageEffectData` struct, and a new die-condition structure.
+- **March target:** `LoadDamageEffect` (`:6822`, `CREATE_DAMAGE_EFFECT`, which fills
+  `m_vecCreateDamageEffect`), `LoadDieDamageEffect` (`:6624`), `LoadHitDamageEffect`
+  (`:6900`), the `DamageEffectData` struct, and a new die-condition structure.
 
 **Named test case.** `DAMAGE_EFFECT_Trap_Fire_Big` uses `LOOP_ADD_POS_X/Y` and
-`SET_DIE_WHEN_MASTER_EFFECT_DIE`. It is one of the two blocks listed in
-`RANOX_EFFECT_ENGINE_GAPS.md` §1. After this phase it must parse completely.
+`SET_DIE_WHEN_MASTER_EFFECT_DIE`, all inside `CREATE_DAMAGE_EFFECT0..3`
+(`june_lua/DamageEffect.src.lua:300710`), so it is `31f6ac60`'s. It is one of the two
+blocks listed in `RANOX_EFFECT_ENGINE_GAPS.md` §1. After this phase it must parse
+completely.
 
 **Exit criteria.**
 
@@ -685,9 +709,10 @@ Continuing the June2017 effect-engine rebuild. Read JUNE2017_EFFECT_REBUILD_PLAN
 funcmap.tsv, and the matrix. Phase 5 is done (CEffect top-level keys under
 SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE; extend that flag). Branch: mods/lanox-port.
 
-Your task: transcribe June's die damage-effect loader (FUN_31f6ac60), hit damage-effect
-loader (FUN_31f68f30, via wrapper FUN_31f6e7e0 -- confirm its caller first), and
-die-condition parser (FUN_31f66700) into X2DamageEffect.cpp's LoadDieDamageEffect (:6624) /
+Your task: transcribe June's CREATE_DAMAGE_EFFECT%d loader (FUN_31f6ac60), die
+damage-effect loader (FUN_31f68f30, via wrapper FUN_31f6e7e0), hit damage-effect loader
+(FUN_31f6ceb0, via wrapper FUN_31f6e850) and die-condition parser (FUN_31f66700) into
+X2DamageEffect.cpp's LoadDamageEffect (:6822) / LoadDieDamageEffect (:6624) /
 LoadHitDamageEffect (:6900) and their structs. Take the DAMAGE_EFFECT_DIE_CONDITION_TYPE
 values from June's Enum.lua. Parse only; the loop and condition runtime is Phase 7c. Cite
 June address ranges.
@@ -699,25 +724,33 @@ is clean for these sub-tables. Update the matrix and MODS.md.
 
 ---
 
-## Phase 6b — Sub-loaders II: particle, lock-on, sound, after-image, drag, sine move and the small loaders
+## Phase 6b — Sub-loaders II: particle, lock-on, sound, after-image, black hole, sine move and the small loaders
 
 **Paste with:** Starting context + this section.
 
-- **June source:**
-  - Particle: `FUN_31f66e60` and its four wrappers (`31f6a7b0`, `31f6a940`, `31f6aad0`,
-    `31f6cd00`).
-  - Passive particle: `31f76a90`, and `31f6ceb0` via `31f6e850`.
+- **June source** (all identified in Phase 0; see `funcmap.tsv`):
+  - Particle: `FUN_31f66e60` and its four wrappers. `31f6a7b0` is `START_PARTICLE`,
+    `31f6a940` is `PASSIVE_PARTICLE`, `31f6aad0` is `TIME_PARTICLE`, and `31f6cd00` is
+    `HIT_PARTICLE`.
+  - Touch-land damage effect: `31f76a90` (`TOUCH_LAND_DAMAGE_EFFECT`, June-only; no March
+    loader). *Not* passive particles, as this section used to say. `31f6ceb0` moved to
+    Phase 6a, because it is the hit damage-effect body.
   - Lock-on: `31f71930`, with the `NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE` enum and
     `AT_PVP/AT_FIELD/AT_RAID_FIELD/AT_DUNGEON`.
-  - Sound: `31f73f30`.
-  - After-image: `31f74a80`.
-  - Drag: `31f637e0`.
-  - Sine move: `31f64200`.
-  - The small loaders `31f64c80` (`EFFECT_SET_NAME`/`EVENT_TIME`), `31f650f0`, `31f65730`
-    (color/screen?) and `31f66230` (`NPC_`/`EVENT_TIME`). Identify each one and add it to
-    `funcmap.tsv`.
-- **March target:** `LoadParticleTable`, `LoadLockOnData` (`:6342`), `LoadSoundData`,
-  `LoadAfterImage`, `LoadSinMoveData`, and the rest of the `Load*` family.
+  - Sound: `31f73f30` (`SOUND%d`).
+  - After-image: `31f74a80` (`AFTER_IMAGE`).
+  - Black hole: `31f637e0` (`BLACKHOLE_DATA`; its keys are `DRAGGING_*`, hence the old
+    "drag" label).
+  - Sine move: `31f64200` (`SIN_MOVE_DATA`).
+  - The small loaders:
+    - `31f650f0`: `CAMERA%d`, March `LoadCameraData`.
+    - `31f65730`: `SCREEN%d`, March `LoadScreenData`.
+    - `31f64c80`: `HIT_EFFECT_SET%d`, June-only.
+    - `31f66230`: `DIE_CREATE_NPC%d`, June-only.
+- **March target:** `LoadParticleTable`, `LoadLockOnData` (`:6342`), `LoadBlackHoleData`
+  (`:6410`), `LoadSinMoveData` (`:6436`), `LoadCameraData` (`:6753`), `LoadScreenData`
+  (`:6777`), `LoadSoundData` (`:6801`), `LoadAfterImage` (`:7019`), plus new loaders for
+  the June-only sub-tables.
 
 **Named test case.** `DamageEffect_SA_RHB_Lockon_Stratos_Attack` for lock-on. Its
 `NUMERICAL_DATA_INDEX`/`APPLIED_SKILL_ID` are unsupported systems: parse, store and log.
@@ -733,10 +766,10 @@ funcmap.tsv, and the matrix. Phases 5 and 6a are done (extend
 SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE). Branch: mods/lanox-port.
 
 Your task: transcribe the remaining CEffect sub-loaders -- particle (FUN_31f66e60 + its 4
-wrappers), passive particle (31f76a90, 31f6ceb0), lock-on (31f71930), sound (31f73f30),
-after-image (31f74a80), drag (31f637e0), sine move (31f64200), and the small loaders at
-31f64c80 / 31f650f0 / 31f65730 / 31f66230 (identify each and add it to funcmap.tsv) -- into
-X2DamageEffect.cpp's Load* family. Parse only. Unsupported-system keys (numerical data,
+wrappers), TOUCH_LAND_DAMAGE_EFFECT (31f76a90), lock-on (31f71930), sound (31f73f30),
+after-image (31f74a80), black hole (31f637e0), sine move (31f64200), CAMERA%d (31f650f0),
+SCREEN%d (31f65730), HIT_EFFECT_SET%d (31f64c80) and DIE_CREATE_NPC%d (31f66230); roles
+and evidence are in funcmap.tsv -- into X2DamageEffect.cpp's Load* family. Parse only. Unsupported-system keys (numerical data,
 memo, skill-ID-driven systems) get parse + store + one JUNE_FX unsupported log line. Cite
 June address ranges.
 
@@ -838,8 +871,13 @@ named lock-on effect from the matrix). Update the matrix and MODS.md.
 
 - **June source:** June's `CreateHitDamageEffect` / `CreateDieDamageEffect`, found from the
   sub-effect data consumers, plus the die-condition evaluation site: whatever reads the
-  structure `31f66700` filled.
-- **March target:** `X2DamageEffect.cpp:5378`, `:5626`, `SetDieDamageEffect` (`:4931`).
+  structure `31f66700` filled. **`LOOP_*` is not on the die path.** Phase 0 found it in
+  `CREATE_DAMAGE_EFFECT%d` (`31f6ac60`), so its runtime is June's counterpart of March's
+  `CREATE_DAMAGE_EFFECT` chain: `LoadDamageEffect` (`:6822`) → `m_vecCreateDamageEffect`
+  → `SetDamageEffect` (`:5139`) → `m_DamageEffectDataList`, spawned at run time. Find the
+  consumer of what `31f6ac60` fills.
+- **March target:** `X2DamageEffect.cpp:5378`, `:5626`, `SetDieDamageEffect` (`:4931`), and
+  `SetDamageEffect` (`:5139`) with the per-frame consumer of `m_DamageEffectDataList`.
 
 **Scope.**
 - `LOOP_INTERVAL/END_COUNT/END_TIME/ADD_POS_X/Y/Z`: how June schedules repeated spawns and
@@ -913,7 +951,8 @@ key in the matrix is implemented or classified. Update the matrix and MODS.md.
 
 - **June source:** `FUN_32632390` (11,918 disassembly lines). **Only** the keys March
   already parses.
-- **March target:** `CX2DamageManager::SetDamageData` in `X2DamageManager.cpp`.
+- **March target:** `CX2DamageManager::SetDamageDataFromLUA` (`X2DamageManager.cpp:67`; the plan's
+  "SetDamageData"), and `ParsingBuffFactorID` (`:3483`), whose June counterpart is `32630d20`.
 
 **Method.**
 - For each March-parsed `DAMAGE_DATA` key, find its June read: default, getter type,
@@ -935,7 +974,7 @@ the DamageData rows of the matrix. Branch: mods/lanox-port.
 
 Your task: walk June's SetDamageData (FUN_32632390, ~12k disasm lines) and, ONLY for the
 keys March already parses, compare default / type / post-processing / surrounding
-conditions against CX2DamageManager::SetDamageData. Mark each same or semantics-differ in
+conditions against CX2DamageManager::SetDamageDataFromLUA. Mark each same or semantics-differ in
 the matrix, and fix the differences under a new SERV_IRUHADEV_JUNE_DAMAGEDATA flag with
 June citations. This function is shared by every damage source in the game: list every
 changed default in MODS.md with before/after values. Also produce the ordered list of NEW

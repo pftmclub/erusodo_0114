@@ -1,0 +1,47 @@
+june_va	march_symbol	status	evidence
+321f28f0	CX2EffectSet::OnFrameMove	confirmed	its 4 calls, in order, match X2EffectSet.cpp:70-73
+321ee600	CX2EffectSet::OnFrameMove_CreateEffect	confirmed	references L"CX2EffectSet::OnFrameMove_CreateEffect" (__FUNCTION__) @3347e4f0 from 321f2684, and __FILEW__ X2EffectSet.cpp @3347e460 from 321f2777
+321e4020	CX2EffectSet::OnFrameMove_DeleteEffect	confirmed	2nd call of 321f28f0 (X2EffectSet.cpp:71)
+321e0080	CX2EffectSet::OnFrameMove_UpdateEffect	confirmed	3rd call of 321f28f0 (X2EffectSet.cpp:72)
+321dbcc0	CX2EffectSet::OnFrameMove_StartCameraShake	confirmed	4th call of 321f28f0 (X2EffectSet.cpp:73)
+321e48e0	CX2EffectSet::AddEffectSetTemplet_LUA	confirmed	in the lua_tinker class_def bind table of FUN_31d95080; 90 decrypted keys; opens plaintext EFFECT through KLuaManager::BeginTable(name,index) @321e5cf8, and TRIGGER_DATA, MESH_TRIGGER_DATA(_LIST), CAMERA_SHAKE, SOUND; reconcile.md: 193 of 215 EffectSet data keys, the rest explained
+31d95080	X2Main.cpp:4655-4672 (lua_tinker bind registration)	candidate	holds the class_def bind table that references 321e48e0 (README); not re-verified in Phase 0
+31c7b980	KLuaManager::BeginTable(const char* pszName, int index, bool bLogOutput)	confirmed	snprintf(buf, 0xff, "%s%d", name, index) @31c7b9be, then opens buf; ret 0xc = 3 stack args; matches KLuaManagerProxy.h:245
+31f7aab0	CX2DamageEffect::CEffect::CEffect	confirmed	decrypts both controls (3379c56c MAIN_EFFECT_NAME%d, 3379c2b8 RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT); 37 decrypted keys plus plaintext DAMAGE_DATA*, LOCK_ON_DATA*, BLACKHOLE_DATA*, FOLLOW_LINE(_NEW), DAMAGE_EFFECT_DIE_CHECK_CONDITION; reconcile.md: 378 of 378 top-level DamageEffect keys
+31f7fc60	CX2DamageEffect::CreateInstance (variant)	confirmed	one call to 31f7aab0 (README)
+31f7ff60	CX2DamageEffect::CreateInstance (common entry)	confirmed	one call to 31f7aab0; 14 callers (README)
+31f88790	CX2DamageEffect::CEffect scalar deleting destructor	confirmed	sole vtable entry at 3346f008; COL 33615530 -> type descriptor 337326c0 = .?AVCEffect@CX2DamageEffect@@. Ghidra has NO function defined at this address (nearest is FUN_31f886c0), so it was not renamed
+31f8ba80	none in March: "%s"/"%s_ULTIMATE" GetValue wrapper	confirmed	its only decrypted strings are "%s" and "%s_ULTIMATE"; called @31f7b874 right after plaintext MAIN_EFFECT_NAME @31f7b86c
+31f8b370	none in March: "%s"/"%s_ULTIMATE" wrapper (second value type)	confirmed	same two strings; called @31f7dbcd / 31f7dbeb right after plaintext FOLLOW_LINE @31f7dbc1 / FOLLOW_LINE_NEW @31f7dbdf
+31f71930	CX2DamageEffect::CEffect::LoadLockOnData	confirmed	ctor calls @31f7e7b2 / 31f7e7c2 after plaintext LOCK_ON_DATA_ULTIMATE / LOCK_ON_DATA @31f7e7ab / 31f7e7bb (March X2DamageEffect.cpp:6342-6344); 22 keys; reconcile 23 of 23
+31f637e0	CX2DamageEffect::CEffect::LoadBlackHoleData	confirmed	ctor calls @31f7e7d5 / 31f7e7e9 after BLACKHOLE_DATA_ULTIMATE / BLACKHOLE_DATA @31f7e7ce / 31f7e7e2 (March :6410-6412); keys DRAGGING_* (the README called it the "drag loader")
+31f64200	CX2DamageEffect::CEffect::LoadSinMoveData	confirmed	ctor call @31f7e7f0; plaintext SIN_MOVE_DATA @31f6421f (March :6436-6438)
+31f6e7e0	CX2DamageEffect::CEffect::LoadDieDamageEffect (table wrapper)	confirmed	ctor call @31f7e7f7; plaintext DIE_DAMAGE_EFFECT_ULTIMATE / DIE_DAMAGE_EFFECT @31f6e824 / 31f6e834; calls 31f68f30 twice (March :6624-6629)
+31f68f30	CX2DamageEffect::CEffect::LoadDieDamageEffect (per-entry body)	confirmed	only caller is 31f6e7e0; "%s%d"; keys include LAND_CRASH_ONLY, LIFE_TIME_ONLY, INHERITLOCKONDATA. The README and plan called it the HIT loader: wrong
+31f6a7b0	CX2DamageEffect::CEffect::LoadStartParticle	confirmed	ctor call @31f7e815; plaintext START_PARTICLE + "%s%d"; calls 31f66e60 (March :6675)
+31f6a940	CX2DamageEffect::CEffect::LoadPassiveParticle	confirmed	ctor call @31f7e81c; plaintext PASSIVE_PARTICLE + "%s%d"; calls 31f66e60 (March :6701)
+31f6aad0	CX2DamageEffect::CEffect::LoadTimeParticle	confirmed	ctor call @31f7e823; plaintext TIME_PARTICLE; calls 31f66e60 (March :6727)
+31f6cd00	CX2DamageEffect::CEffect::LoadHitParticle	confirmed	ctor call @31f7e82a; plaintext HIT_PARTICLE; calls 31f66e60 (March :6874)
+31f66e60	CX2DamageEffect::CEffect::LoadParticleTable	confirmed	the one callee of all four particle wrappers; 31 keys (POSITION_TYPE, PARTICLE_NAME, TRIGGER_COUNT, MOVE_ANGLE_*_PER_FRAME, ...) (March :5322)
+31f650f0	CX2DamageEffect::CEffect::LoadCameraData	confirmed	ctor call @31f7e831; plaintext CAMERA + "%s%d" @31f6512e (March :6753-6758)
+31f65730	CX2DamageEffect::CEffect::LoadScreenData	confirmed	ctor call @31f7e838; plaintext SCREEN + "%s%d" @31f6577a (March :6777-6782)
+31f73f30	CX2DamageEffect::CEffect::LoadSoundData	confirmed	ctor call @31f7e83f; plaintext SOUND + "%s%d" @31f73f94 (March :6801-6806)
+31f6ac60	CX2DamageEffect::CEffect::LoadDamageEffect (CREATE_DAMAGE_EFFECT%d)	confirmed	ctor call @31f7e846; plaintext CREATE_DAMAGE_EFFECT @31f6acc5; owns LOOP_*, SET_DIE_WHEN_MASTER_EFFECT_DIE, INHERIT_* (March :6822-6827). The README and plan called it the DIE loader: wrong
+31f6e850	CX2DamageEffect::CEffect::LoadHitDamageEffect (table wrapper)	confirmed	ctor call @31f7e84d; plaintext HIT_DAMAGE_EFFECT_ULTIMATE / HIT_DAMAGE_EFFECT @31f6e894 / 31f6e8a4; calls 31f6ceb0 twice (March :6900-6905)
+31f6ceb0	CX2DamageEffect::CEffect::LoadHitDamageEffect (per-entry body)	confirmed	only caller is 31f6e850; "%s%d". The README called it a passive-particle loader: wrong
+31f64c80	none in March: HIT_EFFECT_SET%d loader	confirmed	ctor call @31f7e854; plaintext HIT_EFFECT_SET + "%s%d" @31f64cde; keys EVENT_TIME, EFFECT_SET_NAME; no "HIT_EFFECT_SET" literal in March X2DamageEffect.cpp
+31f66230	none in March: DIE_CREATE_NPC%d loader	confirmed	ctor call @31f7e85b; plaintext DIE_CREATE_NPC + "%s%d" @31f66275; keys EVENT_TIME, NPC_ID
+31f76a90	none in March: TOUCH_LAND_DAMAGE_EFFECT loader	confirmed	ctor call @31f7e862; plaintext TOUCH_LAND_DAMAGE_EFFECT @31f76afe. The README called it the passive-particle loader: wrong
+31f79c20	inline in March's ctor (DAMAGE_DATA_NEXT -> SetDamageDataFromLUA, X2DamageEffect.cpp:1635)	confirmed	ctor calls @31f7e875 / 31f7e885 after plaintext DAMAGE_DATA_NEXT_ULTIMATE / DAMAGE_DATA_NEXT @31f7e86e / 31f7e87e; calls 32632390
+31f74a80	CX2DamageEffect::CEffect::LoadAfterImage	confirmed	ctor call @31f7f0bb; plaintext AFTER_IMAGE @31f74a9f (March :7019-7021)
+31f66700	none in March: DAMAGE_EFFECT_DIE_CHECK_CONDITION / CONDITION_%d parser	confirmed	ctor calls @31f7f967 / 31f7f976 after plaintext DAMAGE_EFFECT_DIE_CHECK_CONDITION @31f7f94e and AND_OPERATION / OR_OPERATION @31f7f95f / 31f7f96e; CONDITION_ + "%s%d" @31f66755
+32632390	CX2DamageManager::SetDamageDataFromLUA	confirmed	called twice from the CEffect ctor and from 31f79c20; 142 decrypted keys in March's read order (e.g. NO_BUFF ... NO_MISS @3263c3be-3263d301 = X2DamageManager.cpp:358-366, with June's IGNORE_DEFENCE_* in place of ANIMATION_SPEED_UP*). The plan calls it SetDamageData
+32630d20	CX2DamageManager::ParsingBuffFactorID	confirmed	its only caller is 32632390 @32635d10; decrypts BUFF_FACTOR_RELATIVE_SKILL_ID, RELATIVE_SKILL_LEARN_CHECK, BUFF_FACTOR_RELATIVE_MASTER_UNIT, APPLY_LEARNED_SKILL_*: March X2DamageManager.cpp:3483-3530 minus its #ifdef ADD_MEMO_1ST_CLASS keys
+32610ff0	CX2DamageManager::ParseDamageSoundBlock	candidate	decrypts exactly the 10 HTD_* keys of DamageSound.lua; called repeatedly from 3261a260, once per hit type, as March calls it (X2DamageManager.cpp:2611)
+32621080	none in March: InsertDamageData_LUA handler	candidate	decrypts every Elsword_DamageData.lua key (DAMAGE_PHYSIC ... DAMAGE_KEY_NAME); no caller in 0x32600000-0x32680000 (reached through the lua bind); the bind name is not verified
+31f85910	CX2DamageEffect::CEffect::OnFrameMove?	candidate	size and call count only (README); Phase 7a must confirm or replace
+31f83aa0	another CEffect runtime method?	candidate	size and call count only (README)
+31c895d0	KTDGXMeshPlayer templet parse?	candidate	__FILEW__ KTDGXMeshPlayer.cpp xref only (README); Phase 10
+31c8d140	KTDGXMeshPlayer templet parse?	candidate	__FILEW__ KTDGXMeshPlayer.cpp xref only (README); Phase 10
+32057b80	unit/NPC state script parser?	candidate	ATTACK_TIME-adjacent keys (README); probably out of scope
+32784c00	unit script (EFFECT_SET_LIST)?	candidate	README; probably a per-unit effect-set list, not the EffectSet engine

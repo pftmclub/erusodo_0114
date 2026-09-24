@@ -76,107 +76,220 @@ anything else it emits is trusted:
   values into init stores, and adjust stack offsets for `PUSH`es when it orders the output
   bytes.
 
-## Known-bad: the prototype decryptors in this directory
+- Buffer `0x3379b6e8` → `L"PVPEmblem_Season2.lua"` (21 wide chars), in `FUN_31f57f10`.
+  This is the third control, a **wide** string, hand-verified on 2026-09-24. It uses both
+  XOR forms:
+  - Even characters: a load, then `XOR reg,imm`, e.g. `MOV EAX,[b6e8]` /
+    `XOR EAX,0xe9f` / `MOV word [ESP+0x20],AX`.
+  - Odd characters: key first, then the buffer as the memory operand, e.g.
+    `MOV ECX,0xe8a` / `XOR CX,word ptr [b6ea]`.
+  - Init: 10 dword stores, plus `MOV [b710],DX` with `DX=0xed17` (a register store).
+  - Characters by hand: `0x0ecf^0x0e9f`=`P`, `0x0edc^0x0e8a`=`V`, `0x2efb^0x2eab`=`P`,
+    `0xe324^0xe361`=`E`, … `0xed17^0xed76`=`a`. Slots step by 2 from `ESP+0x20`.
 
-`xordec.py` and `xordec2.py` are the first-pass tools from the investigation that produced
-`JUNE2017_EFFECT_REBUILD_PLAN.md`. They work off Ghidra's `disassemble_function` text and a
-register-tracking heuristic (MOV r8/r16 ← `[abs]`, then XOR/NOT). They are kept for
-reference and as a starting point, **not as a source of truth** — known flaws:
+## xordecrypt.py (the decoder later phases cite)
 
-- The last character of a decrypted string is frequently dropped.
-- Adjacent encrypted buffers can merge into one decoded string.
-- A handful of characters come out garbled where the register-tracking heuristic loses
-  track (interleaved loads, reused registers).
+```sh
+python xordecrypt.py --all                        # whole binary -> xorstrings.tsv (~75 s)
+python xordecrypt.py 0x31f7aab0 -o out.tsv        # specific functions
+python xordecrypt.py --range 0x31f50000 0x31f90000 -o out.tsv
+```
 
-Phase 0 of the rebuild plan replaces these with a decoder built on a real x86 disassembler
-(e.g. `capstone`, pending the user's OK to `pip install` it) or a hardened emulator of the
-idiom above, validated against the controls in the previous section before it's trusted for
-anything else.
+It runs the three controls first, and **refuses to write anything if any control fails.**
+It uses capstone (`pip install capstone`, 5.0.7 here). The model is in its docstring. In
+short:
 
-`xorscan.py` / `xorscan2.py` are whole-binary sweeps built on the same heuristics (byte-wise
-and dword/word-wise respectively) — same caveats apply to their output,
-`xorstrings.tsv`/(dword scan not yet exported to a file).
+- Each register byte is tracked as "buffer byte `a` XOR `k`", so plaintext is
+  `init[a] ^ key[a]` in buffer order.
+- Load order, interleaving and register reuse therefore cannot scramble it.
+- Stack slots (normalised for `PUSH`/`POP`/`ADD`/`SUB ESP`) are used only to check
+  invariants.
+
+Idioms it handles, each found on a real site:
+
+| Idiom | Example |
+|---|---|
+| Guard mask from a register (`TEST [flag],AL` / `OR [flag],EAX`) | `31f57f90` |
+| Many guards per flag dword, so keyed on `(flag, mask)` | `3379c5b0`, 21 masks |
+| Init byte from a register, preloaded out of line | control 2, byte 38 |
+| `0xff` as `OR CL,0xff`, or `OR BL,0xff` / `OR CL,BL` | `31f7e580`, `32731f59` |
+| Init block interleaved with loads of other statics (a load does not end it) | `m_iCount`, `32731f4f` |
+| Reverse XOR form, `XOR CX,word ptr [buf]` | control 3 |
+| `LEA EBX,[EBX]` alignment NOP (capstone reports it as a write) | `31f7c8aa` |
+| Tail merge: XOR into registers, then `JMP` to a shared store sequence (followed as a side trace, pending bytes only) | `m_iTitleID`, `326fb987` |
+| Guarded statics, either never decrypted or with no static store before the first call (a static object, e.g. `3379b854`): not strings, counted, not emitted | 198 |
+| Unguarded copies of static variables, key 0 throughout: not strings, dropped | `3379b808` |
+
+**Output.** The first six columns are `use_va, func_va, buf_va, kind, len, plaintext`,
+as the plan specifies. Then `status, term, guard, nuses`. Plaintext escapes tabs,
+newlines and non-printables, so rows always split on tabs.
+
+**Only rows with `status` = `ok` are citable.** An `ok` row satisfies all of:
+
+- every init byte (immediate *and* register stores) has a key;
+- there are no key conflicts;
+- all slots are in one space, with a constant slot-minus-offset;
+- a zero is stored at `base+len` (`term`=`reg`) or encrypted in the buffer (`enc`).
+
+That is the plan's length criterion: decoded length = init bytes − terminator.
+
+Result on 2026-09-24: **6,240 buffers, 6,180 `ok`.** The 60 that are not:
+
+- 54 `orphan*`: the decrypt is in a function whose init is elsewhere (the KOM/patch loader
+  around `31d77310`/`31d7a490`). With no init in view there are no boundaries, so
+  adjacent strings merge. None is in the effect regions.
+- 6 on `337b8128`/`337b8140`: a zero-filled wide static that gets copied. Not a string.
+
+## June LuaJIT opcode table (why elstools can't decompile the big June files)
+
+June's scripts are KOG LuaJIT 2.0 bytecode, header `1b 4b 4c 82`. KOG permutes the
+opcode numbers; `mar-2014` (`…81`) uses **stock** numbers and only the header differs.
+**elstools 1.0.0's June table is wrong for KOG opcodes `0x2f`–`0x37`**: two sub-blocks
+are swapped. Found 2026-09-24.
+
+| KOG op | `2f` | `30` | `31` | `32` | `33` | `34` | `35` | `36` | `37` |
+|---|---|---|---|---|---|---|---|---|---|
+| June, actually | ITERC | ITERN | VARG | ISNEXT | UGET | USETV | USETS | USETN | USETP |
+| elstools assumes | UGET | USETV | USETS | USETN | USETP | ITERC | ITERN | VARG | ISNEXT |
+
+Consequences:
+
+- **`decompile-batch`** fails on any June file containing a `for … in` loop, with
+  ljd's `assert iterator.opcode in (ITERC, ITERN)`. In our set that is `DamageEffect`,
+  `_Character`, `_Dungeon`, `_ETC` and `EffectSet`: each opens with a recursive
+  `deepcopy` helper. The other nine files contain none of these opcodes. Their
+  elstools output is byte-identical to the corrected decompile.
+- **`compile-batch -v jun-2014` / `-v jun-2017`** emits the same wrong numbers in
+  reverse. A June-format file with a loop, an upvalue or `...` compiled that way is
+  broken. `-v mar-2014` is unaffected. `decompile-batch` has no `-v` option in 1.0.0.
+
+Two independent sources give the table:
+
+1. **The binary's own `lj_bc_mode[]`**, at `unpacked_x2.exe` file offset `0x1abfa08`.
+   `lj_bcmode.py` finds it as the only 93-entry uint16 array in the binary whose
+   operand types are an exact permutation of stock LuaJIT 2.0's. That check only works
+   with `JFORL`/`JITERL`/`JLOOP` taking `lit`, not `jump`, as they do in stock.
+   - Slots `33`–`37` each fit exactly one opcode: `UGET` and `USETV`/`S`/`N`/`P`.
+   - `2f`, `30` and `31` all read `(base,lit,lit)`. The metamethod field splits them:
+     `2f` and `30` carry `CALL`'s `__call`, so they are `ITERC`/`ITERN`. `31` has none,
+     so it is `VARG`.
+   - `32` reads `(base,___,jump)`, so it is `ISNEXT`.
+2. **The data.** `DamageEffect_ETC.lua`'s first prototype (1 parameter, 1 upvalue, 19
+   instructions at file offset 13) is `deepcopy(t)`.
+   - Instruction 5 (`0x32`) jumps forward to the loop head: `ISNEXT`.
+   - Instruction 17 (`0x30`, A=5 B=3 C=3) sits immediately before `ITERL`: `ITERN`.
+   - Instruction 11 (`0x33`) loads upvalue 0, the function itself, for the recursive
+     call: `UGET`.
+
+**Use `ljd_jun2017.py`**, which `regen.sh` runs. It does not modify elstools. It runs the
+vendored ljd on the `.std.luac` that `decompile-batch` leaves behind. For each
+instruction it reads the *original KOG opcode byte* at the same file offset, and decodes
+the nine above with the corrected mapping. It fails if the two files differ anywhere but
+the header and opcode bytes.
+
+**ljd caveat.** ljd mis-structures the `deepcopy` helper: it hoists `slot1[k]=uv0(v)`
+into a bogus `return {…}`. Flat data tables come out clean, but code-built tables (the
+`Get*` helpers in `DamageEffect.lua`) are not trustworthy as source. Phase 0's key
+extraction therefore reads keys from the **bytecode**, and requires that set to equal
+the one read from the `.src.lua`.
+
+## Superseded: the prototype decryptors
+
+`xordec.py`, `xordec2.py`, `xorscan.py` and `xorscan2.py` are the first-pass tools, kept
+only for history. **Do not use them.**
+
+`xorstrings.tsv` and `func_strings.tsv` are now `xordecrypt.py`'s output. The old
+prototype `xorstrings.tsv` (7,086 rows) is in git history, at `9a8dfa8`.
+
+Measured against the new decoder, over the 6,090 clean ASCII buffers:
+
+| Prototype result | Buffers |
+|---|---|
+| Identical | 18 |
+| Truncated by more than one char (it only followed byte loads, so `D3DXVECTOR2` came out as `D3D`) | 3,941 |
+| Dropped exactly the last char | 103 |
+| Merged into the next buffer (`MoveSetFr` for `Move`) | 32 |
+| Garbled | 285 |
+| Missed entirely | 1,711 |
+
+The README's old "known flaws" list understated it: essentially every prototype string
+is wrong.
 
 ## Files in this directory
 
-Committed (small, and not cheaply regenerable — they're the record of what this session's
-manual investigation actually found):
+Committed. These are small, or are the record of what was found:
 
-- `xordec.py`, `xordec2.py`, `xorscan.py`, `xorscan2.py` — the prototype decryptors, kept as
-  Phase 0's starting point (see above; do not trust their output as-is).
-- `xorstrings.tsv` — whole-binary byte-wise XOR scan output: `use_va, buf_va, len, plaintext`
-  (~7,086 rows, prototype-quality per the caveats above).
-- `func_strings.tsv` — decrypted strings grouped by containing function, one row per
-  function: `address, count, pipe-separated truncated strings`. Built from the same
-  prototype decoder.
+- `xordecrypt.py` → `xorstrings.tsv`: the decoder and its whole-binary output.
+- `func_strings.tsv`: the `ok` strings grouped by function (`func_va`, count,
+  `|`-separated strings, each truncated to 60 chars), derived from `xorstrings.tsv`.
+- `ljd_jun2017.py` and `lj_bcmode.py`: the correct June lua decompiler, and the evidence
+  for its opcode fix. See "June LuaJIT opcode table".
+- `reconcile.py` → `reconcile.md`: data keys against binary keys, per parser.
+- `funcmap.tsv`: the June function map, `june_va, march_symbol, status, evidence`. **This
+  is the authoritative map;** the section below only summarises it.
+- `regen.sh`: rebuilds the gitignored files.
+- `xordec*.py`, `xorscan*.py`: the superseded prototypes.
 
-Gitignored (regenerable from a running Ghidra instance — see `regen.sh`):
+Gitignored, regenerable with `sh regen.sh` (git on Windows doesn't keep the exec bit):
 
-- `funcs.txt` — full `NAME at ADDR` function listing (`list_functions`), 55,556 lines.
-- `methods.txt` — `methods` endpoint output.
-- `ghidra/dis_*.txt` — `disassemble_function` output for specific addresses of interest.
+- `funcs.txt`: the full `NAME at ADDR` function listing (`list_functions`), 55,556 lines.
+  `xordecrypt.py` and `reconcile.py` need it.
+- `methods.txt`: the `methods` endpoint output.
+- `ghidra/dis_*.txt`: `disassemble_function` output for specific addresses.
+- `june_lua/`: copies of the 14 June effect lua, plus their `.std.luac`/`.src.lua`.
 
-Run `sh regen.sh` (git on Windows doesn't keep the exec bit) (needs Ghidra open with the project loaded and the GhidraMCP server
-running on `127.0.0.1:8080`) to rebuild the gitignored files.
+`regen.sh` needs Ghidra open with the project loaded, and the GhidraMCP server on
+`127.0.0.1:8080`. Rebuild order after a regen: `python xordecrypt.py --all`, then
+`python reconcile.py`.
 
-## June function map (confirmed vs. candidate)
+## June function map
 
-Address, role, and how it was identified. All addresses are June (`unpacked_x2.exe`) VAs.
-"Confirmed" means an independent check beyond just call order or size (a `__FUNCTION__`
-string, RTTI/vtable, or a decrypted key set that matches March's own code for the same
-class). "Candidate" means only call-graph position or size pointed at it — a later phase
-must confirm or replace it before code is transcribed from it.
+**`funcmap.tsv` is authoritative**, with 46 rows, each with its evidence. Roles are now
+pinned by the plaintext sub-table name each loader opens: sub-table names are **not**
+encrypted, only keys are. Phase 0 walked the CEffect ctor's sub-loader block
+(`0x31f7e7b2`–`0x31f7f976`) in call order:
 
-### Confirmed
+| Call site | Callee | Sub-table (plaintext) | March |
+|---|---|---|---|
+| `7e7b2`, `7e7c2` | `31f71930` | `LOCK_ON_DATA[_ULTIMATE]` | `LoadLockOnData` |
+| `7e7d5`, `7e7e9` | `31f637e0` | `BLACKHOLE_DATA[_ULTIMATE]` | `LoadBlackHoleData` |
+| `7e7f0` | `31f64200` | `SIN_MOVE_DATA` | `LoadSinMoveData` |
+| `7e7f7` | `31f6e7e0` → `31f68f30` | `DIE_DAMAGE_EFFECT[_ULTIMATE]` + `%s%d` | `LoadDieDamageEffect` |
+| `7e815`–`7e82a` | `31f6a7b0`/`a940`/`aad0`/`cd00` → `31f66e60` | `START_`/`PASSIVE_`/`TIME_`/`HIT_PARTICLE` + `%s%d` | `Load*Particle` → `LoadParticleTable` |
+| `7e831` | `31f650f0` | `CAMERA%d` | `LoadCameraData` |
+| `7e838` | `31f65730` | `SCREEN%d` | `LoadScreenData` |
+| `7e83f` | `31f73f30` | `SOUND%d` | `LoadSoundData` |
+| `7e846` | `31f6ac60` | `CREATE_DAMAGE_EFFECT%d` | `LoadDamageEffect` |
+| `7e84d` | `31f6e850` → `31f6ceb0` | `HIT_DAMAGE_EFFECT[_ULTIMATE]` + `%s%d` | `LoadHitDamageEffect` |
+| `7e854` | `31f64c80` | `HIT_EFFECT_SET%d` | none (June-only) |
+| `7e85b` | `31f66230` | `DIE_CREATE_NPC%d` | none (June-only) |
+| `7e862` | `31f76a90` | `TOUCH_LAND_DAMAGE_EFFECT` | none (June-only) |
+| `7e875`, `7e885` | `31f79c20` → `32632390` | `DAMAGE_DATA_NEXT[_ULTIMATE]` | inline, `SetDamageDataFromLUA` |
+| `7f0bb` | `31f74a80` | `AFTER_IMAGE` | `LoadAfterImage` |
+| `7f967`, `7f976` | `31f66700` | `DAMAGE_EFFECT_DIE_CHECK_CONDITION`, `CONDITION_%d` | none (June-only) |
 
-| Address | March equivalent | Evidence |
-|---|---|---|
-| `0x321f28f0` | `CX2EffectSet::OnFrameMove` | Its 4 calls, in order, match `X2EffectSet.cpp:70-73` (`OnFrameMove_CreateEffect/DeleteEffect/UpdateEffect/StartCameraShake`) |
-| `0x321ee600` | `CX2EffectSet::OnFrameMove_CreateEffect` | References the plaintext wide string `L"CX2EffectSet::OnFrameMove_CreateEffect"` at VA `0x3347e4f0` (file offset `0x19dd8f0`), xref from `0x321f2684`. It also references the `__FILEW__` string `D:\SOURCE\INT\source\X2Lib\X2EffectSet.cpp` at `0x3347e460` from `0x321f2777` |
-| `0x321e4020` | `OnFrameMove_DeleteEffect` | 2nd call in `0x321f28f0` |
-| `0x321e0080` | `OnFrameMove_UpdateEffect` | 3rd call in `0x321f28f0` |
-| `0x321dbcc0` | `OnFrameMove_StartCameraShake` | 4th call in `0x321f28f0` |
-| `0x321e48e0` | `CX2EffectSet::AddEffectSetTemplet_LUA` | Referenced from the lua_tinker `class_def` bind table inside `FUN_31d95080` (the bind-registration function analogous to March's `X2Main.cpp:4655-4672`); 39,456 bytes, matches the scale of March's 2209-line parser |
-| `0x31f7aab0` | `CX2DamageEffect::CEffect::CEffect` (ctor/parser) | Calls `SetDamageData` (`0x32632390`) twice, near strings resembling `"DAMAGE_DATA"` (`0x3346f12c`, `0x3346f158`). Its decrypted key set overlaps March's ctor (`X2DamageEffect.cpp:1240-1690`) heavily: `MAIN_EFFECT_NAME%d`, `DAMAGE_TIME`, `ATTACK_TIME_START/END`, `USE_CANNONBALL`, `EFFECT_TYPE`, … plus June-only keys. Called from both CreateInstance variants below |
-| `0x32632390` | `CX2DamageManager::SetDamageData` | Called from `0x31f7aab0` (the CEffect ctor) at two sites and from 7 other call sites across the binary (a shared parser, as in March). Decrypted keys overlap March's `SetDamageData` and add about 60 June-only keys. 11,918 disassembly lines |
-| `0x31f7fc60`, `0x31f7ff60` | `CX2DamageEffect::CreateInstance*` variants | Each has one call to the CEffect ctor `0x31f7aab0`. `0x31f7ff60` has 14 callers across the binary (the common entry point) |
-| `0x31f88790` | `CX2DamageEffect::CEffect` scalar-deleting destructor | The sole vtable entry at `0x3346f008`, whose COL (`0x33615530`) type-descriptor pointer (`0x337326c0`) matches the RTTI string `.?AVCEffect@CX2DamageEffect@@` at that address |
-| `0x31f6ac60` | die/hit damage-effect sub-loader | Decrypted keys include `LOOP_INTERVAL`, `LOOP_END_COUNT/TIME`, `LOOP_ADD_POS_X/Y/Z`, `SET_DIE_WHEN_MASTER_EFFECT_DIE` — matches the March `CreateDieDamageEffect`/`LoadDieDamageEffect` key set plus new keys; called from `0x31f7aab0` |
-| `0x31f68f30` | hit damage-effect sub-loader (role from key set). Reached through the wrapper `FUN_31f6e7e0` (2 calls), not directly from `0x31f7aab0`. Confirm the wrapper's caller in Phase 6a | Keys: `INHERIT_LIFE_TIME`, `INHERIT?LOCKON?DATA` (separators garbled by the prototype), `INHERIT_BUFF_FACTOR`, `SET_GROUP_ID`, `LIFE_TIME_ONLY`, `LAND_CRASH_ONLY`, `OFFSET`, `ROTATE`, `ONLY_APPLY_ROTATE` |
-| `0x31f66700` | die-condition sub-parser | Keys: `*_DAMAGE_EFFECT_DIE_*`, `CONDITION_TYPE`, `IS_EXIST_DAMAGE_*`, `CHECK_DAMAGE_TIME_VALUE`, `IS_OVER_*`; called from `0x31f7aab0` |
-| `0x31f71930` | lock-on data sub-loader | Keys: `NOT_LOCKON_INVINCIBLE_TARGET`, `INIT_TARGET`, `AT_PVP/AT_FIELD/AT_RAID_FIELD/AT_DUNGEON`, `LOCK_ON_TARGET_BONE_NAME`, `LOCK_ON_OFFSET_Y_*`, `NOT_FIND_TARGET_MOVE_STOP`; called from `0x31f7aab0` |
-| `0x31f73f30` | sound sub-loader | Keys: `THREE_DIMENSIONAL_SOUND`, `DELETE_WHEN_EFFECT_DIE`, `LOOP`, `USE_GLOBAL_TIME`, `RATE`, `FILE_NAME`, `EVENT_TIME`. Called from `0x31f7aab0` @ `0x31f7e83f` |
-| `0x31f74a80` | after-image sub-loader | Keys: `AFTER_IMAGE_*`. Called from `0x31f7aab0` @ `0x31f7f0bb` |
-| `0x31f66e60` | particle sub-loader | Keys: `APPLY_START_PARTICLE_SCALE`, `SHOW_LEVEL`, `REVERSE`, `SCALE_BY_MAINEFFECT_SCALE`, `TRACE_DEFENDER_UNIT`, `MOVE_ANGLE_*_PER_FRAME`. Reached through four wrappers (`FUN_31f6a7b0`, `31f6a940`, `31f6aad0`, `31f6cd00`), probably one per particle list (start/passive/time/hit) |
-| `0x31f76a90` | passive-particle loader (`PASSIVE_PARTICLE…` keys) | Called from `0x31f7aab0` @ `0x31f7e862`. `0x31f6ceb0` has the same key family, reached through wrapper `FUN_31f6e850` |
-| `0x31f637e0` | drag data loader (`CAN_PASS_UNIT`, `DRAG_ONLY_HITTED_UNIT`, `DRAGGING_RANGE/SPEED`) | Called from `0x31f7aab0` @ `0x31f7e7d5`, `0x31f7e7e9` |
-| `0x31f64200` | sine-move loader (`SIN_MOVE_*`) — March `LoadSinMoveData` | Called from `0x31f7aab0` @ `0x31f7e7f0` |
+**Corrections to the pre-Phase-0 map**, which the plan's Phase 6a/6b text still repeats:
 
-The CEffect ctor calls its sub-loaders in a block at `0x31f7e7b2`–`0x31f7f976`:
+- `31f6ac60` is the **`CREATE_DAMAGE_EFFECT`** loader, not the die loader. `LOOP_*`,
+  `SET_DIE_WHEN_MASTER_EFFECT_DIE` and `INHERIT_*` belong to `CREATE_DAMAGE_EFFECT%d`.
+- `31f68f30` is the **die** damage-effect body, not the hit one. `31f6ceb0` is the **hit**
+  body.
+- `31f76a90` is **`TOUCH_LAND_DAMAGE_EFFECT`**, not passive particles.
+- `31f637e0` is **`BLACKHOLE_DATA`**. Its keys are the `DRAGGING_*` ones, hence the old
+  "drag loader" label.
+- `32632390` is March's **`SetDamageDataFromLUA`**, with `ParsingBuffFactorID` = `32630d20`.
+- `31c7b980` is **`KLuaManager::BeginTable(name, index, bLogOutput)`**: it formats
+  `"%s%d"`. Every `EFFECT%d`/`CAMERA_SHAKE%d` in the EffectSet parser goes through it.
+- **Not ours:** `31fbe4a0` (UI guide keys), `321fbb80` (riding-pet templet:
+  `RIDING_PET_ID`, `STAMINA_*`).
 
-| Call site | Callee |
-|---|---|
-| `7e7b2`, `7e7c2` | lock-on `31f71930` |
-| `7e7d5`, `7e7e9` | drag `31f637e0` |
-| `7e7f0` | sine-move `31f64200` |
-| `7e83f` | sound `31f73f30` |
-| `7e846` | die-DE `31f6ac60` |
-| `7e862` | passive-particle `31f76a90` |
-| `7f0bb` | after-image `31f74a80` |
-| `7f967`, `7f976` | die-condition `31f66700` |
+**Ghidra names (2026-09-24, user-approved).** The 36 `confirmed` rows that Ghidra has a
+function for are renamed `June_<Class>_<Method>` in the project, e.g.
+`June_CEffect_LoadCreateDamageEffect` = `31f6ac60`. `31f88790` is not renamed, because Ghidra
+defines no function there. No comments were written.
 
-Walk that block in call order to map the rest of the ctor's sub-loaders.
-
-### Candidate only — confirm before transcribing from these
-
-| Address | Suspected role | Why it's only a candidate |
-|---|---|---|
-| `0x31f85910` | `CEffect::OnFrameMove` (or a large sub-piece of it) | Largest function in the DamageEffect `.obj` region by far (11,696 bytes, 248 calls, 23 calls stay local to the region) — a size/position argument only |
-| `0x31f83aa0` | Some other `CEffect` runtime method | 7,792 bytes, 143 calls, but only 8 stay local — mostly calls out to engine/math code, not diagnostic on its own |
-| `0x31fbe4a0` | Unclear — decrypted strings are UI-guide keys (`REPLAY_GUIDE`, `NEXT_GUIDE`, …), **not** DamageEffect/EffectSet related | Originally flagged from region scanning; the string content says this is a different subsystem entirely (likely a quest/tutorial guide parser) that happens to sit in the address range scanned. **Do not use for DamageEffect work** — re-scope or drop in Phase 0/7a |
-| `0x31c895d0`, `0x31c8d140` | `KTDGXMeshPlayer` templet parse | Reached via the `__FILEW__` string `...KTDXLIB\KTDGXMeshPlayer.cpp` (`0x3344a530`) cross-references — confirms *a* connection to that file, not which function does the templet key parsing specifically |
-| `0x32057b80` | Possibly out of scope — user/NPC state script parser | Has `ATTACK_TIME`-adjacent strings but may not be DamageEffect proper |
-| `0x32784c00` | Unit script (`EFFECT_SET_LIST` etc.) | Likely a different binding layer (per-unit effect-set list), not the EffectSet engine itself |
+The candidates (`31f85910`, `31f83aa0`, `31c895d0`, `31c8d140`, `32057b80`,
+`32784c00`) are unchanged; Phases 7a and 10 own them.
 
 ### Region survey (functions ≥1500 bytes, for Phase 7a's identification work)
 
@@ -190,8 +303,10 @@ each region nobody has looked at yet.
 
 - `curl --noproxy *` (unquoted) gets glob-expanded by the shell and silently returns a
   Cloudflare 302 instead of hitting Ghidra. **Always quote it**: `--noproxy '*'`.
-  `.claude/skills/ghidra/SKILL.md` still has the broken unquoted form as of this writing —
-  fixing it is a Phase 0 task, pending the user's OK to edit a skill file.
+  Inside a variable (`C="curl ... --noproxy * ..."`, run as unquoted `$C`), quoting
+  doesn't help: the quotes become literal. Use `--noproxy 127.0.0.1` there.
+  `.claude/skills/ghidra/SKILL.md` was fixed that way in Phase 0. It is gitignored,
+  so the fix lives only in the working tree.
 - `decompile_function` on large functions (`FUN_31f7aab0` and bigger) returns
   `"Decompilation failed"`, most likely a timeout. Ask the user to raise Ghidra's decompiler
   timeout and max payload (Edit → Tool Options → Decompiler) before phases that need large
@@ -210,3 +325,11 @@ each region nobody has looked at yet.
 - Printing decrypted UTF-16 text through a `cp1252` Windows console raises an encoding
   error. Decode as `latin1` or otherwise sanitize before printing; don't assume the console
   is UTF-8.
+- **Sub-table names are plaintext; only keys are encrypted.** A loader's role shows in
+  the plaintext string it pushes before `BeginTable`. `reconcile.py` counts those
+  strings as binary keys, and so must any census.
+- **`%s_ULTIMATE` variants.** `31f8ba80`/`31f8b370` read `K` and `K_ULTIMATE` for a
+  plaintext `K` pushed just before the call (e.g. `MAIN_EFFECT_NAME`, `FOLLOW_LINE`).
+  `K_ULTIMATE` never appears as a literal.
+- **`xorstrings.tsv` rows with `status` other than `ok` are not citable.** Use `ok` rows
+  only.

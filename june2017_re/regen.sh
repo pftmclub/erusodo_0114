@@ -37,6 +37,11 @@ for f in "$JUNE"/DamageEffect*.lua "$JUNE"/EffectSet*.lua "$JUNE"/UIEffectSet*.l
 do
     case "$f" in *.src.lua) continue ;; esac
     cp "$f" june_lua/
-    ../elstools/elstools.exe decompile-batch -i "june_lua/$(basename "$f")"
+    # Only for the .std.luac it leaves behind: elstools 1.0.0's June opcode table is
+    # wrong for KOG ops 0x2f-0x37, so its own .src.lua is either missing (any file with
+    # a for-in loop) or, for files without those ops, identical to ljd_jun2017.py's.
+    ../elstools/elstools.exe decompile-batch -q -i "june_lua/$(basename "$f")"
 done
+# The real decompile. See README.md "June LuaJIT opcode table".
+python ljd_jun2017.py $(ls june_lua/*.lua | grep -v '\.src\.lua$') || exit 1
 echo "june_lua: $(ls june_lua/*.src.lua 2>/dev/null | wc -l) decompiled files"
