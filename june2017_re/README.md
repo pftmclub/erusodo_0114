@@ -264,6 +264,67 @@ into a bogus `return {…}`. Flat data tables come out clean, but code-built tab
 extraction therefore reads keys from the **bytecode**, and requires that set to equal
 the one read from the `.src.lua`.
 
+## Phase 10b: converting June lua, and the two adoption audits
+
+**Converting June bytecode to `mar-2014`: `ljconv.py` (route (b), chosen in Phase 10b).**
+
+```sh
+python ljconv.py OUTDIR              # the 14 files in june_lua/ -> OUTDIR/*.lua, mar-2014 bytecode
+python ljconv.py --check-only        # build and check the opcode table only
+```
+
+- `mar-2014` is stock LuaJIT 2.0.2 plus a header. This comes from the March client's own source,
+  `luajitLib/LuaJIT-2.0.2`, where `lj_bcdump.h` under `LUAJIT_MODIFIED_BYTECODE_HEADER` sets
+  `1b 4b 4c` and version `0x81`. `lj_bc.h`'s `BCDEF` is stock order; a diff against upstream's
+  `v2.0` branch shows nothing else but later upstream fixes. `lj_bcread.c` rejects any other
+  version, so a June `0x82` file cannot load unconverted.
+- Transcoding therefore rewrites header byte 3 and the opcode byte of every instruction, found
+  by the script's own dump walker. The table is elstools' translation (read back from the
+  `.std.luac` pairs) plus `ljd_jun2017.FIX`. It must be injective, it is checked slot by slot
+  against June's `lj_bc_mode[]`, and an unmapped opcode is a hard error.
+- Why not decompile + recompile (route (a)): see the plan's Phase 10b result.
+- **The vendored `elstools/vendor/luajit/luajit.exe` loads both `0x81` and `0x82`, but its
+  `0x82` table has the same `0x2f`-`0x37` swap as elstools** (`-bl` lists June's `deepcopy` as
+  `USETN`/`USETP`/`USETV`). Use it only on `0x81` files.
+
+**`fxdump.lua`: execute effect lua instead of reading it.** Run with the vendored `luajit.exe`
+on `0x81` files (`luajit fxdump.lua OUT.json Enum.lua ...`). All files share one environment, in
+the order given. Only an explicit allowlist exists, plus stubs for `g_pEffectSet`,
+`g_pDamageManager`, `g_pUnitManager` (unknown methods raise) and a `D3DXVECTOR3` constructor. Any
+other global read is recorded as `missing_reads`. `INIT_PHYSIC` is a probe: every character
+script assigns it globally, and `DamageEffect.lua:351018` reads `INIT_PHYSIC.WALK_SPEED`, so its
+reads are recorded and yield NaN.
+
+**`fxdata.py`** is the shared layer: `.kom` inventories (`elstools inspect` manifests, cached in
+`assets_cache/`), the two harness runs, and parsers for the particle / mesh-player `.txt` files
+and for the texture names inside meshes (`xof` txt/bin/bzip, KOG `KSM`/`KME`) and `.xet` files.
+
+- March's content comes from the user's staging copy, `24965799\kom_contents\*_kom`, but only
+  where the file's size equals the live `.kom` manifest's.
+- **June's content cannot be fully trusted: elstools 1.0.0 truncates June algo-2 entries.**
+  About 18.7k June (V.0.4) algo-2 entries extract 1-255 bytes short of their manifest size. This
+  happens with every `-v`, and in the old `14JUN17\data\*_kom` dirs too. It is lost data, not
+  padding: DDS headers and MSZIP streams prove it. The loss is the tail, though (a DDS's smallest
+  mips; mostly closing-brace tokens in binary `.x`), and the user reports such copies work in the
+  March client when packed as lua = algo 2, everything else = algo 0. So they are usable, but not
+  byte-exact. `fxdata.Copy.xpath` keeps such a copy for prefix comparison and for reading names;
+  only `Copy.path` (exact size) is hashed as the file.
+
+**`assets.py` -> `../JUNE2017_ASSET_CLOSURE.md` + `asset_closure.tsv`** (about 1 minute warm). It
+walks from every June effect set and damage effect to files, and gives each file a location and a
+same/differs verdict.
+
+**`names.py` -> `../JUNE2017_NAME_CONTRACT.md` + `name_contract.tsv`** (about 40 minutes: 432 TUs
+at ~20 MB of `cl /P` output each; `--resume` continues an interrupted run, `--reuse` redoes only
+the comparison, about 1 minute). It runs
+`cl /P` on every X2Lib and KTDXLIB TU under `US_SERVICE`, then checks every wide literal against
+the names March's own data defines and against June's.
+
+**Templet names are case-sensitive; file names are not.** Particle, mesh-player and effect-set
+templets live in a `std::map<std::wstring>`, and a later definition replaces an earlier one
+(`KTDGXMeshPlayer.cpp:769-778`, `KTDGParticleSystem.cpp:1318-1332`, `X2EffectSet.h:856`). Damage
+effects are Lua globals. `KGCMassFileManager` upper-cases file names.
+
 ## Superseded: the prototype decryptors
 
 `xordec.py`, `xordec2.py`, `xorscan.py` and `xorscan2.py` are the first-pass tools, kept
@@ -300,6 +361,8 @@ Committed. These are small, or are the record of what was found:
 - `funcmap.tsv`: the June function map, `june_va, march_symbol, status, evidence`. **This
   is the authoritative map;** the section below only summarises it.
 - `regen.sh`: rebuilds the gitignored files.
+- `ljconv.py`, `fxdump.lua`, `fxdata.py`, `assets.py` -> `asset_closure.tsv`, `names.py` ->
+  `name_contract.tsv`: Phase 10b (see that section).
 - `xordec*.py`, `xorscan*.py`: the superseded prototypes.
 
 Gitignored, regenerable with `sh regen.sh` (git on Windows doesn't keep the exec bit):
@@ -310,6 +373,8 @@ Gitignored, regenerable with `sh regen.sh` (git on Windows doesn't keep the exec
 - `ghidra/dis_*.txt`: `disassemble_function` output for specific addresses.
 - `june_lua/`: copies of the 14 June effect lua, plus their `.std.luac`/`.src.lua`.
 - `pp/`: `census.py`'s `cl /P` output (~20 MB per TU) and flag probe. Rebuilt on every run.
+- `assets_cache/`: Phase 10b's cache: `.kom` manifests, SHA-1s, transcoded June lua, harness
+  dumps, `names.py`'s literal table. Safe to delete; the scripts rebuild it.
 
 `regen.sh` needs Ghidra open with the project loaded, and the GhidraMCP server on
 `127.0.0.1:8080`. Rebuild order after a regen: `python xordecrypt.py --all`, then

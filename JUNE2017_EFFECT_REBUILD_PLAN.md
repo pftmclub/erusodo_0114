@@ -1221,6 +1221,129 @@ census shows 0 MeshPlayer keys to-implement. Update the matrix and MODS.md.
 
 ## Phase 10b — Adoption audits: asset closure, name contract, script conversion
 
+**Status: done 2026-09-25.** Tools and method notes are in `june2017_re/README.md`, section
+"Phase 10b". Outputs: `JUNE2017_ASSET_CLOSURE.md`, `JUNE2017_NAME_CONTRACT.md`, and their TSVs in
+`june2017_re/`.
+
+**Result 3: Phase 11 converts with route (b), direct transcoding (`june2017_re/ljconv.py`).**
+
+- **What `mar-2014` is, from source, not from elstools.** The March client's LuaJIT,
+  `luajitLib/LuaJIT-2.0.2`, differs from stock only in the dump header. `lj_bcdump.h`, under
+  `LUAJIT_MODIFIED_BYTECODE_HEADER`, sets `1b 4b 4c` and version `0x81`. `lj_bc.h`'s `BCDEF` is
+  stock order. A diff against upstream's `v2.0` branch shows nothing else but the header, an
+  `X2OPTIMIZE` guard, and later upstream fixes. `lj_bcread.c` rejects any other version, so June's
+  `0x82` files must be converted.
+- **The table.** 44 KOG opcodes are mapped: elstools' translation plus `FIX`. It is injective, and
+  every slot's operand types match June's `lj_bc_mode[]`. The 14 files use 38 distinct opcodes; an
+  unmapped one is a hard error.
+- **The plan's disassembly check passes.** `luajit -bl` of each transcoded file against its
+  `.std.luac`:
+  - The 9 files without FIX-slot opcodes are byte-identical past the header.
+  - The other 5 differ only on their FIX-slot lines, exactly 22 / 3 / 3 / 3 / 7 of them.
+  - This check is close to tautological, because the table is read back from `.std.luac`. The
+    evidence that discriminates is next.
+- **Execution** (`june2017_re/fxdump.lua`: run against stub engine objects, dump what gets
+  defined):
+  - **Route (b)** loads all 14 files through the `0x81` loader and runs every one to completion.
+    Its stub-call counts equal the source's call sites: `AddEffectSetTemplet_LUA` 8242 / 287 /
+    138 / 12, descriptions 230, damage data 107, unit viewer 18.
+  - **Route (a)** loses data three ways:
+    - `DamageEffect_Dungeon` does not compile: ljd emits `function … end(…)`, `.src.lua:3910`.
+    - `EffectSet.lua` aborts after 2,925 of 8,242 templets.
+    - `DamageEffect.lua` aborts with 837 damage effects never defined. Both crash in the bogus
+      `deepcopy` (`attempt to call global 'uv0'`) and leak `slot0`..`slot5` as globals.
+  - **Where both run, they agree exactly:** every captured call, and 7,869 of 7,870 shared
+    globals. The one difference is `DamageEffect_Gunner_Combo_ZZZX_Grenade_Explosion`, which
+    `DamageEffect.lua` defines twice (lines 328616 and 340940); route (a) crashed before the
+    second definition.
+- **Not a third route: the vendored `luajit.exe`.** It loads `0x82`, but with the same
+  `0x2f`–`0x37` swap as elstools: June's `deepcopy` lists as `USETN`/`USETP`/`USETV`.
+- **For Phase 11: how the converted files are packed.** This is the user's workflow, with one step
+  changed.
+  - The user normally decompiles June lua to `name.src.lua` and puts it in
+    `kom_contents/dataNNN_kom/`. `elstools compile-dir` then produces `name.lua`, and only
+    `"name.lua"` is registered in `_manifest.json`.
+  - For the effect files, `ljconv.py`'s output replaces the decompile and compile steps: it
+    already is a compiled `name.lua`.
+  - Manifest values follow the user's rule: `.lua` = `"2"`, everything else = `"0"`.
+  - Not yet checked: that `elstools pack` takes a compiled `.lua` as it is.
+  - **A stale source would silently undo the conversion.** `kom_contents/data036_kom` holds
+    `EffectSet.src.lua` and `DamageEffect.src.lua`, the Ranox-merged sources. `elstools compile-dir`
+    recompiles every `name.src.lua` into `name.lua`, so running it after dropping in the converted
+    files puts the merged copies back. Nothing reports it. Move those two `.src.lua` files out
+    first, or skip `compile-dir` for that directory.
+- **For Phase 11: the chunks depend on run-time state.**
+  - `DamageEffect.lua:351018` reads `INIT_PHYSIC.WALK_SPEED`. No effect file defines it; every
+    character script assigns it globally. In a Lua state where it is absent, the rest of that
+    chunk never runs. Check the load order.
+  - Globals read as nil, as the client also sees them: studio typos `TURE`, `FLASE`, `FASLE`, `d`,
+    and the undefined `RVK_FlashBang_Ulti_Scale`.
+  - Also read as nil, and harmless: `AET_MAX`, `RWT_END` and `SGI_END` in June's `Enum.lua`. They
+    are bare names written as list entries (`SERVER_GROUP_ID = { SGI_END, SGI_GAIA = 1, … }`,
+    `Enum.src.lua:98`), so they only add a nil slot. March's enum has the same `SGI_*` pattern.
+    The engine registers nothing for them to find.
+
+**Result 1: asset closure (`JUNE2017_ASSET_CLOSURE.md`).**
+
+- **Scope.** 17,816 roots reach 7,392 file nodes, through every particle and mesh-player templet
+  and the textures inside every mesh and `.xet`. The completeness gate is clean: 0 unexplained
+  strings, and 6 `NAME` keys that June's particle loader never reads.
+- **Verdicts:**
+  - 3,159 same;
+  - 364 same-prefix;
+  - 59 differ, 0 of them atlases (no effect texture has a `.tet` partner);
+  - 15 live March copies that are truncated ports;
+  - 12 pending pack;
+  - 3,622 June-only: 3,081 extract byte-exact; 541 extract 1–255 bytes short (see next point);
+  - 156 in neither build.
+- **Found on the way: elstools 1.0.0 extracts about 18.7k June algo-2 entries 1–255 bytes short.**
+  - The lost bytes are the file's tail: a DDS's smallest mips, and, in the meshes sampled,
+    mostly binary `.x` closing-brace tokens. Occasionally it is list data.
+  - The user reports such copies work in the March client when packed as lua = algo 2, everything
+    else = algo 0. So they are usable, but not byte-identical to June.
+  - 51 `march2014/update/` files are such short copies, 49 of them live. Table in the closure
+    document. Nothing was changed.
+
+**Result 2: name contract (`JUNE2017_NAME_CONTRACT.md`).**
+
+- **Scope.**
+  - All 432 X2Lib and KTDXLIB translation units, `cl /P` under `US_SERVICE`, 0 failures.
+  - 48,591 string literals, wide and narrow: `CreateInstance_LUA` takes a `char*` name.
+  - A literal counts when March's own data defines it as an effect set, damage effect, particle
+    or mesh-player templet.
+  - Seven `StringCchPrintf` format strings (e.g. `L"Effectset_Swallow_Assault_Shadow0%d"`,
+    `X2GUAra.cpp:11166`) were matched against every defined name, for their run-time names.
+  - 1,802 names in total.
+- **Loaders.** Every `OpenScriptFile` / `Reset*Particle` / `Reset*XMeshPlayer` call opens only
+  the standard particle and mesh-player files. `data121`'s `rena_A_trapingArrow_Particle.txt` /
+  `_Xmesh.txt` ship in both builds, and neither build's code opens them.
+- **Verdicts:**
+  - 1,727 kept.
+  - 58 kept only in files March does not load yet: 50 in `GameMajorParticle44.txt`, 7 in
+    `GameMajorParticle36.txt` (the `BossRaid_Gate_P0%d` family), 1 in `DamageEffect_Dungeon.lua`.
+    Phase 11 has to extend March's loader lists.
+  - The punch list, 17 names. Each is also checked against **June's own binary** (plain strings
+    plus `xorstrings.tsv`), a second, independent source:
+    - **15 are gone from June's code: June changed those call sites.** On adoption, the March
+      call site has to change too. They are:
+      - 7 dropped: `EffectSet_Aisha_DeathFieldBomb`, `EffectSet_Aisha_DeathField_FirstImpact`,
+        `EffectSet_ELSWORD_DOUBLE_SLASH_HYPER`, `EffectSet_RAVEN_VJAVELIN`,
+        `CHUNG_BIGBANGSTREAM_MEMO`, `DAMAGE_EFFECT_CSI_SI_A_CDC_LEG_SHOT_Mini_Gun_Shell`,
+        `DamageEffect_LGA_Arc_Shot`;
+      - 7 rename candidates, same references (mostly Raven `*_HYPER` damage effects). Only
+        `EVE_EP_DASH_COMBO_Z` has candidates June's binary asks for (`EVE_DASH_COMBO_Z`,
+        `EVE_AT_DASH_COMBO_Z*`);
+      - 1 case change, confirmed by the binary: `DamageEffect_Cryotron_Bolt_GUIDED_ARROW`
+        became `…_Guided_Arrow`, and June asks for the new spelling.
+    - **2 are still asked for in June's binary but defined nowhere: dead in June too**, so inert
+      for parity. They are `BOMB` (`X2GUNPCFunc.cpp:2711/2759`) and
+      `EffectSet_CSI_CIP_LAND_DEMOLISHER_AFTER_EFFECT`.
+- **13 names already dead in March** (effect call sites, no March definition).
+  - Bone names and parser keywords are excluded.
+  - June defines 4 of them, so adoption brings them to life: the `X2GUAdd.cpp` Reverse Reactor /
+    Psychic Storm / Dust Anatomy damage effects.
+- **Not reachable by construction:** names assembled only from variables (`%s_%s`).
+
 **Paste with:** Starting context + this section.
 
 **No engine dependency.** These are static checks over data and source. They can run any

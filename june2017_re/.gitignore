@@ -7,3 +7,5 @@ june_lua/
 # Python bytecode from importing xordecrypt / ljd_jun2017 / reconcile
 __pycache__/
 pp/
+# Phase 10b audit cache (assets.py / names.py): kom manifests, hashes, transcoded lua, fx dumps
+assets_cache/
