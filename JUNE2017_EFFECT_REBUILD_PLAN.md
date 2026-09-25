@@ -565,8 +565,36 @@ set that uses one. Update the matrix and MODS.md.
 
 ## Phase 3 — EffectSet parser, per-effect data and sub-blocks
 
-**Status: parser done 2026-09-26; play-test pending.** Everything was done in one session,
+**Status: done 2026-09-26**, verified in a play-test. Everything was done in one session,
 so there is no resume VA.
+
+`ErrorLog.txt` showed:
+
+| File | `loaded` | `templets` | `effects` | `with_june_effect_key` | `sounds` |
+|---|---|---|---|---|---|
+| `EffectSet.lua` | 1 | 3134 | 18528 | 0 | 0 |
+| `UIEffectSet.lua` | 1 | 52 | 211 | 0 | 0 |
+| `UIEffectSet_INT.lua` | 1 | 6 | 29 | 0 | 0 |
+| `EffectSet_INT.lua` | 1 | 46 | 196 | 0 | 0 |
+
+- Every `templets=` count equals Phase 2's, so the new sub-table reads leave the parse of
+  later templets intact.
+- No `ES_EFFECT`, `ES_SOUND` or `unsupported` lines appeared.
+- `18528` is exact, not one short of the source's 18,529 `EFFECT<n> = {` entries:
+  - `EffectSet_PET_SNOWBUMP_Attack_C` defines `EFFECT16` twice
+    (`march2014/data036/EffectSet.src.lua:126666` and `:126674`).
+  - Lua keeps the second, so the set really has 25 effects.
+  - This is a studio data quirk, and the stock game has it too.
+
+**The user's decisions (2026-09-26):**
+- **The `ES_EFFECT` criterion is settled in Phase 11,** as Phase 2's `ES_TEMPLET` was.
+- **The three `ES.Description` rows** (`VERSION`, `DESC`, `NAME`) **are out of scope for Phase
+  3 and settled later.**
+  - March reads `EffectSet_Description.lua` only under `EFFECT_TOOL`, and the game never
+    loads it.
+  - Open lead: the census matched those keys to June `32378e20`, `32680da0` and
+    `324ff4b0` by name alone. A short Ghidra look at them would show whether June's game
+    client loads the file. If it does, those rows need an owning phase.
 - The code went in under `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE`, extending Phase 2's flag,
   with `SERV_IRUHADEV_JUNE_FX_DEBUG` for the log lines.
 - `census.py` shows Phase 3 at 0 `to-implement` and 0 open `binary-only`. The 5
