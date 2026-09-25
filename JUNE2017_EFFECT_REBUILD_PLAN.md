@@ -892,7 +892,13 @@ lines, all on Ranox sets:
 | `EffectSet_MOUNT_MAG_STONE_Wait` | 4 | - |
 | `EffectSet_NUI_RAGE_MOTHERFIG_Attack_B_Ready` | 1 | 2 |
 
-- No `(damage)` registration fired: the Dryadkenta sets were not played.
+- No `(damage)` registration fired in that run. Dryadkenta's teleport soft-locks the stage, so
+  her sets could not be waited out.
+  - A second run covered the damage path with a player skill:
+    `EffectSet_Rena_Perfect_Storm PERFECT_STORM BONE_TRACE_TARGET_MESH registered_index=0(damage)`
+    (x2), with no unhandled packets or exceptions.
+  - A Hamelling Attack X in that run logged nothing. Only `EffectSet_Riding_Dark_/Red_HAMELLING_Attack_X`
+    carry `BONE_TRACE_TARGET_MESH`; `_ICE_` does not.
 - No `UNHANDLED`/`EXCEPTION` packets, and the shutdown was clean.
 - The only `RANOX_EFFECT_MISSING` line is `EffectSet_PVP_BOT_Armageddon_Blade` (x5), an AI-party
   set with no templet. Its lookup fails before any Phase 4a code runs.

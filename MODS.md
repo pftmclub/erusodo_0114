@@ -806,6 +806,8 @@ entry) changes:
   `EffectSet_NUI_SMITH_STAIN_Attack_Ready`, `EffectSet_NUI_RAGE_MOTHERFIG_Attack_B_Ready`, and
   `EffectSet_MOUNT_MAG_STONE_Wait`.
 - No unhandled packets or exceptions, and a clean shutdown.
+- The damage-effect registration path was confirmed with Rena's Perfect Storm
+  (`registered_index=0(damage)`).
 
 **Not done in stage 1:** `USE_IS_RIGHT_WHEN_CREATE`, `TRACE_MATRIX_IN_FIELD`, the trigger-list
 creation part, `APPLY_DAMAGE_EFFECT_VELOCITY` and the `SET_OVER_UI` layer are stage 2.
