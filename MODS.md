@@ -34,6 +34,7 @@ column.
 | `SERV_IRUHADEV_RANOX_RIM_LIGHT` | 2026-09-19 | `KTDXLIB/Always.h:4032` | `KTDXLIB/KTDGXRenderer.h`/`.cpp` (`CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE` member, `CKTDGXRenderer::SetRimLightTexType` and its 3 `BeginRender` substitution sites), `X2Lib/X2World.h`/`.cpp` (`CX2World::SetRimLightTextureIndex`, forwards to the renderer; destructor resets the override), `X2Lib/X2Main.cpp` (lua_tinker binding) | -- |
 | `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4287` | `X2Lib/X2EffectSet.h:168` (new `AnimTimeOnStartData`/`MeshTriggerData`), `:307,381,452` (`EffectData` members, `operator==`, ctor), `:484,505,555,592` (`EffectSetData` members incl. `m_vecSoundData`, `operator==`, `operator=`, ctor); `X2Lib/X2EffectSet.cpp:2267` (templet keys), `:2352,2378,2394,2405,2437,2476,2521` (per-`EFFECT%d` keys and sub-tables), `:2842` (`SOUND%d`) | -- |
 | `SERV_IRUHADEV_JUNE_FX_DEBUG` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4298` | `X2Lib/X2EffectSet.cpp:2199,2218` (`OpenScriptFile` load summary), `:2314` (per-templet line), `:2667` (per-effect line), `:2864` (per-set sound line); the last three nested under `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` | -- |
+| `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` | 2026-09-26 | `KTDXLIB/Always.h:4311` | `X2Lib/X2EffectSet.h:743` (`TargetMeshData`, `m_vecTargetMeshData`), `:835` (index accessors); `X2Lib/X2EffectSet.cpp:5` (`JuneFxEsCreate`, nested under `SERV_IRUHADEV_JUNE_FX_DEBUG`), `:858` / `:980` (target-mesh registration, damage / mesh), `:1887` (`OVERLAP`), `:3338` (`GetEffectPosition` index), `:3604` (`GetEffectRotation`), `:4204` (`SetEffectSetOffset`), `:4651` (accessor bodies) | -- |
 
 What each one does:
 
@@ -758,6 +759,54 @@ would not work anyway: `BOUND_MOTION_TYPE_LIST` uses `EMOTION_TYPE.*`, which Mar
 
 Revert as for Phase 2. Undefining the flag drops every Phase 2 and 3 read, and
 with it the `TRACE_MATRIX_EXCLUDE_SCALE` → `TRACE_MATRIX` rule.
+
+
+### June2017 effect engine: EffectSet creation-time runtime (Phase 4a)
+
+Phase 4a of `JUNE2017_EFFECT_REBUILD_PLAN.md`, under the new flag
+**`SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME`**. The keys Phases 2-3 parse now start to be
+consumed. The behaviour is transcribed from June's `FUN_321ee600` (`OnFrameMove_CreateEffect`),
+`FUN_321e1e60` (`PlayEffectSet`) and their helpers. The plan's Phase 4a section holds the spec
+table (key, June VA range, March site, verdict), and the matrix's *Runtime* section is
+generated from the same table (`RUNTIME` in `census.py`). The work is staged. **Stage 1** (this
+entry) changes:
+
+- **Target-mesh list.** Every `BONE_TRACE_TARGET_MESH` effect is pushed onto
+  `EffectSetInstance::m_vecTargetMeshData`, and `BONE_TRACE_TARGET_MESH_INDEX` picks the mesh.
+  - Position, rotation and offset each clamp the index as June does.
+  - An effect that is itself a `BONE_TRACE_TARGET_MESH`, with the default index -1, no
+    longer traces the first target mesh.
+  - Entry 0 is mirrored into the stock `m_hTargetMesh` / `m_eTargetMeshEffectType`, which the
+    not-yet-transcribed update and delete code still reads.
+  - The damage-effect and mesh-player registrations differ, as they do in June: only the
+    mesh path refreshes facing, direction and Z on every push and sets the instance's
+    bone-trace scale.
+- **Position offset.** In the game-unit branch of `SetEffectSetOffset`:
+  - X/Z follow the **trace target's** facing when a valid trace target exists; stock uses
+    the owner's.
+  - `ZOFFSET_USE_UNIT_IS_RIGHT` subtracts the Z offset while that unit faces left.
+  - An effect that traces a target mesh is offset by unit facing, not by the target mesh's
+    dir/Z. June's target-mesh branch there is unreachable for any valid index (an inverted
+    bound, `321d98c0`).
+- **`OVERLAP`.** `_CreateEffectSetInstance` refuses a new instance while one of the same
+  templet lives with the same trace target. `PlayEffectSet` then returns an invalid handle.
+
+**`SERV_IRUHADEV_JUNE_FX_DEBUG`** adds `JUNE_FX ES_CREATE <set> <effect> <key> <detail>` to
+`offline_server.log`, at most once a second per (set, key, detail).
+- It fires on each June branch taken: `BONE_TRACE_TARGET_MESH registered_index=..`,
+  `POSITION_OFFSET facing=trace_target`, `BONE_TRACE_TARGET_MESH offset=unit_facing`,
+  `ZOFFSET_USE_UNIT_IS_RIGHT z_added/z_subtracted`, `BONE_TRACE_TARGET_MESH_INDEX ..`,
+  `OVERLAP refused_new_instance`.
+- The position and offset helpers also run per frame for traced effects, so a line can come
+  from the update path.
+
+**Not done in stage 1:** `USE_IS_RIGHT_WHEN_CREATE`, `TRACE_MATRIX_IN_FIELD`, the trigger-list
+creation part, `APPLY_DAMAGE_EFFECT_VELOCITY` and the `SET_OVER_UI` layer are stage 2.
+`GROUP_NAME` and the unsupported-key logging are stage 3. `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE`
+is deferred: its consumer is on the unit side.
+
+Client-only; no server rebuild. Undefining `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` restores the
+stock creation, offset, position and rotation code, which sits intact in each `#else`.
 
 
 ## Reverting to stock

@@ -2,6 +2,37 @@
 #include ".\x2effectset.h"
 #include "Offline/X2OfflineLog.h"
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+// JUNE_FX ES_CREATE <set> <effect> <key> <detail>: one line per June creation-time branch
+// taken (plan Phase 4a), at most one a second per (set, key, detail). The position and
+// offset helpers are shared with the per-frame trace update, so a line can come from
+// there too. Runtime, so it goes to offline_server.log.
+static void JuneFxEsCreate( const CX2EffectSet::EffectSetInstance* pInstance_, const CX2EffectSet::EffectData* pEffectData_,
+						   const WCHAR* pwszKey_, const WCHAR* pwszDetail_ )
+{
+	if( NULL == pInstance_ || NULL == pInstance_->m_pEffectSetData )
+		return;
+
+	std::wstring wstrThrottleKey = pInstance_->m_pEffectSetData->m_wstrEffectSetName;
+	wstrThrottleKey += L"|";
+	wstrThrottleKey += pwszKey_;
+	wstrThrottleKey += L"|";
+	wstrThrottleKey += pwszDetail_;
+
+	static std::map<std::wstring, DWORD> s_mapLastLoggedTime;
+	const DWORD dwNow = timeGetTime();
+	std::map<std::wstring, DWORD>::iterator itThrottle = s_mapLastLoggedTime.find( wstrThrottleKey );
+	if( itThrottle != s_mapLastLoggedTime.end() && dwNow - itThrottle->second < 1000 )
+		return;
+	s_mapLastLoggedTime[ wstrThrottleKey ] = dwNow;
+
+	CX2OfflineLog::Server( L"JUNE_FX ES_CREATE %s %s %s %s", pInstance_->m_pEffectSetData->m_wstrEffectSetName.c_str(),
+		( NULL != pEffectData_ ? pEffectData_->m_EffectName.c_str() : L"-" ), pwszKey_, pwszDetail_ );
+}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+
 
 
 
@@ -824,6 +855,53 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						pEffectInstance->m_optrGameUnit			= pEffectSetInstance->m_optrGameUnit;
 
 						pEffectSetInstance->m_vecpEffectInstance.push_back( pEffectInstance );
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+						// June2017 FUN_321ee600 @ 321f1f76-321f20f4: every BONE_TRACE_TARGET_MESH damage
+						// effect is pushed onto the target-mesh list as {main effect handle,
+						// ET_MESH_PLAYER_GAME_MAJOR (June's tag 4), SCALE or (1,1,1)}
+						// (@ 321f1f87-321f2034). Only the push that makes the count 1 sets
+						// is-target-mesh and, with a valid unit, right / dir / Z
+						// (@ 321f2039-321f20ee). Unlike March, June leaves the instance's bone-trace
+						// scale alone here; only the entry holds it.
+						if( true == pEffectData->m_bBoneTraceTargetMesh )
+						{
+							EffectSetInstance::TargetMeshData targetMeshData;
+							targetMeshData.m_hTargetMesh = pEffect->GetMainEffectHandle();
+							targetMeshData.m_eEffectType = ET_MESH_PLAYER_GAME_MAJOR;
+							if( false == IsSamef( 0.f, pEffectData->m_vScale.x ) )
+								targetMeshData.m_vScale = pEffectData->m_vScale;
+							if( true == pEffectSetInstance->m_vecTargetMeshData.empty() &&
+								INVALID_MESH_INSTANCE_HANDLE != pEffectSetInstance->m_hTargetMesh )
+							{
+								// March-only preset (PlayEffectSetByMeshPlayer): it stays entry 0
+								EffectSetInstance::TargetMeshData presetData;
+								presetData.m_hTargetMesh	= pEffectSetInstance->m_hTargetMesh;
+								presetData.m_eEffectType	= pEffectSetInstance->m_eTargetMeshEffectType;
+								presetData.m_vScale			= pEffectSetInstance->m_vBoneTraceTargetMeshScale;
+								pEffectSetInstance->m_vecTargetMeshData.push_back( presetData );
+							}
+							pEffectSetInstance->m_vecTargetMeshData.push_back( targetMeshData );
+
+							if( 1 == pEffectSetInstance->m_vecTargetMeshData.size() )
+							{
+								pEffectSetInstance->m_hTargetMesh			= targetMeshData.m_hTargetMesh;	// entry 0 mirror
+								pEffectSetInstance->m_eTargetMeshEffectType	= targetMeshData.m_eEffectType;
+								pEffectSetInstance->m_bIsTargetMesh			= true;
+								if( null != pEffectSetInstance->m_optrGameUnit )
+								{
+									if( true == pEffectSetInstance->m_optrGameUnit->GetIsRight() )
+										pEffectSetInstance->m_bIsTargetMeshRight = true;
+									pEffectSetInstance->m_vecTargetMeshDirVector	= pEffectSetInstance->m_optrGameUnit->GetDirVector();
+									pEffectSetInstance->m_vecTargetMeshZVector		= pEffectSetInstance->m_optrGameUnit->GetZVector();
+								}
+							}
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+							WCHAR wszJuneFx[64] = {0};
+							StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"registered_index=%d(damage)", (int) pEffectSetInstance->m_vecTargetMeshData.size() - 1 );
+							JuneFxEsCreate( pEffectSetInstance, pEffectData, L"BONE_TRACE_TARGET_MESH", wszJuneFx );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+						}
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef MODIFY_EFFECT_SET_TRACE_BONE // ø¿«ˆ∫Û
 						if( true == pEffectData->m_bBoneTraceTargetMesh && 
 							INVALID_MESH_INSTANCE_HANDLE == pEffectSetInstance->m_hTargetMesh )
@@ -856,6 +934,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 		#endif //FIX_EFFECT_SCALE_BY_UNIT_SCALE
 						}
 #endif // MODIFY_EFFECT_SET_TRACE_BONE
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 					}
 				} break;
 
@@ -898,6 +977,54 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						}
 						//}}AFX
 #endif _IN_HOUSE_
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+						// June2017 FUN_321ee600 @ 321f21f7-321f2414: every BONE_TRACE_TARGET_MESH mesh
+						// player is pushed onto the target-mesh list as {handle, its EFFECT_TYPE,
+						// SCALE or (1,1,1)} (@ 321f2208-321f22b3). is-target-mesh is set when the
+						// count is 1 (@ 321f22b8-321f22da). Unlike the damage-effect case, right (set,
+						// never cleared) / dir / Z follow every push with a valid unit
+						// (@ 321f22e0-321f2394), and so does the instance's bone-trace scale
+						// (@ 321f239a-321f2414).
+						if( true == pEffectData->m_bBoneTraceTargetMesh )
+						{
+							EffectSetInstance::TargetMeshData targetMeshData;
+							targetMeshData.m_hTargetMesh = pMeshInstance->GetHandle();
+							targetMeshData.m_eEffectType = pEffectData->m_eEffectType;
+							if( false == IsSamef( 0.f, pEffectData->m_vScale.x ) )
+								targetMeshData.m_vScale = pEffectData->m_vScale;
+							if( true == pEffectSetInstance->m_vecTargetMeshData.empty() &&
+								INVALID_MESH_INSTANCE_HANDLE != pEffectSetInstance->m_hTargetMesh )
+							{
+								// March-only preset (PlayEffectSetByMeshPlayer): it stays entry 0
+								EffectSetInstance::TargetMeshData presetData;
+								presetData.m_hTargetMesh	= pEffectSetInstance->m_hTargetMesh;
+								presetData.m_eEffectType	= pEffectSetInstance->m_eTargetMeshEffectType;
+								presetData.m_vScale			= pEffectSetInstance->m_vBoneTraceTargetMeshScale;
+								pEffectSetInstance->m_vecTargetMeshData.push_back( presetData );
+							}
+							pEffectSetInstance->m_vecTargetMeshData.push_back( targetMeshData );
+
+							if( 1 == pEffectSetInstance->m_vecTargetMeshData.size() )
+							{
+								pEffectSetInstance->m_hTargetMesh			= targetMeshData.m_hTargetMesh;	// entry 0 mirror
+								pEffectSetInstance->m_eTargetMeshEffectType	= targetMeshData.m_eEffectType;
+								pEffectSetInstance->m_bIsTargetMesh			= true;
+							}
+							if( null != pEffectSetInstance->m_optrGameUnit )
+							{
+								if( true == pEffectSetInstance->m_optrGameUnit->GetIsRight() )
+									pEffectSetInstance->m_bIsTargetMeshRight = true;
+								pEffectSetInstance->m_vecTargetMeshDirVector	= pEffectSetInstance->m_optrGameUnit->GetDirVector();
+								pEffectSetInstance->m_vecTargetMeshZVector		= pEffectSetInstance->m_optrGameUnit->GetZVector();
+							}
+							pEffectSetInstance->m_vBoneTraceTargetMeshScale = targetMeshData.m_vScale;
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+							WCHAR wszJuneFx[64] = {0};
+							StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"registered_index=%d(mesh)", (int) pEffectSetInstance->m_vecTargetMeshData.size() - 1 );
+							JuneFxEsCreate( pEffectSetInstance, pEffectData, L"BONE_TRACE_TARGET_MESH", wszJuneFx );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+						}
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef MODIFY_EFFECT_SET_TRACE_BONE // ø¿«ˆ∫Û
 						if( true == pEffectData->m_bBoneTraceTargetMesh && 
 							INVALID_MESH_INSTANCE_HANDLE == pEffectSetInstance->m_hTargetMesh )
@@ -930,6 +1057,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 		#endif //FIX_EFFECT_SCALE_BY_UNIT_SCALE
 						}
 #endif // MODIFY_EFFECT_SET_TRACE_BONE
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 
 					}
@@ -1755,6 +1883,28 @@ CX2EffectSet::EffectSetInstance*   CX2EffectSet::_CreateEffectSetInstance(
 {
     if ( pEffectSetData == NULL )
         return NULL;
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+	// June2017 FUN_321e1bf0 @ 321e1c68-321e1c77 runs FUN_321d9f30 before creating anything.
+	// With OVERLAP set, a templet that already has a live instance with this trace target
+	// (null matches null) gets no new instance, and PlayEffectSet returns an invalid handle.
+	if( true == pEffectSetData->m_bOverlap )
+	{
+		KInstanceHandleList::iterator iterLiveEnd = m_coInstanceHandleList.end( LIST_LIVE );
+		for( KInstanceHandleList::iterator iterLive = m_coInstanceHandleList.begin( LIST_LIVE ); iterLive != iterLiveEnd; ++iterLive )
+		{
+			EffectSetInstance* pLiveInstance = iterLive->m_pInstance;
+			if( NULL != pLiveInstance && pEffectSetData == pLiveInstance->m_pEffectSetData &&
+				pTraceTargetGameUnit == pLiveInstance->m_optrTraceTargetGameUnit.GetObservable() )
+			{
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+				JuneFxEsCreate( pLiveInstance, NULL, L"OVERLAP", L"refused_new_instance(321d9f30)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+				return NULL;
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
     KInstanceHandleList::iterator iterEmpty = m_coInstanceHandleList.begin(LIST_FREE);
     if ( iterEmpty == m_coInstanceHandleList.end(LIST_FREE) )
@@ -3185,6 +3335,38 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPosition( EffectData* pEff
 	if( NULL == pEffectData )
 		return vPos;
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+	// June2017 FUN_321dcd30 @ 321dcd9d-321dce07 picks the target-mesh index. An effect that is
+	// itself a BONE_TRACE_TARGET_MESH uses BONE_TRACE_TARGET_MESH_INDEX as it is, so the
+	// default -1 traces no mesh; any other effect clamps the index to 0. FUN_321dcac0 (see
+	// GetEffectPositionByTargetMesh) follows, and on success the offset (FUN_321d9820) and
+	// return.
+	{
+		int iTargetMeshIndex = pEffectData->m_iBoneTraceTargetMeshIndex;
+		if( false == pEffectData->m_bBoneTraceTargetMesh && iTargetMeshIndex < 0 )
+			iTargetMeshIndex = 0;
+
+		if( true == GetEffectPositionByTargetMesh( vPos, pEffectData, iTargetMeshIndex ) )
+		{
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			if( 0 < pEffectData->m_iBoneTraceTargetMeshIndex )
+			{
+				WCHAR wszJuneFx[64] = {0};
+				StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"position_from_index=%d", iTargetMeshIndex );
+				JuneFxEsCreate( this, pEffectData, L"BONE_TRACE_TARGET_MESH_INDEX", wszJuneFx );
+			}
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+			SetEffectSetOffset( vPos, pEffectData->m_vPositionOffset, pEffectData );
+			return vPos;
+		}
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		// March traced m_hTargetMesh here even for an effect that is itself a target mesh
+		if( true == pEffectData->m_bBoneTraceTargetMesh && 0 > pEffectData->m_iBoneTraceTargetMeshIndex &&
+			INVALID_MESH_INSTANCE_HANDLE != m_hTargetMesh && false == pEffectData->m_bTraceUserTargetForce )
+			JuneFxEsCreate( this, pEffectData, L"BONE_TRACE_TARGET_MESH", L"self_traces_no_mesh(321dcd9d)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	}
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef MODIFY_EFFECT_SET_TRACE_BONE // ø¿«ˆ∫Û
 	if( true == GetEffectPositionByTargetMesh( vPos, pEffectData ) )
 	{
@@ -3196,6 +3378,7 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPosition( EffectData* pEff
 		return vPos;
 	}
 #endif // MODIFY_EFFECT_SET_TRACE_BONE
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 	if( true == m_bCustomPosition )
 	{
@@ -3418,6 +3601,68 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectScale( EffectData* pEffect
 
 D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectRotation( EffectData* pEffectData )
 {
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+	KTDXPROFILE();
+
+	// June2017 FUN_321df7e0 @ 321df80c-321df860: for rotation the target-mesh index is
+	// BONE_TRACE_TARGET_MESH_INDEX clamped to 0. The entry counts only if it is in range with
+	// a live handle, and not when the effect is itself a BONE_TRACE_TARGET_MESH with a negative
+	// index.
+	const int iTargetMeshIndex = ( pEffectData->m_iBoneTraceTargetMeshIndex < 0 ) ? 0 : pEffectData->m_iBoneTraceTargetMeshIndex;
+	CKTDGXMeshPlayer::CXMeshInstanceHandle hTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
+	EFFECT_TYPE eTargetMeshEffectType = ET_INVALID;
+	const bool bTargetMesh = !( pEffectData->m_iBoneTraceTargetMeshIndex < 0 && true == pEffectData->m_bBoneTraceTargetMesh ) &&
+							 true == GetTargetMesh( iTargetMeshIndex, hTargetMesh, eTargetMeshEffectType );
+
+	D3DXVECTOR3 vEffectRotation = pEffectData->m_vRotateRel;
+	// @ 321df860-321df8f4: APPLY_UNIT_ROTATION adds the target mesh's rotation, or the unit's
+	// when there is no target mesh or TRACE_USER_TARGET_FORCE is set
+	if( true == pEffectData->m_bApplyUnitRotation )
+	{
+		if( true == bTargetMesh && false == pEffectData->m_bTraceUserTargetForce )
+		{
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = GetMeshInstanceByTargetMesh( iTargetMeshIndex );
+			if( NULL != pMeshInstance )
+				vEffectRotation += pMeshInstance->GetRotateDegree();
+		}
+		else
+		{
+			vEffectRotation += GetUnitRotation( pEffectData );
+		}
+	}
+	// @ 321df8f9-321df98c: APPLY_UNIT_ROTATION_MIRROR does the same, then flips x when not right
+	else if( true == pEffectData->m_bApplyUnitRotationMirror )
+	{
+		if( true == bTargetMesh && false == pEffectData->m_bTraceUserTargetForce )
+		{
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = GetMeshInstanceByTargetMesh( iTargetMeshIndex );
+			if( NULL != pMeshInstance )
+				vEffectRotation += pMeshInstance->GetRotateDegree();
+		}
+		else
+		{
+			vEffectRotation += GetUnitRotation( pEffectData );
+		}
+
+		if( false == IsUnitRight() )
+			vEffectRotation.x *= -1.f;
+	}
+
+	// @ 321df98c: the local rotation
+	vEffectRotation += m_vLocalRotateDegree;
+
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	if( true == bTargetMesh && 0 < pEffectData->m_iBoneTraceTargetMeshIndex &&
+		( true == pEffectData->m_bApplyUnitRotation || true == pEffectData->m_bApplyUnitRotationMirror ) )
+	{
+		WCHAR wszJuneFx[64] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"rotation_from_index=%d", iTargetMeshIndex );
+		JuneFxEsCreate( this, pEffectData, L"BONE_TRACE_TARGET_MESH_INDEX", wszJuneFx );
+	}
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+
+	return vEffectRotation;
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 	KTDXPROFILE();
 
 	D3DXVECTOR3 vEffectRotation = pEffectData->m_vRotateRel;
@@ -3475,6 +3720,7 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectRotation( EffectData* pEff
 	vEffectRotation += m_vLocalRotateDegree;
 
 	return vEffectRotation;
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 }
 
 D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetUnitRotation( EffectData* pEffectData )
@@ -3955,6 +4201,132 @@ void CX2EffectSet::EffectSetInstance::SetEffectSetOffset( OUT D3DXVECTOR3& vPos_
 void CX2EffectSet::EffectSetInstance::SetEffectSetOffset( OUT D3DXVECTOR3& vPos_, IN const D3DXVECTOR3& vOffsetPos_ )
 #endif //FIX_BONE_TRACE_TARGET_MESH_UNIT_TRACE
 {
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+	if ( NULL == pEffectData_ )
+		return;
+
+	// June2017 FUN_321d9820 @ 321d9847-321d9889: the unit whose facing orients the offset is the
+	// trace target when that is valid, else the owner. March always used the owner.
+	CX2GameUnit* pFacingUnit = ( null != m_optrTraceTargetGameUnit ) ? m_optrTraceTargetGameUnit.GetObservable() : m_optrGameUnit.GetObservable();
+	// @ 321d9889-321d9896: the target-mesh index is max( BONE_TRACE_TARGET_MESH_INDEX, 0 )
+	const int iTargetMeshIndex = ( pEffectData_->m_iBoneTraceTargetMeshIndex < 0 ) ? 0 : pEffectData_->m_iBoneTraceTargetMeshIndex;
+	CKTDGXMeshPlayer::CXMeshInstanceHandle hTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
+	EFFECT_TYPE eTargetMeshEffectType = ET_INVALID;
+	const bool bTargetMesh = true == GetTargetMesh( iTargetMeshIndex, hTargetMesh, eTargetMeshEffectType ) &&
+							 false == pEffectData_->m_bTraceUserTargetForce;
+
+	if( NULL != pFacingUnit ) // ESM_GAME
+	{
+		// @ 321d98a3-321d98c2: June guards its target-mesh branch here with CMP index,count /
+		// JBE, which skips it for every in-range index. Only an index past the end of the list
+		// (an out-of-bounds read, not reproduced) would enter it. So June always offsets a game
+		// unit's effect by the unit's facing, even one that traces a target mesh. March offset
+		// those by the target mesh's dir / Z (FIX_TARGET_MESH_OFFSET_POS).
+
+		// X, @ 321d9a43-321d9b08
+		if( 0.f != vOffsetPos_.x )
+		{
+			D3DXVECTOR3 vDirVector = pFacingUnit->GetDirVector();
+			if( 0.f != vDirVector.y )
+			{
+				vDirVector.y = 0.f;
+				D3DXVec3Normalize( &vDirVector, &vDirVector );
+			}
+
+			if( true == pFacingUnit->GetIsRight() )
+				vPos_ += vDirVector * vOffsetPos_.x;
+			else
+				vPos_ -= vDirVector * vOffsetPos_.x;
+		}
+
+		// Y, @ 321d9b0b-321d9b23
+		if( 0.f != vOffsetPos_.y )
+		{
+			vPos_.y += vOffsetPos_.y;
+		}
+
+		// Z, @ 321d9b26-321d9c2a. ZOFFSET_USE_UNIT_IS_RIGHT (@ 321d9b3a) makes the Z offset follow
+		// the facing: it is subtracted while the unit faces left.
+		if( 0.f != vOffsetPos_.z )
+		{
+			if( true == pEffectData_->m_bZOffsetUseUnitIsRight && false == pFacingUnit->GetIsRight() )
+				vPos_ -= pFacingUnit->GetZVector() * vOffsetPos_.z;
+			else
+				vPos_ += pFacingUnit->GetZVector() * vOffsetPos_.z;
+		}
+
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		if( true == pEffectData_->m_bZOffsetUseUnitIsRight && 0.f != vOffsetPos_.z )
+			JuneFxEsCreate( this, pEffectData_, L"ZOFFSET_USE_UNIT_IS_RIGHT", true == pFacingUnit->GetIsRight() ? L"z_added(321d9b3a)" : L"z_subtracted(321d9b3a)" );
+		if( pFacingUnit != m_optrGameUnit.GetObservable() && ( 0.f != vOffsetPos_.x || 0.f != vOffsetPos_.z ) )
+			JuneFxEsCreate( this, pEffectData_, L"POSITION_OFFSET", L"facing=trace_target(321d9847)" );
+		if( true == bTargetMesh && ( 0.f != vOffsetPos_.x || 0.f != vOffsetPos_.y || 0.f != vOffsetPos_.z ) )
+			JuneFxEsCreate( this, pEffectData_, L"BONE_TRACE_TARGET_MESH", L"offset=unit_facing(321d98c0)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	}
+	else if ( null != m_pSquareUnit ) // ESM_FIELD, @ 321d9c2f-321d9d43, as March
+	{
+		if( 0.f != vOffsetPos_.x )
+		{
+			D3DXVECTOR3 vDirVector = m_pSquareUnit->GetDirVector();
+			if( 0.f != vDirVector.y )
+			{
+				vDirVector.y = 0.f;
+				D3DXVec3Normalize( &vDirVector, &vDirVector );
+			}
+
+			if( true == m_pSquareUnit->GetIsRight() )
+				vPos_ += vDirVector * vOffsetPos_.x;
+			else
+				vPos_ -= vDirVector * vOffsetPos_.x;
+		}
+
+		if( 0.f != vOffsetPos_.y )
+		{
+			vPos_.y += vOffsetPos_.y;
+		}
+
+		if( 0.f != vOffsetPos_.z )
+		{
+			vPos_ += m_pSquareUnit->GetZVector() * vOffsetPos_.z;
+		}
+	}
+	else if( NULL != m_pPet ) // ESM_COMMON, @ 321d9d48-321d9e65, as March
+	{
+		if( 0.f != vOffsetPos_.x )
+		{
+			D3DXVECTOR3 vDirVector = m_pPet->GetDirVector();
+			if( 0.f != vDirVector.y )
+			{
+				vDirVector.y = 0.f;
+				D3DXVec3Normalize( &vDirVector, &vDirVector );
+			}
+
+			if( true == m_pPet->GetIsRight() )
+				vPos_ += vDirVector * vOffsetPos_.x;
+			else
+				vPos_ -= vDirVector * vOffsetPos_.x;
+		}
+
+		if( 0.f != vOffsetPos_.y )
+		{
+			vPos_.y += vOffsetPos_.y;
+		}
+
+		if( 0.f != vOffsetPos_.z )
+		{
+			vPos_ += m_pPet->GetZVector() * vOffsetPos_.z;
+		}
+	}
+	// @ 321d9e6a-321d9f0f: no unit, square or pet. A live target-mesh entry at the index,
+	// without TRACE_USER_TARGET_FORCE, gets the plain add, as March.
+	else if ( true == bTargetMesh )
+	{
+		vPos_.x += (0.f != vOffsetPos_.x) ? vOffsetPos_.x : 0.f;
+		vPos_.y += (0.f != vOffsetPos_.y) ? vOffsetPos_.y : 0.f;
+		vPos_.z += (0.f != vOffsetPos_.z) ? vOffsetPos_.z : 0.f;
+	}
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef FIX_BONE_TRACE_TARGET_MESH_UNIT_TRACE // ±Ë≈¬»Ø
 	if ( NULL == pEffectData_ )
 		return;
@@ -4108,6 +4480,7 @@ void CX2EffectSet::EffectSetInstance::SetEffectSetOffset( OUT D3DXVECTOR3& vPos_
 	}
 
 #endif //MODIFY_EFFECT_SET_TRACE_BONE
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 }
 
 #ifdef FIX_ICE_HEATER_EVENT
@@ -4274,6 +4647,139 @@ bool CX2EffectSet::EffectSetInstance::GetEffectPositionByTargetMesh( OUT D3DXVEC
 	return true;
 }
 #endif // MODIFY_EFFECT_SET_TRACE_BONE
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+/** @function : GetTargetMesh
+	@brief : June2017 target-mesh entry iIndex_ (EffectSetInstance +0xf0 in June): true when it
+			 is in range with a live handle. When the list is empty but m_hTargetMesh was set
+			 directly (PlayEffectSetByMeshPlayer, a March path), that single mesh is entry 0.
+*/
+bool CX2EffectSet::EffectSetInstance::GetTargetMesh( IN int iIndex_, OUT CKTDGXMeshPlayer::CXMeshInstanceHandle& hTargetMesh_, OUT EFFECT_TYPE& eEffectType_ ) const
+{
+	hTargetMesh_ = INVALID_MESH_INSTANCE_HANDLE;
+	eEffectType_ = ET_INVALID;
+	if( iIndex_ < 0 )
+		return false;
+
+	if( true == m_vecTargetMeshData.empty() )
+	{
+		if( 0 != iIndex_ )
+			return false;
+		hTargetMesh_ = m_hTargetMesh;
+		eEffectType_ = m_eTargetMeshEffectType;
+	}
+	else
+	{
+		if( iIndex_ >= static_cast<int>( m_vecTargetMeshData.size() ) )
+			return false;
+		hTargetMesh_ = m_vecTargetMeshData[iIndex_].m_hTargetMesh;
+		eEffectType_ = m_vecTargetMeshData[iIndex_].m_eEffectType;
+	}
+
+	return INVALID_MESH_INSTANCE_HANDLE != hTargetMesh_;
+}
+
+/** @function : InvalidateTargetMesh
+	@brief : June2017 FUN_321dcac0, its failure path: a mesh that is gone resets its entry to
+			 {-1, 0}. Entry 0 also resets the March single-mesh mirror.
+*/
+void CX2EffectSet::EffectSetInstance::InvalidateTargetMesh( IN int iIndex_ )
+{
+	if( iIndex_ >= 0 && iIndex_ < static_cast<int>( m_vecTargetMeshData.size() ) )
+	{
+		m_vecTargetMeshData[iIndex_].m_hTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
+		m_vecTargetMeshData[iIndex_].m_eEffectType = ET_INVALID;
+	}
+
+	if( 0 == iIndex_ )
+	{
+		m_hTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
+		m_eTargetMeshEffectType = ET_INVALID;
+	}
+}
+
+/** @function : GetMeshInstanceByTargetMesh
+	@brief : June2017 FUN_321dc910: March's GetMeshInstanceByTargetMesh() with an index. The
+			 mesh instance of entry iIndex_, found through the mesh player its type names.
+*/
+CKTDGXMeshPlayer::CXMeshInstance* CX2EffectSet::EffectSetInstance::GetMeshInstanceByTargetMesh( IN int iIndex_ )
+{
+	CKTDGXMeshPlayer::CXMeshInstanceHandle hTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
+	EFFECT_TYPE eEffectType = ET_INVALID;
+	if( false == GetTargetMesh( iIndex_, hTargetMesh, eEffectType ) || ET_INVALID == eEffectType )
+		return NULL;
+
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = NULL;
+	switch( eEffectType )
+	{
+	case ET_MESH_PLAYER_UI_MAJOR:
+		{
+			if( NULL != g_pData->GetUIMajorXMeshPlayer() )
+				pMeshInstance = g_pData->GetUIMajorXMeshPlayer()->GetMeshInstance( hTargetMesh );
+		} break;
+	case ET_MESH_PLAYER_UI_MINOR:
+		{
+			if( NULL != g_pData->GetUIMinorXMeshPlayer() )
+				pMeshInstance = g_pData->GetUIMinorXMeshPlayer()->GetMeshInstance( hTargetMesh );
+		} break;
+	case ET_MESH_PLAYER_GAME_MAJOR:
+		{
+			if( NULL != g_pX2Game && NULL != g_pX2Game->GetMajorXMeshPlayer() )
+				pMeshInstance = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( hTargetMesh );
+		} break;
+	case ET_MESH_PLAYER_GAME_MINOR:
+		{
+			if( NULL != g_pX2Game && NULL != g_pX2Game->GetMinorXMeshPlayer() )
+				pMeshInstance = g_pX2Game->GetMinorXMeshPlayer()->GetMeshInstance( hTargetMesh );
+		} break;
+	default:
+		break;
+	}
+
+	return pMeshInstance;
+}
+
+/** @function : GetEffectPositionByTargetMesh
+	@brief : June2017 FUN_321dcac0: March's GetEffectPositionByTargetMesh() with an index. The
+			 entry must be live and typed, and the effect must not have TRACE_USER_TARGET_FORCE.
+			 Bone order (BONE_NAME, WEAPON_BONE_NAME, RIDING_PET_BONE_NAME, else the mesh
+			 position) and the discarded riding-pet result are the same in June and March.
+*/
+bool CX2EffectSet::EffectSetInstance::GetEffectPositionByTargetMesh( OUT D3DXVECTOR3& vPos, IN EffectData* pEffectData, IN int iIndex_ )
+{
+	CKTDGXMeshPlayer::CXMeshInstanceHandle hTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
+	EFFECT_TYPE eEffectType = ET_INVALID;
+	if( false == GetTargetMesh( iIndex_, hTargetMesh, eEffectType ) || ET_INVALID == eEffectType ||
+		true == pEffectData->m_bTraceUserTargetForce )
+		return false;
+
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = GetMeshInstanceByTargetMesh( iIndex_ );
+	if( NULL == pMeshInstance )
+	{
+		InvalidateTargetMesh( iIndex_ );
+		return false;
+	}
+
+	if( false == pEffectData->m_PositionBoneName.empty() )
+	{
+		pMeshInstance->GetBonePos( pEffectData->m_PositionBoneName.c_str(), vPos ) ;
+	}
+	else if( false == pEffectData->m_PositionWeaponBoneName.empty() )
+	{
+		pMeshInstance->GetBonePos( pEffectData->m_PositionWeaponBoneName.c_str(), vPos ) ;
+	}
+	else if ( false == pEffectData->m_PosRidingPetBoneName.empty() )
+	{
+		pMeshInstance->GetBonePos( pEffectData->m_PosRidingPetBoneName.c_str() );
+	}
+	else
+	{
+		vPos = pMeshInstance->GetPos();
+	}
+
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 #ifdef SERV_9TH_NEW_CHARACTER // ±Ë≈¬»Ø
 /** @function	: SetPos

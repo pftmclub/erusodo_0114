@@ -461,6 +461,77 @@ ES_LEVELS = [
     (('CAMERA_SHAKE%d',), 0x321ec0ee, 0x321edd1c),
     (('SOUND%d',), 0x321edd39, 0x321ee2a0),
 ]
+# ---- runtime citations, by hand (Phase 4a on). The parse-time columns above say whether March
+# reads a key; this says what June does with it at run time, and where. One entry per
+# (scope root, sub-path, key); check_runtime() makes sure each names a real row. Verdicts:
+# new / semantics-differ / same / unsupported / deferred / 4b@VA (only a Phase-4b reader) /
+# not-creation (no reader on the creation path). state: done / stage N (owned, not yet
+# written) / - (nothing to write). The full spec is JUNE2017_EFFECT_REBUILD_PLAN.md, Phase 4a.
+RT_4A = '4a'
+RUNTIME = [
+    # (root, rel, key, phase, state, verdict, June branch, March site)
+    ('ES.EFFECT', (), 'ZOFFSET_USE_UNIT_IS_RIGHT', RT_4A, 'done', 'new',
+     '321d9820@321d9b36-321d9c2a: game-unit Z offset subtracted while facing left', 'SetEffectSetOffset'),
+    ('ES.EFFECT', (), 'POSITION_OFFSET_X', RT_4A, 'done', 'semantics-differ',
+     '321d9820@321d9847-321d9889: facing unit = trace target when valid; @321d98a3-321d98c2: game-unit target-mesh branch unreachable in range (JBE)', 'SetEffectSetOffset'),
+    ('ES.EFFECT', (), 'POSITION_OFFSET_Z', RT_4A, 'done', 'semantics-differ',
+     '321d9820@321d9847-321d9889 and @321d98a3-321d98c2, as POSITION_OFFSET_X', 'SetEffectSetOffset'),
+    ('ES.EFFECT', (), 'POSITION_OFFSET_Y', RT_4A, 'done', 'same',
+     '321d9820@321d9b0b-321d9b23: added as is; the facing change does not reach Y', 'SetEffectSetOffset'),
+    ('ES.EFFECT', (), 'BONE_TRACE_TARGET_MESH', RT_4A, 'done', 'semantics-differ',
+     '321ee600@321f1f76-321f20f4 (damage) / 321f21f7-321f2414 (mesh): every one pushed onto a target-mesh list; 321dcd30@321dcd9d: with INDEX -1 it traces no mesh itself', 'OnFrameMove_CreateEffect, GetEffectPosition'),
+    ('ES.EFFECT', (), 'BONE_TRACE_TARGET_MESH_INDEX', RT_4A, 'done', 'new',
+     'position 321dcd30@321dcd9d-321dce07 -> 321dcac0; rotation 321df7e0@321df80c-321df860; offset 321d9820@321d9889-321d9896 / 321d9e6a-321d9ea6', 'GetEffectPosition, GetEffectRotation, SetEffectSetOffset'),
+    ('ES.EFFECT', (), 'TRACE_USER_TARGET_FORCE', RT_4A, 'done', 'same',
+     '321dcac0, 321df7e0@321df871, 321d9820@321d98e0: skips the target mesh, as March', 'the same three'),
+    ('ES.EFFECT', (), 'APPLY_UNIT_ROTATION', RT_4A, 'done', 'same',
+     '321df7e0@321df860: as March, plus the target-mesh index', 'GetEffectRotation'),
+    ('ES.EFFECT', (), 'APPLY_UNIT_ROTATION_MIRROR', RT_4A, 'done', 'same',
+     '321df7e0@321df8f9-321df98c: as March, plus the target-mesh index', 'GetEffectRotation'),
+    ('ES.EFFECT', (), 'LIMIT_DISTANCE', RT_4A, '-', 'same', '321ee600@321eedad-321eeddf', 'OnFrameMove_CreateEffect'),
+    ('ES.EFFECT', (), 'START_WHEN_TRACE_TARGET_DEAD', RT_4A, '-', 'same', '321ee600@321ee7e4-321eec83', 'OnFrameMove_CreateEffect'),
+    ('ES.EFFECT', (), 'USE_SUB_ATTACK_LIST_SET', RT_4A, '-', 'same', '321ee600@321f219f-321f21f2', 'OnFrameMove_CreateEffect'),
+    ('ES.EFFECT', (), 'TRACE_MATRIX', RT_4A, '-', 'same', '321ee600, e.g. @321ef4f5-321ef58f: scale / unit scale / bone-trace scale', 'OnFrameMove_CreateEffect'),
+    ('ES.EFFECT', (), 'USE_IS_RIGHT_WHEN_CREATE', RT_4A, 'stage 2', 'new',
+     '321ee600@321ef6bc-321ef6d5: CEffect +0x135 = the facing snapshot taken by 321df230@321df528-321df576', 'damage case'),
+    ('ES.EFFECT', (), 'TRACE_MATRIX_IN_FIELD', RT_4A, 'stage 2', 'new',
+     '321ee600 mesh / particle cases, e.g. @321ef8ee, 321efe84, 321f03b6', 'mesh / particle cases'),
+    ('ES.EFFECT', (), 'APPLY_DAMAGE_EFFECT_VELOCITY', RT_4A, 'stage 2', 'new',
+     '321ee600@321ef692-321ef6a0 -> 321db1b0 tag 1: main-effect velocity, add if [4]==0 else multiply', 'damage case'),
+    ('ES.EFFECT', (), 'MESH_TRIGGER_DATA_LIST', RT_4A, 'stage 2', 'new',
+     '321ee600@321f2130-321f2166: EffectInstance copies the list; non-empty sets mesh +0x194=0 (the rest: 4b @321e0080)', 'mesh case'),
+    ('ES.EFFECT', (), 'SET_OVER_UI', RT_4A, 'stage 2', 'semantics-differ',
+     '321ee600@321f0f49-321f0f59 (x4): +0x170=1 and +0x164=500; +0x164 = m_Layer by layout only, to confirm', 'particle cases'),
+    ('ES.EFFECT', (), 'GROUP_NAME', RT_4A, 'stage 3', 'new',
+     '321ee600@321eee45-321eeeb7, loop 321eeec0-321ef0ce, helper 321dd590: one particle per <base>_GROUPCHILD_<n> bone', 'particle cases'),
+    ('ES.EFFECT', (), 'NOT_ALLOW_MEMO', RT_4A, 'stage 3', 'unsupported',
+     '321dddb0: scale x memo scale unless set; the memo scale comes only from APPLIED_SKILL_ID (unsupported)', 'GetEffectScale'),
+    ('ES.EFFECT', (), 'APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION', RT_4A, 'stage 3', 'unsupported',
+     '321ee600@321f1ec8-321f1ee4 -> damage +0xb32 / mesh 31c83620 / particle +0x1b0', '-'),
+    ('ES.EFFECT', (), 'FOLLOW_UNIT_ROTATION', RT_4A, '-', '4b@321e0080', 'read only by UpdateEffect 321e0080', '-'),
+    ('ES.EFFECT', (), 'FOLLOW_UNIT_ROTATION_CPARTICLE', RT_4A, '-', '4b@321e0080', 'read only by UpdateEffect 321e0080', '-'),
+    ('ES.EFFECT', (), 'REVERSE_Y', RT_4A, '-', '4b@321e0080', 'read only by UpdateEffect 321e0080', '-'),
+    ('ES.EFFECT', (), 'MESH_TRIGGER_DATA', RT_4A, '-', '4b@321e0080', 'the inline trigger is read only by UpdateEffect 321e0080', '-'),
+    ('ES.EFFECT', (), 'FOLLOW_UNIT_VIEWER_SCALE', RT_4A, '-', 'not-creation', 'no reader in 0x321d0000-0x32208000 except the parser', '-'),
+    ('ES.EFFECT', (), 'USE_EFFECT_SCALE_IN_UNIT_VIEWER', RT_4A, '-', 'not-creation', 'no reader in 0x321d0000-0x32208000 except the parser', '-'),
+    ('ES.templet', (), 'OVERLAP', RT_4A, 'done', 'new',
+     '321d9f30 from the factory 321e1bf0@321e1c68-321e1c77: no new instance while one of the templet lives with the same trace target', '_CreateEffectSetInstance'),
+    ('ES.templet', (), 'STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE', RT_4A, 'deferred', 'new',
+     '321da070 via unit 3228a120 over unit+0x3e90 on state change; the writer of that list is not located', 'unit side'),
+    ('ES.templet', (), 'SYNC_SHOW_BY_CREATE_UNIT', RT_4A, '-', '4b@321e077d', 'getter 321f2b00, only caller UpdateEffect', '-'),
+    ('ES.templet', (), 'APPLIED_SKILL_ID', RT_4A, 'stage 3', 'unsupported',
+     '321e1e60 -> 31fdbbb0 (user +0x867c memo) -> EffectSetData +0x60 -> instance +0x150 (321df230)', '-'),
+    ('ES.templet', (), 'APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION', RT_4A, 'stage 3', 'unsupported',
+     '321e1bf0@321e1dd7-321e1e0c -> instance +0x1bc', '-'),
+    ('ES.templet', (), 'EVENT_TIMER_TYPE', RT_4A, '-', 'same', '321ee600@321ee885-321ee96d', 'OnFrameMove_CreateEffect'),
+    ('ES.templet', (), 'AFFECTED_BY_UNIT_SCALE', RT_4A, '-', 'same',
+     'no creation-path reader in June; March\'s is compiled out (#ifndef FIX_EFFECT_SCALE_BY_UNIT_SCALE)', 'PlayEffectSet'),
+    ('ES.templet', (), 'DELETE_EFFECTSET_AT_TRACE_UNIT_DIE', RT_4A, '-', '4b@321e41a8', 'read only by DeleteEffect 321e4020', '-'),
+    ('ES.templet', (), 'DELETE_SHAKE_COUNT', RT_4A, '-', '4b@321e42f8', 'read only by DeleteEffect 321e4020', '-'),
+] + [('ES.SOUND', (), k, RT_4A, '-', '4b@321e07f7', 'SOUND%d is played by 321dee80, only caller UpdateEffect', '-')
+     for k in ('EVENT_TIME', 'FILE_NAME', 'RATE', 'USE_GLOBAL_TIME', 'LOOP')]
+RUNTIME_BY_KEY = dict(((r[0], r[1], r[2]), r) for r in RUNTIME)
+
 COMPILED_OUT = {'CX2EffectSet::AddEffectSet_Description_LUA': '#ifdef EFFECT_TOOL, X2EffectSet.cpp:3380'}
 LEVEL_ROOTS = {'ES.templet', 'ES.EFFECT', 'ES.CAMERA_SHAKE', 'ES.SOUND', 'DE.DAMAGE_DATA'}
 
@@ -1777,6 +1848,23 @@ def write(rows, code_keys, sysev, sysv, flag_state, enum_rows, june_enum, march_
     else:
         w('None: no implemented row\'s June read is followed by scaling arithmetic before the next key.')
     w('')
+    # ---- runtime citations
+    w('## Runtime (Phase 4a on)')
+    w('')
+    w('What June does with a key at run time, and where. The table is written by hand (`RUNTIME` in')
+    w('`census.py`) from the June disassembly. It is kept apart from the parse-time `semantics` column, so')
+    w('a getter verdict and a behaviour verdict never overwrite each other. `state` is `done`')
+    w('(transcribed), `stage N` (owned, not yet written), `deferred`, or `-` (nothing to write).')
+    w('The full spec is in the plan, Phase 4a.')
+    w('')
+    rc = collections.Counter(e[5].split('@')[0] for e in RUNTIME)
+    w('%d keys cited: %s.' % (len(RUNTIME), ', '.join('%s %d' % kv for kv in sorted(rc.items()))))
+    w('')
+    w('| phase | scope | key | runtime verdict | state | June branch | March site |')
+    w('|---|---|---|---|---|---|---|')
+    for e in sorted(RUNTIME, key=lambda e: (phase_key(e[3]), e[0], e[1], e[2])):
+        w('| %s | `%s` %s | `%s` | %s | %s | %s | %s |' % (e[3], e[0], path_s(e[1]), e[2], e[5], e[4], cell(e[6]), cell(e[7])))
+    w('')
     # ---- per scope
     order = [r[0] for r in ROOTS] + sorted(set(r['root'] for r in rows.values()) - set(ROOT))
     by_scope = collections.defaultdict(list)
@@ -1982,6 +2070,9 @@ def note_s(r):
         out.append('%d names' % len(r['raw']))
     if r['example'] and r['status'] in ('to-implement', 'unsupported'):
         out.append('e.g. ' + r['example'])
+    rt = RUNTIME_BY_KEY.get((r['root'], r['rel'], r['key']))
+    if rt:
+        out.append('runtime %s: %s (%s)' % (rt[3], rt[5], rt[4]))
     return '; '.join(out)
 
 
@@ -2038,6 +2129,10 @@ def main():
     if missing_funcs or back_in:
         checks[3] = (False, 'March functions not found: %s; declared compiled-out but present: %s' % (
             ', '.join('%s %s' % mf for mf in missing_funcs) or 'none', ', '.join(back_in) or 'none'))
+    rowkeys = set((r['root'], r['rel'], r['key']) for r in rows.values())
+    bad_rt = ['`%s` %s `%s`' % (e[0], path_s(e[1]), e[2]) for e in RUNTIME if (e[0], e[1], e[2]) not in rowkeys]
+    checks.append((not bad_rt, 'every hand-written `RUNTIME` citation names a row of the matrix%s'
+                   % ('' if not bad_rt else ': ' + ', '.join(bad_rt))))
     bad_lv = check_levels(J.B)
     checks.append((not bad_lv, 'every hand-written `ES_LEVELS` range of 321e48e0 starts at a BeginTable on its own name '
                    'and ends at its re-test / EndTable%s' % ('' if not bad_lv else ': ' + '; '.join(bad_lv))))

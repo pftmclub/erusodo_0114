@@ -4297,3 +4297,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // to offline_server.log. Remove once the rebuild is verified.
 #define SERV_IRUHADEV_JUNE_FX_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-26
+// Description: June2017 effect-engine rebuild Phase 4a
+// (JUNE2017_EFFECT_REBUILD_PLAN.md): EffectSet creation-time behaviour
+// transcribed from June's FUN_321ee600 (OnFrameMove_CreateEffect),
+// FUN_321e1e60 (PlayEffectSet) and their helpers. It covers the
+// target-mesh list with BONE_TRACE_TARGET_MESH_INDEX,
+// ZOFFSET_USE_UNIT_IS_RIGHT, the trace-target facing of the position
+// offset, and OVERLAP. Needs SERV_IRUHADEV_JUNE_EFFECTSET_PARSE.
+#define SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+//////////////////////////////////////////////////////////////////////////

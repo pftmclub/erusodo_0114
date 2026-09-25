@@ -746,6 +746,124 @@ census.py shows 0 EffectSet keys to-implement. Update the matrix and MODS.md.
 
 ## Phase 4a — EffectSet runtime: creation
 
+**Status: in progress (2026-09-26).** The spec below was written before any code, from the
+June disassembly, with the decompile used only as a map. The work is split into three stages.
+Resume at the first stage not marked done.
+
+| stage | scope | state |
+|---|---|---|
+| 1 | Offset, position, rotation, the target-mesh vector, `ZOFFSET`, `OVERLAP`, debug lines | **done** 2026-09-26: clean `US_SERVICE` build, deployed to `X2_offline.exe` (SHA-256 `33d1eb57d282fae6…`); play-test pending |
+| 2 | `USE_IS_RIGHT_WHEN_CREATE`, `TRACE_MATRIX_IN_FIELD`, trigger-list copy + mesh `+0x194`, `APPLY_DAMAGE_EFFECT_VELOCITY`, `SET_OVER_UI` layer | not started |
+| 3 | `GROUP_NAME` (`321dd590`, the `_GROUPCHILD_` loop), unsupported-key logging | not started |
+
+### June layout used for reading (never ported)
+
+These are offsets from reading June. They are not March members; see rule 2.
+
+- **EffectData** (ctor `321f4a20`, size `0x1e8`). The layout was derived mechanically from
+  every getter's destination in `321e48e0`.
+  - `+0` type; `+4` `NAME`; `+0x20` `HYPER_NAME`; `+0x3c` `START_TIME`.
+  - `+0x40` `BONE_NAME`; `+0x5c` `GROUP_NAME`; `+0x78` `WEAPON_BONE_NAME`; `+0x94`/`+0x98`
+    weapon/model index; `+0x9c` `RIDING_PET_BONE_NAME`.
+  - `+0xb8..0xc0` `POSITION_OFFSET`.
+  - Bytes `+0xc4..0xcb`: `ZOFFSET_USE_UNIT_IS_RIGHT`, `TRACE`, `TRACE_MORE`, `TRACE_MATRIX`,
+    `_EXCLUDE_SCALE`, `_IN_FIELD`, `REVERSE_Y`, `USE_LAND_POSITION`.
+  - `+0xcc..0xd4` `ROTATE`; `+0xd8`/`+0xd9`/`+0xda` `APPLY_UNIT_ROTATION` / `_MIRROR` /
+    `APPLY_INSTANCE_SCALE`; `+0xdc..0xf0` `SCALE` and `SCALE_*_ON_LEFT`.
+  - Bytes `+0xf4..0xf7`: `START_WHEN_TRACE_TARGET_DEAD`, `PASSIVE_EFFECT`,
+    `USE_SUB_ATTACK_LIST_SET`, `SET_OVER_UI`.
+  - `+0xf8` `BONE_TRACE_TARGET_MESH_INDEX`; `+0xfc` `BONE_TRACE_TARGET_MESH`; `+0xfd`
+    `TRACE_USER_TARGET_FORCE`; `+0x100` `LIMIT_DISTANCE`.
+  - `+0x104` `FOLLOW_UNIT_ROTATION`; `+0x105` `NOT_ALLOW_MEMO`; `+0x114`/`+0x115` the two
+    unit-viewer scale keys.
+  - `+0x128` the `APPLY_DAMAGE_EFFECT_VELOCITY` vector; `+0x138` `USE_IS_RIGHT_WHEN_CREATE`;
+    `+0x13c` the inline `MESH_TRIGGER_DATA`; `+0x1d4` `MESH_TRIGGER_DATA_LIST`.
+  - `+0x1e4` `FOLLOW_UNIT_ROTATION_CPARTICLE`; `+0x1e5` the per-effect effect-alpha option.
+  - The parser never fills `+0x108..0x110` or `+0x118`. See `NOT_ALLOW_MEMO` below.
+- **EffectSetData**:
+  - `+0x1c` the effects; `+0x2c` the second list (effects with `BONE_TRACE_TARGET_MESH`).
+  - `+0x4c` `EVENT_TIMER_TYPE`; `+0x50` `STOP_CREATE_…`; `+0x51` `AFFECTED_BY_UNIT_SCALE`;
+    `+0x54` `DELETE_SHAKE_COUNT`; `+0x58` `DELETE_EFFECTSET_AT_TRACE_UNIT_DIE`; `+0x59`
+    `OVERLAP`; `+0x5c` `APPLIED_SKILL_ID`.
+  - `+0x60..0x68` the memo scale; `+0x6c` `SYNC_SHOW_BY_CREATE_UNIT`; `+0x6d` the templet
+    effect-alpha option; `+0x70` `SOUND%d`.
+- **EffectSetInstance** (ctor `321df230`):
+  - `+0` mode (1 game, 2 field, 3 pet); `+0xc` unit; `+0x14` trace target; `+0x1c` square
+    unit; `+0x21` custom position.
+  - `+0x5c` delay; `+0x60`/`+0x64` power rate / scale; `+0x70` scale; `+0x7c` damage-effect
+    scale; `+0x80` EffectSetData; `+0x98` effect instances.
+  - `+0xc0` elapsed; `+0xc4` use animation timing; `+0xd4` pet; `+0xe4` local rotation.
+  - `+0xf0` the **target-mesh vector**: `{handle, EFFECT_TYPE, scale}`, `0x14` bytes each.
+  - `+0x100` is-target-mesh; `+0x101` target-mesh right; `+0x104` target-mesh dir; `+0x110`
+    target-mesh Z; `+0x124` bone-trace target-mesh scale.
+  - `+0x150` memo scale; `+0x180` **facing when the set was created** (`321df230`
+    @`321df528`-`321df576`: `unit->GetIsRight()`, square `+0x3d5`, pet `+0x439`).
+
+### Creation-time keys: spec
+
+Verdicts:
+- `new`: June-only behaviour, transcribed.
+- `semantics-differ`: March reads the key, and June's behaviour differs.
+- `same`: diffed, no change.
+- `4b @VA`: the only reader is in Phase 4b's functions.
+- `unsupported`: the input system is absent (rule 5).
+
+| key / behaviour | June branch | March site | verdict | stage |
+|---|---|---|---|---|
+| `ZOFFSET_USE_UNIT_IS_RIGHT` | `321d9820` @`321d9b36`-`321d9c2a`: in the game-unit branch, a nonzero Z offset is added along `GetZVector()` when the key is false. When the key is true it is added if `GetIsRight()`, subtracted otherwise | `SetEffectSetOffset` | new | 1 |
+| `POSITION_OFFSET_X`/`_Z` facing unit | `321d9820` @`321d9847`-`321d9889`: the facing unit is the **trace target** when valid, else the owner. March always uses `m_optrGameUnit` | `SetEffectSetOffset` | semantics-differ | 1 |
+| target-mesh offset, game unit | `321d9820` @`321d98a3`-`321d98c2`: `CMP idx,count; JBE` skips the target-mesh branch for every in-range index. It is reachable only past the end of the vector (an out-of-bounds read, not reproduced). June therefore always offsets by unit facing. March used the target mesh's dir / Z | `SetEffectSetOffset` | semantics-differ | 1 |
+| target-mesh offset, no unit / square / pet | `321d9820` @`321d9e6a`-`321d9ea6`: `idx = max(INDEX,0)`, requires `idx < count`, handle valid and `!TRACE_USER_TARGET_FORCE`, then the plain add | `SetEffectSetOffset` | same (plus index) | 1 |
+| `BONE_TRACE_TARGET_MESH_INDEX`, position | `321dcd30` @`321dcd9d`-`321dce07`: `idx = BONE_TRACE_TARGET_MESH ? INDEX : max(INDEX,0)`; then `321dcac0` (in range, handle ≠ -1, type ≠ 0, `!FORCE`; a dead mesh invalidates its entry) | `GetEffectPosition`, `GetEffectPositionByTargetMesh` | new | 1 |
+| `BONE_TRACE_TARGET_MESH_INDEX`, rotation | `321df7e0` @`321df80c`-`321df860`: `idx = max(INDEX,0)`; valid only if not (`INDEX < 0` and `BONE_TRACE_TARGET_MESH`), in range, handle ≠ -1 | `GetEffectRotation` | new | 1 |
+| `BONE_TRACE_TARGET_MESH`, registration | Damage `321f1f76`-`321f20f4`; mesh `321f21f7`-`321f2414`. Each such effect is **pushed** onto the target-mesh vector (`{handle, type, SCALE or 1,1,1}`).<br>Damage: is-target-mesh / right / dir / Z are set only when the count becomes 1; the instance's scale is not touched.<br>Mesh: is-target-mesh when the count is 1; right (set-only) / dir / Z on every push when the unit is valid; instance scale on every push.<br>March registered only the first and set scale in both cases | creation switch tail | semantics-differ | 1 |
+| `BONE_TRACE_TARGET_MESH`, as a position source for itself | `321dcd30` as above: `INDEX` -1 with the key set means the effect does not trace any mesh | `GetEffectPosition` | semantics-differ | 1 |
+| `OVERLAP` | `321d9f30`, from the factory `321e1bf0` @`321e1c68`-`321e1c77`: when set, and a live instance of the same templet has the same trace target (both null counts), no instance is created | `PlayEffectSet` → `_CreateEffectSetInstance` | new | 1 |
+| `SET_OVER_UI` (particles) | `321f0f49`-`321f0f59` (the same in the other three particle cases): `+0x170`=1 (`m_bOverUI`) **and** `+0x164`=500 (500 = `XDL_DIRECTING`). That `+0x164` is `m_Layer` rests on layout alone (an int 12 bytes before `m_bOverUI`, as in March's `CKTDGObject`). A byte search found no June `SetLayer`/`SetOverUI` accessor at these offsets, so it is moved to stage 2, to be confirmed from June's particle-templet `LAYER` store first | creation, particle cases | semantics-differ | 2 |
+| `USE_IS_RIGHT_WHEN_CREATE` | `321ef6bc`-`321ef6d5` (damage effect only): CEffect `+0x135` = instance `+0x180` | damage case | new | 2 |
+| `TRACE_MATRIX_IN_FIELD` | mesh / particle cases, e.g. `321ef8ee`, `321efe84`, `321f03b6`: bone frame from the owner (`TRACE_MATRIX`, no target mesh) or from the target mesh. Matrix copied to the instance; position = frame + offset | creation, mesh / particle cases | new | 2 |
+| `MESH_TRIGGER_DATA_LIST`, creation part | `321f2130`-`321f2166`: the EffectInstance copies the list (`+0x4c`); a non-empty list sets mesh `+0x194`=0 | mesh case | new | 2 |
+| `APPLY_DAMAGE_EFFECT_VELOCITY` | `321ef692`-`321ef6a0` → `321db1b0` tag 1: main effect velocity `+0x534`; add if `[4]`==0, else multiply | damage case | new | 2 |
+| `GROUP_NAME` | `321eee45`-`321eeeb7`, loop `321eeec0`-`321ef0ce`, `321f2483`-`321f24f1`, `321f2550`-`321f257c`, helper `321dd590`: particle types only. Base = `GROUP_NAME` up to `_GROUP`; one particle per bone `<base>_GROUPCHILD_<n>`, n from 1 | particle cases | new | 3 |
+| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (effect / templet) | `321f1ec8`-`321f1ee4`, factory `321e1dd7`-`321e1e0c`: effect byte, or else the instance's option (`+0x1bc`) → damage `+0xb32`, mesh `31c83620`, particle `+0x1b0` | — | unsupported | 3 |
+| `APPLIED_SKILL_ID` | `321e1e60` → `31fdbbb0` (user `+0x867c` memo) → EffectSetData `+0x60` → instance `+0x150` | — | unsupported | 3 |
+| `NOT_ALLOW_MEMO` | `321dddb0` @ its tail: unless set, scale ×= memo scale. June copies it through EffectData `+0x108` @`321eede8` (a write into the shared templet, not reproduced) | `GetEffectScale` | depends on `APPLIED_SKILL_ID`; no effect in March | 3 (log) |
+| `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` | `321da070` (marks every effect created), reached only from unit `3228a120` over the handle list `unit+0x3e90` on state change (callers `32015250`, `3277ee10`). The code that pushes into that list is outside the EffectSet region and **not yet located** | unit side | deferred: unit-side registration | — |
+| `SYNC_SHOW_BY_CREATE_UNIT` | getter `321f2b00`, only caller UpdateEffect @`321e077d`. At creation only particles get `SetShowObject(inst+0xdc)` (`321f251d`) | — | 4b @`321e077d` | — |
+| `SOUND%d` | `321dee80`, only caller UpdateEffect @`321e07f7` | — | 4b @`321e07f7` | — |
+| `FOLLOW_UNIT_ROTATION`, `_CPARTICLE`, `REVERSE_Y`, inline `MESH_TRIGGER_DATA` | read only in `321e0080` | — | 4b | — |
+| `FOLLOW_UNIT_VIEWER_SCALE`, `USE_EFFECT_SCALE_IN_UNIT_VIEWER` | no reader in `0x321d0000`-`0x32208000` except the parser | — | not creation; owner open | — |
+| `LIMIT_DISTANCE` | `321eedad`-`321eeddf` | creation | same | — |
+| `START_WHEN_TRACE_TARGET_DEAD`, timing / `EVENT_TIMER_TYPE` | `321ee7e4`-`321eec83` | creation | same | — |
+| `USE_SUB_ATTACK_LIST_SET` | `321f219f`-`321f21f2` | mesh case | same | — |
+| `TRACE_MATRIX` scale division | e.g. `321ef4f5`-`321ef58f` | every case | same | — |
+| `GetUnitRotation` | `321ddea0`: the target-mesh lookup result is discarded, as in March | `GetUnitRotation` | same | — |
+
+**Keyless June changes, not transcribed** (no key and no March caller; no dead members added):
+- Position: the instance extra offset `+0x1a4` and the instance override bone `+0x130`.
+- Holders: `+0xd8` (riding pet), `+0xe0`, and `+0xdd` (UI viewer).
+- Damage-effect copies:
+  - `+0x14c` (the `fForceDownValueRate` argument, default 1.0 = March's default);
+  - `+0x11c`/`+0x120` (first attack and relate skill; `ADD_RENA_SYSTEM` is off);
+  - `+0x15c`, from unit vfunc `0x10c`;
+  - `+0x1b8`, and CEffect `+0xb64` = hyper.
+- Modifier lists: `321ee480` over EffectData `+0x118` and instance `+0x160`, and `321db1b0`
+  over instance `+0x170`.
+- The particle option gate `3241d2a0` (`[3377585c]+0x180`, `+0x2c == 2` skips particles).
+- Unit vfunc `0x248`, called from `PlayEffectSet`, is an empty stub in every class.
+
+**Exit-test set.** No deployed set uses a June-only key, as in Phases 2-3. The branches that
+fire on Ranox content are the semantics-differ ones:
+- `BONE_TRACE_TARGET_MESH` registration: 11 of the 196 Ranox sets in
+  `march2014/data036/EffectSet.src.lua`.
+  - Damage-effect and mesh registrations: `EffectSet_NUI_RAGE_MOTHERFIG_Attack_A_Fire`,
+    `EffectSet_LOW_RAGE_FATHERFIG_FD_BOSS_Attack_A`.
+  - Damage effect only: `EffectSet_NUI_RAGE_DRYADKENTA_AttackA_Fire` / `_SpacialAttackA_Fire`.
+  - Mesh only: `EffectSet_NUI_SMITH_STAIN_Attack_Ready` / `_Attack_C_Fire` /
+    `_SpecialAttackA_Ready`, `EffectSet_NUI_RAGE_MOTHERFIG_Attack_A_Ready` / `_Attack_B_Ready`,
+    `EffectSet_NUI_RAGE_BABYFIG_Attack_A_Ready`, `EffectSet_MOUNT_MAG_STONE_Wait`.
+- The X/Z offset facing: 48 sets with a nonzero `POSITION_OFFSET_X`.
+
 **Paste with:** Starting context + this section.
 
 - **June source:** `FUN_321ee600` (`OnFrameMove_CreateEffect`, 17 KB, confirmed). Also

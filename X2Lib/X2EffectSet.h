@@ -740,6 +740,29 @@ public:
 		D3DXVECTOR3		m_vBoneTraceTargetMeshScale;	/// 행렬 Trace일 때, BoneTraceTargetMesh의 스케일 값 빼주기 위한 저장 변수
 #endif //FIX_EFFECT_SCALE_BY_UNIT_SCALE
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+		// June2017 target-mesh list: EffectSetInstance +0xf0 in June, with 0x14-byte entries
+		// {handle, EFFECT_TYPE, scale}. FUN_321ee600 pushes one entry per
+		// BONE_TRACE_TARGET_MESH effect it creates (@ 321f1f76-321f20f4 damage effect,
+		// @ 321f21f7-321f2414 mesh player), and BONE_TRACE_TARGET_MESH_INDEX picks an entry.
+		// Entry 0 is mirrored into m_hTargetMesh / m_eTargetMeshEffectType above, which the
+		// functions Phase 4b has not transcribed yet still read.
+		struct TargetMeshData
+		{
+			CKTDGXMeshPlayer::CXMeshInstanceHandle	m_hTargetMesh;
+			EFFECT_TYPE								m_eEffectType;
+			D3DXVECTOR3								m_vScale;		// SCALE, or (1,1,1) when its x is 0
+
+			TargetMeshData()
+			: m_hTargetMesh( INVALID_MESH_INSTANCE_HANDLE )
+			, m_eEffectType( ET_INVALID )
+			, m_vScale( 1.f, 1.f, 1.f )
+			{
+			}
+		};
+		std::vector<TargetMeshData>		m_vecTargetMeshData;
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+
 	private:
 		EffectSetInstance() {}; // do not use
 	
@@ -809,6 +832,13 @@ public:
 		CKTDGXMeshPlayer::CXMeshInstance* GetMeshInstanceByTargetMesh();
 		bool GetEffectPositionByTargetMesh( OUT D3DXVECTOR3& vPos, IN EffectData* pEffectData );
 #endif // MODIFY_EFFECT_SET_TRACE_BONE
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+		// June2017 target-mesh access by index (see m_vecTargetMeshData)
+		bool GetTargetMesh( IN int iIndex_, OUT CKTDGXMeshPlayer::CXMeshInstanceHandle& hTargetMesh_, OUT EFFECT_TYPE& eEffectType_ ) const;
+		void InvalidateTargetMesh( IN int iIndex_ );
+		CKTDGXMeshPlayer::CXMeshInstance* GetMeshInstanceByTargetMesh( IN int iIndex_ );
+		bool GetEffectPositionByTargetMesh( OUT D3DXVECTOR3& vPos, IN EffectData* pEffectData, IN int iIndex_ );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
         Handle  GetHandle() const { return m_hHandle; }
