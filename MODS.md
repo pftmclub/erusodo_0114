@@ -808,6 +808,9 @@ entry) changes:
 - No unhandled packets or exceptions, and a clean shutdown.
 - The damage-effect registration path was confirmed with Rena's Perfect Storm
   (`registered_index=0(damage)`).
+- The fire Hamelling's Attack X (`EffectSet_Riding_Red_HAMELLING_Attack_X`) fired
+  damage-effect registration and the unit-facing offset of a sibling traced on it. That is
+  the visible stage-1 change against stock.
 
 **Not done in stage 1:** `USE_IS_RIGHT_WHEN_CREATE`, `TRACE_MATRIX_IN_FIELD`, the trigger-list
 creation part, `APPLY_DAMAGE_EFFECT_VELOCITY` and the `SET_OVER_UI` layer are stage 2.

@@ -899,6 +899,12 @@ lines, all on Ranox sets:
     (x2), with no unhandled packets or exceptions.
   - A Hamelling Attack X in that run logged nothing. Only `EffectSet_Riding_Dark_/Red_HAMELLING_Attack_X`
     carry `BONE_TRACE_TARGET_MESH`; `_ICE_` does not.
+  - A third run used the fire (Red) Hamelling, and `EffectSet_Riding_Red_HAMELLING_Attack_X` fired
+    both branches in one set:
+    - `DAMAGE_EFFECT_RIDING_RED_HAMELLING_ATTACK_X_MAIN … registered_index=0(damage)` (x3);
+    - its traced sibling `…Attack_X04 … offset=unit_facing(321d98c0)` (x6).
+  - That sibling is the case where stage 1 moves an effect relative to stock: March offset it
+    along the damage effect's own facing.
 - No `UNHANDLED`/`EXCEPTION` packets, and the shutdown was clean.
 - The only `RANOX_EFFECT_MISSING` line is `EffectSet_PVP_BOT_Armageddon_Blade` (x5), an AI-party
   set with no templet. Its lookup fails before any Phase 4a code runs.
