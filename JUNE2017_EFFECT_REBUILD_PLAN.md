@@ -930,6 +930,46 @@ Corroborate each one with a March `offsetof` probe, compiled with `cl` under X2L
 `US_SERVICE` defines as `census.py` does (`#define private public` is fine for a probe). Pair
 it with one June function whose shape matches a March one. Layout alone is not enough.
 
+**Stage 2 kickoff prompt** (a new conversation):
+```
+Continuing the June2017 effect-engine rebuild, Phase 4a stage 2. Read JUNE2017_EFFECT_REBUILD_PLAN.md
+("Starting context" rules, "Investigation ledger", and all of "Phase 4a": the stage table, the June
+layout, the spec table, and the stage-1 play-test notes), june2017_re/README.md, funcmap.tsv, and the
+"Runtime (Phase 4a on)" section of JUNE2017_EFFECT_KEY_MATRIX.md. Stage 1 is done and play-tested
+under SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME; extend that flag. Branch: mods/lanox-port.
+
+Your task: transcribe the stage-2 rows of the spec table into X2EffectSet.cpp's
+OnFrameMove_CreateEffect:
+- USE_IS_RIGHT_WHEN_CREATE (321ef6bc-321ef6d5, and the instance facing snapshot in 321df230).
+- TRACE_MATRIX_IN_FIELD (the mesh and particle cases, e.g. 321ef8ee, 321efe84, 321f03b6).
+- The creation part of MESH_TRIGGER_DATA_LIST (321f2130-321f2166).
+- APPLY_DAMAGE_EFFECT_VELOCITY (321ef692-321ef6a0 -> 321db1b0, tag 1).
+- The SET_OVER_UI layer (321f0f49-321f0f59).
+
+Member identification comes first, and it is most of the job. June offsets still unmapped:
+- CEffect +0x135;
+- main-effect velocity +0x534, plus the calls 31c8f310 and 31c8a9b0 after it (read both before
+  writing velocity);
+- mesh +0x194 and +0x374/+0x378;
+- particle +0x164.
+Map each one with two independent sources: a March offsetof probe compiled with cl under X2Lib's
+US_SERVICE defines (reuse census.py's cl setup; "#define private public" is fine for a probe),
+and one June function whose shape matches a March function. Layout alone is not enough. If a member
+has no March counterpart (CEffect +0x135 may be a Phase 5/7a dependency), record it and do not
+invent one.
+
+Cite June address ranges for every branch; re-express on March's members, never June's offsets. Add a
+throttled JUNE_FX ES_CREATE line per branch. Update the RUNTIME table in census.py (state 'stage 2' ->
+'done'), rerun census.py, and check that its matrix diff against HEAD only adds runtime notes. Update
+MODS.md and the plan's stage table.
+
+CP949 byte-level edits only (Python rb/wb with exact anchors; file + git diff --stat after). Build
+US_SERVICE, deploy, ASK before launching. Test targets: Rena Perfect Storm and the fire (Red)
+Hamelling Attack X for damage effects; the Ranox Burned Forest / Ashes Village monsters for meshes.
+Search EffectSet.src.lua for sets using each stage-2 key; if none uses a key, say so rather than
+calling it tested.
+```
+
 **Paste with:** Starting context + this section.
 
 - **June source:** `FUN_321ee600` (`OnFrameMove_CreateEffect`, 17 KB, confirmed). Also
