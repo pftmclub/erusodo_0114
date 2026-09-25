@@ -381,6 +381,24 @@ No client code changes in this phase. Commit june2017_re/ when done, with my OK.
 
 ## Phase 1 — Key census and gap matrix
 
+**Status: done 2026-09-25.** Outputs: `june2017_re/census.py` (about 3 minutes, all checks
+pass, deterministic) → `JUNE2017_EFFECT_KEY_MATRIX.md` + `june2017_re/census.tsv`. Read
+`june2017_re/README.md`, "census.py", before running it. Things the next phases should know:
+
+- **Phase 0's CEffect "378 of 378" was a matcher bug.** The CEffect top level reads 58 of its
+  378 data keys directly, and `reconcile.py` is fixed.
+- **Keys are placed by the level June reads them at.** Many top-level CEffect keys (`HIT_GAP`,
+  `ATTACK_TYPE`, …) and templet-level EffectSet keys (`START_TIME`, `ROTATE_Z`, …) are
+  misplaced data that June ignores (`june-ignores`). Don't implement them at that level.
+- **There is a fifth status, `june-ignores`.** It covers data June never reads: typos, dead or
+  misplaced keys, positional entries, and keys under a table June never opens.
+- **The census verifies absent-system verdicts:**
+  - Nasod armor combo is compiled in, so its key is 8b work, not 8c.
+  - Natural force is gated off (`ADD_RENA_SYSTEM`).
+  - Skill memo is **on** under `US_SERVICE` (`ADD_MEMO_1ST_CLASS`).
+- **Scopes no phase owns** are listed in the matrix's "Open questions": nested `BUFF_FACTOR`,
+  `Elsword_DamageData.lua`, and the EFFECT_TOOL-only `EffectSet_Description.lua`.
+
 **Paste with:** Starting context + this section.
 
 **Goal.** Make one authoritative table of every June key in scope, and a script that

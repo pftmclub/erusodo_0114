@@ -140,6 +140,53 @@ Result on 2026-09-24: **6,240 buffers, 6,180 `ok`.** The 60 that are not:
   adjacent strings merge. None is in the effect regions.
 - 6 on `337b8128`/`337b8140`: a zero-filled wide static that gets copied. Not a string.
 
+## census.py (Phase 1: the key matrix, and every later phase's exit test)
+
+```sh
+python census.py              # ~3 min: cl /P the March parser TUs, then write the matrix + census.tsv
+python census.py --summary    # same run, prints counts per status and phase, writes nothing
+python census.py --reuse-pp   # development only: reuse pp/*.i (gitignored) instead of re-preprocessing
+```
+
+It writes `../JUNE2017_EFFECT_KEY_MATRIX.md` and `census.tsv`, and exits 1 when a check fails.
+The model is in its docstring. In short:
+
+- **June side:** `reconcile.Binary` and `reconcile.Explainer`, the same machinery as
+  `reconcile.md`, per scope root (`ROOTS` in the script).
+  - **Levels by VA.** A key counts as read only at the sub-table level where June reads it.
+    The EffectSet parser `321e48e0` is one function covering every level, so its levels come
+    from a hand table, `ES_LEVELS`. The census verifies each range against the binary's
+    `BeginTable` calls.
+  - `SetDamageDataFromLUA` `32632390` has its level map derived mechanically.
+  - A key decrypted only by *another* sub-table's loader is not read at this level. For
+    example, `SetDamageData` decrypts `HIT_GAP` inside `DAMAGE_DATA`, so a top-level `HIT_GAP`
+    in a DamageEffect templet is June-ignored.
+- **March side:** the parser TUs are preprocessed with `cl /P` under X2Lib's `US_SERVICE`
+  defines plus `UNICODE`. A read counts only if it survives the preprocessor and sits at the
+  same `BeginTable` path.
+  - That settles both traps: `#ifdef`'d-out reads, and stringized keys, which arrive as
+    literals.
+  - `cl.exe` is driven from Python. Git Bash mangles `/Fi` paths.
+  - Flags are probed with the name in a string literal: a defined flag is an empty macro.
+- **Semantics:** June's getter at the decrypt site (`GETTERS`: float/bool/int/string, default
+  from the store after `test al,al; jne`) is compared with March's expanded `GetValue`.
+  - This runs only for rows June reads in a scope reader itself. Callee reads and the buff
+    rows are marked `unchecked`, with the reason.
+  - Hand-verified: `REFRESH_LAND_POS` (`mov byte [edi],1`), `ATTACK_TIME_END` (`fld [334355b8]` =
+    100.0) and `LINK_EFFECT_RATE` (-1.0) match March.
+
+**Phase 1 corrections to Phase 0's `reconcile.py`.** `reconcile.md` changed only in the
+`<CEffect top level>` scope, plus two explanations:
+
+- **The CEffect top level really reads 58 of 378 data keys, not 378.** `matcher()` turned the
+  `%s`/`%s_ULTIMATE` wrapper formats into `^.+$`, which matched every key. Templates with no
+  identifier stem are now skipped.
+- **Numbered-table helpers are recognised with no call-count limit.** This covers the die/hit
+  wrappers into their full loaders, and `31f79c20`'s `DAMAGE_DATA_NEXT` + `"%s%d"` from 2.
+- **A name used only as a `"%s%d"` base is category `numbered-base`.** `TIME_PARTICLE0..` is
+  read; bare `TIME_PARTICLE` is not.
+- **Deterministic tie-breaks**, and the explanation logic is now the shared `Explainer` class.
+
 ## June LuaJIT opcode table (why elstools can't decompile the big June files)
 
 June's scripts are KOG LuaJIT 2.0 bytecode, header `1b 4b 4c 82`. KOG permutes the
@@ -225,6 +272,7 @@ Committed. These are small, or are the record of what was found:
 - `ljd_jun2017.py` and `lj_bcmode.py`: the correct June lua decompiler, and the evidence
   for its opcode fix. See "June LuaJIT opcode table".
 - `reconcile.py` → `reconcile.md`: data keys against binary keys, per parser.
+- `census.py` → `../JUNE2017_EFFECT_KEY_MATRIX.md` + `census.tsv`: the Phase 1 key census.
 - `funcmap.tsv`: the June function map, `june_va, march_symbol, status, evidence`. **This
   is the authoritative map;** the section below only summarises it.
 - `regen.sh`: rebuilds the gitignored files.
@@ -237,6 +285,7 @@ Gitignored, regenerable with `sh regen.sh` (git on Windows doesn't keep the exec
 - `methods.txt`: the `methods` endpoint output.
 - `ghidra/dis_*.txt`: `disassemble_function` output for specific addresses.
 - `june_lua/`: copies of the 14 June effect lua, plus their `.std.luac`/`.src.lua`.
+- `pp/`: `census.py`'s `cl /P` output (~20 MB per TU) and flag probe. Rebuilt on every run.
 
 `regen.sh` needs Ghidra open with the project loaded, and the GhidraMCP server on
 `127.0.0.1:8080`. Rebuild order after a regen: `python xordecrypt.py --all`, then

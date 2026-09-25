@@ -6,3 +6,4 @@ ghidra/
 june_lua/
 # Python bytecode from importing xordecrypt / ljd_jun2017 / reconcile
 __pycache__/
+pp/
