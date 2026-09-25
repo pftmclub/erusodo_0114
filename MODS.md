@@ -800,6 +800,13 @@ entry) changes:
 - The position and offset helpers also run per frame for traced effects, so a line can come
   from the update path.
 
+**Play-tested 2026-09-26.**
+- 47 `ES_CREATE` lines fired on Ranox Burned Forest and Ashes Village sets:
+  `registered_index=0(mesh)` and `offset=unit_facing` on `EffectSet_NUI_RAGE_BABYFIG_Attack_A_Ready`,
+  `EffectSet_NUI_SMITH_STAIN_Attack_Ready`, `EffectSet_NUI_RAGE_MOTHERFIG_Attack_B_Ready`, and
+  `EffectSet_MOUNT_MAG_STONE_Wait`.
+- No unhandled packets or exceptions, and a clean shutdown.
+
 **Not done in stage 1:** `USE_IS_RIGHT_WHEN_CREATE`, `TRACE_MATRIX_IN_FIELD`, the trigger-list
 creation part, `APPLY_DAMAGE_EFFECT_VELOCITY` and the `SET_OVER_UI` layer are stage 2.
 `GROUP_NAME` and the unsupported-key logging are stage 3. `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE`

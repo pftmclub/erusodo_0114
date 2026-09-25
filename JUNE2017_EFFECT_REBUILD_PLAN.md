@@ -752,7 +752,7 @@ Resume at the first stage not marked done.
 
 | stage | scope | state |
 |---|---|---|
-| 1 | Offset, position, rotation, the target-mesh vector, `ZOFFSET`, `OVERLAP`, debug lines | **done** 2026-09-26: clean `US_SERVICE` build, deployed to `X2_offline.exe` (SHA-256 `33d1eb57d282fae6…`); play-test pending |
+| 1 | Offset, position, rotation, the target-mesh vector, `ZOFFSET`, `OVERLAP`, debug lines | **done** 2026-09-26: clean `US_SERVICE` build, deployed to `X2_offline.exe` (SHA-256 `33d1eb57d282fae6…`); **play-tested 2026-09-26**, see below |
 | 2 | `USE_IS_RIGHT_WHEN_CREATE`, `TRACE_MATRIX_IN_FIELD`, trigger-list copy + mesh `+0x194`, `APPLY_DAMAGE_EFFECT_VELOCITY`, `SET_OVER_UI` layer | not started |
 | 3 | `GROUP_NAME` (`321dd590`, the `_GROUPCHILD_` loop), unsupported-key logging | not started |
 
@@ -881,6 +881,22 @@ the dungeons were found by grepping `Dungeon_Ranox_*` for the NPC names.
   - a second target-mesh effect in a set no longer sits on the first mesh;
   - a damage-effect BTTM set with `TRACE_MATRIX` siblings now divides by (1,1,1).
 - Revert: undefine `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME`.
+
+**Stage 1 play-test result (2026-09-26).** `offline_server.log` has 47 `JUNE_FX ES_CREATE`
+lines, all on Ranox sets:
+
+| set | `registered_index=0(mesh)` | `offset=unit_facing(321d98c0)` |
+|---|---|---|
+| `EffectSet_NUI_RAGE_BABYFIG_Attack_A_Ready` | 15 | 15 |
+| `EffectSet_NUI_SMITH_STAIN_Attack_Ready` | 5 | 5 |
+| `EffectSet_MOUNT_MAG_STONE_Wait` | 4 | - |
+| `EffectSet_NUI_RAGE_MOTHERFIG_Attack_B_Ready` | 1 | 2 |
+
+- No `(damage)` registration fired: the Dryadkenta sets were not played.
+- No `UNHANDLED`/`EXCEPTION` packets, and the shutdown was clean.
+- The only `RANOX_EFFECT_MISSING` line is `EffectSet_PVP_BOT_Armageddon_Blade` (x5), an AI-party
+  set with no templet. Its lookup fails before any Phase 4a code runs.
+- So the stage-1 exit criterion (a `JUNE_FX ES_CREATE` line on a named Ranox set) is met.
 
 **Create and update share the helpers**, so the facing change is consistent frame to frame.
 June's `321dcd30` is called by CreateEffect @`321ef23a` and by UpdateEffect @`321e0964`
