@@ -864,6 +864,44 @@ fire on Ranox content are the semantics-differ ones:
     `EffectSet_NUI_RAGE_BABYFIG_Attack_A_Ready`, `EffectSet_MOUNT_MAG_STONE_Wait`.
 - The X/Z offset facing: 48 sets with a nonzero `POSITION_OFFSET_X`.
 
+**Stage 1 play-test** (any difficulty). The NPC scripts are in `march2014/update/data037/`, and
+the dungeons were found by grepping `Dungeon_Ranox_*` for the NPC names.
+- **Ranox Burned Forest**: Rage Motherfig (`RAGE_MOTHERFIG`), Rage Dryadkenta
+  (`RAGE_DRYADKENTA`), Rage Babyfig (`RAGE_BABYFIG`).
+- **Ranox Ashes Village**: Smith Stain (`SMITH_STAIN`).
+- Expected in `offline_server.log`:
+  - `JUNE_FX ES_CREATE EffectSet_NUI_RAGE_MOTHERFIG_Attack_A_Fire <effect> BONE_TRACE_TARGET_MESH registered_index=0(mesh)`,
+    and likewise `(damage)` for the Dryadkenta sets and `(mesh)` for the Smith Stain sets.
+  - Where those sets offset a traced effect: `BONE_TRACE_TARGET_MESH offset=unit_facing(321d98c0)`.
+- Not expected on current data, and not a failure:
+  - `OVERLAP`, `ZOFFSET_USE_UNIT_IS_RIGHT` and `BONE_TRACE_TARGET_MESH_INDEX`: no deployed set
+    uses them.
+  - `facing=trace_target`: it needs a set played with a trace target that is not its owner.
+- Watch for BTTM effects that move or rescale:
+  - a second target-mesh effect in a set no longer sits on the first mesh;
+  - a damage-effect BTTM set with `TRACE_MATRIX` siblings now divides by (1,1,1).
+- Revert: undefine `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME`.
+
+**Create and update share the helpers**, so the facing change is consistent frame to frame.
+June's `321dcd30` is called by CreateEffect @`321ef23a` and by UpdateEffect @`321e0964`
+(plus `321df750`). March's `GetEffectPosition` is called by CreateEffect and UpdateEffect
+(`X2EffectSet.cpp:1428`); its other `SetEffectSetOffset` caller is `EFFECT_TOOL`-only.
+
+**Runtime coverage is mechanical.** `census.py` checks that every key March reads at the top of
+`ES.templet`, `ES.EFFECT` and `ES.SOUND` has a `RUNTIME` citation. It passes: 69 keys are cited,
+the existing ones as `same` with the June VA of their read.
+
+**For stage 2, identifying members is the whole job.** June offsets still unmapped:
+- CEffect `+0x135` (`USE_IS_RIGHT_WHEN_CREATE`). It may turn out to be a Phase 5/7a dependency.
+- The main-effect velocity `+0x534`, plus the two calls after it, `31c8f310` and `31c8a9b0`.
+  Read those two first: they may push the modifier onto the mesh for later use.
+- Mesh `+0x194`, `+0x374`/`+0x378` (the `TRACE_MATRIX_IN_FIELD` matrix).
+- Particle `+0x164`.
+
+Corroborate each one with a March `offsetof` probe, compiled with `cl` under X2Lib's
+`US_SERVICE` defines as `census.py` does (`#define private public` is fine for a probe). Pair
+it with one June function whose shape matches a March one. Layout alone is not enough.
+
 **Paste with:** Starting context + this section.
 
 - **June source:** `FUN_321ee600` (`OnFrameMove_CreateEffect`, 17 KB, confirmed). Also

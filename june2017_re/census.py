@@ -528,8 +528,39 @@ RUNTIME = [
      'no creation-path reader in June; March\'s is compiled out (#ifndef FIX_EFFECT_SCALE_BY_UNIT_SCALE)', 'PlayEffectSet'),
     ('ES.templet', (), 'DELETE_EFFECTSET_AT_TRACE_UNIT_DIE', RT_4A, '-', '4b@321e41a8', 'read only by DeleteEffect 321e4020', '-'),
     ('ES.templet', (), 'DELETE_SHAKE_COUNT', RT_4A, '-', '4b@321e42f8', 'read only by DeleteEffect 321e4020', '-'),
+    # existing keys the creation helpers consume the same way as March
+    ('ES.EFFECT', (), 'NAME', RT_4A, '-', 'same',
+     '321ee600@321ef3e8 (damage; likewise @321ef6f8, 321efcb9, 321f018f): HYPER_NAME if the instance is hyper and it is non-empty, else NAME', 'OnFrameMove_CreateEffect'),
+    ('ES.EFFECT', (), 'HYPER_NAME', RT_4A, '-', 'same', '321ee600@321ef3e8 etc., as NAME', 'OnFrameMove_CreateEffect'),
+    ('ES.EFFECT', (), 'EFFECT_TYPE', RT_4A, '-', 'same',
+     '321ee600@321ef212-321ef222 (creation switch), @321f1eeb-321f1efe (EffectInstance switch)', 'OnFrameMove_CreateEffect'),
+    ('ES.EFFECT', (), 'START_TIME', RT_4A, '-', 'same', '321ee600@321ee7e4-321eec83: START_TIME + delay against the timer', 'OnFrameMove_CreateEffect'),
+    ('ES.EFFECT', (), 'BONE_NAME', RT_4A, '-', 'same',
+     '321dcd30@321dcedf-321dcf11 (owner), @321dd054-321dd0fe (trace target): _HEAD_BONE, else GetBonePos with the head-bone fallback for the owner', 'GetEffectPosition'),
+    ('ES.EFFECT', (), 'WEAPON_BONE_NAME', RT_4A, '-', 'same', '321dcd30@321dd302-321dd31f, @321dd3ef-321dd41d', 'GetEffectPosition'),
+    ('ES.EFFECT', (), 'WEAPON_BONE_WEAPON_INDEX', RT_4A, '-', 'same', '321dcd30@321dd31f, @321dd41d', 'GetEffectPosition'),
+    ('ES.EFFECT', (), 'WEAPON_BONE_MODEL_INDEX', RT_4A, '-', 'same', '321dcd30@321dd319, @321dd417', 'GetEffectPosition'),
+    ('ES.EFFECT', (), 'RIDING_PET_BONE_NAME', RT_4A, '-', 'same', '321dcd30@321dcf79 (owner branch only)', 'GetEffectPosition'),
+    ('ES.EFFECT', (), 'USE_LAND_POSITION', RT_4A, '-', 'same', '321dcd30@321dcf11, 321dcfc4, 321dd086, 321dd34a: land pos else pos, per holder', 'GetEffectPosition'),
+    ('ES.EFFECT', (), 'ROTATE_X', RT_4A, '-', 'same', '321df7e0@321df7f0-321df7fe', 'GetEffectRotation'),
+    ('ES.EFFECT', (), 'ROTATE_Y', RT_4A, '-', 'same', '321df7e0@321df7f0-321df7fe', 'GetEffectRotation'),
+    ('ES.EFFECT', (), 'ROTATE_Z', RT_4A, '-', 'same', '321df7e0@321df7f0-321df7fe', 'GetEffectRotation'),
+    ('ES.EFFECT', (), 'APPLY_INSTANCE_SCALE', RT_4A, '-', 'same', '321dddb0@321dde35-321dde3a: instance scale when damage-effect scale, or this and not ET_DAMAGE_EFFECT', 'GetEffectScale'),
+    ('ES.EFFECT', (), 'TRACE', RT_4A, '-', '4b@321e07fc', 'read only by UpdateEffect 321e0080', '-'),
+    ('ES.EFFECT', (), 'TRACE_MORE', RT_4A, '-', '4b@321e0805', 'read only by UpdateEffect 321e0080', '-'),
+    ('ES.EFFECT', (), 'PASSIVE_EFFECT', RT_4A, '-', '4b@321e47ce', 'read only by DeleteEffect 321e4020', '-'),
+    ('ES.EFFECT', (), 'TRACE_MATRIX_EXCLUDE_SCALE', RT_4A, '-', 'not-creation',
+     'parse time only: sets TRACE_MATRIX (321e48e0@321e760b-321e7610); no runtime reader in the EffectSet region (the +0xc8 in 321e4020@321e4316 is the instance\'s delete-shake count)', '-'),
+    ('ES.templet', (), 'NAME', RT_4A, '-', 'same', 'GetEffectSetTemplet 321da420, the first call of PlayEffectSet 321e1e60', 'PlayEffectSet'),
+    ('ES.templet', (), 'EFFECT%d', RT_4A, '-', 'same', 'container: each entry is one pass of 321ee600\'s per-effect loop', 'OnFrameMove_CreateEffect'),
+    ('ES.templet', (), 'CAMERA_SHAKE%d', RT_4A, '-', '4b@321dbcc0', 'read only by StartCameraShake 321dbcc0', '-'),
+    ('ES.templet', (), 'SOUND%d', RT_4A, '-', '4b@321e07f7', 'played by 321dee80, only caller UpdateEffect', '-'),
 ] + [('ES.SOUND', (), k, RT_4A, '-', '4b@321e07f7', 'SOUND%d is played by 321dee80, only caller UpdateEffect', '-')
-     for k in ('EVENT_TIME', 'FILE_NAME', 'RATE', 'USE_GLOBAL_TIME', 'LOOP')]
+     for k in ('EVENT_TIME', 'FILE_NAME', 'RATE', 'USE_GLOBAL_TIME', 'LOOP')] + [
+    ('ES.EFFECT', (), k, RT_4A, '-', 'same', '321dddb0@321dddc7-321dde10: SCALE if x != 0; SCALE_*_ON_LEFT when not right', 'GetEffectScale')
+     for k in ('SCALE_X', 'SCALE_Y', 'SCALE_Z', 'SCALE_X_ON_LEFT', 'SCALE_Y_ON_LEFT', 'SCALE_Z_ON_LEFT')]
+# the creation-time scopes whose March-read rows must all have a RUNTIME entry (check_runtime)
+RUNTIME_SCOPES = ('ES.templet', 'ES.EFFECT', 'ES.SOUND')
 RUNTIME_BY_KEY = dict(((r[0], r[1], r[2]), r) for r in RUNTIME)
 
 COMPILED_OUT = {'CX2EffectSet::AddEffectSet_Description_LUA': '#ifdef EFFECT_TOOL, X2EffectSet.cpp:3380'}
@@ -2133,6 +2164,12 @@ def main():
     bad_rt = ['`%s` %s `%s`' % (e[0], path_s(e[1]), e[2]) for e in RUNTIME if (e[0], e[1], e[2]) not in rowkeys]
     checks.append((not bad_rt, 'every hand-written `RUNTIME` citation names a row of the matrix%s'
                    % ('' if not bad_rt else ': ' + ', '.join(bad_rt))))
+    no_rt = ['`%s` `%s`' % (r['root'], r['key']) for r in rows.values()
+             if r['root'] in RUNTIME_SCOPES and r['rel'] == () and r['march']
+             and r['status'] in ('implemented', 'unsupported', 'binary-only')
+             and (r['root'], r['rel'], r['key']) not in RUNTIME_BY_KEY]
+    checks.append((not no_rt, 'every key March reads at the top of %s has a runtime citation (Phase 4a exit)%s'
+                   % (', '.join('`%s`' % s for s in RUNTIME_SCOPES), '' if not no_rt else ': ' + ', '.join(sorted(no_rt)))))
     bad_lv = check_levels(J.B)
     checks.append((not bad_lv, 'every hand-written `ES_LEVELS` range of 321e48e0 starts at a BeginTable on its own name '
                    'and ends at its re-test / EndTable%s' % ('' if not bad_lv else ': ' + '; '.join(bad_lv))))
