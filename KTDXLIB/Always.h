@@ -4280,6 +4280,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // the runtime is Phase 4a/4b. APPLIED_SKILL_ID and
 // APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION belong to systems this build lacks:
 // stored, logged once per templet to ErrorLog.txt, no behaviour.
+// Phase 3 (2026-09-26) extends the same flag to the per-EFFECT%d keys, the
+// MESH_TRIGGER_DATA_LIST / MESH_TRIGGER_DATA / APPLY_DAMAGE_EFFECT_VELOCITY
+// sub-tables and the templet-level SOUND%d entries. Still parse only, except that
+// TRACE_MATRIX_EXCLUDE_SCALE also sets TRACE_MATRIX, as June's parser does.
 #define SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 //////////////////////////////////////////////////////////////////////////
 

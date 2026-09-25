@@ -199,6 +199,18 @@ The only status changes are Phase 2's six rows.
 getter `32fe9fd0`, with a temp zeroed @`321e59a3`, so the default is 0 and only the low
 byte is stored @`321e5cec`.
 
+**Hand-verified (Phase 3).** These are the rows the census cannot settle mechanically.
+The full per-key table is in the plan's Phase 3 section.
+- `SOUND%d` `RATE` reads `unchecked`: its failure store is `MOV [..],ESI`, with
+  `ESI=0x64` set @`321edd92`, so the default is 100.
+- `ES.EFFECT` `LIMIT_DISTANCE` (`post-processing fmul`) was checked by hand: default
+  `[334380f0]` = -1.0, and it is squared only when `> [334350e8]` = 0.0. That matches March.
+- Two bool defaults come from registers, which is easy to misread:
+  - `NOT_ALLOW_MEMO` stores `BL` after `XOR EBX,EBX` @`321ea308`, so its default is false.
+  - `BLOCK_TRIGGER` stores `BL` after `XOR BL,BL` @`321eaed6`, so its default is false.
+- `USE_MESH_TRANSITION` defaults to **true** in list entries (`MOV byte [..],1`
+  @`321eb78a`), although the entry ctor `321f3be0` sets it false.
+
 **Phase 1 corrections to Phase 0's `reconcile.py`.** `reconcile.md` changed only in the
 `<CEffect top level>` scope, plus two explanations:
 

@@ -54,10 +54,10 @@ when its rows leave `to-implement`; `python june2017_re/census.py --summary` pri
 
 | status | rows |
 |---|---|
-| implemented | 476 |
-| to-implement | 154 |
+| implemented | 516 |
+| to-implement | 119 |
 | unsupported | 12 |
-| binary-only | 31 |
+| binary-only | 26 |
 | june-ignores | 305 |
 
 Open work per phase (`to-implement` / `unsupported` / `binary-only`):
@@ -65,7 +65,7 @@ Open work per phase (`to-implement` / `unsupported` / `binary-only`):
 | phase | to-implement | unsupported | binary-only |
 |---|---|---|---|
 | 2 | 0 | 2 | 0 |
-| 3 | 35 | 1 | 5 |
+| 3 | 0 | 1 | 0 |
 | 5 | 17 | 1 | 2 |
 | 6a | 26 | 0 | 3 |
 | 6b | 24 | 0 | 7 |
@@ -73,7 +73,7 @@ Open work per phase (`to-implement` / `unsupported` / `binary-only`):
 | 8c | 0 | 7 | 1 |
 | unassigned | 16 | 1 | 0 |
 
-Semantics of the rows March parses (implemented, plus unsupported rows parsed under plan rule 5): 288 same, 1 **semantics-differ**, 177 unchecked, 12 n/a.
+Semantics of the rows March parses (implemented, plus unsupported rows parsed under plan rule 5): 318 same, 1 **semantics-differ**, 180 unchecked, 20 n/a.
 
 ## semantics-differ
 
@@ -138,8 +138,8 @@ verdict is `unchecked` until the owning phase reads the site:
 | `TRACE_OWNER_BONE_ONLY_ROTATE` | to-implement | 5 | 3 | direct 31f7aab0@31f7e5d9 |  |  | e.g. DamageEffect:DamageEffect_SA_RHB_Hand_Flamethrower_Loop_Attack |
 | `USE_ADVANCE_COLLISIOIN_CHECK` | to-implement | 5 | 99 | direct 31f7aab0@31f7c343 |  |  | e.g. DamageEffect:DamageEffect_SA_AYR_Reverse_Gravity_Field_Blackhole_Bace_01 |
 | `USE_OWNER_ATTACK_SPEED` | to-implement | 5 | 28 | direct 31f7aab0@31f7d380 |  |  | e.g. DamageEffect_Character:DamageEffect_AIN_COMBO_Z_Sword |
-| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | 5 | 2 | direct 31f7aab0@31f7b483 |  |  | compiled elsewhere: X2EffectSet:2275; raw literal 1 (X2Lib/X2EffectSet.cpp:2275); bare id 7; e.g. DamageEffect:[] |
-| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | binary-only | 5 |  | binary-only 31f7aab0@31f7bff3 |  |  | compiled elsewhere: X2EffectSet:2283; raw literal 1 (X2Lib/X2EffectSet.cpp:2283); bare id 8 |
+| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | 5 | 2 | direct 31f7aab0@31f7b483 |  |  | compiled elsewhere: X2EffectSet:2284; raw literal 1 (X2Lib/X2EffectSet.cpp:2284); bare id 7; e.g. DamageEffect:[] |
+| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | binary-only | 5 |  | binary-only 31f7aab0@31f7bff3 |  |  | compiled elsewhere: X2EffectSet:2292, X2EffectSet:2527; raw literal 2 (X2Lib/X2EffectSet.cpp:2292); bare id 13 |
 | `DAMAGE_DATA_NEXT_ULTIMATE%d` | binary-only | 5 |  | binary-only 31f7aab0 |  |  |  |
 | `AFTER_IMAGE` | implemented |  | 11 | other-func 31f74a80 | X2DamageEffect:7021 | unchecked(June reads it in callee 31f74a80, not a scope reader) |  |
 | `APPLY_SCALE_BY_UNIT` | implemented |  | 169 | direct 31f7aab0@31f7ea60 | X2DamageEffect:1656 | same [June bool = 1] |  |
@@ -267,7 +267,7 @@ verdict is `unchecked` until the owning phase reads the site:
 | `ONYL_ATTACK_USER` | to-implement | 8b | 1 | direct 32632390@3263f60a |  |  | e.g. DamageEffect_ETC:DamageEffect_Abnormal_State_Dummy |
 | `PAUSE_NPC_AI_TIME` | to-implement | 8b | 1 | direct 32632390@3263f977 |  |  | e.g. DamageEffect_INT:SPECIAL_ITEM_LUCKY_BAG_C_Explosion |
 | `TRACE_NEAREST_BONE` | to-implement | 8b | 16 | direct 32632390@32634bac |  |  | e.g. DamageEffect:DamageEffect_Summon_Bat_Heavy |
-| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | 8c | 2669 | direct 32632390@32632446 |  |  | compiled elsewhere: X2EffectSet:2275; raw literal 1 (X2Lib/X2EffectSet.cpp:2275); bare id 7; e.g. DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 |
+| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | 8c | 2669 | direct 32632390@32632446 |  |  | compiled elsewhere: X2EffectSet:2284; raw literal 1 (X2Lib/X2EffectSet.cpp:2284); bare id 7; e.g. DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 |
 | `HIT_ADD_COMBINATION_POINT` | unsupported(Combination point (absent)) | 8c | 15 | direct 32632390@3263dfd2 |  |  | e.g. DamageEffect:DamageEffect_LLC_M_DashCombo_ZXXX |
 | `HP_RATE_DAMAGE_TYPE` | unsupported(HP-rate damage (absent)) | 8c | 8 | direct 32632390@3263f2ad |  |  | e.g. DamageEffect_Character:DamageEffect_SA_ALP_SupersonicFX |
 | `HP_RATE_DAMAGE_VALUE` | unsupported(HP-rate damage (absent)) | 8c | 8 | direct 32632390@3263f45f |  |  | e.g. DamageEffect_Character:DamageEffect_SA_ALP_SupersonicFX |
@@ -418,7 +418,7 @@ verdict is `unchecked` until the owning phase reads the site:
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | unassigned | 2 | direct 32632390@32632446 |  |  | compiled elsewhere: X2EffectSet:2275; raw literal 1 (X2Lib/X2EffectSet.cpp:2275); bare id 7; e.g. DamageEffect:DamageEffect_ESK_DoubleSlash_FirstImpact_Memo |
+| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | unassigned | 2 | direct 32632390@32632446 |  |  | compiled elsewhere: X2EffectSet:2284; raw literal 1 (X2Lib/X2EffectSet.cpp:2284); bare id 7; e.g. DamageEffect:DamageEffect_ESK_DoubleSlash_FirstImpact_Memo |
 | `BEHAVIOR` | implemented |  | 967 | other-func 32d4c9c0 | X2BuffFactor:532 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `BUFF_TEMPLET_ID` | implemented |  | 967 | direct 32632390@3263d647 | X2BuffFactor:492 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `FINALIZER` | implemented |  | 967 | other-func 32d4ca60 | X2BuffFactor:559 | unchecked(buff parser row: March matched path-insensitively) |  |
@@ -985,9 +985,9 @@ verdict is `unchecked` until the owning phase reads the site:
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
 | `INHERITLOCKONDATA` | to-implement | 6a | 12 | direct 31f68f30@31f6a1fe |  |  | e.g. DamageEffect:DamageEffect_ADD_Dividing_Missile_Dynamo_DA |
-| `SCALE_X` | to-implement | 6a | 89 | direct 31f68f30@31f6a473 |  |  | compiled elsewhere: X2DamageEffect:5250, X2EffectSet:2407; raw literal 6 (X2Lib/X2BuffBehaviorTemplet.cpp:1775); e.g. DamageEffect:SEED_OF_RUIN |
-| `SCALE_Y` | to-implement | 6a | 89 | direct 31f68f30@31f6a520 |  |  | compiled elsewhere: X2DamageEffect:5251, X2EffectSet:2408; raw literal 6 (X2Lib/X2BuffBehaviorTemplet.cpp:1776); e.g. DamageEffect:SEED_OF_RUIN |
-| `SCALE_Z` | to-implement | 6a | 89 | direct 31f68f30@31f6a5cd |  |  | compiled elsewhere: X2DamageEffect:5252, X2EffectSet:2409; raw literal 6 (X2Lib/X2BuffBehaviorTemplet.cpp:1777); e.g. DamageEffect:SEED_OF_RUIN |
+| `SCALE_X` | to-implement | 6a | 89 | direct 31f68f30@31f6a473 |  |  | compiled elsewhere: X2DamageEffect:5250, X2EffectSet:2454; raw literal 6 (X2Lib/X2BuffBehaviorTemplet.cpp:1775); e.g. DamageEffect:SEED_OF_RUIN |
+| `SCALE_Y` | to-implement | 6a | 89 | direct 31f68f30@31f6a520 |  |  | compiled elsewhere: X2DamageEffect:5251, X2EffectSet:2455; raw literal 6 (X2Lib/X2BuffBehaviorTemplet.cpp:1776); e.g. DamageEffect:SEED_OF_RUIN |
+| `SCALE_Z` | to-implement | 6a | 89 | direct 31f68f30@31f6a5cd |  |  | compiled elsewhere: X2DamageEffect:5252, X2EffectSet:2456; raw literal 6 (X2Lib/X2BuffBehaviorTemplet.cpp:1777); e.g. DamageEffect:SEED_OF_RUIN |
 | `APPLY_ROTATE` | implemented |  | 794 | direct 31f68f30@31f69460 | X2DamageEffect:6637 | same [June bool = 1] |  |
 | `APPLY_ROTATED_OFFSET` | implemented |  | 117 | direct 31f68f30@31f69591 | X2DamageEffect:6640 | same [June bool = 0] |  |
 | `BONE_NAME` | implemented |  | 42 | direct 31f68f30@31f69368 | X2DamageEffect:6636 | same [June string = ''] |  |
@@ -1017,9 +1017,9 @@ verdict is `unchecked` until the owning phase reads the site:
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
 | `INHERIT_LIFE_TIME` | to-implement | 6a | 2 | direct 31f6ceb0@31f6e536 |  |  | e.g. DamageEffect:DamageEffect_CDC_Trick_Shot_A |
-| `SCALE_X` | to-implement | 6a | 60 | direct 31f6ceb0@31f6ddb3 |  |  | compiled elsewhere: X2DamageEffect:5250, X2EffectSet:2407; raw literal 6 (X2Lib/X2BuffBehaviorTemplet.cpp:1775); e.g. DamageEffect:DamageEffect_OPHELIA_Attack_C_Missile |
-| `SCALE_Y` | to-implement | 6a | 60 | direct 31f6ceb0@31f6de60 |  |  | compiled elsewhere: X2DamageEffect:5251, X2EffectSet:2408; raw literal 6 (X2Lib/X2BuffBehaviorTemplet.cpp:1776); e.g. DamageEffect:DamageEffect_OPHELIA_Attack_C_Missile |
-| `SCALE_Z` | to-implement | 6a | 60 | direct 31f6ceb0@31f6df0d |  |  | compiled elsewhere: X2DamageEffect:5252, X2EffectSet:2409; raw literal 6 (X2Lib/X2BuffBehaviorTemplet.cpp:1777); e.g. DamageEffect:DamageEffect_OPHELIA_Attack_C_Missile |
+| `SCALE_X` | to-implement | 6a | 60 | direct 31f6ceb0@31f6ddb3 |  |  | compiled elsewhere: X2DamageEffect:5250, X2EffectSet:2454; raw literal 6 (X2Lib/X2BuffBehaviorTemplet.cpp:1775); e.g. DamageEffect:DamageEffect_OPHELIA_Attack_C_Missile |
+| `SCALE_Y` | to-implement | 6a | 60 | direct 31f6ceb0@31f6de60 |  |  | compiled elsewhere: X2DamageEffect:5251, X2EffectSet:2455; raw literal 6 (X2Lib/X2BuffBehaviorTemplet.cpp:1776); e.g. DamageEffect:DamageEffect_OPHELIA_Attack_C_Missile |
+| `SCALE_Z` | to-implement | 6a | 60 | direct 31f6ceb0@31f6df0d |  |  | compiled elsewhere: X2DamageEffect:5252, X2EffectSet:2456; raw literal 6 (X2Lib/X2BuffBehaviorTemplet.cpp:1777); e.g. DamageEffect:DamageEffect_OPHELIA_Attack_C_Missile |
 | `APPLY_ROTATE` | implemented |  | 204 | direct 31f6ceb0@31f6d3e1 | X2DamageEffect:6913 | same [June bool = 1] |  |
 | `APPLY_ROTATED_OFFSET` | implemented |  | 39 | direct 31f6ceb0@31f6d7bc | X2DamageEffect:6921 | same [June bool = 0] |  |
 | `APPLY_ROTATE_ORIGIN` | implemented |  | 72 | direct 31f6ceb0@31f6d516 | X2DamageEffect:6914 | same [June bool = 0] |  |
@@ -1046,7 +1046,7 @@ verdict is `unchecked` until the owning phase reads the site:
 |---|---|---|---|---|---|---|---|
 | `AND_OPERATION` | to-implement | 6a | 1 | direct 31f7aab0 |  |  | e.g. DamageEffect_Character:DamageEffect_SA_RCR_Chain_Viper_Projectile |
 | `OR_OPERATION` | to-implement | 6a | 1 | direct 31f7aab0 |  |  | e.g. DamageEffect_Character:DamageEffect_SA_RCR_Chain_Viper_Projectile |
-| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | binary-only | 6a |  | binary-only 31f7aab0@31f7bff3 |  |  | compiled elsewhere: X2EffectSet:2283; raw literal 1 (X2Lib/X2EffectSet.cpp:2283); bare id 8 |
+| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | binary-only | 6a |  | binary-only 31f7aab0@31f7bff3 |  |  | compiled elsewhere: X2EffectSet:2292, X2EffectSet:2527; raw literal 2 (X2Lib/X2EffectSet.cpp:2292); bare id 13 |
 | `DAMAGE_DATA_NEXT_ULTIMATE%d` | binary-only | 6a |  | binary-only 31f7aab0 |  |  |  |
 
 #### `DE.DIE_CHECK_CONDITION` AND_OPERATION
@@ -1205,7 +1205,7 @@ verdict is `unchecked` until the owning phase reads the site:
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `EFFECT_SET_NAME` | binary-only | 6b |  | binary-only 31f64c80@31f64e93 |  |  |  |
+| `EFFECT_SET_NAME` | binary-only | 6b |  | binary-only 31f64c80@31f64e93 |  |  | compiled elsewhere: X2EffectSet:2609; raw literal 1 (X2Lib/X2EffectSet.cpp:2609); bare id 2 |
 | `HIT_EFFECT_SET%d` | binary-only | 6b |  | binary-only 31f64c80 |  |  |  |
 
 #### `DE.DIE_CREATE_NPC` (top)
@@ -1214,30 +1214,30 @@ verdict is `unchecked` until the owning phase reads the site:
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `EVENT_TIME` | to-implement | 6b | 1 | direct 31f66230@31f662f6 |  |  | compiled elsewhere: X2DamageEffect:5224, X2DamageEffect:6767; raw literal 15 (X2Lib/X2DamageEffect.cpp:4909); bare id 6; e.g. DamageEffect:DamageEffect_A_RMH_Meca_Drop_RX_78_Summon_Land_Runner |
+| `EVENT_TIME` | to-implement | 6b | 1 | direct 31f66230@31f662f6 |  |  | compiled elsewhere: X2DamageEffect:5224, X2DamageEffect:6767; raw literal 16 (X2Lib/X2DamageEffect.cpp:4909); bare id 7; e.g. DamageEffect:DamageEffect_A_RMH_Meca_Drop_RX_78_Summon_Land_Runner |
 | `NPC_ID` | to-implement | 6b | 3 | direct 31f66230@31f663d1 |  |  | raw literal 7 (X2Lib/X2DungeonSubStage.cpp:1446); bare id 3; e.g. DamageEffect:DamageEffect_A_RMH_All_Bomb_Ultimate_AddMeca |
 
 ### EffectSet
 
 #### `ES.templet` (top)
 
-24 rows: implemented 10, june-ignores 11, to-implement 1, unsupported 2. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
+24 rows: implemented 11, june-ignores 11, unsupported 2. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `SOUND%d` | to-implement | 3 | 70 | direct 321e48e0 |  |  | compiled elsewhere: X2DamageEffect:6806; raw literal 6 (X2Lib/X2DamageEffect.cpp:5120); bare id 4; 5 names; e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | 2 | 170 | direct 321e48e0@321e5675 | X2EffectSet:2275 | same [June enum = 0] | compiled elsewhere: X2EffectSet:2275; raw literal 1 (X2Lib/X2EffectSet.cpp:2275); bare id 7; e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | unsupported(Effect-alpha option (absent)) | 2 | 24 | direct 321e48e0@321e5a5d | X2EffectSet:2283 | unchecked(unchecked-default(June: non-standard shape after the call: mov neg sbb and)) [June int = None] | compiled elsewhere: X2EffectSet:2283; raw literal 1 (X2Lib/X2EffectSet.cpp:2283); bare id 8; e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `AFFECTED_BY_UNIT_SCALE` | implemented |  | 171 | direct 321e48e0@321e4f93 | X2EffectSet:2254 | same [June bool = 1] |  |
-| `CAMERA_SHAKE%d` | implemented |  | 3816 | direct 321e48e0 | X2EffectSet:2517 | n/a (sub-table name) | 12 names |
-| `DELETE_EFFECTSET_AT_TRACE_UNIT_DIE` | implemented |  | 2 | direct 321e48e0@321e531f | X2EffectSet:2271 | same [June bool = 0] |  |
-| `DELETE_SHAKE_COUNT` | implemented |  | 14 | direct 321e48e0@321e5162 | X2EffectSet:2257 | same [June int = -1] |  |
-| `EFFECT%d` | implemented |  | 46021 | direct 321e48e0 | X2EffectSet:2344 | n/a (sub-table name) | 95 names |
-| `EVENT_TIMER_TYPE` | implemented |  | 1015 | direct 321e48e0@321e4ad1 | X2EffectSet:2253 | same [June enum = 0] |  |
-| `NAME` | implemented |  | 8600 | direct 321e48e0@321e49a4 | X2EffectSet:2240 | same [June string = ''] |  |
-| `OVERLAP` | implemented |  | 2 | direct 321e48e0@321e5594 | X2EffectSet:2273 | same [June bool = 0] |  |
-| `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` | implemented |  | 2 | direct 321e48e0@321e4c9b | X2EffectSet:2269 | same [June bool = 0] |  |
-| `SYNC_SHOW_BY_CREATE_UNIT` | implemented |  | 1 | direct 321e48e0@321e57fa | X2EffectSet:2277 | same [June bool = 0] |  |
+| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | 2 | 170 | direct 321e48e0@321e5675 | X2EffectSet:2284 | same [June enum = 0] | compiled elsewhere: X2EffectSet:2284; raw literal 1 (X2Lib/X2EffectSet.cpp:2284); bare id 7; e.g. EffectSet:call:AddEffectSetTemplet_LUA |
+| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | unsupported(Effect-alpha option (absent)) | 2 | 24 | direct 321e48e0@321e5a5d | X2EffectSet:2292 | unchecked(unchecked-default(June: non-standard shape after the call: mov neg sbb and)) [June int = None] | compiled elsewhere: X2EffectSet:2292, X2EffectSet:2527; raw literal 2 (X2Lib/X2EffectSet.cpp:2292); bare id 13; e.g. EffectSet:call:AddEffectSetTemplet_LUA |
+| `AFFECTED_BY_UNIT_SCALE` | implemented |  | 171 | direct 321e48e0@321e4f93 | X2EffectSet:2263 | same [June bool = 1] |  |
+| `CAMERA_SHAKE%d` | implemented |  | 3816 | direct 321e48e0 | X2EffectSet:2786 | n/a (sub-table name) | 12 names |
+| `DELETE_EFFECTSET_AT_TRACE_UNIT_DIE` | implemented |  | 2 | direct 321e48e0@321e531f | X2EffectSet:2280 | same [June bool = 0] |  |
+| `DELETE_SHAKE_COUNT` | implemented |  | 14 | direct 321e48e0@321e5162 | X2EffectSet:2266 | same [June int = -1] |  |
+| `EFFECT%d` | implemented |  | 46021 | direct 321e48e0 | X2EffectSet:2358 | n/a (sub-table name) | 95 names |
+| `EVENT_TIMER_TYPE` | implemented |  | 1015 | direct 321e48e0@321e4ad1 | X2EffectSet:2262 | same [June enum = 0] |  |
+| `NAME` | implemented |  | 8600 | direct 321e48e0@321e49a4 | X2EffectSet:2249 | same [June string = ''] |  |
+| `OVERLAP` | implemented |  | 2 | direct 321e48e0@321e5594 | X2EffectSet:2282 | same [June bool = 0] |  |
+| `SOUND%d` | implemented |  | 70 | direct 321e48e0 | X2EffectSet:2851 | n/a (sub-table name) | 5 names |
+| `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` | implemented |  | 2 | direct 321e48e0@321e4c9b | X2EffectSet:2278 | same [June bool = 0] |  |
+| `SYNC_SHOW_BY_CREATE_UNIT` | implemented |  | 1 | direct 321e48e0@321e57fa | X2EffectSet:2286 | same [June bool = 0] |  |
 | `BONE_NAME` | june-ignores(other-level) |  | 2 | June reads `BONE_NAME` only at level EFFECT%d of 321e48e0 (321e6165); not at `(top)` |  |  |  |
 | `BONE_TRACE_TARGET_MESH` | june-ignores(other-level) |  | 1 | June reads `BONE_TRACE_TARGET_MESH` only at level EFFECT%d of 321e48e0 (321e9ceb); not at `(top)` |  |  |  |
 | `EFFECT_TYPE` | june-ignores(other-level) |  | 3 | June reads `EFFECT_TYPE` only at level EFFECT%d of 321e48e0 (321e5d8a); not at `(top)` |  |  |  |
@@ -1252,61 +1252,61 @@ verdict is `unchecked` until the owning phase reads the site:
 
 #### `ES.EFFECT` (top)
 
-62 rows: binary-only 1, implemented 36, june-ignores 11, to-implement 13, unsupported 1. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
+62 rows: implemented 50, june-ignores 11, unsupported 1. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `APPLY_DAMAGE_EFFECT_VELOCITY` | to-implement | 3 | 6 | direct 321e48e0 |  |  | e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `BONE_TRACE_TARGET_MESH_INDEX` | to-implement | 3 | 25 | direct 321e48e0@321e9aa9 |  |  | e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `FOLLOW_UNIT_ROTATION` | to-implement | 3 | 35 | direct 321e48e0@321e830c |  |  | e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `FOLLOW_UNIT_ROTATION_CPARTICLE` | to-implement | 3 | 5 | direct 321e48e0@321e84da |  |  | e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `FOLLOW_UNIT_VIEWER_SCALE` | to-implement | 3 | 17 | direct 321e48e0@321e8738 |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `MESH_TRIGGER_DATA` | to-implement | 3 | 6 | direct 321e48e0 |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `MESH_TRIGGER_DATA_LIST` | to-implement | 3 | 11 | direct 321e48e0 |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `NOT_ALLOW_MEMO` | to-implement | 3 | 7 | direct 321e48e0@321ea221 |  |  | e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `TRACE_MATRIX_EXCLUDE_SCALE` | to-implement | 3 | 1 | direct 321e48e0@321e7445 |  |  | e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `TRACE_MATRIX_IN_FIELD` | to-implement | 3 | 12 | direct 321e48e0@321e766e |  |  | e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `USE_EFFECT_SCALE_IN_UNIT_VIEWER` | to-implement | 3 | 7 | direct 321e48e0@321e894f |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `USE_IS_RIGHT_WHEN_CREATE` | to-implement | 3 | 27 | direct 321e48e0@321e8114 |  |  | e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `ZOFFSET_USE_UNIT_IS_RIGHT` | to-implement | 3 | 1 | direct 321e48e0@321e6f61 |  |  | e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | unsupported(Effect-alpha option (absent)) | 3 | 5 | direct 321e48e0@321ea3ac |  |  | compiled elsewhere: X2EffectSet:2283; raw literal 1 (X2Lib/X2EffectSet.cpp:2283); bare id 8; e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `GROUP_NAME` | binary-only | 3 |  | binary-only 321e48e0@321e6261 |  |  |  |
-| `APPLY_INSTANCE_SCALE` | implemented |  | 26 | direct 321e48e0@321e8bb4 | X2EffectSet:2405 | same [June bool = 1] |  |
-| `APPLY_UNIT_ROTATION` | implemented |  | 924 | direct 321e48e0@321e7d32 | X2EffectSet:2393 | same [June bool = 1] |  |
-| `APPLY_UNIT_ROTATION_MIRROR` | implemented |  | 196 | direct 321e48e0@321e7eec | X2EffectSet:2397 | same [June bool = 0] |  |
-| `BONE_NAME` | implemented |  | 30860 | direct 321e48e0@321e6165 | X2EffectSet:2363 | same [June string = ''] |  |
-| `BONE_TRACE_TARGET_MESH` | implemented |  | 755 | direct 321e48e0@321e9ceb | X2EffectSet:2437 | same [June bool = 0] |  |
-| `EFFECT_TYPE` | implemented |  | 46021 | direct 321e48e0@321e5d8a | X2EffectSet:2349 | same [June enum = 0] |  |
-| `HYPER_NAME` | implemented |  | 71 | direct 321e48e0@321e5f5b | X2EffectSet:2358 | same [June string = ''] |  |
-| `LIMIT_DISTANCE` | implemented |  | 45 | direct 321e48e0@321ea0b2 | X2EffectSet:2462 | unchecked(post-processing fmul@321ea1d3) post: fmul@321ea1d3 [June float = -1] |  |
-| `NAME` | implemented |  | 45974 | direct 321e48e0@321e5e94 | X2EffectSet:2353 | same [June string = ''] |  |
-| `PASSIVE_EFFECT` | implemented |  | 278 | direct 321e48e0@321e9638 | X2EffectSet:2420 | same [June bool = 0] |  |
-| `POSITION_OFFSET_X` | implemented |  | 12599 | direct 321e48e0@321e6abe | X2EffectSet:2373 | same [June float = 0] |  |
-| `POSITION_OFFSET_Y` | implemented |  | 12303 | direct 321e48e0@321e6c43 | X2EffectSet:2374 | same [June float = 0] |  |
-| `POSITION_OFFSET_Z` | implemented |  | 1661 | direct 321e48e0@321e6dc8 | X2EffectSet:2375 | same [June float = 0] |  |
-| `REVERSE_Y` | implemented |  | 1393 | direct 321e48e0@321e781d | X2EffectSet:2385 | same [June bool = 0] |  |
-| `RIDING_PET_BONE_NAME` | implemented |  | 2318 | direct 321e48e0@321e68ff | X2EffectSet:2370 | same [June string = ''] |  |
-| `ROTATE_X` | implemented |  | 852 | direct 321e48e0@321e7a8a | X2EffectSet:2390 | same [June float = 0] |  |
-| `ROTATE_Y` | implemented |  | 1477 | direct 321e48e0@321e7b60 | X2EffectSet:2391 | same [June float = 0] |  |
-| `ROTATE_Z` | implemented |  | 2565 | direct 321e48e0@321e7c36 | X2EffectSet:2392 | same [June float = 0] |  |
-| `SCALE_X` | implemented |  | 8945 | direct 321e48e0@321e8d50 | X2EffectSet:2407 | same [June float = 0] |  |
-| `SCALE_X_ON_LEFT` | implemented |  | 1 | direct 321e48e0@321e8fd1 | X2EffectSet:2412 | same [June float = 0] |  |
-| `SCALE_Y` | implemented |  | 8943 | direct 321e48e0@321e8e20 | X2EffectSet:2408 | same [June float = 0] |  |
-| `SCALE_Y_ON_LEFT` | implemented |  | 1 | direct 321e48e0@321e9132 | X2EffectSet:2413 | same [June float = 0] |  |
-| `SCALE_Z` | implemented |  | 8940 | direct 321e48e0@321e8ef0 | X2EffectSet:2409 | same [June float = 0] |  |
-| `SCALE_Z_ON_LEFT` | implemented |  | 1 | direct 321e48e0@321e9293 | X2EffectSet:2414 | same [June float = 0] |  |
-| `SET_OVER_UI` | implemented |  | 127 | direct 321e48e0@321e9970 | X2EffectSet:2426 | same [June bool = 0] |  |
-| `START_TIME` | implemented |  | 29079 | direct 321e48e0@321e6067 | X2EffectSet:2362 | same [June float = 0] |  |
-| `START_WHEN_TRACE_TARGET_DEAD` | implemented |  | 5 | direct 321e48e0@321e940e | X2EffectSet:2419 | same [June bool = 0] |  |
-| `TRACE` | implemented |  | 15372 | direct 321e48e0@321e7146 | X2EffectSet:2377 | same [June bool = 0] |  |
-| `TRACE_MATRIX` | implemented |  | 2755 | direct 321e48e0@321e72fd | X2EffectSet:2381 | same [June bool = 0] |  |
-| `TRACE_MORE` | implemented |  | 8301 | direct 321e48e0@321e71f9 | X2EffectSet:2378 | same [June bool = 0] |  |
-| `TRACE_USER_TARGET_FORCE` | implemented |  | 1857 | direct 321e48e0@321e9ece | X2EffectSet:2441 | same [June bool = 0] |  |
-| `USE_LAND_POSITION` | implemented |  | 212 | direct 321e48e0@321e7920 | X2EffectSet:2389 | same [June bool = 0] |  |
-| `USE_SUB_ATTACK_LIST_SET` | implemented |  | 19 | direct 321e48e0@321e979b | X2EffectSet:2422 | same [June bool = 0] |  |
-| `WEAPON_BONE_MODEL_INDEX` | implemented |  |  | binary-only 321e48e0@321e6713 | X2EffectSet:2367 | same [June int = 0] | binary-only: no June data uses it |
-| `WEAPON_BONE_NAME` | implemented |  | 1205 | direct 321e48e0@321e6378 | X2EffectSet:2365 | same [June string = ''] |  |
-| `WEAPON_BONE_WEAPON_INDEX` | implemented |  |  | binary-only 321e48e0@321e650e | X2EffectSet:2366 | unchecked(unchecked-default(June: default store not recognised: mov dword ptr [esi], ebx)) [June int = None] | binary-only: no June data uses it |
+| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | unsupported(Effect-alpha option (absent)) | 3 | 5 | direct 321e48e0@321ea3ac | X2EffectSet:2527 | same [June enum = 0] | compiled elsewhere: X2EffectSet:2292, X2EffectSet:2527; raw literal 2 (X2Lib/X2EffectSet.cpp:2292); bare id 13; e.g. EffectSet:call:AddEffectSetTemplet_LUA |
+| `APPLY_DAMAGE_EFFECT_VELOCITY` | implemented |  | 6 | direct 321e48e0 | X2EffectSet:2548 | n/a (sub-table name) |  |
+| `APPLY_INSTANCE_SCALE` | implemented |  | 26 | direct 321e48e0@321e8bb4 | X2EffectSet:2452 | same [June bool = 1] |  |
+| `APPLY_UNIT_ROTATION` | implemented |  | 924 | direct 321e48e0@321e7d32 | X2EffectSet:2426 | same [June bool = 1] |  |
+| `APPLY_UNIT_ROTATION_MIRROR` | implemented |  | 196 | direct 321e48e0@321e7eec | X2EffectSet:2430 | same [June bool = 0] |  |
+| `BONE_NAME` | implemented |  | 30860 | direct 321e48e0@321e6165 | X2EffectSet:2377 | same [June string = ''] |  |
+| `BONE_TRACE_TARGET_MESH` | implemented |  | 755 | direct 321e48e0@321e9ceb | X2EffectSet:2489 | same [June bool = 0] |  |
+| `BONE_TRACE_TARGET_MESH_INDEX` | implemented |  | 25 | direct 321e48e0@321e9aa9 | X2EffectSet:2478 | same [June int = -1] |  |
+| `EFFECT_TYPE` | implemented |  | 46021 | direct 321e48e0@321e5d8a | X2EffectSet:2363 | same [June enum = 0] |  |
+| `FOLLOW_UNIT_ROTATION` | implemented |  | 35 | direct 321e48e0@321e830c | X2EffectSet:2445 | same [June bool = 0] |  |
+| `FOLLOW_UNIT_ROTATION_CPARTICLE` | implemented |  | 5 | direct 321e48e0@321e84da | X2EffectSet:2446 | same [June bool = 0] |  |
+| `FOLLOW_UNIT_VIEWER_SCALE` | implemented |  | 17 | direct 321e48e0@321e8738 | X2EffectSet:2447 | same [June bool = 0] |  |
+| `GROUP_NAME` | implemented |  |  | binary-only 321e48e0@321e6261 | X2EffectSet:2380 | same [June string = ''] | binary-only: no June data uses it |
+| `HYPER_NAME` | implemented |  | 71 | direct 321e48e0@321e5f5b | X2EffectSet:2372 | same [June string = ''] |  |
+| `LIMIT_DISTANCE` | implemented |  | 45 | direct 321e48e0@321ea0b2 | X2EffectSet:2514 | unchecked(post-processing fmul@321ea1d3) post: fmul@321ea1d3 [June float = -1] |  |
+| `MESH_TRIGGER_DATA` | implemented |  | 6 | direct 321e48e0 | X2EffectSet:2658 | n/a (sub-table name) |  |
+| `MESH_TRIGGER_DATA_LIST` | implemented |  | 11 | direct 321e48e0 | X2EffectSet:2569 | n/a (sub-table name) |  |
+| `NAME` | implemented |  | 45974 | direct 321e48e0@321e5e94 | X2EffectSet:2367 | same [June string = ''] |  |
+| `NOT_ALLOW_MEMO` | implemented |  | 7 | direct 321e48e0@321ea221 | X2EffectSet:2523 | same [June bool = 0] |  |
+| `PASSIVE_EFFECT` | implemented |  | 278 | direct 321e48e0@321e9638 | X2EffectSet:2467 | same [June bool = 0] |  |
+| `POSITION_OFFSET_X` | implemented |  | 12599 | direct 321e48e0@321e6abe | X2EffectSet:2391 | same [June float = 0] |  |
+| `POSITION_OFFSET_Y` | implemented |  | 12303 | direct 321e48e0@321e6c43 | X2EffectSet:2392 | same [June float = 0] |  |
+| `POSITION_OFFSET_Z` | implemented |  | 1661 | direct 321e48e0@321e6dc8 | X2EffectSet:2393 | same [June float = 0] |  |
+| `REVERSE_Y` | implemented |  | 1393 | direct 321e48e0@321e781d | X2EffectSet:2418 | same [June bool = 0] |  |
+| `RIDING_PET_BONE_NAME` | implemented |  | 2318 | direct 321e48e0@321e68ff | X2EffectSet:2388 | same [June string = ''] |  |
+| `ROTATE_X` | implemented |  | 852 | direct 321e48e0@321e7a8a | X2EffectSet:2423 | same [June float = 0] |  |
+| `ROTATE_Y` | implemented |  | 1477 | direct 321e48e0@321e7b60 | X2EffectSet:2424 | same [June float = 0] |  |
+| `ROTATE_Z` | implemented |  | 2565 | direct 321e48e0@321e7c36 | X2EffectSet:2425 | same [June float = 0] |  |
+| `SCALE_X` | implemented |  | 8945 | direct 321e48e0@321e8d50 | X2EffectSet:2454 | same [June float = 0] |  |
+| `SCALE_X_ON_LEFT` | implemented |  | 1 | direct 321e48e0@321e8fd1 | X2EffectSet:2459 | same [June float = 0] |  |
+| `SCALE_Y` | implemented |  | 8943 | direct 321e48e0@321e8e20 | X2EffectSet:2455 | same [June float = 0] |  |
+| `SCALE_Y_ON_LEFT` | implemented |  | 1 | direct 321e48e0@321e9132 | X2EffectSet:2460 | same [June float = 0] |  |
+| `SCALE_Z` | implemented |  | 8940 | direct 321e48e0@321e8ef0 | X2EffectSet:2456 | same [June float = 0] |  |
+| `SCALE_Z_ON_LEFT` | implemented |  | 1 | direct 321e48e0@321e9293 | X2EffectSet:2461 | same [June float = 0] |  |
+| `SET_OVER_UI` | implemented |  | 127 | direct 321e48e0@321e9970 | X2EffectSet:2473 | same [June bool = 0] |  |
+| `START_TIME` | implemented |  | 29079 | direct 321e48e0@321e6067 | X2EffectSet:2376 | same [June float = 0] |  |
+| `START_WHEN_TRACE_TARGET_DEAD` | implemented |  | 5 | direct 321e48e0@321e940e | X2EffectSet:2466 | same [June bool = 0] |  |
+| `TRACE` | implemented |  | 15372 | direct 321e48e0@321e7146 | X2EffectSet:2399 | same [June bool = 0] |  |
+| `TRACE_MATRIX` | implemented |  | 2755 | direct 321e48e0@321e72fd | X2EffectSet:2403 | same [June bool = 0] |  |
+| `TRACE_MATRIX_EXCLUDE_SCALE` | implemented |  | 1 | direct 321e48e0@321e7445 | X2EffectSet:2410 | same [June bool = 0] |  |
+| `TRACE_MATRIX_IN_FIELD` | implemented |  | 12 | direct 321e48e0@321e766e | X2EffectSet:2414 | same [June bool = 0] |  |
+| `TRACE_MORE` | implemented |  | 8301 | direct 321e48e0@321e71f9 | X2EffectSet:2400 | same [June bool = 0] |  |
+| `TRACE_USER_TARGET_FORCE` | implemented |  | 1857 | direct 321e48e0@321e9ece | X2EffectSet:2493 | same [June bool = 0] |  |
+| `USE_EFFECT_SCALE_IN_UNIT_VIEWER` | implemented |  | 7 | direct 321e48e0@321e894f | X2EffectSet:2448 | same [June bool = 0] |  |
+| `USE_IS_RIGHT_WHEN_CREATE` | implemented |  | 27 | direct 321e48e0@321e8114 | X2EffectSet:2444 | same [June bool = 0] |  |
+| `USE_LAND_POSITION` | implemented |  | 212 | direct 321e48e0@321e7920 | X2EffectSet:2422 | same [June bool = 0] |  |
+| `USE_SUB_ATTACK_LIST_SET` | implemented |  | 19 | direct 321e48e0@321e979b | X2EffectSet:2469 | same [June bool = 0] |  |
+| `WEAPON_BONE_MODEL_INDEX` | implemented |  |  | binary-only 321e48e0@321e6713 | X2EffectSet:2385 | same [June int = 0] | binary-only: no June data uses it |
+| `WEAPON_BONE_NAME` | implemented |  | 1205 | direct 321e48e0@321e6378 | X2EffectSet:2383 | same [June string = ''] |  |
+| `WEAPON_BONE_WEAPON_INDEX` | implemented |  |  | binary-only 321e48e0@321e650e | X2EffectSet:2384 | unchecked(unchecked-default(June: default store not recognised: mov dword ptr [esi], ebx)) [June int = None] | binary-only: no June data uses it |
+| `ZOFFSET_USE_UNIT_IS_RIGHT` | implemented |  | 1 | direct 321e48e0@321e6f61 | X2EffectSet:2396 | same [June bool = 0] |  |
 | `APPLY_ROTATE` | june-ignores(dead-here) |  | 1 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ac60 (decrypted), 31f6c |  |  |  |
 | `APPLY_ROTATED_OFFSET` | june-ignores(dead-here) |  | 52 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ac60 (decrypted), 31f6c |  |  |  |
 | `END_TIME` | june-ignores(dead-here) |  | 2 | every guard of the readers accounted for and no callee names it; named only in unrelated 31fbe4a0 (decrypted), 32057b80 (decrypted), 327ac9d0 (decrypted): not o |  |  |  |
@@ -1321,60 +1321,60 @@ verdict is `unchecked` until the owning phase reads the site:
 
 #### `ES.EFFECT` MESH_TRIGGER_DATA
 
-3 rows: binary-only 1, to-implement 2. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
+3 rows: implemented 3. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `MOTION_NAME` | to-implement | 3 | 6 | direct 321e48e0@321ebd72 |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `TRIGGER_TIME` | to-implement | 3 | 6 | direct 321e48e0@321ebc44 |  |  | compiled elsewhere: X2DamageEffect:5222; raw literal 5 (X2Lib/X2DamageEffect.cpp:4908); e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `PLAY_TYPE` | binary-only | 3 |  | binary-only 321e48e0@321ea95c |  |  | raw literal 16 (X2Lib/X2EventScene.cpp:1232) |
+| `MOTION_NAME` | implemented |  | 6 | direct 321e48e0@321ebd72 | X2EffectSet:2661 | same [June string = ''] |  |
+| `PLAY_TYPE` | implemented |  |  | binary-only 321e48e0@321ea95c | X2EffectSet:2662 | same [June int = 2] | binary-only: no June data uses it |
+| `TRIGGER_TIME` | implemented |  | 6 | direct 321e48e0@321ebc44 | X2EffectSet:2660 | same [June float = -1] |  |
 
 #### `ES.EFFECT` MESH_TRIGGER_DATA_LIST
 
-1 rows: to-implement 1. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
+1 rows: implemented 1. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `TRIGGER_DATA%d` | to-implement | 3 | 26 | direct 321e48e0 |  |  | raw literal 1 (KTDXLIB/KTDGLineMap.cpp:2628); bare id 7; 3 names; e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
+| `TRIGGER_DATA%d` | implemented |  | 26 | direct 321e48e0 | X2EffectSet:2572 | n/a (sub-table name) | 3 names |
 
 #### `ES.EFFECT` MESH_TRIGGER_DATA_LIST/TRIGGER_DATA%d
 
-15 rows: binary-only 2, june-ignores 2, to-implement 11. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
+15 rows: implemented 13, june-ignores 2. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `ANIMTIME_ON_START_GAME` | to-implement | 3 | 1 | direct 321e48e0 |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `BLOCK_TRIGGER` | to-implement | 3 | 2 | direct 321e48e0@321eadfe |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `BLOCK_TRIGGER_TIME` | to-implement | 3 | 2 | direct 321e48e0@321eaf49 |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `BOUND_MOTION_TYPE_LIST` | to-implement | 3 | 26 | direct 321e48e0 |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `EFFECT_SET_TOGGLE_VISIBILITY_TIMER` | to-implement | 3 | 2 | direct 321e48e0@321eb373 |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `MOTION_NAME` | to-implement | 3 | 26 | direct 321e48e0@321ea83b |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `STOP_TRACING_ON_TRIGGER` | to-implement | 3 | 4 | direct 321e48e0@321eaafb |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `TRIGGER_EFFECTSET_LIST` | to-implement | 3 | 2 | direct 321e48e0 |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `TRIGGER_ONCE` | to-implement | 3 | 9 | direct 321e48e0@321eacd2 |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `TRIGGER_TIME` | to-implement | 3 | 26 | direct 321e48e0@321ea70a |  |  | compiled elsewhere: X2DamageEffect:5222; raw literal 5 (X2Lib/X2DamageEffect.cpp:4908); e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `USE_MESH_TRANSITION` | to-implement | 3 | 22 | direct 321e48e0@321eb635 |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `ANIMTIME_ON_START_SQUARE` | binary-only | 3 |  | binary-only 321e48e0 |  |  |  |
-| `ANIMTIME_ON_START_UNITVIEWER` | binary-only | 3 |  | binary-only 321e48e0 |  |  |  |
+| `ANIMTIME_ON_START_GAME` | implemented |  | 1 | direct 321e48e0 | X2EffectSet:2628 | n/a (sub-table name) |  |
+| `ANIMTIME_ON_START_SQUARE` | implemented |  |  | binary-only 321e48e0 | X2EffectSet:2634 | unchecked(June: no decrypt site, binary-only) | binary-only: no June data uses it |
+| `ANIMTIME_ON_START_UNITVIEWER` | implemented |  |  | binary-only 321e48e0 | X2EffectSet:2640 | unchecked(June: no decrypt site, binary-only) | binary-only: no June data uses it |
+| `BLOCK_TRIGGER` | implemented |  | 2 | direct 321e48e0@321eadfe | X2EffectSet:2597 | same [June bool = 0] |  |
+| `BLOCK_TRIGGER_TIME` | implemented |  | 2 | direct 321e48e0@321eaf49 | X2EffectSet:2599 | same [June float = -1] |  |
+| `BOUND_MOTION_TYPE_LIST` | implemented |  | 26 | direct 321e48e0 | X2EffectSet:2583 | n/a (sub-table name) |  |
+| `EFFECT_SET_TOGGLE_VISIBILITY_TIMER` | implemented |  | 2 | direct 321e48e0@321eb373 | X2EffectSet:2620 | same [June float = -1] |  |
+| `MOTION_NAME` | implemented |  | 26 | direct 321e48e0@321ea83b | X2EffectSet:2578 | same [June string = ''] |  |
+| `STOP_TRACING_ON_TRIGGER` | implemented |  | 4 | direct 321e48e0@321eaafb | X2EffectSet:2595 | same [June bool = 0] |  |
+| `TRIGGER_EFFECTSET_LIST` | implemented |  | 2 | direct 321e48e0 | X2EffectSet:2603 | n/a (sub-table name) |  |
+| `TRIGGER_ONCE` | implemented |  | 9 | direct 321e48e0@321eacd2 | X2EffectSet:2596 | same [June bool = 0] |  |
+| `TRIGGER_TIME` | implemented |  | 26 | direct 321e48e0@321ea70a | X2EffectSet:2576 | same [June float = -1] |  |
+| `USE_MESH_TRANSITION` | implemented |  | 22 | direct 321e48e0@321eb635 | X2EffectSet:2625 | same [June bool = 1] |  |
 | `NCE_PER_CYCLE` | june-ignores(unread) |  | 2 | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |  |  |  |
 | `ONCE_PER_CYCLE` | june-ignores(unread) |  | 24 | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |  |  |  |
 
 #### `ES.EFFECT` MESH_TRIGGER_DATA_LIST/TRIGGER_DATA%d/ANIMTIME_ON_START_GAME
 
-2 rows: to-implement 2. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
+2 rows: implemented 2. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `ONCE` | to-implement | 3 | 1 | direct 321e48e0@321eb7ce |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `TIME` | to-implement | 3 | 1 | direct 321e48e0@321eb861 |  |  | compiled elsewhere: X2DamageEffect:6766, X2DamageManager:166; raw literal 5 (X2Lib/X2DamageEffect.cpp:5039); bare id 7; e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
+| `ONCE` | implemented |  | 1 | direct 321e48e0@321eb7ce | X2EffectSet:2630 | same [June bool = 0] |  |
+| `TIME` | implemented |  | 1 | direct 321e48e0@321eb861 | X2EffectSet:2631 | same [June float = 0] |  |
 
 #### `ES.EFFECT` MESH_TRIGGER_DATA_LIST/TRIGGER_DATA%d/TRIGGER_EFFECTSET_LIST/[]
 
-1 rows: to-implement 1. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
+1 rows: implemented 1. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `EFFECT_SET_NAME` | to-implement | 3 | 2 | direct 321e48e0@321eb149 |  |  | e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
+| `EFFECT_SET_NAME` | implemented |  | 2 | direct 321e48e0@321eb149 | X2EffectSet:2609 | same [June string = ''] |  |
 
 #### `ES.CAMERA_SHAKE` (top)
 
@@ -1382,25 +1382,25 @@ verdict is `unchecked` until the owning phase reads the site:
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `EYE_MOVE_RANGE_MAX` | implemented |  |  | binary-only 321e48e0@321ed287 | X2EffectSet:2553 | same [June float = 0] | binary-only: no June data uses it |
-| `EYE_MOVE_RANGE_MIN` | implemented |  |  | binary-only 321e48e0@321ed0f4 | X2EffectSet:2552 | same [June float = 0] | binary-only: no June data uses it |
-| `EYE_MOVE_SPEED_MAX` | implemented |  |  | binary-only 321e48e0@321ecf61 | X2EffectSet:2550 | same [June float = 0] | binary-only: no June data uses it |
-| `EYE_MOVE_SPEED_MIN` | implemented |  |  | binary-only 321e48e0@321ecdce | X2EffectSet:2549 | same [June float = 0] | binary-only: no June data uses it |
-| `EYE_SHAKE_COUNT` | implemented |  |  | binary-only 321e48e0@321ecc6a | X2EffectSet:2548 | unchecked(unchecked-default(June: default store not recognised: mov dword ptr [ebx], edi)) [June int = None] | binary-only: no June data uses it |
-| `FIXED_LOOK_VEC` | implemented |  |  | binary-only 321e48e0@321ecb1b | X2EffectSet:2547 | same [June bool = 0] | binary-only: no June data uses it |
-| `LIMIT_DISTANCE` | implemented |  | 55 | direct 321e48e0@321ec399 | X2EffectSet:2529 | unchecked(unchecked-default(June: default store not recognised: mov dword ptr [esp + 0x4c], edi; jmp 0x321ec4b9)) post: imul@321ec4b3 [June int = None] |  |
-| `LOOK_AT_MOVE_RANGE_MAX` | implemented |  |  | binary-only 321e48e0@321edb65 | X2EffectSet:2560 | same [June float = 0] | binary-only: no June data uses it |
-| `LOOK_AT_MOVE_RANGE_MIN` | implemented |  |  | binary-only 321e48e0@321ed988 | X2EffectSet:2559 | same [June float = 0] | binary-only: no June data uses it |
-| `LOOK_AT_MOVE_SPEED_MAX` | implemented |  |  | binary-only 321e48e0@321ed7ab | X2EffectSet:2557 | same [June float = 0] | binary-only: no June data uses it |
-| `LOOK_AT_MOVE_SPEED_MIN` | implemented |  |  | binary-only 321e48e0@321ed5ce | X2EffectSet:2556 | same [June float = 0] | binary-only: no June data uses it |
-| `LOOK_AT_SHAKE_COUNT` | implemented |  |  | binary-only 321e48e0@321ed41f | X2EffectSet:2555 | same [June int = 0] | binary-only: no June data uses it |
-| `ONE_DIR_ACCEL` | implemented |  |  | binary-only 321e48e0@321ec634 | X2EffectSet:2541 | same [June float = 0] | binary-only: no June data uses it |
-| `ONE_DIR_SPEED` | implemented |  |  | binary-only 321e48e0@321ec4fc | X2EffectSet:2540 | same [June float = 0] | binary-only: no June data uses it |
-| `SHAKE_TYPE` | implemented |  | 3815 | direct 321e48e0@321ec160 | X2EffectSet:2521 | same [June enum = 0] |  |
-| `START_TIME` | implemented |  | 3733 | direct 321e48e0@321ec289 | X2EffectSet:2525 | same [June float = 0] |  |
-| `TWO_DIR_GAP` | implemented |  | 3813 | direct 321e48e0@321ec76b | X2EffectSet:2542 | same [June float = 0] |  |
-| `TWO_DIR_TIME` | implemented |  | 3807 | direct 321e48e0@321ec87e | X2EffectSet:2543 | same [June float = 0] |  |
-| `TWO_DIR_TIME_GAP` | implemented |  | 2235 | direct 321e48e0@321ec9ab | X2EffectSet:2544 | same [June float = 0.05] |  |
+| `EYE_MOVE_RANGE_MAX` | implemented |  |  | binary-only 321e48e0@321ed287 | X2EffectSet:2822 | same [June float = 0] | binary-only: no June data uses it |
+| `EYE_MOVE_RANGE_MIN` | implemented |  |  | binary-only 321e48e0@321ed0f4 | X2EffectSet:2821 | same [June float = 0] | binary-only: no June data uses it |
+| `EYE_MOVE_SPEED_MAX` | implemented |  |  | binary-only 321e48e0@321ecf61 | X2EffectSet:2819 | same [June float = 0] | binary-only: no June data uses it |
+| `EYE_MOVE_SPEED_MIN` | implemented |  |  | binary-only 321e48e0@321ecdce | X2EffectSet:2818 | same [June float = 0] | binary-only: no June data uses it |
+| `EYE_SHAKE_COUNT` | implemented |  |  | binary-only 321e48e0@321ecc6a | X2EffectSet:2817 | unchecked(unchecked-default(June: default store not recognised: mov dword ptr [ebx], edi)) [June int = None] | binary-only: no June data uses it |
+| `FIXED_LOOK_VEC` | implemented |  |  | binary-only 321e48e0@321ecb1b | X2EffectSet:2816 | same [June bool = 0] | binary-only: no June data uses it |
+| `LIMIT_DISTANCE` | implemented |  | 55 | direct 321e48e0@321ec399 | X2EffectSet:2798 | unchecked(unchecked-default(June: default store not recognised: mov dword ptr [esp + 0x4c], edi; jmp 0x321ec4b9)) post: imul@321ec4b3 [June int = None] |  |
+| `LOOK_AT_MOVE_RANGE_MAX` | implemented |  |  | binary-only 321e48e0@321edb65 | X2EffectSet:2829 | same [June float = 0] | binary-only: no June data uses it |
+| `LOOK_AT_MOVE_RANGE_MIN` | implemented |  |  | binary-only 321e48e0@321ed988 | X2EffectSet:2828 | same [June float = 0] | binary-only: no June data uses it |
+| `LOOK_AT_MOVE_SPEED_MAX` | implemented |  |  | binary-only 321e48e0@321ed7ab | X2EffectSet:2826 | same [June float = 0] | binary-only: no June data uses it |
+| `LOOK_AT_MOVE_SPEED_MIN` | implemented |  |  | binary-only 321e48e0@321ed5ce | X2EffectSet:2825 | same [June float = 0] | binary-only: no June data uses it |
+| `LOOK_AT_SHAKE_COUNT` | implemented |  |  | binary-only 321e48e0@321ed41f | X2EffectSet:2824 | same [June int = 0] | binary-only: no June data uses it |
+| `ONE_DIR_ACCEL` | implemented |  |  | binary-only 321e48e0@321ec634 | X2EffectSet:2810 | same [June float = 0] | binary-only: no June data uses it |
+| `ONE_DIR_SPEED` | implemented |  |  | binary-only 321e48e0@321ec4fc | X2EffectSet:2809 | same [June float = 0] | binary-only: no June data uses it |
+| `SHAKE_TYPE` | implemented |  | 3815 | direct 321e48e0@321ec160 | X2EffectSet:2790 | same [June enum = 0] |  |
+| `START_TIME` | implemented |  | 3733 | direct 321e48e0@321ec289 | X2EffectSet:2794 | same [June float = 0] |  |
+| `TWO_DIR_GAP` | implemented |  | 3813 | direct 321e48e0@321ec76b | X2EffectSet:2811 | same [June float = 0] |  |
+| `TWO_DIR_TIME` | implemented |  | 3807 | direct 321e48e0@321ec87e | X2EffectSet:2812 | same [June float = 0] |  |
+| `TWO_DIR_TIME_GAP` | implemented |  | 2235 | direct 321e48e0@321ec9ab | X2EffectSet:2813 | same [June float = 0.05] |  |
 | `POSITION_OFFSET_X` | june-ignores(other-level) |  | 2 | June reads `POSITION_OFFSET_X` only at level EFFECT%d of 321e48e0 (321e6abe); not at `CAMERA_SHAKE%d` |  |  |  |
 | `ROTATE_Z` | june-ignores(other-level) |  | 1 | June reads `ROTATE_Z` only at level EFFECT%d of 321e48e0 (321e7c36); not at `CAMERA_SHAKE%d` |  |  |  |
 | `SCALE_X` | june-ignores(other-level) |  | 3 | June reads `SCALE_X` only at level EFFECT%d of 321e48e0 (321e8d50); not at `CAMERA_SHAKE%d` |  |  |  |
@@ -1409,15 +1409,15 @@ verdict is `unchecked` until the owning phase reads the site:
 
 #### `ES.SOUND` (top)
 
-6 rows: binary-only 1, june-ignores 1, to-implement 4. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
+6 rows: implemented 5, june-ignores 1. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `EVENT_TIME` | to-implement | 3 | 70 | direct 321e48e0@321edde8 |  |  | compiled elsewhere: X2DamageEffect:5224, X2DamageEffect:6767; raw literal 15 (X2Lib/X2DamageEffect.cpp:4909); bare id 6; e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `FILE_NAME` | to-implement | 3 | 70 | direct 321e48e0@321edee9 |  |  | compiled elsewhere: X2DamageEffect:6810; raw literal 3 (X2Lib/X2DamageEffect.cpp:5124); e.g. EffectSet:call:AddEffectSetTemplet_LUA |
-| `LOOP` | to-implement | 3 | 4 | direct 321e48e0@321ee1c6 |  |  | compiled elsewhere: X2DamageEffect:6814; raw literal 2 (X2Lib/X2DamageEffect.cpp:5128); bare id 11; e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `USE_GLOBAL_TIME` | to-implement | 3 | 5 | direct 321e48e0@321ee086 |  |  | compiled elsewhere: X2DamageEffect:1566, X2DamageEffect:5239; raw literal 5 (X2Lib/X2DamageEffect.cpp:1566); e.g. UIEffectSet:call:AddEffectSetTemplet_LUA |
-| `RATE` | binary-only | 3 |  | binary-only 321e48e0@321edfd4 |  |  | compiled elsewhere: X2DamageEffect:6811, X2DamageManager:160; raw literal 17 (X2Lib/X2BuffFactor.cpp:496); bare id 3 |
+| `EVENT_TIME` | implemented |  | 70 | direct 321e48e0@321edde8 | X2EffectSet:2854 | same [June float = 0] |  |
+| `FILE_NAME` | implemented |  | 70 | direct 321e48e0@321edee9 | X2EffectSet:2855 | same [June string = ''] |  |
+| `LOOP` | implemented |  | 4 | direct 321e48e0@321ee1c6 | X2EffectSet:2858 | same [June bool = 0] |  |
+| `RATE` | implemented |  |  | binary-only 321e48e0@321edfd4 | X2EffectSet:2856 | unchecked(unchecked-default(June: default store not recognised: mov dword ptr [esp + 0xb8], esi)) [June int = None] | binary-only: no June data uses it |
+| `USE_GLOBAL_TIME` | implemented |  | 5 | direct 321e48e0@321ee086 | X2EffectSet:2857 | same [June bool = 0] |  |
 | `DELETE_WHEN_EFFECT_END` | june-ignores(dead-here) |  | 1 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f73f30 (decrypted): not on this scope's call path |  |  |  |
 
 ### EffectSet_Description (effect-tool only)
@@ -1428,9 +1428,9 @@ verdict is `unchecked` until the owning phase reads the site:
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `DESC` | to-implement | unassigned | 230 | other-func 32378e20@3237927c |  |  | raw literal 5 (X2Lib/X2EffectSet.cpp:3549); bare id 3; e.g. EffectSet_Description:call:AddEffectSet_Description |
-| `NAME` | to-implement | unassigned | 230 | other-func 321e48e0@321e49a4, 32378e20@323791e8 |  |  | compiled elsewhere: X2EffectSet:2240, X2EffectSet:2353; raw literal 12 (X2Lib/X2EffectSet.cpp:2240); bare id 17; e.g. EffectSet_Description:call:AddEffectSet_Description |
-| `VERSION` | to-implement | unassigned | 1 | other-func 32680da0@32681023 |  |  | raw literal 1 (X2Lib/X2EffectSet.cpp:3562); e.g. EffectSet_Description:call:SetEffectSetVersion |
+| `DESC` | to-implement | unassigned | 230 | other-func 32378e20@3237927c |  |  | raw literal 5 (X2Lib/X2EffectSet.cpp:3853); bare id 3; e.g. EffectSet_Description:call:AddEffectSet_Description |
+| `NAME` | to-implement | unassigned | 230 | other-func 321e48e0@321e49a4, 32378e20@323791e8 |  |  | compiled elsewhere: X2EffectSet:2249, X2EffectSet:2367; raw literal 12 (X2Lib/X2EffectSet.cpp:2249); bare id 17; e.g. EffectSet_Description:call:AddEffectSet_Description |
+| `VERSION` | to-implement | unassigned | 1 | other-func 32680da0@32681023 |  |  | raw literal 1 (X2Lib/X2EffectSet.cpp:3866); e.g. EffectSet_Description:call:SetEffectSetVersion |
 
 ### InsertDamageData_LUA (Elsword_DamageData.lua)
 
@@ -1766,13 +1766,13 @@ evidence. An unsupported row that March parses that way stays `unsupported`, wit
 |---|---|---|---|---|---|---|---|
 | Rose weapon | `ROSE_WEAPON` | **absent** | no Rose class (`CX2GURose*`), unit class, enum or `ROSE_WEAPON_*` identifier in the client or `KncWX2Server/Common` | 0 | 0 | - | 0 |
 | Natural force | `NATURAL_FORCE` | **gated-off** | Rena natural-force code exists, but only under `ADD_RENA_SYSTEM`, which is off under `US_SERVICE` | 0 | 122 in 9 files (`X2Lib/X2GULire_ElvenRanger.cpp`, `X2Lib/X2GageData.h`) | `ADD_RENA_SYSTEM` off | 0 |
-| Skill memo | `MEMO` | **present** | compiled in: `ADD_MEMO_1ST_CLASS` is ON under `US_SERVICE` (March reads memo keys June does not; see *March reads it, June does not*) | X2DamageManager.cpp 11, X2DamageEffect.cpp 5, X2EffectSet.cpp 5 | 31 in 5 files (`X2Lib/X2GUUser.cpp`, `X2Lib/X2GameUnit.cpp`) | `ADD_MEMO_1ST_CLASS` ON, `BALANCE_PATCH_20131107` ON | 0 |
+| Skill memo | `MEMO` | **present** | compiled in: `ADD_MEMO_1ST_CLASS` is ON under `US_SERVICE` (March reads memo keys June does not; see *March reads it, June does not*) | X2DamageManager.cpp 11, X2DamageEffect.cpp 5, X2EffectSet.cpp 5 | 31 in 5 files (`X2Lib/X2GUUser.cpp`, `X2Lib/X2GameUnit.cpp`) | `ADD_MEMO_1ST_CLASS` ON, `BALANCE_PATCH_20131107` ON | 2 in 1 files (`X2Lib/X2EffectSet.cpp`) |
 | Numerical skill data | `NUMERICAL_DATA` | **absent** | no identifier anywhere (a plan-listed absent system) | 0 | 0 | - | 0 |
 | HP-rate damage | `HP_RATE_DAMAGE` | **absent** | no identifier anywhere, and no `HP_RATE_DAMAGE_TYPE` enum (a plan-listed absent system) | 0 | 0 | - | 0 |
 | Applied skill ID | `^APPLIED_SKILL_ID$` | **absent** | no March identifier for the key (a plan-listed absent system); the search is by the key's own name | 0 | 0 | - | 14 in 2 files (`X2Lib/X2EffectSet.cpp`, `X2Lib/X2EffectSet.h`) |
 | Nasod armor combo | `NASOD_ARMOR_COMBO` | **present-elsewhere** | compiled in: Add's Nasod-armor combo states (`X2GUAdd`) under `SERV_9TH_NEW_CHARACTER`, which is ON | 0 | 51 in 2 files (`X2Lib/X2GUAdd.cpp`, `X2Lib/X2GUAdd.h`) | `SERV_ADD_LUNATIC_PSYKER` ON, `SERV_9TH_NEW_CHARACTER` ON | 0 |
 | Combination point | `COMBINATION_POINT` | **absent** | no March identifier for the key (a plan-listed absent system); the search is by the key's own name | 0 | 0 | - | 0 |
-| Effect-alpha option | `EFFECT_ALPHA_CONDITION` | **absent** | no per-owner effect-alpha game option: `X2GameOption` has only the effect-detail level (`m_eEffect`/`m_bEffect`, X2GameOption.h:48-52) and `m_bFlashEffect`. June's enum (`AEACBO_MY_EFFECT` / `_MY_TEAM_EFFECT` / `_ANOTHER_TEAM_EFFECT`) names an option this client never had. Honouring the key needs that option (UI + save): **a decision for the user**, not a transcription | 0 | 0 | - | 14 in 2 files (`X2Lib/X2EffectSet.cpp`, `X2Lib/X2EffectSet.h`) |
+| Effect-alpha option | `EFFECT_ALPHA_CONDITION` | **absent** | no per-owner effect-alpha game option: `X2GameOption` has only the effect-detail level (`m_eEffect`/`m_bEffect`, X2GameOption.h:48-52) and `m_bFlashEffect`. June's enum (`AEACBO_MY_EFFECT` / `_MY_TEAM_EFFECT` / `_ANOTHER_TEAM_EFFECT`) names an option this client never had. Honouring the key needs that option (UI + save): **a decision for the user**, not a transcription | 0 | 0 | - | 26 in 2 files (`X2Lib/X2EffectSet.cpp`, `X2Lib/X2EffectSet.h`) |
 
 Search terms: Rose weapon: `ROSE_WEAPON_\w+`, `\w*RoseWeapon\w*`, `CX2GURose\w*`, `UC_ROSE\w*`; Natural force: `NATURAL_FORCE_TYPE`, `NFT_\w+`, `m_\w*NaturalForce\w*`, `\w*NATURAL_FORCE_VALUE\w*`; Skill memo: `APPLIED_MEMO_ID`, `IsEqippedMemo_?`, `BUFF_FACTOR_ID_MEMO`, `BUFF_FACTOR_RELATIVE_MEMO_ID`, `DAMAGE_DATA(_NEXT)?_MEMO\d*`, `NOT_ALLOW_MEMO`, `APPLIED_SKILL_ID_NOT_AFFECT_MEMO`; Numerical skill data: `NUMERICAL_DATA_\w+`, `\w*NumericalData\w*`; HP-rate damage: `HP_RATE_DAMAGE_\w+`, `\w*HpRateDamage\w*`; Applied skill ID: `APPLIED_SKILL_ID`, `\w*AppliedSkillI[dD]\w*`; Nasod armor combo: `CAN_ACTIVATE_NASOD_ARMOR_COMBO`, `\w*NasodArmorCombo\w*`; Combination point: `\w*COMBINATION_POINT\w*`, `\w*CombinationPoint\w*`; Effect-alpha option: `\w*EFFECT_ALPHA_CONDITION\w*`, `\w*EffectAlphaCondition\w*`, `AEACBO_\w+`, `\w*MY_TEAM_EFFECT\w*`, `\w*ANOTHER_TEAM_EFFECT\w*`, `\w*OtherTeamEffect\w*`.
 
@@ -2025,10 +2025,10 @@ key(s) using it: an enum member with no reader is not added (Phase 11 owns the d
 | `DUO_TYPE` | `DT_MINOR` | 1 | 1 | table missing | `None` | - |
 | `DYNAMO_PARTICLE_RATE_TYPE` | `DPRT_SPECIAL` | 1 | missing | **missing** | `DYNAMO_PARTICLE_RATE_TYPE` | DYNAMO_PARTICLE_RATE_TYPE implemented 8a |
 | `DYNAMO_PARTICLE_RATE_TYPE` | `DPRT_SPEICAL_ACITVE` | 9 | missing | **missing** | `DYNAMO_PARTICLE_RATE_TYPE` | DYNAMO_PARTICLE_RATE_TYPE implemented 8a |
-| `EMOTION_TYPE` | `ET_NONE` | 4 | 0 | table missing | `BOUND_MOTION_TYPE_LIST` | BOUND_MOTION_TYPE_LIST to-implement 3 |
-| `EMOTION_TYPE` | `ET_SITREADY` | 11 | 2 | table missing | `BOUND_MOTION_TYPE_LIST` | BOUND_MOTION_TYPE_LIST to-implement 3 |
-| `EMOTION_TYPE` | `ET_SITWAIT` | 11 | 1 | table missing | `BOUND_MOTION_TYPE_LIST` | BOUND_MOTION_TYPE_LIST to-implement 3 |
-| `EMOTION_TYPE` | `ET_STANDUP` | 4 | 3 | table missing | `BOUND_MOTION_TYPE_LIST` | BOUND_MOTION_TYPE_LIST to-implement 3 |
+| `EMOTION_TYPE` | `ET_NONE` | 4 | 0 | table missing | `BOUND_MOTION_TYPE_LIST` | BOUND_MOTION_TYPE_LIST implemented 3 |
+| `EMOTION_TYPE` | `ET_SITREADY` | 11 | 2 | table missing | `BOUND_MOTION_TYPE_LIST` | BOUND_MOTION_TYPE_LIST implemented 3 |
+| `EMOTION_TYPE` | `ET_SITWAIT` | 11 | 1 | table missing | `BOUND_MOTION_TYPE_LIST` | BOUND_MOTION_TYPE_LIST implemented 3 |
+| `EMOTION_TYPE` | `ET_STANDUP` | 4 | 3 | table missing | `BOUND_MOTION_TYPE_LIST` | BOUND_MOTION_TYPE_LIST implemented 3 |
 | `EXTRA_DAMAGE_TYPE` | `EDT_AMUSEMENT_ITEM_DARK_CLOUD` | 1 | 158 | **missing** | `EXTRA_DAMAGE_TYPE` | EXTRA_DAMAGE_TYPE implemented 8a |
 | `EXTRA_DAMAGE_TYPE` | `EDT_C4_REMOTE_CONTROL` | 1 | 148 | **missing** | `EXTRA_DAMAGE_TYPE` | EXTRA_DAMAGE_TYPE implemented 8a |
 | `EXTRA_DAMAGE_TYPE` | `EDT_MANA_DAMAGE_WITH_NO_DISPLAY` | 11 | 67 | **missing** | `EXTRA_DAMAGE_TYPE` | EXTRA_DAMAGE_TYPE implemented 8a |

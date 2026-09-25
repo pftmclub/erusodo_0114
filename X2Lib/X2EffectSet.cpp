@@ -2201,6 +2201,11 @@ void CX2EffectSet::RegisterLuaBind()
 // templets reached the June templet-key block, and how many set a June key.
 static int s_iJuneFxTempletCount = 0;
 static int s_iJuneFxTempletWithJuneKeyCount = 0;
+// Phase 3: how many EFFECT%d entries reached the June per-effect block, how many of
+// them set a June key, and how many SOUND%d entries were read.
+static int s_iJuneFxEffectCount = 0;
+static int s_iJuneFxEffectWithJuneKeyCount = 0;
+static int s_iJuneFxSoundCount = 0;
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 
 bool CX2EffectSet::OpenScriptFile( const wstring& wstrFileName )
@@ -2213,13 +2218,17 @@ bool CX2EffectSet::OpenScriptFile( const wstring& wstrFileName )
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 	s_iJuneFxTempletCount = 0;
 	s_iJuneFxTempletWithJuneKeyCount = 0;
+	s_iJuneFxEffectCount = 0;
+	s_iJuneFxEffectWithJuneKeyCount = 0;
+	s_iJuneFxSoundCount = 0;
 	const bool bJuneFxLoaded = g_pKTDXApp->LoadLuaTinker( wstrFileName.c_str() );
 	{
 		// load-time: offline_server.log is not open yet (the offline server starts on
 		// first connect), so this goes to ErrorLog.txt
 		WCHAR wszJuneFx[512] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX ES_LOAD %s loaded=%d templets=%d with_june_templet_key=%d",
-			wstrFileName.c_str(), bJuneFxLoaded ? 1 : 0, s_iJuneFxTempletCount, s_iJuneFxTempletWithJuneKeyCount );
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX ES_LOAD %s loaded=%d templets=%d with_june_templet_key=%d effects=%d with_june_effect_key=%d sounds=%d",
+			wstrFileName.c_str(), bJuneFxLoaded ? 1 : 0, s_iJuneFxTempletCount, s_iJuneFxTempletWithJuneKeyCount,
+			s_iJuneFxEffectCount, s_iJuneFxEffectWithJuneKeyCount, s_iJuneFxSoundCount );
 		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
 	}
 	return bJuneFxLoaded;
@@ -2340,6 +2349,11 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 	
 	
 	// damageeffect, meshplayer, particle 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+	// Plan rule 5 logs an unsupported key once per templet, so the per-EFFECT%d
+	// APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION below reports only the first effect using it.
+	bool bJuneFxEffectAlphaLogged = false;
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 	int iEffectTableIndex = 0;
 	while( true == luaManager.BeginTable( "EFFECT", iEffectTableIndex ) )
 	{
@@ -2361,6 +2375,10 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 
 		LUA_GET_VALUE( luaManager,		"START_TIME",				pEffectData->m_fStartAnimTime,				0.f		);
 		LUA_GET_VALUE( luaManager,		"BONE_NAME",				pEffectData->m_PositionBoneName,			L""		);
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+		// June2017 FUN_321e48e0 @ 321e6261-321e632b: GROUP_NAME, string, default L"", no post-processing; binary-only (no June data uses it)
+		LUA_GET_VALUE( luaManager,		"GROUP_NAME",				pEffectData->m_wstrGroupName,				L""		);
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 
 		LUA_GET_VALUE( luaManager,		"WEAPON_BONE_NAME",			pEffectData->m_PositionWeaponBoneName,		L""		);
 		LUA_GET_VALUE( luaManager,		"WEAPON_BONE_WEAPON_INDEX",	pEffectData->m_iWeaponIndex,				0		);
@@ -2373,6 +2391,10 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 		LUA_GET_VALUE( luaManager,		"POSITION_OFFSET_X",		pEffectData->m_vPositionOffset.x,			0.f		);
 		LUA_GET_VALUE( luaManager,		"POSITION_OFFSET_Y",		pEffectData->m_vPositionOffset.y,			0.f		);
 		LUA_GET_VALUE( luaManager,		"POSITION_OFFSET_Z",		pEffectData->m_vPositionOffset.z,			0.f		);
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+		// June2017 FUN_321e48e0 @ 321e6f61-321e7115: ZOFFSET_USE_UNIT_IS_RIGHT, bool, default false (AL=0 stored), no post-processing
+		LUA_GET_VALUE( luaManager,		"ZOFFSET_USE_UNIT_IS_RIGHT",	pEffectData->m_bZOffsetUseUnitIsRight,		false	);
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 		
 		LUA_GET_VALUE( luaManager,		"TRACE",					pEffectData->m_bTrace,						false	);
 		LUA_GET_VALUE( luaManager,		"TRACE_MORE",				pEffectData->m_bTraceMore,					false	);
@@ -2380,6 +2402,17 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 		//{{kimhc // 2011-01-17 // 지정한 Bone의 메트릭스 값을 Trace 함 (chung 코드 참고)
 		LUA_GET_VALUE( luaManager,		"TRACE_MATRIX",				pEffectData->m_bTraceMatrix,					false	);
 		//}}kimhc // 2011-01-17 // 지정한 Bone의 메트릭스 값을 Trace 함 (chung 코드 참고)
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+		// June2017 FUN_321e48e0 @ 321e7445-321e7610: TRACE_MATRIX_EXCLUDE_SCALE, bool, default false (AL=0 stored).
+		// Post-processing @ 321e760b-321e7610: when it is set, June also sets TRACE_MATRIX
+		// (CMP byte [ESI],1 / MOV byte [EDI+TRACE_MATRIX],1). This changes a member March
+		// already consumes, for sets that use the key only.
+		LUA_GET_VALUE( luaManager,		"TRACE_MATRIX_EXCLUDE_SCALE",	pEffectData->m_bTraceMatrixExcludeScale,	false	);
+		if( true == pEffectData->m_bTraceMatrixExcludeScale )
+			pEffectData->m_bTraceMatrix = true;
+		// June2017 FUN_321e48e0 @ 321e766e-321e77e2: TRACE_MATRIX_IN_FIELD, bool, default false (AL=0 stored), no post-processing
+		LUA_GET_VALUE( luaManager,		"TRACE_MATRIX_IN_FIELD",		pEffectData->m_bTraceMatrixInField,			false	);
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 
 #ifdef ARA_CHANGE_CLASS_FIRST
 		LUA_GET_VALUE( luaManager,		"REVERSE_Y",				pEffectData->m_bReverseY,					false	);
@@ -2400,6 +2433,20 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 		if ( true == pEffectData->m_bApplyUnitRotationMirror )
 			pEffectData->m_bApplyUnitRotation = false;
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+		// June2017 FUN_321e48e0 @ 321e8114-321e8b63: five bools read after
+		// APPLY_UNIT_ROTATION_MIRROR and before APPLY_INSTANCE_SCALE, each with default
+		// false (the getter's AL=0 stored on failure) and no post-processing:
+		// USE_IS_RIGHT_WHEN_CREATE @ 321e8114-321e82bb, FOLLOW_UNIT_ROTATION @ 321e830c-321e846f,
+		// FOLLOW_UNIT_ROTATION_CPARTICLE @ 321e84da-321e86dd, FOLLOW_UNIT_VIEWER_SCALE @
+		// 321e8738-321e88dc, USE_EFFECT_SCALE_IN_UNIT_VIEWER @ 321e894f-321e8b63.
+		LUA_GET_VALUE( luaManager,		"USE_IS_RIGHT_WHEN_CREATE",			pEffectData->m_bUseIsRightWhenCreate,			false	);
+		LUA_GET_VALUE( luaManager,		"FOLLOW_UNIT_ROTATION",				pEffectData->m_bFollowUnitRotation,				false	);
+		LUA_GET_VALUE( luaManager,		"FOLLOW_UNIT_ROTATION_CPARTICLE",	pEffectData->m_bFollowUnitRotationCParticle,	false	);
+		LUA_GET_VALUE( luaManager,		"FOLLOW_UNIT_VIEWER_SCALE",			pEffectData->m_bFollowUnitViewerScale,			false	);
+		LUA_GET_VALUE( luaManager,		"USE_EFFECT_SCALE_IN_UNIT_VIEWER",	pEffectData->m_bUseEffectScaleInUnitViewer,		false	);
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 
 
 		LUA_GET_VALUE( luaManager,		"APPLY_INSTANCE_SCALE",		pEffectData->m_bApplyInstanceScale,			true	);	// 주의!! templet의 scale을 적용할지 말지 정하는 것이 아니라, instance에 지정된 scale을 적용할지 말지 결정하는 변수 입니다
@@ -2425,6 +2472,11 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 		/// 파티클에 대하여 Set Over UI 기능 추가
 		LUA_GET_VALUE( luaManager,		"SET_OVER_UI",					pEffectData->m_bSetOverUI,					false	);
 #endif FIX_ICE_HEATER_EVENT
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+		// June2017 FUN_321e48e0 @ 321e9aa9-321e9c8d: BONE_TRACE_TARGET_MESH_INDEX, int, default -1 (MOV dword [ESI],0xffffffff), no post-processing
+		LUA_GET_VALUE( luaManager,		"BONE_TRACE_TARGET_MESH_INDEX",	pEffectData->m_iBoneTraceTargetMeshIndex,	-1		);
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 
 #ifdef MODIFY_EFFECT_SET_TRACE_BONE // 오현빈
 		/*	
@@ -2465,6 +2517,223 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 			pEffectData->m_fLimitDistanceSq = fLimitDistance * fLimitDistance;
 		}
 #endif // MODIFY_CREATE_EFFECT_SET_LIMIT_DISTANCE
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+		// June2017 FUN_321e48e0 @ 321ea221-321ea326: NOT_ALLOW_MEMO, bool, default false (XOR EBX,EBX @ 321ea308, then MOV [ESI],BL), no post-processing
+		LUA_GET_VALUE( luaManager,		"NOT_ALLOW_MEMO",							pEffectData->m_bNotAllowMemo,						false	);	// consumed in Phase 4a
+		// June2017 FUN_321e48e0 @ 321ea3ac-321ea634: APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION, int
+		// getter, default 0, low byte kept (NEG AL / SBB AL,AL / AND AL,[temp]) - the same
+		// read as the templet level's. Unsupported (plan rule 5): logged once per templet.
+		LUA_GET_VALUE( luaManager,		"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION",	pEffectData->m_iApplyEffectAlphaConditionByOption,	0		);
+		if( 0 != pEffectData->m_iApplyEffectAlphaConditionByOption && false == bJuneFxEffectAlphaLogged )
+		{
+			bJuneFxEffectAlphaLogged = true;
+			WCHAR wszJuneFx[512] = {0};
+			StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX unsupported APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION in %s EFFECT%d: effect-alpha option absent (value %d)",
+				pEffectSetData->m_wstrEffectSetName.c_str(), iEffectTableIndex, pEffectData->m_iApplyEffectAlphaConditionByOption );
+			ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		}
+
+		// June2017 FUN_321e48e0 @ 321ea63a-321ea64b: which sub-tables are read depends on
+		// EFFECT_TYPE. 1 (ET_DAMAGE_EFFECT) reads APPLY_DAMAGE_EFFECT_VELOCITY; 2..5 (the four
+		// ET_MESH_PLAYER_*) read MESH_TRIGGER_DATA_LIST and then MESH_TRIGGER_DATA; every other
+		// type reads neither. June's and March's EFFECT_TYPE tables number these alike.
+		if( ET_DAMAGE_EFFECT == pEffectData->m_eEffectType )
+		{
+			// June2017 FUN_321e48e0 @ 321ebf7c-321ec080: APPLY_DAMAGE_EFFECT_VELOCITY, a
+			// positional table. [1],[2],[3]: float by index (getter 32fea820), default 1 each
+			// (FLD1). [4]: int by index (32fea4e0), default 0. June builds one entry (ctor
+			// 321f2a60) holding ( [4] == 0 ), a type tag of 1 and the three floats, and pushes
+			// it (321f3690). What [4] and the tag mean is Phase 4a's to read at the consumer.
+			if( true == luaManager.BeginTable( "APPLY_DAMAGE_EFFECT_VELOCITY" ) )
+			{
+				pEffectData->m_bApplyDamageEffectVelocity = true;
+				if( false == luaManager.GetValue( 1, pEffectData->m_vApplyDamageEffectVelocity.x ) )
+					pEffectData->m_vApplyDamageEffectVelocity.x = 1.f;
+				if( false == luaManager.GetValue( 2, pEffectData->m_vApplyDamageEffectVelocity.y ) )
+					pEffectData->m_vApplyDamageEffectVelocity.y = 1.f;
+				if( false == luaManager.GetValue( 3, pEffectData->m_vApplyDamageEffectVelocity.z ) )
+					pEffectData->m_vApplyDamageEffectVelocity.z = 1.f;
+				int iVelocity4th = 0;
+				if( false == luaManager.GetValue( 4, iVelocity4th ) )
+					iVelocity4th = 0;
+				pEffectData->m_bApplyDamageEffectVelocity4thIsZero = ( 0 == iVelocity4th );
+				luaManager.EndTable();	// APPLY_DAMAGE_EFFECT_VELOCITY
+			}
+		}
+		else if( ET_MESH_PLAYER_UI_MAJOR <= pEffectData->m_eEffectType && ET_MESH_PLAYER_GAME_MINOR >= pEffectData->m_eEffectType )
+		{
+			// June2017 FUN_321e48e0 @ 321ea682-321ebbec: MESH_TRIGGER_DATA_LIST. Each
+			// TRIGGER_DATA%d is built on a fresh entry (ctor 321f3be0, whose defaults
+			// MeshTriggerData() carries), pushed, and the list is stored on the effect.
+			if( true == luaManager.BeginTable( "MESH_TRIGGER_DATA_LIST" ) )
+			{
+				int iTriggerDataIndex = 0;
+				while( true == luaManager.BeginTable( "TRIGGER_DATA", iTriggerDataIndex ) )
+				{
+					MeshTriggerData kTriggerData;
+					// @ 321ea70a-321ea7f5: TRIGGER_TIME, float, default -1 ([334380f0])
+					LUA_GET_VALUE( luaManager,		"TRIGGER_TIME",			kTriggerData.m_fTriggerTime,			-1.f	);
+					// @ 321ea83b-321ea91d: MOTION_NAME, string, default L""
+					LUA_GET_VALUE( luaManager,		"MOTION_NAME",			kTriggerData.m_wstrMotionName,			L""		);
+					// @ 321ea95c-321eaa20: PLAY_TYPE, int, default 2; binary-only
+					LUA_GET_VALUE( luaManager,		"PLAY_TYPE",			kTriggerData.m_iPlayType,				2		);
+					// @ 321eaa27-321eaa99: BOUND_MOTION_TYPE_LIST, int by index (32fea4e0) from 1,
+					// each pushed, until the first index that does not read
+					if( true == luaManager.BeginTable( "BOUND_MOTION_TYPE_LIST" ) )
+					{
+						int iBoundMotionType = 0;
+						for( int iBoundIndex = 1; true == luaManager.GetValue( iBoundIndex, iBoundMotionType ); ++iBoundIndex )
+						{
+							kTriggerData.m_vecBoundMotionType.push_back( iBoundMotionType );
+							iBoundMotionType = 0;
+						}
+						luaManager.EndTable();	// BOUND_MOTION_TYPE_LIST
+					}
+					// @ 321eaafb-321eaf47: three bools, default false each (STOP_TRACING_ON_TRIGGER and
+					// TRIGGER_ONCE store AL=0; BLOCK_TRIGGER stores BL after XOR BL,BL @ 321eaed6)
+					LUA_GET_VALUE( luaManager,		"STOP_TRACING_ON_TRIGGER",	kTriggerData.m_bStopTracingOnTrigger,	false	);
+					LUA_GET_VALUE( luaManager,		"TRIGGER_ONCE",				kTriggerData.m_bTriggerOnce,			false	);
+					LUA_GET_VALUE( luaManager,		"BLOCK_TRIGGER",			kTriggerData.m_bBlockTrigger,			false	);
+					// @ 321eaf49-321eb095: BLOCK_TRIGGER_TIME, float, default -1
+					LUA_GET_VALUE( luaManager,		"BLOCK_TRIGGER_TIME",		kTriggerData.m_fBlockTriggerTime,		-1.f	);
+					// @ 321eb09c-321eb2f3: TRIGGER_EFFECTSET_LIST, entries by index (BeginTable(int)
+					// 32fe99b0) from 1 until one does not open; EFFECT_SET_NAME, string, default
+					// L""; only a non-empty name is pushed (CMP [size],0 @ 321eb271)
+					if( true == luaManager.BeginTable( "TRIGGER_EFFECTSET_LIST" ) )
+					{
+						int iEffectSetNameIndex = 1;
+						while( true == luaManager.BeginTable( iEffectSetNameIndex ) )
+						{
+							std::wstring wstrTriggerEffectSetName;
+							LUA_GET_VALUE( luaManager,	"EFFECT_SET_NAME",			wstrTriggerEffectSetName,				L""		);
+							if( false == wstrTriggerEffectSetName.empty() )
+								kTriggerData.m_vecTriggerEffectSetName.push_back( wstrTriggerEffectSetName );
+							luaManager.EndTable();	// TRIGGER_EFFECTSET_LIST[iEffectSetNameIndex]
+							++iEffectSetNameIndex;
+						}
+						luaManager.EndTable();	// TRIGGER_EFFECTSET_LIST
+					}
+					// @ 321eb373-321eb5de: EFFECT_SET_TOGGLE_VISIBILITY_TIMER, float, default -1.
+					// Post-processing @ 321eb5c7-321eb5de: a read value other than -1 sets a flag
+					// (the ctor clears it); a failed read leaves -1, so the test below matches.
+					LUA_GET_VALUE( luaManager,		"EFFECT_SET_TOGGLE_VISIBILITY_TIMER",	kTriggerData.m_fEffectSetToggleVisibilityTimer,	-1.f	);
+					if( -1.f != kTriggerData.m_fEffectSetToggleVisibilityTimer )
+						kTriggerData.m_bUseEffectSetToggleVisibilityTimer = true;
+					// @ 321eb635-321eb78a: USE_MESH_TRANSITION, bool, default TRUE (MOV byte [..],1)
+					// for list entries, although the ctor sets false
+					LUA_GET_VALUE( luaManager,		"USE_MESH_TRANSITION",		kTriggerData.m_bUseMeshTransition,		true	);
+					// @ 321eb792-321ebb80: ANIMTIME_ON_START_GAME / _SQUARE / _UNITVIEWER (the last
+					// two binary-only), each ONCE, bool, default false, then TIME, float, default 0
+					if( true == luaManager.BeginTable( "ANIMTIME_ON_START_GAME" ) )
+					{
+						LUA_GET_VALUE( luaManager,	"ONCE",						kTriggerData.m_AnimTimeOnStartGame.m_bOnce,			false	);
+						LUA_GET_VALUE( luaManager,	"TIME",						kTriggerData.m_AnimTimeOnStartGame.m_fTime,			0.f		);
+						luaManager.EndTable();	// ANIMTIME_ON_START_GAME
+					}
+					if( true == luaManager.BeginTable( "ANIMTIME_ON_START_SQUARE" ) )
+					{
+						LUA_GET_VALUE( luaManager,	"ONCE",						kTriggerData.m_AnimTimeOnStartSquare.m_bOnce,		false	);
+						LUA_GET_VALUE( luaManager,	"TIME",						kTriggerData.m_AnimTimeOnStartSquare.m_fTime,		0.f		);
+						luaManager.EndTable();	// ANIMTIME_ON_START_SQUARE
+					}
+					if( true == luaManager.BeginTable( "ANIMTIME_ON_START_UNITVIEWER" ) )
+					{
+						LUA_GET_VALUE( luaManager,	"ONCE",						kTriggerData.m_AnimTimeOnStartUnitViewer.m_bOnce,	false	);
+						LUA_GET_VALUE( luaManager,	"TIME",						kTriggerData.m_AnimTimeOnStartUnitViewer.m_fTime,	0.f		);
+						luaManager.EndTable();	// ANIMTIME_ON_START_UNITVIEWER
+					}
+
+					pEffectData->m_vecMeshTriggerData.push_back( kTriggerData );
+					luaManager.EndTable();	// TRIGGER_DATA(iTriggerDataIndex)
+					++iTriggerDataIndex;
+				}
+				luaManager.EndTable();	// MESH_TRIGGER_DATA_LIST
+			}
+
+			// June2017 FUN_321e48e0 @ 321ebbf1-321ebf61: MESH_TRIGGER_DATA, the one inline entry
+			// (June's EffectData ctor 321f4a20 builds it with 321f3be0). Three keys only:
+			// TRIGGER_TIME, float, default -1; MOTION_NAME, string, default L""; PLAY_TYPE,
+			// int, default 2 (binary-only).
+			if( true == luaManager.BeginTable( "MESH_TRIGGER_DATA" ) )
+			{
+				LUA_GET_VALUE( luaManager,		"TRIGGER_TIME",			pEffectData->m_MeshTriggerData.m_fTriggerTime,		-1.f	);
+				LUA_GET_VALUE( luaManager,		"MOTION_NAME",			pEffectData->m_MeshTriggerData.m_wstrMotionName,	L""		);
+				LUA_GET_VALUE( luaManager,		"PLAY_TYPE",			pEffectData->m_MeshTriggerData.m_iPlayType,			2		);
+				luaManager.EndTable();	// MESH_TRIGGER_DATA
+			}
+		}
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		// JUNE_FX ES_EFFECT <set> EFFECT<n> <key>=<v> ..., only for effects that set a June key
+		{
+			++s_iJuneFxEffectCount;
+			WCHAR wszJuneFx[1024] = {0};
+			StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX ES_EFFECT %s EFFECT%d", pEffectSetData->m_wstrEffectSetName.c_str(), iEffectTableIndex );
+			const size_t uiNameOnly = wcslen( wszJuneFx );
+			WCHAR wszKey[256] = {0};
+			if( false == pEffectData->m_wstrGroupName.empty() )
+			{
+				StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" GROUP_NAME=%s", pEffectData->m_wstrGroupName.c_str() );
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+			}
+			if( true == pEffectData->m_bZOffsetUseUnitIsRight )
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" ZOFFSET_USE_UNIT_IS_RIGHT=1" );
+			if( true == pEffectData->m_bTraceMatrixExcludeScale )
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" TRACE_MATRIX_EXCLUDE_SCALE=1" );
+			if( true == pEffectData->m_bTraceMatrixInField )
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" TRACE_MATRIX_IN_FIELD=1" );
+			if( true == pEffectData->m_bUseIsRightWhenCreate )
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" USE_IS_RIGHT_WHEN_CREATE=1" );
+			if( true == pEffectData->m_bFollowUnitRotation )
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" FOLLOW_UNIT_ROTATION=1" );
+			if( true == pEffectData->m_bFollowUnitRotationCParticle )
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" FOLLOW_UNIT_ROTATION_CPARTICLE=1" );
+			if( true == pEffectData->m_bFollowUnitViewerScale )
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" FOLLOW_UNIT_VIEWER_SCALE=1" );
+			if( true == pEffectData->m_bUseEffectScaleInUnitViewer )
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" USE_EFFECT_SCALE_IN_UNIT_VIEWER=1" );
+			if( -1 != pEffectData->m_iBoneTraceTargetMeshIndex )
+			{
+				StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" BONE_TRACE_TARGET_MESH_INDEX=%d", pEffectData->m_iBoneTraceTargetMeshIndex );
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+			}
+			if( true == pEffectData->m_bNotAllowMemo )
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" NOT_ALLOW_MEMO=1" );
+			if( 0 != pEffectData->m_iApplyEffectAlphaConditionByOption )
+			{
+				StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION=%d", pEffectData->m_iApplyEffectAlphaConditionByOption );
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+			}
+			if( true == pEffectData->m_bApplyDamageEffectVelocity )
+			{
+				StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" APPLY_DAMAGE_EFFECT_VELOCITY=(%g,%g,%g,4th_is_zero=%d)",
+					pEffectData->m_vApplyDamageEffectVelocity.x, pEffectData->m_vApplyDamageEffectVelocity.y, pEffectData->m_vApplyDamageEffectVelocity.z,
+					pEffectData->m_bApplyDamageEffectVelocity4thIsZero ? 1 : 0 );
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+			}
+			if( false == pEffectData->m_vecMeshTriggerData.empty() )
+			{
+				const MeshTriggerData& kFirst = pEffectData->m_vecMeshTriggerData[0];
+				StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" MESH_TRIGGER_DATA_LIST=%d first=(%s@%g bound=%d effectsets=%d)",
+					static_cast<int>( pEffectData->m_vecMeshTriggerData.size() ), kFirst.m_wstrMotionName.c_str(), kFirst.m_fTriggerTime,
+					static_cast<int>( kFirst.m_vecBoundMotionType.size() ), static_cast<int>( kFirst.m_vecTriggerEffectSetName.size() ) );
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+			}
+			if( false == pEffectData->m_MeshTriggerData.m_wstrMotionName.empty() || -1.f != pEffectData->m_MeshTriggerData.m_fTriggerTime )
+			{
+				StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" MESH_TRIGGER_DATA=(%s@%g play=%d)", pEffectData->m_MeshTriggerData.m_wstrMotionName.c_str(),
+					pEffectData->m_MeshTriggerData.m_fTriggerTime, pEffectData->m_MeshTriggerData.m_iPlayType );
+				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+			}
+			if( wcslen( wszJuneFx ) != uiNameOnly )
+			{
+				++s_iJuneFxEffectWithJuneKeyCount;
+				ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 
 		// 이펙트 종류별 script
 		switch( pEffectData->m_eEffectType )
@@ -2569,6 +2838,41 @@ camera_shake_error_proc:
 		luaManager.EndTable();		// EFFECT(iCameraShakeTableIndex)
 		++iCameraShakeTableIndex;
 	}
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+	// sound
+	// June2017 FUN_321e48e0 @ 321edd29-321ee2a7: SOUND%d, read after CAMERA_SHAKE%d. Each
+	// entry is filled and pushed with no rejection path: EVENT_TIME, float, default 0
+	// @ 321edde8; FILE_NAME, string, default L"" @ 321edee9; RATE, int, default 100
+	// (ESI=0x64) @ 321edfd4, binary-only; USE_GLOBAL_TIME, bool, default false @ 321ee086;
+	// LOOP, bool, default false @ 321ee1c6. That is CX2DamageEffect::SoundData exactly. June
+	// also presets one more byte of its entry to 1 with no Lua read: runtime state, Phase 4a.
+	int iSoundTableIndex = 0;
+	while( true == luaManager.BeginTable( "SOUND", iSoundTableIndex ) )
+	{
+		CX2DamageEffect::SoundData kSoundData;
+		LUA_GET_VALUE( luaManager,		"EVENT_TIME",				kSoundData.fEventTime,				0.f		);
+		LUA_GET_VALUE( luaManager,		"FILE_NAME",				kSoundData.fileName,				L""		);
+		LUA_GET_VALUE( luaManager,		"RATE",						kSoundData.iRate,					100		);
+		LUA_GET_VALUE( luaManager,		"USE_GLOBAL_TIME",			kSoundData.bUseGlobalTime,			false	);
+		LUA_GET_VALUE( luaManager,		"LOOP",						kSoundData.bLoop,					false	);
+
+		pEffectSetData->m_vecSoundData.push_back( kSoundData );
+		luaManager.EndTable();		// SOUND(iSoundTableIndex)
+		++iSoundTableIndex;
+	}
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	if( false == pEffectSetData->m_vecSoundData.empty() )
+	{
+		s_iJuneFxSoundCount += static_cast<int>( pEffectSetData->m_vecSoundData.size() );
+		WCHAR wszJuneFx[512] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX ES_SOUND %s count=%d first=%s@%g rate=%d",
+			pEffectSetData->m_wstrEffectSetName.c_str(), static_cast<int>( pEffectSetData->m_vecSoundData.size() ),
+			pEffectSetData->m_vecSoundData[0].fileName.c_str(), pEffectSetData->m_vecSoundData[0].fEventTime, pEffectSetData->m_vecSoundData[0].iRate );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 
 
 

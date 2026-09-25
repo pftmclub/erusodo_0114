@@ -32,8 +32,8 @@ column.
 | `SERV_IRUHADEV_PENDING_DELETE_UNIT_MENU` | 2026-09-11, amended 2026-09-16 (twice) | `KTDXLIB/Always.h:3728` (nested under `SERV_UNIT_WAIT_DELETE`) | `X2Lib/X2StateServerSelect.cpp:1407` (down-state reset), `:2210`, `:3203`, `:3319`, `:3434` (immediate confirm on select), `:11196`, `:11234`, `:11303`; the first 2026-09-16 amendment also touches `X2Lib/Offline/X2OfflineDB.h:401-419,512`, `X2Lib/Offline/X2OfflineDB.cpp:1119-1145,1272-1285`, `X2Lib/Offline/Handlers_Unit.cpp:420-425,552-556` | -- |
 | `SERV_IRUHADEV_RANOX_FIRE_GROUND` | 2026-09-19 | `KTDXLIB/Always.h:4016`; damage-rate constant in `X2Lib/X2Define.h` | `KTDXLIB/KTDGLineMap.h` (`LINE_TYPE.LT_FIRE_GROUND` member), `X2Lib/X2GUUser.h` and `X2Lib/X2GUUser.cpp` (`PhysicProcess_FireGround`, called from `PhysicProcess()`) | `KncWX2Server/Common/LineMap/XSLLineMap.h` (inert -- flag not reachable from the server build, kept in sync only) |
 | `SERV_IRUHADEV_RANOX_RIM_LIGHT` | 2026-09-19 | `KTDXLIB/Always.h:4032` | `KTDXLIB/KTDGXRenderer.h`/`.cpp` (`CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE` member, `CKTDGXRenderer::SetRimLightTexType` and its 3 `BeginRender` substitution sites), `X2Lib/X2World.h`/`.cpp` (`CX2World::SetRimLightTextureIndex`, forwards to the renderer; destructor resets the override), `X2Lib/X2Main.cpp` (lua_tinker binding) | -- |
-| `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` | 2026-09-25 | `KTDXLIB/Always.h:4283` | `X2Lib/X2EffectSet.h:341,359,397,433` (`EffectSetData` members, `operator==`, `operator=`, ctor), `X2Lib/X2EffectSet.cpp:2258` (`AddEffectSetTemplet_LUA`) | -- |
-| `SERV_IRUHADEV_JUNE_FX_DEBUG` | 2026-09-25 | `KTDXLIB/Always.h:4294` | `X2Lib/X2EffectSet.cpp:2199,2213` (`OpenScriptFile` load summary), `:2305` (per-templet line, nested under `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE`) | -- |
+| `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4287` | `X2Lib/X2EffectSet.h:168` (new `AnimTimeOnStartData`/`MeshTriggerData`), `:307,381,452` (`EffectData` members, `operator==`, ctor), `:484,505,555,592` (`EffectSetData` members incl. `m_vecSoundData`, `operator==`, `operator=`, ctor); `X2Lib/X2EffectSet.cpp:2267` (templet keys), `:2352,2378,2394,2405,2437,2476,2521` (per-`EFFECT%d` keys and sub-tables), `:2842` (`SOUND%d`) | -- |
+| `SERV_IRUHADEV_JUNE_FX_DEBUG` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4298` | `X2Lib/X2EffectSet.cpp:2199,2218` (`OpenScriptFile` load summary), `:2314` (per-templet line), `:2667` (per-effect line), `:2864` (per-set sound line); the last three nested under `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` | -- |
 
 What each one does:
 
@@ -703,6 +703,61 @@ then, the `ES_LOAD` line is the evidence that the block ran.
 Client-only; no server rebuild. Undefining `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE`
 removes the reads and members. Nothing consumes them yet, so no behaviour
 changes. Undefining `SERV_IRUHADEV_JUNE_FX_DEBUG` removes only log lines.
+
+### June2017 effect engine: EffectSet per-effect keys and sub-tables (Phase 3)
+
+Phase 3 of `JUNE2017_EFFECT_REBUILD_PLAN.md`. It extends the same two flags;
+it is the same logical change, the rest of June's `FUN_321e48e0`
+(`321e5cf8`–`321ee2a0`). The plan's Phase 3 section holds the per-key table:
+VA range, getter, default and post-processing.
+
+**`SERV_IRUHADEV_JUNE_EFFECTSET_PARSE`** now also reads:
+
+- **Per `EFFECT%d`**, into new `EffectData` members:
+  - `GROUP_NAME` (string, binary-only).
+  - `ZOFFSET_USE_UNIT_IS_RIGHT`, `TRACE_MATRIX_EXCLUDE_SCALE`, `TRACE_MATRIX_IN_FIELD`,
+    `USE_IS_RIGHT_WHEN_CREATE`, `FOLLOW_UNIT_ROTATION`, `FOLLOW_UNIT_ROTATION_CPARTICLE`,
+    `FOLLOW_UNIT_VIEWER_SCALE`, `USE_EFFECT_SCALE_IN_UNIT_VIEWER`, `NOT_ALLOW_MEMO`: bools,
+    all default false.
+  - `BONE_TRACE_TARGET_MESH_INDEX`: int, default -1.
+  - `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`: unsupported, like the templet-level one.
+    Logged once per templet, naming the first effect that uses it.
+- **Sub-tables gated on `EFFECT_TYPE`, as June does:**
+  - `ET_DAMAGE_EFFECT` reads `APPLY_DAMAGE_EFFECT_VELOCITY`, a positional
+    `{x, y, z, n}`. The floats default to 1. June keeps only `n == 0`.
+  - The four `ET_MESH_PLAYER_*` types read `MESH_TRIGGER_DATA_LIST` → `TRIGGER_DATA%d` into a
+    `std::vector<MeshTriggerData>`, then the single inline `MESH_TRIGGER_DATA`.
+    - Trigger fields: time, motion, play type (default 2), `BOUND_MOTION_TYPE_LIST`,
+      stop-tracing/once/block flags, block time, `TRIGGER_EFFECTSET_LIST` names, the
+      toggle-visibility timer and its derived flag, `USE_MESH_TRANSITION` (default true
+      for list entries), and three `ANIMTIME_ON_START_*` sub-tables.
+- **`SOUND%d`** at templet level, after `CAMERA_SHAKE%d`, into
+  `EffectSetData::m_vecSoundData`. June's entry is exactly March's
+  `CX2DamageEffect::SoundData`, so that struct is reused: event time, file name,
+  rate (default 100), use-global-time, loop.
+
+**One read changes an existing member.** `TRACE_MATRIX_EXCLUDE_SCALE = TRUE` also
+sets `m_bTraceMatrix`, because June's parser does (`321e760b`–`321e7610`).
+`m_bTraceMatrix` is consumed by the stock runtime. This affects only sets that use the
+new key, and no deployed set does. Everything else is parse only, with consumers in
+Phase 4a/4b.
+
+**`SERV_IRUHADEV_JUNE_FX_DEBUG`** adds three lines, all to `ErrorLog.txt`:
+
+- `JUNE_FX ES_EFFECT <set> EFFECT<n> <KEY>=<v> ...`, for each effect that sets a new key.
+- `JUNE_FX ES_SOUND <set> count=.. first=<file>@<time> rate=..`, for each set with
+  `SOUND%d`.
+- The `ES_LOAD` summary now also has `effects=.. with_june_effect_key=.. sounds=..`.
+
+**Data note.** No deployed set uses any Phase-3 key. That was checked against
+`march2014/data036/EffectSet.src.lua` and the deployed `UIEffectSet.lua`. So, as in
+Phase 2, only the `ES_LOAD` counts can show the block ran. The per-effect line is
+settled at Phase 11, with June's own data. Porting June's trigger sets early
+would not work anyway: `BOUND_MOTION_TYPE_LIST` uses `EMOTION_TYPE.*`, which March's
+`Enum.lua` lacks.
+
+Revert as for Phase 2. Undefining the flag drops every Phase 2 and 3 read, and
+with it the `TRACE_MATRIX_EXCLUDE_SCALE` → `TRACE_MATRIX` rule.
 
 
 ## Reverting to stock

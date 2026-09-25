@@ -565,6 +565,111 @@ set that uses one. Update the matrix and MODS.md.
 
 ## Phase 3 — EffectSet parser, per-effect data and sub-blocks
 
+**Status: parser done 2026-09-26; play-test pending.** Everything was done in one session,
+so there is no resume VA.
+- The code went in under `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE`, extending Phase 2's flag,
+  with `SERV_IRUHADEV_JUNE_FX_DEBUG` for the log lines.
+- `census.py` shows Phase 3 at 0 `to-implement` and 0 open `binary-only`. The 5
+  binary-only rows are now implemented.
+- 1 `unsupported` remains: the per-effect `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`.
+- Every new read's `semantics` is `same`, with three exceptions, all `unchecked`:
+  - `RATE`: its default is a register store, `ESI=0x64`. It was hand-verified as 100.
+  - The two binary-only `ANIMTIME_ON_START_SQUARE/_UNITVIEWER` sub-table names.
+- The only EffectSet-family rows left `to-implement` are `ES.Description`
+  (`VERSION`/`DESC`/`NAME`). They are `unassigned` and EFFECT_TOOL-only (plan Phase 1 *Open
+  questions*), the named exception to this phase's exit criterion.
+- The clean `US_SERVICE` build is deployed to `X2_offline.exe`.
+
+Things the next phases should know:
+- **The `ES_EFFECT` criterion cannot fire on current data,** exactly as in Phase 2. No deployed
+  set uses any Phase-3 key: `march2014/data036/EffectSet.src.lua` and the deployed
+  `UIEffectSet.lua` were both checked.
+  - The play-test evidence is the `ES_LOAD` line's new `effects=` count. It shows the
+    per-effect block ran; `with_june_effect_key=0` and `sounds=0` are expected.
+  - The per-effect line is settled at Phase 11, as Phase 2's `ES_TEMPLET` was.
+- **One parse rule changes a consumed member:** `TRACE_MATRIX_EXCLUDE_SCALE` → `TRACE_MATRIX`.
+- **Scope text below corrected:** the key is `ZOFFSET_USE_UNIT_IS_RIGHT`, not
+  `POSITION_OFFSET_USE_UNIT_IS_RIGHT`. Camera shake needed nothing: all 19 of its keys were
+  already implemented with matching semantics.
+- **New helper VAs** are in `funcmap.tsv`: `321f4a20`, `321f3be0`, `321f2a60`, `321f3690`,
+  `321f2db0`, `32fea4e0`, `32fea820`, `32fe99b0`.
+
+### June transcription (`FUN_321e48e0` @ `321e5cf8`–`321ee2a0`)
+
+Read instruction by instruction from `ghidra/dis_0x321e48e0.txt`. Getters: `32fe9e40` bool,
+`32fe9fd0` int, `32fea370` float, `32feae90` string, `32fea4e0` int by index,
+`32fea820` float by index. `[334380f0]` = -1.0, `[334350e8]` = 0.0 (double),
+`[33436704]` = 0.05. "Default" is what June stores when the getter fails, so it holds
+whatever the ctor set.
+
+**Per `EFFECT%d`, new keys** (the rest match March; see the matrix):
+
+| key | VA range | getter | default | post-processing |
+|---|---|---|---|---|
+| `GROUP_NAME` (binary-only) | `321e6261`–`321e632b` | string | `""` | none; read after `BONE_NAME` |
+| `ZOFFSET_USE_UNIT_IS_RIGHT` | `321e6f61`–`321e7115` | bool | false | none. The plan's old "POSITION_OFFSET_USE_UNIT_IS_RIGHT" is wrong; the decryptor and June data both say `ZOFFSET_…` |
+| `TRACE_MATRIX_EXCLUDE_SCALE` | `321e7445`–`321e7610` | bool | false | **if true, `TRACE_MATRIX` = true** (`321e760b`–`321e7610`) |
+| `TRACE_MATRIX_IN_FIELD` | `321e766e`–`321e77e2` | bool | false | none |
+| `USE_IS_RIGHT_WHEN_CREATE` | `321e8114`–`321e82bb` | bool | false | none; read after `APPLY_UNIT_ROTATION_MIRROR` |
+| `FOLLOW_UNIT_ROTATION` | `321e830c`–`321e846f` | bool | false | none |
+| `FOLLOW_UNIT_ROTATION_CPARTICLE` | `321e84da`–`321e86dd` | bool | false | none |
+| `FOLLOW_UNIT_VIEWER_SCALE` | `321e8738`–`321e88dc` | bool | false | none |
+| `USE_EFFECT_SCALE_IN_UNIT_VIEWER` | `321e894f`–`321e8b63` | bool | false | none |
+| `BONE_TRACE_TARGET_MESH_INDEX` | `321e9aa9`–`321e9c8d` | int | **-1** | none; read before `BONE_TRACE_TARGET_MESH` |
+| `NOT_ALLOW_MEMO` | `321ea221`–`321ea326` | bool | false (`XOR EBX,EBX` @`321ea308`, then `MOV [ESI],BL`) | none; read after `LIMIT_DISTANCE` |
+| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | `321ea3ac`–`321ea634` | int | 0 (`NEG/SBB/AND`, low byte kept) | unsupported (same as the templet level) |
+
+`LIMIT_DISTANCE` (`321ea0b2`–`321ea1dd`) was hand-checked: float, default -1.0, stored
+squared only when `> 0.0`. That is exactly March's `X2EffectSet.cpp` read, so the matrix's
+`unchecked(post-processing)` is settled as same.
+
+**Type gate** (`321ea63a`–`321ea64b`): after the keys above, `EFFECT_TYPE` == 1
+(`ET_DAMAGE_EFFECT`) reads `APPLY_DAMAGE_EFFECT_VELOCITY`. Types 2..5 (the four
+`ET_MESH_PLAYER_*`) read `MESH_TRIGGER_DATA_LIST`, then `MESH_TRIGGER_DATA`. Every other type
+reads neither.
+
+**`APPLY_DAMAGE_EFFECT_VELOCITY`** (`321ebf7c`–`321ec080`): a positional table.
+- `[1]`, `[2]`, `[3]` are floats, default 1.0 each. `[4]` is an int, default 0.
+- One 32-byte entry is built (ctor `321f2a60`: `+0`=1, `+8..+0x10`=1.0) and pushed onto a
+  vector in EffectData (`321f3690` is that vector's `push_back`).
+- The entry holds `+0` = (`[4]` == 0) as a bool, `+4` = 1 (a type tag), and `+8/+0xc/+0x10` =
+  `[1]`/`[2]`/`[3]`.
+- Every June use is `{1.5, 1, 1, 1}`. What `[4]` and the tag mean is Phase 4a's to read at
+  the consumer.
+
+**`MESH_TRIGGER_DATA_LIST` → `TRIGGER_DATA%d`** (`321ea682`–`321ebbec`):
+- Each entry is a stack struct (ctor `321f3be0`), pushed into a local vector, then assigned
+  into EffectData @`321ebbec`.
+- Order: `TRIGGER_TIME` float -1.0; `MOTION_NAME` string `""`; `PLAY_TYPE` int **2**
+  (`XAP_ONE_WAIT`, binary-only).
+- Then `BOUND_MOTION_TYPE_LIST`: int by index from 1 until the first miss, each pushed
+  (`321eaa27`–`321eaa99`; the data uses `EMOTION_TYPE.*`, which March's `Enum.lua` lacks).
+- Then `STOP_TRACING_ON_TRIGGER` bool false; `TRIGGER_ONCE` bool false; `BLOCK_TRIGGER` bool
+  false (`XOR BL,BL` @`321eaed6`); `BLOCK_TRIGGER_TIME` float -1.0.
+- Then `TRIGGER_EFFECTSET_LIST`: `BeginTable(int)` from 1, `EFFECT_SET_NAME` string `""`, and
+  only non-empty names are pushed (`321eb09c`–`321eb2f3`).
+- Then `EFFECT_SET_TOGGLE_VISIBILITY_TIMER` float -1.0. **If the read succeeds and the value
+  is not -1.0, a flag is set** (`321eb5c7`–`321eb5de`); the ctor clears it.
+- Then `USE_MESH_TRANSITION` bool **true** (`321eb78a`).
+- Then `ANIMTIME_ON_START_GAME` / `_SQUARE` / `_UNITVIEWER` (the last two binary-only):
+  each is `ONCE` bool false, then `TIME` float 0.
+- The ctor also presets, with no Lua read, a second byte after each `ONCE` to 1, plus a
+  second wstring and a few dwords: runtime state for Phase 4a.
+
+**`MESH_TRIGGER_DATA`** (`321ebbf1`–`321ebf61`), stored inline in EffectData: `TRIGGER_TIME`
+float -1.0, `MOTION_NAME` string `""`, `PLAY_TYPE` int **2** (binary-only).
+
+**`SOUND%d`** (`321edd29`–`321ee2a7`), at templet level after `CAMERA_SHAKE%d`:
+- A stack entry is filled and pushed onto a templet vector, with no rejection path:
+  `EVENT_TIME` float 0, `FILE_NAME` string `""`, `RATE` int **100** (binary-only),
+  `USE_GLOBAL_TIME` bool false, `LOOP` bool false.
+- Byte `+0x27` of the entry is preset to 1 with no Lua read: runtime, Phase 4a.
+- This is field for field March's own `CX2DamageEffect::SoundData`.
+
+**For Phase 4, not parsed here:** after pushing each effect, June also pushes it onto a
+second templet list when `BONE_TRACE_TARGET_MESH` is set (`321ec09a`–`321ec0ab`).
+`ONCE_PER_CYCLE` is in the data but June never reads it (`june-ignores`).
+
 **Paste with:** Starting context + this section.
 
 - **June source:** `FUN_321e48e0`, from the per-`EFFECT%d` loop to its end, including the
@@ -573,7 +678,7 @@ set that uses one. Update the matrix and MODS.md.
   `X2EffectSet.h`.
 
 **Scope.** Per-effect keys:
-- `POSITION_OFFSET_USE_UNIT_IS_RIGHT`, `TRACE_MATRIX_EXCLUDE_SCALE`, `TRACE_MATRIX_IN_FIELD`
+- `ZOFFSET_USE_UNIT_IS_RIGHT` (was mis-listed as `POSITION_OFFSET_USE_UNIT_IS_RIGHT`), `TRACE_MATRIX_EXCLUDE_SCALE`, `TRACE_MATRIX_IN_FIELD`
 - `FOLLOW_UNIT_ROTATION`, `FOLLOW_UNIT_ROTATION_C…PARTICLE`, `USE_IS_RIGHT_WHEN_CREATE`
 - `FOLLOW_UNIT_VIEWER_SCALE`, `USE_EFFECT_SCALE_IN_UNIT_VIEWER`, `BONE_TRACE_TARGET_MESH_INDEX`
 

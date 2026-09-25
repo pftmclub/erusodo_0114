@@ -165,6 +165,84 @@ public:
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+	// June2017 ANIMTIME_ON_START_GAME / _SQUARE / _UNITVIEWER sub-table of a trigger
+	// entry, parsed in AddEffectSetTemplet_LUA from FUN_321e48e0 @ 321eb792-321ebb80.
+	struct AnimTimeOnStartData
+	{
+		bool			m_bOnce;		// ONCE, default false
+		float			m_fTime;		// TIME, default 0
+
+		bool operator==( const AnimTimeOnStartData& rhs_ ) const
+		{
+			return m_bOnce == rhs_.m_bOnce && m_fTime == rhs_.m_fTime;
+		}
+
+		AnimTimeOnStartData()
+		: m_bOnce( false )
+		, m_fTime( 0.f )
+		{
+		}
+	};
+
+	// June2017 mesh-player trigger entry: one MESH_TRIGGER_DATA_LIST/TRIGGER_DATA%d, or the
+	// single inline MESH_TRIGGER_DATA. Defaults are June's ctor FUN_321f3be0; the parser
+	// overrides USE_MESH_TRANSITION to true for list entries only. Parse only; consumed
+	// in Phase 4a.
+	struct MeshTriggerData
+	{
+		float						m_fTriggerTime;						// TRIGGER_TIME, default -1
+		std::wstring				m_wstrMotionName;					// MOTION_NAME
+		int							m_iPlayType;						// PLAY_TYPE, default 2 (binary-only; March's CKTDGXSkinAnim::XAP_ONE_WAIT is 2)
+		std::vector<int>			m_vecBoundMotionType;				// BOUND_MOTION_TYPE_LIST (the data uses EMOTION_TYPE values)
+		bool						m_bStopTracingOnTrigger;			// STOP_TRACING_ON_TRIGGER
+		bool						m_bTriggerOnce;						// TRIGGER_ONCE
+		bool						m_bBlockTrigger;					// BLOCK_TRIGGER
+		float						m_fBlockTriggerTime;				// BLOCK_TRIGGER_TIME, default -1
+		std::vector<std::wstring>	m_vecTriggerEffectSetName;			// TRIGGER_EFFECTSET_LIST/[]/EFFECT_SET_NAME, non-empty names only
+		float						m_fEffectSetToggleVisibilityTimer;	// EFFECT_SET_TOGGLE_VISIBILITY_TIMER, default -1
+		bool						m_bUseEffectSetToggleVisibilityTimer;	// set by the parser when that timer is not -1
+		bool						m_bUseMeshTransition;				// USE_MESH_TRANSITION
+		AnimTimeOnStartData			m_AnimTimeOnStartGame;				// ANIMTIME_ON_START_GAME
+		AnimTimeOnStartData			m_AnimTimeOnStartSquare;			// ANIMTIME_ON_START_SQUARE (binary-only)
+		AnimTimeOnStartData			m_AnimTimeOnStartUnitViewer;		// ANIMTIME_ON_START_UNITVIEWER (binary-only)
+
+		bool operator==( const MeshTriggerData& rhs_ ) const
+		{
+			if( m_fTriggerTime						!= rhs_.m_fTriggerTime						) return false;
+			if( m_wstrMotionName					!= rhs_.m_wstrMotionName					) return false;
+			if( m_iPlayType							!= rhs_.m_iPlayType							) return false;
+			if( m_vecBoundMotionType				!= rhs_.m_vecBoundMotionType				) return false;
+			if( m_bStopTracingOnTrigger				!= rhs_.m_bStopTracingOnTrigger				) return false;
+			if( m_bTriggerOnce						!= rhs_.m_bTriggerOnce						) return false;
+			if( m_bBlockTrigger						!= rhs_.m_bBlockTrigger						) return false;
+			if( m_fBlockTriggerTime					!= rhs_.m_fBlockTriggerTime					) return false;
+			if( m_vecTriggerEffectSetName			!= rhs_.m_vecTriggerEffectSetName			) return false;
+			if( m_fEffectSetToggleVisibilityTimer	!= rhs_.m_fEffectSetToggleVisibilityTimer	) return false;
+			if( m_bUseEffectSetToggleVisibilityTimer	!= rhs_.m_bUseEffectSetToggleVisibilityTimer	) return false;
+			if( m_bUseMeshTransition				!= rhs_.m_bUseMeshTransition				) return false;
+			if( false == ( m_AnimTimeOnStartGame		== rhs_.m_AnimTimeOnStartGame		) ) return false;
+			if( false == ( m_AnimTimeOnStartSquare		== rhs_.m_AnimTimeOnStartSquare		) ) return false;
+			if( false == ( m_AnimTimeOnStartUnitViewer	== rhs_.m_AnimTimeOnStartUnitViewer	) ) return false;
+			return true;
+		}
+
+		MeshTriggerData()
+		: m_fTriggerTime( -1.f )
+		, m_wstrMotionName( L"" )
+		, m_iPlayType( 2 )
+		, m_bStopTracingOnTrigger( false )
+		, m_bTriggerOnce( false )
+		, m_bBlockTrigger( false )
+		, m_fBlockTriggerTime( -1.f )
+		, m_fEffectSetToggleVisibilityTimer( -1.f )
+		, m_bUseEffectSetToggleVisibilityTimer( false )
+		, m_bUseMeshTransition( false )
+		{
+		}
+	};
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+
 	struct EffectData
 	{
 		EFFECT_TYPE		m_eEffectType;
@@ -226,6 +304,34 @@ public:
 		// 이펙트셋보다 지정된 거리 이상 멀어지면 생성하지 않도록 하기 위한 거리 값 저장 변수
 		float			m_fLimitDistanceSq;
 #endif // MODIFY_EFFECT_SET_TRACE_BONE
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+		// June2017 per-EFFECT%d keys, parsed in AddEffectSetTemplet_LUA from
+		// FUN_321e48e0 @ 321e5cf8-321ec0cf (see the citations there). Parse only in this
+		// phase; the consumer of each is Phase 4a/4b's to transcribe.
+		std::wstring	m_wstrGroupName;						// GROUP_NAME (binary-only)
+		bool			m_bZOffsetUseUnitIsRight;				// ZOFFSET_USE_UNIT_IS_RIGHT
+		bool			m_bTraceMatrixExcludeScale;				// TRACE_MATRIX_EXCLUDE_SCALE; when set, the parser also sets m_bTraceMatrix
+		bool			m_bTraceMatrixInField;					// TRACE_MATRIX_IN_FIELD
+		bool			m_bUseIsRightWhenCreate;				// USE_IS_RIGHT_WHEN_CREATE
+		bool			m_bFollowUnitRotation;					// FOLLOW_UNIT_ROTATION
+		bool			m_bFollowUnitRotationCParticle;			// FOLLOW_UNIT_ROTATION_CPARTICLE
+		bool			m_bFollowUnitViewerScale;				// FOLLOW_UNIT_VIEWER_SCALE
+		bool			m_bUseEffectScaleInUnitViewer;			// USE_EFFECT_SCALE_IN_UNIT_VIEWER
+		int				m_iBoneTraceTargetMeshIndex;			// BONE_TRACE_TARGET_MESH_INDEX, default -1
+		bool			m_bNotAllowMemo;						// NOT_ALLOW_MEMO
+		int				m_iApplyEffectAlphaConditionByOption;	// APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION; unsupported, effect-alpha option absent
+
+		// APPLY_DAMAGE_EFFECT_VELOCITY, ET_DAMAGE_EFFECT only. June pushes one entry per
+		// table onto a vector with a type tag of 1; this parser can only ever make that
+		// one entry, so it is held flat here.
+		bool			m_bApplyDamageEffectVelocity;			// the table was present
+		D3DXVECTOR3		m_vApplyDamageEffectVelocity;			// [1],[2],[3], default 1 each
+		bool			m_bApplyDamageEffectVelocity4thIsZero;	// June keeps only ( [4] == 0 ), [4] default 0
+
+		// ET_MESH_PLAYER_* only
+		std::vector<MeshTriggerData>	m_vecMeshTriggerData;	// MESH_TRIGGER_DATA_LIST/TRIGGER_DATA%d
+		MeshTriggerData					m_MeshTriggerData;		// MESH_TRIGGER_DATA: TRIGGER_TIME, MOTION_NAME, PLAY_TYPE only
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 
 #if defined(EFFECT_TOOL) || defined(EXPAND_DEVELOPER_SCRIPT)
 // #ifdef EFFECT_TOOL
@@ -272,6 +378,25 @@ public:
 #ifdef MODIFY_CREATE_EFFECT_SET_LIMIT_DISTANCE // 오현빈
 			if( m_fLimitDistanceSq				!= rhs_.m_fLimitDistanceSq			) return false;
 #endif // MODIFY_EFFECT_SET_TRACE_BONE
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+			if( m_wstrGroupName						!= rhs_.m_wstrGroupName						) return false;
+			if( m_bZOffsetUseUnitIsRight			!= rhs_.m_bZOffsetUseUnitIsRight			) return false;
+			if( m_bTraceMatrixExcludeScale			!= rhs_.m_bTraceMatrixExcludeScale			) return false;
+			if( m_bTraceMatrixInField				!= rhs_.m_bTraceMatrixInField				) return false;
+			if( m_bUseIsRightWhenCreate				!= rhs_.m_bUseIsRightWhenCreate				) return false;
+			if( m_bFollowUnitRotation				!= rhs_.m_bFollowUnitRotation				) return false;
+			if( m_bFollowUnitRotationCParticle		!= rhs_.m_bFollowUnitRotationCParticle		) return false;
+			if( m_bFollowUnitViewerScale			!= rhs_.m_bFollowUnitViewerScale			) return false;
+			if( m_bUseEffectScaleInUnitViewer		!= rhs_.m_bUseEffectScaleInUnitViewer		) return false;
+			if( m_iBoneTraceTargetMeshIndex			!= rhs_.m_iBoneTraceTargetMeshIndex			) return false;
+			if( m_bNotAllowMemo						!= rhs_.m_bNotAllowMemo						) return false;
+			if( m_iApplyEffectAlphaConditionByOption	!= rhs_.m_iApplyEffectAlphaConditionByOption	) return false;
+			if( m_bApplyDamageEffectVelocity		!= rhs_.m_bApplyDamageEffectVelocity		) return false;
+			if( m_vApplyDamageEffectVelocity		!= rhs_.m_vApplyDamageEffectVelocity		) return false;
+			if( m_bApplyDamageEffectVelocity4thIsZero	!= rhs_.m_bApplyDamageEffectVelocity4thIsZero	) return false;
+			if( false == ( m_vecMeshTriggerData		== rhs_.m_vecMeshTriggerData				) ) return false;
+			if( false == ( m_MeshTriggerData		== rhs_.m_MeshTriggerData					) ) return false;
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 
 			return true;
 		}
@@ -324,6 +449,24 @@ public:
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // 김태환
 		, m_bApplyUnitRotationMirror( false )
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+		// June2017 EffectData ctor FUN_321f4a20 agrees with every default below
+		, m_wstrGroupName( L"" )
+		, m_bZOffsetUseUnitIsRight( false )
+		, m_bTraceMatrixExcludeScale( false )
+		, m_bTraceMatrixInField( false )
+		, m_bUseIsRightWhenCreate( false )
+		, m_bFollowUnitRotation( false )
+		, m_bFollowUnitRotationCParticle( false )
+		, m_bFollowUnitViewerScale( false )
+		, m_bUseEffectScaleInUnitViewer( false )
+		, m_iBoneTraceTargetMeshIndex( -1 )
+		, m_bNotAllowMemo( false )
+		, m_iApplyEffectAlphaConditionByOption( 0 )
+		, m_bApplyDamageEffectVelocity( false )
+		, m_vApplyDamageEffectVelocity( 1.f, 1.f, 1.f )
+		, m_bApplyDamageEffectVelocity4thIsZero( false )
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 		{
 		}
 	};
@@ -347,6 +490,9 @@ public:
 		int				m_iAppliedSkillID;						// APPLIED_SKILL_ID; unsupported, applied-skill-ID system absent
 		bool			m_bSyncShowByCreateUnit;				// SYNC_SHOW_BY_CREATE_UNIT; consumed in Phase 4a
 		int				m_iApplyEffectAlphaConditionByOption;	// APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION; unsupported, effect-alpha option absent
+		// June2017 SOUND%d entries, parsed in AddEffectSetTemplet_LUA from FUN_321e48e0 @
+		// 321edd29-321ee2a7. June's entry is field for field March's CX2DamageEffect::SoundData.
+		std::vector<CX2DamageEffect::SoundData>	m_vecSoundData;	// SOUND%d; consumed in Phase 4a
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 #if defined(EFFECT_TOOL) || defined(EXPAND_DEVELOPER_SCRIPT)
 // #ifdef EFFECT_TOOL
@@ -363,6 +509,18 @@ public:
 			if( m_iAppliedSkillID != rhs_.m_iAppliedSkillID ) return false;
 			if( m_bSyncShowByCreateUnit != rhs_.m_bSyncShowByCreateUnit ) return false;
 			if( m_iApplyEffectAlphaConditionByOption != rhs_.m_iApplyEffectAlphaConditionByOption ) return false;
+			if( m_vecSoundData.size() != rhs_.m_vecSoundData.size() ) return false;
+			for( UINT iSound = 0; iSound < m_vecSoundData.size(); ++iSound )
+			{
+				const CX2DamageEffect::SoundData& lhsSound = m_vecSoundData[iSound];
+				const CX2DamageEffect::SoundData& rhsSound = rhs_.m_vecSoundData[iSound];
+				if( lhsSound.fEventTime != rhsSound.fEventTime ||
+					lhsSound.fileName != rhsSound.fileName ||
+					lhsSound.iRate != rhsSound.iRate ||
+					lhsSound.bUseGlobalTime != rhsSound.bUseGlobalTime ||
+					lhsSound.bLoop != rhsSound.bLoop )
+					return false;
+			}
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 
 			if( m_vecpEffectData.size() != rhs_.m_vecpEffectData.size() ) return false;
@@ -401,6 +559,7 @@ public:
 			m_iAppliedSkillID = rhs.m_iAppliedSkillID;
 			m_bSyncShowByCreateUnit = rhs.m_bSyncShowByCreateUnit;
 			m_iApplyEffectAlphaConditionByOption = rhs.m_iApplyEffectAlphaConditionByOption;
+			m_vecSoundData = rhs.m_vecSoundData;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 
 			m_vecpEffectData.clear();
