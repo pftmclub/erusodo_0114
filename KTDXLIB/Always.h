@@ -4266,3 +4266,30 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Remove once the log comes back clean.
 #define SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-25
+// Description: June2017 effect-engine rebuild, Phase 2
+// (JUNE2017_EFFECT_REBUILD_PLAN.md). CX2EffectSet::AddEffectSetTemplet_LUA
+// parses the six templet-level keys June2017's parser (FUN_321e48e0) reads
+// and March does not: STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE,
+// DELETE_EFFECTSET_AT_TRACE_UNIT_DIE, OVERLAP, APPLIED_SKILL_ID,
+// SYNC_SHOW_BY_CREATE_UNIT, APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION, into new
+// EffectSetData members with June's getter types and defaults. Parse only;
+// the runtime is Phase 4a/4b. APPLIED_SKILL_ID and
+// APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION belong to systems this build lacks:
+// stored, logged once per templet to ErrorLog.txt, no behaviour.
+#define SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-25
+// Description: Short-lived diagnostic shared by every phase of the June2017
+// effect-engine rebuild (JUNE2017_EFFECT_REBUILD_PLAN.md, plan rule 4).
+// Emits grep-able "JUNE_FX ..." lines: load-time ones to ErrorLog.txt
+// (offline_server.log is not open while EffectSet.lua loads), runtime ones
+// to offline_server.log. Remove once the rebuild is verified.
+#define SERV_IRUHADEV_JUNE_FX_DEBUG
+//////////////////////////////////////////////////////////////////////////

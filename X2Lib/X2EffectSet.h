@@ -338,6 +338,16 @@ public:
 
 		//bool			m_bDeleteWhenTraceTargetDead;			// m_pTraceTargetGameUnit이 죽거나 없어지면 이펙트도 사라진다
 		int				m_iDeleteShakeCount;					// 0보다 클 때 유효하고 이 회수만큼 흔들면 이펙트도 사라진다
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+		// June2017 templet-level keys, parsed in AddEffectSetTemplet_LUA from
+		// FUN_321e48e0 (see the citation there). Parse only in this phase.
+		bool			m_bStopCreateNewEffectWhenStateChange;	// STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE; consumed in Phase 4a
+		bool			m_bDeleteEffectSetAtTraceUnitDie;		// DELETE_EFFECTSET_AT_TRACE_UNIT_DIE; consumed in Phase 4b
+		bool			m_bOverlap;								// OVERLAP; consumed in Phase 4a
+		int				m_iAppliedSkillID;						// APPLIED_SKILL_ID; unsupported, applied-skill-ID system absent
+		bool			m_bSyncShowByCreateUnit;				// SYNC_SHOW_BY_CREATE_UNIT; consumed in Phase 4a
+		int				m_iApplyEffectAlphaConditionByOption;	// APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION; unsupported, effect-alpha option absent
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 #if defined(EFFECT_TOOL) || defined(EXPAND_DEVELOPER_SCRIPT)
 // #ifdef EFFECT_TOOL
 		bool operator==( const EffectSetData& rhs_) const
@@ -346,6 +356,14 @@ public:
 			if( m_eEventTimerType != rhs_.m_eEventTimerType ) return false;
 			if( m_bAffectedByUnitScale != rhs_.m_bAffectedByUnitScale ) return false;
 			if( m_iDeleteShakeCount != rhs_.m_iDeleteShakeCount ) return false;
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+			if( m_bStopCreateNewEffectWhenStateChange != rhs_.m_bStopCreateNewEffectWhenStateChange ) return false;
+			if( m_bDeleteEffectSetAtTraceUnitDie != rhs_.m_bDeleteEffectSetAtTraceUnitDie ) return false;
+			if( m_bOverlap != rhs_.m_bOverlap ) return false;
+			if( m_iAppliedSkillID != rhs_.m_iAppliedSkillID ) return false;
+			if( m_bSyncShowByCreateUnit != rhs_.m_bSyncShowByCreateUnit ) return false;
+			if( m_iApplyEffectAlphaConditionByOption != rhs_.m_iApplyEffectAlphaConditionByOption ) return false;
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 
 			if( m_vecpEffectData.size() != rhs_.m_vecpEffectData.size() ) return false;
 
@@ -376,6 +394,14 @@ public:
 			m_eEventTimerType = rhs.m_eEventTimerType;
 			m_bAffectedByUnitScale = rhs.m_bAffectedByUnitScale;
 			m_iDeleteShakeCount = rhs.m_iDeleteShakeCount;
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+			m_bStopCreateNewEffectWhenStateChange = rhs.m_bStopCreateNewEffectWhenStateChange;
+			m_bDeleteEffectSetAtTraceUnitDie = rhs.m_bDeleteEffectSetAtTraceUnitDie;
+			m_bOverlap = rhs.m_bOverlap;
+			m_iAppliedSkillID = rhs.m_iAppliedSkillID;
+			m_bSyncShowByCreateUnit = rhs.m_bSyncShowByCreateUnit;
+			m_iApplyEffectAlphaConditionByOption = rhs.m_iApplyEffectAlphaConditionByOption;
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 
 			m_vecpEffectData.clear();
 			BOOST_FOREACH( CX2EffectSet::EffectData* pData, rhs.m_vecpEffectData )
@@ -404,6 +430,14 @@ public:
 		, m_bAffectedByUnitScale( true )
 		//, m_bDeleteWhenTraceTargetDead( false )
 		, m_iDeleteShakeCount( -1 )
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+		, m_bStopCreateNewEffectWhenStateChange( false )
+		, m_bDeleteEffectSetAtTraceUnitDie( false )
+		, m_bOverlap( false )
+		, m_iAppliedSkillID( 0 )
+		, m_bSyncShowByCreateUnit( false )
+		, m_iApplyEffectAlphaConditionByOption( 0 )
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 		{
 		}
 

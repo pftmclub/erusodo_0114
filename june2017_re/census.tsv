@@ -744,59 +744,59 @@ DE	DE.DAMAGE_DATA	BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ADDITIONAL_DEFENCE	BUFF_RELATI
 DE	DE.DAMAGE_DATA	BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ADDITIONAL_DEFENCE	FIX_VALUE	implemented	unassigned		nested-subtable	32d4c9c0@- 32d42030@- 32d42650@-	X2BuffFactor.cpp:747 X2BuffFactor.cpp:1202 X2BuffFactor.cpp:1421	unchecked(buff parser row: March matched path-insensitively)	1	DamageEffect_INT:1	FIX_VALUE
 DE	DE.DAMAGE_DATA	(top)	PAUSE_NPC_AI_TIME	to-implement	8b		direct	32632390@3263f977			1	DamageEffect_INT:1	PAUSE_NPC_AI_TIME
 DE	DE.unrooted	CAMERA_SHAKE%d	TWO_DIR_TIME_GAP	june-ignores	-		parent-not-opened				1	DamageEffect_INT:1	TWO_DIR_TIME_GAP
-ES	ES.templet	(top)	NAME	implemented	2		direct	321e48e0@321e49a4	X2EffectSet.cpp:2218	same	8600	EffectSet:8163 EffectSet_INT:138 UIEffectSet:287 UIEffectSet_INT:12	NAME
-ES	ES.templet	(top)	EFFECT%d	implemented	3		direct	321e48e0@-	X2EffectSet.cpp:2241	n/a (sub-table name)	46021	EffectSet:43659 EffectSet_INT:765 UIEffectSet:1557 UIEffectSet_INT:40	EFFECT0 EFFECT1 EFFECT10 EFFECT11 EFFECT12 EFFECT13 EFFECT14 EFFECT15 EFFECT16 EFFECT17 EFFECT18 EFFECT19 EFFECT2 EFFECT20 EFFECT21 EFFECT22 EFFECT23 EFFECT24 EFFECT25 EFFECT26 EFFECT27 EFFECT28 EFFECT29 EFFECT3 EFFECT30 EFFECT31 EFFECT32 EFFECT33 EFFECT34 EFFECT35 EFFECT36 EFFECT37 EFFECT38 EFFECT39 EFFECT4 EFFECT40 EFFECT41 EFFECT42 EFFECT43 EFFECT44 EFFECT45 EFFECT46 EFFECT47 EFFECT48 EFFECT49 EFFECT5 EFFECT50 EFFECT51 EFFECT52 EFFECT53 EFFECT54 EFFECT55 EFFECT56 EFFECT57 EFFECT58 EFFECT59 EFFECT6 EFFECT60 EFFECT61 EFFECT62 EFFECT63 EFFECT64 EFFECT65 EFFECT66 EFFECT67 EFFECT68 EFFECT69 EFFECT7 EFFECT70 EFFECT71 EFFECT72 EFFECT73 EFFECT74 EFFECT75 EFFECT76 EFFECT77 EFFECT78 EFFECT79 EFFECT8 EFFECT80 EFFECT81 EFFECT82 EFFECT83 EFFECT84 EFFECT85 EFFECT86 EFFECT87 EFFECT88 EFFECT89 EFFECT9 EFFECT90 EFFECT91 EFFECT92 EFFECT93 EFFECT94
-ES	ES.EFFECT	(top)	POSITION_OFFSET_Y	implemented	3		direct	321e48e0@321e6c43	X2EffectSet.cpp:2271	same	12303	EffectSet:11624 EffectSet_INT:309 UIEffectSet:333 UIEffectSet_INT:37	POSITION_OFFSET_Y
-ES	ES.EFFECT	(top)	NAME	implemented	3		direct	321e48e0@321e5e94	X2EffectSet.cpp:2250	same	45974	EffectSet:43618 EffectSet_INT:765 UIEffectSet:1551 UIEffectSet_INT:40	NAME
-ES	ES.EFFECT	(top)	POSITION_OFFSET_X	implemented	3		direct	321e48e0@321e6abe	X2EffectSet.cpp:2270	same	12599	EffectSet:12067 EffectSet_INT:290 UIEffectSet:215 UIEffectSet_INT:27	POSITION_OFFSET_X
-ES	ES.EFFECT	(top)	EFFECT_TYPE	implemented	3		direct	321e48e0@321e5d8a	X2EffectSet.cpp:2246	same	46021	EffectSet:43659 EffectSet_INT:765 UIEffectSet:1557 UIEffectSet_INT:40	EFFECT_TYPE
-ES	ES.templet	(top)	EVENT_TIMER_TYPE	implemented	2		direct	321e48e0@321e4ad1	X2EffectSet.cpp:2231	same	1015	EffectSet:940 EffectSet_INT:26 UIEffectSet:43 UIEffectSet_INT:6	EVENT_TIMER_TYPE
-ES	ES.EFFECT	(top)	BONE_NAME	implemented	3		direct	321e48e0@321e6165	X2EffectSet.cpp:2260	same	30860	EffectSet:29421 EffectSet_INT:323 UIEffectSet:1102 UIEffectSet_INT:14	BONE_NAME
-ES	ES.EFFECT	(top)	TRACE_MORE	implemented	3		direct	321e48e0@321e71f9	X2EffectSet.cpp:2275	same	8301	EffectSet:7920 EffectSet_INT:76 UIEffectSet:305	TRACE_MORE
-ES	ES.EFFECT	(top)	START_TIME	implemented	3		direct	321e48e0@321e6067	X2EffectSet.cpp:2259	same	29079	EffectSet:27524 EffectSet_INT:531 UIEffectSet:997 UIEffectSet_INT:27	START_TIME
-ES	ES.EFFECT	(top)	TRACE	implemented	3		direct	321e48e0@321e7146	X2EffectSet.cpp:2274	same	15372	EffectSet:14533 EffectSet_INT:311 UIEffectSet:499 UIEffectSet_INT:29	TRACE
-ES	ES.templet	(top)	CAMERA_SHAKE%d	implemented	3		direct	321e48e0@-	X2EffectSet.cpp:2414	n/a (sub-table name)	3816	EffectSet:3706 EffectSet_INT:80 UIEffectSet:29 UIEffectSet_INT:1	CAMERA_SHAKE0 CAMERA_SHAKE1 CAMERA_SHAKE10 CAMERA_SHAKE11 CAMERA_SHAKE2 CAMERA_SHAKE3 CAMERA_SHAKE4 CAMERA_SHAKE5 CAMERA_SHAKE6 CAMERA_SHAKE7 CAMERA_SHAKE8 CAMERA_SHAKE9
-ES	ES.CAMERA_SHAKE	(top)	START_TIME	implemented	3		direct	321e48e0@321ec289	X2EffectSet.cpp:2422	same	3733	EffectSet:3639 EffectSet_INT:80 UIEffectSet:14	START_TIME
-ES	ES.CAMERA_SHAKE	(top)	TWO_DIR_GAP	implemented	3		direct	321e48e0@321ec76b	X2EffectSet.cpp:2439	same	3813	EffectSet:3704 EffectSet_INT:80 UIEffectSet:29	TWO_DIR_GAP
-ES	ES.CAMERA_SHAKE	(top)	TWO_DIR_TIME	implemented	3		direct	321e48e0@321ec87e	X2EffectSet.cpp:2440	same	3807	EffectSet:3698 EffectSet_INT:80 UIEffectSet:29	TWO_DIR_TIME
-ES	ES.CAMERA_SHAKE	(top)	SHAKE_TYPE	implemented	3		direct	321e48e0@321ec160	X2EffectSet.cpp:2418	same	3815	EffectSet:3706 EffectSet_INT:80 UIEffectSet:29	SHAKE_TYPE
-ES	ES.EFFECT	(top)	SCALE_Y	implemented	3		direct	321e48e0@321e8e20	X2EffectSet.cpp:2305	same	8943	EffectSet:8572 EffectSet_INT:139 UIEffectSet:230 UIEffectSet_INT:2	SCALE_Y
-ES	ES.EFFECT	(top)	SCALE_X	implemented	3		direct	321e48e0@321e8d50	X2EffectSet.cpp:2304	same	8945	EffectSet:8574 EffectSet_INT:139 UIEffectSet:230 UIEffectSet_INT:2	SCALE_X
-ES	ES.EFFECT	(top)	SCALE_Z	implemented	3		direct	321e48e0@321e8ef0	X2EffectSet.cpp:2306	same	8940	EffectSet:8569 EffectSet_INT:139 UIEffectSet:230 UIEffectSet_INT:2	SCALE_Z
-ES	ES.EFFECT	(top)	BONE_TRACE_TARGET_MESH	implemented	3		direct	321e48e0@321e9ceb	X2EffectSet.cpp:2334	same	755	EffectSet:676 EffectSet_INT:10 UIEffectSet:68 UIEffectSet_INT:1	BONE_TRACE_TARGET_MESH
-ES	ES.CAMERA_SHAKE	(top)	TWO_DIR_TIME_GAP	implemented	3		direct	321e48e0@321ec9ab	X2EffectSet.cpp:2441	same	2235	EffectSet:2156 EffectSet_INT:50 UIEffectSet:29	TWO_DIR_TIME_GAP
-ES	ES.EFFECT	(top)	ROTATE_Y	implemented	3		direct	321e48e0@321e7b60	X2EffectSet.cpp:2288	same	1477	EffectSet:1436 EffectSet_INT:12 UIEffectSet:29	ROTATE_Y
-ES	ES.EFFECT	(top)	ROTATE_Z	implemented	3		direct	321e48e0@321e7c36	X2EffectSet.cpp:2289	same	2565	EffectSet:2503 EffectSet_INT:13 UIEffectSet:49	ROTATE_Z
-ES	ES.EFFECT	(top)	TRACE_MATRIX	implemented	3		direct	321e48e0@321e72fd	X2EffectSet.cpp:2278	same	2755	EffectSet:2477 EffectSet_INT:28 UIEffectSet:248 UIEffectSet_INT:2	TRACE_MATRIX
-ES	ES.EFFECT	(top)	USE_SUB_ATTACK_LIST_SET	implemented	3		direct	321e48e0@321e979b	X2EffectSet.cpp:2319	same	19	EffectSet:18 EffectSet_INT:1	USE_SUB_ATTACK_LIST_SET
-ES	ES.EFFECT	(top)	TRACE_USER_TARGET_FORCE	implemented	3		direct	321e48e0@321e9ece	X2EffectSet.cpp:2338	same	1857	EffectSet:1742 EffectSet_INT:8 UIEffectSet:107	TRACE_USER_TARGET_FORCE
-ES	ES.EFFECT	(top)	USE_LAND_POSITION	implemented	3		direct	321e48e0@321e7920	X2EffectSet.cpp:2286	same	212	EffectSet:162 UIEffectSet:50	USE_LAND_POSITION
-ES	ES.EFFECT	(top)	APPLY_UNIT_ROTATION	implemented	3		direct	321e48e0@321e7d32	X2EffectSet.cpp:2290	same	924	EffectSet:813 EffectSet_INT:50 UIEffectSet:61	APPLY_UNIT_ROTATION
-ES	ES.EFFECT	(top)	PASSIVE_EFFECT	implemented	3		direct	321e48e0@321e9638	X2EffectSet.cpp:2317	same	278	EffectSet:277 EffectSet_INT:1	PASSIVE_EFFECT
-ES	ES.EFFECT	(top)	ROTATE_X	implemented	3		direct	321e48e0@321e7a8a	X2EffectSet.cpp:2287	same	852	EffectSet:844 EffectSet_INT:2 UIEffectSet:6	ROTATE_X
-ES	ES.EFFECT	(top)	HYPER_NAME	implemented	3		direct	321e48e0@321e5f5b	X2EffectSet.cpp:2255	same	71	EffectSet:71	HYPER_NAME
-ES	ES.EFFECT	(top)	WEAPON_BONE_NAME	implemented	3		direct	321e48e0@321e6378	X2EffectSet.cpp:2262	same	1205	EffectSet:1205	WEAPON_BONE_NAME
-ES	ES.EFFECT	(top)	REVERSE_Y	implemented	3		direct	321e48e0@321e781d	X2EffectSet.cpp:2282	same	1393	EffectSet:1293 EffectSet_INT:68 UIEffectSet:29 UIEffectSet_INT:3	REVERSE_Y
-ES	ES.EFFECT	(top)	APPLY_INSTANCE_SCALE	implemented	3		direct	321e48e0@321e8bb4	X2EffectSet.cpp:2302	same	26	EffectSet:26	APPLY_INSTANCE_SCALE
+ES	ES.templet	(top)	NAME	implemented	2		direct	321e48e0@321e49a4	X2EffectSet.cpp:2240	same	8600	EffectSet:8163 EffectSet_INT:138 UIEffectSet:287 UIEffectSet_INT:12	NAME
+ES	ES.templet	(top)	EFFECT%d	implemented	3		direct	321e48e0@-	X2EffectSet.cpp:2344	n/a (sub-table name)	46021	EffectSet:43659 EffectSet_INT:765 UIEffectSet:1557 UIEffectSet_INT:40	EFFECT0 EFFECT1 EFFECT10 EFFECT11 EFFECT12 EFFECT13 EFFECT14 EFFECT15 EFFECT16 EFFECT17 EFFECT18 EFFECT19 EFFECT2 EFFECT20 EFFECT21 EFFECT22 EFFECT23 EFFECT24 EFFECT25 EFFECT26 EFFECT27 EFFECT28 EFFECT29 EFFECT3 EFFECT30 EFFECT31 EFFECT32 EFFECT33 EFFECT34 EFFECT35 EFFECT36 EFFECT37 EFFECT38 EFFECT39 EFFECT4 EFFECT40 EFFECT41 EFFECT42 EFFECT43 EFFECT44 EFFECT45 EFFECT46 EFFECT47 EFFECT48 EFFECT49 EFFECT5 EFFECT50 EFFECT51 EFFECT52 EFFECT53 EFFECT54 EFFECT55 EFFECT56 EFFECT57 EFFECT58 EFFECT59 EFFECT6 EFFECT60 EFFECT61 EFFECT62 EFFECT63 EFFECT64 EFFECT65 EFFECT66 EFFECT67 EFFECT68 EFFECT69 EFFECT7 EFFECT70 EFFECT71 EFFECT72 EFFECT73 EFFECT74 EFFECT75 EFFECT76 EFFECT77 EFFECT78 EFFECT79 EFFECT8 EFFECT80 EFFECT81 EFFECT82 EFFECT83 EFFECT84 EFFECT85 EFFECT86 EFFECT87 EFFECT88 EFFECT89 EFFECT9 EFFECT90 EFFECT91 EFFECT92 EFFECT93 EFFECT94
+ES	ES.EFFECT	(top)	POSITION_OFFSET_Y	implemented	3		direct	321e48e0@321e6c43	X2EffectSet.cpp:2374	same	12303	EffectSet:11624 EffectSet_INT:309 UIEffectSet:333 UIEffectSet_INT:37	POSITION_OFFSET_Y
+ES	ES.EFFECT	(top)	NAME	implemented	3		direct	321e48e0@321e5e94	X2EffectSet.cpp:2353	same	45974	EffectSet:43618 EffectSet_INT:765 UIEffectSet:1551 UIEffectSet_INT:40	NAME
+ES	ES.EFFECT	(top)	POSITION_OFFSET_X	implemented	3		direct	321e48e0@321e6abe	X2EffectSet.cpp:2373	same	12599	EffectSet:12067 EffectSet_INT:290 UIEffectSet:215 UIEffectSet_INT:27	POSITION_OFFSET_X
+ES	ES.EFFECT	(top)	EFFECT_TYPE	implemented	3		direct	321e48e0@321e5d8a	X2EffectSet.cpp:2349	same	46021	EffectSet:43659 EffectSet_INT:765 UIEffectSet:1557 UIEffectSet_INT:40	EFFECT_TYPE
+ES	ES.templet	(top)	EVENT_TIMER_TYPE	implemented	2		direct	321e48e0@321e4ad1	X2EffectSet.cpp:2253	same	1015	EffectSet:940 EffectSet_INT:26 UIEffectSet:43 UIEffectSet_INT:6	EVENT_TIMER_TYPE
+ES	ES.EFFECT	(top)	BONE_NAME	implemented	3		direct	321e48e0@321e6165	X2EffectSet.cpp:2363	same	30860	EffectSet:29421 EffectSet_INT:323 UIEffectSet:1102 UIEffectSet_INT:14	BONE_NAME
+ES	ES.EFFECT	(top)	TRACE_MORE	implemented	3		direct	321e48e0@321e71f9	X2EffectSet.cpp:2378	same	8301	EffectSet:7920 EffectSet_INT:76 UIEffectSet:305	TRACE_MORE
+ES	ES.EFFECT	(top)	START_TIME	implemented	3		direct	321e48e0@321e6067	X2EffectSet.cpp:2362	same	29079	EffectSet:27524 EffectSet_INT:531 UIEffectSet:997 UIEffectSet_INT:27	START_TIME
+ES	ES.EFFECT	(top)	TRACE	implemented	3		direct	321e48e0@321e7146	X2EffectSet.cpp:2377	same	15372	EffectSet:14533 EffectSet_INT:311 UIEffectSet:499 UIEffectSet_INT:29	TRACE
+ES	ES.templet	(top)	CAMERA_SHAKE%d	implemented	3		direct	321e48e0@-	X2EffectSet.cpp:2517	n/a (sub-table name)	3816	EffectSet:3706 EffectSet_INT:80 UIEffectSet:29 UIEffectSet_INT:1	CAMERA_SHAKE0 CAMERA_SHAKE1 CAMERA_SHAKE10 CAMERA_SHAKE11 CAMERA_SHAKE2 CAMERA_SHAKE3 CAMERA_SHAKE4 CAMERA_SHAKE5 CAMERA_SHAKE6 CAMERA_SHAKE7 CAMERA_SHAKE8 CAMERA_SHAKE9
+ES	ES.CAMERA_SHAKE	(top)	START_TIME	implemented	3		direct	321e48e0@321ec289	X2EffectSet.cpp:2525	same	3733	EffectSet:3639 EffectSet_INT:80 UIEffectSet:14	START_TIME
+ES	ES.CAMERA_SHAKE	(top)	TWO_DIR_GAP	implemented	3		direct	321e48e0@321ec76b	X2EffectSet.cpp:2542	same	3813	EffectSet:3704 EffectSet_INT:80 UIEffectSet:29	TWO_DIR_GAP
+ES	ES.CAMERA_SHAKE	(top)	TWO_DIR_TIME	implemented	3		direct	321e48e0@321ec87e	X2EffectSet.cpp:2543	same	3807	EffectSet:3698 EffectSet_INT:80 UIEffectSet:29	TWO_DIR_TIME
+ES	ES.CAMERA_SHAKE	(top)	SHAKE_TYPE	implemented	3		direct	321e48e0@321ec160	X2EffectSet.cpp:2521	same	3815	EffectSet:3706 EffectSet_INT:80 UIEffectSet:29	SHAKE_TYPE
+ES	ES.EFFECT	(top)	SCALE_Y	implemented	3		direct	321e48e0@321e8e20	X2EffectSet.cpp:2408	same	8943	EffectSet:8572 EffectSet_INT:139 UIEffectSet:230 UIEffectSet_INT:2	SCALE_Y
+ES	ES.EFFECT	(top)	SCALE_X	implemented	3		direct	321e48e0@321e8d50	X2EffectSet.cpp:2407	same	8945	EffectSet:8574 EffectSet_INT:139 UIEffectSet:230 UIEffectSet_INT:2	SCALE_X
+ES	ES.EFFECT	(top)	SCALE_Z	implemented	3		direct	321e48e0@321e8ef0	X2EffectSet.cpp:2409	same	8940	EffectSet:8569 EffectSet_INT:139 UIEffectSet:230 UIEffectSet_INT:2	SCALE_Z
+ES	ES.EFFECT	(top)	BONE_TRACE_TARGET_MESH	implemented	3		direct	321e48e0@321e9ceb	X2EffectSet.cpp:2437	same	755	EffectSet:676 EffectSet_INT:10 UIEffectSet:68 UIEffectSet_INT:1	BONE_TRACE_TARGET_MESH
+ES	ES.CAMERA_SHAKE	(top)	TWO_DIR_TIME_GAP	implemented	3		direct	321e48e0@321ec9ab	X2EffectSet.cpp:2544	same	2235	EffectSet:2156 EffectSet_INT:50 UIEffectSet:29	TWO_DIR_TIME_GAP
+ES	ES.EFFECT	(top)	ROTATE_Y	implemented	3		direct	321e48e0@321e7b60	X2EffectSet.cpp:2391	same	1477	EffectSet:1436 EffectSet_INT:12 UIEffectSet:29	ROTATE_Y
+ES	ES.EFFECT	(top)	ROTATE_Z	implemented	3		direct	321e48e0@321e7c36	X2EffectSet.cpp:2392	same	2565	EffectSet:2503 EffectSet_INT:13 UIEffectSet:49	ROTATE_Z
+ES	ES.EFFECT	(top)	TRACE_MATRIX	implemented	3		direct	321e48e0@321e72fd	X2EffectSet.cpp:2381	same	2755	EffectSet:2477 EffectSet_INT:28 UIEffectSet:248 UIEffectSet_INT:2	TRACE_MATRIX
+ES	ES.EFFECT	(top)	USE_SUB_ATTACK_LIST_SET	implemented	3		direct	321e48e0@321e979b	X2EffectSet.cpp:2422	same	19	EffectSet:18 EffectSet_INT:1	USE_SUB_ATTACK_LIST_SET
+ES	ES.EFFECT	(top)	TRACE_USER_TARGET_FORCE	implemented	3		direct	321e48e0@321e9ece	X2EffectSet.cpp:2441	same	1857	EffectSet:1742 EffectSet_INT:8 UIEffectSet:107	TRACE_USER_TARGET_FORCE
+ES	ES.EFFECT	(top)	USE_LAND_POSITION	implemented	3		direct	321e48e0@321e7920	X2EffectSet.cpp:2389	same	212	EffectSet:162 UIEffectSet:50	USE_LAND_POSITION
+ES	ES.EFFECT	(top)	APPLY_UNIT_ROTATION	implemented	3		direct	321e48e0@321e7d32	X2EffectSet.cpp:2393	same	924	EffectSet:813 EffectSet_INT:50 UIEffectSet:61	APPLY_UNIT_ROTATION
+ES	ES.EFFECT	(top)	PASSIVE_EFFECT	implemented	3		direct	321e48e0@321e9638	X2EffectSet.cpp:2420	same	278	EffectSet:277 EffectSet_INT:1	PASSIVE_EFFECT
+ES	ES.EFFECT	(top)	ROTATE_X	implemented	3		direct	321e48e0@321e7a8a	X2EffectSet.cpp:2390	same	852	EffectSet:844 EffectSet_INT:2 UIEffectSet:6	ROTATE_X
+ES	ES.EFFECT	(top)	HYPER_NAME	implemented	3		direct	321e48e0@321e5f5b	X2EffectSet.cpp:2358	same	71	EffectSet:71	HYPER_NAME
+ES	ES.EFFECT	(top)	WEAPON_BONE_NAME	implemented	3		direct	321e48e0@321e6378	X2EffectSet.cpp:2365	same	1205	EffectSet:1205	WEAPON_BONE_NAME
+ES	ES.EFFECT	(top)	REVERSE_Y	implemented	3		direct	321e48e0@321e781d	X2EffectSet.cpp:2385	same	1393	EffectSet:1293 EffectSet_INT:68 UIEffectSet:29 UIEffectSet_INT:3	REVERSE_Y
+ES	ES.EFFECT	(top)	APPLY_INSTANCE_SCALE	implemented	3		direct	321e48e0@321e8bb4	X2EffectSet.cpp:2405	same	26	EffectSet:26	APPLY_INSTANCE_SCALE
 ES	ES.EFFECT	(top)	USE_IS_RIGHT_WHEN_CREATE	to-implement	3		direct	321e48e0@321e8114			27	EffectSet:27	USE_IS_RIGHT_WHEN_CREATE
-ES	ES.templet	(top)	AFFECTED_BY_UNIT_SCALE	implemented	2		direct	321e48e0@321e4f93	X2EffectSet.cpp:2232	same	171	EffectSet:163 EffectSet_INT:7 UIEffectSet:1	AFFECTED_BY_UNIT_SCALE
+ES	ES.templet	(top)	AFFECTED_BY_UNIT_SCALE	implemented	2		direct	321e48e0@321e4f93	X2EffectSet.cpp:2254	same	171	EffectSet:163 EffectSet_INT:7 UIEffectSet:1	AFFECTED_BY_UNIT_SCALE
 ES	ES.EFFECT	(top)	BONE_TRACE_TARGET_MESH_INDEX	to-implement	3		direct	321e48e0@321e9aa9			25	EffectSet:25	BONE_TRACE_TARGET_MESH_INDEX
 ES	ES.CAMERA_SHAKE	(top)	SCALE_X	june-ignores	3		other-level				3	EffectSet:3	SCALE_X
 ES	ES.CAMERA_SHAKE	(top)	SCALE_Z	june-ignores	3		other-level				3	EffectSet:3	SCALE_Z
 ES	ES.CAMERA_SHAKE	(top)	SCALE_Y	june-ignores	3		other-level				3	EffectSet:3	SCALE_Y
-ES	ES.EFFECT	(top)	POSITION_OFFSET_Z	implemented	3		direct	321e48e0@321e6dc8	X2EffectSet.cpp:2272	same	1661	EffectSet:1368 EffectSet_INT:116 UIEffectSet:150 UIEffectSet_INT:27	POSITION_OFFSET_Z
-ES	ES.templet	(top)	DELETE_SHAKE_COUNT	implemented	2		direct	321e48e0@321e5162	X2EffectSet.cpp:2235	same	14	EffectSet:14	DELETE_SHAKE_COUNT
-ES	ES.EFFECT	(top)	START_WHEN_TRACE_TARGET_DEAD	implemented	3		direct	321e48e0@321e940e	X2EffectSet.cpp:2316	same	5	EffectSet:5	START_WHEN_TRACE_TARGET_DEAD
-ES	ES.EFFECT	(top)	RIDING_PET_BONE_NAME	implemented	3		direct	321e48e0@321e68ff	X2EffectSet.cpp:2267	same	2318	EffectSet:2063 EffectSet_INT:146 UIEffectSet:109	RIDING_PET_BONE_NAME
-ES	ES.EFFECT	(top)	LIMIT_DISTANCE	implemented	3		direct	321e48e0@321ea0b2	X2EffectSet.cpp:2359	unchecked(post-processing fmul@321ea1d3)	45	EffectSet:44 EffectSet_INT:1	LIMIT_DISTANCE
+ES	ES.EFFECT	(top)	POSITION_OFFSET_Z	implemented	3		direct	321e48e0@321e6dc8	X2EffectSet.cpp:2375	same	1661	EffectSet:1368 EffectSet_INT:116 UIEffectSet:150 UIEffectSet_INT:27	POSITION_OFFSET_Z
+ES	ES.templet	(top)	DELETE_SHAKE_COUNT	implemented	2		direct	321e48e0@321e5162	X2EffectSet.cpp:2257	same	14	EffectSet:14	DELETE_SHAKE_COUNT
+ES	ES.EFFECT	(top)	START_WHEN_TRACE_TARGET_DEAD	implemented	3		direct	321e48e0@321e940e	X2EffectSet.cpp:2419	same	5	EffectSet:5	START_WHEN_TRACE_TARGET_DEAD
+ES	ES.EFFECT	(top)	RIDING_PET_BONE_NAME	implemented	3		direct	321e48e0@321e68ff	X2EffectSet.cpp:2370	same	2318	EffectSet:2063 EffectSet_INT:146 UIEffectSet:109	RIDING_PET_BONE_NAME
+ES	ES.EFFECT	(top)	LIMIT_DISTANCE	implemented	3		direct	321e48e0@321ea0b2	X2EffectSet.cpp:2462	unchecked(post-processing fmul@321ea1d3)	45	EffectSet:44 EffectSet_INT:1	LIMIT_DISTANCE
 ES	ES.templet	(top)	SOUND%d	to-implement	3		direct	321e48e0@-			70	EffectSet:51 UIEffectSet:19	SOUND0 SOUND1 SOUND2 SOUND3 SOUND4
 ES	ES.SOUND	(top)	EVENT_TIME	to-implement	3		direct	321e48e0@321edde8			70	EffectSet:51 UIEffectSet:19	EVENT_TIME
 ES	ES.SOUND	(top)	FILE_NAME	to-implement	3		direct	321e48e0@321edee9			70	EffectSet:51 UIEffectSet:19	FILE_NAME
-ES	ES.templet	(top)	APPLIED_SKILL_ID	unsupported	2	Applied skill ID (absent)	direct	321e48e0@321e5675			170	EffectSet:170	APPLIED_SKILL_ID
+ES	ES.templet	(top)	APPLIED_SKILL_ID	unsupported	2	Applied skill ID (absent)	direct	321e48e0@321e5675	X2EffectSet.cpp:2275	same	170	EffectSet:170	APPLIED_SKILL_ID
 ES	ES.EFFECT	(top)	NOT_ALLOW_MEMO	to-implement	3		direct	321e48e0@321ea221			7	EffectSet:7	NOT_ALLOW_MEMO
-ES	ES.templet	(top)	SYNC_SHOW_BY_CREATE_UNIT	to-implement	2		direct	321e48e0@321e57fa			1	EffectSet:1	SYNC_SHOW_BY_CREATE_UNIT
-ES	ES.EFFECT	(top)	APPLY_UNIT_ROTATION_MIRROR	implemented	3		direct	321e48e0@321e7eec	X2EffectSet.cpp:2294	same	196	EffectSet:162 UIEffectSet:34	APPLY_UNIT_ROTATION_MIRROR
-ES	ES.templet	(top)	OVERLAP	to-implement	2		direct	321e48e0@321e5594			2	EffectSet:2	OVERLAP
+ES	ES.templet	(top)	SYNC_SHOW_BY_CREATE_UNIT	implemented	2		direct	321e48e0@321e57fa	X2EffectSet.cpp:2277	same	1	EffectSet:1	SYNC_SHOW_BY_CREATE_UNIT
+ES	ES.EFFECT	(top)	APPLY_UNIT_ROTATION_MIRROR	implemented	3		direct	321e48e0@321e7eec	X2EffectSet.cpp:2397	same	196	EffectSet:162 UIEffectSet:34	APPLY_UNIT_ROTATION_MIRROR
+ES	ES.templet	(top)	OVERLAP	implemented	2		direct	321e48e0@321e5594	X2EffectSet.cpp:2273	same	2	EffectSet:2	OVERLAP
 ES	ES.EFFECT	(top)	APPLY_DAMAGE_EFFECT_VELOCITY	to-implement	3		direct	321e48e0@-			6	EffectSet:6	APPLY_DAMAGE_EFFECT_VELOCITY
 ES	ES.EFFECT	(top)	POSITION_OFFSET_y	june-ignores	3		typo				1	EffectSet:1	POSITION_OFFSET_y
 ES	ES.positional	[]	NAME	june-ignores	-		positional				12	EffectSet:12	NAME
@@ -807,10 +807,10 @@ ES	ES.positional	[]	SCALE_Y	june-ignores	-		positional				9	EffectSet:9	SCALE_Y
 ES	ES.positional	[]	EFFECT_TYPE	june-ignores	-		positional				12	EffectSet:12	EFFECT_TYPE
 ES	ES.positional	[]	TRACE	june-ignores	-		positional				5	EffectSet:5	TRACE
 ES	ES.positional	[]	REVERSE_Y	june-ignores	-		positional				2	EffectSet:2	REVERSE_Y
-ES	ES.EFFECT	(top)	SCALE_X_ON_LEFT	implemented	3		direct	321e48e0@321e8fd1	X2EffectSet.cpp:2309	same	1	EffectSet:1	SCALE_X_ON_LEFT
-ES	ES.EFFECT	(top)	SCALE_Y_ON_LEFT	implemented	3		direct	321e48e0@321e9132	X2EffectSet.cpp:2310	same	1	EffectSet:1	SCALE_Y_ON_LEFT
-ES	ES.EFFECT	(top)	SCALE_Z_ON_LEFT	implemented	3		direct	321e48e0@321e9293	X2EffectSet.cpp:2311	same	1	EffectSet:1	SCALE_Z_ON_LEFT
-ES	ES.CAMERA_SHAKE	(top)	LIMIT_DISTANCE	implemented	3		direct	321e48e0@321ec399	X2EffectSet.cpp:2426	unchecked(unchecked-default(June: default store not recognised: mov dword ptr [esp + 0x4c], edi; jmp 0x321ec4b9))	55	EffectSet:47 EffectSet_INT:2 UIEffectSet:6	LIMIT_DISTANCE
+ES	ES.EFFECT	(top)	SCALE_X_ON_LEFT	implemented	3		direct	321e48e0@321e8fd1	X2EffectSet.cpp:2412	same	1	EffectSet:1	SCALE_X_ON_LEFT
+ES	ES.EFFECT	(top)	SCALE_Y_ON_LEFT	implemented	3		direct	321e48e0@321e9132	X2EffectSet.cpp:2413	same	1	EffectSet:1	SCALE_Y_ON_LEFT
+ES	ES.EFFECT	(top)	SCALE_Z_ON_LEFT	implemented	3		direct	321e48e0@321e9293	X2EffectSet.cpp:2414	same	1	EffectSet:1	SCALE_Z_ON_LEFT
+ES	ES.CAMERA_SHAKE	(top)	LIMIT_DISTANCE	implemented	3		direct	321e48e0@321ec399	X2EffectSet.cpp:2529	unchecked(unchecked-default(June: default store not recognised: mov dword ptr [esp + 0x4c], edi; jmp 0x321ec4b9))	55	EffectSet:47 EffectSet_INT:2 UIEffectSet:6	LIMIT_DISTANCE
 ES	ES.positional	[]	BONE_NAME	june-ignores	-		positional				10	EffectSet:10	BONE_NAME
 ES	ES.positional	[]	POSITION_OFFSET_X	june-ignores	-		positional				3	EffectSet:3	POSITION_OFFSET_X
 ES	ES.positional	[]	TWO_DIR_TIME_GAP	june-ignores	-		positional				4	EffectSet:4	TWO_DIR_TIME_GAP
@@ -821,11 +821,11 @@ ES	ES.positional	[]	SHAKE_TYPE	june-ignores	-		positional				5	EffectSet:5	SHAKE
 ES	ES.positional	[]	POSITION_OFFSET_Y	june-ignores	-		positional				8	EffectSet:8	POSITION_OFFSET_Y
 ES	ES.positional	[]	ROTATE_X	june-ignores	-		positional				6	EffectSet:6	ROTATE_X
 ES	ES.positional	[]	TRACE_MORE	june-ignores	-		positional				6	EffectSet:6	TRACE_MORE
-ES	ES.templet	(top)	DELETE_EFFECTSET_AT_TRACE_UNIT_DIE	to-implement	2		direct	321e48e0@321e531f			2	EffectSet:2	DELETE_EFFECTSET_AT_TRACE_UNIT_DIE
+ES	ES.templet	(top)	DELETE_EFFECTSET_AT_TRACE_UNIT_DIE	implemented	2		direct	321e48e0@321e531f	X2EffectSet.cpp:2271	same	2	EffectSet:2	DELETE_EFFECTSET_AT_TRACE_UNIT_DIE
 ES	ES.EFFECT	(top)	APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION	unsupported	3	Effect-alpha option (absent)	direct	321e48e0@321ea3ac			5	EffectSet:5	APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION
-ES	ES.templet	(top)	STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE	to-implement	2		direct	321e48e0@321e4c9b			2	EffectSet:2	STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE
+ES	ES.templet	(top)	STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE	implemented	2		direct	321e48e0@321e4c9b	X2EffectSet.cpp:2269	same	2	EffectSet:2	STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE
 ES	ES.CAMERA_SHAKE	(top)	ROTATE_Z	june-ignores	3		other-level				1	EffectSet:1	ROTATE_Z
-ES	ES.templet	(top)	APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION	unsupported	2	Effect-alpha option (absent)	direct	321e48e0@321e5a5d			24	EffectSet:22 UIEffectSet:2	APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION
+ES	ES.templet	(top)	APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION	unsupported	2	Effect-alpha option (absent)	direct	321e48e0@321e5a5d	X2EffectSet.cpp:2283	unchecked(unchecked-default(June: non-standard shape after the call: mov neg sbb and))	24	EffectSet:22 UIEffectSet:2	APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION
 ES	ES.positional	[]	TRACE_MATRIX	june-ignores	-		positional				1	EffectSet:1	TRACE_MATRIX
 ES	ES.EFFECT	(top)	APPLY_ROTATE	june-ignores	3		dead-here				1	EffectSet:1	APPLY_ROTATE
 ES	ES.templet	(top)	BONE_NAME	june-ignores	2		other-level				2	EffectSet:2	BONE_NAME
@@ -857,7 +857,7 @@ ES	ES.EFFECT	(top)	FOLLOW_UNIT_ROTATION_CPARTICLE	to-implement	3		direct	321e48e
 ES	ES.EFFECT	(top)	TRACE_MATRIX_EXCLUDE_SCALE	to-implement	3		direct	321e48e0@321e7445			1	EffectSet:1	TRACE_MATRIX_EXCLUDE_SCALE
 ES	ES.EFFECT	(top)	END_TIME	june-ignores	3		dead-here				2	EffectSet_INT:2	END_TIME
 ES	ES.EFFECT	(top)	POSITION_BONE_NAME	june-ignores	3		unread				22	UIEffectSet:22	POSITION_BONE_NAME
-ES	ES.EFFECT	(top)	SET_OVER_UI	implemented	3		direct	321e48e0@321e9970	X2EffectSet.cpp:2323	same	127	UIEffectSet:119 UIEffectSet_INT:8	SET_OVER_UI
+ES	ES.EFFECT	(top)	SET_OVER_UI	implemented	3		direct	321e48e0@321e9970	X2EffectSet.cpp:2426	same	127	UIEffectSet:119 UIEffectSet_INT:8	SET_OVER_UI
 ES	ES.EFFECT	(top)	FOLLOW_UNIT_VIEWER_SCALE	to-implement	3		direct	321e48e0@321e8738			17	UIEffectSet:17	FOLLOW_UNIT_VIEWER_SCALE
 ES	ES.EFFECT	(top)	MESH_TRIGGER_DATA	to-implement	3		direct	321e48e0@-			6	UIEffectSet:6	MESH_TRIGGER_DATA
 ES	ES.EFFECT	MESH_TRIGGER_DATA	MOTION_NAME	to-implement	3		direct	321e48e0@321ebd72			6	UIEffectSet:6	MOTION_NAME
@@ -959,21 +959,21 @@ DE	DE.HIT_EFFECT_SET	(top)	EFFECT_SET_NAME	binary-only	6b		binary-only	31f64c80@
 DE	DE.HIT_EFFECT_SET	(top)	HIT_EFFECT_SET%d	binary-only	6b		binary-only	31f64c80@-			0		HIT_EFFECT_SET%d
 ES	ES.EFFECT	MESH_TRIGGER_DATA_LIST/TRIGGER_DATA%d	ANIMTIME_ON_START_SQUARE	binary-only	3		binary-only	321e48e0@-			0		ANIMTIME_ON_START_SQUARE
 ES	ES.EFFECT	MESH_TRIGGER_DATA_LIST/TRIGGER_DATA%d	ANIMTIME_ON_START_UNITVIEWER	binary-only	3		binary-only	321e48e0@-			0		ANIMTIME_ON_START_UNITVIEWER
-ES	ES.CAMERA_SHAKE	(top)	EYE_MOVE_RANGE_MAX	implemented	3		binary-only	321e48e0@321ed287	X2EffectSet.cpp:2450	same	0		EYE_MOVE_RANGE_MAX
-ES	ES.CAMERA_SHAKE	(top)	EYE_MOVE_RANGE_MIN	implemented	3		binary-only	321e48e0@321ed0f4	X2EffectSet.cpp:2449	same	0		EYE_MOVE_RANGE_MIN
-ES	ES.CAMERA_SHAKE	(top)	EYE_MOVE_SPEED_MAX	implemented	3		binary-only	321e48e0@321ecf61	X2EffectSet.cpp:2447	same	0		EYE_MOVE_SPEED_MAX
-ES	ES.CAMERA_SHAKE	(top)	EYE_MOVE_SPEED_MIN	implemented	3		binary-only	321e48e0@321ecdce	X2EffectSet.cpp:2446	same	0		EYE_MOVE_SPEED_MIN
-ES	ES.CAMERA_SHAKE	(top)	EYE_SHAKE_COUNT	implemented	3		binary-only	321e48e0@321ecc6a	X2EffectSet.cpp:2445	unchecked(unchecked-default(June: default store not recognised: mov dword ptr [ebx], edi))	0		EYE_SHAKE_COUNT
-ES	ES.CAMERA_SHAKE	(top)	FIXED_LOOK_VEC	implemented	3		binary-only	321e48e0@321ecb1b	X2EffectSet.cpp:2444	same	0		FIXED_LOOK_VEC
+ES	ES.CAMERA_SHAKE	(top)	EYE_MOVE_RANGE_MAX	implemented	3		binary-only	321e48e0@321ed287	X2EffectSet.cpp:2553	same	0		EYE_MOVE_RANGE_MAX
+ES	ES.CAMERA_SHAKE	(top)	EYE_MOVE_RANGE_MIN	implemented	3		binary-only	321e48e0@321ed0f4	X2EffectSet.cpp:2552	same	0		EYE_MOVE_RANGE_MIN
+ES	ES.CAMERA_SHAKE	(top)	EYE_MOVE_SPEED_MAX	implemented	3		binary-only	321e48e0@321ecf61	X2EffectSet.cpp:2550	same	0		EYE_MOVE_SPEED_MAX
+ES	ES.CAMERA_SHAKE	(top)	EYE_MOVE_SPEED_MIN	implemented	3		binary-only	321e48e0@321ecdce	X2EffectSet.cpp:2549	same	0		EYE_MOVE_SPEED_MIN
+ES	ES.CAMERA_SHAKE	(top)	EYE_SHAKE_COUNT	implemented	3		binary-only	321e48e0@321ecc6a	X2EffectSet.cpp:2548	unchecked(unchecked-default(June: default store not recognised: mov dword ptr [ebx], edi))	0		EYE_SHAKE_COUNT
+ES	ES.CAMERA_SHAKE	(top)	FIXED_LOOK_VEC	implemented	3		binary-only	321e48e0@321ecb1b	X2EffectSet.cpp:2547	same	0		FIXED_LOOK_VEC
 ES	ES.EFFECT	(top)	GROUP_NAME	binary-only	3		binary-only	321e48e0@321e6261			0		GROUP_NAME
-ES	ES.CAMERA_SHAKE	(top)	LOOK_AT_MOVE_RANGE_MAX	implemented	3		binary-only	321e48e0@321edb65	X2EffectSet.cpp:2457	same	0		LOOK_AT_MOVE_RANGE_MAX
-ES	ES.CAMERA_SHAKE	(top)	LOOK_AT_MOVE_RANGE_MIN	implemented	3		binary-only	321e48e0@321ed988	X2EffectSet.cpp:2456	same	0		LOOK_AT_MOVE_RANGE_MIN
-ES	ES.CAMERA_SHAKE	(top)	LOOK_AT_MOVE_SPEED_MAX	implemented	3		binary-only	321e48e0@321ed7ab	X2EffectSet.cpp:2454	same	0		LOOK_AT_MOVE_SPEED_MAX
-ES	ES.CAMERA_SHAKE	(top)	LOOK_AT_MOVE_SPEED_MIN	implemented	3		binary-only	321e48e0@321ed5ce	X2EffectSet.cpp:2453	same	0		LOOK_AT_MOVE_SPEED_MIN
-ES	ES.CAMERA_SHAKE	(top)	LOOK_AT_SHAKE_COUNT	implemented	3		binary-only	321e48e0@321ed41f	X2EffectSet.cpp:2452	same	0		LOOK_AT_SHAKE_COUNT
-ES	ES.CAMERA_SHAKE	(top)	ONE_DIR_ACCEL	implemented	3		binary-only	321e48e0@321ec634	X2EffectSet.cpp:2438	same	0		ONE_DIR_ACCEL
-ES	ES.CAMERA_SHAKE	(top)	ONE_DIR_SPEED	implemented	3		binary-only	321e48e0@321ec4fc	X2EffectSet.cpp:2437	same	0		ONE_DIR_SPEED
+ES	ES.CAMERA_SHAKE	(top)	LOOK_AT_MOVE_RANGE_MAX	implemented	3		binary-only	321e48e0@321edb65	X2EffectSet.cpp:2560	same	0		LOOK_AT_MOVE_RANGE_MAX
+ES	ES.CAMERA_SHAKE	(top)	LOOK_AT_MOVE_RANGE_MIN	implemented	3		binary-only	321e48e0@321ed988	X2EffectSet.cpp:2559	same	0		LOOK_AT_MOVE_RANGE_MIN
+ES	ES.CAMERA_SHAKE	(top)	LOOK_AT_MOVE_SPEED_MAX	implemented	3		binary-only	321e48e0@321ed7ab	X2EffectSet.cpp:2557	same	0		LOOK_AT_MOVE_SPEED_MAX
+ES	ES.CAMERA_SHAKE	(top)	LOOK_AT_MOVE_SPEED_MIN	implemented	3		binary-only	321e48e0@321ed5ce	X2EffectSet.cpp:2556	same	0		LOOK_AT_MOVE_SPEED_MIN
+ES	ES.CAMERA_SHAKE	(top)	LOOK_AT_SHAKE_COUNT	implemented	3		binary-only	321e48e0@321ed41f	X2EffectSet.cpp:2555	same	0		LOOK_AT_SHAKE_COUNT
+ES	ES.CAMERA_SHAKE	(top)	ONE_DIR_ACCEL	implemented	3		binary-only	321e48e0@321ec634	X2EffectSet.cpp:2541	same	0		ONE_DIR_ACCEL
+ES	ES.CAMERA_SHAKE	(top)	ONE_DIR_SPEED	implemented	3		binary-only	321e48e0@321ec4fc	X2EffectSet.cpp:2540	same	0		ONE_DIR_SPEED
 ES	ES.EFFECT	MESH_TRIGGER_DATA	PLAY_TYPE	binary-only	3		binary-only	321e48e0@321ea95c			0		PLAY_TYPE
 ES	ES.SOUND	(top)	RATE	binary-only	3		binary-only	321e48e0@321edfd4			0		RATE
-ES	ES.EFFECT	(top)	WEAPON_BONE_MODEL_INDEX	implemented	3		binary-only	321e48e0@321e6713	X2EffectSet.cpp:2264	same	0		WEAPON_BONE_MODEL_INDEX
-ES	ES.EFFECT	(top)	WEAPON_BONE_WEAPON_INDEX	implemented	3		binary-only	321e48e0@321e650e	X2EffectSet.cpp:2263	unchecked(unchecked-default(June: default store not recognised: mov dword ptr [esi], ebx))	0		WEAPON_BONE_WEAPON_INDEX
+ES	ES.EFFECT	(top)	WEAPON_BONE_MODEL_INDEX	implemented	3		binary-only	321e48e0@321e6713	X2EffectSet.cpp:2367	same	0		WEAPON_BONE_MODEL_INDEX
+ES	ES.EFFECT	(top)	WEAPON_BONE_WEAPON_INDEX	implemented	3		binary-only	321e48e0@321e650e	X2EffectSet.cpp:2366	unchecked(unchecked-default(June: default store not recognised: mov dword ptr [esi], ebx))	0		WEAPON_BONE_WEAPON_INDEX

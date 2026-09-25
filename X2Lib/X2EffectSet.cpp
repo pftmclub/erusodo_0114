@@ -2196,6 +2196,13 @@ void CX2EffectSet::RegisterLuaBind()
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+// Per-OpenScriptFile counters for the JUNE_FX ES_LOAD summary line: how many
+// templets reached the June templet-key block, and how many set a June key.
+static int s_iJuneFxTempletCount = 0;
+static int s_iJuneFxTempletWithJuneKeyCount = 0;
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+
 bool CX2EffectSet::OpenScriptFile( const wstring& wstrFileName )
 {
 	RegisterLuaBind();
@@ -2203,7 +2210,22 @@ bool CX2EffectSet::OpenScriptFile( const wstring& wstrFileName )
 	if( true == wstrFileName.empty() )
 		return false;
 
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	s_iJuneFxTempletCount = 0;
+	s_iJuneFxTempletWithJuneKeyCount = 0;
+	const bool bJuneFxLoaded = g_pKTDXApp->LoadLuaTinker( wstrFileName.c_str() );
+	{
+		// load-time: offline_server.log is not open yet (the offline server starts on
+		// first connect), so this goes to ErrorLog.txt
+		WCHAR wszJuneFx[512] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX ES_LOAD %s loaded=%d templets=%d with_june_templet_key=%d",
+			wstrFileName.c_str(), bJuneFxLoaded ? 1 : 0, s_iJuneFxTempletCount, s_iJuneFxTempletWithJuneKeyCount );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+	return bJuneFxLoaded;
+#else
 	return g_pKTDXApp->LoadLuaTinker( wstrFileName.c_str() );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 }
 
 bool CX2EffectSet::AddEffectSetTemplet_LUA()
@@ -2233,6 +2255,87 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 
 	//LUA_GET_VALUE( luaManager,		"DELETE_WHEN_TRACE_TARGET_DEAD",	pEffectSetData->m_bDeleteWhenTraceTargetDead,				false	);
 	LUA_GET_VALUE( luaManager,		"DELETE_SHAKE_COUNT",				pEffectSetData->m_iDeleteShakeCount,						-1	);
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+	// June2017 FUN_321e48e0 (AddEffectSetTemplet_LUA) @ 321e48e0-321e5cf8, the templet
+	// level: everything before BeginTable( "EFFECT", n ) @ 321e5cf8. June reads ten keys
+	// there, in this order: NAME, EVENT_TIMER_TYPE, STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE,
+	// AFFECTED_BY_UNIT_SCALE, DELETE_SHAKE_COUNT, DELETE_EFFECTSET_AT_TRACE_UNIT_DIE,
+	// OVERLAP, APPLIED_SKILL_ID, SYNC_SHOW_BY_CREATE_UNIT,
+	// APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION. The four March already reads above match
+	// June's getter and default. The six below are new; their reads are independent, so
+	// they sit together here rather than interleaved in June's order. Getters:
+	// 32fe9e40 = bool, 32fe9fd0 = int. Parse only; runtime is Phase 4a/4b.
+	// June2017 FUN_321e48e0 @ 321e4c9b-321e4f3c: STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE, bool, default false (on failure the getter's AL=0 is stored), no post-processing
+	LUA_GET_VALUE( luaManager,		"STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE",	pEffectSetData->m_bStopCreateNewEffectWhenStateChange,	false	);	// consumed in Phase 4a
+	// June2017 FUN_321e48e0 @ 321e531f-321e5560: DELETE_EFFECTSET_AT_TRACE_UNIT_DIE, bool, default false (AL=0 stored), no post-processing
+	LUA_GET_VALUE( luaManager,		"DELETE_EFFECTSET_AT_TRACE_UNIT_DIE",		pEffectSetData->m_bDeleteEffectSetAtTraceUnitDie,		false	);	// consumed in Phase 4b
+	// June2017 FUN_321e48e0 @ 321e5594-321e5626: OVERLAP, bool, default false (BL=0 stored), no post-processing
+	LUA_GET_VALUE( luaManager,		"OVERLAP",									pEffectSetData->m_bOverlap,								false	);	// consumed in Phase 4a
+	// June2017 FUN_321e48e0 @ 321e5675-321e579e: APPLIED_SKILL_ID, int, default 0 (stack temp zeroed @ 321e5631; result = success ? value : 0), stored as int, no post-processing
+	LUA_GET_VALUE( luaManager,		"APPLIED_SKILL_ID",							pEffectSetData->m_iAppliedSkillID,						0		);	// unsupported, see below
+	// June2017 FUN_321e48e0 @ 321e57fa-321e599c: SYNC_SHOW_BY_CREATE_UNIT, bool, default false (BL=0 stored), no post-processing
+	LUA_GET_VALUE( luaManager,		"SYNC_SHOW_BY_CREATE_UNIT",					pEffectSetData->m_bSyncShowByCreateUnit,				false	);	// consumed in Phase 4a
+	// June2017 FUN_321e48e0 @ 321e5a5d-321e5cec: APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION, int getter, default 0
+	// (stack temp zeroed @ 321e59a3). June keeps only the low byte: NEG AL / SBB AL,AL /
+	// AND AL,[temp] then a byte store @ 321e5cec, so the member is char-sized in June. The
+	// values are June's APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION enum table (AEACBO_NONE=0,
+	// AEACBO_NOT_APPLY=1, ...), which March's Enum.lua does not have (Phase 11).
+	LUA_GET_VALUE( luaManager,		"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION",	pEffectSetData->m_iApplyEffectAlphaConditionByOption,	0		);	// unsupported, see below
+
+	// Plan rule 5: two keys belong to systems this build does not have. They are stored
+	// and logged once per templet, with no behaviour. Both tests are for a non-default
+	// value: an explicit 0 behaves exactly like an absent key, and every June data use is
+	// non-zero (skill IDs; AEACBO_NOT_APPLY=1). Load-time, so ErrorLog.txt, not
+	// offline_server.log (it is not open yet).
+	if( 0 != pEffectSetData->m_iAppliedSkillID )
+	{
+		WCHAR wszJuneFx[512] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX unsupported APPLIED_SKILL_ID in %s: applied-skill-ID system absent (value %d)",
+			pEffectSetData->m_wstrEffectSetName.c_str(), pEffectSetData->m_iAppliedSkillID );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+	if( 0 != pEffectSetData->m_iApplyEffectAlphaConditionByOption )
+	{
+		WCHAR wszJuneFx[512] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX unsupported APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION in %s: effect-alpha option absent (value %d)",
+			pEffectSetData->m_wstrEffectSetName.c_str(), pEffectSetData->m_iApplyEffectAlphaConditionByOption );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	// JUNE_FX ES_TEMPLET <name> <key>=<v> ..., only for templets that set a June key
+	{
+		++s_iJuneFxTempletCount;
+		WCHAR wszJuneFx[512] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX ES_TEMPLET %s", pEffectSetData->m_wstrEffectSetName.c_str() );
+		const size_t uiNameOnly = wcslen( wszJuneFx );
+		WCHAR wszKey[128] = {0};
+		if( true == pEffectSetData->m_bStopCreateNewEffectWhenStateChange )
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE=1" );
+		if( true == pEffectSetData->m_bDeleteEffectSetAtTraceUnitDie )
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" DELETE_EFFECTSET_AT_TRACE_UNIT_DIE=1" );
+		if( true == pEffectSetData->m_bOverlap )
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" OVERLAP=1" );
+		if( 0 != pEffectSetData->m_iAppliedSkillID )
+		{
+			StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" APPLIED_SKILL_ID=%d", pEffectSetData->m_iAppliedSkillID );
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+		}
+		if( true == pEffectSetData->m_bSyncShowByCreateUnit )
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" SYNC_SHOW_BY_CREATE_UNIT=1" );
+		if( 0 != pEffectSetData->m_iApplyEffectAlphaConditionByOption )
+		{
+			StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION=%d", pEffectSetData->m_iApplyEffectAlphaConditionByOption );
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+		}
+		if( wcslen( wszJuneFx ) != uiNameOnly )
+		{
+			++s_iJuneFxTempletWithJuneKeyCount;
+			ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 
 	
 	

@@ -175,6 +175,30 @@ The model is in its docstring. In short:
   - Hand-verified: `REFRESH_LAND_POS` (`mov byte [edi],1`), `ATTACK_TIME_END` (`fld [334355b8]` =
     100.0) and `LINK_EFFECT_RATE` (-1.0) match March.
 
+**Phase 2 change to census.py: the absent-system search ignores the rebuild's own code.**
+Plan rule 5 makes a phase parse, store and log an unsupported key. That code names the
+key, so the old search turned "Applied skill ID" and "Effect-alpha option" from `absent`
+to `present` as soon as Phase 2 parsed them. It also silently flipped their rows in
+Phases 3, 5, 8c and unassigned to `to-implement`. The search now works like this:
+
+- Hits in the `#if` branch of any `SERV_IRUHADEV_JUNE_*` block are not evidence. That
+  covers raw sources through `RawSource.in_june_rebuild`, and the preprocessed TUs
+  through `#line` back to the raw file. They are shown in the matrix's *rule-5 hits*
+  column. The `#else` branch holds the studio's original code and still counts.
+- Comments are blanked before the raw search, because a comment naming a key is not its
+  system. Skill memo's raw hits drop from 36 to 31, and its verdict (`present`) is
+  unchanged.
+- A row whose system is `absent`/`gated-off` stays `unsupported` once March parses it.
+  Its March column then shows the parse site.
+
+Checked by diffing the regenerated matrix against HEAD with line numbers normalised.
+The only status changes are Phase 2's six rows.
+
+**Hand-verified (Phase 2).** `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` @`321e5a5d` reads
+`unchecked` because June's shape is `NEG AL; SBB AL,AL; AND AL,[temp]`. It is the int
+getter `32fe9fd0`, with a temp zeroed @`321e59a3`, so the default is 0 and only the low
+byte is stored @`321e5cec`.
+
 **Phase 1 corrections to Phase 0's `reconcile.py`.** `reconcile.md` changed only in the
 `<CEffect top level>` scope, plus two explanations:
 

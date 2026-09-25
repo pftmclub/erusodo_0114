@@ -48,6 +48,9 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TRUNK = os.path.normpath(os.path.join(HERE, '..'))
+# The rebuild's own flags. Code under them is not evidence for the absent-system search:
+# plan rule 5 makes a phase parse, store and log an unsupported key, which names the key.
+JUNE_FLAG_PREFIX = 'SERV_IRUHADEV_JUNE_'
 sys.path.insert(0, HERE)
 import reconcile as R    # noqa: E402
 import xordecrypt as X   # noqa: E402
@@ -986,6 +989,19 @@ class RawSource:
 
     def cond_stack(self, rel, txt, i):
         """Innermost enclosing #if/#ifdef/#ifndef flag name at offset i (None at top level)."""
+        st = self.cond_all(rel, txt, i)
+        return st[-1].lstrip('!') if st else None
+
+    def in_june_rebuild(self, rel, txt, i):
+        """True inside the #if branch of any SERV_IRUHADEV_JUNE_* block: the rebuild's own
+        code. Plan rule 5 makes a phase parse, store and log an unsupported key there, so
+        such a hit is the key's parse site, not evidence that the key's system exists. The
+        #else branch is the studio's original code and still counts."""
+        return any(f.startswith(JUNE_FLAG_PREFIX) for f in self.cond_all(rel, txt, i))
+
+    def cond_all(self, rel, txt, i):
+        """Every enclosing #if/#ifdef/#ifndef flag name at offset i, outermost first. A
+        flag whose #else/#elif branch holds offset i is prefixed with '!'."""
         if rel not in self._cond:
             starts, stacks, stack = [], [], []
             o = 0
@@ -998,14 +1014,27 @@ class RawSource:
                     if d in ('if', 'ifdef', 'ifndef'):
                         fm = re.match(r'(?:defined\s*\(?\s*)?!?\s*(\w+)', rest)
                         stack.append(fm.group(1) if fm else '?')
+                    elif d in ('else', 'elif') and stack and not stack[-1].startswith('!'):
+                        stack[-1] = '!' + stack[-1]
                     elif d == 'endif' and stack:
                         stack.pop()
                 stacks.append(tuple(stack))
                 o += len(line) + 1
             self._cond[rel] = (starts, stacks)
         starts, stacks = self._cond[rel]
-        st = stacks[bisect.bisect_right(starts, i) - 1]
-        return st[-1] if st else None
+        return stacks[bisect.bisect_right(starts, i) - 1]
+
+    def rel_of(self, path):
+        """Absolute source path (as in a #line directive) -> (rel, txt) of a loaded file, or None."""
+        if not hasattr(self, '_byrel'):
+            self._byrel = dict((rel.lower(), (rel, txt)) for rel, txt in self.files)
+        if not os.path.isabs(path):
+            path = os.path.join(TRUNK, 'X2Lib', path)     # cl /P runs in X2Lib/ (preprocess)
+        try:
+            rel = os.path.relpath(os.path.normpath(path), TRUNK).replace('\\', '/').lower()
+        except ValueError:
+            return None
+        return self._byrel.get(rel)
 
 
 class March:
@@ -1259,33 +1288,95 @@ def parse_enum_lua(path):
 
 # ------------------------------------------------------------------ gating flags
 def system_hits(raw):
-    """-> {system: (Counter file -> hits, Counter enclosing flag -> hits)} over raw sources."""
+    """-> {system: (Counter file -> hits, Counter enclosing flag -> hits, Counter file -> rule-5 hits)}
+    over raw sources. Hits inside a SERV_IRUHADEV_JUNE_* block are counted apart (see
+    RawSource.in_june_rebuild) and are not evidence."""
     out = {}
+    code = [(rel, txt, blank_comments(txt)) for rel, txt in raw.files]
     for name, keypat, terms, note in SYSTEMS:
-        files, gates = collections.Counter(), collections.Counter()
+        files, gates, rule5 = collections.Counter(), collections.Counter(), collections.Counter()
         pat = system_re(terms)
-        for rel, txt in raw.files:
-            for m in pat.finditer(txt):
+        for rel, txt, ctxt in code:
+            for m in pat.finditer(ctxt):     # a comment naming a key is not the key's system
+                if raw.in_june_rebuild(rel, txt, m.start()):
+                    rule5[rel] += 1
+                    continue
                 files[rel] += 1
                 g = raw.cond_stack(rel, txt, m.start())
                 if g:
                     gates[g] += 1
-        out[name] = (files, gates)
+        out[name] = (files, gates, rule5)
     return out
 
 
-def system_evidence(M, hits):
+def blank_comments(txt):
+    """txt with // and /* */ comment bodies replaced by spaces (newlines kept), so offsets
+    and line numbers still match txt. String literals are skipped, so "//" inside one
+    stays."""
+    def sub(m):
+        s = m.group(0)
+        return s if s[0] in '"\'' else re.sub(r'[^\n]', ' ', s)
+    return _COMMENT_OR_STRING.sub(sub, txt)
+
+
+_COMMENT_OR_STRING = re.compile(r'"(?:[^"\\\n]|\\.)*"|\'(?:[^\'\\\n]|\\.)*\'|//[^\n]*|/\*.*?(?:\*/|\Z)', re.S)
+
+
+def tu_origins(T):
+    """-> (offsets, [(path, line)]) for every #line directive of a preprocessed TU: the
+    source position of any offset in T.all_text is the last directive before it plus the
+    newlines in between."""
+    if not hasattr(T, '_origins'):
+        offs, org = [], []
+        for m in re.finditer(r'^#line (\d+) "(.*)"\r?$', T.all_text, re.M):
+            offs.append(m.end() + 1)
+            org.append((m.group(2).replace('\\\\', '\\'), int(m.group(1))))
+        T._origins = (offs, org)
+    return T._origins
+
+
+def system_evidence(M, hits, raw):
+    """Compiled hits per parser TU, minus the ones whose source line sits in a
+    SERV_IRUHADEV_JUNE_* block of `raw` (the rebuild's own rule-5 parse sites)."""
     ev = []
     for name, keypat, terms, note in SYSTEMS:
         comp = collections.Counter()
         pat = system_re(terms)
         for tu, T in M.tu.items():
-            n = len(pat.findall(T.all_text))
+            offs, org = tu_origins(T)
+            n = 0
+            for m in pat.finditer(T.all_text):
+                k = bisect.bisect_right(offs, m.start()) - 1
+                if k >= 0:
+                    src = raw.rel_of(org[k][0])
+                    if src:
+                        line = org[k][1] + T.all_text.count('\n', offs[k], m.start())
+                        rel, txt = src
+                        pos = line_offset(txt, line)
+                        if pos is not None and raw.in_june_rebuild(rel, txt, pos):
+                            continue
+                n += 1
             if n:
                 comp[tu] += n
         ev.append({'name': name, 'keypat': keypat, 'terms': terms, 'note': note, 'compiled': comp, 'raw': hits[name][0],
-                   'gates': hits[name][1]})
+                   'gates': hits[name][1], 'rule5': hits[name][2]})
     return ev
+
+
+_LINE_OFFS = {}
+
+
+def line_offset(txt, line):
+    """Offset of 1-based `line` in txt, or None past the end."""
+    key = id(txt)
+    if key not in _LINE_OFFS:
+        starts, o = [0], 0
+        for s in txt.split('\n'):
+            o += len(s) + 1
+            starts.append(o)
+        _LINE_OFFS[key] = starts
+    starts = _LINE_OFFS[key]
+    return starts[line - 1] if 0 < line <= len(starts) - 1 else None
 
 
 def verdict(e, flag_state):
@@ -1309,11 +1400,12 @@ def build(reuse_pp):
     data, enums = load_data()
     J = June()
     raw = RawSource()
-    hits = system_hits(RawSource(('X2Lib', 'KTDXLIB', os.path.join('KncWX2Server', 'Common'))))
-    flags = set(g for _, gates in hits.values() for g in gates)
+    sysraw = RawSource(('X2Lib', 'KTDXLIB', os.path.join('KncWX2Server', 'Common')))
+    hits = system_hits(sysraw)
+    flags = set(g for _, gates, _ in hits.values() for g in gates)
     tus, flag_state = preprocess(reuse_pp, flags)
     M = March(tus, raw)
-    sysev = system_evidence(M, hits)
+    sysev = system_evidence(M, hits, sysraw)
     sysv = dict((e['name'], verdict(e, flag_state)) for e in sysev)
 
     # ---- entries -> rows (keyed by the June template when one matches)
@@ -1455,6 +1547,10 @@ def build(reuse_pp):
         r['phase'] = phase_of(r)
         if not r['june_read']:
             r['status'] = 'june-ignores'
+        elif r['march'] and r['system']:
+            # absent system that March now parses, stores and logs (plan rule 5): that is
+            # the row's final state, and the March column shows the parse site
+            r['status'] = 'unsupported'
         elif r['march']:
             r['status'] = 'implemented'
         elif r.get('binonly'):
@@ -1465,7 +1561,7 @@ def build(reuse_pp):
             r['status'] = 'to-implement'
         r['sem'] = None
         r['jsite'] = None
-        if r['status'] == 'implemented':
+        if r['march'] and r['status'] in ('implemented', 'unsupported'):
             r['sem'], r['jsite'], r['msite'] = semantics(J, M, r)
 
     # ---- enums
@@ -1636,9 +1732,11 @@ def write(rows, code_keys, sysev, sysv, flag_state, enum_rows, june_enum, march_
     semd = [r for r in rows.values() if r['sem'] and r['sem'].startswith('differ')]
     semu = [r for r in rows.values() if r['sem'] and r['sem'].startswith('unchecked')]
     sems = [r for r in rows.values() if r['sem'] == 'same']
+    nparsed = st['implemented'] + len([r for r in rows.values() if r['status'] == 'unsupported' and r['march']])
     w('')
-    w('Semantics of implemented rows: %d same, %d **semantics-differ**, %d unchecked, %d n/a.' % (
-        len(sems), len(semd), len(semu), st['implemented'] - len(sems) - len(semd) - len(semu)))
+    w('Semantics of the rows March parses (implemented, plus unsupported rows parsed under plan rule 5): '
+      '%d same, %d **semantics-differ**, %d unchecked, %d n/a.' % (
+        len(sems), len(semd), len(semu), nparsed - len(sems) - len(semd) - len(semu)))
     w('')
     # ---- semantics-differ
     w('## semantics-differ')
@@ -1741,15 +1839,18 @@ def write(rows, code_keys, sysev, sysv, flag_state, enum_rows, june_enum, march_
     w('- `source-only`: code exists, but the enclosing flags disagree or the probe could not settle one.')
     w('')
     w('Only `absent` and `gated-off` make a key `unsupported` (plan Phase 8c: confirm the system is')
-    w('absent before logging it as such).')
+    w('absent before logging it as such). Hits inside a `%s*` block are the rebuild\'s own' % JUNE_FLAG_PREFIX)
+    w('plan-rule-5 parse sites (parse, store, log): they are counted in the last column and are not')
+    w('evidence. An unsupported row that March parses that way stays `unsupported`, with its March site.')
     w('')
-    w('| system | keys (pattern) | verdict | evidence | compiled hits (parser TUs) | raw hits | enclosing flags |')
-    w('|---|---|---|---|---|---|---|')
+    w('| system | keys (pattern) | verdict | evidence | compiled hits (parser TUs) | raw hits | enclosing flags | rule-5 hits (not evidence) |')
+    w('|---|---|---|---|---|---|---|---|')
     for e in sysev:
         comp = ', '.join('%s %d' % kv for kv in e['compiled'].most_common(3)) or '0'
         raw = '%d in %d files (%s)' % (sum(e['raw'].values()), len(e['raw']), ', '.join('`%s`' % f for f, _ in e['raw'].most_common(2))) if e['raw'] else '0'
         gates = ', '.join('`%s` %s' % (g, {True: 'ON', False: 'off', None: '?'}[flag_state.get(g)]) for g, _ in e['gates'].most_common(5)) or '-'
-        w('| %s | `%s` | **%s** | %s | %s | %s | %s |' % (e['name'], e['keypat'], sysv[e['name']], e['note'], comp, raw, gates))
+        r5 = '%d in %d files (%s)' % (sum(e['rule5'].values()), len(e['rule5']), ', '.join('`%s`' % f for f, _ in e['rule5'].most_common(2))) if e['rule5'] else '0'
+        w('| %s | `%s` | **%s** | %s | %s | %s | %s | %s |' % (e['name'], e['keypat'], sysv[e['name']], e['note'], comp, raw, gates, r5))
     w('')
     w('Search terms: %s.' % '; '.join('%s: %s' % (e['name'], ', '.join('`%s`' % t for t in e['terms'])) for e in sysev))
     w('')

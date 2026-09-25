@@ -32,6 +32,8 @@ column.
 | `SERV_IRUHADEV_PENDING_DELETE_UNIT_MENU` | 2026-09-11, amended 2026-09-16 (twice) | `KTDXLIB/Always.h:3728` (nested under `SERV_UNIT_WAIT_DELETE`) | `X2Lib/X2StateServerSelect.cpp:1407` (down-state reset), `:2210`, `:3203`, `:3319`, `:3434` (immediate confirm on select), `:11196`, `:11234`, `:11303`; the first 2026-09-16 amendment also touches `X2Lib/Offline/X2OfflineDB.h:401-419,512`, `X2Lib/Offline/X2OfflineDB.cpp:1119-1145,1272-1285`, `X2Lib/Offline/Handlers_Unit.cpp:420-425,552-556` | -- |
 | `SERV_IRUHADEV_RANOX_FIRE_GROUND` | 2026-09-19 | `KTDXLIB/Always.h:4016`; damage-rate constant in `X2Lib/X2Define.h` | `KTDXLIB/KTDGLineMap.h` (`LINE_TYPE.LT_FIRE_GROUND` member), `X2Lib/X2GUUser.h` and `X2Lib/X2GUUser.cpp` (`PhysicProcess_FireGround`, called from `PhysicProcess()`) | `KncWX2Server/Common/LineMap/XSLLineMap.h` (inert -- flag not reachable from the server build, kept in sync only) |
 | `SERV_IRUHADEV_RANOX_RIM_LIGHT` | 2026-09-19 | `KTDXLIB/Always.h:4032` | `KTDXLIB/KTDGXRenderer.h`/`.cpp` (`CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE` member, `CKTDGXRenderer::SetRimLightTexType` and its 3 `BeginRender` substitution sites), `X2Lib/X2World.h`/`.cpp` (`CX2World::SetRimLightTextureIndex`, forwards to the renderer; destructor resets the override), `X2Lib/X2Main.cpp` (lua_tinker binding) | -- |
+| `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` | 2026-09-25 | `KTDXLIB/Always.h:4283` | `X2Lib/X2EffectSet.h:341,359,397,433` (`EffectSetData` members, `operator==`, `operator=`, ctor), `X2Lib/X2EffectSet.cpp:2258` (`AddEffectSetTemplet_LUA`) | -- |
+| `SERV_IRUHADEV_JUNE_FX_DEBUG` | 2026-09-25 | `KTDXLIB/Always.h:4294` | `X2Lib/X2EffectSet.cpp:2199,2213` (`OpenScriptFile` load summary), `:2305` (per-templet line, nested under `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE`) | -- |
 
 What each one does:
 
@@ -654,6 +656,53 @@ Client-only; no server rebuild -- neither flag touches anything under
 effect-set fix is a pure logging addition (removing it returns to the old
 silent-failure behavior, not a new one), and the skin-mesh fix drops back to
 skipping `ATTACH_SKIN_MESH0` entirely, the pre-mod behavior.
+
+### June2017 effect engine: EffectSet templet-level keys (Phase 2)
+
+Phase 2 of `JUNE2017_EFFECT_REBUILD_PLAN.md`. Parse only; nothing reads the new
+members yet (the runtime is Phase 4a/4b).
+
+**`SERV_IRUHADEV_JUNE_EFFECTSET_PARSE`** (`KTDXLIB/Always.h`,
+`X2Lib/X2EffectSet.h`, `X2Lib/X2EffectSet.cpp`). June2017's EffectSet parser
+(`FUN_321e48e0`) reads ten keys at the templet level, before the `EFFECT%d`
+loop at `321e5cf8`. March already read four of them, with the same getter and
+default. This flag reads the other six into new `EffectSetData` members, with
+June's getter types and defaults. Each read carries a comment citing its June
+address range.
+
+| Key | Type, default | Consumer |
+|---|---|---|
+| `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` | bool, false | Phase 4a |
+| `DELETE_EFFECTSET_AT_TRACE_UNIT_DIE` | bool, false | Phase 4b |
+| `OVERLAP` | bool, false | Phase 4a |
+| `SYNC_SHOW_BY_CREATE_UNIT` | bool, false | Phase 4a |
+| `APPLIED_SKILL_ID` | int, 0 | none: unsupported |
+| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | int, 0 (June keeps only the low byte) | none: unsupported |
+
+The two unsupported keys belong to systems this build lacks (plan rule 5).
+They are stored with no behaviour, and a non-zero value logs
+`JUNE_FX unsupported <KEY> in <set>: ...` once per templet to `ErrorLog.txt`.
+The flag also adds the new members to the dev-script `operator==` and
+`operator=`.
+
+**`SERV_IRUHADEV_JUNE_FX_DEBUG`** (`KTDXLIB/Always.h`, `X2Lib/X2EffectSet.cpp`).
+This is the rebuild's shared, short-lived diagnostic (plan rule 4).
+- For each templet that sets a June key, it writes
+  `JUNE_FX ES_TEMPLET <set> <KEY>=<v> ...`.
+- After each script file, it writes one summary line,
+  `JUNE_FX ES_LOAD <file> loaded=.. templets=.. with_june_templet_key=..`.
+
+Both go to `ErrorLog.txt`, not `offline_server.log`. The effect sets load in
+`CX2StateStartUp`, and the offline server only opens its log on first connect.
+
+**Data note.** No set in the current `march2014/data036/EffectSet.src.lua` uses
+any of the six keys. The Ranox merge brought none of them in. So the
+per-templet line fires only once data carrying these keys is packed; until
+then, the `ES_LOAD` line is the evidence that the block ran.
+
+Client-only; no server rebuild. Undefining `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE`
+removes the reads and members. Nothing consumes them yet, so no behaviour
+changes. Undefining `SERV_IRUHADEV_JUNE_FX_DEBUG` removes only log lines.
 
 
 ## Reverting to stock

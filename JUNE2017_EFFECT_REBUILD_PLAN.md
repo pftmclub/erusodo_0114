@@ -32,6 +32,18 @@ and they decrypt mechanically. So the June engine can now be read rather than gu
 - The standing CLAUDE.md rules still hold: no hardcoded tables, no invented curves, and
   server-side Lua is the user's to pack.
 
+**End goal (the user's, stated 2026-09-25).**
+- The March engine should become as close to the June engine as possible, so that
+  later June features port with little friction. This plan is the first subsystem done
+  that way: a trial of the approach, on effects.
+- For effects, the target is to **adopt June's own files**: `EffectSet*`/`DamageEffect*`
+  lua and the assets they reference. The Ranox-merged March copies are a stopgap to be
+  retired, not maintained.
+- Consequences for every phase:
+  - Match June's behaviour, not just what the current merged data exercises.
+  - A log check that cannot fire on the merged data is settled at Phase 11, where
+    June's data carries the keys. Phase 2's `ES_TEMPLET` check is the first case.
+
 ---
 
 ## Starting context (paste this with any phase)
@@ -457,6 +469,42 @@ No client code changes in this phase. Commit the census script and the matrix, w
 ---
 
 ## Phase 2 — EffectSet parser, templet level
+
+**Status: done 2026-09-25**, verified in a play-test. `ErrorLog.txt` showed:
+- `JUNE_FX ES_LOAD EffectSet.lua loaded=1 templets=3134 with_june_templet_key=0`. 3134
+  equals the count from `march2014/data036/EffectSet.src.lua`, so the packed `data036.kom`
+  matches the tree.
+- `UIEffectSet.lua` 52, `UIEffectSet_INT.lua` 6 and `EffectSet_INT.lua` 46, all loaded,
+  none with a June key.
+- No `ES_TEMPLET` or `unsupported` lines, as expected.
+- The `ES_TEMPLET` check for data that actually uses the keys moves to Phase 11 (see
+  below).
+`SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` (+ `SERV_IRUHADEV_JUNE_FX_DEBUG`). Things the next
+phases should know:
+
+- **The templet level is ten keys, not the list in *Scope* below.** June reads
+  `NAME`, `EVENT_TIMER_TYPE`, `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE`,
+  `AFFECTED_BY_UNIT_SCALE`, `DELETE_SHAKE_COUNT`, `DELETE_EFFECTSET_AT_TRACE_UNIT_DIE`,
+  `OVERLAP`, `APPLIED_SKILL_ID`, `SYNC_SHOW_BY_CREATE_UNIT` and
+  `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`. `GROUP_NAME` and `NOT_ALLOW_MEMO` are not
+  read here: `NOT_ALLOW_MEMO` is Phase 3's.
+- **No deployed set uses any of the six new keys.** The 196 Ranox blocks carry none of
+  them, and `march2014/data036/EffectSet.src.lua` has no occurrence at all. The three
+  June sets that do use one and also exist in March
+  (`EffectSet_KILL_ENEMY_WHEN_FULL_HYPER_MODE`, `EffectSet_ANCIENT_BONE_DRAGON_SLEEP`,
+  `EffectSet_Wedding_Heart_06`) are March's own versions, without the key.
+  - So the "`ES_TEMPLET` line for a Ranox set" criterion cannot fire on current data.
+    **The user's decision: it is settled in Phase 11**, where June's own `EffectSet.lua`
+    uses all six keys.
+  - A `JUNE_FX ES_LOAD` summary line per script file shows that the block ran.
+  - Don't port June's `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` sets to test it:
+    `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION.AEACBO_*` indexes an enum table March's
+    `Enum.lua` lacks (Phase 11), and the nil index would abort the whole chunk.
+- **Load-time `JUNE_FX` lines go to `ErrorLog.txt`.** `EffectSet.lua` loads in
+  `CX2StateStartUp::LoadData`, before the offline server opens `offline_server.log`
+  (it opens on first connect).
+- **census.py changed** so rule-5 parse sites don't count as evidence that a system
+  exists; see `june2017_re/README.md`.
 
 **Paste with:** Starting context + this section.
 
@@ -1171,20 +1219,98 @@ census shows 0 MeshPlayer keys to-implement. Update the matrix and MODS.md.
 
 ---
 
-## Phase 11 — Enums, data, and the June-data trial load
+## Phase 10b — Adoption audits: asset closure, name contract, script conversion
 
 **Paste with:** Starting context + this section.
 
-1. **Enum data.** Add to `march2014/data036/Enum.src.lua` the June enum tables and members
-   that now have C++ readers: the Phase 1 enum census, filtered by what Phases 2–10
-   implemented.
+**No engine dependency.** These are static checks over data and source. They can run any
+time before Phase 11, and running them early sizes the data side of adoption. No client
+code changes in this phase.
+
+1. **Asset closure → `june2017_re/assets.py` → `JUNE2017_ASSET_CLOSURE.md`.** Start from
+   every June `EffectSet*`/`DamageEffect*` templet and follow each reference to its end:
+   - the effect set / damage effect → mesh-player and particle templet names
+     (`GameMajorXMeshPlayer*.txt`, `GameMajorParticle*.txt`, and their UI/Minor
+     siblings);
+   - those templets → meshes (`.X`), textures (`.dds`/`.tga`, and `.TET` atlases),
+     sounds (`.ogg`/`.wav`), and any nested templet.
+
+   For each leaf, record where it is found: in June's `.kom`s, in March's live `.kom`s, or
+   in `march2014/update/`. Also record whether a March copy differs from June's, by size
+   and hash.
+   - "Differs" is the dangerous bucket. Swapping a shared atlas breaks every other swatch
+     in it (see `RANOX_PORT_PLAN.md`, the `DLG_UI_Button17` / Texture71 merges). Flag
+     those; don't resolve them.
+   - The output is a list for the user. **The user packs.** Nothing is copied into the
+     game directory.
+2. **Name contract → `june2017_re/names.py`.** Collect every effect-set, damage-effect,
+   mesh-player and particle name that March's C++ asks for by literal. Examples:
+   `PlayEffectSet( L"..." )`, `CreateInstance( ..., L"..." )`, and `GetMajorXMeshPlayer`
+   lookups, in `X2Lib`/`KTDXLIB`, preprocessed under `US_SERVICE` as `census.py` does.
+   Diff that set against the names June's files define.
+   - A March-only name is an effect that **silently disappears** on adoption. For each
+     one, record whether June renamed it (by content), moved it, or dropped it, and
+     which March call site uses it.
+   - Do not fix any of them here. They are the adoption punch list.
+3. **Script conversion method.** June's lua is KOG LuaJIT `KL\x82` bytecode. Two routes
+   to `mar-2014`:
+   - **(a) decompile + recompile:** `ljd_jun2017.py`, then
+     `elstools compile-batch -v mar-2014`. **Known risk:** ljd mis-structures the
+     code-built tables in `DamageEffect.lua` (README, "ljd caveat").
+   - **(b) direct bytecode transcoding:** the header byte, plus KOG→stock opcode
+     renumbering. The README says `mar-2014` uses stock numbers and differs only in the
+     header. That is **unverified** as a claim about the whole format, so test it
+     first. For each of the 14 June files, transcode, then disassemble both the
+     transcoded file and the `decompile-batch` `.std.luac`, and require them to be
+     identical.
+
+   Write the result into this section. Name the route Phase 11 uses and give the evidence.
+
+**Exit criteria.** `JUNE2017_ASSET_CLOSURE.md` exists and every leaf has a location
+verdict. The name-contract list is complete, with a verdict on each name. There is a
+decided, evidenced conversion route.
+
+**Kickoff prompt**:
+```
+Continuing the June2017 effect-engine rebuild. Read JUNE2017_EFFECT_REBUILD_PLAN.md
+("Starting context", "End goal", "Phase 10b"), june2017_re/README.md (especially "June
+LuaJIT opcode table" and the ljd caveat), and RANOX_PORT_PLAN.md's atlas-merge notes.
+Branch: mods/lanox-port.
+
+Your task: the three adoption audits, static only, no client code changes. (1) Asset
+closure from every June EffectSet*/DamageEffect* templet down to meshes/textures/sounds,
+with a location + differs verdict per leaf -> JUNE2017_ASSET_CLOSURE.md (flag shared
+atlases, don't resolve them; I pack, nothing goes into the game directory). (2) Name
+contract: every effect/mesh/particle name March's C++ requests by literal vs. the names
+June's files define; verdict per March-only name. (3) Decide the June->mar-2014 script
+conversion route: test direct bytecode transcoding against the decompile/recompile route
+and record the evidence. Commit with my OK.
+```
+
+---
+
+## Phase 11 — Enums, June-data trial load, then adoption
+
+**Paste with:** Starting context + this section. Needs Phase 10b's outputs.
+
+**The destination is adoption, not a trial for its own sake** (see *End goal*). The trial
+in a throwaway copy is the safety step before June's files replace the merged March
+copies in the live data.
+
+1. **Enum data.** Add to `march2014/data036/Enum.src.lua` every June enum table and
+   member that June's adopted files reference. The Phase 1 enum census lists them.
+   - **This supersedes Phase 1's "no reader, not added" rule for adoption.** A missing
+     enum name makes June's lua index nil, which aborts the rest of that chunk. A member
+     with no C++ reader is still added, and marked reader-less in the matrix, so it is
+     visibly inert.
    - Take the values verbatim from June's `Enum.lua`.
    - Preserve the UTF-8 BOM and CRLF byte for byte.
    - Add a comment naming this plan.
    - Then compile with `elstools compile-batch -v mar-2014`. **The user packs it.** Name
      the exact file(s) when reporting.
 2. **Trial load.** Point the client at June's own `EffectSet*.lua` and
-   `DamageEffect*.lua`, recompiled `-v mar-2014`, instead of the merged March copies.
+   `DamageEffect*.lua`, converted to `mar-2014` by the route Phase 10b chose, instead of
+   the merged March copies. Include the assets Phase 10b's closure found missing.
    - Run it from a **separate copy of the game directory**, never `$DATA`. Copy
      everything except `els_db.sql*`, and give the copy its own save.
    - CLAUDE.md forbids loose copies in the game directory. That rule exists because a
@@ -1197,8 +1323,21 @@ census shows 0 MeshPlayer keys to-implement. Update the matrix and MODS.md.
      prefer.
    - Record every load error in `OpenScriptFile.log`/`ErrorLog.txt` and every unread key
      the census still reports. Delete the copy when done, after asking.
-3. **Report.** Write `JUNE2017_TRIAL_LOAD.md` with the results. The user decides whether to
-   adopt June's files wholesale, or keep the merge.
+   - **Settle the deferred log checks here.** Phase 2's `JUNE_FX ES_TEMPLET` lines must
+     appear, for example `SYNC_SHOW_BY_CREATE_UNIT` on
+     `EffectSet_KILL_ENEMY_WHEN_FULL_HYPER_MODE`, and `OVERLAP` on
+     `EffectSet_ALH_LINK_FLOWER_DeBuff`. The same goes for any later phase's check that
+     could not fire on merged data.
+   - Play-test the name-contract punch list from Phase 10b: every March call site whose
+     name June renamed or dropped.
+3. **Report.** Write `JUNE2017_TRIAL_LOAD.md` with the results. It is a punch list of what
+   blocks adoption, not a keep-or-adopt verdict.
+4. **Adopt**, once the punch list is clear or each remaining item is accepted by the user:
+   - **The user packs** June's converted files, the enum update and the missing assets
+     into the live archives. Name every file.
+   - Retire the Ranox-merged copies in `march2014/data036/`. Ask before removing them;
+     they stay in git history.
+   - Verify from the live game directory's logs, not the copy's.
 
 **Kickoff prompt**:
 ```
@@ -1206,14 +1345,20 @@ Continuing the June2017 effect-engine rebuild. Read JUNE2017_EFFECT_REBUILD_PLAN
 ("Starting context", "Phase 11") and JUNE2017_EFFECT_KEY_MATRIX.md. Branch:
 mods/lanox-port.
 
-Your task: (1) add the June enum tables/members that now have C++ readers to
-march2014/data036/Enum.src.lua, values verbatim from June's Enum.lua, BOM and CRLF
-preserved, compiled with elstools compile-batch -v mar-2014 -- I pack it; name the exact
-file for me. (2) Trial-load June's own EffectSet*/DamageEffect* lua against the new engine
-from a SEPARATE COPY of the game directory (never the live one, never my els_db.sql).
-Ask me whether to use loose files or a trial .kom in that copy, don't build US_INTERNAL
-unless I ask, and ask before deleting the copy afterwards.
-Record every load error and every key still unread. (3) Write JUNE2017_TRIAL_LOAD.md.
+The goal is adopting June's effect files, not keeping the merge (see "End goal").
+
+Your task: (1) add every June enum table/member that June's effect files reference to
+march2014/data036/Enum.src.lua (reader-less ones too, marked inert in the matrix), values
+verbatim from June's Enum.lua, BOM and CRLF preserved, compiled with elstools
+compile-batch -v mar-2014 -- I pack it; name the exact file for me. (2) Trial-load June's
+own EffectSet*/DamageEffect* lua, converted by Phase 10b's chosen route, plus the missing
+assets from JUNE2017_ASSET_CLOSURE.md, from a SEPARATE COPY of the game directory (never
+the live one, never my els_db.sql). Ask me whether to use loose files or a trial .kom in
+that copy, don't build US_INTERNAL unless I ask, and ask before deleting the copy
+afterwards. Record every load error and every key still unread; confirm the deferred
+JUNE_FX checks (Phase 2's ES_TEMPLET lines) fire; play-test Phase 10b's name-contract list.
+(3) Write JUNE2017_TRIAL_LOAD.md as an adoption punch list. (4) When it's clear, name
+every file I need to pack for adoption, and ask before retiring the merged March copies.
 Ask before launching the client, every time.
 ```
 
