@@ -23,6 +23,8 @@ templates and `<plaintext>` + `%s%d`. `K_ULTIMATE` matches when K is passed to a
 
 Each data key is `both` or `data-only`; each data-only key gets an explanation:
   other-func   the key is decrypted / referenced in a different function (VAs given)
+  numbered-base  the name is referenced only as the base of a "%s%d" format:
+               NAME0.. is read, bare NAME is not
   plain-only   the key exists as a plaintext string in the binary, but no direct
                reference to it was found (it may be reached via a pointer table)
   decoder-miss? a non-ok xorstrings.tsv row is compatible with it
@@ -170,6 +172,13 @@ def plain_at(d, va):
     return m.group(0)[:-1].decode() if m else None
 
 
+# Numbered-table helpers that also read the unformatted name. Hand-verified.
+BARE_ALSO_READ = {
+    0x31f79c20: 'DAMAGE_DATA_NEXT: SetDamageDataFromLUA(name) @31f79d0b first, then "%s%d" '
+                '(31c7b920 @31f79e11) with the counter starting at 2 (@31f79d34)',
+}
+
+
 class Binary:
     def __init__(self):
         self.d = X.data()
@@ -181,6 +190,7 @@ class Binary:
                 self.xor_index[k].add(f)
         self._fn = {}
         self._helper = {}
+        self.numbered_only = {}   # func -> plaintext names it uses only as "%s%d" bases
 
     def func_of(self, va):
         import bisect
@@ -214,11 +224,28 @@ class Binary:
         # ... or passed to a small "%s%d" helper, e.g. FUN_31c7b980(name, index, flag):
         # snprintf(buf, 0xff, "%s%d", name, index) then open that table. The name is
         # the last plaintext pushed before the call (EffectSet: "EFFECT" @321e5cef).
+        consumed = collections.defaultdict(set)   # name -> ref VAs used as a "%s%d" base
+        # ... pushed straight before this function's own "%s%d" (the particle wrappers:
+        # PUSH "TIME_PARTICLE" / PUSH "%s%d" @31f6ab0a, snprintf 31c7b920) ...
+        fmt_vas = [va for va, s in plain if s == '%s%d']
+        for va, s in plain:
+            if IDENT.match(s) and '%' not in s and any(0 < fv - va < 0x10 for fv in fmt_vas):
+                consumed[s].add(va)
+        # ... or passed to a numbered helper:
         for site, t in calls:
             if t != f and self.is_numbered_helper(t):
-                before = [s for va, s in plain if va < site and site - va < 0x20 and IDENT.match(s) and '%' not in s]
+                before = [(va, s) for va, s in plain if va < site and site - va < 0x20 and IDENT.match(s) and '%' not in s]
                 if before:
-                    keys.add(before[-1] + '%d')
+                    keys.add(before[-1][1] + '%d')
+                    if t not in BARE_ALSO_READ:
+                        consumed[before[-1][1]].add(before[-1][0])
+        # A name whose every reference is a numbered-helper base is not read bare:
+        # TIME_PARTICLE is pushed only into 31f66e60's "%s%d", so a data key spelled
+        # TIME_PARTICLE (no index) is not opened.
+        for name, vas in consumed.items():
+            if all(va in vas for va, s in plain if s == name) and name not in self.xor_ok.get(f, ()):
+                keys.discard(name)
+                self.numbered_only.setdefault(f, set()).add(name)
         return r
 
     def is_numbered_helper(self, t):
@@ -226,7 +253,17 @@ class Binary:
             return self._helper[t]
         self._helper[t] = False   # break recursion before fn(t)
         r = self.fn(t)
-        ok = any(s == '%s%d' for _, s in r['plain']) and len(r['calls']) <= 4
+        # No call-count limit: the die/hit wrappers 31f6e7e0/31f6e850 push plaintext
+        # DIE_/HIT_DAMAGE_EFFECT[_ULTIMATE] into the full per-entry loaders 31f68f30 /
+        # 31f6ceb0, which format "%s%d" themselves. With a limit, DIE_DAMAGE_EFFECT0..
+        # came out "unread" once the '%s' wildcard stopped hiding it. Same for
+        # 31f79c20, which reads DAMAGE_DATA_NEXT and then loops "%s%d" from 2
+        # (@31f79d34 / 31f79e11). But a callee that formats its OWN plaintext name
+        # (31f66700: "CONDITION_" + "%s%d") does not number the caller's name, or
+        # AND_OPERATION would become AND_OPERATION%d.
+        fmt = [va for va, s in r['plain'] if s == '%s%d']
+        own = [va for va, s in r['plain'] if IDENT.match(s) and '%' not in s]
+        ok = bool(fmt) and not any(0 < f - o < 0x20 for f in fmt for o in own)
         self._helper[t] = ok
         return ok
 
@@ -268,8 +305,13 @@ class Binary:
 
 
 def matcher(keys):
+    # A template with no identifier stem ('%s', '%s_ULTIMATE', '%s%d') is a format
+    # string of a helper, not a key: '%s' would become '^.+$' and match every key.
+    # (Phase 0 shipped with that bug: the CEffect top level reported 378 of 378.)
+    # The _ULTIMATE wrappers are handled by ultimate_bases() instead.
     exact = set(k for k in keys if '%' not in k)
-    pats = [re.compile('^' + re.escape(k).replace('%d', r'\d+').replace('%s', r'.+') + '$') for k in keys if '%' in k]
+    pats = [re.compile('^' + re.escape(k).replace('%d', r'\d+').replace('%s', r'.+') + '$') for k in keys
+            if '%' in k and not k.startswith('%')]
 
     def m(key):
         if key in exact:
@@ -388,6 +430,110 @@ def de_reader(path):
     return '<CEffect top level>', DE_TOP
 
 
+class Explainer:
+    """Why a data key is not read by a scope's readers: explain(key, scope_keys, reach)
+    -> (category, why), categories as in the module docstring. closure(readers) is the
+    call-path set explain() takes as `reach`. Shared with census.py."""
+
+    def __init__(self, B, funcs):
+        for f in funcs:
+            B.fn(f)
+        tpl_owner = collections.defaultdict(set)
+        for k, fs in B.xor_index.items():
+            if '%d' in k and IDENT.match(k):
+                tpl_owner[k] |= fs
+        for f, r in B._fn.items():
+            for k in r['keys']:
+                if '%d' in k:
+                    tpl_owner[k].add(f)
+        glob_tpl = sorted(tpl_owner)
+        glob_m = matcher(glob_tpl)
+        bad_pats = []
+        for f, txt, st in B.xor_bad:
+            known = sum(ch != '?' for ch in txt)
+            if '?' in txt and known >= 3 and known * 2 >= len(txt):
+                bad_pats.append((f, re.compile('^' + re.escape(txt).replace(r'\?', '.') + '$'), st))
+
+        typo_pool = sorted(k for k in B.xor_index if re.match(r'^[A-Z][A-Z0-9_]+$', k))
+
+        def closure(readers, depth=3):
+            seen = set(readers)
+            frontier = list(readers)
+            for _ in range(depth):
+                nxt = []
+                for f in frontier:
+                    for _, t in B.fn(f)['calls']:
+                        if t not in seen and X.TEXT_VA <= t < X.TEXT_VA + X.TEXT_RAWSIZE:
+                            seen.add(t)
+                            nxt.append(t)
+                frontier = nxt
+            return seen
+
+        def placed(fs, reach, what):
+            """other-func only if a naming function is on the scope's call path."""
+            on = sorted(f for f in fs if reach is None or f in reach)
+            if on:
+                return 'other-func', '%s in callee %s' % (what, ', '.join('%08x' % f for f in on[:4]))
+            return 'name-collision', '%s only in unrelated %s: not on this scope\'s call path' % (
+                what, ', '.join('%08x' % f for f in sorted(fs)[:4]))
+
+        def explain(key, scope_keys, reach):
+            if key in MANUAL:
+                return MANUAL[key]
+            # Pool every function that names the key -- decrypted, via a %d template, or
+            # by plaintext reference -- before asking whether one is on the call path.
+            # (Stopping at the first source mislabelled BUFF_FACTOR_ID: decrypted only in
+            # unrelated functions, but the callee ParsingBuffFactorID may name it too.)
+            namers = {}
+            for f in B.xor_index.get(key, ()):
+                namers.setdefault(f, 'decrypted')
+            t = glob_m(key)
+            if t:
+                for k in glob_tpl:
+                    if re.match('^' + re.escape(k).replace('%d', r'\d+') + '$', key):
+                        for f in tpl_owner[k]:
+                            namers.setdefault(f, 'template %s' % k)
+            hits, refs = B.plain_refs(key)
+            base_only = []
+            refs.discard(None)
+            for f in refs:
+                if key in B.numbered_only.get(f, ()):
+                    base_only.append(f)   # only a "%s%d" base there: KEY0.. is read, bare KEY is not
+                    continue
+                namers.setdefault(f, 'plaintext referenced')
+            if namers:
+                on = sorted(f for f in namers if reach is None or f in reach)
+                if on:
+                    return 'other-func', 'named in callee %s' % ', '.join('%08x (%s)' % (f, namers[f]) for f in on[:4])
+                return 'name-collision', 'named only in unrelated %s: not on this scope\'s call path' % (
+                    ', '.join('%08x (%s)' % (f, namers[f]) for f in sorted(namers)[:4]))
+            if base_only:
+                return 'numbered-base', ('plaintext referenced only as a "%%s%%d" base, in %s: `%s0`.. is read, '
+                                         'bare `%s` is not') % (', '.join('%08x' % f for f in sorted(base_only)[:4]), key, key)
+            if hits:
+                return 'plain-only', 'plaintext at ' + ', '.join('%08x' % h for h in hits[:3]) + ', no direct reference found'
+            for f, p, st in bad_pats:
+                if p.match(key):
+                    return 'decoder-miss?', 'compatible with non-ok row in %08x (%s)' % (f, st)
+            for f, txt, st in B.xor_bad:
+                if key in txt:
+                    return 'decoder-miss?', 'inside non-ok row %r in %08x (%s)' % (txt[:50], f, st)
+            # A studio typo in the data: close to a key the binary does read. June
+            # ignores it exactly as it ignores any unknown key.
+            for pool, where in ((sorted(k for k in scope_keys if '%' not in k), 'this scope'), (typo_pool, 'binary-wide')):
+                best = min(((edit1(key.upper(), k), k) for k in pool if abs(len(k) - len(key)) <= 2), default=(9, None))
+                limit = 2 if where == 'this scope' else 1
+                if best[1] and (best[0] <= limit or key.upper() == best[1]) and len(key) >= 5:
+                    owners = sorted(B.xor_index.get(best[1], ()))[:3]
+                    return 'typo', 'data typo of `%s` (%s%s); the binary never reads this spelling' % (
+                        best[1], where, ', decrypted in ' + ', '.join('%08x' % f for f in owners) if owners else '')
+            m = march_reads(key)
+            return 'unread', 'not decrypted, not plaintext, no compatible failed row; March: %s' % (
+                'reads it at ' + m if m else 'no quoted literal in X2Lib/KTDXLIB')
+        self.closure = closure
+        self.explain = explain
+
+
 def main():
     report = []
     fail = []
@@ -440,93 +586,8 @@ def main():
             add(scope, [], 'no reader identified yet: every key is looked up binary-wide', key, templet, stem)
 
     # ---- global helpers for explanations
-    for f in all_de + esf:
-        B.fn(f)
-    tpl_owner = collections.defaultdict(set)
-    for k, fs in B.xor_index.items():
-        if '%d' in k and IDENT.match(k):
-            tpl_owner[k] |= fs
-    for f, r in B._fn.items():
-        for k in r['keys']:
-            if '%d' in k:
-                tpl_owner[k].add(f)
-    glob_tpl = sorted(tpl_owner)
-    glob_m = matcher(glob_tpl)
-    bad_pats = []
-    for f, txt, st in B.xor_bad:
-        known = sum(ch != '?' for ch in txt)
-        if '?' in txt and known >= 3 and known * 2 >= len(txt):
-            bad_pats.append((f, re.compile('^' + re.escape(txt).replace(r'\?', '.') + '$'), st))
-
-    typo_pool = sorted(k for k in B.xor_index if re.match(r'^[A-Z][A-Z0-9_]+$', k))
-
-    def closure(readers, depth=3):
-        seen = set(readers)
-        frontier = list(readers)
-        for _ in range(depth):
-            nxt = []
-            for f in frontier:
-                for _, t in B.fn(f)['calls']:
-                    if t not in seen and X.TEXT_VA <= t < X.TEXT_VA + X.TEXT_RAWSIZE:
-                        seen.add(t)
-                        nxt.append(t)
-            frontier = nxt
-        return seen
-
-    def placed(fs, reach, what):
-        """other-func only if a naming function is on the scope's call path."""
-        on = sorted(f for f in fs if reach is None or f in reach)
-        if on:
-            return 'other-func', '%s in callee %s' % (what, ', '.join('%08x' % f for f in on[:4]))
-        return 'name-collision', '%s only in unrelated %s: not on this scope\'s call path' % (
-            what, ', '.join('%08x' % f for f in sorted(fs)[:4]))
-
-    def explain(key, scope_keys, reach):
-        if key in MANUAL:
-            return MANUAL[key]
-        # Pool every function that names the key -- decrypted, via a %d template, or
-        # by plaintext reference -- before asking whether one is on the call path.
-        # (Stopping at the first source mislabelled BUFF_FACTOR_ID: decrypted only in
-        # unrelated functions, but the callee ParsingBuffFactorID may name it too.)
-        namers = {}
-        for f in B.xor_index.get(key, ()):
-            namers.setdefault(f, 'decrypted')
-        t = glob_m(key)
-        if t:
-            for k in glob_tpl:
-                if re.match('^' + re.escape(k).replace('%d', r'\d+') + '$', key):
-                    for f in tpl_owner[k]:
-                        namers.setdefault(f, 'template %s' % k)
-        hits, refs = B.plain_refs(key)
-        refs.discard(None)
-        for f in refs:
-            namers.setdefault(f, 'plaintext referenced')
-        if namers:
-            on = sorted(f for f in namers if reach is None or f in reach)
-            if on:
-                return 'other-func', 'named in callee %s' % ', '.join('%08x (%s)' % (f, namers[f]) for f in on[:4])
-            return 'name-collision', 'named only in unrelated %s: not on this scope\'s call path' % (
-                ', '.join('%08x (%s)' % (f, namers[f]) for f in sorted(namers)[:4]))
-        if hits:
-            return 'plain-only', 'plaintext at ' + ', '.join('%08x' % h for h in hits[:3]) + ', no direct reference found'
-        for f, p, st in bad_pats:
-            if p.match(key):
-                return 'decoder-miss?', 'compatible with non-ok row in %08x (%s)' % (f, st)
-        for f, txt, st in B.xor_bad:
-            if key in txt:
-                return 'decoder-miss?', 'inside non-ok row %r in %08x (%s)' % (txt[:50], f, st)
-        # A studio typo in the data: close to a key the binary does read. June
-        # ignores it exactly as it ignores any unknown key.
-        for pool, where in ((sorted(k for k in scope_keys if '%' not in k), 'this scope'), (typo_pool, 'binary-wide')):
-            best = min(((edit1(key.upper(), k), k) for k in pool if abs(len(k) - len(key)) <= 2), default=(9, None))
-            limit = 2 if where == 'this scope' else 1
-            if best[1] and (best[0] <= limit or key.upper() == best[1]) and len(key) >= 5:
-                owners = sorted(B.xor_index.get(best[1], ()))[:3]
-                return 'typo', 'data typo of `%s` (%s%s); the binary never reads this spelling' % (
-                    best[1], where, ', decrypted in ' + ', '.join('%08x' % f for f in owners) if owners else '')
-        m = march_reads(key)
-        return 'unread', 'not decrypted, not plaintext, no compatible failed row; March: %s' % (
-            'reads it at ' + m if m else 'no quoted literal in X2Lib/KTDXLIB')
+    _E = Explainer(B, all_de + esf)
+    closure, explain = _E.closure, _E.explain
 
     # ---- classify
     group_keys = collections.defaultdict(set)   # scope family -> every data key and sub-table name
@@ -577,7 +638,7 @@ def main():
                 continue
             cat, why = explain(k, keys, reach)
             if cat == 'name-collision':
-                for pth in sorted(paths, key=len, reverse=True):
+                for pth in sorted(paths, key=lambda p: (-len(p), p)):   # deterministic ties
                     opener = next(((c, callee_names.get(c) or callee_names.get(cm(c) or '')) for c in reversed(pth) if cm(c)), None)
                     if opener:
                         cat = 'nested-subtable'
@@ -611,7 +672,10 @@ def main():
                 lst.append((k, 'xor' if k in src_x else 'plain'))
             if lst:
                 bin_only['%08x' % f] = lst
-    all_bin_only = set(k for v in bin_only.values() for k, _ in v)
+    # Only decrypted keys can carry the decoder's dropped-last-character bug. A plaintext
+    # sub-table name (HIT_DAMAGE_EFFECT, whose "%s%d" is applied one call down) vs. a
+    # data key HIT_DAMAGE_EFFECT0 is the numbered-table idiom, not that signature.
+    all_bin_only = set(k for v in bin_only.values() for k, s in v if s == 'xor')
 
     # exit checks
     onechar = []
@@ -656,6 +720,8 @@ def main():
     w('  data copy-pasted between block types; June ignores it, and so must we.')
     w('- `name-collision`: as `dead-here`, but the readers\' guard accounting is incomplete,')
     w('  so a missed read cannot be ruled out.')
+    w('- `numbered-base`: the name is referenced only as the base of a `"%s%d"` format')
+    w('  (`snprintf(buf, "%s%d", "TIME_PARTICLE", i)`), so `NAME0`.. is read and bare `NAME` is not.')
     w('- `plain-only`: the key exists as a plaintext string, but nothing references it')
     w('  directly. A pointer table may reach it.')
     w('- `decoder-miss?`: a non-ok `xorstrings.tsv` row is compatible with the key.')

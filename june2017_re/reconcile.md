@@ -10,7 +10,7 @@ rerun it. `JUNE2017_EFFECT_REBUILD_PLAN.md` Phase 0 defines the terms.
   dropped and invented nothing, including in the code-built `Get*` helper tables.
 - **Data-only keys that are a one-character extension of a binary-only key** (the
   dropped-last-character signature): **none**.
-- **Data-only explanations:** dead-here 51, nested-subtable 63, other-func 31, removed-in-June 2, typo 22, unread 21.
+- **Data-only explanations:** dead-here 59, nested-subtable 76, numbered-base 2, other-func 316, removed-in-June 2, typo 26, unread 29.
 
 | File | source keys | bytecode keys |
 |---|---|---|
@@ -42,6 +42,8 @@ Explanation categories for data-only keys:
   data copy-pasted between block types; June ignores it, and so must we.
 - `name-collision`: as `dead-here`, but the readers' guard accounting is incomplete,
   so a missed read cannot be ruled out.
+- `numbered-base`: the name is referenced only as the base of a `"%s%d"` format
+  (`snprintf(buf, "%s%d", "TIME_PARTICLE", i)`), so `NAME0`.. is read and bare `NAME` is not.
 - `plain-only`: the key exists as a plaintext string, but nothing references it
   directly. A pointer table may reach it.
 - `decoder-miss?`: a non-ok `xorstrings.tsv` row is compatible with the key.
@@ -59,7 +61,7 @@ Explanation categories for data-only keys:
 
 | Scope | Readers | data keys | both | data-only |
 |---|---|---|---|---|
-| DamageEffect <CEffect top level> | `31f7aab0`, `31f8ba80`, `31f8b370` | 378 | 378 | 0 |
+| DamageEffect <CEffect top level> | `31f7aab0`, `31f8ba80`, `31f8b370` | 378 | 58 | 320 |
 | DamageEffect (START|PASSIVE|TIME|HIT)_PARTICLE%d | `31f66e60`, `31f6a7b0`, `31f6a940`, `31f6aad0`, `31f6cd00` | 51 | 29 | 22 |
 | DamageEffect CREATE_DAMAGE_EFFECT%d | `31f6ac60` | 33 | 24 | 9 |
 | DamageEffect DAMAGE_DATA(_ULTIMATE|_NEXT|_NEXT_ULTIMATE|_CHANGE_TIME.*)? | `32632390`, `31f79c20` | 225 | 122 | 103 |
@@ -86,7 +88,332 @@ Readers: `31f7aab0`, `31f8ba80`, `31f8b370`. Evidence: CEffect ctor 31f7aab0 + %
 Guard accounting (complete): 31f7aab0: 37 guards = 37 ok + 0 static; 31f8ba80: 2 guards = 2 ok + 0 static; 31f8b370: 2 guards = 2 ok + 0 static.
 `_ULTIMATE` variants via wrapper: `FOLLOW_LINE` @31f7dbcd→31f8b370, `FOLLOW_LINE_NEW` @31f7dbeb→31f8b370, `MAIN_EFFECT_NAME` @31f7b874→31f8ba80.
 
-Intersection (378): `AFTER_IMAGE` `AMPLITUDE` `APPLIED_SKILL_ID` `APPLY_CRITICAL_DAMAGE_PERCENT` `APPLY_MEMO` `APPLY_MOTION_OFFSET` `APPLY_ROTATE` `APPLY_ROTATED_OFFSET` `APPLY_SCALE_BY_UNIT` `ARRANGED_FLY` `ATTACKED_BY_EFFECT` `ATTACKED_BY_UNIT` `ATTACK_TIME0` `ATTACK_TIME_END` `ATTACK_TIME_START` `ATTACK_TRIGGER_TYPE` `ATTACK_TYPE` `BACK_SPEED_X` `BACK_SPEED_Y` `BBT_CHANGE_NOW_HP_PER_SECOND` `BBT_STUN` `BEHAVIOR` `BFT_HITTED_COUNT` `BFT_TIME` `BLACKHOLE_DATA` `BLACKHOLE_DATA_ULTIMATE` `BONE_NAME` `BUFF_CHANGE_TYPE` `BUFF_DURATION_TIME_TYPE` `BUFF_FACTOR` `BUFF_FACTOR_ID` `BUFF_RELATION_TYPE` `BUFF_TEMPLET_ID` `BUFF_USE_COUNT_TYPE` `CAMERA0` `CAMERA1` `CAMERA_CRASH_GAP` `CAMERA_CRASH_TIME` `CAMERA_SHAKE` `CAMERA_SHAKE0` `CAMERA_SHAKE1` `CAN_REFLEX` `CAN_REVENGE` `CHANGE_DAMAGE_TIME` `CLEAR_HIT_UNIT_ON_DAMAGE_DATA_CHANGE` `CLEAR_SCREEN` `CLEAR_SCREEN_COLOR_A` `CLEAR_SCREEN_COLOR_B` `CLEAR_SCREEN_COLOR_G` `CLEAR_SCREEN_COLOR_R` `COMBINATION` `COUNT` `CRASH_TYPE` `CREATE_DAMAGE_EFFECT0` `CREATE_DAMAGE_EFFECT1` `CREATE_DAMAGE_EFFECT10` `CREATE_DAMAGE_EFFECT11` `CREATE_DAMAGE_EFFECT12` `CREATE_DAMAGE_EFFECT13` `CREATE_DAMAGE_EFFECT14` `CREATE_DAMAGE_EFFECT15` `CREATE_DAMAGE_EFFECT16` `CREATE_DAMAGE_EFFECT17` `CREATE_DAMAGE_EFFECT18` `CREATE_DAMAGE_EFFECT19` `CREATE_DAMAGE_EFFECT2` `CREATE_DAMAGE_EFFECT20` `CREATE_DAMAGE_EFFECT21` `CREATE_DAMAGE_EFFECT22` `CREATE_DAMAGE_EFFECT23` `CREATE_DAMAGE_EFFECT24` `CREATE_DAMAGE_EFFECT25` `CREATE_DAMAGE_EFFECT26` `CREATE_DAMAGE_EFFECT27` `CREATE_DAMAGE_EFFECT28` `CREATE_DAMAGE_EFFECT29` `CREATE_DAMAGE_EFFECT3` `CREATE_DAMAGE_EFFECT30` `CREATE_DAMAGE_EFFECT31` `CREATE_DAMAGE_EFFECT32` `CREATE_DAMAGE_EFFECT33` `CREATE_DAMAGE_EFFECT34` `CREATE_DAMAGE_EFFECT35` `CREATE_DAMAGE_EFFECT36` `CREATE_DAMAGE_EFFECT37` `CREATE_DAMAGE_EFFECT38` `CREATE_DAMAGE_EFFECT39` `CREATE_DAMAGE_EFFECT4` `CREATE_DAMAGE_EFFECT40` `CREATE_DAMAGE_EFFECT41` `CREATE_DAMAGE_EFFECT42` `CREATE_DAMAGE_EFFECT43` `CREATE_DAMAGE_EFFECT44` `CREATE_DAMAGE_EFFECT45` `CREATE_DAMAGE_EFFECT46` `CREATE_DAMAGE_EFFECT47` `CREATE_DAMAGE_EFFECT48` `CREATE_DAMAGE_EFFECT49` `CREATE_DAMAGE_EFFECT5` `CREATE_DAMAGE_EFFECT6` `CREATE_DAMAGE_EFFECT7` `CREATE_DAMAGE_EFFECT8` `CREATE_DAMAGE_EFFECT9` `CRITICAL_RATE` `DAMAGE` `DAMAGE_DATA` `DAMAGE_DATA_CHANGE_TIME` `DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME` `DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME_ULTIMATE` `DAMAGE_DATA_CHANGE_TIME_ULTIMATE` `DAMAGE_DATA_MEMO` `DAMAGE_DATA_NEXT` `DAMAGE_DATA_NEXT2` `DAMAGE_DATA_NEXT3` `DAMAGE_DATA_NEXT4` `DAMAGE_DATA_NEXT_MEMO` `DAMAGE_DATA_NEXT_MEMO2` `DAMAGE_DATA_NEXT_MEMO3` `DAMAGE_DATA_NEXT_ULTIMATE` `DAMAGE_DATA_ULTIMATE` `DAMAGE_EFFECT_DIE_CHECK_CONDITION` `DAMAGE_EFFECT_NAME` `DAMAGE_TIME` `DAMAGE_TYPE` `DECREASE_FORCE_DOWN` `DIE_CREATE_NPC0` `DIE_DAMAGE_EFFECT0` `DIE_DAMAGE_EFFECT1` `DIE_DAMAGE_EFFECT2` `DIE_DAMAGE_EFFECT3` `DIE_DAMAGE_EFFECT4` `DIE_DAMAGE_EFFECT5` `DIE_DAMAGE_EFFECT6` `DIE_DAMAGE_EFFECT7` `DIE_DAMAGE_EFFECT8` `DIE_DAMAGE_EFFECT_ULTIMATE0` `DURATION` `DYNAMO_PARTICLE_RATE_TYPE` `DamageTime` `EFFECT_TYPE` `EVENT_TIME` `EXTRA_DAMAGE_TYPE` `FFECT_TYPE` `FILE_NAME` `FINALIZER` `FOLLOW_LINE` `FOLLOW_LINE_GRAVITY` `FOLLOW_LINE_NEW` `FOLLOW_LINE_ULTIMATE` `FOLLOW_LINE_WITH_CUSTOM_ROTATE` `FOLLOW_ON_LINE` `FORCE_DIE_HIT` `FORCE_DOWN` `FORCE_FLY` `GAP` `GROUP_DAMAGE` `HIT_ADD_MP` `HIT_DAMAGE_EFFECT0` `HIT_DAMAGE_EFFECT1` `HIT_DAMAGE_EFFECT2` `HIT_DAMAGE_EFFECT3` `HIT_DAMAGE_EFFECT4` `HIT_DAMAGE_EFFECT5` `HIT_DAMAGE_EFFECT6` `HIT_DAMAGE_EFFECT7` `HIT_DAMAGE_EFFECT_ULTIMATE0` `HIT_GAP` `HIT_PARTICLE0` `HIT_PARTICLE1` `HIT_PARTICLE2` `HIT_PARTICLE3` `HIT_PARTICLE4` `HIT_PARTICLE5` `HIT_PARTICLE6` `HIT_PARTICLE7` `HIT_PARTICLE8` `HIT_PARTICLE9` `HIT_TYPE` `IGNORE_MI_HUGE` `IGNORE_REGIST_FOR_RATE` `IGNORE_RESIST` `IGNORE_STATE_DEFENCE` `INHERIT_CRITICAL_DAMAGE_RATE` `INHERIT_CRITICAL_RATE` `INHERIT_FORCEDOWNRATE` `INIT_EXTRA_DAMAGE_BEFORE_LOAD` `LAND_CRASH_ONLY` `LINK_EFFECT_RATE` `LOCK_ON_DATA` `LOCK_ON_DATA_ULTIMATE` `LOOP_END_COUNT` `LOOP_END_TIME` `LOOP_INTERVAL` `MAGIC` `MAIN_EFFECT_NAME` `MAIN_EFFECT_NAME1` `MAIN_EFFECT_NAME2` `MAIN_EFFECT_NAME3` `MAIN_EFFECT_NAME_ULTIMATE` `MAIN_EFFECT_TIME` `MELEE_ATTACK` `MULTIPLIER` `MUST_ON_LINE` `NATURAL_FORCE_TYPE` `NORMAL_TIME` `NOTIFY_TO_OWNER_WHEN_DIE` `NOT_CULL` `NO_CULL` `NO_DETONATION` `NO_MISS` `NUMERICAL_DATA_INDEX` `OFFSET_X` `OFFSET_Y` `OFFSET_Z` `ONLY_APPLY_ROTATE` `ONLY_RELATIONSHIP` `PARTICLE_NAME` `PASSIVE_PARTICLE0` `PASSIVE_PARTICLE1` `PASSIVE_PARTICLE10` `PASSIVE_PARTICLE11` `PASSIVE_PARTICLE12` `PASSIVE_PARTICLE13` `PASSIVE_PARTICLE14` `PASSIVE_PARTICLE15` `PASSIVE_PARTICLE16` `PASSIVE_PARTICLE17` `PASSIVE_PARTICLE18` `PASSIVE_PARTICLE19` `PASSIVE_PARTICLE2` `PASSIVE_PARTICLE20` `PASSIVE_PARTICLE21` `PASSIVE_PARTICLE22` `PASSIVE_PARTICLE23` `PASSIVE_PARTICLE24` `PASSIVE_PARTICLE25` `PASSIVE_PARTICLE26` `PASSIVE_PARTICLE27` `PASSIVE_PARTICLE3` `PASSIVE_PARTICLE4` `PASSIVE_PARTICLE5` `PASSIVE_PARTICLE6` `PASSIVE_PARTICLE7` `PASSIVE_PARTICLE8` `PASSIVE_PARTICLE9` `PHYSIC` `POSITION_TYPE` `PVP_RATE` `RATE` `RATE_MODIFIER` `REACT_ANIMSPEED` `REACT_TYPE` `REFLECT` `REFRESH_LAND_POS` `RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT` `RE_ATTACK` `ROSE_WEAPON_ATTACK_TYPE` `ROTATE_X` `ROTATE_Z` `SCALE_X` `SCALE_Y` `SCALE_Z` `SCREEN0` `SHAKE_TYPE` `SIN_MOVE_DATA` `SOUND0` `SOUND1` `SOUND2` `SOUND3` `SOUND4` `START_PARTICLE0` `START_PARTICLE1` `START_PARTICLE10` `START_PARTICLE11` `START_PARTICLE12` `START_PARTICLE13` `START_PARTICLE14` `START_PARTICLE15` `START_PARTICLE16` `START_PARTICLE2` `START_PARTICLE3` `START_PARTICLE4` `START_PARTICLE5` `START_PARTICLE6` `START_PARTICLE7` `START_PARTICLE8` `START_PARTICLE9` `START_TIME` `STOP_TIME_ATT` `STOP_TIME_DEF` `TECH_POINT` `TIME` `TIME_PARTICLE` `TIME_PARTICLE0` `TIME_PARTICLE1` `TIME_PARTICLE10` `TIME_PARTICLE11` `TIME_PARTICLE12` `TIME_PARTICLE13` `TIME_PARTICLE14` `TIME_PARTICLE15` `TIME_PARTICLE16` `TIME_PARTICLE17` `TIME_PARTICLE18` `TIME_PARTICLE19` `TIME_PARTICLE2` `TIME_PARTICLE20` `TIME_PARTICLE21` `TIME_PARTICLE22` `TIME_PARTICLE23` `TIME_PARTICLE24` `TIME_PARTICLE25` `TIME_PARTICLE26` `TIME_PARTICLE27` `TIME_PARTICLE28` `TIME_PARTICLE29` `TIME_PARTICLE3` `TIME_PARTICLE30` `TIME_PARTICLE31` `TIME_PARTICLE32` `TIME_PARTICLE33` `TIME_PARTICLE34` `TIME_PARTICLE35` `TIME_PARTICLE36` `TIME_PARTICLE37` `TIME_PARTICLE38` `TIME_PARTICLE39` `TIME_PARTICLE4` `TIME_PARTICLE40` `TIME_PARTICLE41` `TIME_PARTICLE42` `TIME_PARTICLE43` `TIME_PARTICLE44` `TIME_PARTICLE45` `TIME_PARTICLE46` `TIME_PARTICLE47` `TIME_PARTICLE48` `TIME_PARTICLE49` `TIME_PARTICLE5` `TIME_PARTICLE50` `TIME_PARTICLE51` `TIME_PARTICLE52` `TIME_PARTICLE53` `TIME_PARTICLE54` `TIME_PARTICLE55` `TIME_PARTICLE56` `TIME_PARTICLE57` `TIME_PARTICLE58` `TIME_PARTICLE59` `TIME_PARTICLE6` `TIME_PARTICLE60` `TIME_PARTICLE61` `TIME_PARTICLE62` `TIME_PARTICLE63` `TIME_PARTICLE64` `TIME_PARTICLE65` `TIME_PARTICLE7` `TIME_PARTICLE8` `TIME_PARTICLE9` `TIME_PRTICLE0` `TOUCH_LAND_DAMAGE_EFFECT0` `TRACE` `TRACE_MORE` `TRACE_OWNER_BONE` `TRACE_OWNER_BONE_ONLY_ROTATE` `TRIGGER_COUNT` `TRIGGER_TIME` `TWO_DIR_GAP` `TWO_DIR_TIME` `TWO_DIR_TIME_GAP` `UNIT_SELECT` `USED_SKILL_ID` `USE_ADVANCE_COLLISIOIN_CHECK` `USE_CANNONBALL` `USE_GLOBAL_TIME` `USE_OWNER_ATTACK_SPEED` `WAY_OF_SWORD_TYPE` `hIT_ADD_MP`
+Intersection (58): `APPLIED_SKILL_ID` `APPLY_SCALE_BY_UNIT` `ATTACKED_BY_EFFECT` `ATTACKED_BY_UNIT` `ATTACK_TIME_END` `ATTACK_TIME_START` `BLACKHOLE_DATA` `BLACKHOLE_DATA_ULTIMATE` `CHANGE_DAMAGE_TIME` `CLEAR_HIT_UNIT_ON_DAMAGE_DATA_CHANGE` `DAMAGE_DATA` `DAMAGE_DATA_CHANGE_TIME` `DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME` `DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME_ULTIMATE` `DAMAGE_DATA_CHANGE_TIME_ULTIMATE` `DAMAGE_DATA_NEXT` `DAMAGE_DATA_NEXT2` `DAMAGE_DATA_NEXT3` `DAMAGE_DATA_NEXT4` `DAMAGE_DATA_NEXT_ULTIMATE` `DAMAGE_DATA_ULTIMATE` `DAMAGE_EFFECT_DIE_CHECK_CONDITION` `DAMAGE_TIME` `EFFECT_TYPE` `FOLLOW_LINE` `FOLLOW_LINE_GRAVITY` `FOLLOW_LINE_NEW` `FOLLOW_LINE_ULTIMATE` `FOLLOW_LINE_WITH_CUSTOM_ROTATE` `FOLLOW_ON_LINE` `GROUP_DAMAGE` `IGNORE_MI_HUGE` `INHERIT_CRITICAL_DAMAGE_RATE` `INHERIT_CRITICAL_RATE` `INHERIT_FORCEDOWNRATE` `LINK_EFFECT_RATE` `LOCK_ON_DATA` `LOCK_ON_DATA_ULTIMATE` `MAIN_EFFECT_NAME` `MAIN_EFFECT_NAME1` `MAIN_EFFECT_NAME2` `MAIN_EFFECT_NAME3` `MAIN_EFFECT_NAME_ULTIMATE` `MAIN_EFFECT_TIME` `MUST_ON_LINE` `NOTIFY_TO_OWNER_WHEN_DIE` `NOT_CULL` `ONLY_RELATIONSHIP` `REACT_ANIMSPEED` `REFLECT` `REFRESH_LAND_POS` `RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT` `TRACE_OWNER_BONE` `TRACE_OWNER_BONE_ONLY_ROTATE` `USE_ADVANCE_COLLISIOIN_CHECK` `USE_CANNONBALL` `USE_GLOBAL_TIME` `USE_OWNER_ATTACK_SPEED`
+
+Data-only (320):
+
+| Key | uses | example | category | explanation |
+|---|---|---|---|---|
+| `AFTER_IMAGE` | 11 | DamageEffect:RAVEN_NASOD_BALL | other-func | named in callee 31f74a80 (plaintext referenced) |
+| `AMPLITUDE` | 6 | DamageEffect:PET_PANDA_STEP01_STICK_RED_ATTACK_MONSTER_EXPLOSION04 | unread | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |
+| `APPLY_CRITICAL_DAMAGE_PERCENT` | 1 | DamageEffect:DamageEffect_LLC_OBlivion_Attack | other-func | named in callee 32632390 (decrypted) |
+| `APPLY_MEMO` | 9 | DamageEffect:DamageEffect_LD_F_Haunting_Beat_Attack | dead-here | this scope's readers never ask for it (every guard accounted for, see the scope header; no callee within 3 levels names it); named only in unrelated 31fc8cf0 (decrypted) read it for other sub-tables |
+| `APPLY_MOTION_OFFSET` | 1 | DamageEffect:EVE_NS_ATOMIC_BLASTER_SONICGUN_DUMMY | other-func | named in callee 32632390 (decrypted) |
+| `APPLY_ROTATE` | 33 | DamageEffect:CHUNG_ACELDAMA_SHELL_GROUND_EXPLOSION | other-func | named in callee 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ac60 (decrypted), 31f6ceb0 (decrypted) |
+| `APPLY_ROTATED_OFFSET` | 11 | DamageEffect:DamageEffect_SA_RCR_Gyro_Kick_FX | other-func | named in callee 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ac60 (decrypted), 31f6ceb0 (decrypted) |
+| `ARRANGED_FLY` | 49 | DamageEffect:DamageEffect_ADM_DashJumpZX | other-func | named in callee 32632390 (decrypted) |
+| `ATTACK_TIME0` | 4 | DamageEffect:DamageEffect_RBM_Sonic_Slash | unread | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |
+| `ATTACK_TRIGGER_TYPE` | 19 | DamageEffect:DamageEffect_SA_EVE_DemensionLinkGuardianWave_RIGHT | other-func | named in callee 32632390 (decrypted) |
+| `ATTACK_TYPE` | 134 | DamageEffect:ADM_AGING_THROW_BALL_BROKEN | other-func | named in callee 32632390 (decrypted) |
+| `BACK_SPEED_X` | 98 | DamageEffect:GUIDE_FIRE_BALL | other-func | named in callee 32632390 (decrypted) |
+| `BACK_SPEED_Y` | 55 | DamageEffect:GUIDE_FIRE_BALL | other-func | named in callee 32632390 (decrypted) |
+| `BBT_CHANGE_NOW_HP_PER_SECOND` | 6 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | nested-subtable | under `DAMAGE_DATA_NEXT%d/BUFF_FACTOR/BEHAVIOR`, opened by callee 32630910 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
+| `BBT_STUN` | 2 | DamageEffect:EffectSet_A_LD_M_HAUNTING_BEAT_Projectile_Ultimate | nested-subtable | under `DAMAGE_DATA_NEXT%d/BUFF_FACTOR/BEHAVIOR`, opened by callee 32630910 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
+| `BEHAVIOR` | 8 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | nested-subtable | under `DAMAGE_DATA_NEXT%d/BUFF_FACTOR`, opened by callee 32630910 on this scope's path; named only in unrelated 3236a9b0 (plaintext referenced), 32d4c9c0 (plaintext referenced) (reached indirectly) |
+| `BFT_HITTED_COUNT` | 2 | DamageEffect:EffectSet_A_LD_M_HAUNTING_BEAT_Projectile_Ultimate | nested-subtable | under `DAMAGE_DATA_NEXT%d/BUFF_FACTOR/FINALIZER`, opened by callee 32630910 on this scope's path; named only in unrelated 32d4c750 (plaintext referenced), 32ec36f0 (plaintext referenced) (reached indirectly) |
+| `BFT_TIME` | 8 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | nested-subtable | under `DAMAGE_DATA_NEXT%d/BUFF_FACTOR/FINALIZER`, opened by callee 32630910 on this scope's path; named only in unrelated 32d4c750 (plaintext referenced), 32ec36f0 (plaintext referenced) (reached indirectly) |
+| `BONE_NAME` | 76 | DamageEffect:DamageEffect_ESK_Mortal_Blow_Explosion_Ultimate | other-func | named in callee 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ac60 (decrypted), 31f6ceb0 (decrypted) |
+| `BUFF_CHANGE_TYPE` | 6 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | nested-subtable | under `DAMAGE_DATA_NEXT%d/BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_NOW_HP_PER_SECOND`, opened by callee 32630910 on this scope's path; named only in unrelated 32d42030 (decrypted), 32d42650 (decrypted), 32d42910 (decrypted), 32d436b0 (decrypted) (reached indirectly) |
+| `BUFF_DURATION_TIME_TYPE` | 8 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | nested-subtable | under `DAMAGE_DATA_NEXT%d/BUFF_FACTOR/FINALIZER/BFT_TIME`, opened by callee 32630910 on this scope's path; named only in unrelated 32d42da0 (decrypted), 32ebe8b0 (decrypted) (reached indirectly) |
+| `BUFF_FACTOR` | 8 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | other-func | named in callee 32630910 (plaintext referenced) |
+| `BUFF_FACTOR_ID` | 2 | DamageEffect:DamageEffect_SA_LDN_SILENT_RAGE_Main | other-func | named in callee 32630d20 (plaintext referenced) |
+| `BUFF_RELATION_TYPE` | 6 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | nested-subtable | under `DAMAGE_DATA_NEXT%d/BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_NOW_HP_PER_SECOND`, opened by callee 32630910 on this scope's path; named only in unrelated 32d42030 (decrypted), 32d436b0 (decrypted), 32d445d0 (decrypted), 32e73640 (decrypted) (reached indirectly) |
+| `BUFF_TEMPLET_ID` | 8 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | other-func | named in callee 32632390 (decrypted), 32d4d850 (decrypted) |
+| `BUFF_USE_COUNT_TYPE` | 2 | DamageEffect:EffectSet_A_LD_M_HAUNTING_BEAT_Projectile_Ultimate | nested-subtable | under `DAMAGE_DATA_NEXT%d/BUFF_FACTOR/FINALIZER/BFT_HITTED_COUNT`, opened by callee 32630910 on this scope's path; named only in unrelated 32d430f0 (decrypted), 32d433d0 (decrypted), 32d44a80 (decrypted), 32d44d60 (decrypted) (reached indirectly) |
+| `CAMERA0` | 856 | DamageEffect:ELSWORD_CRESCENT_ONE | other-func | named in callee 31f650f0 (template CAMERA%d) |
+| `CAMERA1` | 23 | DamageEffect:PHOENIX_TALON | other-func | named in callee 31f650f0 (template CAMERA%d) |
+| `CAMERA_CRASH_GAP` | 103 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `CAMERA_CRASH_TIME` | 103 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `CAMERA_SHAKE` | 6 | DamageEffect:PET_PANDA_STEP01_STICK_RED_ATTACK_MONSTER_EXPLOSION04 | numbered-base | plaintext referenced only as a "%s%d" base, in 321e48e0: `CAMERA_SHAKE0`.. is read, bare `CAMERA_SHAKE` is not |
+| `CAMERA_SHAKE0` | 26 | DamageEffect:SI_SA_RTR_KARMA_SPARK | dead-here | this scope's readers never ask for it (every guard accounted for, see the scope header; no callee within 3 levels names it); named only in unrelated 321e48e0 (template CAMERA_SHAKE%d) read it for other sub-tables |
+| `CAMERA_SHAKE1` | 4 | DamageEffect_ETC:DamageEffect_Ramiel_Attack_X_Explosion | dead-here | this scope's readers never ask for it (every guard accounted for, see the scope header; no callee within 3 levels names it); named only in unrelated 321e48e0 (template CAMERA_SHAKE%d) read it for other sub-tables |
+| `CAN_REFLEX` | 75 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `CAN_REVENGE` | 110 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `CLEAR_SCREEN` | 55 | DamageEffect:GUIDE_FIRE_BALL | other-func | named in callee 32632390 (decrypted) |
+| `CLEAR_SCREEN_COLOR_A` | 12 | DamageEffect:GUIDE_FIRE_BALL | other-func | named in callee 32632390 (decrypted) |
+| `CLEAR_SCREEN_COLOR_B` | 12 | DamageEffect:GUIDE_FIRE_BALL | other-func | named in callee 32632390 (decrypted) |
+| `CLEAR_SCREEN_COLOR_G` | 12 | DamageEffect:GUIDE_FIRE_BALL | other-func | named in callee 32632390 (decrypted) |
+| `CLEAR_SCREEN_COLOR_R` | 12 | DamageEffect:GUIDE_FIRE_BALL | other-func | named in callee 32632390 (decrypted) |
+| `COMBINATION` | 16 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | nested-subtable | under `DAMAGE_DATA_NEXT%d/BUFF_FACTOR/BEHAVIOR`, opened by callee 32630910 on this scope's path; named only in unrelated 326bfe70 (plaintext referenced) (reached indirectly) |
+| `COUNT` | 2 | DamageEffect:EffectSet_A_LD_M_HAUNTING_BEAT_Projectile_Ultimate | other-func | named in callee 31f65730 (decrypted) |
+| `CRASH_TYPE` | 3 | DamageEffect:DamageEffect_ANGER_FOREST_ENT_Attack_B | other-func | named in callee 31f650f0 (decrypted) |
+| `CREATE_DAMAGE_EFFECT0` | 551 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M01 | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT1` | 266 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M01 | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT10` | 26 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT11` | 20 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT12` | 16 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT13` | 15 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT14` | 11 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT15` | 10 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT16` | 10 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT17` | 9 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT18` | 8 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT19` | 7 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT2` | 193 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M01 | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT20` | 7 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT21` | 7 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT22` | 7 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT23` | 7 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT24` | 4 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT25` | 3 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT26` | 2 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT27` | 2 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT28` | 2 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT29` | 2 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT3` | 144 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M01 | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT30` | 2 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT31` | 2 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT32` | 2 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT33` | 2 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE_SPAWN_POINT | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT34` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT35` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT36` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT37` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT38` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT39` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT4` | 111 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M01 | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT40` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT41` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT42` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT43` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT44` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT45` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT46` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT47` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT48` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT49` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT5` | 102 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M01 | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT6` | 79 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M01 | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT7` | 72 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M01 | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT8` | 59 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M01 | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CREATE_DAMAGE_EFFECT9` | 47 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M01 | other-func | named in callee 31f6ac60 (template CREATE_DAMAGE_EFFECT%d) |
+| `CRITICAL_RATE` | 2 | DamageEffect:PHOENIX_ARROW_MEMO | other-func | named in callee 32632390 (decrypted) |
+| `DAMAGE` | 55 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `DAMAGE_DATA_MEMO` | 9 | DamageEffect:DamageEffect_LD_F_Haunting_Beat_Attack | unread | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:14264 |
+| `DAMAGE_DATA_NEXT_MEMO` | 2 | DamageEffect:DamageEffect_LD_M_HAUNTING_BEAT_Projectile | unread | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:36216 |
+| `DAMAGE_DATA_NEXT_MEMO2` | 2 | DamageEffect:DamageEffect_LD_M_HAUNTING_BEAT_Projectile | unread | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |
+| `DAMAGE_DATA_NEXT_MEMO3` | 2 | DamageEffect:DamageEffect_LD_M_HAUNTING_BEAT_Projectile | unread | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |
+| `DAMAGE_EFFECT_NAME` | 10 | DamageEffect:DAMAGE_EFFECT_CSI_SI_SA_CSG_COMET_CRASHER_LOOP_EXPLOSION_FX | other-func | named in callee 31f68f30 (decrypted), 31f6ac60 (decrypted), 31f6ceb0 (decrypted), 31f76a90 (decrypted) |
+| `DAMAGE_TYPE` | 106 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `DECREASE_FORCE_DOWN` | 10 | DamageEffect:DamageEffect_LD_F_Haunting_Beat_Attack | other-func | named in callee 32632390 (decrypted) |
+| `DIE_CREATE_NPC0` | 3 | DamageEffect:DamageEffect_A_RMH_All_Bomb_Ultimate_AddMeca | other-func | named in callee 31f66230 (template DIE_CREATE_NPC%d) |
+| `DIE_DAMAGE_EFFECT0` | 1307 | DamageEffect:ELSWORD_SWORDFALL_BLADE1 | other-func | named in callee 31f6e7e0 (template DIE_DAMAGE_EFFECT%d) |
+| `DIE_DAMAGE_EFFECT1` | 198 | DamageEffect:ELSWORD_SWORDFALL_BLADE1 | other-func | named in callee 31f6e7e0 (template DIE_DAMAGE_EFFECT%d) |
+| `DIE_DAMAGE_EFFECT2` | 93 | DamageEffect:ELSWORD_SWORDFALL_BLADE1 | other-func | named in callee 31f6e7e0 (template DIE_DAMAGE_EFFECT%d) |
+| `DIE_DAMAGE_EFFECT3` | 31 | DamageEffect:SA_ERS_LUNA_BLADE | other-func | named in callee 31f6e7e0 (template DIE_DAMAGE_EFFECT%d) |
+| `DIE_DAMAGE_EFFECT4` | 20 | DamageEffect:RAVEN_HARPOON_SPEAR_SHELL_MEMO | other-func | named in callee 31f6e7e0 (template DIE_DAMAGE_EFFECT%d) |
+| `DIE_DAMAGE_EFFECT5` | 2 | DamageEffect:DamageEffect_ADD_Dividing_Missile_Dynamo_Mutation | other-func | named in callee 31f6e7e0 (template DIE_DAMAGE_EFFECT%d) |
+| `DIE_DAMAGE_EFFECT6` | 2 | DamageEffect:DamageEffect_ADD_Dividing_Missile_Dynamo_Mutation | other-func | named in callee 31f6e7e0 (template DIE_DAMAGE_EFFECT%d) |
+| `DIE_DAMAGE_EFFECT7` | 2 | DamageEffect:DamageEffect_ADD_Dividing_Missile_Dynamo_Mutation | other-func | named in callee 31f6e7e0 (template DIE_DAMAGE_EFFECT%d) |
+| `DIE_DAMAGE_EFFECT8` | 2 | DamageEffect:DamageEffect_ADD_Dividing_Missile_Dynamo_Mutation | other-func | named in callee 31f6e7e0 (template DIE_DAMAGE_EFFECT%d) |
+| `DIE_DAMAGE_EFFECT_ULTIMATE0` | 13 | DamageEffect:DAMAGE_EFFECT_CSI_SI_SA_CHUNG_DREAD_CHASE_BIG_SMALL_MEMO_A | other-func | named in callee 31f6e7e0 (template DIE_DAMAGE_EFFECT_ULTIMATE%d) |
+| `DURATION` | 6 | DamageEffect:PET_PANDA_STEP01_STICK_RED_ATTACK_MONSTER_EXPLOSION04 | unread | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |
+| `DYNAMO_PARTICLE_RATE_TYPE` | 4 | DamageEffect:DamageEffect_AMM_HA_Attack_C | other-func | named in callee 32632390 (decrypted) |
+| `DamageTime` | 1 | DamageEffect:DamageEffect_SA_EVE_IllusionStinger_Explosion_All | typo | data typo of `DAMAGE_TIME` (this scope, decrypted in 31f7aab0); the binary never reads this spelling |
+| `EVENT_TIME` | 33 | DamageEffect:DamageEffect_SA_EEP_AssualtSpear_Burster_SpearExplosion | other-func | named in callee 31f64c80 (decrypted), 31f650f0 (decrypted), 31f65730 (decrypted), 31f66230 (decrypted) |
+| `EXTRA_DAMAGE_TYPE` | 1 | DamageEffect:EXTRA_DAMAGE | other-func | named in callee 32632390 (decrypted) |
+| `FFECT_TYPE` | 1 | DamageEffect:DamageEffect_A_LDN_PUNISHER_FX | typo | data typo of `EFFECT_TYPE` (this scope, decrypted in 31f7aab0, 321e48e0); the binary never reads this spelling |
+| `FILE_NAME` | 10 | DamageEffect_Dungeon:DamageEffect_Elysion_Soless_Dash_Combo_A_Chain_CircleFX | other-func | named in callee 31f73f30 (decrypted) |
+| `FINALIZER` | 8 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | nested-subtable | under `DAMAGE_DATA_NEXT%d/BUFF_FACTOR`, opened by callee 32630910 on this scope's path; named only in unrelated 3236a9b0 (plaintext referenced), 32d4ca60 (plaintext referenced) (reached indirectly) |
+| `FORCE_DIE_HIT` | 3 | DamageEffect:DAMAGE_EFFECT_CSI_SI_SA_CSG_COMET_CRASHER_LOOP_EXPLOSION_FX | other-func | named in callee 31f66e60 (decrypted) |
+| `FORCE_DOWN` | 10 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `FORCE_FLY` | 30 | DamageEffect:GUIDE_FIRE_BALL | other-func | named in callee 32632390 (decrypted) |
+| `GAP` | 3 | DamageEffect:DamageEffect_ANGER_FOREST_ENT_Attack_B | other-func | named in callee 31f650f0 (decrypted) |
+| `HIT_ADD_MP` | 44 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `HIT_DAMAGE_EFFECT0` | 640 | DamageEffect:AISHA_GRAVITY_BALL_BIG | other-func | named in callee 31f6e850 (template HIT_DAMAGE_EFFECT%d) |
+| `HIT_DAMAGE_EFFECT1` | 46 | DamageEffect:RENA_FREEZING_BOLT | other-func | named in callee 31f6e850 (template HIT_DAMAGE_EFFECT%d) |
+| `HIT_DAMAGE_EFFECT2` | 15 | DamageEffect:RENA_FREEZING_BOLT | other-func | named in callee 31f6e850 (template HIT_DAMAGE_EFFECT%d) |
+| `HIT_DAMAGE_EFFECT3` | 8 | DamageEffect:RENA_FREEZING_BOLT | other-func | named in callee 31f6e850 (template HIT_DAMAGE_EFFECT%d) |
+| `HIT_DAMAGE_EFFECT4` | 4 | DamageEffect:DAMAGE_EFFECT_DCSI_A_CSG_MAGNUM_SHOT_MEMO | other-func | named in callee 31f6e850 (template HIT_DAMAGE_EFFECT%d) |
+| `HIT_DAMAGE_EFFECT5` | 4 | DamageEffect:DAMAGE_EFFECT_DCSI_A_CSG_MAGNUM_SHOT_MEMO | other-func | named in callee 31f6e850 (template HIT_DAMAGE_EFFECT%d) |
+| `HIT_DAMAGE_EFFECT6` | 1 | DamageEffect:DAMAGE_EFFECT_DCSI_A_CSG_MAGNUM_SHOT_MEMO | other-func | named in callee 31f6e850 (template HIT_DAMAGE_EFFECT%d) |
+| `HIT_DAMAGE_EFFECT7` | 1 | DamageEffect:DAMAGE_EFFECT_DCSI_A_CSG_MAGNUM_SHOT_MEMO | other-func | named in callee 31f6e850 (template HIT_DAMAGE_EFFECT%d) |
+| `HIT_DAMAGE_EFFECT_ULTIMATE0` | 16 | DamageEffect:DAMAGE_EFFECT_CSI_SI_SA_CHUNG_DREAD_CHASE_BIG_MEMO | other-func | named in callee 31f6e850 (template HIT_DAMAGE_EFFECT_ULTIMATE%d) |
+| `HIT_GAP` | 66 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `HIT_PARTICLE0` | 3606 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | other-func | named in callee 31f6cd00 (template HIT_PARTICLE%d) |
+| `HIT_PARTICLE1` | 3299 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | other-func | named in callee 31f6cd00 (template HIT_PARTICLE%d) |
+| `HIT_PARTICLE2` | 2999 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | other-func | named in callee 31f6cd00 (template HIT_PARTICLE%d) |
+| `HIT_PARTICLE3` | 2354 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | other-func | named in callee 31f6cd00 (template HIT_PARTICLE%d) |
+| `HIT_PARTICLE4` | 508 | DamageEffect:ELSWORD_HASHCHASER_PULL | other-func | named in callee 31f6cd00 (template HIT_PARTICLE%d) |
+| `HIT_PARTICLE5` | 56 | DamageEffect:ELSWORD_HASHCHASER_PULL | other-func | named in callee 31f6cd00 (template HIT_PARTICLE%d) |
+| `HIT_PARTICLE6` | 42 | DamageEffect:ELSWORD_HASHCHASER_PULL | other-func | named in callee 31f6cd00 (template HIT_PARTICLE%d) |
+| `HIT_PARTICLE7` | 31 | DamageEffect:DamageEffect_CTT_Bombard_Service_Shell_Explosion | other-func | named in callee 31f6cd00 (template HIT_PARTICLE%d) |
+| `HIT_PARTICLE8` | 3 | DamageEffect:DamageEffect_CTT_Bombard_Service_Shell_Explosion | other-func | named in callee 31f6cd00 (template HIT_PARTICLE%d) |
+| `HIT_PARTICLE9` | 2 | DamageEffect:DamageEffect_CTT_Bombard_Service_Shell_Explosion | other-func | named in callee 31f6cd00 (template HIT_PARTICLE%d) |
+| `HIT_TYPE` | 106 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `IGNORE_REGIST_FOR_RATE` | 8 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | other-func | named in callee 32d4d850 (decrypted) |
+| `IGNORE_RESIST` | 1 | DamageEffect:EXTRA_DAMAGE | other-func | named in callee 32632390 (decrypted) |
+| `IGNORE_STATE_DEFENCE` | 1 | DamageEffect:DamageEffect_Heavens_Fist_Sweeper_MEMO_Sweep | other-func | named in callee 32632390 (decrypted) |
+| `INIT_EXTRA_DAMAGE_BEFORE_LOAD` | 1 | DamageEffect:EVE_ENERGY_NEEDLES | other-func | named in callee 32632390 (decrypted) |
+| `LAND_CRASH_ONLY` | 2 | DamageEffect_Dungeon:DamageEffect_PerkisasP2_T_F_Fire_Projectile | other-func | named in callee 31f68f30 (decrypted) |
+| `LOOP_END_COUNT` | 1 | DamageEffect:DamageEffect_HA_RFY_D_DAY_ThrowUnit | other-func | named in callee 31f6ac60 (decrypted) |
+| `LOOP_END_TIME` | 1 | DamageEffect:DamageEffect_HA_RFY_D_DAY_ThrowUnit | other-func | named in callee 31f6ac60 (decrypted) |
+| `LOOP_INTERVAL` | 1 | DamageEffect:DamageEffect_HA_RFY_D_DAY_ThrowUnit | other-func | named in callee 31f6ac60 (decrypted) |
+| `MAGIC` | 45 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `MELEE_ATTACK` | 1 | DamageEffect:DamageEffect_RBD_Double_Jump_Combo_ZZ_Landing | other-func | named in callee 32632390 (decrypted) |
+| `MULTIPLIER` | 6 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | nested-subtable | under `DAMAGE_DATA_NEXT%d/BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_NOW_HP_PER_SECOND`, opened by callee 32630910 on this scope's path; named only in unrelated 32d42030 (plaintext referenced), 32d436b0 (plaintext referenced), 32d445d0 (plaintext referenced), 32d45670 (plaintext referenced) (reached indirectly) |
+| `NATURAL_FORCE_TYPE` | 4 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | other-func | named in callee 32632390 (decrypted) |
+| `NORMAL_TIME` | 8 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | nested-subtable | under `DAMAGE_DATA_NEXT%d/BUFF_FACTOR/FINALIZER/BFT_TIME`, opened by callee 32630910 on this scope's path; named only in unrelated 32d42da0 (plaintext referenced) (reached indirectly) |
+| `NO_CULL` | 1 | DamageEffect:DAMAGE_EFFECT_CSI_CSG_COMBO_XFRONTX_FIRE_Mini_Gun_Shell | typo | data typo of `NOT_CULL` (this scope, decrypted in 31f7aab0, 327a0fa0); the binary never reads this spelling |
+| `NO_DETONATION` | 5 | DamageEffect:DAMAGE_EFFECT_HA_LWS_Spiral_Stike_Blackhole | other-func | named in callee 32632390 (decrypted) |
+| `NO_MISS` | 2 | DamageEffect:DAMAGE_EFFECT_VEHIMOS_MAGICATTACK_A | other-func | named in callee 32632390 (decrypted) |
+| `NUMERICAL_DATA_INDEX` | 60 | DamageEffect:DamageEffect_SA_AEM_BlazeStep_Main | other-func | named in callee 32632390 (decrypted) |
+| `OFFSET_X` | 5 | DamageEffect:DamageEffect_AN_Dash_Combo_XXX_NEW | other-func | named in callee 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ac60 (decrypted), 31f6ceb0 (decrypted) |
+| `OFFSET_Y` | 23 | DamageEffect:DamageEffect_SA_AEM_BlazeStep_Main | other-func | named in callee 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ac60 (decrypted), 31f6ceb0 (decrypted) |
+| `OFFSET_Z` | 1 | DamageEffect:DamageEffect_CTT_New_Satellite_Rain_Bomb1 | other-func | named in callee 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ac60 (decrypted), 31f6ceb0 (decrypted) |
+| `ONLY_APPLY_ROTATE` | 2 | DamageEffect:DamageEffect_AN_Dash_Combo_XXX_NEW | other-func | named in callee 31f68f30 (decrypted), 31f6ceb0 (decrypted), 31f76a90 (decrypted) |
+| `PARTICLE_NAME` | 99 | DamageEffect:DamageEffect_ESK_Mortal_Blow_Explosion_Ultimate | other-func | named in callee 31f66e60 (decrypted), 32632390 (decrypted) |
+| `PASSIVE_PARTICLE0` | 3502 | DamageEffect:ELSWORD_EIS_SWORDBLASTING_PHANTOMSWORD | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE1` | 2716 | DamageEffect:ELSWORD_EIS_SWORDBLASTING_HIT | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE10` | 60 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE11` | 52 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE12` | 24 | DamageEffect:DAMAGE_EFFECT_FINGER_BULLET_ATTACK_SUCCESS | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE13` | 14 | DamageEffect:DAMAGE_EFFECT_FINGER_BULLET_ATTACK_SUCCESS | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE14` | 11 | DamageEffect:DAMAGE_EFFECT_FINGER_BULLET_ATTACK_SUCCESS | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE15` | 8 | DamageEffect:DAMAGE_EFFECT_FINGER_BULLET_ATTACK_SUCCESS | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE16` | 8 | DamageEffect:DAMAGE_EFFECT_FINGER_BULLET_ATTACK_SUCCESS | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE17` | 5 | DamageEffect:ADD_MAGNETRON_DYNAMO_LOOP_DUMMY | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE18` | 5 | DamageEffect:ADD_MAGNETRON_DYNAMO_LOOP_DUMMY | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE19` | 5 | DamageEffect:ADD_MAGNETRON_DYNAMO_LOOP_DUMMY | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE2` | 2003 | DamageEffect:ELSWORD_EIS_SWORDBLASTING_HIT | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE20` | 4 | DamageEffect:DamageEffect_AMM_APOCALYPSE_Attack_B_Projectile_FX | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE21` | 4 | DamageEffect:DamageEffect_AMM_APOCALYPSE_Attack_B_Projectile_FX | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE22` | 4 | DamageEffect:DamageEffect_AMM_APOCALYPSE_Attack_B_Projectile_FX | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE23` | 4 | DamageEffect:DamageEffect_AMM_APOCALYPSE_Attack_B_Projectile_FX | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE24` | 3 | DamageEffect:DamageEffect_AMM_APOCALYPSE_Attack_B_Projectile_FX | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE25` | 3 | DamageEffect:DamageEffect_AMM_APOCALYPSE_Attack_B_Projectile_FX | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE26` | 3 | DamageEffect:DamageEffect_AMM_APOCALYPSE_Attack_B_Projectile_FX | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE27` | 3 | DamageEffect:DamageEffect_AMM_APOCALYPSE_Attack_B_Projectile_FX | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE3` | 1361 | DamageEffect:ELSWORD_EIS_SWORDBLASTING_HIT | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE4` | 904 | DamageEffect:ELSWORD_CRESCENT_THREE | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE5` | 573 | DamageEffect:ELSWORD_SWORDFALL_BLADE_FALLEN1 | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE6` | 347 | DamageEffect:DamageEffect_SA_ERS_SplashExplosion_Attack_2 | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE7` | 230 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE8` | 163 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PASSIVE_PARTICLE9` | 102 | DamageEffect:DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE | other-func | named in callee 31f6a940 (template PASSIVE_PARTICLE%d) |
+| `PHYSIC` | 115 | DamageEffect:DamageEffect_Heavens_Fist_Sweeper_Sweep | other-func | named in callee 32632390 (decrypted) |
+| `POSITION_TYPE` | 108 | DamageEffect:DamageEffect_ESK_Mortal_Blow_Explosion_Ultimate | other-func | named in callee 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ac60 (decrypted), 31f6ceb0 (decrypted) |
+| `PVP_RATE` | 45 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `RATE` | 8 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | other-func | named in callee 31f73f30 (decrypted), 32632390 (decrypted), 32d4d850 (plaintext referenced) |
+| `RATE_MODIFIER` | 5 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `REACT_TYPE` | 109 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `RE_ATTACK` | 93 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `ROSE_WEAPON_ATTACK_TYPE` | 1 | DamageEffect:DamageEffect_SA_RCR_Bloody_Spike_Rolling_Attack | other-func | named in callee 32632390 (decrypted) |
+| `ROTATE_X` | 1 | DamageEffect:DamageEffect_SA_APT_Conqueror_Projectile | other-func | named in callee 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ac60 (decrypted), 31f6ceb0 (decrypted) |
+| `ROTATE_Z` | 1 | DamageEffect:DamageEffect_Red_Dragon_P1_Attack_G_R | other-func | named in callee 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ac60 (decrypted), 31f6ceb0 (decrypted) |
+| `SCALE_X` | 29 | DamageEffect:DamageEffect_SA_AEM_BlazeStep_Main | other-func | named in callee 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ceb0 (decrypted), 31f76a90 (decrypted) |
+| `SCALE_Y` | 29 | DamageEffect:DamageEffect_SA_AEM_BlazeStep_Main | other-func | named in callee 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ceb0 (decrypted), 31f76a90 (decrypted) |
+| `SCALE_Z` | 29 | DamageEffect:DamageEffect_SA_AEM_BlazeStep_Main | other-func | named in callee 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ceb0 (decrypted), 31f76a90 (decrypted) |
+| `SCREEN0` | 21 | DamageEffect:DamageEffect_SA_Rena_PhoenixPhoenixStrike | other-func | named in callee 31f65730 (template SCREEN%d) |
+| `SHAKE_TYPE` | 30 | DamageEffect:SI_SA_RTR_KARMA_SPARK | dead-here | this scope's readers never ask for it (every guard accounted for, see the scope header; no callee within 3 levels names it); named only in unrelated 321e48e0 (decrypted) read it for other sub-tables |
+| `SIN_MOVE_DATA` | 13 | DamageEffect:DamageEffect_LCG_M_Marbas_MEMO_Ghost | other-func | named in callee 31f64200 (plaintext referenced) |
+| `SOUND0` | 2140 | DamageEffect:THIRD_BLADE | other-func | named in callee 31f73f30 (template SOUND%d) |
+| `SOUND1` | 185 | DamageEffect:FIREBALL_CHAIN_Ice | other-func | named in callee 31f73f30 (template SOUND%d) |
+| `SOUND2` | 21 | DamageEffect:DamageEffect_Genocide_Ripper_Final | other-func | named in callee 31f73f30 (template SOUND%d) |
+| `SOUND3` | 2 | DamageEffect:DamageEffect_HA_RFY_D_Day_LastAttack_MissileFX | other-func | named in callee 31f73f30 (template SOUND%d) |
+| `SOUND4` | 1 | DamageEffect:DamageEffect_HA_RFY_D_Day_LastAttack_MissileFX | other-func | named in callee 31f73f30 (template SOUND%d) |
+| `START_PARTICLE0` | 1408 | DamageEffect:ELSWORD_SA_RAGECUTTER_M02 | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE1` | 1073 | DamageEffect:ELSWORD_SA_RAGECUTTER_M02 | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE10` | 26 | DamageEffect:DamageEffect_ROT_GUARDIAN_STRIKE_NEW | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE11` | 20 | DamageEffect:DamageEffect_ROT_GUARDIAN_STRIKE_NEW | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE12` | 13 | DamageEffect:DamageEffect_ROT_GUARDIAN_STRIKE_NEW | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE13` | 3 | DamageEffect:DAMAGE_EFFECT_ELESIS_SWORDFIRE_LANDING_MEMO | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE14` | 2 | DamageEffect:DAMAGE_EFFECT_ELESIS_SWORDFIRE_LANDING_MEMO | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE15` | 1 | DamageEffect:DAMAGE_EFFECT_ELESIS_SWORDFIRE_LANDING_MEMO | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE16` | 1 | DamageEffect:DAMAGE_EFFECT_ELESIS_SWORDFIRE_LANDING_MEMO | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE2` | 813 | DamageEffect:ELSWORD_SA_RAGECUTTER_M02 | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE3` | 602 | DamageEffect:ELSWORD_SA_RAGECUTTER_M02 | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE4` | 452 | DamageEffect:DamageEffect_SA_ERS_LunaBlade_EX1 | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE5` | 248 | DamageEffect:DamageEffect_SA_ERS_LunaBlade_EX1 | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE6` | 157 | DamageEffect:DamageEffect_SA_RCR_DiveKickBombing_Damage5_Hyper | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE7` | 90 | DamageEffect:DamageEffect_ROT_GUARDIAN_STRIKE_NEW | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE8` | 57 | DamageEffect:DamageEffect_ROT_GUARDIAN_STRIKE_NEW | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_PARTICLE9` | 40 | DamageEffect:DamageEffect_ROT_GUARDIAN_STRIKE_NEW | other-func | named in callee 31f6a7b0 (template START_PARTICLE%d) |
+| `START_TIME` | 36 | DamageEffect:SI_SA_RTR_KARMA_SPARK | dead-here | this scope's readers never ask for it (every guard accounted for, see the scope header; no callee within 3 levels names it); named only in unrelated 31fbe4a0 (decrypted), 3200b030 (decrypted), 32057b80 (decrypted), 321e48e0 (decrypted) read it for other sub-tables |
+| `STOP_TIME_ATT` | 39 | DamageEffect:GUIDE_FIRE_BALL | other-func | named in callee 32632390 (decrypted) |
+| `STOP_TIME_DEF` | 65 | DamageEffect:GUIDE_FIRE_BALL | other-func | named in callee 32632390 (decrypted) |
+| `TECH_POINT` | 45 | DamageEffect:DARK_SHOCK_BALL | other-func | named in callee 32632390 (decrypted) |
+| `TIME` | 3 | DamageEffect:DamageEffect_ANGER_FOREST_ENT_Attack_B | other-func | named in callee 31f650f0 (decrypted), 32632390 (decrypted) |
+| `TIME_PARTICLE` | 1 | DamageEffect:DamageEffect_CTT_Satellite_Rain_Bomb1_Explosion | numbered-base | plaintext referenced only as a "%s%d" base, in 31f6aad0: `TIME_PARTICLE0`.. is read, bare `TIME_PARTICLE` is not |
+| `TIME_PARTICLE0` | 872 | DamageEffect:ELSWORD_SA_RAGECUTTER_M02 | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE1` | 673 | DamageEffect:ELSWORD_MAELSTROM | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE10` | 96 | DamageEffect:PHOENIX_TALON | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE11` | 77 | DamageEffect:PHOENIX_TALON | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE12` | 57 | DamageEffect:PHOENIX_TALON | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE13` | 40 | DamageEffect:DAMAGE_EFFECT_IMPACT_SMASH | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE14` | 36 | DamageEffect:DAMAGE_EFFECT_IMPACT_SMASH | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE15` | 34 | DamageEffect:DAMAGE_EFFECT_IMPACT_SMASH | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE16` | 33 | DamageEffect:DAMAGE_EFFECT_IMPACT_SMASH | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE17` | 28 | DamageEffect:CALL_OF_RUIN | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE18` | 27 | DamageEffect:CALL_OF_RUIN | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE19` | 23 | DamageEffect:CALL_OF_RUIN | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE2` | 542 | DamageEffect:ELSWORD_MAELSTROM | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE20` | 20 | DamageEffect:CALL_OF_RUIN | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE21` | 16 | DamageEffect:CALL_OF_RUIN | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE22` | 16 | DamageEffect:CALL_OF_RUIN | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE23` | 15 | DamageEffect:CALL_OF_RUIN | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE24` | 13 | DamageEffect:CALL_OF_RUIN | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE25` | 12 | DamageEffect:CALL_OF_RUIN | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE26` | 12 | DamageEffect:CALL_OF_RUIN | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE27` | 7 | DamageEffect:DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE28` | 7 | DamageEffect:DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE29` | 7 | DamageEffect:DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE3` | 435 | DamageEffect:ELSWORD_MAELSTROM | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE30` | 6 | DamageEffect:DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE31` | 6 | DamageEffect:DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE32` | 6 | DamageEffect:DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE33` | 6 | DamageEffect:DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE34` | 6 | DamageEffect:DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE35` | 6 | DamageEffect:DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE36` | 5 | DamageEffect:DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE37` | 5 | DamageEffect:DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE38` | 5 | DamageEffect:DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE39` | 5 | DamageEffect:DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE4` | 354 | DamageEffect:ELSWORD_MAELSTROM | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE40` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE41` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE42` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE43` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE44` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE45` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE46` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE47` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE48` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE49` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE5` | 274 | DamageEffect:ELSWORD_MAELSTROM | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE50` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE51` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE52` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE53` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE54` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE55` | 2 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE56` | 1 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE57` | 1 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE58` | 1 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE59` | 1 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE6` | 198 | DamageEffect:ELSWORD_MAELSTROM | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE60` | 1 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE61` | 1 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE62` | 1 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE63` | 1 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE64` | 1 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE65` | 1 | DamageEffect:DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_EFFECT | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE7` | 165 | DamageEffect:ELSWORD_MAELSTROM | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE8` | 137 | DamageEffect:DamageEffect_SA_EMK_StromBlade | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PARTICLE9` | 116 | DamageEffect:PHOENIX_TALON | other-func | named in callee 31f6aad0 (template TIME_PARTICLE%d) |
+| `TIME_PRTICLE0` | 1 | DamageEffect:DamageEffect_LLC_F_Combo_ZZZX_Explosive_Artifact_Landing | unread | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |
+| `TOUCH_LAND_DAMAGE_EFFECT0` | 1 | DamageEffect:DamageEffect_A_RMH_KS_83_Grenade | other-func | named in callee 31f76a90 (template TOUCH_LAND_DAMAGE_EFFECT%d) |
+| `TRACE` | 27 | DamageEffect:DamageEffect_SA_AEM_BlazeStep_Main | other-func | named in callee 31f66e60 (decrypted) |
+| `TRACE_MORE` | 3 | DamageEffect:DamageEffect_ADE_Combo_XXXX_Projectile | other-func | named in callee 31f66e60 (decrypted) |
+| `TRIGGER_COUNT` | 9 | DamageEffect:DamageEffect_SI_A_AN_MIND_BREAK | other-func | named in callee 31f66e60 (decrypted) |
+| `TRIGGER_TIME` | 6 | DamageEffect:DAMAGE_EFFECT_DEMOLISHER_EARTHQUAKE_STREAM_SUB_DAMAGE | other-func | named in callee 31f66e60 (decrypted) |
+| `TWO_DIR_GAP` | 30 | DamageEffect:SI_SA_RTR_KARMA_SPARK | dead-here | this scope's readers never ask for it (every guard accounted for, see the scope header; no callee within 3 levels names it); named only in unrelated 321e48e0 (decrypted) read it for other sub-tables |
+| `TWO_DIR_TIME` | 30 | DamageEffect:SI_SA_RTR_KARMA_SPARK | dead-here | this scope's readers never ask for it (every guard accounted for, see the scope header; no callee within 3 levels names it); named only in unrelated 321e48e0 (decrypted) read it for other sub-tables |
+| `TWO_DIR_TIME_GAP` | 1 | DamageEffect_INT:DamageEffect_SA_RBD_Gun_Dance_FireFX_EVENT_GROUP | dead-here | this scope's readers never ask for it (every guard accounted for, see the scope header; no callee within 3 levels names it); named only in unrelated 321e48e0 (decrypted) read it for other sub-tables |
+| `UNIT_SELECT` | 2 | DamageEffect_Dungeon:DamageEffect_Dark_Drabaki_S2_Attack_E_Rock_L | other-func | named in callee 31f650f0 (decrypted), 31f65730 (decrypted) |
+| `USED_SKILL_ID` | 12 | DamageEffect:DAMAGE_EFFECT_HA_LWS_Spiral_Stike_Blackhole | other-func | named in callee 32632390 (decrypted) |
+| `WAY_OF_SWORD_TYPE` | 12 | DamageEffect:ELSWORD_SWORDFALL_BLADE_SPARK1 | other-func | named in callee 32632390 (decrypted) |
+| `hIT_ADD_MP` | 1 | DamageEffect_Dungeon:DamageEffect_Time_Rena_PhoenixPhoenixStrike | typo | data typo of `HIT_ADD_MP` (binary-wide, decrypted in 32632390); the binary never reads this spelling |
 
 ## DamageEffect (START|PASSIVE|TIME|HIT)_PARTICLE%d
 
@@ -169,11 +496,11 @@ Data-only (103):
 | `ATTACK_TIME0` | 1 | DamageEffect:EVE_EG_SP3A_COMBO_Z1 | unread | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |
 | `BACK_SPEED_y` | 2 | DamageEffect:DAMAGE_EFFECT_CSI_ATTACK_DASH_X | typo | data typo of `BACK_SPEED_Y` (this scope, decrypted in 32632390); the binary never reads this spelling |
 | `BBT_ABSORB_EFFECT_ATTACK` | 1 | DamageEffect:DamageEffect_SA_ERS_PhoenixTalon_BUFF | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
-| `BBT_ATTACK_IMPOSSIBLE` | 12 | DamageEffect:DamageEffect_Fate_Space_Attack02 | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
+| `BBT_ATTACK_IMPOSSIBLE` | 12 | DamageEffect:DamageEffect_Fate_Space_Attack02 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_ACCURACY` | 10 | DamageEffect:PET_TREEKNIGHT_SPRING_ATTACK3 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_ADDITIONAL_ATTACK` | 19 | DamageEffect:DAMAGE_EFFECT_ALH_POWER_OF_WHITE_TIGER_BUFF | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_ADDITIONAL_DEFENCE` | 1 | DamageEffect_INT:DAMAGE_HALLOWEEN_POT_ATTACK | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
-| `BBT_CHANGE_ANIM_SPEED` | 135 | DamageEffect:DAMAGE_EFFECT_RUNESLAYER_RUNE_OF_ICE_DUMMY_DAMAGE | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
+| `BBT_CHANGE_ANIM_SPEED` | 135 | DamageEffect:DAMAGE_EFFECT_RUNESLAYER_RUNE_OF_ICE_DUMMY_DAMAGE | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_ANTI_CRITICAL_RATE` | 4 | DamageEffect:DamageEffect_SBH_Scaldic_Sword_1st | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_ATTRIBUTE_BLAZE_DEFENCE` | 6 | DamageEffect:DamageEffect_Elixir_Rosso_Fire_Ring_No_Damage | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_ATTRIBUTE_DARK_DEFENCE` | 3 | DamageEffect_ETC:DamageEffect_Riding_GodBeastDark_Attack_Z | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
@@ -182,30 +509,30 @@ Data-only (103):
 | `BBT_CHANGE_CRITICAL_RATE` | 7 | DamageEffect:DAMAGE_EFFECT_ALH_POWER_OF_WHITE_TIGER_BUFF | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE` | 1 | DamageEffect_INT:DAMAGE_HP_UP_SOUP_ATTACK | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_FINAL_DEFENCE_MULTIPLIER` | 11 | DamageEffect:CSM_SHADOW_DEFENDER_BARRIER | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
-| `BBT_CHANGE_JUMP_POWER` | 41 | DamageEffect:DARK_CLOUD_MEMO | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
+| `BBT_CHANGE_JUMP_POWER` | 41 | DamageEffect:DARK_CLOUD_MEMO | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_MAGIC_ATTACK` | 25 | DamageEffect:DAMAGE_EFFECT_SI_SA_AA_FIRE_FOX_AGING_HIT | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_MAGIC_DEFENCE` | 19 | DamageEffect:SPECIAL_ITEM_EFFECT_WIND | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_MAX_HP` | 1 | DamageEffect_INT:DAMAGE_HP_UP_SOUP_ATTACK | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_MAX_MP` | 1 | DamageEffect_INT:DAMAGE_MP_UP_SOUP_ATTACK | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
-| `BBT_CHANGE_NOW_HP_PER_SECOND` | 522 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
-| `BBT_CHANGE_NOW_MP_PER_SECOND` | 80 | DamageEffect:SA_ERS_LUNA_BLADE | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
+| `BBT_CHANGE_NOW_HP_PER_SECOND` | 522 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
+| `BBT_CHANGE_NOW_MP_PER_SECOND` | 80 | DamageEffect:SA_ERS_LUNA_BLADE | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_PHYSIC_ATTACK` | 26 | DamageEffect:DAMAGE_EFFECT_SI_SA_AA_FIRE_FOX_AGING_HIT | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_PHYSIC_DEFENCE` | 18 | DamageEffect:SPECIAL_ITEM_EFFECT_WIND | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CHANGE_UNIT_SCALE` | 11 | DamageEffect:DamageEffect_Fate_Space_Attack02 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
-| `BBT_CHANGE_WALK_RUN_SPEED` | 63 | DamageEffect:DARK_CLOUD_MEMO | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
+| `BBT_CHANGE_WALK_RUN_SPEED` | 63 | DamageEffect:DARK_CLOUD_MEMO | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_CUSTOM_FUNCTION` | 4 | DamageEffect:DamageEffect_LNW_Fungus_Trap_Arrow_NEW_Explosion_Damage_Main | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
-| `BBT_DASH_IMPOSSIBLE` | 18 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
-| `BBT_DOWN_IMPOSSIBLE` | 3 | DamageEffect:DamageEffect_SA_RNW_Rage_Of_Dry_Holding | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
+| `BBT_DASH_IMPOSSIBLE` | 18 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
+| `BBT_DOWN_IMPOSSIBLE` | 3 | DamageEffect:DamageEffect_SA_RNW_Rage_Of_Dry_Holding | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_EFFECT_SET_WITH_DAMAGE` | 2 | DamageEffect:DAMAGE_YELLOW_POT_ATTACK | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
-| `BBT_FINISH_OTHER_BUFF_DEBUFF` | 13 | DamageEffect:PVP_BOT_AIRELINNA_ATTACK_TWO | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
-| `BBT_FROZEN` | 65 | DamageEffect:DAMAGE_EFFECT_BLIZZARD_SHOWER_FROZEN_ATTACK | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
+| `BBT_FINISH_OTHER_BUFF_DEBUFF` | 13 | DamageEffect:PVP_BOT_AIRELINNA_ATTACK_TWO | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
+| `BBT_FROZEN` | 65 | DamageEffect:DAMAGE_EFFECT_BLIZZARD_SHOWER_FROZEN_ATTACK | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_IMMUNE_NON_CONTROL_DEBUFF` | 1 | DamageEffect_ETC:DamageEffect_Shield_AttackDummy | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_INVINCIBLE` | 1 | DamageEffect_ETC:DamageEffect_Shield_AttackDummy | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
-| `BBT_NEVER_MOVE` | 64 | DamageEffect:DAMAGE_EFFECT_BLIZZARD_SHOWER_FROZEN_ATTACK | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
+| `BBT_NEVER_MOVE` | 64 | DamageEffect:DAMAGE_EFFECT_BLIZZARD_SHOWER_FROZEN_ATTACK | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_RESET_SKILL_COOL_TIME` | 1 | DamageEffect:Damage_Effect_Witch_Pporu_Buff_5 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_REVERSE_LEFT_RIGHT` | 16 | DamageEffect:DamageEffect_HA_SGM_Sword_of_Relics_1st | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_SKILL_ATTACK_IMPOSSIBLE` | 2 | DamageEffect:DamageEffect_Elsion_Boss_HernaOrb_AttackB_Projectile | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
-| `BBT_STUN` | 132 | DamageEffect:ELSWORD_SONIC_BLADE | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
+| `BBT_STUN` | 132 | DamageEffect:ELSWORD_SONIC_BLADE | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BBT_SUPER_ARMOR` | 48 | DamageEffect:DAMAGE_EFFECT_BLIZZARD_SHOWER_FROZEN_ATTACK | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d4bbf0 (plaintext referenced), 32e80450 (plaintext referenced) (reached indirectly) |
 | `BEHAVIOR` | 959 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | other-func | named in callee 32d4c9c0 (plaintext referenced) |
 | `BFT_AURA` | 1 | DamageEffect:DamageEffect_Buff_Phase_of_Perkisas | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/FINALIZER`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d4c750 (plaintext referenced), 32ec36f0 (plaintext referenced) (reached indirectly) |
@@ -213,10 +540,10 @@ Data-only (103):
 | `BFT_DUNGEON_STAGE_CHANGE` | 10 | DamageEffect:DAMAGE_RED_POT_ATTACK | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/FINALIZER`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d4c750 (plaintext referenced), 32ec36f0 (plaintext referenced) (reached indirectly) |
 | `BFT_HITTED_COUNT` | 125 | DamageEffect:ELSWORD_SONIC_BLADE | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/FINALIZER`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d4c750 (plaintext referenced), 32ec36f0 (plaintext referenced) (reached indirectly) |
 | `BFT_IMMEDIATE` | 13 | DamageEffect:SA_ERS_LUNA_BLADE | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/FINALIZER`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d4c750 (plaintext referenced), 32ec36f0 (plaintext referenced) (reached indirectly) |
-| `BFT_TIME` | 944 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA_ULTIMATE/BUFF_FACTOR/FINALIZER`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d4c750 (plaintext referenced), 32ec36f0 (plaintext referenced) (reached indirectly) |
+| `BFT_TIME` | 944 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/FINALIZER`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d4c750 (plaintext referenced), 32ec36f0 (plaintext referenced) (reached indirectly) |
 | `BFT_X2STATE_CHANGE` | 3 | DamageEffect_Dungeon:DamageEffect_Boss_Mikey_Speaker_SpecialAttack_A | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/FINALIZER`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d4c750 (plaintext referenced), 32ec36f0 (plaintext referenced) (reached indirectly) |
-| `BUFF_CHANGE_TYPE` | 999 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/FINALIZER/BFT_DAMAGE_VALUE`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d42030 (decrypted), 32d42650 (decrypted), 32d42910 (decrypted), 32d436b0 (decrypted) (reached indirectly) |
-| `BUFF_DURATION_TIME_TYPE` | 944 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/FINALIZER/BFT_TIME`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d42da0 (decrypted), 32ebe8b0 (decrypted) (reached indirectly) |
+| `BUFF_CHANGE_TYPE` | 999 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ACCURACY`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d42030 (decrypted), 32d42650 (decrypted), 32d42910 (decrypted), 32d436b0 (decrypted) (reached indirectly) |
+| `BUFF_DURATION_TIME_TYPE` | 944 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/FINALIZER/BFT_TIME`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d42da0 (decrypted), 32ebe8b0 (decrypted) (reached indirectly) |
 | `BUFF_FACTOR` | 959 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | other-func | named in callee 32630910 (plaintext referenced) |
 | `BUFF_FACTOR_ID` | 360 | DamageEffect:DAMAGE_EFFECT_SWORD_SHIELD | other-func | named in callee 32630d20 (plaintext referenced) |
 | `BUFF_FACTOR_ID_MEMO` | 2 | DamageEffect:RAVEN_OVER_TAKER_CHARGED_BOLT_BLOOD | unread | as BUFF_FACTOR_RELATIVE_MEMO_ID (March X2DamageManager.cpp:3526, same #ifdef) |
@@ -225,27 +552,27 @@ Data-only (103):
 | `BUFF_FACTOR_RELATIVE_MASTER_UNIT` | 1 | DamageEffect:SA_ENS_ATOMIC_SHIELD | other-func | named in callee 32630d20 (decrypted) |
 | `BUFF_FACTOR_RELATIVE_MEMO_ID` | 2 | DamageEffect:RAVEN_OVER_TAKER_CHARGED_BOLT_BLOOD | unread | March reads it only under #ifdef ADD_MEMO_1ST_CLASS (X2DamageManager.cpp:3511). June's counterpart 32630d20 decrypts the non-memo neighbours (BUFF_FACTOR_RELATIVE_SKILL_ID, RELATIVE_SKILL_LEARN_CHECK, BUFF_FACTOR_RELATIVE_MASTER_UNIT) but not this; nothing else in the binary names it. Memo path absent from June's build (removed or compiled out: not settled) |
 | `BUFF_FACTOR_RELATIVE_SKILL_ID` | 114 | DamageEffect:DAMAGE_EFFECT_SWORD_SHIELD | other-func | named in callee 32630d20 (decrypted) |
-| `BUFF_RELATION_TYPE` | 816 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/FINALIZER/BFT_DAMAGE_VALUE`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d42030 (decrypted), 32d436b0 (decrypted), 32d445d0 (decrypted), 32e73640 (decrypted) (reached indirectly) |
-| `BUFF_USE_COUNT_TYPE` | 125 | DamageEffect:ELSWORD_SONIC_BLADE | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/FINALIZER/BFT_HITTED_COUNT`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d430f0 (decrypted), 32d433d0 (decrypted), 32d44a80 (decrypted), 32d44d60 (decrypted) (reached indirectly) |
+| `BUFF_RELATION_TYPE` | 816 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ADDITIONAL_ATTACK`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d42030 (decrypted), 32d436b0 (decrypted), 32d445d0 (decrypted), 32e73640 (decrypted) (reached indirectly) |
+| `BUFF_USE_COUNT_TYPE` | 125 | DamageEffect:ELSWORD_SONIC_BLADE | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/FINALIZER/BFT_HITTED_COUNT`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d430f0 (decrypted), 32d433d0 (decrypted), 32d44a80 (decrypted), 32d44d60 (decrypted) (reached indirectly) |
 | `CAN_PASS` | 2 | DamageEffect_Dungeon:DamageEffect_Eltrion_MK2_S1_Attack_H_R | dead-here | this scope's readers never ask for it (every guard accounted for, see the scope header; no callee within 3 levels names it); named only in unrelated 31c705c0 (decrypted) read it for other sub-tables |
 | `CAN_PUSH_UNIT` | 2 | DamageEffect:DamageEffect_SA_ASD_Continuity_Strikr_Throwing_Start | dead-here | this scope's readers never ask for it (every guard accounted for, see the scope header; no callee within 3 levels names it); named only in unrelated 320506f0 (decrypted), 32057b80 (decrypted), 32784c00 (decrypted), 32d2c8b0 (decrypted) read it for other sub-tables |
 | `COMBINATION` | 1918 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 326bfe70 (plaintext referenced) (reached indirectly) |
-| `COUNT` | 125 | DamageEffect:ELSWORD_SONIC_BLADE | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/FINALIZER/BFT_HITTED_COUNT`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 31f65730 (decrypted), 32d430f0 (plaintext referenced), 32d433d0 (plaintext referenced), 32d44a80 (plaintext referenced) (reached indirectly) |
+| `COUNT` | 125 | DamageEffect:ELSWORD_SONIC_BLADE | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/FINALIZER/BFT_HITTED_COUNT`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 31f65730 (decrypted), 32d430f0 (plaintext referenced), 32d433d0 (plaintext referenced), 32d44a80 (plaintext referenced) (reached indirectly) |
 | `DAMAGE_DATA` | 2 | DamageEffect:DamageEffect_Aero_Tornado_Memo | dead-here | this scope's readers never ask for it (every guard accounted for, see the scope header; no callee within 3 levels names it); named only in unrelated 31f7aab0 (plaintext referenced), 32057b80 (plaintext referenced), 32370e10 (plaintext referenced), 327ac9d0 (plaintext referenced) read it for other sub-tables |
 | `DRAW_TEXT` | 5 | DamageEffect:DAMAGE_EFFECT_PET_RAINCOAT_CAT_BLACK_STEB_1_Attack | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_NOW_HP_PER_SECOND`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32e72a00 (decrypted), 32e72e20 (decrypted), 32e78e90 (decrypted) (reached indirectly) |
 | `EVADE_PERCENT_UP` | 1 | DamageEffect_INT:SPECIAL_ITEM_EFFECT_BLIND | unread | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |
 | `FINALIZER` | 959 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | other-func | named in callee 32d4ca60 (plaintext referenced) |
-| `FIX_VALUE` | 98 | DamageEffect:DamageEffect_SA_EMK_WindBlade_Attack | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d42030 (plaintext referenced), 32d42650 (plaintext referenced), 32d436b0 (plaintext referenced), 32d44320 (plaintext referenced) (reached indirectly) |
+| `FIX_VALUE` | 98 | DamageEffect:DamageEffect_SA_EMK_WindBlade_Attack | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ADDITIONAL_ATTACK`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d42030 (plaintext referenced), 32d42650 (plaintext referenced), 32d436b0 (plaintext referenced), 32d44320 (plaintext referenced) (reached indirectly) |
 | `FORCE_DIE_HIT` | 1 | DamageEffect:DamageEffect_GOD_ARCHER_GOLEM_STONE_ATTACK | dead-here | this scope's readers never ask for it (every guard accounted for, see the scope header; no callee within 3 levels names it); named only in unrelated 31f66e60 (decrypted) read it for other sub-tables |
 | `HYSIC` | 1 | DamageEffect:DamageEffect_RaidAttack_Find_Target | typo | data typo of `PHYSIC` (this scope, decrypted in 32632390); the binary never reads this spelling |
 | `IGNORE_REGIST_FOR_RATE` | 959 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | other-func | named in callee 32d4d850 (decrypted) |
 | `IS_DOWN` | 1 | DamageEffect_ETC:DamageEffect_WaterBalloon_Hit_AttackDummy | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR/BBT_FROZEN`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32e74170 (decrypted) (reached indirectly) |
 | `IS_GRAVITY` | 1 | DamageEffect_ETC:DamageEffect_WaterBalloon_Hit_AttackDummy | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR/BBT_NEVER_MOVE`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32e7a4a0 (decrypted) (reached indirectly) |
-| `MULTIPLIER` | 515 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/FINALIZER/BFT_DAMAGE_VALUE`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d42030 (plaintext referenced), 32d436b0 (plaintext referenced), 32d445d0 (plaintext referenced), 32d45670 (plaintext referenced) (reached indirectly) |
-| `NORMAL_TIME` | 944 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/FINALIZER/BFT_TIME`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d42da0 (plaintext referenced) (reached indirectly) |
+| `MULTIPLIER` | 515 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_NOW_HP_PER_SECOND`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d42030 (plaintext referenced), 32d436b0 (plaintext referenced), 32d445d0 (plaintext referenced), 32d45670 (plaintext referenced) (reached indirectly) |
+| `NORMAL_TIME` | 944 | DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/FINALIZER/BFT_TIME`, opened by callee 32d4ca60 on this scope's path; named only in unrelated 32d42da0 (plaintext referenced) (reached indirectly) |
 | `NOT_LIGHT` | 6 | DamageEffect:SHADOW_TRICKSTER_TOTEM_BUFF | unread | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |
 | `OFFSET_POSITION` | 1 | DamageEffect_ETC:DamageEffect_WaterBalloon_Hit_AttackDummy | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR/BBT_NEVER_MOVE`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32e7a4a0 (decrypted) (reached indirectly) |
-| `PERCENT` | 373 | DamageEffect:SA_ERS_LUNA_BLADE | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_NOW_MP_PER_SECOND`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d42030 (plaintext referenced), 32d44320 (plaintext referenced), 32d445d0 (plaintext referenced), 32d46000 (plaintext referenced) (reached indirectly) |
+| `PERCENT` | 373 | DamageEffect:SA_ERS_LUNA_BLADE | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ACCURACY`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d42030 (plaintext referenced), 32d44320 (plaintext referenced), 32d445d0 (plaintext referenced), 32d46000 (plaintext referenced) (reached indirectly) |
 | `PVP_RAE` | 1 | DamageEffect:RAVEN_SEVEN_BURST_2 | typo | data typo of `PVP_RATE` (this scope, decrypted in 32632390); the binary never reads this spelling |
 | `RELATIVE_SKILL_LEARN_CHECK` | 25 | DamageEffect:DamageEffect_SMASH_1_Buff | other-func | named in callee 32630d20 (decrypted) |
 | `RE_AATACK` | 2 | DamageEffect:DamageEffect_Red_Dragon_P1_Attack_G_L | typo | data typo of `RE_ATTACK` (this scope, decrypted in 32632390); the binary never reads this spelling |
@@ -257,8 +584,8 @@ Data-only (103):
 | `STOP_TIME_AFK` | 1 | DamageEffect:DamageEffect_SA_RWS_ViolentAttack_Damage2 | typo | data typo of `STOP_TIME_ATT` (this scope, decrypted in 32632390); the binary never reads this spelling |
 | `STOP_TIME_ATK` | 13 | DamageEffect:DAMAGE_EFFECT_BURNING_RUSH | typo | data typo of `STOP_TIME_ATT` (this scope, decrypted in 32632390); the binary never reads this spelling |
 | `STOP_TIMP_ATK` | 10 | DamageEffect:DAMAGE_EFFECT_A_ALH_Rock_Crash_1 | typo | data typo of `STOP_TIME_ATT` (this scope, decrypted in 32632390); the binary never reads this spelling |
-| `SWAP_VALUE` | 13 | DamageEffect:DamageEffect_SA_RNW_Rage_Of_Dry_Holding | nested-subtable | under `DAMAGE_DATA_NEXT/BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_WALK_RUN_SPEED`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d445d0 (plaintext referenced), 32d46fc0 (plaintext referenced) (reached indirectly) |
-| `TIME_INTERVAL` | 6 | DamageEffect:DAMAGE_EFFECT_PET_RAINCOAT_CAT_BLACK_STEB_1_Attack | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR/BBT_REVERSE_LEFT_RIGHT`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32e72a00 (decrypted), 32e72e20 (decrypted), 32e73210 (decrypted), 32e755a0 (decrypted) (reached indirectly) |
+| `SWAP_VALUE` | 13 | DamageEffect:DamageEffect_SA_RNW_Rage_Of_Dry_Holding | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_CRITICAL_RATE`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32d445d0 (plaintext referenced), 32d46fc0 (plaintext referenced) (reached indirectly) |
+| `TIME_INTERVAL` | 6 | DamageEffect:DAMAGE_EFFECT_PET_RAINCOAT_CAT_BLACK_STEB_1_Attack | nested-subtable | under `DAMAGE_DATA/BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_NOW_HP_PER_SECOND`, opened by callee 32d4c9c0 on this scope's path; named only in unrelated 32e72a00 (decrypted), 32e72e20 (decrypted), 32e73210 (decrypted), 32e755a0 (decrypted) (reached indirectly) |
 | `USE_GLOBAL_TIME` | 3 | DamageEffect_ETC:DamageEffect_Oberon650_BlackSkull_Attack_Z | dead-here | this scope's readers never ask for it (every guard accounted for, see the scope header; no callee within 3 levels names it); named only in unrelated 31f66e60 (decrypted), 31f73f30 (decrypted), 31f7aab0 (decrypted), 321e48e0 (decrypted) read it for other sub-tables |
 
 ## DamageEffect BLACKHOLE_DATA(_ULTIMATE)?
@@ -475,10 +802,8 @@ Data-only (10):
 - `31f66e60`: `MOVE_ANGLE_X_PER_FRAME` `SHOW_LEVEL`
 - `31f6ac60`: `LOOP_ADD_POS_Z`
 - `31f6ceb0`: `PASSIVE_PARTICLE_X` `PASSIVE_PARTICLE_Y` `PASSIVE_PARTICLE_Z`
-- `31f6e7e0`: `DIE_DAMAGE_EFFECT`(plain) `DIE_DAMAGE_EFFECT_ULTIMATE`(plain)
-- `31f6e850`: `HIT_DAMAGE_EFFECT`(plain) `HIT_DAMAGE_EFFECT_ULTIMATE`(plain)
 - `31f71930`: `AT_RAID_FIELD` `LOCK_ON_OFFSET_Y_POS`
 - `31f76a90`: `PASSIVE_PARTICLE_X` `PASSIVE_PARTICLE_Y` `PASSIVE_PARTICLE_Z`
-- `31f7aab0`: `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`
+- `31f7aab0`: `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` `DAMAGE_DATA_NEXT_ULTIMATE%d`(plain)
 - `32632390`: `ADD_LEVEL` `ANIMSPEED_RATE` `APPLIED_MEMO_ID` `ATTACKER_GET`(plain) `CREATE_DAMAGE_EFFECT_NAME_SCALE_X` `CREATE_DAMAGE_EFFECT_NAME_SCALE_Y` `CREATE_DAMAGE_EFFECT_NAME_SCALE_Z` `CREATE_DAMAGE_EFFECT_RATE` `DAMAGE_PER_SEC` `DAMAGE_RATE_TO_SUPERAMOR` `DAMAGE_TRIGGER_CONDITION` `DEFENDER_LEVEL` `DISABLE_ATTACKBOX`(plain) `DIVIDE_DAMAGE_FROM_RANGE`(plain) `DIVISION_NUM` `DIVISION_OFF_TIME` `DRAIN` `DRAIN_MP_RATE_REACT` `ENABLE_ATTACKBOX`(plain) `HIT_ADD_MP_PERCENT` `HP` `JUMP_SPEED_RATE` `MP` `NUMERICAL_DATA_NAME` `RANGE%d`(plain) `RUNJUMP_SPEED_RATE`
 - `321e48e0`: `ANIMTIME_ON_START_SQUARE`(plain) `ANIMTIME_ON_START_UNITVIEWER`(plain) `EYE_MOVE_RANGE_MAX` `EYE_MOVE_RANGE_MIN` `EYE_MOVE_SPEED_MAX` `EYE_MOVE_SPEED_MIN` `EYE_SHAKE_COUNT` `FIXED_LOOK_VEC` `GROUP_NAME` `LOOK_AT_MOVE_RANGE_MAX` `LOOK_AT_MOVE_RANGE_MIN` `LOOK_AT_MOVE_SPEED_MAX` `LOOK_AT_MOVE_SPEED_MIN` `LOOK_AT_SHAKE_COUNT` `ONE_DIR_ACCEL` `ONE_DIR_SPEED` `PLAY_TYPE` `RATE` `WEAPON_BONE_MODEL_INDEX` `WEAPON_BONE_WEAPON_INDEX`
