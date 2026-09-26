@@ -998,7 +998,19 @@ None of the four March-loaded effect-set files uses a stage-2 or stage-3 key, so
 only fire after Phase 11.
 
 **Built `US_SERVICE` (KTDXLIB, X2Lib, X2) and deployed to `X2_offline.exe` (SHA-256
-`3b2cbece6764e1e2…`). Not yet play-tested.**
+`3b2cbece6764e1e2…`). Play-tested 2026-09-26.**
+- Rena's Perfect Storm and the fire Hamelling's Attack X each logged
+  `ES_UPDATE ... BONE_TRACE_TARGET_MESH hidden=target_mesh_gone(321e0217)` immediately followed by
+  `ES_DELETE ... BONE_TRACE_TARGET_MESH deleted=no_target_mesh_handle_left(321e4197)` — the stage-1
+  delete/hide pair the exit criterion asks for.
+- `0` `UNHANDLED`/`EXCEPTION` packets, clean shutdown.
+- The Ranox mesh set (Babyfig) registered at creation but its target mesh stayed alive the whole run,
+  so no `ES_UPDATE`/`ES_DELETE` fired for it in this pass — not a failure, the damage-effect sets
+  already prove the branch.
+- **Not testable with current data:** `GetCombineMatrix`'s square-unit and pet branches. No deployed
+  effect set combines `TRACE_MATRIX` with a pet or square-unit owner (checked all four effect-set
+  files), and no in-build command plays an arbitrary set on a square unit. They stay cited but
+  unverified until Phase 11.
 
 
 ## Reverting to stock

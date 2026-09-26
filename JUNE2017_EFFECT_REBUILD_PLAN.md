@@ -1371,8 +1371,35 @@ the new `GetCombineMatrix` holders.
 
 **Exit status.** `census.py` passes every check, including the two new ones: no `4b@` placeholder, and
 no `stage N` state. The matrix diff against HEAD, with line numbers normalized, changes only the
-runtime table, the runtime notes and the checks. The `JUNE_FX ES_UPDATE` / `ES_DELETE` criterion
-waits on the play-test.
+runtime table, the runtime notes and the checks.
+
+**Play-test result (2026-09-26, exe `3b2cbece6764e1e2…`).** `offline_server.log` shows both lines the
+exit criterion asks for:
+- `JUNE_FX ES_UPDATE EffectSet_Rena_Perfect_Storm PerfectStorm02 BONE_TRACE_TARGET_MESH hidden=target_mesh_gone(321e0217)`,
+  immediately followed by `JUNE_FX ES_DELETE EffectSet_Rena_Perfect_Storm - BONE_TRACE_TARGET_MESH deleted=no_target_mesh_handle_left(321e4197)`
+  — five times over the run, one per Perfect Storm cast.
+- The same pair for `EffectSet_Riding_Red_HAMELLING_Attack_X` (the fire Hamelling's Attack X), once.
+- `0` `UNHANDLED`/`EXCEPTION` packets (`offline_packets.log`), and a clean `SHUTDOWN`.
+- The Ranox mesh set (`EffectSet_NUI_RAGE_BABYFIG_Attack_A_Ready`) registered at creation
+  (`registered_index=0(mesh)`, `offset=unit_facing`) but logged no `ES_UPDATE`/`ES_DELETE` in this
+  run — its target mesh must have stayed alive throughout, which is not a failure; the delete/hide
+  branch is proven by the damage-effect sets instead.
+
+**A claim made in chat while planning this play-test turned out to be wrong and is recorded here so
+it isn't repeated.** `GetCombineMatrix`'s square-unit and pet branches (new in stage 1) were offered
+as a third test target ("a pet or village square-unit set with `TRACE_MATRIX`"). Checking the four
+deployed effect-set files found no such combination exists:
+- Only three effect sets ever play on a pet (`EffectSet_Summon_Pet`, `EffectSet_Evolution_Pet`,
+  `EffectSet_Cheer_Pet`), none with `TRACE_MATRIX`.
+- The only literal `PlayEffectSet(name, pSquareUnit)` call sites are `EffectSet_LevelUp` and
+  `EffectSet_LevelUp_LandPosition`, neither with `TRACE_MATRIX`. The relationship/couple effects take
+  their name as a runtime variable and could not be resolved to a literal.
+- No dev/cheat command in this build plays an arbitrary effect set on a square unit; the one
+  Lua-callable binding (`PlayEffectSet_LUA`) only accepts a `CX2GameUnit*`.
+
+So those two branches are untestable with current March data, same as the several other stage-2/3
+branches already marked "fires from Phase 11" above. The branches are still cited and transcribed;
+they just have no play-test evidence, and none is possible until June's own files are adopted.
 
 **Paste with:** Starting context + this section.
 
