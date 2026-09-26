@@ -2832,6 +2832,102 @@ class CX2UnitManager
 			}
 		};
 
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+		//{{ Iruha : 2026-09-27 // Lanox ExtraNPCStat port Phase 3 -- June2017's
+		// NewNPCStat/NewNPCStatFormula system (data036_kom), reverse engineered
+		// in LANOX_EXTRA_NPC_STAT_PLAN.md. Names/values are June's own
+		// (Enum.src.lua:17197-17213).
+		enum EXTRA_NPC_STAT_TYPE
+		{
+			ENST_NONE			= 0,
+			ENST_HP				= 1,
+			ENST_PHYSIC_ATT		= 2,
+			ENST_MAGIC_ATT		= 3,
+			ENST_PHYSIC_DEF		= 4,
+			ENST_MAGIC_DEF		= 5,
+			ENST_ACCURACY		= 6,
+			ENST_AVOIDANCE		= 7,
+			ENST_BLUE_DEF		= 8,
+			ENST_DARK_DEF		= 9,
+			ENST_GREEN_DEF		= 10,
+			ENST_LIGHT_DEF		= 11,
+			ENST_RED_DEF		= 12,
+			ENST_WIND_DEF		= 13,
+			ENST_END			= 14,
+		};
+
+		// AddExtraNPCStat row (June FUN_32380cf0, 14 required keys). DAMAGE_TYPE
+		// is deliberately absent: June's binding never reads it (Phase 0 verdict 3).
+		struct ExtraNPCStat
+		{
+			NPC_UNIT_ID		m_nNPCUnitID;
+
+			float			m_fHPValue;
+			float			m_fPhysicAttValue;
+			float			m_fMagicAttValue;
+			float			m_fPhysicDefValue;
+			float			m_fMagicDefValue;
+			float			m_fAccuracyValue;
+			float			m_fAvoidanceValue;
+
+			int				m_DefenseRed;
+			int				m_DefenseBlue;
+			int				m_DefenseGreen;
+			int				m_DefenseWind;
+			int				m_DefenseLight;
+			int				m_DefenseDark;
+
+			ExtraNPCStat()
+			{
+				m_nNPCUnitID		= NUI_NONE;
+
+				m_fHPValue			= 0.0f;
+				m_fPhysicAttValue	= 0.0f;
+				m_fMagicAttValue	= 0.0f;
+				m_fPhysicDefValue	= 0.0f;
+				m_fMagicDefValue	= 0.0f;
+				m_fAccuracyValue	= 0.0f;
+				m_fAvoidanceValue	= 0.0f;
+
+				m_DefenseRed		= 0;
+				m_DefenseBlue		= 0;
+				m_DefenseGreen		= 0;
+				m_DefenseWind		= 0;
+				m_DefenseLight		= 0;
+				m_DefenseDark		= 0;
+			}
+		};
+
+		// AddExtraNPCFormulaVariable row (June FUN_32382470, 6 required keys +
+		// optional DUNGEON_ID, default 0). m_iDungeonID is the ledger's Phase 2
+		// correction (2026-09-27): two of the 67 real rows carry a non-zero
+		// DUNGEON_ID (FUN_32373680's per-dungeon exception band), so
+		// CalculateExtraStatValue must filter on it for fidelity to June, even
+		// though it changes no computed stat in the data as shipped.
+		struct ExtraNPCFormulaVariable
+		{
+			EXTRA_NPC_STAT_TYPE		m_eStatType;
+			int						m_iMinLevel;
+			int						m_iMaxLevel;
+			float					m_fBasicValue;
+			float					m_fGradientValue;
+			float					m_fInterceptValue;
+			int						m_iDungeonID;
+
+			ExtraNPCFormulaVariable()
+			{
+				m_eStatType			= ENST_NONE;
+				m_iMinLevel			= 0;
+				m_iMaxLevel			= 0;
+				m_fBasicValue		= 0.0f;
+				m_fGradientValue	= 0.0f;
+				m_fInterceptValue	= 0.0f;
+				m_iDungeonID		= 0;
+			}
+		};
+		//}} Iruha : 2026-09-27
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
+
 		enum NPC_ABILITY_ID
 		{
 			NAI_NONE = 0,
@@ -2914,6 +3010,12 @@ class CX2UnitManager
 //#ifdef	X2OPTIMIZE_NPC_LUASPACE_SHARING
 			lua_State*		m_pLuaState;
 //#endif	X2OPTIMIZE_NPC_LUASPACE_SHARING
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+			// Iruha : 2026-09-27 // set true in AddNPCStat_LUA. "No legacy row"
+			// must be judged from this, never from m_stat.m_nNPCUnitID (the parity
+			// flag writes into m_stat even for extra-only NPCs).
+			bool			m_bHasLegacyNPCStat;
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
             NPCUnitInfo();
         };//struct  NPCUnitInfo
 
@@ -2989,6 +3091,31 @@ class CX2UnitManager
 		bool AddUnitTemplet_LUA();
 		bool AddNPCTemplet_LUA();
 		bool AddNPCStat_LUA();
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+		//{{ Iruha : 2026-09-27 // Lanox ExtraNPCStat port Phase 3
+		bool AddExtraNPCStat_LUA();
+		bool AddExtraNPCFormulaVariable_LUA();
+		bool HasExtraNPCStat( NPC_UNIT_ID nNPCUnitID ) const;
+		const ExtraNPCStat* GetExtraNPCStat( NPC_UNIT_ID nNPCUnitID ) const;
+		// Replica of June FUN_32374ea0. pbEvalFailed distinguishes "no band
+		// covers this level" (June's own fall-through: returns fValue unchanged)
+		// from "the Lua call itself failed" (missing global, pcall error) -- the
+		// caller must fall back to the legacy stat path on the latter, never
+		// apply a partial mix of extra and legacy values for one NPC.
+		float CalculateExtraStatValue( EXTRA_NPC_STAT_TYPE eStatType, int iLevel, float fValue, int iDungeonID, bool* pbEvalFailed = NULL ) const;
+		bool IsExtraNPCStatReady() const { return m_bExtraNPCStatReady; }
+		// Emits the load-time summary line through CX2OfflineLog::Server once,
+		// the first time it's called -- deferred because the offline log isn't
+		// open yet while OpenNPCFiles runs at startup.
+		void LogExtraNPCStatSummaryOnce();
+		// Writes DEF_*/element-resistance rows into m_mapNPCUnitInfo for
+		// extra-only IDs. Called from OpenNPCFiles only after the whole load
+		// is confirmed to have succeeded, so a mid-file load failure never
+		// leaves a partial set of NPCs mutated while the feature reports itself
+		// degraded (off).
+		void ApplyExtraNPCStatResistances();
+		//}} Iruha : 2026-09-27
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 		bool AddNPCExtraAbility_LUA();
 
 
@@ -3040,6 +3167,29 @@ class CX2UnitManager
 
         NPCUnitInfoMap                                  m_mapNPCUnitInfo;
         FileNPCInitDataMap                              m_mapFileNPCInitData;
+
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+		//{{ Iruha : 2026-09-27 // Lanox ExtraNPCStat port Phase 3
+		std::map<NPC_UNIT_ID, ExtraNPCStat>				m_mapExtraNPCStat;
+		// insertion order preserved for equal keys (multimap), which gives
+		// June's first-band-in-file-order rule.
+		std::multimap<int, ExtraNPCFormulaVariable>	m_mmapExtraNPCFormulaVariable;
+		bool									m_bExtraNPCStatReady;
+
+		// OpenNPCFiles load-time counters -- see the summary line in the .cpp
+		int										m_iExtraNPCStatCallCount;		// N: AddExtraNPCStat_LUA calls
+		int										m_iExtraNPCStatNilID;			// X
+		int										m_iExtraNPCStatNoTemplet;		// Y
+		int										m_iExtraNPCStatExtraOnly;		// Z
+		int										m_iExtraNPCStatWithLegacy;		// W
+		int										m_iExtraNPCStatDroppedOtherKey;	// missing a required key besides NPC_ID; expect 0
+		int										m_iExtraNPCFormulaVarCount;		// V
+		int										m_iExtraNPCFormulaVarDropped;	// missing a required key; expect 0
+
+		std::wstring							m_wstrExtraNPCStatSummaryLog;
+		bool										m_bExtraNPCStatSummaryLogged;
+		//}} Iruha : 2026-09-27
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 
 #ifndef _SERVICE_
 		std::set<NPC_UNIT_ID>                           m_setNPCStatCheck;

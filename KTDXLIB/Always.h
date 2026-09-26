@@ -4346,3 +4346,25 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // runtime. Parse only; runtime is Phase 7.
 #define SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-27
+// Description: Lanox ExtraNPCStat port Phase 3 -- loads June2017's
+//              NewNPCStatFormula.lua + NewNPCStat.lua (data036) and gives
+//              formula-computed stats to NPCs with no legacy NPCStat.lua
+//              row (LANOX_EXTRA_NPC_STAT_PLAN.md). Fixes Lanox NPCs that
+//              spawn at 0 HP and die KILL_SELF, which lets a sub-stage
+//              clear condition fire while other monsters are still alive
+//              (the Burned Forest gate defect). Base flag only: NPCs with
+//              no legacy row. Parity (overriding NPCs that DO have a
+//              legacy row) is SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY, a
+//              separate, later flag.
+#define SERV_IRUHADEV_EXTRA_NPC_STAT
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-27
+// Description: Short-lived. [XSTAT]/[NPC_ZERO_HP] diagnostics for
+//              SERV_IRUHADEV_EXTRA_NPC_STAT, one line per NPC ID per game.
+//              Remove once Phase 5's play-test verification is done.
+#define SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
+//////////////////////////////////////////////////////////////////////////

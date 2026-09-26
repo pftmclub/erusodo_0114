@@ -1062,7 +1062,31 @@ Done when: the TSV and summary exist and I've seen them. Update the Phase 2 Stat
 
 ## Phase 3 — C++ base flag: tables, loader, evaluator, extra-only stats (+ build/deploy)
 
-**Status:** not started.
+**Status:** code done, reviewed (Opus `/code-review`, 3 real bugs found and fixed -- shared
+`pbEvalFailed` reset, unguarded offline-log include, partial-write-on-load-failure; see
+`MODS.md`), built and deployed 2026-09-27; not yet play-tested (ask before launching). `SERV_IRUHADEV_EXTRA_NPC_STAT` + short-lived `SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG`
+added to `Always.h`. `CX2UnitManager` gained the `EXTRA_NPC_STAT_TYPE` enum, `ExtraNPCStat`/
+`ExtraNPCFormulaVariable` tables (the latter carries an `m_iDungeonID` beyond this section's
+original spec, per the Phase 2 ledger correction -- for fidelity to June's per-dungeon
+exception band, though it changes no computed stat in the shipped data), the loader (degrades
+visibly, logs via `ErrorLogMsg` at load time and once more through `CX2OfflineLog::Server` on
+first `SetHardLevel`), and `CalculateExtraStatValue` (raw Lua C API, 8 args; an out-flag tells
+the caller a real Lua failure apart from June's own "no band" fall-through, so a failure falls
+back to the legacy path rather than a partial mix). `SetHardLevel`/`ReInitAtkAndDef_LUA` apply
+it only to NPCs with `HasExtraNPCStat() && !m_bHasLegacyNPCStat`. Scan-rate grade is plumbed via
+a new `CX2GUNPC` member (zeroed by default, matching June's own sub-stage parser, which never
+sets grade either) set directly by the two battlefield creation call sites. Full detail and the
+files-to-pack list are in `MODS.md`'s entry. Built clean (`US_SERVICE`, 0 errors) and deployed
+to `X2_offline.exe` (18,920,960 bytes, mtime-confirmed). Two real bugs were caught and fixed
+during this phase before the build went clean: `SetHardLevel`'s `if (bAppliedExtraStat==false)`
+wrapping the pre-existing bare block was correct (no braces needed, the block's own closing
+brace completes the if), but the closing-side patch for that pattern first added a spurious
+extra `}` (caught by a comment-aware brace-balance script, not the compiler, since the bad
+brace's effect was silent under the flag's default-off `US_SERVICE` build path -- fixed before
+building); `ReInitAtkAndDef_LUA` needed an explicit new `{ }` pair (unlike `SetHardLevel`, a real
+statement -- the `kNPCUnitStat` declaration -- sits between the `if` and the old block, so the
+`if` was only binding to that one declaration, leaving `kNPCUnitStat` out of scope in the block
+that followed -- this one the compiler did catch, as `C2065`/`C2228` on `X2GUNPC.cpp:11603`).
 
 **Paste with:** Starting context + this section.
 

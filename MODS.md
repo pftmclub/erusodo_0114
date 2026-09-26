@@ -1192,6 +1192,93 @@ Revert as for Phase 5: undefine the flag. Nothing consumes `m_vecDieCheckConditi
 `DamageEffectData` fields yet (Phase 7c), so undefining it only removes the parse sites -- no
 behaviour changes either way.
 
+**`SERV_IRUHADEV_EXTRA_NPC_STAT` (+ short-lived `SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG`), 2026-09-27
+-- Lanox ExtraNPCStat port Phase 3 (base flag only; see `LANOX_EXTRA_NPC_STAT_PLAN.md`).**
+Ports June2017's second NPC stat system, `data036/NewNPCStat.lua` + `NewNPCStatFormula.lua`,
+which gives the **75** Lanox NPC IDs with no legacy `NPCStat.lua` row (gates, switch gates,
+traps, regen points, geysers, secret bosses, ...) their real stats instead of spawning at 0 HP
+and dying `KILL_SELF`, which was letting a sub-stage's `CC_KILL_NPC_TYPE` clear condition fire
+while other monsters were still alive -- the Burned Forest gate defect the whole port exists to
+fix. NPCs that already have a legacy row are untouched by this flag; overriding them with
+formula stats too is `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY`, a separate Phase 4 flag not yet
+implemented.
+
+- **`X2Lib/X2UnitManager.h`/`.cpp`:** `EXTRA_NPC_STAT_TYPE` enum, `ExtraNPCStat`/
+  `ExtraNPCFormulaVariable` structs (June's own key names; `ExtraNPCFormulaVariable` carries an
+  `m_iDungeonID` beyond what Phase 3's original spec listed, per the Phase 2 ledger correction --
+  needed for fidelity to June's per-dungeon exception band, though it changes no computed stat
+  in the shipped data), `m_bHasLegacyNPCStat` on `NPCUnitInfo` (set in `AddNPCStat_LUA`; "no
+  legacy row" is judged from this, never from `m_stat.m_nNPCUnitID`), `AddExtraNPCStat_LUA`/
+  `AddExtraNPCFormulaVariable_LUA` (both drop a row missing any required key, matching June,
+  and count it rather than default-filling it), `HasExtraNPCStat`/`GetExtraNPCStat`, and
+  `CalculateExtraStatValue` -- a replica of June `FUN_32374ea0` using the raw Lua C API (8
+  arguments; `lua_tinker::call<>()` tops out at 6), with an out-flag that tells the caller
+  "the Lua call itself failed" apart from "no band covers this level" (June's own fall-through),
+  so a real failure falls back to the legacy stat path instead of computing a partial/zero mix.
+  `OpenNPCFiles` loads `NewNPCStatFormula.lua` then `NewNPCStat.lua` after the legacy stat file,
+  degrading (feature off, game behaves as today) rather than failing the load if `Enum.lua`'s
+  `EXTRA_NPC_STAT_TYPE` table, either file, or the `CalculateExtraStatValue` global is missing
+  afterward. The load summary (counts of nil-`NPC_ID`/no-templet/extra-only/with-legacy rows and
+  formula vars, or the degrade reason) goes to `ErrorLogMsg` at load time and is buffered to be
+  re-emitted once through `CX2OfflineLog::Server` on the first `SetHardLevel` call, since the
+  offline log isn't open yet while `CX2UnitManager` loads its files at startup.
+- **`X2Lib/X2GUNPC.h`/`.cpp`:** `SetHardLevel` and `ReInitAtkAndDef_LUA` give formula stats
+  (HP/attack/defense, plus accuracy/avoidance per Phase 0 verdict 2 in `SetHardLevel`) to NPCs
+  with `HasExtraNPCStat() && !m_bHasLegacyNPCStat`, falling back to the unchanged legacy code
+  path otherwise -- including when the Lua evaluation itself fails, so an extra-only NPC never
+  ends up with a partial mix of extra and legacy values. Scan rate/near range come from a new
+  `m_iExtraNPCStatMonsterGrade` member (June `FUN_323752f0`'s monster-grade param, 0 by default);
+  the sub-stage spawn path leaves it at 0, matching June's own sub-stage Lua parser (which never
+  sets grade either -- `X2DungeonSubStage.cpp`'s runtime `FetchNPCData` has no `MONSTER_GRADE`
+  read, only the `X2TOOL`-only `FetchNPCData4Tool` does); `X2BattleFieldGame.cpp`'s two NPC
+  creation paths (`:782`/`:987`) set it from `SHOW_BOSS_NAME`/boss-group membership right before
+  calling `SetHardLevel`. `[XSTAT]`/`[NPC_ZERO_HP]` diagnostics (short-lived debug flag) log once
+  per NPC ID per game through `CX2OfflineLog::Server`.
+- **`X2Lib/X2Main.cpp`:** binds `AddExtraNPCStat`/`AddExtraNPCFormulaVariable` to
+  `CX2UnitManager`, next to the existing `AddNPCStat` binding.
+- All edits are pure insertions (`git diff --stat`: 7 files, 690 lines, 0 deletions);
+  `file`/CP949-byte checks passed on every touched file (`X2GUNPC.cpp/.h`, `X2UnitManager.cpp/.h`,
+  `X2Main.cpp`, plus `X2BattleFieldGame.cpp` and `KTDXLIB/Always.h`, neither of which the plan's
+  Starting Context names but both carry the same non-ASCII byte class).
+- **Opus `/code-review` caught three real bugs, all fixed and rebuilt before this entry was
+  written:** (1) `CalculateExtraStatValue` unconditionally reset its shared `*pbEvalFailed`
+  output to `false` on every call, so when `SetHardLevel`/`ReInitAtkAndDef_LUA` call it several
+  times (once per stat type) into one shared flag, an early failure was silently overwritten by
+  a later success -- fixed by only ever setting the flag to `true`, never resetting it, so the
+  caller's own pre-loop initialization is what matters. (2) The two `#include
+  "Offline/X2OfflineLog.h"` lines (`X2GUNPC.cpp`, `X2UnitManager.cpp`) were unconditional --
+  harmless in practice (the header is itself empty unless `SERV_IRUHADEV_OFFLINE` is defined,
+  and every actual use is already flag-guarded) but not literally revertible by undefining one
+  macro -- now wrapped in `#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT`. (3) `AddExtraNPCStat_LUA` wrote
+  extra-only NPCs' `DEF_*`/element-resistance fields into the live `NPCUnitInfo` map as each Lua
+  row was read, before the loader had confirmed the whole file loaded; a `NewNPCStat.lua` that
+  fails partway through (this project has a documented history of `elstools` truncating large
+  packed algo-2 files) would leave some NPCs mutated while the summary line and
+  `m_bExtraNPCStatReady` both claim the feature is fully degraded/off. Fixed by moving that
+  write-back into a new `ApplyExtraNPCStatResistances()`, called from `OpenNPCFiles` only after
+  `m_bExtraNPCStatReady` is confirmed `true` -- `AddExtraNPCStat_LUA` itself now only populates
+  the pure-data `m_mapExtraNPCStat` table, no side effects on `NPCUnitInfo`. Two further findings
+  were read and deliberately left as documented gaps rather than fixed: the legacy PVP
+  attack/defense dampening (`fCorrectionStat`, 0 in free/tournament channels, 0.1 elsewhere) has
+  no equivalent in the new extra-stat path, since neither the ledger nor Phase 0's call-site
+  table describe what June does for `ExtraNPCStat` in PVP and the 75 extra-only IDs are Lanox
+  dungeon/field content not known to spawn there; and the sub-stage creation path never calls
+  `SetExtraNPCStatMonsterGrade()`, leaving grade at its default 0 for those NPCs -- deliberate,
+  since transcribing June's own sub-stage Lua parser (which never sets grade either) requires
+  the same default, not a bug to fix.
+- **Built `US_SERVICE` (KTDXLIB, X2Lib, X2) and deployed to `X2_offline.exe`** (confirmed via
+  `os.stat`: 18,921,472 bytes, matching source and destination mtimes, after the review-driven
+  rebuild). Not yet play-tested this session -- ask before launching. The pre-pack degrade line
+  should read in `ErrorLog.txt`/`offline_server.log` until the three files below are packed.
+- **Files to pack into `data036.kom`** (staged in Phase 1, not yet confirmed packed): `NewNPCStat.lua`,
+  `NewNPCStatFormula.lua`, and the updated `Enum.lua`, all from `kom_contents/data036_kom/`.
+  Confirm from the `[EXTRA_NPC_STAT] loaded ...` summary line once packed, not from the code
+  compiling.
+
+Revert: undefine `SERV_IRUHADEV_EXTRA_NPC_STAT` (and `_DEBUG` if still present). Every call site
+falls back to the exact original code path; `AddExtraNPCStat_LUA`/`AddExtraNPCFormulaVariable_LUA`
+stop being bound to Lua at all.
+
 
 ## Reverting to stock
 

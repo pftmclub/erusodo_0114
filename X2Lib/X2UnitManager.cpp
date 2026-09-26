@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2unitmanager.h"
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 
 //{{ ÃÖ¹ÎÃ¶ [2013/1/4]  °ÔÀÓ³» Á¤º¸ ½ºÆ®¸µÀ» ¿¢¼¿ÆÄÀÏ·Î Ãâ·Â
 #ifdef PRINT_INGAMEINFO_TO_EXCEL
@@ -28,6 +31,9 @@ CX2UnitManager::NPCUnitInfo::NPCUnitInfo()
 //#ifdef	X2OPTIMIZE_NPC_LUASPACE_SHARING
 	, m_pLuaState( NULL )
 //#endif	X2OPTIMIZE_NPC_LUASPACE_SHARING
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+    , m_bHasLegacyNPCStat( false )
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 {
 }//NPCUnitInfo()
 
@@ -54,6 +60,22 @@ CX2UnitManager::CX2UnitManager(void)
 #ifdef USE_DIFFERENT_SOUND_WHEN_IN_SPECIAL
 	m_mapDifferentSoundMappingData.clear();
 #endif //USE_DIFFERENT_SOUND_WHEN_IN_SPECIAL
+
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+	m_bExtraNPCStatReady = false;
+
+	m_iExtraNPCStatCallCount = 0;
+	m_iExtraNPCStatNilID = 0;
+	m_iExtraNPCStatNoTemplet = 0;
+	m_iExtraNPCStatExtraOnly = 0;
+	m_iExtraNPCStatWithLegacy = 0;
+	m_iExtraNPCStatDroppedOtherKey = 0;
+	m_iExtraNPCFormulaVarCount = 0;
+	m_iExtraNPCFormulaVarDropped = 0;
+
+	m_wstrExtraNPCStatSummaryLog = L"";
+	m_bExtraNPCStatSummaryLogged = false;
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 }
 
 CX2UnitManager::~CX2UnitManager(void)
@@ -264,6 +286,80 @@ bool    CX2UnitManager::OpenNPCFiles( const WCHAR* pTempletFile, const WCHAR* pS
     bRet = _OpenNPCStatScriptFile( pStatFile );
     if ( bRet == false )
         return false;
+
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+    //{{ Iruha : 2026-09-27 // Lanox ExtraNPCStat port Phase 3 -- June2017's
+    // NewNPCStat/NewNPCStatFormula system (LANOX_EXTRA_NPC_STAT_PLAN.md).
+    // Never fails OpenNPCFiles: a missing/unpacked file degrades the
+    // feature off, visibly, rather than aborting NPC loading.
+    {
+        bool bExtraNPCStatDegraded = false;
+        wstring wstrDegradeReason = L"";
+
+        // Enum.lua must carry June's EXTRA_NPC_STAT_TYPE table before
+        // NewNPCStat.lua's rows can be read -- its first row's STAT_TYPE
+        // lookup would otherwise raise and abort the whole chunk. Checked
+        // via the raw Lua state since there is nothing to bind this global
+        // to yet.
+        lua_State* pLuaState = g_pKTDXApp->GetLuaBinder()->GetLuaState();
+        lua_getglobal( pLuaState, "EXTRA_NPC_STAT_TYPE" );
+        bool bEnumLoaded = ( lua_isnil( pLuaState, -1 ) == 0 );
+        lua_pop( pLuaState, 1 );
+
+        if ( bEnumLoaded == false )
+        {
+            bExtraNPCStatDegraded = true;
+            wstrDegradeReason = L"Enum.lua has no EXTRA_NPC_STAT_TYPE table (not repacked into data036.kom)";
+        }
+        else if ( g_pKTDXApp->LoadLuaTinker( L"NewNPCStatFormula.lua" ) == false )
+        {
+            bExtraNPCStatDegraded = true;
+            wstrDegradeReason = L"NewNPCStatFormula.lua failed to load (not packed into data036.kom?)";
+        }
+        else if ( g_pKTDXApp->LoadLuaTinker( L"NewNPCStat.lua" ) == false )
+        {
+            bExtraNPCStatDegraded = true;
+            wstrDegradeReason = L"NewNPCStat.lua failed to load (not packed into data036.kom?)";
+        }
+        else
+        {
+            lua_getglobal( pLuaState, "CalculateExtraStatValue" );
+            bool bFuncLoaded = ( lua_isfunction( pLuaState, -1 ) != 0 );
+            lua_pop( pLuaState, 1 );
+
+            if ( bFuncLoaded == false )
+            {
+                bExtraNPCStatDegraded = true;
+                wstrDegradeReason = L"CalculateExtraStatValue missing after loading NewNPCStatFormula.lua";
+            }
+        }
+
+        m_bExtraNPCStatReady = ( bExtraNPCStatDegraded == false );
+        if ( m_bExtraNPCStatReady == true )
+            ApplyExtraNPCStatResistances();
+
+        wstringstream wstrmSummary;
+        if ( bExtraNPCStatDegraded == true )
+        {
+            wstrmSummary << L"[EXTRA_NPC_STAT] degraded: " << wstrDegradeReason
+                << L". Pack NewNPCStat.lua, NewNPCStatFormula.lua and the updated "
+                << L"Enum.lua into data036.kom (see LANOX_EXTRA_NPC_STAT_PLAN.md). "
+                << L"Game behaves as today until then.";
+        }
+        else
+        {
+            wstrmSummary << L"[EXTRA_NPC_STAT] loaded " << m_iExtraNPCStatCallCount << L" rows (skipped: "
+                << m_iExtraNPCStatNilID << L" nil NPC_ID, " << m_iExtraNPCStatNoTemplet << L" no templet, "
+                << m_iExtraNPCStatDroppedOtherKey << L" missing other key; "
+                << m_iExtraNPCStatExtraOnly << L" extra-only, " << m_iExtraNPCStatWithLegacy << L" with legacy row) and "
+                << m_iExtraNPCFormulaVarCount << L" formula vars (skipped " << m_iExtraNPCFormulaVarDropped << L")";
+        }
+
+        m_wstrExtraNPCStatSummaryLog = wstrmSummary.str();
+        ErrorLogMsg( XEM_ERROR69, m_wstrExtraNPCStatSummaryLog.c_str() );
+    }
+    //}} Iruha : 2026-09-27
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 
     bRet = _OpenNPCEAScripFile( pExtraAbilityFile );
     if ( bRet == false )
@@ -700,6 +796,13 @@ bool CX2UnitManager::AddNPCStat_LUA()
     NPCUnitStat& stat = iter->second.m_stat;
     stat.m_nNPCUnitID = nNPCUnitID;
 
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+    // Iruha : 2026-09-27 // this NPC ID has a real NPCStat.lua row. Judge
+    // "no legacy row" from this flag, never from stat.m_nNPCUnitID (which
+    // the parity flag writes into even for extra-only NPCs).
+    iter->second.m_bHasLegacyNPCStat = true;
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
+
 	
 	LUA_GET_VALUE(		luaManager, "MAX_HP",			stat.m_fMaxHP,					0.0f );
 	LUA_GET_VALUE(		luaManager, "ATK_PHYSIC",		stat.m_fAtkPhysic,				0.0f );
@@ -750,6 +853,285 @@ bool CX2UnitManager::AddNPCStat_LUA()
 
 	return true;
 }
+
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+//{{ Iruha : 2026-09-27 // Lanox ExtraNPCStat port Phase 3 -- June2017's
+// NewNPCStat/NewNPCStatFormula system (LANOX_EXTRA_NPC_STAT_PLAN.md)
+bool CX2UnitManager::AddExtraNPCStat_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+
+	++m_iExtraNPCStatCallCount;
+
+	int iNPCUnitID = (int)NUI_NONE;
+	// bLogOutput = false: a nil NPC_ID is routine here (836 of 1693 June rows
+	// name a NPC_UNIT_ID enum member March's Enum.lua doesn't have).
+	luaManager.GetValue( "NPC_ID", iNPCUnitID, false );
+	NPC_UNIT_ID nNPCUnitID = (NPC_UNIT_ID)iNPCUnitID;
+
+	if ( nNPCUnitID == NUI_NONE )
+	{
+		++m_iExtraNPCStatNilID;
+		return false;
+	}
+
+	ExtraNPCStat row;
+	row.m_nNPCUnitID = nNPCUnitID;
+
+	bool bAllKeysOk = true;
+	bAllKeysOk &= luaManager.GetValue( "HP_VALUE",			row.m_fHPValue );
+	bAllKeysOk &= luaManager.GetValue( "PHYSIC_ATT_VALUE",	row.m_fPhysicAttValue );
+	bAllKeysOk &= luaManager.GetValue( "MAGIC_ATT_VALUE",	row.m_fMagicAttValue );
+	bAllKeysOk &= luaManager.GetValue( "PHYSIC_DEF_VALUE",	row.m_fPhysicDefValue );
+	bAllKeysOk &= luaManager.GetValue( "MAGIC_DEF_VALUE",	row.m_fMagicDefValue );
+	bAllKeysOk &= luaManager.GetValue( "DEF_RED",			row.m_DefenseRed );
+	bAllKeysOk &= luaManager.GetValue( "DEF_BLUE",			row.m_DefenseBlue );
+	bAllKeysOk &= luaManager.GetValue( "DEF_GREEN",		row.m_DefenseGreen );
+	bAllKeysOk &= luaManager.GetValue( "DEF_WIND",			row.m_DefenseWind );
+	bAllKeysOk &= luaManager.GetValue( "DEF_LIGHT",		row.m_DefenseLight );
+	bAllKeysOk &= luaManager.GetValue( "DEF_DARK",			row.m_DefenseDark );
+	bAllKeysOk &= luaManager.GetValue( "ACCURACY_VALUE",	row.m_fAccuracyValue );
+	bAllKeysOk &= luaManager.GetValue( "AVOIDANCE_VALUE",	row.m_fAvoidanceValue );
+	// DAMAGE_TYPE is deliberately not read (Phase 0 verdict 3): June's own
+	// AddExtraNPCStat binding (FUN_32380cf0) never reads it either, so an
+	// extra-only NPC keeps m_stat's default DT_PHYSIC and an overridden one
+	// (parity flag, Phase 4) keeps its legacy damage type.
+
+	if ( bAllKeysOk == false )
+	{
+		// June drops a row missing any of its 14 required keys. Never seen
+		// in the shipped data (Phase 1's dry run: 0 such rows).
+		++m_iExtraNPCStatDroppedOtherKey;
+		return false;
+	}
+
+	NPCUnitInfoMap::iterator iter = m_mapNPCUnitInfo.find( nNPCUnitID );
+	if ( iter == m_mapNPCUnitInfo.end() )
+	{
+		++m_iExtraNPCStatNoTemplet;
+		return false;
+	}
+
+	// Don't write into info.m_stat here -- if NewNPCStat.lua fails partway
+	// through (elstools has a documented history of truncating large packed
+	// algo-2 files), rows processed before the failure would already be
+	// committed even though m_bExtraNPCStatReady ends up false and the
+	// summary line claims the feature is fully off. ApplyExtraNPCStatResistances()
+	// does this after the whole file is confirmed loaded instead (called from
+	// OpenNPCFiles).
+	m_mapExtraNPCStat[ nNPCUnitID ] = row;
+
+	if ( iter->second.m_bHasLegacyNPCStat == false )
+		++m_iExtraNPCStatExtraOnly;
+	else
+	{
+		++m_iExtraNPCStatWithLegacy;
+		// Parity flag (Phase 4) overrides legacy DEF_*/base stats for these.
+		// Base flag leaves them exactly as the legacy row set them.
+	}
+
+	return true;
+}
+
+void CX2UnitManager::ApplyExtraNPCStatResistances()
+{
+	for ( std::map<NPC_UNIT_ID, ExtraNPCStat>::const_iterator rowIter = m_mapExtraNPCStat.begin();
+		rowIter != m_mapExtraNPCStat.end(); ++rowIter )
+	{
+		NPCUnitInfoMap::iterator infoIter = m_mapNPCUnitInfo.find( rowIter->first );
+		if ( infoIter == m_mapNPCUnitInfo.end() )
+			continue;
+
+		NPCUnitInfo& info = infoIter->second;
+		if ( info.m_bHasLegacyNPCStat == true )
+			continue;
+
+		// Give extra-only NPCs the row's element resistances (read at
+		// X2GUNPC.cpp:25994 and by InitComponent, same as a legacy row).
+		// HP/attack/defense/accuracy/avoidance are computed per-spawn in
+		// SetHardLevel instead of stored here -- accuracy is level-dependent
+		// (Phase 0 verdict 2), and storing values in the shared per-ID
+		// m_stat would inherit June's shared-block hazard.
+		const ExtraNPCStat& row = rowIter->second;
+		info.m_stat.m_DefenseRed	= row.m_DefenseRed;
+		info.m_stat.m_DefenseBlue	= row.m_DefenseBlue;
+		info.m_stat.m_DefenseGreen	= row.m_DefenseGreen;
+		info.m_stat.m_DefenseWind	= row.m_DefenseWind;
+		info.m_stat.m_DefenseLight	= row.m_DefenseLight;
+		info.m_stat.m_DefenseDark	= row.m_DefenseDark;
+	}
+}
+
+bool CX2UnitManager::AddExtraNPCFormulaVariable_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+
+	ExtraNPCFormulaVariable var;
+
+	int iStatType = (int)ENST_NONE;
+	bool bOk = true;
+	bOk &= luaManager.GetValue( "STAT_TYPE",		iStatType );
+	bOk &= luaManager.GetValue( "MIN_LEVEL",		var.m_iMinLevel );
+	bOk &= luaManager.GetValue( "MAX_LEVEL",		var.m_iMaxLevel );
+	bOk &= luaManager.GetValue( "BASIC_VALUE",		var.m_fBasicValue );
+	bOk &= luaManager.GetValue( "GRADIENT_VALUE",	var.m_fGradientValue );
+	bOk &= luaManager.GetValue( "INTERCEPT_VALUE",	var.m_fInterceptValue );
+
+	if ( bOk == false )
+	{
+		// June (FUN_32382470) drops a row missing any of these six.
+		++m_iExtraNPCFormulaVarDropped;
+		return false;
+	}
+
+	var.m_eStatType = (EXTRA_NPC_STAT_TYPE)iStatType;
+
+	// DUNGEON_ID is optional (default 0, Phase 0 verdict 1). Most of the 67
+	// rows don't carry it, so a miss here is routine -- don't spam the log.
+	var.m_iDungeonID = 0;
+	luaManager.GetValue( "DUNGEON_ID", var.m_iDungeonID, false );
+
+	m_mmapExtraNPCFormulaVariable.insert( std::make_pair( (int)var.m_eStatType, var ) );
+	++m_iExtraNPCFormulaVarCount;
+
+	return true;
+}
+
+bool CX2UnitManager::HasExtraNPCStat( NPC_UNIT_ID nNPCUnitID ) const
+{
+	return m_mapExtraNPCStat.find( nNPCUnitID ) != m_mapExtraNPCStat.end();
+}
+
+const CX2UnitManager::ExtraNPCStat* CX2UnitManager::GetExtraNPCStat( NPC_UNIT_ID nNPCUnitID ) const
+{
+	std::map<NPC_UNIT_ID, ExtraNPCStat>::const_iterator iter = m_mapExtraNPCStat.find( nNPCUnitID );
+	if ( iter == m_mapExtraNPCStat.end() )
+		return NULL;
+
+	return &iter->second;
+}
+
+// Replica of June FUN_32374ea0. See LANOX_EXTRA_NPC_STAT_PLAN.md's ledger for
+// the pseudo-code this transcribes and the Phase 2 dungeon-key correction.
+// pbEvalFailed distinguishes "no band covers this level" (June's own
+// fall-through: returns fValue unchanged, *pbEvalFailed left false) from
+// "the Lua call itself failed" (missing global or pcall error: *pbEvalFailed
+// set true). The caller must fall back to the legacy stat path on the
+// latter -- never mix extra and legacy values for one NPC.
+float CX2UnitManager::CalculateExtraStatValue( EXTRA_NPC_STAT_TYPE eStatType, int iLevel, float fValue, int iDungeonID, bool* pbEvalFailed /*= NULL*/ ) const
+{
+	// pbEvalFailed is only ever set to true here, never reset to false --
+	// callers share one flag across several stat-type calls (SetHardLevel,
+	// ReInitAtkAndDef_LUA) and must see a failure from any one of them, not
+	// just the last call made.
+
+	typedef std::multimap<int, ExtraNPCFormulaVariable>::const_iterator ConstIter;
+	std::pair<ConstIter, ConstIter> range = m_mmapExtraNPCFormulaVariable.equal_range( (int)eStatType );
+
+	// June FUN_32373680: "does an exception band exist for this dungeon?"
+	// The ledger leaves whether it also gates on level unverified; this port
+	// gates on dungeon ID only, which is enough for the one real keyed band
+	// in the shipped data (Henir, level range 1-110).
+	bool bHasDungeonKeyedBand = false;
+	if ( iDungeonID != 0 )
+	{
+		for ( ConstIter iter = range.first; iter != range.second; ++iter )
+		{
+			if ( iter->second.m_iDungeonID == iDungeonID )
+			{
+				bHasDungeonKeyedBand = true;
+				break;
+			}
+		}
+	}
+
+	for ( ConstIter iter = range.first; iter != range.second; ++iter )
+	{
+		const ExtraNPCFormulaVariable& var = iter->second;
+
+		if ( bHasDungeonKeyedBand == true )
+		{
+			if ( var.m_iDungeonID != iDungeonID )
+				continue;
+		}
+		else
+		{
+			if ( var.m_iDungeonID != 0 )
+				continue;
+		}
+
+		if ( iLevel < var.m_iMinLevel || iLevel > var.m_iMaxLevel )
+			continue;
+
+		const bool bHenir = CX2Dungeon::IsHenirDungeon( (SEnum::DUNGEON_ID)iDungeonID );
+		const int iLvlArg = bHenir ? 85 : iLevel;
+		// gameType 3 (June's "Secret Hell") is never reached: it's driven by
+		// a server packet (event 0x50a) this build has no sender for, so
+		// Secret is always gameType 2 (Phase 0 verdict 4, interim).
+		const int iGameType = bHenir ? 1 : ( CX2Dungeon::IsSecretDungeon( (SEnum::DUNGEON_ID)iDungeonID ) ? 2 : 0 );
+
+		lua_State* pLuaState = g_pKTDXApp->GetLuaBinder()->GetLuaState();
+		const int iTop = lua_gettop( pLuaState );
+
+		// lua_tinker::call<>() tops out at 6 arguments; this call needs 8,
+		// so the raw Lua C API is used directly. Stack is kept balanced on
+		// every return path.
+		lua_getglobal( pLuaState, "CalculateExtraStatValue" );
+		if ( lua_isfunction( pLuaState, -1 ) == 0 )
+		{
+			lua_settop( pLuaState, iTop );
+			if ( pbEvalFailed != NULL )
+				*pbEvalFailed = true;
+			ErrorLogMsg( XEM_ERROR69, L"[EXTRA_NPC_STAT] CalculateExtraStatValue global missing" );
+			return fValue;
+		}
+
+		lua_pushnumber( pLuaState, (double)eStatType );
+		lua_pushnumber( pLuaState, (double)var.m_fBasicValue );
+		lua_pushnumber( pLuaState, (double)var.m_fGradientValue );
+		lua_pushnumber( pLuaState, (double)var.m_fInterceptValue );
+		lua_pushnumber( pLuaState, (double)iLevel );
+		lua_pushnumber( pLuaState, (double)fValue );
+		lua_pushnumber( pLuaState, (double)iLvlArg );
+		lua_pushnumber( pLuaState, (double)iGameType );
+
+		if ( lua_pcall( pLuaState, 8, 1, 0 ) != 0 )
+		{
+			const char* pszErr = lua_tostring( pLuaState, -1 );
+			wstring wstrLuaError = L"";
+			if ( pszErr != NULL )
+				ConvertUtf8ToWCHAR( wstrLuaError, pszErr );
+
+			wstringstream wstrmErr;
+			wstrmErr << L"[EXTRA_NPC_STAT] CalculateExtraStatValue pcall failed: " << wstrLuaError;
+			ErrorLogMsg( XEM_ERROR69, wstrmErr.str().c_str() );
+
+			lua_settop( pLuaState, iTop );
+			if ( pbEvalFailed != NULL )
+				*pbEvalFailed = true;
+			return fValue;
+		}
+
+		const float fResult = (float)lua_tonumber( pLuaState, -1 );
+		lua_settop( pLuaState, iTop );
+		return fResult;
+	}
+
+	return fValue;	// no band covers this level -- June's own fall-through
+}
+
+void CX2UnitManager::LogExtraNPCStatSummaryOnce()
+{
+#ifdef SERV_IRUHADEV_OFFLINE
+	if ( m_bExtraNPCStatSummaryLogged == true )
+		return;
+
+	m_bExtraNPCStatSummaryLogged = true;
+	CX2OfflineLog::Server( L"%s", m_wstrExtraNPCStatSummaryLog.c_str() );
+#endif SERV_IRUHADEV_OFFLINE
+}
+//}} Iruha : 2026-09-27
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 
 bool CX2UnitManager::AddNPCExtraAbility_LUA()
 {

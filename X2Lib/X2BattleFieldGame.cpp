@@ -779,6 +779,12 @@ void CX2BattleFieldGame::CreateBattleFieldNpc( const KNPCUnitReq& kNpcUnitData_
 				// 위 소스는 CreateBattleFieldNpcByCreatedInfo 에서 직접 Camera 인자를 받으므로
 				// 필요 없어짐
 				int iLastTouchedIndex = pBattleFieldNpc->GetLastTouchLineIndex( false );
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+				// Iruha : 2026-09-27 // grade for the scan-rate switch (Phase 0
+				// verdict 3): SHOW_BOSS_NAME is this call's only grade signal
+				// (June FUN_32d528f0/32d52a54).
+				pBattleFieldNpc->SetExtraNPCStatMonsterGrade( kNpcUnitData_.m_bShowBossName ? 1 : 0 );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 				pBattleFieldNpc->SetHardLevel( kNpcUnitData_.m_Level, true );
 				pBattleFieldNpc->SetActiveMonster( kNpcUnitData_.m_bActive );
 				
@@ -984,6 +990,12 @@ void CX2BattleFieldGame::CreateBattleFieldNpcByCreatedInfo( const CNpcCreatedInf
 #endif //NEXON_QA_CHEAT_REQ
 			//#endif	BATTLE_FIELD_TEST
 
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+				// Iruha : 2026-09-27 // grade for the scan-rate switch (Phase 0
+				// verdict 3): boss-group membership is this call's grade signal
+				// (June FUN_32d539c0/32d53c51).
+				pBattleFieldNpc->SetExtraNPCStatMonsterGrade( NpcCreatedInfoPtr_->GetBossGroupId() > 0 ? 1 : 0 );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 				pBattleFieldNpc->SetHardLevel( NpcCreatedInfoPtr_->GetLevel(), true );
 				pBattleFieldNpc->SetActiveMonster( NpcCreatedInfoPtr_->GetActive() );
 

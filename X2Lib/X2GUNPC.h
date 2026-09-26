@@ -2326,6 +2326,10 @@ class CX2GUNPC : public CX2GameUnit
 		void						SetHardLevel( int hardLevel, bool bResetHP, float fHPScale = 1.f );
 		int							GetHardLevel(){ return m_HardLevel; }
 		//HardLevelData*				GetHardLevelData(){ return &m_HardLevelData; }
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+		// Iruha : 2026-09-27 // see m_iExtraNPCStatMonsterGrade's comment
+		void						SetExtraNPCStatMonsterGrade( int iGrade ) { m_iExtraNPCStatMonsterGrade = iGrade; }
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 
 		void						SetNPCStat( float fHP, float fAtkPhysic, float fAtkMagic, float fDefPhysic, float fDefMagic, bool bUpdateMaxHp = true );
 		//{{ megagame / 박교현 / 2010.04.30 / NPC 스탯 추가
@@ -3692,6 +3696,19 @@ class CX2GUNPC : public CX2GameUnit
 
 		int												m_HardLevel;
 		//HardLevelData									m_HardLevelData;
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+		// Iruha : 2026-09-27 // June FUN_323752f0's param_4 (monster grade
+		// 0/1/2), used only to pick the scan rate/near range for a spawn
+		// whose stat block comes from an ExtraNPCStat row. Zeroed by
+		// CommonConstructor(); the sub-stage spawn path (CreateGUNPC(const
+		// NPCData*)) never sets it, matching June's own sub-stage Lua parser
+		// (FUN_327eb8e0), which never sets grade either -- March's runtime
+		// parser (X2DungeonSubStage.cpp FetchNPCData) has no MONSTER_GRADE
+		// read either; only the X2TOOL-only FetchNPCData4Tool does. Set
+		// directly before SetHardLevel() by the two battlefield creation
+		// paths that do know the grade (X2BattleFieldGame.cpp:782/:987).
+		int												m_iExtraNPCStatMonsterGrade;
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 //#ifdef	X2OPTIMIZE_NPC_LUASPACE_SHARING
         const CX2UnitManager::NPCUnitInfo*              m_pNPCUnitInfo;
         const InitData*                                 m_pInitData;

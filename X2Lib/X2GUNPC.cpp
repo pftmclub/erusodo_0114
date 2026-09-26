@@ -3,6 +3,9 @@
 #include ".\x2gunpc.h"
 #include ".\X2GUNPCFunc.h"
 #include ".\X2NPCAI.h"
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 
 //#ifdef  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 #define X2GUNPC_RECEIVE_FRAME_COUNT_MAX_GAB     (70*10)
@@ -2316,6 +2319,9 @@ void CX2GUNPC::CommonConstructor()
 	m_fCoolTime					= 0.0f;
 	m_KeyCode					= 0;
 	m_HardLevel					= 0;
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+	m_iExtraNPCStatMonsterGrade		= 0;
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 
 #ifdef  X2OPTIMIZE_ROBUST_NPC_FINAL_STATE
     m_eNPCUnitDieState = eNPCUnitDieState_NONE;
@@ -7047,6 +7053,87 @@ void CX2GUNPC::SetHardLevel( int hardLevel, bool bResetHP, float fHPScale /*= 1.
 {
 	m_HardLevel = hardLevel;
 
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+	//{{ Iruha : 2026-09-27 // Lanox ExtraNPCStat port Phase 3 -- base flag
+	// only: NPCs with no legacy row (m_bHasLegacyNPCStat false) get formula
+	// stats. Looked up by templet ID, never by kNPCUnitStat.m_nNPCUnitID
+	// below -- that field is NUI_NONE for these 75 NPCs (AddNPCStat_LUA
+	// never ran for them).
+	bool bAppliedExtraStat = false;
+	CX2UnitManager* pExtraUnitManager = ( NULL != g_pData ) ? g_pData->GetUnitManager() : NULL;
+	const CX2UnitManager::NPC_UNIT_ID eExtraNPCUnitID = GetNPCTemplet().m_nNPCUnitID;
+
+	if ( pExtraUnitManager != NULL )
+		pExtraUnitManager->LogExtraNPCStatSummaryOnce();
+
+	if ( pExtraUnitManager != NULL
+		&& pExtraUnitManager->IsExtraNPCStatReady() == true
+		&& m_pNPCUnitInfo->m_bHasLegacyNPCStat == false
+		&& pExtraUnitManager->HasExtraNPCStat( eExtraNPCUnitID ) == true )
+	{
+		const CX2UnitManager::ExtraNPCStat* pExtraRow = pExtraUnitManager->GetExtraNPCStat( eExtraNPCUnitID );
+		ASSERT( pExtraRow != NULL );
+
+		int iExtraDungeonID = 0;
+		if ( g_pX2Game != NULL && g_pX2Game->GetGameType() == CX2Game::GT_DUNGEON
+			&& g_pData->GetDungeonRoom() != NULL )
+		{
+			iExtraDungeonID = (int)g_pData->GetDungeonRoom()->GetDungeonID();
+		}
+
+		bool bExtraEvalFailed = false;
+		const float fExtraHP    = pExtraUnitManager->CalculateExtraStatValue( CX2UnitManager::ENST_HP,         m_HardLevel, pExtraRow->m_fHPValue,        iExtraDungeonID, &bExtraEvalFailed );
+		const float fExtraAtkP  = pExtraUnitManager->CalculateExtraStatValue( CX2UnitManager::ENST_PHYSIC_ATT, m_HardLevel, pExtraRow->m_fPhysicAttValue, iExtraDungeonID, &bExtraEvalFailed );
+		const float fExtraAtkM  = pExtraUnitManager->CalculateExtraStatValue( CX2UnitManager::ENST_MAGIC_ATT,  m_HardLevel, pExtraRow->m_fMagicAttValue,  iExtraDungeonID, &bExtraEvalFailed );
+		const float fExtraDefP  = pExtraUnitManager->CalculateExtraStatValue( CX2UnitManager::ENST_PHYSIC_DEF, m_HardLevel, pExtraRow->m_fPhysicDefValue, iExtraDungeonID, &bExtraEvalFailed );
+		const float fExtraDefM  = pExtraUnitManager->CalculateExtraStatValue( CX2UnitManager::ENST_MAGIC_DEF,  m_HardLevel, pExtraRow->m_fMagicDefValue,  iExtraDungeonID, &bExtraEvalFailed );
+		const float fExtraAcc   = pExtraUnitManager->CalculateExtraStatValue( CX2UnitManager::ENST_ACCURACY,   m_HardLevel, pExtraRow->m_fAccuracyValue,  iExtraDungeonID, &bExtraEvalFailed );
+		const float fExtraAvoid = pExtraUnitManager->CalculateExtraStatValue( CX2UnitManager::ENST_AVOIDANCE,  m_HardLevel, pExtraRow->m_fAvoidanceValue, iExtraDungeonID, &bExtraEvalFailed );
+
+		if ( bExtraEvalFailed == false )
+		{
+			SetNPCStat( fExtraHP * fHPScale, fExtraAtkP, fExtraAtkM, fExtraDefP, fExtraDefM );
+
+			// Phase 0 verdict 2: used raw, no transform (1.0 is neutral). This
+			// runs after Init()'s InitAdditionalBasicStatValue() 1.0 reset
+			// (X2GameUnit.cpp's shared reset), which is why nothing later in
+			// normal play undoes it: every creation path calls Init() then
+			// SetHardLevel().
+			m_AdditionalAccuracy.SetBasicStatValue( fExtraAcc );
+			m_AdditionalAvoidance.SetBasicStatValue( fExtraAvoid );
+
+			// Scan rate/near range from the spawn's monster grade (Phase 0
+			// verdict 3) -- the fields InitComponent's legacy
+			// SetNPCStat(kNPCUnitStat) path would otherwise have set from the row.
+			if ( m_pAI != NULL && CX2NPCAI::NAT_NORMAL == m_pAI->GetAIType() )
+			{
+				CX2GUNPCAI* pExtraAI = (CX2GUNPCAI*)m_pAI;
+				const bool bExtraBossGrade = ( m_iExtraNPCStatMonsterGrade == 1 || m_iExtraNPCStatMonsterGrade == 2 );
+				pExtraAI->SetScanCloaking( bExtraBossGrade ? 50.f : 10.f );
+				pExtraAI->SetScanNearRange( bExtraBossGrade ? 1000.f : 500.f );
+			}
+
+			bAppliedExtraStat = true;
+
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
+			static std::set<CX2UnitManager::NPC_UNIT_ID> s_setLoggedXStat;
+			if ( s_setLoggedXStat.find( eExtraNPCUnitID ) == s_setLoggedXStat.end() )
+			{
+				s_setLoggedXStat.insert( eExtraNPCUnitID );
+				CX2OfflineLog::Server( L"[XSTAT] npc=%d lv=%d dungeon=%d src=extra noHL=0 hp=%.0f atkP=%.0f atkM=%.0f defP=%.0f defM=%.0f",
+					(int)eExtraNPCUnitID, m_HardLevel, iExtraDungeonID, fExtraHP * fHPScale, fExtraAtkP, fExtraAtkM, fExtraDefP, fExtraDefM );
+			}
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
+		}
+		// bExtraEvalFailed: fall through to the legacy path below, same as if
+		// HasExtraNPCStat had been false. For these 75 NPCs the legacy row is
+		// empty (0 HP) -- exactly today's behaviour, which is why
+		// [NPC_ZERO_HP] exists to catch it.
+	}
+	//}} Iruha : 2026-09-27
+
+	if ( bAppliedExtraStat == false )
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 	//능력치 세팅
 	//if( GetNPCTemplet() != NULL )
 	{
@@ -7087,6 +7174,16 @@ void CX2GUNPC::SetHardLevel( int hardLevel, bool bResetHP, float fHPScale /*= 1.
 		SetNowHp( GetMaxHp() );
 		m_fPrevHPGage = GetNowHp();
 	}
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
+	if ( GetMaxHp() <= 0.f )
+	{
+		CX2OfflineLog::Server( L"[NPC_ZERO_HP] npc=%d lv=%d dungeon=%d extra=%d legacy=%d",
+			(int)GetNPCTemplet().m_nNPCUnitID, m_HardLevel,
+			( g_pData != NULL && g_pData->GetDungeonRoom() != NULL ) ? (int)g_pData->GetDungeonRoom()->GetDungeonID() : 0,
+			( g_pData != NULL && g_pData->GetUnitManager() != NULL && g_pData->GetUnitManager()->HasExtraNPCStat( GetNPCTemplet().m_nNPCUnitID ) ) ? 1 : 0,
+			m_pNPCUnitInfo->m_bHasLegacyNPCStat ? 1 : 0 );
+	}
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
 }
 
 // npc stat을 직접 변경하는 경우
@@ -11460,6 +11557,47 @@ int CX2GUNPC::GetNextStateID_LUA() const
 //{{ kimhc // 2010-04-16 // 공격력, 방어력 등 핸들링 할 수 있도록 함
 void CX2GUNPC::ReInitAtkAndDef_LUA()
 {
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+	//{{ Iruha : 2026-09-27 // Lanox ExtraNPCStat port Phase 3 -- same switch
+	// as SetHardLevel, attack/defense only (no HP/accuracy/avoidance here).
+	// Otherwise extra-only Secret NPCs drop to 0 attack/defense when their
+	// script calls this (SERV_SECRET_HELL).
+	bool bAppliedExtraStat = false;
+	CX2UnitManager* pExtraUnitManager = ( NULL != g_pData ) ? g_pData->GetUnitManager() : NULL;
+	const CX2UnitManager::NPC_UNIT_ID eExtraNPCUnitID = GetNPCTemplet().m_nNPCUnitID;
+
+	if ( pExtraUnitManager != NULL
+		&& pExtraUnitManager->IsExtraNPCStatReady() == true
+		&& m_pNPCUnitInfo->m_bHasLegacyNPCStat == false
+		&& pExtraUnitManager->HasExtraNPCStat( eExtraNPCUnitID ) == true )
+	{
+		const CX2UnitManager::ExtraNPCStat* pExtraRow = pExtraUnitManager->GetExtraNPCStat( eExtraNPCUnitID );
+		ASSERT( pExtraRow != NULL );
+
+		int iExtraDungeonID = 0;
+		if ( g_pX2Game != NULL && g_pX2Game->GetGameType() == CX2Game::GT_DUNGEON
+			&& g_pData->GetDungeonRoom() != NULL )
+		{
+			iExtraDungeonID = (int)g_pData->GetDungeonRoom()->GetDungeonID();
+		}
+
+		bool bExtraEvalFailed = false;
+		const float fExtraAtkP = pExtraUnitManager->CalculateExtraStatValue( CX2UnitManager::ENST_PHYSIC_ATT, m_HardLevel, pExtraRow->m_fPhysicAttValue, iExtraDungeonID, &bExtraEvalFailed );
+		const float fExtraAtkM = pExtraUnitManager->CalculateExtraStatValue( CX2UnitManager::ENST_MAGIC_ATT,  m_HardLevel, pExtraRow->m_fMagicAttValue,  iExtraDungeonID, &bExtraEvalFailed );
+		const float fExtraDefP = pExtraUnitManager->CalculateExtraStatValue( CX2UnitManager::ENST_PHYSIC_DEF, m_HardLevel, pExtraRow->m_fPhysicDefValue, iExtraDungeonID, &bExtraEvalFailed );
+		const float fExtraDefM = pExtraUnitManager->CalculateExtraStatValue( CX2UnitManager::ENST_MAGIC_DEF,  m_HardLevel, pExtraRow->m_fMagicDefValue,  iExtraDungeonID, &bExtraEvalFailed );
+
+		if ( bExtraEvalFailed == false )
+		{
+			SetNPCStat( GetNowHp(), fExtraAtkP, fExtraAtkM, fExtraDefP, fExtraDefM, false );
+			bAppliedExtraStat = true;
+		}
+	}
+	//}} Iruha : 2026-09-27
+
+	if ( bAppliedExtraStat == false )
+	{
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 	//const CX2UnitManager::NPCUnitStat* pNPCUnitStat = g_pData->GetUnitManager()->GetNPCUnitStat( GetNPCTemplet().m_nNPCUnitID );
     const CX2UnitManager::NPCUnitStat& kNPCUnitStat = GetNPCUnitStat();
 	//if( pNPCUnitStat != NULL )
@@ -11471,6 +11609,9 @@ void CX2GUNPC::ReInitAtkAndDef_LUA()
 			kNPCUnitStat.m_fDefMagic + (kNPCUnitStat.m_HardLevel.m_fDefMagic * m_HardLevel)
 			, false );
 	}
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+	}
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 }
 //}} kimhc // 2010-04-16 // 공격력, 방어력 등 핸들링 할 수 있도록 함
 #endif SERV_SECRET_HELL

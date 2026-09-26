@@ -3596,6 +3596,10 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2UnitManager>( L, "AddUnitTemplet",			&CX2UnitManager::AddUnitTemplet_LUA );
 	lua_tinker::class_def<CX2UnitManager>( L, "AddNPCTemplet",			&CX2UnitManager::AddNPCTemplet_LUA );
 	lua_tinker::class_def<CX2UnitManager>( L, "AddNPCStat",				&CX2UnitManager::AddNPCStat_LUA );
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+	lua_tinker::class_def<CX2UnitManager>( L, "AddExtraNPCStat",			&CX2UnitManager::AddExtraNPCStat_LUA );
+	lua_tinker::class_def<CX2UnitManager>( L, "AddExtraNPCFormulaVariable",	&CX2UnitManager::AddExtraNPCFormulaVariable_LUA );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 	lua_tinker::class_def<CX2UnitManager>( L, "AddNPCExtraAbility_LUA", &CX2UnitManager::AddNPCExtraAbility_LUA );
 #ifdef REFORM_SKILL_NOTE_UI
 	lua_tinker::class_def<CX2UnitManager>( L, "AddCorrelateUnitClass",	&CX2UnitManager::AddCorrelateUnitClass_LUA );
