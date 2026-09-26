@@ -46,6 +46,65 @@ and they decrypt mechanically. So the June engine can now be read rather than gu
 
 ---
 
+## Model and effort per phase (for the user; do not paste)
+
+Decided 2026-09-26. The goal is to spend Opus only where a mistake is both likely and
+silent. Each remaining phase also carries a one-line **Model:** note under its
+**Paste with:** line.
+
+Work in this plan is one of two kinds:
+
+- **Identification.** Deciding which June function is which, by call graph and
+  decrypted strings, or deciding whether an existing key's semantics changed. If this is
+  wrong, everything built on it is wrong and still compiles. Use **Opus, high**.
+- **Transcription.** Copying keys, defaults and branches out of a function that is
+  already `confirmed` in `funcmap.tsv`, then doing the byte-level edit, build, deploy
+  and doc updates. This is mechanical but needs care. Use **Sonnet 5, high**.
+
+| Phase | Kind | Model / effort |
+|---|---|---|
+| 5: CEffect ctor keys | Transcription (addresses given) | Sonnet 5, high |
+| 6a, 6b: sub-loaders | Transcription (roles mapped in Phase 0) | Sonnet 5, high |
+| 7a step 1: identify OnFrameMove + callees | Identification | **Opus, high** |
+| 7a step 2, 7b, 7c | Transcription, once 7a has confirmed the functions | Sonnet 5, high, then an Opus review |
+| 7d: DamageReact, AttackResult | Behaviour is subtle | **Opus, high** |
+| 8a: existing keys, June semantics | Did the semantics change? | **Opus, high** |
+| 8b: new keys, systems exist | Transcription | Sonnet 5, high |
+| 8c: absent systems, enum tables | Deciding how to stand up an absent system | **Opus, high** |
+| 9: collision / hit path | Identification plus root cause | **Opus, high**, whole phase |
+| 10: MeshPlayer | Confirm the parser, then plaintext keys | Opus, high to confirm; then Sonnet 5, high |
+| 12: docs and memory | Writing | Sonnet 5, high |
+
+Rules:
+
+- **Effort is always high.** Do not use medium or low on either model. Save by
+  switching from Opus to Sonnet, not by lowering effort. Low effort is where the CP949
+  check, `git diff --stat` or a default gets skipped without anyone noticing.
+- **Max only to get unstuck, never by default.** Use it when an identification still
+  won't settle after one high pass (for example, two candidate functions both look
+  plausible), or when Phase 9's "renders but hits nothing" is still unexplained after a
+  high pass. Go back to high once that one question is answered.
+- **Haiku: not for this plan.**
+- **Split mixed phases within one session.** Start on Opus. Do the identification step
+  without writing code, and write the verdicts into `funcmap.tsv` (`confirmed`) and the
+  matrix. Then run `/model` to switch to Sonnet in the same session for transcription.
+  The findings are on disk and in context.
+- **Close every Sonnet phase with an Opus review.** Run `/code-review` on the phase's
+  diff on Opus. This is cheaper than an Opus implementation, and more independent
+  because the reviewer did not write the code.
+- **Stop a Sonnet session that makes its own identification call.** If it treats a
+  function as "looks like the same one" and that function is not already `confirmed` in
+  `funcmap.tsv`, switch to Opus for that step.
+- **Context size costs as much as model choice**, because every turn re-reads the whole
+  conversation:
+  - Use one fresh session per phase.
+  - Paste only "Starting context" plus the phase section, never the whole plan.
+  - Ask Ghidra to decompile address ranges rather than dump whole-function disassembly.
+  - Send broad searches to a subagent.
+  - Run `/compact` when a phase moves from identification to transcription.
+
+---
+
 ## Starting context (paste this with any phase)
 
 - Repo root: `F:\elsword stuff\elsword_2014\els_2014\ElswordFiles\ready_and_built\ProjectX2_SVN\ProjectX2_SVN\source\EU_CN_US\Trunk`
@@ -1445,6 +1504,8 @@ JUNE_FX ES_UPDATE / ES_DELETE lines fire. Update the matrix and MODS.md.
 
 **Paste with:** Starting context + this section.
 
+**Model:** Sonnet 5, high. See "Model and effort per phase".
+
 - **June source:** `FUN_31f7aab0` (20 KB, 4,457 disassembly lines), **excluding** the
   sub-loader call block at `0x31f7e7b2`–`0x31f7f976`, which Phase 6 owns.
 - **March target:** `CX2DamageEffect::CEffect::CEffect` (`X2DamageEffect.cpp:1240`) and
@@ -1487,6 +1548,8 @@ Update the matrix and MODS.md.
 ## Phase 6a — Sub-loaders I: CREATE_DAMAGE_EFFECT, die and hit damage effects, die conditions
 
 **Paste with:** Starting context + this section.
+
+**Model:** Sonnet 5, high. See "Model and effort per phase".
 
 - **June source** (roles corrected in Phase 0; see `funcmap.tsv`):
   - `FUN_31f6ac60`: the **`CREATE_DAMAGE_EFFECT%d`** loader. It opens plaintext
@@ -1541,6 +1604,8 @@ is clean for these sub-tables. Update the matrix and MODS.md.
 ## Phase 6b — Sub-loaders II: particle, lock-on, sound, after-image, black hole, sine move and the small loaders
 
 **Paste with:** Starting context + this section.
+
+**Model:** Sonnet 5, high. See "Model and effort per phase".
 
 - **June source** (all identified in Phase 0; see `funcmap.tsv`):
   - Particle: `FUN_31f66e60` and its four wrappers. `31f6a7b0` is `START_PARTICLE`,
@@ -1597,6 +1662,8 @@ shows 0 DamageEffect keys to-implement. Update the matrix and MODS.md.
 
 **Paste with:** Starting context + this section.
 
+**Model:** Sonnet 5, high. See "Model and effort per phase".
+
 **Identification comes first, and nothing is transcribed until it is done.**
 
 - Find June's `CX2DamageEffect::OnFrameMove` (March `:84`). It loops over instances
@@ -1648,6 +1715,8 @@ a cited branch and JUNE_FX CE_FRAME fires. Update the matrix and MODS.md.
 
 **Paste with:** Starting context + this section.
 
+**Model:** Sonnet 5, high. See "Model and effort per phase".
+
 - **June source:** June's `OnFrameMove_LockOnData`, `SetLockOnNearstTarget` and
   `VectorLockOn` (identified in 7a; if not, identify them first).
 - **March target:** `X2DamageEffect.cpp:2752`, `:7341`, `:6465`.
@@ -1682,6 +1751,8 @@ named lock-on effect from the matrix). Update the matrix and MODS.md.
 ## Phase 7c — Runtime: hit/die damage-effect creation, LOOP_*, die conditions
 
 **Paste with:** Starting context + this section.
+
+**Model:** Sonnet 5, high. See "Model and effort per phase".
 
 - **June source:** June's `CreateHitDamageEffect` / `CreateDieDamageEffect`, found from the
   sub-effect data consumers, plus the die-condition evaluation site: whatever reads the
@@ -1730,6 +1801,8 @@ the Lua values through June's formula. Update the matrix and MODS.md.
 
 **Paste with:** Starting context + this section.
 
+**Model:** Sonnet 5, high. See "Model and effort per phase".
+
 - **June source:** June's `DamageReact` / `AttackResult`, found from the collision
   consumers or from CEffect's own call graph.
 - **March target:** `X2DamageEffect.cpp:3400`, `:3485`.
@@ -1762,6 +1835,8 @@ key in the matrix is implemented or classified. Update the matrix and MODS.md.
 ## Phase 8a — SetDamageData I: existing keys, June semantics
 
 **Paste with:** Starting context + this section.
+
+**Model:** Sonnet 5, high. See "Model and effort per phase".
 
 - **June source:** `FUN_32632390` (11,918 disassembly lines). **Only** the keys March
   already parses.
@@ -1804,6 +1879,8 @@ launching. Update the matrix and MODS.md.
 
 **Paste with:** Starting context + this section.
 
+**Model:** Sonnet 5, high. See "Model and effort per phase".
+
 **Scope.** The 8a handoff list, filtered to systems this build has. Examples, to be
 verified against the census:
 - `DIVISION_NUM/OFFSET`, `DAMAGE_SKILL_ID`, `REACT_TYPE`
@@ -1843,6 +1920,8 @@ matrix and MODS.md.
 ## Phase 8c — SetDamageData III: absent systems, and the enum tables so June lua loads
 
 **Paste with:** Starting context + this section.
+
+**Model:** Sonnet 5, high. See "Model and effort per phase".
 
 **Scope.**
 - `ROSE_WEAPON_ATTACK_TYPE`, `NATURAL_FORCE_TYPE`, `HP_RATE_DAMAGE_VALUE/TYPE`,
@@ -1884,6 +1963,8 @@ reports 0 unclassified DamageData keys. Update the matrix and MODS.md.
 ## Phase 9 — Collision and hit path (answers RANOX_EFFECT_RUNTIME_UNKNOWNS §4)
 
 **Paste with:** Starting context + this section.
+
+**Model:** Sonnet 5, high. See "Model and effort per phase".
 
 - **June source:** June's `CX2DamageManager::CollisionDataCheck` and
   `CheckCollisionGuard`, plus the attack-sphere/line construction.
@@ -1931,6 +2012,8 @@ play-test (JUNE_FX HIT lines). Update the matrix and MODS.md.
 ## Phase 10 — KTDGXMeshPlayer templet keys
 
 **Paste with:** Starting context + this section.
+
+**Model:** Sonnet 5, high. See "Model and effort per phase".
 
 - **June source:** the KTDGXMeshPlayer templet parser. Candidates are `31c895d0` and
   `31c8d140`, which are only known to reference the `KTDGXMeshPlayer.cpp` `__FILEW__`
@@ -2238,6 +2321,8 @@ Ask before launching the client, every time.
 ## Phase 12 — Docs and memory
 
 **Paste with:** Starting context + this section.
+
+**Model:** Sonnet 5, high. See "Model and effort per phase".
 
 - **`RANOX_EFFECT_ENGINE_GAPS.md`:**
   - Rewrite §6: the packed `x2.exe` vs. `unpacked_x2.exe`, the XOR-string encryption, and
