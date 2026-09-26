@@ -631,6 +631,11 @@ public:
 		CKTDGXMeshPlayer::CXMeshInstanceHandle				m_hMeshPlayer;
 		CKTDGParticleSystem::CParticleEventSequenceHandle	m_hParticleSequence;
 		CX2GameUnitoPtr										m_optrGameUnit;
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+		// June2017 EffectInstance +0x4c: its own copy of MESH_TRIGGER_DATA_LIST, taken at creation
+		// (FUN_321ee600 @ 321f2130-321f2144, copy FUN_321f47f0), for Phase 4b's UpdateEffect
+		std::vector<MeshTriggerData>						m_vecMeshTriggerData;
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 		EffectInstance() :
 		m_bAlive( true ),
@@ -761,6 +766,10 @@ public:
 			}
 		};
 		std::vector<TargetMeshData>		m_vecTargetMeshData;
+
+		// June2017 EffectSetInstance +0x180: the creator's facing when the set was created
+		// (FUN_321df230 @ 321df51c-321df576), read by USE_IS_RIGHT_WHEN_CREATE
+		bool							m_bIsRightWhenCreate;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 	private:

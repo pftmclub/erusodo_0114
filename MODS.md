@@ -34,7 +34,7 @@ column.
 | `SERV_IRUHADEV_RANOX_RIM_LIGHT` | 2026-09-19 | `KTDXLIB/Always.h:4032` | `KTDXLIB/KTDGXRenderer.h`/`.cpp` (`CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE` member, `CKTDGXRenderer::SetRimLightTexType` and its 3 `BeginRender` substitution sites), `X2Lib/X2World.h`/`.cpp` (`CX2World::SetRimLightTextureIndex`, forwards to the renderer; destructor resets the override), `X2Lib/X2Main.cpp` (lua_tinker binding) | -- |
 | `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4287` | `X2Lib/X2EffectSet.h:168` (new `AnimTimeOnStartData`/`MeshTriggerData`), `:307,381,452` (`EffectData` members, `operator==`, ctor), `:484,505,555,592` (`EffectSetData` members incl. `m_vecSoundData`, `operator==`, `operator=`, ctor); `X2Lib/X2EffectSet.cpp:2267` (templet keys), `:2352,2378,2394,2405,2437,2476,2521` (per-`EFFECT%d` keys and sub-tables), `:2842` (`SOUND%d`) | -- |
 | `SERV_IRUHADEV_JUNE_FX_DEBUG` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4298` | `X2Lib/X2EffectSet.cpp:2199,2218` (`OpenScriptFile` load summary), `:2314` (per-templet line), `:2667` (per-effect line), `:2864` (per-set sound line); the last three nested under `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` | -- |
-| `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` | 2026-09-26 | `KTDXLIB/Always.h:4311` | `X2Lib/X2EffectSet.h:743` (`TargetMeshData`, `m_vecTargetMeshData`), `:835` (index accessors); `X2Lib/X2EffectSet.cpp:5` (`JuneFxEsCreate`, nested under `SERV_IRUHADEV_JUNE_FX_DEBUG`), `:858` / `:980` (target-mesh registration, damage / mesh), `:1887` (`OVERLAP`), `:3338` (`GetEffectPosition` index), `:3604` (`GetEffectRotation`), `:4204` (`SetEffectSetOffset`), `:4651` (accessor bodies) | -- |
+| `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` | 2026-09-26 | `KTDXLIB/Always.h:4315` | `X2Lib/X2EffectSet.h:634` (`EffectInstance::m_vecMeshTriggerData`), `:748` (`TargetMeshData`, `m_vecTargetMeshData`, `m_bIsRightWhenCreate`), `:844` (index accessors); `X2Lib/X2EffectSet.cpp:5` (`JuneFxEsCreate`, nested under `SERV_IRUHADEV_JUNE_FX_DEBUG`), `:36` (stage-2 helpers: `TRACE_MATRIX_IN_FIELD`, `SET_OVER_UI`), `:549` (damage case: `APPLY_DAMAGE_EFFECT_VELOCITY`, `USE_IS_RIGHT_WHEN_CREATE`), `:653` / `:712` / `:772` / `:822` (mesh cases), `:875`-`:1104` (particle cases, two sites each), `:1142` / `:1281` (target-mesh registration, damage / mesh), `:1244` (trigger-list copy), `:2188` (`OVERLAP`), `:3590` (facing snapshot in the `EffectSetInstance` ctor), `:3654` (`GetEffectPosition` index), `:3920` (`GetEffectRotation`), `:4520` (`SetEffectSetOffset`), `:4967` (accessor bodies); `KTDXLIB/KTDGXMeshPlayer.h:1325` (velocity-modifier methods), `:1575` (`m_vecVelocityModifier`, last member); `KTDXLIB/KTDGXMeshPlayer.cpp:1573` (their bodies), `:3360` / `:3385` (`CXMeshEvent_Velocity` re-apply) | -- |
 
 What each one does:
 
@@ -812,13 +812,82 @@ entry) changes:
   damage-effect registration and the unit-facing offset of a sibling traced on it. That is
   the visible stage-1 change against stock.
 
-**Not done in stage 1:** `USE_IS_RIGHT_WHEN_CREATE`, `TRACE_MATRIX_IN_FIELD`, the trigger-list
-creation part, `APPLY_DAMAGE_EFFECT_VELOCITY` and the `SET_OVER_UI` layer are stage 2.
-`GROUP_NAME` and the unsupported-key logging are stage 3. `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE`
+**Stage 2** (2026-09-26) extends the same flag. Each June offset was mapped to a March member
+twice: once with a `cl` `offsetof` probe under X2Lib's `US_SERVICE` defines, and once with a
+June function whose shape matches a March one. The mapping table is in the plan's Phase 4a
+stage-2 notes.
+- **`USE_IS_RIGHT_WHEN_CREATE`.** The `EffectSetInstance` ctor records the creator's facing
+  (`m_bIsRightWhenCreate`). A damage effect with the key gets it as its follow-line facing,
+  `CEffect::SetFollowLineRight` (June CEffect `+0x135`).
+- **`APPLY_DAMAGE_EFFECT_VELOCITY`.** The main effect's `m_vVelocity` is added to, or multiplied
+  per component. The modifier is also stored on the mesh, and that needs a change outside
+  X2Lib: `CKTDGXMeshPlayer::CXMeshInstance` gains `m_vecVelocityModifier` (appended last) with
+  `AddVelocityModifier` / `ApplyVelocityModifier`. `CXMeshEvent_Velocity::OnFrameMove` then
+  re-applies the list, as June does:
+  - in the live `X2OPTIMIZE_..._VELOCITY_ACCUM_BUG_FIX` branch, to `m_vVelocity` for events
+    starting after time 0;
+  - to `m_vVelocityFinal` for fading events.
+- **`TRACE_MATRIX_IN_FIELD`.** All four mesh and all four particle cases get June's
+  bone-matrix trace: `SetUseDXMatrix` from the bone's `combineMatrix`, plus `POSITION_OFFSET`,
+  or else the bone position. Three June quirks are transcribed as they are:
+  - For meshes, the owner branch reads the new mesh's **own** skeleton; for particles it reads
+    the set's `m_pXSkinAnim`.
+  - The target mesh is always looked up in the UI-major mesh player.
+  - The offset is added a second time.
+  
+  A mesh without a skin anim is skipped with a log line. June would fault there.
+- **`MESH_TRIGGER_DATA_LIST`.** The mesh `EffectInstance` keeps its own copy
+  (`m_vecMeshTriggerData`) for Phase 4b. June also clears mesh `+0x194`. That member is
+  June-only and has no March counterpart, so it is not reproduced.
+- **`SET_OVER_UI`.** It now also sets the particle's layer to `XDL_DIRECTING` (500). This is the
+  one stage-2 branch deployed data can fire, and it is a visible change: the Ice Heater UI
+  particles now draw on layer 500.
+  - March's own `UIEffectSet.lua` (x38) sets it on `EffectSet_Ice_Heater_Start` and its
+    `_Mini_`, `_Ancient_` and `_All_In_One_` variants, and on the `_Wait` sets.
+  - `UIEffectSet_INT.lua` (x8, loaded under `INT_RESOURCE_DEVIDE`) sets it on the Halloween
+    variants.
+  - The sets play while an Ice Heater opens. That goes through `EGS_OPEN_RANDOM_ITEM_REQ`,
+    which the offline emulator answers.
+
+New `JUNE_FX ES_CREATE` details:
+- `APPLY_DAMAGE_EFFECT_VELOCITY added/multiplied`;
+- `USE_IS_RIGHT_WHEN_CREATE follow_line_right=0|1`;
+- `TRACE_MATRIX_IN_FIELD mesh_matrix=own_bone / mesh_matrix=target_mesh_bone / mesh_pos=target_mesh_bone`,
+  the `particle_*` equivalents, and `skipped=..`;
+- `MESH_TRIGGER_DATA_LIST copied=N`;
+- `SET_OVER_UI layer=XDL_DIRECTING`.
+
+The mesh-side re-apply runs in KTDXLIB, which cannot reach `offline_server.log`. It is cited
+and proven compiled in (a temporary `#pragma message` in the build), but it is not
+log-verified.
+
+No deployed set uses any of the other four keys. All four effect-set files March loads were
+checked: `EffectSet.lua`, `UIEffectSet.lua`, `EffectSet_INT.lua` and `UIEffectSet_INT.lua`
+(`X2StateStartUp.cpp:164-177`). They are used by June's data: `EffectSet.lua`
+(`USE_IS_RIGHT_WHEN_CREATE` x27, `APPLY_DAMAGE_EFFECT_VELOCITY` x6, `TRACE_MATRIX_IN_FIELD` x6) and
+`UIEffectSet.lua` (`MESH_TRIGGER_DATA_LIST` x11, `TRACE_MATRIX_IN_FIELD` x6). They fire from
+Phase 11, when June's files are adopted.
+
+**Built `US_SERVICE` (KTDXLIB, X2Lib, X2) and deployed to `X2_offline.exe` (SHA-256
+`d31b2cb8328d66c1…`). Play-tested 2026-09-26.**
+- The Ice Heater (108900 + key 207500) and the Halloween Ice Heater (85003498 + key 85003501)
+  were opened. Every open logged `SET_OVER_UI layer=XDL_DIRECTING` on the Wait and Start sets.
+- No unhandled packets or exceptions, and a clean shutdown.
+- The four items were added to the offline shop for the test, in category 34 (Consume > Etc),
+  product numbers 2375-2378. The save was backed up first to
+  `db_backup/*.bak-pre-ice-heater-shop-20260926-094553`. Delete those rows to undo.
+- The stage-1 regression sets (Rena / Hamelling / Ranox) were not re-run.
+
+**Not done:** `GROUP_NAME` (including the particle `TRACE_MATRIX_IN_FIELD` group-child bone) and
+the unsupported-key logging are stage 3. Also not transcribed: June's tag-2 and tag-3 mesh
+modifiers (`31c89fb0` on `+0x4ec`/`+0x4f8`, `31c8a720` on `+0x5cc`/`+0x5d0`), which are pushed
+only by `31c8aac0` from `32c076e0`, outside the effect code. `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE`
 is deferred: its consumer is on the unit side.
 
 Client-only; no server rebuild. Undefining `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` restores the
-stock creation, offset, position and rotation code, which sits intact in each `#else`.
+stock creation, offset, position and rotation code, which sits intact in each `#else`. The
+mesh-player additions are pure additions under the same flag, so a KTDXLIB and X2Lib rebuild
+(touch both `stdafx.cpp`) removes them.
 
 
 ## Reverting to stock

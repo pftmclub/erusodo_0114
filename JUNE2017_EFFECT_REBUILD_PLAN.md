@@ -753,7 +753,7 @@ Resume at the first stage not marked done.
 | stage | scope | state |
 |---|---|---|
 | 1 | Offset, position, rotation, the target-mesh vector, `ZOFFSET`, `OVERLAP`, debug lines | **done** 2026-09-26: clean `US_SERVICE` build, deployed to `X2_offline.exe` (SHA-256 `33d1eb57d282fae6…`); **play-tested 2026-09-26**, see below |
-| 2 | `USE_IS_RIGHT_WHEN_CREATE`, `TRACE_MATRIX_IN_FIELD`, trigger-list copy + mesh `+0x194`, `APPLY_DAMAGE_EFFECT_VELOCITY`, `SET_OVER_UI` layer | not started |
+| 2 | `USE_IS_RIGHT_WHEN_CREATE`, `TRACE_MATRIX_IN_FIELD`, trigger-list copy + mesh `+0x194`, `APPLY_DAMAGE_EFFECT_VELOCITY`, `SET_OVER_UI` layer | **done** 2026-09-26: clean `US_SERVICE` build (KTDXLIB, X2Lib, X2), deployed to `X2_offline.exe` (SHA-256 `d31b2cb8328d66c1…`); **play-tested 2026-09-26** (Ice Heater `SET_OVER_UI`), see "Stage 2 play-test result" |
 | 3 | `GROUP_NAME` (`321dd590`, the `_GROUPCHILD_` loop), unsupported-key logging | not started |
 
 ### June layout used for reading (never ported)
@@ -819,7 +819,7 @@ Verdicts:
 | `BONE_TRACE_TARGET_MESH`, registration | Damage `321f1f76`-`321f20f4`; mesh `321f21f7`-`321f2414`. Each such effect is **pushed** onto the target-mesh vector (`{handle, type, SCALE or 1,1,1}`).<br>Damage: is-target-mesh / right / dir / Z are set only when the count becomes 1; the instance's scale is not touched.<br>Mesh: is-target-mesh when the count is 1; right (set-only) / dir / Z on every push when the unit is valid; instance scale on every push.<br>March registered only the first and set scale in both cases | creation switch tail | semantics-differ | 1 |
 | `BONE_TRACE_TARGET_MESH`, as a position source for itself | `321dcd30` as above: `INDEX` -1 with the key set means the effect does not trace any mesh | `GetEffectPosition` | semantics-differ | 1 |
 | `OVERLAP` | `321d9f30`, from the factory `321e1bf0` @`321e1c68`-`321e1c77`: when set, and a live instance of the same templet has the same trace target (both null counts), no instance is created | `PlayEffectSet` → `_CreateEffectSetInstance` | new | 1 |
-| `SET_OVER_UI` (particles) | `321f0f49`-`321f0f59` (the same in the other three particle cases): `+0x170`=1 (`m_bOverUI`) **and** `+0x164`=500 (500 = `XDL_DIRECTING`). That `+0x164` is `m_Layer` rests on layout alone (an int 12 bytes before `m_bOverUI`, as in March's `CKTDGObject`). A byte search found no June `SetLayer`/`SetOverUI` accessor at these offsets, so it is moved to stage 2, to be confirmed from June's particle-templet `LAYER` store first | creation, particle cases | semantics-differ | 2 |
+| `SET_OVER_UI` (particles) | `321f0f49`-`321f0f63` (the same in the other three particle cases): `+0x170`=1 (`m_bOverUI`) **and** `+0x164`=500 (500 = `XDL_DIRECTING`). Stage 2 confirmed `+0x164` = `m_Layer` from June's `CKTDGObject` ctor `31d28a20`, whose stores follow March's field order (`KTDGObject.cpp:6-89`), rather than from a `LAYER` store | creation, particle cases | semantics-differ | 2 |
 | `USE_IS_RIGHT_WHEN_CREATE` | `321ef6bc`-`321ef6d5` (damage effect only): CEffect `+0x135` = instance `+0x180` | damage case | new | 2 |
 | `TRACE_MATRIX_IN_FIELD` | mesh / particle cases, e.g. `321ef8ee`, `321efe84`, `321f03b6`: bone frame from the owner (`TRACE_MATRIX`, no target mesh) or from the target mesh. Matrix copied to the instance; position = frame + offset | creation, mesh / particle cases | new | 2 |
 | `MESH_TRIGGER_DATA_LIST`, creation part | `321f2130`-`321f2166`: the EffectInstance copies the list (`+0x4c`); a non-empty list sets mesh `+0x194`=0 | mesh case | new | 2 |
@@ -919,16 +919,114 @@ June's `321dcd30` is called by CreateEffect @`321ef23a` and by UpdateEffect @`32
 `ES.templet`, `ES.EFFECT` and `ES.SOUND` has a `RUNTIME` citation. It passes: 69 keys are cited,
 the existing ones as `same` with the June VA of their read.
 
-**For stage 2, identifying members is the whole job.** June offsets still unmapped:
-- CEffect `+0x135` (`USE_IS_RIGHT_WHEN_CREATE`). It may turn out to be a Phase 5/7a dependency.
-- The main-effect velocity `+0x534`, plus the two calls after it, `31c8f310` and `31c8a9b0`.
-  Read those two first: they may push the modifier onto the mesh for later use.
-- Mesh `+0x194`, `+0x374`/`+0x378` (the `TRACE_MATRIX_IN_FIELD` matrix).
-- Particle `+0x164`.
+**Stage 2 result (2026-09-26).** Member identification came first, as planned. Each June offset
+has two independent sources:
+- a March `offsetof` probe, compiled with `cl` under X2Lib's `US_SERVICE` defines. It reuses
+  `census.py`'s `cl_cmd` with `#define private public`, compiles with `/Zs`, and reads each
+  offset back out of a deliberate `C2440` on `char (*)[N]`;
+- a June function whose shape matches a March one.
 
-Corroborate each one with a March `offsetof` probe, compiled with `cl` under X2Lib's
-`US_SERVICE` defines as `census.py` does (`#define private public` is fine for a probe). Pair
-it with one June function whose shape matches a March one. Layout alone is not enough.
+| June | March member | probe | shape match |
+|---|---|---|---|
+| CEffect `+0x135` | `m_bFollowLineRight` | `0xf5`, after `m_bFollowLine` `0xf4` = June `+0x134`, the `FOLLOW_LINE` store @`31f7dbb4` | ctor @`31f7b056` owner vfunc `0x170` / @`31f7b0d7` pet `+0x439` = `X2DamageEffect.cpp:1330` / `:1339`; flip @`31f71865` = `:6286`; left-facing negate @`31f826ad` = `:5796` |
+| mesh `+0x534` / `+0x540` | `m_vVelocity` / `m_vVelocityFinal` | `0x3fc` / `0x408` | `31c8a1b0` = `CXMeshEvent_Velocity::OnFrameMove` (`KTDGXMeshPlayer.cpp:3297-3316`) |
+| mesh `+0x374` / `+0x378` | `m_bUseDXMatrix` / `m_DXMATRIX` | `0x244` / `0x248` | `31f8ad90` = `SetUseDXMatrix` (`KTDGXMeshPlayer.h:1153`) |
+| mesh `+0x3c0`, `+0x3f0`, `+0x510` | `m_pXSkinAnim`, `m_vPos`, `m_vScale` | `0x290`, `0x2c0`, `0x3d8` | `321f2990` = `GetBonePos`; `31c1a370` = `SetPos` |
+| particle `+0x164` / `+0x170` | `m_Layer` / `m_bOverUI` (`CKTDGObject`) | `0x30` / `0x3c` | June's `CKTDGObject` ctor `31d28a20` stores every field in March's order |
+| particle `+0x1f8` / `+0x1fc`, `+0x2f8` | `m_bUseDXMatrix` / `m_DXMATRIX`, `m_Position` | `0xcc` / `0xd0`, `0x1cc` | `321f2940`, `31c19f20`, `31cf1a40` = `SetPosition( pos, false, false )` |
+| EffectSetInstance `+0x8` | `m_pXSkinAnim` | `0x8` | ctor order (`X2EffectSet.cpp` ctor init list) |
+| mesh `+0x194` | **none** | March's first `CXMeshInstance` member, `m_Handle`, is June `+0x198` | set to 1 in the init list of the ctor `31c8d140` @`31c8d18e`, ahead of the body's `SetAlphaObject(true)` (`+0x144`) and `m_Handle = -1`. The only other store is `321f2166`; no reader was found in KTDXLIB, the effect regions or the whole `.text` byte scan. June-only, not reproduced |
+
+Offsets move as a block between the two builds: mesh `-0x130` up to `m_vPos`, `-0x138` from
+`m_vScale`; particle `-0x12c`; `CKTDGObject` `-0x134` from `m_Layer`. That is consistent, but the
+table rests on the shape matches, not on the shifts.
+
+What the two calls after the velocity write do (`31c8f310`, `31c8a9b0`):
+- `31c8f310` builds a 0x14-byte modifier `{add, tag, v3}`.
+- `31c8a9b0` merges it into, or pushes it onto, the mesh's list at `+0x568`.
+- The velocity event `31c8a1b0` re-applies tag 1 through `31c89d60`:
+  - to `m_vVelocity` when the event starts after time 0 (a time-0 event already ran in the
+    ctor's `RunEvent()`);
+  - to `m_vVelocityFinal` on fading events.
+
+That is transcribed on `CXMeshInstance` in KTDXLIB. `sizeof(CXMeshInstance)` is `0x4fc` from both
+an X2Lib TU and a KTDXLIB TU, and the list is appended last, at `0x4ec`. The live velocity-event
+variant (`X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION` + `_VELOCITY_ACCUM_BUG_FIX`) was settled with a
+flag probe, and a temporary `#pragma message` proved both re-apply sites compile. Tags 2 and 3
+(`31c89fb0`, `31c8a720`) are pushed only from `32c076e0`, outside the effect code, and are not
+transcribed.
+
+`TRACE_MATRIX_IN_FIELD` is transcribed with three June quirks left in place, each with its own
+`JUNE_FX` detail:
+- The mesh owner branch reads the **new mesh's own** skeleton. The particle owner branch reads
+  the set's `m_pXSkinAnim`.
+- The target mesh is always looked up in `g_pData`'s UI-major player (`[g_pData+0x8c]` in all
+  eight cases).
+- `POSITION_OFFSET` is added a second time.
+
+A mesh with no skin anim is skipped with a log line, because June would fault there. The
+particle bone is the `GROUP_NAME` child bone when that is set (`@321f0d10`); stage 3 owns that.
+
+**Which stage-2 keys the deployed data uses.** All four effect-set files March loads were checked
+(`X2StateStartUp.cpp:164-177`; the `_INT` pair is loaded because `INT_RESOURCE_DEVIDE` is on):
+- `march2014/data036/EffectSet.src.lua`;
+- `UIEffectSet.lua` from `24965799/kom_contents/data036_kom`;
+- `EffectSet_INT.lua` and `UIEffectSet_INT.lua` from `datai015_kom`.
+
+The last three were decompiled `mar-2014` in a scratch directory.
+- `SET_OVER_UI` has 38 uses in `UIEffectSet.lua` and 8 in `UIEffectSet_INT.lua`, all on Ice
+  Heater UI sets:
+  - `EffectSet_Ice_Heater_Start`, `_Mini_`, `_Ancient_`, `_All_In_One_` and `_Halloween_`
+    variants;
+  - their `_Wait` sets.
+  
+  This is the only stage-2 branch a play-test can fire today.
+  - The sets play while an Ice Heater opens (`X2UIInventory.cpp:655-663`), after
+    `EGS_OPEN_RANDOM_ITEM_REQ`, which the offline emulator answers (`X2OfflineServer.cpp:850`).
+  - Expect `JUNE_FX ES_CREATE EffectSet_Ice_Heater_Start <effect> SET_OVER_UI layer=XDL_DIRECTING(321f0f59)`.
+  - It is a visible change: those particles now draw on layer 500.
+- `USE_IS_RIGHT_WHEN_CREATE`, `TRACE_MATRIX_IN_FIELD`, `APPLY_DAMAGE_EFFECT_VELOCITY`,
+  `MESH_TRIGGER_DATA_LIST`: **no deployed set uses them.** June's data does:
+  - `EffectSet.lua`: 27 / 6 / 6 / 0;
+  - `UIEffectSet.lua`: `TRACE_MATRIX_IN_FIELD` 6, `MESH_TRIGGER_DATA_LIST` 11.
+  
+  Their branches can only be exercised after Phase 11 adopts June's files. The Rena / Hamelling
+  / Ranox runs will not show them. That is expected and does not count as a test.
+- The mesh-side velocity re-apply runs in KTDXLIB, which has no route to `offline_server.log`. It
+  is cited and proven compiled, but not log-verified.
+
+**Stage 2 play-test** (pending): Rena Perfect Storm and the fire Hamelling Attack X for damage
+effects, and Ranox Burned Forest / Ashes Village for meshes. Check them for regressions against
+stage 1 (the same `registered_index` / `unit_facing` lines, no `UNHANDLED`/`EXCEPTION`). Open an
+Ice Heater to see the new `SET_OVER_UI` layer line.
+
+**Stage 2 play-test result (2026-09-26).** Nothing in the offline cash shop sold an Ice Heater,
+so four products were added to `cash_product` in `els_db.sql`, after a backup to
+`db_backup/*.bak-pre-ice-heater-shop-20260926-094553`. All four went into category 34
+(Consume > Etc), at quantity 1 and price 1, as product numbers 2375-2378:
+- 108900 Sealed Ice Sculpture and its key, 207500 Ice Burner;
+- 85003498 Halloween Monster's Soul and its key, 85003501 Soul Tester.
+
+How they were chosen:
+- the cube IDs are on the client's hardcoded Ice Heater lists (`X2Define.h:1167-1190`);
+- each cube/key pair comes from `RandomItemTable.lua`;
+- all four IDs, and every reward in their groups, 502070 (122 rows) and 402110 (150 rows), are in
+  this install's `item.kim`.
+
+What the run's `offline_server.log` shows:
+- `CASH catalog: 2081 product(s) from 2378 cash_product row(s)`: the four new rows arrived.
+- The four purchases were claimed into the bag.
+- Three `CUBE opened item 108900 (single draw, key 207500)` and one
+  `CUBE opened item 85003498 (... key 85003501)`.
+- On each open, both `EffectSet_Ice_Heater_Wait` / `_Start` (or the Halloween pair) fired
+  `JUNE_FX ES_CREATE ... SET_OVER_UI layer=XDL_DIRECTING(321f0f59)`: 4 Wait and 6 Start lines,
+  plus 1 Halloween Wait and 3 Halloween Start lines.
+- No `UNHANDLED`/`EXCEPTION`, and the shutdown was clean.
+- One `CUBE refused - no room for 1 x item 91610` was the bonus charm meeting a full bag. The cube
+  stayed in the bag, as designed. It is not a Phase 4a issue.
+
+This run did not repeat the stage-1 regression sets (Rena / Hamelling / Ranox). The other four
+stage-2 keys stay implemented but unexercised until Phase 11.
 
 **Stage 2 kickoff prompt** (a new conversation):
 ```
@@ -968,6 +1066,33 @@ US_SERVICE, deploy, ASK before launching. Test targets: Rena Perfect Storm and t
 Hamelling Attack X for damage effects; the Ranox Burned Forest / Ashes Village monsters for meshes.
 Search EffectSet.src.lua for sets using each stage-2 key; if none uses a key, say so rather than
 calling it tested.
+```
+
+**Stage 3 kickoff prompt** (a new conversation, once the stage-2 play-test is recorded):
+```
+Continuing the June2017 effect-engine rebuild, Phase 4a stage 3. Read JUNE2017_EFFECT_REBUILD_PLAN.md
+("Starting context" rules, "Investigation ledger", and all of "Phase 4a", including the stage-2
+result and its member table), june2017_re/README.md, funcmap.tsv, and the "Runtime (Phase 4a on)"
+section of JUNE2017_EFFECT_KEY_MATRIX.md. Stages 1-2 are done under
+SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME; extend that flag. Branch: mods/lanox-port.
+
+Your task: the stage-3 rows of the spec table.
+- GROUP_NAME: 321eee45-321eeeb7, the loop 321eeec0-321ef0ce, 321f2483-321f24f1, 321f2550-321f257c,
+  helper 321dd590. Particle types only; one particle per <base>_GROUPCHILD_<n> bone. The particle
+  TRACE_MATRIX_IN_FIELD helper (JuneTraceMatrixInFieldParticle) must then take the group child's
+  bone, as June does @321f0d10-321f0d3b.
+- Rule-5 logging for APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION (effect / templet), APPLIED_SKILL_ID and
+  NOT_ALLOW_MEMO: "JUNE_FX unsupported <KEY> in <templet>: <system> absent", once per key per templet.
+
+Map every June member to a March one with the stage-2 method (offsetof probe + one shape-matching
+June function) before writing. Cite June ranges; re-express on March members. Update census.py's
+RUNTIME table, rerun it, and check the matrix diff against HEAD (line numbers normalized) adds only
+runtime notes. Update MODS.md, funcmap.tsv and the stage table.
+
+CP949 byte-level edits only (Python rb/wb with exact anchors; file + git diff --stat after). Build
+US_SERVICE, deploy, ASK before launching. Search all four effect-set files March loads
+(EffectSet, UIEffectSet, EffectSet_INT, UIEffectSet_INT; X2StateStartUp.cpp:164-177) for sets that
+use GROUP_NAME; if none does, say so rather than calling it tested.
 ```
 
 **Paste with:** Starting context + this section.

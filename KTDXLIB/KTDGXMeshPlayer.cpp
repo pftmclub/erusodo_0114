@@ -1570,6 +1570,67 @@ CKTDGXMeshPlayer::CXMeshInstance::~CXMeshInstance()
 #endif // SHOW_ATTACK_BOX_DUMMY
 }
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+/** @function : AddVelocityModifier
+	@brief : June2017 FUN_31c8a9b0 for tag 1. An entry with the same add flag absorbs the new one
+			 (added, or multiplied per component); otherwise it is pushed (FUN_31cee980). June's
+			 only tag-1 pusher is the EffectSet's APPLY_DAMAGE_EFFECT_VELOCITY (FUN_321db1b0
+			 @ 321db2e3-321db340, which builds the entry with FUN_31c8f310).
+*/
+void CKTDGXMeshPlayer::CXMeshInstance::AddVelocityModifier( IN bool bAdd_, IN const D3DXVECTOR3& vValue_ )
+{
+	bool bMerged = false;
+	for( UINT i = 0; i < m_vecVelocityModifier.size(); ++i )
+	{
+		VelocityModifier& kModifier = m_vecVelocityModifier[i];
+		if( kModifier.m_bAdd != bAdd_ )
+			continue;
+
+		if( true == bAdd_ )
+		{
+			kModifier.m_vValue += vValue_;
+		}
+		else
+		{
+			kModifier.m_vValue.x *= vValue_.x;
+			kModifier.m_vValue.y *= vValue_.y;
+			kModifier.m_vValue.z *= vValue_.z;
+		}
+		bMerged = true;
+	}
+
+	if( false == bMerged )
+	{
+		VelocityModifier kModifier;
+		kModifier.m_bAdd	= bAdd_;
+		kModifier.m_vValue	= vValue_;
+		m_vecVelocityModifier.push_back( kModifier );
+	}
+}
+
+/** @function : ApplyVelocityModifier
+	@brief : June2017 FUN_31c89d60 for tag 1: each entry in order, added or multiplied per component.
+			 Called by CXMeshEvent_Velocity::OnFrameMove (June FUN_31c8a1b0).
+*/
+void CKTDGXMeshPlayer::CXMeshInstance::ApplyVelocityModifier( IN OUT D3DXVECTOR3& vVelocity_ ) const
+{
+	for( UINT i = 0; i < m_vecVelocityModifier.size(); ++i )
+	{
+		const VelocityModifier& kModifier = m_vecVelocityModifier[i];
+		if( true == kModifier.m_bAdd )
+		{
+			vVelocity_ += kModifier.m_vValue;
+		}
+		else
+		{
+			vVelocity_.x *= kModifier.m_vValue.x;
+			vVelocity_.y *= kModifier.m_vValue.y;
+			vVelocity_.z *= kModifier.m_vValue.z;
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+
 HRESULT CKTDGXMeshPlayer::CXMeshInstance::OnFrameMove( double fTime, float fElapsedTime )
 {
 	m_fElapsedTime		= fElapsedTime;
@@ -3296,6 +3357,13 @@ void CKTDGXMeshPlayer::CXMeshEvent_Velocity::
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION_VELOCITY_ACCUM_BUG_FIX
         pInstance->UpdateVelocityAccumPosAndEventTimer( m_ActualTime.m_Min, bAniTime );
         pInstance->m_vVelocity = m_Velocity.GetRandomNumInRange();
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+        // June2017 FUN_31c8a1b0 (this OnFrameMove) @ 31c8a1e6-31c8a218: an event that starts after
+        // time 0 re-applies the velocity modifiers (FUN_31c89d60, tag 1). A time-0 event already ran
+        // in the ctor's RunEvent(), before anything was pushed, and is modified in place instead.
+        if( 0.f < m_ActualTime.m_Min )
+            pInstance->ApplyVelocityModifier( pInstance->m_vVelocity );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #else   X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION_VELOCITY_ACCUM_BUG_FIX
         if ( fOldTime <= m_ActualTime.m_Min )
             pInstance->AddVelocityToAccumPos( m_ActualTime.m_Min - fOldTime, bAniTime );
@@ -3314,6 +3382,11 @@ void CKTDGXMeshPlayer::CXMeshEvent_Velocity::
             pInstance->AddVelocityToAccumPos( m_ActualTime.m_Min - fOldTime, bAniTime );
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION_VELOCITY_ACCUM_BUG_FIX
 			pInstance->m_vVelocityFinal = m_Velocity.GetRandomNumInRange();
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+            // June2017 FUN_31c8a1b0 @ 31c8a244-31c8a27d: a fading event re-applies them to its final
+            // velocity, with no start-time test
+            pInstance->ApplyVelocityModifier( pInstance->m_vVelocityFinal );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
         }
 
 		{

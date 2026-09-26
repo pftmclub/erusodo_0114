@@ -33,6 +33,192 @@ static void JuneFxEsCreate( const CX2EffectSet::EffectSetInstance* pInstance_, c
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+// June2017 FUN_321ee600 @ 321ee76b-321ee7c9, once per effect before it is created: the target-mesh
+// index is max( BONE_TRACE_TARGET_MESH_INDEX, 0 ), and the entry counts when it is in range with a
+// live handle, unless the effect is itself a BONE_TRACE_TARGET_MESH with a negative index (the rule
+// GetEffectRotation uses). TRACE_MATRIX_IN_FIELD reads it.
+static bool JuneGetCreationTargetMesh( const CX2EffectSet::EffectSetInstance* pInstance_, const CX2EffectSet::EffectData* pEffectData_,
+									  OUT CKTDGXMeshPlayer::CXMeshInstanceHandle& hTargetMesh_ )
+{
+	hTargetMesh_ = INVALID_MESH_INSTANCE_HANDLE;
+	if( pEffectData_->m_iBoneTraceTargetMeshIndex < 0 && true == pEffectData_->m_bBoneTraceTargetMesh )
+		return false;
+
+	const int iTargetMeshIndex = ( pEffectData_->m_iBoneTraceTargetMeshIndex < 0 ) ? 0 : pEffectData_->m_iBoneTraceTargetMeshIndex;
+	CX2EffectSet::EFFECT_TYPE eTargetMeshEffectType = CX2EffectSet::ET_INVALID;
+	return pInstance_->GetTargetMesh( iTargetMeshIndex, hTargetMesh_, eTargetMeshEffectType );
+}
+
+// June2017 FUN_321ee600 @ 321efa34-321efa5d (the same in all eight cases): TRACE_MATRIX_IN_FIELD looks
+// the target mesh up in g_pData's UI-major mesh player, whatever the entry's EFFECT_TYPE. In the field
+// there is no game, and effect sets play on the UI players.
+static CKTDGXMeshPlayer::CXMeshInstance* JuneGetFieldTargetMesh( CKTDGXMeshPlayer::CXMeshInstanceHandle hTargetMesh_ )
+{
+	if( NULL == g_pData || NULL == g_pData->GetUIMajorXMeshPlayer() )
+		return NULL;
+
+	return g_pData->GetUIMajorXMeshPlayer()->GetMeshInstance( hTargetMesh_ );
+}
+
+/** @function : JuneTraceMatrixInFieldMesh
+	@brief : June2017 TRACE_MATRIX_IN_FIELD for the mesh cases of FUN_321ee600: @ 321ef8ee-321efb99
+			 (UI major), 321efe84-321f00b8 (UI minor), 321f03b6-321f05da (game major) and
+			 321f088a-321f0aae (game minor), after the scale and before the land height.
+*/
+static void JuneTraceMatrixInFieldMesh( CX2EffectSet::EffectSetInstance* pInstance_, CX2EffectSet::EffectData* pEffectData_,
+									   CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance_ )
+{
+	if( NULL == pMeshInstance_ || false == pEffectData_->m_bTraceMatrixInField )
+		return;
+
+	CKTDGXMeshPlayer::CXMeshInstanceHandle hTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
+	const bool bTargetMesh = JuneGetCreationTargetMesh( pInstance_, pEffectData_, hTargetMesh );
+	const WCHAR* pwszBoneName = pEffectData_->m_PositionBoneName.c_str();
+
+	if( true == pEffectData_->m_bTraceMatrix && NULL != pInstance_->GetOwnerUnit() && false == bTargetMesh )
+	{
+		// @ 321ef94f-321efa24: BONE_NAME is looked up in the new mesh's own skeleton (June mesh +0x3c0 =
+		// m_pXSkinAnim), not the owner's. Its combined matrix becomes the mesh's DX matrix
+		// (FUN_31f8ad90 = SetUseDXMatrix), and POSITION_OFFSET is added to the position once more.
+		// June does not test the skin anim; a mesh without one would fault, so it is skipped here.
+		if( NULL == pMeshInstance_->GetXSkinAnim() )
+		{
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxEsCreate( pInstance_, pEffectData_, L"TRACE_MATRIX_IN_FIELD", L"skipped=mesh_has_no_skin_anim" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+			return;
+		}
+
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pMeshInstance_->GetXSkinAnim()->GetCloneFrame( pwszBoneName );
+		if( NULL == pFrame )
+			return;
+
+		pMeshInstance_->SetUseDXMatrix( pFrame->combineMatrix );
+		pMeshInstance_->SetPos( pMeshInstance_->GetPos() + pEffectData_->m_vPositionOffset );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		JuneFxEsCreate( pInstance_, pEffectData_, L"TRACE_MATRIX_IN_FIELD", L"mesh_matrix=own_bone(321ef97d)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	}
+	else if( true == bTargetMesh )
+	{
+		// @ 321efa29-321efb77: the bone of the target mesh. With TRACE_MATRIX its combined matrix and the
+		// offset, as above; without, the mesh is moved to the bone (FUN_321f2990 = GetBonePos).
+		CKTDGXMeshPlayer::CXMeshInstance* pTargetMesh = JuneGetFieldTargetMesh( hTargetMesh );
+		if( NULL == pTargetMesh || NULL == pTargetMesh->GetXSkinAnim() )
+		{
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxEsCreate( pInstance_, pEffectData_, L"TRACE_MATRIX_IN_FIELD", L"skipped=target_mesh_not_in_ui_major(321efa5d)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+			return;
+		}
+
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pTargetMesh->GetXSkinAnim()->GetCloneFrame( pwszBoneName );
+		if( NULL == pFrame )
+			return;
+
+		if( true == pEffectData_->m_bTraceMatrix )
+		{
+			pMeshInstance_->SetUseDXMatrix( pFrame->combineMatrix );
+			pMeshInstance_->SetPos( pMeshInstance_->GetPos() + pEffectData_->m_vPositionOffset );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxEsCreate( pInstance_, pEffectData_, L"TRACE_MATRIX_IN_FIELD", L"mesh_matrix=target_mesh_bone(321efaad)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		}
+		else
+		{
+			pMeshInstance_->SetPos( pTargetMesh->GetBonePos( pwszBoneName ) );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxEsCreate( pInstance_, pEffectData_, L"TRACE_MATRIX_IN_FIELD", L"mesh_pos=target_mesh_bone(321efb68)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		}
+	}
+}
+
+/** @function : JuneTraceMatrixInFieldParticle
+	@brief : June2017 TRACE_MATRIX_IN_FIELD for the particle cases of FUN_321ee600: @ 321f0ce3-321f0f45
+			 (UI major), 321f11da-321f1448 (UI minor), 321f1738-321f19b1 (game major) and
+			 321f1c12-321f1e7e (game minor), after the scale and before SET_OVER_UI. With GROUP_NAME
+			 June uses the group child's bone (@ 321f0d10-321f0d3b); that loop is stage 3, so the bone
+			 is BONE_NAME here.
+*/
+static void JuneTraceMatrixInFieldParticle( CX2EffectSet::EffectSetInstance* pInstance_, CX2EffectSet::EffectData* pEffectData_,
+										   CKTDGParticleSystem::CParticleEventSequence* pSequence_ )
+{
+	if( NULL == pSequence_ || false == pEffectData_->m_bTraceMatrixInField )
+		return;
+
+	CKTDGXMeshPlayer::CXMeshInstanceHandle hTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
+	const bool bTargetMesh = JuneGetCreationTargetMesh( pInstance_, pEffectData_, hTargetMesh );
+	const WCHAR* pwszBoneName = pEffectData_->m_PositionBoneName.c_str();
+
+	if( true == pEffectData_->m_bTraceMatrix && NULL != pInstance_->GetOwnerUnit() && false == bTargetMesh )
+	{
+		// @ 321f0d64-321f0e08: unlike the mesh cases, the bone comes from the set's own skin anim (June
+		// instance +0x8 = m_pXSkinAnim, tested @ 321f0d67). Its combined matrix becomes the sequence's
+		// DX matrix (FUN_321f2940), and POSITION_OFFSET is added to the position once more
+		// (FUN_31c19f20 / FUN_31cf1a40( pos, false, false )).
+		if( NULL == pInstance_->m_pXSkinAnim )
+			return;
+
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pInstance_->m_pXSkinAnim->GetCloneFrame( pwszBoneName );
+		if( NULL == pFrame )
+			return;
+
+		pSequence_->SetUseDXMatrix( pFrame->combineMatrix );
+		pSequence_->SetPosition( pEffectData_->m_vPositionOffset + pSequence_->GetPosition() );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		JuneFxEsCreate( pInstance_, pEffectData_, L"TRACE_MATRIX_IN_FIELD", L"particle_matrix=instance_bone(321f0d88)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	}
+	else if( true == bTargetMesh )
+	{
+		// @ 321f0e0d-321f0f2c: the bone of the target mesh, as in the mesh cases
+		CKTDGXMeshPlayer::CXMeshInstance* pTargetMesh = JuneGetFieldTargetMesh( hTargetMesh );
+		if( NULL == pTargetMesh || NULL == pTargetMesh->GetXSkinAnim() )
+		{
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxEsCreate( pInstance_, pEffectData_, L"TRACE_MATRIX_IN_FIELD", L"skipped=target_mesh_not_in_ui_major(321f0e41)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+			return;
+		}
+
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pTargetMesh->GetXSkinAnim()->GetCloneFrame( pwszBoneName );
+		if( NULL == pFrame )
+			return;
+
+		if( true == pEffectData_->m_bTraceMatrix )
+		{
+			pSequence_->SetUseDXMatrix( pFrame->combineMatrix );
+			pSequence_->SetPosition( pEffectData_->m_vPositionOffset + pSequence_->GetPosition() );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxEsCreate( pInstance_, pEffectData_, L"TRACE_MATRIX_IN_FIELD", L"particle_matrix=target_mesh_bone(321f0e91)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		}
+		else
+		{
+			pSequence_->SetPosition( pTargetMesh->GetBonePos( pwszBoneName ) );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxEsCreate( pInstance_, pEffectData_, L"TRACE_MATRIX_IN_FIELD", L"particle_pos=target_mesh_bone(321f0f24)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		}
+	}
+}
+
+// June2017 FUN_321ee600 @ 321f0f49-321f0f63 (likewise @ 321f144c, 321f19b1, 321f1e82): SET_OVER_UI sets
+// the particle's m_bOverUI (June +0x170) and also its layer, June +0x164 = m_Layer (placed by the field
+// order of June's CKTDGObject ctor FUN_31d28a20), to 500 = XDL_DIRECTING. March set only m_bOverUI.
+static void JuneSetOverUI( CX2EffectSet::EffectSetInstance* pInstance_, CX2EffectSet::EffectData* pEffectData_,
+						  CKTDGParticleSystem::CParticleEventSequence* pSequence_ )
+{
+	pSequence_->SetOverUI( true );
+	pSequence_->SetLayer( XDL_DIRECTING );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	JuneFxEsCreate( pInstance_, pEffectData_, L"SET_OVER_UI", L"layer=XDL_DIRECTING(321f0f59)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+
 
 
 
@@ -360,6 +546,48 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						else
 #endif //FIX_EFFECT_SCALE_BY_UNIT_SCALE
 							pEffect->SetScale( vEffectScale );
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+						// June2017 FUN_321ee600 @ 321ef68e-321ef6a0 -> FUN_321db1b0, tag 1 (@ 321db216-321db340):
+						// APPLY_DAMAGE_EFFECT_VELOCITY changes the main effect's velocity (June mesh +0x534 =
+						// m_vVelocity), added when the table's [4] is 0 and multiplied per component otherwise.
+						// The same modifier is pushed onto the mesh (FUN_31c8a9b0), so its later velocity events
+						// apply it again (CXMeshEvent_Velocity::OnFrameMove).
+						if( true == pEffectData->m_bApplyDamageEffectVelocity )
+						{
+							CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pEffect->GetMainEffect();
+							if( NULL != pMainEffect )
+							{
+								const bool bAdd = pEffectData->m_bApplyDamageEffectVelocity4thIsZero;
+								const D3DXVECTOR3& vValue = pEffectData->m_vApplyDamageEffectVelocity;
+								D3DXVECTOR3 vVelocity = pMainEffect->GetVelocity();
+								if( true == bAdd )
+								{
+									vVelocity += vValue;
+								}
+								else
+								{
+									vVelocity.x *= vValue.x;
+									vVelocity.y *= vValue.y;
+									vVelocity.z *= vValue.z;
+								}
+								pMainEffect->SetVelocity( vVelocity );
+								pMainEffect->AddVelocityModifier( bAdd, vValue );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+								JuneFxEsCreate( pEffectSetInstance, pEffectData, L"APPLY_DAMAGE_EFFECT_VELOCITY", true == bAdd ? L"added(321db251)" : L"multiplied(321f2ac0)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+							}
+						}
+
+						// @ 321ef6b5-321ef6d5: USE_IS_RIGHT_WHEN_CREATE gives the damage effect's follow-line
+						// facing (June CEffect +0x135 = m_bFollowLineRight) the facing the set was created with
+						if( true == pEffectData->m_bUseIsRightWhenCreate )
+						{
+							pEffect->SetFollowLineRight( pEffectSetInstance->m_bIsRightWhenCreate );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+							JuneFxEsCreate( pEffectSetInstance, pEffectData, L"USE_IS_RIGHT_WHEN_CREATE", true == pEffectSetInstance->m_bIsRightWhenCreate ? L"follow_line_right=1(321ef6cf)" : L"follow_line_right=0(321ef6cf)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+						}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef RIDING_SYSTEM
 						//if ( NULL != pEffect->GetLockOnData() )
 						{
@@ -422,6 +650,11 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 #endif //FIX_EFFECT_SCALE_BY_UNIT_SCALE
 							pMeshInstance->SetScale( vEffectScale );
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+						// June2017 FUN_321ee600 @ 321ef8ee (UI major): TRACE_MATRIX_IN_FIELD
+						JuneTraceMatrixInFieldMesh( pEffectSetInstance, pEffectData, pMeshInstance );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+
 						if( true == pMeshInstance->GetIsSetLandHeightOnStart() )
 						{
 							if( NULL != g_pX2Game &&
@@ -475,6 +708,11 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						else
 #endif //FIX_EFFECT_SCALE_BY_UNIT_SCALE
 							pMeshInstance->SetScale( vEffectScale );
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+						// June2017 FUN_321ee600 @ 321efe84 (UI minor): TRACE_MATRIX_IN_FIELD
+						JuneTraceMatrixInFieldMesh( pEffectSetInstance, pEffectData, pMeshInstance );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 						if( true == pMeshInstance->GetIsSetLandHeightOnStart() )
 						{
@@ -531,6 +769,11 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 #endif //FIX_EFFECT_SCALE_BY_UNIT_SCALE
 								pMeshInstance->SetScale( vEffectScale );
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+							// June2017 FUN_321ee600 @ 321f03b6 (game major): TRACE_MATRIX_IN_FIELD
+							JuneTraceMatrixInFieldMesh( pEffectSetInstance, pEffectData, pMeshInstance );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+
 							if( true == pMeshInstance->GetIsSetLandHeightOnStart() )
 							{
 								if( NULL != pOwnerGameUnit )
@@ -575,6 +818,11 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 							else
 #endif //FIX_EFFECT_SCALE_BY_UNIT_SCALE
 								pMeshInstance->SetScale( vEffectScale );
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+							// June2017 FUN_321ee600 @ 321f088a (game minor): TRACE_MATRIX_IN_FIELD
+							JuneTraceMatrixInFieldMesh( pEffectSetInstance, pEffectData, pMeshInstance );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 							if( true == pMeshInstance->GetIsSetLandHeightOnStart() )
 							{
@@ -624,10 +872,19 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 #endif //FIX_EFFECT_SCALE_BY_UNIT_SCALE
 							pParticleSequence->SetScaleFactor( vEffectScale );
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+						// June2017 FUN_321ee600 @ 321f0ce3 (UI major): TRACE_MATRIX_IN_FIELD
+						JuneTraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+
 #ifdef FIX_ICE_HEATER_EVENT
 						/// 파티클에 대하여 Set Over UI 기능 추가
 						if ( true == pEffectData->m_bSetOverUI )
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+							JuneSetOverUI( pEffectSetInstance, pEffectData, pParticleSequence );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 							pParticleSequence->SetOverUI( true );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #endif // FIX_ICE_HEATER_EVENT
 
 						if( pParticleSequence->GetUseLand() == true )
@@ -697,10 +954,19 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 #endif //FIX_EFFECT_SCALE_BY_UNIT_SCALE
 						
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+						// June2017 FUN_321ee600 @ 321f11da (UI minor): TRACE_MATRIX_IN_FIELD
+						JuneTraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+
 #ifdef FIX_ICE_HEATER_EVENT
 						/// 파티클에 대하여 Set Over UI 기능 추가
 						if ( true == pEffectData->m_bSetOverUI )
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+							JuneSetOverUI( pEffectSetInstance, pEffectData, pParticleSequence );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 							pParticleSequence->SetOverUI( true );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #endif // FIX_ICE_HEATER_EVENT
 
 						if( pParticleSequence->GetUseLand() == true )
@@ -762,10 +1028,19 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 #endif //FIX_EFFECT_SCALE_BY_UNIT_SCALE
 								pParticleSequence->SetScaleFactor( vEffectScale );
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+							// June2017 FUN_321ee600 @ 321f1738 (game major): TRACE_MATRIX_IN_FIELD
+							JuneTraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+
 #ifdef FIX_ICE_HEATER_EVENT
 							/// 파티클에 대하여 Set Over UI 기능 추가
 							if ( true == pEffectData->m_bSetOverUI )
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+								JuneSetOverUI( pEffectSetInstance, pEffectData, pParticleSequence );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 								pParticleSequence->SetOverUI( true );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #endif // FIX_ICE_HEATER_EVENT
 
 							if( pParticleSequence->GetUseLand() == true )
@@ -818,10 +1093,19 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 #endif //FIX_EFFECT_SCALE_BY_UNIT_SCALE
 								pParticleSequence->SetScaleFactor( vEffectScale );
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+							// June2017 FUN_321ee600 @ 321f1c12 (game minor): TRACE_MATRIX_IN_FIELD
+							JuneTraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+
 #ifdef FIX_ICE_HEATER_EVENT
 							/// 파티클에 대하여 Set Over UI 기능 추가
 							if ( true == pEffectData->m_bSetOverUI )
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+								JuneSetOverUI( pEffectSetInstance, pEffectData, pParticleSequence );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 								pParticleSequence->SetOverUI( true );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #endif // FIX_ICE_HEATER_EVENT
 
 							if( pParticleSequence->GetUseLand() == true )
@@ -957,6 +1241,23 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						pEffectInstance->m_optrGameUnit			= pEffectSetInstance->m_optrGameUnit;
 
 						pEffectSetInstance->m_vecpEffectInstance.push_back( pEffectInstance );
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+						// June2017 FUN_321ee600 @ 321f2130-321f2166: the EffectInstance takes its own copy of
+						// MESH_TRIGGER_DATA_LIST (June EffectInstance +0x4c), for Phase 4b's UpdateEffect. A
+						// non-empty list also clears mesh +0x194, a June-only CXMeshInstance member (set to 1
+						// in the init list of its ctor FUN_31c8d140 @ 31c8d18e, before March's first member
+						// m_Handle at June +0x198; its reader is not located). It has no March counterpart
+						// and is not reproduced.
+						if( false == pEffectData->m_vecMeshTriggerData.empty() )
+						{
+							pEffectInstance->m_vecMeshTriggerData = pEffectData->m_vecMeshTriggerData;
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+							WCHAR wszJuneFx[64] = {0};
+							StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"copied=%d mesh_0x194=not_reproduced", (int) pEffectInstance->m_vecMeshTriggerData.size() );
+							JuneFxEsCreate( pEffectSetInstance, pEffectData, L"MESH_TRIGGER_DATA_LIST", wszJuneFx );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+						}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 						if ( pEffectData->m_bUseSubAttackListSet && null != pEffectSetInstance->m_optrGameUnit )
 							pEffectSetInstance->m_optrGameUnit->InsertPairSubAttackListSet( pEffectInstance->m_hMeshPlayer, pMeshInstance->GetXSkinAnim() );
@@ -3285,6 +3586,21 @@ CX2EffectSet::EffectSetInstance::EffectSetInstance( EffectSetData* pEffectSetDat
 		m_eMode = ESM_FIELD;
 		//return;
 	}
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+	// June2017 FUN_321df230 @ 321df51c-321df576, alongside the mode: the creator's facing is kept for
+	// USE_IS_RIGHT_WHEN_CREATE. The game unit's GetIsRight() (vfunc 0x170), else the square unit's
+	// (+0x3d5), else the pet's (+0x439), else false.
+	m_bIsRightWhenCreate = false;
+	if( NULL != pGameUnit )
+		m_bIsRightWhenCreate = pGameUnit->GetIsRight();
+	else if( pSquareUnit != NULL )
+		m_bIsRightWhenCreate = pSquareUnit->GetIsRight();
+	#ifdef SERV_PET_SYSTEM
+	else if( pPet != NULL )
+		m_bIsRightWhenCreate = pPet->GetIsRight();
+	#endif SERV_PET_SYSTEM
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 
 	m_vecEffectInstanceCreated.resize(0);

@@ -223,6 +223,22 @@ The full per-key table is in the plan's Phase 3 section.
   read; bare `TIME_PARTICLE` is not.
 - **Deterministic tie-breaks**, and the explanation logic is now the shared `Explainer` class.
 
+## offsetprobe.py and flagprobe.py (Phase 4a stage 2: mapping a June offset to a March member)
+
+```sh
+python offsetprobe.py ITEMS        # ITEMS: one "Type|member" (or "Type|SIZEOF") per line
+python flagprobe.py FLAG [FLAG ...] # ON/OFF for each flag under X2Lib's US_SERVICE defines
+```
+
+Both reuse `census.py`'s `cl` setup and write nothing into the tree (the probe `.cpp` is deleted
+again).
+- `offsetprobe.py` compiles with `/Zs` and `#define private public`, and reads each offset from a
+  deliberate `C2440` on `char (*)[N]`.
+- A probe gives the March side of a mapping only. Pair it with one June function whose shape
+  matches a March function; the plan's stage-2 member table shows the pattern.
+- For a KTDXLIB-only TU (a size check across the two projects), compile with KTDXLIB's own `/I`
+  list and defines from its build log.
+
 ## June LuaJIT opcode table (why elstools can't decompile the big June files)
 
 June's scripts are KOG LuaJIT 2.0 bytecode, header `1b 4b 4c 82`. KOG permutes the
@@ -375,6 +391,7 @@ Committed. These are small, or are the record of what was found:
 - `regen.sh`: rebuilds the gitignored files.
 - `ljconv.py`, `fxdump.lua`, `fxdata.py`, `assets.py` -> `asset_closure.tsv`, `names.py` ->
   `name_contract.tsv`: Phase 10b (see that section).
+- `offsetprobe.py`, `flagprobe.py`: Phase 4a's March-side member and flag probes.
 - `xordec*.py`, `xorscan*.py`: the superseded prototypes.
 
 Gitignored, regenerable with `sh regen.sh` (git on Windows doesn't keep the exec bit):

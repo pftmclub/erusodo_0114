@@ -1322,6 +1322,11 @@ public:
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
 				// kimhc // 2010.02.10 // Get 핸들러 추가
 				D3DXVECTOR3 GetVelocity() const { return m_vVelocity; }
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+				// June2017 velocity modifiers (CXMeshInstance +0x568 in June); see the .cpp
+				void AddVelocityModifier( IN bool bAdd_, IN const D3DXVECTOR3& vValue_ );
+				void ApplyVelocityModifier( IN OUT D3DXVECTOR3& vVelocity_ ) const;
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 				void SetDirSpeed(float val) { m_fDirSpeed = val; }
 //#ifdef RAVEN_WEAPON_TAKER
 				float GetDirSpeed() { return m_fDirSpeed; }
@@ -1566,6 +1571,18 @@ public:
 				CKTDGMatrix*									m_pMatrixSphere;
 				bool											m_bShowAttackBox;
 #endif // SHOW_ATTACK_BOX_DUMMY
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+				// June2017 CXMeshInstance +0x568: a vector of 0x14-byte {add, tag, vector} entries
+				// (ctor FUN_31c8d140 @ 31c8d258 empties it). Only tag 1, the velocity, is transcribed.
+				// Appended last so that every member above keeps its offset.
+				struct VelocityModifier
+				{
+					bool			m_bAdd;		// true: added; false: multiplied per component
+					D3DXVECTOR3		m_vValue;
+				};
+				std::vector<VelocityModifier>	m_vecVelocityModifier;
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 //#ifdef X2OPTIMIZE_CULLING_PARTICLE
 //			private:

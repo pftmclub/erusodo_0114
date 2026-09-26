@@ -4308,5 +4308,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // target-mesh list with BONE_TRACE_TARGET_MESH_INDEX,
 // ZOFFSET_USE_UNIT_IS_RIGHT, the trace-target facing of the position
 // offset, and OVERLAP. Needs SERV_IRUHADEV_JUNE_EFFECTSET_PARSE.
+// Stage 2 (2026-09-26) adds USE_IS_RIGHT_WHEN_CREATE, TRACE_MATRIX_IN_FIELD,
+// the MESH_TRIGGER_DATA_LIST copy, APPLY_DAMAGE_EFFECT_VELOCITY (with a
+// velocity-modifier list on CKTDGXMeshPlayer::CXMeshInstance, re-applied by
+// its velocity event) and the SET_OVER_UI layer.
 #define SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 //////////////////////////////////////////////////////////////////////////
