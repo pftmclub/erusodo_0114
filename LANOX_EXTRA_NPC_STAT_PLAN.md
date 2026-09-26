@@ -274,7 +274,18 @@ NUI_MAG_NOM:                  HP_VALUE 1, ATT 1/1, DEF 1/1, ACCURACY_VALUE 1, AV
 NUI_GEYSER_WORKER:            HP_VALUE 2, ATT 1.5/1.5, DEF 1.2/1.2, ACCURACY_VALUE 2, AVOIDANCE_VALUE 0, DT_PHYSIC
 formula var: { STAT_TYPE = ENST_AVOIDANCE, MIN_LEVEL = 1, MAX_LEVEL = 110, BASIC_VALUE = 0.02, GRADIENT_VALUE = 1, INTERCEPT_VALUE = 0 }
 ```
-There's no dungeon-key field in any formula variable, so all are key 0.
+**Correction (Phase 2, 2026-09-27): this is wrong.** Two of the 67 formula
+variables (both `STAT_TYPE ENST_HP`) *do* carry a non-zero `DUNGEON_ID`: one keyed
+`38100` (Henir, `MIN_LEVEL/MAX_LEVEL` 1/110), one keyed `41130` (no dungeon in this
+March build has that ID, so it's inert here). Both keyed bands are `ENST_HP`, and the
+`HP` formula body ignores `a`/`b`/`c` (`CalculateExtraStatValue`'s `BASIC`/`GRADIENT`/
+`INTERCEPT_VALUE` args) entirely — and `ACCURACY`/`AVOIDANCE` each have exactly one
+key-0 band and no keyed band of their own. So **in the data as shipped, this correction
+changes no computed stat for any of the 7 stat types** — HP is the only type with a
+keyed band, and HP doesn't consume it. Phase 3's evaluator should still implement the
+filter (`FUN_32373680`'s "does an exception band exist for this dungeon" gate: if so,
+only that dungeon's keyed band is eligible for a stat type; otherwise only key-0 bands
+are) for fidelity to June's own logic, not because this data currently exercises it.
 
 **Expected values at level 70 in a normal dungeon** (`gameType 0`, `lvlArg 70`), **before**
 `SetNpcHardLevel`'s `fHPScale`. That scale follows **dungeon difficulty** (`X2Game.cpp:18205-18217`):
@@ -757,7 +768,251 @@ pack into data036.kom. Update the plan's Phase 1 Status line.
 
 ## Phase 2 — Balance before/after table (analysis only)
 
-**Status:** not started.
+**Status:** done 2026-09-26. `june2017_re/xstat_balance.tsv` written (3071 rows); summary
+below. No game file was changed; nothing was written to `kom_contents/` or `14JUN17/`.
+
+**Method.** One `luajit` harness (the same vendored interpreter Phase 1 used) loaded, in
+one Lua state: the real staged `Enum.lua` (+ `DungeonEnum.lua` for `DUNGEON_ID`), the
+staged `NewNPCStatFormula.lua`/`NewNPCStat.lua`, and the shipped `data037_kom/NPCStat.lua`
++ `NPCTemplet.lua`, with `g_pUnitManager` stubbed to record full rows. Re-asserting
+Phase 1's counts against this rebuilt set: **1693/67 calls, 2052 legacy rows, 2026
+templet rows, 847 usable (enum+templet) / 772 override / 75 extra-only** — all matched
+the ledger exactly, so the rebuilt set is the same set Phase 1 validated.
+
+`CalculateExtraStatValue` is called **as-is** from the loaded Lua (never reimplemented);
+band selection (first `MIN_LEVEL..MAX_LEVEL` match in file order, filtered to the
+current dungeon's keyed band when one exists for that stat type and dungeon, else to
+key-0 bands — see the ledger correction to "Row shape" above) and the `gameType`/
+`lvlArg` switch are replicated, per the evaluator pseudo-code in the ledger.
+
+**Level rule, settled from code, not assumed:**
+- **Dungeons.** `X2Dungeon.h:177-186`'s own comment says the *live server* picked the
+  spawn level from `DungeonData.lua`'s `m_NPCLevel` and shipped it down the wire — the
+  shipping client's Lua parser never needed a per-NPC level itself. Offline's
+  `Handlers_Room.cpp:1839-1850` mirrors exactly that: per-NPC `LEVEL` (`X2DungeonSubStage.cpp:1577`)
+  if `>0`, else `DungeonData.m_NPCLevel`, else `m_MaxLevel`/`m_MinLevel`. A first pass
+  wrongly generalized "Lanox's 19 stage files have no per-NPC `LEVEL`" to the whole game;
+  decompiling all 213 remaining `Dungeon_*.lua` (elstools, scratch dir, nothing written
+  back to `kom_contents/`) found 65 files that *do* set it — mostly Henir, Secret,
+  tutorial/training/event/QA-test dungeons, plus a handful of regional dungeons with one
+  or two fixed-level unique spawns (e.g. `Altera_Plain_Normal`'s `NUI_BARRIERMACHINE_*`
+  at 34, matching that dungeon's own `m_NPCLevel`). Per-(file, NPC) `LEVEL` was extracted
+  with a brace-depth-aware flattener (strip nested `{...}` before regexing, so a
+  `START_POS`/`SIEGE_MONSTER` sub-table's contents never leak into the parent's fields).
+- **Henir/Secret-Common/Secret-Hell are relative, not absolute.** `DungeonData.lua` has
+  a real `m_bRelativeMonsterLevel` field (`X2Dungeon.h:166`, `X2DungeonManager.cpp:207`);
+  10 dungeons set it — Henir (`DI_ELDER_HENIR_SPACE`, `dungeonID=38100`, confirmed against
+  the ledger's own number) plus the Common/Hell tier of Elder/Besma/Altera/Velder/Ranox
+  Secret. For these, `level = (m_MaxLevel > 0 ? m_MaxLevel : m_MinLevel) + LEVEL` per
+  `Handlers_Room.cpp:1704-1709` (a first pass without this rule misread Henir's small
+  `LEVEL` values of 0/2 as literal character levels; they're offsets against the party
+  band, giving 70 or 72 — plausible for Henir instead of absurd).
+- **Battlefields.** `X2OfflineBattleField.cpp:731` (`level = STANDARD_MONSTER_LEVEL +
+  ADD_LEVEL`, per non-boss spawn group) and `:899` (`level = STANDARD_MONSTER_LEVEL`
+  exactly, no `ADD_LEVEL`, for a `BATTLE_FIELD_MIDDLE_BOSS_INFO` group). All 31
+  `BattleFieldData.lua` entries' `NPC_TABLE_FILE_NAME` files were located and loaded the
+  same way (real `AddSpawnMonsterGroup` calls, no text parsing needed here since the
+  file's own Lua calls give real tables directly).
+- **Henir/Secret `gameType` — March's classifier is what the spec says to use, but
+  whether it's what June actually does is still open.** `CX2Dungeon::IsHenirDungeon`/
+  `IsSecretDungeon` (`X2Dungeon.cpp:434-497`, the March functions Phase 3's spec calls
+  for `gameType`) were read directly and their case names resolved through the real
+  `DUNGEON_ID` table — that's the number this pass used. But the actual June-side gate
+  is `FUN_32931950`, whose case list the ledger only recorded as truncated hex
+  (`0x75d0.., 0x80fc.., 0xa0b4..`), never settled against real dungeon IDs. Decoding
+  those hex values now: **`0x75d0 = 30160 = DI_EL_FOREST_HELL_NORMAL`** and **`0x80fc =
+  33020 = DI_RUBEN_SECRET_COMMON`** land on exact entries already in March's list — a
+  hint, not proof, that June's list and March's may simply agree; **`0xa0b4 = 41140`**
+  matches no dungeon in this build (`DI_RANOX_SECRET_HELL` is `41271`, 131 away). This
+  is exactly the kind of question the plan's own effort table reserves for an Opus/Ghidra
+  identification pass, not something to settle here — see the NaN hazard below for why
+  it matters. `IsDefenceDungeon` (`38300..38302`, `X2Game.cpp:18181`) is the one case
+  where June's own call-site table says the *field* route (`bNoHardLevel=0`) applies
+  even for a plain dungeon spawn.
+
+**Coverage.** 3071 rows: 2588 dungeon-context + 483 battlefield-context, covering **669
+of the 772** override IDs. **103 override IDs never appeared** in any static
+dungeon/battlefield list — these are runtime-only summons (script/trigger spawns) the
+static audit can't see; they're listed, unscored, in the scratch artifact
+`xstat_unseen_ids.tsv` (not staged — regenerate per below) and are exactly the same class
+of gap Phase 3's `[NPC_ZERO_HP]` diagnostic exists to catch once the C++ lands.
+
+**Hazard: NaN HP is real under March's classifier, and it hits every Secret
+Normal/Hard/Expert tier below level 70 — but whether June's own classifier agrees is the
+open question above, and it decides what the fix even is.** `GetHPFactorByGameType`'s
+`gameType 2` term is `0.95*((L-70)/36)^2.5 + 1.05`. For any `L < 70` the base is negative
+and the exponent is non-integer, which is NaN in floating point — not a fallback path,
+an actual property of June's own formula. **84 of 3071 rows are NaN** (first pass missed
+this: an `applied_hp <= 0` hazard check is false for NaN, so it silently reported "0
+hazards" and let NaN corrupt every quantile computed from it — visible in hindsight as
+p75/median coming out of sorted order in the first draft of this table). Every hit is a
+Secret **Normal/Hard/Expert** tier at its own below-70 spawn level:
+`Altera_Secret_{Normal,Hard,Expert}` (45/47/50), `Besma_Secret_{Normal,Hard,Expert}`
+(35/37/40), `Elder_Wally_Castle_Lab_{Normal,Hard,Expert}` (25/27/30). **As Phase 3/4 are
+currently specified (`gameType` from March's `IsSecretDungeon`), parity would give these
+NPCs a NaN `MAX_HP`.** If June's own switch excludes these tiers from `gameType 2`, the
+fix is the classifier (Phase 3/4's spec, not this formula); if June's switch matches
+March's and includes them, June's *own* live game has the same property and this is
+being faithfully transcribed, not introduced. Either way this needs a decision before
+Phase 4, not just a note; it is not resolved here. (Secret *Common/Hell*, which spawn
+relative to `m_MaxLevel` — 70 or, for Ranox, 99 — are unaffected: their base level alone
+is already ≥70.) One data point against the "June never ships these dungeons" escape
+hatch: `14JUN17/data/data035_kom/` (read-only reference, not modified) still has
+`Dungeon_Altera_Secret_Normal.lua`, `Dungeon_Besma_Secret_Normal.lua` and
+`Dungeon_Elder_Wally_Castle_Lab_Normal.lua` — June ships all three, so if its classifier
+does put them at `gameType 2`, the NaN would be reachable in June too, not just in this
+port.
+
+**Correction: the evaluator's dungeon-key filter (`FUN_32373680`) was missing in the first
+pass.** Two of the 67 formula vars *do* carry a non-zero `DUNGEON_ID` (statType 1/HP,
+one keyed `38100` = Henir with `MIN_LEVEL/MAX_LEVEL` 1/110, one keyed `41130` = no March
+dungeon has this ID, so it's inert here). The ledger's "no dungeon-key field ... so all
+are key 0" is not exhaustive for every row and has been corrected in place. The rule now
+implemented: if any band for a stat type is keyed to the current dungeon, **only** that
+keyed band can match (a plain key-0 band is skipped even if its level range covers the
+NPC); otherwise only key-0 bands are eligible — whether `FUN_32373680` also gates on
+`level` in addition to `dungeonID` is unverified and doesn't matter here, since the one
+real keyed band spans the full 1-110. **This fix changes nothing in this table** —
+`a`/`b`/`c` (`BASIC`/`GRADIENT`/`INTERCEPT_VALUE`) are only consumed by the
+`ACCURACY`/`AVOIDANCE` formulas, which this pass doesn't report, so HP/attack/defense
+are identical either way. It's still a correctness fix worth carrying into Phase 3's
+`CalculateExtraStatValue` transcription.
+
+**Correction: battlefield `applies` (`:782` vs `:987`) is unverified, not settled** — the
+first pass asserted it as fact. `EGS_BATTLE_FIELD_NPC_LOAD_NOT`'s client handler
+(`X2StateBattleField.cpp:1255-1270`) branches on `GetMyUnit() == NULL`: if the local
+player unit already exists, it goes through `CreateNpcCreatedInfo` (a deferred
+distance-sorted dequeue that eventually reaches `CreateBattleFieldNpcByCreatedInfo`,
+`:987`, `noHL`); if not, `CreateBattleFieldNpcAtStart` → `CreateBattleFieldNpc` directly
+(`:782`, `HL`). Which one fires is a client-startup-timing question this pass didn't
+settle, so **all 483 battlefield rows are tagged `battlefield(unverified)` and excluded
+from every ratio/quantile/top-10 below** — they're still in the TSV with both
+`june_dungeon` and `june_field` columns computed, just not scored.
+
+**Other hazards checked and clear:** applied HP ≤ 0 (finite): **0**. Negative/inf/NaN
+applied defense: **0**. Legacy `MAX_HP` ≤ 0 (would make the ratio undefined): **0**.
+Level outside the formula's 1-110 band coverage, which would silently return the raw
+`HP_VALUE` unchanged (e.g. `0.3`) instead of a real stat: **0** — the highest relative
+level reached is Ranox Secret Hell's `99 + LEVEL`, and no `LEVEL` offset in the data
+pushes any row past 110.
+
+**HP ratio (applied June ÷ legacy) per region, at Normal ×1.0** (`fHPScale` cancels out of
+every ratio; "applied" means `june_dungeon` for a normal spawn, `june_field` for the three
+defence dungeons, per the `applies` column; **NaN and battlefield-unverified rows
+excluded**; Secret dungeons are their own bucket, not blended into their host region —
+a first-pass bug put them in Altera/Bethma/Elder and inflated those regions' outlier
+tail):
+
+| Region | n | min | p25 | median | p75 | max |
+|---|---|---|---|---|---|---|
+| Ruben | 58 | 0.299 | 0.912 | 0.963 | 1.507 | 287.7 |
+| Elder | 138 | 0.376 | 0.665 | 0.853 | 2.448 | 15.7 |
+| Bethma | 216 | 0.315 | 0.814 | 0.932 | 1.854 | 9365.9 |
+| Altera | 289 | 0.000 | 0.868 | 1.352 | 2.490 | 12284.9 |
+| Feita | 239 | 0.474 | 0.949 | 1.194 | 1.960 | 14640.7 |
+| Velder | 341 | 0.611 | 1.023 | 1.307 | 1.559 | 83479.0 |
+| Hamel | 374 | 0.002 | 1.079 | 1.508 | 1.853 | 1099.9 |
+| Sander | 408 | 0.363 | 1.086 | 1.235 | 1.587 | 2365.4 |
+| Lanox | 118 | 0.168 | 0.938 | 3.675 | 13.300 | 286.4 |
+| Other/Henir | 100 | 1.026 | 3.260 | 6.989 | 17.837 | 242181.0 |
+| Other/Secret (Common/Hell + `Ranox_Secret_Hell` — Normal/Hard/Expert are the NaN rows, excluded) | 138 | 0.804 | 1.157 | 1.767 | 2.668 | 27583.9 |
+| Other (tutorial/training/event/QA) | 85 | 0.339 | 0.899 | 1.558 | 1.887 | 26.9 |
+
+`Ranox_Secret_Hell` (`DI_RANOX_SECRET_HELL`, `41271`) is bucketed here by its own
+`m_bRelativeMonsterLevel` flag, not by `IsSecretDungeon` (whose case list doesn't name
+it — see the open discriminator above); its rows are computed at `gameType 0` per
+March's classifier as currently specified, which may itself need to change depending on
+how that discriminator resolves.
+
+**Lanox's legacy rows look like untuned placeholders, not a real baseline — this changes
+what Lanox's 3.675 median means.** The 36 Lanox (non-Secret) override IDs collapse to
+just **3 distinct legacy `(MAX_HP, ATK_PHYSIC, ATK_MAGIC, DEF_PHYSIC, DEF_MAGIC,
+HARD_LEVEL.*)` combinations** — e.g. `NUI_MAG_NOM`, `NUI_MAG_CHARGER`, `NUI_RAGE_BABYFIG`
+and three other visually-distinct monsters in Burned Forest Normal all share the exact
+same legacy row (`99452` HP, `5336` attack, `1104`/`1150` defense). Given the ledger
+already established that these IDs only ever had NewNPCStat as their real source (March's
+`NPCStat.lua` is byte-identical to June's, which never populated a real row for them),
+this reads as a small number of generic per-tier placeholder rows reused across many
+different Lanox monsters, rather than individually tuned legacy stats. **Lanox's 3.675×
+median is therefore not "June rebalances Lanox harder" so much as "June's real per-monster
+numbers replace a placeholder that was never tuned per monster" — today, and with the
+parity flag off, these 36 IDs run on those placeholders; parity is what replaces them
+with June's real numbers.**
+
+Every region's quantiles are now monotone min≤p25≤median≤p75≤max, which they were not
+in the first draft.
+
+**Overall:** n=2504 (verified, finite, legacy-HP>0 rows), median ratio **1.339**, **696
+rows (28%) more than 2× harder**, **118 rows (5%) easier** than legacy.
+
+**Top 10 swings, June much harder** (all of these are the same pattern already
+established for `TRAP_FIRE_BIG` in the ledger — inert hazard/trigger/scenery objects
+with a negligible legacy HP given a deliberately enormous one by June's own design, not
+a data error; `NUI_GLITER_ARCHER_GREAT_TRAP`'s legacy `MAX_HP` is **1**):
+
+| NPC | dungeon | lv | ratio | legacy HP | June HP |
+|---|---|---|---|---|---|
+| `NUI_GLITER_ARCHER_GREAT_TRAP` | Henir Space | 70 | 242181× | 1 | 242,181 |
+| `NUI_GLITER_ARCHER_GREAT_TRAP` | Velder Bridge Burning/Palace Entrance (all 3 tiers) | 47-50 | 73463-83479× | 1 | 73,463-83,479 |
+| `NUI_PD_MONSTER_B` | Henir Space | 70 | 35573× | 3,404 | 121,090,880 |
+| `NUI_FACTORY_PRESS2/3` | Altera Secret Common | 70 | 27584× | 3,404 | 93,895,598 |
+
+**Top 10 swings, June much easier** — confirmed from the source row, not back-solved,
+per the "read the row" check: `raw_extra_stat.tsv` shows `NUI_NASOD_KING` (id 289) and
+`NUI_PD_MONSTER` (id 343) both carry `HP_VALUE = 0.0001` verbatim in `NewNPCStat.lua`.
+That is real, sourced June data, **not a harness bug** — both IDs go from ~1.3M/~90K
+legacy HP to a flat **4** under parity at every one of Altera Core's three difficulties
+(`NUI_PD_MONSTER_B`, seen going the *other* direction under Henir in the harder-swings
+table above, is a different ID entirely — not the same monster):
+
+| NPC | dungeon | lv | ratio | legacy HP | June HP |
+|---|---|---|---|---|---|
+| `NUI_NASOD_KING` | Altera Core (all 3 tiers) | 36-38 | ~0.000003× | ~1.3M-1.4M | **4** |
+| `NUI_PD_MONSTER` | Altera Core (all 3 tiers) | 36-38 | ~0.00004× | ~89K-93K | **4** |
+| `NUI_ICE_ROCK` | Hamel Cave of Magmanta (all 3 tiers) | 56-58 | ~0.0018-0.0019× | ~29M | ~53K-58K |
+| `NUI_GIANT_LINKER` | Hamel Frozen Water Temple Normal | 57 | 0.1005× | 882,420 | 88,699 |
+
+Whether the June team intended Altera Core's own boss to go to 4 HP under this system,
+or whether `NUI_NASOD_KING`/`NUI_PD_MONSTER` are a duplicate/inert instance of the real
+boss reusing its ID, is **not settled by this data** and needs a second look before
+Phase 5 treats Altera Core as a clean pass — the row is confirmed real, but what it
+*means* for the live boss fight is an open question this pass didn't answer.
+
+**Files.**
+- `june2017_re/xstat_balance.tsv` (staged, 3071 rows: `npc_id`, `npc_name`, `kind`,
+  `source_file`, `dungeon_id`, `region`, `level`, `applies`, then legacy/June-dungeon/
+  June-field for HP, `ATK_PHYSIC`, `ATK_MAGIC`, `DEF_PHYSIC`, `DEF_MAGIC`, plus
+  `hp_ratio_applied` — `NaN` or `undef` where the ratio isn't computable, left in rather
+  than dropped so the hazard rows stay visible).
+- The harness scripts and intermediate TSVs used to build it were scratchpad-only (per
+  the 2026-09-26 scratchpad-doesn't-persist convention) and are not staged; regenerate
+  by: loading `Enum.lua`+`DungeonEnum.lua`+`NewNPCStatFormula.lua`+`NewNPCStat.lua`+
+  shipped `NPCStat.lua`/`NPCTemplet.lua` under `elstools/vendor/luajit` with
+  `g_pUnitManager` stubbed (as Phase 1 did); decompiling the 213 non-Lanox
+  `Dungeon_*.lua` with `elstools decompile-batch` into a **short-path** scratch dir (a
+  259-char scratchpad path hit `MAX_PATH` on this machine — use a short temp dir for this
+  step specifically, not the long-named scratchpad root); brace-flattening each for
+  `(NPC_ID, LEVEL)` pairs; loading `BattleFieldData.lua` + all 31 `NPC_TABLE_FILE_NAME`
+  files the same stub way; then one Lua pass computing all three stat sets per
+  (npc, level, dungeon) with the evaluator's dungeon-key filter, and a Python pass for
+  ratios/regions/hazards that excludes non-finite and unverified-`applies` rows before
+  sorting anything.
+
+**This is input to Phase 5's go/no-go, not a decision made here.** The headline points
+for that decision, in priority order: **(1)** whether June's own Secret-dungeon switch
+(`FUN_32931950`) matches March's `IsSecretDungeon` list is unresolved (an Opus/Ghidra
+identification question, per the plan's own effort table — not settled by this pass) and
+it decides what "(2)" even means: if the lists agree, Secret Normal/Hard/Expert giving
+NaN HP is real June behavior to transcribe; if June's list excludes them, it's a
+classifier bug this port would be introducing, and needs a fix before Phase 4; **(2)**
+excluding that hazard, parity is a real rebalance with median ratio 1.34× and a long
+harder-tail (28% of rows >2×), concentrated in Lanox and Henir/Secret — **though Lanox's
+own 3.675× median compares June's real numbers against what look like untuned
+placeholder legacy rows** (36 IDs, 3 distinct legacy stat blocks total), so read that
+region's number as "placeholder vs. real," not "June rebalances Lanox harder"; **(3)** two Altera
+Core IDs (`NUI_NASOD_KING`, `NUI_PD_MONSTER`) collapse to 4 HP on confirmed real data
+whose in-game meaning isn't yet known; **(4)** battlefield `HL`/`noHL` routing is still an
+open question and those 483 rows aren't scored.
 
 **Paste with:** Starting context + this section (+ Phase 0's verdicts in the ledger).
 
