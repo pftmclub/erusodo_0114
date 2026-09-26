@@ -151,6 +151,14 @@ Also, for issue 5 specifically, five more are dead (see Phase 5's own table).
   full trace, the sanity check, and a found-but-deferred 35-entry wider
   version of the same registry gap (FireTemple/BurnedForest, still locked by
   Phase 5).
+  **Superseded 2026-09-26 — see `LANOX_EXTRA_NPC_STAT_PLAN.md`.** The "no
+  source data" and "35 remain" findings above searched only `NPCStat.lua`.
+  June2017 has a **second** NPC stat system, `data036/NewNPCStat.lua` +
+  `NewNPCStatFormula.lua` (`AddExtraNPCStat` / `CalculateExtraStatValue`),
+  and it covers the 8 Geyser `_FD` monsters, every remaining Lanox dungeon
+  gap, and the Lanox dungeon **"phase clears while mobs are alive"** defect.
+  That defect is caused by a 0-HP gate NPC dying `KILL_SELF` and satisfying
+  `CC_KILL_NPC_TYPE`. The port is planned there, phase by phase.
 - **Issue 8** (no signboard at Behemoth Crater's Lanox end) → not a data gap;
   no code in this build reads a direction-board table at all. The one
   in-engine "points elsewhere" mechanism (`QUEST_GUIDE` indicator) is already
