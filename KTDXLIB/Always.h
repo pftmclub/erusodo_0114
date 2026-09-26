@@ -4323,3 +4323,26 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // mesh triggers (new CXMeshInstance members in KTDXLIB, appended last).
 #define SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-26
+// Description: June2017 effect-engine rebuild, Phase 5
+// (JUNE2017_EFFECT_REBUILD_PLAN.md). CX2DamageEffect::CEffect::CEffect parses
+// the CEffect-ctor top-level keys June's FUN_31f7aab0 reads that March does
+// not: USE_ADVANCE_COLLISIOIN_CHECK, USE_OWNER_ATTACK_SPEED, IGNORE_MI_HUGE,
+// INHERIT_CRITICAL_RATE, INHERIT_CRITICAL_DAMAGE_RATE, TRACE_OWNER_BONE(_ONLY_ROTATE),
+// FOLLOW_LINE_GRAVITY, FOLLOW_LINE_WITH_CUSTOM_ROTATE and
+// RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT; the "%s"/"%s_ULTIMATE" wrapper family
+// (MAIN_EFFECT_NAME, FOLLOW_LINE, FOLLOW_LINE_NEW); the DAMAGE_DATA/DAMAGE_DATA_ULTIMATE
+// and DAMAGE_DATA_NEXT(_ULTIMATE)/DAMAGE_DATA_NEXT%d wiring (new members alongside
+// the existing single-pointer path, so existing consumers are unchanged); and
+// DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)'s array form, a semantics-differ from
+// March's existing scalar read at the same key (kept, since existing data and
+// consumers use the scalar). APPLIED_SKILL_ID and APPLIED_SKILL_ID_NOT_AFFECT_MEMO
+// are parsed and logged only -- the "applied skill ID" system is absent, so no
+// behaviour is wired to them (plan rule 5) -- and the master "read _ULTIMATE
+// first" flag they would drive is forced false pending that system and Phase 7's
+// runtime. Parse only; runtime is Phase 7.
+#define SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+//////////////////////////////////////////////////////////////////////////

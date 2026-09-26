@@ -211,6 +211,49 @@ The full per-key table is in the plan's Phase 3 section.
 - `USE_MESH_TRANSITION` defaults to **true** in list entries (`MOV byte [..],1`
   @`321eb78a`), although the entry ctor `321f3be0` sets it false.
 
+**Hand-verified (Phase 5).** The CEffect ctor's top-level scope (`31f7aab0`).
+
+- **`RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT`'s default, `[334380f0]`, is `-1.0`**, read as raw
+  bytes at file offset `0x334380f0 - 0x31aa0000 - 0xc00 = 0x19974f0` (`00 00 80 bf` little-endian),
+  matching Phase 3's note that the same address is `ES.EFFECT LIMIT_DISTANCE`'s default.
+- **`CHANGE_DAMAGE_TIME`'s "default store not recognised" is a false alarm.** `xor cl,cl` sets
+  `CL=0` (false) on a failed get; on success, `mov cl,[esp+0x17]` reads it. `CL` then gates a
+  `pGameUnit->m_iDamageTimes >= 0` check before `m_DamageTime = iDamageTimes`, byte for byte what
+  March's `CHANGE_DAMAGE_TIME`/`GetDamageTimes()` block already does (`X2DamageEffect.cpp:1679`
+  pre-Phase-5). Same.
+- **`MAIN_EFFECT_TIME`'s "non-standard shape" is also a false alarm.** `fld [334380f0]` (the same
+  `-1.0` constant); on failure it's stored as the default, on success the read value is compared
+  against it with `fcom`/`fnstsw`, and `SetMaxLifeTime` is called only when greater -- exactly
+  March's `if ( fLiveTime > -1.f ) pMeshInst->SetMaxLifeTime( fLiveTime );`
+  (`X2DamageEffect.cpp:1554` pre-Phase-5, under `RIDING_SYSTEM`). Same.
+- **`NOT_CULL`'s "non-standard shape" is also a false alarm for March's purposes.** June's
+  `test/je/mov/cmp` computes the bool then *also* persists it to a member (`[ESI+0xb30]`) that
+  March has no equivalent field for; the immediate consumption (`SetBoundingRadius(0.f)` when
+  true) is identical to March's `bNotCull`/`SetBoundingRadius` block
+  (`X2DamageEffect.cpp:1566` pre-Phase-5). Not implementing the persisted copy is a
+  no-op today: nothing else in scope reads it.
+- **`APPLIED_SKILL_ID`/`APPLIED_SKILL_ID_NOT_AFFECT_MEMO` are read inside the ctor's own
+  `BeginTable("DAMAGE_DATA")`/`EndTable`** (`32fe9940`/`32fe9a10`, the same shape as March's own
+  `KLuaManagerProxy::BeginTable`/`EndTable`), decrypted at `31f7b483`/`31f7b5ec`, both int getter
+  `32fe9fd0`. `census.py` places `APPLIED_SKILL_ID` at `DE.top` rather than a `DE.DAMAGE_DATA`
+  path, and calls `APPLIED_SKILL_ID_NOT_AFFECT_MEMO` `june-ignores(dead-here)` even though the
+  ctor decrypts and reads it (via the same int getter, immediately after) -- reported, not fixed;
+  neither affects Phase 5's exit criterion.
+- **`DAMAGE_DATA_CHANGE_TIME`/`DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME` read as an indexed float array
+  at this scope, via a shared helper `FUN_31f64b20`** (`BeginTable(key)` then
+  `GetValue(1..)`, stopping at the first miss; a bool argument selects the destination between the
+  two keys), not the scalar March already reads at the same key name. `census.py` already marked
+  both rows `n/a (sub-table name)` before this phase, when March had only the scalar read -- its
+  table-vs-scalar check doesn't fire for this shape, so the mismatch went unflagged. Confirmed
+  against data: `march2014/data036/` and the live `data036_kom/` both write this key as a plain
+  number everywhere it's used; `june2017_re/june_lua/` always writes it as `{ ... }`.
+- **`DAMAGE_DATA_NEXT%d`/`DAMAGE_DATA_NEXT_ULTIMATE%d` numbering starts at 2.** `FUN_31f79c20`
+  (not a thin wrapper -- it allocates, copies from `m_DamageData`, calls `SetDamageDataFromLUA`,
+  and on success loops) builds `"DAMAGE_DATA_NEXT%d"` with a counter that starts at 2 (stored via
+  `FUN_31f8b860`, a `push_back`-style append, not a formatter) and increments after each successful
+  read (`31f79ec6`/`31f79f3b`). Confirmed against `june2017_re/june_lua/DamageEffect*.src.lua`:
+  every file with a numbered continuation has `..._NEXT2` and up, never `..._NEXT1`.
+
 **Phase 1 corrections to Phase 0's `reconcile.py`.** `reconcile.md` changed only in the
 `<CEffect top level>` scope, plus two explanations:
 

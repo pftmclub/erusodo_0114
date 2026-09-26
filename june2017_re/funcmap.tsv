@@ -120,3 +120,4 @@ june_va	march_symbol	status	evidence
 31c1a030	CKTDGParticleSystem::CParticleEventSequence::SetAddRotate	confirmed	+0x3e0 = v (m_AddRotate, probe 0x2b4) (Phase 4b)
 321df9c0	CX2EffectSet::PlayEffectSetByMeshPlayer	confirmed	GetEffectSetTemplet 321da420, new instance, target-mesh entry {handle, type}, is-target-mesh, handle stamp: X2EffectSet.cpp PlayEffectSetByMeshPlayer (Phase 4b)
 329585f0	unit-viewer effect-set update (outside EffectSet)	candidate	the only reader of FOLLOW_UNIT_VIEWER_SCALE (+0x114) and the other caller of 321dfc40 (no instance: the ANIMTIME_ON_START_UNITVIEWER branch) (Phase 4b)
+31fcf3e0	skill-memo lookup for the master ultimate flag (none in March)	candidate	CEffect ctor @31f7b81f passes user+0x867c ("memo" pointer) and the resolved skill id; checks a global (33775860)+0x50 flag first, tail-calls 32206d00 on the memo (Phase 5)

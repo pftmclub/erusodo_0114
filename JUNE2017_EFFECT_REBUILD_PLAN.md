@@ -1502,6 +1502,37 @@ JUNE_FX ES_UPDATE / ES_DELETE lines fire. Update the matrix and MODS.md.
 
 ## Phase 5 — DamageEffect CEffect constructor keys
 
+**Status: done 2026-09-26**, play-tested. `census.py` shows 0 Phase-5 keys `to-implement`
+(all 17, `unsupported`, and both `binary-only` rows now `implemented`, semantics `same`
+against June for every checked key). `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE` (+
+`SERV_IRUHADEV_JUNE_FX_DEBUG`'s `CE_TEMPLET` line). Full detail, including three
+`census.py` classification quirks found and reported rather than fixed, is in `MODS.md`
+and `june2017_re/README.md`'s "Hand-verified (Phase 5)".
+
+Things the next phases should know:
+
+- **June computes one master "read `_ULTIMATE` first" flag** from `APPLIED_SKILL_ID`
+  (read inside the ctor's own `BeginTable("DAMAGE_DATA")`) and a skill-memo lookup
+  (`FUN_31fcf3e0`, **candidate, not identified**). It gates every `_ULTIMATE` read in the
+  ctor (`MAIN_EFFECT_NAME`, `FOLLOW_LINE(_NEW)`, `DAMAGE_DATA`, `DAMAGE_DATA_NEXT`,
+  `DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)`). Forced `false` this phase (system unsupported),
+  so today's behaviour is unchanged; identifying `31fcf3e0` and wiring the flag for real is
+  Phase 7/8's, not a fresh Phase 5-style key hunt.
+- **`DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)` is a real semantics-differ**: June reads it as
+  an indexed float array at this scope, not March's scalar. The array read was added
+  alongside the scalar (new `vector<float>` members, additive on current data). Phase 7 or
+  8 needs to decide how the two forms coexist once June's own array-shaped data lands.
+- **`DAMAGE_DATA_NEXT` chain**: numbered continuations start at **2**, not 0 or 1, and are
+  a new `DamageEffectDataInLua::m_vecDamageDataNextChain` alongside the existing single
+  `m_pDamageDataNext`. Nothing consumes the chain yet (Phase 7).
+- **`IGNORE_MI_HUGE`** (false) gates a scale override via June `31f6fdc0`
+  (**not identified**) that overwrites the main effect's `(1,1,1)` scale — a Phase 7 item.
+- **The one available test case, `APPLIED_SKILL_ID` on
+  `DamageEffect_SA_RHB_Lockon_Stratos_Attack`, is Rose's and could not be triggered**: Rose
+  isn't ported yet. The `unsupported` log line is coded and reads real packed data
+  (confirmed by the play-test's clean run and lack of regressions), but has not been seen to
+  fire. Worth a follow-up play-test once Rose exists.
+
 **Paste with:** Starting context + this section.
 
 **Model:** Sonnet 5, high. See "Model and effort per phase".

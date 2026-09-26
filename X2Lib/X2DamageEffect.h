@@ -608,6 +608,13 @@ class CX2DamageEffect
 			std::vector< CX2DamageEffect::ParticleData* >	m_vecHitParticle;
 			std::vector< DamageEffectData* >				m_vecHitDamageEffect;
 			CX2DamageManager::DamageData*					m_pDamageDataNext;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+			// June2017 FUN_31f79c20 @ 31f79c20-31f79f9f (numbered continuation loop only; the
+			// first "DAMAGE_DATA_NEXT"/"_ULTIMATE" table stays m_pDamageDataNext above, for
+			// existing consumers). DAMAGE_DATA_NEXT2, _NEXT3, ... (or _ULTIMATE2... when the
+			// master ultimate flag is set) go here. Parse only; consuming this is Phase 7.
+			std::vector<CX2DamageManager::DamageData*>		m_vecDamageDataNextChain;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 			DamageEffectDataInLua() : m_pDamageDataNext( NULL )
 			{}
@@ -1120,6 +1127,50 @@ class CX2DamageEffect
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 				float	m_fLinkEffectRate;	/// SetLinkMainEffectByPos() 를 쓰기 위해 필요한 길이 배율
 #endif //SERV_ADD_LUNATIC_PSYKER
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+			// June2017 FUN_31f7aab0 (CEffect ctor) top-level keys, JUNE2017_EFFECT_REBUILD_PLAN.md
+			// Phase 5. Parse only -- consuming these members is Phase 7.
+			bool				m_bIgnoreMIHuge;					/// June @31f7c6b7: IGNORE_MI_HUGE, bool, default false
+			bool				m_bInheritCriticalRate;				/// June @31f7ed68: INHERIT_CRITICAL_RATE, bool, default false
+			bool				m_bInheritCriticalDamageRate;		/// June @31f7ef09: INHERIT_CRITICAL_DAMAGE_RATE, bool, default false
+			float				m_fResetMainEffectLifeTimeRateByHit;	/// June @31f7f6b3: RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT, float via 32fea370, default -1.f
+			bool				m_bFollowLineWithCustomRotate;		/// June @31f7dfea: FOLLOW_LINE_WITH_CUSTOM_ROTATE, bool, default false
+			bool				m_bFollowLineGravity;				/// June @31f7e306: FOLLOW_LINE_GRAVITY, bool, default false
+			wstring				m_strTraceOwnerBone;				/// June @31f7e469: TRACE_OWNER_BONE, wstring via 32feae90, default L""
+			wstring				m_strTraceOwnerBoneOnlyRotate;		/// June @31f7e5d9: TRACE_OWNER_BONE_ONLY_ROTATE, wstring via 32feae90, default L""
+			bool				m_bUseAdvanceCollisionCheck;		/// June @31f7c343: USE_ADVANCE_COLLISIOIN_CHECK (studio typo, kept), bool, default false
+			bool				m_bUseOwnerAttackSpeed;			/// June @31f7d380: USE_OWNER_ATTACK_SPEED, bool, default false
+			bool				m_bUsedDamageDataUltimate;		/// June @31f7c63f/c66c: true if DAMAGE_DATA_ULTIMATE was read instead of DAMAGE_DATA
+			int					m_iApplyEffectAlphaConditionByOption;	/// June @31f7bff3: APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION (binary-only here), int getter 32fe9fd0, default 0
+
+			// The "K"/"K_ULTIMATE" wrapper family (June FUN_31f8ba80 for a string result,
+			// FUN_31f8b370 for a bool result): each reads "K_ULTIMATE" first when
+			// m_bUseUltimateDamageData is set, falling back to "K" only if that specific read
+			// fails. The flag is computed from APPLIED_SKILL_ID below and forced false --
+			// unsupported system -- so only the "K" (base) reads are live for now.
+			wstring				m_strMainEffectNameUltimate;		/// June @31f7b874->31f8ba80: MAIN_EFFECT_NAME_ULTIMATE
+			bool				m_bFollowLineUltimate;				/// June @31f7dbcd->31f8b370: FOLLOW_LINE_ULTIMATE
+			bool				m_bFollowLineNewUltimate;			/// June @31f7dbeb->31f8b370: FOLLOW_LINE_NEW_ULTIMATE (binary-only)
+
+			// APPLIED_SKILL_ID / APPLIED_SKILL_ID_NOT_AFFECT_MEMO (June @31f7b483/31f7b5ec,
+			// inside the ctor's own DAMAGE_DATA BeginTable/EndTable, before MAIN_EFFECT_NAME).
+			// Unsupported: the "applied skill ID" system (a per-effect skill-memo lookup,
+			// June FUN_31fcf3e0, candidate -- not identified) is absent. Parsed, stored and
+			// logged once per effect name; never wired into behaviour.
+			int					m_iAppliedSkillID;
+			int					m_iAppliedSkillIDNotAffectMemo;
+			bool				m_bUseUltimateDamageData;			/// forced false, see above
+
+			// DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME) semantics-differ: at this scope June reads
+			// an indexed float array (BeginTable(key) + GetValue(i, float), June FUN_31f64b20),
+			// not the scalar March already reads into m_fDamageDataChangeTime(GlobalTime).
+			// Current March/Ranox data uses only the scalar form, so this array read is
+			// additive and never fires on it. Kept separate from the existing scalar members
+			// so their consumers are unaffected.
+			vector<float>		m_vecDamageDataChangeTime;
+			vector<float>		m_vecDamageDataChangeTimeGlobalTime;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 		}; // CEffect
 

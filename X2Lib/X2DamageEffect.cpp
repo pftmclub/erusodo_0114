@@ -1454,6 +1454,41 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 
 
 	//자신의 테이블에서 메인 이펙트와 데미지 데이타, 기타 옵션들을 읽어온다.
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f7aab0 @ 31f7b42c-31f7b824: reads APPLIED_SKILL_ID (int getter 32fe9fd0,
+	// default 0, @31f7b483) and, if that is 0, APPLIED_SKILL_ID_NOT_AFFECT_MEMO (same getter,
+	// @31f7b5ec) inside a BeginTable("DAMAGE_DATA")/EndTable bracket, then calls FUN_31fcf3e0
+	// (candidate, not identified this phase: reads a "memo" pointer at user+0x867c and looks the
+	// skill id up in it) to decide whether every "%s_ULTIMATE" read below tries the _ULTIMATE
+	// table first. The "applied skill ID" system is absent (JUNE2017_EFFECT_KEY_MATRIX.md), so
+	// both ids are parsed, stored and logged only; the flag is forced false, which reproduces
+	// today's March behaviour exactly (every "_ULTIMATE" read below is skipped).
+	m_bUseUltimateDamageData = false;
+	if( true == m_pLuaManager->BeginTable( "DAMAGE_DATA" ) )
+	{
+		PLUA_GET_VALUE( m_pLuaManager, "APPLIED_SKILL_ID",					m_iAppliedSkillID,					0 );
+		PLUA_GET_VALUE( m_pLuaManager, "APPLIED_SKILL_ID_NOT_AFFECT_MEMO",	m_iAppliedSkillIDNotAffectMemo,		0 );
+		m_pLuaManager->EndTable();
+	}
+	else
+	{
+		m_iAppliedSkillID = 0;
+		m_iAppliedSkillIDNotAffectMemo = 0;
+	}
+	if( 0 != m_iAppliedSkillID || 0 != m_iAppliedSkillIDNotAffectMemo )
+	{
+		static map<wstring, DWORD> s_mapLastLoggedTime_appliedSkillId;
+		DWORD dwNow_appliedSkillId = timeGetTime();
+		map<wstring, DWORD>::iterator itThrottle_appliedSkillId = s_mapLastLoggedTime_appliedSkillId.find( pName );
+		if( itThrottle_appliedSkillId == s_mapLastLoggedTime_appliedSkillId.end() || dwNow_appliedSkillId - itThrottle_appliedSkillId->second >= 1000 )
+		{
+			s_mapLastLoggedTime_appliedSkillId[ pName ] = dwNow_appliedSkillId;
+			CX2OfflineLog::Server( L"JUNE_FX unsupported APPLIED_SKILL_ID/_NOT_AFFECT_MEMO in %s: applied-skill-ID system absent (%d/%d)",
+				pName, m_iAppliedSkillID, m_iAppliedSkillIDNotAffectMemo );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+
 	wstring mainEffName = L"";
 	if( 0 == iMeshPlayerIndex )
 	{
@@ -1465,6 +1500,15 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 		StringCchPrintfA( tableName, ARRAY_SIZE(tableName), "MAIN_EFFECT_NAME%d", iMeshPlayerIndex );
 		PLUA_GET_VALUE( m_pLuaManager, tableName, mainEffName, L"" );
 	}
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f7b874->31f8ba80: MAIN_EFFECT_NAME_ULTIMATE, wstring, default L"", read only
+	// when m_bUseUltimateDamageData (forced false above); March's MAIN_EFFECT_NAME above already
+	// covers the fallback June takes when this read is skipped or fails.
+	m_strMainEffectNameUltimate = L"";
+	if( true == m_bUseUltimateDamageData )
+		PLUA_GET_VALUE( m_pLuaManager, "MAIN_EFFECT_NAME_ULTIMATE", m_strMainEffectNameUltimate, L"" );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 	ASSERT( false == mainEffName.empty() );
 
@@ -1525,12 +1569,51 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f7aab0 @31f7bff3: APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION, int getter
+	// 32fe9fd0, default 0 (June: NEG AL / SBB AL,AL / AND AL,[temp], same shape as the
+	// EffectSet-level read of this key, Phase 2's hand-verified note). No in-scope June data
+	// uses it at this scope (binary-only); the effect-alpha option itself is absent from this
+	// build (see JUNE2017_EFFECT_KEY_MATRIX.md's *Absent systems*), so it is stored and never
+	// wired into behaviour, same as the EffectSet-level one (Phase 2).
+	PLUA_GET_VALUE( m_pLuaManager, "APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION",	m_iApplyEffectAlphaConditionByOption,	0 );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+
 #ifdef SERV_ADD_CHUNG_SHELLING_GUARDIAN
 	PLUA_GET_VALUE( m_pLuaManager, "USE_CANNONBALL",						m_bUseCannonBall,		false );
 	float fUseCannonBallDamageRel = 1.f;
 #endif //SERV_ADD_CHUNG_SHELLING_GUARDIAN
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f7aab0 @31f7c343: USE_ADVANCE_COLLISIOIN_CHECK (studio typo, kept), bool
+	// getter 32fe9e40, default false
+	PLUA_GET_VALUE( m_pLuaManager, "USE_ADVANCE_COLLISIOIN_CHECK",			m_bUseAdvanceCollisionCheck,	false );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f7aab0 @31f7c63f/31f7c66c: two SetDamageDataFromLUA calls. "DAMAGE_DATA_ULTIMATE"
+	// is tried first only when m_bUseUltimateDamageData (forced false above); "DAMAGE_DATA" is read
+	// unconditionally right after (June ignores its return value). With the flag forced false this
+	// reduces to exactly March's single call below, restated so the _ULTIMATE wiring is in place for
+	// when Phase 7/8 can turn the flag on. m_bUsedDamageDataUltimate records which happened, for
+	// Phase 8's DAMAGE_DATA/DAMAGE_DATA_ULTIMATE key work.
+	m_bUsedDamageDataUltimate = false;
+	if( true == m_bUseUltimateDamageData )
+		m_bUsedDamageDataUltimate = g_pData->GetDamageManager()->SetDamageDataFromLUA( &m_DamageData, *pLuaManager, "DAMAGE_DATA_ULTIMATE", m_fPowerRate );
+	if( false == m_bUsedDamageDataUltimate )
+		g_pData->GetDamageManager()->SetDamageDataFromLUA( &m_DamageData, *pLuaManager, "DAMAGE_DATA", m_fPowerRate );
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 	g_pData->GetDamageManager()->SetDamageDataFromLUA( &m_DamageData, *pLuaManager, "DAMAGE_DATA", m_fPowerRate );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f7aab0 @31f7c6b7-31f7c854: IGNORE_MI_HUGE, bool getter 32fe9e40 into a
+	// stack local (June never persists it), default false; when false it feeds a scale
+	// override (31f6fdc0, not identified this phase) that overwrites the main effect's
+	// (1,1,1) scale with a per-effect value at +0x7d0. Stored as a member so Phase 7 can
+	// wire that override in.
+	PLUA_GET_VALUE( m_pLuaManager, "IGNORE_MI_HUGE",						m_bIgnoreMIHuge,		false );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 	
 	if(fHitAddMp >= 0.f)
@@ -1594,17 +1677,84 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	PLUA_GET_VALUE( m_pLuaManager, "ATTACKED_BY_UNIT",						m_bAttackedByUnit,					false );
 	PLUA_GET_VALUE( m_pLuaManager, "ATTACKED_BY_EFFECT",					m_bAttackedByEffect,				false );
 	PLUA_GET_VALUE( m_pLuaManager, "REFLECT",								m_bReflect,							false );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f7aab0 @31f7d380: USE_OWNER_ATTACK_SPEED, bool getter 32fe9e40, default false
+	PLUA_GET_VALUE( m_pLuaManager, "USE_OWNER_ATTACK_SPEED",				m_bUseOwnerAttackSpeed,				false );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 	PLUA_GET_VALUE( m_pLuaManager, "ATTACK_TIME_START",						m_AttackTime.x,						0.0f );
 	PLUA_GET_VALUE( m_pLuaManager, "ATTACK_TIME_END",						m_AttackTime.y,						100.0f );
 	PLUA_GET_VALUE( m_pLuaManager, "USE_GLOBAL_TIME",						m_bGlobalTime,						false );
 	PLUA_GET_VALUE( m_pLuaManager, "DAMAGE_DATA_CHANGE_TIME",				m_fDamageDataChangeTime,			-1.0f );
 	PLUA_GET_VALUE( m_pLuaManager, "DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME",	m_fDamageDataChangeTimeGlobalTime,	-1.0f );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f64b20 (shared by both keys, selected by a bool arg), called from the ctor
+	// @31f7d894 (DAMAGE_DATA_CHANGE_TIME_ULTIMATE) / @31f7d8a5 (DAMAGE_DATA_CHANGE_TIME) and
+	// @31f7d8ba (_GLOBAL_TIME_ULTIMATE) / @31f7d8cc (_GLOBAL_TIME): semantics-differ from the
+	// scalar March already reads just above. At this scope June reads the key as an indexed
+	// float array -- BeginTable(key), then GetValue(1..), stopping at the first miss -- not a
+	// single float; an "_ULTIMATE" table (tried first when m_bUseUltimateDamageData) that
+	// BeginTable's but is empty still counts as read and skips the base table (32fea820's
+	// first-index miss still EndTable()s and returns true). Current March/Ranox data writes
+	// this key as a plain number (`KEY = 0.5`), which fails BeginTable and leaves these vectors
+	// empty, so this is additive: it changes nothing until June's own table-shaped data is
+	// adopted (Phase 11). Kept beside the existing scalar members, whose consumers this does
+	// not touch.
+	m_vecDamageDataChangeTime.clear();
+	bool bReadUltimateChangeTime = false;
+	if( true == m_bUseUltimateDamageData && true == m_pLuaManager->BeginTable( "DAMAGE_DATA_CHANGE_TIME_ULTIMATE" ) )
+	{
+		bReadUltimateChangeTime = true;
+		float fChangeTime = 0.f;
+		for( int i = 1; true == m_pLuaManager->GetValue( i, fChangeTime ); i++ )
+			m_vecDamageDataChangeTime.push_back( fChangeTime );
+		m_pLuaManager->EndTable();
+	}
+	if( false == bReadUltimateChangeTime && true == m_pLuaManager->BeginTable( "DAMAGE_DATA_CHANGE_TIME" ) )
+	{
+		float fChangeTime = 0.f;
+		for( int i = 1; true == m_pLuaManager->GetValue( i, fChangeTime ); i++ )
+			m_vecDamageDataChangeTime.push_back( fChangeTime );
+		m_pLuaManager->EndTable();
+	}
+
+	m_vecDamageDataChangeTimeGlobalTime.clear();
+	bool bReadUltimateChangeTimeGlobal = false;
+	if( true == m_bUseUltimateDamageData && true == m_pLuaManager->BeginTable( "DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME_ULTIMATE" ) )
+	{
+		bReadUltimateChangeTimeGlobal = true;
+		float fChangeTimeGlobal = 0.f;
+		for( int i = 1; true == m_pLuaManager->GetValue( i, fChangeTimeGlobal ); i++ )
+			m_vecDamageDataChangeTimeGlobalTime.push_back( fChangeTimeGlobal );
+		m_pLuaManager->EndTable();
+	}
+	if( false == bReadUltimateChangeTimeGlobal && true == m_pLuaManager->BeginTable( "DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME" ) )
+	{
+		float fChangeTimeGlobal = 0.f;
+		for( int i = 1; true == m_pLuaManager->GetValue( i, fChangeTimeGlobal ); i++ )
+			m_vecDamageDataChangeTimeGlobalTime.push_back( fChangeTimeGlobal );
+		m_pLuaManager->EndTable();
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 	PLUA_GET_VALUE( m_pLuaManager, "CLEAR_HIT_UNIT_ON_DAMAGE_DATA_CHANGE",	m_bClearHitUnitOnChangeDamageData,	false );
 	PLUA_GET_VALUE( m_pLuaManager, "FOLLOW_LINE",							m_bFollowLine,						false );
 
 	PLUA_GET_VALUE( m_pLuaManager, "FOLLOW_LINE_NEW",						m_bFollowLineNew,						false );
 
 	ASSERT( false == m_bFollowLineNew || true == m_bFollowLine );
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f7dbcd->31f8b370 / FUN_31f7dbeb->31f8b370: FOLLOW_LINE_ULTIMATE (to-implement)
+	// and FOLLOW_LINE_NEW_ULTIMATE (binary-only), bool, default false, read only when
+	// m_bUseUltimateDamageData (forced false above); the existing FOLLOW_LINE/FOLLOW_LINE_NEW
+	// reads above already cover the fallback June takes when these are skipped or fail.
+	m_bFollowLineUltimate = false;
+	m_bFollowLineNewUltimate = false;
+	if( true == m_bUseUltimateDamageData )
+	{
+		PLUA_GET_VALUE( m_pLuaManager, "FOLLOW_LINE_ULTIMATE",				m_bFollowLineUltimate,		false );
+		PLUA_GET_VALUE( m_pLuaManager, "FOLLOW_LINE_NEW_ULTIMATE",			m_bFollowLineNewUltimate,	false );
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 //{{ kimhc // 2010.2.10 //	매 프레임 LandPosition 갱신 안되도록
 #ifdef	EVE_SECOND_CLASS_CHANGE
@@ -1622,6 +1772,17 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 #ifdef RAVEN_WEAPON_TAKER
 	PLUA_GET_VALUE( m_pLuaManager, "MUST_ON_LINE",							m_bMustOnLine,						false );
 #endif RAVEN_WEAPON_TAKER
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f7aab0: FOLLOW_LINE_WITH_CUSTOM_ROTATE (@31f7dfea, bool getter 32fe9e40,
+	// default false), FOLLOW_LINE_GRAVITY (@31f7e306, same shape), TRACE_OWNER_BONE (@31f7e469,
+	// wstring getter 32feae90, default L"") and TRACE_OWNER_BONE_ONLY_ROTATE (@31f7e5d9, same
+	// shape).
+	PLUA_GET_VALUE( m_pLuaManager, "FOLLOW_LINE_WITH_CUSTOM_ROTATE",		m_bFollowLineWithCustomRotate,		false );
+	PLUA_GET_VALUE( m_pLuaManager, "FOLLOW_LINE_GRAVITY",					m_bFollowLineGravity,				false );
+	PLUA_GET_VALUE( m_pLuaManager, "TRACE_OWNER_BONE",						m_strTraceOwnerBone,				L"" );
+	PLUA_GET_VALUE( m_pLuaManager, "TRACE_OWNER_BONE_ONLY_ROTATE",			m_strTraceOwnerBoneOnlyRotate,		L"" );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 
 
@@ -1665,8 +1826,54 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 	m_DamageEffectDataInLua.m_pDamageDataNext->m_vecBuffFactorPtr.clear();
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f7aab0 @31f7e86e/31f7e875 -> FUN_31f79c20: "DAMAGE_DATA_NEXT_ULTIMATE" is
+	// tried first only when m_bUseUltimateDamageData (forced false above); "DAMAGE_DATA_NEXT" is
+	// read only if that fails or was never tried -- unlike DAMAGE_DATA/_ULTIMATE, the base key's
+	// own read is skipped on an _ULTIMATE success. With the flag forced false this is exactly
+	// March's unconditional "DAMAGE_DATA_NEXT" read below.
+	bool bDamageDataNextIsUltimate = false;
+	bool bDamageDataNextOk = false;
+	if( true == m_bUseUltimateDamageData )
+		bDamageDataNextOk = g_pData->GetDamageManager()->SetDamageDataFromLUA( m_DamageEffectDataInLua.m_pDamageDataNext, *pLuaManager, "DAMAGE_DATA_NEXT_ULTIMATE", m_fPowerRate );
+	if( true == bDamageDataNextOk )
+		bDamageDataNextIsUltimate = true;
+	else
+		bDamageDataNextOk = g_pData->GetDamageManager()->SetDamageDataFromLUA( m_DamageEffectDataInLua.m_pDamageDataNext, *pLuaManager, "DAMAGE_DATA_NEXT", m_fPowerRate );
+	if( false == bDamageDataNextOk )
+	{
+		SAFE_DELETE( m_DamageEffectDataInLua.m_pDamageDataNext );
+	}
+	else
+	{
+		// June2017 FUN_31f79c20 @31f79cef-31f79f9f: once the unnumbered table is read, it loops
+		// reading "DAMAGE_DATA_NEXT2", "DAMAGE_DATA_NEXT3", ... (or "..._ULTIMATE2", "..._ULTIMATE3"
+		// on the branch above) into new entries of their own, each copied from m_DamageData exactly
+		// as the unnumbered entry above is (not chained from the previous entry), stopping at the
+		// first table that does not exist and freeing that last, failed entry. Numbering starts at
+		// 2: there is no "DAMAGE_DATA_NEXT1" or "..._ULTIMATE1" (confirmed against june_lua's
+		// DamageEffect*.src.lua, which has no NEXT1 and does have NEXT2 and up).
+		char szDamageDataNextChainKey[64] = "";
+		for( int iDamageDataNextChain = 2; ; iDamageDataNextChain++ )
+		{
+			StringCchPrintfA( szDamageDataNextChainKey, ARRAY_SIZE(szDamageDataNextChainKey), bDamageDataNextIsUltimate ? "DAMAGE_DATA_NEXT_ULTIMATE%d" : "DAMAGE_DATA_NEXT%d", iDamageDataNextChain );
+			CX2DamageManager::DamageData* pDamageDataNextChainEntry = new CX2DamageManager::DamageData();
+			*pDamageDataNextChainEntry = m_DamageData;
+#ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
+			pDamageDataNextChainEntry->m_vecBuffFactorPtr.clear();
+#endif //UPGRADE_SKILL_SYSTEM_2013
+			if( false == g_pData->GetDamageManager()->SetDamageDataFromLUA( pDamageDataNextChainEntry, *pLuaManager, szDamageDataNextChainKey, m_fPowerRate ) )
+			{
+				SAFE_DELETE( pDamageDataNextChainEntry );
+				break;
+			}
+			m_DamageEffectDataInLua.m_vecDamageDataNextChain.push_back( pDamageDataNextChainEntry );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 	if ( false == g_pData->GetDamageManager()->SetDamageDataFromLUA( m_DamageEffectDataInLua.m_pDamageDataNext, *pLuaManager, "DAMAGE_DATA_NEXT", m_fPowerRate ) )
 		SAFE_DELETE( m_DamageEffectDataInLua.m_pDamageDataNext );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 #endif	DAMAGE_EFFECT_WORK
 	//}} kimhc // 2009-10-20 // DamageEffect.lua에 있는 테이블 로드(일명 독구름 작업)
@@ -1690,6 +1897,13 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 #ifdef INHERIT_FORCEDOWNRATE
 	PLUA_GET_VALUE( m_pLuaManager, "INHERIT_FORCEDOWNRATE",					m_bInheritForceDownRate,	false );
 #endif INHERIT_FORCEDOWNRATE
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f7aab0: INHERIT_CRITICAL_RATE (@31f7ed68, bool getter 32fe9e40, default
+	// false) and INHERIT_CRITICAL_DAMAGE_RATE (@31f7ef09, same shape)
+	PLUA_GET_VALUE( m_pLuaManager, "INHERIT_CRITICAL_RATE",				m_bInheritCriticalRate,				false );
+	PLUA_GET_VALUE( m_pLuaManager, "INHERIT_CRITICAL_DAMAGE_RATE",			m_bInheritCriticalDamageRate,			false );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 #ifdef FIX_AFTER_IMAGE
 	LoadAfterImage();
@@ -1715,6 +1929,88 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	/// SetLinkMainEffectByPos() 를 쓰기 위해 필요한 길이 배율
 	PLUA_GET_VALUE( m_pLuaManager, "LINK_EFFECT_RATE",			m_fLinkEffectRate,		-1.f );
 #endif //SERV_ADD_LUNATIC_PSYKER
+
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f7aab0 @31f7f6b3: RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT, float getter
+	// 32fea370, destination [ESI+0xb48], default -1.f (memory constant 0x334380f0, confirmed
+	// byte-exact against the June binary; the same constant is ATT/DamageEffect_ATT's
+	// LIMIT_DISTANCE default, see the Phase 3 hand-verified notes).
+	PLUA_GET_VALUE( m_pLuaManager, "RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT",	m_fResetMainEffectLifeTimeRateByHit,	-1.f );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	// JUNE_FX CE_TEMPLET <name> <key>=<v> ..., only when this CEffect uses a non-default
+	// Phase-5 key. Mirrors X2EffectSet's ES_TEMPLET line (Phase 2).
+	{
+		WCHAR wszJuneFx[1024] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX CE_TEMPLET %s", pName );
+		const size_t uiCeNameOnly = wcslen( wszJuneFx );
+		WCHAR wszCeKey[192] = {0};
+		if( true == m_bUseAdvanceCollisionCheck )
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" USE_ADVANCE_COLLISIOIN_CHECK=1" );
+		if( true == m_bUseOwnerAttackSpeed )
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" USE_OWNER_ATTACK_SPEED=1" );
+		if( true == m_bIgnoreMIHuge )
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" IGNORE_MI_HUGE=1" );
+		if( true == m_bInheritCriticalRate )
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" INHERIT_CRITICAL_RATE=1" );
+		if( true == m_bInheritCriticalDamageRate )
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" INHERIT_CRITICAL_DAMAGE_RATE=1" );
+		if( -1.f != m_fResetMainEffectLifeTimeRateByHit )
+		{
+			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT=%.3f", m_fResetMainEffectLifeTimeRateByHit );
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+		}
+		if( true == m_bFollowLineWithCustomRotate )
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" FOLLOW_LINE_WITH_CUSTOM_ROTATE=1" );
+		if( true == m_bFollowLineGravity )
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" FOLLOW_LINE_GRAVITY=1" );
+		if( false == m_strTraceOwnerBone.empty() )
+		{
+			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" TRACE_OWNER_BONE=%s", m_strTraceOwnerBone.c_str() );
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+		}
+		if( false == m_strTraceOwnerBoneOnlyRotate.empty() )
+		{
+			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" TRACE_OWNER_BONE_ONLY_ROTATE=%s", m_strTraceOwnerBoneOnlyRotate.c_str() );
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+		}
+		if( true == m_bUsedDamageDataUltimate )
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" DAMAGE_DATA_ULTIMATE=1" );
+		if( false == m_strMainEffectNameUltimate.empty() )
+		{
+			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" MAIN_EFFECT_NAME_ULTIMATE=%s", m_strMainEffectNameUltimate.c_str() );
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+		}
+		if( true == m_bFollowLineUltimate )
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" FOLLOW_LINE_ULTIMATE=1" );
+		if( true == m_bFollowLineNewUltimate )
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" FOLLOW_LINE_NEW_ULTIMATE=1" );
+		if( false == m_vecDamageDataChangeTime.empty() )
+		{
+			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" DAMAGE_DATA_CHANGE_TIME[]=%d", (int)m_vecDamageDataChangeTime.size() );
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+		}
+		if( false == m_vecDamageDataChangeTimeGlobalTime.empty() )
+		{
+			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME[]=%d", (int)m_vecDamageDataChangeTimeGlobalTime.size() );
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+		}
+		if( false == m_DamageEffectDataInLua.m_vecDamageDataNextChain.empty() )
+		{
+			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" DAMAGE_DATA_NEXT_CHAIN[]=%d", (int)m_DamageEffectDataInLua.m_vecDamageDataNextChain.size() );
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+		}
+		if( 0 != m_iApplyEffectAlphaConditionByOption )
+		{
+			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION=%d", m_iApplyEffectAlphaConditionByOption );
+			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+		}
+		if( wcslen( wszJuneFx ) != uiCeNameOnly )
+			CX2OfflineLog::Server( L"%s", wszJuneFx );
+	}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 
 	m_fElapsedTime = 0.f;
 }; 
@@ -1860,6 +2156,12 @@ CX2DamageEffect::CEffect::~CEffect()
 	m_DamageEffectDataInLua.m_vecDieDamageEffect.clear();
 
 	SAFE_DELETE( m_DamageEffectDataInLua.m_pDamageDataNext );
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	for( size_t iDamageDataNextChain = 0; iDamageDataNextChain < m_DamageEffectDataInLua.m_vecDamageDataNextChain.size(); iDamageDataNextChain++ )
+		SAFE_DELETE( m_DamageEffectDataInLua.m_vecDamageDataNextChain[iDamageDataNextChain] );
+	m_DamageEffectDataInLua.m_vecDamageDataNextChain.clear();
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 #endif	DAMAGE_EFFECT_WORK
 		//}} kimhc // 2009-10-20 // 독구름 작업 관련 추가

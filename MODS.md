@@ -33,8 +33,9 @@ column.
 | `SERV_IRUHADEV_RANOX_FIRE_GROUND` | 2026-09-19 | `KTDXLIB/Always.h:4016`; damage-rate constant in `X2Lib/X2Define.h` | `KTDXLIB/KTDGLineMap.h` (`LINE_TYPE.LT_FIRE_GROUND` member), `X2Lib/X2GUUser.h` and `X2Lib/X2GUUser.cpp` (`PhysicProcess_FireGround`, called from `PhysicProcess()`) | `KncWX2Server/Common/LineMap/XSLLineMap.h` (inert -- flag not reachable from the server build, kept in sync only) |
 | `SERV_IRUHADEV_RANOX_RIM_LIGHT` | 2026-09-19 | `KTDXLIB/Always.h:4032` | `KTDXLIB/KTDGXRenderer.h`/`.cpp` (`CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE` member, `CKTDGXRenderer::SetRimLightTexType` and its 3 `BeginRender` substitution sites), `X2Lib/X2World.h`/`.cpp` (`CX2World::SetRimLightTextureIndex`, forwards to the renderer; destructor resets the override), `X2Lib/X2Main.cpp` (lua_tinker binding) | -- |
 | `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4287` | `X2Lib/X2EffectSet.h:168` (new `AnimTimeOnStartData`/`MeshTriggerData`), `:307,381,452` (`EffectData` members, `operator==`, ctor), `:484,505,555,592` (`EffectSetData` members incl. `m_vecSoundData`, `operator==`, `operator=`, ctor); `X2Lib/X2EffectSet.cpp:2267` (templet keys), `:2352,2378,2394,2405,2437,2476,2521` (per-`EFFECT%d` keys and sub-tables), `:2842` (`SOUND%d`) | -- |
-| `SERV_IRUHADEV_JUNE_FX_DEBUG` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4298` | `X2Lib/X2EffectSet.cpp:2199,2218` (`OpenScriptFile` load summary), `:2314` (per-templet line), `:2667` (per-effect line), `:2864` (per-set sound line); the last three nested under `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` | -- |
+| `SERV_IRUHADEV_JUNE_FX_DEBUG` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4298` | `X2Lib/X2EffectSet.cpp:2199,2218` (`OpenScriptFile` load summary), `:2314` (per-templet line), `:2667` (per-effect line), `:2864` (per-set sound line); the last three nested under `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE`; `X2Lib/X2DamageEffect.cpp:1942` (`CE_TEMPLET` per-`CEffect` line, nested under `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE`) | -- |
 | `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` | 2026-09-26 | `KTDXLIB/Always.h:4318` | `X2Lib/X2EffectSet.h:634` (`EffectInstance::m_vecMeshTriggerData`, stage-3 `m_bGroupChild` / `m_wstrGroupChildBoneName` / `m_vGroupChildOffset`), `:659` (their initialisers), `:760` (`TargetMeshData`, `m_vecTargetMeshData`, `m_bIsRightWhenCreate`), `:856` (index accessors, the two bone-name helpers); `X2Lib/X2EffectSet.cpp:5` (`JuneFxEsCreate`, nested under `SERV_IRUHADEV_JUNE_FX_DEBUG`), `:36` (stage-2 helpers: `TRACE_MATRIX_IN_FIELD`, `SET_OVER_UI`; stage-3 `JuneFxUnsupported` `:225`, `JuneGroupChildPosition` `:249`), `:534` (`GROUP_NAME` loop head; the three stock position / rotation / scale lines are its `#else`), `:701` (damage case: `APPLY_DAMAGE_EFFECT_VELOCITY`, `USE_IS_RIGHT_WHEN_CREATE`), `:805` / `:864` / `:924` / `:974` (mesh cases), `:1027`-`:1256` (particle cases, two sites each), `:1276` (per-effect effect-alpha log), `:1308` / `:1447` (target-mesh registration, damage / mesh), `:1410` (trigger-list copy), `:1551` (group-child fields), `:1566` (loop tail), `:2372` (`OVERLAP`), `:2430` (templet effect-alpha log), `:2479` (`APPLIED_SKILL_ID` log), `:3791` (facing snapshot in the `EffectSetInstance` ctor), `:3855` (`GetEffectPosition` index), `:4114` (`NOT_ALLOW_MEMO` log), `:4128` (`GetEffectRotation`), `:4728` (`SetEffectSetOffset`), `:5175` (accessor bodies; stage-3 `GetEffectPositionByTargetMesh( .., bone, found )` `:5313`, `GetEffectPositionByBoneName` `:5362`); `KTDXLIB/KTDGXMeshPlayer.h:1325` (velocity-modifier methods), `:1575` (`m_vecVelocityModifier`, last member); `KTDXLIB/KTDGXMeshPlayer.cpp:1573` (their bodies), `:3360` / `:3385` (`CXMeshEvent_Velocity` re-apply) | -- |
+| `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE` | 2026-09-26 | `KTDXLIB/Always.h:4347` | `X2Lib/X2DamageEffect.h:611` (new `DamageEffectDataInLua::m_vecDamageDataNextChain`), `:1131` (new `CEffect` members); `X2Lib/X2DamageEffect.cpp:1457` (`APPLIED_SKILL_ID`/`_NOT_AFFECT_MEMO` + master ultimate flag), `:1504` (`MAIN_EFFECT_NAME_ULTIMATE`), `:1572` (`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`), `:1587` (`USE_ADVANCE_COLLISIOIN_CHECK`), `:1593` (`DAMAGE_DATA`/`_ULTIMATE` wiring), `:1609` (`IGNORE_MI_HUGE`), `:1680` (`USE_OWNER_ATTACK_SPEED`), `:1689` (`DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)` array reads), `:1745` (`FOLLOW_LINE_ULTIMATE`/`FOLLOW_LINE_NEW_ULTIMATE`), `:1776` (`FOLLOW_LINE_WITH_CUSTOM_ROTATE`/`FOLLOW_LINE_GRAVITY`/`TRACE_OWNER_BONE(_ONLY_ROTATE)`), `:1829` (`DAMAGE_DATA_NEXT(_ULTIMATE)`/`DAMAGE_DATA_NEXT%d` chain), `:1901` (`INHERIT_CRITICAL_RATE`/`_DAMAGE_RATE`), `:1934` (`RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT`), `:2160` (destructor cleanup of the chain vector) | -- |
 
 What each one does:
 
@@ -1011,6 +1012,101 @@ only fire after Phase 11.
   effect set combines `TRACE_MATRIX` with a pet or square-unit owner (checked all four effect-set
   files), and no in-build command plays an arbitrary set on a square unit. They stay cited but
   unverified until Phase 11.
+
+### June2017 effect engine: DamageEffect CEffect ctor keys (Phase 5)
+
+Phase 5 of `JUNE2017_EFFECT_REBUILD_PLAN.md`. Parse only; consuming these members is
+Phase 7. Transcribed from June's `CEffect::CEffect` (`FUN_31f7aab0`), excluding the
+sub-loader *calls* at `0x31f7e7b2`-`0x31f7f976` (Phase 6a/6b's), but including the
+top-level decrypt sites that sit inside that same address range (`INHERIT_CRITICAL_RATE`,
+`INHERIT_CRITICAL_DAMAGE_RATE`, `RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT`).
+
+**`SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE`** (`KTDXLIB/Always.h`, `X2Lib/X2DamageEffect.h`,
+`X2Lib/X2DamageEffect.cpp`):
+
+- **A master "read `_ULTIMATE` first" flag, forced false.** June computes one flag near the
+  top of the ctor from `APPLIED_SKILL_ID`/`APPLIED_SKILL_ID_NOT_AFFECT_MEMO` (read inside the
+  ctor's own `BeginTable("DAMAGE_DATA")`/`EndTable`, before `MAIN_EFFECT_NAME`) and a per-effect
+  skill-memo lookup (`FUN_31fcf3e0`, candidate, not identified this phase: reads a "memo"
+  pointer at `user+0x867c`). Every `"K"`/`"K_ULTIMATE"` read below (`MAIN_EFFECT_NAME`,
+  `FOLLOW_LINE`, `FOLLOW_LINE_NEW`, `DAMAGE_DATA`, `DAMAGE_DATA_NEXT`,
+  `DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)`) tries `_ULTIMATE` first only when this flag is set,
+  falling back to `K` otherwise. The "applied skill ID" system is absent
+  (`JUNE2017_EFFECT_KEY_MATRIX.md`'s *Absent systems*), so both ids are parsed, stored and
+  logged only (plan rule 5, `m_bUseUltimateDamageData` forced `false`) -- which reproduces
+  today's March behaviour exactly, since every `_ULTIMATE` branch is then unreachable.
+- **Plain bool/float/string reads**, June getter and default, no consumer yet:
+  `USE_ADVANCE_COLLISIOIN_CHECK` (studio typo, kept), `USE_OWNER_ATTACK_SPEED`, `IGNORE_MI_HUGE`
+  (bool, false; when false June also overrides the main effect's scale via `31f6fdc0`, not
+  identified this phase -- see the code comment for the Phase 7 handoff), `INHERIT_CRITICAL_RATE`,
+  `INHERIT_CRITICAL_DAMAGE_RATE`, `FOLLOW_LINE_WITH_CUSTOM_ROTATE`, `FOLLOW_LINE_GRAVITY`
+  (bools, false), `TRACE_OWNER_BONE`, `TRACE_OWNER_BONE_ONLY_ROTATE` (wstrings, `L""`),
+  `RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT` (float, **-1.f** -- confirmed byte-exact by reading
+  the June binary's float constant at `0x334380f0`, which is also `ATT`/`DamageEffect_ATT`'s
+  `LIMIT_DISTANCE` default per Phase 3's hand-verified notes).
+- **`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`** (int, 0): binary-only at this scope (no in-scope
+  June data sets it inside `DAMAGE_DATA` at the CEffect level, only via `SetDamageDataFromLUA`'s
+  own table and at the EffectSet level); unsupported, same absent effect-alpha-option system as
+  Phase 2's EffectSet-level read.
+- **`DAMAGE_DATA`/`DAMAGE_DATA_ULTIMATE`.** March's existing single
+  `SetDamageDataFromLUA(&m_DamageData, ..., "DAMAGE_DATA", ...)` call is restated as
+  `_ULTIMATE`-then-`DAMAGE_DATA`, gated by the forced-false flag, so it still reduces to exactly
+  one call. `m_bUsedDamageDataUltimate` records which table was actually read, for Phase 8.
+- **`DAMAGE_DATA_NEXT`/`_ULTIMATE`/`%d` chain.** June's `FUN_31f79c20` (not a thin wrapper) reads
+  the unnumbered table as before, then loops reading `DAMAGE_DATA_NEXT2`, `DAMAGE_DATA_NEXT3`,
+  ... (or `..._ULTIMATE2`... on the ultimate branch) into new entries, each copied from
+  `m_DamageData` (not chained from the previous entry), stopping at the first table that does not
+  exist. Numbering starts at **2** -- there is no `..._NEXT1` -- confirmed against
+  `june2017_re/june_lua/DamageEffect*.src.lua`. The unnumbered entry stays
+  `m_pDamageDataNext` for existing consumers; entries 2.. go into a new
+  `DamageEffectDataInLua::m_vecDamageDataNextChain`, freed in the ctor's failure path and the
+  destructor.
+- **`DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)` -- semantics-differ.** At this scope, June reads the
+  key as an indexed float array (`BeginTable(key)` + `GetValue(1..)`, June `FUN_31f64b20`, shared
+  by both keys via a bool arg), not the scalar March already reads into
+  `m_fDamageDataChangeTime(GlobalTime)`. Added as new `vector<float>` members
+  (`m_vecDamageDataChangeTime`, `m_vecDamageDataChangeTimeGlobalTime`), read in parallel with the
+  existing scalar reads, which are left untouched for their consumers. Checked against both
+  `march2014/data036/` (scalar: `KEY = 0.5`) and `june2017_re/june_lua/` (table: `KEY = { ... }`):
+  current March/Ranox data always uses the scalar form, so `BeginTable` fails and these vectors
+  stay empty -- additive, no behaviour change until June's own data is adopted (Phase 11).
+- **Three census.py findings reported, not corrected in code** (the generated matrix is
+  regenerated, never hand-edited):
+  - `APPLIED_SKILL_ID`/`_NOT_AFFECT_MEMO` are read by the ctor itself, inside its own
+    `BeginTable("DAMAGE_DATA")` -- i.e. at the `DE.DAMAGE_DATA` path, not `DE.top` where the
+    matrix places `APPLIED_SKILL_ID`. Doesn't block the exit criterion (`APPLIED_SKILL_ID` is
+    `unsupported`, not `to-implement`, either way).
+  - `APPLIED_SKILL_ID_NOT_AFFECT_MEMO` is decrypted and read by the ctor (getter `32fe9fd0` at
+    `31f7b801`), but the matrix calls it `june-ignores(dead-here)`.
+  - Before this phase, `DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)` was already marked
+    `n/a (sub-table name)` even though March only had a scalar read at that path -- the census's
+    table-vs-scalar check doesn't fire for this key's shape.
+
+**`SERV_IRUHADEV_JUNE_FX_DEBUG`** adds `JUNE_FX CE_TEMPLET <name> <KEY>=<v> ...`, once per
+`CEffect` that sets a non-default Phase-5 key, mirroring `ES_TEMPLET`. Runs at actual gameplay
+time (a `CEffect` is created per damage-effect instance, well after the offline server's log is
+open), so it goes to `offline_server.log` via `CX2OfflineLog::Server`, not `ErrorLog.txt`. The
+`APPLIED_SKILL_ID`/`_NOT_AFFECT_MEMO` unsupported line is separate and per-effect-name throttled
+(1/second), since `CEffect` instances are created continuously during play.
+
+**Data note.** Checked `march2014/data036/DamageEffect.src.lua` (the only `DamageEffect*.lua` this
+build loads) and `DamageEffect_INT.lua`: no Phase-5 `_ULTIMATE`/array-form key is used, but
+`DamageEffect_SA_RHB_Lockon_Stratos_Attack`'s `DAMAGE_DATA` sets
+`APPLIED_SKILL_ID = SKILL_ID.RNSI_SA_RHB_LOCKON_STRATOS` -- a real, already-packed test case for
+the `unsupported` log line. It belongs to Rose, not yet ported, so it could not be triggered this
+pass.
+
+**Built `US_SERVICE` (KTDXLIB, X2Lib, X2) and deployed to `X2_offline.exe`. Play-tested
+2026-09-26** (multiple dungeon rooms, a field warp, two class changes, cash-shop browsing): clean
+shutdown (`wal checkpoint ok`), `0` `UNHANDLED`/`EXCEPTION` lines in `offline_packets.log` --
+this phase's ctor changes run on every `CEffect` created and introduced no regression. No
+`JUNE_FX` line fired, expected: nothing in this session's `DamageEffect.src.lua` data sets a
+Phase-5 key other than the untestable Rose one above. `RNSI_SA_RHB_LOCKON_STRATOS` stays open
+until Rose is ported.
+
+Revert as for Phase 2-4b: undefine the flag. Nothing consumes the new members yet (Phase 7), so
+undefining it only removes the parse sites and the `_ULTIMATE`/array/chain members -- no
+behaviour changes either way.
 
 
 ## Reverting to stock
