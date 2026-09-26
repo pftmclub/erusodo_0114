@@ -1578,6 +1578,43 @@ Update the matrix and MODS.md.
 
 ## Phase 6a — Sub-loaders I: CREATE_DAMAGE_EFFECT, die and hit damage effects, die conditions
 
+**Status: done 2026-09-26.** `census.py` shows 0 Phase-6a keys `to-implement` (two `binary-only`
+rows remain, deliberately: `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` and
+`DAMAGE_DATA_NEXT_ULTIMATE%d`, already implemented at `DE.top` by Phase 5, land under
+`DE.DIE_CHECK_CONDITION` too only because `CE` is listed as a June reader of that root -- not
+parsed twice). `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE` extended (+
+`SERV_IRUHADEV_JUNE_FX_DEBUG`'s new `DDE_TEMPLET`/`DDE_CONDITION` lines, throttled). Full detail
+in `MODS.md` and `june2017_re/README.md`'s "Hand-verified (Phase 6a)".
+
+Things the next phases should know:
+
+- **`FUN_31f68f30`/`FUN_31f6ceb0` are the full `"<base><index>"` loop, not a "per-entry body"**
+  as Phase 0's table and this plan's text both said (`funcmap.tsv` corrected). The wrapper
+  (`FUN_31f6e7e0`/`FUN_31f6e850`) passes the base name as the *only* argument; the callee formats
+  `"%s%d"` itself and returns whether index 0 existed. The wrapper tries
+  `"DIE_DAMAGE_EFFECT_ULTIMATE"`/`"HIT_DAMAGE_EFFECT_ULTIMATE"` first when its own inline gate
+  (the same unidentified `FUN_31fcf3e0` skill-memo callee Phase 5's `m_bUseUltimateDamageData`
+  uses) passes, falling back to the base name only if that found nothing. March reuses
+  `m_bUseUltimateDamageData` (still forced false) rather than re-deriving the gate.
+- **`INHERIT_LIFE_TIME` is a bool (default false) in all three scopes** (`CREATE_DAMAGE_EFFECT`,
+  `DIE_DAMAGE_EFFECT`, `HIT_DAMAGE_EFFECT`) -- not the float "inherit at this rate" its name
+  suggests.
+- **The die-condition parser has no March equivalent before this phase.** A shared helper
+  (`LoadDieCheckConditionBlock`) opens `AND_OPERATION`/`OR_OPERATION` by a runtime table-name
+  parameter and loops a numbered `CONDITION_%d`, tagging every parsed entry `bIsOrOperation` and
+  pushing all of them into one flat `m_vecDieCheckCondition` (confirmed by tracing June's third
+  call argument into the pushed entry's own field). `DAMAGE_EFFECT_DIE_CONDITION_TYPE`'s values
+  come from `june2017_re/june_lua/Enum.src.lua`. Parse only; combining entries by
+  `bIsOrOperation` into an actual die decision is Phase 7c's.
+- **census.py's `ROOTS` needed real registrations** for this new scope (`LoadDieCheckCondition`
+  added to `CE_LOADERS`; `ce('LoadDieCheckCondition')`/`ce('LoadDieCheckConditionBlock', ())`
+  added to `DE.DIE_CHECK_CONDITION`'s March list) -- its March column was `[]` before, since no
+  March reader existed yet. No change to the matching logic (`march_reads`/`path_match`) itself.
+- **Play-test target for `DAMAGE_EFFECT_Trap_Fire_Big`** (`LOOP_ADD_POS_X`/`_Y`,
+  `SET_DIE_WHEN_MASTER_EFFECT_DIE`, inside `CREATE_DAMAGE_EFFECT0..3`): the `TRAP_FIRE_BIG` NPC,
+  placed in the Ranox Burned Forest dungeon at every difficulty. Not yet play-tested this
+  session.
+
 **Paste with:** Starting context + this section.
 
 **Model:** Sonnet 5, high. See "Model and effort per phase".

@@ -385,7 +385,7 @@ DM_CPP = 'X2DamageManager.cpp'
 ES_CPP = 'X2EffectSet.cpp'
 CE_LOADERS = ['LoadLockOnData', 'LoadBlackHoleData', 'LoadSinMoveData', 'LoadDieDamageEffect', 'LoadStartParticle',
               'LoadPassiveParticle', 'LoadTimeParticle', 'LoadCameraData', 'LoadScreenData', 'LoadSoundData',
-              'LoadDamageEffect', 'LoadHitParticle', 'LoadHitDamageEffect', 'LoadAfterImage']
+              'LoadDamageEffect', 'LoadHitParticle', 'LoadHitDamageEffect', 'LoadAfterImage', 'LoadDieCheckCondition']
 
 
 def ce(name, prefix=('*',)):
@@ -409,7 +409,8 @@ ROOTS = [
     ('DE.CREATE_DAMAGE_EFFECT', 'DE', r'CREATE_DAMAGE_EFFECT%d', [0x31f6ac60], [ce('LoadDamageEffect')], '6a', 'DamageEffect sub-loaders'),
     ('DE.DIE_DAMAGE_EFFECT', 'DE', r'DIE_DAMAGE_EFFECT(_ULTIMATE)?%d', [0x31f68f30, 0x31f6e7e0], [ce('LoadDieDamageEffect')], '6a', 'DamageEffect sub-loaders'),
     ('DE.HIT_DAMAGE_EFFECT', 'DE', r'HIT_DAMAGE_EFFECT(_ULTIMATE)?%d', [0x31f6ceb0, 0x31f6e850], [ce('LoadHitDamageEffect')], '6a', 'DamageEffect sub-loaders'),
-    ('DE.DIE_CHECK_CONDITION', 'DE', r'DAMAGE_EFFECT_DIE_CHECK_CONDITION', [0x31f66700, CE], [], '6a', 'DamageEffect sub-loaders'),
+    ('DE.DIE_CHECK_CONDITION', 'DE', r'DAMAGE_EFFECT_DIE_CHECK_CONDITION', [0x31f66700, CE],
+     [ce('LoadDieCheckCondition'), ce('LoadDieCheckConditionBlock', ())], '6a', 'DamageEffect sub-loaders'),
     ('DE.LOCK_ON_DATA', 'DE', r'LOCK_ON_DATA(_ULTIMATE)?', [0x31f71930], [ce('LoadLockOnData')], '6b', 'DamageEffect sub-loaders'),
     ('DE.BLACKHOLE_DATA', 'DE', r'BLACKHOLE_DATA(_ULTIMATE)?', [0x31f637e0], [ce('LoadBlackHoleData')], '6b', 'DamageEffect sub-loaders'),
     ('DE.SIN_MOVE_DATA', 'DE', r'SIN_MOVE_DATA', [0x31f64200], [ce('LoadSinMoveData')], '6b', 'DamageEffect sub-loaders'),

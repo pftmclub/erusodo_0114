@@ -91,6 +91,18 @@ class CX2DamageEffect
 		};
 #endif SERV_RENA_NIGHT_WATCHER
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+		// June2017 FUN_31f66700 @31f66700-31f66e4f: die-condition parser (DAMAGE_EFFECT_DIE_CHECK_CONDITION).
+		// Values from june2017_re/june_lua/Enum.src.lua:11746-11749. Phase 6a: parse only, see DieCheckCondition
+		// below and LoadDieCheckCondition().
+		enum DAMAGE_EFFECT_DIE_CONDITION_TYPE
+		{
+			DEDCT_NONE = -1,
+			DEDCT_DAMAGE_TIME = 0,
+			DEDCT_LOCK_ON_TARGET = 1,
+		};
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+
 		/// 데미지 이펙터 내 파티클
 		struct ParticleData
 		{
@@ -283,6 +295,20 @@ class CX2DamageEffect
 			int				iGroupID;	/// 그룹 데미지 설정 추가
 #endif SERV_RAVEN_VETERAN_COMMANDER
 			bool			bInheritBuffFactor;		/// 버프팩터를 상속 받을 것인가?
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+			// June2017 sub-loaders (Phase 6a): CREATE_DAMAGE_EFFECT%d (31f6ac60), DIE_DAMAGE_EFFECT
+			// (31f68f30) and HIT_DAMAGE_EFFECT (31f6ceb0) each read only some of these; unread
+			// fields keep the constructor default below.
+			float			fLoopInterval;				/// June @31f6c063: LOOP_INTERVAL (CREATE only), float, default 0.f
+			UINT			uiLoopEndCount;				/// June @31f6c1b0: LOOP_END_COUNT (CREATE only), int, default 1
+			float			fLoopEndTime;				/// June @31f6c2eb: LOOP_END_TIME (CREATE only), float, default 99999.f
+			D3DXVECTOR3		vLoopAddPos;				/// June @31f6c43c/31f6c589/31f6c6d6: LOOP_ADD_POS_X/Y/Z (CREATE only; Z binary-only), float, default 0,0,0
+			bool			bSetDieWhenMasterEffectDie;	/// June @31f6c8eb: SET_DIE_WHEN_MASTER_EFFECT_DIE (CREATE only), bool, default false
+			bool			bInheritLifeTime;			/// June: CREATE @31f6ca33, DIE @31f6a433, HIT @31f6e65f: INHERIT_LIFE_TIME, bool, default false
+			bool			bInheritDamage;				/// June @31f6cb7e: INHERIT_DAMAGE (CREATE only), bool, default false
+			bool			bInheritLockOnData;			/// June @31f6a2ee: INHERITLOCKONDATA (studio spelling, DIE only), bool, default false
+			D3DXVECTOR3		vScale;						/// June: DIE @31f6a4de/31f6a58b/31f6a638, HIT @31f6de1e/31f6decb/31f6df78: SCALE_X/Y/Z, float, default 1,1,1
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 			//bool			bForceDie;
 			//bool			bForceDieHit;
 			//int			triggerCount;
@@ -326,6 +352,17 @@ class CX2DamageEffect
 				iGroupID				= -1;		/// 그룹 데미지 설정 추가
 #endif SERV_RAVEN_VETERAN_COMMANDER
 				bInheritBuffFactor		= false;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+				fLoopInterval				= 0.f;
+				uiLoopEndCount				= 1;
+				fLoopEndTime				= 99999.f;
+				vLoopAddPos					= D3DXVECTOR3( 0, 0, 0 );
+				bSetDieWhenMasterEffectDie	= false;
+				bInheritLifeTime			= false;
+				bInheritDamage				= false;
+				bInheritLockOnData			= false;
+				vScale						= D3DXVECTOR3( 1, 1, 1 );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 				//bForceDie		= false;
 				//bForceDieHit	= false;
 				//triggerCount	= -1;
@@ -373,6 +410,17 @@ class CX2DamageEffect
 				iGroupID				= t.iGroupID;			/// 그룹 데미지 설정 추가
 #endif SERV_RAVEN_VETERAN_COMMANDER
 				bInheritBuffFactor		= t.bInheritBuffFactor;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+				fLoopInterval				= t.fLoopInterval;
+				uiLoopEndCount				= t.uiLoopEndCount;
+				fLoopEndTime				= t.fLoopEndTime;
+				vLoopAddPos					= t.vLoopAddPos;
+				bSetDieWhenMasterEffectDie	= t.bSetDieWhenMasterEffectDie;
+				bInheritLifeTime			= t.bInheritLifeTime;
+				bInheritDamage				= t.bInheritDamage;
+				bInheritLockOnData			= t.bInheritLockOnData;
+				vScale						= t.vScale;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //김창한
 				fLifeTime				= t.fLifeTime;
@@ -390,6 +438,31 @@ class CX2DamageEffect
 #endif BOOST_SINGLETON_POOL_TEST
 
 		};
+
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+		// June2017 FUN_31f66700 @31f66700-31f66e4f: die-condition parser, DAMAGE_EFFECT_DIE_CHECK_CONDITION's
+		// AND_OPERATION/OR_OPERATION sub-tables, each holding a numbered CONDITION_%d list. Phase 6a:
+		// parse only (bIsOrOperation tags which block an entry came from); the loop/condition runtime
+		// (combining entries by that tag) is Phase 7c.
+		struct DieCheckCondition
+		{
+			DAMAGE_EFFECT_DIE_CONDITION_TYPE	conditionType;			/// June @31f66826 (int getter 32fe9fd0), default DEDCT_NONE. Entry is dropped entirely if this fails to parse or resolves to DEDCT_NONE.
+			bool								bIsOrOperation;			/// true if from OR_OPERATION, false if from AND_OPERATION (June arg3, stored @31f66d3d)
+			float								fCheckDamageTimeValue;	/// June @31f66c68: CHECK_DAMAGE_TIME_VALUE, only meaningful for DEDCT_DAMAGE_TIME, default -1.f
+			bool								bIsOver;					/// June @31f66d1a: IS_OVER, only meaningful for DEDCT_DAMAGE_TIME, default true
+			bool								bIsExist;					/// June @31f66ab9: IS_EXIST, only meaningful for DEDCT_LOCK_ON_TARGET, default false
+
+			DieCheckCondition()
+			{
+				conditionType			= DEDCT_NONE;
+				bIsOrOperation			= false;
+				fCheckDamageTimeValue	= -1.f;
+				bIsOver					= true;
+				bIsExist				= false;
+			}
+		};
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 
 		struct CameraData
@@ -893,6 +966,10 @@ class CX2DamageEffect
 				void FollowLine();
 				void LoadLockOnData();
 				void LoadBlackHoleData();
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+				void LoadDieCheckConditionBlock( const char* pTableName, bool bIsOrOperation );	/// helper for LoadDieCheckCondition(): one of AND_OPERATION/OR_OPERATION
+				void LoadDieCheckCondition();	/// June2017 FUN_31f66700 @31f66700-31f66e4f, called from ctor @31f7f94e-31f7f976. Phase 6a: parse only.
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 				//{{ kimhc // 2009-10-20 // DamageEffect.lua에 있는 테이블 로드(독구름)
 #ifdef DAMAGE_EFFECT_WORK
@@ -1170,6 +1247,9 @@ class CX2DamageEffect
 			// so their consumers are unaffected.
 			vector<float>		m_vecDamageDataChangeTime;
 			vector<float>		m_vecDamageDataChangeTimeGlobalTime;
+
+			// June2017 FUN_31f66700, Phase 6a. Parse only; combining entries by bIsOrOperation is Phase 7c.
+			std::vector<DieCheckCondition>	m_vecDieCheckCondition;
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 		}; // CEffect

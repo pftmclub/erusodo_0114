@@ -254,6 +254,65 @@ The full per-key table is in the plan's Phase 3 section.
   read (`31f79ec6`/`31f79f3b`). Confirmed against `june2017_re/june_lua/DamageEffect*.src.lua`:
   every file with a numbered continuation has `..._NEXT2` and up, never `..._NEXT1`.
 
+**Hand-verified (Phase 6a).** `CREATE_DAMAGE_EFFECT%d` (`31f6ac60`), `DIE_DAMAGE_EFFECT[_ULTIMATE]%d`
+(`31f68f30` via wrapper `31f6e7e0`), `HIT_DAMAGE_EFFECT[_ULTIMATE]%d` (`31f6ceb0` via wrapper
+`31f6e850`), and the die-condition parser (`31f66700`, called from the ctor's own
+`DAMAGE_EFFECT_DIE_CHECK_CONDITION` block).
+
+- **`31f68f30`/`31f6ceb0` are the full `"<base><index>"` loop, not a "per-entry body"** as Phase 0's
+  table and the plan text both said. The wrapper (`31f6e7e0`/`31f6e850`) passes the base name
+  ("DIE_DAMAGE_EFFECT" or, when its own inline gate passes, "DIE_DAMAGE_EFFECT_ULTIMATE") as the
+  *only* stack argument; the callee formats `"%s%d"` itself (via `31c7b920`) and loops. Its bool
+  return is "did index 0 exist" (`31f6a775`: `MOV AL,BL` with `BL` reset to 0 before the first
+  `BeginTable` and set to 1 right before the loop's own re-test, so a natural loop exit returns
+  true only after at least one entry was read). The wrapper skips the base-name call when the
+  ultimate one returns true. `funcmap.tsv` is corrected; the two roles (die vs. hit) are unchanged.
+- **The wrapper's own gate (`31f6e7e3`-`31f6e822`) is an owner-unit/memo-pointer null chain then
+  `FUN_31fcf3e0([ESI+0x7c4])`** -- the same unidentified skill-memo callee Phase 5's ctor calls to
+  decide `m_bUseUltimateDamageData`. It is not literally that member (this is a different call
+  site), but the same absent system, so March reuses `m_bUseUltimateDamageData` and stays forced
+  false for the identical reason. `31f6e850`'s gate is byte-identical to `31f6e7e0`'s.
+- **`INHERIT_LIFE_TIME` is a bool, default false, in all three scopes** (`CREATE_DAMAGE_EFFECT`
+  `31f6ca33`, `DIE_DAMAGE_EFFECT` `31f6a433`, `HIT_DAMAGE_EFFECT` `31f6e65f`), all through the same
+  bool getter `32fe9e40`. Easy to mis-read as the float "inherit at this rate" its name suggests;
+  it isn't, in any of the three.
+- **`SCALE_X/Y/Z` (`DIE_DAMAGE_EFFECT`/`HIT_DAMAGE_EFFECT`) default via `FLD1`, i.e. 1.0f**, not
+  0.0f -- confirmed at each of the six decrypt sites (getter `32fea370`, failure path `FLD1;
+  FSTP`).
+- **`LOOP_END_TIME`'s default constant, `0x33441c60`, is `99999.0`**, read as raw bytes at file
+  offset `0x33441c60 - 0x31aa0000 - 0xc00 = 0x19a1060` (`80 4f c3 47` little-endian), cross-checked
+  against the already-verified `0x334380f0` = `-1.0` control in the same read. Matches March's own
+  `fLoopEndTime` default exactly (`X2DamageEffect.h`'s `LOOP_CREATE_DAMAGE_EFFECT`-gated field,
+  dead under `US_SERVICE` but same value) -- same, not a semantics-differ. Do not confuse this
+  constant with the *different*, smaller `9999.0` some `LOCK_ON_DATA` keys default to.
+- **`LOOP_END_COUNT`'s getter, `32fea210`, is a distinct "int" getter from `32fe9fd0`** (used for
+  `DAMAGE_EFFECT_DIE_CONDITION_TYPE` and other enum-shaped ints): it rounds a Lua number through
+  `FISTP` rather than reading an integer directly, but is int-typed for March's purposes all the
+  same. Default 1, matching March's own `uiLoopEndCount`.
+- **The die-condition parser's `AND_OPERATION`/`OR_OPERATION` calls share one vector, tagged by a
+  third argument.** The ctor pushes `EBX` (0, the function's zero sentinel) for the `AND_OPERATION`
+  call and a literal `1` for `OR_OPERATION`, both as the *third* stack argument to `31f66700`
+  (`this`=CEffect, arg1=`pLuaManager`, arg2=key name, arg3=this flag). Confirmed by tracing it
+  through the frame to `31f66d3d`: `MOV DL, byte ptr[ESP+0x174]` reads it back at
+  `ESP_entry+0xc` (two callee-saved pushes, `EBP`+`EBX`, plus `ESI`+`EDI` saved once before the
+  per-`CONDITION_` loop puts the read at `ESP_entry-0x168`; `0x174-0x168=0xc`, the third stack
+  slot), then `MOV byte[ESP+0x14],DL` stores it into the second dword of the four-dword entry
+  pushed into the vector -- i.e. every condition (from either sub-table) carries its own
+  `bIsOrOperation`, and there is one flat list, not two. `DAMAGE_EFFECT_DIE_CONDITION_TYPE`'s
+  values (`DEDCT_NONE=-1`, `DEDCT_DAMAGE_TIME=0`, `DEDCT_LOCK_ON_TARGET=1`) are from
+  `june2017_re/june_lua/Enum.src.lua:11746-11749`, matching the binary's default (`-1`) and its
+  two `JZ`-tested branch values (`0`, `1`) exactly.
+- **census.py's `ROOTS` needed real entries, not code changes**, for the new `DE.DIE_CHECK_CONDITION`
+  scope: its March column was `[]` (no prior March reader existed). `LoadDieCheckCondition` was
+  added to `CE_LOADERS` (so census finds the top-level `DAMAGE_EFFECT_DIE_CHECK_CONDITION` key),
+  and `ce('LoadDieCheckCondition')` / `ce('LoadDieCheckConditionBlock', ())` were added to the
+  root's own March list. No change to `march_reads`/`path_match` was needed: a `BeginTable` call
+  with a variable name pushes `'*'` (a wildcard on either side of `path_match`), which is why
+  `LoadDieCheckConditionBlock(pTableName, bIsOrOperation)` -- one shared body for both sub-tables,
+  called with a runtime name -- still resolves correctly; only a *numbered* `BeginTable(var, i)`
+  loses the name entirely (`'*%d'`, not a wildcard), which is what forced the die/hit `_ULTIMATE`
+  loops below to use a literal table name at their own call site rather than a shared helper.
+
 **Phase 1 corrections to Phase 0's `reconcile.py`.** `reconcile.md` changed only in the
 `<CEffect top level>` scope, plus two explanations:
 

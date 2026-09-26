@@ -35,7 +35,7 @@ column.
 | `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4287` | `X2Lib/X2EffectSet.h:168` (new `AnimTimeOnStartData`/`MeshTriggerData`), `:307,381,452` (`EffectData` members, `operator==`, ctor), `:484,505,555,592` (`EffectSetData` members incl. `m_vecSoundData`, `operator==`, `operator=`, ctor); `X2Lib/X2EffectSet.cpp:2267` (templet keys), `:2352,2378,2394,2405,2437,2476,2521` (per-`EFFECT%d` keys and sub-tables), `:2842` (`SOUND%d`) | -- |
 | `SERV_IRUHADEV_JUNE_FX_DEBUG` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4298` | `X2Lib/X2EffectSet.cpp:2199,2218` (`OpenScriptFile` load summary), `:2314` (per-templet line), `:2667` (per-effect line), `:2864` (per-set sound line); the last three nested under `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE`; `X2Lib/X2DamageEffect.cpp:1942` (`CE_TEMPLET` per-`CEffect` line, nested under `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE`) | -- |
 | `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` | 2026-09-26 | `KTDXLIB/Always.h:4318` | `X2Lib/X2EffectSet.h:634` (`EffectInstance::m_vecMeshTriggerData`, stage-3 `m_bGroupChild` / `m_wstrGroupChildBoneName` / `m_vGroupChildOffset`), `:659` (their initialisers), `:760` (`TargetMeshData`, `m_vecTargetMeshData`, `m_bIsRightWhenCreate`), `:856` (index accessors, the two bone-name helpers); `X2Lib/X2EffectSet.cpp:5` (`JuneFxEsCreate`, nested under `SERV_IRUHADEV_JUNE_FX_DEBUG`), `:36` (stage-2 helpers: `TRACE_MATRIX_IN_FIELD`, `SET_OVER_UI`; stage-3 `JuneFxUnsupported` `:225`, `JuneGroupChildPosition` `:249`), `:534` (`GROUP_NAME` loop head; the three stock position / rotation / scale lines are its `#else`), `:701` (damage case: `APPLY_DAMAGE_EFFECT_VELOCITY`, `USE_IS_RIGHT_WHEN_CREATE`), `:805` / `:864` / `:924` / `:974` (mesh cases), `:1027`-`:1256` (particle cases, two sites each), `:1276` (per-effect effect-alpha log), `:1308` / `:1447` (target-mesh registration, damage / mesh), `:1410` (trigger-list copy), `:1551` (group-child fields), `:1566` (loop tail), `:2372` (`OVERLAP`), `:2430` (templet effect-alpha log), `:2479` (`APPLIED_SKILL_ID` log), `:3791` (facing snapshot in the `EffectSetInstance` ctor), `:3855` (`GetEffectPosition` index), `:4114` (`NOT_ALLOW_MEMO` log), `:4128` (`GetEffectRotation`), `:4728` (`SetEffectSetOffset`), `:5175` (accessor bodies; stage-3 `GetEffectPositionByTargetMesh( .., bone, found )` `:5313`, `GetEffectPositionByBoneName` `:5362`); `KTDXLIB/KTDGXMeshPlayer.h:1325` (velocity-modifier methods), `:1575` (`m_vecVelocityModifier`, last member); `KTDXLIB/KTDGXMeshPlayer.cpp:1573` (their bodies), `:3360` / `:3385` (`CXMeshEvent_Velocity` re-apply) | -- |
-| `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE` | 2026-09-26 | `KTDXLIB/Always.h:4347` | `X2Lib/X2DamageEffect.h:611` (new `DamageEffectDataInLua::m_vecDamageDataNextChain`), `:1131` (new `CEffect` members); `X2Lib/X2DamageEffect.cpp:1457` (`APPLIED_SKILL_ID`/`_NOT_AFFECT_MEMO` + master ultimate flag), `:1504` (`MAIN_EFFECT_NAME_ULTIMATE`), `:1572` (`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`), `:1587` (`USE_ADVANCE_COLLISIOIN_CHECK`), `:1593` (`DAMAGE_DATA`/`_ULTIMATE` wiring), `:1609` (`IGNORE_MI_HUGE`), `:1680` (`USE_OWNER_ATTACK_SPEED`), `:1689` (`DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)` array reads), `:1745` (`FOLLOW_LINE_ULTIMATE`/`FOLLOW_LINE_NEW_ULTIMATE`), `:1776` (`FOLLOW_LINE_WITH_CUSTOM_ROTATE`/`FOLLOW_LINE_GRAVITY`/`TRACE_OWNER_BONE(_ONLY_ROTATE)`), `:1829` (`DAMAGE_DATA_NEXT(_ULTIMATE)`/`DAMAGE_DATA_NEXT%d` chain), `:1901` (`INHERIT_CRITICAL_RATE`/`_DAMAGE_RATE`), `:1934` (`RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT`), `:2160` (destructor cleanup of the chain vector) | -- |
+| `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE` | 2026-09-26, extended 2026-09-26 (Phase 6a) | `KTDXLIB/Always.h:4347` | `X2Lib/X2DamageEffect.h:611` (new `DamageEffectDataInLua::m_vecDamageDataNextChain`), `:1131` (new `CEffect` members); `X2Lib/X2DamageEffect.cpp:1457` (`APPLIED_SKILL_ID`/`_NOT_AFFECT_MEMO` + master ultimate flag), `:1504` (`MAIN_EFFECT_NAME_ULTIMATE`), `:1572` (`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`), `:1587` (`USE_ADVANCE_COLLISIOIN_CHECK`), `:1593` (`DAMAGE_DATA`/`_ULTIMATE` wiring), `:1609` (`IGNORE_MI_HUGE`), `:1680` (`USE_OWNER_ATTACK_SPEED`), `:1689` (`DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)` array reads), `:1745` (`FOLLOW_LINE_ULTIMATE`/`FOLLOW_LINE_NEW_ULTIMATE`), `:1776` (`FOLLOW_LINE_WITH_CUSTOM_ROTATE`/`FOLLOW_LINE_GRAVITY`/`TRACE_OWNER_BONE(_ONLY_ROTATE)`), `:1829` (`DAMAGE_DATA_NEXT(_ULTIMATE)`/`DAMAGE_DATA_NEXT%d` chain), `:1901` (`INHERIT_CRITICAL_RATE`/`_DAMAGE_RATE`), `:1934` (`RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT`), `:2160` (destructor cleanup of the chain vector). Phase 6a additions: `X2Lib/X2DamageEffect.h:98` (new `DAMAGE_EFFECT_DIE_CONDITION_TYPE` enum), `:302` (new `DamageEffectData` fields: `fLoopInterval`, `uiLoopEndCount`, `fLoopEndTime`, `vLoopAddPos`, `bSetDieWhenMasterEffectDie`, `bInheritLifeTime`, `bInheritDamage`, `bInheritLockOnData`, `vScale`), `:448` (new `DieCheckCondition` struct), `:970` (`LoadDieCheckConditionBlock`/`LoadDieCheckCondition` decls), `:1252` (`m_vecDieCheckCondition`); `X2Lib/X2DamageEffect.cpp:1805` (ctor call to `LoadDieCheckCondition`), `:6782` (`LoadDieCheckConditionBlock`: shared `CONDITION_` loop for `AND_OPERATION`/`OR_OPERATION`), `:6837` (`LoadDieCheckCondition`: opens `DAMAGE_EFFECT_DIE_CHECK_CONDITION`), `:7040` (`LoadDieDamageEffect`'s `DIE_DAMAGE_EFFECT_ULTIMATE%d` gate+loop, forced off), `:7078` (`LoadDieDamageEffect`'s new keys), `:7366` (`LoadDamageEffect`'s `LOOP_*`/`SET_DIE_WHEN_MASTER_EFFECT_DIE`/`INHERIT_LIFE_TIME`/`INHERIT_DAMAGE`), `:7472` (`LoadHitDamageEffect`'s `HIT_DAMAGE_EFFECT_ULTIMATE%d` gate+loop, forced off), `:7562` (`LoadHitDamageEffect`'s new keys) | -- |
 
 What each one does:
 
@@ -1106,6 +1106,90 @@ until Rose is ported.
 
 Revert as for Phase 2-4b: undefine the flag. Nothing consumes the new members yet (Phase 7), so
 undefining it only removes the parse sites and the `_ULTIMATE`/array/chain members -- no
+behaviour changes either way.
+
+### June2017 effect engine: DamageEffect sub-loaders I (Phase 6a)
+
+Phase 6a of `JUNE2017_EFFECT_REBUILD_PLAN.md`. Parse only; the loop/condition runtime is
+Phase 7c. Transcribes June's `CREATE_DAMAGE_EFFECT%d` loader (`FUN_31f6ac60`), the
+die/hit damage-effect loaders (`FUN_31f68f30`/`FUN_31f6ceb0`, each the *full* `"<base><index>"`
+loop -- not a "per-entry body" as Phase 0's table said; `funcmap.tsv` corrected) via their
+wrappers (`FUN_31f6e7e0`/`FUN_31f6e850`), and the die-condition parser (`FUN_31f66700`).
+Extends `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE` (+ `SERV_IRUHADEV_JUNE_FX_DEBUG`'s new
+`DDE_TEMPLET`/`DDE_CONDITION` lines).
+
+- **`CREATE_DAMAGE_EFFECT%d` new keys** (`LoadDamageEffect`, `X2DamageEffect.cpp:7366`):
+  `LOOP_INTERVAL` (float, 0.f), `LOOP_END_COUNT` (int, 1, getter `32fea210` -- a distinct
+  "int" getter from `32fe9fd0`, rounds via `FISTP`), `LOOP_END_TIME` (float, **99999.f** --
+  confirmed byte-exact against the June binary's `0x33441c60`, cross-checked against the
+  already-verified `-1.0` control; matches March's own dormant `LOOP_CREATE_DAMAGE_EFFECT`-gated
+  default, so `same` not `differ`), `LOOP_ADD_POS_X`/`_Y` (float, 0.f; `_Z` binary-only),
+  `SET_DIE_WHEN_MASTER_EFFECT_DIE` (bool, false), `INHERIT_LIFE_TIME` (bool, false --
+  *not* the float "inherit at this rate" its name suggests), `INHERIT_DAMAGE` (bool, false).
+  The existing `LOOP_CREATE_DAMAGE_EFFECT`-gated block right above (dead: that flag is never
+  defined under `US_SERVICE`, which is *why* census found these three keys `to-implement`
+  despite the dead code already naming them) is left untouched; these are fresh reads under
+  our own flag, with distinct member names, so there is no collision if that old flag is ever
+  turned on.
+- **`DIE_DAMAGE_EFFECT%d` new keys** (`LoadDieDamageEffect`, `:7078`): `INHERITLOCKONDATA`
+  (studio spelling, bool, false), `SCALE_X`/`_Y`/`_Z` (float, **1.f** via `FLD1`, not 0.f),
+  `INHERIT_LIFE_TIME` (bool, false, same shape as `CREATE_DAMAGE_EFFECT`'s).
+- **`HIT_DAMAGE_EFFECT%d` new keys** (`LoadHitDamageEffect`, `:7562`): `SCALE_X`/`_Y`/`_Z`
+  (float, 1.f), `INHERIT_LIFE_TIME` (bool, false).
+- **`DIE_DAMAGE_EFFECT_ULTIMATE%d`/`HIT_DAMAGE_EFFECT_ULTIMATE%d`, forced off** (`:7040`,
+  `:7472`). The wrapper's own inline gate (`31f6e7e3`-`31f6e822`/`31f6e853`-`31f6e892`: an
+  owner-unit/memo-pointer null chain, then `FUN_31fcf3e0([+0x7c4])` -- the same unidentified
+  skill-memo callee Phase 5's ctor calls to compute `m_bUseUltimateDamageData`, a different call
+  site but the same absent system) is reused as `m_bUseUltimateDamageData` rather than
+  re-derived, and stays forced false for the identical reason. When it would pass, the wrapper
+  tries the `_ULTIMATE` loader first and skips the base loader only if that read at least one
+  entry (index 0 existed); today it always falls straight through to the unchanged base loop.
+  Duplicates the per-entry key list rather than adding a new method, so the header/PCH did not
+  need touching for this half of the phase.
+- **The die-condition parser** (`LoadDieCheckCondition`/`LoadDieCheckConditionBlock`,
+  `:6837`/`:6782`, called from the ctor at `:1805`, new `X2DamageEffect.h` enum/struct/members
+  at `:98`/`:448`/`:970`/`:1252`). `DAMAGE_EFFECT_DIE_CHECK_CONDITION` has no March equivalent
+  before this phase (June-only). Opens `AND_OPERATION`/`OR_OPERATION` (a shared helper takes the
+  table name and a `bIsOrOperation` flag, since a `BeginTable` on a runtime variable still
+  resolves for census's text scanner -- only a *numbered* `BeginTable(var, i)` cannot, which is
+  why the `_ULTIMATE` loops above use a literal name instead of a shared helper); each opens a
+  numbered `CONDITION_%d` list (the base name is `"CONDITION_"`, since March's
+  `BeginTable(name, index)` does a plain `"%s%d"`). Per entry:
+  `DAMAGE_EFFECT_DIE_CONDITION_TYPE` (new enum, `DEDCT_NONE`/`DEDCT_DAMAGE_TIME`/
+  `DEDCT_LOCK_ON_TARGET`, values from `june2017_re/june_lua/Enum.src.lua:11746-11749`; a failed
+  read or `DEDCT_NONE` drops the whole entry, matching June exactly) then, only for
+  `DEDCT_DAMAGE_TIME`, `CHECK_DAMAGE_TIME_VALUE` (float, -1.f) and `IS_OVER` (bool, **true**);
+  only for `DEDCT_LOCK_ON_TARGET`, `IS_EXIST` (bool, false). Every entry (from either sub-table)
+  is tagged `bIsOrOperation` and pushed into one shared `m_vecDieCheckCondition` -- confirmed by
+  tracing June's third call argument through the frame to its store into the pushed entry's own
+  second field (`README.md`'s Phase 6a hand-verified notes have the byte accounting).
+- **census.py's `ROOTS` needed real entries** for the new `DE.DIE_CHECK_CONDITION` scope (its
+  March column was `[]`): `LoadDieCheckCondition` added to `CE_LOADERS`, and
+  `ce('LoadDieCheckCondition')`/`ce('LoadDieCheckConditionBlock', ())` added to the root's own
+  March list. No change to the matching logic itself.
+- **Two binary-only rows stay unresolved at this scope, on purpose**:
+  `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` and `DAMAGE_DATA_NEXT_ULTIMATE%d` are ctor-level keys
+  that land under `DE.DIE_CHECK_CONDITION` only because `CE` (the ctor) is listed as a June
+  reader of this root too; both are already implemented at `DE.top` by Phase 5. Not parsed
+  twice.
+- **`JUNE_FX DDE_TEMPLET <effect> <TABLE><n> <key>=<v> ...`** (one per `CREATE_DAMAGE_EFFECT%d`/
+  `DIE_DAMAGE_EFFECT%d`/`HIT_DAMAGE_EFFECT%d` entry that sets a non-default Phase-6a key) and
+  **`JUNE_FX DDE_CONDITION <effect> <AND|OR>_OPERATION<n> type=.. isOr=.. checkTime=.. isOver=..
+  isExist=..`** (one per die-condition entry) are both per-effect-name throttled (1/second),
+  the same pattern as Phase 5's `APPLIED_SKILL_ID` line -- `LOOP_INTERVAL`/`LOOP_END_COUNT`
+  alone are set by ~557 June effects, so an un-throttled line would be written continuously
+  during play.
+
+**Built `US_SERVICE` (X2Lib, X2) and deployed to `X2_offline.exe`.** `census.py` shows 0
+Phase-6a keys `to-implement` (the two binary-only rows above are the only open items, and both
+are a named exception, not work). Play-test target: `DAMAGE_EFFECT_Trap_Fire_Big`
+(`CREATE_DAMAGE_EFFECT0..3`, using `LOOP_ADD_POS_X`/`_Y` and
+`SET_DIE_WHEN_MASTER_EFFECT_DIE`) is spawned by the `TRAP_FIRE_BIG` NPC placed in the Ranox
+Burned Forest dungeon (`Dungeon_Ranox_BurnedForest_{Normal,Hard,Expert}.src.lua`) -- not yet
+play-tested this session; ask before launching.
+
+Revert as for Phase 5: undefine the flag. Nothing consumes `m_vecDieCheckCondition` or the new
+`DamageEffectData` fields yet (Phase 7c), so undefining it only removes the parse sites -- no
 behaviour changes either way.
 
 

@@ -1801,6 +1801,9 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 
 	LoadLockOnData();
 	LoadBlackHoleData();
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	LoadDieCheckCondition();
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 
 #ifdef _SIN_MOVE_TEST_
@@ -6764,6 +6767,84 @@ void CX2DamageEffect::CEffect::LoadBlackHoleData()
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+// June2017 FUN_31f66700 @31f66700-31f66e4f, called from the ctor @31f7f94e-31f7f976 for both
+// "AND_OPERATION" (bIsOrOperation=false, @31f7f95f) and "OR_OPERATION" (bIsOrOperation=true,
+// @31f7f96e). Each opens a numbered "CONDITION_%d" sub-table (a base name with the trailing
+// underscore baked in, since March's BeginTable(name,index) does a plain "%s%d"). Reads
+// DAMAGE_EFFECT_DIE_CONDITION_TYPE first (int getter 32fe9fd0, default DEDCT_NONE=-1, @31f66826);
+// a failed read or a DEDCT_NONE value drops the whole entry (June never pushes it, @31f669df/
+// 31f669f9). The type then picks which of the other two keys is meaningful: DEDCT_DAMAGE_TIME
+// (@31f66a01) reads CHECK_DAMAGE_TIME_VALUE (float, default -1.f, @31f66c68) and IS_OVER (bool,
+// default true, @31f66d1a); DEDCT_LOCK_ON_TARGET (@31f66a08) reads IS_EXIST (bool, default
+// false, @31f66ab9). Parse only; combining entries by bIsOrOperation into an actual die
+// decision is Phase 7c.
+void CX2DamageEffect::CEffect::LoadDieCheckConditionBlock( const char* pTableName, bool bIsOrOperation )
+{
+	if( false == m_pLuaManager->BeginTable( pTableName ) )
+		return;
+
+	int index = 0;
+	while( m_pLuaManager->BeginTable( "CONDITION_", index ) == true )
+	{
+		int iConditionType = -1;
+		bool bGotType = m_pLuaManager->GetValue( "DAMAGE_EFFECT_DIE_CONDITION_TYPE", iConditionType );
+		if( false == bGotType || DEDCT_NONE == (CX2DamageEffect::DAMAGE_EFFECT_DIE_CONDITION_TYPE)iConditionType )
+		{
+			m_pLuaManager->EndTable();
+			index++;
+			continue;
+		}
+
+		DieCheckCondition data;
+		data.conditionType = (CX2DamageEffect::DAMAGE_EFFECT_DIE_CONDITION_TYPE)iConditionType;
+		data.bIsOrOperation = bIsOrOperation;
+
+		if( DEDCT_DAMAGE_TIME == data.conditionType )
+		{
+			PLUA_GET_VALUE( m_pLuaManager, "CHECK_DAMAGE_TIME_VALUE",	data.fCheckDamageTimeValue,	-1.0f	);
+			PLUA_GET_VALUE( m_pLuaManager, "IS_OVER",					data.bIsOver,				true	);
+		}
+		else if( DEDCT_LOCK_ON_TARGET == data.conditionType )
+		{
+			PLUA_GET_VALUE( m_pLuaManager, "IS_EXIST",					data.bIsExist,				false	);
+		}
+
+		m_vecDieCheckCondition.push_back( data );
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		{
+			static map<wstring, DWORD> s_mapLastLoggedTime_dieCondition;
+			DWORD dwNow_dieCondition = timeGetTime();
+			map<wstring, DWORD>::iterator itThrottle_dieCondition = s_mapLastLoggedTime_dieCondition.find( GetName() );
+			if( itThrottle_dieCondition == s_mapLastLoggedTime_dieCondition.end() || dwNow_dieCondition - itThrottle_dieCondition->second >= 1000 )
+			{
+				s_mapLastLoggedTime_dieCondition[ GetName() ] = dwNow_dieCondition;
+				CX2OfflineLog::Server( L"JUNE_FX DDE_CONDITION %s %s%d type=%d isOr=%d checkTime=%.3f isOver=%d isExist=%d",
+					GetName(), bIsOrOperation ? L"OR_OPERATION" : L"AND_OPERATION", index, (int)data.conditionType, (int)data.bIsOrOperation,
+					data.fCheckDamageTimeValue, (int)data.bIsOver, (int)data.bIsExist );
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+
+		index++;
+		m_pLuaManager->EndTable();
+	}
+
+	m_pLuaManager->EndTable();
+}
+
+void CX2DamageEffect::CEffect::LoadDieCheckCondition()
+{
+	if( true == m_pLuaManager->BeginTable( "DAMAGE_EFFECT_DIE_CHECK_CONDITION" ) )
+	{
+		LoadDieCheckConditionBlock( "AND_OPERATION", false );
+		LoadDieCheckConditionBlock( "OR_OPERATION", true );
+		m_pLuaManager->EndTable();
+	}
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+
 
 //**
 #ifdef _SIN_MOVE_TEST_
@@ -6960,6 +7041,56 @@ void CX2DamageEffect::CEffect::LoadDieDamageEffect()
 {
 	KTDXPROFILE();
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f6e7e0 @31f6e7e3-31f6e822 (the wrapper's own inline gate: owner-unit/memo
+	// pointer checks, then FUN_31fcf3e0([ESI+0x7c4]) -- the same unidentified skill-memo callee
+	// Phase 5's ctor calls to compute m_bUseUltimateDamageData, not literally that member, but
+	// forced off for the same reason: the system it reads is absent). When it passes,
+	// FUN_31f68f30 is called with "DIE_DAMAGE_EFFECT_ULTIMATE" first (@31f6e824); only if that
+	// loop reads nothing at all (index 0 missing -> false, @31f6a775) does the wrapper fall back
+	// to "DIE_DAMAGE_EFFECT" (@31f6e834) -- the loop below, left byte-identical. Forced false
+	// today, so this block is dead; kept parseable for when Phase 7/8 can identify FUN_31fcf3e0.
+	if( true == m_bUseUltimateDamageData )
+	{
+		bool bDieUltimateFoundAny = false;
+		int indexUlt = 0;
+		while( m_pLuaManager->BeginTable( "DIE_DAMAGE_EFFECT_ULTIMATE", indexUlt ) == true )
+		{
+			bDieUltimateFoundAny = true;
+
+			DamageEffectData* pData = new DamageEffectData;
+
+			PLUA_GET_VALUE_ENUM(	m_pLuaManager, "POSITION_TYPE",			pData->posType,				CX2DamageEffect::POSITION_TYPE, DEPT_BONE );
+			PLUA_GET_VALUE(			m_pLuaManager, "DAMAGE_EFFECT_NAME",	pData->damageEffectName,	L""		);
+			PLUA_GET_VALUE(			m_pLuaManager, "BONE_NAME",				pData->boneName,			L""		);
+			PLUA_GET_VALUE(			m_pLuaManager, "APPLY_ROTATE",			pData->bApplyRotate,		true	);
+			PLUA_GET_VALUE(			m_pLuaManager, "APPLY_ROTATED_OFFSET",	pData->bApplyRotatedOffset,	false	);
+			PLUA_GET_VALUE(			m_pLuaManager, "ONLY_APPLY_ROTATE",		pData->bOnlyApplyRotateOffset,		false	);
+			PLUA_GET_VALUE(			m_pLuaManager, "ROTATE_X",				pData->vRotateAngleDegree.x,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "ROTATE_Y",				pData->vRotateAngleDegree.y,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "ROTATE_Z",				pData->vRotateAngleDegree.z,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "OFFSET_X",				pData->vOffset.x,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "OFFSET_Y",				pData->vOffset.y,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "OFFSET_Z",				pData->vOffset.z,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "LAND_CRASH_ONLY",		pData->bLandCrashOnly,	false	);
+			PLUA_GET_VALUE(			m_pLuaManager, "LIFE_TIME_ONLY",		pData->bLifeTimeOnly,	false	);
+			PLUA_GET_VALUE(			m_pLuaManager, "INHERIT_BUFF_FACTOR",	pData->bInheritBuffFactor,	false );
+			PLUA_GET_VALUE(			m_pLuaManager, "INHERITLOCKONDATA",	pData->bInheritLockOnData,	false	);
+			PLUA_GET_VALUE(			m_pLuaManager, "SCALE_X",				pData->vScale.x,			1.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "SCALE_Y",				pData->vScale.y,			1.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "SCALE_Z",				pData->vScale.z,			1.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "INHERIT_LIFE_TIME",	pData->bInheritLifeTime,	false	);
+
+			m_DamageEffectDataInLua.m_vecDieDamageEffect.push_back( pData );
+
+			indexUlt++;
+			m_pLuaManager->EndTable();
+		}
+		if( true == bDieUltimateFoundAny )
+			return;
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+
 	int index = 0;
 	while( m_pLuaManager->BeginTable( "DIE_DAMAGE_EFFECT", index ) == true )
 	{
@@ -6999,7 +7130,45 @@ void CX2DamageEffect::CEffect::LoadDieDamageEffect()
 		/// 버프팩터를 상속 받을 것인가?
 		PLUA_GET_VALUE(			m_pLuaManager, "INHERIT_BUFF_FACTOR",	pData->bInheritBuffFactor,	false );
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+		// June2017 FUN_31f68f30 (die damage-effect body, via wrapper FUN_31f6e7e0)
+		PLUA_GET_VALUE(			m_pLuaManager, "INHERITLOCKONDATA",	pData->bInheritLockOnData,	false	);	/// June @31f6a1fe->31f6a2ee, bool, default false
+		PLUA_GET_VALUE(			m_pLuaManager, "SCALE_X",				pData->vScale.x,			1.0f	);	/// June @31f6a473->31f6a4de, float, default 1.f
+		PLUA_GET_VALUE(			m_pLuaManager, "SCALE_Y",				pData->vScale.y,			1.0f	);	/// June @31f6a520->31f6a58b, float, default 1.f
+		PLUA_GET_VALUE(			m_pLuaManager, "SCALE_Z",				pData->vScale.z,			1.0f	);	/// June @31f6a5cd->31f6a638, float, default 1.f
+		PLUA_GET_VALUE(			m_pLuaManager, "INHERIT_LIFE_TIME",	pData->bInheritLifeTime,	false	);	/// June @31f6a343->31f6a433, bool, default false
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+
 		m_DamageEffectDataInLua.m_vecDieDamageEffect.push_back( pData );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		// JUNE_FX DDE_TEMPLET <effect> DIE_DAMAGE_EFFECT<n> <key>=<v> ..., only for a non-default Phase-6a key
+		{
+			WCHAR wszJuneFxDde[512] = {0};
+			StringCchPrintfW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L"JUNE_FX DDE_TEMPLET %s DIE_DAMAGE_EFFECT%d", GetName(), index );
+			const size_t uiDdeNameOnly = wcslen( wszJuneFxDde );
+			WCHAR wszDdeKey[128] = {0};
+			if( true == pData->bInheritLockOnData )
+				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L" INHERITLOCKONDATA=1" );
+			if( 1.0f != pData->vScale.x || 1.0f != pData->vScale.y || 1.0f != pData->vScale.z )
+			{
+				StringCchPrintfW( wszDdeKey, ARRAY_SIZE(wszDdeKey), L" SCALE=(%.3f,%.3f,%.3f)", pData->vScale.x, pData->vScale.y, pData->vScale.z );
+				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), wszDdeKey );
+			}
+			if( true == pData->bInheritLifeTime )
+				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L" INHERIT_LIFE_TIME=1" );
+			if( wcslen( wszJuneFxDde ) != uiDdeNameOnly )
+			{
+				static map<wstring, DWORD> s_mapLastLoggedTime_dieTemplet;
+				DWORD dwNow_dieTemplet = timeGetTime();
+				map<wstring, DWORD>::iterator itThrottle_dieTemplet = s_mapLastLoggedTime_dieTemplet.find( GetName() );
+				if( itThrottle_dieTemplet == s_mapLastLoggedTime_dieTemplet.end() || dwNow_dieTemplet - itThrottle_dieTemplet->second >= 1000 )
+				{
+					s_mapLastLoggedTime_dieTemplet[ GetName() ] = dwNow_dieTemplet;
+					CX2OfflineLog::Server( L"%s", wszJuneFxDde );
+				}
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 
 		index++;
 
@@ -7199,8 +7368,69 @@ void CX2DamageEffect::CEffect::LoadDamageEffect()
 		PLUA_GET_VALUE(			m_pLuaManager, "LOOP_END_TIME",			pData->fLoopEndTime,	99999.f );	/// 반복 생성 종료 시간
 #endif //LOOP_CREATE_DAMAGE_EFFECT
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+		// June2017 FUN_31f6ac60 (CREATE_DAMAGE_EFFECT%d loader). LOOP_CREATE_DAMAGE_EFFECT above is
+		// never defined under US_SERVICE (census.py found these three keys to-implement despite the
+		// dead code above already naming them), so these are fresh reads under our own flag.
+		PLUA_GET_VALUE(			m_pLuaManager, "LOOP_INTERVAL",					pData->fLoopInterval,				0.0f		);	/// June @31f6bf7a->31f6c063, float, default 0.f
+		PLUA_GET_VALUE(			m_pLuaManager, "LOOP_END_COUNT",				pData->uiLoopEndCount,				1			);	/// June @31f6c0b7->31f6c1b0, int, default 1
+		PLUA_GET_VALUE(			m_pLuaManager, "LOOP_END_TIME",					pData->fLoopEndTime,				99999.0f	);	/// June @31f6c202->31f6c2eb, float, default 99999.f
+		PLUA_GET_VALUE(			m_pLuaManager, "LOOP_ADD_POS_X",				pData->vLoopAddPos.x,				0.0f		);	/// June @31f6c343->31f6c43c, float, default 0.f
+		PLUA_GET_VALUE(			m_pLuaManager, "LOOP_ADD_POS_Y",				pData->vLoopAddPos.y,				0.0f		);	/// June @31f6c490->31f6c589, float, default 0.f
+		PLUA_GET_VALUE(			m_pLuaManager, "LOOP_ADD_POS_Z",				pData->vLoopAddPos.z,				0.0f		);	/// June @31f6c5dd->31f6c6d6, float, default 0.f (binary-only: no June data uses it)
+		PLUA_GET_VALUE(			m_pLuaManager, "SET_DIE_WHEN_MASTER_EFFECT_DIE",	pData->bSetDieWhenMasterEffectDie,	false		);	/// June @31f6c752->31f6c8eb, bool, default false
+		PLUA_GET_VALUE(			m_pLuaManager, "INHERIT_LIFE_TIME",				pData->bInheritLifeTime,			false		);	/// June @31f6c943->31f6ca33, bool, default false
+		PLUA_GET_VALUE(			m_pLuaManager, "INHERIT_DAMAGE",					pData->bInheritDamage,				false		);	/// June @31f6ca85->31f6cb7e, bool, default false
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+
 		
 		m_DamageEffectDataInLua.m_vecCreateDamageEffect.push_back( pData );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		// JUNE_FX DDE_TEMPLET <effect> CREATE_DAMAGE_EFFECT<n> <key>=<v> ..., only for a non-default Phase-6a key
+		{
+			WCHAR wszJuneFxDde[512] = {0};
+			StringCchPrintfW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L"JUNE_FX DDE_TEMPLET %s CREATE_DAMAGE_EFFECT%d", GetName(), index );
+			const size_t uiDdeNameOnly = wcslen( wszJuneFxDde );
+			WCHAR wszDdeKey[128] = {0};
+			if( 0.0f != pData->fLoopInterval )
+			{
+				StringCchPrintfW( wszDdeKey, ARRAY_SIZE(wszDdeKey), L" LOOP_INTERVAL=%.3f", pData->fLoopInterval );
+				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), wszDdeKey );
+			}
+			if( 1 != pData->uiLoopEndCount )
+			{
+				StringCchPrintfW( wszDdeKey, ARRAY_SIZE(wszDdeKey), L" LOOP_END_COUNT=%d", pData->uiLoopEndCount );
+				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), wszDdeKey );
+			}
+			if( 99999.0f != pData->fLoopEndTime )
+			{
+				StringCchPrintfW( wszDdeKey, ARRAY_SIZE(wszDdeKey), L" LOOP_END_TIME=%.3f", pData->fLoopEndTime );
+				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), wszDdeKey );
+			}
+			if( 0.0f != pData->vLoopAddPos.x || 0.0f != pData->vLoopAddPos.y || 0.0f != pData->vLoopAddPos.z )
+			{
+				StringCchPrintfW( wszDdeKey, ARRAY_SIZE(wszDdeKey), L" LOOP_ADD_POS=(%.3f,%.3f,%.3f)", pData->vLoopAddPos.x, pData->vLoopAddPos.y, pData->vLoopAddPos.z );
+				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), wszDdeKey );
+			}
+			if( true == pData->bSetDieWhenMasterEffectDie )
+				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L" SET_DIE_WHEN_MASTER_EFFECT_DIE=1" );
+			if( true == pData->bInheritLifeTime )
+				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L" INHERIT_LIFE_TIME=1" );
+			if( true == pData->bInheritDamage )
+				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L" INHERIT_DAMAGE=1" );
+			if( wcslen( wszJuneFxDde ) != uiDdeNameOnly )
+			{
+				static map<wstring, DWORD> s_mapLastLoggedTime_createTemplet;
+				DWORD dwNow_createTemplet = timeGetTime();
+				map<wstring, DWORD>::iterator itThrottle_createTemplet = s_mapLastLoggedTime_createTemplet.find( GetName() );
+				if( itThrottle_createTemplet == s_mapLastLoggedTime_createTemplet.end() || dwNow_createTemplet - itThrottle_createTemplet->second >= 1000 )
+				{
+					s_mapLastLoggedTime_createTemplet[ GetName() ] = dwNow_createTemplet;
+					CX2OfflineLog::Server( L"%s", wszJuneFxDde );
+				}
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 		index++;
 		m_pLuaManager->EndTable();
 	}
@@ -7235,6 +7465,58 @@ void CX2DamageEffect::CEffect::LoadHitParticle()
 void CX2DamageEffect::CEffect::LoadHitDamageEffect()
 {
 	KTDXPROFILE();
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f6e850 @31f6e853-31f6e892: byte-identical gate shape to FUN_31f6e7e0
+	// (LoadDieDamageEffect's comment above), forced off for the same reason. When it passes,
+	// FUN_31f6ceb0 is called with "HIT_DAMAGE_EFFECT_ULTIMATE" first (@31f6e894); only if that
+	// loop reads nothing at all does the wrapper fall back to "HIT_DAMAGE_EFFECT" (@31f6e8a4)
+	// -- the loop below, left byte-identical. Forced false today, so this block is dead; kept
+	// parseable for when Phase 7/8 can identify FUN_31fcf3e0.
+	if( true == m_bUseUltimateDamageData )
+	{
+		bool bHitUltimateFoundAny = false;
+		int indexUlt = 0;
+		while( m_pLuaManager->BeginTable( "HIT_DAMAGE_EFFECT_ULTIMATE", indexUlt ) == true )
+		{
+			bHitUltimateFoundAny = true;
+
+			DamageEffectData* pData = new DamageEffectData;
+
+			PLUA_GET_VALUE_ENUM(	m_pLuaManager, "POSITION_TYPE",			pData->posType,					CX2DamageEffect::POSITION_TYPE, DEPT_BONE	);
+			PLUA_GET_VALUE(			m_pLuaManager, "DAMAGE_EFFECT_NAME",	pData->damageEffectName,			L""		);
+			PLUA_GET_VALUE(			m_pLuaManager, "BONE_NAME",				pData->boneName,					L""		);
+			PLUA_GET_VALUE(			m_pLuaManager, "APPLY_ROTATE",			pData->bApplyRotate,				true	);
+			PLUA_GET_VALUE(			m_pLuaManager, "APPLY_ROTATE_ORIGIN",	pData->bApplyRotateOrigin,			false	);
+			PLUA_GET_VALUE(			m_pLuaManager, "ONLY_APPLY_ROTATE",		pData->bOnlyApplyRotateOffset,		false	);
+			PLUA_GET_VALUE(			m_pLuaManager, "APPLY_ROTATED_OFFSET",	pData->bApplyRotatedOffset,			false	);
+			PLUA_GET_VALUE(			m_pLuaManager, "ROTATE_X",				pData->vRotateAngleDegree.x,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "ROTATE_Y",				pData->vRotateAngleDegree.y,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "ROTATE_Z",				pData->vRotateAngleDegree.z,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "OFFSET_X",				pData->vOffset.x,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "OFFSET_Y",				pData->vOffset.y,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "OFFSET_Z",				pData->vOffset.z,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "MAIN_EFFECT_SCALE_X",	pData->vMainEffectScale.x,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "MAIN_EFFECT_SCALE_Y",	pData->vMainEffectScale.y,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "MAIN_EFFECT_SCALE_Z",	pData->vMainEffectScale.z,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "PASSIVE_PARTICLE_X",	pData->vPassiveParticleScale.x,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "PASSIVE_PARTICLE_Y",	pData->vPassiveParticleScale.y,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "PASSIVE_PARTICLE_Z",	pData->vPassiveParticleScale.z,	0.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "INHERIT_BUFF_FACTOR",	pData->bInheritBuffFactor,	false );
+			PLUA_GET_VALUE(			m_pLuaManager, "SCALE_X",				pData->vScale.x,			1.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "SCALE_Y",				pData->vScale.y,			1.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "SCALE_Z",				pData->vScale.z,			1.0f	);
+			PLUA_GET_VALUE(			m_pLuaManager, "INHERIT_LIFE_TIME",	pData->bInheritLifeTime,	false	);
+
+			m_DamageEffectDataInLua.m_vecHitDamageEffect.push_back( pData );
+
+			indexUlt++;
+			m_pLuaManager->EndTable();
+		}
+		if( true == bHitUltimateFoundAny )
+			return;
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 	int index = 0;
 	while( m_pLuaManager->BeginTable( "HIT_DAMAGE_EFFECT", index ) == true )
@@ -7276,7 +7558,42 @@ void CX2DamageEffect::CEffect::LoadHitDamageEffect()
 		/// 버프팩터를 상속 받을 것인가?
 		PLUA_GET_VALUE(			m_pLuaManager, "INHERIT_BUFF_FACTOR",	pData->bInheritBuffFactor,	false );
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+		// June2017 FUN_31f6ceb0 (hit damage-effect body, via wrapper FUN_31f6e850)
+		PLUA_GET_VALUE(			m_pLuaManager, "SCALE_X",				pData->vScale.x,			1.0f	);	/// June @31f6ddb3->31f6de1e, float, default 1.f
+		PLUA_GET_VALUE(			m_pLuaManager, "SCALE_Y",				pData->vScale.y,			1.0f	);	/// June @31f6de60->31f6decb, float, default 1.f
+		PLUA_GET_VALUE(			m_pLuaManager, "SCALE_Z",				pData->vScale.z,			1.0f	);	/// June @31f6df0d->31f6df78, float, default 1.f
+		PLUA_GET_VALUE(			m_pLuaManager, "INHERIT_LIFE_TIME",	pData->bInheritLifeTime,	false	);	/// June @31f6e536->31f6e65f, bool, default false
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+
 		m_DamageEffectDataInLua.m_vecHitDamageEffect.push_back( pData );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		// JUNE_FX DDE_TEMPLET <effect> HIT_DAMAGE_EFFECT<n> <key>=<v> ..., only for a non-default Phase-6a key
+		{
+			WCHAR wszJuneFxDde[512] = {0};
+			StringCchPrintfW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L"JUNE_FX DDE_TEMPLET %s HIT_DAMAGE_EFFECT%d", GetName(), index );
+			const size_t uiDdeNameOnly = wcslen( wszJuneFxDde );
+			WCHAR wszDdeKey[128] = {0};
+			if( 1.0f != pData->vScale.x || 1.0f != pData->vScale.y || 1.0f != pData->vScale.z )
+			{
+				StringCchPrintfW( wszDdeKey, ARRAY_SIZE(wszDdeKey), L" SCALE=(%.3f,%.3f,%.3f)", pData->vScale.x, pData->vScale.y, pData->vScale.z );
+				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), wszDdeKey );
+			}
+			if( true == pData->bInheritLifeTime )
+				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L" INHERIT_LIFE_TIME=1" );
+			if( wcslen( wszJuneFxDde ) != uiDdeNameOnly )
+			{
+				static map<wstring, DWORD> s_mapLastLoggedTime_hitTemplet;
+				DWORD dwNow_hitTemplet = timeGetTime();
+				map<wstring, DWORD>::iterator itThrottle_hitTemplet = s_mapLastLoggedTime_hitTemplet.find( GetName() );
+				if( itThrottle_hitTemplet == s_mapLastLoggedTime_hitTemplet.end() || dwNow_hitTemplet - itThrottle_hitTemplet->second >= 1000 )
+				{
+					s_mapLastLoggedTime_hitTemplet[ GetName() ] = dwNow_hitTemplet;
+					CX2OfflineLog::Server( L"%s", wszJuneFxDde );
+				}
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 
 		index++;
 
