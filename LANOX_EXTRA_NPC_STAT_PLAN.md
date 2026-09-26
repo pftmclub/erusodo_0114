@@ -1141,4 +1141,38 @@ Don't commit unless I ask.
 - **The 836 NewNPCStat IDs March's enum doesn't know.** Skipped by design. They become
   relevant only if those NPCs are ported, and they'll pick up their rows automatically
   once they exist in `Enum.lua` and `NPCTemplet`.
-- Any Phase 0 item left "open".
+- **Monster grade never reaches dungeon NPCs offline** (deferred by the user,
+  2026-09-26).
+  - The data has it. The Lanox dungeon scripts carry `MONSTER_GRADE`: 55 entries across
+    all 19 `data035_kom/Dungeon_Ranox_*.src.lua`, including `Secret_Hell`. Some of those
+    entries are commented out.
+  - Live June's server read those entries into `KNPCUnitReq.m_cMonsterGrade`. The
+    emulator leaves it at `MG_NORMAL_NPC` (`X2Lib/Offline/Handlers_Room.cpp:1855`),
+    because March's client `NPCData` only parses the key under `X2TOOL`.
+  - **What that costs, stats side.** Every Lanox boss gets normal-monster scan values
+    (10/500 instead of 50/1000; Phase 0 verdict 3). The grade-keyed hero-dungeon table is
+    irrelevant, since it has zero rows.
+  - **What that costs, reward side (the result screen).**
+    - The March server uses the grade for kill rewards: `CXSLUnitManager`'s monster-type
+      factor (`MTF_BOSS_NPC`/`MTF_MIDDLE_BOSS_NPC`, `XSLUnitManager.cpp:240-270`), which
+      scales EXP and drops.
+    - It also uses the grade for the boss/middle-boss special drop (`KDropTable.cpp:1904`,
+      items `70058`/`70057`, `SERV_KILL_BOSS_MIDDLE_BOSS_DROP_ITEM`,
+      `ServerDefine.h:3236`), and for boss tracking (`DungeonMonsterManager.cpp:55-75`,
+      `DungeonRoom.cpp:6016/6530`).
+    - The emulator's dungeon kill path currently treats every dungeon NPC as normal. How
+      much of this the result screen shows offline hasn't been checked.
+  - **Fix.** Have the emulator parse `MONSTER_GRADE` from the dungeon script and set
+    `m_cMonsterGrade`, honouring the commented-out entries as absent. Then plumb it into
+    the client-side grade (Phase 3's scan fields) and the emulator's reward path.
+- **Secret Hell `gameType 3`** (Phase 0 verdict 4, open; deferred by the user, 2026-09-26).
+  - The port always uses type 2. At level 70 that means monster HP ×1.05 instead of ×1.5,
+    and attack ×1.5 instead of ×2 (defence is 1.2 either way). So
+    `Dungeon_Ranox_Secret_Hell` would be about 30% less HP and 25% less damage than June,
+    if that dungeon is June's type-3 case.
+  - **Next step is an Opus RE pass on June event `0x50a`:**
+    - find every reader of `CX2DungeonGame+0xdd0`/`+0xdd1`;
+    - find what the client does just before the packet arrives (the `0x508` case goes to
+      `327cbb80`).
+  - If it proves to be hell mode, set the flag from something March already knows (the
+    dungeon ID or mode). Don't try to send a June-only event March doesn't have.
