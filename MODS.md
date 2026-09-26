@@ -34,7 +34,7 @@ column.
 | `SERV_IRUHADEV_RANOX_RIM_LIGHT` | 2026-09-19 | `KTDXLIB/Always.h:4032` | `KTDXLIB/KTDGXRenderer.h`/`.cpp` (`CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE` member, `CKTDGXRenderer::SetRimLightTexType` and its 3 `BeginRender` substitution sites), `X2Lib/X2World.h`/`.cpp` (`CX2World::SetRimLightTextureIndex`, forwards to the renderer; destructor resets the override), `X2Lib/X2Main.cpp` (lua_tinker binding) | -- |
 | `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4287` | `X2Lib/X2EffectSet.h:168` (new `AnimTimeOnStartData`/`MeshTriggerData`), `:307,381,452` (`EffectData` members, `operator==`, ctor), `:484,505,555,592` (`EffectSetData` members incl. `m_vecSoundData`, `operator==`, `operator=`, ctor); `X2Lib/X2EffectSet.cpp:2267` (templet keys), `:2352,2378,2394,2405,2437,2476,2521` (per-`EFFECT%d` keys and sub-tables), `:2842` (`SOUND%d`) | -- |
 | `SERV_IRUHADEV_JUNE_FX_DEBUG` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4298` | `X2Lib/X2EffectSet.cpp:2199,2218` (`OpenScriptFile` load summary), `:2314` (per-templet line), `:2667` (per-effect line), `:2864` (per-set sound line); the last three nested under `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` | -- |
-| `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` | 2026-09-26 | `KTDXLIB/Always.h:4315` | `X2Lib/X2EffectSet.h:634` (`EffectInstance::m_vecMeshTriggerData`), `:748` (`TargetMeshData`, `m_vecTargetMeshData`, `m_bIsRightWhenCreate`), `:844` (index accessors); `X2Lib/X2EffectSet.cpp:5` (`JuneFxEsCreate`, nested under `SERV_IRUHADEV_JUNE_FX_DEBUG`), `:36` (stage-2 helpers: `TRACE_MATRIX_IN_FIELD`, `SET_OVER_UI`), `:549` (damage case: `APPLY_DAMAGE_EFFECT_VELOCITY`, `USE_IS_RIGHT_WHEN_CREATE`), `:653` / `:712` / `:772` / `:822` (mesh cases), `:875`-`:1104` (particle cases, two sites each), `:1142` / `:1281` (target-mesh registration, damage / mesh), `:1244` (trigger-list copy), `:2188` (`OVERLAP`), `:3590` (facing snapshot in the `EffectSetInstance` ctor), `:3654` (`GetEffectPosition` index), `:3920` (`GetEffectRotation`), `:4520` (`SetEffectSetOffset`), `:4967` (accessor bodies); `KTDXLIB/KTDGXMeshPlayer.h:1325` (velocity-modifier methods), `:1575` (`m_vecVelocityModifier`, last member); `KTDXLIB/KTDGXMeshPlayer.cpp:1573` (their bodies), `:3360` / `:3385` (`CXMeshEvent_Velocity` re-apply) | -- |
+| `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` | 2026-09-26 | `KTDXLIB/Always.h:4318` | `X2Lib/X2EffectSet.h:634` (`EffectInstance::m_vecMeshTriggerData`, stage-3 `m_bGroupChild` / `m_wstrGroupChildBoneName` / `m_vGroupChildOffset`), `:659` (their initialisers), `:760` (`TargetMeshData`, `m_vecTargetMeshData`, `m_bIsRightWhenCreate`), `:856` (index accessors, the two bone-name helpers); `X2Lib/X2EffectSet.cpp:5` (`JuneFxEsCreate`, nested under `SERV_IRUHADEV_JUNE_FX_DEBUG`), `:36` (stage-2 helpers: `TRACE_MATRIX_IN_FIELD`, `SET_OVER_UI`; stage-3 `JuneFxUnsupported` `:225`, `JuneGroupChildPosition` `:249`), `:534` (`GROUP_NAME` loop head; the three stock position / rotation / scale lines are its `#else`), `:701` (damage case: `APPLY_DAMAGE_EFFECT_VELOCITY`, `USE_IS_RIGHT_WHEN_CREATE`), `:805` / `:864` / `:924` / `:974` (mesh cases), `:1027`-`:1256` (particle cases, two sites each), `:1276` (per-effect effect-alpha log), `:1308` / `:1447` (target-mesh registration, damage / mesh), `:1410` (trigger-list copy), `:1551` (group-child fields), `:1566` (loop tail), `:2372` (`OVERLAP`), `:2430` (templet effect-alpha log), `:2479` (`APPLIED_SKILL_ID` log), `:3791` (facing snapshot in the `EffectSetInstance` ctor), `:3855` (`GetEffectPosition` index), `:4114` (`NOT_ALLOW_MEMO` log), `:4128` (`GetEffectRotation`), `:4728` (`SetEffectSetOffset`), `:5175` (accessor bodies; stage-3 `GetEffectPositionByTargetMesh( .., bone, found )` `:5313`, `GetEffectPositionByBoneName` `:5362`); `KTDXLIB/KTDGXMeshPlayer.h:1325` (velocity-modifier methods), `:1575` (`m_vecVelocityModifier`, last member); `KTDXLIB/KTDGXMeshPlayer.cpp:1573` (their bodies), `:3360` / `:3385` (`CXMeshEvent_Velocity` re-apply) | -- |
 
 What each one does:
 
@@ -879,8 +879,46 @@ Phase 11, when June's files are adopted.
 - Regression, second run: Rena's Perfect Storm and the fire Hamelling Attack X logged exactly
   their stage-1 lines, with no errors and a clean shutdown. The Ranox mesh sets were not re-run.
 
-**Not done:** `GROUP_NAME` (including the particle `TRACE_MATRIX_IN_FIELD` group-child bone) and
-the unsupported-key logging are stage 3. Also not transcribed: June's tag-2 and tag-3 mesh
+**Stage 3** (2026-09-26) extends the same flag. The member mapping is in the plan's Phase 4a
+"Stage 3 result".
+- **`GROUP_NAME`** (particle types only). `OnFrameMove_CreateEffect` now takes rotation and scale
+  once per effect, then loops.
+  - Without `GROUP_NAME`, the loop body runs once, with the same `GetEffectPosition` call as before.
+  - With it, the loop creates one particle per bone `<base>_GROUPCHILD_<n>`, n from 1, where
+    `<base>` is the name up to `_GROUP`. It stops at the first bone that neither the holder nor
+    the creation target mesh has.
+  - The position comes from the new `EffectSetInstance::GetEffectPositionByBoneName` (June
+    `321dd590`), and from `GetEffectPositionByTargetMesh( .., bone, found )` (`321dcc20`) on a
+    target mesh.
+  - Each child `EffectInstance` keeps the flag, the bone and (with `BONE_NAME`) its offset in the
+    target mesh's `BONE_NAME` frame. Phase 4b's `UpdateEffect` needs all three.
+  - The particle `TRACE_MATRIX_IN_FIELD` helper takes the child's bone.
+  - The stock body is the loop body. It is not re-indented, so its bytes are unchanged.
+- **Unsupported-key logs** (plan rule 5, not behind the debug flag). `JUNE_FX unsupported <KEY> in
+  <templet>: <system> absent (value N, June <VA>)` is written to `offline_server.log`, once per
+  key per templet, where June would act on the key:
+  - `APPLIED_SKILL_ID` in `PlayEffectSet`, for user owners;
+  - `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`, at templet level in `_CreateEffectSetInstance` and per
+    effect (` EFFECT<i>`) in `OnFrameMove_CreateEffect`;
+  - `NOT_ALLOW_MEMO` in `GetEffectScale`.
+- New `JUNE_FX ES_CREATE` details: `GROUP_NAME child=<bone>`, `children=N(321f2581)`,
+  `child_bone_on_target_mesh_only`, `offset_in_target_mesh_bone`,
+  `offset_not_reproduced=no_target_mesh_bone`.
+
+**No data file uses `GROUP_NAME`.** Neither the four March-loaded effect-set files nor any June
+effect lua contains it, so the branch is implemented from the disassembly and cannot be
+play-tested. None of the four March files uses the three rule-5 keys either. June's
+`EffectSet.lua` does (`APPLIED_SKILL_ID` x170, `NOT_ALLOW_MEMO` x7, effect alpha x27), so those
+lines can first fire at Phase 11.
+
+**Built `US_SERVICE` (KTDXLIB, X2Lib, X2) and deployed to `X2_offline.exe` (SHA-256
+`7fd69ad01bce53c8…`). Regression play-tested 2026-09-26.** Every effect set now goes through the
+restructured loop, and the run logged exactly the stage-1/2 lines: Perfect Storm and the fire Hamelling
+Attack X (damage registration, unit-facing offset), both Ice Heaters (`SET_OVER_UI` layer), and the Ranox
+Babyfig (mesh registration, unit-facing offset). No `GROUP_NAME` or `unsupported` lines appeared, as expected. No
+unhandled packets or exceptions, and a clean shutdown.
+
+**Not done:** June's tag-2 and tag-3 mesh
 modifiers (`31c89fb0` on `+0x4ec`/`+0x4f8`, `31c8a720` on `+0x5cc`/`+0x5d0`), which are pushed
 only by `31c8aac0` from `32c076e0`, outside the effect code. `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE`
 is deferred: its consumer is on the unit side.

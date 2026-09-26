@@ -635,6 +635,14 @@ public:
 		// June2017 EffectInstance +0x4c: its own copy of MESH_TRIGGER_DATA_LIST, taken at creation
 		// (FUN_321ee600 @ 321f2130-321f2144, copy FUN_321f47f0), for Phase 4b's UpdateEffect
 		std::vector<MeshTriggerData>						m_vecMeshTriggerData;
+		// June2017 EffectInstance +0x2c / +0x30 / +0x20 (the ctor FUN_321f4c30 clears all three), set by
+		// FUN_321ee600 @ 321f2483-321f24f1 on each GROUP_NAME child particle: the flag, the child's bone
+		// <base>_GROUPCHILD_<n>, and, with BONE_NAME, the child's position in the target mesh's BONE_NAME
+		// frame (@ 321ef0ce-321ef1ef). Phase 4b's UpdateEffect reads all three (FUN_321e0080
+		// @ 321e0825-321e0986, 321e0d45-321e0d69).
+		bool												m_bGroupChild;
+		std::wstring										m_wstrGroupChildBoneName;
+		D3DXVECTOR3											m_vGroupChildOffset;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 		EffectInstance() :
@@ -648,6 +656,10 @@ public:
 		m_hMeshPlayer( INVALID_MESH_INSTANCE_HANDLE ),
 		m_hParticleSequence( INVALID_PARTICLE_SEQUENCE_HANDLE ),
 		m_optrGameUnit()	/// Destructor 처리는 해주지 않는다
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+		, m_bGroupChild( false )
+		, m_vGroupChildOffset( 0.f, 0.f, 0.f )
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 		{
 		}
 
@@ -847,6 +859,9 @@ public:
 		void InvalidateTargetMesh( IN int iIndex_ );
 		CKTDGXMeshPlayer::CXMeshInstance* GetMeshInstanceByTargetMesh( IN int iIndex_ );
 		bool GetEffectPositionByTargetMesh( OUT D3DXVECTOR3& vPos, IN EffectData* pEffectData, IN int iIndex_ );
+		// June2017 FUN_321dcc20 / FUN_321dd590: the two above with a caller-supplied bone, for GROUP_NAME
+		bool GetEffectPositionByTargetMesh( OUT D3DXVECTOR3& vPos, IN EffectData* pEffectData, IN int iIndex_, IN const std::wstring& wstrBoneName_, OUT bool& bBoneFound_ );
+		D3DXVECTOR3 GetEffectPositionByBoneName( IN EffectData* pEffectData, IN const std::wstring& wstrBoneName_, OUT bool& bBoneFound_ );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE

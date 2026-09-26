@@ -139,18 +139,18 @@ static void JuneTraceMatrixInFieldMesh( CX2EffectSet::EffectSetInstance* pInstan
 	@brief : June2017 TRACE_MATRIX_IN_FIELD for the particle cases of FUN_321ee600: @ 321f0ce3-321f0f45
 			 (UI major), 321f11da-321f1448 (UI minor), 321f1738-321f19b1 (game major) and
 			 321f1c12-321f1e7e (game minor), after the scale and before SET_OVER_UI. With GROUP_NAME
-			 June uses the group child's bone (@ 321f0d10-321f0d3b); that loop is stage 3, so the bone
-			 is BONE_NAME here.
+			 June uses the group child's bone (@ 321f0d10-321f0d3b), which the caller passes.
 */
 static void JuneTraceMatrixInFieldParticle( CX2EffectSet::EffectSetInstance* pInstance_, CX2EffectSet::EffectData* pEffectData_,
-										   CKTDGParticleSystem::CParticleEventSequence* pSequence_ )
+										   CKTDGParticleSystem::CParticleEventSequence* pSequence_, const WCHAR* pwszBoneName_ )
 {
 	if( NULL == pSequence_ || false == pEffectData_->m_bTraceMatrixInField )
 		return;
 
 	CKTDGXMeshPlayer::CXMeshInstanceHandle hTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
 	const bool bTargetMesh = JuneGetCreationTargetMesh( pInstance_, pEffectData_, hTargetMesh );
-	const WCHAR* pwszBoneName = pEffectData_->m_PositionBoneName.c_str();
+	// @ 321f0d10-321f0d3b: the GROUP_NAME child's bone when the effect has GROUP_NAME, else BONE_NAME
+	const WCHAR* pwszBoneName = pwszBoneName_;
 
 	if( true == pEffectData_->m_bTraceMatrix && NULL != pInstance_->GetOwnerUnit() && false == bTargetMesh )
 	{
@@ -216,6 +216,107 @@ static void JuneSetOverUI( CX2EffectSet::EffectSetInstance* pInstance_, CX2Effec
 	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 	JuneFxEsCreate( pInstance_, pEffectData_, L"SET_OVER_UI", L"layer=XDL_DIRECTING(321f0f59)" );
 	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+}
+
+// Plan rule 5 at run time: a key whose system this build lacks is logged once per key per templet, at the
+// June site that would act on it, as "JUNE_FX unsupported <KEY> in <templet>: <system> absent". It is not
+// a diagnostic, so it is not behind SERV_IRUHADEV_JUNE_FX_DEBUG. The parse-time lines (ErrorLog.txt,
+// SERV_IRUHADEV_JUNE_EFFECTSET_PARSE) use the same system wording.
+static void JuneFxUnsupported( const CX2EffectSet::EffectSetData* pEffectSetData_, const WCHAR* pwszKey_, const WCHAR* pwszScope_,
+							  const WCHAR* pwszSystem_, int iValue_, const WCHAR* pwszJuneSite_ )
+{
+	if( NULL == pEffectSetData_ )
+		return;
+
+	static std::set<std::wstring> s_setLogged;
+	// the templet-level and per-effect reads are separate rows, but each is logged once per templet: the
+	// scope (" EFFECT<i>") is printed, and only whether there is one goes into the key
+	std::wstring wstrLogKey = pwszKey_;
+	wstrLogKey += ( L'\0' == pwszScope_[0] ) ? L"" : L"(effect)";
+	wstrLogKey += L"|";
+	wstrLogKey += pEffectSetData_->m_wstrEffectSetName;
+	if( false == s_setLogged.insert( wstrLogKey ).second )
+		return;
+
+	CX2OfflineLog::Server( L"JUNE_FX unsupported %s in %s%s: %s absent (value %d, June %s)", pwszKey_,
+		pEffectSetData_->m_wstrEffectSetName.c_str(), pwszScope_, pwszSystem_, iValue_, pwszJuneSite_ );
+}
+
+/** @function : JuneGroupChildPosition
+	@brief : June2017 FUN_321ee600 @ 321eeeeb-321ef1ef, one pass of the GROUP_NAME loop: the bone
+			 <base>_GROUPCHILD_<n>, the position there, and (with BONE_NAME) that position in the target
+			 mesh's BONE_NAME frame. False ends the loop (@ 321f2581): the bone is on neither the holder
+			 nor the creation target mesh.
+*/
+static bool JuneGroupChildPosition( CX2EffectSet::EffectSetInstance* pInstance_, CX2EffectSet::EffectData* pEffectData_,
+								   const std::wstring& wstrGroupBase_, int iGroupChild_, int iCreationTargetMeshIndex_, bool bCreationTargetMesh_,
+								   OUT std::wstring& wstrBoneName_, OUT D3DXVECTOR3& vPos_, OUT D3DXVECTOR3& vOffset_ )
+{
+	// @ 321eeeeb-321ef01d: <base> + L"_GROUPCHILD_" (3347e540) + n formatted with L"%d" (3346a6b0)
+	WCHAR wszChild[16] = {0};
+	StringCchPrintfW( wszChild, ARRAY_SIZE(wszChild), L"%d", iGroupChild_ );
+	wstrBoneName_ = wstrGroupBase_;
+	wstrBoneName_ += L"_GROUPCHILD_";
+	wstrBoneName_ += wszChild;
+	vOffset_ = D3DXVECTOR3( 0.f, 0.f, 0.f );
+
+	// @ 321ef020-321ef067: the position at that bone (FUN_321dd590), which also says whether the bone exists
+	bool bBoneFound = false;
+	vPos_ = pInstance_->GetEffectPositionByBoneName( pEffectData_, wstrBoneName_, bBoneFound );
+	if( false == bBoneFound )
+	{
+		// @ 321ef069-321ef0c9: a bone the holder lacks still counts when the creation target mesh's own
+		// skeleton has it (FUN_321dc910, then mesh +0x3c0 = m_pXSkinAnim -> FUN_31d38a20 = GetCloneFrame). The
+		// position is left as FUN_321dd590 returned it (for the owner, its head bone).
+		if( false == bCreationTargetMesh_ )
+			return false;
+		CKTDGXMeshPlayer::CXMeshInstance* pTargetMesh = pInstance_->GetMeshInstanceByTargetMesh( iCreationTargetMeshIndex_ );
+		if( NULL == pTargetMesh || NULL == pTargetMesh->GetXSkinAnim() ||
+			NULL == pTargetMesh->GetXSkinAnim()->GetCloneFrame( wstrBoneName_.c_str() ) )
+			return false;
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		JuneFxEsCreate( pInstance_, pEffectData_, L"GROUP_NAME", L"child_bone_on_target_mesh_only(321ef0c9)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	}
+
+	// @ 321ef0ce-321ef1ef: with BONE_NAME, the position is taken into the target mesh's BONE_NAME frame: the
+	// inverse of its combined matrix (FUN_330869f6 = D3DXMatrixInverse( out, NULL, m )), D3DXVec3Transform
+	// (FUN_33086a08, a 4-float result), then / w. Both D3DX calls are named by shape; their IAT slots
+	// (333bce78, 333bce6c) are bound in the dump.
+	if( false == pEffectData_->m_PositionBoneName.empty() )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pTargetMesh = pInstance_->GetMeshInstanceByTargetMesh( iCreationTargetMeshIndex_ );
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = NULL;
+		if( NULL != pTargetMesh && NULL != pTargetMesh->GetXSkinAnim() )
+			pFrame = pTargetMesh->GetXSkinAnim()->GetCloneFrame( pEffectData_->m_PositionBoneName.c_str() );
+		if( NULL != pFrame )
+		{
+			D3DXMATRIX matInverse;
+			D3DXMatrixInverse( &matInverse, NULL, &pFrame->combineMatrix );
+			D3DXVECTOR4 vTransformed;
+			D3DXVec3Transform( &vTransformed, &vPos_, &matInverse );
+			const float fInverseW = 1.f / vTransformed.w;
+			vOffset_ = D3DXVECTOR3( vTransformed.x * fInverseW, vTransformed.y * fInverseW, vTransformed.z * fInverseW );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxEsCreate( pInstance_, pEffectData_, L"GROUP_NAME", L"offset_in_target_mesh_bone(321ef140)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		}
+		else
+		{
+			// June still copies its stack vector into the EffectInstance (@ 321f24ac-321f24f1), uncomputed. That
+			// value cannot be reproduced; the offset stays at the ctor's (0,0,0).
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxEsCreate( pInstance_, pEffectData_, L"GROUP_NAME", L"offset_not_reproduced=no_target_mesh_bone(321ef0ea)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		}
+	}
+
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	std::wstring wstrJuneFx = L"child=";
+	wstrJuneFx += wstrBoneName_;
+	JuneFxEsCreate( pInstance_, pEffectData_, L"GROUP_NAME", wstrJuneFx.c_str() );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	return true;
 }
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
@@ -432,9 +533,62 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 
 #endif // MODIFY_CREATE_EFFECT_SET_LIMIT_DISTANCE
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+			// June2017 FUN_321ee600 @ 321eee07-321eee21: rotation and scale are taken once per effect, before the
+			// position, and every GROUP_NAME child below shares them
+			const D3DXVECTOR3 vEffectRotation = pEffectSetInstance->GetEffectRotation( pEffectData );
+			const D3DXVECTOR3 vEffectScale = pEffectSetInstance->GetEffectScale( pEffectData );
+
+			// @ 321ee76b-321ee7c9: the creation target mesh, index max( BONE_TRACE_TARGET_MESH_INDEX, 0 )
+			const int iJuneCreationTargetMeshIndex = ( pEffectData->m_iBoneTraceTargetMeshIndex < 0 ) ? 0 : pEffectData->m_iBoneTraceTargetMeshIndex;
+			CKTDGXMeshPlayer::CXMeshInstanceHandle hJuneCreationTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
+			const bool bJuneCreationTargetMesh = JuneGetCreationTargetMesh( pEffectSetInstance, pEffectData, hJuneCreationTargetMesh );
+
+			// @ 321eee45-321eeeb7: GROUP_NAME, particle types only. The base is GROUP_NAME up to its first L"_GROUP"
+			// (3347e55c; all of it when there is none). Each pass of the loop below creates one particle at the
+			// bone <base>_GROUPCHILD_<n>, n = 1, 2, ..., until a bone is missing (@ 321eeec0-321ef0ce; next pass
+			// @ 321f2550-321f257c; exit @ 321f2581). Such an effect creates nothing at BONE_NAME itself. Without
+			// GROUP_NAME the loop runs once. The studio code below is the loop body and is not re-indented.
+			bool bGroupName = false;
+			std::wstring wstrGroupBase;
+			if( ( ET_PARTICLE_UI_MAJOR == pEffectData->m_eEffectType || ET_PARTICLE_UI_MINOR == pEffectData->m_eEffectType ||
+				  ET_PARTICLE_GAME_MAJOR == pEffectData->m_eEffectType || ET_PARTICLE_GAME_MINOR == pEffectData->m_eEffectType ) &&
+				false == pEffectData->m_wstrGroupName.empty() )
+			{
+				wstrGroupBase = pEffectData->m_wstrGroupName.substr( 0, pEffectData->m_wstrGroupName.find( L"_GROUP" ) );
+				bGroupName = true;
+			}
+
+			for( int iGroupChild = 1; ; ++iGroupChild )
+			{
+			std::wstring wstrGroupChildBoneName;
+			D3DXVECTOR3 vGroupChildOffset( 0.f, 0.f, 0.f );
+			D3DXVECTOR3 vEffectPos( 0.f, 0.f, 0.f );
+			if( true == bGroupName )
+			{
+				if( false == JuneGroupChildPosition( pEffectSetInstance, pEffectData, wstrGroupBase, iGroupChild, iJuneCreationTargetMeshIndex,
+													 bJuneCreationTargetMesh, wstrGroupChildBoneName, vEffectPos, vGroupChildOffset ) )
+				{
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+					WCHAR wszJuneFx[64] = {0};
+					StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"children=%d(321f2581)", iGroupChild - 1 );
+					JuneFxEsCreate( pEffectSetInstance, pEffectData, L"GROUP_NAME", wszJuneFx );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+					break;
+				}
+			}
+			else
+			{
+				// @ 321ef229-321ef260: GetEffectPosition (FUN_321dcd30)
+				vEffectPos = pEffectSetInstance->GetEffectPosition( pEffectData );
+			}
+			// @ 321f0d10-321f0d3b (likewise @ 321f1207, 321f1765, 321f1c2b): TRACE_MATRIX_IN_FIELD takes the child's bone
+			const WCHAR* pwszJuneParticleBoneName = ( true == bGroupName ) ? wstrGroupChildBoneName.c_str() : pEffectData->m_PositionBoneName.c_str();
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 			const D3DXVECTOR3 vEffectPos = pEffectSetInstance->GetEffectPosition( pEffectData );
 			const D3DXVECTOR3 vEffectRotation = pEffectSetInstance->GetEffectRotation( pEffectData );
 			const D3DXVECTOR3 vEffectScale = pEffectSetInstance->GetEffectScale( pEffectData );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 			CX2DamageEffect::CEffect* pEffect = NULL;
 			CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = NULL;
@@ -874,7 +1028,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 						// June2017 FUN_321ee600 @ 321f0ce3 (UI major): TRACE_MATRIX_IN_FIELD
-						JuneTraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence );
+						JuneTraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence, pwszJuneParticleBoneName );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 #ifdef FIX_ICE_HEATER_EVENT
@@ -956,7 +1110,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 						// June2017 FUN_321ee600 @ 321f11da (UI minor): TRACE_MATRIX_IN_FIELD
-						JuneTraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence );
+						JuneTraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence, pwszJuneParticleBoneName );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 #ifdef FIX_ICE_HEATER_EVENT
@@ -1030,7 +1184,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 							// June2017 FUN_321ee600 @ 321f1738 (game major): TRACE_MATRIX_IN_FIELD
-							JuneTraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence );
+							JuneTraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence, pwszJuneParticleBoneName );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 #ifdef FIX_ICE_HEATER_EVENT
@@ -1095,7 +1249,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 							// June2017 FUN_321ee600 @ 321f1c12 (game minor): TRACE_MATRIX_IN_FIELD
-							JuneTraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence );
+							JuneTraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence, pwszJuneParticleBoneName );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 #ifdef FIX_ICE_HEATER_EVENT
@@ -1120,6 +1274,20 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 				} break;
 			}
 
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+			// June2017 FUN_321ee600 @ 321f1ec8-321f1ee4: the effect-alpha option. The effect's own value is used only
+			// when it is 1; any other value takes the instance's (+0x1bc, see _CreateEffectSetInstance). It then
+			// goes to the damage effect (+0xb32), the mesh (FUN_31c83620) or the particle (+0x1b0, @ 321f254a).
+			// This build has no effect-alpha option, so a set using the key is logged only (plan rule 5).
+			if( 0 != pEffectData->m_iApplyEffectAlphaConditionByOption )
+			{
+				WCHAR wszJuneScope[32] = {0};
+				StringCchPrintfW( wszJuneScope, ARRAY_SIZE(wszJuneScope), L" EFFECT%d", (int) i );
+				JuneFxUnsupported( pEffectSetInstance->m_pEffectSetData, L"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION", wszJuneScope,
+					L"effect-alpha option", pEffectData->m_iApplyEffectAlphaConditionByOption, L"321f1ec8" );
+			}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 			switch( pEffectData->m_eEffectType )
 			{
@@ -1382,10 +1550,28 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						pEffectInstance->m_hParticleSequence	= pParticleSequence->GetHandle();
 						pEffectInstance->m_optrGameUnit			= pEffectSetInstance->m_optrGameUnit;
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+						// June2017 FUN_321ee600 @ 321f2483-321f24f1: a GROUP_NAME child keeps the flag (EffectInstance +0x2c),
+						// its bone (+0x30) and, with BONE_NAME, its offset in the target mesh's BONE_NAME frame (+0x20)
+						if( true == bGroupName )
+						{
+							pEffectInstance->m_bGroupChild = true;
+							pEffectInstance->m_wstrGroupChildBoneName = wstrGroupChildBoneName;
+							if( false == pEffectData->m_PositionBoneName.empty() )
+								pEffectInstance->m_vGroupChildOffset = vGroupChildOffset;
+						}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 						pEffectSetInstance->m_vecpEffectInstance.push_back( pEffectInstance );
 					}
 				} break;
 			}
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+			// June2017 FUN_321ee600 @ 321f2550-321f257c: the next GROUP_NAME child; without GROUP_NAME the effect is
+			// done after one pass (@ 321f25a7)
+			if( false == bGroupName )
+				break;
+			}	// for( iGroupChild )
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 		}
 	}
 }
@@ -2243,6 +2429,15 @@ CX2EffectSet::EffectSetInstance*   CX2EffectSet::_CreateEffectSetInstance(
 #endif  X2OPTIMIZE_HANDLE_VALIDITY_CHECK
     } while ( handle == INVALID_EFFECTSET_HANDLE );
     pEffectSetInstance->SetHandle( handle );
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+	// June2017 FUN_321e1bf0 @ 321e1dd7-321e1e0c, after the instance ctor: the instance's effect-alpha option
+	// (+0x1bc) is the templet's APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION when non-zero, else a value derived
+	// from the game options (FUN_322d4d10), for every set. This build has neither, so a set using the key is
+	// logged only (plan rule 5).
+	if( 0 != pEffectSetData->m_iApplyEffectAlphaConditionByOption )
+		JuneFxUnsupported( pEffectSetData, L"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION", L"", L"effect-alpha option",
+			pEffectSetData->m_iApplyEffectAlphaConditionByOption, L"321e1dd7" );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
     return  pEffectSetInstance;
 }
@@ -2283,6 +2478,14 @@ CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetNa
 		{
 			CX2GUUser* pUser = (CX2GUUser*) pGameUnit;
 			skinAnimPtr = pUser->GetXSkinAnimPtr();
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+			// June2017 FUN_321e1e60 @ 321e1f51-321e1f95, user owners only: APPLIED_SKILL_ID looks the skill's memo up
+			// on the user (FUN_31fdbbb0, user +0x867c) and, for a type-2 entry, sets the templet's memo scale
+			// (EffectSetData +0x60), which GetEffectScale applies unless NOT_ALLOW_MEMO. This build has no
+			// applied-skill-ID system, so a set using the key is logged only (plan rule 5).
+			if( 0 != pEffectSetData->m_iAppliedSkillID )
+				JuneFxUnsupported( pEffectSetData, L"APPLIED_SKILL_ID", L"", L"applied-skill-ID system", pEffectSetData->m_iAppliedSkillID, L"321e1f57" );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 		} break;
 
 	case CX2GameUnit::GUT_NPC:
@@ -3910,6 +4113,13 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectScale( EffectData* pEffect
 		vScale.z *= m_vScale.z;
 	}
 	
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+	// June2017 FUN_321dddb0 @ 321dde5f-321dde89: unless NOT_ALLOW_MEMO, the scale is multiplied by the memo scale
+	// APPLIED_SKILL_ID sets (EffectData +0x108, copied from the instance @ 321eede8). March has no memo scale,
+	// so the key changes nothing here; it is logged only (plan rule 5).
+	if( true == pEffectData->m_bNotAllowMemo )
+		JuneFxUnsupported( m_pEffectSetData, L"NOT_ALLOW_MEMO", L"", L"applied-skill-ID system", 1, L"321dde5f" );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 	return vScale;
 }
 
@@ -5094,6 +5304,154 @@ bool CX2EffectSet::EffectSetInstance::GetEffectPositionByTargetMesh( OUT D3DXVEC
 	}
 
 	return true;
+}
+
+/** @function : GetEffectPositionByTargetMesh
+	@brief : June2017 FUN_321dcc20: FUN_321dcac0 (above) with a caller-supplied bone in place of BONE_NAME,
+			 for GROUP_NAME. With it empty the order is WEAPON_BONE_NAME, then RIDING_PET_BONE_NAME (here the
+			 result is kept), else the mesh position. bBoneFound_ is written only by a bone lookup
+			 (FUN_321f29e0 = the mesh's GetBonePos( name, out ), KTDGXMeshPlayer.h).
+*/
+bool CX2EffectSet::EffectSetInstance::GetEffectPositionByTargetMesh( OUT D3DXVECTOR3& vPos, IN EffectData* pEffectData, IN int iIndex_,
+																		   IN const std::wstring& wstrBoneName_, OUT bool& bBoneFound_ )
+{
+	CKTDGXMeshPlayer::CXMeshInstanceHandle hTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
+	EFFECT_TYPE eEffectType = ET_INVALID;
+	if( false == GetTargetMesh( iIndex_, hTargetMesh, eEffectType ) || ET_INVALID == eEffectType ||
+		true == pEffectData->m_bTraceUserTargetForce )
+		return false;
+
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = GetMeshInstanceByTargetMesh( iIndex_ );
+	if( NULL == pMeshInstance )
+	{
+		InvalidateTargetMesh( iIndex_ );
+		return false;
+	}
+
+	const WCHAR* pwszBoneName = NULL;
+	if( false == wstrBoneName_.empty() )
+		pwszBoneName = wstrBoneName_.c_str();
+	else if( false == pEffectData->m_PositionWeaponBoneName.empty() )
+		pwszBoneName = pEffectData->m_PositionWeaponBoneName.c_str();
+	else if( false == pEffectData->m_PosRidingPetBoneName.empty() )
+		pwszBoneName = pEffectData->m_PosRidingPetBoneName.c_str();
+	else
+	{
+		vPos = pMeshInstance->GetPos();
+		return true;
+	}
+
+	// June does not test the mesh's skin anim here and would fault without one; here it is a missing bone
+	if( NULL == pMeshInstance->GetXSkinAnim() )
+	{
+		vPos = D3DXVECTOR3( 0.f, 0.f, 0.f );
+		bBoneFound_ = false;
+		return true;
+	}
+	bBoneFound_ = pMeshInstance->GetBonePos( pwszBoneName, vPos );
+	return true;
+}
+
+/** @function : GetEffectPositionByBoneName
+	@brief : June2017 FUN_321dd590: GetEffectPosition (FUN_321dcd30) with a caller-supplied bone in place of
+			 BONE_NAME, which also says whether the bone exists. Its two callers are the GROUP_NAME loop of
+			 FUN_321ee600 (@ 321ef040) and UpdateEffect (FUN_321e0080 @ 321e0933, Phase 4b). Both pass
+			 <base>_GROUPCHILD_<n>, so the empty-name branches of FUN_321dd590 (weapon bone, riding-pet bone,
+			 position) are unreachable and not transcribed: an empty name returns (0,0,0), not found. The
+			 June-only holders (instance override bone +0x130, UI viewer +0xdd, +0xe0, riding pet +0xd8) are
+			 keyless and absent here, as in GetEffectPosition.
+*/
+D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPositionByBoneName( IN EffectData* pEffectData, IN const std::wstring& wstrBoneName_, OUT bool& bBoneFound_ )
+{
+	D3DXVECTOR3 vPos( 0.f, 0.f, 0.f );
+	bBoneFound_ = false;		// @ 321dd5fe
+	if( NULL == pEffectData || true == wstrBoneName_.empty() )
+		return vPos;
+
+	// @ 321dd5ea-321dd674: the target-mesh index as in GetEffectPosition, then FUN_321dcc20; on success the
+	// offset (FUN_321d9820 @ 321ddd53) and return
+	int iTargetMeshIndex = pEffectData->m_iBoneTraceTargetMeshIndex;
+	if( false == pEffectData->m_bBoneTraceTargetMesh && iTargetMeshIndex < 0 )
+		iTargetMeshIndex = 0;
+	if( true == GetEffectPositionByTargetMesh( vPos, pEffectData, iTargetMeshIndex, wstrBoneName_, bBoneFound_ ) )
+	{
+		SetEffectSetOffset( vPos, pEffectData->m_vPositionOffset, pEffectData );
+		return vPos;
+	}
+
+	// @ 321dd681-321dd6a6: a custom position; the bone counts as not found
+	if( true == m_bCustomPosition )
+	{
+		vPos = m_vPosition;
+		SetEffectSetOffset( vPos, pEffectData->m_vPositionOffset, pEffectData );
+		return vPos;
+	}
+
+	const WCHAR* pwszBoneName = wstrBoneName_.c_str();
+	switch( m_eMode )
+	{
+	case ESM_GAME:
+		{
+			if( NULL == g_pX2Game )
+				return vPos;
+
+			if( null != m_optrTraceTargetGameUnit )
+			{
+				// @ 321dda83-321ddb21: the trace target's bone (unit vfunc 0x80 = GetBonePos( name, out ), as
+				// GetEffectPosition's MODIFY_GET_BONE_POS call); no head-bone fallback
+				if( 0 == wstrBoneName_.compare( L"_HEAD_BONE" ) )
+					vPos = m_optrTraceTargetGameUnit->GetHeadBonePos();
+				else
+					bBoneFound_ = m_optrTraceTargetGameUnit->GetBonePos( pwszBoneName, vPos );
+			}
+			else if( null != m_optrGameUnit )
+			{
+				// @ 321ddb8f-321ddc15: the owner's bone, else its head bone (vfunc 0xfc = GetHeadBonePos), not found
+				if( 0 == wstrBoneName_.compare( L"_HEAD_BONE" ) )
+					vPos = m_optrGameUnit->GetHeadBonePos();
+				else
+				{
+					bBoneFound_ = m_optrGameUnit->GetBonePos( pwszBoneName, vPos );
+					if( false == bBoneFound_ )
+						vPos = m_optrGameUnit->GetHeadBonePos();
+				}
+			}
+			else
+			{
+				return vPos;
+			}
+
+			SetEffectSetOffset( vPos, pEffectData->m_vPositionOffset, pEffectData );
+		} break;
+
+	case ESM_FIELD:
+		{
+			// @ 321dd8a9: the square unit's bone. FUN_321f3020 is the bool form of FUN_321f2f20 (= CX2SquareUnit::
+			// GetBonePos, X2SquareUnit.h): its unit viewer's skin anim, else not found.
+			if( m_pSquareUnit != NULL )
+			{
+				if( NULL != m_pSquareUnit->GetUnitViewer() && NULL != m_pSquareUnit->GetUnitViewer()->GetXSkinAnim() )
+					bBoneFound_ = m_pSquareUnit->GetUnitViewer()->GetXSkinAnim()->GetCloneFramePosition( pwszBoneName, vPos );
+				SetEffectSetOffset( vPos, pEffectData->m_vPositionOffset, pEffectData );
+			}
+		} break;
+
+#ifdef SERV_PET_SYSTEM
+	case ESM_COMMON:
+		{
+			// @ 321dd72f: the pet's bone. FUN_321f2b80 is the bool form of FUN_31e4d9e0 (= CX2PET::GetBonePos,
+			// X2PET.h): its skin anim, else not found.
+			if( m_pPet != NULL )
+			{
+				if( NULL != m_pPet->GetXSkinAnim() )
+					bBoneFound_ = m_pPet->GetXSkinAnim()->GetCloneFramePosition( pwszBoneName, vPos );
+				SetEffectSetOffset( vPos, pEffectData->m_vPositionOffset, pEffectData );
+			}
+		} break;
+#endif SERV_PET_SYSTEM
+	}
+
+	return vPos;
 }
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 

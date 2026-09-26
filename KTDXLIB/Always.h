@@ -4312,5 +4312,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // the MESH_TRIGGER_DATA_LIST copy, APPLY_DAMAGE_EFFECT_VELOCITY (with a
 // velocity-modifier list on CKTDGXMeshPlayer::CXMeshInstance, re-applied by
 // its velocity event) and the SET_OVER_UI layer.
+// Stage 3 (2026-09-26) adds GROUP_NAME (one particle per <base>_GROUPCHILD_<n>
+// bone) and the run-time rule-5 logs for APPLIED_SKILL_ID, NOT_ALLOW_MEMO and
+// APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION.
 #define SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 //////////////////////////////////////////////////////////////////////////

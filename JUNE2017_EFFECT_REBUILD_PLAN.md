@@ -754,7 +754,7 @@ Resume at the first stage not marked done.
 |---|---|---|
 | 1 | Offset, position, rotation, the target-mesh vector, `ZOFFSET`, `OVERLAP`, debug lines | **done** 2026-09-26: clean `US_SERVICE` build, deployed to `X2_offline.exe` (SHA-256 `33d1eb57d282fae6…`); **play-tested 2026-09-26**, see below |
 | 2 | `USE_IS_RIGHT_WHEN_CREATE`, `TRACE_MATRIX_IN_FIELD`, trigger-list copy + mesh `+0x194`, `APPLY_DAMAGE_EFFECT_VELOCITY`, `SET_OVER_UI` layer | **done** 2026-09-26: clean `US_SERVICE` build (KTDXLIB, X2Lib, X2), deployed to `X2_offline.exe` (SHA-256 `d31b2cb8328d66c1…`); **play-tested 2026-09-26** (Ice Heater `SET_OVER_UI`), see "Stage 2 play-test result" |
-| 3 | `GROUP_NAME` (`321dd590`, the `_GROUPCHILD_` loop), unsupported-key logging | not started |
+| 3 | `GROUP_NAME` (`321dd590`, the `_GROUPCHILD_` loop), unsupported-key logging | **implemented** 2026-09-26: clean `US_SERVICE` build (KTDXLIB, X2Lib, X2), deployed to `X2_offline.exe` (SHA-256 `7fd69ad01bce53c8…`), see "Stage 3 result". No data file, March's or June's, uses `GROUP_NAME`, so that branch can never be play-tested; **regression play-tested 2026-09-26**, see "Stage 3 regression result" |
 
 ### June layout used for reading (never ported)
 
@@ -1034,6 +1034,102 @@ That run had no `UNHANDLED`/`EXCEPTION` and shut down cleanly. So stage 2 did no
 stage-1 damage-effect path. The Ranox mesh sets were not re-run. The other four stage-2 keys stay
 implemented but unexercised until Phase 11.
 
+**Stage 3 result (2026-09-26).** Members were mapped as in stage 2: a March `offsetof` probe
+(`offsetprobe.py`) plus one June function whose shape matches a March one.
+
+| June | March member | probe | shape match |
+|---|---|---|---|
+| EffectData `+0x5c` / `+0x6c` | `m_wstrGroupName` (its size) | `0xe4` | the `GROUP_NAME` getter destination in `321e48e0` (Phase 3) |
+| EffectData `+0x40` / `+0x50` | `m_PositionBoneName` (its size) | `0x40` | `321dcd30` reads it where March's `GetEffectPosition` reads `BONE_NAME` |
+| EffectData `+0x105`, `+0x1e5` | `m_bNotAllowMemo`, `m_iApplyEffectAlphaConditionByOption` | `0x10c`, `0x110` | their parser reads `321ea221`-`321ea326` / `321ea3ac`-`321ea634` (Phase 3) |
+| EffectSetData `+0x5c`, `+0x6d` | `m_iAppliedSkillID`, `m_iApplyEffectAlphaConditionByOption` | `0x4c`, `0x54` | their parser reads `321e5675`-`321e579e` / `321e5a5d`-`321e5cec` (Phase 2) |
+| EffectInstance `+0`..`+0x14` | `m_bAlive`, `m_pEffectData`, the three handles, `m_optrGameUnit` | `0`, `4`, `8`/`0xc`/`0x10`, `0x14` (`CX2GameUnitoPtr` is 8 bytes) | the ctor `321f4c30` stores `1, 0, -1, -1, -1, 0` in March's init-list order |
+| EffectInstance `+0x20` / `+0x2c` / `+0x30` | **none**. March's members end at `0x1c`, where stage 2's `m_vecMeshTriggerData` (June `+0x4c`) sits | - | cleared by `321f4c30`; written only by the `GROUP_NAME` loop (`@321f2483`-`321f24f1`); read by UpdateEffect `321e0080` @`321e0825`-`321e0986` and `@321e0d49`. Added as `m_vGroupChildOffset` / `m_bGroupChild` / `m_wstrGroupChildBoneName`, for 4b |
+| pet `+0x2a4` | `CX2PET::m_pXSkinAnim` | `0x160` | `31e4d9e0` = `CX2PET::GetBonePos` (`X2PET.h:720`); `321f2b80` is its bool form |
+| square unit `+0x2ec` | `CX2SquareUnit::m_pUnitViewer` | `0x1a0` | `321f2f20` = `CX2SquareUnit::GetBonePos` (`X2SquareUnit.h:318`); `321f3020` is its bool form |
+| unit vfunc `0x80` / `0xfc` | `GetBonePos( name, out )` / `GetHeadBonePos` | - | `321dcd30`'s owner branch = `GetEffectPosition`'s `MODIFY_GET_BONE_POS` call with the head-bone fallback (`X2EffectSet.cpp`, `GetEffectPosition`) |
+| mesh `+0x3c0` | `m_pXSkinAnim` | `0x290` (stage 2) | `321f29e0` = `GetBonePos( name, out )` (`KTDGXMeshPlayer.h:1344`) |
+
+What was transcribed:
+- **`321dd590` → `EffectSetInstance::GetEffectPositionByBoneName`.** This is `GetEffectPosition` with the
+  bone passed in and a "bone found" flag. **`321dcc20`** is the same variant of `GetEffectPositionByTargetMesh`.
+  - `321dd590` has two callers, the loop (`@321ef040`) and UpdateEffect (`@321e0933`). Both pass
+    `<base>_GROUPCHILD_<n>`, so its empty-name branches (weapon bone, riding pet, position) are unreachable
+    and are not transcribed.
+  - Every March `GetBonePos( name, out )` override returns false for a missing bone
+    (`X2GUNPC.h:1841`, `X2GUUser.cpp:33996`, `KTDGXSkinAnim.h:292`; `MODIFY_GET_BONE_POS` is on). So the
+    loop terminates.
+- **The loop, in `OnFrameMove_CreateEffect`.**
+  - Rotation and scale are now taken once, before the position, as June does (`@321eee07`-`321eee21`).
+    Without `GROUP_NAME` the body runs once, with the same position call as before.
+  - With `GROUP_NAME` on a particle type:
+    - The base is the name up to its first `_GROUP` (`3347e55c`).
+    - Each pass builds `<base>_GROUPCHILD_<n>` (`3347e540`, `%d` at `3346a6b0`), n from 1, and creates one
+      particle at that bone.
+    - A bone the holder lacks still counts when the creation target mesh's skeleton has it
+      (`@321ef069`-`321ef0c9`). The position is then what `321dd590` returned, e.g. the owner's head bone.
+      This is transcribed as it is.
+    - The loop ends at the first missing bone (`@321f2581`). Nothing is created at `BONE_NAME` itself.
+  - With `BONE_NAME` set, the child position is also taken into the target mesh's `BONE_NAME` frame
+    (`@321ef0ce`-`321ef1ef`), using the inverse of `combineMatrix`, then `D3DXVec3Transform`, then / w.
+    - The two D3DX calls are named by shape, `(out, NULL, M)` and a 4-float result, because their IAT slots
+      are bound in the dump.
+    - When the mesh or bone is missing, June still copies an uncomputed stack vector (`@321f24ac`). That
+      is not reproduced: the offset stays at (0,0,0), with a `JUNE_FX` detail.
+  - The flag, bone and offset go onto the particle `EffectInstance` for 4b.
+  - The particle `TRACE_MATRIX_IN_FIELD` helper now takes the child's bone (`@321f0d10`-`321f0d3b`).
+- **Rule-5 run-time lines.** `JUNE_FX unsupported <KEY> in <templet>: <system> absent (value N, June <VA>)`
+  is written to `offline_server.log`, once per key per templet, at June's consumer site:
+  - `APPLIED_SKILL_ID` in `PlayEffectSet`'s user branch (`@321e1f57`);
+  - the templet `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` in `_CreateEffectSetInstance` (`@321e1dd7`);
+  - the per-effect one, with ` EFFECT<i>` in the templet field, in `OnFrameMove_CreateEffect` (`@321f1ec8`);
+  - `NOT_ALLOW_MEMO` in `GetEffectScale` (`@321dde5f`).
+
+  They are not behind `SERV_IRUHADEV_JUNE_FX_DEBUG`. The system wording matches the parse-time lines.
+- Two June facts about the effect-alpha option, for whoever builds that system:
+  - When the templet value is 0, the factory derives the option from the game options (`322d4d10`) for
+    **every** set. So March differs from June on every set, not only on sets that use the key.
+  - A per-effect value is used only when it is exactly 1 (`CMP CL,1` @`321f1ed9`). Any other value falls
+    back to the instance's.
+
+**Which data can fire it.** All four effect-set files March loads, and every June effect lua in
+`june2017_re/june_lua/`, were searched for `GROUP_NAME`, `APPLIED_SKILL_ID`, `NOT_ALLOW_MEMO` and
+`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`:
+- The March files have none of the four.
+- June's `EffectSet.lua` has `APPLIED_SKILL_ID` x170, `NOT_ALLOW_MEMO` x7 and the effect-alpha key x27;
+  `UIEffectSet.lua` has the effect-alpha key x2. These rule-5 lines can fire from Phase 11.
+- **No June file uses `GROUP_NAME` at all.** The binary reads it and no data exercises it, now or after
+  Phase 11. The branch is implemented from the disassembly and is **untestable**, not merely untested.
+  The only evidence that it is in the build is static: the deployed `X2_offline.exe` contains the UTF-16
+  literals `_GROUPCHILD_`, `child_bone_on_target_mesh_only(321ef0c9)` and the rule-5 format string.
+
+**Matrix diff against HEAD** (line numbers normalized): the five `RUNTIME` rows and the matching
+`runtime 4a: … (stage 3)` → `(done)` notes change. The raw-literal, bare-id and rule-5-hit **lead counts**
+of `APPLIED_SKILL_ID`, `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` and the memo / applied-skill /
+effect-alpha system rows also rise, because the new log calls contain those names. No status, phase or
+semantics cell changed, and the summary counts are identical.
+
+**Stage 3 regression result (2026-09-26, exe `7fd69ad01bce53c8…`).** `offline_server.log` shows exactly the
+stage-1/2 lines:
+- Perfect Storm: `registered_index=0(damage)` x1.
+- Fire Hamelling Attack X: `…_MAIN registered_index=0(damage)` x2, `…Attack_X04 offset=unit_facing(321d98c0)` x4.
+- Ice Heater and Halloween Ice Heater: `SET_OVER_UI layer=XDL_DIRECTING(321f0f59)` on the Wait and Start sets (7 lines).
+- Ranox Burned Forest Babyfig (`EffectSet_NUI_RAGE_BABYFIG_Attack_A_Ready`): `registered_index=0(mesh)` x9,
+  `offset=unit_facing(321d98c0)` x11. This covers the mesh cases, which were not re-run after stage 2.
+
+As expected, no `GROUP_NAME` or `JUNE_FX unsupported` line appeared. There were no `UNHANDLED`/`EXCEPTION`
+lines, and the shutdown was clean. So the restructured creation loop left the damage, mesh and particle paths
+unchanged.
+
+**For Phase 4b:** the group-child members `EffectInstance::m_bGroupChild` / `m_wstrGroupChildBoneName` /
+`m_vGroupChildOffset` are written but not read yet. UpdateEffect reads them @`321e0825`-`321e0986`
+(position through `321dd590`, or the offset through the matrix of `321dc550`, a `GetCombineMatrix`
+candidate) and @`321e0d49` (the `TRACE_MATRIX_IN_FIELD` bone).
+
+The play-test for stage 3 is therefore a **regression** run: the same stage-1/2 lines as before
+(Perfect Storm, the fire Hamelling Attack X, an Ice Heater `SET_OVER_UI`). This matters because every effect set
+now runs through the restructured loop.
+
 **Stage 2 kickoff prompt** (a new conversation):
 ```
 Continuing the June2017 effect-engine rebuild, Phase 4a stage 2. Read JUNE2017_EFFECT_REBUILD_PLAN.md
@@ -1152,6 +1248,12 @@ effect set. Update the matrix and MODS.md.
 - **June source:** `FUN_321e4020` (delete), `FUN_321e0080` (update, 7 KB), `FUN_321dbcc0`
   (camera shake), all confirmed by call order.
 - **March target:** `X2EffectSet.cpp:964/:1261/:1586`.
+- **Inputs left by Phase 4a** (see its stage 2/3 results):
+  - `EffectInstance::m_vecMeshTriggerData`;
+  - the `GROUP_NAME` members `m_bGroupChild` / `m_wstrGroupChildBoneName` / `m_vGroupChildOffset`, read
+    by UpdateEffect @`321e0825`-`321e0986` and @`321e0d49`;
+  - `GetEffectPositionByBoneName` (`321dd590`), which exists for those reads;
+  - `321dc550`, a `GetCombineMatrix` candidate.
 
 **Scope.**
 - Delete-time keys: `DELETE_EFFECTSET_AT_TRACE_UNIT_DIE`, and the trigger block's
