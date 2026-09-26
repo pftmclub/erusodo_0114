@@ -9243,3 +9243,25 @@ SKIN_MESH_RENDER_TYPE = {
 	SMRT_CUSTOM = 6
 }
 --}}
+--{{ Iruha : 2026-09-26 // Lanox ExtraNPCStat port Phase 1 -- June2017's second NPC
+-- stat system (data036/NewNPCStat.lua + NewNPCStatFormula.lua) needs this enum, which
+-- March2014's Enum.lua never had. Added verbatim from June2017's own
+-- data036_kom/Enum.src.lua:17197-17213.
+EXTRA_NPC_STAT_TYPE = {
+	ENST_DARK_DEF = 9,
+	ENST_BLUE_DEF = 8,
+	ENST_ACCURACY = 6,
+	ENST_LIGHT_DEF = 11,
+	ENST_MAGIC_ATT = 3,
+	ENST_RED_DEF = 12,
+	ENST_MAGIC_DEF = 5,
+	ENST_PHYSIC_ATT = 2,
+	ENST_WIND_DEF = 13,
+	ENST_GREEN_DEF = 10,
+	ENST_END = 14,
+	ENST_AVOIDANCE = 7,
+	ENST_NONE = 0,
+	ENST_HP = 1,
+	ENST_PHYSIC_DEF = 4
+}
+--}}
