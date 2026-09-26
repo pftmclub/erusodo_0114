@@ -876,7 +876,8 @@ Phase 11, when June's files are adopted.
 - The four items were added to the offline shop for the test, in category 34 (Consume > Etc),
   product numbers 2375-2378. The save was backed up first to
   `db_backup/*.bak-pre-ice-heater-shop-20260926-094553`. Delete those rows to undo.
-- The stage-1 regression sets (Rena / Hamelling / Ranox) were not re-run.
+- Regression, second run: Rena's Perfect Storm and the fire Hamelling Attack X logged exactly
+  their stage-1 lines, with no errors and a clean shutdown. The Ranox mesh sets were not re-run.
 
 **Not done:** `GROUP_NAME` (including the particle `TRACE_MATRIX_IN_FIELD` group-child bone) and
 the unsupported-key logging are stage 3. Also not transcribed: June's tag-2 and tag-3 mesh

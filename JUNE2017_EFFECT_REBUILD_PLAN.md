@@ -1025,8 +1025,14 @@ What the run's `offline_server.log` shows:
 - One `CUBE refused - no room for 1 x item 91610` was the bonus charm meeting a full bag. The cube
   stayed in the bag, as designed. It is not a Phase 4a issue.
 
-This run did not repeat the stage-1 regression sets (Rena / Hamelling / Ranox). The other four
-stage-2 keys stay implemented but unexercised until Phase 11.
+A second run (2026-09-26, same exe) repeated two stage-1 checks. Both fired exactly the stage-1
+lines and nothing new, which is expected because neither set uses a stage-2 key:
+- Rena's Perfect Storm: `EffectSet_Rena_Perfect_Storm PERFECT_STORM BONE_TRACE_TARGET_MESH registered_index=0(damage)`.
+- The fire Hamelling Attack X: `…_MAIN registered_index=0(damage)` (x2) and `…Attack_X04 offset=unit_facing(321d98c0)` (x4).
+
+That run had no `UNHANDLED`/`EXCEPTION` and shut down cleanly. So stage 2 did not change the
+stage-1 damage-effect path. The Ranox mesh sets were not re-run. The other four stage-2 keys stay
+implemented but unexercised until Phase 11.
 
 **Stage 2 kickoff prompt** (a new conversation):
 ```
