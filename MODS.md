@@ -928,6 +928,78 @@ stock creation, offset, position and rotation code, which sits intact in each `#
 mesh-player additions are pure additions under the same flag, so a KTDXLIB and X2Lib rebuild
 (touch both `stdafx.cpp`) removes them.
 
+### June2017 effect engine: EffectSet delete, update and camera-shake runtime (Phase 4b)
+
+Phase 4b of `JUNE2017_EFFECT_REBUILD_PLAN.md`, extending
+**`SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME`**. Transcribed from June's `FUN_321e4020`
+(`OnFrameMove_DeleteEffect`), `FUN_321e0080` (`OnFrameMove_UpdateEffect`) and `FUN_321dbcc0`
+(`OnFrameMove_StartCameraShake`) and their helpers. The spec table is in the plan's Phase 4b section.
+`census.py` now requires a runtime citation for every EffectSet key at every sub-path, and fails
+on a leftover `4b@VA` placeholder or `stage N` state. All three stages are in.
+
+**Stage 1**, the part deployed data can fire:
+- **Delete.** A set that traces target meshes is deleted only when *no* target-mesh entry holds a
+  handle any more (stock tested entry 0 alone). `DELETE_EFFECTSET_AT_TRACE_UNIT_DIE` deletes the set
+  when its trace target dies, the same test the two stock instance flags use.
+- **Update.**
+  - An effect whose target mesh is gone is **hidden** and skipped, per effect. Stock `break`s out of
+    the set's loop after moving the first such effect.
+  - `GROUP_NAME` children follow their own bone.
+  - `TRACE_MATRIX` also applies to UI-major particles, and is skipped while a trigger's
+    `STOP_TRACING_ON_TRIGGER` is set.
+  - `GetCombineMatrix` gains June's target-mesh index rule, and bone frames for square units and
+    pets (stock returned NULL for both).
+  - `REVERSE_Y` uses the index rule.
+- **Camera shake**: diffed against June, the same; cited only.
+- New `CX2DamageEffect::CEffect::SetShowObject` (June `31f75570`): main effect plus start / passive /
+  time particles.
+
+**Stage 2** (X2Lib, plus one KTDXLIB method):
+- `SYNC_SHOW_BY_CREATE_UNIT`: the set keeps the owner's `GetShowObject()`. New particles take the
+  set's show flag at creation.
+- `SOUND%d` playback (per instance, `EVENT_TIME` / `USE_GLOBAL_TIME` / `RATE` / `LOOP`). The
+  instance's destructor stops and closes the sounds that are still playing.
+- `FOLLOW_UNIT_ROTATION(_CPARTICLE)`: meshes `SetRotateDegree`, particles `SetAddRotate`. The new
+  `CParticleEventSequence::SetRotateToParticles` (KTDXLIB) sets the rotation on child particles.
+- Per-frame `TRACE_MATRIX_IN_FIELD` for UI-major particles, and a per-frame land-height refresh for
+  land-using particles.
+
+**Stage 3** (X2Lib and KTDXLIB):
+- Mesh triggers: the inline `MESH_TRIGGER_DATA`, and `MESH_TRIGGER_DATA_LIST` entries bound to the
+  owner's emotion.
+- Every `TRIGGER_DATA%d` key is transcribed: `TRIGGER_ONCE`, `STOP_TRACING_ON_TRIGGER`,
+  `TRIGGER_EFFECTSET_LIST`, the toggle-visibility timer, `BLOCK_TRIGGER(_TIME)` and
+  `ANIMTIME_ON_START_*`.
+- `CXMeshInstance` gains six members, appended last: restore-after-trigger (June `+0x194`), played,
+  blocked, block time, restore anim and its play type.
+- It also gains `ChangeAnimByTrigger`, a block countdown in `OnFrameMove`, and a restore of the
+  previous anim after `RunEvent`.
+- `sizeof(CXMeshInstance)` is `0x524` from both an X2Lib TU and a KTDXLIB TU.
+- A mesh with a `MESH_TRIGGER_DATA_LIST` now turns restore off at creation. That is the `+0x194`
+  store 4a left out.
+
+Documented, not transcribed:
+- the alpha push (instance `+0x6c`), which belongs to the absent effect-alpha system;
+- June's deferred-stop queue;
+- the unit-viewer-only keys (`FOLLOW_UNIT_VIEWER_SCALE`, `USE_EFFECT_SCALE_IN_UNIT_VIEWER`,
+  `ANIMTIME_ON_START_UNITVIEWER`), read only by `329585f0`;
+- `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE`, still deferred.
+
+**`SERV_IRUHADEV_JUNE_FX_DEBUG`** adds `JUNE_FX ES_UPDATE` / `JUNE_FX ES_DELETE <set> <effect> <key>
+<detail>` lines, throttled to one a second. Expected on current data (stage 1):
+- `ES_UPDATE ... BONE_TRACE_TARGET_MESH hidden=target_mesh_gone(321e0217)`;
+- `ES_DELETE ... BONE_TRACE_TARGET_MESH deleted=no_target_mesh_handle_left(321e4197)` (and
+  `kept=entry0_gone_another_holds_a_handle` when a later mesh outlives the first);
+- `ES_DELETE ... DELETE_SHAKE_COUNT deleted=shake_limit(321e431e)` (5 sets use the key);
+- `ES_UPDATE ... REVERSE_Y facing=unit|target_mesh`;
+- `ES_UPDATE ... TRACE_MATRIX matrix=pet|square_unit_viewer`, on a pet or village set.
+
+None of the four March-loaded effect-set files uses a stage-2 or stage-3 key, so those lines can
+only fire after Phase 11.
+
+**Built `US_SERVICE` (KTDXLIB, X2Lib, X2) and deployed to `X2_offline.exe` (SHA-256
+`3b2cbece6764e1e2…`). Not yet play-tested.**
+
 
 ## Reverting to stock
 

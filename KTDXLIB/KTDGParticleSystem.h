@@ -1354,6 +1354,11 @@ class CKTDGParticleSystem
 				D3DXVECTOR3 GetPosition(){ return m_Position; }
 
 				void SetParticlePosition( const D3DXVECTOR3& pos );
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+				// June2017 FUN_31cf1df0: every particle of the sequence gets the rotation (CParticle +0x10c =
+				// m_vRotate), for the EffectSet's FOLLOW_UNIT_ROTATION_CPARTICLE (FUN_321e0080 @ 321e1afd)
+				void SetRotateToParticles( const D3DXVECTOR3& vRotate_ );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 				void SetAxisAngle( const D3DXVECTOR3& angleDegree ){ m_AxisAngleDegree = angleDegree; }
 				D3DXVECTOR3 GetAxisAngle(){ return m_AxisAngleDegree; }

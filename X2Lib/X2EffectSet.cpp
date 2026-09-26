@@ -30,6 +30,33 @@ static void JuneFxEsCreate( const CX2EffectSet::EffectSetInstance* pInstance_, c
 	CX2OfflineLog::Server( L"JUNE_FX ES_CREATE %s %s %s %s", pInstance_->m_pEffectSetData->m_wstrEffectSetName.c_str(),
 		( NULL != pEffectData_ ? pEffectData_->m_EffectName.c_str() : L"-" ), pwszKey_, pwszDetail_ );
 }
+
+// JUNE_FX ES_UPDATE / ES_DELETE <set> <effect> <key> <detail>: the same for the per-frame update and
+// the delete pass (plan Phase 4b), at most one a second per (tag, set, key, detail).
+static void JuneFxEsRuntime( const WCHAR* pwszTag_, const CX2EffectSet::EffectSetInstance* pInstance_,
+							 const CX2EffectSet::EffectData* pEffectData_, const WCHAR* pwszKey_, const WCHAR* pwszDetail_ )
+{
+	if( NULL == pInstance_ || NULL == pInstance_->m_pEffectSetData )
+		return;
+
+	std::wstring wstrThrottleKey = pwszTag_;
+	wstrThrottleKey += L"|";
+	wstrThrottleKey += pInstance_->m_pEffectSetData->m_wstrEffectSetName;
+	wstrThrottleKey += L"|";
+	wstrThrottleKey += pwszKey_;
+	wstrThrottleKey += L"|";
+	wstrThrottleKey += pwszDetail_;
+
+	static std::map<std::wstring, DWORD> s_mapLastLoggedTime;
+	const DWORD dwNow = timeGetTime();
+	std::map<std::wstring, DWORD>::iterator itThrottle = s_mapLastLoggedTime.find( wstrThrottleKey );
+	if( itThrottle != s_mapLastLoggedTime.end() && dwNow - itThrottle->second < 1000 )
+		return;
+	s_mapLastLoggedTime[ wstrThrottleKey ] = dwNow;
+
+	CX2OfflineLog::Server( L"JUNE_FX %s %s %s %s %s", pwszTag_, pInstance_->m_pEffectSetData->m_wstrEffectSetName.c_str(),
+		( NULL != pEffectData_ ? pEffectData_->m_EffectName.c_str() : L"-" ), pwszKey_, pwszDetail_ );
+}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
@@ -48,6 +75,332 @@ static bool JuneGetCreationTargetMesh( const CX2EffectSet::EffectSetInstance* pI
 	const int iTargetMeshIndex = ( pEffectData_->m_iBoneTraceTargetMeshIndex < 0 ) ? 0 : pEffectData_->m_iBoneTraceTargetMeshIndex;
 	CX2EffectSet::EFFECT_TYPE eTargetMeshEffectType = CX2EffectSet::ET_INVALID;
 	return pInstance_->GetTargetMesh( iTargetMeshIndex, hTargetMesh_, eTargetMeshEffectType );
+}
+
+// June2017 FUN_321de0c0, EffectInstance::SetShowObject( bool ): one switch on EFFECT_TYPE. A damage effect
+// goes through CEffect::SetShowObject (FUN_31f75570); a mesh or a particle sequence is looked up in the
+// player its type names and gets CKTDGObject::SetShowObject's non-forced form, which June inlines.
+// (June's particle sequence also hides each of its particles, FUN_31cf1cd0: a KTDXLIB particle-system
+// difference, Phase 10's, not reproduced here.)
+static void JuneSetEffectInstanceShow( CX2EffectSet::EffectInstance* pEffectInstance_, bool bShow_ )
+{
+	if( NULL == pEffectInstance_ || NULL == pEffectInstance_->m_pEffectData )
+		return;
+
+	CKTDGXMeshPlayer* pMeshPlayer = NULL;
+	CKTDGParticleSystem* pParticleSystem = NULL;
+	switch( pEffectInstance_->m_pEffectData->m_eEffectType )
+	{
+	case CX2EffectSet::ET_DAMAGE_EFFECT:
+		if( NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+		{
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+			if( CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->GetInstance( pEffectInstance_->m_hDamageEffect ) )
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+			if( CX2DamageEffect::CEffect* pEffect = pEffectInstance_->m_pDamageEffect )
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+				pEffect->SetShowObject( bShow_ );
+		}
+		return;
+	case CX2EffectSet::ET_MESH_PLAYER_UI_MAJOR:     pMeshPlayer = g_pData->GetUIMajorXMeshPlayer(); break;
+	case CX2EffectSet::ET_MESH_PLAYER_UI_MINOR:     pMeshPlayer = g_pData->GetUIMinorXMeshPlayer(); break;
+	case CX2EffectSet::ET_MESH_PLAYER_GAME_MAJOR:   pMeshPlayer = ( NULL != g_pX2Game ) ? g_pX2Game->GetMajorXMeshPlayer() : NULL; break;
+	case CX2EffectSet::ET_MESH_PLAYER_GAME_MINOR:   pMeshPlayer = ( NULL != g_pX2Game ) ? g_pX2Game->GetMinorXMeshPlayer() : NULL; break;
+	case CX2EffectSet::ET_PARTICLE_UI_MAJOR:        pParticleSystem = g_pData->GetUIMajorParticle(); break;
+	case CX2EffectSet::ET_PARTICLE_UI_MINOR:        pParticleSystem = g_pData->GetUIMinorParticle(); break;
+	case CX2EffectSet::ET_PARTICLE_GAME_MAJOR:      pParticleSystem = ( NULL != g_pX2Game ) ? g_pX2Game->GetMajorParticle() : NULL; break;
+	case CX2EffectSet::ET_PARTICLE_GAME_MINOR:      pParticleSystem = ( NULL != g_pX2Game ) ? g_pX2Game->GetMinorParticle() : NULL; break;
+	default:
+		return;
+	}
+
+	if( NULL != pMeshPlayer && INVALID_MESH_INSTANCE_HANDLE != pEffectInstance_->m_hMeshPlayer )
+	{
+		if( CKTDGXMeshPlayer::CXMeshInstance* pInstance = pMeshPlayer->GetMeshInstance( pEffectInstance_->m_hMeshPlayer ) )
+			pInstance->SetShowObject( bShow_ );
+	}
+	else if( NULL != pParticleSystem && INVALID_PARTICLE_SEQUENCE_HANDLE != pEffectInstance_->m_hParticleSequence )
+	{
+		if( CKTDGParticleSystem::CParticleEventSequence* pSeq = pParticleSystem->GetInstanceSequence( pEffectInstance_->m_hParticleSequence ) )
+			pSeq->SetShowObject( bShow_ );
+	}
+}
+
+// June2017 FUN_321dee80, SOUND%d, called once per effect instance from OnFrameMove_UpdateEffect
+// (@ 321e07ee-321e07f7), so a set with no created effect plays nothing.
+static void JuneOnFrameMoveSound( CX2EffectSet::EffectSetInstance* pInstance_ )
+{
+	if( NULL == pInstance_ || NULL == pInstance_->m_pEffectSetData )
+		return;
+
+	// @ 321deeb5-321def45: on the first call the templet's entries are copied, each not yet played
+	if( false == pInstance_->m_bSoundPlayDataCopied )
+	{
+		pInstance_->m_bSoundPlayDataCopied = true;
+		pInstance_->m_vecSoundPlayData.clear();
+		for( UINT iSound = 0; iSound < pInstance_->m_pEffectSetData->m_vecSoundData.size(); ++iSound )
+		{
+			CX2EffectSet::EffectSetInstance::SoundPlayData soundPlayData;
+			soundPlayData.m_SoundData = pInstance_->m_pEffectSetData->m_vecSoundData[iSound];
+			pInstance_->m_vecSoundPlayData.push_back( soundPlayData );
+		}
+	}
+
+	for( int iSound = 0; iSound < static_cast<int>( pInstance_->m_vecSoundPlayData.size() ); ++iSound )
+	{
+		CX2EffectSet::EffectSetInstance::SoundPlayData& soundPlayData = pInstance_->m_vecSoundPlayData[iSound];
+		const CX2DamageEffect::SoundData& soundData = soundPlayData.m_SoundData;
+
+		// @ 321def80-321defaf: USE_GLOBAL_TIME against the set's elapsed time, else the set skin anim's
+		// EventTimer (FUN_31d28e10 = CKTDGXSkinAnim::EventTimer); no skin anim, no sound
+		bool bTime = false;
+		if( true == soundData.bUseGlobalTime )
+			bTime = ( soundData.fEventTime < pInstance_->m_fElapsedTime );
+		else if( pInstance_->m_pXSkinAnim != NULL )
+			bTime = pInstance_->m_pXSkinAnim->EventTimer( soundData.fEventTime );
+
+		if( true == bTime && false == soundPlayData.m_bPlayed )
+		{
+			// @ 321defbf-321df046: at the pet's, else the owner's (GetPos, vfunc 0x138), else the square
+			// unit's position
+			D3DXVECTOR3 vSoundPos( 0.f, 0.f, 0.f );
+	#ifdef SERV_PET_SYSTEM
+			if( NULL != pInstance_->m_pPet )
+				vSoundPos = pInstance_->m_pPet->GetPos();
+			else
+	#endif SERV_PET_SYSTEM
+			if( NULL != pInstance_->GetOwnerUnit() )
+				vSoundPos = pInstance_->GetOwnerUnit()->GetPos();
+			else if( pInstance_->m_pSquareUnit != NULL )
+				vSoundPos = pInstance_->m_pSquareUnit->GetPos();
+
+			// @ 321df04a-321df0c6: RATE is rolled on every call until it plays; OpenSound( name, 10, true,
+			// -1 ), Set3DPosition, Play( false, true ): a LOOP sound is not looped by the device
+			if( rand() % 100 < soundData.iRate )
+			{
+				CKTDXDeviceSound* pSound = g_pKTDXApp->GetDeviceManager()->OpenSound( soundData.fileName, 10, true, -1.f );
+				if( NULL != pSound )
+				{
+					pSound->Set3DPosition( vSoundPos );
+					pSound->Play( false, true );
+					soundPlayData.m_bPlayed = true;
+					pInstance_->m_vecpPlayingSound.push_back( pSound );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+					JuneFxEsRuntime( L"ES_UPDATE", pInstance_, NULL, L"SOUND%d", soundData.fileName.c_str() );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+				}
+			}
+		}
+
+		// @ 321df0cb-321df12d: LOOP re-arms the entry at the end of each anim cycle (m_bAnimEnd, skin +0x2ac)
+		// unless USE_GLOBAL_TIME; any other entry is dropped once played
+		if( true == soundData.bLoop )
+		{
+			if( false == soundData.bUseGlobalTime && pInstance_->m_pXSkinAnim != NULL && true == pInstance_->m_pXSkinAnim->IsAnimationEnd() )
+				soundPlayData.m_bPlayed = false;
+		}
+		else if( true == soundPlayData.m_bPlayed )
+		{
+			pInstance_->m_vecSoundPlayData.erase( pInstance_->m_vecSoundPlayData.begin() + iSound );
+			--iSound;
+		}
+	}
+
+	// @ 321df13e-321df1ea: a sound that has stopped is stopped and closed
+	for( int iSound = 0; iSound < static_cast<int>( pInstance_->m_vecpPlayingSound.size() ); ++iSound )
+	{
+		CKTDXDeviceSound* pSound = pInstance_->m_vecpPlayingSound[iSound];
+		if( NULL != pSound && false == pSound->IsPlaying() )
+		{
+			pSound->Stop();
+			SAFE_CLOSE( pSound );
+			pInstance_->m_vecpPlayingSound.erase( pInstance_->m_vecpPlayingSound.begin() + iSound );
+			--iSound;
+		}
+	}
+}
+
+static CKTDGXMeshPlayer::CXMeshInstance* JuneGetFieldTargetMesh( CKTDGXMeshPlayer::CXMeshInstanceHandle hTargetMesh_ );
+
+// June2017 FUN_321e0080 @ 321e0d1a-321e0f89, TRACE_MATRIX_IN_FIELD per frame, UI-major particles only
+// (case 6), after the move and the land height. The bone is the GROUP_NAME child's, else BONE_NAME
+// (@ 321e0d45-321e0d6a).
+static void JuneTraceMatrixInFieldParticleUpdate( CX2EffectSet::EffectSetInstance* pInstance_, CX2EffectSet::EffectInstance* pEffectInstance_,
+												  CX2EffectSet::EffectData* pEffectData_, CKTDGParticleSystem::CParticleEventSequence* pSequence_,
+												  bool bTargetMeshLive_, CKTDGXMeshPlayer::CXMeshInstanceHandle hTargetMesh_, const D3DXVECTOR3& vEffectPos_ )
+{
+	if( NULL == pSequence_ || false == pEffectData_->m_bTraceMatrixInField )
+		return;
+
+	const WCHAR* pwszBoneName = ( true == pEffectInstance_->m_bGroupChild ) ? pEffectInstance_->m_wstrGroupChildBoneName.c_str() : pEffectData_->m_PositionBoneName.c_str();
+
+	if( true == pEffectData_->m_bTraceMatrix && false == bTargetMeshLive_ )
+	{
+		// @ 321e0d87-321e0e5d: the set's own skin anim (tested @ 321e0d8e; unlike creation, no owner test).
+		// The frame's matrix, then the position plus POSITION_OFFSET, SetPosition( pos, false, false ).
+		if( NULL == pInstance_->m_pXSkinAnim )
+			return;
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pInstance_->m_pXSkinAnim->GetCloneFrame( pwszBoneName );
+		if( NULL == pFrame )
+			return;
+		pSequence_->SetUseDXMatrix( pFrame->combineMatrix );
+		pSequence_->SetPosition( pSequence_->GetPosition() + pEffectData_->m_vPositionOffset, false, false );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		JuneFxEsRuntime( L"ES_UPDATE", pInstance_, pEffectData_, L"TRACE_MATRIX_IN_FIELD", L"particle_matrix=instance_bone(321e0dc2)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	}
+	else if( true == bTargetMeshLive_ )
+	{
+		// @ 321e0e62-321e0f84: the target mesh, looked up in the UI-major mesh player whatever its type.
+		// June does not test the mesh's skin anim (@ 321e0ebb); a mesh without one is skipped here.
+		CKTDGXMeshPlayer::CXMeshInstance* pTargetMesh = JuneGetFieldTargetMesh( hTargetMesh_ );
+		if( NULL == pTargetMesh || NULL == pTargetMesh->GetXSkinAnim() )
+			return;
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pTargetMesh->GetXSkinAnim()->GetCloneFrame( pwszBoneName );
+		if( NULL == pFrame )
+			return;
+		if( true == pEffectData_->m_bTraceMatrix )
+		{
+			pSequence_->SetUseDXMatrix( pFrame->combineMatrix );
+			pSequence_->SetPosition( pSequence_->GetPosition() + pEffectData_->m_vPositionOffset, false, false );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxEsRuntime( L"ES_UPDATE", pInstance_, pEffectData_, L"TRACE_MATRIX_IN_FIELD", L"particle_matrix=target_mesh_bone(321e0ee1)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		}
+		else
+		{
+			// @ 321e0f78-321e0f84: without TRACE_MATRIX the effect position again, SetPosition( pos, false, false )
+			pSequence_->SetPosition( vEffectPos_, false, false );
+		}
+	}
+}
+
+// June2017 FUN_3264ca10: an emotion folded onto the three sitting ones (1 ET_SITWAIT, 2 ET_SITREADY,
+// 3 ET_STANDUP, as March's CX2Unit::EMOTION_TYPE numbers them), anything else 0. June's switch also folds
+// its cash-emotion ids (25-27, 54-59), which March's enum does not have.
+static int JuneFoldTriggerEmotion( int iEmotion_ )
+{
+	switch( iEmotion_ )
+	{
+	case 1: case 0x1a: case 0x37: case 0x3a: return 1;
+	case 2: case 0x19: case 0x36: case 0x39: return 2;
+	case 3: case 0x1b: case 0x38: case 0x3b: return 3;
+	default: return 0;
+	}
+}
+
+static bool JuneTriggerBoundTo( const CX2EffectSet::MeshTriggerData& kTrigger_, int iEmotion_ )
+{
+	for( UINT i = 0; i < kTrigger_.m_vecBoundMotionType.size(); ++i )
+	{
+		if( kTrigger_.m_vecBoundMotionType[i] == iEmotion_ )
+			return true;
+	}
+	return false;
+}
+
+// June2017 FUN_321dfc40, a mesh effect's triggers, called by OnFrameMove_UpdateEffect @ 321e037b / 321e0404
+// with the mesh, the inline MESH_TRIGGER_DATA, the EffectInstance's copy of MESH_TRIGGER_DATA_LIST, the set's
+// skin anim and the set. (Its other caller, the unit viewer 329585f0, passes no set but two viewer
+// emotions; that branch belongs to the unit viewer and is not reproduced.)
+static void JuneRunMeshTriggers( CX2EffectSet* pEffectSet_, CKTDGXMeshPlayer::CXMeshInstance* pMesh_, CX2EffectSet::EffectData* pEffectData_,
+								 CX2EffectSet::EffectInstance* pEffectInstance_, CX2EffectSet::EffectSetInstance* pInstance_ )
+{
+	// @ 321dfc6b-321dfc9b: nothing without the set's skin anim or while the mesh is blocked (+0x635)
+	if( NULL == pMesh_ || NULL == pInstance_->m_pXSkinAnim || true == pMesh_->GetTriggerBlocked() )
+		return;
+	CKTDGXSkinAnim* pSkinAnim = &(*pInstance_->m_pXSkinAnim);
+
+	std::vector<CX2EffectSet::MeshTriggerData>& vecTrigger = pEffectInstance_->m_vecMeshTriggerData;
+	if( true == vecTrigger.empty() )
+	{
+		// @ 321dffd0-321e0033: the inline MESH_TRIGGER_DATA, once (mesh +0x634) its TRIGGER_TIME (>= 0) is
+		// reached: the motion at the mesh's own speed (-1), with transition, from 0. The mesh restores the
+		// previous anim when it ends (+0x194 is 1 for a mesh with no list).
+		const CX2EffectSet::MeshTriggerData& kTrigger = pEffectData_->m_MeshTriggerData;
+		if( 0.f <= kTrigger.m_fTriggerTime && false == pMesh_->GetTriggerAnimPlayed() && kTrigger.m_fTriggerTime <= pSkinAnim->GetNowAnimationTime() )
+		{
+			pMesh_->ChangeAnimByTrigger( kTrigger.m_wstrMotionName.c_str(), static_cast<CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE>( kTrigger.m_iPlayType ), -1.f, true, 0.f );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxEsRuntime( L"ES_UPDATE", pInstance_, pEffectData_, L"MESH_TRIGGER_DATA", kTrigger.m_wstrMotionName.c_str() );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		}
+		return;
+	}
+
+	for( UINT iTrigger = 0; iTrigger < vecTrigger.size(); ++iTrigger )
+	{
+		CX2EffectSet::MeshTriggerData& kTrigger = vecTrigger[iTrigger];
+		if( true == kTrigger.m_bFiredOnce )     // @ 321dfce0
+			continue;
+
+		// @ 321dfcea-321dfdde: the owner's emotion, folded, must be in BOUND_MOTION_TYPE_LIST. A set without a
+		// square unit asks its game unit (user +0x89d8, March GetNowEmotionId); one with a square unit asks it
+		// (+0x608). June reads the user field from any game unit; a non-user owner gives 0 here.
+		bool bGame = false;
+		bool bSquare = false;
+		if( pInstance_->m_pSquareUnit == NULL )
+		{
+			if( null == pInstance_->m_optrGameUnit )
+				continue;
+			int iEmotion = CX2Unit::ET_NONE;
+			if( CX2GameUnit::GUT_USER == pInstance_->m_optrGameUnit->GetGameUnitType() )
+				iEmotion = static_cast<CX2GUUser*>( pInstance_->m_optrGameUnit.GetObservable() )->GetNowEmotionId();
+			bGame = JuneTriggerBoundTo( kTrigger, JuneFoldTriggerEmotion( iEmotion ) );
+		}
+		else
+		{
+			bSquare = JuneTriggerBoundTo( kTrigger, JuneFoldTriggerEmotion( pInstance_->m_pSquareUnit->GetNowEmotionId() ) );
+		}
+		if( false == bGame && false == bSquare )
+			continue;
+
+		// @ 321dfde0-321dfe49: armed when the skin plays another anim than when it last fired, or the same
+		// one's play count changed while it is not past GetMaxAnimationTime() (max - transition)
+		if( 0 != kTrigger.m_wstrTriggeredAnimName.compare( pSkinAnim->GetNowAnimName() ) ||
+			( kTrigger.m_iTriggeredPlayCount != pSkinAnim->GetNowPlayCount() && pSkinAnim->GetNowAnimationTime() <= pSkinAnim->GetMaxAnimationTime() ) )
+			kTrigger.m_bArmed = true;
+
+		// @ 321dfe4d-321dfe6f: fires once armed and TRIGGER_TIME is reached
+		if( false == kTrigger.m_bArmed || kTrigger.m_fTriggerTime > pSkinAnim->GetNowAnimationTime() )
+			continue;
+
+		// @ 321dfe75-321dfecf: ANIMTIME_ON_START_GAME / _SQUARE gives the start time while its first-use byte
+		// is set; ONCE clears that byte
+		float fStartTime = 0.f;
+		CX2EffectSet::AnimTimeOnStartData* pAnimTimeOnStart = ( true == bGame ) ? &kTrigger.m_AnimTimeOnStartGame : &kTrigger.m_AnimTimeOnStartSquare;
+		if( true == pAnimTimeOnStart->m_bFirstUse )
+		{
+			fStartTime = pAnimTimeOnStart->m_fTime;
+			pAnimTimeOnStart->m_bFirstUse = ( false == pAnimTimeOnStart->m_bOnce );
+		}
+
+		// @ 321dfed2-321dff24: the motion at speed 1 with USE_MESH_TRANSITION; then the skin's play count and
+		// anim, now the motion's, are kept
+		pMesh_->ChangeAnimByTrigger( kTrigger.m_wstrMotionName.c_str(), static_cast<CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE>( kTrigger.m_iPlayType ), 1.f, kTrigger.m_bUseMeshTransition, fStartTime );
+		kTrigger.m_iTriggeredPlayCount = pSkinAnim->GetNowPlayCount();
+		kTrigger.m_wstrTriggeredAnimName = pSkinAnim->GetNowAnimName();
+		kTrigger.m_bArmed = false;
+
+		if( true == kTrigger.m_bTriggerOnce )           // @ 321dff20-321dff2a
+			kTrigger.m_bFiredOnce = true;
+		if( true == kTrigger.m_bStopTracingOnTrigger )  // @ 321dff2e-321dff3c
+			pInstance_->m_bStopTracingOnTrigger = true;
+		// @ 321dff40-321dff83: every TRIGGER_EFFECTSET_LIST name on this mesh (PlayEffectSetByMeshPlayer,
+		// 321df9c0), always as ET_MESH_PLAYER_UI_MAJOR (June pushes 2 whatever the mesh's player)
+		for( UINT iSet = 0; iSet < kTrigger.m_vecTriggerEffectSetName.size(); ++iSet )
+			pEffectSet_->PlayEffectSetByMeshPlayer( kTrigger.m_vecTriggerEffectSetName[iSet].c_str(), pMesh_->GetHandle(), CX2EffectSet::ET_MESH_PLAYER_UI_MAJOR );
+		if( true == kTrigger.m_bUseEffectSetToggleVisibilityTimer )  // @ 321dff89-321dff96
+		{
+			pInstance_->m_bToggleVisibilityPending = true;
+			pInstance_->m_fToggleVisibilityTimer = kTrigger.m_fEffectSetToggleVisibilityTimer;
+		}
+		if( true == kTrigger.m_bBlockTrigger )          // @ 321dff99-321dffb1
+			pMesh_->SetTriggerBlock( kTrigger.m_fBlockTriggerTime );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		JuneFxEsRuntime( L"ES_UPDATE", pInstance_, pEffectData_, L"MESH_TRIGGER_DATA_LIST", kTrigger.m_wstrMotionName.c_str() );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	}
 }
 
 // June2017 FUN_321ee600 @ 321efa34-321efa5d (the same in all eight cases): TRACE_MATRIX_IN_FIELD looks
@@ -1412,16 +1765,17 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 						// June2017 FUN_321ee600 @ 321f2130-321f2166: the EffectInstance takes its own copy of
 						// MESH_TRIGGER_DATA_LIST (June EffectInstance +0x4c), for Phase 4b's UpdateEffect. A
-						// non-empty list also clears mesh +0x194, a June-only CXMeshInstance member (set to 1
-						// in the init list of its ctor FUN_31c8d140 @ 31c8d18e, before March's first member
-						// m_Handle at June +0x198; its reader is not located). It has no March counterpart
-						// and is not reproduced.
+						// non-empty list also clears mesh +0x194 (set to 1 in the init list of its ctor FUN_31c8d140
+						// @ 31c8d18e, before March's first member m_Handle at June +0x198). Phase 4b found its
+						// reader, the mesh's OnFrameMove (31c87b80 @ 31c87d0e): the anim a trigger replaced is
+						// restored only while it is 1. It is March's m_bRestoreAnimAfterTrigger.
 						if( false == pEffectData->m_vecMeshTriggerData.empty() )
 						{
 							pEffectInstance->m_vecMeshTriggerData = pEffectData->m_vecMeshTriggerData;
+							pMeshInstance->SetRestoreAnimAfterTrigger( false );
 	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 							WCHAR wszJuneFx[64] = {0};
-							StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"copied=%d mesh_0x194=not_reproduced", (int) pEffectInstance->m_vecMeshTriggerData.size() );
+							StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"copied=%d restore_after_trigger=0(321f2166)", (int) pEffectInstance->m_vecMeshTriggerData.size() );
 							JuneFxEsCreate( pEffectSetInstance, pEffectData, L"MESH_TRIGGER_DATA_LIST", wszJuneFx );
 	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 						}
@@ -1562,6 +1916,10 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						}
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 						pEffectSetInstance->m_vecpEffectInstance.push_back( pEffectInstance );
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+						// June2017 FUN_321ee600 @ 321f24f4-321f251d: the new particle takes the set's show flag (+0xdc)
+						JuneSetEffectInstanceShow( pEffectInstance, pEffectSetInstance->m_bShowObject );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 					}
 				} break;
 			}
@@ -1604,9 +1962,28 @@ void CX2EffectSet::OnFrameMove_DeleteEffect()
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 		
 #ifdef MODIFY_EFFECT_SET_TRACE_BONE
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+		// June2017 FUN_321e4020 @ 321e4140-321e419d: a set that traces target meshes is deleted only when no
+		// entry holds a handle any more (HasTargetMeshHandle). March tested m_hTargetMesh, entry 0's mirror
+		// alone, so a set whose first target mesh was gone while a later one lived was deleted early.
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		if( true == pEffectSetInstance->m_bIsTargetMesh &&
+			INVALID_MESH_INSTANCE_HANDLE == pEffectSetInstance->m_hTargetMesh &&
+			true == pEffectSetInstance->HasTargetMeshHandle() )
+			JuneFxEsRuntime( L"ES_DELETE", pEffectSetInstance, NULL, L"BONE_TRACE_TARGET_MESH", L"kept=entry0_gone_another_holds_a_handle(321e4180)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		if( true == pEffectSetInstance->m_bIsTargetMesh &&
+			false == pEffectSetInstance->HasTargetMeshHandle() )
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 		if( true == pEffectSetInstance->m_bIsTargetMesh &&
 			INVALID_MESH_INSTANCE_HANDLE == pEffectSetInstance->m_hTargetMesh )
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 		{
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxEsRuntime( L"ES_DELETE", pEffectSetInstance, NULL, L"BONE_TRACE_TARGET_MESH", L"deleted=no_target_mesh_handle_left(321e4197)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
             iter->m_pInstance = NULL;
             m_coInstanceHandleList.splice( m_coInstanceHandleList.begin( LIST_FREE ), iter );
@@ -1620,11 +1997,29 @@ void CX2EffectSet::OnFrameMove_DeleteEffect()
 #endif //MODIFY_EFFECT_SET_TRACE_BONE
 
 #ifdef TRACE_UNIT_DIE_DELETE_EFFECTSET
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+		// June2017 FUN_321e4020 @ 321e41a2-321e4231: the templet's DELETE_EFFECTSET_AT_TRACE_UNIT_DIE
+		// (EffectSetData +0x58) deletes the set exactly as the two instance flags March already has
+		// (+0xd0 / +0xd1) do: when the trace target is gone or its HP (+0xc04 -> +0x20, decoded) is not
+		// above 0.
+		if( ( true == pEffectSetInstance->m_pEffectSetData->m_bDeleteEffectSetAtTraceUnitDie ||
+			  ( true == pEffectSetInstance->m_bCreateEffectSetTraceUnit &&
+				true == pEffectSetInstance->m_bTraceUnitDieDeleteEffectSet ) ) &&
+			( null == pEffectSetInstance->m_optrTraceTargetGameUnit ||
+			0 >= pEffectSetInstance->m_optrTraceTargetGameUnit->GetNowHp() ))
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 		if( true == pEffectSetInstance->m_bCreateEffectSetTraceUnit &&
 			true == pEffectSetInstance->m_bTraceUnitDieDeleteEffectSet &&
 			( null == pEffectSetInstance->m_optrTraceTargetGameUnit || 
 			0 >= pEffectSetInstance->m_optrTraceTargetGameUnit->GetNowHp() ))
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 		{
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			if( true == pEffectSetInstance->m_pEffectSetData->m_bDeleteEffectSetAtTraceUnitDie )
+				JuneFxEsRuntime( L"ES_DELETE", pEffectSetInstance, NULL, L"DELETE_EFFECTSET_AT_TRACE_UNIT_DIE", L"deleted=trace_unit_dead(321e4223)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
             iter->m_pInstance = NULL;
             m_coInstanceHandleList.splice( m_coInstanceHandleList.begin( LIST_FREE ), iter );
@@ -1676,6 +2071,13 @@ void CX2EffectSet::OnFrameMove_DeleteEffect()
 		{
 			if( pEffectSetInstance->m_iCurrDeleteShakeCount >= pEffectSetInstance->m_pEffectSetData->m_iDeleteShakeCount )
 			{
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+				// June2017 FUN_321e4020 @ 321e42ec-321e432c: the same limit (templet + instance +0xcc, which
+				// nothing in March sets)
+				JuneFxEsRuntime( L"ES_DELETE", pEffectSetInstance, NULL, L"DELETE_SHAKE_COUNT", L"deleted=shake_limit(321e431e)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
                 iter->m_pInstance = NULL;
                 m_coInstanceHandleList.splice( m_coInstanceHandleList.begin( LIST_FREE ), iter );
@@ -1895,10 +2297,94 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
         if ( pEffectSetInstance == NULL )
             continue;
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+		// June2017 FUN_321e0080 @ 321e0105-321e0140, once per set, before the set's effects: a pending toggle
+		// (a trigger's EFFECT_SET_TOGGLE_VISIBILITY_TIMER) counts down by the frame time and flips the set's
+		// show flag at 0. The frame time is the instance's own tick of this frame (OnFrameMove_CreateEffect
+		// ticks every live instance first), the value June is passed.
+		if( true == pEffectSetInstance->m_bToggleVisibilityPending )
+		{
+			pEffectSetInstance->m_fToggleVisibilityTimer -= ( pEffectSetInstance->m_fElapsedTime - pEffectSetInstance->m_fPrevElapsedTime );
+			if( pEffectSetInstance->m_fToggleVisibilityTimer <= 0.f )
+			{
+				pEffectSetInstance->SetShowObject( false == pEffectSetInstance->m_bShowObject );
+				pEffectSetInstance->m_bToggleVisibilityPending = false;
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+				JuneFxEsRuntime( L"ES_UPDATE", pEffectSetInstance, NULL, L"EFFECT_SET_TOGGLE_VISIBILITY_TIMER",
+					( true == pEffectSetInstance->m_bShowObject ) ? L"show=1(321e013b)" : L"show=0(321e013b)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 		for( UINT i=0; i<pEffectSetInstance->m_vecpEffectInstance.size(); i++ )
 		{
 			EffectInstance* pEffectInstance = pEffectSetInstance->m_vecpEffectInstance[i];
 			EffectData* pEffectData = pEffectInstance->m_pEffectData;
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+			// June2017 FUN_321e0080 @ 321e0170-321e01e9: the target-mesh entry this effect uses, under 4a's
+			// index rule (max( BONE_TRACE_TARGET_MESH_INDEX, 0 ); none for a BONE_TRACE_TARGET_MESH with a
+			// negative index). REVERSE_Y reads it too (@ 321e1547).
+			CKTDGXMeshPlayer::CXMeshInstanceHandle hJuneTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
+			const bool bJuneTargetMeshLive = JuneGetCreationTargetMesh( pEffectSetInstance, pEffectData, hJuneTargetMesh );
+
+			// June2017 FUN_321e0080 @ 321e01e9-321e021c, before the trace test and whether or not the effect
+			// is alive: in a set that traces target meshes, an effect whose entry is gone is hidden
+			// (EffectInstance::SetShowObject( false ), FUN_321de0c0) and skipped. TRACE_USER_TARGET_FORCE
+			// and a BONE_TRACE_TARGET_MESH with a negative index are exempt. March instead broke out of the
+			// set's loop after moving the first such traced effect (the #else after the position below).
+			if( true == pEffectSetInstance->m_bIsTargetMesh &&
+				false == pEffectData->m_bTraceUserTargetForce &&
+				false == bJuneTargetMeshLive &&
+				( false == pEffectData->m_bBoneTraceTargetMesh || pEffectData->m_iBoneTraceTargetMeshIndex >= 0 ) )
+			{
+				JuneSetEffectInstanceShow( pEffectInstance, false );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+				JuneFxEsRuntime( L"ES_UPDATE", pEffectSetInstance, pEffectData, L"BONE_TRACE_TARGET_MESH", L"hidden=target_mesh_gone(321e0217)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+				continue;
+			}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+			// June2017 FUN_321e0080 @ 321e02fc-321e0409 (cases 2-5): a mesh effect runs its triggers
+			// (FUN_321dfc40). The same cases also push the set's alpha (+0x6c) into the mesh; that is the
+			// effect-alpha system's, absent (see the plan).
+			{
+				CKTDGXMeshPlayer* pTriggerMeshPlayer = NULL;
+				switch( pEffectData->m_eEffectType )
+				{
+				case ET_MESH_PLAYER_UI_MAJOR:	pTriggerMeshPlayer = g_pData->GetUIMajorXMeshPlayer(); break;
+				case ET_MESH_PLAYER_UI_MINOR:	pTriggerMeshPlayer = g_pData->GetUIMinorXMeshPlayer(); break;
+				case ET_MESH_PLAYER_GAME_MAJOR:	pTriggerMeshPlayer = ( NULL != g_pX2Game ) ? g_pX2Game->GetMajorXMeshPlayer() : NULL; break;
+				case ET_MESH_PLAYER_GAME_MINOR:	pTriggerMeshPlayer = ( NULL != g_pX2Game ) ? g_pX2Game->GetMinorXMeshPlayer() : NULL; break;
+				default: break;
+				}
+				if( NULL != pTriggerMeshPlayer && INVALID_MESH_INSTANCE_HANDLE != pEffectInstance->m_hMeshPlayer )
+				{
+					if( CKTDGXMeshPlayer::CXMeshInstance* pTriggerMesh = pTriggerMeshPlayer->GetMeshInstance( pEffectInstance->m_hMeshPlayer ) )
+						JuneRunMeshTriggers( this, pTriggerMesh, pEffectData, pEffectInstance, pEffectSetInstance );
+				}
+			}
+
+			// June2017 FUN_321e0080 @ 321e0777-321e07e9, per effect: SYNC_SHOW_BY_CREATE_UNIT (getter
+			// FUN_321f2b00) keeps the set's show flag equal to the owner's GetShowObject() (+0x172 with the
+			// manager chain, +0xc); a change goes to every effect (SetShowObject, FUN_321de4f0)
+			if( true == pEffectSetInstance->m_pEffectSetData->m_bSyncShowByCreateUnit && null != pEffectSetInstance->m_optrGameUnit )
+			{
+				const bool bOwnerShow = pEffectSetInstance->m_optrGameUnit->GetShowObject();
+				if( pEffectSetInstance->m_bShowObject != bOwnerShow )
+				{
+					pEffectSetInstance->SetShowObject( bOwnerShow );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+					JuneFxEsRuntime( L"ES_UPDATE", pEffectSetInstance, pEffectData, L"SYNC_SHOW_BY_CREATE_UNIT",
+						( true == bOwnerShow ) ? L"show=1(321e07e9)" : L"show=0(321e07e9)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+				}
+			}
+
+			// June2017 FUN_321e0080 @ 321e07ee-321e07f7: SOUND%d (FUN_321dee80), once per effect instance
+			JuneOnFrameMoveSound( pEffectSetInstance );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 			if( false == pEffectData->m_bTrace 
 				&& false == pEffectData->m_bTraceMore 
@@ -1912,8 +2398,60 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 				continue;
 
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+			// June2017 FUN_321e0080 @ 321e0825-321e0986: a GROUP_NAME child particle (4a's EffectInstance
+			// members) follows its own bone. With BONE_NAME, the offset kept at creation is taken through
+			// GetCombineMatrix (FUN_321dc550 @ 321e083e) with D3DXVec3Transform, then divided by w
+			// (@ 321e0855-321e0914); without it, GetEffectPositionByBoneName( child bone ) (FUN_321dd590
+			// @ 321e0933). Every other effect: GetEffectPosition (@ 321e0964), as March.
+			D3DXVECTOR3 vEffectPos( 0.f, 0.f, 0.f );
+			bool bJuneMoveEffect = true;
+			if( true == pEffectInstance->m_bGroupChild )
+			{
+				if( false == pEffectData->m_PositionBoneName.empty() )
+				{
+					const D3DXMATRIX* pGroupChildMatrix = pEffectSetInstance->GetCombineMatrix( pEffectData );
+					if( NULL != pGroupChildMatrix )
+					{
+						D3DXVECTOR4 vGroupChild( 0.f, 0.f, 0.f, 1.f );
+						D3DXVec3Transform( &vGroupChild, &pEffectInstance->m_vGroupChildOffset, pGroupChildMatrix );
+						const float fInvW = 1.f / vGroupChild.w;
+						vEffectPos = D3DXVECTOR3( vGroupChild.x * fInvW, vGroupChild.y * fInvW, vGroupChild.z * fInvW );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+						JuneFxEsRuntime( L"ES_UPDATE", pEffectSetInstance, pEffectData, L"GROUP_NAME", L"moved=child_offset_through_matrix(321e085a)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+					}
+					else
+					{
+						// @ 321e0845: with no matrix June jumps past the computation and still moves the
+						// particle, to whatever its stack slot held. Not reproduced: the particle stays put.
+						bJuneMoveEffect = false;
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+						JuneFxEsRuntime( L"ES_UPDATE", pEffectSetInstance, pEffectData, L"GROUP_NAME", L"not_moved=no_matrix(321e0845)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+					}
+				}
+				else
+				{
+					bool bJuneBoneFound = false;
+					vEffectPos = pEffectSetInstance->GetEffectPositionByBoneName( pEffectData, pEffectInstance->m_wstrGroupChildBoneName, bJuneBoneFound );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+					JuneFxEsRuntime( L"ES_UPDATE", pEffectSetInstance, pEffectData, L"GROUP_NAME", L"moved=child_bone(321e0933)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+				}
+			}
+			else
+			{
+				vEffectPos = pEffectSetInstance->GetEffectPosition( pEffectData );
+			}
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 			D3DXVECTOR3 vEffectPos = pEffectSetInstance->GetEffectPosition( pEffectData );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+			// June2017 FUN_321e0080 has no break here: its target-mesh test is per effect, at the top of the
+			// loop (@ 321e01e9-321e021c).
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef MODIFY_EFFECT_SET_TRACE_BONE
 
 			// 타겟 메시가 사라지면 더이상 위치 갱신 하지 않기
@@ -1929,7 +2467,11 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 				break;
 
 #endif // MODIFY_EFFECT_SET_TRACE_BONE
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+			if( true == bJuneMoveEffect )	// June2017 FUN_321e0080 @ 321e0845: a group child with no matrix is not moved
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 			switch( pEffectData->m_eEffectType )
 			{
 			case ET_DAMAGE_EFFECT:
@@ -2005,6 +2547,15 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 						if( pSeq != NULL )
 						{
 							pSeq->SetPosition( vEffectPos, pEffectData->m_bTraceMore, pEffectData->m_bTraceMore );
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+							// June2017 FUN_321e0080 @ 321e0ccf-321e0d14 (case 6): a particle that uses the land (m_bUseLand, June +0x31c)
+							// takes the owner's land height every frame (GetLandPos().y, vfunc 0x134, the call June's
+							// creation makes @ 321f0fa6-321f0fbf where March calls SetLandPosition)
+							if( true == pSeq->GetUseLand() && null != pEffectSetInstance->m_optrGameUnit )
+								pSeq->SetLandPosition( pEffectSetInstance->m_optrGameUnit->GetLandPos().y );
+							// June2017 FUN_321e0080 @ 321e0d1a-321e0f89: case 6 alone refreshes TRACE_MATRIX_IN_FIELD
+							JuneTraceMatrixInFieldParticleUpdate( pEffectSetInstance, pEffectInstance, pEffectData, pSeq, bJuneTargetMeshLive, hJuneTargetMesh, vEffectPos );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 						}
 					}
 				} break;
@@ -2018,6 +2569,13 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 						if( pSeq != NULL )
 						{
 							pSeq->SetPosition( vEffectPos, pEffectData->m_bTraceMore, pEffectData->m_bTraceMore );
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+							// June2017 FUN_321e0080 @ 321e1032-321e107f (case 7): a particle that uses the land (m_bUseLand, June +0x31c)
+							// takes the owner's land height every frame (GetLandPos().y, vfunc 0x134, the call June's
+							// creation makes @ 321f0fa6-321f0fbf where March calls SetLandPosition)
+							if( true == pSeq->GetUseLand() && null != pEffectSetInstance->m_optrGameUnit )
+								pSeq->SetLandPosition( pEffectSetInstance->m_optrGameUnit->GetLandPos().y );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 						}
 					}
 				} break;
@@ -2030,6 +2588,13 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 						if( pSeq != NULL )
 						{
 							pSeq->SetPosition( vEffectPos, pEffectData->m_bTraceMore, pEffectData->m_bTraceMore );
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+							// June2017 FUN_321e0080 @ 321e1127-321e1157 (case 8, then the case-7 land code): a particle that uses the land (m_bUseLand, June +0x31c)
+							// takes the owner's land height every frame (GetLandPos().y, vfunc 0x134, the call June's
+							// creation makes @ 321f0fa6-321f0fbf where March calls SetLandPosition)
+							if( true == pSeq->GetUseLand() && null != pEffectSetInstance->m_optrGameUnit )
+								pSeq->SetLandPosition( pEffectSetInstance->m_optrGameUnit->GetLandPos().y );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 						}
 					}
 				}
@@ -2043,6 +2608,13 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 						if( pSeq != NULL )
 						{
 							pSeq->SetPosition( vEffectPos, pEffectData->m_bTraceMore, pEffectData->m_bTraceMore );
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+							// June2017 FUN_321e0080 @ 321e1127-321e1157 (case 9, joined with case 8): a particle that uses the land (m_bUseLand, June +0x31c)
+							// takes the owner's land height every frame (GetLandPos().y, vfunc 0x134, the call June's
+							// creation makes @ 321f0fa6-321f0fbf where March calls SetLandPosition)
+							if( true == pSeq->GetUseLand() && null != pEffectSetInstance->m_optrGameUnit )
+								pSeq->SetLandPosition( pEffectSetInstance->m_optrGameUnit->GetLandPos().y );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 						}
 					}						
 				}
@@ -2050,12 +2622,30 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 			}			
 
 			//{{kimhc // 2011-01-17 // 지정한 Bone의 메트릭스 값을 Trace 함 (chung 코드 참고)
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+			// June2017 FUN_321e0080 @ 321e0fa4-321e0fc5: skipped while the instance's stop-tracing flag is set
+			// (STOP_TRACING_ON_TRIGGER, stage 3). The matrix is June's GetCombineMatrix (FUN_321dc550).
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			if( true == pEffectData->m_bTraceMatrix && true == pEffectSetInstance->m_bStopTracingOnTrigger )
+				JuneFxEsRuntime( L"ES_UPDATE", pEffectSetInstance, pEffectData, L"TRACE_MATRIX", L"skipped=stop_tracing_on_trigger(321e0fb5)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+			if ( true == pEffectData->m_bTraceMatrix && false == pEffectSetInstance->m_bStopTracingOnTrigger )
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 			if ( true == pEffectData->m_bTraceMatrix )
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 			{
 				const D3DXMATRIX* pCombineMatrix = pEffectSetInstance->GetCombineMatrix( pEffectData );			
 
 				if ( NULL != pCombineMatrix )
 				{
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+					// June2017 FUN_321dc550 @ 321dc78e-321dc81d: holders March had no matrix for
+					if( ESM_GAME != pEffectSetInstance->m_eMode || null == pEffectSetInstance->m_optrGameUnit )
+						JuneFxEsRuntime( L"ES_UPDATE", pEffectSetInstance, pEffectData, L"TRACE_MATRIX",
+							( pEffectSetInstance->m_pSquareUnit != NULL ) ? L"matrix=square_unit_viewer(321dc7cf)" : L"matrix=pet(321dc81b)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 					switch( pEffectData->m_eEffectType )
 					{
 					case ET_DAMAGE_EFFECT:
@@ -2126,6 +2716,24 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 								}
 							}
 						} break;
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+					// June2017 FUN_321e0080 @ 321e1425-321e146b (case 6): the UI-major particle takes the matrix
+					// too; March moved only the game-major one, under NEW_HENIR_TEST
+					case ET_PARTICLE_UI_MAJOR:
+						{
+							if( NULL != g_pData && NULL != g_pData->GetUIMajorParticle() && INVALID_PARTICLE_SEQUENCE_HANDLE != pEffectInstance->m_hParticleSequence )
+							{
+								CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( pEffectInstance->m_hParticleSequence );
+								if( NULL != pSeq )
+								{
+									pSeq->SetUseDXMatrix( *pCombineMatrix );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+									JuneFxEsRuntime( L"ES_UPDATE", pEffectSetInstance, pEffectData, L"TRACE_MATRIX", L"particle_ui_major(321e145f)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+								}
+							}
+						} break;
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef NEW_HENIR_TEST
 					case ET_PARTICLE_GAME_MAJOR:
 						{
@@ -2166,12 +2774,23 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 								if ( CKTDGMatrix::BT_NONE != eBillboardType )
 								{
 									/// 타겟 매시가 설정되어 있다면, 타겟 매시의 IsRight 값을 사용한다.
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+									// June2017 FUN_321e0080 @ 321e1547-321e1562: the target mesh's facing (+0x101) when the
+									// index rule gives this effect a live entry and it is not TRACE_USER_TARGET_FORCE
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+									JuneFxEsRuntime( L"ES_UPDATE", pEffectSetInstance, pEffectData, L"REVERSE_Y",
+										( true == bJuneTargetMeshLive && false == pEffectData->m_bTraceUserTargetForce ) ? L"facing=target_mesh(321e155b)" : L"facing=unit(321e1583)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+									if ( true == bJuneTargetMeshLive &&
+										 false == pEffectData->m_bTraceUserTargetForce )
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 					#ifdef FIX_BONE_TRACE_TARGET_MESH_UNIT_TRACE // 김태환
 									if ( INVALID_MESH_INSTANCE_HANDLE != pEffectSetInstance->m_hTargetMesh &&
 										 false == pEffectData->m_bTraceUserTargetForce )
 					#else //FIX_BONE_TRACE_TARGET_MESH_UNIT_TRACE
 									if ( INVALID_MESH_INSTANCE_HANDLE != pEffectSetInstance->m_hTargetMesh )
 					#endif //FIX_BONE_TRACE_TARGET_MESH_UNIT_TRACE
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 										pSeq->SetReverseY( !( pEffectSetInstance->m_bIsTargetMeshRight ) );
 									/// 타겟 매시가 설정되어 있지 않다면, 유저의 IsRight 값을 사용한다.
 									else if ( null != pEffectInstance->m_optrGameUnit )
@@ -2194,6 +2813,82 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 				}
 			}
 #endif
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+			// June2017 FUN_321e0080 @ 321e159a-321e1b05, still inside the trace block: FOLLOW_UNIT_ROTATION
+			// (EffectData +0x104) turns the effect with its unit (GetUnitRotation, FUN_321ddea0 @ 321e15b5).
+			// The damage main effect and the meshes take it as their rotation (FUN_31c1a3a0 = SetRotateDegree:
+			// June's rotate event 31c84e10 writes +0x5a8 / +0x5c0 as March's writes m_vRotateLocal /
+			// m_vRotateFinal, so +0x5b4 is m_vRotate). Particles 6 and 8 add it to their m_AddRotateRel and set
+			// it as m_AddRotate (FUN_31c1a030 = SetAddRotate, the call June's creation makes where March calls
+			// SetAddRotate; +0x3e0 / +0x3ec = probe 0x2b4 / 0x2c0); FOLLOW_UNIT_ROTATION_CPARTICLE (+0x1e4)
+			// also sets it on every particle (FUN_31cf1df0). Types 7 and 9 are left alone.
+			if( true == pEffectData->m_bFollowUnitRotation )
+			{
+				const D3DXVECTOR3 vUnitRotation = pEffectSetInstance->GetUnitRotation( pEffectData );
+				CKTDGXMeshPlayer::CXMeshInstance* pFollowMesh = NULL;
+				CKTDGParticleSystem* pFollowParticleSystem = NULL;
+				switch( pEffectData->m_eEffectType )
+				{
+				case ET_DAMAGE_EFFECT:
+					if( NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+					{
+	#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+						if( CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->GetInstance( pEffectInstance->m_hDamageEffect ) )
+	#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+						if( CX2DamageEffect::CEffect* pEffect = pEffectInstance->m_pDamageEffect )
+	#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+							pFollowMesh = pEffect->GetMainEffect();
+					}
+					break;
+				case ET_MESH_PLAYER_UI_MAJOR:
+					if( NULL != g_pData->GetUIMajorXMeshPlayer() && INVALID_MESH_INSTANCE_HANDLE != pEffectInstance->m_hMeshPlayer )
+						pFollowMesh = g_pData->GetUIMajorXMeshPlayer()->GetMeshInstance( pEffectInstance->m_hMeshPlayer );
+					break;
+				case ET_MESH_PLAYER_UI_MINOR:
+					if( NULL != g_pData->GetUIMinorXMeshPlayer() && INVALID_MESH_INSTANCE_HANDLE != pEffectInstance->m_hMeshPlayer )
+						pFollowMesh = g_pData->GetUIMinorXMeshPlayer()->GetMeshInstance( pEffectInstance->m_hMeshPlayer );
+					break;
+				case ET_MESH_PLAYER_GAME_MAJOR:
+					if( NULL != g_pX2Game && NULL != g_pX2Game->GetMajorXMeshPlayer() && INVALID_MESH_INSTANCE_HANDLE != pEffectInstance->m_hMeshPlayer )
+						pFollowMesh = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( pEffectInstance->m_hMeshPlayer );
+					break;
+				case ET_MESH_PLAYER_GAME_MINOR:
+					if( NULL != g_pX2Game && NULL != g_pX2Game->GetMinorXMeshPlayer() && INVALID_MESH_INSTANCE_HANDLE != pEffectInstance->m_hMeshPlayer )
+						pFollowMesh = g_pX2Game->GetMinorXMeshPlayer()->GetMeshInstance( pEffectInstance->m_hMeshPlayer );
+					break;
+				case ET_PARTICLE_UI_MAJOR:
+					pFollowParticleSystem = ( NULL != g_pData ) ? g_pData->GetUIMajorParticle() : NULL;
+					break;
+				case ET_PARTICLE_GAME_MAJOR:
+					pFollowParticleSystem = ( NULL != g_pX2Game ) ? g_pX2Game->GetMajorParticle() : NULL;
+					break;
+				default:
+					break;
+				}
+
+				if( NULL != pFollowMesh )
+				{
+					pFollowMesh->SetRotateDegree( vUnitRotation );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+					JuneFxEsRuntime( L"ES_UPDATE", pEffectSetInstance, pEffectData, L"FOLLOW_UNIT_ROTATION", L"mesh_rotate(321e1691)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+				}
+				else if( NULL != pFollowParticleSystem && INVALID_PARTICLE_SEQUENCE_HANDLE != pEffectInstance->m_hParticleSequence )
+				{
+					if( CKTDGParticleSystem::CParticleEventSequence* pSeq = pFollowParticleSystem->GetInstanceSequence( pEffectInstance->m_hParticleSequence ) )
+					{
+						const D3DXVECTOR3 vAddRotate = pSeq->GetAddRotateRel() + vUnitRotation;
+						pSeq->SetAddRotate( vAddRotate );
+						if( true == pEffectData->m_bFollowUnitRotationCParticle )
+							pSeq->SetRotateToParticles( vAddRotate );
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+						JuneFxEsRuntime( L"ES_UPDATE", pEffectSetInstance, pEffectData, L"FOLLOW_UNIT_ROTATION",
+							( true == pEffectData->m_bFollowUnitRotationCParticle ) ? L"particle_add_rotate+cparticle(321e1afd)" : L"particle_add_rotate(321e1acc)" );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+					}
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 		}
 	}
 }
@@ -3702,6 +4397,20 @@ CX2EffectSet::EffectSetInstance::~EffectSetInstance()
 		SAFE_DELETE( pEffectInstance );
 	}
 	m_vecpEffectInstance.clear();
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+	// June2017 FUN_321e3a80 -> FUN_321da200: every sound the set started is stopped and closed
+	for( UINT iSound = 0; iSound < m_vecpPlayingSound.size(); ++iSound )
+	{
+		CKTDXDeviceSound* pSound = m_vecpPlayingSound[iSound];
+		if( NULL != pSound )
+		{
+			pSound->Stop();
+			SAFE_CLOSE( pSound );
+		}
+	}
+	m_vecpPlayingSound.clear();
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 }
 
 #ifdef SERV_PET_SYSTEM
@@ -3803,6 +4512,14 @@ CX2EffectSet::EffectSetInstance::EffectSetInstance( EffectSetData* pEffectSetDat
 	else if( pPet != NULL )
 		m_bIsRightWhenCreate = pPet->GetIsRight();
 	#endif SERV_PET_SYSTEM
+
+	// June2017 FUN_321df230 @ 321df323 clears the stop-tracing byte (+0x54) that STOP_TRACING_ON_TRIGGER sets
+	m_bStopTracingOnTrigger = false;
+	// ... sets the show flag (+0xdc, @ 321df3e3) and clears the sound copy flag (+0x181, @ 321df6f8)
+	m_bShowObject = true;
+	m_bSoundPlayDataCopied = false;
+	m_bToggleVisibilityPending = false;
+	m_fToggleVisibilityTimer = 0.f;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 
@@ -4367,6 +5084,74 @@ bool CX2EffectSet::EffectSetInstance::IsUnitRight()
 }
 
 //{{kimhc // 2011-01-17 // 지정한 Bone의 메트릭스 값을 Trace 함 (chung 코드 참고)
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+/** @function : GetCombineMatrix
+	@brief : June2017 FUN_321dc550. March's owner branch with the target-mesh index rule, plus the bone
+			 frame of a square unit and of a pet, where March returned NULL; so TRACE_MATRIX (and a
+			 GROUP_NAME child's offset) follows those holders too. The frame's combineMatrix (+0x90), or NULL.
+*/
+const D3DXMATRIX* CX2EffectSet::EffectSetInstance::GetCombineMatrix( const EffectData* pEffectData ) const
+{
+	// @ 321dc56e-321dc789: a game-mode set with a live owner
+	if( ESM_GAME == m_eMode && null != m_optrGameUnit )
+	{
+		if( false == pEffectData->m_PositionBoneName.empty() )
+		{
+			// @ 321dc5c0-321dc6b2: the target mesh under the index rule, unless TRACE_USER_TARGET_FORCE. With
+			// the game and its major mesh player up, a mesh or bone that is not found gives no matrix;
+			// otherwise the owner's bone is used.
+			const int iTargetMeshIndex = ( pEffectData->m_iBoneTraceTargetMeshIndex < 0 ) ? 0 : pEffectData->m_iBoneTraceTargetMeshIndex;
+			CKTDGXMeshPlayer::CXMeshInstanceHandle hTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
+			EFFECT_TYPE eTargetMeshEffectType = ET_INVALID;
+			if( false == ( pEffectData->m_iBoneTraceTargetMeshIndex < 0 && true == pEffectData->m_bBoneTraceTargetMesh ) &&
+				true == GetTargetMesh( iTargetMeshIndex, hTargetMesh, eTargetMeshEffectType ) &&
+				false == pEffectData->m_bTraceUserTargetForce &&
+				NULL != g_pX2Game && NULL != g_pX2Game->GetMajorXMeshPlayer() )
+			{
+				CKTDGXMeshPlayer::CXMeshInstance* pMesh = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( hTargetMesh );
+				if( NULL == pMesh )
+					return NULL;
+				CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = pMesh->GetCloneFrame( pEffectData->m_PositionBoneName.c_str() );
+				return ( NULL != pMultiAnimFrame ) ? &pMultiAnimFrame->combineMatrix : NULL;
+			}
+			return m_optrGameUnit->GetCombineMatrixFromBoneName( pEffectData->m_PositionBoneName );
+		}
+		else if( false == pEffectData->m_PositionWeaponBoneName.empty() )
+		{
+			return m_optrGameUnit->GetCombineMatrixFromWeaponBoneName( pEffectData->m_iWeaponIndex, pEffectData->m_PositionWeaponBoneName.c_str(), pEffectData->m_iModelIndex );
+		}
+	#ifdef RIDING_SYSTEM
+		else if ( false == pEffectData->m_PosRidingPetBoneName.empty() )
+		{
+			return m_optrGameUnit->GetCombineMatrixFromRidingPetBoneName( pEffectData->m_PosRidingPetBoneName );
+		}
+	#endif //RIDING_SYSTEM
+		return NULL;
+	}
+
+	// @ 321dc78e-321dc7d1: a square unit's BONE_NAME, on its unit viewer's skin anim
+	if( m_pSquareUnit != NULL )
+	{
+		if( NULL == m_pSquareUnit->GetUnitViewer() || NULL == m_pSquareUnit->GetUnitViewer()->GetXSkinAnim() )
+			return NULL;
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pSquareUnit->GetUnitViewer()->GetXSkinAnim()->GetCloneFrame( pEffectData->m_PositionBoneName.c_str() );
+		return ( NULL != pMultiAnimFrame ) ? &pMultiAnimFrame->combineMatrix : NULL;
+	}
+#ifdef SERV_PET_SYSTEM
+	// @ 321dc7d3-321dc81d: a pet's BONE_NAME. June tests m_bLoaded (+0x510) and the skin anim (+0x2a4),
+	// which is March's GetXSkinAnim().
+	if( NULL != m_pPet )
+	{
+		if( NULL == m_pPet->GetXSkinAnim() )
+			return NULL;
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pPet->GetXSkinAnim()->GetCloneFrame( pEffectData->m_PositionBoneName.c_str() );
+		return ( NULL != pMultiAnimFrame ) ? &pMultiAnimFrame->combineMatrix : NULL;
+	}
+#endif SERV_PET_SYSTEM
+	// @ 321dc81f-321dc8c1: two more holders (a riding pet, +0xd8, and +0xe0) that March's instance does not have
+	return NULL;
+}
+#else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 const D3DXMATRIX* CX2EffectSet::EffectSetInstance::GetCombineMatrix( const EffectData* pEffectData ) const
 {
 	if( ESM_GAME == m_eMode && null != m_optrGameUnit )
@@ -4410,6 +5195,7 @@ const D3DXMATRIX* CX2EffectSet::EffectSetInstance::GetCombineMatrix( const Effec
 
 	return NULL;
 }
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 //}}kimhc // 2011-01-17 // 지정한 Bone의 메트릭스 값을 Trace 함 (chung 코드 참고)
 
@@ -5222,6 +6008,36 @@ void CX2EffectSet::EffectSetInstance::InvalidateTargetMesh( IN int iIndex_ )
 		m_hTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
 		m_eTargetMeshEffectType = ET_INVALID;
 	}
+}
+
+/** @function : HasTargetMeshHandle
+	@brief : June2017 FUN_321e4020 @ 321e4140-321e4180: true while some target-mesh entry still holds a
+			 handle. June tests the stored handle (CMP [entry],-1), not whether the mesh lives: an entry
+			 becomes -1 only when a position lookup finds its mesh gone (InvalidateTargetMesh). With the
+			 list empty, March's single mesh (PlayEffectSetByMeshPlayer) is the one entry, as in GetTargetMesh.
+*/
+bool CX2EffectSet::EffectSetInstance::HasTargetMeshHandle() const
+{
+	if( true == m_vecTargetMeshData.empty() )
+		return INVALID_MESH_INSTANCE_HANDLE != m_hTargetMesh;
+
+	for( UINT iEntry = 0; iEntry < m_vecTargetMeshData.size(); ++iEntry )
+	{
+		if( INVALID_MESH_INSTANCE_HANDLE != m_vecTargetMeshData[iEntry].m_hTargetMesh )
+			return true;
+	}
+	return false;
+}
+
+/** @function : SetShowObject
+	@brief : June2017 FUN_321de4f0: every effect of the set is shown or hidden (EffectInstance::SetShowObject,
+			 FUN_321de0c0), then the set keeps the flag (+0xdc, @ 321deab1 / 321deac7)
+*/
+void CX2EffectSet::EffectSetInstance::SetShowObject( bool bShow_ )
+{
+	for( UINT iEffect = 0; iEffect < m_vecpEffectInstance.size(); ++iEffect )
+		JuneSetEffectInstanceShow( m_vecpEffectInstance[iEffect], bShow_ );
+	m_bShowObject = bShow_;
 }
 
 /** @function : GetMeshInstanceByTargetMesh

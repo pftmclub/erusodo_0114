@@ -1219,6 +1219,13 @@ CKTDGXMeshPlayer::CXMeshInstance::CXMeshInstance( CKTDGXMeshPlayer* pMeshPlayer,
 , m_pFrame_TRACE_END0( NULL )
 , m_vScale( 1, 1, 1 )
 , m_bToggleRotate(false)
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+, m_bRestoreAnimAfterTrigger( true )
+, m_bTriggerAnimPlayed( false )
+, m_bTriggerBlocked( false )
+, m_fTriggerBlockTime( 0.f )
+, m_eTriggerRestorePlayType( static_cast<CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE>( 0 ) )
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef SHOW_ATTACK_BOX_DUMMY
 , m_pXMeshSphere ( NULL )
 , m_pMatrixSphere ( NULL )
@@ -1629,12 +1636,47 @@ void CKTDGXMeshPlayer::CXMeshInstance::ApplyVelocityModifier( IN OUT D3DXVECTOR3
 		}
 	}
 }
+
+/** @function : ChangeAnimByTrigger
+	@brief : June2017 FUN_31c89ab0 -> FUN_31c83280, the motion of a mesh trigger. With a skin anim: marks
+			 the trigger played (+0x634); a negative speed becomes the mesh's own (m_fAniPlaySpeed, June
+			 +0x3d4 = probe 0x2a4); the anim it replaces and its play type are kept (skin m_NowAnimName
+			 +0x228 / m_PlayType +0x2a8). FUN_31c83280 is March's ChangeAnim( name, play type, speed )
+			 (ChangeAnim, Play, then SetPlaySpeed with its KeyTrackSpeed) with June's two extra arguments
+			 passed on to the skin's ChangeAnim( name, transition, start time ).
+*/
+void CKTDGXMeshPlayer::CXMeshInstance::ChangeAnimByTrigger( const WCHAR* wszAnimName_, CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE ePlayType_, float fAnimSpeed_, bool bTransition_, float fStartTime_ )
+{
+	if( NULL == m_pXSkinAnim )
+		return;
+
+	m_bTriggerAnimPlayed = true;
+	if( fAnimSpeed_ < 0.f )
+		fAnimSpeed_ = m_fAniPlaySpeed;
+	m_wstrTriggerRestoreAnimName = m_pXSkinAnim->GetNowAnimName();
+	m_eTriggerRestorePlayType = m_pXSkinAnim->GetPlayType();
+
+	m_pXSkinAnim->ChangeAnim( wszAnimName_, bTransition_, fStartTime_ );
+	m_pXSkinAnim->Play( ePlayType_ );
+	m_pXSkinAnim->SetPlaySpeed( fAnimSpeed_ );
+}
+
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 HRESULT CKTDGXMeshPlayer::CXMeshInstance::OnFrameMove( double fTime, float fElapsedTime )
 {
 	m_fElapsedTime		= fElapsedTime;
 	m_vPosBefore		= m_vPos;
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+	// June2017 31c87b80 @ 31c87bc4-31c87c20, before the delay test: a blocked trigger (BLOCK_TRIGGER) counts
+	// its time down and is unblocked at 0
+	if( true == m_bTriggerBlocked )
+	{
+		m_fTriggerBlockTime -= fElapsedTime;
+		if( m_fTriggerBlockTime <= 0.f )
+			m_bTriggerBlocked = false;
+	}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 	if( m_fDelayTime > 0.0f )
 	{
@@ -1692,6 +1734,17 @@ HRESULT CKTDGXMeshPlayer::CXMeshInstance::OnFrameMove( double fTime, float fElap
 
 	//이벤트 적용
 	RunEvent();
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+	// June2017 31c87b80 @ 31c87cf2-31c87d48, right after RunEvent (31c83d90): once a trigger's motion has
+	// ended (skin m_bAnimEnd, +0x2ac) and restoring is on (+0x194), the anim ChangeAnimByTrigger kept comes
+	// back: the skin's ChangeAnim( name, true, 0 ) (31d33fd0) and Play( its play type ) (31d28d00)
+	if( true == m_bTriggerAnimPlayed && NULL != m_pXSkinAnim && true == m_pXSkinAnim->IsAnimationEnd() && true == m_bRestoreAnimAfterTrigger )
+	{
+		m_pXSkinAnim->ChangeAnim( m_wstrTriggerRestoreAnimName.c_str(), true, 0.f );
+		m_pXSkinAnim->Play( m_eTriggerRestorePlayType );
+		m_bTriggerAnimPlayed = false;
+	}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 #ifdef EVENT_SCENE
 	m_vPos += m_vPositionGap;

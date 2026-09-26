@@ -172,6 +172,9 @@ public:
 	{
 		bool			m_bOnce;		// ONCE, default false
 		float			m_fTime;		// TIME, default 0
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+		bool			m_bFirstUse;	// June2017 runtime byte after ONCE (+1), 1 in the ctor FUN_321f3be0: TIME applies while it is set
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 		bool operator==( const AnimTimeOnStartData& rhs_ ) const
 		{
@@ -181,6 +184,9 @@ public:
 		AnimTimeOnStartData()
 		: m_bOnce( false )
 		, m_fTime( 0.f )
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+		, m_bFirstUse( true )
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 		{
 		}
 	};
@@ -206,6 +212,13 @@ public:
 		AnimTimeOnStartData			m_AnimTimeOnStartGame;				// ANIMTIME_ON_START_GAME
 		AnimTimeOnStartData			m_AnimTimeOnStartSquare;			// ANIMTIME_ON_START_SQUARE (binary-only)
 		AnimTimeOnStartData			m_AnimTimeOnStartUnitViewer;		// ANIMTIME_ON_START_UNITVIEWER (binary-only)
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+		// June2017 runtime state of a list entry (FUN_321dfc40), preset by the entry ctor FUN_321f3be0
+		std::wstring				m_wstrTriggeredAnimName;			// +0x2c: the skin's anim when the entry last fired
+		int							m_iTriggeredPlayCount;				// +0x48: the skin's play count then
+		bool						m_bArmed;							// +0x4c
+		bool						m_bFiredOnce;						// +0x72: TRIGGER_ONCE, never again
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 		bool operator==( const MeshTriggerData& rhs_ ) const
 		{
@@ -238,6 +251,11 @@ public:
 		, m_fEffectSetToggleVisibilityTimer( -1.f )
 		, m_bUseEffectSetToggleVisibilityTimer( false )
 		, m_bUseMeshTransition( false )
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+		, m_iTriggeredPlayCount( 0 )
+		, m_bArmed( false )
+		, m_bFiredOnce( false )
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 		{
 		}
 	};
@@ -782,6 +800,36 @@ public:
 		// June2017 EffectSetInstance +0x180: the creator's facing when the set was created
 		// (FUN_321df230 @ 321df51c-321df576), read by USE_IS_RIGHT_WHEN_CREATE
 		bool							m_bIsRightWhenCreate;
+
+		// June2017 EffectSetInstance +0x54, cleared by the ctor FUN_321df230 (@ 321df323): set only by a
+		// mesh trigger's STOP_TRACING_ON_TRIGGER (FUN_321dfc40 @ 321dff2e-321dff3c, Phase 4b stage 3).
+		// While it is set, OnFrameMove_UpdateEffect skips TRACE_MATRIX (FUN_321e0080 @ 321e0fb5).
+		bool							m_bStopTracingOnTrigger;
+
+		// June2017 EffectSetInstance +0xdc: the set's show flag, 1 in the ctor FUN_321df230. SetShowObject
+		// (FUN_321de4f0) hands it to every effect; SYNC_SHOW_BY_CREATE_UNIT keeps it equal to the owner's,
+		// and a particle takes it when it is created (FUN_321ee600 @ 321f251d).
+		bool							m_bShowObject;
+
+		// June2017 EffectSetInstance +0x55 / +0x58: a trigger's EFFECT_SET_TOGGLE_VISIBILITY_TIMER (FUN_321dfc40
+		// @ 321dff89-321dff96), counted down by OnFrameMove_UpdateEffect (FUN_321e0080 @ 321e0105-321e0140).
+		// June's ctor does not initialise +0x55; March starts it false.
+		bool							m_bToggleVisibilityPending;
+		float							m_fToggleVisibilityTimer;
+
+		// June2017 SOUND%d playback state (FUN_321dee80): +0x181 the copy was taken, +0x184 the copy of the
+		// templet's entries with a played flag each (0x2c bytes an entry: the 0x28-byte entry, then the flag
+		// at +0x28), +0x194 the sounds it started (closed when they stop, or by the dtor, FUN_321da200)
+		struct SoundPlayData
+		{
+			CX2DamageEffect::SoundData	m_SoundData;
+			bool						m_bPlayed;
+
+			SoundPlayData() : m_bPlayed( false ) {}
+		};
+		bool							m_bSoundPlayDataCopied;
+		std::vector<SoundPlayData>		m_vecSoundPlayData;
+		std::vector<CKTDXDeviceSound*>	m_vecpPlayingSound;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 	private:
@@ -862,6 +910,10 @@ public:
 		// June2017 FUN_321dcc20 / FUN_321dd590: the two above with a caller-supplied bone, for GROUP_NAME
 		bool GetEffectPositionByTargetMesh( OUT D3DXVECTOR3& vPos, IN EffectData* pEffectData, IN int iIndex_, IN const std::wstring& wstrBoneName_, OUT bool& bBoneFound_ );
 		D3DXVECTOR3 GetEffectPositionByBoneName( IN EffectData* pEffectData, IN const std::wstring& wstrBoneName_, OUT bool& bBoneFound_ );
+		// June2017 FUN_321e4020 @ 321e4140-321e4180: some target-mesh entry still holds a handle
+		bool HasTargetMeshHandle() const;
+		// June2017 FUN_321de4f0: the set's show flag, handed to every effect (EffectInstance::SetShowObject)
+		void SetShowObject( bool bShow_ );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE

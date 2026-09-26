@@ -5380,6 +5380,31 @@ void CKTDGParticleSystem::CParticleEventSequence::SetPosition( const D3DXVECTOR3
 //}}AFX
 #endif EQUIP_ATTACHED_PARTICLE_TRACE_TEST
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+// June2017 FUN_31cf1df0: walks the sequence's particles in the system's pool (+0x1b4, from +0x434) and
+// stores the vector at CParticle +0x10c. That is March's CParticle::m_vRotate: June's 31cf9570
+// @ 31cf9f2d-31cf9fa9 writes and re-reads +0x10c exactly where March's particle creation does
+// pPart->SetRotate( dirVec ); pPart->SetRotate( pPart->GetRotate() + m_AddRotate + m_AddRotateRel )
+// (offsetof probe: m_vRotate 0x108).
+void CKTDGParticleSystem::CParticleEventSequence::SetRotateToParticles( const D3DXVECTOR3& vRotate_ )
+{
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	auto SetRotateCB = [&vRotate_]( CParticle& particle )
+	{
+		particle.SetRotate( vRotate_ );
+	};
+	ApplyFunctionToParticles( SetRotateCB );
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	BOOST_TEST_FOREACH( CParticle*, pPart, m_ParticleList )
+	{
+		if ( pPart == NULL )
+			continue;
+		pPart->SetRotate( vRotate_ );
+	}
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+
 void CKTDGParticleSystem::CParticleEventSequence::SetParticlePosition( const D3DXVECTOR3& pos )
 {
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE

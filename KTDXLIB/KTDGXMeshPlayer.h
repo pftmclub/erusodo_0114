@@ -1326,6 +1326,12 @@ public:
 				// June2017 velocity modifiers (CXMeshInstance +0x568 in June); see the .cpp
 				void AddVelocityModifier( IN bool bAdd_, IN const D3DXVECTOR3& vValue_ );
 				void ApplyVelocityModifier( IN OUT D3DXVECTOR3& vVelocity_ ) const;
+				// June2017 mesh triggers (CXMeshInstance +0x194, +0x634..+0x658); see the .cpp
+				void ChangeAnimByTrigger( const WCHAR* wszAnimName_, CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE ePlayType_, float fAnimSpeed_, bool bTransition_, float fStartTime_ );
+				bool GetTriggerBlocked() const { return m_bTriggerBlocked; }
+				void SetTriggerBlock( float fBlockTime_ ) { m_bTriggerBlocked = true; m_fTriggerBlockTime = fBlockTime_; }
+				bool GetTriggerAnimPlayed() const { return m_bTriggerAnimPlayed; }
+				void SetRestoreAnimAfterTrigger( bool bRestore_ ) { m_bRestoreAnimAfterTrigger = bRestore_; }
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 				void SetDirSpeed(float val) { m_fDirSpeed = val; }
 //#ifdef RAVEN_WEAPON_TAKER
@@ -1582,6 +1588,16 @@ public:
 					D3DXVECTOR3		m_vValue;
 				};
 				std::vector<VelocityModifier>	m_vecVelocityModifier;
+
+				// June2017 mesh-trigger state, read and written by the EffectSet's trigger (FUN_321dfc40), by
+				// ChangeAnimByTrigger (FUN_31c89ab0) and by OnFrameMove (31c87b80). June keeps +0x194 just
+				// before m_Handle; it is appended here with the rest, so every member above keeps its offset.
+				bool									m_bRestoreAnimAfterTrigger;		// +0x194: 1 in the ctor (@ 31c8d18e), 0 at creation for an effect with a MESH_TRIGGER_DATA_LIST (321f2166)
+				bool									m_bTriggerAnimPlayed;			// +0x634: set by ChangeAnimByTrigger; no ctor store in June
+				bool									m_bTriggerBlocked;				// +0x635: BLOCK_TRIGGER (ctor 0, @ 31c8d28b)
+				float									m_fTriggerBlockTime;			// +0x638: BLOCK_TRIGGER_TIME left (ctor 0.0, @ 31c8d272)
+				std::wstring							m_wstrTriggerRestoreAnimName;	// +0x63c: the anim a trigger replaced (ctor "", @ 31c8d2a3)
+				CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE		m_eTriggerRestorePlayType;		// +0x658: its play type (ctor 0, @ 31c8e0d0)
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 //#ifdef X2OPTIMIZE_CULLING_PARTICLE

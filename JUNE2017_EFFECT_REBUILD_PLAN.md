@@ -1243,6 +1243,137 @@ effect set. Update the matrix and MODS.md.
 
 ## Phase 4b — EffectSet runtime: delete, update, camera shake
 
+**Status: in progress (2026-09-26).** The spec below was written from the June disassembly
+before any code, as in 4a, with the decompile used only as a map. The work is split into
+three stages. Resume at the first stage that is not marked done. The phase is not done while
+any `RUNTIME` row in `census.py` still has the state `stage N`.
+
+| stage | scope | state |
+|---|---|---|
+| 1 | Delete: target-mesh any-handle, `DELETE_EFFECTSET_AT_TRACE_UNIT_DIE`. Update: target-mesh-gone hide, `GROUP_NAME` child position, June `GetCombineMatrix` (index rule, square unit, pet), `TRACE_MATRIX` stop-tracing gate and UI-major particle, `REVERSE_Y` index rule. Camera shake cited `same` | **done** 2026-09-26 (built, deployed `56e3eb6c9645fe75…`) |
+| 2 | `SYNC_SHOW_BY_CREATE_UNIT` (plus the creation-time particle show @`321f251d`), `SOUND%d` playback and its dtor cleanup, `FOLLOW_UNIT_ROTATION(_CPARTICLE)`, per-frame `TRACE_MATRIX_IN_FIELD`, the particle `+0x31c`/`+0x320` write | **done** 2026-09-26 |
+| 3 | Mesh triggers (`MESH_TRIGGER_DATA`, `MESH_TRIGGER_DATA_LIST` and every `TRIGGER_DATA%d` key), new `CXMeshInstance` members and its OnFrameMove countdown/restore, the play-anim wrapper, `EFFECT_SET_TOGGLE_VISIBILITY_TIMER`, the `+0x194` store at creation that 4a skipped | **done** 2026-09-26: all three stages built clean (`US_SERVICE` KTDXLIB, X2Lib, X2) and deployed to `X2_offline.exe` (SHA-256 `3b2cbece6764e1e2…`). **Play-test pending**; see "Result" |
+
+**Which deployed data can fire each stage.** The four files March loads (`X2StateStartUp.cpp:164-177`)
+were decompiled `mar-2014` into a scratch directory and counted by set:
+- `EffectSet.src.lua` (3134 sets): `BONE_TRACE_TARGET_MESH` 159, `REVERSE_Y` 70, `DELETE_SHAKE_COUNT` 5.
+- `EffectSet_INT` (60): `BONE_TRACE_TARGET_MESH` 7. `UIEffectSet` (52): none. `UIEffectSet_INT` (6):
+  `REVERSE_Y` 1, `BONE_TRACE_TARGET_MESH` 1.
+- None of them uses `DELETE_EFFECTSET_AT_TRACE_UNIT_DIE`, `SYNC_SHOW_BY_CREATE_UNIT`, `SOUND%d`,
+  `FOLLOW_UNIT_ROTATION*`, `TRACE_MATRIX_IN_FIELD`, `MESH_TRIGGER_DATA*`, `GROUP_NAME` or
+  `BONE_TRACE_TARGET_MESH_INDEX`, and no UI-major particle has `TRACE_MATRIX`.
+- So only stage 1 can fire in a play-test today: the target-mesh delete/hide on the BTTM sets (Ranox,
+  Perfect Storm, the fire Hamelling), `REVERSE_Y`, and `TRACE_MATRIX` on a pet or square-unit set.
+  Stages 2 and 3 are exercised only after Phase 11 adopts June's files.
+
+### June layout used for reading (never ported)
+
+- **EffectSetInstance** (ctor `321df230`), on top of 4a's list:
+  - `+0x54` stop-tracing flag (ctor clears it; set only by `STOP_TRACING_ON_TRIGGER`, `321dff3c`).
+  - `+0x55` / `+0x58` toggle-visibility pending / timer (set by the trigger, `321dff8f`; **the ctor
+    does not initialise `+0x55`**, March's member starts false).
+  - `+0x6c` float, 1.0 in the ctor: an **alpha multiplier** (see "Documented, not transcribed").
+  - `+0xc8` current delete-shake count; `+0xcc` an extra delete-shake count, 0 in the ctor.
+  - `+0xd0` / `+0xd1` March's `m_bCreateEffectSetTraceUnit` / `m_bTraceUnitDieDeleteEffectSet`.
+  - `+0xdc` the set's show flag (`321de4f0` stores it); `+0x181` / `+0x184` / `+0x194` sound state.
+  - `+0x1b0` the `StopEffectSet( h, bool )` flag handed to every effect by the dtor `321e3a80`.
+- **Trigger entry** (`MESH_TRIGGER_DATA_LIST/TRIGGER_DATA%d`, ctor `321f3be0`, `0x98` bytes). The
+  parser's destinations line up with these after one 4-byte push:
+  - `+0` `MOTION_NAME`; `+0x1c` `TRIGGER_TIME`; `+0x20` `PLAY_TYPE`; `+0x29` `USE_MESH_TRANSITION`.
+  - Runtime: `+0x2c` the anim name when it last fired; `+0x48` the skin's play count then; `+0x4c`
+    armed; `+0x72` fired-once.
+  - `+0x50` `BOUND_MOTION_TYPE_LIST`; `+0x60` `TRIGGER_EFFECTSET_LIST`; `+0x70` toggle flag;
+    `+0x71` `TRIGGER_ONCE`; `+0x73` `STOP_TRACING_ON_TRIGGER`; `+0x74` `BLOCK_TRIGGER`; `+0x78`
+    `BLOCK_TRIGGER_TIME`; `+0x7c` `EFFECT_SET_TOGGLE_VISIBILITY_TIMER`.
+  - `+0x80`/`+0x84` `ANIMTIME_ON_START_GAME` `ONCE`/`TIME`, `+0x81` its still-first byte (ctor 1);
+    `+0x88`.. `_SQUARE`; `+0x90`.. `_UNITVIEWER`.
+- **CKTDGXSkinAnim**, by field order against March's header: `+0x214` `m_fAnimCurrTime`, `+0x21c`
+  `m_fAnimBeforeTime`, `+0x220` `m_fAnimMaxTime`, `+0x228` `m_NowAnimName`, `+0x248` `m_NowPlayCount`,
+  `+0x2a8` `m_PlayType`, `+0x2ac` `m_bAnimEnd`, `+0x2b0` `m_fTransitionTime`.
+- **CXMeshInstance**, June-only members after March's last one: `+0x634` inline trigger played,
+  `+0x635`/`+0x638` trigger blocked / time left, `+0x63c` the anim to restore, `+0x658` its play
+  type. `+0x4a4` alpha multiplier (June-only). `+0x194` restore-after-trigger (see corrections).
+
+### Spec
+
+| key / behaviour | June branch | March site | verdict | stage |
+|---|---|---|---|---|
+| `BONE_TRACE_TARGET_MESH` (delete) | `321e4020` @`321e4140`-`321e419d`: with is-target-mesh set, the set is deleted only when **every** entry's stored handle is -1 (`CMP [entry],-1`; a handle becomes -1 only when a position lookup invalidates it) | `OnFrameMove_DeleteEffect` | semantics-differ (March tested entry 0's mirror) | 1 |
+| `DELETE_EFFECTSET_AT_TRACE_UNIT_DIE` | `321e41a2`-`321e4231`: the templet flag **or** the instance's two trace-unit flags; then deleted when the trace target is null or its HP (`+0xc04`→`+0x20`, decoded) is not above 0 | `OnFrameMove_DeleteEffect` | new | 1 |
+| `DELETE_SHAKE_COUNT` | `321e42ec`-`321e43ee`: limit = templet + instance `+0xcc`; a user trace target (`+0x264` = `GUT_USER`) whose facing (vfunc `0x170`) differs from its previous facing (vfunc `0x4f0`) adds one; deleted at the limit | `OnFrameMove_DeleteEffect` | same (`+0xcc` has no writer in March, so it is 0) | 1 (cite) |
+| `PASSIVE_EFFECT` | `321e47c5`-`321e47d7`: an alive effect keeps the set alive unless it is passive | `OnFrameMove_DeleteEffect` | same | 1 (cite) |
+| target mesh gone (update) | `321e0080` @`321e0170`-`321e021c`: per effect, **before** the trace test: is-target-mesh, `!TRACE_USER_TARGET_FORCE`, no live entry under the index rule, and not (`BONE_TRACE_TARGET_MESH` with `INDEX` < 0) → `EffectInstance::SetShowObject( false )` (`321de0c0`), then the next effect | `OnFrameMove_UpdateEffect` | semantics-differ (March `break`s the set's loop, and only for traced effects) | 1 |
+| `TRACE`, `TRACE_MORE` | `321e07fc`-`321e081f`: an effect with none of `TRACE`/`TRACE_MORE`/`TRACE_MATRIX`, or not alive, is not moved; particles get `SetPosition( pos, TRACE_MORE, TRACE_MORE )` (`321e0cb7`-`321e0cca`) | `OnFrameMove_UpdateEffect` | same | 1 (cite) |
+| `GROUP_NAME` (update) | `321e0825`-`321e0986`: a group child with `BONE_NAME` takes its stored offset through `GetCombineMatrix` (`321dc550`, `D3DXVec3Transform`, then / w); without `BONE_NAME`, `GetEffectPositionByBoneName( child bone )`. A null matrix leaves June's stack position uncomputed (@`321e0845`); not reproduced, the effect is not moved | `OnFrameMove_UpdateEffect` | new | 1 |
+| `TRACE_MATRIX` (update) | `321e0fa4`-`321e146d`: skipped while the instance's stop-tracing flag is set; `SetUseDXMatrix` on the damage main effect, meshes 2-5 and particles 6 **and** 8 (March: 8 only). `GetCombineMatrix` `321dc550` adds the target-mesh index rule and returns bone frames for a **square unit** (viewer skin) and a **pet** (`GetXSkinAnim()`), where March returned NULL | `OnFrameMove_UpdateEffect`, `GetCombineMatrix` | semantics-differ | 1 |
+| `REVERSE_Y` | `321e146d`-`321e159a`: type 8 with a billboard; the target mesh's facing when the index rule gives a live entry and `!TRACE_USER_TARGET_FORCE`, else the EffectInstance unit's | `OnFrameMove_UpdateEffect` | same (plus the index rule) | 1 |
+| `CAMERA_SHAKE%d` and its 19 keys | `321dbcc0` @`321dbda3`-`321dc05a` (timing: `START_TIME` + delay, custom timer or pet / riding-pet / set skin anim time), `321dc060`-`321dc160` (done bit, then `LIMIT_DISTANCE` against `GetMyUnit()`'s position; -1 ignores it), `321dc16b`-`321dc403` (`SHAKE_TYPE` 1-9 → the nine `CKTDGCamera` calls with March's arguments; `31d014c0` writes Up's block and `31d01490` Down's, matching `DECT_UP`=1 / `DECT_DOWN`=2 and March's member order) | `OnFrameMove_StartCameraShake` | same | 1 (cite) |
+| `SYNC_SHOW_BY_CREATE_UNIT` | `321e077d`-`321e07e9`: per effect, the owner's `GetShowObject()` against the set's show flag → `SetShowObject` on the whole set (`321de4f0`). At creation, particles take the set's flag (`321f251d`) | `OnFrameMove_UpdateEffect`, creation | new | 2 |
+| `SOUND%d` (`EVENT_TIME`, `FILE_NAME`, `RATE`, `USE_GLOBAL_TIME`, `LOOP`) | `321e07ee`-`321e07f7` → `321dee80`, called per effect instance (a set with no created effect plays nothing): per-instance copy on first call; `USE_GLOBAL_TIME` against elapsed, else `EventTimer`; `rand()%100 < RATE`; played at the pet / owner / square position; `LOOP` re-arms on `m_bAnimEnd`, otherwise the entry is dropped; stopped sounds are released; the dtor stops the rest (`321da200`) | `OnFrameMove_UpdateEffect`, dtor | new | 2 |
+| `FOLLOW_UNIT_ROTATION`, `FOLLOW_UNIT_ROTATION_CPARTICLE` | `321e159a`-`321e1b05` (inside the trace block): `GetUnitRotation` → mesh rotation (`31c1a3a0`) for the damage main effect and meshes; particles 6/8 add it to their own and set it (`31c1a030`), `_CPARTICLE` also on the child particles (`31cf1df0`) | `OnFrameMove_UpdateEffect` | new | 2 |
+| `TRACE_MATRIX_IN_FIELD` (update) | `321e0d1a`-`321e0f9b`, UI-major particles only: the child or `BONE_NAME` bone frame (owner's set skin anim, or the target mesh) → `SetUseDXMatrix` + `POSITION_OFFSET` | `OnFrameMove_UpdateEffect` | new | 2 |
+| `MESH_TRIGGER_DATA` (`TRIGGER_TIME`, `MOTION_NAME`, `PLAY_TYPE`) | `321e02fc`-`321e0409` → `321dfc40` @`321dffd0`-`321e0033`: only with an empty list; `TRIGGER_TIME` >= 0, not already played (mesh `+0x634`), anim time reached → play the motion at the mesh's default speed; the mesh restores the previous anim when it ends (`31c87cf2`-`31c87d48`) | `OnFrameMove_UpdateEffect`, `CXMeshInstance` | new | 3 |
+| `MESH_TRIGGER_DATA_LIST`, `TRIGGER_DATA%d` keys | `321dfc40` @`321dfce0`-`321dffc4`: the owner's emotion (`user+0x89d8` / square `+0x608`, normalised by `3264ca10`) in `BOUND_MOTION_TYPE_LIST` arms an entry; at `TRIGGER_TIME` the motion plays (`PLAY_TYPE`, speed 1, `USE_MESH_TRANSITION`, start at `ANIMTIME_ON_START_*` `TIME` on its first use); then `TRIGGER_ONCE`, `STOP_TRACING_ON_TRIGGER`, `TRIGGER_EFFECTSET_LIST` (`PlayEffectSetByMeshPlayer`, type 2 always), toggle timer, `BLOCK_TRIGGER(_TIME)` | `OnFrameMove_UpdateEffect`, `CXMeshInstance` | new | 3 |
+| `EFFECT_SET_TOGGLE_VISIBILITY_TIMER` | set by the trigger (`321dff89`-`321dff96`); `321e0105`-`321e0140` counts it down and flips the set's show flag | `OnFrameMove_UpdateEffect` | new | 3 |
+| `ANIMTIME_ON_START_UNITVIEWER` | the unit-viewer branch of `321dfc40` (instance null) runs only from the unit viewer `329585f0` @`32958b12` | - | outside EffectSet | - |
+| `FOLLOW_UNIT_VIEWER_SCALE`, `USE_EFFECT_SCALE_IN_UNIT_VIEWER` | read only by the unit viewer: `329585f0` @`32958a11`, `329590c7`; `32957980` @`32957e8e` | - | outside EffectSet | - |
+| `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` | unchanged from 4a: the unit-side registration is not located | unit side | deferred | - |
+
+**Documented, not transcribed** (keyless, or no March caller):
+- The alpha push, `321e033e`-`321e0353` and the other cases: the instance's `+0x6c` goes into mesh
+  `+0x4a4` (June's mesh render setup multiplies both colour alphas by it, `31c87b80`
+  @`31c88c05`-`31c88c1a`), particle `+0x1ac` and the damage effect (`31f75af0`). Nothing in the
+  EffectSet region writes `+0x6c` but the ctor. It belongs to the effect-alpha system, which is
+  absent (rule 5; `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` is already logged as unsupported).
+- The deferred-stop queue: `OnFrameMove_DeleteEffect` first drains `CX2EffectSet+0x30`
+  (`{handle, bool}` pairs, copied by `321f38a0` @`321e4051`, drained @`321e4091`-`321e40b6`) through `StopEffectSet( h, bool )` (`321e3ee0`),
+  whose bool reaches every effect through `+0x1b0` in the dtor. There is no key, and March has no
+  caller.
+- Instance `+0xcc`, the extra delete-shake count: no writer in the EffectSet region.
+- `CKTDGCamera`'s June setters skip the shake while a camera flag (`+0x19c`) is set: camera side,
+  applies to every caller, not EffectSet.
+- June's `CParticleEventSequence::SetShowObject` (`31cf1cd0`) also hides each particle, and June's
+  `CEffect::SetPos` (`31f73df0`) also moves its start/passive/time particles: KTDXLIB particle
+  (Phase 10) and `CEffect` (Phase 7a) differences, not EffectSet.
+
+**Corrections to earlier records.**
+- Mesh `+0x194` **has** a reader: June's mesh OnFrameMove `31c87b80` @`31c87d0e` restores the anim
+  after an inline trigger only while it is 1. 4a's stage-2 member table and the funcmap row for
+  `31c8d140` said no reader was found; the byte scan missed it. Stage 3 transcribes it.
+
+### Result (2026-09-26)
+
+**Member mapping** (the offsetof probe plus one June shape match, as in 4a):
+
+| June | March | probe | shape match |
+|---|---|---|---|
+| CEffect particle lists `+0x864`/`+0x874`/`+0x884`, ParticleData `+0x94` | `m_StartParticleDataList` / `m_PassiveParticleDataList` / `m_TimeParticleDataList`, `m_hSeq` | `0x614`/`0x624`/`0x634`, `0x90` | the same `0x10` spacing; `31f75570` treats them alike |
+| mesh `+0x5b4` (`31c1a3a0`) | `m_vRotate` (`SetRotateDegree`) | `0x460` | the rotate event `31c84e10` writes `+0x5a8`/`+0x5c0` as March writes `m_vRotateLocal`/`m_vRotateFinal` |
+| particle `+0x3e0`/`+0x3ec` (`31c1a030`) | `m_AddRotate` / `m_AddRotateRel` | `0x2b4`/`0x2c0` | `31cf9570` adds both into the new particle's `+0x10c` as March's creation does |
+| CParticle `+0x10c` | `m_vRotate` | `0x108` | the same site |
+| particle `+0x31c`/`+0x320` | `m_bUseLand` / `m_fLandPosition` | `0x1f0`/`0x1f4` | creation `321f0fa6`-`321f0fbf` = March's `SetLandPosition( GetLandPos().y )` |
+| mesh `+0x3d4` | `m_fAniPlaySpeed` | `0x2a4` | the speed the mesh already plays at |
+| skin `+0x214`/`+0x228`/`+0x248`/`+0x2a8`/`+0x2ac` | `m_fAnimCurrTime`/`m_NowAnimName`/`m_NowPlayCount`/`m_PlayType`/`m_bAnimEnd` | `0xf0`/`0x104`/-/`0x174`/`0x178` | `31d28d00` = `Play( type )` (state, type, play count 0), `31d28e10` = `EventTimer( float )` |
+| user `+0x89d8`, square `+0x608` | `GetNowEmotionId()` | - | both are compared with the sitting emotions and their cash variants (`0x19`/`0x1a`/`0x36`.. @`3249ccff`, `323a3474`), the values `3264ca10` folds |
+| camera Up/Down (`31d014c0`/`31d01490`) | `UpCrashCamera`/`DownCrashCamera` | `m_fUpCrashGap` `0x94`, `m_fDownCrashGap` `0x88` | gap = 0, then speed and accel, in March's member order |
+
+**What deployed data can show.** Stage 1 only: the target-mesh hide / delete on the 167 BTTM sets, the
+5 `DELETE_SHAKE_COUNT` sets, `REVERSE_Y` (71), and `TRACE_MATRIX` on pets and village square units.
+The play-test targets are the 4a ones: Rena's Perfect Storm and the fire Hamelling Attack X (damage
+BTTM), the Ranox Burned Forest / Ashes Village monsters (mesh BTTM). A pet or the village exercises
+the new `GetCombineMatrix` holders.
+
+**Deviations, each commented in the code:**
+- A `GROUP_NAME` child whose matrix is missing is not moved. June moves it to an uncomputed position.
+- A non-user game-unit trigger owner has emotion `ET_NONE`. June reads the user field regardless.
+- June's `TRIGGER_EFFECTSET_LIST` always passes type 2; that is reproduced as `ET_MESH_PLAYER_UI_MAJOR`.
+- Mesh triggers skip a mesh with no skin anim.
+
+**Exit status.** `census.py` passes every check, including the two new ones: no `4b@` placeholder, and
+no `stage N` state. The matrix diff against HEAD, with line numbers normalized, changes only the
+runtime table, the runtime notes and the checks. The `JUNE_FX ES_UPDATE` / `ES_DELETE` criterion
+waits on the play-test.
+
 **Paste with:** Starting context + this section.
 
 - **June source:** `FUN_321e4020` (delete), `FUN_321e0080` (update, 7 KB), `FUN_321dbcc0`

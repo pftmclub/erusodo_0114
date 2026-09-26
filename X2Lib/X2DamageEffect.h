@@ -672,6 +672,11 @@ class CX2DamageEffect
 
 				CKTDGXMeshPlayer::CXMeshInstanceHandle GetMainEffectHandle() { return m_hMeshInstHandle; }
 				CKTDGXMeshPlayer::CXMeshInstance* GetMainEffect();
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+				// June2017 FUN_31f75570, called by the EffectSet's EffectInstance::SetShowObject (FUN_321de0c0):
+				// shows or hides the main effect and every start / passive / time particle
+				void SetShowObject( bool bShow_ );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 
 				LockOnData&		GetLockOnData(){ return m_LockOnData; }

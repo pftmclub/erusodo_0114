@@ -465,9 +465,14 @@ ES_LEVELS = [
 # reads a key; this says what June does with it at run time, and where. One entry per
 # (scope root, sub-path, key); check_runtime() makes sure each names a real row. Verdicts:
 # new / semantics-differ / same / unsupported / deferred / 4b@VA (only a Phase-4b reader) /
-# not-creation (no reader on the creation path). state: done / stage N (owned, not yet
-# written) / - (nothing to write). The full spec is JUNE2017_EFFECT_REBUILD_PLAN.md, Phase 4a.
+# not-creation (no reader on the creation path) / outside-effectset (read only by another
+# subsystem, named in the branch). state: done / stage N (owned, not yet written) / deferred /
+# - (nothing to write). The full spec is JUNE2017_EFFECT_REBUILD_PLAN.md, Phases 4a and 4b.
+# Phase 4b replaced every '4b@VA' placeholder with a real verdict; check_runtime() fails on any
+# that comes back, and reports every row still owned by a stage.
 RT_4A = '4a'
+RT_4B = '4b'
+RT_4AB = '4a+4b'
 RUNTIME = [
     # (root, rel, key, phase, state, verdict, June branch, March site)
     ('ES.EFFECT', (), 'ZOFFSET_USE_UNIT_IS_RIGHT', RT_4A, 'done', 'new',
@@ -478,12 +483,12 @@ RUNTIME = [
      '321d9820@321d9847-321d9889 and @321d98a3-321d98c2, as POSITION_OFFSET_X', 'SetEffectSetOffset'),
     ('ES.EFFECT', (), 'POSITION_OFFSET_Y', RT_4A, 'done', 'same',
      '321d9820@321d9b0b-321d9b23: added as is; the facing change does not reach Y', 'SetEffectSetOffset'),
-    ('ES.EFFECT', (), 'BONE_TRACE_TARGET_MESH', RT_4A, 'done', 'semantics-differ',
-     '321ee600@321f1f76-321f20f4 (damage) / 321f21f7-321f2414 (mesh): every one pushed onto a target-mesh list; 321dcd30@321dcd9d: with INDEX -1 it traces no mesh itself', 'OnFrameMove_CreateEffect, GetEffectPosition'),
-    ('ES.EFFECT', (), 'BONE_TRACE_TARGET_MESH_INDEX', RT_4A, 'done', 'new',
-     'position 321dcd30@321dcd9d-321dce07 -> 321dcac0; rotation 321df7e0@321df80c-321df860; offset 321d9820@321d9889-321d9896 / 321d9e6a-321d9ea6', 'GetEffectPosition, GetEffectRotation, SetEffectSetOffset'),
-    ('ES.EFFECT', (), 'TRACE_USER_TARGET_FORCE', RT_4A, 'done', 'same',
-     '321dcac0, 321df7e0@321df871, 321d9820@321d98e0: skips the target mesh, as March', 'the same three'),
+    ('ES.EFFECT', (), 'BONE_TRACE_TARGET_MESH', RT_4AB, 'done', 'semantics-differ',
+     '321ee600@321f1f76-321f20f4 (damage) / 321f21f7-321f2414 (mesh): every one pushed onto a target-mesh list; 321dcd30@321dcd9d: with INDEX -1 it traces no mesh itself. 4b: 321e4020@321e4140-321e419d deletes the set only when every entry\'s stored handle is -1; 321e0080@321e0170-321e021c hides an effect whose entry is gone (not for BTTM with INDEX < 0)', 'OnFrameMove_CreateEffect, GetEffectPosition, OnFrameMove_DeleteEffect, OnFrameMove_UpdateEffect'),
+    ('ES.EFFECT', (), 'BONE_TRACE_TARGET_MESH_INDEX', RT_4AB, 'done', 'new',
+     'position 321dcd30@321dcd9d-321dce07 -> 321dcac0; rotation 321df7e0@321df80c-321df860; offset 321d9820@321d9889-321d9896 / 321d9e6a-321d9ea6. 4b: the same index rule in 321e0080@321e0170-321e01e9 (hide), GetCombineMatrix 321dc550@321dc5e0-321dc6a5 and REVERSE_Y @321e1547-321e1562', 'GetEffectPosition, GetEffectRotation, SetEffectSetOffset, OnFrameMove_UpdateEffect, GetCombineMatrix'),
+    ('ES.EFFECT', (), 'TRACE_USER_TARGET_FORCE', RT_4AB, 'done', 'same',
+     '321dcac0, 321df7e0@321df871, 321d9820@321d98e0: skips the target mesh, as March. 4b: 321e0080@321e01f6 (no hide), 321dc550@321dc5f8, REVERSE_Y @321e154e, as March', 'the same three, OnFrameMove_UpdateEffect, GetCombineMatrix'),
     ('ES.EFFECT', (), 'APPLY_UNIT_ROTATION', RT_4A, 'done', 'same',
      '321df7e0@321df860: as March, plus the target-mesh index', 'GetEffectRotation'),
     ('ES.EFFECT', (), 'APPLY_UNIT_ROTATION_MIRROR', RT_4A, 'done', 'same',
@@ -491,34 +496,39 @@ RUNTIME = [
     ('ES.EFFECT', (), 'LIMIT_DISTANCE', RT_4A, '-', 'same', '321ee600@321eedad-321eeddf', 'OnFrameMove_CreateEffect'),
     ('ES.EFFECT', (), 'START_WHEN_TRACE_TARGET_DEAD', RT_4A, '-', 'same', '321ee600@321ee7e4-321eec83', 'OnFrameMove_CreateEffect'),
     ('ES.EFFECT', (), 'USE_SUB_ATTACK_LIST_SET', RT_4A, '-', 'same', '321ee600@321f219f-321f21f2', 'OnFrameMove_CreateEffect'),
-    ('ES.EFFECT', (), 'TRACE_MATRIX', RT_4A, '-', 'same', '321ee600, e.g. @321ef4f5-321ef58f: scale / unit scale / bone-trace scale', 'OnFrameMove_CreateEffect'),
+    ('ES.EFFECT', (), 'TRACE_MATRIX', RT_4AB, 'done', 'semantics-differ', '321ee600, e.g. @321ef4f5-321ef58f: scale / unit scale / bone-trace scale (same). 4b: 321e0080@321e0fa4-321e146d skips it while the stop-tracing flag is set and adds the UI-major particle; GetCombineMatrix 321dc550 adds the index rule and the square-unit / pet frames', 'OnFrameMove_CreateEffect, OnFrameMove_UpdateEffect, GetCombineMatrix'),
     ('ES.EFFECT', (), 'USE_IS_RIGHT_WHEN_CREATE', RT_4A, 'done', 'new',
      '321ee600@321ef6b5-321ef6d5: CEffect +0x135 (= m_bFollowLineRight) = the facing snapshot taken by 321df230@321df51c-321df576', 'damage case, EffectSetInstance ctor'),
-    ('ES.EFFECT', (), 'TRACE_MATRIX_IN_FIELD', RT_4A, 'done', 'new',
-     '321ee600 mesh @321ef8ee / 321efe84 / 321f03b6 / 321f088a, particle @321f0ce3 / 321f11da / 321f1738 / 321f1c12: BONE_NAME frame (owner: the mesh own / the set skin anim; else the target mesh, looked up in the UI-major player) -> SetUseDXMatrix + POSITION_OFFSET, or the bone position', 'mesh / particle cases'),
+    ('ES.EFFECT', (), 'TRACE_MATRIX_IN_FIELD', RT_4AB, 'done', 'new',
+     '321ee600 mesh @321ef8ee / 321efe84 / 321f03b6 / 321f088a, particle @321f0ce3 / 321f11da / 321f1738 / 321f1c12: BONE_NAME frame (owner: the mesh own / the set skin anim; else the target mesh, looked up in the UI-major player) -> SetUseDXMatrix + POSITION_OFFSET, or the bone position. 4b: per frame for UI-major particles only, 321e0080@321e0d1a-321e0f9b', 'mesh / particle cases, OnFrameMove_UpdateEffect'),
     ('ES.EFFECT', (), 'APPLY_DAMAGE_EFFECT_VELOCITY', RT_4A, 'done', 'new',
      '321ee600@321ef68e-321ef6a0 -> 321db1b0 tag 1: main-effect m_vVelocity (mesh +0x534), add if [4]==0 else multiply; kept on the mesh (31c8a9b0) and re-applied by its velocity event (31c8a1b0 -> 31c89d60)', 'damage case, CXMeshEvent_Velocity'),
-    ('ES.EFFECT', (), 'MESH_TRIGGER_DATA_LIST', RT_4A, 'done', 'new',
-     '321ee600@321f2130-321f2166: EffectInstance copies the list; mesh +0x194=0 is a June-only member, not reproduced (the rest: 4b @321e0080)', 'mesh case'),
+    ('ES.EFFECT', (), 'MESH_TRIGGER_DATA_LIST', RT_4AB, 'done', 'new',
+     '321ee600@321f2130-321f2166: EffectInstance copies the list; mesh +0x194=0 (restore-after-trigger off; its reader is 31c87b80@31c87d0e, so 4b stage 3 stores it). 4b: 321e0080@321e02fc-321e0409 -> 321dfc40@321dfce0-321dffc4', 'mesh case, OnFrameMove_UpdateEffect'),
     ('ES.EFFECT', (), 'SET_OVER_UI', RT_4A, 'done', 'semantics-differ',
      '321ee600@321f0f49-321f0f63 (x4): m_bOverUI (+0x170) and m_Layer (+0x164, from CKTDGObject ctor 31d28a20) = 500 XDL_DIRECTING', 'particle cases'),
-    ('ES.EFFECT', (), 'GROUP_NAME', RT_4A, 'done', 'new',
-     '321ee600@321eee45-321eeeb7, loop 321eeec0-321ef0ce / 321f2550-321f257c, helper 321dd590 (-> 321dcc20): particles only; one particle per <base>_GROUPCHILD_<n> bone until one is missing (on the target mesh too, @321ef069); child flag / bone / BONE_NAME-frame offset kept on the EffectInstance (@321f2483-321f24f1) for 4b; the particle TRACE_MATRIX_IN_FIELD takes the child bone (@321f0d10). No June or March data file uses the key', 'OnFrameMove_CreateEffect, GetEffectPositionByBoneName'),
+    ('ES.EFFECT', (), 'GROUP_NAME', RT_4AB, 'done', 'new',
+     '321ee600@321eee45-321eeeb7, loop 321eeec0-321ef0ce / 321f2550-321f257c, helper 321dd590 (-> 321dcc20): particles only; one particle per <base>_GROUPCHILD_<n> bone until one is missing (on the target mesh too, @321ef069); child flag / bone / BONE_NAME-frame offset kept on the EffectInstance (@321f2483-321f24f1) for 4b; the particle TRACE_MATRIX_IN_FIELD takes the child bone (@321f0d10). 4b: 321e0080@321e0825-321e0986 moves a child through GetCombineMatrix (BONE_NAME) or GetEffectPositionByBoneName. No June or March data file uses the key', 'OnFrameMove_CreateEffect, GetEffectPositionByBoneName, OnFrameMove_UpdateEffect'),
     ('ES.EFFECT', (), 'NOT_ALLOW_MEMO', RT_4A, 'done', 'unsupported',
      '321dddb0@321dde5f-321dde89: scale x memo scale (EffectData +0x108) unless set; the memo scale comes only from APPLIED_SKILL_ID (unsupported); logged once per templet', 'GetEffectScale'),
     ('ES.EFFECT', (), 'APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION', RT_4A, 'done', 'unsupported',
      '321ee600@321f1ec8-321f1ee4: the effect value only when it is 1, else the instance +0x1bc -> damage +0xb32 / mesh 31c83620 / particle +0x1b0; logged once per templet', 'OnFrameMove_CreateEffect (log)'),
-    ('ES.EFFECT', (), 'FOLLOW_UNIT_ROTATION', RT_4A, '-', '4b@321e0080', 'read only by UpdateEffect 321e0080', '-'),
-    ('ES.EFFECT', (), 'FOLLOW_UNIT_ROTATION_CPARTICLE', RT_4A, '-', '4b@321e0080', 'read only by UpdateEffect 321e0080', '-'),
-    ('ES.EFFECT', (), 'REVERSE_Y', RT_4A, '-', '4b@321e0080', 'read only by UpdateEffect 321e0080', '-'),
-    ('ES.EFFECT', (), 'MESH_TRIGGER_DATA', RT_4A, '-', '4b@321e0080', 'the inline trigger is read only by UpdateEffect 321e0080', '-'),
-    ('ES.EFFECT', (), 'FOLLOW_UNIT_VIEWER_SCALE', RT_4A, '-', 'not-creation', 'no reader in 0x321d0000-0x32208000 except the parser', '-'),
-    ('ES.EFFECT', (), 'USE_EFFECT_SCALE_IN_UNIT_VIEWER', RT_4A, '-', 'not-creation', 'no reader in 0x321d0000-0x32208000 except the parser', '-'),
+    ('ES.EFFECT', (), 'FOLLOW_UNIT_ROTATION', RT_4B, 'done', 'new',
+     '321e0080@321e159a-321e1b05 (inside the trace block): GetUnitRotation -> mesh rotation 31c1a3a0 (damage main effect, meshes); particles 6/8 add it to their own rotation (31c1a030)', 'OnFrameMove_UpdateEffect'),
+    ('ES.EFFECT', (), 'FOLLOW_UNIT_ROTATION_CPARTICLE', RT_4B, 'done', 'new',
+     '321e0080@321e1acc-321e1b00: with FOLLOW_UNIT_ROTATION, the same rotation on the particle\'s child particles (31cf1df0)', 'OnFrameMove_UpdateEffect'),
+    ('ES.EFFECT', (), 'REVERSE_Y', RT_4B, 'done', 'same',
+     '321e0080@321e146d-321e159a: type 8 with a billboard; target-mesh facing when the index rule gives a live entry and !TRACE_USER_TARGET_FORCE, else the EffectInstance unit (vfunc 0x170): as March plus the index rule', 'OnFrameMove_UpdateEffect'),
+    ('ES.EFFECT', (), 'MESH_TRIGGER_DATA', RT_4B, 'done', 'new',
+     '321e0080@321e02fc-321e0409 -> 321dfc40@321dffd0-321e0033: only with an empty list; the mesh restores the previous anim when the motion ends (31c87b80@31c87cf2-31c87d48)', 'OnFrameMove_UpdateEffect, CXMeshInstance'),
+    ('ES.EFFECT', (), 'FOLLOW_UNIT_VIEWER_SCALE', RT_4A, '-', 'outside-effectset', 'read only by the unit viewer: 329585f0@32958a11, @329590c7; no reader in 0x321d0000-0x32208000 except the parser', '-'),
+    ('ES.EFFECT', (), 'USE_EFFECT_SCALE_IN_UNIT_VIEWER', RT_4A, '-', 'outside-effectset', 'read only by the unit viewer: 32957980@32957e8e; no reader in 0x321d0000-0x32208000 except the parser', '-'),
     ('ES.templet', (), 'OVERLAP', RT_4A, 'done', 'new',
      '321d9f30 from the factory 321e1bf0@321e1c68-321e1c77: no new instance while one of the templet lives with the same trace target', '_CreateEffectSetInstance'),
     ('ES.templet', (), 'STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE', RT_4A, 'deferred', 'new',
      '321da070 via unit 3228a120 over unit+0x3e90 on state change; the writer of that list is not located', 'unit side'),
-    ('ES.templet', (), 'SYNC_SHOW_BY_CREATE_UNIT', RT_4A, '-', '4b@321e077d', 'getter 321f2b00, only caller UpdateEffect', '-'),
+    ('ES.templet', (), 'SYNC_SHOW_BY_CREATE_UNIT', RT_4B, 'done', 'new',
+     '321e0080@321e077d-321e07e9, per effect: the owner\'s GetShowObject() against the set\'s show flag -> SetShowObject on the whole set (321de4f0); at creation particles take the set flag (321ee600@321f251d)', 'OnFrameMove_UpdateEffect, creation'),
     ('ES.templet', (), 'APPLIED_SKILL_ID', RT_4A, 'done', 'unsupported',
      '321e1e60@321e1f51-321e1f95 (user owners only) -> 31fdbbb0 (user +0x867c memo) -> EffectSetData +0x60 -> instance +0x150 (321df230); logged once per templet', 'PlayEffectSet (log)'),
     ('ES.templet', (), 'APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION', RT_4A, 'done', 'unsupported',
@@ -526,8 +536,10 @@ RUNTIME = [
     ('ES.templet', (), 'EVENT_TIMER_TYPE', RT_4A, '-', 'same', '321ee600@321ee885-321ee96d', 'OnFrameMove_CreateEffect'),
     ('ES.templet', (), 'AFFECTED_BY_UNIT_SCALE', RT_4A, '-', 'same',
      'no creation-path reader in June; March\'s is compiled out (#ifndef FIX_EFFECT_SCALE_BY_UNIT_SCALE)', 'PlayEffectSet'),
-    ('ES.templet', (), 'DELETE_EFFECTSET_AT_TRACE_UNIT_DIE', RT_4A, '-', '4b@321e41a8', 'read only by DeleteEffect 321e4020', '-'),
-    ('ES.templet', (), 'DELETE_SHAKE_COUNT', RT_4A, '-', '4b@321e42f8', 'read only by DeleteEffect 321e4020', '-'),
+    ('ES.templet', (), 'DELETE_EFFECTSET_AT_TRACE_UNIT_DIE', RT_4B, 'done', 'new',
+     '321e4020@321e41a2-321e4231: the templet flag or the instance\'s two trace-unit flags; deleted when the trace target is null or its HP is not above 0', 'OnFrameMove_DeleteEffect'),
+    ('ES.templet', (), 'DELETE_SHAKE_COUNT', RT_4B, '-', 'same',
+     '321e4020@321e42ec-321e43ee: limit = templet + instance +0xcc (no writer in March, 0); a user trace target\'s facing flip adds one; deleted at the limit', 'OnFrameMove_DeleteEffect'),
     # existing keys the creation helpers consume the same way as March
     ('ES.EFFECT', (), 'NAME', RT_4A, '-', 'same',
      '321ee600@321ef3e8 (damage; likewise @321ef6f8, 321efcb9, 321f018f): HYPER_NAME if the instance is hyper and it is non-empty, else NAME', 'OnFrameMove_CreateEffect'),
@@ -546,21 +558,65 @@ RUNTIME = [
     ('ES.EFFECT', (), 'ROTATE_Y', RT_4A, '-', 'same', '321df7e0@321df7f0-321df7fe', 'GetEffectRotation'),
     ('ES.EFFECT', (), 'ROTATE_Z', RT_4A, '-', 'same', '321df7e0@321df7f0-321df7fe', 'GetEffectRotation'),
     ('ES.EFFECT', (), 'APPLY_INSTANCE_SCALE', RT_4A, '-', 'same', '321dddb0@321dde35-321dde3a: instance scale when damage-effect scale, or this and not ET_DAMAGE_EFFECT', 'GetEffectScale'),
-    ('ES.EFFECT', (), 'TRACE', RT_4A, '-', '4b@321e07fc', 'read only by UpdateEffect 321e0080', '-'),
-    ('ES.EFFECT', (), 'TRACE_MORE', RT_4A, '-', '4b@321e0805', 'read only by UpdateEffect 321e0080', '-'),
-    ('ES.EFFECT', (), 'PASSIVE_EFFECT', RT_4A, '-', '4b@321e47ce', 'read only by DeleteEffect 321e4020', '-'),
+    ('ES.EFFECT', (), 'TRACE', RT_4B, '-', 'same', '321e0080@321e07fc-321e081f: untraced or dead effects are not moved, as March', 'OnFrameMove_UpdateEffect'),
+    ('ES.EFFECT', (), 'TRACE_MORE', RT_4B, '-', 'same', '321e0080@321e0805; particles SetPosition( pos, TRACE_MORE, TRACE_MORE ) @321e0cb7-321e0cca, as March', 'OnFrameMove_UpdateEffect'),
+    ('ES.EFFECT', (), 'PASSIVE_EFFECT', RT_4B, '-', 'same', '321e4020@321e47c5-321e47d7: an alive effect keeps the set alive unless passive, as March', 'OnFrameMove_DeleteEffect'),
     ('ES.EFFECT', (), 'TRACE_MATRIX_EXCLUDE_SCALE', RT_4A, '-', 'not-creation',
      'parse time only: sets TRACE_MATRIX (321e48e0@321e760b-321e7610); no runtime reader in the EffectSet region (the +0xc8 in 321e4020@321e4316 is the instance\'s delete-shake count)', '-'),
     ('ES.templet', (), 'NAME', RT_4A, '-', 'same', 'GetEffectSetTemplet 321da420, the first call of PlayEffectSet 321e1e60', 'PlayEffectSet'),
     ('ES.templet', (), 'EFFECT%d', RT_4A, '-', 'same', 'container: each entry is one pass of 321ee600\'s per-effect loop', 'OnFrameMove_CreateEffect'),
-    ('ES.templet', (), 'CAMERA_SHAKE%d', RT_4A, '-', '4b@321dbcc0', 'read only by StartCameraShake 321dbcc0', '-'),
-    ('ES.templet', (), 'SOUND%d', RT_4A, '-', '4b@321e07f7', 'played by 321dee80, only caller UpdateEffect', '-'),
-] + [('ES.SOUND', (), k, RT_4A, '-', '4b@321e07f7', 'SOUND%d is played by 321dee80, only caller UpdateEffect', '-')
-     for k in ('EVENT_TIME', 'FILE_NAME', 'RATE', 'USE_GLOBAL_TIME', 'LOOP')] + [
+    ('ES.templet', (), 'CAMERA_SHAKE%d', RT_4B, '-', 'same', '321dbcc0: every CAMERA_SHAKE%d entry, not yet done, is timed, distance-checked and started, as March', 'OnFrameMove_StartCameraShake'),
+    ('ES.templet', (), 'SOUND%d', RT_4B, 'done', 'new',
+     '321e0080@321e07ee-321e07f7 -> 321dee80, per effect instance (none created: nothing plays); per-instance copy, played entries dropped unless LOOP; the dtor stops the rest (321e3a80 -> 321da200)', 'OnFrameMove_UpdateEffect, dtor'),
+] + [('ES.SOUND', (), k, RT_4B, 'done', 'new', b, 'OnFrameMove_UpdateEffect') for k, b in (
+    ('EVENT_TIME', '321dee80@321def5e-321defaf: USE_GLOBAL_TIME against the elapsed time, else the set skin anim EventTimer (31d28e10)'),
+    ('FILE_NAME', '321dee80@321def0c-321df0a5: opened and played at the pet / owner / square-unit position'),
+    ('RATE', '321dee80@321def0c-321def1a: rand() % 100 < RATE, re-rolled every call until it plays'),
+    ('USE_GLOBAL_TIME', '321dee80@321def5e: elapsed time instead of the anim EventTimer'),
+    ('LOOP', '321dee80@321df0a8-321df0cd: re-armed on m_bAnimEnd when not USE_GLOBAL_TIME; without LOOP a played entry is dropped'))] + [
+    ('ES.CAMERA_SHAKE', (), k, RT_4B, '-', 'same', b, 'OnFrameMove_StartCameraShake') for k, b in (
+    ('START_TIME', '321dbcc0@321dbda3-321dc05a: START_TIME + delay against the custom timer or the pet / riding-pet / set skin anim time'),
+    ('LIMIT_DISTANCE', '321dbcc0@321dc0b2-321dc160: squared distance to GetMyUnit(); -1 ignores it; with no my-unit only -1 fires'),
+    ('SHAKE_TYPE', '321dbcc0@321dc16b: switch 1-9 onto the nine CKTDGCamera calls (31d014c0 = Up, 31d01490 = Down, by March\'s member order)'),
+    ('ONE_DIR_SPEED', '321dbcc0@321dc18c-321dc2fb: types 1, 2, 5, 6'), ('ONE_DIR_ACCEL', '321dbcc0@321dc18c-321dc2fb: types 1, 2, 5, 6'),
+    ('TWO_DIR_GAP', '321dbcc0@321dc210-321dc386: types 3, 4, 7, 8'), ('TWO_DIR_TIME', '321dbcc0@321dc210-321dc386: types 3, 4, 7, 8'),
+    ('TWO_DIR_TIME_GAP', '321dbcc0@321dc210-321dc235, 321dc31f-321dc344: types 3, 7'),
+    ('FIXED_LOOK_VEC', '321dbcc0@321dc3a7-321dc3fe: type 9'), ('EYE_SHAKE_COUNT', '321dbcc0@321dc3a7-321dc3fe: type 9'),
+    ('EYE_MOVE_SPEED_MIN', '321dbcc0@321dc3a7-321dc3fe: type 9'), ('EYE_MOVE_SPEED_MAX', '321dbcc0@321dc3a7-321dc3fe: type 9'),
+    ('EYE_MOVE_RANGE_MIN', '321dbcc0@321dc3a7-321dc3fe: type 9'), ('EYE_MOVE_RANGE_MAX', '321dbcc0@321dc3a7-321dc3fe: type 9'),
+    ('LOOK_AT_SHAKE_COUNT', '321dbcc0@321dc3a7-321dc3fe: type 9'), ('LOOK_AT_MOVE_SPEED_MIN', '321dbcc0@321dc3a7-321dc3fe: type 9'),
+    ('LOOK_AT_MOVE_SPEED_MAX', '321dbcc0@321dc3a7-321dc3fe: type 9'), ('LOOK_AT_MOVE_RANGE_MIN', '321dbcc0@321dc3a7-321dc3fe: type 9'),
+    ('LOOK_AT_MOVE_RANGE_MAX', '321dbcc0@321dc3a7-321dc3fe: type 9'))] + [
+    ('ES.EFFECT', ('MESH_TRIGGER_DATA',), k, RT_4B, 'done', 'new', b, 'OnFrameMove_UpdateEffect') for k, b in (
+    ('TRIGGER_TIME', '321dfc40@321dffd8-321e0009: >= 0 and reached by the set skin anim time; not again while the mesh +0x634 is set'),
+    ('MOTION_NAME', '321dfc40@321e000b-321e002e: played through 31c89ab0 at the mesh default speed (+0x3d4)'),
+    ('PLAY_TYPE', '321dfc40@321e0017: passed to 31c89ab0'))] + [
+    ('ES.EFFECT', ('MESH_TRIGGER_DATA_LIST',), 'TRIGGER_DATA%d', RT_4B, 'done', 'new',
+     'container: 321dfc40@321dfce0-321dffc4 walks the EffectInstance copy, 0x98 bytes an entry; fired-once entries (+0x72) are skipped', 'OnFrameMove_UpdateEffect')] + [
+    ('ES.EFFECT', ('MESH_TRIGGER_DATA_LIST', 'TRIGGER_DATA%d'), k, RT_4B, st, v, b, ms) for k, st, v, b, ms in (
+    ('BOUND_MOTION_TYPE_LIST', 'done', 'new', '321dfc40@321dfd02-321dfdde: the owner\'s emotion (user +0x89d8 / square +0x608, normalised by 3264ca10) must be in the list', 'OnFrameMove_UpdateEffect'),
+    ('TRIGGER_TIME', 'done', 'new', '321dfc40@321dfde0-321dfe6f: armed (a new anim, or the play count changed near the anim end), then TRIGGER_TIME reached', 'OnFrameMove_UpdateEffect'),
+    ('MOTION_NAME', 'done', 'new', '321dfc40@321dfed2-321dfef8: played through 31c89ab0 at speed 1', 'OnFrameMove_UpdateEffect'),
+    ('USE_MESH_TRANSITION', 'done', 'new', '321dfc40@321dfede: passed to 31c89ab0', 'OnFrameMove_UpdateEffect'),
+    ('TRIGGER_ONCE', 'done', 'new', '321dfc40@321dff20-321dff2a: marks the entry fired-once (+0x72)', 'OnFrameMove_UpdateEffect'),
+    ('STOP_TRACING_ON_TRIGGER', 'done', 'new', '321dfc40@321dff2e-321dff3c: sets the instance stop-tracing flag, which stops TRACE_MATRIX (321e0080@321e0fb5)', 'OnFrameMove_UpdateEffect'),
+    ('TRIGGER_EFFECTSET_LIST', 'done', 'new', '321dfc40@321dff40-321dff83: each name through PlayEffectSetByMeshPlayer (321df9c0) on this mesh, type 2 always', 'OnFrameMove_UpdateEffect'),
+    ('EFFECT_SET_TOGGLE_VISIBILITY_TIMER', 'done', 'new', '321dfc40@321dff89-321dff96 arms it; 321e0080@321e0105-321e0140 counts down and flips the set show flag (321de4f0)', 'OnFrameMove_UpdateEffect'),
+    ('BLOCK_TRIGGER', 'done', 'new', '321dfc40@321dff99-321dffb1: blocks the mesh (+0x635); a blocked mesh runs no trigger (@321dfc8b)', 'OnFrameMove_UpdateEffect, CXMeshInstance'),
+    ('BLOCK_TRIGGER_TIME', 'done', 'new', '321dfc40@321dff9f-321dffb1 -> mesh +0x638, counted down by 31c87b80@31c87bc4-31c87c20', 'CXMeshInstance'),
+    ('ANIMTIME_ON_START_GAME', 'done', 'new', 'sub-table: 321dfc40@321dfe75-321dfe91 on a game-unit match', 'OnFrameMove_UpdateEffect'),
+    ('ANIMTIME_ON_START_SQUARE', 'done', 'new', '321dfc40@321dfe93-321dfea9 on a square-unit match: TIME is the start time while its first byte is set; ONCE clears that byte', 'OnFrameMove_UpdateEffect'),
+    ('ANIMTIME_ON_START_UNITVIEWER', '-', 'outside-effectset', '321dfc40@321dfeab-321dfeb8 runs only with no instance, i.e. from the unit viewer 329585f0@32958b12', '-'))] + [
+    ('ES.EFFECT', ('MESH_TRIGGER_DATA_LIST', 'TRIGGER_DATA%d', 'ANIMTIME_ON_START_GAME'), k, RT_4B, 'done', 'new', b, 'OnFrameMove_UpdateEffect') for k, b in (
+    ('TIME', '321dfc40@321dfec5-321dfec8: the start time of the motion while the first byte (+0x81) is set, else 0'),
+    ('ONCE', '321dfc40@321dfec2-321dfecf: first byte = !ONCE after the first use'))] + [
+    ('ES.EFFECT', ('MESH_TRIGGER_DATA_LIST', 'TRIGGER_DATA%d', 'TRIGGER_EFFECTSET_LIST', '[]'), 'EFFECT_SET_NAME', RT_4B, 'done', 'new',
+     '321dfc40@321dff4f-321dff78: PlayEffectSetByMeshPlayer( name, mesh handle, 2 )', 'OnFrameMove_UpdateEffect')] + [
     ('ES.EFFECT', (), k, RT_4A, '-', 'same', '321dddb0@321dddc7-321dde10: SCALE if x != 0; SCALE_*_ON_LEFT when not right', 'GetEffectScale')
      for k in ('SCALE_X', 'SCALE_Y', 'SCALE_Z', 'SCALE_X_ON_LEFT', 'SCALE_Y_ON_LEFT', 'SCALE_Z_ON_LEFT')]
-# the creation-time scopes whose March-read rows must all have a RUNTIME entry (check_runtime)
-RUNTIME_SCOPES = ('ES.templet', 'ES.EFFECT', 'ES.SOUND')
+# the EffectSet scopes whose March-read rows must all have a RUNTIME entry, at every sub-path
+# (check_runtime). ES.Description is EFFECT_TOOL-only (COMPILED_OUT): the game never reads it.
+RUNTIME_SCOPES = ('ES.templet', 'ES.EFFECT', 'ES.CAMERA_SHAKE', 'ES.SOUND')
 RUNTIME_BY_KEY = dict(((r[0], r[1], r[2]), r) for r in RUNTIME)
 
 COMPILED_OUT = {'CX2EffectSet::AddEffectSet_Description_LUA': '#ifdef EFFECT_TOOL, X2EffectSet.cpp:3380'}
@@ -1886,7 +1942,8 @@ def write(rows, code_keys, sysev, sysv, flag_state, enum_rows, june_enum, march_
     w('`census.py`) from the June disassembly. It is kept apart from the parse-time `semantics` column, so')
     w('a getter verdict and a behaviour verdict never overwrite each other. `state` is `done`')
     w('(transcribed), `stage N` (owned, not yet written), `deferred`, or `-` (nothing to write).')
-    w('The full spec is in the plan, Phase 4a.')
+    w('`outside-effectset` means only another subsystem reads the key; the branch names it.')
+    w('The full spec is in the plan, Phases 4a and 4b.')
     w('')
     rc = collections.Counter(e[5].split('@')[0] for e in RUNTIME)
     w('%d keys cited: %s.' % (len(RUNTIME), ', '.join('%s %d' % kv for kv in sorted(rc.items()))))
@@ -2164,12 +2221,17 @@ def main():
     bad_rt = ['`%s` %s `%s`' % (e[0], path_s(e[1]), e[2]) for e in RUNTIME if (e[0], e[1], e[2]) not in rowkeys]
     checks.append((not bad_rt, 'every hand-written `RUNTIME` citation names a row of the matrix%s'
                    % ('' if not bad_rt else ': ' + ', '.join(bad_rt))))
-    no_rt = ['`%s` `%s`' % (r['root'], r['key']) for r in rows.values()
-             if r['root'] in RUNTIME_SCOPES and r['rel'] == () and r['march']
+    no_rt = ['`%s` %s `%s`' % (r['root'], path_s(r['rel']), r['key']) for r in rows.values()
+             if r['root'] in RUNTIME_SCOPES and r['march']
              and r['status'] in ('implemented', 'unsupported', 'binary-only')
              and (r['root'], r['rel'], r['key']) not in RUNTIME_BY_KEY]
-    checks.append((not no_rt, 'every key March reads at the top of %s has a runtime citation (Phase 4a exit)%s'
+    checks.append((not no_rt, 'every key March reads in %s, at every sub-path, has a runtime citation (Phase 4b exit; `ES.Description` is EFFECT_TOOL-only)%s'
                    % (', '.join('`%s`' % s for s in RUNTIME_SCOPES), '' if not no_rt else ': ' + ', '.join(sorted(no_rt)))))
+    ph_rt = ['`%s`' % e[2] for e in RUNTIME if '@' in e[5]]
+    checks.append((not ph_rt, 'no runtime citation is a phase placeholder (`4b@VA`)%s' % ('' if not ph_rt else ': ' + ', '.join(ph_rt))))
+    open_rt = collections.Counter(e[4] for e in RUNTIME if e[4].startswith('stage'))
+    checks.append((not open_rt, 'every runtime citation is transcribed: no `stage N` state left (Phase 4b done)%s'
+                   % ('' if not open_rt else ': ' + ', '.join('%s %d' % kv for kv in sorted(open_rt.items())))))
     bad_lv = check_levels(J.B)
     checks.append((not bad_lv, 'every hand-written `ES_LEVELS` range of 321e48e0 starts at a BeginTable on its own name '
                    'and ends at its re-test / EndTable%s' % ('' if not bad_lv else ': ' + '; '.join(bad_lv))))

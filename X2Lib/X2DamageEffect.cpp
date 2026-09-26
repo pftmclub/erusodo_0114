@@ -385,6 +385,39 @@ CKTDGXMeshPlayer::CXMeshInstance* CX2DamageEffect::CEffect::GetMainEffect()
 	return pMeshInst;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+// June2017 FUN_31f75570, CEffect::SetShowObject( bool ): the main effect (GetMainEffect, 31f6eb30), then
+// every particle of three consecutive CEffect lists through the game's major particle system. June's
+// lists sit at +0x864 / +0x874 / +0x884, 0x10 apart, as March's m_StartParticleDataList /
+// m_PassiveParticleDataList / m_TimeParticleDataList do (offsetof probe: 0x614 / 0x624 / 0x634), and
+// June reads ParticleData's handle at +0x94 (March m_hSeq, probe 0x90). The three lists are treated
+// alike, so their order does not matter. Each show is CKTDGObject::SetShowObject's non-forced form,
+// which June inlines.
+void CX2DamageEffect::CEffect::SetShowObject( bool bShow_ )
+{
+	CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = GetMainEffect();
+	if( NULL != pMainEffect )
+		pMainEffect->SetShowObject( bShow_ );
+
+	if( NULL == g_pX2Game || NULL == g_pX2Game->GetMajorParticle() )
+		return;
+
+	vector<ParticleData*>* apParticleDataList[] = { &m_StartParticleDataList, &m_PassiveParticleDataList, &m_TimeParticleDataList };
+	for( int iList = 0; iList < ARRAY_SIZE( apParticleDataList ); ++iList )
+	{
+		for( UINT iParticle = 0; iParticle < apParticleDataList[iList]->size(); ++iParticle )
+		{
+			ParticleData* pParticleData = (*apParticleDataList[iList])[iParticle];
+			if( NULL == pParticleData )
+				continue;
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( pParticleData->m_hSeq );
+			if( NULL != pSeq )
+				pSeq->SetShowObject( bShow_ );
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+
 
 void CX2DamageEffect::DestroyAllInstances()
 {

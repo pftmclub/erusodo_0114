@@ -4315,5 +4315,11 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Stage 3 (2026-09-26) adds GROUP_NAME (one particle per <base>_GROUPCHILD_<n>
 // bone) and the run-time rule-5 logs for APPLIED_SKILL_ID, NOT_ALLOW_MEMO and
 // APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION.
+// Phase 4b (2026-09-26) extends it to FUN_321e4020 (OnFrameMove_DeleteEffect),
+// FUN_321e0080 (OnFrameMove_UpdateEffect) and FUN_321dbcc0 (camera shake, the
+// same as March): target-mesh delete/hide, DELETE_EFFECTSET_AT_TRACE_UNIT_DIE,
+// June's GetCombineMatrix, SYNC_SHOW_BY_CREATE_UNIT, SOUND%d playback,
+// FOLLOW_UNIT_ROTATION(_CPARTICLE), per-frame TRACE_MATRIX_IN_FIELD, and the
+// mesh triggers (new CXMeshInstance members in KTDXLIB, appended last).
 #define SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 //////////////////////////////////////////////////////////////////////////
