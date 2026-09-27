@@ -1,0 +1,192 @@
+# ljd_oracle expected results. See run_oracle.py for the verdict classes.
+# expect_now: unmodified vendored ljd (reviewed 2026-09-28, Phase 1). expect_fixed: what Phase 4 must give; - = unchecked.
+case	build	kind	key	expect_now	expect_fixed	note
+controls	strip	call	MAIN	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	strip	call	arith	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	strip	call	fresh	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	strip	call	nested	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	strip	call	single-cond/nil	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	strip	call	single-cond/val	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	strip	call	single-local	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	strip	call	two-straight	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	strip	text	ctl_arith	assigns=0	assigns=0	control: genuine single-use temporaries / straight-line reuse; pins inlining (over-conservative fix changes this)
+controls	strip	text	ctl_method_on_fresh	assigns=0	assigns=0	control: genuine single-use temporaries / straight-line reuse; pins inlining (over-conservative fix changes this)
+controls	strip	text	ctl_nested_call	assigns=0	assigns=0	control: genuine single-use temporaries / straight-line reuse; pins inlining (over-conservative fix changes this)
+controls	strip	text	ctl_single_use_cond	assigns=0	assigns=0	control: genuine single-use temporaries / straight-line reuse; pins inlining (over-conservative fix changes this)
+controls	strip	text	ctl_single_use_local	assigns=0	assigns=0	control: genuine single-use temporaries / straight-line reuse; pins inlining (over-conservative fix changes this)
+controls	strip	text	ctl_two_uses_straight	assigns=1	assigns=1	control: genuine single-use temporaries / straight-line reuse; pins inlining (over-conservative fix changes this)
+controls	g	call	MAIN	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	g	call	arith	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	g	call	fresh	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	g	call	nested	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	g	call	single-cond/nil	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	g	call	single-cond/val	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	g	call	single-local	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	g	call	two-straight	PASS	PASS	control: genuine single-use temporaries / straight-line reuse
+controls	g	text	ctl_arith	assigns=0	assigns=0	control: genuine single-use temporaries / straight-line reuse; pins inlining (over-conservative fix changes this)
+controls	g	text	ctl_method_on_fresh	assigns=0	assigns=0	control: genuine single-use temporaries / straight-line reuse; pins inlining (over-conservative fix changes this)
+controls	g	text	ctl_nested_call	assigns=0	assigns=0	control: genuine single-use temporaries / straight-line reuse; pins inlining (over-conservative fix changes this)
+controls	g	text	ctl_single_use_cond	assigns=0	assigns=0	control: genuine single-use temporaries / straight-line reuse; pins inlining (over-conservative fix changes this)
+controls	g	text	ctl_single_use_local	assigns=1	assigns=1	control: genuine single-use temporaries / straight-line reuse; pins inlining (over-conservative fix changes this)
+controls	g	text	ctl_two_uses_straight	assigns=1	assigns=1	control: genuine single-use temporaries / straight-line reuse; pins inlining (over-conservative fix changes this)
+deepcopy	strip	call	MAIN	PASS	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+deepcopy	strip	call	flat	UPVALUE	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+deepcopy	strip	call	global/flat	REPRO_POISON	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+deepcopy	strip	call	global/nested	REPRO_POISON	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+deepcopy	strip	call	nested	UPVALUE	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+deepcopy	strip	text	copy_it	assigns=0	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+deepcopy	strip	text	deepcopy_global	assigns=0	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+deepcopy	strip	text	slot0	assigns=0	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+deepcopy	g	call	MAIN	PASS	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+deepcopy	g	call	flat	PASS	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+deepcopy	g	call	global/flat	PASS	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+deepcopy	g	call	global/nested	PASS	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+deepcopy	g	call	nested	PASS	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+deepcopy	g	text	copy_it	assigns=0	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+deepcopy	g	text	deepcopy_global	assigns=1	-	SECOND DEFECT (deepcopy mis-structure, README ljd caveat) - not the dropped-assignment class
+elseif	strip	call	MAIN	PASS	PASS	Kenta shape in elseif chains
+elseif	strip	call	deep/a1	PASS	PASS	Kenta shape in elseif chains
+elseif	strip	call	deep/a3-b	PASS	PASS	Kenta shape in elseif chains
+elseif	strip	call	deep/a3-nob	PASS	PASS	Kenta shape in elseif chains
+elseif	strip	call	method/a1	PASS	PASS	Kenta shape in elseif chains
+elseif	strip	call	method/a2	PASS	PASS	Kenta shape in elseif chains
+elseif	strip	call	method/a2-nil	PASS	PASS	Kenta shape in elseif chains
+elseif	strip	call	number/0	REPRO_POISON	PASS	Kenta shape in elseif chains
+elseif	strip	call	number/1	PASS	PASS	Kenta shape in elseif chains
+elseif	strip	call	number/2	REPRO_POISON	PASS	Kenta shape in elseif chains
+elseif	strip	call	number/3	REPRO_POISON	PASS	Kenta shape in elseif chains
+elseif	strip	call	reused/a1	PASS	PASS	Kenta shape in elseif chains
+elseif	strip	call	reused/a3	PASS	PASS	Kenta shape in elseif chains
+elseif	strip	text	elseif_deep	assigns=1	-	Kenta shape in elseif chains
+elseif	strip	text	elseif_method	assigns=1	-	Kenta shape in elseif chains
+elseif	strip	text	elseif_number	assigns=4	-	Kenta shape in elseif chains
+elseif	strip	text	elseif_reused_reg	assigns=1	-	Kenta shape in elseif chains
+elseif	g	call	MAIN	PASS	PASS	Kenta shape in elseif chains
+elseif	g	call	deep/a1	PASS	PASS	Kenta shape in elseif chains
+elseif	g	call	deep/a3-b	PASS	PASS	Kenta shape in elseif chains
+elseif	g	call	deep/a3-nob	PASS	PASS	Kenta shape in elseif chains
+elseif	g	call	method/a1	PASS	PASS	Kenta shape in elseif chains
+elseif	g	call	method/a2	PASS	PASS	Kenta shape in elseif chains
+elseif	g	call	method/a2-nil	PASS	PASS	Kenta shape in elseif chains
+elseif	g	call	number/0	PASS	PASS	Kenta shape in elseif chains
+elseif	g	call	number/1	PASS	PASS	Kenta shape in elseif chains
+elseif	g	call	number/2	PASS	PASS	Kenta shape in elseif chains
+elseif	g	call	number/3	PASS	PASS	Kenta shape in elseif chains
+elseif	g	call	reused/a1	PASS	PASS	Kenta shape in elseif chains
+elseif	g	call	reused/a3	PASS	PASS	Kenta shape in elseif chains
+elseif	g	text	elseif_deep	assigns=1	-	Kenta shape in elseif chains
+elseif	g	text	elseif_method	assigns=1	-	Kenta shape in elseif chains
+elseif	g	text	elseif_number	assigns=5	-	Kenta shape in elseif chains
+elseif	g	text	elseif_reused_reg	assigns=2	-	Kenta shape in elseif chains
+hp	strip	call	MAIN	PASS	PASS	HP ratio stored then compared twice
+hp	strip	call	and/0.1-ff	PASS	PASS	HP ratio stored then compared twice
+hp	strip	call	and/0.1-tf	PASS	PASS	HP ratio stored then compared twice
+hp	strip	call	and/0.5-tt	PASS	PASS	HP ratio stored then compared twice
+hp	strip	call	ifs/0.1	REPRO_POISON	PASS	HP ratio stored then compared twice
+hp	strip	call	ifs/0.5	REPRO_POISON	PASS	HP ratio stored then compared twice
+hp	strip	call	ifs/0.9	REPRO_POISON	PASS	HP ratio stored then compared twice
+hp	strip	text	hp_two_ifs	assigns=0	-	HP ratio stored then compared twice
+hp	strip	text	hp_two_ifs_and	assigns=1	-	HP ratio stored then compared twice
+hp	g	call	MAIN	PASS	PASS	HP ratio stored then compared twice
+hp	g	call	and/0.1-ff	PASS	PASS	HP ratio stored then compared twice
+hp	g	call	and/0.1-tf	PASS	PASS	HP ratio stored then compared twice
+hp	g	call	and/0.5-tt	PASS	PASS	HP ratio stored then compared twice
+hp	g	call	ifs/0.1	PASS	PASS	HP ratio stored then compared twice
+hp	g	call	ifs/0.5	PASS	PASS	HP ratio stored then compared twice
+hp	g	call	ifs/0.9	PASS	PASS	HP ratio stored then compared twice
+hp	g	text	hp_two_ifs	assigns=1	-	HP ratio stored then compared twice
+hp	g	text	hp_two_ifs_and	assigns=1	-	HP ratio stored then compared twice
+kenta	strip	call	MAIN	PASS	PASS	reconstructed Kenta sites
+kenta	strip	call	and2/both	REPRO_POISON	PASS	reconstructed Kenta sites
+kenta	strip	call	and2/no-es	DIVERGE	PASS	reconstructed Kenta sites; defect seen as reordering/stale register, no unwritten read on this path
+kenta	strip	call	arg/left	PASS	PASS	reconstructed Kenta sites
+kenta	strip	call	arg/right	REPRO_POISON	PASS	reconstructed Kenta sites
+kenta	strip	call	bwait/lm-int2-rand2	REPRO_POISON	PASS	reconstructed Kenta sites
+kenta	strip	call	bwait/lm-rand0-noes	REPRO_POISON	PASS	reconstructed Kenta sites
+kenta	strip	call	bwait/lm-rand1	DIVERGE	PASS	reconstructed Kenta sites; defect seen as reordering/stale register, no unwritten read on this path
+kenta	strip	call	bwait/nolm-near	REPRO_POISON	PASS	reconstructed Kenta sites
+kenta	strip	call	bwait/nolm-nonear	REPRO_POISON	PASS	reconstructed Kenta sites
+kenta	strip	call	hp/ratio0.1-flag1-set	REPRO_POISON	PASS	reconstructed Kenta sites
+kenta	strip	call	hp/ratio0.5-flags-ff	DIVERGE	PASS	reconstructed Kenta sites; defect seen as reordering/stale register, no unwritten read on this path
+kenta	strip	call	hp/ratio0.9-flags-ff	REPRO_POISON	PASS	reconstructed Kenta sites
+kenta	strip	call	hp/state-miss	PASS	PASS	reconstructed Kenta sites
+kenta	strip	call	or/idx0	PASS	PASS	reconstructed Kenta sites
+kenta	strip	call	or/idx2	REPRO_POISON	PASS	reconstructed Kenta sites
+kenta	strip	call	or/idx4	REPRO_POISON	PASS	reconstructed Kenta sites
+kenta	strip	text	and_two_locals	assigns=1	-	reconstructed Kenta sites
+kenta	strip	text	cond_call_arg	assigns=0	-	reconstructed Kenta sites
+kenta	strip	text	effectset_stale	assigns=7	-	reconstructed Kenta sites
+kenta	strip	text	hp_ratio_elseif	assigns=0	-	reconstructed Kenta sites
+kenta	strip	text	or_chain	assigns=0	-	reconstructed Kenta sites
+kenta	g	call	MAIN	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	and2/both	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	and2/no-es	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	arg/left	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	arg/right	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	bwait/lm-int2-rand2	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	bwait/lm-rand0-noes	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	bwait/lm-rand1	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	bwait/nolm-near	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	bwait/nolm-nonear	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	hp/ratio0.1-flag1-set	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	hp/ratio0.5-flags-ff	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	hp/ratio0.9-flags-ff	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	hp/state-miss	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	or/idx0	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	or/idx2	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	or/idx4	PASS	PASS	reconstructed Kenta sites
+kenta	g	text	and_two_locals	assigns=2	-	reconstructed Kenta sites
+kenta	g	text	cond_call_arg	assigns=1	-	reconstructed Kenta sites
+kenta	g	text	effectset_stale	assigns=11	-	reconstructed Kenta sites
+kenta	g	text	hp_ratio_elseif	assigns=1	-	reconstructed Kenta sites
+kenta	g	text	or_chain	assigns=1	-	reconstructed Kenta sites
+merge	strip	call	MAIN	PASS	PASS	read in if condition and again after the merge (lead 1)
+merge	strip	call	and/f	PASS	PASS	read in if condition and again after the merge (lead 1)
+merge	strip	call	and/t	PASS	PASS	read in if condition and again after the merge (lead 1)
+merge	strip	call	arms/big	REPRO_POISON	PASS	read in if condition and again after the merge (lead 1)
+merge	strip	call	arms/small	REPRO_POISON	PASS	read in if condition and again after the merge (lead 1)
+merge	strip	call	nil/nil	REPRO_POISON	PASS	read in if condition and again after the merge (lead 1)
+merge	strip	call	nil/val	REPRO_POISON	PASS	read in if condition and again after the merge (lead 1)
+merge	strip	call	number/neg	REPRO_POISON	PASS	read in if condition and again after the merge (lead 1)
+merge	strip	call	number/pos	REPRO_POISON	PASS	read in if condition and again after the merge (lead 1)
+merge	strip	text	merge_and_cond	assigns=1	-	read in if condition and again after the merge (lead 1)
+merge	strip	text	merge_both_arms	assigns=0	-	read in if condition and again after the merge (lead 1)
+merge	strip	text	merge_nil_check	assigns=0	-	read in if condition and again after the merge (lead 1)
+merge	strip	text	merge_number	assigns=0	-	read in if condition and again after the merge (lead 1)
+merge	g	call	MAIN	PASS	PASS	read in if condition and again after the merge (lead 1)
+merge	g	call	and/f	PASS	PASS	read in if condition and again after the merge (lead 1)
+merge	g	call	and/t	PASS	PASS	read in if condition and again after the merge (lead 1)
+merge	g	call	arms/big	PASS	PASS	read in if condition and again after the merge (lead 1)
+merge	g	call	arms/small	PASS	PASS	read in if condition and again after the merge (lead 1)
+merge	g	call	nil/nil	PASS	PASS	read in if condition and again after the merge (lead 1)
+merge	g	call	nil/val	PASS	PASS	read in if condition and again after the merge (lead 1)
+merge	g	call	number/neg	PASS	PASS	read in if condition and again after the merge (lead 1)
+merge	g	call	number/pos	PASS	PASS	read in if condition and again after the merge (lead 1)
+merge	g	text	merge_and_cond	assigns=1	-	read in if condition and again after the merge (lead 1)
+merge	g	text	merge_both_arms	assigns=1	-	read in if condition and again after the merge (lead 1)
+merge	g	text	merge_nil_check	assigns=1	-	read in if condition and again after the merge (lead 1)
+merge	g	text	merge_number	assigns=1	-	read in if condition and again after the merge (lead 1)
+minimal	strip	call	MAIN	PASS	PASS	smallest repro and its paired control
+minimal	strip	call	ctl/noy	PASS	PASS	smallest repro and its paired control
+minimal	strip	call	ctl/y	PASS	PASS	smallest repro and its paired control
+minimal	strip	call	field/val	REPRO_POISON	PASS	smallest repro and its paired control
+minimal	strip	call	minimal/false	REPRO_POISON	PASS	smallest repro and its paired control
+minimal	strip	call	minimal/val	REPRO_POISON	PASS	smallest repro and its paired control
+minimal	strip	text	minimal	assigns=0	-	smallest repro and its paired control
+minimal	strip	text	minimal_ctl	assigns=1	assigns=1	smallest repro and its paired control
+minimal	strip	text	minimal_field	assigns=0	-	smallest repro and its paired control
+minimal	g	call	MAIN	PASS	PASS	smallest repro and its paired control
+minimal	g	call	ctl/noy	PASS	PASS	smallest repro and its paired control
+minimal	g	call	ctl/y	PASS	PASS	smallest repro and its paired control
+minimal	g	call	field/val	PASS	PASS	smallest repro and its paired control
+minimal	g	call	minimal/false	PASS	PASS	smallest repro and its paired control
+minimal	g	call	minimal/val	PASS	PASS	smallest repro and its paired control
+minimal	g	text	minimal	assigns=1	-	smallest repro and its paired control
+minimal	g	text	minimal_ctl	assigns=1	assigns=1	smallest repro and its paired control
+minimal	g	text	minimal_field	assigns=1	-	smallest repro and its paired control
+kenta	strip	call	fallback/stored	PASS	PASS	reconstructed Kenta sites
+kenta	strip	call	fallback/target	REPRO_POISON	PASS	reconstructed Kenta sites
+kenta	strip	text	fallback_user	assigns=1	-	reconstructed Kenta sites
+kenta	g	call	fallback/stored	PASS	PASS	reconstructed Kenta sites
+kenta	g	call	fallback/target	PASS	PASS	reconstructed Kenta sites
+kenta	g	text	fallback_user	assigns=2	-	reconstructed Kenta sites

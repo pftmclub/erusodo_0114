@@ -530,6 +530,192 @@ Do not modify ljd.
 
 ---
 
+## Phase 1 result
+
+Ran 2026-09-28. All exit criteria met: the defect reproduces in the stripped build with
+`POISON_READ` on the round-trip side only (26 calls across 5 case files), every control
+passes, and `python june2017_re/ljd_oracle/run_oracle.py --twice` is byte-identical
+across two clean runs (84 files: bytecode, ljd text, traces), in about 6 s per run.
+ljd was not modified.
+
+**Layout.** `june2017_re/ljd_oracle/`:
+- `run_oracle.py` runs everything and exits 0 iff every row matches.
+  - `--case NAME` runs one case.
+  - `--twice` runs the determinism check.
+  - `--expect fixed` checks against the Phase 4 target.
+  - `--observed F.tsv` dumps every verdict for review.
+- `driver.lua` is the runtime.
+- `expected.tsv` has 189 rows.
+- `cases/<name>.lua` holds 7 cases, each with a `cases/<name>.calls.lua`: the call
+  scenarios, loaded as plain source and never decompiled.
+- Scratch goes to `tmp/ljoracle_*`, which `run_oracle.py` deletes and rebuilds on every run.
+  Don't give other files that prefix.
+
+**Toolchain facts, confirmed:**
+- `elstools/vendor/luajit/luajit.exe -b` emits **`1b 4b 4c 81`**, flags `0x02`
+  (stripped). `-bg` emits flags `0x00`. `run_oracle.py` asserts both on every build.
+- `-b` needs the cwd to be `vendor/luajit/`, or `LUA_PATH` pointing at its `jit/`.
+  Otherwise it fails with "unknown luaJIT command or jit.* modules not installed".
+- Header-swapping to `1b 4c 4a 01` is all ljd needs.
+- `compile-batch -v mar-2014` gives `0x81` back.
+- ljd's stripped output has **no `local` at all**. The round trip's `slotN` are real
+  globals (`GGET "slot3"` in `-bl`), exactly as in the port files.
+
+**Verdicts** (per call, strongest first):
+1. `HARNESS`: the *original* read an unknown global.
+2. `REPRO_POISON`: the round trip read a `slotN` it never wrote in this call.
+3. `REPRO_GLOBAL`: another unknown name was read, e.g. a `-g` local.
+4. `UPVALUE`: a `uvN` was read.
+5. `DIVERGE`: the traces differ with no unknown read.
+6. `PASS`.
+
+The first differing line is only the detail. The fold also reorders calls (the inlined
+call now runs *after* the condition's other operands and is short-circuited), so a
+`CALL` line usually differs before the poisoned read does.
+
+**What reproduces.** "Folds" means ljd dropped the assignment and inlined its right-hand
+side into the condition.
+
+| Shape | Function (`cases/`) | Stripped | `-g` |
+|---|---|---|---|
+| COMMON_FRAMEMOVE: ratio in the leading if's `and`, re-read in the `elseif` | `kenta::hp_ratio_elseif` | folds. `REPRO_POISON` (fatal `<=`) on the elseif path; `DIVERGE` (reorder only) at ratio 0.5 | PASS |
+| DASH_STATE_START: `or` chain | `kenta::or_chain` | folds | PASS |
+| DASH_STATE_START: `== nil` test with fallback, then `~= nil` | `kenta::fallback_user` | folds. The printed text is identical to June's | PASS |
+| DASH_STATE_START: value as a call argument in the condition | `kenta::cond_call_arg` | folds | PASS |
+| FIRE_FRAME_MOVE: two locals in one `and` | `kenta::and_two_locals` | first operand (`lm`) folds, second (`es`) kept | PASS |
+| ATTACK_B_WAIT, full | `kenta::effectset_stale` | all 3 sites fold, printed exactly as June's | PASS |
+| Leading `if r == 1` then `elseif r == 2 …` | `elseif::elseif_number` | folds | PASS |
+| First read in an **elseif** condition | `elseif::elseif_method`, `elseif_deep`, `elseif_reused_reg` | **kept**, PASS | PASS |
+| If-condition read, then read after the merge | `merge::merge_number`, `merge_nil_check`, `merge_both_arms` | folds | PASS |
+| Same, but read as the **second** operand of `and` | `merge::merge_and_cond` | **kept**, PASS | PASS |
+| Stored ratio, two separate `if r <= …` | `hp::hp_two_ifs` | folds | PASS |
+| Same, with `flag == false and r <= …` | `hp::hp_two_ifs_and` | **kept**, PASS | PASS |
+| Controls | `controls::*` (6 functions) | PASS | PASS |
+| deepcopy (second defect) | `deepcopy::copy_it`, `deepcopy_global` | text identical to DamageEffect's hoisted `return { [slot5] = uv0(slot6) }` | PASS |
+
+**Notes on the table:**
+- **The ATTACK_B_WAIT softlock itself is reproduced.** In `bwait/lm-rand1` the round trip
+  calls `Play` on the `v0` vector mock (the stale register), errors, and never reaches
+  `SetVector(4, …)`. That is Kenta's failure exactly.
+  - Its verdict is `DIVERGE`, not `REPRO_POISON`. The stale value was written earlier *in
+    the same call*, so no unwritten read exists.
+  - This is why strict mocks (an unknown member raises) are required, and why `DIVERGE`
+    must never be read as "probably noise".
+- **Two wrinkles for Phase 3 to explain:**
+  - `hp_ratio_elseif` folds a second-operand `and` read, while `hp_two_ifs_and` and
+    `merge_and_cond` keep the same position.
+  - The difference is whether the value's *other* read is in an `elseif` or in a separate
+    `if`.
+
+**Whether `-g` suppresses it: yes, completely.** All 67 `-g` call rows PASS, including
+deepcopy, and ljd prints the real `local` names. The theory that the defect depends on
+stripping holds.
+
+**The minimal repro is `cases/minimal.lua::minimal`:**
+
+```lua
+function minimal(o)
+	local x = o:Get()
+	if x then
+	end
+	return x
+end
+```
+
+- ljd prints `if slot0:Get() then … end; return slot1`.
+- The `if` body can be empty, and the value can be a plain field read (`minimal_field`).
+- The paired control `minimal_ctl` is identical except that the condition tests another
+  value. It keeps its assignment. That isolates the trigger: the register's first read is
+  the leading `if` condition, and reads after the `if` aren't counted.
+- This matches ledger lead 1's shape. Phase 3 decides whether lead 1 is the mechanism.
+
+**Controls, and what expected.tsv pins:**
+- **Behaviour:** all 14 control calls PASS on both builds.
+- **Assignment counts:** ljd's printed count per function (`kind=text`) is pinned too:
+  - 0 for the five genuine single-use shapes when stripped
+  - 1 for `ctl_two_uses_straight`
+  - under `-g`, `ctl_single_use_local` keeps its named `local t`
+- **`expect_fixed` column** (for Phase 4):
+  - every non-deepcopy call must be `PASS`
+  - the control text counts must not change, which catches an over-conservative fix
+  - the defect functions' text counts are unchecked (`-`), since a correct fix changes them
+  - `run_oracle.py --expect fixed` currently fails on exactly the 29 non-PASS,
+    non-deepcopy calls, and on no text row
+
+**`expect_fixed` is reachable with a no-`local` fix.** This was checked once and is not part
+of `run_oracle.py`. The script is `tmp/handfix_check.py`; run it after `run_oracle.py`.
+- The dropped writes were hand-restored in ljd's stripped text, the way Kenta was fixed:
+  bare `slotN` globals, each at its bytecode position.
+  - 9 writes across the 6 `kenta` functions, and 2 in `minimal`.
+- Recompiled with `compile-batch`, then scored with `run_oracle`'s own verdict against the
+  original traces.
+- **Every `kenta` and `minimal` scenario is PASS.** The harness therefore doesn't flag
+  legitimate in-call `slotN` globals, and a correct Phase 4 output can reach `PASS`.
+- `ATTACK_B_WAIT`'s shape needed **4** restored writes, not 3. ljd's
+  `slot3:GetPos().y = slot3:GetLandPosition().y` also hides a dropped
+  `slot2 = slot3:GetPos()`. The field-set target is where the value was folded into.
+  (Phase 2b count lead.)
+
+**Corrections Phase 2a must adopt** (its Design section describes the weaker version):
+1. **Detect unwritten reads with the environment's `__index`. Don't store sentinels.**
+   - Lua 5.1 runs no `__eq` for table-vs-number or table-vs-nil. A sentinel stored in the
+     env is therefore invisible to `slot6 == 1` and `slot5 ~= nil`.
+   - Those are the RandVal, GetEffectSet and fallback-user sites. The stored-sentinel
+     design would have scored them clean.
+   - `driver.lua` leaves unwritten names absent, logs the read, and *then* returns a
+     log-and-continue sentinel.
+2. **Track writes explicitly.**
+   - `slot2 = nil` deletes a global's key, so a plain env table makes the next read look
+     unwritten.
+   - This produced a real false positive on the first run (`elseif::method/a2-nil`).
+   - `driver.lua`'s env is an always-empty proxy with `__newindex` and a `written` set.
+     One consequence: `pairs(_G)`-style iteration from inside a chunk won't see globals.
+3. **Poison every unknown name, not only `slotN`.** `slotN`, `uvN` and any other name each
+   get their own class. Otherwise the `-g` control is vacuous, because a dropped named
+   local reads as its own name.
+4. **Call `jit.off()` in the driver.** Count hooks don't fire inside compiled traces.
+5. **Cap events per call.**
+   - With 2000 events, `EVENTS_TRUNCATED` is logged, while structure and outcome lines
+     always print.
+   - The deepcopy round trip recursed on a sentinel until `BUDGET` and wrote a 580 KB trace
+     before the cap.
+6. **The deepcopy class also yields `REPRO_POISON`** (`slot1`, `slot5`, `slot6` unwritten
+   in `deepcopy_global`).
+   - Phase 2b can't separate it from the dropped-assignment class by verdict alone.
+   - It needs a structural signature: the hoisted `return { [k] = f(v) }` whose table
+     register is never assigned.
+7. **Correct the rationale for the main-chunk exemption.**
+   - Phase 2a's Design says to exempt main-chunk-written names because the original's
+     file-scope locals become main-chunk `slotN` globals, which functions then read
+     legitimately.
+   - That's not what ljd does. A function reading a captured file-scope local prints it
+     as **`uvN`**, not `slotN`. `copy_it` prints `return uv0(slot0)`.
+   - In the round trip that is a real break (a call on nil), not a naming nuisance.
+   - So the exemption only protects the main chunk's own reads. `UPVALUE` hits in the June
+     sweep are real round-trip defects to triage, not noise.
+
+**Leads recorded for later phases (not acted on):**
+- **Kenta count, for Phase 2b.** The June decompile of `ATTACK_A_ATTACK_DASH_STATE_START`
+  has **3** folded registers (`slot3` index, `slot4` target user, `slot5` start pos), and
+  the fixed port file restores all three. `MODS.md` says 2.
+  - The fixed file also no longer has June's `GetStoredGUUser()` fallback for `slot4`.
+    Whether that is a deliberate port edit is for Phase 2b/6.
+- **`uvN` is latent in the port.** Zero `.src.lua` files under `march2014/` contain a
+  `uvN` name. The `UPVALUE` class matters for the June sweep (DamageEffect), not the
+  existing port.
+- **The first named nested-frame clobber, for Phase 2a/5.**
+  - `deepcopy_global` with its writes restored the no-`local` way (`slot1 = {}` …
+    `return slot1`) still fails on a nested input: `global/nested` returns
+    `{["c"]=2}`, the *inner* table.
+  - The recursive call re-sets the global `slot1`, and the outer frame's later
+    `return slot1` reads the callee's value.
+  - `global/flat`, which doesn't recurse, is PASS.
+  - This is concrete evidence against `MODS.md`'s "safe within one function's own
+    sequential statements" whenever a function calls a same-file function that writes the
+    same `slotN`. It is the first data point for the `local slotN` decision, not a census.
+
+---
+
 ## Phase 2a — Differential harness: runtime
 
 **Paste with:** Starting context + this section + "Phase 0 result" + "Phase 1 result".
@@ -565,6 +751,9 @@ deterministic, recorded conditions.
   4. Record the outcome: return values, error message (normalised), `POISON_READ`, or
      `BUDGET`.
   - A `debug.sethook` count hook bounds runaway loops and ends the call with `BUDGET`.
+- **Superseded in part by "Phase 1 result", "Corrections Phase 2a must adopt".** Detect
+  reads through the env's `__index` with explicit write tracking, not stored sentinels.
+  Reuse `ljd_oracle/driver.lua`'s env and sentinel.
 - **The poison sentinel logs and continues.** It does not raise, so later dropped reads in
   the same call are logged too. One Kenta function has 3.
   - On `__index`/`__call`/arithmetic, the sentinel logs `POISON_READ slotN` and returns a
