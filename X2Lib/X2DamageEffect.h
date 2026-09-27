@@ -56,7 +56,23 @@ class CX2DamageEffect
 			LOT_NEARST_UID_VECTOR_IN_RANGE,
 		//#endif
 			LOT_UID_BONE_POS,		/// 록온된 유저의 특정 본을 록온
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+			LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE = 8,	/// June2017 Enum.lua LOCK_ON_TYPE (june_lua/Enum.src.lua:7160); case 8 of FUN_31f83aa0 @31f844b1. Appended: nothing renumbered
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 		};
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+		// June2017 NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE (june_lua/Enum.src.lua:7168-7174): the value
+		// NOT_TARGET_PRE_LOCK_ON_TARGET is read as (FUN_31f71930 @31f72367, int getter). March data's
+		// TRUE is 1 (Enum.lua:3), i.e. NTPLOTT_TARGET_LIST_CLEAR.
+		enum NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE
+		{
+			NTPLOTT_NONE						= 0,
+			NTPLOTT_TARGET_LIST_CLEAR			= 1,
+			NTPLOTT_TARGET_LIST_NOT_CLEAR		= 2,
+			NTPLOTT_TARGET_LIST_SAVE_ONE		= 3,
+			NTPLOTT_TARGET_LIST_SAVE_HIT_UNIT	= 4,
+		};
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 #ifdef BALANCE_PATCH_20131107
 		enum LOCK_ON_CHECK_SAVE_DIRSPEED
@@ -627,6 +643,14 @@ class CX2DamageEffect
 			// above, under BALANCE_DEADLY_CHASER_20130214). Kept alongside it, as a new member -- deciding
 			// how the two coexist is Phase 7b's, as with Phase 5's DAMAGE_DATA_CHANGE_TIME.
 			int				m_iNotTargetPreLockOnTarget;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+			// June2017 LockOnData (ctor FUN_31f8cc80, layout in june2017_re/funcmap.tsv) members with no
+			// March counterpart. Phase 7b runtime.
+			std::set<UidType>	m_setPreLockOnTarget;	/// June +0x960: units this effect has hit (EffectToUnit 3262b6e0 inserts), skipped by the in-range picks 322d7670/322daa10
+			UidType			m_SaveHitUnitUID;			/// June +0x9d8, default -1: NTPLOTT_TARGET_LIST_SAVE_HIT_UNIT's last pick (322d7670)
+			float			m_fRetargetCooltimeNow;		/// June +0x984, default -1.f: RETARGET_COOLTIME_AFTER_ATTACK's running countdown
+			float			m_fLockOnRangeFromOwner;	/// June +0x9d0, default 99999.f: the LOCK_ON_RANGE_FROM_OWNER value for the current state
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 			//}}
 			LockOnData()
@@ -695,6 +719,11 @@ class CX2DamageEffect
 				m_fPvpTargetRangeMin = 150.f;
 				m_fPvpTargetRangeMax = 300.f;
 				m_iNotTargetPreLockOnTarget = 0;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+				m_SaveHitUnitUID			= -1;
+				m_fRetargetCooltimeNow		= -1.f;
+				m_fLockOnRangeFromOwner		= 99999.f;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 			};
 		};
@@ -880,6 +909,9 @@ class CX2DamageEffect
 
 
 				LockOnData&		GetLockOnData(){ return m_LockOnData; }
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+				void			JuneOnLockOnHitUnit( CX2GameUnitoPtr optrHitUnit_ );	/// June2017 FUN_3262b6e0 (EffectToUnit) @3262f389-3262f3ca / @3262f4b9-3262f4fb
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 				void			SetLockOnUnitUID( UidType unitUID ){ m_LockOnData.m_LockOnUnitUID = unitUID; }
 				void			SetLockOnNPCUID( int NPCUID ){ m_LockOnData.m_LockOnNPCUID = NPCUID; }
 				void			SetLockOnPos( D3DXVECTOR3 vPos ) { m_LockOnData.m_LockOnPos = vPos; }
@@ -1131,6 +1163,20 @@ class CX2DamageEffect
 #endif _SIN_MOVE_TEST_
 
 				void VectorLockOn( const D3DXVECTOR3& targetPos );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+				// June2017 lock-on runtime (Phase 7b); evidence per function in june2017_re/funcmap.tsv.
+				void			JuneSetLockOnTargetUID( UidType uid_, bool bUserUnit_ );
+				bool			JuneIsOutOfLockOnRangeFromOwner( const D3DXVECTOR3& vPos_ );				/// FUN_31f647c0
+				void			JuneSelectLockOnRangeFromOwner();									/// FUN_31f71930 @31f73130-31f73540
+				D3DXVECTOR2		JuneGetLockOnTargetRange() const;									/// DUNGEON_/PVP_TARGET_RANGE_MIN_MAX by state
+				UidType			JunePickLockOnTargetBySeed( int iSeed_, OUT bool& bUserUnit_, int iModulus_ = 30 );	/// FUN_322dadd0
+				UidType			JuneGetLockOnNearstTargetInRange( int iTeam_, const D3DXVECTOR3& vPos_, const D3DXVECTOR2& vRange_, bool bUseTargetList_, OUT bool& bUserUnit_ );	/// FUN_322d7670
+				UidType			JuneGetLockOnRandomTargetInRange( int iTeam_, const D3DXVECTOR3& vPos_, const D3DXVECTOR2& vRange_, OUT bool& bUserUnit_ );	/// FUN_322daa10
+				void			JuneLockOnSteerForward( CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_ );	/// FUN_31f83aa0 @31f8497c-31f84a0e
+				static bool		JuneIsLockOnCandidate( const CX2GameUnit* pUnit_, int iTeam_ );
+				static D3DXVECTOR3	JuneGetLockOnAimPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_ );	/// vtable slot 0x3e4 (NPC 3275ac50, User 31fd61a0)
+				static D3DXVECTOR3	JuneGetNearestCollisionPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_, OUT bool& bFound_ );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 				
 				ParticleData*		LoadParticleSuckMagic( WCHAR *particleName );

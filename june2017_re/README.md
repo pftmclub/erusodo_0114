@@ -149,6 +149,17 @@ python census.py --reuse-pp   # development only: reuse pp/*.i (gitignored) inst
 ```
 
 It writes `../JUNE2017_EFFECT_KEY_MATRIX.md` and `census.tsv`, and exits 1 when a check fails.
+
+**If it fails with `C1083: Cannot open compiler generated file: '...pp\X.i': Permission denied`**,
+another process has that cached `.i` open. Since Phase 7b (2026-09-27) this has been
+`pp/X2BuffBehaviorTemplet.i`, most likely a long-running MCP server's indexer. The file can be
+neither written nor renamed. Don't kill processes to free it. Point the cache somewhere else for
+that run instead; the outputs are identical:
+
+```sh
+python -c "import sys, os; sys.argv=['census.py']; sys.path.insert(0, os.getcwd()); import census; census.PP_DIR=r'<scratch dir>'; census.main()"
+```
+
 The model is in its docstring. In short:
 
 - **June side:** `reconcile.Binary` and `reconcile.Explainer`, the same machinery as

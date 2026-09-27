@@ -1745,6 +1745,124 @@ Revert: undefine `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY` alone to put overridden N
 back to today's legacy numbers while keeping the base flag's stage-skip fix; undefine both
 flags together to revert the whole ExtraNPCStat port.
 
+### June2017 effect engine: DamageEffect lock-on runtime (Phase 7b)
+
+Phase 7b of `JUNE2017_EFFECT_REBUILD_PLAN.md`. It extends **`SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`**
+(no new flag) in `X2Lib/X2DamageEffect.h`, `X2Lib/X2DamageEffect.cpp` and, for one hook,
+`X2Lib/X2DamageManager.cpp`. `SERV_IRUHADEV_JUNE_FX_DEBUG` gains a `JUNE_FX CE_LOCKON <effect>
+<branch> <detail>` line (throttled to one a second per effect and branch, in `offline_server.log`).
+Identification was finished on Opus in the same session. Every function and offset is in
+`june2017_re/funcmap.tsv` (rows `31f73a10` … `32481f80/32482650`, 18 of them).
+
+**What June's lock-on runtime turned out to be:**
+- `OnFrameMove_LockOnData` `31f83aa0`: jump table `31f858e4`, 8 cases. `VectorLockOn` is
+  `31f73a10`.
+- The kickoff's `SetLockOnNearstTarget` is `31f758d0`. It is **unchanged** from March `:8760`
+  (nearest pick `322d10b0`, then UID and seed).
+- The three new pick routines are June `CX2Game` methods with no March counterpart:
+  - `322dadd0`: the seeded pick.
+  - `322d7670`: the in-range nearest pick, with a target list.
+  - `322daa10`: the random in-range pick.
+
+  They are re-expressed as `CEffect` helpers over `g_pX2Game->GetUnitList()` (public, and March
+  never takes the unit-list lock), so `X2Game` is untouched.
+- The list that `NOT_TARGET_PRE_LOCK_ON_TARGET` works on is **per effect**, and it is filled on
+  **hit**. June's `EffectToUnit` `3262b6e0` inserts every unit the effect hits, and nothing else
+  does.
+
+**Transcribed, each with its June range in a comment:**
+
+| Key / branch | June | What changes |
+|---|---|---|
+| `LOCK_ON_RANGE_FROM_OWNER` + `AT_*` | `31f71930@31f73130-31f73540`, gate `31f647c0` | Picked at load by state: `AT_PVP` in `XS_PVP_GAME`; `AT_RAID_FIELD` / `AT_FIELD` in `XS_BATTLE_FIELD`; `AT_DUNGEON` otherwise. With no key, a non-raid battle field gets **1000**, everything else 99999. `VectorLockOn` steers nothing, and the picks drop any candidate, whose aim point is farther from the owner than that range. |
+| `LOT_UID_VECTOR` re-target | `31f8407a-31f84489` | June's seeded pick replaces `CX2Game::GetLockOnTarget`. The index is `(seed % 30 + 1) % eligible`, over owner-range-filtered candidates. **March's walk lands one unit off, and at the default seed −1 it finds nobody; June picks index 0.** |
+| `NOT_LOCKON_INVINCIBLE_TARGET` | `31f63d80` | Case 4 also re-targets when the live target is invincible. |
+| `NOT_TARGET_PRE_LOCK_ON_TARGET` (int type) | `322d7670`, `3262b6e0` | Case 6 uses the effect's own hit list. The deployed `TRUE` is 1 = `NTPLOTT_TARGET_LIST_CLEAR`. <br>On a miss: CLEAR empties the list; SAVE_ONE empties it only when it holds more than one; SAVE_HIT_UNIT also skips its last pick (a studio quirk is kept: its retry result is discarded). <br>Types 2–4 steer one `DirSpeed` ahead on a miss (`31f8497c`). <br>This replaces March's game-wide pick list (`BALANCE_DEADLY_CHASER_20130214`, kept in `#else`). |
+| `DUNGEON_/PVP_TARGET_RANGE_MIN_MAX` | case 6 / 8 | Replace March's hardcoded 150/750 and 150/300, which are their defaults. |
+| `RETARGET_COOLTIME_AFTER_ATTACK` | `31f83c2c`, set `@31f851c6` | After a hit-count re-target, no case runs until the cooldown ends. |
+| `UNLOCK_START_AFTER_ATTACK` | `31f83c0d` | No steering until the effect has hit that many times. |
+| `TIME_UNLOCK_FROM_START` | `31f83b70` | As March, plus the ONLY_FRONT origin is refreshed to the effect's own position when it expires. **This reaches live data:** `DamageEffect_ENS_HA_Machine_Gun_Bullet` and `DamageEffect_Oberon650_AngelHeart_(Jump_)Attack_Z` set both keys (checked against the packed Sep 27 `DamageEffect.lua`). |
+| `Y_DIR_INIT` | `31f73d77` | The heading's y is negated once (`fmul QWORD −1.0`, verified from raw bytes). |
+| `RANDOM_SEED` | `31f7355c` | **One member in June.** The Lua value now feeds `m_iRandomSeed` at load, which reverses Phase 6b's split. Load runs only from the ctor, so a seed set by skill code still wins. |
+| `LOCK_ON_TARGET_BONE_NAME` | `31f73109` | Feeds `m_wstrTargetBoneName`, which March never assigned, so `LOT_UID_BONE_POS` always fell back to `GetPos`. |
+| `INIT_TARGET` | `31f73732` | An immediate seeded pick at load. |
+| `LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE` (= 8, appended) | `31f844b1-31f84a0e` | New case. It aims at the target's slot-`0x3e4` point seen from `m_Pos`, plus `LOCK_ON_OFFSET_Y_POS`, and re-targets randomly around it. |
+
+Cases 1–3, 5 and 7 are the same as March. The body is re-written under the flag, and March's
+original sits whole in `#else`.
+
+**Not ported, recorded:**
+- The NPC byte `+0x8fb6` that every June pick also filters on. It is not identified.
+- The battle-field tail of the NPC aim point (`3275ae4f-3275b01d`): unidentified mode tests
+  `3266ce90`/`3266ce80`.
+- June's `XS_PVE_GAME` branch (`+0x9d4`, mesh removal). March has no such state.
+- The raid-field test is re-expressed as `GetIsBossRaidCurrentField()`. That mapping is a
+  candidate only.
+
+**Bonus identification for Phase 7d:** `31f85910` is almost certainly `CEffect::AttackResult`
+(the last call in `EffectToUnit`, the same place as March `X2DamageManager.cpp:1900`).
+
+**Built `US_SERVICE` (full X2Lib rebuild after `touch stdafx.cpp`, because the `LockOnData` layout
+changed) and deployed to `X2_offline.exe`, 18,943,488 B.** The new log strings were confirmed in
+the exe. `census.py` passes all checks, the matrix gains 24 `7b` runtime rows, and the Phase-6b row
+counts are unchanged.
+- This run wrote its preprocessor cache to the scratchpad. `june2017_re/pp/X2BuffBehaviorTemplet.i`
+  is locked by another process, probably an MCP server's indexer.
+- **Play-tested 2026-09-27 15:30-15:32**, battle fields only. The shutdown was clean, and there were
+  no `UNHANDLED` or `EXCEPTION` entries.
+  - **`Damage_Chung_CDC_Bullet_Blitz`** (field 40025) exercised the whole target-list cycle:
+    - `TARGET_LIST_INSERT list=1 uid=4 set=1`. The hit was recorded.
+    - `IN_RANGE_PICK … skipped=1 … uid=2 dist=571`. The unit already hit was skipped and the next
+      one picked.
+    - `IN_RANGE_MISS set=4 skipped=4`, then `TARGET_LIST_MISS_RULE list=1 set=0`. Every candidate
+      had been hit, so CLEAR emptied the list.
+    - Then the cycle started again (`uid=5` inserted, `uid=3` picked).
+  - **`GUIDED_ARROW_MEMO`** (field 40032, `LOT_UID_VECTOR`): 9 `RANGE_FROM_OWNER_REJECT range=1000
+    dist=1002..2881` lines. With a lock-on table and no `LOCK_ON_RANGE_FROM_OWNER`, June stops
+    steering in a battle field once the target is more than 1000 from the owner. This is the live
+    change listed above.
+  - **Not exercised:** the `LOT_UID_VECTOR` re-target (`UID_VECTOR_RETARGET` / `SEED_PICK`), which
+    needs a guided projectile's target to die mid-flight, and any dungeon run.
+- The keys no deployed `LOCK_ON_DATA` carries (`INIT_TARGET`, `Y_DIR_INIT`,
+  `UNLOCK_START_AFTER_ATTACK`, `RETARGET_COOLTIME`, bone name, `LOCK_ON_OFFSET_Y_POS`, case 8) get
+  their log check at Phase 11.
+
+Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`. Every site keeps March's code in
+`#else` or is a pure addition. The `EffectToUnit` hook is two added calls.
+
+**`/code-review` (high), 2026-09-27.** Ten findings, each checked against the June disassembly.
+The three fixes were rebuilt (KTDXLIB, X2Lib, X2) and redeployed to `X2_offline.exe` at 15:53.
+
+Fixed:
+- **The `EffectToUnit` hook now checks `IsLiveInstance( pAttacker )` first.** `DamageReact` runs
+  before the second site and may remove the effect; the studio's own `AttackResult` call just below
+  re-checks for the same reason. June does not check here. The guard changes nothing while the
+  effect is alive.
+- **The `_IN_HOUSE_` "NOT_TARGET_PRE_LOCK_ON_TARGET is for IN_RANGE only" message box** no longer
+  fires for `LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE`, which reads that key legitimately
+  (`322daa10`). This is the one modified line: the condition gains a flag-gated `&&` clause.
+- **`Always.h`'s description of the flag** now covers the lock-on work. The kickoff chose to
+  extend the 7a flag rather than add one, so reverting it reverts both phases.
+
+Kept, because June does the same:
+- Case 8 aims from `m_Pos` (June `+0x100`), which only the ctor and `SetPos` write (`31f73df0`,
+  `31f7aec7`).
+- The random pick uses CRT `rand()`, as `322daa10` does. That could desync P2P clients; it is
+  studio behaviour.
+- The forward steer runs after `NOT_FIND_TARGET_MOVE_STOP` has zeroed DirSpeed, so it aims at the
+  effect's own position. June reads `+0x5cc` after that same store.
+- The case-6 hit-count re-target writes one UID slot without clearing the other, in both June and
+  March.
+
+Kept, not changed:
+- The per-effect hit list replaces March's game-wide pick list. That is June's design, and the
+  Bullet Blitz play-test still spread across targets.
+
+Noted for later:
+- The aim point (slot `0x3e4`) is computed for every candidate even at range 99999. It is only
+  costly on June data (Phase 11).
+- The target-lookup, owner-fallback and DirSpeed blocks are repeated across the cases.
+
 
 ## Reverting to stock
 

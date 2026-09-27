@@ -1864,6 +1864,10 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 							pDamageData->m_eFirstAttack = FAC_FIRST_ATTACK;
 #endif //ADD_RENA_SYSTEM
 						pDamageData->hitUnitList.push_back( hitUnit );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+						if( g_pX2Game->GetDamageEffect()->IsLiveInstance( pAttacker ) == true )	// not in June; DamageReact may have removed the effect
+							pAttacker->JuneOnLockOnHitUnit( hitUnit.optrHitGameUnit );	// June2017 FUN_3262b6e0 @3262f389-3262f3ca
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 					}
 #else
 					pDamageData->hitUnitList.push_back( hitUnit );
@@ -1892,6 +1896,10 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 					pDamageData->m_eFirstAttack = FAC_FIRST_ATTACK;
 #endif //ADD_RENA_SYSTEM
 				pDamageData->hitUnitList.push_back( hitUnit );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+				if( g_pX2Game->GetDamageEffect()->IsLiveInstance( pAttacker ) == true )	// not in June; DamageReact may have removed the effect
+					pAttacker->JuneOnLockOnHitUnit( hitUnit.optrHitGameUnit );	// June2017 FUN_3262b6e0 @3262f4b9-3262f4fb
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 			}
 #else
 			pDamageData->hitUnitList.push_back( hitUnit );

@@ -4402,6 +4402,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              TRACE_OWNER_BONE_ONLY_ROTATE (Rose absent) and
 //              APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION; FOLLOW_LINE_GRAVITY's
 //              near-line case and IGNORE_MI_HUGE deferred (see the matrix).
+//              Extended 2026-09-27 (Phase 7b): June's lock-on runtime -- changes
+//              homing targeting. OnFrameMove_LockOnData (FUN_31f83aa0), VectorLockOn
+//              (FUN_31f73a10), the seeded / in-range / random picks, the
+//              LOCK_ON_RANGE_FROM_OWNER gate, LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE, and
+//              the per-effect NOT_TARGET_PRE_LOCK_ON_TARGET hit list, filled from
+//              CX2DamageManager::EffectToUnit (X2DamageManager.cpp).
 //              Needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE (its members).
 #define SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #if defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME) && !defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE)

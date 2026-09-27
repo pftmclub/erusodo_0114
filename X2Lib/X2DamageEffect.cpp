@@ -63,6 +63,37 @@ static void JuneFxCeFrame( const WCHAR* pwszEffect_, const WCHAR* pwszKey_, cons
 	UNREFERENCED_PARAMETER( pwszDetail_ );
 #endif SERV_IRUHADEV_OFFLINE
 }
+
+// JUNE_FX CE_LOCKON <effect> <branch> <detail>: one line per June lock-on branch taken (plan
+// Phase 7b), at most one a second per (effect, branch); the detail is printf-formatted and not
+// part of the throttle key. No-op when SERV_IRUHADEV_OFFLINE is off, as JuneFxCeFrame above.
+static void JuneFxLockOn( const WCHAR* pwszEffect_, const WCHAR* pwszBranch_, const WCHAR* pwszFormat_, ... )
+{
+#ifdef SERV_IRUHADEV_OFFLINE
+	const WCHAR* pwszEffectName = ( NULL != pwszEffect_ ? pwszEffect_ : L"-" );
+	std::wstring wstrThrottleKey = pwszEffectName;
+	wstrThrottleKey += L"|";
+	wstrThrottleKey += pwszBranch_;
+
+	static std::map<std::wstring, DWORD> s_mapLastLoggedTime;
+	const DWORD dwNow = timeGetTime();
+	std::map<std::wstring, DWORD>::iterator itThrottle = s_mapLastLoggedTime.find( wstrThrottleKey );
+	if( itThrottle != s_mapLastLoggedTime.end() && dwNow - itThrottle->second < 1000 )
+		return;
+	s_mapLastLoggedTime[ wstrThrottleKey ] = dwNow;
+
+	WCHAR wszDetail[256] = L"";
+	va_list args;
+	va_start( args, pwszFormat_ );
+	StringCchVPrintfW( wszDetail, ARRAY_SIZE(wszDetail), pwszFormat_, args );
+	va_end( args );
+	CX2OfflineLog::Server( L"JUNE_FX CE_LOCKON %s %s %s", pwszEffectName, pwszBranch_, wszDetail );
+#else SERV_IRUHADEV_OFFLINE
+	UNREFERENCED_PARAMETER( pwszEffect_ );
+	UNREFERENCED_PARAMETER( pwszBranch_ );
+	UNREFERENCED_PARAMETER( pwszFormat_ );
+#endif SERV_IRUHADEV_OFFLINE
+}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
@@ -3362,6 +3393,353 @@ void CX2DamageEffect::CEffect::OnFrameMove_BlackHoleData( float fElapsedTime )
 
 void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+	// June2017 FUN_31f83aa0 (CEffect::OnFrameMove_LockOnData) @31f83aa0-31f858b7, re-expressed on
+	// March's members; the March body is intact in #else. Offsets and per-case evidence are in
+	// june2017_re/funcmap.tsv (rows 31f83aa0.prelude, 31f83aa0.cases, 31f8cc80).
+	if ( g_pX2Game == NULL )
+		return;
+
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_hMeshInstHandle );
+	if( NULL == pMeshInst )
+		return;
+
+	// @31f83b70-31f83bcf: TIME_UNLOCK_FROM_START. New: on the frame it runs out, the effect's own
+	// position becomes the ONLY_FRONT reference point (June +0x994 = m_vecSaveOwnerPos).
+	if ( 0.0f < m_LockOnData.m_fTimeUnlockFromStart )
+	{
+		m_LockOnData.m_fTimeUnlockFromStart -= fElapsedTime_;
+		if ( m_LockOnData.m_fTimeUnlockFromStart <= 0.0f )
+			m_LockOnData.m_vecSaveOwnerPos = pMeshInst->GetPos();
+		return;
+	}
+
+	// @31f83bd4-31f83c07: TIME_UNLOCK_AFTER_START, unchanged.
+	if( m_LockOnData.m_fUnLockTime > 0.f )
+		m_LockOnData.m_fUnLockTime -= fElapsedTime_;
+	if( m_LockOnData.m_fUnLockTime <= 0.f )
+		return;
+
+	// @31f83c0d-31f83c26 (new): UNLOCK_START_AFTER_ATTACK. No steering until the effect has hit that
+	// many times (June +0x850 = m_DamageTimeNow); then the gate switches itself off.
+	if( 0 < m_LockOnData.m_iUnlockStartAfterAttack )
+	{
+		if( m_DamageTimeNow < m_LockOnData.m_iUnlockStartAfterAttack )
+			return;
+		m_LockOnData.m_iUnlockStartAfterAttack = -1;
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		JuneFxLockOn( GetName(), L"UNLOCK_START_AFTER_ATTACK", L"released at hit %d", m_DamageTimeNow );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	}
+
+	// @31f83c2c-31f83c45 (new): RETARGET_COOLTIME_AFTER_ATTACK's countdown, started by the hit-count
+	// re-targets of cases 6 and 8. While it runs no case runs, so the effect keeps its heading.
+	if( 0.f < m_LockOnData.m_fRetargetCooltimeNow )
+	{
+		m_LockOnData.m_fRetargetCooltimeNow -= fElapsedTime_;
+		return;
+	}
+
+	// @31f83c4a-31f83c92: FUN_31f75e20 removes the mesh when June +0x9d4 is set, which only happens in
+	// XS_PVE_GAME (LoadLockOnData @31f7354c). March has no such state: not ported.
+
+	switch( m_LockOnData.m_LockOnType )	// jump table 31f858e4, index = type - 1
+	{
+	case LOT_POS_BLACK_HOLE:	// @31f83cb6, unchanged
+		pMeshInst->SetBlackHolePos( m_LockOnData.m_LockOnPos );
+		break;
+
+	case LOT_UID_BLACK_HOLE:	// @31f83ce1, unchanged
+		{
+			const CX2GameUnit* pTarget = g_pX2Game->GetUserUnitByUID( m_LockOnData.m_LockOnUnitUID );
+			if( NULL == pTarget )
+				pTarget = g_pX2Game->GetNPCUnitByUID( m_LockOnData.m_LockOnNPCUID );
+			if( NULL != pTarget )
+			{
+				D3DXVECTOR3 pos = pTarget->GetPos();
+				pos.y += 100.0f;
+				pMeshInst->SetBlackHolePos( pos );
+			}
+		}
+		break;
+
+	case LOT_POS_VECTOR:	// @31f83d7f, unchanged
+		VectorLockOn( m_LockOnData.m_LockOnPos );
+		break;
+
+	case LOT_UID_VECTOR:	// @31f83d92-31f844a6
+		{
+			const CX2GameUnit* pTarget = g_pX2Game->GetUserUnitByUID( m_LockOnData.m_LockOnUnitUID );
+			const bool bTargetIsUser = ( NULL != pTarget );
+			if( NULL == pTarget )
+				pTarget = g_pX2Game->GetNPCUnitByUID( m_LockOnData.m_LockOnNPCUID );
+			if( NULL == pTarget )
+				break;
+
+			const CX2GameUnit* pOwnerUnit = GetOwnerUnit();
+			if ( NULL == pOwnerUnit )
+				pOwnerUnit = g_pX2Game->GetMyUnit();
+			if ( NULL == pOwnerUnit )
+				break;
+
+			bool bFoundCollision = false;
+			VectorLockOn( JuneGetNearestCollisionPos( pTarget, pOwnerUnit->GetPos(), bFoundCollision ) );
+
+			// @31f8407a-31f840a9: re-target when the target died or -- new -- when it is invincible and
+			// NOT_LOCKON_INVINCIBLE_TARGET is set (FUN_31f63d80).
+			const bool bDead = !( 0.f < pTarget->GetNowHp() );
+			const bool bInvincibleSkip = ( true == m_LockOnData.m_bNotLockonInvincibleTarget && true == pTarget->GetInvincible() );
+			if( false == bDead && false == bInvincibleSkip )
+				break;
+			if( null == m_optrOwnerUnit )
+				break;
+
+			if( true == bTargetIsUser )
+				m_LockOnData.m_LockOnUnitUID = -1;
+			else
+				m_LockOnData.m_LockOnNPCUID = -1;
+
+			// @31f840d8-31f8412c / @31f8445b-31f84489: June's seeded pick FUN_322dadd0 replaces March's
+			// CX2Game::GetLockOnTarget (different index, owner-range filter). Its out bool is the byte
+			// that held the collision-found flag, so a miss writes -1 where that flag points.
+			bool bUserUnit = bFoundCollision;
+			const UidType uid = JunePickLockOnTargetBySeed( m_LockOnData.m_iRandomSeed, bUserUnit );
+			JuneSetLockOnTargetUID( uid, bUserUnit );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxLockOn( GetName(), L"UID_VECTOR_RETARGET", L"reason=%s seed=%d -> uid=%I64d user=%d", ( bDead ? L"dead" : L"invincible" ), m_LockOnData.m_iRandomSeed, uid, ( bUserUnit ? 1 : 0 ) );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		}
+		break;
+
+	case LOT_NEARST_UID_VECTOR:	// @31f84a13-31f84dfa, unchanged: June's FUN_322d10b0 = March GetLockOnNearstTarget
+		{
+			const CX2GameUnit* pGameUnit = NULL;
+			if ( -1 != m_LockOnData.m_LockOnUnitUID )
+				pGameUnit = g_pX2Game->GetUserUnitByUID( m_LockOnData.m_LockOnUnitUID );
+			else if ( -1 != m_LockOnData.m_LockOnNPCUID )
+				pGameUnit = g_pX2Game->GetNPCUnitByUID( m_LockOnData.m_LockOnNPCUID );
+			if ( NULL == pGameUnit )
+				break;
+
+			const CX2GameUnit* pOwnerUnit = GetOwnerUnit();
+			if ( NULL == pOwnerUnit )
+				pOwnerUnit = g_pX2Game->GetMyUnit();
+			if ( NULL == pOwnerUnit )
+				break;
+
+			bool bFoundCollision = false;
+			VectorLockOn( JuneGetNearestCollisionPos( pGameUnit, pOwnerUnit->GetPos(), bFoundCollision ) );
+
+			if( 0.f >= pGameUnit->GetNowHp() && null != m_optrOwnerUnit )
+			{
+				m_LockOnData.m_LockOnUnitUID	= -1;
+				m_LockOnData.m_LockOnNPCUID		= -1;
+
+				bool bUserUnit = false;
+				const UidType gameUnitUID = g_pX2Game->GetLockOnNearstTarget( static_cast<CX2Room::TEAM_NUM>( m_optrOwnerUnit->GetTeam() ), pOwnerUnit->GetPos(), bUserUnit );
+				JuneSetLockOnTargetUID( gameUnitUID, bUserUnit );
+			}
+		}
+		break;
+
+	case LOT_NEARST_UID_VECTOR_IN_RANGE:	// @31f84dfa-31f856fe
+		{
+			const CX2GameUnit* pTarget = NULL;
+			if ( -1 != m_LockOnData.m_LockOnUnitUID )
+				pTarget = g_pX2Game->GetUserUnitByUID( m_LockOnData.m_LockOnUnitUID );
+			else if ( -1 != m_LockOnData.m_LockOnNPCUID )
+				pTarget = g_pX2Game->GetNPCUnitByUID( m_LockOnData.m_LockOnNPCUID );
+
+			// New: the ranges are DUNGEON_/PVP_TARGET_RANGE_MIN_MAX (their defaults are March's hardcoded
+			// 150/750 and 150/300), and every pick is FUN_322d7670, handed the per-effect target list only
+			// when NOT_TARGET_PRE_LOCK_ON_TARGET is non-zero (@31f851ed, @31f853ac, @31f85571).
+			const D3DXVECTOR2 vRange = JuneGetLockOnTargetRange();
+			D3DXVECTOR2 vRangeScaled = vRange;
+			if( m_LockOnData.m_fRange > 0.f )
+				vRangeScaled = vRange * m_LockOnData.m_fRange;
+			const bool bUseTargetList = ( NTPLOTT_NONE != m_LockOnData.m_iNotTargetPreLockOnTarget );
+
+			if ( NULL != pTarget )
+			{
+				if( LOCSD_SAVE_DIR_SPEED == m_LockOnData.m_eNotFindTargetMoveStop )	// @31f84e6f-31f84ec9, unchanged
+				{
+					pMeshInst->SetDirSpeed( m_LockOnData.m_fSaveDirSpeed );
+					m_LockOnData.m_eNotFindTargetMoveStop = LOCSD_NOT_SAVE_DIR_SPEED;
+				}
+
+				const CX2GameUnit* pOwnerUnit = GetOwnerUnit();
+				if ( NULL == pOwnerUnit )
+					pOwnerUnit = g_pX2Game->GetMyUnit();
+				if ( NULL == pOwnerUnit )
+					break;
+
+				bool bFoundCollision = false;
+				const D3DXVECTOR3 vPos = JuneGetNearestCollisionPos( pTarget, pOwnerUnit->GetPos(), bFoundCollision );
+				VectorLockOn( vPos );
+
+				// @31f85175-31f852a2: the hit-count re-target, unscaled range as in March. New: it needs a
+				// live owner, and it starts the RETARGET_COOLTIME_AFTER_ATTACK countdown.
+				if ( m_DamageTimeNow > m_PrevDamageTime && null != m_optrOwnerUnit )
+				{
+					m_PrevDamageTime = m_DamageTimeNow;
+					m_LockOnData.m_fRetargetCooltimeNow = m_LockOnData.m_fRetargetCooltimeAfterAttack;
+
+					bool bUserUnit = false;
+					const UidType gameUnitUID = JuneGetLockOnNearstTargetInRange( m_optrOwnerUnit->GetTeam(), vPos, vRange, bUseTargetList, bUserUnit );
+					JuneSetLockOnTargetUID( gameUnitUID, bUserUnit );
+				}
+
+				// @31f852a2-31f85444: the target died -- re-target around the main effect.
+				if( 0.f < pTarget->GetNowHp() || null == m_optrOwnerUnit )
+					break;
+				m_LockOnData.m_LockOnUnitUID	= -1;
+				m_LockOnData.m_LockOnNPCUID		= -1;
+				if( NULL == GetMainEffect() )
+					break;
+
+				bool bUserUnit = false;
+				const UidType gameUnitUID = JuneGetLockOnNearstTargetInRange( m_optrOwnerUnit->GetTeam(), GetMainEffect()->GetPos(), vRangeScaled, bUseTargetList, bUserUnit );
+				JuneSetLockOnTargetUID( gameUnitUID, bUserUnit );
+			}
+			else
+			{
+				// @31f85444-31f856f9: no target.
+				if ( NULL == GetMainEffect() || null == m_optrOwnerUnit
+					|| m_DamageTime < m_DamageTimeNow || m_DamageTimeNow < m_PrevDamageTime )
+					break;
+
+				bool bUserUnit = false;
+				const UidType gameUnitUID = JuneGetLockOnNearstTargetInRange( m_optrOwnerUnit->GetTeam(), GetMainEffect()->GetPos(), vRangeScaled, bUseTargetList, bUserUnit );
+				JuneSetLockOnTargetUID( gameUnitUID, bUserUnit );
+
+				if( LOCSD_NOT_SAVE_DIR_SPEED == m_LockOnData.m_eNotFindTargetMoveStop	// @31f85628-31f85686, unchanged
+					&& m_LockOnData.m_LockOnUnitUID < 0 && m_LockOnData.m_LockOnNPCUID < 0 )
+				{
+					m_LockOnData.m_fSaveDirSpeed = pMeshInst->GetDirSpeed();
+					pMeshInst->SetDirSpeed( 0.f );
+					m_LockOnData.m_eNotFindTargetMoveStop = LOCSD_SAVE_DIR_SPEED;
+				}
+
+				JuneLockOnSteerForward( pMeshInst );	// @31f85688-31f856f9
+			}
+		}
+		break;
+
+#ifdef SERV_9TH_NEW_CHARACTER
+	case LOT_UID_BONE_POS:	// @31f856fe-31f858b1, unchanged; the bone name now comes from LOCK_ON_TARGET_BONE_NAME
+		{
+			CX2GUUser* pCX2GUUser = g_pX2Game->GetUserUnitByUID( m_LockOnData.m_LockOnUnitUID );
+			if( pCX2GUUser != NULL )
+			{
+				D3DXVECTOR3 vBonePos = pCX2GUUser->GetBonePos( m_LockOnData.m_wstrTargetBoneName.c_str() );
+				if ( D3DXVECTOR3( 0.f, 0.f, 0.f ) == vBonePos )
+					vBonePos = pCX2GUUser->GetPos();
+				VectorLockOn( vBonePos );
+			}
+			else
+			{
+				CX2GUNPC* pCX2GUNPC = g_pX2Game->GetNPCUnitByUID( m_LockOnData.m_LockOnNPCUID );
+				if ( NULL != pCX2GUNPC )
+				{
+					D3DXVECTOR3 vBonePos = pCX2GUNPC->GetBonePos( m_LockOnData.m_wstrTargetBoneName.c_str() );
+					if ( D3DXVECTOR3( 0.f, 0.f, 0.f ) == vBonePos )
+						vBonePos = pCX2GUNPC->GetPos();
+					VectorLockOn( vBonePos );
+				}
+			}
+		}
+		break;
+#endif SERV_9TH_NEW_CHARACTER
+
+	case LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE:	// @31f844b1-31f84a0e, June-only
+		{
+			const CX2GameUnit* pTarget = NULL;
+			if ( -1 != m_LockOnData.m_LockOnUnitUID )
+				pTarget = g_pX2Game->GetUserUnitByUID( m_LockOnData.m_LockOnUnitUID );
+			else if ( -1 != m_LockOnData.m_LockOnNPCUID )
+				pTarget = g_pX2Game->GetNPCUnitByUID( m_LockOnData.m_LockOnNPCUID );
+
+			const D3DXVECTOR2 vRange = JuneGetLockOnTargetRange();	// never scaled by TARGET_RANGE in this case
+
+			if ( NULL != pTarget )
+			{
+				if( LOCSD_SAVE_DIR_SPEED == m_LockOnData.m_eNotFindTargetMoveStop )	// @31f84518-31f84570
+				{
+					pMeshInst->SetDirSpeed( m_LockOnData.m_fSaveDirSpeed );
+					m_LockOnData.m_eNotFindTargetMoveStop = LOCSD_NOT_SAVE_DIR_SPEED;
+				}
+
+				const CX2GameUnit* pOwnerUnit = GetOwnerUnit();
+				if ( NULL == pOwnerUnit )
+					pOwnerUnit = g_pX2Game->GetMyUnit();
+				if ( NULL == pOwnerUnit )
+					break;
+
+				// @31f845c7-31f8465c: aim at the target's lock-on point as seen from m_Pos (June +0x100),
+				// raised by LOCK_ON_OFFSET_Y_POS.
+				D3DXVECTOR3 vAim = JuneGetLockOnAimPos( pTarget, m_Pos );
+				vAim.y += m_LockOnData.m_fLockOnOffsetYPos;
+				VectorLockOn( vAim );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+				JuneFxLockOn( GetName(), L"AFTER_ATTACK_IN_RANGE", L"aim=(%.0f,%.0f,%.0f) hits=%d", vAim.x, vAim.y, vAim.z, m_DamageTimeNow );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+
+				// @31f84667-31f84728: the hit-count re-target, a random pick around the aim point
+				// (FUN_322daa10); starts RETARGET_COOLTIME_AFTER_ATTACK. No owner test here in June.
+				if ( m_DamageTimeNow > m_PrevDamageTime )
+				{
+					m_PrevDamageTime = m_DamageTimeNow;
+					m_LockOnData.m_fRetargetCooltimeNow = m_LockOnData.m_fRetargetCooltimeAfterAttack;
+					m_LockOnData.m_LockOnUnitUID	= -1;
+					m_LockOnData.m_LockOnNPCUID		= -1;
+
+					bool bUserUnit = false;
+					const UidType gameUnitUID = JuneGetLockOnRandomTargetInRange( pOwnerUnit->GetTeam(), vAim, vRange, bUserUnit );
+					JuneSetLockOnTargetUID( gameUnitUID, bUserUnit );
+				}
+
+				// @31f84728-31f847e4: the target died -- re-target around the main effect.
+				if( 0.f < pTarget->GetNowHp() )
+					break;
+				m_LockOnData.m_LockOnUnitUID	= -1;
+				m_LockOnData.m_LockOnNPCUID		= -1;
+				if( NULL == GetMainEffect() )
+					break;
+
+				bool bUserUnit = false;
+				const UidType gameUnitUID = JuneGetLockOnRandomTargetInRange( pOwnerUnit->GetTeam(), GetMainEffect()->GetPos(), vRange, bUserUnit );
+				JuneSetLockOnTargetUID( gameUnitUID, bUserUnit );
+			}
+			else
+			{
+				// @31f847f7-31f84a0e: no target.
+				if ( NULL == GetMainEffect() || m_DamageTime < m_DamageTimeNow || m_DamageTimeNow < m_PrevDamageTime )
+					break;
+
+				const CX2GameUnit* pOwnerUnit = GetOwnerUnit();
+				if ( NULL == pOwnerUnit )
+					pOwnerUnit = g_pX2Game->GetMyUnit();
+				if ( NULL == pOwnerUnit )
+					break;
+
+				bool bUserUnit = false;
+				const UidType gameUnitUID = JuneGetLockOnRandomTargetInRange( pOwnerUnit->GetTeam(), GetMainEffect()->GetPos(), vRange, bUserUnit );
+				JuneSetLockOnTargetUID( gameUnitUID, bUserUnit );
+
+				if( LOCSD_NOT_SAVE_DIR_SPEED == m_LockOnData.m_eNotFindTargetMoveStop	// @31f848f0-31f8496f
+					&& m_LockOnData.m_LockOnUnitUID < 0 && m_LockOnData.m_LockOnNPCUID < 0 )
+				{
+					m_LockOnData.m_fSaveDirSpeed = pMeshInst->GetDirSpeed();
+					pMeshInst->SetDirSpeed( 0.f );
+					m_LockOnData.m_eNotFindTargetMoveStop = LOCSD_SAVE_DIR_SPEED;
+				}
+
+				JuneLockOnSteerForward( pMeshInst );	// @31f8497c-31f84a0e
+			}
+		}
+		break;
+	}
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
     if ( g_pX2Game == NULL )
         return;
 
@@ -3896,6 +4274,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 				} break;
 #endif //SERV_9TH_NEW_CHARACTER
 	}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 }
 
 
@@ -7113,7 +7492,12 @@ void CX2DamageEffect::CEffect::LoadLockOnDataBlock()
 #ifdef _IN_HOUSE_
 	//NOT_TARGET_PRE_LOCK_ON_TARGET 기능은 LOT_NEARST_UID_VECTOR_IN_RANGE에서만 사용 가능.
 	if( true == m_LockOnData.m_bIsNotTargetPreLockOnTarget && 
-		LOT_NEARST_UID_VECTOR_IN_RANGE != m_LockOnData.m_LockOnType )
+		LOT_NEARST_UID_VECTOR_IN_RANGE != m_LockOnData.m_LockOnType
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+		// June2017: LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE reads the key too (FUN_322daa10)
+		&& LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE != m_LockOnData.m_LockOnType
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+		)
 	{
 		g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( -999, -999 ), L"LOT_NEARST_UID_VECTOR_IN_RANGE 타입에서만 NOT_TARGET_PRE_LOCK_ON_TARGET 적용 가능", NULL );
 	}
@@ -7258,6 +7642,34 @@ void CX2DamageEffect::CEffect::LoadLockOnDataBlock()
 			CX2OfflineLog::Server( L"%s", wszJuneFxLod );
 	}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+	// June2017 FUN_31f71930 @31f7355c-31f73647: June has ONE seed member (+0x948). RANDOM_SEED is
+	// read straight into it (-1 when absent = March's LockOnData() default) and the re-target picks
+	// read it (@31f84106, @31f84489). This reverses Phase 6b's parse-only split. LoadLockOnData runs
+	// only from the ctor (X2DamageEffect.cpp:1885), before skill code can SetLockOnRandomSeed, so a
+	// seed set by skill code still wins, as in June.
+	m_LockOnData.m_iRandomSeed = m_LockOnData.m_iRandomSeedFromLua;
+#ifdef SERV_9TH_NEW_CHARACTER
+	// @31f73109: likewise ONE bone-name member (+0x9ac), the one LOT_UID_BONE_POS reads (@31f856fe).
+	// March never assigned m_wstrTargetBoneName, so that case always fell back to GetPos.
+	m_LockOnData.m_wstrTargetBoneName = m_LockOnData.m_strLockOnTargetBoneName;
+#endif SERV_9TH_NEW_CHARACTER
+
+	JuneSelectLockOnRangeFromOwner();
+
+	// @31f73732-31f737e2: INIT_TARGET -- an immediate seeded pick (FUN_322dadd0) at load, when the
+	// owner is live. The out bool starts true (@31f7376d).
+	if( true == m_LockOnData.m_bInitTarget && null != m_optrOwnerUnit )
+	{
+		bool bUserUnit = true;
+		const UidType uid = JunePickLockOnTargetBySeed( m_LockOnData.m_iRandomSeed, bUserUnit );
+		JuneSetLockOnTargetUID( uid, bUserUnit );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		JuneFxLockOn( GetName(), L"INIT_TARGET", L"seed=%d -> uid=%I64d user=%d", m_LockOnData.m_iRandomSeed, uid, ( bUserUnit ? 1 : 0 ) );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 }
 #else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 void CX2DamageEffect::CEffect::LoadLockOnData()
@@ -7508,6 +7920,20 @@ void CX2DamageEffect::CEffect::VectorLockOn( const D3DXVECTOR3& targetPos )
     if ( g_pX2Game == NULL )
         return;
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+	// June2017 FUN_31f73a10 @31f73a3c-31f73a55: nothing is steered while the aim point is farther from
+	// the owner than LOCK_ON_RANGE_FROM_OWNER (FUN_31f647c0). 99999 unless a LOCK_ON_DATA table is
+	// loaded in a battle field (1000 by default there), see JuneSelectLockOnRangeFromOwner.
+	if( true == JuneIsOutOfLockOnRangeFromOwner( targetPos ) )
+	{
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		JuneFxLockOn( GetName(), L"RANGE_FROM_OWNER_REJECT", L"range=%.0f dist=%.0f", m_LockOnData.m_fLockOnRangeFromOwner,
+			( null != m_optrOwnerUnit ? GetDistance( targetPos, m_optrOwnerUnit->GetPos() ) : -1.f ) );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		return;
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+
 	CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_hMeshInstHandle );
 	if( NULL == pMeshInst )
 	{
@@ -7576,6 +8002,18 @@ void CX2DamageEffect::CEffect::VectorLockOn( const D3DXVECTOR3& targetPos )
 	nowVecDegree.y = D3DXToDegree(nowVec.y);
 	nowVecDegree.z = D3DXToDegree(nowVec.z);
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+	// June2017 FUN_31f73a10 @31f73d77-31f73db5: Y_DIR_INIT negates the new heading's y once, on the
+	// first steer that gets this far (fmul QWORD [33436c90] = -1.0).
+	if( true == m_LockOnData.m_bYDirInit )
+	{
+		m_LockOnData.m_bYDirInit = false;
+		nowVecDegree.y *= -1.f;
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		JuneFxLockOn( GetName(), L"Y_DIR_INIT", L"dir=(%.1f,%.1f,%.1f)", nowVecDegree.x, nowVecDegree.y, nowVecDegree.z );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 	pMeshInst->SetManualDirDegree( nowVecDegree );
 	
 	//nowVec = GetDirVecToDegree( nowVec );
@@ -7631,6 +8069,415 @@ void CX2DamageEffect::CEffect::VectorLockOn( const D3DXVECTOR3& targetPos )
 
 
 
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+// ---- June2017 lock-on runtime helpers (plan Phase 7b; evidence in june2017_re/funcmap.tsv) ----
+
+void CX2DamageEffect::CEffect::JuneSetLockOnTargetUID( UidType uid_, bool bUserUnit_ )
+{
+	if( true == bUserUnit_ )
+		m_LockOnData.m_LockOnUnitUID = uid_;
+	else
+		m_LockOnData.m_LockOnNPCUID = static_cast<int>( uid_ );
+}
+
+// June2017 FUN_31f647c0 (RET 0xc): true only when vPos_ is strictly farther from the owner than the
+// LOCK_ON_RANGE_FROM_OWNER value selected at load (June +0x9d0); false with no owner.
+bool CX2DamageEffect::CEffect::JuneIsOutOfLockOnRangeFromOwner( const D3DXVECTOR3& vPos_ )
+{
+	if( null == m_optrOwnerUnit )
+		return false;
+	return GetDistance( vPos_, m_optrOwnerUnit->GetPos() ) > m_LockOnData.m_fLockOnRangeFromOwner;
+}
+
+// June2017 FUN_31f71930 @31f73130-31f73540: choose the LOCK_ON_RANGE_FROM_OWNER value for the state
+// the effect is created in (June compares *(DAT_3377585c+0x8c) with its own X2_STATE numbers; March's
+// differ, so the March enum names are used). With the table: AT_PVP in XS_PVP_GAME, AT_RAID_FIELD /
+// AT_FIELD in XS_BATTLE_FIELD, else AT_DUNGEON. Without it: 1000 in a non-raid battle field, else
+// 99999. June's XS_PVE_GAME row (5000, and no AT_* read) has no March state.
+void CX2DamageEffect::CEffect::JuneSelectLockOnRangeFromOwner()
+{
+	const int iState = ( NULL != g_pMain ) ? static_cast<int>( g_pMain->GetNowStateID() ) : static_cast<int>( CX2Main::XS_INVALID );
+	bool bRaidField = false;
+#ifdef FIELD_BOSS_RAID
+	// June 32481f80( 32482650() ): current battle field's type in 2..4. Re-expressed as March's
+	// boss-raid field test -- same state test; that the two field flags agree is a candidate only.
+	if( CX2Main::XS_BATTLE_FIELD == iState && NULL != g_pData )
+		bRaidField = g_pData->GetBattleFieldManager().GetIsBossRaidCurrentField();
+#endif FIELD_BOSS_RAID
+
+	if( true == m_LockOnData.m_bHasLockOnRangeFromOwner )
+	{
+		if( CX2Main::XS_PVP_GAME == iState )
+			m_LockOnData.m_fLockOnRangeFromOwner = m_LockOnData.m_fLockOnRangeFromOwnerAtPvp;			// @31f73438-31f734d8
+		else if( CX2Main::XS_BATTLE_FIELD == iState )
+			m_LockOnData.m_fLockOnRangeFromOwner = ( true == bRaidField )								// @31f7323f-31f73433
+				? m_LockOnData.m_fLockOnRangeFromOwnerAtRaidField : m_LockOnData.m_fLockOnRangeFromOwnerAtField;
+		else
+			m_LockOnData.m_fLockOnRangeFromOwner = m_LockOnData.m_fLockOnRangeFromOwnerAtDungeon;		// @31f7315d-31f734d8
+	}
+	else
+	{
+		m_LockOnData.m_fLockOnRangeFromOwner = ( CX2Main::XS_BATTLE_FIELD == iState && false == bRaidField )	// @31f734e5-31f73540
+			? 1000.f : 99999.f;
+	}
+}
+
+// DUNGEON_/PVP_TARGET_RANGE_MIN_MAX, PVP in XS_PVP_GAME (June: state 9 selects +0x978, e.g. @31f851b8).
+D3DXVECTOR2 CX2DamageEffect::CEffect::JuneGetLockOnTargetRange() const
+{
+	if( NULL != g_pMain && CX2Main::XS_PVP_GAME == g_pMain->GetNowStateID() )
+		return D3DXVECTOR2( m_LockOnData.m_fPvpTargetRangeMin, m_LockOnData.m_fPvpTargetRangeMax );
+	return D3DXVECTOR2( m_LockOnData.m_fDungeonTargetRangeMin, m_LockOnData.m_fDungeonTargetRangeMax );
+}
+
+// The filters all of June's target searches share (322dadd0, 322daa10, 322d7670, 322d10b0): enemy
+// team, not invincible (vtable 0x180), alive (FUN_31e4f900), and for an NPC not a boss-raid NPC (vtable
+// 0x3c8: User returns 0, NPC tests MG_BOSS_NPC) nor NCT_THING_TRAP / NCT_THING_CHECKER (0x66 / 0x6a).
+// Not ported: June also skips an NPC whose byte +0x8fb6 is 1 -- that member is not identified.
+bool CX2DamageEffect::CEffect::JuneIsLockOnCandidate( const CX2GameUnit* pUnit_, int iTeam_ )
+{
+	if( NULL == pUnit_ )
+		return false;
+	if( pUnit_->GetTeam() == iTeam_ )
+		return false;
+	if( true == pUnit_->GetInvincible() )
+		return false;
+	if( 0.f >= pUnit_->GetNowHp() )
+		return false;
+	if( CX2GameUnit::GUT_NPC == pUnit_->GetGameUnitType() )
+	{
+#ifdef FIELD_BOSS_RAID
+		if( true == pUnit_->GetIsBosRaidNPC() )
+			return false;
+#endif FIELD_BOSS_RAID
+		const CX2GUNPC* pNPC = static_cast<const CX2GUNPC*>( pUnit_ );
+		switch( pNPC->GetNPCTemplet().m_ClassType )
+		{
+		case CX2UnitManager::NCT_THING_TRAP:
+		case CX2UnitManager::NCT_THING_CHECKER:
+			return false;
+		default:
+			break;
+		}
+	}
+	return true;
+}
+
+// The collision point of pUnit_ nearest vFrom_ (ties go to the later point), else its position
+// raised by 100 -- March's inline loop from OnFrameMove_LockOnData, which June repeats per case
+// (e.g. @31f83e15-31f8403f).
+D3DXVECTOR3 CX2DamageEffect::CEffect::JuneGetNearestCollisionPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_, OUT bool& bFound_ )
+{
+	D3DXVECTOR3 vPos( 0.f, 0.f, 0.f );
+	bFound_ = false;
+	const CKTDXCollision::CollisionDataListSet& AttackListSet = pUnit_->GetCollisionListSet();
+	BOOST_FOREACH( const CKTDXCollision::CollisionDataList* collisionDataList, AttackListSet )
+	{
+		BOOST_FOREACH( CKTDXCollision::CollisionData* collisionData, *collisionDataList )
+		{
+			const D3DXVECTOR3 vCollPos = collisionData->GetPointStart();
+			if ( false == bFound_ )
+			{
+				bFound_ = true;
+				vPos = vCollPos;
+				continue;
+			}
+			if ( GetDistance( vFrom_, vCollPos ) <= GetDistance( vFrom_, vPos ) )
+				vPos = vCollPos;
+		}
+	}
+	if ( false == bFound_ )
+	{
+		vPos = pUnit_->GetPos();
+		vPos.y += 100.0f;
+	}
+	return vPos;
+}
+
+// Game-unit vtable slot 0x3e4 called with an empty bone name, as every lock-on caller does
+// (DAT_3344f1f4 = L""). CX2GUUser 31fd61a0: GetPos(). CX2GUNPC 3275ac50: take the frame name of the
+// collision point nearest vFrom_ (32278580: strict <, from 99999; CollisionData +0x24 = m_FrameName),
+// that bone's position, and the unit position; within 700 (3344ce98) of each other -> the position,
+// else whichever is nearer vFrom_ (a tie -> the bone). Not ported: the tail @3275ae4f-3275b01d, which
+// in a flagged battle field (32481fa0) with an unidentified mode test (3266ce90 / 3266ce80) falls back
+// to the position when the bone position is zero.
+D3DXVECTOR3 CX2DamageEffect::CEffect::JuneGetLockOnAimPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_ )
+{
+	if( CX2GameUnit::GUT_NPC != pUnit_->GetGameUnitType() )
+		return pUnit_->GetPos();
+
+	std::wstring wstrNearestFrame;
+	float fNearest = 99999.f;
+	const CKTDXCollision::CollisionDataListSet& AttackListSet = pUnit_->GetCollisionListSet();
+	BOOST_FOREACH( const CKTDXCollision::CollisionDataList* collisionDataList, AttackListSet )
+	{
+		if( NULL == collisionDataList )
+			continue;
+		BOOST_FOREACH( CKTDXCollision::CollisionData* collisionData, *collisionDataList )
+		{
+			if( NULL == collisionData )
+				continue;
+			const float fDist = GetDistance( vFrom_, collisionData->GetPointStart() );
+			if( fDist < fNearest )
+			{
+				fNearest = fDist;
+				wstrNearestFrame = collisionData->m_FrameName;
+			}
+		}
+	}
+
+	const D3DXVECTOR3 vBonePos = pUnit_->GetBonePos( wstrNearestFrame.c_str() );	// vtable slot 0x84
+	const D3DXVECTOR3 vPos = pUnit_->GetPos();
+	if( GetDistance( vPos, vBonePos ) <= 700.f )
+		return vPos;
+	return ( GetDistance( vFrom_, vBonePos ) > GetDistance( vFrom_, vPos ) ) ? vPos : vBonePos;
+}
+
+// June2017 FUN_322dadd0 (RET 0x14): the seeded pick. Candidates pass JuneIsLockOnCandidate and have
+// their aim point (slot 0x3e4 from the owner) inside LOCK_ON_RANGE_FROM_OWNER; the pick is
+// eligible[ (unsigned)( seed % modulus + 1 ) % count ] (IDIV @322dae65, DIV @322db035). March's
+// CX2Game::GetLockOnTarget walks the list cyclically instead and finds nothing at seed -1.
+UidType CX2DamageEffect::CEffect::JunePickLockOnTargetBySeed( int iSeed_, OUT bool& bUserUnit_, int iModulus_ /*= 30*/ )
+{
+	if( NULL == g_pX2Game || null == m_optrOwnerUnit )
+		return -1;
+
+	const int iTeam = m_optrOwnerUnit->GetTeam();
+	const D3DXVECTOR3 vOwnerPos = m_optrOwnerUnit->GetPos();
+	const int iKey = iSeed_ % iModulus_ + 1;
+
+	std::vector<const CX2GameUnit*> vecEligible;
+	const std::vector<CX2GameUnit*>& vecUnit = g_pX2Game->GetUnitList();
+	for( UINT uiIndex = 0; uiIndex < vecUnit.size(); ++uiIndex )
+	{
+		const CX2GameUnit* pUnit = vecUnit[ uiIndex ];
+		if( false == JuneIsLockOnCandidate( pUnit, iTeam ) )
+			continue;
+		if( true == JuneIsOutOfLockOnRangeFromOwner( JuneGetLockOnAimPos( pUnit, vOwnerPos ) ) )
+			continue;
+		vecEligible.push_back( pUnit );
+	}
+
+	if( true == vecEligible.empty() )
+	{
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		JuneFxLockOn( GetName(), L"SEED_PICK", L"seed=%d key=%d eligible=0 -> none", iSeed_, iKey );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		return -1;
+	}
+
+	const UINT uiPick = static_cast<UINT>( iKey ) % static_cast<UINT>( vecEligible.size() );
+	const CX2GameUnit* pPick = vecEligible[ uiPick ];
+	bUserUnit_ = ( CX2GameUnit::GUT_USER == pPick->GetGameUnitType() );
+	const UidType uid = pPick->GetUnitUID();
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	JuneFxLockOn( GetName(), L"SEED_PICK", L"seed=%d key=%d eligible=%u index=%u -> uid=%I64d", iSeed_, iKey,
+		static_cast<UINT>( vecEligible.size() ), uiPick, uid );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	return uid;
+}
+
+// June2017 FUN_322d7670: March's GetLockOnNearstTargetInRange (range.x < d < range.y, nearest), with
+// BALANCE_DEADLY_CHASER's game-wide pick list replaced by this effect's own hit list and its
+// NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE. The list is used only when the caller passes it (the value is
+// non-zero). On a miss (@322d783f-322d78cd): CLEAR empties it, SAVE_ONE empties it when it holds more
+// than one unit, SAVE_HIT_UNIT forgets the saved unit and searches again if that unit is listed, else
+// empties it. June discards that second search's result and returns -1 (the studio's code; kept).
+UidType CX2DamageEffect::CEffect::JuneGetLockOnNearstTargetInRange( int iTeam_, const D3DXVECTOR3& vPos_, const D3DXVECTOR2& vRange_, bool bUseTargetList_, OUT bool& bUserUnit_ )
+{
+	if( NULL == g_pX2Game )
+		return -1;
+
+	const int iListType = ( true == bUseTargetList_ ) ? m_LockOnData.m_iNotTargetPreLockOnTarget : static_cast<int>( NTPLOTT_NONE );
+	std::set<UidType>& setList = m_LockOnData.m_setPreLockOnTarget;
+	const CX2GameUnit* pNearst = NULL;
+	float fNearst = vRange_.y;
+	int iSkippedByList = 0;
+
+	const std::vector<CX2GameUnit*>& vecUnit = g_pX2Game->GetUnitList();
+	for( UINT uiIndex = 0; uiIndex < vecUnit.size(); ++uiIndex )
+	{
+		const CX2GameUnit* pUnit = vecUnit[ uiIndex ];
+		if( false == JuneIsLockOnCandidate( pUnit, iTeam_ ) )
+			continue;
+
+		if( true == bUseTargetList_ )
+		{
+			const UidType uid = pUnit->GetUnitUID();
+			if( NTPLOTT_TARGET_LIST_SAVE_HIT_UNIT == iListType && uid == m_LockOnData.m_SaveHitUnitUID )
+			{
+				++iSkippedByList;
+				continue;
+			}
+			if( NTPLOTT_NONE != iListType && false == setList.empty() && setList.end() != setList.find( uid ) )
+			{
+				++iSkippedByList;
+				continue;
+			}
+		}
+
+		const float fDistance = GetDistance( vPos_, pUnit->GetPos() );
+		if( fDistance < fNearst && fDistance > vRange_.x )
+		{
+			pNearst = pUnit;
+			fNearst = fDistance;
+		}
+	}
+
+	if( NULL != pNearst )
+	{
+		bUserUnit_ = ( CX2GameUnit::GUT_USER == pNearst->GetGameUnitType() );
+		const UidType uid = pNearst->GetUnitUID();
+		if( true == bUseTargetList_ && NTPLOTT_TARGET_LIST_SAVE_HIT_UNIT == iListType )
+			m_LockOnData.m_SaveHitUnitUID = uid;
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		JuneFxLockOn( GetName(), L"IN_RANGE_PICK", L"list=%d set=%u skipped=%d range=(%.0f,%.0f) -> uid=%I64d dist=%.0f",
+			iListType, static_cast<UINT>( setList.size() ), iSkippedByList, vRange_.x, vRange_.y, uid, fNearst );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		return uid;
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	JuneFxLockOn( GetName(), L"IN_RANGE_MISS", L"list=%d set=%u skipped=%d range=(%.0f,%.0f)",
+		iListType, static_cast<UINT>( setList.size() ), iSkippedByList, vRange_.x, vRange_.y );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	if( false == bUseTargetList_ )
+		return -1;
+
+	switch( iListType )
+	{
+	case NTPLOTT_TARGET_LIST_CLEAR:
+		setList.clear();
+		break;
+	case NTPLOTT_TARGET_LIST_SAVE_ONE:
+		if( setList.size() > 1 )
+			setList.clear();
+		break;
+	case NTPLOTT_TARGET_LIST_SAVE_HIT_UNIT:
+		if( setList.end() != setList.find( m_LockOnData.m_SaveHitUnitUID ) )
+		{
+			m_LockOnData.m_SaveHitUnitUID = -1;
+			JuneGetLockOnNearstTargetInRange( iTeam_, vPos_, vRange_, bUseTargetList_, bUserUnit_ );
+		}
+		else
+			setList.clear();
+		break;
+	default:
+		break;
+	}
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	JuneFxLockOn( GetName(), L"TARGET_LIST_MISS_RULE", L"list=%d -> set=%u", iListType, static_cast<UINT>( setList.size() ) );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	return -1;
+}
+
+// June2017 FUN_322daa10 (LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE only): a RANDOM pick among the
+// candidates within range.y of vPos_ (squared test, 31c7b5c0; range.x unused), not on this effect's
+// hit list, with the aim point inside LOCK_ON_RANGE_FROM_OWNER. Index (unsigned)( rand() % 100 ) %
+// count. On a miss: CLEAR and SAVE_HIT_UNIT empty the list, SAVE_ONE when it holds more than one.
+UidType CX2DamageEffect::CEffect::JuneGetLockOnRandomTargetInRange( int iTeam_, const D3DXVECTOR3& vPos_, const D3DXVECTOR2& vRange_, OUT bool& bUserUnit_ )
+{
+	if( NULL == g_pX2Game || null == m_optrOwnerUnit )
+		return -1;
+
+	const D3DXVECTOR3 vOwnerPos = m_optrOwnerUnit->GetPos();
+	const int iListType = m_LockOnData.m_iNotTargetPreLockOnTarget;
+	std::set<UidType>& setList = m_LockOnData.m_setPreLockOnTarget;
+	const float fRangeSq = vRange_.y * vRange_.y;
+
+	std::vector<const CX2GameUnit*> vecEligible;
+	const std::vector<CX2GameUnit*>& vecUnit = g_pX2Game->GetUnitList();
+	for( UINT uiIndex = 0; uiIndex < vecUnit.size(); ++uiIndex )
+	{
+		const CX2GameUnit* pUnit = vecUnit[ uiIndex ];
+		if( false == JuneIsLockOnCandidate( pUnit, iTeam_ ) )
+			continue;
+		if( NTPLOTT_NONE != iListType && false == setList.empty() && setList.end() != setList.find( pUnit->GetUnitUID() ) )
+			continue;
+		const D3DXVECTOR3 vDiff = pUnit->GetPos() - vPos_;
+		if( D3DXVec3LengthSq( &vDiff ) > fRangeSq )
+			continue;
+		if( true == JuneIsOutOfLockOnRangeFromOwner( JuneGetLockOnAimPos( pUnit, vOwnerPos ) ) )
+			continue;
+		vecEligible.push_back( pUnit );
+	}
+
+	if( false == vecEligible.empty() )
+	{
+		const UINT uiPick = static_cast<UINT>( rand() % 100 ) % static_cast<UINT>( vecEligible.size() );
+		const CX2GameUnit* pPick = vecEligible[ uiPick ];
+		bUserUnit_ = ( CX2GameUnit::GUT_USER == pPick->GetGameUnitType() );
+		const UidType uid = pPick->GetUnitUID();
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		JuneFxLockOn( GetName(), L"RANDOM_PICK", L"list=%d set=%u eligible=%u index=%u -> uid=%I64d",
+			iListType, static_cast<UINT>( setList.size() ), static_cast<UINT>( vecEligible.size() ), uiPick, uid );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		return uid;
+	}
+
+	switch( iListType )
+	{
+	case NTPLOTT_TARGET_LIST_CLEAR:
+	case NTPLOTT_TARGET_LIST_SAVE_HIT_UNIT:
+		setList.clear();
+		break;
+	case NTPLOTT_TARGET_LIST_SAVE_ONE:
+		if( setList.size() > 1 )
+			setList.clear();
+		break;
+	default:
+		break;
+	}
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	JuneFxLockOn( GetName(), L"RANDOM_MISS", L"list=%d -> set=%u", iListType, static_cast<UINT>( setList.size() ) );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	return -1;
+}
+
+// June2017 FUN_31f83aa0 @31f8497c-31f84a0e (cases 6 and 8, no-target path): with a keeping list type
+// (NOT_CLEAR / SAVE_ONE / SAVE_HIT_UNIT) the effect steers at the point one DirSpeed ahead along its
+// heading at its own height -- it levels off. 31c82e40 = CXMeshInstance::GetDirVec, mesh +0x5cc =
+// DirSpeed.
+void CX2DamageEffect::CEffect::JuneLockOnSteerForward( CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_ )
+{
+	switch( m_LockOnData.m_iNotTargetPreLockOnTarget )
+	{
+	case NTPLOTT_TARGET_LIST_NOT_CLEAR:
+	case NTPLOTT_TARGET_LIST_SAVE_ONE:
+	case NTPLOTT_TARGET_LIST_SAVE_HIT_UNIT:
+		break;
+	default:
+		return;
+	}
+	if( NULL == pMeshInst_ )
+		return;
+
+	const float fDirSpeed = pMeshInst_->GetDirSpeed();
+	const D3DXVECTOR3 vDir = pMeshInst_->GetDirVec();
+	const D3DXVECTOR3 vMeshPos = pMeshInst_->GetPos();
+	const D3DXVECTOR3 vAhead( vMeshPos.x + fDirSpeed * vDir.x, vMeshPos.y, vMeshPos.z + fDirSpeed * vDir.z );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	JuneFxLockOn( GetName(), L"STEER_FORWARD", L"list=%d speed=%.0f", m_LockOnData.m_iNotTargetPreLockOnTarget, fDirSpeed );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	VectorLockOn( vAhead );
+}
+
+// June2017 FUN_3262b6e0 (CX2DamageManager::EffectToUnit) @3262f389-3262f3ca / @3262f4b9-3262f4fb:
+// after a non-laser-group hit is recorded, a non-zero NOT_TARGET_PRE_LOCK_ON_TARGET puts the hit
+// unit on this effect's list (set<__int64>::insert 32641140). June fills the list nowhere else.
+void CX2DamageEffect::CEffect::JuneOnLockOnHitUnit( CX2GameUnitoPtr optrHitUnit_ )
+{
+	if( NTPLOTT_NONE == m_LockOnData.m_iNotTargetPreLockOnTarget || null == optrHitUnit_ )
+		return;
+	const UidType uid = optrHitUnit_->GetUnitUID();
+	m_LockOnData.m_setPreLockOnTarget.insert( uid );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	JuneFxLockOn( GetName(), L"TARGET_LIST_INSERT", L"list=%d uid=%I64d -> set=%u", m_LockOnData.m_iNotTargetPreLockOnTarget, uid,
+		static_cast<UINT>( m_LockOnData.m_setPreLockOnTarget.size() ) );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 void CX2DamageEffect::CEffect::SetPos( const D3DXVECTOR3& pos )
 {

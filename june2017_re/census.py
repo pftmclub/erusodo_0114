@@ -478,6 +478,7 @@ RT_4AB = '4a+4b'
 # Phase 7a (DamageEffect per-frame: CEffect::OnFrameMove 31f88790, FollowLine 31f70ee0) adds
 # 'not-per-frame': neither of those reads the key; its reader belongs to a later phase.
 RT_7A = '7a'
+RT_7B = '7b'
 RUNTIME = [
     # (root, rel, key, phase, state, verdict, June branch, March site)
     ('ES.EFFECT', (), 'ZOFFSET_USE_UNIT_IS_RIGHT', RT_4A, 'done', 'new',
@@ -644,7 +645,37 @@ RUNTIME = [
     ('DE.top', (), 'REACT_ANIMSPEED', RT_7A, '-', 'not-per-frame',
      'ctor 31f7aab0@31f7de2d stores +0xab8; neither 31f88790 nor 31f70ee0 reads it (Phase 7d: DamageReact)', '-'),
     ('DE.top', (), 'USE_ADVANCE_COLLISIOIN_CHECK', RT_7A, '-', 'not-per-frame',
-     'ctor 31f7aab0@31f7c4d3 stores +0xb31; neither 31f88790 nor 31f70ee0 reads it (Phase 9: collision)', '-')]
+     'ctor 31f7aab0@31f7c4d3 stores +0xb31; neither 31f88790 nor 31f70ee0 reads it (Phase 9: collision)', '-')] + [
+    # Phase 7b (lock-on: OnFrameMove_LockOnData 31f83aa0, VectorLockOn 31f73a10, the load-time tail of
+    # LoadLockOnData 31f71930, the picks 322dadd0 / 322d7670 / 322daa10, the EffectToUnit list fill
+    # 3262b6e0). 'log: Phase 11' = no deployed LOCK_ON_DATA carries the key, so its JUNE_FX CE_LOCKON
+    # line is checked on June's own data, as Phases 2 and 3 did.
+    ('DE.LOCK_ON_DATA', (), k, RT_7B, st, v, b, ms) for k, st, v, b, ms in (
+    ('LOCK_ON_TYPE', 'done', 'semantics-differ', '31f83aa0 jump table 31f858e4 (8 cases): 1-3, 5, 7 as March; 4 LOT_UID_VECTOR re-targets through the seeded pick 322dadd0 (index (seed % 30 + 1) % count over owner-range-filtered candidates, not March GetLockOnTarget\'s walk); 6 see NOT_TARGET_PRE_LOCK_ON_TARGET; 8 LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE is June-only (enum appended = 8; log: Phase 11, March Enum.lua lacks it)', 'OnFrameMove_LockOnData, JunePickLockOnTargetBySeed'),
+    ('CURVE_SPEED', 'done', 'same', '31f73a10@31f73cf8: now += (rel - now) * CURVE_SPEED * m_fElapsedTime, as March', 'VectorLockOn'),
+    ('IN_DISTANCE_TO_DIE_EFFECT', 'done', 'same', '31f73a10@31f73a6c-31f73a9a: as March (handle -1 inside the distance)', 'VectorLockOn'),
+    ('TIME_UNLOCK_FROM_START', 'done', 'semantics-differ', '31f83aa0@31f83b70-31f83bcf: counts down and returns, as March; new: the frame it runs out copies the effect position into m_vecSaveOwnerPos (June +0x994, the ONLY_FRONT origin)', 'OnFrameMove_LockOnData'),
+    ('TIME_UNLOCK_AFTER_START', 'done', 'same', '31f83aa0@31f83bd4-31f83c07: as March (UPGRADE_RAVEN m_fUnLockTime)', 'OnFrameMove_LockOnData'),
+    ('TARGET_RANGE', 'done', 'same', '31f83aa0@31f85384-31f853a6 / @31f85549-31f8556b: scales the died / no-target range of case 6 only, as March', 'OnFrameMove_LockOnData'),
+    ('NOT_TARGET_PRE_LOCK_ON_TARGET', 'done', 'semantics-differ', 'int NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE (March TRUE = 1 = CLEAR). Case 6 picks through 322d7670 with the per-effect list (June +0x960) when non-zero; EffectToUnit 3262b6e0@3262f389/@3262f4b9 inserts every unit the effect hits; on a miss CLEAR empties it, SAVE_ONE when > 1, SAVE_HIT_UNIT also skips its last pick (+0x9d8). Types 2-4 steer ahead on a miss (31f8497c). Replaces March\'s game-wide pick list (BALANCE_DEADLY_CHASER)', 'OnFrameMove_LockOnData, JuneGetLockOnNearstTargetInRange, JuneOnLockOnHitUnit'),
+    ('DUNGEON_TARGET_RANGE_MIN_MAX', 'done', 'semantics-differ', '31f83aa0@31f851b0-31f851d4 (and the other case 6 / 8 picks): the in-range pick range outside XS_PVP_GAME; March hardcodes 150/750 (the June default)', 'JuneGetLockOnTargetRange'),
+    ('PVP_TARGET_RANGE_MIN_MAX', 'done', 'semantics-differ', 'the same in XS_PVP_GAME (June state 9 selects +0x978); March hardcodes 150/300 (the June default)', 'JuneGetLockOnTargetRange'),
+    ('UNLOCK_START_AFTER_ATTACK', 'done', 'new', '31f83aa0@31f83c0d-31f83c26: no case runs until m_DamageTimeNow (+0x850) reaches it, then -1 (log: Phase 11)', 'OnFrameMove_LockOnData'),
+    ('RETARGET_COOLTIME_AFTER_ATTACK', 'done', 'new', 'set into +0x984 by the hit-count re-targets of cases 6 / 8 (@31f851c6, @31f846a4); 31f83aa0@31f83c2c-31f83c45 counts it down and runs no case meanwhile (log: Phase 11)', 'OnFrameMove_LockOnData'),
+    ('ONLY_FRONT', 'done', 'same', '31f73a10@31f73aad-31f73b72: as March (FINALITY_SKILL_SYSTEM); its origin is now also refreshed by TIME_UNLOCK_FROM_START', 'VectorLockOn'),
+    ('NOT_FIND_TARGET_MOVE_STOP', 'done', 'same', '31f83aa0@31f84e6f-31f84ec9 / @31f85628-31f85686 (case 6) and the same in case 8: as March (BALANCE_PATCH_20131107)', 'OnFrameMove_LockOnData'),
+    ('Y_DIR_INIT', 'done', 'new', '31f73a10@31f73d77-31f73db5: once, the new heading degree y *= -1.0 (fmul QWORD 33436c90) (log: Phase 11)', 'VectorLockOn'),
+    ('LOCK_ON_OFFSET_Y_POS', 'done', 'new', '31f83aa0@31f84644-31f8465c: added to the case-8 aim point y (binary-only key)', 'OnFrameMove_LockOnData'),
+    ('LOCK_ON_TARGET_BONE_NAME', 'done', 'semantics-differ', '31f71930@31f73109 reads it into the one member case 7 uses (31f856fe); March never assigned m_wstrTargetBoneName, so LOT_UID_BONE_POS always fell back to GetPos (log: Phase 11)', 'LoadLockOnDataBlock'),
+    ('RANDOM_SEED', 'done', 'semantics-differ', '31f71930@31f7355c-31f73647: one member (+0x948) that the re-target picks read (@31f84106, @31f84489); Phase 6b\'s separate member now feeds m_iRandomSeed at load (log: Phase 11)', 'LoadLockOnDataBlock'),
+    ('INIT_TARGET', 'done', 'new', '31f71930@31f73732-31f737e2: with a live owner, an immediate seeded pick (322dadd0, out bool starts true) at load (log: Phase 11)', 'LoadLockOnDataBlock'),
+    ('NOT_LOCKON_INVINCIBLE_TARGET', 'done', 'new', '31f83aa0@31f8407a-31f840a9 via 31f63d80: case 4 also re-targets when the live target is invincible (log: Phase 11)', 'OnFrameMove_LockOnData'),
+    ('AT_RAID_FIELD', 'done', 'new', '31f71930@31f7323f-31f73364: XS_BATTLE_FIELD when 32481f80( 32482650() ) (field type 2..4), re-expressed as GetIsBossRaidCurrentField -- that mapping is a candidate', 'JuneSelectLockOnRangeFromOwner'),
+    ('LOCK_ON_RANGE_FROM_OWNER', 'done', 'new', 'selected at load (31f71930@31f73130-31f73540, into +0x9d0; without the table 1000 in a non-raid battle field, else 99999); 31f647c0 skips the whole VectorLockOn and drops candidates of 322dadd0 / 322daa10 whose aim point (slot 0x3e4) is farther from the owner', 'JuneSelectLockOnRangeFromOwner, JuneIsOutOfLockOnRangeFromOwner'))] + [
+    ('DE.LOCK_ON_DATA', ('LOCK_ON_RANGE_FROM_OWNER',), k, RT_7B, 'done', v, b, 'JuneSelectLockOnRangeFromOwner') for k, v, b in (
+    ('AT_DUNGEON', 'new', '31f71930@31f7315d-31f734d8: any state but XS_PVP_GAME / XS_BATTLE_FIELD (June\'s XS_PVE_GAME row, 5000 and no read, has no March state)'),
+    ('AT_FIELD', 'new', '31f71930@31f73369-31f73433: XS_BATTLE_FIELD, not a raid field'),
+    ('AT_PVP', 'new', '31f71930@31f73438-31f734d8: XS_PVP_GAME'))]
 # the EffectSet scopes whose March-read rows must all have a RUNTIME entry, at every sub-path
 # (check_runtime). ES.Description is EFFECT_TOOL-only (COMPILED_OUT): the game never reads it.
 RUNTIME_SCOPES = ('ES.templet', 'ES.EFFECT', 'ES.CAMERA_SHAKE', 'ES.SOUND')

@@ -1885,6 +1885,74 @@ a cited branch and JUNE_FX CE_FRAME fires. Update the matrix and MODS.md.
 
 ## Phase 7b — Runtime: lock-on
 
+**Status: done 2026-09-27, play-tested in battle fields** (clean shutdown, no `UNHANDLED`/`EXCEPTION`):
+- `Damage_Chung_CDC_Bullet_Blitz` logged the whole list cycle: `TARGET_LIST_INSERT` → `IN_RANGE_PICK
+  skipped=1` → `IN_RANGE_MISS set=4` → `TARGET_LIST_MISS_RULE` CLEAR → `set=0`.
+- `GUIDED_ARROW_MEMO` logged `RANGE_FROM_OWNER_REJECT range=1000`, the battle-field default.
+- Not exercised yet: the `LOT_UID_VECTOR` seed re-target (`UID_VECTOR_RETARGET`/`SEED_PICK`).
+
+`/code-review` (high) is done, with 3 fixes rebuilt and redeployed; see `MODS.md`:
+- a live-instance guard on the `EffectToUnit` hook;
+- the in-house message box no longer fires for type 8;
+- the `Always.h` flag description covers the lock-on work.
+
+The other 7 findings are June's own behaviour (`m_Pos` for case 8, `rand()`, the forward steer at
+DirSpeed 0, the one-slot UID write), the chosen design, or deferred. Identification
+was finished on Opus in the same session. `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME` is extended
+(`X2DamageEffect.{h,cpp}`, plus one hook in `X2DamageManager.cpp`), and `JUNE_FX CE_LOCKON` lines
+are added. Full detail is in `MODS.md`, the functions and offsets are in `june2017_re/funcmap.tsv`
+(18 new rows), and the matrix has 24 `7b` runtime rows. Things the next phases should know:
+
+- **June's lock-on functions:**
+
+  | June VA | Function |
+  |---|---|
+  | `31f83aa0` | `OnFrameMove_LockOnData` (jump table `31f858e4`) |
+  | `31f73a10` | `VectorLockOn` |
+  | `31f647c0` | the `LOCK_ON_RANGE_FROM_OWNER` gate |
+  | `31f8cc80` | the `LockOnData` ctor, with the full `+0x920` layout |
+  | `31f758d0` | `SetLockOnNearstTarget`, unchanged from March |
+
+  The kickoff named `SetLockOnNearstTarget` as a June source, but it is not on any of the June
+  paths above.
+- **The three June picks are `CX2Game` methods with no March counterpart:**
+  - `322dadd0`: seeded.
+  - `322d7670`: in-range nearest, with the target list.
+  - `322daa10`: random in-range; used only by case 8.
+
+  They are re-expressed as `CEffect` helpers over `GetUnitList()`.
+  - `322d10b0` is March's `GetLockOnNearstTarget`.
+  - An early note in this section called `322daa10` the in-range nearest pick. That was wrong.
+- **`NOT_TARGET_PRE_LOCK_ON_TARGET` is an int type**, `NTPLOTT_*`; March's `TRUE` = 1 = CLEAR.
+  - The list is per effect and is filled on **hit**, by `EffectToUnit` `3262b6e0`.
+  - It replaces March's game-wide, filled-on-pick set, which is kept in `#else`.
+- **Live behaviour changes on deployed data:**
+  - The `LOT_UID_VECTOR` re-target index differs from March's.
+  - At seed −1 June finds a target where March found none.
+  - In battle fields, lock-ons that have a table are limited to 1000 from the owner.
+  - The `IN_RANGE` ranges now come from data; their defaults equal March's constants.
+  - `ONLY_FRONT` together with `TIME_UNLOCK_FROM_START` now re-bases the ONLY_FRONT origin when
+    the delay ends. `DamageEffect_ENS_HA_Machine_Gun_Bullet` and the two
+    `Oberon650_AngelHeart_*_Z` attacks set both keys.
+  - None of the Phase-6b keys appears in the packed Sep 27 `DamageEffect.lua` either (re-checked).
+- **Found for Phase 7d:** `31f85910` is almost certainly `CEffect::AttackResult`, the call that
+  ends `EffectToUnit`.
+- **Not ported:**
+  - The NPC filter byte `+0x8fb6`, which is not identified.
+  - The NPC aim point's battle-field tail.
+  - The `XS_PVE_GAME` branch.
+  - The raid-field mapping, which is a candidate.
+- **The log check for keys with no deployed user moves to Phase 11:** `INIT_TARGET`, `Y_DIR_INIT`,
+  `UNLOCK_START_AFTER_ATTACK`, `RETARGET_COOLTIME_AFTER_ATTACK`, the bone name,
+  `LOCK_ON_OFFSET_Y_POS` and case 8.
+- **The play-test that settles this phase:**
+  - Chung (Deadly Chaser) Bullet Blitz in a dungeon with several monsters. It is `IN_RANGE` with
+    `NOT_TARGET_PRE_LOCK_ON_TARGET = TRUE`, so expect `TARGET_LIST_INSERT` / `IN_RANGE_PICK` /
+    `IN_RANGE_MISS`.
+  - A `LOT_UID_VECTOR` skill such as Chung's Scare Chase or Rena's Guided Arrow, killing its
+    target mid-flight. Expect `UID_VECTOR_RETARGET` + `SEED_PICK`.
+  - Optionally, a battle field for `RANGE_FROM_OWNER_REJECT`.
+
 **Paste with:** Starting context + this section.
 
 **Model:** Sonnet 5, high. See "Model and effort per phase".
