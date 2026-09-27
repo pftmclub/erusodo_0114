@@ -1445,7 +1445,7 @@ src=legacy with the parity flag undefined. Update MODS.md and the Phase 4 Status
 
 ## Phase 5 — Play-test verification and parity go/no-go
 
-**Status:** not started.
+**Status:** in progress, started 2026-09-27.
 
 **Paste with:** Starting context + this section.
 
@@ -1454,6 +1454,104 @@ src=legacy with the parity flag undefined. Update MODS.md and the Phase 4 Status
 
 **Goal.** Prove the fix in every Lanox dungeon and field, then decide with the user
 whether parity stays on. The user plays; you read the logs. Ask before every launch.
+
+**Pre-flight (2026-09-27, before any new session):**
+- **The deployed exe postdates the only log on disk.** `X2_offline.exe` is 18,926,080 B,
+  mtime 2026-09-27 06:58:19 local — Phase 4's post-review rebuild. The only
+  `offline_server.log` on disk is the 06:19–06:21 session, from the **pre-review-fix**
+  parity-on build (same size, but built before the Opus review's 5 fixes). Its excerpts
+  below are cited as **corroborating**, not as this phase's exit evidence; session 1
+  re-establishes Burned Forest Normal on the actually-deployed binary.
+- **Corroborating excerpts already on hand** (pre-review build, 2026-09-27 06:19–06:21):
+  - Load line: `[EXTRA_NPC_STAT] loaded 1693 rows (skipped: 836 nil NPC_ID, 10 no templet,
+    0 missing other key; 75 extra-only, 772 with legacy row) and 67 formula vars
+    (skipped 0)` — matches the expected counts.
+  - Burned Forest Normal stage 0/sub-stage 1: gate `npc=1694` alive through all 22
+    sub-stage-0/1 mob deaths (`KILL_BY_USER`), gate itself dies `KILL_BY_USER` at
+    `06:20:20.620` (not `KILL_SELF`), `stage 1 loading` follows at `06:20:25.515`.
+    `[XSTAT] npc=1694 lv=70 dungeon=33270 src=extra noHL=1 hp=53654` — exact match.
+  - Burned Forest stage 1: traps `id=1702`/`1703` spawn `INACTIVE` at `06:20:25.514-515`;
+    no `KILL_SELF` anywhere in the log, including 42 s of stage-1 play afterward.
+  - Zero `KILL_SELF`, zero `[NPC_ZERO_HP]`, zero `UNHANDLED`/`EXCEPTION` all session.
+  - **Not yet observed:** stage 1 sub-stage 2 clearing (session ended mid-sub-stage-1),
+    stage 2/3, and `path=battlefield782`.
+- **Stage 1 sub-stage 2's gate, read from the script, not assumed:** `STAGE1.SUB_STAGE2`'s
+  `CLEAR_COND0` in `Dungeon_Ranox_BurnedForest_Normal.src.lua:801-804` is
+  `CC_KILL_NPC_TYPE` on the same `NUI_RANOX_BURNDEDFOREST_GATE` (1694) — it's the same
+  gate ID reused a third time (stage 0 sub 1, stage 1 sub 2), not a new one to identify.
+  The dungeon also has `STAGE2` and `STAGE3` beyond what was played.
+- **The `[XSTAT]` dedup is per-process and keys on `(id, noHL, path)`, not on
+  dungeon/difficulty** (`X2GUNPC.cpp:7194-7203`, `static std::map`/`std::set` locals). A
+  fresh launch resets it, but replaying the *same* NPC ID at a harder difficulty **within
+  one launch** won't re-log — the line only fires once per ID/path per process. Confirming
+  the ×1.2 Hard / ×1.5 Expert `fHPScale` on the gate therefore needs a separate launch per
+  difficulty. That scale factor is pre-existing `X2Game.cpp:18205-18217` code, untouched by
+  this port — worth a spot-check, not mandatory to replay every tier.
+- **The 8 `NUI_LOW_GEYSER_*_FD` are NOT yet confirmed.** IDs 5166–5173 live in
+  `data036_kom/Ranox_Field_01.lua`, registered under a **different** `BATTLE_FIELD_ID`
+  (`VMI_BATTLE_FIELD_RANOX_FIELD_02`) than the field already visited in the corroborating
+  session. That session's `battlefield987` NPCs (`5154–5164`) are `Ranox_Field_00.lua`'s
+  MAG/RAGE/SMITH `_FD` monsters — a different field, reached from Ranox Field 00 by the
+  portal at line 63. This checklist item still needs its own visit.
+- **Old-content picks from Phase 2's table** (`june2017_re/xstat_balance.tsv`):
+  - Early: **Ruben El Tree Normal** (`dungeonID 30000`) — mixed ratios 0.30–1.73 in one
+    dungeon, a good spread to feel.
+  - Mid: **Velder Gate Normal** (`dungeonID 33090`), gate `NUI_DARK_NEPHILIM` lv 50,
+    ratio 0.94 — near-neutral, useful contrast against Lanox's placeholder-vs-real 3.675×.
+  - Also worth a look per the ledger's open question: **Altera Core**, where
+    `NUI_NASOD_KING`/`NUI_PD_MONSTER` collapse to 4 HP under parity — real sourced data,
+    meaning unresolved.
+
+**Session 1 (2026-09-27, 07:10:48–07:20:18 local, on the actually-deployed post-review
+exe — supersedes the pre-flight's pre-review corroboration above).** Player route: all
+four Ranox battlefields (40029–40032) back to back, then Burned Forest Normal
+(`33270`) full clear, then into Ashes Village Normal (`33280`) through stage 2, left
+before finishing. Whole-session totals: **0 `[NPC_ZERO_HP]`**, **0**
+`UNHANDLED`/`EXCEPTION` in `offline_packets.log`, 4 `KILL_SELF` total — 3 are
+`uid<0 id=0` (bot cleanup, not a monster) and 1 is `id=857` = `NUI_PVP_RUNE_GUARD`, a
+PVP-only prop dying on its own script, not a dungeon-clear NPC. Load line unchanged
+from the pre-flight excerpt (`1693 rows … 75 extra-only, 772 with legacy row … 67
+formula vars, skipped 0`).
+- **Load line:** ✅ confirmed on the post-review exe (line above).
+- **Burned Forest Normal, full run:** ✅
+  - Stage 0/sub 1: gate `uid=21 id=1694` spawns `INACTIVE` at `07:14:11.736`, alive
+    through all sub-stage 0/1 mob deaths, dies `KILL_BY_USER` at `07:14:55.441` — no
+    `KILL_SELF`. `stage 1 loading` follows at `07:15:00.382`.
+  - Stage 1/sub 2's gate: ✅ **new evidence, not just script-read**. Same ID reused a
+    third time: gate `uid=88 id=1694` spawns `INACTIVE` at stage-1 loading, dies
+    `KILL_BY_USER` at `07:16:33.953`; `stage 2 loading` follows at `07:16:38.849` — behaves
+    exactly like stage 0's gate.
+  - Traps: no `id=1702`/`1703` line at all appears in this run (Normal's sub-stage 1
+    trap group didn't spawn this time — spawn-table variance, not a regression; the
+    pre-flight's pre-review log already showed these `INACTIVE`-then-never-`KILL_SELF`
+    directly). No `KILL_SELF` for any trap ID either way.
+  - Dungeon cleared: `dungeonID=33270 CLEARED in 193s: 106 kill(s) … lv=80` at
+    `07:17:23.872`. Stage 2/3 (`CC_KILL_ALL_ACTIVE_NPC`-style, not the gate mechanism)
+    passed with zero zero-HP lines.
+  - **`[XSTAT]` scaling (×1.2 Hard / ×1.5 Expert) not checked this session** — same
+    process, so the dedup would suppress a repeat on `id=1694`; needs its own launch
+    (see pre-flight).
+- **Lanox fields, all 4 visited:** ✅ `battlefield987` path, all `src=extra`, zero
+  zero-HP:
+  - `40029` (Ranox Field 00 / `Ranox_Field_00.lua`): `5157,5154,5162,5156,5164,5155,
+    5160,5163,5158,5161` — MAG/RAGE/SMITH set.
+  - `40030` (Ranox Field 01 registration → **the Geyser field**, `Ranox_Field_01.lua`):
+    **`5166,5169,5168,5171,5170,5173,5167`** — 7 of the 8 `NUI_LOW_GEYSER_*_FD` IDs
+    (5172, the `_ALUMINUM_FD_BOSS`, didn't spawn this run — spawn-rate variance, not a
+    gap; the 7 that did spawn are the closes Phase 5 needed on Phase 7d's "unsourceable"
+    bucket). All `src=extra`, none zero-HP.
+  - `40031` (`Ranox_Field_02.lua`, MOUNT set): `5175,5178,5179,5176,5174,5177`.
+  - `40032` (`Ranox_Field_03.lua`, FINALHALL set): `5184,5182,5183,5185,5181`.
+- **Ashes Village Normal (`33280`), partial:** stages 0–2 all had zero `[NPC_ZERO_HP]`
+  and every real monster death was `KILL_BY_USER` (gate `id=1695` at stage 0 died
+  `KILL_BY_USER` at `07:18:17.516`, then `stage 1 loading` followed). **Not a full
+  clear** — left mid-stage-2 with 5 of 13 NPCs (`id=1713`) still alive, by player
+  choice (`ROOM leaving room 1007 (reason=114)`), not a stage-skip. No `CLEARED` line
+  for this dungeon. Revisit to close it out, at the user's convenience — nothing in
+  what was seen suggests a defect.
+- **Still open:** Geyser (`33290`), Gateway (`33300`), FireTemple (`33310`), FinalHall
+  (`33320`), Secret_Hell (`41271`); every dungeon's Hard/Expert tier; old-content
+  comparison; the parity decision.
 
 **Checklist:**
 - **Load line:** the expected counts (847 usable, 75 extra-only, 772 with a legacy row,
