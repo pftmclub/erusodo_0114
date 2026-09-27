@@ -703,6 +703,30 @@ void    CX2DamageEffect::DestroyInstanceHandle( CEffectHandle& hInstance, bool b
 		pInstance->SetDieDamageEffect();
 #endif NEW_SKILL_2010_11
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+	// June2017 FUN_31f83830 (DestroyInstanceHandle) @31f838c2-31f838c5 calls FUN_31f886c0 here,
+	// after the die block and before the critical-loop test, whatever bSilently says. 31f886c0
+	// copies the parent's SET_DIE_WHEN_MASTER_EFFECT_DIE list (CEffect+0x8d4, @31f886ec-31f886f6)
+	// and destroys each child with DestroyInstanceHandle( child, false ) (@31f88714-31f88723), so
+	// children play their own die effects. It has no other caller: a parent that just runs out of
+	// life, and the manager's own delete loops (which SAFE_DELETE directly), leave children alone.
+	{
+		std::vector<CEffectHandle> vecDieWithMasterChildEffects;
+		pInstance->JuneTakeDieWithMasterChildEffects( vecDieWithMasterChildEffects );
+		for( size_t iDieWithMaster = 0; iDieWithMaster < vecDieWithMasterChildEffects.size(); iDieWithMaster++ )
+			DestroyInstanceHandle( vecDieWithMasterChildEffects[iDieWithMaster], false );
+
+		// The children's die effects can create instances, and m_coInstanceHandleList stores in a
+		// std::vector, so 'info' may be stale now. Finish through a fresh lookup: the list is empty
+		// and bSilently skips the die block that already ran above.
+		if( false == vecDieWithMasterChildEffects.empty() )
+		{
+			DestroyInstanceHandle( hInstance, true );
+			return;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_INFINITE_LOOP_BUG_FIX
     if ( IsInCriticalLoop() == true )
     {
@@ -1794,6 +1818,7 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	m_fOwnerAttackSpeedAttackTimeStart	= -1.f;
 	m_fOwnerAttackSpeedAttackTimeEnd	= -1.f;
 	m_iDamageDataChangeTimeIndex		= 0;
+	m_bInheritDamageFromMaster		= false;
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 	PLUA_GET_VALUE( m_pLuaManager, "ATTACK_TIME_START",						m_AttackTime.x,						0.0f );
 	PLUA_GET_VALUE( m_pLuaManager, "ATTACK_TIME_END",						m_AttackTime.y,						100.0f );
@@ -2344,6 +2369,9 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 #ifdef RAVEN_WEAPON_TAKER
 		|| g_pX2Game->GetMajorXMeshPlayer()->IsDyingByCrash( m_hMeshInstHandle ) == true
 #endif RAVEN_WEAPON_TAKER
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+		|| true == JuneEvaluateDieCheckCondition()
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 		)
 	{
 		SetDieDamageEffect();
@@ -2570,7 +2598,27 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 
 			if( pMeshInst->EventTimerGlobal( fCheckEventTime ) == true )
 		#else //LOOP_CREATE_DAMAGE_EFFECT
+		#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+			//////////////////////////////////////////////////////////////////////////
+			// Author: Iruha
+			// Date: 2026-09-27
+			// Description: June2017 CREATE_DAMAGE_EFFECT loop scheduling. LOOP_END_TIME expiry
+			// (FUN_31f88790 @31f8932f-31f89342: compares the main mesh's GetNowLifeTime() to
+			// fLoopEndTime) and the per-spawn check time fEventTime + fLoopInterval*uiCreateCount
+			// (@31f893c3-31f893f7) are byte-identical to the studio's own dead LOOP_CREATE_DAMAGE_EFFECT
+			// code above, which is never defined under US_SERVICE (LoadDamageEffect's parse comment).
+			if ( pMeshInst->GetNowLifeTime() >= pData->fLoopEndTime )
+			{
+				SAFE_DELETE( pData );
+				m_DamageEffectDataList.erase( m_DamageEffectDataList.begin() + i );
+				i--;
+				continue;
+			}
+			const float fCheckEventTime = pData->fEventTime + ( pData->fLoopInterval * static_cast<float>( pData->uiCreateCount ) );
+			if( pMeshInst->EventTimerGlobal( fCheckEventTime ) == true )
+		#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 			if( pMeshInst->EventTimerGlobal( pData->fEventTime ) == true )
+		#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 		#endif //LOOP_CREATE_DAMAGE_EFFECT
 			{
 				if( null != m_optrOwnerUnit )
@@ -2730,6 +2778,14 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 						vPosition += pData->vOffset;
 					}
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+					// June2017 (inlined loop) @31f89b9d-31f89c1f: LOOP_ADD_POS_X/Y/Z steps world-space,
+					// cumulative through the spawn counter (count * addPos, computed fresh from the base
+					// position every spawn rather than an accumulated running sum), added after the
+					// rotated-offset/plain-offset composition above and before CreateInstance.
+					vPosition += pData->vLoopAddPos * static_cast<float>( pData->uiCreateCount );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+
 					if( m_pManager != NULL )
 					{
 		#ifdef INHERIT_FORCEDOWNRATE
@@ -2768,6 +2824,40 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 		#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 							}
 		#endif //ADD_GAME_STAGE_DELETE_DAMAGEEFFECT
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+							//////////////////////////////////////////////////////////////////////////
+							// Author: Iruha
+							// Date: 2026-09-27
+							// Description: June2017 CREATE_DAMAGE_EFFECT loop, post-creation keys.
+							// SET_DIE_WHEN_MASTER_EFFECT_DIE @31f89e77-31f89e95: register the child's handle
+							// on the parent (June CEffect+0x8d4); CX2DamageEffect::DestroyInstanceHandle
+							// destroys them with the parent (June 31f886c0).
+							// INHERIT_LIFE_TIME @31f89dc1-31f89dfc: copy the parent main effect's
+							// GetNowLifeTime() onto the child main effect, so it continues the parent's life
+							// clock instead of starting at 0.
+							// INHERIT_DAMAGE @31f89cf5-31f89cfb: propagate the flag onto the child; the
+							// child's own hit-time inheriting behaviour is Phase 7d.
+							if( true == pData->bSetDieWhenMasterEffectDie )
+								m_vecDieWithMasterChildEffects.push_back( pEffect->GetHandle() );
+
+							if( true == pData->bInheritLifeTime )
+							{
+								CKTDGXMeshPlayer::CXMeshInstance* pChildMainEffect = pEffect->GetMainEffect();
+								if( NULL != pChildMainEffect )
+									pChildMainEffect->SetNowLifeTime( pMeshInst->GetNowLifeTime() );
+							}
+
+							if( true == pData->bInheritDamage )
+								pEffect->SetInheritDamageFromMaster( true );
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+							CX2OfflineLog::Server( L"JUNE_FX CE_LOOP %s CREATE_DAMAGE_EFFECT %s spawn=%d/%d pos=(%.3f,%.3f,%.3f) addPos=(%.3f,%.3f,%.3f) dieWithMaster=%d inheritLifeTime=%d inheritDamage=%d",
+								GetName(), pData->damageEffectName.c_str(), (int)pData->uiCreateCount, (int)pData->uiLoopEndCount,
+								vPosition.x, vPosition.y, vPosition.z, pData->vLoopAddPos.x, pData->vLoopAddPos.y, pData->vLoopAddPos.z,
+								(int)pData->bSetDieWhenMasterEffectDie, (int)pData->bInheritLifeTime, (int)pData->bInheritDamage );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 		#else //INHERIT_FORCEDOWNRATE
 							CEffect* pEffect = m_pManager->CreateInstance( m_optrOwnerUnit.GetObservable(), pData->damageEffectName.c_str(), m_fPowerRate,
@@ -2810,6 +2900,20 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 							}
 
 							continue;
+		#else //LOOP_CREATE_DAMAGE_EFFECT
+		#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+							// June2017 (inlined loop) @31f89f15-31f89f27: increment the spawn counter, then
+							// delete this entry once it reaches LOOP_END_COUNT, else keep it for the next spawn.
+							++pData->uiCreateCount;
+							if ( pData->uiLoopEndCount <= pData->uiCreateCount )
+							{
+								SAFE_DELETE( pData );
+								m_DamageEffectDataList.erase( m_DamageEffectDataList.begin() + i );
+								i--;
+								continue;
+							}
+							continue;
+		#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 		#endif //LOOP_CREATE_DAMAGE_EFFECT
 						}
 
@@ -7881,6 +7985,70 @@ void CX2DamageEffect::CEffect::LoadDieCheckCondition()
 	}
 }
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-27
+// Description: June2017 DAMAGE_EFFECT_DIE_CHECK_CONDITION runtime (FUN_31f765b0 the combiner,
+// FUN_31f76010 the per-entry check). Empty list -> false (31f765ba-31f765c6). Non-empty:
+// AND of the AND_OPERATION entries (accumulator starts true, ANDed per entry @31f76602),
+// ANDed with the OR of the OR_OPERATION entries (accumulated separately @31f765f4) only when
+// at least one OR entry exists (@31f76609-31f76614; unchanged when there is none).
+// DEDCT_DAMAGE_TIME (@31f760cc): compares m_DamageTimeNow to (int)CHECK_DAMAGE_TIME_VALUE,
+// greater-than when IS_OVER else less-than. DEDCT_LOCK_ON_TARGET (@31f76025): true when a
+// locked-on unit or NPC UID is set and still resolves to a live unit
+// (g_pX2Game->GetUserUnitByUID/GetNPCUnitByUID, the same lookup used everywhere else in this
+// file), compared against IS_EXIST.
+bool CX2DamageEffect::CEffect::JuneEvaluateDieCheckCondition()
+{
+	if( true == m_vecDieCheckCondition.empty() )
+		return false;
+
+	bool bAndAccumulator = true;
+	bool bOrAccumulator = false;
+	bool bHaveOrEntry = false;
+
+	for( size_t i = 0; i < m_vecDieCheckCondition.size(); i++ )
+	{
+		const DieCheckCondition& data = m_vecDieCheckCondition[i];
+		bool bEntryResult = false;
+
+		if( DEDCT_DAMAGE_TIME == data.conditionType )
+		{
+			int iCheckDamageTimeValue = (int)data.fCheckDamageTimeValue;
+			bEntryResult = ( true == data.bIsOver ) ? ( m_DamageTimeNow > iCheckDamageTimeValue ) : ( m_DamageTimeNow < iCheckDamageTimeValue );
+		}
+		else if( DEDCT_LOCK_ON_TARGET == data.conditionType )
+		{
+			bool bTargetExists = false;
+			if( NULL != g_pX2Game )
+			{
+				if( -1 != m_LockOnData.m_LockOnUnitUID )
+					bTargetExists = ( NULL != g_pX2Game->GetUserUnitByUID( m_LockOnData.m_LockOnUnitUID ) );
+				else if( -1 != m_LockOnData.m_LockOnNPCUID )
+					bTargetExists = ( NULL != g_pX2Game->GetNPCUnitByUID( m_LockOnData.m_LockOnNPCUID ) );
+			}
+			bEntryResult = ( data.bIsExist == bTargetExists );
+		}
+
+		if( true == data.bIsOrOperation )
+		{
+			bOrAccumulator = bOrAccumulator || bEntryResult;
+			bHaveOrEntry = true;
+		}
+		else
+		{
+			bAndAccumulator = bAndAccumulator && bEntryResult;
+		}
+	}
+
+	if( true == bHaveOrEntry )
+		bAndAccumulator = bAndAccumulator && bOrAccumulator;
+
+	return bAndAccumulator;
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 
 //**

@@ -1109,29 +1109,29 @@ The full spec is in the plan, Phases 4a and 4b.
 |---|---|---|---|---|---|---|---|
 | `APPLY_MATRIX` | implemented |  | 3 | direct 31f6ac60@31f6bb11 | X2DamageEffect:8831 | same [June bool = 0] |  |
 | `APPLY_ROTATE` | implemented |  | 692 | direct 31f6ac60@31f6b286 | X2DamageEffect:8815 | same [June bool = 1] |  |
-| `APPLY_ROTATED_OFFSET` | implemented |  | 336 | direct 31f6ac60@31f6b51c | X2DamageEffect:8819 | same [June bool = 0] |  |
-| `APPLY_ROTATE_ORIGIN` | implemented |  | 138 | direct 31f6ac60@31f6b3bb | X2DamageEffect:8816 | same [June bool = 0] |  |
-| `AUTO_DIE` | implemented |  | 19 | direct 31f6ac60@31f6bc26 | X2DamageEffect:8832 | same [June bool = 0] |  |
+| `APPLY_ROTATED_OFFSET` | implemented |  | 336 | direct 31f6ac60@31f6b51c | X2DamageEffect:8819 | same [June bool = 0] | runtime 7c: same (existing, `bApplyRotatedOffset` branch always compiled) (done) |
+| `APPLY_ROTATE_ORIGIN` | implemented |  | 138 | direct 31f6ac60@31f6b3bb | X2DamageEffect:8816 | same [June bool = 0] | runtime 7c: same (existing, always compiled) (done) |
+| `AUTO_DIE` | implemented |  | 19 | direct 31f6ac60@31f6bc26 | X2DamageEffect:8832 | same [June bool = 0] | runtime 7c: same (existing, `ADD_GAME_STAGE_DELETE_DAMAGEEFFECT` ON) (done) |
 | `BONE_NAME` | implemented |  | 1255 | direct 31f6ac60@31f6b18e | X2DamageEffect:8814 | same [June string = ''] |  |
 | `DAMAGE_EFFECT_NAME` | implemented |  | 1823 | direct 31f6ac60@31f6b04a | X2DamageEffect:8813 | same [June string = ''] |  |
 | `EVENT_TIME` | implemented |  | 1823 | direct 31f6ac60@31f6adf7 | X2DamageEffect:8811 | same [June float = -1] |  |
-| `INHERIT_BUFF_FACTOR` | implemented |  | 14 | direct 31f6ac60@31f6be22 | X2DamageEffect:8840 | same [June bool = 0] |  |
-| `INHERIT_DAMAGE` | implemented |  | 2 | direct 31f6ac60@31f6ca85 | X2DamageEffect:8860 | same [June bool = 0] |  |
-| `INHERIT_LIFE_TIME` | implemented |  | 9 | direct 31f6ac60@31f6c943 | X2DamageEffect:8859 | same [June bool = 0] |  |
-| `LOOP_ADD_POS_X` | implemented |  | 4 | direct 31f6ac60@31f6c343 | X2DamageEffect:8855 | same [June float = 0] |  |
-| `LOOP_ADD_POS_Y` | implemented |  | 2 | direct 31f6ac60@31f6c490 | X2DamageEffect:8856 | same [June float = 0] |  |
-| `LOOP_ADD_POS_Z` | implemented |  |  | binary-only 31f6ac60@31f6c5dd | X2DamageEffect:8857 | same [June float = 0] | binary-only: no June data uses it |
-| `LOOP_END_COUNT` | implemented |  | 558 | direct 31f6ac60@31f6c0b7 | X2DamageEffect:8853 | same [June int = 1] |  |
-| `LOOP_END_TIME` | implemented |  | 373 | direct 31f6ac60@31f6c202 | X2DamageEffect:8854 | same [June float = 99999] |  |
-| `LOOP_INTERVAL` | implemented |  | 557 | direct 31f6ac60@31f6bf7a | X2DamageEffect:8852 | same [June float = 0] |  |
+| `INHERIT_BUFF_FACTOR` | implemented |  | 14 | direct 31f6ac60@31f6be22 | X2DamageEffect:8840 | same [June bool = 0] | runtime 7c: same (existing, `ADDITIONAL_MEMO` ON) (done) |
+| `INHERIT_DAMAGE` | implemented |  | 2 | direct 31f6ac60@31f6ca85 | X2DamageEffect:8860 | same [June bool = 0] | runtime 7c: new (flag propagated to the child CEffect @31f89cf5-31f89cfb; the child's own hit-time consumer is DamageReact/AttackResult, Phase 7d) (done) |
+| `INHERIT_LIFE_TIME` | implemented |  | 9 | direct 31f6ac60@31f6c943 | X2DamageEffect:8859 | same [June bool = 0] | runtime 7c: new (copies the parent main effect's GetNowLifeTime() onto the child main effect @31f89dc1-31f89dfc) (done) |
+| `LOOP_ADD_POS_X` | implemented |  | 4 | direct 31f6ac60@31f6c343 | X2DamageEffect:8855 | same [June float = 0] | runtime 7c: new (world-space, cumulative via spawn counter @31f89b9d-31f89c1f) (done) |
+| `LOOP_ADD_POS_Y` | implemented |  | 2 | direct 31f6ac60@31f6c490 | X2DamageEffect:8856 | same [June float = 0] | runtime 7c: new (same formula as X) (done) |
+| `LOOP_ADD_POS_Z` | implemented |  |  | binary-only 31f6ac60@31f6c5dd | X2DamageEffect:8857 | same [June float = 0] | binary-only: no June data uses it; runtime 7c: new (same formula as X/Y) (done) |
+| `LOOP_END_COUNT` | implemented |  | 558 | direct 31f6ac60@31f6c0b7 | X2DamageEffect:8853 | same [June int = 1] | runtime 7c: new (`uiCreateCount >= uiLoopEndCount` deletes the entry @31f89f15-31f89f27) (done) |
+| `LOOP_END_TIME` | implemented |  | 373 | direct 31f6ac60@31f6c202 | X2DamageEffect:8854 | same [June float = 99999] | runtime 7c: new (mesh `GetNowLifeTime() >= fLoopEndTime` expires the entry @31f8932f-31f89342) (done) |
+| `LOOP_INTERVAL` | implemented |  | 557 | direct 31f6ac60@31f6bf7a | X2DamageEffect:8852 | same [June float = 0] | runtime 7c: new (`fEventTime + fLoopInterval*uiCreateCount` @31f893c3-31f893f7) (done) |
 | `OFFSET_X` | implemented |  | 286 | direct 31f6ac60@31f6b8b5 | X2DamageEffect:8826 | same [June float = 0] |  |
 | `OFFSET_Y` | implemented |  | 440 | direct 31f6ac60@31f6b98c | X2DamageEffect:8827 | same [June float = 0] |  |
 | `OFFSET_Z` | implemented |  | 178 | direct 31f6ac60@31f6ba4e | X2DamageEffect:8828 | same [June float = 0] |  |
 | `POSITION_TYPE` | implemented |  | 1823 | direct 31f6ac60@31f6af03 | X2DamageEffect:8812 | same [June enum = 0] |  |
 | `ROTATE_Y` | implemented |  | 66 | direct 31f6ac60@31f6b725 | X2DamageEffect:8823 | same [June float = 0] |  |
 | `ROTATE_Z` | implemented |  | 120 | direct 31f6ac60@31f6b7fc | X2DamageEffect:8824 | same [June float = 0] |  |
-| `SET_DIE_WHEN_MASTER_EFFECT_DIE` | implemented |  | 4 | direct 31f6ac60@31f6c752 | X2DamageEffect:8858 | same [June bool = 0] |  |
-| `SET_GROUP_ID` | implemented |  | 101 | direct 31f6ac60@31f6bce7 | X2DamageEffect:8836 | same [June int = -1] |  |
+| `SET_DIE_WHEN_MASTER_EFFECT_DIE` | implemented |  | 4 | direct 31f6ac60@31f6c752 | X2DamageEffect:8858 | same [June bool = 0] | runtime 7c: new (child handle pushed onto the parent's `m_vecDieWithMasterChildEffects` @31f89e77-31f89e95; destroyed non-silently by `DestroyInstanceHandle`, June 31f83830@31f838c5 -> 31f886c0; a parent that runs out of life leaves them) (done) |
+| `SET_GROUP_ID` | implemented |  | 101 | direct 31f6ac60@31f6bce7 | X2DamageEffect:8836 | same [June int = -1] | runtime 7c: same (existing, `SERV_RAVEN_VETERAN_COMMANDER` ON) (done) |
 | `FORCE_DIE` | june-ignores(dead-here) |  | 12 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f66e60 (decrypted): not on this scope's call path |  |  |  |
 | `ONLY_APPLY_ROTATE` | june-ignores(dead-here) |  | 31 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f68f30 (decrypted), 31f6ceb0 (decrypted), 31f76a90 (decrypted): not o |  |  |  |
 | `REVERSE_Y` | june-ignores(dead-here) |  | 82 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f66e60 (decrypted), 321e48e0 (decrypted): not on this scope's call pa |  |  |  |
@@ -1210,8 +1210,8 @@ The full spec is in the plan, Phases 4a and 4b.
 |---|---|---|---|---|---|---|---|
 | `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | binary-only | 6a |  | binary-only 31f7aab0@31f7bff3 |  |  | compiled elsewhere: X2DamageEffect:1675, X2EffectSet:3641; raw literal 6 (X2Lib/X2DamageEffect.cpp:1675); bare id 20 |
 | `DAMAGE_DATA_NEXT_ULTIMATE%d` | binary-only | 6a |  | binary-only 31f7aab0 |  |  | compiled elsewhere: X2DamageEffect:1983; raw literal 1 (X2Lib/X2DamageEffect.cpp:1983); bare id 1 |
-| `AND_OPERATION` | implemented |  | 1 | direct 31f7aab0 | X2DamageEffect:7878 | n/a (sub-table name) |  |
-| `OR_OPERATION` | implemented |  | 1 | direct 31f7aab0 | X2DamageEffect:7879 | n/a (sub-table name) |  |
+| `AND_OPERATION` | implemented |  | 1 | direct 31f7aab0 | X2DamageEffect:7878 | n/a (sub-table name) | runtime 7c: same (JuneEvaluateDieCheckCondition ANDs its entries, FUN_31f765b0@31f76602) (done) |
+| `OR_OPERATION` | implemented |  | 1 | direct 31f7aab0 | X2DamageEffect:7879 | n/a (sub-table name) | runtime 7c: same (ORed together, then ANDed into the result only when non-empty, FUN_31f765b0@31f76609-31f76614) (done) |
 
 #### `DE.DIE_CHECK_CONDITION` AND_OPERATION
 
@@ -1227,10 +1227,10 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `CHECK_DAMAGE_TIME_VALUE` | implemented |  | 1 | direct 31f66700@31f66b2c | X2DamageEffect:7842 | same [June float = -1] |  |
-| `DAMAGE_EFFECT_DIE_CONDITION_TYPE` | implemented |  | 2 | direct 31f66700@31f66826 | X2DamageEffect:7828 | unchecked(March: `DAMAGE_EFFECT_DIE_CONDITION_TYPE` at X2DamageEffect.cpp:7828 is not a GetValue key) [June int = -1] |  |
-| `IS_EXIST` | implemented |  | 1 | direct 31f66700@31f66a3f | X2DamageEffect:7847 | same [June bool = 0] |  |
-| `IS_OVER` | implemented |  | 1 | direct 31f66700@31f66cad | X2DamageEffect:7843 | same [June bool = 1] |  |
+| `CHECK_DAMAGE_TIME_VALUE` | implemented |  | 1 | direct 31f66700@31f66b2c | X2DamageEffect:7842 | same [June float = -1] | runtime 7c: same (compared to `m_DamageTimeNow` as `(int)value`, DEDCT_DAMAGE_TIME @31f760cc) (done) |
+| `DAMAGE_EFFECT_DIE_CONDITION_TYPE` | implemented |  | 2 | direct 31f66700@31f66826 | X2DamageEffect:7828 | unchecked(March: `DAMAGE_EFFECT_DIE_CONDITION_TYPE` at X2DamageEffect.cpp:7828 is not a GetValue key) [June int = -1] | runtime 7c: same (DEDCT_DAMAGE_TIME=0 -> 31f760cc, DEDCT_LOCK_ON_TARGET=1 -> 31f76025) (done) |
+| `IS_EXIST` | implemented |  | 1 | direct 31f66700@31f66a3f | X2DamageEffect:7847 | same [June bool = 0] | runtime 7c: new (compared against whether `m_LockOnData`'s unit/NPC UID still resolves via GetUserUnitByUID/GetNPCUnitByUID, DEDCT_LOCK_ON_TARGET @31f76025-31f760b2) (done) |
+| `IS_OVER` | implemented |  | 1 | direct 31f66700@31f66cad | X2DamageEffect:7843 | same [June bool = 1] | runtime 7c: new (selects `>` vs `<` against CHECK_DAMAGE_TIME_VALUE, @31f760d4-31f760f3) (done) |
 
 #### `DE.LOCK_ON_DATA` (top)
 

@@ -333,6 +333,13 @@ class CX2DamageEffect
 			bool			bInheritDamage;				/// June @31f6cb7e: INHERIT_DAMAGE (CREATE only), bool, default false
 			bool			bInheritLockOnData;			/// June @31f6a2ee: INHERITLOCKONDATA (studio spelling, DIE only), bool, default false
 			D3DXVECTOR3		vScale;						/// June: DIE @31f6a4de/31f6a58b/31f6a638, HIT @31f6de1e/31f6decb/31f6df78: SCALE_X/Y/Z, float, default 1,1,1
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+			// June2017 FUN_31f88790(inlined CREATE_DAMAGE_EFFECT loop) @31f893c3/31f89f15: per-spawn
+			// counter on pData (+0x98), incremented after each spawn and compared against
+			// LOOP_END_COUNT. Own member: the dead LOOP_CREATE_DAMAGE_EFFECT's field of the same
+			// name is never defined under US_SERVICE (see LoadDamageEffect's parse comment).
+			UINT			uiCreateCount;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 			//bool			bForceDie;
 			//bool			bForceDieHit;
@@ -387,6 +394,9 @@ class CX2DamageEffect
 				bInheritDamage				= false;
 				bInheritLockOnData			= false;
 				vScale						= D3DXVECTOR3( 1, 1, 1 );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+				uiCreateCount			= 0;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 				//bForceDie		= false;
 				//bForceDieHit	= false;
@@ -445,6 +455,9 @@ class CX2DamageEffect
 				bInheritDamage				= t.bInheritDamage;
 				bInheritLockOnData			= t.bInheritLockOnData;
 				vScale						= t.vScale;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+				uiCreateCount			= t.uiCreateCount;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //±Ë√¢«—
@@ -1176,6 +1189,27 @@ class CX2DamageEffect
 				static bool		JuneIsLockOnCandidate( const CX2GameUnit* pUnit_, int iTeam_ );
 				static D3DXVECTOR3	JuneGetLockOnAimPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_ );	/// vtable slot 0x3e4 (NPC 3275ac50, User 31fd61a0)
 				static D3DXVECTOR3	JuneGetNearestCollisionPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_, OUT bool& bFound_ );
+
+				// June2017 CREATE_DAMAGE_EFFECT loop runtime (Phase 7c); evidence in june2017_re/funcmap.tsv.
+				// SET_DIE_WHEN_MASTER_EFFECT_DIE @31f89e77-31f89e95: June pushes the new child's handle onto
+				// the parent's own list (CEffect+0x8d4). Its only reader is FUN_31f886c0, called only from
+				// DestroyInstanceHandle 31f83830 @31f838c5 (see CX2DamageEffect::DestroyInstanceHandle).
+				std::vector<CEffectHandle>	m_vecDieWithMasterChildEffects;
+				public:
+				void JuneTakeDieWithMasterChildEffects( std::vector<CEffectHandle>& vecOut_ ) { vecOut_.swap( m_vecDieWithMasterChildEffects ); }
+				protected:
+
+				// INHERIT_DAMAGE @31f89cf5-31f89cfb: propagated onto the child at spawn time, as June's own
+				// binary does; the child's own damage-inheriting behaviour at hit time is
+				// DamageReact/AttackResult, Phase 7d.
+				bool						m_bInheritDamageFromMaster;
+				void SetInheritDamageFromMaster( bool bInherit_ ) { m_bInheritDamageFromMaster = bInherit_; }
+				bool GetInheritDamageFromMaster() const { return m_bInheritDamageFromMaster; }
+
+				// DAMAGE_EFFECT_DIE_CHECK_CONDITION evaluator (FUN_31f765b0/31f76010, called
+				// OnFrameMove @31f888e5 after IsDyingByCrash): AND of the AND_OPERATION entries, AND-ed
+				// with the OR of the OR_OPERATION entries when any exist. Empty list -> false.
+				bool JuneEvaluateDieCheckCondition();
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 				

@@ -1863,6 +1863,112 @@ Noted for later:
   costly on June data (Phase 11).
 - The target-lookup, owner-fallback and DirSpeed blocks are repeated across the cases.
 
+### June2017 effect engine: CREATE_DAMAGE_EFFECT loop + die-condition runtime (Phase 7c)
+
+Phase 7c of `JUNE2017_EFFECT_REBUILD_PLAN.md`. It extends **`SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`**
+(no new flag) in `X2Lib/X2DamageEffect.h` and `X2Lib/X2DamageEffect.cpp`. Identified by disassembling
+June's `CEffect::OnFrameMove` (`31f88790`) with a small capstone script reusing
+`june2017_re/xordecrypt.py`'s `data()`/`raw()`/`disasm()` helpers, since Ghidra has no function
+defined over that range (Phase 7a's finding still holds). Every address cited below was read from
+that disassembly, not guessed from the studio's dead code.
+
+**What June's CREATE_DAMAGE_EFFECT loop turned out to be:** the studio's own dead
+`#ifdef LOOP_CREATE_DAMAGE_EFFECT` code at `X2DamageEffect.cpp` (never defined under `US_SERVICE`,
+confirmed with `flagprobe.py`) is a byte-for-byte match for June's scheduling and termination logic --
+LOOP_END_TIME expiry, `fEventTime + fLoopInterval*uiCreateCount`, and the post-spawn
+`++uiCreateCount` / `uiLoopEndCount` compare are all identical. Rather than define that flag (it also
+gates a duplicate, unrelated set of Lua reads at the parser), the same logic was re-written under our
+own flag in the `#else //LOOP_CREATE_DAMAGE_EFFECT` branches, with `uiCreateCount` as our own
+`DamageEffectData` member (the dead flag's field of the same name is unreachable here). What the dead
+code never had:
+
+| Key / behaviour | June | What was added |
+|---|---|---|
+| `LOOP_ADD_POS_X/Y/Z` | `31f89b9d-31f89c1f` | `vPosition += vLoopAddPos * (float)uiCreateCount`: world-space, cumulative through the spawn counter (computed fresh from the base position every spawn, not an accumulated running sum), added after the existing rotated-offset/plain-offset composition and before `CreateInstance`. |
+| `SET_DIE_WHEN_MASTER_EFFECT_DIE` | write `31f89e77-31f89e95`, read `31f886c0` | The parent pushes the new child's handle onto its own list, `m_vecDieWithMasterChildEffects` (June `CEffect+0x8d4`). The one reader, `31f886c0`, is called only from June's `DestroyInstanceHandle` `31f83830` @`31f838c5`, after the die block and before the critical-loop test. It copies the list and destroys each child with `DestroyInstanceHandle( child, false )`, so the children play their own die effects. Ported into `CX2DamageEffect::DestroyInstanceHandle` at the same point. **A parent that simply runs out of life does not take its children with it** (June has no other caller); an explicit destroy does, e.g. the trap's Lua `StopEffectSet` every 5 s. |
+| `INHERIT_LIFE_TIME` | `31f89dc1-31f89dfc` | Copies the parent main effect's `GetNowLifeTime()` onto the child main effect (`CKTDGXMeshPlayer::CXMeshInstance::SetNowLifeTime`, already public), so the child continues the parent's life clock instead of starting at 0. Both main effects must be live. |
+| `INHERIT_DAMAGE` | `31f89cf5-31f89cfb` | Propagates the flag onto the child (`CEffect::m_bInheritDamageFromMaster` / `SetInheritDamageFromMaster`), exactly as June's own binary does at spawn time. **The child's own damage-inheriting behaviour at hit time is `DamageReact`/`AttackResult`, Phase 7d** -- this phase only carries the flag, same as Phase 6b left `INHERITLOCKONDATA` for the die-effect side. |
+
+**Already correct, no new code (confirmed by re-reading June and citing the live flag):**
+`APPLY_ROTATED_OFFSET`/`APPLY_ROTATE_ORIGIN` (the existing rotated-offset branch, always compiled),
+`AUTO_DIE` (`ADD_GAME_STAGE_DELETE_DAMAGEEFFECT`, ON), `SET_GROUP_ID`
+(`SERV_RAVEN_VETERAN_COMMANDER`, ON), `INHERIT_BUFF_FACTOR` (`ADDITIONAL_MEMO`, ON). Matrix rows
+updated with a `runtime 7c: same (existing, flag X ON) (done)` note rather than touching the code.
+
+**Die conditions.** `DAMAGE_EFFECT_DIE_CHECK_CONDITION`'s consumer is `CX2DamageEffect::CEffect::
+JuneEvaluateDieCheckCondition()` (June `31f765b0` the combiner, `31f76010` the per-entry check),
+wired into `OnFrameMove`'s existing `IsLiveInstanceHandle`/`IsDyingByCrash` die gate as one more
+`||` term. An empty `m_vecDieCheckCondition` returns `false` (verified from the binary:
+`31f765ba-31f765c6` short-circuits before touching any accumulator), so effects with no
+`DIE_CHECK_CONDITION` table are unaffected. Non-empty: AND of the `AND_OPERATION` entries, ANDed
+with the OR of the `OR_OPERATION` entries only when at least one exists. `DEDCT_DAMAGE_TIME`
+compares `m_DamageTimeNow` to `(int)CHECK_DAMAGE_TIME_VALUE` (`>` when `IS_OVER`, else `<`).
+`DEDCT_LOCK_ON_TARGET` checks whether `m_LockOnData`'s unit or NPC UID still resolves to a live
+unit via the same `GetUserUnitByUID`/`GetNPCUnitByUID` lookups used everywhere else in this file
+(re-expressed instead of re-deriving June's raw `g_pX2Game` vtable call), compared against
+`IS_EXIST`.
+
+**Scope decision, recorded rather than dropped:** `funcmap.tsv` row `31f83380` (a `TOUCH_LAND` check
+inside the same `OnFrameMove`) is tagged "Phase 7c" from Phase 7a's survey, but the kickoff's named
+scope is LOOP_*/`SET_DIE_WHEN_MASTER_EFFECT_DIE`/`INHERIT_*`/`SET_GROUP_ID`/`AUTO_DIE`/rotate
+offset-origin/die conditions only. Left unported, alongside `TOUCH_LAND_DAMAGE_EFFECT`'s own
+runtime, for a future phase.
+
+**Named test case:** `DAMAGE_EFFECT_Trap_Fire_Big` (deployed `data036_kom/DamageEffect.lua`, spawned
+by the `NPC_TRAP_FIRE_BIG` templet's `EffectSet_Trap_Fire_Big`). All four `CREATE_DAMAGE_EFFECT0-3`
+entries already carry `LOOP_INTERVAL=0.05`, `LOOP_END_COUNT`/`LOOP_END_TIME` (5/3, 7/3, 6/3, 6/5),
+`LOOP_ADD_POS_X`/`_Y`, `SET_GROUP_ID=1` and `SET_DIE_WHEN_MASTER_EFFECT_DIE=TRUE` -- no Lua packing
+needed for this phase. `SERV_IRUHADEV_JUNE_FX_DEBUG` logs one `JUNE_FX CE_LOOP` line per spawn with
+the templet name, spawn index/`LOOP_END_COUNT`, the computed position, `LOOP_ADD_POS`, and the three
+new flags.
+
+**Built `US_SERVICE`** (full `X2Lib` rebuild after `touch stdafx.cpp`, header layout changed) **and
+deployed to `X2_offline.exe`, 18,942,976 B**, 2026-09-27. `X2Lib`, `X2` both built with 0 errors.
+**Play-test pending** -- ask before launching, every time.
+
+**`/code-review` (high, Opus), 2026-09-27.** Nine findings, each checked against the June
+disassembly. Three fixed, rebuilt and redeployed:
+- **Hang: the first version drained the child list from `~CEffect`.** `~CX2DamageEffect`,
+  `DestroyAllInstances` and `UnitDeleteProcess` walk `LIST_LIVE` with a saved `iterNext` and
+  `SAFE_DELETE` directly, outside the critical loop. A child destroyed from the parent's dtor was
+  spliced into `LIST_FREE`; if it was the saved `iterNext`, the walk ran into the circular free list
+  and never ended (unit removal, stage change, exit). Finding the June reader (`31f886c0`, a full
+  scan of `31f50000-31f90000` for `+0x8d4`) settled it: the drain belongs in `DestroyInstanceHandle`,
+  which none of those loops call. `~CEffect` no longer touches the list.
+- **Children died silently** (`bSilently = true`). June passes 0 (`31f88716`), so their
+  `DIE_DAMAGE_EFFECT`s now play.
+- **`INHERIT_LIFE_TIME`** reads the parent clock from the `pMeshInst` already in scope.
+
+Added while fixing: `m_coInstanceHandleList` stores in a `std::vector`, and the children's die
+effects can create instances, so after a non-empty drain `DestroyInstanceHandle` finishes through a
+fresh lookup (`DestroyInstanceHandle( hInstance, true )`) rather than trust the `info` reference.
+The studio's own `SetDieDamageEffect` call just above has the same exposure; that is unchanged.
+
+Kept, because June does the same:
+- One spawn per entry per frame (`31f89f27` moves to the next entry after a spawn). An interval
+  shorter than a frame falls behind, and `LOOP_INTERVAL = 0` with `LOOP_END_COUNT > 1` spawns once,
+  then waits for `LOOP_END_TIME`: the check time never moves. June's timer `31c82d60` is
+  `EventTimerGlobal` (the `ELSWORD_SHEATH_KNIGHT` window, `before <= t < global`).
+- `DEDCT_LOCK_ON_TARGET` counts a target that still resolves by UID, dying or not (`31f760b2`: a
+  null test only).
+- The child list only grows (one push per spawn, never pruned); it goes with the parent.
+
+Kept, not changed:
+- The duplicated scheduling/counter blocks next to the studio's dead `LOOP_CREATE_DAMAGE_EFFECT`
+  ones: merging them would edit studio `#ifdef` lines.
+- A child-polls-master design: June has the parent destroy its children.
+
+Noted: `GetInheritDamageFromMaster` has no reader yet; that is Phase 7d's hit path.
+
+Not a 7c defect, recorded: in Burned Forest (33270) the `NPC_TRAP_FIRE_BIG` (1703) is placed
+(stage 1 sub 2, `INACTIVE`) but its `EffectSet_Trap_Fire_Big` never plays, so
+`DAMAGE_EFFECT_Trap_Fire_Big` is never created and the named test cannot run there. Other NPC
+effect sets play in the same run. Out of this plan's scope; the user chose to skip it.
+
+Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`. Every site keeps March's existing
+behaviour in `#else` (the LOOP scheduling/termination edits nest inside the studio's own dead
+`LOOP_CREATE_DAMAGE_EFFECT` `#else`) or is a pure addition (`m_vecDieWithMasterChildEffects`,
+`m_bInheritDamageFromMaster`, the die-check `||` term, `JuneEvaluateDieCheckCondition` itself).
 
 ### Dryad Kenta (Burned Forest boss): "jumps off the map, never comes back" softlock
 
