@@ -635,6 +635,18 @@ Both gaps are confined to `RAGE_DRYADKENTA.lua` (the BurnedForest boss):
   current target, so the reorientation block that follows is skipped instead
   of falling back to a stored target — the same behavior every other state in
   this file already has when it only checks `GetTargetUser()`.
+  **Correction, 2026-09-27 (see `MODS.md`'s Dryad Kenta softlock entry):**
+  "`slot4` simply stays `nil`" was wrong even for the target-exists case — the
+  omission's own edit also dropped the `slot4 = slot2:GetTargetUser()`
+  assignment itself, along with a second, independent instance of the same
+  elstools decompile bug two lines later (`slot5`, feeding
+  `slot2:SetVector_LUA(2, slot5)`). Both left `slot4`/`slot5` as unset globals
+  regardless of whether a target existed, and the second one is a real
+  softlock route (an unset dash target never satisfies
+  `CF_RAGE_DRYADKENTA_ATTACK_A_ATTACK_DASH`'s 200-unit check, so the dash never
+  ends). The `compile-batch -v mar-2014` re-verification noted below confirmed
+  the file *compiles*, which is not the same as confirming the logic is
+  correct — worth remembering for later phases' own round-trip checks.
 - `slot2:InitStateCoolTime(...)` (two call sites in
   `RAGE_DRYADKENTA_COMMON_FRAMEMOVE`, both immediately before a
   `StateChange_LUA` into the same dash-attack state) — also not bound.

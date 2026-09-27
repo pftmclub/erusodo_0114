@@ -542,20 +542,58 @@ function RAGE_DRYADKENTA_ATTACK_B_WAIT_FRAME_MOVE(slot0, slot1, slot2)
 				slot5 = slot2:GetVector_LUA(1)
 			end
 
+			-- SERV_IRUHADEV_RANOX_PORT (2026-09-27): elstools' decompile inlined
+			-- this call straight into the first branch's condition and dropped
+			-- the assignment, leaving the second branch read an undeclared
+			-- slot6 (always false -- the z-axis mark position was dead code).
+			-- Confirmed against the real June2017 bytecode via
+			-- june2017_re/ljd_jun2017.py (this function's instr 44-46: TGETS +
+			-- CALL + MODVN into register 6, read back unmodified by both branches
+			-- below).
+			slot6 = slot2:GetRandVal() % 3
 			slot7 = slot5.x
 
-			if slot2:GetRandVal() % 3 == 1 then
+			if slot6 == 1 then
 				slot7 = slot5.y
 			elseif slot6 == 2 then
 				slot7 = slot5.z
 			end
 
 			slot4 = slot1:GetLineMap():GetStartPosition(slot7)
-		elseif slot1:GetNearestUserUnit_LUA(slot2:GetPos()) ~= nil then
-			slot5:GetPos().y = slot5:GetLandPosition_LUA().y
+		else
+			-- SERV_IRUHADEV_RANOX_PORT (2026-09-27): same class of bug -- the
+			-- decompile read `slot5:GetPos()` here before this branch ever
+			-- assigns slot5 (it only holds a value inside the `GetLineMap() ~=
+			-- nil` branch above). Bytecode (instr 64-80) calls
+			-- GetNearestUserUnit_LUA once into register 5 and reuses it for both
+			-- GetPos() and GetLandPosition_LUA(). Restructured as an explicit
+			-- else/if since Lua's elseif can't hold a statement ahead of its own
+			-- condition.
+			slot5 = slot1:GetNearestUserUnit_LUA(slot2:GetPos())
+
+			if slot5 ~= nil then
+				slot4 = slot5:GetPos()
+				slot4.y = slot5:GetLandPosition_LUA().y
+			end
 		end
 
-		if slot1:GetEffectSet() ~= nil then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-27): this is the actual "jumps out
+		-- of the map and never comes back" softlock. The decompile printed
+		-- `if slot1:GetEffectSet() ~= nil then slot5:PlayEffectSetWithCustomPos_LUA(...)`,
+		-- reusing slot5's stale value from the branches above (a position
+		-- vector, not an effect set) instead of the call result -- bytecode
+		-- (instr 82-84) stores GetEffectSet() into register 5 and checks THAT
+		-- register; it never calls GetEffectSet() a second time. Calling
+		-- PlayEffectSetWithCustomPos_LUA on a vector errors and aborts this
+		-- function before slot2:SetVector_LUA(4, slot4) below ever runs, so
+		-- slot4 (register 4) keeps whatever ATTACK_B_WAIT_STATE_START seeded it
+		-- with: slot2:GetPos() taken right after SetPositionForce(0, -5000, 0),
+		-- i.e. the off-map mark position itself. ATTACK_B_STATE_START then calls
+		-- SetPositionForce(slot2:GetVector_LUA(4)) and puts Kenta right back at
+		-- (0, -5000, 0) -- she never returns from the Attack B "jump".
+		slot5 = slot1:GetEffectSet()
+
+		if slot5 ~= nil then
 			slot5:PlayEffectSetWithCustomPos_LUA("EffectSet_NUI_RAGE_DRYADKENTA_ATTACK_B_Mark", slot2, slot4, slot2:GetRotateDegree())
 		end
 
@@ -745,8 +783,17 @@ function CF_RAGE_DRYADKENTA_ATTACK_A_ATTACK_DASH(slot0, slot1, slot2)
 	return false
 end
 
+-- SERV_IRUHADEV_RANOX_PORT (2026-09-27): the same dropped-assignment bug
+-- appears in this function's very first line too, pre-existing since Phase 4
+-- -- `slot2:GetLastTouchLineIndex()` was never stored, leaving `slot3 == 1`
+-- etc. below it read an undeclared global instead of the same call's result.
+-- Confirmed against the real June2017 bytecode via june2017_re/ljd_jun2017.py
+-- (this function's instr 1-3: GetLastTouchLineIndex() stored to register 3
+-- before any of the four comparisons run).
 function RAGE_DRYADKENTA_ATTACK_A_ATTACK_DASH_STATE_START(slot0, slot1, slot2)
-	if slot2:GetLastTouchLineIndex() == 0 or slot3 == 1 or slot3 == 4 or slot3 == 5 then
+	slot3 = slot2:GetLastTouchLineIndex()
+
+	if slot3 == 0 or slot3 == 1 or slot3 == 4 or slot3 == 5 then
 		slot2:StateChange_LUA("RAGE_DRYADKENTA_WAIT", true)
 	end
 
@@ -758,14 +805,33 @@ function RAGE_DRYADKENTA_ATTACK_A_ATTACK_DASH_STATE_START(slot0, slot1, slot2)
 	-- the reorientation block below (slot4 ~= nil) is skipped instead of
 	-- falling back to a stale stored target -- same as every other state here
 	-- that just checks GetTargetUser() directly.
-	if slot2:GetTargetUser() == nil then
-	end
+	--
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-27): the omission above accidentally
+	-- also dropped the *primary* assignment -- this used to be
+	-- `if slot2:GetTargetUser() == nil then end`, an empty-bodied statement
+	-- that called GetTargetUser() and threw the result away, leaving slot4
+	-- undefined even when a target exists. That fed straight into
+	-- slot2:SetVector_LUA(2, slot5) below with slot5 *also* never assigned
+	-- (same decompiler bug: the call was inlined into the `if` condition
+	-- instead of stored) -- SetVector_LUA(2, nil) is this dash's target
+	-- position, and CF_RAGE_DRYADKENTA_ATTACK_A_ATTACK_DASH only ends the dash
+	-- once she's within 200 of it, so a nil target let her dash indefinitely
+	-- until she ran off the map. This state is forced at 60%/20% HP by
+	-- RAGE_DRYADKENTA_COMMON_FRAMEMOVE, so it's the more common of the two
+	-- "jump out of the map" routes in this file. Confirmed against the real
+	-- June2017 bytecode via june2017_re/ljd_jun2017.py (this function's instr
+	-- 17-19 assign slot4 = GetTargetUser(); instr 40-42 assign
+	-- slot5 = GetLineGroupStartPos(), both unconditionally, before either is
+	-- read).
+	slot4 = slot2:GetTargetUser()
 
 	if slot4 ~= nil then
 		slot2:SetIsRight(not slot2:IsRightTarget_LUA(slot2, slot4:GetPos()))
 	end
 
-	if slot2:IsRightTarget_LUA(slot2, slot2:GetLineGroupStartPos()) == slot2:GetIsRight() then
+	slot5 = slot2:GetLineGroupStartPos()
+
+	if slot2:IsRightTarget_LUA(slot2, slot5) == slot2:GetIsRight() then
 		slot2:SetVector_LUA(2, slot5)
 	else
 		slot2:SetVector_LUA(2, slot2:GetLineGroupEndPos())
@@ -918,19 +984,32 @@ RAGE_DRYADKENTA_SPECIAL_ATTACK_FIRE = {
 	}
 }
 
+-- SERV_IRUHADEV_RANOX_PORT (2026-09-27): every `slot3:GetStartPosition(...)`
+-- call in this function reads slot3 before it's ever assigned -- the
+-- decompile inlined `slot1:GetLineMap()` straight into each `if ... ~= nil`
+-- condition instead of storing it first, same class of bug as
+-- ATTACK_B_WAIT_FRAME_MOVE. Since slot3 is a bare global (this file never
+-- declares `local`), it held whatever the last function to touch slot3 left
+-- behind -- not a hard crash location-for-location, but never the line map
+-- either, so these effect calls errored instead of playing. Confirmed against
+-- the real June2017 bytecode via june2017_re/ljd_jun2017.py (this function's
+-- instr 8-9 and 38-39: GetLineMap() stored to register 3 before GetEffectSet()
+-- is even called).
 function RAGE_DRYADKENTA_SPECIAL_ATTACK_FIRE_FRAME_MOVE(slot0, slot1, slot2)
 	if slot2:AnimEventTimer_LUA(1.2) then
+		slot3 = slot1:GetLineMap()
 		slot4 = slot1:GetEffectSet()
 
-		if slot1:GetLineMap() ~= nil and slot4 ~= nil then
+		if slot3 ~= nil and slot4 ~= nil then
 			slot4:PlayEffectSetWithCustomPos_LUA("EffectSet_NUI_RAGE_DRYADKENTA_SpacialAttackB_Fire", slot2, slot3:GetStartPosition(8), slot2:GetRotateDegree())
 		end
 	end
 
 	if slot2:AnimEventTimer_LUA(1.35) then
+		slot3 = slot1:GetLineMap()
 		slot4 = slot1:GetEffectSet()
 
-		if slot1:GetLineMap() ~= nil and slot4 ~= nil then
+		if slot3 ~= nil and slot4 ~= nil then
 			slot5 = slot2:GetRotateDegree()
 
 			slot4:PlayEffectSetWithCustomPos_LUA("EffectSet_NUI_RAGE_DRYADKENTA_SpacialAttackB_Fire", slot2, slot3:GetStartPosition(7), slot5)
@@ -956,11 +1035,17 @@ RAGE_DRYADKENTA_SPECIAL_ATTACK_FIRE_EMOTION = {
 	}
 }
 
+-- SERV_IRUHADEV_RANOX_PORT (2026-09-27): same slot3-never-assigned bug as
+-- RAGE_DRYADKENTA_SPECIAL_ATTACK_FIRE_FRAME_MOVE just above -- confirmed
+-- against the real June2017 bytecode via june2017_re/ljd_jun2017.py (this
+-- function's instr 8-9 and 50-51: GetLineMap() stored to register 3 before
+-- GetEffectSet() is even called).
 function RAGE_DRYADKENTA_SPECIAL_ATTACK_FIRE_EMOTION_FRAME_MOVE(slot0, slot1, slot2)
 	if slot2:AnimEventTimer_LUA(0.3) then
+		slot3 = slot1:GetLineMap()
 		slot4 = slot1:GetEffectSet()
 
-		if slot1:GetLineMap() ~= nil and slot4 ~= nil then
+		if slot3 ~= nil and slot4 ~= nil then
 			slot5 = slot2:GetRotateDegree()
 
 			slot4:PlayEffectSetWithCustomPos_LUA("EffectSet_NUI_RAGE_DRYADKENTA_SpacialAttackB_Fire", slot2, slot3:GetStartPosition(11), slot5)
@@ -969,9 +1054,10 @@ function RAGE_DRYADKENTA_SPECIAL_ATTACK_FIRE_EMOTION_FRAME_MOVE(slot0, slot1, sl
 	end
 
 	if slot2:AnimEventTimer_LUA(1.2) then
+		slot3 = slot1:GetLineMap()
 		slot4 = slot1:GetEffectSet()
 
-		if slot1:GetLineMap() ~= nil and slot4 ~= nil then
+		if slot3 ~= nil and slot4 ~= nil then
 			slot5 = slot2:GetRotateDegree()
 
 			slot4:PlayEffectSetWithCustomPos_LUA("EffectSet_NUI_RAGE_DRYADKENTA_SpacialAttackB_Fire", slot2, slot3:GetStartPosition(10), slot5)
@@ -1344,7 +1430,20 @@ function RAGE_DRYADKENTA_COMMON_FRAMEMOVE(slot0, slot1, slot2)
 		-- dash-attack phase transition still triggers at the same HP/cooldown
 		-- thresholds -- only whatever cooldown-priming InitStateCoolTime did
 		-- for the target state is missing.
-		if slot2:GetFlag_LUA(1) == false and slot2:GetNowHP() / slot2:GetMaxHP() <= 0.6 then
+		--
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-27): the HP-ratio division below
+		-- was never stored to slot3 in the decompile -- it was inlined straight
+		-- into this first condition's text, leaving the elseif's `slot3 <= 0.2`
+		-- read an undeclared global. `nil <= 0.2` raises a Lua error (unlike
+		-- `==`, comparisons aren't nil-safe), so once the 60% phase has fired
+		-- once (flag 1 true) this errored on every WAIT/DAMAGE_FRONT/DAMAGE_BACK
+		-- frame and the 20% phase never triggered. Confirmed against the real
+		-- June2017 bytecode via june2017_re/ljd_jun2017.py (this function's
+		-- instr 28-34: GetNowHP()/GetMaxHP() stored to register 3, still live
+		-- and unmodified at the elseif's own comparison).
+		slot3 = slot2:GetNowHP() / slot2:GetMaxHP()
+
+		if slot2:GetFlag_LUA(1) == false and slot3 <= 0.6 then
 			slot2:StateChange_LUA("RAGE_DRYADKENTA_ATTACK_A_ATTACK_DASH", true)
 			slot2:SetFlag_LUA(1, true)
 			slot2:SetFlag_LUA(2, false)

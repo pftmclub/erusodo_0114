@@ -1864,6 +1864,77 @@ Noted for later:
 - The target-lookup, owner-fallback and DirSpeed blocks are repeated across the cases.
 
 
+### Dryad Kenta (Burned Forest boss): "jumps off the map, never comes back" softlock
+
+Pure content fix, no flag -- `march2014/update/data037/RAGE_DRYADKENTA.src.lua` only. Reported
+symptom: mid-fight she leaves the visible map and the encounter never recovers; the only way
+out is abandoning the dungeon.
+
+Root cause: elstools' decompile of this Ranox Phase 4 file (`RANOX_PORT_PLAN.md`) repeatedly
+drops a real bytecode assignment and inlines the call straight into the `if`/`elseif` condition
+that reads it, leaving the reused variable unassigned everywhere else it's read in the same
+function. Because none of these ported files declare Lua's `local`, every such `slotN` compiles
+to a genuine `_env["slotN"]` global (confirmed by disassembling `compile-batch -v mar-2014`'s own
+output -- `GSET`/`GGET` on a named constant, not a per-call stack register), so a "missing"
+variable doesn't read as Lua's nil-safe undefined -- it reads as whatever that global last held,
+left over from an earlier branch, an earlier call, or (worst case) another script's own bare
+`slotN`. Confirmed two ways: function by function against the real June2017 bytecode via
+`june2017_re/ljd_jun2017.py` and a raw pseudo-asm dump (`ljd`'s `--asm`), and independently by
+extracting and disassembling the live, currently-deployed `data037.kom`'s own `RAGE_DRYADKENTA.lua`
+the same way (`elstools extract -v mar-2014`, then `ljd`'s `--asm` on its `.std.luac` -- full AST
+decompile fails on this particular compiled-from-broken-text file, so the disassembly is the only
+route). The live copy shows the exact fault: the `PlayEffectSetWithCustomPos_LUA` call reads
+`_env["slot5"]` -- last written a position vector by an earlier branch, never the `GetEffectSet()`
+result computed two instructions earlier -- and errors. Six instances, two of which are
+independent routes to the reported softlock:
+
+- **`RAGE_DRYADKENTA_ATTACK_B_WAIT_FRAME_MOVE`** -- confirmed live, see above. Attack B teleports
+  her to `(0, -5000, 0)` as its "jump/mark" telegraph, pre-seeding the return-position global with
+  her *current* (already off-map) position; the frame-move is supposed to overwrite it with a real
+  on-map mark position before the state that reads it back plays. Three dropped assignments in this
+  one function meant it called `PlayEffectSetWithCustomPos_LUA` on a stale position vector instead
+  of the effect-set object, erroring out before the return-position global was ever overwritten --
+  so she gets placed right back at `(0, -5000, 0)` and stays there.
+- **`RAGE_DRYADKENTA_ATTACK_A_ATTACK_DASH_STATE_START`** -- a second, independent route to the same
+  symptom (not ranked against the one above -- both are real; "jump out of the map" could describe
+  either). `COMMON_FRAMEMOVE` forces this dash state at 60% and 20% HP on a cooldown. The dash's
+  target-position global was left unassigned, and the dash only ends within 200 units of it, so an
+  unset (or stale, non-position) target lets her dash indefinitely and run off the map. Also
+  restored a second, pre-existing instance of the same bug in this function's first line
+  (`GetLastTouchLineIndex()`'s result), present since the original Phase 4 port and unrelated to
+  the softlock but the same class of bug.
+- **`RAGE_DRYADKENTA_COMMON_FRAMEMOVE`** -- the HP-ratio division was never stored, so once the
+  60% phase had fired once, the 20% phase's own condition read that global as unset and errored
+  (Lua's `<=` isn't nil-safe the way `==` is) every WAIT/DAMAGE_FRONT/DAMAGE_BACK frame; the 20%
+  dash never triggered. Not a softlock by itself, fixed for correctness.
+- **`RAGE_DRYADKENTA_SPECIAL_ATTACK_FIRE_FRAME_MOVE`**, **`..._FIRE_EMOTION_FRAME_MOVE`** -- same
+  pattern on `slot1:GetLineMap()`'s result, breaking the Special Attack A projectile-trail effect
+  calls. Not a softlock, fixed for correctness.
+
+The restored logic's line-map dependency was checked too: Attack B and both Special Attack A
+functions read `GetLineMap():GetStartPosition(1..13)`, and
+`march2014/update/data040/Ranox_BurnedForest_StageBoss_LineMap.src.lua` defines
+`AddStartPos(1..13, ...)` -- no missing index, so the fix doesn't just move the bug to a
+different undefined lookup.
+
+Verified with a small read-before-write lint (flags any `slotN` read in a function before that
+function assigns it -- these files never use Lua's `local`, so a dropped assignment is otherwise
+invisible on a read-through) and `elstools compile-batch -v mar-2014` on a scratch copy (the
+compiler overwrites its input). Both are clean on the fixed file.
+
+**Needs packing**: `march2014/update/data037/RAGE_DRYADKENTA.src.lua` still needs recompiling to
+KOG bytecode and repacking into `data037.kom` before a play-test can confirm it in-game -- that
+step is the user's, per this repo's own convention for `march2014/`.
+
+**Not fixed here, flagged for awareness**: the same lint found the identical bug pattern
+elsewhere across the Ranox-ported `data037/` corpus (dozens of files, roughly 1 to a few hundred
+hits each depending on file size -- `SECRET_MAGI_BOSS.src.lua` and `SECRET_SCENE_DUMMY.src.lua`
+stood out at 379 and 251). That scan is a quick heuristic (flags a `slotN` read with no prior
+`slotN = ...` assignment anywhere earlier in the same function body), not verified instruction-by-
+instruction the way Kenta's six were, so treat the counts as "worth auditing," not as a confirmed
+defect list.
+
+
 ## Reverting to stock
 
 Comment out every `#define` listed in the *Defined in* column and rebuild.
