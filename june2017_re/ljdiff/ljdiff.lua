@@ -79,6 +79,24 @@
 -- Harness errors (a bug in this file, a chunk that will not load) are
 -- HARNESS_ERROR lines and counts in the trace; the script's own errors are
 -- outcomes. A count hook ends runaway calls with BUDGET.
+--
+-- Phase 2b additions. When CHUNK carries line info (ljdiff.py traces a
+-- `luajit -bg` twin of every compiled .src.lua, checked to be the same code):
+--   POISON_READ slotN @L<line>   the source line of the unwritten read
+--   SHADOW_READ slotN @L<line>   a call read a slotN only the MAIN chunk wrote.
+--                                ljd prints captured file-scope locals as uvN, so
+--                                a function never legitimately reads main's
+--                                slotN: this is a dropped write masked by a
+--                                main-chunk temp of the same name
+--   "sites"   per call: every POISON/SHADOW/UPVALUE read as NAME@L<line>
+--   "lines"   per call: the chunk lines executed (OPTS "lines" only)
+--   "static"  header: the must-define pass over this chunk's bytecode, one row
+--             per GGET "slotN" (or "uvN") that some path reaches without a
+--             GSET of that name in the same function:
+--             FN <tab> NAME <tab> L<line> <tab> pc<pc> <tab> TAG
+--             TAG: "" | main-written (the main chunk also writes NAME) |
+--             nested (a closure inside FN) | upvalue (a uvN read)
+-- OPTS (9th argument, optional): comma list; "lines" turns on line coverage.
 
 jit.off()
 jit.flush()
@@ -90,6 +108,8 @@ local funcinfo, funcbc = jit.util.funcinfo, jit.util.funcbc
 
 local MODE, CHUNK, OUT, TYPES_PATH, REENTRANT_PATH = arg[1], arg[2], arg[3], arg[4], arg[5]
 local NSEEDS, LABEL, SIDE = tonumber(arg[6]) or 4, arg[7] or '?', arg[8] or '?'
+local OPTS = {}
+for o in (arg[9] or ''):gmatch('[^,]+') do OPTS[o] = true end
 assert(MODE == 'learn' or MODE == 'trace', 'usage: ljdiff.lua learn|trace CHUNK OUT TYPES REENTRANT SEEDS LABEL SIDE')
 
 local CALL_BUDGET = 2000000        -- VM instructions per function call
@@ -130,7 +150,8 @@ local EV, nev, cap, truncated
 local rec          -- the current call's record (poison/upvalue/clobber/harness sets)
 local function new_rec(ecap)
 	EV, nev, cap, truncated = {}, 0, ecap, false
-	rec = { poison = {}, upvalue = {}, clobber = {}, harness = {}, unsim = {}, reenter = 0, fatal = nil }
+	rec = { poison = {}, upvalue = {}, clobber = {}, harness = {}, unsim = {}, reenter = 0, fatal = nil,
+		shadow = {}, sites = {}, lines = {} }
 end
 local function emit(s)
 	nev = nev + 1
@@ -324,8 +345,25 @@ local function numval(h)
 	if r < 85 then return (q % 1000) / 1000 end     -- fractions: ratios, rates
 	return q % 10000                                -- large: HP, times, ids
 end
+-- FNV-1a's low bits are weak: multiplying by an odd prime keeps parity, so
+-- h % 2 is just the parity of the input's odd bytes, and "path()#c|c" has the
+-- count digit twice - every call of one method got the same boolean (and the
+-- same nil draw, % 6) in a given seed, which made COMMON_FRAMEMOVE's elseif
+-- (flag 1 true, flag 2 false) unreachable. Values go through murmur3's fmix32.
+local function mul32(a, b)        -- a * b mod 2^32, exact (16-bit halves stay under 2^53)
+	return tobit(a * band(b, 0xffff) + lshift(tobit(a * rshift(b, 16)), 16))
+end
+local function fmix32(h)
+	h = bxor(h, rshift(h, 16))
+	h = mul32(h, 0x85ebca6b)
+	h = bxor(h, rshift(h, 13))
+	h = mul32(h, 0xc2b2ae35)
+	h = bxor(h, rshift(h, 16))
+	if h < 0 then h = h + 4294967296 end
+	return h
+end
 local function hval(path, count)
-	return h32(SEED .. '|' .. path .. '|' .. (count or 0))
+	return fmix32(h32(SEED .. '|' .. path .. '|' .. (count or 0)))
 end
 
 ---------------------------------------------------------------- nodes
@@ -378,6 +416,11 @@ NMT.__index = guard(function(n, k)
 	local info = NODE[n]
 	info.used = true
 	local ks = kstr(k)
+	-- no table can hold a nil or NaN key, so reading one is nil, as in Lua
+	if k == nil or k ~= k then
+		emit('GET ' .. info.path .. '.' .. ks .. ' -> nil')
+		return nil
+	end
 	local s = info.sets[k]
 	if s ~= nil then
 		local v = unbox(s)
@@ -399,6 +442,8 @@ end)
 NMT.__newindex = guard(function(n, k, v)
 	local info = NODE[n]
 	info.used = true
+	if k == nil then serr('table index is nil') end
+	if k ~= k then serr('table index is NaN') end
 	emit('SET ' .. info.path .. '.' .. kstr(k) .. ' = ' .. fmt(v))
 	info.sets[k] = box(v)
 end)
@@ -684,10 +729,23 @@ local BASE = {
 }
 
 local store, written = {}, {}
+local cw = {}                   -- names written during this call (not by the main chunk)
 local GNODES = {}               -- engine global name -> node, per call
 local FRAMES = {}
 
 local function isslot(k) return type(k) == 'string' and k:match('^slot%d+$') ~= nil end
+
+-- " @L<line>" of the function doing the GGET (level 1 is this function,
+-- level 2 the env's __index), or "" when the chunk carries no line info.
+local function at()
+	local info = debug.getinfo(3, 'l')
+	local l = info and info.currentline
+	if l and l > 0 then return ' @L' .. l end
+	return ''
+end
+local function site(name, where)
+	rec.sites[name .. (where ~= '' and ('@' .. where:sub(3)) or '')] = true
+end
 
 local RAW = setmetatable({}, { __mode = 'k' })       -- wrapper -> raw function
 local WRAP_OF = setmetatable({}, { __mode = 'k' })   -- raw function -> wrapper
@@ -725,6 +783,7 @@ setmetatable(env, {
 		if type(v) == 'function' and type(k) == 'string' then v = wrap(k, v) end
 		written[k] = true
 		store[k] = v
+		if not IN_MAIN then cw[k] = true end
 		if isslot(k) then
 			local fr = FRAMES[#FRAMES]
 			if fr then fr.own[k] = true; fr.desc[k] = true; fr.taint[k] = nil end
@@ -740,21 +799,31 @@ setmetatable(env, {
 					if not rec.clobber[line] then rec.clobber[line] = true; emit(line) end
 					fr.taint[k] = nil
 				end
+				if not IN_MAIN and not cw[k] then
+					local where = at()
+					emit('SHADOW_READ ' .. k .. where)
+					rec.shadow[k] = true
+					site(k, where)
+				end
 			end
 			return store[k]
 		end
 		local b = BASE[k]
 		if b ~= nil then return b end
 		if isslot(k) then
-			emit('POISON_READ ' .. k)
+			local where = at()
+			emit('POISON_READ ' .. k .. where)
 			rec.poison[k] = true
-			last_read = 'POISON_READ ' .. k
+			site(k, where)
+			last_read = 'POISON_READ ' .. k .. where
 			return sentinel(k)
 		end
 		if type(k) == 'string' and k:match('^uv%d+$') then
-			emit('UPVALUE_READ ' .. k)
+			local where = at()
+			emit('UPVALUE_READ ' .. k .. where)
 			rec.upvalue[k] = true
-			last_read = 'UPVALUE_READ ' .. k
+			site(k, where)
+			last_read = 'UPVALUE_READ ' .. k .. where
 			return sentinel(k)
 		end
 		local g = GNODES[k]
@@ -770,14 +839,20 @@ setmetatable(env, {
 
 ---------------------------------------------------------------- budget
 local steps, step_limit = 0, 0
-local function hook()
+local CHUNK_SRC               -- set once the chunk loads, when line coverage is on
+local function hook(ev, line)
+	if ev == 'line' then
+		local info = debug.getinfo(2, 'S')
+		if info and info.source == CHUNK_SRC then rec.lines[line] = true end
+		return
+	end
 	steps = steps + HOOK_STEP
 	if steps >= step_limit then error(BUDGET, 0) end
 end
 local function run_guarded(limit, fn)
 	steps, step_limit = 0, limit
 	pending_attr = nil
-	debug.sethook(hook, '', HOOK_STEP)
+	debug.sethook(hook, CHUNK_SRC and 'l' or '', HOOK_STEP)
 	local r = pack(xpcall(fn, handler))
 	debug.sethook()
 	return r
@@ -820,10 +895,13 @@ end
 
 ---------------------------------------------------------------- main chunk + restore
 local chunk, lerr = loadfile(CHUNK)
+-- line info: a `luajit -bg` twin (ljdiff.py checks it is the same code)
+local HAS_LINES = chunk ~= nil and (funcinfo(chunk, 1).currentline or 0) > 0
+if HAS_LINES and OPTS.lines then CHUNK_SRC = debug.getinfo(chunk, 'S').source end
 
 local main_store, main_written, main_nodes_state
 local function run_main()
-	store, written, GNODES, FRAMES = {}, {}, {}, {}
+	store, written, GNODES, FRAMES, cw = {}, {}, {}, {}, {}
 	MAIN_NODES = {}
 	SEED, rand_count, last_read = 0, 0, nil
 	WHERE = 'main'
@@ -879,7 +957,7 @@ local function snapshot_main()
 	end
 end
 local function restore()
-	written, GNODES, FRAMES = {}, {}, {}
+	written, GNODES, FRAMES, cw = {}, {}, {}, {}
 	if restore_mode == 'deep' then
 		store = deepcopy(main_store, {})
 	else
@@ -1020,6 +1098,176 @@ invoke_reentry = function(row, method, parent, ...)
 	reenter(method, start, row, parent)
 end
 
+---------------------------------------------------------------- static must-define pass
+-- Over one chunk's own bytecode (trace mode, chunks with line info only): per
+-- prototype, a basic-block CFG and a forward must-be-written analysis over the
+-- GSET "slotN" names. A GGET "slotN" some path reaches without a GSET of that
+-- name is a candidate; every GGET "uvN" is one too (nothing writes uvN).
+-- Unlike the runtime, this does not depend on which paths the seeds took.
+local TWOWAY, STOP, NOJUMP = {}, {}, {}
+for _, n in ipairs({ 'ISLT', 'ISGE', 'ISLE', 'ISGT', 'ISEQV', 'ISNEV', 'ISEQS', 'ISNES',
+		'ISEQN', 'ISNEN', 'ISEQP', 'ISNEP', 'ISTC', 'ISFC', 'IST', 'ISF' }) do
+	TWOWAY[assert(OPS[n], n)] = true      -- always followed by a JMP: take it or skip it
+end
+for _, n in ipairs({ 'RET', 'RET0', 'RET1', 'RETM', 'CALLT', 'CALLMT' }) do STOP[assert(OPS[n], n)] = true end
+for _, n in ipairs({ 'LOOP', 'ILOOP', 'JLOOP' }) do if OPS[n] then NOJUMP[OPS[n]] = true end end
+local ALWAYS = { [OPS.JMP] = true, [OPS.UCLO] = true }
+local BCM_JUMP = 13 * 128                 -- D operand mode "jump" (jit/bc.lua's bctargets)
+
+local function successors(ins, m, pc)
+	local op = band(ins, 0xff)
+	if STOP[op] then return {} end
+	if TWOWAY[op] then return { pc + 1, pc + 2 } end
+	if band(m, 15 * 128) == BCM_JUMP and not NOJUMP[op] then
+		local t = pc + rshift(ins, 16) - 0x7fff
+		if ALWAYS[op] then return { t } end
+		return { pc + 1, t }               -- FORI/FORL/ITERL and friends
+	end
+	return { pc + 1 }
+end
+
+local function mustdef(f)
+	local code, n = {}, 0
+	while true do
+		local ins, m = funcbc(f, n)
+		if not ins then break end
+		code[n] = { ins, m }
+		n = n + 1
+	end
+	local gname, any = {}, false          -- pc -> { is_set, name }
+	for pc = 0, n - 1 do
+		local ins = code[pc][1]
+		local op = band(ins, 0xff)
+		if op == OPS.GGET or op == OPS.GSET then
+			local name = jit.util.funck(f, -rshift(ins, 16) - 1)
+			if type(name) == 'string' and (isslot(name) or name:match('^uv%d+$')) then
+				gname[pc] = { op == OPS.GSET, name }
+				if op == OPS.GGET then any = true end
+			end
+		end
+	end
+	if not any then return {} end
+	local leader, succs = { [0] = true }, {}
+	for pc = 0, n - 1 do
+		local sl = successors(code[pc][1], code[pc][2], pc)
+		succs[pc] = sl
+		if not (#sl == 1 and sl[1] == pc + 1) then
+			for _, t in ipairs(sl) do if t >= 0 and t < n then leader[t] = true end end
+			if pc + 1 < n then leader[pc + 1] = true end
+		end
+	end
+	local blocks, bof, cur = {}, {}, nil
+	for pc = 0, n - 1 do
+		if leader[pc] then cur = { first = pc }; blocks[#blocks + 1] = cur end
+		cur.last = pc
+		bof[pc] = cur
+	end
+	for _, b in ipairs(blocks) do
+		b.succ, b.gen = {}, {}
+		for _, t in ipairs(succs[b.last]) do if bof[t] then b.succ[#b.succ + 1] = bof[t] end end
+		for pc = b.first, b.last do
+			local g = gname[pc]
+			if g and g[1] then b.gen[g[2]] = true end
+		end
+	end
+	-- IN[b] = intersection of the predecessors' OUT; unvisited = top (never stored)
+	local IN, work, inq = { [blocks[1]] = {} }, { blocks[1] }, { [blocks[1]] = true }
+	while #work > 0 do
+		local b = table.remove(work)
+		inq[b] = nil
+		local out = {}
+		for k in pairs(IN[b]) do out[k] = true end
+		for k in pairs(b.gen) do out[k] = true end
+		for _, sb in ipairs(b.succ) do
+			local old, new, changed = IN[sb], nil, false
+			if old == nil then
+				new, changed = out, true
+			else
+				new = {}
+				for k in pairs(old) do if out[k] then new[k] = true else changed = true end end
+			end
+			if changed then
+				IN[sb] = new
+				if not inq[sb] then inq[sb] = true; work[#work + 1] = sb end
+			end
+		end
+	end
+	local res = {}
+	for _, b in ipairs(blocks) do
+		if IN[b] then                      -- reachable
+			local d = {}
+			for k in pairs(IN[b]) do d[k] = true end
+			for pc = b.first, b.last do
+				local g = gname[pc]
+				if g then
+					if g[1] then d[g[2]] = true
+					elseif not d[g[2]] then res[#res + 1] = { pc = pc, name = g[2] } end
+				end
+			end
+		end
+	end
+	table.sort(res, function(a, b) return a.pc < b.pc end)
+	return res
+end
+
+-- -> rows "FN\tNAME\tL<line>\tpc<pc>\tTAG"; prototypes named by the entry
+-- point defined at the same line, else fn@L<line>.
+local function static_pass(root, names_by_line, mw)
+	local rows = {}
+	local function visit(f, name, nested)
+		for _, c in ipairs(mustdef(f)) do
+			local line = funcinfo(f, c.pc).currentline or 0
+			local tags = {}
+			if c.name:match('^uv') then tags[#tags + 1] = 'upvalue' end
+			if mw[c.name] then tags[#tags + 1] = 'main-written' end
+			if nested then tags[#tags + 1] = 'nested' end
+			rows[#rows + 1] = table.concat({ name, c.name, 'L' .. line, 'pc' .. c.pc, table.concat(tags, ',') }, '\t')
+		end
+		local pc = 0
+		while true do
+			local ins = funcbc(f, pc)
+			if not ins then break end
+			if band(ins, 0xff) == OPS.FNEW then
+				local child = jit.util.funck(f, -rshift(ins, 16) - 1)
+				local cl = funcinfo(child).linedefined or 0
+				local cname = names_by_line[cl]
+				if name == '(main)' then visit(child, cname or ('fn@L' .. cl), false)
+				else visit(child, cname or (name .. '>fn@L' .. cl), true) end
+			end
+			pc = pc + 1
+		end
+	end
+	visit(root, '(main)', false)
+	return rows
+end
+
+-- File-scope state the functions read: every main-written, non-function
+-- global some function prototype GGETs (sorted names). Needs no line info.
+local function filescope_reads(root, mw, ms)
+	local rows, seen = {}, {}
+	local function visit(f, top)
+		local pc = 0
+		while true do
+			local ins = funcbc(f, pc)
+			if not ins then break end
+			local op = band(ins, 0xff)
+			if op == OPS.FNEW then
+				visit(jit.util.funck(f, -rshift(ins, 16) - 1), false)
+			elseif op == OPS.GGET and not top then
+				local name = jit.util.funck(f, -rshift(ins, 16) - 1)
+				if type(name) == 'string' and mw[name] and type(ms[name]) ~= 'function' and not seen[name] then
+					seen[name] = true
+					rows[#rows + 1] = name
+				end
+			end
+			pc = pc + 1
+		end
+	end
+	visit(root, true)
+	table.sort(rows)
+	return rows
+end
+
 ---------------------------------------------------------------- run
 local function sorted_keys(set)
 	local l = {}
@@ -1050,6 +1298,17 @@ else
 
 	local eps = entry_points()
 	main_out.entries = eps
+	if HAS_LINES and MODE == 'trace' then
+		local by_line = {}
+		for _, ep in ipairs(eps) do
+			local fi = funcinfo(ep.raw)
+			if fi and fi.linedefined and fi.linedefined > 0 and not by_line[fi.linedefined] then
+				by_line[fi.linedefined] = ep.name
+			end
+		end
+		main_out.static = static_pass(chunk, by_line, main_written)
+	end
+	if MODE == 'trace' then main_out.filescope = filescope_reads(chunk, main_written, main_store) end
 
 	for _, ep in ipairs(eps) do
 		for seed = 1, NSEEDS do
@@ -1131,7 +1390,7 @@ local function jlist(l, perline)
 	w(']')
 end
 
-local totals = { harness = 0, poison = 0, upvalue = 0, clobber = 0, budget = 0, reenter = 0, unsim = 0, truncated = 0 }
+local totals = { harness = 0, poison = 0, shadow = 0, upvalue = 0, clobber = 0, budget = 0, reenter = 0, unsim = 0, truncated = 0 }
 local function write_run(r, extra)
 	local rc = r.rec
 	w('{')
@@ -1141,6 +1400,14 @@ local function write_run(r, extra)
 	w(',"poison":'); jlist(sorted_keys(rc.poison))
 	w(',"upvalue":'); jlist(sorted_keys(rc.upvalue))
 	w(',"clobber":'); jlist(sorted_keys(rc.clobber))
+	w(',"shadow":'); jlist(sorted_keys(rc.shadow))
+	w(',"sites":'); jlist(sorted_keys(rc.sites))
+	if CHUNK_SRC then
+		local ls = {}
+		for l in pairs(rc.lines) do ls[#ls + 1] = l end
+		table.sort(ls)
+		w(',"lines":' .. jstr(table.concat(ls, ',')))
+	end
 	w(',"harness":'); jlist(rc.harness)
 	w(',"unsim":'); jlist(sorted_keys(rc.unsim))
 	w(',"reenter":' .. rc.reenter)
@@ -1151,6 +1418,7 @@ local function write_run(r, extra)
 	totals.poison = totals.poison + #sorted_keys(rc.poison)
 	totals.upvalue = totals.upvalue + #sorted_keys(rc.upvalue)
 	totals.clobber = totals.clobber + #sorted_keys(rc.clobber)
+	totals.shadow = totals.shadow + #sorted_keys(rc.shadow)
 	totals.budget = totals.budget + (r.outcome == 'BUDGET' and 1 or 0)
 	totals.reenter = totals.reenter + rc.reenter
 	totals.unsim = totals.unsim + #sorted_keys(rc.unsim)
@@ -1180,6 +1448,9 @@ if main_out then
 		en[#en + 1] = ep.name .. '/' .. ((fi and fi.params) or '?') .. (ep.nested and ' nested' or '')
 	end
 	w(',\n"entries":'); jlist(en)
+	w(',\n"static":')
+	if main_out.static then jlist(main_out.static, true) else w('null') end
+	w(',\n"filescope":'); jlist(main_out.filescope or {})
 	w(',\n"main":')
 	write_run(main_out)
 	w(',\n"calls":[')

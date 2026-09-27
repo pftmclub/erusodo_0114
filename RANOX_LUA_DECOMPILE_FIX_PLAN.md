@@ -185,8 +185,8 @@ Rules carried over:
     - `..._SPECIAL_ATTACK_FIRE_FRAME_MOVE`
     - `..._FIRE_EMOTION_FRAME_MOVE`
   - The comment-site count, the "6", and the per-function counts don't obviously agree.
-    **Phase 2b reconciles them from harness output** and records the true number. Don't pick
-    one now.
+    **Reconciled by Phase 2b: 12 dropped assignments in 5 functions.** See "Calibration"
+    below.
 - **MapData.** `march2014/data036/MapData.src.lua`'s `ComputeCOBOExpressTicketCost` reads an
   unassigned `slot6` in a travel-ticket cost formula. It was hand-verified as real.
 - **Triage scale.** `RANOX_LUA_DECOMPILE_BUG.md`'s table lists 61 flagged `march2014/` files
@@ -247,6 +247,172 @@ Rules carried over:
   - It is regex-based and doesn't handle multi-line statements or nested nameless functions.
 - **Feeding `0x82` files to the vendored `luajit.exe`.** Convert with `ljconv.py` first.
 - **Running `compile-batch` on a tracked file.** It overwrites its input.
+
+### Calibration (Phase 2b, 2026-09-28)
+
+Every number here comes from `python june2017_re/ljdiff/calibrate.py` (about 7 minutes; exit 0
+iff every criterion holds; report in `tmp/ljcal_report.txt`). The harness is the
+post-fix one (see "Phase 2b result", harness fixes 1–2). Sweeps use **32 seeds**; the fix
+loop uses **128**.
+- **Type oracle:** `types.tsv` had 45 rows, `types_h32` `e9e20f92`.
+- Types are keyed by name and the table grows with every new file, so later counts can
+  shift for reasons unrelated to the decompile.
+- Phase 4's "no new `other-ljd`" comparison must run under this oracle, or re-baseline the
+  unfixed side first.
+
+**Kenta: the true count is 12 dropped assignments.** All 12 were derived from the original
+bytecode listing (`bcfn.lua`), restored in `fixes/RAGE_DRYADKENTA.json`, and confirmed by
+the fix-rerun loop at 128 seeds.
+- **Every one is necessary.** With all fixes applied but that one, its function diverges.
+- **Together they account for all 15 unique static read sites**: 14 owned outright, and
+  `slot5@L559`, which is unwritten only when BW-2 *and* BW-4 are both missing.
+
+| Function | Dropped writes (fix id: what) | Static sites (fresh decompile) | 09-27 comment sites | MODS.md | Earlier prediction |
+|---|---|---|---|---|---|
+| `ATTACK_B_WAIT_FRAME_MOVE` | 4. BW-1 `slot6 = GetRandVal()%3`; BW-2 `slot5 = GetNearestUserUnit_LUA(…)`; BW-3 `slot4 = slot5:GetPos()` (folded into the field-set target); BW-4 `slot5 = GetEffectSet()` (the softlock call) | 3: `slot6@549`, `slot5@555`, `slot5@559` (joint BW-2/BW-4). BW-3 has none | 3 (545; 564 covers BW-2 and BW-3; 580) | 3 | Phase 1: 4 |
+| `ATTACK_A_ATTACK_DASH_STATE_START` | 3. DS-1 `slot3 = GetLastTouchLineIndex()`; DS-2 `slot4 = GetTargetUser()`; DS-3 `slot5 = GetLineGroupStartPos()` | 4: `slot3@749`, `slot4@757`, `slot4@758`, `slot5@762` | 2 (786; 809 covers DS-2 and DS-3) | 2 | Phase 1/2a: 3 |
+| `COMMON_FRAMEMOVE` | 1. CF-1 `slot3 = GetNowHP()/GetMaxHP()` | 1: `slot3@1337` | 1 (1434) | 1 | — |
+| `SPECIAL_ATTACK_FIRE_FRAME_MOVE` | 2. FI-1 and FI-2: `slot3 = GetLineMap()`, once per timer block (1.2, 1.35) | 3: `slot3@919`, `@929`, `@930` | 1 (987, "every `slot3:GetStartPosition`") | 1 | — |
+| `SPECIAL_ATTACK_FIRE_EMOTION_FRAME_MOVE` | 2. EM-1 and EM-2: the same, blocks 0.3 and 1.2 | 4: `slot3@959`, `@960`, `@970`, `@971` | 1 (1038) | 1 | — |
+| **Total** | **12** | **15 sites (18 GGET rows)** | **8** | **"6"; its bullets sum to 8** | |
+
+- **How the counts relate.** The 8 comment sites equal MODS.md's per-function figures
+  exactly (3+2+1+1+1). MODS.md's headline "6" matches neither.
+- **Where the extra 4 are.** Each is a comment that covers two writes: 564, 809, 987 and 1038.
+- **The fixed port restores all 12.** At 128 seeds (`calibrate.py` section 4b) its 5
+  functions show no `dropped-assignment`, and `ATTACK_B_WAIT_FRAME_MOVE` passes on 128/128
+  seeds, BW-3's path included. It has 0 static candidates. At 32 seeds, BW-3's path can go
+  unexercised, so the 32-seed table below can't show this.
+- **Two further restorations are not dropped writes** (kind `order`, other-ljd evaluation
+  order). Both are necessary for exact equality:
+  - BR-O, `ATTACK_B_READY_STATE_START`. `GetVector_LUA(0)` moved after the second
+    `GetLineMap()`, and a `.y` read moved before `GetLandPosition_LUA()`.
+  - FI-O, the FIRE timer-1.2 `Play` call. `GetStartPosition(8)` and `GetRotateDegree()` are
+    swapped.
+- **How each write shows, fix left out, at 128 seeds.**
+  - 9 as `poison` and 1 as `fatal poison` (CF-1).
+  - 2 as diverge-only, with no unwritten read at all:
+    - BW-4, 27/128 seeds: stale `slot5` from BW-2's path.
+    - BW-3, 4/128 seeds: stale `slot4`.
+  - Ladder order changes these labels, but not the count. The ladder runs bottom-up within a
+    function, because a restored write can turn a later unwritten read into a stale one.
+
+**Three comparisons at 32 seeds.** Verdicts are counted per (function, seed). Functions not
+listed pass on every side.
+
+| Function | orig vs rt (fresh) | orig vs pre (`857dfd7^`) | orig vs fix (working tree) |
+|---|---|---|---|
+| `ATTACK_A_ATTACK_DASH_STATE_START` | dropped-assignment 31, pass 1 | dropped-assignment 32 | other 7, pass 25 |
+| `ATTACK_B_WAIT_FRAME_MOVE` | dropped-assignment 11, other-ljd 1, reorder 1, pass 19 | same (other 1) | pass 32 |
+| `COMMON_FRAMEMOVE` | dropped-assignment 8, other-ljd 4, reorder 4, pass 16 | dropped-assignment 8, other 8, pass 16 | other 7, pass 25 |
+| `SPECIAL_ATTACK_FIRE_FRAME_MOVE` | dropped-assignment 27, reorder 5 | same | reorder 13, pass 19 |
+| `SPECIAL_ATTACK_FIRE_EMOTION_FRAME_MOVE` | dropped-assignment 27, reorder 5 | same | pass 32 |
+| `ATTACK_B_READY_STATE_START` | other-ljd 5, reorder 18, pass 9 | same | same |
+
+- **(a) and (b) pass.** All five known functions show `dropped-assignment` on both rt and pre.
+- **Pre vs rt, by (function, slot).** Every unwritten read and its seed count is identical
+  except DASH's `slot4`: 32/32 seeds in pre vs 25/32 in rt.
+  - The pre-fix port had also deleted the `GetStoredGUUser()` fallback, which is the only
+    other write of `slot4`.
+  - That +7 is the whole poison-total gap (pre 139 vs rt 132; in 2a's old-hash run it was 143
+    vs 137).
+  - COMMON's pre `other` 8 vs rt `other-ljd` 4 + `reorder` 4: the pre port drops
+    `InitStateCoolTime`, so the 4 reorder seeds also miss a call.
+- **(c) passes.** No `dropped-assignment` remains. Four residuals are left, each named:
+  1. DASH other 7. **Port edit** (09-18, fixed file L800): the `GetStoredGUUser()` fallback
+     was removed because the method is unbound in March. These are the 7 seeds where
+     `GetTargetUser()` returned nil.
+  2. COMMON other 7. **Port edit** (09-18, L1425): both `InitStateCoolTime` calls were
+     removed for the same reason. These are the 7 seeds that took either dash branch.
+  3. B_READY. **Not a port edit.** It is BR-O, inherited from the decompile and untouched by
+     the port.
+  4. FIRE reorder 13. **Not a port edit.** It is FI-O, likewise inherited.
+  - Items 3 and 4 involve only getters, so they are probably harmless in-engine. They are
+    still real divergences, and Phase 5/6 should decide them. None of the 8 comments covers
+    them.
+
+**MapData: reproduced.**
+- `ComputeCOBOExpressTicketCost` shows `dropped-assignment` on 32/32 seeds, reading
+  `slot6@L120`. `CheckCOBOExpressTicketMapID` passes on 32/32.
+- The fix loop (`fixes/MapData.json`) confirms 1 dropped write, MD-1:
+  `slot6 = CheckCOBOExpressTicketMapID(slot0)`.
+- It also confirms 1 separate `structure` defect, MD-S. ljd printed the
+  `if slot6 == 0 or slot7 == 0 … else …` as `(A and B or C) and D`, which always yields `D`.
+  - It diverges on 32/32 seeds once MD-1 is in, and is other-ljd.
+  - A text lint cannot see it.
+
+**Noise check: clean.** Each file is zero divergences at 32 seeds, with 0 static rows, 0
+`SHADOW_READ` and 0 lint hits.
+
+| File | Calls | What it exercises |
+|---|---|---|
+| `data034_kom/DLG_Map_Select_Window_Instance.lua` | 64 pass, main pass | The main chunk writes and reads back its own `slot3` temp. That is the main-chunk exemption's actual role (Phase 1 correction 7). |
+| `datai016_kom/EVENT_HALLOWEEN_RESPAWNER_SAND.lua` | 64 pass, main pass | Functions read and update file-scope state (`CreateNPCCount`, `posArray`), through deep restore |
+| `data038_kom/SQUARE_GM_Ariel.lua` | 416 pass, main pass | 13 functions read `INIT_PHYSIC` |
+
+- **Reinterpretation of the criterion.** The phase asked for "main-chunk locals read by its
+  functions". That cannot be clean, for the reason Phase 1 correction 7 gives: ljd prints a
+  captured file-scope local as `uvN`.
+  - It was confirmed on `data034_kom/DLG_LUCIEL_TRANSFORM_SKILL_SLOT.lua`: it is lint-clean
+    and has main-chunk locals `slot0`..`slot4`, yet it gives `upvalue` on 32/32 seeds.
+  - That is a real round-trip break, not noise. The check was therefore split across the
+    three files above.
+- **No single clean file does both.** In the scanned subset (`tmp/find_noise.py`: ≤ 40 KB, ≥ 2
+  functions, `data037_kom` excluded), no lint-clean file has both a main-chunk `slotN` temp
+  *and* functions reading file-scope state.
+  - The one candidate, `DLG_Tournament_MatchList.lua`, has a real ljd main-chunk hoist (see
+    "Leads").
+- **Phase 4 carries all three.** Its "noise-check file is byte-identical" check applies to all
+  three.
+
+**Lint precision and recall.** The unit is a unique (line, slot) on the same text.
+
+| Text | Truth | Lint hits | TP / FP / FN | Precision | Recall | Misses |
+|---|---|---|---|---|---|---|
+| Kenta rt | 15 (fix-loop sites = static pass, all confirmed) | 11 | 11 / 0 / 4 | 1.00 | 0.73 | `slot5@555`, `@559`, `slot4@757`, `@758` |
+| Kenta pre | 15 (confirmed static sites) | 13 | 13 / 0 / 2 | 1.00 | 0.87 | `slot5@555`, `@559` |
+| MapData rt | 1 | 1 | 1 / 0 / 0 | 1.00 | 1.00 | — |
+
+- **By instance, on Kenta rt.**
+  - The lint flags a read of 8 of the 12 dropped writes, and misses BW-2, BW-3, BW-4 and DS-2.
+  - The static pass flags 11 of 12.
+  - BW-3 has no unwritten read anywhere, so only the dynamic harness sees it.
+- **What the lint misses** is every "written on one arm, read after the merge" site. The lint
+  counts any earlier textual assignment as a write.
+  - On pre it catches DASH's `slot4` only because the port deleted that textual assignment.
+- **What no text lint can see:** the order and structure defects (BR-O, FI-O, MD-S) and the
+  stale-value instances (BW-3, and BW-4 once BW-2 is in).
+- **So:** a lint hit is trustworthy (0 false positives in 3 texts). A lint zero is not: about
+  a quarter of the sites and a third of the instances were missed.
+
+**Choosing N.**
+
+| Measure (Kenta) | N=8 | 16 | 32 | 64 | 128 |
+|---|---|---|---|---|---|
+| Known functions detected (of 5) | 5 | 5 | 5 | 5 | 5 |
+| Round-trip lines executed, all 13 functions | 92 | 93 | 95 | 95 | 96 |
+| Seeds reaching COMMON's `elseif` body | 1 | 3 | 3 | 5 | 10 |
+| Distinct path signatures, DASH | 6 | 12 | 25 | 47 | 84 |
+
+- **Line coverage saturates by 32** in 12 of 13 functions. The exception is B_READY's
+  `slot3 = 2` line, which needs two mock numbers to be equal.
+- **Path signatures never saturate.** A signature is the call's events and outcome with every
+  number and mock string masked. Independent 1/6 nil returns multiply the error paths, so
+  "raising N stops finding new traces" is unattainable by construction. Line coverage is the
+  saturation measure used instead.
+- **Only one function has coverage 1:** `MovePos`, a straight-line vector helper.
+- **N=32 for sweeps.** Every function is detected at 8, and lines saturate at 32.
+- **N=128 for the fix loop.** Leave-one-out has to hit rare paths. BW-3 shows on ~3% of seeds,
+  so 32 seeds miss it about a third of the time (it did miss on one 32-seed run).
+- **A clean 32-seed sweep is not proof against stale-value instances.** "Every function
+  detected at 8" holds on Kenta only because each defective function there also has an
+  unwritten read.
+  - A function whose only defect is BW-3-shaped would pass a 32-seed sweep. Such a defect
+    has a stale value and no unwritten read, shows on ~3% of seeds, and neither the static
+    pass nor the lint can see it.
+  - Any function a sweep cares about gets the 128-seed fix loop.
+  - Phase 4's "Kenta has no `dropped-assignment`" check must also run at 128 seeds, or it
+    says nothing about BW-3.
 
 ---
 
@@ -1155,6 +1321,127 @@ reproduce MapData's ComputeCOBOExpressTicketCost; prove zero divergences on a tr
 file that has file-scope state; measure lint precision/recall. If the harness is noisy, fix the harness, never the
 verdict. Write the calibration table into the plan's Investigation ledger.
 ```
+
+---
+
+## Phase 2b result
+
+Ran 2026-09-28. All exit criteria met: all three Kenta comparisons behave as stated, MapData
+reproduces, and the noise check is clean. The numbers are in the Investigation ledger's
+**"Calibration"** section. `python june2017_re/ljdiff/calibrate.py` regenerates all of them
+and exits 0. `--twice` is still byte-identical, and `--selftest` passes 42 checks.
+
+**Layout added to `june2017_re/ljdiff/`:**
+- `ljdiff.py`
+  - `--diff`: after tracing, diffs orig against every other side and writes
+    `tmp/ljdiff_<flat>.<side>.diff.txt`.
+  - `diff A.json B.json [--src S]` diffs two existing traces.
+  - `fixloop FILE --fixes F.json [--seeds N]` runs the fix-rerun loop.
+  - `--lines` adds per-call line coverage.
+  - `--no-twin` traces the stripped chunk.
+  - A run now cleans only the `tmp/ljdiff_<flat>.*` files of the files it was given, not
+    every `ljdiff_*` file.
+- `calibrate.py`: the whole calibration, with its own report.
+- `bcfn.lua`: `luajit bcfn.lua CHUNK FN…` lists named file functions' bytecode (cwd
+  `elstools/vendor/luajit`). Every fix cites this listing.
+- `fixes/RAGE_DRYADKENTA.json`, `fixes/MapData.json`: the curated restorations, each with
+  its bytecode evidence (pc ranges from the original).
+
+**What the diff does:**
+- **Verdicts** are assigned per (function, seed), strongest first: `harness`,
+  `dropped-assignment`, `clobber`, `upvalue`, `reorder`, then `other-ljd` (rt) or `other`
+  (an `--extra`, which may be a port edit), then `pass`.
+  - `dropped-assignment` = a `POISON_READ` or a `SHADOW_READ` on the side.
+  - `reorder` = the same event multiset and outcome, in a different order.
+  - Any unknown read on the *original* side is `harness`, never a verdict about the
+    decompile.
+- **Diff refuses to run on a `types_h32` mismatch.**
+- **Main-chunk values.** The side's main-chunk `slotN` globals are listed apart as
+  `slot_globals`: they are its own locals, not a difference.
+- **Coverage:**
+  - `cov_o`/`cov_s` count distinct path signatures. A signature is the call's events and
+    outcome with numbers and mock strings masked.
+  - The report lists every function with coverage 1.
+  - Line coverage (`--lines`) is the saturation measure.
+- **Static must-define pass** (`ljdiff.lua`, trace mode, chunks with line info):
+  - Per prototype: a basic-block CFG from `jit.util.funcbc`, then a forward
+    intersection-of-predecessors analysis over `GSET "slotN"`.
+  - A row is written per `GGET "slotN"` that some path reaches unwritten, and per
+    `GGET "uvN"`.
+  - Rows are tagged `main-written`, `nested` or `upvalue`, never dropped.
+  - Diff matches rows to the dynamic read sites as `confirmed`, `static-only (executed)` or
+    `static-only (unreached)`. It also lists dynamic sites the pass missed; there were none in
+    any calibration file.
+- **Line info comes from a `luajit -bg` twin** of each compiled side. compile-batch's output
+  is byte-identical to `luajit -b`'s (checked).
+  - `twin_check()` proves every prototype's header, bytecode, upvalues and constants equal
+    the stripped chunk's on every build.
+  - The calibration shows the stripped and twin traces are identical once the `@L`
+    annotations are dropped.
+- **The fix-rerun loop**, one step per fix in the curated list:
+  1. Apply the fix to the fresh decompile and rerun both sides (the ladder).
+  2. Record what the harness showed before the fix.
+  3. Fail if any *other* function's line-free per-seed trace hash moved.
+  - Then **leave-one-out**, from the all-fixed text: revert each fix alone. A fix is an
+    instance iff its function diverges without it. The static sites left in that state are
+    the ones it owns.
+  - The loop must end with every fixed function `pass` on every seed, and the dropped fixes
+    accounting for every static site.
+  - Fixes are derived from the original's bytecode, **never from the port file**. The fixed
+    port carries port edits.
+
+**Harness fixes found by calibration.** The rule was "fix the harness, never the verdict".
+1. **The mock's values were not independent** (`ljdiff.lua` `hval`).
+   - FNV-1a keeps parity through its odd-prime multiply, and `path()#c|c` carries the count
+     twice. So every call to one boolean method gave the same answer within a seed, and the
+     same 1/6 nil draw.
+   - COMMON_FRAMEMOVE's `elseif` needs flag 1 true and flag 2 false. It was therefore
+     unreachable at **any** N: 0 of 128 seeds. 2a's "~2–3% per seed" was really 0%.
+   - Values now go through murmur3's `fmix32`, checked against a Python reference.
+   - A selftest (`two_flags`) passes with the fix and fails on a copy of the runtime without
+     it.
+   - Afterwards the branch is reached on 3/32 and 10/128 seeds.
+   - **Every per-seed count in the "Phase 2a result" table predates this fix and is
+     superseded** by the ledger's. The functions and names it lists are unchanged.
+2. **A nil key on a mock table was a harness error.** `ENUM[nil]` should read nil, as in
+   Lua. It hit `EVENT_SHADOW_MIRROR_FD.lua` (91 errors while learning).
+   - Reads now give nil, and writes raise Lua's own message.
+   - Covered by selftest `nil_key`.
+3. **`SHADOW_READ` was added.** A call's read of a `slotN` that only the main chunk wrote is
+   a dropped write masked by a main-chunk temp. It is `dropped-assignment`.
+   - Not seen in any calibration file. Covered by selftest.
+
+**Leads for later phases (not acted on):**
+- **Phase 3.** Kenta adds two shapes Phase 1's cases don't have. Both should be pinned as
+  oracle cases before the fix:
+  - BW-3: the write is folded into a **field-set target**. `slot5:GetPos().y = …` hides
+    `slot4 = slot5:GetPos()`.
+  - FI-1 and friends: the first operand of an `and`, **computed before** a second
+    assignment statement, is folded past it (`slot4 = GetEffectSet()` then
+    `if slot3 ~= nil`).
+- **Phase 4.** The fix must not break the `order` and `structure` classes, and it isn't
+  expected to repair them:
+  - FI-O and BR-O are single-use temps inlined past another call.
+  - MD-S is an `if`/`else` rebuilt as `(A and B or C) and D`, which evaluates to `D`
+    whenever `A and B` is false.
+  - Acceptance should count them separately: "no `dropped-assignment`" is achievable, while
+    "no `other-ljd`" may not be. MD-S is a real value bug in the round trip, not a reorder.
+- **Phase 5/6.** The fixed Kenta port still carries FI-O and BR-O (getter-only reorders;
+  probably harmless in-engine) and the two 09-18 port edits. MODS.md's "Six instances" is
+  wrong. The true count is 12 in 5 functions (8 comment sites). Correct MODS.md when Phase 6
+  touches this file.
+- **Phases 7/8.**
+  - `data034_kom/DLG_Tournament_MatchList.lua`'s **main chunk** is `other-ljd`. ljd hoisted
+    `OUTLINE_COLOR = D3DXCOLOR(0,0,0,0)` into `slot3 = …` ahead of the table constructor, so
+    the two `D3DXCOLOR` calls swap. It is harmless in-engine, and it is the first main-chunk
+    divergence seen.
+  - `EVENT_SHADOW_MIRROR_FD.lua`'s `CheckAbleSummon` has a real `static-only (executed)`
+    candidate: `slot3` read after a loop that may not run.
+  - `DLG_LUCIEL_TRANSFORM_SKILL_SLOT.lua` is a lint-clean `upvalue` break on every seed.
+- **The deepcopy-hoist separation (Phase 1 correction 6) is not built.**
+  - Neither Kenta nor MapData exercises it.
+  - The sweeps must carry it as a known classifier gap. A deepcopy-shaped `POISON_READ`
+    currently scores as `dropped-assignment`.
 
 ---
 

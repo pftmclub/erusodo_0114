@@ -6,7 +6,12 @@
 # conflict = an ambiguous guess later used as an object, pinned back to object.
 kind	name	type	evidence	first_seen
 arg	ComputeCOBOExpressTicketCost#2	number	arith-div	data036_kom__MapData.lua:ComputeCOBOExpressTicketCost#2
+arg	GET_SLOT_LEFT_TOP#1	number	arith-sub	data034_kom__DLG_LUCIEL_TRANSFORM_SKILL_SLOT.lua:GET_SLOT_LEFT_TOP#1
+arg	GET_SLOT_LEFT_TOP#2	number	arith-add	data034_kom__DLG_LUCIEL_TRANSFORM_SKILL_SLOT.lua:GET_SLOT_LEFT_TOP#1
+arg	GET_SLOT_LEFT_TOP#3	number	arith-add	data034_kom__DLG_LUCIEL_TRANSFORM_SKILL_SLOT.lua:GET_SLOT_LEFT_TOP#1
 arg	MovePos#2	number	arith-mul	data037_kom__RAGE_DRYADKENTA.lua:MovePos#1
+arg	_CreateBlock#1	number	arith-add	data034_kom__DLG_Tournament_MatchList.lua:_CreateBlock#1
+arg	_CreateBlock#2	number	arith-add	data034_kom__DLG_Tournament_MatchList.lua:_CreateBlock#1
 field	x	number	arith-mul	data037_kom__RAGE_DRYADKENTA.lua:MovePos#1
 field	y	number	arith-mul	data037_kom__RAGE_DRYADKENTA.lua:MovePos#1
 field	z	number	arith-mul	data037_kom__RAGE_DRYADKENTA.lua:MovePos#1
@@ -19,6 +24,7 @@ ret	GetFootOnLine_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
 ret	GetInt_LUA	number	static-iseqn	data037_kom__RAGE_DRYADKENTA.lua:static
 ret	GetLastTouchLineIndex	number	static-iseqn	data037_kom__RAGE_DRYADKENTA.lua:static
 ret	GetMaxHP	number	arith-div	data037_kom__RAGE_DRYADKENTA.lua:RAGE_DRYADKENTA_COMMON_FRAMEMOVE#3
+ret	GetNPCUnitNumByNPCID	number	arith-add	datai016_kom__EVENT_SHADOW_MIRROR_FD.lua:CheckAbleSummon#1
 ret	GetNowHP	number	arith-div	data037_kom__RAGE_DRYADKENTA.lua:RAGE_DRYADKENTA_COMMON_FRAMEMOVE#3
 ret	GetNowStateLinkedEmotionType_LUA	number	compare	data038_kom__SQUARE_Unit.lua:FUNC_EVENT_PROCESS_EMOTION#1
 ret	GetOneDoubleLeft_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
@@ -43,3 +49,4 @@ ret	IsAvailableProcessEventEmotion_LUA	boolean	static-iseqp	data038_kom__SQUARE_
 ret	IsMyUnit	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
 ret	IsTwoSeaterAnotherUnit_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
 ret	IsTwoSeaterSitStateByPlayedEmotion_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	rand	number	arith-mod	datai016_kom__EVENT_HALLOWEEN_RESPAWNER_SAND.lua:WATERWAY_CORE_RESPAWNER_RESPAWN_FRAME_MOVE#1

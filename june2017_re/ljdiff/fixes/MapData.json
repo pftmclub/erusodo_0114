@@ -1,0 +1,18 @@
+{
+  "file": "data036_kom/MapData.lua",
+  "about": "Fix-rerun loop input (RANOX_LUA_DECOMPILE_FIX_PLAN.md Phase 2b); see RAGE_DRYADKENTA.json for the format. kind structure = ljd rebuilt a branch as an and/or expression with different semantics (other-ljd, not a dropped write).",
+  "fixes": [
+    {
+      "id": "MD-1", "kind": "dropped", "fn": "ComputeCOBOExpressTicketCost", "slot": "slot6",
+      "evidence": "pc 4-6: r6 = CheckCOBOExpressTicketMapID(slot0), called BEFORE pc 7-9 r7 = CheckCOBOExpressTicketMapID(slot1); pc 10 ISEQN r6 0 and pc 22 SUBVV r9 = r7 - r6 read it",
+      "old": "\tslot7 = CheckCOBOExpressTicketMapID(slot1)",
+      "new": "\tslot6 = CheckCOBOExpressTicketMapID(slot0)\n\tslot7 = CheckCOBOExpressTicketMapID(slot1)"
+    },
+    {
+      "id": "MD-S", "kind": "structure", "fn": "ComputeCOBOExpressTicketCost", "slot": "-",
+      "evidence": "pc 10-24: if r6 == 0 or r7 == 0 then r5 = math.abs(slot1 - slot0) else r5 = math.abs(r7 - r6). ljd printed (A and B or C) and D, which is always D because C (a number) is truthy",
+      "old": "\tslot5 = (CheckCOBOExpressTicketMapID(slot0) ~= 0 and slot7 ~= 0 or math.abs(slot1 - slot0)) and math.abs(slot7 - slot6)",
+      "new": "\tif slot6 == 0 or slot7 == 0 then\n\t\tslot5 = math.abs(slot1 - slot0)\n\telse\n\t\tslot5 = math.abs(slot7 - slot6)\n\tend"
+    }
+  ]
+}
