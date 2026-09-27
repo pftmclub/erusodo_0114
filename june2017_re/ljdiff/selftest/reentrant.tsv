@@ -1,0 +1,5 @@
+lua_name	class	binding_site	lua_call_site	target_kind	target_detail	chain	verdict	sim
+RunCallback	SelfTest	selftest	selftest	argument-names-function	first string argument	selftest	synchronous	named-arg args=app,game,this
+ChangeState	SelfTest	selftest	selftest	argument-names-state	state table FUNC_STATE_START/END	selftest	synchronous	state-table START=FUNC_STATE_START END=FUNC_STATE_END args=app,main,sgame,this
+OpenDialog	SelfTest	selftest	selftest	fixed-name	file-chunk: a dialog file	selftest	synchronous	none:file-chunk (runs another file; one chunk per run)
+Deferred	SelfTest	selftest	selftest	argument-names-state	-	selftest	deferred	-

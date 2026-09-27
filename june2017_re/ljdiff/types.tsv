@@ -1,0 +1,45 @@
+# ljdiff type oracle: learned on the ORIGINAL side only by ljdiff.py, then frozen
+# and shared by both sides. Generated - do not hand-edit (delete a row to relearn it).
+# kind: ret (what calling member NAME returns) / field / arg (FN#I) / global.
+# evidence: arith-* and compare-both are exact; compare is the one node-vs-number
+# operand pair in the erroring frame; compare-ambiguous picked the newest of several;
+# conflict = an ambiguous guess later used as an object, pinned back to object.
+kind	name	type	evidence	first_seen
+arg	ComputeCOBOExpressTicketCost#2	number	arith-div	data036_kom__MapData.lua:ComputeCOBOExpressTicketCost#2
+arg	MovePos#2	number	arith-mul	data037_kom__RAGE_DRYADKENTA.lua:MovePos#1
+field	x	number	arith-mul	data037_kom__RAGE_DRYADKENTA.lua:MovePos#1
+field	y	number	arith-mul	data037_kom__RAGE_DRYADKENTA.lua:MovePos#1
+field	z	number	arith-mul	data037_kom__RAGE_DRYADKENTA.lua:MovePos#1
+ret	CanDown_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetCheckCustomMotionWaitElapsedTime_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetCheckWaitHabitElapsedTime_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetDist_LUA	number	compare	data037_kom__RAGE_DRYADKENTA.lua:CF_RAGE_DRYADKENTA_ATTACK_A_ATTACK_DASH#1
+ret	GetFlag_LUA	boolean	static-iseqp	data037_kom__RAGE_DRYADKENTA.lua:static
+ret	GetFootOnLine_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetInt_LUA	number	static-iseqn	data037_kom__RAGE_DRYADKENTA.lua:static
+ret	GetLastTouchLineIndex	number	static-iseqn	data037_kom__RAGE_DRYADKENTA.lua:static
+ret	GetMaxHP	number	arith-div	data037_kom__RAGE_DRYADKENTA.lua:RAGE_DRYADKENTA_COMMON_FRAMEMOVE#3
+ret	GetNowHP	number	arith-div	data037_kom__RAGE_DRYADKENTA.lua:RAGE_DRYADKENTA_COMMON_FRAMEMOVE#3
+ret	GetNowStateLinkedEmotionType_LUA	number	compare	data038_kom__SQUARE_Unit.lua:FUNC_EVENT_PROCESS_EMOTION#1
+ret	GetOneDoubleLeft_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetOneDoubleRight_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetOneLeft_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetOneRight_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetPureDoubleLeft_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetPureDoubleRight_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetPureDown_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetPureLeft_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetPureRight_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetPureUp_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetRandVal	number	arith-mod	data037_kom__RAGE_DRYADKENTA.lua:RAGE_DRYADKENTA_ATTACK_B_WAIT_FRAME_MOVE#3
+ret	GetRiding_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetRight_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	GetTimerElapsedTime	number	compare	data037_kom__RAGE_DRYADKENTA.lua:CF_RAGE_DRYADKENTA_ATTACK_B#1
+ret	GetYSpeed_LUA	number	compare	data038_kom__SQUARE_Unit.lua:FUNC_EVENT_PROCESS_DASH_JUMP_UP#1
+ret	HasCustomHabitMotion_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	HasHabitMotion_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	IsAnimationEnd_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	IsAvailableProcessEventEmotion_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	IsMyUnit	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	IsTwoSeaterAnotherUnit_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static
+ret	IsTwoSeaterSitStateByPlayedEmotion_LUA	boolean	static-iseqp	data038_kom__SQUARE_Unit.lua:static

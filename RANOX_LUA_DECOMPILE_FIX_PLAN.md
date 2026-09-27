@@ -832,6 +832,226 @@ job, not this phase's. Scratch in <Trunk>/tmp/.
 
 ---
 
+## Phase 2a result
+
+Ran 2026-09-28. All exit criteria met:
+- These files run both sides with **zero harness errors**:
+  - `RAGE_DRYADKENTA.lua`
+  - `data036_kom/MapData.lua` (the registry: 224 engine calls plus two functions, one carrying
+    the hand-verified `slot6` defect)
+  - `data038_kom/SQUARE_Unit.lua`, the only June file where simulated engine re-entry fires
+- `python june2017_re/ljdiff/ljdiff.py --twice`, started from a deleted `types.tsv`, converges
+  in 2 learn rounds, and both runs produce **byte-identical** traces (6 traces, a few seconds
+  a run).
+- `types.tsv` is generated (38 rows, none of them `compare-ambiguous` or `conflict`) and was
+  never hand-edited.
+- `--selftest` passes all 21 checks.
+
+**Layout.** `june2017_re/ljdiff/`:
+- `ljdiff.lua` is the runtime. It takes one chunk per process, in `learn` or `trace` mode.
+- `ljdiff.py` is the orchestrator:
+  - `ljdiff.py [FILES]` defaults to Kenta + MapData + SQUARE_Unit. Paths are under
+    `14JUN17\data\`.
+  - `--seeds N` defaults to 32.
+  - `--extra NAME=PATH.src.lua` adds a third side, compiled the same way. That covers a port
+    file or the pre-fix Kenta.
+  - `--twice` runs the determinism check.
+  - `--selftest` runs 21 checks on `selftest/selftest.lua`, with its own types file and
+    `selftest/reentrant.tsv`. The checks cover CLOBBER (had/unset), both re-entry kinds, the
+    `unsim` count, poison, both learners, the seeded `__eq`, and table-held entry points.
+- `types.tsv` is the shared, frozen type oracle.
+- `reentrant.tsv` is the engine re-entry census (see below).
+- Scratch goes to `tmp/ljdiff_*`, which is deleted and rebuilt on every run. **Don't give other
+  files that prefix.** The traces are `tmp/ljdiff_<dir>__<name>.<side>.json`, with sides `orig`,
+  `rt` and any `--extra` names.
+- **The round trip is unmodified ljd** (Phase 0's `transcode_stock` path) followed by
+  `compile-batch -v mar-2014`. Phase 4 has to point `build()` at the fixed decompiler.
+
+**Trace format** (one JSON object per side per file; events one per line, so they diff as
+text):
+- Header: `label`, `side`, `seeds`, `types_h32`, `load_error`, `restore`, `main_writes`,
+  `entries` (`name/arity`, `nested` for table-held functions).
+  - `types_h32` is a hash of the `types.tsv` it ran with. **2b must refuse to diff two sides
+    whose `types_h32` differ.**
+- `main` and each `calls[i]`: `fn`, `seed`, `arity`, `args`, `outcome`, `fatal`, `poison`,
+  `upvalue`, `clobber`, `harness`, `unsim`, `reenter`, `nevents`, `truncated`, `events`.
+  - `unsim` is the set of re-entrant methods called that were **not** simulated (see
+    "Engine re-entry").
+  - `outcome` is `RET …`, `ERROR <normalised message>`, or `BUDGET`.
+  - The `poison`, `clobber` and `harness` sets are kept outside the per-call event cap (4,000),
+    so a truncated call still reports them.
+- Event vocabulary:
+  - Mock activity: `CALL recv:M(args) -> ret`, `GET`, `SET`, `GREAD name` (first read of an
+    engine global in a call), `EQ <a> <b> -> bool`, `RANDOM`.
+  - Unknown reads: `POISON_READ slotN`, `POISON_USE`, `UPVALUE_READ uvN`.
+  - Frames and re-entry: `FCALL`/`FRET`/`FERR` (a nested file-function frame),
+    `CLOBBER caller callee slotN had|unset`, `REENTER method -> fn`, `REENTER_ERROR`.
+  - `HARNESS_ERROR`.
+
+**How it departs from the Design above, and why:**
+1. **Compare attribution is exact, not "the last mock value".**
+   - Arithmetic, `unm`, `concat` and node-vs-node `<` run the node's own metamethod, so the node
+     is known.
+   - Node-vs-number `<` raises before any metamethod. For those, the `xpcall` handler reads the
+     erroring frame's registers (`debug.getlocal` works on stripped frames) and scans its
+     `ISLT/ISGE/ISLE/ISGT` instructions (`jit.util.funcbc`) for the node-vs-number operand pair.
+   - One candidate is recorded as `compare`. Several are `compare-ambiguous`, and the newest
+     wins. An ambiguous guess later indexed or called as a number is pinned back to `object`
+     (`conflict`).
+   - The self-test proves the probe's shape: `a = o:A(); b = o:B(); if a <= 3` retypes `A` and
+     leaves `B` alone.
+2. **Equality needed two mechanisms the Design didn't have.** `==` never raises, so the error
+   oracle can't learn from it. The first 12-seed run reached neither arm of `COMMON_FRAMEMOVE`,
+   a known defect site.
+   - **Node == node:** a seeded `__eq`. It answers true with probability 1/3 from hash(seed,
+     sorted pair of paths), is logged as `EQ`, and is never learned from. `NMT.__call` uses
+     `rawequal` for the `a:M()` versus `a.M()` test. Otherwise `__eq` would label a call on a
+     stale receiver as a method call on the right object.
+   - **`x:M() == false/true/7/"s"`:** a static pass over the *original's* bytecode (learn mode
+     only). It looks for `TGETS/GGET rA "M"; CALL rA; … ISEQP/ISNEP` (boolean), `ISEQN/ISNEN`
+     (number) or `ISEQS/ISNES` (string) on `rA`, stopping at any write to `rA`.
+     - The evidence is recorded as `static-iseqp/n/s`.
+     - Names the chunk defines itself are skipped.
+   - Encodings were checked empirically on a probe: `ISEQP` D is 0 nil, 1 false, 2 true; the
+     `TGETS` name is `funck(f, -C-1)`; the `GGET` name is `funck(f, -D-1)`.
+3. **Arguments are typed too** (`arg FN#I`). MapData's `math.abs(slot1 - slot0)` needed it.
+   - Key kinds: `ret NAME`, `field NAME`, `arg FN#I`, `global NAME`.
+   - Types: `number`, `string`, `boolean`, `object`.
+   - Keys are **name-only**, shared across files.
+4. **Deep restore.** Before every call, the post-main state is deep-copied (functions and nodes
+   shared, node state reset), so a call can't leak into the next.
+   - Above 400k cells it falls back to shallow restore, recorded in the trace's `restore` field.
+   - Both files here are `deep`.
+5. **Also built:**
+   - functions held in main-chunk tables are entry points too, re-found by key chain
+   - `math.random` is seeded and logged
+   - the sandbox's `pcall`/`xpcall` re-raise harness control errors
+   - nil is returned for 1/6 of untyped method returns (never for args, fields or globals)
+6. **Seeds default to 32.** COMMON_FRAMEMOVE's arm 1 needs several independent draws to line
+   up. At 12 seeds the original never reached it; at 32 it does (seeds 15 and 28). Runtime is
+   unchanged.
+
+**What the traces show.** These are leads for 2b, not verdicts.
+- The reorder that the fold causes makes most rows differ before the poison read. Those
+  diagnosis rules come from Phase 1.
+- Outcomes are the same on both sides unless the table says otherwise.
+
+| Kenta function (32 seeds) | Seeds that differ | Round trip read an unwritten `slotN` | Fatal | Names |
+|---|---|---|---|---|
+| `…_ATTACK_A_ATTACK_DASH_STATE_START` | 32 | 32 | 0 | `slot3`, `slot4`, `slot5` |
+| `…_ATTACK_B_WAIT_FRAME_MOVE` | 10 | 10 | 0 | `slot5`, `slot6` |
+| `…_COMMON_FRAMEMOVE` | 12 | 4 | 4 | `slot3` |
+| `…_SPECIAL_ATTACK_FIRE_FRAME_MOVE` | 32 | 28 | 0 | `slot3` |
+| `…_SPECIAL_ATTACK_FIRE_EMOTION_FRAME_MOVE` | 32 | 28 | 0 | `slot3` |
+| `…_ATTACK_B_READY_STATE_START` | 27 | 0 | 0 | - |
+| the other 7 (`CF_*`, `MovePos`, 5 `…_STATE_START`) | 0 | 0 | 0 | - |
+
+- **`DASH_STATE_START` reads all three registers** that Phase 1's count lead named (`slot3`,
+  `slot4`, `slot5`), not the 2 in `MODS.md`.
+- **The softlock itself is visible.** On `B_WAIT_FRAME_MOVE` seeds 3, 27 and 30, the round
+  trip calls `PlayEffectSetWithCustomPos_LUA` on `a2:GetVector_LUA()#2` (the stale vector)
+  instead of `a1:GetEffectSet()#1`.
+  - That call involves no poison read of its own: it is a receiver-path difference. The same
+    calls also carry an unrelated `POISON_READ slot6` from the `RandVal` elseif.
+  - On the `GetNearestUserUnit` path (seeds 16, 25, 32), `slot5` is a `POISON_READ` instead,
+    and every use of it is logged.
+- **COMMON_FRAMEMOVE.** Arm 1 is reached on the original, and the round trip's `elseif` is
+  fatal on `slot3 <= 0.2`.
+  - **The original's `elseif` body is unreached at 32 seeds.** It needs flag1 true, flag2 false
+    and a ratio ≤ 0.2 at once, about 2–3% per seed.
+  - Report that path as unreached. Don't add exploration heuristics for it.
+- **`B_READY_STATE_START` is a reorder-only divergence:** the same events and the same outcome.
+  - ljd's rebuilt `GetLineMap():GetStartPosition(GetVector_LUA(0).x).y == …` evaluates
+    `GetVector_LUA(0)` after the second `GetLineMap()`.
+  - 2b needs a reorder-only class for this, kept apart from the dropped-assignment class.
+- **MapData `ComputeCOBOExpressTicketCost`:** the round trip reads `slot6` on all 32 seeds, and
+  every one then errors with `bad argument #1 to 'abs'` where the original returns a number.
+  That is the hand-verified defect. `CheckCOBOExpressTicketMapID` never differs.
+- **CLOBBER is 0 in both files** because neither file has a file function that calls another.
+  The self-test proves the signal:
+  - `CLOBBER outer_had inner slot1 had`
+  - `CLOBBER outer_unset inner slot1 unset`, where the callee's write masks what would have
+    been a poison read
+  - `CLOBBER user cb slot3 had` through a simulated re-entry
+
+**SQUARE_Unit.lua (32 seeds, 55 entry points):**
+- Simulated re-entry fires **375 times** (`StateChange_LUA -> FUNC_STATE_START_*`).
+- The round trip reads the unwritten **`uv0` in `FUNC_FRAME_MOVE_RIDING_DASH`** on all 32
+  seeds. This is a captured file-scope local printed as `uv0` (`RUN_SPEED * 1.3 * uv0`), the
+  class Phase 1 predicted. It is a 2b lead.
+- It reads the unwritten **`slot4` in `FUNC_EVENT_PROCESS_EMOTION`** on 15 seeds, also a
+  2b lead.
+- **CLOBBER is 0 even with re-entry live.** The callers change state last and read no
+  `slotN` afterwards.
+
+**Engine re-entry: `june2017_re/ljdiff/reentrant.tsv`.**
+- **How the census was built.** It is a census of `X2Lib`/`KTDXLIB` preprocessed with `cl -E`
+  under the US_SERVICE flags, so disabled `#ifdef` blocks and comments are excluded: 76 live
+  `lua_tinker::call` sites, 1,438 compiled `class_def` bindings, and 5 `def` bindings.
+  - Caller chains came from a name-based graph, 4 levels deep, and every chain was then read
+    by hand.
+  - It has 120 rows: **41 synchronous, 24 deferred, 12 unclear, 43 not-bound**, each with its
+    C++ sites.
+- **The `sim` column says how the mock handles each synchronous row. Exactly one is
+  simulated.**
+  - **`CX2SquareUnit::StateChange_LUA`** runs the new state's `FUNC_STATE_START`
+    synchronously, and the old state's `FUNC_STATE_END` first (`X2SquareUnit.cpp:2320`,
+    called as `(g_pKTDXApp, g_pMain, game, this)`).
+  - `CX2GUNPC` binds the **same Lua name** and defers it: it only sets `nextState`
+    (`X2GUNPC.cpp:8437`).
+  - The mock can't see the receiver's class. So it resolves the target through the state
+    table's `FUNC_STATE_START` field, and stays silent when the field is absent.
+  - Of the 7,328 June files, only `data038_kom/SQUARE_Unit.lua` has that field, and no file
+    has both it and `LUA_STATE_START_FUNC`. NPC scripts therefore never re-enter, and Kenta's
+    traces show 0.
+  - `FUNC_STATE_END` runs only when this call already changed the receiver's state, because the
+    state at call entry is unknown.
+- **The other 40 synchronous rows are `none:<why>`.** Calls to them land in the per-call
+  `unsim` set:
+  - **24 `file-chunk`:** another file runs. This covers:
+    - `UI_Control_Sound.lua` on every `Create*` control and scroll-bar init
+    - message-box dialog files
+    - `IncludeLua`, `SetLineMap`, `SetWorldCamera`, `PlayWorldCamera` and `SetSlotData`
+  - **13 `stored-ref`:** the `CKTDGUIButton` setters, which fire a stored `SetCustomFunc*` name
+    only while the button is hovered or pressed.
+  - **1 `own-lua-thread`:** `PetActionCheat`. Pet state functions run on the pet's own
+    `m_LuaManager` thread (`X2Pet.cpp:2742`).
+  - **1 `cross-file`:** `ReInitAtkAndDef_LUA` calls `CalculateExtraStatValue` in
+    `NewNPCStatFormula.lua`. That is our `SERV_IRUHADEV_EXTRA_NPC_STAT` code, not the studio's.
+  - **1** is the `FUNC_STATE_END` row, folded into the simulated row.
+- **The caveat Phase 5 must repeat to the user.** Say this, not "direct calls only":
+
+  > The clobber census covers direct calls between same-file functions, and engine re-entry
+  > through `CX2SquareUnit::StateChange_LUA`. It does **not** cover:
+  > - re-entry that runs another file: the 24 `file-chunk` rows, including a dialog file's
+  >   main chunk, whose round-trip `slotN` are globals in the same state
+  > - stored-ref callbacks
+  > - the 12 `unclear` rows (combo/slider/check-box event handlers, `SendGameMessage` with
+  >   its 4th argument true, direct `CX2GUUser::StateChange`, text `.tet`/`.xet` loads)
+  >
+  > The `unsim` counts in the traces say how often each file called one of these.
+
+**Limitations 2b and the sweeps must carry:**
+- **Name-only type keys.** Two classes with a same-named method that returns different types
+  collide. The first learned type wins.
+- **Booleans are learned only from `x:M() == true/false`** within 64 instructions of the call.
+  - A plain truthiness test (`if x:IsFoo() then`) gets a node (truthy) or nil (1/6).
+  - Node-vs-number `==` is always false unless the static pass typed the method.
+- **`compare-ambiguous` is a heuristic.** Its rows are labelled in `types.tsv`.
+- **Only global functions are wrapped.** A table-held function called through its table from
+  script gets no frame and no CLOBBER. As an entry point it is called directly.
+- **One chunk per run.** Cross-file interaction isn't simulated in either direction:
+  - calls into another file's functions
+  - another file's main chunk running mid-call
+  - the shared-state effects of the client loading every script into one `lua_State`
+- **Determinism is shown for these two files only.** `pairs()` over a table with table keys
+  hashes by address, which can vary between processes. If a later `--twice` differs, look
+  there first.
+- **The per-call event cap is 4,000; the main chunk's is 400,000.** Beyond them, `truncated`
+  is set, and the poison, clobber and harness sets stay complete.
+
+---
+
 ## Phase 2b — Differential harness: diff and calibration
 
 **Paste with:** Starting context + this section + "Phase 1 result" + "Phase 2a" (Design only).
