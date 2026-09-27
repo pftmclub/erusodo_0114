@@ -1822,6 +1822,13 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	LoadDamageEffect();
 	LoadHitParticle();
 	LoadHitDamageEffect();
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f7aab0 (ctor) @31f7e852-31f7e867: HIT_EFFECT_SET%d, DIE_CREATE_NPC%d,
+	// TOUCH_LAND_DAMAGE_EFFECT%d, in that call order. Phase 6b: parse only.
+	LoadHitEffectSet();
+	LoadDieCreateNpc();
+	LoadTouchLandDamageEffect();
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 	m_DamageEffectDataInLua.m_pDamageDataNext = new CX2DamageManager::DamageData();
 	*(m_DamageEffectDataInLua.m_pDamageDataNext) = m_DamageData;
@@ -5614,6 +5621,13 @@ CX2DamageEffect::ParticleData* CX2DamageEffect::CEffect::LoadParticleTable()
 	PLUA_GET_VALUE_ENUM( m_pLuaManager, "SHOW_LEVEL", pData->m_iShowLevel, CX2GameOption::OptionLevel, (int) CX2GameOption::OL_LOW );
 #endif//X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+	// June2017 FUN_31f66e60 (LoadParticleTable) @31f68d90-31f68efe: APPLY_START_PARTICLE_SCALE, int
+	// getter 32fe9fd0, default 0. Read unconditionally regardless of which wrapper called this
+	// function (START/PASSIVE/TIME/HIT_PARTICLE). Phase 6b: parse only.
+	PLUA_GET_VALUE(			m_pLuaManager, "APPLY_START_PARTICLE_SCALE",	pData->iApplyStartParticleScale,	0	);
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+
 	return pData;
 	
 }
@@ -6677,6 +6691,201 @@ void CX2DamageEffect::CEffect::FollowLine()
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+// June2017 FUN_31f7aab0 (ctor) @31f7e7a4-31f7e7da: tries "LOCK_ON_DATA_ULTIMATE" first when
+// m_bUseUltimateDamageData is set (forced false -- unsupported system, see Phase 5), falling
+// back to "LOCK_ON_DATA" only when that table is absent. With the flag forced false, only the
+// base table is read today; kept parseable for when Phase 7/8 can identify FUN_31fcf3e0.
+void CX2DamageEffect::CEffect::LoadLockOnData()
+{
+	if( true == m_bUseUltimateDamageData )
+	{
+		if( true == m_pLuaManager->BeginTable( "LOCK_ON_DATA_ULTIMATE" ) )
+		{
+			LoadLockOnDataBlock();
+			m_pLuaManager->EndTable();
+			return;
+		}
+	}
+
+	if( m_pLuaManager->BeginTable( "LOCK_ON_DATA" ) == true )
+	{
+		LoadLockOnDataBlock();
+		m_pLuaManager->EndTable();
+	}
+}
+
+void CX2DamageEffect::CEffect::LoadLockOnDataBlock()
+{
+	PLUA_GET_VALUE_ENUM( m_pLuaManager, "LOCK_ON_TYPE", m_LockOnData.m_LockOnType, LOCK_ON_TYPE, LOT_NONE );
+	PLUA_GET_VALUE( m_pLuaManager, "CURVE_SPEED",	m_LockOnData.m_fCurveSpeed, 0.0f );
+	//{{ kimhc // 2010.12.17 // 2010-12-23 New Character CHUNG
+#ifdef	NEW_CHARACTER_CHUNG
+	PLUA_GET_VALUE( m_pLuaManager, "IN_DISTANCE_TO_DIE_EFFECT",	m_LockOnData.m_fInDistanceToDieEffect, -1.0f );
+#endif	NEW_CHARACTER_CHUNG
+	//}} kimhc // 2010.12.17 //  2010-12-23 New Character CHUNG
+
+	//{{ kimhc // 2011.1.18 // 청 1차 전직
+#ifdef	CHUNG_FIRST_CLASS_CHANGE
+	// 생성 후 몇초 이후부터 Lock을 수행하기 위해 사용
+	PLUA_GET_VALUE( m_pLuaManager, "TIME_UNLOCK_FROM_START",	m_LockOnData.m_fTimeUnlockFromStart, 0.0f );
+#endif	CHUNG_FIRST_CLASS_CHANGE
+	//}} kimhc // 2011.1.18 // 청 1차 전직
+#ifdef UPGRADE_RAVEN
+	PLUA_GET_VALUE( m_pLuaManager, "TIME_UNLOCK_AFTER_START",	m_LockOnData.m_fUnLockTime, 9999.f );
+#endif
+#ifdef SERV_ADD_CHUNG_SHELLING_GUARDIAN
+	PLUA_GET_VALUE( m_pLuaManager, "TARGET_RANGE",	m_LockOnData.m_fRange, -1.f );
+#endif
+#ifdef BALANCE_DEADLY_CHASER_20130214
+	// 이전 타겟팅 한 대상을 재 타겟 하지 않도록 하는 기능
+	PLUA_GET_VALUE( m_pLuaManager, "NOT_TARGET_PRE_LOCK_ON_TARGET", m_LockOnData.m_bIsNotTargetPreLockOnTarget, false );
+
+#ifdef _IN_HOUSE_
+	//NOT_TARGET_PRE_LOCK_ON_TARGET 기능은 LOT_NEARST_UID_VECTOR_IN_RANGE에서만 사용 가능.
+	if( true == m_LockOnData.m_bIsNotTargetPreLockOnTarget && 
+		LOT_NEARST_UID_VECTOR_IN_RANGE != m_LockOnData.m_LockOnType )
+	{
+		g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( -999, -999 ), L"LOT_NEARST_UID_VECTOR_IN_RANGE 타입에서만 NOT_TARGET_PRE_LOCK_ON_TARGET 적용 가능", NULL );
+	}
+#endif //_IN_HOUSE_
+#endif //BALANCE_DEADLY_CHASER_20130214
+
+#ifdef FINALITY_SKILL_SYSTEM //김창한
+	PLUA_GET_VALUE( m_pLuaManager, "ONLY_FRONT",	m_LockOnData.m_bIsOnlyFront, false );
+	if( m_LockOnData.m_bIsOnlyFront == true && m_optrOwnerUnit != null )
+	{
+		m_LockOnData.m_bSaveIsRight = m_optrOwnerUnit->GetIsRight();
+		m_LockOnData.m_iSaveLastTouchLineIndex = m_optrOwnerUnit->GetLastTouchLineIndex();
+		m_LockOnData.m_vecSaveOwnerPos = m_optrOwnerUnit->GetPos();
+	}
+#endif //FINALITY_SKILL_SYSTEM
+
+#ifdef LOCK_ON_USER_ONLY_ON
+	PLUA_GET_VALUE( m_pLuaManager, "ONLY_TARGET_ATTACK",	m_LockOnData.m_bIsOnlyTargetAttack, false );
+#endif //LOCK_ON_USER_ONLY_ON
+
+#ifdef BALANCE_PATCH_20131107
+	//기능 자체가 범위안에 적이 없으면 멈추는 기능이므로
+	//NOT_FIND_TARGET_MOVE_STOP 기능은 LOT_NEARST_UID_VECTOR_IN_RANGE 에서만 사용가능.
+	//또한 MeshPlayer 자체에서 DirSpeed값을 Initial로 했을때만을 고려해서 작업함.
+	//at 0.200 등으로 중간에 변하는 속도에 대해서는 고려되지 않음.
+	bool bNotFindTargetMoveStop = false;
+	PLUA_GET_VALUE( m_pLuaManager, "NOT_FIND_TARGET_MOVE_STOP",	bNotFindTargetMoveStop, false );
+	m_LockOnData.m_eNotFindTargetMoveStop = (bNotFindTargetMoveStop)? LOCSD_NOT_SAVE_DIR_SPEED : LOCSD_NONE;
+#endif //BALANCE_PATCH_20131107
+
+	// June2017 FUN_31f71930, Phase 6b: keys March did not read before this phase. Parse only --
+	// runtime use (the AT_* mode selection, the INIT_TARGET lookup) is Phase 7b.
+	PLUA_GET_VALUE( m_pLuaManager, "RANDOM_SEED",					m_LockOnData.m_iRandomSeed,							-1		);	/// June @31f7359b, int getter 32fe9fd0, default -1
+	PLUA_GET_VALUE( m_pLuaManager, "UNLOCK_START_AFTER_ATTACK",	m_LockOnData.m_iUnlockStartAfterAttack,				-1		);	/// June @31f724d0, int getter 32fe9fd0, default -1
+	PLUA_GET_VALUE( m_pLuaManager, "RETARGET_COOLTIME_AFTER_ATTACK",	m_LockOnData.m_fRetargetCooltimeAfterAttack,		-1.f	);	/// June @31f726a6, float getter 32fea370, default -1.f
+	PLUA_GET_VALUE( m_pLuaManager, "Y_DIR_INIT",					m_LockOnData.m_bYDirInit,							false	);	/// June @31f72d4e, bool getter 32fe9e40, default false
+	PLUA_GET_VALUE( m_pLuaManager, "LOCK_ON_OFFSET_Y_POS",			m_LockOnData.m_fLockOnOffsetYPos,					100.f	);	/// June @31f72e3d, float getter 32fea370, default 100.f (binary-only)
+	PLUA_GET_VALUE( m_pLuaManager, "LOCK_ON_TARGET_BONE_NAME",		m_LockOnData.m_strLockOnTargetBoneName,			L""		);	/// June @31f72fbe, wstring getter 32feae90, default L""
+	PLUA_GET_VALUE( m_pLuaManager, "INIT_TARGET",					m_LockOnData.m_bInitTarget,							false	);	/// June @31f73691, bool getter 32fe9e40, default false
+	PLUA_GET_VALUE( m_pLuaManager, "NOT_LOCKON_INVINCIBLE_TARGET",	m_LockOnData.m_bNotLockonInvincibleTarget,			false	);	/// June @31f73846, bool getter 32fe9e40, default false
+
+	// NOT_TARGET_PRE_LOCK_ON_TARGET semantics-differ (matrix): June also reads this same key as
+	// an int (getter 32fe9fd0, default 0, @31f721dd), alongside March's existing bool above. Kept
+	// as a separate member; deciding how the two coexist is Phase 7b's, as with Phase 5's
+	// DAMAGE_DATA_CHANGE_TIME.
+	PLUA_GET_VALUE( m_pLuaManager, "NOT_TARGET_PRE_LOCK_ON_TARGET",	m_LockOnData.m_iNotTargetPreLockOnTarget,			0		);
+
+	// June "LOCK_ON_RANGE_FROM_OWNER" @31f73202-31f7354b: June selects one of these four members
+	// at ctor time by the effect's current game mode (dungeon/field/raid-field/pvp), read from
+	// *(int*)(DAT_3377585c+0x8c) -- not identified. Parsed unconditionally here (every member
+	// present, regardless of mode); the mode-based selection is Phase 7b's.
+	m_LockOnData.m_fLockOnRangeFromOwnerAtDungeon	= 99999.f;
+	m_LockOnData.m_fLockOnRangeFromOwnerAtField		= 1000.f;
+	m_LockOnData.m_fLockOnRangeFromOwnerAtRaidField	= 99999.f;
+	m_LockOnData.m_fLockOnRangeFromOwnerAtPvp		= 99999.f;
+	if( true == m_pLuaManager->BeginTable( "LOCK_ON_RANGE_FROM_OWNER" ) )
+	{
+		m_LockOnData.m_bHasLockOnRangeFromOwner = true;
+		PLUA_GET_VALUE( m_pLuaManager, "AT_DUNGEON",		m_LockOnData.m_fLockOnRangeFromOwnerAtDungeon,		99999.f	);	/// June @31f73197->31f734c9
+		PLUA_GET_VALUE( m_pLuaManager, "AT_FIELD",			m_LockOnData.m_fLockOnRangeFromOwnerAtField,		1000.f	);	/// June @31f7339a->31f73415
+		PLUA_GET_VALUE( m_pLuaManager, "AT_RAID_FIELD",	m_LockOnData.m_fLockOnRangeFromOwnerAtRaidField,	99999.f	);	/// June @31f732aa->31f734c9 (binary-only)
+		PLUA_GET_VALUE( m_pLuaManager, "AT_PVP",			m_LockOnData.m_fLockOnRangeFromOwnerAtPvp,			99999.f	);	/// June @31f73468->31f734c9
+		m_pLuaManager->EndTable();
+	}
+
+	// June "DUNGEON_TARGET_RANGE_MIN_MAX"/"PVP_TARGET_RANGE_MIN_MAX" @31f73225-31f73438: a plaintext
+	// sub-table read positionally (index 1 = min, index 2 = max), reset to both defaults unless
+	// both indices parse and max is strictly greater than min.
+	m_LockOnData.m_fDungeonTargetRangeMin = 150.f;
+	m_LockOnData.m_fDungeonTargetRangeMax = 750.f;
+	if( true == m_pLuaManager->BeginTable( "DUNGEON_TARGET_RANGE_MIN_MAX" ) )
+	{
+		m_LockOnData.m_bHasDungeonTargetRangeMinMax = true;
+		float fMin = 150.f, fMax = 750.f;
+		if( false == m_pLuaManager->GetValue( 1, fMin ) || false == m_pLuaManager->GetValue( 2, fMax ) || fMax <= fMin )
+		{
+			fMin = 150.f;
+			fMax = 750.f;
+		}
+		m_LockOnData.m_fDungeonTargetRangeMin = fMin;
+		m_LockOnData.m_fDungeonTargetRangeMax = fMax;
+		m_pLuaManager->EndTable();
+	}
+
+	m_LockOnData.m_fPvpTargetRangeMin = 150.f;
+	m_LockOnData.m_fPvpTargetRangeMax = 300.f;
+	if( true == m_pLuaManager->BeginTable( "PVP_TARGET_RANGE_MIN_MAX" ) )
+	{
+		m_LockOnData.m_bHasPvpTargetRangeMinMax = true;
+		float fMin = 150.f, fMax = 300.f;
+		if( false == m_pLuaManager->GetValue( 1, fMin ) || false == m_pLuaManager->GetValue( 2, fMax ) || fMax <= fMin )
+		{
+			fMin = 150.f;
+			fMax = 300.f;
+		}
+		m_LockOnData.m_fPvpTargetRangeMin = fMin;
+		m_LockOnData.m_fPvpTargetRangeMax = fMax;
+		m_pLuaManager->EndTable();
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	// JUNE_FX LOD_TEMPLET <name> <key>=<v> ..., only when this LOCK_ON_DATA uses a non-default
+	// Phase-6b key. Ctor-time only, so no throttling map is needed.
+	{
+		WCHAR wszJuneFxLod[768] = {0};
+		StringCchPrintfW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L"JUNE_FX LOD_TEMPLET %s", GetName() );
+		const size_t uiLodNameOnly = wcslen( wszJuneFxLod );
+		WCHAR wszLodKey[192] = {0};
+		if( -1 != m_LockOnData.m_iRandomSeed )
+		{
+			StringCchPrintfW( wszLodKey, ARRAY_SIZE(wszLodKey), L" RANDOM_SEED=%d", m_LockOnData.m_iRandomSeed );
+			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), wszLodKey );
+		}
+		if( -1 != m_LockOnData.m_iUnlockStartAfterAttack )
+		{
+			StringCchPrintfW( wszLodKey, ARRAY_SIZE(wszLodKey), L" UNLOCK_START_AFTER_ATTACK=%d", m_LockOnData.m_iUnlockStartAfterAttack );
+			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), wszLodKey );
+		}
+		if( true == m_LockOnData.m_bYDirInit )
+			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L" Y_DIR_INIT=1" );
+		if( true == m_LockOnData.m_bInitTarget )
+			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L" INIT_TARGET=1" );
+		if( true == m_LockOnData.m_bNotLockonInvincibleTarget )
+			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L" NOT_LOCKON_INVINCIBLE_TARGET=1" );
+		if( false == m_LockOnData.m_strLockOnTargetBoneName.empty() )
+		{
+			StringCchPrintfW( wszLodKey, ARRAY_SIZE(wszLodKey), L" LOCK_ON_TARGET_BONE_NAME=%s", m_LockOnData.m_strLockOnTargetBoneName.c_str() );
+			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), wszLodKey );
+		}
+		if( true == m_LockOnData.m_bHasLockOnRangeFromOwner )
+			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L" LOCK_ON_RANGE_FROM_OWNER=1" );
+		if( true == m_LockOnData.m_bHasDungeonTargetRangeMinMax )
+			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L" DUNGEON_TARGET_RANGE_MIN_MAX=1" );
+		if( true == m_LockOnData.m_bHasPvpTargetRangeMinMax )
+			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L" PVP_TARGET_RANGE_MIN_MAX=1" );
+		if( wcslen( wszJuneFxLod ) != uiLodNameOnly )
+			CX2OfflineLog::Server( L"%s", wszJuneFxLod );
+	}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+}
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 void CX2DamageEffect::CEffect::LoadLockOnData()
 {
 	if( m_pLuaManager->BeginTable( "LOCK_ON_DATA" ) == true )
@@ -6742,9 +6951,50 @@ void CX2DamageEffect::CEffect::LoadLockOnData()
 		m_pLuaManager->EndTable();
 	}
 }
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+// June2017 FUN_31f7aab0 (ctor) @31f7e7d3-31f7e7e9: tries "BLACKHOLE_DATA_ULTIMATE" first when
+// m_bUseUltimateDamageData is set (forced false), falling back to "BLACKHOLE_DATA" -- the same
+// shape as LoadLockOnData above. No new keys inside the table itself.
+void CX2DamageEffect::CEffect::LoadBlackHoleData()
+{
+	if( true == m_bUseUltimateDamageData )
+	{
+		if( true == m_pLuaManager->BeginTable( "BLACKHOLE_DATA_ULTIMATE" ) )
+		{
+			m_BlackHoleData.m_bEnabled = true;
+			LoadBlackHoleDataBlock();
+			m_pLuaManager->EndTable();
+			return;
+		}
+	}
+
+	if( m_pLuaManager->BeginTable( "BLACKHOLE_DATA" ) == true )
+	{
+		m_BlackHoleData.m_bEnabled = true;
+		LoadBlackHoleDataBlock();
+		m_pLuaManager->EndTable();
+	}
+	else
+	{
+		m_BlackHoleData.m_bEnabled = false;
+	}
+}
+
+void CX2DamageEffect::CEffect::LoadBlackHoleDataBlock()
+{
+	PLUA_GET_VALUE( m_pLuaManager, "DRAGGING_SPEED", m_BlackHoleData.m_fDraggingSpeed, 1.f );
+	PLUA_GET_VALUE( m_pLuaManager, "DRAGGING_RANGE", m_BlackHoleData.m_fDraggingRange, 1.f );
+
+	PLUA_GET_VALUE( m_pLuaManager, "DRAG_ONLY_HITTED_UNIT", m_BlackHoleData.m_bDragOnlyHittedUnit, false );
+#ifdef ARA_CHARACTER_BASE
+	PLUA_GET_VALUE( m_pLuaManager, "CAN_PASS_UNIT", m_BlackHoleData.m_bCanPassUnit, false );
+#endif
+}
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 void CX2DamageEffect::CEffect::LoadBlackHoleData()
 {
 	if( m_pLuaManager->BeginTable( "BLACKHOLE_DATA" ) == true )
@@ -6765,6 +7015,7 @@ void CX2DamageEffect::CEffect::LoadBlackHoleData()
 		m_BlackHoleData.m_bEnabled = false;
 	}
 }
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
@@ -7316,6 +7567,11 @@ void CX2DamageEffect::CEffect::LoadSoundData()
 		PLUA_GET_VALUE(			m_pLuaManager, "USE_GLOBAL_TIME",	data.bUseGlobalTime,	false	);
 
 		PLUA_GET_VALUE(			m_pLuaManager, "LOOP",	data.bLoop,	false	);	// 동작안할꺼임..... 왜냐.. 플레이하는곳 note확인해보삼
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+		// June2017 FUN_31f73f30 (LoadSoundData). Phase 6b: parse only.
+		PLUA_GET_VALUE(			m_pLuaManager, "DELETE_WHEN_EFFECT_END",	data.bDeleteWhenEffectEnd,		false	);	/// June @31f744af, bool getter 32fe9e40, default false
+		PLUA_GET_VALUE(			m_pLuaManager, "THREE_DIMENSIONAL_SOUND",	data.bThreeDimensionalSound,	true	);	/// June @31f74649, bool getter 32fe9e40, default true
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 		
 		m_DamageEffectDataInLua.m_vecSoundData.push_back( data );
 		index++;
@@ -7600,6 +7856,83 @@ void CX2DamageEffect::CEffect::LoadHitDamageEffect()
 		m_pLuaManager->EndTable();
 	}
 }
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+// June2017 FUN_31f64c80: HIT_EFFECT_SET%d, June-only (no March equivalent). ctor call @31f7e854.
+// Phase 6b: parse only; runtime is Phase 7c. binary-only: no in-scope June data uses this sub-table.
+void CX2DamageEffect::CEffect::LoadHitEffectSet()
+{
+	int index = 0;
+	while( m_pLuaManager->BeginTable( "HIT_EFFECT_SET", index ) == true )
+	{
+		HitEffectSetData* pData = new HitEffectSetData;
+		PLUA_GET_VALUE(		m_pLuaManager, "EVENT_TIME",		pData->fEventTime,			-1.0f	);	/// June @31f64cde, float getter 32fea370
+		PLUA_GET_VALUE(		m_pLuaManager, "EFFECT_SET_NAME",	pData->strEffectSetName,	L""		);	/// June @31f64e18, wstring getter 32feae90
+
+		m_DamageEffectDataInLua.m_vecHitEffectSet.push_back( pData );
+		index++;
+		m_pLuaManager->EndTable();
+	}
+}
+
+// June2017 FUN_31f66230: DIE_CREATE_NPC%d, June-only (no March equivalent). ctor call @31f7e85b.
+// Phase 6b: parse only; runtime is Phase 7c.
+void CX2DamageEffect::CEffect::LoadDieCreateNpc()
+{
+	int index = 0;
+	while( m_pLuaManager->BeginTable( "DIE_CREATE_NPC", index ) == true )
+	{
+		DieCreateNpcData data;
+		PLUA_GET_VALUE(		m_pLuaManager, "EVENT_TIME",	data.fEventTime,	-1.0f	);	/// June @31f662f6, float getter 32fea370
+		PLUA_GET_VALUE(		m_pLuaManager, "NPC_ID",		data.iNpcID,		0		);	/// June @31f663d1, int getter 32fe9fd0
+
+		m_DamageEffectDataInLua.m_vecDieCreateNpc.push_back( data );
+		index++;
+		m_pLuaManager->EndTable();
+	}
+}
+
+// June2017 FUN_31f76a90: TOUCH_LAND_DAMAGE_EFFECT%d, June-only (no March equivalent). ctor call
+// @31f7e862. Reuses DamageEffectData -- same field set as CREATE/DIE/HIT_DAMAGE_EFFECT (confirmed
+// by matching June's decrypted key order 1:1), except EVENT_TIME is never read at this scope.
+// Phase 6b: parse only; runtime (the touch-land trigger itself) is Phase 7c.
+void CX2DamageEffect::CEffect::LoadTouchLandDamageEffect()
+{
+	int index = 0;
+	while( m_pLuaManager->BeginTable( "TOUCH_LAND_DAMAGE_EFFECT", index ) == true )
+	{
+		DamageEffectData* pData = new DamageEffectData;
+
+		PLUA_GET_VALUE_ENUM(	m_pLuaManager, "POSITION_TYPE",			pData->posType,				CX2DamageEffect::POSITION_TYPE, DEPT_BONE );	/// June @31f76b93
+		PLUA_GET_VALUE(			m_pLuaManager, "DAMAGE_EFFECT_NAME",	pData->damageEffectName,	L""		);	/// June @31f76cd9
+		PLUA_GET_VALUE(			m_pLuaManager, "BONE_NAME",				pData->boneName,		L""		);	/// June @31f76e5e
+		PLUA_GET_VALUE(			m_pLuaManager, "APPLY_ROTATE",			pData->bApplyRotate,	true	);	/// June @31f76f58
+		PLUA_GET_VALUE(			m_pLuaManager, "APPLY_ROTATE_ORIGIN",	pData->bApplyRotateOrigin,	false	);	/// June @31f77090
+#ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //이창한
+		PLUA_GET_VALUE(			m_pLuaManager, "ONLY_APPLY_ROTATE",		pData->bOnlyApplyRotateOffset,		false	);	/// June @31f77235
+#endif //SERV_ELESIS_SECOND_CLASS_CHANGE
+		PLUA_GET_VALUE(			m_pLuaManager, "APPLY_ROTATED_OFFSET",	pData->bApplyRotatedOffset,	false	);	/// June @31f773bf
+		PLUA_GET_VALUE(			m_pLuaManager, "ROTATE_X",				pData->vRotateAngleDegree.x,	0.0f	);	/// June @31f7755a
+		PLUA_GET_VALUE(			m_pLuaManager, "ROTATE_Y",				pData->vRotateAngleDegree.y,	0.0f	);	/// June @31f77631
+		PLUA_GET_VALUE(			m_pLuaManager, "ROTATE_Z",				pData->vRotateAngleDegree.z,	0.0f	);	/// June @31f77708
+		PLUA_GET_VALUE(			m_pLuaManager, "OFFSET_X",				pData->vOffset.x,	0.0f	);	/// June @31f777df
+		PLUA_GET_VALUE(			m_pLuaManager, "OFFSET_Y",				pData->vOffset.y,	0.0f	);	/// June @31f778b6
+		PLUA_GET_VALUE(			m_pLuaManager, "OFFSET_Z",				pData->vOffset.z,	0.0f	);	/// June @31f7798d
+		PLUA_GET_VALUE(			m_pLuaManager, "SCALE_X",				pData->vScale.x,		1.0f	);	/// June @31f77a68
+		PLUA_GET_VALUE(			m_pLuaManager, "SCALE_Y",				pData->vScale.y,		1.0f	);	/// June @31f77b33
+		PLUA_GET_VALUE(			m_pLuaManager, "SCALE_Z",				pData->vScale.z,		1.0f	);	/// June @31f77c01
+		PLUA_GET_VALUE(			m_pLuaManager, "PASSIVE_PARTICLE_X",	pData->vPassiveParticleScale.x,	0.0f	);	/// June @31f77ceb (binary-only)
+		PLUA_GET_VALUE(			m_pLuaManager, "PASSIVE_PARTICLE_Y",	pData->vPassiveParticleScale.y,	0.0f	);	/// June @31f77e85 (binary-only)
+		PLUA_GET_VALUE(			m_pLuaManager, "PASSIVE_PARTICLE_Z",	pData->vPassiveParticleScale.z,	0.0f	);	/// June @31f7801f (binary-only)
+		PLUA_GET_VALUE(			m_pLuaManager, "INHERIT_BUFF_FACTOR",	pData->bInheritBuffFactor,	false );	/// June @31f781be
+		PLUA_GET_VALUE(			m_pLuaManager, "INHERIT_LIFE_TIME",		pData->bInheritLifeTime,	false	);	/// June @31f78362
+
+		m_DamageEffectDataInLua.m_vecTouchLandDamageEffect.push_back( pData );
+		index++;
+		m_pLuaManager->EndTable();
+	}
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 void CX2DamageEffect::CEffect::SetDamageDataNext( CX2DamageManager::DamageData* pDamageData )
 {

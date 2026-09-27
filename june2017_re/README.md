@@ -313,6 +313,74 @@ The full per-key table is in the plan's Phase 3 section.
   loses the name entirely (`'*%d'`, not a wildcard), which is what forced the die/hit `_ULTIMATE`
   loops below to use a literal table name at their own call site rather than a shared helper.
 
+**Hand-verified (Phase 6b).** `LoadParticleTable` (`31f66e60`), `LoadLockOnData`/
+`LoadLockOnDataBlock` (`31f71930`), `LoadBlackHoleData`/`LoadBlackHoleDataBlock` (`31f637e0`),
+`LoadSoundData` (`31f73f30`), and the three June-only loaders `LoadTouchLandDamageEffect`
+(`31f76a90`), `LoadHitEffectSet` (`31f64c80`), `LoadDieCreateNpc` (`31f66230`).
+
+- **`APPLY_START_PARTICLE_SCALE` (`31f66e60`) is read unconditionally**, at the end of
+  `LoadParticleTable`, with no branch on which of the four wrappers (`START_`/`PASSIVE_`/
+  `TIME_`/`HIT_PARTICLE`) called it -- confirmed by disassembling the read site and finding no
+  parameter or caller-distinguishing state consulted before the getter call. Getter `32fe9fd0`
+  (int), default 0.
+- **`LOCK_ON_DATA`/`BLACKHOLE_DATA` are called with a table-name argument in June**
+  (`31f71930`/`31f637e0` each take one stack argument, the table name), used from the ctor at
+  `31f7e7a4-31f7e7da`/`31f7e7d3-31f7e7e9` to try `"..._ULTIMATE"` first when
+  `m_bUseUltimateDamageData`-equivalent is set, falling back to the base name otherwise -- the
+  same shape as Phase 6a's die/hit wrapper gate, confirmed by the identical
+  `CMP byte ptr[ESP+0x2c],0x1; JNZ ...` branch structure around each call pair.
+- **`LOCK_ON_RANGE_FROM_OWNER` (`31f71930` @`31f73202-31f7354b`) is a real nested sub-table, not
+  four independent top-level keys.** `BeginTable("LOCK_ON_RANGE_FROM_OWNER")` wraps a
+  `*(int*)(DAT_3377585c+0x8c)` switch: `iVar10==9` reads `AT_PVP`; `iVar10==0x15` (21) calls
+  `FUN_32482650`/`FUN_32481f80` (an unidentified "is this a raid field?" pair) to choose between
+  `AT_RAID_FIELD` (true) and `AT_FIELD` (false); `iVar10==0x17` (23) skips lua entirely and
+  hardcodes `_DAT_3346ed60` (5000.0); any other value reads `AT_DUNGEON`. All four share getter
+  `32fea370` (float) and, except `AT_FIELD` (default `_DAT_33437b40` = 1000.0, read inline rather
+  than through the shared fail-path), the same fail-default `_DAT_33441c60` = 99999.0. When the
+  table itself is absent, June computes a fallback via the *same* `iVar10` switch but with no lua
+  read at all (`_DAT_33437b40`/`_DAT_33441c60`/`_DAT_3346ed60` picked directly) -- a value with no
+  key, so nothing to parse; wiring the whole selection (both the in-table and the no-table path)
+  is Phase 7b's. Raw float constants hand-verified from the exe's own bytes (file offset
+  `VA - 0xc00 - 0x31aa0000`): `0x3346bda8` = 150.0, `0x3346ede4` = 750.0, `0x3344f348` = 300.0,
+  `0x3346ede8` = 9999.0, `0x33437b40` = 1000.0, `0x3346ed60` = 5000.0, `0x334355b8` = 100.0 --
+  cross-checked against the already-verified `-1.0`/`99999.0` controls in the same read.
+- **`DUNGEON_TARGET_RANGE_MIN_MAX`/`PVP_TARGET_RANGE_MIN_MAX` (`31f71930` @`31f73225-31f73438`)
+  are plaintext (unencrypted) sub-table names**, confirmed by reading the raw exe bytes at their
+  string addresses (`0x3346ef90` = `"DUNGEON_TARGET_RANGE_MIN_MAX"`, `0x3346ef74` =
+  `"PVP_TARGET_RANGE_MIN_MAX"`) directly, the same technique that decoded
+  `0x3346ef56` = `"i@LOCK_ON_RANGE_FROM_OWNER"` (Ghidra's own symbol name for that string carries a
+  2-byte prefix that isn't part of the literal). Each reads `GetValue(1,..)`/`GetValue(2,..)`
+  positionally and resets to its own default pair unless both indices parse and
+  `(*pfVar2 < *pfVar1) != (*pfVar2 == *pfVar1)` is false, i.e. max is strictly greater than min.
+- **`census.py`'s brace-depth tracker requires `BeginTable` to sit textually inside the
+  `if( true == ... )`/`if( ... == true )` it's gated by**, not as a preceding assignment
+  statement with a bare `if` on the stored bool afterward. `march_reads`' stack only auto-pops a
+  `'block'`-mode entry when the enclosing `{ }` it was pushed just before closes at the same
+  depth; a bare-statement push is `'end'`-mode instead, which needs a same-depth `EndTable()` to
+  pop, and an `EndTable()` nested one level deeper (inside the `if`'s own block, as `LOCK_ON_DATA`
+  etc. all write it) never satisfies that. Confirmed with `march_reads()` called directly on the
+  preprocessed `.i` text: the first-pass code (`bHas... = BeginTable(...); if( true == bHas... )
+  { ...; EndTable(); }`) recorded `DUNGEON_TARGET_RANGE_MIN_MAX` at path
+  `('LOCK_ON_RANGE_FROM_OWNER',)` and `PVP_TARGET_RANGE_MIN_MAX` at
+  `('LOCK_ON_RANGE_FROM_OWNER', 'DUNGEON_TARGET_RANGE_MIN_MAX')` instead of `()`; rewriting each
+  as `if( true == BeginTable(...) ) { bHas... = true; ...; EndTable(); }` fixed all three.
+- **`TOUCH_LAND_DAMAGE_EFFECT%d` (`31f76a90`) is the full `DamageEffectData` field set**: its 21
+  decrypted keys, in order (`POSITION_TYPE`, `DAMAGE_EFFECT_NAME`, `BONE_NAME`, `APPLY_ROTATE`,
+  `APPLY_ROTATE_ORIGIN`, `ONLY_APPLY_ROTATE`, `APPLY_ROTATED_OFFSET`, `ROTATE_X/Y/Z`,
+  `OFFSET_X/Y/Z`, `SCALE_X/Y/Z`, `PASSIVE_PARTICLE_X/Y/Z`, `INHERIT_BUFF_FACTOR`,
+  `INHERIT_LIFE_TIME`), match `DamageEffectData`'s existing fields 1:1 with no key left over
+  (confirmed by walking the whole per-entry decompile), including reusing Phase 6a's `vScale`
+  (default 1.f via `FLD1`/hardcoded `0x3f800000`, not `vMainEffectScale`'s 0.f) for `SCALE_X/Y/Z`.
+  No `EVENT_TIME` read at this scope, unlike `CREATE`/`DIE`/`HIT_DAMAGE_EFFECT`. The whole parsed
+  record is built on the stack and passed by address to a single push helper (`FUN_31f8e750`),
+  not filled field-by-field into a heap struct as March's other `Load*` loaders do -- re-expressed
+  on March's own `new DamageEffectData` + `push_back` pattern rather than transplanted.
+- **`HIT_EFFECT_SET%d` (`31f64c80`) and `DIE_CREATE_NPC%d` (`31f66230`) are both June-only,
+  two-field structs** (`EVENT_TIME` + `EFFECT_SET_NAME`/`NPC_ID`), heap-allocated
+  (`FUN_32fe243e(0x20)`, a pointer vector) and stack/value (an 8-byte pair, a value vector)
+  respectively -- confirmed by reading each loop's growth arithmetic (`>>2`-shift pointer diffs vs.
+  `>>3`-shift for 8-byte elements).
+
 **Phase 1 corrections to Phase 0's `reconcile.py`.** `reconcile.md` changed only in the
 `<CEffect top level>` scope, plus two explanations:
 

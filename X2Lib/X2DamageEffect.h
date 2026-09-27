@@ -148,6 +148,9 @@ class CX2DamageEffect
 #ifdef X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
 			int             m_iShowLevel;
 #endif//X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+			int				iApplyStartParticleScale;	/// June2017 FUN_31f66e60 (LoadParticleTable) @31f68ef5: APPLY_START_PARTICLE_SCALE, int getter 32fe9fd0, default 0. Read unconditionally by LoadParticleTable regardless of which wrapper (START/PASSIVE/TIME/HIT) called it. Phase 6b: parse only.
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 			CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeq;
 
@@ -198,6 +201,9 @@ class CX2DamageEffect
 #ifdef X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
 				m_iShowLevel = CX2GameOption::OL_LOW;
 #endif//X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+				iApplyStartParticleScale = 0;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 				m_hSeq			= INVALID_PARTICLE_SEQUENCE_HANDLE;				
 			}
@@ -252,6 +258,9 @@ class CX2DamageEffect
 #ifdef X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
 				m_iShowLevel = t.m_iShowLevel;
 #endif//X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+				iApplyStartParticleScale = t.iApplyStartParticleScale;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 				return *this;
 			}
@@ -501,6 +510,10 @@ class CX2DamageEffect
 			int				iRate;
 			bool			bUseGlobalTime;
 			bool			bLoop;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+			bool			bDeleteWhenEffectEnd;	/// June2017 FUN_31f73f30 (LoadSoundData) @31f744af: DELETE_WHEN_EFFECT_END, bool, default false
+			bool			bThreeDimensionalSound;	/// June2017 FUN_31f73f30 (LoadSoundData) @31f74649: THREE_DIMENSIONAL_SOUND, bool, default true
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 			SoundData()
 			{
@@ -509,6 +522,10 @@ class CX2DamageEffect
 				iRate		= 100;
 				bUseGlobalTime = false;
 				bLoop = false;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+				bDeleteWhenEffectEnd = false;
+				bThreeDimensionalSound = true;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 			}
 			SoundData( const SoundData& t ) { *this = t; }    // copy constructor
 			SoundData& operator=( const SoundData& t )        // assign operator
@@ -518,6 +535,10 @@ class CX2DamageEffect
 				iRate = t.iRate;
 				bUseGlobalTime = t.bUseGlobalTime;
 				bLoop = t.bLoop;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+				bDeleteWhenEffectEnd = t.bDeleteWhenEffectEnd;
+				bThreeDimensionalSound = t.bThreeDimensionalSound;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 				return *this;
 			}
@@ -568,6 +589,42 @@ class CX2DamageEffect
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환
 			wstring			m_wstrTargetBoneName;					/// 특정 본을 타겟으로 잡음
 #endif //SERV_9TH_NEW_CHARACTER
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+			// June2017 FUN_31f71930 (LoadLockOnData). Phase 6b: parse only -- consuming these is Phase 7b.
+			int				m_iUnlockStartAfterAttack;		/// June @31f724d0, int getter 32fe9fd0, default -1
+			float			m_fRetargetCooltimeAfterAttack;	/// June @31f726a6, float getter 32fea370, default -1.f
+			bool			m_bYDirInit;					/// June @31f72d4e, bool getter 32fe9e40, default false
+			float			m_fLockOnOffsetYPos;			/// June @31f72e3d, float getter 32fea370, default 100.f (binary-only: no June data uses it)
+			wstring			m_strLockOnTargetBoneName;		/// June @31f72fbe, wstring getter 32feae90, default L""
+			bool			m_bInitTarget;					/// June @31f73691, bool getter 32fe9e40, default false. Runtime effect (an immediate nearest-target lookup) is Phase 7b.
+			bool			m_bNotLockonInvincibleTarget;	/// June @31f73846, bool getter 32fe9e40, default false
+
+			// June "LOCK_ON_RANGE_FROM_OWNER" sub-table @31f73202-31f7354b: June selects one of the four
+			// members below at ctor time by the effect's current game mode (dungeon/field/raid-field/pvp),
+			// read from *(int*)(DAT_3377585c+0x8c) -- not identified. Parsed here unconditionally (every
+			// member present in the table, regardless of mode); the mode-based selection itself is Phase 7b.
+			bool			m_bHasLockOnRangeFromOwner;
+			float			m_fLockOnRangeFromOwnerAtDungeon;	/// June @31f73197->31f734c9 (shared getter), default 99999.f
+			float			m_fLockOnRangeFromOwnerAtField;		/// June @31f7339a->31f73415, default 1000.f
+			float			m_fLockOnRangeFromOwnerAtRaidField;	/// June @31f732aa->31f734c9 (shared getter), default 99999.f
+			float			m_fLockOnRangeFromOwnerAtPvp;		/// June @31f73468->31f734c9 (shared getter), default 99999.f
+
+			// June "DUNGEON_TARGET_RANGE_MIN_MAX"/"PVP_TARGET_RANGE_MIN_MAX" @31f73225-31f73438: a plaintext
+			// sub-table read positionally (GetValue(1,..)/GetValue(2,..)), reset to its own defaults if either
+			// index is missing or max is not strictly greater than min.
+			bool			m_bHasDungeonTargetRangeMinMax;
+			float			m_fDungeonTargetRangeMin;		/// default 150.f
+			float			m_fDungeonTargetRangeMax;		/// default 750.f
+			bool			m_bHasPvpTargetRangeMinMax;
+			float			m_fPvpTargetRangeMin;			/// default 150.f
+			float			m_fPvpTargetRangeMax;			/// default 300.f
+
+			// NOT_TARGET_PRE_LOCK_ON_TARGET semantics-differ: June reads this key as an int (getter
+			// 32fe9fd0, default 0) at @31f721dd, not March's existing bool (m_bIsNotTargetPreLockOnTarget
+			// above, under BALANCE_DEADLY_CHASER_20130214). Kept alongside it, as a new member -- deciding
+			// how the two coexist is Phase 7b's, as with Phase 5's DAMAGE_DATA_CHANGE_TIME.
+			int				m_iNotTargetPreLockOnTarget;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 			//}}
 			LockOnData()
 			{
@@ -614,6 +671,27 @@ class CX2DamageEffect
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환
 				m_wstrTargetBoneName = L"";
 #endif //SERV_9TH_NEW_CHARACTER
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+				m_iUnlockStartAfterAttack = -1;
+				m_fRetargetCooltimeAfterAttack = -1.f;
+				m_bYDirInit = false;
+				m_fLockOnOffsetYPos = 100.f;
+				m_strLockOnTargetBoneName = L"";
+				m_bInitTarget = false;
+				m_bNotLockonInvincibleTarget = false;
+				m_bHasLockOnRangeFromOwner = false;
+				m_fLockOnRangeFromOwnerAtDungeon = 99999.f;
+				m_fLockOnRangeFromOwnerAtField = 1000.f;
+				m_fLockOnRangeFromOwnerAtRaidField = 99999.f;
+				m_fLockOnRangeFromOwnerAtPvp = 99999.f;
+				m_bHasDungeonTargetRangeMinMax = false;
+				m_fDungeonTargetRangeMin = 150.f;
+				m_fDungeonTargetRangeMax = 750.f;
+				m_bHasPvpTargetRangeMinMax = false;
+				m_fPvpTargetRangeMin = 150.f;
+				m_fPvpTargetRangeMax = 300.f;
+				m_iNotTargetPreLockOnTarget = 0;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 			};
 		};
 
@@ -636,6 +714,36 @@ class CX2DamageEffect
 				m_bCanPassUnit = true;
 			}
 		};
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+		// June2017 FUN_31f64c80: HIT_EFFECT_SET%d, June-only (no March equivalent). ctor call @31f7e854.
+		// Phase 6b: parse only; runtime is Phase 7c. binary-only: no in-scope June data uses this sub-table.
+		struct HitEffectSetData
+		{
+			float			fEventTime;		/// June @31f64cde->31f64e0a, float getter 32fea370, default -1.f
+			wstring			strEffectSetName;	/// June @31f64e18->31f64e93, wstring getter 32feae90, default L""
+
+			HitEffectSetData()
+			{
+				fEventTime = -1.f;
+				strEffectSetName = L"";
+			}
+		};
+
+		// June2017 FUN_31f66230: DIE_CREATE_NPC%d, June-only (no March equivalent). ctor call @31f7e85b.
+		// Phase 6b: parse only; runtime is Phase 7c.
+		struct DieCreateNpcData
+		{
+			float			fEventTime;	/// June @31f662f6->31f66397 (name misleading -- shape matches other EVENT_TIME reads), float getter 32fea370, default -1.f
+			int				iNpcID;		/// June @31f663d1->31f664a3, int getter 32fe9fd0, default 0
+
+			DieCreateNpcData()
+			{
+				fEventTime = -1.f;
+				iNpcID = 0;
+			}
+		};
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 // 데미지 이펙트가 사인 곡선 운동을 하게 함 : 글리터 강령술사가 사용.	
 #ifdef _SIN_MOVE_TEST_
@@ -687,6 +795,14 @@ class CX2DamageEffect
 			// existing consumers). DAMAGE_DATA_NEXT2, _NEXT3, ... (or _ULTIMATE2... when the
 			// master ultimate flag is set) go here. Parse only; consuming this is Phase 7.
 			std::vector<CX2DamageManager::DamageData*>		m_vecDamageDataNextChain;
+
+			// Phase 6b: TOUCH_LAND_DAMAGE_EFFECT%d (June FUN_31f76a90, June-only) reuses DamageEffectData --
+			// same field set (posType/damageEffectName/boneName/bApplyRotate/bApplyRotateOrigin/
+			// bApplyRotatedOffset/vRotateAngleDegree/vOffset/vScale/vPassiveParticleScale/bInheritBuffFactor/
+			// bInheritLifeTime), confirmed by matching June's decrypted key order 1:1. No EVENT_TIME read here.
+			std::vector< DamageEffectData* >				m_vecTouchLandDamageEffect;
+			std::vector< HitEffectSetData* >				m_vecHitEffectSet;		/// June FUN_31f64c80, June-only
+			std::vector< DieCreateNpcData >					m_vecDieCreateNpc;		/// June FUN_31f66230, June-only
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 			DamageEffectDataInLua() : m_pDamageDataNext( NULL )
@@ -969,6 +1085,8 @@ class CX2DamageEffect
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 				void LoadDieCheckConditionBlock( const char* pTableName, bool bIsOrOperation );	/// helper for LoadDieCheckCondition(): one of AND_OPERATION/OR_OPERATION
 				void LoadDieCheckCondition();	/// June2017 FUN_31f66700 @31f66700-31f66e4f, called from ctor @31f7f94e-31f7f976. Phase 6a: parse only.
+				void LoadLockOnDataBlock();		/// helper for LoadLockOnData(): body only, caller already opened the table (LOCK_ON_DATA or LOCK_ON_DATA_ULTIMATE)
+				void LoadBlackHoleDataBlock();	/// helper for LoadBlackHoleData(): body only, caller already opened the table
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 				//{{ kimhc // 2009-10-20 // DamageEffect.lua에 있는 테이블 로드(독구름)
@@ -983,6 +1101,11 @@ class CX2DamageEffect
 				void LoadDamageEffect();
 				void LoadHitParticle();
 				void LoadHitDamageEffect();
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+				void LoadHitEffectSet();			/// June2017 FUN_31f64c80 @31f7e854. Phase 6b: parse only.
+				void LoadDieCreateNpc();			/// June2017 FUN_31f66230 @31f7e85b. Phase 6b: parse only.
+				void LoadTouchLandDamageEffect();	/// June2017 FUN_31f76a90 @31f7e862. Phase 6b: parse only.
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 				
 				void SetDamageDataNext( CX2DamageManager::DamageData* pDamageData );
 

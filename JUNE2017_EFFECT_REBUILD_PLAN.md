@@ -1671,6 +1671,47 @@ is clean for these sub-tables. Update the matrix and MODS.md.
 
 ## Phase 6b — Sub-loaders II: particle, lock-on, sound, after-image, black hole, sine move and the small loaders
 
+**Status: done 2026-09-27.** `census.py` shows 0 Phase-6b keys `to-implement` (two binary-only
+rows remain, named exceptions like Phase 6a's two: `AT_RAID_FIELD`, parsed identically to its
+three `AT_*` siblings but never observed in live data, and `HIT_EFFECT_SET%d`, whose sub-table is
+parsed but never opened by any in-scope June data). `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE`
+extended (+ `SERV_IRUHADEV_JUNE_FX_DEBUG`'s new `LOD_TEMPLET` line). Full detail in `MODS.md` and
+`june2017_re/README.md`'s "Hand-verified (Phase 6b)". Built `US_SERVICE` and deployed to
+`X2_offline.exe`; not yet play-tested this session.
+
+Things the next phases should know:
+
+- **`LoadLockOnData`/`LoadBlackHoleData` are now name-parameterised gates over a body helper**
+  (`LoadLockOnDataBlock`/`LoadBlackHoleDataBlock`), mirroring the `_ULTIMATE`-first,
+  base-fallback shape the die/hit loaders got in Phase 6a. `m_bUseUltimateDamageData` stays
+  forced false, so only the base table is read today.
+- **`census.py`'s brace-depth tracker needs `BeginTable` written inside the `if( true == ... )`
+  condition itself**, not as a separate assignment statement before a bare `if` on the stored
+  bool -- the latter leaks the pushed table name open for the rest of the function (no same-depth
+  `EndTable()` closes it), silently nesting every later read under it. Found this the hard way on
+  `LOCK_ON_RANGE_FROM_OWNER`/`DUNGEON_TARGET_RANGE_MIN_MAX`/`PVP_TARGET_RANGE_MIN_MAX`; re-running
+  `census.py` and checking a key's recorded path against expectation caught it.
+- **`LOCK_ON_RANGE_FROM_OWNER`'s four `AT_*` members are parsed unconditionally**, all four,
+  regardless of game mode. June itself selects only one at ctor time from
+  `*(int*)(DAT_3377585c+0x8c)` (values seen: 9, 0x15/21 with a further raid-field sub-check, 0x17
+  with no lua read at all, else) -- not identified. Wiring the actual selection is Phase 7b's.
+- **`INIT_TARGET` is parsed but not acted on.** June's post-read behaviour (an immediate
+  nearest-target lookup at ctor time, storing into the lock-on UID fields) is runtime, Phase 7b's.
+- **`NOT_TARGET_PRE_LOCK_ON_TARGET` semantics-differ**: June also reads this key as an int
+  alongside March's existing bool. New parallel `m_iNotTargetPreLockOnTarget` member; Phase 7b
+  decides how the two coexist.
+- **`TOUCH_LAND_DAMAGE_EFFECT%d` reuses `DamageEffectData`** (confirmed by matching June's
+  decrypted key order 1:1 against that struct's fields), rather than a new struct.
+  `HIT_EFFECT_SET%d`/`DIE_CREATE_NPC%d` each got a small dedicated struct instead, since neither's
+  key set overlaps `DamageEffectData`.
+- **Not play-tested this session.** The plan's named lock-on case
+  (`DamageEffect_SA_RHB_Lockon_Stratos_Attack`) is Rose's and can't fire before Rose is ported, as
+  Phase 5 already noted. The matrix's own examples for the new keys (`GUIDE_FIRE_BALL` for
+  `LOCK_ON_RANGE_FROM_OWNER`/`DUNGEON_TARGET_RANGE_MIN_MAX`, `DamageEffect_A_RMH_KS_83_Grenade`
+  for `TOUCH_LAND_DAMAGE_EFFECT%d`, ...) are real live data, but which of them is reachable without
+  Rose was not checked this session -- worth a follow-up play-test to confirm a `JUNE_FX
+  LOD_TEMPLET` line actually fires.
+
 **Paste with:** Starting context + this section.
 
 **Model:** Sonnet 5, high. See "Model and effort per phase".

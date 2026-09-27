@@ -385,7 +385,8 @@ DM_CPP = 'X2DamageManager.cpp'
 ES_CPP = 'X2EffectSet.cpp'
 CE_LOADERS = ['LoadLockOnData', 'LoadBlackHoleData', 'LoadSinMoveData', 'LoadDieDamageEffect', 'LoadStartParticle',
               'LoadPassiveParticle', 'LoadTimeParticle', 'LoadCameraData', 'LoadScreenData', 'LoadSoundData',
-              'LoadDamageEffect', 'LoadHitParticle', 'LoadHitDamageEffect', 'LoadAfterImage', 'LoadDieCheckCondition']
+              'LoadDamageEffect', 'LoadHitParticle', 'LoadHitDamageEffect', 'LoadAfterImage', 'LoadDieCheckCondition',
+              'LoadHitEffectSet', 'LoadDieCreateNpc', 'LoadTouchLandDamageEffect']
 
 
 def ce(name, prefix=('*',)):
@@ -411,16 +412,16 @@ ROOTS = [
     ('DE.HIT_DAMAGE_EFFECT', 'DE', r'HIT_DAMAGE_EFFECT(_ULTIMATE)?%d', [0x31f6ceb0, 0x31f6e850], [ce('LoadHitDamageEffect')], '6a', 'DamageEffect sub-loaders'),
     ('DE.DIE_CHECK_CONDITION', 'DE', r'DAMAGE_EFFECT_DIE_CHECK_CONDITION', [0x31f66700, CE],
      [ce('LoadDieCheckCondition'), ce('LoadDieCheckConditionBlock', ())], '6a', 'DamageEffect sub-loaders'),
-    ('DE.LOCK_ON_DATA', 'DE', r'LOCK_ON_DATA(_ULTIMATE)?', [0x31f71930], [ce('LoadLockOnData')], '6b', 'DamageEffect sub-loaders'),
-    ('DE.BLACKHOLE_DATA', 'DE', r'BLACKHOLE_DATA(_ULTIMATE)?', [0x31f637e0], [ce('LoadBlackHoleData')], '6b', 'DamageEffect sub-loaders'),
+    ('DE.LOCK_ON_DATA', 'DE', r'LOCK_ON_DATA(_ULTIMATE)?', [0x31f71930], [ce('LoadLockOnData'), ce('LoadLockOnDataBlock', ())], '6b', 'DamageEffect sub-loaders'),
+    ('DE.BLACKHOLE_DATA', 'DE', r'BLACKHOLE_DATA(_ULTIMATE)?', [0x31f637e0], [ce('LoadBlackHoleData'), ce('LoadBlackHoleDataBlock', ())], '6b', 'DamageEffect sub-loaders'),
     ('DE.SIN_MOVE_DATA', 'DE', r'SIN_MOVE_DATA', [0x31f64200], [ce('LoadSinMoveData')], '6b', 'DamageEffect sub-loaders'),
     ('DE.CAMERA', 'DE', r'CAMERA%d', [0x31f650f0], [ce('LoadCameraData')], '6b', 'DamageEffect sub-loaders'),
     ('DE.SCREEN', 'DE', r'SCREEN%d', [0x31f65730], [ce('LoadScreenData')], '6b', 'DamageEffect sub-loaders'),
     ('DE.SOUND', 'DE', r'SOUND%d', [0x31f73f30], [ce('LoadSoundData')], '6b', 'DamageEffect sub-loaders'),
     ('DE.AFTER_IMAGE', 'DE', r'AFTER_IMAGE', [0x31f74a80], [ce('LoadAfterImage')], '6b', 'DamageEffect sub-loaders'),
-    ('DE.TOUCH_LAND_DAMAGE_EFFECT', 'DE', r'TOUCH_LAND_DAMAGE_EFFECT(%d)?', [0x31f76a90], [], '6b', 'DamageEffect sub-loaders'),
-    ('DE.HIT_EFFECT_SET', 'DE', r'HIT_EFFECT_SET%d', [0x31f64c80], [], '6b', 'DamageEffect sub-loaders'),
-    ('DE.DIE_CREATE_NPC', 'DE', r'DIE_CREATE_NPC%d', [0x31f66230], [], '6b', 'DamageEffect sub-loaders'),
+    ('DE.TOUCH_LAND_DAMAGE_EFFECT', 'DE', r'TOUCH_LAND_DAMAGE_EFFECT(%d)?', [0x31f76a90], [ce('LoadTouchLandDamageEffect')], '6b', 'DamageEffect sub-loaders'),
+    ('DE.HIT_EFFECT_SET', 'DE', r'HIT_EFFECT_SET%d', [0x31f64c80], [ce('LoadHitEffectSet')], '6b', 'DamageEffect sub-loaders'),
+    ('DE.DIE_CREATE_NPC', 'DE', r'DIE_CREATE_NPC%d', [0x31f66230], [ce('LoadDieCreateNpc')], '6b', 'DamageEffect sub-loaders'),
     ('ES.templet', 'ES', None, None, [(ES_CPP, 'CX2EffectSet::AddEffectSetTemplet_LUA', ())], '2', 'EffectSet'),
     ('ES.EFFECT', 'ES', r'EFFECT%d', None, [(ES_CPP, 'CX2EffectSet::AddEffectSetTemplet_LUA', ('EFFECT%d',))], '3', 'EffectSet'),
     ('ES.CAMERA_SHAKE', 'ES', r'CAMERA_SHAKE%d', None, [(ES_CPP, 'CX2EffectSet::AddEffectSetTemplet_LUA', ('CAMERA_SHAKE%d',))], '3', 'EffectSet'),

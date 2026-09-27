@@ -1195,6 +1195,96 @@ Revert as for Phase 5: undefine the flag. Nothing consumes `m_vecDieCheckConditi
 `DamageEffectData` fields yet (Phase 7c), so undefining it only removes the parse sites -- no
 behaviour changes either way.
 
+### June2017 effect engine: DamageEffect sub-loaders II (Phase 6b)
+
+Phase 6b of `JUNE2017_EFFECT_REBUILD_PLAN.md`. Parse only; runtime is Phase 7b/7c. Transcribes
+the remaining `CEffect` ctor sub-loaders: the particle table (`FUN_31f66e60`, shared by the four
+`START_`/`PASSIVE_`/`TIME_`/`HIT_PARTICLE` wrappers), lock-on (`FUN_31f71930`), sound
+(`FUN_31f73f30`), and the three June-only loaders `TOUCH_LAND_DAMAGE_EFFECT%d` (`FUN_31f76a90`),
+`HIT_EFFECT_SET%d` (`FUN_31f64c80`) and `DIE_CREATE_NPC%d` (`FUN_31f66230`), none of which had a
+March reader before this phase. Extends `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE` (+
+`SERV_IRUHADEV_JUNE_FX_DEBUG`'s new `LOD_TEMPLET` line).
+
+- **`LoadParticleTable` new key** (`X2DamageEffect.cpp:5628`): `APPLY_START_PARTICLE_SCALE` (int,
+  getter `32fe9fd0`, default 0) -- read unconditionally, regardless of which of the four wrappers
+  called this function; despite the name, it is not scoped to `START_PARTICLE` in the binary.
+- **`LoadLockOnData`/`LoadBlackHoleData` restructured into a name-parameterised gate plus a body
+  helper** (`LoadLockOnDataBlock`/`LoadBlackHoleDataBlock`, `X2DamageEffect.cpp:6699`/`6718`/
+  `6962`/`6987`), mirroring June's own `"LOCK_ON_DATA_ULTIMATE"`/`"BLACKHOLE_DATA_ULTIMATE"`-first,
+  `"LOCK_ON_DATA"`/`"BLACKHOLE_DATA"`-fallback shape (`FUN_31f7aab0` ctor
+  `@31f7e7a4-31f7e7da`/`@31f7e7d3-31f7e7e9`), gated on `m_bUseUltimateDamageData` (forced false,
+  same absent system as Phase 5/6a). The original single-shot functions are kept verbatim in the
+  `#else` branch. `census.py`'s `ROOTS` needed the two new `Block` helpers added alongside the
+  existing `ce('LoadLockOnData')`/`ce('LoadBlackHoleData')` entries (empty prefix, same shape as
+  Phase 6a's `LoadDieCheckConditionBlock`), or the keys already read by the un-refactored bodies
+  would have shown as regressed to `to-implement`.
+- **`LOCK_ON_DATA` new keys** (`LoadLockOnDataBlock`): `RANDOM_SEED` (reuses the existing, until
+  now unparsed, `m_iRandomSeed`; int, default -1), `UNLOCK_START_AFTER_ATTACK` (int, default -1 --
+  despite the name, not a bool), `RETARGET_COOLTIME_AFTER_ATTACK` (float, -1.f), `Y_DIR_INIT`
+  (bool, false), `LOCK_ON_OFFSET_Y_POS` (float, 100.f, binary-only), `LOCK_ON_TARGET_BONE_NAME`
+  (wstring, `L""`), `INIT_TARGET` (bool, false -- the runtime effect, an immediate nearest-target
+  lookup at ctor time, is Phase 7b's), `NOT_LOCKON_INVINCIBLE_TARGET` (bool, false).
+- **`NOT_TARGET_PRE_LOCK_ON_TARGET` semantics-differ**: June also reads this key as an int
+  (getter `32fe9fd0`, default 0, `@31f721dd`) alongside March's existing bool
+  (`m_bIsNotTargetPreLockOnTarget`, under `BALANCE_DEADLY_CHASER_20130214`). Added as a new,
+  parallel `m_iNotTargetPreLockOnTarget` member rather than replacing the bool read, the same
+  pattern as Phase 5's `DAMAGE_DATA_CHANGE_TIME`; deciding how the two coexist is Phase 7b's.
+- **`LOCK_ON_RANGE_FROM_OWNER` sub-table** (`@31f73202-31f7354b`): June selects only one of
+  `AT_DUNGEON`/`AT_FIELD`/`AT_RAID_FIELD`/`AT_PVP` at ctor time by the effect's current game mode,
+  read from `*(int*)(DAT_3377585c+0x8c)` -- not identified. Parsed unconditionally here (every
+  member read, regardless of mode: `AT_DUNGEON`/`AT_RAID_FIELD`/`AT_PVP` default 99999.f,
+  `AT_FIELD` defaults 1000.f, all hand-verified against the raw exe bytes alongside the existing
+  `-1.0`/`99999.0` controls); identifying the mode selector and wiring it up is Phase 7b's.
+- **`DUNGEON_TARGET_RANGE_MIN_MAX`/`PVP_TARGET_RANGE_MIN_MAX`**: plaintext (unencrypted) sub-table
+  names, read positionally (`GetValue(1,..)`/`GetValue(2,..)`), reset to their own defaults
+  (150.f/750.f and 150.f/300.f) unless both indices parse and max is strictly greater than min,
+  matching June's `fMax<=fMin` reset check byte-for-byte. Getting `census.py` to credit these
+  (and `LOCK_ON_RANGE_FROM_OWNER` above) required writing the `BeginTable` call directly inside
+  the `if( true == ... )` condition rather than as a separate assignment statement followed by a
+  bare `if` on the stored bool -- the census's brace-depth tracker only auto-closes a pushed table
+  name when the `BeginTable` call itself sits inside the recognised `if(...)`/`while(...)` shape;
+  a bare-statement `BeginTable` needs a same-depth `EndTable()` to close, which an `EndTable()`
+  nested one level deeper (inside the `if`'s own block) never satisfies, silently nesting every
+  read for the rest of the function under the leaked-open table name. Found by re-running
+  `census.py` after the phase's first pass and noticing `DUNGEON_TARGET_RANGE_MIN_MAX` recorded
+  at path `('LOCK_ON_RANGE_FROM_OWNER',)` instead of `(top)`.
+- **`SOUND%d` new keys** (`LoadSoundData`, `:7556`): `DELETE_WHEN_EFFECT_END` (bool, false),
+  `THREE_DIMENSIONAL_SOUND` (bool, **true**).
+- **`TOUCH_LAND_DAMAGE_EFFECT%d`, `HIT_EFFECT_SET%d`, `DIE_CREATE_NPC%d`: no March reader before
+  this phase (June-only)**. New loaders `LoadTouchLandDamageEffect`/`LoadHitEffectSet`/
+  `LoadDieCreateNpc` (`X2DamageEffect.cpp:7899`/`7863`/`7880`), called from the ctor right after
+  `LoadHitDamageEffect()` in June's own order (`@31f7e852-31f7e867`).
+  - `TOUCH_LAND_DAMAGE_EFFECT%d` reuses the existing `DamageEffectData` struct rather than a new
+    one: its decrypted key order (`POSITION_TYPE`, `DAMAGE_EFFECT_NAME`, `BONE_NAME`,
+    `APPLY_ROTATE`, `APPLY_ROTATE_ORIGIN`, `ONLY_APPLY_ROTATE`, `APPLY_ROTATED_OFFSET`,
+    `ROTATE_X/Y/Z`, `OFFSET_X/Y/Z`, `SCALE_X/Y/Z`, `PASSIVE_PARTICLE_X/Y/Z`,
+    `INHERIT_BUFF_FACTOR`, `INHERIT_LIFE_TIME`) matches that struct's fields 1:1, including reusing
+    Phase 6a's `vScale` (default 1.f, not `vMainEffectScale`'s 0.f) for `SCALE_X/Y/Z`. No
+    `EVENT_TIME` read at this scope. Stored in a new `m_vecTouchLandDamageEffect` vector.
+  - `HIT_EFFECT_SET%d` (`X2DamageEffect.h`'s new `HitEffectSetData`: `EVENT_TIME` float -1.f,
+    `EFFECT_SET_NAME` wstring `L""`) and `DIE_CREATE_NPC%d` (new `DieCreateNpcData`, a value type:
+    `EVENT_TIME` float -1.f, `NPC_ID` int 0) are each a small dedicated struct/vector
+    (`m_vecHitEffectSet`, `m_vecDieCreateNpc`) rather than reusing `DamageEffectData`, since their
+    key sets don't overlap it. `HIT_EFFECT_SET%d` itself is binary-only: no in-scope June data
+    opens the sub-table at all, but it is still parsed per plan rule 3.
+  - `census.py`'s `ROOTS` needed the three new roots' March column filled in (was `[]`, no reader
+    existed) and the three new function names added to `CE_LOADERS`, so the ctor's own read of
+    each top-level table name (`TOUCH_LAND_DAMAGE_EFFECT%d`/`HIT_EFFECT_SET%d`/`DIE_CREATE_NPC%d`
+    at `DE.top`) is credited too -- the same two-part registration Phase 6a's
+    `LoadDieCheckCondition` needed.
+- **`JUNE_FX LOD_TEMPLET <name> <key>=<v> ...`** (one per `LoadLockOnDataBlock` call that sets a
+  non-default Phase-6b key) is ctor-time only (one `LoadLockOnData()` call per `CEffect`), so it
+  needs no throttling map, unlike the per-frame-adjacent `DDE_TEMPLET`/`ES_TEMPLET` lines.
+
+**Built `US_SERVICE` (X2Lib, X2) and deployed to `X2_offline.exe`.** `census.py` shows 0
+Phase-6b keys `to-implement`; two binary-only rows remain, both named exceptions like Phase 6a's:
+`AT_RAID_FIELD` (parsed identically to its three siblings, just never observed in live data) and
+`HIT_EFFECT_SET%d` (the sub-table itself is parsed, no live data opens it). Not yet play-tested
+this session; ask before launching.
+
+Revert as for Phase 6a: undefine the flag. Nothing consumes any of this phase's new members yet
+(Phase 7b/7c), so undefining it only removes the parse sites -- no behaviour changes either way.
+
 **`SERV_IRUHADEV_EXTRA_NPC_STAT` (+ short-lived `SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG`), 2026-09-27
 -- Lanox ExtraNPCStat port Phase 3 (base flag only; see `LANOX_EXTRA_NPC_STAT_PLAN.md`).**
 Ports June2017's second NPC stat system, `data036/NewNPCStat.lua` + `NewNPCStatFormula.lua`,
