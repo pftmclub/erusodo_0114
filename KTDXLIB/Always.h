@@ -4366,5 +4366,22 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: Short-lived. [XSTAT]/[NPC_ZERO_HP] diagnostics for
 //              SERV_IRUHADEV_EXTRA_NPC_STAT, one line per NPC ID per game.
 //              Remove once Phase 5's play-test verification is done.
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
 #define SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-27
+// Description: Lanox ExtraNPCStat port Phase 4 -- nested inside
+//              SERV_IRUHADEV_EXTRA_NPC_STAT. Makes the 772 NPCs that DO
+//              have a legacy NPCStat.lua row use June2017's formula stats
+//              too (June's own priority rule: an ExtraNPCStat row always
+//              wins over a legacy row), instead of only the 75 with no
+//              legacy row at all (LANOX_EXTRA_NPC_STAT_PLAN.md, Phase 4).
+//              Undefine this alone to keep the stage-skip fix and put old
+//              content's numbers back to today's.
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+#define SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 //////////////////////////////////////////////////////////////////////////

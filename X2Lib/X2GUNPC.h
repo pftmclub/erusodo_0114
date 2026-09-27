@@ -2323,13 +2323,29 @@ class CX2GUNPC : public CX2GameUnit
 		void						AddForceDownDelay( float fDelay );
 
 		virtual void				InitPosition( bool bUseTeamPos = true, int startPosIndex = -1 );
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+		// Iruha : 2026-09-27 // Lanox ExtraNPCStat port Phase 4 -- June's own
+		// extra SetHardLevel parameter (FUN_327687b0's bNoHardLevel). Default
+		// false keeps every existing call site's behavior unchanged.
+		// June also has an fAtkScale; every June caller passes 1.0, so it's
+		// omitted here rather than plumbed through unused.
+		void						SetHardLevel( int hardLevel, bool bResetHP, float fHPScale = 1.f, bool bNoHardLevel = false );
+#else SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 		void						SetHardLevel( int hardLevel, bool bResetHP, float fHPScale = 1.f );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 		int							GetHardLevel(){ return m_HardLevel; }
 		//HardLevelData*				GetHardLevelData(){ return &m_HardLevelData; }
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
 		// Iruha : 2026-09-27 // see m_iExtraNPCStatMonsterGrade's comment
 		void						SetExtraNPCStatMonsterGrade( int iGrade ) { m_iExtraNPCStatMonsterGrade = iGrade; }
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
+		// Iruha : 2026-09-27 // Phase 4 diagnostic only, short-lived with the
+		// rest of _DEBUG -- which battlefield call site created this spawn,
+		// so [XSTAT] can tell :782 and :987 apart even when both give the
+		// same NPC ID the same noHL value. 0 = dungeon/other (not set).
+		void						SetExtraNPCStatDebugPath( int iPath ) { m_iExtraNPCStatDebugPath = iPath; }
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
 
 		void						SetNPCStat( float fHP, float fAtkPhysic, float fAtkMagic, float fDefPhysic, float fDefMagic, bool bUpdateMaxHp = true );
 		//{{ megagame / 박교현 / 2010.04.30 / NPC 스탯 추가
@@ -3709,6 +3725,24 @@ class CX2GUNPC : public CX2GameUnit
 		// paths that do know the grade (X2BattleFieldGame.cpp:782/:987).
 		int												m_iExtraNPCStatMonsterGrade;
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+		// Iruha : 2026-09-27 // Lanox ExtraNPCStat port Phase 4 -- the last
+		// bNoHardLevel SetHardLevel() was called with, remembered for
+		// ReInitAtkAndDef_LUA(), which has no such parameter of its own.
+		bool												m_bExtraNPCStatNoHardLevel;
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+		// Iruha : 2026-09-27 // Code review fix -- whether SetHardLevel()
+		// actually applied formula stats at spawn (false if the NPC had no
+		// extra row, or if CalculateExtraStatValue failed/NaN'd and it fell
+		// back to legacy). ReInitAtkAndDef_LUA() must check this too, or an
+		// NPC whose spawn fell back to legacy HP could still get formula
+		// atk/def from a later ReInit call, mixing the two systems.
+		bool												m_bExtraNPCStatAppliedAtSpawn;
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
+		int												m_iExtraNPCStatDebugPath;
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
 //#ifdef	X2OPTIMIZE_NPC_LUASPACE_SHARING
         const CX2UnitManager::NPCUnitInfo*              m_pNPCUnitInfo;
         const InitData*                                 m_pInitData;

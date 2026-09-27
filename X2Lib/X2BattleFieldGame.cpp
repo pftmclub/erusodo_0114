@@ -784,6 +784,9 @@ void CX2BattleFieldGame::CreateBattleFieldNpc( const KNPCUnitReq& kNpcUnitData_
 				// verdict 3): SHOW_BOSS_NAME is this call's only grade signal
 				// (June FUN_32d528f0/32d52a54).
 				pBattleFieldNpc->SetExtraNPCStatMonsterGrade( kNpcUnitData_.m_bShowBossName ? 1 : 0 );
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
+				pBattleFieldNpc->SetExtraNPCStatDebugPath( 782 );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
 				pBattleFieldNpc->SetHardLevel( kNpcUnitData_.m_Level, true );
 				pBattleFieldNpc->SetActiveMonster( kNpcUnitData_.m_bActive );
@@ -995,8 +998,19 @@ void CX2BattleFieldGame::CreateBattleFieldNpcByCreatedInfo( const CNpcCreatedInf
 				// verdict 3): boss-group membership is this call's grade signal
 				// (June FUN_32d539c0/32d53c51).
 				pBattleFieldNpc->SetExtraNPCStatMonsterGrade( NpcCreatedInfoPtr_->GetBossGroupId() > 0 ? 1 : 0 );
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
+				pBattleFieldNpc->SetExtraNPCStatDebugPath( 987 );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+				// Iruha : 2026-09-27 // Phase 4 -- June FUN_32d539c0/32d53c51
+				// passes HasExtraNPCStat here (unlike CreateBattleFieldNpc's
+				// :782, which always passes false), per Phase 0's call-site table.
+				pBattleFieldNpc->SetHardLevel( NpcCreatedInfoPtr_->GetLevel(), true, 1.f,
+					( NULL != g_pData->GetUnitManager() ) && g_pData->GetUnitManager()->HasExtraNPCStat( pBattleFieldNpc->GetNPCTemplet().m_nNPCUnitID ) );
+#else SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 				pBattleFieldNpc->SetHardLevel( NpcCreatedInfoPtr_->GetLevel(), true );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 				pBattleFieldNpc->SetActiveMonster( NpcCreatedInfoPtr_->GetActive() );
 
 				//pBattleFieldNpc->SetKeyCode( kNpcUnitData_.m_KeyCode );

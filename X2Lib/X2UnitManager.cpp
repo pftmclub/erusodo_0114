@@ -3,6 +3,9 @@
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+#include <float.h>	// Iruha : 2026-09-27 // _finite(), Phase 4 NaN guard
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 
 //{{ ÃÖ¹ÎÃ¶ [2013/1/4]  °ÔÀÓ³» Á¤º¸ ½ºÆ®¸µÀ» ¿¢¼¿ÆÄÀÏ·Î Ãâ·Â
 #ifdef PRINT_INGAMEINFO_TO_EXCEL
@@ -943,8 +946,13 @@ void CX2UnitManager::ApplyExtraNPCStatResistances()
 			continue;
 
 		NPCUnitInfo& info = infoIter->second;
+#ifndef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+		// Iruha : 2026-09-27 // Phase 4 -- parity copies DEF_*/resistances
+		// over legacy rows too (June's builder, FUN_323752f0, always
+		// overwrites them), so this skip is base-flag only.
 		if ( info.m_bHasLegacyNPCStat == true )
 			continue;
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 
 		// Give extra-only NPCs the row's element resistances (read at
 		// X2GUNPC.cpp:25994 and by InitComponent, same as a legacy row).
@@ -1114,6 +1122,44 @@ float CX2UnitManager::CalculateExtraStatValue( EXTRA_NPC_STAT_TYPE eStatType, in
 
 		const float fResult = (float)lua_tonumber( pLuaState, -1 );
 		lua_settop( pLuaState, iTop );
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+		// Iruha : 2026-09-27 // Phase 4 -- Phase 2's balance pass found 84
+		// rows (Secret Normal/Hard/Expert below level 70) where June's own
+		// GetHPFactorByGameType formula raises a negative base to a
+		// non-integer power, i.e. produces NaN -- a real property of June's
+		// formula (LANOX_EXTRA_NPC_STAT_PLAN.md Phase 2 "NaN HP" hazard;
+		// whether June's own Secret-dungeon switch even reaches these
+		// tiers is still open). Per the plan's fallback rule (today's
+		// value, logged as open) rather than guessing a classifier fix:
+		// treat a non-finite result as an eval failure so the caller falls
+		// back to legacy HP/attack/defense (DEF_*/resistances stay June's
+		// either way, see ApplyExtraNPCStatResistances), same as a Lua
+		// pcall error. Statically unreachable for the base flag's 75
+		// extra-only IDs per the ledger's audit (no non-Lanox dungeon NPC
+		// ID lacks a legacy row, and the NaN tiers are Altera/Besma/Elder
+		// Wally Secret only) -- if that's ever wrong, [NPC_ZERO_HP] fires
+		// too, loudly, rather than a silent NaN passing through.
+		if ( _finite( fResult ) == 0 )
+		{
+			// Code review fix: throttle to once per (statType, level, dungeon)
+			// rather than once per call -- a Secret wave of 20 mobs would
+			// otherwise write 20 identical lines per spawn burst.
+			static std::set<int> s_setLoggedNaN;
+			const int iNaNKey = ( (int)eStatType * 1000 + iLevel ) * 100000 + iDungeonID;
+			if ( s_setLoggedNaN.find( iNaNKey ) == s_setLoggedNaN.end() )
+			{
+				s_setLoggedNaN.insert( iNaNKey );
+				wstringstream wstrmNaN;
+				wstrmNaN << L"[EXTRA_NPC_STAT] non-finite result (statType=" << (int)eStatType
+					<< L" level=" << iLevel << L" dungeon=" << iDungeonID << L"), falling back to legacy HP/attack/defense -- open, see LANOX_EXTRA_NPC_STAT_PLAN.md Phase 2 NaN hazard";
+				ErrorLogMsg( XEM_ERROR69, wstrmNaN.str().c_str() );
+			}
+
+			if ( pbEvalFailed != NULL )
+				*pbEvalFailed = true;
+			return fValue;
+		}
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 		return fResult;
 	}
 

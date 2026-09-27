@@ -18156,6 +18156,15 @@ void CX2Game::SetNpcHardLevel( CX2GUNPC* pNpcUnit_, const int iLevel_ )
 			{
 				// note!! 알테라 코어던전만 파티원 수에 따라 몬스터 HP 증가
 				CX2DungeonRoom* pDungeonRoom = (CX2DungeonRoom*) g_pX2Room;
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+				// Iruha : 2026-09-27 // Lanox ExtraNPCStat port Phase 4 -- June
+				// FUN_322f0a90's bNoHardLevel: only the default (non-defence)
+				// dungeon branch below passes it; defence dungeons and the
+				// "other difficulty" case keep bNoHardLevel=false (June clears
+				// it there too), matching Phase 0's call-site table.
+				const bool bExtraNPCStatNoHardLevel = ( NULL != g_pData->GetUnitManager() )
+					&& g_pData->GetUnitManager()->HasExtraNPCStat( pNpcUnit_->GetNPCTemplet().m_nNPCUnitID );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 
 #ifdef SUMMON_MONSTER_CARD_SYSTEM		//몬스터 카드 소환 NPC는 능력치 보정 제외
 
@@ -18194,11 +18203,19 @@ void CX2Game::SetNpcHardLevel( CX2GUNPC* pNpcUnit_, const int iLevel_ )
 								{
 								case CX2Dungeon::DT_HENIR:
 									{
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+										pNpcUnit_->SetHardLevel( iLevel_, true, 1.f, bExtraNPCStatNoHardLevel );
+#else SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 										pNpcUnit_->SetHardLevel( iLevel_, true, 1.f );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 									} break;
 								case CX2Dungeon::DT_SECRET:
 									{
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+										pNpcUnit_->SetHardLevel( iLevel_, true, 1.f, bExtraNPCStatNoHardLevel );
+#else SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 										pNpcUnit_->SetHardLevel( iLevel_, true, 1.f );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 									} break;
 								default:
 									{
@@ -18206,15 +18223,27 @@ void CX2Game::SetNpcHardLevel( CX2GUNPC* pNpcUnit_, const int iLevel_ )
 										{
 										case CX2Dungeon::DL_NORMAL:
 											{
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+												pNpcUnit_->SetHardLevel( iLevel_, true, 1.0f, bExtraNPCStatNoHardLevel );
+#else SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 												pNpcUnit_->SetHardLevel( iLevel_, true, 1.0f );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 											} break;
 										case CX2Dungeon::DL_HARD:
 											{
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+												pNpcUnit_->SetHardLevel( iLevel_, true, 1.2f, bExtraNPCStatNoHardLevel );
+#else SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 												pNpcUnit_->SetHardLevel( iLevel_, true, 1.2f );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 											} break;
 										case CX2Dungeon::DL_EXPERT:
 											{
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+												pNpcUnit_->SetHardLevel( iLevel_, true, 1.5f, bExtraNPCStatNoHardLevel );
+#else SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 												pNpcUnit_->SetHardLevel( iLevel_, true, 1.5f );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 											} break;
 										default:
 											{

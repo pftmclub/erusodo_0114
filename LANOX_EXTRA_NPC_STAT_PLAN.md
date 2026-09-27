@@ -1281,7 +1281,85 @@ loads. Update MODS.md and the Phase 3 Status line.
 
 ## Phase 4 — C++ parity flag
 
-**Status:** not started.
+**Status:** code done, built clean (`US_SERVICE`, KTDXLIB+X2Lib+X2, 0 errors), play-tested
+parity-ON 2026-09-27 (passed, see below), and reviewed (Opus `/code-review`, 10 findings: 5
+fixed, 4 documented as intended/deferred, 1 skipped -- full detail in `MODS.md`'s entry).
+Rebuilt and redeployed after the review fixes; deployed exe is parity-ON. **The parity-OFF
+half of the play-test (`src=legacy`) is still owed** -- ask before launching.
+`SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY` added to `Always.h`, defined by default alongside the
+base flag. Implemented per spec: `SetHardLevel` gained `bool bNoHardLevel = false` (June
+`FUN_327687b0`'s own parameter); the `!m_bHasLegacyNPCStat` exclusion is dropped under parity
+in both `SetHardLevel` and `ReInitAtkAndDef_LUA` (the latter via a new
+`m_bExtraNPCStatNoHardLevel` member, since it has no parameter of its own); `SetNpcHardLevel`'s
+default dungeon branch (Henir/Secret/Normal/Hard/Expert) passes `HasExtraNPCStat` per Phase 0's
+call-site table, defence dungeon and "other difficulty" stay `false`;
+`X2BattleFieldGame.cpp:999` passes `HasExtraNPCStat`, `:788` stays `false`;
+`ApplyExtraNPCStatResistances` copies `DEF_*` onto overridden IDs too, `DAMAGE_TYPE` untouched.
+Every edit is a pure insertion (`git diff --stat`: 6 files, 242 lines, 0 deletions); CP949/`file`
+checks passed on every touched file.
+
+**Found during implementation, not in the original spec:** a NaN guard in
+`CalculateExtraStatValue` -- Phase 2's ledger had flagged 84 Secret Normal/Hard/Expert
+below-level-70 rows as producing real NaN from June's own HP formula, and warned this needed a
+decision before Phase 4 landed, since parity is the first flag that actually reaches those
+(overridden) IDs. Implemented as the plan's own fallback rule: a non-finite Lua result is
+treated as an eval failure (`_finite() == 0` → `*pbEvalFailed = true`, logged, returns the
+legacy value), so the caller falls back to the legacy stat path exactly as for a pcall error.
+Whether June's own Secret-dungeon switch (`FUN_32931950`) actually reaches those tiers is still
+open (see the ledger and "Out of scope").
+
+Also added, to make the exit criteria's `src=legacy`/path-disambiguation actually observable
+in the log (Phase 3 never had a legacy-path `[XSTAT]` line at all): a legacy-branch `[XSTAT]`
+line (`noHL=0`, always, since the legacy path unconditionally adds the full `HARD_LEVEL` term),
+and a debug-only `m_iExtraNPCStatDebugPath` member/dedup-by-`(id, noHL)` so a battlefield ID
+spawned via both `:788` and `:999` logs both instead of just the first.
+
+Both configurations were built to prove every `#else` branch actually compiles (the
+preprocessor only compiles the side that's defined): X2Lib+X2 with parity ON (deployed,
+18,926,080 bytes), and separately with `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY` commented out
+(saved to the scratchpad as `x2_parity_off.exe`, 18,922,496 bytes, not deployed). Both built
+clean, 0 errors. A byte-fidelity defect from the first pass -- bare-LF insertions in three of
+the four CRLF-dominant files touched -- was found and fixed (diffed against `HEAD`, `\r`
+appended to every inserted line, bare-LF counts re-verified against `HEAD`) before any of
+this building happened.
+
+An `offline_server.log` from an earlier session (predating this phase, 2026-09-27 05:10-05:13)
+confirms `data036.kom` is packed and Phase 3's gate fix was in fact play-tested and works,
+despite Phase 3's own Status line and MODS.md entry still saying "not yet play-tested" --
+flagged, not corrected here. That log has no `[XSTAT]` line for Mag Nom (`NUI_MAG_NOM`,
+id **1680**) at all, confirming the gap this phase's new legacy-path log line closes.
+
+**Play-tested 2026-09-27 06:19-06:21 on the deployed parity-on exe -- passed.**
+`offline_server.log`:
+- Load line: `1693 rows ... 75 extra-only, 772 with legacy row ... 67 formula vars (skipped 0)`,
+  nothing degraded.
+- **`[XSTAT] npc=1680 lv=70 dungeon=33270 src=extra noHL=1 path=dungeon/other hp=178848`** --
+  Mag Nom, Burned Forest Normal, exact match to the done-when line.
+- Gate `npc=1694 ... hp=53654` (unchanged from Phase 3, since it has no legacy row), dies
+  `KILL_BY_USER` at `06:20:20.620`, *after* all of sub-stage 1's `id=1680/1681/1682/1683`
+  (Mag Nom and kin) finish dying, and `stage 1 loading` follows at `06:20:25.515` -- the
+  fix still holds under parity.
+- **Third exit criterion, partially confirmed:** ten `[XSTAT] ... src=extra noHL=1
+  path=battlefield987` lines (`npc=5154-5164`, a Lanox field surge, `dungeon=0`) confirm
+  `:999`'s `HasExtraNPCStat` wiring and the path tag both work. No `path=battlefield782`
+  line appeared this session -- that call site wasn't exercised (it needs a field load
+  where the local player doesn't already have a unit yet), not a defect.
+- Zero `[NPC_ZERO_HP]` lines, zero `UNHANDLED`/`EXCEPTION` in `offline_packets.log`.
+
+**Opus `/code-review`, 2026-09-27: 10 findings, 5 fixed (revert-breaking `#ifdef` hole in
+`Always.h`; `ReInitAtkAndDef_LUA` legacy/extra mixing via a new
+`m_bExtraNPCStatAppliedAtSpawn` member; `[XSTAT]` dedup key widened to `(id, noHL, path)`;
+NaN log throttled to once per `(statType, level, dungeon)`; a comment-accuracy fix), 4
+documented as intended behavior or an already-recorded deferred decision (DEF_* overwrite
+scope, NaN-guard reachability re-checked against the ledger and confirmed unreachable in
+shipped data, scan-grade cost, PvP/summon base-scaling being June's own behavior), 1 skipped
+(a dedup helper that would touch the studio's legacy block). Full detail in `MODS.md`'s
+entry. Rebuilt parity-off and parity-on again after the fixes, both clean; the parity-on
+play-test above still stands, since none of the fixes change a value `SetHardLevel`
+produces outside the NaN/mixing edge cases.
+
+**Not yet done:** the parity-OFF half of the exit criterion (`src=legacy`, on the rebuilt
+`x2_parity_off.exe`, not yet deployed/tested); a `battlefield782` observation.
 
 **Paste with:** Starting context + this section.
 
@@ -1484,6 +1562,15 @@ Don't commit unless I ask.
   - **What that costs, stats side.** Every Lanox boss gets normal-monster scan values
     (10/500 instead of 50/1000; Phase 0 verdict 3). The grade-keyed hero-dungeon table is
     irrelevant, since it has zero rows.
+  - **Phase 4 widens this cost beyond Lanox.** Grade is only ever set on the two
+    battlefield creation paths (`X2BattleFieldGame.cpp:788`/`:999`, via
+    `SetExtraNPCStatMonsterGrade`); the dungeon sub-stage spawn path
+    (`X2DungeonSubStage.cpp`) never calls it, so it stays at its default 0 there. Under
+    the parity flag this default now reaches every one of the 772 override IDs' dungeon
+    spawns, not just Lanox's 75 extra-only ones -- so **any old-content dungeon boss with
+    a legacy row also gets scan values 10/500 instead of its legacy `SCAN_RATE`/
+    `SCAN_NEAR_RANGE`** the moment parity is on. Feed this into Phase 5's go/no-go
+    alongside the balance-table swings.
   - **What that costs, reward side (the result screen).**
     - The March server uses the grade for kill rewards: `CXSLUnitManager`'s monster-type
       factor (`MTF_BOSS_NPC`/`MTF_MIDDLE_BOSS_NPC`, `XSLUnitManager.cpp:240-270`), which

@@ -2322,6 +2322,15 @@ void CX2GUNPC::CommonConstructor()
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
 	m_iExtraNPCStatMonsterGrade		= 0;
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+	m_bExtraNPCStatNoHardLevel		= false;
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+	m_bExtraNPCStatAppliedAtSpawn	= false;
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
+	m_iExtraNPCStatDebugPath		= 0;
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
 
 #ifdef  X2OPTIMIZE_ROBUST_NPC_FINAL_STATE
     m_eNPCUnitDieState = eNPCUnitDieState_NONE;
@@ -7049,9 +7058,18 @@ void    CX2GUNPC::InitData::AppendToDeviceList( CKTDXDeviceDataList& listInOut_ 
 	m_device.AppendToDeviceList( listInOut_ );
 }//CX2GUNPC::InitData::AppendToDeviceList()
 
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+void CX2GUNPC::SetHardLevel( int hardLevel, bool bResetHP, float fHPScale /*= 1.f*/, bool bNoHardLevel /*= false*/ )
+#else SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 void CX2GUNPC::SetHardLevel( int hardLevel, bool bResetHP, float fHPScale /*= 1.f*/ )
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 {
 	m_HardLevel = hardLevel;
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+	// Iruha : 2026-09-27 // Phase 4 -- remembered for ReInitAtkAndDef_LUA(),
+	// which has no bNoHardLevel parameter of its own.
+	m_bExtraNPCStatNoHardLevel = bNoHardLevel;
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
 	//{{ Iruha : 2026-09-27 // Lanox ExtraNPCStat port Phase 3 -- base flag
@@ -7066,10 +7084,18 @@ void CX2GUNPC::SetHardLevel( int hardLevel, bool bResetHP, float fHPScale /*= 1.
 	if ( pExtraUnitManager != NULL )
 		pExtraUnitManager->LogExtraNPCStatSummaryOnce();
 
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+	// Iruha : 2026-09-27 // Phase 4 -- parity drops the no-legacy-row
+	// requirement: any NPC with an extra row takes formula base values.
+	if ( pExtraUnitManager != NULL
+		&& pExtraUnitManager->IsExtraNPCStatReady() == true
+		&& pExtraUnitManager->HasExtraNPCStat( eExtraNPCUnitID ) == true )
+#else SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 	if ( pExtraUnitManager != NULL
 		&& pExtraUnitManager->IsExtraNPCStatReady() == true
 		&& m_pNPCUnitInfo->m_bHasLegacyNPCStat == false
 		&& pExtraUnitManager->HasExtraNPCStat( eExtraNPCUnitID ) == true )
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 	{
 		const CX2UnitManager::ExtraNPCStat* pExtraRow = pExtraUnitManager->GetExtraNPCStat( eExtraNPCUnitID );
 		ASSERT( pExtraRow != NULL );
@@ -7092,7 +7118,49 @@ void CX2GUNPC::SetHardLevel( int hardLevel, bool bResetHP, float fHPScale /*= 1.
 
 		if ( bExtraEvalFailed == false )
 		{
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+			// Iruha : 2026-09-27 // Phase 4 -- June FUN_327687b0's per-level
+			// term: unless bNoHardLevel, add the legacy HARD_LEVEL.* rate
+			// times (hardLevel * PvP correction) on top of the formula base.
+			// For the base flag's 75 extra-only NPCs the HARD_LEVEL.* rates
+			// (not m_HardLevel, which is the spawn level) are always 0 -- no
+			// legacy row ever set them -- so this changes nothing for them.
+			float fExtraHPFinal   = fExtraHP;
+			float fExtraAtkPFinal = fExtraAtkP;
+			float fExtraAtkMFinal = fExtraAtkM;
+			float fExtraDefPFinal = fExtraDefP;
+			float fExtraDefMFinal = fExtraDefM;
+
+			if ( bNoHardLevel == false )
+			{
+				float fExtraCorrectionStat = 1.f;
+				if ( g_pX2Game != NULL && g_pX2Game->GetGameType() == CX2Game::GT_PVP )
+				{
+					if ( g_pMain->GetPVPChannelClass( g_pMain->GetConnectedChannelID() ) == KPVPChannelInfo::PCC_FREE ||
+						g_pMain->GetPVPChannelClass( g_pMain->GetConnectedChannelID() ) == KPVPChannelInfo::PCC_TOURNAMENT )
+					{
+						fExtraCorrectionStat = 0.f;
+					}
+					else
+					{
+						fExtraCorrectionStat = 0.1f;
+					}
+				}
+
+				const float fExtraMultiplier = m_HardLevel * fExtraCorrectionStat;
+				const CX2UnitManager::NPCUnitStat::HardLevel& kExtraHardLevel = GetNPCUnitStat().m_HardLevel;
+
+				fExtraHPFinal   += kExtraHardLevel.m_fHP * fExtraMultiplier;
+				fExtraAtkPFinal += kExtraHardLevel.m_fAtkPhysic * fExtraMultiplier;
+				fExtraAtkMFinal += kExtraHardLevel.m_fAtkMagic * fExtraMultiplier;
+				fExtraDefPFinal += kExtraHardLevel.m_fDefPhysic * fExtraMultiplier;
+				fExtraDefMFinal += kExtraHardLevel.m_fDefMagic * fExtraMultiplier;
+			}
+
+			SetNPCStat( fExtraHPFinal * fHPScale, fExtraAtkPFinal, fExtraAtkMFinal, fExtraDefPFinal, fExtraDefMFinal );
+#else SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 			SetNPCStat( fExtraHP * fHPScale, fExtraAtkP, fExtraAtkM, fExtraDefP, fExtraDefM );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 
 			// Phase 0 verdict 2: used raw, no transform (1.0 is neutral). This
 			// runs after Init()'s InitAdditionalBasicStatValue() 1.0 reset
@@ -7116,6 +7184,27 @@ void CX2GUNPC::SetHardLevel( int hardLevel, bool bResetHP, float fHPScale /*= 1.
 			bAppliedExtraStat = true;
 
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+			// Iruha : 2026-09-27 // Phase 4 -- dedup on (id, noHL actually
+			// applied, creation path) rather than id alone, so a battlefield
+			// _FD ID spawned via both :788 and :999 logs both even when both
+			// happen to give the same noHL (code-review fix: (id, noHL) alone
+			// still collapsed that case, since 0/782/987 are distinct paths
+			// but noHL can coincide).
+			static std::map<CX2UnitManager::NPC_UNIT_ID, std::set<int> > s_mapLoggedXStat;
+			const int iExtraLoggedNoHL = bNoHardLevel ? 1 : 0;
+			const int iExtraLoggedKey = iExtraLoggedNoHL * 1000 + m_iExtraNPCStatDebugPath;
+			std::set<int>& setExtraLoggedForID = s_mapLoggedXStat[ eExtraNPCUnitID ];
+			if ( setExtraLoggedForID.find( iExtraLoggedKey ) == setExtraLoggedForID.end() )
+			{
+				setExtraLoggedForID.insert( iExtraLoggedKey );
+				const wchar_t* pszExtraPath =
+					( m_iExtraNPCStatDebugPath == 782 ) ? L"battlefield782" :
+					( m_iExtraNPCStatDebugPath == 987 ) ? L"battlefield987" : L"dungeon/other";
+				CX2OfflineLog::Server( L"[XSTAT] npc=%d lv=%d dungeon=%d src=extra noHL=%d path=%s hp=%.0f atkP=%.0f atkM=%.0f defP=%.0f defM=%.0f",
+					(int)eExtraNPCUnitID, m_HardLevel, iExtraDungeonID, iExtraLoggedNoHL, pszExtraPath, fExtraHPFinal * fHPScale, fExtraAtkPFinal, fExtraAtkMFinal, fExtraDefPFinal, fExtraDefMFinal );
+			}
+#else SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 			static std::set<CX2UnitManager::NPC_UNIT_ID> s_setLoggedXStat;
 			if ( s_setLoggedXStat.find( eExtraNPCUnitID ) == s_setLoggedXStat.end() )
 			{
@@ -7123,6 +7212,7 @@ void CX2GUNPC::SetHardLevel( int hardLevel, bool bResetHP, float fHPScale /*= 1.
 				CX2OfflineLog::Server( L"[XSTAT] npc=%d lv=%d dungeon=%d src=extra noHL=0 hp=%.0f atkP=%.0f atkM=%.0f defP=%.0f defM=%.0f",
 					(int)eExtraNPCUnitID, m_HardLevel, iExtraDungeonID, fExtraHP * fHPScale, fExtraAtkP, fExtraAtkM, fExtraDefP, fExtraDefM );
 			}
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
 		}
 		// bExtraEvalFailed: fall through to the legacy path below, same as if
@@ -7131,6 +7221,13 @@ void CX2GUNPC::SetHardLevel( int hardLevel, bool bResetHP, float fHPScale /*= 1.
 		// [NPC_ZERO_HP] exists to catch it.
 	}
 	//}} Iruha : 2026-09-27
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+	// Iruha : 2026-09-27 // Code review fix -- remembered so
+	// ReInitAtkAndDef_LUA() (SERV_SECRET_HELL) never applies formula
+	// atk/def to an NPC whose spawn fell back to legacy HP (e.g. a
+	// NaN eval failure), which would otherwise mix the two systems.
+	m_bExtraNPCStatAppliedAtSpawn = bAppliedExtraStat;
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 
 	if ( bAppliedExtraStat == false )
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
@@ -7174,6 +7271,27 @@ void CX2GUNPC::SetHardLevel( int hardLevel, bool bResetHP, float fHPScale /*= 1.
 		SetNowHp( GetMaxHp() );
 		m_fPrevHPGage = GetNowHp();
 	}
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
+	// Iruha : 2026-09-27 // Phase 4 -- the legacy-path counterpart of the
+	// [XSTAT] line above, so "src=legacy" (parity undefined, or the
+	// extra-row Lua eval failed and fell back) is actually observable.
+	// noHL is always logged as 0: the legacy path always adds the full
+	// HARD_LEVEL term, regardless of what a caller passed for bNoHardLevel.
+	if ( bAppliedExtraStat == false )
+	{
+		static std::set<CX2UnitManager::NPC_UNIT_ID> s_setLoggedXStatLegacy;
+		if ( s_setLoggedXStatLegacy.find( eExtraNPCUnitID ) == s_setLoggedXStatLegacy.end() )
+		{
+			s_setLoggedXStatLegacy.insert( eExtraNPCUnitID );
+			CX2OfflineLog::Server( L"[XSTAT] npc=%d lv=%d dungeon=%d src=legacy noHL=0 hp=%.0f atkP=%.0f atkM=%.0f defP=%.0f defM=%.0f",
+				(int)eExtraNPCUnitID, m_HardLevel,
+				( g_pData != NULL && g_pData->GetDungeonRoom() != NULL ) ? (int)g_pData->GetDungeonRoom()->GetDungeonID() : 0,
+				GetMaxHp(), GetStat().GetStat().m_fAtkPhysic, GetStat().GetStat().m_fAtkMagic, GetStat().GetStat().m_fDefPhysic, GetStat().GetStat().m_fDefMagic );
+		}
+	}
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
 	if ( GetMaxHp() <= 0.f )
 	{
@@ -11566,10 +11684,18 @@ void CX2GUNPC::ReInitAtkAndDef_LUA()
 	CX2UnitManager* pExtraUnitManager = ( NULL != g_pData ) ? g_pData->GetUnitManager() : NULL;
 	const CX2UnitManager::NPC_UNIT_ID eExtraNPCUnitID = GetNPCTemplet().m_nNPCUnitID;
 
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+	// Iruha : 2026-09-27 // Phase 4 -- same drop as SetHardLevel's.
+	if ( pExtraUnitManager != NULL
+		&& pExtraUnitManager->IsExtraNPCStatReady() == true
+		&& m_bExtraNPCStatAppliedAtSpawn == true
+		&& pExtraUnitManager->HasExtraNPCStat( eExtraNPCUnitID ) == true )
+#else SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 	if ( pExtraUnitManager != NULL
 		&& pExtraUnitManager->IsExtraNPCStatReady() == true
 		&& m_pNPCUnitInfo->m_bHasLegacyNPCStat == false
 		&& pExtraUnitManager->HasExtraNPCStat( eExtraNPCUnitID ) == true )
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 	{
 		const CX2UnitManager::ExtraNPCStat* pExtraRow = pExtraUnitManager->GetExtraNPCStat( eExtraNPCUnitID );
 		ASSERT( pExtraRow != NULL );
@@ -11589,7 +11715,28 @@ void CX2GUNPC::ReInitAtkAndDef_LUA()
 
 		if ( bExtraEvalFailed == false )
 		{
+#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
+			// Iruha : 2026-09-27 // Phase 4 -- same per-level-term switch as
+			// SetHardLevel (June FUN_327687b0), using the bNoHardLevel it was
+			// last called with (this function has no parameter of its own).
+			float fExtraAtkPFinal = fExtraAtkP;
+			float fExtraAtkMFinal = fExtraAtkM;
+			float fExtraDefPFinal = fExtraDefP;
+			float fExtraDefMFinal = fExtraDefM;
+
+			if ( m_bExtraNPCStatNoHardLevel == false )
+			{
+				const CX2UnitManager::NPCUnitStat::HardLevel& kExtraHardLevel = GetNPCUnitStat().m_HardLevel;
+				fExtraAtkPFinal += kExtraHardLevel.m_fAtkPhysic * m_HardLevel;
+				fExtraAtkMFinal += kExtraHardLevel.m_fAtkMagic * m_HardLevel;
+				fExtraDefPFinal += kExtraHardLevel.m_fDefPhysic * m_HardLevel;
+				fExtraDefMFinal += kExtraHardLevel.m_fDefMagic * m_HardLevel;
+			}
+
+			SetNPCStat( GetNowHp(), fExtraAtkPFinal, fExtraAtkMFinal, fExtraDefPFinal, fExtraDefMFinal, false );
+#else SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 			SetNPCStat( GetNowHp(), fExtraAtkP, fExtraAtkM, fExtraDefP, fExtraDefM, false );
+#endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 			bAppliedExtraStat = true;
 		}
 	}

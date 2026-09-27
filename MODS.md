@@ -1279,6 +1279,190 @@ Revert: undefine `SERV_IRUHADEV_EXTRA_NPC_STAT` (and `_DEBUG` if still present).
 falls back to the exact original code path; `AddExtraNPCStat_LUA`/`AddExtraNPCFormulaVariable_LUA`
 stop being bound to Lua at all.
 
+**`SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY`, 2026-09-27 -- Lanox ExtraNPCStat port Phase 4
+(nested inside `SERV_IRUHADEV_EXTRA_NPC_STAT`; see `LANOX_EXTRA_NPC_STAT_PLAN.md`).**
+Makes the **772** NPC IDs that DO have a legacy `NPCStat.lua` row use June's formula stats
+too -- June's own priority rule (an `ExtraNPCStat` row always wins, legacy row or not).
+Every edit is a pure insertion (`git diff --stat`: 6 files, 242 lines, 0 deletions);
+`file`/CP949-byte checks passed on every touched file (`X2GUNPC.cpp/.h`, `X2UnitManager.cpp`,
+`X2Game.cpp`, `X2BattleFieldGame.cpp`, `KTDXLIB/Always.h`).
+
+- **`SetHardLevel`** (`X2GUNPC.h`/`.cpp`) gained a 4th parameter, `bool bNoHardLevel = false`
+  (June `FUN_327687b0`'s own extra argument; the default keeps every un-migrated call site's
+  behavior unchanged). The condition that gates the whole extra-stat block drops its
+  `!m_bHasLegacyNPCStat` requirement under parity, so any NPC with an extra row qualifies.
+  When `bNoHardLevel` is false, the legacy `m_stat.m_HardLevel.*` rate (times `hardLevel *`
+  the existing PvP correction) is added on top of the formula base values before
+  `SetNPCStat` -- for the base flag's 75 extra-only NPCs this is always +0, since no legacy
+  row ever set their `m_stat.m_HardLevel.*` rates (not to be confused with `CX2GUNPC::m_HardLevel`,
+  the spawn level -- that's always set), so base-flag-only behavior is unchanged bit-for-bit.
+  The last `bNoHardLevel` a spawn was given is remembered in a new member,
+  `m_bExtraNPCStatNoHardLevel`, because `ReInitAtkAndDef_LUA` (`SERV_SECRET_HELL`, attack/
+  defense only) has no parameter of its own and needs the same switch.
+- **`SetNpcHardLevel`** (`X2Game.cpp:18149`) computes
+  `bExtraNPCStatNoHardLevel = HasExtraNPCStat(...)` once per call and passes it only into the
+  **default dungeon branch**'s five `SetHardLevel` calls (Henir, Secret, and the
+  Normal/Hard/Expert difficulty switch) -- the defence-dungeon case and the "other
+  difficulty" fallback keep the default `false`, exactly matching Phase 0's call-site table
+  (June clears the flag in both). `X2BattleFieldGame.cpp:999`
+  (`CreateBattleFieldNpcByCreatedInfo`) now passes `HasExtraNPCStat` too (June
+  `FUN_32d539c0`); `:788` (`CreateBattleFieldNpc`) is untouched, since June `FUN_32d528f0`
+  always passes `false` there.
+- **`ApplyExtraNPCStatResistances`** (`X2UnitManager.cpp`) drops its "skip if legacy row"
+  guard under parity, so `DEF_*`/element resistances are copied onto overridden IDs too
+  (June's builder, `FUN_323752f0`, always overwrites them). The legacy `DAMAGE_TYPE` is left
+  alone either way -- June's binding never reads that key (Phase 0 verdict 3), and this
+  function never touched it to begin with.
+- **Parity widens an existing, already-documented cost beyond Lanox.** Monster grade
+  (`m_iExtraNPCStatMonsterGrade`) is only ever set on the two battlefield creation paths;
+  the dungeon sub-stage spawn path never calls `SetExtraNPCStatMonsterGrade`, so it stays
+  at its default 0 there (see the plan's "Monster grade never reaches dungeon NPCs
+  offline" out-of-scope item, which previously scoped this to Lanox's 75 extra-only IDs
+  only). Under parity, every one of the **772** override IDs' dungeon spawns now goes
+  through the same default-0 path too, so any old-content dungeon boss with a legacy row
+  gets scan values 10/500 instead of its legacy `SCAN_RATE`/`SCAN_NEAR_RANGE` the moment
+  parity is on. Not fixed here; folded into Phase 5's go/no-go inputs.
+- **NaN guard, found during this phase, not itemized in the original spec.** Phase 2's
+  balance pass had flagged 84 rows (Secret Normal/Hard/Expert below level 70) where June's
+  own `GetHPFactorByGameType` formula raises a negative base to a non-integer power --
+  real NaN, not a transcription bug -- and warned that parity would be the first flag to
+  actually reach them (the base flag's 75 extra-only IDs don't include any of those rows).
+  `CalculateExtraStatValue` now treats a non-finite Lua result as an eval failure
+  (`_finite() == 0`): it logs a `[EXTRA_NPC_STAT] non-finite result` line and returns the
+  raw legacy value with `*pbEvalFailed = true`, so the caller falls back to the legacy stat
+  path exactly as for a Lua pcall error, per the plan's fallback rule (today's value, logged
+  as open) rather than guessing a Secret-dungeon classifier fix. This still leaves open
+  whether June's own Secret switch (`FUN_32931950`) actually reaches those tiers --
+  unresolved, tracked in the plan's ledger and "Out of scope" section.
+- **`[XSTAT]` diagnostics** (still `SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG`, still short-lived):
+  the extra-branch line now prints the actually-applied `noHL` and dedups on `(id, noHL)`
+  instead of `id` alone, so a battlefield ID spawned via both `:788` (`noHL=0`) and `:999`
+  (`noHL=1`, when it has an extra row) logs both instead of just the first. A new debug-only
+  `m_iExtraNPCStatDebugPath` member (set to `782`/`987` at the two battlefield call sites,
+  `0`/unset elsewhere) tags which path produced the spawn. A **new legacy-path `[XSTAT]`
+  line** was added (Phase 3 never had one, so `src=legacy` was previously unobservable in
+  the log) -- it always prints `noHL=0`, since the legacy path unconditionally adds the full
+  `HARD_LEVEL` term regardless of what any caller passed.
+- **Byte-fidelity defect found and fixed before any build.** The first pass wrote every
+  inserted line with a bare `\n` join, which is correct for `X2UnitManager.cpp` (LF-
+  dominant) but produced bare-LF insertions in `X2GUNPC.cpp`/`.h`, `X2Game.cpp` and
+  `X2BattleFieldGame.cpp`, all CRLF-dominant. `file` didn't catch it (it samples, not
+  scans). Fixed by diffing each file against `HEAD` with `difflib.SequenceMatcher` and
+  appending `\r` to every inserted line, then re-confirming the file's bare-LF line count
+  matches `HEAD`'s exactly and `git diff --stat` is unchanged (same insertion counts, 0
+  deletions).
+- **Built `US_SERVICE` (KTDXLIB, X2Lib, X2) clean, 0 errors, with parity ON (defined by
+  default) -- and separately rebuilt X2Lib+X2 with `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY`
+  commented out**, to actually compile every `#else` branch this phase added (the
+  preprocessor only compiles one side of an `#ifdef`, so the parity-on build alone never
+  touched them). Both configurations built clean. The parity-off exe was saved off
+  (`x2_parity_off.exe`, 18,922,496 bytes) for the second half of the play-test below; the
+  flag was then restored, `X2Lib`/`X2` rebuilt a third time, and *that* parity-on exe
+  (18,926,080 bytes) is what's deployed to `X2_offline.exe` now (source/destination
+  mtimes matched via `os.stat`). **Not yet play-tested this session -- ask before
+  launching.** **The Opus `/code-review` the plan calls for after this phase has not been
+  run yet** -- do not treat this entry as a finished, reviewed phase until that happens.
+- **`offline_server.log` from an earlier session (2026-09-27 05:10-05:13, predating this
+  phase's code) confirms two things Phase 3's own MODS.md entry left unconfirmed:**
+  `data036.kom` **is already packed** (`[EXTRA_NPC_STAT] loaded 1693 rows (skipped: 836 nil
+  NPC_ID, 10 no templet, 0 missing other key; 75 extra-only, 772 with legacy row) and 67
+  formula vars (skipped 0)` -- the exact expected counts), and **the Burned Forest gate fix
+  was in fact play-tested and works** (`npc=1694 ... src=extra noHL=0 hp=53654`, then
+  `NPC uid=88 id=1694 lv=70 died: KILL_BY_USER`) -- Phase 3's Status line and this file's
+  Phase 3 entry both still say "not yet play-tested," which is stale. Not corrected here;
+  flagging it rather than silently fixing a different phase's entry. That same log has
+  **no** `[XSTAT]` line for `NUI_MAG_NOM` (id **1680**) at all, which is exactly the gap
+  this phase's new legacy-path log line exists to close -- under the base flag alone,
+  overridden IDs went through the silent legacy path with nothing logged.
+- **Play-tested 2026-09-27 06:19-06:21 on the deployed parity-on exe -- passed.**
+  `offline_server.log` shows the expected load line (75/772/67, nothing degraded),
+  **`[XSTAT] npc=1680 lv=70 dungeon=33270 src=extra noHL=1 path=dungeon/other hp=178848`**
+  (Mag Nom, Burned Forest Normal -- exact match to the done-when line), the gate
+  (`npc=1694`, `hp=53654`, unchanged since it has no legacy row) still dying
+  `KILL_BY_USER` only after sub-stage 1's other NPCs finish, and `stage 1 loading`
+  following correctly. Zero `[NPC_ZERO_HP]` lines, zero `UNHANDLED`/`EXCEPTION` packets.
+  Ten `[XSTAT] ... src=extra noHL=1 path=battlefield987` lines (`npc=5154-5164`, a Lanox
+  field surge) confirm `:999`'s wiring and the path tag both work -- `path=battlefield782`
+  wasn't exercised this session (needs a field load where the local player doesn't already
+  have a unit), not a defect.
+- **Opus `/code-review` run 2026-09-27, 10 findings. Fixed 5, documented 4 as intended
+  behavior/deferred decisions, skipped 1.**
+  - **Fixed:**
+    1. **Revert hole.** `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY` (and Phase 3's
+       `_DEBUG`) were defined unconditionally in `Always.h`, but their call sites use
+       APIs (`HasExtraNPCStat`, `m_bHasLegacyNPCStat`) declared only under the base
+       flag -- undefining `SERV_IRUHADEV_EXTRA_NPC_STAT` alone, MODS.md's own
+       documented one-macro revert, would have failed to compile. Both are now nested
+       inside `#ifdef SERV_IRUHADEV_EXTRA_NPC_STAT`.
+    2. **Legacy/extra mixing.** `ReInitAtkAndDef_LUA` (`SERV_SECRET_HELL`) re-evaluates
+       its own attack/defense independently of `SetHardLevel` -- if a spawn's `SetHardLevel`
+       fell back to legacy (e.g. a NaN HP eval, see below), a later `ReInitAtkAndDef_LUA`
+       call could still succeed (attack/defense never go NaN) and apply formula atk/def
+       on top of legacy HP, mixing the two systems the "never mix" rule was meant to
+       prevent. Fixed with a new member, `m_bExtraNPCStatAppliedAtSpawn`, set from
+       `SetHardLevel`'s own `bAppliedExtraStat` and checked by `ReInitAtkAndDef_LUA`'s
+       PARITY condition.
+    3. **`[XSTAT]` dedup gap.** Deduping on `(id, noHL)` alone still collapsed a
+       battlefield ID spawned via both `:788` and `:999` when they happened to produce
+       the same `noHL` -- the path tag existed but couldn't do what its own header
+       comment claimed. Now dedups on `(id, noHL, path)`.
+    4. **NaN log spam.** The non-finite guard logged on every affected spawn with no
+       throttle -- a Secret wave of 20 mobs would write 20 identical lines. Now throttled
+       to once per `(statType, level, dungeonID)` via a static set, matching this
+       feature's other diagnostics.
+    5. **Comment accuracy.** "`m_HardLevel is always 0`" was wrong -- `m_HardLevel` is
+       the spawn level (always set); what's zero for the 75 extra-only NPCs is
+       `m_stat.m_HardLevel.*`, the rate fields no legacy row ever populated. Fixed in
+       both the code comment and this file's own wording above.
+  - **Documented, not fixed (all confirmed as intended behavior or an already-recorded
+    deferred decision, not bugs):**
+    - **`ApplyExtraNPCStatResistances` overwrites DEF_*/resistances for all 772 override
+      IDs, including a spawn whose per-spawn HP/atk/def eval later falls back to legacy.**
+      This is spec item 7 working as specified (June's builder does the same), not a
+      defect -- but it does mean a "fell back to legacy" spawn isn't byte-identical to
+      legacy: HP/attack/defense are legacy, DEF_*/resistances stay June's either way.
+      Reflected in the NaN guard's own comment and log line (now says "falling back to
+      legacy HP/attack/defense", not "legacy entirely").
+    - **The NaN guard could in principle reintroduce the 0-HP stage-skip bug for an
+      extra-only NPC if it ever hit a NaN eval** (its "legacy" fallback is an empty,
+      unset `m_stat`). Checked against the ledger rather than fixed blind: the audit
+      table says 0 non-Lanox dungeon NPC IDs lack a legacy row, and the NaN-affected
+      tiers are Altera/Besma/Elder Wally Secret only -- none of Lanox's 75 extra-only
+      IDs are reachable there, so this is statically unreachable in the shipped data.
+      If that ever turns out wrong, it's loud: both the non-finite log line and
+      `[NPC_ZERO_HP]` fire, rather than a silent NaN passing through. Folded into the
+      NaN interim the user still has to confirm (see Phase 2's ledger note).
+    - **Scan grade (10/500 vs 50/1000) now applies to all 772 override IDs' dungeon
+      spawns, not just Lanox's 75.** Already recorded above and in the plan's
+      "Monster grade never reaches dungeon NPCs offline" out-of-scope item -- a known,
+      deferred cost, not new.
+    - **PvP/summon base stats scale with level under parity even in free/tournament
+      channels**, where the legacy `fCorrectionStat=0` was meant to zero out the
+      `HARD_LEVEL` term specifically. Checked against the ledger's `FUN_327687b0` row:
+      the correction only ever scaled the `HARD_LEVEL` term, never the formula base
+      (which June's own builder, `FUN_323752f0`, computes independent of PvP context) --
+      so a level-scaled base for PvP summons with an extra row is June's own behavior
+      under parity, not a bug introduced here.
+  - **Skipped:** de-duplicating the `fCorrectionStat`/`HardLevel`-term computation that
+    now appears in `SetHardLevel`'s extra branch, its legacy branch, and
+    `ReInitAtkAndDef_LUA` -- a shared helper would mean editing the studio's legacy
+    block, which breaks the 0-deletions convention these edits otherwise hold to.
+  - All five fixes are pure insertions or same-session edits to this phase's own
+    uncommitted lines (never to stock code); `git diff --stat` against `HEAD` still
+    shows 0 deletions in every source file.
+- **Re-verified after the review fixes:** rebuilt parity-off (replacing the earlier
+  `x2_parity_off.exe`, now 18,922,496 bytes) and parity-on again, both clean, 0 errors;
+  the parity-on rebuild (18,926,080 bytes) is deployed to `X2_offline.exe`, source/
+  destination mtimes matched via `os.stat`. The parity-on play-test from 06:19-06:21
+  still stands, since none of the five fixes change any value `SetHardLevel` produces for
+  a spawn that doesn't hit the NaN/mixing edge cases.
+- **Still owed:** the parity-OFF half of the exit criterion (`src=legacy`, on the
+  rebuilt `x2_parity_off.exe`, not yet deployed/tested); a `battlefield782` observation.
+
+Revert: undefine `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY` alone to put overridden NPCs' stats
+back to today's legacy numbers while keeping the base flag's stage-skip fix; undefine both
+flags together to revert the whole ExtraNPCStat port.
+
 
 ## Reverting to stock
 
