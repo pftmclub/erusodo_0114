@@ -1407,6 +1407,12 @@ packed/tested.**
   field chain to reach `Ranox_Field_01.lua`'s zone will reproduce the exact
   same symptom this phase just fixed, for these 8 specifically. This is a
   known, named gap, not a regression.
+  **Superseded 2026-09-26/27 — see Phase 10 and `LANOX_EXTRA_NPC_STAT_PLAN.md`.**
+  This bullet only searched the legacy `NPCStat.lua`. June's second stat
+  system, `NewNPCStat.lua`, has a row for all 8 — 7 confirmed spawning
+  `src=extra` with no `KILL_SELF` in Phase 5's session 1 play-test, the 8th
+  (`5172`) not yet observed spawning but carrying the same row as its
+  siblings.
 - **Found, not fixed here — the still-wider version of the same registry
   gap.** Cross-referencing every `NPC_ID` in `NPCTemplet.src.lua` against the
   live `NPCStat.lua` originally found 242 templet entries with no stat row;
@@ -1423,6 +1429,13 @@ packed/tested.**
   closed and those dungeons are actually playable, the same shape as this
   note and as `RANOX_PORT_PLAN.md`'s own still-open `NPCTemplet.lua` catch-up
   recommendation.
+  **Superseded 2026-09-26 — see Phase 10 and `LANOX_EXTRA_NPC_STAT_PLAN.md`.**
+  These 35 (and the Geyser 8, and every other Lanox dungeon NPC ID with no
+  legacy row) are covered by `NewNPCStat.lua`, confirmed by the plan's own
+  audit: 0 non-Lanox dungeon IDs and 0 remaining Lanox dungeon IDs lack
+  either a legacy or an extra row. FireTemple/the rest of BurnedForest hadn't
+  been play-tested as of this note, so this is a resolved *data* gap, not yet
+  a confirmed *in-game* one for those specific dungeons.
 - **Owed:** `march2014/data037/NPCStat.src.lua` needs `elstools compile-batch
   -v mar-2014` (produces `NPCStat.lua`) and packing that into `data037.kom` —
   the user's step, per this project's established convention. Then play-test:
@@ -1439,6 +1452,10 @@ packed/tested.**
   known, documented gap above, not a new regression. Grep the post-play-test
   `offline_server.log` for `KILL_SELF` — any hit **outside** the 8 known-
   blocked Geyser IDs names a `NPC_ID` this fix missed.
+  **Superseded 2026-09-27 — see Phase 10.** `Ranox_Field_01.lua`'s Geyser
+  monsters are fixed too, by a different mechanism (`NewNPCStat.lua` via
+  `LANOX_EXTRA_NPC_STAT_PLAN.md`, not this bullet's `NPCStat.lua` rows); 7 of
+  8 confirmed `src=extra` with no `KILL_SELF` in play.
 
 **Kickoff prompt** (scoped to 7d only — 7a/7b/7c are closed):
 ```
@@ -1678,6 +1695,86 @@ confirm arrival at the field's end (near line 122), not its start.
 
 ---
 
+## Phase 10 — Lanox "phase clears with mobs alive" [the Burned Forest gate defect]
+
+**Paste with:** Starting context + this section, or just read
+`LANOX_EXTRA_NPC_STAT_PLAN.md` directly — the whole fix lives there, not here.
+
+**Status: base fix done, built, and play-tested 2026-09-27; extended
+verification paused mid-way (session 1 of an unfinished checklist).**
+
+This phase points at a separate, self-contained document,
+`LANOX_EXTRA_NPC_STAT_PLAN.md`, rather than duplicating its ledger here. One
+paragraph: the Lanox sub-stage "clears while other monsters are still alive"
+symptom (first seen as part of issue 7's field-monster investigation, below)
+turned out to be a general Lanox defect, not limited to fields. Root cause:
+75 Lanox NPC IDs (gates, switch gates, traps, regen points, Geyser/Fire
+Devil/Mount/event-boss/Secret monsters) have no row in either client's legacy
+`NPCStat.lua` — their real stats live only in June2017's **second** NPC stat
+system, `data036/NewNPCStat.lua` + `NewNPCStatFormula.lua`
+(`AddExtraNPCStat`/`CalculateExtraStatValue`), which this March build never
+loaded. With no row, these NPCs spawn at 0 HP and immediately self-kill
+(`KILL_SELF`), which can satisfy a sub-stage's `CC_KILL_NPC_TYPE` clear
+condition (a gate "dying" of 0 HP) while the sub-stage's other, legitimate
+mobs are still alive. `SERV_IRUHADEV_EXTRA_NPC_STAT` (base flag) loads
+June's two files and gives these 75 IDs real stats, fixing the stage-skip.
+A second flag, `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY` (nested inside the
+base flag, on by default), extends the same formula stats to the other 772
+Lanox-and-elsewhere NPC IDs that *do* have a legacy row, matching June's own
+priority rule that an `ExtraNPCStat` row always wins. Both flags are defined
+today; the parity keep/revert decision is not yet made (see
+`LANOX_EXTRA_NPC_STAT_PLAN.md` Phase 5).
+
+**Supersedes Phase 7d's "no source data exists" / "35 remain" findings
+below** (2026-09-26/27) — those searched only the legacy `NPCStat.lua`; the
+real source is `NewNPCStat.lua`. Specifically:
+
+- **The 8 `NUI_LOW_GEYSER_*_FD` monsters are not an unsourceable, permanently
+  blocked gap.** All 8 have `NewNPCStat.lua` rows. Play-tested 2026-09-27
+  (`LANOX_EXTRA_NPC_STAT_PLAN.md` Phase 5, session 1): walking into
+  `Ranox_Field_01.lua`'s zone, **7 of the 8** spawned this session
+  (`5166,5169,5168,5171,5170,5173,5167`), all `src=extra`, zero `KILL_SELF`,
+  zero `[NPC_ZERO_HP]`. The 8th, `5172`
+  (`NUI_LOW_SMITH_ALUMINUM_FD_BOSS`), simply didn't spawn this session
+  (spawn-rate variance, a boss-tier monster) — not yet directly observed
+  spawning, but it has the same `NewNPCStat.lua` row as its 7 siblings and
+  there's no reason to expect it behaves differently.
+- **The "35 remain" registry gap (FireTemple/BurnedForest families:
+  `NUI_FIRE_DEVIL_*`, the 9 BurnedForest base names, `NUI_MOUNT_FIREBIRD_
+  FIRETEMPLE`, `NUI_FIRETEMPLE_GATE`/`_REGIEON_POINT`) is resolved
+  statically, not confirmed in play.** Per `LANOX_EXTRA_NPC_STAT_PLAN.md`'s
+  audit, every Lanox dungeon NPC ID that appears in any
+  `Dungeon_Ranox_*.src.lua` now has either a live legacy `NPCStat.lua` row or
+  a `NewNPCStat.lua` row — the 57-ID gap against legacy is fully covered by
+  the 75-ID extra-only set (a superset, since it also covers non-Lanox-named
+  IDs). Most of these 35 IDs sit in dungeons (FireTemple, and the rest of
+  BurnedForest) that hadn't been played as of this entry — see Phase 5's
+  "still open" list — so treat this as "the data gap is closed," not as "the
+  in-game behavior is confirmed," until those dungeons are actually visited.
+- **The "do not expect `Ranox_Field_01.lua` to be fixed" note (Phase 7d
+  "Owed" bullet, and the batching/acceptance notes below) no longer holds** —
+  see the Geyser bullet above.
+
+**What's still open** (not fixed here, tracked in
+`LANOX_EXTRA_NPC_STAT_PLAN.md`'s own Phase 5 and "Out of scope /
+follow-ups"): the remaining Lanox dungeons/battlefield paths Phase 5's
+checklist hadn't reached as of this entry (Geyser, Gateway, FireTemple,
+FinalHall, Secret_Hell, every Hard/Expert tier, `path=battlefield782`), the
+parity keep/revert decision, monster grade not reaching dungeon-spawned NPCs
+offline (so Lanox/parity bosses get normal-monster scan values), and whether
+June's own Secret-dungeon classifier (`FUN_32931950`) agrees with March's
+`IsSecretDungeon` (open, interim behavior documented in the plan).
+
+**Kickoff prompt**:
+```
+Continuing the Lanox/Ranox defect fixes. This defect (phase clears with
+mobs alive) is tracked entirely in LANOX_EXTRA_NPC_STAT_PLAN.md, not here --
+read that file's "Starting context" and whichever phase's Status line says
+it's not done yet, and continue from there. Branch: mods/lanox-port.
+```
+
+---
+
 ## Verification — batching
 
 **Batch the play-tests — each one costs a "may I launch?" round-trip.**
@@ -1701,6 +1798,9 @@ chained Lanox fields — the 4th, `Ranox_Field_01.lua`'s Geyser monsters,
 remains a documented, unsourceable gap) — fold it into the Lua batch above
 (add it to `compile-batch`'s file list) rather than running it alone, since
 it's the same data-only shape as batch 1's other fixes.
+**Superseded 2026-09-27 — see Phase 10.** The Geyser monsters are not
+permanently unsourceable; `NewNPCStat.lua` via `SERV_IRUHADEV_EXTRA_NPC_STAT`
+covers them (7 of 8 confirmed in play), independent of this Lua batch.
 Phase 8 needs no play-test batch at all — it was closed by static reading,
 confirmed rather than revised by the user's clarification.
 
@@ -1728,9 +1828,10 @@ and `ErrorLog.txt` is clean of the 18 assets (done); the Lanox field chain's
 monsters survive more than one hit rather than dying on spawn in
 `Ranox_Field_00`/`_02`/`_03.lua` (Phase 7d, 25 IDs fixed in data 2026-09-22 —
 `march2014/data037/NPCStat.src.lua` needs compiling and packing and
-play-testing before this criterion can be marked met) — **except**
-`Ranox_Field_01.lua`'s 8 `NUI_LOW_GEYSER_*_FD` monsters, a known, documented,
-currently-unsourceable gap, not part of this criterion; the Behemoth Crater
+play-testing before this criterion can be marked met) — **and**, per Phase 10,
+`Ranox_Field_01.lua`'s 8 `NUI_LOW_GEYSER_*_FD` monsters too (7 of 8 confirmed
+`src=extra` with no `KILL_SELF`, via `NewNPCStat.lua`, not this batch's
+`NPCStat.lua` rows — no longer excepted as unsourceable); the Behemoth Crater
 quest-guide particle appears when toggled on (the physical signboard itself
 is confirmed out of scope — art task, not a bug); the leftmost Lanox teleport
 lands at the crater's end.

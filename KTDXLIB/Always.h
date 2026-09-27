@@ -4365,9 +4365,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-09-27
 // Description: Short-lived. [XSTAT]/[NPC_ZERO_HP] diagnostics for
 //              SERV_IRUHADEV_EXTRA_NPC_STAT, one line per NPC ID per game.
-//              Remove once Phase 5's play-test verification is done.
+//              Disabled 2026-09-27 (Phase 6 close-out) -- Phase 5's
+//              play-test verification is NOT actually finished (paused
+//              after session 1; see LANOX_EXTRA_NPC_STAT_PLAN.md Phase 5).
+//              Re-enable this single #define to resume it.
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
-#define SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
+//#define SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

@@ -35,6 +35,9 @@ column.
 | `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4287` | `X2Lib/X2EffectSet.h:168` (new `AnimTimeOnStartData`/`MeshTriggerData`), `:307,381,452` (`EffectData` members, `operator==`, ctor), `:484,505,555,592` (`EffectSetData` members incl. `m_vecSoundData`, `operator==`, `operator=`, ctor); `X2Lib/X2EffectSet.cpp:2267` (templet keys), `:2352,2378,2394,2405,2437,2476,2521` (per-`EFFECT%d` keys and sub-tables), `:2842` (`SOUND%d`) | -- |
 | `SERV_IRUHADEV_JUNE_FX_DEBUG` | 2026-09-25, extended 2026-09-26 | `KTDXLIB/Always.h:4298` | `X2Lib/X2EffectSet.cpp:2199,2218` (`OpenScriptFile` load summary), `:2314` (per-templet line), `:2667` (per-effect line), `:2864` (per-set sound line); the last three nested under `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE`; `X2Lib/X2DamageEffect.cpp:1942` (`CE_TEMPLET` per-`CEffect` line, nested under `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE`) | -- |
 | `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` | 2026-09-26 | `KTDXLIB/Always.h:4318` | `X2Lib/X2EffectSet.h:634` (`EffectInstance::m_vecMeshTriggerData`, stage-3 `m_bGroupChild` / `m_wstrGroupChildBoneName` / `m_vGroupChildOffset`), `:659` (their initialisers), `:760` (`TargetMeshData`, `m_vecTargetMeshData`, `m_bIsRightWhenCreate`), `:856` (index accessors, the two bone-name helpers); `X2Lib/X2EffectSet.cpp:5` (`JuneFxEsCreate`, nested under `SERV_IRUHADEV_JUNE_FX_DEBUG`), `:36` (stage-2 helpers: `TRACE_MATRIX_IN_FIELD`, `SET_OVER_UI`; stage-3 `JuneFxUnsupported` `:225`, `JuneGroupChildPosition` `:249`), `:534` (`GROUP_NAME` loop head; the three stock position / rotation / scale lines are its `#else`), `:701` (damage case: `APPLY_DAMAGE_EFFECT_VELOCITY`, `USE_IS_RIGHT_WHEN_CREATE`), `:805` / `:864` / `:924` / `:974` (mesh cases), `:1027`-`:1256` (particle cases, two sites each), `:1276` (per-effect effect-alpha log), `:1308` / `:1447` (target-mesh registration, damage / mesh), `:1410` (trigger-list copy), `:1551` (group-child fields), `:1566` (loop tail), `:2372` (`OVERLAP`), `:2430` (templet effect-alpha log), `:2479` (`APPLIED_SKILL_ID` log), `:3791` (facing snapshot in the `EffectSetInstance` ctor), `:3855` (`GetEffectPosition` index), `:4114` (`NOT_ALLOW_MEMO` log), `:4128` (`GetEffectRotation`), `:4728` (`SetEffectSetOffset`), `:5175` (accessor bodies; stage-3 `GetEffectPositionByTargetMesh( .., bone, found )` `:5313`, `GetEffectPositionByBoneName` `:5362`); `KTDXLIB/KTDGXMeshPlayer.h:1325` (velocity-modifier methods), `:1575` (`m_vecVelocityModifier`, last member); `KTDXLIB/KTDGXMeshPlayer.cpp:1573` (their bodies), `:3360` / `:3385` (`CXMeshEvent_Velocity` re-apply) | -- |
+| `SERV_IRUHADEV_EXTRA_NPC_STAT` | 2026-09-27 | `KTDXLIB/Always.h:4362` | `X2Lib/X2UnitManager.h`/`.cpp` (`EXTRA_NPC_STAT_TYPE` enum, `ExtraNPCStat`/`ExtraNPCFormulaVariable`, loader, `CalculateExtraStatValue`, `ApplyExtraNPCStatResistances`), `X2Lib/X2GUNPC.h`/`.cpp` (`SetHardLevel`, `ReInitAtkAndDef_LUA`), `X2Lib/X2Main.cpp` (Lua bindings), `X2Lib/X2BattleFieldGame.cpp` (monster-grade plumbing) | -- |
+| `SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG` | 2026-09-27, **disabled 2026-09-27** (nested, short-lived) | `KTDXLIB/Always.h:4370` (`#define` commented out; re-enable to diagnose) | `X2Lib/X2GUNPC.cpp`/`.h`, `X2Lib/X2BattleFieldGame.cpp` (`[XSTAT]`/`[NPC_ZERO_HP]` diagnostics) | -- |
+| `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY` | 2026-09-27 | `KTDXLIB/Always.h:4385` (nested under `SERV_IRUHADEV_EXTRA_NPC_STAT`) | `X2Lib/X2GUNPC.h`/`.cpp`, `X2Lib/X2Game.cpp` (`SetNpcHardLevel`), `X2Lib/X2BattleFieldGame.cpp`, `X2Lib/X2UnitManager.cpp` (`ApplyExtraNPCStatResistances`) | -- |
 | `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE` | 2026-09-26, extended 2026-09-26 (Phase 6a) | `KTDXLIB/Always.h:4347` | `X2Lib/X2DamageEffect.h:611` (new `DamageEffectDataInLua::m_vecDamageDataNextChain`), `:1131` (new `CEffect` members); `X2Lib/X2DamageEffect.cpp:1457` (`APPLIED_SKILL_ID`/`_NOT_AFFECT_MEMO` + master ultimate flag), `:1504` (`MAIN_EFFECT_NAME_ULTIMATE`), `:1572` (`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`), `:1587` (`USE_ADVANCE_COLLISIOIN_CHECK`), `:1593` (`DAMAGE_DATA`/`_ULTIMATE` wiring), `:1609` (`IGNORE_MI_HUGE`), `:1680` (`USE_OWNER_ATTACK_SPEED`), `:1689` (`DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)` array reads), `:1745` (`FOLLOW_LINE_ULTIMATE`/`FOLLOW_LINE_NEW_ULTIMATE`), `:1776` (`FOLLOW_LINE_WITH_CUSTOM_ROTATE`/`FOLLOW_LINE_GRAVITY`/`TRACE_OWNER_BONE(_ONLY_ROTATE)`), `:1829` (`DAMAGE_DATA_NEXT(_ULTIMATE)`/`DAMAGE_DATA_NEXT%d` chain), `:1901` (`INHERIT_CRITICAL_RATE`/`_DAMAGE_RATE`), `:1934` (`RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT`), `:2160` (destructor cleanup of the chain vector). Phase 6a additions: `X2Lib/X2DamageEffect.h:98` (new `DAMAGE_EFFECT_DIE_CONDITION_TYPE` enum), `:302` (new `DamageEffectData` fields: `fLoopInterval`, `uiLoopEndCount`, `fLoopEndTime`, `vLoopAddPos`, `bSetDieWhenMasterEffectDie`, `bInheritLifeTime`, `bInheritDamage`, `bInheritLockOnData`, `vScale`), `:448` (new `DieCheckCondition` struct), `:970` (`LoadDieCheckConditionBlock`/`LoadDieCheckCondition` decls), `:1252` (`m_vecDieCheckCondition`); `X2Lib/X2DamageEffect.cpp:1805` (ctor call to `LoadDieCheckCondition`), `:6782` (`LoadDieCheckConditionBlock`: shared `CONDITION_` loop for `AND_OPERATION`/`OR_OPERATION`), `:6837` (`LoadDieCheckCondition`: opens `DAMAGE_EFFECT_DIE_CHECK_CONDITION`), `:7040` (`LoadDieDamageEffect`'s `DIE_DAMAGE_EFFECT_ULTIMATE%d` gate+loop, forced off), `:7078` (`LoadDieDamageEffect`'s new keys), `:7366` (`LoadDamageEffect`'s `LOOP_*`/`SET_DIE_WHEN_MASTER_EFFECT_DIE`/`INHERIT_LIFE_TIME`/`INHERIT_DAMAGE`), `:7472` (`LoadHitDamageEffect`'s `HIT_DAMAGE_EFFECT_ULTIMATE%d` gate+loop, forced off), `:7562` (`LoadHitDamageEffect`'s new keys) | -- |
 
 What each one does:
@@ -1200,8 +1203,8 @@ traps, regen points, geysers, secret bosses, ...) their real stats instead of sp
 and dying `KILL_SELF`, which was letting a sub-stage's `CC_KILL_NPC_TYPE` clear condition fire
 while other monsters were still alive -- the Burned Forest gate defect the whole port exists to
 fix. NPCs that already have a legacy row are untouched by this flag; overriding them with
-formula stats too is `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY`, a separate Phase 4 flag not yet
-implemented.
+formula stats too is `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY`, a separate Phase 4 flag —
+**implemented, built, and play-tested** (see that flag's own entry below).
 
 - **`X2Lib/X2UnitManager.h`/`.cpp`:** `EXTRA_NPC_STAT_TYPE` enum, `ExtraNPCStat`/
   `ExtraNPCFormulaVariable` structs (June's own key names; `ExtraNPCFormulaVariable` carries an
@@ -1268,11 +1271,13 @@ implemented.
   the same default, not a bug to fix.
 - **Built `US_SERVICE` (KTDXLIB, X2Lib, X2) and deployed to `X2_offline.exe`** (confirmed via
   `os.stat`: 18,921,472 bytes, matching source and destination mtimes, after the review-driven
-  rebuild). Not yet play-tested this session -- ask before launching. The pre-pack degrade line
-  should read in `ErrorLog.txt`/`offline_server.log` until the three files below are packed.
-- **Files to pack into `data036.kom`** (staged in Phase 1, not yet confirmed packed): `NewNPCStat.lua`,
-  `NewNPCStatFormula.lua`, and the updated `Enum.lua`, all from `kom_contents/data036_kom/`.
-  Confirm from the `[EXTRA_NPC_STAT] loaded ...` summary line once packed, not from the code
+  rebuild). **Play-tested — corrected below, this was stale.** An `offline_server.log` from
+  2026-09-27 05:10-05:13 confirms `data036.kom` is packed and the Burned Forest gate fix works
+  (see the Phase 4 entry's own corroborating-log note); Phase 5's session 1 (2026-09-27,
+  07:10-07:20) re-confirmed it on the actually-deployed post-review exe.
+- **Files packed into `data036.kom`** (staged in Phase 1): `NewNPCStat.lua`,
+  `NewNPCStatFormula.lua`, and the updated `Enum.lua`. Confirmed packed from the
+  `[EXTRA_NPC_STAT] loaded 1693 rows ...` summary line in `offline_server.log`, not from the code
   compiling.
 
 Revert: undefine `SERV_IRUHADEV_EXTRA_NPC_STAT` (and `_DEBUG` if still present). Every call site
@@ -1359,9 +1364,8 @@ Every edit is a pure insertion (`git diff --stat`: 6 files, 242 lines, 0 deletio
   (`x2_parity_off.exe`, 18,922,496 bytes) for the second half of the play-test below; the
   flag was then restored, `X2Lib`/`X2` rebuilt a third time, and *that* parity-on exe
   (18,926,080 bytes) is what's deployed to `X2_offline.exe` now (source/destination
-  mtimes matched via `os.stat`). **Not yet play-tested this session -- ask before
-  launching.** **The Opus `/code-review` the plan calls for after this phase has not been
-  run yet** -- do not treat this entry as a finished, reviewed phase until that happens.
+  mtimes matched via `os.stat`). **Play-tested and reviewed — corrected below, this was
+  stale.** See the play-test and `/code-review` entries further down in this same block.
 - **`offline_server.log` from an earlier session (2026-09-27 05:10-05:13, predating this
   phase's code) confirms two things Phase 3's own MODS.md entry left unconfirmed:**
   `data036.kom` **is already packed** (`[EXTRA_NPC_STAT] loaded 1693 rows (skipped: 836 nil
@@ -1458,6 +1462,32 @@ Every edit is a pure insertion (`git diff --stat`: 6 files, 242 lines, 0 deletio
   a spawn that doesn't hit the NaN/mixing edge cases.
 - **Still owed:** the parity-OFF half of the exit criterion (`src=legacy`, on the
   rebuilt `x2_parity_off.exe`, not yet deployed/tested); a `battlefield782` observation.
+
+**Play-tested 2026-09-27 07:10-07:20 (Phase 5 session 1, on the deployed post-review
+parity-on exe) -- passed for everything it covered.** Zero `[NPC_ZERO_HP]`, zero
+`UNHANDLED`/`EXCEPTION`. Burned Forest Normal full clear (stage 0 through 3), gate
+`npc=1694` reused across stage 0 sub 1 and stage 1 sub 2, both times dying `KILL_BY_USER`
+only after the sub-stage's other mobs; all four Ranox battlefields visited, including
+`Ranox_Field_01.lua`'s Geyser zone (7 of 8 `NUI_LOW_GEYSER_*_FD` observed `src=extra`, no
+`KILL_SELF` -- this closes Phase 7d's "unsourceable" bucket, see
+`LANOX_DEFECT_PHASES.md` Phase 10); Ashes Village Normal partially cleared (left by
+choice, not a skip). **Not yet covered:** Geyser/Gateway/FireTemple/FinalHall/
+Secret_Hell dungeons, every Hard/Expert tier, the parity balance comparison against
+Phase 2's table, and the keep/revert decision. Full detail and checklist in
+`LANOX_EXTRA_NPC_STAT_PLAN.md` Phase 5, whose Status line still reads "in progress" --
+this entry summarizes, it does not close, that phase.
+
+**Phase 6 close-out, 2026-09-27.** `SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG` disabled
+(`#define` commented out, `Always.h`, still nested under the base flag with a
+re-enable-to-diagnose note) since Phase 5 asked for it removed once verification was
+done -- **it wasn't**, so this is a documented deviation, not a completion: re-enable
+the one `#define` to resume Phase 5's `[XSTAT]`/`[NPC_ZERO_HP]` logging. Rebuilt
+`US_SERVICE` (X2ServerProtocol, KTDXLIB, X2Lib, X2) with the flag off and deployed;
+string-count control reading before/after confirms `[XSTAT]`/`[NPC_ZERO_HP]` compiled
+out and `[EXTRA_NPC_STAT]` (the always-on load/degrade/NaN lines) still present. Ask
+before launching, as always. **The parity keep/revert decision is not made.** Both
+flags are defined by default in the deployed exe; the choice is the user's, informed by
+Phase 2's balance table and whatever of Phase 5's checklist gets finished.
 
 Revert: undefine `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY` alone to put overridden NPCs' stats
 back to today's legacy numbers while keeping the base flag's stage-skip fix; undefine both

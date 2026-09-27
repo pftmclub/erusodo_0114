@@ -1062,9 +1062,16 @@ Done when: the TSV and summary exist and I've seen them. Update the Phase 2 Stat
 
 ## Phase 3 — C++ base flag: tables, loader, evaluator, extra-only stats (+ build/deploy)
 
-**Status:** code done, reviewed (Opus `/code-review`, 3 real bugs found and fixed -- shared
+**Status:** done. Code done, reviewed (Opus `/code-review`, 3 real bugs found and fixed -- shared
 `pbEvalFailed` reset, unguarded offline-log include, partial-write-on-load-failure; see
-`MODS.md`), built and deployed 2026-09-27; not yet play-tested (ask before launching). `SERV_IRUHADEV_EXTRA_NPC_STAT` + short-lived `SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG`
+`MODS.md`), built and deployed 2026-09-27, and **play-tested** — an earlier session
+(05:10-05:13, predating Phase 4's code) already confirmed the Burned Forest gate fix
+worked, and Phase 5's session 1 (2026-09-27) re-confirmed it on the post-review exe.
+This Status line itself went stale for a day (still said "not yet play-tested" after it
+had been); flagged, not silently rewritten. **2026-09-27, Phase 6 close-out:**
+`SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG` is now disabled (commented out, not removed) —
+re-enable it before trying to reproduce any `[XSTAT]`-based exit-criterion check below.
+`SERV_IRUHADEV_EXTRA_NPC_STAT` + short-lived `SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG`
 added to `Always.h`. `CX2UnitManager` gained the `EXTRA_NPC_STAT_TYPE` enum, `ExtraNPCStat`/
 `ExtraNPCFormulaVariable` tables (the latter carries an `m_iDungeonID` beyond this section's
 original spec, per the Phase 2 ledger correction -- for fidelity to June's per-dungeon
@@ -1285,7 +1292,14 @@ loads. Update MODS.md and the Phase 3 Status line.
 parity-ON 2026-09-27 (passed, see below), and reviewed (Opus `/code-review`, 10 findings: 5
 fixed, 4 documented as intended/deferred, 1 skipped -- full detail in `MODS.md`'s entry).
 Rebuilt and redeployed after the review fixes; deployed exe is parity-ON. **The parity-OFF
-half of the play-test (`src=legacy`) is still owed** -- ask before launching.
+half of the play-test (`src=legacy`) and a `battlefield782` observation are still owed** --
+ask before launching. **2026-09-27, Phase 6 close-out:** `SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG`
+was disabled and the exe rebuilt/redeployed without it (string-count check: `[XSTAT]`/
+`[NPC_ZERO_HP]` now 0 occurrences, `[EXTRA_NPC_STAT]` unaffected) — **re-enable that one
+`#define` before resuming either owed observation**, since both need the `[XSTAT]` line. The
+earlier `x2_parity_off.exe` this Status line refers to was a scratchpad artifact and is gone;
+regenerate it (undefine `_PARITY` alone, rebuild `X2Lib`+`X2`) rather than assuming it still
+exists on disk.
 `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY` added to `Always.h`, defined by default alongside the
 base flag. Implemented per spec: `SetHardLevel` gained `bool bNoHardLevel = false` (June
 `FUN_327687b0`'s own parameter); the `!m_bHasLegacyNPCStat` exclusion is dropped under parity
@@ -1445,7 +1459,23 @@ src=legacy with the parity flag undefined. Update MODS.md and the Phase 4 Status
 
 ## Phase 5 — Play-test verification and parity go/no-go
 
-**Status:** in progress, started 2026-09-27.
+**Status:** in progress, paused after session 2 (2026-09-27). Confirmed: load line,
+Burned Forest Normal full clear, all 4 Ranox battlefields including 7 of 8 Geyser `_FD`
+IDs (closes Phase 7d's "unsourceable" bucket — see `LANOX_DEFECT_PHASES.md` Phase 10),
+Ashes Village Normal partial, Geyser dungeon (`33290`) full stage 0→3 run with a clean
+kill pattern (one loose end: the stage-3 boss's `KILL_SELF` mechanism, argued but not
+directly confirmed — see session 2), Gateway (`33300`) stage 0 only. **Not done:**
+Geyser/Gateway's remaining stages and difficulties, FireTemple/FinalHall/Secret_Hell
+dungeons, every Hard/Expert tier, the old-content comparison, and the parity keep/revert
+decision — this phase's actual go/no-go has not been made. **2026-09-27, Phase 6
+close-out:** `SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG` was disabled as part of documentation
+cleanup, even though this phase's own checklist (and the flag's own `Always.h` comment)
+says to remove it only once this phase is done — it isn't, and session 2 (played after
+the disable) is a direct example of the cost: its one ambiguous finding (the Geyser
+boss's `KILL_SELF`) could have been settled on the spot with `[NPC_ZERO_HP]`/`[XSTAT]`
+and instead needed a data-file cross-check. **Re-enable that one `#define`, rebuild, and
+redeploy before resuming any further checklist item**, since every remaining item needs
+`[XSTAT]`/`[NPC_ZERO_HP]`.
 
 **Paste with:** Starting context + this section.
 
@@ -1553,6 +1583,48 @@ formula vars, skipped 0`).
   (`33320`), Secret_Hell (`41271`); every dungeon's Hard/Expert tier; old-content
   comparison; the parity decision.
 
+**Session 2 (2026-09-27, 07:46:06–07:51:07 local, on the Phase 6 debug-flag-disabled
+rebuild — the user launched it unprompted to sanity-check the rebuild itself, not as a
+scheduled checklist session; no `[XSTAT]`/`[NPC_ZERO_HP]` lines are available this
+session, since `_DEBUG` was intentionally off).** Player route: Gateway Normal
+(`33300`, stage 0 only, left early), then Geyser Normal (`33290`, full stage 0→3 run).
+Whole-session totals: load line unchanged from prior sessions (`1693 rows … 75
+extra-only, 772 with legacy row … 67 formula vars, 0 skipped`), **0**
+`UNHANDLED`/`EXCEPTION` in `offline_packets.log`, **3** `KILL_SELF` total.
+- **Gateway Normal (`33300`), partial:** ✅ as far as it went. Stage 0's all 14 NPCs
+  died `KILL_BY_USER` (`07:46:38–07:47:07`); no `KILL_SELF`. Left after stage 0
+  (`ROOM leaving room 1002 (reason=114)`, player choice) — not a full clear, not a
+  stage-skip.
+- **Geyser Normal (`33290`), full stage 0→3 run:** ✅ substantially, with one loose end.
+  All stage transitions followed real clears: `stage 0 loading` (43 NPCs/3 sub-stages)
+  → `stage 1 loading` (41/3) → `stage 2 loading` (13/1) → `stage 3 loading` (2/1),
+  **106 total `KILL_BY_USER` deaths** across the run, zero `[NPC_ZERO_HP]`-shaped
+  instant deaths at any stage boundary. Two of the three `KILL_SELF`s are `id=857`
+  (`NUI_PVP_RUNE_GUARD`), the same known scripted PVP-prop self-kill already
+  identified in session 1 — not a dungeon-clear NPC. **The third, `id=1904`
+  (`NUI_EVENT_GAYSER_BOSS`), is stage 3's actual clear-condition target**
+  (`Dungeon_Ranox_Geyser_Normal.src.lua:1226-1252`, `CC_KILL_NPC_TYPE`) — it died
+  `KILL_SELF` 20 s after `stage 3 start` (`07:50:34.493` → `07:50:54.479`), not
+  instantly, which argues against a 0-HP-at-spawn defect (that pattern kills within
+  the same tick as spawn, per every gate/trap case documented so far). Checked its
+  row rather than assumed: `NUI_EVENT_GAYSER_BOSS` has **no** legacy `NPCStat.lua`
+  row (it's one of the 75 extra-only IDs) and its `NewNPCStat.lua` row is
+  `HP_VALUE = 500` — the same value the ledger already flagged for `TRAP_FIRE_BIG`
+  as "an effectively indestructible hazard by design," i.e. this NPC is very likely
+  a scripted kill-trigger object like the gates, not a monster meant to be worn down
+  in melee, and its `KILL_SELF`-after-a-delay shape is consistent with a scripted
+  death rather than the 0-HP bug. **Not fully confirmed either way** — no
+  `[NPC_ZERO_HP]` or `[XSTAT]` line was available this session to settle it directly,
+  and no `CLEARED` line for `33290` appears before the player left
+  (`ROOM leaving room 1004 (reason=114)`, 12 s after the boss died) — so this closes
+  most of Geyser's checklist item but leaves the boss's exact mechanism as a
+  re-enable-debug-and-confirm follow-up, not a passed item.
+- **`ErrorLog.txt` noise this session** (two `OpenXSkinMesh` misses —
+  `IGNIA_ATTACKA_FIREM1.X`, `MOUNT_MAG_STONE_DYING.X` — plus the usual `OpenTexture`/
+  `_GetControl` misses): reads as the same pre-existing, already-documented class of
+  missing-asset gap as Phase 7a, not a new regression from this session's rebuild —
+  not cross-checked against an asset list to confirm, flagged rather than dismissed.
+
 **Checklist:**
 - **Load line:** the expected counts (847 usable, 75 extra-only, 772 with a legacy row,
   67 vars). Confirm them from the log, not from the fact that the code compiled.
@@ -1603,7 +1675,31 @@ decision is written down.
 
 ## Phase 6 — Docs, cleanup, memory
 
-**Status:** not started.
+**Status:** done 2026-09-27, with carry-overs into Phase 5 rather than this phase's own
+scope. `LANOX_DEFECT_PHASES.md` gained a Phase 10 entry pointing here and superseding
+Phase 7d's "no source data"/"35 remain" notes in place (dated notes added, history kept,
+nothing deleted). `MODS.md`'s Phase 3/4 entries had their stale "not yet play-tested"/
+"not yet packed"/"review not run" lines corrected, and a Phase 6 close-out paragraph was
+appended recording the debug-flag disable and the still-open parity decision. The
+`_DEBUG` flag was disabled at the byte level in `Always.h` (kept, not deleted, with a
+re-enable note), `touch`ed the PCH, rebuilt `US_SERVICE` (`X2ServerProtocol`→`KTDXLIB`→
+`X2Lib`→`X2`, 0 errors each), and deployed to `X2_offline.exe` (18,923,008 bytes,
+confirmed via `os.stat` against a fresh source mtime; control string-count read on the
+*previous* deployed exe first, `[XSTAT]`=2, `[NPC_ZERO_HP]`=1, `[EXTRA_NPC_STAT]`=6
+UTF-16LE occurrences, confirmed against the *new* exe: 0/0/6). Not launched — asked
+first, per standing policy. This memory (`june-has-second-npc-stat-system.md`) was
+updated in place, not duplicated. The `FUN_32931950` Secret-classifier open question was
+folded into "Out of scope / follow-ups" below, distinct from the pre-existing `0x50a`
+question.
+
+**What this phase deliberately did NOT do, and why that's a real gap, not an oversight:**
+this port is not actually finished. Phase 5's checklist is roughly half done — several
+Lanox dungeons, every Hard/Expert tier, and (most importantly) the parity keep/revert
+decision are all still open, and closing Phase 6's documentation does not substitute for
+that verification. Disabling the debug flag now, before Phase 5 is done, is the one
+explicit exception to that flag's own "remove once Phase 5 is done" rule — done at the
+user's request, logged in three places (this Status line, Phase 5's Status line, and
+`MODS.md`), and reversible by re-enabling one `#define`.
 
 **Paste with:** Starting context + this section.
 
@@ -1693,3 +1789,20 @@ Don't commit unless I ask.
       `327cbb80`).
   - If it proves to be hell mode, set the flag from something March already knows (the
     dungeon ID or mode). Don't try to send a June-only event March doesn't have.
+- **Whether June's own Secret-dungeon classifier (`FUN_32931950`) matches March's
+  `IsSecretDungeon` case list — separate from the `gameType 3` question above, and
+  currently only interim-guarded, not resolved** (Phase 2 ledger, "Henir/Secret
+  `gameType`" and the NaN hazard note; deferred by the user, 2026-09-26/27). This decides
+  whether the 84 Secret Normal/Hard/Expert rows below level 70 that produce a real NaN
+  from June's own `GetHPFactorByGameType` are June's actual live behavior (transcribe as
+  is) or a classifier mismatch this port would be introducing (fix the classifier before
+  trusting parity there). Two of the three case values Phase 2 decoded
+  (`0x75d0 = DI_EL_FOREST_HELL_NORMAL`, `0x80fc = DI_RUBEN_SECRET_COMMON`) land on
+  entries already in March's list; the third (`0xa0b4 = 41140`) matches no dungeon in
+  this build. **Interim, shipped in Phase 4:** `CalculateExtraStatValue` treats a
+  non-finite Lua result as an eval failure and falls back to the legacy stat value
+  instead of propagating NaN — so the port never spawns a NaN-HP NPC either way, but the
+  84 affected rows currently run on **legacy** stats under parity, not June's formula
+  ones, until this classifier question is settled. Next step is the same Opus/Ghidra
+  pass named for the `0x50a` question above, since both hang off the same
+  `FUN_32931950` function.
