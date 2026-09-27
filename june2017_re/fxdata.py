@@ -179,7 +179,7 @@ def june_fx():
     outdir = os.path.join(CACHE, 'june_b')
     os.makedirs(outdir, exist_ok=True)
     src = [os.path.join(HERE, 'june_lua', n + '.lua') for n in JUNE_LUA_ORDER]
-    table, _ = ljconv.build_table(src)
+    table, _, _ = ljconv.build_table(src)
     ljconv.check_modes(table)
     files = []
     for f in src:

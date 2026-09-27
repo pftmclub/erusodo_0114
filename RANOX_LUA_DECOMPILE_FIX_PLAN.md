@@ -348,6 +348,103 @@ the plan with the counts.
 
 ---
 
+## Phase 0 result
+
+Ran 2026-09-27. All exit criteria met: every one of the 7,328 files has a row, Kenta's and
+MapData's June originals are present/untruncated/converting/decompiling, and the `.std.luac`
+equivalence check passes on all 275 pairs.
+
+**Corpus recount: 7,328, confirmed exactly** (per-folder counts too), across 21 `*_kom`
+folders. The raw `*.lua` glob returns 7,601 — the extra 273 are the pre-existing `.src.lua`
+siblings, excluded. Total size 159.67 MB, median 9,112 bytes. All 7,328 have header
+`1b 4b 4c 82`, flags `0x02` (`BCDUMP_F_STRIP`) — confirmed for every file, not spot-checked.
+
+**Truncation: zero, both ways — this corrects the plan's Starting Context.** A new tolerant
+dump-walker (`ljconv.instruction_offsets_tolerant`, alongside the existing strict one — never
+raises, reports a status plus how far it got) cross-checked against `elstools inspect`
+manifests for all 21 `dataNNN.kom` archives: **all 7,328 files match their manifest size
+exactly and walk cleanly to a terminator at EOF.** Kenta and MapData included. The plan's
+"elstools 1.0.0 extracts ~18.7k June algo-2 entries short, and the `14JUN17\*_kom` copies have
+the problem" does not apply to this corpus: every `.lua` entry here is algo `3`, not algo `2`.
+The algo-2 bug is real in these same 21 archives (checked: of 4,317 algo-2 entries, 895 are
+short on disk vs. their manifest) — it just never lands on a `.lua` file. `corpus_run.py` and
+later sweep phases can skip a truncation-repair path entirely.
+
+**275 `(.lua, .std.luac)` pairs exist, all with a matching original; 3 have no `.src.lua`**
+(`DamageEffect.lua`, `SECRET_MAGI_BOSS.lua`, `SECRET_SCENE_DUMMY.lua` — all three contain a
+FIX-block opcode per `decompile_corpus.tsv`'s `n_fix_hits`, i.e. elstools' own decompile-batch
+failed on all three for the same documented `for...in` swap, not three separate causes).
+Conversely `Enum.src.lua` has no `.std.luac` sibling — origin unclear, not investigated
+further (out of scope). `272` true pairs `+ 1` orphan `= 273`; `275 − 3 = 272`.
+
+**Opcode coverage: 66 distinct KOG opcodes in the corpus; 71 now mapped, all consistent with
+June's `lj_bc_mode[]`.** The 275 pairs covered 63 (incl. all 9 FIX-block opcodes
+unconditionally). 8 needed new evidence — `0x02`/`0x06`/`0x12`/`0x20`/`0x22`/`0x29`/`0x51`/
+`0x2d` (ISLE/ISEQS/IST/SUBNV/DIVNV/POW/LOOP/CALLMT) — each settled from one real corpus file's
+`elstools decompile-batch` output, the same method as the original 14 (evidence file per
+opcode recorded in `ljconv_table.tsv`'s new `evidence` column). No opcode was unsettled; the
+hard-stop-and-ask path never triggered. The corpus's full opcode set is a verified subset of
+the table (checked programmatically — this is how the one opcode missed on a first manual
+pass, `0x2d`, was actually caught). One recorded, non-blocking limit: `lj_bc_mode`'s
+operand-type-plus-metamethod encoding can't distinguish every same-shape pair (e.g.
+`ISLT`/`ISGE` share both); for every opcode outside the documented FIX block, "elstools' own
+translation" remains the sole source of truth per the plan's own methodology, `lj_bc_mode` is
+only a coarse secondary check, and this was already true before Phase 0.
+
+**No-sibling mode added to `ljconv.py`:** `transcode_stock()` (June → stock `1b 4c 4a 01`
+bytecode directly, no `.std.luac` needed) plus `verify_stock_mode()`/`--verify-stock`.
+Verified byte-for-byte against all 275 pairs (set equality: differs from elstools' own
+`.std.luac` at exactly the FIX-slot instruction bytes, nowhere else, and every FIX-slot byte
+does differ). Decompile-path validation: the 14 `june_lua/*.lua` reference files, run through
+`transcode_stock` + completely unmodified vendored `ljd` (no hook), reproduce the existing
+`ljd_jun2017.py`-hook-produced `.src.lua` references byte-for-byte, all 14.
+
+**`corpus_run.py`** — generic resumable runner, one subprocess per file (ljd keeps
+per-process state). Workers arm their own `faulthandler.dump_traceback_later(budget-margin,
+exit=True)` via `arm_faulthandler()`; the parent's backstop kill is `taskkill /F /T /PID <pid>`
+(never by image name). `--resume` truncates a dangling partial last line off the file itself
+before appending (an earlier version only skipped it in memory, which would have glued a new
+row onto the fragment — caught before the real sweep, by inspection, not by hitting it).
+
+**`decompile_worker.py`** — per file: fast local truncation check, opcode-set hash, table
+lookup, `transcode_stock`, in-process unmodified-`ljd` decompile. Verdicts: `ok` / `assert`
+(with exception type + innermost `ljd/file.py:line`) / `unverifiable-truncated` /
+`unmapped-opcode` / `TIMEOUT` (the worker's own faulthandler firing first, detected from its
+`.hang.txt` starting `Timeout (` — this is the common case, not the parent's backstop) /
+`CRASH` (anything else unexplained, with stderr saved to a `.err.txt`). A dry run at
+`--timeout 60` on `DamageEffect.lua` initially surfaced as `CRASH` with the real cause sitting
+unread in the hang log; `run_one` now checks hang-log content before falling back to `CRASH`.
+
+**The full sweep: 7,328 / 7,328 files, `ljconv_ok=yes`, `decompile_verdict=ok`.** Two batches:
+13 files over 2^20 bytes at `--timeout 300 --workers 2` (largest, `EffectSet.lua` 5.97 MB,
+took 106s), the remaining 7,315 at `--timeout 90 --workers 8` (max observed 26.9s, well inside
+the 85s faulthandler deadline). By the plan's decimal-MB reckoning that split is 14/7,314 —
+`BattleFieldBuffFactor.lua` at 1,011,108 bytes sits between the two thresholds and landed in
+the 90s batch instead, finishing in 21s with room to spare either way. Zero truncation, zero
+unmapped opcodes, zero asserts, zero timeouts, zero crashes. `ok` means **ljd returned without
+raising, not that the printed Lua is semantically correct** — `DamageEffect*`/`EffectSet`
+still carry the known `deepcopy` mis-structure (README.md, "ljd caveat") and are still `ok`;
+that class of defect is Phase 3/4's problem, not something a clean Phase 0 run rules out.
+Confirmed non-empty output for all but 19 files, and those 19 are legitimately empty 18-byte/
+1-instruction stub scripts (verified via `decompile_corpus.tsv`'s own `size`/`n_instructions`
+columns), not silently-dropped output.
+
+**Outputs:** `june2017_re/corpus_run.py`, `decompile_worker.py`, `truncation_census.py`,
+`build_decompile_corpus.py` (the last two make `decompile_corpus.tsv` regenerable from tracked
+code, not just from scratch files in `tmp/`), `ljconv_table.tsv` (71 opcodes, with an
+`evidence` column and a shrink-guard on `--build-table`), `ljconv.py`'s new mode, and
+`decompile_corpus.tsv` (7,328 rows: `dir, name, size, manifest_size, manifest_short_by,
+truncated, walk_status, protos_complete, last_complete_end, opcode_set_hash, ljconv_ok,
+decompile_verdict, wall_seconds, detail, n_instructions, n_fix_hits, n_distinct_opcodes,
+exit_code, timed_out`).
+
+**Not done here, by design:** independently re-deriving same-shape opcode pairs beyond
+trusting elstools' translation (a harder question than "is every opcode settled"); mapping
+`march2014/**/*.src.lua` to June originals (Phase 5's job, and has no open dependency on this
+phase now that truncation is a non-issue).
+
+---
+
 ## Phase 1 — Engine-free synthetic oracle
 
 **Paste with:** Starting context + this section + "Phase 0 result".

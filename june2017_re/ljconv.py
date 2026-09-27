@@ -28,6 +28,7 @@ instruction count, how many instructions hit FIX slots, and whether the output
 is byte-identical to the header-swapped .std.luac (expected exactly when the
 file has no FIX-slot instructions).
 """
+import csv
 import glob
 import os
 import sys
@@ -90,15 +91,115 @@ def instruction_offsets(d, magic):
     return offs
 
 
+def instruction_offsets_tolerant(d, magic):
+    """Like instruction_offsets, but never raises: a file cut short anywhere in
+    the dump (header, a length prefix, a prototype's own header fields, its
+    bytecode, or its tail of upvalues/constants/debug info) is reported instead
+    of crashing on an IndexError from uleb().
+
+    Returns a dict:
+      status: 'complete' | 'no-terminator' | 'trailing-bytes' |
+              'short-prototype-tail' | 'short-prototype-bytecode' |
+              'cut-in-prototype-header' | 'cut-mid-length' | 'bad-prototype' |
+              'bad-header' | 'big-endian'
+      offs: instruction opcode-byte offsets for every FULLY present prototype,
+            plus (for 'short-prototype-tail' only) the partial trailing
+            prototype's own instructions, since its bytecode region sits right
+            after its header fields and is confirmed to fit inside the file
+            even though something after it (constants/debug info) is missing.
+      protos_complete: count of prototypes walked with their full length prefix
+            intact (does not count a 'short-prototype-tail' partial one).
+      last_complete_end: file offset just past the last such prototype (or
+            past the header if none), i.e. where the walk gave up.
+      partial: None, or {'index', 'offs', 'declared_end', 'bc_end'} for the
+            'short-prototype-tail' case.
+
+    'no-terminator' means the walk reached exactly the position where the
+    terminator's zero-length prefix would start, and the file ends there: a
+    clean prototype boundary at EOF. On its own this does not prove only the
+    1-byte terminator is missing -- a cut that dropped several whole trailing
+    prototypes (main chunk included) plus the terminator looks identical.
+    Callers must additionally check the archive manifest size (short by
+    exactly 1 byte) before calling a 'no-terminator' file terminator-only."""
+    if d[:4] != magic:
+        return {'status': 'bad-header', 'offs': [], 'protos_complete': 0,
+                'last_complete_end': 0, 'partial': None}
+    try:
+        flags, p = uleb(d, 4)
+    except IndexError:
+        return {'status': 'bad-header', 'offs': [], 'protos_complete': 0,
+                'last_complete_end': 4, 'partial': None}
+    if flags & BCDUMP_F_BE:
+        return {'status': 'big-endian', 'offs': [], 'protos_complete': 0,
+                'last_complete_end': p, 'partial': None}
+    if not flags & BCDUMP_F_STRIP:
+        try:
+            n, p = uleb(d, p)
+            p += n
+            if p > len(d):
+                raise IndexError
+        except IndexError:
+            return {'status': 'cut-in-prototype-header', 'offs': [], 'protos_complete': 0,
+                    'last_complete_end': p, 'partial': None}
+    offs = []
+    idx = 0
+    while True:
+        start = p
+        try:
+            plen, p = uleb(d, p)
+        except IndexError:
+            status = 'no-terminator' if start == len(d) else 'cut-mid-length'
+            return {'status': status, 'offs': offs, 'protos_complete': idx,
+                    'last_complete_end': start, 'partial': None}
+        if plen == 0:
+            status = 'complete' if p == len(d) else 'trailing-bytes'
+            return {'status': status, 'offs': offs, 'protos_complete': idx,
+                    'last_complete_end': p, 'partial': None}
+        end = p + plen
+        try:
+            q = p + 4
+            if q > len(d):
+                raise IndexError
+            sizekgc, q = uleb(d, q)
+            sizekn, q = uleb(d, q)
+            sizebc, q = uleb(d, q)
+            if not flags & BCDUMP_F_STRIP:
+                sizedbg, q = uleb(d, q)
+                if sizedbg:
+                    _, q = uleb(d, q)
+                    _, q = uleb(d, q)
+        except IndexError:
+            return {'status': 'cut-in-prototype-header', 'offs': offs, 'protos_complete': idx,
+                    'last_complete_end': start, 'partial': None}
+        bc_end = q + 4 * sizebc
+        if end > len(d):
+            if bc_end <= len(d):
+                partial = {'index': idx, 'offs': list(range(q, bc_end, 4)),
+                           'declared_end': end, 'bc_end': bc_end}
+                return {'status': 'short-prototype-tail', 'offs': offs, 'protos_complete': idx,
+                        'last_complete_end': start, 'partial': partial}
+            return {'status': 'short-prototype-bytecode', 'offs': offs, 'protos_complete': idx,
+                    'last_complete_end': start, 'partial': None}
+        if bc_end > end:
+            return {'status': 'bad-prototype', 'offs': offs, 'protos_complete': idx,
+                    'last_complete_end': start, 'partial': None}
+        offs.extend(range(q, bc_end, 4))
+        p = end
+        idx += 1
+
+
 def june_files(args):
     return args or sorted(f for f in glob.glob(os.path.join(HERE, 'june_lua', '*.lua'))
                           if not f.endswith('.src.lua'))
 
 
 def build_table(files):
-    """KOG opcode -> stock opcode. Returns (table, per-op evidence counts)."""
+    """KOG opcode -> stock opcode. Returns (table, per-op evidence counts,
+    evidence) where evidence[k] is 'FIX' for the 9 hard-coded slots, or the
+    basename of the first (.lua, .std.luac) pair that established it."""
     table = {}
     seen = {}
+    evidence = {}
     for f in files:
         kog = open(f, 'rb').read()
         std = open(f[:-4] + '.std.luac', 'rb').read()
@@ -119,14 +220,16 @@ def build_table(files):
                 continue
             if table.setdefault(k, s) != s:
                 raise SystemExit('elstools maps KOG 0x%02x to both 0x%02x and 0x%02x' % (k, table[k], s))
+            evidence.setdefault(k, os.path.basename(f))
     for k, s in FIX.items():
         table[k] = s
+        evidence[k] = 'FIX'
     inv = {}
     for k, s in table.items():
         if s in inv and inv[s] != k:
             raise SystemExit('not injective: KOG 0x%02x and 0x%02x both map to stock 0x%02x' % (inv[s], k, s))
         inv[s] = k
-    return table, seen
+    return table, seen, evidence
 
 
 def check_modes(table):
@@ -158,6 +261,55 @@ def transcode(d, table):
         out[o] = table[k]
     instruction_offsets(bytes(out), MAR_MAGIC)  # still walks cleanly
     return bytes(out), len(offs), fixhits
+
+
+def transcode_stock(d, table):
+    """Like transcode(), but to STOCK_MAGIC (1b 4c 4a 01) instead of MAR_MAGIC:
+    a June file straight to the header+opcodes ljd's own parser expects, with
+    no elstools .std.luac needed at all. Same renumbering; only the header's
+    3rd/4th bytes differ (mar-2014 keeps KOG's 'K','L' and 0x81; this is
+    stock's 'L','J' and version 0x01 -- see lj_bcdump.h)."""
+    offs = instruction_offsets(d, JUNE_MAGIC)
+    out = bytearray(d)
+    out[:4] = STD_MAGIC
+    fixhits = 0
+    for o in offs:
+        k = d[o]
+        if k not in table:
+            raise ValueError('KOG opcode 0x%02x at 0x%x has no mapping' % (k, o))
+        fixhits += k in FIX
+        out[o] = table[k]
+    instruction_offsets(bytes(out), STD_MAGIC)  # still walks cleanly
+    return bytes(out), len(offs), fixhits
+
+
+def verify_stock_mode(files, table):
+    """The plan's Phase 0 exit check for the no-sibling mode: for every (june
+    .lua, .std.luac) pair, transcode_stock's output must be byte-identical to
+    the existing .std.luac EVERYWHERE except at FIX-slot instruction bytes --
+    and every FIX-slot instruction must actually differ (elstools' own table is
+    wrong there by construction, so a FIX slot that doesn't differ is itself a
+    bug: either FIX is stale or the pair's evidence disagrees with it). Set
+    equality, not subset: too few or too many differing bytes both fail.
+    Returns the number of pairs checked."""
+    n = 0
+    for f in files:
+        kog = open(f, 'rb').read()
+        std = open(f[:-4] + '.std.luac', 'rb').read()
+        if len(kog) != len(std):
+            raise SystemExit('%s: length differs from its .std.luac' % f)
+        offs = instruction_offsets(kog, JUNE_MAGIC)
+        if instruction_offsets(std, STD_MAGIC) != offs:
+            raise SystemExit('%s: .std.luac has a different instruction layout' % f)
+        out, _, _ = transcode_stock(kog, table)
+        fixoffs = set(o for o in offs if kog[o] in FIX)
+        diffoffs = set(i for i in range(4, len(out)) if out[i] != std[i])
+        if diffoffs != fixoffs:
+            raise SystemExit('%s: differing bytes (%d) do not equal FIX-slot offsets (%d); '
+                             'extra=%d missing=%d' % (f, len(diffoffs), len(fixoffs),
+                                                       len(diffoffs - fixoffs), len(fixoffs - diffoffs)))
+        n += 1
+    return n
 
 
 LUAJIT = os.path.join(HERE, '..', 'elstools', 'vendor', 'luajit', 'luajit.exe')
@@ -196,12 +348,92 @@ def disasm_check(out, std, fixhits, tmpdir):
     return len(la), len(diff), ok
 
 
+JUNE_DATA = r'F:\elsword stuff\elsword_2014\els_2014\237311\14JUN17\data'
+TABLE_TSV = os.path.join(HERE, 'ljconv_table.tsv')
+
+
+def find_pairs(roots):
+    """Every (kog .lua, its .std.luac sibling) found recursively under roots."""
+    pairs = []
+    for root in roots:
+        for dirpath, _, filenames in os.walk(root):
+            for f in filenames:
+                if f.lower().endswith('.std.luac'):
+                    stem = os.path.join(dirpath, f[:-len('.std.luac')])
+                    if os.path.exists(stem + '.lua'):
+                        pairs.append(stem + '.lua')
+    return sorted(pairs)
+
+
+def save_table(table, names, evidence, path):
+    with open(path, 'w', newline='', encoding='utf-8') as fh:
+        w = csv.writer(fh, delimiter='\t')
+        w.writerow(['kog_opcode_hex', 'stock_opcode_hex', 'stock_name', 'is_fix', 'evidence'])
+        for k in sorted(table):
+            w.writerow(['%02x' % k, '%02x' % table[k], names[table[k]], 'yes' if k in FIX else 'no',
+                       evidence.get(k, '')])
+
+
+def load_table(path):
+    table = {}
+    with open(path, encoding='utf-8') as fh:
+        r = csv.DictReader(fh, delimiter='\t')
+        for row in r:
+            table[int(row['kog_opcode_hex'], 16)] = int(row['stock_opcode_hex'], 16)
+    return table
+
+
 def main(argv):
+    if '--build-table' in argv:
+        force = '--force' in argv
+        argv = [a for a in argv if a not in ('--build-table', '--force')]
+        roots = argv or [JUNE_DATA]
+        pairs = find_pairs(roots)
+        print('found %d (.lua, .std.luac) pairs under %s' % (len(pairs), ', '.join(roots)))
+        table, seen, evidence = build_table(pairs)
+        n, names = check_modes(table)
+        print('table: %d KOG opcodes mapped (%d observed), all %d consistent with June lj_bc_mode[]'
+              % (len(table), len(seen), n))
+        if os.path.exists(TABLE_TSV) and not force:
+            old = load_table(TABLE_TSV)
+            lost = sorted(set(old) - set(table))
+            if lost:
+                raise SystemExit(
+                    '%s already maps %d opcode(s) this run has no evidence for (%s); '
+                    'refusing to shrink the table -- pass --force if that is really '
+                    'intended (e.g. the roots deliberately exclude tmp/opsamples-style '
+                    'one-off evidence files)' % (TABLE_TSV, len(lost),
+                                                 ' '.join('0x%02x' % k for k in lost)))
+        save_table(table, names, evidence, TABLE_TSV)
+        print('wrote %s' % TABLE_TSV)
+        return 0
+    if '--verify-stock' in argv:
+        argv = [a for a in argv if a != '--verify-stock']
+        roots = argv or [JUNE_DATA]
+        table = load_table(TABLE_TSV)
+        pairs = find_pairs(roots)
+        n = verify_stock_mode(pairs, table)
+        print('verify-stock: %d pair(s) OK (differ from .std.luac only at FIX-slot instructions)' % n)
+        return 0
+    if '--stock' in argv:
+        argv = [a for a in argv if a != '--stock']
+        outdir = argv.pop(0)
+        files = june_files(argv)
+        table = load_table(TABLE_TSV)
+        os.makedirs(outdir, exist_ok=True)
+        for f in files:
+            d = open(f, 'rb').read()
+            out, nins, fixhits = transcode_stock(d, table)
+            open(os.path.join(outdir, os.path.basename(f)), 'wb').write(out)
+            print('%-32s %8d instructions, %5d in FIX slots -> stock bytecode, no .std.luac needed'
+                  % (os.path.basename(f), nins, fixhits))
+        return 0
+
     check_only = '--check-only' in argv
     argv = [a for a in argv if a != '--check-only']
     outdir = None if check_only else argv.pop(0)
     files = june_files(argv)
-    table, seen = build_table(files)
+    table, seen, _ = build_table(files)
     n, names = check_modes(table)
     print('table: %d KOG opcodes mapped (%d observed in %d files), injective, '
           'all %d consistent with June lj_bc_mode[]' % (len(table), len(seen), len(files), n))
