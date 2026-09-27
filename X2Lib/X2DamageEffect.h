@@ -591,6 +591,9 @@ class CX2DamageEffect
 #endif //SERV_9TH_NEW_CHARACTER
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 			// June2017 FUN_31f71930 (LoadLockOnData). Phase 6b: parse only -- consuming these is Phase 7b.
+			// Code review fix: RANDOM_SEED must not overwrite the live m_iRandomSeed above (already
+			// consumed at run time), so it lands in this new member instead.
+			int				m_iRandomSeedFromLua;			/// June @31f7359b, int getter 32fe9fd0, default -1
 			int				m_iUnlockStartAfterAttack;		/// June @31f724d0, int getter 32fe9fd0, default -1
 			float			m_fRetargetCooltimeAfterAttack;	/// June @31f726a6, float getter 32fea370, default -1.f
 			bool			m_bYDirInit;					/// June @31f72d4e, bool getter 32fe9e40, default false
@@ -672,6 +675,7 @@ class CX2DamageEffect
 				m_wstrTargetBoneName = L"";
 #endif //SERV_9TH_NEW_CHARACTER
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+				m_iRandomSeedFromLua = -1;
 				m_iUnlockStartAfterAttack = -1;
 				m_fRetargetCooltimeAfterAttack = -1.f;
 				m_bYDirInit = false;

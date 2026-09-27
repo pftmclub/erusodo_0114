@@ -1385,6 +1385,68 @@ in `X2DamageEffect.obj`. **Play-tested 2026-09-27:**
 Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`. Every site keeps March's code in the
 `#else` branch or is a pure addition, and the ctor only initialises the three new members.
 
+**`/code-review` fixes, 2026-09-27 (Phase 7a plus two pre-existing Phase 6b/Lanox issues it also
+found).** Built `US_SERVICE` (X2Lib, X2) clean; `census.py` re-run afterward with no status/phase
+changes (only citation line numbers moved).
+
+- **`JuneFxCeOnce`/`JuneFxCeFrame` and the Phase 5 `APPLIED_SKILL_ID` log needed `SERV_IRUHADEV_OFFLINE`.**
+  `CX2OfflineLog` is declared only under that flag, but these were gated solely on
+  `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`/`_PARSE`. Both flags happen to always be on together
+  right now, so this was latent, not live -- but it meant the June flags weren't actually
+  independently revertible. Both helpers now no-op (`UNREFERENCED_PARAMETER` on every arg) when
+  `SERV_IRUHADEV_OFFLINE` is off; the Phase 5 log block is wrapped the same way.
+- **The two per-frame "unsupported" logs in `OnFrameMove` were pure waste.** `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`
+  and `TRACE_OWNER_BONE_ONLY_ROTATE` are ctor-time templet facts that never change, so logging them
+  every frame paid a `std::wstring` build and a `std::set` lookup forever for the same answer. Moved
+  both into the ctor, beside the existing `CE_TEMPLET` dump.
+- **`SetDamageDataNextByChainIndex` duplicated `SetDamageDataNext`'s whole field-carry body**
+  (hit list, extra-damage flag, PvP rate, laser-group copy, Rena first-attack/skill data, struct
+  copy). `SetDamageDataNext` now calls `SetDamageDataNextByChainIndex( pDamageData, 0 )` instead of
+  keeping a second copy that could silently drift when Phase 8 adds a field.
+- **`FollowLine`'s nearest-line scan re-validated bounds and null-checked a line already
+  guaranteed by the loop that found it.** Simplified to `if( iJuneNearestLine >= 0 )`.
+- **`RANDOM_SEED` was not parse-only.** It wrote straight into the live `m_LockOnData.m_iRandomSeed`,
+  which `OnFrameMove_LockOnData`'s re-target branch already reads unconditionally (pre-dating Phase
+  6b) -- so any `LOCK_ON_DATA` table carrying this key would have changed lock-on targeting the
+  moment it was read, despite the phase's own comment calling it parse-only. Now parsed into a new,
+  inert `m_iRandomSeedFromLua` member; Phase 7b decides whether/how it feeds the live field.
+- **Two issues from earlier phases, unrelated to Phase 7a, that the same review pass caught:**
+  - **`~CEffect` leaked `m_vecTouchLandDamageEffect`/`m_vecHitEffectSet`** (Phase 6b, both
+    `vector<T*>` allocated with `new` in their `Load*` functions, never freed --
+    `m_vecDieCreateNpc` is a value type and needed nothing). Added the same free-and-clear loop
+    the dtor already uses for `m_vecDamageDataNextChain`.
+  - **`CalculateExtraStatValue`'s "does a dungeon-keyed band exist" scan (Lanox ExtraNPCStat,
+    `X2UnitManager.cpp`) ignored level.** A keyed band that didn't cover the queried level would
+    still block every generic (`DUNGEON_ID 0`) row, so the function fell through to "no band
+    covers this level" and returned the raw `fValue` with `*pbEvalFailed` left false --
+    indistinguishable from a real result. Now the keyed-band scan also requires `iLevel` to fall
+    inside the row's range; a no-op for the one real keyed band in the shipped data (Henir,
+    1-110).
+  - **`HasExtraNPCStat` ignored `m_bExtraNPCStatReady`.** A `NewNPCStat.lua` that fails partway
+    (elstools' documented algo-2 truncation) leaves rows already committed to
+    `m_mapExtraNPCStat` even though the load is marked degraded -- exactly the hazard the comment
+    above `AddExtraNPCStat_LUA`'s own map write already flags. `X2Game.cpp`'s and
+    `X2BattleFieldGame.cpp`'s `bExtraNPCStatNoHardLevel` called `HasExtraNPCStat` directly with no
+    readiness check of their own (unlike `GetExtraNPCStat`'s two callers in `X2GUNPC.cpp`, which
+    already gate on `IsExtraNPCStatReady()`). Folded the check into `HasExtraNPCStat` itself,
+    fixing both callers at once.
+- **Two findings from the same pass were not acted on**, with reasons:
+  - **`ReInitAtkAndDef_LUA` (`X2GUNPC.cpp`, `SERV_SECRET_HELL`) duplicates `SetHardLevel`'s
+    per-level term without the PvP correction factor.** This asymmetry pre-dates every Lanox/June
+    change -- March's own legacy `ReInitAtkAndDef_LUA` body has never applied a PvP correction
+    either, only `SetHardLevel`'s does. `SERV_SECRET_HELL` NPCs are PvE-only, so
+    `GetGameType() == GT_PVP` is never true at this function's call sites, making the missing
+    factor a no-op in practice. Sharing a helper would fix a real duplication but would also erase
+    a pre-existing asymmetry in the shipped client for a branch that can't be reached -- not worth
+    the risk to already-play-tested spawn code for this pass.
+  - **The Phase 7a edits carry no `//{{ author : date // description ... //}}` change-block
+    markers.** Every phase of this rebuild (2 through 7a, all already committed) has used the
+    `#ifdef SERV_IRUHADEV_JUNE_* ... #endif` block plus an inline `// June2017 FUN_xxx @addr: ...`
+    citation as its change marker instead, across `X2EffectSet.cpp` and `X2DamageEffect.cpp` alike
+    -- zero `//{{ }}` blocks appear anywhere in either file. Adding them retroactively to only
+    Phase 7a, and not the five phases before it in the same files, would make this phase
+    inconsistent with its own project rather than with CLAUDE.md's general house style.
+
 **`SERV_IRUHADEV_EXTRA_NPC_STAT` (+ short-lived `SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG`), 2026-09-27
 -- Lanox ExtraNPCStat port Phase 3 (base flag only; see `LANOX_EXTRA_NPC_STAT_PLAN.md`).**
 Ports June2017's second NPC stat system, `data036/NewNPCStat.lua` + `NewNPCStatFormula.lua`,

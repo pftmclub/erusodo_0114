@@ -5,11 +5,17 @@
 #endif SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+#ifdef SERV_IRUHADEV_OFFLINE
 #include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_OFFLINE
 // JUNE_FX <unsupported|deferred> <KEY> in <templet>: <why>. The rule-5 line for a June per-frame
 // branch this build cannot take (plan Phase 7a), once per (tag, key, templet) for the session.
+// Code review fix: no-op when SERV_IRUHADEV_OFFLINE is off -- CX2OfflineLog only exists under it
+// (X2OfflineLog.h), so this keeps SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME independently buildable
+// and revertible, rather than tying it to offline mode by accident.
 static void JuneFxCeOnce( const WCHAR* pwszTag_, const WCHAR* pwszEffect_, const WCHAR* pwszKey_, const WCHAR* pwszWhy_ )
 {
+#ifdef SERV_IRUHADEV_OFFLINE
 	const WCHAR* pwszEffectName = ( NULL != pwszEffect_ ? pwszEffect_ : L"-" );
 	std::wstring wstrOnceKey = pwszTag_;
 	wstrOnceKey += L"|";
@@ -22,15 +28,22 @@ static void JuneFxCeOnce( const WCHAR* pwszTag_, const WCHAR* pwszEffect_, const
 		return;
 
 	CX2OfflineLog::Server( L"JUNE_FX %s %s in %s: %s", pwszTag_, pwszKey_, pwszEffectName, pwszWhy_ );
+#else SERV_IRUHADEV_OFFLINE
+	UNREFERENCED_PARAMETER( pwszTag_ );
+	UNREFERENCED_PARAMETER( pwszEffect_ );
+	UNREFERENCED_PARAMETER( pwszKey_ );
+	UNREFERENCED_PARAMETER( pwszWhy_ );
+#endif SERV_IRUHADEV_OFFLINE
 }
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 // JUNE_FX CE_FRAME <effect> <key> <detail>: one line per June per-frame branch taken in
 // CEffect::OnFrameMove / FollowLine (plan Phase 7a), at most one a second per (effect, key).
 // The detail (times, positions) is not part of the throttle key. Runtime, so it goes to
-// offline_server.log.
+// offline_server.log. No-op when SERV_IRUHADEV_OFFLINE is off, same reason as JuneFxCeOnce above.
 static void JuneFxCeFrame( const WCHAR* pwszEffect_, const WCHAR* pwszKey_, const WCHAR* pwszDetail_ )
 {
+#ifdef SERV_IRUHADEV_OFFLINE
 	const WCHAR* pwszEffectName = ( NULL != pwszEffect_ ? pwszEffect_ : L"-" );
 	std::wstring wstrThrottleKey = pwszEffectName;
 	wstrThrottleKey += L"|";
@@ -44,6 +57,11 @@ static void JuneFxCeFrame( const WCHAR* pwszEffect_, const WCHAR* pwszKey_, cons
 	s_mapLastLoggedTime[ wstrThrottleKey ] = dwNow;
 
 	CX2OfflineLog::Server( L"JUNE_FX CE_FRAME %s %s %s", pwszEffectName, pwszKey_, pwszDetail_ );
+#else SERV_IRUHADEV_OFFLINE
+	UNREFERENCED_PARAMETER( pwszEffect_ );
+	UNREFERENCED_PARAMETER( pwszKey_ );
+	UNREFERENCED_PARAMETER( pwszDetail_ );
+#endif SERV_IRUHADEV_OFFLINE
 }
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
@@ -1519,6 +1537,8 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 		m_iAppliedSkillID = 0;
 		m_iAppliedSkillIDNotAffectMemo = 0;
 	}
+#ifdef SERV_IRUHADEV_OFFLINE
+	// Code review fix: this needs CX2OfflineLog, which only exists under SERV_IRUHADEV_OFFLINE.
 	if( 0 != m_iAppliedSkillID || 0 != m_iAppliedSkillIDNotAffectMemo )
 	{
 		static map<wstring, DWORD> s_mapLastLoggedTime_appliedSkillId;
@@ -1531,6 +1551,7 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 				pName, m_iAppliedSkillID, m_iAppliedSkillIDNotAffectMemo );
 		}
 	}
+#endif SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 	wstring mainEffName = L"";
@@ -2084,6 +2105,18 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+	// Code review fix: these two are ctor-time templet facts (never change after
+	// construction), so log them once here instead of every frame in OnFrameMove.
+	// June2017 FUN_31f88790 @31f88928-31f88943 (APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION) and
+	// @31f889e9-31f88a8b (TRACE_OWNER_BONE_ONLY_ROTATE): see those addresses for what June does
+	// at run time. Both are rule-5 unsupported systems here (effect-alpha option; Rose/UT_ROSE).
+	if( 0 != m_iApplyEffectAlphaConditionByOption )
+		JuneFxCeOnce( L"unsupported", GetName(), L"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION", L"effect-alpha option absent" );
+	if( false == m_strTraceOwnerBoneOnlyRotate.empty() )
+		JuneFxCeOnce( L"unsupported", GetName(), L"TRACE_OWNER_BONE_ONLY_ROTATE", L"Rose (UT_ROSE) absent" );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+
 	m_fElapsedTime = 0.f;
 }; 
 
@@ -2233,6 +2266,17 @@ CX2DamageEffect::CEffect::~CEffect()
 	for( size_t iDamageDataNextChain = 0; iDamageDataNextChain < m_DamageEffectDataInLua.m_vecDamageDataNextChain.size(); iDamageDataNextChain++ )
 		SAFE_DELETE( m_DamageEffectDataInLua.m_vecDamageDataNextChain[iDamageDataNextChain] );
 	m_DamageEffectDataInLua.m_vecDamageDataNextChain.clear();
+
+	// Code review fix: Phase 6b's m_vecTouchLandDamageEffect/m_vecHitEffectSet are
+	// vector<T*>, allocated with new in LoadTouchLandDamageEffect/LoadHitEffectSet, and
+	// were never freed here (m_vecDieCreateNpc is a value type, so it needs nothing).
+	for( size_t iTouchLand = 0; iTouchLand < m_DamageEffectDataInLua.m_vecTouchLandDamageEffect.size(); iTouchLand++ )
+		SAFE_DELETE( m_DamageEffectDataInLua.m_vecTouchLandDamageEffect[iTouchLand] );
+	m_DamageEffectDataInLua.m_vecTouchLandDamageEffect.clear();
+
+	for( size_t iHitEffectSet = 0; iHitEffectSet < m_DamageEffectDataInLua.m_vecHitEffectSet.size(); iHitEffectSet++ )
+		SAFE_DELETE( m_DamageEffectDataInLua.m_vecHitEffectSet[iHitEffectSet] );
+	m_DamageEffectDataInLua.m_vecHitEffectSet.clear();
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 #endif	DAMAGE_EFFECT_WORK
@@ -2282,13 +2326,6 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 		ASSERT( pMeshInst != NULL );
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
-		// June2017 FUN_31f88790 (CEffect::OnFrameMove) @31f88928-31f88943: when
-		// APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION is not 1, June hands it to the main effect every
-		// frame (CXMeshInstance 31c83620). The effect-alpha option system is absent from this build
-		// (rule 5), so this only logs, once per templet, when the data sets the key.
-		if( 0 != m_iApplyEffectAlphaConditionByOption )
-			JuneFxCeOnce( L"unsupported", GetName(), L"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION", L"effect-alpha option absent" );
-
 		// June2017 FUN_31f88790 @31f88943-31f889e9: TRACE_OWNER_BONE. Every frame the main effect
 		// moves to that bone of the owner. With no owner it uses g_pX2Game->GetMyUnit() instead
 		// (CX2Game vtable slot 0x98 = 3231f550). The lookup is GetBonePos( name, out ), the bool
@@ -2318,14 +2355,6 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 			}
 		}
 
-		// June2017 FUN_31f88790 @31f889e9-31f88a8b: TRACE_OWNER_BONE_ONLY_ROTATE. June acts only for an
-		// owner whose m_GameUnitType is GUT_USER (+0x264 == 0) and whose unit type (31e4d0e0) is 11,
-		// UT_ROSE in june_lua/Enum.src.lua. It sets the main effect's rotation to ( its own x,
-		// GetYRotateDegree() (slot 0x158), user +0x9630 ); the string is never used as a bone name.
-		// Rose does not exist in this build, so June could never take this branch here (rule 5).
-		// It logs once per templet and does nothing else.
-		if( false == m_strTraceOwnerBoneOnlyRotate.empty() )
-			JuneFxCeOnce( L"unsupported", GetName(), L"TRACE_OWNER_BONE_ONLY_ROTATE", L"Rose (UT_ROSE) absent" );
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 
@@ -6974,8 +7003,9 @@ void CX2DamageEffect::CEffect::FollowLine()
 					}
 				}
 
-				if( iJuneNearestLine >= 0 && iJuneNearestLine < pJuneLineMap->GetNumLineData()
-					&& NULL != pJuneLineMap->GetLineData( iJuneNearestLine ) )
+				// Code review fix: iJuneNearestLine is only ever assigned from iJuneLine, already
+				// bounds-checked and non-NULL by the loop above, so re-checking both here was dead.
+				if( iJuneNearestLine >= 0 )
 				{
 					vJuneNearestPos.y += 100.f;
 					pMeshInst->SetPos( vJuneNearestPos );
@@ -7116,7 +7146,12 @@ void CX2DamageEffect::CEffect::LoadLockOnDataBlock()
 
 	// June2017 FUN_31f71930, Phase 6b: keys March did not read before this phase. Parse only --
 	// runtime use (the AT_* mode selection, the INIT_TARGET lookup) is Phase 7b.
-	PLUA_GET_VALUE( m_pLuaManager, "RANDOM_SEED",					m_LockOnData.m_iRandomSeed,							-1		);	/// June @31f7359b, int getter 32fe9fd0, default -1
+	// Code review fix: m_LockOnData.m_iRandomSeed is already live (OnFrameMove_LockOnData's
+	// re-target branch reads it unconditionally, X2DamageEffect.cpp's GetLockOnTarget calls),
+	// so writing straight into it here was not parse-only -- it would change targeting the
+	// moment any LOCK_ON_DATA table carries this key. Stored in a new, inert member instead;
+	// Phase 7b decides whether/how it should feed the live field.
+	PLUA_GET_VALUE( m_pLuaManager, "RANDOM_SEED",					m_LockOnData.m_iRandomSeedFromLua,				-1		);	/// June @31f7359b, int getter 32fe9fd0, default -1
 	PLUA_GET_VALUE( m_pLuaManager, "UNLOCK_START_AFTER_ATTACK",	m_LockOnData.m_iUnlockStartAfterAttack,				-1		);	/// June @31f724d0, int getter 32fe9fd0, default -1
 	PLUA_GET_VALUE( m_pLuaManager, "RETARGET_COOLTIME_AFTER_ATTACK",	m_LockOnData.m_fRetargetCooltimeAfterAttack,		-1.f	);	/// June @31f726a6, float getter 32fea370, default -1.f
 	PLUA_GET_VALUE( m_pLuaManager, "Y_DIR_INIT",					m_LockOnData.m_bYDirInit,							false	);	/// June @31f72d4e, bool getter 32fe9e40, default false
@@ -7192,9 +7227,9 @@ void CX2DamageEffect::CEffect::LoadLockOnDataBlock()
 		StringCchPrintfW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L"JUNE_FX LOD_TEMPLET %s", GetName() );
 		const size_t uiLodNameOnly = wcslen( wszJuneFxLod );
 		WCHAR wszLodKey[192] = {0};
-		if( -1 != m_LockOnData.m_iRandomSeed )
+		if( -1 != m_LockOnData.m_iRandomSeedFromLua )
 		{
-			StringCchPrintfW( wszLodKey, ARRAY_SIZE(wszLodKey), L" RANDOM_SEED=%d", m_LockOnData.m_iRandomSeed );
+			StringCchPrintfW( wszLodKey, ARRAY_SIZE(wszLodKey), L" RANDOM_SEED=%d", m_LockOnData.m_iRandomSeedFromLua );
 			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), wszLodKey );
 		}
 		if( -1 != m_LockOnData.m_iUnlockStartAfterAttack )
@@ -8275,6 +8310,12 @@ void CX2DamageEffect::CEffect::LoadTouchLandDamageEffect()
 
 void CX2DamageEffect::CEffect::SetDamageDataNext( CX2DamageManager::DamageData* pDamageData )
 {
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+	// Code review fix: share the field-carry body with SetDamageDataNextByChainIndex
+	// below (index 0 = m_pDamageDataNext) instead of keeping two copies that could
+	// silently drift apart the next time a field is added here.
+	SetDamageDataNextByChainIndex( pDamageData, 0 );
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 	if ( m_DamageEffectDataInLua.m_pDamageDataNext != NULL )
 	{
 		// 기존의 DamageData의 값중 DamageDataNext에서도 유지해야 할것들 미리 대입
@@ -8304,6 +8345,7 @@ void CX2DamageEffect::CEffect::SetDamageDataNext( CX2DamageManager::DamageData* 
 		// 다시 DamageData에 넣어줌
 		*pDamageData =  *(m_DamageEffectDataInLua.m_pDamageDataNext);
 	}	
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 }
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME

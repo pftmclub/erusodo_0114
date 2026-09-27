@@ -1007,6 +1007,13 @@ bool CX2UnitManager::AddExtraNPCFormulaVariable_LUA()
 
 bool CX2UnitManager::HasExtraNPCStat( NPC_UNIT_ID nNPCUnitID ) const
 {
+	// Code review fix: a degraded load (NewNPCStat.lua truncated partway) can leave rows in
+	// m_mapExtraNPCStat with m_bExtraNPCStatReady still false -- see the comment above
+	// AddExtraNPCStat_LUA's own m_mapExtraNPCStat write. Callers that don't already check
+	// IsExtraNPCStatReady() themselves (X2Game.cpp/X2BattleFieldGame.cpp's
+	// bExtraNPCStatNoHardLevel) would otherwise treat a degraded, partial row as real.
+	if ( m_bExtraNPCStatReady == false )
+		return false;
 	return m_mapExtraNPCStat.find( nNPCUnitID ) != m_mapExtraNPCStat.end();
 }
 
@@ -1043,9 +1050,16 @@ float CX2UnitManager::CalculateExtraStatValue( EXTRA_NPC_STAT_TYPE eStatType, in
 	bool bHasDungeonKeyedBand = false;
 	if ( iDungeonID != 0 )
 	{
+		// Code review fix: also require the keyed row to cover iLevel. Matching on dungeon ID
+		// alone meant a keyed band that did not cover this level would still block every
+		// generic (DUNGEON_ID 0) row below, so the function fell through to "no band covers
+		// this level" without ever trying the generic ones -- and returned fValue unscaled
+		// with *pbEvalFailed left false, indistinguishable from a real result. No-op for the
+		// one real keyed band in the shipped data (Henir, level range 1-110).
 		for ( ConstIter iter = range.first; iter != range.second; ++iter )
 		{
-			if ( iter->second.m_iDungeonID == iDungeonID )
+			if ( iter->second.m_iDungeonID == iDungeonID
+				&& iLevel >= iter->second.m_iMinLevel && iLevel <= iter->second.m_iMaxLevel )
 			{
 				bHasDungeonKeyedBand = true;
 				break;
