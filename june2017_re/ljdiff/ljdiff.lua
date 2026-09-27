@@ -196,6 +196,41 @@ local function kstr(k)
 	return '[' .. fmt(k) .. ']'
 end
 
+-- Full-value hash for main_values: the same rendering as fmt() with no entry
+-- or depth cap (cycles become "<cycle>"), fed into FNV-1a piece by piece so a
+-- multi-MB registry never becomes one string.
+local function hfeed(h, str)
+	for i = 1, #str do
+		h = bxor(h, sbyte(str, i))
+		h = tobit(h * 403 + lshift(h, 24))
+	end
+	return h
+end
+local function hvalue(h, v, stack)
+	local t = type(v)
+	if t ~= 'table' or NODE[v] or SENT[v] then return hfeed(h, fmt(v)) end
+	if stack[v] then return hfeed(h, '<cycle>') end
+	stack[v] = true
+	local keys = {}
+	for k in pairs(v) do keys[#keys + 1] = k end
+	table.sort(keys, keyless)
+	h = hfeed(h, '{')
+	for _, k in ipairs(keys) do
+		h = hfeed(h, '[')
+		h = hvalue(h, k, stack)
+		h = hfeed(h, ']=')
+		h = hvalue(h, rawget(v, k), stack)
+		h = hfeed(h, ',')
+	end
+	stack[v] = nil
+	return hfeed(h, '}')
+end
+local function value_line(name, v)
+	local h = hvalue(tobit(0x811c9dc5), v, {})
+	if h < 0 then h = h + 4294967296 end
+	return kstr(name) .. ' #' .. sformat('%08x', h) .. ' = ' .. fmt(v)
+end
+
 -- Error text: drop the "chunk:line: " prefix and the variable annotation,
 -- which differ between the original ("local"/none) and the round trip
 -- ("global 'slot5'") for the same failure.
@@ -255,7 +290,9 @@ do
 					local row = {}
 					for c, i in pairs(header) do row[c] = cols[i] or '' end
 					local sim = row.sim or ''
-					if row.verdict == 'synchronous' and row.lua_name ~= '' then
+					if row.verdict == 'unclear' and row.lua_name ~= '' then
+						UNSIM[row.lua_name] = UNSIM[row.lua_name] or 'unclear'
+					elseif row.verdict == 'synchronous' and row.lua_name ~= '' then
 						if sim == '' or sim == '-' then
 							error('reentrant.tsv: synchronous row without sim: ' .. row.lua_name)
 						elseif sim:match('^none') then
@@ -1129,6 +1166,14 @@ if main_out then
 	for k in pairs(main_written) do ws[#ws + 1] = kstr(k) end
 	table.sort(ws)
 	w(',\n"main_writes":'); jlist(ws)
+	-- every global the main chunk wrote, post-main: capped text plus a hash of
+	-- the uncapped rendering (so a difference past FMT_ENTRIES/depth 8 shows)
+	local names = {}
+	for k in pairs(main_written) do names[#names + 1] = k end
+	table.sort(names, keyless)
+	local vals = {}
+	for i, k in ipairs(names) do vals[i] = value_line(k, main_store[k]) end
+	w(',\n"main_values":'); jlist(vals, true)
 	local en = {}
 	for _, ep in ipairs(main_out.entries) do
 		local fi = funcinfo(ep.raw)

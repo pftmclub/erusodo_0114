@@ -845,7 +845,14 @@ Ran 2026-09-28. All exit criteria met:
   a run).
 - `types.tsv` is generated (38 rows, none of them `compare-ambiguous` or `conflict`) and was
   never hand-edited.
-- `--selftest` passes all 21 checks.
+- `--selftest` passes all 24 checks.
+- **The main-chunk path is proved by a mutation run,** which `--twice` can't prove.
+  - Kenta's decompile was copied with `UNIT_HEIGHT` 350 changed to 351, and
+    `RAGE_DRYADKENTA_START.SOUND_PLAY0[1]` changed from 0.035 to 0.036.
+  - Traced as `--extra mut=…`, it differs from `rt` in `main_values` at exactly
+    `INIT_SYSTEM` and `RAGE_DRYADKENTA_START`, and nowhere else. Every call and main event is
+    identical.
+  - `orig` and `rt` agree on all 56 `main_values`.
 
 **Layout.** `june2017_re/ljdiff/`:
 - `ljdiff.lua` is the runtime. It takes one chunk per process, in `learn` or `trace` mode.
@@ -870,7 +877,15 @@ Ran 2026-09-28. All exit criteria met:
 **Trace format** (one JSON object per side per file; events one per line, so they diff as
 text):
 - Header: `label`, `side`, `seeds`, `types_h32`, `load_error`, `restore`, `main_writes`,
-  `entries` (`name/arity`, `nested` for table-held functions).
+  `main_values`, `entries` (`name/arity`, `nested` for table-held functions).
+  - **`main_values`** has one line per global the main chunk wrote, taken after the main
+    chunk: `NAME #<hash> = <text>`.
+    - The text is `fmt`'s rendering, capped at 256 entries per level and depth 8.
+    - The hash is FNV-1a over the **uncapped** rendering, so a difference past the cap still
+      shows.
+    - This is what covers `X = { … }` tables (`INIT_*`, NPC state tables, most of
+      `data036`). Registries that go through engine calls show up as main-chunk `CALL`
+      events instead.
   - `types_h32` is a hash of the `types.tsv` it ran with. **2b must refuse to diff two sides
     whose `types_h32` differ.**
 - `main` and each `calls[i]`: `fn`, `seed`, `arity`, `args`, `outcome`, `fatal`, `poison`,
@@ -1029,7 +1044,15 @@ text):
   > - the 12 `unclear` rows (combo/slider/check-box event handlers, `SendGameMessage` with
   >   its 4th argument true, direct `CX2GUUser::StateChange`, text `.tet`/`.xet` loads)
   >
-  > The `unsim` counts in the traces say how often each file called one of these.
+  > The traces' `unsim` sets name which of these each call reached, the `unclear` rows
+  > included. They are keyed by method name alone, so they **overcount**: `SetString` and the
+  > texture setters are bound on more classes than `CKTDGUIButton`.
+
+  All three files here have `unsim` = 0.
+- **Phase 5 lead.** `ReInitAtkAndDef_LUA` → `CalculateExtraStatValue` is the one synchronous
+  cross-file path in the user's own build (ExtraNPCStat is on by default).
+  `march2014/update/data036/NewNPCStatFormula.src.lua:9` writes a no-`local` `slot8 = 0`,
+  which is a global write in the shared state, made in the middle of the NPC script's call.
 
 **Limitations 2b and the sweeps must carry:**
 - **Name-only type keys.** Two classes with a same-named method that returns different types

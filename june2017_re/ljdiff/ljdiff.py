@@ -170,6 +170,10 @@ SELFTEST_EXPECT = [
     ('trace', '"REENTER ChangeState -> start_walk"'),
     ('trace', '"CLOBBER square start_walk slot4 had"'),
     ('trace', '"unsim":["OpenDialog"]'),
+    # main_values: post-main global values, capped text plus full-value hash
+    ('trace', '"WALK #'),
+    ('trace', '= {[\\"FUNC_STATE_START\\"]=\\"start_walk\\"}"'),
+    ('trace', '"DEEP #'),
 ]
 SELFTEST_ABSENT = [
     ('learned', 'GetOther'),              # the newer, non-compared node must not be retyped

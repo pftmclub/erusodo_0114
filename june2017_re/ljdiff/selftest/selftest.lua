@@ -92,3 +92,6 @@ function square(slot0, slot1, slot2, slot3)
 	slot3:OpenDialog("DLG_Something.lua")
 	return slot4
 end
+
+-- a table global nested deeper than fmt()'s depth-8 display cap (main_values)
+DEEP = { a = { b = { c = { d = { e = { f = { g = { h = { i = { j = 1 } } } } } } } } } }
