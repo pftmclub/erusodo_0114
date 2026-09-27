@@ -4,6 +4,50 @@
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+#include "Offline/X2OfflineLog.h"
+// JUNE_FX <unsupported|deferred> <KEY> in <templet>: <why>. The rule-5 line for a June per-frame
+// branch this build cannot take (plan Phase 7a), once per (tag, key, templet) for the session.
+static void JuneFxCeOnce( const WCHAR* pwszTag_, const WCHAR* pwszEffect_, const WCHAR* pwszKey_, const WCHAR* pwszWhy_ )
+{
+	const WCHAR* pwszEffectName = ( NULL != pwszEffect_ ? pwszEffect_ : L"-" );
+	std::wstring wstrOnceKey = pwszTag_;
+	wstrOnceKey += L"|";
+	wstrOnceKey += pwszKey_;
+	wstrOnceKey += L"|";
+	wstrOnceKey += pwszEffectName;
+
+	static std::set<std::wstring> s_setLogged;
+	if( false == s_setLogged.insert( wstrOnceKey ).second )
+		return;
+
+	CX2OfflineLog::Server( L"JUNE_FX %s %s in %s: %s", pwszTag_, pwszKey_, pwszEffectName, pwszWhy_ );
+}
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+// JUNE_FX CE_FRAME <effect> <key> <detail>: one line per June per-frame branch taken in
+// CEffect::OnFrameMove / FollowLine (plan Phase 7a), at most one a second per (effect, key).
+// The detail (times, positions) is not part of the throttle key. Runtime, so it goes to
+// offline_server.log.
+static void JuneFxCeFrame( const WCHAR* pwszEffect_, const WCHAR* pwszKey_, const WCHAR* pwszDetail_ )
+{
+	const WCHAR* pwszEffectName = ( NULL != pwszEffect_ ? pwszEffect_ : L"-" );
+	std::wstring wstrThrottleKey = pwszEffectName;
+	wstrThrottleKey += L"|";
+	wstrThrottleKey += pwszKey_;
+
+	static std::map<std::wstring, DWORD> s_mapLastLoggedTime;
+	const DWORD dwNow = timeGetTime();
+	std::map<std::wstring, DWORD>::iterator itThrottle = s_mapLastLoggedTime.find( wstrThrottleKey );
+	if( itThrottle != s_mapLastLoggedTime.end() && dwNow - itThrottle->second < 1000 )
+		return;
+	s_mapLastLoggedTime[ wstrThrottleKey ] = dwNow;
+
+	CX2OfflineLog::Server( L"JUNE_FX CE_FRAME %s %s %s", pwszEffectName, pwszKey_, pwszDetail_ );
+}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+
 CX2DamageEffect::CX2DamageEffect(void)
 //{{ robobeg : 2008-10-28
 : m_LuaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState(), 0, true )
@@ -1614,6 +1658,16 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	// wire that override in.
 	PLUA_GET_VALUE( m_pLuaManager, "IGNORE_MI_HUGE",						m_bIgnoreMIHuge,		false );
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+	// June2017 FUN_31f7aab0 @31f7c795-31f7c83e (Phase 7a): with IGNORE_MI_HUGE false, June loads
+	// s = [this+0x7d0] (m_DamageData +0x5d0; m_DamageData is +0x200, the pointer OnFrameMove hands
+	// DamageCheck @31f8a1a9) and calls 31f6fdc0( s, s, s ), then copies s to +0xb24/+0xb28/+0xb2c.
+	// NOT transcribed. No June writer of that DamageData field was found: SetDamageDataFromLUA
+	// 32632390 stores +0x5c4..+0x5fc but never +0x5d0/+0x5dc, and a store scan of the DamageEffect
+	// (31f50000-31f90000) and DamageManager (32600000-32680000) regions finds no direct write. So
+	// the scale's value is unknown and there is no honest March value to feed it. Deferred with
+	// its source; see JUNE2017_EFFECT_KEY_MATRIX.md.
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 	
 	if(fHitAddMp >= 0.f)
@@ -1681,6 +1735,14 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	// June2017 FUN_31f7aab0 @31f7d380: USE_OWNER_ATTACK_SPEED, bool getter 32fe9e40, default false
 	PLUA_GET_VALUE( m_pLuaManager, "USE_OWNER_ATTACK_SPEED",				m_bUseOwnerAttackSpeed,				false );
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+	// June2017 FUN_31f7aab0 @31f7ae10-31f7aec1: the USE_OWNER_ATTACK_SPEED window cache
+	// (+0x85c/+0x860) starts at -1.0 (0x334380f0), so CEffect::OnFrameMove fills it on the first
+	// frame. @31f7b279: the DAMAGE_DATA_CHANGE_TIME counter (+0x8f8) starts at 0.
+	m_fOwnerAttackSpeedAttackTimeStart	= -1.f;
+	m_fOwnerAttackSpeedAttackTimeEnd	= -1.f;
+	m_iDamageDataChangeTimeIndex		= 0;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 	PLUA_GET_VALUE( m_pLuaManager, "ATTACK_TIME_START",						m_AttackTime.x,						0.0f );
 	PLUA_GET_VALUE( m_pLuaManager, "ATTACK_TIME_END",						m_AttackTime.y,						100.0f );
 	PLUA_GET_VALUE( m_pLuaManager, "USE_GLOBAL_TIME",						m_bGlobalTime,						false );
@@ -2219,6 +2281,53 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_hMeshInstHandle );
 		ASSERT( pMeshInst != NULL );
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+		// June2017 FUN_31f88790 (CEffect::OnFrameMove) @31f88928-31f88943: when
+		// APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION is not 1, June hands it to the main effect every
+		// frame (CXMeshInstance 31c83620). The effect-alpha option system is absent from this build
+		// (rule 5), so this only logs, once per templet, when the data sets the key.
+		if( 0 != m_iApplyEffectAlphaConditionByOption )
+			JuneFxCeOnce( L"unsupported", GetName(), L"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION", L"effect-alpha option absent" );
+
+		// June2017 FUN_31f88790 @31f88943-31f889e9: TRACE_OWNER_BONE. Every frame the main effect
+		// moves to that bone of the owner. With no owner it uses g_pX2Game->GetMyUnit() instead
+		// (CX2Game vtable slot 0x98 = 3231f550). The lookup is GetBonePos( name, out ), the bool
+		// form (unit vtable slot 0x80); if the bone is not found, the unit's GetPos( false ) (slot
+		// 0x138) is used. June writes the found position straight into the mesh position (+0x3f0)
+		// and calls SetPos 31c1a370, which is only that store, for the fallback. Both are SetPos here.
+		if( false == m_strTraceOwnerBone.empty() && NULL != pMeshInst )
+		{
+			CX2GameUnit* pTraceOwnerBoneUnit = ( null != m_optrOwnerUnit ) ? m_optrOwnerUnit.GetObservable() : g_pX2Game->GetMyUnit();
+			if( NULL != pTraceOwnerBoneUnit )
+			{
+				D3DXVECTOR3 vTraceOwnerBonePos( 0.f, 0.f, 0.f );
+				if( true == pTraceOwnerBoneUnit->GetBonePos( m_strTraceOwnerBone.c_str(), vTraceOwnerBonePos ) )
+				{
+					pMeshInst->SetPos( vTraceOwnerBonePos );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+					JuneFxCeFrame( GetName(), L"TRACE_OWNER_BONE", m_strTraceOwnerBone.c_str() );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+				}
+				else
+				{
+					pMeshInst->SetPos( pTraceOwnerBoneUnit->GetPos( false ) );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+					JuneFxCeFrame( GetName(), L"TRACE_OWNER_BONE", L"bone not found, unit GetPos" );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+				}
+			}
+		}
+
+		// June2017 FUN_31f88790 @31f889e9-31f88a8b: TRACE_OWNER_BONE_ONLY_ROTATE. June acts only for an
+		// owner whose m_GameUnitType is GUT_USER (+0x264 == 0) and whose unit type (31e4d0e0) is 11,
+		// UT_ROSE in june_lua/Enum.src.lua. It sets the main effect's rotation to ( its own x,
+		// GetYRotateDegree() (slot 0x158), user +0x9630 ); the string is never used as a bone name.
+		// Rose does not exist in this build, so June could never take this branch here (rule 5).
+		// It logs once per templet and does nothing else.
+		if( false == m_strTraceOwnerBoneOnlyRotate.empty() )
+			JuneFxCeOnce( L"unsupported", GetName(), L"TRACE_OWNER_BONE_ONLY_ROTATE", L"Rose (UT_ROSE) absent" );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+
 
 		if( m_bUseDXMatrix == true )
 		{
@@ -2683,6 +2792,42 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 			}
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+		// June2017 FUN_31f88790 @31f8a00b-31f8a164: USE_OWNER_ATTACK_SPEED rescales the attack window
+		// by the owner's item attack speed, and only once. It runs only while either cached value is
+		// still negative (the ctor seeds both with -1). It needs an owner whose m_GameUnitType is
+		// GUT_USER (+0x264; the NPC and User ctors store 1 and 0 there @327629bd/32042362). The
+		// speed is the XOR-protected user float at +0x485c/+0x4864; June's ResetAnimSpeed 31ffe190
+		// reads it where March's calls GetAnimSpeedValue() (X2GUUser.cpp:26639). A speed above 1
+		// moves the start earlier to start * ( 2 - f ), clamped at 0. A speed below 1 moves the end
+		// later to end * ( 2 - f ), keeping the original end if that came out negative. This was
+		// checked by emulating the x87 code on concrete inputs, not only by hand.
+		float fJuneAttackTimeStart	= m_AttackTime.x;
+		float fJuneAttackTimeEnd	= m_AttackTime.y;
+		if( true == m_bUseOwnerAttackSpeed && null != m_optrOwnerUnit
+			&& CX2GameUnit::GUT_USER == m_optrOwnerUnit->GetGameUnitType() )
+		{
+			if( m_fOwnerAttackSpeedAttackTimeStart < 0.f || m_fOwnerAttackSpeedAttackTimeEnd < 0.f )
+			{
+				const float fOwnerAttackSpeed = m_optrOwnerUnit->GetAnimSpeedValue();
+				m_fOwnerAttackSpeedAttackTimeStart = ( fOwnerAttackSpeed > 1.f ) ? ( 1.f - ( fOwnerAttackSpeed - 1.f ) ) * fJuneAttackTimeStart : fJuneAttackTimeStart;
+				if( m_fOwnerAttackSpeedAttackTimeStart < 0.f )
+					m_fOwnerAttackSpeedAttackTimeStart = 0.f;
+				m_fOwnerAttackSpeedAttackTimeEnd = ( fOwnerAttackSpeed < 1.f ) ? ( 1.f - ( fOwnerAttackSpeed - 1.f ) ) * fJuneAttackTimeEnd : fJuneAttackTimeEnd;
+				if( m_fOwnerAttackSpeedAttackTimeEnd < 0.f )
+					m_fOwnerAttackSpeedAttackTimeEnd = fJuneAttackTimeEnd;
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+				WCHAR wszJuneFxSpeed[160] = L"";
+				StringCchPrintfW( wszJuneFxSpeed, ARRAY_SIZE(wszJuneFxSpeed), L"speed=%.3f window=(%.3f,%.3f)->(%.3f,%.3f)", fOwnerAttackSpeed,
+					fJuneAttackTimeStart, fJuneAttackTimeEnd, m_fOwnerAttackSpeedAttackTimeStart, m_fOwnerAttackSpeedAttackTimeEnd );
+				JuneFxCeFrame( GetName(), L"USE_OWNER_ATTACK_SPEED", wszJuneFxSpeed );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+			}
+			fJuneAttackTimeStart	= m_fOwnerAttackSpeedAttackTimeStart;
+			fJuneAttackTimeEnd		= m_fOwnerAttackSpeedAttackTimeEnd;
+		}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+
 
 #ifdef STICKY_DAMAGE_EFFECT_TEST
 
@@ -2693,6 +2838,34 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 		if( g_pMain->GetDamageEffectTest() == true )
 #endif//X2OPTIMIZE_DAMAGE_EFFECT_TEST
 		{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+			// June2017 FUN_31f88790 @31f8a166-31f8a201: USE_GLOBAL_TIME, the same test as March's, against
+			// the global time (mesh +0x3e0) or the skin-anim time (+0x3c0 -> +0x214). It uses the window
+			// USE_OWNER_ATTACK_SPEED may have rescaled just above. June's DamageCheck takes three more
+			// arguments (0, -1, -1) than March's; that belongs to Phase 9.
+			if ( m_bGlobalTime == true )
+			{
+				if( fJuneAttackTimeStart <= pMeshInst->GetGlobalTime()
+					&& fJuneAttackTimeEnd > pMeshInst->GetGlobalTime() )
+				{
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+					WCHAR wszJuneFxWindow[128] = L"";
+					StringCchPrintfW( wszJuneFxWindow, ARRAY_SIZE(wszJuneFxWindow), L"global window=(%.3f,%.3f) t=%.3f",
+						fJuneAttackTimeStart, fJuneAttackTimeEnd, pMeshInst->GetGlobalTime() );
+					JuneFxCeFrame( GetName(), L"USE_GLOBAL_TIME", wszJuneFxWindow );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+					g_pData->GetDamageManager()->DamageCheck( &m_DamageData );
+				}
+			}
+			else
+			{
+				if( fJuneAttackTimeStart <= pMeshInst->GetXSkinAnim()->GetNowAnimationTime()
+					&& fJuneAttackTimeEnd > pMeshInst->GetXSkinAnim()->GetNowAnimationTime() )
+				{
+					g_pData->GetDamageManager()->DamageCheck( &m_DamageData );
+				}
+			}
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 			if ( m_bGlobalTime == true )
 			{
 				if( m_AttackTime.x <= pMeshInst->GetGlobalTime()
@@ -2709,6 +2882,7 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 					g_pData->GetDamageManager()->DamageCheck( &m_DamageData );
 				}
 			}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 		}
 
 		
@@ -2751,6 +2925,47 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 				m_DamageData.hitUnitList.resize(0);
 			}
 		}
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+		// June2017 FUN_31f88790 @31f8a394-31f8a490: in June, DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME) is an
+		// array (Phase 5) and both arrays share one counter (+0x8f8). The check runs while the
+		// counter is inside both the array and the NEXT chain (+0xd8; index 0 = DAMAGE_DATA_NEXT,
+		// 1.. = NEXT2..). The plain array's entry is tested with the skin-anim EventTimer
+		// (31d28e10), then the GLOBAL_TIME array's, at the counter as it now stands, with
+		// EventTimerGlobal (31c82d60). A hit swaps in that chain entry (31f799c0), advances the
+		// counter, and clears the hit list under CLEAR_HIT_UNIT_ON_DAMAGE_DATA_CHANGE (+0x91c).
+		// June has no scalar form. March's scalar blocks above stay for the scalar-shaped data this
+		// tree ships, and the arrays are empty on that data, so this stays dormant until June's own
+		// data is adopted (Phase 11).
+		for( int iJuneChangeTimeKind = 0; iJuneChangeTimeKind < 2; iJuneChangeTimeKind++ )
+		{
+			const vector<float>& vecJuneChangeTime = ( 0 == iJuneChangeTimeKind ) ? m_vecDamageDataChangeTime : m_vecDamageDataChangeTimeGlobalTime;
+			if( true == vecJuneChangeTime.empty()
+				|| m_iDamageDataChangeTimeIndex >= (int)vecJuneChangeTime.size()
+				|| m_iDamageDataChangeTimeIndex >= GetDamageDataNextChainSize() )
+				continue;
+
+			const float fJuneChangeTime = vecJuneChangeTime[ m_iDamageDataChangeTimeIndex ];
+			const bool bJuneChangeTimeHit = ( 0 == iJuneChangeTimeKind )
+				? pMeshInst->GetXSkinAnim()->EventTimer( fJuneChangeTime )
+				: pMeshInst->EventTimerGlobal( fJuneChangeTime );
+			if( false == bJuneChangeTimeHit )
+				continue;
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			WCHAR wszJuneFxChange[96] = L"";
+			StringCchPrintfW( wszJuneFxChange, ARRAY_SIZE(wszJuneFxChange), L"%s index=%d time=%.3f",
+				( 0 == iJuneChangeTimeKind ? L"anim" : L"global" ), m_iDamageDataChangeTimeIndex, fJuneChangeTime );
+			JuneFxCeFrame( GetName(), L"DAMAGE_DATA_CHANGE_TIME", wszJuneFxChange );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+			SetDamageDataNextByChainIndex( &m_DamageData, m_iDamageDataChangeTimeIndex );
+			m_iDamageDataChangeTimeIndex++;
+			if( true == m_bClearHitUnitOnChangeDamageData )
+			{
+				m_DamageData.hitUnitList.resize(0);
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 		if( m_bFirstFrame == true )
 		{
@@ -2839,10 +3054,32 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 			unsigned char* pLineIndex = NULL;
 			D3DXVECTOR3 landPosition = g_pX2Game->GetWorld()->GetLineMap()->GetLandPosition( m_BeforePos, LINE_RADIUS * 3, pLineIndex );
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+			// June2017 FUN_31f88790 @31f8a95c-31f8aa21: the crash-land REFRESH_LAND_POS update is skipped
+			// when the probe comes back with y == -1.0 (0x334380f0; the fucompp/jnp was emulated). The
+			// land height and the line-map land position then stay as they were. June's probe (31c7bb00)
+			// takes one more leading bool argument (1) than March's GetLandPosition; that is a line-map
+			// change and is not ported. The first REFRESH_LAND_POS block above (@31f8a816-31f8a956)
+			// matches March and has no such guard.
+			if( -1.f != landPosition.y )
+			{
+				pMeshInst->SetLandPosition( landPosition.y );
+#ifdef RAVEN_WEAPON_TAKER
+				SetLandPositionOnLineMap( landPosition );
+#endif RAVEN_WEAPON_TAKER
+			}
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			else
+			{
+				JuneFxCeFrame( GetName(), L"REFRESH_LAND_POS", L"crash-land probe y == -1, skipped" );
+			}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 			pMeshInst->SetLandPosition( landPosition.y );
 #ifdef RAVEN_WEAPON_TAKER
 			SetLandPositionOnLineMap( landPosition );
 #endif RAVEN_WEAPON_TAKER
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 		}
 		
 	}	
@@ -6593,8 +6830,27 @@ void CX2DamageEffect::CEffect::FollowLine()
 			if( pLineData != NULL )
 			{
 				D3DXVECTOR3 angle = pLineData->dirDegree;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+				// June2017 FUN_31f70ee0 (FollowLine) @31f711b8-31f7121d: FOLLOW_LINE_WITH_CUSTOM_ROTATE
+				// (+0xabd) keeps the main effect's own x and z rotation (CXMeshInstance m_vRotate,
+				// +0x5b4/+0x5bc) where March uses zeroes. The line's y direction is used either way.
+				if( true == m_bFollowLineWithCustomRotate )
+				{
+					angle.x = pMeshInst->GetRotateDegree().x;
+					angle.z = pMeshInst->GetRotateDegree().z;
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+					JuneFxCeFrame( GetName(), L"FOLLOW_LINE_WITH_CUSTOM_ROTATE", L"kept own x/z rotation" );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+				}
+				else
+				{
+					angle.x = 0.0f;
+					angle.z = 0.0f;
+				}
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 				angle.x = 0.0f;
 				angle.z = 0.0f;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 				if( m_bFollowLineRight == false )
 				{
 					angle.y += 180.0f;
@@ -6626,6 +6882,18 @@ void CX2DamageEffect::CEffect::FollowLine()
 					}
 					else
 					{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+						// June2017 FUN_31f70ee0 @31f71359-31f713c6: FOLLOW_LINE_GRAVITY (+0x138). When the line is
+						// within 30 of the main effect (|outPos.y - pos.y| < 30.0, 0x33439c68), June adds 20.0
+						// (0x334307f0) to outPos.y and clears the mesh's move-enable flag. That flag is June mesh
+						// +0x633; CXMeshInstance::OnFrameMove 31c87b80 reads it to zero the velocity before
+						// integrating. Farther away, June runs this same March assignment and sets the flag back
+						// to 1. March's CXMeshInstance has no such flag, and the +20 without the freeze would be
+						// a behaviour neither build has. So the near-line case is NOT transcribed: it is deferred
+						// to Phase 10 (KTDGXMeshPlayer) and logged, and the March assignment below runs for both.
+						if( true == m_bFollowLineGravity && fabs( outPos.y - pMeshInst->GetPos().y ) < 30.f )
+							JuneFxCeOnce( L"deferred", GetName(), L"FOLLOW_LINE_GRAVITY", L"near-line case needs the CXMeshInstance move-enable flag (June mesh +0x633), Phase 10" );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 						outPos.y = pMeshInst->GetPos().y;
 					}
 
@@ -6654,6 +6922,77 @@ void CX2DamageEffect::CEffect::FollowLine()
 #ifdef SKILL_CASH_10_TEST
 		else
 		{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+			// June2017 FUN_31f70ee0 @31f71402-31f717e5: with FOLLOW_ON_LINE (+0xabc) and FOLLOW_LINE_GRAVITY
+			// (+0x138) both set, June skips March's FOLLOW_ON_LINE step below. Instead it scans every line
+			// of the line map, skipping disabled ones and LT_WALL (1) / LT_MONSTER_ROAD (7) (June's
+			// LINE_TYPE values, which are March's). On each segment it takes the point nearest the main
+			// effect: the start if the projection onto the normalized direction is <= 0, the end if it
+			// is >= the segment length, else start + dir * t. It keeps the nearest of those; a later
+			// line wins a tie, and the running minimum starts at 9999999.0 (0x3344915c). If a point was
+			// found the main effect goes there, 100.0 higher (0x3342f360). Otherwise it goes to
+			// m_BeforePos at its own current height. Either way June then goes straight to the
+			// MUST_ON_LINE check below and skips the toggle-rotate step. June's LineData reads (type
+			// +0x4, enable +0x8, start +0x24, end +0x30) match March's CKTDGLineMap::LineData field for
+			// field. 33086a02 is taken as D3DXVec3Normalize and 32fe2370 as sqrt from how they are used:
+			// their IAT slots hold dump-time DLL addresses, so the names cannot be read off.
+			if( true == m_bFollowOnLine && true == m_bFollowLineGravity )
+			{
+				CKTDGLineMap* pJuneLineMap = g_pX2Game->GetWorld()->GetLineMap();
+				const D3DXVECTOR3 vJuneMeshPos = pMeshInst->GetPos();
+				float fJuneNearestDistance = 9999999.f;
+				int iJuneNearestLine = -1;
+				D3DXVECTOR3 vJuneNearestPos( 0.f, 0.f, 0.f );
+				for( int iJuneLine = 0; iJuneLine < pJuneLineMap->GetNumLineData(); iJuneLine++ )
+				{
+					const CKTDGLineMap::LineData* pJuneLineData = pJuneLineMap->GetLineData( iJuneLine );
+					if( NULL == pJuneLineData || false == pJuneLineData->bEnable
+						|| CKTDGLineMap::LT_MONSTER_ROAD == pJuneLineData->lineType
+						|| CKTDGLineMap::LT_WALL == pJuneLineData->lineType )
+						continue;
+
+					D3DXVECTOR3 vJuneSegment = pJuneLineData->endPos - pJuneLineData->startPos;
+					D3DXVECTOR3 vJuneSegmentDir;
+					D3DXVec3Normalize( &vJuneSegmentDir, &vJuneSegment );
+					const D3DXVECTOR3 vJuneToMesh = vJuneMeshPos - pJuneLineData->startPos;
+					const float fJuneProjection = D3DXVec3Dot( &vJuneToMesh, &vJuneSegmentDir );
+					D3DXVECTOR3 vJuneCandidate;
+					if( fJuneProjection <= 0.f )
+						vJuneCandidate = pJuneLineData->startPos;
+					else if( D3DXVec3Length( &vJuneSegment ) <= fJuneProjection )
+						vJuneCandidate = pJuneLineData->endPos;
+					else
+						vJuneCandidate = pJuneLineData->startPos + vJuneSegmentDir * fJuneProjection;
+
+					const D3DXVECTOR3 vJuneToCandidate = vJuneCandidate - vJuneMeshPos;
+					const float fJuneDistance = D3DXVec3Length( &vJuneToCandidate );
+					if( fJuneDistance <= fJuneNearestDistance )
+					{
+						fJuneNearestDistance	= fJuneDistance;
+						iJuneNearestLine		= iJuneLine;
+						vJuneNearestPos			= vJuneCandidate;
+					}
+				}
+
+				if( iJuneNearestLine >= 0 && iJuneNearestLine < pJuneLineMap->GetNumLineData()
+					&& NULL != pJuneLineMap->GetLineData( iJuneNearestLine ) )
+				{
+					vJuneNearestPos.y += 100.f;
+					pMeshInst->SetPos( vJuneNearestPos );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+					WCHAR wszJuneFxGravity[96] = L"";
+					StringCchPrintfW( wszJuneFxGravity, ARRAY_SIZE(wszJuneFxGravity), L"nearest line=%d distance=%.1f", iJuneNearestLine, fJuneNearestDistance );
+					JuneFxCeFrame( GetName(), L"FOLLOW_LINE_GRAVITY", wszJuneFxGravity );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+				}
+				else
+				{
+					m_BeforePos.y = pMeshInst->GetPos().y;
+					pMeshInst->SetPos( m_BeforePos );
+				}
+			}
+			else
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 			if(m_bFollowOnLine)
 			{
 				D3DXVECTOR3 vPos = m_BeforePos;
@@ -7966,6 +8305,59 @@ void CX2DamageEffect::CEffect::SetDamageDataNext( CX2DamageManager::DamageData* 
 		*pDamageData =  *(m_DamageEffectDataInLua.m_pDamageDataNext);
 	}	
 }
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+// June2017 FUN_31f799c0 (SetDamageDataNext), Phase 7a. June keeps every NEXT table in one vector
+// (+0xd8) and indexes it with the DAMAGE_DATA_CHANGE_TIME counter. Here that vector is
+// m_pDamageDataNext (index 0) followed by m_vecDamageDataNextChain (index 1 = NEXT2, ...); Phase 5
+// reads the numbered tables only once the unnumbered one exists. A NULL entry does nothing, as in
+// June (@31f799d2). The fields carried over are March's own list from SetDamageDataNext above,
+// unchanged. June's body has the same shape (hit list, extra-damage flag, PvP rate, the
+// laser-group damage/MP copy, then the struct copy), plus an XOR-protected MP check with no March
+// counterpart. A field-by-field comparison belongs to Phase 8.
+int CX2DamageEffect::CEffect::GetDamageDataNextChainSize() const
+{
+	if( NULL == m_DamageEffectDataInLua.m_pDamageDataNext )
+		return 0;
+	return 1 + (int)m_DamageEffectDataInLua.m_vecDamageDataNextChain.size();
+}
+
+void CX2DamageEffect::CEffect::SetDamageDataNextByChainIndex( CX2DamageManager::DamageData* pDamageData, int iChainIndex )
+{
+	CX2DamageManager::DamageData* pDamageDataNext = NULL;
+	if( 0 == iChainIndex )
+		pDamageDataNext = m_DamageEffectDataInLua.m_pDamageDataNext;
+	else if( 0 < iChainIndex && iChainIndex <= (int)m_DamageEffectDataInLua.m_vecDamageDataNextChain.size() )
+		pDamageDataNext = m_DamageEffectDataInLua.m_vecDamageDataNextChain[ iChainIndex - 1 ];
+
+	if ( pDamageDataNext != NULL )
+	{
+		pDamageDataNext->hitUnitList = pDamageData->hitUnitList;
+		pDamageDataNext->m_bApplyExtraDamage = pDamageData->m_bApplyExtraDamage;
+
+#ifdef PVP_SEASON2
+		pDamageDataNext->m_fPvpRate = pDamageData->m_fPvpRate;
+#endif
+
+#ifdef EVE_ELECTRA
+		pDamageDataNext->m_iLaserGroupID = pDamageData->m_iLaserGroupID;
+		if( m_iLaserGroupID > 0 )
+		{
+			pDamageDataNext->damage = pDamageData->damage;
+			pDamageDataNext->fHitAddMP = pDamageData->fHitAddMP;
+			pDamageDataNext->m_fRateModifier = pDamageData->m_fRateModifier;
+		}
+#endif EVE_ELECTRA
+
+#ifdef ADD_RENA_SYSTEM
+		pDamageDataNext->m_eFirstAttack = pDamageData->m_eFirstAttack;
+		pDamageDataNext->m_RelateSkillData = pDamageData->m_RelateSkillData;
+#endif //ADD_RENA_SYSTEM
+
+		*pDamageData = *pDamageDataNext;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 #endif DAMAGE_EFFECT_WORK
 //}} kimhc // 2009-10-20 // DamageEffect.lua에 있는 테이블 로드(독구름)

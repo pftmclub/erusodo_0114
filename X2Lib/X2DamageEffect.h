@@ -1108,6 +1108,12 @@ class CX2DamageEffect
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 				
 				void SetDamageDataNext( CX2DamageManager::DamageData* pDamageData );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+				// June2017 FUN_31f799c0 (SetDamageDataNext) picks its NEXT table by index. Index 0 is
+				// m_DamageEffectDataInLua.m_pDamageDataNext, 1.. m_vecDamageDataNextChain (Phase 5).
+				void SetDamageDataNextByChainIndex( CX2DamageManager::DamageData* pDamageData, int iChainIndex );
+				int  GetDamageDataNextChainSize() const;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 				ParticleData*		LoadParticleTable();
 				void SetParticleTable( ParticleData* pData, bool bCreate = true, float fTriggerTimeRate = -1.f );
@@ -1374,6 +1380,12 @@ class CX2DamageEffect
 			// June2017 FUN_31f66700, Phase 6a. Parse only; combining entries by bIsOrOperation is Phase 7c.
 			std::vector<DieCheckCondition>	m_vecDieCheckCondition;
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+			// June2017 FUN_31f88790 (CEffect::OnFrameMove), JUNE2017_EFFECT_REBUILD_PLAN.md Phase 7a.
+			float				m_fOwnerAttackSpeedAttackTimeStart;	/// June +0x85c: USE_OWNER_ATTACK_SPEED's ATTACK_TIME_START, -1 until the first frame fills it (ctor @31f7aeb4)
+			float				m_fOwnerAttackSpeedAttackTimeEnd;	/// June +0x860: the same for ATTACK_TIME_END (ctor @31f7aec1)
+			int					m_iDamageDataChangeTimeIndex;		/// June +0x8f8: the counter both DAMAGE_DATA_CHANGE_TIME arrays advance (ctor @31f7b279 stores 0)
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 		}; // CEffect
 

@@ -628,6 +628,31 @@ defines no function there. No comments were written.
 The candidates (`31f85910`, `31f83aa0`, `31c895d0`, `31c8d140`, `32057b80`,
 `32784c00`) are unchanged; Phases 7a and 10 own them.
 
+**Phase 7a (2026-09-27) settled the DamageEffect runtime.** Details and evidence are in
+`funcmap.tsv`.
+- `31f88790` is **`CEffect::OnFrameMove`**, not the deleting dtor. It is the only vtable slot,
+  it ends `RET 0xc`, and it is called as `vtable[0](double, float)` by
+  `CX2DamageEffect::OnFrameMove` `31f79fb0`.
+- `~CEffect` is `31f78550`, non-virtual.
+- `31f83aa0` is `OnFrameMove_LockOnData`.
+- `31f85910` is **not** OnFrameMove. It sits on the damage manager's `DamageCheck` chain and stays
+  a candidate for Phase 7d/9.
+- Unit and game virtuals were matched from the RTTI vtables:
+  - CX2GUUser `334781f4`: slot `0x80` = `GetBonePos` (bool form), `0x138` = `GetPos`, `0x150` =
+    `GetRotateDegree`, `0x158` = `GetYRotateDegree`.
+  - CX2Game `3348bf94`: slot `0x98` = `GetMyUnit`.
+  - To find a vtable, search the binary for `.?AV<Class>@@`. The type descriptor is that address
+    - 8; the COL is where `+0xc` holds the TD address and the signature is 0; the vtable follows
+    the dword that points at the COL.
+- None of these new rows is renamed in Ghidra: renaming needs the user's OK. `31f88790` still has
+  no Ghidra function at all.
+
+Two method notes from Phase 7a:
+- **Emulate x87 code rather than hand-trace it.** A capstone-driven stack emulator settled two
+  formulas.
+- **Capstone prints the popping forms with one operand.** `DE E9` shows as `fsubp st(1)` and means
+  `st1 = st1 - st0`, then pop. The emulator's first run got this wrong, and so would a hand trace.
+
 ### Region survey (functions ≥1500 bytes, for Phase 7a's identification work)
 
 `EffectSet` object region `0x321d0000`–`0x32208000` and `DamageEffect` object region

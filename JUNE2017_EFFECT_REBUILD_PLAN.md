@@ -273,9 +273,10 @@ each loader's role is pinned by the one it opens. `31f6ac60` is the `CREATE_DAMA
 loader, not the die loader. `31f68f30` is the **die** body, not the hit one. `31f76a90` is
 `TOUCH_LAND_DAMAGE_EFFECT`, not passive particles. `june2017_re/funcmap.tsv` is
 authoritative, with 46 rows of evidence; this table only summarises it.
-| `31f88790` | CEffect deleting dtor; CEffect's **only** virtual | confirmed (vtable `3346f008`, COL `33615530`) |
-| `31f85910` | `CEffect::OnFrameMove`? | **candidate** (size and call count only) |
-| `31f83aa0` | other CEffect runtime? | **candidate** |
+| `31f88790` | **`CEffect::OnFrameMove`**, CEffect's **only** virtual (Phase 0 said deleting dtor: wrong, it ends `RET 0xc`) | confirmed (Phase 7a) |
+| `31f79fb0` | `CX2DamageEffect::OnFrameMove` (calls `31f88790` as `vtable[0]`) | confirmed (Phase 7a) |
+| `31f85910` | **not** OnFrameMove: on the damage manager's `DamageCheck` chain (`3262f5a0` → `3262b6e0`) | candidate (Phase 7d/9) |
+| `31f83aa0` | `CEffect::OnFrameMove_LockOnData` | confirmed (Phase 7a) |
 | `31c895d0`, `31c8d140` | KTDGXMeshPlayer templet parse? | **candidate** (`__FILEW__` xref only) |
 | `31fbe4a0` | — | **not ours**: its strings are UI-guide keys. Excluded |
 
@@ -1768,6 +1769,68 @@ shows 0 DamageEffect keys to-implement. Update the matrix and MODS.md.
 ---
 
 ## Phase 7a — DamageEffect runtime: identify, then OnFrameMove, trace and follow-line
+
+**Status: done 2026-09-27, play-tested.** `JUNE_FX CE_FRAME ... USE_GLOBAL_TIME` fired for Rena's
+Freezing Bolt and Chung's grenade launcher, dash-jump ZX bomb and Carpet Bombing. The June-only
+`REFRESH_LAND_POS` crash-land guard fired too (`CHUNG_CARPETBOMBING_SMALL`, probe `y == -1`,
+skipped). Clean shutdown, no `UNHANDLED`/`EXCEPTION`, no visible regressions. New flag `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`. Full detail is in
+`MODS.md`; identification is in `funcmap.tsv`; the matrix has 14 `7a` runtime rows.
+
+Things the next phases should know:
+
+- **Identification.** June's `CEffect::OnFrameMove` is `31f88790`: the one vtable slot, which Phase
+  0 had as the deleting dtor. Ghidra has no function there, so disassemble it with capstone
+  (`june2017_re` has no helper; a 20-line script over `unpacked_x2.exe` works, `VA - 0x31aa0c00`).
+  - `CX2DamageEffect::OnFrameMove` is `31f79fb0`.
+  - Callees, all confirmed: BlackHole `31f6eea0`, LockOn `31f83aa0`, SineMove `31f6f3d0`, Sound
+    `31f6eca0`, `FollowLine` `31f70ee0`, `SetDamageDataNext` `31f799c0`.
+  - **Phase 7b's `OnFrameMove_LockOnData` is `31f83aa0`.** It is called with `fElapsedTime` @`31f8a668`.
+- **Unit and game virtuals are mapped by RTTI vtable** (`funcmap.tsv`):
+
+  | Slot | Function |
+  |---|---|
+  | GUUser `334781f4` `0x80` | `GetBonePos` (bool form) |
+  | `0x138` | `GetPos( bFuture )` |
+  | `0x150` | `GetRotateDegree` |
+  | `0x158` | `GetYRotateDegree` |
+  | CX2Game `3348bf94` `0x98` | `GetMyUnit` |
+
+  - `unit+0x264` = `m_GameUnitType`.
+  - The typed `g_pX2Game` fetch is `31aad500`/`31aada50` with the CX2Game type descriptor
+    `33722a70`.
+- **x87 hand traces are unreliable; emulate.** A small capstone-driven x87 emulator settled the
+  `USE_OWNER_ATTACK_SPEED` formula and the `REFRESH_LAND_POS` `-1.0` guard. On its first run it
+  also caught its own bug: capstone prints the popping form `DE E9` as `fsubp st(1)`, which means
+  `st1 = st1 - st0`, then pop.
+- **Deferred (not transcribed):**
+  - **`FOLLOW_LINE_GRAVITY`'s near-line case, Phase 10.** Within 30 of the line, June adds 20 to y
+    and clears a `CXMeshInstance` move-enable flag (June mesh `+0x633`). June's mesh OnFrameMove
+    `31c87b80` then zeroes velocity (`+0x534`), `+0x558` and `+0x5a8` before integrating. March
+    has no such flag.
+  - **`IGNORE_MI_HUGE`.** The ctor branch `@31f7c795` scales by `m_DamageData+0x5d0`, which
+    nothing in `SetDamageDataFromLUA` writes. Find the writer first (Phase 8a?).
+- **Found, not ported, owned elsewhere:**
+
+  | Item | June | Owner |
+  |---|---|---|
+  | Die-condition evaluator | `31f765b0` @`31f888e5` | Phase 7c |
+  | Touch-land check | `31f83380` @`31f8a38b` | Phase 7c |
+  | `CREATE_DAMAGE_EFFECT` loop (child effect via `31f8ff00`, `IGNORE_MI_HUGE`-style scale `31f6fdc0`, `INHERIT_*`, `AUTO_DIE`, `SET_GROUP_ID`, loop counters `+0x90`/`+0x98`) | `31f89312`–`31f89fa4` | Phase 7c |
+  | First-frame copy of templet vectors into per-instance lists | `31f8a4b1`–`31f8a63c` | 7c |
+  | Per-frame owner-rotation refresh of `+0x118` | `31f887a8` | — |
+  | `+0xec` flag | — | — |
+  | Accumulator | `31f75da0` | — |
+  | FollowLine's changed line probe | `31c6c310`, `31c5df50` | — |
+  | `DamageCheck`'s extra args `(0, -1, -1)` | — | Phase 9 |
+
+- **Play-test reachability.** The June-only branches are mostly unreachable on this build's data
+  and classes:
+  - `USE_OWNER_ATTACK_SPEED`'s users are all Ain skills, and Ain is absent.
+  - `FOLLOW_LINE_WITH_CUSTOM_ROTATE`'s are Rose's, plus a PvP-hero NPC.
+  - `FOLLOW_LINE_GRAVITY`'s include Rena Trapping Ranger (Karma Spark, Thorn Trap), but the merged
+    data may not carry the key.
+  - The `CE_FRAME` line that should fire on any data is `USE_GLOBAL_TIME`: any damage effect using
+    global time, when its window opens.
 
 **Paste with:** Starting context + this section.
 

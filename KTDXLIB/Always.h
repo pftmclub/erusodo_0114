@@ -4388,3 +4388,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #define SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-27
+// Description: June2017 effect-engine rebuild Phase 7a
+//              (JUNE2017_EFFECT_REBUILD_PLAN.md): DamageEffect per-frame behaviour
+//              transcribed from June's CEffect::OnFrameMove (FUN_31f88790, the one
+//              CEffect virtual) and FollowLine (FUN_31f70ee0): TRACE_OWNER_BONE,
+//              USE_OWNER_ATTACK_SPEED (with USE_GLOBAL_TIME's window),
+//              FOLLOW_LINE_WITH_CUSTOM_ROTATE, FOLLOW_LINE_GRAVITY's nearest-line
+//              branch, the REFRESH_LAND_POS crash-land -1 guard, and the
+//              DAMAGE_DATA_CHANGE_TIME arrays. Rule-5 logs for
+//              TRACE_OWNER_BONE_ONLY_ROTATE (Rose absent) and
+//              APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION; FOLLOW_LINE_GRAVITY's
+//              near-line case and IGNORE_MI_HUGE deferred (see the matrix).
+//              Needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE (its members).
+#define SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+#if defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME) && !defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE)
+#error SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+#endif
+//////////////////////////////////////////////////////////////////////////

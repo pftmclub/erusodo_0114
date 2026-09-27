@@ -1285,6 +1285,106 @@ this session; ask before launching.
 Revert as for Phase 6a: undefine the flag. Nothing consumes any of this phase's new members yet
 (Phase 7b/7c), so undefining it only removes the parse sites -- no behaviour changes either way.
 
+### June2017 effect engine: DamageEffect per-frame runtime (Phase 7a)
+
+Phase 7a of `JUNE2017_EFFECT_REBUILD_PLAN.md`. New flag **`SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`**
+(`KTDXLIB/Always.h`, `X2Lib/X2DamageEffect.h`, `X2Lib/X2DamageEffect.cpp`). It needs
+`SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE`, whose members it consumes, and `Always.h` raises an
+`#error` if it is defined without it. It adds `SERV_IRUHADEV_JUNE_FX_DEBUG`'s new
+`JUNE_FX CE_FRAME` line.
+
+**Identification first (all in `june2017_re/funcmap.tsv`):**
+- June's `CEffect::OnFrameMove` is **`31f88790`**, the one CEffect virtual. Phase 0 had it as the
+  deleting destructor: wrong. It ends `RET 0xc` (a `double` plus a `float`), and
+  `CX2DamageEffect::OnFrameMove` **`31f79fb0`** (a line-for-line match of `X2DamageEffect.cpp:84-201`)
+  calls it as `vtable[0](fTime, fElapsedTime)`.
+- June's `~CEffect` (`31f78550`) is non-virtual.
+- Ghidra defines no function at `31f88790`, so it was read with capstone.
+- The size-based candidate `31f85910` is not OnFrameMove. It hangs off the damage manager's
+  `DamageCheck` chain (Phase 7d/9).
+- The callees are confirmed by call order plus the member offsets they share with their
+  already-confirmed loaders:
+
+  | June VA | Function |
+  |---|---|
+  | `31f6eea0` | BlackHole |
+  | `31f83aa0` | LockOn |
+  | `31f6f3d0` | SineMove |
+  | `31f6eca0` | Sound |
+  | `31f70ee0` | `FollowLine` |
+  | `31f70500` | `SetParticleData` |
+  | `31f76620` / `31f76710` / `31f76880` | `Set*Particle` |
+  | `31f799c0` | `SetDamageDataNext` |
+
+- The unit virtuals the new branches call were matched to March by body, from the RTTI vtables.
+  Slots `0x80`, `0x138`, `0x150` and `0x158` are `GetBonePos` (bool form), `GetPos`,
+  `GetRotateDegree` and `GetYRotateDegree`, and CX2Game slot `0x98` is `GetMyUnit`.
+- `unit+0x264` is `m_GameUnitType`: the NPC and User ctors store 1 and 0 there.
+- The attack-speed float is March's `GetAnimSpeedValue()`: June's `ResetAnimSpeed` `31ffe190`
+  reads it exactly where March's does.
+
+**Transcribed, each with its June address range in a comment:**
+- **`TRACE_OWNER_BONE`** (`CEffect::OnFrameMove`, `X2DamageEffect.cpp:2243`): every frame the main
+  effect is moved to the named bone of the owner, or of `g_pX2Game->GetMyUnit()` when there is no
+  owner. If the bone isn't found it goes to the unit's position instead.
+- **`USE_OWNER_ATTACK_SPEED`**: computed once, and only for a user owner.
+  - With owner speed `f > 1`, the attack start becomes `start·(2−f)`, clamped at 0.
+  - With `f < 1`, the end becomes `end·(2−f)`; if that comes out negative, the original end is kept.
+  - The result is cached in the new `m_fOwnerAttackSpeedAttackTime{Start,End}`, which start at
+    −1 as in June.
+  - The x87 code was checked by emulating it on concrete inputs, not only by hand.
+- **`USE_GLOBAL_TIME`**: the same test as March's, run on that window.
+- **`REFRESH_LAND_POS`**: the crash-land update is now skipped when the probe returns `y == −1.0`
+  (emulated). The first refresh block is unchanged from March.
+- **`FOLLOW_LINE_WITH_CUSTOM_ROTATE`** (`FollowLine`, `:6803`): the line angle keeps the effect's own
+  x/z rotation where March uses zeroes.
+- **`FOLLOW_LINE_GRAVITY`, nearest-line branch**: with `FOLLOW_ON_LINE` set and no line below, the
+  effect snaps to the nearest point of every enabled line (skipping `LT_WALL`/`LT_MONSTER_ROAD`),
+  100 higher. Failing that, it goes to `m_BeforePos`.
+- **`DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)` arrays**: one shared counter (`m_iDamageDataChangeTimeIndex`)
+  steps both arrays through the NEXT chain via the new `SetDamageDataNextByChainIndex` (`:8325`;
+  index 0 = `DAMAGE_DATA_NEXT`, 1.. = `NEXT2`..). This path is dormant on the scalar-shaped data
+  the tree ships, where March's scalar blocks still run.
+
+**Logged, not transcribed:**
+- **Rule 5 (unsupported):**
+  - `TRACE_OWNER_BONE_ONLY_ROTATE`: June acts only for a `UT_ROSE` user owner; Rose is absent.
+  - `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`: the effect-alpha option is absent.
+- **Deferred:**
+  - `FOLLOW_LINE_GRAVITY`'s near-line case needs a move-enable flag on `CXMeshInstance` that March
+    doesn't have (June mesh `+0x633`). That is Phase 10.
+  - `IGNORE_MI_HUGE`: June's ctor branch scales by a `DamageData` field that nothing in
+    `SetDamageDataFromLUA` writes, so there is no value to transcribe.
+  - `REACT_ANIMSPEED` and `USE_ADVANCE_COLLISIOIN_CHECK` have no reader in OnFrameMove or
+    FollowLine (Phases 7d and 9).
+
+**Found, not ported (recorded for later phases):**
+- June refreshes the ctor-argument vector `+0x118` from the owner's rotation at the top of every
+  frame.
+- The first-frame block copies the templet vectors into per-instance lists instead of calling
+  `SetCameraData`/`SetScreenData`/`SetSoundData`/`SetDamageEffect`.
+- A June `+0xec` "`m_BeforePos` initialised" flag.
+- The die-condition evaluator `31f765b0` and touch-land check `31f83380` (Phase 7c).
+- The per-frame accumulator `31f75da0`.
+- FollowLine's changed line probe (`31c6c310`, `31c5df50`).
+- `DamageCheck`'s three extra arguments (Phase 9).
+
+**Built `US_SERVICE` (KTDXLIB, X2Lib, X2) and deployed to `X2_offline.exe`.** `census.py` passes;
+the matrix's runtime table has 14 new `7a` rows. The new code was confirmed present by its strings
+in `X2DamageEffect.obj`. **Play-tested 2026-09-27:**
+- `JUNE_FX CE_FRAME ... USE_GLOBAL_TIME` fired for Rena's Freezing Bolt and Chung's grenade shell,
+  dash-jump ZX bomb and Carpet Bombing.
+- The June `REFRESH_LAND_POS` guard fired on `CHUNG_CARPETBOMBING_SMALL` (probe `y == -1`, update
+  skipped). March would have set the land height to -1 there.
+- Clean shutdown, no `UNHANDLED`/`EXCEPTION`, and no visible regressions on ground-following or
+  landing projectiles.
+- The June-only keys (`TRACE_OWNER_BONE`, `FOLLOW_LINE_GRAVITY`, `USE_OWNER_ATTACK_SPEED`,
+  `FOLLOW_LINE_WITH_CUSTOM_ROTATE`) are absent from the deployed `DamageEffect.lua`, so those
+  branches get their real test at Phase 11.
+
+Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`. Every site keeps March's code in the
+`#else` branch or is a pure addition, and the ctor only initialises the three new members.
+
 **`SERV_IRUHADEV_EXTRA_NPC_STAT` (+ short-lived `SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG`), 2026-09-27
 -- Lanox ExtraNPCStat port Phase 3 (base flag only; see `LANOX_EXTRA_NPC_STAT_PLAN.md`).**
 Ports June2017's second NPC stat system, `data036/NewNPCStat.lua` + `NewNPCStatFormula.lua`,

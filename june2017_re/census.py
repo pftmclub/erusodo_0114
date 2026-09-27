@@ -475,6 +475,9 @@ ES_LEVELS = [
 RT_4A = '4a'
 RT_4B = '4b'
 RT_4AB = '4a+4b'
+# Phase 7a (DamageEffect per-frame: CEffect::OnFrameMove 31f88790, FollowLine 31f70ee0) adds
+# 'not-per-frame': neither of those reads the key; its reader belongs to a later phase.
+RT_7A = '7a'
 RUNTIME = [
     # (root, rel, key, phase, state, verdict, June branch, March site)
     ('ES.EFFECT', (), 'ZOFFSET_USE_UNIT_IS_RIGHT', RT_4A, 'done', 'new',
@@ -615,7 +618,33 @@ RUNTIME = [
     ('ES.EFFECT', ('MESH_TRIGGER_DATA_LIST', 'TRIGGER_DATA%d', 'TRIGGER_EFFECTSET_LIST', '[]'), 'EFFECT_SET_NAME', RT_4B, 'done', 'new',
      '321dfc40@321dff4f-321dff78: PlayEffectSetByMeshPlayer( name, mesh handle, 2 )', 'OnFrameMove_UpdateEffect')] + [
     ('ES.EFFECT', (), k, RT_4A, '-', 'same', '321dddb0@321dddc7-321dde10: SCALE if x != 0; SCALE_*_ON_LEFT when not right', 'GetEffectScale')
-     for k in ('SCALE_X', 'SCALE_Y', 'SCALE_Z', 'SCALE_X_ON_LEFT', 'SCALE_Y_ON_LEFT', 'SCALE_Z_ON_LEFT')]
+     for k in ('SCALE_X', 'SCALE_Y', 'SCALE_Z', 'SCALE_X_ON_LEFT', 'SCALE_Y_ON_LEFT', 'SCALE_Z_ON_LEFT')] + [
+    ('DE.top', (), 'TRACE_OWNER_BONE', RT_7A, 'done', 'new',
+     '31f88790@31f88943-31f889e9: every frame the main effect moves to that bone of the owner (else g_pX2Game->GetMyUnit(), CX2Game slot 0x98): GetBonePos bool form (unit slot 0x80), else GetPos( false ) (slot 0x138)', 'CEffect::OnFrameMove'),
+    ('DE.top', (), 'TRACE_OWNER_BONE_ONLY_ROTATE', RT_7A, 'done', 'unsupported',
+     '31f88790@31f889e9-31f88a8b: only a GUT_USER owner (+0x264) of unit type 11 = UT_ROSE (31e4d0e0); rotation = ( own x, GetYRotateDegree (slot 0x158), user +0x9630 ), the string is never a bone name. Rose absent: logged once per templet', 'CEffect::OnFrameMove (log)'),
+    ('DE.top', (), 'USE_OWNER_ATTACK_SPEED', RT_7A, 'done', 'new',
+     '31f88790@31f8a00b-31f8a164: once (cache +0x85c/+0x860, ctor -1.0), GUT_USER owner only; f = GetAnimSpeedValue (June ResetAnimSpeed 31ffe190@31ffe1e3); f > 1: start * (2 - f), clamped 0; f < 1: end * (2 - f), the original end if negative (x87 emulated)', 'CEffect::OnFrameMove'),
+    ('DE.top', (), 'USE_GLOBAL_TIME', RT_7A, 'done', 'same',
+     '31f88790@31f8a166-31f8a201: March test against the global time (mesh +0x3e0) or the anim time, on the USE_OWNER_ATTACK_SPEED window; June DamageCheck 3262f5a0 takes three more args (0, -1, -1): Phase 9', 'CEffect::OnFrameMove'),
+    ('DE.top', (), 'REFRESH_LAND_POS', RT_7A, 'done', 'semantics-differ',
+     '31f88790@31f8a816-31f8a956: as March; @31f8a95c-31f8aa21: the crash-land update is skipped when the probe returns y == -1.0 (emulated). June probe 31c7bb00 has one more leading bool arg (1): line map, not ported', 'CEffect::OnFrameMove'),
+    ('DE.top', (), 'FOLLOW_LINE_WITH_CUSTOM_ROTATE', RT_7A, 'done', 'new',
+     '31f70ee0@31f711b8-31f7121d: the line angle keeps the main effect x/z rotation (m_vRotate +0x5b4/+0x5bc) instead of 0', 'FollowLine'),
+    ('DE.top', (), 'FOLLOW_LINE_GRAVITY', RT_7A, 'deferred', 'new',
+     '31f70ee0@31f71413-31f717e5 done: with FOLLOW_ON_LINE and no line below, snap to the nearest point of every enabled non-LT_WALL/LT_MONSTER_ROAD line, +100 y, else m_BeforePos. @31f71359-31f713c6 DEFERRED (Phase 10): within 30 of the line June adds 20 to y and clears the mesh move-enable flag (mesh +0x633, no March member)', 'FollowLine'),
+    ('DE.top', (), 'IGNORE_MI_HUGE', RT_7A, 'deferred', 'new',
+     '31f7aab0@31f7c795-31f7c83e (ctor, not per frame): when false, 31f6fdc0( s, s, s ) with s = +0x7d0 (m_DamageData +0x5d0), copied to +0xb24..; no writer of that field found (SetDamageDataFromLUA 32632390 never stores +0x5d0)', 'CEffect::CEffect (comment)'),
+    ('DE.top', (), 'APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION', RT_7A, 'done', 'unsupported',
+     '31f88790@31f88928-31f88943: when != 1, handed to the main effect every frame (CXMeshInstance 31c83620); effect-alpha option absent: logged once per templet when set', 'CEffect::OnFrameMove (log)'),
+    ('DE.top', (), 'DAMAGE_DATA_CHANGE_TIME', RT_7A, 'done', 'semantics-differ',
+     '31f88790@31f8a394-31f8a412: array entry [counter +0x8f8] against the skin EventTimer while the counter is inside the array and the NEXT chain (+0xd8) -> SetDamageDataNext 31f799c0 by index, counter++, CLEAR_HIT_UNIT_ON_DAMAGE_DATA_CHANGE; dormant on scalar data', 'CEffect::OnFrameMove, SetDamageDataNextByChainIndex'),
+    ('DE.top', (), 'DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME', RT_7A, 'done', 'semantics-differ',
+     '31f88790@31f8a412-31f8a490: the same with EventTimerGlobal (31c82d60) and the same counter, after the anim array', 'CEffect::OnFrameMove, SetDamageDataNextByChainIndex'),
+    ('DE.top', (), 'REACT_ANIMSPEED', RT_7A, '-', 'not-per-frame',
+     'ctor 31f7aab0@31f7de2d stores +0xab8; neither 31f88790 nor 31f70ee0 reads it (Phase 7d: DamageReact)', '-'),
+    ('DE.top', (), 'USE_ADVANCE_COLLISIOIN_CHECK', RT_7A, '-', 'not-per-frame',
+     'ctor 31f7aab0@31f7c4d3 stores +0xb31; neither 31f88790 nor 31f70ee0 reads it (Phase 9: collision)', '-')]
 # the EffectSet scopes whose March-read rows must all have a RUNTIME entry, at every sub-path
 # (check_runtime). ES.Description is EFFECT_TOOL-only (COMPILED_OUT): the game never reads it.
 RUNTIME_SCOPES = ('ES.templet', 'ES.EFFECT', 'ES.CAMERA_SHAKE', 'ES.SOUND')
