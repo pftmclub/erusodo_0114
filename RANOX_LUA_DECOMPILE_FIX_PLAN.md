@@ -1,0 +1,1005 @@
+# Ranox Lua decompile fix: differential harness, root cause, corpus sweep
+
+This plan finds and fixes the ljd defect described in `RANOX_LUA_DECOMPILE_BUG.md`.
+- In that defect, ljd drops a real register assignment and inlines the computing call into
+  the condition that reads it.
+- The dropped `slotN` then becomes a stale `_env` global in these no-`local` ported files.
+- The plan then checks the whole June2017 Lua corpus against the fixed decompiler.
+
+This document is self-contained. To run a phase, paste the "Starting context" block below
+together with that phase's section into a fresh conversation, then paste its **Kickoff
+prompt**. Each phase is sized for one conversation. Run them in order, because each one
+consumes the previous one's outputs.
+
+**Why this exists.** The bug caused a real boss softlock: Dryad Kenta, fixed in `857dfd7`.
+It is invisible on a read-through, because the printed Lua parses and reads as plausible.
+The only detector so far is `june2017_re/lint_decompile_slots.py`, a regex heuristic that
+has only been run on `march2014/`. Six Kenta instances were checked against bytecode by hand.
+That doesn't scale to 7,328 June files. This plan builds two things:
+1. A **semantic** detector: run the original bytecode and its decompile-recompile round trip
+   side by side, and diff their behaviour.
+2. A **general** fix: correct ljd's elimination pass, so that every future decompile comes
+   out right.
+
+**Decisions taken 2026-09-27 (the user's):**
+- **Where the fix lives.** It is a tracked runtime hook in `june2017_re/`, the same approach
+  `ljd_jun2017.py` already uses for the opcode table.
+  - A `.patch` for the two vendored ljd copies is also produced. Applying it is optional and
+    the user's call.
+  - Third-party ljd is never edited in place.
+- **`local slotN`.** This is **decided after the harness has produced evidence.** Phase 5
+  gathers the evidence and asks. Until then, keep the existing no-`local` convention.
+- **Scope.** All 7,328 June files, in stages:
+  1. Kenta
+  2. the ported `march2014/` files
+  3. `data037_kom`
+  4. everything else
+
+---
+
+## Model and effort per phase (for the user; do not paste)
+
+The same policy as `JUNE2017_EFFECT_REBUILD_PLAN.md`'s table, applied here:
+- Use Opus where a wrong call is likely and silent.
+- Use Sonnet where the work is mechanical.
+- Effort is always high. Max is only for getting unstuck. Haiku is not used for this plan.
+
+| Phase | Kind | Model / effort |
+|---|---|---|
+| 0: corpus inventory, input integrity | Mechanical | Sonnet 5, high |
+| 1: synthetic oracle | Identification (does a minimal case reproduce?) | **Opus, high** |
+| 2a: harness runtime | Design-heavy build (mock semantics decide what counts as a divergence) | **Opus, high** |
+| 2b: diff and calibration | Identification (is each divergence real?) | **Opus, high** |
+| 3: root cause | Identification | **Opus, high**. Use max only if two code paths both explain the repro |
+| 4: fix | Fix to third-party logic; a wrong fix looks *more* plausible | **Opus, high**, then Opus `/code-review` |
+| 5: sweep, ported files | Mechanical + verdicts | Sonnet 5, high. Switch to Opus for any divergence the harness can't classify |
+| 6a–6c: repair ported files | Triage (port edit vs bug) + byte edits | Sonnet 5, high, then Opus `/code-review` |
+| 7, 8: corpus sweeps | Mechanical, long-running | Sonnet 5, high |
+| 9: wire-in, docs, memory | Writing | Sonnet 5, high |
+
+Rules carried over:
+- **Split mixed phases within one session.** Do the identification step on Opus and write
+  the verdicts to disk, then `/model` to Sonnet.
+- **Stop a Sonnet session that is making its own identification call.** For example, if it
+  starts deciding "this divergence is probably a mock artefact" without evidence.
+- **Keep context small.** Paste only "Starting context" plus the phase section. Send broad
+  searches to a subagent. Run the long sweeps in the background and read their TSVs rather
+  than their stdout.
+
+---
+
+## Starting context (paste this with any phase)
+
+- **Repo root:** `F:\elsword stuff\elsword_2014\els_2014\ElswordFiles\ready_and_built\ProjectX2_SVN\ProjectX2_SVN\source\EU_CN_US\Trunk`
+  (called `<Trunk>` below).
+- **Branch:** `mods/lanox-port`.
+- **June2017 reference client:** `F:\elsword stuff\elsword_2014\els_2014\237311\14JUN17\data\`.
+  - Scripts sit in `dataNNN_kom\` / `dataiNNN_kom\` folders, next to their `.kom` archives.
+  - **Never write into `14JUN17\`.** Copy files out first.
+- **Scratch: `<Trunk>/tmp/`** (the user's choice, 2026-09-27).
+  - It is already gitignored by `.gitignore`'s `/*` allowlist, so it needs no `.gitignore`
+    edit. Create it if it is missing.
+  - The path is about 122 characters, so it is also the MAX_PATH workaround. Python's raw
+    `io.open` fails past 260 characters with a `FileNotFoundError` on a file that exists.
+  - Keep filenames flat there. Put all scratch files there: scratch copies for
+    `compile-batch`, `.std.luac` pairs, and harness traces.
+  - Don't use `C:\tmp\` or the per-session scratchpad, which is itself close to MAX_PATH.
+- **The June corpus** (counted 2026-09-27; re-verify, don't trust):
+  - **7,328** `.lua` files across **21** `*_kom` folders: `data037_kom` 3,105, `data040_kom`
+    1,562, `data034_kom` 1,137, `datai016_kom` 380, `data035_kom` 328, `data036_kom` 258,
+    `datai014_kom` 215, `data217_kom` 162, `data039_kom` 105, `datai015_kom` 54, and 11 more
+    folders with 1–7 files each.
+  - Total size is 160 MB. The median file is 9 KB, 14 files are over 1 MB, and the largest
+    is 5.97 MB.
+  - 273 `.src.lua` and 275 `.std.luac` siblings already exist, left behind by earlier work.
+  - **Every file is header `1b 4b 4c 82` with flags byte `0x02` (`BCDUMP_F_STRIP`).** There is
+    no debug info and no variable names anywhere, so there is no embedded ground truth for
+    which registers were real locals. Reading the June binary's `lj_bc_mode[]` (which fixed
+    the opcode bug) cannot help here. Ruled out; don't retry.
+  - **Out of scope:** `data036_kom/item.kim` and `item_LA.kim`. They are a KOG `KIM ` item
+    container, not Lua. Confirmed; don't re-check.
+  - Kenta's June original: `data037_kom/RAGE_DRYADKENTA.lua`. `RAGE_DRYADKENTA_HENIR.lua`
+    sits next to it.
+- **Truncation hazard.** elstools 1.0.0 extracts about 18.7k June algo-2 `.kom` entries 1–255
+  bytes short. Lua files are algo 2, and the `14JUN17\*_kom` copies have the problem.
+  - A LuaJIT dump writes its **main chunk last**, so a short `.lua` can lose exactly the
+    prototype that defines everything.
+  - Phase 0's `decompile_corpus.tsv` says which files are affected. A truncated original is
+    `unverifiable`, never "clean".
+- **Two ljd copies.**
+  - `elstools/` (with `elstools.exe`, `vendor/ljd`, `vendor/luajit`) is **gitignored**.
+  - `elstools/elstools_config.json` points `elstools.exe` at a *second* copy,
+    `F:\elsword stuff\elstools\elstools\vendor\ljd`. It was identical to the in-repo copy on
+    2026-09-27 (`diff -rq` clean).
+  - Editing either copy changes nothing git can see. The fix is a hook; see the decisions.
+- **Lua tooling:**
+  - **June input needs the opcode fix.** elstools mis-maps KOG opcodes `0x2f`–`0x37`, so
+    `decompile-batch` dies on any `for … in`, and `compile-batch -v jun-*` emits broken
+    bytecode. `june2017_re/ljd_jun2017.py` corrects the opcodes while ljd reads them. See
+    `june2017_re/README.md`, "June LuaJIT opcode table". `-v mar-2014` is unaffected.
+  - `june2017_re/ljconv.py` transcodes June `0x82` to `mar-2014` `0x81`. mar-2014 is stock
+    LuaJIT 2.0.2 plus a header. Its opcode table is injective, checked against
+    `lj_bc_mode[]`, and a hard error on any unmapped opcode.
+  - `elstools/vendor/luajit/luajit.exe` (KOG LuaJIT 2.0.2) **runs `0x81` only**. Its `0x82`
+    table has the same swap bug.
+  - No `lua`/`luajit` is on `PATH`. Python is 3.14.
+  - `elstools compile-batch -v mar-2014 -i <file>` **compiles in place.** Only ever run it on a
+    copy in `tmp/`.
+  - `ljd main.py --asm -f <file>.std.luac` gives a raw pseudo-asm listing. It still works when
+    the full AST decompile asserts.
+  - `june2017_re/fxdump.lua` is the precedent for executing lua against recording stubs
+    (`missing_reads`, stub methods, one shared environment).
+- **Process rules:**
+  1. **Never kill processes by image name.** Other `python.exe` processes (MCP servers) run
+     on this machine. Bound long scripts with `faulthandler.dump_traceback_later` and a
+     per-file timeout, and kill by PID only.
+  2. **Long runs are resumable.** Append one TSV row per file as it finishes, and support
+     `--resume`. Run them with `run_in_background`, and read the TSV, not stdout.
+  3. **A divergence is a confirmed defect only when the harness can name it.** It names the
+     function, the seed, and the first differing event on both sides. "Unreached" (the
+     harness never executed the flagged code) is reported as its own verdict, and it never
+     counts as clean.
+  4. **Keep the no-`local` convention** in `march2014/` repairs until Phase 5 records the
+     user's decision.
+  5. **`march2014/**/*.src.lua` files are ASCII with CRLF.** Preserve CRLF. After any edit,
+     check `file <path>` and `git diff --stat`. A few changed lines should not produce
+     hundreds, and there must be no deletions on a pure insertion.
+  6. **Repacking into `.kom` is the user's step.** Name the files that need it when you report
+     done. Don't block on it.
+  7. **Cite bytecode evidence in repairs.** Use the `SERV_IRUHADEV_RANOX_PORT (<date>): ...`
+     comment convention from `RAGE_DRYADKENTA.src.lua`, naming the harness verdict, not
+     "this looked wrong".
+  8. **Ask before launching the game exe**, every time.
+
+---
+
+## Investigation ledger — what is already proven (do not redo)
+
+### The defect and why it is dangerous here
+
+- **The printed shape** is `if slot1:GetEffectSet() ~= nil then slot5:Play...(...) end`,
+  where the bytecode is `slot5 = slot1:GetEffectSet(); if slot5 ~= nil then slot5:Play... end`.
+- **Why it's dangerous here.** Ported files never declare `local`, so `slotN = …` compiles to
+  `GSET`/`GGET` on a named global. This was confirmed by disassembling `compile-batch`
+  output. A dropped write reads as whatever that global last held, not as `nil`.
+  - `==`/`~=` then give silently wrong results.
+  - `<`/`<=`/`>`/`>=` raise and abort the calling function.
+- **The global model is a second, untested hazard.**
+  - `MODS.md` calls the global model "safe within one function's own sequential statements,
+    since nothing else runs between them".
+  - That is **not proven** when a function calls a same-file Lua function, or an engine
+    method that re-enters Lua, and the callee writes the same `slotN`.
+  - Phase 2a gives the harness an explicit **nested-frame clobber** signal to test this.
+    Don't assume it in either direction.
+
+### Ground truth for calibration
+
+- **Kenta.**
+  - Pre-fix port file: `git show 857dfd7^:march2014/update/data037/RAGE_DRYADKENTA.src.lua`.
+  - Fixed file: the working tree. It carries 8 `SERV_IRUHADEV_RANOX_PORT (2026-09-27)`
+    comment sites, at lines 545, 564, 580, 786, 809, 987, 1038 and 1434.
+  - `MODS.md` counts **6 instances** in 5 functions:
+    - `..._ATTACK_B_WAIT_FRAME_MOVE` (3 dropped writes in one function)
+    - `..._ATTACK_A_ATTACK_DASH_STATE_START` (2)
+    - `..._COMMON_FRAMEMOVE`
+    - `..._SPECIAL_ATTACK_FIRE_FRAME_MOVE`
+    - `..._FIRE_EMOTION_FRAME_MOVE`
+  - The comment-site count, the "6", and the per-function counts don't obviously agree.
+    **Phase 2b reconciles them from harness output** and records the true number. Don't pick
+    one now.
+- **MapData.** `march2014/data036/MapData.src.lua`'s `ComputeCOBOExpressTicketCost` reads an
+  unassigned `slot6` in a travel-ticket cost formula. It was hand-verified as real.
+- **Triage scale.** `RANOX_LUA_DECOMPILE_BUG.md`'s table lists 61 flagged `march2014/` files
+  with 774 lint hits; 60 of those files are in `data037/`. It is heuristic and unverified
+  beyond the two items above.
+
+### ljd internals (read, not yet tested)
+
+- **Pipeline** (`elstools/vendor/ljd/main.py:355-450`):
+  1. `rawdump.parser.parse`
+  2. `ast.builder.build`
+  3. `mutator.pre_pass`
+  4. `locals.mark_locals`
+  5. **`slotworks.eliminate_temporary(identify_slots=True)`** (`:380`)
+  6. `unwarper.unwarp`
+  7. `mark_local_definitions`
+  8. `mutator.primary_pass`
+  9. a second `mark_locals` (`alt_mode`)
+  10. an "unsafe extra pass" (`:415-448`), which calls `eliminate_temporary(safe_mode=False)`
+- **The unsafe extra pass cannot fire on June input.** It is gated on
+  `node._debuginfo.variable_info`, and every June file is stripped. Phase 3 confirms this
+  with a log line rather than assuming it.
+- **Elimination policy** (`slotworks.py:329-348`). A slot is inlined only when it has
+  exactly one simple reference, or two with `safe_mode=False`. With more, it is
+  `unsafe` and gets rechecked.
+- **Leads for Phase 3** (hypotheses, ordered by how directly they produce the observed shape):
+  1. **`_fill_simple_refs:286`.** Under `ignore_ambiguous`, references with
+     `identifier.id == -1` are **skipped** and never counted.
+     - A register read twice, once unambiguously in the `if` condition and once
+       "ambiguously" in the body after a branch merge, then looks single-use and is folded
+       into the condition.
+     - The body's read survives as a bare `slotN`.
+     - This matches Kenta exactly.
+  2. **`_recheck_unsafe_cases:175-177`.** `del new_slots[idx]` inside `enumerate(new_slots)`
+     skips the element after every deletion. The `safe_mode` filter meant to keep only
+     previously-unsafe slots therefore leaks others into elimination.
+  3. **`_SlotsCollector`'s slot-id assignment across blocks** (`_find_slot_assignments:724`,
+     `leave_block:888`). This is what produces the `-1` "ambiguous" ids in the first place.
+     If it splits one live range into two ids, the reference counting in lead 1 is wrong
+     upstream of it.
+- **Lineage.** `vendor/README.md` gives the lineage as NightNord/ljd → forks. `slotworks.py`'s
+  comments cite `gitlab.com/znixian/luajit-decompiler` issue #19. Later upstream commits may
+  already fix this.
+- **A separate, known ljd defect** (`june2017_re/README.md`, "ljd caveat"): ljd mis-structures
+  a recursive `deepcopy`, hoisting `slot1[k]=uv0(v)` into a bogus `return {…}`.
+  - The harness will see this too.
+  - It is **not** the dropped-assignment class. Classify it separately and don't let it
+    count toward or against the fix.
+
+### Dead ends and traps (do not repeat)
+
+- **Binary-derived ground truth.** Tracing the June client binary the way the opcode bug was
+  fixed doesn't apply: the bytecode is stripped, and nothing in the file or the binary says
+  which registers were locals.
+- **The lint is a lead.**
+  - Zero hits doesn't prove a function correct.
+  - A hit doesn't confirm a defect.
+  - It is regex-based and doesn't handle multi-line statements or nested nameless functions.
+- **Feeding `0x82` files to the vendored `luajit.exe`.** Convert with `ljconv.py` first.
+- **Running `compile-batch` on a tracked file.** It overwrites its input.
+
+---
+
+## Phase 0 — Corpus inventory and input integrity
+
+**Paste with:** Starting context + this section.
+
+**Model:** Sonnet 5, high.
+
+**Goal.** Before any harness exists, know which of the 7,328 originals are trustworthy
+inputs, and make the conversion and decompile path work for every one of them without
+depending on `.std.luac` siblings.
+
+**Work.**
+1. **The runner.** Build `june2017_re/corpus_run.py`, a generic resumable per-file runner that
+   every later sweep reuses. It has:
+   - a file list from a glob or TSV
+   - a per-file subprocess with a timeout
+   - `faulthandler`
+   - kill by PID
+   - one TSV row appended per file
+   - `--resume`, which skips rows already present
+2. **Enumerate** every non-`.src.lua`, non-`.std.luac` `.lua` under `14JUN17\data\*_kom\`,
+   excluding `item.kim`/`item_LA.kim`. Recount; don't reuse this plan's numbers.
+3. **Truncation, two independent checks.** Record both.
+   - **Manifest.** Compare each file's size to its `.kom` manifest entry. The
+     `elstools inspect` manifests and cache live under `june2017_re/assets_cache/inspect/`
+     (`fxdata.py`). Generate any June archive's manifest that is missing with
+     `elstools inspect`.
+   - **Structure.** Walk the dump with `ljconv.instruction_offsets`' walker. A file whose
+     prototype walk doesn't end exactly at a zero-length terminator at EOF is truncated,
+     whatever the manifest says.
+   - Record **bytes short** and **how far the dump walk got**: the last complete prototype
+     index and the offset.
+   - **Split two subclasses:**
+     - **`terminator-only`:** every prototype walks intact and only the trailing zero-length
+       terminator (1 byte) is missing. The file is provably complete; append the byte in a
+       `tmp/` copy, and it's a normal input.
+     - **`unverifiable-truncated`:** anything else.
+     - About 25% of June algo-2 entries are short, so this split may bring a large slice of
+       the corpus back into scope.
+   - **Don't invent any other repair.** elstools truncates with every `-v`. List the affected
+     files. Report the count per subclass, the dirs, and whether any `march2014/` port file
+     came from one.
+4. **Opcode coverage.**
+   - Collect the set of KOG opcodes used across all files.
+   - `ljconv.py`'s table was built from only the 14 `june_lua/` pairs, so any opcode those
+     files lack is currently unmapped.
+   - For each missing opcode, get elstools' translation from a real `.std.luac` pair: run
+     `decompile-batch` on one file that uses it, in `tmp/`. Check it against
+     `lj_bcmode.py`'s mode table.
+   - An opcode neither source settles is a hard stop. Record it and ask. Never guess.
+5. **Decouple from `.std.luac`.**
+   - Persist the complete table as `june2017_re/ljconv_table.tsv`.
+   - Add a mode that turns a June file into (a) `mar-2014` bytecode and (b) stock
+     `1b 4c 4a 01` bytecode for ljd, with no sibling needed.
+   - **Check (b)** against the 275 existing `.std.luac` pairs. The bytes must be identical
+     except exactly at elstools' wrong FIX-slot opcode positions, which are expected to
+     differ. Anything else is a bug in the new mode.
+6. **Decompile status.** Run the corrected decompile on every file through `corpus_run.py`,
+   writing output under `tmp/`, with a timeout. The 14 files over 1 MB may need a longer
+   budget, or a `timeout` verdict. Record per file:
+   - ok
+   - assert, with its type (for example the `deepcopy` class)
+   - timeout
+   - unverifiable-truncated
+
+**Outputs.**
+- `june2017_re/corpus_run.py`
+- `june2017_re/ljconv_table.tsv`
+- `ljconv.py`'s new mode
+- `june2017_re/decompile_corpus.tsv`, with one row per file: dir, name, size, manifest size,
+  truncated (manifest/structure), opcode set hash, ljconv ok, decompile verdict, and
+  wall time
+- A short "Phase 0 result" section appended to this plan, with the counts.
+
+**Exit criteria.**
+- Every file has a row.
+- Kenta's and MapData's June originals are present, not truncated, convert, and decompile.
+- The `.std.luac` equivalence check passes on all 275 pairs.
+
+**Kickoff prompt**:
+```
+Starting the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md at the repo
+root ("Starting context", "Investigation ledger", "Phase 0"), then RANOX_LUA_DECOMPILE_BUG.md,
+june2017_re/README.md's "June LuaJIT opcode table" and "Phase 10b" sections, and
+june2017_re/ljconv.py and ljd_jun2017.py. Branch: mods/lanox-port.
+
+Your task is Phase 0: build june2017_re/corpus_run.py (resumable per-file runner: timeout,
+faulthandler, kill by PID only, --resume); inventory every June .lua under
+14JUN17\data\*_kom\ into june2017_re/decompile_corpus.tsv with truncation (manifest AND
+dump-walk, bytes short, walk depth; split terminator-only from unverifiable), opcode coverage, ljconv and decompile status; extend ljconv's table to every
+opcode in the corpus (hard stop and ask on any opcode not settled by an elstools pair plus
+lj_bcmode.py); and add a no-.std.luac mode verified byte-for-byte against the 275 existing
+pairs (differences allowed only at FIX-slot opcodes). Scratch goes in <Trunk>/tmp/. Never
+write into 14JUN17\. Never kill python by image name. Append a "Phase 0 result" section to
+the plan with the counts.
+```
+
+---
+
+## Phase 1 — Engine-free synthetic oracle
+
+**Paste with:** Starting context + this section + "Phase 0 result".
+
+**Model:** Opus, high.
+
+**Goal.** Reproduce the defect from Lua source you wrote yourself, with no engine, no mock
+and no June data involved. This is the smallest possible repro for Phase 3, and a regression
+suite for Phase 4 that can't be confused by mock noise.
+
+**Work.**
+1. Write `june2017_re/ljd_oracle/cases/*.lua`. Each file is a handful of small functions over
+   plain values, with deterministic inputs, returning or logging their results. Cover these
+   shapes:
+   - **The Kenta shape.** `x = f(); if x ~= nil then x:g() end`, where `x`'s register was
+     written earlier by an unrelated branch.
+   - **The same shape inside an `elseif` chain.**
+   - **A value read by an `if` condition and again after the `if`/`else` merges.** This tests
+     lead 1's ambiguous-reference theory directly.
+   - **The HP-ratio case.** A division result stored, then compared with `<=` in two separate
+     later `if`s.
+   - **Controls ljd *should* inline.** Genuine single-use temporaries (`f(g(x))`, a method
+     call on a fresh result). These measure over-conservatism, which matters in Phase 4.
+   - **The known `deepcopy` shape.** Kept as a labelled second-defect control.
+2. **Check what `luajit.exe -b` actually emits first.** `vendor/README.md` says the KOG build
+   writes `0x81` *or* `0x82` headers, and its `0x82` opcode table is the swapped one.
+   - Confirm the version byte is `0x81` before swapping the header to stock `1b 4c 4a 01`.
+   - If it's `0x82`, find the switch that selects `0x81`, or build with stock semantics.
+   - Otherwise the oracle feeds ljd mis-opcoded input and measures the wrong bug.
+3. Build each case two ways with the vendored `luajit.exe`:
+   - **Stripped.** `-b` strips by default. Confirm that from the output's flags byte.
+   - **With debug info (`-g`).**
+   - The `-g` variant is the control. ljd with variable names should *not* hit the defect.
+     If it does, the theory about stripping is wrong. Record that.
+4. **Round trip.**
+   1. Swap the header to stock `1b 4c 4a 01`.
+   2. Run ljd, unmodified.
+   3. Recompile the output with `elstools compile-batch -v mar-2014` on a copy in `tmp/`,
+      matching the real port pipeline.
+5. **Execute original vs round trip** in `luajit.exe` with a tiny driver.
+   - **Poison the `slotN` globals before each call** with a sentinel. This makes a dropped
+     assignment deterministic instead of dependent on leftovers.
+   - The sentinel is the same one Phase 2a uses. Its rules are there: it logs and
+     continues, and it skips names the main chunk wrote.
+   - Diff the results.
+6. **If no hand-written case reproduces after a genuine attempt**, minimise from real data.
+   - Take one confirmed Kenta function (`..._COMMON_FRAMEMOVE` is the smallest).
+   - Delete statements from its source until the defect disappears, then keep the last
+     failing version as the case.
+   - This is still source-level work; don't hand-edit bytecode.
+
+**Outputs.**
+- `june2017_re/ljd_oracle/`, containing the cases, `run_oracle.py` (one command runs
+  everything and prints a pass/fail table per case per build), and the expected-results file
+- A "Phase 1 result" section in this plan, recording:
+  - which shapes reproduce
+  - whether `-g` suppresses the defect
+  - the minimal repro, named
+
+**Exit criteria.**
+- At least one case reproduces the dropped assignment in the stripped build, showing
+  `POISON_READ` on the round-trip side only.
+- Every control passes.
+- `run_oracle.py` is deterministic across two runs.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
+context", "Investigation ledger", "Phase 0 result", "Phase 1") and RANOX_LUA_DECOMPILE_BUG.md.
+Branch: mods/lanox-port.
+
+Your task is Phase 1: build june2017_re/ljd_oracle/, an engine-free oracle. Write small Lua
+cases covering the Kenta shape, elseif chains, a read-after-branch-merge, the stored-then-
+compared-twice HP-ratio shape, genuine single-use controls, and the known deepcopy shape.
+Compile each stripped and with -g using elstools/vendor/luajit/luajit.exe (first confirm it
+emits version byte 0x81, not 0x82), swap to the stock header, decompile with unmodified ljd, recompile with compile-batch -v mar-2014 on a scratch
+copy in <Trunk>/tmp/, then execute original vs round trip with slotN globals poisoned before
+each call (log-and-continue sentinel, main-chunk-written names exempt; see Phase 2a). Done when at least one case reproduces (POISON_READ on the round trip
+only), controls pass, and run_oracle.py is deterministic. If nothing reproduces, minimise from
+Kenta's COMMON_FRAMEMOVE at source level. Record a "Phase 1 result" section in the plan.
+Do not modify ljd.
+```
+
+---
+
+## Phase 2a — Differential harness: runtime
+
+**Paste with:** Starting context + this section + "Phase 0 result" + "Phase 1 result".
+
+**Model:** Opus, high.
+
+**Goal.** Run any June file's original bytecode and its round trip under identical,
+deterministic, recorded conditions.
+
+**Design.** Everything runs in the vendored `luajit.exe` on `0x81` bytecode.
+- **Inputs, per file.**
+  - **Original:** June → `mar-2014` via Phase 0's `ljconv` mode.
+  - **Round trip:** June → corrected decompile (`ljd_jun2017.py`, or Phase 0's no-sibling
+    path) → `compile-batch -v mar-2014` on a copy in `tmp/`.
+  - **Optional third input:** any `.src.lua` compiled the same way. That covers a
+    `march2014/` port file, or the pre-fix Kenta from `git show`.
+- **Sandbox.** Each chunk runs under `setfenv` in its own recording environment.
+  - Running the main chunk defines the file's functions as globals.
+  - Every global write the main chunk makes is recorded, so table-only files are covered by
+    this step alone.
+  - Any engine global the chunk reads (`g_pX2Game`, enum tables, `D3DXVECTOR3`, …) is served
+    by the mock, and its read is recorded.
+- **Driver.** For each file-defined function, and for each seed 1..N:
+  1. Restore a snapshot of the environment.
+  2. **Poison the `slotN` globals.** Two limits apply:
+     - Poison only names the **main chunk did not write**. In the round trip, the
+       original's file-scope locals become main-chunk `slotN` globals, so a legitimate
+       read of them must not be flagged.
+     - Reads of `uvN` names get their own class, `UPVALUE_READ`. ljd may render a captured
+       upvalue that way, which makes it a global in the round trip that the mock would
+       otherwise serve silently.
+  3. Call the function with mock arguments. Get the arity from `jit.util.funcinfo(f).params`.
+  4. Record the outcome: return values, error message (normalised), `POISON_READ`, or
+     `BUDGET`.
+  - A `debug.sethook` count hook bounds runaway loops and ends the call with `BUDGET`.
+- **The poison sentinel logs and continues.** It does not raise, so later dropped reads in
+  the same call are logged too. One Kenta function has 3.
+  - On `__index`/`__call`/arithmetic, the sentinel logs `POISON_READ slotN` and returns a
+    mock value. Lua 5.1 does try arithmetic metamethods on mixed operands.
+  - Order comparisons (`<`, `<=`, …) against a number **cannot** be intercepted. Lua 5.1
+    raises before any metamethod runs. A sentinel read in that context ends the call. Log it
+    as `POISON_READ slotN (fatal)`.
+  - Phase 2b's fix-rerun loop recovers the reads hidden behind a fatal one.
+- **Mock objects.** An object's `__index` returns a method closure. The closure records
+  `(receiver path, method, args)` and returns a **deterministic** value, a function of
+  `(seed, receiver path, method, per-method call count)`.
+  - The value is chosen by the type oracle below: a mock object, number, boolean, string,
+    or `nil`.
+  - `nil` is allowed with some probability, so that `~= nil` branches get explored.
+  - `math.random` and engine random calls are seeded the same way.
+- **Type oracle.** Lua 5.1 raises on table-vs-number comparison and arithmetic, so a mock
+  object returned where a number belongs aborts every `GetNowHP() <= x`.
+  - **Learn types adaptively, on the original side only.** When the original raises
+    "attempt to compare/perform arithmetic on a table value", attribute the error to the
+    last mock value involved, retype that method to number, and retry.
+  - **Persist the learned types** to `june2017_re/ljdiff/types.tsv`, shared across files.
+  - **Freeze them, then run both sides with the same table.** Types learned on one side only
+    would put noise into the diff.
+  - Methods whose names match a `lua_tinker::class_def` registration in `X2Lib`/`KTDXLIB`
+    (about 1,630 sites) can be spot-checked against the C++ return type. That is a
+    cross-check, not the source.
+- **Nested-frame clobber signal.**
+  - Wrap every file-defined function so the harness keeps a frame stack.
+  - On the round-trip side, where `slotN` is a global, record any `slotN` a callee frame
+    writes that its caller reads afterwards without rewriting it first.
+  - Emit it as `CLOBBER caller callee slotN`. This is the evidence for the `local slotN`
+    decision.
+  - **Engine re-entry is the realistic case, and a plain mock can't see it**, because the
+    mock never calls back into Lua.
+    - Find which `class_def`-bound methods reach a Lua call in `X2Lib`/`KTDXLIB`
+      (`lua_tinker::call`, `DoString`/`DoMemory`, a state-function dispatch such as a
+      `StateChange` that runs the new state's Lua start function).
+    - List them in `june2017_re/ljdiff/reentrant.tsv`, with the C++ site for each.
+    - Have the mock re-enter for those methods by calling the named file-defined function,
+      when the argument names one.
+    - If that proves too large for this phase, build only the direct-call signal. Then write
+      **"the clobber census covers direct calls only; engine re-entry is not simulated"**
+      into the Phase 2a result. Phase 5 must repeat that caveat to the user, so the
+      `local slotN` decision isn't made on an undercount.
+
+**Outputs.**
+- `june2017_re/ljdiff/ljdiff.lua` (the runtime)
+- `june2017_re/ljdiff/ljdiff.py` (orchestrator: builds all inputs into `tmp/`, runs them,
+  writes one JSON trace per side per file into `tmp/`)
+- `types.tsv`
+
+**Exit criteria.**
+- Both sides of `RAGE_DRYADKENTA.lua` and one table-heavy file (a `data036_kom` registry) run
+  end to end with **no harness errors**. The script's own errors are recorded outcomes, not
+  harness errors.
+- Two identical runs produce byte-identical traces.
+- `types.tsv` exists and needs no hand edits.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
+context", "Investigation ledger", "Phase 0 result", "Phase 1 result", "Phase 2a"), and
+june2017_re/fxdump.lua as the stub-harness precedent. Branch: mods/lanox-port.
+
+Your task is Phase 2a: build june2017_re/ljdiff/ (ljdiff.lua runtime + ljdiff.py
+orchestrator) per the phase's Design: original (ljconv mar-2014) vs round trip (corrected
+decompile -> compile-batch -v mar-2014 on a tmp/ copy), sandboxed with setfenv, a recording
+mock with deterministic seeded returns, a type oracle learned on the ORIGINAL side only then
+frozen and shared (types.tsv), per-call slotN poisoning (log-and-continue; exempt names the
+main chunk wrote; uvN reads are their own class), a count-hook BUDGET, and a nested-frame
+CLOBBER signal including simulated engine re-entry (reentrant.tsv) - or, if that is too
+large, record that the census covers direct calls only. Done when RAGE_DRYADKENTA.lua and one data036_kom table file run
+both sides with no harness errors and two runs give byte-identical traces. Diffing is 2b's
+job, not this phase's. Scratch in <Trunk>/tmp/.
+```
+
+---
+
+## Phase 2b — Differential harness: diff and calibration
+
+**Paste with:** Starting context + this section + "Phase 1 result" + "Phase 2a" (Design only).
+
+**Model:** Opus, high.
+
+**Goal.** Turn two traces into verdicts, and prove on the known cases that the verdicts are
+right before anything is swept.
+
+**Work.**
+1. **`ljdiff.py diff`.** Per function and per seed, report the first differing event on each
+   side, with context. Classify each divergence:
+   - **`dropped-assignment`**: a `POISON_READ` on the round-trip side only
+   - **`other-ljd`**: any other semantic divergence, for example the `deepcopy` hoist
+   - **`clobber`**: from 2a's signal
+   - **`unreached`**: the lint flags the function, or it has a known site, but no seed
+     executed that code
+2. **Coverage.** Report distinct traces per function over N seeds. Choose N by showing that
+   raising it stops finding new traces on Kenta. Report every function whose coverage is 1
+   trace, so a single-path function isn't mistaken for a verified one.
+3. **Fix-rerun loop.** A `(fatal)` poison read hides every later read in the same call.
+   1. Patch that one site in a `tmp/` copy of the round-trip source by restoring the
+      assignment the June trace shows.
+   2. Recompile and rerun.
+   3. Repeat until the function has no `POISON_READ`.
+   - Each iteration is one confirmed instance. The count from this loop is the one
+     calibration uses.
+4. **Static complement: a must-define pass over the recompiled bytecode.** In the round
+   trip, every `slotN` is a named global. So a CFG pass over its bytecode can list every
+   `GGET "slotN"` that some path reaches without a prior `GSET "slotN"` in the same
+   function. Reuse `ljconv`'s dump walker.
+   - The result is exact per-path candidates that don't depend on coverage.
+   - It turns `unreached` into a checkable list. A static candidate the harness never
+     reached is `static-only`; one it did reach and confirmed is `dropped-assignment`.
+   - Excluded: names the main chunk writes, and `uvN`.
+5. **Calibrate on Kenta, three comparisons:**
+   - **June original vs fresh round trip.** Every one of the 5 known functions must show a
+     `dropped-assignment` divergence.
+   - **June original vs the pre-fix port** (`git show 857dfd7^:…`). The same sites must
+     diverge.
+   - **June original vs the fixed port** (working tree). Those sites must be gone.
+     Everything left is an intentional port edit; list each one.
+   - Then **reconcile the count**: the 8 comment sites vs MODS.md's "6 instances" vs the
+     per-function figures. Use the fix-rerun loop's count and the static pass's list, not
+     first-divergence alone. Write down the true number and where each one is.
+6. **Calibrate on MapData.** `ComputeCOBOExpressTicketCost` must show `dropped-assignment`.
+7. **Noise check.** Pick a file where the lint reports zero hits and its decompile looks
+   trivially correct. The harness must report zero divergences on it. Otherwise the mock or
+   the type oracle is producing noise: fix the harness, not the verdict.
+   - The file **must have file-scope state**: main-chunk locals read by its functions. That
+     way the check exercises the poison rule's main-chunk exemption.
+8. **Differential lint check.** Compare the lint's hits on Kenta and MapData with the
+   harness's verdicts, and record precision and recall. This says how far the lint alone
+   can be trusted when the harness isn't available.
+
+**Outputs.**
+- The `diff` mode.
+- A **calibration table** added to the Investigation ledger of this plan, covering the
+  Kenta reconciliation, MapData, the noise check, lint precision and recall, and the chosen N.
+
+**Exit criteria.** All three Kenta comparisons behave as stated, MapData reproduces, and the
+noise check is clean.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
+context", "Investigation ledger", "Phase 1 result", "Phase 2a" Design, "Phase 2b") and
+MODS.md's "Dryad Kenta (Burned Forest boss)" entry. Branch: mods/lanox-port.
+
+Your task is Phase 2b: add a diff mode to june2017_re/ljdiff/ljdiff.py that classifies
+divergences (dropped-assignment / other-ljd / clobber / unreached / static-only) with
+per-function coverage, a fix-rerun loop for fatal poison reads, and a static must-define pass
+over the recompiled bytecode (GGET slotN reachable without GSET), then calibrate: Kenta's June original vs (a) fresh round trip, (b) the pre-fix port
+from `git show 857dfd7^:march2014/update/data037/RAGE_DRYADKENTA.src.lua`, (c) the fixed
+working-tree port; reconcile the true instance count (8 comment sites vs MODS.md's "6") from
+the fix-rerun loop and the static pass;
+reproduce MapData's ComputeCOBOExpressTicketCost; prove zero divergences on a trivially clean
+file that has file-scope state; measure lint precision/recall. If the harness is noisy, fix the harness, never the
+verdict. Write the calibration table into the plan's Investigation ledger.
+```
+
+---
+
+## Phase 3 — Root cause in `slotworks.py` (identification only)
+
+**Paste with:** Starting context + this section + "Phase 1 result" + the calibration table.
+
+**Model:** Opus, high. Use max only if two code paths both fully explain the repro.
+
+**Goal.** Name the exact code path that drops the assignment, and explain why stripping
+matters, using the minimal repro from Phase 1.
+
+**Work.**
+1. **Instrument a copy.** Copy ljd into `tmp/` and never touch the vendored copies. Log every
+   elimination: `slot#slot_id`, the reference count *including skipped `id == -1` references*,
+   the holder, `safe_mode`, and which caller made the decision.
+2. **Find the decision.** Run the minimal repro through the copy and find the one elimination
+   that removes the flagged assignment.
+3. **Test the three leads in the ledger**, in order. Also confirm with a log line that the
+   unsafe extra pass (`main.py:415-448`) never runs on stripped input.
+4. **Explain the stripped vs `-g` difference** from Phase 1 in terms of the found path.
+5. **Check upstream.** Find the ljd lineage's later history (the `znixian/luajit-decompiler`
+   fork cited in `slotworks.py`, and its successors). Record whether this path was changed
+   upstream and how. Reading public repos is fine. Don't vendor anything in this phase.
+6. **Prove causality with a scratch experiment.**
+   - Make the smallest edit to the `tmp/` copy that makes the minimal repro pass.
+   - Run `run_oracle.py` against it, and the Kenta comparison.
+   - This is evidence, **not the fix**. Record it, including anything it breaks, such as
+     controls that are no longer inlined.
+
+**Outputs.**
+- A "Root cause" section in `RANOX_LUA_DECOMPILE_BUG.md`, covering:
+  - file and line
+  - mechanism
+  - why only stripped bytecode is affected
+  - the minimal repro
+  - the upstream status
+  - the scratch-experiment result
+- A "Phase 3 result" pointer in this plan.
+
+**Exit criteria.**
+- A causal chain from a specific line to the repro's `POISON_READ`.
+- The scratch edit flips the repro.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
+context", "Investigation ledger" incl. the calibration table and the three slotworks leads,
+"Phase 1 result", "Phase 3"), then elstools/vendor/ljd/main.py:355-450 and
+elstools/vendor/ljd/ljd/ast/slotworks.py. Branch: mods/lanox-port.
+
+Your task is Phase 3, identification only: copy ljd into <Trunk>/tmp/, instrument every
+elimination decision (incl. skipped id==-1 refs), and find the exact path that drops the
+assignment in Phase 1's minimal repro. Test the ledger's three leads in order; confirm by log
+that main.py's unsafe extra pass never runs on stripped input; explain why -g suppresses it;
+check the upstream fork history. Prove causality with a scratch edit in tmp/ against
+run_oracle.py and Kenta, but do NOT ship a fix. Never edit either vendored ljd copy. Write a
+"Root cause" section into RANOX_LUA_DECOMPILE_BUG.md.
+```
+
+---
+
+## Phase 4 — The fix, as a tracked hook
+
+**Paste with:** Starting context + this section + "Phase 3 result" (and the Root cause
+section) + the calibration table.
+
+**Model:** Opus, high, then Opus `/code-review` on the diff.
+
+**Goal.** A correct fix that the whole toolchain can use, with no third-party file edited.
+
+**Work.**
+1. **`june2017_re/ljd_fixed.py`.**
+   - `install_fix()` monkey-patches the `slotworks` function(s) identified in Phase 3.
+   - It **refuses to install** if the vendored `slotworks.py`'s SHA-256 differs from the one
+     it was written against, so drift in the vendored copy fails loudly.
+   - Callable from `ljd_jun2017.py` (new `--fixed` opt-in; the default stays unfixed until
+     Phase 9) and from a thin stock-bytecode entry point for mar-2014 files.
+2. **`june2017_re/ljd_slotworks.patch`.** The same change as a unified diff against the
+   vendored `slotworks.py`. It must apply cleanly to both copies. **Don't apply it**;
+   whether to is the user's call, noted in the report.
+3. **Acceptance.** All five must hold. Together they reject a fix that just inlines nothing:
+   - **Oracle.** Every `run_oracle.py` case passes, the controls included. A control that
+     stops being inlined is a regression unless Phase 3 showed that inlining it was itself
+     wrong.
+   - **Kenta.** June original vs *fixed* round trip has no `dropped-assignment` divergence.
+     The `other-ljd` count doesn't rise.
+   - **Bounded churn.**
+     - Re-decompile the ~273 June files that already have `.src.lua` siblings, into `tmp/`,
+       both unfixed and fixed.
+     - Every textual difference must sit in a function the harness or lint flagged.
+     - Total statement-count growth must stay within a bound you state and justify, for
+       example "≤ 1 new assignment per flagged site".
+   - **Detection still works.** The unfixed decompile still reproduces the Kenta and MapData
+     divergences. This proves the oracle can detect the defect and isn't passing vacuously.
+   - **Clean files are unchanged.** Phase 2b's noise-check file decompiles byte-identically
+     with the fix.
+
+**Outputs.**
+- `ljd_fixed.py`
+- `ljd_slotworks.patch`
+- `ljd_jun2017.py --fixed`
+- A "Phase 4 result" section with the acceptance numbers.
+
+**Exit criteria.** All five acceptance checks pass, and the `/code-review` findings are
+resolved.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
+context", "Investigation ledger" incl. calibration table, "Phase 3 result", "Phase 4") and
+RANOX_LUA_DECOMPILE_BUG.md's "Root cause" section. Branch: mods/lanox-port.
+
+Your task is Phase 4: implement the Phase 3 fix as june2017_re/ljd_fixed.py (monkey-patch,
+refuses to install if vendored slotworks.py's SHA-256 changed), add an opt-in --fixed to
+ljd_jun2017.py, and write june2017_re/ljd_slotworks.patch for the two vendored copies without
+applying it. Pass all five acceptance checks in the phase (oracle incl. controls; Kenta has no
+dropped-assignment divergence and no new other-ljd; bounded churn over the ~273 existing
+.src.lua re-decompiled in tmp/; the unfixed decompile still diverges; the noise-check file is
+byte-identical). Then run /code-review on the diff and resolve its findings.
+```
+
+---
+
+## Phase 5 — Sweep stage 1: the ported `march2014/` files, and the `local slotN` decision
+
+**Paste with:** Starting context + this section + "Phase 4 result".
+
+**Model:** Sonnet 5, high. Switch to Opus for any divergence the classifier can't name.
+
+**Goal.** Get a verdict for every ported file, and collect the evidence the user needs to
+decide on `local slotN`.
+
+**Work.**
+1. **Map originals.** Recount the `.src.lua` files under `march2014/` (277 on 2026-09-27).
+   Map each one to its June original by name, across all 21 folders.
+   - Record `no-june-original` when there's no match.
+   - Record `ambiguous` when there's more than one match, for example a `_HENIR` variant.
+   - Use `unverifiable-truncated` from Phase 0 where it applies.
+2. **Run through `corpus_run.py` + `ljdiff`, two comparisons per file:**
+   - June original vs **fixed** round trip. This validates the fix on real data; it should
+     have no `dropped-assignment`.
+   - June original vs **the port file** as it stands.
+3. **Write `june2017_re/decompile_verdicts.tsv`.** One row per (file, function), with:
+   - the verdict (`clean` / `dropped-assignment` / `other-ljd` / `clobber` / `unreached` /
+     `static-only` / `port-divergence` / `unverifiable-*`)
+   - lint hits
+   - coverage
+   - first-divergence summary
+4. **Clobber census.** Count how many `clobber` events occur, in which files and function
+   pairs, and whether any is reachable through an engine callback rather than a direct call.
+   - If Phase 2a recorded that engine re-entry is not simulated, **say so to the user
+     alongside the numbers**. In that case the census is a lower bound.
+5. **Ask the user for the `local slotN` decision.** Present the census with 2–3 concrete
+   examples, then use AskUserQuestion.
+   - **Keep bare globals:** repairs restore assignments only; clobbers get fixed case by case.
+   - **Emit `local`:** repairs declare `local slotN` per function, removing both hazards.
+   - Record the answer in this plan's decisions block and in `RANOX_LUA_DECOMPILE_BUG.md`.
+6. **Re-split Phase 6.** Base the split on the real `dropped-assignment` + `clobber` volume
+   per file, not on lint hit counts. Update 6a–6c's file lists here.
+
+**Outputs.** `decompile_verdicts.tsv`, the clobber census, the recorded decision, and the
+revised 6a–6c split.
+
+**Exit criteria.**
+- Every ported file has a verdict row.
+- The fixed round trip shows zero `dropped-assignment` across the set. Any exception is a
+  Phase 4 regression: stop and report it.
+- The decision is recorded.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
+context", "Investigation ledger", "Phase 4 result", "Phase 5") and RANOX_LUA_DECOMPILE_BUG.md.
+Branch: mods/lanox-port.
+
+Your task is Phase 5: map every march2014/**/*.src.lua to its June original, and run
+corpus_run.py + ljdiff on each: June vs FIXED round trip (must show zero dropped-assignment
+anywhere, else stop: Phase 4 regression) and June vs the port file as-is. Write
+june2017_re/decompile_verdicts.tsv (per file+function). Produce the clobber census (state plainly if it
+covers direct calls only, per the Phase 2a result), then present it and ask me the `local slotN` decision with AskUserQuestion; record my answer in
+the plan and in RANOX_LUA_DECOMPILE_BUG.md. Re-split Phase 6a-6c by real verdict volume.
+Do not edit any march2014 file in this phase.
+```
+
+---
+
+## Phase 6a–6c — Repair the ported files
+
+The file lists are provisional; Phase 5 rewrites them from verdicts.
+- **6a:** `SECRET_MAGI_BOSS.src.lua` and `SECRET_SCENE_DUMMY.src.lua` (the two largest by
+  lint volume)
+- **6b:** the rest of `march2014/update/data037/`
+- **6c:** `data036/MapData.src.lua`, anything outside `data037/`, and a final re-check of
+  Kenta against the fixed decompile
+
+**Paste with:** Starting context + this section + "Phase 5 result" (including the decision)
++ the sub-phase's file list.
+
+**Model:** Sonnet 5, high, then Opus `/code-review` on each sub-phase's diff.
+
+**Goal.** Every `dropped-assignment` (and, per the decision, `clobber`) in a ported file is
+fixed, and every intentional port edit is kept.
+
+**Work, per flagged function.**
+1. **Compare three ways:** the June bytecode (via harness trace), the fixed decompile, and
+   the port file.
+   - **Port equals the unfixed decompile at the site, and June agrees with the fixed
+     decompile:** that's the bug. Fix it.
+   - **Port differs from both:** that's a port edit. Find its reason in `MODS.md` /
+     `RANOX_PORT_PLAN.md` / its own comment, and keep it. If you find no reason, ask; don't
+     silently revert it.
+2. **Make the minimal edit**, as Kenta's fix did: restore the assignment ahead of its reads.
+   Follow the recorded `local` decision. Don't splice whole decompiled bodies over port edits.
+   - Add a `SERV_IRUHADEV_RANOX_PORT (<date>): ...` comment citing the harness verdict:
+     function, seed, first-divergence event.
+   - Preserve CRLF. Run `file` and `git diff --stat` after each file.
+3. **Verify.**
+   - Run the lint on each repaired function: it should show zero hits.
+   - Compile with `compile-batch -v mar-2014` on a `tmp/` copy: it should be clean.
+   - Run the harness June vs the repaired port. Only the listed port-edit divergences
+     should remain.
+
+**Outputs.**
+- The repaired `.src.lua` files.
+- Rows in `decompile_verdicts.tsv` updated to `repaired`.
+- A per-sub-phase list of **files needing recompile + repack** into which `.kom`, handed to
+  the user.
+
+**Exit criteria.**
+- The sub-phase's files are harness-clean apart from the listed port edits.
+- The review findings are resolved.
+- The repack list is delivered.
+- In-game play-testing waits for the user's repack. **Ask before launching.**
+
+**Kickoff prompt** (substitute 6a/6b/6c and its file list):
+```
+Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
+context", "Investigation ledger", "Phase 5 result" incl. the local-slotN decision, "Phase
+6a-6c") and MODS.md's Dryad Kenta entry as the worked example. Branch: mods/lanox-port.
+
+Your task is Phase 6<x>: repair <file list> using decompile_verdicts.tsv. Three-way compare
+per flagged function (June trace / fixed decompile / port file): fix bugs with the minimal
+edit, keep port edits (find their reason; ask if none). Follow the recorded local decision.
+Cite the harness verdict in a SERV_IRUHADEV_RANOX_PORT (<date>) comment. CRLF preserved; run
+`file` + `git diff --stat` per file. Verify with lint, compile-batch -v mar-2014 on a tmp/
+copy, and the harness (only listed port edits may remain). Hand me the recompile+repack list.
+Then /code-review. Ask before launching the game.
+```
+
+---
+
+## Phase 7 — Sweep stage 2: `data037_kom` (the AI scripts)
+
+**Paste with:** Starting context + this section + "Phase 4 result" + "Phase 0 result".
+
+**Model:** Sonnet 5, high.
+
+**Goal.** A trustworthy fixed decompile, with a verdict, for every file in the folder future
+monster/boss ports draw from.
+
+**Work.**
+1. **Run the sweep.** Run `corpus_run.py` over all `data037_kom` originals (3,105 on
+   2026-09-27), comparing June vs the fixed round trip, in the background with `--resume`.
+2. **Write the decompiles** to `<Trunk>/june_src_fixed/data037_kom/<name>.src.lua`.
+   - That location is persistent and gitignored by the `/*` allowlist.
+   - It is not `tmp/`, because later ports read from it.
+   - It is not `14JUN17\`, which stays pristine.
+3. **Record verdicts** in `decompile_verdicts.tsv`, using a `corpus` scope column so they are
+   kept separate from ported files.
+4. **Catalogue `other-ljd` divergences** by shape into a "Residual ljd defects" section of
+   `RANOX_LUA_DECOMPILE_BUG.md`. Examples: the `deepcopy` class, and anything new. Don't fix
+   them here. A new class that hits many files becomes a follow-up plan item for the user
+   to schedule.
+
+**Exit criteria.**
+- Every file has a verdict.
+- Zero `dropped-assignment` with the fix. Any exception is a Phase 4 regression: stop and
+  report it.
+- The `unreached` and `unverifiable-*` counts are reported, not hidden.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
+context", "Phase 0 result", "Phase 4 result", "Phase 7"). Branch: mods/lanox-port.
+
+Your task is Phase 7: sweep every June data037_kom .lua with corpus_run.py + ljdiff (June vs
+FIXED round trip), in the background with --resume, writing fixed decompiles to
+<Trunk>/june_src_fixed/data037_kom/ and verdict rows (scope=corpus) to
+decompile_verdicts.tsv. Stop and report on any dropped-assignment (Phase 4 regression).
+Catalogue other-ljd divergences by shape into a "Residual ljd defects" section of
+RANOX_LUA_DECOMPILE_BUG.md without fixing them. Report unreached and unverifiable counts.
+Never kill python by image name.
+```
+
+---
+
+## Phase 8 — Sweep stage 3: the remaining folders
+
+**Paste with:** Starting context + this section + "Phase 7 result".
+
+**Model:** Sonnet 5, high.
+
+**Goal.** The same as Phase 7, for the other roughly 4,200 files. Most of them are data
+tables (`data040_kom` line maps, `data034_kom`, `datai*`).
+
+**Work.**
+1. **Run the same pipeline**, writing to `june_src_fixed/<dir>/`.
+2. **Take the fast path for files that define no functions.** The main chunk's recorded
+   calls and final globals are the whole comparison, so skip the per-function driver.
+   Confirm the fast path's verdicts agree with the full path on 20 sampled files first.
+3. **Handle the 14 files over 1 MB** on their own list, with a larger budget. A `timeout`
+   verdict is acceptable if it is reported.
+
+**Exit criteria.**
+- Every one of the corpus files has a verdict.
+- The corpus-wide totals are written into `RANOX_LUA_DECOMPILE_BUG.md`.
+
+**Kickoff prompt**:
+```
+Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
+context", "Phase 7 result", "Phase 8"). Branch: mods/lanox-port.
+
+Your task is Phase 8: run the Phase 7 pipeline over every remaining June folder, writing to
+<Trunk>/june_src_fixed/<dir>/. Use the main-chunk-only fast path for files that define no
+functions, after checking on 20 sampled files that it agrees with the full path. Put the 14
+files >1 MB on a separate larger-budget list. Stop on any dropped-assignment. Write
+corpus-wide totals into RANOX_LUA_DECOMPILE_BUG.md.
+```
+
+---
+
+## Phase 9 — Wire it in, document, close out
+
+**Paste with:** Starting context + this section + every "Phase N result".
+
+**Model:** Sonnet 5, high.
+
+**Work.**
+1. **Tooling.**
+   - Flip `ljd_jun2017.py` to use the fixed hook by default, and keep `--unfixed` for
+     comparison.
+   - Update `regen.sh` to match.
+   - Add a `--check` that runs `ljdiff` on the output and exits non-zero on any
+     `dropped-assignment` or `clobber`. Keep the lint as the fast pre-check.
+2. **`RANOX_LUA_DECOMPILE_BUG.md`.**
+   - Replace the heuristic triage table with the verdict summary.
+   - Keep the lint's calibrated precision and recall.
+   - Link this plan.
+3. **`june2017_re/README.md`.** Add a section for `corpus_run.py`, `ljdiff/`, `ljd_oracle/`,
+   `ljd_fixed.py`, `ljconv_table.tsv` and `june_src_fixed/`.
+4. **`MODS.md`.** Add a tooling entry. There is no client flag, since no client code
+   changed. Cross-reference the Phase 6 repairs.
+5. **Memory.**
+   - Update `elstools-decompile-drops-assignments-becomes-globals.md`: the root cause, the
+     fix hook, and "use `--fixed`/the default".
+   - Retire the "never trust a read-through" advice only for output of the fixed decompiler
+     with a clean `--check`.
+6. **Ask the user** whether to apply `ljd_slotworks.patch` to the two vendored copies, which
+   would also give `elstools.exe decompile-batch` the fix.
+
+**Exit criteria.**
+- A fresh `regen.sh` run uses the fix, and `--check` passes on the `june_lua/` set.
+- Docs and memory are consistent with each other and with the verdict TSV.
+
+**Kickoff prompt**:
+```
+Closing out the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
+context", every "Phase N result", "Phase 9"). Branch: mods/lanox-port.
+
+Your task is Phase 9: make ljd_jun2017.py/regen.sh use the fixed hook by default (keep
+--unfixed), add a --check that runs ljdiff and fails on dropped-assignment/clobber; rewrite
+RANOX_LUA_DECOMPILE_BUG.md's triage table as the verdict summary; document the new tools in
+june2017_re/README.md; add a MODS.md tooling entry; update the
+elstools-decompile-drops-assignments-becomes-globals memory. Then ask me whether to apply
+ljd_slotworks.patch to the two vendored ljd copies.
+```
