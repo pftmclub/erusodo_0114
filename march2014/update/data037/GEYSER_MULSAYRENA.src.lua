@@ -803,9 +803,16 @@ GEYSER_MULSAYRENA_ATTACK_A_FIRE = {
 }
 
 function GEYSER_MULSAYRENA_ATTACK_B_MOVE_READY_STATE_START(slot0, slot1, slot2)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped these
+	-- assignments (slot4/slot5, read again by the branches below) and inlined
+	-- the calls into the condition; the port carried the bug verbatim.
+	-- Bytecode-confirmed: decompile_verdicts.tsv, GEYSER_MULSAYRENA.src.lua::
+	-- GEYSER_MULSAYRENA_ATTACK_B_MOVE_READY_STATE_START, dropped-assignment.
 	slot3 = slot2:GetPos()
+	slot4 = slot2:GetLineGroupStartPos()
+	slot5 = slot2:GetLineGroupEndPos()
 
-	if slot1:GetDist_LUA(slot3, slot2:GetLineGroupEndPos()) < slot1:GetDist_LUA(slot3, slot2:GetLineGroupStartPos()) then
+	if slot1:GetDist_LUA(slot3, slot5) < slot1:GetDist_LUA(slot3, slot4) then
 		slot2:SetVector_LUA(0, slot4)
 		slot2:SetIsRight(not slot2:IsRightTarget_LUA(slot2, slot4))
 	else
@@ -965,7 +972,14 @@ function GEYSER_MULSAYRENA_ATTACK_C_WAVE_STATE_START(slot0, slot1, slot2)
 end
 
 function GEYSER_MULSAYRENA_ATTACK_C_WAVE_STATE_END(slot0, slot1, slot2)
-	if slot1:GetUserUnit(slot2:GetRandVal() % slot1:GetUserUnitNum_LUA()) ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- GEYSER_MULSAYRENA.src.lua::GEYSER_MULSAYRENA_ATTACK_C_WAVE_STATE_END,
+	-- dropped-assignment.
+	slot5 = slot1:GetUserUnit(slot2:GetRandVal() % slot1:GetUserUnitNum_LUA())
+
+	if slot5 ~= nil then
 		slot6 = slot5:GetPos()
 		slot6.y = slot5:GetLandPosition_LUA().y
 
@@ -1174,7 +1188,14 @@ function GEYSER_MULSAYRENA_SPECIALATTACK_A_2_STATE_START(slot0, slot1, slot2)
 		slot3 = NPC_UNIT_ID.NUI_GEYSER_MULSAYRENA_CALL
 
 		for slot8 = 1, 5 do
-			if slot1:GetLineMap():GetStartPosition(slot8 + 1).y > 1 then
+			-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+			-- this assignment and inlined the call into the condition; the port
+			-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+			-- GEYSER_MULSAYRENA.src.lua::GEYSER_MULSAYRENA_SPECIALATTACK_A_2_STATE_START,
+			-- dropped-assignment.
+			slot9 = slot1:GetLineMap():GetStartPosition(slot8 + 1)
+
+			if slot9.y > 1 then
 				slot10 = true
 
 				if slot8 % 2 == 0 then
@@ -1200,9 +1221,19 @@ function GEYSER_MULSAYRENA_SPECIALATTACK_A_2_FRAME_MOVE(slot0, slot1, slot2)
 end
 
 function CF_GEYSER_MULSAYRENA_SPECIALATTACK_A_3(slot0, slot1, slot2)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+	-- slot4's own init (0) and slot9's assignment, folding both into the
+	-- loop condition/counter, leaving `slot4 = 0 + 1` recompute 1 every hit
+	-- instead of accumulating. The port carried the bug verbatim.
+	-- Bytecode-confirmed: decompile_verdicts.tsv, GEYSER_MULSAYRENA.src.lua::
+	-- CF_GEYSER_MULSAYRENA_SPECIALATTACK_A_3, dropped-assignment.
+	slot4 = 0
+
 	for slot8 = 0, slot1:GetNPCUnitListSize() - 1 do
-		if slot1:GetNPCUnit(slot8) ~= nil and slot9:GetNowHP() > 0 and slot9:IsUnitID(slot2:GetInt_LUA(1)) == true then
-			slot4 = 0 + 1
+		slot9 = slot1:GetNPCUnit(slot8)
+
+		if slot9 ~= nil and slot9:GetNowHP() > 0 and slot9:IsUnitID(slot2:GetInt_LUA(1)) == true then
+			slot4 = slot4 + 1
 		end
 	end
 
@@ -1218,13 +1249,22 @@ function CF_GEYSER_MULSAYRENA_SPECIALATTACK_A_3(slot0, slot1, slot2)
 end
 
 function GEYSER_MULSAYRENA_SPECIALATTACK_A_3_FRAME_MOVE(slot0, slot1, slot2)
-	if slot2:AnimEventTimer_LUA(0.7) and slot1:GetEffectSet() ~= nil then
-		slot3:StopEffectSet_LUA(slot2:GetEffectSet_LUA(0))
-		slot2:ClearEffectSet_LUA(0)
+	if slot2:AnimEventTimer_LUA(0.7) then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+		-- this assignment and inlined the call into the `and` condition; the
+		-- port carried the bug verbatim. Bytecode-confirmed:
+		-- decompile_verdicts.tsv, GEYSER_MULSAYRENA.src.lua::
+		-- GEYSER_MULSAYRENA_SPECIALATTACK_A_3_FRAME_MOVE, dropped-assignment.
+		slot3 = slot1:GetEffectSet()
 
-		slot5 = "EffectSet_Geyser_Mulsayrena_SpecialAttackA_Fire"
+		if slot3 ~= nil then
+			slot3:StopEffectSet_LUA(slot2:GetEffectSet_LUA(0))
+			slot2:ClearEffectSet_LUA(0)
 
-		slot3:PlayEffectSet_LUA(slot2:GetFlag_LUA(1) == true and slot5 .. "_3" or slot5 .. "_2", slot2)
+			slot5 = "EffectSet_Geyser_Mulsayrena_SpecialAttackA_Fire"
+
+			slot3:PlayEffectSet_LUA(slot2:GetFlag_LUA(1) == true and slot5 .. "_3" or slot5 .. "_2", slot2)
+		end
 	end
 end
 
@@ -1408,10 +1448,20 @@ function GEYSER_MULSAYRENA_OUT_STATE_STATE_START(slot0, slot1, slot2)
 end
 
 function GEYSER_MULSAYRENA_OUT_STATE_FRAME_MOVE(slot0, slot1, slot2)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment (slot4, read again by SetVector_LUA(3, slot4) below) and
+	-- inlined the call into the condition; the port carried the bug verbatim.
+	-- Bytecode-confirmed: decompile_verdicts.tsv, GEYSER_MULSAYRENA.src.lua::
+	-- GEYSER_MULSAYRENA_OUT_STATE_FRAME_MOVE, dropped-assignment.
 	slot3 = slot2:GetInt_LUA(3)
+	slot4 = slot2:GetVector_LUA(3)
 
-	if slot2:GetVector_LUA(3).x < slot2:GetTimerElapsedTime(1) then
-		if slot1:GetEffectSet() ~= nil then
+	if slot4.x < slot2:GetTimerElapsedTime(1) then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): same class of bug -- see the
+		-- function's leading comment.
+		slot5 = slot1:GetEffectSet()
+
+		if slot5 ~= nil then
 			slot5:PlayEffectSetWithCustomPos_LUA("EffectSet_Geyser_Mulsayrena_SpecialAttackA_FX", slot2, slot2:GetVector_LUA(4), slot2:GetRotateDegree())
 		end
 
@@ -1421,7 +1471,11 @@ function GEYSER_MULSAYRENA_OUT_STATE_FRAME_MOVE(slot0, slot1, slot2)
 	end
 
 	if slot3 < slot2:GetTimerElapsedTime(1) then
-		if slot2:GetInt_LUA(2) > 0 then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): same class of bug -- see the
+		-- function's leading comment.
+		slot5 = slot2:GetInt_LUA(2)
+
+		if slot5 > 0 then
 			slot2:StateChangeForce(slot5, true)
 		else
 			slot2:SetPositionForce(slot2:GetVector_LUA(2))
@@ -1785,14 +1839,23 @@ GEYSER_MULSAYRENA_JUMP_DOWN_LANDING = {
 }
 
 function GEYSER_MULSAYRENA_LAND_DAMAGE_STATE_END(slot0, slot1, slot2)
-	if slot2:GetTimerElapsedTime(0) > 30 and slot2:GetRandVal() > 95 then
-		if slot3 % 2 == 0 then
-			slot2:StateChange_LUA("GEYSER_MULSAYRENA_ATTACK_A_READY_COUNTER", true)
-		else
-			slot2:StateChange_LUA("GEYSER_MULSAYRENA_ATTACK_B_READY_COUNTER", true)
-		end
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment (slot3, read again by the branches below) and inlined the
+	-- call into the `and` condition; the port carried the bug verbatim.
+	-- Bytecode-confirmed: decompile_verdicts.tsv, GEYSER_MULSAYRENA.src.lua::
+	-- GEYSER_MULSAYRENA_LAND_DAMAGE_STATE_END, dropped-assignment.
+	if slot2:GetTimerElapsedTime(0) > 30 then
+		slot3 = slot2:GetRandVal()
 
-		slot2:SetTimerRestart(0)
+		if slot3 > 95 then
+			if slot3 % 2 == 0 then
+				slot2:StateChange_LUA("GEYSER_MULSAYRENA_ATTACK_A_READY_COUNTER", true)
+			else
+				slot2:StateChange_LUA("GEYSER_MULSAYRENA_ATTACK_B_READY_COUNTER", true)
+			end
+
+			slot2:SetTimerRestart(0)
+		end
 	end
 end
 
@@ -1873,10 +1936,22 @@ end
 
 function GEYSER_MULSAYRENA_DAMAGE_DOWN_FRAME_MOVE(slot0, slot1, slot2)
 	if slot2:AnimEventTimer_LUA(slot2:GetVector_LUA(0).x) then
-		if slot2:GetRandVal() > 95 then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+		-- this assignment (slot4, read again by SetInt_LUA(0, slot4 % 2)
+		-- below) and inlined the call into the condition; the port carried
+		-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+		-- GEYSER_MULSAYRENA.src.lua::GEYSER_MULSAYRENA_DAMAGE_DOWN_FRAME_MOVE,
+		-- dropped-assignment.
+		slot4 = slot2:GetRandVal()
+
+		if slot4 > 95 then
 			slot2:SetInt_LUA(0, slot4 % 2)
 
-			if slot1:GetEffectSet() ~= nil then
+			-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): same class of bug -- see
+			-- the function's leading comment.
+			slot5 = slot1:GetEffectSet()
+
+			if slot5 ~= nil then
 				slot5:PlayEffectSetWithCustomPos_LUA("EffectSet_Geyser_Mulsayrena_AttackC_Ready_FX", slot2, slot2:GetPos(), slot2:GetRotateDegree())
 			end
 		else
@@ -1886,7 +1961,14 @@ function GEYSER_MULSAYRENA_DAMAGE_DOWN_FRAME_MOVE(slot0, slot1, slot2)
 end
 
 function GEYSER_MULSAYRENA_DAMAGE_DOWN_STATE_END(slot0, slot1, slot2)
-	if slot2:GetInt_LUA(0) == 0 then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- GEYSER_MULSAYRENA.src.lua::GEYSER_MULSAYRENA_DAMAGE_DOWN_STATE_END,
+	-- dropped-assignment.
+	slot3 = slot2:GetInt_LUA(0)
+
+	if slot3 == 0 then
 		slot2:StateChange_LUA("GEYSER_MULSAYRENA_ATTACK_C_WAVE_1", true)
 	elseif slot3 == 1 then
 		slot2:StateChange_LUA("GEYSER_MULSAYRENA_ATTACK_C_WAVE_2", true)

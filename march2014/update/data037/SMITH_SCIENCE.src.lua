@@ -292,8 +292,17 @@ function SMITH_SCIENCE_START_STATE_START(slot0, slot1, slot2)
 		slot2:StateChange_LUA("SMITH_SCIENCE_REGEN_WAIT", true)
 	elseif slot1:GetNowStageIndex() == 2 then
 		slot2:StateChange_LUA("SMITH_SCIENCE_JUMP_START", true)
-	elseif slot1:GetEffectSet() ~= nil then
-		slot4:PlayEffectSet_LUA("EffectSet_NUI_SMITH_SCIENCE_Attack_B", slot2)
+	else
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+		-- assignment and inlined the call into the condition; the port carried
+		-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+		-- SMITH_SCIENCE.src.lua::SMITH_SCIENCE_START_STATE_START,
+		-- dropped-assignment, seed 21, POISON_READ slot4@L296.
+		slot4 = slot1:GetEffectSet()
+
+		if slot4 ~= nil then
+			slot4:PlayEffectSet_LUA("EffectSet_NUI_SMITH_SCIENCE_Attack_B", slot2)
+		end
 	end
 end
 
@@ -545,14 +554,30 @@ SMITH_SCIENCE_ATTACK_A = {
 }
 
 function SMITH_SCIENCE_ATTACK_A_FRAME_MOVE(slot0, slot1, slot2)
-	if slot1:GetNPCUnitByUID(slot2:GetInt_LUA(1)) ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SMITH_SCIENCE.src.lua::SMITH_SCIENCE_ATTACK_A_FRAME_MOVE,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L549.
+	slot3 = slot1:GetNPCUnitByUID(slot2:GetInt_LUA(1))
+
+	if slot3 ~= nil then
 		slot2:SetPositionForce(slot3:GetPos())
 	end
 end
 
 function SMITH_SCIENCE_ATTACK_A_STATE_END(slot0, slot1, slot2)
-	if slot1:GetNPCUnitByUID(slot2:GetInt_LUA(1)) ~= nil and slot3:GetNowHP() > 0 then
-		if slot3:GetMaxHP() < slot3:GetNowHP() + slot3:GetMaxHP() * 0.2 then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SMITH_SCIENCE.src.lua::SMITH_SCIENCE_ATTACK_A_STATE_END,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L554.
+	slot3 = slot1:GetNPCUnitByUID(slot2:GetInt_LUA(1))
+
+	if slot3 ~= nil and slot3:GetNowHP() > 0 then
+		slot4 = slot3:GetNowHP() + slot3:GetMaxHP() * 0.2
+
+		if slot3:GetMaxHP() < slot4 then
 			slot4 = slot3:GetMaxHP()
 		end
 
@@ -581,7 +606,14 @@ SMITH_SCIENCE_ATTACK_A_DASH = {
 }
 
 function SMITH_SCIENCE_ATTACK_A_DASH_FRAME_MOVE(slot0, slot1, slot2)
-	if slot1:GetNPCUnitByUID(slot2:GetInt_LUA(1)) ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SMITH_SCIENCE.src.lua::SMITH_SCIENCE_ATTACK_A_DASH_FRAME_MOVE,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L585.
+	slot3 = slot1:GetNPCUnitByUID(slot2:GetInt_LUA(1))
+
+	if slot3 ~= nil then
 		if slot3:GetNowHP() <= 0 then
 			slot2:StateChange_LUA("SMITH_SCIENCE_DASH_END", true)
 		end
@@ -988,7 +1020,14 @@ function SMITH_SCIENCE_COMMON_FRAMEMOVE(slot0, slot1, slot2)
 	end
 
 	if slot2:GetFlag_LUA(0) == false and slot2:GetInt_LUA(0) <= slot2:GetTimerElapsedTime(0) then
-		if slot1:GetNearestNpcInSpecificRangeByNpcId_LUA(slot2:GetPos(), NPC_UNIT_ID.NUI_SMITH_MACHINE, 3000) ~= nil and slot3:GetNowHP() < slot3:GetMaxHP() then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+		-- assignment and inlined the call into the condition; the port carried
+		-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+		-- SMITH_SCIENCE.src.lua::SMITH_SCIENCE_COMMON_FRAMEMOVE,
+		-- dropped-assignment, seed 9, POISON_READ slot3@L991.
+		slot3 = slot1:GetNearestNpcInSpecificRangeByNpcId_LUA(slot2:GetPos(), NPC_UNIT_ID.NUI_SMITH_MACHINE, 3000)
+
+		if slot3 ~= nil and slot3:GetNowHP() < slot3:GetMaxHP() then
 			slot2:SetInt_LUA(1, slot3:GetUID())
 			slot2:SetIsRight(slot2:IsRightTarget_LUA(slot2, slot3:GetPos()))
 			slot2:SetFlag_LUA(0, true)
@@ -1025,11 +1064,20 @@ function SMITH_SCIENCE_REGEN_WAIT_FRAME_MOVE(slot0, slot1, slot2)
 	end
 
 	if slot1:GetInt_LUA(8) > 0 then
-		if slot2:GetKeyCode() < 0 then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+		-- assignment and inlined the call into the condition; the port carried
+		-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+		-- SMITH_SCIENCE.src.lua::SMITH_SCIENCE_REGEN_WAIT_FRAME_MOVE,
+		-- dropped-assignment, seed 2, POISON_READ slot4@L1032/1034/1036/1038/1040.
+		slot4 = slot2:GetKeyCode()
+
+		if slot4 < 0 then
 			return
 		end
 
-		if slot4 % 5 == 1 then
+		slot4 = slot4 % 5
+
+		if slot4 == 1 then
 			slot2:StateChange_LUA("SMITH_SCIENCE_REGEN_START1", true)
 		elseif slot4 == 2 then
 			slot2:StateChange_LUA("SMITH_SCIENCE_REGEN_START2", true)
@@ -1225,7 +1273,14 @@ SMITH_SCIENCE_REGEN_START5 = {
 }
 
 function StateChangeByKeycode(slot0, slot1)
-	if slot1 % 5 == 0 then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SMITH_SCIENCE.src.lua::StateChangeByKeycode, dropped-assignment, seed 1,
+	-- POISON_READ slot2@L1230/1232/1234/1236.
+	slot2 = slot1 % 5
+
+	if slot2 == 0 then
 		slot0:StateChange_LUA("SMITH_SCIENCE_REGEN_START1", true)
 	elseif slot2 == 1 then
 		slot0:StateChange_LUA("SMITH_SCIENCE_REGEN_START2", true)

@@ -509,7 +509,14 @@ function SECRET_SCENE_DUMMY_SUMMON_TYPE3_BUFF_STATE_END(slot0, slot1, slot2)
 
 	if slot1:IsHost() == true then
 		for slot7 = 0, slot1:GetNPCUnitListSize() - 1 do
-			if slot1:GetNPCUnit(slot7) ~= nil then
+			-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+			-- this assignment and inlined the call into the condition; the port
+			-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+			-- SECRET_SCENE_DUMMY.src.lua::SECRET_SCENE_DUMMY_SUMMON_TYPE3_BUFF_STATE_END,
+			-- dropped-assignment, seed 1, POISON_READ slot8@L513/517/521.
+			slot8 = slot1:GetNPCUnit(slot7)
+
+			if slot8 ~= nil then
 				if slot8:IsUnitID(NPC_UNIT_ID.NUI_SECRET_MAGI_OBJECT) == true then
 					slot8:StateChange_LUA("SECRET_MAGI_OBJECT_FEVER_END", true)
 				end
@@ -648,7 +655,18 @@ function SECRET_SCENE_DUMMY_COMMON_FRAME_FUNC(slot0, slot1, slot2)
 			return false
 		end
 
-		if slot2:GetInt_LUA(4) < slot2:GetInt_LUA(5) then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+		-- this assignment (slot3, read again by SetInt_LUA(4, slot3 + 1)
+		-- below) and inlined the call into the condition. Not one of Phase
+		-- 5's 6 flagged rows for this file (its own dominant divergence is
+		-- the documented 09-18 GetSimpleDLG omission above, which masked
+		-- this one in the per-function verdict) -- found via this repair's
+		-- own 128-seed harness pass (static must-define candidate,
+		-- SECRET_SCENE_DUMMY_COMMON_FRAME_FUNC slot3@L669), fixed the same
+		-- way as the rest of this file's dropped-assignment class.
+		slot3 = slot2:GetInt_LUA(4)
+
+		if slot3 < slot2:GetInt_LUA(5) then
 			if slot2:GetInt_LUA(7) < slot1:LiveActiveNPCNum() then
 				return false
 			end
@@ -694,7 +712,14 @@ end
 
 function SetBuffAllNpcAndMagiStageChange(slot0, slot1, slot2)
 	for slot7 = 0, slot0:GetNPCUnitListSize() - 1 do
-		if slot0:GetNPCUnit(slot7) ~= nil and slot8:IsUnitID(NPC_UNIT_ID.NUI_SECRET_SCENE_DUMMY) == false and slot8:IsUnitID(NPC_UNIT_ID.NUI_SECRET_MAGI_OBJECT) == false and slot8:IsUnitID(NPC_UNIT_ID.NUI_SECRET_MAGI_OBJECT_GROUB) == false then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+		-- this assignment and inlined the call into the condition; the port
+		-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+		-- SECRET_SCENE_DUMMY.src.lua::SetBuffAllNpcAndMagiStageChange,
+		-- dropped-assignment, seed 1, POISON_READ slot8@L697.
+		slot8 = slot0:GetNPCUnit(slot7)
+
+		if slot8 ~= nil and slot8:IsUnitID(NPC_UNIT_ID.NUI_SECRET_SCENE_DUMMY) == false and slot8:IsUnitID(NPC_UNIT_ID.NUI_SECRET_MAGI_OBJECT) == false and slot8:IsUnitID(NPC_UNIT_ID.NUI_SECRET_MAGI_OBJECT_GROUB) == false then
 			slot8:SetBuffFactorToGameUnitByBuffFactorID_LUA(slot2)
 		end
 	end
@@ -702,20 +727,41 @@ end
 
 function EraseBuffAllNpc(slot0, slot1, slot2)
 	for slot7 = 0, slot0:GetNPCUnitListSize() - 1 do
-		if slot0:GetNPCUnit(slot7) ~= nil and slot8:HaveThisBuff(slot2) == true then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+		-- this assignment and inlined the call into the condition; the port
+		-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+		-- SECRET_SCENE_DUMMY.src.lua::EraseBuffAllNpc, dropped-assignment,
+		-- seed 1, POISON_READ slot8@L705.
+		slot8 = slot0:GetNPCUnit(slot7)
+
+		if slot8 ~= nil and slot8:HaveThisBuff(slot2) == true then
 			slot8:EraseBuffTempletFromGameUnit_LUA(slot2)
 		end
 	end
 end
 
 function SummonMonstersRandomPos(slot0, slot1, slot2, slot3, slot4)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment -- slot5's own init ran only inside the "empty" branch, so
+	-- the first iteration read whatever slot5 held from an earlier call to
+	-- this function instead of a fresh TableCopy(slot3) -- and also dropped
+	-- slot10/slot12 (read again by table.remove(slot5, slot10) and
+	-- print(slot12) below), folding both into the GetStartPosition call.
+	-- The port carried the bug verbatim. Bytecode-confirmed:
+	-- decompile_verdicts.tsv, SECRET_SCENE_DUMMY.src.lua::
+	-- SummonMonstersRandomPos, dropped-assignment, seed 1, POISON_READ
+	-- slot12@L726.
+	slot5 = TableCopy(slot3)
+
 	for slot9 = 0, slot4 - 1 do
-		if #TableCopy(slot3) == 0 then
+		if #slot5 == 0 then
 			slot5 = TableCopy(slot3)
 		end
 
 		slot11 = slot2[slot1:GetRandVal(slot9) % #slot2 + 1]
-		slot13 = slot0:GetLineMap():GetStartPosition(slot5[slot1:GetRandVal() % #slot5 + 1])
+		slot10 = slot1:GetRandVal() % #slot5 + 1
+		slot12 = slot5[slot10]
+		slot13 = slot0:GetLineMap():GetStartPosition(slot12)
 
 		if #slot5 >= 1 then
 			table.remove(slot5, slot10)

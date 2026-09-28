@@ -404,7 +404,14 @@ SECRET_MAGI_WAITSTART = {
 }
 
 function SECRET_MAGI_WAITSTART_START_FUNC(slot0, slot1, slot2)
-	if slot2:GetXSkinAnim() ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SECRET_MAGI_BOSS.src.lua::SECRET_MAGI_WAITSTART_START_FUNC,
+	-- dropped-assignment.
+	slot3 = slot2:GetXSkinAnim()
+
+	if slot3 ~= nil then
 		slot3:SetUseTex(2, false)
 	end
 end
@@ -1791,7 +1798,14 @@ function SECRET_MAGI_SPECIAL_ATTACK_COMBO_FRAME_MOVE_FUNC(slot0, slot1, slot2)
 			-- phase transition itself (CreateLavaGround, flag clears) is untouched,
 			-- only the brief invincibility window while the ground rises is lost.
 
-			if slot2:GetXSkinAnim() ~= nil then
+			-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+			-- this assignment and inlined the call into the condition; the port
+			-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+			-- SECRET_MAGI_BOSS.src.lua::SECRET_MAGI_SPECIAL_ATTACK_COMBO_FRAME_MOVE_FUNC,
+			-- dropped-assignment.
+			slot3 = slot2:GetXSkinAnim()
+
+			if slot3 ~= nil then
 				slot3:SetUseTex(2, false)
 			end
 		end
@@ -1805,14 +1819,28 @@ function SECRET_MAGI_SPECIAL_ATTACK_COMBO_FRAME_MOVE_FUNC(slot0, slot1, slot2)
 			-- phase transition itself (CreateLavaGround, flag clears) is untouched,
 			-- only the brief invincibility window while the ground rises is lost.
 
-			if slot2:GetXSkinAnim() ~= nil then
+			-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): same class of bug -- see
+			-- the earlier GetFlag_LUA(1) branch above.
+			slot3 = slot2:GetXSkinAnim()
+
+			if slot3 ~= nil then
 				slot3:SetUseTex(2, false)
 			end
 		end
 
-		if slot1:GetDamageEffect() ~= nil then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+		-- this assignment (slot3, read again by DestroyInstance below) and
+		-- also dropped slot8 (read again by the same call), inlining both
+		-- calls into their conditions; the port carried the bug verbatim.
+		-- Bytecode-confirmed: decompile_verdicts.tsv, SECRET_MAGI_BOSS.src.lua::
+		-- SECRET_MAGI_SPECIAL_ATTACK_COMBO_FRAME_MOVE_FUNC, dropped-assignment.
+		slot3 = slot1:GetDamageEffect()
+
+		if slot3 ~= nil then
 			for slot7 = 0, g_iSummonMagiNum do
-				if slot2:GetDamageEffect_LUA(slot7) ~= nil then
+				slot8 = slot2:GetDamageEffect_LUA(slot7)
+
+				if slot8 ~= nil then
 					slot3:DestroyInstance(slot8)
 				end
 			end
@@ -1869,7 +1897,14 @@ function SECRET_MAGI_DAMAGE_AIR_DOWN_LANDING_FRAME_MOVE(slot0, slot1, slot2)
 
 		slot3:GameUnitCreateSequence_LUA(slot2, "GroundShockWave", slot4, D3DXVECTOR2(100, 100), D3DXVECTOR2(1, -1))
 
-		if slot3:GameUnitCreateSequence_LUA(slot2, "AirDownTick", slot2:GetPos(), D3DXVECTOR2(200, 200), D3DXVECTOR2(10, -1)) ~= nil then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+		-- this assignment and inlined the call into the condition; the port
+		-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+		-- SECRET_MAGI_BOSS.src.lua::SECRET_MAGI_DAMAGE_AIR_DOWN_LANDING_FRAME_MOVE,
+		-- dropped-assignment.
+		slot5 = slot3:GameUnitCreateSequence_LUA(slot2, "AirDownTick", slot2:GetPos(), D3DXVECTOR2(200, 200), D3DXVECTOR2(10, -1))
+
+		if slot5 ~= nil then
 			slot5:SetLandPosition(slot4.y - 5)
 		end
 
@@ -1885,8 +1920,14 @@ end
 function SECRET_MAGI_DYING_LAND_STATE_START(slot0, slot1, slot2)
 	slot3 = slot2:GetPos()
 	slot3.y = slot3.y + 100
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SECRET_MAGI_BOSS.src.lua::SECRET_MAGI_DYING_LAND_STATE_START,
+	-- dropped-assignment.
+	slot5 = slot1:GetMinorParticle():GameUnitCreateSequence_LUA(slot2, "DieLight", slot3, D3DXVECTOR2(-1, -1), D3DXVECTOR2(3, -1))
 
-	if slot1:GetMinorParticle():GameUnitCreateSequence_LUA(slot2, "DieLight", slot3, D3DXVECTOR2(-1, -1), D3DXVECTOR2(3, -1)) ~= nil then
+	if slot5 ~= nil then
 		slot5:SetLandPosition(slot2:GetLandPosition_LUA().y)
 		slot2:SetDieSeq(slot5:GetHandle())
 	end
@@ -1907,9 +1948,15 @@ function CF_SECRET_MAGI_DASH_END(slot0, slot1, slot2)
 		return false
 	end
 
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment (slot3, read again by the second if below) and inlined the
+	-- call into the first condition; the port carried the bug verbatim.
+	-- Bytecode-confirmed: decompile_verdicts.tsv, SECRET_MAGI_BOSS.src.lua::
+	-- CF_SECRET_MAGI_DASH_END, dropped-assignment.
+	slot3 = slot2:GetIsRight()
 	slot4 = slot2:GetLineGroupStartPos()
 
-	if slot2:GetIsRight() == true and slot2:GetDistanceFrom(slot2:GetLineGroupEndPos()) < 300 then
+	if slot3 == true and slot2:GetDistanceFrom(slot2:GetLineGroupEndPos()) < 300 then
 		return true
 	end
 
@@ -1962,7 +2009,15 @@ function SECRET_MAGI_COMMON_FRAME_FUNC(slot0, slot1, slot2)
 				-- state transition below still fires, only the 10-second windup
 				-- invincibility is lost.
 
-				if slot2:GetXSkinAnim() ~= nil then
+				-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile
+				-- dropped this assignment and inlined the call into the
+				-- condition; the port carried the bug verbatim.
+				-- Bytecode-confirmed: decompile_verdicts.tsv,
+				-- SECRET_MAGI_BOSS.src.lua::SECRET_MAGI_COMMON_FRAME_FUNC,
+				-- dropped-assignment.
+				slot5 = slot2:GetXSkinAnim()
+
+				if slot5 ~= nil then
 					slot5:SetUseTex(2, true)
 				end
 			end
@@ -2002,14 +2057,25 @@ function CreateMagiLockOnEffect(slot0, slot1, slot2, slot3)
 	slot4 = TableCopy(slot3)
 	slot5 = slot0:GetDamageEffect()
 
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+	-- slot10 (read again by table.remove(slot4, slot10)) and slot13 (read
+	-- again by SetLockOnNearTarget/SetDamageEffect_LUA), folding both into
+	-- the calls above them. The port carried the bug verbatim. This site is
+	-- independent of TableCopy's own exempt deepcopy defect (slot4 above is
+	-- just TableCopy's return value; the loop below never touches its
+	-- internals). Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SECRET_MAGI_BOSS.src.lua::CreateMagiLockOnEffect, static-only.
 	for slot9 = 0, slot2 do
-		slot12 = slot0:GetLineMap():GetStartPosition(slot4[slot1:GetRandVal(slot9) % #slot4 + 1])
+		slot10 = slot1:GetRandVal(slot9) % #slot4 + 1
+		slot12 = slot0:GetLineMap():GetStartPosition(slot4[slot10])
 
 		if #slot4 > 1 then
 			table.remove(slot4, slot10)
 		end
 
-		if slot5:CreateInstance_LUA(slot1, "DamageEffect_Ranox_Secret_Boss_Magi_Attack_D_Projectile", slot12, slot12.y) ~= nil then
+		slot13 = slot5:CreateInstance_LUA(slot1, "DamageEffect_Ranox_Secret_Boss_Magi_Attack_D_Projectile", slot12, slot12.y)
+
+		if slot13 ~= nil then
 			slot1:SetLockOnNearTarget(slot13)
 			slot1:SetDamageEffect_LUA(slot9, slot13)
 		end
@@ -2017,17 +2083,39 @@ function CreateMagiLockOnEffect(slot0, slot1, slot2, slot3)
 end
 
 function GetRandomUserIndexList(slot0, slot1, slot2)
-	slot3 = {}
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment -- slot5 was folded into a throwaway `table.insert({}, ...)`
+	-- (the freshly-built table was never stored, so every iteration below
+	-- read a stale slot5 instead of the just-built user-index pool) -- and
+	-- also dropped slot11 (read again by table.remove(slot5, slot11) below).
+	-- The port carried the bug verbatim. Bytecode-confirmed:
+	-- decompile_verdicts.tsv, SECRET_MAGI_BOSS.src.lua::GetRandomUserIndexList,
+	-- dropped-assignment.
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): the accumulator is slot20, not
+	-- the decompile's own slot3 -- this file has no `local`, so every slotN
+	-- is a real shared global, and slot3 collides with this function's only
+	-- caller, SECRET_MAGI_ATTACK_D_READY_START_FUNC, which keeps its own
+	-- slot3 (the attack level, 1 or 2) alive across the call and rereads it
+	-- afterward. Confirmed by the harness: CLOBBER
+	-- SECRET_MAGI_ATTACK_D_READY_START_FUNC GetRandomUserIndexList slot3
+	-- had(74/128 seeds) before this rename; 0 after. Per the recorded
+	-- decision (RANOX_LUA_DECOMPILE_FIX_PLAN.md, "the local slotN decision"),
+	-- known clobbers are fixed case by case rather than adopting `local`;
+	-- this rename is the case-by-case fix, and stays within "no local".
+	slot20 = {}
+	slot5 = {}
 
 	for slot9 = 0, slot0:GetUserUnitNum_LUA() - 1 do
-		table.insert({}, slot9)
+		table.insert(slot5, slot9)
 	end
 
 	slot6 = 0
 
 	if slot2 > 0 and slot2 < 5 then
 		for slot10 = 1, slot2 do
-			table.insert(slot3, slot5[slot1:GetRandVal(slot10) % #slot5 + 1])
+			slot11 = slot1:GetRandVal(slot10) % #slot5 + 1
+
+			table.insert(slot20, slot5[slot11])
 
 			if #slot5 > 1 then
 				table.remove(slot5, slot11)
@@ -2035,7 +2123,7 @@ function GetRandomUserIndexList(slot0, slot1, slot2)
 		end
 	end
 
-	return slot3
+	return slot20
 end
 
 function CreateLavaGround(slot0, slot1, slot2)
@@ -2072,14 +2160,23 @@ function CreateLavaGround(slot0, slot1, slot2)
 end
 
 function SECRET_MAGI_SPECIAL_ATTACK_JUMP_DOWN_STATE_START(slot0, slot1, slot2)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+	-- slot4's own init (0) and slot10's assignment, folding both into the
+	-- loop condition/counter, leaving `slot4 = 0 + 1` recompute 1 every hit
+	-- instead of accumulating. The port carried the bug verbatim.
+	-- Bytecode-confirmed: decompile_verdicts.tsv, SECRET_MAGI_BOSS.src.lua::
+	-- SECRET_MAGI_SPECIAL_ATTACK_JUMP_DOWN_STATE_START, dropped-assignment.
+	slot4 = 0
 	slot5 = {
 		slot2:GetInt_LUA(1),
 		slot2:GetInt_LUA(2)
 	}
 
 	for slot9 = 0, slot1:GetNPCUnitListSize() - 1 do
-		if slot1:GetNPCUnit(slot9) ~= nil and (slot10:IsUnitID(slot5[1]) == true or slot10:IsUnitID(slot5[2]) == true) then
-			slot4 = 0 + 1
+		slot10 = slot1:GetNPCUnit(slot9)
+
+		if slot10 ~= nil and (slot10:IsUnitID(slot5[1]) == true or slot10:IsUnitID(slot5[2]) == true) then
+			slot4 = slot4 + 1
 
 			slot10:SetNowHP(0)
 		end
@@ -2101,10 +2198,25 @@ function SECRET_MAGI_ATTACK_D_READY_START_FUNC(slot0, slot1, slot2)
 		slot3 = 2
 	end
 
-	if GetRandomUserIndexList(slot1, slot2, slot3) ~= nil and slot1:GetEffectSet() ~= nil then
-		for slot10 = 1, #slot5 do
-			if slot6:PlayEffectSetTraceTarget_LUA("EffectSet_SA_RHB_Lockon_Stratos_LockOn", slot2, slot1:GetUserUnit(slot5[slot10])) ~= nil then
-				slot2:SetEffectSet_LUA(slot10, slot12)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+	-- slot5 (read again by the loop bound and slot5[slot10]), slot6 (read
+	-- again as the PlayEffectSetTraceTarget_LUA receiver) and slot12 (read
+	-- again by SetEffectSet_LUA), folding all three into their conditions.
+	-- The port carried the bug verbatim. Bytecode-confirmed:
+	-- decompile_verdicts.tsv, SECRET_MAGI_BOSS.src.lua::
+	-- SECRET_MAGI_ATTACK_D_READY_START_FUNC, dropped-assignment.
+	slot5 = GetRandomUserIndexList(slot1, slot2, slot3)
+
+	if slot5 ~= nil then
+		slot6 = slot1:GetEffectSet()
+
+		if slot6 ~= nil then
+			for slot10 = 1, #slot5 do
+				slot12 = slot6:PlayEffectSetTraceTarget_LUA("EffectSet_SA_RHB_Lockon_Stratos_LockOn", slot2, slot1:GetUserUnit(slot5[slot10]))
+
+				if slot12 ~= nil then
+					slot2:SetEffectSet_LUA(slot10, slot12)
+				end
 			end
 		end
 	end
@@ -2117,10 +2229,23 @@ function SECRET_MAGI_ATTACK_D_START_FUNC(slot0, slot1, slot2)
 		return false
 	end
 
-	if slot1:GetEffectSet() ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+	-- slot3 (read again by PlayEffectSetWithCustomPos_LUA/StopEffectSet_LUA
+	-- below) and slot9 (read again as the effect-position lookup and by
+	-- StopEffectSet_LUA), folding both into their conditions. The port
+	-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SECRET_MAGI_BOSS.src.lua::SECRET_MAGI_ATTACK_D_START_FUNC,
+	-- dropped-assignment.
+	slot3 = slot1:GetEffectSet()
+
+	if slot3 ~= nil then
 		for slot8 = 0, slot2:GetInt_LUA(5) do
-			if slot2:GetEffectSet_LUA(slot8) ~= nil then
-				slot3:PlayEffectSetWithCustomPos_LUA("EffectSet_SA_RHB_Lockon_Stratos_Attack", slot2, slot3:GetEffectPosition_LUA(slot9, 0), D3DXVECTOR3(0, 0, 0))
+			slot9 = slot2:GetEffectSet_LUA(slot8)
+
+			if slot9 ~= nil then
+				slot10 = slot3:GetEffectPosition_LUA(slot9, 0)
+
+				slot3:PlayEffectSetWithCustomPos_LUA("EffectSet_SA_RHB_Lockon_Stratos_Attack", slot2, slot10, D3DXVECTOR3(0, 0, 0))
 				slot3:StopEffectSet_LUA(slot9)
 				slot2:ClearEffectSet_LUA(0)
 

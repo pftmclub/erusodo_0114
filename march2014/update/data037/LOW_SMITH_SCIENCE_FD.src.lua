@@ -480,14 +480,30 @@ SMITH_SCIENCE_ATTACK_A = {
 }
 
 function SMITH_SCIENCE_ATTACK_A_FRAME_MOVE(slot0, slot1, slot2)
-	if slot1:GetNPCUnitByUID(slot2:GetInt_LUA(1)) ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- LOW_SMITH_SCIENCE_FD.src.lua::SMITH_SCIENCE_ATTACK_A_FRAME_MOVE,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L484.
+	slot3 = slot1:GetNPCUnitByUID(slot2:GetInt_LUA(1))
+
+	if slot3 ~= nil then
 		slot2:SetPositionForce(slot3:GetPos())
 	end
 end
 
 function SMITH_SCIENCE_ATTACK_A_STATE_END(slot0, slot1, slot2)
-	if slot1:GetNPCUnitByUID(slot2:GetInt_LUA(1)) ~= nil and slot3:GetNowHP() > 0 then
-		if slot3:GetMaxHP() < slot3:GetNowHP() + slot3:GetMaxHP() * 0.2 then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- LOW_SMITH_SCIENCE_FD.src.lua::SMITH_SCIENCE_ATTACK_A_STATE_END,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L489.
+	slot3 = slot1:GetNPCUnitByUID(slot2:GetInt_LUA(1))
+
+	if slot3 ~= nil and slot3:GetNowHP() > 0 then
+		slot4 = slot3:GetNowHP() + slot3:GetMaxHP() * 0.2
+
+		if slot3:GetMaxHP() < slot4 then
 			slot4 = slot3:GetMaxHP()
 		end
 
@@ -510,7 +526,14 @@ SMITH_SCIENCE_ATTACK_A_DASH = {
 }
 
 function SMITH_SCIENCE_ATTACK_A_DASH_FRAME_MOVE(slot0, slot1, slot2)
-	if slot1:GetNPCUnitByUID(slot2:GetInt_LUA(1)) ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- LOW_SMITH_SCIENCE_FD.src.lua::SMITH_SCIENCE_ATTACK_A_DASH_FRAME_MOVE,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L514.
+	slot3 = slot1:GetNPCUnitByUID(slot2:GetInt_LUA(1))
+
+	if slot3 ~= nil then
 		if slot3:GetNowHP() <= 0 then
 			slot2:StateChange_LUA("SMITH_SCIENCE_DASH_END", true)
 		end
@@ -912,7 +935,14 @@ function SMITH_SCIENCE_COMMON_FRAMEMOVE(slot0, slot1, slot2)
 	end
 
 	if slot2:GetFlag_LUA(0) == false and slot2:GetInt_LUA(0) <= slot2:GetTimerElapsedTime(0) then
-		if slot1:GetNearestNpcInSpecificRangeByNpcId_LUA(slot2:GetPos(), NPC_UNIT_ID.NUI_SMITH_MACHINE, 3000) ~= nil and slot3:GetNowHP() < slot3:GetMaxHP() then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+		-- assignment and inlined the call into the condition; the port carried
+		-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+		-- LOW_SMITH_SCIENCE_FD.src.lua::SMITH_SCIENCE_COMMON_FRAMEMOVE,
+		-- dropped-assignment, seed 9, POISON_READ slot3@L915.
+		slot3 = slot1:GetNearestNpcInSpecificRangeByNpcId_LUA(slot2:GetPos(), NPC_UNIT_ID.NUI_SMITH_MACHINE, 3000)
+
+		if slot3 ~= nil and slot3:GetNowHP() < slot3:GetMaxHP() then
 			slot2:SetInt_LUA(1, slot3:GetUID())
 			slot2:SetIsRight(slot2:IsRightTarget_LUA(slot2, slot3:GetPos()))
 			slot2:SetFlag_LUA(0, true)

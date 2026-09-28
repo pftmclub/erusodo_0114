@@ -357,7 +357,14 @@ FIRE_DEVIL_IGNIA_START_READY = {
 
 function FIRE_DEVIL_IGNIA_START_STATE_START(slot0, slot1, slot2)
 	for slot7 = 0, slot1:GetNPCUnitListSize() - 1 do
-		if slot1:GetNPCUnit(slot7) ~= nil and slot2:GetUID() ~= slot8:GetUID() and slot8:GetClassType() == NPC_CLASS_TYPE.NCT_BASIC then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+		-- this assignment and inlined the call into the condition; the port
+		-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+		-- FIRE_DEVIL_IGNIA.src.lua::FIRE_DEVIL_IGNIA_START_STATE_START,
+		-- dropped-assignment.
+		slot8 = slot1:GetNPCUnit(slot7)
+
+		if slot8 ~= nil and slot2:GetUID() ~= slot8:GetUID() and slot8:GetClassType() == NPC_CLASS_TYPE.NCT_BASIC then
 			slot8:StateChange_LUA("GATEWAY_START", true)
 		end
 	end
@@ -656,13 +663,29 @@ function FIRE_DEVIL_IGNIA_ATTACK_C_READY_STATE_END(slot0, slot1, slot2)
 end
 
 function FIRE_DEVIL_IGNIA_ATTACK_C_NOT_SHOW_FRAME_MOVE(slot0, slot1, slot2)
-	if slot2:GetVector_LUA(0).y < slot2:GetTimerElapsedTime(1) then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim (slot3 also feeds the two SetVector_LUA(0, slot3)
+	-- writes below, so the dropped read left this function rewriting a stale
+	-- shared vector every frame). Bytecode-confirmed: decompile_verdicts.tsv,
+	-- FIRE_DEVIL_IGNIA.src.lua::FIRE_DEVIL_IGNIA_ATTACK_C_NOT_SHOW_FRAME_MOVE,
+	-- dropped-assignment.
+	slot3 = slot2:GetVector_LUA(0)
+
+	if slot3.y < slot2:GetTimerElapsedTime(1) then
 		slot4 = slot2:GetPos()
 		slot5 = slot2:GetDirVector()
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): same class of bug -- the
+		-- decompile folded slot8's write into the condition, and separately
+		-- folded slot4's write into `slot8:GetPos().y = ...`'s field-set
+		-- target (the read of GetPos() was never stored, so slot4 kept the
+		-- NPC's own position from above instead of slot8's).
+		slot8 = slot1:GetUserUnit(slot2:GetRandVal() % slot1:GetUserUnitNum_LUA())
 		slot9 = 1
 
-		if slot1:GetUserUnit(slot2:GetRandVal() % slot1:GetUserUnitNum_LUA()) ~= nil then
-			slot8:GetPos().y = slot8:GetLandPosition_LUA().y
+		if slot8 ~= nil then
+			slot4 = slot8:GetPos()
+			slot4.y = slot8:GetLandPosition_LUA().y
 			slot5 = slot8:GetDirVector()
 
 			if slot8:GetIsRight() == true then
@@ -681,7 +704,13 @@ function FIRE_DEVIL_IGNIA_ATTACK_C_NOT_SHOW_FRAME_MOVE(slot0, slot1, slot2)
 
 		slot2:SetPositionForce(slot4)
 
-		if slot1:GetEffectSet() ~= nil then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): same class of bug -- see the
+		-- function's leading comment. decompile_verdicts.tsv,
+		-- FIRE_DEVIL_IGNIA.src.lua::FIRE_DEVIL_IGNIA_ATTACK_C_NOT_SHOW_FRAME_MOVE,
+		-- dropped-assignment.
+		slot10 = slot1:GetEffectSet()
+
+		if slot10 ~= nil then
 			slot10:PlayEffectSetWithCustomPos_LUA("EffectSet_IGNIA_ATTACK_C_Fire", slot2, slot4, slot2:GetRotateDegree())
 		end
 
@@ -689,7 +718,13 @@ function FIRE_DEVIL_IGNIA_ATTACK_C_NOT_SHOW_FRAME_MOVE(slot0, slot1, slot2)
 
 		slot2:SetVector_LUA(0, slot3)
 	elseif slot3.x < slot2:GetTimerElapsedTime(1) then
-		if slot2:GetInt_LUA(0) > 0 then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): same class of bug -- see the
+		-- function's leading comment. decompile_verdicts.tsv,
+		-- FIRE_DEVIL_IGNIA.src.lua::FIRE_DEVIL_IGNIA_ATTACK_C_NOT_SHOW_FRAME_MOVE,
+		-- dropped-assignment.
+		slot4 = slot2:GetInt_LUA(0)
+
+		if slot4 > 0 then
 			slot2:StateChangeForce(slot4, true)
 		else
 			slot2:StateChange_LUA("FIRE_DEVIL_IGNIA_ATTACK_C_FIRE", true)
@@ -818,11 +853,22 @@ FIRE_DEVIL_IGNIA_ATTACK_E_FIRE = {
 }
 
 function FIRE_DEVIL_IGNIA_SPECIAL_ATTACK_A_START_STATE_END(slot0, slot1, slot2)
-	if slot1:GetEffectSet() ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment (slot3, read again by PlayEffectSetWithCustomPos_LUA below)
+	-- and dropped slot5/slot6 (GetLineGroupStartPos/EndPos, read again as
+	-- the dist comparison's own branch results), inlining all three calls
+	-- into the condition; the port carried the bug verbatim.
+	-- Bytecode-confirmed: decompile_verdicts.tsv, FIRE_DEVIL_IGNIA.src.lua::
+	-- FIRE_DEVIL_IGNIA_SPECIAL_ATTACK_A_START_STATE_END, dropped-assignment.
+	slot3 = slot1:GetEffectSet()
+
+	if slot3 ~= nil then
 		slot4 = slot2:GetPos()
+		slot5 = slot2:GetLineGroupStartPos()
+		slot6 = slot2:GetLineGroupEndPos()
 		slot9 = 1700
 
-		if slot1:GetDist_LUA(slot4, slot2:GetLineGroupEndPos()) < slot1:GetDist_LUA(slot4, slot2:GetLineGroupStartPos()) then
+		if slot1:GetDist_LUA(slot4, slot6) < slot1:GetDist_LUA(slot4, slot5) then
 			slot4 = slot6
 		else
 			slot4 = slot5
@@ -944,7 +990,14 @@ FIRE_DEVIL_IGNIA_SPECIAL_ATTACK_A_END = {
 function FIRE_DEVIL_IGNIA_SPECIAL_ATTACK_B_FIRE_FRAME_MOVE(slot0, slot1, slot2)
 	if slot2:AnimEventTimer_LUA(0.296) then
 		for slot7 = 0, slot1:GetNPCUnitListSize() - 1 do
-			if slot1:GetNPCUnit(slot7) ~= nil and slot2:GetUID() ~= slot8:GetUID() and slot8:GetClassType() == NPC_CLASS_TYPE.NCT_BASIC then
+			-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped
+			-- this assignment and inlined the call into the condition; the port
+			-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+			-- FIRE_DEVIL_IGNIA.src.lua::FIRE_DEVIL_IGNIA_SPECIAL_ATTACK_B_FIRE_FRAME_MOVE,
+			-- dropped-assignment.
+			slot8 = slot1:GetNPCUnit(slot7)
+
+			if slot8 ~= nil and slot2:GetUID() ~= slot8:GetUID() and slot8:GetClassType() == NPC_CLASS_TYPE.NCT_BASIC then
 				if slot8:GetNowStateID() == slot8:GetStateID_LUA("DYING_WAIT") then
 					slot8:StateChange_LUA("DYING_UP", true)
 				end
@@ -1086,7 +1139,15 @@ function FIRE_DEVIL_IGNIA_SPECIALATTACK_A_CHECK_FRAG(slot0, slot1, slot2)
 end
 
 function CF_FIRE_DEVIL_IGNIA_SPECIAL_ATTACK_B_READY(slot0, slot1, slot2)
-	if slot1:GetInt_LUA(0) <= 0 then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): elstools' decompile dropped this
+	-- assignment (slot3, read again below as slot1:SetInt_LUA(0, slot3 - 1))
+	-- and inlined the call into the condition; the port carried the bug
+	-- verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- FIRE_DEVIL_IGNIA.src.lua::CF_FIRE_DEVIL_IGNIA_SPECIAL_ATTACK_B_READY,
+	-- dropped-assignment.
+	slot3 = slot1:GetInt_LUA(0)
+
+	if slot3 <= 0 then
 		return false
 	end
 
@@ -1094,9 +1155,17 @@ function CF_FIRE_DEVIL_IGNIA_SPECIAL_ATTACK_B_READY(slot0, slot1, slot2)
 		return false
 	end
 
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-28): same class of bug -- slot5's own
+	-- init (0) and slot10's assignment were both dropped and folded into the
+	-- loop condition/counter, leaving `slot5 = 0 + 1` recompute 1 every hit
+	-- instead of accumulating. See the function's leading comment.
+	slot5 = 0
+
 	for slot9 = 0, slot1:GetNPCUnitListSize() - 1 do
-		if slot1:GetNPCUnit(slot9) ~= nil and slot2:GetUID() ~= slot10:GetUID() and slot10:GetClassType() == NPC_CLASS_TYPE.NCT_BASIC and slot10:GetNowStateID() == slot10:GetStateID_LUA("DYING_WAIT") then
-			slot5 = 0 + 1
+		slot10 = slot1:GetNPCUnit(slot9)
+
+		if slot10 ~= nil and slot2:GetUID() ~= slot10:GetUID() and slot10:GetClassType() == NPC_CLASS_TYPE.NCT_BASIC and slot10:GetNowStateID() == slot10:GetStateID_LUA("DYING_WAIT") then
+			slot5 = slot5 + 1
 		end
 	end
 
