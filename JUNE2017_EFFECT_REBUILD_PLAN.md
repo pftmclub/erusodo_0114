@@ -68,6 +68,7 @@ Work in this plan is one of two kinds:
 | 7a step 1: identify OnFrameMove + callees | Identification | **Opus, high** |
 | 7a step 2, 7b, 7c | Transcription, once 7a has confirmed the functions | Sonnet 5, high, then an Opus review |
 | 7d: DamageReact, AttackResult | Behaviour is subtle | **Opus, high** |
+| 7e: touch-land, hit effect set, die-create NPC | Transcription (identified in 7d), one argument mapping | Sonnet 5, high, then Opus review |
 | 8a: existing keys, June semantics | Did the semantics change? | **Opus, high** |
 | 8b: new keys, systems exist | Transcription | Sonnet 5, high |
 | 8c: absent systems, enum tables | Deciding how to stand up an absent system | **Opus, high** |
@@ -275,7 +276,8 @@ loader, not the die loader. `31f68f30` is the **die** body, not the hit one. `31
 authoritative, with 46 rows of evidence; this table only summarises it.
 | `31f88790` | **`CEffect::OnFrameMove`**, CEffect's **only** virtual (Phase 0 said deleting dtor: wrong, it ends `RET 0xc`) | confirmed (Phase 7a) |
 | `31f79fb0` | `CX2DamageEffect::OnFrameMove` (calls `31f88790` as `vtable[0]`) | confirmed (Phase 7a) |
-| `31f85910` | **not** OnFrameMove: on the damage manager's `DamageCheck` chain (`3262f5a0` → `3262b6e0`) | candidate (Phase 7d/9) |
+| `31f85910` | **`CEffect::AttackResult`**, not OnFrameMove: called at the end of EffectToUnit `3262b6e0` | confirmed (Phase 7d) |
+| `31f6f600` | `CEffect::DamageReact` (March's line for line) | confirmed (Phase 7d) |
 | `31f83aa0` | `CEffect::OnFrameMove_LockOnData` | confirmed (Phase 7a) |
 | `31c895d0`, `31c8d140` | KTDGXMeshPlayer templet parse? | **candidate** (`__FILEW__` xref only) |
 | `31fbe4a0` | — | **not ours**: its strings are UI-guide keys. Excluded |
@@ -1814,7 +1816,7 @@ Things the next phases should know:
   | Item | June | Owner |
   |---|---|---|
   | Die-condition evaluator | `31f765b0` @`31f888e5` | Phase 7c |
-  | Touch-land check | `31f83380` @`31f8a38b` | Phase 7c |
+  | Touch-land check | `31f83380` @`31f8a38b` | Phase 7e (7c left it) |
   | `CREATE_DAMAGE_EFFECT` loop (child effect via `31f8ff00`, `IGNORE_MI_HUGE`-style scale `31f6fdc0`, `INHERIT_*`, `AUTO_DIE`, `SET_GROUP_ID`, loop counters `+0x90`/`+0x98`) | `31f89312`–`31f89fa4` | Phase 7c |
   | First-frame copy of templet vectors into per-instance lists | `31f8a4b1`–`31f8a63c` | 7c |
   | Per-frame owner-rotation refresh of `+0x118` | `31f887a8` | — |
@@ -2039,6 +2041,77 @@ the Lua values through June's formula. Update the matrix and MODS.md.
 
 ## Phase 7d — Runtime: DamageReact, AttackResult
 
+**Status: done 2026-09-28, built and deployed, not play-tested.** `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`
+is extended in `X2DamageEffect.cpp` and `X2DamageManager.cpp`. New `JUNE_FX CE_HIT` lines sit behind
+`SERV_IRUHADEV_JUNE_FX_DEBUG`. The matrix has 16 `7d` runtime rows. Phase 7c's 19 notes, which had
+been hand-written into the generated matrix, now live in `census.py` too, so a rerun keeps them. The
+functions are in `funcmap.tsv` (4 rows updated, 9 added); full detail is in `MODS.md`.
+
+**None of the new branches can fire on the deployed data.** A constant scan of the packed Sep 27
+`DamageEffect.lua` finds no `RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT`, `INHERIT_CRITICAL_*`,
+`INHERIT_DAMAGE` or `INHERIT_LIFE_TIME`. Only two 7d changes reach live data:
+- the hit/die `SCALE_*` change: 3 hit and 10 die entries have a non-1 scale, e.g.
+  `DamageEffect_Elesis_SBH_Dash_Combo_X_Explosion` at 0.75 and `DamageEffect_ASD_Dragon_Falling_Explosion`
+  at 2;
+- the `ONLY_RELATIONSHIP` guard: 1 use in the data.
+
+Things the next phases should know:
+
+- **Identification.**
+
+  | June VA | Function | Evidence |
+  |---|---|---|
+  | `31f85910` | `AttackResult` | decompiled; the `reActResult` switch and tail match March |
+  | `31f6f600` | `DamageReact` | its one caller is the UnitToEffect body `326413c0` (via `32622280` → `32649c80`); the body is March's line for line and reads no June key |
+  | `31f831e0` / `31f810c0` | `SetHitDamageEffect` / `CreateHitDamageEffect` | reached from AttackResult |
+  | `31f83400` / `31f82210` | die wrapper / `CreateDieDamageEffect` | reached from `DestroyInstanceHandle` |
+  | `31f81ba0` | touch-land spawner | reached from `31f83380` |
+  | `31f8af50` | INHERIT_CRITICAL_* helper | its three callers are the spawners above |
+  | `31f8fdb0` | parent → child state copy | its callers are listed in `funcmap.tsv` |
+  | `31f6fdc0` | June `SetScale` | writes main, passive, hit and die scales |
+
+  `funcmap.tsv` also records June's `DamageEffectData` field layout.
+- **Transcribed:**
+  - `RESET_…`: AttackResult `@31f881b6-31f881fe`. The gate is `>= 0`, so 0 restarts the clock.
+  - `INHERIT_CRITICAL_*`: `+=` onto hit and die children only. June also does it for
+    touch-land children, whose runtime is Phase 7e's.
+  - `INHERIT_LIFE_TIME` in the hit and die scopes.
+  - `INHERIT_DAMAGE`:
+    - Its reader is **not** DamageReact/AttackResult, as 7c said.
+    - `31f8fdb0 @31f8feb1-31f8fecc` copies the parent's `damage` at spawn.
+    - `31f799c0 @31f79b54-31f79b75` carries it across `DAMAGE_DATA_NEXT`.
+    - Only the CREATE_DAMAGE_EFFECT loop sets the child's flag.
+  - `ONLY_RELATIONSHIP`: June skips non-user defenders. March `static_cast`s every defender.
+  - Hit/die `SCALE_X/Y/Z`: March parsed them and never applied them. June sets the child's
+    scale to `entry * parent hit|die scale`.
+- **Classified, no code:**
+  - `REACT_ANIMSPEED`: `same`. March's `SKILL_CASH_10_TEST` block, `@31f86ad5`.
+  - `USE_ADVANCE_COLLISIOIN_CHECK`: `deferred` to Phase 9 (handoff in Phase 9's section).
+  - AttackResult also forwards `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`+0xb32`) into the
+    effect sets it creates. That key is already `unsupported`, so this is noted only.
+- **AttackResult's other June differences read DamageData keys.** They are handed to Phase 8b
+  (table in its section).
+- **The three June-only sub-tables' runtime is Phase 7e's** (added 2026-09-29):
+  `TOUCH_LAND_DAMAGE_EFFECT%d`, `HIT_EFFECT_SET%d`, `DIE_CREATE_NPC%d`. Phase 6b parsed them, and
+  7c and 7d left them unported. Phase 7e's section has the identified June functions
+  (`31f83380`/`31f81ba0`, `31f70130`, `31f70330`) and what each does.
+- **Left without a runtime row, by design:**
+  - `DE.top`'s sub-table names: their keys carry their own rows.
+  - The `_ULTIMATE` variants: `m_bUseUltimateDamageData` is still forced false.
+  - `APPLIED_SKILL_ID`: `unsupported`.
+- **Play-test targets:**
+  - Parents `DamageEffect_Elesis_SBH_Dash_Combo_X/XX/XXX` have `_Explosion` hit children at
+    0.75 scale. Elesis is compiled in (`NEW_CHARACTER_EL` ON); which class and skill fires them
+    through `EffectSet.lua` was not traced.
+  - Die children:
+    - `DamageEffect_ASD_Dragon_Falling_DOWN(_DAMAGE)` → `_Explosion` at (2, 1, 2);
+    - `DamageEffect_SBH_Fire_Works` → `_Dying_Shrapnel` at 0.66;
+    - `DamageEffect_SA_ALD_WOLF_Break3(_Special)` → `_EXPLOSION(_Special)`.
+  - The one `ONLY_RELATIONSHIP` user needs a relationship partner, which offline play probably
+    lacks, so its guard is unlikely to be exercised.
+  - With `SERV_IRUHADEV_JUNE_FX_DEBUG`, expect `JUNE_FX CE_HIT … HIT_DAMAGE_EFFECT_SCALE` /
+    `DIE_DAMAGE_EFFECT_SCALE`.
+
 **Paste with:** Starting context + this section.
 
 **Model:** Sonnet 5, high. See "Model and effort per phase".
@@ -2068,6 +2141,139 @@ record what it needs and hand it to Phase 9 rather than widening this phase.
 
 CP949 byte-level edits only. Build, deploy, ASK before launching. Done when every CEffect
 key in the matrix is implemented or classified. Update the matrix and MODS.md.
+```
+
+---
+
+## Phase 7e — Runtime: TOUCH_LAND_DAMAGE_EFFECT, HIT_EFFECT_SET, DIE_CREATE_NPC
+
+**Status: not started.** Added 2026-09-29 so that the three June-only sub-tables have an owner.
+Phase 6b parsed them. Phases 7c and 7d both left their runtime unported. The identification
+below was done at the end of Phase 7d: the functions are named and the main branches read.
+What is left is mostly transcription.
+
+**Paste with:** Starting context + this section.
+
+**Model:** Sonnet 5, high, then an Opus review. Identification is done, and the roles are
+recorded in `funcmap.tsv`. Switch to Opus only if one of the open questions below needs a new
+function identified.
+
+**Nothing can be play-tested on this build's data.**
+- The deployed `DamageEffect.lua` (packed Sep 27) has no use of any of the three sub-tables.
+- June's own data has four users, all Rose (RMH):
+  - `DamageEffect_A_RMH_KS_83_Grenade`: `TOUCH_LAND_DAMAGE_EFFECT` → `…_Grenade_Landing`.
+  - `DamageEffect_A_RMH_All_Bomb_Ultimate_AddMeca` and `DamageEffect_SA_RMH_Meca_Drop_Drop`:
+    `DIE_CREATE_NPC`, `NUI_P_RMH_MECHANIC_MASTERY`.
+  - `DamageEffect_A_RMH_Meca_Drop_RX_78_Summon_Land_Runner`: `DIE_CREATE_NPC`,
+    `NUI_SI_SA_RG_RX78_LAND_RUNNER`, `EVENT_TIME = 0`.
+- `HIT_EFFECT_SET` is binary-only: no June data uses it.
+- So the exit is a clean build plus code that matches the cited branches. The log check waits
+  for Phase 11 (June data) or Rose.
+
+**June source, identified in Phase 7d.** Scans for the three templet lists' offsets found one
+runtime reader each.
+
+| Sub-table | Templet list (CEffect) | Loader (6b) | Runtime | Called from |
+|---|---|---|---|---|
+| `TOUCH_LAND_DAMAGE_EFFECT%d` | `+0xa8` (`DamageEffectData*`, stride `0xb8`) | `31f76a90` (`add ebx,0xa8` @`31f76b36`) | check `31f83380`, then spawner `31f81ba0` | OnFrameMove `31f88790` @`31f8a38b` only |
+| `HIT_EFFECT_SET%d` | `+0xb8` (`HitEffectSetData*`) | `31f64c80` (`add esi,0xb8` @`31f64d10`) | `31f70130` | AttackResult `31f85910` @`31f87b1a` only |
+| `DIE_CREATE_NPC%d` | `+0xc8` (value entries, stride 8) | `31f66230` (`add esi,0xc8` @`31f662a7`) | `31f70330` | every die path: OnFrameMove @`31f88847`/`31f8aa28`/`31f8aa7b`, `DestroyInstanceHandle` `31f83830` @`31f838b6`, `31f83960` @`31f839e3`, and the lock-on prelude `31f83aa0` @`31f83c59` (when `31f75e20` returns true, before the die wrapper `31f83400` and the handle destroy) |
+
+The only other readers of these offsets in `31f60000`–`31f90000` are the ctor and `~CEffect`
+(`31f78550`, which frees `+0xb8` at `31f793cb`–`31f7945a`). Hits outside that range are other structs.
+
+**What each runtime does** (decompiled: `june2017_re/ghidra/dec_0x31f83380.c`, `dec_0x31f70130.c`,
+`dec_0x31f70330.c`):
+
+- **Touch-land: `31f83380`, with its gate in OnFrameMove `@31f8a300-31f8a38b`.**
+  - **The gate.**
+    - It sits after a `GetLandPosition( m_BeforePos )` probe.
+    - It needs all three main-mesh y velocity components below the comparison value: `+0x47c`,
+      then `+0x550` (triple `+0x54c`) `@31f8a31f`, then `+0x538` (triple `+0x534`) `@31f8a354`.
+    - Read that comparison value exactly. It is the x87 value left on the stack before
+      `31f8a318`. **Emulate it** rather than hand-trace it; see Phase 7a's emulator note.
+  - The probe is recorded in `funcmap.tsv`'s `31f83380` row.
+  - **The body.**
+    - For each templet entry, `31f8e750( entry )` copies it into the per-call scratch list
+      `+0xa38`.
+    - `31f81ba0( +0xa38 )` then spawns the children, and the scratch list is freed.
+  - **The spawner `31f81ba0`** has the same post-create shape as the hit spawner `31f810c0`
+    (see Phase 7d and the `funcmap.tsv` row). After `CreateInstance` (`31f8ff00`) it calls:
+    - `31f8af50`, the INHERIT_CRITICAL_* helper, `@31f81ffd`;
+    - `31f8fdb0`, the child-state copy, `@31f82005`.
+  - **Open question:** whether it can fire more than once per effect. `31f83380` has no once-flag
+    of its own. Check whether the effect dies on landing, or whether the gate re-arms.
+  - **March target.** A new `CEffect::JuneTouchLandDamageEffect()` called from `OnFrameMove` at
+    the same point: after the `DamageCheck` calls (`@31f8a1b3`/`@31f8a1fc`), right before the
+    `DAMAGE_DATA_CHANGE_TIME` block (`@31f8a394`). Build it on
+    `CreateHitDamageEffect`'s shape over `m_DamageEffectDataInLua.m_vecTouchLandDamageEffect`, and
+    reuse Phase 7d's INHERIT_CRITICAL_* / INHERIT_LIFE_TIME / scale blocks. Read `31f81ba0`'s
+    position switch and scale lines instead of assuming they match the hit spawner's.
+- **HIT_EFFECT_SET: `31f70130( a, b )`.**
+  - AttackResult calls it right after `SetHitParticle` (`31f76970`, candidate) and
+    `SetHitDamageEffect` (`31f831e0`). That puts it inside March's `bCreateHitEffect == true`
+    branch (`X2DamageEffect.cpp`, after `SetHitDamageEffect()`).
+  - The two pushed args are `EDI` / `EBP` at `@31f87b16-31f87b17`. They are probably the owner
+    and the defender unit. **Confirm which is which** from AttackResult's register use; both
+    must be non-null.
+  - For each entry it calls `PlayEffectSet( EFFECT_SET_NAME (+0x4), a, b, … )` through the typed
+    `g_pX2Game` fetch → `GetEffectSet` (`322ceae0`) → `321e1e60`. It passes power rate
+    `+0x1d8` and scale `(1,1,1)`.
+  - **`EVENT_TIME` (entry `+0x0`) is not read**; only `+0x4` is. Record it as parsed-not-used
+    rather than invent a delay.
+  - March target: a new `CEffect::JuneSetHitEffectSet( pOwner, pDefender )` over
+    `m_vecHitEffectSet`, using the `PlayEffectSet` overload March already calls in
+    `RT_CREATE_EFFECT_SET`.
+- **DIE_CREATE_NPC: `31f70330`.**
+  - It runs only with `g_pX2Game` and a live owner (`+0x1dc`).
+  - For each entry it calls `31f8b010( NPC_ID (+0x4), …, pos = CEffect +0x1f4/+0x1f8/+0x1fc, … )`.
+    The other arguments come from the owner:
+    - the XOR-protected value at owner `+0x278..+0x280` (probably the level: identify it);
+    - `GetUnitUID` (slot `0x54`);
+    - slot `0x170`, and slot `0x198` (a bool; AttackResult uses it as "is local unit").
+  - `31f8b010` has 18 callers across the NPC/AI code (`3298xxxx`–`32bfxxxx`), so it is a general
+    create-NPC request. Its March counterpart is `CX2Game::CreateNPCReq` (`X2Game.cpp:6610`/
+    `:6628`). Map its argument list onto one of those two overloads; that is this phase's one
+    identification step.
+  - **`EVENT_TIME` (entry `+0x0`) is not read here either.**
+  - **Not a wire change.** `CreateNPCReq` sends `EGS_NPC_UNIT_CREATE_REQ`, which the offline
+    emulator already answers (`X2OfflineServer.cpp:642`). Also check that only the local owner
+    sends it, or every peer will create a copy.
+  - `funcmap.tsv` used to call `31f70330` "SetDieDamageEffect?". That was wrong. June's die
+    damage effect is `31f83400`, the call right after it on every die path.
+  - March target: a new `CEffect::JuneDieCreateNpc()`, called just before the existing
+    `SetDieDamageEffect()` on each March die path. These are OnFrameMove's die gates and
+    `CX2DamageEffect::DestroyInstanceHandle`; match June's six call sites.
+
+**Scope.** Every key in the matrix's `DE.TOUCH_LAND_DAMAGE_EFFECT`, `DE.HIT_EFFECT_SET` and
+`DE.DIE_CREATE_NPC` sections, plus `DE.top`'s `TOUCH_LAND_DAMAGE_EFFECT%d` / `DIE_CREATE_NPC%d`
+rows. The `census.py` `RUNTIME` rows for them say `7e` / `deferred`; move each to `done` as it is
+transcribed. The flag is `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME` (extend it). Log with
+`JuneFxHit` (`JUNE_FX CE_HIT`), throttled.
+
+**Exit criteria.**
+- Each key's `RUNTIME` row is `done`, or `-` with a reason (e.g. `EVENT_TIME` not read).
+- The build is clean.
+- `JUNE_FX CE_HIT TOUCH_LAND` / `HIT_EFFECT_SET` / `DIE_CREATE_NPC` lines are coded. Seeing them
+  fire waits for Phase 11 or Rose; say so in MODS.
+
+**Kickoff prompt**:
+```
+Continuing the June2017 effect-engine rebuild. Read JUNE2017_EFFECT_REBUILD_PLAN.md
+("Starting context" rules, "Investigation ledger", "Phase 7d", "Phase 7e"),
+june2017_re/README.md, funcmap.tsv, and the matrix. Phases 7a-7d are done (extend
+SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME). Branch: mods/lanox-port.
+
+Your task: transcribe the runtime of the three June-only sub-tables, which Phase 7d already
+identified: TOUCH_LAND_DAMAGE_EFFECT (gate in OnFrameMove @31f8a300-31f8a38b, check 31f83380,
+spawner 31f81ba0), HIT_EFFECT_SET (31f70130, from AttackResult @31f87b1a) and DIE_CREATE_NPC
+(31f70330, on every die path; map its callee 31f8b010 onto CX2Game::CreateNPCReq first).
+Emulate the touch-land gate's x87 compare rather than hand-trace it. Cite June address
+ranges; move the 7e RUNTIME rows in census.py to done and rerun it.
+
+CP949 byte-level edits only. Build, deploy, ASK before launching. No deployed data uses
+these sub-tables: done when every 7e row is done or classified and the build is clean.
+Update the matrix and MODS.md.
 ```
 
 ---
@@ -2134,6 +2340,25 @@ verified against the census:
 **Parse and consume both, in this phase.** Each key's consumer is usually in
 `X2DamageManager.cpp` (hit resolution) or in the unit's damage-taken path. Find June's
 consumer with `xrefs` on the member's write site, and transcribe it.
+
+**Consumers found in AttackResult (`31f85910`) by Phase 7d, not ported.** The DamageData offsets
+were mapped to keys through `SetDamageDataFromLUA`'s getter destinations. CEffect `+0x200` is
+`m_DamageData`.
+
+| Key (DamageData offset) | Read in AttackResult | What June does |
+|---|---|---|
+| `CREATE_EFFECT_SET_TRACE_UNIT` (`+0x4c0`) | `@31f86173`, `@31f867bf` | case `0xc` (RT_CREATE_EFFECT_SET): trace-unit choice (March has it); also copied into the created set |
+| `CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME` (`+0x4c1`) | `@31f861a1` | case `0xc`: the set's life = main effect max − now life (mesh `+0x44c` − `+0x448`) |
+| `CREATE_EFFECT_SET_MAIN_EFFECT_DELAYTIME` (`+0x4c2`) | `@31f86755` | case `0xc` tail: set instance `+0x5c` = main effect max − now life |
+| `TRACE_NEAREST_BONE` (`+0x4c3`) | `@31f8678b` | case `0xc` tail: calls `321da350` when a trace unit exists |
+| `TRACE_UNIT_DIE_DELETE_EFFECT_SET` (`+0x4c4`) | `@31f867b2` | case `0xc` tail: copied into the set (March `TRACE_UNIT_DIE_DELETE_EFFECTSET`) |
+| `MAKE_TARGET` (`+0x5c1`) | `@31f86a9d` | default case: stores the defender's UID and type into the owner (`+0x6898..+0x68a0`) |
+| (no key) `+0x5a4` / `+0x5a8` | `@31f860fd`, `@31f867cb` | copied into RT_CREATE_DAMAGE_EFFECT children and created sets (`+0x7a4`/`+0x7a8` in CEffect); also copied by the hit/die spawners |
+
+The MP/soul block's gates at `+0x6dc`/`+0x704`/`+0x708`/`+0x788` are March's existing `NO_DAMAGE`,
+`HP_PERCENT_UP`, `MP_PERCENT_UP` and `INCREASE_MP`. They are not new. The block's own formula has
+more June-only terms (`31f86937`–`31f877xx`) that were not compared field by field. Read them
+when a key here needs it.
 
 **Split rule.** If one conversation can't hold it all, do the damage-math keys first
 (ignore-defence, PvP rate, division), commit, and write the resume point here.
@@ -2224,7 +2449,20 @@ reports 0 unclassified DamageData keys. Update the matrix and MODS.md.
 - §4.6: the direction of the effect-to-NPC test.
 - §4.7: the units of `ATTACK_TIME_START/END`.
 - §4.8: whether `USE_CANNONBALL` is user-only.
-- `USE_ADVANCE_COLLISIOIN_CHECK`, if Phase 7d handed it over.
+- `USE_ADVANCE_COLLISIOIN_CHECK`: **handed over by Phase 7d.** What it needs:
+  - The ctor stores it at CEffect `+0xb31` (`31f7aab0@31f7c4d3`).
+  - Its only reader is EffectToUnit `3262b6e0`. That function inlines CollisionDataCheck over the
+    main effect's attack list × the defender's collision set.
+  - At `@3262bc1c` it is loaded into the stack local `[esp+0x43]`.
+  - The only real read of that local is `@3262e976`, inside the per-sphere geometry. When set, it
+    takes a segment-style branch (`3262e981`–`3262ec5d`: two distance compares, else `31c7b640`).
+    It is presumably a swept test between an attack sphere's previous and current centres. Verify
+    that; it is not settled.
+  - **Trap:** the same slot is reused as the miss flag after DamageReact (`@3262f1ad` / `@3262f1c0`,
+    read `@3262f212`). Only the read before `3262f000` is the key's.
+  - March's `CKTDXCollision::CollisionDataCheck` has no such variant, so this needs a new collision
+    entry point.
+  - No deployed `DamageEffect.lua` uses the key (Sep 27 packed file).
 
 **Named test case.** The Ranox projectile that "renders but hits nothing". Pick it from
 `RANOX_EFFECT_RUNTIME_UNKNOWNS.md`.

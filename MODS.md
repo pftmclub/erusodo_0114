@@ -1887,7 +1887,7 @@ code never had:
 | `LOOP_ADD_POS_X/Y/Z` | `31f89b9d-31f89c1f` | `vPosition += vLoopAddPos * (float)uiCreateCount`: world-space, cumulative through the spawn counter (computed fresh from the base position every spawn, not an accumulated running sum), added after the existing rotated-offset/plain-offset composition and before `CreateInstance`. |
 | `SET_DIE_WHEN_MASTER_EFFECT_DIE` | write `31f89e77-31f89e95`, read `31f886c0` | The parent pushes the new child's handle onto its own list, `m_vecDieWithMasterChildEffects` (June `CEffect+0x8d4`). The one reader, `31f886c0`, is called only from June's `DestroyInstanceHandle` `31f83830` @`31f838c5`, after the die block and before the critical-loop test. It copies the list and destroys each child with `DestroyInstanceHandle( child, false )`, so the children play their own die effects. Ported into `CX2DamageEffect::DestroyInstanceHandle` at the same point. **A parent that simply runs out of life does not take its children with it** (June has no other caller); an explicit destroy does, e.g. the trap's Lua `StopEffectSet` every 5 s. |
 | `INHERIT_LIFE_TIME` | `31f89dc1-31f89dfc` | Copies the parent main effect's `GetNowLifeTime()` onto the child main effect (`CKTDGXMeshPlayer::CXMeshInstance::SetNowLifeTime`, already public), so the child continues the parent's life clock instead of starting at 0. Both main effects must be live. |
-| `INHERIT_DAMAGE` | `31f89cf5-31f89cfb` | Propagates the flag onto the child (`CEffect::m_bInheritDamageFromMaster` / `SetInheritDamageFromMaster`), exactly as June's own binary does at spawn time. **The child's own damage-inheriting behaviour at hit time is `DamageReact`/`AttackResult`, Phase 7d** -- this phase only carries the flag, same as Phase 6b left `INHERITLOCKONDATA` for the die-effect side. |
+| `INHERIT_DAMAGE` | `31f89cf5-31f89cfb` | Propagates the flag onto the child (`CEffect::m_bInheritDamageFromMaster` / `SetInheritDamageFromMaster`), exactly as June's own binary does at spawn time. *(Corrected by Phase 7d: the flag's readers are not `DamageReact`/`AttackResult`. They are June `31f8fdb0 @31f8feb1-31f8fecc`, which copies the parent's damage onto the child at spawn, and `SetDamageDataNext 31f799c0 @31f79b54-31f79b75`, which carries it across a `DAMAGE_DATA_NEXT` change. Both are now ported; see the Phase 7d section.)* |
 
 **Already correct, no new code (confirmed by re-reading June and citing the live flag):**
 `APPLY_ROTATED_OFFSET`/`APPLY_ROTATE_ORIGIN` (the existing rotated-offset branch, always compiled),
@@ -1912,7 +1912,7 @@ unit via the same `GetUserUnitByUID`/`GetNPCUnitByUID` lookups used everywhere e
 inside the same `OnFrameMove`) is tagged "Phase 7c" from Phase 7a's survey, but the kickoff's named
 scope is LOOP_*/`SET_DIE_WHEN_MASTER_EFFECT_DIE`/`INHERIT_*`/`SET_GROUP_ID`/`AUTO_DIE`/rotate
 offset-origin/die conditions only. Left unported, alongside `TOUCH_LAND_DAMAGE_EFFECT`'s own
-runtime, for a future phase.
+runtime, for a future phase. *(Now Phase 7e, added 2026-09-29.)*
 
 **Named test case:** `DAMAGE_EFFECT_Trap_Fire_Big` (deployed `data036_kom/DamageEffect.lua`, spawned
 by the `NPC_TRAP_FIRE_BIG` templet's `EffectSet_Trap_Fire_Big`). All four `CREATE_DAMAGE_EFFECT0-3`
@@ -1958,7 +1958,7 @@ Kept, not changed:
   ones: merging them would edit studio `#ifdef` lines.
 - A child-polls-master design: June has the parent destroy its children.
 
-Noted: `GetInheritDamageFromMaster` has no reader yet; that is Phase 7d's hit path.
+Noted: `GetInheritDamageFromMaster` had no reader yet. *(Phase 7d: `m_bInheritDamageFromMaster` is now read by `SetDamageDataNextByChainIndex`, and the spawn-time damage copy sits next to `SetInheritDamageFromMaster( true )`. It is not on the hit path.)*
 
 Not a 7c defect, recorded: in Burned Forest (33270) the `NPC_TRAP_FIRE_BIG` (1703) is placed
 (stage 1 sub 2, `INACTIVE`) but its `EffectSet_Trap_Fire_Big` never plays, so
@@ -1969,6 +1969,75 @@ Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`. Every site keeps Mar
 behaviour in `#else` (the LOOP scheduling/termination edits nest inside the studio's own dead
 `LOOP_CREATE_DAMAGE_EFFECT` `#else`) or is a pure addition (`m_vecDieWithMasterChildEffects`,
 `m_bInheritDamageFromMaster`, the die-check `||` term, `JuneEvaluateDieCheckCondition` itself).
+
+### June2017 effect engine: DamageEffect hit-response runtime (Phase 7d)
+
+Phase 7d of `JUNE2017_EFFECT_REBUILD_PLAN.md`. It extends **`SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`**
+(no new flag) in `X2Lib/X2DamageEffect.cpp` and `X2Lib/X2DamageManager.cpp`; `KTDXLIB/Always.h`
+changes only in the flag's description. Diagnostics use a new `JUNE_FX CE_HIT` line, throttled to
+one a second per (effect, branch), behind `SERV_IRUHADEV_JUNE_FX_DEBUG`. No header changed.
+
+**Identification** (Ghidra `decompile_function` plus capstone scans; all in `june2017_re/funcmap.tsv`):
+- June `CEffect::AttackResult` is `31f85910`. Phase 7b had it as a lead.
+- `CEffect::DamageReact` is `31f6f600`. Its one caller is UnitToEffect's per-effect body `326413c0`.
+  The body is March's line for line, with no June key and no behaviour change.
+- The hit spawner is `31f810c0`, behind `SetHitDamageEffect` `31f831e0`, which AttackResult calls.
+- The die spawner is `31f82210`, behind the die wrapper `31f83400`, which `DestroyInstanceHandle`
+  calls.
+- Each key's reader was found by scanning `.text` for the CEffect offset the ctor stores it at.
+
+| Key | June | What changed |
+|---|---|---|
+| `RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT` | `31f85910 @31f881b6-31f881fe` | In `AttackResult`, right after `m_DamageTimeNow++` and before the `DAMAGE_TIME` die test: when the rate is `>= 0`, the main effect's now-life = max-life × rate. 0 restarts the clock; the default −1 does nothing. The mesh offsets were confirmed against June's `CXMeshInstance` life update (`31c82fbf`) and ctor (`31c8d44d`). |
+| `INHERIT_CRITICAL_RATE` / `INHERIT_CRITICAL_DAMAGE_RATE` | `31f8af50`, called `@31f81987` (hit) / `@31f82f36` (die) | In `CreateHitDamageEffect` / `CreateDieDamageEffect`: the child's `m_fCriticalRate` / `m_fApplyCriticalDamage` **gain** the parent's (`+=`). The June DamageData offsets map to `CRITICAL_RATE` / `APPLY_CRITICAL_DAMAGE_PERCENT` (`32632390@3263c197`/`@3263e629`). June does **not** do this for CREATE_DAMAGE_EFFECT loop children or `RT_CREATE_DAMAGE_EFFECT`. It does do it for touch-land children, whose runtime is Phase 7e's. |
+| `INHERIT_LIFE_TIME` (hit / die scopes) | `31f810c0 @31f819bd-31f819fe`, `31f82210 @31f82f74-31f82fb5` | The child's main effect takes the parent's now-life, as Phase 7c did for the loop. |
+| `INHERIT_DAMAGE` | `31f8fdb0 @31f8feb1-31f8fecc`; `31f799c0 @31f79b54-31f79b75` | Phase 7c's handoff was wrong about where this key is read (corrected in its section and in the code comment). At spawn, right after `SetInheritDamageFromMaster( true )`, the child's `damage.fPhysic` / `fMagic` are set to the parent's. `SetDamageDataNextByChainIndex` then keeps that damage across a `DAMAGE_DATA_NEXT` change. Only the CREATE_DAMAGE_EFFECT loop sets the flag. |
+| `ONLY_RELATIONSHIP` | `3262b6e0 @3262ba35-3262ba49` | In `EffectToUnit`, a defender that is not `GUT_USER` is skipped before March's relationship test. March `static_cast`s any defender, NPCs included, to `CX2GUUser` and reads a relationship UID it doesn't have. The rest of the test is March's. |
+| Hit/die `SCALE_X/Y/Z` (existing keys) | `31f810c0 @31f81a4f-31f81a90`, `31f82210 @31f82fb5-31f83010` | March parsed each entry's scale into `DamageEffectData::vScale` and never used it. June's `SetScale` (`31f6fdc0`) gets `entry scale × parent hit (or die) damage-effect scale`, per component. Replaces `pEffect->SetScale( m_vHitDamageScale / m_vDieDamageScale )`, which stays in `#else`. |
+
+The `DAMAGE_DATA_NEXT` carry writes into `pDamageDataNext`. That object is per instance, not shared
+templet data: every `CEffect` is `new`'d (`X2DamageEffect.cpp:996`/`:1116`), and its own ctor
+allocates `m_DamageEffectDataInLua.m_pDamageDataNext` (`:2004`), which its dtor frees. So an
+inherited value cannot leak into later instances of the same effect.
+
+**Classified, no code:**
+- `REACT_ANIMSPEED`: `same`. `@31f86ad5` is March's `SKILL_CASH_10_TEST` block (ON).
+- `USE_ADVANCE_COLLISIOIN_CHECK`: `deferred`. It is read only inside EffectToUnit's inlined
+  collision test (`@3262e976`), so it is handed to Phase 9 with what it needs; see Phase 9's section
+  of the plan.
+- AttackResult's other June differences read DamageData keys: `CREATE_EFFECT_SET_*`,
+  `TRACE_NEAREST_BONE`, `MAKE_TARGET`. They are handed to Phase 8b as a table in its section.
+
+**`census.py` now holds Phase 7c's runtime notes.** Phase 7c had typed its 20 matrix notes by hand
+into a file that `census.py` regenerates, and the next rerun erased them. They are now `RT_7C`
+rows in `RUNTIME`; INHERIT_DAMAGE's became a `7d` row. The status counts are unchanged, and all
+checks pass.
+
+**What the deployed data reaches:**
+- **The new branches cannot fire on it.** The packed Sep 27 `DamageEffect.lua` (`KL\x81`, plain
+  constants) has no `RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT`, `INHERIT_CRITICAL_*`, `INHERIT_DAMAGE`
+  or `INHERIT_LIFE_TIME`.
+- **Two changes do reach live data:**
+  - `ONLY_RELATIONSHIP`: 1 use.
+  - The scale change: 3 hit and 10 die entries with a non-1 scale. Examples:
+    `DamageEffect_Elesis_SBH_Dash_Combo_X/XX/XXX_Explosion` at 0.75 (hit children of the
+    `…_Dash_Combo_X/XX/XXX` effects); `DamageEffect_ASD_Dragon_Falling_Explosion` at (2, 1, 2) (die
+    child of `DamageEffect_ASD_Dragon_Falling_DOWN(_DAMAGE)`); `DamageEffect_SBH_Fire_Works_Dying_Shrapnel`
+    at 0.66. Elesis is compiled in; which class and skill fires the SBH effects was not traced. The
+    one `ONLY_RELATIONSHIP` user needs a relationship partner, which offline play probably lacks.
+  - Those effects now spawn at their authored size where March drew them at 1×. **This is a visible
+    change.** Check it in play: with the debug flag on, look for
+    `JUNE_FX CE_HIT … HIT_DAMAGE_EFFECT_SCALE` / `DIE_DAMAGE_EFFECT_SCALE`.
+
+**Built `US_SERVICE`** (`touch X2Lib/stdafx.cpp` first; X2ServerProtocol, KTDXLIB, X2Lib and X2,
+all 0 errors) **and deployed to `X2_offline.exe`, 18,947,072 B**, SHA-256 prefix `bc99dc05a2eb4ebd`,
+2026-09-28. **Play-test pending**: ask before launching.
+
+Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`.
+- The scale change keeps March's `SetScale` in `#else`.
+- Everything else is a pure addition: the RESET block, the inherit blocks in both spawners, the
+  loop's damage copy, the `DAMAGE_DATA_NEXT` carry and the `GUT_USER` guard.
+- The loop's `if( bInheritDamage )` grew braces inside Phase 7c's own flagged block.
 
 ### Dryad Kenta (Burned Forest boss): "jumps off the map, never comes back" softlock
 

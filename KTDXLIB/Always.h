@@ -4408,6 +4408,14 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              LOCK_ON_RANGE_FROM_OWNER gate, LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE, and
 //              the per-effect NOT_TARGET_PRE_LOCK_ON_TARGET hit list, filled from
 //              CX2DamageManager::EffectToUnit (X2DamageManager.cpp).
+//              Extended 2026-09-27 (Phase 7c): the CREATE_DAMAGE_EFFECT LOOP_* spawn
+//              loop, SET_DIE_WHEN_MASTER_EFFECT_DIE, INHERIT_LIFE_TIME and the
+//              DAMAGE_EFFECT_DIE_CHECK_CONDITION evaluator.
+//              Extended 2026-09-28 (Phase 7d): hit response. AttackResult
+//              (FUN_31f85910) RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT; the hit/die
+//              spawners' INHERIT_CRITICAL_RATE / INHERIT_CRITICAL_DAMAGE_RATE and
+//              INHERIT_LIFE_TIME; INHERIT_DAMAGE's damage copy and DAMAGE_DATA_NEXT
+//              carry; ONLY_RELATIONSHIP's user-only guard in EffectToUnit.
 //              Needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE (its members).
 #define SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #if defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME) && !defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE)

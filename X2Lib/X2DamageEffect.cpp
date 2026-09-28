@@ -94,6 +94,38 @@ static void JuneFxLockOn( const WCHAR* pwszEffect_, const WCHAR* pwszBranch_, co
 	UNREFERENCED_PARAMETER( pwszFormat_ );
 #endif SERV_IRUHADEV_OFFLINE
 }
+
+// JUNE_FX CE_HIT <effect> <branch> <detail>: one line per June hit-response branch taken (plan
+// Phase 7d: AttackResult, the hit / die / CREATE_DAMAGE_EFFECT spawners, SetDamageDataNext), at
+// most one a second per (effect, branch); the detail is printf-formatted and not part of the
+// throttle key. No-op when SERV_IRUHADEV_OFFLINE is off, as JuneFxCeFrame above.
+static void JuneFxHit( const WCHAR* pwszEffect_, const WCHAR* pwszBranch_, const WCHAR* pwszFormat_, ... )
+{
+#ifdef SERV_IRUHADEV_OFFLINE
+	const WCHAR* pwszEffectName = ( NULL != pwszEffect_ ? pwszEffect_ : L"-" );
+	std::wstring wstrThrottleKey = pwszEffectName;
+	wstrThrottleKey += L"|";
+	wstrThrottleKey += pwszBranch_;
+
+	static std::map<std::wstring, DWORD> s_mapLastLoggedTime;
+	const DWORD dwNow = timeGetTime();
+	std::map<std::wstring, DWORD>::iterator itThrottle = s_mapLastLoggedTime.find( wstrThrottleKey );
+	if( itThrottle != s_mapLastLoggedTime.end() && dwNow - itThrottle->second < 1000 )
+		return;
+	s_mapLastLoggedTime[ wstrThrottleKey ] = dwNow;
+
+	WCHAR wszDetail[256] = L"";
+	va_list args;
+	va_start( args, pwszFormat_ );
+	StringCchVPrintfW( wszDetail, ARRAY_SIZE(wszDetail), pwszFormat_, args );
+	va_end( args );
+	CX2OfflineLog::Server( L"JUNE_FX CE_HIT %s %s %s", pwszEffectName, pwszBranch_, wszDetail );
+#else SERV_IRUHADEV_OFFLINE
+	UNREFERENCED_PARAMETER( pwszEffect_ );
+	UNREFERENCED_PARAMETER( pwszBranch_ );
+	UNREFERENCED_PARAMETER( pwszFormat_ );
+#endif SERV_IRUHADEV_OFFLINE
+}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
@@ -2836,8 +2868,9 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 							// INHERIT_LIFE_TIME @31f89dc1-31f89dfc: copy the parent main effect's
 							// GetNowLifeTime() onto the child main effect, so it continues the parent's life
 							// clock instead of starting at 0.
-							// INHERIT_DAMAGE @31f89cf5-31f89cfb: propagate the flag onto the child; the
-							// child's own hit-time inheriting behaviour is Phase 7d.
+							// INHERIT_DAMAGE @31f89cf5-31f89cfb: propagate the flag onto the child. Its readers
+							// are not DamageReact/AttackResult (Phase 7d): FUN_31f8fdb0 @31f8feb1-31f8fecc copies
+							// the damage below, and SetDamageDataNext 31f799c0 @31f79b54-31f79b75 carries it on.
 							if( true == pData->bSetDieWhenMasterEffectDie )
 								m_vecDieWithMasterChildEffects.push_back( pEffect->GetHandle() );
 
@@ -2849,7 +2882,18 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 							}
 
 							if( true == pData->bInheritDamage )
+							{
 								pEffect->SetInheritDamageFromMaster( true );
+								// June2017 FUN_31f8fdb0 @31f8feb1-31f8fecc (Phase 7d; called @31f89d8b, after the flag
+								// is set): the child takes the parent's damage in place of its own -- DamageData +0x38
+								// PHYSIC / +0x3c MAGIC (SetDamageDataFromLUA 32632390@326357ec / @3263588d), two floats.
+								pEffect->GetDamageData().damage.fPhysic	= m_DamageData.damage.fPhysic;
+								pEffect->GetDamageData().damage.fMagic	= m_DamageData.damage.fMagic;
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+								JuneFxHit( GetName(), L"INHERIT_DAMAGE_SPAWN", L"%s physic=%.3f magic=%.3f",
+									pData->damageEffectName.c_str(), m_DamageData.damage.fPhysic, m_DamageData.damage.fMagic );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+							}
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 							CX2OfflineLog::Server( L"JUNE_FX CE_LOOP %s CREATE_DAMAGE_EFFECT %s spawn=%d/%d pos=(%.3f,%.3f,%.3f) addPos=(%.3f,%.3f,%.3f) dieWithMaster=%d inheritLifeTime=%d inheritDamage=%d",
@@ -5475,6 +5519,26 @@ void CX2DamageEffect::CEffect::AttackResult()
 	}
 
 	m_DamageTimeNow++;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+	// June2017 FUN_31f85910 (AttackResult) @31f881b6-31f881fe: RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT.
+	// After the hit counter moves and before the DAMAGE_TIME die test, a rate >= 0 (0 included: the
+	// clock restarts) puts the main effect's life clock at that fraction of its max life (mesh
+	// +0x448 m_NowLifeTime = +0x44c m_MaxLifeTime * rate; June 31c82fbf / 31c8d44d). The default -1
+	// skips it. June's out-of-line copy 31f75fc0 is the same test and has no caller.
+	if( 0.f <= m_fResetMainEffectLifeTimeRateByHit )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pResetMainEffect = GetMainEffect();
+		if( NULL != pResetMainEffect )
+		{
+			pResetMainEffect->SetNowLifeTime( pResetMainEffect->GetMaxLifeTime() * m_fResetMainEffectLifeTimeRateByHit );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxHit( GetName(), L"RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT", L"rate=%.3f now=%.3f max=%.3f hit=%d/%d",
+				m_fResetMainEffectLifeTimeRateByHit, pResetMainEffect->GetNowLifeTime(), pResetMainEffect->GetMaxLifeTime(),
+				(int)m_DamageTimeNow, (int)m_DamageTime );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 	if( m_DamageTime <= m_DamageTimeNow )
 	{
 		m_bLive = false;
@@ -6677,6 +6741,31 @@ void CX2DamageEffect::CEffect::CreateHitDamageEffect( vector<DamageEffectData*>&
 				/// 버프팩터를 상속함
 				if ( pData->bInheritBuffFactor && !GetDamageData().m_vecBuffFactorPtr.empty() )
 					pEffect->GetDamageData().m_vecBuffFactorPtr = GetDamageData().m_vecBuffFactorPtr;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+				// June2017 FUN_31f810c0 (CreateHitDamageEffect, reached from AttackResult through SetHitDamageEffect 31f831e0) -> FUN_31f8af50 @31f81987: INHERIT_CRITICAL_RATE /
+				// INHERIT_CRITICAL_DAMAGE_RATE add the parent's CRITICAL_RATE / APPLY_CRITICAL_DAMAGE_PERCENT
+				// onto the child's own (DamageData +0x510 / +0x59c, SetDamageDataFromLUA 32632390@3263c197 /
+				// @3263e629). Only the hit, die and touch-land spawners call it, not the
+				// CREATE_DAMAGE_EFFECT loop or RT_CREATE_DAMAGE_EFFECT. @31f819bd-31f819fe: INHERIT_LIFE_TIME
+				// puts the child main effect on the parent's life clock, as the CREATE_DAMAGE_EFFECT loop does.
+				if( true == m_bInheritCriticalRate )
+					pEffect->GetDamageData().m_fCriticalRate += m_DamageData.m_fCriticalRate;
+				if( true == m_bInheritCriticalDamageRate )
+					pEffect->GetDamageData().m_fApplyCriticalDamage += m_DamageData.m_fApplyCriticalDamage;
+				if( true == pData->bInheritLifeTime )
+				{
+					CKTDGXMeshPlayer::CXMeshInstance* pParentMainEffect = pMeshInst;
+					CKTDGXMeshPlayer::CXMeshInstance* pChildMainEffect = pEffect->GetMainEffect();
+					if( NULL != pParentMainEffect && NULL != pChildMainEffect )
+						pChildMainEffect->SetNowLifeTime( pParentMainEffect->GetNowLifeTime() );
+				}
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+				if( true == m_bInheritCriticalRate || true == m_bInheritCriticalDamageRate || true == pData->bInheritLifeTime )
+					JuneFxHit( GetName(), L"HIT_DAMAGE_EFFECT_INHERIT", L"%s critRate=%d->%.3f critDamage=%d->%.3f lifeTime=%d",
+						pData->damageEffectName.c_str(), (int)m_bInheritCriticalRate, pEffect->GetDamageData().m_fCriticalRate,
+						(int)m_bInheritCriticalDamageRate, pEffect->GetDamageData().m_fApplyCriticalDamage, (int)pData->bInheritLifeTime );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 #ifdef NEW_SKILL_2010_11
 	#ifdef SERV_RENA_NIGHT_WATCHER
@@ -6689,7 +6778,19 @@ void CX2DamageEffect::CEffect::CreateHitDamageEffect( vector<DamageEffectData*>&
 				}
 #endif NEW_SKILL_2010_11
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+				// June2017 FUN_31f810c0 @31f81a4f-31f81a9e -> 31f6fdc0 (June CEffect::SetScale: main, passive, hit and
+				// die scales): the child takes this entry's SCALE_X/Y/Z times the parent's hit damage-effect
+				// scale, component by component. March parsed the entry scale and never applied it (Phase 7d).
+				pEffect->SetScale( D3DXVECTOR3( pData->vScale.x * m_vHitDamageScale.x, pData->vScale.y * m_vHitDamageScale.y, pData->vScale.z * m_vHitDamageScale.z ) );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+				if( D3DXVECTOR3( 1.f, 1.f, 1.f ) != pData->vScale )
+					JuneFxHit( GetName(), L"HIT_DAMAGE_EFFECT_SCALE", L"%s entry=(%.3f,%.3f,%.3f) parent=(%.3f,%.3f,%.3f)",
+						pData->damageEffectName.c_str(), pData->vScale.x, pData->vScale.y, pData->vScale.z, m_vHitDamageScale.x, m_vHitDamageScale.y, m_vHitDamageScale.z );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 				pEffect->SetScale( m_vHitDamageScale );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #ifdef GIANT_UNIT_GIANT_EFFECT_TEST
 				pEffect->SetScaleByUnit( m_vHitDamageScaleByUnit );
 #endif GIANT_UNIT_GIANT_EFFECT_TEST
@@ -6996,8 +7097,45 @@ void CX2DamageEffect::CEffect::CreateDieDamageEffect( vector<DamageEffectData*>&
 				/// 버프팩터를 상속함
 				if ( pData->bInheritBuffFactor && !GetDamageData().m_vecBuffFactorPtr.empty() )
 					pEffect->GetDamageData().m_vecBuffFactorPtr = GetDamageData().m_vecBuffFactorPtr;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+				// June2017 FUN_31f82210 (CreateDieDamageEffect, reached from the die paths through 31f83400) -> FUN_31f8af50 @31f82f36: INHERIT_CRITICAL_RATE /
+				// INHERIT_CRITICAL_DAMAGE_RATE add the parent's CRITICAL_RATE / APPLY_CRITICAL_DAMAGE_PERCENT
+				// onto the child's own (DamageData +0x510 / +0x59c, SetDamageDataFromLUA 32632390@3263c197 /
+				// @3263e629). Only the hit, die and touch-land spawners call it, not the
+				// CREATE_DAMAGE_EFFECT loop or RT_CREATE_DAMAGE_EFFECT. @31f82f74-31f82fb5: INHERIT_LIFE_TIME
+				// puts the child main effect on the parent's life clock, as the CREATE_DAMAGE_EFFECT loop does.
+				if( true == m_bInheritCriticalRate )
+					pEffect->GetDamageData().m_fCriticalRate += m_DamageData.m_fCriticalRate;
+				if( true == m_bInheritCriticalDamageRate )
+					pEffect->GetDamageData().m_fApplyCriticalDamage += m_DamageData.m_fApplyCriticalDamage;
+				if( true == pData->bInheritLifeTime )
+				{
+					CKTDGXMeshPlayer::CXMeshInstance* pParentMainEffect = GetMainEffect();
+					CKTDGXMeshPlayer::CXMeshInstance* pChildMainEffect = pEffect->GetMainEffect();
+					if( NULL != pParentMainEffect && NULL != pChildMainEffect )
+						pChildMainEffect->SetNowLifeTime( pParentMainEffect->GetNowLifeTime() );
+				}
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+				if( true == m_bInheritCriticalRate || true == m_bInheritCriticalDamageRate || true == pData->bInheritLifeTime )
+					JuneFxHit( GetName(), L"DIE_DAMAGE_EFFECT_INHERIT", L"%s critRate=%d->%.3f critDamage=%d->%.3f lifeTime=%d",
+						pData->damageEffectName.c_str(), (int)m_bInheritCriticalRate, pEffect->GetDamageData().m_fCriticalRate,
+						(int)m_bInheritCriticalDamageRate, pEffect->GetDamageData().m_fApplyCriticalDamage, (int)pData->bInheritLifeTime );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+				// June2017 FUN_31f82210 @31f82fb5-31f83010 -> 31f6fdc0 (June CEffect::SetScale: main, passive, hit and
+				// die scales): the child takes this entry's SCALE_X/Y/Z times the parent's die damage-effect
+				// scale, component by component. March parsed the entry scale and never applied it (Phase 7d).
+				pEffect->SetScale( D3DXVECTOR3( pData->vScale.x * m_vDieDamageScale.x, pData->vScale.y * m_vDieDamageScale.y, pData->vScale.z * m_vDieDamageScale.z ) );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+				if( D3DXVECTOR3( 1.f, 1.f, 1.f ) != pData->vScale )
+					JuneFxHit( GetName(), L"DIE_DAMAGE_EFFECT_SCALE", L"%s entry=(%.3f,%.3f,%.3f) parent=(%.3f,%.3f,%.3f)",
+						pData->damageEffectName.c_str(), pData->vScale.x, pData->vScale.y, pData->vScale.z, m_vDieDamageScale.x, m_vDieDamageScale.y, m_vDieDamageScale.z );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 				pEffect->SetScale( m_vDieDamageScale );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #ifdef GIANT_UNIT_GIANT_EFFECT_TEST
 				pEffect->SetScaleByUnit( m_vDieDamageScaleByUnit );
 #endif GIANT_UNIT_GIANT_EFFECT_TEST
@@ -9248,7 +9386,7 @@ void CX2DamageEffect::CEffect::LoadHitDamageEffect()
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 // June2017 FUN_31f64c80: HIT_EFFECT_SET%d, June-only (no March equivalent). ctor call @31f7e854.
-// Phase 6b: parse only; runtime is Phase 7c. binary-only: no in-scope June data uses this sub-table.
+// Phase 6b: parse only; runtime is Phase 7e. binary-only: no in-scope June data uses this sub-table.
 void CX2DamageEffect::CEffect::LoadHitEffectSet()
 {
 	int index = 0;
@@ -9265,7 +9403,7 @@ void CX2DamageEffect::CEffect::LoadHitEffectSet()
 }
 
 // June2017 FUN_31f66230: DIE_CREATE_NPC%d, June-only (no March equivalent). ctor call @31f7e85b.
-// Phase 6b: parse only; runtime is Phase 7c.
+// Phase 6b: parse only; runtime is Phase 7e.
 void CX2DamageEffect::CEffect::LoadDieCreateNpc()
 {
 	int index = 0;
@@ -9284,7 +9422,7 @@ void CX2DamageEffect::CEffect::LoadDieCreateNpc()
 // June2017 FUN_31f76a90: TOUCH_LAND_DAMAGE_EFFECT%d, June-only (no March equivalent). ctor call
 // @31f7e862. Reuses DamageEffectData -- same field set as CREATE/DIE/HIT_DAMAGE_EFFECT (confirmed
 // by matching June's decrypted key order 1:1), except EVENT_TIME is never read at this scope.
-// Phase 6b: parse only; runtime (the touch-land trigger itself) is Phase 7c.
+// Phase 6b: parse only; runtime (the touch-land trigger itself) is Phase 7e.
 void CX2DamageEffect::CEffect::LoadTouchLandDamageEffect()
 {
 	int index = 0;
@@ -9410,6 +9548,18 @@ void CX2DamageEffect::CEffect::SetDamageDataNextByChainIndex( CX2DamageManager::
 		pDamageDataNext->m_eFirstAttack = pDamageData->m_eFirstAttack;
 		pDamageDataNext->m_RelateSkillData = pDamageData->m_RelateSkillData;
 #endif //ADD_RENA_SYSTEM
+
+		// June2017 FUN_31f799c0 @31f79b54-31f79b75 (Phase 7d): an INHERIT_DAMAGE child keeps the damage
+		// it took from its parent across a DAMAGE_DATA_NEXT change, instead of the next table's own.
+		if( true == m_bInheritDamageFromMaster )
+		{
+			pDamageDataNext->damage.fPhysic	= pDamageData->damage.fPhysic;
+			pDamageDataNext->damage.fMagic	= pDamageData->damage.fMagic;
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxHit( GetName(), L"INHERIT_DAMAGE_NEXT", L"chain=%d physic=%.3f magic=%.3f",
+				iChainIndex, pDamageData->damage.fPhysic, pDamageData->damage.fMagic );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+		}
 
 		*pDamageData = *pDamageDataNext;
 	}

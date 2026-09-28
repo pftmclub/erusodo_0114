@@ -479,6 +479,9 @@ RT_4AB = '4a+4b'
 # 'not-per-frame': neither of those reads the key; its reader belongs to a later phase.
 RT_7A = '7a'
 RT_7B = '7b'
+RT_7C = '7c'
+RT_7D = '7d'
+RT_7E = '7e'
 RUNTIME = [
     # (root, rel, key, phase, state, verdict, June branch, March site)
     ('ES.EFFECT', (), 'ZOFFSET_USE_UNIT_IS_RIGHT', RT_4A, 'done', 'new',
@@ -642,10 +645,11 @@ RUNTIME = [
      '31f88790@31f8a394-31f8a412: array entry [counter +0x8f8] against the skin EventTimer while the counter is inside the array and the NEXT chain (+0xd8) -> SetDamageDataNext 31f799c0 by index, counter++, CLEAR_HIT_UNIT_ON_DAMAGE_DATA_CHANGE; dormant on scalar data', 'CEffect::OnFrameMove, SetDamageDataNextByChainIndex'),
     ('DE.top', (), 'DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME', RT_7A, 'done', 'semantics-differ',
      '31f88790@31f8a412-31f8a490: the same with EventTimerGlobal (31c82d60) and the same counter, after the anim array', 'CEffect::OnFrameMove, SetDamageDataNextByChainIndex'),
-    ('DE.top', (), 'REACT_ANIMSPEED', RT_7A, '-', 'not-per-frame',
-     'ctor 31f7aab0@31f7de2d stores +0xab8; neither 31f88790 nor 31f70ee0 reads it (Phase 7d: DamageReact)', '-'),
-    ('DE.top', (), 'USE_ADVANCE_COLLISIOIN_CHECK', RT_7A, '-', 'not-per-frame',
-     'ctor 31f7aab0@31f7c4d3 stores +0xb31; neither 31f88790 nor 31f70ee0 reads it (Phase 9: collision)', '-')] + [
+    # REACT_ANIMSPEED / USE_ADVANCE_COLLISIOIN_CHECK were 7a 'not-per-frame' rows; Phase 7d owns them now.
+    ('DE.top', (), 'REACT_ANIMSPEED', RT_7D, '-', 'same',
+     'ctor 31f7aab0@31f7de2d stores +0xab8 (no per-frame reader, 7a); AttackResult 31f85910@31f86ad5-31f86afc: > 0 with a main mesh sets its anim speed (mesh +0x3d4) after the reActResult switch, as March SKILL_CASH_10_TEST (ON)', 'AttackResult (existing)'),
+    ('DE.top', (), 'USE_ADVANCE_COLLISIOIN_CHECK', RT_7D, 'deferred', 'new',
+     'ctor 31f7aab0@31f7c4d3 stores +0xb31; EffectToUnit 3262b6e0@3262bc1c loads it into a local at the head of the inlined CollisionDataCheck (main-effect attack list x defender collision set); its one real read @3262e976 picks a segment-style branch in the per-sphere test (3262e981-3262ec5d, 31c7b640). The slot is reused as the miss flag @3262f1ad/@3262f1c0. Phase 9 (collision)', '-')] + [
     # Phase 7b (lock-on: OnFrameMove_LockOnData 31f83aa0, VectorLockOn 31f73a10, the load-time tail of
     # LoadLockOnData 31f71930, the picks 322dadd0 / 322d7670 / 322daa10, the EffectToUnit list fill
     # 3262b6e0). 'log: Phase 11' = no deployed LOCK_ON_DATA carries the key, so its JUNE_FX CE_LOCKON
@@ -675,7 +679,77 @@ RUNTIME = [
     ('DE.LOCK_ON_DATA', ('LOCK_ON_RANGE_FROM_OWNER',), k, RT_7B, 'done', v, b, 'JuneSelectLockOnRangeFromOwner') for k, v, b in (
     ('AT_DUNGEON', 'new', '31f71930@31f7315d-31f734d8: any state but XS_PVP_GAME / XS_BATTLE_FIELD (June\'s XS_PVE_GAME row, 5000 and no read, has no March state)'),
     ('AT_FIELD', 'new', '31f71930@31f73369-31f73433: XS_BATTLE_FIELD, not a raid field'),
-    ('AT_PVP', 'new', '31f71930@31f73438-31f734d8: XS_PVP_GAME'))]
+    ('AT_PVP', 'new', '31f71930@31f73438-31f734d8: XS_PVP_GAME'))] + [
+    # Phase 7c (the CREATE_DAMAGE_EFFECT loop inside CEffect::OnFrameMove 31f88790, the die-condition
+    # evaluator 31f765b0 / 31f76010). Phase 7c wrote these into the generated matrix by hand; Phase 7d
+    # moved them here so a census rerun keeps them. INHERIT_DAMAGE is Phase 7d's (below).
+    ('DE.CREATE_DAMAGE_EFFECT', (), k, RT_7C, 'done', v, b, 'OnFrameMove (CREATE_DAMAGE_EFFECT loop)') for k, v, b in (
+    ('APPLY_ROTATED_OFFSET', 'same', 'existing bApplyRotatedOffset branch, always compiled'),
+    ('APPLY_ROTATE_ORIGIN', 'same', 'existing, always compiled'),
+    ('AUTO_DIE', 'same', 'existing, ADD_GAME_STAGE_DELETE_DAMAGEEFFECT ON'),
+    ('INHERIT_BUFF_FACTOR', 'same', 'existing, ADDITIONAL_MEMO ON'),
+    ('INHERIT_LIFE_TIME', 'new', '31f89dc1-31f89dfc: the parent main effect\'s GetNowLifeTime() onto the child main effect'),
+    ('LOOP_ADD_POS_X', 'new', '31f89b9d-31f89c1f: world space, count * addPos from the base position every spawn'),
+    ('LOOP_ADD_POS_Y', 'new', 'the same formula as X'),
+    ('LOOP_ADD_POS_Z', 'new', 'the same formula as X / Y (binary-only key)'),
+    ('LOOP_END_COUNT', 'new', '31f89f15-31f89f27: uiCreateCount >= uiLoopEndCount deletes the entry'),
+    ('LOOP_END_TIME', 'new', '31f8932f-31f89342: mesh GetNowLifeTime() >= fLoopEndTime expires the entry'),
+    ('LOOP_INTERVAL', 'new', '31f893c3-31f893f7: fEventTime + fLoopInterval * uiCreateCount'),
+    ('SET_DIE_WHEN_MASTER_EFFECT_DIE', 'new', '31f89e77-31f89e95: the child handle onto the parent\'s m_vecDieWithMasterChildEffects; destroyed non-silently by DestroyInstanceHandle (31f83830@31f838c5 -> 31f886c0); a parent that runs out of life leaves them'),
+    ('SET_GROUP_ID', 'same', 'existing, SERV_RAVEN_VETERAN_COMMANDER ON'))] + [
+    ('DE.DIE_CHECK_CONDITION', (), 'AND_OPERATION', RT_7C, 'done', 'same',
+     '31f765b0@31f76602: JuneEvaluateDieCheckCondition ANDs its entries', 'JuneEvaluateDieCheckCondition'),
+    ('DE.DIE_CHECK_CONDITION', (), 'OR_OPERATION', RT_7C, 'done', 'same',
+     '31f765b0@31f76609-31f76614: ORed together, then ANDed into the result only when non-empty', 'JuneEvaluateDieCheckCondition')] + [
+    ('DE.DIE_CHECK_CONDITION', ('AND_OPERATION', 'CONDITION_%d'), k, RT_7C, 'done', v, b, 'JuneEvaluateDieCheckCondition') for k, v, b in (
+    ('CHECK_DAMAGE_TIME_VALUE', 'same', '31f760cc: compared to m_DamageTimeNow as (int)value (DEDCT_DAMAGE_TIME)'),
+    ('DAMAGE_EFFECT_DIE_CONDITION_TYPE', 'same', 'DEDCT_DAMAGE_TIME = 0 -> 31f760cc, DEDCT_LOCK_ON_TARGET = 1 -> 31f76025'),
+    ('IS_EXIST', 'new', '31f76025-31f760b2: against whether m_LockOnData\'s unit / NPC UID still resolves (GetUserUnitByUID / GetNPCUnitByUID; DEDCT_LOCK_ON_TARGET)'),
+    ('IS_OVER', 'new', '31f760d4-31f760f3: selects > vs < against CHECK_DAMAGE_TIME_VALUE'))] + [
+    # Phase 7d (hit response: AttackResult 31f85910, DamageReact 31f6f600 -- March's line for line, no
+    # key --, the hit / die spawners 31f810c0 / 31f82210 behind 31f831e0 / 31f83400, the INHERIT_CRITICAL_*
+    # helper 31f8af50, the child-state copy 31f8fdb0, EffectToUnit 3262b6e0). No deployed DamageEffect.lua
+    # carries RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT, INHERIT_CRITICAL_*, INHERIT_DAMAGE or INHERIT_LIFE_TIME
+    # (packed Sep 27 file, constant scan); REACT_ANIMSPEED x2, ONLY_RELATIONSHIP x1 and hit / die SCALE do.
+    ('DE.top', (), 'RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT', RT_7D, 'done', 'new',
+     '31f85910@31f881b6-31f881fe: after m_DamageTimeNow++ (+0x850), before the DAMAGE_TIME die test, rate >= 0 (0 restarts the clock): main effect now-life (mesh +0x448) = max-life (+0x44c) * rate; -1 skips. Out-of-line copy 31f75fc0 has no caller', 'AttackResult'),
+    ('DE.top', (), 'ONLY_RELATIONSHIP', RT_7D, 'done', 'semantics-differ',
+     '3262b6e0@3262ba35-3262ba49: a defender that is not GUT_USER (+0x264 != 0) is skipped outright, where March static_casts any unit to CX2GUUser; the relationship-UID test @3262ba4f-3262ba93 is March\'s (ADDED_RELATIONSHIP_SYSTEM ON)', 'CX2DamageManager::EffectToUnit'),
+    ('DE.top', (), 'INHERIT_CRITICAL_RATE', RT_7D, 'done', 'new',
+     '31f8af50@31f8af58-31f8af6d: child DamageData CRITICAL_RATE (+0x510, 32632390@3263c197) += the parent\'s, right after each hit (31f810c0@31f81987), die (31f82210@31f82f36) and touch-land (31f81ba0@31f81ffd) child spawn; not the CREATE_DAMAGE_EFFECT loop or RT_CREATE_DAMAGE_EFFECT. Touch-land runtime is not ported', 'CreateHitDamageEffect, CreateDieDamageEffect'),
+    ('DE.top', (), 'INHERIT_CRITICAL_DAMAGE_RATE', RT_7D, 'done', 'new',
+     '31f8af50@31f8af73-31f8af88: the same for APPLY_CRITICAL_DAMAGE_PERCENT (+0x59c, 32632390@3263e629)', 'CreateHitDamageEffect, CreateDieDamageEffect'),
+    ('DE.CREATE_DAMAGE_EFFECT', (), 'INHERIT_DAMAGE', RT_7D, 'done', 'new',
+     '7c: the flag onto the child @31f89cf5-31f89cfb. 7d: its readers are not DamageReact / AttackResult. 31f8fdb0@31f8feb1-31f8fecc (called @31f89d8b, after the flag is set): child damage PHYSIC / MAGIC (+0x38 / +0x3c, 32632390@326357ec / @3263588d) = the parent\'s; SetDamageDataNext 31f799c0@31f79b54-31f79b75 keeps it across a DAMAGE_DATA_NEXT change. Only this loop sets the child flag', 'OnFrameMove (CREATE_DAMAGE_EFFECT loop), SetDamageDataNextByChainIndex'),
+    ('DE.HIT_DAMAGE_EFFECT', (), 'INHERIT_LIFE_TIME', RT_7D, 'done', 'new',
+     '31f810c0@31f819bd-31f819fe: the child main effect takes the parent\'s now-life, as the loop does; the die spawner does the same (31f82210@31f82f74-31f82fb5, from LoadDieDamageEffect\'s read, which has no matrix row)', 'CreateHitDamageEffect, CreateDieDamageEffect'),
+    ('DE.HIT_DAMAGE_EFFECT', (), 'INHERIT_BUFF_FACTOR', RT_7D, '-', 'same',
+     '31f810c0 (entry +0x80): the parent buff-factor list (+0x240) copied when non-empty, as March ADDITIONAL_MEMO', 'CreateHitDamageEffect (existing)'),
+    ('DE.DIE_DAMAGE_EFFECT', (), 'INHERIT_BUFF_FACTOR', RT_7D, '-', 'same',
+     '31f82210 (entry +0x80): as the hit spawner, as March', 'CreateDieDamageEffect (existing)')] + [
+    ('DE.HIT_DAMAGE_EFFECT', (), k, RT_7D, 'done', 'semantics-differ',
+     '31f810c0@31f81a4f-31f81a90: child 31f6fdc0 (June SetScale) with this SCALE (entry +0x5c..+0x64) times the parent\'s hit damage-effect scale (+0xa5c..); March parsed the entry scale and applied only the parent\'s', 'CreateHitDamageEffect')
+    for k in ('SCALE_X', 'SCALE_Y', 'SCALE_Z')] + [
+    ('DE.DIE_DAMAGE_EFFECT', (), k, RT_7D, 'done', 'semantics-differ',
+     '31f82210@31f82fb5-31f83010: the same with the parent\'s die damage-effect scale (+0xa68..)', 'CreateDieDamageEffect')
+    for k in ('SCALE_X', 'SCALE_Y', 'SCALE_Z')] + [
+    # Phase 7e (the three June-only sub-tables' runtime; identified in Phase 7d, not transcribed).
+    # 'deferred' until 7e writes them: move each to 'done' there. No deployed data uses any of them.
+    ('DE.top', (), 'TOUCH_LAND_DAMAGE_EFFECT%d', RT_7E, 'deferred', 'new',
+     'templet list +0xa8 (loader 31f76a90@31f76b36); OnFrameMove 31f88790 gate @31f8a300-31f8a38b -> 31f83380 copies it to +0xa38 -> spawner 31f81ba0 (31f8af50 @31f81ffd, 31f8fdb0 @31f82005)', '-'),
+    ('DE.top', (), 'DIE_CREATE_NPC%d', RT_7E, 'deferred', 'new',
+     'templet list +0xc8 (loader 31f66230@31f662a7); 31f70330 on every die path -> create-NPC request 31f8b010 per entry (March CX2Game::CreateNPCReq, EGS_NPC_UNIT_CREATE_REQ, answered offline)', '-'),
+    ('DE.HIT_EFFECT_SET', (), 'HIT_EFFECT_SET%d', RT_7E, 'deferred', 'new',
+     'templet list +0xb8 (loader 31f64c80@31f64d10); 31f70130 from AttackResult 31f85910@31f87b1a, after SetHitDamageEffect', '-'),
+    ('DE.HIT_EFFECT_SET', (), 'EFFECT_SET_NAME', RT_7E, 'deferred', 'new',
+     '31f70130: PlayEffectSet 321e1e60( entry +0x4, owner / defender, power rate +0x1d8, scale 1 ); entry +0x0 EVENT_TIME is not read', '-'),
+    ('DE.DIE_CREATE_NPC', (), 'NPC_ID', RT_7E, 'deferred', 'new',
+     '31f70330: 31f8b010( entry +0x4, ..., CEffect position +0x1f4..+0x1fc, owner level? +0x278, owner UID ) per entry', '-'),
+    ('DE.DIE_CREATE_NPC', (), 'EVENT_TIME', RT_7E, 'deferred', 'new',
+     '31f70330 does not read entry +0x0; check 31f8b010\'s arguments before calling it unused', '-')] + [
+    ('DE.TOUCH_LAND_DAMAGE_EFFECT', (), k, RT_7E, 'deferred', 'new',
+     '31f81ba0 (the touch-land spawner, same post-create shape as the hit spawner 31f810c0): read its use of this entry field in 7e', '-')
+    for k in ('DAMAGE_EFFECT_NAME', 'APPLY_ROTATE', 'PASSIVE_PARTICLE_X', 'PASSIVE_PARTICLE_Y', 'PASSIVE_PARTICLE_Z')]
 # the EffectSet scopes whose March-read rows must all have a RUNTIME entry, at every sub-path
 # (check_runtime). ES.Description is EFFECT_TOOL-only (COMPILED_OUT): the game never reads it.
 RUNTIME_SCOPES = ('ES.templet', 'ES.EFFECT', 'ES.CAMERA_SHAKE', 'ES.SOUND')

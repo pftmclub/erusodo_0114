@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include ".\x2damagemanager.h"
+#if defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 
 CX2DamageManager::CX2DamageManager(void)
 {
@@ -1683,6 +1686,26 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 		// 인연 스킬은 자기자신 or 인연에게만 효과가 적용됨.
 		if( true == pAttacker->GetOnlyRelationShip() )
 		{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+			// June2017 FUN_3262b6e0 (EffectToUnit) @3262ba35-3262ba49: ONLY_RELATIONSHIP tests a
+			// GUT_USER defender only (unit +0x264 == 0) and skips every other unit outright; March
+			// static_casts any defender to CX2GUUser below and reads a relationship UID an NPC lacks.
+			// The UID test after it (@3262ba4f-3262ba93) is March's.
+			if( CX2GameUnit::GUT_USER != pDefender->GetGameUnitType() )
+			{
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+				static DWORD s_dwLastOnlyRelationshipLog = 0;
+				const DWORD dwNowOnlyRelationship = timeGetTime();
+				if( 0 == s_dwLastOnlyRelationshipLog || 1000 <= dwNowOnlyRelationship - s_dwLastOnlyRelationshipLog )
+				{
+					s_dwLastOnlyRelationshipLog = dwNowOnlyRelationship;
+					CX2OfflineLog::Server( L"JUNE_FX CE_HIT %s ONLY_RELATIONSHIP skipped non-user defender type=%d",
+						pAttacker->GetName(), (int)pDefender->GetGameUnitType() );
+				}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+				continue;
+			}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 			CX2GUUser* pUser = static_cast< CX2GUUser* >( pDefender );
 			if ( pUser == NULL ) 
 				continue;

@@ -721,3 +721,17 @@ each region nobody has looked at yet.
   `K_ULTIMATE` never appears as a literal.
 - **`xorstrings.tsv` rows with `status` other than `ok` are not citable.** Use `ok` rows
   only.
+- **Finding who reads a CEffect member (Phase 7d).** Take the member's offset from the ctor's
+  getter destination (`LEA EDI,[ESI+off]` before the `CALL 0x32fe....`), then scan all of
+  `.text` with capstone for that displacement. Include `EBP` as a base: these functions use it
+  as a general register, and excluding it hides readers. Where Ghidra has no function, find
+  the containing function's start as the 16-aligned address just after a run of `CC` padding.
+  Then list its `E8`/`E9` callers with a byte scan for `rel32`. That settled every 7d key in
+  minutes.
+- **Templet lists and per-call scratch lists are different members.** The hit/die loaders push
+  into the templet vectors through a pointer, so a displacement scan for the list the spawner
+  walks (`+0xa18` hit, `+0xa28` die) finds only the wrapper that copies the templet list
+  (`+0x98` / `+0x8`) into it (`31f831e0`, `31f83400`). Attribute a spawner by its caller
+  (AttackResult vs. the die paths), not by the loader.
+- **`decompile_function` handled 11.7 KB `31f85910` and the 3,736-line `326413c0`** this
+  session. Try it before falling back to raw disassembly.

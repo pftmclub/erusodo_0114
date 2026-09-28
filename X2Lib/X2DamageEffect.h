@@ -763,7 +763,7 @@ class CX2DamageEffect
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 		// June2017 FUN_31f64c80: HIT_EFFECT_SET%d, June-only (no March equivalent). ctor call @31f7e854.
-		// Phase 6b: parse only; runtime is Phase 7c. binary-only: no in-scope June data uses this sub-table.
+		// Phase 6b: parse only; runtime is Phase 7e. binary-only: no in-scope June data uses this sub-table.
 		struct HitEffectSetData
 		{
 			float			fEventTime;		/// June @31f64cde->31f64e0a, float getter 32fea370, default -1.f
@@ -777,7 +777,7 @@ class CX2DamageEffect
 		};
 
 		// June2017 FUN_31f66230: DIE_CREATE_NPC%d, June-only (no March equivalent). ctor call @31f7e85b.
-		// Phase 6b: parse only; runtime is Phase 7c.
+		// Phase 6b: parse only; runtime is Phase 7e.
 		struct DieCreateNpcData
 		{
 			float			fEventTime;	/// June @31f662f6->31f66397 (name misleading -- shape matches other EVENT_TIME reads), float getter 32fea370, default -1.f
