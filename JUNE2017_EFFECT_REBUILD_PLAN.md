@@ -2041,7 +2041,9 @@ the Lua values through June's formula. Update the matrix and MODS.md.
 
 ## Phase 7d — Runtime: DamageReact, AttackResult
 
-**Status: done 2026-09-28, built and deployed, not play-tested.** `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`
+**Status: done 2026-09-28, built and deployed; play-tested 2026-09-29.** The hit-scale branch fired
+(`JUNE_FX CE_HIT … HIT_DAMAGE_EFFECT_SCALE`, Elesis SPK dash-jump XZ: entry 1.5 × parent 2 = 3×).
+The die-scale branch was not reached. No errors, clean shutdown. `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`
 is extended in `X2DamageEffect.cpp` and `X2DamageManager.cpp`. New `JUNE_FX CE_HIT` lines sit behind
 `SERV_IRUHADEV_JUNE_FX_DEBUG`. The matrix has 16 `7d` runtime rows. Phase 7c's 19 notes, which had
 been hand-written into the generated matrix, now live in `census.py` too, so a rerun keeps them. The
@@ -2050,9 +2052,9 @@ functions are in `funcmap.tsv` (4 rows updated, 9 added); full detail is in `MOD
 **None of the new branches can fire on the deployed data.** A constant scan of the packed Sep 27
 `DamageEffect.lua` finds no `RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT`, `INHERIT_CRITICAL_*`,
 `INHERIT_DAMAGE` or `INHERIT_LIFE_TIME`. Only two 7d changes reach live data:
-- the hit/die `SCALE_*` change: 3 hit and 10 die entries have a non-1 scale, e.g.
-  `DamageEffect_Elesis_SBH_Dash_Combo_X_Explosion` at 0.75 and `DamageEffect_ASD_Dragon_Falling_Explosion`
-  at 2;
+- the hit/die `SCALE_*` change: **8 hit and 22 die entries** have a non-1 scale. The first count
+  said 13 because of a bad filter; the list is in `MODS.md`. Most are above 1, some are monster
+  attacks. March drew them at the parent's scale, so the change is a multiply on top of that;
 - the `ONLY_RELATIONSHIP` guard: 1 use in the data.
 
 Things the next phases should know:
@@ -2099,18 +2101,18 @@ Things the next phases should know:
   - `DE.top`'s sub-table names: their keys carry their own rows.
   - The `_ULTIMATE` variants: `m_bUseUltimateDamageData` is still forced false.
   - `APPLIED_SKILL_ID`: `unsupported`.
-- **Play-test targets:**
-  - Parents `DamageEffect_Elesis_SBH_Dash_Combo_X/XX/XXX` have `_Explosion` hit children at
-    0.75 scale. Elesis is compiled in (`NEW_CHARACTER_EL` ON); which class and skill fires them
-    through `EffectSet.lua` was not traced.
-  - Die children:
-    - `DamageEffect_ASD_Dragon_Falling_DOWN(_DAMAGE)` → `_Explosion` at (2, 1, 2);
-    - `DamageEffect_SBH_Fire_Works` → `_Dying_Shrapnel` at 0.66;
-    - `DamageEffect_SA_ALD_WOLF_Break3(_Special)` → `_EXPLOSION(_Special)`.
+- **Play-test (2026-09-29).**
+  - **Hit scale: seen.** Elesis SPK dash-jump XZ logged 7 lines; its air explosion now draws at 3×
+    (entry 1.5 × parent 2) where March drew it at 2×.
+  - **Still owed: the die-scale branch.** No `DIE_DAMAGE_EFFECT_SCALE` line appeared. It can be
+    reached through:
+    - Ara Dragon Falling finisher (`EffectSet_ASD_DRAGON_FALLING_FINISH`, `Ara_Martial_Artist.lua`):
+      explosion at (2, 1, 2);
+    - Ara Wolf Break (`DamageEffect_SA_ALD_WOLF_Break3(_Special)`);
+    - Elesis fireworks (`EffectSet_A_SBH_FIREWORKS_FireBall`, `ELESIS_KNIGHT.lua`): shrapnel at 0.66;
+    - the monster explosions in `MODS.md` (`NUI_SMITH_*`, `VKC`).
   - The one `ONLY_RELATIONSHIP` user needs a relationship partner, which offline play probably
     lacks, so its guard is unlikely to be exercised.
-  - With `SERV_IRUHADEV_JUNE_FX_DEBUG`, expect `JUNE_FX CE_HIT … HIT_DAMAGE_EFFECT_SCALE` /
-    `DIE_DAMAGE_EFFECT_SCALE`.
 
 **Paste with:** Starting context + this section.
 

@@ -2019,19 +2019,44 @@ checks pass.
   or `INHERIT_LIFE_TIME`.
 - **Two changes do reach live data:**
   - `ONLY_RELATIONSHIP`: 1 use.
-  - The scale change: 3 hit and 10 die entries with a non-1 scale. Examples:
-    `DamageEffect_Elesis_SBH_Dash_Combo_X/XX/XXX_Explosion` at 0.75 (hit children of the
-    `…_Dash_Combo_X/XX/XXX` effects); `DamageEffect_ASD_Dragon_Falling_Explosion` at (2, 1, 2) (die
-    child of `DamageEffect_ASD_Dragon_Falling_DOWN(_DAMAGE)`); `DamageEffect_SBH_Fire_Works_Dying_Shrapnel`
-    at 0.66. Elesis is compiled in; which class and skill fires the SBH effects was not traced. The
-    one `ONLY_RELATIONSHIP` user needs a relationship partner, which offline play probably lacks.
-  - Those effects now spawn at their authored size where March drew them at 1×. **This is a visible
-    change.** Check it in play: with the debug flag on, look for
-    `JUNE_FX CE_HIT … HIT_DAMAGE_EFFECT_SCALE` / `DIE_DAMAGE_EFFECT_SCALE`.
+  - The scale change. **This is a visible change.**
+  - **Correction (2026-09-29): 30 entries, not 13.** The first count skipped values like `1.5`
+    because its filter only checked that the number started with `1`. Recounted: 8 hit and 22 die
+    entries have a non-1 scale.
+    - Hit:
+      - Elesis `SPK_DashJump_Combo_XZ` and `SBH_DashJump_Combo_XZ` `_Explosion_Air` at 1.5;
+      - `SBH_Dash_Combo_X/XX/XXX_Explosion` at 0.75;
+      - `SA_APT_Conqueror_Projectile_Shock` at 1.1;
+      - the monster `NUI_SMITH_RUNNER_Attack_A_EXPLOSION` at 1.3.
+    - Die:
+      - `ENS_HA_Scud_Missile_Explosion` at 1.5;
+      - Ara `ASD_Dragon_Falling_Explosion` at (2, 1, 2);
+      - `SBH_Fire_Works_Dying_Shrapnel` at 0.66;
+      - Ara `SA_ALD_WOLF_Break` explosions at 0.5, 1.5 and 3;
+      - `SA_APT_Conqueror_Projectile_Shock` at 1.1;
+      - the monster `VKC_EXPLOSION` and `NUI_SMITH_ALUMINUM` / `RUNNER` explosions at 1.3.
+    - Most are **above** 1, so most of these explosions get bigger, and that includes some
+      monster attacks.
+  - **March did not draw these at 1×.** It drew them at the parent's hit / die scale, and June
+    multiplies the entry scale into it. In the play-test the parent was 2×, so the SPK air
+    explosion went from 2× to 3×.
+  - The one `ONLY_RELATIONSHIP` user needs a relationship partner, which offline play probably
+    lacks.
 
 **Built `US_SERVICE`** (`touch X2Lib/stdafx.cpp` first; X2ServerProtocol, KTDXLIB, X2Lib and X2,
 all 0 errors) **and deployed to `X2_offline.exe`, 18,947,072 B**, SHA-256 prefix `bc99dc05a2eb4ebd`,
-2026-09-28. **Play-test pending**: ask before launching.
+2026-09-28.
+
+**Play-tested 2026-09-29** (Elesis and Ara skills, battle field, clean shutdown).
+- **The hit scale branch fired.** It logged 7 lines, e.g.
+  `JUNE_FX CE_HIT DamageEffect_Elesis_SPK_DashJump_Combo_XZ HIT_DAMAGE_EFFECT_SCALE
+  …_XZ_Explosion_Air entry=(1.500,1.500,1.500) parent=(2.000,2.000,2.000)`: the child drew at 3×.
+- **The die scale branch did not fire.** The Ara skill used was `EffectSet_SA_AYR_ORB_KI_FX_DAMAGE`,
+  not Dragon Falling or Wolf Break, so it is untested.
+- No `UNHANDLED` / `EXCEPTION` lines.
+- Phase 7c's `CE_LOOP` fired as well (13 single-spawn lines, `DAMAGE_EFFECT_ENERGY_BULLET_SOUND`
+  from the Ara skill). A multi-spawn LOOP_* case is still untested.
+- Whether the 3× air explosion *looks* right was left to the tester.
 
 Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`.
 - The scale change keeps March's `SetScale` in `#else`.
