@@ -176,7 +176,13 @@ All paths are relative to `march2014/`.
 
 ## Root cause
 
-Identified 2026-09-28 in Phase 3 of `RANOX_LUA_DECOMPILE_FIX_PLAN.md`. No fix has shipped.
+Identified 2026-09-28 in Phase 3 of `RANOX_LUA_DECOMPILE_FIX_PLAN.md`. The fix shipped the
+same day in Phase 4, opt-in: `june2017_re/ljd_fixed.py` (`ljd_jun2017.py --fixed`).
+- It is one reachability check, made where a write is actually deleted. It closes all four
+  sites below.
+- It also closes a fifth, found in review: `_eliminate_mass_assignments`, after
+  `_remove_invalid_references` drops `id == -1` reads.
+- The plan's "Phase 4 result" has the design and the acceptance numbers.
 Line numbers are for the vendored `elstools/vendor/ljd`, which is byte-identical to upstream
 master (see "Upstream status").
 
@@ -376,10 +382,15 @@ unchanged and `types.tsv` untouched.
 
 - Nothing in the table above has been fixed except `RAGE_DRYADKENTA.src.lua` (which is why
   it no longer appears in the table).
-- The root cause inside `elstools/vendor/ljd` (`ljd/ast/slotworks.py`) is now identified.
-  See "Root cause" above: one defect, four sites. It is still unfixed. The fix is Phase 4 of
-  `RANOX_LUA_DECOMPILE_FIX_PLAN.md`, and a wrong fix there risks decompiles that look even
-  more plausible while still being wrong.
+- The root cause inside `elstools/vendor/ljd` (`ljd/ast/slotworks.py`) is identified: see
+  "Root cause" above, one defect at four sites.
+  - It is fixed only opt-in, as a run-time hook: `june2017_re/ljd_fixed.py`, reached through
+    `--fixed`.
+  - `june2017_re/ljd_slotworks.patch` is the same change for the vendored copies. It is not
+    applied.
+  - The default decompile stays unfixed until the plan's Phase 9.
+  - Existing ported `.src.lua` files are not re-decompiled or repaired yet. That is
+    Phases 5–6.
 - The lint has not been wired into the decompile workflow (`ljd_jun2017.py` /
   `elstools decompile-batch`) as an automatic guard — right now it's a standalone script you
   have to remember to run.

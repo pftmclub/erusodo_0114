@@ -190,3 +190,103 @@ kenta	strip	text	fallback_user	assigns=1	-	reconstructed Kenta sites
 kenta	g	call	fallback/stored	PASS	PASS	reconstructed Kenta sites
 kenta	g	call	fallback/target	PASS	PASS	reconstructed Kenta sites
 kenta	g	text	fallback_user	assigns=2	-	reconstructed Kenta sites
+pin	strip	call	MAIN	PASS	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	strip	call	bw3/near	REPRO_POISON	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	strip	call	bw3/nonear	PASS	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	strip	call	bw3/notready	PASS	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	strip	call	fi/both	REPRO_POISON	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	strip	call	fi/first	REPRO_POISON	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	strip	call	fi/noes	DIVERGE	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks; defect seen as reordering/stale register, no unwritten read on this path
+pin	strip	call	fi/nolm	DIVERGE	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks; defect seen as reordering/stale register, no unwritten read on this path
+pin	strip	call	fi/second	REPRO_POISON	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	strip	text	bw3_field_target	assigns=1	assigns=3	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks; fixed count pinned (Phase 4 review)
+pin	strip	text	fi_two_timers	assigns=2	assigns=4	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks; fixed count pinned (Phase 4 review)
+pin	g	call	MAIN	PASS	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	g	call	bw3/near	PASS	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	g	call	bw3/nonear	PASS	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	g	call	bw3/notready	PASS	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	g	call	fi/both	PASS	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	g	call	fi/first	PASS	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	g	call	fi/noes	PASS	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	g	call	fi/nolm	PASS	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	g	call	fi/second	PASS	PASS	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks
+pin	g	text	bw3_field_target	assigns=3	assigns=3	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks; fixed count pinned (Phase 4 review)
+pin	g	text	fi_two_timers	assigns=4	assigns=4	Phase 4 pins: BW-3 field-set target (site d) and FI-1/FI-2 two timer blocks; fixed count pinned (Phase 4 review)
+valuectl	strip	call	MAIN	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	strip	call	and/ft	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	strip	call	and/tt	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	strip	call	andor/f	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	strip	call	andor/tt	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	strip	call	ordef/nil	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	strip	call	ordef/val	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	strip	call	ortemp/a	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	strip	call	ortemp/noa	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	strip	text	vctl_and_or_arg	assigns=0	assigns=0	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	strip	text	vctl_and_value	assigns=0	assigns=0	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	strip	text	vctl_or_after_temp	assigns=0	assigns=0	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	strip	text	vctl_or_default	assigns=0	assigns=0	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	g	call	MAIN	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	g	call	and/ft	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	g	call	and/tt	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	g	call	andor/f	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	g	call	andor/tt	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	g	call	ordef/nil	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	g	call	ordef/val	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	g	call	ortemp/a	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	g	call	ortemp/noa	PASS	PASS	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	g	text	vctl_and_or_arg	assigns=0	assigns=0	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	g	text	vctl_and_value	assigns=0	assigns=0	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	g	text	vctl_or_after_temp	assigns=1	assigns=1	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+valuectl	g	text	vctl_or_default	assigns=1	assigns=1	control: value-producing and/or, genuine single-use temporaries; pins inlining (over-conservative fix changes this)
+sites	g	call	MAIN	PASS	PASS	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder
+sites	g	call	ctor/refold	PASS	PASS	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder
+sites	g	call	dup/str	PASS	PASS	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder
+sites	g	call	massive/c	PASS	PASS	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder
+sites	g	call	massive/noc	PASS	PASS	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder
+sites	g	text	ctor_refold	assigns=1	assigns=1	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder; fixed count pinned
+sites	g	text	dup_holder	assigns=1	assigns=1	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder; fixed count pinned
+sites	g	text	massive_reuse	assigns=2	assigns=2	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder; fixed count pinned
+sites	strip	call	MAIN	PASS	PASS	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder
+sites	strip	call	ctor/refold	REPRO_POISON	PASS	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder
+sites	strip	call	dup/str	REPRO_POISON	PASS	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder
+sites	strip	call	massive/c	REPRO_POISON	PASS	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder
+sites	strip	call	massive/noc	REPRO_POISON	PASS	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder
+sites	strip	text	ctor_refold	assigns=0	assigns=1	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder; fixed count pinned
+sites	strip	text	dup_holder	assigns=0	assigns=1	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder; fixed count pinned
+sites	strip	text	massive_reuse	assigns=1	assigns=2	Phase 4 review: mass rename, unfoldable constructor element, duplicate holder; fixed count pinned
+andor	g	call	MAIN	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	g	call	call/ff	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	g	call	call/ft	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	g	call	call/tt	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	g	call	closure/c	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	g	call	closure/noc	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	g	call	ctor/ft	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	g	call	ctor/tt	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	g	text	ao_call	assigns=0	assigns=0	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it; fixed count pinned
+andor	g	text	ao_closure	assigns=1	assigns=1	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it; fixed count pinned
+andor	g	text	ao_ctor	assigns=0	assigns=0	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it; fixed count pinned
+andor	strip	call	MAIN	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	strip	call	call/ff	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	strip	call	call/ft	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	strip	call	call/tt	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	strip	call	closure/c	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	strip	call	closure/noc	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	strip	call	ctor/ft	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	strip	call	ctor/tt	PASS	PASS	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it
+andor	strip	text	ao_call	assigns=0	assigns=0	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it; fixed count pinned
+andor	strip	text	ao_closure	assigns=0	assigns=0	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it; fixed count pinned
+andor	strip	text	ao_ctor	assigns=0	assigns=0	control (Phase 4 review 2): value-producing c and <value> or d; stock ljd gets it right, the fix must not break it; fixed count pinned
+gaps	g	call	MAIN	PASS	PASS	Phase 4 review 2: slot key that won't fold, KNIL second destination, closure capture
+gaps	g	call	closure	PASS	PASS	Phase 4 review 2: slot key that won't fold, KNIL second destination, closure capture
+gaps	g	call	knil	PASS	PASS	Phase 4 review 2: slot key that won't fold, KNIL second destination, closure capture
+gaps	g	call	slotkey	PASS	PASS	Phase 4 review 2: slot key that won't fold, KNIL second destination, closure capture
+gaps	g	text	gap_closure	assigns=1	assigns=1	Phase 4 review 2: slot key that won't fold, KNIL second destination, closure capture; fixed count pinned
+gaps	g	text	gap_knil	assigns=1	assigns=1	Phase 4 review 2: slot key that won't fold, KNIL second destination, closure capture; fixed count pinned
+gaps	g	text	gap_slot_key	assigns=2	assigns=2	Phase 4 review 2: slot key that won't fold, KNIL second destination, closure capture; fixed count pinned
+gaps	strip	call	MAIN	PASS	PASS	Phase 4 review 2: slot key that won't fold, KNIL second destination, closure capture
+gaps	strip	call	closure	PASS	PASS	Phase 4 review 2: slot key that won't fold, KNIL second destination, closure capture
+gaps	strip	call	knil	REPRO_POISON	PASS	Phase 4 review 2: slot key that won't fold, KNIL second destination, closure capture
+gaps	strip	call	slotkey	REPRO_POISON	PASS	Phase 4 review 2: slot key that won't fold, KNIL second destination, closure capture
+gaps	strip	text	gap_closure	assigns=0	assigns=1	Phase 4 review 2: slot key that won't fold, KNIL second destination, closure capture; fixed count pinned
+gaps	strip	text	gap_knil	assigns=0	assigns=1	Phase 4 review 2: slot key that won't fold, KNIL second destination, closure capture; fixed count pinned
+gaps	strip	text	gap_slot_key	assigns=0	assigns=1	Phase 4 review 2: slot key that won't fold, KNIL second destination, closure capture; fixed count pinned

@@ -1612,6 +1612,298 @@ dropped-assignment divergence and no new other-ljd; bounded churn over the ~273 
 byte-identical). Then run /code-review on the diff and resolve its findings.
 ```
 
+## Phase 4 result
+
+Ran 2026-09-28. All five acceptance checks pass. The `/code-review` findings are resolved
+(see the end of this section). Neither vendored ljd copy was edited, and both are still
+`diff -rq` clean against each other. `types.tsv` is unchanged: 45 rows, `types_h32` `e9e20f92`.
+
+**What shipped** (all in `june2017_re/`):
+- **`ljd_slotworks_fix.py`: the fix itself.** It is written as `slotworks.py` code and is not a
+  module. One text serves both the hook and the patch, so they are the same change by
+  construction.
+- **`ljd_fixed.py`.**
+  - `install_fix()` execs the fix inside `ljd.ast.slotworks`. It refuses to install unless the
+    vendored `slotworks.py` has SHA-256 `464b2c45…`. The error says so if the file is the
+    patched one.
+  - `python ljd_fixed.py <main.py args>` is the stock-bytecode entry point. It prints one
+    `ljd_fixed: slotworks fix active …` line to stderr.
+  - `--write-patch` and `--check-patch` maintain the patch.
+- **`ljd_slotworks.patch`: not applied.**
+  - It is generated, not hand-written: 13 hunks. Twelve are small edits inside six replaced
+    functions, and the thirteenth is an appended block. Its only deletion is one `elif` that
+    becomes `if`.
+  - `patch -p1` applies it cleanly to fresh copies of both vendored trees. The patched file
+    hashes `2235d0a1…`, which the patch header records.
+  - Whether to apply it is the user's call.
+- **`--fixed`** in `ljd_jun2017.py` (CRLF preserved), `ljd_oracle/run_oracle.py` and
+  `ljdiff/ljdiff.py`. The two harnesses fail a step if a `--fixed` run doesn't report the fix
+  active, so a hook that silently failed to install can't pass. The default everywhere stays
+  unfixed until Phase 9.
+- **New oracle cases.** `expect_now` comes from unmodified ljd; the pins and `sites` all
+  reproduce there.
+  - `cases/pin.lua`, the two pins Phase 3 asked for: BW-3's field-set target, and FI-1/FI-2's
+    two timer blocks.
+  - `cases/valuectl.lua`: value-producing `and`/`or` controls, whose assignment counts are
+    pinned.
+  - `cases/sites.lua`: the three review findings (see the end of this section).
+  - `cases/andor.lua` and `cases/gaps.lua`: the second review's regression control and its
+    three gaps.
+  - The fixed assignment counts of `pin` and `sites` are pinned. On stripped input they equal
+    the `-g` build's counts, which is exactly what a correct fix keeps.
+
+**The design: one veto instead of four per-site patches.**
+- **Where it acts.** Just before `_eliminate_simple_cases` deletes `slotN = <expr>`, the fix
+  asks one question. Does this definition reach, with no write of slotN on the way, a read of
+  slotN that the collection didn't account for? If so, the assignment is kept.
+- **The whole function.** The question is answered over the enclosing function as it stands at
+  that moment, not over the collection's view. That covers:
+  - warped blocks, with FORI's zero-trip edge, FORL's index write on the body edge only, and
+    ITERC's writes on both edges;
+  - structured `if`/`elseif`/`while`/`repeat`/`for`/`break`/`return`;
+  - the mix the unwarper leaves between its steps.
+- **"Accounted"** means the references `_fill_simple_refs` actually considered. The `:286` skip
+  of `id == -1` is therefore exactly what the veto catches.
+- **Why this closes all four sites together.** Phase 3's (a) main pass, (b) recheck,
+  (c) `_cleanup_ast` over structured code, and (d) a collection rooted at a sub-tree all end at
+  this one check.
+- **Four refinements the checks forced.** Each is commented in the code.
+  1. **Transient states (found by the oracle).** ljd's inline chains pass through wrong
+     intermediate states. `obj:Make():Go()` inlines `slot2 = slot1` past `slot1 = slot1.Go`, and
+     the method-call conversion makes it right again later. So:
+     - an expression an elimination moved is read where it was computed, while that assignment
+       is still in the flow;
+     - identifiers no longer in the tree read nothing (a deleted method self argument, for
+       instance);
+     - flows are rebuilt per elimination batch.
+
+     Without this, `ctl_method_on_fresh` came out as `fresh.Go(<function>, 1)`.
+  2. **Which function (found by the oracle).** It is the collector's `info.function`, or else
+     the collection root's own function. A recheck collects over one block. A root can also sit
+     in an enclosing function, since collections descend into nested ones.
+  3. **Eliminated assignments still write (found by the churn run).** Every elimination passed
+     the check, and its table-constructor refs stay in place until they are folded in. Without
+     this there was one false veto (`DLG_UI_RANOX_SECRET_FEVER_GAGE`, `slot13` across a loop
+     back-edge), which a later pass happened to undo.
+  4. **`unwarper.py:570`'s temporary block is exempt.** Its blocks are deleted right after the
+     call, so keeping the assignment there would keep nothing. It occurred 0 times in any run.
+- **Fails closed.** The assignment is kept in any of these cases:
+  - the check can't place the assignment in the flow;
+  - it reaches a stale warp target;
+  - it meets a node type it doesn't know.
+
+  A kept assignment is always semantically safe. All three counters were 0 in every run.
+- **The mass-assignment rename is guarded too.** `_eliminate_mass_assignments` goes through the
+  same check. This fifth site was found in review; see the end of this section.
+- **Also modelled (second review):**
+  - the ISTC/ISFC copy, as a write on the jump edge only;
+  - a named `-g` local reusing the register, which counts as a write;
+  - a closure created while it captures the register (`_upvalues`), which counts as a read.
+    ljd still prints the captured local as `uvN`, a separate class, so the kept write alone
+    doesn't make such a round trip pass.
+- **The one deliberate exception: an and/or value part.** `slotN = <part>` ends its block, the
+  block's warp tests slotN itself, and every fall-through path rewrites slotN in
+  expression-shaped blocks before the join. There the inline into the test is how ljd carries
+  the value: its expression unwarper rebuilds `slotN = a and <part> or b` from the conditions,
+  and refuses a part block that also holds an assignment (`unwarper.py:899-903`). Counted as
+  `andor`. See review 2, finding 1.
+
+**Acceptance.**
+
+1. **Oracle.**
+   - `run_oracle.py --fixed --expect fixed`: ALL EXPECTED. That covers every call row,
+     including all controls, every `-g` row, both pins, all four value controls, all
+     three `sites` shapes, the `andor` controls and the three `gaps`.
+     `bwait/nolm-near` (BW-3) is included; Phase 3's scratch edits did not close it. The pinned
+     text facts for controls and valuectl are unchanged.
+   - The unfixed `--expect now` run is also ALL EXPECTED.
+2. **Kenta** (`ljdiff.py --diff --seeds 128`, under `types_h32` `e9e20f92`, read from both traces):
+
+   | | dropped-assignment | other-ljd | reorder | pass | static |
+   |---|---|---|---|---|---|
+   | unfixed | 406 | 60 | 138 | 1060 | 18 |
+   | fixed | **0** | **29** | 132 | 1503 | **0** |
+
+   - The unfixed row equals Phase 3's baseline exactly.
+   - All five known functions pass 128/128, including `ATTACK_B_WAIT_FRAME_MOVE`, so BW-3 is
+     closed.
+   - All 29 remaining other-ljd are `ATTACK_B_READY_STATE_START` (BR-O). The 63 reorder in FIRE
+     are FI-O. Both are the known `order` class and are untouched.
+   - The fixed text restores all 12 writes, each in its own function. This was checked by
+     script against `fixes/RAGE_DRYADKENTA.json`.
+   - MapData: 128 dropped-assignment → 256 pass, with MD-1 restored in place. MD-S caveat
+     below.
+3. **Bounded churn.**
+   - **Scope.** 272 June files were re-decompiled, unfixed and `--fixed`, through
+     `ljd_jun2017.py` into `tmp/p4c_*`. There are 273 `.src.lua` siblings; `data036_kom/Enum`
+     has no `.std.luac`.
+   - **Results.** 0 decompile failures on either side. 213 files are byte-identical; 59 changed,
+     in 102 functions.
+   - **Every changed function is flagged.** 98 are flagged by the lint. The other 4 are flagged
+     `dropped-assignment` by the harness on the unfixed side at 128 seeds:
+
+     | Function (file) | Unfixed `dropped-assignment` seeds |
+     |---|---|
+     | `GetUser` (FIRE_DEVIL_SKA) | 109 |
+     | `GEYSER_MULLOCK_ATTACK_B_RUN_STATE_START` | 106 |
+     | `ConsumeNPCSummomLimitNum` | 111 |
+     | `SMITH_REGIEON_POINT_SUMMON_FRAME_MOVE` | 27 |
+
+     - All four are the lint's known blind spot: a value written on one arm and read after the
+       merge.
+     - All four pass fixed, except the clobber below.
+     - Every changed function also has at least one definition in the veto log. No text changed
+       without a veto.
+   - **The bound, stated and met.** A changed function's assignment statements grow by exactly
+     the number of distinct definitions the fix kept in it: 180 against 180, with no function
+     over.
+     - Justification: a veto keeps one assignment ljd would have deleted, and adds nothing else.
+     - Counting: any statement-level `=` counts. A restored BW-3-shaped write turns the
+       uncounted `f().y = v` into `slotN.y = v`, which the oracle's narrower regex would have
+       miscounted as growth.
+   - **Fix totals.** 408,035 inlines checked, 300 vetoed; exempt, unlocated, stale-target and
+     unknown-node all 0.
+   - **Neither review's fixes add churn.** After both, a clean solo run is identical: the same
+     59 files and 102 functions, 180 = 180, 300 vetoes. The mass-rename guard, fold simulation,
+     KNIL, closure-capture and fail-closed paths veto nothing in these 272 files, and the and/or
+     exemption fires 0 times. They close the holes `sites` and `gaps` pin, and keep `andor`
+     correct.
+   - **One run was tainted and discarded.** Two acceptance runs once overlapped in `tmp/`; every
+     number here is from the clean solo run after that.
+   - **Cost** (clean solo run).
+     - On the churn set the largest files are 1.3–1.9× slower: StringID_def 15.4 → 19.6 s,
+       NPCTemplet 9.6 → 17.9 s.
+     - The corpus's largest file, `data036_kom/EffectSet.lua` (5.97 MB, outside the churn set),
+       goes 67.5 → 207.7 s, which is **3.1×**. It gets 2 vetoes, which the harness hasn't
+       checked; that is Phase 8's.
+     - The flow is rebuilt per elimination batch. Caching per-point read/write sets would
+       recover most of this, and Phase 7/8's sweep will want it. It isn't needed for
+       correctness.
+4. **Detection still works.** The unfixed decompile still diverges:
+   - Kenta: `dropped-assignment` 406 with 18 confirmed static sites.
+   - MapData: 128 with 1 site.
+   - The oracle's `expect_now` rows all still reproduce.
+5. **Clean files are unchanged.** All three noise-check files are byte-identical fixed vs
+   unfixed, with 0 vetoes in each.
+
+**Hook ≡ patch.** The hooked and patched ljd give byte-identical output on 31 inputs: the 24
+oracle inputs and 7 June files (the three noise files, Kenta, MapData, FIRE_DEVIL_IGNIA and
+SMITH_REGIEON_POINT). This was re-measured on the final patch, `2235d0a1…`.
+
+**What Phase 5 onward needs from this.**
+- **`other-ljd` can rise per file, and that is unmasking.** `dropped-assignment` outranks every
+  other verdict, so fixing it exposes what it was hiding.
+  - FIRE_DEVIL_IGNIA's other-ljd goes 17 → 150. Of the 150:
+    - 97 are a swapped comparison: `GetDist(…EndPos) < GetDist(…StartPos)`. It is already
+      present in the unfixed text, and is order class.
+    - 36 are seeds where both sides run into the 2M-instruction `BUDGET`, at different events.
+      The no-`local` round trip spends more instructions per loop.
+    - 17 are unchanged from unfixed.
+  - Kenta's "other-ljd doesn't rise" holds. A per-file sweep must classify the rest rather than
+    compare totals.
+- **First evidence for the `local slotN` decision.** `SMITH_REGIEON_POINT_SUMMON_FRAME_MOVE`
+  shows `clobber` on 27/128 seeds when fixed, and passes otherwise.
+  - It correctly writes `slot3`, then calls `ConsumeNPCSummomLimitNum`, which now correctly
+    writes its own `slot3` global.
+  - That is the nested-frame hazard in the ledger, which the dropped write used to hide.
+  - It is not a decompile defect.
+- **Correction to Phase 2b's MD-S evidence.**
+  - "MD-S diverges on 32/32 seeds once MD-1 is in" was measured with MD-1's *text* fix. That fix
+    restored the write but left `CheckCOBOExpressTicketMapID(slot0)` folded into the condition,
+    so the function called it twice.
+  - MD-S itself (the always-`D` `(A and B or C) and D`) is a real structure defect and is still
+    in the fixed text.
+  - The harness can't reach it: `CheckCOBOExpressTicketMapID` returns ≥ 1 on every seed, so the
+    `== 0` branch never runs. MapData's fixed "pass" is therefore vacuous for MD-S.
+- **Kept assignments can change the printed structure.**
+  - Kenta BW-2: `elseif <call> ~= nil` becomes `else slot5 = <call>; if slot5 ~= nil`.
+  - A condition like `A and <call> ~= nil` becomes nested `if`s when the call's result is now
+    stored.
+  - Both are correct. Expect them in Phase 6 diffs.
+- **Where the evidence lives** (scratch, gitignored, may be gone): `tmp/p4_all.sh` reruns
+  everything, with one caveat. It restores `types.tsv` from `tmp/p4_types_snapshot.tsv` at the
+  end; a run on new files would otherwise grow the tracked table (it learned 7 rows here).
+  - Veto logs: `tmp/p4c_*.veto.log`.
+  - Per-function churn table: `tmp/p4c_units.tsv`.
+  - Kenta/MapData reports: `tmp/p4_{unfixed,fixed}_*.rt.diff.txt`.
+
+**`/code-review` (high) and how each finding was resolved.** Every acceptance check above was
+re-run after these changes, with identical results.
+
+1. **Fixed: the mass-assignment rename was a fifth site.** `_fill_massive_refs`'s
+   `_remove_invalid_references` drops trailing `id == -1` reads the same way the `:286` skip
+   does. `_eliminate_mass_assignments` then renamed the call's destination away.
+   - Reproduced by `sites/massive_reuse`: `return slot2, slot4` read an unwritten `slot2`.
+   - It is now guarded by the same check.
+   - A vetoed rename puts back the `_ids` entries that `_remove_invalid_references` removed,
+     since a later pass removes them again. Without that, a later pass crashes on
+     `list.remove`.
+   - `_eliminate_iterators` is not guarded. Its slots are the for-in generator registers, which
+     compiled Lua never reads outside the loop header.
+2. **Fixed: an unfoldable constructor element.** `insert_table_record(..., False)` refuses an
+   array index that already holds a value. That left `slotN[k] = v` reading a table that had
+   been inlined away.
+   - Reproduced by `sites/ctor_refold`.
+   - The check now simulates the folds (`_ljdfix_folds`, which mirrors the helper's only
+     refusing branch) and keeps the assignment if one won't fold.
+3. **Fixed: duplicate holders.** A reference the duplicate-holder skip drops is no longer
+   counted as consumed. `_replace_node` rewrites only one identifier.
+   - Reproduced by `sites/dup_holder`: `t[t]` printed as `slot1[slot0:Get()]`.
+4. **Fixed: fails closed.** The assignment is kept when the check can't place it, reaches a
+   stale target, or meets an unknown node type (previously it deferred to ljd). All three
+   counters are 0 in every run.
+5. **Fixed: stderr.** `ljd_fixed.py` prints its stats line only on success, and prints a
+   string `SystemExit`. A failed decompile's last stderr line, which is what both harnesses
+   report, is ljd's own error again.
+6. **Fixed: the origin chain.** A moved expression now keeps every origin, oldest first, and is
+   read at the oldest one still in the flow. Before, it was read at the first origin even after
+   that one was cleaned up, which counted it twice.
+7. **Rejected: an `EndWarp` in a nested list as function exit.**
+   - `_set_end` puts an `EndWarp` on the last block of an if/else body. It means "leave this
+     body", so it continues after the `if`.
+   - A real function end is a `Return` statement, and it has no successors in the flow.
+   - Treating the nested `EndWarp` as a function exit would drop real paths.
+8. **Fixed: the stale patch hash in this section.** The patch was regenerated after the fixes
+   above. The hook-vs-patch comparison was re-run on the final patch (`2235d0a1…`).
+9. **Fixed: the pins' fixed assignment counts are pinned** in `expected.tsv`.
+10. **Noted, not changed: cost.** See "Cost" under check 3.
+
+**Second `/code-review` pass (high), scoped to the code the first pass added.** Every acceptance
+check was re-run afterwards (numbers above are from that run).
+
+1. **Fixed: a regression the fix itself introduced.** `c and <value> or d` (a closure, call or
+   constructor as the middle part) came out as an `if` that drops `d`; stock ljd gets it right.
+   - ljd carries such a part's value in its block's `IST` test. The expression unwarper
+     rebuilds `slotN = c and <value> or d` from the conditions and refuses a part block that
+     also holds an assignment (`unwarper.py:899-903`). Keeping the assignment broke the
+     expression, and the if-unwarper then mis-structured the CFG.
+   - Fixed by the and/or exemption (`_ljdfix_andor_value`, counted `andor`). It needed the
+     ISTC/ISFC copy modelled as a jump-edge write, and a named `-g` local counted as a
+     register write, or it missed the `-g` build.
+   - Pinned by `cases/andor.lua`: it passes unfixed and fixed, stripped and `-g`, and prints as
+     stock does.
+2. **Fixed: a slot key that a later inline makes an integer** (`gaps/gap_slot_key`,
+   `t[k] = v` with `k = 1`). The fold simulation now resolves a register key to its definition
+   in the same block, and stays conservative only if it can't.
+   - The first version assumed the worst for every register key. That falsely vetoed computed
+     data-table keys (`t[NPC_UNIT_ID.X] = ...`) in Dungeon_Ranox_Secret_Hell and FIRE_DEVIL_SKA,
+     where ljd then hoisted the kept tables. The churn run caught it, and the resolution removed
+     it.
+3. **Fixed: KNIL.** `slotA, slotB = nil` deletes every destination, so each destination is now
+   checked (`gaps/gap_knil`).
+4. **Fixed: closure capture.** A closure created while it captures the register counts as a read
+   (`gaps/gap_closure`). ljd still prints the capture as `uvN`, the separate class. Stripped,
+   `gap_closure` passes because the harness restores the global it reads.
+5. **Fixed: the exemption's scope.** The `unwarper.py:570` exemption now applies only to the
+   root's own function, not to functions nested in the deleted blocks.
+6. **Rejected: the put-back after the recheck.** The recheck can pin a removed read's id only
+   through `_get_slot`, i.e. to a definition earlier in that read's own block. That definition
+   is the read's real reaching definition, so the pinned attribution is correct.
+7. **Fixed: untested claims.** Both apply routes are now tested on a fresh copy:
+   - `git apply` gives the same patched hash as `patch -p1`;
+   - the SHA refusal was exercised both ways (patched file: the "already applied" message; one
+     byte changed: the generic refusal).
+
 ---
 
 ## Phase 5 — Sweep stage 1: the ported `march2014/` files, and the `local slotN` decision

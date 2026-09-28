@@ -25,6 +25,7 @@ keeps elstools' translation, which the mode table agrees with.
 
 Usage (from june2017_re/):
     python ljd_jun2017.py june_lua/DamageEffect.lua [more.lua ...]
+    python ljd_jun2017.py --fixed june_lua/X.lua   # also install ljd_fixed.py's slotworks fix
 Needs <stem>.std.luac next to each input (run elstools decompile-batch first;
 it writes that file even when its own decompile fails). Writes <stem>.src.lua.
 Exits non-zero if any file fails, or if the two files differ anywhere other
@@ -130,12 +131,16 @@ def parse_prototype(lua_path):
     return proto
 
 
-def decompile(lua_path):
+def decompile(lua_path, fixed=False):
     stem = lua_path[:-4] if lua_path.endswith('.lua') else lua_path
     std = stem + '.std.luac'
     out = stem + '.src.lua'
     kog, stdb = begin(lua_path)
     state = _STATE
+    if fixed:
+        # The dropped-assignment fix (RANOX_LUA_DECOMPILE_FIX_PLAN.md Phase 4); opt-in until Phase 9.
+        import ljd_fixed
+        ljd_fixed.install_fix()
     sys.argv = ['ljd', '-f', std, '-o', out]
     try:
         runpy.run_path(os.path.join(LJD, 'main.py'), run_name='__main__')
@@ -147,17 +152,20 @@ def decompile(lua_path):
     bad = [i for i in range(4, len(kog)) if kog[i] != stdb[i] and i not in state['oppos']]
     if bad:
         raise SystemExit('%s: %d non-opcode byte(s) differ, first at 0x%x' % (lua_path, len(bad), bad[0]))
-    fixed = ' '.join('%02x:%d' % kv for kv in sorted(state['fixed'].items())) or 'none'
-    print('%s: ok, %d instructions, corrected KOG ops %s -> %s' % (
-        os.path.basename(lua_path), len(state['oppos']), fixed, os.path.basename(out)))
+    fixed_ops = ' '.join('%02x:%d' % kv for kv in sorted(state['fixed'].items())) or 'none'
+    print('%s: ok, %d instructions, corrected KOG ops %s -> %s%s' % (
+        os.path.basename(lua_path), len(state['oppos']), fixed_ops, os.path.basename(out),
+        ' [%s]' % sys.modules['ljd_fixed'].stats_line() if fixed else ''))
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
+    fixed = '--fixed' in sys.argv[1:]
+    files = [a for a in sys.argv[1:] if a != '--fixed']
+    if len(files) != 1:
         # ljd keeps global state per process; run one file per interpreter.
         import subprocess
         rc = 0
-        for f in sys.argv[1:]:
-            rc |= subprocess.call([sys.executable, os.path.abspath(__file__), f])
+        for f in files:
+            rc |= subprocess.call([sys.executable, os.path.abspath(__file__)] + ['--fixed'] * fixed + [f])
         sys.exit(rc)
-    decompile(sys.argv[1])
+    decompile(files[0], fixed)

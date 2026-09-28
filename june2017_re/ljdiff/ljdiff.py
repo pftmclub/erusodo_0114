@@ -26,6 +26,7 @@ same code and only adds source lines to POISON_READ and the static pass.
     python ljdiff.py --diff [--lines] FILES            # run, then diff orig against every other side
     python ljdiff.py diff A.json B.json [--src B.src.lua]   # diff two existing traces
     python ljdiff.py fixloop FILE --fixes FIXES.json   # the fix-rerun loop (Phase 2b)
+    python ljdiff.py --fixed ...                       # rt decompiled by ../ljd_fixed.py (Phase 4 fix)
 
 Scratch: <Trunk>/tmp/ljdiff_<dir>__<name>.* (a run deletes and rebuilds only the
 files of the June files it was given; don't give other files that prefix).
@@ -70,6 +71,7 @@ JUNE_DATA = r'F:\elsword stuff\elsword_2014\els_2014\237311\14JUN17\data'
 LUAJIT_DIR = os.path.join(TRUNK, 'elstools', 'vendor', 'luajit')
 LUAJIT = os.path.join(LUAJIT_DIR, 'luajit.exe')
 LJD = os.path.join(TRUNK, 'elstools', 'vendor', 'ljd', 'main.py')
+LJD_FIXED = os.path.join(RE, 'ljd_fixed.py')  # same CLI as main.py, with the Phase 4 slotworks fix
 ELSTOOLS = os.path.join(TRUNK, 'elstools', 'elstools.exe')
 RUNTIME = os.path.join(HERE, 'ljdiff.lua')
 TYPES = os.path.join(HERE, 'types.tsv')
@@ -198,6 +200,8 @@ def decompile(path, table, flat):
     rc, so, se = run([sys.executable, LJD, '-f', stock_path, '-o', src], os.path.dirname(LJD), 600)
     if rc != 0 or not os.path.exists(src):
         raise StepError('ljd failed on %s (rc %d): %s' % (path, rc, (se.strip().splitlines() or [''])[-1]))
+    if LJD == LJD_FIXED and 'slotworks fix active' not in se:
+        raise StepError('ljd_fixed.py ran on %s without reporting the fix active: %s' % (path, se.strip()[-300:]))
     return src
 
 
@@ -946,6 +950,12 @@ def fixloop(june_path, fixes_path, seeds, opts):
 
 # ---------------------------------------------------------------- main
 
+def use_fixed_ljd(fixed):
+    global LJD
+    if fixed:
+        LJD = LJD_FIXED
+
+
 def main(argv):
     if argv and argv[0] == 'diff':
         ap = argparse.ArgumentParser(prog='ljdiff.py diff')
@@ -967,7 +977,9 @@ def main(argv):
         ap.add_argument('--fixes', required=True)
         ap.add_argument('--seeds', type=int, default=32)
         ap.add_argument('--no-lines', action='store_true')
+        ap.add_argument('--fixed', action='store_true', help='decompile with ljd_fixed.py')
         args = ap.parse_args(argv[1:])
+        use_fixed_ljd(args.fixed)
         os.makedirs(TMP, exist_ok=True)
         try:
             ok, L, _, _ = fixloop(resolve(args.file), args.fixes, args.seeds, '' if args.no_lines else 'lines')
@@ -988,7 +1000,10 @@ def main(argv):
     ap.add_argument('--no-twin', action='store_true', help='trace compile-batch output, not the -bg twin')
     ap.add_argument('--selftest', action='store_true',
                     help='only run selftest/selftest.lua (CLOBBER, re-entry, poison, learners, static pass)')
+    ap.add_argument('--fixed', action='store_true',
+                    help='decompile the rt side with ljd_fixed.py (the Phase 4 slotworks fix)')
     args = ap.parse_args(argv)
+    use_fixed_ljd(args.fixed)
     os.makedirs(TMP, exist_ok=True)
     if args.selftest:
         try:

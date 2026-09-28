@@ -13,6 +13,7 @@ For every cases/<name>.lua and each build (strip = `luajit -b`, g = `luajit -bg`
     python run_oracle.py                   # everything, compare to expected.tsv
     python run_oracle.py --case kenta      # one case
     python run_oracle.py --expect fixed    # compare to the post-fix column (Phase 4)
+    python run_oracle.py --fixed --expect fixed   # decompile with ../ljd_fixed.py (the Phase 4 fix)
     python run_oracle.py --twice           # clean, run, clean, run; byte-compare all outputs
     python run_oracle.py --observed F.tsv  # also dump every observed verdict/fact (for review)
 
@@ -51,6 +52,7 @@ PREFIX = 'ljoracle_'
 LUAJIT_DIR = os.path.join(TRUNK, 'elstools', 'vendor', 'luajit')
 LUAJIT = os.path.join(LUAJIT_DIR, 'luajit.exe')
 LJD = os.path.join(TRUNK, 'elstools', 'vendor', 'ljd', 'main.py')
+LJD_FIXED = os.path.join(TRUNK, 'june2017_re', 'ljd_fixed.py')  # same CLI as main.py, fix installed
 ELSTOOLS = os.path.join(TRUNK, 'elstools', 'elstools.exe')
 DRIVER = os.path.join(HERE, 'driver.lua')
 CASES = os.path.join(HERE, 'cases')
@@ -96,6 +98,8 @@ def build_case(case, build, flag):
     rc, so, se = run([sys.executable, LJD, '-f', stock, '-o', ljd_src], os.path.dirname(LJD), 300)
     if rc != 0 or not os.path.exists(ljd_src):
         raise StepError('ljd failed (rc %d): %s' % (rc, se.strip().splitlines()[-1:] or ''))
+    if LJD == LJD_FIXED and 'slotworks fix active' not in se:
+        raise StepError('ljd_fixed.py ran without reporting the fix active: %s' % se.strip()[-300:])
 
     rt = tmp(case, build, 'rt.luac')
     shutil.copyfile(ljd_src, rt)
@@ -274,7 +278,11 @@ def main(argv):
     ap.add_argument('--expect', choices=('now', 'fixed'), default='now')
     ap.add_argument('--twice', action='store_true')
     ap.add_argument('--observed', help='also write every observed verdict/fact to this TSV')
+    ap.add_argument('--fixed', action='store_true', help='decompile with ljd_fixed.py instead of the vendored main.py')
     args = ap.parse_args(argv)
+    if args.fixed:
+        global LJD
+        LJD = LJD_FIXED
     os.makedirs(TMP, exist_ok=True)
     cases = args.case or sorted(os.path.basename(p)[:-4] for p in glob.glob(os.path.join(CASES, '*.lua'))
                                 if not p.endswith('.calls.lua'))

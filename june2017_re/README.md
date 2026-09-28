@@ -473,6 +473,19 @@ into a bogus `return {…}`. Flat data tables come out clean, but code-built tab
 extraction therefore reads keys from the **bytecode**, and requires that set to equal
 the one read from the `.src.lua`.
 
+**ljd dropped-assignment fix (opt-in).** ljd also drops real register writes on stripped
+bytecode: it folds `slotN = <call>` into the one read it counted and leaves every other read
+naming a register nothing writes (`../RANOX_LUA_DECOMPILE_BUG.md`, "Root cause").
+`ljd_fixed.py` installs a fix for that into the vendored ljd at run time. It refuses to
+install if `slotworks.py` isn't the exact file it was written against.
+- June files: `ljd_jun2017.py --fixed`.
+- Stock bytecode: `ljd_fixed.py` with `main.py`'s own arguments.
+- The harnesses: `ljd_oracle/run_oracle.py --fixed` and `ljdiff/ljdiff.py --fixed`.
+
+The fix code is `ljd_slotworks_fix.py`. `ljd_slotworks.patch` is the same change as a diff
+for the two vendored ljd copies, and nothing applies it. The default stays unfixed until
+Phase 9 of `../RANOX_LUA_DECOMPILE_FIX_PLAN.md`; its "Phase 4 result" has the evidence.
+
 ## Phase 10b: converting June lua, and the two adoption audits
 
 **Converting June bytecode to `mar-2014`: `ljconv.py` (route (b), chosen in Phase 10b).**
@@ -565,6 +578,8 @@ Committed. These are small, or are the record of what was found:
   `|`-separated strings, each truncated to 60 chars), derived from `xorstrings.tsv`.
 - `ljd_jun2017.py` and `lj_bcmode.py`: the correct June lua decompiler, and the evidence
   for its opcode fix. See "June LuaJIT opcode table".
+- `ljd_fixed.py`, `ljd_slotworks_fix.py`, `ljd_slotworks.patch`: the ljd dropped-assignment
+  fix, as a run-time hook and as an unapplied patch. See "ljd dropped-assignment fix".
 - `reconcile.py` → `reconcile.md`: data keys against binary keys, per parser.
 - `census.py` → `../JUNE2017_EFFECT_KEY_MATRIX.md` + `census.tsv`: the Phase 1 key census.
 - `funcmap.tsv`: the June function map, `june_va, march_symbol, status, evidence`. **This
