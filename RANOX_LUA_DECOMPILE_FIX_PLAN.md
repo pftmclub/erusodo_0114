@@ -1502,6 +1502,54 @@ run_oracle.py and Kenta, but do NOT ship a fix. Never edit either vendored ljd c
 "Root cause" section into RANOX_LUA_DECOMPILE_BUG.md.
 ```
 
+## Phase 3 result
+
+Ran 2026-09-28. Both exit criteria are met:
+- The causal chain from `slotworks.py:285-287` (fed by `:857-861`) to the minimal repro's
+  `POISON_READ` is logged step by step.
+- A scratch edit flips the repro.
+
+The full write-up is in **`RANOX_LUA_DECOMPILE_BUG.md`, "Root cause"**. No fix was shipped,
+and neither vendored ljd copy was touched: both are still `diff -rq` clean against each other.
+The only tracked files changed are this plan and the bug doc; `types.tsv` is untouched.
+
+What Phase 4 must take from it:
+- **One defect, four sites.** Each site is a collection narrower than the value's live range:
+  - (a) the `:286` skip of cross-block (`id == -1`) references in the `main.py:380` pass
+  - (b) `_recheck_unsafe_cases`, which re-collects one block at a time
+  - (c) `unwarper.py:2521` `_cleanup_ast` over structured code, where an unresolvable read is
+    dropped silently (`reaching=[]`)
+  - (d) the same call on a sub-tree, whose outside reads are never visited
+- **Closing one site hands the value to the next.**
+  - Fixing only `:286`, or only reverting upstream bcb0aff9, leaves the minimal repro
+    unchanged: (b) re-inlines it.
+  - Scratch E1+E2+E3, which covers (a)–(c), leaves BW-3 to (d).
+- **Attribution.** In the unfixed decompile, 11 of Kenta's 12 are dropped at site (a) and CF-1
+  at site (c).
+  - No other inline in the file shows either signature `tmp/p3_folds.py` looks for: skipped
+    `id == -1` references, or reads lost within the same collection.
+  - **That detector is blind to site (d)**, where the other reads are never visited. So it is
+    not a complete census. The harness is what found nothing beyond the 12.
+- **Scratch numbers.**
+  - Oracle `--expect fixed` misses fall from 29 to 1 (`bwait/nolm-near` = BW-3), with no
+    control, `-g` or deepcopy row changed.
+  - Kenta at 128 seeds: `dropped-assignment` 406 → 0, static candidates 18 → 0, `other-ljd`
+    60 → 33, and the text restores exactly 11 writes. BW-3 remains, as `other-ljd` on 4/128.
+- **The ledger's other claims:**
+  - The `del new_slots[idx]` bug is inert: 0 leaks in 91 recheck blocks.
+  - The unsafe extra pass never runs, on stripped input or under `-g`.
+  - `_remove_invalid_references` never fires.
+- **Upstream has no fix.** The vendored copy equals znixian master, whose last commit is
+  2020-05-09. The maintainer's issue #32, "work across blocks", is still open. No fork
+  changes these sites.
+- **Pin before fixing (Phase 2b lead, still not done).**
+  - Add a BW-3 field-set-target case and an FI-1 "computed before a second assignment" case
+    to `ljd_oracle`.
+  - BW-3 is the case that tells an (a)–(c) fix apart from a complete one.
+  - The "Kenta has no `dropped-assignment`" acceptance check doesn't see BW-3. It shows as
+    `other-ljd` (stale value, no unwritten read), so Phase 4 must also check
+    `ATTACK_B_WAIT_FRAME_MOVE` for `pass` on 128/128.
+
 ---
 
 ## Phase 4 — The fix, as a tracked hook
