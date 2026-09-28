@@ -29,6 +29,13 @@ That doesn't scale to 7,328 June files. This plan builds two things:
   - Third-party ljd is never edited in place.
 - **`local slotN`.** This is **decided after the harness has produced evidence.** Phase 5
   gathers the evidence and asks. Until then, keep the existing no-`local` convention.
+  - **Decided 2026-09-28 (Phase 5, the user's answer): keep bare globals.** Phase 5's clobber
+    census found only 3 real nested-frame clobber sites across all 276 mapped port files (2 in
+    `SECRET_MAGI_BOSS.src.lua`, 1 in `SMITH_REGIEON_POINT.src.lua` — the same one Phase 4
+    already found), all same-file direct calls, 0 measured engine re-entry. Repairs restore
+    dropped assignments only; known clobbers are fixed case by case (Phase 6). `local` was not
+    adopted — see "Phase 5 result" for the full evidence and `RANOX_LUA_DECOMPILE_BUG.md` for
+    the recorded rationale.
 - **Scope.** All 7,328 June files, in stages:
   1. Kenta
   2. the ported `march2014/` files
@@ -139,8 +146,8 @@ Rules carried over:
      function, the seed, and the first differing event on both sides. "Unreached" (the
      harness never executed the flagged code) is reported as its own verdict, and it never
      counts as clean.
-  4. **Keep the no-`local` convention** in `march2014/` repairs until Phase 5 records the
-     user's decision.
+  4. **Keep the no-`local` convention** in `march2014/` repairs. Decided (Phase 5, 2026-09-28):
+     bare globals stay; known clobbers are fixed case by case.
   5. **`march2014/**/*.src.lua` files are ASCII with CRLF.** Preserve CRLF. After any edit,
      check `file <path>` and `git diff --stat`. A few changed lines should not produce
      hundreds, and there must be no deletions on a pure insertion.
@@ -1969,14 +1976,215 @@ Do not edit any march2014 file in this phase.
 
 ---
 
+## Phase 5 result
+
+Ran 2026-09-28. Exit criteria met with one caveat resolved below, not a stop: the fixed round
+trip shows **zero unexplained `dropped-assignment`** across the whole set, both dynamically (32
+seeds) and via the coverage-independent static must-define pass (which a 32-seed sweep alone
+cannot prove; see the calibration's "a clean 32-seed sweep is not proof against stale-value
+instances"). `march2014/**/*.src.lua` was not edited (`git status --short march2014`: clean).
+
+**Mapping.** 277 `.src.lua` files recounted (matches Phase 0's prior count), matched to their
+June original by exact basename (`decompile_corpus.tsv`'s 7,328 rows have 7,328 *distinct*
+names, checked, not assumed — so a name match is unambiguous). **276 mapped, 1
+`no-june-original`**: `march2014/data040/Field_Sander_Stage3_LineMaps.src.lua` (a Ranox-original
+zone with no June counterpart — expected, not investigated further). `ambiguous` and
+`duplicate-port-basename` both occurred 0 times. Outputs:
+`june2017_re/phase5_map.py`, `phase5_files.tsv` (the mapping, one row per port file),
+`phase5_targets.tsv` (the 276 mapped `(dir, name)` pairs `corpus_run.py` swept).
+
+**The sweep.** `june2017_re/phase5_worker.py` (a `corpus_run.py` WORKER: per June original,
+builds `orig`/`rt`(fixed)/`port` via `ljdiff` as a library — see the file's own docstring for
+why per-file process isolation is about OS-level timeout/resume here, not `ljd`'s module state,
+since `ljdiff.py` already shells out to `ljd`/`luajit`/`compile-batch` as subprocesses) plus
+`june2017_re/phase5_aggregate.py` (turns the per-file JSON into `decompile_verdicts.tsv`).
+- Split into a 267-file batch (<200 KB) and a 9-file batch (≥200 KB, up to `EffectSet.lua`
+  5.97 MB / `DamageEffect.lua` 5.42 MB), the latter at `--timeout 1800`. Both **complete, zero
+  crashes, zero timeouts, zero harness errors.**
+- **A real concurrency bug, found and fixed twice.** `--workers 8` on the first small-batch run
+  raced 8 processes' `learn()`/`save_types()` against the one shared `types.tsv` (never
+  previously run concurrently — `ljdiff.py`'s own multi-file runs are one process). 27/267
+  files hit `ljdiff.py`'s own `types_h32` mismatch guard (`diff_traces` refuses to diff two
+  traces built from different type snapshots) and reported `STEP_ERROR`, never a wrong verdict
+  — the guard did its job. Rerun those 27 at `--workers 1`: clean.
+  - **A second, narrower window the guard can't see**, raised in review: another worker's
+    `save_types()` landing between file A's own learn-phase save and its first trace() call
+    would make A's `orig`/`rt`/`port` traces mutually consistent (same guard-satisfying
+    `types_h32`) but built from a snapshot that skipped A's *own* newly-learned types — a
+    silent-verdict risk, not a crash. Handled by discarding the entire 240-file parallel result
+    and **rerunning all 267 at `--workers 1`** (the 9-file batch was already serial throughout).
+    Diffed old vs new, sorted: **2 lines differ, in one function's coverage count only**
+    (`FIRE_DEVIL_SNIKER`/`FIRE_DEVIL_SNIKER_INCHANT`'s `ATTACK_B_READY_JUMP_TO_TARGET`,
+    `cov_orig`/`cov_side` 17/14 vs 20/17) — **no verdict changed, the clobber census is
+    byte-identical.** The race was real but didn't reach a wrong answer here; `--workers 1` is
+    now how this sweep must be run, and is what produced the numbers below.
+  - `types.tsv` grew from the calibration's 45 rows to 97, all still keyed by name and shared;
+    `types_h32` is no longer `e9e20f92` (that hash is calibration-specific and superseded, as
+    "Calibration"'s own MD-S note already warned).
+
+**Verdicts: `june2017_re/decompile_verdicts.tsv`, 666 rows** (one per file+function, plus one
+`<main>` row per mapped file so a pure-data file with zero named functions still gets a verdict
+— `EffectSet`/`Enum`/`EnumString`/etc. would otherwise be invisible in this table):
+
+| Verdict | Rows | Meaning |
+|---|---:|---|
+| `clean` | 466 | matches June, fixed round trip and port agree |
+| `dropped-assignment` | 121 | the **port** file still has the bug — Phase 6's real worklist |
+| `port-divergence` | 55 | port differs from June for a reason that isn't a dropped write (edit, order, or — for `<main>` on table-only files — enum/content coverage gaps already tracked by `JUNE2017_EFFECT_REBUILD_PLAN.md`, not this plan's job) |
+| `not-exercised` | 13 | function present in the June/rt trace but never matched against the port (DamageEffect's 13 upvalue-closure helpers — its March/Ranox merge restructures them, not a decompile question) |
+| `reorder` | 6 | inherited order-only defects (BR-O/FI-O-shaped), harmless in-engine per Phase 4 |
+| `other-ljd (deepcopy, exempt)` | 2 | the **separate**, already-catalogued ljd deepcopy defect (see below) |
+| `static-only` | 1 | a static must-define candidate no seed reached |
+| `other-ljd` | 1 | DamageEffect's `<main>`, `upvalue`-dominant (captured-closure prints as `uvN`, expected for that file's shape) |
+| `no-june-original` | 1 | `Field_Sander_Stage3_LineMaps` |
+
+**62 distinct files carry at least one real `dropped-assignment`** (61 in `data037/` plus
+`MapData.src.lua`) — this reproduces the old heuristic lint's 61/774-hit scope almost exactly
+(one more file: the lint never flagged `MapData.src.lua` by itself since that was hand-verified
+separately), now with bytecode-confirmed, per-function, per-seed detail instead of a regex
+guess. Per-file counts are in `decompile_verdicts.tsv`; the two heaviest are `SECRET_MAGI_BOSS`
+(11 functions) and `GEYSER_MULSAYRENA` (9).
+
+**The `other-ljd (deepcopy, exempt)` rows are not a Phase 4 regression — verified, not
+assumed.** Two rt-side sightings (`SECRET_MAGI_BOSS`/`SECRET_SCENE_DUMMY`'s shared `TableCopy`
+helper, and a third, anonymous instance in `EffectSet.lua`'s `<main>`) print the exact
+`README.md` "ljd caveat" shape: `slot1 = { [slot5] = <call>(slot6) }` hoisted *before* the
+`for slot5, slot6 in pairs(...)` loop that is the only place those registers are actually
+assigned. That is `main.py`'s constructor-hoist logic, a different code path from the
+`slotworks.py` elimination Phase 4 fixed, and it was already flagged in Phase 1's oracle
+(`deepcopy::copy_it`) and Phase 2b's leads as something the sweep would hit and must not
+misclassify. `phase5_aggregate.py`'s `deepcopy_exempt_at_line()` confirms the signature
+per-site (by line, not by function name, so it also catches the anonymous `EffectSet` instance)
+and only then reclassifies away from `dropped-assignment`; every rt-side `dropped-assignment`
+that *doesn't* match gets called out as a regression candidate and the script exits 1 — it did,
+twice, while this classifier was still being built (see the aggregator's own commit history),
+and exits 0 now. **Correction to an assumption made mid-phase:** the port files' own `TableCopy`
+is *not* the raw ljd output — both were manually reconstructed on 2026-09-18 (`SERV_IRUHADEV_
+RANOX_PORT` comments citing the pseudo-asm evidence) as a plain non-recursive `local`-based
+shallow copy. So this defect exists only in the **fixed decompile of not-yet-ported June
+content** (relevant to Phases 7/8), never in the live port text — the two named-function
+`dropped-assignment` sightings this exemption also covers (`CreateMagiLockOnEffect`,
+`SECRET_MAGI_SPECIAL_ATTACK_READY_FRAME_MOVE_FUNC`, both calling into `TableCopy`) show `pass`/
+`static-only` on the **port** side for exactly this reason.
+
+**A second regression check, coverage-independent.** Per the calibration's own warning, a
+32-seed dynamic sweep cannot rule out a stale-value defect (BW-3 showed on ~3% of seeds).
+`phase5_aggregate.py` also walks every rt-side static must-define row with no `main-written`/
+`nested`/`upvalue` tag — the coverage-independent list, present whether or not any of the 32
+seeds actually took that path — through the same deepcopy signature check. **Zero additional,
+unexempted rows** across all 276 files. Both checks (dynamic + static) agree: the Phase 4 fix
+holds across this corpus.
+
+**Clobber census: `june2017_re/phase5_clobber_census.tsv`, 3 distinct clobber events across 2
+files**, all direct same-file calls (no engine re-entry — this sweep never touched
+`data038_kom/SQUARE_Unit.lua`, the only file where Phase 2a's simulated re-entry fires):
+
+| File | Caller | Callee | Slot | port | rt (fixed round trip preview) |
+|---|---|---|---|---|---|
+| `SECRET_MAGI_BOSS.src.lua` | `SECRET_MAGI_ATTACK_D_READY_START_FUNC` | `GetRandomUserIndexList` | `slot3` | `had`, 20/32 seeds | `had`, 20/32 seeds |
+| `SECRET_MAGI_BOSS.src.lua` | `SECRET_MAGI_SPECIAL_ATTACK_COMBO_FRAME_MOVE_FUNC` | `CreateLavaGround` | `slot3` | `unset`, 22/32 seeds | *(not in rt's function set — port-only)* |
+| `SMITH_REGIEON_POINT.src.lua` | `SMITH_REGIEON_POINT_SUMMON_FRAME_MOVE` | `ConsumeNPCSummomLimitNum` | `slot3` | `unset`, 3/32 seeds | `had`, 8/32 seeds |
+
+- **`had` vs `unset` matters.** `had` means the caller's own write to the slot survives to be
+  clobbered by the callee — the genuine nested-frame hazard. `unset` means the caller never
+  wrote the slot at all in that seed, so what looks like "no clobber" is really **a dropped
+  write being masked by the callee's own write** — i.e. still Phase 6's problem, not a clobber
+  decision at all, until the dropped write is restored. The `SMITH_REGIEON_POINT` row's
+  port→rt shift (3 `unset` → 8 `had`) is exactly Phase 4's own finding restated: once the
+  caller's own write is present (as it is in the fixed decompile), the clobber becomes real.
+  **This is the strongest concrete evidence for the decision below**, and it's the same
+  instance Phase 4 already named — this sweep didn't find a new one, it confirmed that one
+  is real and quantified it.
+- **The census is a lower bound — stated plainly, per Phase 2a's own caveat, quoted, not
+  paraphrased:**
+
+  > The clobber census covers direct calls between same-file functions, and engine re-entry
+  > through `CX2SquareUnit::StateChange_LUA`. It does **not** cover: re-entry that runs another
+  > file (24 `file-chunk` rows); stored-ref callbacks; the 12 `unclear` rows (combo/slider/
+  > check-box handlers, `SendGameMessage` with its 4th arg true, direct `CX2GUUser::StateChange`,
+  > text `.tet`/`.xet` loads). The traces' `unsim` sets name which of these each call reached,
+  > and overcount (keyed by method name alone).
+
+  **Measured, not left abstract:** aggregated `unsim` across every trace in this sweep (all
+  276 files, both `rt` and `port` sides) — **zero un-simulated re-entrant calls fired, in any
+  file.** So for exactly this corpus, the stated lower bound and the measured floor happen to
+  coincide; that is a fact about this sweep's call coverage, not a claim that no such re-entry
+  exists in the game.
+- **The one cross-file lead Phase 2a assigned here, chased and closed.**
+  `ReInitAtkAndDef_LUA` → `CalculateExtraStatValue` (`march2014/update/data036/
+  NewNPCStatFormula.src.lua:9`, our own `SERV_IRUHADEV_EXTRA_NPC_STAT` code) writes a bare
+  `slot8 = 0` mid-function. Read the file: **`slot8` is never read anywhere in that function or
+  the file.** It's a dead write, not a live hazard — checked, not just asserted.
+
+**Two informational notes, out of Phase 6's scope:**
+- **`<main>` `port-divergence` on data-only files** (`Enum.src.lua`: 135 values differ from
+  June, 139 June-only, 3 port-only) is expected, pre-existing content drift already tracked by
+  `JUNE2017_EFFECT_REBUILD_PLAN.md` Phase 11 ("add every June enum table/member... supersedes
+  the 'no reader, not added' rule"), not a decompile defect for this plan to fix.
+- **`DamageEffect.src.lua`'s `<main>`** is `other-ljd` (`upvalue`-dominant): its 13 helper
+  functions are captured closures in June's original but restructured in the March/Ranox merge,
+  so they never match up as callable-by-name entry points on the port side (`not-exercised`,
+  13 rows). Expected for a file `JUNE2017_EFFECT_REBUILD_PLAN.md` already calls a "Ranox-merged
+  copy," not a literal port.
+
+**Outputs:** `june2017_re/phase5_map.py`, `phase5_worker.py`, `phase5_aggregate.py`,
+`phase5_files.tsv`, `phase5_targets.tsv`, `decompile_verdicts.tsv`, `phase5_clobber_census.tsv`.
+Scratch (gitignored): `tmp/phase5_out/*.json` (per-file detail), `tmp/phase5_verdicts_{small,
+big}.tsv` (the corpus_run.py sweep logs).
+
+**The `local slotN` decision: keep bare globals.** Asked via `AskUserQuestion` in this same
+conversation, with the census above (3 clobber sites, 0 measured engine re-entry) presented as
+the evidence. The user's answer: keep the existing no-`local` convention; Phase 6 fixes the
+known clobbers case by case rather than adopting `local` as a blanket structural fix. Recorded
+in the "Decisions taken" block above and in `RANOX_LUA_DECOMPILE_BUG.md`.
+
+---
+
 ## Phase 6a–6c — Repair the ported files
 
-The file lists are provisional; Phase 5 rewrites them from verdicts.
-- **6a:** `SECRET_MAGI_BOSS.src.lua` and `SECRET_SCENE_DUMMY.src.lua` (the two largest by
-  lint volume)
-- **6b:** the rest of `march2014/update/data037/`
-- **6c:** `data036/MapData.src.lua`, anything outside `data037/`, and a final re-check of
-  Kenta against the fixed decompile
+**Re-split 2026-09-28 from `decompile_verdicts.tsv`'s real `dropped-assignment` row count per
+file** (function-level, not lint hits — see "Phase 5 result"), balanced to ~40 writes per
+sub-phase rather than by file size or folder. **62 files, 121 writes total.** The decision
+above is "keep bare globals" — no `clobber`-class repairs are added to this split; the 3 known
+clobber sites (`SECRET_MAGI_BOSS.src.lua` ×2, `SMITH_REGIEON_POINT.src.lua` ×1, already in their
+buckets below by their `dropped-assignment` count) are fixed as part of the same case-by-case
+pass, not a separate pass.
+
+- **6a (6 files, 42 writes — the heaviest, do these first and alone):**
+  `SECRET_MAGI_BOSS.src.lua` (11), `GEYSER_MULSAYRENA.src.lua` (9), `SMITH_SCIENCE.src.lua` (7),
+  `SECRET_SCENE_DUMMY.src.lua` (6), `FIRE_DEVIL_IGNIA.src.lua` (5),
+  `LOW_SMITH_SCIENCE_FD.src.lua` (4). All in `march2014/update/data037/`.
+- **6b (15 files, 36 writes):** `SAMETEAM_IGNIA.src.lua` (4); at 3 each:
+  `FIRE_DEVIL_CHAIN_BALL.src.lua`, `FIRE_DEVIL_SKA.src.lua`, `GEYSER_MULLOCK.src.lua`,
+  `TRAP_FIRE_BIG.src.lua`; at 2 each: `EVENT_FINALHALL_BOSS2.src.lua`,
+  `FIRE_DEVIL_BERSERKER_BOSS.src.lua`, `FIRE_DEVIL_BERSERKER_BOSS_FINALHALL.src.lua`,
+  `FIRE_DEVIL_IGNIA_BOSS_FINALHALL.src.lua`, `GEYSER_MULLOCK_CALL.src.lua`,
+  `GEYSER_MULSAYRENA_CALL.src.lua`, `LOW_GEYSER_MULLOCK_CALL_FD.src.lua`,
+  `LOW_GEYSER_MULLOCK_FD.src.lua`, `LOW_MOUNT_BERSERKER_BOSS.src.lua`,
+  `MOUNT_FIREBIRD_FIRETEMPLE.src.lua`. All in `march2014/update/data037/`.
+- **6c (41 files, 43 writes — the 1- and 2-write long tail, plus MapData and a Kenta
+  recheck):** at 2 each: `SMITH_REGIEON_POINT.src.lua`, `SMITH_RUNNER.src.lua`; at 1 each (all
+  `march2014/update/data037/` unless noted): `EVENT_FINALHALL_BOSS.src.lua`,
+  `EVENT_GATEWAY_BOSS.src.lua`, `EVENT_GAYSER_BOSS.src.lua`, `FIRETEMPLE_REGIEON_POINT.src.lua`,
+  `FIRE_DEVIL_BERSERKER.src.lua`, `FIRE_DEVIL_BERSERKER_FIRETEMPLE.src.lua`,
+  `FIRE_DEVIL_BERSERKER_INCHANT.src.lua`, `FIRE_DEVIL_SNIKER.src.lua`,
+  `FIRE_DEVIL_SNIKER_INCHANT.src.lua`, `GEYSER_ALUMINUM.src.lua`, `GEYSER_MULMAI.src.lua`,
+  `GEYSER_SCIENCE.src.lua`, `LOW_FINALHALL_BERSERKER_FD.src.lua`,
+  `LOW_FINALHALL_FIREBIRD_FD.src.lua`, `LOW_FINALHALL_SNIKER_FD.src.lua`,
+  `LOW_GEYSER_ALUMINUM_FD_BOSS.src.lua`, `LOW_GEYSER_MULMAI_FD.src.lua`,
+  `LOW_GEYSER_SCIENCE_FD.src.lua`, `LOW_MOUNT_BERSERKER_FD.src.lua`,
+  `LOW_MOUNT_FIREBIRD_FD.src.lua`, `LOW_SMITH_ALUMINUM_FD_BOSS.src.lua`,
+  `MOUNT_FIREBIRD.src.lua`, `MOUNT_POINT_STAGE_BOSS.src.lua`, `SECRET_BERSERKER.src.lua`,
+  `SECRET_CRUEL_BERSERKER.src.lua`, `SECRET_CRUEL_SNIKER.src.lua`, `SECRET_FIREBIRD.src.lua`,
+  `SECRET_MAGI_SUMMON.src.lua`, `SECRET_SCENE_1_1.src.lua`, `SECRET_SNIKER.src.lua`,
+  `SECRET_STAGE1_CHAIN1.src.lua`, `SECRET_STAGE1_CHAIN2.src.lua`,
+  `SECRET_SUMMON_BERSERKER.src.lua`, `SECRET_SUMMON_FIREBIRD.src.lua`,
+  `SECRET_SUMMON_SNIKER.src.lua`, `SMITH_ALUMINUM.src.lua`, `SMITH_CART.src.lua`,
+  `SMITH_STAIN.src.lua`; plus `march2014/data036/MapData.src.lua` (1: `MD-1`, and MD-S — the
+  `(A and B or C) and D` structure defect — is unreachable by the harness but still real, see
+  the calibration's MD-S correction) and a final re-check of Kenta (`update/data037/
+  RAGE_DRYADKENTA.src.lua`) against the fixed decompile (0 `dropped-assignment` expected —
+  it's already fixed; this is a confirm-not-regressed pass, not new repair work).
 
 **Paste with:** Starting context + this section + "Phase 5 result" (including the decision)
 + the sub-phase's file list.

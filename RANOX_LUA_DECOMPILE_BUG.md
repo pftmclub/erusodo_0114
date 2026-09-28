@@ -83,10 +83,16 @@ instances):
    can on a file that was itself compiled from already-broken text (happened on the live
    `RAGE_DRYADKENTA.lua`).
 4. Fix by restoring the real assignment ahead of its reads, matching the file's own
-   no-`local` bare-global convention (don't introduce `local` — the global-write model is
-   safe *within* one function's own sequential statements, since nothing else runs between
-   them; it's only unsafe across statements that never actually execute, which is the bug
-   itself). Verify with the lint (should drop to zero for that function) and
+   no-`local` bare-global convention. **Don't introduce `local`** — this is a decision, not the
+   safety argument an earlier pass of this doc made. That argument ("safe *within* one
+   function's own sequential statements, since nothing else runs between them") is **refuted**:
+   `RANOX_LUA_DECOMPILE_FIX_PLAN.md`'s Phase 1 oracle found a same-file recursive call clobbering
+   a shared global (`deepcopy_global`'s `global/nested` case), and Phase 5's real-corpus sweep
+   found 3 live instances across 276 port files (`SECRET_MAGI_BOSS.src.lua` ×2,
+   `SMITH_REGIEON_POINT.src.lua` ×1 — the same one already fixed in Kenta's sibling function).
+   The user chose to accept that residual risk and fix known instances case by case rather than
+   adopt `local` everywhere; see the plan's "Phase 5 result" and "Decisions taken" for the
+   evidence and the full record. Verify with the lint (should drop to zero for that function) and
    `elstools compile-batch -v mar-2014` on a **scratch copy** (the compiler overwrites its
    input in place).
 5. Note the `SERV_IRUHADEV_RANOX_PORT (<date>): ...` comment convention already used
@@ -389,8 +395,12 @@ unchanged and `types.tsv` untouched.
   - `june2017_re/ljd_slotworks.patch` is the same change for the vendored copies. It is not
     applied.
   - The default decompile stays unfixed until the plan's Phase 9.
-  - Existing ported `.src.lua` files are not re-decompiled or repaired yet. That is
-    Phases 5–6.
+  - **Phase 5 is done (2026-09-28): every ported file now has a verdict**, in
+    `june2017_re/decompile_verdicts.tsv` — 62 files carry a real `dropped-assignment` (121
+    functions total, reproducing this doc's old 61-file heuristic scope almost exactly, now
+    bytecode-confirmed instead of regex-guessed), plus `MapData.src.lua`. The table above is
+    therefore superseded by that TSV for anything except Kenta (kept here as the worked
+    example). Repair itself is Phase 6, re-split by real write count in the plan.
 - The lint has not been wired into the decompile workflow (`ljd_jun2017.py` /
   `elstools decompile-batch`) as an automatic guard — right now it's a standalone script you
   have to remember to run.
