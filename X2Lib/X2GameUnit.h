@@ -2113,6 +2113,12 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		virtual HRESULT				OnLostDevice()												= NULL;
 
 		virtual UidType				GetUnitUID() const { return m_UnitUID; }
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		/// June2017 MAKE_TARGET (CX2DamageManager::DamageData::m_bMakeTarget). See m_uidMakeTarget.
+		void					SetMakeTarget( UidType uid, GAME_UNIT_TYPE eType ) { m_uidMakeTarget = uid; m_eMakeTargetGameUnitType = eType; }
+		UidType						GetMakeTargetUnitUID() const { return m_uidMakeTarget; }
+		GAME_UNIT_TYPE				GetMakeTargetGameUnitType() const { return m_eMakeTargetGameUnitType; }
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		//virtual CX2Unit*			GetUnit() const { return NULL; }
 		virtual CKTDGXSkinAnimPtr	GetSkinAnimPtr() const = NULL;
 		//virtual void              StateChange( int state, bool bDirectChange = false )		= NULL;
@@ -3784,6 +3790,13 @@ protected:
 		GAME_UNIT_TYPE									m_GameUnitType;		/// User인지 NPC인지를 구분 하는 타입
 		int												m_UnitIndex;		/// NPC의 경우 m_NPCUnitList에서 unit이 차지하는 위치의 index(비어있는곳), User의 경우 slotIndex 이다.
 		UidType											m_UnitUID;			/// Unique ID
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		/// June2017 CEffect::AttackResult (FUN_31f85910), default case, MAKE_TARGET
+		/// (@31f86abf-31f86acb): the defender's UnitUID/GameUnitType at the moment of the hit.
+		/// No March reader yet.
+		UidType											m_uidMakeTarget;
+		GAME_UNIT_TYPE									m_eMakeTargetGameUnitType;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		KProtectedType<int>								m_TeamNum;			/// Team 분류 넘버로, 던전에서는 보통 CX2Room::TN_RED 이다.
 //#ifdef PVP_BOSS_COMBAT_TEST
 //		int												m_TeamNumOriginal;		

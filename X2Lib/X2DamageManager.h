@@ -1095,6 +1095,30 @@ class CX2DamageManager
 			DamageRelateSkillData	m_RelateSkillData;
 #endif //ADD_RENA_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+			/// June2017 SetDamageDataFromLUA (FUN_32632390): RT_CREATE_EFFECT_SET-only keys, read
+			/// at DamageData +0x4c1/+0x4c2 (CEffect +0x6c1/+0x6c2) and consumed in
+			/// CEffect::AttackResult (FUN_31f85910 @31f861a1/@31f86755).
+			bool				m_bCreateEffectSetMainEffectLifetime;	/// CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME
+			bool				m_bCreateEffectSetMainEffectDelaytime;	/// CREATE_EFFECT_SET_MAIN_EFFECT_DELAYTIME
+
+			/// +0x4c3 (CEffect +0x6c3): parsed only. Runtime (FUN_321da350 @31f8679f-31f867ad,
+			/// called with the effect set instance, the main effect's world position and the
+			/// trace unit) is not ported: its callees (FUN_32278580, FUN_31c1c1a0, FUN_31f54910)
+			/// are not identified.
+			bool				m_bTraceNearestBone;				/// TRACE_NEAREST_BONE
+
+			/// +0x5c1 (CEffect +0x7c1), read in AttackResult's default case (@31f86a9d): stores
+			/// the defender's UnitUID/GameUnitType onto the owner (CX2GameUnit::m_uidMakeTarget /
+			/// m_eMakeTargetGameUnitType, @31f86abf-31f86acb). No March reader yet.
+			bool				m_bMakeTarget;						/// MAKE_TARGET
+
+			/// string getter (sdd_walk.py row 130, decrypt @3263ec64-getter @3263edbd). Registered
+			/// with the damage manager by June (FUN_32622220 @3263edee) when non-empty; that
+			/// registration is not ported -- its purpose and reader are not identified.
+			std::wstring		m_wstrDamageDataKeyName;			/// DAMAGE_DATA_KEY_NAME
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+
 			void SimpleInit()
 			{
 				damageType			= DT_PHYSIC;
@@ -1287,6 +1311,14 @@ class CX2DamageManager
 				m_eFirstAttack = FAC_NONE;
 				m_RelateSkillData.Init();
 #endif //ADD_RENA_SYSTEM
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+				m_bCreateEffectSetMainEffectLifetime	= false;
+				m_bCreateEffectSetMainEffectDelaytime	= false;
+				m_bTraceNearestBone						= false;
+				m_bMakeTarget								= false;
+				m_wstrDamageDataKeyName					= L"";
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 			}
 
 			void Init()

@@ -4860,11 +4860,30 @@ void CX2DamageEffect::CEffect::AttackResult()
 							pTraceUnit = m_DamageData.optrDefenderGameUnit.GetObservable();
 						}
 #ifdef TRACE_UNIT_DIE_DELETE_EFFECTSET
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+						// June2017 FUN_31f85910 @31f861a1-31f861e2: CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME
+						// overrides the created set's fLifeTime with this CEffect's own main-effect mesh
+						// (m_hMeshInstHandle, the same handle GetMainEffect() reads) remaining life
+						// (MaxLifeTime - NowLifeTime); default is PlayEffectSet's own -1.f, unchanged.
+						float fMainEffectLifeTime = -1.f;
+						if( m_DamageData.m_bCreateEffectSetMainEffectLifetime && NULL != pMeshInst )
+							fMainEffectLifeTime = pMeshInst->GetMaxLifeTime() - pMeshInst->GetNowLifeTime();
+
+						CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( m_DamageData.m_wstrCreateEffectSetName.c_str(), pOwnerGameUnit, pTraceUnit, false, m_fPowerRate, fMainEffectLifeTime );
+#else //SERV_IRUHADEV_JUNE_DAMAGEDATA
 						CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( m_DamageData.m_wstrCreateEffectSetName.c_str(), pOwnerGameUnit, pTraceUnit, false, m_fPowerRate );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 						CX2EffectSet::EffectSetInstance* pInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffectSet );
 						if( NULL != pInstance )
 						{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+							// June2017 FUN_31f85910 @31f86755-31f86788: CREATE_EFFECT_SET_MAIN_EFFECT_DELAYTIME
+							// writes the same main-effect life delta onto the instance's own delay timer.
+							if( m_DamageData.m_bCreateEffectSetMainEffectDelaytime && NULL != pMeshInst )
+								pInstance->m_fDelayTime = pMeshInst->GetMaxLifeTime() - pMeshInst->GetNowLifeTime();
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+
 							pInstance->m_bTraceUnitDieDeleteEffectSet = m_DamageData.m_bTraceUnitDieDeleteEffectSet;
 							pInstance->m_bCreateEffectSetTraceUnit = m_DamageData.m_bCreateEffectSetTraceUnit;
 
@@ -4946,6 +4965,15 @@ void CX2DamageEffect::CEffect::AttackResult()
 #endif
 
 						pOwnerGameUnit->DoDelegateProcessInAttackResult( m_DamageData );
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+						// June2017 FUN_31f85910 @31f86a9d-31f86acb, default case: MAKE_TARGET stores the
+						// defender's UnitUID/GameUnitType onto the owner. No March reader yet.
+						if( m_DamageData.m_bMakeTarget && NULL != pDefenderGameUnit )
+						{
+							pOwnerGameUnit->SetMakeTarget( pDefenderGameUnit->GetUnitUID(), pDefenderGameUnit->GetGameUnitType() );
+						}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 					}
 				}
 			}

@@ -2491,6 +2491,100 @@ launching. Update the matrix and MODS.md.
 
 ## Phase 8b — SetDamageData II: new keys whose systems exist
 
+**Status: in progress (2026-09-29).** Five keys done this session, extending
+`SERV_IRUHADEV_JUNE_DAMAGEDATA` (no new flag). Built `US_SERVICE` clean (X2Lib + X2, 0 errors) and
+deployed to `X2_offline.exe`, 18,949,120 B, SHA-256 `1c69e9949daa31be…`. `census.py` confirms all
+five moved to `implemented` (phase label `8a`, since a `DE.DAMAGE_DATA` key with a March site always
+reports there — see `census.py`'s `phase_of()`). 28 `to-implement` keys remain in `census.tsv`'s
+phase `8b`; resume with the grouping below.
+
+- **`CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME`/`_DELAYTIME`** (`FUN_32632390
+  @32633ef5-326341f4`/`@326341f4-32634510`, bool getters): consumed in `CEffect::AttackResult`'s
+  `RT_CREATE_EFFECT_SET` case (`FUN_31f85910 @31f861a1-31f861e2`/`@31f86755-31f86788`). Both read
+  this `CEffect`'s own main-effect mesh (`m_hMeshInstHandle`, the handle `GetMainEffect()` reads) and
+  compute `MaxLifeTime − NowLifeTime`; LIFTTIME overrides the created set's `PlayEffectSet` `fLifeTime`
+  argument (default is already March's own `-1.f`), DELAYTIME writes `EffectSetInstance::m_fDelayTime`
+  directly. `X2DamageEffect.cpp`, `AttackResult()`.
+- **`MAKE_TARGET`** (`FUN_32632390 @3263eaeb-3263ec1a`, bool): consumed in `AttackResult`'s default
+  case (`FUN_31f85910 @31f86a9d-31f86acb`) — stores the defender's `UnitUID`/`GameUnitType` onto the
+  *owner* (attacker), not onto `DamageData` or `CEffect`. New `CX2GameUnit` members
+  `m_uidMakeTarget`/`m_eMakeTargetGameUnitType` (+ `SetMakeTarget`/getters), `X2GameUnit.h/.cpp`. No
+  March reader exists for these yet — same "no known reader" situation as 8a's `DRAIN_HP_RATE`.
+- **`TRACE_NEAREST_BONE`** (`FUN_32632390 @32634b5b-32634cf0`, bool): **parsed only.** The call site
+  is identified — `FUN_31f85910 @31f8679f-31f867ad` calls `FUN_321da350(pInstance, &pMeshInst-position,
+  pTraceUnit)` — but `FUN_321da350`'s own bone-lookup helpers (`FUN_32278580`, `FUN_31c1c1a0`,
+  `FUN_31f54910`) are not identified, and this build already has a bone-trace-target subsystem
+  (`SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME`'s `TargetMeshData`/`BONE_TRACE_TARGET_MESH_INDEX`, Phase 4b)
+  that this key may or may not feed into. Implementing further here would be inventing behavior.
+  **Next step:** identify those three functions and how (or whether) they interact with
+  `TargetMeshData` — an identification step, Opus per the plan's own model table.
+- **`DAMAGE_DATA_KEY_NAME`** (`FUN_32632390 @3263ec1a-3263edf3`, string): **parsed only.** The
+  registration call is cited (`FUN_32622220 @3263edee(name, pDamageData)` on the damage manager, run
+  when the name is non-empty) but its purpose (a name → `DamageData` lookup for something?) and any
+  reader are not identified. **Next step:** find `FUN_32622220`'s own definition.
+- **Carried over from 8a, not resolved this session: the `EDT_MANA_DAMAGE` no-display reader.** The
+  natural March consumer is `CX2GUUser::Process_ExtraDamage`'s `EDT_MANA_DAMAGE` case — the two
+  `DrawText( L"MP -…" )` calls at `X2GUUser.cpp:10409-10444` — but its June counterpart was not
+  found: the binary exports no C++ names to search by, and a `+0x151` displacement scan is noise
+  (README). **Next step:** identify `Process_ExtraDamage`'s June counterpart by call graph from a
+  `confirmed` caller (Opus, high — this is identification, not transcription).
+
+**Resume point — 28 keys left (`census.tsv`, phase `8b`), grouped by what each needs next:**
+
+1. **Damage-math** (the plan's own priority order). All of these need `CX2GameUnit::GetFinalDamage`'s
+   June counterpart identified first — it is not in `funcmap.tsv`, and no `Process_ExtraDamage`-style
+   string lead was found for it either in this session: `IGNORE_DEFENCE_ON_PVP`, `IGNORE_DEFENCE_RATE`,
+   `IGNORE_DEFENCE_RATE_ON_PVP`, `IGNORE_DEFENCE_DECLINE`, `DIVISION_NUM`, `DIVISION_OFF_TIME`,
+   `DIVIDE_DAMAGE_FROM_RANGE`/`RANGE%d`/`RANGE`/`DAMAGE_RATE` (`FUN_3261a150` on `DamageData +0x5b0`,
+   8a's handoff row 14), `CAN_ACTIVATE_NASOD_ARMOR_COMBO`, `DAMAGE_SKILL_ID`.
+2. **`ParsingBuffFactorID` family.** Needs `FUN_31fcf3e0`/`FUN_3227baf0`'s March counterparts
+   identified — do not assume they are `IsEqippedMemo_`/the memo path by resemblance (the README
+   already notes 1-3 of `ParsingBuffFactorID`'s order don't exist on March's data, but the *functions*
+   still need real identification before a reader is written): `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID`,
+   `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID`, `BUFF_FACTOR_ID_ULTIMATE`,
+   `BUFF_FACTOR_ID_PVP`.
+3. **`DAMAGE_TRIGGER_DATA` family.** Parse (new sub-table + vector) is straightforward; the consumer
+   needs finding wherever March iterates `m_eDamageTrigger`/`DAMAGE_TRIGGER_TYPE`:
+   `DAMAGE_TRIGGER_DATA` and its `ATTACK_TRIGGER_TYPE`/`BUFF_TEMPLET_ID`/`POWER_RATE`/
+   `POWER_RATE_ACCUMULATION_MULTIPLIER`, `ADDITIONAL_ATTACK_TRIGGER_TYPE` (cleared by `FUN_3221db80`,
+   pushed by `FUN_31f8b860`, 8a's handoff rows 33-34).
+4. **Everything else — likely the same shape as this session's five.** For each: try xrefs on the
+   parsed member's write inside an already-`confirmed` function first (`AttackResult`, `DamageReact`,
+   `EffectToUnit`); only escalate to a fresh June-function identification if that comes up empty.
+   `INIT_EXTRA_DAMAGE_BEFORE_LOAD`, `ADD_MEMBER_COUNT`/`_DISTANCE`, `BOUNDING_BACK_SPEED_X/Y`,
+   `FORCE_BACK_SPEED`, `ADD_CHECK_DAMAGE_UNIT_NUM`, `EXCEPT_ME_HP_UP`, `ATTACK_ONLY_ME`,
+   `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`, `DAMAGE_LIGHT_TIME`, `IS_AURA_BUFF`, `IGNORE_ATTACK_SUCCESS`,
+   `ONYL_ATTACK_USER`, `PAUSE_NPC_AI_TIME`.
+
+**Not this phase's job.** The four `unassigned` `BUFF_FACTOR/*` rows (`BFT_AURA`, `BBT_INVINCIBLE`,
+`BBT_IMMUNE_NON_CONTROL_DEBUFF`, `BUFF_FACTOR/BEHAVIOR/BBT_NEVER_MOVE/OFFSET_POSITION`) are the
+matrix's own "nested BUFF_FACTOR" open question (Phase 1's scope-not-owned list), not 8b's — leave
+them `unassigned`.
+
+**Play-test checklist (pending as of 2026-09-29).** None of this session's five keys can produce an
+*observable* gameplay difference yet — no currently-loaded March data sets any of them true (deferred
+to Phase 11, same as Phase 2's `ES_TEMPLET` situation). So this round is a **regression check on a
+shared, always-executed path**, not a feature verification:
+
+- **What actually changed in a hot path:** `CEffect::AttackResult`'s `RT_CREATE_EFFECT_SET` case (any
+  damage effect that creates an effect set on hit — impact VFX, on-hit procs) now goes through a
+  restructured `PlayEffectSet` call and a new `pInstance->m_fDelayTime` check every time that case
+  fires; the `default:` case (every "normal" hit) now also evaluates a new
+  `if( m_bMakeTarget && pDefenderGameUnit )` block. Both are no-ops with the new bool flags defaulting
+  `false`, but the code is newly reached on every such hit.
+- **General combat regression:** normal attacks and a variety of skills, in a dungeon and/or PVP room.
+  Nothing should look, feel, or behave differently than before this session.
+- **Specifically exercise skills/effects that create an effect set on hit** (on-hit status VFX, proc
+  effects) — these hit the changed code. Confirm they still spawn, are positioned correctly, and have
+  an unchanged lifetime/delay.
+- **No crashes or exceptions.** After playing, check `offline_packets.log` for
+  `*** EXCEPTION - ROLLED BACK ***`, `offline_server.log` for anything new/unusual, and `ErrorLog.txt`
+  for new entries.
+- **Character state sane afterward:** HP/MP, buffs, damage numbers look normal; nothing hangs.
+
+A clean pass confirms the refactor is a safe no-op; genuine verification of these 5 keys' behavior
+still has to wait for Phase 11's June data.
+
 **Paste with:** Starting context + this section.
 
 **Model:** Sonnet 5, high. See "Model and effort per phase".
@@ -2538,18 +2632,24 @@ when a key here needs it.
 **Kickoff prompt**:
 ```
 Continuing the June2017 effect-engine rebuild. Read JUNE2017_EFFECT_REBUILD_PLAN.md
-("Starting context" rules, "Investigation ledger", "Phase 8b"), june2017_re/README.md,
-funcmap.tsv, and the matrix. Phase 8a is done and produced the ordered new-key list
-(extend SERV_IRUHADEV_JUNE_DAMAGEDATA). Branch: mods/lanox-port.
+("Starting context" rules, "Investigation ledger", "Phase 8b" -- including its "Status: in
+progress" resume point, if one is there), june2017_re/README.md, funcmap.tsv, and the
+matrix. Phase 8a is done (extend SERV_IRUHADEV_JUNE_DAMAGEDATA). Branch: mods/lanox-port.
 
-Your task: for each new DamageData key whose system exists in this build, transcribe both
-June's parse (FUN_32632390 range from 8a's list) and June's consumer (find it via xrefs on
-the June member write), citing both. Damage-math keys first; if the session runs long,
-commit and write the resume point into Phase 8b's section.
+If Phase 8b already has a resume point, start from its numbered groups in order rather than
+re-deriving scope from census.tsv yourself. Otherwise: for each new DamageData key whose
+system exists in this build, transcribe both June's parse (FUN_32632390 range from 8a's
+list) and June's consumer (find it via xrefs on the June member write inside an
+already-confirmed function first), citing both. Damage-math keys first. A key whose
+consumer needs identifying a NOT-YET-confirmed June function is an identification step, not
+transcription -- per the plan's own model-switch rule, flag it and stop rather than guessing
+by resemblance. If the session runs long, commit and write the resume point into Phase 8b's
+section, grouped by what each remaining key needs next (mirror the existing resume point's
+shape).
 
 CP949 byte-level edits only. Build, deploy, ASK before launching. Done when census.py
-shows no DamageData keys to-implement except Phase 8c's absent-system list. Update the
-matrix and MODS.md.
+shows no DamageData keys to-implement except Phase 8c's absent-system list and Phase 8b's
+own explicitly-deferred (parsed-only) keys. Update the matrix and MODS.md.
 ```
 
 ---

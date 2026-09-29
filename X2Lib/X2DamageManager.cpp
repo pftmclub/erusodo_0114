@@ -105,6 +105,13 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		
 		LUA_GET_VALUE(		luaManager, "CREATE_DAMAGE_EFFECT_NAME",		pDamageData->m_wstrCreateDamageEffectName,	L"" );
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		// June2017 FUN_32632390 @32633ef5-326341f4/@326341f4-32634510: RT_CREATE_EFFECT_SET-only
+		// flags, consumed in CEffect::AttackResult (FUN_31f85910 @31f861a1/@31f86755).
+		LUA_GET_VALUE(		luaManager, "CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME",	pDamageData->m_bCreateEffectSetMainEffectLifetime,	false );
+		LUA_GET_VALUE(		luaManager, "CREATE_EFFECT_SET_MAIN_EFFECT_DELAYTIME",	pDamageData->m_bCreateEffectSetMainEffectDelaytime,	false );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+
 #ifdef SERV_ARME_DIMENSION_WITCH	// ADW_DISTORTION
 		// RT_CREATE_DAMAGE_EFFECT 가 아닐경우 확율 동작하도록 한다. (현재 유저만 구현되어 있음)
 		LUA_GET_VALUE(		luaManager, "CREATE_DAMAGE_EFFECT_RATE",		pDamageData->m_fCreateDamageEffectRate,	0.f );
@@ -114,6 +121,14 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 
 		LUA_GET_VALUE(		luaManager, "CREATE_EFFECT_SET_NAME",			pDamageData->m_wstrCreateEffectSetName,		L"" );
 		LUA_GET_VALUE(		luaManager, "CREATE_EFFECT_SET_TRACE_UNIT",		pDamageData->m_bCreateEffectSetTraceUnit,	false );
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		// June2017 FUN_32632390 @32634b5b-32634cf0. Parsed only: runtime (FUN_321da350
+		// @31f8679f-31f867ad, called with the created effect set instance, the main effect's
+		// world position and the trace unit) is not ported -- its callees (FUN_32278580,
+		// FUN_31c1c1a0, FUN_31f54910) are not identified.
+		LUA_GET_VALUE(		luaManager, "TRACE_NEAREST_BONE",			pDamageData->m_bTraceNearestBone,	false );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 #ifdef TRACE_UNIT_DIE_DELETE_EFFECTSET
 		LUA_GET_VALUE(		luaManager, "TRACE_UNIT_DIE_DELETE_EFFECT_SET",	pDamageData->m_bTraceUnitDieDeleteEffectSet, true );
@@ -426,6 +441,18 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		LUA_GET_VALUE( luaManager, "APPLY_CRITICAL_DAMAGE_PERCENT",			pDamageData->m_fApplyCriticalDamage,	0.0f );
 		LUA_GET_VALUE( luaManager, "HIT_ADD_HP_PERCENT_ATTACKPOWER",		pDamageData->fHitAddHPbyAttackPower,	0.0f );
 #endif //ADD_MEMO_1ST_CLASS
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		// June2017 FUN_32632390 @3263eaeb-3263ec1a: default-case-only flag, read in
+		// CEffect::AttackResult (FUN_31f85910 @31f86a9d) -- stores the defender's UnitUID and
+		// GameUnitType onto the owner (CX2GameUnit::SetMakeTarget). No March reader yet.
+		LUA_GET_VALUE(		luaManager, "MAKE_TARGET",				pDamageData->m_bMakeTarget,	false );
+
+		// June2017 FUN_32632390 @3263ec1a-3263edf3: string key, registered with the damage
+		// manager (FUN_32622220 @3263edee) when non-empty. Parsed only: the registration's
+		// purpose and reader are not identified.
+		LUA_GET_VALUE(		luaManager, "DAMAGE_DATA_KEY_NAME",		pDamageData->m_wstrDamageDataKeyName,	L"" );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 		luaManager.EndTable();
 

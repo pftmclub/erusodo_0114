@@ -67,6 +67,10 @@ m_fNoSkillTime( 0 )
 , m_fDamageBoundingSpeed( 0.f )
 #endif BOUNDING_COMBO_TEST
 , m_bImmuneToExtraDamage( false )
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+, m_uidMakeTarget( -1 )
+, m_eMakeTargetGameUnitType( GUT_USER )
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 , m_vBasicScale( 1.0f, 1.0f, 1.0f )
 , m_vTransScale( m_vBasicScale )
 , m_vOrgUnitSize( 1.0f, 1.0f )

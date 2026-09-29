@@ -2223,6 +2223,56 @@ every `SetDamageDataFromLUA` call, i.e. every hit.
 Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEDATA`. Pure addition: one member (+ reset, + copy), one
 constant, one `if` after the `EXTRA_DAMAGE_TYPE` read.
 
+### June2017 effect engine: DamageData, new keys I (Phase 8b, in progress)
+
+Phase 8b of `JUNE2017_EFFECT_REBUILD_PLAN.md`, extending `SERV_IRUHADEV_JUNE_DAMAGEDATA` (no new
+flag) in `X2Lib/X2DamageManager.{h,cpp}`, `X2Lib/X2DamageEffect.cpp` and `X2Lib/X2GameUnit.{h,cpp}`.
+Five of the 33 new keys 8a's handoff assigned to this phase, done this session; 28 remain (see the
+plan's Phase 8b resume point for the grouped list and what each group needs next).
+
+- **`CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME`/`_DELAYTIME`** (`FUN_32632390
+  @32633ef5-326341f4`/`@326341f4-32634510`, both bool): new `DamageData::m_bCreateEffectSetMainEffectLifetime`/
+  `m_bCreateEffectSetMainEffectDelaytime`. Consumed in `CEffect::AttackResult`'s `RT_CREATE_EFFECT_SET`
+  case (`FUN_31f85910 @31f861a1-31f861e2` / `@31f86755-31f86788`): both read this `CEffect`'s own
+  main-effect mesh (`m_hMeshInstHandle`, the handle `GetMainEffect()` reads) and compute
+  `GetMaxLifeTime() − GetNowLifeTime()`. LIFTTIME overrides the created effect set's `PlayEffectSet`
+  `fLifeTime` argument (previously always its own default, `-1.f`); DELAYTIME writes
+  `EffectSetInstance::m_fDelayTime` directly, after the set is created.
+- **`MAKE_TARGET`** (`FUN_32632390 @3263eaeb-3263ec1a`, bool): new `DamageData::m_bMakeTarget`.
+  Consumed in `AttackResult`'s default case (`FUN_31f85910 @31f86a9d-31f86acb`) — unlike every other
+  key in this batch, June stores the result onto the **owner** (attacker), not `DamageData` or
+  `CEffect`: the defender's `UnitUID` and `GameUnitType` at the moment of the hit. New
+  `CX2GameUnit::m_uidMakeTarget`/`m_eMakeTargetGameUnitType` (+ `SetMakeTarget()`/getters,
+  `X2GameUnit.h/.cpp`), initialized `-1`/`GUT_USER` in the constructor. **No March reader exists for
+  these yet** — the same "carried, not consumed" situation as 8a's `DRAIN_HP_RATE`.
+- **`TRACE_NEAREST_BONE`** (`FUN_32632390 @32634b5b-32634cf0`, bool): new
+  `DamageData::m_bTraceNearestBone`. **Parsed only.** The call site is identified —
+  `FUN_31f85910 @31f8679f-31f867ad` calls `FUN_321da350(pInstance, &mainEffectMesh-position,
+  pTraceUnit)` — but `FUN_321da350`'s own bone-lookup callees (`FUN_32278580`, `FUN_31c1c1a0`,
+  `FUN_31f54910`) are not identified, and this build already has a separate bone-trace-target
+  subsystem (`SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME`'s `TargetMeshData`, Phase 4b) that this key may
+  or may not feed into. No runtime behavior was written to avoid guessing which.
+- **`DAMAGE_DATA_KEY_NAME`** (`FUN_32632390 @3263ec1a-3263edf3`, string): new
+  `DamageData::m_wstrDamageDataKeyName`. **Parsed only.** The registration call is cited
+  (`FUN_32622220 @3263edee(name, pDamageData)` on the damage manager, run when the name is non-empty)
+  but its purpose and any reader are not identified.
+
+Built `US_SERVICE` (`touch X2Lib/stdafx.cpp` first; X2Lib and X2, 0 errors) **and deployed to
+`X2_offline.exe`, 18,949,120 B**, SHA-256 prefix `1c69e9949daa31be`, 2026-09-29. `census.py`: all
+five keys moved from `to-implement` to `implemented` (reported under phase `8a`, since a
+`DE.DAMAGE_DATA` key with a March parse site always reports there — see `census.py`'s
+`phase_of()`), all checks PASS. Not play-tested yet: `CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME`/
+`_DELAYTIME`/`TRACE_NEAREST_BONE` need a `DamageData` with `m_wstrCreateEffectSetName` set and one
+of these flags true, which no deployed March data currently sets (same situation as Phase 2's
+`ES_TEMPLET` check — settled at Phase 11 when June's own data is adopted); `MAKE_TARGET` and
+`DAMAGE_DATA_KEY_NAME` have no reader to observe yet either. So this round's play-test is a
+regression check on the always-executed `RT_CREATE_EFFECT_SET`/default-case paths, not a feature
+verification — see the plan's Phase 8b "Play-test checklist" for what to look for.
+
+Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEDATA`. Pure addition: five new members across three
+files (`DamageData` x5, `CX2GameUnit` x2), one new `AttackResult` branch in the
+`RT_CREATE_EFFECT_SET` case, one new `if` block at the end of the default case.
+
 ### Dryad Kenta (Burned Forest boss): "jumps off the map, never comes back" softlock
 
 Pure content fix, no flag -- `march2014/update/data037/RAGE_DRYADKENTA.src.lua` only. Reported
