@@ -437,6 +437,9 @@ m_fNoSkillTime( 0 )
 	m_bDeleteEffectSetOnStateEnd = false;
 	m_bDeleteEffectSetOnDamageReact = false;
 	m_bDeleteEffectSetOnDie = false;
+#ifdef SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD
+	m_bInGameUnitDestructor = false;
+#endif SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD
 	m_bHyperEffectSet = false;
 	m_fEffectSetLifeTime = 0.f;
 #ifdef ADDITIONAL_MEMO
@@ -569,6 +572,12 @@ m_fNoSkillTime( 0 )
 
 CX2GameUnit::~CX2GameUnit(void)
 {
+#ifdef SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD
+	// set first, before anything below (DeleteEffectSetOnDie() in particular) can reach
+	// JuneDieCreateNpc(), which reads this to avoid calling a pure virtual on this unit
+	m_bInGameUnitDestructor = true;
+#endif SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD
+
 
 	//FinishAndClearAllBuff();	/// 버프 종료 및 삭제
 

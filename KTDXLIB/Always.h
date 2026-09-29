@@ -4503,3 +4503,14 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              ErrorLog.txt (June's post-effect render pass is absent).
 #define SERV_IRUHADEV_JUNE_PARTICLE
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-29
+// Description: fix R6025 pure virtual function call crash (X2_offline.exe.41620.dmp),
+// hit in Burned Forest (dungeon 33270) when a dungeon sub-stage transition force-deletes
+// an NPC that still has a live effect registered via MakeEffectSetBeDeletedWhenDie() --
+// ~CX2GameUnit() -> DeleteEffectSetOnDie() -> ... -> JuneDieCreateNpc() then calls
+// IsMyUnit()/GetIsRight() (pure virtual in CX2GameUnit) on the owner unit, which is itself
+// mid-destruction. See X2GameUnit.h/.cpp and X2DamageEffect.cpp for the guard.
+#define SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD
+//////////////////////////////////////////////////////////////////////////

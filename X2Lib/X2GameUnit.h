@@ -2436,6 +2436,14 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 
 		virtual const D3DXVECTOR3&	GetDirVector() const						= NULL;
 		virtual bool				GetIsRight() const						= NULL;
+#ifdef SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD
+		//////////////////////////////////////////////////////////////////////////
+		// Author: Iruha
+		// Date: 2026-09-29
+		// Description: non-virtual, safe to call on an object mid-~CX2GameUnit(); see SetDieDamageEffect()/JuneDieCreateNpc() in X2DamageEffect.cpp
+		bool					IsInGameUnitDestructor() const			{ return m_bInGameUnitDestructor; }
+		//////////////////////////////////////////////////////////////////////////
+#endif SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD
 	
 		virtual GAME_UNIT_STATE_ID	GetGameUnitState() const			= NULL;
 		virtual bool				GetInvincible()	const				= NULL;
@@ -4176,6 +4184,9 @@ protected:
 		int	m_iMemoId;
 #endif
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+#ifdef SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD
+		bool m_bInGameUnitDestructor;	/// set true at the very top of ~CX2GameUnit(); lets JuneDieCreateNpc() (X2DamageEffect.cpp) avoid calling GetIsRight()/IsMyUnit() -- both pure virtual here -- on an owner unit that is itself mid-destruction
+#endif SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD
 
 
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE

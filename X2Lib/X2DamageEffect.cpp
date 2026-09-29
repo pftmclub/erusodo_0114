@@ -6214,6 +6214,20 @@ void CX2DamageEffect::CEffect::JuneDieCreateNpc()
 	if( NULL == g_pX2Game || null == m_optrOwnerUnit )
 		return;
 
+#ifdef SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD
+	// GetOwnerUnit() is safe (non-virtual), but IsMyUnit()/GetIsRight() below (both called on the
+	// owner) are pure virtual in CX2GameUnit (X2GameUnit.h:2438,2449). When this CEffect is torn
+	// down because its OWN owner unit's destructor (~CX2GameUnit) is running -- e.g.
+	// CX2DungeonSubStage::DeleteAllNPCUnit force-deleting a unit that still has a live attack effect
+	// registered via MakeEffectSetBeDeletedWhenDie() -- the derived vtable (CX2GUNPC etc.) has
+	// already unwound to CX2GameUnit's own, and either call is R6025. 2026-09-29 crash:
+	// X2_offline.exe.41620.dmp, Burned Forest (dungeon 33270) sub-stage teardown, via
+	// JuneDieCreateNpc -> SetDieDamageEffect -> DestroyInstanceHandle ->
+	// EffectInstance::~EffectInstance -> ... -> CX2GameUnit::~CX2GameUnit.
+	CX2GameUnit* pOwnerGameUnitDtorCheck = GetOwnerUnit();
+	if( NULL != pOwnerGameUnitDtorCheck && pOwnerGameUnitDtorCheck->IsInGameUnitDestructor() )
+		return;
+#endif SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD
 	CX2GameUnit* pOwnerGameUnit = GetOwnerUnit();
 	if( NULL == pOwnerGameUnit || false == pOwnerGameUnit->IsMyUnit() )
 		return;
