@@ -4443,3 +4443,24 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              templet as "JUNE_FX unsupported"; no behaviour.
 #define SERV_IRUHADEV_JUNE_DAMAGEDATA
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-29
+// Description: June2017 effect rebuild Phase 9 (JUNE2017_EFFECT_REBUILD_PLAN.md):
+//              the damage-effect -> unit hit test. June's EffectToUnit
+//              (FUN_3262b6e0) inlines CollisionDataCheck with three changes
+//              against March's KTDXCollision.h: sphere x line and line x sphere
+//              use the closest point on the segment (clamped to its ends) and
+//              put the impact point halfway between the sphere centre and that
+//              point; and USE_ADVANCE_COLLISIOIN_CHECK moves the sphere x sphere
+//              impact point. Sphere x sphere hit/miss, line x line, the guard
+//              rule and the radius formula are March's. Only EffectToUnit is
+//              switched over; the other CollisionDataCheck callers keep March's
+//              semantics. See RANOX_EFFECT_RUNTIME_UNKNOWNS.md section 4.
+//              Needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE (the key's member).
+#define SERV_IRUHADEV_JUNE_COLLISION
+#if defined(SERV_IRUHADEV_JUNE_COLLISION) && !defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE)
+#error SERV_IRUHADEV_JUNE_COLLISION needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+#endif
+//////////////////////////////////////////////////////////////////////////

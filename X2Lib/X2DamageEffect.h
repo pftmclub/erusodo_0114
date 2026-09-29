@@ -1092,6 +1092,11 @@ class CX2DamageEffect
 #ifdef ADDED_RELATIONSHIP_SYSTEM
 				bool GetOnlyRelationShip() const { return m_bOnlyRelationShip; }
 #endif // ADDED_RELATIONSHIP_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_COLLISION
+				// June2017 FUN_3262b6e0 (EffectToUnit) @3262bc1c reads USE_ADVANCE_COLLISIOIN_CHECK (+0xb31) for the
+				// sphere x sphere impact point; CX2DamageManager's June hit test takes it from here (Phase 9).
+				bool GetUseAdvanceCollisionCheck() const { return m_bUseAdvanceCollisionCheck; }
+#endif SERV_IRUHADEV_JUNE_COLLISION
 
 				// 청 택트 궁극기 추가로 메인 이펙트의 회전값 받아오거나 설정하는 부분 추가, 김종훈
 				D3DXVECTOR3 GetMainEffectAxisAngleDegree() const		  { return m_vMainEffectAxisAngleDegree; }

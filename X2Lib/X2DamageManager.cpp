@@ -1757,6 +1757,286 @@ bool CX2DamageManager::UnitToUnit( DamageData* pDamageData, bool bAttackOnlyThis
 	return retval;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_COLLISION
+// June2017 FUN_3262b6e0 (CX2DamageManager::EffectToUnit): the closest point on the segment start_-end_
+// to point_, clamped to the segment. Written out at both clamped pair tests below (sphere x line, after
+// the FUN_326406b0 call returning to 3262de57; line x sphere, after the one returning to 3262d6c0).
+// A projection <= 0 gives the start, one at or past the squared length gives the end. March's
+// LineToSphere instead rejects a projection < 0 and never clamps to the end.
+static D3DXVECTOR3 JuneClosestPointOnSegment( const D3DXVECTOR3& vStart_, const D3DXVECTOR3& vEnd_, const D3DXVECTOR3& vPoint_ )
+{
+	const D3DXVECTOR3 vSegment = vEnd_ - vStart_;
+	const D3DXVECTOR3 vToPoint = vPoint_ - vStart_;
+	const float fProjection = D3DXVec3Dot( &vSegment, &vToPoint );
+	if( fProjection > 0.f )
+	{
+		const float fLengthSq = D3DXVec3Dot( &vSegment, &vSegment );
+		if( fLengthSq > fProjection )
+			return vStart_ + vSegment * ( fProjection / fLengthSq );
+		return vEnd_;
+	}
+	return vStart_;
+}
+
+// June2017 FUN_3262b6e0: from_ + normalize( to_ - from_ ) * distance_ * 0.5 (the 0.5 is the double at
+// 3342ebc8; the normalize is D3DXVec3Normalize, FUN_33086a02). The impact point of the two clamped
+// pair tests, and of sphere x sphere when USE_ADVANCE_COLLISIOIN_CHECK is off (the same as March there).
+static D3DXVECTOR3 JuneHalfwayPoint( const D3DXVECTOR3& vFrom_, const D3DXVECTOR3& vTo_, const float fDistance_ )
+{
+	D3DXVECTOR3 vDir = vTo_ - vFrom_;
+	D3DXVec3Normalize( &vDir, &vDir );
+	return vFrom_ + vDir * ( fDistance_ * 0.5f );
+}
+
+// June2017 FUN_3262b6e0 (CX2DamageManager::EffectToUnit) @3262bc1a-3262eebd: the collision test June
+// inlines in place of March's CKTDXCollision::CollisionDataCheck( list, listSet ). Loop order, the
+// m_bEnable skips, the points and GetScaleRadius() (m_fRadius * m_fRadiusScale * the X or Y scale of the
+// combine matrix, FUN_326406b0 = GetDecomposeScaleXY) are March's. Per pair (A = attack datum, B =
+// defender datum; June tests B for CT_LINE, so a CT_GUARD datum is a sphere, as in March):
+//  - line x line: March's LineToLine inlined branch for branch (degenerate A/B, |DetL| < eps, general
+//    t/s, then Manhattan distance < rA + rB @3262ced7); impact = the point on A. Unchanged.
+//  - line x sphere (distance call returns to 3262da1a): hit when dist( B, closest on A ) < rA + rB;
+//    impact halfway from B's centre to that point (3262daac). March: the unclamped projection on A.
+//  - sphere x line (returns to 3262e2dc): hit when dist( A, closest on B ) < rA + rB; impact halfway
+//    from A's centre to that point (3262e365). March: the unclamped projection on B.
+//  - sphere x sphere (returns to 3262e8ea): hit when dist < rA + rB, as March. The impact point is
+//    March's midpoint unless USE_ADVANCE_COLLISIOIN_CHECK is set (read @3262e976; see below).
+// The guard rule is March's: a CT_GUARD sphere B only records the first guard point and moves on; any
+// other hit records the first hit point and returns at once, as CT_GUARD if a guard was seen first
+// (FUN_32640770, identical to March CheckCollisionGuard's live #else branch); a guard alone reports
+// CT_GUARD after the loops. June ignores CollisionData::m_Name here: it copies B's m_Name into a
+// damage-manager string (@3262c181-3262c18d) that nothing in this function reads.
+// Not ported (written in June, reader not identified): DamageData +0x62c = B's centre, or the midpoint
+// of a line B, stored on a hit (@3262ef81-3262ef96).
+static bool JuneEffectCollisionDataCheck( CKTDXCollision* pCollision_, const CKTDXCollision::CollisionDataList& listAttack_,
+	const CKTDXCollision::CollisionDataListSet& setDefender_, const bool bUseAdvanceCollisionCheck_,
+	CKTDXCollision::CollisionType& collType_, D3DXVECTOR3& vImpactPoint_ )
+{
+	bool		bGuard	= false;
+	bool		bColl	= false;
+	D3DXVECTOR3	vGuard( 0.f, 0.f, 0.f );
+	D3DXVECTOR3	vColl( 0.f, 0.f, 0.f );
+
+	BOOST_TEST_FOREACH( CKTDXCollision::CollisionData*, pColA, listAttack_ )
+	{
+		if( false == pColA->m_bEnable )
+			continue;
+
+		const bool			bLineA		= ( CKTDXCollision::CT_LINE == pColA->m_CollisionType );
+		const D3DXVECTOR3	vStartA		= pColA->GetPointStart();
+		const D3DXVECTOR3	vEndA		= ( true == bLineA ) ? pColA->GetPointEnd() : vStartA;
+		const float			fRadiusA	= pColA->GetScaleRadius();
+
+		BOOST_TEST_FOREACH( const CKTDXCollision::CollisionDataList*, pListB, setDefender_ )
+		{
+			BOOST_TEST_FOREACH( CKTDXCollision::CollisionData*, pColB, *pListB )
+			{
+				if( false == pColB->m_bEnable )
+					continue;
+
+				const bool	bLineB		= ( CKTDXCollision::CT_LINE == pColB->m_CollisionType );
+				const float	fRadiusB	= pColB->GetScaleRadius();
+				D3DXVECTOR3	vPoint( 0.f, 0.f, 0.f );
+				bool		bSphereB	= false;
+
+				if( true == bLineA && true == bLineB )
+				{
+					D3DXVECTOR3 vPointB( 0.f, 0.f, 0.f );
+					if( false == pCollision_->LineToLine( vStartA, vEndA, pColB->GetPointStart(), pColB->GetPointEnd(),
+						fRadiusA + fRadiusB, vPoint, vPointB ) )
+						continue;
+				}
+				else if( true == bLineA )
+				{
+					const D3DXVECTOR3	vCenterB	= pColB->GetPointStart();
+					const D3DXVECTOR3	vClosest	= JuneClosestPointOnSegment( vStartA, vEndA, vCenterB );
+					const float			fDistance	= GetDistance( vCenterB, vClosest );
+					if( fRadiusB + fRadiusA <= fDistance )
+						continue;
+					vPoint		= JuneHalfwayPoint( vCenterB, vClosest, fDistance );
+					bSphereB	= true;
+				}
+				else if( true == bLineB )
+				{
+					const D3DXVECTOR3	vClosest	= JuneClosestPointOnSegment( pColB->GetPointStart(), pColB->GetPointEnd(), vStartA );
+					const float			fDistance	= GetDistance( vStartA, vClosest );
+					if( false == ( fDistance < fRadiusA + fRadiusB ) )
+						continue;
+					vPoint = JuneHalfwayPoint( vStartA, vClosest, fDistance );
+				}
+				else
+				{
+					const D3DXVECTOR3	vCenterB	= pColB->GetPointStart();
+					const float			fDistance	= GetDistance( vStartA, vCenterB );
+					if( false == ( fDistance < fRadiusA + fRadiusB ) )
+						continue;
+
+					if( true == bUseAdvanceCollisionCheck_ )
+					{
+						// @3262e976-3262ec5d. Each test is the negation of the one June branches away on, so NaN
+						// goes where the x87 flags send it (read from the raw compares: @3262e98c test ah,0x41 /
+						// jp; @3262e9ba test ah,1 / jne; FUN_31c7b640 = |a - b| <= FLT_EPSILON, float 334490f8):
+						// B's centre inside A -> B's centre; else A's centre inside B -> A's centre; else equal
+						// radii -> midpoint of the centres; else the midpoint of the two near surface points.
+						D3DXVECTOR3 vDir = vCenterB - vStartA;
+						D3DXVec3Normalize( &vDir, &vDir );
+						if( false == ( fDistance <= fRadiusA ) )
+						{
+							if( false == ( fRadiusB >= fDistance ) )
+							{
+								if( false == ( fabs( fRadiusA - fRadiusB ) > FLT_EPSILON ) )
+									vPoint = vStartA + vDir * ( fDistance * 0.5f );
+								else
+									vPoint = vStartA + vDir * ( fRadiusA * 0.5f ) + vDir * ( ( fDistance - fRadiusB ) * 0.5f );
+							}
+							else
+								vPoint = vStartA;
+						}
+						else
+							vPoint = vCenterB;
+					}
+					else
+						vPoint = JuneHalfwayPoint( vStartA, vCenterB, fDistance );
+					bSphereB = true;
+				}
+
+				if( true == bSphereB && CKTDXCollision::CT_GUARD == pColB->m_CollisionType )
+				{
+					if( false == bGuard )
+					{
+						bGuard = true;
+						vGuard = vPoint;
+					}
+					continue;
+				}
+
+				if( false == bColl )
+				{
+					bColl = true;
+					vColl = vPoint;
+				}
+				vImpactPoint_	= ( true == bGuard ) ? vGuard : vColl;
+				collType_		= ( true == bGuard ) ? CKTDXCollision::CT_GUARD : pColB->m_CollisionType;
+				return true;
+			}
+		}
+	}
+
+	if( true == bGuard )
+	{
+		vImpactPoint_	= vGuard;
+		collType_		= CKTDXCollision::CT_GUARD;
+		return true;
+	}
+	return false;
+}
+
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+// JUNE_FX HIT <effect> <branch> <detail>: Phase 9's EffectToUnit trace, at most one line a second per
+// (effect, branch); the detail is not part of the throttle key.
+static void JuneFxCollision( const WCHAR* pwszEffect_, const WCHAR* pwszBranch_, const WCHAR* pwszFormat_, ... )
+{
+	const WCHAR* pwszEffectName = ( NULL != pwszEffect_ ? pwszEffect_ : L"-" );
+	std::wstring wstrThrottleKey = pwszEffectName;
+	wstrThrottleKey += L"|";
+	wstrThrottleKey += pwszBranch_;
+
+	static std::map<std::wstring, DWORD> s_mapLastLoggedTime;
+	const DWORD dwNow = timeGetTime();
+	std::map<std::wstring, DWORD>::iterator itThrottle = s_mapLastLoggedTime.find( wstrThrottleKey );
+	if( itThrottle != s_mapLastLoggedTime.end() && dwNow - itThrottle->second < 1000 )
+		return;
+	s_mapLastLoggedTime[ wstrThrottleKey ] = dwNow;
+
+	WCHAR wszDetail[384] = L"";
+	va_list args;
+	va_start( args, pwszFormat_ );
+	StringCchVPrintfW( wszDetail, ARRAY_SIZE(wszDetail), pwszFormat_, args );
+	va_end( args );
+	CX2OfflineLog::Server( L"JUNE_FX HIT %s %s %s", pwszEffectName, pwszBranch_, wszDetail );
+}
+
+// The plan's named test case (RANOX_EFFECT_RUNTIME_UNKNOWNS.md: DamageEffect_MAG_CHARGER_Attack_A and its
+// MOUNT_ twin). These effects log every EffectToUnit call in detail; every other effect logs only its hits
+// and the calls where June's and March's tests disagree.
+static bool JuneFxIsCollisionTraced( const WCHAR* pwszEffect_ )
+{
+	return NULL != pwszEffect_ && NULL != wcsstr( pwszEffect_, L"MAG_CHARGER" );
+}
+
+// Runs March's test on the same pair purely for comparison, then logs COLLIDE (June hit), DIFF (June and
+// March disagree) and, for a traced effect, TEST: the first attack datum's type, whether its combine matrix
+// is linked, its centre next to the main mesh's position (a sphere left at the spawn point or the origin
+// shows here), its scaled radius, and the nearest defender datum's centre distance against rA + rB.
+static void JuneFxTraceEffectToUnit( CKTDXCollision* pCollision_, CX2DamageEffect::CEffect* pAttacker_,
+	CKTDGXMeshPlayer::CXMeshInstance* pMainEffect_, CX2GameUnit* pDefender_, const bool bJuneCollided_,
+	const CKTDXCollision::CollisionType collType_, const D3DXVECTOR3& vImpact_ )
+{
+	const CKTDXCollision::CollisionDataList&	listAttack	= pMainEffect_->GetXSkinAnim()->GetAttackDataList();
+	const CKTDXCollision::CollisionDataListSet&	setDefender	= pDefender_->GetCollisionListSet();
+	CKTDXCollision::CollisionType				collTypeMarch = CKTDXCollision::CT_SPHERE;
+	D3DXVECTOR3									vImpactMarch( 0.f, 0.f, 0.f );
+	const bool bMarchCollided = pCollision_->CollisionDataCheck( listAttack, setDefender, collTypeMarch, &vImpactMarch );
+	const WCHAR* pwszName = pAttacker_->GetName();
+
+	if( true == bJuneCollided_ )
+		JuneFxCollision( pwszName, L"COLLIDE", L"defender=%d uid=%I64d collType=%d impact=(%.0f,%.0f,%.0f) march=%d",
+			(int)pDefender_->GetGameUnitType(), pDefender_->GetUnitUID(), (int)collType_, vImpact_.x, vImpact_.y, vImpact_.z, (int)bMarchCollided );
+	if( bJuneCollided_ != bMarchCollided )
+		JuneFxCollision( pwszName, L"DIFF", L"june=%d march=%d defender=%d uid=%I64d june_impact=(%.0f,%.0f,%.0f) march_impact=(%.0f,%.0f,%.0f)",
+			(int)bJuneCollided_, (int)bMarchCollided, (int)pDefender_->GetGameUnitType(), pDefender_->GetUnitUID(),
+			vImpact_.x, vImpact_.y, vImpact_.z, vImpactMarch.x, vImpactMarch.y, vImpactMarch.z );
+
+	if( false == JuneFxIsCollisionTraced( pwszName ) )
+		return;
+
+	int iAttackCount = 0;
+	CKTDXCollision::CollisionData* pFirstA = NULL;
+	BOOST_TEST_FOREACH( CKTDXCollision::CollisionData*, pColA, listAttack )
+	{
+		++iAttackCount;
+		if( NULL == pFirstA && true == pColA->m_bEnable )
+			pFirstA = pColA;
+	}
+	const D3DXVECTOR3 vMeshPos = pMainEffect_->GetPos();
+	if( NULL == pFirstA )
+	{
+		JuneFxCollision( pwszName, L"TEST", L"attacks=%d enabled=0 mesh=(%.0f,%.0f,%.0f) defender=%d",
+			iAttackCount, vMeshPos.x, vMeshPos.y, vMeshPos.z, (int)pDefender_->GetGameUnitType() );
+		return;
+	}
+
+	const D3DXVECTOR3	vCenterA		= pFirstA->GetPointStart();
+	const float			fRadiusA		= pFirstA->GetScaleRadius();
+	float				fNearestGap		= 0.f;
+	float				fNearest		= -1.f;
+	float				fNearestSum		= 0.f;
+	int					iDefenderCount	= 0;
+	BOOST_TEST_FOREACH( const CKTDXCollision::CollisionDataList*, pListB, setDefender )
+	{
+		BOOST_TEST_FOREACH( CKTDXCollision::CollisionData*, pColB, *pListB )
+		{
+			++iDefenderCount;
+			const D3DXVECTOR3 vPointB = ( CKTDXCollision::CT_LINE == pColB->m_CollisionType )
+				? JuneClosestPointOnSegment( pColB->GetPointStart(), pColB->GetPointEnd(), vCenterA ) : pColB->GetPointStart();
+			const float fDistance	= GetDistance( vCenterA, vPointB );
+			const float fSum		= fRadiusA + pColB->GetScaleRadius();
+			if( fNearest < 0.f || fDistance - fSum < fNearestGap )
+			{
+				fNearest	= fDistance;
+				fNearestSum	= fSum;
+				fNearestGap	= fDistance - fSum;
+			}
+		}
+	}
+	JuneFxCollision( pwszName, L"TEST", L"attacks=%d a0{type=%d linked=%d c=(%.0f,%.0f,%.0f) r=%.1f} mesh=(%.0f,%.0f,%.0f) defender=%d uid=%I64d data=%d near{d=%.1f rsum=%.1f} june=%d march=%d",
+		iAttackCount, (int)pFirstA->m_CollisionType, (int)( NULL != pFirstA->m_pCombineMatrix ), vCenterA.x, vCenterA.y, vCenterA.z, fRadiusA,
+		vMeshPos.x, vMeshPos.y, vMeshPos.z, (int)pDefender_->GetGameUnitType(), pDefender_->GetUnitUID(), iDefenderCount,
+		fNearest, fNearestSum, (int)bJuneCollided_, (int)bMarchCollided );
+}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_COLLISION
+
 bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 {
 	bool			retval = false;
@@ -1771,6 +2051,20 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 	if( pAttacker == NULL )
 		return retval;
 
+#if defined( SERV_IRUHADEV_JUNE_COLLISION ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	// Phase 9 trace: proves DamageCheck reached EffectToUnit for the named effect, before any per-unit filter.
+	if( true == JuneFxIsCollisionTraced( pAttacker->GetName() ) )
+	{
+		CX2GameUnit* pJuneFxOwner = pAttacker->GetOwnerUnit();
+		CKTDGXMeshPlayer::CXMeshInstance* pJuneFxMain = pAttacker->GetMainEffect();
+		const bool bJuneFxAnim = ( NULL != pJuneFxMain && NULL != pJuneFxMain->GetXSkinAnim() );
+		JuneFxCollision( pAttacker->GetName(), L"ENTER", L"units=%d owner=%d team=%d live=%d main=%d anim=%d attacks=%d hitlist=%d",
+			g_pX2Game->GetUnitNum(), (int)( NULL != pJuneFxOwner ), ( NULL != pJuneFxOwner ) ? pJuneFxOwner->GetTeam() : -1,
+			(int)pAttacker->GetLive(), (int)( NULL != pJuneFxMain ), (int)bJuneFxAnim,
+			( true == bJuneFxAnim ) ? (int)pJuneFxMain->GetXSkinAnim()->GetAttackDataList().size() : -1,
+			(int)pDamageData->hitUnitList.size() );
+	}
+#endif // SERV_IRUHADEV_JUNE_COLLISION && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 	CX2GameUnit*				pDefender = NULL;
 
 	bool firstHit = true;
@@ -1923,8 +2217,19 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 #endif
 
         CKTDXCollision::CollisionType collType;
+#ifdef SERV_IRUHADEV_JUNE_COLLISION
+		// June2017 FUN_3262b6e0 @3262bc1a-3262eebd: June's inlined hit test, JuneEffectCollisionDataCheck above.
+		collType = CKTDXCollision::CT_SPHERE;
+		const bool bJuneCollided = JuneEffectCollisionDataCheck( m_pCollision, pAttackerMainEffect->GetXSkinAnim()->GetAttackDataList(),
+			pDefender->GetCollisionListSet(), pAttacker->GetUseAdvanceCollisionCheck(), collType, impactPos );
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		JuneFxTraceEffectToUnit( m_pCollision, pAttacker, pAttackerMainEffect, pDefender, bJuneCollided, collType, impactPos );
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+		if( true == bJuneCollided )
+#else SERV_IRUHADEV_JUNE_COLLISION
 		if( m_pCollision->CollisionDataCheck( pAttackerMainEffect->GetXSkinAnim()->GetAttackDataList(), 
 												pDefender->GetCollisionListSet(), collType, &impactPos ) == true )
+#endif SERV_IRUHADEV_JUNE_COLLISION
 		{
 			pDamageData->impactPoint	= impactPos;
 			pDamageData->optrDefenderGameUnit	= pDefender;
