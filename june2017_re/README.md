@@ -646,6 +646,9 @@ is wrong.
 Committed. These are small, or are the record of what was found:
 
 - `xordecrypt.py` → `xorstrings.tsv`: the decoder and its whole-binary output.
+- `charport_scan.py`: what `census.py` cannot see, June's character and other non-effect scripts (open
+  DamageData keys by exact sub-path, numerical-only damage tables, June-only enum tables). The evidence
+  behind `../JUNE2017_CHARACTER_PORT_CHECKLIST.md`; run it with a scratch directory argument.
 - `func_strings.tsv`: the `ok` strings grouped by function (`func_va`, count,
   `|`-separated strings, each truncated to 60 chars), derived from `xorstrings.tsv`.
 - `ljd_jun2017.py` and `lj_bcmode.py`: the correct June lua decompiler, and the evidence

@@ -41,6 +41,9 @@ and they decrypt mechanically. So the June engine can now be read rather than gu
   retired, not maintained.
 - Consequences for every phase:
   - Match June's behaviour, not just what the current merged data exercises.
+  - **Character ports are out of this plan's census.** Before porting or updating any June character
+    script, read `JUNE2017_CHARACTER_PORT_CHECKLIST.md` (numerical skill data, keys only character
+    scripts use, enum tables that truncate a character file).
   - A log check that cannot fire on the merged data is settled at Phase 11, where
     June's data carries the keys. Phase 2's `ES_TEMPLET` check is the first case.
 
@@ -2495,8 +2498,9 @@ launching. Update the matrix and MODS.md.
 `SERV_IRUHADEV_JUNE_DAMAGEDATA` (no new flag). Built `US_SERVICE` clean (X2Lib + X2, 0 errors) and
 deployed to `X2_offline.exe`, 18,949,120 B, SHA-256 `1c69e9949daa31be…`. `census.py` confirms all
 five moved to `implemented` (phase label `8a`, since a `DE.DAMAGE_DATA` key with a March site always
-reports there — see `census.py`'s `phase_of()`). 28 `to-implement` keys remain in `census.tsv`'s
-phase `8b`; resume with the grouping below.
+reports there — see `census.py`'s `phase_of()`). 31 `to-implement` keys remain in `census.tsv`'s
+phase `8b`, plus 13 `binary-only` (corrected 2026-09-29: this line said 28; the census had 36 after 8a,
+not 33); resume with the grouping below.
 
 - **`CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME`/`_DELAYTIME`** (`FUN_32632390
   @32633ef5-326341f4`/`@326341f4-32634510`, bool getters): consumed in `CEffect::AttackResult`'s
@@ -2529,7 +2533,10 @@ phase `8b`; resume with the grouping below.
   (README). **Next step:** identify `Process_ExtraDamage`'s June counterpart by call graph from a
   `confirmed` caller (Opus, high — this is identification, not transcription).
 
-**Resume point — 28 keys left (`census.tsv`, phase `8b`), grouped by what each needs next:**
+**Resume point — 31 `to-implement` + 13 `binary-only` rows left (`census.tsv`, phase `8b`), grouped by what each
+needs next.** Groups 1-4 cover the 31; group 5 (added 2026-09-29) covers the `binary-only` rows they missed.
+**Read `JUNE2017_CHARACTER_PORT_CHECKLIST.md` first:** June's character scripts use keys the census cannot
+see, including two of group 5's.
 
 1. **Damage-math** (the plan's own priority order). All of these need `CX2GameUnit::GetFinalDamage`'s
    June counterpart identified first — it is not in `funcmap.tsv`, and no `Process_ExtraDamage`-style
@@ -2555,6 +2562,14 @@ phase `8b`; resume with the grouping below.
    `FORCE_BACK_SPEED`, `ADD_CHECK_DAMAGE_UNIT_NUM`, `EXCEPT_ME_HP_UP`, `ATTACK_ONLY_ME`,
    `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`, `DAMAGE_LIGHT_TIME`, `IS_AURA_BUFF`, `IGNORE_ATTACK_SUCCESS`,
    `ONYL_ATTACK_USER`, `PAUSE_NPC_AI_TIME`.
+
+5. **`binary-only` rows no group above names** (plan rule 3: implement anyway). **Two are used by June
+   character scripts** (`JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 2), so 8b is not done without them:
+   `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` (`Elsword_SwordMan`; do it with group 2)
+   and `DAMAGE_RATE_TO_SUPERAMOR` (`Luciel_Duo`). No June script at all uses the other seven: `APPLIED_MEMO_ID`,
+   `CREATE_DAMAGE_EFFECT_NAME_SCALE_X/Y/Z`, `DAMAGE_TRIGGER_CONDITION`, `HIT_ADD_MP_PERCENT`,
+   `BUFF_FACTOR_ID_ULTIMATE_PVP`. (The other four `binary-only` rows, `DIVISION_NUM`, `DIVISION_OFF_TIME`,
+   `DIVIDE_DAMAGE_FROM_RANGE` and `RANGE%d`, are already in group 1; no June script uses them either.)
 
 **Not this phase's job.** The four `unassigned` `BUFF_FACTOR/*` rows (`BFT_AURA`, `BBT_INVINCIBLE`,
 `BBT_IMMUNE_NON_CONTROL_DEBUFF`, `BUFF_FACTOR/BEHAVIOR/BBT_NEVER_MOVE/OFFSET_POSITION`) are the
@@ -2648,8 +2663,8 @@ section, grouped by what each remaining key needs next (mirror the existing resu
 shape).
 
 CP949 byte-level edits only. Build, deploy, ASK before launching. Done when census.py
-shows no DamageData keys to-implement except Phase 8c's absent-system list and Phase 8b's
-own explicitly-deferred (parsed-only) keys. Update the matrix and MODS.md.
+shows no DamageData keys to-implement OR binary-only in phase 8b, except Phase 8b's
+own explicitly-deferred (parsed-only) keys; see JUNE2017_CHARACTER_PORT_CHECKLIST.md section 2. Update the matrix and MODS.md.
 ```
 
 ---

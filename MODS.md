@@ -2227,7 +2227,8 @@ constant, one `if` after the `EXTRA_DAMAGE_TYPE` read.
 
 Phase 8b of `JUNE2017_EFFECT_REBUILD_PLAN.md`, extending `SERV_IRUHADEV_JUNE_DAMAGEDATA` (no new
 flag) in `X2Lib/X2DamageManager.{h,cpp}`, `X2Lib/X2DamageEffect.cpp` and `X2Lib/X2GameUnit.{h,cpp}`.
-Five of the 33 new keys 8a's handoff assigned to this phase, done this session; 28 remain (see the
+Five of the 36 new keys 8a's handoff assigned to this phase (the original "33" and "28" were a miscount,
+corrected 2026-09-29), done this session; 31 `to-implement` plus 13 `binary-only` remain (see the
 plan's Phase 8b resume point for the grouped list and what each group needs next).
 
 - **`CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME`/`_DELAYTIME`** (`FUN_32632390
