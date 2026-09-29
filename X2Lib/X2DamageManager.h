@@ -579,6 +579,12 @@ class CX2DamageManager
 #endif
 
 			bool					m_bFixedDamage;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+			/// June2017 ExtraDamageData +0x101 (DamageData +0x151): set by SetDamageDataFromLUA's
+			/// EDT_MANA_DAMAGE_WITH_NO_DISPLAY remap (FUN_32632390 @3263620d). Its reader is not
+			/// ported yet (Phase 8b), so nothing in March consults it.
+			bool					m_bManaDamageWithNoDisplay;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 			//{{ 2011-04 에 패치될 청 캐시 스킬
 #ifdef	CASH_SKILL_FOR_CHUNG_2011_04				
@@ -653,6 +659,11 @@ class CX2DamageManager
 				m_fAnimSpeedRate				= 0.f;
 #endif
 				m_bFixedDamage					= false;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+				// March-side reset, so a reused ExtraDamageData cannot keep a stale flag. June's own
+				// reset site was not located: its init (FUN_31f8d4d0) clears +0x100 but not +0x101.
+				m_bManaDamageWithNoDisplay		= false;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 				//{{ 2011-04 에 패치될 청 캐시 스킬
 #ifdef	CASH_SKILL_FOR_CHUNG_2011_04				
 				/// ExtraDamage를 Map으로 바꾸게 되면 삭제
@@ -721,6 +732,9 @@ class CX2DamageManager
 				m_fAnimSpeedRate				= data.m_fAnimSpeedRate;
 #endif
 				m_bFixedDamage					= data.m_bFixedDamage;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+				m_bManaDamageWithNoDisplay		= data.m_bManaDamageWithNoDisplay;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 				//{{ 2011-04 에 패치될 청 캐시 스킬
 #ifdef	CASH_SKILL_FOR_CHUNG_2011_04				
 				/// ExtraDamage를 Map으로 바꾸게 되면 삭제

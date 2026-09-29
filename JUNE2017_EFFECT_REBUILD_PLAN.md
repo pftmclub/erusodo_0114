@@ -2342,6 +2342,112 @@ Update the matrix and MODS.md.
 
 ## Phase 8a — SetDamageData I: existing keys, June semantics
 
+**Status: done 2026-09-29, built and deployed.** New flag `SERV_IRUHADEV_JUNE_DAMAGEDATA`
+(`X2Lib/X2DamageManager.{h,cpp}`). Evidence is in `june2017_re/README.md`, "Hand-verified (Phase
+8a)", and the per-key verdicts are in `census.py`'s `HAND_SEMANTICS`. The tool is
+`june2017_re/sdd_walk.py`. `MODS.md` has the before/after table.
+
+- **No default changed.** Every March-parsed key has June's getter type and failure default:
+  - register-sourced defaults resolved by their last write;
+  - enum defaults checked against March's C++ values with a compile probe.
+
+  Surrounding conditions match too: `ATTACK_ALL_TEAM`, the attack-box and custom-particle loops, the
+  buff-factor call order, `ParsingBuffFactorID`'s level rule, and the tail
+  `SetDamageExceptionProcess` call.
+- **One semantics difference, fixed: `EXTRA_DAMAGE_TYPE`'s post-read remap** (`@32636204-32636214`).
+  - `EDT_MANA_DAMAGE_WITH_NO_DISPLAY` (67) becomes `EDT_MANA_DAMAGE` (16), and a no-display flag is set
+    (`ExtraDamageData::m_bManaDamageWithNoDisplay`).
+  - It cannot fire on March's `Enum.lua`, which has no member 67. The exit test is a clean build.
+  - **The flag's reader is 8b's.** Search from March's `EDT_MANA_DAMAGE` consumer (the case that shows
+    the damage number) to its June counterpart, and look for the `+0x151` test there. A displacement
+    scan is noise.
+- **Not ported, recorded for later:**
+  - the `DRAIN_HP_RATE` mirror at `+0x4e4`, which has no known reader;
+  - June's `GetSkillLevel` fourth argument;
+  - June's dropped memo path. March keeps it, because its data uses both memo keys 12 times each.
+- **Not compared: `SetDamageExceptionProcess`** (attacker vtable `0x2b8`, `@3264050d`). It is where
+  `fPowerRate` reaches the damage values, the biggest damage lever left. **Assigned to Phase 9**
+  (user decision, 2026-09-29); see that section.
+
+**Handoff to 8b/8c: every new read, in June order.** `32632390` comes first, then `ParsingBuffFactorID`
+(`32630d20`, rows 56-61, called at `@32635d10`, row 18), then the no-key tail.
+- Ranges run from a key's XOR guard to the next key's guard, so a range can include the next sub-table's
+  `BeginTable`.
+- Every open (`to-implement` / `unsupported` / `binary-only`) `DE.DAMAGE_DATA` row in `census.tsv`
+  appears exactly once.
+- The only entries with no census row are `RANGE%d`'s inner `RANGE` / `DAMAGE_RATE`, because no June
+  data uses them.
+- `(no key)` rows are behaviour without a Lua key; they belong to 8b.
+
+| # | key | scope | June VA range | census | phase | note |
+|---|---|---|---|---|---|---|
+| 1 | `APPLIED_SKILL_ID` | (top) | `32632405-32632588` | unsupported | 8c | int getter; system: Applied skill ID (absent) |
+| 2 | `APPLIED_MEMO_ID` | (top) | `32632588-326326e4` | binary-only | 8b | int getter |
+| 3 | `DAMAGE_SKILL_ID` | (top) | `326326e4-32632860` | to-implement | 8b | int getter |
+| 4 | `DIVISION_NUM` | (top) | `32632860-3263298e` | binary-only | 8b | int getter |
+| 5 | `DIVISION_OFF_TIME` | (top) | `3263298e-32632b1a` | binary-only | 8b | float getter |
+| 6 | `CREATE_DAMAGE_EFFECT_NAME_SCALE_X` | (top) | `32633698-32633967` | binary-only | 8b | float getter |
+| 7 | `CREATE_DAMAGE_EFFECT_NAME_SCALE_Y` | (top) | `32633967-32633c20` | binary-only | 8b | float getter |
+| 8 | `CREATE_DAMAGE_EFFECT_NAME_SCALE_Z` | (top) | `32633c20-32633ef5` | binary-only | 8b | float getter |
+| 9 | `CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME` | (top) | `32633ef5-326341f4` | to-implement | 8b | bool getter |
+| 10 | `CREATE_EFFECT_SET_MAIN_EFFECT_DELAYTIME` | (top) | `326341f4-32634510` | to-implement | 8b | bool getter |
+| 11 | `TRACE_NEAREST_BONE` | (top) | `32634b5b-32634cf0` | to-implement | 8b | bool getter |
+| 12 | `NATURAL_FORCE_TYPE` | (top) | `3263534f-326354f2` | unsupported | 8c | int getter; system: Natural force (gated-off) |
+| 13 | `CAN_ACTIVATE_NASOD_ARMOR_COMBO` | (top) | `326354f2-32635773` | to-implement | 8b | bool getter |
+| 14 | `DIVIDE_DAMAGE_FROM_RANGE` | (top) | `326358d4-32635b14` | binary-only | 8b | plaintext sub-table; per RANGE%d entry (RANGE default 99999.0, DAMAGE_RATE default 1.0) calls 3261a150 on DamageData +0x5b0 @32635ae5 |
+| 15 | `RANGE%d` | DIVIDE_DAMAGE_FROM_RANGE | `326358ea-32635b0b` | binary-only | 8b | numbered from 0 via 31c7b980 |
+| 16 | `RANGE` | DIVIDE_DAMAGE_FROM_RANGE/RANGE%d | `32635918-326359bd` | (no census row) | 8b | float getter |
+| 17 | `DAMAGE_RATE` | DIVIDE_DAMAGE_FROM_RANGE/RANGE%d | `326359bd-32635b39` | (no census row) | 8b | float getter |
+| 18 | `(call) ParsingBuffFactor / PushSocketAndTemporaryBuffFactor / ParsingBuffFactorID` | (top) | `32635cf6-32635d10` | - | - | same as March; ParsingBuffFactorID (32630d20) new tables listed at the end |
+| 19 | `INIT_EXTRA_DAMAGE_BEFORE_LOAD` | (top) | `32635dea-32636073` | to-implement | 8b | bool getter |
+| 20 | `ADD_MEMBER_COUNT` | EXTRA_DAMAGE | `326375a9-32637711` | to-implement | 8b | int getter |
+| 21 | `ADD_MEMBER_COUNT_DISTANCE` | EXTRA_DAMAGE | `32637711-32637bc4` | to-implement | 8b | float getter |
+| 22 | `BOUNDING_BACK_SPEED_X` | (top) | `326381bd-32638389` | to-implement | 8b | float getter |
+| 23 | `BOUNDING_BACK_SPEED_Y` | (top) | `32638389-32638555` | to-implement | 8b | float getter |
+| 24 | `FORCE_BACK_SPEED` | (top) | `32638555-326386c0` | to-implement | 8b | bool getter |
+| 25 | `HIT_ADD_MP_PERCENT` | (top) | `32638e2e-32639047` | binary-only | 8b | float getter |
+| 26 | `ADD_CHECK_DAMAGE_UNIT_NUM` | (top) | `3263ab94-3263adad` | to-implement | 8b | int getter |
+| 27 | `EXCEPT_ME_HP_UP` | (top) | `3263bba7-3263bd01` | to-implement | 8b | bool getter |
+| 28 | `ATTACK_ONLY_ME` | (top) | `3263bd01-3263be4b` | to-implement | 8b | bool getter |
+| 29 | `IGNORE_DEFENCE_ON_PVP` | (top) | `3263c6df-3263c8ad` | to-implement | 8b | bool getter |
+| 30 | `IGNORE_DEFENCE_RATE` | (top) | `3263c8ad-3263ca5b` | to-implement | 8b | float getter |
+| 31 | `IGNORE_DEFENCE_RATE_ON_PVP` | (top) | `3263ca5b-3263cc83` | to-implement | 8b | float getter |
+| 32 | `IGNORE_DEFENCE_DECLINE` | (top) | `3263cc83-3263ce70` | to-implement | 8b | bool getter |
+| 33 | `(call) clear ADDITIONAL_ATTACK_TRIGGER_TYPE vector` | (top) | `3263d396-3263d39c` | - | - | 3221db80 on DamageData +0x544 |
+| 34 | `ADDITIONAL_ATTACK_TRIGGER_TYPE` | (top) | `3263d3a1-3263d400` | to-implement | 8b | plaintext sub-table; ints from index 1 via 32fea4e0, push_back 31f8b860 into +0x544 |
+| 35 | `DAMAGE_TRIGGER_DATA` | (top) | `3263d405-3263db6d` | to-implement | 8b | plaintext sub-table; 321f3650 clears +0x554 @3263d40f; entries by 32fe99b0 (i-th table from 1); each entry pushed by 3207b5d0 @3263db40 |
+| 36 | `ATTACK_TRIGGER_TYPE` | DAMAGE_TRIGGER_DATA/[] | `3263d446-3263d603` | to-implement | 8b | int getter |
+| 37 | `BUFF_TEMPLET_ID` | DAMAGE_TRIGGER_DATA/[] | `3263d603-3263d75e` | to-implement | 8b | int getter |
+| 38 | `POWER_RATE` | DAMAGE_TRIGGER_DATA/[] | `3263d75e-3263d86e` | to-implement | 8b | float getter |
+| 39 | `POWER_RATE_ACCUMULATION_MULTIPLIER` | DAMAGE_TRIGGER_DATA/[] | `3263d86e-3263db72` | to-implement | 8b | float getter |
+| 40 | `HIT_ADD_COMBINATION_POINT` | (top) | `3263df79-3263e18f` | unsupported | 8c | int getter; system: Combination point (absent) |
+| 41 | `DAMAGE_TRIGGER_CONDITION` | (top) | `3263e8d7-3263eaeb` | binary-only | 8b | int getter |
+| 42 | `MAKE_TARGET` | (top) | `3263eaeb-3263ec1a` | to-implement | 8b | bool getter |
+| 43 | `DAMAGE_DATA_KEY_NAME` | (top) | `3263ec1a-3263edf3` | to-implement | 8b | string getter |
+| 44 | `DAMAGE_LIGHT_TIME` | (top) | `3263edf3-3263ef73` | to-implement | 8b | float getter |
+| 45 | `IS_AURA_BUFF` | (top) | `3263ef73-3263f093` | to-implement | 8b | bool getter |
+| 46 | `IGNORE_ATTACK_SUCCESS` | (top) | `3263f093-3263f256` | to-implement | 8b | bool getter |
+| 47 | `HP_RATE_DAMAGE_TYPE` | (top) | `3263f256-3263f415` | unsupported | 8c | int getter; system: HP-rate damage (absent) |
+| 48 | `HP_RATE_DAMAGE_VALUE` | (top) | `3263f415-3263f5ca` | unsupported | 8c | float getter; system: HP-rate damage (absent) |
+| 49 | `ONYL_ATTACK_USER` | (top) | `3263f5ca-3263f733` | to-implement | 8b | bool getter |
+| 50 | `DAMAGE_RATE_TO_SUPERAMOR` | (top) | `3263f733-3263f932` | binary-only | 8b | float getter |
+| 51 | `PAUSE_NPC_AI_TIME` | (top) | `3263f932-3263fadb` | to-implement | 8b | float getter |
+| 52 | `NUMERICAL_DATA_INDEX` | (top) | `3263fadb-3263fc8f` | unsupported | 8c | int getter; system: Numerical skill data (absent) |
+| 53 | `NUMERICAL_DATA_NAME` | (top) | `3263fc8f-32640064` | binary-only | 8c | string getter; system: Numerical skill data (absent) |
+| 54 | `ROSE_WEAPON_ATTACK_TYPE` | (top) | `32640064-3264026d` | unsupported | 8c | int getter; system: Rose weapon (absent) |
+| 55 | `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` | (top) | `3264026d-32640501` | to-implement | 8b | int getter |
+| 56 | `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID` | (top) | `32630e40-326311cd` | to-implement | 8b | ParsingBuffFactorID 32630d20; int getter @326311b4 (decrypt @32630efe), default 0; read only with a live attacker |
+| 57 | `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` | (top) | `326311cd-326315a4` | binary-only | 8b | 32630d20; int getter @3263159f (decrypt @3263127f), default 0 |
+| 58 | `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID` | (top) | `326315a4-326316ff` | to-implement | 8b | 32630d20; user attacker, skill learned (31fceab0 @32631602 > 0) and buff template 0 or present (3227baf0 @32631612); ids from index 1 (32fea6e0); marks "read" so the tables below are skipped |
+| 59 | `BUFF_FACTOR_ID_ULTIMATE_PVP` | (top) | `326316ff-32631771` | binary-only | 8b | 32630d20; only when 31fcf3e0(APPLIED_SKILL_ID) @32630e05 is true (the absent skill-memo/ultimate callee, cf. Phase 5/6a) and in PvP (322cc1a0 @326316ff) |
+| 60 | `BUFF_FACTOR_ID_ULTIMATE` | (top) | `32631771-326317d4` | to-implement | 8b | 32630d20; same gate, non-PvP or no _PVP table, and nothing read yet |
+| 61 | `BUFF_FACTOR_ID_PVP` | (top) | `32631838-326318b6` | to-implement | 8b | 32630d20; PvP (322cc1a0 @32631838) and nothing read yet; falls back to BUFF_FACTOR_ID (@326318b8, March-read) |
+| 62 | `(no key) NUMERICAL_DATA override` | (top) | `3263fe41-32640054` | - | - | when NUMERICAL_DATA_INDEX > 0 or NAME set, and APPLIED_SKILL_ID/DAMAGE_SKILL_ID set: overwrites PHYSIC/MAGIC (x0.01), PVP_RATE, TECH_POINT and HIT_ADD_MP from the numerical skill table |
+| 63 | `(no key) DAMAGE_DATA_KEY_NAME registration` | (top) | `3263edd7-3263edee` | - | - | 32622220(name, pDamageData) on the damage manager when the name is non-empty |
+| 64 | `(existing call) SetDamageExceptionProcess` | (top) | `3264050d-32640546` | - | - | attacker vtable 0x2b8 (pDamageData, &fPowerRate): where fPowerRate reaches the damage values. Same call shape as March; the callee was NOT compared. Assigned to Phase 9 |
+| 65 | `(no key) +0x5a8 word copy` | (top) | `32640572-326405b1` | - | - | user attacker only: DamageData +0x5a8 = unit +0x9289 (the "(no key) +0x5a4/+0x5a8" row of Phase 8b's AttackResult table) |
+| 66 | `(no key) 32622ad0 call` | (top) | `326405bf-32640608` | - | - | damage manager 32622ad0(attacker GetUnitUID (vtable 0x54), ...), unidentified |
+
 **Paste with:** Starting context + this section.
 
 **Model:** Sonnet 5, high. See "Model and effort per phase".
@@ -2398,6 +2504,10 @@ verified against the census:
 - `STOP_TIME_ATT/DEF`, `HIT_ADD_MP_PERCENT`, `BUFF_TEMPLET_ID`
 - `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`, `PAUSE_NPC_AI_TIME`, `DAMAGE_TRIGGER_CONDITION`
 - `DAMAGE_DATA_KEY_NAME`, `ONYL_ATTACK_USER`, `NO_BUFF`, `ONLY_BASIC`
+
+**The authoritative list is Phase 8a's handoff table** (June order, VA ranges, census status). It also
+carries 8a's one leftover consumer: port the reader of
+`ExtraDamageData::m_bManaDamageWithNoDisplay` (June `DamageData +0x151`). Phase 8a already sets it.
 
 **Parse and consume both, in this phase.** Each key's consumer is usually in
 `X2DamageManager.cpp` (hit resolution) or in the unit's damage-taken path. Find June's
@@ -2529,6 +2639,23 @@ reports 0 unclassified DamageData keys. Update the matrix and MODS.md.
 **Named test case.** The Ranox projectile that "renders but hits nothing". Pick it from
 `RANOX_EFFECT_RUNTIME_UNKNOWNS.md`.
 
+**Also in scope: `SetDamageExceptionProcess`** (handed over by Phase 8a; assigned here by the user
+on 2026-09-29).
+- It is the last call in June's `SetDamageDataFromLUA`: attacker vtable `0x2b8`,
+  `(pDamageData, &fPowerRate)`, `32632390@3264050d-32640546`. March makes the same call
+  (`X2DamageManager.cpp`, the `MODIFY_SET_DAMAGE_DATA` block after `EndTable`).
+- It is where `fPowerRate` reaches the damage values, which makes it the biggest damage lever not yet
+  compared. Phase 8a compared only the call's shape, not the callee.
+- **Method.**
+  1. Resolve slot `0x2b8` in the `CX2GUUser` vtable (`334781f4`, see the README's RTTI note) and in
+     the `CX2GUNPC` one. The overrides may differ per class, so compare each against March's
+     `SetDamageExceptionProcess` implementations.
+  2. Record every difference: which damage fields are scaled, by what, and under which unit or skill
+     condition.
+- Any change moves every damage number in the game, so list each one in `MODS.md` with before/after
+  values, as Phase 8a did. Put the changes under their own flag, `SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION`,
+  not `..._JUNE_COLLISION`, so they can be reverted separately.
+
 **Kickoff prompt**:
 ```
 Continuing the June2017 effect-engine rebuild. Read JUNE2017_EFFECT_REBUILD_PLAN.md
@@ -2541,6 +2668,8 @@ section 4 (4.2-4.8) with a June citation, and transcribe the differences into
 X2DamageManager.cpp:1740 and the chain it documents, under a new
 SERV_IRUHADEV_JUNE_COLLISION flag. Also finish USE_ADVANCE_COLLISIOIN_CHECK if Phase 7d
 handed it over. Update RANOX_EFFECT_RUNTIME_UNKNOWNS.md with the answers.
+Then compare SetDamageExceptionProcess (attacker vtable 0x2b8, per unit class) against
+March under SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION -- see the phase section.
 
 CP949 byte-level edits only. Build, deploy, ASK before launching. Done when every
 section-4 item is answered with a citation and the Ranox projectile named there hits in a

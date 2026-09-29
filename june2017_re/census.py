@@ -762,6 +762,27 @@ RUNTIME = [
 RUNTIME_SCOPES = ('ES.templet', 'ES.EFFECT', 'ES.CAMERA_SHAKE', 'ES.SOUND')
 RUNTIME_BY_KEY = dict(((r[0], r[1], r[2]), r) for r in RUNTIME)
 
+# Phase 8a: hand-verified parse semantics for DE.DAMAGE_DATA rows March already reads, where the
+# mechanical getter check above cannot settle the default (register-sourced defaults, no decrypt
+# site, callee reads). Read with june2017_re/sdd_walk.py (32632390) and the decompile of 32630d20;
+# the reasoning is in README.md, "Hand-verified (Phase 8a)". (root, rel, key) -> verdict. A verdict
+# replaces the mechanical one only for rows it names; check_hand_semantics() fails on a stale entry.
+_ED = ('EXTRA_DAMAGE',)
+HAND_SEMANTICS = {
+    ('DE.DAMAGE_DATA', (), 'MELEE_ATTACK'): 'same (32632390@3263305e: bool getter, result ignored, so a missing key leaves the member as it was = March default-to-itself)',
+    ('DE.DAMAGE_DATA', (), 'DYNAMO_PARTICLE_RATE_TYPE'): 'same (32632390@3263532a-32635340: int, default EDI=-1 = DPRT_NONE)',
+    ('DE.DAMAGE_DATA', (), 'HIT_ADD_FORCE_POWER'): 'same (32632390@3263de28: int, default EBX, zeroed @3263de06)',
+    ('DE.DAMAGE_DATA', _ED, 'LEVEL'): 'same (32632390@32636851: int, default EDI=-1 set @326367a9)',
+    ('DE.DAMAGE_DATA', _ED, 'ADD_LEVEL'): 'same (32632390@326369b2: int, default EBX, zeroed @32636997)',
+    ('DE.DAMAGE_DATA', _ED, 'EXTRA_DAMAGE_TYPE'): 'differ(post: 32632390@32636204-32636214 remaps EDT_MANA_DAMAGE_WITH_NO_DISPLAY 67 -> EDT_MANA_DAMAGE 16 and sets a no-display flag; default EBX=0 = EDT_NONE is the same; fixed under SERV_IRUHADEV_JUNE_DAMAGEDATA)',
+    ('DE.DAMAGE_DATA', (), 'BUFF_FACTOR'): 'same (32630910: BeginTable, ParsingBuffFactor(lua, false), SetGameUnitBuffFactor(attacker), push_back = March ParsingBuffFactor; nested keys not compared)',
+    ('DE.DAMAGE_DATA', (), 'BUFF_FACTOR_RELATIVE_SKILL_ID'): 'same (32630d20@32631a60: user default = vtable 0x524, a now-state skill-ID getter (GetNowStateSkillID); @32631edc: NPC default 0; level rule and learn-check identical)',
+    ('DE.DAMAGE_DATA', (), 'BUFF_FACTOR_RELATIVE_MASTER_UNIT'): 'same (32630d20@326320df: bool, default false; master lookup and level-0 skip identical)',
+    ('DE.DAMAGE_DATA', (), 'ATTACKER_GET'): 'same (32632390@32635b14-32635cf1: HP/MP floats default 0 into protected members; March attackerGet the same)',
+    ('DE.DAMAGE_DATA', (), 'ENABLE_ATTACKBOX'): 'same (32632390@326379bc-32637a91: strings from index 1, SetEnableAttackBox(name, true) when the attacker is live)',
+    ('DE.DAMAGE_DATA', (), 'DISABLE_ATTACKBOX'): 'same (32632390@32637a96-32637b71: as ENABLE_ATTACKBOX with false)',
+}
+
 COMPILED_OUT = {'CX2EffectSet::AddEffectSet_Description_LUA': '#ifdef EFFECT_TOOL, X2EffectSet.cpp:3380'}
 LEVEL_ROOTS = {'ES.templet', 'ES.EFFECT', 'ES.CAMERA_SHAKE', 'ES.SOUND', 'DE.DAMAGE_DATA'}
 
@@ -1864,6 +1885,9 @@ def build(reuse_pp):
         r['jsite'] = None
         if r['march'] and r['status'] in ('implemented', 'unsupported'):
             r['sem'], r['jsite'], r['msite'] = semantics(J, M, r)
+            hand = HAND_SEMANTICS.get((r['root'], r['rel'], r['key']))
+            if hand:
+                r['sem'] = hand
 
     # ---- enums
     june_enum = parse_enum_lua(JUNE_ENUM)
@@ -2032,7 +2056,7 @@ def write(rows, code_keys, sysev, sysv, flag_state, enum_rows, june_enum, march_
         w('| %s | %d | %d | %d |' % (p, ph[(p, 'to-implement')], ph[(p, 'unsupported')], ph[(p, 'binary-only')]))
     semd = [r for r in rows.values() if r['sem'] and r['sem'].startswith('differ')]
     semu = [r for r in rows.values() if r['sem'] and r['sem'].startswith('unchecked')]
-    sems = [r for r in rows.values() if r['sem'] == 'same']
+    sems = [r for r in rows.values() if r['sem'] == 'same' or (r['sem'] or '').startswith('same (')]   # 'same (...)': HAND_SEMANTICS
     nparsed = st['implemented'] + len([r for r in rows.values() if r['status'] == 'unsupported' and r['march']])
     w('')
     w('Semantics of the rows March parses (implemented, plus unsupported rows parsed under plan rule 5): '
@@ -2364,6 +2388,10 @@ def main():
     bad_rt = ['`%s` %s `%s`' % (e[0], path_s(e[1]), e[2]) for e in RUNTIME if (e[0], e[1], e[2]) not in rowkeys]
     checks.append((not bad_rt, 'every hand-written `RUNTIME` citation names a row of the matrix%s'
                    % ('' if not bad_rt else ': ' + ', '.join(bad_rt))))
+    semrows = set((r['root'], r['rel'], r['key']) for r in rows.values() if r['sem'] is not None)
+    bad_hs = ['`%s` %s `%s`' % (k[0], path_s(k[1]), k[2]) for k in HAND_SEMANTICS if k not in semrows]
+    checks.append((not bad_hs, 'every hand-verified `HAND_SEMANTICS` verdict (Phase 8a) names a March-read row%s'
+                   % ('' if not bad_hs else ': ' + ', '.join(bad_hs))))
     no_rt = ['`%s` %s `%s`' % (r['root'], path_s(r['rel']), r['key']) for r in rows.values()
              if r['root'] in RUNTIME_SCOPES and r['march']
              and r['status'] in ('implemented', 'unsupported', 'binary-only')

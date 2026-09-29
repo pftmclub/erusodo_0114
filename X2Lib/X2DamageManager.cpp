@@ -3,6 +3,15 @@
 #if defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+// June2017 Enum.lua EXTRA_DAMAGE_TYPE.EDT_MANA_DAMAGE_WITH_NO_DISPLAY
+// (june2017_re/june_lua/Enum.src.lua:7336). March's EXTRA_DAMAGE_TYPE has no enumerator
+// with this value under US_SERVICE: 112 members up to 144, and 67 is a gap.
+static const int JUNE_EDT_MANA_DAMAGE_WITH_NO_DISPLAY = 67;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 CX2DamageManager::CX2DamageManager(void)
 {
@@ -157,6 +166,21 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		if( luaManager.BeginTable( "EXTRA_DAMAGE" ) == true )
 		{
 			LUA_GET_VALUE_ENUM( luaManager, "EXTRA_DAMAGE_TYPE",	pDamageData->m_ExtraDamage.m_ExtraDamageType,	EXTRA_DAMAGE_TYPE,	EDT_NONE );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+			// June2017 FUN_32632390 @32636204-32636214: right after EXTRA_DAMAGE_TYPE is read,
+			// EDT_MANA_DAMAGE_WITH_NO_DISPLAY (67) is stored as EDT_MANA_DAMAGE (16, EDI loaded
+			// @32635df5) and the extra damage is flagged no-display (byte DamageData +0x151 = 1).
+			// No other key in this function is post-processed differently from March.
+			if( JUNE_EDT_MANA_DAMAGE_WITH_NO_DISPLAY == static_cast<int>( pDamageData->m_ExtraDamage.m_ExtraDamageType ) )
+			{
+				pDamageData->m_ExtraDamage.m_ExtraDamageType			= EDT_MANA_DAMAGE;
+				pDamageData->m_ExtraDamage.m_bManaDamageWithNoDisplay	= true;
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+				CX2OfflineLog::Server( L"JUNE_FX DD EXTRA_DAMAGE_TYPE in %S: EDT_MANA_DAMAGE_WITH_NO_DISPLAY -> EDT_MANA_DAMAGE, no-display flag set",
+					NULL != pTableName ? pTableName : "(null)" );
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+			}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 
 			float fValue = 0.f;

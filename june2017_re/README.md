@@ -392,6 +392,56 @@ The full per-key table is in the plan's Phase 3 section.
   respectively -- confirmed by reading each loop's growth arithmetic (`>>2`-shift pointer diffs vs.
   `>>3`-shift for 8-byte elements).
 
+**Hand-verified (Phase 8a).** `SetDamageDataFromLUA` (`32632390`) and `ParsingBuffFactorID`
+(`32630d20`), for the keys March already parses. These verdicts are in `census.py`'s `HAND_SEMANTICS`,
+which a check keeps in step with the rows. Read with `sdd_walk.py` (below). `decompile_function` fails
+on `32632390`, but works on `32630d20`, `32630910` and `326309f0`.
+
+- **The idiom.** Every key is guard → decrypt → `push 1; lea <dest>; push <name>; mov ecx,esi; call
+  <getter>; test al,al; jne; <default store>`, with `EBP` = `pDamageData` and `ESI` = the lua manager.
+  Enum keys read into a zeroed temp and store `-(ok) & temp` (`movzx/neg/sbb/and`), so their default
+  is 0. That is why the census calls that shape non-standard.
+- **Register defaults.** Each was resolved by the last write to that register before the store,
+  which always sits in the same block, just before the getter.
+  - Zero (`EBX`/`BL`): `FLIP_DIR`, `NO_MISS`, `HIT_ADD_FORCE_POWER`, `IGNORE_RESIST`,
+    `DEFENDER_LEVEL`, `CREATE_EFFECT_SET_TRACE_UNIT`, `EXTRA_DAMAGE_TYPE` and `ADD_LEVEL`.
+  - -1 (`EDI`): `LEVEL` (`@326367a9`) and `DYNAMO_PARTICLE_RATE_TYPE` (`@3263532a`).
+- **`MELEE_ATTACK` ignores the getter's result** (`@3263305e`), so the member keeps its prior value.
+  That is exactly March's `LUA_GET_VALUE( .., m_bMeleeAttack, m_bMeleeAttack )`.
+- **Enum defaults were checked against March's C++ values** with a `char(*)[N]` compile probe under
+  `US_SERVICE` (the enums have `#ifdef`'d members). `EDT_MANA_DAMAGE` = 16, `DECT_UP_DOWN` = 3, and
+  every other default is 0. March's `EXTRA_DAMAGE_TYPE` has 112 members up to 144, and **67 is a gap**.
+- **Protected stores are plumbing.** `ATTACKER_GET` HP/MP, the `EXTRA_DAMAGE` numerics, `HIT_ADD_MP` and
+  `HIT_ADD_HP_PERCENT` go through a compare-then-register idiom (`0x3376cdc8`, `323101d0`). That is
+  `KProtectedType<>::operator=`, which March's `ExtraDamageData` already declares.
+- **The one real post-processing difference.** `@32636204`: `if (EXTRA_DAMAGE_TYPE == 0x43) { type =
+  EDI (0x10, @32635df5); byte [ebp+0x151] = 1 }`, i.e. `EDT_MANA_DAMAGE_WITH_NO_DISPLAY` →
+  `EDT_MANA_DAMAGE` plus a flag. The flag is not reset by the ExtraDamageData init (`31f8e430` →
+  `31f8d4d0`, which clears `+0x100`). `FUN_32cad510` clears it explicitly (`@32cad8dc`) when it rebuilds
+  an extra damage.
+  - A byte-displacement scan for `+0x151`/`+0x101` is pure noise: stack slots, other structs. To find
+    the reader, go from March's `EDT_MANA_DAMAGE` consumer to its June counterpart, and look for the
+    test there.
+- **`DRAIN_HP_RATE` is mirrored** into `+0x4e4` (`@3263afdd`). This is a June-only member: `+0x4e0` is
+  the rate and `+0x4e8` is `m_vecHitParticleName`, which `31d47300` resizes. It has no known reader.
+- **`ParsingBuffFactorID` (`32630d20`)** reads `BUFF_FACTOR_ID` only when nothing earlier was read. The
+  order is:
+  1. `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID`, gated by skill learned (`31fceab0`) and buff template
+     (`3227baf0`).
+  2. `BUFF_FACTOR_ID_ULTIMATE_PVP`, then `_ULTIMATE`, both gated by `31fcf3e0(APPLIED_SKILL_ID)`, the
+     same absent skill-memo callee as Phase 5/6a.
+  3. `BUFF_FACTOR_ID_PVP`, in PvP (`322cc1a0`).
+  4. `BUFF_FACTOR_ID`.
+
+  On March's data none of 1-3 exists, so the result equals March's non-memo path. The level block is
+  identical:
+  - The user default comes from vtable `0x524` (`3208e410`), a now-state skill-ID getter, i.e.
+    `GetNowStateSkillID`.
+  - The NPC path uses master UID `>= 0` and `GetUserUnitByUID` (game vtable `0xa0`), and skips the
+    level when it is 0.
+  - A learn-check with level 0 skips the apply; otherwise the level is `lv ? lv : 1`.
+- **Empty-string default** `0x3344f1f4` starts `00 00`, so it is `L""`.
+
 **Phase 1 corrections to Phase 0's `reconcile.py`.** `reconcile.md` changed only in the
 `<CEffect top level>` scope, plus two explanations:
 
@@ -596,6 +646,13 @@ Committed. These are small, or are the record of what was found:
   `fnstsw`/`test`/`jcc`) via ctypes-allocated RWX memory and runs it on concrete floats, rather than
   hand-deriving C0/C2/C3 condition-code and parity-flag tables from the Intel SDM -- Phase 7e found
   a real hand-trace error this way (see "Method notes").
+- `sdd_walk.py`: Phase 8a's key-by-key walker for `SetDamageDataFromLUA` (`32632390`). By default it
+  prints one block per decrypted key, from its guard to the next key's guard. XOR-decrypt noise is
+  dropped by register taint tracking, so real stack-temp default stores still show.
+  - `--compact` also hides the getter's argument setup.
+  - `--order` prints the ordered key list with VA ranges: the 8b/8c handoff in the plan's Phase 8a
+    section.
+  - Its ranges run up to the next guard, so a range can include the next sub-table's `BeginTable`.
 - `xordec*.py`, `xorscan*.py`: the superseded prototypes.
 
 Gitignored, regenerable with `sh regen.sh` (git on Windows doesn't keep the exec bit):

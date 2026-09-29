@@ -4422,3 +4422,19 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-29
+// Description: June2017 effect rebuild Phase 8a (JUNE2017_EFFECT_REBUILD_PLAN.md):
+//              the DAMAGE_DATA keys March already parses, walked against June's
+//              SetDamageDataFromLUA (FUN_32632390) and ParsingBuffFactorID
+//              (FUN_32630d20). Every default, getter type and surrounding condition
+//              matched March, so no default changes. The one difference is
+//              EXTRA_DAMAGE_TYPE's post-read remap: June's
+//              EDT_MANA_DAMAGE_WITH_NO_DISPLAY (67, absent from March's enum) becomes
+//              EDT_MANA_DAMAGE (16) and sets a new no-display flag on the extra
+//              damage. The flag's reader is Phase 8b's. Cannot fire on March's
+//              Enum.lua, which has no member 67.
+#define SERV_IRUHADEV_JUNE_DAMAGEDATA
+//////////////////////////////////////////////////////////////////////////

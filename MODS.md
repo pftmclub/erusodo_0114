@@ -39,6 +39,7 @@ column.
 | `SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG` | 2026-09-27, **disabled 2026-09-27** (nested, short-lived) | `KTDXLIB/Always.h:4370` (`#define` commented out; re-enable to diagnose) | `X2Lib/X2GUNPC.cpp`/`.h`, `X2Lib/X2BattleFieldGame.cpp` (`[XSTAT]`/`[NPC_ZERO_HP]` diagnostics) | -- |
 | `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY` | 2026-09-27 | `KTDXLIB/Always.h:4385` (nested under `SERV_IRUHADEV_EXTRA_NPC_STAT`) | `X2Lib/X2GUNPC.h`/`.cpp`, `X2Lib/X2Game.cpp` (`SetNpcHardLevel`), `X2Lib/X2BattleFieldGame.cpp`, `X2Lib/X2UnitManager.cpp` (`ApplyExtraNPCStatResistances`) | -- |
 | `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE` | 2026-09-26, extended 2026-09-26 (Phase 6a) | `KTDXLIB/Always.h:4347` | `X2Lib/X2DamageEffect.h:611` (new `DamageEffectDataInLua::m_vecDamageDataNextChain`), `:1131` (new `CEffect` members); `X2Lib/X2DamageEffect.cpp:1457` (`APPLIED_SKILL_ID`/`_NOT_AFFECT_MEMO` + master ultimate flag), `:1504` (`MAIN_EFFECT_NAME_ULTIMATE`), `:1572` (`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`), `:1587` (`USE_ADVANCE_COLLISIOIN_CHECK`), `:1593` (`DAMAGE_DATA`/`_ULTIMATE` wiring), `:1609` (`IGNORE_MI_HUGE`), `:1680` (`USE_OWNER_ATTACK_SPEED`), `:1689` (`DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)` array reads), `:1745` (`FOLLOW_LINE_ULTIMATE`/`FOLLOW_LINE_NEW_ULTIMATE`), `:1776` (`FOLLOW_LINE_WITH_CUSTOM_ROTATE`/`FOLLOW_LINE_GRAVITY`/`TRACE_OWNER_BONE(_ONLY_ROTATE)`), `:1829` (`DAMAGE_DATA_NEXT(_ULTIMATE)`/`DAMAGE_DATA_NEXT%d` chain), `:1901` (`INHERIT_CRITICAL_RATE`/`_DAMAGE_RATE`), `:1934` (`RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT`), `:2160` (destructor cleanup of the chain vector). Phase 6a additions: `X2Lib/X2DamageEffect.h:98` (new `DAMAGE_EFFECT_DIE_CONDITION_TYPE` enum), `:302` (new `DamageEffectData` fields: `fLoopInterval`, `uiLoopEndCount`, `fLoopEndTime`, `vLoopAddPos`, `bSetDieWhenMasterEffectDie`, `bInheritLifeTime`, `bInheritDamage`, `bInheritLockOnData`, `vScale`), `:448` (new `DieCheckCondition` struct), `:970` (`LoadDieCheckConditionBlock`/`LoadDieCheckCondition` decls), `:1252` (`m_vecDieCheckCondition`); `X2Lib/X2DamageEffect.cpp:1805` (ctor call to `LoadDieCheckCondition`), `:6782` (`LoadDieCheckConditionBlock`: shared `CONDITION_` loop for `AND_OPERATION`/`OR_OPERATION`), `:6837` (`LoadDieCheckCondition`: opens `DAMAGE_EFFECT_DIE_CHECK_CONDITION`), `:7040` (`LoadDieDamageEffect`'s `DIE_DAMAGE_EFFECT_ULTIMATE%d` gate+loop, forced off), `:7078` (`LoadDieDamageEffect`'s new keys), `:7366` (`LoadDamageEffect`'s `LOOP_*`/`SET_DIE_WHEN_MASTER_EFFECT_DIE`/`INHERIT_LIFE_TIME`/`INHERIT_DAMAGE`), `:7472` (`LoadHitDamageEffect`'s `HIT_DAMAGE_EFFECT_ULTIMATE%d` gate+loop, forced off), `:7562` (`LoadHitDamageEffect`'s new keys) | -- |
+| `SERV_IRUHADEV_JUNE_DAMAGEDATA` | 2026-09-29 (Phase 8a) | `KTDXLIB/Always.h:4439` | `X2Lib/X2DamageManager.h:582` (new `ExtraDamageData::m_bManaDamageWithNoDisplay`), `:662` (its `Init()` reset), `:735` (its copy); `X2Lib/X2DamageManager.cpp:6` (`JUNE_EDT_MANA_DAMAGE_WITH_NO_DISPLAY` = 67, log include), `:169` (the `EXTRA_DAMAGE_TYPE` remap in `SetDamageDataFromLUA`) | -- |
 
 What each one does:
 
@@ -2147,6 +2148,80 @@ during editing, a statement glued directly onto the next `#ifdef` with no newlin
 Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`. Everything here is a pure addition: two
 new `CEffect` methods, and one new call each inside `AttackResult` (after `SetHitDamageEffect()`) and
 `SetDieDamageEffect()` (at its top).
+
+### June2017 effect engine: DamageData, existing keys (Phase 8a)
+
+Phase 8a of `JUNE2017_EFFECT_REBUILD_PLAN.md`. New flag **`SERV_IRUHADEV_JUNE_DAMAGEDATA`**, in
+`X2Lib/X2DamageManager.{h,cpp}` only. June's `SetDamageDataFromLUA` (`FUN_32632390`, 142 decrypted keys)
+and `ParsingBuffFactorID` (`FUN_32630d20`) were read key by key, for the keys March already parses,
+against March's `SetDamageDataFromLUA` / `ParsingBuffFactorID` as preprocessed under `US_SERVICE`.
+Tool: `june2017_re/sdd_walk.py` (one block per key, XOR-decrypt noise filtered out).
+
+**No default changed.** This function is shared by every damage source in the game (skills, NPC
+scripts, damage effects), so the result is stated explicitly. For every March-parsed key (top level,
+`DAMAGE`, `ATTACKER_GET`, `EXTRA_DAMAGE`, `CUSTOM_HIT_PARTICLE%d`, `ParsingBuffFactorID`'s three),
+June's getter type and failure default equal March's:
+- **Register-sourced defaults** were resolved by tracking `EBX`/`EDI` back to their last write. All are
+  0/false, except `EXTRA_DAMAGE.LEVEL` and `DYNAMO_PARTICLE_RATE_TYPE`, which are -1 (`EDI`).
+- **Enum defaults** are June literals: 0, `CAMERA_SHAKE_TYPE` 3, `DYNAMO_PARTICLE_RATE_TYPE` -1. They
+  were checked against March's C++ values under `US_SERVICE` by a compile probe: `DT_PHYSIC`,
+  `AT_NORMAL`, `HT_DEFAULT`, `RT_NO_DAMAGE`, `WST_NONE`, `DAT_ALL_UNIT`, `DTT_NONE`, `SI_NONE`,
+  `EDT_NONE` = 0; `DECT_UP_DOWN` = 3.
+- **Surrounding conditions match too:**
+  - `ATTACK_ALL_TEAM` is unconditional in both, because `MODIFY_SET_DAMAGE_DATA` is on.
+  - `ENABLE_`/`DISABLE_ATTACKBOX` and `CUSTOM_HIT_PARTICLE` have the same loop shape.
+  - `ParsingBuffFactor`, then `PushSocketAndTemporaryBuffFactor`, then `ParsingBuffFactorID` run in the
+    same order.
+  - The skill-level rule is branch-for-branch identical, including `RELATIVE_SKILL_LEARN_CHECK` and the
+    NPC master-unit path.
+  - The function ends with the same attacker `SetDamageExceptionProcess( pDamageData, fPowerRate )`
+    call (vtable `0x2b8`).
+- **Protected-type stores** (`ATTACKER_GET`, `EXTRA_DAMAGE` numerics, `HIT_ADD_MP`,
+  `HIT_ADD_HP_PERCENT`) are the `KProtectedType` assignment March already uses. They are anti-hack
+  plumbing, not semantics.
+
+**The one difference, now fixed: `EXTRA_DAMAGE_TYPE`'s post-read remap.** June
+(`@32636204-32636214`) turns `EDT_MANA_DAMAGE_WITH_NO_DISPLAY` (67, June `Enum.lua:7336`) into
+`EDT_MANA_DAMAGE` (16) and sets a no-display byte on the extra damage.
+
+| | before (March) | after (`SERV_IRUHADEV_JUNE_DAMAGEDATA`) |
+|---|---|---|
+| `EXTRA_DAMAGE_TYPE` = 67 | On March's `Enum.lua` this is unreachable, because the table has no member 67 and the read yields `EDT_NONE`. A literal 67 arrives only with June's `Enum.lua`; it is then stored as 67, a gap among March's 112 enumerators. What March does downstream with 67 was not traced. | stored as `EDT_MANA_DAMAGE` (16); `m_ExtraDamage.m_bManaDamageWithNoDisplay = true` |
+| any other value | unchanged | unchanged |
+
+- **It cannot fire on today's data.** March's `Enum.lua` has no member 67, so the Lua read yields
+  `EDT_NONE`. It starts mattering when June's `Enum.lua`/`DamageEffect*.lua` are adopted (Phase 11).
+- **The log line** `JUNE_FX DD EXTRA_DAMAGE_TYPE in <table>: ...` is behind `SERV_IRUHADEV_JUNE_FX_DEBUG`.
+- **The flag is carried but not yet consumed.** The new member is copied by `ExtraDamageData`'s
+  hand-written copy function, so it survives the hand-off to the defender. Nothing in March reads it:
+  June's reader is Phase 8b's to port.
+- **The reset is March-side.** `Init()` clears the flag because June's own reset site was not found:
+  its ExtraDamageData init (`31f8d4d0`) clears `+0x100` but not `+0x101`.
+
+**Not ported, and why.** None of these changes a March-parsed key's value.
+- **`DRAIN_HP_RATE` is mirrored into a second June member** (`DamageData +0x4e4`, `@3263afdd`). The
+  layout makes it a new member, not a renamed March one: `+0x4e0` is the rate and `+0x4e8` is the
+  `CUSTOM_HIT_PARTICLE` vector. No reader is identified, and rule 2 forbids porting an offset. Lead
+  for 8b.
+- **June dropped the memo path.** Its `SetDamageDataFromLUA` has no `IsEqippedMemo_` parameter
+  (`RET 0x10`), and `ParsingBuffFactorID` never reads `BUFF_FACTOR_RELATIVE_MEMO_ID` /
+  `BUFF_FACTOR_ID_MEMO`. **Kept in March:** its own data uses both keys 12 times each, June's only 2.
+- **`LAUGHTER_DAMAGE`** is read by March (`PLAY_EMOTION_BY_DAMAGE_EFFECT`) and not by June. Neither
+  data set uses it. Kept, since it is harmless. It has no matrix row, because no June data uses it.
+- **Not compared: the callee `SetDamageExceptionProcess`.** It is where `fPowerRate` actually reaches
+  the damage values: the biggest damage lever left. Assigned to Phase 9 (2026-09-29). The same goes for June's
+  `GetSkillLevel`, which takes a fourth argument (`32890620(id, 0, 0, 1)`).
+
+Built `US_SERVICE` (`touch X2Lib/stdafx.cpp` first; all four projects rebuilt because `Always.h`
+changed; 0 errors; the new `JUNE_FX DD` string is present in the exe, so the branch compiled in) **and
+deployed to `X2_offline.exe`, 18,948,608 B**, SHA-256 prefix `b009e15a487c9370`, 2026-09-29. Exit
+criterion: a clean build and `census.py` all-PASS. The census's new `HAND_SEMANTICS` table carries the
+per-key verdicts into the matrix: phase 8a has 104 implemented rows and 0 open; semantics-differ
+went from 1 to 2 with `EXTRA_DAMAGE_TYPE`. Not play-tested yet; a regression play-test would exercise
+every `SetDamageDataFromLUA` call, i.e. every hit.
+
+Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEDATA`. Pure addition: one member (+ reset, + copy), one
+constant, one `if` after the `EXTRA_DAMAGE_TYPE` read.
 
 ### Dryad Kenta (Burned Forest boss): "jumps off the map, never comes back" softlock
 
