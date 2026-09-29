@@ -39,7 +39,7 @@ column.
 | `SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG` | 2026-09-27, **disabled 2026-09-27** (nested, short-lived) | `KTDXLIB/Always.h:4370` (`#define` commented out; re-enable to diagnose) | `X2Lib/X2GUNPC.cpp`/`.h`, `X2Lib/X2BattleFieldGame.cpp` (`[XSTAT]`/`[NPC_ZERO_HP]` diagnostics) | -- |
 | `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY` | 2026-09-27 | `KTDXLIB/Always.h:4385` (nested under `SERV_IRUHADEV_EXTRA_NPC_STAT`) | `X2Lib/X2GUNPC.h`/`.cpp`, `X2Lib/X2Game.cpp` (`SetNpcHardLevel`), `X2Lib/X2BattleFieldGame.cpp`, `X2Lib/X2UnitManager.cpp` (`ApplyExtraNPCStatResistances`) | -- |
 | `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE` | 2026-09-26, extended 2026-09-26 (Phase 6a) | `KTDXLIB/Always.h:4347` | `X2Lib/X2DamageEffect.h:611` (new `DamageEffectDataInLua::m_vecDamageDataNextChain`), `:1131` (new `CEffect` members); `X2Lib/X2DamageEffect.cpp:1457` (`APPLIED_SKILL_ID`/`_NOT_AFFECT_MEMO` + master ultimate flag), `:1504` (`MAIN_EFFECT_NAME_ULTIMATE`), `:1572` (`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`), `:1587` (`USE_ADVANCE_COLLISIOIN_CHECK`), `:1593` (`DAMAGE_DATA`/`_ULTIMATE` wiring), `:1609` (`IGNORE_MI_HUGE`), `:1680` (`USE_OWNER_ATTACK_SPEED`), `:1689` (`DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)` array reads), `:1745` (`FOLLOW_LINE_ULTIMATE`/`FOLLOW_LINE_NEW_ULTIMATE`), `:1776` (`FOLLOW_LINE_WITH_CUSTOM_ROTATE`/`FOLLOW_LINE_GRAVITY`/`TRACE_OWNER_BONE(_ONLY_ROTATE)`), `:1829` (`DAMAGE_DATA_NEXT(_ULTIMATE)`/`DAMAGE_DATA_NEXT%d` chain), `:1901` (`INHERIT_CRITICAL_RATE`/`_DAMAGE_RATE`), `:1934` (`RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT`), `:2160` (destructor cleanup of the chain vector). Phase 6a additions: `X2Lib/X2DamageEffect.h:98` (new `DAMAGE_EFFECT_DIE_CONDITION_TYPE` enum), `:302` (new `DamageEffectData` fields: `fLoopInterval`, `uiLoopEndCount`, `fLoopEndTime`, `vLoopAddPos`, `bSetDieWhenMasterEffectDie`, `bInheritLifeTime`, `bInheritDamage`, `bInheritLockOnData`, `vScale`), `:448` (new `DieCheckCondition` struct), `:970` (`LoadDieCheckConditionBlock`/`LoadDieCheckCondition` decls), `:1252` (`m_vecDieCheckCondition`); `X2Lib/X2DamageEffect.cpp:1805` (ctor call to `LoadDieCheckCondition`), `:6782` (`LoadDieCheckConditionBlock`: shared `CONDITION_` loop for `AND_OPERATION`/`OR_OPERATION`), `:6837` (`LoadDieCheckCondition`: opens `DAMAGE_EFFECT_DIE_CHECK_CONDITION`), `:7040` (`LoadDieDamageEffect`'s `DIE_DAMAGE_EFFECT_ULTIMATE%d` gate+loop, forced off), `:7078` (`LoadDieDamageEffect`'s new keys), `:7366` (`LoadDamageEffect`'s `LOOP_*`/`SET_DIE_WHEN_MASTER_EFFECT_DIE`/`INHERIT_LIFE_TIME`/`INHERIT_DAMAGE`), `:7472` (`LoadHitDamageEffect`'s `HIT_DAMAGE_EFFECT_ULTIMATE%d` gate+loop, forced off), `:7562` (`LoadHitDamageEffect`'s new keys) | -- |
-| `SERV_IRUHADEV_JUNE_DAMAGEDATA` | 2026-09-29 (Phase 8a) | `KTDXLIB/Always.h:4439` | `X2Lib/X2DamageManager.h:582` (new `ExtraDamageData::m_bManaDamageWithNoDisplay`), `:662` (its `Init()` reset), `:735` (its copy); `X2Lib/X2DamageManager.cpp:6` (`JUNE_EDT_MANA_DAMAGE_WITH_NO_DISPLAY` = 67, log include), `:169` (the `EXTRA_DAMAGE_TYPE` remap in `SetDamageDataFromLUA`) | -- |
+| `SERV_IRUHADEV_JUNE_DAMAGEDATA` | 2026-09-29 (Phase 8a) | `KTDXLIB/Always.h:4439` | `X2Lib/X2DamageManager.h:582` (new `ExtraDamageData::m_bManaDamageWithNoDisplay`), `:662` (its `Init()` reset), `:735` (its copy); `X2Lib/X2DamageManager.cpp:6` (`JUNE_EDT_MANA_DAMAGE_WITH_NO_DISPLAY` = 67, log include), `:169` (the `EXTRA_DAMAGE_TYPE` remap in `SetDamageDataFromLUA`). Phase 8c additions: `X2Lib/X2DamageManager.h:1121` (eight absent-system `DamageData` members), `:1336` (their `SimpleInit()` defaults), `:1537` (`SetJuneDamageDataTemplet` + `JuneDamageDataTempletScope`), `:1567` (`m_pwszJuneDamageDataTemplet`); `X2Lib/X2DamageManager.cpp:15` (log include, `JuneDamageDataUnsupported`), `:67` (ctor init), `:201` (the eight reads and their rule-5 lines); `X2Lib/X2DamageEffect.cpp:1746` (the CEffect ctor's templet scope) | -- |
 
 What each one does:
 
@@ -2272,6 +2272,54 @@ verification — see the plan's Phase 8b "Play-test checklist" for what to look 
 Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEDATA`. Pure addition: five new members across three
 files (`DamageData` x5, `CX2GameUnit` x2), one new `AttackResult` branch in the
 `RT_CREATE_EFFECT_SET` case, one new `if` block at the end of the default case.
+
+### June2017 effect engine: DamageData, absent systems (Phase 8c)
+
+Phase 8c of `JUNE2017_EFFECT_REBUILD_PLAN.md`. It extends `SERV_IRUHADEV_JUNE_DAMAGEDATA` (no new
+flag) in `X2Lib/X2DamageManager.{h,cpp}` and `X2Lib/X2DamageEffect.cpp`.
+
+**What changed.** Eight `DAMAGE_DATA` keys whose system this build lacks are now read by
+`SetDamageDataFromLUA`, each with June's getter type and default, and stored in new `DamageData`
+members. **Nothing reads them** (plan rule 5).
+
+| key | system | new member | default |
+|---|---|---|---|
+| `APPLIED_SKILL_ID` | applied skill ID | `m_iAppliedSkillID` | 0 |
+| `NATURAL_FORCE_TYPE` | natural force (`ADD_RENA_SYSTEM` off) | `m_iNaturalForceType`, only under `#ifndef ADD_RENA_SYSTEM` | -1 (`NFT_NONE`) |
+| `HIT_ADD_COMBINATION_POINT` | combination point | `m_iHitAddCombinationPoint` | 0 |
+| `HP_RATE_DAMAGE_TYPE` | HP-rate damage | `m_iHpRateDamageType` | 0 (`HRDT_NONE`) |
+| `HP_RATE_DAMAGE_VALUE` | HP-rate damage | `m_fHpRateDamageValue` | 0.0 |
+| `NUMERICAL_DATA_INDEX` | numerical skill data | `m_iNumericalDataIndex` | 0 |
+| `NUMERICAL_DATA_NAME` | numerical skill data | `m_wstrNumericalDataName` | `L""` |
+| `ROSE_WEAPON_ATTACK_TYPE` | Rose weapon | `m_iRoseWeaponAttackType` | -1 (`RWAT_NONE`) |
+
+**The log line.** A value other than June's default writes one `offline_server.log` line per key per
+templet per session:
+
+```
+JUNE_FX unsupported <KEY> in <templet>: <system> absent (value <v>, table <DAMAGE_DATA...>)
+```
+
+- The CEffect ctor supplies the templet name through a scoped `CX2DamageManager::JuneDamageDataTempletScope`.
+  Other callers (unit, NPC and buff scripts) print `(no templet) <table>`.
+- The line is not behind `SERV_IRUHADEV_JUNE_FX_DEBUG`. It needs `SERV_IRUHADEV_OFFLINE`, because
+  `CX2OfflineLog` lives there.
+
+**No damage number or default changed.** Every existing read is untouched. March's own
+`ADD_RENA_SYSTEM` natural-force read is still what compiles if that flag is ever turned on.
+
+Built `US_SERVICE` (`touch X2Lib/stdafx.cpp` first; KTDXLIB, X2Lib and X2 all 0 errors, no warnings in the edited files) and **deployed to `X2_offline.exe`, 18,952,704 B**, SHA-256 prefix `dc5c6c4fef65ae2d`, 2026-09-29. The new format string is present in the binary. `census.py`: all 8 rows `unsupported` with a March site and `same` semantics (three by hand in `HAND_SEMANTICS`: register defaults), all 12 checks PASS. **Not play-tested yet.**
+
+**What the deployed data can show.**
+- `NATURAL_FORCE_TYPE`: five Rena templets (`DOUBLE_JUMP_X_ARROW`, `DOUBLE_JUMP_XX_ARROW`,
+  `NATURAL_FORCE_EXPLOSION_BOOM_COMBO`/`_SKILL`, `LESI_COMBAT_RANGER_..._Z_UP_DAMAGEEFFECT`) and
+  `DamageEffect_DRYADKENTA_SpacialAttackB_Fire`.
+- `NUMERICAL_DATA_INDEX`: `DamageEffect_SA_RHB_Lockon_Stratos_Attack`.
+- The deployed `APPLIED_SKILL_ID` names a `SKILL_ID` member March lacks, so it arrives as nil and
+  never logs.
+
+Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEDATA`. This phase is pure addition: 181 lines inserted,
+none deleted.
 
 ### Dryad Kenta (Burned Forest boss): "jumps off the map, never comes back" softlock
 

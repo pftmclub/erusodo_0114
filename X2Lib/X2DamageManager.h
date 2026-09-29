@@ -1117,6 +1117,21 @@ class CX2DamageManager
 			/// with the damage manager by June (FUN_32622220 @3263edee) when non-empty; that
 			/// registration is not ported -- its purpose and reader are not identified.
 			std::wstring		m_wstrDamageDataKeyName;			/// DAMAGE_DATA_KEY_NAME
+
+			/// Phase 8c, plan rule 5: keys whose system this build lacks (JUNE2017_EFFECT_KEY_MATRIX.md,
+			/// "Absent systems"). Parsed with June's getter type and default and stored; nothing reads
+			/// them. SetDamageDataFromLUA logs a non-default value once per key per templet. The +0x
+			/// offsets are June's DamageData layout, cited only.
+			int					m_iAppliedSkillID;					/// APPLIED_SKILL_ID (+0x5c4)
+#ifndef ADD_RENA_SYSTEM
+			int					m_iNaturalForceType;				/// NATURAL_FORCE_TYPE (+0x56c); with ADD_RENA_SYSTEM on, m_NaturalForceType reads it
+#endif ADD_RENA_SYSTEM
+			int					m_iHitAddCombinationPoint;			/// HIT_ADD_COMBINATION_POINT (+0x594)
+			int					m_iHpRateDamageType;				/// HP_RATE_DAMAGE_TYPE (+0x5f4)
+			float				m_fHpRateDamageValue;				/// HP_RATE_DAMAGE_VALUE (+0x5f8)
+			int					m_iNumericalDataIndex;				/// NUMERICAL_DATA_INDEX (a stack local in June)
+			std::wstring		m_wstrNumericalDataName;			/// NUMERICAL_DATA_NAME (a stack local in June)
+			int					m_iRoseWeaponAttackType;			/// ROSE_WEAPON_ATTACK_TYPE (+0x600)
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 			void SimpleInit()
@@ -1318,6 +1333,16 @@ class CX2DamageManager
 				m_bTraceNearestBone						= false;
 				m_bMakeTarget								= false;
 				m_wstrDamageDataKeyName					= L"";
+				m_iAppliedSkillID						= 0;
+#ifndef ADD_RENA_SYSTEM
+				m_iNaturalForceType						= -1;	/// NFT_NONE in Enum.lua (the C++ enum is ADD_RENA_SYSTEM-only)
+#endif ADD_RENA_SYSTEM
+				m_iHitAddCombinationPoint				= 0;
+				m_iHpRateDamageType						= 0;	/// HRDT_NONE in June's Enum.lua
+				m_fHpRateDamageValue					= 0.f;
+				m_iNumericalDataIndex					= 0;
+				m_wstrNumericalDataName					= L"";
+				m_iRoseWeaponAttackType					= -1;	/// RWAT_NONE in June's Enum.lua
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 			}
 
@@ -1508,7 +1533,39 @@ class CX2DamageManager
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE	  // ±èÁ¾ÈÆ, ¿¤¸®½Ã½º 1-2 ±×·£µå ¸¶½ºÅÍ, 2-2 ºí·¹ÀÌÂ¡ ÇÏÆ®
 		bool	GetIsPossibleProvokeExtraDamage ( DamageData * pDamageData );
 #endif // SERV_ELESIS_SECOND_CLASS_CHANGE // ±èÁ¾ÈÆ, ¿¤¸®½Ã½º 1-2 ±×·£µå ¸¶½ºÅÍ, 2-2 ºí·¹ÀÌÂ¡ ÇÏÆ®
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		/// Phase 8c: the templet name SetDamageDataFromLUA prints in its rule-5 JUNE_FX lines. A caller
+		/// that has one (CEffect's ctor) sets it with a JuneDamageDataTempletScope local for the
+		/// duration of its reads; the scope restores the previous name, so nested templets unwind.
+		void			SetJuneDamageDataTemplet( const WCHAR* pwszTemplet_ ) { m_pwszJuneDamageDataTemplet = pwszTemplet_; }
+		const WCHAR*	GetJuneDamageDataTemplet() const { return m_pwszJuneDamageDataTemplet; }
+
+		class JuneDamageDataTempletScope
+		{
+		public:
+			JuneDamageDataTempletScope( CX2DamageManager* pDamageManager_, const WCHAR* pwszTemplet_ )
+				: m_pDamageManager( pDamageManager_ ), m_pwszPrevTemplet( NULL )
+			{
+				if( NULL != m_pDamageManager )
+				{
+					m_pwszPrevTemplet = m_pDamageManager->GetJuneDamageDataTemplet();
+					m_pDamageManager->SetJuneDamageDataTemplet( pwszTemplet_ );
+				}
+			}
+			~JuneDamageDataTempletScope()
+			{
+				if( NULL != m_pDamageManager )
+					m_pDamageManager->SetJuneDamageDataTemplet( m_pwszPrevTemplet );
+			}
+		private:
+			CX2DamageManager*	m_pDamageManager;
+			const WCHAR*		m_pwszPrevTemplet;
+		};
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 	private:
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		const WCHAR*	m_pwszJuneDamageDataTemplet;	/// Phase 8c, see SetJuneDamageDataTemplet
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		bool CollisionDataCheckFromUnitToUnit( CX2GameUnit* pAttackerGameUnit_, 
 			const CKTDXCollision::CollisionDataListSet& setDefenderCollisionDataList_,
 			CKTDXCollision::CollisionType& collisionType_, D3DXVECTOR3* pImpactPos_ );

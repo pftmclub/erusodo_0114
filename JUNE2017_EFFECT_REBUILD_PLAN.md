@@ -2656,6 +2656,138 @@ own explicitly-deferred (parsed-only) keys. Update the matrix and MODS.md.
 
 ## Phase 8c — SetDamageData III: absent systems, and the enum tables so June lua loads
 
+**Status: done 2026-09-29, built and deployed (`US_SERVICE`, 0 errors, `X2_offline.exe` 18,952,704 B, SHA-256 `dc5c6c4fef65ae2d…`; not play-tested yet).** Extends
+`SERV_IRUHADEV_JUNE_DAMAGEDATA` (no new flag): `X2Lib/X2DamageManager.{h,cpp}`,
+`X2Lib/X2DamageEffect.cpp`. The exit test is a new `census.py` check: every phase-8c
+`DE.DAMAGE_DATA` row has a March parse site. It passes, and all 8 rows are `unsupported`, with
+their system named and their March site shown.
+
+**Scope, as the census settled it.** Eight `DE.DAMAGE_DATA` keys across six systems.
+- The plan's list also named `APPLIED_MEMO_ID` and `CAN_ACTIVATE_NASOD_ARMOR_COMBO`. Their systems
+  exist, so they stay with 8b under this phase's own rule:
+  - skill memo: `ADD_MEMO_1ST_CLASS` is ON;
+  - Add's Nasod-armor combo: `X2GUAdd`, under `SERV_9TH_NEW_CHARACTER`, is ON.
+- The `BUFF_FACTOR/APPLIED_SKILL_ID` row is `unassigned`. It is a data path artifact: June's only read
+  is the top-level one. Left alone.
+
+**Absent-system verdicts, re-checked.** Stem search over `X2Lib`, `KTDXLIB`, `X2ServerProtocol` and
+`KncWX2Server/Common` (classes, shared enums, `EventID_*`/packet headers). `X2Lib/Offline/` and this
+rebuild's own blocks are excluded.
+- **Rose weapon: absent.**
+  - `CX2Unit::UNIT_TYPE` ends at `UT_ADD`.
+  - The only `UT_ROSE` is a Phase 5 comment.
+  - Every other `ROSE` stem hit is a skill or NPC name (`SI_A_SBH_SCALET_ROSE`, `NUI_ROSEANG`, …).
+- **HP-rate damage, numerical skill data, combination point: absent.** Zero identifiers anywhere,
+  packets included.
+- **Natural force: gated-off.**
+  - March's own read is `LUA_GET_VALUE_ENUM( "NATURAL_FORCE_TYPE", m_NaturalForceType, …, NFT_NONE )`,
+    with the member and the C++ enum all under `ADD_RENA_SYSTEM`, which is off under `US_SERVICE`.
+  - The new read sits under `#ifndef ADD_RENA_SYSTEM`, so turning that flag on hands the key back to
+    the studio read.
+- **Applied skill ID: absent.**
+  - June reads DamageData `+0x5c4` in two places: `ParsingBuffFactorID`'s `_ULTIMATE` gate
+    (`31fcf3e0`, still unidentified, 8b group 2) and the numerical-data override. March has neither.
+  - `DamageData::m_eUsedSkillID` (`SERV_ARA_CHANGE_CLASS_SECOND`) is a C++-set skill ID, not this key.
+    It is a lead for 8b's `DAMAGE_SKILL_ID`, nothing more.
+  - This verdict depends on `31fcf3e0`'s identification. If 8b finds it is March's memo path, revisit
+    it.
+
+**June's parse, key by key** (`sdd_walk.py`; defaults read at the store after `test al,al; jne`):
+
+| key | June VA range | getter @ call | default | June destination | logged when |
+|---|---|---|---|---|---|
+| `APPLIED_SKILL_ID` | `32632405-32632588` | int @`32632561` | 0 (`EBX`) | `+0x5c4` | ≠ 0 |
+| `NATURAL_FORCE_TYPE` | `3263534f-326354f2` | int @`326354d2` | −1: `EDI`, set @`3263532a` (`or edi,-1`) and not rewritten before the store @`326354db` (checked with capstone) | `+0x56c` | ≠ −1 |
+| `HIT_ADD_COMBINATION_POINT` | `3263df79-3263e18f` | int @`3263e17b` | 0 | `+0x594` | ≠ 0 |
+| `HP_RATE_DAMAGE_TYPE` | `3263f256-3263f415` | int @`3263f3f7`, enum shape `-(ok) & temp` | 0 (`HRDT_NONE`) | `+0x5f4` | ≠ 0 |
+| `HP_RATE_DAMAGE_VALUE` | `3263f415-3263f5ca` | float @`3263f5b8` | 0.0 (`fldz`) | `+0x5f8` | ≠ 0 |
+| `NUMERICAL_DATA_INDEX` | `3263fadb-3263fc8f` | int @`3263fc7d` | 0 | stack local | > 0 (June's own gate @`3263fe41`) |
+| `NUMERICAL_DATA_NAME` | `3263fc8f-3263fe41` | string @`3263fe27` | `L""` (`0x3344f1f4`) | stack local | not empty (same gate) |
+| `ROSE_WEAPON_ATTACK_TYPE` | `32640064-3264026d` | int @`32640246` | −1 (`RWAT_NONE`) | `+0x600` | ≠ −1 |
+
+- **Not ported, by rule 5:** the numerical-data override (`@3263fe41-32640054`, 8a handoff row 62).
+  The two `NUMERICAL_DATA_*` keys feed only that override, so June never stores them in DamageData.
+  March does, so the log has something to print.
+
+**Where the templet name comes from.** `SetDamageDataFromLUA` does not know its templet, and it has
+19 call sites.
+- The rule-5 line is emitted inside `SetDamageDataFromLUA`, so no caller parses these keys silently.
+- The templet name comes from `CX2DamageManager::JuneDamageDataTempletScope`, an RAII local the CEffect
+  ctor sets around all of its `DAMAGE_DATA*` reads. It restores the previous name, so nested templets
+  unwind correctly.
+- Unit, NPC and buff callers set no name. Their lines read `(no templet) <table>`.
+- The dedup is a static set, once per (key, templet) for the session, not the 1-second throttle Phase
+  5 used. This is the same unguarded-static pattern as `JuneFxCeOnce`.
+- It is not behind `SERV_IRUHADEV_JUNE_FX_DEBUG`: a rule-5 line is not a diagnostic.
+- `CX2OfflineLog` is included under `SERV_IRUHADEV_JUNE_DAMAGEDATA` + `SERV_IRUHADEV_OFFLINE`.
+
+**What a missing enum table does in this build.** It is not `LUA_GET_VALUE_ENUM`'s doing.
+- The macro (`LuaCommon/KLuaManager.h:152`, the header X2Lib actually compiles, via `KTDXLIB`) reads the
+  already-built table through `GetValue( key, int& )`. On `Get` failing or `lua_isnumber` false it
+  returns false, and the macro stores the default. It never touches the enum table.
+- The enum table is dereferenced by the Lua chunk itself, while the templet's table constructor runs.
+  Each DamageEffect templet is a global assignment (`NAME = { … }`), and each EffectSet templet is a
+  `g_pEffectSet:AddEffectSetTemplet_LUA({ … })` statement.
+- **A missing table** (`ROSE_WEAPON_ATTACK_TYPE.RWAT_…` with no global `ROSE_WEAPON_ATTACK_TYPE`) raises
+  "attempt to index a nil value":
+  - `lua_tinker::dobuffer` (`LuaCommon/lua_tinker.cpp:184`) catches it in `lua_pcall` and returns false.
+  - `LoadAndDoMemory` logs `KEM_ERROR73` with the file name.
+  - `CX2DamageEffect::OpenScriptFile` returns silently.
+  - Every statement before the failing one has run, and **every templet from the failing one to the
+    end of the file is never defined**. The later "templet not found" looks unrelated.
+- **A missing member of an existing table** (`SKILL_ID.RNSI_…` absent from March's `SKILL_ID`) is plain
+  nil. The key is absent from the built table, so `GetValue` fails and the default is used, **silently**.
+  The matrix's *Enum census* lists every such member (1,006 missing from March).
+
+**Handoff to Phase 11: the June-only tables** (from `june2017_re/june_lua/Enum.src.lua`; March's
+`Enum.src.lua` + `DungeonEnum.src.lua` have none of them). Add them whole, not only the members 8c's
+keys use. Any one missing table truncates a whole file, whichever phase owns the key that references it.
+
+| table | June `Enum.src.lua` line | members (exact values) | uses in June `DamageEffect*`/`EffectSet*` |
+|---|---|---|---|
+| `NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE` | 7168 | `NTPLOTT_NONE = 0`, `NTPLOTT_TARGET_LIST_CLEAR = 1`, `NTPLOTT_TARGET_LIST_NOT_CLEAR = 2`, `NTPLOTT_TARGET_LIST_SAVE_ONE = 3`, `NTPLOTT_TARGET_LIST_SAVE_HIT_UNIT = 4` | 110 |
+| `DAMAGE_EFFECT_DIE_CONDITION_TYPE` | 11746 | `DEDCT_NONE = -1`, `DEDCT_DAMAGE_TIME = 0`, `DEDCT_LOCK_ON_TARGET = 1` | 2 |
+| `ROSE_WEAPON_ATTACK_TYPE` | 17643 | `RWAT_NONE = -1`, `RWAT_REVOLVER = 0`, `RWAT_AUTOGUN = 1`, `RWAT_MUSKET = 2`, `RWAT_HANDCANNON = 3`, `RWAT_REVOLVER_CHAIN = 4`, `RWAT_REVOLVER_BLADE = 5`, `RWAT_END = 6` | 38 |
+| `HP_RATE_DAMAGE_TYPE` | 17855 | `HRDT_NONE = 0`, `HRDT_NOW_HP = 1`, `HRDT_MAX_HP = 2` | 8 |
+| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | 18145 | `AEACBO_NONE = 0`, `AEACBO_NOT_APPLY = 1`, `AEACBO_MY_EFFECT = 2`, `AEACBO_MY_TEAM_EFFECT = 3`, `AEACBO_ANOTHER_TEAM_EFFECT = 4` | 27 |
+
+`NATURAL_FORCE_TYPE` (June line 634) is already in March's `Enum.src.lua:510`, with identical values.
+The deployed `kom_contents/data036_kom/Enum.src.lua` is byte-identical to `march2014/data036/`'s.
+
+How much of each June file survives a load on today's Enum: the first templet that indexes a missing
+table, and everything after it, is lost.
+- The scan was widened to any `UPPER.member` whose table is not in March's `Enum`/`DungeonEnum`.
+- It found only these five tables, plus false positives that are file names inside string literals
+  (`"RWT_COMBO_X_IMPACT.ogg"`).
+- So the table below is exact, not a lower bound.
+
+| June file | templets | first failing templet | lost |
+|---|---|---|---|
+| `DamageEffect` | 6,206 | #322 `DamageEffect_AHM_Chain_Lightning` (`NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE`) | 5,885 |
+| `DamageEffect_Character` | 1,027 | #89 `DamageEffect_SA_RCR_Punishment_Attack1_FX` (`ROSE_WEAPON_ATTACK_TYPE`) | 939 |
+| `DamageEffect_Dungeon` | 807 | #9 `DamageEffect_PVP_HERO_ARUS_Bullet_Blitz` (`NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE`) | 799 |
+| `DamageEffect_ETC` | 431 | #29 `DamageEffect_WaterBalloon_Hit_AttackDummy` (`HP_RATE_DAMAGE_TYPE`) | 403 |
+| `DamageEffect_INT` | 358 | #197 `DamageEffect_Riding_Hellhound_Skill_C_GHOST1` (`NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE`) | 162 |
+| `EffectSet` | ~8,475 top-level statements | statement #2,536, `EffectSet_HA_LDN_DIABOLIC_DISASTER` (`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`) | the rest |
+| `EffectSet_INT`, `EffectSet_Description` | | none | 0 |
+
+- **Two members whose values differ** are a Phase 11 hazard, because they are silent:
+  `BUFF_FACTOR_ID.BFI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR_EVENT`/`_WING_EVENT` are March 365/366 and June
+  372/373 (matrix *Enum census*).
+- **The deployed data today** references none of the five missing tables, so no templet is being lost
+  now. It does carry six `NATURAL_FORCE_TYPE`, one `NUMERICAL_DATA_INDEX = 1` and one `APPLIED_SKILL_ID`
+  inside `DAMAGE_DATA` (`kom_contents/data036_kom/DamageEffect.src.lua`).
+  - `APPLIED_SKILL_ID` is `SKILL_ID.RNSI_SA_RHB_LOCKON_STRATOS`, which March's `SKILL_ID` lacks. It
+    arrives as nil and is never logged.
+  - The other two can log. Expected lines:
+    - `JUNE_FX unsupported NATURAL_FORCE_TYPE in DamageEffect_DRYADKENTA_SpacialAttackB_Fire` (the Dryad
+      Kenta boss);
+    - five Rena templets: `NATURAL_FORCE_EXPLOSION_BOOM_COMBO`, `NATURAL_FORCE_EXPLOSION_BOOM_SKILL`,
+      `LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z_UP_DAMAGEEFFECT`, `DOUBLE_JUMP_X_ARROW` and
+      `DOUBLE_JUMP_XX_ARROW`;
+    - `NUMERICAL_DATA_INDEX in DamageEffect_SA_RHB_Lockon_Stratos_Attack`.
+  - Each needs that templet to be instantiated in play.
+
 **Paste with:** Starting context + this section.
 
 **Model:** Sonnet 5, high. See "Model and effort per phase".

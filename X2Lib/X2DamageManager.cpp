@@ -11,11 +11,61 @@
 // (june2017_re/june_lua/Enum.src.lua:7336). March's EXTRA_DAMAGE_TYPE has no enumerator
 // with this value under US_SERVICE: 112 members up to 144, and 67 is a gap.
 static const int JUNE_EDT_MANA_DAMAGE_WITH_NO_DISPLAY = 67;
+
+#ifdef SERV_IRUHADEV_OFFLINE
+// Phase 8c: the rule-5 lines below are not diagnostics, so this is not behind SERV_IRUHADEV_JUNE_FX_DEBUG.
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_OFFLINE
+
+// Plan rule 5 (Phase 8c): a DAMAGE_DATA key whose system this build lacks is logged once per key per
+// templet for the session, as "JUNE_FX unsupported <KEY> in <templet>: <system> absent". Only a value
+// other than June's default is logged. The templet comes from the caller's JuneDamageDataTempletScope
+// (CEffect's ctor); unit, NPC and buff scripts set none and are labelled by table name. A no-op
+// without SERV_IRUHADEV_OFFLINE, because CX2OfflineLog only exists under it (as JuneFxCeOnce).
+static void JuneDamageDataUnsupported( const WCHAR* pwszTemplet_, const char* pTableName_, const WCHAR* pwszKey_,
+									   const WCHAR* pwszSystem_, const WCHAR* pwszValue_ )
+{
+#ifdef SERV_IRUHADEV_OFFLINE
+	const char* pszTable = ( NULL != pTableName_ ? pTableName_ : "(null)" );
+	WCHAR wszTemplet[256] = L"";
+	if( NULL != pwszTemplet_ )
+		StringCchPrintfW( wszTemplet, ARRAY_SIZE(wszTemplet), L"%s", pwszTemplet_ );
+	else
+		StringCchPrintfW( wszTemplet, ARRAY_SIZE(wszTemplet), L"(no templet) %S", pszTable );
+
+	std::wstring wstrOnceKey = pwszKey_;
+	wstrOnceKey += L"|";
+	wstrOnceKey += wszTemplet;
+	static std::set<std::wstring> s_setLogged;
+	if( false == s_setLogged.insert( wstrOnceKey ).second )
+		return;
+
+	CX2OfflineLog::Server( L"JUNE_FX unsupported %s in %s: %s absent (value %s, table %S)",
+		pwszKey_, wszTemplet, pwszSystem_, pwszValue_, pszTable );
+#else SERV_IRUHADEV_OFFLINE
+	UNREFERENCED_PARAMETER( pwszTemplet_ );
+	UNREFERENCED_PARAMETER( pTableName_ );
+	UNREFERENCED_PARAMETER( pwszKey_ );
+	UNREFERENCED_PARAMETER( pwszSystem_ );
+	UNREFERENCED_PARAMETER( pwszValue_ );
+#endif SERV_IRUHADEV_OFFLINE
+}
+
+static void JuneDamageDataUnsupportedInt( const WCHAR* pwszTemplet_, const char* pTableName_, const WCHAR* pwszKey_,
+										  const WCHAR* pwszSystem_, int iValue_ )
+{
+	WCHAR wszValue[32] = L"";
+	StringCchPrintfW( wszValue, ARRAY_SIZE(wszValue), L"%d", iValue_ );
+	JuneDamageDataUnsupported( pwszTemplet_, pTableName_, pwszKey_, pwszSystem_, wszValue );
+}
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 CX2DamageManager::CX2DamageManager(void)
 {
 	m_pCollision = g_pKTDXApp->GetCollision();
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+	m_pwszJuneDamageDataTemplet = NULL;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 
 	for( int i=0; i<(int)HIT_TYPE_COUNT; i++ )
@@ -146,6 +196,68 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 		LUA_GET_VALUE_ENUM( luaManager, "NATURAL_FORCE_TYPE",			pDamageData->m_NaturalForceType,	NATURAL_FORCE_TYPE,			NFT_NONE );
 #endif //ADD_RENA_SYSTEM
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		// Phase 8c, plan rule 5: the DAMAGE_DATA keys whose system this build lacks (JUNE2017_EFFECT_KEY_MATRIX.md,
+		// "Absent systems"), in June's read order. Each is parsed with June's getter and default and stored.
+		// Nothing acts on them; a value other than June's default is logged once per key per templet.
+		const WCHAR* pwszJuneTemplet = GetJuneDamageDataTemplet();
+
+		// June2017 FUN_32632390 @32632405-32632588: int getter 32fe9fd0 @32632561, default 0 (EBX), to +0x5c4.
+		// June reads it in ParsingBuffFactorID's _ULTIMATE gate (FUN_31fcf3e0, the unidentified skill-memo
+		// callee, Phase 8b) and in the numerical-data override below. This build has neither.
+		LUA_GET_VALUE( luaManager, "APPLIED_SKILL_ID",			pDamageData->m_iAppliedSkillID,			0 );
+		if( 0 != pDamageData->m_iAppliedSkillID )
+			JuneDamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"APPLIED_SKILL_ID", L"applied-skill-ID system", pDamageData->m_iAppliedSkillID );
+
+#ifndef ADD_RENA_SYSTEM
+		// June2017 FUN_32632390 @3263534f-326354f2: int getter @326354d2, default EDI = -1 (NFT_NONE; set
+		// @3263532a for DYNAMO_PARTICLE_RATE_TYPE, not rewritten before the store @326354db), to +0x56c.
+		// The same read as March's ADD_RENA_SYSTEM one above. That flag is off under US_SERVICE; with it
+		// on, that read owns the key and this one compiles out.
+		LUA_GET_VALUE( luaManager, "NATURAL_FORCE_TYPE",			pDamageData->m_iNaturalForceType,		-1 );
+		if( -1 != pDamageData->m_iNaturalForceType )
+			JuneDamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"NATURAL_FORCE_TYPE", L"natural-force system (ADD_RENA_SYSTEM off)", pDamageData->m_iNaturalForceType );
+#endif ADD_RENA_SYSTEM
+
+		// June2017 FUN_32632390 @3263df79-3263e18f: int getter @3263e17b, default 0, to +0x594.
+		LUA_GET_VALUE( luaManager, "HIT_ADD_COMBINATION_POINT",	pDamageData->m_iHitAddCombinationPoint,	0 );
+		if( 0 != pDamageData->m_iHitAddCombinationPoint )
+			JuneDamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"HIT_ADD_COMBINATION_POINT", L"combination-point system", pDamageData->m_iHitAddCombinationPoint );
+
+		// June2017 FUN_32632390 @3263f256-3263f415: int getter @3263f3f7 in the enum shape (-(ok) & temp),
+		// so default 0 (HRDT_NONE), to +0x5f4. March's Enum.lua has no HP_RATE_DAMAGE_TYPE table (Phase 11).
+		LUA_GET_VALUE( luaManager, "HP_RATE_DAMAGE_TYPE",		pDamageData->m_iHpRateDamageType,		0 );
+		if( 0 != pDamageData->m_iHpRateDamageType )
+			JuneDamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"HP_RATE_DAMAGE_TYPE", L"HP-rate damage system", pDamageData->m_iHpRateDamageType );
+
+		// June2017 FUN_32632390 @3263f415-3263f5ca: float getter 32fea370 @3263f5b8, default 0.0 (fldz), to +0x5f8.
+		LUA_GET_VALUE( luaManager, "HP_RATE_DAMAGE_VALUE",		pDamageData->m_fHpRateDamageValue,		0.f );
+		if( 0.f != pDamageData->m_fHpRateDamageValue )
+		{
+			WCHAR wszJuneValue[32] = L"";
+			StringCchPrintfW( wszJuneValue, ARRAY_SIZE(wszJuneValue), L"%.3f", pDamageData->m_fHpRateDamageValue );
+			JuneDamageDataUnsupported( pwszJuneTemplet, pTableName, L"HP_RATE_DAMAGE_VALUE", L"HP-rate damage system", wszJuneValue );
+		}
+
+		// June2017 FUN_32632390 @3263fadb-3263fc8f and @3263fc8f-3263fe41: int getter @3263fc7d, default 0, and
+		// string getter 32feae90 @3263fe27, default L"" (0x3344f1f4), both into stack locals. June uses them
+		// only in the override @3263fe41-32640054 (8a handoff row 62), which rewrites damage values from the
+		// numerical skill table. Neither the table nor the override exists here. The log gate is June's own
+		// first test of that override (@3263fe41-3263fe50): INDEX > 0, or NAME not empty.
+		LUA_GET_VALUE( luaManager, "NUMERICAL_DATA_INDEX",		pDamageData->m_iNumericalDataIndex,		0 );
+		LUA_GET_VALUE( luaManager, "NUMERICAL_DATA_NAME",		pDamageData->m_wstrNumericalDataName,	L"" );
+		if( 0 < pDamageData->m_iNumericalDataIndex )
+			JuneDamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"NUMERICAL_DATA_INDEX", L"numerical skill data", pDamageData->m_iNumericalDataIndex );
+		if( false == pDamageData->m_wstrNumericalDataName.empty() )
+			JuneDamageDataUnsupported( pwszJuneTemplet, pTableName, L"NUMERICAL_DATA_NAME", L"numerical skill data", pDamageData->m_wstrNumericalDataName.c_str() );
+
+		// June2017 FUN_32632390 @32640064-3264026d: int getter @32640246, default -1 (RWAT_NONE), to +0x600.
+		// March's Enum.lua has no ROSE_WEAPON_ATTACK_TYPE table (Phase 11).
+		LUA_GET_VALUE( luaManager, "ROSE_WEAPON_ATTACK_TYPE",		pDamageData->m_iRoseWeaponAttackType,	-1 );
+		if( -1 != pDamageData->m_iRoseWeaponAttackType )
+			JuneDamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"ROSE_WEAPON_ATTACK_TYPE", L"Rose weapon system", pDamageData->m_iRoseWeaponAttackType );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 		if( luaManager.BeginTable( "DAMAGE" ) == true )
 		{

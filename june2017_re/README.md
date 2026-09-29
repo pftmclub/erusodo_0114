@@ -442,6 +442,28 @@ on `32632390`, but works on `32630d20`, `32630910` and `326309f0`.
   - A learn-check with level 0 skips the apply; otherwise the level is `lv ? lv : 1`.
 - **Empty-string default** `0x3344f1f4` starts `00 00`, so it is `L""`.
 
+**Hand-verified (Phase 8c).** The absent-system `DAMAGE_DATA` keys of `SetDamageDataFromLUA`
+(`32632390`), read with `sdd_walk.py`. The per-key table is in the plan's Phase 8c section.
+
+- **`NATURAL_FORCE_TYPE`'s default is a register.** Its store `@326354db` writes `EDI`, which
+  `DYNAMO_PARTICLE_RATE_TYPE`'s block set to -1 (`or edi,0xffffffff` @`3263532a`). A capstone scan of
+  `[3263532a, 326354e1)` finds no other write to `EDI`, so the default is -1, i.e. `NFT_NONE`. That is
+  the same as March's own `ADD_RENA_SYSTEM`-gated read.
+- **`NUMERICAL_DATA_INDEX`/`_NAME` are not DamageData members in June.** Both read into stack locals
+  (`[esp+0x3c]`, `[esp+0x1d0]`), used only by the override `@3263fe41-32640054`.
+- **`HP_RATE_DAMAGE_TYPE` is the enum shape** (`movzx/neg/sbb/and` @`3263f3fc`), so its default is 0
+  whatever the temp held.
+- **`census.py` changes.**
+  - `phase_of()` tests the absent system before the March site. Before this change, a
+    `DE.DAMAGE_DATA` row with any March site was labelled `8a`, so a parsed absent-system key would have
+    left phase 8c.
+  - New check: every phase-8c `DE.DAMAGE_DATA` row has a March parse site (Phase 8c's exit).
+  - The Rose-weapon and applied-skill-ID `SYSTEMS` notes carry this phase's added evidence.
+- **Enum tables are not `LUA_GET_VALUE_ENUM`'s business.** X2Lib compiles
+  `LuaCommon/KLuaManager.h` (via `KTDXLIB`), not `luaLib/`. Its macro reads the built table and falls
+  back to the default. A missing enum *table* errors in the chunk itself, and a missing *member* is a
+  silent nil. See the plan's Phase 8c section.
+
 **Phase 1 corrections to Phase 0's `reconcile.py`.** `reconcile.md` changed only in the
 `<CEffect top level>` scope, plus two explanations:
 

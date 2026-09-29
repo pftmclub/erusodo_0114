@@ -769,7 +769,11 @@ RUNTIME_BY_KEY = dict(((r[0], r[1], r[2]), r) for r in RUNTIME)
 # replaces the mechanical one only for rows it names; check_hand_semantics() fails on a stale entry.
 _ED = ('EXTRA_DAMAGE',)
 HAND_SEMANTICS = {
-    ('DE.DAMAGE_DATA', (), 'MELEE_ATTACK'): 'same (32632390@3263305e: bool getter, result ignored, so a missing key leaves the member as it was = March default-to-itself)',
+    # Phase 8c: the absent-system keys whose default is a register (plan rule 5 parse sites)
+    ('DE.DAMAGE_DATA', (), 'APPLIED_SKILL_ID'): 'same (32632390@3263256a: int, default EBX, zeroed @3263254f)',
+    ('DE.DAMAGE_DATA', (), 'NATURAL_FORCE_TYPE'): 'same (32632390@326354db: int, default EDI=-1 = NFT_NONE, set @3263532a and not rewritten before the store)',
+    ('DE.DAMAGE_DATA', (), 'NUMERICAL_DATA_INDEX'): 'same (32632390@3263fc86: int into a stack local, default EBX, zeroed @3263fc6b)',
+    ('DE.DAMAGE_DATA', (), 'MELEE_ATTACK'):'same (32632390@3263305e: bool getter, result ignored, so a missing key leaves the member as it was = March default-to-itself)',
     ('DE.DAMAGE_DATA', (), 'DYNAMO_PARTICLE_RATE_TYPE'): 'same (32632390@3263532a-32635340: int, default EDI=-1 = DPRT_NONE)',
     ('DE.DAMAGE_DATA', (), 'HIT_ADD_FORCE_POWER'): 'same (32632390@3263de28: int, default EBX, zeroed @3263de06)',
     ('DE.DAMAGE_DATA', _ED, 'LEVEL'): 'same (32632390@32636851: int, default EDI=-1 set @326367a9)',
@@ -852,7 +856,8 @@ def check_levels(B):
 # BTI_BUFF_NATURAL_FORCE (a buff templet) or SI_P_APT_NASOD_ARMOR_MODE (a skill).
 SYSTEMS = [
     ('Rose weapon', r'ROSE_WEAPON', [r'ROSE_WEAPON_\w+', r'\w*RoseWeapon\w*', r'CX2GURose\w*', r'UC_ROSE\w*'],
-     'no Rose class (`CX2GURose*`), unit class, enum or `ROSE_WEAPON_*` identifier in the client or `KncWX2Server/Common`'),
+     'no Rose class (`CX2GURose*`), unit class, enum or `ROSE_WEAPON_*` identifier in the client or `KncWX2Server/Common`; '
+     '`CX2Unit::UNIT_TYPE` ends at `UT_ADD` (X2Unit.h), and every other `ROSE` stem hit is a skill or NPC name (Phase 8c)'),
     ('Natural force', r'NATURAL_FORCE', [r'NATURAL_FORCE_TYPE', r'NFT_\w+', r'm_\w*NaturalForce\w*', r'\w*NATURAL_FORCE_VALUE\w*'],
      'Rena natural-force code exists, but only under `ADD_RENA_SYSTEM`, which is off under `US_SERVICE`'),
     ('Skill memo', r'MEMO', [r'APPLIED_MEMO_ID', r'IsEqippedMemo_?', r'BUFF_FACTOR_ID_MEMO', r'BUFF_FACTOR_RELATIVE_MEMO_ID',
@@ -863,7 +868,10 @@ SYSTEMS = [
     ('HP-rate damage', r'HP_RATE_DAMAGE', [r'HP_RATE_DAMAGE_\w+', r'\w*HpRateDamage\w*'],
      'no identifier anywhere, and no `HP_RATE_DAMAGE_TYPE` enum (a plan-listed absent system)'),
     ('Applied skill ID', r'^APPLIED_SKILL_ID$', [r'APPLIED_SKILL_ID', r'\w*AppliedSkillI[dD]\w*'],
-     'no March identifier for the key (a plan-listed absent system); the search is by the key\'s own name'),
+     'no March identifier for the key (a plan-listed absent system); the search is by the key\'s own name. June\'s two '
+     'DamageData readers, `ParsingBuffFactorID`\'s `_ULTIMATE` gate (`31fcf3e0`, unidentified, Phase 8b) and the '
+     'numerical-data override (`32632390@3263fe41-32640054`), have no March counterpart. `DamageData::m_eUsedSkillID` '
+     '(`SERV_ARA_CHANGE_CLASS_SECOND`) is a C++-set skill ID, not this key (Phase 8c)'),
     ('Nasod armor combo', r'NASOD_ARMOR_COMBO', [r'CAN_ACTIVATE_NASOD_ARMOR_COMBO', r'\w*NasodArmorCombo\w*'],
      'compiled in: Add\'s Nasod-armor combo states (`X2GUAdd`) under `SERV_9TH_NEW_CHARACTER`, which is ON'),
     ('Combination point', r'COMBINATION_POINT', [r'\w*COMBINATION_POINT\w*', r'\w*CombinationPoint\w*'],
@@ -1945,9 +1953,11 @@ def phase_of(r):
     if rid == 'DE.DAMAGE_DATA':
         if r['rel'] and r['rel'][0] == 'BUFF_FACTOR':
             return 'unassigned'
-        if r['march']:
-            return '8a'
-        return '8c' if r['system'] else '8b'
+        # Phase 8c: an absent-system key stays 8c's once March parses it (plan rule 5), so the
+        # system test comes before the March-site one, which would otherwise relabel it 8a.
+        if r['system']:
+            return '8c'
+        return '8a' if r['march'] else '8b'
     return ph
 
 
@@ -2406,8 +2416,11 @@ def main():
     bad_lv = check_levels(J.B)
     checks.append((not bad_lv, 'every hand-written `ES_LEVELS` range of 321e48e0 starts at a BeginTable on its own name '
                    'and ends at its re-test / EndTable%s' % ('' if not bad_lv else ': ' + '; '.join(bad_lv))))
+    open8c = ['`%s`' % r['key'] for r in rows.values() if r['root'] == 'DE.DAMAGE_DATA' and r['phase'] == '8c' and not r['march']]
+    checks.append((not open8c, 'every phase-8c `DE.DAMAGE_DATA` row (absent or gated-off system) has a March parse site: '
+                   'parsed, stored and logged under plan rule 5 (Phase 8c exit)%s' % ('' if not open8c else ': ' + ', '.join(sorted(open8c)))))
     ph = collections.Counter((r['phase'], r['status']) for r in rows.values())
-    print('status: ' + ', '.join('%s %d' % (s, st[s]) for s in STATUS_ORDER))
+    print('status: '+ ', '.join('%s %d' % (s, st[s]) for s in STATUS_ORDER))
     print('phase   to-implement unsupported binary-only implemented june-ignores')
     for p in sorted(set(p for p, _ in ph), key=phase_key):
         print('%-8s %12d %11d %11d %11d %12d' % (p, ph[(p, 'to-implement')], ph[(p, 'unsupported')], ph[(p, 'binary-only')],

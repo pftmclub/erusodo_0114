@@ -1742,6 +1742,13 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	PLUA_GET_VALUE( m_pLuaManager, "USE_ADVANCE_COLLISIOIN_CHECK",			m_bUseAdvanceCollisionCheck,	false );
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+	// Phase 8c: every SetDamageDataFromLUA call below (DAMAGE_DATA[_ULTIMATE], DAMAGE_DATA_NEXT and its
+	// numbered chain) prints this templet's name in its rule-5 JUNE_FX unsupported lines. Restored when
+	// the ctor returns.
+	CX2DamageManager::JuneDamageDataTempletScope kJuneDamageDataTempletScope( g_pData->GetDamageManager(), GetName() );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 	// June2017 FUN_31f7aab0 @31f7c63f/31f7c66c: two SetDamageDataFromLUA calls. "DAMAGE_DATA_ULTIMATE"
 	// is tried first only when m_bUseUltimateDamageData (forced false above); "DAMAGE_DATA" is read

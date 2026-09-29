@@ -4436,5 +4436,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              EDT_MANA_DAMAGE (16) and sets a new no-display flag on the extra
 //              damage. The flag's reader is Phase 8b's. Cannot fire on March's
 //              Enum.lua, which has no member 67.
+//              Phase 8c (2026-09-29): the DAMAGE_DATA keys whose system this build
+//              lacks (Rose weapon, natural force, HP-rate damage, numerical skill
+//              data, applied skill ID, combination point) are parsed and stored
+//              with June's getter and default, and logged once per key per
+//              templet as "JUNE_FX unsupported"; no behaviour.
 #define SERV_IRUHADEV_JUNE_DAMAGEDATA
 //////////////////////////////////////////////////////////////////////////
