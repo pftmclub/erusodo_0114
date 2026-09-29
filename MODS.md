@@ -2064,6 +2064,79 @@ Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`.
   loop's damage copy, the `DAMAGE_DATA_NEXT` carry and the `GUT_USER` guard.
 - The loop's `if( bInheritDamage )` grew braces inside Phase 7c's own flagged block.
 
+### June2017 effect engine: HIT_EFFECT_SET and DIE_CREATE_NPC runtime (Phase 7e)
+
+Phase 7e of `JUNE2017_EFFECT_REBUILD_PLAN.md`. Extends **`SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`**
+(no new flag) in `X2Lib/X2DamageEffect.{h,cpp}` only -- `KTDXLIB` is untouched this phase (see below).
+Diagnostics extend `JUNE_FX CE_HIT` behind `SERV_IRUHADEV_JUNE_FX_DEBUG`. Two new methods:
+`CX2DamageEffect::CEffect::JuneSetHitEffectSet()`, `JuneDieCreateNpc()`.
+
+**Two of three sub-tables shipped; `TOUCH_LAND_DAMAGE_EFFECT` did not.** Phase 7d had identified all
+three functions (`31f83380`+`31f81ba0` touch-land, `31f70130` hit-effect-set, `31f70330`
+die-create-npc) but left them unported. This phase transcribed `HIT_EFFECT_SET` and `DIE_CREATE_NPC`
+fully. Touch-land's gate and placement were settled with real evidence, but a first draft then read
+two still-unidentified June offsets directly on March's `CXMeshInstance` struct -- a Rule-2 violation
+(March's struct does not have June's layout) caught before this was declared done, and the spawner
+turned out to be missing several blocks besides. Rather than ship a gate that silently reads the
+wrong fields, or a spawner with known-missing behaviour, the touch-land call site, its new
+`CEffect` method and its `CXMeshInstance` gate accessor were all removed; `KTDXLIB` is back to its
+pristine state. All of the evidence gathered is recorded in `funcmap.tsv` and `census.py`
+(status `deferred`, not `done`) so the next pass does not have to re-derive it.
+
+**The touch-land velocity gate's polarity was wrong, and this is worth keeping even though the port
+isn't.** `funcmap.tsv` row `31f83380` said "all three [mesh offsets] < 0", explicitly flagged "x87
+compare, not yet emulated" -- a hand-trace, not a read. A real x86 decoder (`june2017_re/x87test.py`,
+JITs the two comparison idioms and runs them on concrete floats via ctypes) shows the third comparison
+uses the opposite mask/branch idiom from the first two, and is the **opposite polarity**: the gate is
+`mesh(+0x47c) < 0 && mesh(+0x550) < 0 && m_vVelocity.y(+0x538) > 0`, all strict, and false on NaN.
+`disasm_range.py`'s own symbolic tracer had the same bug one level up -- it only special-cased the
+*popping* compare forms (`fcomp`/`fcompp`), so a plain non-popping `fcom` (used for the first two
+checks) fell through to a generic stack dump with no comparison shown at all. Fixed in the same pass.
+The gate's placement (`OnFrameMove @31f8a2a4-31f8a394`, right after March's own die-check,
+`X2DamageEffect.cpp:3098-3109`, right before `DAMAGE_DATA_CHANGE_TIME`) and its position source
+(`m_BeforePos`, CEffect `+0x10c` -- confirmed by a writer scan: OnFrameMove's only write to it is
+later in the same frame, `@31f8a7f8`, so the gate reads last frame's value, matching March's own
+read-before-write use of the member) are settled too. **What isn't settled:** `+0x47c` (read by mesh
+`OnFrameMove` `31c87b80` at two points, `@31c87ef1`/`@31c8817a`) and `+0x54c`/`+0x550`/`+0x554` (a
+plain per-frame copy of `m_vVelocity`, written by the same function `@31c87cac-31c87cc4`) did not
+resolve to a named March `CXMeshInstance` member -- the second one looks like a June-only member
+March's engine does not have at all, not a rename. The spawner (`31f81ba0`) also has an invoke-rate
+skip, a damage-rate multiply, a force-down-rate branch (the `#ifdef INHERIT_FORCEDOWNRATE` arm of
+`CreateHitDamageEffect`'s shape, not the `#else` arm a first draft copied), `SetScaleByUnit`, a flag
+copy and `SetMaxLifeTime` -- none of which are in `CreateHitDamageEffect`'s own shape, so "same
+post-create shape as the hit spawner" was not the full story. Full detail, with addresses, is in
+`funcmap.tsv`'s `31f83380` and `31f81ba0` rows.
+
+**`FUN_31f8b010`'s 18 forwarded values were mis-attributed by Ghidra's own decompile**, which split one
+call's pushes across two different calls (`31aada50`, a plain `g_pX2Game` fetch with no stack args at
+all, and `321e1e60`/`322e67c0`, the real targets). Settled by disassembling the raw pushes directly and
+tracking ESP through the interleaved `PUSH`/`SUB ESP` sequence, computing each read's original-frame
+offset as `stack-offset - cumulative-bytes-pushed-so-far`. Both fixes are in `funcmap.tsv`; the plan's
+own "Phase 7a: x87 hand traces are unreliable, emulate" and "Phase 0: any decrypted name is a lead, not
+a fact" rules are exactly what caught these, along with the touch-land findings above.
+
+| Sub-table | June | March target | Notes |
+|---|---|---|---|
+| `HIT_EFFECT_SET%d` | `31f70130`, from `AttackResult` `31f85910@31f87b1a` | `JuneSetHitEffectSet( pOwnerGameUnit, pDefenderGameUnit )`, called right after `SetHitDamageEffect()` inside March's own `bCreateHitEffect == true` branch | `PlayEffectSet( entry name, owner, defender, false, m_fPowerRate )`, everything else at March's own defaults (fLifeTime=-1, scale=(1,1,1), bCustomPosition=false) -- June passes those explicitly rather than differing. Both units must be non-null (`@31f701f6-31f70200`), matched with a guard. `EFFECT_SET_NAME` parsed; `EVENT_TIME` parsed-not-used. |
+| `TOUCH_LAND_DAMAGE_EFFECT%d` | gate `31f83380` + spawner `31f81ba0` | *deferred* | See above and `funcmap.tsv`. |
+| `DIE_CREATE_NPC%d` | `31f70330`, paired immediately before `31f83400` (= March's own `SetDieDamageEffect()`, which already calls `CreateDieDamageEffect`) | `JuneDieCreateNpc()`, one call at the top of `SetDieDamageEffect()` | An E8-relative-call scan of the whole June `.text` (not just the decompile) confirms exactly 6 callers of each function, paired 1:1. March calls `SetDieDamageEffect()` from 5 active sites (`DestroyInstanceHandle`, the `CEffect*`-taking `DestroyInstance`, and `OnFrameMove`'s three die branches -- by count, not independently guard-matched site by site against June's three `OnFrameMove` call sites), covering 5 of June's 6. `JuneDieCreateNpc()` fires wherever March calls `SetDieDamageEffect()`, so it is correct by construction regardless. The 6th, `OnFrameMove_LockOnData`'s `31f75e20` prelude, never calls `SetDieDamageEffect()` in March at all. That is a gap Phase 7b left, not this phase's to close; recorded so it isn't lost. `CX2Game::CreateNPCReq`'s 14-parameter overload (`SERV_INSERT_GLOBAL_SERVER` + `SERV_TRAPPING_RANGER_TEST` + `SUMMON_MONSTER_CARD_SYSTEM`+`SERV_NEW_DEFENCE_DUNGEON` all defined here). unitID/vPos(`m_vMainEffectPosition`, CEffect `+0x1f4`, confirmed by writer scan)/iAllyUID(owner `GetUnitUID()`) as expected; level/bActive/bNoDrop/iKeyCode/bElite/eAllyTeam/eCreateMonsterType are all June's own literal constants (0/true/true/-1/false/TN_NONE/NCT_NONE); eTeam is the owner's XOR-protected `+0x278` value read as `GetTeam()`, confirmed three ways: `CX2Room::TN_MONSTER == 2` matches the exact compare inside the packet-fill routine `FUN_322e67c0` (confirmed to run on `this = g_pX2Game`, traced through `FUN_31f8b010`'s unchanged ECX), `TN_NONE == -1` matches the eAllyTeam literal, `CX2GUNPC::NCT_NONE == 0` matches the eCreateMonsterType literal, and `X2GUChung.cpp:17128` has an existing March call in the identical shape. `EVENT_TIME` parsed-not-used. The gate (a vcall on the owner, forwarded as `FUN_31f8b010`'s own first parameter) is re-expressed as `GetOwnerUnit()->IsMyUnit()`, the existing local-ownership check this file already uses elsewhere -- lower-confidence than the rest of this mapping, since the exact vtable body wasn't independently re-read. |
+
+**Nothing here can be play-tested on this build's data.** The deployed (packed Sep 27) `DamageEffect.lua`
+has no use of any of the three sub-tables; June's own data has four users, all Rose (RMH), per the plan's
+Phase 7e section. The exit is a clean build matching the cited branches, confirmed by `census.py`
+(all checks pass; the `HIT_EFFECT_SET`/`DIE_CREATE_NPC` rows moved `deferred` → `done`, the
+`TOUCH_LAND_DAMAGE_EFFECT` rows stay `deferred` with the corrected evidence attached).
+
+**Built `US_SERVICE`** (`touch X2Lib/stdafx.cpp` first; X2Lib and X2, all 0 errors -- `KTDXLIB` did not
+need rebuilding this time, since it ended up untouched. One build hit a self-inflicted byte-splice bug
+during editing, a statement glued directly onto the next `#ifdef` with no newline between them,
+`error C2014`/`fatal error C1020`; fixed before the build that succeeded) **and deployed to
+`X2_offline.exe`, 18,948,096 B**, SHA-256 prefix `f61802c8f21cac8c`, 2026-09-29.
+
+Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`. Everything here is a pure addition: two
+new `CEffect` methods, and one new call each inside `AttackResult` (after `SetHitDamageEffect()`) and
+`SetDieDamageEffect()` (at its top).
+
 ### Dryad Kenta (Burned Forest boss): "jumps off the map, never comes back" softlock
 
 Pure content fix, no flag -- `march2014/update/data037/RAGE_DRYADKENTA.src.lua` only. Reported

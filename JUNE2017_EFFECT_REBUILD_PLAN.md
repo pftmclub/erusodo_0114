@@ -2149,10 +2149,58 @@ key in the matrix is implemented or classified. Update the matrix and MODS.md.
 
 ## Phase 7e — Runtime: TOUCH_LAND_DAMAGE_EFFECT, HIT_EFFECT_SET, DIE_CREATE_NPC
 
-**Status: not started.** Added 2026-09-29 so that the three June-only sub-tables have an owner.
-Phase 6b parsed them. Phases 7c and 7d both left their runtime unported. The identification
-below was done at the end of Phase 7d: the functions are named and the main branches read.
-What is left is mostly transcription.
+**Status: `HIT_EFFECT_SET` and `DIE_CREATE_NPC` done 2026-09-29, built and deployed.
+`TOUCH_LAND_DAMAGE_EFFECT` deferred.** `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME` extended with
+`JuneSetHitEffectSet()` and `JuneDieCreateNpc()` (`X2Lib/X2DamageEffect.cpp` only -- `KTDXLIB` is
+untouched). Full detail, citations and the per-sub-table March target table are in `MODS.md`;
+`funcmap.tsv` and `census.py`/the matrix are updated (the `HIT_EFFECT_SET`/`DIE_CREATE_NPC` rows
+moved `deferred` → `done`; `TOUCH_LAND_DAMAGE_EFFECT`'s stay `deferred`, with the corrected
+evidence attached rather than left as Phase 7d's placeholders). `census.py` all-PASS.
+
+**`TOUCH_LAND_DAMAGE_EFFECT` was implemented, then reverted, on review.** A first pass wrote
+`JuneCreateTouchLandDamageEffect()` and a `CXMeshInstance::JuneIsTouchLandVelocityGate()` that read
+two still-unidentified June mesh offsets (`+0x478`, `+0x54c`) directly on March's `CXMeshInstance`
+struct -- a violation of this plan's own Rule 2 ("never port an offset"), since those are June's
+layout offsets and March's struct does not share them. The spawner (`31f81ba0`) also turned out to
+be missing several blocks the "same shape as the hit spawner" finding had missed: an invoke-rate
+skip, a damage-rate multiply, the `#ifdef INHERIT_FORCEDOWNRATE` arm rather than the `#else` one
+copied, `SetScaleByUnit`, a flag copy, and `SetMaxLifeTime`. Rather than ship a gate on the wrong
+fields or an incomplete spawner, the call site and both new methods were removed; `KTDXLIB` is back
+to its pristine, unmodified state. Everything that *was* settled with real evidence is kept in
+`funcmap.tsv` (the `31f83380` and `31f81ba0` rows) so the next pass starts from there rather than
+from Phase 7d's original placeholders:
+
+- **The gate's polarity was wrong, and this correction stands even though the port doesn't.** The
+  three velocity comparisons were hand-traced (Phase 7c/7d) as "all three `< 0`" and explicitly
+  flagged "not yet emulated". A ground-truth x87 emulator (`june2017_re/x87test.py`, JITs the
+  actual compare+branch idiom and runs it on concrete floats via ctypes, rather than hand-deriving
+  C0/C2/C3 flag tables) shows the third comparison uses a different mask/branch idiom and is the
+  **opposite polarity**: `mesh(+0x47c) < 0 && mesh(+0x550) < 0 && m_vVelocity.y(+0x538) > 0`, all
+  strict, false on NaN. `june2017_re/disasm_range.py`'s own symbolic tracer had a matching bug
+  (only the *popping* x87 compare forms were special-cased, so the non-popping form used for two
+  of the three checks showed no comparison at all) and was fixed in the same pass.
+- **The gate's placement and position source are also settled**: `OnFrameMove @31f8a2a4-31f8a394`,
+  right after March's own die-check and right before `DAMAGE_DATA_CHANGE_TIME`; position seeds from
+  `m_BeforePos` (confirmed by a writer scan of `+0x10c`).
+- **What still blocks the port**: `+0x478` and `+0x54c` (a plain per-frame copy of `m_vVelocity`,
+  looking like a June-only `CXMeshInstance` member March lacks entirely, not a rename of an
+  existing one) need a writer scan of mesh `OnFrameMove` (`31c87b80`) resolved to a named member,
+  or an honest new March member added for it -- and the spawner's missing blocks (above) need
+  transcribing from `dis_31f81ba0.txt`, which is on disk and fully read.
+
+**`FUN_31f8b010`'s argument list, cited by Phase 7d as "not mapped ... yet", turned out to be
+mis-attributed by Ghidra's own decompile:** it split one call's pushes across two different
+callees. Settled by disassembling the raw pushes and tracking ESP through the interleaved
+`PUSH`/`SUB ESP` sequence by hand, then confirmed a second, independent way: three of the eighteen
+forwarded values match March enum constants exactly (`CX2Room::TN_MONSTER == 2`, `TN_NONE == -1`,
+`CX2GUNPC::NCT_NONE == 0`), and a fourth way, an existing March `CreateNPCReq` call in the identical
+shape (`X2GUChung.cpp:17128`). An E8-relative-call scan across all of June's `.text` also confirmed
+the die-path pairing (`31f70330`→`31f83400`) at exactly 6 sites each, matching 1:1 -- stronger
+evidence than the disassembly-by-hand this row started from.
+
+Nothing here could be play-tested: the deployed `DamageEffect.lua` uses none of the three
+sub-tables (June's own data has four users, all Rose/RMH, listed below), so the exit criterion for
+the two done sub-tables was a clean build matching the cited branches, not a `JUNE_FX` line.
 
 **Paste with:** Starting context + this section.
 
@@ -2510,6 +2558,29 @@ play-test (JUNE_FX HIT lines). Update the matrix and MODS.md.
   `DrawCount`.
 - Every other key June's `.txt` files use that March's parser does not read.
 - Extend `census.py` with a MeshPlayer mode.
+- **Handed off from Phase 7e: two `CXMeshInstance` member identities**, needed to close
+  `TOUCH_LAND_DAMAGE_EFFECT`'s gate (deferred there, `funcmap.tsv`'s `31f83380` row):
+  - **`+0x478`** is read by mesh `OnFrameMove` (`31c87b80`) at two points, `@31c87ef1` and
+    `@31c8817a`. Both reads fall inside the `+0x633` move-enable ranges Phase 7a already
+    handed to this phase (`31c87eea-31c87fe5`, `31c88167`) -- start there rather than a fresh
+    scan.
+  - **`+0x54c`/`+0x550`/`+0x554`** is written by the same function, `@31c87cac-31c87cc4`, as a
+    plain (non-accumulating) per-frame copy of `m_vVelocity`, inside a larger "snapshot the
+    previous frame's state" block (`@31c87c8a-31c87cdc`) that also looks like it stores March's
+    own `m_fGlobalTimeBefore = m_fGlobalTime` pattern (`KTDGXMeshPlayer.cpp` has that exact
+    assignment at `:1711`/`:2179` -- check whether either of those sites is missing the velocity
+    copy). If March's block has no matching field, this is a **June-only member to add**, not a
+    rename of an existing one; name it for what it is (a velocity snapshot), not for the touch-land
+    feature that happens to read it.
+  - Once both are named, `CX2DamageEffect::CEffect::JuneCreateTouchLandDamageEffect()` and the
+    `TOUCH_LAND_DAMAGE_EFFECT%d` runtime can be finished: the gate condition itself is already
+    settled (`funcmap.tsv`'s `31f83380` row, x87-emulated) and its placement in
+    `CX2DamageEffect::CEffect::OnFrameMove` is known (right after the die-check, right before
+    `DAMAGE_DATA_CHANGE_TIME`). The spawner (`31f81ba0`) still needs its own missing blocks
+    transcribed too -- an invoke-rate skip, a damage-rate multiply, the
+    `#ifdef INHERIT_FORCEDOWNRATE` arm of `CreateHitDamageEffect`'s shape (not the `#else` arm),
+    `SetScaleByUnit`, a flag copy, and `SetMaxLifeTime` -- all read and cited in `funcmap.tsv`'s
+    `31f81ba0` row, from `dis_31f81ba0.txt`.
 
 **Kickoff prompt**:
 ```

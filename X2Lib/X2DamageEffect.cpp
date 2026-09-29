@@ -3108,7 +3108,6 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 			return;
 		}
 
-
 		if( pMeshInst->GetXSkinAnim()->EventTimer( m_fDamageDataChangeTime ) == true && m_fDamageDataChangeTime != -1.0f )
 		{
 			m_fDamageDataChangeTime = -1.0f;
@@ -5460,6 +5459,10 @@ void CX2DamageEffect::CEffect::AttackResult()
 	{		
 		SetHitParticle();
 		SetHitDamageEffect();
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+		// June2017 FUN_31f85910 @31f87b16-31f87b1a: HIT_EFFECT_SET%d runtime, right after SetHitDamageEffect().
+		JuneSetHitEffectSet( GetOwnerUnit(), pDefenderGameUnit );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 		//{{ kimhc // 2010.02.10 //	네메시스 패시브 나소드 기어 강화
 #ifdef	EVE_SECOND_CLASS_CHANGE
@@ -6085,9 +6088,122 @@ void CX2DamageEffect::CEffect::SetHitDamageEffect()
 	m_vecHitDamageEffect.erase( m_vecHitDamageEffect.begin(), m_vecHitDamageEffect.end() );
 
 }
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+// June2017 FUN_31f70130: HIT_EFFECT_SET%d runtime, June-only (no March equivalent). AttackResult
+// (FUN_31f85910 @31f87b1a) calls it right after SetHitDamageEffect() -- i.e. inside March's own
+// bCreateHitEffect == true branch (AttackResult, after SetHitDamageEffect()). Disassembly of
+// FUN_31f70130 (not the decompile, which mis-split the pushes across two calls -- see
+// june2017_re/README.md's "Method notes"): AttackResult pushes PUSH EBP then PUSH EDI @31f87b16-31f87b17, so inside
+// 31f70130 the callee-local EBP (read from the stack slot closest to the return address, i.e. the
+// LAST thing the caller pushed) is AttackResult's EDI -- the owner, per @31f85981's -0x1a0
+// owner-optr deref -- and the callee-local EBX is AttackResult's own EBP, reloaded @31f87aa1 from a
+// spill slot as the cached defender. 31f70130 then pushes EBX(defender), EBP(owner), then the name
+// pointer, in that order, for CX2EffectSet::PlayEffectSet's right-to-left push -- i.e.
+// PlayEffectSet( name, pOwner, pDefender, false, m_fPowerRate ), with the trailing
+// fLifeTime/vScale/bCustomPosition/position/rotation/dir args all at exactly March's own defaults
+// (FLD [0x334380f0]=-1.f for fLifeTime, three FLD1 for vScale, PUSH 0 for bCustomPosition, three
+// zeroed vec3 locals) -- so June passes March's defaults explicitly rather than differing from
+// them. @31f701f6-31f70200: both units must be non-null or the whole call is skipped. Entry +0x0
+// (EVENT_TIME) is parsed but never loaded by FUN_31f70130; no delay is implemented.
+void CX2DamageEffect::CEffect::JuneSetHitEffectSet( CX2GameUnit* pOwnerGameUnit, CX2GameUnit* pDefenderGameUnit )
+{
+	if( NULL == g_pX2Game || NULL == g_pX2Game->GetEffectSet() )
+		return;
+	if( NULL == pOwnerGameUnit || NULL == pDefenderGameUnit )
+		return;
+
+	for( UINT i = 0; i < m_DamageEffectDataInLua.m_vecHitEffectSet.size(); i++ )
+	{
+		HitEffectSetData* pData = m_DamageEffectDataInLua.m_vecHitEffectSet[i];
+		if( NULL == pData || true == pData->strEffectSetName.empty() )
+			continue;
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( pData->strEffectSetName.c_str(), pOwnerGameUnit, pDefenderGameUnit, false, m_fPowerRate );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		JuneFxHit( GetName(), L"HIT_EFFECT_SET", L"%s", pData->strEffectSetName.c_str() );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	}
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+// June2017 FUN_31f70330: DIE_CREATE_NPC%d runtime, June-only (no March equivalent). Called on every
+// die path immediately before FUN_31f83400 (March's own SetDieDamageEffect(), which already calls
+// CreateDieDamageEffect() at X2DamageEffect.cpp:6151). Confirmed by an E8-relative-call scan of the
+// whole June .text (not just the decompile): exactly 6 callers of 31f70330 and 6 of 31f83400, and
+// they pair 1:1 -- OnFrameMove @31f88847/31f8aa28/31f8aa7b, DestroyInstanceHandle @31f838b6, the
+// CEffect*-taking DestroyInstance @31f839e3, and the lock-on prelude (FUN_31f75e20 gate) @31f83c59.
+// March calls SetDieDamageEffect() from exactly 5 active sites (DestroyInstanceHandle,
+// DestroyInstance(CEffect*&), and OnFrameMove's three die branches), covering 5 of June's 6 -- the
+// 6th, OnFrameMove_LockOnData's 31f75e20 prelude, never calls SetDieDamageEffect() at all in March.
+// That is a gap Phase 7b left (LockOnData's die path), not this phase's to close; recorded here so
+// it is not lost. One JuneDieCreateNpc() at the top of SetDieDamageEffect() reproduces the pairing
+// at every site March currently reaches.
+//
+// Argument mapping to CX2Game::CreateNPCReq (X2Game.h:587; SERV_INSERT_GLOBAL_SERVER,
+// SERV_TRAPPING_RANGER_TEST and SUMMON_MONSTER_CARD_SYSTEM+SERV_NEW_DEFENCE_DUNGEON are all defined
+// here, so the 14-parameter overload with eAllyTeam and eCreateMonsterType applies) was settled by
+// disassembling FUN_31f8b010 (@31f8b010-31f8b084, RET 0x48 = 18 stack dwords including the gate) and
+// tracking ESP through its interleaved pushes: the 17 forwarded values land 1:1 on CreateNPCReq's 14
+// declared parameters (vPos and iAllyUID each span multiple dwords). Two of June's constants match
+// March enum values exactly -- CX2Room::TN_MONSTER == 2 and TN_NONE == -1, CX2GUNPC::NCT_NONE == 0 --
+// which is independent, second-source confirmation of the whole ordering, not just the position
+// count. X2GUChung.cpp:17128 has an existing March call in the same shape (level=0, eTeam=GetTeam(),
+// eAIType=NAT_ALLY, iAllyUID=GetUnitUID()), a third, independent corroboration.
+// - unitID = entry NPC_ID (+0x4). EVENT_TIME (+0x0) is parsed but never loaded by FUN_31f70330.
+// - level = 0 (the literal constant FUN_31f8b010 forwards, not the owner's actual level)
+// - bActive = true, bNoDrop = true, iKeyCode = -1 (all March's own defaults, passed explicitly)
+// - vPos = CEffect +0x1f4/+0x1f8/+0x1fc = m_vMainEffectPosition. Confirmed: OnFrameMove's only writer
+//   of +0x1f4 is @31f88b25, right after +0x1e8's GetRotateDegree() store, matching March's own
+//   m_vMainEffectPosition = pMeshInst->GetMatrix().GetPos(), X2DamageEffect.cpp:2457.
+// - bRight = the owner's slot-0x170 vcall result -> GetIsRight(). Confirmed the slot: it has
+//   no Ghidra function (disassembled raw, GUUser vtable 334781f4+0x170 = 3208dff0), a bare
+//   `mov al,[ecx+off]; ret 0` -- a trivial stored-bool getter, the exact shape GetIsRight()'s
+//   own body has, though the byte offset itself was not cross-checked against GetIsRight()'s
+//   March member.
+// - fDelayTime = 0.0f.
+// - eTeam = the owner's XOR-protected +0x278..+0x280 value -> GetTeam(), confirmed by the
+//   TN_MONSTER==2 compare inside FUN_322e67c0, the packet-fill routine FUN_31f8b010 forwards into.
+// - eAIType = CX2NPCAI::NAT_ALLY (June passes the literal 1).
+// - iAllyUID = the owner's slot-0x54 vcall result -> GetUnitUID().
+// - bElite = false, eAllyTeam = CX2Room::TN_NONE, eCreateMonsterType = CX2GUNPC::NCT_NONE (June's
+//   three remaining literals: 0, -1 -> TN_NONE(-1), 0 -> NCT_NONE(0)).
+// The gate (a slot-0x198 vcall on the owner, forwarded into FUN_31f8b010 as its own first parameter
+// and short-circuiting the whole call when zero) is re-expressed as GetOwnerUnit()->IsMyUnit(), the
+// existing local-ownership check this file already uses for other per-owner-only effects (camera
+// crash @X2DamageEffect.cpp:2529, screen shake @:2589). Confirmed, not just inferred by position:
+// slot 0x198 has no Ghidra function (disassembled raw, GUUser vtable 334781f4+0x198 = 31ff1f30),
+// and its decompile is exactly `g_pX2Game->GetMyUnit() == this`, i.e. March's own IsMyUnit().
+void CX2DamageEffect::CEffect::JuneDieCreateNpc()
+{
+	if( NULL == g_pX2Game || null == m_optrOwnerUnit )
+		return;
+
+	CX2GameUnit* pOwnerGameUnit = GetOwnerUnit();
+	if( NULL == pOwnerGameUnit || false == pOwnerGameUnit->IsMyUnit() )
+		return;
+
+	for( UINT i = 0; i < m_DamageEffectDataInLua.m_vecDieCreateNpc.size(); i++ )
+	{
+		DieCreateNpcData& data = m_DamageEffectDataInLua.m_vecDieCreateNpc[i];
+
+		g_pX2Game->CreateNPCReq( (CX2UnitManager::NPC_UNIT_ID)data.iNpcID, 0, true, m_vMainEffectPosition,
+			pOwnerGameUnit->GetIsRight(), 0.f, true, -1,
+			(CX2Room::TEAM_NUM)pOwnerGameUnit->GetTeam(), CX2NPCAI::NAT_ALLY, pOwnerGameUnit->GetUnitUID(), false,
+			CX2Room::TN_NONE, CX2GUNPC::NCT_NONE );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+		JuneFxHit( GetName(), L"DIE_CREATE_NPC", L"npcId=%d pos=(%.1f,%.1f,%.1f) team=%d",
+			data.iNpcID, m_vMainEffectPosition.x, m_vMainEffectPosition.y, m_vMainEffectPosition.z, (int)pOwnerGameUnit->GetTeam() );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	}
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 void CX2DamageEffect::CEffect::SetDieDamageEffect()
 {
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+	JuneDieCreateNpc();	// June2017: FUN_31f70330 pairs with FUN_31f83400 (this function) at all six confirmed June die-path call sites
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 	//{{ kimhc // 2009-10-20 // 기존의 Set함수를 Load와 Set 으로 분류(일명 독구름 작업)
 #ifdef	DAMAGE_EFFECT_WORK
 	if ( m_DamageEffectDataInLua.m_vecDieDamageEffect.size() != 0 )

@@ -588,6 +588,14 @@ Committed. These are small, or are the record of what was found:
 - `ljconv.py`, `fxdump.lua`, `fxdata.py`, `assets.py` -> `asset_closure.tsv`, `names.py` ->
   `name_contract.tsv`: Phase 10b (see that section).
 - `offsetprobe.py`, `flagprobe.py`: Phase 4a's March-side member and flag probes.
+- `disasm_range.py`: raw capstone disassembly of an arbitrary VA range in `unpacked_x2.exe`, for
+  addresses Ghidra hasn't carved into a function (e.g. `CEffect::OnFrameMove` `31f88790`, which has
+  none at all). `--x87` also prints a best-effort symbolic x87 stack trace over one straight-line
+  path, expanding `fcom(p)`/`fucomp(p)`/`f(u)compp` into the two operands compared -- Phase 7e.
+- `x87test.py`: a ground-truth x87 compare+branch emulator. JITs the actual idiom (`fldz`/`fcom`/
+  `fnstsw`/`test`/`jcc`) via ctypes-allocated RWX memory and runs it on concrete floats, rather than
+  hand-deriving C0/C2/C3 condition-code and parity-flag tables from the Intel SDM -- Phase 7e found
+  a real hand-trace error this way (see "Method notes").
 - `xordec*.py`, `xorscan*.py`: the superseded prototypes.
 
 Gitignored, regenerable with `sh regen.sh` (git on Windows doesn't keep the exec bit):
@@ -735,3 +743,27 @@ each region nobody has looked at yet.
   (AttackResult vs. the die paths), not by the loader.
 - **`decompile_function` handled 11.7 KB `31f85910` and the 3,736-line `326413c0`** this
   session. Try it before falling back to raw disassembly.
+- **Ghidra's decompile can smear one call's pushes across two adjacent calls (Phase 7e).**
+  `FUN_31f70130`'s decompile gave both `FUN_31aada50` (a plain `g_pX2Game` fetch with no stack
+  args at all) and `FUN_321e1e60` (the real target) the *same* 15-argument list. Trust the raw
+  pushes instead: `disassemble_function`/`disasm_range.py`, then track ESP through the
+  interleaved `PUSH`/`SUB ESP` sequence by hand, computing each read's original-frame offset as
+  `stack-offset - cumulative-bytes-pushed-so-far`. Checking that the total push count matches the
+  callee's own `RET N` is a cheap sanity check on the count (not the content).
+- **x87 hand traces get the polarity wrong even when the C0/C2/C3 table looks right on paper
+  (Phase 7e).** A touch-land velocity gate's three comparisons were hand-traced once as "all
+  three `< 0`" and flagged "not yet emulated" — correctly flagged, because the third actually
+  uses a different mask/branch idiom (`test ah,5; jp`, not `test ah,0x41; jne`) and is the
+  *opposite* polarity. `x87test.py` settles this kind of question by running the real idiom on
+  concrete floats (`-1.0`, `0.0`, `1.0`, `nan`) rather than re-deriving flag tables. To test a new
+  mask/branch pair, add another `make_func(mask, use_jp)` variant with the matching opcode
+  (`0x75`=JNE, `0x7A`=JP, `0x7B`=JNP, ...).
+- **`disasm_range.py`'s own x87 tracer had a matching bug**: it only special-cased the *popping*
+  compare forms (`fcomp`/`fucomp`/`fcompp`/`fucompp`), so a plain non-popping `fcom`/`fucom` fell
+  through to a generic stack dump with no comparison shown — silently hiding 2 of 3 compares in
+  the touch-land gate. Fixed; both forms now print `compare A vs B`.
+- **An E8-relative-call scan across the whole `.text` is stronger evidence than "the decompile
+  shows a caller" (Phase 7e).** For `DIE_CREATE_NPC`'s die-path pairing, scanning every `0xE8`
+  byte and resolving its `rel32` found exactly 6 callers of `31f70330` and 6 of `31f83400`,
+  pairing 1:1 — confirming the pairing generalizes rather than trusting the handful of call sites
+  the decompile happened to surface.

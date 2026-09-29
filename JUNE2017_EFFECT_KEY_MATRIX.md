@@ -118,7 +118,7 @@ a getter verdict and a behaviour verdict never overwrite each other. `state` is 
 `outside-effectset` means only another subsystem reads the key; the branch names it.
 The full spec is in the plan, Phases 4a and 4b.
 
-189 keys cited: new 82, not-creation 1, outside-effectset 3, same 75, semantics-differ 22, unsupported 6.
+189 keys cited: - 1, new 81, not-creation 1, outside-effectset 3, same 75, semantics-differ 22, unsupported 6.
 
 | phase | scope | key | runtime verdict | state | June branch | March site |
 |---|---|---|---|---|---|---|
@@ -300,17 +300,17 @@ The full spec is in the plan, Phases 4a and 4b.
 | 7d | `DE.top` (top) | `REACT_ANIMSPEED` | same | - | ctor 31f7aab0@31f7de2d stores +0xab8 (no per-frame reader, 7a); AttackResult 31f85910@31f86ad5-31f86afc: > 0 with a main mesh sets its anim speed (mesh +0x3d4) after the reActResult switch, as March SKILL_CASH_10_TEST (ON) | AttackResult (existing) |
 | 7d | `DE.top` (top) | `RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT` | new | done | 31f85910@31f881b6-31f881fe: after m_DamageTimeNow++ (+0x850), before the DAMAGE_TIME die test, rate >= 0 (0 restarts the clock): main effect now-life (mesh +0x448) = max-life (+0x44c) * rate; -1 skips. Out-of-line copy 31f75fc0 has no caller | AttackResult |
 | 7d | `DE.top` (top) | `USE_ADVANCE_COLLISIOIN_CHECK` | new | deferred | ctor 31f7aab0@31f7c4d3 stores +0xb31; EffectToUnit 3262b6e0@3262bc1c loads it into a local at the head of the inlined CollisionDataCheck (main-effect attack list x defender collision set); its one real read @3262e976 picks a segment-style branch in the per-sphere test (3262e981-3262ec5d, 31c7b640). The slot is reused as the miss flag @3262f1ad/@3262f1c0. Phase 9 (collision) | - |
-| 7e | `DE.DIE_CREATE_NPC` (top) | `EVENT_TIME` | new | deferred | 31f70330 does not read entry +0x0; check 31f8b010's arguments before calling it unused | - |
-| 7e | `DE.DIE_CREATE_NPC` (top) | `NPC_ID` | new | deferred | 31f70330: 31f8b010( entry +0x4, ..., CEffect position +0x1f4..+0x1fc, owner level? +0x278, owner UID ) per entry | - |
-| 7e | `DE.HIT_EFFECT_SET` (top) | `EFFECT_SET_NAME` | new | deferred | 31f70130: PlayEffectSet 321e1e60( entry +0x4, owner / defender, power rate +0x1d8, scale 1 ); entry +0x0 EVENT_TIME is not read | - |
-| 7e | `DE.HIT_EFFECT_SET` (top) | `HIT_EFFECT_SET%d` | new | deferred | templet list +0xb8 (loader 31f64c80@31f64d10); 31f70130 from AttackResult 31f85910@31f87b1a, after SetHitDamageEffect | - |
-| 7e | `DE.TOUCH_LAND_DAMAGE_EFFECT` (top) | `APPLY_ROTATE` | new | deferred | 31f81ba0 (the touch-land spawner, same post-create shape as the hit spawner 31f810c0): read its use of this entry field in 7e | - |
-| 7e | `DE.TOUCH_LAND_DAMAGE_EFFECT` (top) | `DAMAGE_EFFECT_NAME` | new | deferred | 31f81ba0 (the touch-land spawner, same post-create shape as the hit spawner 31f810c0): read its use of this entry field in 7e | - |
-| 7e | `DE.TOUCH_LAND_DAMAGE_EFFECT` (top) | `PASSIVE_PARTICLE_X` | new | deferred | 31f81ba0 (the touch-land spawner, same post-create shape as the hit spawner 31f810c0): read its use of this entry field in 7e | - |
-| 7e | `DE.TOUCH_LAND_DAMAGE_EFFECT` (top) | `PASSIVE_PARTICLE_Y` | new | deferred | 31f81ba0 (the touch-land spawner, same post-create shape as the hit spawner 31f810c0): read its use of this entry field in 7e | - |
-| 7e | `DE.TOUCH_LAND_DAMAGE_EFFECT` (top) | `PASSIVE_PARTICLE_Z` | new | deferred | 31f81ba0 (the touch-land spawner, same post-create shape as the hit spawner 31f810c0): read its use of this entry field in 7e | - |
-| 7e | `DE.top` (top) | `DIE_CREATE_NPC%d` | new | deferred | templet list +0xc8 (loader 31f66230@31f662a7); 31f70330 on every die path -> create-NPC request 31f8b010 per entry (March CX2Game::CreateNPCReq, EGS_NPC_UNIT_CREATE_REQ, answered offline) | - |
-| 7e | `DE.top` (top) | `TOUCH_LAND_DAMAGE_EFFECT%d` | new | deferred | templet list +0xa8 (loader 31f76a90@31f76b36); OnFrameMove 31f88790 gate @31f8a300-31f8a38b -> 31f83380 copies it to +0xa38 -> spawner 31f81ba0 (31f8af50 @31f81ffd, 31f8fdb0 @31f82005) | - |
+| 7e | `DE.DIE_CREATE_NPC` (top) | `EVENT_TIME` | - | done | 31f70330 does not read entry +0x0; confirmed by disassembly, not just the decompile -- parsed-not-used, no delay implemented | CX2DamageEffect::CEffect::JuneDieCreateNpc |
+| 7e | `DE.DIE_CREATE_NPC` (top) | `NPC_ID` | new | done | 31f70330: 31f8b010( isLocal gate, entry +0x4=unitID, level=0 const, bActive=true, CEffect position +0x1f4..+0x1fc=m_vMainEffectPosition, bRight, fDelayTime=0, bNoDrop=true, iKeyCode=-1, eTeam=owner GetTeam() (owner +0x278 XOR value, confirmed via TN_MONSTER==2), eAIType=NAT_ALLY, iAllyUID=owner GetUnitUID(), bElite=false, eAllyTeam=TN_NONE, eCreateMonsterType=NCT_NONE ) per entry | CX2DamageEffect::CEffect::JuneDieCreateNpc |
+| 7e | `DE.HIT_EFFECT_SET` (top) | `EFFECT_SET_NAME` | new | done | 31f70130: PlayEffectSet( entry +0x4, owner (EDI, confirmed by register provenance), defender (EBP), false, m_fPowerRate ), all trailing args at March's own defaults (fLifeTime=-1, scale=(1,1,1), bCustomPosition=false); entry +0x0 EVENT_TIME is parsed but never read | CX2DamageEffect::CEffect::JuneSetHitEffectSet |
+| 7e | `DE.HIT_EFFECT_SET` (top) | `HIT_EFFECT_SET%d` | new | done | templet list +0xb8 (loader 31f64c80@31f64d10); 31f70130 from AttackResult 31f85910@31f87b1a, after SetHitDamageEffect, inside March's own bCreateHitEffect==true branch | CX2DamageEffect::CEffect::JuneSetHitEffectSet |
+| 7e | `DE.TOUCH_LAND_DAMAGE_EFFECT` (top) | `APPLY_ROTATE` | new | deferred | 31f81ba0 (the touch-land spawner): its position/rotate-origin/APPLY_ROTATED_OFFSET shape was diffed against CreateHitDamageEffect and settled, but the spawner is missing blocks CreateHitDamageEffect does not have (invoke-rate, damage-rate multiply, force-down-rate, SetScaleByUnit, SetMaxLifeTime) and the gate needs two unidentified CXMeshInstance offsets -- deferred as a whole rather than ported partially. Handed to Phase 10. | - |
+| 7e | `DE.TOUCH_LAND_DAMAGE_EFFECT` (top) | `DAMAGE_EFFECT_NAME` | new | deferred | 31f81ba0 (the touch-land spawner): its position/rotate-origin/APPLY_ROTATED_OFFSET shape was diffed against CreateHitDamageEffect and settled, but the spawner is missing blocks CreateHitDamageEffect does not have (invoke-rate, damage-rate multiply, force-down-rate, SetScaleByUnit, SetMaxLifeTime) and the gate needs two unidentified CXMeshInstance offsets -- deferred as a whole rather than ported partially. Handed to Phase 10. | - |
+| 7e | `DE.TOUCH_LAND_DAMAGE_EFFECT` (top) | `PASSIVE_PARTICLE_X` | new | deferred | 31f81ba0 (the touch-land spawner): its position/rotate-origin/APPLY_ROTATED_OFFSET shape was diffed against CreateHitDamageEffect and settled, but the spawner is missing blocks CreateHitDamageEffect does not have (invoke-rate, damage-rate multiply, force-down-rate, SetScaleByUnit, SetMaxLifeTime) and the gate needs two unidentified CXMeshInstance offsets -- deferred as a whole rather than ported partially. Handed to Phase 10. | - |
+| 7e | `DE.TOUCH_LAND_DAMAGE_EFFECT` (top) | `PASSIVE_PARTICLE_Y` | new | deferred | 31f81ba0 (the touch-land spawner): its position/rotate-origin/APPLY_ROTATED_OFFSET shape was diffed against CreateHitDamageEffect and settled, but the spawner is missing blocks CreateHitDamageEffect does not have (invoke-rate, damage-rate multiply, force-down-rate, SetScaleByUnit, SetMaxLifeTime) and the gate needs two unidentified CXMeshInstance offsets -- deferred as a whole rather than ported partially. Handed to Phase 10. | - |
+| 7e | `DE.TOUCH_LAND_DAMAGE_EFFECT` (top) | `PASSIVE_PARTICLE_Z` | new | deferred | 31f81ba0 (the touch-land spawner): its position/rotate-origin/APPLY_ROTATED_OFFSET shape was diffed against CreateHitDamageEffect and settled, but the spawner is missing blocks CreateHitDamageEffect does not have (invoke-rate, damage-rate multiply, force-down-rate, SetScaleByUnit, SetMaxLifeTime) and the gate needs two unidentified CXMeshInstance offsets -- deferred as a whole rather than ported partially. Handed to Phase 10. | - |
+| 7e | `DE.top` (top) | `DIE_CREATE_NPC%d` | new | done | templet list +0xc8 (loader 31f66230@31f662a7); an E8-caller scan confirms all six June call sites of 31f70330 pair it immediately before 31f83400 (= March's own SetDieDamageEffect, which already calls CreateDieDamageEffect); March calls SetDieDamageEffect from exactly 5 active sites (DestroyInstanceHandle, DestroyInstance(CEffect*&), and OnFrameMove x3), covering 5 of June's 6 -- the 6th, the LockOnData 31f75e20 prelude, is a gap left by Phase 7b (LockOnData never calls SetDieDamageEffect at all), not this phase's to close -> create-NPC request 31f8b010 per entry -> CX2Game::CreateNPCReq (X2Game.h:587, EGS_NPC_UNIT_CREATE_REQ, answered offline); argument order settled by disassembling 31f8b010 and tracking ESP through its pushes, corroborated by 3 exact enum-value matches (TN_MONSTER==2, TN_NONE==-1, NCT_NONE==0) and an existing March call in the same shape (X2GUChung.cpp:17128) | CX2DamageEffect::CEffect::JuneDieCreateNpc |
+| 7e | `DE.top` (top) | `TOUCH_LAND_DAMAGE_EFFECT%d` | new | deferred | gate OnFrameMove @31f8a2a4-31f8a394 (right after the die-check, before DAMAGE_DATA_CHANGE_TIME) settled: x87-emulated (june2017_re/x87test.py), mesh(+0x47c)<0 && mesh(+0x550)<0 && m_vVelocity.y(+0x538)>0, all strict -- the third is the OPPOSITE polarity from the earlier unemulated guess (this correction stands even though the port is deferred). +0x47c is read by two functions (31c87b80 @31c87ef1/31c8817a) not otherwise identified; +0x54c/+0x550/+0x554 is a plain per-frame copy of m_vVelocity written by 31c87b80 @31c87cac-31c87cc4 -- looks like a June-only member March's CXMeshInstance does not have at all, not a rename of an existing one. Position = m_BeforePos (+0x10c, confirmed by writer scan) with APPLY_ROTATE_ORIGIN (m_AngleDegree, CEffect +0x118) settled too. Spawner 31f81ba0 diffed against CreateHitDamageEffect: shares the position/rotate-origin/APPLY_ROTATED_OFFSET shape, but ALSO has an invoke-rate skip (@31f81cd4-31f81d24, FLD [+0x720]; FCOMPP; TEST AH,5; JNP), a damage-rate multiply (@31f82076-31f820ad, child +0x238/+0x23c *= [+0x724]), a force-down-rate branch matching CreateHitDamageEffect's #ifdef INHERIT_FORCEDOWNRATE arm rather than the #else one copied here, plus SetScaleByUnit/+0xacd-copy/SetMaxLifeTime -- none of which the shipped code has. Handed to Phase 10 (KTDGXMeshPlayer templet keys), which already owns CXMeshInstance member identification -- see its section's handoff paragraph. | - |
 
 ## Rows by subsystem and scope
 
@@ -348,7 +348,7 @@ The full spec is in the plan, Phases 4a and 4b.
 | `DAMAGE_DATA_ULTIMATE` | implemented |  | 16 | direct 31f7aab0 | X2DamageEffect:1754 | n/a (sub-table name) |  |
 | `DAMAGE_EFFECT_DIE_CHECK_CONDITION` | implemented |  | 1 | direct 31f7aab0 | X2DamageEffect:8118 | n/a (sub-table name) |  |
 | `DAMAGE_TIME` | implemented |  | 7407 | direct 31f7aab0@31f7cef2 | X2DamageEffect:1838 | same [June int = 1] |  |
-| `DIE_CREATE_NPC%d` | implemented |  | 3 | other-func 31f66230 | X2DamageEffect:9410 | unchecked(June reads it in callee 31f66230, not a scope reader) | runtime 7e: new (deferred) |
+| `DIE_CREATE_NPC%d` | implemented |  | 3 | other-func 31f66230 | X2DamageEffect:9410 | unchecked(June reads it in callee 31f66230, not a scope reader) | runtime 7e: new (done) |
 | `DIE_DAMAGE_EFFECT%d` | implemented |  | 1657 | other-func 31f6e7e0 | X2DamageEffect:8873 | unchecked(June reads it in callee 31f6e7e0, not a scope reader) | 9 names |
 | `DIE_DAMAGE_EFFECT_ULTIMATE%d` | implemented |  | 13 | other-func 31f6e7e0 | X2DamageEffect:8835 | unchecked(June reads it in callee 31f6e7e0, not a scope reader) |  |
 | `EFFECT_TYPE` | implemented |  | 8822 | direct 31f7aab0@31f7cdd9 | X2DamageEffect:1837 | same [June enum = 0] |  |
@@ -1282,7 +1282,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `AT_RAID_FIELD` | binary-only | 6b |  | binary-only 31f71930@31f732aa |  |  | compiled elsewhere: X2DamageEffect:7808; raw literal 1 (X2Lib/X2DamageEffect.cpp:7808); bare id 1; runtime 7b: new (done) |
+| `AT_RAID_FIELD` | binary-only | 6b |  | binary-only 31f71930@31f732aa |  |  | compiled elsewhere: X2DamageEffect:7808; raw literal 1 (X2Lib/X2DamageEffect.cpp:7924); bare id 1; runtime 7b: new (done) |
 | `CURVE_SPEED` | implemented |  | 385 | direct 31f71930@31f71ab4 | X2DamageEffect:7711 | same [June float = 0] | runtime 7b: same (done) |
 | `DUNGEON_TARGET_RANGE_MIN_MAX` | implemented |  | 147 | direct 31f71930 | X2DamageEffect:7818 | n/a (sub-table name) | runtime 7b: semantics-differ (done) |
 | `INIT_TARGET` | implemented |  | 3 | direct 31f71930@31f73691 | X2DamageEffect:7786 | same [June bool = 0] | runtime 7b: new (done) |
@@ -1413,8 +1413,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `HIT_EFFECT_SET%d` | binary-only | 6b |  | binary-only 31f64c80 |  |  | compiled elsewhere: X2DamageEffect:9393; raw literal 1 (X2Lib/X2DamageEffect.cpp:9393); bare id 3; runtime 7e: new (deferred) |
-| `EFFECT_SET_NAME` | implemented |  |  | binary-only 31f64c80@31f64e93 | X2DamageEffect:9397 | same [June string = ''] | binary-only: no June data uses it; runtime 7e: new (deferred) |
+| `HIT_EFFECT_SET%d` | binary-only | 6b |  | binary-only 31f64c80 |  |  | compiled elsewhere: X2DamageEffect:9393; raw literal 2 (X2Lib/X2DamageEffect.cpp:6123); bare id 6; runtime 7e: new (done) |
+| `EFFECT_SET_NAME` | implemented |  |  | binary-only 31f64c80@31f64e93 | X2DamageEffect:9397 | same [June string = ''] | binary-only: no June data uses it; runtime 7e: new (done) |
 
 #### `DE.DIE_CREATE_NPC` (top)
 
@@ -1422,8 +1422,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `EVENT_TIME` | implemented |  | 1 | direct 31f66230@31f662f6 | X2DamageEffect:9413 | same [June float = -1] | runtime 7e: new (deferred) |
-| `NPC_ID` | implemented |  | 3 | direct 31f66230@31f663d1 | X2DamageEffect:9414 | same [June enum = 0] | runtime 7e: new (deferred) |
+| `EVENT_TIME` | implemented |  | 1 | direct 31f66230@31f662f6 | X2DamageEffect:9413 | same [June float = -1] | runtime 7e: - (done) |
+| `NPC_ID` | implemented |  | 3 | direct 31f66230@31f663d1 | X2DamageEffect:9414 | same [June enum = 0] | runtime 7e: new (done) |
 
 ### EffectSet
 

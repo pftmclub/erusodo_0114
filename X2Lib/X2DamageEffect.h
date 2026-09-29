@@ -1122,6 +1122,17 @@ class CX2DamageEffect
 				protected:
 				void CreateHitDamageEffect( vector<DamageEffectData*>& vecHitDamageEffect );
 				void CreateDieDamageEffect( vector<DamageEffectData*>& vecDieDamageEffect );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+				// Phase 7e: runtime for two of the three June-only sub-tables (HIT_EFFECT_SET%d,
+				// DIE_CREATE_NPC%d), identified in Phase 7d and read address-by-address in Phase 7e.
+				// TOUCH_LAND_DAMAGE_EFFECT%d is deferred: its gate needs two CXMeshInstance member
+				// offsets (+0x478, +0x54c) not yet matched to a March member, and its spawner
+				// (31f81ba0) has blocks CreateHitDamageEffect does not cover (invoke-rate,
+				// damage-rate multiply, force-down-rate, SetScaleByUnit, SetMaxLifeTime -- see
+				// funcmap.tsv's 31f81ba0 row). See JUNE2017_EFFECT_REBUILD_PLAN.md, Phase 7e.
+				void JuneSetHitEffectSet( CX2GameUnit* pOwnerGameUnit, CX2GameUnit* pDefenderGameUnit );	/// June FUN_31f70130, called from AttackResult @31f87b1a
+				void JuneDieCreateNpc();					/// June FUN_31f70330, called on every die path
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 				
 				void SetCameraData();
 				void SetScreenData();
