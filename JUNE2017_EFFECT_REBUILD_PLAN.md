@@ -2198,9 +2198,21 @@ shape (`X2GUChung.cpp:17128`). An E8-relative-call scan across all of June's `.t
 the die-path pairing (`31f70330`→`31f83400`) at exactly 6 sites each, matching 1:1 -- stronger
 evidence than the disassembly-by-hand this row started from.
 
-Nothing here could be play-tested: the deployed `DamageEffect.lua` uses none of the three
-sub-tables (June's own data has four users, all Rose/RMH, listed below), so the exit criterion for
-the two done sub-tables was a clean build matching the cited branches, not a `JUNE_FX` line.
+**The new branches themselves can't be play-tested**: the deployed `DamageEffect.lua` uses none of
+the three sub-tables (June's own data has four users, all Rose/RMH, listed below), so no
+`JUNE_FX HIT_EFFECT_SET` or `JUNE_FX DIE_CREATE_NPC` line can fire on this build's data. The exit
+criterion for the two done sub-tables was therefore a clean build matching the cited branches, plus
+a **regression play-test** of the surrounding functions both new methods now sit inside:
+`JuneSetHitEffectSet()` runs every time `AttackResult` does (i.e. on essentially every hit landed),
+and `JuneDieCreateNpc()` runs at the top of `SetDieDamageEffect()` (i.e. whenever any damage effect
+dies, which is constant during any fight) -- both loops just find an empty list and return on this
+data, but the surrounding functions are exercised on every hit and every effect death regardless.
+
+**Play-tested 2026-09-29.** Normal combat and NPC kills exercised both call sites repeatedly.
+`offline_packets.log` shows no `UNHANDLED`/`EXCEPTION` lines; `offline_server.log` shows ordinary
+play (quest/title load, field NPCs placed, several NPC kills, existing `JUNE_FX ES_CREATE`/`CE_FRAME`
+lines from earlier phases still firing normally) ending in `SHUTDOWN clean: wal checkpoint ok,
+els_db.sql.bak written`.
 
 **Paste with:** Starting context + this section.
 
