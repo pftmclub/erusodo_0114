@@ -2846,6 +2846,32 @@ reports 0 unclassified DamageData keys. Update the matrix and MODS.md.
 
 ## Phase 9 — Collision and hit path (answers RANOX_EFFECT_RUNTIME_UNKNOWNS §4)
 
+**Status: collision half built and deployed 2026-09-29 (`SERV_IRUHADEV_JUNE_COLLISION`, commit
+`e2e078f`), play-test pending. `SetDamageExceptionProcess` half compared in part, no code.**
+- **Found.** June's `CollisionDataCheck` is inlined into `EffectToUnit` `3262b6e0 @3262bc1a-3262eebd`,
+  and the same code is in UnitToUnit's `32611970`. `CheckCollisionGuard` is `32640770`, March's
+  live `#else` branch. The frame parser is `31d4f8b0`.
+- **What differs from March:**
+  - sphere×line and line×sphere clamp to the segment and move the impact point halfway to the
+    sphere centre;
+  - `USE_ADVANCE_COLLISIOIN_CHECK` moves only the sphere×sphere impact point. **The handover
+    below guessed a swept test; that was wrong.**
+
+  Sphere×sphere hit/miss, line×line, the guard rule, the radius formula and the zero-radius drop
+  (x87-emulated) are March's.
+- **Where the answers are.** Every §4 item (4.2-4.8) is answered with a citation in
+  `RANOX_EFFECT_RUNTIME_UNKNOWNS.md`; 4.6's premise was wrong. Full detail, the visible-change list
+  and the known gap (only `EffectToUnit` is switched over) are in `MODS.md`.
+- **The named test.** `DamageEffect_MAG_CHARGER_Attack_A` (Mag Charger fireball, Ashen Land field
+  `Ranox_Field_00`). Its mesh has a real attack sphere, radius ≈43 before `Size` 0.6. Since
+  sphere×sphere is unchanged, the port alone may not make it hit. The `JUNE_FX HIT … TEST` trace
+  prints its sphere centre next to its mesh position, to settle whether the hitbox follows the
+  visual.
+- **`SetDamageExceptionProcess`.** `vtslot.py` resolved slot `0x2b8` for every class. The base
+  `322990e0` and `CX2GUUser` `32045340` are compared: the `fPowerRate` multiplies equal March's, and
+  every June addition sits in an absent system (`AT_COMMAND`, applied skill ID) or is unidentified.
+  The nine per-class overrides are `candidate` rows in `funcmap.tsv`, still to compare.
+
 **Paste with:** Starting context + this section.
 
 **Model:** Sonnet 5, high. See "Model and effort per phase".

@@ -146,6 +146,28 @@ Use a bare-identifier search, not a quoted-literal search (§3's lesson and
 
 ### 4.2 `CollisionDataCheck` / `CheckCollisionGuard` bodies — never read
 
+> **Answered (Phase 9, 2026-09-29): no `m_Name` filter in either engine.**
+> - **March.** Every `CollisionDataCheck` overload in `KTDXCollision.h` tests only `m_bEnable`, the
+>   type, the points and `GetScaleRadius()`. `CheckCollisionGuard` (`:2107`) compiles its `#else`
+>   branch: guard seen → impact = guard point, `CT_GUARD`; else the hit point.
+> - **June.** `EffectToUnit` `FUN_3262b6e0` inlines the check at `@3262bc1a-3262eebd`. It copies each
+>   defender datum's `m_Name` into a damage-manager string at `@3262c181-3262c18d`, and nothing
+>   in the function reads that string. Its guard helper, `FUN_32640770`, is March's `#else` branch
+>   exactly.
+> - **What does differ** (now ported under `SERV_IRUHADEV_JUNE_COLLISION`):
+>   - sphere×line and line×sphere use the closest point on the segment, clamped to its ends;
+>   - their impact point is halfway between the sphere centre and that point;
+>   - `USE_ADVANCE_COLLISIOIN_CHECK` moves the sphere×sphere impact point.
+>
+>   Sphere×sphere hit/miss, line×line (March's `LineToLine` inlined branch for branch) and the
+>   guard rule are unchanged.
+> - **The same code is in June's UnitToUnit check.** `FUN_32611970` uses the same helpers
+>   (`31c7b560`, `326406b0`, `32640770`), so June changed the shared header. Only `EffectToUnit`
+>   is switched over here. The other March callers (`UnitToUnit`, `UnitToEffect`, `MeshToUnit`,
+>   `CollisionDataToUnit`) keep March semantics: a known gap.
+> - **The discriminator below is answered by the port's diagnostics.** `JUNE_FX HIT … TEST` lines
+>   log the fireball's datum centre next to its mesh position.
+
 Only signatures have been read: [KTDXCollision.h:457](KTDXLIB/KTDXCollision.h#L457),
 [:703](KTDXLIB/KTDXCollision.h#L703), [:949](KTDXLIB/KTDXCollision.h#L949),
 [:1332](KTDXLIB/KTDXCollision.h#L1332); `CheckCollisionGuard` itself is at
@@ -162,6 +184,18 @@ uses the same mesh. **If a player Arme fireball lands damage in this build,
 
 ### 4.3 Does `m_fRadius` scale with the instance's `Size`?
 
+> **Answered: yes, in both engines, the same way.**
+> - **The formula.** Radius = `m_fRadius × m_fRadiusScale × scale`. The scale is the X length of
+>   the datum's combine matrix, or the Y length when `m_bUseRadiusScaleY` is set.
+> - **June.** `FUN_3262b6e0` reads `+0x90 × +0x8c × (+0x94 ? y : x)` of `FUN_326406b0( +0x5c )`, and
+>   `326406b0` is `GetDecomposeScaleXY`.
+> - **March.** `GetScaleRadius()` does the same under `X2OPTIMIZE_DAMAGEEFFECT_COLLISION` and
+>   `EVE_ELECTRA`, both ON by `flagprobe.py`.
+> - **What that means.** The combine matrix is frame × world, so the instance's `Size` is in it.
+>   The tested radius is the unscaled device radius times `Size`.
+> - **Caveat, in both engines.** An unlinked datum (`m_pCombineMatrix == NULL`) reads an
+>   uninitialised scale. The Phase 9 `TEST` line prints `linked=`.
+
 `m_fRadius` is set once per *device* mesh from `pFrame->fBoundingRadius`
 ([KTDXDeviceXSkinMesh.cpp:873](KTDXLIB/KTDXDeviceXSkinMesh.cpp#L873)), i.e. shared
 across every instance. The templet independently sets
@@ -171,6 +205,19 @@ radius. A rendered-small / tested-large mismatch (or vice versa) would desync th
 visual from the hitbox.
 
 ### 4.4 The silent zero-radius drop
+
+> **Answered: June drops it the same way, silently. It does not apply to the fireball.**
+> - **June has the same parse.** June's `KTDXDeviceXSkinMesh` frame parser is `FUN_31d4f8b0`,
+>   which references every `ATTACK_SPHERE` / `ATTACK_LINE_START/END` / `COLLISION_*` literal
+>   (`0x33453248`…).
+> - **The compare.** Its `ATTACK_SPHERE` copy (`@31d5183b-31d5184d`) is
+>   `fld radius; fldz; fucompp; test ah,0x44; jp create`. Emulated with `x87test.py`
+>   (`make_func(0x44, True)`), it falls through to the drop for `+0.0` and `-0.0`. It creates the
+>   datum for anything else, including NaN. That is March's `== 0.0f` test.
+> - **No log in either engine.**
+> - **`Arme_FireballS.X`'s frame is not empty.** Decompressed and tokenised as binary `.X`,
+>   `ATTACK_SPHERE1_FireballS` has a child frame holding a 24-vertex box, 50×50×50. So its bounding
+>   radius is about 43, not 0.
 
 [KTDXDeviceXSkinMesh.cpp:851-862](KTDXLIB/KTDXDeviceXSkinMesh.cpp#L851): if
 `fBoundingRadius == 0.0f`, the function `return`s and the attack datum is **never
@@ -183,6 +230,12 @@ frame (no mesh data under it) yields radius 0.
 
 ### 4.5 `FIX_EFFECTTOUNIT01` — defined or not?
 
+> **Answered: defined** (`flagprobe.py`, US_SERVICE: ON). This is also the only way `:1926`
+> compiles, since `pAttackerMainEffect` is declared inside that `#ifdef`.
+>
+> June has the same guard, `@3262bbfd-3262bc14`: `GetMainEffect` (`31f6eb30`) NULL, or its
+> `+0x3c0` skin anim NULL, skips the unit.
+
 At [X2DamageManager.cpp:1733-1737](X2Lib/X2DamageManager.cpp#L1733), if this macro
 is defined, a NULL `GetXSkinAnim()` silently `continue`s past the **entire** hit
 test. Its definition state under `US_SERVICE` has not been established.
@@ -191,6 +244,18 @@ Resolve with `cl /EP` on a probe, per the standing project rule — **not** by r
 nested `#ifdef`s. (`RANOX_EFFECT_ENGINE_GAPS.md` §1 is the cautionary tale.)
 
 ### 4.6 The effect→NPC direction is unlocated
+
+> **Answered: the premise was wrong. `EffectToUnit` is the effect→NPC path too.**
+> - **Every unit is a defender.** Both engines loop over every unit: March `GetUnitNum/GetUnit`,
+>   June game vtable `0xf8`/`0xb0` `@3262b7a7-3262b7e4`. Users and NPCs alike.
+> - **The `CX2GUUser` cast is only a filter.** It sits inside `ADDED_RELATIONSHIP_SYSTEM`
+>   (`ONLY_RELATIONSHIP`) and `LOCK_ON_USER_ONLY_ON`.
+> - **The per-unit filters match March.** June runs a team/ally pre-filter, `FUN_32622990`, then
+>   the dead / not-live and already-hit checks (`@3262bb55-3262bbf6`).
+> - **Not ported.** `FUN_32622990`'s extra PvP/field conditions, and the `+0x91e4` early-outs at
+>   the top of June's `DamageCheck` `3262f5a0`. Both are recorded here and no data exercises them.
+> - **The neighbouring paths.** `UnitToEffect` (`32622280` → `326413c0`, Phase 7d) is units
+>   hitting effects. `CollisionDataCheckFromUnitToUnit` is melee.
 
 The function traced at `X2DamageManager.cpp:1690-1741` casts `pDefender` to
 `CX2GUUser` ([:1699](X2Lib/X2DamageManager.cpp#L1699)) — it is the
@@ -205,6 +270,17 @@ been traced.
 
 ### 4.7 `ATTACK_TIME_START` / `ATTACK_TIME_END` units
 
+> **Answered: seconds, window `[start, end)`, the same in both engines.**
+> - **Where it's evaluated.** June `CEffect::OnFrameMove` `31f88790@31f8a166-31f8a201` tests
+>   `start <= t < end`, then calls `DamageCheck`. That is March `X2DamageEffect.cpp:3077/3086`.
+> - **What `t` is.** The skin-anim time (mesh `+0x3c0` → `+0x214`), or the mesh global time
+>   (`+0x3e0`) under `USE_GLOBAL_TIME`. March's anim time is `m_fAnimCurrTime = td.Position`
+>   (`KTDGXSkinAnim.cpp:1107`), the D3DX track position, in seconds.
+> - **Defaults.** 0 and 100.0 (`fld [334355b8]`), i.e. effectively unbounded.
+> - **So `SMITH_STAIN … ATTACK_TIME_END = 1` means one second** of global time (it sets
+>   `USE_GLOBAL_TIME`). Mag Charger's fireball uses the default window, so it can hit for its
+>   whole 2-second life.
+
 Parsed into `m_AttackTime.x/.y` at
 [X2DamageEffect.cpp:1564-1565](X2Lib/X2DamageEffect.cpp#L1564), defaults `0.0f` and
 `100.0f`. Unknown whether these are **seconds** or a **normalized 0–1 animation
@@ -216,6 +292,13 @@ which is either "1 second" or "100% of the animation" and means very different
 things.
 
 ### 4.8 `USE_CANNONBALL` has no monster equivalent
+
+> **Answered: user-only in June too; no monster equivalent exists.**
+> - The ctor stores the key at CEffect `+0xae8` (`31f7aab0@31f7c5e3`).
+> - A displacement scan of `31f50000-31fa0000` finds one reader, the ctor itself at
+>   `@31f7cae4-31f7cb35`. It is gated on a live owner whose `+0x264` (`m_GameUnitType`) is 0, i.e.
+>   `GUT_USER`, as March `:1813` is.
+> - Monster projectiles are simply not expected to need it.
 
 Parsed at [X2DamageEffect.cpp:1496](X2Lib/X2DamageEffect.cpp#L1496), used at exactly
 one site, [:1528](X2Lib/X2DamageEffect.cpp#L1528), gated on

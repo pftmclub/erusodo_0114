@@ -99,8 +99,8 @@ June dropped these, so March behaviour here is not June's. The owning phase deci
 
 | phase | scope | key | why June ignores it | March site |
 |---|---|---|---|---|
-| 8a | `DE.DAMAGE_DATA` (top) | `BUFF_FACTOR_ID_MEMO` | as BUFF_FACTOR_RELATIVE_MEMO_ID (March X2DamageManager.cpp:3526, same #ifdef) | X2DamageManager:3720 |
-| 8a | `DE.DAMAGE_DATA` (top) | `BUFF_FACTOR_RELATIVE_MEMO_ID` | March reads it only under #ifdef ADD_MEMO_1ST_CLASS (X2DamageManager.cpp:3511). June's counterpart 32630d20 decrypts the non-memo neighbours (BUFF_FACTOR_RELATIVE_SKILL_ID, RELATIV | X2DamageManager:3705 |
+| 8a | `DE.DAMAGE_DATA` (top) | `BUFF_FACTOR_ID_MEMO` | as BUFF_FACTOR_RELATIVE_MEMO_ID (March X2DamageManager.cpp:3526, same #ifdef) | X2DamageManager:4025 |
+| 8a | `DE.DAMAGE_DATA` (top) | `BUFF_FACTOR_RELATIVE_MEMO_ID` | March reads it only under #ifdef ADD_MEMO_1ST_CLASS (X2DamageManager.cpp:3511). June's counterpart 32630d20 decrypts the non-memo neighbours (BUFF_FACTOR_RELATIVE_SKILL_ID, RELATIV | X2DamageManager:4010 |
 
 ### Scaled after reading
 
@@ -121,7 +121,7 @@ a getter verdict and a behaviour verdict never overwrite each other. `state` is 
 `outside-effectset` means only another subsystem reads the key; the branch names it.
 The full spec is in the plan, Phases 4a and 4b.
 
-189 keys cited: - 1, new 81, not-creation 1, outside-effectset 3, same 75, semantics-differ 22, unsupported 6.
+192 keys cited: - 1, new 81, not-creation 1, outside-effectset 3, same 78, semantics-differ 22, unsupported 6.
 
 | phase | scope | key | runtime verdict | state | June branch | March site |
 |---|---|---|---|---|---|---|
@@ -302,7 +302,6 @@ The full spec is in the plan, Phases 4a and 4b.
 | 7d | `DE.top` (top) | `ONLY_RELATIONSHIP` | semantics-differ | done | 3262b6e0@3262ba35-3262ba49: a defender that is not GUT_USER (+0x264 != 0) is skipped outright, where March static_casts any unit to CX2GUUser; the relationship-UID test @3262ba4f-3262ba93 is March's (ADDED_RELATIONSHIP_SYSTEM ON) | CX2DamageManager::EffectToUnit |
 | 7d | `DE.top` (top) | `REACT_ANIMSPEED` | same | - | ctor 31f7aab0@31f7de2d stores +0xab8 (no per-frame reader, 7a); AttackResult 31f85910@31f86ad5-31f86afc: > 0 with a main mesh sets its anim speed (mesh +0x3d4) after the reActResult switch, as March SKILL_CASH_10_TEST (ON) | AttackResult (existing) |
 | 7d | `DE.top` (top) | `RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT` | new | done | 31f85910@31f881b6-31f881fe: after m_DamageTimeNow++ (+0x850), before the DAMAGE_TIME die test, rate >= 0 (0 restarts the clock): main effect now-life (mesh +0x448) = max-life (+0x44c) * rate; -1 skips. Out-of-line copy 31f75fc0 has no caller | AttackResult |
-| 7d | `DE.top` (top) | `USE_ADVANCE_COLLISIOIN_CHECK` | new | deferred | ctor 31f7aab0@31f7c4d3 stores +0xb31; EffectToUnit 3262b6e0@3262bc1c loads it into a local at the head of the inlined CollisionDataCheck (main-effect attack list x defender collision set); its one real read @3262e976 picks a segment-style branch in the per-sphere test (3262e981-3262ec5d, 31c7b640). The slot is reused as the miss flag @3262f1ad/@3262f1c0. Phase 9 (collision) | - |
 | 7e | `DE.DIE_CREATE_NPC` (top) | `EVENT_TIME` | - | done | 31f70330 does not read entry +0x0; confirmed by disassembly, not just the decompile -- parsed-not-used, no delay implemented | CX2DamageEffect::CEffect::JuneDieCreateNpc |
 | 7e | `DE.DIE_CREATE_NPC` (top) | `NPC_ID` | new | done | 31f70330: 31f8b010( isLocal gate, entry +0x4=unitID, level=0 const, bActive=true, CEffect position +0x1f4..+0x1fc=m_vMainEffectPosition, bRight, fDelayTime=0, bNoDrop=true, iKeyCode=-1, eTeam=owner GetTeam() (owner +0x278 XOR value, confirmed via TN_MONSTER==2), eAIType=NAT_ALLY, iAllyUID=owner GetUnitUID(), bElite=false, eAllyTeam=TN_NONE, eCreateMonsterType=NCT_NONE ) per entry | CX2DamageEffect::CEffect::JuneDieCreateNpc |
 | 7e | `DE.HIT_EFFECT_SET` (top) | `EFFECT_SET_NAME` | new | done | 31f70130: PlayEffectSet( entry +0x4, owner (EDI, confirmed by register provenance), defender (EBP), false, m_fPowerRate ), all trailing args at March's own defaults (fLifeTime=-1, scale=(1,1,1), bCustomPosition=false); entry +0x0 EVENT_TIME is parsed but never read | CX2DamageEffect::CEffect::JuneSetHitEffectSet |
@@ -314,6 +313,10 @@ The full spec is in the plan, Phases 4a and 4b.
 | 7e | `DE.TOUCH_LAND_DAMAGE_EFFECT` (top) | `PASSIVE_PARTICLE_Z` | new | deferred | 31f81ba0 (the touch-land spawner): its position/rotate-origin/APPLY_ROTATED_OFFSET shape was diffed against CreateHitDamageEffect and settled, but the spawner is missing blocks CreateHitDamageEffect does not have (invoke-rate, damage-rate multiply, force-down-rate, SetScaleByUnit, SetMaxLifeTime) and the gate needs two unidentified CXMeshInstance offsets -- deferred as a whole rather than ported partially. Handed to Phase 10. | - |
 | 7e | `DE.top` (top) | `DIE_CREATE_NPC%d` | new | done | templet list +0xc8 (loader 31f66230@31f662a7); an E8-caller scan confirms all six June call sites of 31f70330 pair it immediately before 31f83400 (= March's own SetDieDamageEffect, which already calls CreateDieDamageEffect); March calls SetDieDamageEffect from exactly 5 active sites (DestroyInstanceHandle, DestroyInstance(CEffect*&), and OnFrameMove x3), covering 5 of June's 6 -- the 6th, the LockOnData 31f75e20 prelude, is a gap left by Phase 7b (LockOnData never calls SetDieDamageEffect at all), not this phase's to close -> create-NPC request 31f8b010 per entry -> CX2Game::CreateNPCReq (X2Game.h:587, EGS_NPC_UNIT_CREATE_REQ, answered offline); argument order settled by disassembling 31f8b010 and tracking ESP through its pushes, corroborated by 3 exact enum-value matches (TN_MONSTER==2, TN_NONE==-1, NCT_NONE==0) and an existing March call in the same shape (X2GUChung.cpp:17128) | CX2DamageEffect::CEffect::JuneDieCreateNpc |
 | 7e | `DE.top` (top) | `TOUCH_LAND_DAMAGE_EFFECT%d` | new | deferred | gate OnFrameMove @31f8a2a4-31f8a394 (right after the die-check, before DAMAGE_DATA_CHANGE_TIME) settled: x87-emulated (june2017_re/x87test.py), mesh(+0x47c)<0 && mesh(+0x550)<0 && m_vVelocity.y(+0x538)>0, all strict -- the third is the OPPOSITE polarity from the earlier unemulated guess (this correction stands even though the port is deferred). +0x47c is read by two functions (31c87b80 @31c87ef1/31c8817a) not otherwise identified; +0x54c/+0x550/+0x554 is a plain per-frame copy of m_vVelocity written by 31c87b80 @31c87cac-31c87cc4 -- looks like a June-only member March's CXMeshInstance does not have at all, not a rename of an existing one. Position = m_BeforePos (+0x10c, confirmed by writer scan) with APPLY_ROTATE_ORIGIN (m_AngleDegree, CEffect +0x118) settled too. Spawner 31f81ba0 diffed against CreateHitDamageEffect: shares the position/rotate-origin/APPLY_ROTATED_OFFSET shape, but ALSO has an invoke-rate skip (@31f81cd4-31f81d24, FLD [+0x720]; FCOMPP; TEST AH,5; JNP), a damage-rate multiply (@31f82076-31f820ad, child +0x238/+0x23c *= [+0x724]), a force-down-rate branch matching CreateHitDamageEffect's #ifdef INHERIT_FORCEDOWNRATE arm rather than the #else one copied here, plus SetScaleByUnit/+0xacd-copy/SetMaxLifeTime -- none of which the shipped code has. Handed to Phase 10 (KTDGXMeshPlayer templet keys), which already owns CXMeshInstance member identification -- see its section's handoff paragraph. | - |
+| 9 | `DE.top` (top) | `ATTACK_TIME_END` | same | - | 31f88790@31f8a166-31f8a201: exclusive end of the same window, default 100.0 s (fld [334355b8]) | CEffect::OnFrameMove (existing) |
+| 9 | `DE.top` (top) | `ATTACK_TIME_START` | same | - | 31f88790@31f8a166-31f8a201: start <= t < end, t = the skin anim time (mesh +0x3c0 -> +0x214; March m_fAnimCurrTime = the D3DX track position, seconds) or the global time (+0x3e0) with USE_GLOBAL_TIME; then DamageCheck 3262f5a0 | CEffect::OnFrameMove (existing) |
+| 9 | `DE.top` (top) | `USE_ADVANCE_COLLISIOIN_CHECK` | new | done | ctor 31f7aab0@31f7c4d3 stores +0xb31; EffectToUnit 3262b6e0@3262bc1c loads it; its one read @3262e976-3262ec5d moves only the sphere x sphere impact point, not the hit test (Phase 7d guessed a swept test: wrong). B centre inside A -> B centre; A centre inside B -> A centre; equal radii (31c7b640, /a-b/ <= FLT_EPSILON) -> centre midpoint; else midpoint of the near surface points (raw compares @3262e98c / @3262e9ba) | JuneEffectCollisionDataCheck |
+| 9 | `DE.top` (top) | `USE_CANNONBALL` | same | - | ctor 31f7aab0 stores +0xae8 (@31f7c5e3); its only reader in 31f50000-31fa0000 is the ctor @31f7cae4-31f7cb35, gated on an owner with +0x264 == 0 (GUT_USER), as March: no monster branch in either engine | CEffect::CEffect (existing) |
 
 ## Rows by subsystem and scope
 
@@ -331,8 +334,8 @@ The full spec is in the plan, Phases 4a and 4b.
 | `APPLY_SCALE_BY_UNIT` | implemented |  | 169 | direct 31f7aab0@31f7ea60 | X2DamageEffect:2084 | same [June bool = 1] |  |
 | `ATTACKED_BY_EFFECT` | implemented |  | 6309 | direct 31f7aab0@31f7d151 | X2DamageEffect:1847 | same [June bool = 0] |  |
 | `ATTACKED_BY_UNIT` | implemented |  | 6322 | direct 31f7aab0@31f7d00c | X2DamageEffect:1846 | same [June bool = 0] |  |
-| `ATTACK_TIME_END` | implemented |  | 1717 | direct 31f7aab0@31f7d667 | X2DamageEffect:1863 | same [June float = 100] |  |
-| `ATTACK_TIME_START` | implemented |  | 1677 | direct 31f7aab0@31f7d518 | X2DamageEffect:1862 | same [June float = 0] |  |
+| `ATTACK_TIME_END` | implemented |  | 1717 | direct 31f7aab0@31f7d667 | X2DamageEffect:1863 | same [June float = 100] | runtime 9: same (-) |
+| `ATTACK_TIME_START` | implemented |  | 1677 | direct 31f7aab0@31f7d518 | X2DamageEffect:1862 | same [June float = 0] | runtime 9: same (-) |
 | `BLACKHOLE_DATA` | implemented |  | 223 | direct 31f7aab0 | X2DamageEffect:8154 | n/a (sub-table name) |  |
 | `BLACKHOLE_DATA_ULTIMATE` | implemented |  | 1 | direct 31f7aab0 | X2DamageEffect:8145 | n/a (sub-table name) |  |
 | `CAMERA%d` | implemented |  | 879 | other-func 31f650f0 | X2DamageEffect:9191 | unchecked(June reads it in callee 31f650f0, not a scope reader) | 2 names |
@@ -393,8 +396,8 @@ The full spec is in the plan, Phases 4a and 4b.
 | `TOUCH_LAND_DAMAGE_EFFECT%d` | implemented |  | 1 | other-func 31f76a90 | X2DamageEffect:9580 | unchecked(June reads it in callee 31f76a90, not a scope reader) | runtime 7e: new (deferred) |
 | `TRACE_OWNER_BONE` | implemented |  | 9 | direct 31f7aab0@31f7e469 | X2DamageEffect:1961 | same [June string = ''] | runtime 7a: new (done) |
 | `TRACE_OWNER_BONE_ONLY_ROTATE` | implemented |  | 3 | direct 31f7aab0@31f7e5d9 | X2DamageEffect:1962 | same [June string = ''] | runtime 7a: unsupported (done) |
-| `USE_ADVANCE_COLLISIOIN_CHECK` | implemented |  | 99 | direct 31f7aab0@31f7c343 | X2DamageEffect:1742 | same [June bool = 0] | runtime 7d: new (deferred) |
-| `USE_CANNONBALL` | implemented |  | 131 | direct 31f7aab0@31f7c535 | X2DamageEffect:1735 | same [June bool = 0] |  |
+| `USE_ADVANCE_COLLISIOIN_CHECK` | implemented |  | 99 | direct 31f7aab0@31f7c343 | X2DamageEffect:1742 | same [June bool = 0] | runtime 9: new (done) |
+| `USE_CANNONBALL` | implemented |  | 131 | direct 31f7aab0@31f7c535 | X2DamageEffect:1735 | same [June bool = 0] | runtime 9: same (-) |
 | `USE_GLOBAL_TIME` | implemented |  | 3063 | direct 31f7aab0@31f7d7a0 | X2DamageEffect:1864 | same [June bool = 0] | runtime 7a: same (done) |
 | `USE_OWNER_ATTACK_SPEED` | implemented |  | 28 | direct 31f7aab0@31f7d380 | X2DamageEffect:1851 | same [June bool = 0] | runtime 7a: new (done) |
 | `APPLY_MEMO` | june-ignores(dead-here) |  | 9 | every guard of the readers accounted for and no callee names it; named only in unrelated 31fc8cf0 (decrypted): not on this scope's call path |  |  |  |
@@ -504,10 +507,10 @@ The full spec is in the plan, Phases 4a and 4b.
 | `BACK_SPEED_W` | implemented |  | 2 | direct 32632390@32637e94 | X2DamageManager:418 | same [June bool = 0] |  |
 | `BACK_SPEED_X` | implemented |  | 5464 | direct 32632390@32637fb5 | X2DamageManager:419 | same [June float = 0] |  |
 | `BACK_SPEED_Y` | implemented |  | 3544 | direct 32632390@326380d8 | X2DamageManager:420 | same [June float = 0] |  |
-| `BUFF_FACTOR` | implemented |  | 967 | other-func 32630910 | X2DamageManager:3504 | same (32630910: BeginTable, ParsingBuffFactor(lua, false), SetGameUnitBuffFactor(attacker), push_back = March ParsingBuffFactor; nested keys not compared) |  |
-| `BUFF_FACTOR_ID` | implemented |  | 361 | direct 32630d20 | X2DamageManager:3738 | n/a (sub-table name) |  |
-| `BUFF_FACTOR_RELATIVE_MASTER_UNIT` | implemented |  | 1 | direct 32630d20@326320df | X2DamageManager:3810 | same (32630d20@326320df: bool, default false; master lookup and level-0 skip identical) [June bool = None] |  |
-| `BUFF_FACTOR_RELATIVE_SKILL_ID` | implemented |  | 114 | direct 32630d20@32631a60, 32630d20@32631edc | X2DamageManager:3769, X2DamageManager:3809 | same (32630d20@32631a60: user default = vtable 0x524, a now-state skill-ID getter (GetNowStateSkillID); @32631edc: NPC default 0; level rule and learn-check identical) [June int = None] |  |
+| `BUFF_FACTOR` | implemented |  | 967 | other-func 32630910 | X2DamageManager:3809 | same (32630910: BeginTable, ParsingBuffFactor(lua, false), SetGameUnitBuffFactor(attacker), push_back = March ParsingBuffFactor; nested keys not compared) |  |
+| `BUFF_FACTOR_ID` | implemented |  | 361 | direct 32630d20 | X2DamageManager:4043 | n/a (sub-table name) |  |
+| `BUFF_FACTOR_RELATIVE_MASTER_UNIT` | implemented |  | 1 | direct 32630d20@326320df | X2DamageManager:4115 | same (32630d20@326320df: bool, default false; master lookup and level-0 skip identical) [June bool = None] |  |
+| `BUFF_FACTOR_RELATIVE_SKILL_ID` | implemented |  | 114 | direct 32630d20@32631a60, 32630d20@32631edc | X2DamageManager:4074, X2DamageManager:4114 | same (32630d20@32631a60: user default = vtable 0x524, a now-state skill-ID getter (GetNowStateSkillID); @32631edc: NPC default 0; level rule and learn-check identical) [June int = None] |  |
 | `CAMERA_CRASH_GAP` | implemented |  | 5814 | direct 32632390@32639481 | X2DamageManager:441 | same [June float = 0] |  |
 | `CAMERA_CRASH_TIME` | implemented |  | 5814 | direct 32632390@326395f1 | X2DamageManager:442 | same [June float = 0] |  |
 | `CAMERA_SHAKE_TYPE` | implemented |  | 5 | direct 32632390@326392f9 | X2DamageManager:440 | same [June int = 3] |  |
@@ -572,7 +575,7 @@ The full spec is in the plan, Phases 4a and 4b.
 | `PVP_RATE` | implemented |  | 1504 | direct 32632390@32635d43 | X2DamageManager:290 | same [June float = 1] |  |
 | `RATE_MODIFIER` | implemented |  | 943 | direct 32632390@3263c495 | X2DamageManager:508 | same [June float = 1] |  |
 | `REACT_TYPE` | implemented |  | 7309 | direct 32632390@32632e7d | X2DamageManager:139 | same [June enum = 0] |  |
-| `RELATIVE_SKILL_LEARN_CHECK` | implemented |  | 25 | direct 32630d20@32631c6b | X2DamageManager:3774 | same [June bool = 0] |  |
+| `RELATIVE_SKILL_LEARN_CHECK` | implemented |  | 25 | direct 32630d20@32631c6b | X2DamageManager:4079 | same [June bool = 0] |  |
 | `RELAX_NPC_REACTION_STATE_CHECK` | implemented |  | 4 | direct 32632390@3263e1f6 | X2DamageManager:549 | same [June bool = 0] |  |
 | `RESIST` | implemented |  | 7 | direct 32632390@3263b75c | X2DamageManager:489 | same [June int = 0] |  |
 | `RE_ATTACK` | implemented |  | 5198 | direct 32632390@3263a38d | X2DamageManager:458 | same [June bool = 0] |  |
@@ -591,8 +594,8 @@ The full spec is in the plan, Phases 4a and 4b.
 | `ATTACK_DEALY` | june-ignores(unread) |  | 3 | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |  |  |  |
 | `ATTACK_TIME%d` | june-ignores(unread) |  | 1 | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |  |  |  |
 | `BACK_SPEED_y` | june-ignores(typo) |  | 2 | data typo of `BACK_SPEED_Y` (this scope, decrypted in 32632390); the binary never reads this spelling |  |  |  |
-| `BUFF_FACTOR_ID_MEMO` | june-ignores(unread) |  | 2 | as BUFF_FACTOR_RELATIVE_MEMO_ID (March X2DamageManager.cpp:3526, same #ifdef) | X2DamageManager:3720 |  | **March reads it, June does not** |
-| `BUFF_FACTOR_RELATIVE_MEMO_ID` | june-ignores(unread) |  | 2 | March reads it only under #ifdef ADD_MEMO_1ST_CLASS (X2DamageManager.cpp:3511). June's counterpart 32630d20 decrypts the non-memo neighbours (BUFF_FACTOR_RELATI | X2DamageManager:3705 |  | **March reads it, June does not** |
+| `BUFF_FACTOR_ID_MEMO` | june-ignores(unread) |  | 2 | as BUFF_FACTOR_RELATIVE_MEMO_ID (March X2DamageManager.cpp:3526, same #ifdef) | X2DamageManager:4025 |  | **March reads it, June does not** |
+| `BUFF_FACTOR_RELATIVE_MEMO_ID` | june-ignores(unread) |  | 2 | March reads it only under #ifdef ADD_MEMO_1ST_CLASS (X2DamageManager.cpp:3511). June's counterpart 32630d20 decrypts the non-memo neighbours (BUFF_FACTOR_RELATI | X2DamageManager:4010 |  | **March reads it, June does not** |
 | `CAN_PASS` | june-ignores(dead-here) |  | 2 | every guard of the readers accounted for and no callee names it; named only in unrelated 31c705c0 (decrypted): not on this scope's call path |  |  |  |
 | `CAN_PUSH_UNIT` | june-ignores(dead-here) |  | 2 | every guard of the readers accounted for and no callee names it; named only in unrelated 320506f0 (decrypted), 32057b80 (decrypted), 32784c00 (decrypted), 32d2c |  |  |  |
 | `DAMAGE_DATA` | june-ignores(dead-here) |  | 2 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f7aab0 (plaintext referenced), 32057b80 (plaintext referenced), 32370 |  |  |  |
@@ -1669,16 +1672,16 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `HTD_BEEHOUSE` | implemented |  | 48 | direct 32610ff0@32611666 | X2DamageManager:2822 | same [June string = ''] |  |
-| `HTD_DEFAULT` | implemented |  | 51 | direct 32610ff0@32611071 | X2DamageManager:2812 | same [June string = ''] |  |
-| `HTD_GUARD_1` | implemented |  | 49 | direct 32610ff0@3261176b | X2DamageManager:2826 | same [June string = ''] |  |
-| `HTD_GUARD_2` | implemented |  | 49 | direct 32610ff0@32611863 | X2DamageManager:2831 | same [June string = ''] |  |
-| `HTD_MEAT` | implemented |  | 46 | direct 32610ff0@32611160 | X2DamageManager:2813 | same [June string = ''] |  |
-| `HTD_METAL` | implemented |  | 45 | direct 32610ff0@326114a6 | X2DamageManager:2819 | same [June string = ''] |  |
-| `HTD_METAL2` | implemented |  | 45 | direct 32610ff0@3261157f | X2DamageManager:2820 | same [June string = ''] |  |
-| `HTD_STONE` | implemented |  | 48 | direct 32610ff0@326112eb | X2DamageManager:2816 | same [June string = ''] |  |
-| `HTD_STONE2` | implemented |  | 48 | direct 32610ff0@326113c4 | X2DamageManager:2817 | same [June string = ''] |  |
-| `HTD_WOOD` | implemented |  | 48 | direct 32610ff0@32611223 | X2DamageManager:2814 | same [June string = ''] |  |
+| `HTD_BEEHOUSE` | implemented |  | 48 | direct 32610ff0@32611666 | X2DamageManager:3127 | same [June string = ''] |  |
+| `HTD_DEFAULT` | implemented |  | 51 | direct 32610ff0@32611071 | X2DamageManager:3117 | same [June string = ''] |  |
+| `HTD_GUARD_1` | implemented |  | 49 | direct 32610ff0@3261176b | X2DamageManager:3131 | same [June string = ''] |  |
+| `HTD_GUARD_2` | implemented |  | 49 | direct 32610ff0@32611863 | X2DamageManager:3136 | same [June string = ''] |  |
+| `HTD_MEAT` | implemented |  | 46 | direct 32610ff0@32611160 | X2DamageManager:3118 | same [June string = ''] |  |
+| `HTD_METAL` | implemented |  | 45 | direct 32610ff0@326114a6 | X2DamageManager:3124 | same [June string = ''] |  |
+| `HTD_METAL2` | implemented |  | 45 | direct 32610ff0@3261157f | X2DamageManager:3125 | same [June string = ''] |  |
+| `HTD_STONE` | implemented |  | 48 | direct 32610ff0@326112eb | X2DamageManager:3121 | same [June string = ''] |  |
+| `HTD_STONE2` | implemented |  | 48 | direct 32610ff0@326113c4 | X2DamageManager:3122 | same [June string = ''] |  |
+| `HTD_WOOD` | implemented |  | 48 | direct 32610ff0@32611223 | X2DamageManager:3119 | same [June string = ''] |  |
 
 ### Outside the scope roots
 

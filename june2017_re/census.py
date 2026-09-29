@@ -482,6 +482,7 @@ RT_7B = '7b'
 RT_7C = '7c'
 RT_7D = '7d'
 RT_7E = '7e'
+RT_9 = '9'
 RUNTIME = [
     # (root, rel, key, phase, state, verdict, June branch, March site)
     ('ES.EFFECT', (), 'ZOFFSET_USE_UNIT_IS_RIGHT', RT_4A, 'done', 'new',
@@ -648,8 +649,15 @@ RUNTIME = [
     # REACT_ANIMSPEED / USE_ADVANCE_COLLISIOIN_CHECK were 7a 'not-per-frame' rows; Phase 7d owns them now.
     ('DE.top', (), 'REACT_ANIMSPEED', RT_7D, '-', 'same',
      'ctor 31f7aab0@31f7de2d stores +0xab8 (no per-frame reader, 7a); AttackResult 31f85910@31f86ad5-31f86afc: > 0 with a main mesh sets its anim speed (mesh +0x3d4) after the reActResult switch, as March SKILL_CASH_10_TEST (ON)', 'AttackResult (existing)'),
-    ('DE.top', (), 'USE_ADVANCE_COLLISIOIN_CHECK', RT_7D, 'deferred', 'new',
-     'ctor 31f7aab0@31f7c4d3 stores +0xb31; EffectToUnit 3262b6e0@3262bc1c loads it into a local at the head of the inlined CollisionDataCheck (main-effect attack list x defender collision set); its one real read @3262e976 picks a segment-style branch in the per-sphere test (3262e981-3262ec5d, 31c7b640). The slot is reused as the miss flag @3262f1ad/@3262f1c0. Phase 9 (collision)', '-')] + [
+    ('DE.top', (), 'USE_ADVANCE_COLLISIOIN_CHECK', RT_9, 'done', 'new',
+     'ctor 31f7aab0@31f7c4d3 stores +0xb31; EffectToUnit 3262b6e0@3262bc1c loads it; its one read @3262e976-3262ec5d moves only the sphere x sphere impact point, not the hit test (Phase 7d guessed a swept test: wrong). B centre inside A -> B centre; A centre inside B -> A centre; equal radii (31c7b640, |a-b| <= FLT_EPSILON) -> centre midpoint; else midpoint of the near surface points (raw compares @3262e98c / @3262e9ba)', 'JuneEffectCollisionDataCheck'),
+    # Phase 9: existing keys whose June runtime was compared and found the same (RANOX_EFFECT_RUNTIME_UNKNOWNS.md 4.7, 4.8).
+    ('DE.top', (), 'ATTACK_TIME_START', RT_9, '-', 'same',
+     '31f88790@31f8a166-31f8a201: start <= t < end, t = the skin anim time (mesh +0x3c0 -> +0x214; March m_fAnimCurrTime = the D3DX track position, seconds) or the global time (+0x3e0) with USE_GLOBAL_TIME; then DamageCheck 3262f5a0', 'CEffect::OnFrameMove (existing)'),
+    ('DE.top', (), 'ATTACK_TIME_END', RT_9, '-', 'same',
+     '31f88790@31f8a166-31f8a201: exclusive end of the same window, default 100.0 s (fld [334355b8])', 'CEffect::OnFrameMove (existing)'),
+    ('DE.top', (), 'USE_CANNONBALL', RT_9, '-', 'same',
+     'ctor 31f7aab0 stores +0xae8 (@31f7c5e3); its only reader in 31f50000-31fa0000 is the ctor @31f7cae4-31f7cb35, gated on an owner with +0x264 == 0 (GUT_USER), as March: no monster branch in either engine', 'CEffect::CEffect (existing)')] + [
     # Phase 7b (lock-on: OnFrameMove_LockOnData 31f83aa0, VectorLockOn 31f73a10, the load-time tail of
     # LoadLockOnData 31f71930, the picks 322dadd0 / 322d7670 / 322daa10, the EffectToUnit list fill
     # 3262b6e0). 'log: Phase 11' = no deployed LOCK_ON_DATA carries the key, so its JUNE_FX CE_LOCKON

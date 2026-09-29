@@ -2322,6 +2322,101 @@ Built `US_SERVICE` (`touch X2Lib/stdafx.cpp` first; KTDXLIB, X2Lib and X2 all 0 
 Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEDATA`. This phase is pure addition: 181 lines inserted,
 none deleted.
 
+### June2017 effect engine: the damage-effect hit test (Phase 9)
+
+Phase 9 of `JUNE2017_EFFECT_REBUILD_PLAN.md`. New flag **`SERV_IRUHADEV_JUNE_COLLISION`**
+(`KTDXLIB/Always.h`; `#error` without `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE`). Files:
+`X2Lib/X2DamageManager.cpp` (all logic), plus one getter in `X2Lib/X2DamageEffect.h`
+(`GetUseAdvanceCollisionCheck()`). `KTDXCollision.h` is untouched.
+
+**What changed.** `CX2DamageManager::EffectToUnit` (a damage effect hitting any unit, user or NPC)
+now calls `JuneEffectCollisionDataCheck()`. That is a re-expression of the collision test June's
+`EffectToUnit` (`FUN_3262b6e0 @3262bc1a-3262eebd`) inlines. March's call stays in the `#else`.
+Against March's `CKTDXCollision::CollisionDataCheck( list, listSet )`:
+
+| pair (attack × defender) | hit test | impact point |
+|---|---|---|
+| sphere × sphere | same (`dist < rA + rB`) | same (midpoint), **unless** `USE_ADVANCE_COLLISIOIN_CHECK` (below) |
+| line × line | same (March `LineToLine` inlined branch for branch) | same (point on the attack line) |
+| line × sphere | **changed.** The closest point on the attack segment is clamped to its ends. March rejects a sphere behind the line's start (projection < 0) and uses an unclamped projection past its end. | **changed.** Halfway from the sphere centre to that point; March used the projection point on the line. |
+| sphere × line | **changed.** The same clamp, on the defender's segment. | **changed.** Halfway from the attack sphere's centre to the closest point; March used the projection on the defender's line. |
+
+- `USE_ADVANCE_COLLISIOIN_CHECK` (read `@3262e976`) changes only the sphere×sphere impact point:
+  - defender centre inside the attack sphere → the defender centre;
+  - else attack centre inside the defender → the attack centre;
+  - else equal radii (`|rA − rB| ≤ FLT_EPSILON`) → the midpoint of the centres;
+  - else the midpoint of the two near surface points.
+
+  **Phase 7d's "swept test between the previous and current centre" guess was wrong.** No deployed
+  `DamageEffect.lua` sets the key.
+- **Unchanged:** the guard rule (`CT_GUARD` wins if seen first; a guard alone reports `CT_GUARD`),
+  the radius (`m_fRadius × m_fRadiusScale × combine-matrix X/Y scale`), the `m_bEnable` skips.
+  `m_Name` is not filtered in either engine.
+
+**Visible effects of the change.**
+- **Hit particles move on capsule defenders.** Wherever a line hitbox meets a sphere, the impact
+  point (where `HIT_DAMAGE_EFFECT … DEPT_IMPACT_POINT` and hit particles spawn) shifts from the
+  line's projection point to halfway between the sphere centre and the line. Most units' collision
+  data are spheres, so this shows only on line-shaped data.
+- **Gameplay: some effects that missed now hit.** A sphere just behind a line's start point used to
+  be rejected outright (projection < 0). Now its distance to the start point is tested. The reverse
+  is possible too: a sphere far beyond a line's end, which March's unclamped projection accepted.
+  The `JUNE_FX HIT DIFF` line below shows every such disagreement.
+- **Known gap.** June's `UnitToUnit` check (`FUN_32611970`) inlines the same code, so June changed
+  the shared header. Here only `EffectToUnit` is switched over. Melee (`UnitToUnit`),
+  `UnitToEffect`, `MeshToUnit` and `CollisionDataToUnit` keep March semantics.
+
+**Not ported, recorded:**
+- written by June with no identified reader: `DamageData +0x62c` = the hit defender datum's centre,
+  and the damage-manager `m_Name` copy;
+- `DamageCheck`'s `+0x91e4` early-outs;
+- `FUN_32622990`'s extra PvP/field team conditions.
+
+Details are in `june2017_re/funcmap.tsv`.
+
+**Diagnostics** (behind `SERV_IRUHADEV_JUNE_FX_DEBUG`, throttled to one line a second per effect
+and branch):
+
+```
+JUNE_FX HIT <effect> ENTER   units owner team live main anim attacks hitlist   (traced effects only)
+JUNE_FX HIT <effect> TEST    attacks a0{type linked c r} mesh defender uid data near{d rsum} june march   (traced only)
+JUNE_FX HIT <effect> COLLIDE defender uid collType impact march                (every effect)
+JUNE_FX HIT <effect> DIFF    june march defender uid june_impact march_impact  (every effect)
+```
+
+- "Traced" means the name contains `MAG_CHARGER`: the named test case,
+  `DamageEffect_MAG_CHARGER_Attack_A` (Mag Charger's fireball, templet `MAG_CHARGER_Attack_A`,
+  `Arme_FireballS.X`).
+- The `TEST` line prints the attack sphere's centre next to the flying mesh's position. If they
+  differ, the hitbox is not following the visual. Neither engine's math would fix that.
+- `DIFF` runs March's test on the same pair purely for comparison.
+
+**§4 of `RANOX_EFFECT_RUNTIME_UNKNOWNS.md`** (4.2-4.8) is answered there, each with a June citation.
+
+Built `US_SERVICE` (`touch X2Lib/stdafx.cpp` first; all four projects rc 0, no new warnings) and
+**deployed to `X2_offline.exe`, 18,966,528 B**, SHA-256 prefix `e90c673d1c707257`, 2026-09-29.
+The trace strings are present in the binary. **Not play-tested yet.**
+
+Revert: undefine `SERV_IRUHADEV_JUNE_COLLISION`. Pure addition: 331 lines inserted, none deleted.
+
+**`SetDamageExceptionProcess` (`SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION`): compared in part, no code
+yet.**
+- **How the functions were found.** `june2017_re/vtslot.py` resolves vtable slot `0x2b8` from RTTI
+  for every class.
+- **The base and user layers are compared:** `CX2GameUnit` `322990e0`, and `CX2GUUser` `32045340`
+  (also Ara's). **Every `fPowerRate` multiply is March's**: `damage.fPhysic/fMagic`, extra damage
+  unless fixed, `EDT_PAIN`. So no damage number moves from these two layers.
+- **Their June-only additions are all in systems March lacks, or unidentified:**
+  - an MP-gain multiplier for `attackType == AT_COMMAND (2)`, a value March's `ATTACK_TYPE` does
+    not have;
+  - an MP-gain multiplier and a hook, both keyed on `APPLIED_SKILL_ID` (the skill memo);
+  - three per-hit tags with no known reader;
+  - an attack-type gate (`+0x4108`) on Raven's damage-type change, whose writer is not identified;
+  - one unidentified call.
+- **Still to compare:** the nine per-class overrides (`funcmap.tsv`, rows marked `candidate`).
+  Four have March counterparts: Add, Elesis, Lire, Arme. Five are June-only overrides: NPC, Eve,
+  Chung, Raven, Elsword.
+
 ### Dryad Kenta (Burned Forest boss): "jumps off the map, never comes back" softlock
 
 Pure content fix, no flag -- `march2014/update/data037/RAGE_DRYADKENTA.src.lua` only. Reported

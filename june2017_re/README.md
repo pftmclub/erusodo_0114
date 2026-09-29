@@ -663,6 +663,10 @@ Committed. These are small, or are the record of what was found:
 - `ljconv.py`, `fxdump.lua`, `fxdata.py`, `assets.py` -> `asset_closure.tsv`, `names.py` ->
   `name_contract.tsv`: Phase 10b (see that section).
 - `offsetprobe.py`, `flagprobe.py`: Phase 4a's March-side member and flag probes.
+- `vtslot.py`: Phase 9. `python vtslot.py 0x2b8 CX2GU` prints one vtable slot for every RTTI class
+  with that name prefix (TD → COL → vtable, as in the RTTI note below). Per-class overrides live in
+  each derived vtable, not the base's. That is how the nine `SetDamageExceptionProcess` overrides
+  were found.
 - `disasm_range.py`: raw capstone disassembly of an arbitrary VA range in `unpacked_x2.exe`, for
   addresses Ghidra hasn't carved into a function (e.g. `CEffect::OnFrameMove` `31f88790`, which has
   none at all). `--x87` also prints a best-effort symbolic x87 stack trace over one straight-line

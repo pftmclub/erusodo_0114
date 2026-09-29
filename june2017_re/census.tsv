@@ -40,7 +40,7 @@ DE	DE.DAMAGE_DATA	(top)	DAMAGE_TYPE	implemented	8a		direct	32632390@32632b5a	X2D
 DE	DE.DAMAGE_DATA	(top)	HIT_TYPE	implemented	8a		direct	32632390@32632d91	X2DamageManager.cpp:138	same	7291	DamageEffect:5337 DamageEffect_Character:602 DamageEffect_Dungeon:718 DamageEffect_ETC:330 DamageEffect_INT:304	HIT_TYPE
 DE	DE.DAMAGE_DATA	(top)	REACT_TYPE	implemented	8a		direct	32632390@32632e7d	X2DamageManager.cpp:139	same	7309	DamageEffect:5348 DamageEffect_Character:608 DamageEffect_Dungeon:719 DamageEffect_ETC:330 DamageEffect_INT:304	REACT_TYPE
 DE	DE.DAMAGE_DATA	(top)	ATTACK_TYPE	implemented	8a		direct	32632390@32632c7b	X2DamageManager.cpp:137	same	5108	DamageEffect:3523 DamageEffect_Character:599 DamageEffect_Dungeon:460 DamageEffect_ETC:274 DamageEffect_INT:252	ATTACK_TYPE
-DE	DE.DAMAGE_DATA	(top)	BUFF_FACTOR	implemented	8a		other-func	32630910@-	X2DamageManager.cpp:3504	same (32630910: BeginTable, ParsingBuffFactor(lua, false), SetGameUnitBuffFactor(attacker), push_back = March ParsingBuffFactor; nested keys not compared)	967	DamageEffect:754 DamageEffect_Character:32 DamageEffect_Dungeon:67 DamageEffect_ETC:43 DamageEffect_INT:71	BUFF_FACTOR
+DE	DE.DAMAGE_DATA	(top)	BUFF_FACTOR	implemented	8a		other-func	32630910@-	X2DamageManager.cpp:3809	same (32630910: BeginTable, ParsingBuffFactor(lua, false), SetGameUnitBuffFactor(attacker), push_back = March ParsingBuffFactor; nested keys not compared)	967	DamageEffect:754 DamageEffect_Character:32 DamageEffect_Dungeon:67 DamageEffect_ETC:43 DamageEffect_INT:71	BUFF_FACTOR
 DE	DE.DAMAGE_DATA	BUFF_FACTOR	BUFF_TEMPLET_ID	implemented	unassigned		direct	32632390@3263d647	X2BuffFactor.cpp:492	unchecked(buff parser row: March matched path-insensitively)	967	DamageEffect:754 DamageEffect_Character:32 DamageEffect_Dungeon:67 DamageEffect_ETC:43 DamageEffect_INT:71	BUFF_TEMPLET_ID
 DE	DE.DAMAGE_DATA	BUFF_FACTOR	RATE	implemented	unassigned		direct	32632390@3263623e	X2BuffFactor.cpp:496 X2DamageManager.cpp:314	unchecked(buff parser row: March matched path-insensitively)	967	DamageEffect:754 DamageEffect_Character:32 DamageEffect_Dungeon:67 DamageEffect_ETC:43 DamageEffect_INT:71	RATE
 DE	DE.DAMAGE_DATA	BUFF_FACTOR	IGNORE_REGIST_FOR_RATE	implemented	unassigned		other-func	32d4d850@32d4da34	X2BuffFactor.cpp:501	unchecked(buff parser row: March matched path-insensitively)	967	DamageEffect:754 DamageEffect_Character:32 DamageEffect_Dungeon:67 DamageEffect_ETC:43 DamageEffect_INT:71	IGNORE_REGIST_FOR_RATE
@@ -119,8 +119,8 @@ DE	DE.DIE_DAMAGE_EFFECT	(top)	DAMAGE_EFFECT_NAME	implemented	6a		direct	31f68f30
 DE	DE.DIE_DAMAGE_EFFECT	(top)	POSITION_TYPE	implemented	6a		direct	31f68f30@31f690da	X2DamageEffect.cpp:8992 X2DamageEffect.cpp:9029	same	1670	DamageEffect:1166 DamageEffect_Character:197 DamageEffect_Dungeon:121 DamageEffect_ETC:79 DamageEffect_INT:107	POSITION_TYPE
 DE	DE.DIE_DAMAGE_EFFECT	(top)	APPLY_ROTATE	implemented	6a		direct	31f68f30@31f69460	X2DamageEffect.cpp:8995 X2DamageEffect.cpp:9032	same	794	DamageEffect:572 DamageEffect_Character:27 DamageEffect_Dungeon:62 DamageEffect_ETC:36 DamageEffect_INT:97	APPLY_ROTATE
 DE	DE.top	(top)	WAY_OF_SWORD_TYPE	june-ignores	5		dead-here				9	DamageEffect:9	WAY_OF_SWORD_TYPE
-DE	DE.DAMAGE_DATA	(top)	BUFF_FACTOR_ID	implemented	8a		direct	32630d20@-	X2DamageManager.cpp:3738	n/a (sub-table name)	361	DamageEffect:209 DamageEffect_Character:97 DamageEffect_Dungeon:42 DamageEffect_ETC:2 DamageEffect_INT:11	BUFF_FACTOR_ID
-DE	DE.DAMAGE_DATA	(top)	BUFF_FACTOR_RELATIVE_SKILL_ID	implemented	8a		direct	32630d20@32631a60 32630d20@32631edc	X2DamageManager.cpp:3769 X2DamageManager.cpp:3809	same (32630d20@32631a60: user default = vtable 0x524, a now-state skill-ID getter (GetNowStateSkillID); @32631edc: NPC default 0; level rule and learn-check identical)	114	DamageEffect:105 DamageEffect_Character:4 DamageEffect_Dungeon:5	BUFF_FACTOR_RELATIVE_SKILL_ID
+DE	DE.DAMAGE_DATA	(top)	BUFF_FACTOR_ID	implemented	8a		direct	32630d20@-	X2DamageManager.cpp:4043	n/a (sub-table name)	361	DamageEffect:209 DamageEffect_Character:97 DamageEffect_Dungeon:42 DamageEffect_ETC:2 DamageEffect_INT:11	BUFF_FACTOR_ID
+DE	DE.DAMAGE_DATA	(top)	BUFF_FACTOR_RELATIVE_SKILL_ID	implemented	8a		direct	32630d20@32631a60 32630d20@32631edc	X2DamageManager.cpp:4074 X2DamageManager.cpp:4114	same (32630d20@32631a60: user default = vtable 0x524, a now-state skill-ID getter (GetNowStateSkillID); @32631edc: NPC default 0; level rule and learn-check identical)	114	DamageEffect:105 DamageEffect_Character:4 DamageEffect_Dungeon:5	BUFF_FACTOR_RELATIVE_SKILL_ID
 DE	DE.PARTICLE	(top)	FORCE_DIE_HIT	implemented	6b		direct	31f66e60@31f672ff	X2DamageEffect.cpp:6529	same	539	DamageEffect:396 DamageEffect_Character:94 DamageEffect_Dungeon:28 DamageEffect_ETC:7 DamageEffect_INT:14	FORCE_DIE_HIT
 DE	DE.CAMERA	(top)	UNIT_SELECT	implemented	6b		direct	31f650f0@31f651b4	X2DamageEffect.cpp:9194	same	714	DamageEffect:559 DamageEffect_Character:54 DamageEffect_Dungeon:62 DamageEffect_ETC:20 DamageEffect_INT:19	UNIT_SELECT
 DE	DE.DAMAGE_DATA	DAMAGE	MAGIC	implemented	8a		direct	32632390@32635858	X2DamageManager.cpp:265	same	3590	DamageEffect:2538 DamageEffect_Character:93 DamageEffect_Dungeon:373 DamageEffect_ETC:312 DamageEffect_INT:274	MAGIC
@@ -280,8 +280,8 @@ DE	DE.DIE_DAMAGE_EFFECT	(top)	SCALE_X	implemented	6a		direct	31f68f30@31f6a473	X
 DE	DE.DIE_DAMAGE_EFFECT	(top)	SCALE_Y	implemented	6a		direct	31f68f30@31f6a520	X2DamageEffect.cpp:9009 X2DamageEffect.cpp:9066	same	89	DamageEffect:75 DamageEffect_Character:6 DamageEffect_Dungeon:3 DamageEffect_ETC:1 DamageEffect_INT:4	SCALE_Y
 DE	DE.DAMAGE_DATA	(top)	ATTACK_DEALY	june-ignores	8b		unread				3	DamageEffect:3	ATTACK_DEALY
 DE	DE.HIT_DAMAGE_EFFECT	(top)	OFFSET_Y	implemented	6a		direct	31f6ceb0@31f6dc31	X2DamageEffect.cpp:9431 X2DamageEffect.cpp:9481	same	35	DamageEffect:26 DamageEffect_Dungeon:3 DamageEffect_ETC:1 DamageEffect_INT:5	OFFSET_Y
-DE	DE.DAMAGE_DATA	(top)	BUFF_FACTOR_RELATIVE_MEMO_ID	june-ignores	8a		unread		X2DamageManager.cpp:3705		2	DamageEffect:2	BUFF_FACTOR_RELATIVE_MEMO_ID
-DE	DE.DAMAGE_DATA	(top)	BUFF_FACTOR_ID_MEMO	june-ignores	8a		unread		X2DamageManager.cpp:3720		2	DamageEffect:2	BUFF_FACTOR_ID_MEMO
+DE	DE.DAMAGE_DATA	(top)	BUFF_FACTOR_RELATIVE_MEMO_ID	june-ignores	8a		unread		X2DamageManager.cpp:4010		2	DamageEffect:2	BUFF_FACTOR_RELATIVE_MEMO_ID
+DE	DE.DAMAGE_DATA	(top)	BUFF_FACTOR_ID_MEMO	june-ignores	8a		unread		X2DamageManager.cpp:4025		2	DamageEffect:2	BUFF_FACTOR_ID_MEMO
 DE	DE.DAMAGE_DATA	(top)	RELAX_NPC_REACTION_STATE_CHECK	implemented	8a		direct	32632390@3263e1f6	X2DamageManager.cpp:549	same	4	DamageEffect:4	RELAX_NPC_REACTION_STATE_CHECK
 DE	DE.DAMAGE_DATA	(top)	PVP_RAE	june-ignores	8b		typo				1	DamageEffect:1	PVP_RAE
 DE	DE.DIE_DAMAGE_EFFECT	(top)	APPLY_ROTATE_ORIGIN	june-ignores	6a		dead-here				11	DamageEffect:9 DamageEffect_Character:2	APPLY_ROTATE_ORIGIN
@@ -365,7 +365,7 @@ DE	DE.top	(top)	USE_ADVANCE_COLLISIOIN_CHECK	implemented	5		direct	31f7aab0@31f7
 DE	DE.DAMAGE_DATA	(top)	IGNORE_DEFENCE_DECLINE	to-implement	8b		direct	32632390@3263ccde			18	DamageEffect:14 DamageEffect_Character:3 DamageEffect_Dungeon:1	IGNORE_DEFENCE_DECLINE
 DE	DE.top	(top)	TRACE_OWNER_BONE	implemented	5		direct	31f7aab0@31f7e469	X2DamageEffect.cpp:1961	same	9	DamageEffect:7 DamageEffect_Dungeon:2	TRACE_OWNER_BONE
 DE	DE.DAMAGE_DATA	DAMAGE	HYSIC	june-ignores	8b		typo				1	DamageEffect:1	HYSIC
-DE	DE.DAMAGE_DATA	(top)	RELATIVE_SKILL_LEARN_CHECK	implemented	8a		direct	32630d20@32631c6b	X2DamageManager.cpp:3774	same	25	DamageEffect:19 DamageEffect_Character:4 DamageEffect_Dungeon:2	RELATIVE_SKILL_LEARN_CHECK
+DE	DE.DAMAGE_DATA	(top)	RELATIVE_SKILL_LEARN_CHECK	implemented	8a		direct	32630d20@32631c6b	X2DamageManager.cpp:4079	same	25	DamageEffect:19 DamageEffect_Character:4 DamageEffect_Dungeon:2	RELATIVE_SKILL_LEARN_CHECK
 DE	DE.DAMAGE_DATA	BUFF_FACTOR/BEHAVIOR	BBT_CHANGE_PHYSIC_ATTACK	implemented	unassigned		nested-subtable	32d4c9c0@- 32d4bbf0@- 32e80450@-	X2BuffFactor.cpp:118 X2BuffBehaviorTemplet.cpp:57	unchecked(buff parser row: March matched path-insensitively)	26	DamageEffect:19 DamageEffect_Dungeon:1 DamageEffect_INT:6	BBT_CHANGE_PHYSIC_ATTACK
 DE	DE.DAMAGE_DATA	BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_PHYSIC_ATTACK	BUFF_CHANGE_TYPE	implemented	unassigned		nested-subtable	32d4c9c0@- 32d42030@32d420f6 32d42650@32d42710	X2BuffFactor.cpp:737 X2BuffFactor.cpp:1193 X2BuffFactor.cpp:1298	unchecked(buff parser row: March matched path-insensitively)	26	DamageEffect:19 DamageEffect_Dungeon:1 DamageEffect_INT:6	BUFF_CHANGE_TYPE
 DE	DE.DAMAGE_DATA	BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_PHYSIC_ATTACK	PERCENT	implemented	unassigned		nested-subtable	32d4c9c0@- 32d42030@- 32d44320@-	X2BuffFactor.cpp:780 X2BuffFactor.cpp:1433 X2BuffFactor.cpp:1520	unchecked(buff parser row: March matched path-insensitively)	26	DamageEffect:19 DamageEffect_Dungeon:1 DamageEffect_INT:6	PERCENT
@@ -564,7 +564,7 @@ DE	DE.DAMAGE_DATA	BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_CRITICAL_RATE	PERCENT	implemen
 DE	DE.DAMAGE_DATA	BUFF_FACTOR/BEHAVIOR	BBT_RESET_SKILL_COOL_TIME	implemented	unassigned		nested-subtable	32d4c9c0@- 32d4bbf0@- 32e80450@-	X2BuffFactor.cpp:152 X2BuffBehaviorTemplet.cpp:84	unchecked(buff parser row: March matched path-insensitively)	1	DamageEffect:1	BBT_RESET_SKILL_COOL_TIME
 DE	DE.DAMAGE_DATA	BUFF_FACTOR/BEHAVIOR/BBT_RESET_SKILL_COOL_TIME	BUFF_CHANGE_TYPE	implemented	unassigned		nested-subtable	32d4c9c0@- 32d42030@32d420f6 32d42650@32d42710	X2BuffFactor.cpp:737 X2BuffFactor.cpp:1193 X2BuffFactor.cpp:1298	unchecked(buff parser row: March matched path-insensitively)	1	DamageEffect:1	BUFF_CHANGE_TYPE
 DE	DE.DAMAGE_DATA	BUFF_FACTOR/BEHAVIOR/BBT_RESET_SKILL_COOL_TIME	PERCENT	implemented	unassigned		nested-subtable	32d4c9c0@- 32d42030@- 32d44320@-	X2BuffFactor.cpp:780 X2BuffFactor.cpp:1433 X2BuffFactor.cpp:1520	unchecked(buff parser row: March matched path-insensitively)	1	DamageEffect:1	PERCENT
-DE	DE.DAMAGE_DATA	(top)	BUFF_FACTOR_RELATIVE_MASTER_UNIT	implemented	8a		direct	32630d20@326320df	X2DamageManager.cpp:3810	same (32630d20@326320df: bool, default false; master lookup and level-0 skip identical)	1	DamageEffect:1	BUFF_FACTOR_RELATIVE_MASTER_UNIT
+DE	DE.DAMAGE_DATA	(top)	BUFF_FACTOR_RELATIVE_MASTER_UNIT	implemented	8a		direct	32630d20@326320df	X2DamageManager.cpp:4115	same (32630d20@326320df: bool, default false; master lookup and level-0 skip identical)	1	DamageEffect:1	BUFF_FACTOR_RELATIVE_MASTER_UNIT
 DE	DE.CREATE_DAMAGE_EFFECT	(top)	ONLY_APPLY_ROTATE	june-ignores	6a		dead-here				31	DamageEffect:9 DamageEffect_Dungeon:10 DamageEffect_ETC:12	ONLY_APPLY_ROTATE
 DE	DE.LOCK_ON_DATA	(top)	TARGET_RANGE	implemented	6b		direct	31f71930@31f720b1	X2DamageEffect.cpp:7879	same	3	DamageEffect:1 DamageEffect_ETC:2	TARGET_RANGE
 DE	DE.DAMAGE_DATA	(top)	HIT_ADD_HP_PERCENT_ATTACKPOWER	implemented	8a		direct	32632390@3263e6c4	X2DamageManager.cpp:554	same	1	DamageEffect:1	HIT_ADD_HP_PERCENT_ATTACKPOWER
@@ -896,16 +896,16 @@ DD	InsertDamageData	(top)	DAMAGE_PVP_RATE	to-implement	unassigned		direct	326210
 DD	InsertDamageData	(top)	DAMAGE_KEY_NAME	to-implement	unassigned		direct	32621080@3262114a			107	Elsword_DamageData:107	DAMAGE_KEY_NAME
 DD	InsertDamageData	(top)	DAMAGE_ATTACK_TYPE	to-implement	unassigned		direct	32621080@32621cc1			107	Elsword_DamageData:107	DAMAGE_ATTACK_TYPE
 DD	InsertDamageData	(top)	DAMAGE_SKILL_ID	to-implement	unassigned		direct	32621080@32621b48			103	Elsword_DamageData:103	DAMAGE_SKILL_ID
-DS	DamageSound	(top)	HTD_GUARD_2	implemented	unassigned		direct	32610ff0@32611863	X2DamageManager.cpp:2831	same	49	DamageSound:49	HTD_GUARD_2
-DS	DamageSound	(top)	HTD_BEEHOUSE	implemented	unassigned		direct	32610ff0@32611666	X2DamageManager.cpp:2822	same	48	DamageSound:48	HTD_BEEHOUSE
-DS	DamageSound	(top)	HTD_STONE	implemented	unassigned		direct	32610ff0@326112eb	X2DamageManager.cpp:2816	same	48	DamageSound:48	HTD_STONE
-DS	DamageSound	(top)	HTD_METAL2	implemented	unassigned		direct	32610ff0@3261157f	X2DamageManager.cpp:2820	same	45	DamageSound:45	HTD_METAL2
-DS	DamageSound	(top)	HTD_GUARD_1	implemented	unassigned		direct	32610ff0@3261176b	X2DamageManager.cpp:2826	same	49	DamageSound:49	HTD_GUARD_1
-DS	DamageSound	(top)	HTD_METAL	implemented	unassigned		direct	32610ff0@326114a6	X2DamageManager.cpp:2819	same	45	DamageSound:45	HTD_METAL
-DS	DamageSound	(top)	HTD_WOOD	implemented	unassigned		direct	32610ff0@32611223	X2DamageManager.cpp:2814	same	48	DamageSound:48	HTD_WOOD
-DS	DamageSound	(top)	HTD_STONE2	implemented	unassigned		direct	32610ff0@326113c4	X2DamageManager.cpp:2817	same	48	DamageSound:48	HTD_STONE2
-DS	DamageSound	(top)	HTD_MEAT	implemented	unassigned		direct	32610ff0@32611160	X2DamageManager.cpp:2813	same	46	DamageSound:46	HTD_MEAT
-DS	DamageSound	(top)	HTD_DEFAULT	implemented	unassigned		direct	32610ff0@32611071	X2DamageManager.cpp:2812	same	51	DamageSound:51	HTD_DEFAULT
+DS	DamageSound	(top)	HTD_GUARD_2	implemented	unassigned		direct	32610ff0@32611863	X2DamageManager.cpp:3136	same	49	DamageSound:49	HTD_GUARD_2
+DS	DamageSound	(top)	HTD_BEEHOUSE	implemented	unassigned		direct	32610ff0@32611666	X2DamageManager.cpp:3127	same	48	DamageSound:48	HTD_BEEHOUSE
+DS	DamageSound	(top)	HTD_STONE	implemented	unassigned		direct	32610ff0@326112eb	X2DamageManager.cpp:3121	same	48	DamageSound:48	HTD_STONE
+DS	DamageSound	(top)	HTD_METAL2	implemented	unassigned		direct	32610ff0@3261157f	X2DamageManager.cpp:3125	same	45	DamageSound:45	HTD_METAL2
+DS	DamageSound	(top)	HTD_GUARD_1	implemented	unassigned		direct	32610ff0@3261176b	X2DamageManager.cpp:3131	same	49	DamageSound:49	HTD_GUARD_1
+DS	DamageSound	(top)	HTD_METAL	implemented	unassigned		direct	32610ff0@326114a6	X2DamageManager.cpp:3124	same	45	DamageSound:45	HTD_METAL
+DS	DamageSound	(top)	HTD_WOOD	implemented	unassigned		direct	32610ff0@32611223	X2DamageManager.cpp:3119	same	48	DamageSound:48	HTD_WOOD
+DS	DamageSound	(top)	HTD_STONE2	implemented	unassigned		direct	32610ff0@326113c4	X2DamageManager.cpp:3122	same	48	DamageSound:48	HTD_STONE2
+DS	DamageSound	(top)	HTD_MEAT	implemented	unassigned		direct	32610ff0@32611160	X2DamageManager.cpp:3118	same	46	DamageSound:46	HTD_MEAT
+DS	DamageSound	(top)	HTD_DEFAULT	implemented	unassigned		direct	32610ff0@32611071	X2DamageManager.cpp:3117	same	51	DamageSound:51	HTD_DEFAULT
 DE	DE.top	(top)	APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION	unsupported	5	Effect-alpha option (absent)	binary-only	31f7aab0@31f7bff3	X2DamageEffect.cpp:1731	same	0		APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION
 DE	DE.top	(top)	DAMAGE_DATA_NEXT_ULTIMATE%d	implemented	5		binary-only	31f7aab0@-	X2DamageEffect.cpp:2047	n/a (sub-table name)	0		DAMAGE_DATA_NEXT_ULTIMATE%d
 DE	DE.DAMAGE_DATA	EXTRA_DAMAGE	ADD_LEVEL	implemented	8a		binary-only	32632390@32636901	X2DamageManager.cpp:341	same (32632390@326369b2: int, default EBX, zeroed @32636997)	0		ADD_LEVEL
