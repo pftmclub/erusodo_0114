@@ -2469,8 +2469,8 @@ nothing loaded today changes unless it sets one of the keys.
 
 **Not ported:**
 - June's post-effect pass itself. It is a DG-manager render mode with its own transforms.
-- The same four words in June's *particle* tokenizer (`31cf2250` has `POSTEFFECT`/`WIREFRAME`).
-  That is an adoption follow-up.
+- (June's *particle* tokenizer has `POSTEFFECT`/`WIREFRAME` too. That is now ported: see the next
+  section.)
 
 **Diagnostic** (behind `SERV_IRUHADEV_JUNE_FX_DEBUG`): each CrashLand death in `PlayProcess` writes
 the following line to `ErrorLog.txt` (KTDXLIB cannot reach `offline_server.log`):
@@ -2493,6 +2493,35 @@ present in the binary. **Not play-tested yet.**
 
 Revert: undefine `SERV_IRUHADEV_JUNE_MESHPLAYER`. Pure addition: 154 lines inserted, none deleted.
 Undefining it restores March's parse, so a June templet using one of the four keys throws again.
+
+### June2017 effect engine: particle `.txt` templet keys (Phase 10 follow-up)
+
+New flag **`SERV_IRUHADEV_JUNE_PARTICLE`** (`KTDXLIB/Always.h`). Files: `KTDXLIB/KTDGParticleSystem.h`
+and `KTDXLIB/KTDGParticleSystem.cpp`.
+
+**June's particle parser** (`funcmap.tsv`): tokenizer `31cf2250`, `ProcessEventSequenceBlock`
+`31cfa4a0`, `EventFactory` `31cf1e80`.
+- Against March's, the key sets differ by exactly two sequence bools: `POSTEFFECT` and `WIREFRAME`.
+  The event names are identical, 16 each.
+- Only the key sets were compared. The shared keys' store semantics were not.
+- March's tokenizer threw on both words, and the rest of that `.txt` file was never loaded.
+  - June's own `*Particle*.txt` use `WIREFRAME` 44 times.
+  - March's live copies use neither.
+
+| Key | Default | What it does now | June source |
+|---|---|---|---|
+| `WIREFRAME` | false | `CParticleEventSequence::OnFrameRender_Draw`, after the latency and particle-list early-outs, sets `D3DFILL_WIREFRAME` for every particle type. It restores the fill mode cached before it (not SOLID) after the switch. Parsed, defaulted, cloned (`Clone`) and compared (`operator==`). | parse `31cfa4a0 @31cfb071`; ctor `31cf78a0 @31cf7c7c`; clone `31cf8af0 @31cf8fef`; Draw `31cf7500 @31cf757c`, `@31cf77dc` |
+| `POSTEFFECT` | false | **Unsupported** (plan rule 5). Parsed, stored and cloned; when TRUE, logs `JUNE_FX unsupported POSTEFFECT in <sequence>` to `ErrorLog.txt`. The June consumer is the same post-effect pass as the mesh player's: sequence slot 11 `31cef710`, DG manager `31cd7810` mode 1. | parse `@31cfafef`; clone `@31cf8e8c` |
+
+**Census.** `census.py --meshplayer` now covers both parsers. The `Is*()` helper map is scoped to each
+parser's own token class, because both classes have an `IsAniXET` with different keys. Particles:
+0 to-implement, 1 unsupported, 60 implemented. A negative control against the pre-change source
+reports exactly the two keys.
+
+Built `US_SERVICE` (both PCH sources touched; rc 0, no warnings from the changed files) and **deployed
+to `X2_offline.exe`, 18,969,600 B**, SHA-256 prefix `73ab71b6282dca56`, 2026-09-29. **Not play-tested.**
+
+Revert: undefine `SERV_IRUHADEV_JUNE_PARTICLE`. Pure addition: 90 lines inserted, none deleted.
 
 ### Dryad Kenta (Burned Forest boss): "jumps off the map, never comes back" softlock
 

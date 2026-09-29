@@ -475,6 +475,13 @@ run appends it to the matrix as its own section. Its model is in the comment abo
 - **Each `Is*()` helper pushes exactly one keyword.** So the census reads June's dispatch set as
   "helpers `31c8ae10` calls" → "the string each pushes", with no hand list.
 - **March side.** `KTDGXMeshPlayer.cpp` under **KTDXLIB's** `/I` list and defines, not X2Lib's.
+- **It covers the particle parser too** (`TXT_SPECS`: tokenizer `31cf2250`, block `31cfa4a0`, events
+  `31cf1e80`, TU `KTDGParticleSystem.cpp`).
+  - **Look up each `Is*()` helper in its own parser's token class** (`CXMeshPlayerToken` /
+    `CParticleEmitterToken`). Both classes have an `IsAniXET`: the mesh one compares `ANIPACKAGE`,
+    the particle one `ANIXET`. A single map over the whole `.i` let one silently overwrite the other.
+  - `TEXTURE` is dispatched by a keyword case, not a helper, in both builds, so it is declared
+    per spec (`keyword_props`).
 - **Negative control.** Run the March side over `git show HEAD:` of the pre-change `.cpp`, saved as
   a probe TU in `KTDXLIB/` and deleted afterwards. It must report exactly the keys the phase added.
 - **Mapping templet offsets to instance offsets.** The instance ctor copies the templet to

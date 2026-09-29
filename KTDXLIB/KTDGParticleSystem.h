@@ -180,6 +180,11 @@ class CKTDGParticleSystem
 #ifdef ADD_ALPHATESTENABLE
 				bool IsAlphaTest(void)		{ return(m_strValue.compare("ALPHATEST")			== 0); }
 #endif //ADD_ALPHATESTENABLE
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE
+				// June2017 particle DetermineTokenType FUN_31cf2250 bool keys; Is*() helpers 31cfef90 / 31cfedb0
+				bool IsPostEffect(void)			{ return(m_strValue.compare("POSTEFFECT")			== 0); }
+				bool IsWireFrame(void)			{ return(m_strValue.compare("WIREFRAME")			== 0); }
+#endif SERV_IRUHADEV_JUNE_PARTICLE
 		};
 
 
@@ -1147,6 +1152,10 @@ class CKTDGParticleSystem
 					if( m_iDestBlendMode	!= rhs_.m_iDestBlendMode	   )	return false;
 					if( m_bUseLand			!= rhs_.m_bUseLand			   )	return false;
 					if( m_bResolutionConvert!= rhs_.m_bResolutionConvert   )	return false;
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE
+					if( m_bPostEffect		!= rhs_.m_bPostEffect		   )	return false;
+					if( m_bWireFrame		!= rhs_.m_bWireFrame		   )	return false;
+#endif SERV_IRUHADEV_JUNE_PARTICLE
 					if( m_ParticleType		!= rhs_.m_ParticleType		   )	return false;
 					if( m_BillBoardType		!= rhs_.m_BillBoardType		   )	return false;
 					if( m_bUseLookPoint		!= rhs_.m_bUseLookPoint		   )	return false;
@@ -1374,6 +1383,12 @@ class CKTDGParticleSystem
 
 				void SetUseLand( bool bUseLand ){ m_bUseLand = bUseLand; }
 				bool GetUseLand(){ return m_bUseLand; }
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE
+				void SetPostEffect( bool bPostEffect ){ m_bPostEffect = bPostEffect; }
+				bool GetPostEffect(){ return m_bPostEffect; }
+				void SetWireFrame( bool bWireFrame ){ m_bWireFrame = bWireFrame; }
+				bool GetWireFrame(){ return m_bWireFrame; }
+#endif SERV_IRUHADEV_JUNE_PARTICLE
 
 				void SetLandPosition( float fLand ){ m_fLandPosition = fLand; }
 				float GetLandPosition(){ return m_fLandPosition; }
@@ -1665,6 +1680,11 @@ class CKTDGParticleSystem
 				D3DXVECTOR3						m_OldPosition;
 				D3DXVECTOR3						m_BlackHolePosition;
 				bool							m_bUseLand;
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE
+				// June2017 sequence +0x31d / +0x2f5 (ProcessEventSequenceBlock FUN_31cfa4a0 @31cfaffb / @31cfb07d)
+				bool							m_bPostEffect;		// POSTEFFECT: stored only, June's post-effect render pass is absent (plan rule 5)
+				bool							m_bWireFrame;		// WIREFRAME: draw in D3DFILL_WIREFRAME
+#endif SERV_IRUHADEV_JUNE_PARTICLE
 				float							m_fLandPosition;
 				CMinMax<float>					m_Lifetime;
 				CMinMax<float>					m_EmitRate;

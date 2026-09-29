@@ -2981,8 +2981,12 @@ share one play-test with Phase 9.**
   - `mesh+0x54c` is a June-only per-frame copy of `m_vVelocity`.
   - So the touch-land gate is `m_Gravity.y < 0 && m_vVelocityBefore.y < 0 && m_vVelocity.y > 0`,
     a bounce off land.
-- **Follow-up for adoption, not done:** June's *particle* tokenizer (`31cf2250`) also has
-  `POSTEFFECT` and `WIREFRAME`. March's particle parser would throw on them.
+- **Particle parser, done the same day** (`SERV_IRUHADEV_JUNE_PARTICLE`). June's particle parser
+  (`31cf2250`/`31cfa4a0`/`31cf1e80`) differs by exactly `POSTEFFECT` and `WIREFRAME`. `WIREFRAME` is
+  ported (sequence Draw); `POSTEFFECT` is unsupported. The census covers it, with 0 to-implement.
+- **Touch-land runtime: moved to Phase 10c** (below). June's three spawners (hit, die, touch-land)
+  share a post-create tail that March's existing `CreateHitDamageEffect`/`CreateDieDamageEffect`
+  lack. Shipping touch-land at hit-spawner parity would leave three incomplete spawners.
 
 **Paste with:** Starting context + this section.
 
@@ -3043,6 +3047,87 @@ byte-level edits only.
 Build (KTDXLIB changes need the full chain), deploy, ASK before launching. Done when the
 census shows 0 MeshPlayer keys to-implement. Update the matrix and MODS.md.
 ```
+
+---
+
+## Phase 10c — Spawner post-create tail, then the touch-land runtime
+
+**Status: identification started 2026-09-29, no code.** Found while finishing Phase 10's touch-land
+handoff. Under the user's standing rule, a June function March already has must be brought fully
+to June's version, not left partial. That makes this a correction to the existing
+`CreateHitDamageEffect` and `CreateDieDamageEffect` as well as new touch-land code.
+
+**Paste with:** Starting context + this section.
+
+**Model:** Opus, high, for step 1 (identification). Then Sonnet 5, high.
+
+**The gap.** After `CreateInstance`, June's hit (`31f810c0`), die (`31f82210`) and touch-land
+(`31f81ba0`) spawners all make the same calls, in this order:
+- `31f8af50` (ported in 7d: `INHERIT_CRITICAL_*`);
+- `31f8fdb0`;
+- the buff-factor / life-time / damage-rate / `SetScale` blocks (ported);
+- `31f76100` (`SetScaleByUnit`: March has it under `GIANT_UNIT_GIANT_EFFECT_TEST`);
+- **`31f649d0`, `31f64c00`, `31f65e40`, `31f65f90`**.
+
+None of the unmarked or bold calls is in March. Each is described in its `funcmap.tsv` row:
+- **`31f8fdb0`** is the parent→child state copy, gated by flags `+0xb44`–`b47`, `+0xb5c`/`b60` and
+  `+0xb64`–`b66`.
+- **`31f649d0`** propagates a per-entry damage rate (entry `+0xb0`) through `DAMAGE_DATA_NEXT` and
+  every child list.
+- **`31f64c00`** copies `ADDITIONAL_ATTACK_TRIGGER_TYPE` (DD `+0x544`) and `ATTACK_TRIGGER_TYPE` (DD
+  `+0x53c`).
+- **`31f65e40`** / **`31f65f90`** push `IGNORE_DEFENCE[_ON_PVP]` (DD `+0x528`/`+0x529`) and
+  `IGNORE_STATE_DEFENCE` (DD `+0x541`) down the whole child tree, via entry flags `+0xb4`/`+0xb5`.
+
+`CEffect.m_DamageData` is at CEffect `+0x200`. The pairs are CEffect `+0x238` ↔ DamageData `+0x38`
+and `+0x728` ↔ `+0x528`, and the invoke rate is `+0x720` ↔ DD `+0x520`, per `sdd_walk.py`.
+
+**Step 1: identify, writing each verdict into `funcmap.tsv` as it lands.**
+- **CEffect flags `+0xb00`, `+0xb04`, `+0xb32`, `+0xb44`–`b47`, `+0xb5c`/`b60`, `+0xb64`–`b66`.**
+  - Known so far:
+    - `+0xb32` is `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (ctor `@31f7c276`).
+    - `+0xb5c` may be `RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT` (`@31f7f98b`, a `BL` store: check it is
+      the getter's destination and not an init).
+  - The rest are written from about 25 functions across unit, skill and EffectSet code (`31b09080…`,
+    `321db1b0`, `321ee600`, `329fc3f0`, …). So they are runtime state that callers set, not only
+    ctor keys.
+  - Find each setter. Name the March method it corresponds to, or record the system as absent
+    (rule 5).
+- **Entry fields `+0xb0` (float), `+0xb4`, `+0xb5` (bools) of the 0xb8-byte `DamageEffectData`.**
+  Find which loader writes them, if any, and the `DamageEffectData` ctor defaults.
+- **DamageData `+0x5fd`, `+0x5a4`/`+0x5a8`.**
+  - `+0x5a8` is `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`'s neighbourhood (`sdd_walk.py`).
+  - The spawners copy `+0x7a4`/`+0x7a8`. Do not assume it is `m_eFirstAttack`/`m_RelateSkillData`.
+- **The invoke-rate gate.**
+  - The touch-land spawner runs the invoke-rate skip only when CEffect `+0xb04 != 0`.
+  - March's hit spawner gates it on `DET_ARROW_OF_EXPLOSION != GetType()`.
+  - Check June's hit spawner and what `+0xb04` is. If they differ, that is a hit-spawner change too.
+
+**Step 2: port the tail** as CEffect methods mirroring the five callees, called from all three
+spawners. Give it its own flag (`SERV_IRUHADEV_JUNE_SPAWN_INHERIT`): it changes existing hit and die
+behaviour.
+
+**Step 3: the touch-land runtime** (`SERV_IRUHADEV_JUNE_TOUCH_LAND`).
+- **The gate**, `31f83380`, called from CEffect OnFrameMove `@31f8a2a4-31f8a394`, right after the
+  die-check:
+  - the condition is `m_Gravity.y < 0 && m_vVelocityBefore.y < 0 && m_vVelocity.y > 0`, all strict;
+  - it has no once-flag;
+  - it first runs a `GetLandPosition` probe whose result nothing reads.
+- **The mesh-side prerequisites:**
+  - `m_Gravity` is `mesh+0x478` and already exists.
+  - `m_vVelocityBefore` is `mesh+0x54c`. It is new and needs the member, a ctor init, the copy in
+    March's `KTDGXMeshPlayer.cpp:1709` snapshot block, and a getter. Also check that
+    `GetGravity()` exists.
+- **The spawner**, `31f81ba0`, fully read in `ghidra/dis_31f81ba0.txt`:
+  - The position is always `m_BeforePos`.
+  - Rotation: `vAxis = vRotate = m_AngleDegree` when `APPLY_ROTATE_ORIGIN` is set, otherwise
+    zero. The entry's `ROTATE`/`POSITION_TYPE` are unused.
+  - `APPLY_ROTATED_OFFSET` works as in the hit spawner, else the offset is added.
+  - `CreateInstance` gets `m_fLandPos` directly, and the `INHERIT_FORCEDOWNRATE` force-down rate.
+  - Then the shared tail.
+  - Then `SetInheritForceDownRate`, and max life (mesh `+0x44c`) from the entry's life time when
+    `> 0`. Confirm March's `SetMaxLifeTime` does nothing more.
+- Give the gate a `JUNE_FX` line, throttled.
 
 ---
 

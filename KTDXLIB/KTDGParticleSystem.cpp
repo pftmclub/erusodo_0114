@@ -11,6 +11,17 @@ CKTDGParticleSystem::CParticleEventSequenceHandle CKTDGParticleSystem::s_iNextPa
 #endif  X2OPTIMIZE_CULLING_PARTICLE
 
 
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE
+// JUNE_FX unsupported <KEY> in <templet>: <why>. Plan rule 5's line; KTDXLIB cannot reach CX2OfflineLog,
+// so it goes to ErrorLog.txt through KLOG (plan rule 4's ErrorLogMsg fallback), as in KTDGXMeshPlayer.cpp.
+static void JuneParticleLogUnsupported( const WCHAR* pwszTempletName_, const char* pszKey_, const char* pszWhy_ )
+{
+	std::string strTempletName;
+	ConvertWCHARToChar( strTempletName, NULL != pwszTempletName_ ? pwszTempletName_ : L"" );
+	KLOG( "ErrorLog.txt" ) << "JUNE_FX unsupported " << pszKey_ << " in " << strTempletName.c_str() << ": " << pszWhy_ << fileout;
+}
+#endif SERV_IRUHADEV_JUNE_PARTICLE
+
 //{{ robobeg : 2008-10-13
 static const CKTDGStateManager::KState s_akStates[] = 
 {		
@@ -1537,6 +1548,20 @@ bool CKTDGParticleSystem::ProcessEventSequenceBlock(CParticleEventSequence &seq,
 #ifdef ADD_ALPHATESTENABLE
 					else if (savedtoken.IsAlphaTest())			{ seq.SetAlphTest(bValue); }
 #endif
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE
+					// June2017 ProcessEventSequenceBlock FUN_31cfa4a0 bool branch @31cfafef (POSTEFFECT -> +0x31d)
+					// and @31cfb071 (WIREFRAME -> +0x2f5)
+					else if (savedtoken.IsPostEffect())
+					{
+						seq.SetPostEffect(bValue);
+						// June's only reader is the post-effect predicate (sequence vtable slot 11, FUN_31cef710:
+						// m_bAlphaObject && m_bPostEffect), consumed only by the DG manager's post-effect pass
+						// (FUN_31cd7810 mode 1). March has no such pass. FALSE is the default, so only TRUE is reported.
+						if( true == bValue )
+							JuneParticleLogUnsupported( seq.GetName(), "POSTEFFECT", "post-effect render pass absent (June FUN_31cd7810 mode 1)" );
+					}
+					else if (savedtoken.IsWireFrame())			{ seq.SetWireFrame(bValue); }
+#endif SERV_IRUHADEV_JUNE_PARTICLE
 					else 
 					{
 						throw("Unknown sequence particle type property!");
@@ -2735,6 +2760,11 @@ CKTDGParticleSystem::CParticleEventSequence::CParticleEventSequence( CKTDGPartic
 
 	m_fLandPosition		= 0.0f;
 	m_bUseLand			= false;
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE
+	// June2017 sequence ctor FUN_31cf78a0 @31cf7c7c/@31cf7c89 (word stores of EBX = 0): both default false
+	m_bPostEffect		= false;
+	m_bWireFrame		= false;
+#endif SERV_IRUHADEV_JUNE_PARTICLE
 	m_Lifetime.m_Min	= 0.0f;
 	m_Lifetime.m_Max	= 0.0f;
 	m_EmitRate.m_Min	= 0.0f;
@@ -3356,6 +3386,15 @@ void    CKTDGParticleSystem::CParticleEventSequence::OnFrameRender_Draw()
             )
         return;
 
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE
+	// June2017 sequence OnFrameRender_Draw FUN_31cf7500 @31cf757c-31cf75ac: after the early-outs above,
+	// WIREFRAME draws every particle type in D3DFILL_WIREFRAME; the fill mode cached before it is
+	// restored after the switch (@31cf77dc-31cf77ff) -- the previous value, not SOLID.
+	const DWORD dwJuneFillModeBefore = CKTDGStateManager::GetRenderState( D3DRS_FILLMODE );
+	if( true == m_bWireFrame )
+		CKTDGStateManager::SetRenderState( D3DRS_FILLMODE, D3DFILL_WIREFRAME );
+#endif SERV_IRUHADEV_JUNE_PARTICLE
+
 	switch( m_ParticleType )
 	{
 		case PT_3D_PLANE:		
@@ -3447,6 +3486,10 @@ void    CKTDGParticleSystem::CParticleEventSequence::OnFrameRender_Draw()
 
 #endif SKINMESH_PARTICLE_TEST
 	}
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE
+	if( true == m_bWireFrame )
+		CKTDGStateManager::SetRenderState( D3DRS_FILLMODE, dwJuneFillModeBefore );
+#endif SERV_IRUHADEV_JUNE_PARTICLE
 
 //	return S_OK;
 }
@@ -5574,6 +5617,11 @@ CKTDGParticleSystem::CParticleEventSequence* CKTDGParticleSystem::CParticleEvent
 #ifdef ADD_ALPHATESTENABLE
 	clone->SetAlphTest( GetAlphTest() );
 #endif
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE
+	// June2017 sequence copy FUN_31cf8af0 @31cf8e8c (+0x31d) and @31cf8fef (+0x2f5)
+	clone->SetPostEffect( GetPostEffect() );
+	clone->SetWireFrame( GetWireFrame() );
+#endif SERV_IRUHADEV_JUNE_PARTICLE
 
 	clone->m_TraceSeqNameList = m_TraceSeqNameList;
 	clone->m_FinalSeqNameList = m_FinalSeqNameList;
@@ -5939,6 +5987,11 @@ void CKTDGParticleSystem::CParticleEmitterTokenizer::DetermineTokenType( CPartic
 #ifdef ADD_ALPHATESTENABLE
 		token.m_strValue.compare("ALPHATEST")		== 0 ||
 #endif
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE
+		// June2017 particle DetermineTokenType FUN_31cf2250: SeqBoolProp also takes these two
+		token.m_strValue.compare("POSTEFFECT")		== 0 ||
+		token.m_strValue.compare("WIREFRAME")		== 0 ||
+#endif SERV_IRUHADEV_JUNE_PARTICLE
 		token.m_strValue.compare("FORCELAYER")	== 0 ) 
 	{ 
 		token.m_Type = SeqBoolProp; return; 

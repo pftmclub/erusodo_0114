@@ -4486,3 +4486,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_MESHPLAYER needs SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-29
+// Description: June2017 effect rebuild, Phase 10 follow-up: the particle .txt
+//              templet keys June's particle parser reads and March's does not
+//              (tokenizer FUN_31cf2250, ProcessEventSequenceBlock
+//              FUN_31cfa4a0). The two parsers' other keys and the event
+//              factory (FUN_31cf1e80) have the same key and event SETS as
+//              March's; the shared keys' stores were not compared.
+//              Without them March's tokenizer throws and the rest of that
+//              .txt file is never loaded. WIREFRAME draws the sequence in
+//              D3DFILL_WIREFRAME and restores the previous fill mode;
+//              POSTEFFECT is parsed, stored and logged unsupported to
+//              ErrorLog.txt (June's post-effect render pass is absent).
+#define SERV_IRUHADEV_JUNE_PARTICLE
+//////////////////////////////////////////////////////////////////////////
