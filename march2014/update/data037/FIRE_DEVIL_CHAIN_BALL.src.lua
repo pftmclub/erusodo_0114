@@ -193,7 +193,14 @@ FIRE_DEVIL_CHAIN_BALL_START = {
 
 function FIRE_DEVIL_CHAIN_BALL_START_STATE_START(slot0, slot1, slot2)
 	for slot7 = 0, slot1:GetNPCUnitListSize() - 1 do
-		if slot1:GetNPCUnit(slot7) ~= nil and slot8:IsUnitID(NPC_UNIT_ID.NUI_FIRE_DEVIL_CHAIN_STONE) == true then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+		-- assignment and inlined the call into the `and` condition; the port
+		-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+		-- FIRE_DEVIL_CHAIN_BALL.src.lua::FIRE_DEVIL_CHAIN_BALL_START_STATE_START,
+		-- dropped-assignment, seed 2, POISON_READ slot8@L196.
+		slot8 = slot1:GetNPCUnit(slot7)
+
+		if slot8 ~= nil and slot8:IsUnitID(NPC_UNIT_ID.NUI_FIRE_DEVIL_CHAIN_STONE) == true then
 			slot8:SetBuffFactorToGameUnitByBuffFactorID_LUA(BUFF_FACTOR_ID.BFI_BUFF_DEVIL_CHAIN_BALL)
 		end
 	end
@@ -202,7 +209,15 @@ end
 function FIRE_DEVIL_CHAIN_BALL_START_STATE_END(slot0, slot1, slot2)
 	if slot1:GetNowStageIndex() == 3 then
 		for slot7 = 0, slot1:GetNPCUnitListSize() - 1 do
-			if slot1:GetNPCUnit(slot7) ~= nil and slot8:IsUnitID(NPC_UNIT_ID.NUI_FIRE_DEVIL_CHAIN_STONE) == true then
+			-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped
+			-- this assignment and inlined the call into the `and` condition; the
+			-- port carried the bug verbatim. Bytecode-confirmed:
+			-- decompile_verdicts.tsv,
+			-- FIRE_DEVIL_CHAIN_BALL.src.lua::FIRE_DEVIL_CHAIN_BALL_START_STATE_END,
+			-- dropped-assignment, seed 2, POISON_READ slot8@L205.
+			slot8 = slot1:GetNPCUnit(slot7)
+
+			if slot8 ~= nil and slot8:IsUnitID(NPC_UNIT_ID.NUI_FIRE_DEVIL_CHAIN_STONE) == true then
 				slot8:StateChange_LUA("FIRE_DEVIL_CHAIN_STONE_WALK_STAGE_3", true)
 			end
 		end
@@ -449,7 +464,14 @@ FIRE_DEVIL_CHAIN_BALL_DYING = {
 
 function FIRE_DEVIL_CHAIN_BALL_DYING_STATE_START(slot0, slot1, slot2)
 	for slot7 = 0, slot1:GetNPCUnitListSize() - 1 do
-		if slot1:GetNPCUnit(slot7) ~= nil and slot8:IsUnitID(NPC_UNIT_ID.NUI_FIRE_DEVIL_CHAIN_STONE) == true then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+		-- assignment and inlined the call into the `and` condition; the port
+		-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+		-- FIRE_DEVIL_CHAIN_BALL.src.lua::FIRE_DEVIL_CHAIN_BALL_DYING_STATE_START,
+		-- dropped-assignment, seed 2, POISON_READ slot8@L452.
+		slot8 = slot1:GetNPCUnit(slot7)
+
+		if slot8 ~= nil and slot8:IsUnitID(NPC_UNIT_ID.NUI_FIRE_DEVIL_CHAIN_STONE) == true then
 			slot8:SetAIEnable(false)
 			slot8:EraseBuffTempletFromGameUnit_LUA(BUFF_TEMPLET_ID.BTI_BUFF_DEVIL_CHAIN_BALL)
 		end

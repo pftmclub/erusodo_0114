@@ -340,14 +340,23 @@ SAMETEAM_IGNIA_ATTACK_A_FIRE = {
 }
 
 function SAMETEAM_IGNIA_ATTACK_B_FIRE_FRAME_MOVE(slot0, slot1, slot2)
-	if slot2:AnimEventTimer_LUA(0.296) and slot1:GetEffectSet() ~= nil then
-		slot4 = slot2:GetRotateDegree()
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SAMETEAM_IGNIA.src.lua::SAMETEAM_IGNIA_ATTACK_B_FIRE_FRAME_MOVE,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L350.
+	if slot2:AnimEventTimer_LUA(0.296) then
+		slot3 = slot1:GetEffectSet()
 
-		if slot2:GetIsRight() == false then
-			slot4.y = slot4.y - 180
+		if slot3 ~= nil then
+			slot4 = slot2:GetRotateDegree()
+
+			if slot2:GetIsRight() == false then
+				slot4.y = slot4.y - 180
+			end
+
+			slot3:PlayEffectSet_LUA("EffecSet_Same_IGNIA_Attack_B_Fire", slot2)
 		end
-
-		slot3:PlayEffectSet_LUA("EffecSet_Same_IGNIA_Attack_B_Fire", slot2)
 	end
 end
 
@@ -418,7 +427,14 @@ function SAMETEAM_IGNIA_ATTACK_C_READY_STATE_END(slot0, slot1, slot2)
 end
 
 function SAMETEAM_IGNIA_ATTACK_C_NOT_SHOW_FRAME_MOVE(slot0, slot1, slot2)
-	if slot2:GetVector_LUA(0).y < slot2:GetTimerElapsedTime(3) then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SAMETEAM_IGNIA.src.lua::SAMETEAM_IGNIA_ATTACK_C_NOT_SHOW_FRAME_MOVE,
+	-- dropped-assignment, seed 1, static sites slot3@L434/L436/L437.
+	slot3 = slot2:GetVector_LUA(0)
+
+	if slot3.y < slot2:GetTimerElapsedTime(3) then
 		slot5 = slot2:GetPos()
 
 		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 8 (GateWay) -- GetHostGameUnit
@@ -427,7 +443,12 @@ function SAMETEAM_IGNIA_ATTACK_C_NOT_SHOW_FRAME_MOVE(slot0, slot1, slot2)
 		-- load). Omitted; slot5 simply stays at slot2:GetPos() (already assigned
 		-- above) instead of being repositioned relative to the room host.
 
-		if slot1:GetEffectSet() ~= nil then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): a second dropped assignment in
+		-- this same function; same bytecode-confirmed source as above, static
+		-- site slot6@L431.
+		slot6 = slot1:GetEffectSet()
+
+		if slot6 ~= nil then
 			slot6:PlayEffectSet_LUA("EffectSet_IGNIA_ATTACK_C_Fire", slot2)
 		end
 
@@ -528,8 +549,16 @@ function SAMETEAM_IGNIA_ATTACK_D_FIRE_STATE_START(slot0, slot1, slot2)
 
 	slot1:ShowDangerAlarm_LUA(0, 7.5, slot7, false, STR_ID_33671, true, TEAM_NUM.TN_RED)
 
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped these
+	-- two assignments and inlined the calls into the conditions; the port
+	-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SAMETEAM_IGNIA.src.lua::SAMETEAM_IGNIA_ATTACK_D_FIRE_STATE_START,
+	-- dropped-assignment, seed 1, static sites slot8@L534/L535/L537/L541,
+	-- slot9@L541.
 	for slot7 = 0, slot1:GetUserUnitListSize() - 1 do
-		if slot1:GetUserUnit(slot7) ~= nil then
+		slot8 = slot1:GetUserUnit(slot7)
+
+		if slot8 ~= nil then
 			if slot2:GetInt_LUA(1) == 0 then
 				slot8:SetBuffFactorToGameUnitByBuffFactorID_LUA(BUFF_FACTOR_ID.BFI_BUFF_IGNIA_HP_MP)
 				slot8:SetBuffFactorToGameUnitByBuffFactorID_LUA(BUFF_FACTOR_ID.BFI_SET_SKILL_COOLTIME_ONCE_TO_MIN)
@@ -537,7 +566,9 @@ function SAMETEAM_IGNIA_ATTACK_D_FIRE_STATE_START(slot0, slot1, slot2)
 				slot8:SetBuffFactorToGameUnitByBuffFactorID_LUA(BUFF_FACTOR_ID.BFI_BUFF_IGNIA_ATTACK_SUPERARMOR)
 			end
 
-			if slot1:GetEffectSet() ~= nil then
+			slot9 = slot1:GetEffectSet()
+
+			if slot9 ~= nil then
 				slot9:PlayEffectSet_LUA("EffecSet_IGNIA_Attack_B_Ready", slot8)
 			end
 		end
@@ -772,25 +803,37 @@ function SAMETEAM_IGNIA_COMMON_FRAME_MOVE(slot0, slot1, slot2)
 		slot2:SetTimerRestart(0)
 	end
 
-	if slot2:GetTimerElapsedTime(1) > 7.5 and (slot1:GetNearestNPCUnitPos_LUA(slot2:GetPos(), 0, 1500).x ~= 0 or slot4.y ~= 0 or slot4.z ~= 0) then
-		slot5 = slot1:GetDist_LUA(slot4, slot3)
-		slot7 = slot2:GetRotateDegree()
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped these
+	-- assignments and inlined the calls into the `and` condition; the port
+	-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SAMETEAM_IGNIA.src.lua::SAMETEAM_IGNIA_COMMON_FRAME_MOVE,
+	-- dropped-assignment, seed 7, static sites slot3@L776, slot4@L775/L776/L779,
+	-- slot6@L783.
+	if slot2:GetTimerElapsedTime(1) > 7.5 then
+		slot3 = slot2:GetPos()
+		slot4 = slot1:GetNearestNPCUnitPos_LUA(slot3, 0, 1500)
 
-		if slot2:IsRightTarget_LUA(slot2, slot4) == slot2:GetIsRight() then
-			slot7.y = slot7.y + 180
+		if slot4.x ~= 0 or slot4.y ~= 0 or slot4.z ~= 0 then
+			slot5 = slot1:GetDist_LUA(slot4, slot3)
+			slot6 = slot2:IsRightTarget_LUA(slot2, slot4)
+			slot7 = slot2:GetRotateDegree()
+
+			if slot6 == slot2:GetIsRight() then
+				slot7.y = slot7.y + 180
+			end
+
+			slot2:SetIsRight(slot6)
+
+			if slot5 < 200 then
+				slot2:StateChange_LUA("SAMETEAM_IGNIA_ATTACK_A_READY", true)
+			elseif slot2:GetRandVal() > 75 then
+				slot2:StateChange_LUA("SAMETEAM_IGNIA_SPECIAL_ATTACK_A_READY", true)
+			else
+				slot2:StateChange_LUA("SAMETEAM_IGNIA_ATTACK_B_READY", true)
+			end
+
+			slot2:SetFlag_LUA(0, true)
+			slot2:SetTimerRestart(1)
 		end
-
-		slot2:SetIsRight(slot6)
-
-		if slot5 < 200 then
-			slot2:StateChange_LUA("SAMETEAM_IGNIA_ATTACK_A_READY", true)
-		elseif slot2:GetRandVal() > 75 then
-			slot2:StateChange_LUA("SAMETEAM_IGNIA_SPECIAL_ATTACK_A_READY", true)
-		else
-			slot2:StateChange_LUA("SAMETEAM_IGNIA_ATTACK_B_READY", true)
-		end
-
-		slot2:SetFlag_LUA(0, true)
-		slot2:SetTimerRestart(1)
 	end
 end

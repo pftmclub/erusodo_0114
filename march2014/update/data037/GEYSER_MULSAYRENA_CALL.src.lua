@@ -992,7 +992,14 @@ function GEYSER_MULSAYRENA_CALL_WALK_JUMP_STATE_END(slot0, slot1, slot2)
 end
 
 function MakeStepSmokeParticle(slot0, slot1)
-	if slot0:GetMinorParticle() ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- GEYSER_MULSAYRENA_CALL.src.lua::MakeStepSmokeParticle, dropped-assignment,
+	-- seed 1, POISON_READ slot2@L996.
+	slot2 = slot0:GetMinorParticle()
+
+	if slot2 ~= nil then
 		slot2:GameUnitCreateSequence_LUA(slot1, "StepSmoke", slot1:GetLandPosition_LUA(), D3DXVECTOR2(100, 100), D3DXVECTOR2(5, -1))
 	end
 end

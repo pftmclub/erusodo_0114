@@ -711,15 +711,25 @@ FIRE_DEVIL_SKA_ATTACK_A_FIRE_3_READY_INPHASE2 = {
 }
 
 function FIRE_DEVIL_SKA_ATTACK_A_FIRE_3_FIRE_INPHASE2_STATE_START(slot0, slot1, slot2)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped three
+	-- assignments in this function and inlined the calls into their
+	-- conditions; the port carried the bug verbatim. Bytecode-confirmed:
+	-- decompile_verdicts.tsv,
+	-- FIRE_DEVIL_SKA.src.lua::FIRE_DEVIL_SKA_ATTACK_A_FIRE_3_FIRE_INPHASE2_STATE_START,
+	-- dropped-assignment, seed 1, static sites slot5@L719/L720, slot7@L726/L736
+	-- (a fourth site, slot2@L2051, is GetUser's own dropped assignment --
+	-- fixed at that function's own definition, not repeated here).
 	slot3 = slot2:GetPos()
 	slot4 = slot2:GetDirVector()
+	slot5 = GetUser(slot1, slot2)
 	slot6 = 1
 
-	if GetUser(slot1, slot2) ~= nil then
+	if slot5 ~= nil then
 		slot3 = slot5:GetPos()
+		slot7 = slot2:IsRightTarget_LUA(slot2, slot3)
 		slot3.y = slot5:GetLandPosition_LUA().y
 
-		if slot2:IsRightTarget_LUA(slot2, slot3) == true then
+		if slot7 == true then
 			slot6 = -1
 		end
 
@@ -728,8 +738,9 @@ function FIRE_DEVIL_SKA_ATTACK_A_FIRE_3_FIRE_INPHASE2_STATE_START(slot0, slot1, 
 
 	slot3.x = slot3.x + 250 * slot4.x * slot6
 	slot3.z = slot3.z + 250 * slot4.z * slot6
+	slot7 = slot2:GetVector_LUA(0)
 
-	if slot3.x < slot2:GetVector_LUA(0).x then
+	if slot3.x < slot7.x then
 		slot3.x = slot7.x
 	end
 
@@ -737,7 +748,9 @@ function FIRE_DEVIL_SKA_ATTACK_A_FIRE_3_FIRE_INPHASE2_STATE_START(slot0, slot1, 
 		slot3.z = slot7.z
 	end
 
-	if slot2:GetVector_LUA(1).x < slot3.x then
+	slot8 = slot2:GetVector_LUA(1)
+
+	if slot8.x < slot3.x then
 		slot3.x = slot8.x
 	end
 
@@ -787,21 +800,39 @@ FIRE_DEVIL_SKA_ATTACK_A_FIRE_3_FIRE_INPHASE2 = {
 }
 
 function FIRE_DEVIL_SKA_ATTACK_B_READY_FRAME_MOVE(slot0, slot1, slot2)
-	if slot2:AnimEventTimer_LUA(0.25) and slot1:GetEffectSet() ~= nil then
-		if slot2:GetFlag_LUA(0) == false then
-			if GetUser(slot1, slot2) ~= nil then
-				slot6 = slot5:GetPos()
-				slot6.y = slot5:GetLandPosition_LUA().y
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped four
+	-- assignments in this function and inlined the calls into their
+	-- conditions; the port carried the bug verbatim. Bytecode-confirmed:
+	-- decompile_verdicts.tsv,
+	-- FIRE_DEVIL_SKA.src.lua::FIRE_DEVIL_SKA_ATTACK_B_READY_FRAME_MOVE,
+	-- dropped-assignment, seed 1, static sites slot3@L796/L804, slot4@L804,
+	-- slot5@L793/L794, slot10@L801/L802 (slot2@L2051 is GetUser's own,
+	-- fixed at its definition).
+	if slot2:AnimEventTimer_LUA(0.25) then
+		slot3 = slot1:GetEffectSet()
 
-				slot3:PlayEffectSetWithCustomPos_LUA("EffectSet_NUI_FIRE_DEVIL_SKA_AttackB_Fire", slot2, slot6, slot2:GetRotateDegree())
-			end
-		else
-			for slot9 = 0, slot1:GetUserUnitListSize() - 1 do
-				if slot1:GetUserUnit(slot9) ~= nil then
-					slot11 = slot10:GetPos()
-					slot11.y = slot10:GetLandPosition_LUA().y
+		if slot3 ~= nil then
+			slot4 = slot2:GetRotateDegree()
 
-					slot3:PlayEffectSetWithCustomPos_LUA("EffectSet_NUI_FIRE_DEVIL_SKA_AttackB_Fire_PH2", slot2, slot11, slot4)
+			if slot2:GetFlag_LUA(0) == false then
+				slot5 = GetUser(slot1, slot2)
+
+				if slot5 ~= nil then
+					slot6 = slot5:GetPos()
+					slot6.y = slot5:GetLandPosition_LUA().y
+
+					slot3:PlayEffectSetWithCustomPos_LUA("EffectSet_NUI_FIRE_DEVIL_SKA_AttackB_Fire", slot2, slot6, slot4)
+				end
+			else
+				for slot9 = 0, slot1:GetUserUnitListSize() - 1 do
+					slot10 = slot1:GetUserUnit(slot9)
+
+					if slot10 ~= nil then
+						slot11 = slot10:GetPos()
+						slot11.y = slot10:GetLandPosition_LUA().y
+
+						slot3:PlayEffectSetWithCustomPos_LUA("EffectSet_NUI_FIRE_DEVIL_SKA_AttackB_Fire_PH2", slot2, slot11, slot4)
+					end
 				end
 			end
 		end
@@ -2037,7 +2068,14 @@ FIRE_DEVIL_SKA_DYING = {
 }
 
 function GetUser(slot0, slot1)
-	if slot1:GetTargetUser() == nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- FIRE_DEVIL_SKA.src.lua::GetUser, dropped-assignment, seed 1,
+	-- POISON_READ slot2@L2051.
+	slot2 = slot1:GetTargetUser()
+
+	if slot2 == nil then
 		slot2 = slot0:GetUserUnit(slot1:GetRandVal() % slot0:GetUserUnitNum_LUA())
 	end
 

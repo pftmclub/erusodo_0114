@@ -187,9 +187,21 @@ function MOUNT_FIREBIRD_FIRETEMPLE_FLY_WAIT_START_NOT_SHOW_STATE_START(slot0, sl
 end
 
 function CF_MOUNT_FIREBIRD_FIRETEMPLE_FLY_WAIT_START(slot0, slot1, slot2)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped two
+	-- assignments (the pre-loop counter init and the per-NPC lookup) and
+	-- inlined the calls into the `and` condition; the port carried the bug
+	-- verbatim, including the counter constant-folding to a literal `0 + 1`
+	-- (so it never accumulated past 1 across iterations). Bytecode-confirmed:
+	-- decompile_verdicts.tsv,
+	-- MOUNT_FIREBIRD_FIRETEMPLE.src.lua::CF_MOUNT_FIREBIRD_FIRETEMPLE_FLY_WAIT_START,
+	-- dropped-assignment, seed 1, static sites slot3@L196, slot9@L191.
+	slot3 = 0
+
 	for slot8 = 0, slot1:GetNPCUnitListSize() - 1 do
-		if slot1:GetNPCUnit(slot8) ~= nil and slot9:IsUnitID(NPC_UNIT_ID.NUI_MOUNT_FIREBIRD_FIRETEMPLE) == false and slot9:GetNowHP() > 0 then
-			slot3 = 0 + 1
+		slot9 = slot1:GetNPCUnit(slot8)
+
+		if slot9 ~= nil and slot9:IsUnitID(NPC_UNIT_ID.NUI_MOUNT_FIREBIRD_FIRETEMPLE) == false and slot9:GetNowHP() > 0 then
+			slot3 = slot3 + 1
 		end
 	end
 
@@ -309,8 +321,17 @@ function MOUNT_FIREBIRD_FIRETEMPLE_FLY_ATTACK_A_STATE_START(slot0, slot1, slot2)
 end
 
 function MOUNT_FIREBIRD_FIRETEMPLE_FLY_ATTACK_A_FRAME_MOVE(slot0, slot1, slot2)
-	if slot2:AnimEventTimer_LUA(slot2:GetVector_LUA(0).x) then
-		if slot1:GetEffectSet() ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped two
+	-- assignments and inlined the calls into their conditions; the port
+	-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- MOUNT_FIREBIRD_FIRETEMPLE.src.lua::MOUNT_FIREBIRD_FIRETEMPLE_FLY_ATTACK_A_FRAME_MOVE,
+	-- dropped-assignment, seed 1, static sites slot3@L317/L318/L320, slot4@L314.
+	slot3 = slot2:GetVector_LUA(0)
+
+	if slot2:AnimEventTimer_LUA(slot3.x) then
+		slot4 = slot1:GetEffectSet()
+
+		if slot4 ~= nil then
 			slot4:PlayEffectSet_LUA("EffectSet_MOUNT_FIREBIRD_AttackA_Fire", slot2)
 		end
 

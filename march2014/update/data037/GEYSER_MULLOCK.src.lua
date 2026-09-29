@@ -608,6 +608,13 @@ function GEYSER_MULLOCK_ATTACK_B_READY_STATE_END(slot0, slot1, slot2)
 end
 
 function GEYSER_MULLOCK_ATTACK_B_RUN_STATE_START(slot0, slot1, slot2)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile also dropped
+	-- this assignment (the GetTargetUser() call below), independent of the
+	-- 09-18 port edit right below it. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- GEYSER_MULLOCK.src.lua::GEYSER_MULLOCK_ATTACK_B_RUN_STATE_START,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L623/L624.
+	slot3 = slot2:GetTargetUser()
+
 	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): June2017's fallback to
 	-- slot2:GetStoredGUUser() when there's no current target is omitted --
 	-- that method isn't bound in this March2014 client (checked X2Lib/KTDXLIB,
@@ -617,7 +624,7 @@ function GEYSER_MULLOCK_ATTACK_B_RUN_STATE_START(slot0, slot1, slot2)
 	-- stays nil in the no-target case, so the reorientation block below
 	-- (slot3 ~= nil) is skipped instead of falling back to a stale stored
 	-- target.
-	if slot2:GetTargetUser() == nil then
+	if slot3 == nil then
 	end
 
 	if slot3 ~= nil then
@@ -1584,7 +1591,14 @@ function GEYSER_MULLOCK_WALK_JUMP_DOWN_STATE_END(slot0, slot1, slot2)
 end
 
 function MakeStepSmokeParticle(slot0, slot1)
-	if slot0:GetMinorParticle() ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- GEYSER_MULLOCK.src.lua::MakeStepSmokeParticle, dropped-assignment,
+	-- seed 1, POISON_READ slot2@L1588.
+	slot2 = slot0:GetMinorParticle()
+
+	if slot2 ~= nil then
 		slot2:GameUnitCreateSequence_LUA(slot1, "StepSmoke", slot1:GetLandPosition_LUA(), D3DXVECTOR2(100, 100), D3DXVECTOR2(5, -1))
 	end
 end

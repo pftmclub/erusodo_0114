@@ -495,13 +495,26 @@ function FIRE_DEVIL_IGNIA_BOSS_FINALHALL_ATTACK_C_READY_STATE_END(slot0, slot1, 
 end
 
 function FIRE_DEVIL_IGNIA_BOSS_FINALHALL_ATTACK_C_NOT_SHOW_FRAME_MOVE(slot0, slot1, slot2)
-	if slot2:GetVector_LUA(0).y < slot2:GetTimerElapsedTime(1) then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped three
+	-- assignments in this function (the vector-timer state at top, the
+	-- random user-unit lookup, and the effect-set lookup) and inlined the calls
+	-- into their conditions -- including folding slot8:GetPos()'s result into
+	-- a throwaway table whose .y write never reached slot4. The port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- FIRE_DEVIL_IGNIA_BOSS_FINALHALL.src.lua::FIRE_DEVIL_IGNIA_BOSS_FINALHALL_ATTACK_C_NOT_SHOW_FRAME_MOVE,
+	-- dropped-assignment, seed 1, static sites slot3@L527/L529/L530,
+	-- slot8@L504/L505/L507, slot10@L524.
+	slot3 = slot2:GetVector_LUA(0)
+
+	if slot3.y < slot2:GetTimerElapsedTime(1) then
 		slot4 = slot2:GetPos()
 		slot5 = slot2:GetDirVector()
+		slot8 = slot1:GetUserUnit(slot2:GetRandVal() % slot1:GetUserUnitNum_LUA())
 		slot9 = 1
 
-		if slot1:GetUserUnit(slot2:GetRandVal() % slot1:GetUserUnitNum_LUA()) ~= nil then
-			slot8:GetPos().y = slot8:GetLandPosition_LUA().y
+		if slot8 ~= nil then
+			slot4 = slot8:GetPos()
+			slot4.y = slot8:GetLandPosition_LUA().y
 			slot5 = slot8:GetDirVector()
 
 			if slot8:GetIsRight() == true then
@@ -520,7 +533,9 @@ function FIRE_DEVIL_IGNIA_BOSS_FINALHALL_ATTACK_C_NOT_SHOW_FRAME_MOVE(slot0, slo
 
 		slot2:SetPositionForce(slot4)
 
-		if slot1:GetEffectSet() ~= nil then
+		slot10 = slot1:GetEffectSet()
+
+		if slot10 ~= nil then
 			slot10:PlayEffectSetWithCustomPos_LUA("EffectSet_IGNIA_ATTACK_C_Fire", slot2, slot4, slot2:GetRotateDegree())
 		end
 
@@ -528,7 +543,17 @@ function FIRE_DEVIL_IGNIA_BOSS_FINALHALL_ATTACK_C_NOT_SHOW_FRAME_MOVE(slot0, slo
 
 		slot2:SetVector_LUA(0, slot3)
 	elseif slot3.x < slot2:GetTimerElapsedTime(1) then
-		if slot2:GetInt_LUA(0) > 0 then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+		-- assignment and inlined the call into the condition; the port carried
+		-- the bug verbatim -- StateChangeForce below read whatever the bare
+		-- global slot4 last held (an earlier call's, or another script's),
+		-- not the GetInt_LUA(0) result. Not in Phase 5's 32-seed row: found by
+		-- the Phase 6b 128-seed re-run of this file, POISON_READ slot4 at the
+		-- StateChangeForce call on 24/128 seeds; the fixed decompile of the
+		-- June original has this exact assignment.
+		slot4 = slot2:GetInt_LUA(0)
+
+		if slot4 > 0 then
 			slot2:StateChangeForce(slot4, true)
 		else
 			slot2:StateChange_LUA("FIRE_DEVIL_IGNIA_BOSS_FINALHALL_ATTACK_C_FIRE", true)
@@ -743,7 +768,19 @@ function FIRE_DEVIL_IGNIA_BOSS_FINALHALL_SPECIALATTACK_A_CHECK_FRAG(slot0, slot1
 end
 
 function CF_FIRE_DEVIL_IGNIA_BOSS_FINALHALL_SPECIAL_ATTACK_B_READY(slot0, slot1, slot2)
-	if slot1:GetInt_LUA(0) <= 0 then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped three
+	-- assignments in this function (the GetInt_LUA(0) read, the pre-loop
+	-- accumulator init, and the per-NPC lookup) and inlined the calls into
+	-- their conditions, including constant-folding the loop accumulator to a
+	-- literal `0 + 1` (so it never accumulated past 1 across iterations). The
+	-- port carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- FIRE_DEVIL_IGNIA_BOSS_FINALHALL.src.lua::CF_FIRE_DEVIL_IGNIA_BOSS_FINALHALL_SPECIAL_ATTACK_B_READY,
+	-- dropped-assignment, seed 9, POISON_READ slot10@L755, static site
+	-- slot5@L760; slot3's restore follows the fixed decompile of the June
+	-- original (its read sits behind slot5 > 3, which no seed reached).
+	slot3 = slot1:GetInt_LUA(0)
+
+	if slot3 <= 0 then
 		return false
 	end
 
@@ -751,9 +788,13 @@ function CF_FIRE_DEVIL_IGNIA_BOSS_FINALHALL_SPECIAL_ATTACK_B_READY(slot0, slot1,
 		return false
 	end
 
+	slot5 = 0
+
 	for slot9 = 0, slot1:GetNPCUnitListSize() - 1 do
-		if slot1:GetNPCUnit(slot9) ~= nil and slot2:GetUID() ~= slot10:GetUID() and slot10:GetClassType() == NPC_CLASS_TYPE.NCT_BASIC and slot10:GetNowStateID() == slot10:GetStateID_LUA("DYING_WAIT") then
-			slot5 = 0 + 1
+		slot10 = slot1:GetNPCUnit(slot9)
+
+		if slot10 ~= nil and slot2:GetUID() ~= slot10:GetUID() and slot10:GetClassType() == NPC_CLASS_TYPE.NCT_BASIC and slot10:GetNowStateID() == slot10:GetStateID_LUA("DYING_WAIT") then
+			slot5 = slot5 + 1
 		end
 	end
 

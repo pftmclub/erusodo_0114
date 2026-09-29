@@ -369,13 +369,27 @@ FIRE_DEVIL_BERSERKER_BOSS_FINALHALL_WALK = {
 }
 
 function FIRE_DEVIL_BERSERKER_BOSS_FINALHALL_ATTACK_C_READY_STATE_END(slot0, slot1, slot2)
-	if slot1:GetEffectSet() ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- FIRE_DEVIL_BERSERKER_BOSS_FINALHALL.src.lua::FIRE_DEVIL_BERSERKER_BOSS_FINALHALL_ATTACK_C_READY_STATE_END,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L373.
+	slot3 = slot1:GetEffectSet()
+
+	if slot3 ~= nil then
 		slot2:SetEffectSet_LUA(0, slot3:PlayEffectSet_LUA("EffectSet_FIRE_DEVIL_BERSERKER_BOSS_AttackC_Fire", slot2))
 	end
 end
 
 function FIRE_DEVIL_BERSERKER_BOSS_FINALHALL_ATTACK_C_END_STATE_START(slot0, slot1, slot2)
-	if slot1:GetEffectSet() ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- FIRE_DEVIL_BERSERKER_BOSS_FINALHALL.src.lua::FIRE_DEVIL_BERSERKER_BOSS_FINALHALL_ATTACK_C_END_STATE_START,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L379.
+	slot3 = slot1:GetEffectSet()
+
+	if slot3 ~= nil then
 		slot3:StopEffectSet_LUA(slot2:GetEffectSet_LUA(0))
 		slot2:ClearEffectSet_LUA(0)
 	end

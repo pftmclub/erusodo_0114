@@ -90,9 +90,21 @@ function EVENT_FINALHALL_BOSS2_START_START(slot0, slot1, slot2)
 end
 
 function EVENT_FINALHALL_BOSS2_START_FRAME_MOVE(slot0, slot1, slot2)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped two
+	-- assignments (the pre-loop counter init and the per-NPC lookup) and
+	-- inlined the calls into the `and` condition; the port carried the bug
+	-- verbatim, including the counter constant-folding to a literal `0 + 1`
+	-- (so it never accumulated past 1 across iterations). Bytecode-confirmed:
+	-- decompile_verdicts.tsv,
+	-- EVENT_FINALHALL_BOSS2.src.lua::EVENT_FINALHALL_BOSS2_START_FRAME_MOVE,
+	-- dropped-assignment, seed 1, static sites slot3@L99, slot9@L94.
+	slot3 = 0
+
 	for slot8 = 0, slot1:GetNPCUnitListSize() - 1 do
-		if slot1:GetNPCUnit(slot8) ~= nil and slot2:GetUID() ~= slot9:GetUID() and slot9:GetClassType() == NPC_CLASS_TYPE.NCT_BASIC and slot2:GetTeam() == slot9:GetTeam() and slot9:GetNowHP() > 0 and slot9:IsUnitID(NPC_UNIT_ID.NUI_EVENT_FINALHALL_BOSS3) == false then
-			slot3 = 0 + 1
+		slot9 = slot1:GetNPCUnit(slot8)
+
+		if slot9 ~= nil and slot2:GetUID() ~= slot9:GetUID() and slot9:GetClassType() == NPC_CLASS_TYPE.NCT_BASIC and slot2:GetTeam() == slot9:GetTeam() and slot9:GetNowHP() > 0 and slot9:IsUnitID(NPC_UNIT_ID.NUI_EVENT_FINALHALL_BOSS3) == false then
+			slot3 = slot3 + 1
 		end
 	end
 
@@ -125,8 +137,17 @@ EVENT_FINALHALL_BOSS2_START = {
 }
 
 function EVENT_FINALHALL_BOSS2_MOVE_FRAME_MOVE(slot0, slot1, slot2)
-	if slot2:AnimEventTimer_LUA(7) and slot1:GetNPCUnitByType(NPC_UNIT_ID.NUI_EVENT_FINALHALL_BOSS3) ~= nil then
-		slot3:StateChange_LUA("EVENT_FINALHALL_BOSS3_DYING", true)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment and inlined the call into the `and` condition; the port
+	-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- EVENT_FINALHALL_BOSS2.src.lua::EVENT_FINALHALL_BOSS2_MOVE_FRAME_MOVE,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L129.
+	if slot2:AnimEventTimer_LUA(7) then
+		slot3 = slot1:GetNPCUnitByType(NPC_UNIT_ID.NUI_EVENT_FINALHALL_BOSS3)
+
+		if slot3 ~= nil then
+			slot3:StateChange_LUA("EVENT_FINALHALL_BOSS3_DYING", true)
+		end
 	end
 end
 

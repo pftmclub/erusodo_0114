@@ -78,8 +78,19 @@ function TRAP_FIRE_BIG_START_STATE_START(slot0, slot1, slot2)
 	slot2:SetTimerRestart(0)
 	slot2:SetInt_LUA(0, 5)
 
-	if slot1:GetEffectSet() ~= nil and slot3:PlayEffectSet_LUA("EffectSet_Trap_Fire_Big", slot2) ~= nil then
-		slot2:SetEffectSet_LUA(0, slot4)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped these
+	-- two assignments and inlined the calls into the `and` condition; the
+	-- port carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- TRAP_FIRE_BIG.src.lua::TRAP_FIRE_BIG_START_STATE_START,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L81, static site slot4@L82.
+	slot3 = slot1:GetEffectSet()
+
+	if slot3 ~= nil then
+		slot4 = slot3:PlayEffectSet_LUA("EffectSet_Trap_Fire_Big", slot2)
+
+		if slot4 ~= nil then
+			slot2:SetEffectSet_LUA(0, slot4)
+		end
 	end
 
 	slot2:SetFlag_LUA(0, true)
@@ -87,13 +98,24 @@ end
 
 function TRAP_FIRE_BIG_START_FRAME_MOVE(slot0, slot1, slot2)
 	if slot2:GetInt_LUA(0) < slot2:GetTimerElapsedTime(0) then
-		if slot1:GetEffectSet() ~= nil then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped
+		-- these two assignments and inlined the calls into their conditions;
+		-- the port carried the bug verbatim. Bytecode-confirmed:
+		-- decompile_verdicts.tsv,
+		-- TRAP_FIRE_BIG.src.lua::TRAP_FIRE_BIG_START_FRAME_MOVE,
+		-- dropped-assignment, seed 1, POISON_READ slot3@L92/L96, static site
+		-- slot4@L97.
+		slot3 = slot1:GetEffectSet()
+
+		if slot3 ~= nil then
 			if slot2:GetFlag_LUA(0) == true then
 				slot3:StopEffectSet_LUA(slot2:GetEffectSet_LUA(0))
 				slot2:ClearEffectSet_LUA(0)
 				slot2:SetFlag_LUA(0, false)
 			else
-				if slot3:PlayEffectSet_LUA("EffectSet_Trap_Fire_Big", slot2) ~= nil then
+				slot4 = slot3:PlayEffectSet_LUA("EffectSet_Trap_Fire_Big", slot2)
+
+				if slot4 ~= nil then
 					slot2:SetEffectSet_LUA(0, slot4)
 				end
 
@@ -122,7 +144,14 @@ TRAP_FIRE_BIG_DYING = {
 }
 
 function TRAP_FIRE_BIG_DYING_STATE_START(slot0, slot1, slot2)
-	if slot1:GetEffectSet() ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- TRAP_FIRE_BIG.src.lua::TRAP_FIRE_BIG_DYING_STATE_START,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L126.
+	slot3 = slot1:GetEffectSet()
+
+	if slot3 ~= nil then
 		slot3:StopEffectSet_LUA(slot2:GetEffectSet_LUA(0))
 		slot2:ClearEffectSet_LUA(0)
 	end
