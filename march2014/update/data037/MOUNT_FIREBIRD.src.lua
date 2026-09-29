@@ -262,8 +262,20 @@ function MOUNT_FIREBIRD_FLY_ATTACK_A_STATE_START(slot0, slot1, slot2)
 end
 
 function MOUNT_FIREBIRD_FLY_ATTACK_A_FRAME_MOVE(slot0, slot1, slot2)
-	if slot2:AnimEventTimer_LUA(slot2:GetVector_LUA(0).x) then
-		if slot1:GetEffectSet() ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment (read again by the .x/.y math and SetVector_LUA below) and
+	-- inlined the call into the condition; the port carried the bug verbatim.
+	-- Bytecode-confirmed: decompile_verdicts.tsv,
+	-- MOUNT_FIREBIRD.src.lua::MOUNT_FIREBIRD_FLY_ATTACK_A_FRAME_MOVE,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L270/@L271/@L273 (128-seed harness).
+	slot3 = slot2:GetVector_LUA(0)
+
+	if slot2:AnimEventTimer_LUA(slot3.x) then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): same class of bug on the
+		-- effect-set lookup (Kenta's BW-4 shape). POISON_READ slot4@L267.
+		slot4 = slot1:GetEffectSet()
+
+		if slot4 ~= nil then
 			slot4:PlayEffectSet_LUA("EffectSet_MOUNT_FIREBIRD_AttackA_Fire", slot2)
 		end
 

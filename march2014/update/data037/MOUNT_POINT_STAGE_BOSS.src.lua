@@ -82,9 +82,22 @@ MOUNT_POINT_STAGE_BOSS_START = {
 }
 
 function CF_MOUNT_POINT_STAGE_BOSS_DYING(slot0, slot1, slot2)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- counter's initializer, then dropped slot9 too (read again by every
+	-- comparison below) and inlined its call into the condition. A third
+	-- effect of the same fold: the increment printed as `slot4 = 0 + 1`
+	-- instead of `slot4 = slot4 + 1`, so the port never actually counted
+	-- past 1. The port carried all three verbatim. Bytecode-confirmed:
+	-- decompile_verdicts.tsv, MOUNT_POINT_STAGE_BOSS.src.lua::
+	-- CF_MOUNT_POINT_STAGE_BOSS_DYING, dropped-assignment, seed 1,
+	-- POISON_READ slot4@L91/slot9@L86 (128-seed harness).
+	slot4 = 0
+
 	for slot8 = 0, slot1:GetNPCUnitListSize() - 1 do
-		if slot1:GetNPCUnit(slot8) ~= nil and slot2:GetUID() ~= slot9:GetUID() and slot9:GetClassType() == NPC_CLASS_TYPE.NCT_BASIC and slot9:IsUnitID(NPC_UNIT_ID.NUI_SAMETEAM_IGNIA) == false and slot9:GetNowHP() > 0 then
-			slot4 = 0 + 1
+		slot9 = slot1:GetNPCUnit(slot8)
+
+		if slot9 ~= nil and slot2:GetUID() ~= slot9:GetUID() and slot9:GetClassType() == NPC_CLASS_TYPE.NCT_BASIC and slot9:IsUnitID(NPC_UNIT_ID.NUI_SAMETEAM_IGNIA) == false and slot9:GetNowHP() > 0 then
+			slot4 = slot4 + 1
 		end
 	end
 

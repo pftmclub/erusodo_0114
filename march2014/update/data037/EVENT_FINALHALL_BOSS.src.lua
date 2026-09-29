@@ -240,7 +240,14 @@ EVENT_FINALHALL_BOSS_DYING = {
 }
 
 function EVENT_FINALHALL_BOSS_DYING_START_START(slot0, slot1, slot2)
-	if slot1:GetNPCUnitByType(NPC_UNIT_ID.NUI_FIRE_DEVIL_SKA) ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- EVENT_FINALHALL_BOSS.src.lua::EVENT_FINALHALL_BOSS_DYING_START_START,
+	-- dropped-assignment, seed 1, POISON_USE slot3 call (128-seed harness).
+	slot3 = slot1:GetNPCUnitByType(NPC_UNIT_ID.NUI_FIRE_DEVIL_SKA)
+
+	if slot3 ~= nil then
 		slot3:StateChange_LUA("FIRE_DEVIL_SKA_START")
 	end
 

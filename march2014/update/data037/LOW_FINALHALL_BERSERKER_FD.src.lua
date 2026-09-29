@@ -870,7 +870,14 @@ LOW_FINALFALL_BERSERKER_FD_DYING = {
 }
 
 function DamageCount(slot0, slot1, slot2)
-	if slot2:GetRandVal() > 75 then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment (read again by the modulo check below) and inlined the call
+	-- into the condition; the port carried the bug verbatim. Bytecode-confirmed:
+	-- decompile_verdicts.tsv, LOW_FINALHALL_BERSERKER_FD.src.lua::DamageCount,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L874 (128-seed harness pass).
+	slot3 = slot2:GetRandVal()
+
+	if slot3 > 75 then
 		if slot3 % 2 == 0 then
 			slot2:StateChange_LUA("LOW_FINALFALL_BERSERKER_FD_ATTACK_A_READY", true)
 		else

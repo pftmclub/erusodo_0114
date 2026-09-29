@@ -820,21 +820,43 @@ DYING_UP = {
 function LOW_FINALHALL_SNIKER_FD_ATTACK_B_READY_JUMP_TO_TARGET(slot0, slot1, slot2)
 	slot3 = slot2:GetPos()
 	slot4 = slot2:GetDirVector()
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment (read again as the method receiver on L826/L827/L829 below)
+	-- and inlined the call into the condition; the port carried the bug
+	-- verbatim. A second effect of the same drop: the old L826 read as
+	-- `slot7:GetPos().y = ...`, mutating a discarded temporary instead of
+	-- assigning slot3, so slot3 silently kept its default (this unit's own
+	-- position, set above) whenever a target was found -- a stale-value
+	-- divergence with no separate unwritten read. Also restructured the
+	-- `elseif slot1:GetHostGameUnit() ~= nil` fallback back into the
+	-- bytecode's own nested if/else, since the elseif form would have called
+	-- GetHostGameUnit() a second time once slot9 needed a real assignment.
+	-- Bytecode-confirmed: decompile_verdicts.tsv, LOW_FINALHALL_SNIKER_FD.src.lua::
+	-- LOW_FINALHALL_SNIKER_FD_ATTACK_B_READY_JUMP_TO_TARGET, dropped-assignment,
+	-- seed 1, POISON_READ slot7@L826/@L827/@L829 and slot9@L833/@L834/@L836
+	-- (128-seed harness pass).
+	slot7 = slot1:GetUserUnit(slot2:GetRandVal() % slot1:GetUserUnitNum_LUA())
 	slot8 = -1
 
-	if slot1:GetUserUnit(slot2:GetRandVal() % slot1:GetUserUnitNum_LUA()) ~= nil then
-		slot7:GetPos().y = slot7:GetLandPosition_LUA().y
+	if slot7 ~= nil then
+		slot3 = slot7:GetPos()
+		slot3.y = slot7:GetLandPosition_LUA().y
 		slot4 = slot7:GetDirVector()
 
 		if slot7:GetIsRight() == true then
 			slot8 = 1
 		end
-	elseif slot1:GetHostGameUnit() ~= nil then
-		slot9:GetPos().y = slot9:GetLandPosition_LUA().y
-		slot4 = slot9:GetDirVector()
+	else
+		slot9 = slot1:GetHostGameUnit()
 
-		if slot9:GetIsRight() == true then
-			slot8 = 1
+		if slot9 ~= nil then
+			slot3 = slot9:GetPos()
+			slot3.y = slot9:GetLandPosition_LUA().y
+			slot4 = slot9:GetDirVector()
+
+			if slot9:GetIsRight() == true then
+				slot8 = 1
+			end
 		end
 	end
 

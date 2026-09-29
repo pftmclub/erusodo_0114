@@ -902,14 +902,29 @@ SECRET_CRUEL_SNIKER_DYING = {
 function SECRET_CRUEL_SNIKER_ATTACK_B_READY_JUMP_TO_TARGET(slot0, slot1, slot2)
 	slot3 = slot2:GetPos()
 	slot4 = slot2:GetDirVector()
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment (read again by GetPos/GetLandPosition_LUA below) and inlined
+	-- the call into the condition; the port carried the bug verbatim.
+	-- Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SECRET_CRUEL_SNIKER.src.lua::SECRET_CRUEL_SNIKER_ATTACK_B_READY_JUMP_TO_TARGET,
+	-- dropped-assignment, seed 1, POISON_READ slot7@L909/@L910 (128-seed harness).
+	slot7 = slot1:GetUserUnit(slot2:GetRandVal() % slot1:GetUserUnitNum_LUA())
 	slot8 = 1
 	slot9 = true
 
-	if slot1:GetUserUnit(slot2:GetRandVal() % slot1:GetUserUnitNum_LUA()) ~= nil then
+	if slot7 ~= nil then
 		slot3 = slot7:GetPos()
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): also restores the dropped
+		-- slot9 assignment -- the port's inline `if ... == true` recomputed
+		-- IsRightTarget_LUA's result but never stored it, so SetIsRight(slot9)
+		-- below always saw the default `true` set above, not the real result.
+		-- Same class of bug, no separate POISON_READ (slot9 already had a
+		-- value): confirmed as a stale-value divergence by the 128-seed
+		-- harness (18 "other" seeds where SetIsRight's outcome mismatched).
+		slot9 = slot2:IsRightTarget_LUA(slot2, slot3)
 		slot3.y = slot7:GetLandPosition_LUA().y
 
-		if slot2:IsRightTarget_LUA(slot2, slot3) == true then
+		if slot9 == true then
 			slot8 = -1
 		end
 	end

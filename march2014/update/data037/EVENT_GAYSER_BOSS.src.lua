@@ -158,7 +158,14 @@ EVENT_GAYSER_BOSS_DYING = {
 }
 
 function EVENT_GAYSER_BOSS_DYING_START_START(slot0, slot1, slot2)
-	if slot1:GetNPCUnitByType(NPC_UNIT_ID.NUI_GEYSER_MULSAYRENA) ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- EVENT_GAYSER_BOSS.src.lua::EVENT_GAYSER_BOSS_DYING_START_START,
+	-- dropped-assignment, seed 1, POISON_USE slot3 call (128-seed harness).
+	slot3 = slot1:GetNPCUnitByType(NPC_UNIT_ID.NUI_GEYSER_MULSAYRENA)
+
+	if slot3 ~= nil then
 		slot3:StateChange_LUA("GEYSER_MULSAYRENA_START")
 	end
 

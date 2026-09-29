@@ -569,6 +569,14 @@ function CF_SMITH_ALUMINUM_ATTACK_B_READY_DASH_END(slot0, slot1, slot2)
 end
 
 function SMITH_ALUMINUM_ATTACK_B_READY_DASH_STATE_START(slot0, slot1, slot2)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment (read again below by GetPos, and by GetLineGroupStartPos'
+	-- comparison further down) and inlined the call into the condition; the
+	-- port carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SMITH_ALUMINUM.src.lua::SMITH_ALUMINUM_ATTACK_B_READY_DASH_STATE_START,
+	-- dropped-assignment, seed 1, POISON_READ slot3@L589/@L590 (128-seed harness).
+	slot3 = slot2:GetTargetUser()
+
 	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): retroactive fix, found during
 	-- Phase 7's method-binding audit -- June2017's fallback to
 	-- slot2:GetStoredGUUser() when there's no current target is omitted --
@@ -583,14 +591,19 @@ function SMITH_ALUMINUM_ATTACK_B_READY_DASH_STATE_START(slot0, slot1, slot2)
 	-- stays nil in the no-target case, so the reorientation block below
 	-- (slot3 ~= nil) is skipped instead of falling back to a stale stored
 	-- target.
-	if slot2:GetTargetUser() == nil then
+	if slot3 == nil then
 	end
 
 	if slot3 ~= nil then
 		slot2:SetIsRight(not slot2:IsRightTarget_LUA(slot2, slot3:GetPos()))
 	end
 
-	if slot2:IsRightTarget_LUA(slot2, slot2:GetLineGroupStartPos()) == slot2:GetIsRight() then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): same class of bug on the
+	-- line-group start position (read again by SetVector_LUA below).
+	-- POISON_READ slot4@L594.
+	slot4 = slot2:GetLineGroupStartPos()
+
+	if slot2:IsRightTarget_LUA(slot2, slot4) == slot2:GetIsRight() then
 		slot2:SetVector_LUA(1, slot4)
 	else
 		slot2:SetVector_LUA(1, slot2:GetLineGroupEndPos())

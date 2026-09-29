@@ -94,7 +94,15 @@ end
 
 function CF_SECRET_STAGE1_CHAIN2_FIRE(slot0, slot1, slot2)
 	for slot7 = 0, slot1:GetUserUnitListSize() do
-		if slot1:GetUserUnit(slot7) ~= nil and slot1:GetDist_LUA(slot1:GetLineMap():GetStartPosition(g_iStartPosIndex_Chain2), slot8:GetLandPosition_LUA()) < g_fAttackDist_Chain1 then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped
+		-- this assignment (read again by GetLandPosition_LUA below) and
+		-- inlined the call into the condition; the port carried the bug
+		-- verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+		-- SECRET_STAGE1_CHAIN2.src.lua::CF_SECRET_STAGE1_CHAIN2_FIRE,
+		-- dropped-assignment, seed 1, POISON_READ slot8 (128-seed harness).
+		slot8 = slot1:GetUserUnit(slot7)
+
+		if slot8 ~= nil and slot1:GetDist_LUA(slot1:GetLineMap():GetStartPosition(g_iStartPosIndex_Chain2), slot8:GetLandPosition_LUA()) < g_fAttackDist_Chain1 then
 			return true
 		end
 	end

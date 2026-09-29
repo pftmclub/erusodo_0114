@@ -456,7 +456,31 @@ end
 function ComputeCOBOExpressTicketCost(slot0, slot1, slot2)
 	slot3 = 6000
 	slot5 = 0
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): MD-1 -- elstools' decompile
+	-- dropped this assignment (read again by the ISEQN/SUBVV bytecode at
+	-- pc 10/22) and kept only the second CheckCOBOExpressTicketMapID call;
+	-- the port carried the bug verbatim. Bytecode-confirmed:
+	-- june2017_re/ljdiff/fixes/MapData.json (MD-1),
+	-- MapData.src.lua::ComputeCOBOExpressTicketCost, dropped-assignment,
+	-- seed 1, POISON_READ (128-seed harness).
+	slot6 = CheckCOBOExpressTicketMapID(slot0)
 	slot7 = CheckCOBOExpressTicketMapID(slot1)
 
-	return slot2 / 60 * (slot3 + slot3 * 0.6 * (((CheckCOBOExpressTicketMapID(slot0) ~= 0 and slot7 ~= 0 or math.abs(slot1 - slot0)) and math.abs(slot7 - slot6)) - 1))
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): MD-S -- a separate, non-dropped-
+	-- write structure defect: ljd printed the bytecode's `if r6 == 0 or
+	-- r7 == 0 then r5 = abs(slot1 - slot0) else r5 = abs(r7 - r6)` as
+	-- `(A and B or C) and D`, which always evaluates to D since C (a number)
+	-- is truthy -- so the abs(slot1-slot0) distance fallback could never be
+	-- reached. The 128-seed harness can't exercise this directly
+	-- (CheckCOBOExpressTicketMapID returns >= 1 for every mapped village, so
+	-- the ==0 branch never runs), but it's confirmed by hand against the
+	-- bytecode -- see june2017_re/ljdiff/fixes/MapData.json (MD-S) and
+	-- RANOX_LUA_DECOMPILE_FIX_PLAN.md's calibration section.
+	if slot6 == 0 or slot7 == 0 then
+		slot5 = math.abs(slot1 - slot0)
+	else
+		slot5 = math.abs(slot7 - slot6)
+	end
+
+	return slot2 / 60 * (slot3 + slot3 * 0.6 * (slot5 - 1))
 end

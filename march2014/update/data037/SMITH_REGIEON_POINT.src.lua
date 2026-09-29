@@ -89,7 +89,16 @@ function SMITH_REGIEON_POINT_SUMMON_FRAME_MOVE(slot0, slot1, slot2)
 		end
 
 		if slot1:GetNPCUnitNumCheckTeam(slot2:GetTeam()) < slot2:GetInt_LUA(5) then
-			if slot1:GetInt_LUA(slot2:GetRandVal() % 3) <= 0 then
+			-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+			-- assignment (read again by GetInt_LUA below, and by ConsumeNPCSummomLimitNum/
+			-- CreateNPCReq_LUA/GetInt_LUA further down when this branch isn't taken) and
+			-- inlined the call into the condition; the port carried the bug verbatim.
+			-- Bytecode-confirmed: decompile_verdicts.tsv,
+			-- SMITH_REGIEON_POINT.src.lua::SMITH_REGIEON_POINT_SUMMON_FRAME_MOVE,
+			-- dropped-assignment, seed 2, POISON_READ slot3@L111 (128-seed harness pass).
+			slot3 = slot2:GetRandVal() % 3
+
+			if slot1:GetInt_LUA(slot3) <= 0 then
 				slot4 = false
 
 				for slot8 = 0, 2 do
@@ -116,17 +125,38 @@ function SMITH_REGIEON_POINT_SUMMON_FRAME_MOVE(slot0, slot1, slot2)
 end
 
 function ConsumeNPCSummomLimitNum(slot0, slot1)
-	if slot0:GetInt_LUA(slot1) - 1 < 0 then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment (read again by SetInt_LUA below) and inlined the call into
+	-- the condition; the port carried the bug verbatim. Bytecode-confirmed:
+	-- decompile_verdicts.tsv, SMITH_REGIEON_POINT.src.lua::ConsumeNPCSummomLimitNum,
+	-- dropped-assignment, seed 2, POISON_READ slot2@L123 (128-seed harness pass).
+	slot2 = slot0:GetInt_LUA(slot1) - 1
+
+	if slot2 < 0 then
 		slot2 = 0
 	end
 
 	slot0:SetInt_LUA(slot1, slot2)
 
-	if slot0:GetInt_LUA(4) - 1 < 0 then
-		slot3 = 0
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): same class of bug on the second
+	-- counter (decompile: another dropped slot3, read again by SetInt_LUA
+	-- below). Also renamed slot3 -> slot9: this file has no `local`, and the
+	-- caller SMITH_REGIEON_POINT_SUMMON_FRAME_MOVE keeps its own slot3 (the
+	-- NPC-slot index picked above the call) alive across this call and
+	-- rereads it afterward. Confirmed by the harness: CLOBBER
+	-- SMITH_REGIEON_POINT_SUMMON_FRAME_MOVE ConsumeNPCSummomLimitNum slot3
+	-- had/unset on several seeds before this rename; 0 after. Per the
+	-- recorded decision (RANOX_LUA_DECOMPILE_FIX_PLAN.md, "the local slotN
+	-- decision"), known clobbers are fixed case by case rather than
+	-- adopting `local`; this rename is the case-by-case fix and stays
+	-- within "no local".
+	slot9 = slot0:GetInt_LUA(4) - 1
+
+	if slot9 < 0 then
+		slot9 = 0
 	end
 
-	slot0:SetInt_LUA(4, slot3)
+	slot0:SetInt_LUA(4, slot9)
 end
 
 SMITH_REGIEON_POINT_DYING = {

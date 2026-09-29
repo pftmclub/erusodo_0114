@@ -274,10 +274,17 @@ function CF_SMITH_CART_DASH_ATTACK_END(slot0, slot1, slot2)
 		return false
 	end
 
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment (read again by the second `slot3 == false` check below) and
+	-- inlined the call into the first condition only; the port carried the
+	-- bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SMITH_CART.src.lua::CF_SMITH_CART_DASH_ATTACK_END, dropped-assignment,
+	-- seed 2, POISON_READ slot3@L284 (128-seed harness).
+	slot3 = slot2:GetIsRight()
 	slot4 = slot2:GetLineGroupStartPos()
 	slot6 = false
 
-	if slot2:GetIsRight() == true and slot2:GetDistanceFrom(slot2:GetLineGroupEndPos()) < 280 then
+	if slot3 == true and slot2:GetDistanceFrom(slot2:GetLineGroupEndPos()) < 280 then
 		slot6 = true
 	end
 

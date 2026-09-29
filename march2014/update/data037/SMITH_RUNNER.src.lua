@@ -817,11 +817,27 @@ function SMITH_RUNNER_REGEN_WAIT_FRAME_MOVE(slot0, slot1, slot2)
 	end
 
 	if slot1:GetInt_LUA(8) > 0 then
-		if slot2:GetKeyCode() < 0 then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped
+		-- this assignment (read again below by the `< 0` check and the
+		-- modulo) and inlined the call into the condition; the port carried
+		-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+		-- SMITH_RUNNER.src.lua::SMITH_RUNNER_REGEN_WAIT_FRAME_MOVE,
+		-- dropped-assignment, seed 2, POISON_READ slot4@L824/@L826/@L828/
+		-- @L830/@L832 (128-seed harness).
+		slot4 = slot2:GetKeyCode()
+
+		if slot4 < 0 then
 			return
 		end
 
-		if slot4 % 5 == 1 then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): same class of bug -- the
+		-- decompile also dropped the modulo reassignment, which the port's
+		-- `if slot4 % 5 == 1` folded into the first branch only, leaving the
+		-- later `elseif slot4 == N` branches compare the raw key code
+		-- instead of the wrapped value.
+		slot4 = slot4 % 5
+
+		if slot4 == 1 then
 			slot2:StateChange_LUA("SMITH_RUNNER_REGEN_START1", true)
 		elseif slot4 == 2 then
 			slot2:StateChange_LUA("SMITH_RUNNER_REGEN_START2", true)
@@ -957,7 +973,15 @@ SMITH_RUNNER_REGEN_START5 = {
 }
 
 function StateChangeByKeycodeRunner(slot0, slot1)
-	if slot1 % 5 == 0 then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment (read again by every elseif branch below) and inlined the
+	-- call into the first branch's condition only; the port carried the bug
+	-- verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SMITH_RUNNER.src.lua::StateChangeByKeycodeRunner, dropped-assignment,
+	-- seed 1, POISON_READ slot2@L962/@L964/@L966/@L968 (128-seed harness).
+	slot2 = slot1 % 5
+
+	if slot2 == 0 then
 		slot0:StateChange_LUA("SMITH_RUNNER_REGEN_START1", true)
 	elseif slot2 == 1 then
 		slot0:StateChange_LUA("SMITH_RUNNER_REGEN_START2", true)

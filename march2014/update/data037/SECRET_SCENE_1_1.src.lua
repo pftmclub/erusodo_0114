@@ -143,12 +143,26 @@ function SECRET_SCENE_1_1_FRAME_MOVE(slot0, slot1, slot2)
 end
 
 function SECRET_SCENE_1_1_START_END_FUNC(slot0, slot1, slot2)
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment (read again by StateChange_LUA below) and inlined the call
+	-- into the condition; the port carried the bug verbatim. Same drop
+	-- happened in the elseif branch, which also merged its `slot3 ~= nil`
+	-- check into an `and` -- restored to the bytecode's own nested if so
+	-- slot3 has somewhere to live. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SECRET_SCENE_1_1.src.lua::SECRET_SCENE_1_1_START_END_FUNC,
+	-- dropped-assignment, seed 4, POISON_READ slot3@L148 (128-seed harness).
 	if slot1:GetNowStageIndex() == 4 then
-		if slot1:GetNPCUnitByType(NPC_UNIT_ID.NUI_SECRET_MAGI_BOSS) ~= nil then
+		slot3 = slot1:GetNPCUnitByType(NPC_UNIT_ID.NUI_SECRET_MAGI_BOSS)
+
+		if slot3 ~= nil then
 			slot3:StateChange_LUA("SECRET_MAGI_WAITSTART_READY", true)
 		end
-	elseif slot1:GetNowStageIndex() == 8 and slot1:GetNPCUnitByType(NPC_UNIT_ID.NUI_SECRET_EXTRA_MAGI_BOSS) ~= nil then
-		slot3:StateChange_LUA("SECRET_MAGI_WAITSTART_READY", true)
+	elseif slot1:GetNowStageIndex() == 8 then
+		slot3 = slot1:GetNPCUnitByType(NPC_UNIT_ID.NUI_SECRET_EXTRA_MAGI_BOSS)
+
+		if slot3 ~= nil then
+			slot3:StateChange_LUA("SECRET_MAGI_WAITSTART_READY", true)
+		end
 	end
 end
 

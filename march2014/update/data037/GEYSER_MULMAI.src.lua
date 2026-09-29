@@ -904,7 +904,15 @@ function GEYSER_MULLMAI_DYING_FRAME_MOVE(slot0, slot1, slot2)
 		slot4 = slot2:GetBonePos_LUA("Bip01")
 		slot4.y = slot4.y + 200
 
-		if slot1:GetMinorParticle():GameUnitCreateSequence_LUA(slot2, "ExclamationMarkNPC", slot4, D3DXVECTOR2(100, 100), D3DXVECTOR2(3, 1)) ~= nil then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped
+		-- this assignment and inlined the call into the condition; the port
+		-- carried the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+		-- GEYSER_MULMAI.src.lua::GEYSER_MULLMAI_DYING_FRAME_MOVE,
+		-- dropped-assignment, seed 1, POISON_USE at the GetBonePos_LUA().y set
+		-- (128-seed harness).
+		slot5 = slot1:GetMinorParticle():GameUnitCreateSequence_LUA(slot2, "ExclamationMarkNPC", slot4, D3DXVECTOR2(100, 100), D3DXVECTOR2(3, 1))
+
+		if slot5 ~= nil then
 			slot5:SetPosition(slot4)
 		end
 	end

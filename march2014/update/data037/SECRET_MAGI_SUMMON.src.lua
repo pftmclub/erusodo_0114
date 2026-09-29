@@ -141,8 +141,20 @@ SECRET_MAGI_SUMMON_SPECIALATTACK_A = {
 }
 
 function SECRET_MAGI_SUMMON_SPECIALATTACK_A_FRAME_MOVE(slot0, slot1, slot2)
-	if slot2:AnimEventTimer_LUA(0.106) and slot1:GetDamageEffect():CreateInstance_LUA(slot2, "DamageEffect_Ranox_Secret_Boss_Magi_Attack_D_Projectile", slot2:GetBonePos_LUA("Bip01"), slot2:GetLandPosition_LUA().y) ~= nil then
-		slot2:SetLockOnNearTarget(slot5)
+	if slot2:AnimEventTimer_LUA(0.106) then
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped
+		-- this assignment (read again by SetLockOnNearTarget below) and
+		-- inlined the call into the condition's second `and` operand; the
+		-- port carried the bug verbatim. Restored to the bytecode's own
+		-- nested if so slot5 has somewhere to live. Bytecode-confirmed:
+		-- decompile_verdicts.tsv,
+		-- SECRET_MAGI_SUMMON.src.lua::SECRET_MAGI_SUMMON_SPECIALATTACK_A_FRAME_MOVE,
+		-- dropped-assignment, seed 1, POISON_READ slot5@L145 (128-seed harness).
+		slot5 = slot1:GetDamageEffect():CreateInstance_LUA(slot2, "DamageEffect_Ranox_Secret_Boss_Magi_Attack_D_Projectile", slot2:GetBonePos_LUA("Bip01"), slot2:GetLandPosition_LUA().y)
+
+		if slot5 ~= nil then
+			slot2:SetLockOnNearTarget(slot5)
+		end
 	end
 end
 

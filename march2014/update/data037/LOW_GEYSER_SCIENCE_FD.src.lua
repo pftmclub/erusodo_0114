@@ -244,7 +244,14 @@ GEYSER_SCIENCE_START = {
 }
 
 function GEYSER_SCIENCE_START_STATE_START(slot0, slot1, slot2)
-	if slot1:GetEffectSet() ~= nil then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment and inlined the call into the condition; the port carried
+	-- the bug verbatim. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- LOW_GEYSER_SCIENCE_FD.src.lua::GEYSER_SCIENCE_START_STATE_START,
+	-- dropped-assignment, seed 1, POISON_USE slot3 call (128-seed harness).
+	slot3 = slot1:GetEffectSet()
+
+	if slot3 ~= nil then
 		slot3:PlayEffectSet_LUA("EffectSet_NUI_GEYSER_SCIENCE_Attack_B", slot2)
 	end
 end

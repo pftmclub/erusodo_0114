@@ -91,7 +91,16 @@ function FIRETEMPLE_REGIEON_POINT_SUMMON_FRAME_MOVE(slot0, slot1, slot2)
 			end
 		elseif slot1:LiveActiveNPCNum() == 0 then
 			for slot9 = 0, slot1:GetUserUnitListSize() - 1 do
-				if slot1:GetUserUnit(slot9) ~= nil then
+				-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile
+				-- dropped this assignment (read again by GetLandPosition_LUA/
+				-- GetRotateDegree below) and inlined the call into the
+				-- condition; the port carried the bug verbatim.
+				-- Bytecode-confirmed: decompile_verdicts.tsv,
+				-- FIRETEMPLE_REGIEON_POINT.src.lua::FIRETEMPLE_REGIEON_POINT_SUMMON_FRAME_MOVE,
+				-- dropped-assignment, seed 17, POISON_READ slot10@L95 (128-seed harness).
+				slot10 = slot1:GetUserUnit(slot9)
+
+				if slot10 ~= nil then
 					slot10:CreateTeleportEffect(slot10:GetLandPosition_LUA(), slot10:GetRotateDegree())
 				end
 			end

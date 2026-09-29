@@ -1408,12 +1408,25 @@ function CF_SMITH_STAIN_DASH_END(slot0, slot1, slot2)
 end
 
 function SMITH_STAIN_COMMON_FRAME_MOVE(slot0, slot1, slot2)
-	if slot2:GetNowStateID() == slot2:GetStateID_LUA("SMITH_STAIN_WAIT") and 20 < slot2:GetTimerElapsedTime(0) and slot2:GetNowHP() / slot2:GetMaxHP() < 80 then
+	-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): elstools' decompile dropped this
+	-- assignment (the Kenta COMMON_FRAMEMOVE HP-ratio shape -- read again by
+	-- both `<= 0.6`/`<= 0.2` checks below) and inlined the call into the
+	-- leading condition. Bytecode-confirmed: decompile_verdicts.tsv,
+	-- SMITH_STAIN.src.lua::SMITH_STAIN_COMMON_FRAME_MOVE, dropped-assignment,
+	-- fatal POISON_READ slot3@L1430/@L1435 (128-seed harness).
+	slot3 = slot2:GetNowHP() / slot2:GetMaxHP()
+
+	if slot2:GetNowStateID() == slot2:GetStateID_LUA("SMITH_STAIN_WAIT") and 20 < slot2:GetTimerElapsedTime(0) and slot3 < 80 then
 		slot2:SetTimerRestart(0)
 
 		slot5 = slot2:GetPos()
+		-- SERV_IRUHADEV_RANOX_PORT (2026-09-29): same class of bug on both
+		-- line-group positions (read again by SetVector_LUA/IsRightTarget_LUA
+		-- below). POISON_READ slot6@L1417/@L1418, slot7@L1420/@L1421.
+		slot6 = slot2:GetLineGroupStartPos()
+		slot7 = slot2:GetLineGroupEndPos()
 
-		if slot1:GetDist_LUA(slot5, slot2:GetLineGroupEndPos()) < slot1:GetDist_LUA(slot5, slot2:GetLineGroupStartPos()) then
+		if slot1:GetDist_LUA(slot5, slot7) < slot1:GetDist_LUA(slot5, slot6) then
 			slot2:SetVector_LUA(0, slot6)
 			slot2:SetIsRight(slot2:IsRightTarget_LUA(slot2, slot6))
 		else
