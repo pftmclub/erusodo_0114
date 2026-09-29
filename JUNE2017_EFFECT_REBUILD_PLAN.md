@@ -2870,7 +2870,8 @@ reports 0 unclassified DamageData keys. Update the matrix and MODS.md.
 - **`SetDamageExceptionProcess`.** `vtslot.py` resolved slot `0x2b8` for every class. The base
   `322990e0` and `CX2GUUser` `32045340` are compared: the `fPowerRate` multiplies equal March's, and
   every June addition sits in an absent system (`AT_COMMAND`, applied skill ID) or is unidentified.
-  The nine per-class overrides are `candidate` rows in `funcmap.tsv`, still to compare.
+  The NPC override `32759f30` is the base plus the master's skill-memo hook. The eight other
+  per-class overrides are `candidate` rows in `funcmap.tsv`, still to compare.
 
 **Paste with:** Starting context + this section.
 

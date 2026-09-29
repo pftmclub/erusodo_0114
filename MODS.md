@@ -2413,9 +2413,12 @@ yet.**
   - three per-hit tags with no known reader;
   - an attack-type gate (`+0x4108`) on Raven's damage-type change, whose writer is not identified;
   - one unidentified call.
-- **Still to compare:** the nine per-class overrides (`funcmap.tsv`, rows marked `candidate`).
-  Four have March counterparts: Add, Elesis, Lire, Arme. Five are June-only overrides: NPC, Eve,
-  Chung, Raven, Elsword.
+- **NPC `32759f30`** (June-only; March NPCs inherit the base): the base, then the master unit's
+  skill-memo hook (vtable `0x758`), only for an NPC with a live master. On March data a monster hit
+  is exactly March's base.
+- **Still to compare:** eight per-class overrides (`funcmap.tsv`, rows marked `candidate`). Four
+  have March counterparts: Add, Elesis, Lire, Arme. Four are June-only overrides: Eve, Chung,
+  Raven, Elsword.
 
 ### Dryad Kenta (Burned Forest boss): "jumps off the map, never comes back" softlock
 
