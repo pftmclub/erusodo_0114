@@ -16,6 +16,33 @@ static const CKTDGStateManager::KState s_akStates[] =
 };//s_akStates[]
 //}} robobeg : 2008-10-13
 
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+// JUNE_FX unsupported <KEY> in <templet>: <why>. Plan rule 5's line for a June templet key whose
+// system this build lacks. CX2OfflineLog lives in X2Lib, which KTDXLIB cannot reach, so the line goes
+// to ErrorLog.txt through the engine's own KLOG stream (plan rule 4's ErrorLogMsg fallback).
+static void JuneMeshPlayerLogUnsupported( const std::wstring& wstrTempletName_, const char* pszKey_, const char* pszWhy_ )
+{
+	std::string strTempletName;
+	ConvertWCHARToChar( strTempletName, wstrTempletName_.c_str() );
+	KLOG( "ErrorLog.txt" ) << "JUNE_FX unsupported " << pszKey_ << " in " << strTempletName.c_str() << ": " << pszWhy_ << fileout;
+}
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+// JUNE_FX MP_CRASH <templet> <path> t=<time> notCheck=<fNotCheckLandTime> y=<m_vPos.y> land=<m_fLandPosition>:
+// one line per CrashLand death in PlayProcess. June's PlayProcess (FUN_31c82f00) runs the same crash test
+// as March, so this settles RANOX_EFFECT_RUNTIME_UNKNOWNS 4.1 in play from the data side: whether a
+// gravity-arced projectile (MAG_CHARGER_Attack_A) reaches the ground before its target. ErrorLog.txt, as above.
+static void JuneMeshPlayerLogCrash( const std::wstring& wstrTempletName_, const char* pszPath_, float fTime_,
+	float fNotCheckLandTime_, float fPosY_, float fLandPosition_ )
+{
+	std::string strTempletName;
+	ConvertWCHARToChar( strTempletName, wstrTempletName_.c_str() );
+	char szLine[512] = { 0, };
+	_snprintf_s( szLine, _countof( szLine ), _TRUNCATE, "JUNE_FX MP_CRASH %s %s t=%.3f notCheck=%.3f y=%.1f land=%.1f",
+		strTempletName.c_str(), pszPath_, fTime_, fNotCheckLandTime_, fPosY_, fLandPosition_ );
+	KLOG( "ErrorLog.txt" ) << szLine << fileout;
+}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 
 CKTDGXMeshPlayer::CKTDGXMeshPlayer(
 #ifdef  X2OPTIMIZE_HANDLE_VALIDITY_CHECK
@@ -1008,6 +1035,21 @@ bool CKTDGXMeshPlayer::ProcessTempletBlock(	XMeshTemplet &templet,
 #ifdef ADD_ALPHATESTENABLE
 					else if ( savedtoken.IsAlphatest())		{ templet.bAlphaTestEnable	= bValue; }
 #endif //ADD_ALPHATESTENABLE
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+					// June2017 ProcessTempletBlock FUN_31c8ae10 bool branch @31c8b960-31c8ba7f (templet +0x14a / +0x1be / +0x1b4 / +0x1b5)
+					else if ( savedtoken.IsPostEffect() )
+					{
+						templet.bPostEffect = bValue;
+						// June's only reader is the post-effect predicate (CXMeshInstance vtable slot 11, FUN_31c83500),
+						// consumed only by the DG manager's post-effect pass (FUN_31cd7810 mode 1). March has no such
+						// pass. FALSE is the default and changes nothing, so only TRUE is reported.
+						if( true == bValue )
+							JuneMeshPlayerLogUnsupported( templet.templetName, "POSTEFFECT", "post-effect render pass absent (June FUN_31cd7810 mode 1)" );
+					}
+					else if ( savedtoken.IsAlphaBlend() )			{ templet.bAlphaBlend			= bValue; }
+					else if ( savedtoken.IsSlashTraceNotCull() )	{ templet.bSlashTraceNotCull	= bValue; }
+					else if ( savedtoken.IsWireFrame() )			{ templet.bWireFrame			= bValue; }
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 					else 
 					{
 						throw("Unknown sequence bool property!");
@@ -1250,6 +1292,11 @@ CKTDGXMeshPlayer::CXMeshInstance::CXMeshInstance( CKTDGXMeshPlayer* pMeshPlayer,
 	m_pMeshPlayer			= pMeshPlayer;
 	m_pOrgTemplet			= pTemplet;
 	m_TempletData			= *m_pOrgTemplet;
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+	// June2017 CXMeshInstance ctor FUN_31c8d140 @31c8d2f6: m_bAlphaObject = templet ALPHABLEND, right after the
+	// templet copy (its default, true, is the SetAlphaObject( true ) above).
+	SetAlphaObject( m_TempletData.bAlphaBlend );
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 
 	m_bUseDXMatrix			= false;
 
@@ -1414,6 +1461,10 @@ CKTDGXMeshPlayer::CXMeshInstance::CXMeshInstance( CKTDGXMeshPlayer* pMeshPlayer,
 			//pRenderParam->fLightFlowImpact		= m_fLightFlowImpact;
 			//pRenderParam->lightFlowPoint		= m_LightFlowPoint;
 			//pRenderParam->bAlphaBlend			= IsAlphaObject();
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+			// June2017 FUN_31c8d140 @31c8dcbd: the skin anim's render param takes templet ALPHABLEND
+			pRenderParam->bAlphaBlend			= m_TempletData.bAlphaBlend;
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 			pRenderParam->bZWriteEnable			= m_TempletData.bZWriteEnable;
 			pRenderParam->bZEnable				= m_TempletData.bZEnable;
 			pRenderParam->cullMode				= m_TempletData.cullMode;
@@ -1498,6 +1549,11 @@ CKTDGXMeshPlayer::CXMeshInstance::CXMeshInstance( CKTDGXMeshPlayer* pMeshPlayer,
 				m_pSlashTrace->SetLayer( GetLayer() );
 				m_pSlashTrace->SetCurveType( pTemplet->slashTraceCurveType );
 				g_pKTDXApp->GetDGManager()->AddObjectChain( m_pSlashTrace );
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+				// June2017 FUN_31c8d140 @31c8df76: SLASH_TRACE_NOT_CULL -> CKTDGObject +0x17c, which June's sort loop
+				// (FUN_31ceb5f0 @31ceb6b7) tests before the frustum call; March's equivalent is m_bForceNotCull.
+				m_pSlashTrace->SetIsForceNotCull( pTemplet->bSlashTraceNotCull );
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 			}
 
 
@@ -1519,6 +1575,10 @@ CKTDGXMeshPlayer::CXMeshInstance::CXMeshInstance( CKTDGXMeshPlayer* pMeshPlayer,
 				m_pSlashTraceTip->SetLayer( GetLayer() );
 				m_pSlashTraceTip->SetCurveType( pTemplet->slashTraceCurveType );
 				g_pKTDXApp->GetDGManager()->AddObjectChain( m_pSlashTraceTip );
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+				// June2017 FUN_31c8d140 @31c8e09c: the same for the tip trace
+				m_pSlashTraceTip->SetIsForceNotCull( pTemplet->bSlashTraceNotCull );
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 			}
 
 		}
@@ -2016,7 +2076,12 @@ HRESULT CKTDGXMeshPlayer::CXMeshInstance::OnFrameMove( double fTime, float fElap
 		pParam->fLightFlowWide		= m_fLightFlowWide;
 		pParam->fLightFlowImpact	= m_fLightFlowImpact;
 		pParam->lightFlowPoint		= m_LightFlowPoint;
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+		// June2017 CXMeshInstance::OnFrameMove FUN_31c87b80 @31c88cc4: templet ALPHABLEND, not IsAlphaObject()
+		pParam->bAlphaBlend			= m_TempletData.bAlphaBlend;
+#else SERV_IRUHADEV_JUNE_MESHPLAYER
 		pParam->bAlphaBlend			= IsAlphaObject();
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 		pParam->bZWriteEnable		= m_TempletData.bZWriteEnable;
 		pParam->bZEnable			= m_TempletData.bZEnable;
 		pParam->cullMode			= m_TempletData.cullMode;
@@ -2195,6 +2260,9 @@ void CKTDGXMeshPlayer::CXMeshInstance::PlayProcess()
 						m_fAniTime > m_TempletData.fNotCheckLandTime && 
 						m_vPos.y <= m_fLandPosition )
 					{
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+						JuneMeshPlayerLogCrash( m_TempletData.templetName, "LT_PLAY_COUNT/X_MESH", m_fAniTime, m_TempletData.fNotCheckLandTime, m_vPos.y, m_fLandPosition );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 						m_NowPlayCount = m_MaxPlayCount;
 #ifdef RAVEN_WEAPON_TAKER
 						m_State = IS_DYING_BY_CRASH;
@@ -2222,6 +2290,9 @@ void CKTDGXMeshPlayer::CXMeshInstance::PlayProcess()
 						m_fAniTime > m_TempletData.fNotCheckLandTime &&
 						m_vPos.y <= m_fLandPosition )
 					{
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+						JuneMeshPlayerLogCrash( m_TempletData.templetName, "LT_PLAY_COUNT/X_SKIN_MESH", m_fAniTime, m_TempletData.fNotCheckLandTime, m_vPos.y, m_fLandPosition );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 						m_NowPlayCount = m_MaxPlayCount;
 #ifdef RAVEN_WEAPON_TAKER
 						m_State = IS_DYING_BY_CRASH;
@@ -2249,6 +2320,9 @@ void CKTDGXMeshPlayer::CXMeshInstance::PlayProcess()
 					m_NowLifeTime > m_TempletData.fNotCheckLandTime &&
 					m_vPos.y <= m_fLandPosition )
 				{
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+					JuneMeshPlayerLogCrash( m_TempletData.templetName, "LT_TIME", m_NowLifeTime, m_TempletData.fNotCheckLandTime, m_vPos.y, m_fLandPosition );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 					m_NowLifeTime = m_MaxLifeTime;
 #ifdef RAVEN_WEAPON_TAKER
 					m_State = IS_DYING_BY_CRASH;
@@ -2371,6 +2445,14 @@ void    CKTDGXMeshPlayer::CXMeshInstance::OnFrameRender_Draw()
 		CKTDGObject::OT_EFFECT_MADE_BY_GAME_UNIT == GetObjectType() )
 		return;
 #endif //NOT_RENDER_EFFECT_MADE_BY_GAME_UNIT
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+	// June2017 OnFrameRender_Draw FUN_31c839c0 @31c839ed-31c83a16: WIREFRAME draws both mesh paths in
+	// D3DFILL_WIREFRAME, and the fill mode cached before it is restored after them (@31c83d4b-31c83d71) --
+	// the previous value, not SOLID. Set after the early return above, as June orders it.
+	const DWORD dwJuneFillModeBefore = CKTDGStateManager::GetRenderState( D3DRS_FILLMODE );
+	if( true == m_TempletData.bWireFrame )
+		CKTDGStateManager::SetRenderState( D3DRS_FILLMODE, D3DFILL_WIREFRAME );
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 
 	if( m_TempletData.meshType == X_SKIN_MESH && m_pXSkinAnim != NULL && m_DrawCount > 0 )
 	{
@@ -2400,7 +2482,12 @@ void    CKTDGXMeshPlayer::CXMeshInstance::OnFrameRender_Draw()
 		renderParam.fLightFlowWide		= m_fLightFlowWide;
 		renderParam.fLightFlowImpact	= m_fLightFlowImpact;
 		renderParam.lightFlowPoint		= m_LightFlowPoint;
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+		// June2017 FUN_31c839c0 @31c83cf9/31c83d17: renderParam.bAlphaBlend = templet ALPHABLEND, not IsAlphaObject()
+		renderParam.bAlphaBlend			= m_TempletData.bAlphaBlend;
+#else SERV_IRUHADEV_JUNE_MESHPLAYER
 		renderParam.bAlphaBlend			= IsAlphaObject();
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 		renderParam.bZWriteEnable		= m_TempletData.bZWriteEnable;
 		renderParam.bZEnable			= m_TempletData.bZEnable;
 		renderParam.cullMode			= m_TempletData.cullMode;
@@ -2432,6 +2519,10 @@ void    CKTDGXMeshPlayer::CXMeshInstance::OnFrameRender_Draw()
 
         g_pKTDXApp->GetDGManager()->GetXRenderer()->OnFrameRender( renderParam, mWorld, *m_pXMesh, m_pChangeTexXET, m_pMultiTexXET, m_pAniData, m_fAniTime, m_DrawCount );
 	}
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+	if( true == m_TempletData.bWireFrame )
+		CKTDGStateManager::SetRenderState( D3DRS_FILLMODE, dwJuneFillModeBefore );
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 
 #ifdef SHOW_ATTACK_BOX_DUMMY
 	if( true == m_bShowAttackBox )
@@ -4345,6 +4436,13 @@ void CKTDGXMeshPlayer::CXMeshPlayerTokenizer::DetermineTokenType( CXMeshPlayerTo
 #ifdef ADD_ALPHATESTENABLE
 		|| token.m_strValue.compare("ALPHATEST")	== 0
 #endif //ADD_ALPHATESTENABLE
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+		// June2017 DetermineTokenType FUN_31c85840: SeqBoolProp also takes these four
+		|| token.m_strValue.compare("POSTEFFECT")			== 0
+		|| token.m_strValue.compare("ALPHABLEND")			== 0
+		|| token.m_strValue.compare("SLASH_TRACE_NOT_CULL")	== 0
+		|| token.m_strValue.compare("WIREFRAME")			== 0
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 		)
 	{ 
 		token.m_Type = SeqBoolProp; return; 

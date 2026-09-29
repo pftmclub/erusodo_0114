@@ -144,6 +144,45 @@ nothing"* exactly, without requiring anything to be wrong with the hitbox at all
 Use a bare-identifier search, not a quoted-literal search (§3's lesson and
 `RANOX_EFFECT_ENGINE_GAPS.md` §1's).
 
+**Answered (Phase 10, 2026-09-29): June's land and crash semantics are March's. They do not explain
+the miss.**
+
+- **Every §4.1 key already had a March parse site**, with the same semantics as June's. June's
+  parser is `ProcessTempletBlock` `31c8ae10`, not either Phase 0 candidate. Its tokenizer is
+  `31c85840`, and its keywords are plaintext.
+  - Pairs are stored whole (`ELASTICCOEFF_X = random(a, b)` stays a range).
+  - `LAYER`, `SLASH_TRACE_*` and `NOT_CHECK_LAND_TIME` take `m_Max`.
+  - `PLAYCOUNT` and `DRAWCOUNT` are truncated to int.
+  - Evidence: `31c8b3d9-31c8b5de`, against March `KTDGXMeshPlayer.cpp:903-916`.
+- **The runtime is identical, branch for branch** (x87 polarity and constants checked; rows in
+  `june2017_re/funcmap.tsv`):
+  - **Land block** `31c8842f-31c8861b` = March `:1851-1904`:
+    - `UseLand` and lifetime > `NOT_CHECK_LAND_TIME` clamp `y` to the land height.
+    - `CrashLand == false` bounces, with a ±50 dead zone (`3344a528`/`33449120`) and a ±10
+      `ElasticCoeff_X` dead zone (`3344a520`/`3344a51c`).
+  - **Crash deaths**: `PlayProcess` `31c82f00` = March `:2186-2263`:
+    - `CrashLand` and time > `NOT_CHECK_LAND_TIME` and `y <= land` set `IS_DYING_BY_CRASH` (`m_State = 2`).
+    - This holds for `LT_TIME` and for both `LT_PLAY_COUNT` mesh types.
+- **`MAG_CHARGER_Attack_A`'s templet is identical in both builds** (whitespace-normalised):
+  `Velocity XYZ(500, 1200, 0)`, `Gravity XYZ(0, -2000, 0)`, `NOT_CHECK_LAND_TIME 0.3`,
+  `UseLand`/`CrashLand TRUE`.
+  - It rises for 0.6 s and is back at launch height at 1.2 s, about 600 units out.
+  - It then dies on the ground in **both** engines.
+  - Whether the target is inside that arc is a question of data and land height, not of the port.
+- **What Phase 10 did find:** four templet keys June reads and March's tokenizer rejected
+  (`POSTEFFECT`, `ALPHABLEND`, `SLASH_TRACE_NOT_CULL`, `WIREFRAME`).
+  - A rejected key throws, and the rest of that `.txt` file is never loaded.
+  - None of the four is in the merged Ranox templets or the live March data, so none of them is
+    this bug.
+  - They are ported under `SERV_IRUHADEV_JUNE_MESHPLAYER`; see `MODS.md`.
+- **Play-test hook.** Under `SERV_IRUHADEV_JUNE_FX_DEBUG`, every CrashLand death writes
+  `JUNE_FX MP_CRASH <templet> <path> t= notCheck= y= land=` to `ErrorLog.txt`. KTDXLIB cannot reach
+  `offline_server.log`.
+  - Read it next to Phase 9's `JUNE_FX HIT … TEST` lines.
+  - An `MP_CRASH MAG_CHARGER_Attack_A` shortly before the target is reached means the fireball
+    lands short.
+  - A `TEST` line with the sphere on the target and no `COLLIDE` means the hit test misses.
+
 ### 4.2 `CollisionDataCheck` / `CheckCollisionGuard` bodies — never read
 
 > **Answered (Phase 9, 2026-09-29): no `m_Name` filter in either engine.**

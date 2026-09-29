@@ -282,7 +282,7 @@ authoritative, with 46 rows of evidence; this table only summarises it.
 | `31f85910` | **`CEffect::AttackResult`**, not OnFrameMove: called at the end of EffectToUnit `3262b6e0` | confirmed (Phase 7d) |
 | `31f6f600` | `CEffect::DamageReact` (March's line for line) | confirmed (Phase 7d) |
 | `31f83aa0` | `CEffect::OnFrameMove_LockOnData` | confirmed (Phase 7a) |
-| `31c895d0`, `31c8d140` | KTDGXMeshPlayer templet parse? | **candidate** (`__FILEW__` xref only) |
+| `31c8ae10` | KTDGXMeshPlayer `ProcessTempletBlock` (the `.txt` templet parser; tokenizer `31c85840`, events `31c85350`). Neither Phase 0 candidate: `31c8d140` is the `CXMeshInstance` ctor, `31c895d0` is probably `ChangeXSkinMesh` | confirmed (Phase 10) |
 | `31fbe4a0` | — | **not ours**: its strings are UI-guide keys. Excluded |
 
 Because CEffect's only virtual is the destructor, its runtime methods cannot be found
@@ -2953,6 +2953,36 @@ play-test (JUNE_FX HIT lines). Update the matrix and MODS.md.
 ---
 
 ## Phase 10 — KTDGXMeshPlayer templet keys
+
+**Status: built and deployed 2026-09-29 (`SERV_IRUHADEV_JUNE_MESHPLAYER`); play-test pending. It can
+share one play-test with Phase 9.**
+- **Found.** The parser is `ProcessTempletBlock` `31c8ae10`, neither candidate.
+  - `31c8d140` is the `CXMeshInstance` ctor.
+  - `31c895d0` has the shape of `ChangeXSkinMesh`; it stays a candidate.
+  - The chain is Compile `31c8cd30` → `31c8bf00` → `31c8ae10`, with the tokenizer `31c85840` and
+    the event factory `31c85350`.
+  - Keywords are plaintext.
+- **Census.** `census.py --meshplayer` (and every full run, as a matrix section) reports **0
+  to-implement**, 1 unsupported, 64 implemented. A negative control (the March side run over the
+  pre-phase source) reports exactly the four keys below.
+- **June-only keys**, all bools in the tokenizer's `SeqBoolProp` list. March's tokenizer threw on
+  each one and the rest of the `.txt` file was never loaded.
+  - `ALPHABLEND` (default **true**): `SetAlphaObject()` and all three render params' `bAlphaBlend`,
+    in place of `IsAlphaObject()`.
+  - `WIREFRAME`: draws in `D3DFILL_WIREFRAME`, then restores the previous fill mode.
+  - `SLASH_TRACE_NOT_CULL`: both slash traces skip frustum culling, via the Ranox `m_bForceNotCull`.
+  - `POSTEFFECT`: unsupported. June's DG manager has a post-effect render pass (`31cd7810` mode 1)
+    and March has none.
+- **§4.1 answered:** land and crash semantics are identical (`31c8842f`, `31c82f00`), and so is the
+  Mag Charger templet. See `RANOX_EFFECT_RUNTIME_UNKNOWNS.md`.
+- **Phase 7e handoff, identified, not transcribed** (`funcmap.tsv`). It is `X2DamageEffect`
+  runtime, outside this phase's exit.
+  - `mesh+0x478` is the existing `m_Gravity`.
+  - `mesh+0x54c` is a June-only per-frame copy of `m_vVelocity`.
+  - So the touch-land gate is `m_Gravity.y < 0 && m_vVelocityBefore.y < 0 && m_vVelocity.y > 0`,
+    a bounce off land.
+- **Follow-up for adoption, not done:** June's *particle* tokenizer (`31cf2250`) also has
+  `POSTEFFECT` and `WIREFRAME`. March's particle parser would throw on them.
 
 **Paste with:** Starting context + this section.
 

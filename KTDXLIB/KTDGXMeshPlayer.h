@@ -206,6 +206,13 @@ public:
 #ifdef ADD_ALPHATESTENABLE
 				bool IsAlphatest(void)		{ return( m_strValue.compare( "ALPHATEST" ) == 0 ); }
 #endif //ADD_ALPHATESTENABLE
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+				// June2017 FUN_31c85840 (DetermineTokenType) SeqBoolProp keys; Is*() helpers 31cfef90 / 31c90180 / 31c901a0 / 31cfedb0
+				bool IsPostEffect(void)			{ return( m_strValue.compare( "POSTEFFECT" ) == 0 ); }
+				bool IsAlphaBlend(void)			{ return( m_strValue.compare( "ALPHABLEND" ) == 0 ); }
+				bool IsSlashTraceNotCull(void)	{ return( m_strValue.compare( "SLASH_TRACE_NOT_CULL" ) == 0 ); }
+				bool IsWireFrame(void)			{ return( m_strValue.compare( "WIREFRAME" ) == 0 ); }
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 		};
 
 		class CXMeshInstance;
@@ -827,6 +834,13 @@ public:
 #ifdef ADD_ALPHATESTENABLE
 			bool	bAlphaTestEnable;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+			// June2017 templet keys read by ProcessTempletBlock FUN_31c8ae10 (June templet +0x14a / +0x1be / +0x1b4 / +0x1b5)
+			bool	bPostEffect;			// POSTEFFECT: stored only, June's post-effect render pass is absent (plan rule 5)
+			bool	bAlphaBlend;			// ALPHABLEND: SetAlphaObject() and the render param's bAlphaBlend
+			bool	bSlashTraceNotCull;		// SLASH_TRACE_NOT_CULL: the slash traces skip frustum culling
+			bool	bWireFrame;				// WIREFRAME: draw in D3DFILL_WIREFRAME
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 
 			XMeshTemplet()
 			{
@@ -889,6 +903,13 @@ public:
 #ifdef ADD_ALPHATESTENABLE
 				bAlphaTestEnable	= false;
 #endif //ADD_ALPHATESTENABLE
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+				// June2017 XMeshTemplet ctor FUN_31c907e0 @31c90b19-31c90b5a: ALPHABLEND defaults to TRUE, the other three to false
+				bPostEffect			= false;
+				bAlphaBlend			= true;
+				bSlashTraceNotCull	= false;
+				bWireFrame			= false;
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 			}
 			~XMeshTemplet()
 			{
@@ -978,6 +999,12 @@ public:
 #ifdef ADD_ALPHATESTENABLE
 				if( bAlphaTestEnable		!= rhs_.bAlphaTestEnable ) return false;
 #endif //ADD_ALPHATESTENABLE
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+				if( bPostEffect			!= rhs_.bPostEffect ) return false;
+				if( bAlphaBlend			!= rhs_.bAlphaBlend ) return false;
+				if( bSlashTraceNotCull	!= rhs_.bSlashTraceNotCull ) return false;
+				if( bWireFrame			!= rhs_.bWireFrame ) return false;
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 
 
 
@@ -1071,6 +1098,13 @@ public:
 #ifdef ADD_ALPHATESTENABLE
 				bAlphaTestEnable	= templet.bAlphaTestEnable;
 #endif //ADD_ALPHATESTENABLE
+#ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
+				// June2017 XMeshTemplet::operator= FUN_31c90b80 @31c90de8-31c90eb5
+				bPostEffect			= templet.bPostEffect;
+				bAlphaBlend			= templet.bAlphaBlend;
+				bSlashTraceNotCull	= templet.bSlashTraceNotCull;
+				bWireFrame			= templet.bWireFrame;
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
 
 				return *this;
 			}

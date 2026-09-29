@@ -464,6 +464,27 @@ on `32632390`, but works on `32630d20`, `32630910` and `326309f0`.
   back to the default. A missing enum *table* errors in the chunk itself, and a missing *member* is a
   silent nil. See the plan's Phase 8c section.
 
+**Phase 10: the MeshPlayer mode (`census.py --meshplayer`).** It runs about a minute, and every full
+run appends it to the matrix as its own section. Its model is in the comment above `mp_census`.
+- **The `.txt` keywords are plaintext.** Only Lua keys are XOR-encrypted.
+- **June side.** Each keyword's plaintext address is found by a raw byte search, then Ghidra
+  `xrefs_to` finds the function that uses it. That found:
+  - the tokenizer `31c85840`, from `POSTEFFECT` et al.;
+  - `ProcessTempletBlock` `31c8ae10`, from `"Unknown sequence bool property!"`;
+  - `Compile` `31c8cd30`, from `"First word must be XMeshPlayer"`.
+- **Each `Is*()` helper pushes exactly one keyword.** So the census reads June's dispatch set as
+  "helpers `31c8ae10` calls" → "the string each pushes", with no hand list.
+- **March side.** `KTDGXMeshPlayer.cpp` under **KTDXLIB's** `/I` list and defines, not X2Lib's.
+- **Negative control.** Run the March side over `git show HEAD:` of the pre-change `.cpp`, saved as
+  a probe TU in `KTDXLIB/` and deleted afterwards. It must report exactly the keys the phase added.
+- **Mapping templet offsets to instance offsets.** The instance ctor copies the templet to
+  `m_TempletData` at instance `+0x1b4`. That was pinned by `SetLayer`/`SetForceLayer` reading
+  templet `+0x1c`/`+0x20` back at `+0x1d0`/`+0x1d4`. A new templet field at `+X` is therefore read
+  at instance `+0x1b4+X`, and a displacement scan for that finds every runtime reader.
+- **A June-only object flag can be read by the caller, not the callee.** `CKTDGObject +0x17c`
+  (not-cull) is never read in `IsInFrustum`, but the DG manager's sort loop `31ceb5f0` tests it
+  before calling it. Scan for the displacement before concluding a flag is dead.
+
 **Phase 1 corrections to Phase 0's `reconcile.py`.** `reconcile.md` changed only in the
 `<CEffect top level>` scope, plus two explanations:
 

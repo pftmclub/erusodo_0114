@@ -2420,6 +2420,80 @@ yet.**
   have March counterparts: Add, Elesis, Lire, Arme. Four are June-only overrides: Eve, Chung,
   Raven, Elsword.
 
+### June2017 effect engine: XMeshPlayer `.txt` templet keys (Phase 10)
+
+Phase 10 of `JUNE2017_EFFECT_REBUILD_PLAN.md`. New flag **`SERV_IRUHADEV_JUNE_MESHPLAYER`**
+(`KTDXLIB/Always.h`; `#error` without `SERV_IRUHADEV_RANOX_FORCE_NOT_CULL`, whose member it uses).
+Files: `KTDXLIB/KTDGXMeshPlayer.h` and `KTDXLIB/KTDGXMeshPlayer.cpp`.
+
+**June's parser**, all in `june2017_re/funcmap.tsv`:
+- `ProcessTempletBlock` `31c8ae10`, with the tokenizer `DetermineTokenType` `31c85840` and
+  `EventFactory` `31c85350`.
+- Its keywords are plaintext.
+- Against March it adds exactly four bool templet keys and nothing else. Every §4.1 key
+  (`UseLand`, `CrashLand`, `Gravity`, `ElasticCoeff[_X]`, `NOT_CHECK_LAND_TIME`, `LifeType`,
+  `LightPos`, `DrawCount`) was already parsed, with June's semantics.
+
+**Why it matters more than a Lua key.** March's tokenizer has no entry for these four. It throws
+`Unexpected "..." in Sequence Block!` (a MessageBox), and **the rest of that `.txt` file is never
+loaded**. June's own `GameMajorXMeshPlayer*.txt` use `ALPHABLEND` 25 times and
+`SLASH_TRACE_NOT_CULL` 14 times. March's live copies and the merged Ranox templets use none, so
+nothing loaded today changes unless it sets one of the keys.
+
+| Key | Default | What it does now | June source |
+|---|---|---|---|
+| `ALPHABLEND` | **TRUE** | The ctor calls `SetAlphaObject( bAlphaBlend )` after the templet copy. All three render params (skin ctor, `OnFrameMove`, X_MESH `Draw`) take `bAlphaBlend = m_TempletData.bAlphaBlend` in place of `IsAlphaObject()` (the skin ctor's line was commented out in March). | ctor `31c8d140 @31c8d2f6/@31c8dcbd`, OnFrameMove `31c87b80 @31c88cc4`, Draw `31c839c0 @31c83cf9`; default `31c907e0 @31c90b5a` |
+| `WIREFRAME` | false | `OnFrameRender_Draw` sets `D3DRS_FILLMODE = D3DFILL_WIREFRAME` after the `NOT_RENDER_EFFECT_MADE_BY_GAME_UNIT` early return. It restores the fill mode cached before it (not SOLID) after both mesh paths. | Draw `31c839c0 @31c839ed`, `@31c83d4b` |
+| `SLASH_TRACE_NOT_CULL` | false | `SetIsForceNotCull()` on both slash traces, right after `AddObjectChain`. | ctor `@31c8df76`, `@31c8e09c`; read by the sort loop `31ceb5f0 @31ceb6b7` |
+| `POSTEFFECT` | false | **Unsupported** (plan rule 5): parsed and stored. When TRUE it logs `JUNE_FX unsupported POSTEFFECT in <templet>: post-effect render pass absent` to `ErrorLog.txt`. | slot-11 predicate `31c83500`; post-effect pass `31cd7810` mode 1 |
+
+**Visible effects.**
+- Only templets that set a key change. Absent keys give March's behaviour: `ALPHABLEND` defaults to
+  true, which is March's `SetAlphaObject( true )`.
+- **One semantic shift.** A mesh instance's render param no longer follows `IsAlphaObject()`, so a
+  later `SetAlphaObject()` on the instance no longer changes how it blends.
+  - **X2Lib: none of its 115 calls targets a `CXMeshInstance`.** Each receiver's declared type was
+    checked: `CKTDGXSkinAnim`, `CX2SubEquip`, particle sequences, `CX2UIUnit`, or `this` in a
+    unit/world/UI class.
+  - **Lua: only the readable `.src.lua` sources were checked** (`march2014/`, `kom_contents/`). Their
+    callers (`g_pObjectMesh`, `g_pWorldLayer`, `g_pObjectSkinMesh`) are world objects. Compiled-only
+    data036 scripts were not checked. A Lua `SetAlphaObject` on a mesh instance would now stop
+    changing its blend.
+- **`SLASH_TRACE_NOT_CULL` placement differs slightly.** June's sort loop skips the frustum call
+  entirely. The Ranox flag short-circuits inside `IsInFrustum`, after the `GetShowObject()` test.
+  - The effect is the same: never culled.
+  - A hidden trace is still rejected in March, but it would not draw in June either (`Prepare`
+    tests it).
+- **`POSTEFFECT` does nothing extra.** In June such a mesh draws in the ordinary pass **and** again
+  in the post-effect pass. March has only the ordinary pass.
+
+**Not ported:**
+- June's post-effect pass itself. It is a DG-manager render mode with its own transforms.
+- The same four words in June's *particle* tokenizer (`31cf2250` has `POSTEFFECT`/`WIREFRAME`).
+  That is an adoption follow-up.
+
+**Diagnostic** (behind `SERV_IRUHADEV_JUNE_FX_DEBUG`): each CrashLand death in `PlayProcess` writes
+the following line to `ErrorLog.txt` (KTDXLIB cannot reach `offline_server.log`):
+
+```
+JUNE_FX MP_CRASH <templet> <LT_TIME|LT_PLAY_COUNT/X_MESH|LT_PLAY_COUNT/X_SKIN_MESH> t=<time> notCheck=<NOT_CHECK_LAND_TIME> y=<pos.y> land=<land height>
+```
+
+It is for `RANOX_EFFECT_RUNTIME_UNKNOWNS.md` §4.1, now answered: June's land and crash code is
+March's, and `MAG_CHARGER_Attack_A` is identical in both builds. The line shows whether the Mag
+Charger fireball reaches the ground before its target.
+
+**Census.** `june2017_re/census.py --meshplayer` gives 0 to-implement, 1 unsupported, 64
+implemented. The full run appends it to `JUNE2017_EFFECT_KEY_MATRIX.md`.
+
+Built `US_SERVICE` (`touch KTDXLIB/stdafx.cpp X2Lib/stdafx.cpp` first, since `XMeshTemplet` changes
+size; all four projects rc 0, no warnings from the changed files) and **deployed to `X2_offline.exe`,
+18,969,088 B**, SHA-256 prefix `04392c9c65fef4dc`, 2026-09-29. The new keyword and log strings are
+present in the binary. **Not play-tested yet.**
+
+Revert: undefine `SERV_IRUHADEV_JUNE_MESHPLAYER`. Pure addition: 154 lines inserted, none deleted.
+Undefining it restores March's parse, so a June templet using one of the four keys throws again.
+
 ### Dryad Kenta (Burned Forest boss): "jumps off the map, never comes back" softlock
 
 Pure content fix, no flag -- `march2014/update/data037/RAGE_DRYADKENTA.src.lua` only. Reported

@@ -4464,3 +4464,25 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_COLLISION needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-29
+// Description: June2017 effect rebuild Phase 10 (JUNE2017_EFFECT_REBUILD_PLAN.md):
+//              the four XMeshPlayer .txt templet keys June's parser reads and
+//              March's does not (ProcessTempletBlock FUN_31c8ae10, tokenizer
+//              FUN_31c85840). Without them March's tokenizer throws on the key
+//              and the rest of that .txt file is never loaded. ALPHABLEND
+//              (default TRUE) drives SetAlphaObject() and the render param's
+//              bAlphaBlend in place of IsAlphaObject(); WIREFRAME draws the mesh
+//              in D3DFILL_WIREFRAME and restores the previous fill mode;
+//              SLASH_TRACE_NOT_CULL exempts both slash traces from frustum
+//              culling; POSTEFFECT is parsed, stored and logged unsupported
+//              (June's post-effect render pass is absent). Lines go to
+//              ErrorLog.txt (KTDXLIB cannot reach CX2OfflineLog).
+//              Needs SERV_IRUHADEV_RANOX_FORCE_NOT_CULL (the not-cull member).
+#define SERV_IRUHADEV_JUNE_MESHPLAYER
+#if defined(SERV_IRUHADEV_JUNE_MESHPLAYER) && !defined(SERV_IRUHADEV_RANOX_FORCE_NOT_CULL)
+#error SERV_IRUHADEV_JUNE_MESHPLAYER needs SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
+#endif
+//////////////////////////////////////////////////////////////////////////

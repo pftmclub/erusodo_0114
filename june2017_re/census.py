@@ -3,6 +3,7 @@
     python census.py               # re-derive everything, write the matrix + census.tsv
     python census.py --summary     # re-derive everything, print counts per status and phase
     python census.py --reuse-pp    # development only: reuse pp/*.i instead of re-running cl /P
+    python census.py --meshplayer  # only the Phase 10 KTDGXMeshPlayer .txt census (~1 min), printed
 
 Outputs: ../JUNE2017_EFFECT_KEY_MATRIX.md (generated; do not edit by hand) and
 census.tsv (one row per census row, for scripts). Exit status 1 when a check fails.
@@ -2375,13 +2376,351 @@ def write_tsv(rows):
     open(TSV, 'w', encoding='utf-8', newline='\n').write('\n'.join(out) + '\n')
 
 
+# ------------------------------------------------------------------ MeshPlayer mode (Phase 10)
+# The XMeshPlayer .txt templet format is a hand-written tokenizer, not Lua, and its keywords are
+# plaintext in the June binary. One row is (scope, key), scope `MP.templet` (a templet property)
+# or `MP.event` (a Global/Die/Anim event name). All three sides are re-derived on every run:
+#
+#   June binary  the parser chain confirmed in funcmap.tsv: DetermineTokenType 31c85840 (every
+#                keyword compare), ProcessTempletBlock 31c8ae10 (each Is*() helper it calls pushes
+#                one keyword: that helper's key is a templet property June dispatches) and
+#                EventFactory 31c85350 (event names). June reads a key only if the tokenizer
+#                knows it AND the block/factory dispatches it.
+#   March        KTDGXMeshPlayer.cpp preprocessed with cl /P under KTDXLIB's own US_SERVICE
+#                include dirs and defines (KTDXLIB_2010.vcxproj), plus UNICODE. The same two
+#                conditions, from the surviving source: a compare("KEY") in DetermineTokenType,
+#                and a savedtoken.IsX() in ProcessTempletBlock whose helper compares "KEY" (or an
+#                EventName.compare("KEY") in EventFactory).
+#   Data         June's plaintext *XMeshPlayer*.txt, tokenized as March's Tokenize does
+#                (whitespace plus ( ) , " { } /, `//` and `--` line comments); a key is a word
+#                followed by a lone `=`, and an event key is the first such word after
+#                GLOBAL/DIE/ANIM. March's live copies are counted alongside, for reference.
+#
+# A key June's data uses and March's tokenizer does not know throws "Unexpected ... in Sequence
+# Block!" and abandons the REST OF THAT FILE, which is why `june_uses` is shown per row.
+MP_JUNE_TOKENIZER = 0x31c85840
+MP_JUNE_BLOCK = 0x31c8ae10
+MP_JUNE_EVENTS = 0x31c85350
+MP_TU = 'KTDGXMeshPlayer.cpp'
+# KTDXLIB_2010.vcxproj, US_SERVICE|Win32: AdditionalIncludeDirectories, then IncludePath.
+MP_INC = ['./', './DXUT', '../X2ServerProtocol', '../X2ServerProtocol/FSM', '../X2ServerProtocol/Socket', './CxImage',
+          '../libxml']
+MP_INC_SOLN = [r'Libs\ExternalLib\DXSDK\Include', r'Libs\ExternalLib\Boost\boost_1_44_0', r'KNCSDK\Include_2010',
+               r'KOGGamePerformanceCheck\include', r'Libs\ExternalLib\freetype-2.4.11\include', r'XTRAP\Client',
+               'Steamworks']
+MP_DEFS = ['WIN32', 'NDEBUG', '_LIB', 'SERV_COUNTRY_US', 'CLIENT_COUNTRY_US', '_IN_HOUSE_', '_HAS_ITERATOR_DEBUGGING=0',
+           '_USE_32BIT_TIME_T', '_CONVERT_VS_2010', 'UNICODE', '_UNICODE']
+MP_JUNE_FILES = ['GameMajorXMeshPlayer.txt', 'GameMajorXMeshPlayer_INT.txt', 'GameMinorXMeshPlayer.txt',
+                 'UIMajorXMeshPlayer.txt', 'UIMajorXMeshPlayer_INT.txt', 'UIMinorXMeshPlayer.txt']
+MP_JUNE_DIR = r'F:\elsword stuff\elsword_2014\els_2014\237311\14JUN17\data\data036_kom'
+MP_MARCH_DIRS = [r'F:\elsword stuff\elsword_2014\els_2014\237311\24965799\kom_contents\data036_kom',
+                 r'F:\elsword stuff\elsword_2014\els_2014\237311\24965799\kom_contents\datai015_kom']
+# Grammar words of the tokenizer: not properties, never rows.
+MP_KEYWORDS = {'XMESHPLAYER', 'TEMPLET', 'RANDOM', 'XYZ', 'RGBA', 'FADE', 'GLOBAL', 'DIE', 'ANIM', 'INITIAL', 'FINAL',
+               'FROM', 'XY', 'SO', 'AT', 'TO', 'D3DBLEND_'}
+# A June key whose system this build lacks: parsed, stored and logged (plan rule 5), never behaviour.
+MP_SYSTEMS = {'POSTEFFECT': "June's post-effect render pass (DG manager 31cd7810 mode 1, fed by CXMeshInstance vtable "
+                            "slot 11 31c83500); March's KTDGManager has none, CKTDGPostEffect is ADD_POSTEFFECT-only"}
+# Hand-verified runtime use of every June-only key (Phase 10), cited in the matrix.
+MP_RUNTIME = {
+    'POSTEFFECT': 'stored; `JUNE_FX unsupported POSTEFFECT` in ErrorLog.txt when TRUE',
+    'ALPHABLEND': 'ctor `SetAlphaObject( bAlphaBlend )` (31c8d140 @31c8d2f6) and `bAlphaBlend` in all three render '
+                  'params (@31c8dcbd, OnFrameMove @31c88cc4, Draw @31c83cf9), default TRUE (31c907e0 @31c90b5a)',
+    'SLASH_TRACE_NOT_CULL': '`SetIsForceNotCull` on both slash traces after AddObjectChain (31c8d140 @31c8df76, '
+                            '@31c8e09c); June tests it in the sort loop 31ceb5f0 @31ceb6b7',
+    'WIREFRAME': 'Draw sets D3DFILL_WIREFRAME around both mesh paths and restores the previous fill mode '
+                 '(31c839c0 @31c839ed, @31c83d4b)',
+}
+
+
+def mp_strings(B, lo, hi):
+    """Uppercase C-string literals referenced (push/mov/cmp imm32) in [lo, hi) of the June binary."""
+    import capstone
+    md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+    md.skipdata = True
+    out = []
+    for a, s, mn, op in md.disasm_lite(B[lo - 0x31aa0000 - 0xc00:hi - 0x31aa0000 - 0xc00], lo):
+        for m in re.finditer(r'0x(33[0-9a-f]{6})\b', op):
+            r = int(m.group(1), 16) - 0x31aa0000 - 0xc00
+            e = B.find(b'\0', r, r + 64)
+            if e > r and re.fullmatch(rb'[A-Z0-9_]+', B[r:e]):
+                out.append((a, B[r:e].decode('ascii')))
+        if mn == 'ret' and hi - lo < 0x80:
+            break
+    return out
+
+
+def mp_calls(B, lo, hi):
+    import capstone
+    md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+    md.skipdata = True
+    return [(a, int(op, 16)) for a, s, mn, op in md.disasm_lite(B[lo - 0x31aa0000 - 0xc00:hi - 0x31aa0000 - 0xc00], lo)
+            if mn == 'call' and re.fullmatch(r'0x[0-9a-f]+', op)]
+
+
+def mp_june():
+    """{scope: {key: june_va}} from the parser chain, plus the tokenizer's full word set."""
+    funcs = sorted(int(m.group(1), 16) for m in re.finditer(r' at ([0-9a-fA-F]{8})', open(os.path.join(HERE, 'funcs.txt'), encoding='latin1').read()))
+
+    def end(va):
+        return funcs[bisect.bisect_right(funcs, va)]
+    B = open(X.EXE, 'rb').read()
+    tok = dict((k, a) for a, k in mp_strings(B, MP_JUNE_TOKENIZER, end(MP_JUNE_TOKENIZER)))
+    templet = {}
+    for site, callee in mp_calls(B, MP_JUNE_BLOCK, end(MP_JUNE_BLOCK)):
+        if end(callee) - callee > 0x40:
+            continue                       # not an Is*() helper
+        ks = mp_strings(B, callee, end(callee))
+        if len(ks) == 1 and ks[0][1] in tok:
+            templet.setdefault(ks[0][1], site)
+    events = dict((k, a) for a, k in mp_strings(B, MP_JUNE_EVENTS, end(MP_JUNE_EVENTS)) if k in tok)
+    return {'MP.templet': templet, 'MP.event': events}, tok
+
+
+def mp_body(text, qual):
+    """Body text of the definition of `qual(` in a preprocessed TU (first one followed by `{`)."""
+    for m in re.finditer(re.escape(qual) + r'\s*\(', text):
+        i = balanced_paren(text, m.end() - 1)
+        j = i
+        while j < len(text) and text[j] in ' \t\r\n':
+            j += 1
+        if j < len(text) and text[j] == '{':
+            depth, k = 0, j
+            while k < len(text):
+                c = text[k]
+                if c == '"':
+                    k += 1
+                    while text[k] != '"':
+                        k += 2 if text[k] == '\\' else 1
+                elif c == '{':
+                    depth += 1
+                elif c == '}':
+                    depth -= 1
+                    if depth == 0:
+                        return text[j:k + 1], text.count('\n', 0, j)
+                k += 1
+    return None, None
+
+
+def balanced_paren(text, i):
+    depth = 0
+    while i < len(text):
+        if text[i] == '(':
+            depth += 1
+        elif text[i] == ')':
+            depth -= 1
+            if depth == 0:
+                return i + 1
+        i += 1
+    return i
+
+
+def mp_raw_line(text, off_line):
+    """Map a line of the .i back to its raw source file:line through the nearest #line directive."""
+    lines = text.split('\n', off_line + 1)[:off_line + 1]
+    for n in range(len(lines) - 1, -1, -1):
+        m = re.match(r'#line (\d+) "([^"]+)"', lines[n])
+        if m:
+            return os.path.basename(m.group(2).replace('\\\\', '\\')), int(m.group(1)) + (off_line - n - 1)
+    return MP_TU, 0
+
+
+def mp_march(reuse):
+    out = os.path.join(PP_DIR, MP_TU[:-4] + '.i')
+    if not (reuse and os.path.exists(out)):
+        os.makedirs(PP_DIR, exist_ok=True)
+        inc = MP_INC + [os.path.join(TRUNK, s) for s in MP_INC_SOLN]
+        cmd = ([VS + r'\VC\bin\cl.exe', '/nologo', '/P', '/Zm600', '/Zc:wchar_t', '/Fi' + out] + ['/I' + i for i in inc] +
+               ['/D' + d for d in MP_DEFS] + [MP_TU])
+        p = subprocess.run(cmd, cwd=os.path.join(TRUNK, 'KTDXLIB'), env=cl_env(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if p.returncode != 0 or not os.path.exists(out):
+            sys.exit('cl /P failed for %s (exit %s):\n%s' % (MP_TU, p.returncode, p.stdout.decode('latin1', 'replace')[-3000:]))
+    text = open(out, 'rb').read().decode('latin1')
+    helpers = dict((m.group(1), m.group(2)) for m in re.finditer(
+        r'bool\s+(Is\w+)\s*\(\s*void\s*\)\s*\{\s*return\s*\(\s*m_strValue\.compare\(\s*"([A-Z0-9_]+)"\s*\)\s*==\s*0\s*\)\s*;', text))
+    tokb, tokl = mp_body(text, 'CKTDGXMeshPlayer::CXMeshPlayerTokenizer::DetermineTokenType')
+    blkb, blkl = mp_body(text, 'CKTDGXMeshPlayer::ProcessTempletBlock')
+    evb, evl = mp_body(text, 'CKTDGXMeshPlayer::EventFactory')
+    if not (tokb and blkb and evb):
+        sys.exit('MeshPlayer: a March parser function was not found in the preprocessed %s' % MP_TU)
+    tok = set(re.findall(r'm_strValue\.compare\(\s*"([A-Z0-9_]+)"\s*\)', tokb))
+    res = {'MP.templet': {}, 'MP.event': {}}
+    for m in re.finditer(r'savedtoken\.(Is\w+)\s*\(\s*\)', blkb):
+        k = helpers.get(m.group(1))
+        if k and k in tok:
+            res['MP.templet'].setdefault(k, mp_raw_line(text, blkl + blkb.count('\n', 0, m.start())))
+    for m in re.finditer(r'EventName\.compare\(\s*"([A-Z0-9_]+)"\s*\)', evb):
+        if m.group(1) in tok:
+            res['MP.event'].setdefault(m.group(1), mp_raw_line(text, evl + evb.count('\n', 0, m.start())))
+    return res, tok
+
+
+def mp_tokens(data):
+    """March's Tokenize (KTDGXMeshPlayer.cpp CXMeshPlayerTokenizer::Tokenize), re-expressed."""
+    toks, i, n = [], 0, len(data)
+    while i < n:
+        c = data[i]
+        if c.isspace():
+            i += 1
+        elif data.startswith('//', i) or data.startswith('--', i):
+            j = data.find('\n', i)
+            i = n if j < 0 else j
+        elif c == '"':
+            j = data.find('"', i + 1)
+            j = n if j < 0 else j
+            toks.append(data[i:j + 1])
+            i = j + 1
+        elif c in '(),{}/':
+            toks.append(c)
+            i += 1
+        else:
+            j = i
+            while j < n and not data[j].isspace() and data[j] not in '(),"{}/':
+                j += 1
+            toks.append(data[i:j])
+            i = j
+    return toks
+
+
+def mp_data_keys(path):
+    """Counter of (scope, KEY) over one .txt file."""
+    c = collections.Counter()
+    t = mp_tokens(open(path, 'rb').read().decode('latin1'))
+    event = False
+    for i, w in enumerate(t):
+        u = w.upper()
+        if u in ('GLOBAL', 'DIE', 'ANIM'):
+            event = True
+        elif i + 1 < len(t) and t[i + 1] == '=' and re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', w):
+            c[('MP.event' if event else 'MP.templet', u)] += 1
+            event = False
+    return c
+
+
+def mp_census(reuse_pp):
+    J, jtok = mp_june()
+    M, mtok = mp_march(reuse_pp)
+    jdata, mdata = collections.Counter(), collections.Counter()
+    jfiles = collections.defaultdict(collections.Counter)
+    for f in MP_JUNE_FILES:
+        p = os.path.join(MP_JUNE_DIR, f)
+        if os.path.exists(p):
+            for k, v in mp_data_keys(p).items():
+                jdata[k] += v
+                jfiles[k][f] += v
+    for d in MP_MARCH_DIRS:
+        for f in sorted(os.listdir(d)):
+            if re.search(r'XMeshPlayer.*\.txt$', f, re.I):
+                mdata.update(mp_data_keys(os.path.join(d, f)))
+    rows = []
+    for scope in ('MP.templet', 'MP.event'):
+        keys = set(J[scope]) | set(M[scope]) | set(k for s, k in jdata if s == scope)
+        for k in sorted(keys):
+            j, m = J[scope].get(k), M[scope].get(k)
+            if j and m:
+                st = 'unsupported' if k in MP_SYSTEMS else 'implemented'
+            elif j:
+                st = 'unsupported' if k in MP_SYSTEMS else 'to-implement'
+            elif m:
+                st = 'march-only'
+            else:
+                st = 'june-ignores'
+            rows.append({'scope': scope, 'key': k, 'status': st, 'june': j, 'march': m,
+                         'juses': jdata[(scope, k)], 'muses': mdata[(scope, k)], 'files': jfiles[(scope, k)],
+                         'binary_only': bool(j) and not jdata[(scope, k)], 'march_tok': k in mtok,
+                         'system': MP_SYSTEMS.get(k), 'runtime': MP_RUNTIME.get(k)})
+    return rows
+
+
+def mp_checks(rows):
+    open_ = ['`%s`' % r['key'] for r in rows if r['status'] == 'to-implement']
+    unsup = ['`%s`' % r['key'] for r in rows if r['status'] == 'unsupported' and not r['march']]
+    ign = ['`%s` (%d)' % (r['key'], r['juses']) for r in rows if r['status'] == 'june-ignores' and r['juses']]
+    nort = ['`%s`' % k for k in MP_RUNTIME if not any(r['key'] == k and r['march'] for r in rows)]
+    return [
+        (not open_, 'MeshPlayer: 0 keys `to-implement` (Phase 10 exit)%s' % ('' if not open_ else ': ' + ', '.join(open_))),
+        (not unsup, 'MeshPlayer: every `unsupported` key is still parsed by March (plan rule 5)%s' % ('' if not unsup else ': ' + ', '.join(unsup))),
+        (not ign, 'MeshPlayer: no June data key is one June\'s own parser rejects%s' % ('' if not ign else ': ' + ', '.join(ign))),
+        (not nort, 'MeshPlayer: every hand-written `MP_RUNTIME` citation names a key March now reads%s'
+         % ('' if not nort else ': ' + ', '.join(nort))),
+    ]
+
+
+def mp_summary(rows):
+    st = collections.Counter(r['status'] for r in rows)
+    return 'meshplayer: ' + ', '.join('%s %d' % (s, st[s]) for s in
+                                      ('to-implement', 'unsupported', 'implemented', 'march-only', 'june-ignores'))
+
+
+def mp_write(rows, checks):
+    L = []
+    w = L.append
+    w('')
+    w('## KTDGXMeshPlayer `.txt` templet keys (Phase 10)')
+    w('')
+    w('Generated by the same run (`census.py`; `census.py --meshplayer` prints only this part). The')
+    w('`.txt` format is a tokenizer, not Lua, and its keywords are **plaintext** in the June binary.')
+    w('')
+    w('- **June**: the parser chain in `funcmap.tsv`. `DetermineTokenType` `31c85840` gives every')
+    w('  keyword; each `Is*()` helper that `ProcessTempletBlock` `31c8ae10` calls pushes one keyword,')
+    w('  which is a templet property June dispatches; `EventFactory` `31c85350` gives the event names.')
+    w('  A key counts only if the tokenizer knows it **and** it is dispatched. The June site is the')
+    w('  helper call in `31c8ae10` (templet) or the name push in `31c85350` (event).')
+    w('- **March**: `KTDXLIB/KTDGXMeshPlayer.cpp`, `cl /P` under KTDXLIB\'s own `US_SERVICE` defines')
+    w('  and include dirs. The same two conditions on the surviving source.')
+    w('- **Data**: June\'s six `data036_kom/*XMeshPlayer*.txt`, tokenized the way March\'s `Tokenize`')
+    w('  does. `June uses` counts occurrences; `March uses` counts the live March copies')
+    w('  (`kom_contents/data036_kom`, `datai015_kom`).')
+    w('- **Why a to-implement key matters more here than in Lua**: March\'s tokenizer throws')
+    w('  `Unexpected "..." in Sequence Block!` on a key it does not know, and the rest of that')
+    w('  `.txt` file is never loaded.')
+    w('- `march-only`: March reads it, June does not (not a gap). `june-ignores`: June data uses it and')
+    w('  June\'s own parser rejects it. A word both tokenizers know and neither dispatches, with no data')
+    w('  use, gets no row (`TEXTURECHANGE`: tokenized as an event name, no event class in either build).')
+    w('')
+    st = collections.Counter(r['status'] for r in rows)
+    w('**Counts**: ' + ', '.join('%s %d' % (s, st[s]) for s in ('to-implement', 'unsupported', 'implemented', 'march-only', 'june-ignores')) + '.')
+    w('')
+    for ok, text in checks:
+        w('- %s %s' % ('PASS' if ok else '**FAIL**', text))
+    w('')
+    w('| Scope | Key | Status | June | March | June uses | March uses | Runtime / system |')
+    w('|---|---|---|---|---|---|---|---|')
+    order = {'to-implement': 0, 'unsupported': 1, 'implemented': 2, 'march-only': 3, 'june-ignores': 4}
+    for r in sorted(rows, key=lambda r: (r['scope'], order[r['status']], r['key'])):
+        note = r['runtime'] or ''
+        if r['system']:
+            note = 'absent: ' + r['system'] + ('; ' + note if note else '')
+        if r['binary_only']:
+            note = ('binary-only (no June data uses it)' + ('; ' + note if note else ''))
+        w('| `%s` | `%s` | %s | %s | %s | %d | %d | %s |' % (
+            r['scope'], r['key'], r['status'], ('`%08x`' % r['june']) if r['june'] else '-',
+            ('`%s:%d`' % r['march']) if r['march'] else ('tokenized only' if r['march_tok'] else '-'),
+            r['juses'], r['muses'], note.replace('|', '\\|')))
+    w('')
+    open(MATRIX, 'a', encoding='utf-8', newline='\n').write('\n'.join(L))
+
+
 def main():
     global _J
     ap = argparse.ArgumentParser()
     ap.add_argument('--summary', action='store_true')
+    ap.add_argument('--meshplayer', action='store_true', help='run only the MeshPlayer census and print it')
     ap.add_argument('--reuse-pp', action='store_true')
     a = ap.parse_args()
+    if a.meshplayer:
+        mrows = mp_census(a.reuse_pp)
+        mchecks = mp_checks(mrows)
+        for r in mrows:
+            print('%-10s %-26s %-13s june=%-9s march=%-28s juses=%-5d muses=%d' % (
+                r['scope'], r['key'], r['status'], ('%08x' % r['june']) if r['june'] else '-',
+                ('%s:%d' % r['march']) if r['march'] else '-', r['juses'], r['muses']))
+        print(mp_summary(mrows))
+        for ok, text in mchecks:
+            print(('PASS ' if ok else 'FAIL ') + text[:300])
+        sys.exit(0 if all(ok for ok, _ in mchecks) else 1)
     rows, code_keys, sysev, sysv, flag_state, enum_rows, june_enum, march_enum, J, M = build(a.reuse_pp)
+    mrows = mp_census(a.reuse_pp)
     _J = J
     st = collections.Counter(r['status'] for r in rows.values())
     unres = [r for r in rows.values() if r['status'] == 'june-ignores' and r['cat'] in ('name-collision', 'plain-only', 'decoder-miss?', 'unrooted')]
@@ -2435,10 +2774,14 @@ def main():
                                                   ph[(p, 'implemented')], ph[(p, 'june-ignores')]))
     semd = sum(1 for r in rows.values() if (r['sem'] or '').startswith('differ'))
     print('semantics-differ: %d' % semd)
+    print(mp_summary(mrows))
+    mchecks = mp_checks(mrows)
+    checks += mchecks
     for ok, text in checks:
         print(('PASS ' if ok else 'FAIL ') + text[:300])
     if not a.summary:
         write(rows, code_keys, sysev, sysv, flag_state, enum_rows, june_enum, march_enum, checks)
+        mp_write(mrows, mchecks)
         write_tsv(rows)
         print('wrote %s and %s' % (os.path.relpath(MATRIX, TRUNK), os.path.relpath(TSV, TRUNK)))
     if not all(ok for ok, _ in checks):
