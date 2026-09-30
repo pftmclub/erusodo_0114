@@ -4514,3 +4514,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // mid-destruction. See X2GameUnit.h/.cpp and X2DamageEffect.cpp for the guard.
 #define SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-09-30
+// Description: June2017 effect rebuild Phase 11 -- June effect-set data uses
+// particle/lua files this build never opens (GameMajorParticle36.txt/44.txt,
+// DamageEffect_Dungeon.lua; JUNE2017_NAME_CONTRACT.md). Adds those OpenScriptFile
+// calls alongside the existing list, additively -- no file removed or renamed.
+#define SERV_IRUHADEV_JUNE_LOADER_GAPS
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-01
+// Description: June2017 effect rebuild Phase 11 -- extends HIT_TYPE/HIT_TYPE_COUNT
+// (X2DamageManager.h) to 69 entries and m_DamageSoundName with it, so June effect data
+// can set the 15 newer hit types without indexing the array out of bounds. See
+// JUNE2017_TRIAL_LOAD.md.
+#define SERV_IRUHADEV_JUNE_HITTYPE_EXTEND
+//////////////////////////////////////////////////////////////////////////

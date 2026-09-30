@@ -167,8 +167,36 @@ class CX2DamageManager
 			HT_STONE,					/// 돌덩이 히트
 #endif //SERV_9TH_NEW_CHARACTER
 
+#ifdef SERV_IRUHADEV_JUNE_HITTYPE_EXTEND
+			// June2017 Enum.src.lua HIT_TYPE (june2017_re/june_lua/Enum.src.lua:393-560), values
+			// verbatim. DamageSound.lua table names/values for each, also June-verbatim, are read by
+			// ParseDamageSoundBlock below, under the same flag.
+			HT_MAGIC_GLOVE_SLASH		= 54,
+			HT_MAGIC_GLOVE_PUNCH		= 55,
+			HT_MAGIC_CIRCLE				= 56,
+			HT_MAGIC_BULLET				= 57,
+			HT_MAGIC_BULLET_BIG		= 58,
+			HT_SOUL_HIT					= 59,
+			HT_SOUL_BIG_HIT				= 60,
+			HT_CUT_HIT_1				= 61,
+			HT_CUT_HIT_2				= 62,
+			HT_PIERCE_HIT_1				= 63,
+			HT_PIERCE_HIT_2				= 64,
+			HT_IMPRINT_HIT_1			= 65,
+			HT_IMPRINT_HIT_2			= 66,
+			HT_EXPLOSION_1				= 67,
+			HT_EXPLOSION_2				= 68,
+#endif SERV_IRUHADEV_JUNE_HITTYPE_EXTEND
+
 			HIT_TYPE_COUNT,
 		};		
+#ifdef SERV_IRUHADEV_JUNE_HITTYPE_EXTEND
+		// The enum above is numbered sequentially through #ifdef SERV_9TH_NEW_CHARACTER; a flag
+		// change upstream would silently misalign these Lua-verbatim values and HIT_TYPE_COUNT
+		// (which sizes m_DamageSoundName below) without a compile error. Catch it here instead.
+		static_assert( HT_STONE == 53 && HT_EXPLOSION_2 == 68 && HIT_TYPE_COUNT == 69,
+			"HIT_TYPE numbering drifted from june2017_re/june_lua/Enum.src.lua -- re-check SERV_9TH_NEW_CHARACTER" );
+#endif SERV_IRUHADEV_JUNE_HITTYPE_EXTEND
 		
 		//피격 종류 - 사운드 결정
 		enum HITTED_TYPE

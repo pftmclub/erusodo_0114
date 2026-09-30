@@ -1634,6 +1634,56 @@ void CX2Game::SystemLoading()
 			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle21.txt" );
 			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle22.txt" );
 			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle23.txt" );
+#ifdef SERV_IRUHADEV_JUNE_LOADER_GAPS
+			// June opens GameMajorParticle2..67.txt (self-terminating loop, FUN_32597410 @32597b20:
+			// open-and-check, break on first miss); this build stops at 23. 24-67 never opened before.
+			// Several names inside collide with names March already defines elsewhere by content
+			// (JUNE2017_TRIAL_LOAD.md point 3) -- confirmed, not yet resolved.
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle24.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle25.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle26.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle27.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle28.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle29.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle30.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle31.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle32.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle33.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle34.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle35.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle36.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle37.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle38.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle39.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle40.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle41.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle42.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle43.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle44.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle45.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle46.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle47.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle48.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle49.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle50.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle51.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle52.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle53.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle54.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle55.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle56.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle57.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle58.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle59.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle60.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle61.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle62.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle63.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle64.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle65.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle66.txt" );
+			g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle67.txt" );
+#endif SERV_IRUHADEV_JUNE_LOADER_GAPS
 
 			g_pData->ResetGameMinorParticle( L"GameMinorParticle.txt" );
 #ifdef INT_RESOURCE_DEVIDE
@@ -1648,6 +1698,14 @@ void CX2Game::SystemLoading()
 
 	m_pDamageEffect		= new CX2DamageEffect();
 	m_pDamageEffect->OpenScriptFile( L"DamageEffect.lua" );
+#ifdef SERV_IRUHADEV_JUNE_LOADER_GAPS
+	// June2017 FUN_322e2930 opens DamageEffect, _Character, _Dungeon, _ETC, _INT in this order
+	// (fxdata.py JUNE_LUA_ORDER). This build only opened DamageEffect(_INT): 1,022 + 805 + 431
+	// damage effects in _Character/_Dungeon/_ETC (fxdump globals census) were never reachable.
+	m_pDamageEffect->OpenScriptFile( L"DamageEffect_Character.lua" );
+	m_pDamageEffect->OpenScriptFile( L"DamageEffect_Dungeon.lua" );
+	m_pDamageEffect->OpenScriptFile( L"DamageEffect_ETC.lua" );
+#endif SERV_IRUHADEV_JUNE_LOADER_GAPS
 #ifdef INT_RESOURCE_DEVIDE
 	m_pDamageEffect->OpenScriptFile( L"DamageEffect_INT.lua" );
 #endif INT_RESOURCE_DEVIDE
@@ -5471,6 +5529,11 @@ void CX2Game::KeyProcess()
 							SAFE_DELETE( m_pDamageEffect );
 							m_pDamageEffect	= new CX2DamageEffect();
 							m_pDamageEffect->OpenScriptFile( L"DamageEffect.lua" );
+#ifdef SERV_IRUHADEV_JUNE_LOADER_GAPS
+							m_pDamageEffect->OpenScriptFile( L"DamageEffect_Character.lua" );
+							m_pDamageEffect->OpenScriptFile( L"DamageEffect_Dungeon.lua" );
+							m_pDamageEffect->OpenScriptFile( L"DamageEffect_ETC.lua" );
+#endif SERV_IRUHADEV_JUNE_LOADER_GAPS
 
 #ifdef INT_RESOURCE_DEVIDE
 							g_pData->GetUIMajorXMeshPlayer()->OpenScriptFile( L"UIMajorXMeshPlayer_INT.txt" );

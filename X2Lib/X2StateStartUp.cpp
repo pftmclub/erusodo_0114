@@ -149,6 +149,54 @@ void CX2StateStartUp::LoadData()
 	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle21.txt" );
 	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle22.txt" );
 	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle23.txt" );
+#ifdef SERV_IRUHADEV_JUNE_LOADER_GAPS
+	// June opens GameMajorParticle2..67.txt (self-terminating loop); this build stops at 23.
+	// Collides with some March names by content -- JUNE2017_TRIAL_LOAD.md point 3.
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle24.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle25.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle26.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle27.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle28.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle29.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle30.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle31.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle32.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle33.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle34.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle35.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle36.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle37.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle38.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle39.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle40.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle41.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle42.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle43.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle44.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle45.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle46.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle47.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle48.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle49.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle50.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle51.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle52.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle53.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle54.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle55.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle56.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle57.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle58.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle59.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle60.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle61.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle62.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle63.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle64.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle65.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle66.txt" );
+	g_pData->GetGameMajorParticle()->OpenScriptFile( L"GameMajorParticle67.txt" );
+#endif SERV_IRUHADEV_JUNE_LOADER_GAPS
 	
 	g_pData->ResetGameMinorParticle( L"GameMinorParticle.txt" );
 

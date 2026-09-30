@@ -68,9 +68,9 @@ when its rows leave `to-implement`; `python june2017_re/census.py --summary` pri
 
 | status | rows |
 |---|---|
-| implemented | 595 |
-| to-implement | 47 |
-| unsupported | 14 |
+| implemented | 605 |
+| to-implement | 48 |
+| unsupported | 3 |
 | binary-only | 17 |
 | june-ignores | 305 |
 
@@ -78,14 +78,13 @@ Open work per phase (`to-implement` / `unsupported` / `binary-only`):
 
 | phase | to-implement | unsupported | binary-only |
 |---|---|---|---|
-| 2 | 0 | 2 | 0 |
+| 2 | 0 | 1 | 0 |
 | 3 | 0 | 1 | 0 |
-| 5 | 0 | 2 | 0 |
+| 5 | 1 | 1 | 0 |
 | 6a | 0 | 0 | 2 |
 | 6b | 0 | 0 | 2 |
 | 8b | 31 | 0 | 13 |
-| 8c | 0 | 8 | 0 |
-| unassigned | 16 | 1 | 0 |
+| unassigned | 16 | 0 | 0 |
 
 Semantics of the rows March parses (implemented, plus unsupported rows parsed under plan rule 5): 391 same, 2 **semantics-differ**, 180 unchecked, 35 n/a.
 
@@ -332,11 +331,11 @@ The full spec is in the plan, Phases 4a and 4b.
 
 #### `DE.top` (top)
 
-114 rows: implemented 70, june-ignores 42, unsupported 2. June: `31f7aab0`, `31f8ba80`, `31f8b370`. March: `CEffect`, `LoadLockOnData`, `LoadBlackHoleData` ….
+114 rows: implemented 70, june-ignores 42, to-implement 1, unsupported 1. June: `31f7aab0`, `31f8ba80`, `31f8b370`. March: `CEffect`, `LoadLockOnData`, `LoadBlackHoleData` ….
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | 5 | 2 | direct 31f7aab0@31f7b483 |  |  | compiled elsewhere: X2DamageEffect:1618, X2EffectSet:3633; raw literal 5 (X2Lib/X2DamageEffect.cpp:1618); bare id 16; e.g. DamageEffect:[] |
+| `APPLIED_SKILL_ID` | to-implement | 5 | 2 | direct 31f7aab0@31f7b483 |  |  | compiled elsewhere: X2DamageEffect:1618, X2EffectSet:3633; raw literal 5 (X2Lib/X2DamageEffect.cpp:1618); bare id 16; e.g. DamageEffect:[] |
 | `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | unsupported(Effect-alpha option (absent)) | 5 |  | binary-only 31f7aab0@31f7bff3 | X2DamageEffect:1731 | same [June enum = 0] | compiled elsewhere: X2DamageEffect:1731, X2EffectSet:3641; raw literal 6 (X2Lib/X2DamageEffect.cpp:1731); bare id 20; runtime 7a: unsupported (done) |
 | `AFTER_IMAGE` | implemented |  | 11 | other-func 31f74a80 | X2DamageEffect:9756 | unchecked(June reads it in callee 31f74a80, not a scope reader) |  |
 | `APPLY_SCALE_BY_UNIT` | implemented |  | 169 | direct 31f7aab0@31f7ea60 | X2DamageEffect:2084 | same [June bool = 1] |  |
@@ -455,7 +454,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 #### `DE.DAMAGE_DATA` (top)
 
-163 rows: binary-only 12, implemented 90, june-ignores 28, to-implement 25, unsupported 8. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
+163 rows: binary-only 12, implemented 98, june-ignores 28, to-implement 25. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
@@ -484,14 +483,6 @@ The full spec is in the plan, Phases 4a and 4b.
 | `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` | to-implement | 8b | 1 | direct 32632390@326402d5 |  |  | e.g. DamageEffect_Character:DamageEffect_SA_RFY_M18A1_Claymore_Project |
 | `ONYL_ATTACK_USER` | to-implement | 8b | 1 | direct 32632390@3263f60a |  |  | e.g. DamageEffect_ETC:DamageEffect_Abnormal_State_Dummy |
 | `PAUSE_NPC_AI_TIME` | to-implement | 8b | 1 | direct 32632390@3263f977 |  |  | e.g. DamageEffect_INT:SPECIAL_ITEM_LUCKY_BAG_C_Explosion |
-| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | 8c | 2669 | direct 32632390@32632446 | X2DamageManager:209 | same (32632390@3263256a: int, default EBX, zeroed @3263254f) [June int = None] | compiled elsewhere: X2DamageEffect:1618, X2EffectSet:3633; raw literal 5 (X2Lib/X2DamageEffect.cpp:1618); bare id 16; e.g. DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 |
-| `HIT_ADD_COMBINATION_POINT` | unsupported(Combination point (absent)) | 8c | 15 | direct 32632390@3263dfd2 | X2DamageManager:224 | same [June int = 0] | compiled elsewhere: X2DamageManager:224; raw literal 2 (X2Lib/X2DamageManager.cpp:224); bare id 1; e.g. DamageEffect:DamageEffect_LLC_M_DashCombo_ZXXX |
-| `HP_RATE_DAMAGE_TYPE` | unsupported(HP-rate damage (absent)) | 8c | 8 | direct 32632390@3263f2ad | X2DamageManager:230 | same [June enum = 0] | compiled elsewhere: X2DamageManager:230; raw literal 2 (X2Lib/X2DamageManager.cpp:230); bare id 2; e.g. DamageEffect_Character:DamageEffect_SA_ALP_SupersonicFX |
-| `HP_RATE_DAMAGE_VALUE` | unsupported(HP-rate damage (absent)) | 8c | 8 | direct 32632390@3263f45f | X2DamageManager:235 | same [June float = 0] | compiled elsewhere: X2DamageManager:235; raw literal 2 (X2Lib/X2DamageManager.cpp:235); bare id 1; e.g. DamageEffect_Character:DamageEffect_SA_ALP_SupersonicFX |
-| `NATURAL_FORCE_TYPE` | unsupported(Natural force (gated-off)) | 8c | 367 | direct 32632390@32635398 | X2DamageManager:218 | same (32632390@326354db: int, default EDI=-1 = NFT_NONE, set @3263532a and not rewritten before the store) [June int = None] | compiled elsewhere: X2DamageManager:218; raw literal 3 (X2Lib/X2DamageManager.cpp:197); bare id 4; e.g. DamageEffect:DamageEffect_LowKick_Impact |
-| `NUMERICAL_DATA_INDEX` | unsupported(Numerical skill data (absent)) | 8c | 2065 | direct 32632390@3263fb25 | X2DamageManager:248 | same (32632390@3263fc86: int into a stack local, default EBX, zeroed @3263fc6b) [June int = None] | compiled elsewhere: X2DamageManager:248; raw literal 2 (X2Lib/X2DamageManager.cpp:248); bare id 1; e.g. DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 |
-| `NUMERICAL_DATA_NAME` | unsupported(Numerical skill data (absent)) | 8c |  | binary-only 32632390@3263fcdd | X2DamageManager:249 | same [June string = ''] | compiled elsewhere: X2DamageManager:249; raw literal 2 (X2Lib/X2DamageManager.cpp:249); bare id 1 |
-| `ROSE_WEAPON_ATTACK_TYPE` | unsupported(Rose weapon (absent)) | 8c | 38 | direct 32632390@326400bc | X2DamageManager:257 | same [June int = -1] | compiled elsewhere: X2DamageManager:257; raw literal 2 (X2Lib/X2DamageManager.cpp:257); bare id 2; e.g. DamageEffect:DamageEffect_SA_RBD_Chain_Snatch_Rolling_Attack |
 | `APPLIED_MEMO_ID` | binary-only | 8b |  | binary-only 32632390@326325cc |  |  |  |
 | `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` | binary-only | 8b |  | binary-only 32630d20@3263127f |  |  |  |
 | `BUFF_FACTOR_ID_ULTIMATE_PVP` | binary-only | 8b |  | binary-only 32630d20 |  |  |  |
@@ -504,6 +495,7 @@ The full spec is in the plan, Phases 4a and 4b.
 | `DIVISION_NUM` | binary-only | 8b |  | binary-only 32632390@32632898 |  |  |  |
 | `DIVISION_OFF_TIME` | binary-only | 8b |  | binary-only 32632390@326329dc |  |  |  |
 | `HIT_ADD_MP_PERCENT` | binary-only | 8b |  | binary-only 32632390@32638e7f |  |  |  |
+| `APPLIED_SKILL_ID` | implemented |  | 2669 | direct 32632390@32632446 | X2DamageManager:209 | same (32632390@3263256a: int, default EBX, zeroed @3263254f) [June int = None] |  |
 | `APPLY_CRITICAL_DAMAGE_PERCENT` | implemented |  | 2 | direct 32632390@3263e462 | X2DamageManager:553 | same [June float = 0] |  |
 | `APPLY_MOTION_OFFSET` | implemented |  | 19 | direct 32632390@32638716 | X2DamageManager:424 | same [June bool = 1] |  |
 | `ARRANGED_FLY` | implemented |  | 2350 | direct 32632390@32639f6b | X2DamageManager:451 | same [June bool = 0] |  |
@@ -560,6 +552,7 @@ The full spec is in the plan, Phases 4a and 4b.
 | `FORCE_DOWN` | implemented |  | 1597 | direct 32632390@326388a8 | X2DamageManager:428 | same [June float = 0] |  |
 | `FORCE_FLY` | implemented |  | 1656 | direct 32632390@3263a088 | X2DamageManager:454 | same [June bool = 0] |  |
 | `GROGGY_TIME` | implemented |  | 18 | direct 32632390@326389b0 | X2DamageManager:429 | same [June float = 0] |  |
+| `HIT_ADD_COMBINATION_POINT` | implemented |  | 15 | direct 32632390@3263dfd2 | X2DamageManager:224 | same [June int = 0] |  |
 | `HIT_ADD_FORCE_POWER` | implemented |  | 4 | direct 32632390@3263dcd5 | X2DamageManager:539 | same (32632390@3263de28: int, default EBX, zeroed @3263de06) [June int = None] |  |
 | `HIT_ADD_HP_PERCENT` | implemented |  | 3 | direct 32632390@32638c66 | X2DamageManager:434 | same [June float = 0] |  |
 | `HIT_ADD_HP_PERCENT_ATTACKPOWER` | implemented |  | 1 | direct 32632390@3263e6c4 | X2DamageManager:554 | same [June float = 0] |  |
@@ -568,6 +561,8 @@ The full spec is in the plan, Phases 4a and 4b.
 | `HIT_GAP` | implemented |  | 3748 | direct 32632390@3263a479 | X2DamageManager:459 | same [June float = 0] |  |
 | `HIT_TYPE` | implemented |  | 7291 | direct 32632390@32632d91 | X2DamageManager:138 | same [June enum = 0] |  |
 | `HP_PERCENT_UP` | implemented |  | 22 | direct 32632390@3263b97e | X2DamageManager:491 | same [June float = 0] |  |
+| `HP_RATE_DAMAGE_TYPE` | implemented |  | 8 | direct 32632390@3263f2ad | X2DamageManager:230 | same [June enum = 0] |  |
+| `HP_RATE_DAMAGE_VALUE` | implemented |  | 8 | direct 32632390@3263f45f | X2DamageManager:235 | same [June float = 0] |  |
 | `IGNORE_DEFENCE` | implemented |  | 34 | direct 32632390@3263c5d2 | X2DamageManager:511 | same [June bool = 0] |  |
 | `IGNORE_STATE_DEFENCE` | implemented |  | 70 | direct 32632390@3263d168 | X2DamageManager:521 | same [June bool = 0] |  |
 | `INCREASE_MP` | implemented |  | 1 | direct 32632390@3263dbac | X2DamageManager:530 | same [June float = 0] |  |
@@ -575,10 +570,13 @@ The full spec is in the plan, Phases 4a and 4b.
 | `MAKE_TARGET` | implemented |  | 1 | direct 32632390@3263eb25 | X2DamageManager:561 | same [June bool = 0] |  |
 | `MELEE_ATTACK` | implemented |  | 100 | direct 32632390@32632f88 | X2DamageManager:140 | same (32632390@3263305e: bool getter, result ignored, so a missing key leaves the member as it was = March default-to-itself) [June bool = None] |  |
 | `MP_PERCENT_UP` | implemented |  | 10 | direct 32632390@3263bab1 | X2DamageManager:492 | same [June float = 0] |  |
+| `NATURAL_FORCE_TYPE` | implemented |  | 367 | direct 32632390@32635398 | X2DamageManager:218 | same (32632390@326354db: int, default EDI=-1 = NFT_NONE, set @3263532a and not rewritten before the store) [June int = None] |  |
 | `NO_BUFF` | implemented |  | 57 | direct 32632390@3263c3be | X2DamageManager:505 | same [June bool = 0] |  |
 | `NO_DAMAGE` | implemented |  | 514 | direct 32632390@3263ade6 | X2DamageManager:471 | same [June bool = 0] |  |
 | `NO_DETONATION` | implemented |  | 322 | direct 32632390@3263b439 | X2DamageManager:482 | same [June bool = 0] |  |
 | `NO_MISS` | implemented |  | 203 | direct 32632390@3263d301 | X2DamageManager:522 | same [June bool = 0] |  |
+| `NUMERICAL_DATA_INDEX` | implemented |  | 2065 | direct 32632390@3263fb25 | X2DamageManager:248 | same (32632390@3263fc86: int into a stack local, default EBX, zeroed @3263fc6b) [June int = None] |  |
+| `NUMERICAL_DATA_NAME` | implemented |  |  | binary-only 32632390@3263fcdd | X2DamageManager:249 | same [June string = ''] | binary-only: no June data uses it |
 | `ONLY_BASIC` | implemented |  | 18 | direct 32632390@3263d055 | X2DamageManager:520 | same [June bool = 0] |  |
 | `PVP_RATE` | implemented |  | 1504 | direct 32632390@32635d43 | X2DamageManager:290 | same [June float = 1] |  |
 | `RATE_MODIFIER` | implemented |  | 943 | direct 32632390@3263c495 | X2DamageManager:508 | same [June float = 1] |  |
@@ -587,6 +585,7 @@ The full spec is in the plan, Phases 4a and 4b.
 | `RELAX_NPC_REACTION_STATE_CHECK` | implemented |  | 4 | direct 32632390@3263e1f6 | X2DamageManager:549 | same [June bool = 0] |  |
 | `RESIST` | implemented |  | 7 | direct 32632390@3263b75c | X2DamageManager:489 | same [June int = 0] |  |
 | `RE_ATTACK` | implemented |  | 5198 | direct 32632390@3263a38d | X2DamageManager:458 | same [June bool = 0] |  |
+| `ROSE_WEAPON_ATTACK_TYPE` | implemented |  | 38 | direct 32632390@326400bc | X2DamageManager:257 | same [June int = -1] |  |
 | `STOP_TIME_ATT` | implemented |  | 2828 | direct 32632390@32639084 | X2DamageManager:437 | same [June float = 0] |  |
 | `STOP_TIME_DEF` | implemented |  | 3648 | direct 32632390@326391b7 | X2DamageManager:438 | same [June float = 0] |  |
 | `TECH_POINT` | implemented |  | 2833 | direct 32632390@32637d94 | X2DamageManager:417 | same [June int = 0] |  |
@@ -636,11 +635,11 @@ The full spec is in the plan, Phases 4a and 4b.
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR
 
-6 rows: implemented 5, unsupported 1. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
+6 rows: implemented 6. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | unassigned | 2 | direct 32632390@32632446 | X2DamageManager:209 | unchecked(buff parser row: March matched path-insensitively) | compiled elsewhere: X2DamageEffect:1618, X2EffectSet:3633; raw literal 5 (X2Lib/X2DamageEffect.cpp:1618); bare id 16; e.g. DamageEffect:DamageEffect_ESK_DoubleSlash_FirstImpact_Memo |
+| `APPLIED_SKILL_ID` | implemented |  | 2 | direct 32632390@32632446 | X2DamageManager:209 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `BEHAVIOR` | implemented |  | 967 | other-func 32d4c9c0 | X2BuffFactor:532 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `BUFF_TEMPLET_ID` | implemented |  | 967 | direct 32632390@3263d647 | X2BuffFactor:492 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `FINALIZER` | implemented |  | 967 | other-func 32d4ca60 | X2BuffFactor:559 | unchecked(buff parser row: March matched path-insensitively) |  |
@@ -1296,7 +1295,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `AT_RAID_FIELD` | binary-only | 6b |  | binary-only 31f71930@31f732aa |  |  | compiled elsewhere: X2DamageEffect:7959; raw literal 1 (X2Lib/X2DamageEffect.cpp:7959); bare id 1; runtime 7b: new (done) |
+| `AT_RAID_FIELD` | binary-only | 6b |  | binary-only 31f71930@31f732aa |  |  | compiled elsewhere: X2DamageEffect:7959; raw literal 1 (X2Lib/X2DamageEffect.cpp:7973); bare id 1; runtime 7b: new (done) |
 | `CURVE_SPEED` | implemented |  | 385 | direct 31f71930@31f71ab4 | X2DamageEffect:7862 | same [June float = 0] | runtime 7b: same (done) |
 | `DUNGEON_TARGET_RANGE_MIN_MAX` | implemented |  | 147 | direct 31f71930 | X2DamageEffect:7969 | n/a (sub-table name) | runtime 7b: semantics-differ (done) |
 | `INIT_TARGET` | implemented |  | 3 | direct 31f71930@31f73691 | X2DamageEffect:7937 | same [June bool = 0] | runtime 7b: new (done) |
@@ -1443,13 +1442,13 @@ The full spec is in the plan, Phases 4a and 4b.
 
 #### `ES.templet` (top)
 
-24 rows: implemented 11, june-ignores 11, unsupported 2. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
+24 rows: implemented 12, june-ignores 11, unsupported 1. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | 2 | 170 | direct 321e48e0@321e5675 | X2EffectSet:3633 | same [June enum = 0] | compiled elsewhere: X2DamageEffect:1618, X2EffectSet:3633; raw literal 5 (X2Lib/X2DamageEffect.cpp:1618); bare id 16; e.g. EffectSet:call:AddEffectSetTemplet_LUA; runtime 4a: unsupported (done) |
 | `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | unsupported(Effect-alpha option (absent)) | 2 | 24 | direct 321e48e0@321e5a5d | X2EffectSet:3641 | unchecked(unchecked-default(June: non-standard shape after the call: mov neg sbb and)) [June int = None] | compiled elsewhere: X2DamageEffect:1731, X2EffectSet:3641; raw literal 6 (X2Lib/X2DamageEffect.cpp:1731); bare id 20; e.g. EffectSet:call:AddEffectSetTemplet_LUA; runtime 4a: unsupported (done) |
 | `AFFECTED_BY_UNIT_SCALE` | implemented |  | 171 | direct 321e48e0@321e4f93 | X2EffectSet:3612 | same [June bool = 1] | runtime 4a: same (-) |
+| `APPLIED_SKILL_ID` | implemented |  | 170 | direct 321e48e0@321e5675 | X2EffectSet:3633 | same [June enum = 0] | runtime 4a: unsupported (done) |
 | `CAMERA_SHAKE%d` | implemented |  | 3816 | direct 321e48e0 | X2EffectSet:4135 | n/a (sub-table name) | 12 names; runtime 4b: same (-) |
 | `DELETE_EFFECTSET_AT_TRACE_UNIT_DIE` | implemented |  | 2 | direct 321e48e0@321e531f | X2EffectSet:3629 | same [June bool = 0] | runtime 4b: new (done) |
 | `DELETE_SHAKE_COUNT` | implemented |  | 14 | direct 321e48e0@321e5162 | X2EffectSet:3615 | same [June int = -1] | runtime 4b: same (-) |
@@ -1986,1047 +1985,1069 @@ evidence. An unsupported row that March parses that way stays `unsupported`, wit
 
 | system | keys (pattern) | verdict | evidence | compiled hits (parser TUs) | raw hits | enclosing flags | rule-5 hits (not evidence) |
 |---|---|---|---|---|---|---|---|
-| Rose weapon | `ROSE_WEAPON` | **absent** | no Rose class (`CX2GURose*`), unit class, enum or `ROSE_WEAPON_*` identifier in the client or `KncWX2Server/Common`; `CX2Unit::UNIT_TYPE` ends at `UT_ADD` (X2Unit.h), and every other `ROSE` stem hit is a skill or NPC name (Phase 8c) | 0 | 0 | - | 7 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
-| Natural force | `NATURAL_FORCE` | **gated-off** | Rena natural-force code exists, but only under `ADD_RENA_SYSTEM`, which is off under `US_SERVICE` | 0 | 122 in 9 files (`X2Lib/X2GULire_ElvenRanger.cpp`, `X2Lib/X2GageData.h`) | `ADD_RENA_SYSTEM` off | 7 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
+| Rose weapon | `ROSE_WEAPON` | **present** | no Rose class (`CX2GURose*`), unit class, enum or `ROSE_WEAPON_*` identifier in the client or `KncWX2Server/Common`; `CX2Unit::UNIT_TYPE` ends at `UT_ADD` (X2Unit.h), and every other `ROSE` stem hit is a skill or NPC name (Phase 8c) | X2DamageEffect.cpp 1, X2EffectSet.cpp 1, X2DamageManager.cpp 1 | 0 | - | 7 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
+| Natural force | `NATURAL_FORCE` | **present** | Rena natural-force code exists, but only under `ADD_RENA_SYSTEM`, which is off under `US_SERVICE` | X2DamageEffect.cpp 1, X2EffectSet.cpp 1, X2DamageManager.cpp 1 | 122 in 9 files (`X2Lib/X2GULire_ElvenRanger.cpp`, `X2Lib/X2GageData.h`) | `ADD_RENA_SYSTEM` off | 7 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
 | Skill memo | `MEMO` | **present** | compiled in: `ADD_MEMO_1ST_CLASS` is ON under `US_SERVICE` (March reads memo keys June does not; see *March reads it, June does not*) | X2DamageManager.cpp 11, X2DamageEffect.cpp 5, X2EffectSet.cpp 5 | 31 in 5 files (`X2Lib/X2GUUser.cpp`, `X2Lib/X2GameUnit.cpp`) | `ADD_MEMO_1ST_CLASS` ON, `BALANCE_PATCH_20131107` ON | 4 in 2 files (`X2Lib/X2EffectSet.cpp`, `X2Lib/X2DamageEffect.cpp`) |
-| Numerical skill data | `NUMERICAL_DATA` | **absent** | no identifier anywhere (a plan-listed absent system) | 0 | 0 | - | 14 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
-| HP-rate damage | `HP_RATE_DAMAGE` | **absent** | no identifier anywhere, and no `HP_RATE_DAMAGE_TYPE` enum (a plan-listed absent system) | 0 | 0 | - | 14 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
-| Applied skill ID | `^APPLIED_SKILL_ID$` | **absent** | no March identifier for the key (a plan-listed absent system); the search is by the key's own name. June's two DamageData readers, `ParsingBuffFactorID`'s `_ULTIMATE` gate (`31fcf3e0`, unidentified, Phase 8b) and the numerical-data override (`32632390@3263fe41-32640054`), have no March counterpart. `DamageData::m_eUsedSkillID` (`SERV_ARA_CHANGE_CLASS_SECOND`) is a C++-set skill ID, not this key (Phase 8c) | 0 | 0 | - | 36 in 6 files (`X2Lib/X2EffectSet.cpp`, `X2Lib/X2DamageEffect.cpp`) |
+| Numerical skill data | `NUMERICAL_DATA` | **present** | no identifier anywhere (a plan-listed absent system) | X2DamageEffect.cpp 2, X2EffectSet.cpp 2, X2DamageManager.cpp 2 | 0 | - | 14 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
+| HP-rate damage | `HP_RATE_DAMAGE` | **present** | no identifier anywhere, and no `HP_RATE_DAMAGE_TYPE` enum (a plan-listed absent system) | X2DamageEffect.cpp 2, X2EffectSet.cpp 2, X2DamageManager.cpp 2 | 0 | - | 14 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
+| Applied skill ID | `^APPLIED_SKILL_ID$` | **present** | no March identifier for the key (a plan-listed absent system); the search is by the key's own name. June's two DamageData readers, `ParsingBuffFactorID`'s `_ULTIMATE` gate (`31fcf3e0`, unidentified, Phase 8b) and the numerical-data override (`32632390@3263fe41-32640054`), have no March counterpart. `DamageData::m_eUsedSkillID` (`SERV_ARA_CHANGE_CLASS_SECOND`) is a C++-set skill ID, not this key (Phase 8c) | X2DamageEffect.cpp 2, X2EffectSet.cpp 2, X2DamageManager.cpp 2 | 0 | - | 36 in 6 files (`X2Lib/X2EffectSet.cpp`, `X2Lib/X2DamageEffect.cpp`) |
 | Nasod armor combo | `NASOD_ARMOR_COMBO` | **present-elsewhere** | compiled in: Add's Nasod-armor combo states (`X2GUAdd`) under `SERV_9TH_NEW_CHARACTER`, which is ON | 0 | 51 in 2 files (`X2Lib/X2GUAdd.cpp`, `X2Lib/X2GUAdd.h`) | `SERV_ADD_LUNATIC_PSYKER` ON, `SERV_9TH_NEW_CHARACTER` ON | 0 |
-| Combination point | `COMBINATION_POINT` | **absent** | no March identifier for the key (a plan-listed absent system); the search is by the key's own name | 0 | 0 | - | 7 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
+| Combination point | `COMBINATION_POINT` | **present** | no March identifier for the key (a plan-listed absent system); the search is by the key's own name | X2DamageEffect.cpp 1, X2EffectSet.cpp 1, X2DamageManager.cpp 1 | 0 | - | 7 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
 | Effect-alpha option | `EFFECT_ALPHA_CONDITION` | **absent** | no per-owner effect-alpha game option: `X2GameOption` has only the effect-detail level (`m_eEffect`/`m_bEffect`, X2GameOption.h:48-52) and `m_bFlashEffect`. June's enum (`AEACBO_MY_EFFECT` / `_MY_TEAM_EFFECT` / `_ANOTHER_TEAM_EFFECT`) names an option this client never had. Honouring the key needs that option (UI + save): **a decision for the user**, not a transcription | 0 | 0 | - | 40 in 4 files (`X2Lib/X2EffectSet.cpp`, `X2Lib/X2EffectSet.h`) |
 
 Search terms: Rose weapon: `ROSE_WEAPON_\w+`, `\w*RoseWeapon\w*`, `CX2GURose\w*`, `UC_ROSE\w*`; Natural force: `NATURAL_FORCE_TYPE`, `NFT_\w+`, `m_\w*NaturalForce\w*`, `\w*NATURAL_FORCE_VALUE\w*`; Skill memo: `APPLIED_MEMO_ID`, `IsEqippedMemo_?`, `BUFF_FACTOR_ID_MEMO`, `BUFF_FACTOR_RELATIVE_MEMO_ID`, `DAMAGE_DATA(_NEXT)?_MEMO\d*`, `NOT_ALLOW_MEMO`, `APPLIED_SKILL_ID_NOT_AFFECT_MEMO`; Numerical skill data: `NUMERICAL_DATA_\w+`, `\w*NumericalData\w*`; HP-rate damage: `HP_RATE_DAMAGE_\w+`, `\w*HpRateDamage\w*`; Applied skill ID: `APPLIED_SKILL_ID`, `\w*AppliedSkillI[dD]\w*`; Nasod armor combo: `CAN_ACTIVATE_NASOD_ARMOR_COMBO`, `\w*NasodArmorCombo\w*`; Combination point: `\w*COMBINATION_POINT\w*`, `\w*CombinationPoint\w*`; Effect-alpha option: `\w*EFFECT_ALPHA_CONDITION\w*`, `\w*EffectAlphaCondition\w*`, `AEACBO_\w+`, `\w*MY_TEAM_EFFECT\w*`, `\w*ANOTHER_TEAM_EFFECT\w*`, `\w*OtherTeamEffect\w*`.
 
-Unsupported rows (14): `APPLIED_SKILL_ID` (`DE.DAMAGE_DATA` (top), Applied skill ID (absent)), `APPLIED_SKILL_ID` (`DE.DAMAGE_DATA` BUFF_FACTOR, Applied skill ID (absent)), `APPLIED_SKILL_ID` (`DE.top` (top), Applied skill ID (absent)), `APPLIED_SKILL_ID` (`ES.templet` (top), Applied skill ID (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`ES.EFFECT` (top), Effect-alpha option (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`ES.templet` (top), Effect-alpha option (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`DE.top` (top), Effect-alpha option (absent)), `HIT_ADD_COMBINATION_POINT` (`DE.DAMAGE_DATA` (top), Combination point (absent)), `HP_RATE_DAMAGE_TYPE` (`DE.DAMAGE_DATA` (top), HP-rate damage (absent)), `HP_RATE_DAMAGE_VALUE` (`DE.DAMAGE_DATA` (top), HP-rate damage (absent)), `NATURAL_FORCE_TYPE` (`DE.DAMAGE_DATA` (top), Natural force (gated-off)), `NUMERICAL_DATA_INDEX` (`DE.DAMAGE_DATA` (top), Numerical skill data (absent)), `NUMERICAL_DATA_NAME` (`DE.DAMAGE_DATA` (top), Numerical skill data (absent)), `ROSE_WEAPON_ATTACK_TYPE` (`DE.DAMAGE_DATA` (top), Rose weapon (absent)).
+Unsupported rows (3): `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`ES.EFFECT` (top), Effect-alpha option (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`ES.templet` (top), Effect-alpha option (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`DE.top` (top), Effect-alpha option (absent)).
 
 ## Enum census
 
 Every `TABLE.MEMBER` value the in-scope June data uses, against June's `Enum.lua` and
 `march2014/data036/Enum.src.lua` + `DungeonEnum.src.lua`. `reader` is the phase that owns the
-key(s) using it: an enum member with no reader is not added (Phase 11 owns the data change).
+key(s) using it. Phase 11 added every row below that was still `missing`/`table missing` as of
+2026-09-30, reader-less ones included (see the `PHASE11_ENUM_ADDED` note above `write()`); once
+added, a row reads as present-in-both and drops out of the table below, which is why the added
+rows are listed separately just under it rather than only in the raw diff.
 
-1327 members of 40 tables used; 1006 missing from March; 2 whose value differs between June and March.
+1327 members of 40 tables used; 38 missing from March; 0 whose value differs between June and March.
 
 | table | member | uses | June `Enum.lua` | March | keys using it | reader (key status, phase) |
 |---|---|---|---|---|---|---|
-| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | `AEACBO_NOT_APPLY` | 29 | 1 | table missing | `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION unsupported 2; APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION unsupported 3 |
-| `ATTACK_TYPE` | `AT_COMMAND` | 784 | 2 | **missing** | `ATTACK_TYPE` | ATTACK_TYPE implemented 8a |
-| `BUFF_BEHAVIOR_TYPE` | `BBT_IMMUNE_NON_CONTROL_DEBUFF` | 1 | 95 | **missing** | `COMBINATION` | COMBINATION implemented unassigned |
-| `BUFF_BEHAVIOR_TYPE` | `BBT_INVINCIBLE` | 1 | 77 | **missing** | `COMBINATION` | COMBINATION implemented unassigned |
-| `BUFF_FACTOR_ID` | `BFI_ALH_LINK_FLOWER` | 2 | 662 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_AMUSEMENT_ITEM_LOCK` | 1 | 829 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_ACEINTHEHOLE` | 1 | 998 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_ACEINTHEHOLE_1` | 1 | 1015 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_ADD_CENTER_MONSTER_POWER_UP` | 1 | 941 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_ADD_CENTER_MONSTER_SUPER_ARMOR` | 1 | 942 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_ALPTRAUM` | 1 | 1087 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_ASSAULT_STRIKE` | 2 | 468 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_AUTISUGGESTION_PARTY` | 1 | 1049 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_AUTISUGGESTION_PARTY_ULTIMATE` | 1 | 1051 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_BLATT_BLUME_REIN_PVE` | 1 | 1060 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_BLATT_BLUME_REIN_PVP` | 1 | 1061 | **missing** | `BUFF_FACTOR_ID_PVP` | BUFF_FACTOR_ID_PVP to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_BLATT_BLUME_WILLE_PVE` | 1 | 1062 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_BLATT_BLUME_WILLE_PVP` | 1 | 1063 | **missing** | `BUFF_FACTOR_ID_PVP` | BUFF_FACTOR_ID_PVP to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_BRENNEN_PANTASMA_BODEN` | 1 | 1072 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_CREST_OF_TIME` | 1 | 474 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_CREST_OF_TIME_DECREASE_COOLTIME` | 1 | 501 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR_EVENT` | 1 | 372 | **365 (June 372)** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_HAMEL_SECRET_DUNGEON_WING_EVENT` | 1 | 373 | **366 (June 373)** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_NECROMANCY_TEAM` | 1 | 458 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_NECROMANCY_TEAM_UPGRADE` | 1 | 959 | **missing** | `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_POWER_OF_DARKNESS_DARK_FALL` | 2 | 447 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_POWER_OF_DARKNESS_DARK_HOLE` | 1 | 449 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_SATZ_AURORA` | 1 | 1068 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_BUFF_VERTRAUEN_MELODIE` | 1 | 1078 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DARK_EL_YELLOW_SUPER_ARMOR` | 1 | 10024 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_AIMING_STIGMA` | 1 | 924 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_AIN_1ST_LINE_BLEEDING` | 4 | 1047 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_AIN_2ST_LINE_EL_KEIM` | 25 | 1056 | **missing** | `BUFF_FACTOR_ID`, `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID implemented 8a; BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_AIN_EL_CIRCLE` | 11 | 1037 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ALPTRAUM_CONFUSION` | 1 | 1100 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ANCIENT_FIRE_UPGRADE_DUNGEON` | 1 | 663 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ANCIENT_FIRE_UPGRADE_PVP` | 1 | 664 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ARMORED_TEMPEST_CONFUSION` | 1 | 1007 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ARMORED_TEMPEST_SILENCE` | 1 | 1008 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ATOMIC_BLASTER_PLASMAGUN_UPGRADE` | 1 | 969 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ATOMIC_SHIELD_UPGRADE` | 1 | 970 | **missing** | `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ATTACK_ME` | 1 | 1009 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_A_AAP_MODER_MARKING` | 1 | 1103 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_BLEEDING_WESTERN_FIRE` | 2 | 734 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_BLUME_MUT` | 1 | 1059 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_BOHREN_VEREISEN_ADD_COLD` | 3 | 1039 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_BOHREN_VEREISEN_ADD_COLD_ULTIMATE` | 3 | 1043 | **missing** | `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_BOHREN_VEREISEN_FROZEN` | 9 | 1038 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_CELESTIAL_VISION_HALL` | 1 | 931 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_CHAOS_FELD` | 2 | 1104 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_CURSE` | 2 | 625 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_CURSE_OF_BLOOD` | 2 | 997 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a; BUFF_FACTOR_ID june-ignores - |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_CURSE_OF_DARKNESS_DARK_FALL` | 2 | 448 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_CURSE_OF_DARKNESS_DARK_HOLE` | 1 | 450 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_DARK_WAVE_MEMO_STUN` | 2 | 596 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_DEATH_TOUCH` | 2 | 816 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_DECREASE_FORCE_DOWN_IMMEDIATELY` | 2 | 555 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_DESPERADO_MOVE_BRAKE` | 1 | 791 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_DRITT_EROSION_WOUND` | 1 | 1071 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_DRON_SLOW_EFFECT` | 1 | 730 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_EINFALLEN_ATTRIBUTE_DEFENCE` | 2 | 1070 | **missing** | `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ELECTRIC_SHOCK` | 35 | 653 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_EL_MAGE` | 2 | 1018 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ERADICATION` | 1 | 999 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ERDA_MID_ALL_STUN` | 1 | 1128 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_FESSELN` | 1 | 1090 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_FIRE_EL_DEF` | 4 | 1022 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_FIRE_PAST_SOLESS` | 1 | 1020 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_FOX_GHOST` | 1 | 892 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_FOX_SMILE` | 1 | 461 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_GARDEN_OF_HAURES` | 1 | 796 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_GEIST_HERRSCHAFT` | 1 | 1088 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_GEIST_HERRSCHAFT_ULTIMATE` | 1 | 1099 | **missing** | `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_GENOCIDE_RIPPER_UPGRADE` | 3 | 971 | **missing** | `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_HEAVY_FIELD` | 1 | 992 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_HERO_DUNGEON_ICEGROUND` | 2 | 805 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_HERO_DUNGEON_POISONGROUND` | 2 | 806 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_HERO_DUNGEON_WINDGROUND` | 2 | 807 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_IFRIT_FLAME` | 1 | 982 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_INJECTION_STIGMA_MEMO` | 2 | 595 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_KS_83_KILL_NERVE` | 1 | 752 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_KS_83_KILL_NERVE_ULTIMATE` | 1 | 761 | **missing** | `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_LEERE` | 1 | 1091 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_LTR_ENTANGLE_UPGRADE` | 1 | 952 | **missing** | `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_MAGIC_DEFFENCE_DROP_PETIT_ANGOR` | 5 | 446 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_MENTAL_BREAK` | 1 | 634 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_MENTAL_PRESS` | 4 | 994 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_MOONLIGHT_RHAPSODY` | 1 | 477 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_MORTAL_FEAR` | 1 | 780 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_MOVE_JUMP_SLOWDOWN_OPEN_THE_HELL` | 1 | 898 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_NETHER_SHREDDER_MEMO` | 4 | 602 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_NIGHTMARE` | 1 | 784 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_NIGHTMARE_BLACK_SCREEN` | 1 | 785 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_PANDEMONIUM_CHAOS` | 1 | 453 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_POISON_EL_DEF` | 2 | 1024 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_PROVOKE_UPGRADE` | 1 | 985 | **missing** | `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_RAID_PERKISAS_AGING` | 1 | 674 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_RAID_PERKISAS_ARMOR_BREAK` | 1 | 670 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_RAID_PERKISAS_CONFUSION` | 1 | 673 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_RAID_PERKISAS_CURSE` | 1 | 675 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_RAID_PERKISAS_MAGIC_DEFFENCE_DROP` | 1 | 671 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_RAID_PERKISAS_SLOWDOWN` | 1 | 672 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_RAID_PERKISAS_WOUND` | 1 | 676 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_REQUIEM_WILLE` | 1 | 1075 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_REVERSE_STIGMA` | 1 | 478 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ROSE_BBQ_BURN` | 7 | 725 | **missing** | `BUFF_FACTOR_ID`, `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID implemented 8a; BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ROSE_FLAMETHROWER_ULTIMATE` | 4 | 729 | **missing** | `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ROSE_GATLING_GUN_ULTIMATE_BLEEDING` | 1 | 728 | **missing** | `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SATZ_AURORA_WILLE` | 1 | 1083 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SA_RCR_CHAIN_VIPER` | 1 | 921 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SHADOW` | 2 | 547 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SILENT_RAGE_SILENCE` | 1 | 795 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SINISTER_MIND_SEED` | 4 | 793 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SI_SA_ADM_AGING_UPGRADE` | 2 | 972 | **missing** | `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SLEEP` | 3 | 811 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SLOW_2016_XMAS` | 1 | 10067 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SLOW_EL_DEF` | 2 | 1023 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SOUL_INFEST_MEMO` | 1 | 601 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SPECTER_WALK` | 1 | 457 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_STILL_LENZE_SILENCE` | 1 | 1046 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_STOM_STARK_STURN` | 1 | 1067 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_STUN_EL_DEF` | 2 | 1025 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_STUN_EL_KNIGHT` | 1 | 1021 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SUMMON_FAMILIAR_SLOW` | 3 | 552 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SUPPRESSION_UPGRADE` | 4 | 956 | **missing** | `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SUPREME_PUNISHMENT` | 1 | 542 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SURFACE_CUTING_UPGRADE` | 2 | 987 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SWORD_SHIELD_BLEEDING_ULTIMATE` | 2 | 718 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_VERSCHMELZEN_LINK` | 1 | 1069 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_VOID_FIELD` | 1 | 475 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_WAR_PRELUDE` | 1 | 657 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_WIND_EINFALLEN_SLOW` | 4 | 1057 | **missing** | `BUFF_FACTOR_ID`, `BUFF_FACTOR_ID_ULTIMATE` | BUFF_FACTOR_ID implemented 8a; BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_WIND_EINFALLEN_STUN` | 3 | 1058 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DEBUFF_WOLF_BREAK` | 3 | 897 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FACTOR_ID` | `BFI_DECREASE_COOLTIME_AND_MP` | 1 | 857 | **missing** | `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID` | APPLY_LEARNED_SKILL_BUFF_FACTOR_ID to-implement 8b |
-| `BUFF_FACTOR_ID` | `BFI_ERDA_SPELL_OF_SOURCE_SUPER_ARMOR` | 1 | 1129 | **missing** | `BUFF_FACTOR_ID` | BUFF_FACTOR_ID implemented 8a |
-| `BUFF_FINALIZER_TYPE` | `BFT_AURA` | 1 | 14 | **missing** | `COMBINATION` | COMBINATION implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_ADD_CRITICAL_TIME` | 1 | 417 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_AIN_El_CIRCLE_FIRE_FINISH_OTHER_DEBUFF` | 6 | 976 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_AMUSEMENT_ITEM_PHOENIX_IN_DAMAGE` | 1 | 817 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_AMUSEMENT_ITEM_PRESS_IN_DAMAGE` | 1 | 813 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_AMUSEMENT_ITEM_SHIELD_IN_DAMAGE` | 1 | 809 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_AMUSEMENT_ITEM_WATER_BALLOON_IN_DAMAGE` | 1 | 810 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_BUFF_ARTIFACT_OF_ENHANCE` | 1 | 466 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_BUFF_ARTIFACT_OF_MP_RECOVER` | 1 | 465 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_BUFF_FURIOUS_ENERGY` | 1 | 469 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_BUFF_GODBEAST_FEAR` | 3 | 534 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_BUFF_HALLOWEEN_DEBUFF_CURSE` | 1 | 10024 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_BUFF_HALLOWEEN_SOUP` | 1 | 10015 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_BUFF_PHASE_OF_PERKISAS` | 1 | 717 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_CDC_EXCITING_CRASH` | 1 | 859 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_COLD_ONLY_COLOR` | 2 | 847 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_DARK_SOLES_ATTACK` | 6 | 902 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_ELECTRIC_SHOCK` | 4 | 564 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_ELYSION_COMMANDER_WEEK` | 1 | 907 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_HERO_STOP` | 7 | 557 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_IMPACT_ZONE` | 2 | 938 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_LAVA_BURN` | 2 | 789 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_MOTION_SLOWDOWN_WIND_BLAST` | 1 | 538 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_POWER_BUSTER_MEMO` | 1 | 392 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_SHOCK_ELYSION_6` | 3 | 917 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_SILENT_RAGE_SILENCE` | 2 | 769 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_SUPPRESSION_SPECTER` | 1 | 425 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_ZOMBIE_TRANSFORM` | 2 | 931 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_DEBUF_SLOW_DEKAL_MOVE_ATTACK_A` | 1 | 663 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_HALOWEEN_AURA_SPEED_ACCEL` | 1 | 695 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `BUFF_TEMPLET_ID` | `BTI_HIT_COUNT_ATTACK` | 2 | 793 | **missing** | `BUFF_TEMPLET_ID` | BUFF_TEMPLET_ID implemented unassigned |
-| `DAMAGE_EFFECT_DIE_CONDITION_TYPE` | `DEDCT_DAMAGE_TIME` | 1 | 0 | table missing | `DAMAGE_EFFECT_DIE_CONDITION_TYPE` | DAMAGE_EFFECT_DIE_CONDITION_TYPE implemented 6a |
-| `DAMAGE_EFFECT_DIE_CONDITION_TYPE` | `DEDCT_LOCK_ON_TARGET` | 1 | 1 | table missing | `DAMAGE_EFFECT_DIE_CONDITION_TYPE` | DAMAGE_EFFECT_DIE_CONDITION_TYPE implemented 6a |
 | `DAMAGE_EFFECT_EFFECT_TYPE` | `DEPT_IMPACT_POINT` | 2 | missing | **missing** | `EFFECT_TYPE` | EFFECT_TYPE implemented 5 |
 | `DAMAGE_EFFECT_EFFECT_TYPE` | `ET_MESH_PLAYER_GAME_MAJOR` | 1 | missing | **missing** | `EFFECT_TYPE` | EFFECT_TYPE implemented 5 |
 | `DAMAGE_EFFECT_POSITION_TYPE` | `DEET_BASIC` | 26 | missing | **missing** | `POSITION_TYPE` | POSITION_TYPE implemented 6b |
 | `DAMAGE_EFFECT_POSITION_TYPE` | `DEPT_BONE_POS` | 139 | missing | **missing** | `POSITION_TYPE` | POSITION_TYPE implemented 6a; POSITION_TYPE implemented 6b |
-| `DAMAGE_EFFECT_POSITION_TYPE` | `DEPT_IMPACT_UNIT_BONE` | 80 | 6 | **missing** | `POSITION_TYPE` | POSITION_TYPE implemented 6a; POSITION_TYPE implemented 6b |
-| `DAMAGE_EFFECT_POSITION_TYPE` | `DEPT_IMPACT_UNIT_POS` | 2 | 5 | **missing** | `POSITION_TYPE` | POSITION_TYPE implemented 6a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_AAP_AUSROTTUNG_ATTACK_CHECK` | 1 | 67 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_AAP_FESSELN_LINK` | 1 | 66 | **missing** | `ADDITIONAL_ATTACK_TRIGGER_TYPE` | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_ACEINTHEHOLE_2ND` | 1 | 43 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_ACEINTHEHOLE_FINAL` | 2 | 36 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_ADD_CAN_MUTATION_POINT_UP` | 1 | 32 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_ADD_RANDOM_EID` | 2 | 55 | **missing** | `ADDITIONAL_ATTACK_TRIGGER_TYPE` | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_AIN_EL_CIRCLE_FIRE` | 5 | 46 | **missing** | `ADDITIONAL_ATTACK_TRIGGER_TYPE`, `ATTACK_TRIGGER_TYPE` | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b; ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_AIN_EL_CIRCLE_FIRE_BACK` | 1 | 47 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_AIN_EL_CIRCLE_FIRE_DOWN` | 1 | 49 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_AIN_EL_CIRCLE_FIRE_UP` | 1 | 48 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_AIN_X_COMBO_PROJECTILE` | 3 | 52 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_ALW_COMBO_XXZ_TARGET_CHECK` | 1 | 63 | **missing** | `ADDITIONAL_ATTACK_TRIGGER_TYPE` | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_ASR_LIGHTNING` | 1 | 28 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_AUTOGUN_COMMAND` | 4 | 14 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
 | `DAMAGE_TRIGGER_TYPE` | `DTT_AVP_STICK_ATTACK` | 3 | missing | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_AYR_ENERGY_BULLET` | 2 | 26 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_AYR_GAIN_GOOD_ENERGY_BALL` | 1 | 27 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_A_AAH_ZWEIT_RITUS` | 2 | 51 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_A_AEE_RUHIG_TRAP` | 2 | 59 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_A_AEE_VERSCHMELZEN` | 1 | 57 | **missing** | `ADDITIONAL_ATTACK_TRIGGER_TYPE` | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_A_AEE_VERSCHMELZEN_EID` | 1 | 58 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_A_ALA_ECHO_LICHT_NEXT` | 2 | 53 | **missing** | `ADDITIONAL_ATTACK_TRIGGER_TYPE`, `ATTACK_TRIGGER_TYPE` | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b; ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_A_ALA_VERTIEIDI_FIRST` | 6 | 54 | **missing** | `ADDITIONAL_ATTACK_TRIGGER_TYPE` | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_BURNING_PHANTOM` | 1 | 9 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_BURST_FIRE` | 4 | 8 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_CHAIN_REVOLVER_BLADE` | 47 | 11 | **missing** | `ATTACK_TRIGGER_TYPE`, `ADDITIONAL_ATTACK_TRIGGER_TYPE` | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b; ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_DECENT_DRAGON` | 1 | 68 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_DISPARATE_FORCE_POWER_OF_GOD` | 172 | 45 | **missing** | `ATTACK_TRIGGER_TYPE`, `ADDITIONAL_ATTACK_TRIGGER_TYPE` | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b; ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_DISPARATE_FORCE_POWER_OF_GOD_ATTACK` | 7 | 50 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_ECB_KUGELBLITZ_SELF_DAMAGE` | 1 | 25 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_ECE_REASON_PRIDE_FERDINAND_ATTACK` | 1 | 44 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_ERADICATION` | 1 | 37 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_ERADICATION_EXPLOSION` | 1 | 38 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_ETK_CONWELL_ATTACK` | 8 | 15 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_EXTREME_RUNE_BUSTER_RANDOM_BUFF` | 3 | 42 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_GUNGNIR_SPEAR` | 3 | 34 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_KILL_POINT` | 2 | 12 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_KS_83` | 1 | 13 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_KS_83_EXPLOSION` | 1 | 33 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_MOONLIGHT_RHAPSODY` | 4 | 7 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_MULTIPLE_DAMAGE_BY_DEBUFF` | 1 | 40 | **missing** | `ATTACK_TRIGGER_TYPE` | - |
 | `DAMAGE_TRIGGER_TYPE` | `DTT_PANDEMONIUM_CHAOS` | 1 | missing | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_RAIN_OF_CHAOS_GUN` | 1 | 41 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_RENA_KICK_ATTACK` | 1 | 20 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_RENA_TRAP_AND_SWORD_ATTACK` | 19 | 22 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_REVOLVER_COMMAND` | 5 | 10 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_RGA_GUNGNIR_OUR_TEAM_DAMAGE` | 1 | 23 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_RNW_PREDATOR_PLAY_EFFECT` | 4 | 24 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_RRF_BURNING_NASOD_HAND_POSSIBLE_WITH_INFINITY_RAGE` | 11 | 18 | **missing** | `ADDITIONAL_ATTACK_TRIGGER_TYPE` | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_RVC_IGNITION_CROW_SELF_DAMAGE` | 1 | 19 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_SA_AAP_ABGRUND` | 3 | 62 | **missing** | `ADDITIONAL_ATTACK_TRIGGER_TYPE` | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
 | `DAMAGE_TRIGGER_TYPE` | `DTT_SA_AAP_GOTTVERGESSEN_SENSE` | 6 | missing | **missing** | `ATTACK_TRIGGER_TYPE`, `ADDITIONAL_ATTACK_TRIGGER_TYPE` | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b; ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_SA_AEE_ELFE` | 1 | 56 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_SA_AEE_SATZ_AURORA_MUT` | 1 | 60 | **missing** | `ADDITIONAL_ATTACK_TRIGGER_TYPE` | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_SA_AEE_SATZ_AURORA_REIN` | 1 | 61 | **missing** | `ADDITIONAL_ATTACK_TRIGGER_TYPE` | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_SIEGE_SHELLING` | 3 | 31 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
-| `DAMAGE_TRIGGER_TYPE` | `DTT_TRAPPING_ARROW_FUNGUS_SUB` | 2 | 35 | **missing** | `ATTACK_TRIGGER_TYPE` | ATTACK_TRIGGER_TYPE implemented 8a |
 | `DAMAGE_TYPE` | `DT_NONE` | 21 | missing | **missing** | `DAMAGE_TYPE` | DAMAGE_TYPE implemented 8a |
-| `DUO_TYPE` | `DT_MAJOR` | 17 | 0 | table missing | `None` | - |
-| `DUO_TYPE` | `DT_MINOR` | 1 | 1 | table missing | `None` | - |
 | `DYNAMO_PARTICLE_RATE_TYPE` | `DPRT_SPECIAL` | 1 | missing | **missing** | `DYNAMO_PARTICLE_RATE_TYPE` | DYNAMO_PARTICLE_RATE_TYPE implemented 8a |
 | `DYNAMO_PARTICLE_RATE_TYPE` | `DPRT_SPEICAL_ACITVE` | 9 | missing | **missing** | `DYNAMO_PARTICLE_RATE_TYPE` | DYNAMO_PARTICLE_RATE_TYPE implemented 8a |
-| `EMOTION_TYPE` | `ET_NONE` | 4 | 0 | table missing | `BOUND_MOTION_TYPE_LIST` | BOUND_MOTION_TYPE_LIST implemented 3 |
-| `EMOTION_TYPE` | `ET_SITREADY` | 11 | 2 | table missing | `BOUND_MOTION_TYPE_LIST` | BOUND_MOTION_TYPE_LIST implemented 3 |
-| `EMOTION_TYPE` | `ET_SITWAIT` | 11 | 1 | table missing | `BOUND_MOTION_TYPE_LIST` | BOUND_MOTION_TYPE_LIST implemented 3 |
-| `EMOTION_TYPE` | `ET_STANDUP` | 4 | 3 | table missing | `BOUND_MOTION_TYPE_LIST` | BOUND_MOTION_TYPE_LIST implemented 3 |
-| `EXTRA_DAMAGE_TYPE` | `EDT_AMUSEMENT_ITEM_DARK_CLOUD` | 1 | 158 | **missing** | `EXTRA_DAMAGE_TYPE` | EXTRA_DAMAGE_TYPE implemented 8a |
-| `EXTRA_DAMAGE_TYPE` | `EDT_C4_REMOTE_CONTROL` | 1 | 148 | **missing** | `EXTRA_DAMAGE_TYPE` | EXTRA_DAMAGE_TYPE implemented 8a |
-| `EXTRA_DAMAGE_TYPE` | `EDT_MANA_DAMAGE_WITH_NO_DISPLAY` | 11 | 67 | **missing** | `EXTRA_DAMAGE_TYPE` | EXTRA_DAMAGE_TYPE implemented 8a |
 | `HIT_TYPE` | `AT_NORMAL` | 1 | missing | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
 | `HIT_TYPE` | `AT_SPECIAL` | 2 | missing | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_CUT_HIT_1` | 10 | 61 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_CUT_HIT_2` | 21 | 62 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_EXPLOSION_1` | 44 | 67 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_EXPLOSION_2` | 35 | 68 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_IMPRINT_HIT_1` | 45 | 65 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_IMPRINT_HIT_2` | 67 | 66 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
 | `HIT_TYPE` | `HT_KICK` | 1 | missing | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
 | `HIT_TYPE` | `HT_LIGHTING` | 9 | missing | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_MAGIC_BULLET` | 47 | 57 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_MAGIC_BULLET_BIG` | 30 | 58 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_MAGIC_CIRCLE` | 4 | 56 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_MAGIC_GLOVE_PUNCH` | 15 | 55 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_MAGIC_GLOVE_SLASH` | 22 | 54 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
 | `HIT_TYPE` | `HT_METAL_PUNCH` | 1 | missing | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
 | `HIT_TYPE` | `HT_METEL_PUNCH_HIT` | 3 | missing | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
 | `HIT_TYPE` | `HT_NOSOUND` | 1 | missing | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
 | `HIT_TYPE` | `HT_NO_DAMAGE` | 3 | missing | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_PIERCE_HIT_1` | 18 | 63 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_PIERCE_HIT_2` | 35 | 64 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
 | `HIT_TYPE` | `HT_SLASH` | 12 | missing | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_SOUL_BIG_HIT` | 43 | 60 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HIT_TYPE` | `HT_SOUL_HIT` | 47 | 59 | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
 | `HIT_TYPE` | `HT_SWORD_HIT2` | 9 | missing | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
 | `HIT_TYPE` | `HT_SWORD_SLASH1` | 2 | missing | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
-| `HP_RATE_DAMAGE_TYPE` | `HRDT_MAX_HP` | 3 | 2 | table missing | `HP_RATE_DAMAGE_TYPE` | HP_RATE_DAMAGE_TYPE unsupported 8c |
-| `HP_RATE_DAMAGE_TYPE` | `HRDT_NOW_HP` | 5 | 1 | table missing | `HP_RATE_DAMAGE_TYPE` | HP_RATE_DAMAGE_TYPE unsupported 8c |
 | `INIT_PHYSIC` | `WALK_SPEED` | 1 | table missing | table missing | `BACK_SPEED_X` | BACK_SPEED_X implemented 8a |
-| `LOCK_ON_TYPE` | `LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE` | 45 | 8 | **missing** | `LOCK_ON_TYPE` | LOCK_ON_TYPE implemented 6b |
-| `NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE` | `NTPLOTT_TARGET_LIST_CLEAR` | 89 | 1 | table missing | `NOT_TARGET_PRE_LOCK_ON_TARGET` | NOT_TARGET_PRE_LOCK_ON_TARGET implemented 6b |
-| `NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE` | `NTPLOTT_TARGET_LIST_NOT_CLEAR` | 1 | 2 | table missing | `NOT_TARGET_PRE_LOCK_ON_TARGET` | NOT_TARGET_PRE_LOCK_ON_TARGET implemented 6b |
-| `NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE` | `NTPLOTT_TARGET_LIST_SAVE_HIT_UNIT` | 6 | 4 | table missing | `NOT_TARGET_PRE_LOCK_ON_TARGET` | NOT_TARGET_PRE_LOCK_ON_TARGET implemented 6b |
-| `NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE` | `NTPLOTT_TARGET_LIST_SAVE_ONE` | 14 | 3 | table missing | `NOT_TARGET_PRE_LOCK_ON_TARGET` | NOT_TARGET_PRE_LOCK_ON_TARGET implemented 6b |
-| `NPC_UNIT_ID` | `NUI_P_RMH_MECHANIC_MASTERY` | 2 | 2208 | **missing** | `NPC_ID` | NPC_ID implemented 6b |
-| `NPC_UNIT_ID` | `NUI_SI_SA_RG_RX78_LAND_RUNNER` | 1 | 2175 | **missing** | `NPC_ID` | NPC_ID implemented 6b |
 | `REACT_TYPE` | `RT_BIG` | 1 | missing | **missing** | `REACT_TYPE` | REACT_TYPE implemented 8a |
-| `ROSE_WEAPON_ATTACK_TYPE` | `RWAT_REVOLVER_BLADE` | 6 | 5 | table missing | `ROSE_WEAPON_ATTACK_TYPE` | ROSE_WEAPON_ATTACK_TYPE unsupported 8c |
-| `ROSE_WEAPON_ATTACK_TYPE` | `RWAT_REVOLVER_CHAIN` | 32 | 4 | table missing | `ROSE_WEAPON_ATTACK_TYPE` | ROSE_WEAPON_ATTACK_TYPE unsupported 8c |
-| `SKILL_ID` | `AASI_SA_ALE_ZWEIT_SCHNEIDEN` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AAH_DRITT_GELERECHI` | 1 | 32207 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AAH_FANTASIEGEBILDE_SPEER` | 1 | 32206 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AAH_ZWEIT_RITUS` | 5 | 32208 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AAP_LEERE` | 2 | 32231 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AAP_MODER` | 3 | 32232 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AAT_RUSHING_DRONE_DYNAMO` | 2 | 29208 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ABM_ENERGY_DRAIN` | 1 | 22213 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ABM_ENERGY_ROAD` | 1 | 22211 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ADE_FORCE_FINGER` | 1 | 29215 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ADE_REVERSE_FIELD` | 1 | 29223 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ADM_DARK_ROAD` | 2 | 22206 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ADM_HELL_STONE` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ADM_MANA_INTAKE` | 2 | 22208 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ADW_ENERGY_RING` | 2 | 22226 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ADW_HEAVY_PRESS` | 2 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ADW_WORM_HOLE` | 2 | 22214 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AEE_ALCHIMIE_EID` | 1 | 32219 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AEE_RUHIG` | 6 | 32220 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AEE_VERSCHMELZEN` | 8 | 32221 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AEM_CHAIN_LIGHTNING` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AEM_CIRCLE_FLAME` | 2 | 22204 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AEM_FIRE_RING` | 2 | 22224 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AHM_FIRE_ROAD` | 1 | 22201 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AIN_ABSCHLUSS` | 2 | 32201 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AIN_DRITT_STILETT` | 2 | 32202 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALA_ECHO_LICHT` | 4 | 32217 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALA_EID_WEISE` | 4 | 32216 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALA_LIED_SCHWACH` | 1 | 32218 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALD_CONVERSION_HEALTH` | 3 | 27210 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALD_FINGER_BULLET` | 4 | 27209 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALD_FORCE_SPEAR` | 2 | 27211 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALD_WOLF_CLAW` | 4 | 27208 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALE_DREHEN_HINTER` | 2 | 32204 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALE_SABELHIEB_SEQUENZ` | 3 | 32203 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALE_ZWEIT_SICHELN` | 3 | 32205 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALH_DRAGON_FALLING` | 5 | 27204 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALH_ROCK_CRASH` | 2 | 27202 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALH_TIGER_CLAW` | 4 | 27203 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALP_PSIONIC_BEAT` | 3 | 29207 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALP_SPEAR_DYNAMO` | 3 | 29221 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALP_TWIRL_RUSH` | 4 | 29206 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALS_MANA_DRAIN` | 5 | 27216 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALS_SHAKE_CHAOS` | 3 | 27215 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALS_VIEW_BETWEEN` | 2 | 27214 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALW_BRECHEN` | 2 | 32228 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALW_GEIST_HERRSCHAFT` | 2 | 32229 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ALW_WECHSEL` | 1 | 32227 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AMM_AIMING_NOVA` | 1 | 29222 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AMM_COUNTDOWN_BOMB_DYNAMO` | 5 | 29211 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AMM_DIVIDING_MISSILE_DYNAMO` | 9 | 29209 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AMM_FLICK_DISC_DYNAMO` | 2 | 29210 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AN_MIND_BREAK` | 1 | 29214 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AN_PHASE_SHIFT` | 3 | 29201 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AN_PULSE_BULLET` | 2 | 29202 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_APT_DESOLVER_DYNAMO` | 4 | 29203 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_APT_MAGNETRON_DYNAMO` | 4 | 29205 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_APT_PYLON_DYNAMO` | 3 | 29204 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ARA_GAIN_FORCE` | 3 | 27200 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ARA_SHOULDER_BLOW` | 2 | 27201 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ASD_SWALLOW_ASSAULT_TEETH` | 4 | 27226 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ASR_FOX_GHOST` | 2 | 27228 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ASR_RAID` | 4 | 27218 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ASR_SPECTER_WALK` | 1 | 27219 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ATT_SPACE_CRACK` | 4 | 29212 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AVP_DARK_RING` | 2 | 22225 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AVP_HELL_STONE` | 3 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AVP_SUMMON_BAT` | 4 | 22209 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AYR_GAIN_GOOD_ENERGY_BALL` | 3 | 27227 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_AYR_HIGH_SPEED` | 1 | 27212 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CC_AIMMING_SHOT` | 2 | 26203 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CC_SIEGE_SHELLING` | 2 | 26201 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CDC_GATLING_SHOT` | 3 | 26211 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CDC_RUMBLE_SHOT` | 2 | 26210 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CDC_STUN_SHOT` | 1 | 26227 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CDC_TRICK_SHOT` | 1 | 26209 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CFG_GUARD` | 2 | 26207 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CFG_LEAP_ATTACK` | 8 | 26204 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CHG_ELASTIC_BOMB_HAND_GRENADE` | 4 | 26212 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CHG_MARK_OF_COMMANDER` | 4 | 26214 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CIP_ARTILLERY_NOVA` | 2 | 26206 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CIP_LAND_SMASH` | 2 | 26226 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CIP_SUDDEN_BURSTER` | 1 | 26205 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CSG_HEAD_SHOT` | 3 | 26208 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CSG_MAGNUM_SHOT` | 2 | 26213 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CTT_AUTOMATIC_MORTAR` | 3 | 26215 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_CTT_FATAL_CANNON` | 2 | 26228 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_EAT_FAENA` | 1 | 25224 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_EAT_MEGA_ELECTRONBALL` | 5 | 25207 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ECB_TASER_PILUM` | 6 | 25212 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ECB_TESLA_SHOCK` | 5 | 25211 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ECE_SPIT_FIRE_FLUSH` | 3 | 25209 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ECE_TESLA_SHOCK` | 2 | 25208 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ECN_SPEAR_BURST` | 2 | 25206 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ECN_TESLA_SHOCK` | 1 | 25205 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_EEG_METAL_DUST_AURA` | 2 | 25204 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_EEL_ILLUSION_RAY` | 1 | 25210 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_EIS_ANOTHER_SWORD` | 1 | 21224 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_EIS_HARSH_CHASER` | 4 | 21215 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ELK_POWER_SMASH` | 1 | 21222 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ELK_ROLLING_SMASH` | 1 | 21205 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_EL_ENDURANCE_POWER` | 2 | 28201 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_EMK_BIG_BURST` | 5 | 21207 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_EMK_CRITICAL_SWORD` | 1 | 21209 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_EMK_SWORD_WAVE` | 3 | 21208 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ENS_SHOT_GUN` | 4 | 25221 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ERS_RUNE_OF_FIRE` | 4 | 21210 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ESK_IMPACT_SMASH` | 2 | 21203 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ETK_FATAL_SLAP` | 4 | 21213 | **missing** | `BUFF_FACTOR_RELATIVE_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ETK_MIRAGE_STING` | 1 | 21214 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ETK_SWORD_SHIELD` | 8 | 21212 | **missing** | `BUFF_FACTOR_RELATIVE_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_EVE_PHOTON_BLINK` | 2 | 25200 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_LCG_SHADOW` | 6 | 30209 | **missing** | `BUFF_FACTOR_RELATIVE_SKILL_ID`, `USED_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LCG_SOUL_STRIKE` | 3 | 30207 | **missing** | `APPLIED_SKILL_ID`, `USED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LCN_SOUL_SPREAD` | 1 | 30305 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_LCN_SUMMON_FAMILIAR` | 7 | 30208 | **missing** | `APPLIED_SKILL_ID`, `BUFF_FACTOR_RELATIVE_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LCN_SWIFT_SMASH` | 7 | 30210 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_LDB_ABYSS_STRIKE` | 4 | 30215 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_LDB_PHANTOM_RUSH` | 6 | 30216 | **missing** | `APPLIED_SKILL_ID`, `USED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LDN_PUNISHER` | 6 | 30218 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_LDN_RAPID_FURY` | 2 | 30306 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_LDN_RAPID_IMPACT` | 5 | 30217 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_LLD_CHAINS_OF_BONDAGE` | 8 | 30206 | **missing** | `USED_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LLD_FEAR_ABSORPTION` | 2 | 30204 | **missing** | `USED_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LUCIEL_HAUNTING_BEAT` | 21 | 30202 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_LUCIEL_HEAVY_HIT` | 7 | 30201 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RBD_FAKE_SHOT` | 2 | 31215 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RBD_HEAD_SHOT` | 8 | 31214 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RBM_SONIC_SLASH` | 2 | 24210 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RBM_SONIC_SLASH_UPGRADE` | 1 | 24234 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RCR_ASSAULT_IMPACT` | 1 | 23206 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RCR_BACK_KICK` | 4 | 23203 | **missing** | `BUFF_FACTOR_RELATIVE_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RCR_BLOODY_CHAIN` | 16 | 31217 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RCR_BLOOD_BULLET` | 2 | 31306 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RCR_GUN_GUARD` | 1 | 31218 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RCR_LOW_KICK` | 4 | 23204 | **missing** | `BUFF_FACTOR_RELATIVE_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RCR_RISING_FALCON` | 2 | 23202 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RCR_WESTERN_FIRE` | 3 | 31216 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RENA_BACKJUMP_SHOT` | 1 | 23200 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RENA_SIEGEMODE` | 6 | 23201 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RFY_BLAZING_BULLET` | 1 | 31225 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 5 |
-| `SKILL_ID` | `RNSI_A_RFY_PHANTOM_CHASER` | 3 | 31224 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RFY_PHANTOM_SHOT` | 2 | 31307 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RFY_SPIRAL_SHOT` | 2 | 31223 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RF_FLAME_SWORD` | 2 | 24201 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RF_SHADOW_STEP` | 2 | 24200 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RGA_ENTANGLE` | 8 | 23213 | **missing** | `APPLIED_SKILL_ID`, `BUFF_FACTOR_RELATIVE_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RGA_ONE_TARGET_SHOT` | 1 | 23226 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RGA_STIGMA_ARROW` | 3 | 23211 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RHB_CANNON_BALL` | 2 | 31207 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RHB_STEYR_ANTITANK` | 1 | 31208 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RMH_ALL_BOMB` | 2 | 31229 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RMH_KS_83` | 3 | 31228 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RNW_BUTTERFLY` | 2 | 23227 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RNW_DELAYED_FIRE` | 2 | 23217 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RNW_SEED_OF_RUIN` | 12 | 23219 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ROM_AIMING_STIGMA` | 1 | 31308 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ROM_G_3_RAPTOR` | 2 | 31231 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ROM_G_EX_MAGNETICFORCE` | 1 | 31232 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ROM_SPARROW_GUARDER` | 1 | 31230 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ROSE_BACK_STEP_AND_TOP_SPIN` | 7 | 31201 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ROSE_NEEDLE_SOBAT` | 2 | 31203 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ROSE_RISING_SHOT_AND_SILVER_BULLET` | 4 | 31202 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ROT_HELL_DIVE` | 2 | 24202 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_ROT_WEAPON_BREAK` | 1 | 24204 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RRF_ENCHANT_HAND` | 1 | 24206 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RRF_SPREAD` | 1 | 24224 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RSR_ARC_SHOT` | 1 | 23208 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RSR_BOOSTER_CANNON` | 1 | 31212 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RSR_DUST_SHOT` | 2 | 31305 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RSR_MIND_OF_SHARPSHOOTER` | 2 | 23210 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RSR_PLASMA_SHOCK` | 1 | 31213 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RSR_PT15_PROTOTYPE` | 2 | 31211 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RSR_RAPID_SHOT` | 2 | 23212 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RSR_SHOOTING_MAGNUM` | 5 | 23209 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RST_ARMOR_BREAK` | 1 | 24209 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RST_ONE_FLASH` | 2 | 24207 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RTR_ANGER_OF_ELF` | 2 | 23216 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RTR_EVOKE` | 1 | 23218 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RTR_EXPLOSION_TRAP` | 6 | 23214 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RTR_ROSEBUSH_TRAP` | 2 | 23215 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RVC_BREAKING_FIST` | 2 | 24215 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RVC_BREAKING_FIST_UPGRADE` | 1 | 24238 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RVC_FLAME_SWORD_ANOTHER` | 1 | 24226 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RVC_GROUND_IMPACT` | 1 | 24216 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RVK_G35L_FLASH_BANG` | 7 | 31221 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RVK_VIPER_SHOT` | 2 | 31222 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RWS_NATURE_FORCE` | 3 | 23205 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RWS_PAIN` | 1 | 23225 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RWS_REFLEX_MAGIC` | 2 | 23207 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RWT_BARRAGE_ATTACK` | 4 | 24212 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RWT_MENTAL_BREAK` | 1 | 24214 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_RWT_NAPALM_GRENADE` | 5 | 24213 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SBH_FLAME_PROTECTION` | 1 | 28223 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SBH_FLAME_SWORD` | 1 | 28210 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SBH_SCALET_ROSE` | 2 | 28211 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SCA_ASSAULT_STRIKE` | 2 | 28216 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SCA_SHADOW_EDGE` | 1 | 28215 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SDK_DARK_WAVE` | 4 | 28212 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SDK_INJECTION_STIGMA` | 4 | 28213 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SDK_SHADE_SCRATCH` | 4 | 28214 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SGM_DRASTIC_CHARGE` | 1 | 28206 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SGM_PROVOKE` | 3 | 28205 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SPK_AVATAR_OF_THE_FIRE` | 8 | 28208 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SPK_BIG_BURST` | 9 | 28207 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SPK_FIREWORKS` | 3 | 28209 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SSK_LEAP_CRASH` | 2 | 28204 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_A_SSK_POWER_BREAK` | 2 | 28203 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_AAH_ERST_DER_LETZT` | 4 | 32601 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_AAP_ENDE_DER_WELT` | 5 | 32605 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_ADE_PARANOIA` | 4 | 29602 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_ADW_FATE_SPACE` | 3 | 22602 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_AEE_FLAMME_EMOTION` | 6 | 32603 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_AEM_ELEMENTAL_STORM` | 3 | 22600 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_ALP_DOOMS_DAY` | 3 | 29600 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_AMM_APOCALYPSE` | 17 | 29601 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_ASD_THOUSANDS_BLOSSOMS` | 3 | 27600 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_ASR_NINE_TAILED_FOX` | 4 | 27602 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_AVP_ABYSS_ANGOR` | 2 | 22601 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_AYR_ENERGY_CANNON` | 3 | 27601 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_CDC_OUTRAGE_STRIKE` | 3 | 26601 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_CIP_DOOM_STRIKE` | 3 | 26600 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_CTT_SATELLITE_RAIN` | 14 | 26602 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_ECB_PSYCHIC_ARTILLERRY` | 8 | 25602 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION` | 7 | 25601 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_ECN_LUNATIC_SCUD` | 5 | 25600 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_EIS_BLADE_RAIN` | 10 | 21602 | **missing** | `USED_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_ELK_GIGANTIC_SLASH` | 10 | 21600 | **missing** | `USED_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_ERS_SHININGRUNE_BUSTER` | 8 | 21601 | **missing** | `USED_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_LCN_CASTLE_OF_ABADDON` | 2 | 30602 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_LDN_DIABOLIC_DISASTER` | 3 | 30605 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_LLD_DESCENT_DARKNESS` | 5 | 30601 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_RBM_EXTREM_BLADE` | 3 | 24601 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_RCR_BLOOD_AND_CHAINS` | 12 | 31603 | **missing** | `APPLIED_SKILL_ID`, `USED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_RFY_D_DAY` | 6 | 31605 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_RGA_SHOOTER_DESTINY` | 5 | 23601 | **missing** | `APPLIED_SKILL_ID`, `USED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_RLW_INNOCENT` | 8 | 23602 | **missing** | `USED_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_ROM_MECAVOLT_MX` | 13 | 31607 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_RRF_INFERNAL_ARMS` | 5 | 24600 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_RSR_ANCIENT_TRIGGER` | 3 | 31601 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_RVC_BURNING_BUSTER` | 7 | 24602 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_RWS_SPIRAL_STRIKE` | 10 | 23600 | **missing** | `USED_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_SBH_ANCIENT_FIRE` | 6 | 28601 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_SCA_FATE_SMASHER` | 8 | 28602 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_HA_SGM_SWORD_OF_RELICS` | 8 | 28600 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_P_APT_DUST_STORM` | 1 | 29401 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_P_CTT_CANNONEER_WITHSTANDING` | 1 | 26413 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_P_CTT_MOBILE_ARMORED_MODE` | 2 | 26412 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_P_EIS_INFINITY_POTENTIAL` | 1 | 21420 | **missing** | `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID` | APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID to-implement 8b |
-| `SKILL_ID` | `RNSI_P_ELK_WIND_SLICER` | 1 | 21402 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_P_LLC_SEIZED_BY_FEAR` | 1 | 30401 | **missing** | `USED_SKILL_ID` | USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_P_LLD_LORD_OF_FEAR` | 1 | 30403 | **missing** | `USED_SKILL_ID` | USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_P_RGA_VIBRATION_SHOOTING` | 1 | 23407 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_P_RRF_EXPLOSIVE_NASOD_HAND` | 1 | 24402 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAH_AUTOSUGGESTION` | 4 | 32011 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAH_BEWACHSEN_FESTE_GOTT_WAFFE` | 8 | 32018 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAH_BRENNEN_PANTASMA_BODEN` | 9 | 32017 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAH_BROCKEN_PHANTASM` | 1 | 32012 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAH_DREIMAL_SCHWERTTANZ` | 6 | 32013 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAH_DRITT_EROSION` | 1 | 32016 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAH_FRAGARACH` | 2 | 32014 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAH_STILL_LENZE` | 1 | 32015 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAP_ABGRUND` | 5 | 32065 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAP_AUSROTTUNG` | 2 | 32067 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAP_BEFREIUNG_FELD` | 4 | 32069 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAP_CHAOS_FELD` | 4 | 32068 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAP_FESSELN` | 2 | 32063 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAP_GOTTVERGESSEN_SENSE` | 6 | 32062 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAP_MAUER` | 1 | 32066 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAP_TOTENTANZ` | 8 | 32064 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAT_INSTALLATION_DRONE_ACTIVATOR` | 2 | 29013 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAT_PANZER_BUSTER` | 3 | 29012 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAT_PHANTOM_SEEKER` | 5 | 29015 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AAT_PSIONIC_GENERATOR` | 1 | 29014 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ABM_ENERGY_SPURT` | 2 | 22025 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ABM_GUILLOTINE_PRESS` | 2 | 22024 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ABM_SUPER_NOVA` | 2 | 22023 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADE_DIMENSION_BREAKER` | 3 | 29060 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADE_GRAVITY_BURSTER` | 4 | 29019 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADE_MOONLIGHT_BREAKER` | 5 | 29042 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADE_MOONLIGHT_RHAPSODY` | 14 | 29024 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADE_REVERSE_CIRCLE` | 4 | 29020 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADE_REVERSE_STIGMA` | 3 | 29025 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADE_VOID_IMPACT` | 2 | 29041 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADM_AGING` | 4 | 22015 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADM_DARK_CLOUD` | 4 | 22014 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADM_DEATH_FIELD` | 2 | 22016 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADM_HELL_STONE` | 4 | 22017 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADW_AIR_STUNNER` | 1 | 22045 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADW_CRAZY_WORM` | 2 | 22046 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADW_HEAVY_PRESS` | 4 | 22026 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADW_IMPACT_HAMMER` | 1 | 22029 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADW_IMPACT_ZONE` | 2 | 22070 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ADW_SCREW_DRIVER` | 3 | 22028 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEE_ELFE` | 4 | 32043 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEE_LIND_SCHEINEN` | 12 | 32042 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEE_LUFT_VERSPRENGEN` | 3 | 32040 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEE_REQUIEM` | 23 | 32039 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEE_SATZ_AURORA` | 18 | 32046 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEE_STOM_STARK` | 3 | 32041 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEE_VERTRAUEN_MELODIE` | 2 | 32044 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEE_WINDHOSE` | 4 | 32045 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEM_BLAZE_STEP` | 5 | 22010 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEM_CHAIN_BURST` | 3 | 22013 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEM_CIRCLE_ELEMENTAL` | 4 | 22041 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEM_CYCLONE` | 1 | 22011 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEM_ELEMENTAL_EDGE` | 3 | 22042 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEM_ICICLE_SPEAR` | 4 | 22068 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AEM_LIGHTNING_SHOWER` | 1 | 22012 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AHM_BLIZZARD_SHOWER` | 4 | 22008 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AHM_CHAIN_LIGHTNING` | 1 | 22009 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AHM_MAGIC_MISSILE` | 4 | 22006 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AHM_METEOR_SHOWER` | 2 | 22007 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AIN_BOHREN_VEREISEN` | 26 | 32003 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AIN_ERST_BOHREN` | 4 | 32002 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AIN_EXPLOSION` | 16 | 32001 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AIN_SAKROSANKT_ZERTRETEN` | 7 | 32004 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AIN_SCHWERT_PLATZEN` | 2 | 32005 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AISHA_CHAIN_FIREBALL` | 2 | 22000 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AISHA_GUST_SCREW` | 2 | 22001 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AISHA_GUST_STORM` | 2 | 22002 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AISHA_LIGHTNING_BOLT` | 4 | 22003 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AISHA_METEOR_CALL` | 2 | 22004 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALA_ANGRIFF` | 4 | 32034 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALA_BLATT_BLUME` | 20 | 32038 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALA_BLATT_BLUME_MUT` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALA_DIAMANT_REGEN` | 10 | 32036 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALA_VERTIEIDI` | 19 | 32035 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALA_WIND_EINFALLEN` | 5 | 32037 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALD_ENERGY_WAVE` | 9 | 27015 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALD_HELL_OF_TORNADO` | 6 | 27013 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALD_PRISON_SPEAR` | 3 | 27016 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALD_SUPPRESSION_ENERGY` | 3 | 27017 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALD_WOLF_SPEAR` | 11 | 27014 | **missing** | `DAMAGE_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; DAMAGE_SKILL_ID to-implement 8b |
-| `SKILL_ID` | `RNSI_SA_ALE_BROCKEN_AUSHAUEN` | 5 | 32006 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALE_DRITT_ATTENTAT` | 2 | 32008 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALE_FESSEL_HEILIG` | 4 | 32009 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALE_VIERT_WERFEN_SPEER` | 3 | 32010 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALE_ZWEIT_SCHNEIDEN` | 3 | 32007 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALH_DOUBLE_COLLISION` | 4 | 27006 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALH_LINK_FLOWER` | 6 | 27007 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALH_MOONLIGHT_SLASH` | 6 | 27008 | **missing** | `APPLIED_SKILL_ID`, `DAMAGE_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; DAMAGE_SKILL_ID to-implement 8b |
-| `SKILL_ID` | `RNSI_SA_ALH_SUPPRESSION` | 1 | 27009 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALH_WHITE_TIGER` | 5 | 27005 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALP_PION_RUSING` | 2 | 29037 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALP_PSYCHIC_STORM` | 4 | 29009 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALP_QUICKSILVER_ACCEL` | 9 | 29011 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALP_QUICKSILVER_STRIKE` | 4 | 29038 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALP_SUPERSONIC` | 2 | 29058 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALS_RESTRAINTS_SPECTER` | 4 | 27022 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALS_SEVER` | 9 | 27024 | **missing** | `APPLIED_SKILL_ID`, `DAMAGE_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; DAMAGE_SKILL_ID to-implement 8b |
-| `SKILL_ID` | `RNSI_SA_ALS_SPECTER_OF_STORM` | 14 | 27021 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALS_SPECTER_OF_THUNDER` | 2 | 27023 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALS_SUPPRESSION_SPECTER` | 1 | 27025 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALW_ALPTRAUM` | 3 | 32057 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALW_ENTFERNEN` | 11 | 32061 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALW_REFLEXION` | 3 | 32060 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALW_SCHMERZ` | 14 | 32058 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ALW_VERZWEIFLUNG` | 1 | 32059 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AMM_CHARGED_IMPULSAR` | 1 | 29039 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AMM_EXTREME_CHASER` | 1 | 29059 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AMM_FORCE_FILED` | 1 | 29040 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AMM_INSTALLATION_SHOOTING_CHASER` | 4 | 29018 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AMM_INSTALLATION_STAR_FALL` | 1 | 29016 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AMM_INSTALLATION_ULTIMATE_FURY` | 3 | 29017 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AN_ENERGY_BOOM` | 1 | 29000 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AN_NEUTRON_BOMB` | 12 | 29004 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AN_PARTICLE_ACCELERATOR` | 4 | 29002 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AN_PARTICLE_PRISM` | 3 | 29003 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AN_VOID_BREAKER` | 12 | 29001 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_APT_CONQUERER` | 7 | 29008 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_APT_EMP_SHOCK` | 1 | 29010 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_APT_PULSE_CANNON` | 1 | 29006 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_APT_QUAKE_BUSTER` | 9 | 29005 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_APT_STASIS_FIELD` | 5 | 29007 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ARA_FALLING_DRAGON` | 2 | 27002 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ARA_PULLING_PIERCE` | 2 | 27001 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ARA_SHADOW_KNOT` | 2 | 27004 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ARA_TEMPEST_DANCE` | 5 | 27000 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ARA_WIND_WEDGE` | 2 | 27003 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ASD_ADVENT_DRAGON` | 3 | 27064 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ASD_CONTINUITY_STRIKE_THROWING` | 3 | 27044 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ASD_LINK_FLOWER_SLASH` | 8 | 27043 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ASD_PEERLESSNESS_SLASH` | 4 | 27012 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ASD_SWALLOW_ASSAULT` | 3 | 27011 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ASD_TURBULENT_WAVE` | 3 | 27010 | **missing** | `APPLIED_SKILL_ID`, `DAMAGE_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; DAMAGE_SKILL_ID to-implement 8b |
-| `SKILL_ID` | `RNSI_SA_ASR_FIRE_FOX` | 8 | 27027 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ASR_FOX_PHANTOM` | 4 | 27066 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ASR_GET_BLOOD` | 6 | 27026 | **missing** | `APPLIED_SKILL_ID`, `DAMAGE_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; DAMAGE_SKILL_ID to-implement 8b |
-| `SKILL_ID` | `RNSI_SA_ASR_NECROMANCY` | 3 | 27028 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ASR_SHADOW_RISING` | 3 | 27047 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ASR_SPECTER_OF_BLADE` | 2 | 27048 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ATT_MAXIMUM_STRIKE` | 4 | 29022 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ATT_STARDUST_SHOWER` | 6 | 29021 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ATT_VOID_FIELD` | 2 | 29023 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AVP_ABYSS_FIELD` | 1 | 22069 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AVP_DARK_BURST` | 3 | 22021 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AVP_HELL_DROP` | 2 | 22020 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AVP_PHANTOM_BREATHING` | 2 | 22019 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AVP_PLASMA_CUTTER` | 8 | 22018 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AVP_RUIN` | 2 | 22044 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AVP_SUMMON_BAT_MILLIONS` | 3 | 22043 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AYR_ENERGY_BEAD` | 2 | 27018 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AYR_ENERGY_VOID` | 9 | 27019 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AYR_RAKSASA_FIRE` | 5 | 27065 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AYR_RESTRICTION_ENERGY` | 5 | 27045 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AYR_REVERSE_GRAVITY_FIELD` | 4 | 27046 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_AYR_STEAL_SOUL` | 2 | 27020 | **missing** | `APPLIED_SKILL_ID`, `DAMAGE_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; DAMAGE_SKILL_ID to-implement 8b |
-| `SKILL_ID` | `RNSI_SA_CC_ACELDAMA` | 4 | 26002 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CC_BRUTAL_SWING` | 2 | 26005 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CC_DETONATION` | 5 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CC_GIGANTIC_IMPACT` | 2 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CC_IMPACT_DETONATION` | 11 | 26021 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CC_LUNATIC_BLOW` | 5 | 26001 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CC_SCARE_CHASE` | 2 | 26000 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CDC_BULLET_BLITZ` | 2 | 26018 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CDC_BURNING_PUNISHER` | 1 | 26063 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CDC_COMET_CRASHER` | 6 | 26017 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CDC_DEADLY_SHOT` | 4 | 26013 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CDC_EXCITING_CRASH` | 2 | 26040 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CDC_SHARPSHOOTER_SYNDROME` | 2 | 26012 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CDC_SHOOTING_BIND` | 1 | 26039 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CFG_LUNATIC_FURY` | 4 | 26006 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CFG_PAIN_OF_CALADBOLG` | 2 | 26009 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CFG_PANDEMONIUM_CHAOS` | 2 | 26004 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CHG_BIGBANG_STREAM` | 8 | 26019 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CHG_CANNON_STRIKE` | 1 | 26026 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CHG_CARPET_BOMBING` | 4 | 26023 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CHG_CHAOS_CANNON` | 2 | 26022 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CIP_BURST_WOLF` | 3 | 26003 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CIP_CRACK_CRASHER` | 2 | 26037 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CIP_IRON_HOWLING` | 2 | 26008 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE` | 5 | 26007 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CIP_RAGE_OF_GUARDIAN` | 2 | 26038 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CIP_RAPID_GUARDIAN` | 1 | 26062 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA` | 4 | 26014 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CSG_DUAL_BUSTER` | 2 | 26011 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CSG_HEAVY_RAILGUN` | 7 | 26016 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CSG_SHOOTING_STAR` | 3 | 26015 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER` | 3 | 26025 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CTT_BOMBING_ARTILLERRY` | 2 | 26042 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CTT_CANNON_PRISON` | 3 | 26041 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CTT_DREAD_CHASE` | 32 | 26020 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CTT_HEAVY_FIELD` | 2 | 26064 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CTT_TACTICAL_FIELD_INDURANCE` | 2 | 26024 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_CTT_WONDER_WALL` | 1 | 26010 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EAT_HEAVENS_FIST_PRESSURE` | 4 | 25012 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EAT_HEAVENS_FIST_SWEEPER` | 4 | 25016 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EAT_OBERON_GUARD` | 2 | 25014 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EAT_SONIC_WAVE` | 2 | 25013 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EAT_SURFACE_CUTING` | 16 | 25015 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EBS_LASER_POLE` | 2 | 25048 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EBS_NEEDLES_CUTTING` | 2 | 25047 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ECB_ENERGY_NEEDLES` | 4 | 25027 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ECB_EXTREME_VIRTUAL` | 9 | 25237 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ECB_LINEAR_DIVIDER` | 16 | 25026 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ECB_THOUSANDS_OF_STARS` | 3 | 25028 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ECE_ASSUALT_SPEAR_BURST` | 3 | 25018 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ECE_ELECTRONIC_FIELD` | 20 | 25020 | **missing** | `APPLIED_SKILL_ID`, `APPLIED_SKILL_ID_NOT_AFFECT_MEMO` | APPLIED_SKILL_ID unsupported 8c; APPLIED_SKILL_ID_NOT_AFFECT_MEMO june-ignores 8b |
-| `SKILL_ID` | `RNSI_SA_ECE_GENOCIDE_RIPPER` | 3 | 25017 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ECE_REASON_PRIDE` | 5 | 25236 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ECE_SPACE_WRENCH` | 3 | 25019 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ECN_ASSAULT_SPEAR_ANNIHILATOR` | 3 | 25009 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ECN_ATOMIC_SHIELD` | 1 | 25011 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ECN_IRONSCRAPS` | 2 | 25010 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ECN_JUNK_BREAK` | 6 | 25008 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ECN_PSYKER_KINESIS` | 3 | 25235 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EEG_ATOMIC_BLASTER_PLASMAGUN` | 5 | 25005 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EEG_EXPLOSION_IMPACT` | 6 | 25004 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EEG_GENERATE_BLACKHOLE` | 3 | 25007 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EEG_HORNET_STING_EXPLOSION` | 5 | 25006 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EEG_QUEENS_THRONE` | 1 | 25003 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EEL_GIGA_STREAM` | 8 | 25025 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EEL_KUGELBLITZ` | 7 | 25024 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EEL_PARTICLE_RAY` | 8 | 25023 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EEL_PHOTON_FLARE` | 2 | 25022 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EEL_SWEEP_ROLLING_OVER_CHARGE` | 2 | 25021 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EEP_ELECTRONIC_THUNDER` | 4 | 25046 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EEP_TESLA_FLARE` | 2 | 25045 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EIS_BLADE_CIRCLE` | 4 | 21042 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EIS_INFINITY_CHASER` | 2 | 21041 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EIS_INFINITY_STRIKE` | 6 | 21060 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EIS_MAELSTROM_RAGE` | 2 | 21024 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EIS_MAELSTROM_RAGE_UPGRADE` | 2 | 21056 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EIS_RAGE_CUTTER` | 1 | 21023 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EIS_SWORD_BLASTING` | 2 | 21025 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EIS_SWORD_BLASTING_UPGRADE` | 1 | 21057 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EIS_SWORD_FALL` | 4 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ELK_GRAND_CROSS` | 11 | 21058 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ELK_IMPERIAL_CRUSHER` | 2 | 21038 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ELK_SAND_STORM` | 6 | 21009 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ELK_SAND_STORM_UPGRADE` | 1 | 21045 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ELK_SONIC_BLADE` | 2 | 21011 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ELK_SONIC_BLADE_CRESCENT` | 2 | 21037 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ELK_WINDMILL` | 1 | 21010 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EL_MEGA_BURSTER` | 2 | 28002 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EL_POWER_BURSTER` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EL_SPIRAL_BLAST` | 1 | 28000 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EL_UNLIMITED_BLADE` | 3 | 28004 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EL_WILD_SHOCK` | 8 | 28001 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EMK_RISING_SLASH` | 5 | 21012 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EMK_STORM_BLADE` | 4 | 21014 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EMK_WIND_BLADE` | 7 | 21013 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ENS_EXTREMING_CUTTING` | 2 | 25044 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ENS_ILLUSIONIC_THORN` | 2 | 25043 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ERS_EXTREME_RUNE_BUSTER` | 5 | 21059 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ERS_LUNA_BLADE` | 5 | 21017 | **missing** | `APPLIED_SKILL_ID`, `BUFF_FACTOR_RELATIVE_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ERS_OVERS_GEYSER` | 1 | 21040 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ERS_PHOENIX_TALON` | 6 | 21015 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ERS_PHOENIX_TALON_UPGRADE` | 1 | 21049 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ERS_SPLASH_EXPLOSION` | 4 | 21018 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ERS_STORM_BLADE` | 8 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ERS_SWORD_FIRE` | 14 | 21016 | **missing** | `BUFF_FACTOR_RELATIVE_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ERS_TRIPLE_SABER` | 2 | 21039 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ESK_DOUBLE_SLASH` | 4 | 21007 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; APPLIED_SKILL_ID unsupported unassigned |
-| `SKILL_ID` | `RNSI_SA_ESK_MORTAL_BLOW` | 5 | 21006 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ESK_SPIRAL_BLAST` | 2 | 21005 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ES_FLAME_GEYSER` | 4 | 21001 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ES_MEGASLASH` | 1 | 21000 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ES_TRIPLE_GEYSER` | 4 | 21004 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ES_UNLIMITED_BLADE` | 1 | 21002 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ETK_CRESCENT_CUT` | 4 | 21020 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ETK_FINAL_STRIKE` | 4 | 21021 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ETK_FINAL_STRIKE_UPGRADE` | 1 | 21053 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ETK_PHANTOM_SWORD` | 2 | 21022 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ETK_SWORD_FALL` | 4 | 21019 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EVE_DIMENSION_LINK_GUARDIAN` | 12 | 25002 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_EVE_ILLUSION_STINGER` | 4 | 25001 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LCG_DEATH_CRISIS_OF_MARBAS` | 3 | 30018 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LCG_DEMONIC_BREATH` | 4 | 30017 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LCG_ESCHATON` | 6 | 30020 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LCG_FANTASIE_IMPROMPTU_1ST_MOVEMENT` | 8 | 30021 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LCG_SOUL_EXTORTION` | 5 | 30019 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LCN_FANTASIE_IMPROMPTU_2ND_MOVEMENT` | 8 | 30023 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LCN_MAGDONIC_CANNON` | 5 | 30058 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LCN_RAIN_OF_CHAOS` | 2 | 30084 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LCN_SHADOW_BOLT` | 2 | 30016 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LCN_SOUL_LOCK` | 2 | 30057 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LCN_SPECTRAL_SPEAR` | 5 | 30024 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LCN_TWILIGHT_JUDGEMENT` | 3 | 30022 | **missing** | `APPLIED_SKILL_ID`, `USED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDB_ALTAR_OF_EVIL` | 6 | 30043 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LDB_BLOODLUST` | 1 | 30041 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LDB_DEATH_TOUCH` | 2 | 30044 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LDB_LAND_CRASHER` | 4 | 30040 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LDB_NIGHTMARE` | 3 | 30042 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LDN_ABYSS_EXTINCTION` | 3 | 30085 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LDN_ABYSS_SNIPING` | 1 | 30059 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LDN_DEMONIC_RUSH` | 4 | 30060 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LDN_DESPERADO` | 3 | 30047 | **missing** | `APPLIED_SKILL_ID`, `USED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDN_GARDEN_OF_HAURES` | 4 | 30053 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LDN_SHADOW_FURY` | 1 | 30050 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LDN_SINISTER_MIND` | 10 | 30048 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LDN_TRANSCENDENCE` | 10 | 30049 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LLC_APOLLYON` | 10 | 30011 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LLC_DARK_CRESCENT` | 4 | 30009 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LLC_DEAD_HANDS` | 1 | 30008 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LLC_POWER_OF_ORIAX` | 2 | 30010 | **missing** | `APPLIED_SKILL_ID`, `USED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LLC_RUINOUS_IMPACT` | 4 | 30007 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LLD_DEAD_CROSS` | 4 | 30056 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LLD_DEMONIC_CANNON` | 5 | 30083 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LLD_FEAR_TOMORROW` | 2 | 30055 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LLD_OBLIVION` | 8 | 30014 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LLD_PHANTOM_BLADE` | 2 | 30015 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LLD_SUMMON_DARKNESS` | 5 | 30013 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LLD_SUPREME_PUNISHMENT` | 4 | 30012 | **missing** | `APPLIED_SKILL_ID`, `BUFF_FACTOR_RELATIVE_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LUCIEL_EVIL_CLAW` | 12 | 30005 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LUCIEL_FLICK_SHOT` | 6 | 30003 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LUCIEL_NETHER_SHREDDER` | 14 | 30004 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LUCIEL_SOUL_INFEST` | 13 | 30006 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_LUCIEL_STOMP` | 45 | 30002 | **missing** | `USED_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LUCIEL_TRIPLE_SHOT` | 49 | 30001 | **missing** | `USED_SKILL_ID`, `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RBD_CHAIN_SNATCH` | 8 | 31023 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RBD_DOUBLE_GUNHAW` | 6 | 31022 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RBD_GUN_DANCE` | 17 | 31026 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RBD_MOVING_SHOT` | 12 | 31025 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RBD_SONIC_SPIKE` | 6 | 31024 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RBM_BLOODY_ACCEL` | 2 | 24014 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RBM_DEADLY_BLOW` | 2 | 24035 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RBM_GIGA_DRIVE_LIMITER` | 1 | 24015 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RBM_SHAPT_CHARGE` | 2 | 24056 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RBM_SHOCKWAVE_FRONT` | 2 | 24016 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RBM_SHOOTUP_GENOCIDE` | 1 | 24036 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RBM_WOLF_FANG` | 1 | 24017 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RCR_BLOODY_CARNIVAL` | 9 | 31027 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RCR_BLOODY_SPIKE` | 4 | 31028 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RCR_CHAIN_VIPER` | 2 | 31057 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RCR_CRESCENT_KICK` | 14 | 23005 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RCR_DANCING_RUSH` | 5 | 31058 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RCR_DIVE_KICK_BOMBING` | 15 | 23007 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RCR_MULTI_HEAD_SHOT` | 15 | 31029 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RCR_PUNISHMENT` | 4 | 31094 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RCR_THE_KILL_POINT` | 8 | 31030 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RENA_AERO_TORNADO` | 6 | 23002 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RENA_ASSAULT_KICK` | 3 | 23003 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RENA_PERFECT_STORM` | 3 | 23001 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RENA_PHOENIX_STRIKE` | 18 | 23004 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; APPLIED_SKILL_ID unsupported unassigned |
-| `SKILL_ID` | `RNSI_SA_RENA_RAIL_STINGER` | 6 | 23000 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RFF_ARC_ENEMY` | 4 | 24008 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RFF_NUCLEAR` | 4 | 24007 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RFY_C4_REMOTE_CONTROL` | 2 | 31039 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RFY_C4_REMOTE_CONTROL_UPGRADE` | 1 | 31083 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RFY_EINHERJAR` | 2 | 31095 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RFY_G96_PRESSURE_GRENADE` | 6 | 31041 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RFY_M18A1_CLAYMORE` | 1 | 31059 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RFY_NEIL_THE_SNIPER` | 1 | 31038 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RFY_PHOTON_BOMB` | 5 | 31040 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RFY_VIPER_SHOWER` | 1 | 31060 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RF_CANNON_BLADE` | 1 | 24001 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RF_MAXIMUM_CANNON` | 2 | 24000 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RF_POWER_ASSAULT` | 4 | 24002 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RF_SEVEN_BURST` | 2 | 24003 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RGA_ACEINTHEHOLE` | 4 | 23059 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RGA_AERO_STRAFE` | 4 | 23017 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RGA_BLAST_ARROW` | 2 | 23039 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RGA_CUTLASS_WIND` | 1 | 23040 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RGA_FREEZING_ARROW` | 12 | 23018 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RGA_GUNGNIR` | 14 | 23015 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RGA_WIND_BLAST` | 4 | 23016 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RHB_FM31_GREAT_LAUNCHER` | 1 | 31013 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RHB_HARD_FLAMETHROWER` | 2 | 31011 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RHB_LASER_BAZOOKA` | 2 | 31014 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RHB_LOCKON_STRATOS` | 1 | 31012 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RHB_PROTON_BOMB` | 4 | 31015 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RMH_EX_S_VIPER` | 5 | 31046 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RMH_EZ_8_COUNT_DOWN` | 2 | 31045 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RMH_GALE_FORCE` | 9 | 31044 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RMH_MECA_DROP` | 5 | 31048 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RMH_SPARROW_FACTORY` | 5 | 31047 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RNW_CALL_OF_RUIN` | 5 | 23022 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RNW_ERADICATION` | 3 | 23060 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RNW_GLIDING_STRIKE` | 4 | 23023 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RNW_RAGE_FUNGUS` | 2 | 23042 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RNW_SEED_OF_RUIN_POLE` | 2 | 23041 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RNW_TRAPPING_ARROW_FUNGUS` | 19 | 23024 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ROM_ARMORED_TEMPEST` | 5 | 31096 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ROM_G_0_BATTLEROID` | 4 | 31049 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ROM_G_1_CORONA` | 1 | 31050 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ROM_G_2_ROLLING_THUNDER` | 1 | 31052 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ROM_G_4_FRISBEE` | 4 | 31051 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ROM_G_EX_ANCIENT_BUSTER` | 4 | 31062 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ROM_VIPER_CANNON` | 1 | 31061 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ROSE_BBQ` | 3 | 31001 | **missing** | `APPLIED_SKILL_ID`, `USED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROSE_M137_GATLING_GUN` | 2 | 31004 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ROSE_M3_FLAMETHROWER` | 5 | 31005 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ROSE_RX78_LAND_RUNNER` | 10 | 31002 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ROSE_SPRIGGAN` | 3 | 31003 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG` | 2 | 24005 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ROT_GUARDIAN_STRIKE` | 4 | 24006 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_ROT_VALKYRIESJAVELIN` | 2 | 24004 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RRF_DEVASTATING_STRIKE` | 1 | 24057 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RRF_MAXIMUM_DIVE` | 1 | 24037 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RRF_POWER_BOMB` | 1 | 24038 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RRF_WILD_CHARGE` | 1 | 24009 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RRF_X_CRASH` | 4 | 24010 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RSR_AIMING_STRIKE` | 2 | 31056 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RSR_BUST_GRENADE` | 2 | 31093 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RSR_CRAZY_SHOT` | 8 | 23014 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RSR_FM92_MK2` | 2 | 31019 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RSR_GUIDED_ARROW` | 10 | 23012 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RSR_OPERATION_LASE` | 4 | 31018 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RSR_PAMPERO_BOOSTER` | 1 | 31020 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RSR_PHOTON_SHOWER` | 1 | 31055 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RSR_WINDWARD` | 5 | 23013 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RSR_X1_EXTRUDER` | 4 | 31021 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RST_BERSERKER_BLADE` | 2 | 24012 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RST_HYPER_SONIC_STAB` | 3 | 24013 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RST_SHOCKWAVE` | 2 | 24011 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RTR_FATALITY` | 2 | 23019 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RTR_HUMMING_WIND` | 8 | 23020 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RTR_KARMA` | 3 | 23021 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RVC_BURSTING_BLADE` | 2 | 24040 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RVC_DEADLY_RAID` | 6 | 24024 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RVC_FLAME_HELL` | 4 | 24039 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RVC_GIGA_PROMINENCE` | 6 | 24021 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RVC_IFRIT_FLAME` | 2 | 24058 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RVC_IGNITION_CROW_INCINERATION` | 5 | 24023 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RVC_IGNITION_CROW_NAPALM` | 4 | 24022 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RVK_CROSSMORE` | 6 | 31035 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RVK_EMP_STORM` | 9 | 31037 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RVK_FREEZING_BULLET` | 4 | 31033 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 5; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RVK_G18C_FREEZE_GRENADE` | 6 | 31036 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RVK_LIGHTWEIGHT_MINE` | 5 | 31034 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RWS_AIRELINNA` | 3 | 23010 | **missing** | `APPLIED_SKILL_ID`, `BUFF_FACTOR_RELATIVE_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RWS_GYRO_KICK` | 1 | 23038 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RWS_SHARPFALL` | 3 | 23009 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RWS_SLIDE_KICK` | 3 | 23011 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RWS_SPINNING_CRESCENT` | 1 | 23037 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RWS_TEMPEST` | 4 | 23058 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RWS_VIOLENT_ATTACK` | 12 | 23008 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RWT_HARPOON_SPEAR` | 23 | 24018 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RWT_HELLFIRE_GATLING` | 10 | 24020 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR` | 4 | 24019 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SBH_BLAZE_WING` | 6 | 28017 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SBH_BLAZING_DANCE` | 6 | 28016 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SBH_BURST_RISING` | 2 | 28041 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SBH_ETERNAL_FIRE` | 4 | 28015 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SBH_IGNIS_CRASHER` | 3 | 28042 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SBH_SOUL_IGNITION` | 2 | 28063 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SBH_WALL_OF_PROMINENCE` | 4 | 28018 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SCA_BLOOD_CUTTER` | 2 | 28023 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SCA_BLOOD_FALLS` | 4 | 28064 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID june-ignores -; APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SCA_BRANDISH_BREAKER` | 3 | 28022 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SCA_DREAD_WEAPON` | 5 | 28025 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SCA_SHADE` | 3 | 28044 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SCA_SHADE_THE_ILLUSION` | 2 | 28024 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SDK_BURNING_PHANTOM` | 4 | 28021 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SDK_EJECTION_BUSTER` | 3 | 28019 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SGM_CROSS_SLASH` | 2 | 28039 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SGM_DIVINE_BLADE` | 2 | 28040 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SGM_GIGA_BLAST` | 5 | 28062 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SGM_JUGGERNAUT_BUSTER` | 6 | 28010 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SGM_SONIC_BLADE` | 4 | 28011 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SGM_WAR_PRELUDE` | 4 | 28009 | **missing** | `APPLIED_SKILL_ID`, `BUFF_FACTOR_RELATIVE_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SPK_INFERNAL_BLADE` | 7 | 28014 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SPK_SCALDIC_SWORD` | 2 | 28013 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SPK_SWORDFIRE` | 8 | 28012 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SPK_SWORD_ERUPTION` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SSK_EXTINCTION` | 1 | 28005 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `RNSI_SA_SSK_JUDGEMENT_DRIVE` | 2 | 28007 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `TSI_COMMON_A_COMMON_STEAL` | 2 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `TSI_COMMON_A_GHOST_HARVESTING` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `TSI_COMMON_A_TARGET_CHASE` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `SKILL_ID` | `TSI_P_COMMON_CHAIN_LIGHTNING` | 1 | 20400 | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
-| `UNIT_TYPE` | `UT_AIN` | 3 | 12 | **missing** | `None` | - |
-| `UNIT_TYPE` | `UT_ROSE` | 1 | 11 | **missing** | `None` | - |
+| `SKILL_ID` | `AASI_SA_ALE_ZWEIT_SCHNEIDEN` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ADM_HELL_STONE` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ADW_HEAVY_PRESS` | 2 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AEM_CHAIN_LIGHTNING` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AVP_HELL_STONE` | 3 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALA_BLATT_BLUME_MUT` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CC_DETONATION` | 5 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CC_GIGANTIC_IMPACT` | 2 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EIS_SWORD_FALL` | 4 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EL_POWER_BURSTER` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ERS_STORM_BLADE` | 8 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SPK_SWORD_ERUPTION` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `TSI_COMMON_A_COMMON_STEAL` | 2 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `TSI_COMMON_A_GHOST_HARVESTING` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `TSI_COMMON_A_TARGET_CHASE` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
 
-(319 members present in both with the same value are omitted.)
+(1289 members present in both with the same value are omitted.)
+
+### Phase 11 additions and holds
+
+968 `(table, member)` pairs added to `march2014/data036/Enum.src.lua`, values verbatim
+from June's `Enum.lua` (cross-checked against the transcoded bytecode executed with the vendored
+luajit, not just the ljd decompile -- see JUNE2017_TRIAL_LOAD.md). 5 of the 968 are
+reader-less (no March parser reads that key in this scope) and are inert by construction; the rest
+extend a table March already had, or (`HIT_TYPE`) needed a March consumer widened first --
+`SERV_IRUHADEV_JUNE_HITTYPE_EXTEND`, `X2DamageManager.h`/`.cpp` -- before they were safe to add.
+`reader` is empty for a reader-less row, same convention as the main table above.
+
+Also renumbered in place (June moved these two, not newly added): `BUFF_FACTOR_ID`
+`BFI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR_EVENT` 365->372, `_WING_EVENT` 366->373 -- confirmed free
+in both March's Lua table and its C++ enum, and absent from `KncWX2Server/Common`,
+`X2Lib/Offline` and `ServerResource/US` (not on the wire, not persisted).
+
+| table | member | value | kind | reader |
+|---|---|---|---|---|
+| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | `AEACBO_NOT_APPLY` | 1 | new-table | APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION unsupported 2; APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION unsupported 3 |
+| `ATTACK_TYPE` | `AT_COMMAND` | 2 | new-member | ATTACK_TYPE implemented 8a |
+| `BUFF_BEHAVIOR_TYPE` | `BBT_IMMUNE_NON_CONTROL_DEBUFF` | 95 | new-member | COMBINATION implemented unassigned |
+| `BUFF_BEHAVIOR_TYPE` | `BBT_INVINCIBLE` | 77 | new-member | COMBINATION implemented unassigned |
+| `BUFF_FACTOR_ID` | `BFI_ALH_LINK_FLOWER` | 662 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_AMUSEMENT_ITEM_LOCK` | 829 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_ACEINTHEHOLE` | 998 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_ACEINTHEHOLE_1` | 1015 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_ADD_CENTER_MONSTER_POWER_UP` | 941 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_ADD_CENTER_MONSTER_SUPER_ARMOR` | 942 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_ALPTRAUM` | 1087 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_ASSAULT_STRIKE` | 468 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_AUTISUGGESTION_PARTY` | 1049 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_AUTISUGGESTION_PARTY_ULTIMATE` | 1051 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_BLATT_BLUME_REIN_PVE` | 1060 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_BLATT_BLUME_REIN_PVP` | 1061 | new-member | BUFF_FACTOR_ID_PVP to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_BLATT_BLUME_WILLE_PVE` | 1062 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_BLATT_BLUME_WILLE_PVP` | 1063 | new-member | BUFF_FACTOR_ID_PVP to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_BRENNEN_PANTASMA_BODEN` | 1072 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_CREST_OF_TIME` | 474 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_CREST_OF_TIME_DECREASE_COOLTIME` | 501 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_NECROMANCY_TEAM` | 458 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_NECROMANCY_TEAM_UPGRADE` | 959 | new-member | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_POWER_OF_DARKNESS_DARK_FALL` | 447 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_POWER_OF_DARKNESS_DARK_HOLE` | 449 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_SATZ_AURORA` | 1068 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_BUFF_VERTRAUEN_MELODIE` | 1078 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DARK_EL_YELLOW_SUPER_ARMOR` | 10024 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_AIMING_STIGMA` | 924 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_AIN_1ST_LINE_BLEEDING` | 1047 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_AIN_2ST_LINE_EL_KEIM` | 1056 | new-member | BUFF_FACTOR_ID implemented 8a; BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_AIN_EL_CIRCLE` | 1037 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ALPTRAUM_CONFUSION` | 1100 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ANCIENT_FIRE_UPGRADE_DUNGEON` | 663 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ANCIENT_FIRE_UPGRADE_PVP` | 664 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ARMORED_TEMPEST_CONFUSION` | 1007 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ARMORED_TEMPEST_SILENCE` | 1008 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ATOMIC_BLASTER_PLASMAGUN_UPGRADE` | 969 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ATOMIC_SHIELD_UPGRADE` | 970 | new-member | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ATTACK_ME` | 1009 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_A_AAP_MODER_MARKING` | 1103 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_BLEEDING_WESTERN_FIRE` | 734 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_BLUME_MUT` | 1059 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_BOHREN_VEREISEN_ADD_COLD` | 1039 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_BOHREN_VEREISEN_ADD_COLD_ULTIMATE` | 1043 | new-member | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_BOHREN_VEREISEN_FROZEN` | 1038 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_CELESTIAL_VISION_HALL` | 931 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_CHAOS_FELD` | 1104 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_CURSE` | 625 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_CURSE_OF_BLOOD` | 997 | new-member | BUFF_FACTOR_ID implemented 8a; BUFF_FACTOR_ID june-ignores - |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_CURSE_OF_DARKNESS_DARK_FALL` | 448 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_CURSE_OF_DARKNESS_DARK_HOLE` | 450 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_DARK_WAVE_MEMO_STUN` | 596 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_DEATH_TOUCH` | 816 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_DECREASE_FORCE_DOWN_IMMEDIATELY` | 555 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_DESPERADO_MOVE_BRAKE` | 791 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_DRITT_EROSION_WOUND` | 1071 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_DRON_SLOW_EFFECT` | 730 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_EINFALLEN_ATTRIBUTE_DEFENCE` | 1070 | new-member | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ELECTRIC_SHOCK` | 653 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_EL_MAGE` | 1018 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ERADICATION` | 999 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ERDA_MID_ALL_STUN` | 1128 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_FESSELN` | 1090 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_FIRE_EL_DEF` | 1022 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_FIRE_PAST_SOLESS` | 1020 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_FOX_GHOST` | 892 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_FOX_SMILE` | 461 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_GARDEN_OF_HAURES` | 796 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_GEIST_HERRSCHAFT` | 1088 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_GEIST_HERRSCHAFT_ULTIMATE` | 1099 | new-member | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_GENOCIDE_RIPPER_UPGRADE` | 971 | new-member | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_HEAVY_FIELD` | 992 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_HERO_DUNGEON_ICEGROUND` | 805 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_HERO_DUNGEON_POISONGROUND` | 806 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_HERO_DUNGEON_WINDGROUND` | 807 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_IFRIT_FLAME` | 982 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_INJECTION_STIGMA_MEMO` | 595 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_KS_83_KILL_NERVE` | 752 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_KS_83_KILL_NERVE_ULTIMATE` | 761 | new-member | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_LEERE` | 1091 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_LTR_ENTANGLE_UPGRADE` | 952 | new-member | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_MAGIC_DEFFENCE_DROP_PETIT_ANGOR` | 446 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_MENTAL_BREAK` | 634 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_MENTAL_PRESS` | 994 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_MOONLIGHT_RHAPSODY` | 477 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_MORTAL_FEAR` | 780 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_MOVE_JUMP_SLOWDOWN_OPEN_THE_HELL` | 898 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_NETHER_SHREDDER_MEMO` | 602 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_NIGHTMARE` | 784 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_NIGHTMARE_BLACK_SCREEN` | 785 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_PANDEMONIUM_CHAOS` | 453 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_POISON_EL_DEF` | 1024 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_PROVOKE_UPGRADE` | 985 | new-member | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_RAID_PERKISAS_AGING` | 674 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_RAID_PERKISAS_ARMOR_BREAK` | 670 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_RAID_PERKISAS_CONFUSION` | 673 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_RAID_PERKISAS_CURSE` | 675 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_RAID_PERKISAS_MAGIC_DEFFENCE_DROP` | 671 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_RAID_PERKISAS_SLOWDOWN` | 672 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_RAID_PERKISAS_WOUND` | 676 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_REQUIEM_WILLE` | 1075 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_REVERSE_STIGMA` | 478 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ROSE_BBQ_BURN` | 725 | new-member | BUFF_FACTOR_ID implemented 8a; BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ROSE_FLAMETHROWER_ULTIMATE` | 729 | new-member | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_ROSE_GATLING_GUN_ULTIMATE_BLEEDING` | 728 | new-member | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SATZ_AURORA_WILLE` | 1083 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SA_RCR_CHAIN_VIPER` | 921 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SHADOW` | 547 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SILENT_RAGE_SILENCE` | 795 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SINISTER_MIND_SEED` | 793 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SI_SA_ADM_AGING_UPGRADE` | 972 | new-member | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SLEEP` | 811 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SLOW_2016_XMAS` | 10067 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SLOW_EL_DEF` | 1023 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SOUL_INFEST_MEMO` | 601 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SPECTER_WALK` | 457 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_STILL_LENZE_SILENCE` | 1046 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_STOM_STARK_STURN` | 1067 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_STUN_EL_DEF` | 1025 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_STUN_EL_KNIGHT` | 1021 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SUMMON_FAMILIAR_SLOW` | 552 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SUPPRESSION_UPGRADE` | 956 | new-member | BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SUPREME_PUNISHMENT` | 542 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SURFACE_CUTING_UPGRADE` | 987 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_SWORD_SHIELD_BLEEDING_ULTIMATE` | 718 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_VERSCHMELZEN_LINK` | 1069 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_VOID_FIELD` | 475 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_WAR_PRELUDE` | 657 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_WIND_EINFALLEN_SLOW` | 1057 | new-member | BUFF_FACTOR_ID implemented 8a; BUFF_FACTOR_ID_ULTIMATE to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_WIND_EINFALLEN_STUN` | 1058 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DEBUFF_WOLF_BREAK` | 897 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FACTOR_ID` | `BFI_DECREASE_COOLTIME_AND_MP` | 857 | new-member | APPLY_LEARNED_SKILL_BUFF_FACTOR_ID to-implement 8b |
+| `BUFF_FACTOR_ID` | `BFI_ERDA_SPELL_OF_SOURCE_SUPER_ARMOR` | 1129 | new-member | BUFF_FACTOR_ID implemented 8a |
+| `BUFF_FINALIZER_TYPE` | `BFT_AURA` | 14 | new-member | COMBINATION implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_ADD_CRITICAL_TIME` | 417 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_AIN_El_CIRCLE_FIRE_FINISH_OTHER_DEBUFF` | 976 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_AMUSEMENT_ITEM_PHOENIX_IN_DAMAGE` | 817 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_AMUSEMENT_ITEM_PRESS_IN_DAMAGE` | 813 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_AMUSEMENT_ITEM_SHIELD_IN_DAMAGE` | 809 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_AMUSEMENT_ITEM_WATER_BALLOON_IN_DAMAGE` | 810 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_BUFF_ARTIFACT_OF_ENHANCE` | 466 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_BUFF_ARTIFACT_OF_MP_RECOVER` | 465 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_BUFF_FURIOUS_ENERGY` | 469 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_BUFF_GODBEAST_FEAR` | 534 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_BUFF_HALLOWEEN_DEBUFF_CURSE` | 10024 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_BUFF_HALLOWEEN_SOUP` | 10015 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_BUFF_PHASE_OF_PERKISAS` | 717 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_CDC_EXCITING_CRASH` | 859 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_COLD_ONLY_COLOR` | 847 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_DARK_SOLES_ATTACK` | 902 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_ELECTRIC_SHOCK` | 564 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_ELYSION_COMMANDER_WEEK` | 907 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_HERO_STOP` | 557 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_IMPACT_ZONE` | 938 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_LAVA_BURN` | 789 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_MOTION_SLOWDOWN_WIND_BLAST` | 538 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_POWER_BUSTER_MEMO` | 392 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_SHOCK_ELYSION_6` | 917 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_SILENT_RAGE_SILENCE` | 769 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_SUPPRESSION_SPECTER` | 425 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUFF_ZOMBIE_TRANSFORM` | 931 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_DEBUF_SLOW_DEKAL_MOVE_ATTACK_A` | 663 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_HALOWEEN_AURA_SPEED_ACCEL` | 695 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `BUFF_TEMPLET_ID` | `BTI_HIT_COUNT_ATTACK` | 793 | new-member | BUFF_TEMPLET_ID implemented unassigned |
+| `DAMAGE_EFFECT_DIE_CONDITION_TYPE` | `DEDCT_DAMAGE_TIME` | 0 | new-table | DAMAGE_EFFECT_DIE_CONDITION_TYPE implemented 6a |
+| `DAMAGE_EFFECT_DIE_CONDITION_TYPE` | `DEDCT_LOCK_ON_TARGET` | 1 | new-table | DAMAGE_EFFECT_DIE_CONDITION_TYPE implemented 6a |
+| `DAMAGE_EFFECT_POSITION_TYPE` | `DEPT_IMPACT_UNIT_BONE` | 6 | new-member | POSITION_TYPE implemented 6a; POSITION_TYPE implemented 6b |
+| `DAMAGE_EFFECT_POSITION_TYPE` | `DEPT_IMPACT_UNIT_POS` | 5 | new-member | POSITION_TYPE implemented 6a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_AAP_AUSROTTUNG_ATTACK_CHECK` | 67 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_AAP_FESSELN_LINK` | 66 | new-member | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_ACEINTHEHOLE_2ND` | 43 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_ACEINTHEHOLE_FINAL` | 36 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_ADD_CAN_MUTATION_POINT_UP` | 32 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_ADD_RANDOM_EID` | 55 | new-member | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_AIN_EL_CIRCLE_FIRE` | 46 | new-member | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b; ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_AIN_EL_CIRCLE_FIRE_BACK` | 47 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_AIN_EL_CIRCLE_FIRE_DOWN` | 49 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_AIN_EL_CIRCLE_FIRE_UP` | 48 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_AIN_X_COMBO_PROJECTILE` | 52 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_ALW_COMBO_XXZ_TARGET_CHECK` | 63 | new-member | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_ASR_LIGHTNING` | 28 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_AUTOGUN_COMMAND` | 14 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_AYR_ENERGY_BULLET` | 26 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_AYR_GAIN_GOOD_ENERGY_BALL` | 27 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_A_AAH_ZWEIT_RITUS` | 51 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_A_AEE_RUHIG_TRAP` | 59 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_A_AEE_VERSCHMELZEN` | 57 | new-member | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_A_AEE_VERSCHMELZEN_EID` | 58 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_A_ALA_ECHO_LICHT_NEXT` | 53 | new-member | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b; ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_A_ALA_VERTIEIDI_FIRST` | 54 | new-member | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_BURNING_PHANTOM` | 9 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_BURST_FIRE` | 8 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_CHAIN_REVOLVER_BLADE` | 11 | new-member | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b; ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_DECENT_DRAGON` | 68 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_DISPARATE_FORCE_POWER_OF_GOD` | 45 | new-member | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b; ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_DISPARATE_FORCE_POWER_OF_GOD_ATTACK` | 50 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_ECB_KUGELBLITZ_SELF_DAMAGE` | 25 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_ECE_REASON_PRIDE_FERDINAND_ATTACK` | 44 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_ERADICATION` | 37 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_ERADICATION_EXPLOSION` | 38 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_ETK_CONWELL_ATTACK` | 15 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_EXTREME_RUNE_BUSTER_RANDOM_BUFF` | 42 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_GUNGNIR_SPEAR` | 34 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_KILL_POINT` | 12 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_KS_83` | 13 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_KS_83_EXPLOSION` | 33 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_MOONLIGHT_RHAPSODY` | 7 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_MULTIPLE_DAMAGE_BY_DEBUFF` | 40 | new-member | - |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_RAIN_OF_CHAOS_GUN` | 41 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_RENA_KICK_ATTACK` | 20 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_RENA_TRAP_AND_SWORD_ATTACK` | 22 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_REVOLVER_COMMAND` | 10 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_RGA_GUNGNIR_OUR_TEAM_DAMAGE` | 23 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_RNW_PREDATOR_PLAY_EFFECT` | 24 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_RRF_BURNING_NASOD_HAND_POSSIBLE_WITH_INFINITY_RAGE` | 18 | new-member | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_RVC_IGNITION_CROW_SELF_DAMAGE` | 19 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_SA_AAP_ABGRUND` | 62 | new-member | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_SA_AEE_ELFE` | 56 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_SA_AEE_SATZ_AURORA_MUT` | 60 | new-member | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_SA_AEE_SATZ_AURORA_REIN` | 61 | new-member | ADDITIONAL_ATTACK_TRIGGER_TYPE to-implement 8b |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_SIEGE_SHELLING` | 31 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DAMAGE_TRIGGER_TYPE` | `DTT_TRAPPING_ARROW_FUNGUS_SUB` | 35 | new-member | ATTACK_TRIGGER_TYPE implemented 8a |
+| `DUO_TYPE` | `DT_MAJOR` | 0 | new-table | - |
+| `DUO_TYPE` | `DT_MINOR` | 1 | new-table | - |
+| `EMOTION_TYPE` | `ET_NONE` | 0 | new-table | BOUND_MOTION_TYPE_LIST implemented 3 |
+| `EMOTION_TYPE` | `ET_SITREADY` | 2 | new-table | BOUND_MOTION_TYPE_LIST implemented 3 |
+| `EMOTION_TYPE` | `ET_SITWAIT` | 1 | new-table | BOUND_MOTION_TYPE_LIST implemented 3 |
+| `EMOTION_TYPE` | `ET_STANDUP` | 3 | new-table | BOUND_MOTION_TYPE_LIST implemented 3 |
+| `EXTRA_DAMAGE_TYPE` | `EDT_AMUSEMENT_ITEM_DARK_CLOUD` | 158 | new-member | EXTRA_DAMAGE_TYPE implemented 8a |
+| `EXTRA_DAMAGE_TYPE` | `EDT_C4_REMOTE_CONTROL` | 148 | new-member | EXTRA_DAMAGE_TYPE implemented 8a |
+| `EXTRA_DAMAGE_TYPE` | `EDT_MANA_DAMAGE_WITH_NO_DISPLAY` | 67 | new-member | EXTRA_DAMAGE_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_CUT_HIT_1` | 61 | new-member | HIT_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_CUT_HIT_2` | 62 | new-member | HIT_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_EXPLOSION_1` | 67 | new-member | HIT_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_EXPLOSION_2` | 68 | new-member | HIT_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_IMPRINT_HIT_1` | 65 | new-member | HIT_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_IMPRINT_HIT_2` | 66 | new-member | HIT_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_MAGIC_BULLET` | 57 | new-member | HIT_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_MAGIC_BULLET_BIG` | 58 | new-member | HIT_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_MAGIC_CIRCLE` | 56 | new-member | HIT_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_MAGIC_GLOVE_PUNCH` | 55 | new-member | HIT_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_MAGIC_GLOVE_SLASH` | 54 | new-member | HIT_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_PIERCE_HIT_1` | 63 | new-member | HIT_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_PIERCE_HIT_2` | 64 | new-member | HIT_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_SOUL_BIG_HIT` | 60 | new-member | HIT_TYPE implemented 8a |
+| `HIT_TYPE` | `HT_SOUL_HIT` | 59 | new-member | HIT_TYPE implemented 8a |
+| `HP_RATE_DAMAGE_TYPE` | `HRDT_MAX_HP` | 2 | new-table | HP_RATE_DAMAGE_TYPE implemented 8a |
+| `HP_RATE_DAMAGE_TYPE` | `HRDT_NOW_HP` | 1 | new-table | HP_RATE_DAMAGE_TYPE implemented 8a |
+| `LOCK_ON_TYPE` | `LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE` | 8 | new-member | LOCK_ON_TYPE implemented 6b |
+| `NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE` | `NTPLOTT_TARGET_LIST_CLEAR` | 1 | new-table | NOT_TARGET_PRE_LOCK_ON_TARGET implemented 6b |
+| `NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE` | `NTPLOTT_TARGET_LIST_NOT_CLEAR` | 2 | new-table | NOT_TARGET_PRE_LOCK_ON_TARGET implemented 6b |
+| `NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE` | `NTPLOTT_TARGET_LIST_SAVE_HIT_UNIT` | 4 | new-table | NOT_TARGET_PRE_LOCK_ON_TARGET implemented 6b |
+| `NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE` | `NTPLOTT_TARGET_LIST_SAVE_ONE` | 3 | new-table | NOT_TARGET_PRE_LOCK_ON_TARGET implemented 6b |
+| `NPC_UNIT_ID` | `NUI_P_RMH_MECHANIC_MASTERY` | 2208 | new-member | NPC_ID implemented 6b |
+| `NPC_UNIT_ID` | `NUI_SI_SA_RG_RX78_LAND_RUNNER` | 2175 | new-member | NPC_ID implemented 6b |
+| `ROSE_WEAPON_ATTACK_TYPE` | `RWAT_REVOLVER_BLADE` | 5 | new-table | ROSE_WEAPON_ATTACK_TYPE implemented 8a |
+| `ROSE_WEAPON_ATTACK_TYPE` | `RWAT_REVOLVER_CHAIN` | 4 | new-table | ROSE_WEAPON_ATTACK_TYPE implemented 8a |
+| `SKILL_ID` | `RNSI_A_AAH_DRITT_GELERECHI` | 32207 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AAH_FANTASIEGEBILDE_SPEER` | 32206 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AAH_ZWEIT_RITUS` | 32208 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AAP_LEERE` | 32231 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AAP_MODER` | 32232 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AAT_RUSHING_DRONE_DYNAMO` | 29208 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ABM_ENERGY_DRAIN` | 22213 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ABM_ENERGY_ROAD` | 22211 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ADE_FORCE_FINGER` | 29215 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ADE_REVERSE_FIELD` | 29223 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ADM_DARK_ROAD` | 22206 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ADM_MANA_INTAKE` | 22208 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ADW_ENERGY_RING` | 22226 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ADW_WORM_HOLE` | 22214 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AEE_ALCHIMIE_EID` | 32219 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AEE_RUHIG` | 32220 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AEE_VERSCHMELZEN` | 32221 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AEM_CIRCLE_FLAME` | 22204 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AEM_FIRE_RING` | 22224 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AHM_FIRE_ROAD` | 22201 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AIN_ABSCHLUSS` | 32201 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AIN_DRITT_STILETT` | 32202 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALA_ECHO_LICHT` | 32217 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALA_EID_WEISE` | 32216 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALA_LIED_SCHWACH` | 32218 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALD_CONVERSION_HEALTH` | 27210 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALD_FINGER_BULLET` | 27209 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALD_FORCE_SPEAR` | 27211 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALD_WOLF_CLAW` | 27208 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALE_DREHEN_HINTER` | 32204 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALE_SABELHIEB_SEQUENZ` | 32203 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALE_ZWEIT_SICHELN` | 32205 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALH_DRAGON_FALLING` | 27204 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALH_ROCK_CRASH` | 27202 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALH_TIGER_CLAW` | 27203 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALP_PSIONIC_BEAT` | 29207 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALP_SPEAR_DYNAMO` | 29221 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALP_TWIRL_RUSH` | 29206 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALS_MANA_DRAIN` | 27216 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALS_SHAKE_CHAOS` | 27215 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALS_VIEW_BETWEEN` | 27214 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALW_BRECHEN` | 32228 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALW_GEIST_HERRSCHAFT` | 32229 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ALW_WECHSEL` | 32227 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AMM_AIMING_NOVA` | 29222 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AMM_COUNTDOWN_BOMB_DYNAMO` | 29211 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AMM_DIVIDING_MISSILE_DYNAMO` | 29209 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AMM_FLICK_DISC_DYNAMO` | 29210 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AN_MIND_BREAK` | 29214 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AN_PHASE_SHIFT` | 29201 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AN_PULSE_BULLET` | 29202 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_APT_DESOLVER_DYNAMO` | 29203 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_APT_MAGNETRON_DYNAMO` | 29205 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_APT_PYLON_DYNAMO` | 29204 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ARA_GAIN_FORCE` | 27200 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ARA_SHOULDER_BLOW` | 27201 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ASD_SWALLOW_ASSAULT_TEETH` | 27226 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ASR_FOX_GHOST` | 27228 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ASR_RAID` | 27218 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ASR_SPECTER_WALK` | 27219 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ATT_SPACE_CRACK` | 29212 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AVP_DARK_RING` | 22225 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AVP_SUMMON_BAT` | 22209 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AYR_GAIN_GOOD_ENERGY_BALL` | 27227 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_AYR_HIGH_SPEED` | 27212 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CC_AIMMING_SHOT` | 26203 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CC_SIEGE_SHELLING` | 26201 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CDC_GATLING_SHOT` | 26211 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CDC_RUMBLE_SHOT` | 26210 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CDC_STUN_SHOT` | 26227 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CDC_TRICK_SHOT` | 26209 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CFG_GUARD` | 26207 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CFG_LEAP_ATTACK` | 26204 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CHG_ELASTIC_BOMB_HAND_GRENADE` | 26212 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CHG_MARK_OF_COMMANDER` | 26214 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CIP_ARTILLERY_NOVA` | 26206 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CIP_LAND_SMASH` | 26226 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CIP_SUDDEN_BURSTER` | 26205 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CSG_HEAD_SHOT` | 26208 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CSG_MAGNUM_SHOT` | 26213 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CTT_AUTOMATIC_MORTAR` | 26215 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_CTT_FATAL_CANNON` | 26228 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_EAT_FAENA` | 25224 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_EAT_MEGA_ELECTRONBALL` | 25207 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ECB_TASER_PILUM` | 25212 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ECB_TESLA_SHOCK` | 25211 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ECE_SPIT_FIRE_FLUSH` | 25209 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ECE_TESLA_SHOCK` | 25208 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ECN_SPEAR_BURST` | 25206 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ECN_TESLA_SHOCK` | 25205 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_EEG_METAL_DUST_AURA` | 25204 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_EEL_ILLUSION_RAY` | 25210 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_EIS_ANOTHER_SWORD` | 21224 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_EIS_HARSH_CHASER` | 21215 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ELK_POWER_SMASH` | 21222 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ELK_ROLLING_SMASH` | 21205 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_EL_ENDURANCE_POWER` | 28201 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_EMK_BIG_BURST` | 21207 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_EMK_CRITICAL_SWORD` | 21209 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_EMK_SWORD_WAVE` | 21208 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ENS_SHOT_GUN` | 25221 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ERS_RUNE_OF_FIRE` | 21210 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ESK_IMPACT_SMASH` | 21203 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ETK_FATAL_SLAP` | 21213 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ETK_MIRAGE_STING` | 21214 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ETK_SWORD_SHIELD` | 21212 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_EVE_PHOTON_BLINK` | 25200 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LCG_SHADOW` | 30209 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LCG_SOUL_STRIKE` | 30207 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LCN_SOUL_SPREAD` | 30305 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LCN_SUMMON_FAMILIAR` | 30208 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LCN_SWIFT_SMASH` | 30210 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LDB_ABYSS_STRIKE` | 30215 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LDB_PHANTOM_RUSH` | 30216 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LDN_PUNISHER` | 30218 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LDN_RAPID_FURY` | 30306 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LDN_RAPID_IMPACT` | 30217 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LLD_CHAINS_OF_BONDAGE` | 30206 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LLD_FEAR_ABSORPTION` | 30204 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LUCIEL_HAUNTING_BEAT` | 30202 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LUCIEL_HEAVY_HIT` | 30201 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RBD_FAKE_SHOT` | 31215 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RBD_HEAD_SHOT` | 31214 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RBM_SONIC_SLASH` | 24210 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RBM_SONIC_SLASH_UPGRADE` | 24234 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RCR_ASSAULT_IMPACT` | 23206 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RCR_BACK_KICK` | 23203 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RCR_BLOODY_CHAIN` | 31217 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RCR_BLOOD_BULLET` | 31306 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RCR_GUN_GUARD` | 31218 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RCR_LOW_KICK` | 23204 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RCR_RISING_FALCON` | 23202 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RCR_WESTERN_FIRE` | 31216 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RENA_BACKJUMP_SHOT` | 23200 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RENA_SIEGEMODE` | 23201 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RFY_BLAZING_BULLET` | 31225 | new-member | APPLIED_SKILL_ID to-implement 5 |
+| `SKILL_ID` | `RNSI_A_RFY_PHANTOM_CHASER` | 31224 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RFY_PHANTOM_SHOT` | 31307 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RFY_SPIRAL_SHOT` | 31223 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RF_FLAME_SWORD` | 24201 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RF_SHADOW_STEP` | 24200 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RGA_ENTANGLE` | 23213 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RGA_ONE_TARGET_SHOT` | 23226 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RGA_STIGMA_ARROW` | 23211 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RHB_CANNON_BALL` | 31207 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RHB_STEYR_ANTITANK` | 31208 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RMH_ALL_BOMB` | 31229 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RMH_KS_83` | 31228 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RNW_BUTTERFLY` | 23227 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RNW_DELAYED_FIRE` | 23217 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RNW_SEED_OF_RUIN` | 23219 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ROM_AIMING_STIGMA` | 31308 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ROM_G_3_RAPTOR` | 31231 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ROM_G_EX_MAGNETICFORCE` | 31232 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ROM_SPARROW_GUARDER` | 31230 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ROSE_BACK_STEP_AND_TOP_SPIN` | 31201 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ROSE_NEEDLE_SOBAT` | 31203 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ROSE_RISING_SHOT_AND_SILVER_BULLET` | 31202 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ROT_HELL_DIVE` | 24202 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ROT_WEAPON_BREAK` | 24204 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RRF_ENCHANT_HAND` | 24206 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RRF_SPREAD` | 24224 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RSR_ARC_SHOT` | 23208 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RSR_BOOSTER_CANNON` | 31212 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RSR_DUST_SHOT` | 31305 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RSR_MIND_OF_SHARPSHOOTER` | 23210 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RSR_PLASMA_SHOCK` | 31213 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RSR_PT15_PROTOTYPE` | 31211 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RSR_RAPID_SHOT` | 23212 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RSR_SHOOTING_MAGNUM` | 23209 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RST_ARMOR_BREAK` | 24209 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RST_ONE_FLASH` | 24207 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RTR_ANGER_OF_ELF` | 23216 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RTR_EVOKE` | 23218 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RTR_EXPLOSION_TRAP` | 23214 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RTR_ROSEBUSH_TRAP` | 23215 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RVC_BREAKING_FIST` | 24215 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RVC_BREAKING_FIST_UPGRADE` | 24238 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RVC_FLAME_SWORD_ANOTHER` | 24226 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RVC_GROUND_IMPACT` | 24216 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RVK_G35L_FLASH_BANG` | 31221 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RVK_VIPER_SHOT` | 31222 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RWS_NATURE_FORCE` | 23205 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RWS_PAIN` | 23225 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RWS_REFLEX_MAGIC` | 23207 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RWT_BARRAGE_ATTACK` | 24212 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RWT_MENTAL_BREAK` | 24214 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RWT_NAPALM_GRENADE` | 24213 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SBH_FLAME_PROTECTION` | 28223 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SBH_FLAME_SWORD` | 28210 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SBH_SCALET_ROSE` | 28211 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SCA_ASSAULT_STRIKE` | 28216 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SCA_SHADOW_EDGE` | 28215 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SDK_DARK_WAVE` | 28212 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SDK_INJECTION_STIGMA` | 28213 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SDK_SHADE_SCRATCH` | 28214 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SGM_DRASTIC_CHARGE` | 28206 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SGM_PROVOKE` | 28205 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SPK_AVATAR_OF_THE_FIRE` | 28208 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SPK_BIG_BURST` | 28207 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SPK_FIREWORKS` | 28209 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SSK_LEAP_CRASH` | 28204 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_SSK_POWER_BREAK` | 28203 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_AAH_ERST_DER_LETZT` | 32601 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_AAP_ENDE_DER_WELT` | 32605 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_ADE_PARANOIA` | 29602 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_ADW_FATE_SPACE` | 22602 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_AEE_FLAMME_EMOTION` | 32603 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_AEM_ELEMENTAL_STORM` | 22600 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_ALP_DOOMS_DAY` | 29600 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_AMM_APOCALYPSE` | 29601 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_ASD_THOUSANDS_BLOSSOMS` | 27600 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_ASR_NINE_TAILED_FOX` | 27602 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_AVP_ABYSS_ANGOR` | 22601 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_AYR_ENERGY_CANNON` | 27601 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_CDC_OUTRAGE_STRIKE` | 26601 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_CIP_DOOM_STRIKE` | 26600 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_CTT_SATELLITE_RAIN` | 26602 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_ECB_PSYCHIC_ARTILLERRY` | 25602 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION` | 25601 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_ECN_LUNATIC_SCUD` | 25600 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_EIS_BLADE_RAIN` | 21602 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_ELK_GIGANTIC_SLASH` | 21600 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_ERS_SHININGRUNE_BUSTER` | 21601 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_LCN_CASTLE_OF_ABADDON` | 30602 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_LDN_DIABOLIC_DISASTER` | 30605 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_LLD_DESCENT_DARKNESS` | 30601 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_RBM_EXTREM_BLADE` | 24601 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_RCR_BLOOD_AND_CHAINS` | 31603 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_RFY_D_DAY` | 31605 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_RGA_SHOOTER_DESTINY` | 23601 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_RLW_INNOCENT` | 23602 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_ROM_MECAVOLT_MX` | 31607 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_RRF_INFERNAL_ARMS` | 24600 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_RSR_ANCIENT_TRIGGER` | 31601 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_RVC_BURNING_BUSTER` | 24602 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_RWS_SPIRAL_STRIKE` | 23600 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_SBH_ANCIENT_FIRE` | 28601 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_SCA_FATE_SMASHER` | 28602 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_SGM_SWORD_OF_RELICS` | 28600 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_P_APT_DUST_STORM` | 29401 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_P_CTT_CANNONEER_WITHSTANDING` | 26413 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_P_CTT_MOBILE_ARMORED_MODE` | 26412 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_P_EIS_INFINITY_POTENTIAL` | 21420 | new-member | APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID to-implement 8b |
+| `SKILL_ID` | `RNSI_P_ELK_WIND_SLICER` | 21402 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_P_LLC_SEIZED_BY_FEAR` | 30401 | new-member | USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_P_LLD_LORD_OF_FEAR` | 30403 | new-member | USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_P_RGA_VIBRATION_SHOOTING` | 23407 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_P_RRF_EXPLOSIVE_NASOD_HAND` | 24402 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAH_AUTOSUGGESTION` | 32011 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAH_BEWACHSEN_FESTE_GOTT_WAFFE` | 32018 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAH_BRENNEN_PANTASMA_BODEN` | 32017 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAH_BROCKEN_PHANTASM` | 32012 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAH_DREIMAL_SCHWERTTANZ` | 32013 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAH_DRITT_EROSION` | 32016 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAH_FRAGARACH` | 32014 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAH_STILL_LENZE` | 32015 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAP_ABGRUND` | 32065 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAP_AUSROTTUNG` | 32067 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAP_BEFREIUNG_FELD` | 32069 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAP_CHAOS_FELD` | 32068 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAP_FESSELN` | 32063 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAP_GOTTVERGESSEN_SENSE` | 32062 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAP_MAUER` | 32066 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAP_TOTENTANZ` | 32064 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAT_INSTALLATION_DRONE_ACTIVATOR` | 29013 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAT_PANZER_BUSTER` | 29012 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAT_PHANTOM_SEEKER` | 29015 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AAT_PSIONIC_GENERATOR` | 29014 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ABM_ENERGY_SPURT` | 22025 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ABM_GUILLOTINE_PRESS` | 22024 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ABM_SUPER_NOVA` | 22023 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADE_DIMENSION_BREAKER` | 29060 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADE_GRAVITY_BURSTER` | 29019 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADE_MOONLIGHT_BREAKER` | 29042 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADE_MOONLIGHT_RHAPSODY` | 29024 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADE_REVERSE_CIRCLE` | 29020 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADE_REVERSE_STIGMA` | 29025 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADE_VOID_IMPACT` | 29041 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADM_AGING` | 22015 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADM_DARK_CLOUD` | 22014 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADM_DEATH_FIELD` | 22016 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADM_HELL_STONE` | 22017 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADW_AIR_STUNNER` | 22045 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADW_CRAZY_WORM` | 22046 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADW_HEAVY_PRESS` | 22026 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADW_IMPACT_HAMMER` | 22029 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADW_IMPACT_ZONE` | 22070 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ADW_SCREW_DRIVER` | 22028 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEE_ELFE` | 32043 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEE_LIND_SCHEINEN` | 32042 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEE_LUFT_VERSPRENGEN` | 32040 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEE_REQUIEM` | 32039 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEE_SATZ_AURORA` | 32046 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEE_STOM_STARK` | 32041 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEE_VERTRAUEN_MELODIE` | 32044 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEE_WINDHOSE` | 32045 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEM_BLAZE_STEP` | 22010 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEM_CHAIN_BURST` | 22013 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEM_CIRCLE_ELEMENTAL` | 22041 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEM_CYCLONE` | 22011 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEM_ELEMENTAL_EDGE` | 22042 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEM_ICICLE_SPEAR` | 22068 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AEM_LIGHTNING_SHOWER` | 22012 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AHM_BLIZZARD_SHOWER` | 22008 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AHM_CHAIN_LIGHTNING` | 22009 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AHM_MAGIC_MISSILE` | 22006 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AHM_METEOR_SHOWER` | 22007 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AIN_BOHREN_VEREISEN` | 32003 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AIN_ERST_BOHREN` | 32002 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AIN_EXPLOSION` | 32001 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AIN_SAKROSANKT_ZERTRETEN` | 32004 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AIN_SCHWERT_PLATZEN` | 32005 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AISHA_CHAIN_FIREBALL` | 22000 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AISHA_GUST_SCREW` | 22001 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AISHA_GUST_STORM` | 22002 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AISHA_LIGHTNING_BOLT` | 22003 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AISHA_METEOR_CALL` | 22004 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALA_ANGRIFF` | 32034 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALA_BLATT_BLUME` | 32038 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALA_DIAMANT_REGEN` | 32036 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALA_VERTIEIDI` | 32035 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALA_WIND_EINFALLEN` | 32037 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALD_ENERGY_WAVE` | 27015 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALD_HELL_OF_TORNADO` | 27013 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALD_PRISON_SPEAR` | 27016 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALD_SUPPRESSION_ENERGY` | 27017 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALD_WOLF_SPEAR` | 27014 | new-member | APPLIED_SKILL_ID implemented 8a; DAMAGE_SKILL_ID to-implement 8b |
+| `SKILL_ID` | `RNSI_SA_ALE_BROCKEN_AUSHAUEN` | 32006 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALE_DRITT_ATTENTAT` | 32008 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALE_FESSEL_HEILIG` | 32009 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALE_VIERT_WERFEN_SPEER` | 32010 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALE_ZWEIT_SCHNEIDEN` | 32007 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALH_DOUBLE_COLLISION` | 27006 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALH_LINK_FLOWER` | 27007 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALH_MOONLIGHT_SLASH` | 27008 | new-member | APPLIED_SKILL_ID implemented 8a; DAMAGE_SKILL_ID to-implement 8b |
+| `SKILL_ID` | `RNSI_SA_ALH_SUPPRESSION` | 27009 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALH_WHITE_TIGER` | 27005 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALP_PION_RUSING` | 29037 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALP_PSYCHIC_STORM` | 29009 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALP_QUICKSILVER_ACCEL` | 29011 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALP_QUICKSILVER_STRIKE` | 29038 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALP_SUPERSONIC` | 29058 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALS_RESTRAINTS_SPECTER` | 27022 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALS_SEVER` | 27024 | new-member | APPLIED_SKILL_ID implemented 8a; DAMAGE_SKILL_ID to-implement 8b |
+| `SKILL_ID` | `RNSI_SA_ALS_SPECTER_OF_STORM` | 27021 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALS_SPECTER_OF_THUNDER` | 27023 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALS_SUPPRESSION_SPECTER` | 27025 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALW_ALPTRAUM` | 32057 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALW_ENTFERNEN` | 32061 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALW_REFLEXION` | 32060 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALW_SCHMERZ` | 32058 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ALW_VERZWEIFLUNG` | 32059 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AMM_CHARGED_IMPULSAR` | 29039 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AMM_EXTREME_CHASER` | 29059 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AMM_FORCE_FILED` | 29040 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AMM_INSTALLATION_SHOOTING_CHASER` | 29018 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AMM_INSTALLATION_STAR_FALL` | 29016 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AMM_INSTALLATION_ULTIMATE_FURY` | 29017 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AN_ENERGY_BOOM` | 29000 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AN_NEUTRON_BOMB` | 29004 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AN_PARTICLE_ACCELERATOR` | 29002 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AN_PARTICLE_PRISM` | 29003 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AN_VOID_BREAKER` | 29001 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_APT_CONQUERER` | 29008 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_APT_EMP_SHOCK` | 29010 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_APT_PULSE_CANNON` | 29006 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_APT_QUAKE_BUSTER` | 29005 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_APT_STASIS_FIELD` | 29007 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ARA_FALLING_DRAGON` | 27002 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ARA_PULLING_PIERCE` | 27001 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ARA_SHADOW_KNOT` | 27004 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ARA_TEMPEST_DANCE` | 27000 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ARA_WIND_WEDGE` | 27003 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ASD_ADVENT_DRAGON` | 27064 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ASD_CONTINUITY_STRIKE_THROWING` | 27044 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ASD_LINK_FLOWER_SLASH` | 27043 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ASD_PEERLESSNESS_SLASH` | 27012 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ASD_SWALLOW_ASSAULT` | 27011 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ASD_TURBULENT_WAVE` | 27010 | new-member | APPLIED_SKILL_ID implemented 8a; DAMAGE_SKILL_ID to-implement 8b |
+| `SKILL_ID` | `RNSI_SA_ASR_FIRE_FOX` | 27027 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ASR_FOX_PHANTOM` | 27066 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ASR_GET_BLOOD` | 27026 | new-member | APPLIED_SKILL_ID implemented 8a; DAMAGE_SKILL_ID to-implement 8b |
+| `SKILL_ID` | `RNSI_SA_ASR_NECROMANCY` | 27028 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ASR_SHADOW_RISING` | 27047 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ASR_SPECTER_OF_BLADE` | 27048 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ATT_MAXIMUM_STRIKE` | 29022 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ATT_STARDUST_SHOWER` | 29021 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ATT_VOID_FIELD` | 29023 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AVP_ABYSS_FIELD` | 22069 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AVP_DARK_BURST` | 22021 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AVP_HELL_DROP` | 22020 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AVP_PHANTOM_BREATHING` | 22019 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AVP_PLASMA_CUTTER` | 22018 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AVP_RUIN` | 22044 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AVP_SUMMON_BAT_MILLIONS` | 22043 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AYR_ENERGY_BEAD` | 27018 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AYR_ENERGY_VOID` | 27019 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AYR_RAKSASA_FIRE` | 27065 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AYR_RESTRICTION_ENERGY` | 27045 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AYR_REVERSE_GRAVITY_FIELD` | 27046 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_AYR_STEAL_SOUL` | 27020 | new-member | APPLIED_SKILL_ID implemented 8a; DAMAGE_SKILL_ID to-implement 8b |
+| `SKILL_ID` | `RNSI_SA_CC_ACELDAMA` | 26002 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CC_BRUTAL_SWING` | 26005 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CC_IMPACT_DETONATION` | 26021 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CC_LUNATIC_BLOW` | 26001 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CC_SCARE_CHASE` | 26000 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CDC_BULLET_BLITZ` | 26018 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CDC_BURNING_PUNISHER` | 26063 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CDC_COMET_CRASHER` | 26017 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CDC_DEADLY_SHOT` | 26013 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CDC_EXCITING_CRASH` | 26040 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CDC_SHARPSHOOTER_SYNDROME` | 26012 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CDC_SHOOTING_BIND` | 26039 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CFG_LUNATIC_FURY` | 26006 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CFG_PAIN_OF_CALADBOLG` | 26009 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CFG_PANDEMONIUM_CHAOS` | 26004 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CHG_BIGBANG_STREAM` | 26019 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CHG_CANNON_STRIKE` | 26026 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CHG_CARPET_BOMBING` | 26023 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CHG_CHAOS_CANNON` | 26022 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CIP_BURST_WOLF` | 26003 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CIP_CRACK_CRASHER` | 26037 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CIP_IRON_HOWLING` | 26008 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE` | 26007 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CIP_RAGE_OF_GUARDIAN` | 26038 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CIP_RAPID_GUARDIAN` | 26062 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA` | 26014 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CSG_DUAL_BUSTER` | 26011 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CSG_HEAVY_RAILGUN` | 26016 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CSG_SHOOTING_STAR` | 26015 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER` | 26025 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CTT_BOMBING_ARTILLERRY` | 26042 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CTT_CANNON_PRISON` | 26041 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CTT_DREAD_CHASE` | 26020 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CTT_HEAVY_FIELD` | 26064 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CTT_TACTICAL_FIELD_INDURANCE` | 26024 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_CTT_WONDER_WALL` | 26010 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EAT_HEAVENS_FIST_PRESSURE` | 25012 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EAT_HEAVENS_FIST_SWEEPER` | 25016 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EAT_OBERON_GUARD` | 25014 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EAT_SONIC_WAVE` | 25013 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EAT_SURFACE_CUTING` | 25015 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EBS_LASER_POLE` | 25048 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EBS_NEEDLES_CUTTING` | 25047 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ECB_ENERGY_NEEDLES` | 25027 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ECB_EXTREME_VIRTUAL` | 25237 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ECB_LINEAR_DIVIDER` | 25026 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ECB_THOUSANDS_OF_STARS` | 25028 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ECE_ASSUALT_SPEAR_BURST` | 25018 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ECE_ELECTRONIC_FIELD` | 25020 | new-member | APPLIED_SKILL_ID implemented 8a; APPLIED_SKILL_ID_NOT_AFFECT_MEMO june-ignores 8b |
+| `SKILL_ID` | `RNSI_SA_ECE_GENOCIDE_RIPPER` | 25017 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ECE_REASON_PRIDE` | 25236 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ECE_SPACE_WRENCH` | 25019 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ECN_ASSAULT_SPEAR_ANNIHILATOR` | 25009 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ECN_ATOMIC_SHIELD` | 25011 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ECN_IRONSCRAPS` | 25010 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ECN_JUNK_BREAK` | 25008 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ECN_PSYKER_KINESIS` | 25235 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EEG_ATOMIC_BLASTER_PLASMAGUN` | 25005 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EEG_EXPLOSION_IMPACT` | 25004 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EEG_GENERATE_BLACKHOLE` | 25007 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EEG_HORNET_STING_EXPLOSION` | 25006 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EEG_QUEENS_THRONE` | 25003 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EEL_GIGA_STREAM` | 25025 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EEL_KUGELBLITZ` | 25024 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EEL_PARTICLE_RAY` | 25023 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EEL_PHOTON_FLARE` | 25022 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EEL_SWEEP_ROLLING_OVER_CHARGE` | 25021 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EEP_ELECTRONIC_THUNDER` | 25046 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EEP_TESLA_FLARE` | 25045 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EIS_BLADE_CIRCLE` | 21042 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EIS_INFINITY_CHASER` | 21041 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EIS_INFINITY_STRIKE` | 21060 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EIS_MAELSTROM_RAGE` | 21024 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EIS_MAELSTROM_RAGE_UPGRADE` | 21056 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EIS_RAGE_CUTTER` | 21023 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EIS_SWORD_BLASTING` | 21025 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EIS_SWORD_BLASTING_UPGRADE` | 21057 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ELK_GRAND_CROSS` | 21058 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ELK_IMPERIAL_CRUSHER` | 21038 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ELK_SAND_STORM` | 21009 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ELK_SAND_STORM_UPGRADE` | 21045 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ELK_SONIC_BLADE` | 21011 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ELK_SONIC_BLADE_CRESCENT` | 21037 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ELK_WINDMILL` | 21010 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EL_MEGA_BURSTER` | 28002 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EL_SPIRAL_BLAST` | 28000 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EL_UNLIMITED_BLADE` | 28004 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EL_WILD_SHOCK` | 28001 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EMK_RISING_SLASH` | 21012 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EMK_STORM_BLADE` | 21014 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EMK_WIND_BLADE` | 21013 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ENS_EXTREMING_CUTTING` | 25044 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ENS_ILLUSIONIC_THORN` | 25043 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ERS_EXTREME_RUNE_BUSTER` | 21059 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ERS_LUNA_BLADE` | 21017 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ERS_OVERS_GEYSER` | 21040 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ERS_PHOENIX_TALON` | 21015 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ERS_PHOENIX_TALON_UPGRADE` | 21049 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ERS_SPLASH_EXPLOSION` | 21018 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ERS_SWORD_FIRE` | 21016 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ERS_TRIPLE_SABER` | 21039 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ESK_DOUBLE_SLASH` | 21007 | new-member | APPLIED_SKILL_ID implemented 8a; APPLIED_SKILL_ID implemented unassigned |
+| `SKILL_ID` | `RNSI_SA_ESK_MORTAL_BLOW` | 21006 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ESK_SPIRAL_BLAST` | 21005 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ES_FLAME_GEYSER` | 21001 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ES_MEGASLASH` | 21000 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ES_TRIPLE_GEYSER` | 21004 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ES_UNLIMITED_BLADE` | 21002 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ETK_CRESCENT_CUT` | 21020 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ETK_FINAL_STRIKE` | 21021 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ETK_FINAL_STRIKE_UPGRADE` | 21053 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ETK_PHANTOM_SWORD` | 21022 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ETK_SWORD_FALL` | 21019 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EVE_DIMENSION_LINK_GUARDIAN` | 25002 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_EVE_ILLUSION_STINGER` | 25001 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LCG_DEATH_CRISIS_OF_MARBAS` | 30018 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LCG_DEMONIC_BREATH` | 30017 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LCG_ESCHATON` | 30020 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LCG_FANTASIE_IMPROMPTU_1ST_MOVEMENT` | 30021 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LCG_SOUL_EXTORTION` | 30019 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LCN_FANTASIE_IMPROMPTU_2ND_MOVEMENT` | 30023 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LCN_MAGDONIC_CANNON` | 30058 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LCN_RAIN_OF_CHAOS` | 30084 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LCN_SHADOW_BOLT` | 30016 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LCN_SOUL_LOCK` | 30057 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LCN_SPECTRAL_SPEAR` | 30024 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LCN_TWILIGHT_JUDGEMENT` | 30022 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDB_ALTAR_OF_EVIL` | 30043 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDB_BLOODLUST` | 30041 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDB_DEATH_TOUCH` | 30044 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDB_LAND_CRASHER` | 30040 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDB_NIGHTMARE` | 30042 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDN_ABYSS_EXTINCTION` | 30085 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDN_ABYSS_SNIPING` | 30059 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDN_DEMONIC_RUSH` | 30060 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDN_DESPERADO` | 30047 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDN_GARDEN_OF_HAURES` | 30053 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDN_SHADOW_FURY` | 30050 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDN_SINISTER_MIND` | 30048 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDN_TRANSCENDENCE` | 30049 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LLC_APOLLYON` | 30011 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LLC_DARK_CRESCENT` | 30009 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LLC_DEAD_HANDS` | 30008 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LLC_POWER_OF_ORIAX` | 30010 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LLC_RUINOUS_IMPACT` | 30007 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LLD_DEAD_CROSS` | 30056 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LLD_DEMONIC_CANNON` | 30083 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LLD_FEAR_TOMORROW` | 30055 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LLD_OBLIVION` | 30014 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LLD_PHANTOM_BLADE` | 30015 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LLD_SUMMON_DARKNESS` | 30013 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LLD_SUPREME_PUNISHMENT` | 30012 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LUCIEL_EVIL_CLAW` | 30005 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LUCIEL_FLICK_SHOT` | 30003 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LUCIEL_NETHER_SHREDDER` | 30004 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LUCIEL_SOUL_INFEST` | 30006 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LUCIEL_STOMP` | 30002 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LUCIEL_TRIPLE_SHOT` | 30001 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RBD_CHAIN_SNATCH` | 31023 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RBD_DOUBLE_GUNHAW` | 31022 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RBD_GUN_DANCE` | 31026 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RBD_MOVING_SHOT` | 31025 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RBD_SONIC_SPIKE` | 31024 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RBM_BLOODY_ACCEL` | 24014 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RBM_DEADLY_BLOW` | 24035 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RBM_GIGA_DRIVE_LIMITER` | 24015 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RBM_SHAPT_CHARGE` | 24056 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RBM_SHOCKWAVE_FRONT` | 24016 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RBM_SHOOTUP_GENOCIDE` | 24036 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RBM_WOLF_FANG` | 24017 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RCR_BLOODY_CARNIVAL` | 31027 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RCR_BLOODY_SPIKE` | 31028 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RCR_CHAIN_VIPER` | 31057 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RCR_CRESCENT_KICK` | 23005 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RCR_DANCING_RUSH` | 31058 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RCR_DIVE_KICK_BOMBING` | 23007 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RCR_MULTI_HEAD_SHOT` | 31029 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RCR_PUNISHMENT` | 31094 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RCR_THE_KILL_POINT` | 31030 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RENA_AERO_TORNADO` | 23002 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RENA_ASSAULT_KICK` | 23003 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RENA_PERFECT_STORM` | 23001 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RENA_PHOENIX_STRIKE` | 23004 | new-member | APPLIED_SKILL_ID implemented 8a; APPLIED_SKILL_ID implemented unassigned |
+| `SKILL_ID` | `RNSI_SA_RENA_RAIL_STINGER` | 23000 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RFF_ARC_ENEMY` | 24008 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RFF_NUCLEAR` | 24007 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RFY_C4_REMOTE_CONTROL` | 31039 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RFY_C4_REMOTE_CONTROL_UPGRADE` | 31083 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RFY_EINHERJAR` | 31095 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RFY_G96_PRESSURE_GRENADE` | 31041 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RFY_M18A1_CLAYMORE` | 31059 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RFY_NEIL_THE_SNIPER` | 31038 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RFY_PHOTON_BOMB` | 31040 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RFY_VIPER_SHOWER` | 31060 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RF_CANNON_BLADE` | 24001 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RF_MAXIMUM_CANNON` | 24000 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RF_POWER_ASSAULT` | 24002 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RF_SEVEN_BURST` | 24003 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RGA_ACEINTHEHOLE` | 23059 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RGA_AERO_STRAFE` | 23017 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RGA_BLAST_ARROW` | 23039 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RGA_CUTLASS_WIND` | 23040 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RGA_FREEZING_ARROW` | 23018 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RGA_GUNGNIR` | 23015 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RGA_WIND_BLAST` | 23016 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RHB_FM31_GREAT_LAUNCHER` | 31013 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RHB_HARD_FLAMETHROWER` | 31011 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RHB_LASER_BAZOOKA` | 31014 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RHB_LOCKON_STRATOS` | 31012 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RHB_PROTON_BOMB` | 31015 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RMH_EX_S_VIPER` | 31046 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RMH_EZ_8_COUNT_DOWN` | 31045 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RMH_GALE_FORCE` | 31044 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RMH_MECA_DROP` | 31048 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RMH_SPARROW_FACTORY` | 31047 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RNW_CALL_OF_RUIN` | 23022 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RNW_ERADICATION` | 23060 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RNW_GLIDING_STRIKE` | 23023 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RNW_RAGE_FUNGUS` | 23042 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RNW_SEED_OF_RUIN_POLE` | 23041 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RNW_TRAPPING_ARROW_FUNGUS` | 23024 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROM_ARMORED_TEMPEST` | 31096 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROM_G_0_BATTLEROID` | 31049 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROM_G_1_CORONA` | 31050 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROM_G_2_ROLLING_THUNDER` | 31052 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROM_G_4_FRISBEE` | 31051 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROM_G_EX_ANCIENT_BUSTER` | 31062 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROM_VIPER_CANNON` | 31061 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROSE_BBQ` | 31001 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROSE_M137_GATLING_GUN` | 31004 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROSE_M3_FLAMETHROWER` | 31005 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROSE_RX78_LAND_RUNNER` | 31002 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROSE_SPRIGGAN` | 31003 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG` | 24005 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROT_GUARDIAN_STRIKE` | 24006 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROT_VALKYRIESJAVELIN` | 24004 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RRF_DEVASTATING_STRIKE` | 24057 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RRF_MAXIMUM_DIVE` | 24037 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RRF_POWER_BOMB` | 24038 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RRF_WILD_CHARGE` | 24009 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RRF_X_CRASH` | 24010 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RSR_AIMING_STRIKE` | 31056 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RSR_BUST_GRENADE` | 31093 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RSR_CRAZY_SHOT` | 23014 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RSR_FM92_MK2` | 31019 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RSR_GUIDED_ARROW` | 23012 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RSR_OPERATION_LASE` | 31018 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RSR_PAMPERO_BOOSTER` | 31020 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RSR_PHOTON_SHOWER` | 31055 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RSR_WINDWARD` | 23013 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RSR_X1_EXTRUDER` | 31021 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RST_BERSERKER_BLADE` | 24012 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RST_HYPER_SONIC_STAB` | 24013 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RST_SHOCKWAVE` | 24011 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RTR_FATALITY` | 23019 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RTR_HUMMING_WIND` | 23020 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RTR_KARMA` | 23021 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RVC_BURSTING_BLADE` | 24040 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RVC_DEADLY_RAID` | 24024 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RVC_FLAME_HELL` | 24039 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RVC_GIGA_PROMINENCE` | 24021 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RVC_IFRIT_FLAME` | 24058 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RVC_IGNITION_CROW_INCINERATION` | 24023 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RVC_IGNITION_CROW_NAPALM` | 24022 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RVK_CROSSMORE` | 31035 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RVK_EMP_STORM` | 31037 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RVK_FREEZING_BULLET` | 31033 | new-member | APPLIED_SKILL_ID implemented 8a; APPLIED_SKILL_ID to-implement 5 |
+| `SKILL_ID` | `RNSI_SA_RVK_G18C_FREEZE_GRENADE` | 31036 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RVK_LIGHTWEIGHT_MINE` | 31034 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RWS_AIRELINNA` | 23010 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RWS_GYRO_KICK` | 23038 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RWS_SHARPFALL` | 23009 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RWS_SLIDE_KICK` | 23011 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RWS_SPINNING_CRESCENT` | 23037 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RWS_TEMPEST` | 23058 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RWS_VIOLENT_ATTACK` | 23008 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RWT_HARPOON_SPEAR` | 24018 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RWT_HELLFIRE_GATLING` | 24020 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR` | 24019 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SBH_BLAZE_WING` | 28017 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SBH_BLAZING_DANCE` | 28016 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SBH_BURST_RISING` | 28041 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SBH_ETERNAL_FIRE` | 28015 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SBH_IGNIS_CRASHER` | 28042 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SBH_SOUL_IGNITION` | 28063 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SBH_WALL_OF_PROMINENCE` | 28018 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SCA_BLOOD_CUTTER` | 28023 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SCA_BLOOD_FALLS` | 28064 | new-member | APPLIED_SKILL_ID implemented 8a; APPLIED_SKILL_ID june-ignores - |
+| `SKILL_ID` | `RNSI_SA_SCA_BRANDISH_BREAKER` | 28022 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SCA_DREAD_WEAPON` | 28025 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SCA_SHADE` | 28044 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SCA_SHADE_THE_ILLUSION` | 28024 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SDK_BURNING_PHANTOM` | 28021 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SDK_EJECTION_BUSTER` | 28019 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SGM_CROSS_SLASH` | 28039 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SGM_DIVINE_BLADE` | 28040 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SGM_GIGA_BLAST` | 28062 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SGM_JUGGERNAUT_BUSTER` | 28010 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SGM_SONIC_BLADE` | 28011 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SGM_WAR_PRELUDE` | 28009 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SPK_INFERNAL_BLADE` | 28014 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SPK_SCALDIC_SWORD` | 28013 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SPK_SWORDFIRE` | 28012 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SSK_EXTINCTION` | 28005 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SSK_JUDGEMENT_DRIVE` | 28007 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `TSI_P_COMMON_CHAIN_LIGHTNING` | 20400 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `UNIT_TYPE` | `UT_AIN` | 12 | new-member | - |
+| `UNIT_TYPE` | `UT_ROSE` | 11 | new-member | - |
+
+**Held:** none currently. `HIT_TYPE`'s 15 members were held, then added once
+`SERV_IRUHADEV_JUNE_HITTYPE_EXTEND` widened `m_DamageSoundName` to match -- see above.
 
 ## Open questions for the user
 
 No phase of the plan owns these scopes. Their rows are `unassigned` rather than folded into
 a neighbouring phase:
 
-- nested `DAMAGE_DATA/BUFF_FACTOR/...` (the buff parser): 5 open (implemented 137, to-implement 4, unsupported 1).
+- nested `DAMAGE_DATA/BUFF_FACTOR/...` (the buff parser): 4 open (implemented 138, to-implement 4).
 - `ES.Description` (EffectSet_Description (effect-tool only)): 3 open (to-implement 3); March reads it only under `#ifdef EFFECT_TOOL` (X2EffectSet.cpp:3380), compiled out of the client.
 - `InsertDamageData` (InsertDamageData_LUA (Elsword_DamageData.lua)): 9 open (to-implement 9); March has no reader for `Elsword_DamageData.lua` at all; June's reader 32621080 is a candidate.
 - `DamageSound` (DamageSound): 0 open (implemented 10); March reads it (`ParseDamageSoundBlock`); June's reader 32610ff0 is a candidate.

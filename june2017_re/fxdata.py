@@ -234,8 +234,9 @@ NS_FILES = {
     'mesh.game.minor': ['GameMinorXMeshPlayer.txt'],
 }
 # June: loop from 2 while the file exists (FUN_32597410 @32597677 ESI=2, exit at the
-# JZ @32597d5d). March: GameMajorParticle2..23 hard-coded (X2StateStartUp.cpp:130-150).
-MAR_PARTICLE_MAX = 23
+# JZ @32597d5d). March: GameMajorParticle2..67 hard-coded, under SERV_IRUHADEV_JUNE_LOADER_GAPS
+# (X2Game.cpp, X2SquareGame.cpp, X2StateStartUp.cpp) -- was 2..23 before Phase 11.
+MAR_PARTICLE_MAX = 67
 
 # Keys whose quoted value is a reference. Keys are matched upper-case: the studio mixes case.
 TXT_REFS = {

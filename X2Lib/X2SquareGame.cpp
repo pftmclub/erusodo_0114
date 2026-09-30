@@ -134,6 +134,54 @@ CX2SquareGame::CX2SquareGame( SquareData* pSquareData, CX2World::WORLD_ID worldI
 	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle21.txt" );
 	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle22.txt" );
 	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle23.txt" );
+#ifdef SERV_IRUHADEV_JUNE_LOADER_GAPS
+	// June opens GameMajorParticle2..67.txt (self-terminating loop); this build stops at 23.
+	// Collides with some March names by content -- JUNE2017_TRIAL_LOAD.md point 3.
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle24.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle25.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle26.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle27.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle28.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle29.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle30.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle31.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle32.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle33.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle34.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle35.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle36.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle37.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle38.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle39.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle40.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle41.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle42.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle43.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle44.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle45.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle46.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle47.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle48.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle49.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle50.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle51.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle52.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle53.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle54.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle55.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle56.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle57.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle58.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle59.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle60.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle61.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle62.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle63.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle64.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle65.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle66.txt" );
+	m_pMajorParticle->OpenScriptFile( L"GameMajorParticle67.txt" );
+#endif SERV_IRUHADEV_JUNE_LOADER_GAPS
 
 	m_pMinorParticle->OpenScriptFile( L"GameMinorParticle.txt" );
 

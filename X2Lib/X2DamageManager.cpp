@@ -3082,6 +3082,27 @@ bool CX2DamageManager::OpenDamageSoundScript( const WCHAR* wszFileName )
 	ParseDamageSoundBlock( luaManager, HT_WIND,					"HT_WIND"					);
 	ParseDamageSoundBlock( luaManager, HT_STONE,				"HT_STONE"					);
 #endif //SERV_9TH_NEW_CHARACTER
+#ifdef SERV_IRUHADEV_JUNE_HITTYPE_EXTEND
+	// June2017 DamageSound.lua (june2017_re/june_lua/DamageSound.src.lua:522-611), table names
+	// and HTD_* values verbatim. A table this build's live DamageSound.lua doesn't have yet just
+	// fails BeginTable and leaves these entries empty -- the same silent-default every other
+	// HIT_TYPE already falls back to when a key is missing, not a new failure mode.
+	ParseDamageSoundBlock( luaManager, HT_MAGIC_GLOVE_SLASH,       "HT_MAGIC_GLOVE_SLASH"					);
+	ParseDamageSoundBlock( luaManager, HT_MAGIC_GLOVE_PUNCH,       "HT_MAGIC_GLOVE_PUNCH"					);
+	ParseDamageSoundBlock( luaManager, HT_MAGIC_CIRCLE,            "HT_MAGIC_CIRCLE"					);
+	ParseDamageSoundBlock( luaManager, HT_MAGIC_BULLET,            "HT_MAGIC_BULLET"					);
+	ParseDamageSoundBlock( luaManager, HT_MAGIC_BULLET_BIG,        "HT_MAGIC_BULLET_BIG"					);
+	ParseDamageSoundBlock( luaManager, HT_SOUL_HIT,                "HT_SOUL_HIT"					);
+	ParseDamageSoundBlock( luaManager, HT_SOUL_BIG_HIT,            "HT_SOUL_BIG_HIT"					);
+	ParseDamageSoundBlock( luaManager, HT_CUT_HIT_1,               "HT_CUT_HIT_1"					);
+	ParseDamageSoundBlock( luaManager, HT_CUT_HIT_2,               "HT_CUT_HIT_2"					);
+	ParseDamageSoundBlock( luaManager, HT_PIERCE_HIT_1,            "HT_PIERCE_HIT_1"					);
+	ParseDamageSoundBlock( luaManager, HT_PIERCE_HIT_2,            "HT_PIERCE_HIT_2"					);
+	ParseDamageSoundBlock( luaManager, HT_IMPRINT_HIT_1,           "HT_IMPRINT_HIT_1"					);
+	ParseDamageSoundBlock( luaManager, HT_IMPRINT_HIT_2,           "HT_IMPRINT_HIT_2"					);
+	ParseDamageSoundBlock( luaManager, HT_EXPLOSION_1,             "HT_EXPLOSION_1"					);
+	ParseDamageSoundBlock( luaManager, HT_EXPLOSION_2,             "HT_EXPLOSION_2"					);
+#endif SERV_IRUHADEV_JUNE_HITTYPE_EXTEND
 
 
 	for( int i=0; i<(int)HIT_TYPE_COUNT; i++ )

@@ -2523,6 +2523,89 @@ to `X2_offline.exe`, 18,969,600 B**, SHA-256 prefix `73ab71b6282dca56`, 2026-09-
 
 Revert: undefine `SERV_IRUHADEV_JUNE_PARTICLE`. Pure addition: 90 lines inserted, none deleted.
 
+### June2017 effect engine: enum data + loader-list gaps (Phase 11)
+
+**Enum data (no flag -- pure Lua data, not client code).** Added 968 `(table, member)` values to
+`march2014/data036/Enum.src.lua`: 17 members across 7 new tables (`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`,
+`DAMAGE_EFFECT_DIE_CONDITION_TYPE`, `DUO_TYPE`, `EMOTION_TYPE`, `HP_RATE_DAMAGE_TYPE`,
+`NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE`, `ROSE_WEAPON_ATTACK_TYPE`), 936 members into 13 existing tables
+(`ATTACK_TYPE`, `BUFF_BEHAVIOR_TYPE`, `BUFF_FACTOR_ID`, `BUFF_FINALIZER_TYPE`, `BUFF_TEMPLET_ID`,
+`DAMAGE_EFFECT_POSITION_TYPE`, `DAMAGE_TRIGGER_TYPE`, `EXTRA_DAMAGE_TYPE`, `LOCK_ON_TYPE`, `NPC_UNIT_ID`,
+`SKILL_ID`, `UNIT_TYPE`), and 15 into `HIT_TYPE` once its C++ consumer was widened to take them safely
+(see below). Plus 2 renumbered in place (also below). Values verbatim from June's `Enum.lua`, cross-checked
+against the transcoded bytecode actually executed with the vendored luajit (not just the ljd decompile),
+and round-tripped through the real `mar-2014` compiler with 0 unintended changes. Compiled sibling
+`march2014/data036/Enum.lua` (265,151 B) is ready to pack; **the user packs it**, replacing the existing
+`Enum.lua` entry in `data036.kom` -- but **not before** the `x2.exe` below is deployed (the `HIT_TYPE`
+members it carries need the widened array; see next paragraph).
+
+**`HIT_TYPE` extended rather than held.** New flag `SERV_IRUHADEV_JUNE_HITTYPE_EXTEND`
+(`KTDXLIB/Always.h`, `X2DamageManager.h`/`.cpp`). March's
+`m_DamageSoundName[HIT_TYPE_COUNT][HITTED_TYPE_COUNT]` (`X2DamageManager.h:1622`) is indexed directly by
+`pDamageData->hitType` (`X2DamageManager.cpp:138`, `GetDamageSound`, `:3157`) with no bounds check, so the
+15 members June added past March's `HIT_TYPE_COUNT` (54) needed the array widened before they could be
+added to the Lua enum at all. `HIT_TYPE_COUNT` is now 69 (the array is dimensioned by the enum constant, so
+it resizes with it), guarded by
+`static_assert( HT_STONE == 53 && HT_EXPLOSION_2 == 68 && HIT_TYPE_COUNT == 69, ... )` against the
+sequential `#ifdef SERV_9TH_NEW_CHARACTER` numbering drifting silently later. 15 new
+`ParseDamageSoundBlock` calls read June's own `DamageSound.lua` table names
+(`HT_MAGIC_GLOVE_SLASH`/`_PUNCH`, `HT_MAGIC_CIRCLE`, `HT_MAGIC_BULLET`/`_BIG`, `HT_SOUL_HIT`/`_BIG_HIT`,
+`HT_CUT_HIT_1/2`, `HT_PIERCE_HIT_1/2`, `HT_IMPRINT_HIT_1/2`, `HT_EXPLOSION_1/2`) -- confirmed present in
+`june2017_re/june_lua/DamageSound.src.lua:522-611`. March's live `DamageSound.lua` doesn't have these 15
+tables yet, so they play with no sound until it's adopted too (the same silent default every other
+`HIT_TYPE` already falls back to for an unset key, not a new failure mode); `DamageSound.lua` is already
+one of the 14 files the Phase 11 Lua-level trial covers.
+
+**`BUFF_FACTOR_ID` renumbered to June's values:** `BFI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR_EVENT` 365->372,
+`_WING_EVENT` 366->373 (June moved this pair by +7). Checked clear before editing: 372/373 free in both
+March's Lua table and its C++ enum; zero hits for either name, or for `BUFF_FACTOR_ID` generally, anywhere
+under `KncWX2Server/Common` or `X2Lib/Offline` (not on the wire, not persisted); the full March-vs-June
+`BUFF_FACTOR_ID` diff has 3 other differs (three potion buffs, +119, unrelated and out of this plan's
+scope, left untouched). The un-renumbered `BFI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR`/`_WING` (280/281) are
+referenced by name in the live merged `DamageEffect.src.lua`, confirming `HAMEL_SECRET_DUNGEON`
+(`Always.h:1153`, unconditional) is real content, not dead.
+
+**Loader-list gaps: new flag `SERV_IRUHADEV_JUNE_LOADER_GAPS`** (`KTDXLIB/Always.h`). Files:
+`X2Lib/X2Game.cpp` (2 sites), `X2Lib/X2SquareGame.cpp`, `X2Lib/X2StateStartUp.cpp`.
+
+- **`GameMajorParticle%d.txt` turned out not to be a fixed-count list in June** -- Ghidra decompile of
+  `FUN_32597410` (`32597b20`+) is a self-terminating loop (format, open, break on first miss); June ships
+  2-67 contiguously, March's three call sites stopped at 23. Now opens 24-67 at all three, not just 36 and
+  44 (the original, narrower version of this flag). Verified both `REALTIME_SCRIPT_PATCH` (the live
+  `X2Game.cpp` site's guard) and this flag survive `cl /P` under `X2Lib`'s real `US_SERVICE` defines.
+- **`DamageEffect_Character.lua`/`_ETC.lua` were never opened at all, not just `_Dungeon.lua`.** `fxdump`'s
+  globals census shows 1,022 damage effects defined only in `_Character.lua`, 805 only in `_Dungeon.lua`,
+  431 only in `_ETC.lua` (next to 6,456 in `DamageEffect.lua`, 268 in `_INT.lua`) -- about 25% of June's
+  damage effects would have silently never loaded. Fixed at both `X2Game.cpp` sites, in June's own order
+  (`FUN_322e2930`: `DamageEffect`, `_Character`, `_Dungeon`, `_ETC`, `_INT` -- `_INT` stays last).
+- **Not opened, on purpose: `Elsword_DamageData.lua`, `UnitViewerEffectSetTable.lua`.** No March consumer
+  for either exists at all (no `InsertDamageData_LUA` binding, no literal reference to either name
+  anywhere in `X2Lib`/`KTDXLIB`). Needs C++ work first; out of this phase's scope.
+
+None of these files are packed into March's live `data036.kom` yet, so the flag is currently inert in the
+live game directory -- `OpenScriptFile` on a file the archive doesn't have logs and continues.
+
+**Particle override set computed in full** (`june2017_re/particle_override_census.py` ->
+`particle_override_census.tsv`), not just the 18 C++-literal names `JUNE2017_NAME_CONTRACT.md` could see:
+**1,401 names** collide between March's files 1-23 and June's newly-opened 24-67. **1,223 are
+byte-identical** (pure reorganization, June just moved them -- a no-op once packed); **178 genuinely
+differ** (~117 Add-character skill effects moved into `GameMajorParticle{29,30}.txt` with real content
+changes, ~61 event/lobby/property effects into `GameMajorParticle44.txt`). Checked and confirmed
+identical, not a concern: `BossRaid_Gate_P01-05,07`, `RaidFieldGate`, the four `HeadMarker*3D` names,
+`PremiumSquareShop` -- the live-content names flagged in this section's first draft were false alarms.
+The 178 real differs are a play-test item now, not further static analysis; see `JUNE2017_TRIAL_LOAD.md`.
+
+Built `US_SERVICE`, rc 0, all three projects (`KTDXLIB`, `X2Lib`, `X2`), across two rounds (loader gaps,
+then `HIT_TYPE` extend + BFI renumber). Final `x2.exe`: 18,979,840 B, 2026-10-01 02:01:48. **Not deployed,
+not play-tested** -- the trial-load step (game-directory copy, packed trial `.kom`, launch) needs the
+throwaway copy built first; see `JUNE2017_TRIAL_LOAD.md`.
+
+Revert: undefine `SERV_IRUHADEV_JUNE_LOADER_GAPS` and/or `SERV_IRUHADEV_JUNE_HITTYPE_EXTEND`
+independently; the enum additions are separate (see above) and are not gated by a flag. The `BUFF_FACTOR_ID`
+renumber is a plain value change (365/366 <-> 372/373), not additive -- revert by editing the two lines
+back. Otherwise pure addition throughout `KTDXLIB/Always.h`, `X2Lib/X2Game.cpp`, `X2Lib/X2SquareGame.cpp`,
+`X2Lib/X2StateStartUp.cpp`, `X2Lib/X2DamageManager.h`/`.cpp`, `march2014/data036/Enum.src.lua`.
+
 ### Dryad Kenta (Burned Forest boss): "jumps off the map, never comes back" softlock
 
 Pure content fix, no flag -- `march2014/update/data037/RAGE_DRYADKENTA.src.lua` only. Reported
@@ -2585,14 +2668,67 @@ compiler overwrites its input). Both are clean on the fixed file.
 KOG bytecode and repacking into `data037.kom` before a play-test can confirm it in-game -- that
 step is the user's, per this repo's own convention for `march2014/`.
 
-**Not fixed here, flagged for awareness**: the same lint found the identical bug pattern
-elsewhere across the Ranox-ported `data037/` corpus (dozens of files, roughly 1 to a few hundred
-hits each depending on file size -- `SECRET_MAGI_BOSS.src.lua` and `SECRET_SCENE_DUMMY.src.lua`
-stood out at 379 and 251). That scan is a quick heuristic (flags a `slotN` read with no prior
-`slotN = ...` assignment anywhere earlier in the same function body), not verified instruction-by-
-instruction the way Kenta's six were, so treat the counts as "worth auditing," not as a confirmed
-defect list.
+**Not fixed here at the time, later fixed properly:** the same lint found the identical bug
+pattern elsewhere across the Ranox-ported `data037/` corpus (dozens of files, roughly 1 to a few
+hundred hits each depending on file size -- `SECRET_MAGI_BOSS.src.lua` and
+`SECRET_SCENE_DUMMY.src.lua` stood out at 379 and 251). That was a quick heuristic (flags a
+`slotN` read with no prior `slotN = ...` assignment anywhere earlier in the same function body),
+not verified instruction-by-instruction the way Kenta's six were -- **superseded by the bytecode
+harness below**, which turned "worth auditing" into 62 files / 123 functions, bytecode-confirmed
+and repaired.
 
+### Ranox Lua decompile fix: tooling (corpus harness, fix, and the 61-file repair)
+
+No client flag -- this is tooling under `june2017_re/` plus content-only edits to
+`march2014/**/*.src.lua` (the same `SERV_IRUHADEV_RANOX_PORT` comment convention as the Kenta
+entry above, not a `KTDXLIB/Always.h` flag; no `X2`/`X2Lib`/`KTDXLIB` C++ changed).
+
+The Dryad Kenta fix above was done by hand, before any of this existed. `RANOX_LUA_DECOMPILE_FIX_PLAN.md`
+(9 phases, 2026-09-27 to 2026-10-01; full methodology and every phase's result live there) then
+built the general version:
+
+- **Root cause, one defect at four sites**, identified in `elstools/vendor/ljd`'s
+  `slotworks.py`: it inlines a temporary whenever its *narrow, per-pass* view of the value's
+  live range counts exactly one read, even when the value is actually read again outside that
+  view. See `RANOX_LUA_DECOMPILE_BUG.md`'s "Root cause" for the full causal chain and upstream
+  status (this is a still-open bug in third-party code, `gitlab.com/znixian/luajit-decompiler`
+  issue #32, not something introduced by this port).
+- **The fix**: `june2017_re/ljd_fixed.py` (design in `ljd_slotworks_fix.py`), a run-time
+  monkey-patch into the vendored ljd that refuses to install unless the vendored `slotworks.py`
+  matches the exact SHA-256 it was written against. `june2017_re/ljd_slotworks.patch` is the
+  same change as a unified diff for the two vendored ljd copies -- **generated, not applied**;
+  applying it is the user's call, not made by this work.
+- **`june2017_re/ljd_jun2017.py`** (the June decompiler entry point) **installs the fix by
+  default** as of this phase; `--unfixed` opts out. `june2017_re/ljd_jun2017.py --check FILE.lua`
+  runs the bytecode harness against one file's own June original in one command (learn + trace +
+  diff, 32 seeds, fails on `clobber` or an unexplained `dropped-assignment`) -- the fast way to
+  verify a file without reading a printed decompile by eye.
+- **A harness (`june2017_re/ljdiff/`) and an engine-free oracle (`june2017_re/ljd_oracle/`)**
+  prove the fix: run the real June bytecode and a decompile-recompile round trip side by side
+  under a mock Lua environment and diff their behaviour, rather than trusting that the printed
+  Lua reads correctly (it always does -- that's what makes this class of bug dangerous).
+- **The corpus sweep (Phases 5/7/8) covers all 7,328 June `.lua` files**, not just the port:
+  `june2017_re/decompile_verdicts.tsv` carries one verdict row per (file, function). Zero
+  unexplained `dropped-assignment` anywhere in the corpus -- the fix holds. What's left besides
+  clean files is all harmless-in-engine (call-argument evaluation-order reordering, mostly) or a
+  separate, already-known, still-unfixed ljd defect (the "ljd caveat" deepcopy-hoist
+  mis-structuring); see `RANOX_LUA_DECOMPILE_BUG.md`'s "Residual ljd defects" for the full
+  breakdown.
+- **62 ported files, 123 functions, repaired** (Phase 6a-6c, this repo's commits
+  `8a141a5`/`6809a33`/`2bbd358`): every real instance the sweep found in `march2014/`, restoring
+  the dropped assignment ahead of its reads, same convention as Kenta's fix. 61 of the 62 are in
+  `march2014/update/data037/` (the same Ranox monster/boss AI scripts as Kenta); the other is
+  `march2014/data036/MapData.src.lua`. Full per-file list in `RANOX_LUA_DECOMPILE_BUG.md`'s
+  "Scope" section.
+- **The `local slotN` question was asked and answered, not assumed.** Bare globals stay (the
+  port's existing no-`local` convention); a real census of nested-frame clobber risk found only 3
+  live instances across all 276 mapped port files, fixed case by case rather than by a blanket
+  `local` rewrite. See `RANOX_LUA_DECOMPILE_FIX_PLAN.md`'s "Phase 5 result" for the evidence.
+
+**Needs packing**: all 62 repaired files listed in `RANOX_LUA_DECOMPILE_BUG.md`'s "Scope" table
+(same `march2014/update/data037/` directory as Kenta, plus `data036/MapData.src.lua`) need
+recompiling to KOG bytecode and repacking into their `.kom` before an in-game play-test can
+confirm them -- the user's step, same as Kenta above.
 
 ## Reverting to stock
 
