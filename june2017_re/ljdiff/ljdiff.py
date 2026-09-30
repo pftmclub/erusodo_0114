@@ -190,14 +190,14 @@ def compile_mar(src, out, twin=True):
     return g
 
 
-def decompile(path, table, flat):
+def decompile(path, table, flat, decompile_timeout=600):
     """June file -> tmp ljd source (Phase 0's no-sibling path). -> src path"""
     d = open(path, 'rb').read()
     stock, _, _ = ljconv.transcode_stock(d, table)
     stock_path = tmp(flat, 'stock.luac')
     open(stock_path, 'wb').write(stock)
     src = tmp(flat, 'src.lua')
-    rc, so, se = run([sys.executable, LJD, '-f', stock_path, '-o', src], os.path.dirname(LJD), 600)
+    rc, so, se = run([sys.executable, LJD, '-f', stock_path, '-o', src], os.path.dirname(LJD), decompile_timeout)
     if rc != 0 or not os.path.exists(src):
         raise StepError('ljd failed on %s (rc %d): %s' % (path, rc, (se.strip().splitlines() or [''])[-1]))
     if LJD == LJD_FIXED and 'slotworks fix active' not in se:
@@ -205,7 +205,7 @@ def decompile(path, table, flat):
     return src
 
 
-def build(path, table, extras, twin=True):
+def build(path, table, extras, twin=True, decompile_timeout=600):
     """-> (flat, {side: chunk_path}, {side: source_path}) for one June file."""
     flat = flat_of(path)
     d = open(path, 'rb').read()
@@ -216,7 +216,7 @@ def build(path, table, extras, twin=True):
     sides['orig'] = tmp(flat, 'orig.luac')
     open(sides['orig'], 'wb').write(orig)
 
-    src = decompile(path, table, flat)
+    src = decompile(path, table, flat, decompile_timeout=decompile_timeout)
     sides['rt'] = compile_mar(src, tmp(flat, 'rt.luac'), twin)
     srcs['rt'] = src
 

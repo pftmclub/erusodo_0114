@@ -2384,6 +2384,99 @@ corpus-wide totals into RANOX_LUA_DECOMPILE_BUG.md.
 
 ---
 
+## Phase 8 result
+
+Ran 2026-09-30. All exit criteria met: every one of the 4,223 non-`data037_kom` files has a
+verdict (4,215 `ok`, 8 tooling-limitation failures — see below), and the corpus-wide totals
+(Phase 7 + Phase 8, all 7,328 files) are written into `RANOX_LUA_DECOMPILE_BUG.md`'s new
+"Residual ljd defects (Phase 8...)" and "Corpus-wide totals" sections.
+
+**Tooling.** `june2017_re/phase8_build_targets.py` split the 4,223 files (reading
+`decompile_corpus.tsv`, not re-deriving anything) into three target lists: 494 files that define
+at least one nested function (`protos_complete > 1`, run full — `learn()` populates
+`types.tsv`), 3,715 that define none (`protos_complete == 1`, run `--fast`), and the 14 files
+over 1 MB on their own list (further split 12 fast / 2 full by the same `protos_complete` test).
+`june2017_re/phase8_worker.py` is `phase7_worker.py` generalized to: (a) a `--fast` flag that
+skips `LD.learn()` entirely, (b) `--decompile-timeout`, threading a previously-hard-coded 600s
+`ljd -f` subprocess timeout in `ljdiff.py`'s `decompile()`/`build()` into a real parameter
+(default unchanged at 600, only the big-file batches pass more), and (c) writing the fixed
+decompile to `<src-outdir>/<kom_dir>/<name>.src.lua` instead of Phase 7's flat
+`<src-outdir>/<name>.src.lua`, since Phase 8's targets span 20 folders. `june2017_re/phase8_aggregate.py`
+is `phase7_aggregate.py` generalized the same way, with one correctness-critical
+difference: it preserves existing `scope=corpus` rows by **exact `(kom_dir, kom_name)` pair**,
+not by `kom_dir` alone — see "One real bug, caught before it mattered" below.
+
+**The fast path: proven safe before the sweep ran, not assumed.** See
+`RANOX_LUA_DECOMPILE_BUG.md`'s Phase 8 section for the full account — the short version is that
+`entry_points()` is structurally empty for every `protos_complete == 1` file (confirmed by
+reading `ljdiff.lua` directly: `run_main()` executes once regardless of `MODE`/seed count, and
+the per-entry-point seed loop below it never iterates over an empty list), so `--fast` only
+removes `learn()`'s extra work, and a 20-file fast-vs-full check (byte-identical JSON on all 19
+that completed) plus a direct grep confirming **zero `==`/`~=` anywhere** in any of the 19
+decompiled samples (the only thing `learn()`'s `static_learn()` could have taught from a
+main-chunk-only file) closed the loop. `--fast` never calls `save_types()`, confirmed both by
+code reading (`save_types()` has exactly one call site, inside `learn()`) and empirically (all
+20 calibration runs left `types.tsv` untouched) — which is what let the 3,715-file fast batch run
+8-way parallel (614s total, 0.17s/file) instead of serial.
+
+**Batch order, and why:** functions batch first (serial, `--workers 1`, populates `types.tsv`),
+then the fast batch (parallel, reads but never writes `types.tsv`), then the two big-file
+sub-batches (serial, larger budget). Never overlapped — Phase 7's own concurrency-race finding
+(concurrent `learn()`/`save_types()` on the shared `types.tsv`) still applies to any batch that
+isn't `--fast`.
+
+**One real bug, caught before it mattered.** A first version of `phase8_aggregate.py` preserved
+existing `scope=corpus` rows by `kom_dir` alone (mirroring `phase7_aggregate.py`, which only ever
+had one folder to worry about). Phase 8 splits files *within* a folder across its three batches —
+8 folders appear in more than one target list, confirmed programmatically (0 shared `(dir, name)`
+pairs, but 8 shared `dir` values) — so aggregating the fast batch second silently dropped the
+functions batch's own rows for every one of those 8 folders (a row-count drop against the
+committed baseline caught this immediately after the second aggregation run, before any further
+phase work built on it). Fixed to scope by exact `(dir, name)` pair; re-verified by restoring
+`june2017_re/decompile_verdicts.tsv` to its committed baseline and re-running all four
+aggregations in order, confirming Phase 5's 666 `scope=ported` rows and Phase 7's 31,347
+`data037_kom` rows both survive byte-for-byte.
+
+**A second, unrelated bug from an early misconfigured run, also caught and repaired.** The very
+first `corpus_run.py` invocation passed `--worker june2017_re/phase8_worker.py`; `corpus_run.py`
+runs its worker subprocess with `cwd` set to its own directory (`june2017_re/`), so the relative
+path doubled (`june2017_re/june2017_re/phase8_worker.py`) and all 494 targets came back `CRASH`.
+The immediate retry fixed the worker path but still passed `--outdir`/`--hang-dir` as relative
+paths, which resolve against the *worker's* cwd (`june2017_re/`), not the caller's — so a few
+files' real output landed in a stray, untracked `june2017_re/tmp/` before this was caught and all
+three path arguments (`--outdir`, `--hang-dir`, `--src-outdir`) were made absolute for every later
+invocation. One second-order effect of chaining `--resume` through this: 65 files that had already
+run (with `status=ok`) against the wrong, now-deleted `june2017_re/tmp/` output got silently
+skipped by `--resume` on the corrected re-run, since `_read_done()` only checks that a `(dir,
+name)` row exists, not that its `out_path` is reachable — `phase8_aggregate.py` reported these as
+`not-run` (json missing) and named all 65, which is what surfaced the problem; they were
+identified from the aggregator's own `not-run` rows, stripped out of the run TSV, and re-run clean
+(110s for 65 files) before final aggregation.
+
+**Two genuinely new tooling-limitation shapes surfaced, beyond Phase 7's 3 already-known
+classes** (`RecursionError`, `TIMEOUT`, and the deepcopy-hoist value-level defect): ljd omitting
+the parentheses Lua's grammar requires around an immediately-invoked function literal
+(`compile-batch` then can't even parse the output), and ljd choosing a `[[...]]` long-bracket
+string delimiter without checking whether the string's own content contains `]]`, closing the
+literal early. Both are decompile-stage failures (no output at all, not a wrong one), documented
+with the exact `compile-batch` errors and affected files in `RANOX_LUA_DECOMPILE_BUG.md`, not
+fixed here per the plan.
+
+**Corpus-wide, all 7,328 files:** 6,001 fully clean, 1,312 more with only harmless
+reorder/other-ljd/clobber/upvalue residuals, 15 with no verdict (a tooling limitation, not a
+correctness question), and **zero** files with an unexplained `dropped-assignment` — the Phase 4
+fix holds across the entire June corpus, not just the files that happened to get ported or the
+`data037_kom` folder.
+
+**Outputs:** `june2017_re/phase8_worker.py`, `phase8_aggregate.py`, `phase8_build_targets.py`,
+`phase8_targets_{functions,fast,big,big_fast,big_full}.tsv`, `ljdiff.py`'s
+`decompile_timeout`/`build(..., decompile_timeout=...)` parameter (default unchanged),
+`june_src_fixed/<dir>/` for 20 more folders (4,215 fixed decompiles), and `decompile_verdicts.tsv`
+grown to 41,809 `scope=corpus` rows (covering the full 7,328-file corpus) plus Phase 5's untouched
+666 `scope=ported` rows.
+
+---
+
 ## Phase 9 — Wire it in, document, close out
 
 **Paste with:** Starting context + this section + every "Phase N result".

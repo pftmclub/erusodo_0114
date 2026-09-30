@@ -489,6 +489,89 @@ the 4 `TIMEOUT` files) or a real fix to the flow-rebuild's recursion depth (for 
 `RecursionError` files) — both out of scope here, and worth a follow-up plan item if the user
 wants these unblocked before then.
 
+## Residual ljd defects (Phase 8, the remaining ~4,200 files)
+
+Ran 2026-09-30. `june2017_re/phase8_worker.py` + `phase8_aggregate.py` compared every June
+original **outside** `data037_kom` (4,223 files across 20 folders — line maps, dialog/UI
+tables, item/skill/effect data, event scripts) against its **fixed** round trip, the same
+no-port-side comparison Phase 7 used. Fixed decompiles are persisted at
+`june_src_fixed/<dir>/<name>.src.lua`; raw verdicts are `scope=corpus` rows in
+`june2017_re/decompile_verdicts.tsv`, which together with Phase 7's rows now cover the **entire
+7,328-file corpus** (41,809 `scope=corpus` rows total; Phase 5's 666 `scope=ported` rows
+untouched).
+
+**Zero unexplained `dropped-assignment` across all 4,223 files — the Phase 4 fix holds for the
+whole non-`data037_kom` corpus too**, confirmed the same two-check way (dynamic + static)
+`phase8_aggregate.py` inherits from Phase 5/7.
+
+**A main-chunk-only fast path, confirmed safe rather than assumed.** 3,715 of the 4,223 files
+define zero nested function prototypes (`decompile_corpus.tsv`'s `protos_complete == 1`), split
+out via `june2017_re/phase8_build_targets.py`. For those, `ljdiff.lua`'s `entry_points()` — which
+only discovers functions reachable from main-chunk globals — is provably empty, so the
+per-function/per-seed driver is already a no-op with or without `--fast`; the ONLY thing
+`--fast` skips is `learn()`'s extra main-chunk execution(s) and its `static_learn()` type-mining
+pass. Before sweeping, this was checked on 20 files spread across 8 folders (sizes 1 KB–5.2 MB):
+fast and full produced byte-identical JSON on 19/19 that completed (the 20th hit the same
+compile-batch defect described below, on both sides identically — not a fast/full disagreement).
+Critically, **none of the 20 samples exercised `learn()`'s type-mining path at all** — traced to
+a structural reason, not a sampling gap: `static_learn()` only fires on a `CALL` immediately
+followed by a comparison against a constant, and a direct grep of all 19 successfully-decompiled
+samples found **zero `==`/`~=` occurrences anywhere** in any of them. Fast-path files are pure
+declarative data (no `if`, no comparisons at all), so there is structurally nothing for
+`learn()` to teach on this population regardless of sample size. The fast batch (3,715 files)
+then ran 8-way parallel in 614s (0.17s/file avg) — confirmed safe because `save_types()` is only
+ever called from inside `learn()`, which `--fast` skips, so a fast-path worker never writes
+`june2017_re/ljdiff/types.tsv`, only reads it.
+
+**Verdict breakdown, Phase 8's 4,223 files** (one row per file+function, plus one `<main>` row
+per file):
+
+| Verdict | Rows | Meaning |
+|---|---:|---|
+| `clean` | 10,013 | matches June exactly |
+| `reorder` | 272 | same events as a multiset, same outcome, different order |
+| `other-ljd` | 147 | events differ, usually a reorder-driven early stop |
+| `upvalue` | 19 | a captured local prints as `uvN`, not a `slotN` global |
+| `clobber` | 2 | a nested same-file call frame writes a register the caller was still relying on |
+| `other-ljd (deepcopy, exempt)` | 1 | the pre-existing deepcopy-hoist class, see Phase 7 above |
+| `STEP_ERROR` / `TIMEOUT` | 5 / 3 | see below |
+
+3,958 of 4,223 files are byte-for-behavior clean; 257 more have at least one harmless
+`reorder`/`other-ljd`/`clobber`/`upvalue` row but no dropped-assignment; 8 produced no verdict at
+all (below). Clustering every non-clean row the same way Phase 7 did (293→a handful of causes
+there; 86 shapes here, same dominant pattern) confirms the same story: pure call-argument
+reorder, a reorder shifting an early return/error/budget-cutoff position, and two more `clobber`
+instances (`data034_kom/DLG_GAME_SKILL_SLOT_NEW*.lua`-style skill-slot files) — nothing new in
+kind, just more instances of what Phase 7 already named.
+
+**8 files got no verdict — three distinct tooling-limitation shapes, two of them new (not seen
+in Phase 7's data037_kom sweep):**
+
+| File(s) | Failure | Cause |
+|---|---|---|
+| `SQUARE_Unit.lua`, `PET_Sadfox_Biho_1.lua`, `PET_Sadfox_Biho_2.lua` | `TIMEOUT` | same class as Phase 7's 4 `TIMEOUT` files: the fixed hook's decompile step exceeds `ljdiff.py`'s internal cap. One `TIMEOUT` in this same batch, `GameEditCommandList.lua` (228 functions), *did* recover on a retry at `--decompile-timeout 900`/`--budget 900` (474s of that was the decompile step alone) — these 3 did not, confirmed on the same retry |
+| `PET_Sadfox_Biho_3.lua` | `STEP_ERROR`: `MemoryError` in ljd itself (not a Python recursion limit) | new shape, not one of Phase 7's 3 `RecursionError` files — the fixed hook's flow rebuild runs out of memory rather than hitting a recursion cap on this file's AST shape |
+| `DamageEffect_Dungeon.lua`, `Rose_StormTrooper.lua` | `STEP_ERROR`: `compile-batch` syntax error, `'}' expected ... near '('`/`'slot3'` | **new class**: ljd prints an anonymous function used as an immediately-invoked expression without the parentheses Lua's grammar requires around it — `function (slot0) ... end(ARGS)` instead of `(function (slot0) ... end)(ARGS)`. Both examples are the deepcopy-hoist IIFE itself (`slot1 = function(slot0) ... end(orig_table)`, the same `main.py` constructor-hoist defect as the "ljd caveat"), so this looks like the same root cause growing an extra symptom under a shape Phase 7's `data037_kom` folder didn't happen to contain: not just wrong *values* (the hoist) but invalid *syntax* around the hoisted IIFE's call |
+| `NewSkillTempletVer2.lua`, `NewSkillTempletVer2_LA.lua` | `STEP_ERROR`: `compile-batch` syntax error, `'}' expected ... near ']'` | **new class**: ljd prints a multi-line string as a plain `[[...]]` long-bracket literal without checking whether the string's own content contains the substring `]]`. Confirmed by reading the produced text directly: a skill-description string ending in combo notation (`...XX↓X[X]]]`) closes the long bracket three characters early, corrupting the enclosing table constructor. Elsword's skill/combo text routinely uses bracket notation (`[X]`), so this is plausible in any file with translated skill descriptions, not just these two — both are `NewSkillTempletVer2*` variants, i.e. the same skill-description table under two locales |
+
+None of these 8 has a `march2014/` port yet (checked against every `.src.lua` filename stem
+under `march2014/`), so nothing currently shipped depends on any of them decompiling. The two new
+classes are both **decompile-stage failures, not semantic ones** — they produce no comparable
+output at all rather than a wrong one, so they can't hide a `dropped-assignment`-shaped defect;
+if and when a file needing either shape is ported, the fix is in ljd's printer (add the missing
+parens around a called function literal; pick a `]=*]` bracket level that doesn't collide with
+the string's own content), not in the slotworks elimination fix this plan already made.
+
+**Corpus-wide totals (all 7,328 files, Phase 7 + Phase 8 combined):**
+
+| | Count |
+|---|---:|
+| Files with a verdict | 7,313 / 7,328 |
+| Fully clean files (every function + `<main>` clean) | 6,001 |
+| Files with only harmless residuals (reorder/other-ljd/clobber/upvalue, no dropped-assignment) | 1,312 |
+| Files with no verdict (tooling limitation, not a correctness question) | 15 (7 from Phase 7, 8 from Phase 8) |
+| Files with an unexplained `dropped-assignment` (Phase 4 regression) | **0** |
+
 ## Not done in this pass
 
 - Nothing in the table above has been fixed except `RAGE_DRYADKENTA.src.lua` (which is why
