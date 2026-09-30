@@ -1,7 +1,8 @@
 # Lanox Remaining Phases
 
-Eight Lanox-specific items still open after `LANOX_DEFECT_PHASES.md`, found by
-play-testing at ~80% port completion (user report, 2026-09-30). This document
+Ten Lanox-specific items still open after `LANOX_DEFECT_PHASES.md`, found by
+play-testing at ~80% port completion (user report, 2026-09-30; items 10-11,
+Phases 9-10, were reported later the same day). This document
 is self-contained. Paste the "Starting context" block plus any one phase into
 a fresh conversation. The not-Lanox-specific item (June Local Map / Party UI
 parity) is in `JUNE_UI_PARITY_PHASES.md`, and two items here depend on it
@@ -29,6 +30,8 @@ etc.) are omitted with a comment and never invented.
 | 6 | Hide Secret Hell | - | data (+ maybe C++) |
 | 7 | Distant Ruin demon colours | - | C++ (Ghidra) |
 | 8 | Burned Forest background | - | investigate first |
+| 9 | Silent Night Shelter (rest area) has no NPCs | - | data |
+| 10 | Fire Temple collapsing floor leaves the player stuck | - | data (C++ already landed) |
 
 ---
 
@@ -300,6 +303,134 @@ etc.) are omitted with a comment and never invented.
     - The user reports the issue as unchanged. This is consistent with the
       smog texture never having loaded; it is **not** evidence against the
       smog cause.
+- **Item 10 (Silent Night Shelter has no NPCs).** Read-only investigation,
+  2026-09-30, against staging and June. The live koms have not been checked
+  yet.
+  - The rest area is `VMI_BATTLE_FIELD_RANOX_REST_00`, reached through
+    `DLG_Map_Local_Ranox.lua`'s `BattleFieldRestData`
+    (`march2014/update/data217/DLG_Map_Local_Ranox.src.lua:20-22`).
+    `X2LocationManager.cpp:326-327` feeds that into `VillageParsing`.
+  - `march2014/data034/DLG_Map_Village.src.lua:4056-4065` gives it
+    `HouseIDList = { HI_GLAVE_HOUSE, HI_HELLEN_SHOP_HOUSE, HI_BILLBOARD,
+    HI_POSTBOX }` and `WORLD_ID = WI_BATTLE_FIELD_RANOX_FIELD_REST_00` (606,
+    present in both `Enum.src.lua:2272` and `X2World.h:803`). This is the
+    same house list as Sander's rest area (`:4001-4010`).
+  - **Cause:** `march2014/data034/DLG_Map_House.src.lua` has **no**
+    `COMMON_NPC_LOCATION` row for `WI_BATTLE_FIELD_RANOX_FIELD_REST_00` in
+    any of those four houses. Every other rest area, Elder through Sander,
+    has one (e.g. Hellen `:1574-1611`, Glave `:2480-2516`). With no row,
+    `CX2TFieldGame::AddFieldNpc`'s `bFindNpcPos` gate
+    (`X2TFieldGame.cpp:3140-3157`) never creates the NPC node. This is the
+    exact mechanism of LANOX_DEFECT_PHASES bug A, which added the
+    `WI_VILLAGE_RANOX` rows for the village but not the rest area.
+  - June (`14JUN17/data/data034_kom/DLG_Map_House.src.lua`) has all four rows,
+    each shaped `{ WORLD_ID, x, y, z }` like March's Sander rows:
+
+    | House | June line | x, y, z |
+    |---|---|---|
+    | `HI_HELLEN_SHOP_HOUSE` | 2694 | -2240, 22390, -26100 |
+    | `HI_POSTBOX` | 3212 | -1030, 22390, -26220 |
+    | `HI_BILLBOARD` | 3758 | 450, 22390, -25850 |
+    | `HI_GLAVE_HOUSE` | 3919 | 1890, 22390, -25710 |
+
+  - A full per-house diff of the Ranox and rest rows, June vs March staging,
+    also found:
+    - **4 village rows March lacks** (`WI_VILLAGE_RANOX`): `HI_ADAMS_HOUSE`
+      (-3166, 670, -1446), `HI_ED_SHOP_MU` (-3670, 790, 540),
+      `HI_EVENT_DOLL` (-3770, 790, 540) and `HI_LUTO` (-3770, 790, 540).
+      This accounts for March's 15 `WI_VILLAGE_RANOX` rows against June's 19.
+      These matter only if the house is in March's Ranox village
+      `HouseIDList` *and* its NPC exists in March. They may relate to the
+      `[RANOXDBG]` "empty NPC_ID_LIST" lines (houses 40083, 40090, 40129,
+      40130, 40140), which is unconfirmed.
+    - **June-only rows to omit, with a comment:** `WI_SPA_RANOX` (Billboard,
+      `HI_SPA_INNER_NPC_RANOX`, 3 x `HI_SPA_PPORU`), and `HI_APINK`'s
+      Sander-rest row. These are June content; confirm that each world or
+      house is absent from March before skipping it.
+  - **Separate, unrelated lead (not this cause):**
+    - `march2014/data036/MapData.src.lua` has `AddMapData` for
+      `VMI_BATTLE_FIELD_SANDER_REST_00` (`:191`) but none for
+      `RANOX_REST_00`.
+    - `CheckCOBOExpressTicketMapID` returns 14 for Sander rest and 15 for
+      `VMI_RANOX`, with no Ranox-rest case (the C++ side is
+      `X2Main.cpp:13285`).
+    - Record whatever Phase 9 finds here; do not fold it into the NPC fix.
+- **Item 11 (Fire Temple collapsing floor, player stuck).**
+  - **Mapping:**
+    - The user's "stage 2 substage 1" is the dungeon's second stage, meaning
+      `STAGE1` / `SUB_STAGE0` (0-based) of
+      `march2014/update/data035/Dungeon_Ranox_FireTemple_{Normal,Hard,Expert}.src.lua`.
+    - That is world `WI_RANOX_FIRETEMPLE_STAGE1` (602) →
+      `Ranox_FireTemple_Stage1.lua` (`march2014/data040/WorldData.src.lua`).
+    - All three difficulties use the same world, so one LineMap fix covers
+      them all.
+  - **Mechanism, from the data:**
+    `march2014/update/data040/Ranox_FireTemple_Stage1_LineMap.src.lua`.
+    - Line 3 (`LT_NORMAL`, `TRIGGER_ID = 0`) fires trigger 0 (`:518-565`),
+      which does three things: plays `FireTemple_Stage1_X_ground.x` anim
+      `move01` (the floor visibly collapses), camera shake plus
+      `AMB_Earthquake02.ogg`, and at 0.3 s `TAT_LINE_CHANGE_ENABLE` line 3 →
+      FALSE.
+    - June's trigger 0 **also** carries `TRIGGER_DATA_LINE1/2/3`, which apply
+      `TAT_LINE_CHANGE_TYPE` with `CHANGE_LINE_TYPE = LINE_TYPE.LT_NORMAL` to
+      lines 11/12/13
+      (`14JUN17/data/data040_kom/Ranox_FireTemple_Stage1_LineMap.src.lua:535-`),
+      plus `TRIGGER_DATA_ETC2` `TAT_ETC_NPC_AI_ON_OFF`, `NPC_AI_ENABLE = TRUE`.
+      The March port commented all four out (`:535-563`), because in 2026-09-18
+      neither action existed in March's C++ or Lua enum.
+    - Lines 11/12/13 are the pit floor under line 3. They are placed as
+      **`LT_MONSTER_ROAD`** (11 at y=2435, 12/13 at y=2675; 12 has
+      `BEFORE_LINE = -2`, 13 has `NEXT_LINE = -2`).
+    - `CKTDGLineMap::CanDown` (`KTDGLineMap.cpp:1106`, check at `:1145-1148`)
+      skips `LT_MONSTER_ROAD` lines when `bIsMonster` is false.
+      `CX2GUUser::PhysicProcess` also special-cases a monster-road (or wall)
+      down-line (`X2GUUser.cpp:20372`, which sets `bMeOnStart = bMeOnEnd =
+      false`).
+    - So after the collapse, the player drops onto a floor that is not a
+      user floor. **Likely cause** of "animation runs, position frozen"; the
+      play-test is the proof.
+    - Trigger 1 (`:566-603`, line 26 → pit lines 33/34/35, also
+      `LT_MONSTER_ROAD`, mesh `FireTemple_Stage1_X_ground02.x` `move02`) is
+      the same bug later in the same stage.
+  - **The C++ half already landed; the data half never did.**
+    - Ranox Phase 14 (`ad1ec78`, 2026-09-19; `RANOX_PORT_PLAN.md` "Phase 14",
+      "Executed 2026-09-19") added `TAT_LINE_CHANGE_TYPE = 7` (flag
+      `SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE`,
+      `KTDGLineMap.h:111-113`, parse `KTDGLineMap.cpp:2700-2706`, run
+      `X2World.cpp:1665-1671`, field `CHANGE_LINE_TYPE`) and
+      `TAT_ETC_NPC_AI_ON_OFF` (flag `SERV_IRUHADEV_RANOX_TRIGGER_NPC_AI_ON_OFF`,
+      `KTDGLineMap.cpp:2755-2763`, field `NPC_AI_ENABLE`), plus `TAT_MESH_MOVE`,
+      `TAT_ETC_PLAY_EFFECTSET` and `TAT_ETC_TALK_BOX`.
+    - Its own notes say the Lua side was **"still outstanding"**: the names
+      must be added to `march2014/data036/Enum.src.lua`
+      (`TRIGGER_LINE_ACTION_TYPE` is at `:1608-1614` and currently stops at
+      `TELEPORT = 6`), and the commented-out trigger entries restored in
+      **four** linemaps:
+      - `Ranox_FireTemple_Stage1_LineMap` x2
+      - `Ranox_GateWay_Stage1_LineMap` x2
+      - `Ranox_Geyser_stage0_linemap` x3
+      - `Ranox_Secret_Stage2_LineMap` x1
+    - Until then `LUA_GET_VALUE_ENUM` sees a nil global and falls back to
+      `TAT_*_NONE`.
+  - **Enum-value trap.**
+    - March's C++ numbers the etc actions `NPC_AI_ON_OFF = 6`,
+      `PLAY_EFFECTSET = 7`, `TALK_BOX = 8` (`KTDGLineMap.h:115-131`).
+    - June's `Enum.lua` numbers them `TALK_BOX = 6`, `PLAY_EFFECTSET = 7`,
+      `NPC_AI_ON_OFF = 8`.
+    - The linemaps use names, so only March's `Enum.lua` and `KTDGLineMap.h`
+      (and its server mirror `KncWX2Server/Common/LineMap/XSLLineMap.h`) have
+      to agree. **Pasting June's `TRIGGER_ETC_ACTION_TYPE` block would make a
+      TALK_BOX trigger dispatch as NPC_AI_ON_OFF.**
+    - `TAT_LINE_CHANGE_TYPE = 7` agrees in both, and `TAT_MESH_MOVE = 3`
+      needs checking the same way.
+  - **NPC_AI_ON_OFF semantics differ from June's intent.**
+    - Phase 14's implementation toggles AI for **every** NPC in the game
+      (`Always.h:3924-3927`; the Lua has no target field).
+    - Triggers 2/3 (`NPC_AI_ENABLE = FALSE`, lines 0/1 and 21-25) were
+      emptied to `{}` by the port (`:604-625`). Restoring them would freeze
+      every NPC, which may include the user's AI-party bots, from the moment
+      the player steps onto line 0 until trigger 0 turns AI back on.
+    - This is separate from the stuck-floor fix.
 
 ---
 
@@ -801,9 +932,191 @@ with evidence before fixing.
 
 ---
 
+## Phase 9 - Silent Night Shelter has no NPCs [item 10]
+
+**Root cause, from data (see the ledger):**
+`march2014/data034/DLG_Map_House.src.lua` has no `COMMON_NPC_LOCATION` row
+for `WI_BATTLE_FIELD_RANOX_FIELD_REST_00` in `HI_HELLEN_SHOP_HOUSE`,
+`HI_POSTBOX`, `HI_BILLBOARD` or `HI_GLAVE_HOUSE`. So `AddFieldNpc`'s
+`bFindNpcPos` gate never creates those NPCs. This is the same fix shape as
+LANOX_DEFECT_PHASES bug A.
+
+Steps:
+1. **Check the base before patching.** Extract `DLG_Map_House.lua` from the
+   live `data034.kom` (the winning copy, if the name is in several archives)
+   and decompile it. Confirm that it matches
+   `march2014/data034/DLG_Map_House.src.lua`, including bug A's
+   `WI_VILLAGE_RANOX` rows. If they differ, stop and report which is newer
+   before editing anything.
+2. Append the four rest rows from June (ledger table) to the four houses'
+   `COMMON_NPC_LOCATION` tables. Copy the row shape verbatim from each house's
+   existing `WI_BATTLE_FIELD_SANDER_FIELD_REST_00` row and do not restructure
+   the table. Add a `-- SERV_IRUHADEV_RANOX_PORT` comment saying where the
+   rows came from.
+3. Decide the 4 missing `WI_VILLAGE_RANOX` rows (`HI_ADAMS_HOUSE`,
+   `HI_ED_SHOP_MU`, `HI_EVENT_DOLL`, `HI_LUTO`):
+   - Check whether each house is in the Ranox village's `HouseIDList` in
+     `DLG_Map_Village.src.lua`, and whether its house block and NPC exist in
+     March.
+   - Add the row only where both are true. Otherwise record it as June-only.
+   - Cross-check against the `[RANOXDBG]` empty-`NPC_ID_LIST` houses
+     (40083, 40090, 40129, 40130, 40140), and note in the ledger whether they
+     are the same houses.
+4. Leave out the June-only rows (`WI_SPA_RANOX`, `HI_APINK`'s Sander-rest
+   row) after confirming that the world or house is absent in March. Do not
+   invent them.
+5. Separately, look at the `MapData.lua` lead: no `AddMapData` for
+   `RANOX_REST_00`, and no Ranox-rest case in `CheckCOBOExpressTicketMapID`.
+   Compare with June's `MapData` and record what it affects (warp ticket? map
+   list?). Fix it only if it is a real, sourceable gap, as its own step.
+6. Compile with `elstools compile-batch -v mar-2014`. Hand-off: copy the
+   compiled `DLG_Map_House.lua` into
+   `kom_contents/data034_kom/` (it is an existing entry, so the manifest
+   already has it at `"2"`; confirm that), then ask the user to repack
+   data034. Afterwards verify the live `data034.kom` with `elstools inspect`
+   (the size changed) and by extracting and decompiling it.
+
+Verification:
+- Enter the Silent Night Shelter: Hellen (shop), Glave, the billboard and
+  the postbox all stand at June's positions, and each can be interacted with.
+- The M-key/field-map quest marks for them appear too (the other
+  `m_vecCommonPos` consumer).
+- Sander's rest area and the Lanox village are unchanged.
+
+**Kickoff prompt**:
+```
+Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
+root in full -- especially "Starting context", the "Investigation ledger"
+(Item 10) and "Phase 9" -- and LANOX_DEFECT_PHASES.md's bug A (the same fix
+for the village). Branch: mods/lanox-port. Do NOT consult NEW_VILLAGE_PLAN.md,
+NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the mods/lanox-offline branch. Never
+launch X2_offline.exe without asking first.
+
+Your task: make the Lanox rest area (Silent Night Shelter,
+VMI_BATTLE_FIELD_RANOX_REST_00 / WI_BATTLE_FIELD_RANOX_FIELD_REST_00) show its
+NPCs. DLG_Map_House.lua has no COMMON_NPC_LOCATION row for that world in
+HI_HELLEN_SHOP_HOUSE / HI_POSTBOX / HI_BILLBOARD / HI_GLAVE_HOUSE; June's four
+rows are in the ledger. First confirm that the staged
+march2014/data034/DLG_Map_House.src.lua matches the LIVE data034.kom copy.
+Then append the four rows (shape copied from each house's Sander-rest row),
+decide the 4 missing WI_VILLAGE_RANOX rows per Phase 9 step 3, and leave the
+June-only spa/APINK rows out. Compile with -v mar-2014, put the output in
+kom_contents/data034_kom/ (check its manifest), and hand me the repack. After
+I pack, verify against the live kom.
+```
+
+---
+
+## Phase 10 - Fire Temple collapsing floor leaves the player stuck [item 11]
+
+**Likely cause (see the ledger):** June's collapse trigger re-types the pit
+floor under the collapsing line from `LT_MONSTER_ROAD` to `LT_NORMAL`. The
+March port commented that out, so the player lands on a floor only monsters
+can use.
+- The engine support (`TAT_LINE_CHANGE_TYPE`, Ranox Phase 14) is already
+  compiled in.
+- What is missing is the Lua half: the `Enum.lua` names and the restored
+  trigger rows.
+- The play-test proves it.
+
+Steps:
+1. **Settle the enum numbers first (read-only).**
+   - Tabulate `TRIGGER_MESH/LINE/ETC_ACTION_TYPE` from three places: March
+     `KTDGLineMap.h` with each Phase 14 flag's value, the
+     `KncWX2Server/Common/LineMap/XSLLineMap.h` mirror, and June's
+     `Enum.src.lua` (`data036_kom`, `:1979-1998` area).
+   - The etc enum disagrees: March C++ has NPC_AI 6 / EFFECTSET 7 /
+     TALK_BOX 8, and June has TALK_BOX 6 / EFFECTSET 7 / NPC_AI 8.
+   - Decide, and ask the user if it is not clear-cut, between:
+     - (a) adding the names to March's `Enum.lua` at March's C++ values
+       (data-only, no rebuild)
+     - (b) renumbering the C++ (and the `XSLLineMap.h` mirror) to June's
+       values first, for June parity. This is a header/PCH rebuild; the
+       server mirror is values-only, so no wire change.
+   - Whichever you choose, the Lua values must equal the compiled C++
+     values. **Never paste June's etc block unchanged under option (a).**
+2. **Stuck-floor fix.**
+   - Add the Phase 14 names to `march2014/data036/Enum.src.lua` at the values
+     chosen in step 1: `TAT_LINE_CHANGE_TYPE`, `TAT_ETC_NPC_AI_ON_OFF`,
+     `TAT_ETC_PLAY_EFFECTSET`, `TAT_ETC_TALK_BOX` and `TAT_MESH_MOVE`. Put a
+     `-- SERV_IRUHADEV_RANOX_PORT` comment on each.
+   - Restore `TRIGGER_DATA_LINE1/2/3` in triggers 0 and 1 of
+     `march2014/update/data040/Ranox_FireTemple_Stage1_LineMap.src.lua`,
+     verbatim from June (lines 11/12/13 and 33/34/35,
+     `CHANGE_LINE_TYPE = LINE_TYPE.LT_NORMAL`).
+   - Replace the "omitted" comments with a short note that the rows were
+     restored, saying when and which flag they need.
+3. **NPC_AI_ON_OFF, decided separately.**
+   - Before restoring trigger 0/1's `TRIGGER_DATA_ETC2` (AI on) or triggers
+     2/3's bodies (AI off), recover June's `DoTriggerEtc`
+     `TAT_ETC_NPC_AI_ON_OFF` handler in Ghidra and compare it with Phase 14's
+     "every NPC in the game" implementation.
+   - If June only affects enemy NPCs, or scopes it some other way, port that
+     scoping whole (a new flag, or an extension of the existing one) and then
+     restore all four rows.
+   - If the semantics can't be settled, leave triggers 2/3 empty and say so.
+   - Never restore an AI-off row that can freeze the user's AI-party bots
+     (the AI-party bots are NPC units, see `AI_PARTY_PLAN.md`).
+4. **The other three linemaps** (`Ranox_GateWay_Stage1_LineMap` x2,
+   `Ranox_Geyser_stage0_linemap` x3, `Ranox_Secret_Stage2_LineMap` x1).
+   `Enum.lua` is being repacked anyway, so restore their commented entries in
+   the same pass, following the same rules: verbatim from June, and
+   NPC_AI rows per step 3.
+   - Secret Hell interacts with Phase 6 (hiding it). Restore its row anyway,
+     because the files stay ported.
+   - List every restored row in the ledger.
+5. Compile every touched `.lua` with `elstools compile-batch -v mar-2014`.
+   Hand-off:
+   - `Enum.lua` → `kom_contents/data036_kom/`
+   - the linemaps → `kom_contents/data040_kom/` (they are new Ranox files;
+     confirm each is in that dir's `_manifest.json` at `"2"`)
+   - The user repacks data036 and data040.
+   - Verify both live koms with `elstools inspect` (the sizes change), then
+     extract and decompile to confirm the restored rows and enum names.
+6. If step 1 chose option (b), build and deploy, and ask before launching.
+
+Verification:
+- Fire Temple Normal, stage 2 (`STAGE1`): step onto the collapsing floor
+  (line 3). The floor animates down, the player falls into the pit and can
+  walk left and right there, and the stage continues.
+- The same holds at the second collapse (line 26 → pit 33-35).
+- Repeat on Hard (same world).
+- GateWay stage 1 and Geyser stage 0 triggers behave as in June (mesh moves,
+  talk boxes, effect sets).
+- AI-party bots keep acting throughout.
+- `ErrorLog.txt` shows no Lua error for the touched files.
+
+**Kickoff prompt**:
+```
+Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
+root in full -- especially "Starting context", the "Investigation ledger"
+(Item 11) and "Phase 10" -- and RANOX_PORT_PLAN.md's "Phase 14" section
+(executed 2026-09-19). Branch: mods/lanox-port. Never launch X2_offline.exe
+without asking first.
+
+Your task: fix the Fire Temple (Collapsing Temple of Fire) stage 2 collapse.
+The floor animates down, but the player lands in a pit whose lines 11/12/13
+(and 33/34/35 at the second collapse) are LT_MONSTER_ROAD, so the player is
+stuck. June's trigger re-types them with TAT_LINE_CHANGE_TYPE ->
+LT_NORMAL. Phase 14 already compiled that action into the C++, but the Lua
+half was never done: the Enum.lua names are missing and the trigger rows are
+still commented out in 4 linemaps. FIRST settle the enum numbers: March's C++
+TRIGGER_ETC_ACTION_TYPE values differ from June's Enum.lua (NPC_AI 6 vs 8,
+TALK_BOX 8 vs 6), so never paste June's block unchanged -- the Lua values
+must equal the compiled C++. Restore the CHANGE_TYPE rows verbatim from June.
+Treat NPC_AI_ON_OFF separately: Phase 14 toggles AI for EVERY NPC, so check
+June's handler in Ghidra before restoring any AI-off row (my AI-party bots
+must not freeze). Compile with -v mar-2014, stage into
+kom_contents/data036_kom and data040_kom (check the manifests), and hand me
+the repack list.
+```
+
+---
+
 ## Verification - batching
 
-Phases 1, 2 and 4 are data-only and can share one pack/play-test pass. Phases
+Phases 1, 2 and 4 are data-only and can share one pack/play-test pass, and so
+can Phase 9 and, if step 1 picks option (a), Phase 10. Phases
 5 and 7 each need a build. For every phase, "done" means: live-kom extraction
 confirms the bytes (data) or `#pragma message` / a log line proves the code
 compiled in (C++), and the user's play-test confirms the behaviour.
