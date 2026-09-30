@@ -22,7 +22,8 @@ Usage:
         --fixed to use this). Prints one "ljd_fixed: ..." summary line to stderr.
     python ljd_fixed.py --write-patch    regenerate ljd_slotworks.patch
     python ljd_fixed.py --check-patch    exit 1 if ljd_slotworks.patch is stale
-June 0x82 files: `python ljd_jun2017.py --fixed FILE.lua`.
+June 0x82 files: `python ljd_jun2017.py FILE.lua` (installs this fix by default since
+Phase 9; `--unfixed` opts out).
 
 LJD_FIX_LOG=<file> appends one line per vetoed inline (and per exempt one) to
 <file>: the caller, the function, the slot, the kept assignment and the read
@@ -61,26 +62,41 @@ def _sha256(path):
     return hashlib.sha256(open(path, 'rb').read()).hexdigest()
 
 
+def _patched_sha():
+    """SHA-256 ljd_slotworks.patch's own header records for the file it produces,
+    or None if the patch doesn't exist. Lets install_fix() recognize a vendored
+    slotworks.py that already has the fix applied (2026-10-01: both vendored
+    copies were patched), not just the original it was written against."""
+    if not os.path.exists(PATCH):
+        return None
+    for line in open(PATCH, encoding='utf-8'):
+        if line.startswith(PATCHED_SHA_PREFIX):
+            return line[len(PATCHED_SHA_PREFIX):].strip()
+    return None
+
+
 def install_fix():
     """Install the fix into ljd.ast.slotworks (once per process) and return the module.
-    Refuses (SystemExit) unless the vendored slotworks.py is the one it was written against."""
+    Refuses (SystemExit) unless the vendored slotworks.py is EITHER the exact file the
+    fix was written against (installs the run-time hook) OR the exact file
+    ljd_slotworks.patch produces (the fix is already baked in statically -- importing it
+    already ran the patched functions and set _LJDFIX_STATS, so there is nothing to
+    hook; this is a no-op, not an error)."""
     sha = _sha256(SLOTWORKS)
-    if sha != SLOTWORKS_SHA256:
-        patched = ''
-        if os.path.exists(PATCH):
-            for line in open(PATCH, encoding='utf-8'):
-                if line.startswith(PATCHED_SHA_PREFIX) and line[len(PATCHED_SHA_PREFIX):].strip() == sha:
-                    patched = (' It matches ljd_slotworks.patch applied: the fix is already in'
-                               ' slotworks.py, so run ljd without --fixed.')
-        raise SystemExit('ljd_fixed: refusing to install. %s has SHA-256 %s; the fix was written against %s.%s'
-                         ' Otherwise re-derive the fix against the new file before changing SLOTWORKS_SHA256.'
-                         % (SLOTWORKS, sha, SLOTWORKS_SHA256, patched))
+    already_patched = sha == _patched_sha()
+    if sha != SLOTWORKS_SHA256 and not already_patched:
+        raise SystemExit('ljd_fixed: refusing to install. %s has SHA-256 %s; the fix was written against %s,'
+                         ' and this is not the file ljd_slotworks.patch produces either.'
+                         ' Re-derive the fix against the new file before changing SLOTWORKS_SHA256.'
+                         % (SLOTWORKS, sha, SLOTWORKS_SHA256))
     if LJD not in [os.path.normpath(os.path.abspath(p)) for p in sys.path]:
         sys.path.insert(0, LJD)
     import ljd.ast.slotworks as sw
     if os.path.normcase(os.path.abspath(sw.__file__)) != os.path.normcase(SLOTWORKS):
         raise SystemExit('ljd_fixed: refusing to install. ljd.ast.slotworks was imported from %s, not %s'
                          % (sw.__file__, SLOTWORKS))
+    if already_patched:
+        return sw
     if getattr(sw, '_LJDFIX_STATS', None) is None:
         start, text = _fix_text()
         exec(compile('\n' * start + text, FIX, 'exec'), sw.__dict__)

@@ -1,8 +1,17 @@
 # Ranox Lua decompile bug: dropped assignments become stale globals
 
 Tracking document for a decompiler defect found 2026-09-27 while fixing Dryad Kenta's
-"jumps off the map, never comes back" softlock. This is a **known-issues / triage list**,
-not a phase plan — nothing here is scheduled, most of it is unverified.
+"jumps off the map, never comes back" softlock. This is a **known-issues / verdict-summary
+document**, not a phase plan — the investigation, the fix, and the corpus sweeps that produced
+the numbers below all live in `RANOX_LUA_DECOMPILE_FIX_PLAN.md`; that plan is the source of
+record for methodology, and this document is the outward-facing summary.
+
+**Status as of Phase 9 (2026-10-01): fixed, shipped as the default, swept across the whole
+June corpus.** `june2017_re/ljd_jun2017.py` installs the fix (`june2017_re/ljd_fixed.py`) by
+default now; `--unfixed` opts out. All 62 ported files carrying the bug have been repaired
+(Phase 6a–6c) and are believed correct pending the user's recompile/repack/play-test pass. See
+"Scope: every ported file with this pattern" below for the real, bytecode-verified numbers,
+which supersede the original lint-based triage this document shipped with.
 
 ## The bug
 
@@ -42,32 +51,70 @@ function mid-statement.
 
 ## Confirmed and fixed
 
-**`march2014/update/data037/RAGE_DRYADKENTA.src.lua`** — 6 instances, 2 of which
-independently caused the reported softlock (Attack B's off-map "jump" never computing a
-valid return position; the 60%/20% HP dash's target position left unset, so the dash never
-ends). Full writeup, per-function detail, and the exact fix are in `MODS.md`'s "Dryad Kenta
-(Burned Forest boss)" entry — confirmed both against the real June2017 bytecode and,
+**`march2014/update/data037/RAGE_DRYADKENTA.src.lua`** — 6 instances by the original comment
+count (**corrected by the plan's Phase 2b calibration: 12 dropped assignments across the same 5
+functions** — the "6" undercounts by treating 4 comments that each cover two separate writes as
+one instance apiece; see "Calibration" in `RANOX_LUA_DECOMPILE_FIX_PLAN.md` for the per-write
+table), 2 of which independently caused the reported softlock (Attack B's off-map "jump" never
+computing a valid return position; the 60%/20% HP dash's target position left unset, so the dash
+never ends). Full writeup, per-function detail, and the exact fix are in `MODS.md`'s "Dryad
+Kenta (Burned Forest boss)" entry — confirmed both against the real June2017 bytecode and,
 independently, against the raw disassembly of the *currently deployed* `data037.kom`'s own
-compiled `RAGE_DRYADKENTA.lua`. Still needs recompiling and repacking into `data037.kom`
-(the user's step) and an in-game play-test before it can be called done.
+compiled `RAGE_DRYADKENTA.lua`. Phase 6c's later re-check confirmed 0 residual
+`dropped-assignment`. Still needs recompiling and repacking into `data037.kom` (the user's step)
+and an in-game play-test before it can be called done.
 
 ## Detecting more instances
+
+**The authoritative check is now bytecode-level, not the lint.** `june2017_re/ljdiff` runs the
+real June bytecode and a decompile-recompile round trip side by side and diffs their runtime
+behaviour; `june2017_re/ljd_jun2017.py --check FILE.lua` is the one-command entry point (learn +
+trace + diff against FILE's own June original, 32 seeds by default, fails on any `clobber`
+verdict or any `dropped-assignment` read not covered by the same deepcopy-hoist exemption the
+Phase 5/7/8 aggregators use — see "Residual ljd defects" below — so `EffectSet.lua`/
+`DamageEffect*.lua` correctly pass despite carrying that separate, still-open defect). `regen.sh`
+runs it automatically on every file in `june_lua/`. It does **not** replace a full corpus sweep:
+it only sees what the seeds actually executed, not the coverage-independent static must-define
+pass the sweeps also run.
 
 `june2017_re/lint_decompile_slots.py` flags any `slotN` read in a function before that same
 function ever assigns it — the signature this bug leaves behind, since a dropped assignment
 is otherwise invisible on a read-through (the printed Lua still parses and reads as
-plausible). It's a **heuristic, regex-based scan, not a bytecode-level check** — every hit
-still needs verifying against real bytecode before being trusted as a real defect. It has
-already had one round of false-positive fixing (`for slotN = a, b do` and
-`for slotN in ... do` declare their own loop variable; the first version of this scanner
-didn't know that and over-reported).
+plausible). It's a **heuristic, regex-based scan, not a bytecode-level check** — still useful
+as a fast pre-check (no bytecode/luajit round trip needed), but every hit needs verifying
+against `--check` or the sweep tooling before being trusted as a real defect. It has already
+had one round of false-positive fixing (`for slotN = a, b do` and `for slotN in ... do` declare
+their own loop variable; the first version of this scanner didn't know that and over-reported).
+
+**Calibrated precision and recall** (`RANOX_LUA_DECOMPILE_FIX_PLAN.md`'s "Calibration", Phase
+2b — unit is a unique (line, slot) site on the same text):
+
+| Text | True sites | Lint hits | TP / FP / FN | Precision | Recall |
+|---|---:|---:|---|---:|---:|
+| Kenta round trip | 15 | 11 | 11 / 0 / 4 | 1.00 | 0.73 |
+| Kenta pre-fix port | 15 | 13 | 13 / 0 / 2 | 1.00 | 0.87 |
+| MapData round trip | 1 | 1 | 1 / 0 / 0 | 1.00 | 1.00 |
+
+A lint hit has never been a false positive in this corpus (precision 1.00 across all three
+texts), so a hit is trustworthy without further checking. **A lint zero is not** — it misses
+roughly a quarter of sites and a third of instances, specifically every "written on one arm,
+read after the merge" shape and everything with no unwritten read at all (a stale value written
+earlier in the same call, which only the dynamic harness can see). Use the lint to triage
+quickly; use `--check` or the sweep tooling to clear a file.
 
 ```sh
 python june2017_re/lint_decompile_slots.py <file.src.lua> [more.src.lua ...]
+python june2017_re/ljd_jun2017.py --check <file.lua>   # bytecode-level; a COPY of the June
+                                                        # original with its .std.luac sibling --
+                                                        # never the pristine 14JUN17\ tree itself,
+                                                        # decompile() writes next to its input
 ```
 
 **How to verify a candidate** (same process used for all 6 confirmed `RAGE_DRYADKENTA`
-instances):
+instances; steps 1-3 predate `--check` and stay useful for reading *why*, but
+`ljd_jun2017.py --check <june original>.lua` now gives a pass/fail answer in one command --
+on a **copy** of the June original plus its `.std.luac`, same as step 2 below, never the
+pristine `14JUN17\` tree directly):
 
 1. Re-run the lint on the specific file to confirm it's still flagged and see the exact
    line(s).
@@ -92,93 +139,100 @@ instances):
    `SMITH_REGIEON_POINT.src.lua` ×1 — the same one already fixed in Kenta's sibling function).
    The user chose to accept that residual risk and fix known instances case by case rather than
    adopt `local` everywhere; see the plan's "Phase 5 result" and "Decisions taken" for the
-   evidence and the full record. Verify with the lint (should drop to zero for that function) and
+   evidence and the full record. Verify with the lint (should drop to zero for that function),
    `elstools compile-batch -v mar-2014` on a **scratch copy** (the compiler overwrites its
-   input in place).
+   input in place), and `ljd_jun2017.py --check` on the June original (should come back clean).
 5. Note the `SERV_IRUHADEV_RANOX_PORT (<date>): ...` comment convention already used
    throughout `RAGE_DRYADKENTA.src.lua` for these fixes — cite the bytecode evidence, not
    just "this looked wrong."
 
 ## Scope: every ported file with this pattern
 
-Ran across all 277 `.src.lua` files under `march2014/` on 2026-09-27. **61 files flagged, 60
-of them inside `march2014/update/data037/`** — the Ranox monster/boss AI scripts, same
-category as Kenta. That's consistent with the bug's shape: it only shows up in Lua with
-branching control flow feeding a later shared statement, and `data037/`'s per-frame AI state
-machines are full of that; almost everything else in the port (UI dialogs, dungeon/line-map
-data, enum tables) is closer to a plain table literal and doesn't trip it.
+**Superseded the original lint-based triage below on 2026-09-28/2026-10-01.** The heuristic
+table this section originally carried (61 files, 774 raw lint hits, "kind" guessed from
+filename) is gone. `RANOX_LUA_DECOMPILE_FIX_PLAN.md`'s Phase 5 mapped and bytecode-diffed all
+277 `march2014/**/*.src.lua` files against their June originals; Phase 6a–6c then repaired
+every real instance found. What follows is that real, per-function, bytecode-verified count —
+one row per repaired function, `scope=ported` / `verdict=repaired` rows in
+`june2017_re/decompile_verdicts.tsv` — not a lint guess.
 
-**"Kind" below is a guess from the filename, not structural analysis** — useful for
-prioritizing, not authoritative. Nothing in this table has been bytecode-verified except
-`RAGE_DRYADKENTA.src.lua` (already fixed, so it no longer appears) and
-`MapData.src.lua`'s `ComputeCOBOExpressTicketCost` (verified by hand, confirmed real: reads
-an unassigned `slot6` in a travel-ticket cost formula).
+**62 files, 123 functions, all repaired (Phase 6a–6c, committed).** Recompile + repack into the
+listed `.kom` and an in-game play-test are still the user's step (see `MODS.md`'s Dryad Kenta
+entry for the worked example of that last mile). 61 of the 62 files are in
+`march2014/update/data037/` (the Ranox monster/boss AI scripts) plus `data036/MapData.src.lua`
+— the same shape the original heuristic scope predicted (branching control flow feeding a later
+shared statement, which per-frame AI state machines are full of and plain data tables mostly
+aren't), now with an exact count instead of a guess.
 
-| Hits | File | Kind (guessed) |
-|---:|---|---|
-| 275 | `update/data037/SECRET_MAGI_BOSS.src.lua` | Boss |
-| 216 | `update/data037/SECRET_SCENE_DUMMY.src.lua` | Non-combat (scene) |
-| 41 | `update/data037/FIRE_DEVIL_IGNIA.src.lua` | Mob |
-| 23 | `update/data037/SMITH_SCIENCE.src.lua` | Mob |
-| 21 | `update/data037/GEYSER_MULSAYRENA.src.lua` | Mob |
-| 19 | `update/data037/SAMETEAM_IGNIA.src.lua` | Mob (already noted once in `RANOX_PORT_PLAN.md`, independent of this doc) |
-| 16 | `update/data037/FIRE_DEVIL_SKA.src.lua` | Mob |
-| 15 | `update/data037/FIRE_DEVIL_CHAIN_BALL.src.lua` | Mob/object |
-| 14 | `update/data037/FIRETEMPLE_REGIEON_POINT.src.lua` | Non-combat (region trigger) |
-| 13 | `update/data037/LOW_SMITH_SCIENCE_FD.src.lua` | Mob (field-difficulty variant) |
-| 10 | `update/data037/FIRE_DEVIL_IGNIA_BOSS_FINALHALL.src.lua` | Boss |
-| 9 | `update/data037/SMITH_RUNNER.src.lua` | Mob |
-| 8 | `update/data037/LOW_FINALHALL_SNIKER_FD.src.lua` | Mob |
-| 6 | `update/data037/TRAP_FIRE_BIG.src.lua` | Non-combat (trap) |
-| 6 | `update/data037/SMITH_STAIN.src.lua` | Mob |
-| 6 | `update/data037/EVENT_FINALHALL_BOSS2.src.lua` | Boss |
-| 5 | `update/data037/MOUNT_FIREBIRD_FIRETEMPLE.src.lua` | Mob |
-| 4 | `update/data037/MOUNT_POINT_STAGE_BOSS.src.lua` | Boss |
-| 3 | `update/data037/SMITH_ALUMINUM.src.lua` | Mob |
-| 3 | `update/data037/LOW_SMITH_ALUMINUM_FD_BOSS.src.lua` | Boss |
-| 3 | `update/data037/LOW_GEYSER_ALUMINUM_FD_BOSS.src.lua` | Boss |
-| 3 | `update/data037/GEYSER_MULLOCK.src.lua` | Mob |
-| 3 | `update/data037/GEYSER_ALUMINUM.src.lua` | Mob |
-| 2 | `update/data037/SECRET_SUMMON_SNIKER.src.lua` | Mob (summon) |
-| 2 | `update/data037/SECRET_SUMMON_FIREBIRD.src.lua` | Mob (summon) |
-| 2 | `update/data037/SECRET_SNIKER.src.lua` | Mob |
-| 2 | `update/data037/SECRET_SCENE_1_1.src.lua` | Non-combat (scene) |
-| 2 | `update/data037/SECRET_FIREBIRD.src.lua` | Mob |
-| 2 | `update/data037/SECRET_CRUEL_SNIKER.src.lua` | Mob |
-| 2 | `update/data037/MOUNT_FIREBIRD.src.lua` | Mob |
-| 2 | `update/data037/LOW_MOUNT_FIREBIRD_FD.src.lua` | Mob |
-| 2 | `update/data037/LOW_MOUNT_BERSERKER_BOSS.src.lua` | Boss |
-| 2 | `update/data037/LOW_FINALHALL_FIREBIRD_FD.src.lua` | Mob |
-| 2 | `update/data037/FIRE_DEVIL_SNIKER_INCHANT.src.lua` | Mob (enchant variant) |
-| 2 | `update/data037/FIRE_DEVIL_SNIKER.src.lua` | Mob |
-| 2 | `update/data037/FIRE_DEVIL_BERSERKER_BOSS_FINALHALL.src.lua` | Boss |
-| 2 | `update/data037/FIRE_DEVIL_BERSERKER_BOSS.src.lua` | Boss |
-| 1 | `update/data037/SMITH_CART.src.lua` | Non-combat (object) |
-| 1 | `update/data037/SECRET_SUMMON_BERSERKER.src.lua` | Mob (summon) |
-| 1 | `update/data037/SECRET_STAGE1_CHAIN2.src.lua` | Non-combat (trigger) |
-| 1 | `update/data037/SECRET_STAGE1_CHAIN1.src.lua` | Non-combat (trigger) |
-| 1 | `update/data037/SECRET_MAGI_SUMMON.src.lua` | Mob (summon) |
-| 1 | `update/data037/SECRET_CRUEL_BERSERKER.src.lua` | Mob |
-| 1 | `update/data037/SECRET_BERSERKER.src.lua` | Mob |
-| 1 | `update/data037/LOW_MOUNT_BERSERKER_FD.src.lua` | Mob |
-| 1 | `update/data037/LOW_GEYSER_SCIENCE_FD.src.lua` | Mob |
-| 1 | `update/data037/LOW_GEYSER_MULMAI_FD.src.lua` | Mob |
-| 1 | `update/data037/LOW_GEYSER_MULLOCK_FD.src.lua` | Mob |
-| 1 | `update/data037/LOW_GEYSER_MULLOCK_CALL_FD.src.lua` | Mob (call/summon variant) |
-| 1 | `update/data037/LOW_FINALHALL_BERSERKER_FD.src.lua` | Mob |
-| 1 | `update/data037/GEYSER_SCIENCE.src.lua` | Mob |
-| 1 | `update/data037/GEYSER_MULSAYRENA_CALL.src.lua` | Mob (call variant) |
-| 1 | `update/data037/GEYSER_MULMAI.src.lua` | Mob |
-| 1 | `update/data037/GEYSER_MULLOCK_CALL.src.lua` | Mob (call variant) |
-| 1 | `update/data037/FIRE_DEVIL_BERSERKER_INCHANT.src.lua` | Mob (enchant variant) |
-| 1 | `update/data037/FIRE_DEVIL_BERSERKER_FIRETEMPLE.src.lua` | Mob |
-| 1 | `update/data037/FIRE_DEVIL_BERSERKER.src.lua` | Mob |
-| 1 | `update/data037/EVENT_GAYSER_BOSS.src.lua` | Boss |
-| 1 | `update/data037/EVENT_GATEWAY_BOSS.src.lua` | Boss |
-| 1 | `update/data037/EVENT_FINALHALL_BOSS.src.lua` | Boss |
-| 1 | `data036/MapData.src.lua` | Shared registry data (outside `data037/`, hand-verified real) |
+| Functions repaired | File (relative to `march2014/`) |
+|---:|---|
+| 12 | `update/data037/SECRET_MAGI_BOSS.src.lua` |
+| 9 | `update/data037/GEYSER_MULSAYRENA.src.lua` |
+| 7 | `update/data037/SECRET_SCENE_DUMMY.src.lua` |
+| 7 | `update/data037/SMITH_SCIENCE.src.lua` |
+| 5 | `update/data037/FIRE_DEVIL_IGNIA.src.lua` |
+| 4 | `update/data037/LOW_SMITH_SCIENCE_FD.src.lua` |
+| 4 | `update/data037/SAMETEAM_IGNIA.src.lua` |
+| 3 | `update/data037/FIRE_DEVIL_CHAIN_BALL.src.lua` |
+| 3 | `update/data037/FIRE_DEVIL_SKA.src.lua` |
+| 3 | `update/data037/GEYSER_MULLOCK.src.lua` |
+| 3 | `update/data037/TRAP_FIRE_BIG.src.lua` |
+| 2 | `update/data037/EVENT_FINALHALL_BOSS2.src.lua` |
+| 2 | `update/data037/FIRE_DEVIL_BERSERKER_BOSS.src.lua` |
+| 2 | `update/data037/FIRE_DEVIL_BERSERKER_BOSS_FINALHALL.src.lua` |
+| 2 | `update/data037/FIRE_DEVIL_IGNIA_BOSS_FINALHALL.src.lua` |
+| 2 | `update/data037/GEYSER_MULLOCK_CALL.src.lua` |
+| 2 | `update/data037/GEYSER_MULSAYRENA_CALL.src.lua` |
+| 2 | `update/data037/LOW_GEYSER_MULLOCK_CALL_FD.src.lua` |
+| 2 | `update/data037/LOW_GEYSER_MULLOCK_FD.src.lua` |
+| 2 | `update/data037/LOW_MOUNT_BERSERKER_BOSS.src.lua` |
+| 2 | `update/data037/MOUNT_FIREBIRD_FIRETEMPLE.src.lua` |
+| 2 | `update/data037/SMITH_REGIEON_POINT.src.lua` |
+| 2 | `update/data037/SMITH_RUNNER.src.lua` |
+| 1 | `data036/MapData.src.lua` |
+| 1 | `update/data037/EVENT_FINALHALL_BOSS.src.lua` |
+| 1 | `update/data037/EVENT_GATEWAY_BOSS.src.lua` |
+| 1 | `update/data037/EVENT_GAYSER_BOSS.src.lua` |
+| 1 | `update/data037/FIRETEMPLE_REGIEON_POINT.src.lua` |
+| 1 | `update/data037/FIRE_DEVIL_BERSERKER.src.lua` |
+| 1 | `update/data037/FIRE_DEVIL_BERSERKER_FIRETEMPLE.src.lua` |
+| 1 | `update/data037/FIRE_DEVIL_BERSERKER_INCHANT.src.lua` |
+| 1 | `update/data037/FIRE_DEVIL_SNIKER.src.lua` |
+| 1 | `update/data037/FIRE_DEVIL_SNIKER_INCHANT.src.lua` |
+| 1 | `update/data037/GEYSER_ALUMINUM.src.lua` |
+| 1 | `update/data037/GEYSER_MULMAI.src.lua` |
+| 1 | `update/data037/GEYSER_SCIENCE.src.lua` |
+| 1 | `update/data037/LOW_FINALHALL_BERSERKER_FD.src.lua` |
+| 1 | `update/data037/LOW_FINALHALL_FIREBIRD_FD.src.lua` |
+| 1 | `update/data037/LOW_FINALHALL_SNIKER_FD.src.lua` |
+| 1 | `update/data037/LOW_GEYSER_ALUMINUM_FD_BOSS.src.lua` |
+| 1 | `update/data037/LOW_GEYSER_MULMAI_FD.src.lua` |
+| 1 | `update/data037/LOW_GEYSER_SCIENCE_FD.src.lua` |
+| 1 | `update/data037/LOW_MOUNT_BERSERKER_FD.src.lua` |
+| 1 | `update/data037/LOW_MOUNT_FIREBIRD_FD.src.lua` |
+| 1 | `update/data037/LOW_SMITH_ALUMINUM_FD_BOSS.src.lua` |
+| 1 | `update/data037/MOUNT_FIREBIRD.src.lua` |
+| 1 | `update/data037/MOUNT_POINT_STAGE_BOSS.src.lua` |
+| 1 | `update/data037/SECRET_BERSERKER.src.lua` |
+| 1 | `update/data037/SECRET_CRUEL_BERSERKER.src.lua` |
+| 1 | `update/data037/SECRET_CRUEL_SNIKER.src.lua` |
+| 1 | `update/data037/SECRET_FIREBIRD.src.lua` |
+| 1 | `update/data037/SECRET_MAGI_SUMMON.src.lua` |
+| 1 | `update/data037/SECRET_SCENE_1_1.src.lua` |
+| 1 | `update/data037/SECRET_SNIKER.src.lua` |
+| 1 | `update/data037/SECRET_STAGE1_CHAIN1.src.lua` |
+| 1 | `update/data037/SECRET_STAGE1_CHAIN2.src.lua` |
+| 1 | `update/data037/SECRET_SUMMON_BERSERKER.src.lua` |
+| 1 | `update/data037/SECRET_SUMMON_FIREBIRD.src.lua` |
+| 1 | `update/data037/SECRET_SUMMON_SNIKER.src.lua` |
+| 1 | `update/data037/SMITH_ALUMINUM.src.lua` |
+| 1 | `update/data037/SMITH_CART.src.lua` |
+| 1 | `update/data037/SMITH_STAIN.src.lua` |
 
-All paths are relative to `march2014/`.
+`RAGE_DRYADKENTA.src.lua` (Kenta, the file this bug was originally found on) is not in this
+table: it was fixed first, by hand, before the sweep tooling existed (see "Confirmed and fixed"
+above), and Phase 6c's re-check confirmed 0 residual `dropped-assignment` against the fixed
+decompile — it is done, not merely absent from the count.
 
 ## Root cause
 
@@ -572,27 +626,45 @@ the string's own content), not in the slotworks elimination fix this plan alread
 | Files with no verdict (tooling limitation, not a correctness question) | 15 (7 from Phase 7, 8 from Phase 8) |
 | Files with an unexplained `dropped-assignment` (Phase 4 regression) | **0** |
 
-## Not done in this pass
+## Status
 
-- Nothing in the table above has been fixed except `RAGE_DRYADKENTA.src.lua` (which is why
-  it no longer appears in the table).
-- The root cause inside `elstools/vendor/ljd` (`ljd/ast/slotworks.py`) is identified: see
-  "Root cause" above, one defect at four sites.
-  - It is fixed only opt-in, as a run-time hook: `june2017_re/ljd_fixed.py`, reached through
-    `--fixed`.
-  - `june2017_re/ljd_slotworks.patch` is the same change for the vendored copies. It is not
-    applied.
-  - The default decompile stays unfixed until the plan's Phase 9.
-  - **Phase 5 is done (2026-09-28): every ported file now has a verdict**, in
-    `june2017_re/decompile_verdicts.tsv` — 62 files carry a real `dropped-assignment` (121
-    functions total, reproducing this doc's old 61-file heuristic scope almost exactly, now
-    bytecode-confirmed instead of regex-guessed), plus `MapData.src.lua`. The table above is
-    therefore superseded by that TSV for anything except Kenta (kept here as the worked
-    example). Repair itself is Phase 6, re-split by real write count in the plan.
-- The lint has not been wired into the decompile workflow (`ljd_jun2017.py` /
-  `elstools decompile-batch`) as an automatic guard — right now it's a standalone script you
-  have to remember to run.
+**Everything this section used to list as outstanding is done, as of Phase 9
+(`RANOX_LUA_DECOMPILE_FIX_PLAN.md`, 2026-10-01):**
 
-See also: `MODS.md`'s Dryad Kenta entry (the full fix, as a worked example), and
-`RANOX_PORT_PLAN.md`'s Phase 4 section (carries a correction note pointing back here, since
-its original write-up reasoned about one instance of this bug and got it half right).
+- **The root cause inside `elstools/vendor/ljd` (`ljd/ast/slotworks.py`) is identified and
+  fixed.** See "Root cause" above, one defect at four sites (a fifth found in review).
+  - The fix is a run-time hook, `june2017_re/ljd_fixed.py`, and it is now the **default**:
+    `june2017_re/ljd_jun2017.py` installs it unless `--unfixed` is passed. `regen.sh` uses the
+    default.
+  - `june2017_re/ljd_slotworks.patch` is the same change as a unified diff for the two vendored
+    ljd copies. **Applied 2026-10-01** (the user's call): both `elstools/vendor/ljd` and the
+    second copy `elstools.exe` runs now have the fix baked in statically, so
+    `elstools.exe decompile-batch` gets it directly, not just `ljd_jun2017.py`. Both copies'
+    `slotworks.py` are still `diff -rq` clean against each other after patching.
+    `june2017_re/ljd_fixed.py`'s `install_fix()` recognizes an already-patched file (matching
+    `ljd_slotworks.patch`'s own recorded post-patch SHA-256) and treats it as a no-op rather than
+    refusing — it used to only recognize the pre-patch SHA, which broke outright the moment the
+    patch was applied; caught and fixed in the same pass.
+    **Consequence: `--unfixed` no longer means genuinely unfixed.** Since the fix is now in the
+    vendored file itself, every path (`ljd_jun2017.py` with or without `--unfixed`, `ljd_fixed.py`
+    directly, `elstools.exe`) produces fixed output. True pre-fix behavior would need a fresh,
+    unpatched checkout of the two vendored `ljd` directories.
+- **Every ported file has a verdict, and every real instance is repaired.** Phase 5 mapped and
+  bytecode-diffed all 277 `march2014/**/*.src.lua` files; Phase 6a–6c repaired all 62 files /
+  123 functions found (see "Scope" above) and the repairs are committed. Recompile, repack, and
+  an in-game play-test remain the user's step.
+- **The fix holds across the entire 7,328-file June corpus**, not just the ported subset —
+  Phases 7 and 8 swept every other file (data037_kom's AI scripts, then everything else) and
+  found zero unexplained `dropped-assignment`. See "Residual ljd defects" above for what's left
+  (all harmless-in-engine order/reorder classes, a separate already-catalogued deepcopy-hoist
+  defect, and a handful of tooling-limitation failures with no port depending on them).
+- **The lint is not the only check anymore.** `ljd_jun2017.py --check FILE.lua` runs the
+  bytecode-level harness in one command (see "Detecting more instances" above); `regen.sh` runs
+  it automatically on every reference file it regenerates. The lint is still useful as a fast,
+  no-bytecode pre-check, and its calibrated precision/recall are recorded above.
+
+See also: `MODS.md`'s Dryad Kenta entry (the full fix, as a worked example) and its tooling
+entry for this plan; `RANOX_LUA_DECOMPILE_FIX_PLAN.md` (the full investigation, every phase's
+methodology and result); and `RANOX_PORT_PLAN.md`'s Phase 4 section (carries a correction note
+pointing back here, since its original write-up reasoned about one instance of this bug and got
+it half right).

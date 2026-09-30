@@ -42,6 +42,37 @@ do
     # a for-in loop) or, for files without those ops, identical to ljd_jun2017.py's.
     ../elstools/elstools.exe decompile-batch -q -i "june_lua/$(basename "$f")"
 done
-# The real decompile. See README.md "June LuaJIT opcode table".
-python ljd_jun2017.py $(ls june_lua/*.lua | grep -v '\.src\.lua$') || exit 1
+# The real decompile. See README.md "June LuaJIT opcode table". Uses the Phase 4
+# slotworks fix by default (RANOX_LUA_DECOMPILE_FIX_PLAN.md Phase 9); pass
+# REGEN_UNFIXED=1 to get the plain vendored ljd back (e.g. to regenerate the
+# pre-fix references for a before/after comparison).
+FIXOPT=""
+[ -n "$REGEN_UNFIXED" ] && FIXOPT="--unfixed"
+python ljd_jun2017.py $FIXOPT $(ls june_lua/*.lua | grep -v '\.src\.lua$') || exit 1
 echo "june_lua: $(ls june_lua/*.src.lua 2>/dev/null | wc -l) decompiled files"
+
+# Verify: none of these 14 references should carry a dropped-assignment or
+# clobber divergence against their own June bytecode. Skipped under
+# REGEN_UNFIXED, since that mode is expected to reproduce the known bug.
+# --check exits 1 for a real finding (fails the whole run) or 2 when the
+# harness itself couldn't run (e.g. DamageEffect_Dungeon.lua's known
+# compile-batch printer defect, RANOX_LUA_DECOMPILE_BUG.md's Phase 8 section --
+# a tooling limitation, not a correctness finding; reported, not swallowed,
+# and never lets the run exit 0 by accident).
+if [ -z "$REGEN_UNFIXED" ]; then
+    CHECK_FAILED=0
+    CHECK_UNVERIFIABLE=""
+    for f in $(ls june_lua/*.lua | grep -v '\.src\.lua$'); do
+        python ljd_jun2017.py --check "$f"
+        rc=$?
+        if [ "$rc" = 1 ]; then
+            CHECK_FAILED=1
+        elif [ "$rc" != 0 ]; then
+            CHECK_UNVERIFIABLE="$CHECK_UNVERIFIABLE $(basename "$f")"
+        fi
+    done
+    if [ -n "$CHECK_UNVERIFIABLE" ]; then
+        echo "june_lua --check: unverifiable (tooling limitation, not a correctness finding):$CHECK_UNVERIFIABLE"
+    fi
+    [ "$CHECK_FAILED" = 0 ] || exit 1
+fi

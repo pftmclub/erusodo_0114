@@ -573,18 +573,91 @@ into a bogus `return {…}`. Flat data tables come out clean, but code-built tab
 extraction therefore reads keys from the **bytecode**, and requires that set to equal
 the one read from the `.src.lua`.
 
-**ljd dropped-assignment fix (opt-in).** ljd also drops real register writes on stripped
-bytecode: it folds `slotN = <call>` into the one read it counted and leaves every other read
-naming a register nothing writes (`../RANOX_LUA_DECOMPILE_BUG.md`, "Root cause").
+**ljd dropped-assignment fix (default since Phase 9).** ljd also drops real register writes on
+stripped bytecode: it folds `slotN = <call>` into the one read it counted and leaves every
+other read naming a register nothing writes (`../RANOX_LUA_DECOMPILE_BUG.md`, "Root cause").
 `ljd_fixed.py` installs a fix for that into the vendored ljd at run time. It refuses to
 install if `slotworks.py` isn't the exact file it was written against.
-- June files: `ljd_jun2017.py --fixed`.
+- June files: `ljd_jun2017.py FILE.lua` installs the fix by default; pass `--unfixed` to get
+  the plain vendored ljd back. `regen.sh` uses the default.
 - Stock bytecode: `ljd_fixed.py` with `main.py`'s own arguments.
-- The harnesses: `ljd_oracle/run_oracle.py --fixed` and `ljdiff/ljdiff.py --fixed`.
+- The harnesses: `ljd_oracle/run_oracle.py --fixed` and `ljdiff/ljdiff.py --fixed` (these two
+  still default to unfixed, since they're also what proves the fix against the plain
+  decompile -- pass `--fixed` explicitly).
+- **Verifying a file's own June bytecode against its fixed decompile in one command:**
+  `ljd_jun2017.py --check FILE.lua` (learn + trace + diff, 32 seeds; fails on any
+  `dropped-assignment` or `clobber` verdict). `regen.sh` runs this automatically on every file
+  it regenerates. See `../RANOX_LUA_DECOMPILE_BUG.md`'s "Detecting more instances" for what
+  this does and doesn't cover (dynamic coverage only; it does apply the deepcopy-hoist
+  exemption, so `EffectSet.lua`/`DamageEffect*.lua` correctly pass).
 
 The fix code is `ljd_slotworks_fix.py`. `ljd_slotworks.patch` is the same change as a diff
-for the two vendored ljd copies, and nothing applies it. The default stays unfixed until
-Phase 9 of `../RANOX_LUA_DECOMPILE_FIX_PLAN.md`; its "Phase 4 result" has the evidence.
+for the two vendored ljd copies. **Applied 2026-10-01**: both `elstools/vendor/ljd` and the
+second copy `elstools.exe` runs have the fix baked in statically now, so
+`elstools.exe decompile-batch` gets it directly too, not just `ljd_jun2017.py`. One consequence:
+`--unfixed` no longer produces genuinely unfixed output, since the fix is in the vendored file
+itself regardless of the hook. See "Ranox Lua decompile fix: corpus tooling" below for the rest
+of the toolset this fix was proven and swept with.
+
+## Ranox Lua decompile fix: corpus tooling (`RANOX_LUA_DECOMPILE_FIX_PLAN.md`)
+
+`ljd_fixed.py` and `--check` (above) are the day-to-day tools. The plan's other phases built a
+bigger toolset to prove the fix and sweep the whole 7,328-file June corpus with it; it stays
+committed (`june_src_fixed/` is gitignored, everything else here isn't) in case a later port
+or phase needs it again.
+
+- **`corpus_run.py`**: the generic resumable per-file runner every sweep (Phases 0, 5, 7, 8)
+  reuses. One subprocess per file (ljd keeps per-process global state, so files can't share a
+  process), a `faulthandler`-armed budget with kill-by-PID only (never by image name -- other
+  `python.exe` processes, e.g. MCP servers, run on this machine), one TSV row appended per
+  file, and `--resume` (which truncates a dangling partial last line off the TSV before
+  appending, not just skips it in memory -- an earlier version that only skipped it would have
+  glued a new row onto the fragment).
+- **`decompile_worker.py`, `truncation_census.py`, `build_decompile_corpus.py` →
+  `decompile_corpus.tsv`**: Phase 0's corpus inventory, one row per June `.lua` (7,328 total):
+  size, manifest size, truncation status (none found in this corpus's `.lua` entries -- see
+  the plan's "Phase 0 result"), the file's opcode set, and whether it decompiles
+  (`ok`/`assert`/`unmapped-opcode`/timeout).
+- **`ljconv_table.tsv`**: the full 71-opcode June→stock table `ljconv.py`'s `transcode`/
+  `transcode_stock` read, each row's `evidence` column naming the elstools pair or
+  `lj_bcmode.py` check that settled it.
+- **`ljdiff/`**: the harness. `ljdiff.py` builds up to three sides per June file (`orig` the
+  real bytecode, `rt` the round-tripped decompile, optionally `--extra NAME=PATH.src.lua` for
+  e.g. a `march2014/` port file), runs `ljdiff.lua` (a mock Lua environment with a
+  deterministic per-seed call driver) over each, and diffs `orig` against every other side:
+  `dropped-assignment` / `clobber` / `upvalue` / `reorder` / `other-ljd` / `pass`, per
+  (function, seed), plus a static must-define pass when line info is available. `types.tsv` is
+  the shared, generated type oracle (learned from `orig` traces only, then frozen so both sides
+  compare against the same assumptions); `calibrate.py` and `fixes/` are Phase 2b's calibration
+  run and its restored-assignment fix sets for Kenta and MapData.
+- **`ljd_oracle/`**: the engine-free regression suite (Phase 1). Hand-written Lua cases
+  (`cases/*.lua`) cover the dropped-assignment shape, `elseif` chains, read-after-merge, the
+  HP-ratio double-compare shape, genuine single-use controls (which a correct fix must *not*
+  stop inlining), and the known deepcopy-hoist shape as a labelled, separate control.
+  `run_oracle.py` compiles each case stripped and with `-g`, decompiles, recompiles, executes
+  original vs round trip with `slotN` globals poisoned before each call, and prints a pass/fail
+  table; `--fixed` uses `ljd_fixed.py`, `--expect fixed` checks against the Phase 4 target,
+  `--twice` checks determinism.
+- **`decompile_verdicts.tsv`**: the corpus-wide verdict table (Phases 5/7/8), one row per
+  (file, function): `scope` (`ported` for `march2014/**/*.src.lua`, `corpus` for every other
+  June file), the verdict, lint/coverage/clobber detail, and a first-divergence summary. The
+  `scope=ported` rows are what Phase 6 repaired; see `../RANOX_LUA_DECOMPILE_BUG.md`'s "Scope"
+  section for the summary and `../MODS.md`'s Dryad Kenta entry for one repair worked end to end.
+- **`phase5_*.py`, `phase7_*.py`, `phase8_*.py`**: the sweep drivers behind
+  `decompile_verdicts.tsv` -- `phase5_worker.py`/`phase5_aggregate.py` (the 276 mapped
+  `march2014/` files, against both the fixed round trip and the port text as it stands),
+  `phase7_worker.py`/`phase7_aggregate.py` (`data037_kom`'s 3,105 files), `phase8_worker.py`/
+  `phase8_build_targets.py`/`phase8_aggregate.py` (the remaining ~4,200 files, with a
+  proven-safe main-chunk-only fast path for files that define no functions).
+  `phase5_map.py`/`phase5_files.tsv`/`phase5_targets.tsv` map `march2014/` files to their June
+  originals; `phase5_clobber_census.tsv` and `phase7_cluster_residuals.py` are the clobber and
+  residual-defect classifiers `RANOX_LUA_DECOMPILE_BUG.md`'s "Residual ljd defects" cites.
+- **`../june_src_fixed/<kom_dir>/<name>.src.lua`** (repo root, not under `june2017_re/`;
+  gitignored via the root `.gitignore`'s `/*` allowlist, same mechanism as `../tmp/`): the
+  fixed decompile of every June file the Phase 7/8 sweeps produced a verdict for (7,313 of
+  7,328 -- the 15 with none are listed in `../RANOX_LUA_DECOMPILE_BUG.md`), persisted so a
+  later port doesn't have to re-decompile from scratch. Not touched by `regen.sh`, which only
+  rebuilds the 14 `june_lua/` reference files.
 
 ## Phase 10b: converting June lua, and the two adoption audits
 
@@ -683,6 +756,11 @@ Committed. These are small, or are the record of what was found:
   for its opcode fix. See "June LuaJIT opcode table".
 - `ljd_fixed.py`, `ljd_slotworks_fix.py`, `ljd_slotworks.patch`: the ljd dropped-assignment
   fix, as a run-time hook and as an unapplied patch. See "ljd dropped-assignment fix".
+- `corpus_run.py`, `decompile_worker.py`, `truncation_census.py`, `build_decompile_corpus.py`
+  → `decompile_corpus.tsv`; `ljconv_table.tsv`; `ljdiff/`; `ljd_oracle/`;
+  `decompile_verdicts.tsv`; `phase5_*.py`/`phase7_*.py`/`phase8_*.py` and their `.tsv`s: the
+  rest of the Ranox Lua decompile fix's tooling (proving the fix and sweeping the whole June
+  corpus with it). See "Ranox Lua decompile fix: corpus tooling".
 - `reconcile.py` → `reconcile.md`: data keys against binary keys, per parser.
 - `census.py` → `../JUNE2017_EFFECT_KEY_MATRIX.md` + `census.tsv`: the Phase 1 key census.
 - `funcmap.tsv`: the June function map, `june_va, march_symbol, status, evidence`. **This

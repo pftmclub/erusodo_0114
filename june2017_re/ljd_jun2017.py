@@ -25,11 +25,28 @@ keeps elstools' translation, which the mode table agrees with.
 
 Usage (from june2017_re/):
     python ljd_jun2017.py june_lua/DamageEffect.lua [more.lua ...]
-    python ljd_jun2017.py --fixed june_lua/X.lua   # also install ljd_fixed.py's slotworks fix
+    python ljd_jun2017.py --unfixed june_lua/X.lua   # skip ljd_fixed.py's slotworks fix
+    python ljd_jun2017.py --check june_lua/X.lua     # also verify with ljdiff (see below)
 Needs <stem>.std.luac next to each input (run elstools decompile-batch first;
 it writes that file even when its own decompile fails). Writes <stem>.src.lua.
 Exits non-zero if any file fails, or if the two files differ anywhere other
 than the header and opcode bytes.
+
+Since RANOX_LUA_DECOMPILE_FIX_PLAN.md Phase 9, the slotworks dropped-assignment
+fix (ljd_fixed.py, Phase 4) is installed by DEFAULT. Pass --unfixed to get the
+plain vendored ljd back, e.g. to compare against the pre-fix behaviour or to
+check ljd_slotworks.patch's target file.
+
+--check FILE runs june2017_re/ljdiff against FILE's real June original (learn
++ trace + diff, same pipeline as Phases 5/7/8's sweeps, default 32 seeds) and
+fails if any function or the main chunk shows clobber, or a dropped-assignment
+read not covered by the known deepcopy-hoist exemption (phase5_aggregate.py's
+deepcopy_exempt_at_line() -- the SEPARATE, still-open "ljd caveat" defect,
+README.md, not the one ljd_fixed.py fixes; EffectSet.lua/DamageEffect*.lua
+legitimately trip it and still pass --check for that reason). It does not
+replace a corpus sweep: it only checks dynamic coverage (the 32 seeds actually
+reached), not the coverage-independent static must-define pass the sweeps also
+run.
 """
 import os
 import runpy
@@ -131,14 +148,14 @@ def parse_prototype(lua_path):
     return proto
 
 
-def decompile(lua_path, fixed=False):
+def decompile(lua_path, fixed=True):
     stem = lua_path[:-4] if lua_path.endswith('.lua') else lua_path
     std = stem + '.std.luac'
     out = stem + '.src.lua'
     kog, stdb = begin(lua_path)
     state = _STATE
     if fixed:
-        # The dropped-assignment fix (RANOX_LUA_DECOMPILE_FIX_PLAN.md Phase 4); opt-in until Phase 9.
+        # The dropped-assignment fix (RANOX_LUA_DECOMPILE_FIX_PLAN.md Phase 4); default since Phase 9.
         import ljd_fixed
         ljd_fixed.install_fix()
     sys.argv = ['ljd', '-f', std, '-o', out]
@@ -158,14 +175,113 @@ def decompile(lua_path, fixed=False):
         ' [%s]' % sys.modules['ljd_fixed'].stats_line() if fixed else ''))
 
 
+def check(lua_path, fixed=True, seeds=32):
+    """Run june2017_re/ljdiff against lua_path's own June bytecode (no .std.luac
+    needed -- ljdiff.build() uses Phase 0's no-sibling transcode path) and raise
+    SystemExit if the rt side has any clobber, or any dropped-assignment site not
+    covered by the known deepcopy-hoist exemption (see phase5_aggregate.py's
+    module docstring -- a SEPARATE, still-open ljd defect, not the one
+    ljd_fixed.py fixes; EffectSet.lua/DamageEffect*.lua legitimately trip it).
+    See the module docstring for what else this does and doesn't cover.
+
+    Exit code on failure distinguishes "found a real defect" from "couldn't run
+    the harness at all" -- the latter (e.g. DamageEffect_Dungeon.lua's known
+    compile-batch printer defect, RANOX_LUA_DECOMPILE_BUG.md's Phase 8 section)
+    is a tooling limitation, never treated as a clean pass (process rule 3:
+    "unreached"/unverifiable is its own verdict, never "clean") but also never
+    silently swallowed as a correctness finding:
+      1 = a real clobber or unexplained dropped-assignment was found
+      2 = the harness itself failed (StepError) before it could answer"""
+    sys.path.insert(0, os.path.join(HERE, 'ljdiff'))
+    import ljdiff as LD
+    import ljconv as LC
+    import json
+    from phase5_aggregate import deepcopy_exempt_at_line, SLOTNAME_SITE  # noqa: E402
+    abspath = os.path.abspath(lua_path)
+    LD.use_fixed_ljd(fixed)
+    os.makedirs(LD.TMP, exist_ok=True)
+    table = LC.load_table(LC.TABLE_TSV)
+    try:
+        flat, sides, srcs = LD.build(abspath, table, [], twin=True)
+        log = []
+        LD.learn([(flat, sides, srcs)], seeds, log)
+        LD.trace([(flat, sides, srcs)], seeds, log, opts='lines')
+        results = LD.diff_files(flat, sides, srcs)
+    except LD.StepError as e:
+        print('%s: --check UNVERIFIABLE (the harness itself failed, not a correctness finding): %s'
+              % (lua_path, e))
+        raise SystemExit(2)
+    bad = []
+    n_fns = 0
+    for side, res in results.items():
+        n_fns = max(n_fns, len(res['fns']))
+        tot = LD.summary_row(res)
+        if tot.get('clobber'):
+            bad.append('%s: %d function(s) verdict clobber' % (side, tot['clobber']))
+        m = res.get('main')
+        if m and m['verdict'] == 'clobber':
+            bad.append('%s: main chunk clobber (%s)' % (side, ','.join(m['labels'])))
+        if side != 'rt':
+            continue
+        # Always walk sites here, not just when tot['dropped-assignment'] is set:
+        # summary_row() only sums res['fns'], so a main-chunk-ONLY dropped-assignment
+        # (e.g. EffectSet.lua's deepcopy hoist) would otherwise never be checked at all.
+        rt_src_text = open(srcs['rt'], encoding='utf-8', errors='replace').read()
+        rt_trace_path = LD.tmp(flat, 'rt.json')
+        main_sites_raw = json.load(open(rt_trace_path, encoding='utf-8')).get('main', {}).get('sites', []) \
+            if os.path.exists(rt_trace_path) else []
+        unexplained = []
+        for fn, fr in res['fns'].items():
+            for site, n in fr['sites'].items():
+                if not SLOTNAME_SITE.match(site):
+                    continue
+                line = int(site.partition('@L')[2] or 0)
+                name = site.split('@')[0]
+                if not deepcopy_exempt_at_line(rt_src_text, line, name):
+                    unexplained.append('%s::%s(seeds=%d)' % (fn, site, n))
+        for site in main_sites_raw:
+            if not SLOTNAME_SITE.match(site):
+                continue
+            line = int(site.partition('@L')[2] or 0)
+            name = site.split('@')[0]
+            if not deepcopy_exempt_at_line(rt_src_text, line, name):
+                unexplained.append('<main>::%s' % site)
+        if unexplained:
+            bad.append('%s: unexplained dropped-assignment: %s' % (side, ', '.join(unexplained)))
+    if bad:
+        LD.clean([flat])
+        print('%s: --check FAILED (%d seed(s)):\n  %s' % (lua_path, seeds, '\n  '.join(bad)))
+        raise SystemExit(1)
+    LD.clean([flat])
+    print('%s: --check clean (%d seed(s), %d function(s))' % (os.path.basename(lua_path), seeds, n_fns))
+
+
 if __name__ == '__main__':
-    fixed = '--fixed' in sys.argv[1:]
-    files = [a for a in sys.argv[1:] if a != '--fixed']
+    argv = sys.argv[1:]
+    fixed = '--unfixed' not in argv
+    do_check = '--check' in argv
+    files = [a for a in argv if a not in ('--unfixed', '--fixed', '--check')]
     if len(files) != 1:
         # ljd keeps global state per process; run one file per interpreter.
         import subprocess
         rc = 0
         for f in files:
-            rc |= subprocess.call([sys.executable, os.path.abspath(__file__)] + ['--fixed'] * fixed + [f])
+            cmd = [sys.executable, os.path.abspath(__file__)]
+            if not fixed:
+                cmd.append('--unfixed')
+            if do_check:
+                cmd.append('--check')
+            # Priority, not |= or max(): --check's exit codes (1 = real finding,
+            # 2 = harness couldn't run) are severity levels, not a bitmask --
+            # ORing 1 and 2 would silently produce 3 (neither code's meaning),
+            # and max() would let one file's "unverifiable" (2) outrank another
+            # file's confirmed defect (1). A real finding always wins.
+            this_rc = subprocess.call(cmd + [f])
+            if this_rc == 1:
+                rc = 1
+            elif this_rc and rc != 1:
+                rc = this_rc
         sys.exit(rc)
     decompile(files[0], fixed)
+    if do_check:
+        check(files[0], fixed)

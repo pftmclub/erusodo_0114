@@ -1642,7 +1642,8 @@ Ran 2026-09-28. All five acceptance checks pass. The `/code-review` findings are
     becomes `if`.
   - `patch -p1` applies it cleanly to fresh copies of both vendored trees. The patched file
     hashes `2235d0a1…`, which the patch header records.
-  - Whether to apply it is the user's call.
+  - Whether to apply it is the user's call. **Later applied — see "Phase 9 result"'s
+    "Post-close update" for when, and the `install_fix()` fix it required.**
 - **`--fixed`** in `ljd_jun2017.py` (CRLF preserved), `ljd_oracle/run_oracle.py` and
   `ljdiff/ljdiff.py`. The two harnesses fail a step if a `--fixed` run doesn't report the fix
   active, so a hook that silently failed to install can't pass. The default everywhere stays
@@ -2522,3 +2523,114 @@ june2017_re/README.md; add a MODS.md tooling entry; update the
 elstools-decompile-drops-assignments-becomes-globals memory. Then ask me whether to apply
 ljd_slotworks.patch to the two vendored ljd copies.
 ```
+
+---
+
+## Phase 9 result
+
+Ran 2026-10-01. Both exit criteria met, with one caveat surfaced and handled rather than
+routed around (see "What the 14-file check actually found").
+
+**Tooling.**
+- `june2017_re/ljd_jun2017.py` installs the Phase 4 fix **by default**; `--unfixed` opts out
+  (was `--fixed` opt-in before this phase). `decompile(lua_path, fixed=True)`'s own default
+  changed to match, for any future library caller.
+- **New `--check FILE.lua`**: runs `june2017_re/ljdiff` (`LD.build`/`learn`/`trace`/`diff_files`,
+  32 seeds) against `FILE`'s own June bytecode and fails if the `rt` side shows any `clobber`,
+  or any `dropped-assignment` read site not covered by `phase5_aggregate.py`'s
+  `deepcopy_exempt_at_line()` — the same exemption the Phase 5/7/8 aggregators use for the
+  separate, still-open deepcopy-hoist defect. Without this exemption, `EffectSet.lua` produces a
+  false failure (confirmed empirically before the exemption was wired in: its main chunk's
+  hoisted `deepcopy` prints as `dropped-assignment,upvalue,other-ljd`, structurally identical to
+  the already-catalogued "ljd caveat," not a Phase 4 regression).
+- **Exit codes, not just pass/fail**: `0` clean, `1` a real clobber or unexplained
+  dropped-assignment, `2` the harness itself couldn't run (`ljdiff.StepError`, e.g. a
+  `compile-batch` syntax error from ljd's own printer). Per the plan's own process rule 3
+  ("unreached"/unverifiable is its own verdict, never "clean"), `2` is reported, never silently
+  treated as either a pass or a correctness finding. The multi-file CLI dispatch combines child
+  exit codes by priority (`1` wins over `2` wins over `0`), not `|=` or `max()` — an early
+  version used `|=`, which would have silently turned `1` and `2` together into `3`, a code
+  neither one means.
+- **A real bug found and fixed during this phase's own verification, not shipped**: the first
+  `check()` only inspected `LD.summary_row(res)` (which sums `res['fns']` only) for
+  `dropped-assignment`, and only fell through to the per-site exemption walk when that sum was
+  nonzero. A main-chunk-**only** `dropped-assignment` (no function-level one at all — exactly
+  `EffectSet.lua`'s shape) was therefore never walked, never exempted, and never flagged: it
+  would have silently reported "clean" for the wrong reason. Fixed by always walking `rt`'s
+  sites (function-level and main-chunk) regardless of the summary total. Caught by actually
+  running `--check` against `EffectSet.lua` twice — once before the fix (correctly failed, given
+  a design that didn't yet exempt the known deepcopy defect) and once after adding the exemption
+  but before this second fix (incorrectly passed, for the wrong reason: the gate skipped the
+  check entirely rather than the check correctly exempting it) — and only trusted after a third,
+  clean run with both fixes in place.
+- `regen.sh`: unchanged decompile line now runs fixed by default (no `--fixed` needed);
+  `REGEN_UNFIXED=1` opts out. Added a `--check` pass over all 14 `june_lua/` files after
+  decompiling, which reports (not fails the build on) any per-file exit code `2` and only fails
+  the whole run on a real exit code `1`.
+
+**What the 14-file check actually found — run individually, one file at a time, and confirmed
+with `types.tsv` untouched afterward (`git diff --stat` clean)**: 13 of 14 clean, 1
+(`DamageEffect_Dungeon.lua`) exit code `2` — **this is not a Phase 4 regression**, it's the same
+already-documented Phase 8 finding (`RANOX_LUA_DECOMPILE_BUG.md`'s "Residual ljd defects (Phase
+8...)"): ljd prints the deepcopy-hoist IIFE without the parentheses Lua's grammar requires around
+it, so `compile-batch` rejects the `rt` side before the harness can even trace it. This file was
+already known-unverifiable before this phase (it's in Phase 8's 8-file no-verdict table); Phase
+9 didn't introduce the gap, it made `--check`/`regen.sh` report it honestly instead of either
+silently passing or hard-failing the whole regen. **The literal exit criterion ("`--check` passes
+on the `june_lua/` set") holds for 13/14 file-level passes and for the whole-run exit code**
+(`regen.sh` exits 0, since `DamageEffect_Dungeon.lua`'s `2` is reported, not fatal) — it does not
+mean all 14 individually returned exit `0`, and this document says so rather than rounding up.
+
+**`RANOX_LUA_DECOMPILE_BUG.md`**: triage table replaced with the real, bytecode-verified verdict
+summary (62 files / 123 functions, from `decompile_verdicts.tsv`'s `scope=ported`/`repaired`
+rows, superseding the old 61-file/774-hit lint guess); "Detecting more instances" now leads with
+`--check` and keeps the lint's calibrated precision/recall (1.00 / 0.73-1.00); "Not done in this
+pass" rewritten as "Status" now that Phases 5-9 are all done; the stale "6 instances" Kenta count
+corrected to the real 12 (Phase 2b calibration) in both this doc and `MODS.md`'s Kenta entry,
+matching what the `dryad-kenta-jump-softlock` memory already claimed had been corrected — it
+hadn't been, until this phase actually did it. Fixed two spots that invited pointing `--check`
+at the pristine `14JUN17\` tree directly (the exact mistake this phase's own early testing made
+and had to clean up, see below) to say "a copy with its `.std.luac`" instead.
+
+**`june2017_re/README.md`**: new "Ranox Lua decompile fix: corpus tooling" section documenting
+`corpus_run.py`, `decompile_corpus.tsv`/`ljconv_table.tsv`, `ljdiff/`, `ljd_oracle/`,
+`decompile_verdicts.tsv`, the `phase5_*`/`phase7_*`/`phase8_*` sweep drivers, and
+`../june_src_fixed/` — caught mid-write that the last of these lives at the Trunk root, not
+under `june2017_re/`, before it shipped wrong. "ljd dropped-assignment fix" section updated for
+the new default and `--check`.
+
+**`MODS.md`**: new tooling entry right after the Dryad Kenta entry (no client flag — content
+and tooling only), cross-referencing the Phase 6a-6c repair commits (`8a141a5`/`6809a33`/
+`2bbd358`) and listing the still-outstanding recompile/repack/play-test step.
+
+**Memory**: `elstools-decompile-drops-assignments-becomes-globals.md` rewritten for the new
+default, `--check`, and the corpus-wide sweep result; the refuted "safe within one function's
+own sequential statements" claim it used to carry replaced with the real, cited evidence (3
+clobber instances, Phase 5) and the user's actual decision (keep bare globals, fix clobbers case
+by case). `dryad-kenta-jump-softlock.md` updated to point at the finished plan instead of
+"phases 0-2b done."
+
+**One incident during this phase's own work, caught and cleaned up, not just noted**: an early
+manual test ran `elstools decompile-batch` and `ljd_jun2017.py --check` directly against
+`RAGE_DRYADKENTA.lua`'s path under the pristine `14JUN17\` tree (decompile() writes its output
+next to its input), producing exactly the write-into-`14JUN17\` mistake the project's own
+standing rule warns about. Caught immediately, the two stray files
+(`RAGE_DRYADKENTA.src.lua`/`.std.luac`) deleted, confirmed `14JUN17\data\data037_kom\` back to
+only its two original `.lua` files. All later testing used scratch copies in `<Trunk>/tmp/`.
+
+**Post-close update, same day: the user was asked, and said to apply `ljd_slotworks.patch`.**
+Applied to both `elstools/vendor/ljd` and the second copy `elstools.exe` runs
+(`F:\elsword stuff\elstools\elstools\vendor\ljd`), verified `diff -rq` clean against each other
+afterward and matching the patch header's own recorded post-patch SHA-256
+(`2235d0a1...`) on both. This immediately surfaced a real bug the phase's own testing hadn't
+hit: `ljd_fixed.py`'s `install_fix()` only recognized the *pre*-patch SHA and refused outright
+once the vendored file no longer matched it — breaking `ljd_jun2017.py`'s own new default path.
+Fixed by making `install_fix()` also recognize the file `ljd_slotworks.patch` produces (reading
+its recorded SHA from the patch header) and treat that as a no-op instead of an error, re-tested
+against a small file (clean) and against `DamageEffect.lua`/`EffectSet.lua` again (both still
+clean). **Consequence, stated plainly, not left implicit: `--unfixed` no longer produces
+genuinely unfixed output anywhere** (`ljd_jun2017.py --unfixed`, `ljd_fixed.py` run directly, and
+`elstools.exe` all now hit the statically-patched vendored file regardless of the hook) — true
+pre-fix behaviour would need a fresh, unpatched checkout of both vendored `ljd` trees. Every doc
+that said "not applied" (`RANOX_LUA_DECOMPILE_BUG.md`'s Status, `MODS.md`'s tooling entry,
+`june2017_re/README.md`'s "ljd dropped-assignment fix") was updated to match.

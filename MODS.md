@@ -2628,7 +2628,12 @@ decompile fails on this particular compiled-from-broken-text file, so the disass
 route). The live copy shows the exact fault: the `PlayEffectSetWithCustomPos_LUA` call reads
 `_env["slot5"]` -- last written a position vector by an earlier branch, never the `GetEffectSet()`
 result computed two instructions earlier -- and errors. Six instances, two of which are
-independent routes to the reported softlock:
+independent routes to the reported softlock (**correction, `RANOX_LUA_DECOMPILE_FIX_PLAN.md`'s
+Phase 2b calibration, 2026-09-28: the real bytecode-verified count is 12 dropped assignments in
+these same 5 functions -- this "six" undercounts by treating one comment that covers two
+separate writes as a single instance, 4 times over; see the plan's "Calibration" section for the
+full per-write table. The fix below restores all 12, not 6** -- the functional description and
+the fix itself were always right, only this summary sentence's count was low):
 
 - **`RAGE_DRYADKENTA_ATTACK_B_WAIT_FRAME_MOVE`** -- confirmed live, see above. Attack B teleports
   her to `(0, -5000, 0)` as its "jump/mark" telegraph, pre-seeding the return-position global with
@@ -2677,7 +2682,7 @@ not verified instruction-by-instruction the way Kenta's six were -- **superseded
 harness below**, which turned "worth auditing" into 62 files / 123 functions, bytecode-confirmed
 and repaired.
 
-### Ranox Lua decompile fix: tooling (corpus harness, fix, and the 61-file repair)
+### Ranox Lua decompile fix: tooling (corpus harness, fix, and the 62-file repair)
 
 No client flag -- this is tooling under `june2017_re/` plus content-only edits to
 `march2014/**/*.src.lua` (the same `SERV_IRUHADEV_RANOX_PORT` comment convention as the Kenta
@@ -2695,9 +2700,14 @@ built the general version:
   issue #32, not something introduced by this port).
 - **The fix**: `june2017_re/ljd_fixed.py` (design in `ljd_slotworks_fix.py`), a run-time
   monkey-patch into the vendored ljd that refuses to install unless the vendored `slotworks.py`
-  matches the exact SHA-256 it was written against. `june2017_re/ljd_slotworks.patch` is the
-  same change as a unified diff for the two vendored ljd copies -- **generated, not applied**;
-  applying it is the user's call, not made by this work.
+  matches either the exact SHA-256 it was written against or the one `ljd_slotworks.patch`
+  produces (already-patched, treated as a no-op, not an error). `june2017_re/ljd_slotworks.patch`
+  is the same change as a unified diff for the two vendored ljd copies -- **applied 2026-10-01**
+  (the user's call) to both `elstools/vendor/ljd` and the second copy `elstools.exe` runs, so
+  `elstools.exe decompile-batch` has the fix directly now too, not just `ljd_jun2017.py`. Both
+  copies confirmed `diff -rq` clean against each other after patching, and both match the
+  SHA-256 the patch's own header records. One consequence: `--unfixed` no longer produces
+  genuinely unfixed output anywhere, since the fix is now in the vendored file itself.
 - **`june2017_re/ljd_jun2017.py`** (the June decompiler entry point) **installs the fix by
   default** as of this phase; `--unfixed` opts out. `june2017_re/ljd_jun2017.py --check FILE.lua`
   runs the bytecode harness against one file's own June original in one command (learn + trace +
