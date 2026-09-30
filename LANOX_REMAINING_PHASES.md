@@ -519,6 +519,308 @@ other changes.
 
 ---
 
+## Phase 0 findings (investigated 2026-10-01)
+
+Read-only. Method: 424 `(texture, key)` pairs were pulled by regex from the
+12 in-scope files (the 10 `Ranox|RANOX`-named staged UI luas plus the two
+patched shared dialogs, `DLG_UI_World_Map_NEW` and `DLG_UI_Local_Map_NEW`),
+plus 2 pairs from `DungeonData`'s Ranox block (`data035`, lines
+13290-14781) and 4 from `BattleFieldData`'s Ranox block (`data036`, lines
+1779-2045) — 73 distinct textures, 193 `(texture,key)` pairs total after
+folding duplicates. **Sanity check:** a raw count of
+`SetTex|SetNormalTex|SetOverTex|SetDownTex|IconAni` calls in the same 12
+files found 435 vs. the regex's 424; the 11-call gap is a different call
+shape (`IconAni(control, "tex", "key")`, a free function, vs. the
+`:SetTex("tex","key")` method form the regex targeted) plus one dynamic-key
+`SetTex` and one function *definition* line. All 11 were checked by hand:
+the 9 `IconAni(...)` calls duplicate pairs already captured from
+`SetNormalTex`/`SetOverTex` elsewhere, and the dynamic key (see
+`DLG_UI_Common_Texture93_NEW.tga` below) was added manually. No pairs were
+missed.
+
+Each texture's **live**-winning `.kom` was found via `elstools inspect -q`
+over every live `.kom` (183 files) — see the mount-order note under
+"Image11" below for what "winning" means when a name exists in more than
+one. TETs were parsed with a from-scratch reader against
+`KTDXLIB/KTDXDeviceTET_Preprocessing.h`/`.cpp`'s on-disk layout (header +
+sorted `DWORD` key-offset array + `KTETFormatTextureUV` array), verified
+against the known-good `DLG_Localmap_Title_01.TET` case in the ledger (53
+keys, all `TITLE_*`, matches exactly). Pixel comparisons on the
+uncompressed-TGA cases used a from-scratch 18-byte-header TGA reader
+(no Pillow available in this environment); the two DDS (DXT-compressed)
+cases were compared by file hash and UV/rect geometry only, not decoded
+pixel-for-pixel — flagged below where that distinction matters.
+
+**64 of the 73 textures are already fully correct live** (every key present,
+matching June where compared) and are not listed below. **9 have at least
+one missing or format-mismatched key.**
+
+### A. Missing/mismatched keys
+
+| Texture | Live TET | Missing key(s) | June has it | Image byte-identical to June | Classification |
+|---|---|---|---|---|---|
+| `DLG_Localmap_Title_01.tga` | `data063.kom`, 53 keys | `Map_Title_Ranox`, `Ranox_Ashes_Village`, `Ranox_Burned_Forest`, `Ranox_FINALHALL`, `Ranox_FIRETEMPLE`, `Ranox_GateWay`, `Ranox_Geyser` (7) | Yes, `data151.kom`, 77 keys | No | **merge-keys** |
+| `DLG_UI_Common_Texture93_NEW.tga` | none live | `ROSE_EAGLE_RADAR00`-`09` (10, dynamic key, see note) + the 1 static `ROSE_EAGLE_RADAR05` reference | Yes, `data215.kom`, 66 keys (also has `_LEFT`/`_RIGHT`) | **Yes** | **adopt-June-file** |
+| `DLG_UI_Common_Texture_Fieldname_6.tga` | `data057.kom`, 3 keys | `FIELD_NAME_RANOX_1` (1) | Yes, `data057.kom`, 4 keys | No (see pixel note) | **merge-keys** |
+| `DLG_UI_Common_Texture_Fieldname_7.tga` | none live (image present, no TET) | `FIELD_NAME_RANOX_2`, `_3`, `_4` (3) | Yes, `data057.kom`, 4 keys | **Yes** | **adopt-June-file** |
+| `DLG_UI_Dungeon_Image10.dds` | none live (image present, no TET) | `Ranox_Ashes_Village`, `Ranox_Burned_Forest`, `Ranox_FinalHall`, `Ranox_FireTemple`, `Ranox_Gateway`, `Ranox_Geyser` (6) | Yes, `data065.kom`, 8 keys | No — **different codec**, see note | **adopt-June-file, with a caveat** |
+| `DLG_UI_Dungeon_Image11.dds` | `datai022.kom`, 4 keys (unrelated content) | `RANOX_MAGI_pit` (1) | Yes, `data065.kom`, 8 keys | No (different file entirely) | **merge-keys — see mount-order note, changes Phase 1** |
+| `DLG_UI_Image_01.tga` | none live | `MonsterFever_1`-`5` (5) | Yes, `data215.kom`, 102 keys | **Yes** | **adopt-June-file** |
+| `DLG_UI_Image_08.tga` | none live | `MonsterFerver` (1) | Yes, `data215.kom`, 22 keys | **Yes** | **adopt-June-file** |
+| `DLG_UI_Button20_NEW.tga` | `data056.kom`, 49 keys | `RANOX_BTN_NORMAL`, `RANOX_BTN_OVER` (2) | **No — June's copy has 0 Ranox keys either** | n/a | **dead end, confirmed — see note** |
+
+Notes:
+
+- **`DLG_UI_Common_Texture93_NEW.tga` dynamic key.** The regex only caught
+  one literal `SetTex("DLG_UI_Common_Texture93_NEW.tga", "ROSE_EAGLE_RADAR05")`
+  (`DLG_UI_RANOX_SECRET_FEVER_GAGE.src.lua:109`, a static default). The real
+  requirement is a runtime loop at line 89,
+  `strTexName = string.format("%s%d", "ROSE_EAGLE_RADAR0", tostring(slot10))`
+  for `slot10 = 0..9` — i.e. all 10 digits `ROSE_EAGLE_RADAR00`-`09`. June's
+  TET has all 10 (plus `_LEFT`/`_RIGHT`, unused by this lua). Live has none
+  of them; the image (`.tga`) is already byte-identical to June's, so this is
+  a clean whole-file TET adopt (no pixel work).
+- **`DLG_UI_Common_Texture_Fieldname_6.tga` pixel check.** UVs for the 3
+  shared keys (`FIELD_NAME_SAND_1/2/3`) are byte-identical between live and
+  June (same rects, same canvas size, 1048620 B both). A full pixel sample of
+  those 3 rects, however, found real per-pixel differences (roughly a
+  quarter of sampled pixels in each rect differ, e.g. `4f606b01` vs
+  `81818101` at (128,1)) — **the SAND art itself was redrawn between builds,
+  not just extended.** A wholesale TGA swap would silently change Sander's
+  already-shipped field-name plates. The only safe merge is: keep live's
+  canvas and pixels as-is, and paste in only the new `FIELD_NAME_RANOX_1`
+  rect (June's rows 378-503) plus its key entry.
+- **`DLG_UI_Dungeon_Image10.dds` is not a format-preserving case.** Live's
+  copy (`data065.kom`, 1,398,228 B) is uncompressed ARGB8888 with a full mip
+  chain; June's (349,680 B) is DXT5. Both are 512×512, and
+  `grep -rli Image10 march2014/` finds exactly one reference anywhere
+  (`DungeonData.src.lua`'s own Ranox block — confirmed no non-Ranox dungeon
+  uses this file), so there is no collision risk merging this one. But
+  because live has **zero** TET keys today, "adopt June's file" here means
+  literally replacing the uncompressed art with June's DXT5 art, not
+  preserving a March original — Phase 1 should still get eyes on both
+  images before committing (pixel content, not just format, could differ;
+  this census only confirmed same dimensions and confirmed the formats
+  differ, not that the visible art is the same picture at different
+  quality).
+- **`DLG_UI_Button20_NEW.tga` is a confirmed dead end, both sides.** June's
+  copy of this exact file (`data056.kom`, 92 keys) has no `RANOX_BTN_*` key
+  at all — Phase 3 is right that this is superseded, and the correct atlas
+  is a *different* file, `DLG_UI_Button21.TET` (see section B).
+
+### B. The two "known-open" items named in Phase 0's goal are already resolved live
+
+`LANOX_TROUBLESHOOTING.md` lists `DLG_UI_Button17` (Cobo
+Express/destination-dialog `RANOX_ICON`) and `DLG_UI_Common_Texture71_NEW`
+(world-map `TOWN_RANOX`/`FIELD_NAME_RANOX_*`/`FIELD_REST_RANOX`) as open
+atlas merges still staged under `march2014/update/`, not pack-ready. Both
+are **already live, complete, and byte-identical to June** — this census
+found no gap in either:
+
+| Texture | Live | June | Byte-identical (TET + TGA) |
+|---|---|---|---|
+| `DLG_UI_Button17.tga` (`data056.kom`) | 60 keys incl. `RANOX_ICON`, `SANDER_ICON` | 60 keys, same | **Yes**, both files |
+| `DLG_UI_Common_Texture71_NEW.tga` (`data057.kom`) | 49 keys incl. `TOWN_RANOX`, `FIELD_NAME_RANOX_0`-`3`, `FIELD_REST_RANOX` | 49 keys, same | **Yes**, both files |
+
+(Note: `data056.kom` also has an unrelated `DLG_UI_Button17_A.tga` in
+`datai020.kom` — a different file, not a second copy of the same name — so
+there is no mount-order ambiguity here.) `LANOX_TROUBLESHOOTING.md`'s notes
+on these two are stale; whatever repack closed them did so before this
+session. Phase 4 does not need to touch `DLG_UI_Common_Texture71_NEW.tga`.
+
+As a bonus check (not in Phase 0's scope, but adjacent): Phase 3's claim
+that June's `DLG_UI_Button21` atlas already carries `BTN_RANOX_N/O/D` was
+verified directly — live's `DLG_UI_Button21.TET`/`.tga` (`data056.kom`, 36
+keys) are **already byte-identical to June's**, `BTN_RANOX_D/N/O` included.
+(`DLG_UI_Button21_NEW.tga`, a different, larger file, has no Ranox keys on
+either side and is not what Phase 3 needs.) Phase 3 needs no atlas work at
+all, only the lua adoption it already planned.
+
+### C. Critical: Image11's mount order overturns Phase 1 as currently written
+
+`DLG_UI_Dungeon_Image11.dds` exists in **two** live `.kom`s under the exact
+same filename: `datai022.kom` (4 keys — `EVENT_GIFT_FACTORY`,
+`EVENT_SECRET`, `KING_NASODS_LAIR`, `MISSION_IMPOSSIBLE`, all in the left
+half of the canvas, x 0-204) and **not** `data065.kom` (live has none there
+today). `grep -rli Image11 march2014/ X2Lib/ X2/ KTDXLIB/` finds exactly one
+reference anywhere in the codebase — `DungeonData.src.lua`'s own
+`RANOX_MAGI_pit` line — so none of `datai022.kom`'s 4 existing keys are
+currently drawn by anything; they are dead data in this build, but the
+house rule (`CLAUDE.md`, "do not delete ported files") still argues against
+overwriting them casually.
+
+`KGCMassFileManager` resolves same-named files through a single flat
+`std::map` keyed by filename (`AddMassFile`, `KGCMassFileManager.cpp:490`,
+plain `operator[]` assignment — last mount wins, not first). `X2Main.cpp`'s
+`m_KOMList` is built by pushing `data001.kom..data150.kom` (or 226 under
+`SERV_IRUHADEV_KOM_FILE_COUNT_226`) **then** `datai001.kom..datai023.kom`
+(or 32), and mounted by iterating that list in push order
+(`X2Main.cpp:1406`, `for (i = 0; i < m_KOMList.size(); i++)`). `datai022.kom`
+is therefore **always** mounted after `data065.kom`, regardless of which
+count constant is active.
+
+**Consequence: Phase 1's current plan — "Stage `Image11.dds`/`.TET` as new
+files... in `march2014/update/data065/`" — would never take effect.** Once
+packed, `data065.kom` would carry a `DLG_UI_Dungeon_Image11.dds`/`.TET` too,
+but `datai022.kom`'s copy, mounted later, would win the filename map every
+time, and the Secret Hell result-screen picture would keep resolving to the
+old event-icon art, not the newly staged Ranox one — with no error, since
+the file exists at that name, just from the wrong archive.
+
+The fix has to either replace `datai022.kom`'s copy outright, or (safer,
+given rule 3 above about not destroying ported data) **merge
+`RANOX_MAGI_pit`'s rect into `datai022.kom`'s existing atlas**, in unused
+space. June's own layout puts `RANOX_MAGI_PIT` at (1,233)-(203,346) — which
+**overlaps** live's `MISSION_IMPOSSIBLE` at (1,229)-(203,342) almost
+exactly, so it cannot be copied at June's own coordinates. All 4 of live's
+existing keys sit in x 0-204; June's own 8-key grid (2 columns × 4 rows)
+suggests the free column is x≥206 (June: `ELISION_ATLAS_PIT` etc. at
+x=206-408). Placing the new rect in live's x≥206 column at the same
+row as June's would avoid the 4 existing keys, but the atlas is DXT3
+(both live's and June's Image11.dds are 512×512 DXT3), so any rect whose
+left edge isn't a multiple of 4 (206 is not) crosses into a shared
+compression block with its neighbor — a direct block-copy would corrupt
+that column's edge; Phase 1 will need to decode/recompress the affected
+region rather than splice compressed bytes. This wasn't verified pixel-by
+-pixel here (no DXT3 decoder was written for this read-only census); it's
+a geometry/precedence finding only, flagged for Phase 1 to confirm before
+merging.
+
+### D. `DLG_Localmap_Title_01.tga`: confirmed merge, and the merge is safe
+
+Beyond the missing-key list in section A, two more things were checked
+because Phase 2 explicitly requires them before choosing adopt vs. merge:
+
+- **UV identity of existing March keys, checked, and it fails.** Of the 53
+  keys live and June share, 51 have byte-identical rects, but **2 do not**:
+  `TITLE_ELDER_SECRET` (live `302,200→438,227`; June `302,200→411,227`,
+  narrower) and `TITLE_ERDA_ISLAND` (live `302,164→406,181`; June
+  `200,200→301,217`, moved entirely). June rearranged its atlas to make room
+  for later content (2016 Xmas, Halloween, Elysion, etc. — 23 June-only keys
+  beyond the 7 Ranox ones this port needs). **This alone rules out adopting
+  June's file wholesale** — doing so would silently break Elder's and Erda
+  Island's local-map title plates. Confirms the plan's own precondition
+  failed; merge-keys is correct.
+- **Overlap check for the 7 new rects.** None of the 7 Ranox keys' rects
+  (`Ranox_Ashes_Village` 404,1→505,18; `Ranox_Burned_Forest` 2,128→88,145;
+  `Ranox_FinalHall` 82,200→198,223; `Ranox_FireTemple` 303,128→413,145;
+  `Ranox_Gateway` 82,225→194,242; `Ranox_Geyser` 414,128→509,145;
+  `Map_Title_Ranox` 303,229→432,255) overlap any of live's 53 currently-used
+  rects. A scoped merge — copy only those 7 regions from June's TGA into
+  live's, plus their 7 key entries — is geometrically safe. (June-only keys
+  for unported content — `ELYSION`, `HALLOWEEN_ZOMBIE`, `HERO_DUNGEON`,
+  `2016_XMAS`, `TITLE_APOCALYPSE`, etc., 23 total — should be omitted per
+  house rule, not copied in.)
+
+### E. Sibling census: mesh-internal textures (Phase 0 step 5)
+
+Every `.X`/`.Y` under `march2014/update/**` (1034 files) was scanned: each
+was MSZIP-decompressed (`xof 0303bzip` header, chunked raw-deflate with each
+chunk's own output as the next chunk's dictionary — confirmed against the
+known case, `Fire_forest_stage0_AP_Cloud01.Y` → `BossRaid_Abyss_smog.dds`,
+matching the ledger's Item 9 finding exactly) and searched for
+`*.tga`/`*.dds` name strings. **581 decoded; 370 failed to decode with this
+from-scratch reader (same class of limit the ledger already noted for
+`Alpha_stem02`/`Tree03` — the engine loads these fine, the scratch reader
+doesn't); 83 had no `xof/bzip` header at all** (plain/uncompressed `.X`,
+skeleton-only files, etc.). 719 texture-name strings were found across the
+decoded meshes; checked against all 183 live `.kom`s.
+
+**After removing false positives, 27 distinct texture names are referenced
+by a staged mesh but absent from every live `.kom`:**
+
+| Texture | Referenced by (example) | In June | Ranox-relevant? |
+|---|---|---|---|
+| `BossRaid_Abyss_moon.dds` | `data154/Field_Ranox_Rest_Alpha_moon.Y` | `data023.kom` | Yes (Ranox rest) |
+| `Field_Atlas_typo.dds` | `data154/Field_Ranox_Stage3_typo.Y` | `data180.kom` | Yes (Ranox) |
+| `Ranox_FinalHall_AP_crack.dds` | `data154/FinalHall_Stage03_AP_crack.Y` | **Not found in June either** | Yes — **unsourceable, see note** |
+| `Red_Dragon2_AP_shadow.dds` | `data154/Ranox_village_AP_light.Y` | `data023.kom` | Yes (Ranox) |
+| `Village_ADBoard.dds` | `data154/Ranox_villeage_ADplane.Y` | `data216.kom` | Yes (Ranox) |
+| `Valen_AP_light.dds` | `data023/Ranox_star.Y` | `data023.kom` | Yes (Ranox) |
+| `Valen_AP_light2.dds` | `data023/Ranox_back_light.Y`, `Ranox_gate.Y` | `data023.kom` | Yes (Ranox) |
+| `Valen_AP_light3.dds` | `data023/Ranox_back.Y` | `data023.kom` | Yes (Ranox) |
+| `Valen_AP_light5.dds` | `data023/Ranox_gate.Y` | `data023.kom` | Yes (Ranox) |
+| `spa_villeage_typo.dds` | `data023/Spa_Ranox_text.y` | `data023.kom` | Yes (Ranox) |
+| `teddybear_Alpha_smoke.dds` | `data154/ashs_Village_S1_AP_smoke.Y` ×5 | `data023.kom` | Yes (Ashes Village) |
+| `NPC_VELDER_HANNA_HAND.dds` | `data154/ashs_Village_S1_red_light03.Y` | Not found as `.dds` (see note) | Yes (Ashes Village), but likely a **false positive** |
+| `RAGE_DRYADKENTA_2.dds` | `data002/RAGE_DRYADKENTA_Hair1/2.Y`, `_Tail.Y` | `data002.kom` (separate from a `.tga` of the same stem) | Ambiguous, see note |
+| `Dark_Bead.tga` | `data002/Dark_Drabaki_Dead_01.Y` | `data002.kom` | Not obviously Ranox |
+| `FireImpactGrow01.dds` | `data002/FireImpactG04.Y` | `data002.kom` | Not obviously Ranox |
+| `IPLITAN_Fire01_Red.dds` | `data002/IPLITAN_FireM01.Y`, `_FireM03.Y` | `data002.kom` | Not obviously Ranox |
+| `ADE_CG001.dds` | `data002/LITTLEWORKER_Attack_M.Y`, `data184/RHB_Lockon_Stratos_AttackM1.Y` | `data147.kom` | Not obviously Ranox |
+| `Roo_highLightMagical.dds` | `data002/Ska_AttackA_sparkLight.X`, `data157/LCG_M_Beam04.Y` | `data157.kom` | Not obviously Ranox |
+| `SKA_flame3.dds` | `data002/SKA_flame_spark.X` | `data002.kom` | Not obviously Ranox |
+| `SKA_flame6.dds` | `data002/SKA_flame6.X` | `data002.kom` | Not obviously Ranox |
+| `ALS_SLICER_01.dds` | `data132/AA_SUPPRESSION_SPECTER_P01.Y` | `data132.kom` | Not obviously Ranox |
+| `ALS_VIEW_BETWEEN_TRACE01.dds` | `data002/Ranox_SecretBoss_Magi_AttackA1.X`, `_AttackAC1.X` | `data132.kom` | Yes (Ranox Secret Hell boss) |
+| `SCA_Projectile001.dds` | `data142/SCA_Projectile001.Y` | `data142.kom` | Not obviously Ranox |
+| `SCA_SLICER_01.dds` | `data142/SCA_FATE_SMASHER_P001.Y` | `data142.kom` | Not obviously Ranox |
+| `ADE_GRAVITY_BURSTER_M01.dds` | `data147/ADE_PE01.Y` | `data147.kom` | Not obviously Ranox |
+| `ADD_MM_ROCKON01.tga` | `data147/ADD_MM_ROCKON_01.Y` | `data147.kom` | Not obviously Ranox |
+| `Gunner_LaserBazookaM1.dds` | `data184/RHB_Lockon_Stratos_AttackM2.Y` | `data184.kom` | Not obviously Ranox |
+
+Notes:
+
+- **3 initial hits were false positives from extension mismatch**, caught by
+  re-checking every miss against the live index by *stem* (ignoring
+  extension) rather than exact name, and confirmed only when the stem match
+  was itself an image file (not coincidentally matching the `.X`/`.Y` mesh's
+  own filename): `Ranox_Geyser_Road02.tga`/`Ranox_Geyser_Road02_1.tga`
+  referenced by `data154/Field_Ranox_Stage1_Way_C3.Y` — live already has
+  both as `.dds`, byte-size-identical to June's `.dds` (32896 B each).
+  Dropped from the table above.
+- **`NPC_VELDER_HANNA_HAND.dds`** — live has `NPC_VELDER_HANNA_HAND.tga`
+  (`data013.kom`, 49702 B), and June has the same `.tga`, not a `.dds`. Very
+  likely the same extension-mismatch pattern (probably a false positive),
+  kept in the table rather than dropped because, unlike the Road02 case, the
+  live/June match is only a `.tga` — no `.dds` exists on *either* side to
+  confirm this isn't a second, genuinely-missing texture with a coincidental
+  stem.
+- **`RAGE_DRYADKENTA_2.dds`** — live has `RAGE_DRYADKENTA_2.tga`
+  (`data153.kom`, 49702 B). June has *both*: the same `.tga` (identical size
+  to live's) **and** a separate `.dds` (`data002.kom`, 8320 B, a different
+  file). Whether the mesh's `.dds` reference is content already covered by
+  live's `.tga` or a genuinely distinct asset was not resolved here — flag
+  for whoever picks this up (Dryad Kenta is a confirmed Ranox monster, see
+  `dryad-kenta-jump-softlock` history).
+- **`Ranox_FinalHall_AP_crack.dds` is absent from both live and June by this
+  name.** No near-stem match either. Per house rule ("a Lua function ... gets
+  no fallback at all" — the same applies here to an unsourceable image),
+  this cannot be adopted or merged from anything in this tree; whoever picks
+  up the FinalHall stage-3 crack effect needs to either find the real source
+  file elsewhere or treat the effect as cosmetically absent.
+- **The "not obviously Ranox" rows** (`data002`, `data132`, `data142`,
+  `data147`, `data157`, `data184`) surfaced only because Phase 0 step 5
+  scans `march2014/update/**` unfiltered, not because anything ties them to
+  Lanox — `LITTLEWORKER`, `SKA_*`, `RHB_Lockon_Stratos`, `SCA_*`,
+  `AA_SUPPRESSION_SPECTER`, `Dark_Drabaki`, `ADD_MM_ROCKON`, `ADE_PE01` are
+  character/skill names with no Ranox tie found by name or folder. They are
+  real gaps in whatever port staged those meshes, but are very likely a
+  **different, unrelated in-flight effort** (see `june-character-port-checklist`
+  history) sharing the same `march2014/update/` tree. Recorded here for
+  completeness per the literal Phase 0 step 5 instruction; not this port's
+  responsibility to fix.
+
+### F. Summary classification (for Phases 1, 2, 4)
+
+| Item | Texture(s) | Classification |
+|---|---|---|
+| Phase 1 (Image10) | `DLG_UI_Dungeon_Image10.dds` | adopt-June-file (no collision; verify pixel content, not just format) |
+| Phase 1 (Image11 / Secret Hell) | `DLG_UI_Dungeon_Image11.dds` | merge-keys into `datai022.kom`'s copy — **plan must change, see section C** |
+| Phase 2 (local-map names) | `DLG_Localmap_Title_01.tga` | merge-keys (confirmed by UV mismatch; safe by overlap check) |
+| Phase 4 (world-map labels) | `DLG_UI_Common_Texture71_NEW.tga` | **already done — no work needed, see section B** |
+| — (Secret Hell fever gauge) | `DLG_UI_Common_Texture93_NEW.tga`, `DLG_UI_Image_01.tga`, `DLG_UI_Image_08.tga` | adopt-June-file (all 3, byte-identical images) |
+| — (field-name plates) | `DLG_UI_Common_Texture_Fieldname_6.tga` | merge-keys, scoped (pixels differ beyond the new rect) |
+| — (field-name plates) | `DLG_UI_Common_Texture_Fieldname_7.tga` | adopt-June-file (byte-identical image, TET only) |
+| — (Cobo Express / destination icon) | `DLG_UI_Button17.tga` | **already done — no work needed, see section B** |
+| Phase 3 (Lanox tab) | `DLG_UI_Button20_NEW.tga` | dead end, confirmed both sides — do not pursue |
+| Phase 3 (Lanox tab) | `DLG_UI_Button21.tga` | **already done — no work needed, see section B** |
+| — (mesh-internal, Ranox) | 12 names in section E | adopt-June-file (all found in June; stage per the usual rule) |
+| — (mesh-internal, unsourceable) | `Ranox_FinalHall_AP_crack.dds` | **no fallback possible — not in live or June** |
+| — (mesh-internal, unrelated) | 14 names in section E | out of this port's scope — flagged, not fixed |
+
+---
+
 ## Phase 1 - Dungeon image on the result screen and party list [item 2]
 
 **Root cause:** see the ledger. `DLG_UI_Dungeon_Image10.TET` is missing from
