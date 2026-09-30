@@ -72,6 +72,14 @@ etc.) are omitted with a comment and never invented.
     staging dir.
   - Staging: patches to existing March files go in `march2014/dataNNN/`. New
     files go in `march2014/update/dataNNN/`, keeping June's archive number.
+  - **The user's packer builds each kom from
+    `kom_contents/dataNNN_kom/` (its `_manifest.json` included), not from
+    `march2014/update/`** (proven 2026-09-30: data023 was repacked with the
+    smog texture only in `update/`, and came out byte-for-byte the same size
+    with 547 files). A new file therefore has to reach
+    `kom_contents/dataNNN_kom/` and that dir's manifest as well. Name both
+    places in every pack hand-off, and confirm the result with
+    `elstools inspect` on the live kom, not by the pack's timestamp.
   - Never launch `X2_offline.exe` without asking. Never delete `els_db.sql`.
     Kill processes by PID only, never by image name.
 - Logs, all in the game directory: `ErrorLog.txt` (JUNE_FX / KEM lines),
@@ -224,6 +232,9 @@ etc.) are omitted with a comment and never invented.
     exactly why only the live archive can be trusted.
   - **Fix: the user repacks `data002.kom` from `march2014/update/data002/`.**
     The manifest is already correct.
+  - **Resolved 2026-09-30.** data002.kom was repacked at 20:21:54 and now
+    holds 1248 files. All 77 staged files are live at their staged sizes
+    (checked with `elstools inspect`).
   - The other non-`.kom` staging dirs (`eventscene`, `movie`, `music`) are
     loose folders and are out of scope for this check.
   - `march2014/dataNNN/` patch files (as opposed to `update/`) were not
@@ -269,6 +280,26 @@ etc.) are omitted with a comment and never invented.
     now 51 entries (algo `"0"`, upper-case ordinal order, CRLF). The other 50
     staged data023 files were already live at matching sizes. Repacking
     data023.kom adds only this file.
+  - **Repack attempt, 2026-09-30 20:22 — the texture did not get in, so
+    the fix is still untested.**
+    - data023.kom was rewritten at 20:22:05. It still holds 547 files at
+      15011767 B, exactly as before, and `BossRaid_Abyss_smog.dds` is not
+      in it.
+    - Cause: the packer reads `kom_contents/data023_kom/`, and the texture
+      was only staged in `march2014/update/data023/` (see "Starting
+      context").
+    - `ErrorLog.txt` logs the same `BOSSRAID_ABYSS_SMOG.DDS` miss at
+      20:23:24.
+  - **Second user screenshot (2026-09-30 ~20:23, Burnt Forest Normal, same
+    stage), taken with the texture still missing:**
+    - The upper layer (grey fog, dead trees, red smears) is still fine.
+    - The lower band is still there: dark-red blotches, and centre-right,
+      behind the player's platform, flat rectangular teal / orange / brown
+      patches that look like an untextured or wrongly-textured quad rather
+      than scenery.
+    - The user reports the issue as unchanged. This is consistent with the
+      smog texture never having loaded; it is **not** evidence against the
+      smog cause.
 
 ---
 
@@ -639,8 +670,9 @@ must be a revert.
 
 Steps:
 0. Precondition: the user has repacked `data002.kom` (see the ledger's
-   "Staged but never packed" bullet). Check with `elstools inspect` that
-   all 12 files are now live. Then ask the user to re-fight Distant Ruins and
+   "Staged but never packed" bullet). **The repack is done:** all 77 files
+   were confirmed live on 2026-09-30. Still to do: ask the user to re-fight
+   Distant Ruins and
    re-read `ErrorLog.txt`. The two `..._AttackA_Ready_Fire*.dds` misses must
    be gone. Only then judge the colours, so a missing file isn't mistaken for
    a render-path bug.
@@ -688,7 +720,8 @@ SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH port (X2GUNPC.cpp:4442, X2SubEquip.cpp
 the unit's _FD.xet, and forces RT_LIGHT_FLOW_LOCAL_Z. My screenshot shows
 dark bodies with white-yellow glowing spikes. Step 0 first: confirm that
 data002.kom now holds the 12 previously unpacked files (ledger), and ask me
-to re-fight and check ErrorLog.txt. Then render the body
+to re-fight and check ErrorLog.txt (the data002 repack is already done
+and verified). Then render the body
 textures to PNG and show me which are blue. Then do the cheap A/B with the
 render override disabled behind a debug flag. Then RE June's attach-skin
 path in Ghidra (including what loads Motion_FIRE_DEVIL_FIGHTER_INCHANT.x) and
@@ -699,18 +732,29 @@ port it whole.
 
 ## Phase 8 - Burned Forest background [item 9]
 
-**Likely cause found, needs a pack and a play-test.** See the ledger's Item 9:
-`BossRaid_Abyss_smog.dds` was never ported. It is now staged in
-`march2014/update/data023/`.
+**Likely cause found, but the fix has not been tested yet.** See the
+ledger's Item 9: `BossRaid_Abyss_smog.dds` was never ported. It is staged in
+`march2014/update/data023/`, but the 2026-09-30 repack did not include it,
+because the packer reads `kom_contents/data023_kom/`. The anomaly is still
+visible in the second screenshot, taken without the texture. The user
+deferred further investigation to a later session.
 
 Steps:
 1. ~~Live-kom check~~ **Done 2026-09-30** (ledger, Item 9). Only the smog
    texture was missing.
 2. ~~Screenshot~~ **Received 2026-09-30** (ledger, Item 9).
-3. **Start here.** Confirm the user repacked data023.kom:
-   `elstools inspect -q -i data023.kom` lists `BossRaid_Abyss_smog.dds` at
-   87507 B. Do **not** put a loose copy in the game dir, which would beat
-   the archive and hide a bad repack. Then ask the user to re-enter Burned
+3. **Start here.** Get the texture into the live data023.kom:
+   - Check `kom_contents/data023_kom/`. If `BossRaid_Abyss_smog.dds` is not
+     there, ask the user to copy it from `march2014/update/data023/` and to
+     add `"BossRaid_Abyss_smog.dds": "0"` to that dir's `_manifest.json`
+     (same house format), then repack. The data023 repack on 2026-09-30
+     missed this step.
+   - Confirm with `elstools inspect -q -i data023.kom` that it now lists
+     `BossRaid_Abyss_smog.dds` at 87507 B and holds 548 files. The pack
+     timestamp is not proof.
+   - Do **not** put a loose copy in the game dir, which would beat the
+     archive and hide a bad repack.
+   Then ask the user to re-enter Burned
    Forest, check that `ErrorLog.txt` has no `BOSSRAID_ABYSS_SMOG` miss, and
    compare the lower layer with the 2026-09-30 screenshot, in all four
    stages.
@@ -741,9 +785,13 @@ asking first.
 Your task: finish the Burned Forest background fix
 (WI_RANOX_BURNDEDFOREST_STAGE0..STAGEBOSS = 583-586). The likely cause is
 already found: BossRaid_Abyss_smog.dds, used by all 11 cloud/smoke/smog
-meshes, was never ported; it is now staged in march2014/update/data023/.
-First confirm with elstools inspect that the LIVE data023.kom has it
-(87507 B). No loose copy in the game dir. Then have me re-enter every
+meshes, was never ported; it is staged in march2014/update/data023/, but the
+2026-09-30 data023 repack missed it because the packer reads
+kom_contents/data023_kom/ (see the ledger, Item 9). First check that
+kom_contents dir; if the texture is not there, ask me to copy it in, add it
+to that dir's manifest and repack. Then confirm with elstools inspect that
+the LIVE data023.kom has it (87507 B, 548 files). No loose copy in the game
+dir. Then have me re-enter every
 Burned Forest stage, and check ErrorLog for BOSSRAID_ABYSS_SMOG. If the lower
 brown/red band from the 2026-09-30 screenshot is still there, work the
 remaining suspect list in order (WorldData mapping, script abort, fog with
