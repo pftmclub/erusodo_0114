@@ -19,19 +19,37 @@ function March already has, port the whole June function (diff every case),
 not just the Ranox case. June-only cases for content March lacks (Elysion,
 etc.) are omitted with a comment and never invented.
 
-| Phase | Item | Depends on | Kind |
-|---|---|---|---|
-| 0 | TET-key census (all Ranox UI) | - | read-only |
-| 1 | Dungeon image on result screen / party list | 0 | data |
-| 2 | Local-map dungeon names (+ progress bars via June-UI P3) | 0 | data |
-| 3 | Lanox tab in the dungeon list | June-UI P2 | cleanup + verify |
-| 4 | World map: June tiles, Ranox labels | 0 | data (+ maybe lua) |
-| 5 | M-key field map follows the character | - | C++ (Ghidra) |
-| 6 | Hide Secret Hell | - | data (+ maybe C++) |
-| 7 | Distant Ruin demon colours | - | C++ (Ghidra) |
-| 8 | Burned Forest background | - | investigate first |
-| 9 | Silent Night Shelter (rest area) has no NPCs | - | data |
-| 10 | Fire Temple collapsing floor leaves the player stuck | - | data (C++ already landed) |
+**Model, effort and review per phase.** The kickoff prompt of each phase is
+preceded by a **Run with:** line; the table below repeats it.
+- **Model:** Opus 5.5 (`claude-opus-5-5`) for anything that needs Ghidra
+  reverse engineering, a whole-function C++ port, or an open-ended root-cause
+  hunt. Sonnet 5 (`claude-sonnet-5`) for data staging, table diffs and scripted
+  checks whose method is already written down here. Haiku 4.5
+  (`claude-haiku-4-5-20251001`) only for mechanical cleanup.
+- **Effort:** how much thinking to allow (low / medium / high). High where a
+  wrong guess is expensive: enum values, render paths, anything a play-test
+  would only catch late.
+- **Review:** *required* means that before building/packing, a second pass
+  (a fresh session, or a review of `git diff`) checks the change against
+  June and the house rules: `SERV_IRUHADEV_` gating with the original in
+  `#else`, CP949 bytes intact (`file` + `git diff --stat`), enum values
+  matching across C++ / Lua / `XSLLineMap.h`, no invented data. *Light* means
+  a diff read of the data change. *None* means read-only or trivial; the
+  live-kom check and the play-test are enough.
+
+| Phase | Item | Depends on | Kind | Model | Effort | Review |
+|---|---|---|---|---|---|---|
+| 0 | TET-key census (all Ranox UI) | - | read-only | Sonnet 5 | medium | none (read-only) |
+| 1 | Dungeon image on result screen / party list | 0 | data | Sonnet 5 | medium | light |
+| 2 | Local-map dungeon names (+ progress bars via June-UI P3) | 0 | data | Sonnet 5 | high | required if merging |
+| 3 | Lanox tab in the dungeon list | June-UI P2 | cleanup + verify | Haiku 4.5 | low | none |
+| 4 | World map: June tiles, Ranox labels | 0 | data (+ maybe lua) | Sonnet 5 | medium | light |
+| 5 | M-key field map follows the character | - | C++ (Ghidra) | Opus 5.5 | high | required |
+| 6 | Hide Secret Hell | - | data (+ maybe C++) | Sonnet 5 | high | required if C++ |
+| 7 | Distant Ruin demon colours | - | C++ (Ghidra) | Opus 5.5 | high | required |
+| 8 | Burned Forest background | - | investigate first | Sonnet 5 → Opus 5.5 | low → high | none → required if C++ |
+| 9 | Silent Night Shelter (rest area) has no NPCs | - | data | Sonnet 5 | medium | light |
+| 10 | Fire Temple collapsing floor leaves the player stuck | - | data (C++ already landed) | Opus 5.5 | high | required |
 
 ---
 
@@ -478,6 +496,8 @@ Steps:
 Deliverable: the findings table. Phases 1, 2 and 4 consume it. Make no
 changes.
 
+**Run with:** Sonnet 5, medium effort. Read-only scripting; no code review, but spot-check a few table rows by hand before Phases 1/2/4 consume them.
+
 **Kickoff prompt**:
 ```
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
@@ -525,6 +545,8 @@ Verification:
 - Open the party panel with a Ranox dungeon selected: the art shows.
 - `ErrorLog.txt` has no texture-load error for Image10/11.
 
+**Run with:** Sonnet 5, medium effort. Data staging; light review (read the manifest diff and the UV-identity check output). No C++.
+
 **Kickoff prompt**:
 ```
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
@@ -569,6 +591,8 @@ Steps (names):
 Verification: on the Lanox local map, each dungeon icon shows its name
 plate, and the Map_Title_Ranox header renders. Sander is unchanged.
 
+**Run with:** Sonnet 5, high effort (atlas pixel/UV work is easy to get subtly wrong). Review required if the rects are merged into March's atlas (check the merge script and render the result); light if June's file is adopted outright.
+
 **Kickoff prompt**:
 ```
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
@@ -607,6 +631,8 @@ This phase covers only the loose ends:
    not quietly revive the Button20 merge.
 3. After June-UI Phase 2 ships: verify the Lanox tab exists, selects
    `LMI_RANOX`, shows the Ranox gates, and that its hit-box works.
+
+**Run with:** Haiku 4.5, low effort. Manifest cleanup and a doc note; no review beyond confirming the manifest format (CRLF, 2-space indent, no trailing newline).
 
 **Kickoff prompt**:
 ```
@@ -659,6 +685,8 @@ Verification:
   generic logic is intact).
 - Elysion is not revealed.
 - No texture errors.
+
+**Run with:** Sonnet 5, medium effort. Data staging plus a possible cloud-static lua edit; light review of the lua diff (no nil VMI_ELYSION reference).
 
 **Kickoff prompt**:
 ```
@@ -715,6 +743,8 @@ area, press M.
   position.
 - Party-member markers track the same way.
 - Ruben, Sander and the others are unchanged.
+
+**Run with:** Opus 5.5, high effort. Ghidra RE plus a whole-function C++ port; code review required before the build is handed over.
 
 **Kickoff prompt**:
 ```
@@ -773,6 +803,8 @@ Verification:
 - The party dungeon picker has no Secret Hell entry.
 - Normal Lanox dungeons are unaffected.
 - `offline_packets.log` has no new UNHANDLED lines.
+
+**Run with:** Sonnet 5, high effort (many entry points to enumerate). Light review for data-only hiding; review required if any C++ is touched.
 
 **Kickoff prompt**:
 ```
@@ -835,6 +867,8 @@ Steps:
 Verification: in Distant Ruin, Twilight Demon Fighter and Berserker match
 June's colours as shown by the PNG ground truth. The dungeon FinalHall
 variants are unchanged or improved, never regressed.
+
+**Run with:** Opus 5.5, high effort. Ghidra RE of the attach-skin render path and a whole port; code review required, including a check that the dungeon FIRE_DEVIL and NUI_SECRET_* variants did not regress.
 
 **Kickoff prompt**:
 ```
@@ -905,6 +939,8 @@ Steps:
 
 Verification: every Burned Forest stage renders its background like June's,
 and the other Ranox dungeons are unchanged.
+
+**Run with:** Sonnet 5, low effort for step 3 (the data023 kom_contents copy + repack check; no review). If the band survives the repack, switch to Opus 5.5, high effort, for step 4 (fog/sky/projection RE); review required for any C++ fix.
 
 **Kickoff prompt**:
 ```
@@ -982,6 +1018,8 @@ Verification:
 - The M-key/field-map quest marks for them appear too (the other
   `m_vecCommonPos` consumer).
 - Sander's rest area and the Lanox village are unchanged.
+
+**Run with:** Sonnet 5, medium effort. Data-only row additions; light review (diff the patched DLG_Map_House against June's rows and confirm nothing else moved).
 
 **Kickoff prompt**:
 ```
@@ -1085,6 +1123,8 @@ Verification:
   talk boxes, effect sets).
 - AI-party bots keep acting throughout.
 - `ErrorLog.txt` shows no Lua error for the touched files.
+
+**Run with:** Opus 5.5, high effort. The enum-number decision and the NPC_AI_ON_OFF Ghidra check are the whole risk; review required for the Enum.lua values against the compiled C++ (and any C++ renumber) before packing.
 
 **Kickoff prompt**:
 ```

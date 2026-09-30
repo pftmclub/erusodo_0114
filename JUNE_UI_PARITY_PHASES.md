@@ -14,14 +14,20 @@ lacks (`LMI_ELYSION`, `LMI_EVENT`, `LMI_SPECIAL`, `LMI_EN`, …) are omitted
 from the staged lua with a comment, never invented. **Every March village's
 local map (Ruben → Sander) must keep working after each phase.**
 
-| Phase | Scope | Kind |
-|---|---|---|
-| 0 | Ghidra survey + gap table | read-only |
-| 1 | Enums / custom messages the June dialogs need | C++ + Lua enum |
-| 2 | Adopt June `DLG_UI_Local_Map_new.lua` (+ Button21 atlas, arrow paging) | C++ + data |
-| 3 | June's local-map dungeon progress display | C++ + data |
-| 4 | Local-map Mode Button (`DLG_UI_Local_Map_Mode_Button.lua`) | C++ + data |
-| 5 | Party button `DLG_UI_PARTY_BOTTON_NEW_20161103.lua` + Party length | C++ + data |
+**Model, effort and review per phase:** the columns below, repeated as a
+**Run with:** line above each kickoff prompt. What the model, effort and
+review levels mean is defined once, in `LANOX_REMAINING_PHASES.md` ("Model,
+effort and review per phase"). Every phase here ports C++, so apart from the
+read-only survey, every phase needs review.
+
+| Phase | Scope | Kind | Model | Effort | Review |
+|---|---|---|---|---|---|
+| 0 | Ghidra survey + gap table | read-only | Opus 5.5 | high | none (read-only) |
+| 1 | Enums / custom messages the June dialogs need | C++ + Lua enum | Sonnet 5 | medium | required |
+| 2 | Adopt June `DLG_UI_Local_Map_new.lua` (+ Button21 atlas, arrow paging) | C++ + data | Opus 5.5 | high | required |
+| 3 | June's local-map dungeon progress display | C++ + data | Opus 5.5 | high | required |
+| 4 | Local-map Mode Button (`DLG_UI_Local_Map_Mode_Button.lua`) | C++ + data | Opus 5.5 | medium | required |
+| 5 | Party button `DLG_UI_PARTY_BOTTON_NEW_20161103.lua` + Party length | C++ + data | Opus 5.5 | high | required |
 
 ## Investigation ledger (proven 2026-09-30 in Ghidra, do not redo)
 
@@ -76,6 +82,8 @@ Steps:
 5. Write "Phase 0 findings" into this doc: the function map (June VA ↔ March
    function), the gap table, the atlas list, and the live-copy verdict.
 
+**Run with:** Opus 5.5, high effort. Ghidra survey that every later phase builds on; no code review, but the findings table deserves a careful re-read.
+
 **Kickoff prompt**:
 ```
 Read JUNE_UI_PARITY_PHASES.md in the repo root in full, and the "Starting
@@ -101,6 +109,8 @@ Add the June `LOCAL_MAP_UI_CUSTOM_MSG` / party custom messages March lacks
 June-only content IDs (`LMI_ELYSION` etc.) are not added; the staged luas
 drop those controls instead. New flag: `SERV_IRUHADEV_JUNE_LOCAL_MAP_UI`.
 Rebuild, and confirm that the existing March dialogs still load.
+
+**Run with:** Sonnet 5, medium effort. Small, mechanical, but the values are a contract; review required (C++ and Lua enum values match June and each other).
 
 **Kickoff prompt**:
 ```
@@ -133,6 +143,8 @@ Verify:
 - Each tab selects the right local map. Hit-boxes work.
 - Every village's tab still works.
 
+**Run with:** Opus 5.5, high effort. Whole-function C++ port plus lua/atlas adoption; review required.
+
 **Kickoff prompt**:
 ```
 Read JUNE_UI_PARITY_PHASES.md (all, especially "Phase 0 findings" and
@@ -159,6 +171,8 @@ Lanox included. If June's per-village files are adopted, diff each one
 against March's staged patches (the Ranox Back/Icon/root files) so no Ranox
 fix is lost.
 
+**Run with:** Opus 5.5, high effort. Mechanism port with a design decision for all villages; review required, including every March village's local map.
+
 **Kickoff prompt**:
 ```
 Read JUNE_UI_PARITY_PHASES.md (all, especially "Phase 0 findings" and
@@ -178,6 +192,8 @@ Port June's `DLG_UI_Local_Map_Mode_Button.lua` feature (`FUN_32938450` →
 messages, and the lua plus the atlas it needs. If the mode it switches to
 depends on content March lacks, report that and ask before porting a dead
 button.
+
+**Run with:** Opus 5.5, medium effort. RE first and possibly a stop-and-ask; review required if C++ is ported.
 
 **Kickoff prompt**:
 ```
@@ -206,6 +222,8 @@ deploy.
 Verify: the party/dungeon buttons and the party panel match June's layout.
 Every button works (create party, dungeon select, quick join, etc.). The
 dungeon picture from LANOX_REMAINING Phase 1 still renders.
+
+**Run with:** Opus 5.5, high effort. Loader and handler port touching every party button; review required.
 
 **Kickoff prompt**:
 ```
