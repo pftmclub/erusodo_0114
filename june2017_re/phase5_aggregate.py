@@ -34,7 +34,19 @@ TRUNK = os.path.dirname(HERE)
 PRIORITY_RT = ['harness', 'dropped-assignment', 'clobber', 'upvalue', 'reorder', 'other-ljd', 'pass']
 PRIORITY_PORT = ['harness', 'dropped-assignment', 'clobber', 'upvalue', 'reorder', 'other', 'pass']
 
-FOR_LOOP_VAR = re.compile(r'\bfor\s+([\w,\s]+?)\s+in\s+pairs\(')
+FOR_LOOP_VAR = re.compile(r'\bfor\s+([\w,\s]+?)\s+in\s+')
+# Phase 7 (RANOX_LUA_DECOMPILE_FIX_PLAN.md, data037_kom sweep) found the same
+# ljd main.py constructor-hoist defect manifesting through a NUMERIC for loop
+# too (`for slotN = a, b do <empty> end`, with the real body -- a table
+# constructor keyed off slotN -- hoisted above it), not only the `for ... in
+# pairs(...)` shape Phase 5's ported-file census happened to see. Confirmed on
+# Treasure_Summon{1,2,3}.lua's TREASURE_SUMMONn_CREATE_CHEST: printed as
+# `slot7 = { [slot11 - slot3] = slot11 }` immediately followed by
+# `for slot11 = slot3, slot4 do end` (an empty loop -- its body is the
+# constructor line ljd printed above it). Same root cause, same "not the
+# dropped-assignment class Phase 4 fixed" call -- see RANOX_LUA_DECOMPILE_BUG.md
+# "Residual ljd defects".
+FOR_NUMERIC_VAR = re.compile(r'\bfor\s+(\w+)\s*=\s*')
 SLOTNAME_SITE = re.compile(r'^slot\d+@L\d+$')
 
 
@@ -87,6 +99,29 @@ def deepcopy_exempt_at_line(rt_src_text, line, slot_name):
         names = [n.strip() for n in m.group(1).split(',')]
         if slot_name in names:
             return True
+    for m in FOR_NUMERIC_VAR.finditer(body):
+        if m.group(1) == slot_name:
+            return True
+    # A hoisted table-constructor entry can read MULTIPLE registers on one
+    # line (Phase 7, SECRET_MAD_BEHEMOTHSOUL.lua:
+    # `[slot10] = slot1:GetDist_LUA(slot11:GetPos(), slot6)` -- slot10/slot11
+    # are loop vars caught above; slot6 is a plain, later-assigned local
+    # caught in the SAME hoisted expression, confirmed against the orig
+    # trace: its real write, `slot2:GetPos()`, executes early in the true
+    # bytecode order, not where ljd printed it). Any other slotN on the exact
+    # same source line as an already-recognized loop-var exemption is part of
+    # the same single hoisted statement, so it is exempt too.
+    if 0 <= idx < len(lines):
+        line_slots = set(re.findall(r'\bslot\d+\b', lines[idx]))
+        if slot_name in line_slots and len(line_slots) > 1:
+            others = line_slots - {slot_name}
+            for m in FOR_LOOP_VAR.finditer(body):
+                names = [n.strip() for n in m.group(1).split(',')]
+                if others & set(names):
+                    return True
+            for m in FOR_NUMERIC_VAR.finditer(body):
+                if m.group(1) in others:
+                    return True
     return False
 
 

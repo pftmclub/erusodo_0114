@@ -2132,11 +2132,8 @@ files**, all direct same-file calls (no engine re-entry — this sweep never tou
 Scratch (gitignored): `tmp/phase5_out/*.json` (per-file detail), `tmp/phase5_verdicts_{small,
 big}.tsv` (the corpus_run.py sweep logs).
 
-**The `local slotN` decision: keep bare globals.** Asked via `AskUserQuestion` in this same
-conversation, with the census above (3 clobber sites, 0 measured engine re-entry) presented as
-the evidence. The user's answer: keep the existing no-`local` convention; Phase 6 fixes the
-known clobbers case by case rather than adopting `local` as a blanket structural fix. Recorded
-in the "Decisions taken" block above and in `RANOX_LUA_DECOMPILE_BUG.md`.
+**The `local slotN` decision:** asked via `AskUserQuestion` in this same conversation; the
+answer and its rationale are recorded immediately below and in `RANOX_LUA_DECOMPILE_BUG.md`.
 
 ---
 
@@ -2284,6 +2281,71 @@ Catalogue other-ljd divergences by shape into a "Residual ljd defects" section o
 RANOX_LUA_DECOMPILE_BUG.md without fixing them. Report unreached and unverifiable counts.
 Never kill python by image name.
 ```
+
+---
+
+## Phase 7 result
+
+Ran 2026-09-29/30. All exit criteria met: every one of the 3,105 `data037_kom` files has a
+verdict (3,098 `ok`, 7 tooling-limitation failures — see below), zero unexplained
+`dropped-assignment` (Phase 4 fix holds; `phase7_aggregate.py` exits 0), and the `unreached`/
+`unverifiable` counts are reported as zero rather than hidden.
+
+**Tooling.** `june2017_re/phase7_worker.py` (a `corpus_run.py` WORKER, modeled on
+`phase5_worker.py` but with no `port` side — `LD.build(path, table, [], twin=True)` — since most
+of `data037_kom` has no `march2014/` port yet), `phase7_aggregate.py` (writes `scope=corpus` rows
+into the shared `decompile_verdicts.tsv`, preserving Phase 5's `scope=ported` rows), and
+`phase7_cluster_residuals.py` (groups the non-`clean` rows by first-divergence shape for the bug
+doc, fixes nothing). Fixed decompiles persist at `june_src_fixed/data037_kom/<name>.src.lua`
+(gitignored, persistent — read by later ports, unlike `tmp/`). Ran at `--workers 1` per Phase 5's
+own concurrency-race finding (a shared `types.tsv` under concurrent `learn()`/`save_types()`).
+
+**Two real false positives in the regression check itself, found and fixed, not dismissed.**
+The known deepcopy-hoist exemption (`phase5_aggregate.py`'s `deepcopy_exempt_at_line()`, shared
+by both aggregators) only recognized `for … in pairs(...)` loop headers and single-register
+hoisted reads. The much larger `data037_kom` corpus surfaced two shapes it missed:
+`ipairs(...)`/numeric `for` loop headers (`Treasure_Summon{1,2,3}.lua`), and a hoisted
+constructor entry reading more than one register on its line where only some are loop variables
+(`SECRET_MAD_BEHEMOTHSOUL.lua`, confirmed against the orig trace: the non-loop-var register's
+real write executes early in true bytecode order). Both fixed in `deepcopy_exempt_at_line()`;
+re-verified against the full sweep afterward (exit 0, nothing left unexplained). Full detail in
+`RANOX_LUA_DECOMPILE_BUG.md`'s "Residual ljd defects" section.
+
+**One incident during the sweep, not a tooling defect:** a diagnostic aside (testing whether
+raising Python's recursion limit would rescue a `RecursionError` file) was run manually against
+the SAME shared `june2017_re/ljdiff/types.tsv` the background sweep was using — exactly the
+concurrency hazard Phase 5's own finding warns about. It also ran away to 15+ GB and had to be
+killed by PID (never by image name, per the standing rule), which had briefly starved the
+sweep's own `luajit.exe` calls into two spurious "not enough memory" `STEP_ERROR`s. Confirmed:
+raising the recursion limit does not help — it only trades a clean `RecursionError` for an
+unbounded `MemoryError`. Lesson for future phases: never run a second `ljdiff`/`ljd_fixed`
+invocation by hand while a sweep using the same `types.tsv` is running in the background.
+
+**Residual defects, none fixed here per the plan.** 31,347 `scope=corpus` rows: 28,374 `clean`,
+2,140 `reorder`, 706 `other-ljd`, 61 `clobber`, 55 `other-ljd (deepcopy, exempt)`, 4 `upvalue`.
+Clustering the non-clean rows by first-divergence shape (293 distinct textual shapes) collapses
+into: pure call-argument-evaluation-order reordering (the great majority — same `order` class
+Phase 4's Kenta calibration already named, BR-O/FI-O, and deliberately left unfixed), a reorder
+shifting where a genuine Lua error or the harness's own runaway-call budget lands, and 61
+`clobber` rows across 21 files (2 already known from Phase 5's ported-file census; 10 more
+flagged as an unconfirmed lead for whoever next ports one of those files).
+
+**7 files got no verdict — a real, reproducible limitation of the fixed hook, not a correctness
+regression.** 2 more (`Low_Rash_Bugi_Trock_FD.lua`, `Defence_Soldier_Benders.lua`) initially
+failed the same way but were the orphaned-diagnostic-process artifact above; retried clean once
+that process was killed, and folded into the verdict counts above. The remaining 7: 3
+`RecursionError` (the fixed hook's `copy.deepcopy`-based flow rebuild hits Python's recursion
+limit on some deeply-nested ASTs — confirmed not fixable by raising the limit) and 4 `TIMEOUT`
+(the fixed hook's decompile step exceeds `ljdiff.py`'s own hard-coded 600s internal subprocess
+timeout, independent of `corpus_run.py`'s `--budget` — confirmed by retrying at `--budget 900`
+and still hitting the same 600s internal cap). None of the 7 has a `march2014/` port yet, so
+nothing currently shipped depends on them. Full per-file detail in
+`RANOX_LUA_DECOMPILE_BUG.md`'s "Residual ljd defects" section.
+
+**Outputs:** `june2017_re/phase7_worker.py`, `phase7_aggregate.py`, `phase7_cluster_residuals.py`,
+`phase7_targets.tsv` (3,105 rows), `june_src_fixed/data037_kom/` (3,098 fixed decompiles),
+`decompile_verdicts.tsv` (32,013 rows total: 666 `scope=ported` + 31,347 `scope=corpus`), and the
+`deepcopy_exempt_at_line()` fix in `phase5_aggregate.py` (shared by both aggregators).
 
 ---
 

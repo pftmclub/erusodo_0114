@@ -384,6 +384,111 @@ unchanged and `types.tsv` untouched.
   the copy. It overrides only the script's module-level `LJD`; the scripts are not edited.
 - Summaries: `tmp/p3_summarize.py`, `p3_folds.py` and `p3_cmp.py`.
 
+## Residual ljd defects (Phase 7, data037_kom corpus sweep)
+
+Ran 2026-09-29/30. `june2017_re/phase7_worker.py` + `phase7_aggregate.py` compared every
+`data037_kom` June original (3,105 files, the AI monster/boss/dungeon scripts future ports
+draw from) against its **fixed** round trip only — no `march2014/` port side, since most of
+this folder has never been ported. Fixed decompiles are persisted at
+`june_src_fixed/data037_kom/<name>.src.lua`; raw verdicts are `scope=corpus` rows in
+`june2017_re/decompile_verdicts.tsv` (31,347 rows total, alongside Phase 5's 666 `scope=ported`
+rows, which this sweep did not touch).
+
+**Zero unexplained `dropped-assignment`. The Phase 4 fix holds across the whole folder** —
+confirmed by `phase7_aggregate.py`'s exit code (0) both dynamically (32 seeds) and via the
+coverage-independent static must-define pass, the same two-check design Phase 5 used. This is
+not a bare "no regressions found": two real false positives surfaced and were run down rather
+than dismissed, both the same *already-catalogued* deepcopy-hoist class (`main.py`'s
+constructor-hoist logic — a different code path from Phase 4's `slotworks.py` fix) manifesting
+in shapes Phase 5's smaller ported-file census hadn't happened to see:
+- **`ipairs(...)` and numeric `for slotN = a, b do` loop headers**, not only `for … in
+  pairs(...)`. Found on `Treasure_Summon{1,2,3}.lua`'s `TREASURE_SUMMONn_CREATE_CHEST`: ljd
+  prints `slot7 = { [slot11 - slot3] = slot11 }` immediately followed by the loop that actually
+  computes it, `for slot11 = slot3, slot4 do end` (empty — its real body is the constructor line
+  hoisted above it).
+- **A hoisted constructor entry reading more than one register on its line**, where only some of
+  those registers are loop variables. Found on `SECRET_MAD_BEHEMOTHSOUL.lua`'s
+  `SECRET_MAD_BEHEMOTH_SOUL_MAGIC_ATTACK_C_FRAME_MOVE`: `[slot10] = slot1:GetDist_LUA(slot11:GetPos(), slot6)`
+  — `slot10`/`slot11` are recognized loop variables, but `slot6` is a plain, later-assigned local
+  read in that same hoisted expression. Confirmed against the orig trace: `slot6`'s real write
+  (`slot2:GetPos()`) executes early in the true bytecode order, not where ljd printed it.
+
+Both fixes are in `june2017_re/phase5_aggregate.py`'s `deepcopy_exempt_at_line()` (shared by the
+Phase 5 and Phase 7 aggregators), re-verified against the full sweep afterward (exit 0, no
+unexplained rows left). **Not** counted as Phase 4 regressions — they're the same pre-existing,
+separate ljd defect the "ljd caveat" note above already names, just with a classifier that
+hadn't seen every shape it takes yet.
+
+**Verdict breakdown, 31,347 `scope=corpus` rows** (one per file+function, plus one `<main>` row
+per file):
+
+| Verdict | Rows | Meaning |
+|---|---:|---|
+| `clean` | 28,374 | matches June exactly |
+| `reorder` | 2,140 | same events as a multiset, same outcome, different order — see below |
+| `other-ljd` | 706 | events differ (usually a reorder-driven early stop) — see below |
+| `clobber` | 61 | a nested same-file call frame writes a register the caller was still relying on |
+| `other-ljd (deepcopy, exempt)` | 55 | the separate, already-catalogued deepcopy-hoist defect above |
+| `upvalue` / `TIMEOUT` | 4 each | a captured local prints as `uvN`, not a `slotN` global / the fixed hook ran too long — see below |
+| `STEP_ERROR` | 3 | the fixed hook itself failed — see below |
+
+**1,989 of 3,105 files are byte-for-behavior clean** (every function and `<main>` pass);
+1,109 more have at least one `reorder`/`other-ljd`/`clobber`/`upvalue` row (harmless-in-engine
+per Phase 4's own read of the equivalent classes on Kenta) but no dropped-assignment; 7 files
+produced no verdict at all (below — 2 more were retried and recovered, see that table). **Zero
+`unreached-by-harness` functions** (every function the June trace calls, the fixed round trip's
+own driver also called) and **zero `unverifiable-truncated`** (Phase 0 already proved this
+corpus has no truncated originals — this sweep didn't need to re-check it, and didn't find any
+either).
+
+**The dominant residual shape, by far, is call-argument evaluation order — the same `order`
+class Phase 4's calibration already named (BR-O/FI-O on Kenta) and left untouched on purpose.**
+Clustering every `reorder`/`other-ljd`/`clobber`/`upvalue` row by (verdict, labels, first
+differing event, with numbers/mock strings/register names masked) gives 293 distinct textual
+shapes, but they collapse into a handful of real causes:
+
+| Cause | Rows | Example |
+|---|---:|---|
+| Pure reorder: two argument-evaluating calls (or a call and a field read) swap position, same values, same outcome | 2,001 | `a2:GetPos()` and `a2:GetBonePos_LUA(...)` swap; `GetTimerElapsedTime`/`GetVector_LUA` swap; `IsRightTarget_LUA`'s own arg-evaluation order (`GetIsRight()` vs `GetPos()`) swaps |
+| A reorder shifts whether/when the function hits an early `return` (a reordered condition takes a different branch shape but the same final `outcome` bucket) | 399 | e.g. `OUTCOME RET` appearing one or more events earlier or later once two calls swap position |
+| A reorder shifts WHERE the call tree hits a genuine Lua error (`attempt to index a nil value`, from a mock returning `nil`) — same eventual error, different event count before it | 341 | `SPRIGGAN_BIG_ATTACK_D_STATE_START`: orig evaluates 4 args before erroring on the 3rd's result; side (reordered) errors one call sooner |
+| A reorder shifts where the harness's own runaway-call cutoff (`BUDGET`, 2,000,000 VM instructions) lands inside a long loop — a harness artifact, not a decompile defect | 170 | `SECRET_BUFF_DUMMY_WAIT_STATE_START`: an 887-iteration buff-removal loop crosses the instruction budget on one side one iteration earlier/later than the other |
+| `clobber`: a nested same-file call writes a register the caller still needs | 61 (21 files) | `SECRET_MAGI_BOSS.lua`, `SMITH_REGIEON_POINT.lua` — the same two instances Phase 5's ported-file clobber census already found and Phase 4 already named; also `RAID_ELTRION_MK2_PHASE{1,2}.lua`, `KARIS_JIN.lua`, `Ran.lua`, `TARGETING_HELLPUTT.lua`, `HENIR_RAN.LUA`, `SA_LDN_GARDEN_OF_HAURES.lua`, `SECRET_EXTRA_MAGI_BOSS.lua` and their `_HENIR` twins — not individually verified beyond the two already-known instances; flagged as a lead, not confirmed |
+| `upvalue`: a captured local prints as `uvN` | 4 (2 functions, 4 file variants — `WALLY_9TH_ARMOR*`'s `ATTACK_C_FRAME_MOVE`/`Wally9th_Armor*`'s `MISSILE_FRAME_MOVE`) | expected ljd behavior for a genuinely captured closure variable, not a defect |
+
+None of this is fixed here, per the plan. The reorder/error-position/budget-position classes are
+inherited, harmless-in-engine defects (same call, same values, same final outcome except where a
+mock's random `nil` happens to matter) — exactly the `order` class Phase 4's own Kenta
+calibration (BR-O, FI-O) already decided not to chase. The clobber rows are a lead for whoever
+next ports one of those 12 files, not a finding this plan resolves.
+
+**9 files initially failed; 2 were retried and recovered (a transient artifact, not a real
+defect), leaving 7 with a genuine, reproducible tooling limitation in the fixed hook itself —
+not a correctness question:**
+
+First, the retry that separated real failures from noise: `Low_Rash_Bugi_Trock_FD.lua` and
+`Defence_Soldier_Benders.lua` both initially failed with `luajit.exe: not enough memory`. Both
+were an orphaned `ljd_fixed.py` subprocess (left over from a `Spriggan_Small.lua` timeout kill,
+found still running and consuming 11+ GB, starving the machine mid-sweep) — not a property of
+these files. Once that process was killed and the two files re-run in isolation, both decompiled
+and traced clean (only harmless `reorder`/`other-ljd` rows, zero `dropped-assignment`); their
+real verdicts are folded into the table and counts above, not listed separately here.
+
+**7 files still have no verdict, confirmed on a clean retry (900s budget, no memory
+contention) — a real limitation of the fixed hook, distinct from the correctness fix itself:**
+
+| File | Failure | Cause |
+|---|---|---|
+| `Erda_Portal.lua`, `Henir_Three_Way.lua`, `Low_Miner_Big_Defect_FD.lua` | `STEP_ERROR`: `RecursionError: maximum recursion depth exceeded` | the fixed hook's per-elimination flow rebuild (see "Four refinements the checks forced" above) uses `copy.deepcopy` on the function's AST; on some deeply-nested shapes Python's C-stack-bounded recursion limit is hit. Raising `sys.setrecursionlimit` was tried and does **not** help — it only trades a clean `RecursionError` for an unbounded `MemoryError` after exhausting available RAM (confirmed: one such attempt consumed 11+ GB before being killed) |
+| `Spriggan_Small.lua`, `SPRIGGAN_SMALL_HENIR.LUA`, `Raid_Red_Dragon_Phase1.lua`, `ELYSION_SOLESS.lua` | `TIMEOUT` (`TIMEOUT-INTERNAL` on the retry, same underlying cause) | the fixed hook's decompile step alone exceeds `ljdiff.py`'s own hard-coded 600s internal subprocess timeout (`decompile()`'s `run(..., 600)`, independent of `corpus_run.py`'s `--budget` — confirmed by retrying at `--budget 900` and still hitting the same 600s internal cap) on these files. Not obviously size-correlated with the rest of the corpus — `Raid_Red_Dragon_Phase1.lua` (101 KB) and `ELYSION_SOLESS.lua` (105 KB) are unremarkable in size next to the 14 files over 1 MB Phase 0 already sails through; this looks like a specific AST-nesting shape, same family as the `RecursionError` cases above, not a simple size problem |
+
+All 7 are genuinely new June originals (none has a `march2014/` port yet, confirmed against
+Phase 5's 276-file map), so nothing currently shipped depends on these decompiling. If and when
+one is ported, its fixed decompile will need either a bigger `ljdiff.py` internal timeout (for
+the 4 `TIMEOUT` files) or a real fix to the flow-rebuild's recursion depth (for the 3
+`RecursionError` files) — both out of scope here, and worth a follow-up plan item if the user
+wants these unblocked before then.
+
 ## Not done in this pass
 
 - Nothing in the table above has been fixed except `RAGE_DRYADKENTA.src.lua` (which is why
