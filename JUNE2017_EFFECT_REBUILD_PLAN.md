@@ -149,13 +149,18 @@ Rules:
   - **Mutations** (rename, comment, retype) edit the user's Ghidra database. Say what will
     change and get an OK first.
 - **Lua tooling:** `elstools/elstools.exe`.
+  - **Check `june_src_fixed/data###_kom/<name>.src.lua` first.** A large share of the
+    June tree has already been decompiled with the fixed decompiler (below) and is sitting
+    there as plain `.src.lua` — only fall back to running the tooling yourself for a file
+    that isn't already present.
   - `decompile-batch -i <file.lua>` writes `<file>.src.lua` next to the input. Copy June
     files into `june2017_re/june_lua/` first, so the June directory is not littered.
   - **For June (`KL\x82`) files, use `june2017_re/ljd_jun2017.py`** on the `.std.luac`
     that `decompile-batch` leaves behind. elstools 1.0.0 mis-maps KOG opcodes
     `0x2f`–`0x37` in both directions, so its decompile fails on any `for … in` loop, and
     `compile-batch -v jun-*` emits broken bytecode. `mar-2014` is unaffected. See
-    `june2017_re/README.md`, "June LuaJIT opcode table".
+    `june2017_re/README.md`, "June LuaJIT opcode table". This is the same fixed decompiler
+    `june_src_fixed/` was generated with; see `RANOX_LUA_DECOMPILE_FIX_PLAN.md`.
   - `compile-batch -v mar-2014 -i <file.lua>` compiles **in place**.
 - **Client build** (default `US_SERVICE`, see CLAUDE.md *Toolchains*):
   ```sh

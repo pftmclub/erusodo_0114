@@ -24,7 +24,10 @@ anything about repo internals beyond what's stated.
   — folders named `dataNNN_kom`, already extracted. The 125 Ranox `.lua`
   files in this tree were bulk-decompiled during planning research (2026-09-18)
   to `.src.lua` siblings next to each original — check whether they still
-  exist before re-running the decompiler.
+  exist before re-running the decompiler. **Those siblings predate the opcode fix below
+  and may be wrong; prefer `june_src_fixed/data###_kom/<name>.src.lua` in this repo's
+  Trunk instead** (see `RANOX_LUA_DECOMPILE_BUG.md` / `RANOX_LUA_DECOMPILE_FIX_PLAN.md`),
+  which holds re-decompiles from the fixed `june2017_re/ljd_jun2017.py` for most of the tree.
 - **Decompiler/compiler**: `elstools/elstools.exe` in this repo.
   - `elstools.exe decompile-batch -i <file.lua>` → writes `<file>.std.luac`
     (intermediate, ignorable) and `<file>.src.lua` (readable) next to the input.

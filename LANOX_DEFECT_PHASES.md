@@ -72,7 +72,9 @@ visibly if the file isn't there yet; don't stop and wait.
   or `CreateFieldNpc`.
 - June2017 reference client (source of pre-port values, use only to *read*,
   never to copy wholesale without checking against this build's enums):
-  `.../237311/14JUN17/data/...`. Extract with `elstools`.
+  `.../237311/14JUN17/data/...`. Extract with `elstools`. For `.lua` source,
+  check this repo's `june_src_fixed/data###_kom/<name>.src.lua` first — it's
+  already decompiled with the fixed `june2017_re/ljd_jun2017.py`.
 
 ---
 

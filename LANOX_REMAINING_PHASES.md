@@ -137,7 +137,8 @@ preceded by a **Run with:** line; the table below repeats it.
 - Reference trees:
   - March 2014 extract: `...\237311\24965799\kom_contents\dataNNN_kom`
   - June 2017: `...\237311\14JUN17\data\dataNNN_kom` (`.src.lua` decompiles
-    sit alongside)
+    sit alongside, but these predate the decompiler opcode fix — prefer
+    this repo's `june_src_fixed/data###_kom/<name>.src.lua` when the file is there)
 - June binary: `14JUN17/data/unpacked_x2.exe`, loaded in the Ghidra project
   `F:\elsword stuff\els_jun_2017_RE\els_jun_2017.gpr`. Drive it with the
   `ghidra` skill (curl with `--noproxy '*'`, imagebase `0x31aa0000`). Lua key
