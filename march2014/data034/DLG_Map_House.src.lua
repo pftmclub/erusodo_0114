@@ -1612,6 +1612,13 @@ House = {
 				-2142.776,
 				22492.041,
 				-59249.441
+			},
+			-- SERV_IRUHADEV_RANOX_PORT: Silent Night Shelter row, copied from June 2017 DLG_Map_House.lua
+			{
+				WORLD_ID.WI_BATTLE_FIELD_RANOX_FIELD_REST_00,
+				-2240,
+				22390,
+				-26100
 			}
 		},
 		NPC_ID_LIST = {
@@ -1882,6 +1889,13 @@ House = {
 				0,
 				0,
 				0
+			},
+			-- SERV_IRUHADEV_RANOX_PORT: Silent Night Shelter row, copied from June 2017 DLG_Map_House.lua
+			{
+				WORLD_ID.WI_BATTLE_FIELD_RANOX_FIELD_REST_00,
+				-1030,
+				22390,
+				-26220
 			}
 		},
 		TALK_BOX = {}
@@ -2377,6 +2391,13 @@ House = {
 				0,
 				-55,
 				0
+			},
+			-- SERV_IRUHADEV_RANOX_PORT: Silent Night Shelter row, copied from June 2017 DLG_Map_House.lua
+			{
+				WORLD_ID.WI_BATTLE_FIELD_RANOX_FIELD_REST_00,
+				450,
+				22390,
+				-25850
 			}
 		},
 		NPC_ID_LIST = {
@@ -2517,6 +2538,13 @@ House = {
 				1759.507,
 				22491.57,
 				-59249.441
+			},
+			-- SERV_IRUHADEV_RANOX_PORT: Silent Night Shelter row, copied from June 2017 DLG_Map_House.lua
+			{
+				WORLD_ID.WI_BATTLE_FIELD_RANOX_FIELD_REST_00,
+				1890,
+				22390,
+				-25710
 			}
 		},
 		NPC_ID_LIST = {
