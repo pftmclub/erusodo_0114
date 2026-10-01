@@ -2740,6 +2740,39 @@ built the general version:
 recompiling to KOG bytecode and repacking into their `.kom` before an in-game play-test can
 confirm them -- the user's step, same as Kenta above.
 
+### June UI parity, Phase 1: Local Map custom messages
+
+New flag `SERV_IRUHADEV_JUNE_LOCAL_MAP_UI` (`KTDXLIB/Always.h`). Adds three
+`LOCAL_MAP_UI_CUSTOM_MSG` members (`X2Lib/X2LocalMapUI.h`) that June's Local Map dialog
+needs and March lacks, at June's own values (`JUNE_UI_PARITY_PHASES.md` Phase 0 findings):
+`LMUCM_DUNGEON_MODE_SELECTED` (18005), `LMUCM_LOCAL_MAP_ARROW_LEFT` (18009),
+`LMUCM_LOCAL_MAP_ARROW_RIGHT` (18010) -- explicit initializers on all three so the
+intentional 18006-18008 gap (Elysion-only, not added) can't shift the arrow values
+implicitly. Matching Lua side in `march2014/data036/Enum.src.lua`'s
+`LOCAL_MAP_UI_CUSTOM_MSG` table, same explicit values. No `LMI_*` content IDs and no
+`PARTY_UI_CUSTOM_MSG` members added -- out of this phase's scope, see the doc.
+
+Verified end to end through the real bytecode: compiled the edited `Enum.src.lua` with
+`elstools compile-batch -v mar-2014`, decompiled the result back and confirmed all three
+names and values round-trip, and confirmed the *previous* committed `Enum.lua` was already
+byte-identical to a fresh compile of the pre-edit source (no drift to inherit before
+editing). Also confirmed with a temporary `#pragma message` that the flag reaches
+`X2LocalMapUI.cpp` through the PCH, not just that the build exits 0.
+
+Built `US_SERVICE`, rc 0, all three projects (`KTDXLIB`, `X2Lib`, `X2`). `x2.exe`:
+18,979,840 B, 2026-10-01 09:03. Deployed to `X2_offline.exe`, confirmed by size and mtime.
+Not launched -- play-test checklist in `JUNE_UI_PARITY_PHASES.md`'s Phase 1 result.
+
+**Needs packing**: `march2014/data036/Enum.lua` (265,246 B, was 265,151 B), copied into
+`kom_contents/data036_kom/Enum.lua`/`.src.lua` too. This repack also carries every other
+`data036` enum addition already staged ahead of `kom_contents` before this phase (Ranox
+Phase 1, ExtraNPCStat, the June2017 effect rebuild's `HIT_TYPE`/`BUFF_FACTOR_ID` work) --
+intentional, but the play-test should expect all of it live together, not just this
+phase's three values.
+
+Revert: undefine `SERV_IRUHADEV_JUNE_LOCAL_MAP_UI`; the three enum members become dead
+code (nothing reads them yet). The Lua table entries are additive and harmless either way.
+
 ## Reverting to stock
 
 Comment out every `#define` listed in the *Defined in* column and rebuild.

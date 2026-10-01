@@ -702,3 +702,110 @@ checked the same way as the other dialogs:
   None of these atlases is in live March; all come from June.
 - **As with every PUCM addition, check the March `PARTY_UI_CUSTOM_MSG` enum
   for implicit numbering before appending** (Phase 1's value trap).
+
+---
+
+## Phase 1 result (done 2026-10-01)
+
+Added three `LOCAL_MAP_UI_CUSTOM_MSG` members, June's own values, behind a new
+flag `SERV_IRUHADEV_JUNE_LOCAL_MAP_UI`:
+
+| Name | Value |
+|---|---|
+| `LMUCM_DUNGEON_MODE_SELECTED` | 18005 |
+| `LMUCM_LOCAL_MAP_ARROW_LEFT` | 18009 |
+| `LMUCM_LOCAL_MAP_ARROW_RIGHT` | 18010 |
+
+Both layers: `X2Lib/X2LocalMapUI.h` (C++ enum, explicit initializers so the
+gap at 18006-18008 can't shift the later two implicitly) and
+`march2014/data036/Enum.src.lua`'s `LOCAL_MAP_UI_CUSTOM_MSG` table (explicit
+values already matched June's, as they did for every existing entry).
+
+**18006-18008 (`LMUCM_LOCAL_MAP_MOVE_UP/DOWN`, `LMUCM_CLOSE_GUIDE_WINDOW`)
+deliberately not added** — Elysion-only per Phase 0, no March dialog will
+ever send them, and nothing in Phases 2-5 needs them. If a later phase turns
+out to need one, add it then with its own explicit value; don't infer it
+from this table's gap.
+
+**`LMUCM_DUNGEON_MODE_SELECTED` added now, not deferred to Phase 4** — Phase
+0's gap table made that conditional on Phase 4 being approved, and it was
+(2026-10-01, "User decisions" item 3). No case uses it yet; Phase 4 wires the
+switch and the Mode Button's own `+0x44` hero flag.
+
+**No `LMI_*` content IDs added** (`LMI_ELYSION`/`EVENT`/`SPECIAL`/`EN`), per
+the rule at the top of this doc. **No `PARTY_UI_CUSTOM_MSG` touched** — none
+of the three in-scope messages are party messages (all three are
+`LOCAL_MAP_UI_CUSTOM_MSG`), and Phase 5 owns the `PUCM_*` additions with its
+own flag.
+
+**Verified the C++ and Lua values agree through the real bytecode, not just
+the two source files**: compiled the edited `Enum.src.lua` with
+`elstools compile-batch -v mar-2014`, then decompiled that output back and
+grepped for all three names — `LMUCM_DUNGEON_MODE_SELECTED = 18005`,
+`LMUCM_LOCAL_MAP_ARROW_LEFT = 18009`, `LMUCM_LOCAL_MAP_ARROW_RIGHT = 18010`,
+matching the C++ exactly. Also confirmed before editing that the *previous*
+committed `march2014/data036/Enum.lua` was already byte-identical to a fresh
+compile of the pre-edit `Enum.src.lua` (no drift to inherit).
+
+**Also confirmed `SERV_IRUHADEV_JUNE_LOCAL_MAP_UI` actually reaches
+`X2LocalMapUI.cpp`** (not just the PCH silently discarding the `Always.h`
+edit): a temporary `#pragma message` inside the `#ifdef`, built once, seen in
+the compiler output, then removed before the real build.
+
+**Needs packing**: `march2014/data036/Enum.lua` (265,246 B, was 265,151 B) is
+ready; copied into `kom_contents/data036_kom/Enum.lua` and `.src.lua` too, so
+the next repack of `data036.kom` picks it up. **That repack will also ship
+every other pending `march2014/data036` enum addition** already staged ahead
+of `kom_contents` before this phase (Ranox Phase 1's `NPC_UNIT_ID`/`WORLD_ID`/
+`VILLAGE_MAP_ID`, the ExtraNPCStat port, and the June2017 effect rebuild's
+`HIT_TYPE`/`BUFF_FACTOR_ID` work) — `kom_contents/data036_kom/Enum.src.lua`
+was ~42 KB behind the repo copy, now caught up in one shot. Not a problem
+(those are all meant to ship), but the next repack's play-test should expect
+all of them live together, not just this phase's three values.
+
+Built and deployed: `KTDXLIB`, `X2Lib`, `X2` rebuilt `US_SERVICE` (PCH
+invalidated via `touch X2Lib/stdafx.cpp` first, since `Always.h` and
+`X2LocalMapUI.h` both changed), 0 errors across all three. `X2/US_SERVICE/x2.exe`
+(18,979,840 B, 2026-10-01 09:03) copied to
+`$DATA/X2_offline.exe`, confirmed by size and mtime. **Not launched** — see
+the play-test checklist below.
+
+### Play-test checklist (no server/client packets changed, local-map-only risk)
+
+Nothing in the adopted dialog lua changed yet (that's Phase 2), and no C++
+switch case reads the three new values yet (that's Phases 2 and 4) — this
+phase only makes three more names resolve instead of erroring if something
+*does* reference them later. So the only realistic regression is the Lua
+load itself (a syntax slip in `Enum.src.lua`, or the compiled bytecode not
+matching). Confirm, in order:
+
+1. **Before any repack** (current live `data036.kom`, old `Enum.lua` size
+   236,117 B, is unaffected by this phase — the new exe doesn't need the new
+   enum values yet):
+   - Launch, log in, reach the village screen for each of: Ruben, Elder,
+     Besma, Altera, Peita, Velder, Hamel, Sander, Lanox.
+   - For each village, open the Local Map / dungeon-list dialog and confirm
+     it still opens, shows the same tabs as before, and a dungeon gate click
+     still opens that dungeon's panel.
+   - Open the Party UI and confirm the party/dungeon buttons and the party
+     panel look and behave exactly as before (nothing here should differ —
+     no party enum changed).
+   - Check `ErrorLog.txt` / `offline_server.log` / `OpenScriptFile.log` for
+     anything new.
+2. **After the user repacks `data036.kom`** (ships this phase's 3 values plus
+   the other pending `data036` enum work listed above):
+   - Repeat step 1's full village list — Local Map must still open for all
+     nine, tabs and dungeon clicks still work, Party UI unchanged.
+   - `elstools inspect -q -i data036.kom` shows the new `Enum.lua` entry size
+     (236,117 -> should track the fresh `march2014/data036/Enum.lua` compiled
+     size once repacked).
+   - General smoke test: login, character select, enter a village, enter one
+     dungeon — confirms the `data036.kom` repack as a whole didn't regress
+     anything else riding in `Enum.lua` (NPC IDs, world IDs, HIT_TYPE,
+     BUFF_FACTOR_ID).
+   - Watch for any Lua error naming `Enum.lua` or `LOCAL_MAP_UI_CUSTOM_MSG`
+     specifically, which would mean the compiled bytecode and the C++ enum
+     disagree after all.
+
+Phase 2 is the first phase that actually exercises `LMUCM_LOCAL_MAP_ARROW_LEFT/RIGHT`
+(the tab-paging arrows) and depends on this phase's values being right.

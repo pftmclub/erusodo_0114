@@ -4532,3 +4532,11 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // JUNE2017_TRIAL_LOAD.md.
 #define SERV_IRUHADEV_JUNE_HITTYPE_EXTEND
 //////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-01
+// Description: June UI parity Phase 1 -- the LOCAL_MAP_UI_CUSTOM_MSG members June's
+// Local Map dialog needs that March lacks (X2LocalMapUI.h), at June's own numeric
+// values (JUNE_UI_PARITY_PHASES.md Phase 0 findings). Matching Lua side added to
+// march2014/data036/Enum.src.lua. 18006-18008 (Elysion-only) are not added.
+#define SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
+//////////////////////////////////////////////////////////////////////////
