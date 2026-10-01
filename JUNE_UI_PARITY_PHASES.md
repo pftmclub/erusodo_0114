@@ -1279,3 +1279,76 @@ Use `reyaa` (level 80):
    `DLG_Map_Local_HeroMode_Filter`.
 7. **Live koms**: `elstools inspect` on each archive should show the sizes in
    the pack list.
+
+---
+
+## Phase 4 findings (2026-10-01; decision pending, nothing built)
+
+**June never opens the Mode Button.** The 2026-10-01 approval ("User
+decisions" item 3) assumed June shows the button and that it is dead in March
+only because March lacks Hero content. That assumption is wrong: the button
+is unreachable in June itself.
+
+- **Unreachable opener.** `FUN_32938450` (open/close the Mode Button dialog)
+  and `FUN_329354e0` (sync the Normal/Hero radio to `+0x44`) have **no
+  callers anywhere in `unpacked_x2.exe`**.
+  - Ghidra lists no xrefs to either.
+  - A raw scan of every PE section for `E8`/`E9` rel32 call sites and for the
+    absolute 4-byte address (vtables, member pointers, immediates) finds
+    nothing. That covers undisassembled bytes too.
+  - Both entry points sit on clean `CC` padding, so there is no earlier real
+    entry that the scan could have missed.
+  - `FUN_32938380` (the loader) is called only from `FUN_32938450`
+    (`0x3293853e`).
+  - The strings `HeroDungeonMode`, `NormalDungeonMode`,
+    `HeroDungeonModeTooltip` and `DLG_UI_Local_Map_Mode_Button.lua` are
+    referenced only inside those three functions, so no inlined copy exists.
+- **`OpenLocalMapDLG` (`FUN_3293c440`) never creates the dialog.**
+  - On open, at `0x3293c689`-`0x3293c6ca`, it tests the `+0x3c/+0x40` handle
+    with `IsValid` (`FUN_31d41d10`). If the handle is valid, it calls
+    `SetFront` (`FUN_31d04840`).
+  - The ctor initialises the handle to invalid (`-1`/`0`, `0x3293803c`), so
+    the test always fails.
+- **No lua route.** All 7,332 June `.lua` files were scanned raw. They are
+  `\x1bKL` bytecode, and their constants are plaintext. `june_src_fixed/` was
+  grepped as well. Only the dialog itself and `Enum.lua` mention
+  `LMUCM_DUNGEON_MODE_SELECTED`, `HeroDungeonMode` or `Mode_Button`. No other
+  dialog sends 18005.
+- **Consequence.** In June, the hero flag `+0x44` is written only by the
+  18005 case (`0x3293d80a`, `SETNZ`) and by the ctor (0). So it is
+  **always false in June**, and Hero dungeons were not entered through this
+  button.
+
+What the dialog would do if it were opened (from `FUN_32938450` and the
+dialog lua):
+- `NormalDungeonMode` / `HeroDungeonMode` radios (`AddDummyInt(0/1)`) send
+  18005, which sets `m_bHeroMode`. March already has that flag and handler
+  (Phases 2-3).
+- The Hero radio is disabled below **level 80** (`0x50`). Its tooltip button
+  shows STR `0x998a` (39306) formatted with 80. At 80 or above, the radio is
+  enabled and the tooltip is hidden.
+- When June event flag `0x8f9` is active (`FUN_322aa950`), the dialog is
+  forced closed.
+- In March today, hero mode would read each icon's dummy 2:
+  - Phase 3's adopted `Icon_NEW` files give 0 (Ruben: `DI_NONE`) or a nil
+    `DI_*_HERO_NORMAL`, which also reads 0.
+  - `GetDungeonData` returns NULL, so **every dungeon button stays hidden**,
+    and `Static_HeroMode_Filter` dims the map.
+
+Art the dialog needs:
+- `DLG_UI_Image_01.TET` (`BG_Hero`) and `DLG_UI_Text_01` (`Bt_Normal_*`,
+  `Bt_Hero_*`), both June-only;
+- `DLG_Common_New_Texture03` (tooltip), already live in March `data053`;
+- `DLG_Map_Local_HeroMode_Filter`, already staged in Phase 3.
+
+Options put to the user:
+- **(a) Recommended.** Close Phase 4 as "matches June: unreachable". No C++,
+  nothing to pack. The hero plumbing from Phases 2-3 stays as it is.
+- **(b)** Port both functions behind the flag but leave them uncalled, as
+  June does. This only stages work for a later Hero port; the lua and atlas
+  would be packed but never loaded.
+- **(c)** Call the opener from `OpenLocalMapDLG`. This deviates from June,
+  and choosing Hero blanks the map until Hero dungeon data exists.
+
+For the future Hero port: June's real route into Hero content is not this
+button and still needs its own investigation.
