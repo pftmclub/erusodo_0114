@@ -494,18 +494,15 @@ g_pLineMap:AddTrigger_LUA({
 			LINE_TELEPORT = 29,
 			TRIGGER_ACTION = TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TELEPORT
 		},
-		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 (Secret Hell) -- the
-		-- removed TRIGGER_DATA_LINE1 entry read TRIGGER_ACTION =
-		-- TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TYPE, CHANGE_LINE_TYPE =
-		-- LINE_TYPE.LT_POTAL. TAT_LINE_CHANGE_TYPE does not exist in this
-		-- repo's C++ TRIGGER_LINE_ACTION_TYPE enum (KTDXLIB/KTDGLineMap.h:95-104
-		-- stops at TAT_LINE_CHANGE_TELEPORT) -- same gap and same C++ line
-		-- range Phase 6 first found in Ranox_FireTemple_Stage1_LineMap.lua, not
-		-- re-derived here. Safe-degrade shape (a nil table-field read
-		-- LUA_GET_VALUE_ENUM defaults to TAT_LINE_NONE, not a load abort), but
-		-- omitted and documented anyway per this port's convention. TRIGGER_ID
-		-- 2 keeps its sibling TRIGGER_DATA_LINE0 (TAT_LINE_CHANGE_TELEPORT)
-		-- intact -- only this line's own reclassification-to-LT_POTAL cue is
-		-- lost; the teleport itself still fires.
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01, LANOX_REMAINING_PHASES Phase 10): TRIGGER_DATA_LINE1
+		-- restored verbatim from June: line 28 becomes LT_POTAL. Needs C++
+		-- SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE. Not ported: the PVE_PotalGate1-5 particles
+		-- June's DoTriggerLine (0x328004a0, case 7) also spawns at the line when it becomes LT_POTAL.
+		TRIGGER_DATA_LINE1 = {
+			DELAY_TIME = 0,
+			LINE_ID = 28,
+			TRIGGER_ACTION = TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TYPE,
+			CHANGE_LINE_TYPE = LINE_TYPE.LT_POTAL
+		}
 	}
 })

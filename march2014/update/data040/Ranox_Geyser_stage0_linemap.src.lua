@@ -632,33 +632,36 @@ g_pLineMap:AddTrigger_LUA({
 			MESH_NAME = "Motion_GEYSER_PUMP.x",
 			TRIGGER_ACTION = TRIGGER_MESH_ACTION_TYPE.TAT_MESH_CHANGE_ANIM
 		},
-		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): TRIGGER_DATA_ETC0 (TRIGGER_ACTION =
-		-- TRIGGER_ETC_ACTION_TYPE.TAT_ETC_TALK_BOX, MESSAGE = STR_ID_33824) omitted --
-		-- TAT_ETC_TALK_BOX doesn't exist in March2014's TRIGGER_ETC_ACTION_TYPE Lua
-		-- table (RANOX_PORT_PLAN.md Findings, 8-gap table) *or* in the underlying C++
-		-- enum (KTDXLIB/KTDGLineMap.h:108-113, TAT_ETC_NONE..TAT_ETC_ACTIVE_LAYER, no
-		-- TALK_BOX member) -- confirmed genuinely absent, not just unbound under
-		-- another name. The steam-pump work-end speech-bubble cue doesn't fire; the
-		-- mesh animation swaps above are unaffected. Flagged for the repo/engine
-		-- integration phase group.
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01, LANOX_REMAINING_PHASES Phase 10): TRIGGER_DATA_ETC0
+		-- restored verbatim from June (STR_ID_33824 reads the same in March's and June's General.ess).
+		-- Needs C++ SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX and SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER.
+		TRIGGER_DATA_ETC0 = {
+			DELAY_TIME = 0,
+			REMAIN_TIME = 5,
+			TRIGGER_ACTION = TRIGGER_ETC_ACTION_TYPE.TAT_ETC_TALK_BOX,
+			MESSAGE = STR_ID_33824,
+			MESSAGE_POS = D3DXVECTOR3(11180, 750, -6303)
+		}
 	}
 })
 g_pLineMap:AddTrigger_LUA({
 	TRIGGER_ID = 1,
 	TRIGGER_LOOP = FALSE,
-	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): this trigger's entire TRIGGER_DATA0
-	-- body was TRIGGER_DATA_ETC0/ETC1 (TRIGGER_ACTION =
-	-- TRIGGER_ETC_ACTION_TYPE.TAT_ETC_PLAY_EFFECTSET) and TRIGGER_DATA_MESH0
-	-- (TRIGGER_ACTION = TRIGGER_MESH_ACTION_TYPE.TAT_MESH_MOVE) -- all three
-	-- entries omitted, same gap class as TRIGGER_ID 0/2's TAT_ETC_TALK_BOX above.
-	-- Confirmed genuinely absent from both Lua tables and the underlying C++
-	-- enums (KTDXLIB/KTDGLineMap.h:91-94 TRIGGER_MESH_ACTION_TYPE has no MOVE
-	-- member; :108-113 TRIGGER_ETC_ACTION_TYPE has no PLAY_EFFECTSET member).
-	-- This trigger is kept (still referenced by TRIGGER_ID elsewhere in this
-	-- file's AddLine_LUA calls) but now fires as a harmless no-op: the
-	-- steel-pump's particle effect and its physical slide-into-position motion
-	-- don't happen. Flagged for the repo/engine integration phase group.
-	TRIGGER_DATA0 = {}
+	TRIGGER_DATA0 = {
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01, LANOX_REMAINING_PHASES Phase 10): TRIGGER_DATA_MESH0 restored
+		-- verbatim from June (needs SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE + SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER).
+		-- Still omitted: June's TRIGGER_DATA_ETC0/ETC1 = { DELAY_TIME = 0 / 0.5, MOTIONNAME_EFFECTSETNAME =
+		-- "Motion_GEYSER_STEELPUMP.x EffectSet_STEELPUMP_Move_FX", TRIGGER_ACTION =
+		-- TRIGGER_ETC_ACTION_TYPE.TAT_ETC_PLAY_EFFECTSET }. June plays that effect set at the named
+		-- trigger mesh (DoTriggerEtc 0x32800e10 case 7). March's TAT_ETC_PLAY_EFFECTSET does not read
+		-- MOTIONNAME_EFFECTSETNAME, and EffectSet_STEELPUMP_Move_FX is not in March's EffectSet.lua.
+		TRIGGER_DATA_MESH0 = {
+			DELAY_TIME = 0.15,
+			MESH_NAME = "Motion_GEYSER_STEELPUMP.x",
+			TRIGGER_ACTION = TRIGGER_MESH_ACTION_TYPE.TAT_MESH_MOVE,
+			MOVE_POS = D3DXVECTOR3(11450, 510, -500)
+		}
+	}
 })
 g_pLineMap:AddTrigger_LUA({
 	TRIGGER_ID = 2,
@@ -677,10 +680,16 @@ g_pLineMap:AddTrigger_LUA({
 			ANIM_NAME = "WorkEnd",
 			MESH_NAME = "Motion_GEYSER_PUMP.x",
 			TRIGGER_ACTION = TRIGGER_MESH_ACTION_TYPE.TAT_MESH_CHANGE_ANIM
+		},
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01, LANOX_REMAINING_PHASES Phase 10): TRIGGER_DATA_ETC0
+		-- restored verbatim from June (STR_ID_33825 reads the same in March's and June's General.ess).
+		-- Needs C++ SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX and SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER.
+		TRIGGER_DATA_ETC0 = {
+			DELAY_TIME = 0,
+			REMAIN_TIME = 5,
+			TRIGGER_ACTION = TRIGGER_ETC_ACTION_TYPE.TAT_ETC_TALK_BOX,
+			MESSAGE = STR_ID_33825,
+			MESSAGE_POS = D3DXVECTOR3(11690, 610, -500)
 		}
-		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): TRIGGER_DATA_ETC0 (TRIGGER_ACTION =
-		-- TRIGGER_ETC_ACTION_TYPE.TAT_ETC_TALK_BOX, MESSAGE = STR_ID_33825) omitted --
-		-- same TAT_ETC_TALK_BOX gap documented on this trigger's TRIGGER_ID 0 sibling
-		-- above.
 	}
 })

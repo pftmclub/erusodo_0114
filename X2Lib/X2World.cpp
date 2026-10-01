@@ -1763,13 +1763,24 @@ void CX2World::DoTriggerEtc(CKTDGLineMap::TRIGGER_DATA_ETC &triggerEtc)
 #ifdef SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX
 	case CKTDGLineMap::TAT_ETC_TALK_BOX:
 		{
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
+			// June 2017 DoTriggerEtc (0x32800e10) case 6 shows the box only while the dungeon game is the state.
+			if( g_pMain != NULL && CX2Main::XS_DUNGEON_GAME == g_pMain->GetNowStateID() &&
+				g_pX2Game != NULL && g_pX2Game->GetTalkBoxManager() != NULL )
+#else  SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
 			if( g_pX2Game != NULL && g_pX2Game->GetTalkBoxManager() != NULL )
+#endif SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
 			{
 				CX2TalkBoxManagerImp::TalkBox talkBox;
 				talkBox.m_OwnerUnitUID		= -1;
 				talkBox.m_wstrTalkContent	= GET_STRING( triggerEtc.m_iDummyValue01 );
 				talkBox.m_bTraceUnit		= true;
 				talkBox.m_TalkBoxType		= CX2TalkBoxManagerImp::TBT_FROM_DOWN_LEFT;
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
+				// June sets these two too: TalkBox +0x3c (m_fRemainTime) = REMAIN_TIME, +0xa0 (m_bUseOutLine) = 1.
+				talkBox.m_fRemainTime		= triggerEtc.m_fDummyValue01;
+				talkBox.m_bUseOutLine		= true;
+#endif SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
 #ifdef ADDED_RELATIONSHIP_SYSTEM
 				talkBox.m_vTalkBoxPosition	= triggerEtc.m_vTalkBoxPosition;
 #endif ADDED_RELATIONSHIP_SYSTEM

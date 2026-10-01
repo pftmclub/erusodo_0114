@@ -532,16 +532,28 @@ g_pLineMap:AddTrigger_LUA({
 			TRIGGER_ACTION = TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_ENABLE,
 			LINE_ENABLE = FALSE
 		},
-		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): TRIGGER_DATA_LINE1/2/3 (LINE_ID
-		-- 11/12/13, TRIGGER_ACTION = TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TYPE)
-		-- omitted -- TAT_LINE_CHANGE_TYPE doesn't exist in March2014's
-		-- TRIGGER_LINE_ACTION_TYPE Lua table (RANOX_PORT_PLAN.md Findings, 8-gap
-		-- table) *or* in the underlying C++ enum (KTDXLIB/KTDGLineMap.h:95-104,
-		-- TAT_LINE_CHANGE_ENABLE..TAT_LINE_CHANGE_TELEPORT, no CHANGE_TYPE member) --
-		-- confirmed genuinely absent, not just unbound under another name. These
-		-- three lines' TAT_NORMAL reclassification on trigger fire doesn't happen;
-		-- the lines keep whatever LINE_TYPE they were placed with. Flagged for the
-		-- repo/engine integration phase group.
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01, LANOX_REMAINING_PHASES Phase 10): TRIGGER_DATA_LINE1-3
+		-- restored verbatim from June. They retype the pit floor under line 3 (lines 11/12/13,
+		-- placed as LT_MONSTER_ROAD) to LT_NORMAL when the floor collapses, so a player who falls
+		-- in can stand there. Need C++ SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE.
+		TRIGGER_DATA_LINE1 = {
+			DELAY_TIME = 0.3,
+			LINE_ID = 11,
+			TRIGGER_ACTION = TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TYPE,
+			CHANGE_LINE_TYPE = LINE_TYPE.LT_NORMAL
+		},
+		TRIGGER_DATA_LINE2 = {
+			DELAY_TIME = 0.3,
+			LINE_ID = 12,
+			TRIGGER_ACTION = TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TYPE,
+			CHANGE_LINE_TYPE = LINE_TYPE.LT_NORMAL
+		},
+		TRIGGER_DATA_LINE3 = {
+			DELAY_TIME = 0.3,
+			LINE_ID = 13,
+			TRIGGER_ACTION = TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TYPE,
+			CHANGE_LINE_TYPE = LINE_TYPE.LT_NORMAL
+		},
 		TRIGGER_DATA_ETC0 = {
 			DELAY_TIME = 0.15,
 			CAMERA_SHAKE_GAP = 20,
@@ -552,15 +564,16 @@ g_pLineMap:AddTrigger_LUA({
 			DELAY_TIME = 0.15,
 			LINE_SOUND = "AMB_Earthquake02.ogg",
 			TRIGGER_ACTION = TRIGGER_ETC_ACTION_TYPE.TAT_ETC_PLAY_SOUND
+		},
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01, LANOX_REMAINING_PHASES Phase 10): TRIGGER_DATA_ETC2
+		-- restored verbatim from June. Turns AI ON for every NPC, as June's DoTriggerEtc
+		-- (0x32800e10) case 8 does; an AI-on row can only wake an NPC, never freeze one.
+		-- Needs C++ SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER (TAT_ETC_NPC_AI_ON_OFF = 8).
+		TRIGGER_DATA_ETC2 = {
+			DELAY_TIME = 0.15,
+			TRIGGER_ACTION = TRIGGER_ETC_ACTION_TYPE.TAT_ETC_NPC_AI_ON_OFF,
+			NPC_AI_ENABLE = TRUE
 		}
-		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): TRIGGER_DATA_ETC2 (TRIGGER_ACTION =
-		-- TRIGGER_ETC_ACTION_TYPE.TAT_ETC_NPC_AI_ON_OFF, NPC_AI_ENABLE = TRUE)
-		-- omitted -- same gap class as above, confirmed absent from both
-		-- TRIGGER_ETC_ACTION_TYPE's Lua table and its C++ enum
-		-- (KTDXLIB/KTDGLineMap.h:106-113, TAT_ETC_NONE..TAT_ETC_ACTIVE_LAYER, no
-		-- NPC_AI_ON_OFF member). The scripted "wake up this trigger's NPCs" cue
-		-- doesn't fire; NPC AI is unaffected by this trigger, same as every other
-		-- line in this file that never sets it.
 	}
 })
 g_pLineMap:AddTrigger_LUA({
@@ -580,10 +593,28 @@ g_pLineMap:AddTrigger_LUA({
 			TRIGGER_ACTION = TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_ENABLE,
 			LINE_ENABLE = FALSE
 		},
-		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): TRIGGER_DATA_LINE1/2/3 (LINE_ID
-		-- 33/34/35, TRIGGER_ACTION = TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TYPE)
-		-- omitted -- same TAT_LINE_CHANGE_TYPE gap documented on this trigger's
-		-- TRIGGER_ID 0 sibling above.
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01, LANOX_REMAINING_PHASES Phase 10): TRIGGER_DATA_LINE1-3
+		-- restored verbatim from June. They retype the pit floor under line 26 (lines 33/34/35,
+		-- placed as LT_MONSTER_ROAD) to LT_NORMAL when the floor collapses, so a player who falls
+		-- in can stand there. Need C++ SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE.
+		TRIGGER_DATA_LINE1 = {
+			DELAY_TIME = 0.3,
+			LINE_ID = 33,
+			TRIGGER_ACTION = TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TYPE,
+			CHANGE_LINE_TYPE = LINE_TYPE.LT_NORMAL
+		},
+		TRIGGER_DATA_LINE2 = {
+			DELAY_TIME = 0.3,
+			LINE_ID = 34,
+			TRIGGER_ACTION = TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TYPE,
+			CHANGE_LINE_TYPE = LINE_TYPE.LT_NORMAL
+		},
+		TRIGGER_DATA_LINE3 = {
+			DELAY_TIME = 0.3,
+			LINE_ID = 35,
+			TRIGGER_ACTION = TRIGGER_LINE_ACTION_TYPE.TAT_LINE_CHANGE_TYPE,
+			CHANGE_LINE_TYPE = LINE_TYPE.LT_NORMAL
+		},
 		TRIGGER_DATA_ETC0 = {
 			DELAY_TIME = 0.15,
 			CAMERA_SHAKE_GAP = 20,
@@ -594,25 +625,27 @@ g_pLineMap:AddTrigger_LUA({
 			DELAY_TIME = 0.15,
 			LINE_SOUND = "AMB_Earthquake02.ogg",
 			TRIGGER_ACTION = TRIGGER_ETC_ACTION_TYPE.TAT_ETC_PLAY_SOUND
+		},
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01, LANOX_REMAINING_PHASES Phase 10): TRIGGER_DATA_ETC2
+		-- restored verbatim from June. Turns AI ON for every NPC, as June's DoTriggerEtc
+		-- (0x32800e10) case 8 does; an AI-on row can only wake an NPC, never freeze one.
+		-- Needs C++ SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER (TAT_ETC_NPC_AI_ON_OFF = 8).
+		TRIGGER_DATA_ETC2 = {
+			DELAY_TIME = 0.15,
+			TRIGGER_ACTION = TRIGGER_ETC_ACTION_TYPE.TAT_ETC_NPC_AI_ON_OFF,
+			NPC_AI_ENABLE = TRUE
 		}
-		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): TRIGGER_DATA_ETC2 (TRIGGER_ACTION =
-		-- TRIGGER_ETC_ACTION_TYPE.TAT_ETC_NPC_AI_ON_OFF, NPC_AI_ENABLE = TRUE)
-		-- omitted -- same TAT_ETC_NPC_AI_ON_OFF gap documented on this trigger's
-		-- TRIGGER_ID 0 sibling above.
 	}
 })
--- SERV_IRUHADEV_RANOX_PORT (2026-09-18): TRIGGER_ID 2 and 3's entire body was a
--- single TRIGGER_DATA_ETC0 (TRIGGER_ACTION = TRIGGER_ETC_ACTION_TYPE.TAT_ETC_NPC_AI_ON_OFF,
--- NPC_AI_ENABLE = FALSE), same gap documented on TRIGGER_ID 0/1 above. Both
--- triggers are kept (still referenced by TRIGGER_ID elsewhere in this file's
--- AddLine_LUA calls) but their body is now empty -- they fire as harmless no-ops
--- instead of toggling NPC AI off. Checked KTDXLIB/KTDGLineMap.cpp's
--- AddTrigger_LUA and KLuaManager::BeginTable: BeginTable only requires the
--- named field to actually be a table (lua_istable), which an empty {} still
--- is -- an empty TRIGGER_DATA0 isn't a distinct/riskier shape from a
--- TRIGGER_DATA0 that simply has none of its optional TRIGGER_DATA_MESH*/
--- LINE*/ETC* sub-keys populated, which every other trigger in this client
--- already exercises.
+-- SERV_IRUHADEV_RANOX_PORT (2026-09-18; re-checked 2026-10-01, LANOX_REMAINING_PHASES Phase 10):
+-- June's TRIGGER_ID 2 and 3 are each one row, TRIGGER_DATA_ETC0 = { DELAY_TIME = 0,
+-- TRIGGER_ACTION = TRIGGER_ETC_ACTION_TYPE.TAT_ETC_NPC_AI_ON_OFF, NPC_AI_ENABLE = FALSE }, fired
+-- from lines 0/1 and 21-25 to hold the pit monsters still until the floor collapses. Still left
+-- empty on purpose: June's handler (CX2World::DoTriggerEtc, 0x32800e10, case 8) switches AI off
+-- for EVERY NPC with no team or type filter, and the offline AI party members are NPCs, so the
+-- party would freeze from the step onto line 0 until trigger 0/1 turns AI back on. Restore these
+-- two rows only together with a C++ exemption for the party bots. An empty TRIGGER_DATA0 is
+-- still a table, so AddTrigger_LUA loads it as a trigger that does nothing.
 g_pLineMap:AddTrigger_LUA({
 	TRIGGER_ID = 2,
 	TRIGGER_LOOP = FALSE,

@@ -2641,9 +2641,14 @@ bool CKTDGLineMap::AddTrigger_LUA()
 			LUA_GET_VALUE(		luaManager,	"ANIM_NAME",	triggerDataMesh.m_wstrName,				L"" );			
 			LUA_GET_VALUE(		luaManager,	"ANIM_SPEED",	triggerDataMesh.m_fAnimSpeed,			1 );
 #ifdef SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
+			// June 2017 reads one D3DXVECTOR3 field, MOVE_POS (AddTrigger_LUA 0x31c77e20 @31c78869).
+			LUA_GET_USER_DEFINED_TYPE_VALUE( luaManager, "MOVE_POS", triggerDataMesh.m_vMovePos, D3DXVECTOR3( 0.f, 0.f, 0.f ) );
+#else  SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
 			LUA_GET_VALUE(		luaManager,	"MOVE_POS_X",	triggerDataMesh.m_vMovePos.x,		0.f );
 			LUA_GET_VALUE(		luaManager,	"MOVE_POS_Y",	triggerDataMesh.m_vMovePos.y,		0.f );
 			LUA_GET_VALUE(		luaManager,	"MOVE_POS_Z",	triggerDataMesh.m_vMovePos.z,		0.f );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
 #endif SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE
 
 			triggerData.m_vecTriggerMesh.push_back( triggerDataMesh );
@@ -2774,10 +2779,18 @@ bool CKTDGLineMap::AddTrigger_LUA()
 #ifdef SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX
 			case TAT_ETC_TALK_BOX:
 				{
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
+					// June 2017 (AddTrigger_LUA 0x31c77e20, etc case 6): MESSAGE, REMAIN_TIME (default 2.0,
+					// into the same float slot CAMERA_DURATION uses) and one D3DXVECTOR3 MESSAGE_POS.
+					LUA_GET_VALUE(		luaManager,	"MESSAGE",		triggerDataEtc.m_iDummyValue01,		-1 );
+					LUA_GET_VALUE(		luaManager,	"REMAIN_TIME",	triggerDataEtc.m_fDummyValue01,		2.f );
+					LUA_GET_USER_DEFINED_TYPE_VALUE( luaManager, "MESSAGE_POS", triggerDataEtc.m_vTalkBoxPosition, D3DXVECTOR3( 0.f, 0.f, 0.f ) );
+#else  SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
 					LUA_GET_VALUE(		luaManager,	"MESSAGE",		triggerDataEtc.m_iDummyValue01,		-1 );
 					LUA_GET_VALUE(		luaManager,	"TALK_POS_X",	triggerDataEtc.m_vTalkBoxPosition.x,	0.f );
 					LUA_GET_VALUE(		luaManager,	"TALK_POS_Y",	triggerDataEtc.m_vTalkBoxPosition.y,	0.f );
 					LUA_GET_VALUE(		luaManager,	"TALK_POS_Z",	triggerDataEtc.m_vTalkBoxPosition.z,	0.f );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
 				}
 				break;
 #endif SERV_IRUHADEV_RANOX_TRIGGER_TALK_BOX

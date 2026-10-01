@@ -1765,6 +1765,90 @@ kom_contents/data036_kom and data040_kom (check the manifests), and hand me
 the repack list.
 ```
 
+**Executed 2026-10-01.** The data is staged and the exe is built. The repack
+and the play-test are still owed.
+
+- **Enum numbers: option (b).** The etc block's March values (NPC_AI 6,
+  TALK_BOX 8) were not studio numbers. Phase 14 invented them. June's
+  compiled `AddTrigger_LUA` (`0x31c77e20`) settles it: etc case 6 reads
+  `MESSAGE`, case 7 reads `MOTIONNAME_EFFECTSETNAME`, case 8 reads
+  `NPC_AI_ENABLE`. New flag `SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER`
+  (`KTDXLIB/Always.h`) renumbers both header copies to June's values
+  (`TALK_BOX = 6`, `NPC_AI_ON_OFF = 8`). `MESH_MOVE = 3`,
+  `LINE_CHANGE_TYPE = 7` and `PLAY_EFFECTSET = 7` already agreed.
+  `march2014/data036/Enum.src.lua` now carries all five names at those
+  values. June's `TAT_LINE_CHANGE_MOVABLE_DATA = 8` is left out, because
+  March has no C++ for it. **The exe and data036 must ship together.** An
+  exe without the flag would run a restored NPC_AI row (8) as a talk box.
+- **The same flag moves Phase 14's field names to June's.** Phase 14 had
+  invented the names `MOVE_POS_X/_Y/_Z`, `TALK_POS_*` and
+  `EFFECT_NAME`/`EFFECT_POS_*`. No June row uses any of them, so a verbatim
+  GateWay row would have moved its rock to the origin.
+  - `TAT_MESH_MOVE` now reads one `MOVE_POS` vector (via
+    `LUA_GET_USER_DEFINED_TYPE_VALUE`, the same reader `AddLine_LUA` uses
+    for `START_POS`).
+  - `TAT_ETC_TALK_BOX` now reads `MESSAGE`, `REMAIN_TIME` (default 2.0,
+    stored in `m_fDummyValue01`, the slot June uses) and a `MESSAGE_POS`
+    vector.
+  - The TALK_BOX runtime now matches June's `DoTriggerEtc` (`0x32800e10`)
+    case 6. It shows only in `XS_DUNGEON_GAME` (11) and sets
+    `m_fRemainTime` and `m_bUseOutLine`. June's struct offsets line up
+    with March's `TalkBox`: `+0x14` trace, `+0x3c` remain, `+0x40` type 2,
+    `+0xa0` outline.
+- **Mechanism check.** June's `DoTriggerLine` (`0x328004a0`) case 7 is the
+  same bare `lineType` store that Phase 14 does. Nothing in March caches
+  `lineType` for `LT_MONSTER_ROAD`: load time only builds the wall list
+  and the bounds, and line groups never read it. `CanDown` reads it live,
+  so the retype reaches the player.
+- **NPC_AI_ON_OFF.** June's case 8 is `for every NPC: SetAIEnable(v)`, with
+  no host, team or type filter, so Phase 14's "every NPC" matches June.
+  - Trigger 0/1's AI-*on* rows (`ETC2`) are restored. They can only wake
+    NPCs.
+  - Triggers 2/3 (AI *off*) **stay empty**. The AI-party bots are NPCs,
+    and restoring those rows would freeze them from line 0 until the
+    collapse.
+  - Restoring the AI-off rows needs a bot exemption in the C++. It would
+    be a deviation from June, and the predicate is already there:
+    `IsPvpBot() && IsOfflinePartyBotUID(...)`, as used by
+    `X2Game.cpp:5152`. Not done; it is the user's call.
+- **Rows restored**, all verbatim from June. Checked by comparing
+  comment-stripped March against June: the only remaining differences
+  are the two exceptions listed below.
+  - `Ranox_FireTemple_Stage1_LineMap`: triggers 0 and 1, `LINE1-3`
+    (`CHANGE_TYPE` → `LT_NORMAL` on 11/12/13 and on 33/34/35), plus
+    `ETC2` (AI on).
+  - `Ranox_GateWay_Stage1_LineMap`: triggers 0 and 1, `MESH1`
+    (`TAT_MESH_MOVE` of the two rocks).
+  - `Ranox_Geyser_stage0_linemap`: trigger 0 `ETC0` (talk box
+    `STR_ID_33824`), trigger 1 `MESH0` (`MESH_MOVE`), trigger 2 `ETC0`
+    (talk box `STR_ID_33825`). Both string IDs read the same in March's
+    `general.ess` and June's `General.ess`.
+  - `Ranox_Secret_Stage2_LineMap`: trigger 2 `LINE1` (`CHANGE_TYPE` →
+    `LT_POTAL`).
+- **Still omitted**, each with a comment in the file:
+  - FireTemple triggers 2/3 (see above).
+  - Geyser trigger 1's two `TAT_ETC_PLAY_EFFECTSET` rows. June plays
+    `EffectSet_STEELPUMP_Move_FX` at the named trigger mesh (case 7 splits
+    `MOTIONNAME_EFFECTSETNAME` on a space and anchors on the first user
+    unit). That effect set is **not in March's `EffectSet.lua`**, and one
+    argument (a user-unit vfunc `+0x150`) is unresolved.
+- **June-only, recorded and not ported:**
+  - the `PVE_PotalGate1-5` particles June spawns when a trigger retypes a
+    line to `LT_POTAL` (`FUN_322e5820`);
+  - `AUTO_DISABLE_LINE`, which needs a new LineData field (`+0x128`) and
+    two unit-side calls. `Ranox_FireTemple_StageBoss_LineMap` already
+    carries two such rows, and March ignores them;
+  - `TAT_LINE_CHANGE_MOVABLE_DATA` (`STOP`, `DIRECT_MOVE_DATA`).
+- **Staged.** Each was compiled with `-v mar-2014`, after a drift check
+  showed that every pre-edit source reproduces the staged bytecode
+  exactly. A decompiled round trip confirmed the names and rows.
+  - `Enum.lua` 265,287 → 265,394 B, to `march2014/data036/` and
+    `kom_contents/data036_kom/`.
+  - The four linemaps to `kom_contents/data040_kom/`. FireTemple goes
+    11,487 → 12,149 B, GateWay 14,928 → 15,189 B, Geyser 12,993 →
+    13,393 B and Secret 9,546 → 9,651 B. All five were already in their
+    manifests at `"2"`.
+
 ---
 
 ## Phase 11 - Ranox boss face missing from the boss HP bar [item 12]

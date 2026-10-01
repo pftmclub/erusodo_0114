@@ -4570,3 +4570,32 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // request March's KEGS_REQUEST_MATCH_MAKING_REQ cannot carry.
 #define SERV_IRUHADEV_JUNE_PARTY_UI
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-01
+// Description: LANOX_REMAINING_PHASES.md Phase 10. Bring the line-map
+//              trigger actions Ranox Phase 14 added up to June 2017's
+//              contract, so the June linemap rows can be restored verbatim.
+//              Read off June's AddTrigger_LUA (0x31c77e20) and
+//              CX2World::DoTriggerEtc (0x32800e10):
+//              - TRIGGER_ETC_ACTION_TYPE takes June's numbers, TALK_BOX = 6
+//                and NPC_AI_ON_OFF = 8 (Phase 14 had invented 8 and 6;
+//                PLAY_EFFECTSET = 7 already agreed). Enum.lua carries the
+//                same values, so this flag and the packed data036 Enum.lua
+//                must ship together - an exe without the flag would run a
+//                restored NPC_AI row (8) as a talk box.
+//              - TAT_MESH_MOVE reads one D3DXVECTOR3 MOVE_POS (was
+//                MOVE_POS_X/_Y/_Z, which no June row uses; a June row read
+//                that way moved the mesh to the origin).
+//              - TAT_ETC_TALK_BOX reads MESSAGE, REMAIN_TIME (default 2.0)
+//                and a D3DXVECTOR3 MESSAGE_POS, sets m_fRemainTime and
+//                m_bUseOutLine, and shows only in XS_DUNGEON_GAME.
+//              Unchanged because June matches: TAT_LINE_CHANGE_TYPE (a
+//              bare lineType store) and TAT_ETC_NPC_AI_ON_OFF (every NPC,
+//              no filter). Not ported, June-only systems: the PVE_PotalGate
+//              particles June spawns when a trigger retypes a line to
+//              LT_POTAL, AUTO_DISABLE_LINE, TAT_LINE_CHANGE_MOVABLE_DATA,
+//              and the mesh-anchored TAT_ETC_PLAY_EFFECTSET
+//              (MOTIONNAME_EFFECTSETNAME).
+#define SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
+//////////////////////////////////////////////////////////////////////////

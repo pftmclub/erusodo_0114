@@ -758,21 +758,16 @@ g_pLineMap:AddTrigger_LUA({
 			MESH_NAME = "GATEWAY_1STAGE_ROCK_ANI01.x",
 			TRIGGER_ACTION = TRIGGER_MESH_ACTION_TYPE.TAT_MESH_CHANGE_ANIM
 		},
-		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 8 (GateWay) -- June2017's
-		-- TRIGGER_DATA_MESH1 entry here used TRIGGER_MESH_ACTION_TYPE.TAT_MESH_MOVE
-		-- (with a MOVE_POS field), which does not exist in March2014's Enum.lua or
-		-- its C++ (KTDXLIB/KTDGLineMap.h's TRIGGER_MESH_ACTION_TYPE stops at
-		-- TAT_MESH_CHANGE_SPEED; TRIGGER_DATA_MESH has no MOVE_POS-equivalent member
-		-- at all, confirmed in KTDXLIB/KTDGLineMap.h/.cpp -- a genuinely absent
-		-- feature, not just an unbound name, same verdict Phase 6/7 reached for
-		-- their own TRIGGER_*_ACTION_TYPE gaps in these same two tables). Omitted
-		-- entirely rather than left in verbatim, even though a missing member of an
-		-- existing Lua table would only default to TAT_MESH_NONE here (not abort
-		-- load, per KTDGLineMap.cpp:2637's LUA_GET_VALUE_ENUM) -- kept explicit and
-		-- auditable per this port's established convention. Effect: the
-		-- "GATEWAY_1STAGE_ROCK_ANI01.x" mesh (see Ranox_GateWay_Stage1.lua, spawned
-		-- at y=-50000 and never moved) never gets relocated by this trigger; it
-		-- plays its swap-to-"Normal"-anim cue but stays hidden below the map.
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01, LANOX_REMAINING_PHASES Phase 10): TRIGGER_DATA_MESH1
+		-- restored verbatim from June. Moves the rock, spawned at y=-50000 in Ranox_GateWay_Stage1.lua,
+		-- into place. Needs C++ SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE and SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
+		-- (which reads MOVE_POS as one D3DXVECTOR3, as June does).
+		TRIGGER_DATA_MESH1 = {
+			DELAY_TIME = 0.05,
+			MESH_NAME = "GATEWAY_1STAGE_ROCK_ANI01.x",
+			TRIGGER_ACTION = TRIGGER_MESH_ACTION_TYPE.TAT_MESH_MOVE,
+			MOVE_POS = D3DXVECTOR3(-55800, 1650, -1387)
+		},
 		TRIGGER_DATA_LINE0 = {
 			DELAY_TIME = 0.75,
 			LINE_ID = 20,
@@ -798,10 +793,16 @@ g_pLineMap:AddTrigger_LUA({
 			MESH_NAME = "GATEWAY_1STAGE_ROCK_ANI02.x",
 			TRIGGER_ACTION = TRIGGER_MESH_ACTION_TYPE.TAT_MESH_CHANGE_ANIM
 		},
-		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 8 (GateWay) -- same
-		-- TAT_MESH_MOVE gap and disposition as TRIGGER_ID 0 above. The
-		-- "GATEWAY_1STAGE_ROCK_ANI02.x" mesh (see Ranox_GateWay_Stage1.lua) is
-		-- likewise never relocated; it still plays its swap-to-"Normal"-anim cue.
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01, LANOX_REMAINING_PHASES Phase 10): TRIGGER_DATA_MESH1
+		-- restored verbatim from June. Moves the rock, spawned at y=-50000 in Ranox_GateWay_Stage1.lua,
+		-- into place. Needs C++ SERV_IRUHADEV_RANOX_TRIGGER_MESH_MOVE and SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
+		-- (which reads MOVE_POS as one D3DXVECTOR3, as June does).
+		TRIGGER_DATA_MESH1 = {
+			DELAY_TIME = 7.05,
+			MESH_NAME = "GATEWAY_1STAGE_ROCK_ANI02.x",
+			TRIGGER_ACTION = TRIGGER_MESH_ACTION_TYPE.TAT_MESH_MOVE,
+			MOVE_POS = D3DXVECTOR3(-59260, 1820, 1440)
+		},
 		TRIGGER_DATA_LINE0 = {
 			DELAY_TIME = 8,
 			LINE_ID = 11,
