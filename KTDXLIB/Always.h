@@ -4599,6 +4599,36 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              (MOTIONNAME_EFFECTSETNAME).
 #define SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-01
+// Description: M-key field map follows the character in the Lanox village,
+//              fields and rest area (LANOX_REMAINING_PHASES.md Phase 5).
+//              June 2017 versions of three functions, recovered from
+//              unpacked_x2.exe and diffed case by case against March:
+//              - CX2FieldMapBase::ResetCameraMatrix (June 0x32f1fec0) and
+//                ResetMapPosAndSize (June 0x32f1fd90): June adds
+//                VMI_RANOX, VMI_BATTLE_FIELD_RANOX_FIELD_01..04,
+//                VMI_BATTLE_FIELD_RANOX_REST_00 and VMI_SPA_RANOX. Every
+//                other March case is identical in June except VMI_ELDER and
+//                VMI_BATTLE_FIELD_RUBEN_FIELD_01, whose June cameras belong
+//                to June's rebuilt Elder village / Ruben field (new world
+//                lua, line map and backdrop DDS) and are kept at March's
+//                values here - June's are recorded beside the Ranox cases.
+//              - CX2WorldMapUI::UpdateNaviMap (June 0x3225cad0): June adds
+//                the six Ranox navi thumbnails (DLG_UI_Common_Texture_
+//                Village_01 / _Rest / _Field_03 keys). All March cases and
+//                every point constant are identical.
+//              - CX2LocationManager::IsVillageField: June's range is
+//                VMI_RUBEN..20010 (inlined; 6 sites); March stops at
+//                VMI_SANDER, so VMI_RANOX was not a village.
+//              June-only VMIs (Elysion, VMI_SPA_RUBEN, VMI_GUILD_AGIT) are
+//              omitted. The navi thumbnails need the data057 atlases
+//              (Texture_Village_01 new, Texture_Rest / Texture_Field_03
+//              adopted from June) packed.
+#define SERV_IRUHADEV_JUNE_FIELD_MAP
+//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-01

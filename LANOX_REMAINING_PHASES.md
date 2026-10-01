@@ -1381,6 +1381,137 @@ bounds and IsVillageField(). Put everything behind a new SERV_IRUHADEV_ flag,
 then build and deploy.
 ```
 
+**Done 2026-10-01 (code), flag `SERV_IRUHADEV_JUNE_FIELD_MAP`.** All Ranox
+case references are also nested in `SERV_IRUHADEV_RANOX_PORT`, because the
+enum values only exist under it.
+
+**Root cause, confirmed in code.** The M-key path is `OpenFieldMap` →
+`CX2WorldFieldMap::SetVillageID` → `ResetCameraMatrix` + `ResetMapPosAndSize`.
+No other gate sits on that path; a sweep of `X2MiniMapUI.cpp`,
+`X2WorldMapUI.cpp`, `X2WorldFieldMap.cpp` and `X2LocationManager.cpp` for
+Sander-bounded ranges found only the ones below. For a Ranox VMI, neither
+function had a case, so the camera kept whatever map was set last.
+`CX2WorldFieldMap` is created once and reused, and every map that does have a
+case writes the same window/texture sizes, so the sizes are only wrong when a
+Lanox map is the first M-open of the session. The constructor never
+initialises `m_vMiniMapWindowSize` / `m_vWindowTextureSize`, which
+`CalcPosOnScreen` / `IsInWindowTexture` divide and compare by. Otherwise only
+the camera is stale.
+
+**How June was recovered.**
+- `ResetCameraMatrix` is June `0x32f1fec0`. It was found from the one xref to
+  the Ruben floats (file offset → VA through the PE section table).
+- `ResetMapPosAndSize` is June `0x32f1fd90`. It was found from June's
+  `SetVillageID` (raw bytes at `0x32e54ce0`, which Ghidra had not made a
+  function): it calls `0x32f1fec0`, then `0x32f1fd91`, then `GetFieldInfo`.
+- `UpdateNaviMap` is June `0x3225cad0`, found via the
+  `TownMap_Navigation_Ranox` / `_Ruben` string xrefs.
+- The decompiler merges the store tails, so values were not read off the
+  decompile. A scratch x87/jump-table simulator walked the disassembly once
+  per VMI and read each float out of the file. It reproduces March's
+  Ruben (fov 39.677, aspect 1.8), Besma and Sander cases exactly.
+
+**Diff, every case:**
+
+| Function | Identical to March | Changed in June | Added (ported) | June-only (omitted) |
+|---|---|---|---|---|
+| `ResetCameraMatrix` | 38 of 40 | `VMI_ELDER`, `VMI_BATTLE_FIELD_RUBEN_FIELD_01` (**kept at March values**, see below) | `VMI_RANOX`, `RANOX_FIELD_01..04`, `RANOX_REST_00`, `VMI_SPA_RANOX` | `VMI_ELYSION`, `ELYSION_REST_00`, `ELYSION_FIELD_01..04`, `VMI_SPA_RUBEN`, `VMI_GUILD_AGIT` |
+| `ResetMapPosAndSize` | all; body identical (0,0 / 1536x768 / 0,0 / 512x512) | - | same 7 | same, minus `ELYSION_FIELD_04` (June has no case for it) |
+| `UpdateNaviMap` | all 47 cases; every point constant (0.24, 763/606/1019/732, the -750 offsets, 909, world-navi 753/524/758/529/644/911) | - | 6 Ranox (no spa case in June) | Elysion x5 (+20010), `VMI_GUILD_AGIT` |
+
+Notes on the table:
+- `VMI_BATTLE_FIELD_RANOX_FIELD_03` uses the same camera block as June's
+  spa cases.
+- June's fov is bit-exact `D3DXToRadian(35.978f)` and its aspect is `2.f`.
+
+**The one deliberate departure from June: Elder and Ruben Field 01.**
+- June's cameras for these two maps belong to worlds June rebuilt:
+  - `Elder_village.lua` is 46051 B in March and 10400 B in June.
+  - `Field_Ruben_Stage0_Linemap.lua` is 33747 B in March and 14436 B in June.
+  - All five backdrop DDS of each map differ: `DLG_UI_Town_ELDER_Map01-05`
+    and `DLG_UI_FIELD_MAP_RUBEN_01_01-05`.
+- Porting the two cameras alone would mis-place the marker on March's art,
+  and the verification says "Ruben ... unchanged", so both stay at March's
+  values. June's values are recorded in a comment beside the Ranox cases.
+- A future June update of those two maps has to bring all of these together:
+  the world lua and line map, the 5 backdrop DDS, the
+  `DLG_UI_FIELD_MAP_*_NEW.lua`, the Elder thumbnail in
+  `DLG_UI_Common_Texture_Village.tga` (June redrew Elder and Besma there), and
+  the two camera values.
+- The Ranox side is safe:
+  - Every shipped Ranox world and line map is the same size in March staging
+    and June.
+  - All 30 Ranox field-map backdrop DDS (`Town_RANOX`, `FIELD_MAP_RANOX_01-04`,
+    `Rest_Ranox`) are byte-identical to June.
+
+**`IsVillageField` (`X2LocationManager.h`).**
+- June inlines it. Six `IsVillage` sites in `unpacked_x2.exe` compile to
+  `(x-20000) <= 10`, then lounge `(x-30000) <= 6`, then rest `(x-1000) <= 8`.
+- So June's village range is `VMI_RUBEN..20010`. 20009 `VMI_ELYSION` and 20010
+  are June-only, so the March bound becomes `VMI_RANOX`. The original is kept
+  in `#else`.
+- Before this, `IsVillage(VMI_RANOX)` was false, which disabled, for example,
+  the channel combo box (`X2MiniMapUI.cpp:540`) and the community checks in
+  Lanox.
+- `IsDungeonLounge` and `IsBattleFieldRest` match June and are unchanged.
+
+**Checked, nothing to port:**
+- **`CX2WorldMapUI::ReLoadingVillageMap`**: June's release build has none.
+  - June's `GetFieldMapDlg` (`0x3225e1f0`) has exactly one caller, which is
+    `OpenFieldMap`.
+  - March compiles the function (`VILLAGE_MAP_FAST_RELOADING`,
+    `InHouse6.h:351`, a dev-only F4 hotkey). Its Sander-bounded loops only
+    pre-create hidden dialogs, and `GetFieldMapDlg` creates any Ranox dialog
+    lazily on first use.
+  - Left untouched.
+- **`CX2FieldMiniMap::ResetWholeMapTexture`**: dead in both builds.
+  - March never calls `CX2MiniMapUI::CreateFieldMiniMap()`, so
+    `m_pFieldMiniMap` is always NULL.
+  - June has no `Minimap_*_Village/Gate.tga` strings at all, and its
+    `ResetCameraMatrix` has only the one `CX2WorldFieldMap` caller.
+  - Left untouched.
+
+**Navi-thumbnail atlases (the bottom-right drag map).** June's new cases read
+keys March's atlases don't have:
+
+| File | Live (`data057.kom`, only copy) | June (`data057`) | Action |
+|---|---|---|---|
+| `DLG_UI_Common_Texture_Village_01.{TET,tga}` | absent everywhere | `TOWNMAP_NAVIGATION_RANOX` (+ Elision, Agit, `EMPTY_*`) | **new file**, June's bytes |
+| `DLG_UI_Common_Texture_Rest.{TET,tga}` | 6 keys | 8 keys (+ `RANOX_R`, `ELISION_R`) | **wholesale adopt**: all 6 March keys present. 5 have identical UVs; `SANDER_R`'s top edge is 1 px lower in June. All 6 rects are pixel-identical. |
+| `DLG_UI_Common_Texture_Field_03.{TET,tga}` | `SANDER_03/04` + `EMPTY_01..06` | `SANDER_03/04` + `RANOX_01..04` + `ELISION_01/02` | **wholesale adopt**: the Sander rects are UV- and pixel-identical. The `EMPTY_*` keys are read by nothing, neither C++ nor any of 5143 March luas. |
+| `DLG_UI_Common_Texture_Village.{TET,tga}` | 8 keys | same 8, but Elder and Besma redrawn | **not adopted**: Ranox lives in `_Village_01`, and the Elder redraw belongs to June's rebuilt Elder |
+
+**Pack list (`data057.kom`, built from `kom_contents/data057_kom/`).** This
+shares the same repack as Phase 4's pending data057 items.
+- New: `DLG_UI_Common_Texture_Village_01.TET` (602 B) and `.tga`
+  (1048620 B).
+  - Staged in `march2014/update/data057/` and `kom_contents/data057_kom/`.
+  - Added to both `_manifest.json`s at algo `"0"`.
+- Patch: `DLG_UI_Common_Texture_Rest.TET` (838 B) / `.tga` and
+  `DLG_UI_Common_Texture_Field_03.TET` (856 B) / `.tga`, June's bytes.
+  - Staged in `march2014/data057/` and `kom_contents/data057_kom/`.
+  - No manifest change, since the names are already listed.
+- Verify on the live kom afterwards:
+  - `Village_01.TET` present at 602 B.
+  - `Rest.TET` at 838 B; 630 B means March's copy is still live.
+  - `Field_03.TET` at 856 B; 608 B means March's copy is still live.
+
+**Verification still owed (play-test).**
+- The camera and marker fix needs no repack. Until data057 is repacked, the
+  Lanox navi thumbnail stays blank and an `ErrorLog.txt` texture miss for
+  `Village_01` is expected, not a regression.
+- In Lanox, the 4 fields and the rest area, press M. The marker should move
+  with the character and land where the character really stands.
+- Run that check both ways, because they exercise different paths:
+  - a fresh launch, logging in with the character already in Lanox, so the
+    first M-open of the session is a Lanox map;
+  - arriving in Lanox after opening M somewhere else.
+- `IsVillage(VMI_RANOX)` is now true everywhere, not only for the map. In the
+  Lanox village, the channel combo box (`X2MiniMapUI.cpp:540`) should behave
+  as it does in Ruben or Sander, and a channel change offline should add no
+  new `UNHANDLED` line to `offline_packets.log`.
+- Elder, Ruben Field 01, Sander and the rest should be unchanged.
+
 ---
 
 ## Phase 6 - Hide Secret Hell [item 7]

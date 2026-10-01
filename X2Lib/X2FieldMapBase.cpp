@@ -439,6 +439,68 @@ void CX2FieldMapBase::ResetCameraMatrix( int iMapID )
 #endif //SANDER_DUNGEON_5_6
 #endif //VILLAGE_SANDER
 #pragma endregion ( 마을, 바람의 사원 )
+#ifdef SERV_IRUHADEV_JUNE_FIELD_MAP
+	//{{ Iruha : 2026-10-01 // June 2017 ResetCameraMatrix (unpacked_x2.exe 0x32f1fec0), Ranox cases.
+	//   Values read out of the June binary verbatim. Every other March case above
+	//   matches June except two, kept at March's values on purpose because June's
+	//   belong to June's rebuilt worlds and backdrops, which March does not ship:
+	//     VMI_ELDER                       June eye( 1425, 2015, -12225 ) look( 1525, 2255.196, -1135 )
+	//     VMI_BATTLE_FIELD_RUBEN_FIELD_01 June eye( 2470, 8775, -11275 ) look( 5075, 6255, -7235 )
+	//   June-only cases omitted: VMI_ELYSION, VMI_BATTLE_FIELD_ELYSION_REST_00,
+	//   VMI_BATTLE_FIELD_ELYSION_FIELD_01..04, VMI_SPA_RUBEN, VMI_GUILD_AGIT.
+#ifdef SERV_IRUHADEV_RANOX_PORT
+	case SEnum::VMI_RANOX:
+		{
+			m_vEyePos	= D3DXVECTOR3( -75.000f, 3460.000f, -9430.000f );
+			m_vLookAt	= D3DXVECTOR3( -17.000f, 2125.000f, -2170.000f );
+			m_fFov		= D3DXToRadian( 35.978f );
+			m_fAspect	= 2.f;
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_01:
+		{
+			m_vEyePos	= D3DXVECTOR3( -380.000f, 5615.000f, -18410.000f );
+			m_vLookAt	= D3DXVECTOR3( -1655.000f, 1755.000f, -4950.000f );
+			m_fFov		= D3DXToRadian( 35.978f );
+			m_fAspect	= 2.f;
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_02:
+		{
+			m_vEyePos	= D3DXVECTOR3( 7780.000f, 5930.000f, -12080.000f );
+			m_vLookAt	= D3DXVECTOR3( 7860.000f, 4550.000f, -7280.000f );
+			m_fFov		= D3DXToRadian( 35.978f );
+			m_fAspect	= 2.f;
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_03:	// June shares this block with VMI_SPA_RUBEN / VMI_SPA_RANOX
+		{
+			m_vEyePos	= D3DXVECTOR3( 9030.000f, 3700.000f, -11880.000f );
+			m_vLookAt	= D3DXVECTOR3( 8855.000f, 2670.000f, -2530.000f );
+			m_fFov		= D3DXToRadian( 35.978f );
+			m_fAspect	= 2.f;
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_04:
+		{
+			m_vEyePos	= D3DXVECTOR3( 4750.000f, 3185.000f, -12060.000f );
+			m_vLookAt	= D3DXVECTOR3( 2065.000f, 1455.000f, 7420.000f );
+			m_fFov		= D3DXToRadian( 35.978f );
+			m_fAspect	= 2.f;
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00:
+		{
+			m_vEyePos	= D3DXVECTOR3( 1450.000f, 23145.000f, -34095.000f );
+			m_vLookAt	= D3DXVECTOR3( -2535.000f, 22880.000f, -16380.000f );
+			m_fFov		= D3DXToRadian( 35.978f );
+			m_fAspect	= 2.f;
+		} break;
+	case SEnum::VMI_SPA_RANOX:
+		{
+			m_vEyePos	= D3DXVECTOR3( 9030.000f, 3700.000f, -11880.000f );
+			m_vLookAt	= D3DXVECTOR3( 8855.000f, 2670.000f, -2530.000f );
+			m_fFov		= D3DXToRadian( 35.978f );
+			m_fAspect	= 2.f;
+		} break;
+#endif SERV_IRUHADEV_RANOX_PORT
+	//}}
+#endif SERV_IRUHADEV_JUNE_FIELD_MAP
 	}
 
 	CalcCameraMatrix();
@@ -525,6 +587,20 @@ void CX2FieldMapBase::ResetMapPosAndSize( int iMapID )
 	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_04: // 베히모스 크레이터
 #endif //SANDER_DUNGEON_5_6
 #endif
+#ifdef SERV_IRUHADEV_JUNE_FIELD_MAP
+	//{{ Iruha : 2026-10-01 // June 2017 ResetMapPosAndSize (unpacked_x2.exe 0x32f1fd90): same body,
+	//   Ranox cases added. June-only cases omitted: Elysion, VMI_SPA_RUBEN, VMI_GUILD_AGIT.
+#ifdef SERV_IRUHADEV_RANOX_PORT
+	case SEnum::VMI_RANOX:
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_01:
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_02:
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_03:
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_04:
+	case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00:
+	case SEnum::VMI_SPA_RANOX:
+#endif SERV_IRUHADEV_RANOX_PORT
+	//}}
+#endif SERV_IRUHADEV_JUNE_FIELD_MAP
 		{
 			m_vMiniMapWindowPos		= D3DXVECTOR2( 0, 0 );
 			m_vMiniMapWindowSize	= D3DXVECTOR2( 1536, 768 );	/// 화면상의 크기

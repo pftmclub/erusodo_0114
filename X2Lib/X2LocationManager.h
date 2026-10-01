@@ -487,7 +487,19 @@ class CX2LocationManager
 
 		bool IsVillageField( const SEnum::VILLAGE_MAP_ID eVillageID ) 
 		{
+#ifdef SERV_IRUHADEV_JUNE_FIELD_MAP
+			//{{ Iruha : 2026-10-01 // June 2017 bound. June inlines this as VMI_RUBEN..20010
+			//   (6 IsVillage sites in unpacked_x2.exe); 20009 VMI_ELYSION and 20010 are
+			//   June-only, so March's last village, VMI_RANOX, is the bound here.
+#ifdef SERV_IRUHADEV_RANOX_PORT
+			if ( eVillageID >= SEnum::VMI_RUBEN && eVillageID <= SEnum::VMI_RANOX )
+#else SERV_IRUHADEV_RANOX_PORT
 			if ( eVillageID >= SEnum::VMI_RUBEN && eVillageID <= SEnum::VMI_SANDER )
+#endif SERV_IRUHADEV_RANOX_PORT
+			//}}
+#else SERV_IRUHADEV_JUNE_FIELD_MAP
+			if ( eVillageID >= SEnum::VMI_RUBEN && eVillageID <= SEnum::VMI_SANDER )
+#endif SERV_IRUHADEV_JUNE_FIELD_MAP
 				return true;
 			else
 				return false;

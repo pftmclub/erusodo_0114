@@ -2350,6 +2350,34 @@ void CX2WorldMapUI::UpdateNaviMap( IN D3DXVECTOR2& vPos_, IN CKTDGUINavigation* 
 #endif //SANDER_DUNGEON_5_6
 #pragma endregion 네비게이션
 
+#ifdef SERV_IRUHADEV_JUNE_FIELD_MAP
+			//{{ Iruha : 2026-10-01 // June 2017 UpdateNaviMap (unpacked_x2.exe 0x3225cad0), Ranox cases.
+			//   Texture and key strings copied verbatim from June. Every March case above
+			//   and every point constant below is identical in June. June-only cases
+			//   omitted: VMI_ELYSION (+ 20010), Elysion rest/fields 01..04, VMI_GUILD_AGIT.
+#ifdef SERV_IRUHADEV_RANOX_PORT
+			case SEnum::VMI_RANOX:
+				pNavi_->SetBGTex( L"DLG_UI_Common_Texture_Village_01.tga", L"TownMap_Navigation_Ranox" );
+				break;
+			case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_01:
+				pNavi_->SetBGTex( L"DLG_UI_Common_Texture_Field_03.tga", L"FieldMap_Navigation_Ranox_01" );
+				break;
+			case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_02:
+				pNavi_->SetBGTex( L"DLG_UI_Common_Texture_Field_03.tga", L"FieldMap_Navigation_Ranox_02" );
+				break;
+			case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_03:
+				pNavi_->SetBGTex( L"DLG_UI_Common_Texture_Field_03.tga", L"FieldMap_Navigation_Ranox_03" );
+				break;
+			case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_04:
+				pNavi_->SetBGTex( L"DLG_UI_Common_Texture_Field_03.tga", L"FieldMap_Navigation_Ranox_04" );
+				break;
+			case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00:
+				pNavi_->SetBGTex( L"DLG_UI_Common_Texture_Rest.tga", L"FieldMap_Navigation_Ranox_R" );
+				break;
+#endif SERV_IRUHADEV_RANOX_PORT
+			//}}
+#endif SERV_IRUHADEV_JUNE_FIELD_MAP
+
 			default:
 				break;
 			}
