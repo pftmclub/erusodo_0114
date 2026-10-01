@@ -635,6 +635,26 @@ Verify: play-test -- Steel/Faceoff/Syota all list real, purchasable stock.
 
 ## Phase 4 — No Lanox tab in the dungeon list [issue 4]
 
+**Superseded 2026-10-01 — the atlas merge below (`DLG_UI_Button20_NEW.tga`/
+`.TET`) must not be redone.** `JUNE_UI_PARITY_PHASES.md` Phase 2 adopts
+June's `DLG_UI_Local_Map_new.lua` wholesale, together with June's
+`DLG_UI_Button21` atlas, where `BTN_RANOX_N/O/D` already live — that delivers
+the Lanox tab instead. See `LANOX_REMAINING_PHASES.md` Phase 3, which cleaned
+the stale `DLG_UI_Button20_NEW` entries out of
+`march2014/update/data056/_manifest.json` (they were never on disk) on this
+same date. The `.lua` half of this phase (the 9th `LMI_RANOX` radio button)
+is still live in `data034.kom` for now — it stays live only until June-UI
+Phase 2 ships, since that phase stages June's `DLG_UI_Local_Map_new.lua`
+wholesale over `march2014/data034/DLG_UI_Local_Map_NEW.src.lua`, replacing
+this button along with everything else in the file.
+
+**Update 2026-10-01 (later): the lua half is superseded too.** June-UI Phase 2
+has staged June's file over `march2014/data034/DLG_UI_Local_Map_NEW.src.lua`.
+In June's two-page tab strip, Lanox is the 9th radio, on page 2.
+The C++ paging port and the compiled lua are done (`kom_contents/data034_kom`,
+12,985 B); only the `data034.kom` repack is owed. Nothing in this phase is
+left to do or redo. Play-test via `JUNE_UI_PARITY_PHASES.md` "Phase 2 result".
+
 **Paste with:** Starting context + this section.
 
 The region tab strip is **not enumerated in C++**. `X2LocalMapUI.cpp:532-559`
@@ -767,9 +787,10 @@ shows a Lanox tab alongside Sander's.
   `BG_RIGHT_*`, `ADD_SIZE_X` 500→565/510→575) is packed and does make room
   for it, so there is a blank clickable strip immediately right of Sander's
   tab. Redoing the atlas merge (regenerate the `.tga`/`.TET` pair, stage
-  them in `march2014/update/data056/`, repack) is still owed — it just
-  doesn't block reaching Ranox's local map, so this session deferred it in
-  favor of Phase 5.
+  them in `march2014/update/data056/`, repack) **(superseded, see top of
+  Phase 4 — do not redo this)** — it was left owed here, but it just doesn't
+  block reaching Ranox's local map, and it must not be picked up now that
+  June-UI Phase 2 covers it instead.
 - **Phase 7c is not actually closed — correcting the 2026-09-22 update
   above.** Read Phase 7c's finding before this atlas merge, as instructed, and
   it doesn't hold up: extracted the **live** `data056.kom`/`datai020.kom`
@@ -798,9 +819,10 @@ shows a Lanox tab alongside Sander's.
 - **Logged, not fixed (per the task):** `X2LocationManager.h:487`
   `IsVillageField()` and `X2WorldMapUI.cpp:2457` both bound
   `VMI_RUBEN..VMI_SANDER`, excluding `VMI_RANOX`. Zero callers today.
-- **Owed:** pack `data034.kom` (Lua) and `data056.kom` (atlas, and while
-  it's open, the Button17 re-pack above) and play-test — dungeon list should
-  show a Lanox tab alongside Sander's.
+- **Owed:** pack `data034.kom` (Lua) and `data056.kom` (the Button17 re-pack
+  above **only** — the Button20 atlas merge is superseded, see top of Phase 4,
+  do not pack it) and play-test — dungeon list should show a Lanox tab
+  alongside Sander's.
 
 **Kickoff prompt**:
 ```
@@ -836,6 +858,10 @@ Verify: play-test -- dungeon list shows a Lanox tab alongside Sander's. Note
 X2WorldMapUI.cpp:2457 both bound VMI_RUBEN..VMI_SANDER, excluding VMI_RANOX
 -- zero callers today, just log it.
 ```
+
+(Historical prompt, left verbatim. Its "Also merge RANOX_BTN_NORMAL/OVER/DOWN
+into March's DLG_UI_Button20_NEW.tga" instruction is **superseded, see top of
+Phase 4** — do not act on it if this prompt is ever re-pasted.)
 
 ---
 

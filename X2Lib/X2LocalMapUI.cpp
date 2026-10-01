@@ -1,5 +1,10 @@
 #include "StdAfx.h"
 #include ".\x2localmapui.h"
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
+#ifdef SERV_IRUHADEV_OFFLINE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
 
 
 
@@ -18,6 +23,11 @@ CX2LocalMapUI::CX2LocalMapUI(void) :
 m_ePickedLocalMapID( CX2LocationManager::LMI_INVALID ),
 m_bShowLocalMap(false),
 m_pDlgHeroRecruit(NULL)
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
+, m_bHeroMode(false)
+, m_bFirstPage(true)		// June ctor: the tab strip starts on page 1
+, m_bLoggedNoArrows(false)
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
 {
 	SoundReady( L"NewStage_Open.ogg" );
 
@@ -66,6 +76,264 @@ m_pDlgHeroRecruit(NULL)
 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
+//{{ Iruha : 2026-10-01 // June UI parity Phase 2: June2017 CX2LocalMapUI::UICustomEventProc
+// (FUN_3293d280) -- adds the Mode Button message and the tab-strip page arrows.
+/*virtual*/ bool CX2LocalMapUI::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+	switch( wParam )
+	{
+#ifdef SERV_EPIC_QUEST
+	//{{ oasis907 : 김상윤 [2010.7.1] // 에픽 퀘스트
+	case LMUCM_DUNGEON_MOUSE_OVER:
+		{
+			CKTDGUIButton* pButton_Dungeon = (CKTDGUIButton*) lParam;
+			if( NULL == pButton_Dungeon )
+				return true;
+			int iDungeonID = pButton_Dungeon->GetDummyInt( 0 );
+			
+			D3DXVECTOR2 QuestDescPos = pButton_Dungeon->GetPos();
+			QuestDescPos.x += 140.f;
+			QuestDescPos.y += 80.f;
+			
+			DrawLocalMapQuestDesc(QuestDescPos, iDungeonID);
+			// June also sets Bestera (FUN_32939e30) and Space-of-Thought (dungeon 0xa226,
+			// FUN_32937660) tooltips here. Both are June-only content; not ported.
+
+			//{{ kimhc // 2011-04-27 // 디펜스 던전 시간에 따라, 던전 아이콘 비/활성화 여부 결정
+#ifdef	SERV_INSERT_GLOBAL_SERVER
+			// 디펜스 던전 아이콘 중 비활성화 아이콘이면
+			if ( true == g_pData->GetDungeonManager()->IsDefenceDungeon( iDungeonID ) &&
+				 0 == _wcsicmp( pButton_Dungeon->GetName(), L"DefenceDungeonDisable" ) )
+			{
+				wstringstream wstrStreamDungeonIconDesc;
+				g_pData->GetWorldMissionManager()->GetDefenceDungeonIcnoDesc( wstrStreamDungeonIconDesc );
+				pButton_Dungeon->SetGuideDesc( wstrStreamDungeonIconDesc.str().c_str() );//g_pData->GetWorldMissionManager()->GetDefenceDungeonIconDesc().c_str() );
+			}
+#endif	SERV_INSERT_GLOBAL_SERVER
+			//}} kimhc // 2011-04-27 // 디펜스 던전 시간에 따라, 던전 아이콘 비/활성화 여부 결정
+
+#ifdef NEW_HENIR_TEST
+			if ( CX2Dungeon::IsHenirDungeon( static_cast<const SEnum::DUNGEON_ID>( iDungeonID ) ) )
+			{
+				wstringstream wstrStreamDungeonIconDesc;
+				GetHenirDungeonIcnoDesc( wstrStreamDungeonIconDesc );
+				pButton_Dungeon->SetGuideDesc( wstrStreamDungeonIconDesc.str().c_str() );
+			}
+#endif NEW_HENIR_TEST
+
+#ifdef SERV_EVENT_VALENTINE_DUNGEON_INT
+			if( CX2Dungeon::IsEventValentineDungeon( static_cast<const SEnum::DUNGEON_ID>( iDungeonID ) ) )
+			{
+				wstringstream wstrStreamDungeonIconDesc;
+				GetEventValentineDungeonIconDesc( wstrStreamDungeonIconDesc );
+				pButton_Dungeon->SetGuideDesc( wstrStreamDungeonIconDesc.str().c_str() );
+			}
+#endif SERV_EVENT_VALENTINE_DUNGEON_INT
+		}
+		break;
+	case LMUCM_DUNGEON_MOUSE_OUT:
+		{
+			m_pDLGQuestDesc->SetShow(false);
+		}
+		break;
+	//}}
+#endif SERV_EPIC_QUEST
+	case LMUCM_DUNGEON_CLICKED:
+		{
+			// Kept as the March body. June (FUN_3293d280 case 18000) has the same shape but
+			// picks the no-party mode as DT_HENIR->DM_HENIR_PRACTICE, DT_SECRET->DM_SECRET_HELL
+			// (March: DM_SECRET_NORMAL), type 5->5, else DM_INVALID, and the difficulty from
+			// FUN_327db250 (hero mode, plus June-only DungeonData fields). That belongs with
+			// the hero Mode Button (JUNE_UI_PARITY_PHASES.md Phase 4), which needs the user.
+			CKTDGUIButton* pButton_Dungeon = (CKTDGUIButton*) lParam;
+			if( NULL == pButton_Dungeon )
+				return true;
+
+			if ( NULL != g_pData && NULL != g_pData->GetPartyManager() )
+			{
+				g_pData->GetPartyManager()->UpdateSelectedDungeon();
+			}
+			
+			int iDungeonID = pButton_Dungeon->GetDummyInt( 0 );
+
+			if( g_pData->GetPartyManager()->DoIHaveParty() )
+			{
+				if( iDungeonID != g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonID )
+				{
+#ifdef HENIR_TEST
+					int iDungeonMode = CX2Dungeon::DM_HENIR_PRACTICE;	// 이전 코드가 기본으로 헤니르 일반으로 되어 있었음
+
+				//{{ kimhc // 2010.3.19 //	비밀던전 개편 작업
+		#ifdef	SERV_SECRET_HELL
+					// 비밀던전인 경우에는 DM_SECRET_NORMAL 로
+					CX2Dungeon::DUNGEON_TYPE eDungeonType = static_cast<CX2Dungeon::DUNGEON_TYPE>( g_pData->GetDungeonManager()->GetDungeonType( iDungeonID ) );
+					
+					switch ( eDungeonType )
+					{
+					default:
+						break;
+
+					case CX2Dungeon::DT_NORMAL:
+						iDungeonMode = CX2Dungeon::DM_INVALID;
+						break;
+
+					case CX2Dungeon::DT_SECRET:
+						iDungeonMode = CX2Dungeon::DM_SECRET_NORMAL;
+						break;
+					}
+					
+		#endif	SERV_SECRET_HELL
+			//}} kimhc // 2010.3.19 //	비밀던전 개편 작업
+					g_pData->GetPartyManager()->Handler_EGS_PARTY_CHANGE_DUNGEON_REQ( iDungeonID, (int) CX2Dungeon::DL_NORMAL, iDungeonMode );
+#else HENIR_TEST
+//{{AFX
+					g_pData->GetPartyManager()->Handler_EGS_PARTY_CHANGE_DUNGEON_REQ( iDungeonID, (int) CX2Dungeon::DL_NORMAL, 1 );
+//}}AFX
+#endif HENIR_TEST				
+				}
+			}
+			else
+			{
+				int iDungeonMode = CX2Dungeon::DM_HENIR_PRACTICE;
+				// 아직 파티를 만들지 않았다면
+				g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonID			= ( iDungeonID > 0 ? iDungeonID : SEnum::DI_RUBEN_EL_TREE_NORMAL );
+				g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonDifficulty	= (int) CX2Dungeon::DL_NORMAL;
+#ifdef HENIR_TEST
+					//{{ kimhc // 2010.3.19 //	비밀던전 개편 작업
+		#ifdef	SERV_SECRET_HELL
+				// 비밀던전인 경우에는 DM_SECRET_NORMAL 로
+				CX2Dungeon::DUNGEON_TYPE eDungeonType = static_cast<CX2Dungeon::DUNGEON_TYPE>( g_pData->GetDungeonManager()->GetDungeonType( iDungeonID ) );
+				
+
+				switch ( eDungeonType )
+				{
+				default:
+				case CX2Dungeon::DT_NORMAL:
+					iDungeonMode = CX2Dungeon::DM_INVALID;
+					break;
+
+				case CX2Dungeon::DT_HENIR:
+					iDungeonMode = CX2Dungeon::DM_HENIR_PRACTICE;
+					break;
+
+				case CX2Dungeon::DT_SECRET:
+					iDungeonMode = CX2Dungeon::DM_SECRET_NORMAL;
+					break;
+				}
+		#endif	SERV_SECRET_HELL
+					//}} kimhc // 2010.3.19 //	비밀던전 개편 작업
+
+				g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonMode = iDungeonMode;
+#endif HENIR_TEST
+
+				if( NULL != g_pMain->GetPartyUI() )
+				{
+					g_pMain->GetPartyUI()->UpdatePartyDLG( true );
+				}
+			}
+
+#ifdef REFORM_NOVICE_GUIDE
+			if( NULL != g_pData && NULL != g_pData->GetPlayGuide()
+				&& true == g_pData->GetPlayGuide()->GetActiveNoviceGuide())
+			{
+				switch( g_pData->GetPlayGuide()->GetGuideStep() )
+				{
+				case CX2PlayGuide::NGS_STEP_6:
+				case CX2PlayGuide::NGS_STEP_8:
+					{
+						g_pData->GetPlayGuide()->SetMouseClickIndex( CX2PlayGuide::NGS_STEP_7 );
+					} break;
+				}
+			}
+#else
+			// 초심자 가이드
+			if( g_pTFieldGame != NULL && g_pTFieldGame->GetNoviceGuide() != NULL )
+			{
+				if( g_pTFieldGame->GetNoviceGuide()->GetIsPlayGuide() == true && g_pTFieldGame->GetNoviceGuide()->GetNowGuideStep() == CX2NoviceGuide::NGS_STEP6_2 )
+				{
+					if( iDungeonID == SEnum::DI_RUBEN_EL_TREE_NORMAL )
+					{
+						g_pTFieldGame->GetNoviceGuide()->SetNotifyGuide(CX2NoviceGuide::GE_COMPLETE);
+					}
+					else
+					{
+						g_pTFieldGame->GetNoviceGuide()->SetNotifyGuide(CX2NoviceGuide::GE_ACCEPT);
+					}
+				}
+			}
+#endif //REFORM_NOVICE_GUIDE
+			return true;
+		} break;
+
+	case LMUCM_DUNGEON_GATE_SELECTED:
+		{
+			CKTDGUIRadioButton* pRadio_LocalID = (CKTDGUIRadioButton*) lParam;
+			int localMapID = pRadio_LocalID->GetDummyInt(0);
+
+			OpenLocalMapDLG( true, (CX2LocationManager::LOCAL_MAP_ID) localMapID );
+			UpdateLocalMapDLG();
+
+			return true;
+		} break;
+	
+	
+	case LMUCM_CLOSE_WINDOW:
+		{
+			OpenLocalMapDLG( false );
+
+#ifndef REFORM_NOVICE_GUIDE
+			// 초심자 가이드
+			if( g_pTFieldGame != NULL && g_pTFieldGame->GetNoviceGuide() != NULL )
+			{
+				if( g_pTFieldGame->GetNoviceGuide()->GetNowGuideStep() == CX2NoviceGuide::NGS_STEP6_2 )
+				{
+					g_pTFieldGame->GetNoviceGuide()->SetNotifyGuide(CX2NoviceGuide::GE_ACCEPT);
+				}				
+			}
+#endif //REFORM_NOVICE_GUIDE
+			return true;
+		} break;
+
+	// June2017 cases (FUN_3293d280). 18006-18008 are Elysion-only and not ported.
+	case LMUCM_DUNGEON_MODE_SELECTED:
+		{
+			// Sent only by DLG_UI_Local_Map_Mode_Button.lua (Phase 4, not loaded yet).
+			CKTDGUIRadioButton* pRadio_Mode = (CKTDGUIRadioButton*) lParam;
+			if( NULL != pRadio_Mode )
+			{
+				m_bHeroMode = ( 0 != pRadio_Mode->GetDummyInt( 0 ) );
+				UpdateLocalMapDLG();
+			}
+			return true;
+		} break;
+
+	case LMUCM_LOCAL_MAP_ARROW_LEFT:
+		{
+			if( false == m_bFirstPage )
+			{
+				m_bFirstPage = true;
+				UpdateLocalMapDLG();
+			}
+			return true;
+		} break;
+
+	case LMUCM_LOCAL_MAP_ARROW_RIGHT:
+		{
+			if( true == m_bFirstPage )
+			{
+				m_bFirstPage = false;
+				UpdateLocalMapDLG();
+			}
+			return true;
+		} break;
+
+	}
+
+	return false;
+}
+//}} Iruha : 2026-10-01
+#else SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
 /*virtual*/ bool CX2LocalMapUI::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch( wParam )
@@ -279,6 +547,7 @@ m_pDlgHeroRecruit(NULL)
 
 	return false;
 }
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
 
 
 void CX2LocalMapUI::SetStage( CKTDXStage* pStage )
@@ -384,6 +653,236 @@ void CX2LocalMapUI::ClearLocalMapDLGs()
 }
 
 // 던전 클리어 정보 기타 등등을 설정
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
+//{{ Iruha : 2026-10-01 // June UI parity Phase 2: June2017 CX2LocalMapUI::UpdateLocalMapDLG
+// (FUN_3293c6f0). June splits the region tabs over two pages: the first six region radios in
+// DLG_UI_Local_Map_NEW.lua (Ruben..Velder) are page 1, the rest (Hamel, Sander, Ranox) page 2,
+// LocalMap_arrowL/R page between them and StaticArrow holds the arrow backdrops. June's Elysion
+// tab, Event/Special tabs, WeeklyMark and event statics key on June-only IDs and content; they
+// are omitted in place with a comment.
+void CX2LocalMapUI::UpdateLocalMapDLG()
+{
+	const BYTE TABS_PER_PAGE = 6;
+
+	CKTDGUIDialogType pDialog = GetLocalMapDLG( m_ePickedLocalMapID );
+	if( NULL != pDialog )
+	{
+		CKTDGUIControl* pArrowL = pDialog->GetControl( L"LocalMap_arrowL" );
+		CKTDGUIControl* pArrowR = pDialog->GetControl( L"LocalMap_arrowR" );
+		CKTDGUIStatic* pStaticArrow = static_cast<CKTDGUIStatic*>( pDialog->GetControl( L"StaticArrow" ) );
+		if( NULL != pArrowL )
+			pArrowL->SetShow( false );
+		if( NULL != pArrowR )
+			pArrowR->SetShow( false );
+		if( NULL != pStaticArrow )
+		{
+			if( NULL != pStaticArrow->GetPicture( 0 ) )
+				pStaticArrow->GetPicture( 0 )->SetShow( false );
+			if( NULL != pStaticArrow->GetPicture( 1 ) )
+				pStaticArrow->GetPicture( 1 )->SetShow( false );
+		}
+
+		// Degrade: without June's arrows nothing could reach page 2, so keep March's single row
+		// of tabs and say why, once per session.
+		const bool bPaging = ( NULL != pArrowL && NULL != pArrowR );
+		if( false == bPaging && false == m_bLoggedNoArrows )
+		{
+			m_bLoggedNoArrows = true;
+			WCHAR buff[256] = {0};
+			StringCchPrintf( buff, 256, L"[JUNE_LMUI] DLG_UI_Local_Map_NEW.lua has no LocalMap_arrowL/R: data034.kom still holds the pre-June copy; repack it. Tab paging off, single row kept." );
+			ErrorLogMsg( XEM_ERROR142, buff );
+#ifdef SERV_IRUHADEV_OFFLINE
+			CX2OfflineLog::Server( L"%s", buff );
+#endif SERV_IRUHADEV_OFFLINE
+		}
+
+		BYTE byTabCount = 0;		// June local_72: region tabs the non-GM path saw
+		BYTE byShownTabCount = 0;	// June local_71: of those, the ones left visible
+
+		for( int i=0; i<pDialog->GetControlSize(); i++ )
+		{
+			CKTDGUIControl* pControl = pDialog->GetControl( i );
+			if( NULL == pControl )
+				continue;
+
+			if( CKTDGUIControl::UCT_RADIOBUTTON != pControl->GetType() )
+				continue;
+
+			bool bShowRadioButton = true;	// June bStack_73: no quest mark on the open tab
+			if( pControl->GetDummyInt( 0 ) == (int) m_ePickedLocalMapID )
+			{
+				CKTDGUIRadioButton* pRadio = static_cast<CKTDGUIRadioButton*>(pControl);
+				pRadio->SetChecked( true );
+				bShowRadioButton = false;
+			}
+
+			// June: the Elysion tab is disabled outside its event flag (0x8d4). Not in this lua.
+
+			if( -1 == pControl->GetDummyInt( 0 ) )
+				continue;
+
+			pControl->SetShowEnable( true, true );
+
+			CX2LocationManager::LocalMapTemplet* pLocalMapTemplet =
+				g_pData->GetLocationManager()->GetLocalMapTemplet( (CX2LocationManager::LOCAL_MAP_ID) pControl->GetDummyInt( 0 ) );
+
+#ifdef SCRIPT_SELECT
+			if(pLocalMapTemplet == NULL)
+			{
+				pControl->SetShowEnable(false, false);
+				continue;
+			}
+#endif
+
+			// June: Elysion (0x2719) stays disabled under the same event flag. Not in this lua.
+
+			CKTDGUIControl::CPictureData* pPicture = NULL;
+#ifdef QUEST_GUIDE
+			CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>(pDialog->GetControl(L"QuestGuide"));
+			if( NULL != pStatic && NULL != pStatic->GetPictureIndex( pControl->GetDummyInt( 0 ) ) )
+			{
+				pPicture = static_cast<CKTDGUIControl::CPictureData*>(pStatic->GetPictureIndex( pControl->GetDummyInt( 0 ) ));
+				pPicture->SetShow(false);
+			}
+#endif //QUEST_GUIDE
+			// June: WeeklyMark picture hidden here and shown below for weekly/event dungeons
+			// (FUN_327d9d50/FUN_327da190). June-only system; the static is not in this lua.
+
+			// GM and above see every tab; June keeps this, without paging.
+			if( NULL != g_pData->GetMyUser() &&
+				g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_OPERATOR )
+			{
+#ifdef QUEST_GUIDE
+				if( true == bShowRadioButton && NULL != pLocalMapTemplet )
+				{
+					CX2QuestManager* pQuestManager = g_pData->GetQuestManager();
+					if( NULL != pQuestManager )
+					{
+						// June passes !m_bHeroMode as a second argument; March's takes none.
+						map<SEnum::DUNGEON_ID, bool> SetNeedToClearDungeonList;
+						if( true == pQuestManager->GetNeedToClearDungeonList(SetNeedToClearDungeonList) )
+						{
+							for( UINT j=0; j< pLocalMapTemplet->m_DungeonList.size(); ++j )
+							{
+								map<SEnum::DUNGEON_ID, bool>::iterator mitDungeon = SetNeedToClearDungeonList.find(pLocalMapTemplet->m_DungeonList[j]);
+								if( mitDungeon != SetNeedToClearDungeonList.end() && NULL != pPicture )
+								{
+									pPicture->SetFlicker( 0.5f, 1.0f, 0.1f );
+									pPicture->SetShow(true);
+									break;
+								}
+							}
+						}
+					}
+				}
+#endif //QUEST_GUIDE
+				continue;
+			}
+
+			if( NULL == pLocalMapTemplet )
+				continue;
+
+#ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON
+			if( pControl->GetDummyInt( 0 ) == (int) CX2LocationManager::LMI_RANOX )
+			{
+				WCHAR buff[256] = {0};
+				StringCchPrintf( buff, 256, L"[RANOXDBG] region-tab localMapID=%d requireUnitLevel=%d unitLevel=%d",
+					pControl->GetDummyInt( 0 ), pLocalMapTemplet->m_RequireUnitLevel, g_pData->GetSelectUnitLevel() );
+				ErrorLogMsg( XEM_ERROR142, buff );
+			}
+#endif SERV_IRUHADEV_RANOXDBG_DUNGEON
+
+			// June: the level gate (identical to March's FIX_LOCALMAP_OPEN_CONDITION branch).
+			if( g_pData->GetSelectUnitLevel() < pLocalMapTemplet->m_RequireUnitLevel )
+			{
+				pControl->SetShowEnable( false, false );
+				bShowRadioButton = false;
+			}
+
+			// June then tests the templet's RequireCompletedQuestID (+0x70, EnterCondition key,
+			// via the quest manager, FUN_32322260): not completed -> SetShowEnable(false,false) and no
+			// quest mark. Only June's Elysion sets it (quest 22218); March's templet and parser have
+			// no such field and no March region sets it, so it is omitted. June does NOT test
+			// RequireClearDungeonID here (every village sets one; it gates village entry only).
+			if( true == bShowRadioButton )
+			{
+#ifdef QUEST_GUIDE
+				CX2QuestManager* pQuestManager = g_pData->GetQuestManager();
+				if( NULL != pQuestManager )
+				{
+					// June passes !m_bHeroMode as a second argument; March's takes none.
+					map<SEnum::DUNGEON_ID, bool> SetNeedToClearDungeonList;
+					if( true == pQuestManager->GetNeedToClearDungeonList(SetNeedToClearDungeonList) )
+					{
+						for( UINT j=0; j< pLocalMapTemplet->m_DungeonList.size(); ++j )
+						{
+							map<SEnum::DUNGEON_ID, bool>::iterator mitDungeon = SetNeedToClearDungeonList.find(pLocalMapTemplet->m_DungeonList[j]);
+							if( mitDungeon != SetNeedToClearDungeonList.end() && NULL != pPicture )
+							{
+								pPicture->SetShow(true);
+								break;
+							}
+						}
+					}
+				}
+#endif //QUEST_GUIDE
+				// June: WeeklyMark shown when !m_bHeroMode and a region dungeon is a flagged
+				// weekly/event dungeon. Omitted (see above).
+			}
+
+			// Page split: tabs 0-5 belong to page 1, the rest to page 2.
+			if( true == bPaging )
+			{
+				const bool bOnOtherPage = ( byTabCount < TABS_PER_PAGE ) ? ( false == m_bFirstPage ) : ( true == m_bFirstPage );
+				if( true == bOnOtherPage )
+				{
+					if( NULL != pPicture )
+						pPicture->SetShow( false );
+					pControl->SetShowEnable( false, false );
+				}
+			}
+
+			// June: the Event/Special tabs (0x271a/0x271b) are re-enabled by level alone and not
+			// counted. Dropped from this lua with LMI_EVENT/LMI_SPECIAL.
+			++byTabCount;
+			if( true == pControl->GetShow() )
+				++byShownTabCount;
+		}
+
+		// Arrows: page 2 always offers "back"; page 1 offers "next" only when its six tabs are all
+		// visible, i.e. the character is high enough for page 2 to matter.
+		if( true == bPaging )
+		{
+			if( byShownTabCount < TABS_PER_PAGE )
+			{
+				if( false == m_bFirstPage )
+				{
+					if( NULL != pStaticArrow && NULL != pStaticArrow->GetPicture( 0 ) )
+						pStaticArrow->GetPicture( 0 )->SetShow( true );
+					pArrowL->SetShow( true );
+				}
+			}
+			else if( true == m_bFirstPage )
+			{
+				if( NULL != pStaticArrow && NULL != pStaticArrow->GetPicture( 1 ) )
+					pStaticArrow->GetPicture( 1 )->SetShow( true );
+				pArrowR->SetShow( true );
+			}
+		}
+
+		// June then sets the event statics: APOCALYPSE_STATIC/TITLE_APOCALYPSE (dungeon 0xa1b8
+		// or GM), g_pStatic_Halloween2016, g_pStatic_Event, g_pStatic_Event2017, NewEvent,
+		// NewSpecial (event flags), and shows BASTERA_DUNGEON/TITLE_BESTERA. All June-only
+		// content; none of them is in this lua.
+	}
+
+	UpdateDungeonButtons( m_ePickedLocalMapID );
+	if( NULL != g_pData && NULL != g_pData->GetPartyManager() )
+		g_pData->GetPartyManager()->Send_EGS_REQUEST_GET_AUTO_PARTY_BONUS_INFO_NOT();
+	UpdateHeroRecruitButton();
+}
+//}} Iruha : 2026-10-01
+#else SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
 void CX2LocalMapUI::UpdateLocalMapDLG()
 {
 	CKTDGUIDialogType pDialog = GetLocalMapDLG( m_ePickedLocalMapID );
@@ -537,6 +1036,7 @@ void CX2LocalMapUI::UpdateLocalMapDLG()
 		g_pData->GetPartyManager()->Send_EGS_REQUEST_GET_AUTO_PARTY_BONUS_INFO_NOT();
 	UpdateHeroRecruitButton();
 }
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
 
 CKTDGUIDialogType CX2LocalMapUI::CreateLocalMapDLG( CX2LocationManager::LOCAL_MAP_ID eLocalMapID )
 {

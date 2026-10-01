@@ -1131,6 +1131,21 @@ has shipped. If it has, walk me through the play-test for the Lanox tab. If
 it has not, stop and say so.
 ```
 
+**Status 2026-10-01:**
+- Steps 1-2 are done. The data056 manifest no longer lists Button20_NEW; only
+  Button17 remains.
+- `JUNE_UI_PARITY_PHASES.md` Phase 2 is built and deployed, which delivers
+  this tab. See that doc's "Phase 2 result" for the pack list and play-test.
+- Step 3 is still owed, and it needs the `data034`/`data215` repack listed
+  there first.
+- The Lanox tab now sits on **page 2** of June's tab strip. Reach it with the
+  right arrow.
+- The tab is gated by level only: 68, per March's
+  `DLG_Map_Local_Ranox.lua`.
+- June's tab loop does **not** test `RequireClearDungeonID` (Behimoss
+  Heart). That key gates village entry, not the tab. See June-UI "Phase 2
+  result", "Corrections to Phase 0".
+
 ---
 
 ## Phase 4 - World map: June tiles and Ranox labels [item 5]

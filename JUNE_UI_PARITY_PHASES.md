@@ -812,3 +812,166 @@ matching). Confirm, in order:
 
 Phase 2 is the first phase that actually exercises `LMUCM_LOCAL_MAP_ARROW_LEFT/RIGHT`
 (the tab-paging arrows) and depends on this phase's values being right.
+
+---
+
+## Phase 2 result (built and deployed 2026-10-01; repack and play-test owed)
+
+### What changed
+
+- **Dialog lua.** `march2014/data034/DLG_UI_Local_Map_NEW.src.lua` is now
+  June's live copy, decompiled.
+  - It has a header comment block.
+  - These June-only controls are dropped, each with a comment in place:
+    `LocalMapRadioBtn9`/`Event`/`Special` (`LMI_ELYSION`/`EVENT`/`SPECIAL`),
+    Elysion's `QuestGuide` picture, the `WeeklyMark` static, and the event
+    statics.
+  - There are 9 region radios in order: Ruben, Elder, Besma, Altera, Peita,
+    Velder (page 1), then Hamel, Sander, Ranox (page 2). `LocalMap_arrowL/R`
+    send 18009/18010. `StaticArrow` holds `BG_ARROW_L/R`.
+  - Compiled with `elstools compile-batch -v mar-2014` to
+    `kom_contents/data034_kom/DLG_UI_Local_Map_NEW.lua` (12,985 B; the live
+    copy is 10,753 B).
+  - Round-trip: decompiling the compiled output gives back both arrow
+    messages and all nine `AddDummyInt(LOCAL_MAP_ID.*)` lines.
+- **Atlas.** `DLG_UI_Image_07.tga` (1,048,620 B) and `.TET` (5,656 B) are
+  copied from June `data215` into `kom_contents/data215_kom/` and
+  `march2014/update/data215/`. Both `_manifest.json` files list them as `"0"`.
+  - `DLG_UI_Button21` needed nothing: live March data056 is byte-identical
+    to June's.
+- **Enums.** No change needed. The enums are already live: `data036.kom`
+  was repacked 2026-10-01 09:11, and its `Enum.lua` is 265,246 B, the
+  Phase 1 build.
+- **C++.** These are in `X2Lib/X2LocalMapUI.{h,cpp}`, behind
+  `SERV_IRUHADEV_JUNE_LOCAL_MAP_UI`. Both functions are whole and keep the
+  March original in `#else`.
+  - The header gains `m_bHeroMode` (June `+0x44`), `m_bFirstPage` (`+0x60`,
+    initialised to `true`) and `m_bLoggedNoArrows`.
+  - `UICustomEventProc` (June `FUN_3293d280`): March's body, plus:
+    - 18005 `LMUCM_DUNGEON_MODE_SELECTED` sets `m_bHeroMode` from the
+      sender's dummy 0, then calls `UpdateLocalMapDLG`. No dialog sends it
+      until Phase 4.
+    - 18009/18010 flip `m_bFirstPage` only when it changes, then call
+      `UpdateLocalMapDLG`.
+    - Comments cover the June-only Bestera and Space-of-Thought tooltips.
+  - `UpdateLocalMapDLG` (June `FUN_3293c6f0`):
+    - It hides both arrows and both `StaticArrow` pictures.
+    - It walks the region radios. Picked tab, `SetShowEnable`, the
+      `QuestGuide` mark, and the GM bypass (which skips paging, as in June)
+      all behave as before.
+    - The level gate is unchanged. The quest-mark rule is unchanged.
+    - Tabs 0-5 are page 1 and the rest page 2. The other page's tabs get
+      `SetShowEnable(false,false)` and their quest mark is hidden.
+    - After the loop it shows `arrowL` + `BG_ARROW_L` when on page 2. It shows
+      `arrowR` + `BG_ARROW_R` when on page 1 and all six page-1 tabs are
+      visible.
+    - Every June-only branch is a comment in place.
+    - `Always.h`'s flag description now mentions Phase 2.
+- **Built and deployed.**
+  - `X2ServerProtocol`, `KTDXLIB`, `X2Lib` and `X2` were built as
+    `US_SERVICE`, with the PCH invalidated first. All four had rc=0.
+  - `x2.exe` (18,981,376 B, 12:27) was copied to `$DATA/X2_offline.exe`. The
+    copy is byte-identical, and the `[JUNE_LMUI]` string is present in the
+    binary.
+  - **Not launched.**
+
+### Corrections to Phase 0
+
+- **June's tab test is not "the same rule as March's
+  `FIX_LOCALMAP_OPEN_CONDITION`/`#else`".** June applies:
+  1. the level gate (the same as March's compiled branch), then
+  2. templet `+0x70`, which is **`RequireCompletedQuestID`**, not a dungeon.
+     - The key name is XOR-obfuscated in June's parser `FUN_32501bb0` at
+       `0x32502cf4` and decrypts to `RequireCompletedQuestID`.
+     - It is tested through the quest manager (`FUN_32322260`,
+       `this = *(g_pData+0x4c)`, a map `find != end`).
+     - Of the 13 June village luas, only Elysion sets it (quest 22218).
+       March's parser and templet have no such field, so it is omitted with
+       a comment.
+- **June does not test `RequireClearDungeonID` in the tab loop.** Every
+  June village sets one; it gates village entry, not the tab. An earlier
+  draft of this port added a clear-dungeon gate from March's
+  `m_vecRequireClearDungeonID`, which was wrong. With page 1's
+  arrow rule it would have hidden the right arrow, and so Hamel, Sander and
+  Lanox, from every character missing a page-1 clear (7 of the 8 save
+  characters have no Sander clears at all). It was removed before deploy.
+
+### Deliberate deviations, for the user
+
+- **`LMUCM_DUNGEON_CLICKED` is kept as March's body.** June's version has
+  the same shape but differs in two ways:
+  - the no-party mode is `DT_SECRET -> DM_SECRET_HELL` (March:
+    `DM_SECRET_NORMAL`), plus a type-5 mode;
+  - the difficulty comes from `FUN_327db250`, which reads hero mode and
+    June-only `DungeonData` fields.
+
+  Both belong with the hero Mode Button (Phase 4, approved but not
+  started). Porting them now would change which secret-dungeon mode a solo
+  party starts in.
+- **June's quest-mark call** passes `!m_bHeroMode` to
+  `GetNeedToClearDungeonList`. March's takes no such argument. While hero
+  mode is off this makes no difference.
+
+### Degrade path
+
+If the loaded `DLG_UI_Local_Map_NEW.lua` has no `LocalMap_arrowL/R` (live
+`data034.kom` is still the pre-June copy), paging switches off. The single
+row of tabs behaves exactly as March's did. One line is logged per session:
+`[JUNE_LMUI] DLG_UI_Local_Map_NEW.lua has no LocalMap_arrowL/R ...`. It goes
+to `ErrorLog.txt` and `offline_server.log`. So the exe is safe to run before
+the repack; it just looks unchanged.
+
+### Pack list
+
+| Archive | Source dir | File | Note |
+|---|---|---|---|
+| `data034.kom` | `kom_contents/data034_kom/` | `DLG_UI_Local_Map_NEW.lua` (12,985 B, algo 2) | replaces 10,753 B |
+| `data215.kom` | `kom_contents/data215_kom/` | `DLG_UI_Image_07.tga` (1,048,620 B), `DLG_UI_Image_07.TET` (5,656 B), algo 0 | new; not in live data215 |
+| `data056.kom` | (none for this phase) | (none) | Manifest cleaned of `DLG_UI_Button20_NEW` (LANOX Phase 3). Only the pending Button17 re-pack is listed there. **Do not ship Button20_NEW.** |
+
+**`data034` and `data215` ship together or not at all.** Without
+`DLG_UI_Image_07`, the arrow buttons' textures don't resolve. Nothing has
+shown that a button with no texture keeps a clickable hit area. If it
+doesn't, page 2 (Hamel, Sander, Lanox) is unreachable.
+
+The March village level requirements were checked by decompiling
+`kom_contents` `DLG_Map_Local_*.lua`: Ruben 1, Elder 6, Besma 15, Altera 27,
+Peita 34, Velder 41, Hamel 48, Sander 58, Ranox 68. These are identical to
+June's.
+
+### Play-test checklist
+
+Use **`reyaa` (uid 12, level 80)**. Every gate is level-only, so any
+character at level 68 or above should see all nine tabs:
+- `reyaa` 80, `Iivue` 80, `eresisu` 77 and `Freils` 72 see all nine.
+- `ravbe` 67 sees no Lanox (Ranox requires 68).
+- `arasss` 47 sees the right arrow, but page 2 is empty (Hamel requires 48).
+  That is June behaviour.
+
+1. **Before repacking** (only the new exe is live): the local map should look
+   exactly as it did yesterday. `ErrorLog.txt` should hold one
+   `[JUNE_LMUI] ... no LocalMap_arrowL/R` line.
+2. **After repacking data034 and data215:**
+   - Open the local map from a page-1 village, e.g. Ruben. Six tabs show
+     (Ruben..Velder) with a right arrow and its backdrop. Hamel, Sander and
+     Lanox do not show yet.
+   - Click the right arrow. Hamel, Sander and Lanox show with a left arrow;
+     page-1 tabs are hidden.
+   - Click each of Hamel, Sander and Lanox. Each must open its own local
+     map. Lanox must show Ranox's dungeon gates, and the hit-boxes must
+     respond. The arrow state persists across tab clicks.
+   - Click the left arrow. Back to page 1. Click each of the six. Each opens
+     the right map.
+   - Close and reopen the local map, and change village. It reopens on
+     **whichever page you left it on**, as June does:
+     - only the ctor and the two arrows write `m_bFirstPage`, and
+       `OpenLocalMapDLG` does not reset it;
+     - the object is owned by `CX2PartyUI` (`X2PartyUI.cpp:21`), which lives
+       for the session.
+
+     So from Hamel, Sander or Lanox, your own tab may be on the other page.
+     That is expected; page across to see it checked.
+   - Use a below-68 character (`ravbe`). There is no Lanox tab, and that is
+     correct. Arrows still page.
+   - Look for no `[JUNE_LMUI]` line, and no Lua error naming
+     `DLG_UI_Local_Map_NEW` or `DLG_UI_Image_07`.

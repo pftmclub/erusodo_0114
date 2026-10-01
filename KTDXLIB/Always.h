@@ -4538,5 +4538,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Local Map dialog needs that March lacks (X2LocalMapUI.h), at June's own numeric
 // values (JUNE_UI_PARITY_PHASES.md Phase 0 findings). Matching Lua side added to
 // march2014/data036/Enum.src.lua. 18006-18008 (Elysion-only) are not added.
+// Phase 2 (2026-10-01): also gates the June2017 UICustomEventProc/UpdateLocalMapDLG
+// port in X2Lib/X2LocalMapUI.cpp (two-page region tab strip + page arrows).
 #define SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
 //////////////////////////////////////////////////////////////////////////

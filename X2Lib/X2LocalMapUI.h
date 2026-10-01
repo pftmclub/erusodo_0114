@@ -48,6 +48,12 @@ private:
 #endif SERV_EPIC_QUEST
 
 	CKTDGUIDialogType		m_pDlgHeroRecruit;
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
+	// June2017 CX2LocalMapUI members (JUNE_UI_PARITY_PHASES.md Phase 2).
+	bool	m_bHeroMode;		// June +0x44, set by LMUCM_DUNGEON_MODE_SELECTED (Mode Button, Phase 4)
+	bool	m_bFirstPage;	// June +0x60, tab-strip page; only the ctor and the two arrow messages write it
+	bool	m_bLoggedNoArrows;	// once-per-session log when the dialog lua has no page arrows
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
 public:
 	void SetStage( CKTDXStage* pStage );
 
