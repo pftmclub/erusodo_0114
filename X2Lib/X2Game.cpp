@@ -2929,6 +2929,17 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 
 
 		m_pTalkBoxMgr->OnFrameMove( fTime, fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
+#ifdef SERV_WORLD_TRIGGER_RELOCATION
+		// June 2017 CX2Game::OnFrameMove (@323091c3): send the oldest queued trigger, and drop it
+		// only once the request actually went out.
+		if( false == m_deqActiveTriggerId.empty() &&
+			true == Handler_EGS_WORLD_TRIGGER_RELOCATION_REQ( m_deqActiveTriggerId.front() ) )
+		{
+			m_deqActiveTriggerId.pop_front();
+		}
+#endif SERV_WORLD_TRIGGER_RELOCATION
+#endif SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
 		//GuideTextFrameMove();
 
 
@@ -16234,8 +16245,16 @@ void CX2Game::SummonMonster(CX2GUUser* pCX2GUUser, CX2UnitManager::NPC_UNIT_ID n
 #ifdef SERV_WORLD_TRIGGER_RELOCATION
 bool CX2Game::Handler_EGS_WORLD_TRIGGER_RELOCATION_REQ( int iTriggerId )
 {
+#ifdef SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
+	// June 2017 (0x322f05b0): the CanActiveTrigger test moved into SetActiveTrigger_LUA, and only
+	// one request is in flight. While its ACK is outstanding, return false so the queue keeps
+	// the ID and OnFrameMove tries again next frame.
+	if( g_pMain->IsWaitingServerPacket( EGS_WORLD_TRIGGER_RELOCATION_ACK ) == true )
+		return false;
+#else  SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
 	if( GetWorld() != NULL && GetWorld()->CanActiveTrigger(iTriggerId) == false )
 		return true;
+#endif SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
 
 #if defined(WORLD_TOOL) || defined(X2TOOL)
 	GetWorld()->ActiveTrigger( iTriggerId );	
@@ -16244,19 +16263,48 @@ bool CX2Game::Handler_EGS_WORLD_TRIGGER_RELOCATION_REQ( int iTriggerId )
 	kEGS_WORLD_TRIGGER_RELOCATION_REQ.m_iWorldTrigger = iTriggerId;
 
 	g_pData->GetServerProtocol()->SendPacket( EGS_WORLD_TRIGGER_RELOCATION_REQ, kEGS_WORLD_TRIGGER_RELOCATION_REQ );
+#ifdef SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
+	g_pMain->AddServerPacket( EGS_WORLD_TRIGGER_RELOCATION_ACK );
+#endif SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
 #endif
 	return true;
 }
+#ifdef SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
+bool CX2Game::SetActiveTrigger_LUA( int iTriggerId )
+{
+	// June 2017 (0x322de950), bound for Lua as "SetActiveTrigger_LUA".
+	if( GetWorld() != NULL && GetWorld()->CanActiveTrigger( iTriggerId ) == false )
+		return true;
+
+	// June skips only a repeat of the ID already at the back of the queue.
+	if( false == m_deqActiveTriggerId.empty() && m_deqActiveTriggerId.back() == iTriggerId )
+		return true;
+
+	m_deqActiveTriggerId.push_back( iTriggerId );
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
 bool CX2Game::Handler_EGS_WORLD_TRIGGER_RELOCATION_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
 	KEGS_WORLD_TRIGGER_RELOCATION_ACK kEvent;
 	DeSerialize( pBuff, &kEvent );
 	
+#ifdef SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
+	// June 2017 ACK handler (@322d2c40): clear the wait the REQ registered, then check the result.
+	if( g_pMain->DeleteServerPacket( EGS_WORLD_TRIGGER_RELOCATION_ACK ) == true )
+	{
+		if( g_pMain->IsValidPacket( kEvent.m_iOK ) == true )
+		{
+			return true;
+		}
+	}
+#else  SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
 	if( g_pMain->IsValidPacket( kEvent.m_iOK ) == true )
 	{
 		return true;
 	}
+#endif SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
 
 	return false;
 }

@@ -2130,10 +2130,8 @@ function CreateLavaGround(slot0, slot1, slot2)
 	slot3 = slot0:GetNPCUnitByType(NPC_UNIT_ID.NUI_SECRET_BOSS_LAVA)
 
 	if slot2 == 1 then
-		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 (Secret Hell) --
-		-- SetActiveTrigger_LUA does not exist anywhere in this repo's C++
-		-- (checked X2Lib/KTDXLIB exhaustively). Omitted; this stage's
-		-- LineMap trigger index 0 is never armed by this call.
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01): restored verbatim from June (needs C++ SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER).
+		slot0:SetActiveTrigger_LUA(0)
 
 		if slot3 ~= nil then
 			slot3:StateChange_LUA("SECRET_BOSS_LAVA_ATTACK_1", true)
@@ -2141,8 +2139,8 @@ function CreateLavaGround(slot0, slot1, slot2)
 	end
 
 	if slot2 == 2 then
-		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 (Secret Hell) --
-		-- same SetActiveTrigger_LUA gap as above; trigger index 1.
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01): restored verbatim from June (needs C++ SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER).
+		slot0:SetActiveTrigger_LUA(1)
 
 		if slot3 ~= nil then
 			slot3:StateChange_LUA("SECRET_BOSS_LAVA_ATTACK_2", true)
@@ -2150,8 +2148,8 @@ function CreateLavaGround(slot0, slot1, slot2)
 	end
 
 	if slot2 == 3 then
-		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 (Secret Hell) --
-		-- same SetActiveTrigger_LUA gap as above; trigger index 2.
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01): restored verbatim from June (needs C++ SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER).
+		slot0:SetActiveTrigger_LUA(2)
 
 		if slot3 ~= nil then
 			slot3:StateChange_LUA("SECRET_BOSS_LAVA_ATTACK_3", true)

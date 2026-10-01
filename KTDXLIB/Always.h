@@ -4599,3 +4599,26 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              (MOTIONNAME_EFFECTSETNAME).
 #define SERV_IRUHADEV_JUNE_LINEMAP_TRIGGER
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-01
+// Description: Port June 2017's CX2Game::SetActiveTrigger_LUA so NPC scripts
+//              can fire line-map triggers. The Fire Temple boss
+//              (FIRE_DEVIL_CHAIN_IPLITAN) fires trigger 0 at the end of its
+//              start state and trigger 1 (the floor collapse) when it roars;
+//              March had no such binding, so the Ranox port commented both
+//              calls out and the floor never fell. Read off June:
+//              SetActiveTrigger_LUA (0x322de950) tests CanActiveTrigger and
+//              queues the ID in a deque (CX2Game +0xc28), skipping a repeat
+//              of the last one; OnFrameMove (@323091c3) sends the front
+//              through Handler_EGS_WORLD_TRIGGER_RELOCATION_REQ and pops it
+//              only if the REQ returned true; the REQ (0x322f05b0) refuses
+//              while its ACK is outstanding and registers that wait with
+//              AddServerPacket; the ACK (@322d2c40) clears it with
+//              DeleteServerPacket. Stepping on a trigger line queues as well
+//              (X2GUUser, June @3206bec6). Needs SERV_WORLD_TRIGGER_RELOCATION
+//              (ServerDefine.h). Not ported: CX2DungeonGame/CX2PVEGame vtable
+//              slot 165 (0x328bf8b0), which also queues trigger 0 when
+//              IsHost(); the event that slot handles is not identified yet.
+#define SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
+//////////////////////////////////////////////////////////////////////////

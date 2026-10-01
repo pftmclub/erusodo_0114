@@ -17303,7 +17303,12 @@ void CX2GUUser::CommonFrameMove()
 			{
 				m_fTriggerTime = 0.f;		
 #ifdef SERV_WORLD_TRIGGER_RELOCATION			
+#ifdef SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
+				// June 2017 (@3206bec6) queues the line's trigger instead of sending it here.
+				g_pX2Game->SetActiveTrigger_LUA( pLineData->m_iTriggerId );
+#else  SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
 				g_pX2Game->Handler_EGS_WORLD_TRIGGER_RELOCATION_REQ( pLineData->m_iTriggerId );		
+#endif SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
 #else	//SERV_WORLD_TRIGGER_RELOCATION
 				g_pX2Game->GetWorld()->ActiveTrigger( pLineData->m_iTriggerId );
 #endif	//SERV_WORLD_TRIGGER_RELOCATION

@@ -248,10 +248,8 @@ function CF_SECRET_SCENE_DUMMY_DYING_READY(slot0, slot1, slot2)
 end
 
 function SECRET_SCENE_DUMMY_SUMMON_TYPE1_STATE_START(slot0, slot1, slot2)
-	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 (Secret Hell) --
-	-- SetActiveTrigger_LUA does not exist anywhere in this repo's C++
-	-- (checked X2Lib/KTDXLIB exhaustively). Omitted; this stage's LineMap
-	-- trigger index 4 is never armed by this call.
+	-- SERV_IRUHADEV_RANOX_PORT (2026-10-01): restored verbatim from June (needs C++ SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER).
+	slot1:SetActiveTrigger_LUA(4)
 	print("trigger on 4")
 end
 
@@ -372,10 +370,8 @@ function SECRET_SCENE_DUMMY_SUMMON_TYPE3_STATE_START(slot0, slot1, slot2)
 		print("Init!!!")
 	end
 
-	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 (Secret Hell) --
-	-- SetActiveTrigger_LUA does not exist anywhere in this repo's C++
-	-- (checked X2Lib/KTDXLIB exhaustively). Omitted; this stage's LineMap
-	-- trigger index 2 is never armed by this call.
+	-- SERV_IRUHADEV_RANOX_PORT (2026-10-01): restored verbatim from June (needs C++ SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER).
+	slot1:SetActiveTrigger_LUA(2)
 
 	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 (Secret Hell) -- the
 	-- removed block reset the fever-gauge dialog's counter/gauge widgets to
@@ -629,10 +625,8 @@ SECRET_SCENE_DUMMY_DYING = {
 
 function SECRET_SCENE_DUMMY_DYING_STATE_START(slot0, slot1, slot2)
 	if slot1:GetNowStageIndex() == 2 or slot1:GetNowStageIndex() == 6 then
-		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 (Secret Hell) --
-		-- SetActiveTrigger_LUA does not exist anywhere in this repo's C++
-		-- (checked X2Lib/KTDXLIB exhaustively). Omitted; this stage's
-		-- LineMap trigger index 1 is never armed by this call.
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01): restored verbatim from June (needs C++ SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER).
+		slot1:SetActiveTrigger_LUA(1)
 
 		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 (Secret Hell) -- the
 		-- removed block hid the fever-gauge dialog via GetSimpleDLG/

@@ -327,11 +327,10 @@ function FIRE_DEVIL_CHAIN_IPLITAN_START_STATE_END(slot0, slot1, slot2)
 	slot2:SetFlag_LUA(0, false)
 	slot2:SetFlag_LUA(1, false)
 	slot2:SetFlag_LUA(2, false)
-	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): slot1:SetActiveTrigger_LUA(0)
-	-- omitted -- not bound in March2014 client (checked X2Lib/KTDXLIB, not
-	-- found -- nor is it declared anywhere). Whatever LineMap trigger this
-	-- boss's own start state was meant to arm doesn't fire; the other
-	-- per-unit flag bookkeeping above is unaffected.
+	-- SERV_IRUHADEV_RANOX_PORT (2026-10-01): restored verbatim from June. Needs C++
+	-- SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER (CX2Game::SetActiveTrigger_LUA). Trigger 0 of
+	-- Ranox_FireTemple_StageBoss_LineMap: disables the pit lines 3/4 and plays the X01 floor anim.
+	slot1:SetActiveTrigger_LUA(0)
 end
 
 FIRE_DEVIL_CHAIN_IPLITAN_START = {
@@ -1162,14 +1161,13 @@ FIRE_DEVIL_CHAIN_IPLITAN_ATTACK_B_EVENT_READY = {
 }
 
 function FIRE_DEVIL_CHAIN_IPLITAN_ATTACK_B_EVENT_FIRE_STATE_START(slot0, slot1, slot2)
-	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): slot1:SetActiveTrigger_LUA(1) and
-	-- slot2:InitStateCoolTime("FIRE_DEVIL_CHAIN_IPLITAN_SPECIAL_ATTACK_A_READY")
-	-- both omitted -- neither is bound in March2014 client (checked
-	-- X2Lib/KTDXLIB, not found for either; InitStateCoolTime is the same gap
-	-- already documented in RAGE_DRYADKENTA.lua, Phase 4, and FIRE_DEVIL_SKA.lua,
-	-- Phase 5). This state's entire body was these two calls, so it's now an
-	-- empty (no-op) handler; the state transition into it (elsewhere in this
-	-- file) is unaffected.
+	-- SERV_IRUHADEV_RANOX_PORT (2026-10-01): slot1:SetActiveTrigger_LUA(1) restored verbatim
+	-- from June (needs C++ SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER). This is the roar's floor collapse:
+	-- trigger 1 of Ranox_FireTemple_StageBoss_LineMap drops lines 0/2 and enables pit lines 3/4.
+	slot1:SetActiveTrigger_LUA(1)
+	-- Still omitted (2026-09-18): slot2:InitStateCoolTime("FIRE_DEVIL_CHAIN_IPLITAN_SPECIAL_ATTACK_A_READY").
+	-- InitStateCoolTime is still not bound in March (the same gap as RAGE_DRYADKENTA.lua and
+	-- FIRE_DEVIL_SKA.lua).
 end
 
 FIRE_DEVIL_CHAIN_IPLITAN_ATTACK_B_EVENT_FIRE = {

@@ -199,8 +199,6 @@ function SECRET_MAGI_SCENE_A_DYING_START_START(slot0, slot1, slot2)
 end
 
 function SECRET_MAGI_SCENE_A_DYING_END_FUNC(slot0, slot1, slot2)
-	-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 (Secret Hell) --
-	-- SetActiveTrigger_LUA does not exist anywhere in this repo's C++
-	-- (checked X2Lib/KTDXLIB exhaustively). Omitted; this stage's LineMap
-	-- trigger index 0 is never armed by this call.
+	-- SERV_IRUHADEV_RANOX_PORT (2026-10-01): restored verbatim from June (needs C++ SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER).
+	slot1:SetActiveTrigger_LUA(0)
 end

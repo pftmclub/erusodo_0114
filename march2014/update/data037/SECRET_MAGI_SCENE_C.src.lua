@@ -209,19 +209,7 @@ function SECRET_MAGI_SCENE_C_DYING_END_FUNC(slot0, slot1, slot2)
 	slot3 = GET_ALL_TRIGGER_INDEX()
 
 	for slot7 = 1, #slot3 do
-		-- SERV_IRUHADEV_RANOX_PORT (2026-09-18): Phase 9 (Secret Hell) --
-		-- SetActiveTrigger_LUA does not exist anywhere in this repo's C++
-		-- (checked X2Lib/KTDXLIB exhaustively). Omitted; none of this
-		-- stage's LineMap trigger indices get armed by this loop. Kept the
-		-- "slot3 = GET_ALL_TRIGGER_INDEX()" assignment and the loop bound
-		-- (matching SECRET_MAGI_SCENE_B.lua's own sibling disposition for
-		-- this same gap, which keeps its own GET_ALL_TRIGGER_INDEX() call
-		-- and prints) rather than deleting the whole loop, per a fresh
-		-- audit finding: the original decompile had "slot3[slot7]" indexed
-		-- with no assignment to slot3 anywhere in this function -- a
-		-- decompiler artifact (a dropped assignment line), not a deliberate
-		-- omission of one. GET_ALL_TRIGGER_INDEX itself is a real,
-		-- file-local function (defined at the top of this file), not a
-		-- gap.
+		-- SERV_IRUHADEV_RANOX_PORT (2026-10-01): restored verbatim from June (needs C++ SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER).
+		slot1:SetActiveTrigger_LUA(slot3[slot7])
 	end
 end

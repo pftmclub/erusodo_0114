@@ -1184,6 +1184,13 @@ class CX2Game : public CKTDXStage
 		bool Handler_EGS_WORLD_TRIGGER_RELOCATION_REQ( int iTriggerId );
 		bool Handler_EGS_WORLD_TRIGGER_RELOCATION_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 		bool Handler_EGS_WORLD_TRIGGER_RELOCATION_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+#ifdef SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
+		/// June 2017 CX2Game::SetActiveTrigger_LUA (0x322de950). Queues a line-map trigger for
+		/// OnFrameMove to send; NPC scripts call it (the Fire Temple boss roar is trigger 1).
+		bool SetActiveTrigger_LUA( int iTriggerId );
+		/// June's CX2Game +0xc28: trigger IDs waiting for EGS_WORLD_TRIGGER_RELOCATION_REQ.
+		std::deque<int> m_deqActiveTriggerId;
+#endif SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
 #endif
 
 //{{ 허상형 : [2011/3/4/] //	월드 미션

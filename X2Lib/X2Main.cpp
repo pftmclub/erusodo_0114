@@ -3839,6 +3839,11 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2Game>( L, "GetGameType",							&CX2Game::GetGameType );
 #endif
 	lua_tinker::class_def<CX2Game>( L, "IsHost",								&CX2Game::IsHost );
+#ifdef SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
+#ifdef SERV_WORLD_TRIGGER_RELOCATION
+	lua_tinker::class_def<CX2Game>( L, "SetActiveTrigger_LUA",					&CX2Game::SetActiveTrigger_LUA );
+#endif SERV_WORLD_TRIGGER_RELOCATION
+#endif SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
 	lua_tinker::class_def<CX2Game>( L, "GetMajorXMeshPlayer",					&CX2Game::GetMajorXMeshPlayer );
 	lua_tinker::class_def<CX2Game>( L, "GetMinorXMeshPlayer",					&CX2Game::GetMinorXMeshPlayer );
 	lua_tinker::class_def<CX2Game>( L, "GetMajorParticle",						&CX2Game::GetMajorParticle );

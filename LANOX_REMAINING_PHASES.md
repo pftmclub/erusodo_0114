@@ -1849,6 +1849,62 @@ and the play-test are still owed.
     13,393 B and Secret 9,546 → 9,651 B. All five were already in their
     manifests at `"2"`.
 
+**Follow-up, same day: the boss roar does not collapse the floor (user
+report).** The boss linemap (`Ranox_FireTemple_StageBoss_LineMap`) was
+already identical to June's. Its two triggers are not tied to any line;
+the boss script fires them.
+- **Cause.** June's `FIRE_DEVIL_CHAIN_IPLITAN.lua` calls
+  `SetActiveTrigger_LUA(0)` at the end of its start state and
+  `SetActiveTrigger_LUA(1)` in `ATTACK_B_EVENT_FIRE` (the roar). March had
+  no such binding, so the port commented both calls out.
+- **Fix, flag `SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER`.** It ports June's
+  trigger queue, read off `unpacked_x2.exe`:
+  - `CX2Game::SetActiveTrigger_LUA` (`0x322de950`, bound through
+    `FUN_31d95080`) tests `CanActiveTrigger` and pushes the ID onto a
+    deque (`CX2Game +0xc28`). It skips only a repeat of the ID already at
+    the back.
+  - `OnFrameMove` (`@323091c3`) sends the front of the queue through
+    `Handler_EGS_WORLD_TRIGGER_RELOCATION_REQ`, and pops it only if the
+    REQ returned true.
+  - The REQ (`0x322f05b0`) refuses while its ACK is outstanding, and
+    registers the wait with `AddServerPacket`. The ACK (`@322d2c40`)
+    clears it with `DeleteServerPacket`.
+  - Stepping on a trigger line (`X2GUUser`, June `@3206bec6`) now queues
+    the trigger too, instead of sending the REQ directly.
+  - The offline emulator already answers the REQ with the NOT that runs
+    the trigger.
+- **Not ported:** `CX2DungeonGame`/`CX2PVEGame` vtable slot 165
+  (`0x328bf8b0`), which also queues trigger 0 when `IsHost()`. The event
+  it handles is not identified.
+- **Data:** both calls are restored in
+  `march2014/update/data037/FIRE_DEVIL_CHAIN_IPLITAN.src.lua`.
+  `InitStateCoolTime` stays commented out, because it is still unbound.
+  Compiled `-v mar-2014` (no drift against the staged bytecode, and the
+  round trip shows both calls) and staged to `kom_contents/data037_kom/`:
+  28,949 → 29,023 B, already in the manifest at `"2"`.
+- **Secret Hell, restored the same day.** The 9 `SetActiveTrigger_LUA` calls
+  that Ranox Phase 9 commented out of 5 Secret Hell scripts are back,
+  verbatim from June. Every call in March now equals June's, in order:
+  - `SECRET_MAGI_BOSS`: `CreateLavaGround`, triggers 0/1/2, called on
+    `slot0`, which is the game object its callers pass.
+  - `SECRET_MAGI_SCENE_A`: trigger 0.
+  - `SECRET_MAGI_SCENE_B`: the random trigger `slot5`.
+  - `SECRET_MAGI_SCENE_C`: every trigger, in its loop.
+  - `SECRET_SCENE_DUMMY`: triggers 4, 2 and 1.
+
+  The fever-gauge `GetSimpleDLG` calls next to them stay omitted, because
+  March still has no binding for them. The drift check was clean and the
+  round trip shows every call. Staged to `kom_contents/data037_kom/`, all
+  already in the manifest at `"2"`. Sizes (old → new):
+
+  | File | Old | New |
+  |---|---|---|
+  | `SECRET_MAGI_BOSS` | 33,468 B | 33,537 B |
+  | `SECRET_MAGI_SCENE_A` | 3,702 B | 3,739 B |
+  | `SECRET_MAGI_SCENE_B` | 3,869 B | 3,906 B |
+  | `SECRET_MAGI_SCENE_C` | 3,827 B | 3,868 B |
+  | `SECRET_SCENE_DUMMY` | 11,882 B | 11,993 B |
+
 ---
 
 ## Phase 11 - Ranox boss face missing from the boss HP bar [item 12]
