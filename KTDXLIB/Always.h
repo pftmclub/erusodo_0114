@@ -4555,3 +4555,18 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // the June per-village local-map luas staged in march2014/ (data034/data217).
 #define SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-01
+// Description: June2017 UI parity Phase 5 (JUNE_UI_PARITY_PHASES.md). The party/dungeon
+// panel follows June: whole-function ports in X2Lib/X2PartyUI.cpp of June's
+// OpenPartyMenu (FUN_322c3d80, loads DLG_UI_PARTY_BOTTON_NEW_20161103.lua),
+// UpdateMatchingUI (FUN_322ba060), UpdatePartyDLG (FUN_322c2e50), the UpdateDifficultyUI
+// family (FUN_322c16a0 and callees, incl. the new UpdateAdequateLevel FUN_322beb90),
+// SelectDungeonDifficulty (FUN_322c1700), and the PUCM_PARTY_GAME_START confirm box
+// (case 14015 -> PUCM_PARTY_GAME_START_OK = 14074). Needs the June party luas and atlases
+// staged in march2014/ (data034, data057, data151). June's PvP union dialog
+// (DLG_UI_PVP_UNION_MULTIPLE.lua) is NOT part of this: it sends a multi-mode match
+// request March's KEGS_REQUEST_MATCH_MAKING_REQ cannot carry.
+#define SERV_IRUHADEV_JUNE_PARTY_UI
+//////////////////////////////////////////////////////////////////////////

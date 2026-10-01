@@ -2,6 +2,40 @@
 
 #include "StdAfx.h"
 #include ".\X2PartyUI.h"
+#ifdef SERV_IRUHADEV_JUNE_PARTY_UI
+#ifdef SERV_IRUHADEV_OFFLINE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_OFFLINE
+
+// June2017 party UI (JUNE_UI_PARITY_PHASES.md Phase 5): one line to ErrorLog.txt
+// (and offline_server.log) when a June dialog lua is missing or is still March's.
+static void JunePartyUILog( const WCHAR* wszMsg )
+{
+	WCHAR buff[512] = {0};
+	StringCchPrintf( buff, 512, L"[JUNE_PARTYUI] %s", wszMsg );
+	ErrorLogMsg( XEM_ERROR142, buff );
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"%s", buff );
+#endif SERV_IRUHADEV_OFFLINE
+}
+
+// June FUN_32931be0: Hero dungeon IDs (100000..100532, 110001..110310, 120000, 120010).
+// March has none of them, so this is always false here; kept so the June
+// branches read as June wrote them.
+static bool JuneIsHeroDungeon( int iDungeonID )
+{
+	return ( 100000 <= iDungeonID && iDungeonID < 100533 ) ||
+		( 110001 <= iDungeonID && iDungeonID < 110311 ) ||
+		120000 == iDungeonID || 120010 == iDungeonID;
+}
+
+// June FUN_32863880: event dungeons that show no difficulty boxes at all
+// (41480, 41490, 41500, 41510; June-only content, never present in March).
+static bool JuneIsNoDifficultyDungeon( int iDungeonID )
+{
+	return 41480 == iDungeonID || 41490 == iDungeonID || 41500 == iDungeonID || 41510 == iDungeonID;
+}
+#endif SERV_IRUHADEV_JUNE_PARTY_UI
 
 const double CX2PartyUI::PARTY_LIST_REFRESH_INTERVAL = 5.0;		// 파티 리스트 갱신 시간간격
  
@@ -265,9 +299,30 @@ m_fElapsedTime(3.f)
 
 	case PUCM_PARTY_GAME_START:
 		{
+#ifdef SERV_IRUHADEV_JUNE_PARTY_UI
+			// June FUN_322c5ba0 case 14015. Starting with the current members asks first,
+			// STR 43191 ("Cannot powerful 'Heroes Assemble' buff with current members...").
+			// June skips the box for dungeons carrying DungeonData tag 1 (FUN_31edf8f0(id,1)),
+			// a June-only field March's DungeonData does not have, so the box always shows.
+			g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2( -999, -999 ), GET_STRING( 43191 ), PUCM_PARTY_GAME_START_OK, (CKTDXStage*) g_pMain->GetNowState() );
+			return true;
+#else
 			GameStartCurrentMember();
 			return true;
+#endif SERV_IRUHADEV_JUNE_PARTY_UI
 		} break;
+
+#ifdef SERV_IRUHADEV_JUNE_PARTY_UI
+	case PUCM_PARTY_GAME_START_OK:
+		{
+			// June FUN_322c5ba0 case 14074: close the box, then start as March did.
+			CKTDGUIControl* pControl = (CKTDGUIControl*)lParam;
+			if( NULL != pControl )
+				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, pControl->GetDialog(), NULL, false );
+			GameStartCurrentMember();
+			return false;
+		} break;
+#endif SERV_IRUHADEV_JUNE_PARTY_UI
 
 	case PUCM_PARTY_CLOSE_WINDOW:
 		{
@@ -1356,6 +1411,74 @@ void CX2PartyUI::UpdateQuestGuide()
 	}
 }
 #endif //QUEST_GUIDE
+#ifdef SERV_IRUHADEV_JUNE_PARTY_UI
+// June2017 CX2PartyUI::UpdateMatchingUI (FUN_322ba060), ported whole. Differences from
+// March: an estimate of 30+ minutes on a dungeon match reads STR 43188 ("1 Min./"),
+// and string 4 of the wait panel (new in DLG_UI_PARTY_BOTTON_NEW_20161103.lua) carries
+// STR 43192, the Heroes Assemble note, for a dungeon match.
+// Omitted, June-only: the PvP tournament wait text (FUN_326662b0() == 6, STR 42236), and
+// June's party-manager byte after m_bProcessDungeonMatch (+0x71), which swaps both
+// strings for STR 43312 ("Cannot receive Heroes Assemble buff here"); March has no such
+// member, so it reads as false.
+void CX2PartyUI::UpdateMatchingUI(float fElapsedTime_)
+{
+	if( NULL == m_pDLGPartyMenu )
+		return;
+
+	m_fWaitPvpTime += fElapsedTime_;
+
+	if( false == m_pDLGPartyMenu->GetShow() )
+		return;
+
+	CKTDGUIStatic *pStaticStay = NULL;
+	if( true == g_pData->GetPartyManager()->GetProcessPvpMatch() )
+		pStaticStay = (CKTDGUIStatic*)m_pDLGPartyMenu->GetControl(L"PVP_STAY");
+	else if( true == g_pData->GetPartyManager()->GetProcessDungeonMatch() )
+		pStaticStay = (CKTDGUIStatic*)m_pDLGPartyMenu->GetControl(L"DUNGEON_STAY");
+	else
+		return;
+
+	if( NULL == pStaticStay || false == pStaticStay->GetShow() )
+		return;
+
+	const int iBufSizeMax = 100;
+	WCHAR wBuf1[iBufSizeMax] = {0,};
+
+	const int iEstimatedTime = ( m_iEstimatedTime / 60 );
+	if( iEstimatedTime < 1 )
+	{
+		StringCchPrintfW( wBuf1, ARRAY_SIZE(wBuf1), L"%s", GET_STRING(STR_ID_24587) );
+	}
+	else if( iEstimatedTime < 30 )
+	{
+		StringCchPrintfW( wBuf1, ARRAY_SIZE(wBuf1), L"%02d:%02d%s", (int)(m_iEstimatedTime / 60), (int)(m_iEstimatedTime % 60), GET_STRING(STR_ID_24589) );
+	}
+	else if( true == g_pData->GetPartyManager()->GetProcessDungeonMatch() )
+	{
+		StringCchPrintfW( wBuf1, ARRAY_SIZE(wBuf1), L"        %s", GET_STRING( 43188 ) );
+	}
+	else
+	{
+		StringCchPrintfW( wBuf1, ARRAY_SIZE(wBuf1), L"%s", GET_STRING(STR_ID_24588) );
+	}
+
+	// PVP_STAY has no string 4 in June's lua either, hence the NULL check.
+	if( NULL != pStaticStay->GetString(4) )
+	{
+		if( true == g_pData->GetPartyManager()->GetProcessPvpMatch() )
+			pStaticStay->GetString(4)->msg = L"";
+		else
+			pStaticStay->GetString(4)->msg = GET_STRING( 43192 );
+	}
+
+	if( NULL != pStaticStay->GetString(0) )
+		pStaticStay->GetString(0)->msg = CWordLineHandler::GetStrByLineBreakInX2Main( wBuf1, 150, pStaticStay->GetString(0)->fontIndex );
+
+	StringCchPrintfW( wBuf1, ARRAY_SIZE(wBuf1), L"%02d:%02d", (int)((int)m_fWaitPvpTime / 60), (int)((int)m_fWaitPvpTime % 60) );
+	if( NULL != pStaticStay->GetString(1) )
+		pStaticStay->GetString(1)->msg = wBuf1;
+}
+#else
 void CX2PartyUI::UpdateMatchingUI(float fElapsedTime_)
 {
 	if( NULL == m_pDLGPartyMenu )
@@ -1417,6 +1540,8 @@ void CX2PartyUI::UpdateMatchingUI(float fElapsedTime_)
 		}
 	}
 }
+
+#endif SERV_IRUHADEV_JUNE_PARTY_UI
 
 void CX2PartyUI::SetCurrentWaitUserCount( int iWaitUserCount_, bool bShow_ /*= true*/ )
 {
@@ -1642,6 +1767,14 @@ void CX2PartyUI::CreatePartyDlg()
 #endif //SERV_PVP_NEW_SYSTEM
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGParty );
 		m_pDLGParty->SetDisableUnderWindow(true);
+#ifdef SERV_IRUHADEV_JUNE_PARTY_UI
+		// June's DLG_UI_PARTY_LENGTH_NEW.lua (same name as March's) adds VSFOUR, HELL_HERO
+		// and ButtonErdaHelp, and June's UpdateDungeonTypeButton/UpdateDifficultyButton/
+		// UpdateDifficultyButtonForSpecialDungeon return early unless all three exist. So
+		// with March's copy still packed the difficulty boxes stop updating. Say so once.
+		if( NULL == m_pDLGParty->GetControl( L"VSFOUR" ) )
+			JunePartyUILog( L"DLG_UI_PARTY_LENGTH_NEW.lua has no VSFOUR: data034.kom still holds the pre-June copy; repack it. Difficulty boxes will not update until then." );
+#endif SERV_IRUHADEV_JUNE_PARTY_UI
 	}
 #ifdef SERV_PVP_NEW_SYSTEM
 	if( m_pDLGPartyPVP == NULL )
@@ -1659,6 +1792,280 @@ void CX2PartyUI::CreatePartyDlg()
 }
 
 // @bRenamePartyTitle : 던전을 바꿀 경우 파티 이름을 다시 지정한다. 
+#ifdef SERV_IRUHADEV_JUNE_PARTY_UI
+// June2017 CX2PartyUI::UpdatePartyDLG (FUN_322c2e50), ported whole. Each June-only branch
+// (Hero dungeons, Bestera, DungeonData fields March lacks, June's type-5 dungeons, June's
+// PvE rating gauge) is a comment in place. Notable differences from March:
+// - The region plate (Dungeon_Zone) is picked by local-map ID: picture N is
+//   LMI_RUBEN + N, so Lanox (LMI_RANOX) shows picture 8 of June's lua.
+// - Every difficulty refresh goes through June's UpdateDifficultyUI family, which also
+//   rewrites need_level (UpdateAdequateLevel) and hides a secret dungeon's boxes.
+// - An inactive dungeon (IsActiveDungeon false, non-GM) falls back to Ruben (see below).
+// - June dropped the party-title rename; it takes no argument, so bRenamePartyTitle is
+//   ignored here.
+void CX2PartyUI::UpdatePartyDLG( bool /*bRenamePartyTitle = false*/ )
+{
+#ifdef SERV_PVP_NEW_SYSTEM
+	if( m_bPartyPVP == true && NULL != m_pDLGPartyPVP )
+	{
+		UpdatePvpPartyDlg();
+		return;
+	}
+#endif
+
+	if( NULL == m_pDLGParty )
+		return;
+
+	if( false == m_pDLGParty->GetShow() )
+		return;
+
+	CX2PartyManager::PartyData* pPartyData = g_pData->GetPartyManager()->GetMyPartyData();
+	if( NULL == pPartyData )
+		return;
+
+	const int iOldDungeonID		= pPartyData->m_iDungeonID;
+	const int iOldDifficulty	= pPartyData->m_iDungeonDifficulty;
+
+#ifdef SERV_NEW_EVENT_TYPES
+	if( false == g_pData->GetDungeonManager()->IsDungeonEnable( pPartyData->m_iDungeonID ) )
+	{
+		pPartyData->m_iDungeonDifficulty	= CX2Dungeon::DL_NORMAL;
+		pPartyData->m_iDungeonMode			= CX2Dungeon::DM_INVALID;
+		pPartyData->m_iDungeonID			= SEnum::DI_RUBEN_EL_TREE_NORMAL;
+	}
+#endif SERV_NEW_EVENT_TYPES
+
+	if( true == g_pData->GetDungeonManager()->IsDefenceDungeon( pPartyData->m_iDungeonID ) )
+	{
+		// June: the unit's most recently entered dungeon. June also restores that dungeon's
+		// mode (unit +0xe14, clamped to >= 0); March's CX2Unit keeps no such field.
+		if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+		{
+			const int iLastEnterDungeonID = g_pData->GetMyUser()->GetSelectUnit()->GetRecentEnterDungeonID();
+			pPartyData->m_iDungeonID = ( iLastEnterDungeonID > 0 ? iLastEnterDungeonID : SEnum::DI_RUBEN_EL_TREE_NORMAL );
+		}
+		else
+			pPartyData->m_iDungeonID = SEnum::DI_RUBEN_EL_TREE_NORMAL;
+	}
+
+	// June: Hero dungeons collapse to 120000/120010 and Bestera (150000..150050) to 150000
+	// here; and a DungeonData fixed-difficulty override (FUN_327da9f0/FUN_327da920, fields
+	// +0xb0/+0xb6) replaces the difficulty. All June-only, omitted.
+	// June computes this sum before the inactive-dungeon fallback below and does not
+	// recompute it; kept in that order.
+	const int iDungeonIDWithDifficulty = pPartyData->m_iDungeonID + pPartyData->m_iDungeonDifficulty;
+
+	const bool bGM = ( NULL != g_pData->GetMyUser() && g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_OPERATOR );
+	if( false == g_pData->GetDungeonManager()->IsActiveDungeon( pPartyData->m_iDungeonID, 0 ) && false == bGM )
+	{
+		// June asks the unit for a replacement (FUN_32350560: its highest cleared, active,
+		// level-appropriate dungeon), built on DungeonData fields March lacks (+0xa8, +0xb0).
+		// June's own branch for "nothing suitable" is what applies here: Ruben, normal.
+		pPartyData->m_iDungeonDifficulty	= CX2Dungeon::DL_NORMAL;
+		pPartyData->m_iDungeonMode			= CX2Dungeon::DM_INVALID;
+		pPartyData->m_iDungeonID			= SEnum::DI_RUBEN_EL_TREE_NORMAL;
+	}
+
+	if( true == g_pData->GetPartyManager()->AmIPartyLeader() &&
+		( iOldDungeonID != pPartyData->m_iDungeonID || iOldDifficulty != pPartyData->m_iDungeonDifficulty ) )
+	{
+		g_pData->GetPartyManager()->Handler_EGS_PARTY_CHANGE_DUNGEON_REQ( pPartyData->m_iDungeonID, pPartyData->m_iDungeonDifficulty, pPartyData->m_iDungeonMode );
+	}
+
+	const CX2Dungeon::DungeonData* pDungeonData			= g_pData->GetDungeonManager()->GetDungeonData( (SEnum::DUNGEON_ID) iDungeonIDWithDifficulty );
+	const CX2Dungeon::DungeonData* pDungeonData_Normal	= g_pData->GetDungeonManager()->GetDungeonData( (SEnum::DUNGEON_ID) pPartyData->m_iDungeonID );
+	if( NULL == pDungeonData || NULL == pDungeonData_Normal )
+		return;
+
+	// June: Henir (DI_ELDER_HENIR_SPACE) in challenge mode reads a second item level,
+	// DungeonData +0x64, which March lacks; omitted.
+	UpdateAdequateItemLevel( pDungeonData->m_RequireItemLevel );
+	UpdateDungeonThumbnailQuestMark();
+	// June FUN_322b6e20: Static_HeroDungeonTitle, shown for Hero dungeons only. The control
+	// is dropped from the staged lua (Hero content), so there is nothing to drive.
+
+	CKTDGUIButton* pButton_GameStart = (CKTDGUIButton*) m_pDLGParty->GetControl( L"CurrentMemberStart" );
+	if( NULL != pButton_GameStart )
+	{
+		// June FUN_322b71d0(false): hides Static_Pve_RankGauge/Button_Pve_Rating_Notice (June's
+		// PvE rating, controls dropped). June then disables the button for dungeon 41450 and
+		// hides it for type-5 dungeons unless GM; both are June-only content.
+		pButton_GameStart->SetShowEnable( true, true );
+	}
+
+	if( NULL != g_pData && NULL != g_pData->GetPartyManager() )
+	{
+		g_pData->GetPartyManager()->UpdateSelectedDungeon();
+		g_pData->GetPartyManager()->Send_EGS_REQUEST_GET_AUTO_PARTY_BONUS_INFO_NOT();
+	}
+	// June then calls a location-manager lookup (FUN_324f2890) and discards its result.
+
+	CKTDGUIStatic* pStatic_DungeonImage		= static_cast<CKTDGUIStatic*>( m_pDLGParty->GetControl( L"image" ) );
+	CKTDGUIStatic* pStatic_AdequateLevel	= static_cast<CKTDGUIStatic*>( m_pDLGParty->GetControl( L"need_level" ) );
+	if( NULL != pStatic_AdequateLevel && NULL != pStatic_AdequateLevel->GetString(0) )
+	{
+		pStatic_AdequateLevel->GetString(0)->msg = GET_STRING(STR_ID_1104);
+	}
+	CKTDGUIStatic* pStatic_FieldName		= static_cast<CKTDGUIStatic*>( m_pDLGParty->GetControl( L"Dungeon_Zone" ) );
+
+	if( NULL != m_pDLGPartyMenu )
+	{
+		CKTDGUIStatic* pStaticPvpStayTime = (CKTDGUIStatic*) m_pDLGPartyMenu->GetControl( L"PVP_STAY" );
+		if( NULL != pStaticPvpStayTime )
+			pStaticPvpStayTime->SetShow( false );
+
+		CKTDGUIStatic* pStaticDungeonStayTime = (CKTDGUIStatic*) m_pDLGPartyMenu->GetControl( L"DUNGEON_STAY" );
+		if( NULL != pStaticDungeonStayTime )
+			pStaticDungeonStayTime->SetShow( false );
+	}
+
+	CKTDGUIStatic* pStatic_DungeonDescription	= (CKTDGUIStatic*) m_pDLGParty->GetControl( L"DungeonDescription" );
+	if( NULL != pStatic_DungeonDescription && NULL != pStatic_DungeonDescription->GetString(0) )
+	{
+		bool bEllipse = false;
+		pStatic_DungeonDescription->GetString(0)->msg = CWordLineHandler::GetStrByLineBreakInX2MainWithEllipse( pDungeonData->m_DungeonDescription.c_str(), 170, pStatic_DungeonDescription->GetString(0)->fontIndex, 3, bEllipse );
+		CKTDGUIStatic* DungeonDescriptionToolTip = (CKTDGUIStatic*) m_pDLGParty->GetControl( L"DungeonDescriptionToolTip" );
+		if( NULL != DungeonDescriptionToolTip )
+		{
+			if( true == bEllipse )
+			{
+				DungeonDescriptionToolTip->SetGuideDesc( CWordLineHandler::GetStrByLineBreakInX2Main( pDungeonData->m_DungeonDescription.c_str(), 170, pStatic_DungeonDescription->GetString(0)->fontIndex ).c_str() );
+				DungeonDescriptionToolTip->SetShow( true );
+			}
+			else
+			{
+				DungeonDescriptionToolTip->SetShow( false );
+			}
+		}
+	}
+
+	if( NULL != pStatic_FieldName )
+	{
+		for( int i = 0; i < pStatic_FieldName->GetPictureNum(); i++ )
+		{
+			if( NULL != pStatic_FieldName->GetPicture(i) )
+				pStatic_FieldName->GetPicture(i)->SetShow( false );
+		}
+
+		// June shows no region plate for Henir (FUN_32931920), DungeonData tag 2
+		// (FUN_31edf8f0(id,2); a June-only field, read as absent), dungeons 41120/41130/41131
+		// (FUN_32931930; 41120 is March's DI_EVENT_VALENTINE_DUNGEON_INT), Hero and Bestera.
+		const int iPlateDungeonID = pDungeonData->m_DungeonID;
+		if( SEnum::DI_ELDER_HENIR_SPACE != iPlateDungeonID &&
+			41120 != iPlateDungeonID && 41130 != iPlateDungeonID && 41131 != iPlateDungeonID &&
+			false == JuneIsHeroDungeon( iPlateDungeonID ) &&
+			false == ( 150000 <= iPlateDungeonID && iPlateDungeonID < 150051 ) )
+		{
+			const CX2LocationManager::LOCAL_MAP_ID eLocalIDForDungeon =
+				g_pData->GetLocationManager()->GetLocalMapID( (SEnum::DUNGEON_ID) pPartyData->m_iDungeonID );
+			const int iPicture = static_cast<int>( eLocalIDForDungeon ) - static_cast<int>( CX2LocationManager::LMI_RUBEN );
+			if( 0 <= iPicture && iPicture <= 11 && NULL != pStatic_FieldName->GetPicture( iPicture ) )
+				pStatic_FieldName->GetPicture( iPicture )->SetShow( true );
+		}
+	}
+
+	switch( pDungeonData_Normal->m_eDungeonType )
+	{
+	case CX2Dungeon::DT_NORMAL:
+		{
+			if( true == g_pData->GetDungeonManager()->IsDefenceDungeon( pDungeonData_Normal->m_DungeonID ) )
+			{
+				if( NULL != pStatic_AdequateLevel && NULL != pStatic_AdequateLevel->GetString(1) )
+					pStatic_AdequateLevel->GetString(1)->msg = L"";
+			}
+			else if( NULL != pStatic_AdequateLevel && NULL != pStatic_AdequateLevel->GetString(1) )
+			{
+				pStatic_AdequateLevel->GetString(1)->msg = GET_REPLACED_STRING( ( STR_ID_16458, "ii", pDungeonData->m_MinLevel, pDungeonData->m_MaxLevel ) );
+				pStatic_AdequateLevel->GetString(1)->color = g_pData->GetDungeonManager()->GetDifficultyColor(
+					pPartyData->m_iDungeonID, pPartyData->m_iDungeonDifficulty, g_pData->GetSelectUnitLevel() );
+			}
+
+			if( true == g_pData->GetDungeonManager()->IsDefenceDungeon( pDungeonData_Normal->m_DungeonID ) )
+			{
+				const int iDefenceDungeonLevel = ( NULL != g_pData->GetWorldMissionManager() ? g_pData->GetWorldMissionManager()->GetNowDefenceDungeonLevel() : 0 );
+				UpdateDifficultyUI( static_cast<CX2Dungeon::DIFFICULTY_LEVEL>( iDefenceDungeonLevel ),
+					pDungeonData_Normal->m_eDungeonType, pDungeonData_Normal->m_bNormalOnly );
+				pPartyData->m_iDungeonDifficulty	= iDefenceDungeonLevel;
+				pPartyData->m_iDungeonMode			= CX2Dungeon::DM_INVALID;
+#ifdef NEW_DEFENCE_DUNGEON
+				if( true == m_bChangePartyUI &&
+					true == g_pData->GetPartyManager()->DoIHaveParty() &&
+					true == g_pData->GetPartyManager()->AmIPartyLeader() )
+				{
+					g_pData->GetPartyManager()->Handler_EGS_PARTY_CHANGE_DUNGEON_REQ( pPartyData->m_iDungeonID, iDefenceDungeonLevel, CX2Dungeon::DM_INVALID );
+				}
+#endif NEW_DEFENCE_DUNGEON
+			}
+			else
+			{
+				if( NULL != m_pLocalMapUI )
+					m_pLocalMapUI->UpdateLocalMapDLG();
+				UpdateDifficultyUI( static_cast<CX2Dungeon::DIFFICULTY_LEVEL>( pPartyData->m_iDungeonDifficulty ),
+					pDungeonData_Normal->m_eDungeonType, pDungeonData_Normal->m_bNormalOnly );
+			}
+		} break;
+
+	case CX2Dungeon::DT_HENIR:
+		{
+			if( NULL != pStatic_AdequateLevel && NULL != pStatic_AdequateLevel->GetString(1) )
+				pStatic_AdequateLevel->GetString(1)->msg = L"1";
+
+			CX2Dungeon::DIFFICULTY_LEVEL eLevel = CX2Dungeon::DL_NORMAL;
+			if( CX2Dungeon::DM_HENIR_PRACTICE == pPartyData->m_iDungeonMode )
+				eLevel = CX2Dungeon::DL_NORMAL;
+			else if( CX2Dungeon::DM_HENIR_CHALLENGE == pPartyData->m_iDungeonMode )
+				eLevel = CX2Dungeon::DL_HARD;
+			else
+				break;
+
+			UpdateDungeonTypeButton( CX2Dungeon::DT_HENIR );
+			UpdateDifficultyButtonForSpecialDungeon( eLevel, CX2Dungeon::DT_HENIR );
+			UpdateAdequateMemberCount( CX2Dungeon::DT_HENIR, eLevel );
+			UpdateAdequateLevel( eLevel );
+
+			CKTDGUICheckBox* pCheckBox_Challenge = static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"CHALLENGE" ) );
+			if( NULL != pCheckBox_Challenge )
+				pCheckBox_Challenge->SetEnable( !pDungeonData_Normal->m_bNormalOnly );
+		} break;
+
+	case CX2Dungeon::DT_SECRET:
+		{
+			if( NULL != pStatic_AdequateLevel && NULL != pStatic_AdequateLevel->GetString(1) )
+			{
+				pStatic_AdequateLevel->GetString(1)->msg = GET_REPLACED_STRING( ( STR_ID_16458, "ii", pDungeonData->m_MinLevel, pDungeonData->m_MaxLevel ) );
+				pStatic_AdequateLevel->GetString(1)->color = g_pData->GetDungeonManager()->GetDifficultyColor(
+					pPartyData->m_iDungeonID, 0, g_pData->GetSelectUnitLevel() );
+			}
+
+			const CX2Dungeon::DIFFICULTY_LEVEL eLevel =
+				( CX2Dungeon::DM_SECRET_HELL == pPartyData->m_iDungeonMode ? CX2Dungeon::DL_HARD : CX2Dungeon::DL_NORMAL );
+			UpdateDungeonTypeButton( CX2Dungeon::DT_SECRET );
+			UpdateDifficultyButtonForSpecialDungeon( eLevel, CX2Dungeon::DT_SECRET );
+			UpdateAdequateMemberCount( CX2Dungeon::DT_SECRET, eLevel );
+			UpdateAdequateLevel( eLevel );
+
+			CKTDGUICheckBox* pCheckBox_Hell = static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"HELL" ) );
+			if( NULL != pCheckBox_Hell )
+				pCheckBox_Hell->SetEnable( !pDungeonData_Normal->m_bNormalOnly );
+		} break;
+
+	// June case 5 (mode 5, VSFOUR + ButtonErdaHelp): a dungeon type March does not have.
+	default:
+		break;
+	}
+
+	UpdateBossItemList( pDungeonData->m_mapBossDropItem, ( pPartyData->m_iDungeonMode == CX2Dungeon::DM_HENIR_CHALLENGE ) );
+
+	if( NULL != pStatic_DungeonImage && NULL != pStatic_DungeonImage->GetPicture(0) )
+	{
+		pStatic_DungeonImage->GetPicture(0)->SetTex( pDungeonData_Normal->m_UIData.m_TextureName.c_str(), pDungeonData_Normal->m_UIData.m_PieceName.c_str() );
+	}
+
+#ifdef NEW_DEFENCE_DUNGEON
+	m_bChangePartyUI = false;
+#endif NEW_DEFENCE_DUNGEON
+}
+#else
 void CX2PartyUI::UpdatePartyDLG( bool bRenamePartyTitle /*= false*/ )
 {
 #ifdef SERV_PVP_NEW_SYSTEM
@@ -2198,6 +2605,7 @@ void CX2PartyUI::UpdatePartyDLG( bool bRenamePartyTitle /*= false*/ )
 	m_bChangePartyUI = false;
 #endif NEW_DEFENCE_DUNGEON
 }
+#endif SERV_IRUHADEV_JUNE_PARTY_UI
 
 
 
@@ -3426,6 +3834,59 @@ void CX2PartyUI::SetStage( CKTDXStage* val )
 }
 
 #ifdef SERV_PVP_NEW_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_PARTY_UI
+// June2017 CX2PartyUI::OpenPartyMenu (FUN_322c3d80), ported whole. June loads
+// DLG_UI_PARTY_BOTTON_NEW_20161103.lua; the body is otherwise March's.
+// Omitted, June-only (PvP tournament): the third "matching in progress" flag in the
+// BUTTON_START test (party manager +0xda, set/cleared with the tournament alarm by
+// FUN_32431750/FUN_32431680), and the trailing g_pMain->FUN_31d70d90()->FUN_326662c0()
+// call, which refreshes DLG_Tournament_Alarm.lua's Alarm_Button.
+void CX2PartyUI::OpenPartyMenu(bool bOpen)
+{
+	if( m_pDLGPartyMenu == NULL )
+	{
+		m_pDLGPartyMenu = new CKTDGUIDialog( m_pCurrStage, L"DLG_UI_PARTY_BOTTON_NEW_20161103.lua" );
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGPartyMenu );
+
+		// Degrade: until data034.kom carries the June file the dialog loads empty, which would
+		// leave no dungeon/PvP toggle at all. Fall back to March's file and say so, once.
+		if( NULL == m_pDLGPartyMenu->GetControl( L"g_pCheckBox_DUNGEON" ) )
+		{
+			JunePartyUILog( L"DLG_UI_PARTY_BOTTON_NEW_20161103.lua is missing or empty: data034.kom does not carry it yet; repack it. Using March's DLG_UI_PARTY_BOTTON_NEW.lua." );
+			SAFE_DELETE_DIALOG( m_pDLGPartyMenu );
+			m_pDLGPartyMenu = new CKTDGUIDialog( m_pCurrStage, L"DLG_UI_PARTY_BOTTON_NEW.lua" );
+			g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGPartyMenu );
+		}
+
+		m_pDLGPartyMenu->SetDisableUnderWindow(true);
+#ifdef REFORM_QUEST
+		CKTDGUIStatic *pStaticGuide = static_cast<CKTDGUIStatic*>(m_pDLGPartyMenu->GetControl(L"ButtonQuestGuide"));
+		if( NULL != pStaticGuide && NULL != pStaticGuide->GetPicture(0) )
+		{
+			pStaticGuide->GetPicture(0)->SetFlicker( 0.5f, 1.0f, 0.1f );
+		}
+#endif //REFORM_QUEST
+	}
+
+	if( NULL == m_pDungeonCheckBox )
+		m_pDungeonCheckBox = static_cast<CKTDGUICheckBox*>(m_pDLGPartyMenu->GetControl(L"g_pCheckBox_DUNGEON"));
+
+	if( NULL == m_pPVPCheckBox )
+		m_pPVPCheckBox = static_cast<CKTDGUICheckBox*>(m_pDLGPartyMenu->GetControl(L"g_pCheckBox_PVP"));
+
+	m_pDLGPartyMenu->SetShowEnable( bOpen, bOpen );
+
+	if( false == bOpen )
+		return;
+
+	if( true != g_pData->GetPartyManager()->GetProcessDungeonMatch() &&
+		true != g_pData->GetPartyManager()->GetProcessPvpMatch() )
+	{
+		SetDungeonButton(BUTTON_START, false);
+		SetPVPButton(BUTTON_START, false);
+	}
+}
+#else
 void CX2PartyUI::OpenPartyMenu(bool bOpen)
 {
 	if( m_pDLGPartyMenu == NULL )
@@ -3461,6 +3922,7 @@ void CX2PartyUI::OpenPartyMenu(bool bOpen)
 		SetPVPButton(BUTTON_START, false);
 	}
 }
+#endif SERV_IRUHADEV_JUNE_PARTY_UI
 void CX2PartyUI::OpenPvpSetting(bool bOpen, bool bMap)
 {
 	if( m_pDlgPartyPvpMapSetting == NULL )
@@ -4569,6 +5031,353 @@ void CX2PartyUI::UpdateDungeonRequestButton()
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_PARTY_UI
+// June2017 difficulty UI family, each function ported whole:
+//   UpdateDifficultyUI                     FUN_322c16a0
+//   UpdateDifficultyButton                 FUN_322b6600
+//   UpdateDifficultyButtonForSpecialDungeon FUN_322b6860
+//   UpdateDungeonTypeButton                FUN_322b69e0
+//   UpdateAdequateMemberCount              FUN_322be5c0
+//   UpdateNormalOnly                       FUN_322b56e0
+//   UpdateAdequateLevel (new)              FUN_322beb90
+// June's three button functions look up VSFOUR, HELL_HERO and ButtonErdaHelp (new in
+// June's DLG_UI_PARTY_LENGTH_NEW.lua) and return early if any is missing, exactly as here.
+// The visible behaviour change: a secret dungeon shows no difficulty boxes at all (June
+// hides NORMAL_EX and HELL for DT_SECRET), which is also what keeps a Hell click from
+// asking for the non-existent _HELL + DL_HARD dungeon (JUNE_UI_PARITY_PHASES.md Phase 3
+// follow-up). June's type-5 dungeons (VSFOUR, ButtonErdaHelp, GuildPve) and Hero dungeons
+// (NORMAL_EX + HELL_HERO) are June-only content; their branches are kept or commented
+// as noted and never trigger with March's dungeon list.
+void CX2PartyUI::UpdateDifficultyUI(CX2Dungeon::DIFFICULTY_LEVEL eDifficultyLevel_, CX2Dungeon::DUNGEON_TYPE eDungeonType_/*= CX2Dungeon::DT_NORMAL*/, bool pNormalOnly /*= false*/)
+{
+	UpdateDungeonTypeButton( eDungeonType_ );
+	if( CX2Dungeon::DT_NORMAL == eDungeonType_ )
+	{
+		UpdateDifficultyButton( eDifficultyLevel_ );
+	}
+	else
+	{
+		if( CX2Dungeon::DL_NORMAL != eDifficultyLevel_ )
+		{
+			eDifficultyLevel_ = CX2Dungeon::DL_HARD;
+		}
+		UpdateDifficultyButtonForSpecialDungeon( eDifficultyLevel_, eDungeonType_ );
+	}
+	UpdateAdequateMemberCount( eDungeonType_, eDifficultyLevel_ );
+	UpdateAdequateLevel( eDifficultyLevel_ );
+	UpdateNormalOnly( eDungeonType_, pNormalOnly );
+}
+
+void CX2PartyUI::UpdateDifficultyButton(CX2Dungeon::DIFFICULTY_LEVEL eDifficultyLevel_)
+{
+	if( NULL == m_pDLGParty )
+		return;
+
+	CKTDGUICheckBox* pCheckBox_Normal		= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"NORMAL" ) );
+	CKTDGUICheckBox* pCheckBox_Hard			= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"HARD" ) );
+	CKTDGUICheckBox* pCheckBox_Expert		= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"EXPERT" ) );
+	CKTDGUICheckBox* pCheckBox_Normal_Ex	= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"NORMAL_EX" ) );
+	CKTDGUICheckBox* pCheckBox_HellHero		= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"HELL_HERO" ) );
+
+	if( NULL == pCheckBox_Normal || NULL == pCheckBox_Hard || NULL == pCheckBox_Expert ||
+		NULL == pCheckBox_Normal_Ex || NULL == pCheckBox_HellHero )
+		return;
+
+	pCheckBox_Normal->SetChecked( false );
+	pCheckBox_Hard->SetChecked( false );
+	pCheckBox_Expert->SetChecked( false );
+	pCheckBox_Normal_Ex->SetShowEnable( false, false );
+	pCheckBox_Normal_Ex->SetChecked( false );
+	pCheckBox_HellHero->SetShowEnable( false, false );
+	pCheckBox_HellHero->SetChecked( false );
+
+	const CX2PartyManager::PartyData* pPartyData = g_pData->GetPartyManager()->GetMyPartyData();
+	if( NULL != pPartyData && true == JuneIsHeroDungeon( pPartyData->m_iDungeonID ) )
+	{
+		pCheckBox_Normal->SetShowEnable( false, false );
+		pCheckBox_Hard->SetShowEnable( false, false );
+		pCheckBox_Expert->SetShowEnable( false, false );
+		pCheckBox_Normal_Ex->SetShowEnable( true, true );
+		pCheckBox_HellHero->SetShowEnable( true, true );
+		switch( pPartyData->m_iDungeonDifficulty )
+		{
+		case CX2Dungeon::DL_NORMAL:
+			pCheckBox_Normal_Ex->SetChecked( true );
+			break;
+		case CX2Dungeon::DL_HARD:
+		case CX2Dungeon::DL_EXPERT:
+			pCheckBox_HellHero->SetChecked( true );
+			break;
+		default:
+			break;
+		}
+	}
+
+	// June: g_pData FUN_31edf200 (DungeonData +0xb6, a June-only fixed-difficulty field)
+	// hides NORMAL/HARD/EXPERT instead of checking one; March's data never sets it.
+	switch( eDifficultyLevel_ )
+	{
+	case CX2Dungeon::DL_NORMAL:
+		pCheckBox_Normal->SetChecked( true );
+		break;
+	case CX2Dungeon::DL_HARD:
+		pCheckBox_Hard->SetChecked( true );
+		break;
+	case CX2Dungeon::DL_EXPERT:
+		pCheckBox_Expert->SetChecked( true );
+		break;
+	default:
+		break;
+	}
+
+	// June: no difficulty choice on dungeons 41400 and 41510 (June event content).
+	if( NULL != pPartyData && ( 41400 == pPartyData->m_iDungeonID || 41510 == pPartyData->m_iDungeonID ) )
+	{
+		pCheckBox_Normal->SetShowEnable( false, false );
+		pCheckBox_Hard->SetShowEnable( false, false );
+		pCheckBox_Expert->SetShowEnable( false, false );
+	}
+}
+
+void CX2PartyUI::UpdateDifficultyButtonForSpecialDungeon(CX2Dungeon::DIFFICULTY_LEVEL eDifficultyLevel_, CX2Dungeon::DUNGEON_TYPE eDungeonType_)
+{
+	if( NULL == m_pDLGParty )
+		return;
+
+	CKTDGUICheckBox* pCheckBox_Normal_Ex	= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"NORMAL_EX" ) );
+	CKTDGUICheckBox* pCheckBox_Hell			= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"HELL" ) );
+	CKTDGUICheckBox* pCheckBox_Challenge	= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"CHALLENGE" ) );
+	CKTDGUICheckBox* pCheckBox_VsFour		= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"VSFOUR" ) );
+	CKTDGUIControl*  pButton_ErdaHelp		= m_pDLGParty->GetControl( L"ButtonErdaHelp" );
+
+	if( NULL == pCheckBox_Normal_Ex || NULL == pCheckBox_Hell || NULL == pCheckBox_Challenge ||
+		NULL == pCheckBox_VsFour || NULL == pButton_ErdaHelp )
+		return;
+
+	pCheckBox_Normal_Ex->SetChecked( false );
+	pCheckBox_Hell->SetChecked( false );
+	pCheckBox_Challenge->SetChecked( false );
+	pCheckBox_VsFour->SetChecked( false );
+
+	// June's GuildPve check box (Guild PvE event; dropped from the staged lua).
+	CKTDGUICheckBox* pCheckBox_GuildPve = static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"GuildPve" ) );
+	if( NULL != pCheckBox_GuildPve )
+		pCheckBox_GuildPve->SetChecked( false );
+
+	switch( eDifficultyLevel_ )
+	{
+	case CX2Dungeon::DL_NORMAL:
+		{
+			if( CX2Dungeon::DT_HENIR == eDungeonType_ || CX2Dungeon::DT_SECRET == eDungeonType_ )
+				pCheckBox_Normal_Ex->SetChecked( true );
+			// June: type 5 checks VSFOUR (June-only dungeon type).
+		} break;
+	case CX2Dungeon::DL_HARD:
+		{
+			if( CX2Dungeon::DT_HENIR == eDungeonType_ )
+				pCheckBox_Challenge->SetChecked( true );
+			else if( CX2Dungeon::DT_SECRET == eDungeonType_ )
+				pCheckBox_Hell->SetChecked( true );
+		} break;
+	default:
+		break;
+	}
+}
+
+void CX2PartyUI::UpdateDungeonTypeButton(CX2Dungeon::DUNGEON_TYPE eDungeonType_)
+{
+	if( NULL == m_pDLGParty )
+		return;
+
+	CKTDGUICheckBox* pCheckBox_Normal		= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"NORMAL" ) );
+	CKTDGUICheckBox* pCheckBox_Hard			= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"HARD" ) );
+	CKTDGUICheckBox* pCheckBox_Expert		= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"EXPERT" ) );
+	CKTDGUICheckBox* pCheckBox_Normal_Ex	= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"NORMAL_EX" ) );
+	CKTDGUICheckBox* pCheckBox_Hell			= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"HELL" ) );
+	CKTDGUICheckBox* pCheckBox_Challenge	= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"CHALLENGE" ) );
+	CKTDGUICheckBox* pCheckBox_VsFour		= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"VSFOUR" ) );
+	CKTDGUICheckBox* pCheckBox_HellHero		= static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"HELL_HERO" ) );
+	CKTDGUIControl*  pButton_ErdaHelp		= m_pDLGParty->GetControl( L"ButtonErdaHelp" );
+
+	if( NULL == pCheckBox_Normal_Ex || NULL == pCheckBox_Hell || NULL == pCheckBox_Challenge ||
+		NULL == pCheckBox_Normal || NULL == pCheckBox_Hard || NULL == pCheckBox_Expert ||
+		NULL == pCheckBox_VsFour || NULL == pCheckBox_HellHero || NULL == pButton_ErdaHelp )
+		return;
+
+	pCheckBox_Normal->SetShowEnable( false, false );
+	pCheckBox_Hard->SetShowEnable( false, false );
+	pCheckBox_Expert->SetShowEnable( false, false );
+	pCheckBox_Normal_Ex->SetShowEnable( false, false );
+	pCheckBox_Hell->SetShowEnable( false, false );
+	pCheckBox_Challenge->SetShowEnable( false, false );
+	pCheckBox_VsFour->SetShowEnable( false, false );
+	pCheckBox_HellHero->SetShowEnable( false, false );
+	pButton_ErdaHelp->SetShowEnable( false, false );
+
+	CKTDGUICheckBox* pCheckBox_GuildPve = static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"GuildPve" ) );
+	if( NULL != pCheckBox_GuildPve )
+		pCheckBox_GuildPve->SetShowEnable( false, false );
+
+	switch( eDungeonType_ )
+	{
+	case CX2Dungeon::DT_INVALID:
+	case CX2Dungeon::DT_NORMAL:
+		{
+			const CX2PartyManager::PartyData* pPartyData = g_pData->GetPartyManager()->GetMyPartyData();
+			if( NULL == pPartyData )
+				break;
+
+			if( false == JuneIsHeroDungeon( pPartyData->m_iDungeonID ) &&
+				false == JuneIsNoDifficultyDungeon( pPartyData->m_iDungeonID ) )
+			{
+				pCheckBox_Normal->SetShowEnable( true, true );
+				pCheckBox_Hard->SetShowEnable( true, true );
+				pCheckBox_Expert->SetShowEnable( true, true );
+			}
+			else if( true == JuneIsHeroDungeon( pPartyData->m_iDungeonID ) )
+			{
+				pCheckBox_Normal_Ex->SetShowEnable( true, true );
+				pCheckBox_HellHero->SetShowEnable( true, true );
+			}
+		} break;
+	case CX2Dungeon::DT_HENIR:
+		{
+			pCheckBox_Normal_Ex->SetShowEnable( true, true );
+			pCheckBox_Challenge->SetShowEnable( true, true );
+		} break;
+	case CX2Dungeon::DT_SECRET:
+		{
+			// June hides both: a secret dungeon has no difficulty choice in the party panel.
+			pCheckBox_Normal_Ex->SetShowEnable( false, false );
+			pCheckBox_Hell->SetShowEnable( false, false );
+		} break;
+	// June case 5 shows VSFOUR + ButtonErdaHelp (+ GuildPve during June's guild event):
+	// a dungeon type March does not have.
+	default:
+		break;
+	}
+}
+
+void CX2PartyUI::UpdateAdequateMemberCount(CX2Dungeon::DUNGEON_TYPE eDungeonType_, CX2Dungeon::DIFFICULTY_LEVEL eDifficultyLevel_)
+{
+	if( NULL == m_pDLGParty )
+		return;
+
+	CKTDGUIStatic* pStatic_AdequateMemberCount = static_cast<CKTDGUIStatic*>( m_pDLGParty->GetControl( L"need_user" ) );
+	if( NULL == pStatic_AdequateMemberCount )
+		return;
+
+	if( NULL != pStatic_AdequateMemberCount->GetString(0) )
+		pStatic_AdequateMemberCount->GetString(0)->msg = GET_STRING(STR_ID_983);
+
+	if( CX2Dungeon::DT_NORMAL != eDungeonType_ && CX2Dungeon::DL_HARD == eDifficultyLevel_ )
+	{
+		eDifficultyLevel_ = CX2Dungeon::DL_EXPERT;
+	}
+
+	CX2PartyManager::PartyData* pPartyData = g_pData->GetPartyManager()->GetMyPartyData();
+	CKTDGUIControl::UIStringData* pString = pStatic_AdequateMemberCount->GetString(1);
+	if( NULL == pPartyData || NULL == pString )
+		return;
+
+	switch( eDifficultyLevel_ )
+	{
+	case CX2Dungeon::DL_NORMAL:
+		{
+			// June gives a fixed text to Bestera (150000, "3~4"), 41430 ("3"), 41440 ("1"),
+			// 41450 ("2"), 41361/41370/41380/41390/41410 ("1~4") and Hero 120000 ("3~4"),
+			// all June-only dungeons; every other dungeon reads "1" in green.
+			pString->msg = L"1";
+			pString->color = D3DXCOLOR( 0,1,0,1 );
+		} break;
+	case CX2Dungeon::DL_HARD:
+		{
+			pString->msg = ( 120000 == pPartyData->m_iDungeonID ? L"3~4" : L"2~3" );
+			if( pPartyData->GetPartyMemberCount() >= 2 )
+				pString->color = D3DXCOLOR( 0,1,0,1 );
+			else
+				pString->color = D3DXCOLOR( 1,0,0,1 );
+		} break;
+	case CX2Dungeon::DL_EXPERT:
+		{
+			pString->msg = L"3~4";
+			if( pPartyData->GetPartyMemberCount() >= 3 )
+				pString->color = D3DXCOLOR( 0,1,0,1 );
+			else
+				pString->color = D3DXCOLOR( 1,0,0,1 );
+		} break;
+	default:
+		break;
+	}
+
+	// June: type 5 reads "6"; and a DungeonData min/max party size (FUN_327da980, fields
+	// +0xb4/+0xb5) overrides the text and colours it against the party size. Both June-only.
+}
+
+void CX2PartyUI::UpdateNormalOnly(CX2Dungeon::DUNGEON_TYPE eDungeonType_, bool bNormalOnly_)
+{
+	if( NULL == m_pDLGParty )
+		return;
+
+	switch( eDungeonType_ )
+	{
+	case CX2Dungeon::DT_INVALID:
+	case CX2Dungeon::DT_NORMAL:
+		{
+			CKTDGUICheckBox* pCheckBox_Hard = static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"HARD" ) );
+			CKTDGUICheckBox* pCheckBox_Expert = static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"EXPERT" ) );
+			if( NULL != pCheckBox_Hard && NULL != pCheckBox_Expert )
+			{
+				pCheckBox_Hard->SetEnable( !bNormalOnly_ );
+				pCheckBox_Expert->SetEnable( !bNormalOnly_ );
+			}
+		} break;
+	case CX2Dungeon::DT_HENIR:
+		{
+			CKTDGUICheckBox* pCheckBox_Challenge = static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"CHALLENGE" ) );
+			if( NULL != pCheckBox_Challenge )
+				pCheckBox_Challenge->SetEnable( !bNormalOnly_ );
+		} break;
+	case CX2Dungeon::DT_SECRET:
+		{
+			CKTDGUICheckBox* pCheckBox_Hell = static_cast<CKTDGUICheckBox*>( m_pDLGParty->GetControl( L"HELL" ) );
+			if( NULL != pCheckBox_Hell )
+				pCheckBox_Hell->SetEnable( !bNormalOnly_ );
+		} break;
+	// June case 5: VSFOUR and ButtonErdaHelp (June-only dungeon type).
+	default:
+		break;
+	}
+}
+
+void CX2PartyUI::UpdateAdequateLevel(CX2Dungeon::DIFFICULTY_LEVEL eDifficultyLevel_)
+{
+	if( NULL == m_pDLGParty )
+		return;
+
+	CKTDGUIStatic* pStatic_AdequateLevel = static_cast<CKTDGUIStatic*>( m_pDLGParty->GetControl( L"need_level" ) );
+	if( NULL == pStatic_AdequateLevel )
+		return;
+
+	if( NULL != pStatic_AdequateLevel->GetString(0) )
+		pStatic_AdequateLevel->GetString(0)->msg = GET_STRING(STR_ID_1104);
+
+	const CX2PartyManager::PartyData* pPartyData = g_pData->GetPartyManager()->GetMyPartyData();
+	if( NULL == pPartyData )
+		return;
+
+	// June: Hero dungeons read the data of 120000 (normal) / 120010 (hard); June-only.
+	const int iDungeonID = pPartyData->m_iDungeonID;
+	const CX2Dungeon::DungeonData* pDungeonData = g_pData->GetDungeonManager()->GetDungeonData( (SEnum::DUNGEON_ID) iDungeonID );
+	if( NULL == pDungeonData || NULL == pStatic_AdequateLevel->GetString(1) )
+		return;
+
+	// June: Henir (DI_ELDER_HENIR_SPACE) at a non-normal difficulty reads a second min/max
+	// pair, DungeonData +0x94/+0x98, which March lacks; the first pair is used.
+	pStatic_AdequateLevel->GetString(1)->msg = GET_REPLACED_STRING( ( STR_ID_16458, "ii", pDungeonData->m_MinLevel, pDungeonData->m_MaxLevel ) );
+	pStatic_AdequateLevel->GetString(1)->color = g_pData->GetDungeonManager()->GetDifficultyColor( iDungeonID, 0, g_pData->GetSelectUnitLevel() );
+}
+#else
 /** @function : UpdateDifficultyUI
 	@brief	: 던전도구 난이도 설정
 	@param : 난이도 ( eDifficultyLevel_ ), 헤니르, 비던 ( eDungeonMode_ ) 
@@ -4834,6 +5643,8 @@ void CX2PartyUI::UpdateNormalOnly(CX2Dungeon::DUNGEON_TYPE eDungeonType_, bool b
 }
 
 
+#endif SERV_IRUHADEV_JUNE_PARTY_UI
+
 /** @function :UpdateAdequateItemLevel
 	@brief : 던전 별 적정 아이템 레벨 갱신
 	@param : dungeondata에 정의되어 있는 적정아이템 레벨(iItemLevel_)
@@ -4951,6 +5762,82 @@ void CX2PartyUI::UpdateDungeonThumbnailQuestMark()
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_PARTY_UI
+// June2017 CX2PartyUI::SelectDungeonDifficulty (FUN_322c1700), ported whole. Same shape as
+// March; June refreshes the local map on a Henir pick unconditionally (March only under
+// NEW_HENIR_DUNGEON) and passes normal-only = false to UpdateDifficultyUI explicitly.
+// June-only, omitted: the type-5 mode (DM 5), the Hero ID substitution (120000/120010)
+// for the item-level lookup, and Henir challenge's second item level (DungeonData +0x64).
+bool CX2PartyUI::SelectDungeonDifficulty(const int iSelectDungeonDifficulty_)
+{
+	CX2PartyManager::PartyData* pPartyData = g_pData->GetPartyManager()->GetMyPartyData();
+	const CX2Dungeon::DungeonData* pDungeonData_Normal = ( NULL != pPartyData ?
+		g_pData->GetDungeonManager()->GetDungeonData( static_cast<SEnum::DUNGEON_ID>( pPartyData->m_iDungeonID ) ) : NULL );
+	if( NULL != pDungeonData_Normal && NULL != pPartyData )
+	{
+		if( true == g_pData->GetDungeonManager()->IsDefenceDungeon( pDungeonData_Normal->m_DungeonID ) ||
+			( true == pDungeonData_Normal->m_bNormalOnly && CX2Dungeon::DL_NORMAL != iSelectDungeonDifficulty_ ) )
+		{
+			return false;
+		}
+
+		pPartyData->m_iDungeonDifficulty = CX2Dungeon::DL_NORMAL;
+		pPartyData->m_iDungeonMode = CX2Dungeon::DM_INVALID;
+
+		switch ( pDungeonData_Normal->m_eDungeonType )
+		{
+		case CX2Dungeon::DT_NORMAL:
+			{
+				pPartyData->m_iDungeonDifficulty = iSelectDungeonDifficulty_;
+			} break;
+		case CX2Dungeon::DT_HENIR:
+			{
+				pPartyData->m_iDungeonMode = ( CX2Dungeon::DL_NORMAL != iSelectDungeonDifficulty_ ?
+					CX2Dungeon::DM_HENIR_CHALLENGE : CX2Dungeon::DM_HENIR_PRACTICE );
+				if( NULL != GetLocalMapUI() )
+					GetLocalMapUI()->UpdateLocalMapDLG();
+			} break;
+		case CX2Dungeon::DT_SECRET:
+			{
+				if( CX2Dungeon::DL_NORMAL == iSelectDungeonDifficulty_ )
+				{
+					pPartyData->m_iDungeonMode = CX2Dungeon::DM_SECRET_NORMAL;
+				}
+				else
+				{
+					pPartyData->m_iDungeonMode = CX2Dungeon::DM_SECRET_HELL;
+					pPartyData->m_iDungeonDifficulty = CX2Dungeon::DL_HARD;
+				}
+			} break;
+		default:
+			break;
+		}
+
+		UpdateDifficultyUI( static_cast<CX2Dungeon::DIFFICULTY_LEVEL>( iSelectDungeonDifficulty_ ), pDungeonData_Normal->m_eDungeonType, false );
+
+		const CX2Dungeon::DungeonData* pDungeonData = g_pData->GetDungeonManager()->GetDungeonData(
+			static_cast<SEnum::DUNGEON_ID>( pPartyData->m_iDungeonID + pPartyData->m_iDungeonDifficulty ) );
+		if( NULL != pDungeonData )
+		{
+			UpdateAdequateItemLevel( pDungeonData->m_RequireItemLevel );
+			UpdateBossItemList( pDungeonData->m_mapBossDropItem, ( pPartyData->m_iDungeonMode == CX2Dungeon::DM_HENIR_CHALLENGE ) );
+		}
+		UpdateDungeonThumbnailQuestMark();
+	}
+
+	if( NULL != pPartyData && true == g_pData->GetPartyManager()->DoIHaveParty() )
+	{
+		g_pData->GetPartyManager()->Handler_EGS_PARTY_CHANGE_DUNGEON_REQ( pPartyData->m_iDungeonID,
+			pPartyData->m_iDungeonDifficulty, pPartyData->m_iDungeonMode );
+	}
+	if ( NULL != g_pData && NULL != g_pData->GetPartyManager() )
+	{
+		g_pData->GetPartyManager()->UpdateSelectedDungeon();
+	}
+
+	return true;
+}
+#else
 bool CX2PartyUI::SelectDungeonDifficulty(const int iSelectDungeonDifficulty_)
 {
 	CX2PartyManager::PartyData* pPartyData = g_pData->GetPartyManager()->GetMyPartyData();
@@ -5037,6 +5924,8 @@ bool CX2PartyUI::SelectDungeonDifficulty(const int iSelectDungeonDifficulty_)
 	return true;
 
 }
+
+#endif SERV_IRUHADEV_JUNE_PARTY_UI
 
 void CX2PartyUI::GameStartCurrentMember()
 {

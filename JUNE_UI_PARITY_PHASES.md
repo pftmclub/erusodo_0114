@@ -1352,3 +1352,219 @@ Options put to the user:
 
 For the future Hero port: June's real route into Hero content is not this
 button and still needs its own investigation.
+
+---
+
+## Phase 5 result (built and deployed 2026-10-01; repack and play-test owed)
+
+New flag `SERV_IRUHADEV_JUNE_PARTY_UI` (`KTDXLIB/Always.h`). All C++ is in
+`X2Lib/X2PartyUI.{h,cpp}`. Each port is a whole June function with March's
+original in `#else`.
+
+### Correction to Phase 0 decision 4: the PvP union dialog is deferred
+
+Decision 4 approved porting `CreatePartyDlg` whole, including June's
+`DLG_UI_PVP_UNION_MULTIPLE.lua`. Phase 0's feasibility check compared control
+*names*. It did not compare control *types* or the request June sends. Both
+turned out to block the port.
+
+- **The controls changed type.** In June's union dialog, `pvp_player_check1/2/3`
+  are `CreateCheckBox` controls, so the player can pick several modes at once.
+  In March's `DLG_UI_PVP_NEW.lua` they are radio buttons, and March's
+  `GetPvpMatchPlayerNum`/`SetPvpMatchPlayerNum` cast them to
+  `CKTDGUIRadioButton*`.
+- **The request changed shape.** June's START_MATCH (case 14047, `0x322c7e50`)
+  ends in `FUN_32433c60`, which sends event `0x339` with a **vector of 3-byte
+  mode entries** plus an int. March's `KEGS_REQUEST_MATCH_MAKING_REQ` carries
+  one player count and one game type. Porting it means changing a
+  `KncWX2Server/Common/` packet and rebuilding the servers on VS2003, which is
+  not installed here.
+
+So the PvP half stays March's. That covers `DLG_UI_PVP_NEW.lua`,
+`ShowPvpModeDesc`, the radio getters and `UpdatePvpPartyDlg`. Offline
+matchmaking is refused anyway (`ERR_PARTY_23`, `Handlers_Social.cpp`).
+
+When the union dialog is picked up, give it its own flag. It needs:
+- June's `ShowPvpModeDesc` (`FUN_322c0a80`; mode IDs 1/2/3/4/5/6/8/9/10 map to
+  STR 13717/13718/13719/36759/39274/39565/40020/42742/42085, and 2+ modes to
+  42083);
+- the mode collector `FUN_322bfa50`;
+- `FUN_322b7be0`, which publishes the `CX2PartyUI_PvpDlgType` Lua global
+  before the dialog loads. Without it, the union lua's line 13 aborts.
+
+### What changed
+
+| June VA | Function | Notes |
+|---|---|---|
+| `FUN_322c3d80` | `OpenPartyMenu` | Loads `DLG_UI_PARTY_BOTTON_NEW_20161103.lua`; see *Degrade path*. Omitted, June-only (PvP tournament): party manager `+0xda` in the `BUTTON_START` test, and the trailing `Alarm_Button` refresh (`FUN_31d70d90` then `FUN_326662c0`, `DLG_Tournament_Alarm.lua`). |
+| `FUN_322ba060` | `UpdateMatchingUI` | An estimate of 30+ min on a dungeon match reads STR 43188 ("1 Min./"). The wait panel's new string 4 reads STR 43192 (the Heroes Assemble note) for a dungeon match and `""` for PvP. Omitted: the tournament text (STR 42236), and June's party-manager byte after `m_bProcessDungeonMatch` (`+0x71`, swaps in STR 43312), which has no March member and reads as false. |
+| `FUN_322c2e50` | `UpdatePartyDLG` | Rewritten in June; see the list below. |
+| `FUN_322c16a0` | `UpdateDifficultyUI` | Now also calls the new `UpdateAdequateLevel`. |
+| `FUN_322b69e0` | `UpdateDungeonTypeButton` | Requires all nine controls (incl. `VSFOUR`, `HELL_HERO`, `ButtonErdaHelp`). **`DT_SECRET` shows no difficulty boxes.** |
+| `FUN_322b6600` | `UpdateDifficultyButton` | Plus the Hero branch and a 41400/41510 hide (both never trigger in March). |
+| `FUN_322b6860` | `UpdateDifficultyButtonForSpecialDungeon` | Requires `VSFOUR` + `ButtonErdaHelp`. |
+| `FUN_322be5c0` | `UpdateAdequateMemberCount` | Normal difficulty now reads "1" in green. June's per-dungeon texts are all June-only IDs. |
+| `FUN_322b56e0` | `UpdateNormalOnly` | Same as March apart from type 5. |
+| `FUN_322beb90` | `UpdateAdequateLevel` (**new**) | Rewrites `need_level` from the base dungeon, coloured at difficulty 0. |
+| `FUN_322c1700` | `SelectDungeonDifficulty` | Henir pick refreshes the local map unconditionally. |
+| `FUN_322c5ba0` 14015/14074 | `PUCM_PARTY_GAME_START` / new `PUCM_PARTY_GAME_START_OK` | "Start with current members" first asks OK/Cancel (STR 43191, "Cannot powerful 'Heroes Assemble' buff with current members..."). OK closes the box and calls `GameStartCurrentMember`. `PUCM_PARTY_GAME_START_OK = 14074` has an explicit initializer and is C++ only (no Lua sender). |
+
+`UpdatePartyDLG` changes:
+- `Dungeon_Zone` picture = local-map ID minus `LMI_RUBEN`, so **Lanox shows
+  picture 8 (`RANOX`)**. March's switch stopped at Sander.
+- An inactive selection (`IsActiveDungeon(id, 0)` false, non-GM) falls back.
+  June asks the unit for a replacement (`FUN_32350560`), which is built on
+  DungeonData `+0xa8/+0xb0` that March lacks. So June's own "nothing suitable"
+  branch applies: Ruben, normal.
+- A party leader whose selection changed sends
+  `EGS_PARTY_CHANGE_DUNGEON_REQ`.
+- `need_level`, the Henir/secret handling, and the boss list follow June.
+- The party-title rename is gone. June's function takes no argument, so
+  `bRenamePartyTitle` is ignored.
+
+Kept as March, because June's copy differs only by June-only branches:
+- `SetDungeonButton`/`SetPVPButton` (`FUN_322c2670`/`322c23c0`): June also
+  writes `g_pInstanceData+0xa90`, read only by June's
+  `Static_RamadanCenter_*` UI.
+- `SetCurrentWaitUserCount` (`FUN_322ba910`): tournament text, and an
+  enable-code 2143 note. March's code events stop at 50.
+- `UpdateBossItemList` (`FUN_322bf130`): Hero items under event code 2298.
+- `UpdateAdequateItemLevel`, `UpdateDungeonThumbnailQuestMark`, and cases
+  14013/14017/14020/14030/14035/14048/14058-14061. 14012 adds only Henir
+  rework gates (2nd-job party, STR 41852) and June event 41131.
+
+**Phase 3 follow-up closed.** A secret dungeon no longer shows `NORMAL_EX`/`HELL`
+in the party panel, which is June's behaviour. So the click that asked for
+`_HELL` + `DL_HARD` cannot happen.
+
+Not taken (also not loaders or handlers of these dialogs): the two
+party-manager resets Phase 3 parked. They are Henir to `DM_INVALID` on party
+close, and Henir/type-5 on unit select.
+
+### Data
+
+- **`DLG_UI_PARTY_BOTTON_NEW_20161103.lua`** is June's file unchanged. It is new
+  to March, so it was added to `update/data034/` with a manifest entry. It
+  recompiles to 5,679 B, June's exact index size.
+- **`DLG_UI_PARTY_LENGTH_NEW.lua`** is June's, patched in `march2014/data034/`.
+  - Dropped, with comments: `Static_HeroDungeonTitle` (Hero), `GuildPve`,
+    `InhouseCurrentMemberHeroBuffBox`, `Static_Pve_RankGauge` and
+    `Button_Pve_Rating_Notice`. All are created hidden in June except the
+    first.
+  - Kept: `VSFOUR`, `HELL_HERO` and `ButtonErdaHelp`, because June's
+    difficulty functions null-check all three. Also kept: `Dungeon_Zone`
+    pictures 8-11.
+    - 9's key `ELYSION` is not in March's `DLG_Localmap_Title_01`.
+    - 9 and 10 map to June-only local maps and never show. 9 is kept only to
+      hold the index.
+    - A missing key gives an invisible picture and no log
+      (`KTDGUIControl.cpp:734`).
+  - Recompiled with `-v mar-2014` and decompiled back. The result is
+    identical to the source apart from Lua table-key order.
+- **Atlases.**
+  - `DLG_UI_Common_Texture_Field_00` (`RANOX`, the Lanox plate) and
+    `DLG_UI_Common_Texture49_NEW` (`DUNGEON_STAY_1`) are adopted from June
+    wholesale. In each, every March key is present in June's TET at an
+    identical UV.
+  - `DLG_UI_Text_05` (`BT_Guidebook_*`, for `ButtonErdaHelp`) is new, in
+    `data151`.
+  - All three June extracts match June's kom index sizes.
+- **Lua enums and strings.**
+  - Every table the kept luas index exists in March. `STATE_MENU_UI_CUSTOM_MSG`
+    has `SMUCM_OPEN_ELLIOS_GUIDE_GO_TO_PAGE = 158`.
+  - The newer STR IDs (43188, 43191, 43192) are not in March's C++ `STR_ID_`
+    enum (it ends at 30534). They are used by number. March's live
+    `General.ess` has 45,161 entries, and those three read correctly.
+  - `STR_ID_43192` is in March's Lua globals (`StringID_def.lua`).
+
+**Built and deployed.**
+- `KTDXLIB`, `X2Lib`, `X2ServerProtocol` and `X2` were built `US_SERVICE`,
+  with the PCH invalidated first. All four returned rc=0. The only
+  `X2PartyUI` warning is March's own C4066 at line 186.
+- The exe contains `[JUNE_PARTYUI]`, `DLG_UI_PARTY_BOTTON_NEW_20161103.lua`,
+  `VSFOUR` and `ButtonErdaHelp`.
+- `x2.exe` (18,987,008 B, 17:46) was copied to `X2_offline.exe` and is
+  byte-identical (sha256 prefix `9a66d4b4aab5d515`). **Not launched.**
+
+### Degrade path
+
+- **BOTTON.** If `DLG_UI_PARTY_BOTTON_NEW_20161103.lua` is missing, it has no
+  `g_pCheckBox_DUNGEON`. `OpenPartyMenu` then reloads March's
+  `DLG_UI_PARTY_BOTTON_NEW.lua` and logs one `[JUNE_PARTYUI]` line to
+  `ErrorLog.txt` and `offline_server.log`.
+- **LENGTH has no fallback.** With March's copy still packed, `CreatePartyDlg`
+  logs one `[JUNE_PARTYUI] ... no VSFOUR` line. The difficulty boxes then stop
+  updating, because June's functions return early. Nothing crashes. **Ship
+  `data034` before playing with this exe.**
+
+### Pack list
+
+| Archive | Source dir | File (B) | Note |
+|---|---|---|---|
+| `data034.kom` | `kom_contents/data034_kom/` | `DLG_UI_PARTY_LENGTH_NEW.LUA` 18921 | replaces 16791 |
+| `data034.kom` | (same) | `DLG_UI_PARTY_BOTTON_NEW_20161103.LUA` 5679 | **new**; manifest updated |
+| `data057.kom` | `kom_contents/data057_kom/` | `DLG_UI_Common_Texture_Field_00.TET` 966 + `.tga` 1048620 | replaces 908 + March tga |
+| `data057.kom` | (same) | `DLG_UI_Common_Texture49_NEW.TET` 2942 + `.tga` 1048620 | replaces 2866 + March tga |
+| `data151.kom` | `kom_contents/data151_kom/` | `DLG_UI_Text_05.tga` 1048620, `.TET` 3956 | **new**; manifest updated |
+
+The originals of everything overwritten are in
+`...\24965799\kom_contents_backup_june_ui_phase5\` (with a README).
+
+### Play-test checklist (after repacking all three archives)
+
+Use `reyaa` (80) unless noted.
+1. **Party menu.**
+   - The dungeon and PvP toggles show and toggle.
+   - The `ButtonQuestGuide` mark flickers as before.
+2. **Quick party** (AI bots).
+   - The wait panel sits left/down of March's spot, on the larger backdrop.
+   - Its 4th line reads the Heroes Assemble note.
+   - The time counts up.
+   - **Match cancel** returns the buttons to START.
+3. **Start with current members.**
+   - An OK/Cancel box shows STR 43191.
+   - OK starts the dungeon. Cancel does nothing.
+4. **Difficulty boxes.**
+   - Normal dungeon: Normal/Hard/Expert check and update `need_level`,
+     `need_user` and the boss list. A normal-only dungeon greys Hard/Expert.
+   - **Secret dungeon** (via local map): no difficulty boxes. Entering plays
+     the `_HELL` dungeon.
+   - **Henir** (Special tab): Normal/Challenge boxes; Challenge switches mode.
+5. **Region plate.**
+   - Every village's dungeon shows its region name.
+   - **Lanox shows the RANOX plate.**
+   - The LANOX Phase 1 dungeon picture still renders.
+6. **Local map** opens from the party panel as before.
+7. **PvP.**
+   - Open, then settings, then start. The start ends in the refusal, and the
+     buttons go back to START.
+   - This dialog is unchanged March code. If the buttons did not recover
+     before, that is pre-existing.
+8. **Logs.**
+   - No `[JUNE_PARTYUI]` line.
+   - No Lua error naming `DLG_UI_PARTY_*`.
+   - No missing-texture line for `Texture_Field_00`, `Texture49_NEW` or
+     `Text_05`.
+9. **Live koms.** `elstools inspect` shows the sizes above.
+10. **Novice guide.** Take a fresh character through the guide up to its first
+    dungeon start. The guide drives quick party (steps 6-8, unchanged). Watch
+    for the new confirm box being blocked by a guide overlay if the guide
+    ever routes through "start with current members".
+
+### Checked after the build
+
+- **The confirm box's OK reaches the party UI.** `CX2State::UICustomEventProc`
+  (`X2State.cpp:1501`) forwards every custom message unfiltered to
+  `CX2PartyUI`. March's own party confirm boxes (`PUCM_PVP_LEAVE_PARTY_OK`,
+  `X2PartyUI.cpp:1006`) take the same route on `g_pMain->GetNowState()`.
+  Nothing earlier in the chain uses 14074: the guild manager starts at 35001,
+  the tutor at 1700, and the state at 3000.
+- **No recursion.** `UpdatePartyDLG` → `CX2LocalMapUI::UpdateLocalMapDLG`
+  never calls back into the party panel. That function also sends
+  `EGS_REQUEST_GET_AUTO_PARTY_BONUS_INFO_NOT`, so a normal-dungeon refresh now
+  sends it twice, as June does.
+- **Party title.** With June's rename gone, the only remaining writer of
+  `m_wstrPartyTitle` is the party-name edit box (`PUCM_PARTY_NAME`). Nothing
+  in the offline emulator reads the title, so this is cosmetic.
+- **Member-count text.** March's Valentine/Halloween normal-difficulty texts
+  ("3~4") are gone; June's function has no such cases.

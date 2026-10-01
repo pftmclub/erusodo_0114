@@ -91,6 +91,12 @@ public:
 		PUCM_REWARD_ITEM_MOUSE_OUT,						// 던전 보상 아이템 툴팁
 		PUCM_DUNGEON_DIFFICULTY_CHECKED,				// 던전 난이도 변경
 		PUCM_DUNGEON_DIFFICULTY_UNCHECKED,				// 던전 난이도 변경
+#ifdef SERV_IRUHADEV_JUNE_PARTY_UI
+		// June2017 value (data036/Enum.lua). Sent only by the C++ OK/Cancel box that
+		// PUCM_PARTY_GAME_START opens, so it has no Lua twin. Explicit, because
+		// 14062-14073 (June's PvP/Guild-PvE/tournament messages) are not in March.
+		PUCM_PARTY_GAME_START_OK = 14074,
+#endif SERV_IRUHADEV_JUNE_PARTY_UI
 	};
 
 	enum GAME_TOOL_BUTTON_STATE
@@ -287,6 +293,9 @@ public:
 	void UpdateAdequateMemberCount(CX2Dungeon::DUNGEON_TYPE eDungeonType_, CX2Dungeon::DIFFICULTY_LEVEL eDifficultyLevel_); //적정 인원수 설정
 	void UpdateNormalOnly(CX2Dungeon::DUNGEON_TYPE eDungeonType_, bool bNormalOnly_); //보통버튼만 있는 경우에 대한 설정
 	void UpdateAdequateItemLevel(int iItemLevel_);
+#ifdef SERV_IRUHADEV_JUNE_PARTY_UI
+	void UpdateAdequateLevel(CX2Dungeon::DIFFICULTY_LEVEL eDifficultyLevel_); // June FUN_322beb90: need_level min/max line
+#endif SERV_IRUHADEV_JUNE_PARTY_UI
 	void UpdateDungeonThumbnailQuestMark();
 
 

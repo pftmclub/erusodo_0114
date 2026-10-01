@@ -2814,6 +2814,41 @@ So a full revert also means restoring March's own local-map luas: their live-kom
 are in `...\24965799\kom_contents_backup_june_ui_phase3\` (copy back into `kom_contents`,
 drop the Phase 3 manifest entries, repack).
 
+### June UI parity, Phase 5: party/dungeon panel
+
+New flag `SERV_IRUHADEV_JUNE_PARTY_UI` (`KTDXLIB/Always.h`). The party/dungeon panel
+follows June2017. The C++ is ported whole from June into `X2Lib/X2PartyUI.{h,cpp}`:
+- `OpenPartyMenu`, which loads June's `DLG_UI_PARTY_BOTTON_NEW_20161103.lua`, and
+  `UpdateMatchingUI` (the wait panel's new Heroes Assemble line);
+- `UpdatePartyDLG`. The region plate is picked by local-map ID, so Lanox gets one;
+- the `UpdateDifficultyUI` family plus the new `UpdateAdequateLevel`. A secret
+  dungeon now shows no difficulty boxes;
+- `SelectDungeonDifficulty`;
+- an OK/Cancel confirm before "start with current members"
+  (`PUCM_PARTY_GAME_START_OK = 14074`).
+
+June's `DLG_UI_PARTY_LENGTH_NEW.lua` is adopted with its June-only controls dropped.
+Three atlases come from June: `Texture_Field_00` and `Texture49_NEW` (data057), and a
+new `DLG_UI_Text_05` (data151).
+
+June's PvP union dialog is **not** ported. It sends a multi-mode match request that
+March's `KEGS_REQUEST_MATCH_MAKING_REQ` cannot carry, so the PvP side stays March's.
+
+Details, the June-only omissions, the pack list and the play-test checklist are in
+`JUNE_UI_PARITY_PHASES.md`'s "Phase 5 result".
+
+Built `US_SERVICE`, rc 0. `x2.exe`: 18,987,008 B, 2026-10-01 17:46. Deployed to
+`X2_offline.exe` (byte-identical). Not launched.
+
+**Needs packing**: `data034`, `data057`, `data151`. Every file is already in
+`kom_contents/`. Ship `data034` before playing: with March's LENGTH lua still packed,
+the difficulty boxes stop updating (logged as `[JUNE_PARTYUI] ... no VSFOUR`).
+
+Revert: undefine `SERV_IRUHADEV_JUNE_PARTY_UI` and rebuild. March's `DLG_UI_PARTY_BOTTON_NEW.lua`
+is loaded again and still packed. June's LENGTH lua works under March's C++ apart from
+the three extra controls showing at their lua default. A full data revert restores the
+originals from `...\24965799\kom_contents_backup_june_ui_phase5\` (README inside).
+
 ## Reverting to stock
 
 Comment out every `#define` listed in the *Defined in* column and rebuild.
