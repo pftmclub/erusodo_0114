@@ -19,6 +19,33 @@ function March already has, port the whole June function (diff every case),
 not just the Ranox case. June-only cases for content March lacks (Elysion,
 etc.) are omitted with a comment and never invented.
 
+**Asset-conflict priority, stated by the user, 2026-10-01:** when a shared
+atlas/asset file has content in June that a Lanox fix needs, and live March's
+copy of that same file also carries *other*, unrelated content at the same
+name — adopt June's file wholesale. Don't merge/splice to preserve March's
+existing content. June's asset wins; do not spend effort preserving the
+March-only content in that file. (Established on Phase 1's `Image11`: live
+`datai022.kom`'s copy carried 4 unrelated, unreferenced event-icon keys;
+per this rule the fix now replaces the whole file with June's 8-key version
+instead of block-copying just the new key in.)
+
+**Corrected 2026-10-01, same session, after Phase 11.** The first write of
+this rule drew the line in the wrong place: it treated "June redrew some
+pixels March also uses" as a reason to hold back and merge instead of adopt
+(see Phase 11's `DLG_BossState.tga`, where this was tried and reverted). That
+is not the actual hazard. **The only case that needs a merge instead of a
+wholesale adopt is when June's copy of the file is missing a key March reads,
+or has moved it somewhere the art doesn't match** — i.e. adopting would make
+a March lookup fail or point at the wrong picture. Redrawn-but-still-present
+keys are exactly what "June wins" means: the art changes to June's, which is
+the point. Before ruling out a wholesale adopt, check *that* — every key the
+in-scope March lua/`DungeonData`/etc. reads is present in June's file at a
+UV that still has real art backing it — not whether any pixel changed.
+Phase 2's `DLG_Localmap_Title_01.tga` was flagged under the old, wrong
+version of this rule; it has not been re-checked against the corrected test
+and nothing has been decided there — re-verify it under this definition when
+Phase 2 is picked up, rather than assuming either answer.
+
 **Model, effort and review per phase.** The kickoff prompt of each phase is
 preceded by a **Run with:** line; the table below repeats it.
 - **Model:** Opus 5.5 (`claude-opus-5-5`) for anything that needs Ghidra
@@ -50,6 +77,7 @@ preceded by a **Run with:** line; the table below repeats it.
 | 8 | Burned Forest background | - | investigate first | Sonnet 5 → Opus 5.5 | low → high | none → required if C++ |
 | 9 | Silent Night Shelter (rest area) has no NPCs | - | data | Sonnet 5 | medium | light |
 | 10 | Fire Temple collapsing floor leaves the player stuck | - | data (C++ already landed) | Opus 5.5 | high | required |
+| 11 | Ranox boss face missing from the boss HP bar | - | data | Sonnet 5 | medium | required if merging |
 
 ---
 
@@ -686,6 +714,19 @@ region rather than splice compressed bytes. This wasn't verified pixel-by
 a geometry/precedence finding only, flagged for Phase 1 to confirm before
 merging.
 
+**Superseded 2026-10-01 (Phase 1 execution).** Phase 1 first built the
+block-copy merge described above — confirmed working (1479 blocks, exact
+51-block/204px shift, verified byte-for-byte against June's source blocks
+and against the 4 untouched original entries) — but the user then decided to
+replace the whole file with June's instead, per the new asset-conflict
+priority rule above: June's asset wins outright, since the 4 existing keys
+are unreferenced dead data. `datai022.kom`'s `DLG_UI_Dungeon_Image11.dds`/
+`.TET` are now staged as plain byte-for-byte copies of June's 8-key version;
+`EVENT_GIFT_FACTORY`, `EVENT_SECRET`, `KING_NASODS_LAIR` and
+`MISSION_IMPOSSIBLE` are gone from live's copy once this packs. The
+mount-order finding above (why the fix has to land in `datai022`, not
+`data065`) still holds regardless of merge-vs-replace.
+
 ### D. `DLG_Localmap_Title_01.tga`: confirmed merge, and the merge is safe
 
 Beyond the missing-key list in section A, two more things were checked
@@ -806,8 +847,8 @@ Notes:
 | Item | Texture(s) | Classification |
 |---|---|---|
 | Phase 1 (Image10) | `DLG_UI_Dungeon_Image10.dds` | adopt-June-file (no collision; verify pixel content, not just format) |
-| Phase 1 (Image11 / Secret Hell) | `DLG_UI_Dungeon_Image11.dds` | merge-keys into `datai022.kom`'s copy — **plan must change, see section C** |
-| Phase 2 (local-map names) | `DLG_Localmap_Title_01.tga` | merge-keys (confirmed by UV mismatch; safe by overlap check) |
+| Phase 1 (Image11 / Secret Hell) | `DLG_UI_Dungeon_Image11.dds` | adopt-June-file wholesale, into `datai022.kom` (not `data065`, see section C) — **superseded 2026-10-01, was merge-keys** |
+| Phase 2 (local-map names) | `DLG_Localmap_Title_01.tga` | merge-keys (confirmed by UV mismatch; safe by overlap check) — **re-confirmed under the corrected asset-conflict rule in Phase 2's own section below**: wholesale adopt independently fails on 3 content-mismatched keys (`TITLE_ERDA_ISLAND`, `TITLE_HOLLOWEEN`, `TITLE_HARMEL_SECRET`), not just the original UV argument |
 | Phase 4 (world-map labels) | `DLG_UI_Common_Texture71_NEW.tga` | **already done — no work needed, see section B** |
 | — (Secret Hell fever gauge) | `DLG_UI_Common_Texture93_NEW.tga`, `DLG_UI_Image_01.tga`, `DLG_UI_Image_08.tga` | adopt-June-file (all 3, byte-identical images) |
 | — (field-name plates) | `DLG_UI_Common_Texture_Fieldname_6.tga` | merge-keys, scoped (pixels differ beyond the new rect) |
@@ -866,6 +907,39 @@ March keys if the .dds differs. Update the _manifest.json, and hand me the
 pack list. After I pack, verify by extracting the LIVE data065.kom.
 ```
 
+**Done 2026-10-01.** The kickoff's premise ("no Image11 at all") was wrong —
+see Phase 0 section C: `Image11` exists live, but in `datai022.kom`, not
+`data065.kom`, and last-mount-wins means a copy staged into `data065` (as
+step 2 above says) would never be seen. Both fixes ended up as wholesale
+June-file adopts, not merges, and Image11's went into `datai022`, not
+`data065`:
+
+- **`Image10`**: live's `.dds` (uncompressed, 1,398,228 B, no `.TET`) turned
+  out to be stale/wrong art — rendered it and it showed unrelated old
+  dungeon pieces, not Ranox content. Replaced wholesale with June's DXT5
+  copy (349,680 B) after rendering it and confirming all 6 `DungeonData`
+  piece names (`Ranox_Ashes_Village`/`_Burned_Forest`/`_FinalHall`/
+  `_FireTemple`/`_Gateway`/`_Geyser`, all uppercased before lookup by both
+  `X2StateDungeonResult.cpp:2258` and `X2PartyUI`'s `SetTexureData_`)
+  resolve to the matching art. `grep` confirmed no other March dungeon
+  references this file. Staged: `march2014/data065/DLG_UI_Dungeon_Image10.dds`
+  (patch) + `march2014/update/data065/DLG_UI_Dungeon_Image10.TET` (new file,
+  manifest updated) + the matching `kom_contents/data065_kom/` copies.
+- **`Image11`**: first built as a block-level merge preserving live's 4
+  unrelated keys (verified byte-exact, see the superseded note in section
+  C), then replaced with a plain wholesale copy of June's 8-key file per the
+  user's 2026-10-01 asset-conflict-priority call (see "Fix philosophy") —
+  the 4 old keys (`EVENT_GIFT_FACTORY`, `EVENT_SECRET`, `KING_NASODS_LAIR`,
+  `MISSION_IMPOSSIBLE`) are gone once this packs, since nothing referenced
+  them. Staged: `march2014/datai022/DLG_UI_Dungeon_Image11.{dds,TET}`
+  (patch, no manifest change — both names were already listed) + the
+  matching `kom_contents/datai022_kom/` copies.
+- A `.TET` reader/writer was written and proven byte-exact round-trip
+  against three known files before being used to inspect/build anything.
+- **Owed:** packing `data065.kom` and `datai022.kom` from
+  `kom_contents/<name>_kom/` is the user's step. Verify against the live
+  koms after packing, per the usual convention.
+
 ---
 
 ## Phase 2 - Dungeon names on the Lanox local map [item 4]
@@ -913,6 +987,108 @@ March's atlas using the technique in LANOX_DEFECT_PHASES.md Phases 4/5
 pack list. Do NOT create Icon_Info files for progress bars -- that is
 JUNE_UI_PARITY_PHASES.md Phase 3.
 ```
+
+**Done 2026-10-01.** The kickoff's test ("adopt outright only if identical UVs
+AND identical pixels") is the **old**, since-corrected version of the
+asset-conflict-priority rule (see "Fix philosophy" above). Re-ran the check
+under the corrected test instead — every March key present in June's file at
+a UV with real, matching-content art backing it — because the doc's own
+correction specifically named this file as needing re-verification rather
+than a reused answer either way.
+
+- **Re-verification result: wholesale adopt fails the corrected test too**,
+  for three different keys, found by rendering colour crops (BGRA, alpha
+  composited over mid-grey, written with a from-scratch PNG encoder — the
+  alpha-only ASCII art used earlier in this doc can't tell two name plates
+  apart, since every plate has the same banner silhouette):
+  - **`TITLE_ERDA_ISLAND`** (one of the 2 keys already flagged with a moved
+    UV): March's art at this key is **"Underground Waterway"**, not Erda
+    Island — the key name is stale/historical, but the plate is live and
+    reads that way in-game today. June's art at its own UV for the same key
+    reads **"Ereda Island"**. Different dungeon identity entirely; adopting
+    would relabel a real, currently-shipped plate.
+  - **`TITLE_HOLLOWEEN`** (same UV on both sides, so Phase 0's "51 of 53 are
+    byte-identical" check — which only compared UV rects, not pixels — missed
+    this): March has real Korean-text art, "마녀 뽀루의 은신처" ("Witch
+    Pporu's Hideout"). June's copy at the exact same rect is **fully
+    transparent (alpha 0 throughout)** — the art is simply gone. Adopting
+    would blank this plate.
+  - **`TITLE_HARMEL_SECRET`** (same UV both sides): March reads "Sander's
+    Ordeal"; June reads "Temple of Trials" at the same key. Another relabel.
+  - The other 48 same-UV keys were also pixel-diffed, not just UV-diffed: all
+    show a uniform ~14-23% per-rect byte difference with no exceptions in
+    that band. Rendering one (`TITLE_RUBEN_01`, "Tree of El") side by side
+    showed no visible difference — consistent with a recompression/AA
+    artifact, not a content change. Not exhaustively rendered one-by-one past
+    that spot check, but the uniformity of the percentage (vs. the three
+    outliers above, at 49.5% and 94.2%) is itself the evidence: a real
+    content swap does not land in the same narrow band as every untouched
+    plate.
+  - `TITLE_ELDER_SECRET` (the other moved-UV key) renders identically in both
+    ("Wally's Underground Laboratory"), just resized/recropped — passes the
+    corrected test on its own, but doesn't matter once the other three fail
+    it; one failing key is enough to rule out a wholesale file swap.
+  - **Conclusion: merge, not adopt**, confirmed independently of Phase 0's
+    original (UV-only) reasoning.
+- **Precedence check:** `DLG_Localmap_Title_01.{TET,tga}` exists in exactly
+  one live `.kom`, `data063.kom` — checked across all 206 live `.kom`/`.komi`
+  files with `elstools inspect`. No Image11-style mount-order trap here.
+- **The merge**, done with a from-scratch TET reader/writer
+  (`KTETFormatHeader` + sorted key-offset `DWORD` array + 40-byte
+  `KTETFormatTextureUV` array + length-prefixed UTF-16 string table; proven
+  byte-exact round-trip against both the live March and June files before
+  use) and a from-scratch TGA reader/writer (512×512, 32bpp BGRA,
+  uncompressed truecolor, bottom-up storage — confirmed `origin_top=False`
+  and header/footer byte-identical on both sides, so the only format work
+  needed was the `height-1-y` row flip on read/write):
+  - March's existing 53 `TET` entries carried through completely unchanged
+    (byte-for-byte re-verified after rebuild).
+  - June's 7 Ranox entries (`MAP_TITLE_RANOX`, `RANOX_ASHES_VILLAGE`,
+    `RANOX_BURNED_FOREST`, `RANOX_FINALHALL`, `RANOX_FIRETEMPLE`,
+    `RANOX_GATEWAY`, `RANOX_GEYSER`) added as-is (keys arrive pre-uppercased
+    from June's file, matching the engine's own `MakeUpperCase` lookup
+    convention — confirmed call sites in `KTDGUIControl.cpp`/`KTDGUIStatic.cpp`
+    uppercase the key before `GetTexUV`). Result: 60 keys, still sorted by
+    wide-string order (required for the binary search in `GetTexUV`),
+    4692 B.
+  - Confirmed no rect overlap, old or new, before touching pixels: none of
+    the 7 new rects intersect each other or any of March's 53 existing rects.
+  - Pixel copy: for each of the 7 new rects, copied every pixel from June's
+    TGA to March's TGA at the *same* (x,y), through the bottom-up flip.
+    14,590 pixels touched. **Verified by full re-scan of all 262,144
+    pixels**: 0 differ from the original March file outside the 7 rects,
+    all 14,590 inside match June's source exactly.
+  - Net effect: every one of March's 53 existing plates — including
+    `TITLE_ERDA_ISLAND`/Underground Waterway, `TITLE_HOLLOWEEN`, and
+    `TITLE_HARMEL_SECRET`/Sander's Ordeal — is byte-for-byte untouched.
+    "Sander is unchanged" in the Verification section above still holds, and
+    now so does every other village's plate, not just Sander's.
+- **No manifest change.** Both `DLG_Localmap_Title_01.TET` and `.tga` are
+  already listed in `kom_contents/data063_kom/_manifest.json` at algo `"0"`
+  (confirmed by reading the manifest directly) — this is a patch to existing
+  file contents, not a new filename, so `march2014/update/data063/` and its
+  manifest are untouched. The kickoff prompt's "update the manifest" doesn't
+  apply here; noting that explicitly rather than editing a manifest that
+  doesn't need it.
+- **Staged** (binary assets, intentionally outside git per `march2014/**` in
+  `.gitignore` — only `.lua`/`_manifest.json` are tracked):
+  - `march2014/data063/DLG_Localmap_Title_01.TET` (patch, 4692 B)
+  - `march2014/data063/DLG_Localmap_Title_01.tga` (patch, 1,048,620 B,
+    unchanged size)
+  - Matching copies written to `kom_contents/data063_kom/` (the user's
+    packer reads from here, not from `march2014/update/`), confirmed
+    byte-identical to the `march2014/data063/` copies with `cmp`.
+- **Owed: pack `data063.kom` from `kom_contents/data063_kom/`.** Verify
+  against the **live** kom afterward: `elstools inspect` should show the
+  `.TET` at exactly 4692 B (4138 B means the merge didn't land; 6050 B would
+  mean June's file landed wholesale instead, which per the findings above
+  would be wrong).
+- Play-test wording update: on the Lanox local map, the 7 new dungeon icons
+  should show their name plates and `Map_Title_Ranox` should render. Every
+  other village's plates, Elder/Erda/Harmel/Halloween included, should look
+  exactly as they did before this patch — if any of those look different,
+  that's a packing problem (stale `kom_contents` copy, or the wrong file
+  landed), not an expected side effect.
 
 ---
 
@@ -1451,6 +1627,127 @@ June's handler in Ghidra before restoring any AI-off row (my AI-party bots
 must not freeze). Compile with -v mar-2014, stage into
 kom_contents/data036_kom and data040_kom (check the manifests), and hand me
 the repack list.
+```
+
+---
+
+## Phase 11 - Ranox boss face missing from the boss HP bar [item 12]
+
+Reported 2026-10-01, after Phase 1 shipped: Ranox bosses' small face icon in
+their own HP bar (`CX2BossGageUI::SetBossGageTexture`, set from each NPC's
+`BOSS_GAGE_FACE_TEX`/`BOSS_GAGE_FACE_TEX_PIECE` lua fields, read in
+`X2GUNPC.cpp:4260-4266` and applied via `pStatic_BossFace->GetPicture(0)
+->SetTex_LUA`) does not show. This is a **different pair of atlas files**
+from anything Phase 0 already censused — Phase 0 only walked Ranox *UI* luas
+and `DungeonData`/`BattleFieldData`; it never looked at per-monster unit
+lua's `BOSS_GAGE_FACE_TEX*` fields. This phase does that census, scoped to
+just these two files, and found the same class of gap as Phase 1, twice, in
+two different shapes.
+
+**Root cause, investigated and fixed 2026-10-01:** 22 Ranox boss/sub-boss
+unit files under `march2014/update/data037/` set `BOSS_GAGE_FACE_TEX`/
+`_PIECE`, split across two atlases. (`DLG_BossState.lua`/`DLG_BossState_NEW.lua`,
+the dialog scripts for this UI, live in `data034.kom` — unrelated to either
+atlas file below.)
+
+| Texture | Live archive | Live keys | June keys | Ranox pieces needed |
+|---|---|---|---|---|
+| `DLG_BossState.tga` | `data068.kom` | 109 | 152 | `NUI_MOTHERFIG`, `NUI_DRYADKENTA`, `NUI_ALUMINUM`, `NUI_STAIN` |
+| `DLG_BossState_02.tga` | `data215.kom` | **0 (no `.TET` at all)** | 74 | `DEVIL_BERSERKER`, `NUI_FIRE_DEVIL_CHAIN_IPLITAN`, `DEVIL_IGNIA`, `NUI_FIRE_DEVIL_IN`, `NUI_FIRE_DEVIL_JIN`, `NUI_FIRE_DEVIL_SKA`, `ALUMINUM`, `MULSAYRENA`, `ALUMINUM_FD`, `NUI_RANOX_MAGI` |
+
+`data068.kom` separately has a **different**, unrelated file
+`DLG_BossState02.tga`/`.tet` (no underscore) — not to be confused with
+`DLG_BossState_02.tga` in `data215.kom`, which is what the lua files actually
+reference.
+
+- **`DLG_BossState_02.tga` (10 Ranox pieces) is the same shape as Phase 1's
+  `Image10`: image present, sidecar `.TET` completely absent live.** `cmp`
+  confirmed live's `.tga` (1,048,620 B) is byte-identical to June's, and all
+  10 needed pieces exist in June's 74-key `.TET`. Zero collision risk —
+  **adopted June's `.TET` outright**, no image work.
+- **`DLG_BossState.tga` (4 Ranox pieces) was first mis-classified as needing
+  a scoped merge, then corrected within this phase.** All 109 keys live
+  shares with June have byte-identical UV rects (checked every one, zero
+  mismatches, nothing missing or moved) — June did not rearrange this atlas
+  and every key March reads still resolves to real art in June's copy. A
+  per-key pixel sample did find 5 keys with different pixels despite
+  matching UVs (`ERDAISLAND_TOWER`, `ERDAISLAND_TOWER_HAMEL`,
+  `ERDAISLAND_TOWER_VELDER`, `NUI_GHOST_CLOWN_THUNDER`, `NUI_PPORU_WILLIAM` —
+  June redrew these for its own reasons), and the first pass over this phase
+  read that as a Phase-2-`Title_01`-style collision requiring a scoped merge.
+  **That was wrong — see the corrected asset-conflict rule in "Fix
+  philosophy": a redrawn-but-present key is not a collision, it's what
+  "June wins" means.** No key goes missing or stops resolving. **Adopted
+  June's `.tga` + `.tet` outright**, same as `_02`. The 5 keys' art changes
+  to June's version as a side effect — flagged here since it touches
+  content outside Ranox (Erda Island's tower icons, `NUI_GHOST_CLOWN_THUNDER`,
+  `NUI_PPORU_WILLIAM`), but nothing stops rendering or resolves wrong. June's
+  other 39 new keys over live's 109 (`GLITER_*`, `NUI_KARUSO_*`,
+  `NUI_TROCK_*`, `HALLOWEEN_TEDDY`, etc.) come along for free as part of the
+  wholesale adopt — harmless, same as `ERDA_ISLAND`/`SANDER_SECRET` riding
+  along in Phase 1's `Image10` adopt.
+
+Done:
+1. `DLG_BossState_02.tga`: June's `.TET` staged as a new file in
+   `march2014/update/data215/DLG_BossState_02.TET`, with a manifest entry
+   added to **both** `march2014/update/data215/_manifest.json` and
+   `kom_contents/data215_kom/_manifest.json` (confirmed byte-identical to
+   each other after the edit). No `.tga` staging — live's was already
+   correct and byte-identical to June's.
+2. `DLG_BossState.tga`: June's `.tga` + `.tet` copied in whole, byte-for-byte
+   (`cmp`-verified), to `march2014/data068/` (patch, no manifest change —
+   both filenames were already listed) and to `kom_contents/data068_kom/`.
+3. Verified against the **live** koms with `elstools inspect` (not just the
+   `kom_contents` manifests): live `data068.kom` currently holds the old
+   8,486 B / 109-key `.tet` (180 files total) and live `data215.kom` holds 5
+   files with no `.TET` at all — confirming the starting state matches this
+   investigation before handing off the pack.
+4. Cropped and rendered the 4 new Ranox face rects from the staged
+   `DLG_BossState.tga` to confirm real art, not blank space.
+
+Owed: packing `data068.kom` and `data215.kom` from `kom_contents/<name>_kom/`
+is the user's step. After packing, re-run `elstools inspect` on both live
+koms (`data068.kom` should stay at 180 files with the `.tet` now 12,130 B;
+`data215.kom` should go from 5 to 6 files) and parse the live `.TET`s.
+
+Verification:
+- Fight the 22 Ranox boss/sub-boss units this phase lists (grep
+  `march2014/update/data037/*.src.lua` for `BOSS_GAGE_FACE_TEX` for the full
+  list): the boss face icon renders in the HP bar instead of a blank/default
+  square.
+- Erda Island (and anything else using `ERDAISLAND_TOWER*`,
+  `NUI_GHOST_CLOWN_THUNDER`, `NUI_PPORU_WILLIAM`) still shows a boss face —
+  it will be June's redrawn art, not March's original, which is expected and
+  intentional per the asset-conflict rule.
+- `ErrorLog.txt` has no texture-load error for either `DLG_BossState.tga` or
+  `DLG_BossState_02.tga`.
+
+**Run with:** Sonnet 5, medium effort. Data staging; both files turned out to
+be plain wholesale adopts once the real hazard (a key March reads going
+missing or unresolvable, not a pixel redraw) was checked for and found
+absent. No review beyond the manifest diffs and the live-kom `elstools
+inspect` confirmation above.
+
+**Kickoff prompt (historical — superseded by "Done" above, kept for
+record):**
+```
+Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
+root in full -- especially "Starting context", the "Fix philosophy" section's
+2026-10-01 asset-conflict-priority rule, the "Investigation ledger", and
+"Phase 11". Branch: mods/lanox-port. Never launch X2_offline.exe without
+asking first.
+
+Your task: fix the missing Ranox boss face icon in the boss HP bar. 22 Ranox
+unit luas under march2014/update/data037/ set BOSS_GAGE_FACE_TEX/_PIECE,
+split across DLG_BossState.tga (data068.kom) and DLG_BossState_02.tga
+(data215.kom). DLG_BossState_02.tga is missing its .TET entirely live (image
+already byte-identical to June) -- adopt June's .TET, no image work.
+DLG_BossState.tga's 109 shared keys have identical UVs to June and nothing
+March reads is missing or moved -- 5 of them have different PIXELS (June
+redrew Erda Island's tower icons and 2 others), but per the asset-conflict
+rule that is not a collision worth blocking on. Adopt June's whole file.
+Stage both, update manifests where needed, and hand me the pack list. After I
+pack, verify against the LIVE data068.kom and data215.kom.
 ```
 
 ---
