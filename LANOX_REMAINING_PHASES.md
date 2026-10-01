@@ -952,6 +952,12 @@ Item 4 is two problems:
   those files, so June draws progress some other way. That half is
   `JUNE_UI_PARITY_PHASES.md` Phase 3. This phase does **not** invent
   Icon_Info files for Ranox.
+  - **Closed 2026-10-01: matches June.** JUNE_UI_PARITY Phase 0 found that
+    June has no difficulty-completed bars on any village. The bars are the
+    `Star_Bg`/`Star_1..3` statics in `*_Icon_NEW`, and June removed them
+    everywhere. The `*_Icon_Info_NEW` files are orphans in March too. Per
+    the user, we follow June: Lanox gets no bars, and the other villages
+    lose theirs when JUNE_UI_PARITY Phase 3 adopts June's per-village luas.
 
 Steps (names):
 1. Take the Phase 0 row for `DLG_Localmap_Title_01`. Decide between:
