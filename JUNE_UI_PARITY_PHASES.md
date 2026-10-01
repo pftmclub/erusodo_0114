@@ -792,6 +792,9 @@ matching). Confirm, in order:
      no party enum changed).
    - Check `ErrorLog.txt` / `offline_server.log` / `OpenScriptFile.log` for
      anything new.
+   - **Confirmed 2026-10-01 (user play-test): all village local-map tabs
+     behave as usual** on the new `x2.exe`, before any repack. No regression
+     from adding the three enum members.
 2. **After the user repacks `data036.kom`** (ships this phase's 3 values plus
    the other pending `data036` enum work listed above):
    - Repeat step 1's full village list — Local Map must still open for all
