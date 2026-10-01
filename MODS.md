@@ -2773,6 +2773,47 @@ phase's three values.
 Revert: undefine `SERV_IRUHADEV_JUNE_LOCAL_MAP_UI`; the three enum members become dead
 code (nothing reads them yet). The Lua table entries are additive and harmless either way.
 
+### June UI parity, Phase 3: local-map dungeon buttons, Special tab (Henir)
+
+New flag `SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS` (`KTDXLIB/Always.h`), which needs
+`SERV_IRUHADEV_JUNE_LOCAL_MAP_UI`. Every March village's local map (and Lanox's)
+now uses June2017's per-village luas.
+- There are no clear-difficulty stars.
+- Henir moved to June's Special tab, `LMI_SPECIAL = 10011`.
+- Each secret dungeon icon now names its `_HELL` dungeon and gets a
+  `SecretDungeonDesc` lock button.
+
+The C++ that drives those luas is ported whole from June, in
+`X2Lib/X2LocalMapUI.{h,cpp}` and `X2Lib/X2LocationManager.h`:
+- `UpdateDungeonButtons` and `SecretDungeonDesc`;
+- the `LMUCM_DUNGEON_CLICKED` case. Secret dungeons now start as
+  `DM_SECRET_HELL`, which is June behaviour and the user's decision of
+  2026-10-01;
+- the Special tab in `UpdateLocalMapDLG`;
+- June's `DT_SECRET` → `DM_SECRET_HELL` mapping in the three handlers that
+  reset a party's mode: `X2PartyManager.cpp` (party closed) and
+  `X2StateBeginning.cpp` / `X2StateServerSelect.cpp` (unit selected).
+
+Details, the June-only omissions, the pack list and the play-test checklist are
+in `JUNE_UI_PARITY_PHASES.md`'s "Phase 3 result".
+
+Built `US_SERVICE`, rc 0. `x2.exe`: 18,981,888 B, 2026-10-01 13:29. Deployed to
+`X2_offline.exe` (byte-identical). Not launched.
+
+**Needs packing**: `data034`, `data036`, `data065`, `data215`, `data217`, and a
+**new** `data151` archive. Every file is already in `kom_contents/`.
+
+Revert: undefine `SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS`. The C++ returns to
+March's/Phase 2's versions. The June luas still load, but stop working
+properly:
+- their secret icons carry `_HELL` IDs under March's `DM_SECRET_NORMAL`;
+- the hero filter and lock buttons are never hidden;
+- the Special tab is counted as a page-2 tab.
+
+So a full revert also means restoring March's own local-map luas: their live-kom originals
+are in `...\24965799\kom_contents_backup_june_ui_phase3\` (copy back into `kom_contents`,
+drop the Phase 3 manifest entries, repack).
+
 ## Reverting to stock
 
 Comment out every `#define` listed in the *Defined in* column and rebuild.

@@ -9,5 +9,8 @@ LocalIDList = {
 	LOCAL_MAP_ID.LMI_VELDER,
 	LOCAL_MAP_ID.LMI_HAMEL,
 	LOCAL_MAP_ID.LMI_SANDER,
-	LOCAL_MAP_ID.LMI_RANOX
+	LOCAL_MAP_ID.LMI_RANOX,
+	-- June UI parity Phase 3 (SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS): June's Special map (Henir).
+	-- June's LMI_ELYSION / LMI_EVENT are June-only content and stay omitted.
+	LOCAL_MAP_ID.LMI_SPECIAL
 }

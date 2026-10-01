@@ -975,3 +975,307 @@ character at level 68 or above should see all nine tabs:
      correct. Arrows still page.
    - Look for no `[JUNE_LMUI]` line, and no Lua error naming
      `DLG_UI_Local_Map_NEW` or `DLG_UI_Image_07`.
+
+---
+
+## Phase 3 pre-implementation findings (2026-10-01; decision put to the user, nothing built)
+
+Every in-scope June and March local-map lua was decompiled into a scratch
+directory. Neither game tree was written to. All 24 June files to be adopted
+(8 villages × entry / `Back_NEW` / `Icon_NEW`) match June's kom index size
+exactly, so none is truncated.
+
+**Decision: March villages move to June's files.** There is no Icon_Info
+path to keep: those files are orphans in March (Phase 0 correction 4), and
+June has no separate progress mechanism. June's mechanism is its luas plus
+its `UpdateDungeonButtons`. Names render on every village. The title statics
+are unchanged in June's `Icon_NEW`, and Lanox's names are already live
+(`data063.kom` `DLG_Localmap_Title_01.TET` = 4692 B, the LANOX Phase 2 merge).
+"Progress" means no bars anywhere, per the 2026-10-01 decision.
+
+What June's files change, per village (diffed against March's live copies):
+- **`Back_NEW`:** identical apart from one added control,
+  `Static_HeroMode_Filter` (`DLG_Map_Local_HeroMode_Filter.tga`, Phase 4's
+  atlas).
+- **`Icon_NEW`:**
+  - the star statics are removed;
+  - a third `AddDummyInt` (Hero ID) is added to each dungeon button. Ruben's
+    is June's own `DI_NONE`, so 0 is a state June's C++ already handles;
+  - **the Henir button (`emir_space`, `DI_ELDER_HENIR_SPACE`) is removed from
+    all 7 villages that had it.** June moved Henir to the Special map
+    (`DLG_Map_Local_Special_Icon_NEW`, `LMI_SPECIAL`), which Phase 2 dropped;
+  - the secret-dungeon button's ID changes from `DI_*_SECRET_COMMON` to
+    `DI_*_SECRET_HELL`, and a `SecretDungeonDesc` lock button is added on top
+    of it;
+  - the `DI_EVENT_MISSION_IMPOSSIBLE` dummy buttons are removed;
+  - June-only controls are added: Besma's Bestera (`DI_BESTERA_START`,
+    missing in March), `HamelSecret` (`DI_HAMEL_SECRET_HELL` has no March
+    DungeonData) and `SanderSecret` (`DI_SANDER_SECRET_HELL`, missing in
+    March).
+- **Entry scripts:** the `DungeonIDList` changes mirror the icon changes
+  (Henir out, `_COMMON` → `_HELL`, June-only IDs in). `DungeonIDList` feeds
+  the tab quest marks and `CreateDungeonClearStars`, which builds Henir's
+  `_LimitInfo` plate. So it must match whatever the icons end up carrying.
+- **Peita:** June renamed the chain to `DLG_Map_Local_Peita_Back_NEW.lua`
+  (data034) and `DLG_Map_Local_Peita_Icon_NEW.lua` (data217). Neither name
+  exists in live March.
+
+Couplings found:
+- **The luas need June's C++.** March's `UpdateDungeonButtons` never hides
+  `Static_HeroMode_Filter` or the `SecretDungeonDesc` overlays, so both would
+  stay permanently visible. June's `UpdateDungeonButtons` (`FUN_3293b5e0`)
+  hides the filter unless hero mode is on, accepts `GetDummyInt(1)` ∈
+  {1, 2, 100}, and calls `FUN_32939aa0` for `SecretDungeonDesc`: a type-3
+  control that builds a required-clears tooltip (string `0x9c0c`) and shows
+  or hides itself. Porting both whole is part of this phase.
+- **Dead controls must be dropped from the lua.** `SCRIPT_SELECT` is not
+  defined for US, so March's no-DungeonData branch hides nothing. ~~June's loop
+  does nothing when `GetDungeonData` is NULL~~ — **corrected during
+  implementation:** June's loop hides every dungeon control first
+  (`SetShowEnable(false,false)` before the data lookup), so a control with no
+  DungeonData does stay hidden under the ported loop. They are dropped anyway,
+  because they name June-only content (nil enums, or title keys that are
+  missing or carry different art in March). The `DLT_EVENT_DUNGEON_TITLE`
+  statics are **kept**, not dropped: see "Phase 3 result".
+- **Secret IDs vs March's click handler.** Both `_COMMON` and `_HELL` are
+  `DT_SECRET` in `march2014/data035/DungeonData.src.lua`, for Elder, Besma,
+  Altera and Velder alike. March's `LMUCM_DUNGEON_CLICKED` (kept as March in
+  Phase 2) maps `DT_SECRET` → `DM_SECRET_NORMAL`. Fed June's `_HELL` IDs, it
+  would start a Hell dungeon ID in secret-normal mode. June maps
+  `DT_SECRET` → `DM_SECRET_HELL`.
+- **Henir has no other entry point in March.** Nothing outside the local-map
+  icon sets `DI_ELDER_HENIR_SPACE` as the party dungeon.
+
+Staging plan:
+- June's `Icon_NEW` files for Altera, Besma, Hamel, Sander and Velder live in
+  June's data217. March has them in data034. Patch them in
+  `march2014/data034/` (the same duplicate-name hazard as Phase 0
+  correction 1) and mirror them into `kom_contents/data034_kom/`.
+- Only the two new Peita names go under `update/` with a manifest entry. Also
+  patch March's `DLG_Map_Local_Peita.lua` `LOCAL_MAP_DLG`/`DLGBack`.
+
+Open questions for the user: Henir's home, and the secret-dungeon mode (see
+the chat report of 2026-10-01).
+
+**User decisions (2026-10-01):** both recommendations accepted. Henir goes to
+June's Special tab (option b), and secret dungeons follow June's click handler
+(`DM_SECRET_HELL`, option a).
+
+---
+
+## Phase 3 result (built, deployed, packed and play-tested 2026-10-01)
+
+**Confirmed 2026-10-01 (user):** all listed archives repacked and the play-test passed.
+
+New flag `SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS` (`KTDXLIB/Always.h`). It needs
+`SERV_IRUHADEV_JUNE_LOCAL_MAP_UI`.
+
+### What changed
+
+**C++**, each whole June function with March's in `#else`:
+- `UpdateDungeonButtons` (June `FUN_3293b5e0`, ported from the disassembly):
+  - every dungeon control is hidden first, then re-shown if playable;
+  - `Static_HeroMode_Filter` is shown only while `m_bHeroMode` is on;
+  - `GetDummyInt(1)` ∈ {1, 2, 100}; a 100 (`DLT_EVENT_DUNGEON_TITLE`) control
+    is shown but not enabled;
+  - hero mode reads dummy 2;
+  - stars are not refreshed in hero mode;
+  - an inactive Henir's `_LimitInfo` plate is hidden;
+  - the drop-down for newly opened dungeons is unchanged, but June dropped
+    March's Halloween case and the empty `CreateNewDungeonParticle` call.
+
+  March calls June dropped: the hell-mode `<name>_Icon_Info` toggles and
+  Tear-of-El-Woman (BR-only flag, inert in US). June-only systems are comments
+  in place: the Elysion Atlas/Tower event flags, `CX2CustomEventManager`
+  (absent from March), the Elysion page dummy strings, and the Event/Special
+  NEW badges.
+- `SecretDungeonDesc` (June `FUN_32939aa0`), new. June's "is it open"
+  predicate (`FUN_327d9d50`) reads a server-fed open list and an entry-item map
+  that March's `CX2DungeonManager` does not have. March has no open-day gate
+  beyond `IsActiveDungeon`, which the caller has already passed, so June's open
+  branch applies: the lock button is hidden. The closed branch's tooltip
+  strings (`STR_ID_39948`/`41876`) are not in March's C++ string table; it is
+  documented in place and not compiled.
+- `UICustomEventProc` `LMUCM_DUNGEON_CLICKED` (June case 18000):
+  - hero mode takes dummy 2;
+  - difficulty is `heroMode ? DL_EXPERT : DL_NORMAL`. June's override through
+    DungeonData `+0xb0/+0xb6/+0xb7` uses fields March lacks;
+  - `DT_SECRET` → `DM_SECRET_HELL`, both in a party and solo.
+
+  The novice-guide tail is unchanged (it is identical to June's).
+- `UpdateLocalMapDLG`: the Special tab is re-shown by level alone, so it sits
+  on both pages, and it is not counted toward page 1's six (June
+  `FUN_3293c6f0`).
+- `CX2LocationManager::LMI_SPECIAL = 10011`.
+- **Secret-mode resets.** Three handlers reset a `DT_SECRET` party's mode to
+  `DM_SECRET_NORMAL`:
+  - `X2PartyManager.cpp` `Handler_EGS_CLOSE_PARTY_NOT`;
+  - `X2StateBeginning.cpp` `Handler_EGS_SELECT_UNIT_ACK`;
+  - `X2StateServerSelect.cpp` `Handler_EGS_SELECT_UNIT_ACK` (two copies).
+
+  June's versions set `DM_SECRET_HELL`: `FUN_324331c0` (type 3 → 4) and
+  `FUN_32563800` (type 3 → `EBX` = 4), read from the disassembly. Only that
+  case is changed, under the same flag. Those June handlers differ elsewhere
+  too, and those differences are left for a party-UI phase:
+  - on party close, June leaves Henir at `DM_INVALID` (March:
+    `DM_HENIR_PRACTICE`);
+  - on unit select, June also sets Henir → `DM_HENIR_PRACTICE` and type 5 → 5.
+
+**Secret-dungeon consumers checked** (the advisor review asked for every
+reader of the dungeon ID, mode or difficulty on its own):
+- `X2QuestManager::MakeSubQuestString`: quest-text formatting from quest data
+  only.
+- The offline quest code (`IsExistDungeonInSub`) and the party UI's
+  ID + difficulty lookups (`X2PartyUI.cpp:1737/3069/5015/5059`) both use the
+  sum, which is unchanged.
+- Offline titles match the base ID plus difficulty. `SubTitleMission.lua`'s
+  Hell titles name `DI_*_SECRET_HELL` with `DL_NULL`, so they **now match**;
+  under March's old (`_COMMON`, `DL_HARD`) they never did. The normal-secret
+  titles (`_COMMON`, `DM_SECRET_NORMAL`) become unreachable, as in June.
+- No quest script names a secret dungeon.
+- `X2GUNPC.cpp:1840` and `X2Game.cpp:16916` key on mode `HELL`, which is now
+  set.
+- `X2StateDungeonResult.cpp:2383` labels by mode, so it now reads Hell.
+
+Henir resolving to `LMI_SPECIAL`:
+- `X2PartyUI.cpp:1863`'s region-name switch already skips Henir
+  (`IsHenirDungeon`).
+- `X2UIQuest.cpp:795`'s quest-list region icon for Henir quests loses Elder's
+  icon. This is cosmetic, and is what June does.
+
+The kept Mission Impossible event titles can never show in March: those
+dungeons (41030/41040) have no DungeonData, so the ported loop leaves them
+hidden. Keeping them costs nothing; it is still a change from the "drop them"
+I told the user before implementing.
+
+Secret dungeons resolve as ID + difficulty in the client
+(`X2PartyManager.cpp:3088`, `X2PartyUI.cpp:5015`) and in the offline emulator
+(`Handlers_Room.cpp:1679`). So June's (`_HELL` ID, `DL_NORMAL`) plays the same
+dungeon as March's (`_COMMON` ID, `DL_HARD`), for example 33031. The emulator
+passes `m_cDungeonMode` straight through.
+
+**Data** (all June files, decompiled from extracts verified against June's
+kom index):
+- **Per-village luas.** Ruben, Elder, Besma, Altera, Velder, Hamel and Sander
+  `Icon_NEW`/`Back_NEW`/entry are patches in `march2014/data034/`. Peita's
+  renamed chain is new:
+  - `update/data034/DLG_Map_Local_Peita_Back_NEW`;
+  - `update/data217/DLG_Map_Local_Peita_Icon_NEW`;
+  - March's `DLG_Map_Local_Peita.lua` is repointed.
+- **Dropped** (each leaves a comment in place):
+  - Bestera (Besma, Altera);
+  - the Hamel and Sander secret buttons, their lock buttons and their
+    `TITLE_SECRET`;
+  - June-only IDs in `DungeonIDList`. A nil entry would end
+    `LocalParsing`'s read of the list early;
+  - Ruben's `VMI_SPA_RUBEN`.
+- **Kept**: the Hero third dummies (they read 0) and the Mission Impossible
+  `DLT_EVENT_DUNGEON_TITLE` statics. This deviates from the pre-implementation
+  plan: the 1/2/100 test is now ported, so they behave as in June.
+- **Lanox**: `Ranox_Icon_NEW` and `Ranox_Back_NEW` were re-staged as June's,
+  restoring the event titles and the hero filter that the 2026-09-18 port had
+  to omit. The Lanox entry script was already June's.
+- **Special** (`update/data217/DLG_Map_Local_Special{,_Back_NEW,_Icon_NEW}`):
+  only Henir is kept, with its button, `TITLE_HENIR` and `STAR8`
+  (`STR_ID_3722`, the static `CreateDungeonClearStars` anchors the
+  `_LimitInfo` plate to). The tab requires level 40, as in June.
+- **Registration and tab strip**: `LMI_SPECIAL` was added to
+  `DLG_Map_Local.src.lua` and `DLG_Map_World_Elios.src.lua`'s `LocalIDList`.
+  June's `LocalMapRadioBtnSpecial` was restored in
+  `DLG_UI_Local_Map_NEW.src.lua`.
+- **`Enum.src.lua`**: `LOCAL_MAP_ID.LMI_SPECIAL = 10011` and
+  `DETAIL_LOCAL_TYPE.DLT_EVENT_DUNGEON_TITLE = 100`, both June's values.
+- **`DLG_Map_Local_Henir_limit.lua` is kept as March's.** June's version is
+  laid out for its `NEW_HENIR_DUNGEON` challenge counters. That flag is off for
+  US, so March's C++ still writes `PC_%d.dds`. It belongs with June's Henir
+  challenge system, not this phase.
+
+**Verified:**
+- Every enum and `STR_ID` the staged luas use resolves in March. The only
+  exceptions are the 42 accepted Hero IDs.
+- Every atlas key the kept controls draw exists in March or is staged here.
+- All 34 luas compiled with `-v mar-2014`. Decompiling them back matches the
+  sources, apart from comments.
+- Unmodified June files recompile to exactly June's index size.
+
+**Built**: `X2ServerProtocol`, `KTDXLIB`, `X2Lib`, `X2` as `US_SERVICE`, with
+the PCH invalidated first. All four returned rc=0, and `X2LocalMapUI.cpp`
+produced no warnings. The new code is proven to be in the exe:
+`Static_HeroMode_Filter` and `SecretDungeonDesc` (both only in the new code)
+are present as wide strings. `x2.exe` (18,981,888 B, 13:29) was copied to
+`X2_offline.exe` and is byte-identical. After the reset-site edits, `X2Lib`
+and `X2` were rebuilt (rc=0) and redeployed: 18,981,888 B, 13:42,
+byte-identical. **Not launched.**
+
+### Pack list
+
+Everything is already in `kom_contents/dataNNN_kom/`, with the manifests
+updated. The sizes below are the compiled sizes the live kom should show
+after packing.
+
+| Archive | Files (B) |
+|---|---|
+| `data034.kom` | Icon_NEW: Ruben 2741, Elder 9499, Besma 9101, Altera_Island 9296, Velder 8959, Hamel 10171, Sander 8522 · Back_NEW: Ruben 833, Elder 832, Besma 835, Altera_Island 814, Velder 836, Hamel 813, Sander 819, Ranox 815, **Peita 814 (new)** · entry: Ruben 894, Elder 1251, Besma 1313, Altera_Island 1337, Velder 1432, Hamel 1454, Sander 1226, Peita 1087 · `DLG_Map_Local.lua` 570 · `DLG_Map_World_Elios.lua` 376 · `DLG_UI_Local_Map_NEW.lua` 13689 |
+| `data036.kom` | `Enum.lua` 265287 |
+| `data217.kom` | `DLG_Map_Local_Ranox_Icon_NEW.lua` 9302 · **new:** `DLG_Map_Local_Peita_Icon_NEW.lua` 7471, `DLG_Map_Local_Special.lua` 388, `_Special_Back_NEW.lua` 818, `_Special_Icon_NEW.lua` 2474 |
+| `data065.kom` | **new:** `DLG_Map_Local_HeroMode_Filter.tga` 1048620, `.tet` 104 |
+| `data215.kom` | **new:** `DLG_New_Region_SPECIAL_01.dds` 262272, `.TET` 78 |
+| **`data151.kom` (new archive)** | `DLG_UI_Text_14.tga` 1048620, `.TET` 4640 (Special tab art). This is a new archive number for March, the same precedent as `data217` (RANOX_PORT_PLAN rule 2). Source: `kom_contents/data151_kom/` (new dir and manifest). |
+
+**Ship them together.** A new exe with old luas mostly looks as before, with
+two side effects:
+- a March secret icon (still its `_COMMON` ID) now starts in Hell mode, while
+  the dungeon played stays the `_COMMON` one;
+- March's hell-mode `_Icon_Info` overlays are no longer toggled.
+
+New luas without `Enum.lua` read `LMI_SPECIAL` as 0, which would leave the
+Special tab dead.
+
+**Backup**: the live-kom originals of every file this phase overwrote in `kom_contents/` were
+extracted to `...\24965799\kom_contents_backup_june_ui_phase3\dataNNN_kom\` (29 files, with a
+README); the packer does not read that folder.
+
+### Known follow-ups
+
+- **Party UI difficulty checkbox on a secret dungeon (Phase 5).**
+  `CX2PartyUI::SelectDungeonDifficulty` maps a Hard/Expert click on a
+  `DT_SECRET` dungeon to `DM_SECRET_HELL` + `DL_HARD`, i.e. `_HELL` ID + 1,
+  which does not exist. The map click itself never does this, but a manual
+  difficulty click would. Phase 5 ports June's party UI.
+- June's `IsActiveDungeon` (`FUN_327da190`) has a `RequireCompletedQuestID`
+  gate and hero/Bestera handling. It is not ported; it belongs to
+  `CX2DungeonManager`, not the local map.
+- Henir's June limit-plate layout depends on June's `NEW_HENIR_DUNGEON`
+  challenge system.
+
+### Play-test checklist (after repacking every archive above)
+
+Use `reyaa` (level 80):
+1. **Every village, Ruben through Sander and Lanox:**
+   - no difficulty stars;
+   - name plates present;
+   - dungeon buttons present per level;
+   - **no Henir button on any village map**;
+   - the map art is not dimmed (the hero filter must be hidden).
+2. **Peita** opens its local map (renamed files).
+3. **Special tab**, at level 40 or above:
+   - it is visible on both pages, after Lanox on page 2;
+   - clicking it shows the Special background, the Henir button, the
+     `TITLE_HENIR` plate and the Henir reward-count plate;
+   - clicking Henir selects Henir practice in the party panel and enters
+     normally.
+4. **Secret dungeons** (Elder, Besma, Altera, Velder), with expert clears:
+   - the button shows and the lock overlay is hidden;
+   - clicking it sets Hell in the party panel;
+   - entering plays the `_HELL` dungeon.
+
+   **Do not click the party panel's difficulty checkboxes on a secret
+   dungeon** (see follow-ups).
+5. **Mission Impossible event titles** stay hidden unless that event dungeon is
+   active.
+6. **Logs**: `ErrorLog.txt` / `OpenScriptFile.log` should show no Lua error
+   naming `DLG_Map_Local_*`, `DLG_UI_Local_Map_NEW` or `Enum.lua`, and no
+   missing-texture line for `DLG_UI_Text_14`, `DLG_New_Region_SPECIAL_01` or
+   `DLG_Map_Local_HeroMode_Filter`.
+7. **Live koms**: `elstools inspect` on each archive should show the sizes in
+   the pack list.

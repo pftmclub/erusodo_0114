@@ -146,6 +146,86 @@ m_pDlgHeroRecruit(NULL)
 			// (March: DM_SECRET_NORMAL), type 5->5, else DM_INVALID, and the difficulty from
 			// FUN_327db250 (hero mode, plus June-only DungeonData fields). That belongs with
 			// the hero Mode Button (JUNE_UI_PARITY_PHASES.md Phase 4), which needs the user.
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
+			//{{ Iruha : 2026-10-01 // June UI parity Phase 3: June2017 FUN_3293d280 case 18000, whole.
+			// Differences from March's body below: hero mode takes the icon's third dummy (the Hero
+			// dungeon); the difficulty is June's FUN_327db250; and a secret dungeon starts as
+			// DM_SECRET_HELL -- June's icons name the _HELL dungeon itself, so with DL_NORMAL the
+			// dungeon played (ID + difficulty) is that _HELL dungeon.
+			CKTDGUIButton* pButton_Dungeon = (CKTDGUIButton*) lParam;
+			if( NULL == pButton_Dungeon )
+				return true;
+
+			if ( NULL != g_pData && NULL != g_pData->GetPartyManager() )
+			{
+				g_pData->GetPartyManager()->UpdateSelectedDungeon();
+			}
+
+			int iDungeonID = pButton_Dungeon->GetDummyInt( ( true == m_bHeroMode ) ? 2 : 0 );
+
+			// June FUN_327db250: DL_EXPERT in hero mode, otherwise DL_NORMAL. June can also force
+			// DL_EXPERT (or back to DL_NORMAL) through DungeonData fields (+0xb0/+0xb6/+0xb7, via
+			// FUN_327da9f0) that March's DungeonData does not have, so that test is not ported.
+			const int iDungeonDifficulty = ( true == m_bHeroMode ) ? (int) CX2Dungeon::DL_EXPERT : (int) CX2Dungeon::DL_NORMAL;
+
+			const CX2Dungeon::DUNGEON_TYPE eDungeonType =
+				static_cast<CX2Dungeon::DUNGEON_TYPE>( g_pData->GetDungeonManager()->GetDungeonType( iDungeonID ) );
+
+			if( g_pData->GetPartyManager()->DoIHaveParty() )
+			{
+				if( iDungeonID != g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonID )
+				{
+					int iDungeonMode = CX2Dungeon::DM_HENIR_PRACTICE;
+					switch ( eDungeonType )
+					{
+					default:
+						break;
+
+					case CX2Dungeon::DT_NORMAL:
+						iDungeonMode = CX2Dungeon::DM_INVALID;
+						break;
+
+					case CX2Dungeon::DT_SECRET:
+						iDungeonMode = CX2Dungeon::DM_SECRET_HELL;
+						break;
+
+					// June: dungeon type 5 -> mode 5, a June-only type March does not have.
+					}
+					g_pData->GetPartyManager()->Handler_EGS_PARTY_CHANGE_DUNGEON_REQ( iDungeonID, iDungeonDifficulty, iDungeonMode );
+				}
+			}
+			else
+			{
+				g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonID			= ( iDungeonID > 0 ? iDungeonID : SEnum::DI_RUBEN_EL_TREE_NORMAL );
+				g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonDifficulty	= iDungeonDifficulty;
+
+				int iDungeonMode = CX2Dungeon::DM_INVALID;
+				switch ( eDungeonType )
+				{
+				default:
+				case CX2Dungeon::DT_NORMAL:
+					iDungeonMode = CX2Dungeon::DM_INVALID;
+					break;
+
+				case CX2Dungeon::DT_HENIR:
+					iDungeonMode = CX2Dungeon::DM_HENIR_PRACTICE;
+					break;
+
+				case CX2Dungeon::DT_SECRET:
+					iDungeonMode = CX2Dungeon::DM_SECRET_HELL;
+					break;
+
+				// June: dungeon type 5 -> mode 5, a June-only type March does not have.
+				}
+				g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonMode = iDungeonMode;
+
+				if( NULL != g_pMain->GetPartyUI() )
+				{
+					g_pMain->GetPartyUI()->UpdatePartyDLG( true );
+				}
+			}
+			//}} Iruha : 2026-10-01
+#else SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 			CKTDGUIButton* pButton_Dungeon = (CKTDGUIButton*) lParam;
 			if( NULL == pButton_Dungeon )
 				return true;
@@ -232,6 +312,7 @@ m_pDlgHeroRecruit(NULL)
 					g_pMain->GetPartyUI()->UpdatePartyDLG( true );
 				}
 			}
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 
 #ifdef REFORM_NOVICE_GUIDE
 			if( NULL != g_pData && NULL != g_pData->GetPlayGuide()
@@ -842,8 +923,20 @@ void CX2LocalMapUI::UpdateLocalMapDLG()
 				}
 			}
 
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
+			// June: the Special tab (0x271b) is re-shown by level alone, so it sits on both pages,
+			// and it is not counted toward page 1's six (Phase 3: it carries Henir). June's Event tab
+			// (0x271a) gets the same treatment; it is June-only content and not in this lua.
+			if( CX2LocationManager::LMI_SPECIAL == pControl->GetDummyInt( 0 ) )
+			{
+				if( g_pData->GetSelectUnitLevel() >= pLocalMapTemplet->m_RequireUnitLevel )
+					pControl->SetShowEnable( true, true );
+				continue;
+			}
+#else SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 			// June: the Event/Special tabs (0x271a/0x271b) are re-enabled by level alone and not
 			// counted. Dropped from this lua with LMI_EVENT/LMI_SPECIAL.
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 			++byTabCount;
 			if( true == pControl->GetShow() )
 				++byShownTabCount;
@@ -1122,6 +1215,217 @@ CKTDGUIDialogType CX2LocalMapUI::GetLocalMapDLG( CX2LocationManager::LOCAL_MAP_I
 
 
 // 던전 버튼을 활성화, 비활성화, 새로 열린 던전 표시 등등
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
+//{{ Iruha : 2026-10-01 // June UI parity Phase 3: June2017 CX2LocalMapUI::UpdateDungeonButtons
+// (FUN_3293b5e0), whole. June's village luas dropped the clear-difficulty stars, moved Henir to the
+// Special map and gave each secret dungeon a SecretDungeonDesc lock button; this is the code that
+// drives them. Against March's version: every dungeon control is hidden first and re-shown only if
+// playable; the hero filter follows m_bHeroMode; DLT_EVENT_DUNGEON_TITLE (100) statics show without
+// being clickable; stars are not refreshed in hero mode; the hell-mode "<name>_Icon_Info" and
+// Tear-of-El-Woman calls are gone (June dropped both). June-only systems are noted in place.
+void CX2LocalMapUI::UpdateDungeonButtons( CX2LocationManager::LOCAL_MAP_ID eLocalMapID )
+{
+	CKTDGUIDialogType pDialog = GetLocalMapDLG( eLocalMapID );
+#ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON
+	if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+	{
+		WCHAR buff[256] = {0};
+		StringCchPrintf( buff, 256, L"[RANOXDBG] UpdateDungeonButtons localMapID=%d pDialog=%s", (int)eLocalMapID, ( NULL == pDialog ) ? L"NULL" : L"OK" );
+		ErrorLogMsg( XEM_ERROR142, buff );
+	}
+#endif SERV_IRUHADEV_RANOXDBG_DUNGEON
+	if( NULL == pDialog )
+		return;
+
+#ifdef SERV_EPIC_QUEST
+	m_mapLocalMapQuestDesc.clear();
+	g_pData->GetUIManager()->GetUIQuestNew()->UpdateQuickQuestDLG();
+#endif SERV_EPIC_QUEST
+
+	for ( int i = 0; i < pDialog->GetControlSize(); ++i )
+	{
+		CKTDGUIControl* pControl = (CKTDGUIControl*) pDialog->GetControl( i );
+		if ( pControl == NULL )
+			continue;
+
+		// The hero-mode filter (each village's Back_NEW lua) covers the region art in hero mode only.
+		if( 0 == _wcsicmp( pControl->GetName(), L"Static_HeroMode_Filter" ) )
+		{
+			if( true == m_bHeroMode )
+				pControl->SetShowEnable( true, true );
+			else
+				pControl->SetShowEnable( false, false );
+			continue;
+		}
+
+		const int iDetailLocalType = pControl->GetDummyInt( 1 );
+		if( iDetailLocalType != 1 &&		//	DLT_DUNGEON
+			iDetailLocalType != 2 &&		//	DLT_ARCADE
+			iDetailLocalType != 100 )		//	DLT_EVENT_DUNGEON_TITLE (June)
+			continue;
+
+		// Hide first; whatever is playable is re-shown below.
+		const int iNormalDungeonID = pControl->GetDummyInt( 0 );
+		pControl->SetShowEnable( false, false );
+		UpdateDungeonClearStars( eLocalMapID, iNormalDungeonID, false );
+#ifdef SERV_EPIC_QUEST
+		UdateLocalMapQuestDesc( eLocalMapID, iNormalDungeonID, false );
+#endif SERV_EPIC_QUEST
+
+		// Hero mode lists each icon's third dummy, its Hero dungeon. March has no Hero dungeons: the
+		// third dummy reads 0 (June's own DI_NONE, or a June-only enum) or -1 (none given), neither
+		// has DungeonData, so in hero mode the control simply stays hidden.
+		SEnum::DUNGEON_ID eDungeonID = (SEnum::DUNGEON_ID) ( ( true == m_bHeroMode ) ? pControl->GetDummyInt( 2 ) : iNormalDungeonID );
+		const CX2Dungeon::DungeonData* pDungeonData = g_pData->GetDungeonManager()->GetDungeonData( eDungeonID );
+#ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON
+		if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+		{
+			WCHAR buff[256] = {0};
+			StringCchPrintf( buff, 256, L"[RANOXDBG] control=%s dungeonID=%d pDungeonData=%s", pControl->GetName(), (int)eDungeonID, ( NULL == pDungeonData ) ? L"NULL" : L"OK" );
+			ErrorLogMsg( XEM_ERROR142, buff );
+		}
+#endif SERV_IRUHADEV_RANOXDBG_DUNGEON
+		if( NULL == pDungeonData )
+			continue;
+
+#ifdef SERV_NEW_EVENT_TYPES
+		if( g_pData->GetDungeonManager()->IsDungeonEnable( (int)eDungeonID ) == false )
+		{
+			// June: hide every picture of the dungeon's star static (named by its dungeon name).
+			CKTDGUIStatic* pStaticStar = (CKTDGUIStatic*) pDialog->GetControl( pDungeonData->m_DungeonName.c_str() );
+			if( NULL != pStaticStar )
+			{
+				for( int iPicture = 0; iPicture < pStaticStar->GetPictureNum(); ++iPicture )
+				{
+					if( NULL != pStaticStar->GetPicture( iPicture ) )
+						pStaticStar->GetPicture( iPicture )->SetShow( false );
+				}
+			}
+			// June then hides Elysion's title pictures for the Atlas/Tower dungeons (33330-33352)
+			// under event flags 0x8d4/0x8d5: June-only content, not ported.
+			continue;
+		}
+#endif SERV_NEW_EVENT_TYPES
+
+		// June: an enabled Atlas/Tower dungeon (Elysion) is still hidden while event flag 0x8d4/0x8d5
+		// is off. June-only content, not ported.
+
+#ifdef SERV_INSERT_GLOBAL_SERVER
+		if( NULL != g_pData->GetDungeonManager() && true == g_pData->GetDungeonManager()->IsDefenceDungeon( eDungeonID ) )
+		{
+#ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON
+			if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+			{
+				WCHAR buff[256] = {0};
+				StringCchPrintf( buff, 256, L"[RANOXDBG] control=%s dungeonID=%d routed-through=IsDefenceDungeon", pControl->GetName(), (int)eDungeonID );
+				ErrorLogMsg( XEM_ERROR142, buff );
+			}
+#endif SERV_IRUHADEV_RANOXDBG_DUNGEON
+			const bool bActiveDefenceDungeon = g_pData->GetWorldMissionManager()->IsActiveDefenceDungeon();
+
+			if ( true == UpdateDefenceDungeonIcon( pControl, bActiveDefenceDungeon ) )
+			{
+#ifdef SERV_EPIC_QUEST
+				UdateLocalMapQuestDesc( eLocalMapID, eDungeonID, !(bActiveDefenceDungeon) );
+#endif SERV_EPIC_QUEST
+			}
+			continue;
+		}
+#endif SERV_INSERT_GLOBAL_SERVER
+
+		// June: CX2CustomEventManager (FUN_32696fa0 / FUN_32682330) can hide a dungeon closed by a
+		// custom event; with no entry for the dungeon it allows it. March has no such manager.
+		// June: a control whose dummy string is "0"/"1" is shown only on that page of the Elysion
+		// scroll (member +0x54). Elysion-only; March icons carry "Glow_Forest_Star" or nothing.
+
+#ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON
+		if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+		{
+			bool bDbgIsActive = g_pData->GetDungeonManager()->IsActiveDungeon( (int) eDungeonID, 0 );
+			WCHAR buff[256] = {0};
+			StringCchPrintf( buff, 256, L"[RANOXDBG] control=%s dungeonID=%d minLevel=%d unitLevel=%d isActive=%d authOperator=%d",
+				pControl->GetName(), (int)eDungeonID, pDungeonData->m_MinLevel, g_pData->GetSelectUnitLevel(), (int)bDbgIsActive,
+				(int)( g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_OPERATOR ) );
+			ErrorLogMsg( XEM_ERROR142, buff );
+		}
+#endif SERV_IRUHADEV_RANOXDBG_DUNGEON
+		if( g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_OPERATOR ||
+			true == g_pData->GetDungeonManager()->IsActiveDungeon( (int) eDungeonID, 0 ) )
+		{
+			pControl->SetShowEnable( true, true );
+			if( false == m_bHeroMode )
+				UpdateDungeonClearStars( eLocalMapID, eDungeonID, true );
+#ifdef SERV_EPIC_QUEST
+			UdateLocalMapQuestDesc( eLocalMapID, eDungeonID, true );
+#endif SERV_EPIC_QUEST
+
+			// An event-dungeon title is shown while its dungeon is open, but is not clickable.
+			if( 100 == iDetailLocalType )
+			{
+				pControl->SetShowEnable( true, false );
+				continue;
+			}
+
+			SecretDungeonDesc( pDungeonData, pControl );
+		}
+		else
+		{
+			// June hides the "<dungeon name>_LimitInfo" plate (CreateDungeonClearStars) of a closed
+			// Henir (FUN_32931920: ID 38100). It does the same for Bestera (FUN_32931bc0) and
+			// Valentine 2017 (0xa1e0), which are June-only content.
+			if( SEnum::DI_ELDER_HENIR_SPACE == eDungeonID )
+			{
+				wstring wstrLimitInfoName = pDungeonData->m_DungeonName;
+				wstrLimitInfoName += L"_LimitInfo";
+				CKTDGUIControl* pLimitInfo = pDialog->GetControl( wstrLimitInfoName.c_str() );
+				if( NULL != pLimitInfo )
+					pLimitInfo->SetShow( false );
+			}
+		}
+
+		// Newly opened dungeons drop in. June removed March's CreateNewDungeonParticle call (an empty
+		// stub here) and its Halloween special case; the drop-down itself is unchanged.
+		if ( pControl->GetShow() == true && pControl->GetEnable() == true )
+		{
+			if( true == g_pData->GetMyUser()->GetSelectUnit()->IsNewlyOpenedDungeon( (int) eDungeonID ) )
+			{
+				DropDownDungeonButton( pControl );
+				g_pKTDXApp->GetDeviceManager()->PlaySound( L"NewStage_Open.ogg", false, false );
+			}
+		}
+	}
+
+	// June then refreshes the "NEW" badges of the Event/Special tabs (g_pStatic_NewEvent0..5 on
+	// those two maps) and scrolls the Elysion map. Both are June-only systems; the badge statics
+	// are not in this build's luas.
+
+	g_pData->GetMyUser()->GetSelectUnit()->ClearNewlyOpenedDungeonAtLocalMap();
+}
+//}} Iruha : 2026-10-01
+
+//{{ Iruha : 2026-10-01 // June UI parity Phase 3: June2017 CX2LocalMapUI::SecretDungeonDesc
+// (FUN_32939aa0), called by UpdateDungeonButtons for each shown dungeon control.
+void CX2LocalMapUI::SecretDungeonDesc( const CX2Dungeon::DungeonData* pDungeonData_, CKTDGUIControl* pControl_ )
+{
+	if( NULL == pDungeonData_ || NULL == pControl_ )
+		return;
+
+	if( CX2Dungeon::DT_SECRET != pDungeonData_->m_eDungeonType )
+		return;
+
+	// June asks CX2DungeonManager (FUN_327d9d50) whether the secret dungeon is open: it is if the
+	// server-fed open list (+0xc0) names it, or the player holds one of its entry items (+0xd0 map,
+	// inventory search). When it is closed June hides the dungeon button and gives the
+	// SecretDungeonDesc lock button a tooltip listing the days it opens (FUN_327df230, server-fed
+	// time list +0xb0; STR 0x9c0c per day, STR 0xa394 when none). March's CX2DungeonManager has none
+	// of those lists, and the server never gated a secret dungeon by day: its only gate is
+	// IsActiveDungeon, which the caller has already passed. So in March a secret dungeon shown here
+	// is open, and June's open branch is the one that applies: hide the lock button.
+	if( 0 == wcscmp( pControl_->GetName(), L"SecretDungeonDesc" ) )
+		pControl_->SetShowEnable( false, false );
+}
+//}} Iruha : 2026-10-01
+#else SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 void CX2LocalMapUI::UpdateDungeonButtons( CX2LocationManager::LOCAL_MAP_ID eLocalMapID )
 {
 	CKTDGUIDialogType pDialog = GetLocalMapDLG( eLocalMapID );
@@ -1295,6 +1599,7 @@ void CX2LocalMapUI::UpdateDungeonButtons( CX2LocationManager::LOCAL_MAP_ID eLoca
 	g_pData->GetMyUser()->GetSelectUnit()->ClearNewlyOpenedDungeonAtLocalMap();
 
 }
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 
 
 

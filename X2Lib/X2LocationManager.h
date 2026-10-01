@@ -141,6 +141,9 @@ class CX2LocationManager
 			LMI_SANDER,			/// 샌더
 			LMI_CHINA,			/// 중국이벤트 천조
 			LMI_RANOX = 10008,	/// SERV_IRUHADEV_RANOX_PORT: intentional value alias of LMI_CHINA (dead code -- SERV_CHINA_ADVENTURE is never #defined; only use site X2PartyUI.cpp:1940)
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
+			LMI_SPECIAL = 10011,	/// June2017 Special map, carrying Henir (JUNE_UI_PARITY_PHASES.md Phase 3); June's 10009/10010 (Elysion/Event) are June-only content
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 		};
 
 		enum WORLD_MAP_ID

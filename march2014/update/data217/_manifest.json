@@ -1,4 +1,8 @@
 {
   "DLG_Map_Local_Ranox.lua": "2",
-  "DLG_Map_Local_Ranox_Icon_NEW.lua": "2"
+  "DLG_Map_Local_Ranox_Icon_NEW.lua": "2",
+  "DLG_Map_Local_Peita_Icon_NEW.lua": "2",
+  "DLG_Map_Local_Special.lua": "2",
+  "DLG_Map_Local_Special_Back_NEW.lua": "2",
+  "DLG_Map_Local_Special_Icon_NEW.lua": "2"
 }

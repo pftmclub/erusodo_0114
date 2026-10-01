@@ -530,10 +530,47 @@ g_pRadioButtonruben:AddDummyInt(LOCAL_MAP_ID.LMI_RANOX)
 g_pRadioButtonruben:SetShow(false)
 
 -- [June UI parity Phase 2] omitted: LocalMapRadioBtn9 (Btn_ELISION_*,
--- LOCAL_MAP_ID.LMI_ELYSION), LocalMapRadioBtnEvent (DLG_UI_Text_14
--- Btn_EVENT_*, LMI_EVENT) and LocalMapRadioBtnSpecial (Btn_SPECIAL_*,
--- LMI_SPECIAL). Elysion / Event / Special maps are June-only content; March
+-- LOCAL_MAP_ID.LMI_ELYSION) and LocalMapRadioBtnEvent (DLG_UI_Text_14
+-- Btn_EVENT_*, LMI_EVENT). Elysion / Event maps are June-only content; March
 -- has no LMI_* for them, so the dummy would read 0 and the tab would be dead.
+
+--{{ Iruha : 2026-10-01 // June UI parity Phase 3 (SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS)
+-- June's LocalMapRadioBtnSpecial, verbatim: the Special map now carries Henir (June moved
+-- it off every village map), and LMI_SPECIAL = 10011 is in Enum.lua. Atlas
+-- DLG_UI_Text_14 (June data151). UpdateLocalMapDLG shows it by level alone on both pages.
+--}}
+g_pRadioButtonruben = g_pUIDialog:CreateRadioButton()
+
+g_pUIDialog:AddControl(g_pRadioButtonruben)
+g_pRadioButtonruben:SetFixOverByCheck(true)
+g_pRadioButtonruben:SetShowOffBGByCheck(true)
+g_pRadioButtonruben:SetName("LocalMapRadioBtnSpecial")
+g_pRadioButtonruben:SetOffsetPos(-6, -36)
+g_pRadioButtonruben:SetNormalTex("DLG_UI_Text_14.tga", "Btn_SPECIAL_N")
+g_pRadioButtonruben:SetOverTex("DLG_UI_Text_14.tga", "Btn_SPECIAL_O")
+g_pRadioButtonruben:SetCheckedTex("DLG_UI_Text_14.tga", "Btn_SPECIAL_D")
+g_pRadioButtonruben:SetBGPoint({
+	CHANGE_TIME = 0,
+	LEFT_TOP = D3DXVECTOR2(MOVE_AREA_BUTTON_X + 61 + 348 - 5, 9)
+})
+g_pRadioButtonruben:SetBGMouseOverPoint({
+	CHANGE_TIME = 0,
+	LEFT_TOP = D3DXVECTOR2(MOVE_AREA_BUTTON_X + 61 + 348 - 5, 9)
+})
+g_pRadioButtonruben:SetRBPoint({
+	CHANGE_TIME = 0,
+	USE_TEXTURE_SIZE = FALSE,
+	LEFT_TOP = D3DXVECTOR2(MOVE_AREA_BUTTON_X + 61 + 348 - 5, 9),
+	RIGHT_BOTTOM = D3DXVECTOR2(MOVE_AREA_BUTTON_X + 61 + 348 + 64 - 5, 34)
+})
+g_pRadioButtonruben:SetCheckPoint({
+	CHANGE_TIME = 0,
+	LEFT_TOP = D3DXVECTOR2(MOVE_AREA_BUTTON_X + 61 + 348 - 5, 7)
+})
+g_pRadioButtonruben:SetGroupID(1)
+g_pRadioButtonruben:SetCustomMsgChecked(LOCAL_MAP_UI_CUSTOM_MSG.LMUCM_DUNGEON_GATE_SELECTED)
+g_pRadioButtonruben:AddDummyInt(LOCAL_MAP_ID.LMI_SPECIAL)
+g_pRadioButtonruben:SetShow(false)
 
 g_pStaticlocal = g_pUIDialog:CreateStatic()
 

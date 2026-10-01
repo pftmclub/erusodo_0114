@@ -1,3 +1,10 @@
+--{{ Iruha : 2026-10-01 // June UI parity Phase 3 (SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS)
+-- June2017 DLG_Map_Local_Ranox_Icon_NEW.lua (live data217 copy, 9302 B), adopted wholesale.
+-- Replaces the RANOX_PORT copy, which omitted g_pStatic_Event_01/02 because
+-- DETAIL_LOCAL_TYPE.DLT_EVENT_DUNGEON_TITLE (100) was missing; Phase 3 adds it to Enum.lua
+-- and ports June's 1/2/100 test in UpdateDungeonButtons. Now identical to June.
+--}}
+
 g_pButtonBurndedForest = g_pUIDialog:CreateButton()
 
 g_pUIDialog:AddControl(g_pButtonBurndedForest)
@@ -388,23 +395,35 @@ g_pPictureTitleBG_Title_Secret:SetPoint({
 	LEFT_TOP = D3DXVECTOR2(30, 98)
 })
 
--- SERV_IRUHADEV_RANOX_PORT (2026-09-18): g_pStatic_Event_01/02, the
--- "Title_Holloween" overlays for DI_EVENT_MISSION_IMPOSSIBLE_STAGE1/2_NORMAL,
--- omitted here. Both called AddDummyInt(DETAIL_LOCAL_TYPE.DLT_EVENT_DUNGEON_TITLE),
--- which is confirmed absent from March2014's DETAIL_LOCAL_TYPE enum (only
--- DLT_VILLAGE/DLT_DUNGEON/DLT_ARCADE exist) -- see RANOX_PORT_PLAN.md's
--- engine-gap table, revisited in Phase 9. The Mission Impossible dungeon
--- buttons themselves (g_pButton_Event_Dummy01/02, above) use only DLT_DUNGEON
--- and IDs that already exist in March2014's DungeonEnum.lua, so they are kept.
--- Phase 9 revisit: confirmed this gap does not affect Secret Hell's own icon
--- treatment -- g_pButton_Ranox_Secret_Dungeon,
--- g_pButton_Ranox_Secret_Dungeon_Desc, and g_pButton_TitleBG (this dungeon's
--- own icon/description/title-background buttons, all in this same file) use
--- only DUNGEON_ID.DI_RANOX_SECRET_HELL + DETAIL_LOCAL_TYPE.DLT_DUNGEON, the
--- same plain pattern every other dungeon icon on this map already uses --
--- not DLT_EVENT_DUNGEON_TITLE at all. Nothing is owed here beyond this
--- confirmation; the gap remains confined to the two already-omitted
--- Halloween overlay blocks.
+g_pStatic_Event_01 = g_pUIDialog:CreateStatic()
+
+g_pUIDialog:AddControl(g_pStatic_Event_01)
+g_pStatic_Event_01:AddDummyInt(DUNGEON_ID.DI_EVENT_MISSION_IMPOSSIBLE_STAGE1_NORMAL)
+g_pStatic_Event_01:AddDummyInt(DETAIL_LOCAL_TYPE.DLT_EVENT_DUNGEON_TITLE)
+
+g_pPictureTitleBG_Title_Event_01 = g_pUIDialog:CreatePicture()
+
+g_pStatic_Event_01:AddPicture(g_pPictureTitleBG_Title_Event_01)
+g_pPictureTitleBG_Title_Event_01:SetTex("DLG_Localmap_Title_01.tga", "Title_Holloween")
+g_pPictureTitleBG_Title_Event_01:SetPoint({
+	CHANGE_TIME = 0,
+	LEFT_TOP = D3DXVECTOR2(37, 89)
+})
+
+g_pStatic_Event_02 = g_pUIDialog:CreateStatic()
+
+g_pUIDialog:AddControl(g_pStatic_Event_02)
+g_pStatic_Event_02:AddDummyInt(DUNGEON_ID.DI_EVENT_MISSION_IMPOSSIBLE_STAGE2_NORMAL)
+g_pStatic_Event_02:AddDummyInt(DETAIL_LOCAL_TYPE.DLT_EVENT_DUNGEON_TITLE)
+
+g_pPictureTitleBG_Title_Event_02 = g_pUIDialog:CreatePicture()
+
+g_pStatic_Event_02:AddPicture(g_pPictureTitleBG_Title_Event_02)
+g_pPictureTitleBG_Title_Event_02:SetTex("DLG_Localmap_Title_01.tga", "Title_Holloween")
+g_pPictureTitleBG_Title_Event_02:SetPoint({
+	CHANGE_TIME = 0,
+	LEFT_TOP = D3DXVECTOR2(170, 89)
+})
 
 g_pButton_STAR2 = g_pUIDialog:CreateStatic()
 

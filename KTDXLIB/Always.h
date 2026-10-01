@@ -4542,3 +4542,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // port in X2Lib/X2LocalMapUI.cpp (two-page region tab strip + page arrows).
 #define SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-01
+// Description: June2017 UI parity Phase 3 (JUNE_UI_PARITY_PHASES.md). Local-map
+// dungeon buttons follow June: whole-function ports of June's
+// CX2LocalMapUI::UpdateDungeonButtons (FUN_3293b5e0) and SecretDungeonDesc
+// (FUN_32939aa0), June's LMUCM_DUNGEON_CLICKED case (FUN_3293d280 18000: secret
+// dungeons start as DM_SECRET_HELL), and June's Special tab (LMI_SPECIAL = 10011,
+// carrying Henir) in UpdateLocalMapDLG. Needs SERV_IRUHADEV_JUNE_LOCAL_MAP_UI and
+// the June per-village local-map luas staged in march2014/ (data034/data217).
+#define SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
+//////////////////////////////////////////////////////////////////////////

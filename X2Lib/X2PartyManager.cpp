@@ -377,7 +377,13 @@ bool CX2PartyManager::Handler_EGS_CLOSE_PARTY_NOT( HWND hWnd, UINT uMsg, WPARAM 
 			break;
 
 		case CX2Dungeon::DT_SECRET:
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
+			// June2017 (FUN_324331c0, party closed; JUNE_UI_PARITY_PHASES.md Phase 3): secret dungeons are entered
+			// by their _HELL ID in Hell mode, as the local map now sets them; June has no secret normal mode.
+			GetMyPartyData()->m_iDungeonMode = CX2Dungeon::DM_SECRET_HELL;
+#else SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 			GetMyPartyData()->m_iDungeonMode = CX2Dungeon::DM_SECRET_NORMAL;
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 			break;
 
 		default:

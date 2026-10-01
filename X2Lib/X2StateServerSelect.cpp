@@ -4386,7 +4386,13 @@ bool CX2StateServerSelect::Handler_EGS_SELECT_UNIT_ACK( HWND hWnd, UINT uMsg, WP
 			{
 			case CX2Dungeon::DT_SECRET:
 				{
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
+					// June2017 (FUN_32563800, unit selected; JUNE_UI_PARITY_PHASES.md Phase 3): secret dungeons are entered
+					// by their _HELL ID in Hell mode, as the local map now sets them; June has no secret normal mode.
+					g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonMode = CX2Dungeon::DM_SECRET_HELL;
+#else SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 					g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonMode = CX2Dungeon::DM_SECRET_NORMAL;
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 				} break;
 
 			default:
@@ -4770,7 +4776,13 @@ bool CX2StateServerSelect::Handler_EGS_SELECT_UNIT_ACK( HWND hWnd, UINT uMsg, WP
 			{
 			case CX2Dungeon::DT_SECRET:
 				{
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
+					// June2017 (FUN_32563800, unit selected; JUNE_UI_PARITY_PHASES.md Phase 3): secret dungeons are entered
+					// by their _HELL ID in Hell mode, as the local map now sets them; June has no secret normal mode.
+					g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonMode = CX2Dungeon::DM_SECRET_HELL;
+#else SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 					g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonMode = CX2Dungeon::DM_SECRET_NORMAL;
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 				} break;
 
 			default:

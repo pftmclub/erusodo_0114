@@ -4780,7 +4780,11 @@ TALK_BOX_TYPE = {
 DETAIL_LOCAL_TYPE = {
 	DLT_DUNGEON = 1,
 	DLT_ARCADE = 2,
-	DLT_VILLAGE = 0
+	DLT_VILLAGE = 0,
+	-- June2017 UI parity, SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS (JUNE_UI_PARITY_PHASES.md Phase 3).
+	-- June's value: event-dungeon title statics, shown (not enabled) by
+	-- CX2LocalMapUI::UpdateDungeonButtons while their dungeon is active.
+	DLT_EVENT_DUNGEON_TITLE = 100
 }
 HOUSE_TYPE = {
 	HT_TRAINNING_CENTER = 4,
@@ -4957,7 +4961,11 @@ LOCAL_MAP_ID = {
 	LMI_HAMEL = 10006,
 	LMI_ELDER = 10001,
 	LMI_PEITA = 10004,
-	LMI_RANOX = 10008
+	LMI_RANOX = 10008,
+	-- June2017 UI parity, SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS (JUNE_UI_PARITY_PHASES.md Phase 3).
+	-- June's value. The Special map carries Henir, which June moved off the village maps;
+	-- 10009/10010 (LMI_ELYSION/LMI_EVENT) are June-only content and stay omitted.
+	LMI_SPECIAL = 10011
 }
 WORLD_MAP_ID = {
 	WMI_END = 2,

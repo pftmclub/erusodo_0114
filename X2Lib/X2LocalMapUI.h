@@ -66,6 +66,11 @@ public:
 	void UpdateHeroRecruitButton();
 
 	void UpdateDungeonButtons( CX2LocationManager::LOCAL_MAP_ID eLocalMapID );
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
+	// June2017 (FUN_32939aa0, JUNE_UI_PARITY_PHASES.md Phase 3): a secret dungeon's button
+	// and its SecretDungeonDesc lock button, by whether the dungeon is open.
+	void SecretDungeonDesc( const CX2Dungeon::DungeonData* pDungeonData_, CKTDGUIControl* pControl_ );
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 
 	void CreateDungeonClearStars( CX2LocationManager::LOCAL_MAP_ID eLocalMapID, int dungeonID );
 	void UpdateDungeonClearStars( CX2LocationManager::LOCAL_MAP_ID eLocalMapID, int dungeonID, bool bShow );
