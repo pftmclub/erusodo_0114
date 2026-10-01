@@ -2289,6 +2289,32 @@ g_pPicture_RANOX_CLOUD1:SetPoint({
 g_pStatic_RANOX_CLOUD:AddDummyInt(VILLAGE_MAP_ID.VMI_RANOX)
 g_pStatic_RANOX_CLOUD:AddDummyInt(1)
 
+-- SERV_IRUHADEV_RANOX_PORT (2026-10-01): June's world-map tiles (data057,
+-- replacing the old cloud-baked-in art) draw Elysion's floating-island medallion
+-- bare at (1300,262). June covers it with its own g_pStatic_ELISION_CLOUD, keyed
+-- to VILLAGE_MAP_ID.VMI_BATTLE_FIELD_ELYSION_REST_00 so it unhides with that
+-- town's level gate (X2WorldMapUI.cpp:603-660's generic per-village cloud logic).
+-- March has no VMI_ELYSION/VMI_BATTLE_FIELD_ELYSION_* entries (nil), and passing
+-- a nil DummyInt aborts this dialog script. Elysion is unported content, so this
+-- cloud must never hide: DummyInt(0) is a literal sentinel (99999) that matches
+-- no button's DummyInt(0) in this dialog, so UpdateWorldMap's button-driven
+-- show/hide loop never touches this static and it stays permanently shown.
+-- Position and rect are June's own (Cloud_Elision.tga's one key, BG_CLOUD_ELISION).
+g_pStatic_ELISION_CLOUD = g_pUIDialog:CreateStatic()
+
+g_pUIDialog:AddControl(g_pStatic_ELISION_CLOUD)
+
+g_pPicture_ELISION_CLOUD1 = g_pUIDialog:CreatePicture()
+
+g_pStatic_ELISION_CLOUD:AddPicture(g_pPicture_ELISION_CLOUD1)
+g_pPicture_ELISION_CLOUD1:SetTex("Cloud_Elision.tga", "Bg_Cloud_Elision")
+g_pPicture_ELISION_CLOUD1:SetPoint({
+	CHANGE_TIME = 0,
+	LEFT_TOP = D3DXVECTOR2(1300, 262)
+})
+g_pStatic_ELISION_CLOUD:AddDummyInt(99999)
+g_pStatic_ELISION_CLOUD:AddDummyInt(1)
+
 g_pButtonMyChar = g_pUIDialog:CreateButton()
 
 g_pUIDialog:AddControl(g_pButtonMyChar)

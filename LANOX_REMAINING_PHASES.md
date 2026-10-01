@@ -1206,6 +1206,120 @@ manifests, and hand me the pack list. Tiles 01-02 are uncompressed with no
 FourCC; a clean load with no ErrorLog texture error is a pass criterion.
 ```
 
+**Done 2026-10-01.** Rendered all 12 tiles to PNG (wrote a from-scratch DDS
+decoder: DXT1/3/5 block decode plus uncompressed RGB, the latter needed a
+fix for `DDSD_LINEARSIZE` vs `DDSD_PITCH` — tiles 01-02's header flags
+`0x81007` carry the *total* image size in the "pitch" field, not a per-row
+stride, and treating it as a stride produced an all-black decode). Composited
+March's and June's six tiles into two 1800x1200 mosaics per
+`DLG_UI_World_Map_NEW.src.lua`'s own `LEFT_TOP` grid (3x2, 600px pitch) and
+viewed them side by side.
+
+- **June's tiles show Lanox fully revealed** (the volcanic region bottom-right,
+  previously entirely cloud-baked in March's art) **and draw Elysion bare**: a
+  circular floating-island medallion at the tile seam, roughly (1400,250)-
+  (1800,700) in canvas space.
+- Staged June's six `DLG_UI_World_Map0N.dds` as a patch in `march2014/data057/`
+  (TETs confirmed byte-identical to March's, so left untouched, per Phase 0).
+- **Elysion cloud, ported from June, flag `SERV_IRUHADEV_RANOX_PORT`:** June
+  covers that medallion with its own static (`g_pStatic_ELISION_CLOUD`, texture
+  `Cloud_Elision.tga` key `Bg_Cloud_Elision`, `LEFT_TOP(1300,262)`), gated on
+  `VILLAGE_MAP_ID.VMI_BATTLE_FIELD_ELYSION_REST_00` — which doesn't exist in
+  March and is nil. Added the same static to
+  `march2014/data034/DLG_UI_World_Map_NEW.src.lua`, same texture/key/position
+  (June's own values, not invented), but with a literal sentinel `DummyInt(0)`
+  (`99999`) instead of the nil enum lookup: traced `CX2WorldMapUI::UpdateWorldMap`
+  (`X2WorldMapUI.cpp:419-665`, the only code in the client that reads
+  `UCT_STATIC`/`GetDummyInt`/`SetShow` together) and confirmed it only
+  show/hides a static when some *button*'s `DummyInt(0)` matches it; since no
+  button in this dialog carries `99999`, the loop never reaches this static and
+  it stays at `CKTDGUIControl`'s construction default (`m_bShow = true`,
+  `KTDGUIControl.cpp:16`) forever — permanently shown, which is what unported
+  content needs. Compiled with `elstools compile-batch -v mar-2014` and
+  round-tripped through `decompile-batch` to confirm the new block survives
+  (47956 B compiled); staged the compiled `.lua` into
+  `kom_contents/data034_kom/`.
+- Staged `Cloud_Elision.tga`/`.TET` (June's bytes, unmodified) as a new file in
+  `march2014/update/data057/`, manifest updated (both `march2014/update/
+  data057/_manifest.json` and `kom_contents/data057_kom/_manifest.json`).
+- **Labels (step 4): already resolved**, confirmed again this session —
+  `DLG_UI_Common_Texture71_NEW.TET`/`.tga` live in `data057.kom` are still
+  byte-identical to June's (both files), matching Phase 0 section B. No work
+  needed.
+- **`DLG_Common_Button02_NEW` (step 4's button-key check): already
+  byte-identical** live (`data063.kom`) to June's copy, both files. No work
+  needed.
+- **Navi overlay (step 5): found and fixed a second atlas the plan didn't
+  name.** `DLG_UI_World_Map_Front_NEW.lua`'s drag-handle thumbnail reads
+  `WORLDMAP_NAVIGATION` out of `DLG_UI_Common_Texture70_NEW.tga` — a *different*,
+  smaller (512x512) pre-rendered copy of the same world map, not a scaled
+  render of the big tiles. Parsed both TETs (wrote a from-scratch reader
+  against `KTETFormatHeader`/`KTETFormatTextureUV`'s on-disk layout) and
+  confirmed all 14 of March's existing keys, `WORLDMAP_NAVIGATION` included,
+  have byte-identical rects in June's 20-key copy (June only adds 6 unrelated
+  keys, `BG_LUCIEL_*`/`BT_SWITCHING_*`) — a clean wholesale-adopt under the
+  corrected asset-conflict rule. Cropped and compared the `WORLDMAP_NAVIGATION`
+  rect pixel-for-pixel between March's and June's TGA (`navi_compare.png`):
+  March's copy is the same old cloud-baked art as the big tiles; June's shows
+  Lanox revealed and the Elysion medallion. Adopted June's file wholesale
+  (both `.tga` and `.TET`) as a patch in `march2014/data057/`. Also checked
+  `DLG_Common_New_Texture23.tga` (the navi's drag-box border) — already
+  byte-identical live (`data053.kom`) to June's copy.
+- **Caveat the plan didn't anticipate, flagged rather than silently accepted:**
+  the navi dialog (`DLG_UI_WORLD_MAP_FRONT`) has no per-village cloud-static
+  mechanism of its own — it's one static picture, no `UpdateWorldMap`-style
+  show/hide loop reads it. Adopting June's `Texture70` wholesale means the
+  small navi-corner thumbnail now shows Lanox revealed *regardless of player
+  level* (the big map still gates correctly) and shows Elysion's medallion with
+  no cloud over it at all (nothing to gate it on, same nil-VMI problem as the
+  big map, but there's no generic mechanism here to attach a sentinel-gated
+  cloud to). This is a real, if minor and easy to miss, content leak in one
+  266x208px corner view. It meets the letter of the "June asset wins" rule
+  (no March key is missing or moved), but is a user call, not an engineering
+  one — left as-is pending a decision; a follow-up would need either a painted
+  cloud baked directly into the `WORLDMAP_NAVIGATION` rect of `Texture70.tga`,
+  or a small navi-specific hide check added to the dialog's open/update path.
+- **Full mount-order scan (all 184 live `.kom`s, `data001-230` and all 23
+  `datai001-023`)** for every filename touched (`DLG_UI_World_Map01-06.dds`,
+  `DLG_UI_Common_Texture70_NEW.TET/.tga`, `Cloud_Elision.TET/.tga`,
+  `DLG_UI_World_Map_NEW.lua`) found exactly one live copy of each, in
+  `data057.kom`/`data034.kom` as staged — no Image11-style mount-order trap
+  here.
+- **Position cross-check:** every `SetPoint`/`LEFT_TOP` in
+  `march2014/data034/DLG_UI_World_Map_NEW.src.lua` that has a same-named
+  counterpart in June's `DLG_UI_World_Map_NEW.src.lua` (55 shared controls,
+  7 of them Ranox-named) matches exactly — June's redraw didn't move any
+  pin, button or label, so no position drift to port.
+- **Simulated the cloud placement** (composited `Cloud_Elision.tga` onto the
+  June tile mosaic at `(1300,262)` in Python) before handing off: the cloud
+  fully covers the medallion, Lanox stays visible.
+
+**Pack list:**
+- `data057.kom`, built from `kom_contents/data057_kom/` (also mirrored in
+  `march2014/data057/` and `march2014/update/data057/`, the latter with its
+  `_manifest.json` updated):
+  - `DLG_UI_World_Map01.dds` / `02.dds` (786560 B, uncompressed RGB24, no
+    FourCC) and `03.dds`-`06.dds` (174904 B, DXT1 + 10 mips) — patches,
+    June's bytes, TETs untouched (78 B each, unchanged).
+  - `DLG_UI_Common_Texture70_NEW.tga` (1048620 B) / `.TET` (1532 B) — patch,
+    June's bytes wholesale.
+  - `Cloud_Elision.tga` (1048620 B) / `.TET` (92 B) — new file, June's bytes.
+- `data034.kom`, built from `kom_contents/data034_kom/`:
+  - `DLG_UI_World_Map_NEW.lua` (47956 B compiled bytecode). The `.src.lua`
+    sitting alongside it in `kom_contents/data034_kom/` is reference only —
+    confirm `kom_contents/data034_kom/_manifest.json` doesn't list it before
+    packing, so it doesn't ship.
+
+**Still to do:** the user packs both koms and play-tests. The tiles 01-02
+uncompressed-RGB load is the one real engine-behavior unknown here (everything
+else is byte-identical reuse of June's own already-shipped data) — check
+`ErrorLog.txt` for any `OpenTexture`/`KEM_ERROR13[56]` line naming
+`DLG_UI_World_Map01` or `02` after a clean load. Verify: M-key and Esc world
+map show June's art; Lanox pins visible and clickable with labels; a
+level-below-68 character still sees the Ranox cloud; Elysion not revealed on
+the main map (the navi-corner caveat above is separate and known). Never
+launch `X2_offline.exe` without asking first.
+
 ---
 
 ## Phase 5 - M-key field map follows the character [item 1]
