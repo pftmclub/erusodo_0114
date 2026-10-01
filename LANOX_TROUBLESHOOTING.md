@@ -384,3 +384,59 @@ nothing else attempted, so the log isolates the answer):
    covers several different, distinguishable failures in this codebase.
 
 ---
+
+## Cobo Express (B key) lists no Lanox village / Silent Night Shelter (2026-10-02)
+
+**Cause: `datai014.kom` was never repacked after Phase 21.** The client code
+that adds the two rows (`CX2StateMenu::CreateWarpDest`, `SERV_IRUHADEV_RANOX_PORT`)
+looks up the controls `Village_20008` and `Village_1007` in
+`DLG_Destination_byButton.lua` and, when a control is absent, skips the row
+without a word. The live archive's copy of that file is the March original
+(Sander controls only):
+
+- Live `datai014.kom` is dated 2026-08-27 and the entry's `Size` is **10187**.
+  Phase 21's test compile of the patched file was **10888**.
+- `DLG_Destination_byButton.lua` exists in no other archive (scanned every
+  `*.kom` header), and there is no loose copy in the game dir.
+- The 09-19 "follow-up" repack covered 8 files; this one was the 9th, listed in
+  the packing table above as "repack if not already done".
+- The 20008 warps in that session's log came from the `lanox` chat command
+  (`SERV_IRUHADEV_CHAT_WARP_DEBUG` path, `X2ChatBox.cpp`), not from this dialog.
+
+**Fix (user's step):** pack `march2014/datai014/DLG_Destination_byButton.src.lua`
+(staged in `kom_contents/datai014_kom/`) into `datai014.kom`. Verify against the
+live archive by reading the entry's `Size` in the KOM header: it must move off
+10187. The Lanox rows' icon is a blank swatch until the known-open `RANOX_ICON`
+atlas merge (cosmetic).
+
+**Code change:** `SERV_IRUHADEV_WARP_DEST_LOG` makes `CreateWarpDest` log to
+`offline_server.log` (`WARP     Cobo Express: ...`) when it skips the Ranox rows:
+control missing, level below `RequireUnitLevel`, or `LMI_RANOX` templet NULL.
+Behaviour is unchanged; it just stops the skip being silent.
+
+### Follow-up: "An unknown error occurred" when warping to either row
+
+Rows listed correctly after the `datai014` repack; the warp itself was refused.
+`offline_server.log` said `button warp 1007 refused - not a valid COBO Express
+pair` (and `20008 ... (from 1007)`). `Handler_EGS_WARP_BY_BUTTON_REQ` refuses any
+pair where `CheckCOBOExpressTicketMapID` returns 0 for either end, and the offline
+server calls that function out of the client's own `data036.kom` `MapData.lua`.
+March's copy had only `VMI_RANOX` -> 15 for Ranox, so the Silent Night Shelter
+(1007) and the Lanox fields were zone 0. June's copy has `RANOX_FIELD_01..04` ->
+15 and `RANOX_REST_00` -> 16 (plus June-only `SPA_RANOX` and Elysion, omitted).
+
+Fix: those five rows added to `march2014/data036/MapData.src.lua` and mirrored in
+`KncWX2Server/ServerResource/US/MapData.lua`. Test-compiled with
+`elstools compile-batch -v mar-2014` on a scratch copy: 16465 bytes (staged copy
+16166). Needs the compiled `MapData.lua` packed into `data036.kom`. No C++ change.
+
+### Follow-up: no loading-screen image when warping to either Lanox destination
+
+`CX2TFieldGame::LoadFieldImage` (`X2TFieldGame.cpp`) picks the loading art with a
+`switch` on the village ID and had no Ranox cases, so no image was shown. Added
+`VMI_RANOX` -> `HQ_LoadingVillage_RANOX_01/02.tga` and `VMI_BATTLE_FIELD_RANOX_REST_00`
+-> `HQ_LoadingDungeon_Ranox_Night_Rest1/2.tga` under `SERV_IRUHADEV_RANOX_PORT`.
+Names are from June 2017 (its `unpacked_x2.exe` carries both pairs next to the
+Sander-rest strings). All four textures are already in the live `data156.kom`, so
+nothing needs packing; this is a client rebuild only. `HQ_LoadingSpa_Ranox_*` also
+exists but belongs to the June-only spa, so it is not wired.

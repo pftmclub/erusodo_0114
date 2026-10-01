@@ -630,6 +630,17 @@ function CheckCOBOExpressTicketMapID( iMapID )
 	-- Ranox
 	elseif (iMapID == VILLAGE_MAP_ID["VMI_RANOX"]) then
 		return 15
+	-- SERV_IRUHADEV_RANOX_PORT (2026-10-02): zones copied from June 2017 MapData.lua (see march2014/data036/MapData.src.lua)
+	elseif (iMapID == VILLAGE_MAP_ID["VMI_BATTLE_FIELD_RANOX_FIELD_01"]) then
+		return 15
+	elseif (iMapID == VILLAGE_MAP_ID["VMI_BATTLE_FIELD_RANOX_FIELD_02"]) then
+		return 15
+	elseif (iMapID == VILLAGE_MAP_ID["VMI_BATTLE_FIELD_RANOX_FIELD_03"]) then
+		return 15
+	elseif (iMapID == VILLAGE_MAP_ID["VMI_BATTLE_FIELD_RANOX_FIELD_04"]) then
+		return 15
+	elseif (iMapID == VILLAGE_MAP_ID["VMI_BATTLE_FIELD_RANOX_REST_00"]) then
+		return 16
 	end
 
     return 0

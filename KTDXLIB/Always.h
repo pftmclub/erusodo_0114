@@ -4652,3 +4652,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              IsHost(); the event that slot handles is not identified yet.
 #define SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-02
+// Description: Cobo Express (B key) CX2StateMenu::CreateWarpDest: log why a Ranox
+//              row is not listed (LMI_RANOX templet NULL, level gate, or the
+//              Village_20008 / Village_1007 control missing from the packed
+//              DLG_Destination_byButton.lua). Those three cases used to skip the row
+//              silently. Diagnostic only, no behaviour change; the log call itself
+//              needs SERV_IRUHADEV_OFFLINE.
+#define SERV_IRUHADEV_WARP_DEST_LOG
+//////////////////////////////////////////////////////////////////////////

@@ -4606,6 +4606,17 @@ void CX2TFieldGame::LoadFieldImage(wstring &imgL, wstring &imgR)
 			imgL = L"HQ_Loading_SANDER_REST_01.tga";
 			imgR = L"HQ_Loading_SANDER_REST_02.tga";
 			break;
+#ifdef SERV_IRUHADEV_RANOX_PORT
+		// Iruha : 2026-10-02 : Lanox loading screens, names taken from June 2017 (HQ_LoadingVillage_RANOX / HQ_LoadingDungeon_Ranox_Night_Rest, both already in data156.kom)
+		case SEnum::VMI_RANOX:
+			imgL = L"HQ_LoadingVillage_RANOX_01.tga";
+			imgR = L"HQ_LoadingVillage_RANOX_02.tga";
+			break;
+		case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00:	// Silent Night Shelter
+			imgL = L"HQ_LoadingDungeon_Ranox_Night_Rest1.tga";
+			imgR = L"HQ_LoadingDungeon_Ranox_Night_Rest2.tga";
+			break;
+#endif SERV_IRUHADEV_RANOX_PORT
 		}
 	}
 	else

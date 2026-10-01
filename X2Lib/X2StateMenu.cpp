@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2statemenu.h"
+#ifdef SERV_IRUHADEV_WARP_DEST_LOG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_WARP_DEST_LOG
 
 
 CX2StateMenu::CX2StateMenu(void) :
@@ -6523,6 +6526,14 @@ void CX2StateMenu::CreateWarpDest()
 						AddWarpList( pControlList, row, SEnum::VMI_RANOX );
 						++row;
 					}
+#ifdef SERV_IRUHADEV_WARP_DEST_LOG
+					else
+					{
+						#ifdef SERV_IRUHADEV_OFFLINE
+						CX2OfflineLog::Server( L"WARP     Cobo Express: Lanox village row NOT listed - control Village_20008 is missing from DLG_Destination_byButton.lua. datai014.kom needs repacking from march2014/datai014/DLG_Destination_byButton.src.lua" );
+						#endif SERV_IRUHADEV_OFFLINE
+					}
+#endif SERV_IRUHADEV_WARP_DEST_LOG
 
 					// Ranox battle field rest stop
 					pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_1007");	//VMI_BATTLE_FIELD_RANOX_REST_00
@@ -6532,8 +6543,32 @@ void CX2StateMenu::CreateWarpDest()
 						AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_RANOX_REST_00 );
 						++row;
 					}
+#ifdef SERV_IRUHADEV_WARP_DEST_LOG
+					else
+					{
+						#ifdef SERV_IRUHADEV_OFFLINE
+						CX2OfflineLog::Server( L"WARP     Cobo Express: Silent Night Shelter row NOT listed - control Village_1007 is missing from DLG_Destination_byButton.lua. datai014.kom needs repacking from march2014/datai014/DLG_Destination_byButton.src.lua" );
+						#endif SERV_IRUHADEV_OFFLINE
+					}
+#endif SERV_IRUHADEV_WARP_DEST_LOG
 				}
+#ifdef SERV_IRUHADEV_WARP_DEST_LOG
+				else
+				{
+					#ifdef SERV_IRUHADEV_OFFLINE
+					CX2OfflineLog::Server( L"WARP     Cobo Express: Ranox rows NOT listed - unit level is below the LMI_RANOX RequireUnitLevel" );
+					#endif SERV_IRUHADEV_OFFLINE
+				}
+#endif SERV_IRUHADEV_WARP_DEST_LOG
 			}
+#ifdef SERV_IRUHADEV_WARP_DEST_LOG
+			else
+			{
+				#ifdef SERV_IRUHADEV_OFFLINE
+				CX2OfflineLog::Server( L"WARP     Cobo Express: Ranox rows NOT listed - GetLocalMapTemplet( LMI_RANOX ) is NULL (DLG_Map_Local.lua / DLG_Map_Local_Ranox.lua not loaded)" );
+				#endif SERV_IRUHADEV_OFFLINE
+			}
+#endif SERV_IRUHADEV_WARP_DEST_LOG
 #endif SERV_IRUHADEV_RANOX_PORT
 			pControlList->SetIndex(0, 0);				
 		}
