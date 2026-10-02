@@ -10,14 +10,14 @@ The user wants **every June 2017 buff and debuff type**, for both characters and
 Today March can load June's enum names; Ranox/Phase 11 added about 160 of them. It cannot *run* most June buffs, for four reasons:
 
 - **Enums.** June's `Enum.lua` has 705 more `BUFF_TEMPLET_ID`s, 734 more `BUFF_FACTOR_ID`s, 38 more `BUFF_BEHAVIOR_TYPE`s and 3 more `BUFF_FINALIZER_TYPE`s than March's. It also has 6 buff enum tables March lacks entirely.
-- **Missing handlers.** The C++ factories have no case for 41 behavior/finalizer types that June data uses. Five of those are already in March's Lua Enum but have no C++: `BBT_INVINCIBLE`=77, `BBT_IMMUNE_NON_CONTROL_DEBUFF`=95, `BFT_AURA`=14, `BFT_STICK_SHAKE`, `BFT_USE_SKILL_BY_SKILL_SLOTTYPE`.
+- **Missing handlers.** The C++ factories have no case for 44 behavior/finalizer types: 40 BBT (73–112) and 4 BFT (14–17). June data uses 40 of them (37 BBT, 3 BFT). Three of the 44 are already in March's Lua Enum but have no C++: `BBT_INVINCIBLE`=77, `BBT_IMMUNE_NON_CONTROL_DEBUFF`=95, `BFT_AURA`=14. *(Corrected in Phase 0; this used to read "41 … five". See "Census baseline".)*
 - **Unread keys.** About 40 data keys are never read by March. Examples: `IS_STORE_BUFF`, `BUFF_REPLACE_DETAIL_OPERATION`, `SKILL_CATEGORY_n`, `APPLY_CHECK_CONDITION`, `ACCUMULATION_DECREASE_*`.
 - **One failure cascades.** March's `AddBuffFactor_LUA` (`X2Lib/X2BuffTempletManager.cpp:75`) only accepts factor N while exactly N-1 factors are already loaded. So one unparseable June factor silently drops **every later factor**. Each failure also raises a modal `DISPLAY_ERROR` popup, because `_SERVICE_` is not defined under `US_SERVICE`.
 
 The intended outcome:
 - June's own `BattleFieldBuffTemplet.lua`, `BattleFieldBuffFactor.lua`, `UnitApplyBuffGroup.lua` and `BuffTemplet.lua` load cleanly. They replace March's copies.
 - Every June BBT, BFT and BDT runs on March classes, transcribed from the June binary.
-- Buffs placed by mob scripts and damage data (241 June scripts carry inline `BUFF_FACTOR` blocks) work once those scripts are adopted.
+- Buffs placed by mob scripts and damage data (239 June scripts carry inline `BUFF_FACTOR` blocks, 1485 blocks in all) work once those scripts are adopted.
 
 The user decided (2026-10-02):
 - **Branch.** Settle the open Lanox edits, then branch `mods/june-buff-port` off `mods/lanox-port`.
@@ -183,8 +183,8 @@ The 6 tables June has and March lacks:
 **Data shape:**
 - June `BattleFieldBuffFactor.src.lua` has 1130 `AddBuffFactor_LUA` calls. The IDs are **contiguous 1..1130 in file order**, so March's ordinal loader can take the file as-is.
 - `_INT` factors are 10001–10069 (69 entries) and `_INT` templets 10001–10072. These break the ordinal rule; Phase 1 decides how June stores them.
-- Templets: 929 entries, IDs 1..1333, unsorted, 22 gaps. They are stored in a map, which is fine.
-- June also defines 34 templets and 135 factors for IDs that are in March's enum but have no March data row.
+- Templets: 929 entries, IDs 1..1333, unsorted; 404 absent IDs in 1..1333 forming 5 runs (269–286, 306–311, 550–556, 573–659, 1047–1332). They are stored in a map, which is fine. *(Phase 0 measured; the ledger said "22 gaps".)*
+- June also defines 37 templets and 134 factors for IDs that are in March's enum but have no row in March's live bytecode. *(Phase 0 measured by name against the bytecode string constants; the ledger said 34 and 135 and the difference could not be reproduced. Immaterial: Phase 13 adopts June's files wholesale.)*
 
 **June keys March never reads** (entries using them):
 - Templet level: `IS_STORE_BUFF` 930, `BUFF_REPLACE_DETAIL_OPERATION` 21, `EXP_RATE` 12, `ACCUMULATION_DECREASE_WHEN_FINISH` 5, `ACCUMULATION_DECREASE_COUNT_WHEN_FINISH` 4, `ACCUMULATION_DELAY_TIME` 3, `IS_INSTANCE_KILL_DEBUFF` 3, `IS_PARTY_BUFF` 1, `NOT_APPLY_BUFF_WHEN_SAME_BUFF_OWNER` 1.
@@ -192,7 +192,8 @@ The 6 tables June has and March lacks:
 - Behavior level: `SKILL_CATEGORY_0..4` 22/12/12/12/8, `MULTIPLY_DAMAGE_RATE` 20, `BUFF_VALUE_CALCULATE_TYPE` 10, `VALUE` 7, `SKILL_ID_LIST` 5, `IMMUNE_BUFF_TEMPLATE_ID` 5, `ONLY_MY_UNIT` 3, `NOT_DELETE_EFFECT_SET_WHEN_FINISH` 3, `SKILL_SLOT_TYPE` 3, `ADDITIONAL_ATTACK_TYPE` 3, `DROP_RATE` 3, `FORCE_SKILL_ID` 2, `MULTIPLY_MP_CHARGE_RATE` 2, `APPLY_TO_SPECIAL_ATTACK` 2, `LUCKYTIMINGEVENT_*`.
 - Once each: `FROZEN_TIME`, `IGNORE_DEFENCE_RATE`, `HYPER_COUNT`, `ALL_DEBUFF`, `IGNORE_SKILL_ID`, `OFFSET_POSITION`, `DELETE_BUFF_WHEN_DIE`, `FORCE_SET`, `USE_CREATOR_UNIT_DATA`.
 - Finalizer level: `SHAKE_DECREASE_MAX_TIME`, `SHAKE_DECREASE_TIME_AT_ONCE`.
-- Displayer level: `REPLAY_EFFECT_SET_ACCUMULATION_LIMIT1` 18; per-class keys `ADD`/`AIN`/`LUCIEL`/`ROSE`.
+- Displayer level: per-class keys `ADD`/`AIN`/`LUCIEL`/`ROSE` (2 each, under `BDT_EFFECT_SET_ONLY_MY_CLASS`), `NOT_DELETE_EFFECT_SET_WHEN_FINISH` 3, `ONLY_MY_UNIT` 3. *(`REPLAY_EFFECT_SET_ACCUMULATION_LIMIT1` was listed here with 18 uses; March does read it, `X2BuffDisplayerTemplet.cpp:305`, under `BDT_EFFECT_SET`. Removed in Phase 0.)*
+- Phase 0 additions to the lists above: factor-level `APPLIED_SKILL_ID` 2 (inline blocks in `DamageEffect`), behavior-level `CAN_DOWN` 1 (`BBT_NEVER_MOVE`). `OFFSET_POSITION` is 2 (1 templet, 1 inline), not 1. `DROP_RATE` 3, `VP_RATE` 1 and `LUCKYTIMINGEVENT_*` are templet-level keys, not behavior-level. The factor-level `APPLY_CHECK_CONDITION` group is 4 entries, and `APPLY_WHEN_HAVE` itself is 2.
 - Note: March reads the BBT/BFT/BDT sub-tables by stringizing the enum name (`CASE_*` macros), so those names are *not* unread keys.
 
 **New type usage**: templets / factors, the bucket, and an example.
@@ -248,7 +249,7 @@ The three types unused in June data (`BBT_CONSUME_MP_RATE_BY_SKILLTYPE`, `BBT_MP
 - March handles FLASH_BANG and PANDEMONIUM_FEAR elsewhere, in per-class code (`X2GUAra.cpp:13854`, `X2GURaven.cpp:21764`).
 
 **Scripts outside the buff files:**
-- 241 June scripts carry inline `BUFF_FACTOR = {` blocks. These go through the same factor parser, with `bIsSkill=false` (`X2DamageManager.cpp:3830`).
+- 239 June scripts carry inline `BUFF_FACTOR = {` blocks (1485 blocks: `data036_kom` 954, `data037_kom` 391, `datai016_kom` 140). A grep finds 244 files; 5 of them are the buff data files themselves. These go through the same factor parser, with `bIsSkill=false` (`X2DamageManager.cpp:3830`).
 - `IMMUNITY_LIST_AT_THIS_STATE`: 248 uses in 60 files. It is a positional BTI list, and a nil entry truncates it silently.
 
 **June-only Lua bindings:**
@@ -274,7 +275,7 @@ The three types unused in June data (`BBT_CONSUME_MP_RATE_BY_SKILLTYPE`, `BBT_MP
 
 **Premium buffs (`BuffTemplet.lua`, `BuffManager:AddBuffInfo`):**
 - 138 June entries plus 71 `_INT`, against 57 in March.
-- The only new key is `NOT_USE_IN_PVE`.
+- There are three new keys against March's `BuffTemplet.lua`: `NOT_USE_IN_PVE` (62 entries), `NOT_USE_IN_HUGE_BOSS_RAID` (6) and `NOT_USE_IN_HENIR` (6). *(The ledger listed only the first; corrected in Phase 0.)* March's C++ reads only `m_eBuffID`, `m_strBuffName`, `m_fBuffPeriodSecond`, `USING_BUFF_ROOM_TYPE` and `SOCKET_OPTION`, so `BUFF_FACTOR` and the `m_bEndBuffAt*` keys already in March's data are never read by March either.
 - It is read by `X2PremiumBuffManager.cpp:981` and keyed by factor ordinal (`m_iFactorID`).
 
 **Characters absent from March:**
@@ -373,6 +374,60 @@ files; print unsupported BBT/BFT/BDT/keys with entry counts and the enum diff. I
 baseline must reproduce the ledger's numbers -- if it doesn't, find out which is wrong
 before going on. Record the baseline in the doc and commit.
 ```
+
+### Phase 0 — Done (2026-10-02)
+
+- **Branch.** `mods/lanox-port` was clean. `mods/june-buff-port` already existed at the same commit (`198fbb8`, the commit that added this doc), so no new branch was needed. Nothing was uncommitted.
+- **Tool.** `june2017_re/buff_census.py` plus `june2017_re/buff_census_flags.tsv`.
+  - The TSV caches the `US_SERVICE` flag states that `flagprobe.py` resolved for the 172 conditionals in `X2Buff*.cpp/.h`, `X2GameUnit.cpp` and `X2PremiumBuffManager.cpp`.
+  - Without the cache, the script runs the probe itself (about 45 s). `--no-probe` never runs it.
+  - A full run takes about 12 s.
+- **Usage.** `python june2017_re/buff_census.py [--phase 2|3|4a|4b|5|6|7|8|9|10|11] [-v] [--json FILE] [--no-probe]`.
+- **March data.** March's live buff Lua exists only as bytecode, so "March supports X" always means the C++. The script also reads the bytecode string constants from `kom_contents/data036_kom/` (game directory, outside the repo; override with `BUFF_CENSUS_KOM_CONTENTS`) for the `in-March-data` column. Without that directory the column prints `?`.
+- **Method.**
+  - The CASE lists are resolved with the probed flags, so `#ifdef`'d cases count only if the flag is on.
+  - Hand-written `case BBT_EMPTY:` labels count as handled. Missing them made `BBT_EMPTY` look unsupported.
+  - Per-type key readers are the quoted literals in the type's factor-parse function and in the templet class's `ParsingBehavior/Finalizer/Displayer`, following `Qual::helper` calls. Keys in templet entries are checked against the templet reader and keys in factor or inline entries against the factor reader. This is a literal match, not a data-flow proof, so spot-check a key in Ghidra or source before acting on it.
+- **Phase grouping in the report.** Types map to Phases 5–8 exactly as listed under "Phases 5–7" and "Phase 8". If Phase 1 re-splits them, edit `PHASE_BBT_VALUES` and `PHASE_BFT_VALUES` at the top of the script.
+- **Cost.** Not recorded for this session (no `/cost` figure was available).
+
+### Census baseline (2026-10-02, before any port work)
+
+**Reproduced exactly:**
+- Enum diff, every table (BTI 1065/360/705, BFI 1236/503/734, BBT 113/75/38, BFT 18/15/3, BDT 14/14/0), the 6 June-only tables, and all 5 value changes.
+- The 5-row C++ drift table.
+- Data counts: 1130 factors contiguous, 69 `_INT` factors (10001–10069), 929 templets, 72 `_INT` templets (10001–10072), 138 + 71 premium entries, 248 `IMMUNITY_LIST_AT_THIS_STATE` uses in 60 files.
+- Per-type templet/factor counts in "New type usage" (every row).
+- The 17 unhandled custom-function BTIs.
+- The unread-key counts: `IS_STORE_BUFF` 930, `BUFF_REPLACE_DETAIL_OPERATION` 21, `EXP_RATE` 12, `ACCUMULATION_*`, `SKILL_CATEGORY_0..4` 22/12/12/12/8, `MULTIPLY_DAMAGE_RATE` 20, `VALUE` 7, `SKILL_ID_LIST` 5, and the rest of the ledger list.
+
+**Found wrong in the ledger (corrected above in place):**
+
+| Ledger said | Census measured |
+|---|---|
+| 41 unhandled types that June data uses; five of them already in March's Lua | 44 unhandled in C++ (BBT 73–112 = 40, BFT 14–17 = 4); June data uses 40 of them (37 BBT + 3 BFT). Only 3 (77, 95, `BFT_AURA`) are in March's Lua; `BFT_STICK_SHAKE`/`USE_SKILL_BY_SKILL_SLOTTYPE` are new in June. Unused by any data: 99, 111, 112 and `BFT_ATTACK` |
+| 241 scripts with inline blocks | 239 scripts, 1485 blocks. The grep's 244 includes the 5 buff data files |
+| `REPLAY_EFFECT_SET_ACCUMULATION_LIMIT1` unread (18) | March reads it (`X2BuffDisplayerTemplet.cpp:305`, `BDT_EFFECT_SET`) |
+| Premium: only `NOT_USE_IN_PVE` is new | also `NOT_USE_IN_HUGE_BOSS_RAID` (6) and `NOT_USE_IN_HENIR` (6) |
+| 22 template ID gaps | 404 absent IDs in 5 runs |
+| 34 templets / 135 factors with a March enum ID but no March row | 37 / 134 (by name against bytecode constants) |
+| `OFFSET_POSITION` once; `DROP_RATE`/`LUCKYTIMINGEVENT_*` behavior-level | 2 uses; they are templet-level. New: `APPLIED_SKILL_ID` 2 (factor-level, inline) and `CAN_DOWN` 1 |
+
+**Headline numbers for the exit metric** (`python june2017_re/buff_census.py`):
+
+| Item | Baseline |
+|---|---|
+| New BBT / BFT in June's enum | 38 / 3 |
+| C++ lacks BBT / BFT | 40 (73–112) / 4 (14–17); 3 of these are in March's Lua already |
+| Of those, used by June data | 37 BBT / 3 BFT (types assigned per phase: 5 = 20, 6 = 8, 7 = 12, 8 = 4) |
+| BDT unhandled | 0 |
+| C++ drift vs June | 1 BTI value, 2 BTI renames, 1 BFI value, 1 BFI name (`TELEPORT_CONSUME_MP`) |
+| Level-wide unread keys | templet 17, factor 4, behavior 24, finalizer 4, displayer 6 |
+| Existing types with keys their parse never reads | 41 type/key pairs (326 entry-uses); phase 4b scope |
+| `BBT_CUSTOM_FUNCTION` templets / unhandled | 20 / 17 |
+| June-only bindings March lacks | 9 of 9 (`AddBuffGroup_LUA`, `AddOfficiallyBuffList_LUA`, `SetMonsterBuffGroupID`, `DeleteNonControlDebuff`, `GetBuffAccumulationCountNow`, `ApplyBuffFactor`, `AddRandomBuffList`, `SetPveBalanceBuffGiveScore_LUA`, `SendRandomMissionRewardBuffCheat`) |
+
+Run the script with no arguments for the full report, including the per-type table and the sub-keys of the unread factor-level groups.
 
 ## Phase 1 — June buff engine RE map (read-only)
 
