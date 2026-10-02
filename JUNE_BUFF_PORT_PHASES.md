@@ -839,6 +839,7 @@ Independent review of `2068485` and `e68005e`. It used fresh scratch scripts (ow
     2. **Keep and add a one-line null guard** at `X2Game.cpp:18160`, behind this flag. That closes the crash for any item whose factor failed to load, which matters again in Phase 13 for June items.
     3. **Revert** the 3 BFIs to 362–364 until Phase 13. That adds 3 more duplicate values (with June's `FIGHTING_SUPER_ARMOR`/`FIGHTING_HEAL`/`BRAVE_TOWER`) and needs a recompile and re-stage.
   - **Reviewer's recommendation: option 2.**
+  - **User's decision (2026-10-03): option 1, keep the renumber as staged.** No code change and no null guard. `Enum.lua` is cleared to pack with the deployed Phase 2 exe. The crash on using either Heretic potion stays latent until Phase 13 re-points `Item.kim` (Phase 13 to-do 2).
 - **7c, claims checked:**
   - **"2 → 5 launch popups": confirmed.** Each failure path in `AddBuffFactor_LUA` is a `DISPLAY_ERROR`, which is a `MessageBox` here (`KTDXCommonFunc.h:1462-1469`, `#ifndef _SERVICE_`).
   - **"No shipped Lua names any of the 1,439 new names": confirmed** with an exact-constant scan (`ULEB128(len+5)` + name) over all 4,838 non-Enum `.lua` in `kom_contents/*_kom` plus `march2014/data036`. There are 0 hits; the one bare-substring hit, `BTI_DEBUFF_SHADOW`, is a prefix of longer March names. (A greedy-token scan under-reports here, because the next constant's length byte can be a letter or `_`; the exact-constant method is the one to reuse.)
