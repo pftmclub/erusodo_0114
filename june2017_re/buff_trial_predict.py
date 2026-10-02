@@ -203,7 +203,7 @@ def predict(enum, cases, files):
 
 
 _LINE = re.compile(r'\[JUNE_BUFF\] (.*)')
-_UNSUP = re.compile(r'^unsupported (.+?) in (BTI|BFI) (-?\d+)(?: \(BTI -?\d+\))? -> (\S+): (.*)$')
+_UNSUP = re.compile(r'^unsupported (.+?) in (BTI|BFI) (-?\d+)(?: \(BTI -?\d+\))? -> ([^:]+): (.*)$')   # outcome may hold spaces
 _SUMMARY = re.compile(r'^load summary: (.*)$')
 
 
