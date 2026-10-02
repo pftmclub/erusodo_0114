@@ -4679,3 +4679,24 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Ships paired with the Phase 2 Enum.lua (data036).
 #define SERV_IRUHADEV_JUNE_BUFF_ENUM
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-03
+// Description: June buff port Phase 3 (JUNE_BUFF_PORT_PHASES.md): the buff
+//              loader survives June data. CX2BuffTempletManager's
+//              AddBuffTemplet_LUA / AddBuffFactor_LUA / GetBuffFactorPtr are
+//              June's (326c3990 / 326c4050 / 326c32a0), including the second
+//              factor vector for _INT ids 10001+ (326c3f30), and
+//              OpenScriptFileForTemplet/ForFactor load the _INT file after the
+//              main one (326c0020 / 326c13a0). Deviation from June, by plan: a
+//              factor that passes the ordinal check but fails to parse is kept
+//              as a NULL placeholder so later ids stay aligned (June and March
+//              both drop it, which shifts nothing but loses it and, in March,
+//              every factor after it). Every DISPLAY_ERROR raised while an
+//              entry parses is captured (KTDXCommonFunc.h sink, per thread) and
+//              written as one "[JUNE_BUFF] unsupported ..." line to ErrorLog.txt
+//              instead of a modal MessageBox; a load summary line follows the
+//              factor files.
+#define SERV_IRUHADEV_JUNE_BUFF_LOADER
+//////////////////////////////////////////////////////////////////////////

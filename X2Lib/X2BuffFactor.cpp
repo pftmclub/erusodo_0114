@@ -216,7 +216,11 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_, bool b
 #endif SERV_ARA_CHANGE_CLASS_SECOND
 #endif EXCEPTION_BUFF_FACTOR_VER2
 			default:
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+				return CX2JuneBuffCapture::UnsupportedType( L"BBT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
+#else SERV_IRUHADEV_JUNE_BUFF_LOADER
 				return DISPLAY_ERROR( L"Unknown Behavior Factor Type" );	/// false 리턴
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 				break;
 			}
 
@@ -332,7 +336,11 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_ )
 				break;
 
 			default:
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+				return CX2JuneBuffCapture::UnsupportedType( L"BBT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
+#else SERV_IRUHADEV_JUNE_BUFF_LOADER
 				return DISPLAY_ERROR( L"Unknown Behavior Factor Type" );	/// false 리턴
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 				break;
 			}
 
@@ -409,7 +417,11 @@ bool CX2BuffFactor::ParsingCombinationFinalizer( KLuaManager& luaManager_ )
 #endif // EXCEPTION_BUFF_FACTOR		
 
 			default:
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+				return CX2JuneBuffCapture::UnsupportedType( L"BFT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
+#else SERV_IRUHADEV_JUNE_BUFF_LOADER
 				return DISPLAY_ERROR( L"Unknown Finalizer Factor Type" );	/// false 리턴
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 				break;
 			}
 
@@ -484,7 +496,28 @@ void CX2BuffFactor::UpdateValueByRelationType( const BUFF_RELATION_TYPE eRelatio
 	@return : 파싱 성공시 true, 실패시 false 리턴
 */
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+/** June buff port Phase 3: every ParsingBuffFactor caller gets the entry's parse errors as one
+	[JUNE_BUFF] line instead of MessageBoxes. For the factor file the manager's own capture already owns
+	the entry (it knows the BFI) and this one is a no-op; for the inline BUFF_FACTOR blocks of damage
+	data (CX2DamageManager::ParsingBuffFactor) this one reports. */
 bool CX2BuffFactor::ParsingBuffFactor( KLuaManager& luaManager_, bool bIsSkill/* = true*/ )
+{
+	CX2JuneBuffCapture kCapture;
+	const bool bParsed = ParsingBuffFactorBody( luaManager_, bIsSkill );
+	if ( kCapture.IsOwner() )
+	{
+		char szEntry[64] = { 0, };
+		sprintf_s( szEntry, _countof( szEntry ), "inline BUFF_FACTOR (BTI %d)", static_cast<int>( GetBuffTempletID() ) );
+		kCapture.Report( bParsed, szEntry, "not added" );
+	}
+	return bParsed;
+}
+
+bool CX2BuffFactor::ParsingBuffFactorBody( KLuaManager& luaManager_, bool bIsSkill )
+#else SERV_IRUHADEV_JUNE_BUFF_LOADER
+bool CX2BuffFactor::ParsingBuffFactor( KLuaManager& luaManager_, bool bIsSkill/* = true*/ )
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 #else //UPGRADE_SKILL_SYSTEM_2013
 bool CX2BuffFactor::ParsingBuffFactor( KLuaManager& luaManager_ )
 #endif //UPGRADE_SKILL_SYSTEM_2013

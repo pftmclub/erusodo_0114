@@ -755,6 +755,9 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 	bool ParsingBuffFactor( KLuaManager& luaManager_, bool bIsSkill = true );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+	bool ParsingBuffFactorBody( KLuaManager& luaManager_, bool bIsSkill );	/// the original ParsingBuffFactor; the public one wraps it in a [JUNE_BUFF] capture
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 	bool ParsingBehavior( KLuaManager& luaManager_, bool bIsSkill = true );
 	bool ParsingCombinationBehavior( KLuaManager& luaManager_, bool bIsSkill = true );
 	bool ParsingFinalizer( KLuaManager& luaManager_, bool bIsSkill = true );

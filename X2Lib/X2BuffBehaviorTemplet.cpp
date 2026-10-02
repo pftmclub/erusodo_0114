@@ -144,7 +144,11 @@ case type_: \
 				break;
 
 			default:
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+				return CX2JuneBuffCapture::UnsupportedType( L"BBT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
+#else SERV_IRUHADEV_JUNE_BUFF_LOADER
 				return DISPLAY_ERROR( L"Unknown Behavior Templet Type" );	/// false ∏Æ≈œ
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 				break;
 			}
 

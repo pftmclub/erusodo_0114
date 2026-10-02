@@ -879,6 +879,79 @@ that a trial of June's files (TRIAL_LOAD harness method, never a loose file in t
 dir) gives an unsupported list matching buff_census.py. Build, deploy, commit.
 ```
 
+### Phase 3 — Done (2026-10-03), launch checks pending
+
+**Status.** Code, build and deploy are done. Both exit checks need a client launch, which only the user may start. Until that happens the exit metric is **pending, not met**. The expected log lines are written out below, so the check is a diff.
+
+**What changed (`SERV_IRUHADEV_JUNE_BUFF_LOADER`, `KTDXLIB/Always.h`).** Every edit is a pure insertion (438 lines, 0 removed). Each replaced body stays intact in `#else`, and every file keeps its `file` signature.
+- **`X2BuffTempletManager.cpp`, ported from June:**
+  - `AddBuffTemplet_LUA` (`326c3990`) has the same shape as March.
+  - `AddBuffFactor_LUA` (`326c4050`): an unreadable id stays 0 and falls through to the ordinal check (no early return).
+  - The `_INT` branch, new as `AddBuffFactorINT` (`326c3f30`), claims every id ≥ 10000. It uses a second vector, `m_vecBuffFactorPtrINT`, under its own rule `size == id-10001`, so id 10000 itself is always rejected.
+  - `GetBuffFactorPtr` (`326c32a0`): ids ≤ 10000 go to the main vector and 10001+ to `_INT`. Id 0 is silent. A bad id gets one `[JUNE_BUFF]` line per id, not a popup.
+  - `OpenScriptFileForTemplet`/`ForFactor` load `BattleFieldBuff{Templet,Factor}_INT.lua` after the main file (`326c0020`/`326c13a0`). When the file is absent they log one "not found ... expected until Phase 13" line.
+- **Placeholders (the planned deviation from June).** A factor that passes the ordinal check but fails to parse, has no `BUFF_FACTOR` table, or fails to create gets a NULL slot. Later ids therefore stay aligned. `GetBuffFactorPtr` returns NULL for the slot, so it is never applied. Both June and March drop such a factor and keep the cascade.
+- **Ordinal rejects are not placeholders.** An id that fails `size == id-1` is dropped, exactly as in June and March, and logged as `ordinal reject BFI n`. Padding gaps instead would have invented about 117 slots for March's five out-of-range ids.
+- **No more popups on the parse path.**
+  - `KTDXCommonFunc.h`'s `DisplayErrorMessage` (both overloads) hands its text to a per-thread sink, `__declspec(thread) g_pIruhaDisplayErrorSink`, defined in `KTDXApp.cpp`, whenever one is installed. `StateLog` is kept and only the `MessageBox` is skipped. The sink is per-thread because Lua is also parsed on loader threads (`X2OPTIMIZE_DISABLE_LUA_MULTITHREADING` is OFF).
+  - `CX2JuneBuffCapture` (in the manager header) installs the sink for one entry. The outermost capture on a thread owns the entry and writes one line: `[JUNE_BUFF] unsupported <reason> in <BTI n | BFI n (BTI m) | inline BUFF_FACTOR (BTI m)> -> <templet dropped | placeholder | not added>: <every captured text>`.
+  - An entry that parsed but still raised errors gets `[JUNE_BUFF] warning in ...` instead.
+  - `CX2BuffFactor::ParsingBuffFactor` is wrapped (`ParsingBuffFactorBody` holds the original), so the inline `BUFF_FACTOR` blocks of damage data (`CX2DamageManager::ParsingBuffFactor`) are covered too.
+  - The five factory/parse `default:` branches (`X2BuffFactor.cpp` ×3 including the dead non-`UPGRADE_SKILL_SYSTEM_2013` copy, and the behavior, finalizer and displayer templet factories) raise `unsupported BBT|BFT|BDT <n>`, so each line names the type. Outside a capture this is still a MessageBox, now with the number.
+  - Lines go to `ErrorLog.txt` through `KLOG`, under a lock.
+  - Limitation: the sink sits inside `#ifndef _SERVICE_`. If a build ever defines `_SERVICE_`, there are no popups and also no reason text.
+- **Load summary**, after the factor files: `[JUNE_BUFF] load summary: templets N loaded, F failed, D duplicate; factors M loaded + P placeholder(s); _INT factors Mi loaded + Pi placeholder(s); ordinal rejects R (+ Ri _INT)`.
+- `SERV_IRUHADEV_JUNE_BUFF_DEBUG` was not needed and was not added.
+
+**Build and deploy.**
+- `X2ServerProtocol`, `KTDXLIB`, `X2Lib` and `X2` at `US_SERVICE` all built rc=0 with 0 errors; both `stdafx.cpp` files were touched first.
+- `x2.exe` is 18,999,808 B (2026-10-03 03:55:52, md5 `841b930a…`) and contains `load summary: templets`, `ordinal reject BFI`, `unsupported %s in %s` and `BattleFieldBuffFactor_INT.lua`.
+- Deployed as `X2_offline.exe`; the md5 matched after the copy. Not launched.
+
+**Prediction tool.** `june2017_re/buff_trial_predict.py` walks every entry the way March's C++ parses it (rules in its docstring), using the census's flag-resolved type lists. With `--log ErrorLog.txt` it diffs a trial's `[JUNE_BUFF]` lines entry by entry against both the prediction and the census set (entries listing ≥ 1 type the C++ lacks). `--source DIR` and `--enum FILE` point it at other data.
+
+**Exit check 1: March data, real game directory.**
+- Live `data036.kom` still has the **pre-Phase-2** `Enum.lua` (265,394 B; the staged one is 314,915 B).
+- Baseline before this phase: `State.log` (2026-10-02 05:43) shows exactly 2 buff popups, both `BUFF_FACTOR_ID invalid`.
+- Prediction, from a scratch decompile of the live bytecode (not committed) with the pre-Phase-2 Enum (`git show 2068485^:march2014/data036/Enum.src.lua`):
+  ```
+  [JUNE_BUFF] duplicate BTI 87: the first definition is kept (map insert)
+  [JUNE_BUFF] BattleFieldBuffTemplet_INT.lua not found, so no _INT buffs this run (...)
+  [JUNE_BUFF] ordinal reject BFI 372: 364 factor slot(s) filled, so the next id must be 365; ...
+  [JUNE_BUFF] ordinal reject BFI 373: 364 factor slot(s) filled, ...
+  [JUNE_BUFF] BattleFieldBuffFactor_INT.lua not found, so no _INT buffs this run (...)
+  [JUNE_BUFF] load summary: templets 320 loaded, 0 failed, 1 duplicate; factors 364 loaded + 0 placeholder(s); _INT factors 0 loaded + 0 placeholder(s); ordinal rejects 2 (+ 0 _INT)
+  ```
+  - The two rejects are the two old popups, now log lines, and no popup is raised at all.
+  - The duplicate is `BTI_DEBUFF_BLIND_SMOKE`, which March's file defines twice. March has always kept the first silently. It is new as a line, not as behavior.
+- Once the Phase 2 `Enum.lua` is packed: factors 361, ordinal rejects 5 (372, 373, 481–483), and everything else the same.
+
+**Exit check 2: June's files, trial copy.**
+- **Trial directory:** `F:\elsword stuff\elsword_2014\els_2014\237311\trial_june_buff_p3\`, made by a scratch script.
+  - The `.kom` files and the `eventscene`/`movie`/`music`/`ui`/`XTrap` trees are hardlinked; nothing writes to them.
+  - Everything else is copied: the exe, dlls, option `.lua`, `start_offline.bat`, and a **copy** of `els_db.sql` (the WAL was empty).
+  - Old logs are not copied. The real directory was only read.
+- Loose files in the trial root, all mar-2014 bytecode (`1b4b4c81`):
+  - `Enum.lua`, the staged Phase 2 one (md5 `81f0b944…`);
+  - June's `BattleFieldBuffTemplet.lua`, `BattleFieldBuffFactor.lua` and the two `_INT` files, compiled from `june_src_fixed` with `elstools compile-batch -v mar-2014`. The compile uses **absolute** `-i` paths; relative ones fail with "cannot open".
+  - Loose files beat the `.kom` (`MASS_FILE_FIRST` off) and are not XOR-decrypted (`X2OPTIMIZE_INDICATE_LOCAL_MASSFILE` ON, probed).
+- `JUNE2017_TRIAL_LOAD.md` records the user's preference for a *packed* trial `data036.kom`. A loose file inside the throwaway copy was used instead; this goes to the user with the launch request.
+- **Prediction:** `load summary: templets 894 loaded, 107 failed, 0 duplicate; factors 1024 loaded + 106 placeholder(s); _INT factors 69 loaded + 0 placeholder(s); ordinal rejects 0 (+ 0 _INT)`.
+  - Templets: 98 of the failures are unhandled types and 9 are a missing `ACCUMULATION_MULTIPLIER`.
+  - Factors: all 106 placeholders are unhandled types.
+  - The census set is 100 templets and 106 factors. The 2-templet gap is census entries whose first failure is the `ACCUMULATION_MULTIPLIER` check.
+  - First-reason counts: BBT 92 ×40, 89 ×29, BFT 14 ×18, BBT 75 ×14, 80 ×10, 77 ×9, 108 ×8, 73 ×7, and the rest ≤ 6.
+  - No failure is predicted from the 208/219 "COMBINATION entry without table" anomalies. All of them are `BBT_EMPTY` or unhandled types.
+- **Compare:** `python june2017_re/buff_trial_predict.py --log "<trial>\ErrorLog.txt"`. It must end `RESULT: trial matches the prediction and the census`.
+
+**Hand-offs.**
+- **Phase 4a:** 9 June templets (BTI 842, 864, 874, 881, 884, 912, 971, 986, 1020) have `ACCUMULATION_LIMIT > 1` and no `ACCUMULATION_MULTIPLIER`. March's `ParsingScript` requires the key in that case, so they fail. Check whether June's `3236a9b0` reads it optionally.
+- **Phase 13:** the trial directory is throwaway. Delete it once Phase 3 is confirmed; it holds only hardlinks and copies.
+
+**Review.** The required Opus 5.5 review has not been run.
+
+**Cost.** Not recorded (no `/cost` figure in-session).
+
 ## Phase 4a — Templet/factor top-level parity
 
 **Scope.** Port June's whole `CX2BuffTemplet::ParsingScript` and `CX2BuffFactor::ParsingBuffFactor`, plus the apply path they feed (`SetBuffFactorToGameUnit` and `PushNewBuffTempletToGameUnit`, diffed in full). This covers:

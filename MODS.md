@@ -40,6 +40,7 @@ column.
 | `SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY` | 2026-09-27 | `KTDXLIB/Always.h:4385` (nested under `SERV_IRUHADEV_EXTRA_NPC_STAT`) | `X2Lib/X2GUNPC.h`/`.cpp`, `X2Lib/X2Game.cpp` (`SetNpcHardLevel`), `X2Lib/X2BattleFieldGame.cpp`, `X2Lib/X2UnitManager.cpp` (`ApplyExtraNPCStatResistances`) | -- |
 | `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE` | 2026-09-26, extended 2026-09-26 (Phase 6a) | `KTDXLIB/Always.h:4347` | `X2Lib/X2DamageEffect.h:611` (new `DamageEffectDataInLua::m_vecDamageDataNextChain`), `:1131` (new `CEffect` members); `X2Lib/X2DamageEffect.cpp:1457` (`APPLIED_SKILL_ID`/`_NOT_AFFECT_MEMO` + master ultimate flag), `:1504` (`MAIN_EFFECT_NAME_ULTIMATE`), `:1572` (`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`), `:1587` (`USE_ADVANCE_COLLISIOIN_CHECK`), `:1593` (`DAMAGE_DATA`/`_ULTIMATE` wiring), `:1609` (`IGNORE_MI_HUGE`), `:1680` (`USE_OWNER_ATTACK_SPEED`), `:1689` (`DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)` array reads), `:1745` (`FOLLOW_LINE_ULTIMATE`/`FOLLOW_LINE_NEW_ULTIMATE`), `:1776` (`FOLLOW_LINE_WITH_CUSTOM_ROTATE`/`FOLLOW_LINE_GRAVITY`/`TRACE_OWNER_BONE(_ONLY_ROTATE)`), `:1829` (`DAMAGE_DATA_NEXT(_ULTIMATE)`/`DAMAGE_DATA_NEXT%d` chain), `:1901` (`INHERIT_CRITICAL_RATE`/`_DAMAGE_RATE`), `:1934` (`RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT`), `:2160` (destructor cleanup of the chain vector). Phase 6a additions: `X2Lib/X2DamageEffect.h:98` (new `DAMAGE_EFFECT_DIE_CONDITION_TYPE` enum), `:302` (new `DamageEffectData` fields: `fLoopInterval`, `uiLoopEndCount`, `fLoopEndTime`, `vLoopAddPos`, `bSetDieWhenMasterEffectDie`, `bInheritLifeTime`, `bInheritDamage`, `bInheritLockOnData`, `vScale`), `:448` (new `DieCheckCondition` struct), `:970` (`LoadDieCheckConditionBlock`/`LoadDieCheckCondition` decls), `:1252` (`m_vecDieCheckCondition`); `X2Lib/X2DamageEffect.cpp:1805` (ctor call to `LoadDieCheckCondition`), `:6782` (`LoadDieCheckConditionBlock`: shared `CONDITION_` loop for `AND_OPERATION`/`OR_OPERATION`), `:6837` (`LoadDieCheckCondition`: opens `DAMAGE_EFFECT_DIE_CHECK_CONDITION`), `:7040` (`LoadDieDamageEffect`'s `DIE_DAMAGE_EFFECT_ULTIMATE%d` gate+loop, forced off), `:7078` (`LoadDieDamageEffect`'s new keys), `:7366` (`LoadDamageEffect`'s `LOOP_*`/`SET_DIE_WHEN_MASTER_EFFECT_DIE`/`INHERIT_LIFE_TIME`/`INHERIT_DAMAGE`), `:7472` (`LoadHitDamageEffect`'s `HIT_DAMAGE_EFFECT_ULTIMATE%d` gate+loop, forced off), `:7562` (`LoadHitDamageEffect`'s new keys) | -- |
 | `SERV_IRUHADEV_JUNE_DAMAGEDATA` | 2026-09-29 (Phase 8a) | `KTDXLIB/Always.h:4439` | `X2Lib/X2DamageManager.h:582` (new `ExtraDamageData::m_bManaDamageWithNoDisplay`), `:662` (its `Init()` reset), `:735` (its copy); `X2Lib/X2DamageManager.cpp:6` (`JUNE_EDT_MANA_DAMAGE_WITH_NO_DISPLAY` = 67, log include), `:169` (the `EXTRA_DAMAGE_TYPE` remap in `SetDamageDataFromLUA`). Phase 8c additions: `X2Lib/X2DamageManager.h:1121` (eight absent-system `DamageData` members), `:1336` (their `SimpleInit()` defaults), `:1537` (`SetJuneDamageDataTemplet` + `JuneDamageDataTempletScope`), `:1567` (`m_pwszJuneDamageDataTemplet`); `X2Lib/X2DamageManager.cpp:15` (log include, `JuneDamageDataUnsupported`), `:67` (ctor init), `:201` (the eight reads and their rule-5 lines); `X2Lib/X2DamageEffect.cpp:1746` (the CEffect ctor's templet scope) | -- |
+| `SERV_IRUHADEV_JUNE_BUFF_LOADER` | 2026-10-03 (June buff port Phase 3) | `KTDXLIB/Always.h:4701` | `X2Lib/X2BuffTempletManager.h`/`.cpp` (`CX2JuneBuffCapture`; June's `AddBuffTemplet_LUA`/`AddBuffFactor_LUA`/`GetBuffFactorPtr`, new `AddBuffFactorINT`/`PushBuffFactor`/`LoadINTScriptFile`/`LogLoadSummary`, `m_vecBuffFactorPtrINT` and the counters), `X2Lib/X2BuffFactor.h`/`.cpp` (`ParsingBuffFactor` wraps the original, now `ParsingBuffFactorBody`; BBT/BFT `default:` branches), `X2Lib/X2BuffBehaviorTemplet.cpp`, `X2BuffFinalizerTemplet.cpp`, `X2BuffDisplayerTemplet.cpp` (`default:` branches), `KTDXLIB/KTDXCommonFunc.h` (`DisplayErrorMessage` sink), `KTDXLIB/KTDXApp.cpp` (`g_pIruhaDisplayErrorSink`) | -- |
 
 What each one does:
 
@@ -2848,6 +2849,27 @@ Revert: undefine `SERV_IRUHADEV_JUNE_PARTY_UI` and rebuild. March's `DLG_UI_PART
 is loaded again and still packed. June's LENGTH lua works under March's C++ apart from
 the three extra controls showing at their lua default. A full data revert restores the
 originals from `...\24965799\kom_contents_backup_june_ui_phase5\` (README inside).
+
+### June buff port, Phase 3: the buff loader survives June data
+
+New flag `SERV_IRUHADEV_JUNE_BUFF_LOADER` (`KTDXLIB/Always.h`).
+- **June's manager functions.** `CX2BuffTempletManager`'s `AddBuffTemplet_LUA`, `AddBuffFactor_LUA` and `GetBuffFactorPtr` are
+  June's (`326c3990`/`326c4050`/`326c32a0`). This includes the second factor vector for `_INT` ids 10001+ (`326c3f30`) and loading
+  `BattleFieldBuff{Templet,Factor}_INT.lua` after the main files.
+- **Placeholders.** A factor that passes the ordinal check but fails to parse becomes a NULL placeholder, so later ids no longer
+  shift. It is never applied. This is a deliberate deviation from June and March, which both drop it.
+- **No popups while parsing.** Every `DISPLAY_ERROR` raised while a buff entry parses is captured: `KTDXCommonFunc.h`'s
+  `DisplayErrorMessage` passes it to a per-thread sink. The entry then writes one `[JUNE_BUFF] unsupported ...` line to `ErrorLog.txt`
+  instead of raising a modal MessageBox, and a `[JUNE_BUFF] load summary` line follows the factor files.
+- **No behavior change on March's data.** The same 364 factors load, with no placeholders. The two `BUFF_FACTOR_ID invalid` boxes
+  every launch used to raise become `ordinal reject` lines.
+
+Design, the expected log lines for both March's files and a June trial, and the trial directory are in
+`JUNE_BUFF_PORT_PHASES.md`'s "Phase 3 — Done". The prediction/compare tool is `june2017_re/buff_trial_predict.py`.
+
+Built `US_SERVICE`, rc 0. `x2.exe`: 18,999,808 B, 2026-10-03 03:55. Deployed to `X2_offline.exe` (md5 match). Not launched.
+
+**Needs packing:** nothing. **Revert:** undefine `SERV_IRUHADEV_JUNE_BUFF_LOADER` and rebuild all four projects (it sits in the PCH).
 
 ## Reverting to stock
 

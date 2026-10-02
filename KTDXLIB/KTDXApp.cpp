@@ -62,6 +62,10 @@
 double		g_NowTime;
 CKTDXApp*	g_pKTDXApp = NULL;
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+__declspec(thread) KIruhaDisplayErrorSink* g_pIruhaDisplayErrorSink = NULL;	/// KTDXCommonFunc.h
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
+
 #ifdef  X2OPTIMIZE_DISABLE_LUA_MULTITHREADING
 KLuabinder* CKTDXApp::ms_pLuaBinder = NULL;
 #else   X2OPTIMIZE_DISABLE_LUA_MULTITHREADING

@@ -1453,6 +1453,18 @@ inline bool IsSamef( float a, float b = 0.f )
 	return true;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+// June buff port Phase 3: while a buff entry is parsed, CX2BuffTempletManager points this at a
+// collector for the parsing thread, and DisplayErrorMessage hands the text to it instead of raising
+// a MessageBox; the manager then writes one [JUNE_BUFF] line per entry to ErrorLog.txt. Per thread,
+// because Lua scripts are also parsed on loader threads (X2OPTIMIZE_DISABLE_LUA_MULTITHREADING off).
+struct KIruhaDisplayErrorSink
+{
+	virtual void OnDisplayError( const char* szError_ ) = 0;
+};
+extern __declspec(thread) KIruhaDisplayErrorSink* g_pIruhaDisplayErrorSink;	/// defined in KTDXApp.cpp
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
+
 inline bool DisplayErrorMessage( const WCHAR* wszError_ )
 {
 #if defined( EFFECT_TOOL ) && defined( NDEBUG )
@@ -1461,6 +1473,15 @@ inline bool DisplayErrorMessage( const WCHAR* wszError_ )
 
 #ifndef	_SERVICE_
 	StateLog( wszError_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+	if ( NULL != g_pIruhaDisplayErrorSink )
+	{
+		char szError[512] = { 0, };
+		WideCharToMultiByte( CP_ACP, 0, wszError_, -1, szError, sizeof( szError ) - 1, NULL, NULL );
+		g_pIruhaDisplayErrorSink->OnDisplayError( szError );
+		return false;
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 
 #if defined(_DEBUG )
 	ASSERT( NULL );
@@ -1483,6 +1504,13 @@ inline bool DisplayErrorMessage( const char* szError_ )
 
 #ifndef	_SERVICE_
 	StateLog( szError_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+	if ( NULL != g_pIruhaDisplayErrorSink )
+	{
+		g_pIruhaDisplayErrorSink->OnDisplayError( szError_ );
+		return false;
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 
 //hcsung_test
 //#if defined(_DEBUG )

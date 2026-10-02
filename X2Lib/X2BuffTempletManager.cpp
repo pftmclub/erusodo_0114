@@ -9,6 +9,95 @@
 
 CX2BuffTempletManager* CX2BuffTempletManager::pInstance = NULL;
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+namespace
+{
+	/// June 326c3f30 / 326c32a0: ids from 10000 up belong to the _INT branch; _INT id N sits at [N-10001]
+	const UINT JUNE_BUFF_FACTOR_ID_INT_BASE = 10000;
+
+	/// [JUNE_BUFF] lines also come from loader threads (GetBuffFactorPtr), and KDbgStm is one global stream
+	struct KJuneBuffLogLock
+	{
+		CRITICAL_SECTION m_cs;
+		KJuneBuffLogLock() { InitializeCriticalSection( &m_cs ); }
+		~KJuneBuffLogLock() { DeleteCriticalSection( &m_cs ); }
+	};
+	KJuneBuffLogLock	g_kJuneBuffLogLock;
+	std::set<UINT>		g_setJuneBuffReportedID;
+
+	/// GetBuffFactorPtr runs during play; report each bad id once, not on every lookup
+	bool JuneBuffFirstReport( const UINT uiBuffFactorID_ )
+	{
+		EnterCriticalSection( &g_kJuneBuffLogLock.m_cs );
+		const bool bFirst = g_setJuneBuffReportedID.insert( uiBuffFactorID_ ).second;
+		LeaveCriticalSection( &g_kJuneBuffLogLock.m_cs );
+		return bFirst;
+	}
+}
+
+CX2JuneBuffCapture::CX2JuneBuffCapture()
+	: m_bOwner( NULL == g_pIruhaDisplayErrorSink )
+{
+	if ( m_bOwner )
+		g_pIruhaDisplayErrorSink = this;
+}
+
+/*virtual*/ CX2JuneBuffCapture::~CX2JuneBuffCapture()
+{
+	if ( m_bOwner )
+		g_pIruhaDisplayErrorSink = NULL;
+}
+
+/*virtual*/ void CX2JuneBuffCapture::OnDisplayError( const char* szError_ )
+{
+	m_vecError.push_back( NULL != szError_ ? szError_ : "" );
+}
+
+void CX2JuneBuffCapture::Report( const bool bParsed_, const char* szEntry_, const char* szOutcome_ ) const
+{
+	if ( false == m_bOwner || ( bParsed_ && m_vecError.empty() ) )
+		return;
+
+	/// the reason is the first "unsupported <kind> <n>" a switch's default branch raised, else the first text
+	string strAll, strReason;
+	BOOST_FOREACH( const string& strError, m_vecError )
+	{
+		if ( false == strAll.empty() )
+			strAll += "; ";
+		strAll += strError;
+		if ( strReason.empty() && 0 == strError.compare( 0, 12, "unsupported " ) )
+			strReason = strError.substr( 12 );
+	}
+	if ( strReason.empty() )
+		strReason = m_vecError.empty() ? string( "(no error text)" ) : m_vecError.front();
+
+	if ( bParsed_ )
+		Line( "warning in %s: %s", szEntry_, strAll.c_str() );
+	else
+		Line( "unsupported %s in %s -> %s: %s", strReason.c_str(), szEntry_, szOutcome_, strAll.empty() ? "(no error text)" : strAll.c_str() );
+}
+
+/*static*/ void CX2JuneBuffCapture::Line( const char* szFormat_, ... )
+{
+	char szLine[1024] = { 0, };
+	va_list vaList;
+	va_start( vaList, szFormat_ );
+	_vsnprintf_s( szLine, _countof( szLine ), _TRUNCATE, szFormat_, vaList );
+	va_end( vaList );
+
+	EnterCriticalSection( &g_kJuneBuffLogLock.m_cs );
+	KLOG( "ErrorLog.txt" ) << "[JUNE_BUFF] " << szLine << fileout;
+	LeaveCriticalSection( &g_kJuneBuffLogLock.m_cs );
+}
+
+/*static*/ bool CX2JuneBuffCapture::UnsupportedType( const WCHAR* wszKind_, const UINT uiType_ )
+{
+	WCHAR wszError[64] = { 0, };
+	swprintf_s( wszError, _countof( wszError ), L"unsupported %s %u", wszKind_, uiType_ );
+	return DisplayErrorMessage( wszError );		/// captured during a parse; a MessageBox otherwise, as before
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
+
 /** @function : OpenScriptFile
 	@brief : 버프템플릿 루아스크립트 파싱
 	@param : 루아파일명
@@ -26,6 +115,9 @@ void CX2BuffTempletManager::OpenScriptFileForTemplet()
 		ASSERT( !"DoMemory doesn't work!" );
 		ErrorLogMsg( XEM_ERROR2, wszScriptFileName );
     }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+	LoadINTScriptFile( L"BattleFieldBuffTemplet_INT.lua", "326c0020" );
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 }
 
 
@@ -40,6 +132,10 @@ void CX2BuffTempletManager::OpenScriptFileForFactor()
 		ASSERT( !"DoMemory doesn't work!" );
 		ErrorLogMsg( XEM_ERROR2, wszScriptFileName );
     }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+	LoadINTScriptFile( L"BattleFieldBuffFactor_INT.lua", "326c13a0" );
+	LogLoadSummary();
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 }
 
 /** @function : AddBuffTemplet_LUA
@@ -48,6 +144,34 @@ void CX2BuffTempletManager::OpenScriptFileForFactor()
 void CX2BuffTempletManager::AddBuffTemplet_LUA()
 {
 	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+	/// June 326c3990: create, ParsingScript, insert keyed by the templet id; the same shape as March.
+	/// What changes is the reporting: the entry's parse errors become one [JUNE_BUFF] line.
+	CX2JuneBuffCapture kCapture;
+	CX2BuffTempletPtr	ptrBuffTemplet = CX2BuffTemplet::CreateBuffTempletPtr();
+	if ( NULL == ptrBuffTemplet )
+	{
+		++m_uiTempletFailed;
+		CX2JuneBuffCapture::Line( "new BuffTemplet didn't work" );	/// silent in June
+		return;
+	}
+
+	const bool bParsed = ptrBuffTemplet->ParsingScript( luaManager );
+	char szEntry[64] = { 0, };
+	sprintf_s( szEntry, _countof( szEntry ), "BTI %d", static_cast<int>( ptrBuffTemplet->GetBuffTempletID() ) );
+	if ( bParsed )
+	{
+		if ( false == m_mapBuffTempletPtr.insert( make_pair( ptrBuffTemplet->GetBuffTempletID(), ptrBuffTemplet ) ).second )
+		{
+			++m_uiTempletDuplicate;
+			CX2JuneBuffCapture::Line( "duplicate %s: the first definition is kept (map insert)", szEntry );
+		}
+	}
+	else
+		++m_uiTempletFailed;
+
+	kCapture.Report( bParsed, szEntry, "templet dropped" );
+#else SERV_IRUHADEV_JUNE_BUFF_LOADER
 	
 	CX2BuffTempletPtr	ptrBuffTemplet = CX2BuffTemplet::CreateBuffTempletPtr();
 
@@ -60,6 +184,7 @@ void CX2BuffTempletManager::AddBuffTemplet_LUA()
 	{
 		DISPLAY_ERROR( L"new BuffTemplet didn't work" );
 	}
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 }
 
 /** @function : AddBuffFactor_LUA
@@ -68,6 +193,24 @@ void CX2BuffTempletManager::AddBuffTemplet_LUA()
 void CX2BuffTempletManager::AddBuffFactor_LUA()
 {
 	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+	/// June 326c4050. An unreadable BUFF_FACTOR_ID stays 0 and fails the ordinal check (no early return).
+	UINT uiNum = 0;
+	if ( false == luaManager.GetValue( "BUFF_FACTOR_ID", uiNum ) )
+		uiNum = 0;
+
+	if ( AddBuffFactorINT( luaManager, uiNum ) )	/// June 326c3f30 claims every id from 10000 up
+		return;
+
+	if ( m_vecBuffFactorPtr.size() == uiNum - 1 )	/// the ordinal rule, kept by June
+		PushBuffFactor( luaManager, uiNum, m_vecBuffFactorPtr, m_uiFactorPlaceholder );
+	else
+	{
+		++m_uiFactorOrdinalReject;
+		CX2JuneBuffCapture::Line( "ordinal reject BFI %u: %u factor slot(s) filled, so the next id must be %u; dropped, as in June 326c4050 and March",
+			uiNum, static_cast<UINT>( m_vecBuffFactorPtr.size() ), static_cast<UINT>( m_vecBuffFactorPtr.size() + 1 ) );
+	}
+#else SERV_IRUHADEV_JUNE_BUFF_LOADER
 
 	UINT uiNum = 0;		/// BUFF_FACTOR_ID 를 order로 사용함
 	LUA_GET_VALUE_RETURN( luaManager, "BUFF_FACTOR_ID", uiNum, 0, DISPLAY_ERROR( L"BUFF_FACTOR_ID doesn't exist" ) );
@@ -98,6 +241,7 @@ void CX2BuffTempletManager::AddBuffFactor_LUA()
 	{
 		DISPLAY_ERROR( L"BUFF_FACTOR_ID invalid" );
 	}
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 }
 
 /** @function : GetBuffTempletPtr
@@ -152,6 +296,40 @@ CX2BuffTempletPtr CX2BuffTempletManager::GetBuffTempletPtr( const BUFF_TEMPLET_I
 
 CX2BuffFactorPtr CX2BuffTempletManager::GetBuffFactorPtr( const UINT uiBuffFactorNumber_ ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+	/// June 326c32a0: ids up to 10000 index the main vector, 10001 and up the _INT one. Id 0 means "none"
+	/// and is silent. June formats a bad id's message and discards it (no popup); here it is logged once.
+	if ( uiBuffFactorNumber_ <= JUNE_BUFF_FACTOR_ID_INT_BASE )
+	{
+		if ( 0 == uiBuffFactorNumber_ )
+			return CX2BuffFactorPtr();
+
+		if ( uiBuffFactorNumber_ <= m_vecBuffFactorPtr.size() )
+		{
+			const CX2BuffFactorPtr& ptrBuffFactor = m_vecBuffFactorPtr[uiBuffFactorNumber_ - 1];
+			if ( NULL == ptrBuffFactor && JuneBuffFirstReport( uiBuffFactorNumber_ ) )
+				CX2JuneBuffCapture::Line( "BFI %u requested: it is a placeholder (it failed to parse at load), so nothing is applied", uiBuffFactorNumber_ );
+			return ptrBuffFactor;
+		}
+
+		if ( JuneBuffFirstReport( uiBuffFactorNumber_ ) )
+			CX2JuneBuffCapture::Line( "BFI %u requested but not loaded (%u factor slot(s)), so nothing is applied", uiBuffFactorNumber_, static_cast<UINT>( m_vecBuffFactorPtr.size() ) );
+		return CX2BuffFactorPtr();
+	}
+
+	const UINT uiIndexINT = uiBuffFactorNumber_ - JUNE_BUFF_FACTOR_ID_INT_BASE;	/// 1-based, never 0 here
+	if ( uiIndexINT <= m_vecBuffFactorPtrINT.size() )
+	{
+		const CX2BuffFactorPtr& ptrBuffFactor = m_vecBuffFactorPtrINT[uiIndexINT - 1];
+		if ( NULL == ptrBuffFactor && JuneBuffFirstReport( uiBuffFactorNumber_ ) )
+			CX2JuneBuffCapture::Line( "_INT BFI %u requested: it is a placeholder (it failed to parse at load), so nothing is applied", uiBuffFactorNumber_ );
+		return ptrBuffFactor;
+	}
+
+	if ( JuneBuffFirstReport( uiBuffFactorNumber_ ) )
+		CX2JuneBuffCapture::Line( "_INT BFI %u requested but not loaded (%u _INT factor slot(s)), so nothing is applied", uiBuffFactorNumber_, static_cast<UINT>( m_vecBuffFactorPtrINT.size() ) );
+	return CX2BuffFactorPtr();
+#else SERV_IRUHADEV_JUNE_BUFF_LOADER
 	if ( uiBuffFactorNumber_ != 0 && uiBuffFactorNumber_ <= m_vecBuffFactorPtr.size() )	/// 작다로 비교 하지 않은 이유는 인덱스 0번이 uiBuffFactorNumber 1로 시작하기 때문
 	{
 		return m_vecBuffFactorPtr[uiBuffFactorNumber_ - 1];
@@ -161,6 +339,7 @@ CX2BuffFactorPtr CX2BuffTempletManager::GetBuffFactorPtr( const UINT uiBuffFacto
 		DISPLAY_ERROR( L"uiBuffFactorNumber_ invaild" );
 		return CX2BuffFactorPtr();
 	}
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 }
 
 void CX2BuffTempletManager::GetBuffFactorPtrFromBuffFactorList( IN KLuaManager& luaManager_, OUT vector<CX2BuffFactorPtr>& vecBuffFactorPtr_, OUT vector<UINT>& vecBuffFactorID_)
@@ -191,3 +370,101 @@ void CX2BuffTempletManager::GetBuffFactorPtrFromBuffFactorList( IN KLuaManager& 
 }
 
 
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+/** @function : AddBuffFactorINT
+	@brief : June 326c3f30. Ids from 10000 up go to the second vector, under their own ordinal rule
+		(size == id-10001). June returns "handled" for every such id even when that check fails, so a
+		bad _INT id is dropped there silently; here the drop is logged.
+	@return : true if the id belongs to the _INT range (whatever happened to it)
+*/
+bool CX2BuffTempletManager::AddBuffFactorINT( KLuaManager& luaManager_, const UINT uiBuffFactorID_ )
+{
+	if ( uiBuffFactorID_ < JUNE_BUFF_FACTOR_ID_INT_BASE )
+		return false;
+
+	if ( m_vecBuffFactorPtrINT.size() == uiBuffFactorID_ - ( JUNE_BUFF_FACTOR_ID_INT_BASE + 1 ) )
+		PushBuffFactor( luaManager_, uiBuffFactorID_, m_vecBuffFactorPtrINT, m_uiFactorPlaceholderINT );
+	else
+	{
+		++m_uiFactorOrdinalRejectINT;
+		CX2JuneBuffCapture::Line( "ordinal reject _INT BFI %u: %u _INT factor slot(s) filled, so the next _INT id must be %u; dropped, as in June 326c3f30",
+			uiBuffFactorID_, static_cast<UINT>( m_vecBuffFactorPtrINT.size() ), static_cast<UINT>( m_vecBuffFactorPtrINT.size() + JUNE_BUFF_FACTOR_ID_INT_BASE + 1 ) );
+	}
+
+	return true;
+}
+
+/** @function : PushBuffFactor
+	@brief : Parse one factor entry that passed its ordinal check, the way June 326c4050 and 326c3f30
+		both do (BeginTable BUFF_FACTOR, ParsingBuffFactor( lua, true )), and append it to vecBuffFactorPtr_.
+		Deviation from June, by plan: an entry that fails to parse is appended as a NULL placeholder.
+		June and March drop it, after which every later id fails the ordinal check; the placeholder
+		keeps them aligned, and GetBuffFactorPtr returns NULL for it, so it is never applied.
+*/
+void CX2BuffTempletManager::PushBuffFactor( KLuaManager& luaManager_, const UINT uiBuffFactorID_, IN OUT vector<CX2BuffFactorPtr>& vecBuffFactorPtr_, IN OUT UINT& uiPlaceholder_ )
+{
+	CX2JuneBuffCapture kCapture;
+	CX2BuffFactorPtr ptrBuffFactor;
+	bool bParsed = false;
+	if ( luaManager_.BeginTable( "BUFF_FACTOR" ) )
+	{
+		ptrBuffFactor = CX2BuffFactor::CreateBuffFactorPtr();
+		if ( NULL != ptrBuffFactor )
+			bParsed = ptrBuffFactor->ParsingBuffFactor( luaManager_ );
+		else
+			DisplayErrorMessage( L"new BUFF_FACTOR didn't work" );
+
+		luaManager_.EndTable();
+	}
+	else
+		DisplayErrorMessage( L"BUFF_FACTOR table doesn't exist" );
+
+	char szEntry[64] = { 0, };
+	if ( NULL != ptrBuffFactor )
+		sprintf_s( szEntry, _countof( szEntry ), "BFI %u (BTI %d)", uiBuffFactorID_, static_cast<int>( ptrBuffFactor->GetBuffTempletID() ) );
+	else
+		sprintf_s( szEntry, _countof( szEntry ), "BFI %u", uiBuffFactorID_ );
+
+	if ( bParsed )
+		vecBuffFactorPtr_.push_back( ptrBuffFactor );
+	else
+	{
+		vecBuffFactorPtr_.push_back( CX2BuffFactorPtr() );
+		++uiPlaceholder_;
+	}
+
+	kCapture.Report( bParsed, szEntry, "placeholder" );
+}
+
+/** @function : LoadINTScriptFile
+	@brief : June loads BattleFieldBuff{Templet,Factor}_INT.lua right after the main file, whether or
+		not the main load worked (326c0020 / 326c13a0). March's data036 has no _INT files until Phase 13.
+*/
+void CX2BuffTempletManager::LoadINTScriptFile( const wchar_t* wszScriptFileName_, const char* szJuneLoader_ )
+{
+	const HRESULT hr = g_pKTDXApp->LoadAndDoMemory_ErrorCode( g_pKTDXApp->GetLuaBinder(), wszScriptFileName_ );
+	if ( SUCCEEDED( hr ) )
+		return;
+
+	string strScriptFileName;
+	ConvertWCHARToChar( strScriptFileName, wszScriptFileName_ );
+	if ( HRESULT_FROM_WIN32( ERROR_FILE_NOT_FOUND ) == hr )
+		CX2JuneBuffCapture::Line( "%s not found, so no _INT buffs this run (expected until Phase 13 packs June's _INT files; June %s loads it after the main file)",
+			strScriptFileName.c_str(), szJuneLoader_ );
+	else
+		CX2JuneBuffCapture::Line( "%s did not run (hr 0x%08x), so its _INT buffs are missing this run", strScriptFileName.c_str(), static_cast<UINT>( hr ) );
+}
+
+/** @function : LogLoadSummary
+	@brief : One line after the factor files: what loaded, what became a placeholder, what was rejected.
+*/
+void CX2BuffTempletManager::LogLoadSummary() const
+{
+	CX2JuneBuffCapture::Line( "load summary: templets %u loaded, %u failed, %u duplicate; factors %u loaded + %u placeholder(s); _INT factors %u loaded + %u placeholder(s); ordinal rejects %u (+ %u _INT)",
+		static_cast<UINT>( m_mapBuffTempletPtr.size() ), m_uiTempletFailed, m_uiTempletDuplicate,
+		static_cast<UINT>( m_vecBuffFactorPtr.size() ) - m_uiFactorPlaceholder, m_uiFactorPlaceholder,
+		static_cast<UINT>( m_vecBuffFactorPtrINT.size() ) - m_uiFactorPlaceholderINT, m_uiFactorPlaceholderINT,
+		m_uiFactorOrdinalReject, m_uiFactorOrdinalRejectINT );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
