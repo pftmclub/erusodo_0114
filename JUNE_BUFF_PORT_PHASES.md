@@ -797,9 +797,48 @@ me naming both staging places. Commit.
 - `x2.exe` (18,991,104 bytes, md5 `21539f99…`) was deployed as `X2_offline.exe`; the hash matched after the copy. Not launched.
 - **Pack:** `Enum.lua` from `kom_contents/data036_kom/` (same bytes as `march2014/data036/Enum.lua`) goes into `data036.kom`, paired with this exe. Per the pairing hazard, it ships only together with it.
 
-**Review.** The required Opus 5.5 review has **not** been run yet.
+**Review.** Done 2026-10-03; see "Phase 2 — Review" below.
 
 **Cost.** Not recorded: no `/cost` figure was available in-session. Ask the user.
+
+### Phase 2 — Review (2026-10-03, Opus 5.5 high)
+
+Independent review of `2068485` and `e68005e`. It used fresh scratch scripts (own Lua table parser, own C++ enum evaluator, own byte-diff, own ordinal-loader simulation, own bytecode scan); none of the Phase 2 session's scripts were reused. Ghidra was used read-only.
+
+**Verdict: no defects. `Enum.lua` is cleared to pack** (subject to the one open judgment call, 7b below; packing as staged means keeping the renumber).
+
+| # | Check | Result |
+|---|---|---|
+| 1 | Lua values | Every `BUFF_*` table plus `SPA_BUFF_TYPE` (16 tables) equals June's member-for-member: BTI 1065, BFI 1236 + the alias, BBT 113, BFT 18, BDT 14, and the 6 new tables (3/1/3/6/6/2 members). The only extra member is `BFI_DEBUFF_TELEPORT_CONSUME_MP`; the only duplicate value in any table is 290 (alias + `_PVP`). The 5 renumbered members each carry a `--{{ … --}}` comment naming the old value and its June reuse. No non-buff table changed (old vs new parse, 311 → 317 tables, +1,501 members = 705 + 734 + 38 + 3 + 21). |
+| 2 | Staged bytecode | `march2014/data036/Enum.lua` and `kom_contents/data036_kom/Enum.lua` are byte-identical (314,915 bytes, md5 `81f0b944…`), and so are the two `.src.lua`. Header `1b 4b 4c 81` (mar-2014). A scratch copy decompiled with `elstools decompile-batch` matches the source on all 317 tables, 0 differ. |
+| 3 | C++ values | `X2BuffFactor.h` evaluated with the flag on and off. ON: BBT 113 names (0–112), BFT 18 (0–17), BDT 14, BTI 114, BFI 57, with zero drift, zero C++-only names and zero duplicate values against June. OFF reproduces exactly the 5-row drift table. Every new enumerator has an explicit `= N`, and `BBT_CHANGE_HYPER_CHARGE_SPEED` still lands on 72. `AT_COMMAND = 2` is in `X2DamageManager.h:78`. |
+| 3 | Flag hygiene | `SERV_IRUHADEV_JUNE_BUFF_ENUM` is defined only at `Always.h:4680` (no `.vcxproj` or other `#define`). Every replaced line keeps its original in `#else`, and every block closes `#endif SERV_IRUHADEV_JUNE_BUFF_ENUM`. Both headers are reached only through `X2Main.h:91/106`, after `KTDX.h` at `:7`, and the only non-PCH TU in `X2Lib` is `sqlite3.c`. |
+| 4 | Consumer audit | The only C++ consumers of the 5 drifted names are the ones the Done note lists: `X2GUEL.cpp:3544/3621/6417`, `X2Game.cpp:19076`, `X2GageManager.cpp:3380` and `X2GUElsword_SwordMan.cpp:14990`. No buff id is passed as a literal or cast anywhere in `X2Lib`/`X2`/`KTDXLIB`/`X2ServerProtocol`. The `OpenBuffName( false, 124 )` calls in `X2PartyManager.cpp` take a UI picture index, not a BTI. Nothing uses a BBT/BFT member as a loop or array bound. The old March Lua already had Atomic Shield = 141 and Charge MP = 337, and the ordinal simulation (7a) puts `SWORD_ENCHANT_CHARGE_MP` in factor slot 337, so both value fixes are real behaviour fixes. |
+| 4 | Server/packets | The server's `KncWX2Server/Common/X2Data/XSLBuffManager.h` has no HAMEL member, and its potion BTIs (1318–1320, used by `GSUserFunction.cpp:17215`) are unchanged. `X2Lib/Offline` sends no buff ids (it only replays `EGS_USE_QUICK_SLOT_NOT`; the `1321`/`1322` in `X2OfflineCashSeed.h` are product ids). No renumbered value crosses a packet the server interprets. |
+| 5 | CP949 | All 5 C++ files are insert-only (+15/+87/+5/+18/+6, −0), the inserted lines are ASCII and CRLF, and the high-byte counts are identical before and after. `file` signatures are unchanged, and `X2BuffFactor.h` still has exactly one LF-only line. `Enum.src.lua` has 9 replaced lines (4 trailing-comma additions + the 5 renumbers), all CRLF, with no BOM before or after. |
+| 6 | Ghidra (3 items) | BBT templet factory `32e804d9`: `DEC EAX; CMP EAX,0x6d; JA` → types 1–110. BFT factory `32ec3766`: `DEC EAX; CMP EAX,0xf; JA` → 1–16. `GetFinalDamage` `32286228`: `CMP dword ptr [EBX+0x8],0x2` (DamageData attack type == `AT_COMMAND`) feeds the `JNZ` at `3228626e`. All three agree with Phase 1 and the enums. |
+
+**Item 7: the deviations and the Done note's claims.**
+- **7a, TELEPORT alias: keep it (agreed).** The live factor file in `kom_contents` matches the live `data036.kom` entry (353,105 bytes); it was decompiled to scratch. Simulating `AddBuffFactor_LUA`'s ordinal rule on that file gives:
+  - Old Enum: 364 of 366 load (the HAMEL BFIs, rows 365–366).
+  - Enum as committed: 361 of 366 load (+ the 3 potions).
+  - Without the alias: 289 of 366 load; row 290 gets a nil id and every later row fails.
+  - So removing the alias costs **72 more factors (slots 290–361)**, 77 failures in all. The Done note's "factors 290–364, 77 of them" mixes those two numbers; the substance is right.
+- **7b, potion renumber: open, the user's call.** The hazard is confirmed. `KItemFormatTemplet::GetBuffFactorPtr` (`X2Item_Preprocessing.cpp:181`) resolves `Item.kim`'s baked WORD lazily, so nothing happens at load. On *use*, `GetBuffFactorPtr( 362 )` pops `uiBuffFactorNumber_ invaild` and returns null, and `ApplyBuffFactorToGUUser`'s `UPGRADE_SKILL_SYSTEM_2013` branch calls `->GetClonePtr( 0 )` on it unchecked (`X2Game.cpp:18160`; the other branch checks). Reachability is as the Done note says: neither potion is in the save, in `cash_product`, or held via box 65001078.
+  - Options:
+    1. **Keep** (as staged). It matches June and the stated duplicate-value rule.
+    2. **Keep and add a one-line null guard** at `X2Game.cpp:18160`, behind this flag. That closes the crash for any item whose factor failed to load, which matters again in Phase 13 for June items.
+    3. **Revert** the 3 BFIs to 362–364 until Phase 13. That adds 3 more duplicate values (with June's `FIGHTING_SUPER_ARMOR`/`FIGHTING_HEAL`/`BRAVE_TOWER`) and needs a recompile and re-stage.
+  - **Reviewer's recommendation: option 2.**
+- **7c, claims checked:**
+  - **"2 → 5 launch popups": confirmed.** Each failure path in `AddBuffFactor_LUA` is a `DISPLAY_ERROR`, which is a `MessageBox` here (`KTDXCommonFunc.h:1462-1469`, `#ifndef _SERVICE_`).
+  - **"No shipped Lua names any of the 1,439 new names": confirmed** with an exact-constant scan (`ULEB128(len+5)` + name) over all 4,838 non-Enum `.lua` in `kom_contents/*_kom` plus `march2014/data036`. There are 0 hits; the one bare-substring hit, `BTI_DEBUFF_SHADOW`, is a prefix of longer March names. (A greedy-token scan under-reports here, because the next constant's length byte can be a letter or `_`; the exact-constant method is the one to reuse.)
+- **Doc corrections** (low severity, no action needed beyond reading this):
+  - `DamageEffect_INT.lua` (datai015) names the HAMEL **BFI** pair (372/373, unchanged), not the HAMEL BTI. The BTI pair is named by `BattleFieldBuffTemplet.lua`, `BattleFieldBuffFactor.lua` and the premium `BuffTemplet.lua`.
+  - The premium `BuffTemplet.lua` names all three potion BFIs, as the note says.
+  - The TELEPORT alias is named exactly by `BattleFieldBuffFactor.lua` and `NewSkillTempletVer2.lua`.
+
+**Review cost.** `/usage` is not readable from inside the session. Ask the user, and add the figure here.
 
 ## Phase 3 — Loader hardening and `[JUNE_BUFF]` logging
 
