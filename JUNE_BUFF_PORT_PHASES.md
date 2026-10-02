@@ -805,7 +805,16 @@ me naming both staging places. Commit.
 
 Independent review of `2068485` and `e68005e`. It used fresh scratch scripts (own Lua table parser, own C++ enum evaluator, own byte-diff, own ordinal-loader simulation, own bytecode scan); none of the Phase 2 session's scripts were reused. Ghidra was used read-only.
 
-**Verdict: no defects. `Enum.lua` is cleared to pack** (subject to the one open judgment call, 7b below; packing as staged means keeping the renumber).
+**Verdict: no defects. Whether `Enum.lua` can be packed depends on the 7b answer:**
+- **7b option 1 (keep):** pack now.
+- **7b option 2 (keep + null guard):** `Enum.lua` does not change and is safe to pack now. The guard needs a rebuild and redeploy, so pack with that exe or before it (both exes have the enum flag).
+- **7b option 3 (revert):** do **not** pack. `Enum.lua` is recompiled and re-staged first.
+
+**Pack preconditions, checked:**
+- **Exe pairing.** `X2/US_SERVICE/x2.exe` and `$DATA/X2_offline.exe` are both md5 `21539f99…`, 18,991,104 bytes.
+  - The exe was built at 02:10, before the 02:12 commit time of `2068485`. `git log 2068485..HEAD -- X2Lib X2 KTDXLIB X2ServerProtocol` is empty, and the touched files' worktree equals HEAD. So the deployed exe is the Phase 2 code.
+- **No loose shadows.** There is no loose `Enum.lua`, `BattleFieldBuff*.lua` or `BuffTemplet*.lua` in `$DATA` (depth 2). The only loose `.lua` there are user config files (`GameOptions`, `GamePadConfig`, `LoginKey`, `SelectedServerGroup`, `TutorSystem`).
+- **Scan coverage.** The 7c scan covers the `kom_contents` extracts, not loose files. Two files in it are not mar-2014 bytecode and could not be read reliably: `data036_kom/PvPDropTable.lua` (unrecognised header) and `data014_kom/UI_NPC_KELAINO.lua` (`KL\x82`).
 
 | # | Check | Result |
 |---|---|---|
