@@ -191,7 +191,7 @@ The 6 tables June has and March lacks:
 - Factor level: `APPLY_CHECK_CONDITION` / `AND_OPERATION` / `BUFF_APPLY_CHECK_CONDITION_TYPE` / `CONDITION_0..1` / `CHECK_BUFF_TEMPLET_ID` / `CHECK_HP_RATE_UP` / `HP_RATE` / `APPLY_WHEN_HAVE` (4), `ACCUMULATION_AT_ONE_GO` 2, `DISPLAYER` inside a factor 6.
 - Behavior level: `SKILL_CATEGORY_0..4` 22/12/12/12/8, `MULTIPLY_DAMAGE_RATE` 20, `BUFF_VALUE_CALCULATE_TYPE` 10, `VALUE` 7, `SKILL_ID_LIST` 5, `IMMUNE_BUFF_TEMPLATE_ID` 5, `ONLY_MY_UNIT` 3, `NOT_DELETE_EFFECT_SET_WHEN_FINISH` 3, `SKILL_SLOT_TYPE` 3, `ADDITIONAL_ATTACK_TYPE` 3, `DROP_RATE` 3, `FORCE_SKILL_ID` 2, `MULTIPLY_MP_CHARGE_RATE` 2, `APPLY_TO_SPECIAL_ATTACK` 2, `LUCKYTIMINGEVENT_*`.
 - Once each: `FROZEN_TIME`, `IGNORE_DEFENCE_RATE`, `HYPER_COUNT`, `ALL_DEBUFF`, `IGNORE_SKILL_ID`, `OFFSET_POSITION`, `DELETE_BUFF_WHEN_DIE`, `FORCE_SET`, `USE_CREATOR_UNIT_DATA`.
-- Finalizer level: `SHAKE_DECREASE_MAX_TIME`, `SHAKE_DECREASE_TIME_AT_ONCE`.
+- Finalizer level: `FROZEN_TIME` 1, `SHAKE_DECREASE_MAX_TIME` 1, `SHAKE_DECREASE_TIME_AT_ONCE` 1, all under the existing `BFT_TIME` (Phase 4b, not Phase 8: the only `SHAKE_DECREASE_*` entry is `BTI_AMUSEMENT_ITEM_WATER_BALLOON_IN_DAMAGE`; `BFT_STICK_SHAKE`'s own sub-table carries only `BUFF_USE_COUNT_TYPE` and `COUNT`), plus `SKILL_SLOT_TYPE` 1 under `BFT_USE_SKILL_BY_SKILL_SLOTTYPE` (Phase 8).
 - Displayer level: per-class keys `ADD`/`AIN`/`LUCIEL`/`ROSE` (2 each, under `BDT_EFFECT_SET_ONLY_MY_CLASS`), `NOT_DELETE_EFFECT_SET_WHEN_FINISH` 3, `ONLY_MY_UNIT` 3. *(`REPLAY_EFFECT_SET_ACCUMULATION_LIMIT1` was listed here with 18 uses; March does read it, `X2BuffDisplayerTemplet.cpp:305`, under `BDT_EFFECT_SET`. Removed in Phase 0.)*
 - Phase 0 additions to the lists above: factor-level `APPLIED_SKILL_ID` 2 (inline blocks in `DamageEffect`), behavior-level `CAN_DOWN` 1 (`BBT_NEVER_MOVE`). `OFFSET_POSITION` is 2 (1 templet, 1 inline), not 1. `DROP_RATE` 3, `VP_RATE` 1 and `LUCKYTIMINGEVENT_*` are templet-level keys, not behavior-level. The factor-level `APPLY_CHECK_CONDITION` group is 4 entries, and `APPLY_WHEN_HAVE` itself is 2.
 - Note: March reads the BBT/BFT/BDT sub-tables by stringizing the enum name (`CASE_*` macros), so those names are *not* unread keys.
@@ -379,15 +379,20 @@ before going on. Record the baseline in the doc and commit.
 
 - **Branch.** `mods/lanox-port` was clean. `mods/june-buff-port` already existed at the same commit (`198fbb8`, the commit that added this doc), so no new branch was needed. Nothing was uncommitted.
 - **Tool.** `june2017_re/buff_census.py` plus `june2017_re/buff_census_flags.tsv`.
-  - The TSV caches the `US_SERVICE` flag states that `flagprobe.py` resolved for the 172 conditionals in `X2Buff*.cpp/.h`, `X2GameUnit.cpp` and `X2PremiumBuffManager.cpp`.
-  - Without the cache, the script runs the probe itself (about 45 s). `--no-probe` never runs it.
-  - A full run takes about 12 s.
-- **Usage.** `python june2017_re/buff_census.py [--phase 2|3|4a|4b|5|6|7|8|9|10|11] [-v] [--json FILE] [--no-probe]`.
+  - The TSV caches the `US_SERVICE` flag states that `flagprobe.py` resolved for the conditionals in `X2Buff*.cpp/.h`, `X2GameUnit.cpp`, `X2PremiumBuffManager.cpp` and the binding-check sources (700 studio flags).
+  - **`SERV_IRUHADEV_*` flags are never cached.** They change as the port proceeds, so a flag probed OFF before its `#define` lands would stay OFF and a finished phase would never clear. Every run reads them fresh from the `#define` lines in `KTDXLIB/Always.h` (our house rule makes them plain unconditional defines), and `--reprobe` asks the compiler instead.
+  - A studio flag that is missing from the cache is probed through `cl /EP` automatically (about 45 s). `--reprobe` re-resolves every flag, ours included; `--no-probe` never runs the probe.
+  - A full run with a warm cache takes about 12 s.
+- **Usage.** `python june2017_re/buff_census.py [--phase 2|3|4a|4b|5|6|7|8|9|10|11] [-v] [--json FILE] [--no-probe] [--reprobe]`. `--phase 5..8` also lists every key the data puts under that phase's types (the transcription checklist).
 - **March data.** March's live buff Lua exists only as bytecode, so "March supports X" always means the C++. The script also reads the bytecode string constants from `kom_contents/data036_kom/` (game directory, outside the repo; override with `BUFF_CENSUS_KOM_CONTENTS`) for the `in-March-data` column. Without that directory the column prints `?`.
 - **Method.**
   - The CASE lists are resolved with the probed flags, so `#ifdef`'d cases count only if the flag is on.
   - Hand-written `case BBT_EMPTY:` labels count as handled. Missing them made `BBT_EMPTY` look unsupported.
-  - Per-type key readers are the quoted literals in the type's factor-parse function and in the templet class's `ParsingBehavior/Finalizer/Displayer`, following `Qual::helper` calls. Keys in templet entries are checked against the templet reader and keys in factor or inline entries against the factor reader. This is a literal match, not a data-flow proof, so spot-check a key in Ghidra or source before acting on it.
+  - Per-type key readers are the quoted literals in the type's factor-parse function (a `CX2BuffFactor` member) and in the templet class's `ParsingBehavior/Finalizer/Displayer`, following the calls they make. `Q::f(` resolves in `Q`, a plain `f(` in the caller's class and its base classes, and `obj.f(` / `p->f(` is skipped, so one class cannot inherit another class's literals. Keys in templet entries are checked against the templet reader and keys in factor or inline entries against the factor reader. This is a literal match, not a data-flow proof, so spot-check a key in Ghidra or source before acting on it.
+  - A key literal containing `%d` (for example `"SKILL_CATEGORY_%d"`) counts as a pattern for `SKILL_CATEGORY_<digits>`.
+  - Templet-level and factor-level supported keys come from `CX2BuffTemplet::ParsingScript` and `CX2BuffFactor::ParsingBuffFactor` plus the helpers they call, so a ported version that reads keys in helpers is recognised.
+  - Each unread behavior/finalizer/displayer key carries an `owner`: the phase of the type it sits under (4b if March already handles the type, 5–8 if not). `--phase 4b` therefore never lists a key that belongs to a Phase 5–8 type, and `--phase 6` lists `SKILL_CATEGORY_n`.
+  - The Lua-binding "present/ABSENT" check scans the preprocessed March sources, so a binding added under an OFF flag does not count.
 - **Phase grouping in the report.** Types map to Phases 5–8 exactly as listed under "Phases 5–7" and "Phase 8". If Phase 1 re-splits them, edit `PHASE_BBT_VALUES` and `PHASE_BFT_VALUES` at the top of the script.
 - **Cost.** Not recorded for this session (no `/cost` figure was available).
 
@@ -422,7 +427,7 @@ before going on. Record the baseline in the doc and commit.
 | Of those, used by June data | 37 BBT / 3 BFT (types assigned per phase: 5 = 20, 6 = 8, 7 = 12, 8 = 4) |
 | BDT unhandled | 0 |
 | C++ drift vs June | 1 BTI value, 2 BTI renames, 1 BFI value, 1 BFI name (`TELEPORT_CONSUME_MP`) |
-| Level-wide unread keys | templet 17, factor 4, behavior 24, finalizer 4, displayer 6 |
+| Level-wide unread keys | templet 17, factor 4, behavior 24, finalizer 4, displayer 6 (owner split: 4a = 21; 4b = 11 behavior + 3 finalizer + 6 displayer; the rest sit under Phase 5–8 types) |
 | Existing types with keys their parse never reads | 41 type/key pairs (326 entry-uses); phase 4b scope |
 | `BBT_CUSTOM_FUNCTION` templets / unhandled | 20 / 17 |
 | June-only bindings March lacks | 9 of 9 (`AddBuffGroup_LUA`, `AddOfficiallyBuffList_LUA`, `SetMonsterBuffGroupID`, `DeleteNonControlDebuff`, `GetBuffAccumulationCountNow`, `ApplyBuffFactor`, `AddRandomBuffList`, `SetPveBalanceBuffGiveScore_LUA`, `SendRandomMissionRewardBuffCheat`) |
@@ -652,7 +657,7 @@ BTI/BFI and where it comes from) into the doc for Phase 14. Record this session'
 ## Phase 8 — New finalizers and counter sync
 
 **Scope.**
-- Port `BFT_AURA` 14, `BFT_STICK_SHAKE` 15 (with `SHAKE_DECREASE_*`), `BFT_USE_SKILL_BY_SKILL_SLOTTYPE` 16 and `BFT_ATTACK` 17. Each needs its enum (done in Phase 2), a parse case, a level-slice case, `SetGameUnitFinalizer`, a class with its `CASE_FINALIZER_TEMPLET` entry, a unit counter, the site that increments it, and **UDP sync of the counter**, alongside hit and hitted count in `X2UDPPacket.h:310`.
+- Port `BFT_AURA` 14, `BFT_STICK_SHAKE` 15, `BFT_USE_SKILL_BY_SKILL_SLOTTYPE` 16 and `BFT_ATTACK` 17. Each needs its enum (done in Phase 2), a parse case, a level-slice case, `SetGameUnitFinalizer`, a class with its `CASE_FINALIZER_TEMPLET` entry, a unit counter, the site that increments it, and **UDP sync of the counter**, alongside hit and hitted count in `X2UDPPacket.h:310`.
 - Candidate hook sites:
   - `BFT_ATTACK`: `CX2GUUser::AttackResult` `X2GUUser.cpp:12721`.
   - `BFT_USE_SKILL_BY_SKILL_SLOTTYPE`: `CommonSpecialAttackEventProcess` `:20966` / `CountUsedSkill` `:32125`.
@@ -667,7 +672,7 @@ full -- "Starting context", the "Investigation ledger" (March runtime map: final
 poll counters synced over UDP), the "June buff function map" and "Phase 8". Branch:
 mods/june-buff-port. Never launch X2_offline.exe without asking first.
 
-Your task (Phase 8): port June's BFT_AURA, BFT_STICK_SHAKE (SHAKE_DECREASE_*),
+Your task (Phase 8): port June's BFT_AURA, BFT_STICK_SHAKE,
 BFT_USE_SKILL_BY_SKILL_SLOTTYPE and BFT_ATTACK, from parse to finalizer class, unit
 counter and increment site. Take the hook sites from June's binary; the doc lists March
 candidates to confirm. Sync the new counters over UDP the same way March syncs

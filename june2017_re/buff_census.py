@@ -305,7 +305,7 @@ CPP_HEADERS = ['X2BuffFactor.h', 'X2BuffBehaviorTemplet.h', 'X2BuffFinalizerTemp
 _CASE = re.compile(r'\bCASE_(BEHAVIOR|FINALIZER|DISPLAYER)_(FACTOR|TEMPLET)(?:_SKILL)?\s*\(\s*(\w+)\s*,\s*(\w+)')
 _PLAIN_CASE = re.compile(r'\bcase\s+(B[BFD]T_\w+)\s*:')
 TEMPLET_METHOD = {'BEHAVIOR': 'ParsingBehavior', 'FINALIZER': 'ParsingFinalizer', 'DISPLAYER': 'ParsingDisplayer'}
-_STR = re.compile(r'(?<![A-Za-z0-9_])L?"([A-Z][A-Z0-9_]*)"')
+_STR = re.compile(r'(?<![A-Za-z0-9_])L?"([A-Z][A-Z0-9_]*(?:%d[A-Z0-9_]*)*)"')
 
 
 def body_of(text, marker):
@@ -356,12 +356,23 @@ def parse_cpp_enums(text):
     return out
 
 
-_QLIT = re.compile(r'(?<![A-Za-z0-9_])L?"([A-Za-z_][A-Za-z0-9_]*)"')
+_QLIT = re.compile(r'(?<![A-Za-z0-9_])L?"([A-Za-z_][A-Za-z0-9_%]*)"')
+_DEF_CACHE = {}
 
 
-def find_def(text, name):
-    """Body of the definition `Qual::name( ... ) { ... }` (qualified definitions only; calls are skipped)."""
-    for m in re.finditer(r'(?:\w+::)+' + re.escape(name) + r'\s*\(', text):
+def lit_supported(key, lits):
+    """True if `key` is one of the literals, or matches a printf-style key literal such as "SKILL_CATEGORY_%d"."""
+    if key in lits:
+        return True
+    for l in lits:
+        if '%' in l and re.match('^' + re.escape(l).replace('%d', r'\d+').replace('%s', r'.+') + '$', key):
+            return True
+    return False
+
+
+def find_def(text, qual, name):
+    """Body of the definition `qual::name( ... ) { ... }` (calls are skipped: a definition is followed by `{` or `:`)."""
+    for m in re.finditer(r'\b' + re.escape(qual) + r'::' + re.escape(name) + r'\s*\(', text):
         i, depth = m.end(), 1
         while i < len(text) and depth:
             depth += {'(': 1, ')': -1}.get(text[i], 0)
@@ -378,47 +389,47 @@ def find_def(text, name):
     return None
 
 
-_DEF_CACHE = {}
-
-
-def reader_literals(texts, root_name, depth=3, seen=None):
-    """Quoted key literals read by function `root_name` plus the Qual::helpers it calls (depth-limited)."""
-    seen = seen if seen is not None else set()
-    if root_name in seen or depth < 0:
-        return set()
-    seen.add(root_name)
-    key = (id(texts), root_name)
-    if key not in _DEF_CACHE:
-        body = None
-        for t in texts:
-            body = find_def(t, root_name)
-            if body is not None:
-                break
-        _DEF_CACHE[key] = body
-    body = _DEF_CACHE[key]
-    if body is None:
-        return set()
-    out = set(_QLIT.findall(body))
-    for callee in set(re.findall(r'\b(?:\w+::)*(\w+)\s*\(', body)):
-        out |= reader_literals(texts, callee, depth - 1, seen)
+def class_bases(header_texts):
+    """{class: [direct public bases]} from `class A : public B, public C`."""
+    out = {}
+    for t in header_texts:
+        for m in re.finditer(r'\b(?:class|struct)\s+(\w+)\s*:\s*([^{;]*)\{', t):
+            out[m.group(1)] = re.findall(r'\bpublic\s+(\w+)', m.group(2))
     return out
 
 
-def class_method_literals(texts, cls, method):
-    """Literals read by `cls::method` and, through `Base::method` calls, by its base classes."""
-    out = set()
-    for t in texts:
-        mm = re.search(r'\b' + re.escape(cls) + r'::' + re.escape(method) + r'\s*\(', t)
-        if not mm:
-            continue
-        body = body_of(t[mm.start():], '{')
-        out |= set(_QLIT.findall(body))
-        for callee in set(re.findall(r'\b(?:\w+::)*(\w+)\s*\(', body)):
-            out |= reader_literals(texts, callee, 2)
-        for base in set(re.findall(r'\b(CX2Buff\w+)::' + re.escape(method), body)):
-            if base != cls:
-                out |= class_method_literals(texts, base, method)
-        break
+def reader_literals(ctx, qual, name, depth=3, seen=None):
+    """Quoted key literals read by `qual::name` (looked up through qual's base classes if it does not define it) and by
+    the functions it calls: `Q::f(` resolves in Q, an unqualified `f(` in the caller's class chain, `obj.f(`/`p->f(` is
+    skipped. ctx = dict(texts=[...], bases={...}). Depth-limited."""
+    seen = seen if seen is not None else set()
+    if (qual, name) in seen or depth < 0:
+        return set()
+    seen.add((qual, name))
+    chain, todo = [], [qual]
+    while todo:
+        c = todo.pop(0)
+        if c not in chain:
+            chain.append(c)
+            todo.extend(ctx['bases'].get(c, []))
+    body, owner = None, None
+    for c in chain:
+        key = (id(ctx['texts']), c, name)
+        if key not in _DEF_CACHE:
+            b = None
+            for t in ctx['texts']:
+                b = find_def(t, c, name)
+                if b is not None:
+                    break
+            _DEF_CACHE[key] = b
+        if _DEF_CACHE[key] is not None:
+            body, owner = _DEF_CACHE[key], c
+            break
+    if body is None:
+        return set()
+    out = set(_QLIT.findall(body))
+    for cq, cn in set(re.findall(r'(?<![\w.>])((?:\w+::)*)(\w+)\s*\(', body)):
+        out |= reader_literals(ctx, cq[:-2].split('::')[-1] if cq else owner, cn, depth - 1, seen)
     return out
 
 
@@ -451,15 +462,17 @@ def load_march_cpp(unknown):
     m['enums'] = parse_cpp_enums(texts['X2BuffFactor.h'])
     for kind, fn in (('BEHAVIOR', 'BUFF_FACTOR::GetBehaviorFactorToLevel'), ('FINALIZER', 'BUFF_FACTOR::GetFinalizerFactorToLevel')):
         m['slice'][kind] = set(re.findall(r'\bcase\s+(B[BF]T_\w+)\s*:', body_of(texts['X2BuffFactor.cpp'], fn)))
-    # per-type key readers: literals in the factor-parse function + the templet class's ParsingXTemplateMethod
-    alltexts = [texts[f] for f in CPP_FILES]
+    # per-type key readers: the factor-parse function (a CX2BuffFactor member) and the templet class's virtual
+    # ParsingBehavior/Finalizer/Displayer, each followed through the calls it makes
+    ctx = dict(texts=[texts[f] for f in CPP_FILES], bases=class_bases([texts[f] for f in CPP_HEADERS]))
+    m['ctx'] = ctx
     for kind in ('BEHAVIOR', 'FINALIZER', 'DISPLAYER'):
         for role in ('FACTOR', 'TEMPLET'):
             for typ, fn in m['fn'][(kind, role)].items():
                 if role == 'FACTOR':
-                    lits = reader_literals(alltexts, fn)
+                    lits = reader_literals(ctx, 'CX2BuffFactor', fn)
                 else:
-                    lits = class_method_literals(alltexts, fn, TEMPLET_METHOD[kind])
+                    lits = reader_literals(ctx, fn, TEMPLET_METHOD[kind])
                 m['readers'].setdefault((kind, typ, role), set()).update(lits)
     gu = active_text(os.path.join(X2LIB, 'X2GameUnit.cpp'), unknown)
     body = body_of(gu, 'CX2GameUnit::CreateAndInsertCustomFunctionByBuff')
@@ -468,23 +481,22 @@ def load_march_cpp(unknown):
 
 
 def key_level_sets(m):
-    """Per-level supported key literals, taken from the file that parses that level."""
-    lit = m['literals']
-    factor_top = body_of(active_text(os.path.join(X2LIB, 'X2BuffFactor.cpp'), set()), 'CX2BuffFactor::ParsingBuffFactor')
-    factor_top = set(s.group(1) for s in _STR.finditer(factor_top))
+    """Per-level supported key literals, taken from the function(s) that parse that level (templet/factor top level) or from
+    the files that parse it (behavior/finalizer/displayer, the level-wide view)."""
+    lit, ctx = m['literals'], m['ctx']
     mgr = lit['X2BuffTempletManager.cpp']
-    sets = {
-        'templet': lit['X2BuffTemplet.cpp'] | mgr,
-        'factor': factor_top | mgr,
+    return {
+        'templet': reader_literals(ctx, 'CX2BuffTemplet', 'ParsingScript') | mgr,
+        'factor': reader_literals(ctx, 'CX2BuffFactor', 'ParsingBuffFactor') | mgr,
         'behavior': lit['X2BuffFactor.cpp'] | lit['X2BuffBehaviorTemplet.cpp'] | lit['X2BuffBehaviorTemplet.h'],
         'finalizer': lit['X2BuffFactor.cpp'] | lit['X2BuffFinalizerTemplet.cpp'] | lit['X2BuffFinalizerTemplet.h'],
         'displayer': lit['X2BuffDisplayerTemplet.cpp'] | lit['X2BuffDisplayerTemplet.h'],
     }
-    return sets
 
 
 # --------------------------------------------------------------------------- June corpus
 STRUCT_KEYS = {'COMBINATION', 'BEHAVIOR', 'FINALIZER', 'DISPLAYER', 'BUFF_FACTOR'}
+BIND_SOURCES = ['X2Main.cpp', 'X2BuffTempletManager.cpp', 'X2GameUnit.cpp', 'X2GUUser.cpp', 'X2GUNPC.cpp', 'X2DamageManager.cpp']
 BIND_PATTERNS = ['AddBuffGroup_LUA', 'AddOfficiallyBuffList_LUA', 'SetMonsterBuffGroupID', 'DeleteNonControlDebuff',
                  'GetBuffAccumulationCountNow', 'ApplyBuffFactor', 'AddRandomBuffList', 'SetPveBalanceBuffGiveScore_LUA',
                  'SendRandomMissionRewardBuffCheat']
@@ -666,6 +678,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--phase', help='only report what this phase owns: 2,3,4a,4b,5,6,7,8,9,10,11')
     ap.add_argument('--no-probe', action='store_true', help='never run the ~45 s cl /EP flag probe')
+    ap.add_argument('--reprobe', action='store_true', help='re-resolve every flag through cl /EP, ignoring the cache')
     ap.add_argument('--json', help='write the raw numbers to this file')
     ap.add_argument('-v', '--verbose', action='store_true', help='list the entries behind each unsupported key')
     a = ap.parse_args()
@@ -673,18 +686,30 @@ def main():
 
     # -- resolve the preprocessor flags every conditional in the March files needs
     need = set()
-    for f in CPP_FILES + CPP_HEADERS + ['X2GameUnit.cpp', 'X2PremiumBuffManager.cpp']:
+    for f in CPP_FILES + CPP_HEADERS + ['X2GameUnit.cpp', 'X2PremiumBuffManager.cpp'] + BIND_SOURCES:
         need |= conditional_flags(os.path.join(X2LIB, f))
     cache = load_flag_cache()
-    missing = sorted(need - set(cache))
-    if missing and not a.no_probe:
-        sys.stderr.write('probing %d flag(s) through cl /EP (~45 s)...\n' % len(missing))
-        res = run_flag_probe(missing)
+    # Our own SERV_IRUHADEV_* flags change as the port proceeds, so they are NEVER cached: a flag probed OFF before its
+    # #define lands would otherwise stay OFF and a finished phase would never clear. By house rule they are plain
+    # unconditional `#define`s in KTDXLIB/Always.h, so each run reads them from there (fast); --reprobe asks the compiler.
+    ours = sorted(f for f in need if f.startswith('SERV_IRUHADEV_'))
+    for f in ours:
+        cache.pop(f, None)
+    studio = sorted(f for f in need if f not in ours and (f not in cache or a.reprobe))
+    if (studio or (a.reprobe and ours)) and not a.no_probe:
+        todo = studio + (ours if a.reprobe else [])
+        sys.stderr.write('probing %d flag(s) through cl /EP (~45 s)...\n' % len(todo))
+        res = run_flag_probe(todo)
         if res:
             cache.update(res)
-            with open(FLAGS_TSV, 'w') as fh:
+            with open(FLAGS_TSV, 'w') as fh:                     # persistent cache = studio flags only
                 for k in sorted(cache):
-                    fh.write('%s\t%s\n' % (k, 'ON' if cache[k] else 'OFF'))
+                    if not k.startswith('SERV_IRUHADEV_'):
+                        fh.write('%s\t%s\n' % (k, 'ON' if cache[k] else 'OFF'))
+    if ours and not (a.reprobe and not a.no_probe):
+        alw = open(os.path.join(TRUNK, 'KTDXLIB', 'Always.h'), 'rb').read().decode('latin1')
+        for f in ours:
+            cache[f] = bool(re.search(r'^\s*#\s*define\s+' + f + r'\b', alw, re.M))
     unknown = set()
     march = load_march_cpp(unknown)
     lsets = key_level_sets(march)
@@ -900,39 +925,54 @@ def main():
 
     # ---------------------------------------------------------------- keys
     P_keys = {}
-    if want('4a', '4b'):
+    LEVEL_OF = {'BEHAVIOR': 'behavior', 'FINALIZER': 'finalizer', 'DISPLAYER': 'displayer'}
+    TABLE_OF = {'BEHAVIOR': 'BUFF_BEHAVIOR_TYPE', 'FINALIZER': 'BUFF_FINALIZER_TYPE', 'DISPLAYER': 'BUFF_DISPLAYER_TYPE'}
+
+    def type_owner(section, typ):
+        """Phase that owns a type: 4b if March handles it, else the phase its enum value is assigned to."""
+        if typ in march['cases'].get((section, 'FACTOR'), ()) or typ in march['cases'].get((section, 'TEMPLET'), ()):
+            return '4b'
+        return phase_of_type(section, jb[TABLE_OF[section]].get(typ, -1))
+
+    if want('4a', '4b', '5', '6', '7', '8'):
+        # owners of a level-wide key = phases of the types it sits under (templet/factor level keys: 4a)
+        owners = collections.defaultdict(set)
+        for (section, typ, path), origins in st['tkeys'].items():
+            owners[(LEVEL_OF[section], path.split('.')[-1])].add(type_owner(section, typ))
         P('== June data keys March never reads: level-wide view (the ledger\'s definition)')
         P('   entry = templet / factor / inline block carrying the key (nested keys counted by bare name);')
-        P('   March-supported = quoted literal present in the C++ file(s) that parse that level;')
+        P('   March-supported = key literal (or a "%d" pattern literal) present in the C++ that parses that level;')
+        P('   owner = phase of the type(s) the key sits under: 4b = a type March already handles, 5-8 = a type March lacks;')
         P('   in-March-data = the key string is in March\'s compiled BattleFieldBuff*/BuffTemplet bytecode (if reachable)')
         rows = []
         for (level, k), origins in st['keys'].items():
-            if k in lsets[level]:
+            if lit_supported(k, lsets[level]):
                 continue
             if re.match(r'^(BBT|BFT|BDT)_', k):
                 continue
             n = {o: len(s) for o, s in origins.items()}
-            rows.append((level, k, sum(n.values()), n.get('templet', 0), n.get('factor', 0), n.get('inline', 0)))
+            own = sorted(owners.get((level, k), set())) if level in ('behavior', 'finalizer', 'displayer') else ['4a']
+            rows.append((level, k, sum(n.values()), n.get('templet', 0), n.get('factor', 0), n.get('inline', 0), ','.join(own)))
         rows.sort(key=lambda r: (r[0], -r[2], r[1]))
         order = ['templet', 'factor', 'behavior', 'finalizer', 'displayer']
         for lv in order:
-            sub = [r for r in rows if r[0] == lv]
+            sub = [r for r in rows if r[0] == lv and (a.phase is None or a.phase in r[6].split(','))]
             if not sub:
                 continue
-            ph = '4a' if lv in PHASE_KEY_LEVELS['4a'] else '4b'
-            if a.phase is not None and a.phase != ph:
-                continue
-            P('  %s level  (phase %s): %d key(s), %d entry-uses' % (lv, ph, len(sub), sum(r[2] for r in sub)))
-            P('    %-44s %6s %6s %6s %6s  %s' % ('key', 'total', 'templ', 'factor', 'inline', 'in-March-data'))
+            P('  %s level: %d key(s), %d entry-uses' % (lv, len(sub), sum(r[2] for r in sub)))
+            P('    %-44s %6s %6s %6s %6s  %-6s %s' % ('key', 'total', 'templ', 'factor', 'inline', 'owner', 'in-March-data'))
             for r in sub:
-                P('    %-44s %6d %6d %6d %6d  %s' % (r[1], r[2], r[3], r[4], r[5], march_data_flag(march_data, r[1])))
+                P('    %-44s %6d %6d %6d %6d  %-6s %s' % (r[1], r[2], r[3], r[4], r[5], r[6], march_data_flag(march_data, r[1])))
             P_keys[lv] = sub
         P('')
 
+    if want('4b'):
         # ---- per-type view: keys under types March DOES handle that the type's own parse never reads
         P('== Keys inside types March handles that the type\'s parse never reads (phase 4b scope)')
-        P('   per-type reader = literals in the CASE_*_FACTOR parse function + the templet class\'s Parsing*TemplateMethod,')
-        P('   following Qual::helper calls; path A.B = key B nested in table A (reported at the first unread component)')
+        P('   per-type reader = literals in the CASE_*_FACTOR parse function (factor/inline entries) or the templet class\'s')
+        P('   ParsingBehavior/Finalizer/Displayer (templet entries), following the calls they make (Q::f in Q, plain f in the')
+        P('   caller\'s class chain); path A.B = key B nested in table A, reported at the first unread component.')
+        P('   Literal match, not data flow: spot-check a key in source before acting on it.')
         per_type = collections.OrderedDict()
         for (section, typ, path), origins in st['tkeys'].items():
             parts = path.split('.')
@@ -941,7 +981,7 @@ def main():
                 if rd is None:
                     continue                              # type not handled by C++ at all: its keys belong to the new type
                 for i in range(len(parts)):
-                    if parts[i] not in rd:
+                    if not lit_supported(parts[i], rd):
                         pref = '.'.join(parts[:i + 1])
                         per_type.setdefault((section, typ, pref), set()).update((o, x) for x in ids)
                         break
@@ -950,15 +990,30 @@ def main():
             agg[(section, typ)].append((pref, len(ents), collections.Counter(o for o, _ in ents)))
         tot_unread = 0
         for (section, typ), lst in sorted(agg.items()):
-            if a.phase is not None and a.phase != '4b':
-                continue
             P('  %-10s %-44s %s' % (section, typ, '  '.join('%s x%d' % (k, n) for k, n, _ in sorted(lst, key=lambda x: (-x[1], x[0])))))
             tot_unread += sum(n for _, n, _ in lst)
         P('  (%d type/key pair(s), %d entry-uses)' % (sum(len(v) for v in agg.values()), tot_unread))
         P_keys['per_type'] = [[s_, t_, k_, n_] for (s_, t_), v_ in agg.items() for k_, n_, _ in v_]
         P('')
+
+    if want('5', '6', '7', '8') and (a.phase is not None or a.verbose):
+        # ---- every key the data puts under a type March cannot handle yet: the transcription checklist for 5-8
+        P('== Keys the data puts under the types March cannot handle yet (path A.B = B nested in A; xN = entries)')
+        for section in ('BEHAVIOR', 'FINALIZER'):
+            for v, name, tot in sorted(unsupported.get(section, [])):
+                if a.phase is not None and a.phase != phase_of_type(section, v):
+                    continue
+                ents = collections.defaultdict(set)
+                for (sec, typ, path), origins in st['tkeys'].items():
+                    if sec == section and typ == name:
+                        for o, ids in origins.items():
+                            ents[path].update((o, x) for x in ids)
+                P('  %-5s %-46s %s' % (v, name, '  '.join('%s x%d' % (k, len(e)) for k, e in sorted(ents.items(), key=lambda kv: (-len(kv[1]), kv[0]))) or '(no sub-keys)'))
+        P('')
+
+    if want('4a', '4b'):
         nested_lines = sorted((lv, k, sorted(v)) for (lv, k), v in st['nested'].items() if (lv, k) in dict(((r[0], r[1]), 1) for r in rows))
-        if nested_lines:
+        if nested_lines and want('4a'):
             P('== Sub-keys of the unread top-level keys above')
             for lv, k, v in nested_lines:
                 P('  %s.%s: %s' % (lv, k, ', '.join(v)))
@@ -968,10 +1023,10 @@ def main():
     if want('10', '11'):
         P('== June-only Lua bindings: uses in june_src_fixed and whether March source mentions them')
         march_src = ''
-        for f in ('X2Main.cpp', 'X2BuffTempletManager.cpp', 'X2GameUnit.cpp', 'X2GUUser.cpp', 'X2GUNPC.cpp', 'X2DamageManager.cpp'):
+        for f in BIND_SOURCES:                              # preprocessed: a binding under an OFF flag is not "present"
             p = os.path.join(X2LIB, f)
             if os.path.exists(p):
-                march_src += open(p, 'rb').read().decode('latin1')
+                march_src += active_text(p, unknown)
         for b in BIND_PATTERNS:
             cnt, files = C['binds'][b]
             P('  %-34s June %4d use(s) in %3d file(s)   March source: %s' % (b, cnt, len(files), 'present' if b in march_src else 'ABSENT'))
