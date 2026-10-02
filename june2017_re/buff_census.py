@@ -637,12 +637,14 @@ def march_data_flag(md, key, files=('BattleFieldBuffTemplet.lua', 'BattleFieldBu
 
 # --------------------------------------------------------------------------- phases
 PHASE_BBT_VALUES = {
-    # grouping copied from JUNE_BUFF_PORT_PHASES.md "Phases 5-7" (Phase 1 may re-split; edit here if it does)
-    5: {76, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 96, 88, 92, 93, 97, 106, 107, 108, 109},
-    6: {75, 89, 90, 91, 98, 99, 100, 103},
-    7: {73, 74, 102, 77, 94, 95, 101, 104, 105, 110, 111, 112},
+    # grouping re-split by Phase 1 (JUNE_BUFF_PORT_PHASES.md "Per-type map"): 5 = transcription-ready
+    # ChangeStat types (Sonnet), 5b = stat types needing an Opus pass, 97 moved to 7.
+    '5': {76, 85, 86, 87, 96, 108, 109},
+    '5b': {78, 79, 80, 81, 82, 83, 84, 88, 92, 93, 106, 107},
+    '6': {75, 89, 90, 91, 98, 99, 100, 103},
+    '7': {73, 74, 102, 77, 94, 95, 97, 101, 104, 105, 110, 111, 112},
 }
-PHASE_BFT_VALUES = {8: {14, 15, 16, 17}}
+PHASE_BFT_VALUES = {'8': {14, 15, 16, 17}}
 # keys by owning phase (levels: templet/factor -> 4a, behavior/finalizer/displayer -> 4b)
 PHASE_KEY_LEVELS = {'4a': {'templet', 'factor'}, '4b': {'behavior', 'finalizer', 'displayer'}}
 
@@ -676,7 +678,7 @@ def enum_diff(june, march):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--phase', help='only report what this phase owns: 2,3,4a,4b,5,6,7,8,9,10,11')
+    ap.add_argument('--phase', help='only report what this phase owns: 2,3,4a,4b,5,5b,6,7,8,9,10,11')
     ap.add_argument('--no-probe', action='store_true', help='never run the ~45 s cl /EP flag probe')
     ap.add_argument('--reprobe', action='store_true', help='re-resolve every flag through cl /EP, ignoring the cache')
     ap.add_argument('--json', help='write the raw numbers to this file')
@@ -862,7 +864,7 @@ def main():
 
     # ---------------------------------------------------------------- unsupported types
     unsupported = {}
-    if want('5', '6', '7', '8'):
+    if want('5', '5b', '6', '7', '8'):
         P('== June BBT / BFT / BDT used by data but not handled by March C++')
         P('   cols: used-by entries = templets/factors/inline blocks that list the type in COMBINATION')
         for section, table, pre, kind in (('BEHAVIOR', 'BUFF_BEHAVIOR_TYPE', 'BBT_', 'BEHAVIOR'), ('FINALIZER', 'BUFF_FINALIZER_TYPE', 'BFT_', 'FINALIZER'),
@@ -934,7 +936,7 @@ def main():
             return '4b'
         return phase_of_type(section, jb[TABLE_OF[section]].get(typ, -1))
 
-    if want('4a', '4b', '5', '6', '7', '8'):
+    if want('4a', '4b', '5', '5b', '6', '7', '8'):
         # owners of a level-wide key = phases of the types it sits under (templet/factor level keys: 4a)
         owners = collections.defaultdict(set)
         for (section, typ, path), origins in st['tkeys'].items():
@@ -996,7 +998,7 @@ def main():
         P_keys['per_type'] = [[s_, t_, k_, n_] for (s_, t_), v_ in agg.items() for k_, n_, _ in v_]
         P('')
 
-    if want('5', '6', '7', '8') and (a.phase is not None or a.verbose):
+    if want('5', '5b', '6', '7', '8') and (a.phase is not None or a.verbose):
         # ---- every key the data puts under a type March cannot handle yet: the transcription checklist for 5-8
         P('== Keys the data puts under the types March cannot handle yet (path A.B = B nested in A; xN = entries)')
         for section in ('BEHAVIOR', 'FINALIZER'):

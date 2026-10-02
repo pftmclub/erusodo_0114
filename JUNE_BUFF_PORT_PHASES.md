@@ -534,6 +534,112 @@ The displayer factory (`32ebb530`, BDT 1–13) uses the same classes as March. O
 - Own parser: 75 `32d46800` (shared with 56 DOUBLE_ATTACK), 79 `32d42650`, 80–84 `32d42910`, 88 `32d49210`, 89 `32d49460`, 90 `32d49810`, 91 `32d49da0`, 94 `32d4a770`, 98 `32d4a370`, 99 `32d4aa30`, 100 `32d4b020`, 103 `32d4b610`, 105 `32d45c50` (**shared with 43 CUSTOM_FUNCTION**).
 - Finalizers: 14 AURA uses the empty finalizer parse `32d44230`, 15 `32d44a80`, 16 `32d44d60`.
 
+### June buff function map
+
+Every row is confirmed in `june2017_re/funcmap.tsv` unless marked *candidate*. "Phase" is the phase that ports or uses it.
+
+**How to read June's stores (method, so later phases can extend the map).**
+- A `CX2AdditionalStatByBuff` member is `0xb4` bytes. Its result is a protected float at member `+0xa0`, read as `[M+0xa4] ^ [M+0xa8] ^ (base+M+0xa0)`. Readers reach it by displacement **or** by `ADD reg, M+0xa0` on a computed pointer, and often through `EBP`. A search that drops `EBP` operands or immediates misses most readers. That happened once in this phase and was corrected.
+- `DamageData+0xc` (`optrAttackerGameUnit`) points at the unit's `+0x1a0` sub-object, so readers subtract `0x1a0` first.
+- June's decompiler output hides the `ECX` of `vector::push_back` (`31fac820`). It mislabelled a constant push at least once (BBT 98, below). Parse layouts marked *(asm)* were checked in the disassembly.
+
+**Core functions.**
+
+| June | March symbol | Phase |
+|---|---|---|
+| `326c0020` / `326c13a0` | `CX2BuffTempletManager::OpenScriptFileForTemplet` / `…ForFactor` (both load `_INT` too) | 3, 13 |
+| `326c26f0` | none: `UnitApplyBuffGroup.lua` loader | 10 |
+| `326c3990` / `326c4050` | `AddBuffTemplet_LUA` / `AddBuffFactor_LUA` | 3 |
+| `326c3f30` | none: `_INT` factor branch (second vector, base 10001) | 3 |
+| `326c32a0` | `GetBuffFactorPtr` (`_INT` aware) | 3 |
+| `3236a9b0` | `CX2BuffTemplet::ParsingScript` | 4a |
+| `32d4d850` | `CX2BuffFactor::ParsingBuffFactor` | 4a |
+| `32d4bbf0` / `32d4c750` | `CX2BuffFactor::ParsingCombinationBehavior` / `…Finalizer` | 4b–8 |
+| `32d41a80` | `CX2BuffFactor::ParsingTableForWhile` (unchanged: `[count?, v1..vn]`, count only when `bIsSkill`) | – |
+| `32e80450` / `32ec36f0` / `32ebb530` | `ParsingCombinationBehavior` / `…Finalizer` / `…Displayer` (templet factories) | 4b–8 |
+| `320844a0` | levelled `BUFF_FACTOR` copy ctor (`X2BuffFactor.h:509`) | – |
+| `32d47620` | `BUFF_FACTOR::GetBehaviorFactorToLevel` (switch `type-1`, 1..105) | 4b–7 |
+| `32d4cb00` | `BUFF_FACTOR::GetFinalizerFactorToLevel` (1..16) | 4b, 8 |
+| `32d4d670` | `CX2BuffFactor::SetGameUnitBuffFactor` with `SetGameUnitBehavior` inlined (1..93) | 4b, 5 |
+| `32282700` | `CX2GameUnit::InsertAdditionalStat` (switch `type-6`) | 5 |
+| `322830f0` | `CX2GameUnit::EraseAdditionalStat` | 5 |
+| `3226fd70` | update-or-insert additional stat (March's `UpdateAddtionalStatFactor` path) | 5 |
+| `32271540` | `InitAdditionalStat` (basic values) | 5 |
+| `32270dd0` | `CX2GameUnit::InitAdditionalStatOptionValue` (`X2GameUnit.cpp:12442`) | 5 |
+| `322718e0` | `InitAdditionalPassiveMultipleAndSum` | 5 |
+| `3227ad60` | `CX2GameUnit::CreateAndInsertBuffIdentity` (switch `type-4`) | 7 |
+| `32279d70` | identity erase (the identity templet's `DoFinish`) | 7 |
+| `3236d110` / `3236d350` | `CX2AdditionalStatByBuff::CreateAndInsertStatFactor` / result update | – |
+| `32284aa0` | `CX2GameUnit::GetFinalDamage` (vtable slot 28 in all unit classes) | 5 |
+| `322990e0` | `CX2GameUnit::SetDamageExceptionProcess` (`CX2GameUnit` vtable slot 174) | 5 |
+| `320462a0` / `327b1f30` | `CX2GUUser::DamageReact` / `CX2GUNPC::DamageReact` (slot 24; base slots 22–25 are pure: `GetSkinAnimPtr`, `StateChange`, `DamageReact`, `AttackResult`) | 5 |
+| `31fd1c00` | `CX2GUUser` vtable slot 45: hyper-mode duration getter (`32a4fe50` is Ain's override) | 5 |
+| `322788c0` | none: June damage-variance roll, called twice from `GetFinalDamage` (`@32284c1f`, `@32284c2f`) | 5 (see 92) |
+| `3227baf0` / `3227bbc0` | `CX2GameUnit::HaveThisBuff` / June-only `GetBuffAccumulationCountNow` | 10 |
+| `3229dcc0` | June-only `CX2GameUnit::DeleteNonControlDebuff` (also called when BBT 95 is applied) | 7, 10 |
+
+**Behavior templet vtable, June (14 slots; March has 8).** `[0]` dtor, `[1]` `OnFrameMove(unit, templet, dt)`, `[2]` `SetFactor`, `[3]` new `bool(4 args)` (default true; overridden by ChangeStat, EnchantAttackRate, NowMp), `[4]` `GetClonePtr`, `[5]` `GetFactor`, `[6]` `DoFinish`, `[7]` new `bool(2 args)` (default false), `[8]` anti-tamper checksum (not ported), `[9]`–`[11]` new `void(1 arg)`, `[12]` `ParsingBehavior`, `[13]` `SetFactorFromPacket`. ChangeStat adds `[14]` `GetBuffOwnerUID` and `[15]` `SetBuffOwnerUID`, set by the `_HaveBuffOwner` subclass. Slots `[3]`, `[7]`, `[9]`–`[11]` are Phase 4b's to name.
+
+**June adds `ATTACK_TYPE` `AT_COMMAND = 2`** (`Enum.src.lua:490`; March has only `AT_NORMAL`/`AT_SPECIAL`). BBT 85, 86, 87 and 96 only act when `DamageData.attackType == AT_COMMAND`. Phase 2 must add the Lua name and the C++ enumerator; `SetDamageDataFromLUA` already reads `ATTACK_TYPE` (`X2DamageManager.cpp:137`).
+
+### Per-type map (Phase 1b, 2026-10-02)
+
+Abbreviations: **parse** = factor-parse function and float order (the wire layout); **lvl** = `GetBehaviorFactorToLevel` case; **SGU** = `SetGameUnitBehavior` case; **store** = unit member (offset in June's `CX2GameUnit`, not to be ported as a number); **reads** = every June reader.
+
+**Phase 5 — ChangeStat-class types. Transcription-ready.** All share March's `ParsingChangeStatBehavior` layout (`32d445d0`) and class `CX2BuffChangeStatBehaviorTemplet`. Each needs: a parse case in both macro lists; the lvl ChangeStat group (`32d47957`) for 76/78/92/93 or the default slice (`32d4812a`) for the rest; the SGU ChangeStat group (`32d4d6ef`) for 76/78/92/93; an `InsertAdditionalStat`/`EraseAdditionalStat` case on a **new** `CX2AdditionalStatByBuff` member; `InitAdditionalStat` (basic value) and `InitAdditionalPassiveMultipleAndSum` (multiple 1, sum 0); and `Verify()` plus the update-all loop like its siblings.
+
+| Type | New member, basic value | Insert case | June reads |
+|---|---|---|---|
+| 76 CHANGE_HYPER_DURATION | `m_AdditionalHyperDuration`, 0.0 | `32282ddc` | **Option value:** `InitAdditionalStatOptionValue` (`32270dd0`, March `X2GameUnit.cpp:12442`) seeds it from `m_SocketData.m_fHyperModeTime` (`@322710a1`, beside HyperCharge's `m_fHyperModeChargeRate` `@32271089`), and sets 0 in the reset branch (`@3227143d`). **Reader:** `CX2GUUser::GetHyperModeTime` (`31fd1c00`, `CX2GUUser` slot 45; March `X2GUUser.cpp:23448`): June replaces `m_SocketData.m_fHyperModeTime` with this member's result, i.e. `fTotal += fTotal * m_AdditionalHyperDuration.GetResultValue() * 0.01f`. Class overrides read it too: Ain `32a4fe50`, and `329e5180`/`329e56c0` (a class with members at `+0x96xx`, not yet attributed). Port those with their classes. |
+| 85 RANGE_COMMAND_MP_GAIN_RATE / 86 MELEE_COMMAND_MP_GAIN_RATE | two new members, 1.0 | `32282ee6` / `32282ec3` | `SetDamageExceptionProcess`, after `fHitAddMP = attacker->GetChargeMpHit{Melee,Range}Attack()` (March `X2GameUnit.cpp:14259-14269`): `if ( attackType == AT_COMMAND ) fHitAddMP *= attacker->{86 melee @3229935a, 85 range @3229947c}`. The Chung virtual `32c16be0` also sets both members' passive values (port with Chung's passive code, not here). |
+| 87 MELEE_COMMAND_DAMAGE_RATE / 96 RANGE_COMMAND_DAMAGE_RATE | two new members, 1.0 | `32282f09` / `32282f2c` | `GetFinalDamage` main path `@32286270`–`322862b9`, after the final-defence/final-damage adds: `if ( attackType == AT_COMMAND ) dmg *= m_bMeleeAttack ? attacker->87 : attacker->96`. |
+| 108 FINAL_DAMAGE_MULTIPLIER_NPC / 109 …_USER | two new members, 1.0 | `32282f72` / `32282f95` | `GetFinalDamage`, both paths: fixed-damage path `@32285fba`–`32285fec` and main path `@3228620a`–`32286252`. `inc2 = dmg * ((defender->GetGameUnitType() == GUT_USER ? attacker->109 : attacker->108) - 1)`, added beside March's `fIncreaseDamage` (`X2GameUnit.cpp:2613-2616`, `2704-2707`). The unit-type field is `+0x264`. |
+
+**Phase 5 types that are not simple transcription.** Their store and readers are found, but each depends on a June mechanism or field March lacks.
+- **78 TYPE_ADDITIONAL_ATTACK_MULTIPLIER → Opus-only (reader context).** The store is ready: a new member, basic 1.0, insert `32282dff`. The readers sit in `CX2GUUser::DamageReact` `@320494a0`–`32049505` (`EBP` = this, `EBX` = DamageData). The value read is `ESI->32071b10 + this->78 (getter 32071b50) + this->32071af0`, minus `EDI->32071b90 * k`. `ESI` and `EDI` are other units: `EDI` is the unit at June's `DamageData+0x470`. The other getters read members that buffs do not insert into (`+0x51cc`, `+0x5118`, `+0x5a4c`). `CX2GUNPC::DamageReact` reads it at `@327b42bf`–`327b4340`. Before Sonnet can transcribe this, an Opus pass must map `DamageData+0x470` and those three members to March.
+- **106 / 107 FORCE_DOWN_MULTIPLIER_MELEE / RANGE_ATTACKED → Opus-only (reader context).** The store is ready: two new members, basic 0.0, insert `32282bf2`/`32282c15`. Reader: `CX2GUUser::DamageReact` `@3204a123`–`3204a243`. It computes `reduce = DD[+0x514]; if ( unit at DD+0x470 is valid ) reduce -= ( DD.m_bMeleeAttack ? unit->106 : unit->107 ); fForceDown(DD[+0x3f0]) -= reduce`, then clamps when `DD[+0x4c5]`. The getters are `32071bb0`/`32071bd0`. `DD+0x470`/`+0x514`/`+0x4c5` are June DamageData fields that are not yet mapped to March.
+- **92 CHANGE_MAXIMIZE → Opus-only.** It is stored like a ChangeStat member (`32282f4f`, basic 0.0). Its reader `322788c0` is June's **damage-variance roll**, which March does not have. `GetFinalDamage` calls it for physic (`param 0`) and magic (`param 1`). It takes a ± range from a **second** physic/magic member (`+0x44ec`/`+0x45a0`, which plain BBT 7/8 and 80/81 also insert into) and draws a random value whose upper bias grows with MAXIMIZE. Porting 92 means porting that variance system and the second members first (Phase 4b for 7/8). Further readers are `3230c1a0` and `32763c10` (`ApplyPassiveSkillOwnerUser_LUA`).
+- **93 CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER → Opus-only.** It inserts into the same six attribute-defence members as 42 (`32282d0a`), so it needs no new reader. The difference lives in its class, `_HaveBuffOwner` (`SetFactor` `32e78850`, slot `[3]` `32e786d0`, `[14]`/`[15]` owner UID), which is not yet decoded.
+- **80–84 *_BY_CONDITION → Opus-only (needs class RE).** Parse `32d42910`: `[BUFF_CHANGE_TYPE, BUFF_VALUE_CALCULATE_TYPE, count, v1..vn]`. lvl `32d48063` keeps the whole table. SGU has its own case (`32d4d70b`). Stores are existing members: 80 → PhysicAttack and its second member, 81 → MagicAttack and its second member, 82 → PhysicDefence, 83 → MagicDefence, 84 → MaxHp plus `SetMaxHp`. Class `CX2BuffChangeStateByConditionBehaviorTemplet`: `SetFactor` `32e78860` (220 instructions; picks the value by condition through `32e77f40` and calls `3226fd70`/`32282700`), `DoFinish` `32e75720`, packet `32e77ef0`. The condition rule (`BVC_RALLY_OF_HERO`) is not yet decoded.
+- **79 CHANGE_NOW_FORCE_DOWN_PER_SECOND → Opus-only (needs class RE).** Parse `32d42650`: `[BUFF_CHANGE_TYPE, then FIX_VALUE table only if the type is 1]`. A non-1 change type pushes **no** factor. lvl `32d478aa`: `[type, count<2 ? v2 : v[level+1]]`. Class: `OnFrameMove` `32e756f0`, `SetFactor` `32e855f0`, `Parsing` `32e755a0`, packet `32e85790`. The tick logic is not yet decoded.
+- **97 CHANGE_MAX_CHARACTER_ADD_RESOURCE → move to Phase 7.** Empty factor parse. Its class only overrides `SetFactor` (`32e75c70`), which calls unit virtual `+0x324` (`CX2GameUnit` slot 201) with `1.0f`, and has no finish or packet override. The base slot is empty; the overrides are `CX2GUAdd` `329e31e0`, `CX2GURose` `32ac5e20`, `CX2GULuciel` `32b14cd0`, `CX2GUAra` `32baafc0` and `CX2GUChung` `32bf4880`. This is a per-class resource mechanism.
+- **88 IGNORE_DEFENCE → stays Phase 5, Opus-only until its store is read.** Parse `32d49210`: `[IGNORE_DEFENCE_RATE]`, a float defaulting to 1.0. lvl is copy-as-is (`32d47a96`). Class: `SetFactor` `32e7d260` and packet `32e7d3f0` call unit `32282390`; `DoFinish` `32e75b00` calls unit `3227a8c0`. The member and its readers are not yet found.
+
+**Phase 6 — skill-scoped types. Parse layouts done; class and store need Phase 1b.** Every class gates on `unit+0x264` (user only) and calls `CX2GUUser`/skill code. None meets the bar yet, so **all are Opus-only until 1b finishes them.**
+- **75 DOUBLE_ATTACK_BUFF.** Parse `32d46800` (shared with 56): `[BUFF_CHANGE_TYPE, PERCENT table only if the type is 3]`. lvl default. Class: `SetFactor` `32e77be0` (calls `32281b00`), `DoFinish` `32e75540` (`32279d20`), packet `32e754f0`, `Parsing` `32e75360`.
+- **89 CHANGE_SKILL_DAMAGE.** Parse `32d49460`: for each `SKILL_CATEGORY_%d` table, `[SKILL_TYPE, count, rate1..rateN]` from `MULTIPLY_DAMAGE_RATE`; it stops at the first missing or zero `SKILL_TYPE`. lvl `32d47a9e`: per block `[SKILL_TYPE, rate[min(level,count)]]`. Class: `SetFactor` `32e7a9e0`, `[7]` `32e7c020`, `DoFinish` `32e75b70` (`31fe2990`), packet `32e7af60`.
+- **90 CHANGE_SKILL_DAMAGE_BY_SKILL_ID / 91 CHARGE_MP_HIT_BY_SKILL_ID.** Parse `32d49810` / `32d49da0`: for each `SKILL_CATEGORY_%d`, `[rate, skillId1..skillIdN, -1.0]`. The rate is `MULTIPLY_DAMAGE_RATE` / `MULTIPLY_MP_CHARGE_RATE`; IDs come from `SKILL_ID_LIST`; an entry is skipped if the rate is ≤ 0 (90) or < 0 (91), or the list is empty. lvl copy-as-is. Class `SetFactor` `32e849c0` / `32e84d70`, `DoFinish` `32e75b90` (`31fe29e0`) / `32e75bb0` (`31fe2a30`).
+- **98 CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE.** Parse `32d4a370` *(asm)*: `[SKILL_SLOT_TYPE, MULTIPLY_DAMAGE_RATE, -1.0]`. lvl `32d47e66`: `[slotType, rate]`. Class `CX2AddDamageOfSkillSlotType`: `SetFactor` `32e78080`, `DoFinish` `32e75cc0` (`31fe2990`, shared with 89), packet `32e78170`, `Parsing` (slot 12).
+- **99 / 100 CONSUME_MP_RATE / COOLTIME_RATE_BY_SKILLTYPE.** Parse `32d4aa30` / `32d4b020`: for each `SKILL_CATEGORY_%d`, `[SKILL_TYPE, BUFF_CHANGE_TYPE, count, v1..vn]`. The `VALUE` table is read only when the change type is 0, 1 or 3. lvl `32d47b85`: per block `[SKILL_TYPE, changeType, v[min(level,count)]]`. Classes: `SetFactor` `32e7b0d0` / `32e7b610`, packet `32e7b530` / `32e7ba70`. Both call `3210aae0` with `32e87810`.
+- **103 CHANGE_SKILL_COOL_TIME_SPEED.** Same parse shape (`32d4b610`), but `VALUE` is read only when the change type is 3. lvl as 99. `SetFactor` `32e7bb50` and `DoFinish` `32e75ea0` set the user flag `+0x9314 = 1` (a cooldown-recalculation dirty flag).
+
+**Phase 7 — flag and immunity types. Stores and readers found; reader semantics need Phase 1b.** The identity types use class `CX2BuffIdentityBehaviorTemplet`: `SetFactor` → `CreateAndInsertBuffIdentity(type, identity)`, `DoFinish` → erase, packet → insert. Each store is a list, and readers test it for non-empty (`[X] != [X+4]`).
+
+| Type | Store | Readers to decode |
+|---|---|---|
+| 74 DETONATION_IMPOSSIBLE | `+0x67ec` | `31feb9f0` (`CX2GUUser` slot 504), `3276cb20` |
+| 77 INVINCIBLE | `+0x67fc` | `31fcee40`, `32063650` (`CX2GUUser` slot 499), `32758470` |
+| 101 IGNORE_HP_DECREASE | `+0x680c` | `322726d0` |
+| 102 DETONATION_IMPOSSIBLE_GAGE_RESET | `+0x681c` | `31feabd0` (`CX2GUUser` slot 308), `31feb9f0`, `3276cb20` |
+| 104 JUMP_IMPOSSIBLE | `+0x42c0` (the insert also calls `3207b700`) | `31fe83a0`, `3276d980` (`CX2GUNPC` slot 278) |
+| 110 AWAKE_IMPOSSIBLE | `+0x682c` | `31fd4460` (`CX2GUUser` slot 234) |
+| 73 IGNORE_STATE_GUARD | own class. `SetFactor` `32e752b0` → unit `3227b600` (list `+0x67cc`), `DoFinish` `32e75300` → `3227a870`, packet `32e728b0` | `GetFinalDamage` `@322862bf` and others; not yet swept |
+| 95 IMMUNE_NON_CONTROL_DEBUFF | own class. `SetFactor` `32e75c00` → unit `3227aa40` (list `+0x75ac`) **then `DeleteNonControlDebuff` `3229dcc0`**, `DoFinish` `32e75c50` → `32279a10` | not yet swept |
+| 94 IMMUNE_BUFF_DEBUFF | Parse `32d4a770`: `[ALL_BUFF 0/1, ALL_DEBUFF 0/1, count, BTI1..BTIn]` (`IMMUNE_BUFF_TEMPLATE_ID`). lvl copy-as-is. Class `SetFactor` `32e79e30` (unit `3227a910`, `322780f0`, `32278120`, `3227b6b0`), `DoFinish` `32e75bd0` | not yet decoded |
+| 105 IMMUNE_EDT | Parse `32d45c50` (**shared with 43 CUSTOM_FUNCTION**): `[v1..vn]`, the EDT list, no count. lvl copy-as-is. Class `SetFactor` `32e79770` → `31f8b860` | not yet decoded |
+| 111 / 112 | **not implemented in June's client**. Port the enum only (Phase 2). | – |
+
+**Phase 8 — finalizers.**
+- **BFT 14 AURA.** Empty factor parse. Class `CX2BuffAuraFinalizerTemplet` overrides 10 slots (`32ec1370` OnFrameMove, `32ec51d0` SetFactor, …). Not yet decoded.
+- **BFT 15 STICK_SHAKE / 16 USE_SKILL_BY_SKILL_SLOTTYPE.** Parse `32d44a80` / `32d44d60`: `[BUFF_USE_COUNT_TYPE, count, c1..cn, 0.0]`; the trailing 0 is the running counter. lvl `32d4cbc0` / `32d4cbd2`. 16's `SKILL_SLOT_TYPE` is read by its templet's `ParsingFinalizer` (`32ec0240`), not by the factor.
+- **BFT 17 ATTACK**: not implemented in June's client.
+
+**Re-split recommendation.**
+- Phase 5 (Sonnet) keeps the transcription-ready set: **76, 85, 86, 87, 96, 108, 109.** 85, 86, 87 and 96 also need Phase 2's `AT_COMMAND`.
+- **78, 106, 107, 92, 93, 79, 80–84 and 88 go to an Opus session** (Phase 5b, or join Phase 7). 92 needs the damage-variance system plus the second physic/magic members (coordinate with Phase 4b's BBT 7/8 work).
+- **97 moves to Phase 7**, because it is a per-class virtual.
+- Phase 6 stays as listed but runs on **Opus** until a Phase 1b pass decodes its classes.
+
 ## Phase 2 — Enum reconciliation
 
 **Steps**
@@ -669,14 +775,13 @@ Each new BBT follows an 8-step checklist:
 7. Cover the UDP layout through `GetFactor`/`SetFactorFromPacket`.
 8. Log the type's first application under the DEBUG flag.
 
-**Phase 5, group A: stat and multiplier types** (flag `..._NEW_STAT`).
-76 HYPER_DURATION, 78 TYPE_ADDITIONAL_ATTACK_MULTIPLIER, 79 NOW_FORCE_DOWN_PER_SECOND, 80–84 *_BY_CONDITION, 85/86/87/96 *_COMMAND_*, 88 IGNORE_DEFENCE, 92 MAXIMIZE, 93 EVERY_ATTR_DEF_HAVE_BUFF_OWNER, 97 MAX_CHARACTER_ADD_RESOURCE, 106/107 FORCE_DOWN_*_ATTACKED, 108/109 FINAL_DAMAGE_MULTIPLIER_NPC/USER.
+**Phase 5, group A: stat and multiplier types** (flag `..._NEW_STAT`). *Re-split by Phase 1; see "Per-type map".*
+- **Phase 5 (Sonnet, transcription-ready):** 76 HYPER_DURATION, 85/86 *_COMMAND_MP_GAIN_RATE, 87/96 *_COMMAND_DAMAGE_RATE, 108/109 FINAL_DAMAGE_MULTIPLIER_NPC/USER. 85, 86, 87 and 96 need Phase 2's `AT_COMMAND`.
+- **Phase 5b (Opus, same flag):** 78 TYPE_ADDITIONAL_ATTACK_MULTIPLIER, 106/107 FORCE_DOWN_*_ATTACKED (their readers use June DamageData fields not yet mapped to March), 79 NOW_FORCE_DOWN_PER_SECOND, 80–84 *_BY_CONDITION, 88 IGNORE_DEFENCE (own classes not yet decoded), 92 MAXIMIZE (needs June's damage-variance roll), 93 EVERY_ATTR_DEF_HAVE_BUFF_OWNER (owner-UID subclass). `buff_census.py --phase 5b`.
 
-**Phase 6, group B: skill-scoped types** (flag `..._NEW_SKILL`).
-75 DOUBLE_ATTACK_BUFF, 89 SKILL_DAMAGE, 90 BY_SKILL_ID, 91 CHARGE_MP_HIT_BY_SKILL_ID, 98 BY_SKILL_SLOTTYPE, 99 CONSUME_MP_RATE_BY_SKILLTYPE, 100 COOLTIME_RATE_BY_SKILLTYPE, 103 SKILL_COOL_TIME_SPEED.
+**Phase 6, group B: skill-scoped types** (flag `..._NEW_SKILL`). 75 DOUBLE_ATTACK_BUFF, 89 SKILL_DAMAGE, 90 BY_SKILL_ID, 91 CHARGE_MP_HIT_BY_SKILL_ID, 98 BY_SKILL_SLOTTYPE, 99 CONSUME_MP_RATE_BY_SKILLTYPE, 100 COOLTIME_RATE_BY_SKILLTYPE, 103 SKILL_COOL_TIME_SPEED. *Parse layouts are in the per-type map; the classes are not yet decoded, so this phase runs on Opus until a Phase 1b pass finishes them.*
 
-**Phase 7, group C: flag and immunity types** (flag `..._NEW_FLAG`).
-73 IGNORE_STATE_GUARD, 74 DETONATION_IMPOSSIBLE, 102 DETONATION_IMPOSSIBLE_GAGE_RESET, 77 INVINCIBLE, 94 IMMUNE_BUFF_DEBUFF (`IMMUNE_BUFF_TEMPLATE_ID`, `ALL_BUFF`/`ALL_DEBUFF`), 95 IMMUNE_NON_CONTROL_DEBUFF (needs June's "officially debuff" list; coordinate with Phase 10), 101 IGNORE_HP_DECREASE, 104 JUMP_IMPOSSIBLE, 105 IMMUNE_EDT, 110 AWAKE_IMPOSSIBLE, 111 MP_NATURAL_RECOVERY_IMPOSSIBLE, 112 REFLECT_PHYSIC.
+**Phase 7, group C: flag and immunity types** (flag `..._NEW_FLAG`). 73 IGNORE_STATE_GUARD, 74 DETONATION_IMPOSSIBLE, 102 DETONATION_IMPOSSIBLE_GAGE_RESET, 77 INVINCIBLE, 94 IMMUNE_BUFF_DEBUFF (`IMMUNE_BUFF_TEMPLATE_ID`, `ALL_BUFF`/`ALL_DEBUFF`), 95 IMMUNE_NON_CONTROL_DEBUFF (on apply it also calls `DeleteNonControlDebuff`; coordinate with Phase 10), 97 CHANGE_MAX_CHARACTER_ADD_RESOURCE (moved here: a per-class virtual), 101 IGNORE_HP_DECREASE, 104 JUMP_IMPOSSIBLE, 105 IMMUNE_EDT. **111 MP_NATURAL_RECOVERY_IMPOSSIBLE and 112 REFLECT_PHYSIC are not implemented in June's client: enum only.**
 
 **Run with:**
 - **Phases 5 and 6:** Sonnet 5.5, high effort. These are pure transcription into stores and patterns March already has, from Phase 1's transcription-ready map. An Opus 5.5 `/code-review` of the diff is required before build and pack.
