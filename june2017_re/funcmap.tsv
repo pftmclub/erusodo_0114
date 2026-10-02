@@ -230,3 +230,35 @@ mesh+0x54c	none in March: CXMeshInstance previous-frame velocity snapshot	confir
 31f65e40	none in March: CEffect set IGNORE_DEFENCE down the child tree	candidate	Phase 10 follow-up: called by the spawners when entry +0xb4 is set, with the parent's DD +0x528 (IGNORE_DEFENCE, @3263c691): sets own DD +0x528 and +0x529 (IGNORE_DEFENCE_ON_PVP) to it, the same in every DAMAGE_DATA_NEXT (+0x328/+0x329 of each), and marks entry +0xb4 = 1 in the die/create/hit lists (via 31ed7480) and the touch-land list. NOT ported
 31f65f90	none in March: CEffect set IGNORE_STATE_DEFENCE down the child tree	candidate	Phase 10 follow-up: as 31f65e40 for DD +0x541 (IGNORE_STATE_DEFENCE, @3263d28b), entry flag +0xb5. NOT ported
 31f76100	CX2DamageEffect::CEffect::SetScaleByUnit	confirmed	Phase 10 follow-up: 31f6ff90(v) then stores v at +0xaa0 and +0xaac -- the setter March calls under GIANT_UNIT_GIANT_EFFECT_TEST (SetScaleByUnit( m_vHitDamageScaleByUnit ) in CreateHitDamageEffect). Called with parent +0xaa0 by the hit (@31f81a9e) and touch-land (@31f82119) spawners
+326c0020	CX2BuffTempletManager::OpenScriptFileForTemplet	confirmed	Buff Phase 1: decrypts g_pBuffTempletManager @326c00ae, BattleFieldBuffTemplet.lua @326c02fb, then BattleFieldBuffTemplet_INT.lua @326c0b45; the _INT load follows unconditionally (main-file failure logs 0x2712 and falls through). Caller 32597410
+326c13a0	CX2BuffTempletManager::OpenScriptFileForFactor	confirmed	Buff Phase 1: BattleFieldBuffFactor.lua @326c167c then BattleFieldBuffFactor_INT.lua @326c1ec7, same unconditional shape as 326c0020. Caller 32597410
+326c26f0	none in March: UnitApplyBuffGroup.lua loader (OpenScriptFileForBuffGroup)	confirmed	Buff Phase 1: g_pBuffTempletManager @326c2785, UnitApplyBuffGroup.lua @326c29ba
+326c3990	CX2BuffTempletManager::AddBuffTemplet_LUA	confirmed	bound as AddBuffTemplet_LUA (push @31e3800b in 31d95080). Same shape as March: create (326c4a70), ParsingScript 3236a9b0, map insert 326c50d0 keyed by templet+0x34; no _INT special case
+326c4050	CX2BuffTempletManager::AddBuffFactor_LUA	confirmed	bound as AddBuffFactor_LUA (push @31e381cb). Calls 326c3f30 first; else March's ordinal rule size(+0x10 vec)==id-1, BeginTable BUFF_FACTOR, ParsingBuffFactor 32d4d850(lua,1); parse failure is not pushed (cascade kept); errors are formatted and discarded (no popup, no log)
+326c3f30	none in March: AddBuffFactor _INT branch	confirmed	only caller 326c41c8. id<0x2710 -> false. Else ordinal on a 2nd vector at mgr+0x20: size==id-0x2711, same parse 32d4d850(lua,1); returns true for every id>=10000 even when the ordinal check fails (silent drop)
+326c32a0	CX2BuffTempletManager::GetBuffFactorPtr	confirmed	id>0x2710: idx=id-0x2710, 1..size of mgr+0x20 vec -> [idx-1]; else main vector. Called from 322a6960
+3236a9b0	CX2BuffTemplet::ParsingScript	confirmed	only caller 326c3990 @326c39fa; decrypts IS_STORE_BUFF, BUFF_REPLACE_DETAIL_OPERATION, ACCUMULATION_* templet keys; calls 32e80450 @3236bea6
+326bfe70	CX2BuffTempletManager::GetCombination	confirmed	called first by all five combination parsers (32e80450 @32e8049f, 32ec36f0 @32ec3733, 32ebb530 @32ebb573, 32d4bbf0 @32d4bc35, 32d4c750 @32d4c795); fills vector<UINT> (COMBINATION), same role as March X2BuffTempletManager.cpp:82
+32e80450	CX2BuffBehaviorTemplet::ParsingCombinationBehavior	confirmed	switch (type-1)>0x6d -> default @32e804da; cases 1..110 = BBT 1..110 (111/112 absent); BBT_EMPTY returns true; default/empty vector return false (no popup). Case 98 -> CX2AddDamageOfSkillSlotType (vt 33535160)
+32e75ed0	CX2BuffBehaviorTemplet::ParsingBehaviorTemplateMethod	confirmed	called per case of 32e80450 with (lua, stringized BBT name) exactly as March's CASE_BEHAVIOR_TEMPLET macro
+32ec36f0	CX2BuffFinalizerTemplet::ParsingCombinationFinalizer	confirmed	cases 1..16 (BFT_ATTACK 17 absent): 14 CX2BuffAuraFinalizerTemplet (create 32ec6260), 15 CX2BuffStickShakeCountFinalizerTemplet (32ec5e10), 16 CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet (32ec5e60)
+32ebb530	CX2BuffDisplayerTemplet::ParsingCombinationDisplayer	confirmed	cases 1..13 = BDT 1..13, same classes as March
+32d4d850	CX2BuffFactor::ParsingBuffFactor	confirmed	callers 326c4050, 326c3f30 (both pass 1) and 32630910 (damage-data inline BUFF_FACTOR); decrypts ACCUMULATION_AT_ONE_GO; calls 32d4c9c0 @32d4dda3 and 32d4ca60 @32d4de06
+32d4c9c0	CX2BuffFactor::ParsingBuffFactor BEHAVIOR wrapper (inline in March)	confirmed	BeginTable(BEHAVIOR) -> 32d4bbf0 -> EndTable
+32d4bbf0	CX2BuffFactor::ParsingCombinationBehavior	confirmed	BBT factor-parse switch, cases 1..110; per-type parse functions listed in JUNE_BUFF_PORT_PHASES.md June buff function map
+32d4ca60	CX2BuffFactor::ParsingBuffFactor FINALIZER wrapper (inline in March)	confirmed	BeginTable(FINALIZER) -> 32d4c750 -> EndTable
+32d4c750	CX2BuffFactor::ParsingCombinationFinalizer	confirmed	BFT factor-parse switch, cases 1..16; BFT_AURA uses the empty parser 32d44230; 15 -> 32d44a80; 16 -> 32d44d60
+32d45b60	CX2BuffFactor::ParsingEmptyBehavior	confirmed	shared by 3,4,5,28,35,46-51,57,58,60,61,64,65 and new 73,74,77,95,97,101,102,104,110
+32d445d0	CX2BuffFactor::ParsingChangeStatBehavior	confirmed	shared by every ChangeStat BBT incl. new 76,78,85,86,87,92,93,96,106-109
+32d44230	CX2BuffFactor::ParsingEmptyFinalizer	confirmed	BFT 4,8,9,10,11,12,13,14
+3227baf0	CX2GameUnit::HaveThisBuff	confirmed	bound as HaveThisBuff (mov @31debe27 in 31d95080); walks templet vector unit+0xe14/+0xe18 comparing templet+0x34 to the arg. The APPLY_LEARNED_SKILL_BUFF_FACTOR_ID gate in 32630d20 is HaveThisBuff(RELATIVE_BUFF_TEMPLATE_ID)
+3227bbc0	none in March: CX2GameUnit::GetBuffAccumulationCountNow	confirmed	bound as GetBuffAccumulationCountNow; same walk as 3227baf0, returns 32369da0(templet) for the match, 0 if none
+31fceab0	CX2GUUser skill level for a skill id (memo-aware)	candidate	unit+0x867c null -> 1; SkillTree(g_pData 33775860 +0x50).GetSkillTemplet 32206450(id,1); templet+0x174==5 and memo+0x3c!=1 -> 0; else UserSkillTree(+0x494).GetSkillLevel 32890620(id,0,0,1) (capped 30). Gate for APPLY_LEARNED_SKILL_* in 32630d20
+326c3450	none in March: CX2BuffTempletManager::AddBuffGroup_LUA	confirmed	bound as AddBuffGroup_LUA (push in 31d95080 after @31e38292)
+326bfd80	none in March: CX2BuffTempletManager::AddOfficiallyBuffList_LUA	confirmed	bound as AddOfficiallyBuffList_LUA (after @31e3847c)
+3267c370	none in March: AddRandomBuffList binding target	confirmed	bound as AddRandomBuffList (after @31e3c41e); decrypts DUMMY_BUFF_TEMPLET_ID
+3274c880	none in March: ApplyBuffFactor (cheat) binding target	confirmed	bound as ApplyBuffFactor (after @31e205c7)
+31edd0c0	none in March: SetPveBalanceBuffGiveScore_LUA binding target	confirmed	bound after @31de07f5
+322f0e30	none in March: SendRandomMissionRewardBuffCheat binding target	confirmed	bound after @31dd5860; reads g_pData(33775860)+0x64
+31e4d770	none in March: CX2GUNPC::SetMonsterBuffGroupID	confirmed	bound as SetMonsterBuffGroupID; inline setter [this+0x8f70]=arg
+3229dcc0	none in March: CX2GameUnit::DeleteNonControlDebuff	confirmed	bound as DeleteNonControlDebuff (after @31decdfb)

@@ -480,6 +480,60 @@ Phase 5-9 grouping if the RE warrants it. Record this session's /cost in the Don
 Commit.
 ```
 
+### Phase 1 — Done, part 1a (2026-10-02): loaders, factories, settled answers
+
+Method notes for anyone re-checking:
+- **Ghidra has no RTTI namespaces for this binary.** The class vtables were recovered by scanning the PE: RTTI TypeDescriptor (`.?AVCX2Buff…@@`) → CompleteObjectLocator → vftable. `.text` is merged with read-only data here (`0x31aa1000`–`0x337ba000`), so a vtable ends at the next COL pointer, not at the first non-`.text` pointer.
+- Each factory case was mapped by its create function, the vtable that function stores, and that vtable's RTTI name. Every row below is that chain; nothing is inferred from names alone.
+- Ghidra was used read-only (no renames or comments).
+
+**Settled questions.**
+
+| Question | June answer | Evidence |
+|---|---|---|
+| Does June keep `AddBuffFactor_LUA`'s ordinal rule? | **Yes, unchanged for ids < 10000.** A factor is pushed only when `vec.size() == id-1`, and one that fails to parse is simply not pushed, so **the cascade is kept too.** June only drops the popup: errors are formatted and discarded (no log either). | `326c4050` |
+| How are `_INT` ids 10001+ stored? | **In a second vector** (manager `+0x20`; the main vector is `+0x10`) with its own ordinal rule, `size == id-10001`. The gate runs before the main check, and it returns "handled" for **every** id ≥ 10000, even when that ordinal check fails, so a bad `_INT` id is dropped silently. Lookup: `GetBuffFactorPtr` sends id > 10000 to `vecINT[id-10001]`. `_INT` **templets** need nothing special: they go into the same map as the rest. | `326c3f30`, `326c32a0`, `326c3990` |
+| When are `_INT` files loaded? | **Always, right after the main file, in the same function.** `OpenScriptFileForTemplet` loads `BattleFieldBuffTemplet.lua` then `BattleFieldBuffTemplet_INT.lua`; `OpenScriptFileForFactor` does the same for the factor pair. A failed main load logs `0x2712` and falls through to the `_INT` load. So Phases 3, 11 and 13 include `_INT`. | `326c0020`, `326c13a0` |
+| `BBT_MP_NATURAL_RECOVERY_IMPOSSIBLE` (111), `BBT_REFLECT_PHYSIC` (112), `BFT_ATTACK` (17) | **Not implemented in June's client.** The templet factories stop at BBT 110 (`(type-1) > 0x6d` → default) and BFT 16, and so do both factor-parse switches. An entry using them fails to parse in June too. Port the enum value (Phase 2) and nothing else; the no-partial rule is satisfied. | `32e80450` @`32e804da`, `32ec36f0`, `32d4bbf0`, `32d4c750` |
+| `BBT_CONSUME_MP_RATE_BY_SKILLTYPE` (99) | **Implemented** (class `CX2BuffChangeConsumeMpRateBySkillType`, parse `32d4aa30`), just unused by June data. It is ported. | `32e87be0` |
+| `FUN_3227baf0` | **`CX2GameUnit::HaveThisBuff(BUFF_TEMPLET_ID)`**: it is the target bound under the Lua name `HaveThisBuff`. So `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID`'s second gate is "the unit currently has `…_RELATIVE_BUFF_TEMPLATE_ID`". March has `CX2GameUnit::HaveThisBuff`; nothing new is needed. | bind @`31debe27` |
+| Factory `default:` behavior | Unknown types return false with no popup; `BBT_EMPTY` returns true. The whole templet then fails `ParsingScript` and is not inserted. | `32e80450` tail |
+
+**Templet-side factories (type → June class).** Most types reuse an existing March class, so the "new class" column is the real work list.
+
+| Type | June class (create fn) | New class? |
+|---|---|---|
+| 73 IGNORE_STATE_GUARD | `CX2BuffIgnoreStateGuardBehaviorTemplet` (`32e86b70`) | yes |
+| 74 DETONATION_IMPOSSIBLE, 77 INVINCIBLE, 101 IGNORE_HP_DECREASE, 102 DETONATION_IMPOSSIBLE_GAGE_RESET, 104 JUMP_IMPOSSIBLE, 110 AWAKE_IMPOSSIBLE | `CX2BuffIdentityBehaviorTemplet` (`32e866b0`) | no |
+| 75 DOUBLE_ATTACK_BUFF | `CX2BuffDoubleAttackBuffBehaviorTemplet` (`32e86bb0`) | yes |
+| 76, 78, 85, 86, 87, 92, 96, 106, 107, 108, 109 | `CX2BuffChangeStatBehaviorTemplet` (`32e866f0`) | no |
+| 79 CHANGE_NOW_FORCE_DOWN_PER_SECOND | `CX2BuffChangeNowForceDownPerSecondBehaviorTemplet` (`32e86e90`) | yes |
+| 80–84 *_BY_CONDITION | `CX2BuffChangeStateByConditionBehaviorTemplet` (`32e86c00`) | yes |
+| 88 IGNORE_DEFENCE | `CX2BuffIgnoreDefenceBehaviorTemplet` (`32e895a0` → ctor `32e890b0`) | yes |
+| 89 CHANGE_SKILL_DAMAGE | `CX2BuffChangeSkillDamageBehaviorTemplet` (`32e87970`) | yes |
+| 90 CHANGE_SKILL_DAMAGE_BY_SKILL_ID | `CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet` (`32e89830`) | yes |
+| 91 CHARGE_MP_HIT_BY_SKILL_ID | `CX2BuffChargeMpHitBySkillIDBehaviorTemplet` (`32e898a0`) | yes |
+| 93 CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER | `CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner` (`32e86740`) | yes (subclass of ChangeStat) |
+| 94 IMMUNE_BUFF_DEBUFF | `CX2BuffImmuneBuffDebuffBehaviorTemplet` (`32e87510` → ctor `32e871d0`) | yes |
+| 95 IMMUNE_NON_CONTROL_DEBUFF | `CX2BuffImmuneNonControlDebuffBehaviorTemplet` (`32e86c50`) | yes |
+| 97 CHANGE_MAX_CHARACTER_ADD_RESOURCE | `CX2BuffChangeCharacterAddResourceBehaviorTemplet` (`32e86c90`) | yes |
+| 98 CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE | `CX2AddDamageOfSkillSlotType` (`32e86cd0`, vt `33535160`) | yes |
+| 99 CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE | `CX2BuffChangeConsumeMpRateBySkillType` (`32e87be0`) | yes |
+| 100 CHANGE_COOLTIME_RATE_BY_SKILLTYPE | `CX2BuffChangeCooltimeRateBySkillType` (`32e87c30`) | yes |
+| 103 CHANGE_SKILL_COOL_TIME_SPEED | `CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet` (`32e87d10`) | yes |
+| 105 IMMUNE_EDT | `CX2BuffImmuneEDTBehaviorTemplet` (`32e87550`) | yes |
+| BFT 14 AURA | `CX2BuffAuraFinalizerTemplet` (`32ec6260`) | yes |
+| BFT 15 STICK_SHAKE | `CX2BuffStickShakeCountFinalizerTemplet` (`32ec5e10`) | yes |
+| BFT 16 USE_SKILL_BY_SKILL_SLOTTYPE | `CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet` (`32ec5e60`) | yes |
+
+The displayer factory (`32ebb530`, BDT 1–13) uses the same classes as March. One existing-type change belongs to Phase 4b: June has no `CX2BuffChangeMpHitBehaviorTemplet` or `CX2BuffChangeMpHittedBehaviorTemplet` (March has them commented out anyway).
+
+**Factor-parse functions (type → June parse function).** `CX2BuffFactor::ParsingCombinationBehavior` is `32d4bbf0`, and `ParsingCombinationFinalizer` is `32d4c750`.
+- Empty parse `32d45b60` (no factor values): 73, 74, 77, 95, **97**, 101, 102, 104, 110.
+- `ParsingChangeStatBehavior` `32d445d0`: 76, 78, 85, 86, 87, 92, 93, 96, 106–109.
+- Own parser: 75 `32d46800` (shared with 56 DOUBLE_ATTACK), 79 `32d42650`, 80–84 `32d42910`, 88 `32d49210`, 89 `32d49460`, 90 `32d49810`, 91 `32d49da0`, 94 `32d4a770`, 98 `32d4a370`, 99 `32d4aa30`, 100 `32d4b020`, 103 `32d4b610`, 105 `32d45c50` (**shared with 43 CUSTOM_FUNCTION**).
+- Finalizers: 14 AURA uses the empty finalizer parse `32d44230`, 15 `32d44a80`, 16 `32d44d60`.
+
 ## Phase 2 — Enum reconciliation
 
 **Steps**
