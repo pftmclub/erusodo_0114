@@ -691,7 +691,7 @@ Abbreviations: **parse** = factor-parse function and float order (the wire layou
   4. Phase 8: the BFT 14 AURA class (10 slots); BFT 15/16 runtime counters, increment sites and UDP sync.
   5. Phase 4a/7/9 entry points: name `322a6960`'s virtual calls (`+0x210`, `+0x224`, `+0x234`, `+0x770`; one is likely the immunity check, one `PushNewBuffTempletToGameUnit`); `OnFrameMoveBuff`; `CreateAndInsertCustomFunctionByBuff` (from `CX2BuffCustomFunctionBehaviorTemplet::SetFactor` `32e79b00`).
 - **Tools:** `june2017_re/buffre/` holds the RTTI→vtable scanner, the jump-table sweep, the switch dumper, the displacement/immediate xref sweep and the compact decompiler (see its README). The method is in "How to read June's stores" above.
-- **Cost.** Not available in-session; ask the user for the `/cost` figure and record it here.
+- **Cost** (subscription, `/usage` at the end of the session, 2026-10-02): the 5-hour session window was **91% used**, and the week (all models) 12%. The window was shared with other sessions that day (10 sessions in 24h), so not all of it is Phase 1. `/ghidra` accounted for 52% of the last 24h; 82% of usage was at >150k context. All Opus, cache hit 97%. **Lesson for 1c:** split it into two sessions (it runs long and decompile-heavy, and most of the cost comes from context size).
 
 ```
 Continuing the June buff/debuff port. Read JUNE_BUFF_PORT_PHASES.md in the repo root in
