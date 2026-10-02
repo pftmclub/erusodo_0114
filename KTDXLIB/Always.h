@@ -4664,3 +4664,18 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              needs SERV_IRUHADEV_OFFLINE.
 #define SERV_IRUHADEV_WARP_DEST_LOG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-03
+// Description: June buff port Phase 2 (JUNE_BUFF_PORT_PHASES.md): bring the
+//              C++ buff enums to June 2017. X2BuffFactor.h gains BBT 73-112 and
+//              BFT 14-17 with explicit values, fixes BTI_SI_SA_EEG_ATOMIC_SHIELD
+//              (124 -> 141) and BFI_BUFF_SWORD_ENCHANT_CHARGE_MP (338 -> 337),
+//              renames BTI_BUFF_INDURANCE_POWER / BTI_CHANGE_PHYSIC_DEFENCE_AND_
+//              PHYSIC_DAMAGE to June's names (call sites in X2GUEL.cpp, X2Game.cpp)
+//              and drops BFI_DEBUFF_TELEPORT_CONSUME_MP (no consumer; absent in
+//              June). X2DamageManager.h gains ATTACK_TYPE AT_COMMAND = 2.
+//              Ships paired with the Phase 2 Enum.lua (data036).
+#define SERV_IRUHADEV_JUNE_BUFF_ENUM
+//////////////////////////////////////////////////////////////////////////

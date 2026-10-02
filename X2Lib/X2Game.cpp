@@ -19071,7 +19071,13 @@ void CX2Game::SetOfficiallyDebuffList()
 	m_vecPossibleOfficiallyDebuffList.push_back( BTI_DEBUFF_SUPPRESSION );			/// 제압
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //김창한
 	m_vecPossibleOfficiallyDebuffList.push_back( BTI_DEBUFF_STIGMA_OF_FIRE );		/// 엘리시스(블레이징 하트) - 불꽃의 낙인 디버프
+//{{ Iruha : 2026-10-03 // June buff port Phase 2 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_ENUM
+	m_vecPossibleOfficiallyDebuffList.push_back( BTI_CHANGE_ATTACK_AND_DEFENCE );
+#else
 	m_vecPossibleOfficiallyDebuffList.push_back( BTI_CHANGE_PHYSIC_DEFENCE_AND_PHYSIC_DAMAGE );		/// 엘리시스(그랜드 마스터) - 도발 디버프, 물리 공격력 증가 / 물리 방어력 감소 
+#endif SERV_IRUHADEV_JUNE_BUFF_ENUM
+//}}
 	m_vecPossibleOfficiallyDebuffList.push_back( BTI_DEBUFF_UNEXTINGUISHABLE_FIRE );/// 엘리시스(블레이징 하트) - 꺼지지 않는 불꽃 디버프
 	m_vecPossibleOfficiallyDebuffList.push_back( BTI_DEBUFF_HIGH_FEVER );			/// 불속성 저항을 감소시키는 디버프.
 #endif //SERV_ELESIS_SECOND_CLASS_CHANGE

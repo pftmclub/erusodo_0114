@@ -104,6 +104,52 @@ enum BUFF_BEHAVIOR_TYPE
 //#ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	BBT_CHANGE_HYPER_CHARGE_SPEED,						/// 각성 충전 속도 증가
 //#endif //SERV_ADD_LUNATIC_PSYKER
+//{{ Iruha : 2026-10-03 // June buff port Phase 2 (JUNE_BUFF_PORT_PHASES.md)
+// June values, verbatim from june_src_fixed/data036_kom/Enum.src.lua. Explicit
+// because June has gaps. Parse/runtime support arrives in Phases 4b-8.
+#ifdef SERV_IRUHADEV_JUNE_BUFF_ENUM
+	BBT_IGNORE_STATE_GUARD							= 73,
+	BBT_DETONATION_IMPOSSIBLE						= 74,
+	BBT_DOUBLE_ATTACK_BUFF							= 75,
+	BBT_CHANGE_HYPER_DURATION						= 76,
+	BBT_INVINCIBLE									= 77,
+	BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER			= 78,
+	BBT_CHANGE_NOW_FORCE_DOWN_PER_SECOND				= 79,
+	BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION			= 80,
+	BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION				= 81,
+	BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION			= 82,
+	BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION			= 83,
+	BBT_CHANGE_MAX_HP_BY_CONDITION					= 84,
+	BBT_CHANGE_RANGE_COMMAND_MP_GAIN_RATE			= 85,
+	BBT_CHANGE_MELEE_COMMAND_MP_GAIN_RATE			= 86,
+	BBT_CHANGE_MELEE_COMMAND_DAMAGE_RATE				= 87,
+	BBT_IGNORE_DEFENCE								= 88,
+	BBT_CHANGE_SKILL_DAMAGE							= 89,
+	BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_ID				= 90,
+	BBT_CHARGE_MP_HIT_BY_SKILL_ID					= 91,
+	BBT_CHANGE_MAXIMIZE								= 92,
+	BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER	= 93,
+	BBT_IMMUNE_BUFF_DEBUFF							= 94,
+	BBT_IMMUNE_NON_CONTROL_DEBUFF					= 95,
+	BBT_CHANGE_RANGE_COMMAND_DAMAGE_RATE				= 96,
+	BBT_CHANGE_MAX_CHARACTER_ADD_RESOURCE			= 97,
+	BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE		= 98,
+	BBT_CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE			= 99,
+	BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE			= 100,
+	BBT_IGNORE_HP_DECREASE							= 101,
+	BBT_DETONATION_IMPOSSIBLE_GAGE_RESET				= 102,
+	BBT_CHANGE_SKILL_COOL_TIME_SPEED					= 103,
+	BBT_JUMP_IMPOSSIBLE								= 104,
+	BBT_IMMUNE_EDT									= 105,
+	BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED	= 106,
+	BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED	= 107,
+	BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC			= 108,
+	BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER			= 109,
+	BBT_AWAKE_IMPOSSIBLE								= 110,
+	BBT_MP_NATURAL_RECOVERY_IMPOSSIBLE				= 111,	/// not implemented in June's client either (Phase 1)
+	BBT_REFLECT_PHYSIC								= 112,	/// not implemented in June's client either (Phase 1)
+#endif SERV_IRUHADEV_JUNE_BUFF_ENUM
+//}}
 
 };
 
@@ -140,6 +186,16 @@ enum BUFF_FINALIZER_TYPE
 	BFT_FINISH_HYPER,	/// 각성이 종료됐을 때
 	BFT_RIDING_ON_OR_NOT,	/// 라이딩 펫을 타거나 내렸을 때
 	BFT_X2STATE_CHANGE, /// 게임 스테이트 변경되는 경우 종료
+//{{ Iruha : 2026-10-03 // June buff port Phase 2 (JUNE_BUFF_PORT_PHASES.md)
+// June values, verbatim from june_src_fixed/data036_kom/Enum.src.lua. Explicit
+// because June has gaps. Parse/runtime support arrives in Phases 4b-8.
+#ifdef SERV_IRUHADEV_JUNE_BUFF_ENUM
+	BFT_AURA											= 14,
+	BFT_STICK_SHAKE									= 15,
+	BFT_USE_SKILL_BY_SKILL_SLOTTYPE					= 16,
+	BFT_ATTACK										= 17,	/// not implemented in June's client either (Phase 1)
+#endif SERV_IRUHADEV_JUNE_BUFF_ENUM
+//}}
 
 	//BFT_BUFF,			/// 입력된 버프나 디버프가 걸리게 되면 종료
 };
@@ -255,7 +311,13 @@ enum BUFF_TEMPLET_ID
 	BTI_DEBUF_SI_A_AHM_MEDITATION				= 107,	// 매디테이션 디버프
 	BTI_BUFF_SI_SA_CTT_TACTICAL_FIELD			= 108,	// 택티컬 필드
 	BTI_BUFF_THANKS_OF_RESIDENTS				= 123,	// 주민의 감사
+//{{ Iruha : 2026-10-03 // June buff port Phase 2 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_ENUM
+	BTI_SI_SA_EEG_ATOMIC_SHIELD					= 141,	// June and Enum.lua value (124 is BTI_BUFF_BREATH_OF_DRAGON)
+#else
 	BTI_SI_SA_EEG_ATOMIC_SHIELD					= 124,	// 아토믹 실드
+#endif SERV_IRUHADEV_JUNE_BUFF_ENUM
+//}}
 //#ifdef BTI_BUFF_PREMIUM_PC_ROOM
 	BTI_BUFF_PREMIUM_PC_ROOM					= 138,	//PC 방 버퍼
 //#endif BTI_BUFF_PREMIUM_PC_ROOM
@@ -300,7 +362,13 @@ enum BUFF_TEMPLET_ID
 	BTI_BUFF_CHIVALRY_ATTACK					= 229,	// 엘리시스 패시브 스킬 기사의 숙명 - 물리, 마법 공격력
 	BTI_BUFF_CHIVALRY_DEFENCE					= 230,	// 엘리시스 패시브 스킬 기사의 숙명 - 물리, 마법 방어력, 뎀감, 속성 저항
 
+//{{ Iruha : 2026-10-03 // June buff port Phase 2 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_ENUM
+	BTI_BUFF_ENDURANCE_POWER					= 238,	// June's (and Enum.lua's) name for the same id
+#else
 	BTI_BUFF_INDURANCE_POWER					= 238,	// 엘리시스 극기-강(强)
+#endif SERV_IRUHADEV_JUNE_BUFF_ENUM
+//}}
 	BTI_BUFF_VICTORIOUS_SWORD					= 239,	// 엘리시스 승리의 검
 
 	BTI_BUFF_GALE_WAY_OF_SWORD					= 240,	// 엘리시스 검의 길 질풍
@@ -313,7 +381,13 @@ enum BUFF_TEMPLET_ID
 
 //#ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //김창한
 	BTI_DEBUFF_STIGMA_OF_FIRE					= 290,	// 엘리시스(블레이징 하트) - 불꽃의 낙인 디버프
+//{{ Iruha : 2026-10-03 // June buff port Phase 2 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_ENUM
+	BTI_CHANGE_ATTACK_AND_DEFENCE				= 292,	// June's (and Enum.lua's) name for the same id
+#else
 	BTI_CHANGE_PHYSIC_DEFENCE_AND_PHYSIC_DAMAGE = 292,	// 엘리시스(그랜드 마스터) - 도발 디버프, 물리 공격력 증가 / 물리 방어력 감소 
+#endif SERV_IRUHADEV_JUNE_BUFF_ENUM
+//}}
 	BTI_DEBUFF_UNEXTINGUISHABLE_FIRE			= 293,	// 엘리시스(블레이징 하트) - 꺼지지 않는 불꽃 디버프
 	BTI_BUFF_FIRE_BLOSSOMS						= 294,	// 엘리시스(블레이징 하트) - 불꽃 개화
 	BTI_BUFF_FLAME_SWORD						= 298,
@@ -415,9 +489,16 @@ enum BUFF_FACTOR_ID
 
 	BFI_BUFF_SI_A_ALD_REFLECTION				= 259,	// 아라 반탄공
 	BFI_DEBUFF_SELF_PROTECTION_FORTITUDE		= 264,	// 회광반조 사용 불가 안내 디버프
+//{{ Iruha : 2026-10-03 // June buff port Phase 2 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_ENUM
+	// BFI_DEBUFF_TELEPORT_CONSUME_MP (290) dropped: June has no such id (its 290 is
+	// BFI_DEBUFF_TELEPORT_CONSUME_MP_PVP) and no C++ compares against either name.
+#else
 #ifdef FIX_SKILL_BALANCE_AISHA_LENA //JHKang
 	BFI_DEBUFF_TELEPORT_CONSUME_MP				= 290,	// 아이샤 텔레포트 디버프
 #endif //FIX_SKILL_BALANCE_AISHA_LENA
+#endif SERV_IRUHADEV_JUNE_BUFF_ENUM
+//}}
 //#ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //김창한
 	BFI_DEBUFF_STIGMA_OF_FIRE					= 291,	// 엘리시스(블레이징 하트) - 불꽃의 낙인 디버프
 	BFI_DEBUFF_JUDGEMENT_FIRE					= 292,	// 엘리시스(블레이징 하트) - 불꽃의 낙인 폭발 디버프
@@ -432,7 +513,13 @@ enum BUFF_FACTOR_ID
 	BFI_FORMATION_MODE							= 315,	// 애드 구성 모드
 //#ifdef ADD_MEMO_1ST_CLASS //김창한
 	BFI_BUFF_SI_A_ALD_REFLECTION_MEMO			= 334,	// 아라(소마) - 반탄공(메모)
+//{{ Iruha : 2026-10-03 // June buff port Phase 2 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_ENUM
+	BFI_BUFF_SWORD_ENCHANT_CHARGE_MP			= 337,	// June and Enum.lua value (338 is BFI_BUFF_SWORD_ENCHANT_ICE_MEMO)
+#else
 	BFI_BUFF_SWORD_ENCHANT_CHARGE_MP			= 338,	// 엘소드(매직나이트) - 소드 인챈트 (메모)
+#endif SERV_IRUHADEV_JUNE_BUFF_ENUM
+//}}
 //#endif //ADD_MEMO_1ST_CLASS
 	BFI_BUFF_SGM_VICTORIOUS_SWORD				= 345,	// 엘리시스 승리의 검 그랜드 마스터 용.
 	BFI_BUFF_LIBRARY_OF_LIMITLESS_MANA_RECOVERY	= 346,	// 애드 - 무한의 도서관

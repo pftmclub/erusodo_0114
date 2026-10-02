@@ -744,6 +744,60 @@ Add BTI/BFI enumerators only where C++ compares. Byte-level CP949 edits; verify 
 me naming both staging places. Commit.
 ```
 
+### Phase 2 — Done (2026-10-03)
+
+**Lua (`march2014/data036/Enum.src.lua`, compiled `Enum.lua`).**
+- Added every June member March lacked, at June's values, sorted by value in one `--{{ Iruha … --}}` block at the end of each table: BTI 705, BFI 734, BBT 38, BFT 3. The 6 new tables (`BUFF_APPLY_CHECK_CONDITION_TYPE`, `BUFF_GROUP_APPLY_DEFAULT_VALUE`, `BUFF_GROUP_ID`, `BUFF_REPLACE_DETAIL_OP`, `BUFF_VALUE_CALCULATE_TYPE`, `SPA_BUFF_TYPE`) sit right after `BUFF_FACTOR_ID`. `AT_COMMAND` was already in `ATTACK_TYPE` (effect plan Phase 11).
+- Renumbered in place, each with a comment naming the old value: `BTI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR/WING_EVENT` 1321/1322 → 347/348, and the three potion BFIs 362–364 → 481–483.
+- Free-value check: comma-agnostic (`= N,?\s*$` scoped to each table) plus a scripted collision check. The only values June's new members take from March members are the 5 that June itself renumbered away.
+- **Deliberate deviation: `BFI_DEBUFF_TELEPORT_CONSUME_MP` = 290 is kept as an alias** beside June's `BFI_DEBUFF_TELEPORT_CONSUME_MP_PVP` = 290. March's live `BattleFieldBuffFactor.lua` names it. Simulating `AddBuffFactor_LUA`'s ordinal rule on March's live factor file shows that removing it would drop factors 290–364, **77 of them**. Remove it in Phase 13 (below).
+- Verified: every BUFF table now equals June's (0 new, 0 changed). The one March-only member is the alias. The compiled file has the `KL\x81` mar-2014 header, and decompiling it back gives the same 316 tables and 10,785 members as the source.
+- Staged byte-identical in `march2014/data036/Enum.lua` and `kom_contents/data036_kom/Enum.lua` (md5 `81f0b944…`), with the `.src.lua` beside each. The manifest already listed `Enum.lua`, so it is unchanged. The new Enum was merged into the previously staged one (Lanox/June-effect work), not swapped for it.
+
+**What March's current data does with this Enum** (measured on March's live factor bytecode, decompiled to scratch, not committed):
+- Before this phase, 364 of 366 factors load. `BFI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR/WING_EVENT` (372/373) already fail the ordinal check, and **each launch already shows 2 `BUFF_FACTOR_ID invalid` MessageBoxes** (`State.log` records them; `DISPLAY_ERROR` is a real `MessageBox` here because `_SERVICE_` is not defined).
+- After it, 361 load. The three potions fall out at their new ids, so **each launch shows 5 boxes until Phase 3** replaces them with log lines. They are the tail of the file, so there is no cascade.
+- **`Item.kim` bakes factor ids as numbers.** Under `X2OPTIMIZE_ITEM_TEMPLET_PREPROCESSING` (ON) the client always loads the prebuilt `Item.kim`; no `Item.lua` exists anywhere. Item 85003830 (Weak Heretic potion) carries WORD 362 and 85003831 (Heretic potion) carries 363. This was checked by cross-reference: the `[count=1, id]` run sits at file offset 20107068 / 20107412, and it is pointed to from that item's record, +132 bytes from its item id. March's `Item.kim` has no Ruriel potion item, and no item references 372/373.
+  - Until June's factor file lands, using either potion pops `uiBuffFactorNumber_ invaild`, and then **dereferences a null factor pointer** (`X2Game.cpp` `ApplyBuffFactorToGUUser`, the `UPGRADE_SKILL_SYSTEM_2013` branch).
+  - The save holds neither potion and `cash_product` does not sell them, so the hazard is latent (reachable only through an item cheat).
+  - After Phase 13, the baked 362/363 would *silently* apply June's `BFI_BUFF_FIGHTING_SUPER_ARMOR` / `BFI_BUFF_FIGHTING_HEAL`. See the Phase 13 to-do.
+- March's premium `BuffTemplet.lua` names the three potion BFIs too. It does so only under `BUFF_FACTOR`, which March's C++ never reads, and its key, `m_eBuffID`, is the unchanged BTI. Not affected.
+- `X2Lib/Offline` stores no BTI/BFI numbers (it goes through item-templet factor pointers only). `els_db.sql` has no buff table (schema read with a read-only connection).
+
+**C++ (`SERV_IRUHADEV_JUNE_BUFF_ENUM`, `KTDXLIB/Always.h`).**
+- `X2BuffFactor.h`: BBT 73–112 and BFT 14–17 are added with explicit `= N` (111, 112 and `BFT_ATTACK` 17 are commented as not implemented in June either). The drift fixes and renames each keep the original line in `#else`:
+  - `BTI_SI_SA_EEG_ATOMIC_SHIELD` 124 → 141;
+  - `BFI_BUFF_SWORD_ENCHANT_CHARGE_MP` 338 → 337;
+  - `BTI_BUFF_INDURANCE_POWER` → `BTI_BUFF_ENDURANCE_POWER`;
+  - `BTI_CHANGE_PHYSIC_DEFENCE_AND_PHYSIC_DAMAGE` → `BTI_CHANGE_ATTACK_AND_DEFENCE`;
+  - `BFI_DEBUFF_TELEPORT_CONSUME_MP` dropped (no consumer; June has no such name).
+- `X2DamageManager.h`: `ATTACK_TYPE` gains `AT_COMMAND = 2`, which Phase 5's 85/86/87/96 need. June's `AT_NONE = -1` is not a buff enum and was left out.
+- No BTI/BFI enumerators were added: no C++ code compares against any June-only id yet.
+- **Consumer audit.**
+  - `X2GUEL.cpp` (3 sites) and `X2Game.cpp:19074` are renamed under the flag.
+  - Two consumers change value only and need no edit, but each is a **behavior fix**:
+    - `X2GageManager.cpp:3380` (`IsNotUseNotifyTimeBuff`): its "no 5-second blink" exemption hit 124 = `BTI_BUFF_BREATH_OF_DRAGON` and now hits Atomic Shield.
+    - `X2GUElsword_SwordMan.cpp:14990`: the Sword Enchant memo applied 338 = `BFI_BUFF_SWORD_ENCHANT_ICE_MEMO` and now applies Charge MP.
+  - No C++ references the HAMEL or potion BFIs. `X2Define.h`'s potion constants are item ids.
+  - The server's `XSLBuffManager.h` BTI enum is the separate premium namespace and was not touched.
+- CP949 edits were done at the byte level, insert-only (87/5/18/6 lines), and `file` signatures are unchanged (including `X2BuffFactor.h`'s one LF-only line).
+- `buff_census.py --phase 2`: every BUFF table 0 new / 0 changed; C++ BBT 113/113, BFT 18/18, BDT 14/14, value drift 0 in all five enums, 0 C++-only names.
+
+**Phase 13 to-dos created here.**
+1. Remove the Lua alias `BFI_DEBUFF_TELEPORT_CONSUME_MP` only once **no shipped March Lua names it**. Today two files do: `BattleFieldBuffFactor.lua`, which Phase 13 replaces, and **`NewSkillTempletVer2.lua`** (data036), where a skill's positional `BUFF_FACTOR` list would truncate silently at the nil. Re-grep `kom_contents` for the name before removing it.
+   - Also by name, and so consistent with the new Enum: `DamageEffect_INT.lua` (datai015) and the premium `BuffTemplet.lua` name the HAMEL_EVENT BTI.
+2. Make `Item.kim`'s two potions point at 481/482. Either patch the two WORDs at file offsets 20107068 / 20107412 (re-verify them with the cross-reference method above first), or re-bake. Do this in the same pack as June's factor file. The alternative is a silent wrong buff.
+
+**Build and deploy.**
+- The `X2ServerProtocol` / `KTDXLIB` / `X2Lib` / `X2` chain built at `US_SERVICE`, rc=0 for each, 0 errors. Both `stdafx.cpp` files were touched first and rebuilt.
+- `flagprobe.py` resolves `SERV_IRUHADEV_JUNE_BUFF_ENUM` **ON** through `cl /EP`.
+- `x2.exe` (18,991,104 bytes, md5 `21539f99…`) was deployed as `X2_offline.exe`; the hash matched after the copy. Not launched.
+- **Pack:** `Enum.lua` from `kom_contents/data036_kom/` (same bytes as `march2014/data036/Enum.lua`) goes into `data036.kom`, paired with this exe. Per the pairing hazard, it ships only together with it.
+
+**Review.** The required Opus 5.5 review has **not** been run yet.
+
+**Cost.** Not recorded: no `/cost` figure was available in-session. Ask the user.
+
 ## Phase 3 — Loader hardening and `[JUNE_BUFF]` logging
 
 **Steps**
@@ -1017,6 +1071,7 @@ pack to me. Commit.
 3. Run a local trial-load harness against the C++ parse expectations.
 4. Build and deploy. Give the user one pack list naming every staged file across Phases 2, 10, 11, 12 and 13, together with this exe.
 5. After the user packs, confirm with `elstools inspect` on the live koms. Then ask before launching. Confirm `ErrorLog.txt` shows the load summary with 0 placeholders and no `[JUNE_BUFF] unsupported` lines.
+6. Clear the Phase 2 to-dos: remove the `BFI_DEBUFF_TELEPORT_CONSUME_MP` alias from `Enum.src.lua` (only once `NewSkillTempletVer2.lua` no longer names it), and repoint `Item.kim`'s Heretic potions (85003830 / 85003831) from 362/363 to 481/482 (see "Phase 2 — Done").
 
 **Run with:** Sonnet 5.5, medium effort. The work is compile, stage and pack-list behind a hard gate: census = 0, otherwise stop and report. An Opus 5.5 review of the staged set is required before the pack hand-off.
 

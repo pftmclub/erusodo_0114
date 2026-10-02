@@ -73,6 +73,11 @@ class CX2DamageManager
 		{
 			AT_NORMAL = 0,
 			AT_SPECIAL,
+//{{ Iruha : 2026-10-03 // June buff port Phase 2 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_ENUM
+			AT_COMMAND = 2,		/// June (Enum.lua ATTACK_TYPE): BBT 85/86/87/96 act only on this type
+#endif SERV_IRUHADEV_JUNE_BUFF_ENUM
+//}}
 		};
 
 		/// 타격 형식

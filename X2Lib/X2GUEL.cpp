@@ -3539,7 +3539,13 @@ void CX2GUEL::StateChangeSpecialAttack( IN const CX2SkillTree::SkillTemplet* pSk
  	switch ( eBuffTempletId_ )
  	{
 	// ±Ø±â - °­(Ë­)
+//{{ Iruha : 2026-10-03 // June buff port Phase 2 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_ENUM
+	case BTI_BUFF_ENDURANCE_POWER:
+#else
 	case BTI_BUFF_INDURANCE_POWER:
+#endif SERV_IRUHADEV_JUNE_BUFF_ENUM
+//}}
 		{
 			m_bIsActiveEndurancePower = true;
 		} break;
@@ -3610,7 +3616,13 @@ void CX2GUEL::StateChangeSpecialAttack( IN const CX2SkillTree::SkillTemplet* pSk
 	switch ( eBuffTempletId_ )
 	{
 	// ±Ø±â - °­(Ë­)
+//{{ Iruha : 2026-10-03 // June buff port Phase 2 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_ENUM
+	case BTI_BUFF_ENDURANCE_POWER:
+#else
 	case BTI_BUFF_INDURANCE_POWER:
+#endif SERV_IRUHADEV_JUNE_BUFF_ENUM
+//}}
 		{
 			m_bIsActiveEndurancePower = false;
 		} break;
@@ -6400,7 +6412,13 @@ void CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_StateStart()
 	EraseBuffTempletFromGameUnit(BTI_DEBUFF_PANIC);	
 	EraseBuffTempletFromGameUnit(BTI_DEBUFF_COLD);	
 	EraseBuffTempletFromGameUnit(BTI_DEBUFF_CONFUSION);	
+//{{ Iruha : 2026-10-03 // June buff port Phase 2 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_ENUM
+	EraseBuffTempletFromGameUnit(BTI_BUFF_ENDURANCE_POWER);
+#else
 	EraseBuffTempletFromGameUnit(BTI_BUFF_INDURANCE_POWER);	
+#endif SERV_IRUHADEV_JUNE_BUFF_ENUM
+//}}
 
 	CommonStateStart();
 }
