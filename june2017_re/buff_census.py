@@ -645,6 +645,10 @@ PHASE_BBT_VALUES = {
     '7': {73, 74, 102, 77, 94, 95, 97, 101, 104, 105, 110, 111, 112},
 }
 PHASE_BFT_VALUES = {'8': {14, 15, 16, 17}}
+# Types June's own client never implements: its templet factories and factor-parse switches stop at
+# BBT 110 / BFT 16 (Phase 1: 32e80450 @32e804da, 32ec36f0, 32d4bbf0, 32d4c750). They are enum-only in
+# the port, so they are reported apart and never count as "not handled".
+NOT_IN_JUNE_CLIENT = {'BEHAVIOR': {111, 112}, 'FINALIZER': {17}}
 # keys by owning phase (levels: templet/factor -> 4a, behavior/finalizer/displayer -> 4b)
 PHASE_KEY_LEVELS = {'4a': {'templet', 'factor'}, '4b': {'behavior', 'finalizer', 'displayer'}}
 
@@ -882,8 +886,13 @@ def main():
                     o = used.get(name, {})
                     tot = len(o.get('templet', ())), len(o.get('factor', ())), len(o.get('inline', ()))
                     unsup.append((v, name, tot))
+            enum_only = [u for u in unsup if u[0] in NOT_IN_JUNE_CLIENT.get(section, ())]
+            unsup = [u for u in unsup if u[0] not in NOT_IN_JUNE_CLIENT.get(section, ())]
             unsupported[section] = unsup
             used_unsup = [u for u in unsup if sum(u[2]) > 0]
+            if enum_only:
+                P('  %s: not implemented in the June client either (enum only, excluded below): %s' % (
+                    section, ', '.join('%s=%d (data %d)' % (n, v, sum(t)) for v, n, t in sorted(enum_only))))
             P('  %s: June enum %d | March C++ handles %d (factor-parse %d, templet-factory %d) | not handled %d | of those used by data %d | unused by any data %d' % (
                 section, len([n for n in enum_all if n.startswith(pre)]), len(handled), len(have['FACTOR']), len(have['TEMPLET']), len(unsup),
                 len(used_unsup), len(unsup) - len(used_unsup)))

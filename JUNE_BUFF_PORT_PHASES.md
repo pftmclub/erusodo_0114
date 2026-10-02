@@ -383,7 +383,7 @@ before going on. Record the baseline in the doc and commit.
   - **`SERV_IRUHADEV_*` flags are never cached.** They change as the port proceeds, so a flag probed OFF before its `#define` lands would stay OFF and a finished phase would never clear. Every run reads them fresh from the `#define` lines in `KTDXLIB/Always.h` (our house rule makes them plain unconditional defines), and `--reprobe` asks the compiler instead.
   - A studio flag that is missing from the cache is probed through `cl /EP` automatically (about 45 s). `--reprobe` re-resolves every flag, ours included; `--no-probe` never runs the probe.
   - A full run with a warm cache takes about 12 s.
-- **Usage.** `python june2017_re/buff_census.py [--phase 2|3|4a|4b|5|6|7|8|9|10|11] [-v] [--json FILE] [--no-probe] [--reprobe]`. `--phase 5..8` also lists every key the data puts under that phase's types (the transcription checklist).
+- **Usage.** `python june2017_re/buff_census.py [--phase 2|3|4a|4b|5|5b|6|7|8|9|10|11] [-v] [--json FILE] [--no-probe] [--reprobe]`. `--phase 5..8` also lists every key the data puts under that phase's types (the transcription checklist).
 - **March data.** March's live buff Lua exists only as bytecode, so "March supports X" always means the C++. The script also reads the bytecode string constants from `kom_contents/data036_kom/` (game directory, outside the repo; override with `BUFF_CENSUS_KOM_CONTENTS`) for the `in-March-data` column. Without that directory the column prints `?`.
 - **Method.**
   - The CASE lists are resolved with the probed flags, so `#ifdef`'d cases count only if the flag is on.
@@ -495,6 +495,7 @@ Method notes for anyone re-checking:
 | How are `_INT` ids 10001+ stored? | **In a second vector** (manager `+0x20`; the main vector is `+0x10`) with its own ordinal rule, `size == id-10001`. The gate runs before the main check, and it returns "handled" for **every** id ≥ 10000, even when that ordinal check fails, so a bad `_INT` id is dropped silently. Lookup: `GetBuffFactorPtr` sends id > 10000 to `vecINT[id-10001]`. `_INT` **templets** need nothing special: they go into the same map as the rest. | `326c3f30`, `326c32a0`, `326c3990` |
 | When are `_INT` files loaded? | **Always, right after the main file, in the same function.** `OpenScriptFileForTemplet` loads `BattleFieldBuffTemplet.lua` then `BattleFieldBuffTemplet_INT.lua`; `OpenScriptFileForFactor` does the same for the factor pair. A failed main load logs `0x2712` and falls through to the `_INT` load. So Phases 3, 11 and 13 include `_INT`. | `326c0020`, `326c13a0` |
 | `BBT_MP_NATURAL_RECOVERY_IMPOSSIBLE` (111), `BBT_REFLECT_PHYSIC` (112), `BFT_ATTACK` (17) | **Not implemented in June's client.** The templet factories stop at BBT 110 (`(type-1) > 0x6d` → default) and BFT 16, and so do both factor-parse switches. An entry using them fails to parse in June too. Port the enum value (Phase 2) and nothing else; the no-partial rule is satisfied. | `32e80450` @`32e804da`, `32ec36f0`, `32d4bbf0`, `32d4c750` |
+| Does June load premium `BuffTemplet_INT.lua`? | **Yes, unconditionally.** The bulk loader `3258c470` hands `BuffTemplet.lua` (`@3258e8cb`) and then `BuffTemplet_INT.lua` (`@3258ea8c`) to the same per-file loader `326c6e20`. The only branch between them is the XOR-init guard. So Phase 11 includes the 71 `_INT` premium entries. | `3258c470` `@3258ea0f`/`@3258ec1f` |
 | `BBT_CONSUME_MP_RATE_BY_SKILLTYPE` (99) | **Implemented** (class `CX2BuffChangeConsumeMpRateBySkillType`, parse `32d4aa30`), just unused by June data. It is ported. | `32e87be0` |
 | `FUN_3227baf0` | **`CX2GameUnit::HaveThisBuff(BUFF_TEMPLET_ID)`**: it is the target bound under the Lua name `HaveThisBuff`. So `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID`'s second gate is "the unit currently has `…_RELATIVE_BUFF_TEMPLATE_ID`". March has `CX2GameUnit::HaveThisBuff`; nothing new is needed. | bind @`31debe27` |
 | Factory `default:` behavior | Unknown types return false with no popup; `BBT_EMPTY` returns true. The whole templet then fails `ParsingScript` and is not inserted. | `32e80450` tail |
@@ -586,7 +587,7 @@ Every row is confirmed in `june2017_re/funcmap.tsv` unless marked *candidate*. "
 
 Abbreviations: **parse** = factor-parse function and float order (the wire layout); **lvl** = `GetBehaviorFactorToLevel` case; **SGU** = `SetGameUnitBehavior` case; **store** = unit member (offset in June's `CX2GameUnit`, not to be ported as a number); **reads** = every June reader.
 
-**Phase 5 — ChangeStat-class types. Transcription-ready.** All share March's `ParsingChangeStatBehavior` layout (`32d445d0`) and class `CX2BuffChangeStatBehaviorTemplet`. Each needs: a parse case in both macro lists; the lvl ChangeStat group (`32d47957`) for 76/78/92/93 or the default slice (`32d4812a`) for the rest; the SGU ChangeStat group (`32d4d6ef`) for 76/78/92/93; an `InsertAdditionalStat`/`EraseAdditionalStat` case on a **new** `CX2AdditionalStatByBuff` member; `InitAdditionalStat` (basic value) and `InitAdditionalPassiveMultipleAndSum` (multiple 1, sum 0); and `Verify()` plus the update-all loop like its siblings.
+**Phase 5 — ChangeStat-class types. Transcription-ready.** All share March's `ParsingChangeStatBehavior` layout (`32d445d0`) and class `CX2BuffChangeStatBehaviorTemplet`. Each needs: a parse case in both macro lists; the lvl ChangeStat group (`32d47957`) for 76/78/92/93 or the default slice (`32d4812a`) for the rest; the SGU ChangeStat group (`32d4d6ef`) for 76/78/92/93; an `InsertAdditionalStat`/`EraseAdditionalStat` case on a **new** `CX2AdditionalStatByBuff` member; `InitAdditionalStat` (basic value) and `InitAdditionalPassiveMultipleAndSum` (multiple 1, sum 0); and `Verify()` plus the update-all loop like its siblings. **No SGU case and no ChangeStat lvl case for 85, 86, 87, 96, 108 or 109**: June leaves them out of both switches, so they take the default level slice (March's default branch) even though their data carries `BUFF_RELATION_TYPE`. Only 76 joins both ChangeStat groups. Neither `SetFactor` nor slot `[3]` of ChangeStat compares against any new type value (checked: `32e78410`, `32e786d0`, `32e73500`, `32e73640`, `32e764a0`).
 
 | Type | New member, basic value | Insert case | June reads |
 |---|---|---|---|
@@ -598,7 +599,7 @@ Abbreviations: **parse** = factor-parse function and float order (the wire layou
 **Phase 5 types that are not simple transcription.** Their store and readers are found, but each depends on a June mechanism or field March lacks.
 - **78 TYPE_ADDITIONAL_ATTACK_MULTIPLIER → Opus-only (reader context).** The store is ready: a new member, basic 1.0, insert `32282dff`. The readers sit in `CX2GUUser::DamageReact` `@320494a0`–`32049505` (`EBP` = this, `EBX` = DamageData). The value read is `ESI->32071b10 + this->78 (getter 32071b50) + this->32071af0`, minus `EDI->32071b90 * k`. `ESI` and `EDI` are other units: `EDI` is the unit at June's `DamageData+0x470`. The other getters read members that buffs do not insert into (`+0x51cc`, `+0x5118`, `+0x5a4c`). `CX2GUNPC::DamageReact` reads it at `@327b42bf`–`327b4340`. Before Sonnet can transcribe this, an Opus pass must map `DamageData+0x470` and those three members to March.
 - **106 / 107 FORCE_DOWN_MULTIPLIER_MELEE / RANGE_ATTACKED → Opus-only (reader context).** The store is ready: two new members, basic 0.0, insert `32282bf2`/`32282c15`. Reader: `CX2GUUser::DamageReact` `@3204a123`–`3204a243`. It computes `reduce = DD[+0x514]; if ( unit at DD+0x470 is valid ) reduce -= ( DD.m_bMeleeAttack ? unit->106 : unit->107 ); fForceDown(DD[+0x3f0]) -= reduce`, then clamps when `DD[+0x4c5]`. The getters are `32071bb0`/`32071bd0`. `DD+0x470`/`+0x514`/`+0x4c5` are June DamageData fields that are not yet mapped to March.
-- **92 CHANGE_MAXIMIZE → Opus-only.** It is stored like a ChangeStat member (`32282f4f`, basic 0.0). Its reader `322788c0` is June's **damage-variance roll**, which March does not have. `GetFinalDamage` calls it for physic (`param 0`) and magic (`param 1`). It takes a ± range from a **second** physic/magic member (`+0x44ec`/`+0x45a0`, which plain BBT 7/8 and 80/81 also insert into) and draws a random value whose upper bias grows with MAXIMIZE. Porting 92 means porting that variance system and the second members first (Phase 4b for 7/8). Further readers are `3230c1a0` and `32763c10` (`ApplyPassiveSkillOwnerUser_LUA`).
+- **92 CHANGE_MAXIMIZE → Opus-only.** It is stored like a ChangeStat member (`32282f4f`, basic 0.0). Its reader `322788c0` is June's **damage-variance roll**. Nothing like it was found in March's `GetFinalDamage`; verify that before porting. `GetFinalDamage` calls it for physic (`param 0`) and magic (`param 1`). It takes a ± range from a **second** physic/magic member (`+0x44ec`/`+0x45a0`, which plain BBT 7/8 and 80/81 also insert into) and draws a random value whose upper bias grows with MAXIMIZE. Porting 92 means porting that variance system and the second members first (Phase 4b for 7/8). Further readers are `3230c1a0` and `32763c10` (`ApplyPassiveSkillOwnerUser_LUA`).
 - **93 CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER → Opus-only.** It inserts into the same six attribute-defence members as 42 (`32282d0a`), so it needs no new reader. The difference lives in its class, `_HaveBuffOwner` (`SetFactor` `32e78850`, slot `[3]` `32e786d0`, `[14]`/`[15]` owner UID), which is not yet decoded.
 - **80–84 *_BY_CONDITION → Opus-only (needs class RE).** Parse `32d42910`: `[BUFF_CHANGE_TYPE, BUFF_VALUE_CALCULATE_TYPE, count, v1..vn]`. lvl `32d48063` keeps the whole table. SGU has its own case (`32d4d70b`). Stores are existing members: 80 → PhysicAttack and its second member, 81 → MagicAttack and its second member, 82 → PhysicDefence, 83 → MagicDefence, 84 → MaxHp plus `SetMaxHp`. Class `CX2BuffChangeStateByConditionBehaviorTemplet`: `SetFactor` `32e78860` (220 instructions; picks the value by condition through `32e77f40` and calls `3226fd70`/`32282700`), `DoFinish` `32e75720`, packet `32e77ef0`. The condition rule (`BVC_RALLY_OF_HERO`) is not yet decoded.
 - **79 CHANGE_NOW_FORCE_DOWN_PER_SECOND → Opus-only (needs class RE).** Parse `32d42650`: `[BUFF_CHANGE_TYPE, then FIX_VALUE table only if the type is 1]`. A non-1 change type pushes **no** factor. lvl `32d478aa`: `[type, count<2 ? v2 : v[level+1]]`. Class: `OnFrameMove` `32e756f0`, `SetFactor` `32e855f0`, `Parsing` `32e755a0`, packet `32e85790`. The tick logic is not yet decoded.
@@ -634,11 +635,77 @@ Abbreviations: **parse** = factor-parse function and float order (the wire layou
 - **BFT 15 STICK_SHAKE / 16 USE_SKILL_BY_SKILL_SLOTTYPE.** Parse `32d44a80` / `32d44d60`: `[BUFF_USE_COUNT_TYPE, count, c1..cn, 0.0]`; the trailing 0 is the running counter. lvl `32d4cbc0` / `32d4cbd2`. 16's `SKILL_SLOT_TYPE` is read by its templet's `ParsingFinalizer` (`32ec0240`), not by the factor.
 - **BFT 17 ATTACK**: not implemented in June's client.
 
+**June-only bindings and keys (task item "locate").** Binding targets come from `31d95080` (`mov`/`push` after each name). Key owners are the functions that decrypt or reference the key string.
+
+| Binding / key | June location | Owning phase |
+|---|---|---|
+| `AddBuffGroup_LUA` / `AddOfficiallyBuffList_LUA` | `326c3450` / `326bfd80` (loaded by `326c26f0`) | 10 |
+| `SetMonsterBuffGroupID` | `31e4d770`: inline setter on the NPC, `[+0x8f70] = id` | 10 |
+| `DeleteNonControlDebuff` | `3229dcc0` (also called by BBT 95's `SetFactor`) | 10 (and 7) |
+| `GetBuffAccumulationCountNow` | `3227bbc0` | 10 |
+| `ApplyBuffFactor` (cheat) / `AddRandomBuffList` | `3274c880` / `3267c370` (`AddRandomBuffList` also reads `DUMMY_BUFF_TEMPLET_ID`) | 10 |
+| `SetPveBalanceBuffGiveScore_LUA` / `SendRandomMissionRewardBuffCheat` | `31edd0c0` / `322f0e30` | 10 (if client-side) |
+| `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` / `_SKILL_ID` | `32630d20` (`ParsingBuffFactorID`) | 10 |
+| `BUFF_FACTOR_ID_ULTIMATE` / `_ULTIMATE_PVP` (plaintext) | `32630d20` | 10 |
+| `IS_AURA_BUFF`, `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` | `32632390` (`SetDamageDataFromLUA`) | 10 |
+| `CHECK_RIDINGPET_SPACIAR_BUFF` | `32d2f560` (only caller `32d3cb10`; not yet attributed) | 10 |
+| **`DELETE_BUFF_WHEN_DIE`, `OFFSET_POSITION`, `CAN_DOWN`** | `32e7a4a0` = **`CX2BuffNeverMoveBehaviorTemplet::ParsingBehavior`** (slot 12) | **4b, not 10** (an existing class) |
+| `ALL_BUFF` / `ALL_DEBUFF` / `IMMUNE_BUFF_TEMPLATE_ID` | `32d4a770` (BBT 94 factor parse) | 7 |
+| `FORCE_SKILL_ID`, `IGNORE_SKILL_ID` | `32e78e90` = `CX2BuffResetSkillCoolTimeBehaviorTemplet::ParsingBehavior` | 4b |
+| `BUFF_VALUE_CALCULATE_TYPE` | `32d42910` (80–84 factor parse) and `32e75790` (ByCondition `ParsingBehavior`) | 5b |
+| `SKILL_SLOT_TYPE` | `32d4a370` (98 parse), `32e75d20` (`CX2AddDamageOfSkillSlotType` slot 12), `32ec0240` (BFT 16 `ParsingFinalizer`), `32e78e90` | 6, 8, 4b |
+| `APPLY_CHECK_CONDITION` group (`BUFF_APPLY_CHECK_CONDITION_TYPE`, `CHECK_BUFF_TEMPLET_ID`, `APPLY_WHEN_HAVE`, `CHECK_HP_RATE_UP`) | `32d4d190`, called twice by `ParsingBuffFactor` | 4a |
+| `AND_OPERATION` | `32d4d850` | 4a |
+| `ACCUMULATION_AT_ONE_GO` | `32d4d850` | 4a |
+| `IS_STORE_BUFF`, `BUFF_REPLACE_DETAIL_OPERATION`, `ACCUMULATION_DECREASE_*`, `ACCUMULATION_DELAY_TIME`, `IS_INSTANCE_KILL_DEBUFF` | `3236a9b0` (`CX2BuffTemplet::ParsingScript`) | 4a |
+| `USE_CREATOR_UNIT_DATA` / `HYPER_COUNT` / `APPLY_TO_SPECIAL_ATTACK` / `ADDITIONAL_ATTACK_TYPE` | factor parses of existing types: 1 `32d42030`, 27 `32d45860`, 22 `32d45040`, 53 `32d46000` | 4b |
+| `FROZEN_TIME`, `SHAKE_DECREASE_MAX_TIME`, `SHAKE_DECREASE_TIME_AT_ONCE` | `32ebe8b0` = `CX2BuffTimeFinalizerTemplet::ParsingFinalizer` | 4b |
+| `ONLY_MY_UNIT`, `NOT_DELETE_EFFECT_SET_WHEN_FINISH` | `32eb82b0` (`CX2BuffEffectSetDisplayerTemplet` slot 6) and `32eb7460` (`CX2BuffSoundDisplayTemplet` slot 6) | 4b |
+| **`EXP_RATE`, `IS_PARTY_BUFF`, `NOT_APPLY_BUFF_WHEN_SAME_BUFF_OWNER`, `DROP_RATE`, `VP_RATE`, `LUCKYTIMINGEVENT_*`, `NOT_USE_IN_PVE`/`_HUGE_BOSS_RAID`/`_HENIR`** | **not read by June's client.** They are absent as plaintext, as wide strings, and from all 6,240 decrypted XOR buffers, while the templet parser's other keys are all present. They are server-side keys. | 4a/11: **do not port**. Note the absence and leave them unread. |
+
+**`FUN_31fcf3e0` / `FUN_3227baf0` status (the effect plan's Phase 8b blocker).**
+- **`APPLY_LEARNED_SKILL_*` is unblocked.** Its two gates in `ParsingBuffFactorID` both map to March. The skill-level gate is `31fceab0`: it returns 1 when the unit has no `+0x867c`; otherwise it calls `UserSkillTree::GetSkillLevel` `32890620(id, 0, 0, 1)` (capped at 30), with a sealed-skill exception when the skill templet's `+0x174 == 5`. The buff gate is `3227baf0` = `CX2GameUnit::HaveThisBuff`.
+- **`_ULTIMATE` stays blocked on `31fcf3e0`.** Structurally it takes unit `+0x867c` → `+0x494` (the user skill tree) and maps the skill id through a per-user map (`328905b0`; map at `+0x4ac`/`+0x4b0`, via `SkillTree::32205c00`). It then returns whether `g_pData->GetSkillTree()` (`33775860 +0x50`) `->GetSkillTemplet(id)` has `+0x178 != 0`. March has no skill-memo or ultimate flag. Finishing this is Phase 10's; `funcmap.tsv` carries the same note.
+
 **Re-split recommendation.**
 - Phase 5 (Sonnet) keeps the transcription-ready set: **76, 85, 86, 87, 96, 108, 109.** 85, 86, 87 and 96 also need Phase 2's `AT_COMMAND`.
 - **78, 106, 107, 92, 93, 79, 80–84 and 88 go to an Opus session** (Phase 5b, or join Phase 7). 92 needs the damage-variance system plus the second physic/magic members (coordinate with Phase 4b's BBT 7/8 work).
 - **97 moves to Phase 7**, because it is a per-class virtual.
 - Phase 6 stays as listed but runs on **Opus** until a Phase 1b pass decodes its classes.
+
+### Phase 1 — Done note (2026-10-02)
+
+- **Complete.**
+  - Loaders, factories, the factor-parse switches and the `_INT` design: all settled questions are in the 1a table, premium `_INT` included.
+  - The store/level-slice/SGU switches.
+  - The parse layout of **every** new BBT/BFT.
+  - Every June reader of the ChangeStat-class stores, and the identity stores with their reader functions.
+  - Bindings and key locations, and the `31fcf3e0` status.
+  - 54 confirmed `funcmap.tsv` rows (plus 3 candidates: `31fceab0`, `326c6e20`, and the updated `31fcf3e0`).
+  - The re-split, with `buff_census.py` taught `--phase 5b`, plus a "not implemented in June" exclusion (BBT 111/112, BFT 17) so the Phase 13 gate can reach 0. The census now reports BBT "not handled 38" and BFT "not handled 3".
+- **Transcription-ready for Sonnet:** Phase 5 = 76, 85, 86, 87, 96, 108, 109. Everything else is marked Opus-only above.
+- **Phase 1c (remaining RE, Opus 5.5 high).** None of this blocks Phases 2, 3, 4a or 5.
+  1. Phase 6 classes: `SetFactor`/`DoFinish`/packet of 75, 89, 90, 91, 98, 99, 100, 103 and their `CX2GUUser` stores (`31fe2990`, `31fe29e0`, `31fe2a30`, `3210aae0`/`32e87810`, flag `+0x9314`).
+  2. Phase 7 reader semantics for 74, 77, 101, 102, 104, 110 (functions listed in the table); readers for 73 (`+0x67cc`) and 95 (`+0x75ac`); classes 94 and 105.
+  3. Phase 5b: classes 79, 80–84, 88, 93; `DamageData+0x470`/`+0x514`/`+0x4c5` and the three getters beside 78; the damage-variance roll for 92.
+  4. Phase 8: the BFT 14 AURA class (10 slots); BFT 15/16 runtime counters, increment sites and UDP sync.
+  5. Phase 4a/7/9 entry points: name `322a6960`'s virtual calls (`+0x210`, `+0x224`, `+0x234`, `+0x770`; one is likely the immunity check, one `PushNewBuffTempletToGameUnit`); `OnFrameMoveBuff`; `CreateAndInsertCustomFunctionByBuff` (from `CX2BuffCustomFunctionBehaviorTemplet::SetFactor` `32e79b00`).
+- **Tools:** `june2017_re/buffre/` holds the RTTI→vtable scanner, the jump-table sweep, the switch dumper, the displacement/immediate xref sweep and the compact decompiler (see its README). The method is in "How to read June's stores" above.
+- **Cost.** Not available in-session; ask the user for the `/cost` figure and record it here.
+
+```
+Continuing the June buff/debuff port. Read JUNE_BUFF_PORT_PHASES.md in the repo root in
+full -- "Starting context", the "June buff function map", "Per-type map" and the Phase 1
+Done note. Branch: mods/june-buff-port. Use the ghidra skill on unpacked_x2.exe; do not
+mutate the Ghidra project without asking.
+
+Your task (Phase 1c, read-only, Opus 5.5 high): finish the Phase 1c list in the Done note,
+in its order, so Phases 5b-9 can transcribe. For each item, record parse/store/read-site
+pseudocode at the June addresses in the Per-type map, and add confirmed funcmap.tsv rows.
+Read stores with the method in "How to read June's stores" (EBP bases, ADD-immediates,
+the +0x1a0 sub-object). Promote a type to "transcription-ready" only when it meets the bar.
+Record this session's /cost in a Done note. Commit.
+```
 
 ## Phase 2 — Enum reconciliation
 
