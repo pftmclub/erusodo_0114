@@ -907,6 +907,8 @@ dir) gives an unsupported list matching buff_census.py. Build, deploy, commit.
 - `X2ServerProtocol`, `KTDXLIB`, `X2Lib` and `X2` at `US_SERVICE` all built rc=0 with 0 errors; both `stdafx.cpp` files were touched first.
 - `x2.exe` is 18,999,808 B (2026-10-03 03:55:52, md5 `841b930a…`) and contains `load summary: templets`, `ordinal reject BFI`, `unsupported %s in %s` and `BattleFieldBuffFactor_INT.lua`.
 - Deployed as `X2_offline.exe`; the md5 matched after the copy. Not launched.
+- This replaces the exe that the Phase 2 review's "exe pairing" check names (md5 `21539f99…`). Pairing still holds: `SERV_IRUHADEV_JUNE_BUFF_ENUM` is still defined, so the Phase 2 `Enum.lua` can be packed with this exe.
+- Effect on the review's 7b hazard: using a potion now logs `BFI 362 requested but not loaded ...` once, in place of the `uiBuffFactorNumber_ invaild` popup. `GetBuffFactorPtr` still returns NULL, and `ApplyBuffFactorToGUUser` still dereferences it, so the crash remains. Option 2's guard is still the open decision.
 
 **Prediction tool.** `june2017_re/buff_trial_predict.py` walks every entry the way March's C++ parses it (rules in its docstring), using the census's flag-resolved type lists. With `--log ErrorLog.txt` it diffs a trial's `[JUNE_BUFF]` lines entry by entry against both the prediction and the census set (entries listing ≥ 1 type the C++ lacks). `--source DIR` and `--enum FILE` point it at other data.
 
