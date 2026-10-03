@@ -2711,7 +2711,7 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The sessi
 - the four range-member sites against `3226fd70`/`322830f0`.
 - `32e784b8`: is June's factor `+0x30`/`+0x34` the same UID March's `CX2BuffFactor::GetUidGameUnit()` returns?
 
-**Kickoff for the part 4 review** (Opus 5.5 high). It is written to run **alongside Phase 5** in the same working tree: read-only on code, with every check made against commits rather than the working tree or the deployed exe.
+**Kickoff for the part 4 review** (Opus 5.5 high). It runs on its own (no other session editing code). It is read-only unless it finds a code defect, which it then fixes, rebuilds and deploys, as the part 1 review did.
 
 ```
 Continuing the June buff/debuff port. Run this session on Opus 5.5 at high effort. Read
@@ -2724,12 +2724,11 @@ SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY); 16a6d78 is a temporary debug commit (h
 only); the doc commits are 6b0f0c9, 06868a2, a1e1422, 0f4ca0b and 16e057c. Use fresh
 scratch tools; do not reuse part 4's patch or unifdef scripts.
 
-Another session may be running Phase 5 in this same working tree, editing and building
-the same files (X2GameUnit, X2GUUser, X2BuffFactor, Always.h). So this review is READ-ONLY
-on code: no edits, no builds, no deploys. Read every code file from the commit
-(git show b9999a2:<path>), run the flag-off unifdef on those blobs against db3d003, and
-take numstat from git diff db3d003 b9999a2 -- never from the working tree. Do not judge
-the deployed exe either; Phase 5 may have replaced it.
+No other session is editing code. The review is read-only unless it finds a code defect.
+Run the flag-off unifdef on the committed blobs of b9999a2 against db3d003, and take
+numstat from git diff db3d003 b9999a2. The deployed X2_offline.exe is the 16a6d78 debug
+build (md5 ce13bcb3...); confirm that, and leave the debug flag in place (part 5 reverts
+it).
 
 Check, in Ghidra (read-only) and the asm, the part 4 section's suggested spot-checks, plus:
 whether each "same as March" and "not ported" verdict holds (32274df0, 32272d90, 322788c0,
@@ -2737,9 +2736,11 @@ whether each "same as March" and "not ported" verdict holds (32274df0, 32272d90,
 the play-test reasoning holds (the DASH-state event table, the Teleport chain 30..70 vs
 32e7cef0's restack). Count March-data reach where the doc claims none.
 
-Report numbered findings (R1, R2...) with a severity. If you find a code defect, do NOT fix
-it: write the exact fix (file, June address, before/after) into the doc for the next code
-session, since Phase 5 is editing those files. Add confirmed funcmap.tsv rows. Another
+Report numbered findings (R1, R2...) with a severity. If you find a code defect, fix it
+under the same flag (insert-only, byte-level CP949 edits, flag-off unifdef per file),
+rebuild X2Lib and X2 at US_SERVICE (KTDXLIB too if Always.h changes; touch stdafx.cpp
+after a header edit), deploy as X2_offline.exe, record the md5, and ask before launching.
+Add confirmed funcmap.tsv rows. Another
 session may have uncommitted edits in the doc: stage only your own hunks (build the index
 blob from HEAD plus your edits; git hash-object -w, git update-index --cacheinfo). Commit.
 Record the review cost line as in earlier reviews.
