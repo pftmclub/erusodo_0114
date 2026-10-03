@@ -9796,6 +9796,40 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		}
 #endif
 		/// 더블 어택 디버프 발동 여부 연산
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June CX2GUNPC::DamageReact (327b1f30) @327b3a91: BBT 56 on the defender's own list takes every attack type
+		/// except AT_SPECIAL (March: AT_NORMAL only), and not on a no-damage hit (DD+0x4dc). June's multiply just above
+		/// it (skill 30205 x a June-only member, @327b3a6f) is not ported: March has neither.
+		bool bJuneDoubleAttack = false;
+		if ( CX2DamageManager::AT_SPECIAL != pDamageData->attackType && false == pDamageData->m_bNoDamage
+			&& IsDoubleAttackByBuff() )
+			bJuneDoubleAttack = true;
+
+		{
+			CX2GameUnit* pJuneDoubleAttacker = pDamageData->optrAttackerGameUnit.GetObservable();
+
+			/// @327b3ac7: BBT 75 DOUBLE_ATTACK_BUFF (the attacker's list, not AT_SPECIAL, not m_bNoDamage) goes here.
+			/// Phase 6 owns it.
+
+			/// @327b3aea: SI_SA_SDK_BRUTAL_CUTTER 8021, SI_SA_SCA_CRIMSON_BREAK 8025 and SI_SA_SCA_DREAD_WEAPON 8026 (June
+			/// Enum.lua; skills March lacks) double while the attacker has BTI_BUFF_SHADE_THE_ILLUSION, with no
+			/// m_bNoDamage test. June calls HaveThisBuff (3227baf0) with no null test and it dereferences this, so the
+			/// NULL test is a crash guard.
+			const int iJuneUsedSkillID = static_cast<int>( pDamageData->m_eUsedSkillID );
+			if ( ( 8021 == iJuneUsedSkillID || 8025 == iJuneUsedSkillID || 8026 == iJuneUsedSkillID )
+				&& NULL != pJuneDoubleAttacker && pJuneDoubleAttacker->HaveThisBuff( BTI_BUFF_SHADE_THE_ILLUSION ) )
+				bJuneDoubleAttack = true;
+		}
+
+		if ( bJuneDoubleAttack )
+		{
+#ifdef  X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
+			m_eDoubleAttack = ( bAttackedByMe == true ) ? DOUBLE_ATTACK_BY_ME : DOUBLE_ATTACK_BY_OTHER;
+#else   X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
+			m_bDoubleAttack = true;
+#endif  X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
+		}
+#else
 		if(  CX2DamageManager::AT_NORMAL ==  pDamageData->attackType )
 		{
 			if( IsDoubleAttackByBuff() )
@@ -9807,6 +9841,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #endif  X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
             }
 		}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 		// 더블어택은 데미지를 2배로 주지만, UI에 표시하기는 데미지를 반반씩 2번 보여준다. (UI 분리는 뒷부분에..)
 #ifdef  X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
@@ -21797,7 +21832,12 @@ void CX2GUNPC::CommonEventProcess()
 
 		case SCT_AI_DASH:
 			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+				/// June CX2GUNPC::CommonEventProcess (3276d980) @3276e3e6: not while a BBT_DASH_IMPOSSIBLE buff is on
+				if( ( m_AIMessage == SCT_AI_DASH || m_UnUseAIMessage == SCT_AI_DASH ) && m_vecDashImpossiblePtr.empty() )
+#else
 				if( m_AIMessage == SCT_AI_DASH || m_UnUseAIMessage == SCT_AI_DASH )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 				{
 #ifdef  X2OPTIMIZE_ROBUST_NPC_ROTATION
                     SetIsRightNow( m_bAIIsRight );
@@ -21854,7 +21894,12 @@ void CX2GUNPC::CommonEventProcess()
 
 		case SCT_AI_JUMP_DIR:
 			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+				/// June CX2GUNPC::CommonEventProcess (3276d980) @3276e3e6, shared with SCT_AI_DASH: not while a BBT_DASH_IMPOSSIBLE buff is on
+				if( ( m_AIMessage == SCT_AI_JUMP_DIR || m_UnUseAIMessage == SCT_AI_JUMP_DIR ) && m_vecDashImpossiblePtr.empty() )
+#else
 				if( m_AIMessage == SCT_AI_JUMP_DIR || m_UnUseAIMessage == SCT_AI_JUMP_DIR )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 				{
 #ifdef  X2OPTIMIZE_ROBUST_NPC_ROTATION
                     SetIsRightNow( m_bAIIsRight );
@@ -21875,7 +21920,12 @@ void CX2GUNPC::CommonEventProcess()
 
 		case SCT_AI_DOWN_DIR:
 			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+				/// June CX2GUNPC::CommonEventProcess (3276d980) @3276e532: not while a BBT_DASH_IMPOSSIBLE buff is on
+				if( ( m_AIMessage == SCT_AI_DOWN_DIR || m_UnUseAIMessage == SCT_AI_DOWN_DIR ) && m_vecDashImpossiblePtr.empty() )
+#else
 				if( m_AIMessage == SCT_AI_DOWN_DIR || m_UnUseAIMessage == SCT_AI_DOWN_DIR )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 				{
 #ifdef  X2OPTIMIZE_ROBUST_NPC_ROTATION
                     SetIsRightNow( m_bAIIsRight );

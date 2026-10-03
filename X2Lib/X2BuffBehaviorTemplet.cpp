@@ -982,6 +982,10 @@ void CX2BuffChangeNowMpPerSecondBehaviorTemplet::DrawText( CX2GameUnit* pGameUni
 		{
 			if ( BCT_RELATION_VALUE != m_eChangeType || STATIC_CAST_FLOAT_TO_ENUM( BUFF_RELATION_TYPE, (*pBehaviorFactor)[FO_RELATION_TYPE] ) == m_eRelationType )
 			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+				/// June 32e78410 @32e784b8: vslot 15 with the applier's UID (factor +0x30/+0x34), after both type checks
+				SetBuffOwnerUID( BuffFactor_.GetUidGameUnit() );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 				/// 저항을 무시하는 것도 아니고 영향을 받을 저항이 있는 경우 저항값을 얻어옴
 
 // 				const float fRegist = ( BuffFactor_.GetIgnoreRegistForRate() ? 
@@ -3933,6 +3937,30 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 */
 /*virtual*/ bool CX2BuffChangeConsumeMpRate::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 32e7cef0: the value is a rate, 1 + v (restack: += v), for users only. June looks the skill level up and
+	/// ignores it; it has no MP lookup and no change-type test. The reader is CX2GUUser::GetSkillRateByBuffBehavior.
+	const KBuffBehaviorFactor* pJuneBehaviorFactor = NULL;
+	if ( false == BuffFactor_.GetBehaviorFactor( GetType(), &pJuneBehaviorFactor ) )
+		return false;
+
+	m_uiSkillId = static_cast<UINT>( (*pJuneBehaviorFactor)[FO_SKILL_ID] );
+
+	if ( pGameUnit_->GetGameUnitType() == CX2GameUnit::GUT_USER )
+	{
+		CX2GUUser* pUser = reinterpret_cast<CX2GUUser*>( pGameUnit_ );
+
+		if ( NULL == pUser->GetUnit() )
+			return false;
+
+		if ( DidStart() )
+			m_fResultValue += (*pJuneBehaviorFactor)[FO_VALUE];
+		else
+			m_fResultValue = (*pJuneBehaviorFactor)[FO_VALUE] + 1.f;
+	}
+
+	return true;
+#else
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 
 	/// 버프가 가지고 있는 여러 요소 중 현재 클래스에 해당 하는 정보를 얻어옴
@@ -3969,6 +3997,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 	}
 	else
 		return DISPLAY_ERROR( L"CX2BuffCreateBuffFactortBehaviorTemplet GetBehaviorFactor didn't work" );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 }
 
 /** @function : GetClonePtr

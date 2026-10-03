@@ -2619,6 +2619,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		float								GetMaxHpValue() const { return m_AdditionalMaxHp.GetResultValue(); }
 		float								GetPhysicAttackValue() const { return m_AdditionalPhysicAttack.GetResultValue(); }
 		float								GetMagicAttackValue() const { return m_AdditionalMagicAttack.GetResultValue(); }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		float								GetPhysicAttackRangeValue() const { return m_AdditionalPhysicAttackRange.GetResultValue(); }
+		float								GetMagicAttackRangeValue() const { return m_AdditionalMagicAttackRange.GetResultValue(); }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		float								GetPhysicDefenceValue() const { return m_AdditionalPhysicDefence.GetResultValue(); }
 		float								GetMagicDefenceValue() const { return m_AdditionalMagicDefence.GetResultValue(); }
 		float								GetAnimSpeedValue() const { return m_AdditionalAnimSpeed.GetResultValue(); }
@@ -4554,6 +4558,14 @@ protected:
 		CX2AdditionalStatByBuff			m_AdditionalMaxHp;				/// 최대Hp변경효과
 		CX2AdditionalStatByBuff			m_AdditionalPhysicAttack;		/// 물리공격력변경효과
 		CX2AdditionalStatByBuff			m_AdditionalMagicAttack;		/// 마법공격력변경효과
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June's second physic/magic attack members (+0x44ec/+0x45a0): BBT 7/8 insert into them beside the main ones
+		/// (32282700 @3228289e/@322828d6), and June's damage roll 322788c0 reads their result as the +/- range. June's
+		/// basic value comes from two stat-block fields (+0xc/+0x10, CX2GameUnit slots 119/120) that March's stat lacks,
+		/// so the basic stays 0 here and the result is non-zero only through FIX/RELATION/SWAP buffs.
+		CX2AdditionalStatByBuff			m_AdditionalPhysicAttackRange;
+		CX2AdditionalStatByBuff			m_AdditionalMagicAttackRange;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		CX2AdditionalStatByBuff			m_AdditionalPhysicDefence;		/// 물리방어력변경효과
 		CX2AdditionalStatByBuff			m_AdditionalMagicDefence;		/// 마법방어력변경효과
 		CX2AdditionalStatByBuff			m_AdditionalAnimSpeed;			/// 동작속도변경효과

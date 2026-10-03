@@ -9137,11 +9137,33 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #endif
 		
 		/// 더블 어택 디버프 발동 여부 연산
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June CX2GUUser::DamageReact (320462a0) @32048d86: BBT 56 on the defender's own list takes every attack type
+		/// except AT_SPECIAL (March: AT_NORMAL only). June's multiply just above it (skill 30205 x a June-only member,
+		/// @32048d64) is not ported: March has neither.
+		if ( CX2DamageManager::AT_SPECIAL != pDamageData->attackType && IsDoubleAttackByBuff() )
+			m_bDoubleAttack = true;
+
+		{
+			CX2GameUnit* pJuneDoubleAttacker = pDamageData->optrAttackerGameUnit.GetObservable();
+
+			/// @32048da7: BBT 75 DOUBLE_ATTACK_BUFF (the attacker's list, not AT_SPECIAL) goes here. Phase 6 owns it.
+
+			/// @32048dc1: SI_SA_SDK_BRUTAL_CUTTER 8021, SI_SA_SCA_CRIMSON_BREAK 8025 and SI_SA_SCA_DREAD_WEAPON 8026 (June
+			/// Enum.lua; skills March lacks) double while the attacker has BTI_BUFF_SHADE_THE_ILLUSION. June calls
+			/// HaveThisBuff (3227baf0) with no null test and it dereferences this, so the NULL test is a crash guard.
+			const int iJuneUsedSkillID = static_cast<int>( pDamageData->m_eUsedSkillID );
+			if ( ( 8021 == iJuneUsedSkillID || 8025 == iJuneUsedSkillID || 8026 == iJuneUsedSkillID )
+				&& NULL != pJuneDoubleAttacker && pJuneDoubleAttacker->HaveThisBuff( BTI_BUFF_SHADE_THE_ILLUSION ) )
+				m_bDoubleAttack = true;
+		}
+#else
 		if(  CX2DamageManager::AT_NORMAL ==  pDamageData->attackType )
 		{
 			if( IsDoubleAttackByBuff() )
 				m_bDoubleAttack = true;
 		}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 		// 더블어택은 데미지를 2배로 주지만, UI에 표시하기는 데미지를 반반씩 2번 보여준다. (UI 분리는 뒷부분에..)
 		if ( true == m_bDoubleAttack )
@@ -21131,7 +21153,13 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 	
 		const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTemplet->m_eID ) );	/// 스킬 레벨
 	
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 3203cf60 @3203cfe1: every skill's cost is multiplied by the BBT_CHANGE_CONSUME_MP_RATE rate (32039a50)
+		return pSkillTemplet->GetSkillMPConsumptionValue( iSkillTempletLevel )
+			* GetSkillRateByBuffBehavior( pSkillTemplet->m_eID, BBT_CHANGE_CONSUME_MP_RATE );
+#else
 		return pSkillTemplet->GetSkillMPConsumptionValue( iSkillTempletLevel );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	}
 #else // UPGRADE_SKILL_SYSTEM_2013
 	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID_, iSkillLevel_ );
@@ -21146,6 +21174,44 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 #endif // UPGRADE_SKILL_SYSTEM_2013
 }
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : GetSkillRateByBuffBehavior
+	@brief : June 32039a50 (CX2GUUser). Walks every live buff's factor (GetBuffFactor, 3229fd80) and, for each behavior
+		of the given type, takes v[2] when (int)v[1] is the skill ID, or when v[1] is 0 and the skill is neither a
+		relationship nor a hyper-active skill (32070580). The last match wins. June maps the ID through the skill
+		templet's +0x178 first (32207210), which March lacks, so the ID is compared as is.
+	@param : the skill (eSkillID_), the behavior type (eBehaviorType_; GetActualMPConsume passes BBT_CHANGE_CONSUME_MP_RATE)
+	@return : the rate, 1.0 when nothing matches
+*/
+float CX2GUUser::GetSkillRateByBuffBehavior( const CX2SkillTree::SKILL_ID eSkillID_, const BUFF_BEHAVIOR_TYPE eBehaviorType_ ) const
+{
+	float fRate = 1.f;
+
+	vector<KBuffFactor> vecBuffFactor;
+	GetBuffFactor( vecBuffFactor );
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID_ );
+
+	BOOST_FOREACH( const KBuffFactor& kBuffFactor_, vecBuffFactor )
+	{
+		BOOST_FOREACH( const KBuffBehaviorFactor& kBehavior_, kBuffFactor_.m_vecBuffBehaviorFactors )
+		{
+			if ( static_cast<UINT>( eBehaviorType_ ) != kBehavior_.m_uiType )
+				continue;
+
+			const int iSkillID = static_cast<int>( kBehavior_[1] );
+			if ( static_cast<int>( eSkillID_ ) == iSkillID
+				|| ( 0 == iSkillID && NULL != pSkillTemplet
+					&& CX2SkillTree::ST_RELATIONSHIP_SKILL != pSkillTemplet->m_eType
+					&& CX2SkillTree::ST_HYPER_ACTIVE_SKILL != pSkillTemplet->m_eType ) )
+				fRate = kBehavior_[2];
+		}
+	}
+
+	return fRate;
+}
+
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /** @function : GetActualCoolTime
 	@brief : 사용한 스킬의 쿨타임을 얻어옴
 	@param : 사용한 스킬의 ID, 사용한 스킬의 레벨
@@ -23689,7 +23755,8 @@ void CX2GUUser::AnimStop()
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /// June 31fe8130 (vslot 231): every skin anim resumes its own play type, where March forced XAP_LOOP. June
-/// also plays two June-only anims (+0x8e84, +0x8e88) and clears a third state byte (+0x8040); March has neither.
+/// also plays two June-only anims (+0x8e84, +0x8e88) and clears a June-only byte (+0x8080) beside bSuperArmor
+/// (+0x7ff4) and bSuperArmorNotRed (+0x8040), the two this port clears; March has neither June member.
 void CX2GUUser::AnimPlay()
 {
 	if ( m_pXSkinAnimFuture != NULL )

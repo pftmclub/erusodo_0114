@@ -11760,10 +11760,16 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 
 	case BBT_CHANGE_PHYSIC_ATTACK:			/// 물리공격력
 		m_AdditionalPhysicAttack.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		m_AdditionalPhysicAttackRange.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );	/// June 32282700 @3228289e
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		break;
 			
 	case BBT_CHANGE_MAGIC_ATTACK:			/// 마법공격력
 		m_AdditionalMagicAttack.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		m_AdditionalMagicAttackRange.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );	/// June 32282700 @322828d6
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		break;
 			
 	case BBT_CHANGE_PHYSIC_DEFENCE:			/// 물리방어력
@@ -11921,12 +11927,22 @@ void CX2GameUnit::UpdateAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 		{
 			if ( !m_AdditionalPhysicAttack.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
 				m_AdditionalPhysicAttack.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+			/// June 3226fd70 @3226fe56
+			if ( !m_AdditionalPhysicAttackRange.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
+				m_AdditionalPhysicAttackRange.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		} break;
 
 	case BBT_CHANGE_MAGIC_ATTACK:			/// 마법공격력
 		{
 			if ( !m_AdditionalMagicAttack.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
 				m_AdditionalMagicAttack.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+			/// June 3226fd70 @3226fec5
+			if ( !m_AdditionalMagicAttackRange.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
+				m_AdditionalMagicAttackRange.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		} break;
 
 	case BBT_CHANGE_PHYSIC_DEFENCE:			/// 물리방어력
@@ -12169,10 +12185,16 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 
 	case BBT_CHANGE_PHYSIC_ATTACK:			/// 물리공격력
 		m_AdditionalPhysicAttack.EraseStatFactor( eChangeType_, BuffIdentity_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		m_AdditionalPhysicAttackRange.EraseStatFactor( eChangeType_, BuffIdentity_ );	/// June 322830f0 @3228326c
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		break;
 
 	case BBT_CHANGE_MAGIC_ATTACK:			/// 마법공격력
 		m_AdditionalMagicAttack.EraseStatFactor( eChangeType_, BuffIdentity_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		m_AdditionalMagicAttackRange.EraseStatFactor( eChangeType_, BuffIdentity_ );	/// June 322830f0 @32283294
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		break;
 
 	case BBT_CHANGE_PHYSIC_DEFENCE:			/// 물리방어력
@@ -12351,6 +12373,10 @@ void CX2GameUnit::CheckAndUpdateAdditionalStat()
 
 	m_AdditionalPhysicAttack.CheckAndUpdateResultValue();
 	m_AdditionalMagicAttack.CheckAndUpdateResultValue();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	m_AdditionalPhysicAttackRange.CheckAndUpdateResultValue();	/// June @32290976
+	m_AdditionalMagicAttackRange.CheckAndUpdateResultValue();	/// June @32290981
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	m_AdditionalPhysicDefence.CheckAndUpdateResultValue();
 	m_AdditionalMagicDefence.CheckAndUpdateResultValue();
 

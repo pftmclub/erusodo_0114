@@ -282,6 +282,12 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 	virtual bool OnAccumulationCountDecreased( CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );	/// June 32e73500
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June ChangeStat vslots 14/15: GetBuffOwnerUID (32ec5980, returns 0) and SetBuffOwnerUID (33093ad0, empty).
+	/// Only June's _HaveBuffOwner subclass (BBT 93, Phase 5b) overrides them; SetFactor calls 15 on every apply.
+	virtual UidType GetBuffOwnerUID() const { return 0; }
+	virtual void SetBuffOwnerUID( const UidType ) {}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 protected:
 	CX2BuffChangeStatBehaviorTemplet() : CX2BuffBehaviorTemplet(),

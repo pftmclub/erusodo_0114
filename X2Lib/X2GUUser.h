@@ -2697,6 +2697,9 @@ public:
 
 		// 오현빈 // X2Game에서 UI에 출력 하기 위해 사용 할 수 있도록 public으로 이동.
 		virtual float				GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		float						GetSkillRateByBuffBehavior( const CX2SkillTree::SKILL_ID eSkillID_, const BUFF_BEHAVIOR_TYPE eBehaviorType_ ) const;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		virtual float				GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;
 
 #ifdef NEXON_QA_CHEAT_REQ

@@ -5461,6 +5461,11 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 #endif BALANCE_ELEMENTAL_MASTER_20130117
 
 #ifdef FIX_SKILL_BALANCE_AISHA_LENA //JHKang
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+			/// June has no Teleport override here: CX2GUUser::GetActualMPConsume already multiplies every skill by
+			/// the BBT_CHANGE_CONSUME_MP_RATE rate (3203cf60 @3203cfe1), and this override would replace the cost
+			/// with that rate (1 + v MP).
+#else
 			vector<KBuffFactor> VecDebuffFactor;
 			GetBuffFactorOnlyDebuff( VecDebuffFactor );
 
@@ -5473,6 +5478,7 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 						fMpConsumption = kBehavior_.m_vecValues[2];
 				}
 			}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #endif //FIX_SKILL_BALANCE_AISHA_LENA
 
 #ifdef SERV_SKILL_NOTE
