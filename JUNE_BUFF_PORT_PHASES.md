@@ -2264,6 +2264,65 @@ to BEHAVIOR_PARITY's dependency note. Build, deploy, commit; record where you st
 
 **Cost:** `/cost` is not readable from inside the session; ask the user.
 
+### Phase 4b-i part 2 — Review (2026-10-03, Opus 5.5 high)
+
+Independent review of `05f5230` (NeverMove), `22d63b3` (ResetSkillCoolTime) and `014c8e1` (damage reader + AttackByType), all under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. `c67ccab` (offline auth level) was checked for hygiene only. The review was read-only on code; nothing was built or deployed.
+
+Fresh tools only:
+- Ghidra, read-only. Ghidra carves only the prologue of `32894880` (its body ends at `328948ba`), so the rest was read with a new PE-section-mapped capstone reader.
+- A new `.text` scan for `E8` calls to `322a25f0`, `32274d60` and `322818d0`.
+- A new byte-level unifdef of the one flag.
+- A fresh `elstools decompile-batch` of March's live `BattleFieldBuffTemplet.lua` (152,564 B) and `BattleFieldBuffFactor.lua` (353,105 B). Both sizes equal the live `data036.kom` manifest entries.
+
+**Verdict: no code defect, so there is no numbered fix for part 3.** Every spot-check matches June. One measured behaviour is much worse than the part 2 text says, so it goes back to the user as decision **D1**. It is a data/exe pairing problem, not a port error.
+
+| # | Check | Result |
+|---|---|---|
+| 1 | `32894880` jump table `32894c3c` | **Pass.** It reads `cmp eax,3 / ja 32894b9c` (default), then `[eax*4+32894c3c]` = `328948f6`, `3289499f`, `32894ab4`, `32894b74`. Raw change types 0–3 are used with no remap, so the order is SWAP/FIX/RELATION/PERCENT (March `BCT_*` 0–3, `X2BuffFactor.h:205`). **Prologue:** `3214f3d0(gage index)` gives the slot type (0–3 → 1, 5–8 → 2, 4/9 → 3, otherwise 0). If `SKILL_SLOT_TYPE` (arg 8) is non-zero and differs, it returns false before anything else. **SWAP:** `FORCE_SET == 1` skips the guard. Otherwise `now <= value` (`test ah,0x41`) returns false and the gage is not touched. Then it writes the slot only if the value differs, writes the gage always, and returns **true even when the value is equal**. **FIX:** `now + value`, clamped below at 0.0 (`334350e8` = 0.0, `test ah,5 / jp`), then clamped to max = `3220f7a0(templet, 32890620(id,0,0,1))`. It returns `new != now`. **RELATION:** `max × rate + now`, no clamp, returns false. **PERCENT:** `max × rate`, returns false. **Default:** 0.0, returns false. `ApplyResetCoolTime` matches every branch. It takes the bar's slot type as an argument (A = 1, B = 2) instead of deriving it from the index; that is the same answer for March's 4-slot bars. |
+| 1b | Rest of the RSCT path | **Pass.** **`32e76aa0` SetFactor** (jump table `32e76b74`): 0/1 → cool time `+0x18`; 2 → rate `+0x1c`; 3 → rate, then the 0..1 range check. **`32e85fe0` OnFrameMove:** checks DidStart; slots 161/162 run *before* the APPLY_ONCE gate; slot 160's arguments are `+0x10` type, `+0x18` cool time, `+0x21` FORCE_SET, `+0x14` change type, `+0x1c` rate, `+0x20` RELATIVE_ALL, `+0x48` slot type, in the port's order; DRAW_TEXT runs only on `+0x46` and a true result. **`328922f0` filter:** the force list (`+0x478`) returns true first. Then the type must match unless RELATIVE_ALL (arg 3) is set. Types 12/13 need FORCE_SET (arg 4). The ignore list (`+0x468`) excludes. **`32896600`:** 5 slots per bar; a slot whose ID ≤ 0 is skipped; A then B; the results are ORed; both lists are cleared at the end. **`31fcd810`** guards only on `GetUnit()` (`+0x867c`), as March's own `CX2GUUser::ResetLeftSkillCoolTimeBySkillType` does, so in both versions a reset run on another user's unit would write *my* gage indices (parity, not ported behaviour; not checked whether that path is reached). **`32890620` settled:** arg 2 is "base level only" (`cmp byte [esp+0x10],1`), and the RSCT callers pass 0 (base + bonus). Arg 4 is used only as scratch for the map lookup, and the result is capped at 30 (`0x1e`). That is March's `GetSkillLevel(id)` with `bBasic = false`, so the port's lookup is exact. |
+| 2 | `322a25f0` call sites | **Pass.** The `.text` scan finds exactly the four callers Ghidra lists. The bool is arg 2 (`[esp+0x2c]` in `322a25f0`), stored beside the pointer into the `+0xe24` vector (`322b52a0`). MSVC interleaves it: it is pushed before the two arguments of `32089f60`, which pops 8 (`ret 8`), so it survives as `322a25f0`'s arg 2. Values: `3204f8c3` `push 0`; `32d1c8c6` `setg` of `32890620(0x53aa = 21418, 1, 0, 1) > 0`, i.e. the *base* level of Magic Coating; `32d1d291` `push 0` (`32d1d269`); `32d1d2d9` `push 0` (`32d1d2af`). So every March insert on the one-argument overload (false) is right. |
+| 3 | `32274d60` clamp | **Pass.** It starts at `FLD1`. Per entry: `cmp edi,[e+0x10] / je` multiply, else `cmp edi,[e+0x20] / jne` skip; it multiplies the protected float at `+0x14`. Tail: `FLDZ / FCOM / test ah,5 / jp`. A product `< 0` returns 0.0; otherwise it returns the product. The port is identical. Store `322818d0` is called only from `32e747a0`, `32e77174` and `32e772d0` (packet, first SetFactor, restack). |
+| 4 | NeverMove packet `32e76e70` | **Pass.** `[0..2]` → position. `0 < [3]` → gravity (`+0x1c`). `[4] > 0` → can-down (`+0x1d`, `test ah,0x41`). `size < 7` skips the offset. Otherwise `[5]`, `[6]`, and `[7]` (0.0 when `size == 7`) go into `+0x20/+0x24/+0x28` and are added to the position. Then `3227abb0(identity, pos, gravity, 0)` is called. The port matches, including the size-7 edge and the double offset. |
+| 5 | Damage reader `326309f0` (extra) | **Pass.** The attacker is `DamageData+0xc` minus `0x1a0`; null → return. The permanent list `+0xe24` is skipped when reAct `[+0x24]` is 0 or 7 (`RT_NO_DAMAGE`/`RT_DUMMY_DAMAGE`, `X2DamageManager.h:232/239`). **Per entry:** templet = `32206450(APPLIED_SKILL_ID [+0x5c4], 1)`. If the flag is set, the templet is non-null and `32070510(templet) != 5`, the entry is taken. Otherwise it is taken unless `attackType == 1` (`AT_SPECIAL`). The temporary list `+0xe34` uses the same test with no reAct gate. `JuneBuffCanPushAttackerBuffFactor` is the same test, including the null-templet fallthrough. |
+| 6 | March RSCT count | **6 templets.** FIX 1 (Giga Drive); RELATION 4 (Harsh Slayer active/special, ONCE2, EMP Shock); PERCENT 1 (ONCE). This matches the part 2 table. **Finalizers:** Giga Drive is `BFT_TIME`, `NORMAL_TIME` 20 at every level, with `FIX_VALUE` 1 at every level. The other five are `BFT_IMMEDIATE`. |
+| 7 | Hygiene | **Pass.** **Unifdef:** `X2BuffBehaviorTemplet.cpp/.h` and `X2BuffFactor.h` reduce to `3f51f2b^` byte for byte. `X2GUUser.h/.cpp`, `X2Game.cpp`, `X2BuffTemplet.h`, `X2GameUnit.h/.cpp`, `X2UserSkillTree.h/.cpp` and `X2DamageManager.cpp` reduce to `66a1593` byte for byte. `X2BuffFactor.cpp` is unchanged since `66a1593` (part 1's 3 blank lines remain). **`--numstat 66a1593..c861ebc`:** the only deletions are `014c8e1`'s 3 lines of part 1's own flagged code. Every inserted line is ASCII. Line endings follow the host file: CRLF in CRLF files, and bare LF in the LF-native `X2UserSkillTree.cpp/.h` (20/3002 and 7/537 lines CRLF) and `X2DamageManager.cpp` (278/4216). **`file`** signatures are unchanged for all 17 code files. The flag is defined only at `Always.h:4746` and in no `.vcxproj`. **`c67ccab`:** the flag is at `Always.h:4758`. The unifdef gives `c67ccab^` byte for byte for `Handlers_Login.cpp`, `Handlers_Room.cpp` and `X2OfflineServer.cpp`. `X2OfflineDB.cpp`/`.h` each keep one blank LF line outside the guards (after the `#endif` before `GetCashBalance`, `.cpp:2729`; and before the `////` rule, `.h:764`). These are our own files, so it is benign. The original `XUAL_NORMAL_USER` assignments are kept in each `#else`. |
+
+**D1 — Giga Drive on March data: decision for the user (not a code defect).**
+- The part 2 table says "adds 1 s instead of setting 1 s". The real effect is the opposite of the skill's intent:
+  - `BTI_SI_SA_RBM_GIGA_DRIVE` lasts **20 s** (`BFT_TIME`).
+  - RSCT applies **every frame** while the buff runs (`32e85fe0`; this data has no APPLY_ONCE).
+- **March:** each frame lowered every equipped `ST_ACTIVE` cool time above 1 s to 1 s. Actives were effectively on a 1 s cool time for 20 s.
+- **New exe:** June's FIX adds 1 s **per frame**, clamped to the skill's maximum.
+  - Every equipped active, including ones that were ready, reaches its full cool time within a few dozen frames.
+  - It stays pinned there for 20 s.
+  - So **Giga Drive locks out every equipped active skill for 20 s.**
+- The other five are one-shot (`BFT_IMMEDIATE`), so the table's wording stands for them.
+- The user's "keep June semantics" decision was made against the softer description, so it should be re-confirmed.
+- **Options:**
+  - **(a) Keep it.** Giga Drive stays broken until Phase 13.
+  - **(b) Data-side remap.** In March's `BattleFieldBuffTemplet.lua` and `BattleFieldBuffFactor.lua`, give these entries June's own change type *and* value key. Keep the originals in comments. No code change. The edits:
+    - Giga Drive: `BCT_FIX_VALUE`/`FIX_VALUE` → `BCT_SWAP_VALUE`/`SWAP_VALUE`.
+    - Harsh Slayer ×2, `FIRE_BLOSSOMS_APPLY2` (ONCE2) and `EMP_SHOCK_NEAR`/`_FAR`: `BCT_RELATION_VALUE`/`MULTIPLIER` → `BCT_FIX_VALUE`/`FIX_VALUE`.
+    - Templets and factors: recompile with `-v mar-2014` and stage both. The user packs both together (pairing rule).
+    - This restores March's behaviour on the new exe, with two exceptions that are June's own: FIX now clamps at the skill's maximum, and the 12/13 exclusion in correction 2.
+  - **Recommendation: (b).** It is a 5-entry data edit that June itself made, and Raven's Giga Drive is a normal player skill.
+
+**Doc corrections**
+1. **Part 2, RSCT table, Giga Drive row** ("adds 1 s instead of setting 1 s"): the buff lasts 20 s and re-applies every frame. Every equipped active is pinned at its maximum cool time (D1).
+2. **Part 2, RSCT table, `BTI_SET_SKILL_COOLTIME_ONCE` "unchanged"** is incomplete.
+   - June's filter `328922f0` skips relationship (12) and hyper-active (13) skills unless FORCE_SET is set.
+   - So the three RELATIVE_ALL_SKILL resets (ONCE, ONCE2, EMP Shock) no longer touch them.
+   - It is reachable: March equips both types in `m_aEquippedSkill`/`m_aEquippedSkillSlotB`, and its own other resets already skip them (`X2UserSkillTree.cpp:2489-2499`).
+   - It is **permanent June behaviour**, not a Phase 13 regression, because June's data has no FORCE_SET on any of these BTIs.
+   - Two further March templets (Harsh Slayer active/special) are type-scoped, not RELATIVE_ALL. June makes the active one `ST_NONE` + RELATIVE_ALL in its data.
+3. **The `SERV_IRUHADEV_JUNE_DAMAGEDATA` hand-off is already done.** `c67ccab` added the note to `BEHAVIOR_PARITY`'s `Always.h` comment. The part 2 "Damage reader" bullet ("not yet in the Always.h comment") and the part 3 kickoff line ("The next Always.h touch must add …") are stale; part 3 should skip it.
+4. **`32890620`** moves from candidate to confirmed (check 1b). `funcmap.tsv` has a superseding row.
+5. **SWAP reports a change even when the value is unchanged** (`bl = 1` on every SWAP that passes the guard). The port already does this; the part 2 phrase "Only SWAP and FIX report a change" is right but should read "SWAP always, FIX when the value moved".
+
+**funcmap.tsv:** 1 row added ("Buff Phase 4b-i part 2 review"): `32890620`, confirmed.
+
+**Review cost:** `/cost` is not readable from inside the session; ask the user.
+
 ## Phases 5–7 — New behavior types
 
 Each new BBT follows an 8-step checklist:
