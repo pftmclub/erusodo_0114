@@ -169,3 +169,21 @@ values, before loading the script. Otherwise **every state after the first refer
 5. A per-character parser census (section 5).
 6. Only then copy the character's June script, and rerun `charport_scan.py` to confirm nothing new
    appeared.
+
+## 7. Buff-engine hooks that only character code reads (from the June buff port, 4b-i part 3)
+
+The buff port (`JUNE_BUFF_PORT_PHASES.md`, "Phase 4b-i, part 3") ports the buff side of these and
+stops at the character boundary. Each item below is June character code that reads or drives a
+buff-side store. Port it with the character, whole, and wire it to the store named here.
+
+| June | Class | What it does | Buff-side store in March |
+|---|---|---|---|
+| `32bb22d0` / `32bb2740` (vslots 49/50, `HyperModeBuffEffectStart/End`) | Ara | Start: when `+0x9744 > 0` and the buff hyper count `< 3`, a loop over June-only members; End: writes the count back to 0 | `CX2GameUnit::GetHyperModeCountByBuff()` (June `+0x6844`). **March has both functions, June reworked them: port each whole.** |
+| `32ba6cc0` (vslot 39), `32ba6d00` (vslot 147: count 1 -> state `0x294`, 2 -> `0x295`), `32badc80` region (vslot 485, 3 reads), `32baf270` (397), `32bc8be0` region (198), `32bc8030` (vslot 17, writes) | Ara | Read or write the buff hyper count | same |
+| `32bf4680` (non-virtual, after vslot 465) | Chung | Skips its timer work when the buff hyper count is 3 | same |
+| `329f538a` (inside the vslot-16 range) | Add | Reads the buff hyper count | same |
+| `32b1e8e0` (vslot 16) | Luciel | Writes 0 at init | same |
+| `3227c360` `(op, BTI, index, value)` | Rose only (`32ab2f02`, `32ab2f6d`, `32ae305b`, `32ae30ac`) | Finds the buff by BTI and calls its N-th behavior's vslot 9 (`+= v`), 10 (`*= v`) or 11 (`= v`); overrides exist on NowMp (9, 10) and ChangeStat (11) | **not ported**: port the three vslots and `3227c360` with Rose |
+| `322a7660` `(BFI, count, level, x)` and wrapper `322a8a70` | Eve (`3299b7f9`, BFI 812), Elesis (`32b7e96c`/`32b7ebae`, 910/913), Rose, Luciel, Aisha (`32cc5c16`, BFI in a register), and `CX2GUUser` code for June-only factors 523/820/877/929 | Sets an existing buff's stack count; `3236a430` then re-runs every behavior's vslot 3 (NowMp, ChangeStat, EnchantAttackRate override it) | **not ported**: every constant BFI pushed here is in Phase 2's June-only block. Port with the first caller that arrives |
+| `31fe8130` / `31fe8050` (user `AnimPlay`) | every user | June also plays two extra skin anims (`+0x8e84`, `+0x8e88`) and clears a third state byte (`+0x8040`) | the buff port plays March's two anims and clears March's two super-armor fields only |
+| `32a3d1f0` (vslot 130, `GetPowerRate(BTI)`) | Ain | The only override of the BTI-taking power-rate getter that EffectSetWithDamage calls | none: March's `GetPowerRate()` takes no BTI |

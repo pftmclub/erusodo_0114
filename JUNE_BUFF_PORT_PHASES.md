@@ -2323,6 +2323,72 @@ Fresh tools only:
 
 **Review cost:** `/cost` is not readable from inside the session; ask the user.
 
+### Phase 4b-i, part 3 — progress (2026-10-03)
+
+Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. This section records the RE verdicts first (committed before any code); the code, build and stop point follow below.
+
+**Item 1: the HyperMode `+0x6844` readers.**
+- A `.text` scan of all three protected-int words (`+0x6844`, `+0x6848`, `+0x684c`) finds no reader in the `CX2GUUser` (`0x3200xxxx`) or `CX2GameUnit` (`0x322xxxxx`) regions. Every reader is character code: Ara (8), Chung (1), Add (1), plus the Luciel writer.
+- **June kept March's `m_iHyperModeCountUsed` as a separate member.** `CX2GUUser` vslot 44 (`3208df20`, `GetLastStateHyperModeCount`) reads `+0x8d44`. Both of June's `HyperModeStart` copies (`31fe9706`/`31fe971c`, `31ffd4b8`/`31ffd4ce`) then write the same register into `+0x8d48`. June's Reactive Armor (`32bed453`, skill `0x672e`) switches on `+0x8d48`: 1/2/default → abilities `0x88/0x89/0x8a`, which is March's `X2GUChung.cpp:22663`.
+- So `+0x6844` is a new **buff-driven** count. It also covers awakening granted by `HYPER_COUNT` data, which never passes through `HyperModeStart`.
+- **Port:** a new `CX2GameUnit` member (`m_iHyperModeCountByBuff`, with `Set/GetHyperModeCountByBuff`). June writes it in three places:
+  - SetFactor `@32e7dc69`: `count < 1 ? 1 : count`, after the full-orb check and before `HyperModeBuffEffectStart`. Both orb paths reach the call (`je 32e7dc59`).
+  - The packet path `@32e7de36`, the same way.
+  - DoFinish `@32e7ded7`: 0, after `HyperModeBuffEffectEnd`.
+- The readers are listed in `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 7. Ara's vslots 49/50 (`HyperModeBuffEffectStart/End`) exist in March and were reworked in June; they are character-port work.
+
+**Item 2: the NowHp slots.** OnFrameMove `32e72d80`, GetFactor `32e7d4c0`, packet `32e79a80` and ParsingBehavior `32e72a00` are the same as March (each missing key returns false, as March's `LUA_GET_VALUE_RETURN` does). `SelectDelegate` `32e78e00` and the packet path's inlined copy drop March's `DISPLAY_ERROR` for an unknown change type. **Not ported; open decision for the review** (see "Runtime popups" below).
+
+**Item 3: NowMp, ChangeStat, EnchantAttackRate.**
+- **The new vtable slots 3, 9, 10 and 11 are reached only from June-only content. Deferred.** A `.text` scan for the call shapes found exactly two callers:
+  - `3227c360` `(op, BTI, index, value)` calls vslot 9 (`+=`), 10 (`*=`) or 11 (`=`) on a buff's N-th behavior. Its only callers are Rose's (`32ab2f02`, `32ab2f6d`, `32ae305b`, `32ae30ac`).
+  - `3236a430` (`CX2BuffTemplet`) calls vslot 3 on every behavior and then re-runs the displayers. Its only caller is `322a7660` `(BFI, count, level, x)`, which sets an existing buff's stack count (wrapper `322a8a70`). Those are called by Eve, Elesis, Rose, Luciel and Aisha, and by `CX2GUUser` code. Every constant BFI pushed (523, 812, 820, 877, 910, 913, 929) lies in Phase 2's June-only block of `Enum.src.lua`. Aisha's `32cc5c16` passes its BFI in a register (unresolved).
+  - Neither is a Lua binding: there are no pointer references.
+  - Overrides that nothing in March calls would be dead code, so all of this goes to `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 7.
+  - For the record: NowMp vslot 3 `32e7c680` recomputes the value from the factor at a given count (`(1 - r) * v[1]`, × `1 + mul * (count - 1)`); vslots 9/10 `32e893a0`/`32e89430` do `+=`/`*=`; ChangeStat vslot 11 `32e86500` does `=`; EnchantAttackRate vslot 3 is `32e775e0`. Base vslot 3 `32e864d0` returns true; base vslots 9–11 `3208ddc0` are empty.
+- **ChangeStat `SetFactor` `32e78410`: same as March's `ADJUST_BUFF_ACCMULATION_CALCULATE` branch** (`Always.h:639`). That answers part 1's question: June kept ADJUST in ChangeStat. The x87 selects were traced: both keep the larger absolute value, PERCENT is `1 + (new - 1)(c + 1)` clamped at 0, and the tail updates (`3226fd70`) or inserts (`32282700`).
+  - Differences: no popups; a zero multiplier, a change-type mismatch or a relation mismatch returns false silently.
+  - June also calls vslot 15 `SetBuffOwnerUID( factor creator UID +0x30/+0x34 )` `@32e784b8`. It is a no-op except in the June-only `_HaveBuffOwner` subclass (BBT 93), so it is a **Phase 5 hand-off**: add vslots 14/15 to ChangeStat and this call with BBT 93.
+- **ChangeStat `GetValue` `32e764f0`: ported.** FIX with option data uses `min( level, 90 )` (`cmp eax,0x5a` `@32e7655d`); March does not clamp. Constants 1.5 and 9.5 (`334396c8`/`334b9c80`) are unchanged.
+  - The option-type set is a byte table at `32e7664c`: types 11–16, 20, 21 and 72. That equals March's `MustUseOptionData()`, but the port transcribes the set literally.
+  - SWAP, RELATION and PERCENT are the same as March.
+  - ChangeStat's ParsingBehavior `32e73640`, GetFactor `32e7d740`, packet `32e764a0` and DoFinish `32e73940` are the same.
+- **NowMp `SetFactor` `32e7c380`: ported.** June has no `ADJUST_BUFF_ACCMULATION_CALCULATE` PERCENT branch. Every change type restacks with `m / (1 + mul(c - 1))`, keeps the larger absolute value, then multiplies by `1 + mul·c`. It never clamps at 0. This is the same finding as NowHp's in part 1. NowMp's OnFrameMove `32e731a0`, GetFactor `32e7d570`, packet `32e7c8a0` and ParsingBehavior `32e72e20` are the same.
+- **EnchantAttackRate: `SetFactor` `32e77370` and packet `32e74b50` ported.**
+  - June's per-type attribute table (`32e775c4`: 66..71 → 1, 2, 3, 4, 5, 6) equals March's `BALANCE_PATCH_20131107` switch.
+  - When started, March inserts a second entry. June instead restacks: with a count `c`, a zero multiplier returns false; otherwise it erases (`32279c70`) and re-inserts at `v[1]·(1 + mul·c)`, with no resist. With no count, it keeps the larger absolute value, erasing and re-inserting only when the new one is larger.
+  - The packet path erases, then inserts with the templet's attribute and change type. March's packet path used the 2-argument insert and lost both. There is no per-type override on the packet path.
+  - `32279c70` is a `remove_if` whose predicate (`322a95c0`) matches identity (8 bytes) **and** attribute (`+0x1c`) **and** change type (`+0x28`). It is ported as a new `EraseChangeEnchantAttackRate( identity, attribute, change type )` overload.
+  - ParsingBehavior `32e74820`, GetFactor `32e7e520` (`[ct, rate]`) and DoFinish `32e74bc0` are the same.
+
+**Item 4: the 14 remaining classes** (slots dumped from `vt_buff`, `rawfn.py` where Ghidra has not carved them).
+
+| Class | Verdict |
+|---|---|
+| ReverseLeftRight `32e73370`/`32e733b0`/`32e73400`/`32e73210`/`32e72870` | same |
+| Identity `32e73420`/`32e73490`/`32e73470` | same |
+| UnitScale `32e73ab0`/`32e73f70`/`32e73bb0`/`32e73b20` | same (the update branch is March's `POSSIBLE_ADD_CHANGE_SCALE_BUFF_VALUE`, `Always.h:2103`) |
+| EffectSetWithDamage `32e854a0`/`32e85120`/`32e7c980`/`32e85580` | same in buff logic. Two side notes: `GetPowerRate` is unit vslot 130 with the factor's BTI, which forwards to vslot 129 and drops the BTI on every class except Ain (`32a3d1f0`); and `PlayEffectSet` (`32e851b0`) uses June's wider effect-set signature, which is the effect port's |
+| Stun `32e74000`/`32e74090`/`32e74060` | same (`+0x91e5` is March's `SetChangeGroggyState( true )`, `NOT_CANCEL_BBT_STUN_BY_HIT`, `Always.h:2066`) |
+| FinishOther `32e7a280`/`32e79ba0` | same |
+| **Freeze** `32e740b0`/`32e74120`/`32e76d10`/`32e74170`/`32e76cc0` | **DoFinish ported.** After the erase and `SetStateToNowAnimation( XAS_PLAYING )`, June resumes the animation only if (no gage data, **or** the HP gage exists and `NowHp > 0`) **and** `GetGameUnitState() != GUSI_DIE`; otherwise it plays `XAP_ONE_WAIT`. A gage with a null HP gage takes the `XAP_ONE_WAIT` path. The down transition is unchanged. The other slots are the same. |
+| **CanPass** `32e74260`/`32e742b0`/`32e72890`/`32e74320` | **ported.** SetFactor saves the unit's current can-pass flag (unit vslot 68 with 0: the user's `+0x7fc4` copy, which is `m_FrameDataNow` because June's `AnimPlay` clears super-armor at `+0x7ff4` in the same block, as March does in `m_FrameDataNow`). It saves on **every** SetFactor, with no started guard, so a restack saves the buff's own value: June's quirk, transcribed. DoFinish restores it (vslot 233 `SetCanPassUnit`). March had no DoFinish. |
+| DoubleAttack `32e77860`/`32e74e00`/`32e74c20`/`32e74db0` | same, except popups. March's SetFactor runs off the end of a `bool` function on a change-type mismatch, where June returns false (listed under popups below). |
+| AttackSphereScale `32e79ce0`/`32e79dd0`/`32e7cb70`/`32e79d70` | same |
+| AddSkillLevel `32e77970`/`32e74e60`/`32e74e20` | same |
+| ReflectMagic `32e77a50`/`32e750a0`/`32e74ed0`/`32e75060` | same |
+| **ConsumeMpRate** `32e7cef0`/`32e7e870`/`32e75290`/`32e75100`/`32e7d180` | **differs; pending.** June stores a rate, `1 + v[2]` (restack `+= v[2]`), for users only; it looks up the skill level and then ignores it. March stores an absolute MP cost, `init + init·v[2]` with `init = GetActualMPConsume`. March's only reader, Aisha Teleport (`X2GUArme_VioletMage.cpp:5471`, `FIX_SKILL_BALANCE_AISHA_LENA`), **replaces** the cost with `v[2]`. Porting the class alone would therefore make the Teleport debuff cost `1 + v` MP. June's reader is not in `3203cf60`/`3203a250` (no BBT 63 compare). Lead: map the 30 `.text` hits of skill `0x89a` (June's Teleport ID) to classes, and widen the window in Aisha's (the type test may be a switch). |
+| Custom `32e79b00`/`32e73fe0`/`32e73f90` | **Phase 9 hand-off.** SetFactor and the packet path pass June's extra struct (creator UID, is-user, templet `+0xbc`) to `CreateAndInsertCustomFunctionByBuff` (`3229e1a0`), Phase 9's function. Both call sites change with it. |
+
+**Runtime popups: an open decision for the review.** Part 1 ruled popup-only differences "same" because Phase 3 captures them at load. These popups fire at **runtime**, which Phase 3 does not cover, so they are listed rather than ruled:
+- NowHp `SelectDelegate` (unknown change type);
+- the `SetFactor` mismatch and zero-multiplier popups of ChangeStat, DoubleAttack, ReflectMagic and EnchantAttackRate;
+- every class's "GetBehaviorFactor didn't work".
+
+June raises none of them. Functions rewritten whole in this part (NowMp `SetFactor`, EnchantAttackRate `SetFactor`/packet) drop them, as June does.
+
+**Not started in part 3:** item 5 (the four hand-offs: type 56 in both `DamageReact`s, the DASH_IMPOSSIBLE NPC AI gate, the CHANGE_ENCHANT_ATTACK_RATE host math `32274df0`/`32272d90`, the BBT 7/8 second members plus `322788c0`) and item 6 (RSCT DRAW_TEXT).
+
 ## Phases 5–7 — New behavior types
 
 Each new BBT follows an 8-step checklist:
