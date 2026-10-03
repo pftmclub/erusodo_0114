@@ -1926,7 +1926,9 @@ new flags.
 
 **Built `US_SERVICE`** (full `X2Lib` rebuild after `touch stdafx.cpp`, header layout changed) **and
 deployed to `X2_offline.exe`, 18,942,976 B**, 2026-09-27. `X2Lib`, `X2` both built with 0 errors.
-**Play-test pending** -- ask before launching, every time.
+~~**Play-test pending**~~ **Play-tested 2026-10-03** (`JUNE2017_EFFECT_REBUILD_PLAN.md`, dev-console
+pass T1: the `DAMAGE_EFFECT_Trap_Fire_Big` loop and `SET_DIE_WHEN_MASTER_EFFECT_DIE` both passed, exe
+`cccaf8fb…`). Ask before launching, every time.
 
 **`/code-review` (high, Opus), 2026-09-27.** Nine findings, each checked against the June
 disassembly. Three fixed, rebuilt and redeployed:
@@ -2310,7 +2312,7 @@ JUNE_FX unsupported <KEY> in <templet>: <system> absent (value <v>, table <DAMAG
 **No damage number or default changed.** Every existing read is untouched. March's own
 `ADD_RENA_SYSTEM` natural-force read is still what compiles if that flag is ever turned on.
 
-Built `US_SERVICE` (`touch X2Lib/stdafx.cpp` first; KTDXLIB, X2Lib and X2 all 0 errors, no warnings in the edited files) and **deployed to `X2_offline.exe`, 18,952,704 B**, SHA-256 prefix `dc5c6c4fef65ae2d`, 2026-09-29. The new format string is present in the binary. `census.py`: all 8 rows `unsupported` with a March site and `same` semantics (three by hand in `HAND_SEMANTICS`: register defaults), all 12 checks PASS. **Not play-tested yet.**
+Built `US_SERVICE` (`touch X2Lib/stdafx.cpp` first; KTDXLIB, X2Lib and X2 all 0 errors, no warnings in the edited files) and **deployed to `X2_offline.exe`, 18,952,704 B**, SHA-256 prefix `dc5c6c4fef65ae2d`, 2026-09-29. The new format string is present in the binary. `census.py`: all 8 rows `unsupported` with a March site and `same` semantics (three by hand in `HAND_SEMANTICS`: register defaults), all 12 checks PASS. ~~**Not play-tested yet.**~~ **Play-tested 2026-10-03** (`JUNE2017_EFFECT_REBUILD_PLAN.md`, dev-console pass T5): all seven expected lines, plus two `APPLIED_SKILL_ID` lines that the repacked `Enum.lua` (June `SKILL_ID`s, `RNSI_SA_RHB_LOCKON_STRATOS = 31012`) now makes reachable.
 
 **What the deployed data can show.**
 - `NATURAL_FORCE_TYPE`: five Rena templets (`DOUBLE_JUMP_X_ARROW`, `DOUBLE_JUMP_XX_ARROW`,
@@ -2396,7 +2398,7 @@ JUNE_FX HIT <effect> DIFF    june march defender uid june_impact march_impact  (
 
 Built `US_SERVICE` (`touch X2Lib/stdafx.cpp` first; all four projects rc 0, no new warnings) and
 **deployed to `X2_offline.exe`, 18,966,528 B**, SHA-256 prefix `e90c673d1c707257`, 2026-09-29.
-The trace strings are present in the binary. **Not play-tested yet.**
+The trace strings are present in the binary. ~~**Not play-tested yet.**~~ **Play-tested 2026-10-03** (dev-console pass T6): `DamageEffect_MAG_CHARGER_Attack_A` logs `COLLIDE defender=0 uid=12 … march=1` against the player, there are no `DIFF` lines, and every `TEST` line has `linked=1` with `c` equal to `mesh`. A level-70 charger's fireball visibly damaged the player (a level-1 `/CM` spawn does 0, which is the level gap, not a defect). A spread of far `TEST` samples is still unexplained; see T6.
 
 Revert: undefine `SERV_IRUHADEV_JUNE_COLLISION`. Pure addition: 331 lines inserted, none deleted.
 
@@ -2490,7 +2492,7 @@ implemented. The full run appends it to `JUNE2017_EFFECT_KEY_MATRIX.md`.
 Built `US_SERVICE` (`touch KTDXLIB/stdafx.cpp X2Lib/stdafx.cpp` first, since `XMeshTemplet` changes
 size; all four projects rc 0, no warnings from the changed files) and **deployed to `X2_offline.exe`,
 18,969,088 B**, SHA-256 prefix `04392c9c65fef4dc`, 2026-09-29. The new keyword and log strings are
-present in the binary. **Not play-tested yet.**
+present in the binary. ~~**Not play-tested yet.**~~ **Play-tested 2026-10-03** (dev-console pass T7): no tokenizer MessageBox, no alpha regression, and `MP_CRASH` fires for the Mag Charger fireball (`LT_TIME t=1.264`).
 
 Revert: undefine `SERV_IRUHADEV_JUNE_MESHPLAYER`. Pure addition: 154 lines inserted, none deleted.
 Undefining it restores March's parse, so a June templet using one of the four keys throws again.

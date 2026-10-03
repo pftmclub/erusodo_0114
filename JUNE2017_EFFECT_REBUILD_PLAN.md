@@ -109,6 +109,525 @@ Rules:
 
 ---
 
+## Dev-console verification pass (for the user; do not paste)
+
+Added 2026-10-03. This section runs every play-test the plan still owes, from the in-game
+developer console. The console sets up each scene, so a test no longer depends on finding the
+right class, dungeon or monster. It is a checklist, not a phase, and it changes no code.
+
+**What it covers.** These phases are built and deployed, but their play-test is still owed:
+
+| test | phase | what is still owed |
+|---|---|---|
+| T0 | — | calibration: proves the raw-Lua route reaches the same code as a real skill |
+| T1 | 6a, 7c | `DAMAGE_EFFECT_Trap_Fire_Big`: the `DDE_TEMPLET` line, a multi-spawn `LOOP_*`, `SET_DIE_WHEN_MASTER_EFFECT_DIE` |
+| T2 | 7b | the `LOT_UID_VECTOR` re-target (`UID_VECTOR_RETARGET` / `SEED_PICK`) |
+| T3 | 7d | the die-scale branch (`DIE_DAMAGE_EFFECT_SCALE`) |
+| T4 | 8b | the regression run of the restructured `AttackResult` |
+| T5 | 8c | the `JUNE_FX unsupported` lines that deployed data can produce |
+| T6 | 9 | the Mag Charger fireball: the `JUNE_FX HIT … TEST` trace (diagnostic) |
+| T7 | 10 | the mesh/particle tokenizer startup check, `MP_CRASH`, and alpha regressions |
+
+Phases 2, 3, 4a, 4b stage 1, 5, 7a and 7e are already play-tested and are not repeated here.
+T0 also serves as their regression check. What still cannot be tested is listed under "Not
+testable, even with the console" below.
+
+### Setup
+
+1. **Turn the console on.** See `DEVELOPER_COMMANDS.md`, "Turning the console on". With the game
+   closed, back up `els_db.sql` into `db_backup/`, then set
+   `INSERT OR REPLACE INTO settings( name, value ) VALUES( 'auth_level', 3 );`. Level 3 is required
+   because level 2 cannot run raw Lua lines. Log in, enter a dungeon or field, and press **END**.
+2. **Record which exe you are testing.** On 2026-10-03 the deployed `X2_offline.exe` was
+   19,015,168 B, SHA-256 `cccaf8fb28e7826d…` (PE timestamp `6ac0cf4d`), built on
+   `mods/june-buff-port`. This line first said `1429d05783def6a2…`, which was wrong; the size was
+   right. The matching `X2/US_SERVICE/X2.map` resolves crash addresses for this exe.
+   - It carries this plan's `SERV_IRUHADEV_JUNE_*` flags and also the June buff-port flags
+     (`SERV_IRUHADEV_JUNE_BUFF_*`). So a regression is not automatically this plan's.
+   - The *Starting context* names `mods/lanox-port`, which is where these phases were built.
+   - Write the hash into each result.
+3. **Know which log each line goes to.** All three logs are in the game directory.
+
+   | log | holds |
+   |---|---|
+   | `offline_server.log` | X2Lib run-time lines: `ES_*`, `CE_*`, `DDE_TEMPLET`, `JUNE_FX HIT`, `JUNE_FX unsupported` from DamageData |
+   | `ErrorLog.txt` | load-time lines (`ES_LOAD`), and everything from KTDXLIB (`MP_CRASH`, mesh-player/particle `unsupported`) |
+   | `offline_packets.log` | `UNHANDLED` / `EXCEPTION` |
+
+4. **After every test** (`DATA` as in *Starting context*):
+   ```sh
+   cd "$DATA"
+   grep -E "UNHANDLED|EXCEPTION" offline_packets.log | sort | uniq -c
+   grep -a "JUNE_FX" offline_server.log | tail -60
+   grep -a "JUNE_FX" ErrorLog.txt | tail -20
+   grep -a "SHUTDOWN" offline_server.log | tail -1     # after quitting: expect "SHUTDOWN clean"
+   ```
+
+### Console toolkit
+
+**Slash commands** (from `DEVELOPER_COMMANDS.md`, whose entries were not play-tested when it was
+written). Strings must be in double quotes.
+
+| command | use here |
+|---|---|
+| `/CM "NAME" count level` | spawns `NUI_<NAME>` monsters at your position. The loop is inclusive, so `count` 0 gives one monster. In game only |
+| `/monhp n` | sets every *living* NPC's HP to n. Spawn first, then set |
+| `/ai false` / `/ai true` | freezes / unfreezes all NPC AI |
+| `/ak` | kills all NPCs |
+| `/invin 0` | turns invincibility **on**. `/invin 1` turns it off |
+| `/nocooltime` | removes skill cooldowns. It cannot be turned back off |
+| `/fwarp 0` | prints the battle-field table. Then `/fwarp n` warps there |
+
+**Raw Lua.** At auth 3, any console line that does not start with `/` runs as Lua.
+- Each line is its own chunk, so `local` does not carry over to the next line. Use globals.
+- A failed line prints only the generic invalid-command message. If a long line fails, split it
+  to find the failing part.
+- Every test below uses these five lines first:
+
+```lua
+jU = g_pX2Game:GetMyUnit()
+jES = g_pX2Game:GetEffectSet()
+jDE = g_pX2Game:GetDamageEffect()
+jP = jU:GetPos(false)
+jY = jU:GetLandPosition_LUA(false).y
+```
+
+- **Run all five again after every warp, stage change or new dungeon.** The first three hold raw
+  pointers into the current game, and a stale one can crash the client. `jP`/`jY` hold the
+  position where you stood, so re-run those two whenever you want an effect to start somewhere
+  else.
+- **A stale pointer is the likely cause of T3's 2026-10-03 crash.** It is not confirmed until the
+  user says whether the five lines were re-run after entering the dungeon. CrashRpt's bundle
+  (`%TEMP%\X2_*.tmp`, a zip holding `X2_offline.dmp`, `X2_offline.xml` and that session's logs)
+  shows an access violation at RVA `0xCD3AD0`, which is LuaJIT's `index2adr`, reading address `0x8`
+  with `idx = LUA_GLOBALSINDEX` and a NULL `lua_State`. The stack, read through `X2.map`, is
+  `CX2GameEdit::ExecCommand` → `KLuabinder::DoString` → `CreateInstance_LUA` →
+  `CX2DamageEffect::CreateInstance` (+0x180, its first `m_LuaManager.BeginTable( name )`) →
+  `KLuaManager::BeginTable` → `lua_getfield`. That fault comes before any templet-specific code, so
+  the `CX2DamageEffect` itself was bad. `State.log` shows the session went from the battle field
+  (21:49) into Burnt Forest (21:53), and nothing between T1 step 1 and T3 needed raw Lua. Each
+  `CX2Game` owns its own `m_pDamageEffect`, so a `jDE` set in the field points at freed memory in
+  the dungeon. The "not responding" afterwards is CrashRpt trying to send the report to KOG's
+  server. **From T2 on, use `jC` below instead of the cached pointers.**
+- **`jC`: create a damage effect with nothing cached.** Globals, including functions, persist
+  between console lines, so define this once per session:
+
+  ```lua
+  function jC(n) local g = g_pX2Game local u = g:GetMyUnit() return g:GetDamageEffect():CreateInstance_LUA(u, n, u:GetPos(false), u:GetLandPosition_LUA(false).y) end
+  ```
+
+  Then `jC("DAMAGE_EFFECT_NAME")` looks up the game, your unit, its position and the land height
+  each time it runs, at your current position. It returns the effect, so `jE = jC("…")` lets a
+  later call on the same console line act on it. **Not yet tried.** The console's line-length
+  limit is unknown. If the definition fails, the per-call form is
+  `g_pX2Game:GetDamageEffect():CreateInstance_LUA(g_pX2Game:GetMyUnit(), "NAME", jP, jY)`, with
+  `jP`/`jY` re-run where you stand.
+- If the `jY` line fails, use `jY = jP.y` instead, standing on the ground. Keeping the position in
+  its own lines also tells a binding failure apart from a templet failure: if `jP`/`jY` worked
+  and a create line fails, the templet is at fault.
+- The two calls used below:
+  - play an effect set: `jES:PlayEffectSet_LUA("EffectSet_NAME", jU)`
+  - create a damage effect at `jP`:
+    `jDE:CreateInstance_LUA(jU, "DAMAGE_EFFECT_NAME", jP, jY)`
+- **Where these come from.**
+  - The bindings are `X2Main.cpp:3851`/`:3852`/`:3877` (`GetDamageEffect`, `GetEffectSet`,
+    `GetMyUnit`), `:4074` (`GetPos`), `:4594` (`GetLandPosition_LUA`, the user form), `:4664`
+    (`CreateInstance_LUA`) and `:4688` (`PlayEffectSet_LUA`).
+  - The call shapes match the shipped NPC scripts: `GEYSER_SCIENCE.lua` for the effect set, and
+    `SECRET_MAGI_SUMMON.lua` for the damage effect.
+  - `g_pX2Game:GetMyUnit()` from the console is proven: the 2026-10-03 buff-factor test used it.
+  - **The rest is unverified.** T0 proves the effect-set call and T1's first step proves the
+  damage-effect call; until then, treat any snippet that logs nothing as a possible binding
+  problem, not a result.
+- **Ownership.** An effect you create this way belongs to you, so it hits monsters, not you. An
+  effect that belongs to another class may sit in an odd place, because a missing bone falls back
+  to another position. The log lines are what count.
+
+### T0: calibrate the console route (do this first)
+
+**At launch, before entering a game**, check `ErrorLog.txt` for the Phase 2-3 load lines. This
+re-confirms those phases on the current exe, which has changed since they passed, and confirms
+you are reading the right `ErrorLog.txt` before T7 depends on it:
+- `JUNE_FX ES_LOAD EffectSet.lua loaded=1 templets=3134 … effects=18528 …`;
+- `UIEffectSet.lua` 52 / 211, `UIEffectSet_INT.lua` 6 / 29, `EffectSet_INT.lua` 46 / 196
+  (templets / effects, Phase 3's table).
+
+Then, in any dungeon or field, run the five setup lines, then:
+```lua
+jES:PlayEffectSet_LUA("EffectSet_Rena_Perfect_Storm", jU)
+```
+- **Expect** (`offline_server.log`) the line the real skill logged on 2026-09-26:
+  `JUNE_FX ES_CREATE EffectSet_Rena_Perfect_Storm PERFECT_STORM BONE_TRACE_TARGET_MESH registered_index=0(damage)`.
+- When the set ends, Phase 4b's pair should follow:
+  - `ES_UPDATE … hidden=target_mesh_gone(321e0217)`;
+  - `ES_DELETE … deleted=no_target_mesh_handle_left(321e4197)`.
+- **Pass:** the `ES_CREATE` line appears. The console route then reaches the same code as the
+  skill, and T1's first step does the same check for damage effects.
+- **Fail:** stop using raw Lua. Run only the slash-command and real-skill parts below, and note the
+  failure here.
+- Result: **passed 2026-10-03** (user report, exe `cccaf8fb…`). The console route reaches the
+  effect-set code. The client wrote its logs over between sessions, so the lines themselves were
+  not kept. The crash bundle's `ErrorLog.txt` does keep the four `ES_LOAD` lines with Phase 3's
+  counts (3134 / 18528, 52 / 211, 6 / 29, 46 / 196).
+
+### T1: Phases 6a and 7c, `DAMAGE_EFFECT_Trap_Fire_Big`
+
+**Step 1: the loop, from the console.** Run:
+```lua
+jDE:CreateInstance_LUA(jU, "DAMAGE_EFFECT_Trap_Fire_Big", jP, jY)
+```
+
+Expect these lines in `offline_server.log`:
+- `JUNE_FX DDE_TEMPLET DAMAGE_EFFECT_Trap_Fire_Big CREATE_DAMAGE_EFFECT<n> LOOP_ADD_POS_X=…`. This
+  is Phase 6a's exit line. It is throttled to one per second per templet, so seeing only `<n>`=0 is
+  normal.
+- `JUNE_FX CE_LOOP DAMAGE_EFFECT_Trap_Fire_Big CREATE_DAMAGE_EFFECT DAMAGE_EFFECT_Trap_Fire_Small spawn=i/N pos=(…) addPos=(…) dieWithMaster=1 …`.
+  This is Phase 7c's exit line. Per entry, from the deployed `DamageEffect.lua`:
+
+  | entry | spawns N | `addPos` |
+  |---|---|---|
+  | `CREATE_DAMAGE_EFFECT0` | 5 | (200, 0, 0) |
+  | `CREATE_DAMAGE_EFFECT1` | 7 | (−200, 0, 0) |
+  | `CREATE_DAMAGE_EFFECT2` | 6 | (150, 23, 0) |
+  | `CREATE_DAMAGE_EFFECT3` | 6 | (−200, 40, 0) |
+
+**Pass:**
+- Each entry logs N lines, all with `dieWithMaster=1`.
+- Within one entry, consecutive `pos` values differ by exactly `addPos`. June computes base +
+  `addPos` × spawn counter (`MODS.md`, Phase 7c).
+- The four entries interleave, because June spawns once per entry per frame.
+
+**Step 2: `SET_DIE_WHEN_MASTER_EFFECT_DIE`.** This step needs the trap NPC.
+- Only an explicit destroy takes the children with it, and that destroy is the trap's own Lua
+  `StopEffectSet`, every 5 s. A console instance never gets one.
+- Run `/invin 0`, then `/CM "TRAP_FIRE_BIG" 0 1`. Or use the real trap in Ranox Burned Forest.
+- Expect the step-1 `CE_LOOP` lines on every cycle.
+- No log line marks the drain itself. The evidence is `dieWithMaster=1` plus what you see: the
+  small flames go out at the same moment as the big one, instead of burning on to their own end.
+
+**Not covered:** the die conditions (`DIE_CHECK_CONDITION`). No deployed templet uses them (0 hits
+on 2026-10-03), so they wait for Phase 11.
+
+**Record in:** the Phase 6a status ("Not yet play-tested this session") and `MODS.md`'s Phase 7c
+"Play-test pending" line. Phase 7c has no Status line in this plan yet; add one with the result.
+Result: **step 1 passed, step 2 passed, 2026-10-03** (user report, exe `cccaf8fb…`). Step 1 also
+proves the console's damage-effect call. Recorded in the Phase 6a status, the new Phase 7c status
+line and `MODS.md`. The log lines were not kept (see T0).
+
+### T2: Phase 7b, the UID-vector re-target
+
+**The 2026-10-03 run could not have passed, and the reason is in the skill code, not Phase 7b.**
+- Both skills this test used to name *change the lock-on type after creating the effect*:
+  - Rena's Guided Arrow (`LESI_SI2_LE_GUIDED_ARROW`, `CreateGuideArrow`, under
+    `BALANCE_GRAND_ARCHER_20121213`, defined at `Always.h:2140`) creates 3 `GUIDED_ARROW`s (4 with
+    the memo), then calls `SetLockOnType( LOT_NEARST_UID_VECTOR )` on each.
+  - Chung's Scare Chase (`X2GUChung.cpp:13423`) passes `LOT_NEARST_UID_VECTOR` to `SetLockOn`.
+- So their templets' `LOT_UID_VECTOR` never runs. They take `LOT_NEARST_UID_VECTOR`, which
+  Phase 7b left as March's and which logs nothing.
+- The templet list is now checked: 69 deployed templets mention `LOT_UID_VECTOR`, including both of
+  these. The skill code, not the templet, decides.
+- The re-target also needs the target **still in the unit list at 0 HP** while the effect flies.
+  If the NPC is already gone, the branch exits before its dead check.
+
+**Console route** (not yet tried). `CEffect:SetLockOnNPCUID`, `CX2Game:GetNPCUnit`,
+`CX2GUNPC:GetUID` and `CX2GameUnit:SetNowHP` are all bound (`X2Main.cpp:4974`, `:3896`, `:4273`,
+`:4081`). `CX2GUNPC` inherits the `CX2GameUnit` methods in Lua (`class_inh`, `:4196`). One console line can therefore create a `GUIDED_ARROW`, aim it at a monster and drop
+that monster to 0 HP before the arrow's next frame.
+1. In a dungeon, define `jC` (*Console toolkit*), then `/CM "RAGE_BABYFIG" 2 70` (three monsters, level
+   70 so that a stray hit does not kill them first)
+   and `/ai false`. **Then walk about one screen-width away, facing them.** `GUIDED_ARROW` has
+   `TIME_UNLOCK_FROM_START = 0.3`, and lock-on processing (the re-target included) returns early
+   until that runs out (`X2DamageEffect.cpp:3563`). An arrow that reaches its target in under
+   0.3 s never gets to the dead check. Do not walk so far that the monsters leave the June pick's
+   owner range (1000 on a non-raid battle field, effectively unlimited in a dungeon).
+2. Run, as **one** line:
+   ```lua
+   jID = g_pX2Game:GetNearNPCUnitUID_LUA(g_pX2Game:GetMyUnit():GetPos(false), 1683, 9999) jN = g_pX2Game:GetNPCUnitByUID(jID) jE = jC("GUIDED_ARROW") jE:SetLockOnNPCUID(jID) jN:SetNowHP(0)
+   ```
+   - 1683 is `NUI_RAGE_BABYFIG`'s NPC ID (`offline_server.log`, `died` lines). `GetNearNPCUnitUID_LUA`
+     (`X2Game.cpp:13741`) returns the nearest living NPC of that ID, or 0.
+   - **Corrected 2026-10-03.** The first version used
+     `GetNPCUnit(GetNPCUnitListSize() - 1)`, which is wrong. `m_NPCUnitList` is a fixed table of
+     `MAX_GAME_NPC_UNIT_NUM` slots, mostly NULL, so the last index is an empty slot. `jN` came back
+     nil, and the line failed with "Wrong Command!" after the arrow had already spawned.
+3. Repeat two or three times, re-spawning when the pack runs out.
+
+**Expect** in `offline_server.log`:
+- `JUNE_FX CE_LOCKON GUIDED_ARROW UID_VECTOR_RETARGET reason=dead seed=<s> -> uid=<n> user=0`.
+  On a console instance the seed is the templet's own value (`m_iRandomSeedFromLua`,
+  `X2DamageEffect.cpp:8059`), because no skill code calls `SetLockOnRandomSeed`.
+- then `… SEED_PICK seed=<s> key=<k> eligible=<m> index=<i> -> uid=<n>`.
+- With no other monster left, `eligible=0 … -> uid=-1` still proves the branch ran.
+
+**Pass:** at least one such pair. Record in the Phase 7b status ("Not exercised yet").
+Result: **not reached 2026-10-03.**
+- First run: Rena's Guided Arrow switches to `LOT_NEARST_UID_VECTOR` (see above).
+- Second run (console route, 22:39, exe `cccaf8fb…`): the one-line create, lock-on and `SetNowHP(0)`
+  worked. Four arrows hit (`COLLIDE` on NPC uids 26, 27, 1 and 28), but there was no `CE_LOCKON`
+  line.
+  - The user stood close, as the old step 1 said, so each arrow hit within the 0.3 s
+    `TIME_UNLOCK_FROM_START` window, before lock-on runs. Each target died at the arrow's hit
+    (`died: KILL_BY_USER` about 30 ms after `COLLIDE`), not at `SetNowHP(0)`.
+  - Retry from about a screen-width away (step 1 is now fixed).
+- Third run (22:44-22:45): no `GUIDED_ARROW` line at all.
+  - The three level-1 test monsters (uids 23-25) all died at 22:44:57.5, right after a
+    `DAMAGE_EFFECT_SIEE_POISON_BURST` hit. That was before any arrow, so the line had nothing to
+    aim at.
+  - Next try: spawn them at level 70 (`/CM "RAGE_BABYFIG" 2 70`) so a stray hit cannot kill them,
+    and do not attack before running the line.
+- Fourth run: "Wrong Command!", because the old line's `GetNPCUnit(size - 1)` returns an empty slot
+  (corrected above).
+- **Fifth run: PASSED 2026-10-03** (22:57-22:58, exe `cccaf8fb…`, `GetNearNPCUnitUID_LUA` line):
+  ```
+  [22:57:49.179] GAME     NPC uid=5 id=1683 lv=70 died: KILL_SELF
+  [22:57:49.487] JUNE_FX CE_LOCKON GUIDED_ARROW SEED_PICK seed=-1 key=0 eligible=12 index=0 -> uid=1
+  [22:57:49.487] JUNE_FX CE_LOCKON GUIDED_ARROW UID_VECTOR_RETARGET reason=dead seed=-1 -> uid=1 user=0
+  [22:57:51.635] JUNE_FX HIT GUIDED_ARROW COLLIDE defender=1 uid=1 collType=1 impact=(1381,548,-0) march=0
+  [22:57:51.637] JUNE_FX CE_LOCKON GUIDED_ARROW SEED_PICK seed=-1 key=0 eligible=11 index=0 -> uid=2
+  [22:57:51.637] JUNE_FX CE_LOCKON GUIDED_ARROW UID_VECTOR_RETARGET reason=dead seed=-1 -> uid=2 user=0
+  ```
+  - Five re-target pairs in all, with `eligible` falling 12 → 8 as monsters died.
+  - The nearest ID-1683 NPC was one of the dungeon's own babyfigs (uid 5), not a `/CM` one, and
+    `SetNowHP(0)` killed it (`KILL_SELF`).
+  - **Every pick went to the dungeon's own NPCs** (uids 1, 2, 3), never to the `/CM` spawns. This is
+    expected for a console instance. Its seed is the templet default `-1`, giving `key=0` and
+    `index=0`, so the June pick always takes the first eligible NPC in list order, and the dungeon's
+    NPCs occupy the low slots. Real skills call `SetLockOnRandomSeed( GetRandomInt() + offset )`, so
+    their picks spread out.
+  - Phase 9 side note: the `GUIDED_ARROW` hits mostly logged `DIFF june=1 march=0` again. One logged
+    `DIFF june=0 march=1` (uid 25, 22:58:02.463), with a garbage `june_impact`: the June impact
+    vector is printed uninitialised when June misses. That is cosmetic, but the case of June missing
+    where March hits is new and worth a look if arrows ever pass through a monster in play.
+- **Side finding for Phase 9:** all four hits logged `DIFF june=1 march=0`. June's hit test hits
+  where March's would have missed (`march_impact=(0,0,0)`). This is the first real-data case of the
+  port changing an outcome. It matches the sphere×line / line×sphere change. Not a defect unless a
+  hit looks wrong in play.
+
+### T3: Phase 7d, die scale
+
+**2026-10-03: the client crashed before this test ran.** The crash is in the console's
+`CreateInstance` call, before any templet code (see the stale-pointer note in *Console toolkit*).
+So it says nothing about the die-scale branch, and nothing about `DamageEffect_SBH_Fire_Works`.
+Its assets are all in the March data: mesh, three `EffectSet_A_SBH_FIREWORKS0n`, both shrapnel
+children and the sound and explosion templets. Its skill-bound damage data (`BUFF_FACTOR_ID` with
+`RELATIVE_SKILL_LEARN_CHECK`, `WAY_OF_SWORD_TYPE`) is guarded for a non-Elesis owner.
+
+From the console (define `jC` first, in the place you are testing):
+```lua
+jC("DamageEffect_SBH_Fire_Works")
+```
+- **Expect** when it dies:
+  `JUNE_FX CE_HIT DamageEffect_SBH_Fire_Works DIE_DAMAGE_EFFECT_SCALE DamageEffect_SBH_Fire_Works_Dying_Shrapnel entry=(0.660,0.660,0.660) parent=(…)`.
+  It is throttled to one per second.
+- If nothing logs, face a monster or a wall: some projectiles die only on contact.
+- **Alternatives**, all in the deployed data with a non-1 die scale:
+  - `DamageEffect_ENS_HA_Scud_Missile` (1.5);
+  - `DamageEffect_SA_ALD_WOLF_Break3` (0.5);
+  - `DamageEffect_ASD_Dragon_Falling_DOWN` (2, 2, 1);
+  - or let `/CM "SMITH_RUNNER" 0 1` / `/CM "SMITH_ALUMINUM" 0 1` attack you (1.3).
+- **If it crashes again even through `jC`**, the stale pointer was not the cause. Before
+  relaunching, copy the newest `%TEMP%\X2_*.tmp` (the CrashRpt zip) somewhere safe; it holds the
+  minidump. To read it, unzip it and run `python tools/mdscan.py X2_offline.dmp
+  X2/US_SERVICE/X2.map`.
+- **Pass:** a `DIE_DAMAGE_EFFECT_SCALE` line, and the child drawn at entry × parent.
+- Record in the Phase 7d status ("Still owed: the die-scale branch").
+  Result: first run **not run** (console crash, stale `jDE` suspected). Second run **passed
+  2026-10-03** (22:41, exe `cccaf8fb…`, through `jC`, no crash):
+  `JUNE_FX CE_HIT DamageEffect_SBH_Fire_Works DIE_DAMAGE_EFFECT_SCALE DamageEffect_SBH_Fire_Works_Dying_Shrapnel entry=(0.660,0.660,0.660) parent=(1.000,1.000,1.000)`
+  appeared twice. The same templet that "crashed" ran cleanly through `jC`, which supports the
+  stale-pointer diagnosis.
+
+### T4: Phase 8b, regression
+
+**What changed.** Phase 8b touched code that runs on every hit, but it changes nothing you can see
+on this data. All five new keys default to false, and no deployed templet sets one. So this test
+only checks that nothing broke, and **no log line is expected from it.** The two hot spots:
+- the `RT_CREATE_EFFECT_SET` hit case: a damage effect that sticks an effect set onto whatever it
+  hits;
+- the `default:` hit case: every ordinary hit.
+
+**Part A: an effect set created on hit.** 15 deployed templets use `RT_CREATE_EFFECT_SET`, and each
+names its set in its own `CREATE_EFFECT_SET_NAME`, so a console spawn reaches the changed call.
+1. In a dungeon, define `jC`, then `/CM "RAGE_BABYFIG" 0 1` (one monster) and `/ai false`. Stand
+   a short step away from it, facing it.
+2. Run `jC("AISHA_SUMMON_BAT_FLY")`. This is Aisha's bat, which flies forward into whatever is in
+   front of you. Its set is `EffectSet_Aisha_Summon_Bat_Stick`.
+3. Run `jC("ROSEBUSH_TRAP_GROUND")`. This is Rena's rose-bush trap, and its set is
+   `EffectSet_ROSEBUSH_TRAP_ATTACH`. It is not known whether it reaches a monster standing still
+   beside you, so if nothing happens, skip it.
+4. Watch the monster each time. **Pass** if the stuck-on effect (the bat, or the rose bush) appears
+   **on the monster's body**, not at your feet or somewhere else, and goes away by itself after a
+   few seconds. **Fail** if it appears somewhere other than the monster, never goes away, or
+   vanishes the instant it appears.
+   - If nothing at all appears, step closer and retry before calling it a fail: the effect has to
+     touch the monster.
+   - If your Rena has the Rose Bush Trap skill, casting it on a monster checks the same thing
+     through the real skill.
+
+**Part B: ordinary combat.** Unfreeze with `/ai true`, `/CM "RAGE_BABYFIG" 4 1`, `/nocooltime`.
+Then fight normally for a minute: your Z and X combos, a dash attack, a jump attack, and three or
+four different skills, all landing on monsters. **Pass** if all of these hold:
+- hit sparks appear where you hit;
+- damage numbers pop as before;
+- monsters flinch, get knocked down and get launched as before;
+- your MP rises when you hit;
+- nothing freezes.
+
+**After both parts:** `grep -E "UNHANDLED|EXCEPTION" offline_packets.log` should print nothing new.
+Report pass, or say what looked different and in which part.
+
+- Record in the Phase 8b "Play-test checklist". Result: **passed 2026-10-03** (22:40, exe
+  `cccaf8fb…`, user report plus log).
+  - Part A: `AISHA_SUMMON_BAT_FLY` hit (`COLLIDE`). Then
+    `JUNE_FX ES_CREATE EffectSet_Aisha_Summon_Bat_Stick Aisha_Summon_Bat_Stick POSITION_OFFSET facing=trace_target(321d9847)`
+    was created on the monster, and the monster died at 22:40:11.468.
+  - `ROSEBUSH_TRAP_GROUND` produced no line, which T4 allows (optional step).
+  - Part B: normal combat looked as before.
+  - No `EXCEPTION`. The only `UNHANDLED` is the usual `E_DISABLE_HB_CHECK_REQ`.
+
+### T5: Phase 8c, unsupported lines
+
+Run one line at a time:
+```lua
+jDE:CreateInstance_LUA(jU, "DamageEffect_DRYADKENTA_SpacialAttackB_Fire", jP, jY)
+jDE:CreateInstance_LUA(jU, "NATURAL_FORCE_EXPLOSION_BOOM_COMBO", jP, jY)
+jDE:CreateInstance_LUA(jU, "NATURAL_FORCE_EXPLOSION_BOOM_SKILL", jP, jY)
+jDE:CreateInstance_LUA(jU, "LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z_UP_DAMAGEEFFECT", jP, jY)
+jDE:CreateInstance_LUA(jU, "DOUBLE_JUMP_X_ARROW", jP, jY)
+jDE:CreateInstance_LUA(jU, "DOUBLE_JUMP_XX_ARROW", jP, jY)
+jDE:CreateInstance_LUA(jU, "DamageEffect_SA_RHB_Lockon_Stratos_Attack", jP, jY)
+```
+- **Expect:**
+  - `JUNE_FX unsupported NATURAL_FORCE_TYPE in <templet>: … absent (value …)` for each of the
+    first six;
+  - `JUNE_FX unsupported NUMERICAL_DATA_INDEX in DamageEffect_SA_RHB_Lockon_Stratos_Attack: numerical skill data absent …`.
+- Each line logs **once per key and templet per session**. Grep the whole log. To see a line
+  again, restart the client.
+- Keep the Rose templet (`Lockon_Stratos`) last. It sits on bones (`Dummy01`/`Dummy02`) that your
+  class may not have, so it is the line most likely to misbehave.
+- ~~Its `APPLIED_SKILL_ID` producing **no** line is expected.~~ **Wrong since `Enum.lua` was
+  repacked 2026-10-03.** The buff port's `Enum.lua` carries June's `SKILL_ID`s, including
+  `RNSI_SA_RHB_LOCKON_STRATOS = 31012`, so the Rose templet also logs two `APPLIED_SKILL_ID` lines
+  (see the result).
+- **Pass:** ~~seven~~ nine lines. Record in the Phase 8c status ("not play-tested yet").
+  Result: **passed 2026-10-03** (exe `cccaf8fb…`, `offline_server.log` 22:00). All seven expected
+  lines, plus:
+  - `JUNE_FX unsupported APPLIED_SKILL_ID/_NOT_AFFECT_MEMO in DamageEffect_SA_RHB_Lockon_Stratos_Attack: applied-skill-ID system absent (31012/0)`
+    (Phase 5's constructor line, `X2DamageEffect.cpp:1637`);
+  - `JUNE_FX unsupported APPLIED_SKILL_ID in DamageEffect_SA_RHB_Lockon_Stratos_Attack: applied-skill-ID system absent (value 31012, table DAMAGE_DATA)`
+    (Phase 8c's DamageData line, `X2DamageManager.cpp:211`).
+
+  The Rose templet created no crash and no `EXCEPTION`. Three `CE_FRAME … USE_GLOBAL_TIME` lines
+  (the two `NATURAL_FORCE_EXPLOSION_BOOM_*` and the Lesi double-jump templet) re-confirm Phase 7a.
+
+### T6: Phase 9, the Mag Charger fireball (diagnostic, not pass/fail)
+
+**Do not use `/invin`.** The test is whether the fireball hits you.
+1. Run `/CM "MAG_CHARGER" 0 1`. Or walk to its own field, Ashen Land (`Ranox_Field_00`). `/fwarp 0`
+   prints a table that runs only from Ruben to Sander (`DEVELOPER_COMMANDS.md`), so Ashen Land is
+   probably not in it.
+2. Stand in its line of fire and let it shoot several times.
+
+**Capture:**
+- three or four `JUNE_FX HIT DamageEffect_MAG_CHARGER_Attack_A TEST attacks=… a0{type=… linked=… c=(…) r=…} mesh=(…) defender=… near{d=… rsum=…} june=… march=…`
+  lines (`offline_server.log`, one per second);
+- any `JUNE_FX MP_CRASH …` lines (`ErrorLog.txt`);
+- whether you were actually hit.
+
+**What they settle:**
+- whether the attack sphere follows the flying mesh: `linked=1` and `c` close to `mesh`;
+- whether `d < rsum` when it visibly touches you;
+- whether it crash-lands before it reaches you.
+
+The collision math is already known not to be the cause, so read these lines rather than
+re-reading code. Paste them into the Phase 9 status.
+
+Result, **2026-10-03** (exe `cccaf8fb…`, a Ranox battle field whose meshes are `Field_Ranox_Stage2_*`,
+`offline_server.log` 22:01-22:03):
+- **The fireball hits the player.**
+  - `JUNE_FX HIT DamageEffect_MAG_CHARGER_Attack_A COLLIDE defender=0 uid=12 collType=1 impact=(13073,3192,1033) march=1`
+    at 22:01:48.191, and again at 22:01:59.726 (`impact=(13556,3160,1058)`).
+  - `defender=0` is `GUT_USER` (`X2GameUnit.h:79`). Unit UID 12 is the player's character
+    (`SELECT 'reyaa' (unitUID=12, class=103, lv=80)`).
+  - The dying blast `DAMAGE_EFFECT_MAG_CHARGER_Dying` also hit (`june=1 march=1`, `d=191.6 < rsum=225.2`).
+- **June and March agree on every call.** There is no `DIFF` line, and every `COLLIDE` says
+  `march=1`. On this map, Phase 9's port did not change the outcome, and the original "renders but
+  hits nothing" defect did not reproduce.
+- **The hitbox follows the mesh.** Every `TEST` line has `linked=1` and `c` equal to `mesh`, with
+  `r=26.0`.
+- **It crash-lands on schedule.** `ErrorLog.txt` has
+  `JUNE_FX MP_CRASH MAG_CHARGER_Attack_A LT_TIME t=1.264 notCheck=0.300 y=2788.0 land=2788.0`, two
+  per shot, with identical values every time. `REFRESH_LAND_POS crash-land probe y == -1, skipped`
+  follows each `TEST` line about 0.17 s later.
+- **Unexplained, open:** the `TEST` samples come in two groups with the same x but different
+  heights.
+  - Near: `c=(12818,3064,1022)`, `d=183.6`, and `(13318,2864,1022)`, `d=289.4`.
+  - Far: `c=(12818..12842, 1263..1526, 1846..1888)`, `d` 1543-2056.
+  - The far group sits about 1700 lower and about 850 deeper than the near group.
+  - The trace samples once a second per effect name, so these could be fireballs from a second
+    Mag Charger in a lower or background layer, or one fireball's position late in its flight.
+    It has not been settled.
+  - `ENTER units=32` means 32 units were in the game.
+  - Asked the user how many Mag Chargers were visible and whether any fireball fell away into the
+    background.
+- Phase 9's done criterion, "the Ranox projectile hits in a play-test", is **met, confirmed
+  2026-10-03 23:0x**. A `/CM "MAG_CHARGER" 0 70` charger's fireball damaged the player, with
+  invincibility off.
+  - A `/CM "MAG_CHARGER" 0 1` (level 1) charger did 0 damage to the level-80 character even though
+    `COLLIDE … march=1` logged (23:02:21, 23:02:23). That is the level gap, not a defect.
+  - The fireball's own data is a normal attack (`DAMAGE = { MAGIC = 1 }`, `RT_BIG_DAMAGE`,
+    `BACK_SPEED_X = 800`).
+  - **For any damage test, spawn with `/CM … 0 70`, not level 1.** `Field_Ranox_Stage2` is the
+  mesh-name prefix in `State.log`, not a battle-field ID.
+
+### T7: Phase 10, tokenizer and alpha regression
+
+No deployed `.txt` uses `ALPHABLEND`, `WIREFRAME`, `SLASH_TRACE_NOT_CULL` or `POSTEFFECT`. This
+was checked on 2026-10-03 across `kom_contents/*_kom` and `march2014/update/`. So the new keys
+cannot fire, and this is a regression check only.
+
+**Pass:**
+- No `Unexpected "…" in Sequence Block!` MessageBox appears at launch.
+- `ErrorLog.txt` has no `JUNE_FX unsupported POSTEFFECT`.
+- Through T0-T6, effect meshes look as they did before.
+  - `ALPHABLEND` defaults to true and now decides alpha for every mesh-player templet, in place
+    of `IsAlphaObject()`.
+  - An effect that has turned opaque or see-through is the thing to report.
+- T6's `MP_CRASH` lines also cover Phase 10's diagnostic.
+
+Record in the Phase 10 status ("play-test pending"). Result: **passed 2026-10-03** (user report,
+exe `cccaf8fb…`). There was no MessageBox, no `unsupported POSTEFFECT` and no alpha regression
+seen through T0-T6. `MP_CRASH` fires; see T6.
+
+### Not testable, even with the console
+
+Do not count these as passed. Do not build synthetic templets from the console to reach them,
+for example with `AddEffectSetTemplet_LUA`: that is guessing, and the user decided these wait for
+June's data.
+- **Waits for Phase 11, because no deployed data uses the keys:**
+  - Phase 2's `ES_TEMPLET` and Phase 3's `ES_EFFECT`;
+  - 4a stage 2 (`USE_IS_RIGHT_WHEN_CREATE`, `TRACE_MATRIX_IN_FIELD`,
+    `APPLY_DAMAGE_EFFECT_VELOCITY`, `MESH_TRIGGER_DATA_LIST`);
+  - 4b stages 2-3;
+  - 6b's `LOD_TEMPLET` (re-checked in 7b);
+  - 7b's `INIT_TARGET` group;
+  - 7c's die conditions;
+  - 7e's `HIT_EFFECT_SET` / `DIE_CREATE_NPC`;
+  - the behaviour of the five 8b keys.
+- **`GROUP_NAME`: never.** No March or June file uses it.
+- **4b's pet and square-unit `GetCombineMatrix` branches.**
+  - `PlayEffectSet_LUA` takes a `CX2GameUnit*`, and pets and square units are not game units.
+  - No deployed set with `TRACE_MATRIX` plays on them.
+- ~~**Phase 5's `APPLIED_SKILL_ID` line: never on this data, with or without Rose.**~~
+  **Corrected 2026-10-03.** That held only while March's `SKILL_ID` lacked
+  `RNSI_SA_RHB_LOCKON_STRATOS`. The `Enum.lua` packed for the buff port defines it as 31012, and T5
+  logged both the Phase 5 and the Phase 8c `APPLIED_SKILL_ID` lines. Only the *system* behind the
+  key, the applied-skill-ID lookup, is still absent.
+- **7a's June-only branches.** Their users are Ain and Rose skills, and those classes are absent.
+- **Phase 10c / touch-land:** not built.
+
+---
+
 ## Starting context (paste this with any phase)
 
 - Repo root: `F:\elsword stuff\elsword_2014\els_2014\ElswordFiles\ready_and_built\ProjectX2_SVN\ProjectX2_SVN\source\EU_CN_US\Trunk`
@@ -1623,8 +2142,9 @@ Things the next phases should know:
   March reader existed yet. No change to the matching logic (`march_reads`/`path_match`) itself.
 - **Play-test target for `DAMAGE_EFFECT_Trap_Fire_Big`** (`LOOP_ADD_POS_X`/`_Y`,
   `SET_DIE_WHEN_MASTER_EFFECT_DIE`, inside `CREATE_DAMAGE_EFFECT0..3`): the `TRAP_FIRE_BIG` NPC,
-  placed in the Ranox Burned Forest dungeon at every difficulty. Not yet play-tested this
-  session.
+  placed in the Ranox Burned Forest dungeon at every difficulty. ~~Not yet play-tested this
+  session.~~ **Play-tested 2026-10-03** (dev-console pass T1, both steps passed, exe
+  `cccaf8fb…`).
 
 **Paste with:** Starting context + this section.
 
@@ -1900,6 +2420,13 @@ a cited branch and JUNE_FX CE_FRAME fires. Update the matrix and MODS.md.
   skipped=1` → `IN_RANGE_MISS set=4` → `TARGET_LIST_MISS_RULE` CLEAR → `set=0`.
 - `GUIDED_ARROW_MEMO` logged `RANGE_FROM_OWNER_REJECT range=1000`, the battle-field default.
 - Not exercised yet: the `LOT_UID_VECTOR` seed re-target (`UID_VECTOR_RETARGET`/`SEED_PICK`).
+  - **2026-10-03: no real skill reaches it.** Guided Arrow (`CreateGuideArrow`) and Scare Chase
+    (`X2GUChung.cpp:13423`) both switch their effects to `LOT_NEARST_UID_VECTOR` at runtime, even
+    though their templets say `LOT_UID_VECTOR`.
+  - Use the dev-console pass's T2 console route instead: `GUIDED_ARROW` plus `SetLockOnNPCUID`
+    plus `SetNowHP(0)`.
+  - **Exercised 2026-10-03 (T2 passed):** five `UID_VECTOR_RETARGET reason=dead` / `SEED_PICK`
+    pairs.
 
 `/code-review` (high) is done, with 3 fixes rebuilt and redeployed; see `MODS.md`:
 - a live-instance guard on the `EffectToUnit` hook;
@@ -1999,6 +2526,10 @@ named lock-on effect from the matrix). Update the matrix and MODS.md.
 ---
 
 ## Phase 7c — Runtime: hit/die damage-effect creation, LOOP_*, die conditions
+
+**Status: `LOOP_*` and `SET_DIE_WHEN_MASTER_EFFECT_DIE` play-tested 2026-10-03** (dev-console pass
+T1: the console `DAMAGE_EFFECT_Trap_Fire_Big` loop, then the real trap NPC's drain, both passed,
+exe `cccaf8fb…`). The die conditions still wait for Phase 11, because no deployed templet uses them.
 
 **Paste with:** Starting context + this section.
 
@@ -2112,7 +2643,11 @@ Things the next phases should know:
 - **Play-test (2026-09-29).**
   - **Hit scale: seen.** Elesis SPK dash-jump XZ logged 7 lines; its air explosion now draws at 3×
     (entry 1.5 × parent 2) where March drew it at 2×.
-  - **Still owed: the die-scale branch.** No `DIE_DAMAGE_EFFECT_SCALE` line appeared. It can be
+  - **Still owed: the die-scale branch.** No `DIE_DAMAGE_EFFECT_SCALE` line appeared. (The
+    dev-console pass's T3, 2026-10-03: the first run crashed in the console's `CreateInstance`
+    call through a stale `jDE`.) **Reached 2026-10-03 on the second run (T3 passed):** two
+    `DIE_DAMAGE_EFFECT_SCALE … entry=(0.660,0.660,0.660) parent=(1.000,1.000,1.000)` lines from
+    `DamageEffect_SBH_Fire_Works`. It can be
     reached through:
     - Ara Dragon Falling finisher (`EffectSet_ASD_DRAGON_FALLING_FINISH`, `Ara_Martial_Artist.lua`):
       explosion at (2, 1, 2);
@@ -2581,7 +3116,7 @@ see, including two of group 5's.
 matrix's own "nested BUFF_FACTOR" open question (Phase 1's scope-not-owned list), not 8b's — leave
 them `unassigned`.
 
-**Play-test checklist (pending as of 2026-09-29).** None of this session's five keys can produce an
+**Play-test checklist (pending as of 2026-09-29; passed 2026-10-03 as the dev-console pass's T4).** None of this session's five keys can produce an
 *observable* gameplay difference yet — no currently-loaded March data sets any of them true (deferred
 to Phase 11, same as Phase 2's `ES_TEMPLET` situation). So this round is a **regression check on a
 shared, always-executed path**, not a feature verification:
@@ -2676,7 +3211,7 @@ own explicitly-deferred (parsed-only) keys; see JUNE2017_CHARACTER_PORT_CHECKLIS
 
 ## Phase 8c — SetDamageData III: absent systems, and the enum tables so June lua loads
 
-**Status: done 2026-09-29, built and deployed (`US_SERVICE`, 0 errors, `X2_offline.exe` 18,952,704 B, SHA-256 `dc5c6c4fef65ae2d…`; not play-tested yet).** Extends
+**Status: done 2026-09-29, built and deployed (`US_SERVICE`, 0 errors, `X2_offline.exe` 18,952,704 B, SHA-256 `dc5c6c4fef65ae2d…`; ~~not play-tested yet~~ play-tested 2026-10-03, dev-console pass T5: nine lines, including two `APPLIED_SKILL_ID` lines that the repacked `Enum.lua` now makes reachable).** Extends
 `SERV_IRUHADEV_JUNE_DAMAGEDATA` (no new flag): `X2Lib/X2DamageManager.{h,cpp}`,
 `X2Lib/X2DamageEffect.cpp`. The exit test is a new `census.py` check: every phase-8c
 `DE.DAMAGE_DATA` row has a March parse site. It passes, and all 8 rows are `unsupported`, with
@@ -2852,7 +3387,11 @@ reports 0 unclassified DamageData keys. Update the matrix and MODS.md.
 ## Phase 9 — Collision and hit path (answers RANOX_EFFECT_RUNTIME_UNKNOWNS §4)
 
 **Status: collision half built and deployed 2026-09-29 (`SERV_IRUHADEV_JUNE_COLLISION`, commit
-`e2e078f`), play-test pending. `SetDamageExceptionProcess` half compared in part, no code.**
+`e2e078f`), ~~play-test pending~~ **play-tested 2026-10-03** (dev-console pass T6: the Mag Charger
+fireball `COLLIDE`s with the player and a level-70 charger's fireball does real damage. June and
+March agree, and the hitbox follows the mesh. One open question about the trace's far samples is
+recorded under T6). `SetDamageExceptionProcess`
+half compared in part, no code.**
 - **Found.** June's `CollisionDataCheck` is inlined into `EffectToUnit` `3262b6e0 @3262bc1a-3262eebd`,
   and the same code is in UnitToUnit's `32611970`. `CheckCollisionGuard` is `32640770`, March's
   live `#else` branch. The frame parser is `31d4f8b0`.
@@ -2959,8 +3498,9 @@ play-test (JUNE_FX HIT lines). Update the matrix and MODS.md.
 
 ## Phase 10 — KTDGXMeshPlayer templet keys
 
-**Status: built and deployed 2026-09-29 (`SERV_IRUHADEV_JUNE_MESHPLAYER`); play-test pending. It can
-share one play-test with Phase 9.**
+**Status: built and deployed 2026-09-29 (`SERV_IRUHADEV_JUNE_MESHPLAYER`); ~~play-test pending~~
+**play-tested 2026-10-03** (dev-console pass T7 passed; `MP_CRASH` seen firing in T6). It can share
+one play-test with Phase 9.**
 - **Found.** The parser is `ProcessTempletBlock` `31c8ae10`, neither candidate.
   - `31c8d140` is the `CXMeshInstance` ctor.
   - `31c895d0` has the shape of `ChangeXSkinMesh`; it stays a candidate.
