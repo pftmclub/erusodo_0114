@@ -6,6 +6,26 @@
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#include "Offline/X2OfflineLog.h"
+
+/// Temporary: one line a second while a BBT_DASH_IMPOSSIBLE buff holds back an NPC's AI message
+static void JuneBuffDebugDashBlocked( const CX2GUNPC* pNPC_, const wchar_t* pwszMessage_ )
+{
+	static DWORD s_dwLastTick = 0;
+	static int s_iSuppressed = 0;
+	const DWORD dwNow = GetTickCount();
+	if ( dwNow - s_dwLastTick < 1000 )
+	{
+		++s_iSuppressed;
+		return;
+	}
+	s_dwLastTick = dwNow;
+	CX2OfflineLog::Server( L"[JUNE_BUFF] DEBUG DASH_IMPOSSIBLE held back %s on %s uid %I64d (+%d more since the last line)",
+		pwszMessage_, pNPC_->GetNPCTemplet().m_LuaFileName.c_str(), pNPC_->GetUnitUID(), s_iSuppressed );
+	s_iSuppressed = 0;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 
 //#ifdef  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 #define X2GUNPC_RECEIVE_FRAME_COUNT_MAX_GAB     (70*10)
@@ -21832,6 +21852,10 @@ void CX2GUNPC::CommonEventProcess()
 
 		case SCT_AI_DASH:
 			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				if( ( m_AIMessage == SCT_AI_DASH || m_UnUseAIMessage == SCT_AI_DASH ) && !m_vecDashImpossiblePtr.empty() )
+					JuneBuffDebugDashBlocked( this, L"SCT_AI_DASH" );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 				/// June CX2GUNPC::CommonEventProcess (3276d980) @3276e3e6: not while a BBT_DASH_IMPOSSIBLE buff is on
 				if( ( m_AIMessage == SCT_AI_DASH || m_UnUseAIMessage == SCT_AI_DASH ) && m_vecDashImpossiblePtr.empty() )
@@ -21894,6 +21918,10 @@ void CX2GUNPC::CommonEventProcess()
 
 		case SCT_AI_JUMP_DIR:
 			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				if( ( m_AIMessage == SCT_AI_JUMP_DIR || m_UnUseAIMessage == SCT_AI_JUMP_DIR ) && !m_vecDashImpossiblePtr.empty() )
+					JuneBuffDebugDashBlocked( this, L"SCT_AI_JUMP_DIR" );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 				/// June CX2GUNPC::CommonEventProcess (3276d980) @3276e3e6, shared with SCT_AI_DASH: not while a BBT_DASH_IMPOSSIBLE buff is on
 				if( ( m_AIMessage == SCT_AI_JUMP_DIR || m_UnUseAIMessage == SCT_AI_JUMP_DIR ) && m_vecDashImpossiblePtr.empty() )
@@ -21920,6 +21948,10 @@ void CX2GUNPC::CommonEventProcess()
 
 		case SCT_AI_DOWN_DIR:
 			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				if( ( m_AIMessage == SCT_AI_DOWN_DIR || m_UnUseAIMessage == SCT_AI_DOWN_DIR ) && !m_vecDashImpossiblePtr.empty() )
+					JuneBuffDebugDashBlocked( this, L"SCT_AI_DOWN_DIR" );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 				/// June CX2GUNPC::CommonEventProcess (3276d980) @3276e532: not while a BBT_DASH_IMPOSSIBLE buff is on
 				if( ( m_AIMessage == SCT_AI_DOWN_DIR || m_UnUseAIMessage == SCT_AI_DOWN_DIR ) && m_vecDashImpossiblePtr.empty() )

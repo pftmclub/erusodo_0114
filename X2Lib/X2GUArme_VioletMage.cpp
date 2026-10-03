@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2guarme_violetmage.h"
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 
 
 #ifdef SERV_APRIL_FOOLS_DAY
@@ -4983,6 +4986,11 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 #else // UPGRADE_SKILL_SYSTEM_2013
 	float fMPConsume = GetActualMPConsume( pSkillTemplet->m_eID, pSkillTemplet->m_iSkillLevel );
 #endif // UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( CX2SkillTree::SI_A_AV_TELEPORT == pSkillTemplet->m_eID )
+		CX2OfflineLog::Server( L"[JUNE_BUFF] DEBUG Teleport MP cost %.2f (BBT_CHANGE_CONSUME_MP_RATE rate %.2f, MP before %.2f)",
+			fMPConsume, GetSkillRateByBuffBehavior( pSkillTemplet->m_eID, BBT_CHANGE_CONSUME_MP_RATE ), GetNowMp() );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 
 #ifdef TOGGLE_UNLIMITED_SKILL_USE
 #if defined( _IN_HOUSE_ ) || defined( _OPEN_TEST_ )

@@ -4757,3 +4757,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              the in-house console (END key) and its raw Lua commands.
 #define SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-04
+// Description: TEMPORARY June buff port diagnostics (JUNE_BUFF_PORT_PHASES.md,
+//              Phase 4b-i part 4 play-test). Writes [JUNE_BUFF] lines into
+//              offline_server.log: each BBT_DASH_IMPOSSIBLE apply, each AI
+//              message the NPC dash gate holds back (throttled to one line a
+//              second), and each Aisha Teleport's MP cost and rate. Needs
+//              SERV_IRUHADEV_OFFLINE (the log) and
+//              SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY. Remove once tested.
+#define SERV_IRUHADEV_JUNE_BUFF_DEBUG
+//////////////////////////////////////////////////////////////////////////
