@@ -4,12 +4,18 @@ Punch list for adopting June's own `EffectSet*`/`DamageEffect*` lua onto the Mar
 `JUNE2017_EFFECT_REBUILD_PLAN.md`, "End goal" and "Phase 11"). This is **not a keep-or-adopt
 verdict** -- it records what blocks adoption and what's already clear.
 
-Status as of 2026-10-03: the Lua-execution-level trial is done and clean. The enum data and the
-loader-list gaps are built and packed. **June's effect data is staged in the user's
-`kom_contents` and waits for the user to pack it.** The client-level trial runs on the live game
-directory once it is packed; see *Client-level trial* below. (2026-10-01 had planned a throwaway
-copy of the game directory. On 2026-10-03 the user decided to stage straight into `kom_contents`
-instead, because it gets packed anyway.)
+**Status: done 2026-10-03. June's effect files are adopted and live.** The trial ran on the live
+client after the user packed the staged data. Every check passed, nothing blocks adoption, and
+the Ranox-merged March copies are retired (commit `6174c71`). The open follow-ups are owned by
+the plan's *Status summary* (`JUNE2017_EFFECT_REBUILD_PLAN.md`, top). This file is the evidence.
+
+Reading order:
+1. *Adoption punch list* (the end of this file): the verdict.
+2. *Play-test result* sections: what was observed.
+3. Everything above them: how it was staged and why.
+
+(2026-10-01 had planned a throwaway copy of the game directory. On 2026-10-03 the user decided to
+stage straight into `kom_contents` and test on the live client instead.)
 
 ## Done and verified
 
@@ -153,34 +159,20 @@ count), covering 968 additions (0 currently held) and the 2 renumbers. `PHASE11_
 `PHASE11_ENUM_HELD` are literal lists near the top of `write()`, since `census.py` has no
 git-history awareness of its own. All existing checks still pass.
 
-## Open, needs the client-level trial or the user's play-testing
+## Pre-trial open questions, and how each was settled
 
-1. **The 178 real particle differs (item 4).** Not a static question -- needs a visual check once
-   the trial client is running, comparing March's current look against June's for a sample of the
-   two clusters (Add-character skills, event/lobby effects).
-2. ~~Trial format~~: superseded 2026-10-03. Staged into `kom_contents`; see *Client-level trial*.
-3. **Full asset trial** (user's decision): all 3,622 June-only files from
-   `JUNE2017_ASSET_CLOSURE.md`, not a narrower Lua-only pass. Staged 2026-10-03.
-4. **Deferred `JUNE_FX` checks that need June's real data to fire**, beyond Phase 2's
-   `ES_TEMPLET` lines (`SYNC_SHOW_BY_CREATE_UNIT` on `EffectSet_KILL_ENEMY_WHEN_FULL_HYPER_MODE`,
-   `OVERLAP` on `EffectSet_ALH_LINK_FLOWER_DeBuff`): the `DE.LOCK_ON_DATA` family in `census.py`
-   (`LOCK_ON_TYPE` case 8 `LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE`, `RANDOM_SEED`, `INIT_TARGET`,
-   `RETARGET_COOLTIME_AFTER_ATTACK`, `UNLOCK_START_AFTER_ATTACK`, `Y_DIR_INIT`,
-   `NOT_LOCKON_INVINCIBLE_TARGET`, `LOCK_ON_TARGET_BONE_NAME`) -- all tagged "log: Phase 11"
-   because no deployed `LOCK_ON_DATA` block exercises them on merged March data. Needs a
-   character/effect that actually uses lock-on re-targeting during play-testing.
-5. **Play-test Phase 10b's name-contract punch list** (17 names: 7 dropped, 7 rename candidates,
-   1 case change, 2 dead-in-June-too).
-6. Whether `KTDGXMeshPlayer`/`KTDGParticleSystem` actually resolve every mesh/particle reference
-   June's effect data makes, once real files are in place (the Lua-level trial only proves the
-   effect/damage-effect *lua* loads cleanly, not that every asset it points at resolves).
-7. `INIT_PHYSIC.WALK_SPEED` load-order dependency (Phase 10b): needs a character script loaded
-   first, in the real startup order, to confirm it resolves rather than reading nil.
-8. Whether the studio typos June's own data reads as nil (`TURE`, `FLASE`, `FASLE`, `d`,
-   `RVK_FlashBang_Ulti_Scale`) produce any visible effect difference in play, or are as harmless
-   here as Phase 10b found them to be at the data level.
+| # | question | outcome (2026-10-03) |
+|---|---|---|
+| 1 | the 178 particles that differ: a visual check | **open, optional.** No visible defect reported in the session; never compared side by side |
+| 2 | trial format | settled: staged in `kom_contents`, packed, live |
+| 3 | full asset trial (3,622 June-only files) | **done**: staged, packed and deployed. 0 entries lost from the 48 replaced koms |
+| 4 | deferred `JUNE_FX` checks | Phase 2's `ES_TEMPLET` lines **fired**. The lock-on family (`LOT_UID_VECTOR_*`, `INIT_TARGET`, ...) was **not observed**: plan follow-up 8 |
+| 5 | play-test the name-contract list | **done**: all 18 effect-set names logged missing with no crash, via the console. Damage-effect names are covered statically. The 4 monster scripts survived in play |
+| 6 | do mesh and particle references resolve with the real files? | **done**: one miss, `BOSSRAID_ABYSS_SMOG.DDS` (punch list #1). Every other file-not-found line predates the change |
+| 7 | `INIT_PHYSIC.WALK_SPEED` load order | **settled, not a problem**: `DamageEffect.lua` loads to its last templet |
+| 8 | studio typos read as nil (`TURE`, `FLASE`, ...) | no visible effect reported; harmless as far as observed |
 
-## Client-level trial (2026-10-03): staged in `kom_contents`, waiting for the pack
+## Client-level trial (2026-10-03): staging, pack and deploy
 
 ### What was staged
 
@@ -644,4 +636,4 @@ that fails, with no class, skill or awakening needed.
 | 4 | 6 names dead in June too (`BOMB`, `ANCIENT_PPORU_BREATH`, ...) | no: parity |
 | 5 | Lock-on runtime lines (`CE_LOCKON`, Phase 7b) | no: never observed; needs a real lock-on skill |
 | 6 | 178 changed particles: visual check | no: optional |
-| 7 | Retire `march2014/data036/EffectSet.src.lua` and `DamageEffect.src.lua` (the merged copies) | waits for the user's OK |
+| 7 | Retire `march2014/data036/EffectSet.src.lua` and `DamageEffect.src.lua` (the merged copies) | **done** 2026-10-03 (`6174c71`, user's OK) |

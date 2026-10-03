@@ -49,6 +49,93 @@ and they decrypt mechanically. So the June engine can now be read rather than gu
 
 ---
 
+## Status summary (2026-10-03): adopted and live, with engine follow-ups open
+
+**This is the section to read first.** The phase sections below are the history, each with its
+own evidence.
+
+**The end goal is met for effects.** The live client runs June's own effect files:
+- `EffectSet`, `UIEffectSet`, `EffectSet_INT`, `UIEffectSet_INT`;
+- `DamageEffect` and `DamageEffect_Character`/`_Dungeon`/`_ETC`/`_INT`;
+- `DamageSound`;
+- every June particle and mesh-player `.txt`;
+- the 3,681 assets they reach.
+
+The Ranox-merged March copies are retired (commit `6174c71`). The trial on the live client passed:
+- every file loads to its last templet;
+- the counts match June's data to the entry;
+- the deferred Phase 2 log checks fire;
+- every name June dropped is missing, not crashing.
+
+Evidence and the adoption punch list are in `JUNE2017_TRIAL_LOAD.md`.
+
+**What "complete" does and does not cover.** The port is complete as an *adoption*: June's data
+loads and runs on the March engine, with no load error and no crash. It is *not yet* full engine
+parity. The census (`python june2017_re/census.py --summary`, 2026-10-03) still reports:
+- 46 keys `to-implement`: 31 in Phase 8b, 15 `unassigned`;
+- 14 `unsupported`;
+- 17 `binary-only`.
+
+On June's data, each of those keys is parsed and gets its default, logged where plan rule 5
+applies. It does not get June's behaviour. The open items are listed below so that "done" means
+something definite.
+
+| phase | scope | status | verified by |
+|---|---|---|---|
+| 0 | RE tooling, function map | done 2026-09-24 | `funcmap.tsv`, controls |
+| 1 | key census, gap matrix | done 2026-09-25 | `census.py` (all checks PASS) |
+| 2 | EffectSet parser, templet level | done 2026-09-25 | play-test; deferred `ES_TEMPLET` lines fired on June data 2026-10-03 |
+| 3 | EffectSet parser, per effect | done 2026-09-26 | play-test |
+| 4a | EffectSet runtime: creation | done 2026-09-26 (stage 3's `GROUP_NAME` branch is untestable: no data uses it) | play-test |
+| 4b | EffectSet runtime: delete, update, camera shake | done 2026-09-26 | play-test (Perfect Storm / Hamelling `ES_UPDATE`+`ES_DELETE`) |
+| 5 | CEffect constructor keys | done 2026-09-26 | play-test |
+| 6a / 6b | sub-loaders | done 2026-09-26 / 27 | census; dev-console T1 |
+| 7a | DamageEffect runtime: OnFrameMove | done 2026-09-27 | play-test |
+| 7b | lock-on runtime | done 2026-09-27 | play-test. The `LOT_UID_VECTOR` re-target (T2) was **never observed** |
+| 7c | `LOOP_*`, die-with-master | done | dev-console T1. Die conditions not observed |
+| 7d | DamageReact, AttackResult | done 2026-09-28 | play-test, T3, T4 |
+| 7e | `HIT_EFFECT_SET`, `DIE_CREATE_NPC` | done 2026-09-29 | built. **Touch-land moved to 10c** |
+| 8a | SetDamageData, June semantics | done 2026-09-29 | play-test |
+| 8b | SetDamageData, new keys | **partial**: 5 keys done; 31 `to-implement` + 13 `binary-only` open | T4 regression |
+| 8c | absent systems, enum handoff | done 2026-09-29 | T5 |
+| 9 | collision and hit path | **collision half done** (`EffectToUnit` only); the `SetDamageExceptionProcess` half is not ported | T6 |
+| 10 | KTDGXMeshPlayer / particle `.txt` keys | done 2026-09-29 | T7 |
+| 10b | adoption audits | done 2026-09-25 | closure, name contract, ljconv route |
+| 10c | spawner post-create tail, touch-land runtime | **not started** (identification only, no code) | - |
+| 11 | enums, trial load, adoption | **done 2026-10-03** | `JUNE2017_TRIAL_LOAD.md` |
+| 12 | docs and memory | **not done** | - |
+
+**Flags this plan added** (all in `KTDXLIB/Always.h`, all on; revert steps in `MODS.md`):
+- `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE`, `_EFFECTSET_RUNTIME`;
+- `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE`, `_DAMAGEEFFECT_RUNTIME`;
+- `SERV_IRUHADEV_JUNE_DAMAGEDATA`, `_COLLISION`;
+- `SERV_IRUHADEV_JUNE_MESHPLAYER`, `_PARTICLE`;
+- `SERV_IRUHADEV_JUNE_LOADER_GAPS`, `_HITTYPE_EXTEND`;
+- `SERV_IRUHADEV_JUNE_FX_DEBUG`, diagnostics only; Phase 12 asks before removing it.
+
+**Open follow-ups, by owner.** None blocks the adoption: each one leaves a June key on its default,
+or an effect missing, without failing.
+
+| # | item | owner | where it is specified |
+|---|---|---|---|
+| 1 | Phase 8b: 31 `DE.DAMAGE_DATA` keys + 13 binary-only (e.g. `TRACE_NEAREST_BONE`, which needs identification first) | this plan | Phase 8b section, grouping |
+| 2 | Phase 10c: spawner post-create tail (`31f8fdb0`, `31f649d0`, `31f64c00`, `31f65e40`, `31f65f90`), then the touch-land runtime | this plan | Phase 10c section |
+| 3 | Phase 9 second half: `SetDamageExceptionProcess` (8 per-class overrides to compare; the `AT_COMMAND` MP-gain multiplier); switch `UnitToUnit` collision as well | this plan | Phase 9 section, `MODS.md` |
+| 4 | 15 `unassigned` keys (nested `BUFF_FACTOR`, `Elsword_DamageData.lua`, `DamageSound`) | buff port / no owner yet | matrix, *Open questions* |
+| 5 | June buff factors the March build lacks (`BFI 512`, `653`, `1129` requested at run time) | buff port (Phase 13) | `JUNE_BUFF_PORT_PHASES.md` |
+| 6 | 14 effect names whose character or NPC scripts June changed (Raven Guardian Strike, Rena Dive Kick Bombing, ...) | character ports | `JUNE2017_TRIAL_LOAD.md`, `JUNE2017_CHARACTER_PORT_CHECKLIST.md` |
+| 7 | `BOSSRAID_ABYSS_SMOG.DDS` missing (June has it; the referencing file is not found) | this plan, cosmetic | `JUNE2017_TRIAL_LOAD.md` |
+| 8 | Never observed in play: the 7b UID-vector re-target, 7c die conditions, the touch-land gate | this plan | dev-console pass |
+| 9 | Phase 12: `RANOX_EFFECT_ENGINE_GAPS.md` §6, `MODS.md` audit, CLAUDE.md pointer (ask first), memory | this plan | Phase 12 section |
+
+**Working on effects from here on.**
+- June's effect files have no editable source in the repo. `june_src_fixed/` is for reading only:
+  recompiling a decompile lost templets in Phase 10b.
+- Put a local addition in a separate file, not in June's.
+- Rebuild or re-stage with `june2017_re/stage_june_fx.py` (`--revert` undoes it).
+
+---
+
 ## Model and effort per phase (for the user; do not paste)
 
 Decided 2026-09-26. The goal is to spend Opus only where a mistake is both likely and
@@ -604,8 +691,10 @@ seen through T0-T6. `MP_CRASH` fires; see T6.
 Do not count these as passed. Do not build synthetic templets from the console to reach them,
 for example with `AddEffectSetTemplet_LUA`: that is guessing, and the user decided these wait for
 June's data.
-- **Waits for Phase 11, because no deployed data uses the keys:**
-  - Phase 2's `ES_TEMPLET` and Phase 3's `ES_EFFECT`;
+- **Waits for Phase 11, because no deployed data uses the keys.** Phase 11 is now live, so these can
+  fire. Phase 2's `ES_TEMPLET` lines did, on 2026-10-03. The rest are still unobserved; see the
+  *Status summary*, follow-up 8.
+  - Phase 2's `ES_TEMPLET` (**fired 2026-10-03**) and Phase 3's `ES_EFFECT`;
   - 4a stage 2 (`USE_IS_RIGHT_WHEN_CREATE`, `TRACE_MATRIX_IN_FIELD`,
     `APPLY_DAMAGE_EFFECT_VELOCITY`, `MESH_TRIGGER_DATA_LIST`);
   - 4b stages 2-3;
@@ -1335,9 +1424,9 @@ census.py shows 0 EffectSet keys to-implement. Update the matrix and MODS.md.
 
 ## Phase 4a — EffectSet runtime: creation
 
-**Status: in progress (2026-09-26).** The spec below was written before any code, from the
-June disassembly, with the decompile used only as a map. The work is split into three stages.
-Resume at the first stage not marked done.
+**Status: done 2026-09-26** (all three stages built, deployed and play-tested; stage 3's
+`GROUP_NAME` branch can never fire, because no March or June data uses it). The spec below was
+written before any code, from the June disassembly, with the decompile used only as a map.
 
 | stage | scope | state |
 |---|---|---|
@@ -1832,10 +1921,10 @@ effect set. Update the matrix and MODS.md.
 
 ## Phase 4b — EffectSet runtime: delete, update, camera shake
 
-**Status: in progress (2026-09-26).** The spec below was written from the June disassembly
-before any code, as in 4a, with the decompile used only as a map. The work is split into
-three stages. Resume at the first stage that is not marked done. The phase is not done while
-any `RUNTIME` row in `census.py` still has the state `stage N`.
+**Status: done 2026-09-26.** All three stages were built and deployed. `census.py` has no
+`stage N` row left. The play-test passed (see "Play-test result" under *Result*). The spec below
+was written from the June disassembly before any code, as in 4a, with the decompile used only as a
+map.
 
 | stage | scope | state |
 |---|---|---|
@@ -3870,6 +3959,15 @@ and record the evidence. Commit with my OK.
 ---
 
 ## Phase 11 — Enums, June-data trial load, then adoption
+
+**Status: done 2026-10-03.** All four steps are done:
+1. **Enums.** Done 2026-10-01 (`7ee6552`), packed.
+2. **Trial.** It ran on the live client by the user's decision, not on a copy: staged in
+   `kom_contents`, packed and deployed.
+3. **Report.** `JUNE2017_TRIAL_LOAD.md`.
+4. **Adoption.** The merged copies were retired in `6174c71`.
+
+The punch list has no blockers. Its follow-ups are in the *Status summary* at the top.
 
 **Paste with:** Starting context + this section. Needs Phase 10b's outputs.
 
