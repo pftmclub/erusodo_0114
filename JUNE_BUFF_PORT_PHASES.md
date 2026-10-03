@@ -2340,15 +2340,15 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. This sect
 **Item 2: the NowHp slots.** OnFrameMove `32e72d80`, GetFactor `32e7d4c0`, packet `32e79a80` and ParsingBehavior `32e72a00` are the same as March (each missing key returns false, as March's `LUA_GET_VALUE_RETURN` does). `SelectDelegate` `32e78e00` and the packet path's inlined copy drop March's `DISPLAY_ERROR` for an unknown change type. **Not ported; open decision for the review** (see "Runtime popups" below).
 
 **Item 3: NowMp, ChangeStat, EnchantAttackRate.**
-- **The new vtable slots 3, 9, 10 and 11 are reached only from June-only content. Deferred.** A `.text` scan for the call shapes found exactly two callers:
+- **The new vtable slots 3, 9, 10 and 11 are reached only from June-only content. Not ported in part 3; they are to be ported dormant** (the user's 2026-10-02 decision: port June's full functions now, absent characters included). A `.text` scan for the call shapes found exactly two callers:
   - `3227c360` `(op, BTI, index, value)` calls vslot 9 (`+=`), 10 (`*=`) or 11 (`=`) on a buff's N-th behavior. Its only callers are Rose's (`32ab2f02`, `32ab2f6d`, `32ae305b`, `32ae30ac`).
   - `3236a430` (`CX2BuffTemplet`) calls vslot 3 on every behavior and then re-runs the displayers. Its only caller is `322a7660` `(BFI, count, level, x)`, which sets an existing buff's stack count (wrapper `322a8a70`). Those are called by Eve, Elesis, Rose, Luciel and Aisha, and by `CX2GUUser` code. Every constant BFI pushed (523, 812, 820, 877, 910, 913, 929) lies in Phase 2's June-only block of `Enum.src.lua`. Aisha's `32cc5c16` passes its BFI in a register (unresolved).
   - Neither is a Lua binding: there are no pointer references.
-  - Overrides that nothing in March calls would be dead code, so all of this goes to `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 7.
+  - The buff-engine side belongs to this port, to be ported dormant: the overrides, the base defaults, `3227c360`, `3236a430`, `322a7660` and `322a8a70`. It is listed under "Where part 3 stopped". `322a7660` needs the June-only user vslots 476 and 141 mapped first. Only the **callers** go to `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 7.
   - For the record: NowMp vslot 3 `32e7c680` recomputes the value from the factor at a given count (`(1 - r) * v[1]`, × `1 + mul * (count - 1)`); vslots 9/10 `32e893a0`/`32e89430` do `+=`/`*=`; ChangeStat vslot 11 `32e86500` does `=`; EnchantAttackRate vslot 3 is `32e775e0`. Base vslot 3 `32e864d0` returns true; base vslots 9–11 `3208ddc0` are empty.
 - **ChangeStat `SetFactor` `32e78410`: same as March's `ADJUST_BUFF_ACCMULATION_CALCULATE` branch** (`Always.h:639`). That answers part 1's question: June kept ADJUST in ChangeStat. The x87 selects were traced: both keep the larger absolute value, PERCENT is `1 + (new - 1)(c + 1)` clamped at 0, and the tail updates (`3226fd70`) or inserts (`32282700`).
   - Differences: no popups; a zero multiplier, a change-type mismatch or a relation mismatch returns false silently.
-  - June also calls vslot 15 `SetBuffOwnerUID( factor creator UID +0x30/+0x34 )` `@32e784b8`. It is a no-op except in the June-only `_HaveBuffOwner` subclass (BBT 93), so it is a **Phase 5 hand-off**: add vslots 14/15 to ChangeStat and this call with BBT 93.
+  - June also calls vslot 15 `SetBuffOwnerUID( factor creator UID +0x30/+0x34 )` `@32e784b8`. It is a no-op except in the June-only `_HaveBuffOwner` subclass (BBT 93). Under the no-partial rule it still belongs to this function's port, not to Phase 5: add vslots 14/15 to ChangeStat (`32ec5980` returns 0, `33093ad0` is empty) and the call. It is listed under "Where part 3 stopped".
 - **ChangeStat `GetValue` `32e764f0`: ported.** FIX with option data uses `min( level, 90 )` (`cmp eax,0x5a` `@32e7655d`); March does not clamp. Constants 1.5 and 9.5 (`334396c8`/`334b9c80`) are unchanged.
   - The option-type set is a byte table at `32e7664c`: types 11–16, 20, 21 and 72. That equals March's `MustUseOptionData()`, but the port transcribes the set literally.
   - SWAP, RELATION and PERCENT are the same as March.
@@ -2429,10 +2429,10 @@ June raises none of them. Functions rewritten whole in this part (NowMp `SetFact
   - Attribute types: `BTI_BUFF_SWORD_ENCHANT_FIRE/ICE/POISON` (FIX, 66/67/68).
   - All have `ACCUMULATION_LIMIT = 1`.
   - Re-applying any of them while it runs used to insert a second store entry. `DoFinish` erases only the first entry with that identity, so March kept a stale enchant-rate bonus after the buff ended.
-  - Now the larger rate replaces the entry. Sword Enchant re-casts are the case to watch in play.
+  - The stack count only increments when `ACCUMULATION_LIMIT > 1` (`X2BuffTemplet.cpp:218`), so these recasts take the no-count path. Now the larger rate replaces the entry. Sword Enchant re-casts are the case to watch in play.
 - **Freeze: 6 templets.** `WATER_HOLD`, `FROZEN`, `SHADOW_KNOT`, `SHOCK` and `SLESHU_ONE_SLASH` have `IS_DOWN = TRUE`; `BIND` has `IS_DOWN = FALSE`. A unit that dies while frozen now holds its last frame (`XAP_ONE_WAIT`) instead of looping. A live user resumes the play type it had, not `XAP_LOOP`.
 - **CanPass: 1 templet,** `BTI_NPC_ALCHEMYST_SECRET_BOSS_TRANSFORM_SCALE`. Its pass-through flag is now restored at finish, where March left it until the next state change.
-- **NowMp: probably no reach.** 28 templets, 5 of them PERCENT: `MANA_BURN_REL` (limit 0), `DARK_POISON`, `RELATION_SHIP_SKILL`, `MAGIC_POINT_IMMEDIATELY_CHANGE_ONCE`, `IMMEDIATELY_CHANGE_HP_MP` (limit 1). None has `ACCUMULATION_LIMIT > 1`, so the removed ADJUST branch, which needs a stack count, should not be reached. The review should confirm what count limit 0 gives.
+- **NowMp: no reach.** 28 templets, 5 of them PERCENT: `MANA_BURN_REL` (limit 0), `DARK_POISON`, `RELATION_SHIP_SKILL`, `MAGIC_POINT_IMMEDIATELY_CHANGE_ONCE`, `IMMEDIATELY_CHANGE_HP_MP` (limit 1). The stack count only increments when `ACCUMULATION_LIMIT > 1` (`X2BuffTemplet.cpp:218`, unconditional, no Phase 4a variant), so the removed ADJUST branch, which needs a stack count, is never reached on March data.
 - **ChangeStat `GetValue`: only units above level 90.** That is above March's cap, but it matters for the Atlas/Elysion cap-99 worktree.
 - **HyperMode store: 2 templets** (`BTI_HYPER_MODE`, `BTI_FORMATION_MODE`). Nothing in March reads the value.
 - **ConsumeMpRate (not ported): 1 templet,** `BTI_DEBUFF_CHANGE_CONSUME_MP_RATE` (PERCENT), the Teleport debuff.
@@ -2447,7 +2447,9 @@ June raises none of them. Functions rewritten whole in this part (NowMp `SetFact
    - the BBT 7/8 second members plus `322788c0` (read Phase 1c item 3's 92 entry first).
 2. Item 6, RSCT DRAW_TEXT (part 2, "Not ported").
 3. ConsumeMpRate: find June's reader of the rate, then port the class and Aisha's Teleport reader together.
-4. The runtime-popup decision above (review).
+4. The runtime-popup decision above. **It is the user's:** the no-partial rule says to port June's removals, while part 1's precedent ruled popup-only differences "same".
+5. Port dormant: behavior vslots 3/9/10/11 (base defaults and the NowMp, ChangeStat and EnchantAttackRate overrides), `3236a430`, `322a7660` (map user vslots 476 and 141 first), `322a8a70` and `3227c360`.
+6. ChangeStat vslots 14/15 and the `SetBuffOwnerUID` call in `SetFactor` (`@32e784b8`).
 
 **Review of part 3:** required (Opus 5.5). Suggested spot-checks:
 - `32e77370`'s `c == 0` compare direction (`test ah,0x41` after `fcompp`);
@@ -2467,7 +2469,8 @@ X2_offline.exe without asking first.
 Your task (Phase 4b-i part 4): resume part 3's list "Where part 3 stopped" from item 1 (the
 four hand-offs: type 56 in both DamageReacts, the DASH_IMPOSSIBLE NPC AI gate, the
 CHANGE_ENCHANT_ATTACK_RATE host math, the BBT 7/8 second members plus 322788c0), then RSCT
-DRAW_TEXT and ConsumeMpRate's June reader, under SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY.
+DRAW_TEXT, ConsumeMpRate's June reader, the dormant vslot 3/9/10/11 chain and ChangeStat's
+vslot 14/15 owner-UID hook (items 5-6), under SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY.
 Port June's whole function wherever it differs, keep GetFactor/SetFactorFromPacket order
 (append only), byte-level CP949 edits, insert-only, flag-off unifdef check per file.
 Another session may have uncommitted edits in the doc: stage only your own hunks. Build,
