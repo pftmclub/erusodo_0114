@@ -4,7 +4,7 @@ Punch list for adopting June's own `EffectSet*`/`DamageEffect*` lua onto the Mar
 `JUNE2017_EFFECT_REBUILD_PLAN.md`, "End goal" and "Phase 11"). This is **not a keep-or-adopt
 verdict** -- it records what blocks adoption and what's already clear.
 
-**Status: done 2026-10-03. June's effect files are adopted and live.** The trial ran on the live
+**Status: done 2026-10-03. June's effect files are adopted and live. Correction 2026-10-04: one blocker was found after the trial (punch list #0, the damage regression).** The trial ran on the live
 client after the user packed the staged data. Every check passed, nothing blocks adoption, and
 the Ranox-merged March copies are retired (commit `6174c71`). The open follow-ups are owned by
 the plan's *Status summary* (`JUNE2017_EFFECT_REBUILD_PLAN.md`, top). This file is the evidence.
@@ -630,6 +630,7 @@ that fails, with no class, skill or awakening needed.
 
 | # | item | blocks adoption? |
 |---|---|---|
+| 0 | **Found 2026-10-04, after the trial:** 1,915 June damage-data blocks get damage only from June's numerical skill table (`NUMERICAL_DATA_INDEX`), which March lacks, so they deal 0 damage. 492 did damage in the merged copy (e.g. `ANGER_OF_ELF_SPARK`, `CHUNG_ACELDAMA_SHELL`). The trial checked loading and crashes, not damage numbers | **yes**. `JUNE2017_EFFECT_COMPLETION_PHASES.md` C1, and D1 (live rollback decision) |
 | 1 | `BOSSRAID_ABYSS_SMOG.DDS` not found. June ships `BossRaid_Abyss_smog.dds` / `_smog2.dds`; the referencing file, probably a compressed mesh, is not yet found | no: one missing texture |
 | 2 | 15 C++ call sites name effects June dropped or renamed; they are now silently missing. June changed those call sites too | no, under "June behaviour wins" (user's standing rule). Following June's renames (e.g. `..._Guided_Arrow`) is optional C++ work |
 | 3 | 14 script names June changed (Raven Guardian Strike x4, VJavelin landing, Flame Sword memo, Rena Dive Kick Bombing x3, Aisha Blaze Step memo x2, PvP-hero Apple/Balak) | no: the effect is missing, no crash. Fixed by adopting June's character and NPC scripts (`JUNE2017_CHARACTER_PORT_CHECKLIST.md`) |

@@ -51,6 +51,15 @@ and they decrypt mechanically. So the June engine can now be read rather than gu
 
 ## Status summary (2026-10-03): adopted and live, with engine follow-ups open
 
+> **Correction, 2026-10-04: adoption has a live damage regression.** 1,915 `DAMAGE_DATA*` blocks in
+> June's effect files take their damage only from June's numerical skill table, which this build
+> lacks. In March they deal **0 damage**. 492 of them did damage in the retired merged copy. The
+> "none blocks" claim below was wrong.
+>
+> **The remaining work to completion is now `JUNE2017_EFFECT_COMPLETION_PHASES.md`**, phases C0-C12.
+> C1 (numerical skill data) is first. That document's *Definition of complete* replaces the open
+> follow-ups list below.
+
 **This is the section to read first.** The phase sections below are the history, each with its
 own evidence.
 
@@ -113,8 +122,8 @@ something definite.
 - `SERV_IRUHADEV_JUNE_LOADER_GAPS`, `_HITTYPE_EXTEND`;
 - `SERV_IRUHADEV_JUNE_FX_DEBUG`, diagnostics only; Phase 12 asks before removing it.
 
-**Open follow-ups, by owner.** None blocks the adoption: each one leaves a June key on its default,
-or an effect missing, without failing.
+**Open follow-ups, by owner** (superseded by `JUNE2017_EFFECT_COMPLETION_PHASES.md`). Each one leaves a June key on its
+default, or an effect missing. Numerical skill data does more: it zeroes damage. See the correction above.
 
 | # | item | owner | where it is specified |
 |---|---|---|---|
