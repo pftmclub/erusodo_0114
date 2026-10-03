@@ -762,6 +762,15 @@ public:
 	bool	GetSetting( const char* szKey, OUT int& iOut );
 	bool	SetSetting( const char* szKey, int iValue );
 
+#ifdef SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
+	/// The account auth level the login hands the client, out of
+	/// `settings.auth_level` (CX2User::X2_USER_AUTH_LEVEL: 0 normal, 1 special,
+	/// 2 operator, 3 dev, 10 light operator). Absent -> the row is written as 0
+	/// so it shows up in the table to edit; any other value -> 0 and a log line.
+	/// Read on every login, so an edit takes effect on the next one.
+	int		GetAuthLevel();
+#endif SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
+
 	//////////////////////////////////////////////////////////////////////////
 	// pets and riding pets (phase 7)
 

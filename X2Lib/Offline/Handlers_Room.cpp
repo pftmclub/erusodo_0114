@@ -177,7 +177,11 @@ void CX2OfflineServer::MakeRoomUserInfo( const KOfflineUnitRow& kRow, OUT KRoomU
 	kOut.m_iGSUID			= 1;
 	kOut.m_iOwnerUserUID	= kRow.m_nUserUID;
 	kOut.m_sServerGroupID	= 1;
+#ifdef SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
+	kOut.m_cAuthLevel		= (char)CX2OfflineDB::Instance()->GetAuthLevel();	///< bots below stay normal
+#else SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
 	kOut.m_cAuthLevel		= (char)CX2User::XUAL_NORMAL_USER;
+#endif SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
 	kOut.m_nUnitUID			= kRow.m_nUnitUID;
 	kOut.m_cUnitClass		= (char)kRow.m_iUnitClass;
 	kOut.m_wstrNickName		= kRow.m_wstrNickName;

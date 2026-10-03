@@ -165,7 +165,12 @@ bool CX2OfflineServer::Handler_EGS_VERIFY_ACCOUNT_REQ( KOfflineSession& kSes, co
 	kAck.m_kAccountInfo.m_nUserUID						= kSes.m_nUserUID;
 	kAck.m_kAccountInfo.m_wstrID						= kSes.m_wstrLoginID;
 	kAck.m_kAccountInfo.m_wstrName						= kSes.m_wstrLoginID;
+#ifdef SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
+	kAck.m_kAccountInfo.m_iAuthLevel					= CX2OfflineDB::Instance()->GetAuthLevel();
+	CX2OfflineLog::Server( L"LOGIN    auth level %d (settings.auth_level)", kAck.m_kAccountInfo.m_iAuthLevel );
+#else SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
 	kAck.m_kAccountInfo.m_iAuthLevel					= CX2User::XUAL_NORMAL_USER;
+#endif SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
 	kAck.m_kAccountInfo.m_bInternalUser					= false;
 	kAck.m_kAccountInfo.m_kAccountOption.m_bPlayGuide	= false;
 	kAck.m_kAccountInfo.m_kAccountBlockInfo.m_wstrEndTime		= L"";	///< not blocked

@@ -463,7 +463,11 @@ bool CX2OfflineServer::ReplyID( KOfflineSession& kSes, unsigned short usEventID 
 	kOut.m_cUnitClass		= cUnitClass;
 	kOut.m_wstrNickName		= wstrNickName;
 	kOut.m_ucLevel			= (UCHAR)iLevel;
+#ifdef SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
+	kOut.m_cAuthLevel		= (char)CX2OfflineDB::Instance()->GetAuthLevel();
+#else SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
 	kOut.m_cAuthLevel		= (char)CX2User::XUAL_NORMAL_USER;
+#endif SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
 
 	//{{ Author: Iruha
 	// Date: 2026-09-05

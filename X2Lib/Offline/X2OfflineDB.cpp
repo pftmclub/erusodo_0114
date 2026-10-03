@@ -2727,6 +2727,32 @@ int CX2OfflineDB::GetWallet()
 	return iValue < 0 ? 0 : iValue;
 }
 
+#ifdef SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
+int CX2OfflineDB::GetAuthLevel()
+{
+	// No lock and no member state: GetSetting/SetSetting take m_cs themselves.
+	int iValue = 0;
+	if( false == GetSetting( "auth_level", iValue ) )
+	{
+		SetSetting( "auth_level", 0 );		///< seed the row so it is there to edit
+		return 0;
+	}
+
+	switch( iValue )
+	{
+	case 0:		// XUAL_NORMAL_USER
+	case 1:		// XUAL_SPECIAL_USER
+	case 2:		// XUAL_OPERATOR
+	case 3:		// XUAL_DEV
+	case 10:	// XUAL_LIGHT_OPERATOR
+		return iValue;
+	}
+
+	CX2OfflineLog::Server( L"DB WARN  settings.auth_level = %d is not an auth level (0,1,2,3,10); using 0", iValue );
+	return 0;
+}
+#endif SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
+
 bool CX2OfflineDB::GetCashBalance( UidType nUserUID, OUT int& iOut )
 {
 	KLocker lock( m_cs );

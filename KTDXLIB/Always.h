@@ -4740,5 +4740,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              types 73+ are declared in its block of X2BuffFactor.h) and
 //              ADD_LIVE_CREATOR_FINALIZER (Set/GetIsUserUID, X2BuffFactor.h);
 //              the NeverMove port also needs NEVER_MOVE_GRAVITY_APPLY.
+//              Part 2's damage-manager reader (326309f0) reads
+//              DamageData::m_iAppliedSkillID, so it also needs
+//              SERV_IRUHADEV_JUNE_DAMAGEDATA.
 #define SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-03
+// Description: Offline mode: the account auth level the login hands the
+//              client comes from the save, `settings.auth_level` in
+//              els_db.sql (0 normal, 1 special, 2 operator, 3 dev, 10 light
+//              operator), instead of a hardcoded XUAL_NORMAL_USER. Read on
+//              every login; the row is seeded as 0 on first read. 3 opens
+//              the in-house console (END key) and its raw Lua commands.
+#define SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
 //////////////////////////////////////////////////////////////////////////
