@@ -559,6 +559,44 @@ void CX2BuffChangeNowHpPerSecondBehaviorTemplet::DrawText( CX2GameUnit* pGameUni
 	@brief : BuffFactor에 담겨진 값으로 Templet 셋팅
 	@param : 버프요소(BuffFactor_), 버프를 가지고 있을 게임유닛(pGameUnit_), 기존에 가지고 있던 또는 새로운 버프템플릿 포인터(pBuffTemplet_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/// June 32e7c380: there is no ADJUST_BUFF_ACCMULATION_CALCULATE branch (as NowHp, part 1). Every change type
+/// restacks with the multiplier formula and is never clamped at 0. Delegates are bound only for FIX and
+/// PERCENT (the inlined SelectDelegate), and June raises no popups.
+/*virtual*/ bool CX2BuffChangeNowMpPerSecondBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( STATIC_CAST_FLOAT_TO_ENUM( BUFF_CHANGE_TYPE, (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != m_eChangeType )
+		return false;
+
+	if ( BCT_FIX_VALUE == m_eChangeType || BCT_PERCENT == m_eChangeType )
+		SelectDelegate();
+
+	const float fRegist = pGameUnit_->GetEnchantResist( static_cast<CX2EnchantItem::ENCHANT_TYPE>( pBuffTemplet_->GetRegistType() ) ) / CX2EnchantItem::EAR_MAX_VALUE;
+	const float fNewValueOrPercent = GetValueOrPercentPerSecond( pBehaviorFactor, fRegist );
+
+	if ( DidStart() )
+	{
+		const UINT uiAccumulationCountBefore = pBuffTemplet_->GetAccumulationCountNow();
+		if ( uiAccumulationCountBefore > 0 )
+		{
+			const float fAccumulationMultiflier = pBuffTemplet_->GetAccumulationMultiflier();
+			const float fOldValueOrPercent = m_fResultValue / ( 1 + fAccumulationMultiflier * (uiAccumulationCountBefore - 1) );
+			m_fResultValue = ( abs(fNewValueOrPercent) > abs(fOldValueOrPercent) ? fNewValueOrPercent : fOldValueOrPercent );
+			m_fResultValue *= ( 1 + fAccumulationMultiflier * uiAccumulationCountBefore );
+		}
+		else
+			m_fResultValue = ( abs(fNewValueOrPercent) > abs(m_fResultValue) ? fNewValueOrPercent : m_fResultValue );
+	}
+	else
+		m_fResultValue = fNewValueOrPercent;
+
+	return true;
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ bool CX2BuffChangeNowMpPerSecondBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
@@ -631,6 +669,7 @@ void CX2BuffChangeNowHpPerSecondBehaviorTemplet::DrawText( CX2GameUnit* pGameUni
 	else
 		return DISPLAY_ERROR( L"CX2BuffChangeNowMpPerSecondBehaviorTemplet GetBehaviorFactor didn't work" );
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : GetClonePtr
 	@return : CX2BuffBehaviorTempletPtr
@@ -1115,6 +1154,58 @@ void CX2BuffChangeNowMpPerSecondBehaviorTemplet::DrawText( CX2GameUnit* pGameUni
 	@param : 행동요소(pBehaviorFactor_), 버프가 적용된 게임유닛(pGameUnit_), 저항(fRegist_)
 	@return : 변경값(float)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/// June 32e764f0: as March, except that the option-data level is clamped at 90 (cmp eax,0x5a @32e7655d). The
+/// option types are June's byte table 32e7664c (11-16, 20, 21, 72), transcribed literally.
+float CX2BuffChangeStatBehaviorTemplet::GetValue( const KBuffBehaviorFactor* pBehaviorFactor_, CX2GameUnit* pGameUnit_, const float fRegist_ ) const
+{
+	const float fValue = (*pBehaviorFactor_)[FO_VALUE];
+
+	switch ( m_eChangeType )
+	{
+	case BCT_SWAP_VALUE:
+		return fValue;
+
+	case BCT_FIX_VALUE:
+		switch ( GetType() )
+		{
+		case BBT_CHANGE_ANIM_SPEED:
+		case BBT_CHANGE_WALK_RUN_SPEED:
+		case BBT_CHANGE_JUMP_POWER:
+		case BBT_CHANGE_ACCURACY:
+		case BBT_CHANGE_AVOIDANCE:
+		case BBT_CHANGE_CRITICAL_RATE:
+		case BBT_CHANGE_ADDITIONAL_ATTACK:
+		case BBT_CHANGE_ADDITIONAL_DEFENCE:
+		case BBT_CHANGE_HYPER_CHARGE_SPEED:
+			{
+				int iLevel = static_cast<int>( pGameUnit_->GetUnitLevel() );
+				if ( iLevel > 90 )
+					iLevel = 90;
+				const UINT uiLevel = static_cast<UINT>( iLevel );
+				return fValue * ( 1.5f * (uiLevel - 1) + 9.5f ) * (1.0f - fRegist_);
+			}
+
+		default:
+			return fValue * (1.0f - fRegist_);
+		}
+
+	case BCT_RELATION_VALUE:
+		return fValue * (*pBehaviorFactor_)[FO_MULTIPLIER] * (1.0f - fRegist_);
+
+	case BCT_PERCENT:
+		if ( fValue >= 1.0f )
+			return fValue;
+		else if ( fValue > 0.0f )
+			return 1.0f - ( (1.0f - fValue) * (1.0f - fRegist_) );
+		else
+			return fValue;
+
+	default:
+		return 0.0f;
+	}
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 float CX2BuffChangeStatBehaviorTemplet::GetValue( const KBuffBehaviorFactor* pBehaviorFactor_, CX2GameUnit* pGameUnit_, const float fRegist_ ) const
 {
 	const float fValue = (*pBehaviorFactor_)[FO_VALUE];
@@ -1161,6 +1252,7 @@ float CX2BuffChangeStatBehaviorTemplet::GetValue( const KBuffBehaviorFactor* pBe
 		break;
 	}
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : MustUseOptionData
 	@brief : 옵션 수치화를 사용해야 하는 행동인지를 얻어옴
@@ -1764,9 +1856,9 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	if ( static_cast<UINT>(CX2GageUI::PGUWO_ORB3) < m_uiHyperModeCount || pGameUnit_->IsFullHyperMode() )
 		pGameUnit_->SetFullHyperMode( true );
 
-	/// June then calls 32b4dd50( count, or 1 ). It writes a June-only CX2GameUnit member (a protected int at
-	/// June +0x6844), not March's SetHyperModeCount, which is the gage's orb count. Its readers are not mapped
-	/// yet (Phase 4b-i part 2), so it is not ported.
+	/// June then calls 32b4dd50( count, or 1 ) (@32e7dc69 / @32e7de36), before slot 49: the buff-driven hyper count
+	/// (June +0x6844). Not March's SetHyperModeCount, which is the gage's orb count.
+	pGameUnit_->SetHyperModeCountByBuff( static_cast<int>( 1 > m_uiHyperModeCount ? 1 : m_uiHyperModeCount ) );
 
 	m_fRemainTime = m_fRemainTime + (*pBehaviorFactor)[FO_HYPER_MODE_TIME];
 	pGameUnit_->SetRemainHyperModeTime( m_fRemainTime );
@@ -1830,9 +1922,9 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	if ( static_cast<UINT>(CX2GageUI::PGUWO_ORB3) < m_uiHyperModeCount || pGameUnit_->IsFullHyperMode() )
 		pGameUnit_->SetFullHyperMode( true );
 
-	/// June then calls 32b4dd50( count, or 1 ). It writes a June-only CX2GameUnit member (a protected int at
-	/// June +0x6844), not March's SetHyperModeCount, which is the gage's orb count. Its readers are not mapped
-	/// yet (Phase 4b-i part 2), so it is not ported.
+	/// June then calls 32b4dd50( count, or 1 ) (@32e7dc69 / @32e7de36), before slot 49: the buff-driven hyper count
+	/// (June +0x6844). Not March's SetHyperModeCount, which is the gage's orb count.
+	pGameUnit_->SetHyperModeCountByBuff( static_cast<int>( 1 > m_uiHyperModeCount ? 1 : m_uiHyperModeCount ) );
 
 	m_fRemainTime = kFactor_[1];
 	pGameUnit_->SetRemainHyperModeTime( m_fRemainTime );
@@ -1858,13 +1950,14 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ void CX2BuffChangeHyperModeBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
 {
-	/// June 32e7de90: as March, then 32b4dd50( 0 ) on the June-only member (see SetFactor; not ported)
+	/// June 32e7de90: as March, then 32b4dd50( 0 ) after slot 50 (@32e7ded7)
 	CX2GageData* pGageData = CX2GageManager::GetInstance()->GetMyGageData();
 	if ( NULL != pGageData )
 		pGageData->SetHyperModeRemainTime( 0.0f );
 
 	pGameUnit_->SetRemainHyperModeTime( 0.0f );
 	pGameUnit_->HyperModeBuffEffectEnd();
+	pGameUnit_->SetHyperModeCountByBuff( 0 );
 }
 #else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ void CX2BuffChangeHyperModeBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
@@ -2639,6 +2732,33 @@ void CX2BuffFinishOtherBuffDebuffBehaviorTemplet::EraseBuffTempletFromGameUnit( 
 	@brief : 버프가 종료됬을 때 정리해야하는 행동들을 처리
 	@param : 해당 버프에 걸렸던 게임유닛(pGameUnit_), 버프템플릿(pBuffTemplet_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/// June 32e76d10: the animation resumes (with its own play type) only while the unit lives: no gage data, or
+/// NowHp > 0 (a null HP gage reads 0, so it takes the other path, as in June), and not GUSI_DIE. Otherwise June
+/// plays XAP_ONE_WAIT. The down transition is March's.
+/*virtual*/void CX2BuffFreezeBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	pGameUnit_->EraseFreezeByBuff( pBuffTemplet_->GetBuffIdentity() );
+
+	pGameUnit_->SetStateToNowAnimation( CKTDGXSkinAnim::XAS_PLAYING );
+
+	CX2GageData* pGageData = pGameUnit_->GetGageData();
+	if ( ( NULL == pGageData || 0.0f < pGageData->GetNowHp() ) && CX2GameUnit::GUSI_DIE != pGameUnit_->GetGameUnitState() )
+		pGameUnit_->AnimPlay();
+	else
+		pGameUnit_->AnimPlayByPlayType( CKTDGXSkinAnim::XAP_ONE_WAIT );
+
+	if( true == m_bIsDown && CX2GameUnit::GUT_USER == pGameUnit_->GetGameUnitType())
+	{
+#ifdef RIDING_SYSTEM
+		if ( true == pGameUnit_->GetRidingOn() )
+			pGameUnit_->StateChange( CX2GUUser::USI_RIDING_DAMAGE_FRONT, true );
+		else
+#endif // RIDING_SYSTEM
+			pGameUnit_->StateChange( CX2GUUser::USI_DAMAGE_DOWN_FRONT, true );
+	}
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/void CX2BuffFreezeBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
 {
 	pGameUnit_->EraseFreezeByBuff( pBuffTemplet_->GetBuffIdentity() );
@@ -2658,6 +2778,7 @@ void CX2BuffFinishOtherBuffDebuffBehaviorTemplet::EraseBuffTempletFromGameUnit( 
 			pGameUnit_->StateChange( CX2GUUser::USI_DAMAGE_DOWN_FRONT, true );
 	}
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_, float fElapsedTime_ )
@@ -2689,6 +2810,30 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 	@brief : BuffFactor에 담겨진 값으로 Templet 셋팅
 	@param : 버프요소(BuffFactor_), 버프를 가지고 있을 게임유닛(pGameUnit_), 기존에 가지고 있던 또는 새로운 버프템플릿 포인터(pBuffTemplet_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/// June 32e74260: also saves the unit's can-pass flag (unit vslot 68 with false: the now frame). It does so on
+/// every SetFactor, with no started guard, so a restack saves the buff's own value: June's, transcribed.
+/*virtual*/ bool CX2BuffCanPassUnitBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( NULL != pGameUnit_ )
+		m_bCanPassUnitBeforeBuff = pGameUnit_->GetCanPassUnitNow();
+	return true;
+}
+
+/** @function : DoFinish
+	@brief : June 32e72890: restores the can-pass flag SetFactor saved (unit vslot 233). March had no DoFinish.
+	@param : unit the buff was on (pGameUnit_), its templet (pBuffTemplet_)
+*/
+/*virtual*/ void CX2BuffCanPassUnitBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	if ( NULL != pGameUnit_ )
+		pGameUnit_->SetCanPassUnit( m_bCanPassUnitBeforeBuff );
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ bool CX2BuffCanPassUnitBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
@@ -2701,6 +2846,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 	else
 		return DISPLAY_ERROR( L"CX2BuffCanPassUnitBehaviorTemplet GetBehaviorFactor didn't work" );
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : GetClonePtr
 	@return : CX2BuffBehaviorTempletPtr
@@ -3188,6 +3334,62 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 	@brief : BuffFactor에 담겨진 값으로 Templet 셋팅
 	@param : 버프요소(BuffFactor_), 버프를 가지고 있을 게임유닛(pGameUnit_), 기존에 가지고 있던 또는 새로운 버프템플릿 포인터(pBuffTemplet_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/// June 32e77370. The attribute per type is March's (table 32e775c4). When the buff has already started, June
+/// restacks instead of inserting a second entry: with a stack count it erases (32279c70) and re-inserts at
+/// VALUE * ( 1 + multiplier * count ), a zero multiplier failing; without one it keeps the larger absolute
+/// value. No resist is applied, and June raises no popups.
+/*virtual*/ bool CX2BuffChangeEncahntAttackRateBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( STATIC_CAST_FLOAT_TO_ENUM( BUFF_CHANGE_TYPE, (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != m_eChangeType )
+		return false;
+
+	switch ( GetType() )
+	{
+	case BBT_CHANGE_ATTRIBUTE_BLAZE_ATTACK_RATE:	m_eEnchantAttributeType = BEAT_BLAZE;	break;
+	case BBT_CHANGE_ATTRIBUTE_WATER_ATTACK_RATE:	m_eEnchantAttributeType = BEAT_FROZEN;	break;
+	case BBT_CHANGE_ATTRIBUTE_NATURE_ATTACK_RATE:	m_eEnchantAttributeType = BEAT_POSION;	break;
+	case BBT_CHANGE_ATTRIBUTE_WIND_ATTACK_RATE:	m_eEnchantAttributeType = BEAT_PIERCING;	break;
+	case BBT_CHANGE_ATTRIBUTE_LIGHT_ATTACK_RATE:	m_eEnchantAttributeType = BEAT_SHOCK;	break;
+	case BBT_CHANGE_ATTRIBUTE_DARK_ATTACK_RATE:	m_eEnchantAttributeType = BEAT_SNATCH;	break;
+	default:	break;
+	}
+
+	if ( BCT_PERCENT != m_eChangeType && BCT_FIX_VALUE != m_eChangeType )
+		return false;
+
+	const float fNewRate = (*pBehaviorFactor)[FO_VALUE];
+	if ( !DidStart() )
+	{
+		m_fRate = fNewRate;
+		pGameUnit_->CreateAndInsertChangeEnchantAttackRate( pBuffTemplet_->GetBuffIdentity(), m_fRate, m_eEnchantAttributeType, m_eChangeType );
+		return true;
+	}
+
+	const UINT uiAccumulationCountNow = pBuffTemplet_->GetAccumulationCountNow();
+	if ( 0 < uiAccumulationCountNow )
+	{
+		const float fAccumulationMultiflier = pBuffTemplet_->GetAccumulationMultiflier();
+		if ( IsSamef( fAccumulationMultiflier ) )
+			return false;
+
+		pGameUnit_->EraseChangeEnchantAttackRate( pBuffTemplet_->GetBuffIdentity(), m_eEnchantAttributeType, m_eChangeType );
+		m_fRate = fNewRate * ( 1.0f + fAccumulationMultiflier * uiAccumulationCountNow );
+		pGameUnit_->CreateAndInsertChangeEnchantAttackRate( pBuffTemplet_->GetBuffIdentity(), m_fRate, m_eEnchantAttributeType, m_eChangeType );
+	}
+	else if ( abs( fNewRate ) > abs( m_fRate ) )
+	{
+		pGameUnit_->EraseChangeEnchantAttackRate( pBuffTemplet_->GetBuffIdentity(), m_eEnchantAttributeType, m_eChangeType );
+		m_fRate = fNewRate;
+		pGameUnit_->CreateAndInsertChangeEnchantAttackRate( pBuffTemplet_->GetBuffIdentity(), m_fRate, m_eEnchantAttributeType, m_eChangeType );
+	}
+	return true;
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ bool CX2BuffChangeEncahntAttackRateBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
@@ -3264,6 +3466,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 	else
 		return DISPLAY_ERROR( L"CX2BuffChangeStatBehaviorTemplet GetBehaviorFactor didn't work" );
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : GetClonePtr
 	@return : CX2BuffBehaviorTempletPtr
@@ -3292,6 +3495,22 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 	@brief : 패킷으로 부터 받은 버프 정보로 스탯을 변경하는 템플릿을 셋팅
 	@param : 서버로 부터 받은 행동요소(kFactor_), 적용할 게임유닛(pGameUnit_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/// June 32e74b50: needs [change type, rate]. It erases by identity, attribute and change type, then inserts with
+/// the templet's attribute (no per-type override on this path) and the change type. March's packet path used
+/// the 2-argument insert and lost both.
+/*virtual*/ void CX2BuffChangeEncahntAttackRateBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	if ( kFactor_.m_vecValues.size() < 2 )
+		return;
+
+	m_eChangeType	= STATIC_CAST_FLOAT_TO_ENUM( BUFF_CHANGE_TYPE, kFactor_.m_vecValues[FO_CHANGE_TYPE] );
+	m_fRate = kFactor_.m_vecValues[FO_VALUE];
+
+	pGameUnit_->EraseChangeEnchantAttackRate( kBuffFactor_.m_BuffIdentity, m_eEnchantAttributeType, m_eChangeType );
+	pGameUnit_->CreateAndInsertChangeEnchantAttackRate( kBuffFactor_.m_BuffIdentity, m_fRate, m_eEnchantAttributeType, m_eChangeType );
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ void CX2BuffChangeEncahntAttackRateBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
 {
 	if ( kFactor_.m_vecValues.size() >= static_cast<UINT>( FO_END ) )
@@ -3302,6 +3521,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 		pGameUnit_->CreateAndInsertChangeEnchantAttackRate( kBuffFactor_.m_BuffIdentity, m_fRate );
 	}
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : DoFinish
 	@brief : 버프가 종료됬을 때 정리해야하는 행동들을 처리

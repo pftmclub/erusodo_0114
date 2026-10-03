@@ -2888,6 +2888,14 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		{ m_mapBuffAccumulationLimitOverride[eBuffTempletID_] = uiAccumulationLimit_; }
 		UINT GetBuffAppliedCount( const BUFF_TEMPLET_ID eBuffTempletID_ ) const;							/// June 322799a0
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 32b4dd50: the hyper count of the running CHANGE_HYPER_MODE buff (June +0x6844), written by that
+		/// buff only (count, or 1, at start; 0 at finish). Not March's SetHyperModeCount (the gage orb count) and
+		/// not CX2GUUser::m_iHyperModeCountUsed (June keeps that at +0x8d48). Only June character code reads it
+		/// (JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7).
+		void SetHyperModeCountByBuff( const int iCount_ ) { m_iHyperModeCountByBuff = iCount_; }
+		int GetHyperModeCountByBuff() const { return m_iHyperModeCountByBuff; }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		virtual bool SetBuffFactorToDamageData( const UINT uiBuffFactorId_, IN const UINT uiLevel_ = 1 );
@@ -3241,6 +3249,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		
 		
 		void EraseChangeEnchantAttackRate( const KBuffIdentity& BuffIdentity_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 32279c70: erases every entry whose identity, attribute and change type all match
+		void EraseChangeEnchantAttackRate( const KBuffIdentity& BuffIdentity_, const BUFF_ENCHANT_ATTRIBUTE_TYPE eEnchantAttributeType_,
+			const BUFF_CHANGE_TYPE eBuffChangeType_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 		// 인챈트 공격 확률 계산에 사용되는 구조체
 		// 합 연산 값, 곱 연산 값, 연산 타입 ( 버프 체인지 타입 ) 에 대해 묶어둠 
@@ -3670,6 +3683,12 @@ public:
 		virtual void	AnimStop() = 0;
 		virtual void	AnimPlay() = 0;
 		virtual void SetCanPassUnit( const bool bFlag_ ) = NULL;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June unit vslot 232 (user 31fe8050, NPC 32757b20): AnimPlay with an explicit play type
+		virtual void	AnimPlayByPlayType( const CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE ePlayType_ ) {}
+		/// June unit vslot 68 with false (user 3208e580, NPC 32755c50): the can-pass flag of the now frame
+		virtual bool	GetCanPassUnitNow() const { return false; }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		bool GetShowSmallGageAndName() const { return m_bShowSmallGageAndName; }
 		void SetShowSmallGageAndName( bool bShowSmallGageAndName_ ) { m_bShowSmallGageAndName = bShowSmallGageAndName_; }
 
@@ -3976,6 +3995,9 @@ protected:
 		map<BUFF_TEMPLET_ID, UINT>						m_mapBuffAccumulationLimitOverride;	/// June +0x6dd8: per-BTI stacking mode over ACCUMULATION_LIMIT; only Rose code (32ac5ce0) writes it
 		map<BUFF_TEMPLET_ID, UINT>						m_mapBuffAppliedCount;				/// June +0x7628: pushes per BTI; read only by NPC code (3275886a)
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		KProtectedType<int>								m_iHyperModeCountByBuff;	/// June +0x6844, see SetHyperModeCountByBuff
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 //}}
 		
 		/// 항상 남한테 거는 버프요소

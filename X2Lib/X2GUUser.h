@@ -2637,6 +2637,10 @@ public:
 		virtual void UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );
 		virtual void				AnimStop();
 		virtual void				AnimPlay();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		virtual void				AnimPlayByPlayType( const CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE ePlayType_ );	/// June 31fe8050
+		virtual bool				GetCanPassUnitNow() const { return m_FrameDataNow.stateParam.bCanPassUnit; }	/// June 3208e580( false )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		
 		virtual void SetStateToNowAnimation( const CKTDGXSkinAnim::XSKIN_ANIM_STATE eAnimState_ )
 		{

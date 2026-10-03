@@ -12659,6 +12659,28 @@ void CX2GameUnit::EraseChangeEnchantAttackRate( const KBuffIdentity& BuffIdentit
 	if ( m_AdditionalChangeEnchantAttackRate.end() != vItr )
 		m_AdditionalChangeEnchantAttackRate.erase( vItr );
 }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+
+/** @function : EraseChangeEnchantAttackRate
+	@brief : June 32279c70. A remove_if whose predicate (322a95c0) matches the identity, the attribute and the
+		change type; the 1-argument version above erases the first entry by identity only
+	@param : buff identity (BuffIdentity_), attribute (eEnchantAttributeType_), change type (eBuffChangeType_)
+*/
+void CX2GameUnit::EraseChangeEnchantAttackRate( const KBuffIdentity& BuffIdentity_, const BUFF_ENCHANT_ATTRIBUTE_TYPE eEnchantAttributeType_,
+	const BUFF_CHANGE_TYPE eBuffChangeType_ )
+{
+	vector<CX2ChangeEnchantAttackRatePtr>::iterator vItr = m_AdditionalChangeEnchantAttackRate.begin();
+	while ( m_AdditionalChangeEnchantAttackRate.end() != vItr )
+	{
+		if ( (*vItr)->IsSame( BuffIdentity_ )
+			&& eEnchantAttributeType_ == (*vItr)->GetBuffEnchantAttributeType()
+			&& eBuffChangeType_ == (*vItr)->GetBuffChangeType() )
+			vItr = m_AdditionalChangeEnchantAttackRate.erase( vItr );
+		else
+			++vItr;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : GetAdditionalAttackByType
 	@brief : 소켓 속성 공격 발동 확률 반환 함수

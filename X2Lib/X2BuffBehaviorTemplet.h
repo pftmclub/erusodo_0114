@@ -727,14 +727,26 @@ public:
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
 protected:
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	CX2BuffCanPassUnitBehaviorTemplet() 
+		: CX2BuffBehaviorTemplet(), m_bCanPassUnit( false ), m_bCanPassUnitBeforeBuff( false )
+	{}
+
+	/// June 32e72890: restores the can-pass flag SetFactor saved
+	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	CX2BuffCanPassUnitBehaviorTemplet() 
 		: CX2BuffBehaviorTemplet(), m_bCanPassUnit( false )
 	{}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 	virtual bool ParsingBehavior( KLuaManager& luaManager_ );
 
 private:
 	bool	m_bCanPassUnit;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	bool	m_bCanPassUnitBeforeBuff;	/// June +0x11: the unit's can-pass flag when SetFactor last ran
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 };
 
 /** @class : CX2BuffNeverMoveBehaviorTemplet

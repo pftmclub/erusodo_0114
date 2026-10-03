@@ -2979,7 +2979,13 @@ class CX2GUNPC : public CX2GameUnit
 
 	virtual CKTDGXSkinAnimPtr	GetSkinAnimPtr() const { return m_pXSkinAnim; }
 	virtual void AnimStop();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	virtual void AnimPlay() { if ( m_pXSkinAnim != NULL ) m_pXSkinAnim->Play( m_pXSkinAnim->GetPlayType() ); }	/// June 32757b40 (March's was empty)
+	virtual void AnimPlayByPlayType( const CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE ePlayType_ ) { if ( m_pXSkinAnim != NULL ) m_pXSkinAnim->Play( ePlayType_ ); }	/// June 32757b20
+	virtual bool GetCanPassUnitNow() const { return m_NPCFrameData.stateParam.bCanPassUnit; }	/// June 32755c50( false )
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	virtual void AnimPlay() {}	
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	virtual void SetStateToNowAnimation( const CKTDGXSkinAnim::XSKIN_ANIM_STATE eAnimState_ )
 	{
 		m_pXSkinAnim->SetState( eAnimState_ );

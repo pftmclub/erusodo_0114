@@ -23687,6 +23687,34 @@ void CX2GUUser::AnimStop()
 	m_FrameDataNow.stateParam.bSuperArmorNotRed = true;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/// June 31fe8130 (vslot 231): every skin anim resumes its own play type, where March forced XAP_LOOP. June
+/// also plays two June-only anims (+0x8e84, +0x8e88) and clears a third state byte (+0x8040); March has neither.
+void CX2GUUser::AnimPlay()
+{
+	if ( m_pXSkinAnimFuture != NULL )
+		m_pXSkinAnimFuture->Play( m_pXSkinAnimFuture->GetPlayType() );
+
+	if ( m_pXSkinAnim != NULL )
+		m_pXSkinAnim->Play( m_pXSkinAnim->GetPlayType() );
+
+	m_FrameDataNow.stateParam.bSuperArmor = false;
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+}
+
+/// June 31fe8050 (vslot 232): AnimPlay with the given play type
+void CX2GUUser::AnimPlayByPlayType( const CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE ePlayType_ )
+{
+	if ( m_pXSkinAnimFuture != NULL )
+		m_pXSkinAnimFuture->Play( ePlayType_ );
+
+	if ( m_pXSkinAnim != NULL )
+		m_pXSkinAnim->Play( ePlayType_ );
+
+	m_FrameDataNow.stateParam.bSuperArmor = false;
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 void CX2GUUser::AnimPlay()
 {
 	if ( m_pXSkinAnimFuture != NULL )
@@ -23698,6 +23726,7 @@ void CX2GUUser::AnimPlay()
 	m_FrameDataNow.stateParam.bSuperArmor = false;
 	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 
 
