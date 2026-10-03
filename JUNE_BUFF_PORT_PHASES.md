@@ -2439,6 +2439,13 @@ June raises none of them. Functions rewritten whole in this part (NowMp `SetFact
 
 **Things to watch in play:** recasting Sword Enchant (Fire/Ice/Poison) and the BBT 54 buffs; deaths while frozen; the Alchemyst secret boss transform; awakening, whose effects are unchanged but the new count is written.
 
+**Play-test (2026-10-03, user): all five checks pass** on the exe deployed with `061eb71` (md5 `57f7cf74…`). Each buff was applied with the dev console, `g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( <BFI>, 1 )`, inside a dungeon:
+1. Sword Enchant Fire `163` re-applied while running, then Ice `162`: no duplicate, popup or crash; procs stop after expiry, and Ice replaces Fire.
+2. Bind `73` on self, and Ice-frozen monsters: the animation resumes after thaw; a monster killed while frozen holds its pose.
+3. Alchemyst transform `28`: pass-through while it runs, collision back after it ends.
+4. Awakening, normal and potion `66`: unchanged.
+5. One full dungeon clear: no new popup or crash.
+
 **Where part 3 stopped / what resumes (in this order).**
 1. Item 5, the four hand-offs:
    - type 56 in both `DamageReact`s;
