@@ -508,6 +508,10 @@ protected:
 #ifdef ADDED_BBT_ALL_EQUIP_SKILL_SET_OR_RESET_COOLTIME					// 김종훈 / 13-07-04 / 모든 착용 중인 스킬의 쿨타임 최대치로 설정되게 하는 BBT 추가
 		, m_fCoolTimeRate ( 1.f ) 
 		, m_bIsRelativeAllSkill ( false)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		, m_bForceSet( false ), m_vecIgnoreSkillID(), m_vecForceSkillID(), m_bApplyOnce( false ), m_bApplied( false )
+		, m_bDrawText( false ), m_iSkillSlotType( 0 )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #endif // ADDED_BBT_ALL_EQUIP_SKILL_SET_OR_RESET_COOLTIME					// 김종훈 / 13-07-04 / 모든 착용 중인 스킬의 쿨타임 최대치로 설정되게 하는 BBT 추가
 	{}
 
@@ -524,6 +528,16 @@ private:
 	float				m_fCoolTimeRate;				// 설정한 쿨타임 (배율)
 	bool				m_bIsRelativeAllSkill;			// 스킬 타입과는 관계 없이 모든 장착 가능 스킬 타입에 대해 영향을 미칠 것인가?
 #endif // ADDED_BBT_ALL_EQUIP_SKILL_SET_OR_RESET_COOLTIME					// 김종훈 / 13-07-04 / 모든 착용 중인 스킬의 쿨타임 최대치로 설정되게 하는 BBT 추가
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 32e78e90 (offsets in June's class)
+	bool				m_bForceSet;			/// +0x21 FORCE_SET: SWAP ignores "only lower it"; lets relationship/hyper skills through
+	vector<int>			m_vecIgnoreSkillID;		/// +0x24 IGNORE_SKILL_ID: skills the reset skips
+	vector<int>			m_vecForceSkillID;		/// +0x34 FORCE_SKILL_ID: skills the reset always takes
+	bool				m_bApplyOnce;			/// +0x44 APPLY_ONCE: reset on the first frame only
+	bool				m_bApplied;				/// +0x45 runtime: set on every reset
+	bool				m_bDrawText;			/// +0x46 DRAW_TEXT: June 32e857d0 floats a text when a slot changed (not ported)
+	int					m_iSkillSlotType;		/// +0x48 SKILL_SLOT_TYPE: 0 any, 1 A, 2 B, 3 transcendence (none in March)
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 };
 

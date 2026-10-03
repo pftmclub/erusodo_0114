@@ -1886,6 +1886,146 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	@brief : 스킬 쿨타임 초기화
 	@param : 버프에 걸리 게임유닛(pGameUnit_), 버프의 템플리정보(pBuffTemplet_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : OnFrameMove
+	@brief : June 32e85fe0. Hands both skill-ID lists to the unit (slots 161/162), then resets through
+			 slot 160 every frame, or on the first frame only with APPLY_ONCE. DRAW_TEXT's floating text
+			 (June 32e857d0, string ids 0x978f/0x9790) is not ported: it is logged once instead.
+*/
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+/*virtual*/ void CX2BuffResetSkillCoolTimeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_, float fElapsedTime_ )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+/*virtual*/ void CX2BuffResetSkillCoolTimeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+{
+	if ( !DidStart() )
+		return;
+
+	pGameUnit_->SetResetCoolTimeIgnoreSkillID( m_vecIgnoreSkillID );
+	pGameUnit_->SetResetCoolTimeForceSkillID( m_vecForceSkillID );
+
+	if ( true == m_bApplyOnce && true == m_bApplied )
+		return;
+
+	m_bApplied = true;
+	const bool bChanged = pGameUnit_->ResetLeftSkillCoolTimeByBuff( static_cast<CX2SkillTree::SKILL_TYPE>( m_eSkillTypeToResetCoolTime ),
+		m_fCoolTime, m_bForceSet, m_eChangeType, m_fCoolTimeRate, m_bIsRelativeAllSkill, m_iSkillSlotType );
+
+	if ( true == m_bDrawText && true == bChanged )
+	{
+		static bool s_bDrawTextLogged = false;
+		if ( false == s_bDrawTextLogged )
+		{
+			s_bDrawTextLogged = true;
+			CX2JuneBuffCapture::Line( "unsupported (stored, consumer not ported): BBT_RESET_SKILL_COOL_TIME DRAW_TEXT (June 32e857d0 floats the cool-time change over the unit)" );
+		}
+	}
+}
+
+/** @function : SetFactor
+	@brief : June 32e76aa0. The factor's change type must equal the templet's. SWAP and FIX take the
+			 value as a cool time, RELATION and PERCENT as a rate (PERCENT only within 0..1, stored
+			 before the check). June raises no popup on any failure.
+*/
+/*virtual*/ bool CX2BuffResetSkillCoolTimeBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( static_cast<int>( (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != static_cast<int>( m_eChangeType ) )
+		return false;
+
+	switch ( m_eChangeType )
+	{
+	case BCT_SWAP_VALUE:
+	case BCT_FIX_VALUE:
+		m_fCoolTime = (*pBehaviorFactor)[FO_VALUE];
+		return true;
+
+	case BCT_RELATION_VALUE:
+		m_fCoolTimeRate = (*pBehaviorFactor)[FO_VALUE];
+		return true;
+
+	case BCT_PERCENT:
+		m_fCoolTimeRate = (*pBehaviorFactor)[FO_VALUE];
+		return ( 0.0f <= m_fCoolTimeRate && m_fCoolTimeRate <= 1.0f );
+
+	default:
+		return false;
+	}
+}
+
+/** @function : GetClonePtr
+	@return : CX2BuffBehaviorTempletPtr
+*/
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffResetSkillCoolTimeBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffResetSkillCoolTimeBehaviorTemplet( *this ) );
+}
+
+/** @function : GetFactor
+	@brief : June 32e7dee0: the type only, no values (as March). June has no SetFactorFromPacket override.
+*/
+/*virtual*/ void CX2BuffResetSkillCoolTimeBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+}
+
+/** @function : ParsingBehavior
+	@brief : June 32e78e90. BUFF_CHANGE_TYPE and SKILL_TYPE are required (no popup); RELATIVE_ALL_SKILL,
+			 FORCE_SET, DRAW_TEXT, SKILL_SLOT_TYPE, the IGNORE_SKILL_ID / FORCE_SKILL_ID lists and
+			 APPLY_ONCE are optional.
+*/
+/*virtual*/ bool CX2BuffResetSkillCoolTimeBehaviorTemplet::ParsingBehavior( KLuaManager& luaManager_ )
+{
+	int iChangeType = 0;
+	if ( false == luaManager_.GetValue( "BUFF_CHANGE_TYPE", iChangeType ) )
+	{
+		m_eChangeType = BCT_SWAP_VALUE;
+		return false;
+	}
+	m_eChangeType = static_cast<BUFF_CHANGE_TYPE>( iChangeType );
+
+	if ( false == luaManager_.GetValue( "SKILL_TYPE", m_eSkillTypeToResetCoolTime ) )
+	{
+		m_eSkillTypeToResetCoolTime = 0;
+		return false;
+	}
+
+	LUA_GET_VALUE( luaManager_, "RELATIVE_ALL_SKILL", m_bIsRelativeAllSkill, false );
+	LUA_GET_VALUE( luaManager_, "FORCE_SET", m_bForceSet, false );
+	LUA_GET_VALUE( luaManager_, "DRAW_TEXT", m_bDrawText, false );
+	LUA_GET_VALUE( luaManager_, "SKILL_SLOT_TYPE", m_iSkillSlotType, 0 );
+
+	if ( true == luaManager_.BeginTable( "IGNORE_SKILL_ID" ) )
+	{
+		int iIndex = 1;
+		int iSkillID = -1;
+		while ( true == luaManager_.GetValue( iIndex, iSkillID ) )
+		{
+			m_vecIgnoreSkillID.push_back( iSkillID );
+			++iIndex;
+		}
+		luaManager_.EndTable();
+	}
+
+	if ( true == luaManager_.BeginTable( "FORCE_SKILL_ID" ) )
+	{
+		int iIndex = 1;
+		int iSkillID = -1;
+		while ( true == luaManager_.GetValue( iIndex, iSkillID ) )
+		{
+			m_vecForceSkillID.push_back( iSkillID );
+			++iIndex;
+		}
+		luaManager_.EndTable();
+	}
+
+	LUA_GET_VALUE( luaManager_, "APPLY_ONCE", m_bApplyOnce, false );
+	return true;
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 /*virtual*/ void CX2BuffResetSkillCoolTimeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_, float fElapsedTime_ )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -1997,6 +2137,7 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 #endif // ADDED_BBT_ALL_EQUIP_SKILL_SET_OR_RESET_COOLTIME					// 김종훈 / 13-07-04 / 모든 착용 중인 스킬의 쿨타임 최대치로 설정되게 하는 BBT 추가
 	return true;
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////

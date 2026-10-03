@@ -2622,6 +2622,12 @@ public:
 #else // UPGRADE_SKILL_SYSTEM_2013
 		virtual void ResetLeftSkillCoolTimeBySkillType( const CX2SkillTree::SKILL_TYPE eSkillType_ );
 #endif // UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		virtual bool ResetLeftSkillCoolTimeByBuff( const CX2SkillTree::SKILL_TYPE eSkillType_, const float fCoolTime_, const bool bForceSet_,
+			const BUFF_CHANGE_TYPE eChangeType_, const float fCoolTimeRate_, const bool bIsRelativeAllSkill_, const int iSkillSlotType_ );	/// June 31fcd810
+		virtual void SetResetCoolTimeIgnoreSkillID( const vector<int>& vecSkillID_ );	/// June 31fdf340
+		virtual void SetResetCoolTimeForceSkillID( const vector<int>& vecSkillID_ );	/// June 31fdf400
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 		virtual CKTDGXSkinAnimPtr	GetSkinAnimPtr() const { return m_pXSkinAnim; }
 		void DoGuildSkillChanceToReverse();

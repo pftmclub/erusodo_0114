@@ -3274,6 +3274,14 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #else // UPGRADE_SKILL_SYSTEM_2013
 		virtual void ResetLeftSkillCoolTimeBySkillType( const CX2SkillTree::SKILL_TYPE eSkillType_ ) {}
 #endif // UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June CX2GameUnit slots 160-162: CX2GUUser forwards to its skill tree (32896600); the NPC versions
+		/// return false (321f5590) and do nothing (322b55e0)
+		virtual bool ResetLeftSkillCoolTimeByBuff( const CX2SkillTree::SKILL_TYPE eSkillType_, const float fCoolTime_, const bool bForceSet_,
+			const BUFF_CHANGE_TYPE eChangeType_, const float fCoolTimeRate_, const bool bIsRelativeAllSkill_, const int iSkillSlotType_ ) { return false; }
+		virtual void SetResetCoolTimeIgnoreSkillID( const vector<int>& vecSkillID_ ) {}
+		virtual void SetResetCoolTimeForceSkillID( const vector<int>& vecSkillID_ ) {}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 		void InsertPairSubAttackListSet( const CKTDGXMeshPlayer::CXMeshInstanceHandle hMeshHandle_, const CKTDGXSkinAnim* pSkinAnim_ );
 		void ErasePairSubAttackListSet( const CKTDGXMeshPlayer::CXMeshInstanceHandle hMeshHandle_ );

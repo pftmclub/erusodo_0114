@@ -33141,6 +33141,35 @@ void CX2GUUser::SendBuffInfoNot( const UidType uidGameUnitToSendNot_ )
 		}
 	}
 }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : ResetLeftSkillCoolTimeByBuff
+	@brief : June 31fcd810 (CX2GUUser slot 160): false without a unit, else the skill tree's reset (32896600)
+*/
+/*virtual*/ bool CX2GUUser::ResetLeftSkillCoolTimeByBuff( const CX2SkillTree::SKILL_TYPE eSkillType_, const float fCoolTime_, const bool bForceSet_,
+	const BUFF_CHANGE_TYPE eChangeType_, const float fCoolTimeRate_, const bool bIsRelativeAllSkill_, const int iSkillSlotType_ )
+{
+	if ( NULL == GetUnit() )
+		return false;
+
+	return GetUnit()->AccessUnitData().m_UserSkillTree.ResetLeftSkillCoolTimeByBuff( eSkillType_, fCoolTime_, bForceSet_,
+		eChangeType_, fCoolTimeRate_, bIsRelativeAllSkill_, iSkillSlotType_ );
+}
+
+/** @function : SetResetCoolTimeIgnoreSkillID / SetResetCoolTimeForceSkillID
+	@brief : June 31fdf340 / 31fdf400 (CX2GUUser slots 161/162): copy the buff's lists into the skill tree
+*/
+/*virtual*/ void CX2GUUser::SetResetCoolTimeIgnoreSkillID( const vector<int>& vecSkillID_ )
+{
+	if ( NULL != GetUnit() )
+		GetUnit()->AccessUnitData().m_UserSkillTree.SetResetCoolTimeIgnoreSkillID( vecSkillID_ );
+}
+
+/*virtual*/ void CX2GUUser::SetResetCoolTimeForceSkillID( const vector<int>& vecSkillID_ )
+{
+	if ( NULL != GetUnit() )
+		GetUnit()->AccessUnitData().m_UserSkillTree.SetResetCoolTimeForceSkillID( vecSkillID_ );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : DoGuildSkillChanceToReverse
 	@brief : 길드스킬 역전의 기회 실행

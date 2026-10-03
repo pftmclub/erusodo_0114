@@ -308,6 +308,20 @@ public:		/// public function
 #else // UPGRADE_SKILL_SYSTEM_2013
 	void ResetLeftSkillCoolTimeBySkillType( const CX2SkillTree::SKILL_TYPE eSkillType );
 #endif // UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 32896600 (the BBT_RESET_SKILL_COOL_TIME reset): true when a slot changed; clears both lists
+	bool ResetLeftSkillCoolTimeByBuff( const CX2SkillTree::SKILL_TYPE eSkillType_, const float fCoolTime_, const bool bForceSet_,
+		const BUFF_CHANGE_TYPE eChangeType_, const float fCoolTimeRate_, const bool bIsRelativeAllSkill_, const int iSkillSlotType_ );
+	void SetResetCoolTimeIgnoreSkillID( const vector<int>& vecSkillID_ ) { m_vecResetCoolTimeIgnoreSkillID = vecSkillID_; }
+	void SetResetCoolTimeForceSkillID( const vector<int>& vecSkillID_ ) { m_vecResetCoolTimeForceSkillID = vecSkillID_; }
+private:
+	bool IsResetCoolTimeTarget( const CX2SkillTree::SKILL_TYPE eSkillType_, const CX2SkillTree::SkillTemplet* pSkillTemplet_,
+		const bool bIsRelativeAllSkill_, const bool bForceSet_ ) const;
+	bool ApplyResetCoolTime( SkillSlotData& slotData_, const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iGageIndex_,
+		const int iSlotType_, const float fCoolTime_, const BUFF_CHANGE_TYPE eChangeType_, const float fCoolTimeRate_,
+		const bool bForceSet_, const int iSkillSlotType_ );
+public:
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #endif	NEW_SKILL_2010_11
 //}} kimhc // 2010.11.2 // 엠프레스 - 충전 추진기
@@ -509,6 +523,10 @@ private:
 
 	SkillSlotData						m_aEquippedSkill[ EQUIPPED_SKILL_SLOT_COUNT ];
 	SkillSlotData						m_aEquippedSkillSlotB[ EQUIPPED_SKILL_SLOT_COUNT ];
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	vector<int>							m_vecResetCoolTimeIgnoreSkillID;	/// June +0x468: BBT_RESET_SKILL_COOL_TIME IGNORE_SKILL_ID
+	vector<int>							m_vecResetCoolTimeForceSkillID;		/// June +0x478: BBT_RESET_SKILL_COOL_TIME FORCE_SKILL_ID
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 	SKILL_SLOT_B_EXPIRATION_STATE		m_eSkillSlotBExpirationState;
 	std::wstring						m_wstrSkillSlotBEndDate;

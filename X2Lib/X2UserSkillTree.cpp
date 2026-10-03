@@ -2652,6 +2652,123 @@ void CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType( const CX2SkillTree::SK
 		}
 	}
 }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : ResetLeftSkillCoolTimeByBuff
+	@brief : June 32896600 (reached through CX2GUUser slot 160). Per index, slot A then slot B, each
+			 through the filter (328922f0) and the apply (32894880); true if any apply reported a change.
+			 Both skill-ID lists are cleared afterwards. June looks each slot up through a June-only ID
+			 remap (328905b0) before the acquired map; March's GetUserSkillTemplet is the lookup here.
+			 June has 5 slots per bar (gage index 0-4 / 5-9); March's 4 give 0-3 / 4-7.
+*/
+bool CX2UserSkillTree::ResetLeftSkillCoolTimeByBuff( const CX2SkillTree::SKILL_TYPE eSkillType_, const float fCoolTime_, const bool bForceSet_,
+	const BUFF_CHANGE_TYPE eChangeType_, const float fCoolTimeRate_, const bool bIsRelativeAllSkill_, const int iSkillSlotType_ )
+{
+	bool bChanged = false;
+	const int iSizeOfIndex = ARRAY_SIZE( m_aEquippedSkill );
+
+	for ( int iCurrentIndex = 0; iCurrentIndex < iSizeOfIndex; ++iCurrentIndex )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletSlotA = GetUserSkillTemplet( m_aEquippedSkill[iCurrentIndex].m_eID );
+		if ( NULL != pSkillTempletSlotA
+			&& true == IsResetCoolTimeTarget( eSkillType_, pSkillTempletSlotA, bIsRelativeAllSkill_, bForceSet_ )
+			&& true == ApplyResetCoolTime( m_aEquippedSkill[iCurrentIndex], pSkillTempletSlotA, iCurrentIndex, 1,
+				fCoolTime_, eChangeType_, fCoolTimeRate_, bForceSet_, iSkillSlotType_ ) )
+			bChanged = true;
+
+		const CX2SkillTree::SkillTemplet* pSkillTempletSlotB = GetUserSkillTemplet( m_aEquippedSkillSlotB[iCurrentIndex].m_eID );
+		if ( NULL != pSkillTempletSlotB
+			&& true == IsResetCoolTimeTarget( eSkillType_, pSkillTempletSlotB, bIsRelativeAllSkill_, bForceSet_ )
+			&& true == ApplyResetCoolTime( m_aEquippedSkillSlotB[iCurrentIndex], pSkillTempletSlotB, iCurrentIndex + iSizeOfIndex, 2,
+				fCoolTime_, eChangeType_, fCoolTimeRate_, bForceSet_, iSkillSlotType_ ) )
+			bChanged = true;
+	}
+
+	m_vecResetCoolTimeIgnoreSkillID.clear();
+	m_vecResetCoolTimeForceSkillID.clear();
+	return bChanged;
+}
+
+/** @function : IsResetCoolTimeTarget
+	@brief : June 328922f0. FORCE_SKILL_ID always qualifies. Otherwise the skill type must match (or
+			 RELATIVE_ALL_SKILL), relationship (12) and hyper-active (13) skills need FORCE_SET, and
+			 IGNORE_SKILL_ID excludes.
+*/
+bool CX2UserSkillTree::IsResetCoolTimeTarget( const CX2SkillTree::SKILL_TYPE eSkillType_, const CX2SkillTree::SkillTemplet* pSkillTemplet_,
+	const bool bIsRelativeAllSkill_, const bool bForceSet_ ) const
+{
+	const int iSkillID = static_cast<int>( pSkillTemplet_->m_eID );
+	if ( m_vecResetCoolTimeForceSkillID.end() != std::find( m_vecResetCoolTimeForceSkillID.begin(), m_vecResetCoolTimeForceSkillID.end(), iSkillID ) )
+		return true;
+
+	if ( ( true == bIsRelativeAllSkill_ || eSkillType_ == pSkillTemplet_->m_eType )
+		&& ( true == bForceSet_ || ( CX2SkillTree::ST_RELATIONSHIP_SKILL != pSkillTemplet_->m_eType && CX2SkillTree::ST_HYPER_ACTIVE_SKILL != pSkillTemplet_->m_eType ) ) )
+		return ( m_vecResetCoolTimeIgnoreSkillID.end() == std::find( m_vecResetCoolTimeIgnoreSkillID.begin(), m_vecResetCoolTimeIgnoreSkillID.end(), iSkillID ) );
+
+	return false;
+}
+
+/** @function : ApplyResetCoolTime
+	@brief : June 32894880. SKILL_SLOT_TYPE filters by bar (June 3214f3d0: 1 A, 2 B, 3 the transcendence
+			 slot March lacks). June's change types differ from March's: SWAP sets the value (without
+			 FORCE_SET only when that lowers it), FIX adds it within [0, the skill's cool time],
+			 RELATION adds cool time x rate, PERCENT sets cool time x rate, anything else zeroes it.
+			 Only SWAP and FIX report a change.
+*/
+bool CX2UserSkillTree::ApplyResetCoolTime( SkillSlotData& slotData_, const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iGageIndex_,
+	const int iSlotType_, const float fCoolTime_, const BUFF_CHANGE_TYPE eChangeType_, const float fCoolTimeRate_,
+	const bool bForceSet_, const int iSkillSlotType_ )
+{
+	if ( 0 != iSkillSlotType_ && iSlotType_ != iSkillSlotType_ )
+		return false;
+
+	const float fNowCoolTime = slotData_.m_fCoolTimeLeft;
+	float fNewCoolTime = 0.0f;
+	bool bChanged = false;
+
+	switch ( eChangeType_ )
+	{
+	case BCT_SWAP_VALUE:
+		{
+			if ( true != bForceSet_ && fNowCoolTime <= fCoolTime_ )
+				return false;
+
+			fNewCoolTime = fCoolTime_;
+			bChanged = true;
+		} break;
+
+	case BCT_FIX_VALUE:
+		{
+			fNewCoolTime = fNowCoolTime + fCoolTime_;
+			if ( fNewCoolTime < 0.0f )
+				fNewCoolTime = 0.0f;
+
+			const float fMaxCoolTime = pSkillTemplet_->GetSkillCoolTimeValue( GetSkillLevel( pSkillTemplet_->m_eID ) );
+			if ( fMaxCoolTime <= fNewCoolTime )
+				fNewCoolTime = fMaxCoolTime;
+
+			bChanged = ( fNewCoolTime != fNowCoolTime );
+		} break;
+
+	case BCT_RELATION_VALUE:
+		fNewCoolTime = pSkillTemplet_->GetSkillCoolTimeValue( GetSkillLevel( pSkillTemplet_->m_eID ) ) * fCoolTimeRate_ + fNowCoolTime;
+		break;
+
+	case BCT_PERCENT:
+		fNewCoolTime = pSkillTemplet_->GetSkillCoolTimeValue( GetSkillLevel( pSkillTemplet_->m_eID ) ) * fCoolTimeRate_;
+		break;
+
+	default:
+		fNewCoolTime = 0.0f;
+		break;
+	}
+
+	if ( fNewCoolTime != fNowCoolTime )
+		slotData_.m_fCoolTimeLeft = fNewCoolTime;
+
+	CX2GageManager::GetInstance()->SetMySkillCoolTimeList( iGageIndex_, fNewCoolTime );
+	return bChanged;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #endif	NEW_SKILL_2010_11
 //}} kimhc // 2010.11.2 // 엠프레스 - 충전 추진기
