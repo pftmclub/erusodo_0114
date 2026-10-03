@@ -395,6 +395,9 @@ public:
 #ifdef NEVER_MOVE_GRAVITY_APPLY
 	CX2NeverMoveByBuff( const KBuffIdentity& BuffIdentity_, const D3DXVECTOR3& vPos_, const bool vGravity_ ) 
 		: CX2BuffIdentity( BuffIdentity_ ), m_vPos( vPos_ ), m_bIsGravity( vGravity_ )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		, m_bCanDown( false )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	{}
 #else
 	CX2NeverMoveByBuff( const KBuffIdentity& BuffIdentity_, const D3DXVECTOR3& vPos_ ) 
@@ -406,11 +409,20 @@ public:
 #ifdef NEVER_MOVE_GRAVITY_APPLY
 	const bool		   GetGravitiApply() const { return m_bIsGravity; }
 #endif //NEVER_MOVE_GRAVITY_APPLY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 3227abb0 (+0x1d): always created false; read by CX2GUUser::CanDownUnderNeverMove (June 31fd8b40)
+	bool				 GetCanDown() const { return m_bCanDown; }
+	/// June 320194df: a state with IGNORE_NEVER_MOVE moves the anchor along with the unit
+	void				 SetPos( const D3DXVECTOR3& vPos_ ) { m_vPos = vPos_; }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 protected:
 	CX2NeverMoveByBuff() 
 #ifdef NEVER_MOVE_GRAVITY_APPLY
 		: CX2BuffIdentity(), m_vPos( 0.0f, 0.0f, 0.0f )	, m_bIsGravity( false )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		, m_bCanDown( false )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #else
 		: CX2BuffIdentity(), m_vPos( 0.0f, 0.0f, 0.0f )
 #endif //NEVER_MOVE_GRAVITY_APPLY
@@ -421,6 +433,9 @@ private:
 #ifdef NEVER_MOVE_GRAVITY_APPLY
 	bool			m_bIsGravity;	//중력을 적용할것인가. true면 중력 적용, false면 위치 고정
 #endif //NEVER_MOVE_GRAVITY_APPLY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	bool			m_bCanDown;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 };
 

@@ -4736,5 +4736,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              and the HyperMode / CreateBuffFactor / AbsorbEffectAttack /
 //              NowHp templet classes follow June. New floats are appended, so
 //              GetFactor/SetFactorFromPacket keep March's order on the wire.
+//              Requires SERV_IRUHADEV_JUNE_BUFF_ENUM (the level-slice labels for
+//              types 73+ are declared in its block of X2BuffFactor.h) and
+//              ADD_LIVE_CREATOR_FINALIZER (Set/GetIsUserUID, X2BuffFactor.h);
+//              the NeverMove port also needs NEVER_MOVE_GRAVITY_APPLY.
 #define SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 //////////////////////////////////////////////////////////////////////////

@@ -591,6 +591,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 , m_hSeqEnchantedWeaponCommon4( INVALID_PARTICLE_SEQUENCE_HANDLE )
 , m_DeadStageIndex( 0 )
 , m_DeadSubStageIndex( 0 )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+, m_bIgnoreNeverMove( false )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef RENA_SIEGE_MODE_ANGLE_TEST
 , m_bEnableLookAtIK_Spine( false )
 , m_fLookAtIKAngle_Spine( 0.f )
@@ -13430,6 +13433,10 @@ void CX2GUUser::CommonStateStartFuture()
 
 
 	ZeroMemory( m_FrameDataFuture.stateParam.bEventFlagList, sizeof(bool) * EVENT_FLAG_LIST_NUM );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 320506f0 reads this first in every state (default false); PhysicProcess consults it
+	LUA_GET_VALUE( m_LuaManager, "IGNORE_NEVER_MOVE", m_bIgnoreNeverMove, false );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 
 	wstring animName;
@@ -19568,6 +19575,20 @@ void CX2GUUser::CommonStateEnd()
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : CanDownUnderNeverMove
+	@brief : June 31fd8b40 (CX2GUUser vtable slot 469). False while the newest never-move anchor
+			 holds the unit; June's store always creates that anchor with "can down" false.
+			 CX2Game::KeyProcess drops the single down press on false (June 322cc270).
+*/
+bool CX2GUUser::CanDownUnderNeverMove() const
+{
+	if ( m_vecNeverMovePtr.empty() || NULL == m_vecNeverMovePtr.back() )
+		return true;
+
+	return m_vecNeverMovePtr.back()->GetCanDown();
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 void CX2GUUser::PhysicProcess()
 {
@@ -20469,6 +20490,13 @@ void CX2GUUser::PhysicProcess()
 
 #endif RESET_INVALID_UNIT_POSITION_TEST
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 320194df: in a state with IGNORE_NEVER_MOVE the anchor follows the unit (GetSyncData(true),
+	/// June 31fd0d10) instead of holding it; otherwise March's clamp below runs unchanged
+	if ( !m_vecNeverMovePtr.empty() && NULL != m_vecNeverMovePtr.back() && true == m_bIgnoreNeverMove )
+		m_vecNeverMovePtr.back()->SetPos( GetPos( true ) );
+	else
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	if ( !m_vecNeverMovePtr.empty() && NULL != m_vecNeverMovePtr.back() )
 #ifdef NEVER_MOVE_GRAVITY_APPLY
 	{

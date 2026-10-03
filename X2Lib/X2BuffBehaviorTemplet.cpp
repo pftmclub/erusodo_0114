@@ -2607,6 +2607,118 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : ParsingBehavior
+	@brief : June 32e7a4a0. IS_GRAVITY is required: without it the parse fails before the other
+			 keys are read (June raises no popup). CAN_DOWN, OFFSET_POSITION (a D3DXVECTOR3) and
+			 DELETE_BUFF_WHEN_DIE are optional and default to false / zero.
+*/
+/*virtual*/ bool CX2BuffNeverMoveBehaviorTemplet::ParsingBehavior( KLuaManager& luaManager_ )
+{
+	if ( false == luaManager_.GetValue( "IS_GRAVITY", m_bIsGravity ) )
+	{
+		m_bIsGravity = false;
+		return false;
+	}
+
+	LUA_GET_VALUE( luaManager_, "CAN_DOWN", m_bCanDown, false );
+	LUA_GET_USER_DEFINED_TYPE_VALUE( luaManager_, "OFFSET_POSITION", m_vOffsetPosition, D3DXVECTOR3( 0.0f, 0.0f, 0.0f ) );
+	LUA_GET_VALUE( luaManager_, "DELETE_BUFF_WHEN_DIE", m_bDeleteBuffWhenDie, false );
+	return true;
+}
+
+/** @function : SetFactor
+	@brief : June 32e744c0. The anchor is the unit's future position plus OFFSET_POSITION. June hands
+			 the store a constant false for "can down" (3227abb0 writes +0x1d = 0), so CAN_DOWN does
+			 not reach it; that is CreateAndInsertNeverMoveByBuff's own default here.
+*/
+/*virtual*/ bool CX2BuffNeverMoveBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( !DidStart() )
+	{
+		m_vPosition = pGameUnit_->GetPos( true ) + m_vOffsetPosition;
+		pGameUnit_->CreateAndInsertNeverMoveByBuff( pBuffTemplet_->GetBuffIdentity(), m_vPosition, m_bIsGravity );
+	}
+	return true;
+}
+
+/** @function : GetClonePtr
+	@return : CX2BuffBehaviorTempletPtr
+*/
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffNeverMoveBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffNeverMoveBehaviorTemplet( *this ) );
+}
+
+/** @function : GetFactor
+	@brief : June 32e7e330. March's four values (position, gravity), then CAN_DOWN and
+			 OFFSET_POSITION appended, so the existing order is unchanged on the wire.
+*/
+/*virtual*/ void CX2BuffNeverMoveBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+	KBuffBehaviorFactor& BehaviorFactor = vecFactors_.back();
+
+	BehaviorFactor.m_vecValues.push_back( m_vPosition.x );
+	BehaviorFactor.m_vecValues.push_back( m_vPosition.y );
+	BehaviorFactor.m_vecValues.push_back( m_vPosition.z );
+	BehaviorFactor.m_vecValues.push_back( ( true == m_bIsGravity ? 1.0f : 0.0f ) );
+	BehaviorFactor.m_vecValues.push_back( ( true == m_bCanDown ? 1.0f : 0.0f ) );
+	BehaviorFactor.m_vecValues.push_back( m_vOffsetPosition.x );
+	BehaviorFactor.m_vecValues.push_back( m_vOffsetPosition.y );
+	BehaviorFactor.m_vecValues.push_back( m_vOffsetPosition.z );
+}
+
+/** @function : SetFactorFromPacket
+	@brief : June 32e76e70. Values 4..7 are optional: a 4-value packet leaves CAN_DOWN false and the
+			 offset untouched. With 7 or more values June adds the received offset to the received
+			 position, although GetFactor already sent the offset position (transcribed as June has it).
+*/
+/*virtual*/ void CX2BuffNeverMoveBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	m_vPosition.x = kFactor_[0];
+	m_vPosition.y = kFactor_[1];
+	m_vPosition.z = kFactor_[2];
+	m_bIsGravity  = ( 0.0f < kFactor_[3] ? true : false );
+	m_bCanDown    = ( 0.0f < kFactor_[4] ? true : false );
+
+	if ( 7 <= kFactor_.m_vecValues.size() )
+	{
+		m_vOffsetPosition.x = kFactor_[5];
+		m_vOffsetPosition.y = kFactor_[6];
+		m_vOffsetPosition.z = kFactor_[7];
+		m_vPosition += m_vOffsetPosition;
+	}
+
+	pGameUnit_->CreateAndInsertNeverMoveByBuff( kBuffFactor_.m_BuffIdentity, m_vPosition, m_bIsGravity );
+}
+
+/** @function : OnFrameMove
+	@brief : June 32e77000 (March has no override). With DELETE_BUFF_WHEN_DIE the anchor is released
+			 once the unit has no HP left (June: gage data +0xc04 present and HP <= 0) or is in
+			 GUSI_DIE (slot 67, GetGameUnitState). The buff itself keeps running.
+*/
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+/*virtual*/ void CX2BuffNeverMoveBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_, float fElapsedTime_ )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+/*virtual*/ void CX2BuffNeverMoveBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+{
+	if ( NULL == pGameUnit_ || false == m_bDeleteBuffWhenDie )
+		return;
+
+	const CX2GageData* pGageData = static_cast<const CX2GameUnit*>( pGameUnit_ )->GetGageData();
+	if ( ( NULL == pGageData || 0.0f < pGageData->GetNowHp() )
+		&& CX2GameUnit::GUSI_DIE != pGameUnit_->GetGameUnitState() )
+		return;
+
+	pGameUnit_->EraseNeverMoveByBuff( pBuffTemplet_->GetBuffIdentity() );
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef NEVER_MOVE_GRAVITY_APPLY
 /** @function : ParsingBehavior
 	@brief : 중력이 적용되는가를 정의한 템플릿을 루아로 부터 읽어들이는 함수
@@ -2692,6 +2804,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 	pGameUnit_->CreateAndInsertNeverMoveByBuff( kBuffFactor_.m_BuffIdentity, m_vPosition );
 #endif //NEVER_MOVE_GRAVITY_APPLY
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : DoFinish
 	@brief : 버프가 종료됬을 때 정리해야하는 행동들을 처리

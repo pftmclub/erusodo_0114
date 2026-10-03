@@ -5394,6 +5394,11 @@ void CX2Game::KeyProcess()
 		InputData( GA_RIGHT, m_InputData.pureDoubleRight, m_InputData.oneDoubleRight, m_InputData.pureRight, m_InputData.oneRight );
 		InputData( GA_UP, m_InputData.pureDoubleUp, m_InputData.oneDoubleUp, m_InputData.pureUp, m_InputData.oneUp );
 		InputData( GA_DOWN, m_InputData.pureDoubleDown, m_InputData.oneDoubleDown, m_InputData.pureDown, m_InputData.oneDown );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 322cc270: a never-move anchor on my unit swallows the single down press
+		if ( true == m_InputData.oneDown && NULL != GetMyUnit() && false == GetMyUnit()->CanDownUnderNeverMove() )
+			m_InputData.oneDown = false;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		if ( CheckEnableKeyProcess() == true )
 		{
 			if( g_pMain->GetNowStateID() == CX2Main::XS_TRAINING_GAME )

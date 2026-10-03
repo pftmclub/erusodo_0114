@@ -1632,6 +1632,9 @@ public:
 		//virtual CX2Unit*			GetUnit() const		{ return m_pUnit; }
         CX2Unit*			        GetUnit() const		{ return m_pUnit; }
 		const SyncData&				GetSyncData( bool bFuture = false ) const;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		bool						CanDownUnderNeverMove() const;	/// June 31fd8b40 (CX2GUUser vtable slot 469)
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		const FrameData&			GetFrameData( bool bFuture = false ) const;
         const FrameData&			GetFrameDataDead() const { 	return m_FrameDataDead; }
 
@@ -3390,6 +3393,9 @@ public:
 		FrameData										m_FrameDataFuture;	
 		FrameData										m_FrameDataNowBefore;	/// syncData의 IsRight만 사용
 		FrameData										m_FrameDataNow;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		bool										m_bIgnoreNeverMove;	/// June +0x956c: the state's IGNORE_NEVER_MOVE (CommonStateStartFuture 320506f0)
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		FrameData										m_FrameDataDead;		/// 단지,landPostion, dirDegree, lastTouchLineIndex만 필요한 거라면 그것만 가지고 가자.. 캐릭터가 죽어서 사라지기 바로 직전의 프레임 데이타
 		int	m_DeadStageIndex;		/// 사용안함, 캐릭터가 죽어서 사라지기 바로 직전의 스테이지 번호
 		int m_DeadSubStageIndex;	/// 사용안함, 캐릭터가 죽어서 사라지기 바로 직전의 스테이지 번호	

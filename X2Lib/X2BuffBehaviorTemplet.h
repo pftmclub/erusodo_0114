@@ -738,11 +738,21 @@ public:
 	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
 	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
 	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	virtual void OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_, float fElapsedTime_ );
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	virtual void OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 protected:
 #ifdef NEVER_MOVE_GRAVITY_APPLY
 	CX2BuffNeverMoveBehaviorTemplet() 
 		: CX2BuffBehaviorTemplet(), m_vPosition( 0.0f, 0.0f, 0.0f ), m_bIsGravity( false )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		, m_bCanDown( false ), m_vOffsetPosition( 0.0f, 0.0f, 0.0f ), m_bDeleteBuffWhenDie( false )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	{}
 
 	virtual bool ParsingBehavior( KLuaManager& luaManager_ );
@@ -759,6 +769,11 @@ private:
 #ifdef NEVER_MOVE_GRAVITY_APPLY
 	bool			m_bIsGravity;	//중력을 적용할것인가. true면 중력 적용, false면 위치 고정
 #endif //NEVER_MOVE_GRAVITY_APPLY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	bool			m_bCanDown;				/// June 32e7a4a0 (+0x1d): CAN_DOWN. Parsed and sent only; June's store takes a constant false
+	D3DXVECTOR3		m_vOffsetPosition;		/// June (+0x20): OFFSET_POSITION, added to the anchor position
+	bool			m_bDeleteBuffWhenDie;	/// June (+0x2c): DELETE_BUFF_WHEN_DIE, frees the anchor once the unit dies
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 };
 
 /** @class : CX2BuffChangeAttackByTypeBehaviorTemplet
