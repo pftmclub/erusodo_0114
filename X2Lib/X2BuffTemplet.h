@@ -31,6 +31,12 @@ public:
 	CX2BuffTemplet( const CX2BuffTemplet& rhs_ ) 
 		: m_BuffIdentity( rhs_.m_BuffIdentity ), m_uiAccumulationLimit( rhs_.m_uiAccumulationLimit )
 		, m_bDeBuff( rhs_.m_bDeBuff ), m_bDidFinish( rhs_.m_bDidFinish ), m_bWorldBuff( rhs_.m_bWorldBuff )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+		, m_bStoreBuff( rhs_.m_bStoreBuff ), m_bNotSaveGageManager( rhs_.m_bNotSaveGageManager ), m_bInstanceKillDebuff( rhs_.m_bInstanceKillDebuff )
+		, m_bAccumulationDecreaseWhenFinish( rhs_.m_bAccumulationDecreaseWhenFinish ), m_uiAccumulationDecreaseCountWhenFinish( rhs_.m_uiAccumulationDecreaseCountWhenFinish )
+		, m_fAccumulationDelayTime( rhs_.m_fAccumulationDelayTime ), m_fAccumulationDelayTimeNow( rhs_.m_fAccumulationDelayTimeNow )
+		, m_eReplaceDetailOp( rhs_.m_eReplaceDetailOp )
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 #ifdef BUFF_ICON_UI
 		, m_wstIconFileName ( rhs_.m_wstIconFileName ), m_wstIconKeyName ( rhs_.m_wstIconKeyName )
 		, m_iBuffName( rhs_.m_iBuffName ), m_iBuffDesc( rhs_.m_iBuffDesc ), m_bUseBuffIcon ( rhs_.m_bUseBuffIcon )
@@ -112,6 +118,26 @@ public:
 
 	bool GetDidFinish() const { return m_bDidFinish; }
 	void SetDidFinish(bool val) { m_bDidFinish = val; }
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	bool IsStoreBuff() const { return m_bStoreBuff; }							/// IS_STORE_BUFF (June +0x67); its consumer (June 3229fb10) is not ported
+	bool IsNotSaveGageManager() const { return m_bNotSaveGageManager; }			/// NOT_SAVE_GAGEMANAGER (June +0xb9); no June reader found
+	bool IsInstanceKillDebuff() const { return m_bInstanceKillDebuff; }			/// IS_INSTANCE_KILL_DEBUFF (June +0xba); its consumer (June 31fe4150) is not ported
+	BUFF_REPLACE_DETAIL_OP GetReplaceDetailOp() const { return m_eReplaceDetailOp; }	/// BUFF_REPLACE_DETAIL_OPERATION (June +0x60)
+
+	/// ACCUMULATION_DELAY_TIME (June +0x48, running timer +0x4c): a re-application while the timer runs fails
+	bool IsInAccumulationDelay() const { return 0.0f < m_fAccumulationDelayTimeNow; }	/// June 322a8e20
+	void StartAccumulationDelay() { m_fAccumulationDelayTimeNow = m_fAccumulationDelayTime; }
+	void FrameMoveAccumulationDelay( const float fElapsedTime_ ) { if ( 0.0f < m_fAccumulationDelayTimeNow ) m_fAccumulationDelayTimeNow -= fElapsedTime_; }	/// June 3229d620
+
+	/// ACCUMULATION_DECREASE_WHEN_FINISH / _COUNT_WHEN_FINISH (June +0x40 / +0x44)
+	bool IsAccumulationDecreaseWhenFinish() const { return m_bAccumulationDecreaseWhenFinish; }
+	UINT GetAccumulationDecreaseCountWhenFinish() const { return m_uiAccumulationDecreaseCountWhenFinish; }
+	bool DecreaseAccumulationCountNow( const UINT uiCount_ );					/// June 32369e40
+	bool ReapplyBehaviorForAccumulationDecrease( CX2GameUnit* pGameUnit_ );		/// June 3236a930
+	void RestartDisplayerForAccumulationDecrease( CX2GameUnit* pGameUnit_ );	/// June 3236a190
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
 
 	/// 중복이 가능한 버프 인 경우에 구분할 수 있는 숫자(카운트)
 	UINT GetUniqueNum() const { return m_BuffIdentity.m_uiUniqueNum; }
@@ -150,6 +176,13 @@ public:
 protected:
 	CX2BuffTemplet() : m_BuffIdentity(), m_uiAccumulationLimit( 0 ), m_bDeBuff( false )
 						,m_bDidFinish( false ),	m_bWorldBuff( false )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+						/// June CX2BuffTemplet ctor 326c48a0: decrease count 1, everything else 0
+						,m_bStoreBuff( false ), m_bNotSaveGageManager( false ), m_bInstanceKillDebuff( false )
+						,m_bAccumulationDecreaseWhenFinish( false ), m_uiAccumulationDecreaseCountWhenFinish( 1 )
+						,m_fAccumulationDelayTime( 0.0f ), m_fAccumulationDelayTimeNow( 0.0f )
+						,m_eReplaceDetailOp( BRDO_NOTDEFINED )
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 #ifdef BUFF_ICON_UI
 						,m_iBuffName( -1 ), m_iBuffDesc( -1 ), m_bUseBuffIcon ( false )
 #endif //BUFF_ICON_UI
@@ -192,6 +225,18 @@ private:
 	bool									m_bDeBuff;					/// 해로운 효과를 주는 디버프인 경우 true
 	bool									m_bDidFinish;				/// 종료된 버프 인가?
 	bool									m_bWorldBuff;				/// 월드 버프인 경우 true
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	bool									m_bStoreBuff;							/// IS_STORE_BUFF
+	bool									m_bNotSaveGageManager;					/// NOT_SAVE_GAGEMANAGER
+	bool									m_bInstanceKillDebuff;					/// IS_INSTANCE_KILL_DEBUFF
+	bool									m_bAccumulationDecreaseWhenFinish;		/// ACCUMULATION_DECREASE_WHEN_FINISH
+	UINT									m_uiAccumulationDecreaseCountWhenFinish;	/// ACCUMULATION_DECREASE_COUNT_WHEN_FINISH
+	float									m_fAccumulationDelayTime;				/// ACCUMULATION_DELAY_TIME
+	float									m_fAccumulationDelayTimeNow;			/// time left before this buff can be stacked again
+	BUFF_REPLACE_DETAIL_OP					m_eReplaceDetailOp;						/// BUFF_REPLACE_DETAIL_OPERATION
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
 
 #ifdef BUFF_ICON_UI
 	wstring									m_wstIconFileName;

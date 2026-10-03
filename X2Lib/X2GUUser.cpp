@@ -24053,6 +24053,19 @@ bool CX2GUUser::IsImmuneBySocketOption( CX2DamageManager::EXTRA_DAMAGE_TYPE exDa
 	return false;
 }
 
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+/** @function : IsImmuneBuffBySocketOption
+	@brief : June 31ff8fd0. The socket-option immunity roll above, for the extra-damage type a debuff
+		templet stands for (CX2Game 322cc0a0). CX2GameUnit::SetBuffFactorToGameUnit shows RESIST on true.
+*/
+/*virtual*/ bool CX2GUUser::IsImmuneBuffBySocketOption( const BUFF_TEMPLET_ID eBuffTempletID_ )
+{
+	return IsImmuneBySocketOption( CX2Game::GetExtraDamageTypeByBuffTempletID( eBuffTempletID_ ) );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
+
 void CX2GUUser::PEPPER_RUN_READY_EventProcess()
 {
 	if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.3f )

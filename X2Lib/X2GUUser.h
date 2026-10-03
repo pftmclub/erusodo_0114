@@ -3037,6 +3037,9 @@ public:
 
 
 		virtual bool				IsImmuneBySocketOption( CX2DamageManager::EXTRA_DAMAGE_TYPE exDamageType );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+		virtual bool				IsImmuneBuffBySocketOption( const BUFF_TEMPLET_ID eBuffTempletID_ );	/// June 31ff8fd0 (CX2GUUser slot 179)
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 
 		void ResetAnimSpeed( float fAnimSpeed, bool bSpeedUpByItem, bool bFuture, float fExtraSpeedRate = 1.f );
 

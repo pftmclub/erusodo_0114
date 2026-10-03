@@ -1032,6 +1032,45 @@ void CX2BuffChangeNowMpPerSecondBehaviorTemplet::DrawText( CX2GameUnit* pGameUni
 	pGameUnit_->EraseAdditionalStat( GetType(), m_eChangeType, pBuffTemplet_->GetBuffIdentity() );		
 }
 
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+/** @function : OnAccumulationCountDecreased
+	@brief : June 32e73500 (ChangeStat vtable slot 7). Rescales the applied stat from the stack count
+		before the decrease to the count now: FIX/RELATION values by now/before, PERCENT values on their
+		distance from 1.0. "Before" is now + ACCUMULATION_DECREASE_COUNT_WHEN_FINISH (now + 1 without the flag).
+	@param : unit the buff is on (pGameUnit_), its templet (pBuffTemplet_)
+	@return : false without a unit or templet, else true
+*/
+/*virtual*/ bool CX2BuffChangeStatBehaviorTemplet::OnAccumulationCountDecreased( CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	if ( NULL == pGameUnit_ || NULL == pBuffTemplet_ )
+		return false;
+
+	const float fCountNow = static_cast<float>( pBuffTemplet_->GetAccumulationCountNow() );
+	const float fCountBefore = fCountNow + ( pBuffTemplet_->IsAccumulationDecreaseWhenFinish() ?
+		static_cast<float>( pBuffTemplet_->GetAccumulationDecreaseCountWhenFinish() ) : 1.0f );
+
+	switch ( m_eChangeType )
+	{
+	case BCT_FIX_VALUE:
+	case BCT_RELATION_VALUE:
+		m_fResultValue = m_fResultValue / fCountBefore * fCountNow;
+		break;
+
+	case BCT_PERCENT:
+		m_fResultValue = ( m_fResultValue - 1.0f ) / fCountBefore * fCountNow + 1.0f;
+		break;
+
+	default:
+		break;
+	}
+
+	pGameUnit_->UpdateAdditionalStat( GetType(), m_eChangeType, pBuffTemplet_->GetBuffIdentity(), m_fResultValue );
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
+
 /** @function : GetValue
 	@brief : ChangeType 에 따라 각기 다른 공식으로 변경값을 얻어내는 함수
 	@param : 행동요소(pBehaviorFactor_), 버프가 적용된 게임유닛(pGameUnit_), 저항(fRegist_)

@@ -2876,6 +2876,18 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #endif ADD_LIVE_CREATOR_FINALIZER
 		virtual bool SetBuffFactorToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const UINT uiIndex_ );
 		virtual bool SetBuffFactorToGameUnit( const CX2BuffFactor& buffFactor_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+		/// June buff port Phase 4a: the checks and stores of June's SetBuffFactorToGameUnit (322a83b0)
+		virtual bool IsImmuneBuffBySocketOption( const BUFF_TEMPLET_ID eBuffTempletID_ ) { return false; }	/// June unit slot 179: false but for CX2GUUser
+		bool IsImmuneBuffByBuffBehavior( const BUFF_TEMPLET_ID eBuffTempletID_ ) const;					/// June 322a80a0
+		bool CheckBuffApplyCondition( const CX2BuffFactor& buffFactor_ );								/// June 3227cad0
+		bool CheckOneBuffApplyCondition( const BUFF_APPLY_CHECK_CONDITION& kCondition_ );				/// June 3227c4b0
+		bool IsImmuneNonControlDebuffByBuffBehavior( const CX2BuffTempletPtr ptrBuffTemplet_ ) const;	/// June 3227b790
+		bool HaveUnfinishedBuff( const BUFF_TEMPLET_ID eBuffTempletID_ ) const;							/// June 3227b860
+		void SetBuffAccumulationLimitOverride( const BUFF_TEMPLET_ID eBuffTempletID_, const UINT uiAccumulationLimit_ )	/// June 32279980
+		{ m_mapBuffAccumulationLimitOverride[eBuffTempletID_] = uiAccumulationLimit_; }
+		UINT GetBuffAppliedCount( const BUFF_TEMPLET_ID eBuffTempletID_ ) const;							/// June 322799a0
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		virtual bool SetBuffFactorToDamageData( const UINT uiBuffFactorId_, IN const UINT uiLevel_ = 1 );
@@ -3942,6 +3954,12 @@ protected:
 		bool											m_bUseWorldColor;	/// 청과 몬스터 중 BEE_BOMB(?) 가 사용 중... 보통 true고 특별한 경우 RenderParam 값을 바꿀때 false로 사용
 
 		vector<CX2BuffTempletPtr>						m_vecBuffTempletPtr;		/// 버프를 구분할 수 있는 키와 해당 유닛에게 걸린 버프(map으로 하지 않은 이유는 find 보다는 loop가 더 잦기 때문)
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+		map<BUFF_TEMPLET_ID, UINT>						m_mapBuffAccumulationLimitOverride;	/// June +0x6dd8: per-BTI stacking mode over ACCUMULATION_LIMIT; only Rose code (32ac5ce0) writes it
+		map<BUFF_TEMPLET_ID, UINT>						m_mapBuffAppliedCount;				/// June +0x7628: pushes per BTI; read only by NPC code (3275886a)
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
 		
 		/// 항상 남한테 거는 버프요소
 		

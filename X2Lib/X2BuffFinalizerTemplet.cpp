@@ -248,6 +248,9 @@ bool CX2BuffFinalizerTemplet::SetFactorFromPacketTemplateMothod( const KBuffFact
 			m_eBuffTempleteID = BuffFactor_.GetBuffTempletID();
 			m_bIsAlreadyNotifyDurationTime = false;
 #endif //BUFF_ICON_UI
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+			m_fFullDurationTime = m_fDurationTime;	/// June 32ec34a5: +0x28 = the remaining time just set
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 
 			return true;
 		}
@@ -325,6 +328,9 @@ bool CX2BuffFinalizerTemplet::SetFactorFromPacketTemplateMothod( const KBuffFact
 //		m_fDurationTime -= fElapsedTime;
 //	}
 //#endif  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	m_fFullDurationTime = m_fDurationTime;	/// June 32ec53d0 sets +0x28 here too (32ec55d8 / 32ec55ed)
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

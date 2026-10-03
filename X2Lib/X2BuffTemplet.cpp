@@ -11,6 +11,99 @@
 	@param : 현재 스크립트의 루아매니저(luaManager_)
 	@return : 파싱 성공 true, 실패 false 리턴
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+/// June buff port Phase 4a: June's CX2BuffTemplet::ParsingScript (3236a9b0), whole. Key order,
+/// required keys and defaults are June's. Differences from March: IS_STORE_BUFF,
+/// ACCUMULATION_DELAY_TIME, NOT_SAVE_GAGEMANAGER, IS_INSTANCE_KILL_DEBUFF,
+/// BUFF_REPLACE_DETAIL_OPERATION (limit < 2) and ACCUMULATION_DECREASE_* (limit >= 2) are read,
+/// and ACCUMULATION_MULTIPLIER is optional (1.0). EXP_RATE, IS_PARTY_BUFF,
+/// NOT_APPLY_BUFF_WHEN_SAME_BUFF_OWNER, DROP_RATE, VP_RATE and LUCKYTIMINGEVENT_* are not read by
+/// June's client either (server-side keys).
+bool CX2BuffTemplet::ParsingScript( KLuaManager& luaManager_ )
+{
+	LUA_GET_VALUE_RETURN_ENUM( luaManager_, "BUFF_TEMPLET_ID", m_BuffIdentity.m_eBuffTempletID,
+		BUFF_TEMPLET_ID, BTI_NONE, return DISPLAY_ERROR( L"BUFF_TEMPLET_ID" ) );
+
+	LUA_GET_VALUE_RETURN( luaManager_, "IS_WORLD_BUFF", m_bWorldBuff, false, return DISPLAY_ERROR( L"IS_WORLD_BUFF" ) );
+	LUA_GET_VALUE_RETURN( luaManager_, "IS_DEBUF", m_bDeBuff, false, return DISPLAY_ERROR( L"IS_DEBUF" ) );
+	LUA_GET_VALUE( luaManager_, "IS_STORE_BUFF", m_bStoreBuff, false );
+
+	LUA_GET_VALUE_RETURN( luaManager_, "ACCUMULATION_LIMIT", m_uiAccumulationLimit, 0, return DISPLAY_ERROR( L"ACCUMULATION_LIMIT" ) );
+	LUA_GET_VALUE( luaManager_, "ACCUMULATION_DELAY_TIME", m_fAccumulationDelayTime, 0.0f );
+	LUA_GET_VALUE( luaManager_, "NOT_SAVE_GAGEMANAGER", m_bNotSaveGageManager, false );
+	LUA_GET_VALUE( luaManager_, "IS_INSTANCE_KILL_DEBUFF", m_bInstanceKillDebuff, false );
+
+	if ( m_uiAccumulationLimit < 2 )	/// duplicate (0) or replace (1)
+	{
+		int iReplaceDetailOp = BRDO_ADD_TIME;
+		LUA_GET_VALUE( luaManager_, "BUFF_REPLACE_DETAIL_OPERATION", iReplaceDetailOp, BRDO_ADD_TIME );
+		m_eReplaceDetailOp = static_cast<BUFF_REPLACE_DETAIL_OP>( iReplaceDetailOp );
+	}
+	else	/// accumulation (2 or more)
+	{
+		float fAccumulationMultiplier = 1.0f;
+		LUA_GET_VALUE( luaManager_, "ACCUMULATION_MULTIPLIER", fAccumulationMultiplier, 1.0f );
+		m_mapUnCommonMember.insert( make_pair( UCM_ACCUMULATION_MULTIPLIER, fAccumulationMultiplier ) );
+		m_mapUnCommonMember.insert( make_pair( UCM_ACCUMULATION_COUNT_NOW, 0.0f ) );
+
+		LUA_GET_VALUE( luaManager_, "ACCUMULATION_DECREASE_WHEN_FINISH", m_bAccumulationDecreaseWhenFinish, false );
+		LUA_GET_VALUE( luaManager_, "ACCUMULATION_DECREASE_COUNT_WHEN_FINISH", m_uiAccumulationDecreaseCountWhenFinish, 1 );
+	}
+
+	float fRegistType = 0.0f;
+	LUA_GET_VALUE_RETURN( luaManager_, "REGIST_TYPE", fRegistType, 0.0f, return DISPLAY_ERROR( L"REGIST_TYPE" ) );
+	if ( 0.0f < fRegistType )
+		m_mapUnCommonMember.insert( make_pair( UCM_REGIST_TYPE, fRegistType ) );
+
+	if ( luaManager_.BeginTable( "BEHAVIOR" ) )
+	{
+		BOOST_SCOPE_EXIT( (&luaManager_) ) {
+			luaManager_.EndTable();
+		} BOOST_SCOPE_EXIT_END
+
+		if ( !CX2BuffBehaviorTemplet::ParsingCombinationBehavior( luaManager_, m_vecBehaviorPtr ) )
+			return false;
+	}
+	else
+		return DISPLAY_ERROR( L"BEHAVIOR Templet doesn't exist" );
+
+	if ( luaManager_.BeginTable( "FINALIZER" ) )
+	{
+		BOOST_SCOPE_EXIT( (&luaManager_) ) {
+			luaManager_.EndTable();
+		} BOOST_SCOPE_EXIT_END
+
+		if ( !CX2BuffFinalizerTemplet::ParsingCombinationFinalizer( luaManager_, m_vecFinalizerPtr ) )
+			return false;
+	}
+	else
+		return DISPLAY_ERROR( L"FINALIZER Templet doesn't exist" );
+
+	if ( luaManager_.BeginTable( "DISPLAYER" ) )	/// optional
+	{
+		BOOST_SCOPE_EXIT( (&luaManager_) ) {
+			luaManager_.EndTable();
+		} BOOST_SCOPE_EXIT_END
+
+		if ( !CX2BuffDisplayerTemplet::ParsingCombinationDisplayer( luaManager_, m_vecDisplayerPtr ) )
+			return false;
+	}
+
+#ifdef BUFF_ICON_UI
+	LUA_GET_VALUE( luaManager_, "BUFF_ICON_TEXTURE_NAME", m_wstIconFileName, L"" );
+	m_bUseBuffIcon = ( true == m_wstIconFileName.empty() ) ? false : true ;
+	if( true == m_bUseBuffIcon )
+	{
+		LUA_GET_VALUE( luaManager_, "BUFF_ICON_TEXTURE_KEY",  m_wstIconKeyName,  L"" );
+		ASSERT( m_wstIconKeyName != L"" );
+
+		LUA_GET_VALUE( luaManager_, "BUFF_NAME",			  m_iBuffName,		 STR_ID_2674 );
+		LUA_GET_VALUE( luaManager_, "BUFF_DESC",			  m_iBuffDesc,		 STR_ID_2606 );
+	}
+#endif //BUFF_ICON_UI
+	return true;
+}
+#else SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 bool CX2BuffTemplet::ParsingScript( KLuaManager& luaManager_ )
 {
 	/// 버프 아이디
@@ -100,6 +193,7 @@ bool CX2BuffTemplet::ParsingScript( KLuaManager& luaManager_ )
 #endif //BUFF_ICON_UI
 	return true;
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 
 /** @function : SetFactor
 	@brief : 버프 요소를 받아서 버프 템플릿에 셋팅하고, 버프를 시작 시키는 함수
@@ -307,8 +401,26 @@ void CX2BuffTemplet::OnFrameMoveFinalizerAndCheckFinish( CX2GameUnit* pGameUnit_
 			ptrFinalizer->OnFrameMove( pGameUnit_ );
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+			/// June 3236c570: with ACCUMULATION_DECREASE_WHEN_FINISH a finished finalizer only lowers the
+			/// stack count. The buff keeps running if the count stays above the decrease, the finalizer
+			/// can restart (only BFT_TIME can) and the behaviors re-apply at the new count.
+			if ( ptrFinalizer->DidFinish( pGameUnit_ ) )
+			{
+				if ( IsAccumulationDecreaseWhenFinish()
+					&& DecreaseAccumulationCountNow( GetAccumulationDecreaseCountWhenFinish() )
+					&& ptrFinalizer->RestartForAccumulationDecrease()
+					&& ReapplyBehaviorForAccumulationDecrease( pGameUnit_ ) )
+				{
+					RestartDisplayerForAccumulationDecrease( pGameUnit_ );
+					continue;
+				}
+				SetDidFinish( true );
+			}
+#else SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 			if ( ptrFinalizer->DidFinish( pGameUnit_ ) )
 				SetDidFinish( true );
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 		}
 	}
 }
@@ -456,6 +568,61 @@ void CX2BuffTemplet::ReserveToFinish()
 			ptrFinalizer->ReserveToFinish();
 	}
 }
+
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+/** @function : DecreaseAccumulationCountNow
+	@brief : June 32369e40. Lowers the stack count by uiCount_ when more than that is stacked.
+	@return : true if it was lowered
+*/
+bool CX2BuffTemplet::DecreaseAccumulationCountNow( const UINT uiCount_ )
+{
+	MAP_UN_COMMON_MEMBER::iterator mItr = m_mapUnCommonMember.find( UCM_ACCUMULATION_COUNT_NOW );
+	if ( m_mapUnCommonMember.end() != mItr && static_cast<float>( uiCount_ ) < mItr->second )
+	{
+		mItr->second -= static_cast<float>( uiCount_ );
+		return true;
+	}
+
+	return false;
+}
+
+/** @function : ReapplyBehaviorForAccumulationDecrease
+	@brief : June 3236a930. Every behavior re-applies itself at the lowered stack count (behavior
+		vtable slot 7: false in the base, ChangeStat rescales its stat).
+	@return : the last behavior's result (false when there is no unit or no behavior)
+*/
+bool CX2BuffTemplet::ReapplyBehaviorForAccumulationDecrease( CX2GameUnit* pGameUnit_ )
+{
+	bool bResult = false;
+	if ( NULL != pGameUnit_ )
+	{
+		BOOST_FOREACH( CX2BuffBehaviorTempletPtr ptrBehavior, m_vecBehaviorPtr )
+		{
+			if ( NULL != ptrBehavior )
+				bResult = ptrBehavior->OnAccumulationCountDecreased( pGameUnit_, this );
+		}
+	}
+	return bResult;
+}
+
+/** @function : RestartDisplayerForAccumulationDecrease
+	@brief : June 3236a190. Starts every displayer again after a decrease. June then refreshes the
+		buff icon with the stack count (32489810); March's gage icon shows no count, so that is not ported.
+*/
+void CX2BuffTemplet::RestartDisplayerForAccumulationDecrease( CX2GameUnit* pGameUnit_ )
+{
+	BOOST_FOREACH( CX2BuffDisplayerTempletPtr ptrDisplayer, m_vecDisplayerPtr )
+	{
+		if ( NULL != ptrDisplayer )
+		{
+			ptrDisplayer->StartDisplayer( pGameUnit_, this );
+			ptrDisplayer->SetStart( true );
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1394,6 +1561,11 @@ if( damageData_.m_fHpPercentUp <= 0.f &&
 // Ex. 블레이징 하트, 불꽃 개화
 bool CX2BuffTemplet::IsNonControlDebuff ()
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	/// June 32369cc0: only a debuff counts
+	if ( !IsDeBuff() )
+		return false;
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 	BOOST_FOREACH( CX2BuffBehaviorTempletPtr ptrBehavior, m_vecBehaviorPtr )
 	{
 		switch ( ptrBehavior->GetBuffBehaviorType() )
@@ -1409,6 +1581,9 @@ bool CX2BuffTemplet::IsNonControlDebuff ()
 		case BBT_ZX_ATTACK_IMPOSSIBLE :
 		case BBT_Z_ATTACK_IMPOSSIBLE :
 		case BBT_X_ATTACK_IMPOSSIBLE :
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+		case BBT_JUMP_IMPOSSIBLE :		/// June 32369cc0 adds BBT 104
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 			return true;
 			break;
 

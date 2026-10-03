@@ -37,6 +37,11 @@ public:
 	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const = NULL;
 	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const = NULL;
 	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ ) {}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	/// June behavior vtable slot 7 (base 32e72980 returns false): re-apply after ACCUMULATION_DECREASE_WHEN_FINISH
+	/// lowered the stack count (CX2BuffTemplet::ReapplyBehaviorForAccumulationDecrease)
+	virtual bool OnAccumulationCountDecreased( CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ ) { return false; }
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 	
 	bool SetFactorFromPacketTemplateMothod( const KBuffFactor& kBuffFactor_, CX2GameUnit* pGameUnit_ );
 	bool DidStart() const { return m_bStart; }
@@ -274,6 +279,9 @@ public:
 	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
 	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
 	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	virtual bool OnAccumulationCountDecreased( CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );	/// June 32e73500
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 
 protected:
 	CX2BuffChangeStatBehaviorTemplet() : CX2BuffBehaviorTemplet(),

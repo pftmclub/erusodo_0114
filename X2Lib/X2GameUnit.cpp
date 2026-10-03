@@ -11173,6 +11173,164 @@ void CX2GameUnit::UpNowHpPerHitbyAttackPower( IN const float fHitAddHpPer_ )
 */
 /*virtual*/ bool CX2GameUnit::SetBuffFactorToGameUnit( const CX2BuffFactor& buffFactor_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	/// June buff port Phase 4a: June's SetBuffFactorToGameUnit (322a83b0), whole, in June's order
+	CX2BuffTempletPtr ptrBuffTemplet = CX2BuffTempletManager::GetInstance()->GetBuffTempletPtr( buffFactor_.GetBuffTempletID() );
+
+	if ( NULL == ptrBuffTemplet )
+	{
+		/// June fails silently here. March's MessageBox fired 87 times in one Ranox session (Phase 3
+		/// review R4); one [JUNE_BUFF] line per BTI says which templet is missing instead.
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+		static std::set<int> s_setReportedBuffTempletID;
+		if ( s_setReportedBuffTempletID.insert( static_cast<int>( buffFactor_.GetBuffTempletID() ) ).second )
+			CX2JuneBuffCapture::Line( "BTI %d has no templet: a factor for it was not applied (June 322a83b0 returns false silently)",
+				static_cast<int>( buffFactor_.GetBuffTempletID() ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
+		return false;
+	}
+
+	const float fRegist = ( buffFactor_.GetIgnoreRegistForRate() ?
+		0.0f : GetEnchantResist( static_cast<CX2EnchantItem::ENCHANT_TYPE>( ptrBuffTemplet->GetRegistType() ) ) / CX2EnchantItem::EAR_MAX_VALUE );
+#ifdef UPGRADE_SKILL_SYSTEM_2013
+	const float fRate = buffFactor_.GetRate( 1 );
+#else UPGRADE_SKILL_SYSTEM_2013
+	const float fRate = buffFactor_.GetRate();
+#endif UPGRADE_SKILL_SYSTEM_2013
+	const float fRateAndRegist = fRate * (1.0f - fRegist);
+	const float fRandomFloat = GetRandomFloat();
+
+	if ( fRate < fRandomFloat )
+		return false;
+
+	if ( fRateAndRegist < fRandomFloat )
+	{
+		if( NULL != g_pData->GetPicCharBlue() )
+			g_pData->GetPicCharBlue()->DrawText( L"RESIST", GetHeadBonePos(), GetDirVector(), CKTDGPicChar::AT_CENTER );
+		return false;
+	}
+
+	const BUFF_TEMPLET_ID eBuffTempletID = ptrBuffTemplet->GetBuffTempletID();
+
+	/// June unit slot 179: a user's socket option that makes it immune to this debuff's extra-damage type
+	if ( IsImmuneBuffBySocketOption( eBuffTempletID ) )
+	{
+		if( NULL != g_pData->GetPicCharBlue() )
+			g_pData->GetPicCharBlue()->DrawText( L"RESIST", GetHeadBonePos(), GetDirVector(), CKTDGPicChar::AT_CENTER );
+		return false;
+	}
+
+	if ( IsImmuneBuffByBuffBehavior( eBuffTempletID ) )				/// June 322a80a0
+		return false;
+
+	if ( !CheckBuffApplyCondition( buffFactor_ ) )					/// June 3227cad0
+		return false;
+
+	if ( IsImmuneNonControlDebuffByBuffBehavior( ptrBuffTemplet ) )	/// June 3227b790
+		return false;
+
+	/// June unit slot 250 (pre-apply hook) is empty but for CX2GUUser's June-only BTIs (3201ffb0): not ported
+
+	auto FindFunc
+		= [eBuffTempletID]( CX2BuffTempletPtr ptrBuffTemplet_ ) {
+			return eBuffTempletID == ptrBuffTemplet_->GetBuffTempletID();
+	};
+
+	if ( m_vecBuffTempletPtr.empty() )
+		PushNewBuffTempletToGameUnit( ptrBuffTemplet, buffFactor_, 1 );
+	else
+	{
+		/// June: the plain HAMEL secret dungeon armor/wing buff is not applied while its _EVENT version is on
+		if ( ( BTI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR == eBuffTempletID && HaveUnfinishedBuff( BTI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR_EVENT ) )
+			|| ( BTI_BUFF_HAMEL_SECRET_DUNGEON_WING == eBuffTempletID && HaveUnfinishedBuff( BTI_BUFF_HAMEL_SECRET_DUNGEON_WING_EVENT ) ) )
+			return true;
+
+		/// June: the unit's per-BTI override (+0x6dd8) wins over the templet's ACCUMULATION_LIMIT
+		UINT uiAccumulationLimit = ptrBuffTemplet->GetAccumulationLimit();
+		map<BUFF_TEMPLET_ID, UINT>::const_iterator mItrOverride = m_mapBuffAccumulationLimitOverride.find( eBuffTempletID );
+		if ( m_mapBuffAccumulationLimitOverride.end() != mItrOverride )
+			uiAccumulationLimit = mItrOverride->second;
+
+		switch ( uiAccumulationLimit )
+		{
+		case 0:	/// duplicate: the count of buffs with this id is the uniqueNum
+			{
+				UINT uiCount = std::count_if( m_vecBuffTempletPtr.begin(), m_vecBuffTempletPtr.end(), FindFunc );
+				PushNewBuffTempletToGameUnit( ptrBuffTemplet, buffFactor_, uiCount );
+			} break;
+
+		case 1:	/// replace, the way BUFF_REPLACE_DETAIL_OPERATION says
+			{
+				switch ( ptrBuffTemplet->GetReplaceDetailOp() )
+				{
+				case BRDO_NORMAL:	/// erase the buff (June 3229e160), then push the new one
+					EraseBuffTempletFromGameUnit( eBuffTempletID );
+					PushNewBuffTempletToGameUnit( ptrBuffTemplet, buffFactor_, 1 );
+					break;
+
+				case BRDO_ADD_TIME:	/// March's only behavior
+					{
+						vector<CX2BuffTempletPtr>::iterator vItr
+							= std::find_if( m_vecBuffTempletPtr.begin(), m_vecBuffTempletPtr.end(), FindFunc );
+
+						if ( m_vecBuffTempletPtr.end() != vItr )
+							(*vItr)->SetFactor( buffFactor_, this );
+						else
+							PushNewBuffTempletToGameUnit( ptrBuffTemplet, buffFactor_, 1 );
+					} break;
+
+				default:	/// BRDO_NOTDEFINED: June applies nothing
+					break;
+				}
+			} break;
+
+		default:	/// accumulation
+			{
+				vector<CX2BuffTempletPtr>::iterator vItr
+					= std::find_if( m_vecBuffTempletPtr.begin(), m_vecBuffTempletPtr.end(), FindFunc );
+
+				if ( m_vecBuffTempletPtr.end() != vItr )
+				{
+					if ( (*vItr)->IsInAccumulationDelay() )	/// June 322a8e20: inside ACCUMULATION_DELAY_TIME
+						return false;
+
+					(*vItr)->StartAccumulationDelay();
+
+					if ( (*vItr)->GetAccumulationCountNow() < uiAccumulationLimit )
+						(*vItr)->SetFactor( buffFactor_, this );
+					else	/// fully stacked: only the finalizers are refreshed
+						(*vItr)->SetFactorToOnlyFinalizer( buffFactor_, this );
+				}
+				else
+					PushNewBuffTempletToGameUnit( ptrBuffTemplet, buffFactor_, 1 );
+			} break;
+		}
+	}
+
+	/// June: ACCUMULATION_AT_ONE_GO stacks the buff that many more times at once, up to the templet's limit
+	const UINT uiAccumulationAtOneGo = buffFactor_.GetAccumulationAtOneGo();
+	const UINT uiTempletAccumulationLimit = ptrBuffTemplet->GetAccumulationLimit();
+	if ( 0 < uiAccumulationAtOneGo && 1 < uiTempletAccumulationLimit )
+	{
+		vector<CX2BuffTempletPtr>::iterator vItr
+			= std::find_if( m_vecBuffTempletPtr.begin(), m_vecBuffTempletPtr.end(), FindFunc );
+
+		if ( m_vecBuffTempletPtr.end() != vItr )
+		{
+			for ( UINT uiCount = 1; uiCount <= uiAccumulationAtOneGo; ++uiCount )
+			{
+				if ( (*vItr)->GetAccumulationCountNow() >= uiTempletAccumulationLimit )
+					break;
+
+				(*vItr)->SetFactor( buffFactor_, this );
+			}
+		}
+	}
+
+	/// June then runs unit slot 251 (post-apply hook; empty but for CX2GUUser 3204dcd0) and the
+	/// custom-function-by-buff list's slot 7 (32275860, Phase 9). Neither is ported.
+	return true;
+#else SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 	CX2BuffTempletPtr ptrBuffTemplet = CX2BuffTempletManager::GetInstance()->GetBuffTempletPtr( buffFactor_.GetBuffTempletID() );
 
 	if ( NULL == ptrBuffTemplet )
@@ -11256,6 +11414,7 @@ void CX2GameUnit::UpNowHpPerHitbyAttackPower( IN const float fHitAddHpPer_ )
 		}
 	}
 	return true;
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 }
 
 /** @function : PushNewBuffTempletToGameUnit
@@ -11272,6 +11431,12 @@ void CX2GameUnit::PushNewBuffTempletToGameUnit( IN CX2BuffTempletPtr ptrBuffTemp
 			true == ptrCloneBuffTemplet->IsDeBuff() )
 			return;
 #endif // FIELD_BOSS_RAID
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+		/// June 3229dee0: a clone still inside ACCUMULATION_DELAY_TIME is not pushed; a pushed one starts it
+		if ( ptrCloneBuffTemplet->IsInAccumulationDelay() )
+			return;
+		ptrCloneBuffTemplet->StartAccumulationDelay();
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 
 		ptrCloneBuffTemplet->SetUniqueNum( uiUniqueNum_ );
 		if ( ptrCloneBuffTemplet->SetFactor( buffFactor_, this ) )
@@ -11281,6 +11446,9 @@ void CX2GameUnit::PushNewBuffTempletToGameUnit( IN CX2BuffTempletPtr ptrBuffTemp
 			/// 각 유닛마다 특정 버프가 실행될 때 셋팅해줘야 하는 값(ex: 매지컬메이크업이 시전중이라는 플래그 등...)
 			SetSpecificValueByBuffTempletID( ptrCloneBuffTemplet->GetBuffTempletID() );
 			m_vecBuffTempletPtr.push_back( ptrCloneBuffTemplet );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+			++m_mapBuffAppliedCount[ ptrCloneBuffTemplet->GetBuffTempletID() ];	/// June 3229dee0: pushes per BTI (+0x7628)
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 #ifdef BUFF_ICON_UI		
 			if( true == ptrCloneBuffTemplet->GetUseBuffIcon() )
 			{
@@ -11296,6 +11464,112 @@ void CX2GameUnit::PushNewBuffTempletToGameUnit( IN CX2BuffTempletPtr ptrBuffTemp
 		}
 	}
 }
+
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+/** @function : IsImmuneBuffByBuffBehavior
+	@brief : June 322a80a0. True when a BBT_IMMUNE_BUFF_DEBUFF buff on this unit blocks the templet: its
+		ALL_BUFF / ALL_DEBUFF counters (+0x65dc / +0x65ec) or its IMMUNE_BUFF_TEMPLATE_ID lists (+0x65c4).
+		Those stores arrive with BBT 94 (Phase 7). With none on the unit June returns false, and so does this.
+*/
+bool CX2GameUnit::IsImmuneBuffByBuffBehavior( const BUFF_TEMPLET_ID eBuffTempletID_ ) const
+{
+	return false;
+}
+
+/** @function : IsImmuneNonControlDebuffByBuffBehavior
+	@brief : June 3227b790. While a BBT_IMMUNE_NON_CONTROL_DEBUFF buff is on (its list at +0x75ac, Phase 7),
+		the templet's IsNonControlDebuff() decides. Without that list June returns false, and so does this.
+*/
+bool CX2GameUnit::IsImmuneNonControlDebuffByBuffBehavior( const CX2BuffTempletPtr ptrBuffTemplet_ ) const
+{
+	return false;
+}
+
+/** @function : CheckBuffApplyCondition
+	@brief : June 3227cad0. Every AND_OPERATION condition must hold; if the factor has OR_OPERATION
+		conditions, at least one of them must hold too.
+	@return : true if the factor may be applied
+*/
+bool CX2GameUnit::CheckBuffApplyCondition( const CX2BuffFactor& buffFactor_ )
+{
+	bool bHaveOrCondition = false;
+	bool bOrResult = false;
+
+	BOOST_FOREACH( const BUFF_APPLY_CHECK_CONDITION& kCondition, buffFactor_.GetApplyCheckConditionList() )
+	{
+		const bool bResult = CheckOneBuffApplyCondition( kCondition );
+		if ( kCondition.m_bOrOperation )
+		{
+			bOrResult = bOrResult || bResult;
+			bHaveOrCondition = true;
+		}
+		else if ( !bResult )
+			return false;
+	}
+
+	return ( bHaveOrCondition ? bOrResult : true );
+}
+
+/** @function : CheckOneBuffApplyCondition
+	@brief : June 3227c4b0. HP rate: CHECK_HP_RATE_UP true needs now/max HP >= HP_RATE, false needs it
+		<= HP_RATE. Buff templet: APPLY_WHEN_HAVE true needs CHECK_BUFF_TEMPLET_ID on, false needs it off.
+		A condition missing its value or its flag holds.
+*/
+bool CX2GameUnit::CheckOneBuffApplyCondition( const BUFF_APPLY_CHECK_CONDITION& kCondition_ )
+{
+	if ( kCondition_.m_vecValues.empty() || kCondition_.m_vecFlags.empty() )
+		return true;
+
+	switch ( kCondition_.m_eType )
+	{
+	case BACCT_CHECK_UNIT_HP_RATE:
+		{
+			const float fHpRate = kCondition_.m_vecValues[0];
+			const float fUnitHpRate = ( NULL != GetGageData() ? GetNowHp() / GetMaxHp() : 1.0f );	/// June: 1.0 without stats
+
+			if ( kCondition_.m_vecFlags[0] )
+				return ( fHpRate <= fUnitHpRate );
+			else
+				return ( fUnitHpRate <= fHpRate );
+		} break;
+
+	case BACCT_CHECK_BUFF_TEMPLET_ID:
+		{
+			const bool bHave = HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( static_cast<int>( kCondition_.m_vecValues[0] ) ) );
+			return ( kCondition_.m_vecFlags[0] ? bHave : !bHave );
+		} break;
+
+	default:
+		break;
+	}
+
+	return true;
+}
+
+/** @function : HaveUnfinishedBuff
+	@brief : June 3227b860. Whether a buff with this id is on and not finished yet.
+*/
+bool CX2GameUnit::HaveUnfinishedBuff( const BUFF_TEMPLET_ID eBuffTempletID_ ) const
+{
+	BOOST_FOREACH( CX2BuffTempletPtr ptrBuffTemplet, m_vecBuffTempletPtr )
+	{
+		if ( NULL != ptrBuffTemplet && !ptrBuffTemplet->GetDidFinish() && eBuffTempletID_ == ptrBuffTemplet->GetBuffTempletID() )
+			return true;
+	}
+	return false;
+}
+
+/** @function : GetBuffAppliedCount
+	@brief : June 322799a0. How many times a buff with this id was pushed onto this unit.
+*/
+UINT CX2GameUnit::GetBuffAppliedCount( const BUFF_TEMPLET_ID eBuffTempletID_ ) const
+{
+	map<BUFF_TEMPLET_ID, UINT>::const_iterator mItr = m_mapBuffAppliedCount.find( eBuffTempletID_ );
+	return ( m_mapBuffAppliedCount.end() != mItr ? mItr->second : 0 );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
 
 /** @function : EraseBuffTempletFromGameUnit
 	@brief : 걸려있는 버프 중 템플릿ID와 일치하는 버프 해제
@@ -12671,6 +12945,13 @@ void CX2GameUnit::OnFrameMoveBuff()
 
 		while ( m_vecBuffTempletPtr.end() != vItr )
 		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+			(*vItr)->FrameMoveAccumulationDelay( fElapsedTime );	/// June 3229d620
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+			(*vItr)->FrameMoveAccumulationDelay( g_pKTDXApp->GetElapsedTime() );
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
             (*vItr)->OnFrameMove( this, fElapsedTime );
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE

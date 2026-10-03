@@ -533,6 +533,19 @@ bool CX2BuffFactor::ParsingBuffFactor( KLuaManager& luaManager_ )
 
 	LUA_GET_VALUE_RETURN( luaManager_, "IGNORE_REGIST_FOR_RATE", m_pDataBuffFactor->m_bIgnoreRegistForRate, 
 		false, return DISPLAY_ERROR( L"IGNORE_REGIST_FOR_RATE" ); );
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	/// June 32d4d850: ACCUMULATION_AT_ONE_GO (default 0), then APPLY_CHECK_CONDITION's AND_OPERATION and
+	/// OR_OPERATION tables (32d4d190). June reads no factor-level DISPLAYER or APPLIED_SKILL_ID.
+	LUA_GET_VALUE( luaManager_, "ACCUMULATION_AT_ONE_GO", m_pDataBuffFactor->m_uiAccumulationAtOneGo, 0 );
+	if ( luaManager_.BeginTable( "APPLY_CHECK_CONDITION" ) )
+	{
+		ParsingApplyCheckCondition( luaManager_, "AND_OPERATION", false );
+		ParsingApplyCheckCondition( luaManager_, "OR_OPERATION", true );
+		luaManager_.EndTable();
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
 	
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 	if ( !ParsingBehavior( luaManager_, bIsSkill ) )
@@ -550,6 +563,113 @@ bool CX2BuffFactor::ParsingBuffFactor( KLuaManager& luaManager_ )
 
 	return true;
 }
+
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+/** @function : ParsingApplyCheckCondition
+	@brief : June 32d4d190. Reads CONDITION_0, CONDITION_1, ... of one APPLY_CHECK_CONDITION operation
+		table until the first one missing. A condition whose BUFF_APPLY_CHECK_CONDITION_TYPE is missing
+		or BACCT_CHECK_NONE is not stored.
+	@param : operation table name (AND_OPERATION / OR_OPERATION), whether it is the OR one
+*/
+void CX2BuffFactor::ParsingApplyCheckCondition( KLuaManager& luaManager_, const char* pszOperationTableName_, const bool bOrOperation_ )
+{
+	if ( !luaManager_.BeginTable( pszOperationTableName_ ) )
+		return;
+
+	char szConditionName[64] = { 0, };
+	for ( int iCondition = 0; ; ++iCondition )
+	{
+		sprintf_s( szConditionName, _countof( szConditionName ), "CONDITION_%d", iCondition );
+		if ( !luaManager_.BeginTable( szConditionName ) )
+			break;
+
+		BUFF_APPLY_CHECK_CONDITION kCondition;
+		kCondition.m_bOrOperation = bOrOperation_;
+
+		int iType = BACCT_CHECK_NONE;
+		LUA_GET_VALUE( luaManager_, "BUFF_APPLY_CHECK_CONDITION_TYPE", iType, BACCT_CHECK_NONE );
+		kCondition.m_eType = static_cast<BUFF_APPLY_CHECK_CONDITION_TYPE>( iType );
+
+		if ( BACCT_CHECK_NONE != kCondition.m_eType )
+		{
+			bool bFlag = false;
+			switch ( kCondition.m_eType )
+			{
+			case BACCT_CHECK_UNIT_HP_RATE:
+				{
+					ParsingTableForWhile( luaManager_, "HP_RATE", kCondition.m_vecValues, false );
+					if ( luaManager_.BeginTable( "CHECK_HP_RATE_UP" ) )
+					{
+						for ( int iIndex = 1; luaManager_.GetValue( iIndex, bFlag ); ++iIndex )
+							kCondition.m_vecFlags.push_back( bFlag );
+						luaManager_.EndTable();
+					}
+				} break;
+
+			case BACCT_CHECK_BUFF_TEMPLET_ID:
+				{
+					if ( luaManager_.BeginTable( "CHECK_BUFF_TEMPLET_ID" ) )
+					{
+						int iBuffTempletID = 0;
+						if ( luaManager_.GetValue( 1, iBuffTempletID ) )
+							kCondition.m_vecValues.push_back( static_cast<float>( iBuffTempletID ) );
+						luaManager_.EndTable();
+					}
+					if ( luaManager_.BeginTable( "APPLY_WHEN_HAVE" ) )
+					{
+						if ( luaManager_.GetValue( 1, bFlag ) )
+							kCondition.m_vecFlags.push_back( bFlag );
+						luaManager_.EndTable();
+					}
+				} break;
+
+			default:
+				break;
+			}
+
+			m_pDataBuffFactor->m_vecApplyCheckCondition.push_back( kCondition );
+		}
+
+		luaManager_.EndTable();
+	}
+
+	luaManager_.EndTable();
+}
+
+/** @function : GetApplyCheckConditionToLevel
+	@brief : June 32d4d030. Each condition keeps the element of the level (the last one past the end)
+		of both its lists; a condition left with neither is dropped.
+*/
+void BUFF_FACTOR::GetApplyCheckConditionToLevel( IN const vector<BUFF_APPLY_CHECK_CONDITION>& vecInCondition_,
+	OUT vector<BUFF_APPLY_CHECK_CONDITION>& vecOutCondition_, IN const UINT uiLevel_ )
+{
+	const UINT uiIndex = ( 0 == uiLevel_ ? 0 : uiLevel_ - 1 );
+
+	BOOST_FOREACH( const BUFF_APPLY_CHECK_CONDITION& kIn, vecInCondition_ )
+	{
+		BUFF_APPLY_CHECK_CONDITION kOut;
+		kOut.m_eType = kIn.m_eType;
+		kOut.m_bOrOperation = kIn.m_bOrOperation;
+
+		if ( !kIn.m_vecValues.empty() )
+		{
+			const UINT uiLast = kIn.m_vecValues.size() - 1;
+			kOut.m_vecValues.push_back( kIn.m_vecValues[ uiIndex < uiLast ? uiIndex : uiLast ] );
+		}
+
+		if ( !kIn.m_vecFlags.empty() )
+		{
+			const UINT uiLast = kIn.m_vecFlags.size() - 1;
+			kOut.m_vecFlags.push_back( kIn.m_vecFlags[ uiIndex < uiLast ? uiIndex : uiLast ] );
+		}
+
+		if ( !kOut.m_vecValues.empty() || !kOut.m_vecFlags.empty() )
+			vecOutCondition_.push_back( kOut );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
 
 /** @function : BehaviorParsing
 	@brief : 버프 발생 요소 중 행동 부분을 루아로 부터 읽어 들이는 함수

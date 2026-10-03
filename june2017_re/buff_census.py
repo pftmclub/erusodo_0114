@@ -649,6 +649,24 @@ PHASE_BFT_VALUES = {'8': {14, 15, 16, 17}}
 # BBT 110 / BFT 16 (Phase 1: 32e80450 @32e804da, 32ec36f0, 32d4bbf0, 32d4c750). They are enum-only in
 # the port, so they are reported apart and never count as "not handled".
 NOT_IN_JUNE_CLIENT = {'BEHAVIOR': {111, 112}, 'FINALIZER': {17}}
+# Keys June's own client never reads at that level, so there is nothing to port (Phase 4a). Templet
+# level: absent from ParsingScript 3236a9b0's 17 keys and from all 6,240 decrypted XOR buffers
+# (server-side keys, Phase 1 table). Factor level: ParsingBuffFactor 32d4d850 reads BUFF_TEMPLET_ID,
+# RATE, IGNORE_REGIST_FOR_RATE, ACCUMULATION_AT_ONE_GO, APPLY_CHECK_CONDITION, BEHAVIOR, FINALIZER only;
+# APPLIED_SKILL_ID is read at damage-data level (SetDamageDataFromLUA 32632446) before any BUFF_FACTOR
+# table opens, so the 2 copies nested in inline BUFF_FACTOR blocks are ignored by June too.
+# Reported apart, never as unread.
+NOT_READ_BY_JUNE_CLIENT = {
+    'templet': {'EXP_RATE', 'IS_PARTY_BUFF', 'NOT_APPLY_BUFF_WHEN_SAME_BUFF_OWNER', 'DROP_RATE', 'VP_RATE'},
+    'templet_prefix': ('LUCKYTIMINGEVENT_',),
+    'factor': {'DISPLAYER', 'APPLIED_SKILL_ID'},
+}
+
+
+def not_read_by_june(level, key):
+    if key in NOT_READ_BY_JUNE_CLIENT.get(level, ()):
+        return True
+    return level == 'templet' and key.startswith(NOT_READ_BY_JUNE_CLIENT['templet_prefix'])
 # keys by owning phase (levels: templet/factor -> 4a, behavior/finalizer/displayer -> 4b)
 PHASE_KEY_LEVELS = {'4a': {'templet', 'factor'}, '4b': {'behavior', 'finalizer', 'displayer'}}
 
@@ -956,10 +974,14 @@ def main():
         P('   owner = phase of the type(s) the key sits under: 4b = a type March already handles, 5-8 = a type March lacks;')
         P('   in-March-data = the key string is in March\'s compiled BattleFieldBuff*/BuffTemplet bytecode (if reachable)')
         rows = []
+        june_unread = []
         for (level, k), origins in st['keys'].items():
             if lit_supported(k, lsets[level]):
                 continue
             if re.match(r'^(BBT|BFT|BDT)_', k):
+                continue
+            if not_read_by_june(level, k):
+                june_unread.append((level, k, sum(len(s) for s in origins.values())))
                 continue
             n = {o: len(s) for o, s in origins.items()}
             own = sorted(owners.get((level, k), set())) if level in ('behavior', 'finalizer', 'displayer') else ['4a']
@@ -975,6 +997,9 @@ def main():
             for r in sub:
                 P('    %-44s %6d %6d %6d %6d  %-6s %s' % (r[1], r[2], r[3], r[4], r[5], r[6], march_data_flag(march_data, r[1])))
             P_keys[lv] = sub
+        if june_unread and (a.phase is None or a.phase == '4a'):
+            P('  not read by June\'s client either (excluded; see NOT_READ_BY_JUNE_CLIENT): %s' %
+              ', '.join('%s.%s x%d' % r for r in sorted(june_unread)))
         P('')
 
     if want('4b'):

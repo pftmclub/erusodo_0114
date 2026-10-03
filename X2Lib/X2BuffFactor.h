@@ -221,6 +221,24 @@ enum BUFF_RELATION_TYPE		/// 연동 타입
 	BRT_END,					/// enum의 끝, enum의 개수
 };
 
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+enum BUFF_APPLY_CHECK_CONDITION_TYPE	/// June Enum.lua: one CONDITION_n of a factor's APPLY_CHECK_CONDITION (June 32d4d190)
+{
+	BACCT_CHECK_NONE				= 0,
+	BACCT_CHECK_UNIT_HP_RATE		= 1,	/// HP_RATE + CHECK_HP_RATE_UP
+	BACCT_CHECK_BUFF_TEMPLET_ID		= 2,	/// CHECK_BUFF_TEMPLET_ID + APPLY_WHEN_HAVE
+};
+
+enum BUFF_REPLACE_DETAIL_OP			/// June Enum.lua: BUFF_REPLACE_DETAIL_OPERATION of a templet with ACCUMULATION_LIMIT < 2
+{
+	BRDO_NOTDEFINED					= 0,	/// June 322a83b0: nothing is applied while other buffs are on
+	BRDO_NORMAL						= 1,	/// erase the buff, then push the new one
+	BRDO_ADD_TIME					= 2,	/// SetFactor on the buff already on (March's only behavior; June's default)
+};
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
+
 enum BUFF_DISPLAYER_TYPE
 {
 	BDT_NONE = 0,
@@ -378,6 +396,12 @@ enum BUFF_TEMPLET_ID
 	BTI_DEBUFF_SELF_PROTECTION_FORTITUDE		= 258,	// 회광반조 사용 불가 안내 디버프
 	BTI_BUFF_WATER_SHIELD						= 259,	// 하멜 비던 샤샤, 물의 보호막
 	BTI_HEALTH_POINT_IMMEDIATELY_CHANGE_ONCE	= 260,	// HP 즉시 변동, 1번만
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	BTI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR			= 265,	// June; compared in CX2GameUnit::SetBuffFactorToGameUnit (322a83b0)
+	BTI_BUFF_HAMEL_SECRET_DUNGEON_WING			= 266,
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
 
 //#ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //김창한
 	BTI_DEBUFF_STIGMA_OF_FIRE					= 290,	// 엘리시스(블레이징 하트) - 불꽃의 낙인 디버프
@@ -426,6 +450,12 @@ enum BUFF_TEMPLET_ID
 //#endif //SERV_ADD_LUNATIC_PSYKER
 
 	BTI_BUFF_NAVER								= 339,	// 네이버채널링버프, 물리/마법공격력 3%, 물리/마법방어 3%, MP 최대치 10% 증가
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	BTI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR_EVENT	= 347,	// June (Phase 2 renumbered these from 1321/1322)
+	BTI_BUFF_HAMEL_SECRET_DUNGEON_WING_EVENT	= 348,
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
 //#ifdef SERV_EVENT_ARA_NEW_CHAR_THE_ESSENCE_OF_HERETIC
 	BTI_BUFF_THE_ESSENCE_OF_WEAK_HERETIC_POTION	= 1318,
 	BTI_BUFF_THE_ESSENCE_OF_HERETIC_POTION		= 1319,
@@ -553,6 +583,22 @@ enum BUFF_FACTOR_ID
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+/// One CONDITION_n of a factor's APPLY_CHECK_CONDITION (June 32d4d190). Checked by
+/// CX2GameUnit::CheckBuffApplyCondition (June 3227cad0 / 3227c4b0).
+struct BUFF_APPLY_CHECK_CONDITION
+{
+	BUFF_APPLY_CHECK_CONDITION_TYPE	m_eType;
+	bool							m_bOrOperation;	/// listed under OR_OPERATION (else AND_OPERATION)
+	vector<float>					m_vecValues;	/// HP_RATE, or CHECK_BUFF_TEMPLET_ID
+	vector<bool>					m_vecFlags;		/// CHECK_HP_RATE_UP, or APPLY_WHEN_HAVE
+
+	BUFF_APPLY_CHECK_CONDITION() : m_eType( BACCT_CHECK_NONE ), m_bOrOperation( false ) {}
+};
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
+
 struct BUFF_FACTOR
 {
 public:
@@ -560,6 +606,9 @@ public:
 #ifdef ADD_LIVE_CREATOR_FINALIZER
 		, m_bIsUserUID( true )
 #endif ADD_LIVE_CREATOR_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+		, m_uiAccumulationAtOneGo( 0 )
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 	{
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		m_vecRate.clear();
@@ -573,9 +622,15 @@ public:
 #ifdef ADD_LIVE_CREATOR_FINALIZER
 		, m_bIsUserUID( rhs_.m_bIsUserUID )
 #endif ADD_LIVE_CREATOR_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+		, m_uiAccumulationAtOneGo( rhs_.m_uiAccumulationAtOneGo )
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 	{
 		m_vecBuffBehaviorFactors = rhs_.m_vecBuffBehaviorFactors;
 		m_vecBuffFinalizerFactors = rhs_.m_vecBuffFinalizerFactors;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+		m_vecApplyCheckCondition = rhs_.m_vecApplyCheckCondition;
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		m_vecRate = rhs_.m_vecRate;
 #else //UPGRADE_SKILL_SYSTEM_2013
@@ -589,6 +644,9 @@ public:
 #ifdef ADD_LIVE_CREATOR_FINALIZER
 		, m_bIsUserUID( rhs_.m_bIsUserUID )
 #endif ADD_LIVE_CREATOR_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+		, m_uiAccumulationAtOneGo( rhs_.m_uiAccumulationAtOneGo )
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 	{
 		if ( uiLevel_ >= 1 )
 		{
@@ -602,6 +660,10 @@ public:
 			GetBehaviorFactorToLevel( rhs_.m_vecBuffBehaviorFactors, m_vecBuffBehaviorFactors, 1 );
 			GetFinalizerFactorToLevel( rhs_.m_vecBuffFinalizerFactors, m_vecBuffFinalizerFactors, 1 );
 		}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+		/// June 320844a0 passes level 1 for level 0, then slices the conditions (32d4d030)
+		GetApplyCheckConditionToLevel( rhs_.m_vecApplyCheckCondition, m_vecApplyCheckCondition, ( uiLevel_ >= 1 ? uiLevel_ : 1 ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 	}
 
 	void GetBehaviorFactorToLevel( IN const vector<KBuffBehaviorFactor>& vecInBehaviorFactorList ,
@@ -622,6 +684,10 @@ public:
 		IN const UINT uiLevel_ );
 	void PushFinalizerMpToLevel( OUT vector<KBuffFinalizerFactor>& vecOutFinalizerFactorList, IN const KBuffFinalizerFactor& factor_,
 		IN const UINT uiLevel_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	void GetApplyCheckConditionToLevel( IN const vector<BUFF_APPLY_CHECK_CONDITION>& vecInCondition_,
+		OUT vector<BUFF_APPLY_CHECK_CONDITION>& vecOutCondition_, IN const UINT uiLevel_ );	/// June 32d4d030
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 #endif //UPGRADE_SKILL_SYSTEM_2013
 
 public:
@@ -639,6 +705,12 @@ public:
 	float							m_fRate;					/// 해당 요인에 의해 버프 또는 디버프가 걸릴 확률
 #endif //UPGRADE_SKILL_SYSTEM_2013
 	bool							m_bIgnoreRegistForRate;		/// 위의 확률이 저항에 의해서 변경되는지 여부(true 인경우 저항이 있으면 걸릴 확률이 감소함)
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	UINT								m_uiAccumulationAtOneGo;	/// ACCUMULATION_AT_ONE_GO (June factor +0x50): extra SetFactor()s on the stacked buff
+	vector<BUFF_APPLY_CHECK_CONDITION>	m_vecApplyCheckCondition;	/// APPLY_CHECK_CONDITION (June factor +0x54)
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
 	/// 중첩이 필요할듯...
 };
 
@@ -734,6 +806,12 @@ public:
 
 	bool GetIgnoreRegistForRate() const { return m_pDataBuffFactor->m_bIgnoreRegistForRate; }
 	void SetIgnoreRegistForRate(bool val) { m_pDataBuffFactor->m_bIgnoreRegistForRate = val; }
+//{{ Iruha : 2026-10-03 // June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	UINT GetAccumulationAtOneGo() const { return m_pDataBuffFactor->m_uiAccumulationAtOneGo; }
+	const vector<BUFF_APPLY_CHECK_CONDITION>& GetApplyCheckConditionList() const { return m_pDataBuffFactor->m_vecApplyCheckCondition; }
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
 
 	BUFF_TEMPLET_ID GetBuffTempletID() const { return static_cast<BUFF_TEMPLET_ID>( m_pDataBuffFactor->m_BuffIdentity.m_eBuffTempletID ); }
 	void SetBuffTempletID(BUFF_TEMPLET_ID val) { m_pDataBuffFactor->m_BuffIdentity.m_eBuffTempletID = val; }
@@ -757,6 +835,9 @@ public:
 	bool ParsingBuffFactor( KLuaManager& luaManager_, bool bIsSkill = true );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
 	bool ParsingBuffFactorBody( KLuaManager& luaManager_, bool bIsSkill );	/// the original ParsingBuffFactor; the public one wraps it in a [JUNE_BUFF] capture
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	void ParsingApplyCheckCondition( KLuaManager& luaManager_, const char* pszOperationTableName_, const bool bOrOperation_ );	/// June 32d4d190
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 #endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 	bool ParsingBehavior( KLuaManager& luaManager_, bool bIsSkill = true );
 	bool ParsingCombinationBehavior( KLuaManager& luaManager_, bool bIsSkill = true );

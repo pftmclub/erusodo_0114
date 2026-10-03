@@ -1121,6 +1121,74 @@ The ctor (`326c48a0`) leaves +0x4c = 0, so the first push is never delay-blocked
 - **Custom-function slot 7** (`32275860`): Phase 9.
 - **The `+0x6dd0` counter:** Phase 8.
 
+### Phase 4a — Done (2026-10-03), launch check pending
+
+**What changed (`SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY`, `KTDXLIB/Always.h`).**
+- 15 files, insert-only (867 lines added, 0 removed). Every inserted byte is ASCII and CRLF, and every `file` signature is unchanged. The bodies that were replaced (`ParsingScript`, `SetBuffFactorToGameUnit`, the finalizer finish check) stay intact in `#else`.
+- **`X2BuffTemplet.cpp`:**
+  - `ParsingScript` is June's `3236a9b0`.
+  - The finalizer loop has June's `ACCUMULATION_DECREASE_WHEN_FINISH` branch (`3236c570`), with three new helpers: `DecreaseAccumulationCountNow` (`32369e40`), `ReapplyBehaviorForAccumulationDecrease` (`3236a930`) and `RestartDisplayerForAccumulationDecrease` (`3236a190`, without June's stack-count icon refresh, since March's gage has no count).
+  - `IsNonControlDebuff` gains June's `IS_DEBUF` gate and BBT 104 (`32369cc0`).
+- **`X2BuffTemplet.h`:** 8 new members with getters, set in both ctors.
+- **`X2BuffFactor.{h,cpp}`:**
+  - `BUFF_APPLY_CHECK_CONDITION_TYPE` / `BUFF_REPLACE_DETAIL_OP` enums and the `BUFF_APPLY_CHECK_CONDITION` struct.
+  - `ACCUMULATION_AT_ONE_GO` and `APPLY_CHECK_CONDITION` parsed (`32d4d850`, `32d4d190`) and level-sliced (`32d4d030`).
+  - `BTI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR/WING(_EVENT)` 265/266/347/348 added, because the apply path compares them.
+- **Behavior slot 7** (`OnAccumulationCountDecreased`): base `false`; ChangeStat rescales (`32e73500`).
+- **Finalizer slot 8** (`RestartForAccumulationDecrease`): base `false`; Time resets to `m_fFullDurationTime` (`32ec6b30`). That is a new member set at the end of both `SetFactor` and `SetFactorFromPacket`, as June sets +0x28.
+- **`X2GameUnit.{h,cpp}`:**
+  - `SetBuffFactorToGameUnit` is June's `322a83b0`.
+  - `PushNewBuffTempletToGameUnit` adds the delay gate/timer and the per-BTI apply count (`3229dee0`).
+  - `OnFrameMoveBuff` ticks the delay timer (`3229d620`).
+  - New helpers: `CheckBuffApplyCondition` / `CheckOneBuffApplyCondition`, `HaveUnfinishedBuff`, `SetBuffAccumulationLimitOverride`, `GetBuffAppliedCount`.
+  - `IsImmuneBuffByBuffBehavior` and `IsImmuneNonControlDebuffByBuffBehavior` return `false`. That is exactly June's result while no BBT 94/95 buff exists; Phase 7 fills them when it adds those stores.
+- **`X2GUUser`:** `IsImmuneBuffBySocketOption` (`31ff8fd0`).
+- **`X2Game.h`:** the BTI→EDT map (`322cc0a0`, nine cases). The EDT numbers were checked equal in March's and June's Enum.
+- **`X2BuffTempletManager.cpp`:** one `[JUNE_BUFF] unsupported (stored, consumer not ported): ...` line after the load summary. It counts `IS_STORE_BUFF`, `IS_INSTANCE_KILL_DEBUFF` and `NOT_SAVE_GAGEMANAGER`, and is printed only if any count is non-zero.
+- **Not ported, by design:**
+  - the `+0x6dd0` sync counter (Phase 8);
+  - the user pre/post-apply hooks (June-only BTIs and skills);
+  - custom-function slot 7 (Phase 9);
+  - `BFT_STICK_SHAKE`'s finish hook (Phase 8);
+  - the consumers of `IS_STORE_BUFF` / `IS_INSTANCE_KILL_DEBUFF` (stored and counted).
+
+**Behavior changes on March's current data.**
+- **Socket-option immunity now blocks the buff itself.** A user with an EDT-immunity socket option who passes the roll gets RESIST for the nine mapped debuffs (fire, poison, stun, …). March only checked that roll for the damage-data extra damage.
+- **A factor whose BTI has no templet** is one `[JUNE_BUFF] BTI n has no templet ...` line per BTI, not a MessageBox. This closes the Phase 3 review's R4 popups, and the line names the BTI R4 could not identify.
+- **Unchanged:**
+  - Limit 0/1 buffs: `BRDO_ADD_TIME` is the default when the key is absent, and that is March's behavior.
+  - Limit ≥ 2 buffs: the delay is 0 by default.
+  - March's templets all carry `ACCUMULATION_MULTIPLIER`.
+  - `IsNonControlDebuff`: both callers (`X2GUEL.cpp:3597`, `:9340`) already require `IsDeBuff()`, and no March data uses BBT 104.
+
+**Census.** `buff_census.py --phase 4a` shows **0 unread templet-level and 0 unread factor-level keys** (baseline 17 + 4).
+- 13 keys are now listed apart as "not read by June's client either" (the `NOT_READ_BY_JUNE_CLIENT` table in the script):
+  - **Templet level:** `EXP_RATE`, `IS_PARTY_BUFF`, `NOT_APPLY_BUFF_WHEN_SAME_BUFF_OWNER`, `DROP_RATE`, `VP_RATE` and `LUCKYTIMINGEVENT_*`.
+  - **Factor level:**
+    - `DISPLAYER`: `32d4d850` has no such read.
+    - `APPLIED_SKILL_ID`: June reads it only at damage-data level.
+- The full report still runs, rc=0.
+
+**Build and deploy.**
+- `KTDXLIB` / `X2Lib` / `X2` built at `US_SERVICE`, rc=0, 0 errors; both `stdafx.cpp` were touched first. `X2ServerProtocol` was not rebuilt, since nothing under it changed.
+- `x2.exe` is 19,009,024 B (07:43:01, md5 `a2890447…`) and contains the new strings: `has no templet: a factor for it was not applied`, `unsupported (stored, consumer not ported)`, `ACCUMULATION_AT_ONE_GO`, `CONDITION_%d`, `BUFF_REPLACE_DETAIL_OPERATION`.
+- Deployed as `X2_offline.exe`; the md5 matched after the copy. **Not launched.**
+- **Pairing:** the Phase 2 `Enum.lua` is already packed (Phase 3 review). This exe needs no new Lua.
+
+**Launch check (needs the user).** Expected with March's data:
+- the same load summary as the Phase 3 review's exit check 1;
+- **no** `unsupported (stored ...)` line, because March's templets carry none of those keys;
+- in the Ranox secret stage, `BTI n has no templet` lines in place of R4's popups.
+
+A trial of June's files would also exercise `ACCUMULATION_MULTIPLIER`'s new default. The 9 templets the Phase 3 hand-off named should stop failing, as long as R1's `SKILL_SLOT_TYPE` precondition holds.
+
+**Review.** Required (Opus 5.5); not yet run. Spot-check suggestions:
+- `322a83b0`'s BRDO switch (`322a86cd`–`322a87be`);
+- the `3236c570` decrease chain;
+- `32d4d190`'s condition reads.
+
+**Cost.** Not recorded (no `/cost` figure in-session).
+
 ## Phase 4b — Existing BBT/BFT/BDT parity
 
 **Scope.** For each of the 73 existing BBT, 14 BFT and 14 BDT, diff June against March in four places, and port June in full wherever they differ:

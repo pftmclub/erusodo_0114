@@ -4700,3 +4700,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              factor files.
 #define SERV_IRUHADEV_JUNE_BUFF_LOADER
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-03
+// Description: June buff port Phase 4a (JUNE_BUFF_PORT_PHASES.md): the buff
+//              templet/factor top level and the apply path are June's.
+//              CX2BuffTemplet::ParsingScript (3236a9b0) and
+//              CX2BuffFactor::ParsingBuffFactor (32d4d850, APPLY_CHECK_CONDITION
+//              32d4d190/32d4d030) read June's keys; ACCUMULATION_MULTIPLIER
+//              becomes optional (1.0). CX2GameUnit::SetBuffFactorToGameUnit
+//              (322a83b0), PushNewBuffTempletToGameUnit (3229dee0) and
+//              OnFrameMoveBuff (3229d620) apply them: socket-option immunity,
+//              apply-check conditions, BRDO replace-detail ops, accumulation
+//              delay, ACCUMULATION_AT_ONE_GO, and ACCUMULATION_DECREASE_WHEN_FINISH
+//              (CX2BuffTemplet 3236c570). A missing templet is a [JUNE_BUFF] line,
+//              not a MessageBox. Keys whose consumer March lacks (IS_STORE_BUFF,
+//              IS_INSTANCE_KILL_DEBUFF, NOT_SAVE_GAGEMANAGER) are parsed, stored
+//              and counted in one [JUNE_BUFF] line after the load summary.
+#define SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//////////////////////////////////////////////////////////////////////////

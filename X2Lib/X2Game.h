@@ -1502,6 +1502,25 @@ void ShowTimerAlarm( int iIndex, float fValue_ );
 #ifdef HAMEL_SECRET_DUNGEON // 김태환
 		/// 해로운 효과라고 정의된 공식적인 디버프 리스트 ( 기획 파트에서 제공 )
 		const vector<BUFF_TEMPLET_ID>& GetOfficiallyDebuffList() const { return m_vecPossibleOfficiallyDebuffList; }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+		/// June 322cc0a0: the extra-damage type a debuff templet stands for (socket-option immunity, CX2GUUser)
+		static CX2DamageManager::EXTRA_DAMAGE_TYPE GetExtraDamageTypeByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletID_ )
+		{
+			switch ( eBuffTempletID_ )
+			{
+			case BTI_DEBUFF_PRESS:		return CX2DamageManager::EDT_Y_PRESSED;
+			case BTI_DEBUFF_WOUND:		return CX2DamageManager::EDT_LEG_WOUND;
+			case BTI_DEBUFF_FIRE:		return CX2DamageManager::EDT_FIRE;
+			case BTI_DEBUFF_POISON:		return CX2DamageManager::EDT_POISON;
+			case BTI_DEBUFF_CURSE:		return CX2DamageManager::EDT_CURSE;
+			case BTI_DEBUFF_STUN:		return CX2DamageManager::EDT_STUN;
+			case BTI_DEBUFF_COLD:		return CX2DamageManager::EDT_COLD;
+			case BTI_DEBUFF_FROZEN:		return CX2DamageManager::EDT_FROZEN;
+			case BTI_DEBUFF_BLEEDING:	return CX2DamageManager::EDT_BLEEDING;
+			default:					return CX2DamageManager::EDT_NONE;
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 		void SetOfficiallyDebuffList();
 
 		void DisplayAddHPInformation( IN const float fAddHPValue, IN const D3DXVECTOR3 vPos, IN const D3DXVECTOR3 vDirVector, IN bool bDisplayPercent = true );		/// HP 회복량 표시

@@ -39,6 +39,10 @@ public:
 	
 	void ReserveToFinish() { m_bReserveToFinish = true; }
 	bool DidReserveToFinish() const { return m_bReserveToFinish; }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	/// June finalizer vtable slot 8 (base 31e4c550 returns false): restart after ACCUMULATION_DECREASE_WHEN_FINISH
+	virtual bool RestartForAccumulationDecrease() { return false; }
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 
 	bool SetFactorFromPacketTemplateMothod( const KBuffFactor& kBuffFactor_, CX2GameUnit* pGameUnit_ );
 	BUFF_FINALIZER_TYPE GetType() const { return m_eType; }
@@ -114,6 +118,17 @@ public:
 	virtual CX2BuffFinalizerTempletPtr GetClonePtr() const;
 	virtual bool DidFinish( CX2GameUnit* pGameUnit_ ) const;
 	virtual void GetFactor( OUT vector<KBuffFinalizerFactor>& vecFactors_, const CX2GameUnit* pGameUnit_ ) const;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	/// June 32ec6b30 (Time finalizer slot 8): back to the duration the last SetFactor / SetFactorFromPacket gave it
+	virtual bool RestartForAccumulationDecrease()
+	{
+		m_fDurationTime = m_fFullDurationTime;
+#ifdef BUFF_ICON_UI
+		m_bIsAlreadyNotifyDurationTime = false;
+#endif BUFF_ICON_UI
+		return true;
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 
 #ifdef SERV_IRUHADEV_BUFF_DURATION_TEXT
 	virtual float GetRemainTime() const { return m_fDurationTime; }
@@ -125,6 +140,9 @@ public:
 protected:
 	CX2BuffTimeFinalizerTemplet() : CX2BuffFinalizerTemplet(),
 		m_fDurationTime( 0.0f ), m_eDurationTimeType( BDTT_NONE )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+		, m_fFullDurationTime( 0.0f )
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 #ifdef BUFF_ICON_UI //버프 남은 지속 시간 얻기
 		,m_eBuffTempleteID(BTI_NONE)
 		,m_bIsAlreadyNotifyDurationTime(false)
@@ -140,6 +158,9 @@ protected:
 private:
 	float	m_fDurationTime;						/// 정해진 지속시간
 	BUFF_DURATION_TIME_TYPE m_eDurationTimeType;	/// 랜덤시간인지, 고정시간인지
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	float	m_fFullDurationTime;					/// June +0x28: the duration as last set, for RestartForAccumulationDecrease
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 #ifdef BUFF_ICON_UI //버프 남은 지속 시간 얻기
 	BUFF_TEMPLET_ID			m_eBuffTempleteID;
 	bool					m_bIsAlreadyNotifyDurationTime;

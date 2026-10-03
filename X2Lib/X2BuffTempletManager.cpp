@@ -466,5 +466,23 @@ void CX2BuffTempletManager::LogLoadSummary() const
 		static_cast<UINT>( m_vecBuffFactorPtr.size() ) - m_uiFactorPlaceholder, m_uiFactorPlaceholder,
 		static_cast<UINT>( m_vecBuffFactorPtrINT.size() ) - m_uiFactorPlaceholderINT, m_uiFactorPlaceholderINT,
 		m_uiFactorOrdinalReject, m_uiFactorOrdinalRejectINT );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+	/// June buff port Phase 4a: templet keys that are parsed and stored but whose consumer is not ported, counted once
+	UINT uiStoreBuff = 0, uiInstanceKillDebuff = 0, uiNotSaveGageManager = 0;
+	for ( map<BUFF_TEMPLET_ID, CX2BuffTempletPtr>::const_iterator mItr = m_mapBuffTempletPtr.begin(); m_mapBuffTempletPtr.end() != mItr; ++mItr )
+	{
+		if ( NULL == mItr->second )
+			continue;
+		if ( mItr->second->IsStoreBuff() )
+			++uiStoreBuff;
+		if ( mItr->second->IsInstanceKillDebuff() )
+			++uiInstanceKillDebuff;
+		if ( mItr->second->IsNotSaveGageManager() )
+			++uiNotSaveGageManager;
+	}
+	if ( 0 < uiStoreBuff + uiInstanceKillDebuff + uiNotSaveGageManager )
+		CX2JuneBuffCapture::Line( "unsupported (stored, consumer not ported): IS_STORE_BUFF on %u templet(s) (June keep-store clear 3229fb10), IS_INSTANCE_KILL_DEBUFF on %u (June DamageReact via 31fe4150), NOT_SAVE_GAGEMANAGER on %u (no June reader found)",
+			uiStoreBuff, uiInstanceKillDebuff, uiNotSaveGageManager );
+#endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_LOADER
