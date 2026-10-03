@@ -1232,6 +1232,16 @@ The ctor (`326c48a0`) leaves +0x4c = 0, so the first push is never delay-blocked
 - **Custom-function slot 7** (`32275860`): Phase 9.
 - **The `+0x6dd0` counter:** Phase 8.
 
+**June's by-ID entry `322a6960` (`SetBuffFactorToGameUnitByBuffFactorID`, vtable slot 135), diffed against March's (`X2GameUnit.cpp:11069`).**
+- Same shape: `GetBuffFactorPtr`, `CanApplyBuffToGameUnit`, `GetClonePtr(level)`, `SetGameUnitBuffFactor`, `SetBuffFactorToGameUnit(factor)`.
+- **`+0x210` `CanApplyBuffToGameUnit` now takes `(BTI, factor)`.**
+  - Base `3229a2e0` ignores both and equals March's base (not immune to extra damage, HP > 0, state ≠ `GUSI_DIE`).
+  - NPC override `327bdb60`.
+  - User `32045dc0`: March's checks (base, plus the state is neither of the two die states from slots `0x460`/`0x464`). It adds two gates keyed on templet bytes `+0xa9` and `+0xaa`: party membership through `g_pData+0x5c`, and the factor's creator UID against the unit. **The only writer of those two bytes is the templet ctor (`326c4995`, zero).** No parsed key or loader sets them, so for every June templet the user check reduces to March's. Nothing is ported; if a later phase finds a writer, these gates come with it.
+- **`+0x770`:** user only, when the unit is a user and the last argument is false. It scales BFT 15/16 factor values. Phase 8 (hand-off above).
+- **`+0x234`:** empty in every unit class (`322b5630` only releases its argument). Nothing to port.
+- Checked: no March subclass overrides `SetBuffFactorToGameUnit( const CX2BuffFactor& )`. June's slot 137 is the same `322a83b0` in GameUnit, GUUser and GUNPC.
+
 ### Phase 4a — Done (2026-10-03), launch check pending
 
 **What changed (`SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY`, `KTDXLIB/Always.h`).**
@@ -1293,10 +1303,16 @@ The ctor (`326c48a0`) leaves +0x4c = 0, so the first push is never delay-blocked
 
 A trial of June's files would also exercise `ACCUMULATION_MULTIPLIER`'s new default. The 9 templets the Phase 3 hand-off named should stop failing, as long as R1's `SKILL_SLOT_TYPE` precondition holds.
 
+**Trial prediction with this exe (`buff_trial_predict.py`, which now reads the flag).** The predictor drops March's "multiplier required" rule when `SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY` is defined.
+- **With `SKILL_SLOT_TYPE` defined:** `templets 901 loaded, 100 failed` (was 894/107). The 100 failures are exactly the census set: of the 9 multiplier-less templets, 7 now load and 2 fail on an unhandled type. Factors are unchanged (1024 + 106, `_INT` 69 + 0).
+- **As staged (R1 truncation):** unchanged at 713/61, 779 + 63, because all 9 of those templets come after the abort at BTI 820.
+- The trial directory's `X2_offline.exe` is still Phase 3's (`841b930a…`). Copy this exe there before running the trial with Phase 4a.
+
 **Review.** Required (Opus 5.5); not yet run. Spot-check suggestions:
 - `322a83b0`'s BRDO switch (`322a86cd`–`322a87be`);
 - the `3236c570` decrease chain;
-- `32d4d190`'s condition reads.
+- `32d4d190`'s condition reads;
+- **HP-rate operand order in `3227c4b0`.** The port reads stat `+0x20`'s protected float at `+4` as now-HP and the one at `+0x10` as max-HP (rate = now/max). The data (`HP_RATE 0.2`, `CHECK_HP_RATE_UP FALSE` = "at or below 20%") supports that, but the gauge layout was not confirmed in asm.
 
 **Cost.** Not recorded (no `/cost` figure in-session).
 
@@ -1350,6 +1366,11 @@ Each new BBT follows an 8-step checklist:
 
 **Phase 7, group C: flag and immunity types** (flag `..._NEW_FLAG`). 73 IGNORE_STATE_GUARD, 74 DETONATION_IMPOSSIBLE, 102 DETONATION_IMPOSSIBLE_GAGE_RESET, 77 INVINCIBLE, 94 IMMUNE_BUFF_DEBUFF (`IMMUNE_BUFF_TEMPLATE_ID`, `ALL_BUFF`/`ALL_DEBUFF`), 95 IMMUNE_NON_CONTROL_DEBUFF (on apply it also calls `DeleteNonControlDebuff`; coordinate with Phase 10), 97 CHANGE_MAX_CHARACTER_ADD_RESOURCE (moved here: a per-class virtual), 101 IGNORE_HP_DECREASE, 104 JUMP_IMPOSSIBLE, 105 IMMUNE_EDT. **111 MP_NATURAL_RECOVERY_IMPOSSIBLE and 112 REFLECT_PHYSIC are not implemented in June's client: enum only.**
 
+**Phase 4a hand-offs these phases must pick up** (stubs and slots Phase 4a added for them):
+- **Phase 6, BBT 89:** `CX2BuffChangeSkillDamageBehaviorTemplet` needs `OnAccumulationCountDecreased` (June behavior slot 7, `32e7c020`). Without it, `BTI_BUFF_HEAVYFIREARMS_MASTERY` (`ACCUMULATION_DECREASE_WHEN_FINISH`) ends at its first timeout instead of decaying.
+- **Phase 7, BBT 94:** fill `CX2GameUnit::IsImmuneBuffByBuffBehavior` (June `322a80a0`). It reads the `ALL_BUFF`/`ALL_DEBUFF` counters and the `IMMUNE_BUFF_TEMPLATE_ID` lists. It returns false until this phase lands, which equals June's result with no BBT 94 buff on.
+- **Phase 7, BBT 95:** fill `CX2GameUnit::IsImmuneNonControlDebuffByBuffBehavior` (June `3227b790`): if the BBT 95 list is non-empty, return the templet's `IsNonControlDebuff()`. Same stub rule. `IsNonControlDebuff` already has June's BBT 104 case.
+
 **Run with:**
 - **Phases 5 and 6:** Sonnet 5.5, high effort. These are pure transcription into stores and patterns March already has, from Phase 1's transcription-ready map. An Opus 5.5 `/code-review` of the diff is required before build and pack.
 - **Phase 7:** Opus 5.5, high effort. It adds new mechanisms inside the user/NPC state machine. Review required.
@@ -1389,6 +1410,10 @@ BTI/BFI and where it comes from) into the doc for Phase 14. Record this session'
   - `BFT_USE_SKILL_BY_SKILL_SLOTTYPE`: `CommonSpecialAttackEventProcess` `:20966` / `CountUsedSkill` `:32125`.
   - `BFT_STICK_SHAKE`: the grab-escape counter `m_iGrapShakeCount` `:14651`, plus NPC `SHOW_STICK_SHAKE` `X2GUNPC.cpp:5154`.
   - Confirm every one of these against June.
+- **Phase 4a hand-offs:**
+  - June's `PushNewBuffTempletToGameUnit` (`3229dee0`), `OnFrameMoveBuff` (`3229d620`) and the BFT 15 finish hook `3236a6a0` all bump a unit counter at `+0x6dd0` (and clear `+0x6dd4`). Find what it syncs and port it with the counters.
+  - `EraseBuffTempletFromGameUnitByIterator` (`3229d320`) and `OnFrameMoveBuff`'s inline erase call `3236a6a0` (BFT 15: unit slot `+0x404`).
+  - `SetBuffFactorToGameUnit(ID)` (`322a6960`) calls user slot `+0x770` (`32028250`). For a user unit, unless its last argument is set, that slot scales the factor's BFT 15 count and BFT 16 values before `SetGameUnitBuffFactor`. Port it with those types.
 
 **Run with:** Opus 5.5, high effort. Review required. The UDP change means every peer must run the same build; say so in `MODS.md`.
 
@@ -1414,6 +1439,7 @@ BFT, the build is rc=0, and the deploy is done. Commit.
 - Port each hook body: CommonStateStart, FrameMove, StateEnd and DamageReact (`X2GUUser.cpp:14613/17894/19467/8327`).
 - Where June moved per-class handling of FLASH_BANG or PANDEMONIUM_FEAR (`X2GUAra.cpp:13854`, `X2GURaven.cpp:21764`) into the buff system, follow June.
 - Split into 9a and 9b by character family if needed.
+- **Phase 4a hand-off:** June's `SetBuffFactorToGameUnit` ends with `32275860(factor)`, which calls slot 7 of every object in the custom-function-by-buff list (`unit+0x6734`; slots 3–6 are March's four hooks). Port slot 7 with the classes and call it at the end of the Phase 4a body.
 
 **Run with:** Opus 5.5, high effort. Review required.
 
@@ -1466,6 +1492,12 @@ deploy, then hand the pack to me. Commit.
 - Diff June's `X2PremiumBuffManager` parse and apply against March (`:981`, `:546-560`). Add `NOT_USE_IN_PVE`. Adopt June `BuffTemplet.lua`, and `_INT` if Phase 1 says June loads it.
 - Then check how an item-granted buff (consumable, title, set option) reaches a unit **offline**. Run `grep UNHANDLED offline_packets.log` for `EGS_UPDATE_BUFF_INFO*` / `EGS_UPDATE_USER_UNIT_BUFF_INFO_NOT`.
 - If the emulator must answer those packets, implement them in `X2Lib/Offline` under `SERV_IRUHADEV_OFFLINE`. Use real factor ordinals, never invented ones. Pull any stored procedure from the live DB as `CLAUDE.md` requires.
+- **Phase 4a hand-off: the user pre/post-apply hooks.** June's `SetBuffFactorToGameUnit` calls user slot 250 (`3201ffb0`) before stacking and slot 251 (`3204dcd0`) after. Both are empty in the base class.
+  - Slot 250 handles `BTI_BUFF_CREST_OF_TIME(_UPGRADE)` (436/926; slot `+0x740`) and `BTI_AMUSEMENT_ITEM_STAT_BUFF` (807; a game-mode check, then `32d58dc0`). These are item buffs, so they are this phase's.
+  - Slot 251 is a skill passive gated on `BTI_BUFF_SOUL_COLLECTOR` (462) / `BFI_BUFF_SOUL_COLLECTOR` (523), skills `0x76c9`/`0x76d3`. It belongs to the class port that brings that skill; record it there if this phase finds no item use.
+- **Phase 4a hand-off: stored keys whose consumers are not ported.**
+  - `IS_STORE_BUFF`: June's clear-all keeps flagged buffs (`3229fb10`, 6 callers) and the gage lookup `32499c10`. That is item/world-buff persistence, so it is this phase's.
+  - `IS_INSTANCE_KILL_DEBUFF`: `CX2GUUser` slot 200 (`31fe4150`) → `DamageReact` → protected bool `+0x6ba4`. Owner: Phase 14 triage, unless an item phase finds it first.
 
 **Run with:** Opus 5.5, high effort. Review required.
 

@@ -391,3 +391,8 @@ mesh+0x54c	none in March: CXMeshInstance previous-frame velocity snapshot	confir
 31fd8bc0	none in March: cooldown speed for a skill type (BBT 103)	confirmed	Buff Phase 1c: map +0x931c lookup or 1.0; only caller 32896850
 32896850	none in March: my-unit cooldown speed for a skill id	confirmed	Buff Phase 1c: g_pX2Game->GetMyUnit()->31fd8bc0(32205ab0(skillId)); called by 32896930
 32896930	CX2UserSkillTree::OnFrameMove	confirmed	Buff Phase 1c: loops 5 slot-A + 5 slot-B rows, left -= 32896850(id) * fElapsedTime, clamp 0 (March X2UserSkillTree.cpp:48 does -= fElapsedTime)
+3229a2e0	CX2GameUnit::CanApplyBuffToGameUnit (June: (BTI, factor) args)	confirmed	Buff Phase 4a: vtable slot 132 (+0x210), called by 322a6960/322a7660; ignores its args; equals March X2GameUnit.cpp base (not immune to extra damage, HP>0, state != GUSI_DIE)
+32045dc0	CX2GUUser::CanApplyBuffToGameUnit	confirmed	Buff Phase 4a: CX2GUUser slot 132; base 3229a2e0 + state not die-front/back (slots 0x460/0x464), plus party/creator gates on templet +0xa9/+0xaa, whose only writer is the templet ctor 326c4995 (zero) -> reduces to March's
+327bdb60	CX2GUNPC::CanApplyBuffToGameUnit	candidate	Buff Phase 4a: CX2GUNPC slot 132 (not decompiled; March: NCT_BASIC -> base)
+32028250	none in March: CX2GUUser slot 476 (+0x770) scale BFT 15/16 factor values	confirmed	Buff Phase 4a: called by 322a6960/322a7660 for a user unit unless the last arg is set; BFT 0xf count * value, BFT 0x10 per-slot values; Phase 8
+322b5630	none in March: CX2GameUnit slot 141 (+0x234), empty	confirmed	Buff Phase 4a: only releases its intrusive-ptr argument in every unit class

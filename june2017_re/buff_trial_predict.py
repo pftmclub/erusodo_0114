@@ -11,7 +11,8 @@ The prediction walks every entry of June's BattleFieldBuffTemplet(_INT) / Battle
 ParsingBuffFactor, the three templet factories), with the type lists buff_census.py resolves from the
 C++ under US_SERVICE flags, and names resolved through the staged March Enum (the one the trial loads):
 
-  templet:  BUFF_TEMPLET_ID, IS_WORLD_BUFF, IS_DEBUF, ACCUMULATION_LIMIT (+ ACCUMULATION_MULTIPLIER when > 1),
+  templet:  BUFF_TEMPLET_ID, IS_WORLD_BUFF, IS_DEBUF, ACCUMULATION_LIMIT (+ ACCUMULATION_MULTIPLIER when > 1, unless
+            SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY is defined: June defaults it to 1.0),
             REGIST_TYPE required; BEHAVIOR and FINALIZER tables required, DISPLAYER optional. Per section,
             COMBINATION in order (a nil member ends the list); BBT_EMPTY returns at once (templet factory);
             an unhandled type fails ("unsupported BBT n"); a handled type without its sub-table fails.
@@ -54,6 +55,15 @@ def march_cases():
     if unknown:
         sys.stderr.write('NOTE: unprobed conditionals treated OFF: %s\n' % ', '.join(sorted(unknown)))
     return m['cases']
+
+
+def iruha_flag_on(flag):
+    """Our SERV_IRUHADEV_* flags are plain #defines in Always.h (house rule), read fresh like the census does."""
+    alw = open(os.path.join(BC.TRUNK, 'KTDXLIB', 'Always.h'), 'rb').read().decode('latin1')
+    return bool(re.search(r'^\s*#\s*define\s+' + flag + r'(?![A-Za-z0-9_])', alw, re.M))
+
+
+TEMPLET_PARITY = iruha_flag_on('SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY')
 
 
 def value_of(expr, enum, table):
@@ -129,7 +139,9 @@ def predict_templet(t, enum, cases):
             return k
     lim = t.get('ACCUMULATION_LIMIT')
     try:
-        if float(lim) > 1 and t.get('ACCUMULATION_MULTIPLIER') is None:
+        # March requires ACCUMULATION_MULTIPLIER when the limit is > 1; June's ParsingScript (3236a9b0),
+        # ported under SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY (Phase 4a), defaults it to 1.0
+        if float(lim) > 1 and t.get('ACCUMULATION_MULTIPLIER') is None and not TEMPLET_PARITY:
             return 'ACCUMULATION_MULTIPLIER'
     except ValueError:
         pass
