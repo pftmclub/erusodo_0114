@@ -1022,6 +1022,7 @@ Read-only Ghidra, same method as items 1 and 2. Uncarved functions were read wit
          f = max( 1 - this->GetIgnoreDefenceRate() - r, 0 ); }
   ```
   - The keys are confirmed at the stores in `SetDamageDataFromLUA` (`32632390`): `IGNORE_DEFENCE` → `+0x528` (`@3263c691`), `IGNORE_DEFENCE_ON_PVP` → `+0x529` (`@3263c863`), `IGNORE_DEFENCE_RATE` → `+0x52c` (`@3263ca14`), `IGNORE_DEFENCE_RATE_ON_PVP` → `+0x530` (`@3263cc40`), `IGNORE_DEFENCE_DECLINE` → `+0x534` (`@3263ce2b`).
+  - **Defaults (miss branches):** `IGNORE_DEFENCE` and `IGNORE_DEFENCE_RATE` default to 0. Each `_ON_PVP` key copies its sibling when absent: `@3263c8a0` copies `+0x528` into `+0x529`, and `@3263cc7e` copies `+0x52c` into `+0x530`. So a PvP hit keeps March's `IGNORE_DEFENCE` behavior unless a script sets the `_ON_PVP` key.
   - March parses only `IGNORE_DEFENCE` (`X2DamageManager.cpp:511`).
   - The frozen-debuff block just above (`32285611`–`3228568a`) changed too: June multiplies each `m_*DefenceDebuffPercent / 100` by `1 − GetEnchantResist( 2 ) / 500`, which March (`:2311-2321`) does not. That is not a buff change.
 
@@ -1100,7 +1101,6 @@ Read-only Ghidra, same method as items 1 and 2. Uncarved functions were read wit
   - The BBT 7/8 second members (already on 4b-i part 2's list).
 - **No owning phase yet.** These are non-buff DamageData, game-type and socket changes. The Opus host work for 78 and 88 has to decide them, or hand them to the user:
   - the keys `IGNORE_DEFENCE_ON_PVP`, `IGNORE_DEFENCE_RATE(_ON_PVP)` and `IGNORE_DEFENCE_DECLINE`;
-  - **June's `IGNORE_DEFENCE` no longer applies in PvP**, a behavior change for a key March data uses;
   - the resist-scaled frozen-defence debuff;
   - `GT_PVE`;
   - the socket-option terms in 78's multiplier.
@@ -1144,6 +1144,7 @@ Read-only Ghidra, same method. This is Phase 9's entry map; the hook bodies of e
 | 1038 `BTI_BUFF_DEATH_SIGN` | `322a8e50` | `CX2CustomFunctionByBuffDeathSign` | – |
 
 - **The creator check.** "Creator user must exist" is `CX2Game` slot 40 (`322cca00`) = `GetUserUnitByUID`: it walks `m_UserUnitList` and compares each unit's slot-21 `GetUnitUID` with the 64-bit UID. March has `CX2Game::GetUserUnitByUID`.
+  - The UID passed is `info`'s creator UID (`info+8`/`+0xc`, packed by `32e79b00` from factor `+0x30`), not the unit's own. Checked at `3229e424`, `3229e485` and `3229e572`.
 - **Four of the ledger's 17 "unhandled" BTIs have no case** and fall to `default` (nothing is created): `BLOOD_REVENGE_COUNTER`, `BLOOD_RUNAWAY`, `FLASH_BANG` and `TRAPPINGARROW_FUNGUS_DEBUFF`. Whatever they do in June lives elsewhere, most likely in per-class `HaveThisBuff` checks (March keeps FLASH_BANG in `X2GUAra.cpp:13854`). Phase 9 must look for them there, not in this switch.
 - **`CX2CustomFunctionByBuffSolessTitleInvincible` (vt `3349011c`) is dead.** The vtable's only code reference is its ctor `32369b80`, which has no callers and no data references.
 - **Vtables:** 9 slots, 10 for `BigBangStream`. `CX2CustomFunctionByAttackMe` overrides only its dtor: `[0]` `322aaf60`, `[1]`–`[5]` and `[7]` `33093ad0` (empty), `[6]` `33108560`, `[8]` `3208ddc0`.
@@ -1820,7 +1821,7 @@ All changes are under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY` (`KTDXLIB/Always
 | Class ResetSkillCoolTime ParsingBehavior + slots 1/2/5 | `32e78e90` (keys `BUFF_CHANGE_TYPE`, `SKILL_TYPE`, `RELATIVE_ALL_SKILL`, `FORCE_SET`, `DRAW_TEXT`, `SKILL_SLOT_TYPE`, `APPLY_ONCE`, plain `FORCE_SKILL_ID`/`IGNORE_SKILL_ID`), `32e85fe0`, `32e76aa0`, `32e7dee0` | pending, part 2 (no packet override in June) |
 | Classes NowMp (new slots 3, 9, 10), ChangeStat (`SetFactor`, slots 3 and 11; does June keep the `ADJUST_BUFF_ACCMULATION_CALCULATE` branch?), EnchantAttackRate (slot 3) | see `vt_buff` | pending, part 2 |
 | Classes ReverseLR, Identity, UnitScale, EffectSetWithDamage, Stun, FinishOther, Freeze, CanPass, DoubleAttack, AttackSphereScale, AddSkillLevel, Reflect, ConsumeMpRate, Custom | slots listed by `vt.py` | pending, part 2 (decompiles cached in scratch only; regenerate with `compact.py` / `rawfn.py`) |
-| Hand-offs | 1c items 1/2, the 105 note, 1b | pending, part 2: type 56 in both `DamageReact`s; the DASH_IMPOSSIBLE NPC AI gate (`3276e442` switch); the CHANGE_ENCHANT_ATTACK_RATE host math (`32274df0`/`32272d90`); the BBT 7/8 second members plus the variance roll `322788c0` |
+| Hand-offs | 1c items 1/2, the 105 note, 1b | pending, part 2: type 56 in both `DamageReact`s; the DASH_IMPOSSIBLE NPC AI gate (`3276e442` switch); the CHANGE_ENCHANT_ATTACK_RATE host math (`32274df0`/`32272d90`); the BBT 7/8 second members plus the variance roll `322788c0` (read 1c item 3's 92 entry first: the second members' basics come from two new stat-block fields, `+0xc`/`+0x10`, via `CX2GameUnit` slots 119/120 `32281690`/`322814a0`) |
 
 **Behavior changes on March's current data.**
 - **Skill-level slices change for March data that hits a fixed March bug:**
