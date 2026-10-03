@@ -1325,7 +1325,14 @@ The ctor (`326c48a0`) leaves +0x4c = 0, so the first push is never delay-blocked
 - Deployed as `X2_offline.exe`; the md5 matched after the copy. **Not launched.**
 - **Pairing:** the Phase 2 `Enum.lua` is already packed (Phase 3 review). This exe needs no new Lua.
 
-**Launch check (needs the user).** Expected with March's data:
+**Launch check: met for load (user play-test, 2026-10-03 10:00–10:05, exe md5 `a2890447…`).**
+- `ErrorLog.txt` matches the expected lines exactly: duplicate BTI 87, both `_INT` not-found lines, ordinal rejects 481/482/483/372/373, and `load summary: templets 320 loaded, 0 failed, 1 duplicate; factors 361 loaded + 0 placeholder(s); _INT factors 0 loaded + 0 placeholder(s); ordinal rejects 5 (+ 0 _INT)`.
+- There was no `unsupported (stored ...)` line, and `State.log` has 0 buff errors or popups.
+- The session covered two dungeon runs and the battle field, 43 kills and 7 quick-slot uses, with 0 `UNHANDLED`/`EXCEPTION` and a clean quit.
+- The Ranox secret stage was not visited, so the `BTI n has no templet` line is still unexercised.
+- In-game buff behavior (awakening, recast refresh, monster debuffs, potion icons) is as reported by the user.
+
+Original expectation, kept for reference. Expected with March's data:
 - the same load summary as the Phase 3 review's exit check 1;
 - **no** `unsupported (stored ...)` line, because March's templets carry none of those keys;
 - in the Ranox secret stage, `BTI n has no templet` lines in place of R4's popups.
