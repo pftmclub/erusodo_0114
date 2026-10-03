@@ -1325,7 +1325,7 @@ Read-only Ghidra, same method as items 1–3. Uncarved slots were read with `buf
 - **Item 3 done** (above, third 1c session). It corrected Phase 1b's 78 getter members and the premise that 92's second members are filled only by buffs.
 - **Item 5 done** (above, same session as item 3).
 - **Item 4 done** (above, fourth 1c session). It found all three types Opus-only, corrected Phase 4a's slot-476 note and row 46, and answered item 1's 98 hand-off (BFT 16 counts after the cache). Still open: the `0x1b` handler and its reply, which block Phase 8's sync design, and `+0x8eac` locality.
-- **Cost, fourth 1c session (item 4):** not readable in-session; ask the user.
+- **Cost, fourth 1c session (item 4)** (subscription, `/usage` at the end of the session, 2026-10-03): the 5-hour session window was **64% used**, and the week (all models) 11%. The window was shared with other sessions (19 sessions in 24h), so not all of it is item 4. `/ghidra` accounted for 42% of the last 24h, and 90% of usage was at >150k context.
 - **Cost, third 1c session (items 3 and 5):** not readable in-session; ask the user.
 - **Item 5 is reduced.** Phase 4a already named `322a6960`'s virtuals (`+0x210` `CanApplyBuffToGameUnit`, `+0x224` `SetBuffFactorToGameUnit`, `+0x234` empty, `+0x770` BFT 15/16 scaling) and `OnFrameMoveBuff` (`3229d620`). Only `CreateAndInsertCustomFunctionByBuff` remains (from `CX2BuffCustomFunctionBehaviorTemplet::SetFactor` `32e79b00`).
 - **Cost:** `/cost` is not readable from inside the session. Ask the user and add it here, for both the first 1c session and the second.
