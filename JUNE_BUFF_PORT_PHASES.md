@@ -1833,7 +1833,21 @@ All changes are under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY` (`KTDXLIB/Always
 - **HyperMode** now takes the gage's remaining time back every frame, and checks the full-orb flag only on the first `SetFactor`, as June does. June's `+0x6844` write is not ported (see the worksheet).
 - **NowHp** stacking for `BCT_PERCENT` now uses the multiplier formula, not March's `ADJUST_BUFF_ACCMULATION_CALCULATE` formula.
 - **CreateBuffFactor** now also inserts for NPCs, at the stack count.
-- **A June quirk, transcribed:** Absorb's `SetFactorFromPacket` reads index 1, but `GetFactor` sends one value, so a peer's copy gets 0. A second one: NOW_HP's single-level relation slice skips the relation type. Phase 14 should watch both.
+- **Live-creator buffs cast by NPCs now last.** `SetGameUnitBuffFactor`'s default branch now records `IsUserUID = false` for an NPC, as June does (`32d4d670`).
+  - Before, the default `true` made `CX2BuffLiveCreatorFinalizerTemplet::SetFactor` (`X2BuffFinalizerTemplet.cpp:1379`) look up a *user* with the NPC's UID. The lookup failed, so the buff ended on its first check.
+  - Now the buff lasts while the NPC lives.
+- **CreateBuffFactor on NPCs, without June's reader.** NPCs now receive created factors, but `326309f0` (which skips them on `AT_SPECIAL`) is not ported. So both NPC-created and user-created factors apply on every attack type until part 2 lands the reader. That matches neither March nor June exactly. It was kept because it is closer to June than March's "never for NPCs".
+- **Absorb packet quirk, June's, transcribed verbatim:** `SetFactorFromPacket` reads index 1 while `GetFactor` sends one value, so a packet-built copy gets 0. The packet path is wider than UDP:
+  - `X2GameUnit.cpp:14514` restores the player's own buffs from the gage manager (stage change), so **the local player's absorb drops to 0 after a stage change**;
+  - `:10654` debuff transit;
+  - `X2Game.cpp:17774/17791` join sync.
+  - March data has one Absorb entry, in the factor file (none inline). Its normal apply path is fine, because index 1 holds the value both in the level slice `[1.0, v]` and in the raw `[count, v1..]`.
+  - **The review must decide** whether to keep this June quirk or restore index 0 for the packet path only.
+- **NOW_HP single-level relation slice, June's, transcribed verbatim:** for a skill factor with `BCT_RELATION_VALUE` and one multiplier, June's slice reads 2, 4, 5, 6.
+  - Index 3 (the attack value the getter `32e86d20` multiplies, `[3]*[1]*(1-resist)`) becomes `USE_CREATOR_UNIT_DATA`'s +1.0 or -1.0. The relation type is lost, so the SGU never overwrites it.
+  - March's own slice gave 0 per tick there. June's gives +/-multiplier, **negative (damage) when the key is absent**.
+  - The getters themselves are March's (`SelectDelegate` `32e78e00`: FIX/PERCENT `32e86d80` = `[1]*(1-r)`, RELATION `32e86d20`). The only difference in `SelectDelegate` is that June raises no popup for an unknown type (not ported; pending with the class).
+  - Whether any March or June skill factor hits this path has not been counted. **The review must count it** and decide.
 
 **Census.** `buff_census.py --phase 4b` takes the in-type pairs from **41 to 19**:
 - **Ported:** `USE_CREATOR_UNIT_DATA`, `APPLY_TO_SPECIAL_ATTACK`, `HYPER_COUNT`, `ADDITIONAL_ATTACK_TYPE` and `SWAP_VALUE`.
@@ -1888,7 +1902,7 @@ Each new BBT follows an 8-step checklist:
 
 1. Add the C++ enum, done in Phase 2.
 2. Add the factor parse case in **both** the skill and non-skill macro lists.
-3. Add the level-slice case.
+3. Add the level-slice case. **Already done in Phase 4b-i:** June's whole `GetBehaviorFactorToLevel` (`32d47620`) is in, every new type's case included. Check the case is there; do not add another.
 4. Add a `SetGameUnitBehavior` case, if the type uses `BCT_RELATION_VALUE`.
 5. Add the templet class and its `CASE_BEHAVIOR_TEMPLET` entry.
 6. Add the unit store with insert and erase, plus June's read sites.
