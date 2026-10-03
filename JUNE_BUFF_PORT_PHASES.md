@@ -1055,6 +1055,72 @@ log `[JUNE_BUFF] unsupported`. buff_census.py must show these keys cleared. Byte
 CP949 edits. Build, deploy, commit; ask before any launch.
 ```
 
+### Phase 4a — RE (2026-10-03)
+
+Recorded before any C++ was written. Every address has a `funcmap.tsv` row (43 new rows, "Buff Phase 4a").
+
+**`CX2BuffTemplet::ParsingScript` `3236a9b0`.** Keys, in read order. Guard bits in `xorstrings.tsv` (`337a1bd8:1`…`:10000`) tie each key to its read.
+
+| Key | Required? | Store (June offset) | Default |
+|---|---|---|---|
+| `BUFF_TEMPLET_ID` | yes | +0x34 | — |
+| `IS_WORLD_BUFF`, `IS_DEBUF` | yes | +0x66, +0x64 | — |
+| `IS_STORE_BUFF` | no | +0x67 | false |
+| `ACCUMULATION_LIMIT` | yes | +0x3c | — |
+| `ACCUMULATION_DELAY_TIME` | no | +0x48 (and a running timer at +0x4c) | 0 |
+| `NOT_SAVE_GAGEMANAGER` | no | +0xb9 | false |
+| `IS_INSTANCE_KILL_DEBUFF` | no | +0xba | false |
+| limit < 2: `BUFF_REPLACE_DETAIL_OPERATION` | no | +0x60 | **2** (`BRDO_ADD_TIME`) when absent; the ctor's 0 when the limit ≥ 2 |
+| limit ≥ 2: `ACCUMULATION_MULTIPLIER` | **no** | UCM 1 (plus UCM 0 = 0) | **1.0**. This settles the Phase 3 hand-off: March requires it, so the 9 June templets without it failed |
+| limit ≥ 2: `ACCUMULATION_DECREASE_WHEN_FINISH` / `_COUNT_WHEN_FINISH` | no | +0x40 / +0x44 | false / 1 |
+| `REGIST_TYPE` | yes | UCM 2 if > 0 | — |
+| `BEHAVIOR`, `FINALIZER` (required), `DISPLAYER` (optional), icon keys | as March | | `BUFF_NAME` 2674, `BUFF_DESC` 2606 |
+
+The ctor (`326c48a0`) leaves +0x4c = 0, so the first push is never delay-blocked.
+
+**`CX2BuffFactor::ParsingBuffFactor` `32d4d850`.**
+- Reads `BUFF_TEMPLET_ID`, `RATE` (`ParsingTableForWhile`), `IGNORE_REGIST_FOR_RATE` (required), `ACCUMULATION_AT_ONE_GO` (uint, default 0), the `APPLY_CHECK_CONDITION` table, then `BEHAVIOR` and `FINALIZER`.
+- **It never reads a factor-level `DISPLAYER` or `APPLIED_SKILL_ID`.** June reads `APPLIED_SKILL_ID` only at damage-data level, as the first key of `SetDamageDataFromLUA` (`32632446`), before any `BUFF_FACTOR` table is open. The 2 copies nested inside inline `BUFF_FACTOR` blocks (`DamageEffect.src.lua:9104`, `:33345`) are ignored by June too.
+- `APPLY_CHECK_CONDITION` (`32d4d190`, called once for `AND_OPERATION` and once for `OR_OPERATION`): each `CONDITION_%d` (from 0, stops at the first missing) has `BUFF_APPLY_CHECK_CONDITION_TYPE`.
+  - `BACCT_CHECK_UNIT_HP_RATE` (1): `HP_RATE` = float list, `CHECK_HP_RATE_UP` = bool list.
+  - `BACCT_CHECK_BUFF_TEMPLET_ID` (2): `CHECK_BUFF_TEMPLET_ID[1]` = float, `APPLY_WHEN_HAVE[1]` = bool.
+  - A condition whose type is 0 or unreadable is not stored.
+  - `FALSE` in this data is March's numeric global (`Enum.src.lua:2`), and `KLuaManager::GetValue( int, bool& )` reads it as a number (`LuaCommon/KLuaManager.cpp:696`). So `{ FALSE }` does parse as false.
+- The level ctor (`320844a0`) copies `ACCUMULATION_AT_ONE_GO` and level-slices the conditions (`32d4d030`): it takes element `min(level−1, n−1)` of each list and drops a condition whose lists are both empty.
+
+**Apply path.** Details are in the `322a83b0` and `3229dee0` rows. The differences from March are:
+1. The "templet missing" case is a silent `false` in June. March raises a popup (Phase 3 review R4: 87 of them).
+2. After the rate/RESIST checks, there are four new rejections:
+   - `IsImmuneBuffBySocketOption(BTI)` (user slot 179: `IsImmuneBySocketOption( BTI→EDT )` via `CX2Game` `322cc0a0`) → RESIST text;
+   - immune-by-buff (`322a80a0`, BBT 94 stores);
+   - the factor's apply conditions (`3227cad0`/`3227c4b0`);
+   - immune-to-control-debuff (`3227b790`, BBT 95 list + `IsNonControlDebuff`).
+3. A pre-hook (slot 250) and a post-hook (slot 251). Both are empty in the base class; only `CX2GUUser` overrides them, for June-only BTIs and skills.
+4. BTI 265/266 (HAMEL armor/wing) is skipped, and still returns true, while 347/348 (the `_EVENT` versions) is on.
+5. The stacking mode is the unit's per-BTI override (`+0x6dd8`, written only by Rose code) or else the templet limit. Modes:
+   - 0: duplicate, as March.
+   - 1: by `BRDO`. `NORMAL` (1) erases the old buff and pushes the new one. `ADD_TIME` (2) is March's `SetFactor` on the existing buff. `NOTDEFINED` (0) does nothing when other buffs exist.
+   - ≥ 2: re-application during the delay timer returns false. Otherwise the timer is reset to `ACCUMULATION_DELAY_TIME`, then as March, compared against the mode value.
+6. `ACCUMULATION_AT_ONE_GO`: up to N more `SetFactor`s on the found templet while its count is below the limit.
+7. `PushNew` adds the delay gate and timer, a per-BTI apply-count map (`+0x7628`; its only reader is NPC code `3275886a`), and a sync counter (`+0x6dd0`, Phase 8).
+8. `OnFrameMoveBuff` ticks the delay timer down by the elapsed time while it is > 0.
+9. `OnFrameMoveFinalizerAndCheckFinish` (`3236c570`) handles `ACCUMULATION_DECREASE_WHEN_FINISH`. A finished finalizer whose templet has the flag runs three steps in order:
+   - decrease the count by N, if count > N;
+   - finalizer slot 8, which only `BFT_TIME` overrides (reset the remaining time);
+   - every behavior's slot 7, where ChangeStat `32e73500` rescales its value from the old count to the new count and calls `UpdateAdditionalStat`.
+
+   If all three succeed, the displayers restart and the buff keeps running. All 5 June templets with the flag are `BFT_TIME`-only. Four use only ChangeStat behaviors; `HEAVYFIREARMS_MASTERY` uses BBT 89, which is Phase 6.
+10. `IsNonControlDebuff` (`32369cc0`) gains an `IS_DEBUF` gate and BBT 104.
+
+**Same-owner rule: June's client has none.** `NOT_APPLY_BUFF_WHEN_SAME_BUFF_OWNER` is not among `3236a9b0`'s 17 keys, and `322a83b0` has no owner comparison. Like `EXP_RATE`, `IS_PARTY_BUFF`, `DROP_RATE`, `VP_RATE` and `LUCKYTIMINGEVENT_*`, it is a server-side key (Phase 1 table).
+
+**Consumers outside the apply path (hand-offs, not ported in 4a).**
+- **`IS_STORE_BUFF`:** June's clear-all with a keep-store flag (`3229fb10`, 6 callers) and a gage lookup (`32499c10`).
+- **`IS_INSTANCE_KILL_DEBUFF`:** `CX2GUUser` slot 200 (`31fe4150`) → `DamageReact` stores it in a protected bool (`32082710`, user +0x6ba4). That bool's readers are not mapped.
+- **`NOT_SAVE_GAGEMANAGER`:** no reader found with the +0xb9 sweep (it is a common offset; noisy).
+- **Custom-function slot 7** (`32275860`): Phase 9.
+- **The `+0x6dd0` counter:** Phase 8.
+
 ## Phase 4b — Existing BBT/BFT/BDT parity
 
 **Scope.** For each of the 73 existing BBT, 14 BFT and 14 BDT, diff June against March in four places, and port June in full wherever they differ:
