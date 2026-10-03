@@ -597,6 +597,7 @@ Abbreviations: **parse** = factor-parse function and float order (the wire layou
 | 108 FINAL_DAMAGE_MULTIPLIER_NPC / 109 …_USER | two new members, 1.0 | `32282f72` / `32282f95` | `GetFinalDamage`, both paths: fixed-damage path `@32285fba`–`32285fec` and main path `@3228620a`–`32286252`. `inc2 = dmg * ((defender->GetGameUnitType() == GUT_USER ? attacker->109 : attacker->108) - 1)`, added beside March's `fIncreaseDamage` (`X2GameUnit.cpp:2613-2616`, `2704-2707`). The unit-type field is `+0x264`. |
 
 **Phase 5 types that are not simple transcription.** Their store and readers are found, but each depends on a June mechanism or field March lacks.
+*1c item 3 settles every type in this list; its readiness summary supersedes the verdicts below.*
 - **78 TYPE_ADDITIONAL_ATTACK_MULTIPLIER → Opus-only (reader context).** The store is ready: a new member, basic 1.0, insert `32282dff`. The readers sit in `CX2GUUser::DamageReact` `@320494a0`–`32049505` (`EBP` = this, `EBX` = DamageData). The value read is `ESI->32071b10 + this->78 (getter 32071b50) + this->32071af0`, minus `EDI->32071b90 * k`. `ESI` and `EDI` are other units: `EDI` is the unit at June's `DamageData+0x470`. The other getters read members that buffs do not insert into (`+0x51cc`, `+0x5118`, `+0x5a4c`). `CX2GUNPC::DamageReact` reads it at `@327b42bf`–`327b4340`. Before Sonnet can transcribe this, an Opus pass must map `DamageData+0x470` and those three members to March.
 - **106 / 107 FORCE_DOWN_MULTIPLIER_MELEE / RANGE_ATTACKED → Opus-only (reader context).** The store is ready: two new members, basic 0.0, insert `32282bf2`/`32282c15`. Reader: `CX2GUUser::DamageReact` `@3204a123`–`3204a243`. It computes `reduce = DD[+0x514]; if ( unit at DD+0x470 is valid ) reduce -= ( DD.m_bMeleeAttack ? unit->106 : unit->107 ); fForceDown(DD[+0x3f0]) -= reduce`, then clamps when `DD[+0x4c5]`. The getters are `32071bb0`/`32071bd0`. `DD+0x470`/`+0x514`/`+0x4c5` are June DamageData fields that are not yet mapped to March.
 - **92 CHANGE_MAXIMIZE → Opus-only.** It is stored like a ChangeStat member (`32282f4f`, basic 0.0). Its reader `322788c0` is June's **damage-variance roll**. Nothing like it was found in March's `GetFinalDamage`; verify that before porting. `GetFinalDamage` calls it for physic (`param 0`) and magic (`param 1`). It takes a ± range from a **second** physic/magic member (`+0x44ec`/`+0x45a0`, which plain BBT 7/8 and 80/81 also insert into) and draws a random value whose upper bias grows with MAXIMIZE. Porting 92 means porting that variance system and the second members first (Phase 4b for 7/8). Further readers are `3230c1a0` and `32763c10` (`ApplyPassiveSkillOwnerUser_LUA`).
@@ -928,11 +929,193 @@ Read-only Ghidra, same method as item 1. Every reader below came from a fresh di
 - **Ready:** 73 (plus the BTI 975 enumerator), 94, 95, 105 (except the host's rate math → 4b), 104 (plus the dash hand-off → 4b), and 77's getter.
 - **Opus-only:** 74 and 102 (the `m_bNoDetonation` split and two rewritten hosts), 77's `CommonFrameMove` block and the 12 direct `bInvincible` reads, 101 (virtual, user-only HP setters with undecoded extra gates), and 110 (the macro → virtual rewrite).
 
+### Phase 1c, item 3 — Phase 5b classes and reader context (2026-10-03)
+
+Read-only Ghidra, same method as items 1 and 2. Uncarved functions were read with `buffre/rawfn.py`. Callers were taken from a raw `E8`/`E9` scan of the whole `.text` (`31aa1000`–`3375ca00`), not from Ghidra's xrefs, which miss uncarved code. The scan has to cover the whole range, because code continues above `33200000` (for example `3322a380`).
+
+**Corrections to Phase 1b.**
+- **78's three other getters:** `32071af0`, `32071b10` and `32071b90` read the **option value** (the protected float at member `+0x24`) of members `+0x5194`, `+0x5248` and `+0x5ac8`. They do not read the result (`+0xa0`) of `+0x5118`/`+0x51cc`/`+0x5a4c`, which are not member starts.
+- **92's second physic/magic members** (`+0x44ec`/`+0x45a0`) are not filled only by buffs. Their basic values come from two new fields in June's stat block; see 92.
+
+**79 CHANGE_NOW_FORCE_DOWN_PER_SECOND — transcription-ready.**
+- **Class** (vt `335351d8`, create `32e86e90`, 0x30 bytes):
+  - `m_eChangeType` (`+0x10`): the ctor sets `BCT_FIX_VALUE` (1) and nothing else writes it, so the templet's `BUFF_CHANGE_TYPE` is never read.
+  - `CKTDXCheckElapsedTime` (`+0x14` target, `+0x18` sum).
+  - `m_fResultValue` (`+0x1c`).
+  - Two delegates bound to `this`: `+0x20`/`+0x24` (tick `32e89800`) and `+0x28`/`+0x2c` (value `32e86d80`).
+- **`ParsingBehavior` `32e755a0`:** `TIME_INTERVAL` → target. The key is **required**: when it is absent the function returns false (`AL` checked at both `ret`s). June data uses 0, 1 and 0.
+- **`SetFactor` `32e855f0`:** March's `CX2BuffChangeNowHpPerSecondBehaviorTemplet::SetFactor` (`X2BuffBehaviorTemplet.cpp:249`), with regist fixed at 0 and no popups:
+  ```
+  if ( !GetBehaviorFactor( type, &v ) ) return false;
+  if ( (int)v[0] != m_eChangeType ) return false;
+  bind delegates;
+  fNew = v.size() > 1 ? v[1] : 0;                      // 32e86d80( v, 0 ) = ( 1 - 0 ) * v[1]
+  if ( !DidStart() ) m = fNew;
+  else if ( ( c = T->GetAccumulationCountNow() ) == 0 ) m = |fNew| > |m| ? fNew : m;
+  else { mul = T->GetAccumulationMultiflier(); base = m / ( 1 + mul*(c-1) );
+         m = ( |base| >= |fNew| ? base : fNew ) * ( 1 + mul*c ); }
+  return true;
+  ```
+  This is March's non-`ADJUST_BUFF_ACCMULATION_CALCULATE` branch. June has no `BCT_PERCENT` branch here, which matches its NowHp class (4b-i).
+- **`OnFrameMove` `32e756f0`:** `timer.OnFrameMove( dt )`, then the tick `32e89800`: `if ( sum >= target ) { sum = 0; pUnit->GetGageData()->UpNowForceDown( m ); }`.
+  - Unit `+0xc04` is the gage data, and gage `+0x5c` is the force-down `Gage`. June's `Gage` is 0x38 bytes, so the detonation gage is at `+0x94` (`32081640`).
+  - `31f8de20` = `Gage::Increase( f, 0 )`, the same body as March's `X2GageData.cpp`.
+  - So this is March's `CheckAndResetElapsedTime` followed by `UpNowForceDown`.
+- **`GetFactor` `32e7eaa0`:** `[ m ]`. **Packet** `32e85790`: `m = v[0]` (0 if empty), then the delegates are bound.
+- No `DoFinish` (empty base), no unit store, no host: the class writes the gage directly, and March has `UpNowForceDown`.
+- **Data note:** `TIME_INTERVAL = 0` ticks every frame (`BTI_DEBUFF_JUDGEMENT_FIRE`, `BTI_DEBUFF_DECREASE_FORCE_DOWN_IMMEDIATELY`; `BTI_DEBUFF_SHADOW` uses 1). The value is applied per tick, not per second. Transcribe this as-is.
+
+**80–84 *_BY_CONDITION — 82, 83 and 84 transcription-ready; 80 and 81 ready except the second member, which follows 4b's BBT 7/8.**
+- **Class** `CX2BuffChangeStateByConditionBehaviorTemplet` (vt `335350ac`): `m_eChangeType` `+0x10`, `m_eValueCalculateType` `+0x14`, `m_fResultValue` `+0x18`. `ParsingBehavior` `32e75790` reads `BUFF_CHANGE_TYPE` and `BUFF_VALUE_CALCULATE_TYPE`; **both are required** (`AL` checked).
+- **The factor vector** goes through three steps:
+  1. Parse `32d42910`. `bIsSkill` is true for `BattleFieldBuffFactor`, the default at `X2BuffFactor.h:835`.
+  2. Level slice `32d48063` copies `[ct, vct, n, v1..vn]` whole.
+  3. The SGU case `32d4ce60` appends a runtime value:
+     ```
+     if ( (int)v[1] == BVC_RALLY_OF_HERO /*0*/ ) {
+         x = g_pX2Game ? (float)g_pX2Game->GetUserUnitNum() : 0;   // CX2Game slot 63, 322ccd00: non-null m_UserUnitList entries (March X2Game.cpp:5278)
+         if ( g_pX2Game->GetGameType() /*slot 67, +0x2b0*/ == GT_PVE /*4*/ ) x *= 0.5;
+         v.push_back( x );
+     }
+     ```
+     `GT_PVE` is June-only (`Enum.src.lua:726`). March's `GAME_TYPE` stops at `GT_BATTLE_FIELD` (3), so in a March build the halving can never run.
+
+  The result is `v = [ct, vct, n, v1, v2, x]`.
+- **The value** (`32e77f40( v, unit, regist )`): `vct == 0 ? v[3] + v[4] * ( 4.0 - v[5] ) : 0`. A missing element reads as 0, and unit and regist are unused.
+  - This is right only when n = 2, and all 25 June factors carry `VALUE = { a, b }`. For example, `{ 1.06, 0.35 }` gives 1.06 + 0.35 × (4 − user count).
+- **`SetFactor` `32e78860`:** March's `CX2BuffChangeStatBehaviorTemplet::SetFactor` (`X2BuffBehaviorTemplet.cpp:896`, the `ADJUST_BUFF_ACCMULATION_CALCULATE` branch, which `Always.h:639` defines), with three differences:
+  1. `ct != m_eChangeType || m_eChangeType == BCT_RELATION_VALUE` → false. There is no relation path.
+  2. The value comes from `32e77f40`.
+  3. No popups: a zero multiplier returns false silently.
+
+  Regist (`unit->GetEnchantResist( T->GetRegistType() ) / 500`, with `32369eb0` reading UCM 2) is computed and passed, but never used.
+- **`GetFactor` `32e7eb90`:** `[ m ]`.
+- **Packet `32e77ef0`:** `m = v[0]; InsertAdditionalStat( type, ct, kBuffFactor.m_BuffIdentity, m )`.
+- **`DoFinish` `32e75720`:** `EraseAdditionalStat( type, ct, identity )`.
+- Slot 7 is the base (false).
+- **Stores**, read from the three switches (insert `32282700`, erase `322830f0`, update `3226fd70`):
+
+  | Type | Member | Insert | Erase | Update |
+  |---|---|---|---|---|
+  | 80 | PhysicAttack `+0x4384` and second `+0x44ec` | shares case 7 | shares case 7 | own block, same as 7 |
+  | 81 | MagicAttack `+0x4438` and second `+0x45a0` | shares case 8 | shares case 8 | own block, same as 8 |
+  | 82 | PhysicDefence `+0x4654` | own block, same as 9 | own block, same as 9 | shares 9 |
+  | 83 | MagicDefence `+0x4708` | own block, same as 10 | own block, same as 10 | shares 10 |
+  | 84 | MaxHp `+0x42d0` | own block: insert, update, `GetGageData()->SetMaxHp( result )`, i.e. March's MAX_HP case (`X2GameUnit.cpp:11745`) | own block, the same shape (March's erase case) | shares 6 (March's update, no `SetMaxHp`) |
+
+  So 82–84 are March's cases 9, 10 and 6. 80 and 81 follow whatever 4b ports for 7 and 8, since June's 7/8 also write the second member.
+
+**88 IGNORE_DEFENCE — class, store and reader ready; the host is Opus-only.**
+- **Class** (vt `33535558`, ctor `32e890b0`): `m_fIgnoreDefenceRate` at `+0x10`, a `KProtectedType<float>` that the ctor sets to 1.0.
+  - `SetFactor` `32e7d260`: `if ( !DidStart() ) { m = v.size() ? v[0] : 0; unit->InsertIgnoreDefence( identity, m ); } return true;`. There is no restack.
+  - Packet `32e7d3f0`: the same, without the `DidStart` test.
+  - `GetFactor` `32e7ec40`: `[ m ]`. `DoFinish` `32e75b00`: erase.
+- **Store:** list `+0x67dc`; element (0x1c, ctor `322afc00`) = identity + protected rate. Insert `32282390`, erase `3227a8c0`.
+- **Reader `32274970`** (`GetIgnoreDefenceRate()`): `min( Σ rate, 1.0 )`.
+  - Its only callers (raw scan) are `GetFinalDamage` `@322856f8`/`@32285716`, called on `this`, i.e. **the defender** (`[esp+0x20]` = `ECX` at `32284ae4`).
+  - June data has one user: the debuff `BTI_DEBUFF_CUTTING_SWORD_IGNORE_DEFENCE` (`IGNORE_DEFENCE_RATE = 1`, ended by `BFT_HITTED_COUNT`).
+- **Host:** June rewrote March's `fPiercingDefenceFactor` (`X2GameUnit.cpp:2330-2334`):
+  ```
+  bIgnore = g_pX2Game->GetGameType() == GT_PVP ? DD[+0x529] /*IGNORE_DEFENCE_ON_PVP*/ : DD.m_bIgnoreDefence /*+0x528*/;
+  if ( DD.m_bPenetrate || bIgnore ) f = 0;
+  else { r = g_pX2Game->IsPvpOrPve() /*322cc1a0: type 1 or 4*/ ? DD[+0x530] /*IGNORE_DEFENCE_RATE_ON_PVP*/ : DD[+0x52c] /*IGNORE_DEFENCE_RATE*/;
+         f = max( 1 - this->GetIgnoreDefenceRate() - r, 0 ); }
+  ```
+  - The keys are confirmed at the stores in `SetDamageDataFromLUA` (`32632390`): `IGNORE_DEFENCE` → `+0x528` (`@3263c691`), `IGNORE_DEFENCE_ON_PVP` → `+0x529` (`@3263c863`), `IGNORE_DEFENCE_RATE` → `+0x52c` (`@3263ca14`), `IGNORE_DEFENCE_RATE_ON_PVP` → `+0x530` (`@3263cc40`), `IGNORE_DEFENCE_DECLINE` → `+0x534` (`@3263ce2b`).
+  - March parses only `IGNORE_DEFENCE` (`X2DamageManager.cpp:511`).
+  - The frozen-debuff block just above (`32285611`–`3228568a`) changed too: June multiplies each `m_*DefenceDebuffPercent / 100` by `1 − GetEnchantResist( 2 ) / 500`, which March (`:2311-2321`) does not. That is not a buff change.
+
+**93 CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER — transcription-ready.**
+- **Class** `CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner` (vt `33534ce4`): ChangeStat plus a `UidType` owner at `+0x20`.
+  - `SetFactor` `32e78850` is a `jmp` to ChangeStat's `32e78410`. Slots 3, 6, 7, 8 and 12 are ChangeStat's.
+  - ChangeStat's `SetFactor` calls slot 15 after its type checks: `SetBuffOwnerUID( BuffFactor_ +0x30 )` (`@32e784a9`–`32e784b8`). `+0x30` is the applier's UID, stored by `SetGameUnitBuffFactor` (`32d4d670`).
+  - Slot 15 is empty in ChangeStat (`33093ad0`); here it is `32e86510`. Slot 14 `32ec60c0` returns the UID.
+- **Store and readers are 42's.** Insert and erase share 42's blocks (`32282d0a`, `322835ce`). Update has its own block (`32270afb`), which touches the same six members `+0x5e4c`…`+0x61d0` in the same order as 42's (`322706ad`).
+- **`GetFactor` `32e7d7f0`:** `[ m, uid & 0xffff, (uid>>16) & 0xffff, (uid>>32) & 0xffff, uid>>48 ]`.
+- **Packet `32e76710`:** inserts `m = v[0]`, then rebuilds the UID from **`v[4]..v[7]`** (low word first).
+  - This is a June index bug: the words are written at indices 1–4 and read from 4–7, so peers get a garbage owner.
+  - Transcribe it verbatim; it is harmless, because the UID's only consumer is unreachable (next bullet).
+- **The owner UID's only consumer is dead code.**
+  - `3227c620( { BTI, perOwnerLimit, bMin } )` groups the unit's `_HaveBuffOwner` behaviors for one BTI by owner. It sums each owner's results up to the limit and returns the smallest (or largest) sum.
+  - Its only caller is `32758790` = `CX2GUNPC` slot 183, which passes `{ BTI_DECREASE_ENEMY_RESIST 761, 10, true }` for attributes 1–6. The base and user slot 183 is `322b5520`.
+  - Nothing in `.text` calls slot 183: there is no `call [reg+0x2dc]` and no `mov reg, [reg+0x2dc]` followed by `call reg`.
+  - The TypeDescriptor `33733b88` has exactly one code reference, `3227c720` inside `3227c620`.
+  - **Port 93 as ChangeStat plus the UID member.** The aggregator can be skipped as unreachable; the port should say so.
+
+**78 TYPE_ADDITIONAL_ATTACK_MULTIPLIER — store and reader context mapped; the host is Opus-only.** June added a four-term multiplier and a new gate to March's additional-attack block.
+- **DD `+0x470` = `optrDefenderGameUnit`.** It sits directly before `m_bGuard` (`+0x478`, mapped in item 2), as in March (`X2DamageManager.h:990`).
+- **User reader:** `CX2GUUser::DamageReact` (`320462a0`) `@32049466`–`32049561`, against March `X2GUUser.cpp:9276-9291`. Registers: `EBP` = this, `EBX` = DD, `ESI` = attacker (`DD+0xc`), `EDI` = defender (`DD+0x470`); DD `+0x57c` = `m_bLvDamage`.
+  ```
+  if ( !DD.m_bLvDamage && attacker ) {
+      k = attacker->Opt5248() + this->Get78() + this->Opt5194();
+      if ( defender && defender->Opt5ac8() > 0 ) k -= defender->Opt5ac8() * 0.01;
+      k = max( k, 0 );
+      v = k * attacker->GetAdditionalAttackDamage( pDD );   // slot 149 (+0x254); user 31fc7c20 -> 32291c00
+      if ( v > 0 ) { dmg += v; if ( m_bDoubleAttack ) dmg += v; }
+  }
+  ```
+  - March has the same block without `k`.
+  - One block up, June also gates March's `GetAdditionalDefence` reduction (`:9267-9271`) on `!DD[+0x534]` (`IGNORE_DEFENCE_DECLINE`).
+  - `32291c00` reads BBT 20's result (`+0x5018`) and calls `pow`; its body was not diffed.
+- **NPC reader:** `CX2GUNPC::DamageReact` (`327b1f30`) `@327b42b0`–`327b43be` computes the same formula inline, except that it subtracts the defender term whenever the defender exists (there is no `> 0` test).
+- **Where the three extra terms come from.**
+  - `Opt5194`, `Opt5248` and `Opt5ac8` (`32071af0`, `32071b10`, `32071b90`) are option values. They are set only by `InitAdditionalStatOptionValue` (`32270dd0`), from June socket-data fields `+0xc8`, `+0xcc` and `+0xd4` (the socket data is at unit `+0x87b4`). The siblings are `+0xc4` → `+0x50e0` and `+0xd0` → `+0x5a14`. They are reset to 0 at `3227131c`–`32271366`.
+  - March's `InitAdditionalStatOptionValue` (`X2GameUnit.cpp:12716`) ends with AdditionalAttack, AdditionalDefence and HyperCharge, and has no such members or socket fields.
+  - **So in a March build the three terms are 0, and `k` is 78's result (basic value 1.0).** The Opus session may port `k = max( Get78(), 0 )` as a deviation that is exact on March data, and record it. The socket keys behind `+0xc4`…`+0xd4` were not identified.
+
+**106 / 107 FORCE_DOWN_MULTIPLIER_MELEE / RANGE_ATTACKED — transcription-ready (user only).**
+- **Reader:** `CX2GUUser::DamageReact` `@3204a118`–`3204a243`, against March's `SERV_SKILL_NOTE` block (`X2GUUser.cpp:9801-9812`):
+  ```
+  fForceDownValue = DD.fForceDownValue;          // +0x3f0, key FORCE_DOWN (store @3263892e)
+  dec = DD.m_fDecreaseForceDown;                 // +0x514
+  if ( defender /*DD+0x470*/ ) dec -= DD.m_bMeleeAttack /*+0x2c, key MELEE_ATTACK @32633030*/ ? defender->Get106() : defender->Get107();   // new in June
+  fForceDownValue -= dec;
+  if ( DD.m_bPenetrate ) fForceDownValue = fForceDownValue < 0 ? fForceDownValue - 10 : -10;   // March ENCHANT_BALANCE_101014
+  ```
+  Only this region of the host was diffed.
+- The getters `32071bb0`/`32071bd0` have one caller each (raw scan), and nothing reads their results (`+0x5c1c`/`+0x5cd0`) inline, so **NPCs ignore 106/107**.
+- The basic value is 0.0, so with no buff active the result equals March's.
+
+**92 CHANGE_MAXIMIZE — Opus-only; the roll is decoded.**
+- `322788c0( attacker, arg, physicOrMagic, float* out )` (`this` = defender) is called twice from `GetFinalDamage`: `@32284c1f` (physic) and `@32284c2f` (magic). `*out` is pre-loaded with the attacker's PhysicAttack/MagicAttack result (`+0x4424`/`+0x44d8`).
+  ```
+  base = attacker main result (+0x4384 / +0x4438); range = attacker second result (+0x44ec / +0x45a0);
+  if ( range > 0 ) {
+      maxi = attacker->Get92();                 // +0x6d18 result
+      base *= attacker->slot121( arg );         // 3208dd70 = 1.0 in GameUnit, GUUser, GUNPC (per-class overrides not checked)
+      seed( this->slot113( 0 ) & 0xffff );      // user 3208e0a0 = word +0x80f8, NPC 327559f0 = word +0x8474 (counters, not mapped)
+      s = normal( mean = base + range*maxi, sigma = range*0.5 );   // 322ab740 / 322ab1c0 on a ~5 KB engine (likely mt19937)
+      *out = clamp( s, base - range + 2*range*maxi, base + range );
+  }
+  ```
+- **The range basics come from June's stat block (correction).**
+  - `322814a0`/`32281690` (`CX2GameUnit` slots 120/119) set seven basic values (`3236ca50`, the protected float at member `+4`) from a stat struct: `{ float hp; int atkPhysic, atkMagic, <new>, <new>, defPhysic, defMagic }`. The new `+0xc`/`+0x10` fields go to `+0x44ec`/`+0x45a0`.
+  - Where June's stat calc fills those two fields was not traced.
+  - User-summoned NPCs copy the owner's range and MAXIMIZE results (`3230ca8c`–`3230cae3`, `32763d6e`–`32763dc5`).
+- So porting 92 means porting June's stat-level attack range, the second members (which 4b-i lists with BBT 7/8), this roll and its `GetFinalDamage` call sites.
+
+**Hand-offs from item 3.**
+- **4b:**
+  - June's BBT 6 insert (`32282723`) and erase (`32283113`) rescale now-HP to keep the HP ratio (`31e4f900`/`31e551a0`, gage `32081260`). 84's blocks don't, and March's 6 doesn't.
+  - The BBT 7/8 second members (already on 4b-i part 2's list).
+- **No owning phase yet.** These are non-buff DamageData, game-type and socket changes. The Opus host work for 78 and 88 has to decide them, or hand them to the user:
+  - the keys `IGNORE_DEFENCE_ON_PVP`, `IGNORE_DEFENCE_RATE(_ON_PVP)` and `IGNORE_DEFENCE_DECLINE`;
+  - **June's `IGNORE_DEFENCE` no longer applies in PvP**, a behavior change for a key March data uses;
+  - the resist-scaled frozen-defence debuff;
+  - `GT_PVE`;
+  - the socket-option terms in 78's multiplier.
+
+**Item 3 readiness.**
+- **Transcription-ready:** 79, 82, 83, 84, 93, 106, 107.
+- **Ready except the second member** (follows 4b's BBT 7/8): 80, 81.
+- **Opus-only host:** 78 (the multiplier block), 88 (the `fPiercingDefenceFactor` rewrite and four DamageData keys), 92 (the variance system).
+
 ### Phase 1c — progress (2026-10-03)
 
 - **Item 1 done** (above), committed in two steps after an advisor review corrected the readiness split.
 - **Item 2 done** (above, second 1c session). It also corrected Phase 1's 77, 110 and 104 rows and named slot 499 (`CommonFrameMove`), `3276cb20` (`CommonEventProcessNonHost`) and `3276d980` (`CommonEventProcess`).
-- **Items 3 and 4 open.** Resume at item 3 (Phase 5b classes) in a new session.
+- **Item 3 done** (above, third 1c session). It corrected Phase 1b's 78 getter members and the premise that 92's second members are filled only by buffs.
+- **Items 4 and 5 open.**
 - **Item 5 is reduced.** Phase 4a already named `322a6960`'s virtuals (`+0x210` `CanApplyBuffToGameUnit`, `+0x224` `SetBuffFactorToGameUnit`, `+0x234` empty, `+0x770` BFT 15/16 scaling) and `OnFrameMoveBuff` (`3229d620`). Only `CreateAndInsertCustomFunctionByBuff` remains (from `CX2BuffCustomFunctionBehaviorTemplet::SetFactor` `32e79b00`).
 - **Cost:** `/cost` is not readable from inside the session. Ask the user and add it here, for both the first 1c session and the second.
 

@@ -300,7 +300,7 @@ mesh+0x54c	none in March: CXMeshInstance previous-frame velocity snapshot	confir
 3236a6f0	CX2BuffTemplet::SetFactorToOnlyFinalizer	confirmed	Buff Phase 4a: called by 3236d400 and by 322a83b0 when the stack is full
 32369da0	CX2BuffTemplet::GetAccumulationCountNow	confirmed	Buff Phase 4a: m_mapUnCommonMember (+0x50) find key 0, ROUND(value)
 32369f10	CX2BuffTemplet::GetAccumulationMultiflier	candidate	Buff Phase 4a: called twice by ChangeStat slot 7 32e73500 beside 32369da0
-32369eb0	CX2BuffTemplet::GetRegistType	candidate	Buff Phase 4a: its result feeds unit slot 195 (GetEnchantResist) in 322a83b0
+32369eb0	CX2BuffTemplet::GetRegistType	confirmed	Buff Phase 4a: its result feeds unit slot 195 (GetEnchantResist) in 322a83b0. Buff Phase 1c item 3: reads UCM map +0x50 key 2 (UCM_REGIST_TYPE), truncates to int, 0 if absent
 32369e40	none in March: CX2BuffTemplet::DecreaseAccumulationCountNow(n)	confirmed	Buff Phase 4a: UCM 0 (count) found and n < count -> count -= n, true; else false (count untouched)
 3236a930	none in March: CX2BuffTemplet behaviors slot 7 pass	confirmed	Buff Phase 4a: if unit: for each behavior r = slot 7 (+0x1c)(unit, templet); returns the last r (false with no behaviors). Base slot 7 32e72980 = false; ChangeStat 32e73500, ChangeSkillDamage 32e7c020 override
 3236a190	none in March: CX2BuffTemplet restart displayers after a decrease	confirmed	Buff Phase 4a: each displayer slot 1 StartDisplayer(unit, templet) and started(+0xc)=1; then if icon: gage refresh with accumulation count (32489810)
@@ -454,3 +454,50 @@ mesh+0x54c	none in March: CXMeshInstance previous-frame velocity snapshot	confir
 3227b600	none in March: CX2GameUnit insert BBT 73 identity	confirmed	Buff Phase 1c item 2: push to list +0x67cc; reader GetFinalDamage @322862bf sets pDD->m_bIgnoreStateDefence (+0x541) before March X2GameUnit.cpp:2716 block (also when attacker HaveThisBuff(975))
 3227a870	none in March: CX2GameUnit erase BBT 73 identity	confirmed	Buff Phase 1c item 2: remove (322a9090) + range-erase 3207b700 on +0x67cc
 3207b700	vector range erase (identity lists)	confirmed	Buff Phase 1c item 2: used by every identity erase (3227a870, 3227a910); not a 104-specific call
+32e86e90	CX2BuffChangeNowForceDownPerSecondBehaviorTemplet create/ctor	confirmed	Buff Phase 1c item 3: 0x30 bytes, vt 335351d8; m_eChangeType=1 (BCT_FIX_VALUE, never re-read from the templet), timer/value 0, delegates null
+32e755a0	CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::ParsingBehavior	confirmed	Buff Phase 1c item 3: TIME_INTERVAL -> timer target (+0x14); required (AL=0 on miss)
+32e855f0	CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::SetFactor	confirmed	Buff Phase 1c item 3: = March ChangeNowHpPerSecond::SetFactor non-ADJUST branch, regist 0, no popups; value v[1]
+32e756f0	CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::OnFrameMove	confirmed	Buff Phase 1c item 3: timer.OnFrameMove(dt) (3322a380) then tick delegate 32e89800
+32e89800	none in March: BBT 79 tick	confirmed	Buff Phase 1c item 3: if sum>=target {sum=0; unit[+0xc04]+0x5c Gage::Increase(m,0)} = GetGageData()->UpNowForceDown(m)
+32e86d80	none in March: BBT 79 value delegate	confirmed	Buff Phase 1c item 3: (1-arg)*(size>1?v[1]:0); called with 0
+32e7eaa0	CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::GetFactor	confirmed	Buff Phase 1c item 3: [m_fResultValue]
+32e85790	CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::SetFactorFromPacket	confirmed	Buff Phase 1c item 3: m=v[0] or 0; binds delegates
+3322a380	CKTDXCheckElapsedTime::OnFrameMove(float)	confirmed	Buff Phase 1c item 3: [ecx+4] += dt
+31f8de20	CX2GageData::Gage::Increase	confirmed	Buff Phase 1c item 3: fNow+=inc; clamp to fMax then to fMinimum (= March X2GageData.cpp); June Gage is 0x38 bytes
+32e75790	CX2BuffChangeStateByConditionBehaviorTemplet::ParsingBehavior	confirmed	Buff Phase 1c item 3: BUFF_CHANGE_TYPE -> +0x10, BUFF_VALUE_CALCULATE_TYPE -> +0x14; both required
+32e78860	CX2BuffChangeStateByConditionBehaviorTemplet::SetFactor	confirmed	Buff Phase 1c item 3: = March ChangeStat::SetFactor ADJUST branch; rejects BCT_RELATION_VALUE; value 32e77f40; no popups
+32e77f40	none in March: BBT 80-84 value (BVC_RALLY_OF_HERO)	confirmed	Buff Phase 1c item 3: vct==0 ? v[3]+v[4]*(4.0-v[5]) : 0; v[5] is the SGU-appended user count
+32e75720	CX2BuffChangeStateByConditionBehaviorTemplet::DoFinish	confirmed	Buff Phase 1c item 3: EraseAdditionalStat(type, ct, identity)
+32e7eb90	CX2BuffChangeStateByConditionBehaviorTemplet::GetFactor	confirmed	Buff Phase 1c item 3: [m_fResultValue]
+32e77ef0	CX2BuffChangeStateByConditionBehaviorTemplet::SetFactorFromPacket	confirmed	Buff Phase 1c item 3: m=v[0]; InsertAdditionalStat(type, ct, kBuffFactor identity, m)
+32d4ce60	CX2BuffFactor SetGameUnit case for BBT 80-84	confirmed	Buff Phase 1c item 3: vct==0 -> push g_pX2Game->GetUserUnitNum() (x0.5 when GetGameType()==GT_PVE 4)
+322ccd00	CX2Game::GetUserUnitNum	confirmed	Buff Phase 1c item 3: CX2Game slot 63; counts non-null m_UserUnitList (+0x314) = March X2Game.cpp:5278
+3231f4d0	CX2Game::GetGameType	confirmed	Buff Phase 1c item 3: CX2Game slot 67; returns +0x2b0; June adds GT_PVE=4 (Enum.src.lua:726)
+322cc1a0	none in March: CX2Game is PVP or PVE	confirmed	Buff Phase 1c item 3: GetGameType()==1 || ==4
+32e890b0	CX2BuffIgnoreDefenceBehaviorTemplet ctor	confirmed	Buff Phase 1c item 3: protected m_fIgnoreDefenceRate (+0x10) = 1.0
+32e7d260	CX2BuffIgnoreDefenceBehaviorTemplet::SetFactor	confirmed	Buff Phase 1c item 3: if !DidStart: m=v[0] or 0; unit 32282390(identity, m); true
+32e7d3f0	CX2BuffIgnoreDefenceBehaviorTemplet::SetFactorFromPacket	confirmed	Buff Phase 1c item 3: as SetFactor without the DidStart test
+32e7ec40	CX2BuffIgnoreDefenceBehaviorTemplet::GetFactor	confirmed	Buff Phase 1c item 3: [m]
+32e75b00	CX2BuffIgnoreDefenceBehaviorTemplet::DoFinish	confirmed	Buff Phase 1c item 3: unit 3227a8c0(identity)
+32282390	none in March: CX2GameUnit insert BBT 88 element	confirmed	Buff Phase 1c item 3: new 0x1c element (322afc00: identity + protected rate) pushed to list +0x67dc
+3227a8c0	none in March: CX2GameUnit erase BBT 88 element	confirmed	Buff Phase 1c item 3: remove from +0x67dc (322a9090 + 3207b700)
+32274970	none in March: CX2GameUnit::GetIgnoreDefenceRate	confirmed	Buff Phase 1c item 3: min(sum of rates in +0x67dc, 1.0); only callers GetFinalDamage @322856f8/@32285716, on the defender
+32e86510	CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner::SetBuffOwnerUID	confirmed	Buff Phase 1c item 3: vt slot 15; [+0x20]=__int64; called by ChangeStat::SetFactor 32e78410 @32e784b1 with factor +0x30 (applier UID)
+32ec60c0	CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner::GetBuffOwnerUID	confirmed	Buff Phase 1c item 3: vt slot 14; returns +0x20
+32e7d7f0	CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner::GetFactor	confirmed	Buff Phase 1c item 3: [m, uid 16-bit words low..high] (indices 1-4)
+32e76710	CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner::SetFactorFromPacket	confirmed	Buff Phase 1c item 3: insert m=v[0]; UID rebuilt from v[4..7] (June index bug vs GetFactor 1-4)
+3227c620	none in March: per-owner sum of _HaveBuffOwner results for one BTI	confirmed	Buff Phase 1c item 3: dead in June: only caller 32758790 (CX2GUNPC slot 183), which nothing calls; TypeDescriptor 33733b88 has one code ref (3227c720)
+32758790	none in March: CX2GUNPC vtable slot 183	confirmed	Buff Phase 1c item 3: attr 1-6 -> 3227c620({BTI 761, 10, true}); no virtual call through +0x2dc anywhere in .text
+32071b50	none in March: CX2GameUnit get BBT 78 result	confirmed	Buff Phase 1c item 3: member +0x53b0 result; callers CX2GUUser::DamageReact @320494ad/@320494ed
+32071af0	none in March: CX2GameUnit get option value of +0x5194	confirmed	Buff Phase 1c item 3: protected float member+0x24; set only from socket data +0xc8 in 32270dd0
+32071b10	none in March: CX2GameUnit get option value of +0x5248	confirmed	Buff Phase 1c item 3: protected float member+0x24; set only from socket data +0xcc in 32270dd0
+32071b90	none in March: CX2GameUnit get option value of +0x5ac8	confirmed	Buff Phase 1c item 3: protected float member+0x24; set only from socket data +0xd4 in 32270dd0
+32071bb0	none in March: CX2GameUnit get BBT 106 result	confirmed	Buff Phase 1c item 3: +0x5b7c result; one caller @3204a16a (user DamageReact force-down block)
+32071bd0	none in March: CX2GameUnit get BBT 107 result	confirmed	Buff Phase 1c item 3: +0x5c30 result; one caller @3204a200
+31fc7c20	CX2GUUser::GetAdditionalAttackDamage	confirmed	Buff Phase 1c item 3: CX2GUUser slot 149 (+0x254); jmp 32291c00 (March returns CalcAdditionalAttackDamage)
+32291c00	CX2GameUnit::CalcAdditionalAttackDamage	candidate	Buff Phase 1c item 3: reads BBT 20 result +0x5018 and calls pow (32fe2c8e); body not diffed
+3236cb20	CX2AdditionalStatByBuff::SetOptionValue	confirmed	Buff Phase 1c item 3: writes protected float at +0x24; called by InitAdditionalStatOptionValue 32270dd0
+3236ca50	CX2AdditionalStatByBuff::SetBasicStatValue	confirmed	Buff Phase 1c item 3: writes protected float at +4; callers 322814a0/32281690 (stat block) and the summon/passive copies
+322814a0	CX2GameUnit vtable slot 120: set basic stats from a stat block	confirmed	Buff Phase 1c item 3: {float hp; int pAtk, mAtk, NEW +0xc, NEW +0x10, pDef, mDef} -> +0x42d0,+0x4384,+0x4438,+0x44ec,+0x45a0,+0x4654,+0x4708
+32281690	CX2GameUnit vtable slot 119: same seven basics as 322814a0	confirmed	Buff Phase 1c item 3: same stat-block layout
+3208e0a0	none in March: CX2GUUser vtable slot 113	confirmed	Buff Phase 1c item 3: word +0x80f8 + arg (RNG seed source for 322788c0); NPC 327559f0 uses word +0x8474
