@@ -785,7 +785,7 @@ Read-only Ghidra (no renames or comments). Uncarved functions were read with `bu
   - `if ( m_NowStateData.m_eSkillID != previous state's ) rate98 = 32039e00( skillId )` (@`3203c649`); it multiplies the state power rate (above).
   - `if ( IsSummonSkill( skillId ) ) rate98summon = 32039e00( skillId )` (@`3203c586`/`3203c599`). It is **not** reset for other skills, so the last summon skill's value persists. The summon helper reads it through `31fea430`.
   - `31fc8200` = `IsSummonSkill( skillId )` after `32207210` (`GetSkillTemplet(id)->+0x178` if non-zero, the same "memo/base id" field `31fcf3e0` reads, else the id). Its 54 skill ids were enumerated by interpreting the function over 0–70000 (scratch `emu_switch.py`; the largest compare in it is 31320, so the list is complete): 22020, 22027, 22036, 23015, 23213, 23216, 23218, 25000, 25011, 25014, 25015, 25020, 25030, 25055–25057, 25062, 25601, 26014, 26025, 26050, 26060, 26064, 26215, 26238, 28018, 28023, 28054, 28057, 29003, 29029, 29601, 30013, 30016, 30053, 31002, 31007, 31015, 31038, 31044, 31045, 31047, 31053–31055, 31059, 31065, 31082, 31087, 31096, 31229, 31232, 31234, 31320 (names: `RNSI_SA_AVP_HELL_DROP` … `RNSI_A_ROM_G_EX_MAGNETICFORCE_UPGRADE`; resolve them against June's `Enum.src.lua` when porting). The `+0x178` mapping needs the same skill-templet field that blocks `_ULTIMATE`; March has no such field, so the port uses the plain id and says so.
-- BFT 16 shares the slot-type idea (Phase 8); this type has no finalizer of its own. **Phase 8 hand-off:** the only 98 buff in June data (`BTI_TRANSCENDENTAL_SLOT_*`) ends on `BFT_USE_SKILL_BY_SKILL_SLOTTYPE`, and 98's rate is cached in `DoStateEndStart` when the skill state starts. When item 4 maps BFT 16's increment site, record whether it fires before or after that cache; if before, the buff ends before it ever applies.
+- BFT 16 shares the slot-type idea (Phase 8); this type has no finalizer of its own. **Phase 8 hand-off:** the only 98 buff in June data (`BTI_TRANSCENDENTAL_SLOT_*`) ends on `BFT_USE_SKILL_BY_SKILL_SLOTTYPE`, and 98's rate is cached in `DoStateEndStart` when the skill state starts. When item 4 maps BFT 16's increment site, record whether it fires before or after that cache; if before, the buff ends before it ever applies. *Answered in item 4: after (`@3203c649` precedes `CommonStateStart` `@3203c978`), so the buff applies to the skill that ends it.*
 - **Hosts (89, 90, 98), Opus-only under the no-partial rule.** Both hosts are June rewrites, not March functions with a buff term added:
   - June's `DoStateEndStart` adds, besides the buff terms, a `+0x80d9` byte gate, a random sound/voice pick for state types 9/11/12, the protected power-rate cache (`+0x7cc8`/`+0x7cd4`/`+0x7ce0`, read by `GetPowerRate` and `31fea430`) and the `+0x2557..0x255a` resets. March's is 25 lines (`X2GUUser.cpp:6350`).
   - June routes all 21 summon cases through `322ece70`, which also adds `3201ad10( id ) + 1`, `31fea430` and stat-scaling flags March lacks.
@@ -1151,13 +1151,178 @@ Read-only Ghidra, same method. This is Phase 9's entry map; the hook bodies of e
   - Phase 4a's note places March's four hooks at slots 3–6 and June's new apply hook at slot 7 (caller `32275860`). Item 5 did not re-derive that.
   - Regenerate the per-class overrides with `buffre/vt.py CustomFunction`.
 
+### Phase 1c, item 4 — Phase 8 finalizers (2026-10-03)
+
+Read-only Ghidra, same method as items 1–3. Uncarved slots were read with `buffre/rawfn.py`. Callers come from a raw `E8`/`E9` scan of the whole `.text`, and virtual calls from a byte scan for `mov reg,[reg+disp]` followed by `call reg`, plus the `call [reg+disp]` form. Only the first form occurs for every slot below. Wire layouts marked *(asm)* were read in the disassembly, not the decompile.
+
+**June finalizer vtable (14 slots; AURA 15, Time 16).** `[0]` dtor, `[1]` OnFrameMove(unit, dt), `[2]` SetFactor(factor, unit, templet), `[3]` GetClonePtr, `[4]` DidFinish(unit), `[5]` GetFactor(vec, unit), `[6]` SetBuffTempletID (base `3208ddc0`, empty), `[7]` anti-tamper checksum (decodes the protected type at `+0x14`; StickShake and UseSkill fold in their `+0x1c`; not ported), `[8]` RestartForAccumulationDecrease (Phase 4a), `[9]` new: `int(unit, creator)` (base `31cbc910` returns 0), `[10]` new: `UidType GetCreatorUID()` (base `32ec5980` returns 0; LiveCreator `32ec60c0` and AURA override it), `[11]` new bool (Time only), `[12]` ParsingFinalizer, `[13]` SetFactorFromPacket. The scan found no external caller of slot 10 or AURA's slot 14 in the buff code (`3226f000`–`322b6000`, `32360000`–`32372000`, `326b0000`–`326d0000`, `32d40000`–`32d50000`, `32e70000`–`32ed0000`). Every `+0x28` hit there is a unit call gated on `+0x172`.
+
+**Shared fact.** `CX2BuffFactor +0x28` is the factor's `BUFF_TEMPLET_ID`: `ParsingBuffFactor` (`32d4d850`) stores it there right after reading that key (`@32d4d9d4`; `0` on a miss, `@32d4d9b7`).
+
+**BFT 14 AURA — class decoded; Opus-only (its creator check and its emitter need June's SIEE 15 socket effect).**
+- **Class** `CX2BuffAuraFinalizerTemplet` (vt `33537d94`, create `32ec6260`, 0x40 bytes, clone `32ec2170` → copy ctor `32ec60d0`, dtor `32ec61b0`). Members:
+  - `m_iState` `+0x1c`;
+  - `m_optrCreator` `+0x20`/`+0x24` (an observer pointer; `31e56b80` takes the unit's `+0x1a4` weak handle);
+  - `m_fElapsed` `+0x28`;
+  - `m_uidCreator` `+0x30`/`+0x34` (ctor -1);
+  - `m_eBTI` `+0x38`.
+- **ParsingFinalizer:** the base (`32ec5990`, true). The factor parse is the empty one (Phase 1), so `BFT_AURA = {}` carries nothing.
+- **SetFactor `32ec51d0`** *(asm)*:
+  ```
+  if ( !pUnit ) return true;
+  if ( !factor.GetFinalizerFactor( m_eType, &ff ) ) return false;
+  m_uidCreator = factor[+0x30];  m_eBTI = factor[+0x28];          // applier UID, BTI
+  if ( factor[+0x38] /*applier is a user*/ == 1 ) {
+      pCreator = g_pX2Game->GetUserUnitByUID( m_uidCreator );       // CX2Game slot 40
+      if ( pCreator ) { m_iState = slot9( pUnit, pCreator );
+                        if ( m_iState == 0 ) { m_optrCreator = pCreator; m_iState = 1; } }
+  }
+  return true;
+  ```
+  An NPC applier leaves `m_iState` at 0.
+- **Slot 9 `32ec13e0`** `CheckAura( pUnit, pCreator )`, returning 0, 1 or 2 *(asm)*:
+  ```
+  if ( !pUnit || !pCreator ) return 2;
+  if ( !pUnit->IsMyUnit() ) return 1;                     // unit slot 102: GUUser 31ff1f30 = g_pX2Game->GetMyUnit()==this; GameUnit/NPC false
+  if ( pCreator->GetNowHp() <= 0 ) return 2;              // 31e4f900: gage +0x20 -> protected fNow; 1.0 with no gage
+  if ( !pCreator->HasSocketAuraFor( SIEE 15, m_eBTI ) ) return 2;     // unit slot 181, below
+  if ( pCreator->GetUnitUID() != pUnit->GetUnitUID() ) {
+      if ( !g_pData[+0x5c] ) return 2;
+      if ( !g_pData[+0x5c]->32431360( creatorUID ) ) return 2;        // party membership (the same g_pData+0x5c check as 4a's 32045dc0)
+      if ( pUnit->GetGameUnitType() != GUT_USER ) return 2;           // +0x264
+  }
+  if ( pUnit->HasFinalizerFactorWithCreator( m_uidCreator, BFT_AURA ) // unit slot 182, below
+       && pUnit->322a0090( m_eBTI ) ) return 1;           // the BTI's KBuffFactor m_ucAccumulationCountNow (+0x34), 0 if absent
+  return 0;
+  ```
+- **OnFrameMove `32ec1370`:** only when `pUnit->IsMyUnit()`: `m_fElapsed += dt; if ( m_fElapsed >= 0.5 ) { m_iState = slot9( pUnit, m_optrCreator ); m_fElapsed = 0; }`.
+- **DidFinish `32ec5890`:**
+  ```
+  if ( !g_pX2Game || !pUnit ) return true;
+  if ( m_iState != 2 ) return false;
+  if ( pUnit->IsMyUnit() ) { ++pUnit[+0x6dd0]; pUnit[+0x6dd4] = 0; }   // the sync counter, below
+  return true;
+  ```
+- **GetFactor `32ec4b10`** *(asm)*: `[ uid & 0xffff, (uid>>16) & 0xffff, (uid>>32) & 0xffff, uid>>48, (float)m_eBTI ]`. This is LiveCreator's `FACTOR_ORDER` packing (`X2BuffFinalizerTemplet.h`, back-down word first), with the BTI in place of `FO_IS_USER_UNIT`.
+- **SetFactorFromPacket `32ebe7f0`: empty (`ret 8`).** A peer's copy keeps `m_iState = 0` and never finishes by itself. Only the owner's resync removes it (see the `+0x6dd0` section).
+- Slot 10 `32ec6150` returns `m_uidCreator`; slot 14 `33180f80` returns `m_eBTI` (used by slot 9).
+- **Unit slots it calls (new in June).**
+  - Slot 181 (`+0x2d4`): GameUnit/NPC `330fb7d0` false. GUUser `3204e380( siee, bti )`:
+    ```
+    it = m_mapSocketItemEffectEx.find( siee );            // +0x8b64 = March m_mapSocketItemEffectEx (X2GUUser.cpp:30461)
+    if ( it == end || siee != 15 ) return false;
+    for each socketId in it->second:
+        pData = g_pData[+0x280] /*CX2SocketItem*/->GetSocketData( socketId );   // 32715320: map find, node +0x10
+        for each e in pData[+0x29c..+0x2a0] (16 bytes): if ( e.byte9 == 1 && GetBuffFactorPtr( e.id )->BTI(+0x28) == bti ) return true;
+    return false;
+    ```
+  - Slot 182 (`+0x2d8`): GameUnit/NPC `31ae1500` false. GUUser `32039bf0( uid, bft )`: walks `GetBuffFactor()` (`3229fd80`). For each finalizer factor of type `bft`, it rebuilds `v0 | v1<<16 | v2<<32 | v3<<48` and returns true on a match. **So NPC units never keep an aura** (slot 9 returns 2 for an NPC creator at slot 181, and 0 for an NPC target).
+- **The emitter.** The aura buff is applied by `CX2GUUser::ProcessSocketEffectEx` (`32028ba0`; March `X2GUUser.cpp:30479`, which stops at `SIEE_ACTIVE_BUFF` 11).
+  - June adds cases 12–20, and case 15 `SIEE_ALWAYS_PLAY_EFFECT_SET` (`32029fff`) does this: for each socket ID in `map[15]` whose data has an `EFFECT_NAME` list (`+0x1fc`), if the interval check passes (`m_fIntervalTime` `+0x1e8` against unit slot 115, and `31fd8b70( id ) > k`), it plays each effect set (`g_pX2Game` → `322ceae0` → `321e1e60`) and attaches every entry of the `BUFF_FACTOR_ID` list (`+0x29c`, flag byte 9) to it (`321e3650`). It then restarts the cooldown (`31fe0b90( id, +0x1f8 )`).
+  - The caller is `CX2GUUser` slot 484 (`3206d770`) with `push 0xf` (`@3207012a`), once per frame.
+  - The map is filled by `31fe4730` (March's insert at `:30461`) from the equip routine `3204f190`, keyed by socket data `+0x1dc` (the SIEE type), and cleared by `3204b4c0`.
+- **Data.** All 10 June `BFT_AURA` buffs are socket options in `OptionItemData.src.lua` (`AddSocketData_LUA`, `m_eTypeSetItemEffectEx = SIEE_ALWAYS_PLAY_EFFECT_SET`, `EFFECT_NAME = { "EffectSet_Hero_Dungeon_Aura_Buff" }`, `BUFF_FACTOR_ID = …`). `BTI_BUFF_PHASE_OF_PERKISAS` is also in `DamageEffect.src.lua:351076`. March's `Enum` has no `SIEE_ALWAYS_PLAY_EFFECT_SET`.
+- **Verdict.** The class, slot 9 and both unit slots are transcribable. But the creator check (slot 181) and the only emitter both need June's SIEE 12–20 socket-effect cases and the socket-data fields `EFFECT_NAME`, `m_fIntervalTime` and the `BUFF_FACTOR_ID` list, which March's `CX2SocketItem` lacks. **Opus-only; no owning phase yet** (Phase 8 plus a socket-option port, or the user decides).
+  - A class-only port behaves like this: with slot 181 returning false, a user-created aura ends on the owner's first check (0.5 s), and an NPC-created one never finishes through `DidFinish`.
+
+**BFT 15 STICK_SHAKE — class, counter and increment site decoded; Opus-only (June added a new input counter and new unit virtuals).**
+- **Class** `CX2BuffStickShakeCountFinalizerTemplet` (vt `33537c68`, create `32ec5e10`, 0x28 bytes, clone `32ec1500`). Members: `m_eCountType` `+0x1c`, `m_iTarget` `+0x20`, `m_ucSnapshot` `+0x24`, `m_bStarted` `+0x25`.
+- **ParsingFinalizer `32ebffe0`:** `BUFF_USE_COUNT_TYPE` → `+0x1c`. **Required:** a missing key stores 0 and returns false (AL is the lookup's 0 at `32ec0178`; `mov al,1` only on the hit path).
+- **SetFactor `32ec1e00`** *(asm)*:
+  ```
+  if ( !pUnit || !factor.GetFinalizerFactor( m_eType, &ff ) ) return false;
+  if ( (int)ff[0] != m_eCountType ) return false;
+  pUnit->BeginStickShake();                                   // unit slot 256 (+0x400)
+  c = (BYTE)pUnit[+0x75a8];
+  if ( !m_bStarted ) { m_ucSnapshot = c; m_bStarted = true; }
+  n = NeededCount( ff, pUnit );                               // 32ec1620
+  if ( m_iTarget - c <= n ) m_iTarget = c + n;
+  return true;
+  ```
+- **`NeededCount` `32ec1620( ff, pUnit )`:** `!pUnit` → 0. If `ff[2] > 0` return `trunc( ff[2] )`. Otherwise switch on `m_eCountType`:
+  - `BUCT_NOT_USE` (0): `trunc( ff[1] )`;
+  - `BUCT_MY_BUFF_COUNT` (1): `trunc( pUnit->32281480( false ) * ff[1] )`;
+  - `BUCT_MY_DEBUFF_COUNT` (2): `trunc( pUnit->32281480( true ) * ff[1] )`;
+  - the enemy types 3/4: 0.
+
+  `32281480( bDebuff )` counts the unit's templets (`+0xe14`) whose `IS_DEBUF` equals the argument. The level slice gives `[type, COUNT[level], 0.0]`, so `ff[2]` is normally 0. All June data is `BUCT_NOT_USE`.
+- **OnFrameMove `32ec01a0`:** `if ( pUnit && m_bStarted && m_iTarget >= 256 && (BYTE)pUnit[+0x75a8] < m_ucSnapshot ) m_iTarget -= 256;` (byte wraparound).
+- **DidFinish `32ec01d0`:** `pUnit && m_bStarted && ( m_iTarget <= pUnit[+0x75a8] /*the full dword*/ || m_bReserveToFinish /*+0x18*/ )`.
+- **GetFactor `32ec4c50`:** `[ (float)m_iTarget, (float)m_ucSnapshot ]`.
+- **SetFactorFromPacket `32ec1580`** *(asm)*: `m_iTarget = (int)v[0]; m_ucSnapshot = (BYTE)trunc( v[1] ); m_bStarted = true; if ( (BYTE)pUnit[+0x75a8] < m_ucSnapshot ) m_iTarget -= 256;`. It does **not** call slot 256.
+- **The counter (new in June).** `pUnit[+0x75a8]` is an int (`inc dword`), next to a reference count at `+0x75a4`:
+  - Slot 256 (`+0x400`) `BeginStickShake`: base/NPC `322b5580` `++ref`. GUUser `32011130`: `++ref`, clears the two direction latches (`+0x9498` word = 0), and on the own unit with no prompt playing (`+0x949c == -1`) plays the stick-shake prompt effect and stores its handle.
+  - Slot 257 (`+0x404`) `EndStickShake`: base/NPC `322b5590`: `if ( ref > 0 ) --ref; if ( ref == 0 ) count = 0`. GUUser `32011210` does the same and destroys the own unit's prompt. Its only caller is the BFT 15 finish hook `3236a6a0` (`@3236a6c2`), which also bumps `+0x6dd0`.
+  - `31fc9f90` `IsStickShaking() = ref > 0`.
+  - **Increment** `31fc9fa0( bLeft, bRight )`: `if ( bLeft && !bRight && !latchL ) { latchL = 1, latchR = 0; ++count; } else if ( bRight && !bLeft && !latchR ) { ++count; latchR = 1, latchL = 0; }`. Its only caller is `322f7170` (a `CX2Game`-side input routine, not named here) `@322f74da`, run only while `IsStickShaking()`, with two key states read from the input manager (`[0x337676e8]+0x1f8`, codes `0x25`/`0x26`).
+- **Host diff.** March's grab escape (`X2GUUser.cpp:14651`, `TEST_GROUP_GRAP`) uses the same alternating latch, but on `m_iGrapShakeCount` (counting **down**, fed by NPC `GRAP_SHAKE_COUNT`) inside the user's own input code. June's counter counts up, is reset by slot 257, is driven from `CX2Game`, and its slots 256/257 are new virtuals. That is a new mechanism, not a buff term in a March function. **Opus-only.**
+- **Data.** Two June buffs: `HOLD_WITH_STICK_SHAKE` (NPC-applied), `COUNT = 4` at every level.
+
+**BFT 16 USE_SKILL_BY_SKILL_SLOTTYPE — class, counter and increment site decoded; Opus-only (the host is June's `CommonStateStart`).**
+- **Class** `CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet` (vt `33537ca4`, create `32ec5e60`, 0x2c bytes, clone `32ec17c0`). Members: `m_eCountType` `+0x1c`, `m_eSlotType` `+0x20`, `m_iTarget` `+0x24`, `m_ucSnapshot` `+0x28`, `m_bStarted` `+0x29`.
+- **ParsingFinalizer `32ec0240`:** `BUFF_USE_COUNT_TYPE` → `+0x1c`, then `SKILL_SLOT_TYPE` → `+0x20`. **Both are required** (false at `32ec03d7` and `32ec051f`).
+- **SetFactor `32ec1eb0`, OnFrameMove `32ebe800`, DidFinish `32ec0540`, packet `32ec1840`:** BFT 15's bodies, with one change: the counter is `(BYTE)pUnit->GetSkillUseCount( m_eSlotType )` (unit slot 258) in place of `+0x75a8`. SetFactor does not call slot 256. `NeededCount` is `32ec18f0`, which has `32ec1620`'s shape (not diffed byte for byte).
+- **GetFactor `32ec4d20`:** `[ (float)m_iTarget, (float)m_ucSnapshot ]`.
+- **The counter (new in June).** A unit `map<int, int>` at `+0x75c8`, accessed through three new virtuals shared by every unit class:
+  - slot 258 `3208ed20` `Get( k ) = map[k]`;
+  - slot 259 `3208ed40` `Set( k, v )`, with no caller found;
+  - slot 260 `3208ed60` `Add( k, v )`.
+- **Increment: `CX2GUUser::CommonStateStart`** (`32057b80`, slot 497; all 12 class overrides call it). The slot order 495–504 matches March's header (`DyingStart`, `CommonStateStartFuture`, `CommonStateStart`, `CommonFrameMoveFuture`, `CommonFrameMove` = 499, …, `DetonationEventProcess` = 504).
+  - Inside the special-attack block at the top (`if ( m_iReservedSkillState(+0x8eac) == GetNowStateID() && pSkill && !slot516( pSkill ) )`, followed by the MP consumption):
+    ```
+    if ( !slot303() && GetNowStateID() > 0 && 32070580( pSkill ) ) {
+        AddSkillUseCount( 0, 1 );                                  // key 0: any skill
+        if ( userSkillTree.FindEquippedSlotIndex( GetNowStateID(), &slot ) )   // 3288fff0
+            AddSkillUseCount( SlotIndexToSlotType( slot ) /*3214f3d0*/, 1 );    // keys 1-3: SKILL_SLOT_A/B/TC
+    }
+    ```
+    The call sites are `@32057d17` and `@32057d7c`.
+  - March's `CommonStateStart` (`X2GUUser.cpp:13776`) begins with Lua state reads. June's begins with this skill block, so the host is a June rewrite at that point. **Opus-only.**
+  - March's `CountUsedSkill` (`:32138`) has no callers and is unrelated (slot A/B arrays for the dungeon rank).
+- **Hand-off answer for 98 (item 1).** `DoStateEndStart` (`3203c3a0`) caches 98's rate at `@3203c649` and then calls the new state's start delegate or `CommonStateStart` (`@3203c95c`–`3203c978`). So **BFT 16 counts after the cache**, and the `TRANSCENDENTAL_SLOT` buff applies to the skill that ends it.
+- **Open.** Whether `+0x8eac` is written only by local input (then remote copies never count) was not checked. Run `dispxref.py 0x8eac`.
+
+**The `+0x6dd0` sync counter (UDP).**
+- **Bumped by:** `PushNewBuffTempletToGameUnit` (`3229dfc0`), `OnFrameMoveBuff` (`3229d759`), the BFT 15 finish hook (`3236a6cc`) and AURA's `DidFinish` (`32ec58f4`). Each does `++[+0x6dd0]` and sets `[+0x6dd4] = 0`, so it is a 64-bit pair. The ctor zeroes it (`322a5387`). Setter `32070c90` `SetBuffSyncCount( v )`.
+- **`CommonFrameMoveFuture`** (slot 498, `32061bf0` `@32061d4e`): `if ( (u64)field7e68 != counter ) field7e68 = counter`. This sits where March writes `m_FrameDataFuture.syncData.ucNumOfDeBuff = GetNumOfDeBuff()` (`X2GUUser.cpp:14923`).
+- **`CommonFrameMove`** (slot 499, `32063650` `@3206386c`), only when `g_pX2Game->GetMyUnit()` is set:
+  ```
+  if ( t9448 <= 0 && field8108 != counter ) t9448 = 1.0;
+  else if ( field8108 == counter ) t9448 = 0;
+  if ( t9448 > 0 && ( t9448 -= dt ) <= 0 ) {
+      SetBuffSyncCount( field8108 );
+      send( g_pData[+0x140], 0x1b, myUID, 8 bytes );   // 33224850, not decoded
+      [+0x9541] = 0;
+  }
+  ```
+  `+0x7e68`/`+0x8108` look like the same sync field in `m_FrameDataFuture`/`m_FrameDataNow` (0x2a0 apart), but that was not proven.
+- **March** syncs `m_ucNumOfDeBuff` beside hit/hitted count (`X2UDPPacket.h:312`, flag `eUnitUserSync_DataField_NumOfDeBuff` `0x4000`), and peers apply it at `X2GUUser.cpp:17443`. June appears to repurpose that field as a buff-change counter with a one-second resync request. **The peer side is not mapped.** Neither AURA (empty packet slot) nor BFT 15 (packet path skips slot 256) finishes by itself on a remote copy, so this resync is what removes them there. **Phase 8 blocker.**
+- **Search plan:** find June's unit-sync serializer through the `0x4000` field flag (field width and source); find who handles message `0x1b` (and its March XPT name); then read the peer-side apply in `CommonFrameMove`.
+
+**Corrections.**
+- **User slot 476 (`+0x770`, `32028250`) is not BFT 15/16 scaling** (Phase 4a RE, Phase 8 hand-off, `funcmap.tsv`).
+  - It takes `( skillId, factor )`; the caller `322a6960` passes the factor's skill or the unit's `+0x9274`. It looks up the user's skill-memo entry (`31fdbbb0`, the same lookup row 101 describes).
+  - Entry type **15** sets `BFT_TIME`'s `v[1]` (the duration) to `v[1] * value` (`32d41910( BFT_TIME, value, false )`).
+  - Type **16** rescales every behavior factor's values (`32d41820`); the formula was read only from the decompile, whose x87 operands are noise, so it is **not decoded**.
+  - It belongs to the skill-memo work (Phase 10, with `_ULTIMATE`), not Phase 8.
+- **`32057b80`** is `CX2GUUser::CommonStateStart` (slot 497), not "unit/NPC state script parser?" (`funcmap.tsv` row 46).
+- **Phase 8's candidate hooks** (`AttackResult` `:12721`, `CommonSpecialAttackEventProcess`/`CountUsedSkill`, `m_iGrapShakeCount`) are superseded by June's real sites: `@32057d17`/`@32057d7c` for BFT 16 and `31fc9fa0` via `322f7170` for BFT 15. `BFT_ATTACK` stays unimplemented (Phase 1).
+
+**Item 4 readiness.**
+- **Opus-only, all three.**
+  - AURA needs June's SIEE 15 socket effect and socket-data fields (no owning phase).
+  - BFT 15 needs a new counter, slots 256/257 and the `CX2Game` input hook.
+  - BFT 16 needs a new map, slots 258–260 and an edit inside June's rewritten `CommonStateStart`.
+- The class bodies, wire layouts and increment pseudocode above are complete. The open items are the `+0x6dd0` peer side (blocks Phase 8's sync design), `+0x8eac` locality, and `32ec18f0` byte equality.
+
 ### Phase 1c — progress (2026-10-03)
 
 - **Item 1 done** (above), committed in two steps after an advisor review corrected the readiness split.
 - **Item 2 done** (above, second 1c session). It also corrected Phase 1's 77, 110 and 104 rows and named slot 499 (`CommonFrameMove`), `3276cb20` (`CommonEventProcessNonHost`) and `3276d980` (`CommonEventProcess`).
 - **Item 3 done** (above, third 1c session). It corrected Phase 1b's 78 getter members and the premise that 92's second members are filled only by buffs.
 - **Item 5 done** (above, same session as item 3).
-- **Item 4 open:** the BFT 14 AURA class (10 slots), and the BFT 15/16 runtime counters, increment sites and UDP sync. Start it in a fresh session; Phase 1's lesson about context size applies. Check 4b-ii's notes first, because 4b-ii owns the existing finalizers and may have touched the same code.
+- **Item 4 done** (above, fourth 1c session). It found all three types Opus-only, corrected Phase 4a's slot-476 note and row 46, and answered item 1's 98 hand-off (BFT 16 counts after the cache). Still open: the `+0x6dd0` peer side, which blocks Phase 8's sync design, and `+0x8eac` locality.
+- **Cost, fourth 1c session (item 4):** not readable in-session; ask the user.
 - **Cost, third 1c session (items 3 and 5):** not readable in-session; ask the user.
 - **Item 5 is reduced.** Phase 4a already named `322a6960`'s virtuals (`+0x210` `CanApplyBuffToGameUnit`, `+0x224` `SetBuffFactorToGameUnit`, `+0x234` empty, `+0x770` BFT 15/16 scaling) and `OnFrameMoveBuff` (`3229d620`). Only `CreateAndInsertCustomFunctionByBuff` remains (from `CX2BuffCustomFunctionBehaviorTemplet::SetFactor` `32e79b00`).
 - **Cost:** `/cost` is not readable from inside the session. Ask the user and add it here, for both the first 1c session and the second.
@@ -1600,7 +1765,7 @@ The ctor (`326c48a0`) leaves +0x4c = 0, so the first push is never delay-blocked
   - Base `3229a2e0` ignores both and equals March's base (not immune to extra damage, HP > 0, state ≠ `GUSI_DIE`).
   - NPC override `327bdb60`.
   - User `32045dc0`: March's checks (base, plus the state is neither of the two die states from slots `0x460`/`0x464`). It adds two gates keyed on templet bytes `+0xa9` and `+0xaa`: party membership through `g_pData+0x5c`, and the factor's creator UID against the unit. **The only writer of those two bytes is the templet ctor (`326c4995`, zero).** No parsed key or loader sets them, so for every June templet the user check reduces to March's. Nothing is ported; if a later phase finds a writer, these gates come with it.
-- **`+0x770`:** user only, when the unit is a user and the last argument is false. It scales BFT 15/16 factor values. Phase 8 (hand-off above).
+- **`+0x770`:** user only, when the unit is a user and the last argument is false. It scales BFT 15/16 factor values. Phase 8 (hand-off above). *Corrected in 1c item 4: it is skill-memo scaling (entry type 15 = `BFT_TIME` duration, 16 = behavior values), not BFT 15/16; Phase 10.*
 - **`+0x234`:** empty in every unit class (`322b5630` only releases its argument). Nothing to port.
 - Checked: no March subclass overrides `SetBuffFactorToGameUnit( const CX2BuffFactor& )`. June's slot 137 is the same `322a83b0` in GameUnit, GUUser and GUNPC.
 
@@ -1956,7 +2121,7 @@ BTI/BFI and where it comes from) into the doc for Phase 14. Record this session'
 
 **Scope.**
 - Port `BFT_AURA` 14, `BFT_STICK_SHAKE` 15, `BFT_USE_SKILL_BY_SKILL_SLOTTYPE` 16 and `BFT_ATTACK` 17. Each needs its enum (done in Phase 2), a parse case, a level-slice case, `SetGameUnitFinalizer`, a class with its `CASE_FINALIZER_TEMPLET` entry, a unit counter, the site that increments it, and **UDP sync of the counter**, alongside hit and hitted count in `X2UDPPacket.h:310`.
-- Candidate hook sites:
+- Candidate hook sites (*superseded by 1c item 4, which maps June's real BFT 15/16 sites*):
   - `BFT_ATTACK`: `CX2GUUser::AttackResult` `X2GUUser.cpp:12721`.
   - `BFT_USE_SKILL_BY_SKILL_SLOTTYPE`: `CommonSpecialAttackEventProcess` `:20966` / `CountUsedSkill` `:32125`.
   - `BFT_STICK_SHAKE`: the grab-escape counter `m_iGrapShakeCount` `:14651`, plus NPC `SHOW_STICK_SHAKE` `X2GUNPC.cpp:5154`.
@@ -1964,7 +2129,7 @@ BTI/BFI and where it comes from) into the doc for Phase 14. Record this session'
 - **Phase 4a hand-offs:**
   - June's `PushNewBuffTempletToGameUnit` (`3229dee0`), `OnFrameMoveBuff` (`3229d620`) and the BFT 15 finish hook `3236a6a0` all bump a unit counter at `+0x6dd0` (and clear `+0x6dd4`). Find what it syncs and port it with the counters.
   - `EraseBuffTempletFromGameUnitByIterator` (`3229d320`) and `OnFrameMoveBuff`'s inline erase call `3236a6a0` (BFT 15: unit slot `+0x404`).
-  - `SetBuffFactorToGameUnit(ID)` (`322a6960`) calls user slot `+0x770` (`32028250`). For a user unit, unless its last argument is set, that slot scales the factor's BFT 15 count and BFT 16 values before `SetGameUnitBuffFactor`. Port it with those types.
+  - ~~`SetBuffFactorToGameUnit(ID)` (`322a6960`) calls user slot `+0x770` (`32028250`) to scale BFT 15/16.~~ *Corrected in 1c item 4: that slot is skill-memo scaling of `BFT_TIME` and behavior values, not BFT 15/16; it moves to Phase 10.* The real BFT 15/16 sites are in 1c item 4.
 
 **Run with:** Opus 5.5, high effort. Review required. The UDP change means every peer must run the same build; say so in `MODS.md`.
 

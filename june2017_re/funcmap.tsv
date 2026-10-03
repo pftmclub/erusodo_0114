@@ -43,7 +43,7 @@ june_va	march_symbol	status	evidence
 31f83aa0	CX2DamageEffect::CEffect::OnFrameMove_LockOnData( float )	confirmed	called by OnFrameMove 31f88790 @31f8a668 with fElapsedTime, 2nd of three consecutive calls (BlackHole 31f6eea0, this, SineMove 31f6f3d0) = X2DamageEffect.cpp:2767-2769; reads 20 of the members LoadLockOnData 31f71930 writes (+0x920..+0x9cc) (Phase 7a)
 31c895d0	CKTDGXMeshPlayer::CXMeshInstance::ChangeXSkinMesh( mesh, changeTexXET, multiTexXET, aniXET )	candidate	Phase 10: NOT the templet parser (the parser is 31c8ae10, below). No direct callers. Body 31c895d0-31c89948: thiscall with four wide-string args, gated on meshType +0x204 == 1 (X_SKIN_MESH), releases and reopens four device handles +0x3bc/+0x3c4/+0x3c8/+0x3cc (mesh, change-tex XET, multi-tex XET, ani XET) -- the shape of March KTDGXMeshPlayer.h:1187 ChangeXSkinMesh(wszMeshName, wszChangeTexXETName, ...). Shape match only; not compared line by line
 31c8d140	CKTDGXMeshPlayer::CXMeshInstance::CXMeshInstance	confirmed	base ctor 31d28a20 then vtable 3344a9b8; SetAlphaObject(true) = +0x144 @31c8d2ae, then m_Handle = -1 (+0x198) @31c8d2b5, in the order of KTDGXMeshPlayer.cpp:1231-1233. Its init list sets +0x194 = 1 @31c8d18e, a June-only member before m_Handle (restore-after-trigger; read by 31c87b80 @31c87d0e, found in Phase 4b; 4a said no reader), and empties the +0x568 modifier list @31c8d258. Was a Phase-0 candidate "templet parse?" (Phase 4a stage 2)
-32057b80	unit/NPC state script parser?	candidate	ATTACK_TIME-adjacent keys (README); probably out of scope
+32057b80	CX2GUUser::CommonStateStart (slot 497)	confirmed	Buff Phase 1c item 4: slots 495-504 match X2GUUser.h order (499 CommonFrameMove, 504 DetonationEventProcess); all 12 class overrides call it; BFT 16 increments @32057d17/@32057d7c
 32784c00	unit script (EFFECT_SET_LIST)?	candidate	README; probably a per-unit effect-set list, not the EffectSet engine
 321f4a20	CX2EffectSet::EffectData::EffectData	confirmed	only ctor call in 321e48e0 per EFFECT%d (@321e5d24, after operator new(0x1e8)); defaults match every EFFECT%d read (-1 @+0xf8 BONE_TRACE_TARGET_MESH_INDEX, -1.0 @+0x100 LIMIT_DISTANCE, 1 @+0xd8/+0xda); calls 321f3be0 on the inline MESH_TRIGGER_DATA @+0x13c (Phase 3)
 321f3be0	CX2EffectSet::MeshTriggerData::MeshTriggerData (June-only struct)	confirmed	ctor of each MESH_TRIGGER_DATA_LIST/TRIGGER_DATA%d stack entry (@321ea6c7) and of EffectData+0x13c; presets TRIGGER_TIME/BLOCK_TRIGGER_TIME/toggle timer -1.0 and PLAY_TYPE 2 at the offsets the parser writes (Phase 3)
@@ -394,7 +394,7 @@ mesh+0x54c	none in March: CXMeshInstance previous-frame velocity snapshot	confir
 3229a2e0	CX2GameUnit::CanApplyBuffToGameUnit (June: (BTI, factor) args)	confirmed	Buff Phase 4a: vtable slot 132 (+0x210), called by 322a6960/322a7660; ignores its args; equals March X2GameUnit.cpp base (not immune to extra damage, HP>0, state != GUSI_DIE)
 32045dc0	CX2GUUser::CanApplyBuffToGameUnit	confirmed	Buff Phase 4a: CX2GUUser slot 132; base 3229a2e0 + state not die-front/back (slots 0x460/0x464), plus party/creator gates on templet +0xa9/+0xaa, whose only writer is the templet ctor 326c4995 (zero) -> reduces to March's
 327bdb60	CX2GUNPC::CanApplyBuffToGameUnit	candidate	Buff Phase 4a: CX2GUNPC slot 132 (not decompiled; March: NCT_BASIC -> base)
-32028250	none in March: CX2GUUser slot 476 (+0x770) scale BFT 15/16 factor values	confirmed	Buff Phase 4a: called by 322a6960/322a7660 for a user unit unless the last arg is set; BFT 0xf count * value, BFT 0x10 per-slot values; Phase 8
+32028250	none in March: CX2GUUser slot 476 (+0x770) skill-memo scaling of a buff factor	confirmed	Buff Phase 1c item 4: CORRECTED (was BFT 15/16 scaling): (skillId, factor) -> 31fdbbb0 entry; type 15 sets BFT_TIME v[1] = v[1]*value (32d41910), type 16 rescales behavior values (32d41820, formula not decoded); Phase 10
 322b5630	none in March: CX2GameUnit slot 141 (+0x234), empty	confirmed	Buff Phase 4a: only releases its intrusive-ptr argument in every unit class
 31fcb230	CX2GUUser::GetPowerRate	confirmed	Buff Phase 1c: CX2GUUser vt 334781f4 slot 129; returns the protected float +0x7cc8 that DoStateEndStart 3203c3a0 fills (March X2GUUser.cpp:23045 returns m_NowStateData.m_fPowerRate)
 32205ab0	none in March: skill type by skill id (GetSkillTemplet(id)->m_eType without the level gate)	confirmed	Buff Phase 1c: same map and finder 3221d5e0 as GetSkillTemplet 32206450 (returns node+0x10 = templet); this returns node+0x14 = templet+4 = m_eType
@@ -547,3 +547,44 @@ mesh+0x54c	none in March: CXMeshInstance previous-frame velocity snapshot	confir
 322a8e50	CX2CustomFunctionByBuffDeathSign ctor	confirmed	Buff Phase 1c item 5: BTI 1038
 32369b80	CX2CustomFunctionByBuffSolessTitleInvincible ctor	confirmed	Buff Phase 1c item 5: dead: no callers, no data refs; the vtable 3349011c's only code ref
 32007b10	none in March: skill-level value for custom-function ctors	candidate	Buff Phase 1c item 5: reads UserSkillTree::GetSkillLevel (32890620); used by BTI 56/767 branches
+32ec6260	CX2BuffAuraFinalizerTemplet create (0x40 bytes)	confirmed	Buff Phase 1c item 4: vt 33537d94; +0x1c state, +0x20 creator optr, +0x28 elapsed, +0x30 creator UID, +0x38 BTI
+32ec51d0	CX2BuffAuraFinalizerTemplet::SetFactor	confirmed	Buff Phase 1c item 4: copies factor +0x30 UID and +0x28 BTI; user applier only: GetUserUnitByUID, state = slot9, 0 -> keep creator and state 1
+32ec1370	CX2BuffAuraFinalizerTemplet::OnFrameMove	confirmed	Buff Phase 1c item 4: own unit only: every 0.5 s state = slot9(unit, creator)
+32ec13e0	none in March: CX2BuffAuraFinalizerTemplet slot 9 CheckAura(unit, creator)	confirmed	Buff Phase 1c item 4: returns 0/1/2: creator HP, unit slot 181 (SIEE 15 socket aura), party check g_pData+0x5c 32431360, unit slot 182 and 322a0090
+32ec5890	CX2BuffAuraFinalizerTemplet::DidFinish	confirmed	Buff Phase 1c item 4: state 2 -> finish; own unit bumps the +0x6dd0 sync counter
+32ec4b10	CX2BuffAuraFinalizerTemplet::GetFactor	confirmed	Buff Phase 1c item 4: (asm) [uid w0, w1, w2, w3, (float)BTI], LiveCreator packing
+32ebe7f0	CX2BuffAuraFinalizerTemplet::SetFactorFromPacket	confirmed	Buff Phase 1c item 4: empty (ret 8): peer copies never finish by themselves
+32ec6150	none in March: finalizer slot 10 GetCreatorUID (AURA)	confirmed	Buff Phase 1c item 4: returns +0x30/+0x34; base 32ec5980 returns 0, LiveCreator 32ec60c0
+33180f80	none in March: CX2BuffAuraFinalizerTemplet slot 14 GetBTI	confirmed	Buff Phase 1c item 4: returns +0x38; only caller is slot 9
+3204e380	none in March: CX2GUUser slot 181 HasSocketAuraFor(siee, bti)	confirmed	Buff Phase 1c item 4: m_mapSocketItemEffectEx (+0x8b64) [15] socket ids -> CX2SocketItem (g_pData+0x280) data +0x29c buff list (flag byte 9) -> GetBuffFactorPtr(id)+0x28 == bti; base/NPC 330fb7d0 false
+32039bf0	none in March: CX2GUUser slot 182 HasFinalizerFactorWithCreator(uid, bft)	confirmed	Buff Phase 1c item 4: GetBuffFactor: finalizer of type bft whose v0|v1<<16|v2<<32|v3<<48 == uid; base/NPC 31ae1500 false
+322a0090	none in March: GetBuffFactor-based accumulation count for a BTI	confirmed	Buff Phase 1c item 4: first KBuffFactor with +0x20 == BTI -> byte +0x34 (m_ucAccumulationCountNow), else 0
+31ff1f30	CX2GUUser::IsMyUnit (unit slot 102)	confirmed	Buff Phase 1c item 4: g_pX2Game->GetMyUnit() == this; GameUnit 31aa1d30 pure, NPC 32756c10 false
+32028ba0	CX2GUUser::ProcessSocketEffectEx	confirmed	Buff Phase 1c item 4: March X2GUUser.cpp:30479; switch SIEE 1..20 (March stops at 11); case 15 SIEE_ALWAYS_PLAY_EFFECT_SET @32029fff plays the EFFECT_NAME sets and attaches the BUFF_FACTOR_ID list (aura emitter)
+31fe4730	m_mapSocketItemEffectEx insert	confirmed	Buff Phase 1c item 4: March X2GUUser.cpp:30461; key = socket data +0x1dc (SIEE type); called by the equip routine 3204f190
+3206d770	none named: CX2GUUser slot 484	confirmed	Buff Phase 1c item 4: calls ProcessSocketEffectEx(15) every frame (@3207012a)
+32ec5e10	CX2BuffStickShakeCountFinalizerTemplet create (0x28 bytes)	confirmed	Buff Phase 1c item 4: vt 33537c68; +0x1c count type, +0x20 target, +0x24 snapshot byte, +0x25 started
+32ebffe0	CX2BuffStickShakeCountFinalizerTemplet::ParsingFinalizer	confirmed	Buff Phase 1c item 4: BUFF_USE_COUNT_TYPE -> +0x1c, required (false on miss)
+32ec1e00	CX2BuffStickShakeCountFinalizerTemplet::SetFactor	confirmed	Buff Phase 1c item 4: (asm) type must equal +0x1c; unit slot 256; snapshot (BYTE)+0x75a8; target = max(target, c + NeededCount)
+32ec1620	none in March: BFT 15 NeededCount(ff, unit)	confirmed	Buff Phase 1c item 4: ff[2] > 0 wins; else BUCT 0: ff[1]; 1/2: own buff/debuff count (32281480) * ff[1]; 3/4: 0
+32ec01a0	CX2BuffStickShakeCountFinalizerTemplet::OnFrameMove	confirmed	Buff Phase 1c item 4: target -= 256 when (BYTE)+0x75a8 wrapped below the snapshot
+32ec01d0	CX2BuffStickShakeCountFinalizerTemplet::DidFinish	confirmed	Buff Phase 1c item 4: started and (target <= dword +0x75a8 or reserve flag +0x18)
+32ec4c50	CX2BuffStickShakeCountFinalizerTemplet::GetFactor	confirmed	Buff Phase 1c item 4: [target, snapshot]
+32ec1580	CX2BuffStickShakeCountFinalizerTemplet::SetFactorFromPacket	confirmed	Buff Phase 1c item 4: (asm) target = v0, snapshot = trunc(v1), started; no slot 256 call
+32ec5e60	CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet create (0x2c bytes)	confirmed	Buff Phase 1c item 4: vt 33537ca4; +0x1c count type, +0x20 slot type, +0x24 target, +0x28 snapshot, +0x29 started
+32ec0240	CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::ParsingFinalizer	confirmed	Buff Phase 1c item 4: BUFF_USE_COUNT_TYPE -> +0x1c, SKILL_SLOT_TYPE -> +0x20, both required
+32ec1eb0	CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::SetFactor	confirmed	Buff Phase 1c item 4: as 32ec1e00 with counter = unit slot 258 (slot type); no slot 256 call; NeededCount 32ec18f0
+32ebe800	CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::OnFrameMove	confirmed	Buff Phase 1c item 4: as 32ec01a0 on slot 258
+32ec0540	CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::DidFinish	confirmed	Buff Phase 1c item 4: as 32ec01d0 on slot 258
+32ec4d20	CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::GetFactor	confirmed	Buff Phase 1c item 4: [target, snapshot]
+32ec1840	CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::SetFactorFromPacket	confirmed	Buff Phase 1c item 4: as 32ec1580 on slot 258
+32011130	none in March: CX2GUUser slot 256 BeginStickShake	confirmed	Buff Phase 1c item 4: ++ref +0x75a4, clear latches +0x9498, own unit plays the prompt effect (+0x949c); base/NPC 322b5580 ++ref only
+32011210	none in March: CX2GUUser slot 257 EndStickShake	confirmed	Buff Phase 1c item 4: --ref; ref 0 -> count +0x75a8 = 0, own unit destroys the prompt; base/NPC 322b5590; only caller 3236a6a0
+31fc9fa0	none in March: stick-shake press counter(bLeft, bRight)	confirmed	Buff Phase 1c item 4: alternating latch (+0x9498/+0x9499), ++dword +0x75a8; only caller 322f7170 @322f74da; March grab escape X2GUUser.cpp:14651 counts down instead
+31fc9f90	none in March: IsStickShaking	confirmed	Buff Phase 1c item 4: +0x75a4 > 0
+3208ed20	none in March: unit slot 258 GetSkillUseCount(k)	confirmed	Buff Phase 1c item 4: map<int,int> +0x75c8 [k]; shared by all unit classes
+3208ed40	none in March: unit slot 259 SetSkillUseCount(k, v)	confirmed	Buff Phase 1c item 4: no caller found
+3208ed60	none in March: unit slot 260 AddSkillUseCount(k, v)	confirmed	Buff Phase 1c item 4: callers CommonStateStart @32057d17 (k 0) and @32057d7c (k = slot type)
+32281480	none in March: count own buff templets by IS_DEBUF	confirmed	Buff Phase 1c item 4: count_if over the +0xe14 templets with IS_DEBUF == arg
+32070c90	none in March: SetBuffSyncCount(v)	confirmed	Buff Phase 1c item 4: +0x6dd0 = v, +0x6dd4 = 0
+32061bf0	CX2GUUser::CommonFrameMoveFuture (slot 498)	confirmed	Buff Phase 1c item 4: writes +0x6dd0 into sync field +0x7e68 where March writes ucNumOfDeBuff (X2GUUser.cpp:14923)
