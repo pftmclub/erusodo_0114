@@ -618,12 +618,12 @@ Abbreviations: **parse** = factor-parse function and float order (the wire layou
 
 | Type | Store | Readers to decode |
 |---|---|---|
-| 74 DETONATION_IMPOSSIBLE | `+0x67ec` | `31feb9f0` (`CX2GUUser` slot 504), `3276cb20` |
-| 77 INVINCIBLE | `+0x67fc` | `31fcee40`, `32063650` (`CX2GUUser` slot 499), `32758470` |
-| 101 IGNORE_HP_DECREASE | `+0x680c` | `322726d0` |
-| 102 DETONATION_IMPOSSIBLE_GAGE_RESET | `+0x681c` | `31feabd0` (`CX2GUUser` slot 308), `31feb9f0`, `3276cb20` |
-| 104 JUMP_IMPOSSIBLE | `+0x42c0` (the insert also calls `3207b700`) | `31fe83a0`, `3276d980` (`CX2GUNPC` slot 278) |
-| 110 AWAKE_IMPOSSIBLE | `+0x682c` | `31fd4460` (`CX2GUUser` slot 234) |
+| 74 DETONATION_IMPOSSIBLE | `+0x67ec` | `31feb9f0` (`CX2GUUser` slot 504 = `DetonationEventProcess`), `3276cb20` (= `CX2GUNPC::CommonEventProcessNonHost`, corrected in 1c item 2) |
+| 77 INVINCIBLE | `+0x67fc` | *Corrected in 1c item 2:* `31fcee80` (`CX2GUUser` slot 96 = `GetInvincible`), `32758760` (NPC slot 96), `3206ce71` inside `32063650` (slot 499 = `CommonFrameMove`). `31fcee40` and `32758470` were wrong attributions; neither touches the list. |
+| 101 IGNORE_HP_DECREASE | `+0x680c` | `322726d0` (a getter; callers are user slots 59/61, see 1c item 2) |
+| 102 DETONATION_IMPOSSIBLE_GAGE_RESET | `+0x681c` | `31feabd0` (`CX2GUUser` slot 308 = `DamageReactStateChange`), `31feb9f0`, `3276cb20` |
+| 104 JUMP_IMPOSSIBLE | `+0x42c0` (*corrected in 1c item 2:* the insert is a plain push like the other identity cases; `3207b700` is the range-erase every identity erase uses) | `31fe83a0` (`CX2GUUser::SetInputData`), `3276e442` inside `3276d980` (`CX2GUNPC` slot 278 = `CommonEventProcess`) |
+| 110 AWAKE_IMPOSSIBLE | `+0x682c` | *Corrected in 1c item 2:* `31fd4790` (`CX2GUUser` slot 345, a getter), reached through slot 343 `31fe9a90`. `31fd4460` was a wrong attribution. |
 | 73 IGNORE_STATE_GUARD | own class. `SetFactor` `32e752b0` → unit `3227b600` (list `+0x67cc`), `DoFinish` `32e75300` → `3227a870`, packet `32e728b0` | `GetFinalDamage` `@322862bf` and others; not yet swept |
 | 95 IMMUNE_NON_CONTROL_DEBUFF | own class. `SetFactor` `32e75c00` → unit `3227aa40` (list `+0x75ac`) **then `DeleteNonControlDebuff` `3229dcc0`**, `DoFinish` `32e75c50` → `32279a10` | not yet swept |
 | 94 IMMUNE_BUFF_DEBUFF | Parse `32d4a770`: `[ALL_BUFF 0/1, ALL_DEBUFF 0/1, count, BTI1..BTIn]` (`IMMUNE_BUFF_TEMPLATE_ID`). lvl copy-as-is. Class `SetFactor` `32e79e30` (unit `3227a910`, `322780f0`, `32278120`, `3227b6b0`), `DoFinish` `32e75bd0` | not yet decoded |
@@ -818,29 +818,136 @@ Read-only Ghidra (no renames or comments). Uncarved functions were read with `bu
   ```
 - Reader `31fd8bc0( skillType )`: `map[key]` or 1.0. Its only caller is `32896850( skillId )`: if `g_pX2Game` and its `GetMyUnit()`: `myUnit->31fd8bc0( 32205ab0( skillId ) )`, where `32205ab0( id )` = `GetSkillTemplet( id )->m_eType`. Confirmed: it looks up the same skill-tree map with the same finder (`3221d5e0`) as `GetSkillTemplet` (`32206450`), which returns `node+0x10` (the templet, `m_eID` first), while `32205ab0` returns `node+0x14` (templet `+4`, `m_eType`). It skips `GetSkillTemplet`'s level gate. The data keys are `SKILL_TYPE` too (`ST_ACTIVE`, `ST_SPECIAL_ACTIVE_GRADE_1`, …).
 - Read site: `CX2UserSkillTree::OnFrameMove` (`32896930`, March `X2UserSkillTree.cpp:48`): for each of the 5 + 5 equipped slots with time left: `left -= 32896850( slotSkillId ) * fElapsedTime` (March: `-= fElapsedTime` at `:70`/`:85`), then clamp at 0 and `CX2GageManager::SetMySkillCoolTimeList` (`32489230`). Apart from that multiplier, June's function is March's (March's extra `NEXON_QA_CHEAT_REQ` branch aside), so the host is clean. VALUE 2 therefore means "cooldowns run twice as fast", and only for the local player.
-- June rebuilds in slot 499, which is not yet named (Phase 7 lists it as an INVINCIBLE reader). Rebuilding lazily inside the reader when the flag is set gives the same result.
+- June rebuilds in slot 499, which is `CX2GUUser::CommonFrameMove` (named in 1c item 2; it is also an INVINCIBLE reader). Rebuilding lazily inside the reader when the flag is set gives the same result.
 
 **Phase 6 readiness after item 1:**
 - **Transcription-ready (Sonnet):** 75, 91, 103. 75's host block in both `DamageReact`s also carries June's type-56 changes; the Phase 6 session lands them together under the Phase 4b flag or leaves 56 to 4b and says so.
 - **Class, store and reader ready; host Opus-only:** 89, 90, 98 (`DoStateEndStart` and the summon helper), 99 (`GetActualMPConsume`), 100 (`3235a710` and its 16 callers). A Sonnet session may add their classes, stores and readers; the Opus session wires the hosts.
 
+### Phase 1c, item 2 — Phase 7 reader semantics (2026-10-03)
+
+Read-only Ghidra, same method as item 1. Every reader below came from a fresh displacement sweep of each list's begin/end pair, with function bounds taken from int3 padding (Ghidra has not carved most of them). Hits in the ctor (`322a4xxx`), dtor/clear (`322a0xxx`–`322a1xxx`), `CreateAndInsertBuffIdentity` and the erase helpers are excluded, and so is XOR-string noise (`[esp+…]`). **Phase 7 runs on Opus, so "ready" here only matters for rule 9.** Each type gets a one-line verdict, and every host diff says how far it went.
+
+**Identity-type store recap (74, 77, 101, 102, 104, 110).** The class is `CX2BuffIdentityBehaviorTemplet`. `CreateAndInsertBuffIdentity` `3227ad60` builds one `CX2BuffIdentity` (identity, 8 bytes) and `push_back`s it (`322ad1e0`) onto the type's `vector<CX2BuffIdentityPtr>` on `CX2GameUnit`, next to March's existing identity vectors. Every reader tests `!vec.empty()`.
+
+**74 DETONATION_IMPOSSIBLE / 102 DETONATION_IMPOSSIBLE_GAGE_RESET — Opus-only (June rewrote `m_bNoDetonation` itself).**
+- `31feb9f0` = `CX2GUUser::DetonationEventProcess` (slot 504; March `X2GUUser.cpp:19238`):
+  ```
+  if ( slot128() /* byte +0x91e6 getter, where March has GetRidingOn() */ ) return;
+  if ( b6890 || b6892 || !list102.empty() ) { gage->SetNowChargeMpForDetonation( 0 ); gage->m_bCanChargeMpForDetonation = false; }
+  else if ( list74.empty() && ( m_OrgInputData.pureZ || m_OrgInputData.pureX ) ) gage->m_bCanChargeMpForDetonation = true;
+  ```
+  March only has `if ( GetNoDetonation() ) return;` before setting the flag. **June zeroes the charge where March just returns**, so every existing March skill that calls `SetNoDetonation(true)` now also wipes the stored charge. `32081640` = `CX2GageData::SetNowChargeMpForDetonation` and gage `+0xf6` = `m_bCanChargeMpForDetonation`. The uncarved gage code at `32a33b9x` is March's `X2GageData.cpp:26-40` (clamp to max, zero, `SetCanCharge(false)`).
+- `31feabd0` = `CX2GUUser::DamageReactStateChange` (slot 308; March `:11262`). Only the region around the read was diffed: right before March's `if ( IsDamagedReaction( pDD ) )` (`:11894`) June inserts the same reset block (`b6890 || b6892 || list102` → charge 0, flag false). It also adds `pDD->damageType != DT_BUFF (6)` to that `if`, which is March's `SERV_9TH_NEW_CHARACTER` early return in `DetonationStateChange` (`:11964`) moved to the caller. The tail `if ( pDD->m_bNoDetonation ) b6892 = true` is March's `:11947`.
+- **June split March's `m_bNoDetonation` into two `CX2GameUnit` bytes.**
+  - `+0x6890` is the state flag. It is written 1/0 in pairs by per-class state code (about 50 writes in `329xxxxx`–`32cexxxx`, the sites where March calls `SetNoDetonation(true/false)`, e.g. `X2GUAdd.cpp:4963/4993`), and zeroed by `31fcde81`, `32015afe`, `320608b2` and `322a5e38`.
+  - `+0x6892` is the damage flag. It is written from `pDD->m_bNoDetonation` (`32046314` in `CX2GUUser::DamageReact`, March `:7644`; `327b1fd0` in the NPC one), and also at `31feb964`, `3205e9df/e8` and `327af377/80`.
+  - Porting 74/102 therefore means porting the split and both rewritten hosts.
+- NPC: `3276cb20` = **`CX2GUNPC::CommonEventProcessNonHost`** (March `X2GUNPC.cpp:20775`: die-state timer → `StateChangeToDieForce`, then the HP≤0 `m_bNeverMove = false` block; so `+0x872b` = `m_bNeverMove`). Its state-change condition chain gains a June-only condition **`CAN_DETONATION`** (condition byte `+0xba`, parsed in `32784c00` @`32794f62`, the only June parse site of the key; March parses conditions at `X2GUNPC.cpp:6035` and `:15719`). It sits after `IS_ANOTHER_TEAM` (`+0xb9`, March `:21358`) and passes only when `list74.empty() && list102.empty() && !b6890 && !b6892`. The next condition, `CHECK_NEVER_MOVE_TRUE` (`+0xbb`, passes when `m_bNeverMove`), is a non-buff June addition in the same chain. **The host path `3276d980` (`CommonEventProcess`) tests `+0xb7`, `+0xb8`, `+0xb9` and `+0xbb` but not `+0xba`**, so June evaluates `CAN_DETONATION` only for non-host NPCs. No June script uses `CAN_DETONATION` (0 hits in `june_src_fixed`).
+
+**77 INVINCIBLE — getter ready; the frame-move half is Opus-only.**
+- `31fcee80` (`CX2GUUser` slot 96) = `GetInvincible`: `if ( !list77.empty() ) return true; return m_FrameDataNow.stateParam.bInvincible;` (protected bool `+0x7fe8`). The NPC slot 96 `32758760` is the same on `m_NPCFrameData.stateParam.bInvincible` (`+0x8368`). March: `X2GUUser.h:1582`, `X2GUNPC.h:1950`. The base slot is pure.
+- **March reads `stateParam.bInvincible` directly in 12 places**, which bypass the getter: `X2GUChung.cpp:613/646`, `X2GUNPC.cpp:8922/10268/11920/12719/18853/29201/29214`, `X2GUUser.cpp:7809/9919/17516`. Phase 7 must check in June whether each one calls slot 96 or reads the field. Until then the getter prefix is not the whole reader set.
+- `3206ce71`, at the tail of `32063650` = **`CX2GUUser::CommonFrameMove`** (slot 499; March `:15219`; the function that calls `UserSkillTree::OnFrameMove`):
+  ```
+  if ( !list77.empty() && m_fForceInvincibleTime <= 0 ) { SetForceInvincible( 0.5f ); SetShowInvincible( 0.5f ); }   // slots 71/72; 0.5 = 3343777c
+  ```
+  Slot 71 `3208ed80` writes the protected float `+0xdbc`, slot 72 `3208dd40` writes `+0xdd4`. **Only the tail was diffed.** It matches March's `:17888-17896` (`ShowActiveSkillCutInAndLightByScript` = `IsSamef(-1, +0x9278)` → slot `0x834`). After it June adds a second cut-in (`+0x9280` → `0x838`), `0x84c`, `322754f0`, `0x3c4`, `320458f0` and `31fcfb10`, then the 77 block, a position save to `+0x94d4` and `32296b10`. The host is a June superset of 2,700 lines and was not diffed in full.
+
+**101 IGNORE_HP_DECREASE — user-only in June; Opus-only (the hosts became virtual and grew).**
+- `322726d0` is a getter (`!list101.empty()`). Its only callers are `CX2GUUser` slot 59 `3202fcf0` (`UpNowHp(delta, min)`) and slot 61 `3202ff60` (`SetNowHp(v)`):
+  - slot 59: `if ( nowHp > 0 && delta < 0 && IgnoreHpDecrease() ) return;`
+  - slot 61: `if ( nowHp > 0 && v < nowHp && IgnoreHpDecrease() ) return;`
+- March's `UpNowHp`/`SetNowHp` are non-virtual inlines on `CX2GameUnit` (`X2GameUnit.h:2311/2315`). In June they are virtual. The NPC overrides (`32784200`/`32778c60`) never call the getter, so **NPCs ignore 101.**
+- The user `SetNowHp` override also adds two more refuse-decrease gates (`320072d0`, `3202b9a0`; not decoded). It then calls the base (`322824b0` = March's `if ( gage ) gage->SetNowHp( v )`) and, for the own unit, a low-HP UI call `3289db00( 0xd, 0|1, -1 )` (not decoded).
+
+**104 JUMP_IMPOSSIBLE — user half ready; NPC half ready, with a 4b hand-off.**
+- User `31fe83a0` = `CX2GUUser::SetInputData` (March `:28554`). June's `if ( m_fCanNotJumpTime > 0 )` Up-key clear (`:28668`) becomes `if ( m_fCanNotJumpTime > 0 || !list104.empty() )`. The rest matches March block for block, except that both attack-impossible blocks (`:28578`, `:28611`) also OR the byte `+0xded`. **That byte is dead in March:** its only writers are in `CX2PVPGameWinner` (`32ed5d97`–`32eda3a4`), a June PvP mode March lacks. `InputData` offsets checked: `m_InputData` is at `+0x86da` and `m_OrgInputData` at `+0x8732`.
+- NPC: `3276d980` = **`CX2GUNPC::CommonEventProcess`** (slot 278; March `:21405`). Its AI-message switch gates `SCT_AI_JUMP` (12) on `list104.empty()` (@`3276e442`; March `:21819`).
+- **Phase 4b hand-off.** The same switch also gates `SCT_AI_DASH` (11), `SCT_AI_JUMP_DIR` (14) and `SCT_AI_DOWN_DIR` (15) on `m_vecDashImpossiblePtr.empty()` (June `+0x4260`; the user's `SetInputData` uses the same list for the double-left/right clear). March's NPC switch has no dash-impossible gate. This belongs to the existing BBT `DASH_IMPOSSIBLE`, the same precedent as item 1's 75/56.
+- Only the AI-message cases were diffed in this host.
+
+**110 AWAKE_IMPOSSIBLE — Opus-only (June replaced a 56-use macro with a virtual).**
+- Getter `31fd4790` (`CX2GUUser` slot 345) = `!list110.empty()`. Its consumer is slot 343 `31fe9a90`, `bool TryHyperModeStateChange( int state )` (Ain's copy is `32a53150`):
+  ```
+  if ( !m_InputData.oneLCtr ) return false;            // +0x8723 = m_InputData + 0x49
+  if ( IsAwakeImpossible() /*345*/ ) return false;
+  if ( slot434() /*class hook, base 31e4c550 = false*/ ) { protected short +0x7e84 = 0x1c; slot435( 0 ) /*base empty*/; return true; }
+  if ( !IsThereEffectiveBlackHoleDamageEffect() /*322731a0: +0x3f78 != 0*/ && f8d78 <= 0 && CanHyperMode() /*344*/ )
+      { b8d4c = true; StateChange( state ); return true; }
+  return false;
+  ```
+  Slot 344 `31fd4730` = March's macro condition: `m_HyperModeCount > 0 && ( GetRemainHyperModeTime() <= 0 || GetCanChangeHyperModeInHyperModeState() /*+0x8fc3*/ )`.
+- March expresses this as `ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE` (`X2GUUser.h:11`, 56 uses), and Ara inlines it (`X2GUAra.cpp:6348` and five more).
+- June adds the class hook (slots 434/435) and the fields `+0x8d78`/`+0x8d4c`, none of which March has. Ara's six June sites (`32bb2d40`, `32bb2ff0`, `32bb3290`, `32bb34d0`, `32bb37e0`, `32bb3ab0`) call slot 345 inline.
+
+**73 IGNORE_STATE_GUARD — ready (BTI 975 needs a C++ enumerator).**
+- Class: `SetFactor` `32e752b0`: `if ( !DidStart() ) unit->insert( identity )` (`3227b600`, list `+0x67cc`); true. `DoFinish` `32e75300` erases (`3227a870`). Packet `32e728b0` inserts. `GetFactor` `32e7e960` writes the header only (no values).
+- The only reader is `GetFinalDamage` @`322862bf`. In June's code EBP is the attacker (it reads 87/96's members) and EDI the defender:
+  ```
+  if ( !defender->list73.empty() ) pDD->m_bIgnoreStateDefence = true;          // DD +0x541
+  if ( attacker->HaveThisBuff( BTI_BUFF_SCHWERT_PLATZEN /*975*/ ) ) pDD->m_bIgnoreStateDefence = true;
+  ```
+  It is inserted right before March's state-defence block (`X2GameUnit.cpp:2716-2731`), which June keeps as is (DD`+0x4c5` = `m_bPenetrate`, `+0x9e4` = `m_DamageReducePercent`, DD`+0x478` = `m_bGuard`, `+0x9f0` = `m_DamageGuardPercent`, clamp 100). So a unit carrying 73 loses its damage reduction and guard. June's users are debuffs (e.g. `BTI_DEBUFF_PANDEMONIUM_FEAR`, `IS_DEBUF = TRUE`).
+- BTI 975 is in March's Lua Enum (Phase 2) but not in the C++ `BUFF_TEMPLET_ID` enum.
+- **Flag for Phase 14:** June writes the flag into the attacker's `DamageData`, so on multi-target damage data it stays set for every later target. Transcribe it verbatim.
+
+**95 IMMUNE_NON_CONTROL_DEBUFF — ready.**
+- `SetFactor` `32e75c00`: `if ( !DidStart() ) { unit->insert( identity ) /*3227aa40, list +0x75ac*/; unit->DeleteNonControlDebuff(); }` true.
+- Packet `32e728d0`: **insert only, no delete**.
+- `DoFinish` `32e75c50` erases (`32279a10`). `GetFactor` `32e7f770` writes the header only.
+- `DeleteNonControlDebuff` `3229dcc0`: walk the unit's templet vector (`+0xe14`); erase (`3229d320`) every templet with `IS_DEBUF` (`+0x64`) and `IsNonControlDebuff()` (`32369cc0`), otherwise advance.
+- The only reader is `3227b790` (Phase 4a's stub): `return !list95.empty() && templet->IsNonControlDebuff();`.
+
+**94 IMMUNE_BUFF_DEBUFF — ready; two June quirks are transcribed verbatim.**
+- Factor: `32d4a770` pushes `ALL_BUFF`, `ALL_DEBUFF`, then `ParsingTableForWhile( "IMMUNE_BUFF_TEMPLATE_ID", vec, true )`. The `true` is a literal, so the count is always pushed, **and an empty `{}` leaves the 1.0 placeholder**.
+- `SetFactor` `32e79e30` (args `factor, unit, templet`):
+  ```
+  if ( DidStart() && T->GetAccumulationCountNow() == 0 ) unit->EraseImmuneList( T->identity );   // 3227a910
+  m_vecBTI.clear();
+  if ( v.size() >= 1 && v[0] != 0 ) unit->m_setImmuneAllBuff.insert( BTI );     // 322780f0, std::set at +0x65d4 (size +0x65dc)
+  if ( v.size() >= 2 && v[1] != 0 ) unit->m_setImmuneAllDebuff.insert( BTI );   // 32278120, set at +0x65e4 (size +0x65ec)
+  for ( i = 2; i < v.size(); ++i ) m_vecBTI.push_back( (int)v[i] );
+  unit->InsertImmuneList( identity, m_vecBTI );   // 3227b6b0: element {identity, vector<int>} -> list +0x65c4
+  return true;
+  ```
+- **Quirk 1:** the loop starts at index 2, which is the count, so the count is stored as an immune BTI. BTI 1 is `BTI_DEBUFF_SILENCE`. June's single-entry block (`BattleFieldBuffFactor.src.lua:111419`, SLEEP only) and its empty block (`:116444`) therefore also grant SILENCE immunity.
+- The packet `32e7a040` handler is the same as `SetFactor` without the erase. `DoFinish` `32e75bd0` does the list erase and both set erases (`32278840`, `32278880`).
+- **Quirk 2:** `GetFactor` `32e7f670` sends `[ (float)byte+0x20, (float)byte+0x21, m_vecBTI… ]`. Those two bytes are zeroed by the ctor (`32e871d0` @`32e87219`), copied by the clone (`32e7a930`), and written nowhere else, so **peers always receive `ALL_BUFF = ALL_DEBUFF = 0`**.
+- Fill-in for Phase 4a's stub `IsImmuneBuffByBuffBehavior` (`322a80a0`): `T = GetBuffTempletPtr( BTI ); return ( setAllBuff.size() && !T->IsDeBuff() ) || ( setAllDebuff.size() && T->IsDeBuff() ) || any element e in list +0x65c4 with BTI ∈ e.vec` (`32369d70`).
+
+**105 IMMUNE_EDT — class and reader ready; the host's rate math goes to 4b.**
+- `SetFactor` `32e79770`: no unit call. `DidStart()` triggers a discarded `GetAccumulationCountNow()`. Then `m_vecEDT.clear(); for each v: push_back( (int)v )`; true.
+- Packet `32e79810` is the same. `GetFactor` `32e80390` = `[ (float)edt… ]`. `DoFinish` is the empty base `33093ad0`. **No unit store:** the templet member is the store.
+- Reader `322a0400` `IsImmuneEDTByBuff( edt )`: walk `GetBuffFactor()` (`3229fd80`); true if any type-105 (`0x69`) behavior factor holds `(int)value == edt`.
+- Its only caller is `322a0510` = **`CX2GameUnit::ProcessEnchantExtraDamage`** (slot 213; March `X2GameUnit.cpp:3529`). Inside the attacker/enchant-data block, after `if ( rate < fRandomValue ) return false;`, June adds `if ( IsImmuneEDTByBuff( basicExtraDamageType ) ) return false;`. The switch over the six enchant EDTs (1001, 1011, 1101, 1543, 1654, 1765) is March's, except that the `ProcessEnchant*` calls are virtual (slots 214–219).
+- The host's rate math has March's shape (`(rate·modifier)·increase + fix`), but `32274df0( edt, BCT )` (attacker list `+0x6594`, special-cases EDT `0x3e9`) and `32272d90` (branches on unit type) are not proven equal to March's `GetChangeEnchantAttackRate`/`EnchantAccumulationRateModifier`. **Hand that to 4b**, which owns `CHANGE_ENCHANT_ATTACK_RATE`.
+- Search scope: only the 19 callers of `GetBuffFactor` were scanned (within 0x400 bytes of each call) for a `0x69` compare. A reader that walks templets directly would not be found.
+
+**Item 2 readiness.**
+- **Ready:** 73 (plus the BTI 975 enumerator), 94, 95, 105 (except the host's rate math → 4b), 104 (plus the dash hand-off → 4b), and 77's getter.
+- **Opus-only:** 74 and 102 (the `m_bNoDetonation` split and two rewritten hosts), 77's `CommonFrameMove` block and the 12 direct `bInvincible` reads, 101 (virtual, user-only HP setters with undecoded extra gates), and 110 (the macro → virtual rewrite).
+
 ### Phase 1c — progress (2026-10-03)
 
 - **Item 1 done** (above), committed in two steps after an advisor review corrected the readiness split.
-- **Items 2–5 not started in this session.** Resume at item 2 (Phase 7 reader semantics) in a new session; first read Phase 4a's commits (`a546850`, `9133871`, `aeb6a21`), which recorded June's apply path and may already cover item 5 and 94's immunity read.
-- **Cost:** `/cost` is not readable from inside the session. Ask the user and add it here.
+- **Item 2 done** (above, second 1c session). It also corrected Phase 1's 77, 110 and 104 rows and named slot 499 (`CommonFrameMove`), `3276cb20` (`CommonEventProcessNonHost`) and `3276d980` (`CommonEventProcess`).
+- **Items 3 and 4 open.** Resume at item 3 (Phase 5b classes) in a new session.
+- **Item 5 is reduced.** Phase 4a already named `322a6960`'s virtuals (`+0x210` `CanApplyBuffToGameUnit`, `+0x224` `SetBuffFactorToGameUnit`, `+0x234` empty, `+0x770` BFT 15/16 scaling) and `OnFrameMoveBuff` (`3229d620`). Only `CreateAndInsertCustomFunctionByBuff` remains (from `CX2BuffCustomFunctionBehaviorTemplet::SetFactor` `32e79b00`).
+- **Cost:** `/cost` is not readable from inside the session. Ask the user and add it here, for both the first 1c session and the second.
 
 Kickoff for the next 1c session:
 
 ```
 Continuing the June buff/debuff port. Read JUNE_BUFF_PORT_PHASES.md in the repo root in
 full -- "Starting context", the "June buff function map", "Per-type map", the Phase 1
-Done note, "Phase 1c, item 1" and "Phase 1c — progress", plus the Phase 4a sections.
-Branch: mods/june-buff-port. Use the ghidra skill on unpacked_x2.exe; do not mutate the
-Ghidra project without asking.
+Done note, "Phase 1c, item 1", "Phase 1c, item 2" and "Phase 1c — progress", plus the
+Phase 4a sections. Branch: mods/june-buff-port. Use the ghidra skill on unpacked_x2.exe;
+do not mutate the Ghidra project without asking.
 
-Your task (Phase 1c items 2-5, read-only, Opus 5.5 high): continue the Phase 1c list in
-the Done note from item 2, skipping anything Phase 4a already recorded. Same method and
+Your task (Phase 1c items 3-5, read-only, Opus 5.5 high): continue the Phase 1c list in
+the Done note from item 3 (item 5 is reduced to CreateAndInsertCustomFunctionByBuff; see
+the progress note), skipping anything Phase 4a already recorded. Same method and
 bar as item 1: parse/store/read-site pseudocode at June addresses, a host-function diff
 against March for every read site (a June-rewritten host makes the type Opus-only), and
 confirmed funcmap.tsv rows. Another session may be editing the doc: re-read before each
