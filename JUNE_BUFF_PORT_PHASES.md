@@ -2682,7 +2682,20 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The sessi
 
 **funcmap.tsv:** 24 rows ("Buff Phase 4b-i part 4").
 
+**Play-test (2026-10-04, user): all four checks pass.** The exe deployed with `b9999a2` (md5 `537ed274…`) passed checks 3 and 4. Checks 1 and 2 needed a debug build, `16a6d78` (`SERV_IRUHADEV_JUNE_BUFF_DEBUG`, md5 `ce13bcb3…`), and were settled from its `offline_server.log` lines.
+1. **NPC dash gate: pass.**
+   - The first attempt was inconclusive. Leg Spasm (227) lands only 70% of the time and monster resist cuts that further, so in Feita nothing applied. The gate only stops a monster *starting* a run: a DASH state has no `SCT_AI_DASH` entry and leaves only on walk, wait, jump or attack. So a monster that was already running kept running (Burning Forest). June uses the same gate and reads `+0x4260` nowhere else (`.text` scan: the user `SetInputData`, the identity insert/erase, the ctor/dtor, and the two NPC sites).
+   - Retest with `BFI_DEBUFF_SI_A_RST_CUT_TENDON` (115, level 30; rate 1, resist ignored, about 10 s) in the first Feita dungeon. `DASH_IMPOSSIBLE applied: BTI 31 on npc uid 1..9` (all 9 monsters, twice), then `held back SCT_AI_DASH on Gliter_Archer.lua uid 5`.
+   - The Glitter Charger's thrust never appears among the held-back messages, so it is an attack state, not a dash message, and is correctly not blocked (the same in June).
+2. **Teleport cost: pass.** One Teleport cost 20.00 (rate 1.00). A chain cost 30, 40, 50, 60, 70 (rate 1.50 → 3.50). Each Teleport re-applies its own debuff (`X2GUArme_VioletMage.cpp:7686-7697`), and the class adds 0.5 per restack (June `32e7cef0`, `+= v`). March's additive restack (`result += init · v`) gives the same 30, 40, 50… on the cost frozen at the first cast, so the two agree whenever the base cost does not change mid-chain. The old override would have read 1.5 MP; it is gone.
+3. Power Accel (7) on self: damage up, no popup, clean expiry. Pass.
+4. One full dungeon clear: no new popup or crash. Pass.
+
+**The debug build is still deployed.** Revert `16a6d78` (and rebuild KTDXLIB, X2Lib and X2, since `Always.h` changes) before the next play-test that should not log. Part 5 can do it first.
+
+
 **Where part 4 stopped / what resumes (in this order)**
+0. Revert the temporary debug commit `16a6d78` and rebuild (see "Play-test" above).
 1. BBT 6 HP-ratio rescale (above).
 2. RSCT DRAW_TEXT: `CX2Data` `PicCharYellowSmall` plus the draw call.
 3. The dormant chain: map unit vslots 132/141/476 and `3236a430`'s UI tail, then port.
@@ -2705,7 +2718,7 @@ full -- "Starting context", the "June buff function map", "Phase 4b", "Phase 4b-
 "Phase 4b-i part 3 -- Review" and "Phase 4b-i, part 4". Branch: mods/june-buff-port. Never
 launch X2_offline.exe without asking first.
 
-Your task (Phase 4b-i part 5): resume part 4's list "Where part 4 stopped" from item 1: the
+Your task (Phase 4b-i part 5): resume part 4's list "Where part 4 stopped" from item 0 (revert the debug commit 16a6d78), then the
 BBT 6 HP-ratio rescale (June 32282723/32283113), RSCT DRAW_TEXT (CX2Data PicCharYellowSmall
 from 31edd860, then the 32e857d0 draw), and the dormant vslot 3/9/10/11 chain (map unit
 vslots +0x210/+0x234/+0x770 and 3236a430's UI tail first), then trace the 7 register-passed
