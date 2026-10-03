@@ -1110,12 +1110,54 @@ Read-only Ghidra, same method as items 1 and 2. Uncarved functions were read wit
 - **Ready except the second member** (follows 4b's BBT 7/8): 80, 81.
 - **Opus-only host:** 78 (the multiplier block), 88 (the `fPiercingDefenceFactor` rewrite and four DamageData keys), 92 (the variance system).
 
+### Phase 1c, item 5 — `CreateAndInsertCustomFunctionByBuff` (2026-10-03)
+
+Read-only Ghidra, same method. This is Phase 9's entry map; the hook bodies of each class stay Phase 9's.
+
+**Behavior class** `CX2BuffCustomFunctionBehaviorTemplet` (vt `33535288`).
+- `SetFactor` `32e79b00`: `if ( !DidStart() ) { m_kBuffBehaviorFactor = *pBF; 3229e1a0( T->GetBuffIdentity(), *pBF, info ); } return true;`. A missing factor returns false with no popup. This is March's (`X2BuffBehaviorTemplet.cpp:2094`) plus a third argument:
+  - `info = { bool bNotUser = !factor[+0x38], UidType creator = factor[+0x30], T[+0xbc] }`.
+  - `+0x30`/`+0x38` are the applier's UID and is-user flag that `SetGameUnitBuffFactor` (`32d4d670`) records.
+- Packet `32e73f90`: when not started, it builds the same `info` from the `KBuffFactor` (`+0x28`/`+0x2c` UID, `+0x3d`, `+0x57`) and calls `3229e1a0( kBuffFactor +0x20, values, info )`.
+- `DoFinish` `32e73fe0`: `if ( DidStart() ) EraseCustomFunctionByBuff( identity )` (`3227a1d0`), as March's (`:2145`).
+- `GetFactor` `32e7e000`: copies the stored factor, as March's.
+
+**`CX2GameUnit::CreateAndInsertCustomFunctionByBuff` = `3229e1a0`** (March `X2GameUnit.cpp:13729`, 3 cases).
+- It switches on `identity.m_eBuffTempletID`. Each case `new`s a class and `push_back`s it (`322ad1e0`) onto the unit's custom-function list.
+- Classes were resolved through the ctor, its vtable store and the vtable's RTTI name. BTI names are from June's `Enum.src.lua`.
+
+| BTI | Ctor | Class | Gate (June) |
+|---|---|---|---|
+| 29 `BTI_SI_SA_ETK_PHANTOM_SWORD` | `3236eee0` | `CX2CustomFunctionByBuffPhantomSword` | – (March has it) |
+| 56 `BTI_BUFF_UNFIXED_CLIP` | `322ab4e0` | `CX2CustomFunctionByBuffBigBangStream` | **user only** (`unit+0x264 == 0`; March has no gate). It passes a skill-level value (`31fcf430`, `32007b10` → `UserSkillTree::GetSkillLevel` `32890620`). |
+| 62 `BTI_DEBUFF_MARK_OF_COMMANDER` | `322aad80` | `CX2CustomFunctionByBuffMarkOfCommand` | – (March has it) |
+| 223 `BTI_DEBUFF_PANDEMONIUM_FEAR` | `322aae50` | `CX2CustomFunctionByBuffPandemoniumFear` | – |
+| 439 `BTI_DEBUFF_MOONLIGHT_RHAPSODY` | `322aaef0` | `CX2CustomFunctionByBuffMoonlightRhapsody` | – |
+| 720 `BTI_BUFF_NITRO_SERVO`, 920 `…_UPGRADE` | `323698b0` | `CX2CustomFunctionByBuffServoNitro` | – (one class for both) |
+| 767 `BTI_DEBUFF_SINISTER_MIND_SEED` | `322aaf80` | `CX2CustomFunctionByBuffSinisterMind` | `g_pX2Game->GetUserUnitByUID( info.creator )` must exist; skill-level value via `32007b10` |
+| 819 `BTI_DEBUFF_TARGET`, 894 `BTI_DEBUFF_AIMING_STIGMA` | `3236f6b0` | `CX2CustomFunctionBySummonNpcTarget` | creator user must exist (819 jumps into 894's branch) |
+| 891 `BTI_DEBUFF_SA_RCR_CHAIN_VIPER` | `3236f890` | `CX2CustomFunctionByChainViper` | creator user must exist |
+| 927 `BTI_DEBUFF_ATOMIC_BLASTER_PLASMAGUN_UPGRADE` | `322a8e80` | `CX2CustomFunctionByAtomicBlaster` | – |
+| 952 `BTI_DEBUFF_ATTACK_ME` | `3236fc50` | `CX2CustomFunctionByAttackMe` | **NPC only.** On any other unit June calls `3229e160( 952 )`, which erases the buff itself, and creates nothing. |
+| 1010 `BTI_DEBUFF_GEIST_HERRSCHAFT` | `3236fd90` | `CX2CustomFunctionByGeistHerrschaft` | – |
+| 1022 `BTI_DEBUFF_A_AAP_MODER_MARKING` | `32370210` | `CX2CustomFunctionByModer` | – |
+| 1038 `BTI_BUFF_DEATH_SIGN` | `322a8e50` | `CX2CustomFunctionByBuffDeathSign` | – |
+
+- **The creator check.** "Creator user must exist" is `CX2Game` slot 40 (`322cca00`) = `GetUserUnitByUID`: it walks `m_UserUnitList` and compares each unit's slot-21 `GetUnitUID` with the 64-bit UID. March has `CX2Game::GetUserUnitByUID`.
+- **Four of the ledger's 17 "unhandled" BTIs have no case** and fall to `default` (nothing is created): `BLOOD_REVENGE_COUNTER`, `BLOOD_RUNAWAY`, `FLASH_BANG` and `TRAPPINGARROW_FUNGUS_DEBUFF`. Whatever they do in June lives elsewhere, most likely in per-class `HaveThisBuff` checks (March keeps FLASH_BANG in `X2GUAra.cpp:13854`). Phase 9 must look for them there, not in this switch.
+- **`CX2CustomFunctionByBuffSolessTitleInvincible` (vt `3349011c`) is dead.** The vtable's only code reference is its ctor `32369b80`, which has no callers and no data references.
+- **Vtables:** 9 slots, 10 for `BigBangStream`. `CX2CustomFunctionByAttackMe` overrides only its dtor: `[0]` `322aaf60`, `[1]`–`[5]` and `[7]` `33093ad0` (empty), `[6]` `33108560`, `[8]` `3208ddc0`.
+  - Phase 4a's note places March's four hooks at slots 3–6 and June's new apply hook at slot 7 (caller `32275860`). Item 5 did not re-derive that.
+  - Regenerate the per-class overrides with `buffre/vt.py CustomFunction`.
+
 ### Phase 1c — progress (2026-10-03)
 
 - **Item 1 done** (above), committed in two steps after an advisor review corrected the readiness split.
 - **Item 2 done** (above, second 1c session). It also corrected Phase 1's 77, 110 and 104 rows and named slot 499 (`CommonFrameMove`), `3276cb20` (`CommonEventProcessNonHost`) and `3276d980` (`CommonEventProcess`).
 - **Item 3 done** (above, third 1c session). It corrected Phase 1b's 78 getter members and the premise that 92's second members are filled only by buffs.
-- **Items 4 and 5 open.**
+- **Item 5 done** (above, same session as item 3).
+- **Item 4 open:** the BFT 14 AURA class (10 slots), and the BFT 15/16 runtime counters, increment sites and UDP sync. Start it in a fresh session; Phase 1's lesson about context size applies. Check 4b-ii's notes first, because 4b-ii owns the existing finalizers and may have touched the same code.
+- **Cost, third 1c session (items 3 and 5):** not readable in-session; ask the user.
 - **Item 5 is reduced.** Phase 4a already named `322a6960`'s virtuals (`+0x210` `CanApplyBuffToGameUnit`, `+0x224` `SetBuffFactorToGameUnit`, `+0x234` empty, `+0x770` BFT 15/16 scaling) and `OnFrameMoveBuff` (`3229d620`). Only `CreateAndInsertCustomFunctionByBuff` remains (from `CX2BuffCustomFunctionBehaviorTemplet::SetFactor` `32e79b00`).
 - **Cost:** `/cost` is not readable from inside the session. Ask the user and add it here, for both the first 1c session and the second.
 
@@ -1128,9 +1170,9 @@ Done note, "Phase 1c, item 1", "Phase 1c, item 2" and "Phase 1c — progress", p
 Phase 4a sections. Branch: mods/june-buff-port. Use the ghidra skill on unpacked_x2.exe;
 do not mutate the Ghidra project without asking.
 
-Your task (Phase 1c items 3-5, read-only, Opus 5.5 high): continue the Phase 1c list in
-the Done note from item 3 (item 5 is reduced to CreateAndInsertCustomFunctionByBuff; see
-the progress note), skipping anything Phase 4a already recorded. Same method and
+Your task (Phase 1c item 4, read-only, Opus 5.5 high): finish the Phase 1c list in the
+Done note with item 4 (items 1, 2, 3 and 5 are done; see the progress note), skipping
+anything Phase 4a or 4b already recorded. Same method and
 bar as item 1: parse/store/read-site pseudocode at June addresses, a host-function diff
 against March for every read site (a June-rewritten host makes the type Opus-only), and
 confirmed funcmap.tsv rows. Another session may be editing the doc: re-read before each

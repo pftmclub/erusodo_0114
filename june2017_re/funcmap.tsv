@@ -524,3 +524,26 @@ mesh+0x54c	none in March: CXMeshInstance previous-frame velocity snapshot	confir
 322814a0	CX2GameUnit vtable slot 120: set basic stats from a stat block	confirmed	Buff Phase 1c item 3: {float hp; int pAtk, mAtk, NEW +0xc, NEW +0x10, pDef, mDef} -> +0x42d0,+0x4384,+0x4438,+0x44ec,+0x45a0,+0x4654,+0x4708
 32281690	CX2GameUnit vtable slot 119: same seven basics as 322814a0	confirmed	Buff Phase 1c item 3: same stat-block layout
 3208e0a0	none in March: CX2GUUser vtable slot 113	confirmed	Buff Phase 1c item 3: word +0x80f8 + arg (RNG seed source for 322788c0); NPC 327559f0 uses word +0x8474
+32e79b00	CX2BuffCustomFunctionBehaviorTemplet::SetFactor	confirmed	Buff Phase 1c item 5: if !DidStart: copy factor, 3229e1a0(identity, factor, {!factor+0x38, factor+0x30 creator UID, T+0xbc}); true; no popup
+32e73f90	CX2BuffCustomFunctionBehaviorTemplet::SetFactorFromPacket	confirmed	Buff Phase 1c item 5: if !DidStart: 3229e1a0(kBuffFactor+0x20, values, info from kBuffFactor +0x28/+0x2c/+0x3d/+0x57)
+32e73fe0	CX2BuffCustomFunctionBehaviorTemplet::DoFinish	confirmed	Buff Phase 1c item 5: if DidStart: 3227a1d0(identity) (= March :2145)
+32e7e000	CX2BuffCustomFunctionBehaviorTemplet::GetFactor	confirmed	Buff Phase 1c item 5: copies the stored factor (32129000 on +0x10)
+3229e1a0	CX2GameUnit::CreateAndInsertCustomFunctionByBuff	confirmed	Buff Phase 1c item 5: switch on BTI: 16 BTIs -> 13 classes (doc 1c item 5 table); push_back 322ad1e0
+3227a1d0	CX2GameUnit::EraseCustomFunctionByBuff	confirmed	Buff Phase 1c item 5: called by custom-function DoFinish 32e73fe0 with the templet identity
+322cca00	CX2Game::GetUserUnitByUID	confirmed	Buff Phase 1c item 5: CX2Game slot 40: walks m_UserUnitList, compares slot 21 GetUnitUID with the 64-bit argument
+3236eee0	CX2CustomFunctionByBuffPhantomSword ctor	confirmed	Buff Phase 1c item 5: BTI 29
+322ab4e0	CX2CustomFunctionByBuffBigBangStream ctor	confirmed	Buff Phase 1c item 5: BTI 56 (user only in June)
+322aad80	CX2CustomFunctionByBuffMarkOfCommand ctor	confirmed	Buff Phase 1c item 5: BTI 62
+322aae50	CX2CustomFunctionByBuffPandemoniumFear ctor	confirmed	Buff Phase 1c item 5: BTI 223
+322aaef0	CX2CustomFunctionByBuffMoonlightRhapsody ctor	confirmed	Buff Phase 1c item 5: BTI 439
+323698b0	CX2CustomFunctionByBuffServoNitro ctor	confirmed	Buff Phase 1c item 5: BTI 720 and 920
+322aaf80	CX2CustomFunctionByBuffSinisterMind ctor	confirmed	Buff Phase 1c item 5: BTI 767 (creator user must exist)
+3236f6b0	CX2CustomFunctionBySummonNpcTarget ctor	confirmed	Buff Phase 1c item 5: BTI 894 and 819 (creator user must exist)
+3236f890	CX2CustomFunctionByChainViper ctor	confirmed	Buff Phase 1c item 5: BTI 891 (creator user must exist)
+322a8e80	CX2CustomFunctionByAtomicBlaster ctor	confirmed	Buff Phase 1c item 5: BTI 927
+3236fc50	CX2CustomFunctionByAttackMe ctor	confirmed	Buff Phase 1c item 5: BTI 952, NPC only; other units erase BTI 952 (3229e160)
+3236fd90	CX2CustomFunctionByGeistHerrschaft ctor	confirmed	Buff Phase 1c item 5: BTI 1010
+32370210	CX2CustomFunctionByModer ctor	confirmed	Buff Phase 1c item 5: BTI 1022
+322a8e50	CX2CustomFunctionByBuffDeathSign ctor	confirmed	Buff Phase 1c item 5: BTI 1038
+32369b80	CX2CustomFunctionByBuffSolessTitleInvincible ctor	confirmed	Buff Phase 1c item 5: dead: no callers, no data refs; the vtable 3349011c's only code ref
+32007b10	none in March: skill-level value for custom-function ctors	candidate	Buff Phase 1c item 5: reads UserSkillTree::GetSkillLevel (32890620); used by BTI 56/767 branches
