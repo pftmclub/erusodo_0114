@@ -57,6 +57,7 @@ The user decided (2026-10-02):
 | 12 | Buff icons/UI assets | 2 | data | Sonnet 5.5 | medium | light |
 | 13 | Adopt June buff data, build, hand off pack | 4–12 | data + build | Sonnet 5.5 | medium | required (Opus 5.5) |
 | 14 | Play-test sweep + close-out | 13 | verify + root-cause | Opus 5.5 | high | none |
+| 15 | Enchant system parity (added 2026-10-04) | – | RE + C++ + data | Opus 5.5 | high | required |
 
 Phases 5–9 are independent of each other and can run in any order. Phase 13 must come last among the data phases.
 
@@ -331,6 +332,7 @@ Already confirmed: `32630d20` `ParsingBuffFactorID` and `32632390` `SetDamageDat
 | `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` | 9 |
 | `SERV_IRUHADEV_JUNE_BUFF_GROUP` | 10 |
 | `SERV_IRUHADEV_JUNE_BUFF_PREMIUM` | 11 |
+| `SERV_IRUHADEV_JUNE_ENCHANT_PARITY` | 15 |
 
 ## The exit metric every phase uses
 
@@ -2666,7 +2668,7 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The sessi
   - Porting it means adding that pic-char to `CX2Data` (ctor arguments from `31edd860`) and checking that its glyphs cover letters.
 - **Dormant vslot 3/9/10/11 chain.** `322a7660` calls unit vslots `+0x210` (132), `+0x770` (476) and `+0x234` (141), none mapped yet (Phase 1c item 5 also left them open). `3236a430` re-runs the displayers through a June UI tail (`322ab560`, `324943c0`, `32489810`, `32580100`). Map those first. The behavior-side overrides are already decoded (part 3).
 - **AnimStop `+0x8080` marker.** June's vslot 153 with argument 0 is March's `IsSuperArmor()`. The only constant-1 caller, `3229a669`, gates on `APPLIED_SKILL_ID == 24057` (`RNSI_SA_RRF_DEVASTATING_STRIKE`, after a 24222 `RNSI_A_RBM_POINTED_STILETTO` check). Both are June renewal skills, so that caller is June-only. **Unresolved:** the 7 sites that pass the argument in a register (part 3 review's scan) are not traced, so whether a March-equivalent path asks for the variant is still open.
-- **Enchant accumulation rework `32272d90`: no owning phase.** June replaces March's "×2 at accumulation 1–2" with `+ 1× / 2×` the attacker's `EnchantData+0x3c` (`m_fAttribReiterationRate`), and adds a fourth tier per element (4004/4044/4404). June's `EnchantData` loader `32708f00` also reads `m_fBlazeMpDrain`, `m_fPiercingDamageFactor`, `m_iShockDebuffTime` and `m_fShockDebuffDamageFactor`. This is an enchant-system port (with June's EDT renumbering), not a buff behaviour; the user decides whether it gets a phase.
+- **Enchant accumulation rework `32272d90`: no owning phase.** June replaces March's "×2 at accumulation 1–2" with `+ 1× / 2×` the attacker's `EnchantData+0x3c` (`m_fAttribReiterationRate`), and adds a fourth tier per element (4004/4044/4404). June's `EnchantData` loader `32708f00` also reads `m_fBlazeMpDrain`, `m_fPiercingDamageFactor`, `m_iShockDebuffTime` and `m_fShockDebuffDamageFactor`. This is an enchant-system port (with June's EDT renumbering), not a buff behaviour. **Decided (user, 2026-10-04): it gets its own phase, Phase 15.**
 - **BBT 6 HP-ratio rescale: orphaned hand-off.** Phase 1c item 3 (and the Phase 5 text) hands June's BBT 6 insert/erase rescale (`32282723`/`32283113`, `31e4f900`/`31e551a0`, gage `32081260`) to 4b, but no 4b stop list carried it. It is listed below.
 
 **Hygiene.** A fresh byte-level unifdef of the flag: all 9 code files reduce byte-for-byte to `db3d003`, the `HEAD` before `b9999a2`. Each raw file differs from it, so the check is not vacuous. `--numstat` shows 203 insertions and 1 deletion, the deletion being our own R1 comment line. All inserted lines are ASCII, the line endings follow each host file (all CRLF here), and the `file` signatures of all 9 files are unchanged.
@@ -2685,7 +2687,7 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The sessi
 2. RSCT DRAW_TEXT: `CX2Data` `PicCharYellowSmall` plus the draw call.
 3. The dormant chain: map unit vslots 132/141/476 and `3236a430`'s UI tail, then port.
 4. The AnimStop `+0x8080` marker: trace the 7 register-passed vslot 153 callers; port the marker only if a March-equivalent path passes 1.
-5. **User decisions:** D2 (the roll: recommend Phase 5c), the runtime popups (part 3), and whether the enchant accumulation rework gets a phase.
+5. **User decisions:** D2 (the roll: recommend Phase 5c) and the runtime popups (part 3). (The enchant rework is decided: Phase 15.)
 6. Then 4b-ii (finalizers and displayers).
 
 **Review of part 4:** required (Opus 5.5). Suggested spot-checks:
@@ -2970,6 +2972,45 @@ do in game, then read offline_server.log and ErrorLog.txt for the [JUNE_BUFF] ev
 Fix confirmed defects under the owning phase's flag. Then disable
 SERV_IRUHADEV_JUNE_BUFF_DEBUG, update MODS.md and JUNE2017_CHARACTER_PORT_CHECKLIST.md,
 mark the doc's phases done with dates, and commit.
+```
+
+---
+
+## Phase 15 — Enchant system parity (attribute enchant rework)
+
+**Added 2026-10-04 at the user's request** (decision on part 4's open question: yes, this gets its own phase). It is not a buff behaviour: it changes how weapon attribute enchants (blaze, frozen, poison, piercing, shock, snatch) roll and proc. Phase 4b-i part 4 found it while diffing the CHANGE_ENCHANT_ATTACK_RATE host.
+
+**What June changed (measured in part 4):**
+- **Accumulation modifier** `32272d90` (March `CX2GameUnit::EnchantAccumulationRateModifier`, `X2GameUnit.cpp:4983`). March doubles the proc rate when the defender's accumulation of that element is 1 or 2. June adds `1×` / `2×` the attacker's `EnchantData+0x3c` (`m_fAttribReiterationRate`) instead, for accumulation 1 / 2, and only when the `g_pData` member at `+0x284` is non-null (not yet identified) and the attacker exists. It picks `GetEnchantData` (user, `32708ce0`) or `GetNPCEnchantData` (`32708d10`) by unit type.
+- **A fourth tier per element.** The element test accepts four EDTs each: e.g. blaze 1001 / 2002 / 3003 / 4004. June's `Enum.src.lua` has 78 `EDT_ENCHANT_*` names against March's 45, including `EDT_ENCHANT_QUADRA_*_MASTER` and `EDT_ENCHANT_DOUBLE_MASTER_SHOCK_OLD`. **The EDT values were renumbered** (March `EDT_ENCHANT_BLAZE = 100`; June's element base is 1001), so this phase starts with an enum reconciliation like Phase 2's.
+- **New `EnchantData` fields**, read by June's loader `32708f00` after `m_MPDrain`: `m_fAttribReiterationRate` (+0x3c), `m_fBlazeMpDrain`, `m_fPiercingDamageFactor`, `m_iShockDebuffTime`, `m_fShockDebuffDamageFactor`. Their readers (the `ProcessEnchant*` bodies, slots 214–219, now virtual) are not yet decoded.
+- **Data.** June's `june_src_fixed/data036_kom/AttribEnchantItem.src.lua` (37 entries) carries the new keys and the quadra tiers. March loads `AttribEnchantItem.lua` and `AttribEnchantRequire.lua` (`X2EnchantItem.cpp:7-8`); `AttribEnchantTable.lua` also exists in the staged `data036_kom`.
+
+**Unchanged (do not redo):** the host rate formula in `ProcessEnchantExtraDamage` (`322a0510`) and the buff-side split `32274df0` equal March's (part 4).
+
+**Scope.**
+1. RE: the six `ProcessEnchant*` bodies (June slots 214–219) against March's, the readers of the five new fields, the `g_pData+0x284` flag, and June's `AttribEnchantRequire`/`AttribEnchantTable` loaders. Record in `funcmap.tsv`.
+2. EDT enum reconciliation (Lua and C++), with a consumer audit of every hard-coded EDT value in `X2Lib` (socket options, item scripts and damage data name EDTs too).
+3. `EnchantData` fields and the loader; the accumulation modifier; the per-element process bodies.
+4. Adopt June's `AttribEnchantItem.lua` (and the two siblings if they differ). **Pairing:** the Lua and the exe ship together; the user packs.
+
+**Flag:** `SERV_IRUHADEV_JUNE_ENCHANT_PARITY` (new, `KTDXLIB/Always.h`).
+**Depends on:** nothing in the buff port; it can run any time. Phase 4b-i part 4's "Enchant host math" note is its starting point.
+**Run with:** Opus 5.5, high effort (RE plus an enum renumbering with a consumer audit). Review required (Opus 5.5).
+
+```
+Continuing the June buff/debuff port's side phase. Read JUNE_BUFF_PORT_PHASES.md in the repo
+root -- "Starting context", "Phase 4b-i, part 4" (its enchant note) and "Phase 15". Branch:
+mods/june-buff-port. Never launch X2_offline.exe without asking first.
+
+Your task (Phase 15, enchant system parity): do Phase 15's scope in order. Start with the RE
+(ProcessEnchant* slots 214-219, the five new EnchantData fields' readers, g_pData+0x284) and
+the EDT enum reconciliation with a full consumer audit, and stop to ask the user before
+renumbering any EDT value March data depends on. Then port the EnchantData fields, the loader,
+32272d90 and the process bodies under SERV_IRUHADEV_JUNE_ENCHANT_PARITY: June's whole
+functions, byte-level CP949 edits, insert-only, flag-off unifdef check per file. Stage June's
+AttribEnchantItem.lua (compile -v mar-2014, both staging dirs, manifest) and name it for the
+user to pack. Build, deploy, commit; record where you stopped.
 ```
 
 ---
