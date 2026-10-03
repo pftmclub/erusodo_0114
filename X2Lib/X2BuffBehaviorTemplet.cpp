@@ -1202,7 +1202,7 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 {
 	/// June 32e860a0. NPCs get the created factor too (March inserted for users only), at the templet's stack
 	/// count; a user with SKILL_ID takes that skill's level instead. APPLY_TO_SPECIAL_ATTACK is kept and sent;
-	/// June hands it to the unit's list, whose reader (the damage manager, 326309f0) is not ported yet.
+	/// June hands it to the unit's list entry, which CX2DamageManager reads (326309f0).
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
 		return false;
@@ -1238,7 +1238,7 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	m_bApplyToSpecialAttack = ( 2 < pBehaviorFactor->m_vecValues.size() && 0.0f < (*pBehaviorFactor)[2] );
 
 	if ( NULL != ptrBuffFactor )
-		pGameUnit_->CreateAndInsertTemporaryBuffFactor( *ptrBuffFactor, pBuffTemplet_->GetBuffIdentity(), uiLevel );
+		pGameUnit_->CreateAndInsertTemporaryBuffFactor( *ptrBuffFactor, pBuffTemplet_->GetBuffIdentity(), uiLevel, m_bApplyToSpecialAttack );
 	return true;
 }
 #else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
@@ -1350,7 +1350,7 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	}
 
 	if ( NULL != ptrBuffFactor )
-		pGameUnit_->CreateAndInsertTemporaryBuffFactor( *ptrBuffFactor, kBuffFactor_.m_BuffIdentity, uiLevel );
+		pGameUnit_->CreateAndInsertTemporaryBuffFactor( *ptrBuffFactor, kBuffFactor_.m_BuffIdentity, uiLevel, m_bApplyToSpecialAttack );
 }
 #else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ void CX2BuffCreateBuffFactortBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
@@ -2965,6 +2965,113 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 	@param : 읽어들이려는 스크립트의 루아매니저(luaManager_)
 	@return : 파싱 성공시 true, 실패시 false 리턴
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : ParsingBehavior
+	@brief : June 32e745b0: BUFF_CHANGE_TYPE, required (no popup)
+*/
+/*virtual*/ bool CX2BuffChangeAttackByTypeBehaviorTemplet::ParsingBehavior( KLuaManager& luaManager_ )
+{
+	int iChangeType = 0;
+	if ( false == luaManager_.GetValue( "BUFF_CHANGE_TYPE", iChangeType ) )
+	{
+		m_eChangeType = BCT_SWAP_VALUE;
+		return false;
+	}
+
+	m_eChangeType = static_cast<BUFF_CHANGE_TYPE>( iChangeType );
+	return true;
+}
+
+/** @function : SetFactor
+	@brief : June 32e77070. BCT_PERCENT only, and no popups. The first application stores the value, the
+			 attack type and ADDITIONAL_ATTACK_TYPE (factor value 3) on the unit; a restack keeps the larger
+			 magnitude, scales it by the accumulation multiplier (NowHp's formula, 32e798d0) and replaces the
+			 unit's entry.
+*/
+/*virtual*/ bool CX2BuffChangeAttackByTypeBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( static_cast<int>( (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != static_cast<int>( m_eChangeType ) || BCT_PERCENT != m_eChangeType )
+		return false;
+
+	const float fNewValue = (*pBehaviorFactor)[FO_VALUE];
+
+	if ( !DidStart() )
+	{
+		m_fResultValue = fNewValue;
+		m_eAttackType = static_cast<CX2DamageManager::ATTACK_TYPE>( static_cast<int>( (*pBehaviorFactor)[FO_ATTACK_TYPE] ) );
+		m_iAdditionalAttackType = static_cast<int>( (*pBehaviorFactor)[3] );
+		pGameUnit_->CreateAndInsertChangeAttackByType( pBuffTemplet_->GetBuffIdentity(), m_eAttackType, m_fResultValue, m_iAdditionalAttackType );
+		return true;
+	}
+
+	const UINT uiAccumulationCountBefore = pBuffTemplet_->GetAccumulationCountNow();
+	if ( uiAccumulationCountBefore > 0 )
+	{
+		const float fAccumulationMultiflier = pBuffTemplet_->GetAccumulationMultiflier();
+		const float fOldValue = m_fResultValue / ( 1 + fAccumulationMultiflier * (uiAccumulationCountBefore - 1) );
+		m_fResultValue = ( abs(fOldValue) < abs(fNewValue) ? fNewValue : fOldValue );
+		m_fResultValue *= ( 1 + fAccumulationMultiflier * uiAccumulationCountBefore );
+	}
+	else
+		m_fResultValue = ( abs(m_fResultValue) < abs(fNewValue) ? fNewValue : m_fResultValue );
+
+	m_eAttackType = static_cast<CX2DamageManager::ATTACK_TYPE>( static_cast<int>( (*pBehaviorFactor)[FO_ATTACK_TYPE] ) );
+	m_iAdditionalAttackType = static_cast<int>( (*pBehaviorFactor)[3] );
+	pGameUnit_->EraseChangeAttackByType( pBuffTemplet_->GetBuffIdentity() );
+	pGameUnit_->CreateAndInsertChangeAttackByType( pBuffTemplet_->GetBuffIdentity(), m_eAttackType, m_fResultValue, m_iAdditionalAttackType );
+	return true;
+}
+
+/** @function : GetClonePtr
+	@return : CX2BuffBehaviorTempletPtr
+*/
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffChangeAttackByTypeBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffChangeAttackByTypeBehaviorTemplet( *this ) );
+}
+
+/** @function : GetFactor
+	@brief : June 32e7e440: March's three values, then ADDITIONAL_ATTACK_TYPE appended
+*/
+/*virtual*/ void CX2BuffChangeAttackByTypeBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+	KBuffBehaviorFactor& BehaviorFactor = vecFactors_.back();
+
+	BehaviorFactor.m_vecValues.push_back( static_cast<float>( m_eChangeType ) );
+	BehaviorFactor.m_vecValues.push_back( m_fResultValue );
+	BehaviorFactor.m_vecValues.push_back( static_cast<float>( m_eAttackType ) );
+	BehaviorFactor.m_vecValues.push_back( static_cast<float>( m_iAdditionalAttackType ) );
+}
+
+/** @function : SetFactorFromPacket
+	@brief : June 32e74740: needs all four values (a three-value packet from a March client is ignored)
+*/
+/*virtual*/ void CX2BuffChangeAttackByTypeBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	if ( kFactor_.m_vecValues.size() < 4 )
+		return;
+
+	m_eChangeType			= static_cast<BUFF_CHANGE_TYPE>( static_cast<int>( kFactor_.m_vecValues[FO_CHANGE_TYPE] ) );
+	m_fResultValue			= kFactor_.m_vecValues[FO_VALUE];
+	m_eAttackType			= static_cast<CX2DamageManager::ATTACK_TYPE>( static_cast<int>( kFactor_.m_vecValues[FO_ATTACK_TYPE] ) );
+	m_iAdditionalAttackType	= static_cast<int>( kFactor_.m_vecValues[3] );
+
+	pGameUnit_->CreateAndInsertChangeAttackByType( kBuffFactor_.m_BuffIdentity, m_eAttackType, m_fResultValue, m_iAdditionalAttackType );
+}
+
+/** @function : DoFinish
+	@brief : June 32e747b0 (as March)
+*/
+/*virtual*/ void CX2BuffChangeAttackByTypeBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	pGameUnit_->EraseChangeAttackByType( pBuffTemplet_->GetBuffIdentity() );
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ bool CX2BuffChangeAttackByTypeBehaviorTemplet::ParsingBehavior( KLuaManager& luaManager_ )
 {
 	LUA_GET_VALUE_RETURN_ENUM( luaManager_, "BUFF_CHANGE_TYPE", m_eChangeType, 
@@ -3054,6 +3161,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 {
 	pGameUnit_->EraseChangeAttackByType( pBuffTemplet_->GetBuffIdentity() );
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////

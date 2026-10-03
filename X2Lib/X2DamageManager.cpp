@@ -3849,6 +3849,59 @@ void CX2DamageManager::ParsingBuffFactor( KLuaManager& luaManager_, DamageData* 
 	@brief : 소켓 옵션에 의해 다른 유저에게 줄 버프/디버프의 팩터, 자신에게 걸린 버프에 의해 다른 사람에게 줄 버프/디버프가 있는 경우(소드파이어) 사용
 	@param : 데미지 이펙트
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/// June 326309f0's per-entry test: an AT_SPECIAL hit takes the entry only when the entry is flagged and the
+/// hit's APPLIED_SKILL_ID names a skill that is not hyper-active (June 32070510 maps ST_HYPER_ACTIVE_SKILL to 5,
+/// the value it skips). Every other attack type takes it.
+static bool JuneBuffCanPushAttackerBuffFactor( const CX2DamageManager::DamageData* pDamageData_, const CX2BuffFactor& BuffFactor_ )
+{
+	if ( true == BuffFactor_.GetApplyToSpecialAttack() && NULL != g_pData && NULL != g_pData->GetSkillTree() )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet
+			= g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( pDamageData_->m_iAppliedSkillID ) );
+		if ( NULL != pSkillTemplet && CX2SkillTree::ST_HYPER_ACTIVE_SKILL != pSkillTemplet->m_eType )
+			return true;
+	}
+
+	return ( CX2DamageManager::AT_SPECIAL != pDamageData_->attackType );
+}
+
+/** @function : PushSocketAndTemporaryBuffFactor
+	@brief : June 326309f0. March took both lists for AT_NORMAL hits only; June takes them for every attack
+			 type and filters each entry (JuneBuffCanPushAttackerBuffFactor), so AT_COMMAND hits take every
+			 entry. The permanent list still skips RT_NO_DAMAGE and RT_DUMMY_DAMAGE hits.
+*/
+/*static*/ void CX2DamageManager::PushSocketAndTemporaryBuffFactor( DamageData* pDamageData_ )
+{
+	if ( null == pDamageData_->optrAttackerGameUnit )
+		return;
+
+	CX2GameUnit* pAttackerGameUnit = pDamageData_->optrAttackerGameUnit.GetObservable();
+
+	if ( RT_DUMMY_DAMAGE != pDamageData_->reActType && RT_NO_DAMAGE != pDamageData_->reActType )
+	{
+		const vector<CX2BuffFactorPtr>& vecAttackerGameUnitBuffFactorPtr = pAttackerGameUnit->GetBuffFactorList();
+		BOOST_FOREACH( CX2BuffFactorPtr ptrBuffFactor, vecAttackerGameUnitBuffFactorPtr )
+		{
+			if ( NULL != ptrBuffFactor && true == JuneBuffCanPushAttackerBuffFactor( pDamageData_, *ptrBuffFactor ) )
+			{
+				ptrBuffFactor->SetGameUnitBuffFactor( pAttackerGameUnit );
+				pDamageData_->m_vecBuffFactorPtr.push_back( ptrBuffFactor );
+			}
+		}
+	}
+
+	const vector<CX2BuffFactorPtr>& vecAttackerGameUnitTemporaryBuffFactorPtr = pAttackerGameUnit->GetTemporaryBuffFactorList();
+	BOOST_FOREACH( CX2BuffFactorPtr ptrBuffFactor, vecAttackerGameUnitTemporaryBuffFactorPtr )
+	{
+		if ( NULL != ptrBuffFactor && true == JuneBuffCanPushAttackerBuffFactor( pDamageData_, *ptrBuffFactor ) )
+		{
+			ptrBuffFactor->SetGameUnitBuffFactor( pAttackerGameUnit );
+			pDamageData_->m_vecBuffFactorPtr.push_back( ptrBuffFactor );
+		}
+	}
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*static*/ void CX2DamageManager::PushSocketAndTemporaryBuffFactor( DamageData* pDamageData_ )
 {
 	/// 공격타입이 NORMAL인 경우
@@ -3886,6 +3939,7 @@ void CX2DamageManager::ParsingBuffFactor( KLuaManager& luaManager_, DamageData* 
 		}		
 	}
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #ifdef DAMAGE_EFFECT_GROUP_DAMAGE
 

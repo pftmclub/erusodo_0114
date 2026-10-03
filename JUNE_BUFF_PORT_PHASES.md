@@ -1967,10 +1967,10 @@ All changes are under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY` (`KTDXLIB/Always
 | Class HyperMode SetFactor/OnFrameMove/packet/DoFinish | `32e7dbb0`/`32e7dae0`/`32e7ddb0`/`32e7de90` | **ported**, except `32b4dd50` (GetFactor `32e7dcf0` same). `32b4dd50` writes a June-only `CX2GameUnit` int at `+0x6844`, set to the count (or 1) at start and 0 at finish. It is **not** March's `SetHyperModeCount`, which sets the gage's orb count, so mapping it there would wipe the player's orbs. Its readers are unmapped: pending, part 2. |
 | Class Create SetFactor/GetFactor/packet | `32e860a0`/`32e7d930`/`32e862c0` | **ported**; DoFinish same |
 | Class Absorb SetFactor/packet | `32e768a0`/`32e76a00` | **ported** (index 1); GetFactor and DoFinish same |
-| **Damage-manager reader of both buff-factor lists** | `326309f0` | **pending, part 2.** June makes both lists (`+0xe24` permanent, `+0xe34` temporary) `{ptr, bool}`. It skips them on `AT_SPECIAL` attacks unless the bool is set, and when it is set it still skips them for skill type 5. The permanent list's inserts (`322a25f0`, called from `3204f190` with 0 and from `32d1c560` ×3) still need tracing. Until that is done, Create stores and sends the flag, but nothing reads it. |
-| Class AttackByType SetFactor/packet/DoFinish | `32e77070`/`32e74740`/`32e747b0` | **pending, part 2.** The unit store `322818d0` gains the additional type (4 args), and its reader is not mapped. The level slice puts the new value last, so March's class still reads indices 0–2 correctly. |
-| Class NeverMove ParsingBehavior + slots 1/2/5/6/13 | `32e7a4a0` (keys `IS_GRAVITY`, `CAN_DOWN`, `OFFSET_POSITION`, `DELETE_BUFF_WHEN_DIE`), `32e77000`, `32e744c0`, `32e7e330`, `32e74550`, `32e76e70` | **pending, part 2: this is where part 2 starts** |
-| Class ResetSkillCoolTime ParsingBehavior + slots 1/2/5 | `32e78e90` (keys `BUFF_CHANGE_TYPE`, `SKILL_TYPE`, `RELATIVE_ALL_SKILL`, `FORCE_SET`, `DRAW_TEXT`, `SKILL_SLOT_TYPE`, `APPLY_ONCE`, plain `FORCE_SKILL_ID`/`IGNORE_SKILL_ID`), `32e85fe0`, `32e76aa0`, `32e7dee0` | pending, part 2 (no packet override in June) |
+| **Damage-manager reader of both buff-factor lists** | `326309f0` | **ported in part 2** (see "Phase 4b-i, part 2"; the skipped skill is hyper-active, not type 5). Was: **pending, part 2.** June makes both lists (`+0xe24` permanent, `+0xe34` temporary) `{ptr, bool}`. It skips them on `AT_SPECIAL` attacks unless the bool is set, and when it is set it still skips them for skill type 5. The permanent list's inserts (`322a25f0`, called from `3204f190` with 0 and from `32d1c560` ×3) still need tracing. Until that is done, Create stores and sends the flag, but nothing reads it. |
+| Class AttackByType SetFactor/packet/DoFinish | `32e77070`/`32e74740`/`32e747b0` | **ported in part 2.** Was: **pending, part 2.** The unit store `322818d0` gains the additional type (4 args), and its reader is not mapped. The level slice puts the new value last, so March's class still reads indices 0–2 correctly. |
+| Class NeverMove ParsingBehavior + slots 1/2/5/6/13 | `32e7a4a0` (keys `IS_GRAVITY`, `CAN_DOWN`, `OFFSET_POSITION`, `DELETE_BUFF_WHEN_DIE`), `32e77000`, `32e744c0`, `32e7e330`, `32e74550`, `32e76e70` | **ported in part 2** |
+| Class ResetSkillCoolTime ParsingBehavior + slots 1/2/5 | `32e78e90` (keys `BUFF_CHANGE_TYPE`, `SKILL_TYPE`, `RELATIVE_ALL_SKILL`, `FORCE_SET`, `DRAW_TEXT`, `SKILL_SLOT_TYPE`, `APPLY_ONCE`, plain `FORCE_SKILL_ID`/`IGNORE_SKILL_ID`), `32e85fe0`, `32e76aa0`, `32e7dee0` | **ported in part 2** except DRAW_TEXT's text (no packet override in June) |
 | Classes NowMp (new slots 3, 9, 10), ChangeStat (`SetFactor`, slots 3 and 11; does June keep the `ADJUST_BUFF_ACCMULATION_CALCULATE` branch?), EnchantAttackRate (slot 3) | see `vt_buff` | pending, part 2 |
 | Classes ReverseLR, Identity, UnitScale, EffectSetWithDamage, Stun, FinishOther, Freeze, CanPass, DoubleAttack, AttackSphereScale, AddSkillLevel, Reflect, ConsumeMpRate, Custom | slots listed by `vt.py` | pending, part 2 (decompiles cached in scratch only; regenerate with `compact.py` / `rawfn.py`) |
 | Hand-offs | 1c items 1/2, the 105 note, 1b | pending, part 2: type 56 in both `DamageReact`s; the DASH_IMPOSSIBLE NPC AI gate (`3276e442` switch); the CHANGE_ENCHANT_ATTACK_RATE host math (`32274df0`/`32272d90`); the BBT 7/8 second members plus the variance roll `322788c0` (read 1c item 3's 92 entry first: the second members' basics come from two new stat-block fields, `+0xc`/`+0x10`, via `CX2GameUnit` slots 119/120 `32281690`/`322814a0`) |
@@ -2116,6 +2116,137 @@ Independent review of `3f51f2b` and `905d514` (`SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR
 - `253581c`/`5850872` (Phase 1c item 4, committed by another session during this review) touch only the doc and `funcmap.tsv`, so this exe contains no other code change.
 
 **Review cost.** `/cost` is not readable from inside the session; ask the user.
+
+### Phase 4b-i, part 2 — progress (2026-10-03), launch check pending
+
+Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. Commits: `05f5230` (NeverMove), `22d63b3` (ResetSkillCoolTime), and the damage reader + AttackByType commit that carries this section. Every code file is insert-only against studio bytes, and the encodings are unchanged.
+
+The flag-off check uses a byte-level unifdef of this flag:
+- `X2BuffBehaviorTemplet.h/.cpp` and `X2BuffFactor.h` reduce to `3f51f2b^`;
+- `X2GUUser.h/.cpp`, `X2Game.cpp`, `X2BuffTemplet.h`, `X2GameUnit.h/.cpp`, `X2UserSkillTree.h/.cpp` and `X2DamageManager.cpp` reduce to `66a1593`.
+
+The only deletions in `--numstat` are three lines of part 1's own flagged CreateBuffFactor code: the two inserts now pass the flag, and one comment changed.
+
+**The census gate passes.** `buff_census.py --phase 4b` goes from 19 pairs to **11, with no behavior pairs left**. What remains is finalizers and displayers (4b-ii).
+
+**This session found two RE corrections, both in the doc's part 1 text:**
+1. `326309f0`'s "skill type 5" is not `ST_BUFF`. The reader passes the skill templet through `32070510`, which maps `m_eType` to a category: 5→6, 6→1, 7/14→2, **13→5**, 15→3, 16→4, otherwise 0. So the excluded skill is `ST_HYPER_ACTIVE_SKILL`.
+2. The `+0x9f4/+0x9f8` handles (part 1 review, Info) are **June's data-driven awakening effect sets**. Their writers:
+   - `CX2GameUnit` vslot 48, `32298590`, plays `Effectset_TRANScendence_WakeUp_FX` into `+0x9f8`;
+   - `CX2GUUser` vslot 147, `3204b5e0`, plays names from data, with `_Add` appended when `GetUnit()+0xaf0` is type 9;
+   - `32011f50`, which every character class calls, plays the June-only name member `+0x9578`.
+
+   March plays and stops its awakening effects in the per-class `HyperModeBuffEffectStart/End`, on its own members. No March effect lands in these handles, so HyperMode's OnFrameMove-at-0 call to `32296cb0` has nothing to stop. It stays unported until June's awakening-effect system arrives with the character port.
+
+**Worksheet rows done in this session**
+
+| Item | June | Status |
+|---|---|---|
+| Class NeverMove, whole | `32e7a4a0`, `32e744c0`, `32e7e330`, `32e76e70`, `32e77000` (new OnFrameMove), `32e74550` | **ported** |
+| NeverMove unit store and read sites | `3227abb0`, `31fd8b40` (CX2GUUser vslot 469), `322cc270` (CX2Game), `320506f0`/`320194df` (IGNORE_NEVER_MOVE) | **ported** |
+| Class ResetSkillCoolTime, whole | `32e78e90`, `32e76aa0`, `32e85fe0`, `32e7dee0` (GetFactor same) | **ported**, except DRAW_TEXT's text `32e857d0` (logged once; see below) |
+| RSCT unit side | slots 160–162 (`31fcd810`, `31fdf340`, `31fdf400`; NPC `321f5590`/`322b55e0`), skill tree `32896600` + `328922f0` + `32894880` | **ported** |
+| Damage-manager reader of both lists | `326309f0`, inserts `322a25f0` | **ported** (traced first: `3204f190` passes false; `32d1c560` is Elsword, and only Spell Chain passes "has Magic Coating", June skill 21418, which March lacks) |
+| AttackByType class, store and reader | `32e745b0`, `32e77070`, `32e7e440`, `32e74740`, `32e747b0`; `322818d0`; `32274d60` | **ported** |
+| `+0x9f4/+0x9f8` re-verification | `32296cb0` | **done**: June-only (correction 2) |
+| `Always.h` R2 note | – | **done** in `05f5230` |
+
+**How each port sits on March**
+
+- **NeverMove.**
+  - The anchor is `GetPos(true)` + `OFFSET_POSITION`, read as a `D3DXVECTOR3` userdata through `LUA_GET_USER_DEFINED_TYPE_VALUE`.
+  - `GetFactor` appends CAN_DOWN and the offset after March's four values.
+  - `CX2NeverMoveByBuff` gains June's "can down" byte. **June's store always writes it as false**: `3227abb0` writes `+0x1d = 0` and both callers push 0. So CAN_DOWN is parse-and-send only. `CX2GUUser::CanDownUnderNeverMove` reads the byte, and `CX2Game::KeyProcess` then drops `m_InputData.oneDown` while my unit is anchored.
+  - `IGNORE_NEVER_MOVE` is read in `CommonStateStartFuture` (default false). In such a state, `PhysicProcess` moves the anchor to the unit instead of clamping the unit. Only June's `Elsword_SwordMan.lua` uses the key.
+- **ResetSkillCoolTime.**
+  - It goes through new `CX2GameUnit` virtuals: `ResetLeftSkillCoolTimeByBuff`, `SetResetCoolTimeIgnoreSkillID` and `SetResetCoolTimeForceSkillID`.
+  - `CX2UserSkillTree` gets `ResetLeftSkillCoolTimeByBuff`, `IsResetCoolTimeTarget` and `ApplyResetCoolTime`, plus the two lists. March's own `ResetLeftSkillCoolTimeBySkillType` is untouched; only the buff stops calling it.
+  - June's 5-slot bars become March's 4 (gage index `i` / `i+4`). `SKILL_SLOT_TYPE` 1/2 match bar A/B; 3 (transcendence) never matches.
+  - June's remap of a slot's skill ID (`328905b0`) is not ported; March's `GetUserSkillTemplet` does the lookup.
+- **Damage reader.**
+  - June keeps `{ptr, bool}` per list entry. Each entry already owns its clone (`GetClonePtr`), so the bool is a new `CX2BuffFactor` member, `m_bApplyToSpecialAttack`. It starts false in all three constructors, and the new insert overloads set it: `CreateAndInsertSkillAndSocketBuffFactorToList(ptr, bool)` and `CreateAndInsertTemporaryBuffFactor(..., bool)`.
+  - CreateBuffFactor's `SetFactor` and packet path now pass `APPLY_TO_SPECIAL_ATTACK`.
+  - The reader's skill test reads `DamageData::m_iAppliedSkillID`, so **BEHAVIOR_PARITY now also needs `SERV_IRUHADEV_JUNE_DAMAGEDATA`**. That is not yet in the `Always.h` comment: add it the next time that header is touched.
+- **AttackByType.**
+  - `CX2ChangeAttackByType` gains `m_iAdditionalAttackType` (-1 when none), with a 4-argument constructor and insert.
+  - `GetAdditionalAttackByType` is June's whole function.
+  - The restack is NowHp's formula, checked in the asm at `32e771a6`–`32e7721f`.
+  - `GetFactor` appends the additional type as a fourth value.
+
+**Behavior changes on March data (the review should measure these)**
+
+- **RSCT change types mean different things in June** (`32894880`, raw switch, `cmp 3`):
+
+  | Type | June | March |
+  |---|---|---|
+  | SWAP | sets the value; without FORCE_SET, only when that lowers it | – |
+  | FIX | adds the value, clamped to [0, the skill's cool time] | set (FORCE_SET or lower only) |
+  | RELATION | adds cool time × rate | added the value |
+  | PERCENT | sets cool time × rate | set cool time × rate |
+
+  Only SWAP and FIX report a change. **Count March's RSCT templets by change type** to see which ones flip. March's slot-B PERCENT gage index bug (index without `+4`) is fixed by the port.
+- **Every attack type now takes the attacker's buff-factor lists.**
+  - March took them only for `AT_NORMAL`. June takes `AT_COMMAND` too, and `AT_SPECIAL` only for flagged entries on a non-hyper skill.
+  - So socket, skill and title factors now also apply to `AT_COMMAND` hits. No March damage data uses `AT_COMMAND` until June data is adopted.
+  - **This closes 6c's precondition** for Phase 13.
+- **AttackByType's product is now clamped at 0, not at 1.** A March factor below 1.0 used to do nothing; now it lowers damage of that type.
+- **AttackByType packets need all four values**, as June's `32e74740` does. A 3-value packet is ignored.
+- **NeverMove packets add the offset a second time.** This is June's quirk, like Absorb's: the stage-change restore (`X2GameUnit.cpp` `SetKBuffFactorFromGageManagerToGameUnit`) re-anchors 2× offset away. March data has no OFFSET_POSITION, so it is unaffected today.
+
+**Not ported**
+- **RSCT DRAW_TEXT** (`32e857d0`): June floats string ids `0x978f`/`0x9790` in the formats `%s -%d%s`, `%s %d%s` or `%s%d%s` (by change type) at the unit, via `33228fe0`.
+  - It is parsed and stored. When it would fire, one `[JUNE_BUFF] unsupported (stored, consumer not ported)` line goes to `ErrorLog.txt`.
+  - Porting it needs those two strings in March's string table and the draw call identified.
+
+**Where part 2 resumes (pending, in this order)**
+1. The HyperMode `+0x6844` readers (part 1 review 1c: `32ba6dc1` and the others), mapped to their March equivalents.
+2. The undiffed NowHp slots: OnFrameMove `32e72d80`, GetFactor `32e7d4c0`, packet `32e79a80`, ParsingBehavior `32e72a00`, and `SelectDelegate`'s missing popup.
+3. NowMp (new slots 3, 9, 10), ChangeStat (`SetFactor`, slots 3 and 11), EnchantAttackRate (slot 3).
+4. The 14 remaining classes in the worksheet row (ReverseLR … Custom). Their slots are in `vt_buff`; regenerate it with `buffre/vt.py CX2Buff`.
+5. The four hand-offs: type 56 in both `DamageReact`s; the DASH_IMPOSSIBLE NPC AI gate; the CHANGE_ENCHANT_ATTACK_RATE host math; the BBT 7/8 second members plus `322788c0`.
+6. RSCT DRAW_TEXT (above).
+
+**funcmap.tsv:** 30 rows ("Buff Phase 4b-i part 2"). They supersede the `326309f0` "NOT PORTED" row and the `32296cb0` candidate row.
+
+**Build and deploy.**
+- Three passes, each at `US_SERVICE` with rc 0 and 0 errors:
+  - NeverMove: KTDXLIB + X2Lib + X2, because `Always.h` changed;
+  - RSCT: X2Lib + X2;
+  - reader + AttackByType: X2Lib + X2.
+- `stdafx.cpp` was touched before each pass.
+- Final `x2.exe`: 19,014,144 B, linked 13:40, md5 `ca1bed66e31b3d1e9004661ac71ddbd9`. It contains `IGNORE_NEVER_MOVE`, `FORCE_SKILL_ID`, `ADDITIONAL_ATTACK_TYPE` and `APPLY_TO_SPECIAL_ATTACK`.
+- Copied to the game directory as `X2_offline.exe`. The name was read programmatically and the md5 matches. **Not launched.**
+- No Lua changed, so no pack is needed.
+- **Launch check, expected:** the load summary is unchanged from part 1.
+- **Things to watch in play:**
+  - skills that reset cool times (RSCT change-type semantics);
+  - any March factor below 1.0 on ATTACK_BY_TYPE;
+  - never-move debuffs: the down key is blocked while anchored.
+
+**Kickoff for 4b-i part 3** (Opus 5.5 high):
+
+```
+Continuing the June buff/debuff port. Read JUNE_BUFF_PORT_PHASES.md in the repo root in
+full -- "Starting context", the "June buff function map", "Phase 4b", "Phase 4b-i, part 1"
+and "Phase 4b-i, part 2". Branch: mods/june-buff-port. Never launch X2_offline.exe
+without asking first.
+
+Your task (Phase 4b-i part 3): resume the part 2 list "Where part 2 resumes" from item 1
+(the HyperMode +0x6844 readers), under SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY: then the
+undiffed NowHp slots, NowMp/ChangeStat/EnchantAttackRate, the 14 remaining classes and the
+four hand-offs. Port June's whole function wherever it differs, keep
+GetFactor/SetFactorFromPacket order (append only), byte-level CP949 edits, insert-only,
+flag-off unifdef check per file. The next Always.h touch must add SERV_IRUHADEV_JUNE_DAMAGEDATA
+to BEHAVIOR_PARITY's dependency note. Build, deploy, commit; record where you stopped.
+```
+
+**Review of part 2:** required (Opus 5.5). Suggested spot-checks:
+- `32894880`'s jump table, `32894c3c`: are the cases SWAP/FIX/RELATION/PERCENT in raw order?
+- The bool pushed at each `322a25f0` call site.
+- `32274d60`'s clamp at 0.
+- Count March's RSCT templets by change type (behavior changes, first bullet).
+
+**Cost:** `/cost` is not readable from inside the session; ask the user.
 
 ## Phases 5–7 — New behavior types
 

@@ -816,6 +816,9 @@ public:
 protected:
 	CX2BuffChangeAttackByTypeBehaviorTemplet() : CX2BuffBehaviorTemplet(),
 		m_eChangeType( BCT_SWAP_VALUE ), m_fResultValue( 0.f ), m_eAttackType( CX2DamageManager::AT_NORMAL )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		, m_iAdditionalAttackType( -1 )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	{}
 
 	virtual bool ParsingBehavior( KLuaManager& luaManager_ );
@@ -824,6 +827,9 @@ private:
 	BUFF_CHANGE_TYPE				m_eChangeType;
 	float							m_fResultValue;
 	CX2DamageManager::ATTACK_TYPE	m_eAttackType;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	int								m_iAdditionalAttackType;	/// June 32e77070 (+0x1c): ADDITIONAL_ATTACK_TYPE, factor value 3 (-1 for none)
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 };
 
 /** @class : CX2BuffChangeEncahntAttackRateBehaviorTemplet

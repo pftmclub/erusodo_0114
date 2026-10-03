@@ -1044,6 +1044,9 @@ class CX2ChangeAttackByType : public CX2BuffIdentity
 public:
 	CX2ChangeAttackByType( const KBuffIdentity& BuffIdentity_, CX2DamageManager::ATTACK_TYPE eAttackType_, float fValue_ )
 		: CX2BuffIdentity( BuffIdentity_ ), m_eAttackType( eAttackType_ ), m_fValue( fValue_ )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		, m_iAdditionalAttackType( -1 )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	{}
 
 	CX2DamageManager::ATTACK_TYPE GetAttackType() const { return m_eAttackType; }
@@ -1061,6 +1064,14 @@ private:
 #else
 	float							m_fValue;				///  데미지 증가치
 #endif // VERIFY_STAT_BY_BUFF
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	int								m_iAdditionalAttackType;	/// June 322aeb40 (+0x20): ADDITIONAL_ATTACK_TYPE, -1 for none
+public:
+	CX2ChangeAttackByType( const KBuffIdentity& BuffIdentity_, CX2DamageManager::ATTACK_TYPE eAttackType_, float fValue_, int iAdditionalAttackType_ )
+		: CX2BuffIdentity( BuffIdentity_ ), m_eAttackType( eAttackType_ ), m_fValue( fValue_ ), m_iAdditionalAttackType( iAdditionalAttackType_ )
+	{}
+	int								GetAdditionalAttackType() const { return m_iAdditionalAttackType; }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 };
 
 /** @class : CX2ChangeEnchantAttackRate

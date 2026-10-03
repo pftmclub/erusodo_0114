@@ -12454,6 +12454,21 @@ void CX2GameUnit::EraseTemporaryBuffFactor( const KBuffIdentity& BuffIdentity_ )
 		}
 	}
 }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : CreateAndInsertTemporaryBuffFactor
+	@brief : June: CreateBuffFactor's entry carries APPLY_TO_SPECIAL_ATTACK (read by CX2DamageManager, 326309f0)
+*/
+void CX2GameUnit::CreateAndInsertTemporaryBuffFactor( const CX2BuffFactor& BuffFactor_, const KBuffIdentity& BuffIdentity_, UINT uiLevel, const bool bApplyToSpecialAttack_ )
+{
+	CX2BuffFactorPtr ptrBuffFactor = BuffFactor_.GetClonePtr( uiLevel );
+	if ( NULL != ptrBuffFactor )
+	{
+		ptrBuffFactor->SetBuffIdentity( BuffIdentity_ );
+		ptrBuffFactor->SetApplyToSpecialAttack( bApplyToSpecialAttack_ );
+		m_vecTemporaryBuffFactorPtr.push_back( ptrBuffFactor );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : CreateAndInsertAbsorbEffectAttack
 	@brief : 이펙트 공격을 흡수하여 MP를 증가시키는 버프요소를 게임유닛에 적용하는 함수
@@ -12560,6 +12575,38 @@ void CX2GameUnit::EraseChangeAttackByType( const KBuffIdentity& BuffIdentity_ )
 	@brief : 공격 타입에 따른 데미지 증가치 반환 함수
 	@return : 데미지 증가치
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : GetAdditionalAttackByType
+	@brief : June 32274d60. An entry also counts when its ADDITIONAL_ATTACK_TYPE matches, and the product is
+			 only kept from going below 0 (March kept it at 1 or more, so it could only raise damage).
+*/
+float CX2GameUnit::GetAdditionalAttackByType( CX2DamageManager::ATTACK_TYPE eAttackType_ )
+{
+	float fPowerRate = 1.f;
+
+	BOOST_FOREACH( CX2ChangeAttackByTypePtr ChangeAttackByTypePtr, m_AdditionalAttackByType )
+	{
+		if ( eAttackType_ == ChangeAttackByTypePtr->GetAttackType()
+			|| static_cast<int>( eAttackType_ ) == ChangeAttackByTypePtr->GetAdditionalAttackType() )
+			fPowerRate *= ChangeAttackByTypePtr->GetValue();
+	}
+
+	if ( fPowerRate < 0.f )
+		fPowerRate = 0.f;
+
+	return fPowerRate;
+}
+
+/** @function : CreateAndInsertChangeAttackByType
+	@brief : June 322818d0: as March's, with the entry's ADDITIONAL_ATTACK_TYPE
+*/
+void CX2GameUnit::CreateAndInsertChangeAttackByType( const KBuffIdentity& BuffIdentity_, CX2DamageManager::ATTACK_TYPE eAttackType_, float fValue_, int iAdditionalAttackType_ )
+{
+	CX2ChangeAttackByTypePtr ptrChangeAttackByType = CX2ChangeAttackByTypePtr( new CX2ChangeAttackByType( BuffIdentity_, eAttackType_, fValue_, iAdditionalAttackType_ ) );
+	if ( NULL != ptrChangeAttackByType )
+		m_AdditionalAttackByType.push_back( ptrChangeAttackByType );
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 float CX2GameUnit::GetAdditionalAttackByType( CX2DamageManager::ATTACK_TYPE eAttackType_ )
 {
 	float fPowerRate = 1.f;
@@ -12575,6 +12622,7 @@ float CX2GameUnit::GetAdditionalAttackByType( CX2DamageManager::ATTACK_TYPE eAtt
 
 	return fPowerRate;
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : CreateAndInsertChangeEnchantAttackRate
 	@brief : 소켓 속성 공격 발동 확률 변경 버프요소를 게임유닛에 적용하는 함수
@@ -14502,6 +14550,22 @@ void CX2GameUnit::CreateAndInsertSkillAndSocketBuffFactorToList( CX2BuffFactorPt
 	if ( NULL != ptrBuffFactor )
 		m_vecBuffFactorPtr.push_back( ptrBuffFactor );
 }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : CreateAndInsertSkillAndSocketBuffFactorToList
+	@brief : June 322a25f0: as above, the entry carrying whether AT_SPECIAL hits take it. June's callers pass
+			 false except Elsword's Spell Chain (32d1c560), which passes "has Magic Coating" (June skill 21418,
+			 none in March), so every March insert stays on the one-argument version.
+*/
+void CX2GameUnit::CreateAndInsertSkillAndSocketBuffFactorToList( CX2BuffFactorPtr ptrBuffFactor_, const bool bApplyToSpecialAttack_ )
+{
+	CX2BuffFactorPtr ptrBuffFactor = ptrBuffFactor_->GetClonePtr();
+	if ( NULL != ptrBuffFactor )
+	{
+		ptrBuffFactor->SetApplyToSpecialAttack( bApplyToSpecialAttack_ );
+		m_vecBuffFactorPtr.push_back( ptrBuffFactor );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : SetKBuffFactorFromGageManagerToGameUnit
 	@brief : GageManager에 임시저장 시킨 BuffFactor를 GameUnit에 적용 하는 함수

@@ -736,6 +736,9 @@ public:
 
 	CX2BuffFactor( const CX2BuffFactor& rhs_ ) 
 		: m_pDataBuffFactor( new BUFF_FACTOR( *(rhs_.m_pDataBuffFactor) ) ), m_DataBuffIdentity( rhs_.m_DataBuffIdentity )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		, m_bApplyToSpecialAttack( false )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
         , m_uRefCount(0)
 #endif  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
@@ -744,6 +747,9 @@ public:
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 	CX2BuffFactor( const CX2BuffFactor& rhs_, IN const UINT uiLevel_ ) 
 		: m_pDataBuffFactor( new BUFF_FACTOR( *(rhs_.m_pDataBuffFactor), uiLevel_ ) ), m_DataBuffIdentity( rhs_.m_DataBuffIdentity )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		, m_bApplyToSpecialAttack( false )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
         , m_uRefCount(0)
 #endif  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
@@ -752,6 +758,9 @@ public:
 
 private:
 	CX2BuffFactor() : m_pDataBuffFactor( new BUFF_FACTOR )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		, m_bApplyToSpecialAttack( false )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
         , m_uRefCount(0)
 #endif  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR    
@@ -817,6 +826,12 @@ public:
 	void SetBuffTempletID(BUFF_TEMPLET_ID val) { m_pDataBuffFactor->m_BuffIdentity.m_eBuffTempletID = val; }
 
 	void SetBuffIdentity( const KBuffIdentity& BuffIdentity_ ) { m_DataBuffIdentity = BuffIdentity_; }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June keeps this per entry of the unit's two buff-factor lists ({ptr, bool}, +0xe24/+0xe34); each entry
+	/// owns its clone here, so the clone carries it. Copies start false: only the list inserts set it.
+	bool GetApplyToSpecialAttack() const { return m_bApplyToSpecialAttack; }
+	void SetApplyToSpecialAttack( const bool bApplyToSpecialAttack_ ) { m_bApplyToSpecialAttack = bApplyToSpecialAttack_; }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	const KBuffIdentity& GetBuffIdentity() const { return m_DataBuffIdentity; }
 
 	/// 연동수치의 경우 이 함수를 이용하여 값을 셋팅함
@@ -1023,6 +1038,9 @@ private:
     unsigned            m_uRefCount;
 #endif  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
 	BUFF_FACTOR*		m_pDataBuffFactor;		/// 포인터로 할 것인가...?
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	bool				m_bApplyToSpecialAttack;	/// June 326309f0: an AT_SPECIAL hit may take this entry
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	KBuffIdentity		m_DataBuffIdentity;		/// 어떤 버프로 부터 발생한 BuffFactor인지를 알 수 있게 함
 
 };

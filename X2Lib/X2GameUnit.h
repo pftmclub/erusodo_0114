@@ -3180,6 +3180,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 
 		const vector<CX2BuffFactorPtr>&					GetBuffFactorList() const { return m_vecBuffFactorPtr; }
 		void CreateAndInsertSkillAndSocketBuffFactorToList( CX2BuffFactorPtr ptrBuffFactor_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 322a25f0 (ptr, bool): the bool lets AT_SPECIAL hits take the entry (CX2DamageManager, June 326309f0)
+		void CreateAndInsertSkillAndSocketBuffFactorToList( CX2BuffFactorPtr ptrBuffFactor_, const bool bApplyToSpecialAttack_ );
+		void CreateAndInsertTemporaryBuffFactor( const CX2BuffFactor& BuffFactor_, const KBuffIdentity& BuffIdentity_, UINT uiLevel, const bool bApplyToSpecialAttack_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 		/// 일시적인 BuffFactor
 		const vector<CX2BuffFactorPtr>&					GetTemporaryBuffFactorList() const { return m_vecTemporaryBuffFactorPtr; }
@@ -3218,6 +3223,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 
 		/// 공격 타입에 따른 데미지 변경
 		void CreateAndInsertChangeAttackByType( const KBuffIdentity& BuffIdentity_, CX2DamageManager::ATTACK_TYPE eAttackType_, float fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 322818d0: the entry also carries ADDITIONAL_ATTACK_TYPE (-1 for none)
+		void CreateAndInsertChangeAttackByType( const KBuffIdentity& BuffIdentity_, CX2DamageManager::ATTACK_TYPE eAttackType_, float fValue_, int iAdditionalAttackType_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		void EraseChangeAttackByType( const KBuffIdentity& BuffIdentity_ );
 		float GetAdditionalAttackByType( CX2DamageManager::ATTACK_TYPE eAttackType_ );
 
