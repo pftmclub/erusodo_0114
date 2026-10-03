@@ -2196,7 +2196,7 @@ The only deletions in `--numstat` are three lines of part 1's own flagged Create
   | `BTI_DEBUFF_EMP_SHOCK` (`_NEAR` 5–13.7, `_FAR` 2.5–6.85) | RELATION | adds 2.5–13.7 × the cool time instead of that many seconds | FIX |
   | `BTI_SET_SKILL_COOLTIME_ONCE` (PERCENT 1 / 0) | PERCENT | unchanged | PERCENT |
 
-  Five of the six March RSCT templets therefore misbehave until June's templet and factor files are adopted (Phase 13), and must ship together with this exe. **The user decides** between keeping the deployed exe or holding the RSCT apply on March semantics until Phase 13.
+  Five of the six March RSCT templets therefore misbehave until June's templet and factor files are adopted (Phase 13), and must ship together with this exe. **Decided (user, 2026-10-03): keep June's semantics as deployed.** The mismatch closes in Phase 13, so no March-semantics switch was added.
 
   ATTACK_BY_TYPE: March has one factor (`BFI_BUFF_PROTECTION_OF_LAHEL`, 1.2), so the clamp moving from 1 to 0 changes nothing on March data.
 - **Every attack type now takes the attacker's buff-factor lists.**
