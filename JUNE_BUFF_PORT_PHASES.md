@@ -2701,7 +2701,7 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The sessi
 **Where part 4 stopped / what resumes (in this order)**
 0. Revert the temporary debug commit `16a6d78` and rebuild (see "Play-test" above).
 1. BBT 6 HP-ratio rescale (above).
-2. RSCT DRAW_TEXT: `CX2Data` `PicCharYellowSmall` plus the draw call.
+2. RSCT DRAW_TEXT: `CX2Data` `PicCharYellowSmall` plus the draw call. **Data too (part 4 review, R1):** March's `UIMajorParticle.txt` (staged and live, 592,530 B) has no `eventsequence "PicCharYellowSmall"`, only `"PicCharYellow"`. June's `14JUN17/data/data036_kom/UIMajorParticle.txt` (2,042,192 B) and `GameMajorParticle44.txt` have it. Adopting June's file (June asset wins) needs a user pack, shipped together with the exe that adds the pic-char.
 3. The dormant chain: map unit vslots 132/141/476 and `3236a430`'s UI tail, then port.
 4. The AnimStop `+0x8080` marker: trace the 7 register-passed vslot 153 callers; port the marker only if a March-equivalent path passes 1.
 5. **User decision still open:** the runtime popups (part 3). Decided 2026-10-04: D2, the roll goes to Phase 5c; the enchant rework is Phase 15.
@@ -2760,7 +2760,9 @@ launch X2_offline.exe without asking first.
 
 Your task (Phase 4b-i part 5): resume part 4's list "Where part 4 stopped" from item 0 (revert the debug commit 16a6d78), then the
 BBT 6 HP-ratio rescale (June 32282723/32283113), RSCT DRAW_TEXT (CX2Data PicCharYellowSmall
-from 31edd860, then the 32e857d0 draw), and the dormant vslot 3/9/10/11 chain (map unit
+from 31edd860, then the 32e857d0 draw; the PicCharYellowSmall particle sequence is not in March's
+UIMajorParticle.txt -- stage June's data036_kom/UIMajorParticle.txt and name it for the user
+to pack, see the part 4 review R1), and the dormant vslot 3/9/10/11 chain (map unit
 vslots +0x210/+0x234/+0x770 and 3236a430's UI tail first), then trace the 7 register-passed
 IsSuperArmor (vslot 153) callers for AnimStop's +0x8080 marker. Do not port the damage roll
 322788c0: it belongs to Phase 5c (user, 2026-10-04). Under SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY: port
@@ -2771,6 +2773,71 @@ record where you stopped.
 ```
 
 **Cost:** `/cost` is not readable from inside the session; ask the user.
+
+### Phase 4b-i part 4 — Review (2026-10-04, Opus 5.5 high)
+
+Independent review of code commit `b9999a2` (under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`), debug commit `16a6d78` (hygiene only), and doc commits `6b0f0c9`, `06868a2`, `a1e1422`, `0f4ca0b` and `16e057c`. Read-only on code: nothing was edited, built or deployed.
+
+Fresh tools only; part 4's patch and unifdef scripts were not reused:
+- Ghidra, read-only (decompile, function lookup).
+- A new PE-section-mapped capstone reader, plus a raw-displacement scanner for `.text`.
+- A new byte-level unifdef.
+- A fresh `elstools extract -v mar-2014` of the live `data036.kom`, `data037.kom` and `datai016.kom`, then `decompile-batch` of `BattleFieldBuffFactor.lua` (353,105 B), `BattleFieldBuffTemplet.lua` (152,564 B) and `Gliter_Archer.lua`.
+
+**Verdict: no code defect.** All six suggested spot-checks pass in the asm, and so do the extra checks. One doc claim is wrong and changes part 5's scope (R1). The rest are Info.
+
+| # | Check | Result |
+|---|---|---|
+| 1 | EDI = 1 at `32048d89` | **Pass.** `32048d86: mov eax,[ebx+8]; sub eax,edi; je` skips BBT 56 on `AT_SPECIAL` (March `AT_SPECIAL` = 1). The last EDI write before the block is `mov edi,1` @`320487fb`. The only outside entry into `(320487fb, 32048d86]` is `3204864c → 32048800`, with EDI = 1 from `@32048640`. That one is reached by fallthrough or from `32048485` (EDI = 1 from `@32048441`, no other entry). Of the function's 9 switch tables, only `@32048b2e`'s targets the region, and it sits inside it. The block also matches the port: 30205 (`0x75fd`) × `+0x9600` above it; BBT 56 on the defender (`32274f60`); BBT 75 on the attacker with a null test (`32275050`); then Shade: `== 0x1f55`, or `> 0x1f58` and `<= 0x1f5a`, i.e. 8021, 8025 or 8026, then `HaveThisBuff( 0x1ae )` with no null test. |
+| 2 | NPC `m_bNoDamage` placement | **Pass.** `327b3a91`: BBT 56 requires type ≠ 1 and `+0x4dc == 0`. BBT 75 @`327b3ac7` has the same two tests plus the attacker null test. Shade @`327b3aea` has neither the `+0x4dc` test nor a null test. **The offsets are proven from the loader, not assumed.** In `SetDamageDataFromLUA` (`32632390`), the decrypted `NO_DAMAGE` key (`xorstrings.tsv` `ok`, @`3263ade6`) stores through `lea edi,[ebp+0x4dc]` / `mov [edi],al` @`3263ae98`. `USED_SKILL_ID` (@`3263de71`) stores `[ebp+0x590]` @`3263df73`. |
+| 3 | `32e7cef0`'s `1 + v` and `+= v` | **Pass.** `GetBehaviorFactor` fails → false. `+0x14 = ftol( v[1] )` (0 when size ≤ 1), for every unit. A non-user (`+0x264 ≠ 0`) → true. Then the user's `+0x867c` is null → false. The skill-level lookups (`32890620`) are discarded. Started (`+0xc`) → `old + v[2]` via `32071230( 2 )`. Not started → `v[2] + 1.0` (`334355b0`). The write is skipped when the value is unchanged. The class enum is `{ CHANGE_TYPE 0, SKILL_ID 1, VALUE 2 }`, so the port reads the right slots. Both sides read through bounds-checked getters (0.0 past the end). |
+| 4 | `32039a50`, last match and the 12/13 filter | **Pass.** Default `fld1`. It walks `GetBuffFactor` (`3229fd80`: skips templets whose bytes `+0x65`/`+0x66` are set, the same shape as March's `!GetDidFinish() && !IsWorldBuff()`). It compares `m_uiType` to the argument, then `chop( v[1] )` against `32207210( skill )`. When the IDs differ, `v[1] == 0` plus a non-null templet plus `32070580` (type ≠ 13 and ≠ 12) is needed. A match stores `v[2]` and keeps walking, so the last match wins. March has `ST_RELATIONSHIP_SKILL` = 12 and `ST_HYPER_ACTIVE_SKILL` = 13. (R5: June reads `v[1]`/`v[2]` raw.) |
+| 5 | Four range-member sites | **Pass.** Insert `@3228289e`/`@322828d6` (main `+0x4384`/`+0x4438`, then range `+0x44ec`/`+0x45a0`, via `3236d110`). Update `@3226fe28…fe79` / `@3226fe97…fee1` (update-or-insert on the main member, then on the range member, via `3236d370`/`3236d110`). Erase `@3228326c`/`@32283294` (`3236c610`). Refresh `@32290976`/`@32290981` (`3236d350`). **All 42 `.text` references to `+0x44ec`/`+0x45a0`/`+0x458c..94`/`+0x4640..48` are accounted for:** the four sites; BBT 80/81's update cases in the same switch (handlers `322708d8`/`32270947`, Phase 5b's); the ctor and dtor; the two basic setters (below); the roll `@32278924`/`@32278943`; the summon copies `3230ca9a`/`32763d7c`; and EH unwind. |
+| 6 | `32e784b8` UID | **Pass.** `32d4d670` (`SetGameUnitBuffFactor( unit, creatorUID, isUser )`): a creator UID other than −1 goes to `+0x30/+0x34` with `isUser` at `+0x38`; otherwise vslot 21 (`GetUnitUID`) → `+0x30/+0x34`. That is March's `SetUidGameUnit` choice (`X2BuffFactor.cpp:766/773/777`), so `+0x30` is `m_uidGameUnit`. `@32e784a9…b8` pushes `[factor+0x34]`, `[factor+0x30]` and calls vslot 15 (`+0x3c`). |
+| 7 | `32274df0` "same as March" | **Holds.** It walks `+0x6594`: attribute 0 → all; 1→1001, 2→1011, 3→1101, 4→1543, 5→1654, 6→1765. June's Enum names those EDTs `ENCHANT_BLAZE`, `_FROZEN`, `_POISON`, `_PIERCING`, `_SHOCK` and `_SNATCH`, and March's `BEAT_*` are 1–6 in that order. Change type 3 is a product (0 → 1.0) and 1 is a sum; anything else returns 1.0. That equals March's `GetChangeEnchantAttackRate` (`X2GameUnit.cpp:12720`), which returns both values in one struct. |
+| 8 | `32272d90` | **Holds.** `0x89a` = `EDT_ENCHANT_POISON_MASTER` (2202, June `Enum.src.lua:7373`). It is compared on the EDT register, beside 1101 POISON, 3303 and 4404 `QUADRA_POISON_MASTER`. |
+| 9 | `322788c0` not ported | **Holds.** Callers are only `32284c1f`/`32284c2f`. A 0x13dc-byte frame (the engine). It reads both range results (`+0x4640`, `+0x458c`). Phase 5c's. |
+| 10 | `32e857d0` / `g_pData+0x17c` | **The pic-char holds; the data claim does not (R1).** `31edd860` pushes wide string `0x3345ac54` = `PicCharYellowSmall` and stores the result at `[esi+0x17c]` (@`31edd8f1`). `32e857d0` loads `[g_pData]+0x17c` @`32e85f4c`. March's `X2Lib`/`KTDXLIB`/`X2` have no `PicCharYellowSmall`. |
+| 11 | `322a7660`'s vslots | **Hold.** `@322a773a` `+0x210`, `@322a778c` `+0x770`, `@322a77a6` `+0x234` (indirect), then `3236a430` @`322a77ba`. Unmapped, as part 4 says. |
+| 12 | `3229a669` | **Holds.** It is in `3229a530`. For a user attacker with `[CX2Unit+0xaf0] == 4`, it calls the *defender's* vslot 153( 1 ). Only a true result together with `[DD+0x5c4] == 0x5df9` (24057) acts: `EffectSet SA_ENW_Predator_Lucky`. The 24222 block above it only scales two outputs. So the call's result matters only for June-only skills. The 7 register callers stay part 5's. |
+| 13 | DASH-state event table | **Holds, with a detail (R3).** Live `Gliter_Archer.lua`: `GLITER_ARCHER_DASH` has no `SCT_AI_DASH` entry. WAIT and WALK have one, so the gate only stops a monster starting a run. `+0x4260` readers in `.text`: user `SetInputData` (`31fe83a0`), identity erase (`32279d70`), insert (`@3227adff`), ctor (`322a2700`), dtor (`322a0730`), EH unwind, and the two NPC sites. That is exactly part 4's list. Both gates jump to `@3276f03a` without clearing `+0x863c`/`+0x8640`. JUMP (12) gates on `+0x42c0`. |
+| 14 | Teleport chain 30..70 vs restack | **Holds.** Each cast re-applies the debuff (`SetBuffFactorToGameUnit`, `X2GUArme_VioletMage.cpp:7694-7704` in HEAD, the doc's 7686-7697 before `16a6d78`'s +8 lines). The rates go 1.0, 1.5, … 3.5. Times 20, that gives 20, 30 … 70. March's `#else` is `result = I0(1 + v)`, then `+= I0·v`, i.e. `I0(1 + nv)` on the frozen first cast. Aisha's Teleport path is all products (passive, Skill Note ×1.4, decrease rate), and the `< 0` clamp never fires. So ordering changes nothing on March data (but see R2). |
+| 15 | Hygiene | **Pass.** **Unifdef:** `strip( b9999a2 ) == strip( db3d003 )` for all 9 code files, with the flag undefined. The raw blobs differ; 22 new blocks. `db3d003` already carries parts 1–3's blocks of the same flag (R4). **numstat:** 203/1; the deletion is the R1 comment. Every added line is ASCII and CRLF. **`file`** signatures are unchanged on all 9 files. **`16a6d78`:** with `SERV_IRUHADEV_JUNE_BUFF_DEBUG` undefined, `X2GUArme_VioletMage.cpp`, `X2GUNPC.cpp` and `X2GameUnit.cpp` reduce to `16a6d78^`, and the flag is defined in `Always.h`. **Deploy:** the game directory holds `x2.exe` and `X2_offline.exe` (names read programmatically). `X2_offline.exe` is 19,016,704 B, dated 05:41:07, md5 `ce13bcb3bc7565b5f0bf0cd2b20c52ba`, equal to `X2/US_SERVICE/x2.exe`. The debug build stays deployed; part 5 reverts it. |
+| 16 | ConsumeMpRate consumers | **Pass.** `X2Lib` (including `Offline/`) reads the class's `[2]` in three places only: Aisha's override (disabled under the flag), `GetSkillRateByBuffBehavior`, and the `16a6d78` debug line. So no other site replaces a cost with what is now a rate. |
+
+**March-data reach, counted where the doc claims none**
+- **Range members: 0.** In the live files, BBT 7/8 has 103 factor entries (51/52) and 95 templet entries (47/48), all `BCT_PERCENT`. No reader of the range members exists outside `X2GameUnit`, and no C++ calls `Insert`/`UpdateAdditionalStat` with BBT 7/8 directly.
+- **Shade: 0.** BTI 430 has no templet in the live files. Skills 8021/8025/8026 are absent from March's Enum. BTI 430 matches across the C++ enumerator, March's staged Enum and June's.
+- **`AT_COMMAND`: 0.** The only occurrence among 144 + 1,910 + 159 live scripts (`data036`/`data037`/`datai016`) is its definition in `Enum.lua`, and no C++ assigns it.
+- **ChangeStat hook: 0.** There is no override.
+- **Confirmed counts:** 3 DASH_IMPOSSIBLE templets, 1 BBT 56 templet, 1 ConsumeMpRate templet.
+
+**Findings**
+- **R1, Medium (doc; it changes part 5's scope).** Part 4 says "the `PicCharYellowSmall` sequence is present in the staged `UIMajorParticle.txt`". It is not.
+  - March's staged and live `UIMajorParticle.txt` (592,530 B) have only `eventsequence "PicCharYellow"`.
+  - `"PicCharYellowSmall"` is only in June's `14JUN17/data/data036_kom/UIMajorParticle.txt` (2,042,192 B) and `GameMajorParticle44.txt`.
+  - So DRAW_TEXT is not exe-only: it needs June's particle file staged and packed by the user, shipped with the exe.
+  - "Where part 4 stopped" item 2 and the part 5 kickoff are amended. A superseding `31edd860` row is added.
+- **R2, Info (ConsumeMpRate position; no reach on March data).** Shown in the asm:
+  - In June, `3203cf60` is slot 423 of all 13 user vtables, with no per-class override. RTTI: `CX2GUUser`, plus Eve, Add, Ain, Rose, Luciel, EL, Ara, Chung, Raven, Lire_ElvenRanger, Arme_VioletMage and Elsword_SwordMan. The other `CX2GU*` vtables are NPC classes.
+  - Inside it, `vslot 471( skill ) × 32039a50( skill, 63 )` is the last factor. It multiplies the `mp` argument after `3203a250` (BBT 99) and the `bool` branch.
+  - In the port, the rate multiplies March's base cost. Each March override then applies its additive Skill-Note offsets (e.g. Raven −20/−50, Chung −20/−15/+10, Eve −20/−30) and the `< 0` clamp after the rate.
+  - Not traced: where June's callers get `mp`, so whether June also applies those offsets first is open.
+  - vslot 471 (`31fdbe20`, a per-skill rate lookup) is a second multiplier the port does not model.
+  - Reach is 0 today: the one March factor targets Teleport, whose path is all products. It matters once June data with `v[1] = 0` or other skill IDs arrives. Hand-off: Phase 6b, which owns `3203a250`, the same function.
+- **R3, Info (doc).** Play-test item 1 says a DASH state "leaves only on walk, wait, jump or attack".
+  - `GLITER_ARCHER_DASH` actually leaves on WAIT (→ `DASH_END`), WALK, JUMP, JUMP_DIR, DOWN, DOWN_DIR and foot-off-line, and has no attack entry.
+  - Under the debuff, its JUMP_DIR and DOWN_DIR exits are gated as well. The conclusion stands.
+- **R4, Info (doc wording).** "All 9 code files reduce byte-for-byte to `db3d003`" holds as `strip( b9999a2 ) == strip( db3d003 )`. `db3d003` itself contains parts 1–3's blocks of the same flag.
+- **R5, Info.** `GetSkillRateByBuffBehavior` reads `v[1]`/`v[2]` through the bounds-checked `operator[]`. June reads them raw (`[esi+4]` @`32039b09`, `[edx+8]` @`32039b73`). Every factor from `GetFactor` has 3 values, so the results agree. No change.
+
+**funcmap.tsv:** 7 rows ("Buff Phase 4b-i part 4 review").
+- 5 are confirmed: superseding `31edd860` and `3203cf60`, plus `32d4d670` (UID layout), `3229a530` and `32632390` (`+0x4dc`/`+0x590`).
+- 2 are candidates: `31fdbe20`, and the basic-setter sites `32281560`/`322816f8`.
+
+**Build and deploy:** none, because there is no code defect. The deployed exe is still the `16a6d78` debug build (`ce13bcb3…`).
+
+**Review cost:** `/cost` is not readable from inside the session; ask the user.
 
 ## Phases 5–7 — New behavior types
 
