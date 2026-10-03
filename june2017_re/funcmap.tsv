@@ -587,4 +587,4 @@ mesh+0x54c	none in March: CXMeshInstance previous-frame velocity snapshot	confir
 3208ed60	none in March: unit slot 260 AddSkillUseCount(k, v)	confirmed	Buff Phase 1c item 4: callers CommonStateStart @32057d17 (k 0) and @32057d7c (k = slot type)
 32281480	none in March: count own buff templets by IS_DEBUF	confirmed	Buff Phase 1c item 4: count_if over the +0xe14 templets with IS_DEBUF == arg
 32070c90	none in March: SetBuffSyncCount(v)	confirmed	Buff Phase 1c item 4: +0x6dd0 = v, +0x6dd4 = 0
-32061bf0	CX2GUUser::CommonFrameMoveFuture (slot 498)	confirmed	Buff Phase 1c item 4: writes +0x6dd0 into sync field +0x7e68 where March writes ucNumOfDeBuff (X2GUUser.cpp:14923)
+32061bf0	CX2GUUser::CommonFrameMoveFuture (slot 498)	confirmed	Buff Phase 1c item 4: writes +0x6dd0 into sync field +0x7e68 where March writes ucNumOfDeBuff (X2GUUser.cpp:14923); slot 499 CommonFrameMove (32063650) is the observer side: any user unit, 1 s mismatch with +0x8108 -> SetBuffSyncCount + message 0x1b to that unit's owner

@@ -1216,14 +1216,17 @@ Read-only Ghidra, same method as items 1–3. Uncarved slots were read with `buf
         for each e in pData[+0x29c..+0x2a0] (16 bytes): if ( e.byte9 == 1 && GetBuffFactorPtr( e.id )->BTI(+0x28) == bti ) return true;
     return false;
     ```
-  - Slot 182 (`+0x2d8`): GameUnit/NPC `31ae1500` false. GUUser `32039bf0( uid, bft )`: walks `GetBuffFactor()` (`3229fd80`). For each finalizer factor of type `bft`, it rebuilds `v0 | v1<<16 | v2<<32 | v3<<48` and returns true on a match. **So NPC units never keep an aura** (slot 9 returns 2 for an NPC creator at slot 181, and 0 for an NPC target).
+  - Slot 182 (`+0x2d8`): GameUnit/NPC `31ae1500` false. GUUser `32039bf0( uid, bft )`: walks `GetBuffFactor()` (`3229fd80`). For each finalizer factor of type `bft`, it rebuilds `v0 | v1<<16 | v2<<32 | v3<<48` and returns true on a match.
 - **The emitter.** The aura buff is applied by `CX2GUUser::ProcessSocketEffectEx` (`32028ba0`; March `X2GUUser.cpp:30479`, which stops at `SIEE_ACTIVE_BUFF` 11).
   - June adds cases 12–20, and case 15 `SIEE_ALWAYS_PLAY_EFFECT_SET` (`32029fff`) does this: for each socket ID in `map[15]` whose data has an `EFFECT_NAME` list (`+0x1fc`), if the interval check passes (`m_fIntervalTime` `+0x1e8` against unit slot 115, and `31fd8b70( id ) > k`), it plays each effect set (`g_pX2Game` → `322ceae0` → `321e1e60`) and attaches every entry of the `BUFF_FACTOR_ID` list (`+0x29c`, flag byte 9) to it (`321e3650`). It then restarts the cooldown (`31fe0b90( id, +0x1f8 )`).
   - The caller is `CX2GUUser` slot 484 (`3206d770`) with `push 0xf` (`@3207012a`), once per frame.
   - The map is filled by `31fe4730` (March's insert at `:30461`) from the equip routine `3204f190`, keyed by socket data `+0x1dc` (the SIEE type), and cleared by `3204b4c0`.
 - **Data.** All 10 June `BFT_AURA` buffs are socket options in `OptionItemData.src.lua` (`AddSocketData_LUA`, `m_eTypeSetItemEffectEx = SIEE_ALWAYS_PLAY_EFFECT_SET`, `EFFECT_NAME = { "EffectSet_Hero_Dungeon_Aura_Buff" }`, `BUFF_FACTOR_ID = …`). `BTI_BUFF_PHASE_OF_PERKISAS` is also in `DamageEffect.src.lua:351076`. March's `Enum` has no `SIEE_ALWAYS_PLAY_EFFECT_SET`.
 - **Verdict.** The class, slot 9 and both unit slots are transcribable. But the creator check (slot 181) and the only emitter both need June's SIEE 12–20 socket-effect cases and the socket-data fields `EFFECT_NAME`, `m_fIntervalTime` and the `BUFF_FACTOR_ID` list, which March's `CX2SocketItem` lacks. **Opus-only; no owning phase yet** (Phase 8 plus a socket-option port, or the user decides).
-  - A class-only port behaves like this: with slot 181 returning false, a user-created aura ends on the owner's first check (0.5 s), and an NPC-created one never finishes through `DidFinish`.
+  - **Lifetime, by case** (slot 9's `IsMyUnit` return `@32ec140f` comes before slots 181/182):
+    - **A target that is not the local unit** (an NPC, or a remote user's copy): slot 9 returns 1 at SetFactor, and OnFrameMove never re-checks it. It never ends through `DidFinish`; only the sync removes it (see `+0x6dd0`).
+    - **An NPC applier, on the local unit:** `m_optrCreator` stays null, so the first 0.5 s check passes null (`@32ec13ab`-`13bf`), slot 9 returns 2 and the aura ends.
+    - **A class-only port** (slot 181 always false), user creator, local unit: SetFactor already stores state 2, so the aura ends at the first `DidFinish` poll.
 
 **BFT 15 STICK_SHAKE — class, counter and increment site decoded; Opus-only (June added a new input counter and new unit virtuals).**
 - **Class** `CX2BuffStickShakeCountFinalizerTemplet` (vt `33537c68`, create `32ec5e10`, 0x28 bytes, clone `32ec1500`). Members: `m_eCountType` `+0x1c`, `m_iTarget` `+0x20`, `m_ucSnapshot` `+0x24`, `m_bStarted` `+0x25`.
@@ -1285,19 +1288,19 @@ Read-only Ghidra, same method as items 1–3. Uncarved slots were read with `buf
 **The `+0x6dd0` sync counter (UDP).**
 - **Bumped by:** `PushNewBuffTempletToGameUnit` (`3229dfc0`), `OnFrameMoveBuff` (`3229d759`), the BFT 15 finish hook (`3236a6cc`) and AURA's `DidFinish` (`32ec58f4`). Each does `++[+0x6dd0]` and sets `[+0x6dd4] = 0`, so it is a 64-bit pair. The ctor zeroes it (`322a5387`). Setter `32070c90` `SetBuffSyncCount( v )`.
 - **`CommonFrameMoveFuture`** (slot 498, `32061bf0` `@32061d4e`): `if ( (u64)field7e68 != counter ) field7e68 = counter`. This sits where March writes `m_FrameDataFuture.syncData.ucNumOfDeBuff = GetNumOfDeBuff()` (`X2GUUser.cpp:14923`).
-- **`CommonFrameMove`** (slot 499, `32063650` `@3206386c`), only when `g_pX2Game->GetMyUnit()` is set:
+- **`CommonFrameMove`** (slot 499, `32063650` `@3206386c`). The guard is only `g_pX2Game->GetMyUnit() != NULL` (`@3206384d`), with no comparison against `this`, so it runs for **every user unit, remote copies included**:
   ```
   if ( t9448 <= 0 && field8108 != counter ) t9448 = 1.0;
   else if ( field8108 == counter ) t9448 = 0;
   if ( t9448 > 0 && ( t9448 -= dt ) <= 0 ) {
       SetBuffSyncCount( field8108 );
-      send( g_pData[+0x140], 0x1b, myUID, 8 bytes );   // 33224850, not decoded
+      g_pData[+0x140]->33224850( this->GetUnitUID() /*destination*/, 0x1b, &myUnit->GetUnitUID() /*payload*/, 8 );   // not decoded
       [+0x9541] = 0;
   }
   ```
   `+0x7e68`/`+0x8108` look like the same sync field in `m_FrameDataFuture`/`m_FrameDataNow` (0x2a0 apart), but that was not proven.
-- **March** syncs `m_ucNumOfDeBuff` beside hit/hitted count (`X2UDPPacket.h:312`, flag `eUnitUserSync_DataField_NumOfDeBuff` `0x4000`), and peers apply it at `X2GUUser.cpp:17443`. June appears to repurpose that field as a buff-change counter with a one-second resync request. **The peer side is not mapped.** Neither AURA (empty packet slot) nor BFT 15 (packet path skips slot 256) finishes by itself on a remote copy, so this resync is what removes them there. **Phase 8 blocker.**
-- **Search plan:** find June's unit-sync serializer through the `0x4000` field flag (field width and source); find who handles message `0x1b` (and its March XPT name); then read the peer-side apply in `CommonFrameMove`.
+- **March** syncs `m_ucNumOfDeBuff` beside hit/hitted count (`X2UDPPacket.h:312`, flag `eUnitUserSync_DataField_NumOfDeBuff` `0x4000`), and peers apply it at `X2GUUser.cpp:17443`. June appears to repurpose that field as a buff-change counter. **This block is the observer side:** when a unit's synced value (`+0x8108`) has disagreed with the local counter for 1 s, the client adopts the synced value and sends message `0x1b` to that unit's owner with its own UID. Neither AURA (empty packet slot) nor BFT 15 (the packet path skips slot 256) finishes by itself on a remote copy, so the owner's reply is what removes them there. **Still open (Phase 8 blocker):** where the received field lands in `+0x8108` for a remote unit, who handles `0x1b` on the owner and what it sends back, and how that reply removes a finished AURA or BFT 15 on the peer.
+- **Search plan:** find June's unit-sync serializer through the `0x4000` field flag (field width, and where it is applied to `+0x8108`); find the `0x1b` handler on the receiving side (and its March XPT name) and what it replies with.
 
 **Corrections.**
 - **User slot 476 (`+0x770`, `32028250`) is not BFT 15/16 scaling** (Phase 4a RE, Phase 8 hand-off, `funcmap.tsv`).
@@ -1313,7 +1316,7 @@ Read-only Ghidra, same method as items 1–3. Uncarved slots were read with `buf
   - AURA needs June's SIEE 15 socket effect and socket-data fields (no owning phase).
   - BFT 15 needs a new counter, slots 256/257 and the `CX2Game` input hook.
   - BFT 16 needs a new map, slots 258–260 and an edit inside June's rewritten `CommonStateStart`.
-- The class bodies, wire layouts and increment pseudocode above are complete. The open items are the `+0x6dd0` peer side (blocks Phase 8's sync design), `+0x8eac` locality, and `32ec18f0` byte equality.
+- The class bodies, wire layouts and increment pseudocode above are complete. The open items are the `0x1b` handler and its reply (blocks Phase 8's sync design), `+0x8eac` locality, `32ec18f0` byte equality, and naming `322f7170`.
 
 ### Phase 1c — progress (2026-10-03)
 
@@ -1321,29 +1324,13 @@ Read-only Ghidra, same method as items 1–3. Uncarved slots were read with `buf
 - **Item 2 done** (above, second 1c session). It also corrected Phase 1's 77, 110 and 104 rows and named slot 499 (`CommonFrameMove`), `3276cb20` (`CommonEventProcessNonHost`) and `3276d980` (`CommonEventProcess`).
 - **Item 3 done** (above, third 1c session). It corrected Phase 1b's 78 getter members and the premise that 92's second members are filled only by buffs.
 - **Item 5 done** (above, same session as item 3).
-- **Item 4 done** (above, fourth 1c session). It found all three types Opus-only, corrected Phase 4a's slot-476 note and row 46, and answered item 1's 98 hand-off (BFT 16 counts after the cache). Still open: the `+0x6dd0` peer side, which blocks Phase 8's sync design, and `+0x8eac` locality.
+- **Item 4 done** (above, fourth 1c session). It found all three types Opus-only, corrected Phase 4a's slot-476 note and row 46, and answered item 1's 98 hand-off (BFT 16 counts after the cache). Still open: the `0x1b` handler and its reply, which block Phase 8's sync design, and `+0x8eac` locality.
 - **Cost, fourth 1c session (item 4):** not readable in-session; ask the user.
 - **Cost, third 1c session (items 3 and 5):** not readable in-session; ask the user.
 - **Item 5 is reduced.** Phase 4a already named `322a6960`'s virtuals (`+0x210` `CanApplyBuffToGameUnit`, `+0x224` `SetBuffFactorToGameUnit`, `+0x234` empty, `+0x770` BFT 15/16 scaling) and `OnFrameMoveBuff` (`3229d620`). Only `CreateAndInsertCustomFunctionByBuff` remains (from `CX2BuffCustomFunctionBehaviorTemplet::SetFactor` `32e79b00`).
 - **Cost:** `/cost` is not readable from inside the session. Ask the user and add it here, for both the first 1c session and the second.
 
-Kickoff for the next 1c session:
-
-```
-Continuing the June buff/debuff port. Read JUNE_BUFF_PORT_PHASES.md in the repo root in
-full -- "Starting context", the "June buff function map", "Per-type map", the Phase 1
-Done note, "Phase 1c, item 1", "Phase 1c, item 2" and "Phase 1c — progress", plus the
-Phase 4a sections. Branch: mods/june-buff-port. Use the ghidra skill on unpacked_x2.exe;
-do not mutate the Ghidra project without asking.
-
-Your task (Phase 1c item 4, read-only, Opus 5.5 high): finish the Phase 1c list in the
-Done note with item 4 (items 1, 2, 3 and 5 are done; see the progress note), skipping
-anything Phase 4a or 4b already recorded. Same method and
-bar as item 1: parse/store/read-site pseudocode at June addresses, a host-function diff
-against March for every read site (a June-rewritten host makes the type Opus-only), and
-confirmed funcmap.tsv rows. Another session may be editing the doc: re-read before each
-edit and commit after each item. Record this session's /cost in the progress note.
-```
+**Phase 1c is complete** (items 1-5). Open RE for the Opus sessions that pick these types up: the `0x1b` handler and reply (Phase 8), `+0x8eac` locality (BFT 16), `32ec18f0` byte equality, naming `322f7170`, and the slot-476 type-16 formula (Phase 10).
 
 ## Phase 2 — Enum reconciliation
 
