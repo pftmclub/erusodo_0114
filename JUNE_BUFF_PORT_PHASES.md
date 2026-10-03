@@ -2389,6 +2389,93 @@ June raises none of them. Functions rewritten whole in this part (NowMp `SetFact
 
 **Not started in part 3:** item 5 (the four hand-offs: type 56 in both `DamageReact`s, the DASH_IMPOSSIBLE NPC AI gate, the CHANGE_ENCHANT_ATTACK_RATE host math `32274df0`/`32272d90`, the BBT 7/8 second members plus `322788c0`) and item 6 (RSCT DRAW_TEXT).
 
+**Code (`061eb71`).** Everything is under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`, insert-only, with the March bodies kept in `#else`.
+- `X2GameUnit.h/.cpp`:
+  - `m_iHyperModeCountByBuff` (`KProtectedType<int>`, default 0) with `Set/GetHyperModeCountByBuff`;
+  - the 3-argument `EraseChangeEnchantAttackRate`;
+  - two new virtuals, `AnimPlayByPlayType` (default empty) and `GetCanPassUnitNow` (default false).
+- `X2GUUser.h/.cpp`:
+  - `AnimPlay()` replays each skin anim's own play type, where March forced `XAP_LOOP`;
+  - `AnimPlayByPlayType` is new;
+  - `GetCanPassUnitNow` reads `m_FrameDataNow.stateParam.bCanPassUnit`.
+  - Freeze is March's only `AnimPlay` caller (grep of `X2Lib`/`KTDXLIB`/`X2`, all file types, plus the bind tables and Lua).
+- `X2GUNPC.h`: `AnimPlay()` now plays `m_pXSkinAnim` (March's was empty); `AnimPlayByPlayType` and `GetCanPassUnitNow` (`m_NPCFrameData`) are new.
+- `X2BuffBehaviorTemplet.h/.cpp`:
+  - the HyperMode wiring (part 1's three "not ported" comments become calls);
+  - NowMp `SetFactor`;
+  - ChangeStat `GetValue`;
+  - CanPass `SetFactor`, plus the new `DoFinish` and `m_bCanPassUnitBeforeBuff`;
+  - Freeze `DoFinish`;
+  - EnchantAttackRate `SetFactor` and `SetFactorFromPacket`.
+- `Always.h` was not touched. The part 2 review had already added `SERV_IRUHADEV_JUNE_DAMAGEDATA` to the flag's dependency note.
+
+**Hygiene.**
+- **Flag-off unifdef** (a fresh byte-level script for this one flag): each file reduces byte-for-byte to its base. `X2BuffBehaviorTemplet.cpp/.h` reduce to `3f51f2b^`; `X2GameUnit.h/.cpp` and `X2GUUser.h/.cpp` to `66a1593`; `X2GUNPC.h` to `b553529`.
+- **Diff shape:** `--numstat` shows 322 insertions. The 7 deletions are part 1's own flagged comments: the two copies of the 3-line "not ported" note, and the DoFinish note.
+- **Encodings:** the `file` signatures are unchanged.
+
+**Build and deploy.**
+- `X2Lib` (with `stdafx.cpp` touched) and `X2` were built at `US_SERVICE`, rc 0, 0 errors.
+- The only warning in the touched files is the existing C4018 at `X2GUUser.cpp:17854`, above the insertion.
+- A second incremental `X2Lib` + `X2` pass followed a whitespace-only move of one blank line inside the guard.
+- `x2.exe` is 19,015,168 B, linked 16:47:58, md5 `57f7cf7475883d957a0e37a251ffbfd7`.
+- It was copied to the game directory as `X2_offline.exe` (the name was read programmatically); the size and md5 match. **Not launched.**
+- No Lua changed, so no pack is needed.
+- **Census:** `buff_census.py --phase 4b` is unchanged. There are no behavior pairs; only finalizers and displayers remain (4b-ii).
+
+**How far each port reaches on March's live data.** Counted on the earlier session's `elstools decompile-batch` of the live `BattleFieldBuffTemplet.lua` (factor file 353,105 B).
+- **EnchantAttackRate: 7 templets.**
+  - BBT 54: `BTI_BUFF_PROTECTION_OF_ZACHIEL`, `BTI_COMMON_AURA_EL_DEFENCE_ACCEL` (FIX), `BTI_BUFF_ANNIHILATION_WAY_OF_SWORD`, `BTI_BUFF_INCREASE_ENCHANT_ATTACK_RATE`.
+  - Attribute types: `BTI_BUFF_SWORD_ENCHANT_FIRE/ICE/POISON` (FIX, 66/67/68).
+  - All have `ACCUMULATION_LIMIT = 1`.
+  - Re-applying any of them while it runs used to insert a second store entry. `DoFinish` erases only the first entry with that identity, so March kept a stale enchant-rate bonus after the buff ended.
+  - Now the larger rate replaces the entry. Sword Enchant re-casts are the case to watch in play.
+- **Freeze: 6 templets.** `WATER_HOLD`, `FROZEN`, `SHADOW_KNOT`, `SHOCK` and `SLESHU_ONE_SLASH` have `IS_DOWN = TRUE`; `BIND` has `IS_DOWN = FALSE`. A unit that dies while frozen now holds its last frame (`XAP_ONE_WAIT`) instead of looping. A live user resumes the play type it had, not `XAP_LOOP`.
+- **CanPass: 1 templet,** `BTI_NPC_ALCHEMYST_SECRET_BOSS_TRANSFORM_SCALE`. Its pass-through flag is now restored at finish, where March left it until the next state change.
+- **NowMp: probably no reach.** 28 templets, 5 of them PERCENT: `MANA_BURN_REL` (limit 0), `DARK_POISON`, `RELATION_SHIP_SKILL`, `MAGIC_POINT_IMMEDIATELY_CHANGE_ONCE`, `IMMEDIATELY_CHANGE_HP_MP` (limit 1). None has `ACCUMULATION_LIMIT > 1`, so the removed ADJUST branch, which needs a stack count, should not be reached. The review should confirm what count limit 0 gives.
+- **ChangeStat `GetValue`: only units above level 90.** That is above March's cap, but it matters for the Atlas/Elysion cap-99 worktree.
+- **HyperMode store: 2 templets** (`BTI_HYPER_MODE`, `BTI_FORMATION_MODE`). Nothing in March reads the value.
+- **ConsumeMpRate (not ported): 1 templet,** `BTI_DEBUFF_CHANGE_CONSUME_MP_RATE` (PERCENT), the Teleport debuff.
+
+**Things to watch in play:** recasting Sword Enchant (Fire/Ice/Poison) and the BBT 54 buffs; deaths while frozen; the Alchemyst secret boss transform; awakening, whose effects are unchanged but the new count is written.
+
+**Where part 3 stopped / what resumes (in this order).**
+1. Item 5, the four hand-offs:
+   - type 56 in both `DamageReact`s;
+   - the DASH_IMPOSSIBLE NPC AI gate (`3276e442` switch);
+   - the CHANGE_ENCHANT_ATTACK_RATE host math (`32274df0`/`32272d90`; `32272d90` is the function with the `0x89a` compare at `32272e48`);
+   - the BBT 7/8 second members plus `322788c0` (read Phase 1c item 3's 92 entry first).
+2. Item 6, RSCT DRAW_TEXT (part 2, "Not ported").
+3. ConsumeMpRate: find June's reader of the rate, then port the class and Aisha's Teleport reader together.
+4. The runtime-popup decision above (review).
+
+**Review of part 3:** required (Opus 5.5). Suggested spot-checks:
+- `32e77370`'s `c == 0` compare direction (`test ah,0x41` after `fcompp`);
+- `32e76d10`'s two null tests (gage, then HP gage);
+- `32e7c380`'s restack (no PERCENT branch);
+- `32e74260` saving on every `SetFactor`;
+- whether the slot-3 chain really has no March-data caller (Aisha's register-passed BFI at `32cc5c16`).
+
+**Kickoff for 4b-i part 4** (Opus 5.5 high):
+
+```
+Continuing the June buff/debuff port. Read JUNE_BUFF_PORT_PHASES.md in the repo root in
+full -- "Starting context", the "June buff function map", "Phase 4b", "Phase 4b-i, part 1",
+"Phase 4b-i, part 2" and "Phase 4b-i, part 3". Branch: mods/june-buff-port. Never launch
+X2_offline.exe without asking first.
+
+Your task (Phase 4b-i part 4): resume part 3's list "Where part 3 stopped" from item 1 (the
+four hand-offs: type 56 in both DamageReacts, the DASH_IMPOSSIBLE NPC AI gate, the
+CHANGE_ENCHANT_ATTACK_RATE host math, the BBT 7/8 second members plus 322788c0), then RSCT
+DRAW_TEXT and ConsumeMpRate's June reader, under SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY.
+Port June's whole function wherever it differs, keep GetFactor/SetFactorFromPacket order
+(append only), byte-level CP949 edits, insert-only, flag-off unifdef check per file.
+Another session may have uncommitted edits in the doc: stage only your own hunks. Build,
+deploy, commit; record where you stopped.
+```
+
+**Cost:** `/cost` is not readable from inside the session; ask the user.
+
 ## Phases 5–7 — New behavior types
 
 Each new BBT follows an 8-step checklist:
