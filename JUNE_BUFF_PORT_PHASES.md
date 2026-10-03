@@ -2617,7 +2617,7 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The sessi
 | Runtime popups | – | still the user's decision (part 3) |
 | Dormant vslot 3/9/10/11 chain | `322a7660`, `3236a430`, `322a8a70`, `3227c360` | **not ported**: three unit vslots and a June UI tail are unmapped |
 | ChangeStat vslots 14/15 + `SetBuffOwnerUID` | `32e78410` @`32e784b8` | **ported** |
-| AnimStop `+0x8080` marker | `31fe7f70`, caller `3229a669` | **not ported**: its only constant caller is June-only content |
+| AnimStop `+0x8080` marker | `31fe7f70`, caller `3229a669` | **unresolved, not ported**: the one constant-1 caller is June-only content; 7 register-passed callers are not traced |
 | R1 (part 3 review) | – | **fixed**: the `X2GUUser.cpp` comment now names `+0x8080` |
 
 **How each port sits on March**
@@ -2651,7 +2651,7 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The sessi
 
 **Behaviour changes on March data**
 - **NPCs under `BTI_DEBUFF_SILENCE`, `BTI_DEBUFF_WOUND` or `BTI_DEBUFF_LEG_SPASM`** (March's 3 DASH_IMPOSSIBLE templets) no longer dash, jump-dir or down-dir from AI messages while the debuff lasts.
-- **`BTI_DEBUFF_CHANGE_CONSUME_MP_RATE`** (Aisha Teleport, SKILL_ID 2202, PERCENT 0.5): the cost is now 1.5 × the live cost on every cast, where March froze 1.5 × the cost at apply time. The reader now looks at buffs too, not only debuffs. A restack adds 0.5 to the rate.
+- **`BTI_DEBUFF_CHANGE_CONSUME_MP_RATE`** (Aisha Teleport, SKILL_ID 2202, PERCENT 0.5): the cost is now 1.5 × the live cost on every cast, where March froze 1.5 × the cost at apply time. The live cost includes Aisha's `m_fMPConsumeRateTeleport` (a passive `SA_MP_CONSUME_REL` multiplier set at skill init, `X2GUArme_VioletMage.cpp:2611/3162`, not a chain counter), which March's frozen value also carried through the virtual `GetActualMPConsume` at apply time; the Skill Note ×1.4 still applies after it in both. The reader now looks at buffs too, not only debuffs. A restack adds 0.5 to the rate.
 - **`BTI_DEBUFF_DOUBLE_ATTACK`** (March's only BBT 56 templet): `AT_COMMAND` hits also double now (no March damage data uses `AT_COMMAND`), and NPC no-damage hits no longer flag a double. Neither is visible on March data.
 - Range members, the ChangeStat hook and the Shade check: no reach.
 
@@ -2665,18 +2665,18 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The sessi
   - The draw is `g_pData+0x17c->DrawText( text, unit vslot 63 position, vslot 91 direction, AT_CENTER, 0.0, 0, 0 )`. `+0x17c` is **`PicCharYellowSmall`** (created by `31edd860`), a pic-char March's `CX2Data` lacks. The `PicCharYellowSmall` sequence is present in the staged `UIMajorParticle.txt`.
   - Porting it means adding that pic-char to `CX2Data` (ctor arguments from `31edd860`) and checking that its glyphs cover letters.
 - **Dormant vslot 3/9/10/11 chain.** `322a7660` calls unit vslots `+0x210` (132), `+0x770` (476) and `+0x234` (141), none mapped yet (Phase 1c item 5 also left them open). `3236a430` re-runs the displayers through a June UI tail (`322ab560`, `324943c0`, `32489810`, `32580100`). Map those first. The behavior-side overrides are already decoded (part 3).
-- **AnimStop `+0x8080` marker.** June's vslot 153 with argument 0 is March's `IsSuperArmor()`. The only constant-1 caller, `3229a669`, gates on `APPLIED_SKILL_ID == 24057` (`RNSI_SA_RRF_DEVASTATING_STRIKE`, after a 24222 `RNSI_A_RBM_POINTED_STILETTO` check). Both are June renewal skills, so no March caller asks for the variant. The 7 register-passed sites remain unresolved.
+- **AnimStop `+0x8080` marker.** June's vslot 153 with argument 0 is March's `IsSuperArmor()`. The only constant-1 caller, `3229a669`, gates on `APPLIED_SKILL_ID == 24057` (`RNSI_SA_RRF_DEVASTATING_STRIKE`, after a 24222 `RNSI_A_RBM_POINTED_STILETTO` check). Both are June renewal skills, so that caller is June-only. **Unresolved:** the 7 sites that pass the argument in a register (part 3 review's scan) are not traced, so whether a March-equivalent path asks for the variant is still open.
 - **Enchant accumulation rework `32272d90`: no owning phase.** June replaces March's "×2 at accumulation 1–2" with `+ 1× / 2×` the attacker's `EnchantData+0x3c` (`m_fAttribReiterationRate`), and adds a fourth tier per element (4004/4044/4404). June's `EnchantData` loader `32708f00` also reads `m_fBlazeMpDrain`, `m_fPiercingDamageFactor`, `m_iShockDebuffTime` and `m_fShockDebuffDamageFactor`. This is an enchant-system port (with June's EDT renumbering), not a buff behaviour; the user decides whether it gets a phase.
 - **BBT 6 HP-ratio rescale: orphaned hand-off.** Phase 1c item 3 (and the Phase 5 text) hands June's BBT 6 insert/erase rescale (`32282723`/`32283113`, `31e4f900`/`31e551a0`, gage `32081260`) to 4b, but no 4b stop list carried it. It is listed below.
 
-**Hygiene.** A fresh byte-level unifdef of the flag: all 9 code files reduce byte-for-byte to `db3d003`, the `HEAD` before `b9999a2`. Each raw file differs from it, so the check is not vacuous. `--numstat` shows 203 insertions and 1 deletion, the deletion being our own R1 comment line. All inserted lines are ASCII, the line endings follow each host file (all CRLF here), and the `file` signatures are unchanged.
+**Hygiene.** A fresh byte-level unifdef of the flag: all 9 code files reduce byte-for-byte to `db3d003`, the `HEAD` before `b9999a2`. Each raw file differs from it, so the check is not vacuous. `--numstat` shows 203 insertions and 1 deletion, the deletion being our own R1 comment line. All inserted lines are ASCII, the line endings follow each host file (all CRLF here), and the `file` signatures of all 9 files are unchanged.
 
 **Build and deploy.**
 - `X2Lib` (with `stdafx.cpp` touched) and `X2` at `US_SERVICE`, twice (after batch 1, then after all batches): rc 0, 0 errors. The only warning in the touched files is the existing C4018 (`X2GUUser.cpp:17876`, shifted).
 - `x2.exe` is 19,015,680 B, linked 00:56:35, md5 `537ed2747b4492848b4ae57f57f6d704`. `X2.map` carries `GetSkillRateByBuffBehavior` and the owner-UID virtuals.
 - Copied to the game directory as `X2_offline.exe` (name read programmatically); the md5 matches. **Not launched.**
 - No Lua changed, so no pack is needed.
-- **Things to watch in play:** monsters under Silence, Wound or Leg Spasm should not dash; Aisha's Teleport under the Lena debuff should cost 1.5× and should not drop to 1.5 MP; the double-attack debuff on monsters.
+- **Things to watch in play:** monsters under Silence, Wound or Leg Spasm should not dash; Aisha's Teleport under the Lena debuff should cost 1.5× its normal (passive-adjusted) cost and should not drop to 1.5 MP; the double-attack debuff on monsters.
 
 **funcmap.tsv:** 24 rows ("Buff Phase 4b-i part 4").
 
@@ -2684,8 +2684,9 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The sessi
 1. BBT 6 HP-ratio rescale (above).
 2. RSCT DRAW_TEXT: `CX2Data` `PicCharYellowSmall` plus the draw call.
 3. The dormant chain: map unit vslots 132/141/476 and `3236a430`'s UI tail, then port.
-4. **User decisions:** D2 (the roll: recommend Phase 5c), the runtime popups (part 3), and whether the enchant accumulation rework gets a phase.
-5. Then 4b-ii (finalizers and displayers).
+4. The AnimStop `+0x8080` marker: trace the 7 register-passed vslot 153 callers; port the marker only if a March-equivalent path passes 1.
+5. **User decisions:** D2 (the roll: recommend Phase 5c), the runtime popups (part 3), and whether the enchant accumulation rework gets a phase.
+6. Then 4b-ii (finalizers and displayers).
 
 **Review of part 4:** required (Opus 5.5). Suggested spot-checks:
 - EDI = 1 at `32048d89` on every path;
@@ -2705,7 +2706,8 @@ launch X2_offline.exe without asking first.
 Your task (Phase 4b-i part 5): resume part 4's list "Where part 4 stopped" from item 1: the
 BBT 6 HP-ratio rescale (June 32282723/32283113), RSCT DRAW_TEXT (CX2Data PicCharYellowSmall
 from 31edd860, then the 32e857d0 draw), and the dormant vslot 3/9/10/11 chain (map unit
-vslots +0x210/+0x234/+0x770 and 3236a430's UI tail first). Do not port the damage roll
+vslots +0x210/+0x234/+0x770 and 3236a430's UI tail first), then trace the 7 register-passed
+IsSuperArmor (vslot 153) callers for AnimStop's +0x8080 marker. Do not port the damage roll
 322788c0 unless the user has decided D2. Under SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY: port
 June's whole function wherever it differs, keep GetFactor/SetFactorFromPacket order (append
 only), byte-level CP949 edits, insert-only, flag-off unifdef check per file. Another session
