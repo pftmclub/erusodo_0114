@@ -2709,6 +2709,41 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The sessi
 - `32e7cef0`'s `1 + v` and `+= v`;
 - `32039a50`'s last-match-wins and the 12/13 filter;
 - the four range-member sites against `3226fd70`/`322830f0`.
+- `32e784b8`: is June's factor `+0x30`/`+0x34` the same UID March's `CX2BuffFactor::GetUidGameUnit()` returns?
+
+**Kickoff for the part 4 review** (Opus 5.5 high). It is written to run **alongside Phase 5** in the same working tree: read-only on code, with every check made against commits rather than the working tree or the deployed exe.
+
+```
+Continuing the June buff/debuff port. Run this session on Opus 5.5 at high effort. Read
+JUNE_BUFF_PORT_PHASES.md in the repo root -- "Starting context", the "June buff function
+map", "Phase 4b-i part 3 -- Review" and "Phase 4b-i, part 4" (including its play-test).
+Branch: mods/june-buff-port. Never launch X2_offline.exe.
+
+Your task: an independent review of Phase 4b-i part 4. The code is b9999a2 (under
+SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY); 16a6d78 is a temporary debug commit (hygiene
+only); the doc commits are 6b0f0c9, 06868a2, a1e1422, 0f4ca0b and 16e057c. Use fresh
+scratch tools; do not reuse part 4's patch or unifdef scripts.
+
+Another session may be running Phase 5 in this same working tree, editing and building
+the same files (X2GameUnit, X2GUUser, X2BuffFactor, Always.h). So this review is READ-ONLY
+on code: no edits, no builds, no deploys. Read every code file from the commit
+(git show b9999a2:<path>), run the flag-off unifdef on those blobs against db3d003, and
+take numstat from git diff db3d003 b9999a2 -- never from the working tree. Do not judge
+the deployed exe either; Phase 5 may have replaced it.
+
+Check, in Ghidra (read-only) and the asm, the part 4 section's suggested spot-checks, plus:
+whether each "same as March" and "not ported" verdict holds (32274df0, 32272d90, 322788c0,
+32e857d0 / PicCharYellowSmall at g_pData+0x17c, 322a7660's vslots, 3229a669), and whether
+the play-test reasoning holds (the DASH-state event table, the Teleport chain 30..70 vs
+32e7cef0's restack). Count March-data reach where the doc claims none.
+
+Report numbered findings (R1, R2...) with a severity. If you find a code defect, do NOT fix
+it: write the exact fix (file, June address, before/after) into the doc for the next code
+session, since Phase 5 is editing those files. Add confirmed funcmap.tsv rows. Another
+session may have uncommitted edits in the doc: stage only your own hunks (build the index
+blob from HEAD plus your edits; git hash-object -w, git update-index --cacheinfo). Commit.
+Record the review cost line as in earlier reviews.
+```
 
 **Kickoff for 4b-i part 5** (Opus 5.5 high):
 
