@@ -2237,6 +2237,8 @@ The only deletions in `--numstat` are three lines of part 1's own flagged Create
   - any March factor below 1.0 on ATTACK_BY_TYPE;
   - never-move debuffs: the down key is blocked while anchored.
 
+**Play-test (2026-10-03, user):** NeverMove passes on the exe deployed with `c67ccab` (same code plus the offline auth-level setting). `BFI_DEBUFF_ENTANGLE` (69) at level 1 was applied through the dev console: the unit was rooted, the down key did nothing while rooted, and down worked again after it wore off. Level 30 raised two "PERCENT value cannot be 0" popups. That was a data artifact, not the port: Entangle's defence PERCENT table reaches 0 from level 21.
+
 **Kickoff for 4b-i part 3** (Opus 5.5 high):
 
 ```
