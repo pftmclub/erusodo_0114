@@ -2549,7 +2549,12 @@ Fresh tools only (part 3's `bp.py`, `p3_code.py` and `unifdef_check.py` were not
     - argument 0 → `bSuperArmor`;
     - argument 1 → `bSuperArmor && !+0x8080`, i.e. super armor that `AnimStop` did not grant.
   - **Why it matters.** Freeze calls `AnimStop` (`X2BuffBehaviorTemplet.cpp:2691/2727/2790`). So in June, a frozen unit's super armor is visible to vslot 153(0) but hidden from vslot 153(1). The port does not model that.
-  - **Size.** `.text` has 276 `mov r,[r+0x264]` vslot loads. Of these, one passes a constant 1 (`3229a669`, CX2GameUnit region), 6 pass a register and 56 pass 0. Some of these may be another class's slot at that offset.
+  - **Size.** `.text` has 276 `mov r,[r+0x264]` vslot loads. About 88 of them reach an indirect call within 6 instructions:
+    - 56 pass 0;
+    - 1 passes a constant 1 (`3229a669`, CX2GameUnit region);
+    - 7 pass a register;
+    - 5 pass a pointer constant (`33766aac` ×3, `33722a70` ×2), so other classes also use a slot at that offset;
+    - 19 had no push the scan could identify.
   - **Next step:** map `3229a669` and March's equivalent of vslot 153 before `AnimStop` is ported. This was outside part 3's scope, so it is not a defect.
 
 **Doc corrections**
@@ -2568,6 +2573,29 @@ Fresh tools only (part 3's `bp.py`, `p3_code.py` and `unifdef_check.py` were not
 - 1 is a candidate: `31fcd7b0`.
 
 **Build and deploy:** none. There is no code change, and the deployed exe is still `57f7cf74…`.
+
+**Kickoff for 4b-i part 4** (Opus 5.5 high). This supersedes the one in part 3's section: it adds this review and replaces the ConsumeMpRate reader search, which this review settled.
+
+```
+Continuing the June buff/debuff port. Read JUNE_BUFF_PORT_PHASES.md in the repo root in
+full -- "Starting context", the "June buff function map", "Phase 4b", "Phase 4b-i, part 1",
+"Phase 4b-i, part 2", "Phase 4b-i, part 3" and "Phase 4b-i part 3 -- Review". Branch:
+mods/june-buff-port. Never launch X2_offline.exe without asking first.
+
+Your task (Phase 4b-i part 4): resume part 3's list "Where part 3 stopped" from item 1 (the
+four hand-offs: type 56 in both DamageReacts, the DASH_IMPOSSIBLE NPC AI gate, the
+CHANGE_ENCHANT_ATTACK_RATE host math, the BBT 7/8 second members plus 322788c0), then RSCT
+DRAW_TEXT; ConsumeMpRate as the part 3 review's port bundle (the class, the reader
+32039a50, the multiply in GetActualMPConsume, March's Aisha Teleport override disabled
+under the flag); the dormant vslot 3/9/10/11 chain and ChangeStat's vslot 14/15 owner-UID
+hook; and the review's AnimStop hand-off (map 3229a669 and March's equivalent of user
+vslot 153 before porting AnimStop's +0x8080 marker). Fix R1's comment in X2GUUser.cpp if
+you touch that file. Under SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY: port June's whole
+function wherever it differs, keep GetFactor/SetFactorFromPacket order (append only),
+byte-level CP949 edits, insert-only, flag-off unifdef check per file. Another session may
+have uncommitted edits in the doc: stage only your own hunks. Build, deploy, commit;
+record where you stopped.
+```
 
 **Review cost:** `/cost` is not readable from inside the session; ask the user.
 
