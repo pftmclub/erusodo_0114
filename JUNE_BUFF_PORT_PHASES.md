@@ -730,7 +730,7 @@ Read-only Ghidra (no renames or comments). Uncarved functions were read with `bu
   - Then (both) `if ( bDoubleAttack ) { fFinalDamage *= 2; bShowRedPicture = true; }` (@`32048dfa`, @`327b3b23`). March has that tail at `X2GUUser.cpp:9143`.
 - **Phase 4b, type 56 in the same block (not new, but June changed it):** June's 56 check is `DD.attackType != AT_SPECIAL` on the **defender's own** list (`this`, @`32048d86`; March `X2GUUser.cpp:9137` uses `== AT_NORMAL`), and the NPC adds `!m_bNoDamage` (@`327b3a97`). June also adds, after 75: `if ( DD.m_eUsedSkillID ∈ { SI_SA_SDK_BRUTAL_CUTTER 8021, SI_SA_SCA_CRIMSON_BREAK 8025, SI_SA_SCA_DREAD_WEAPON 8026 } && attacker->HaveThisBuff( BTI_BUFF_SHADE_THE_ILLUSION 430 ) ) bDoubleAttack = true` (@`32048dc1`, @`327b3aea`).
 
-**89 CHANGE_SKILL_DAMAGE — transcription-ready.**
+**89 CHANGE_SKILL_DAMAGE — class, store and reader transcription-ready; the hosts are Opus-only (see "Hosts" under 98).**
 - Class `CX2BuffChangeSkillDamageBehaviorTemplet` (vt `33535378`). Member `m_vecSkillTypeRate` (+0x10), `vector< pair<int SKILL_TYPE, float rate> >`. `ParsingBehavior` is the shared default (`32ec5990`).
 - `SetFactor` `32e7a9e0` (T = templet, `lim = T->m_uiAccumulationLimit`):
   - `if ( lim >= 2 && T->GetAccumulationCountNow() >= lim ) return true;` (at the cap: no-op).
@@ -751,20 +751,20 @@ Read-only Ghidra (no renames or comments). Uncarved functions were read with `bu
   return r;
   ```
 - Consumers of `31fd7cc0` (they are the read sites for 89 **and** 90):
-  - `CX2GUUser::DoStateEndStart` (`3203c3a0`, March `X2GUUser.cpp:6350`), right after `m_NowStateData` is set (@`3203c7de`–`3203c801`). June caches the state power rate in a protected float: `m_fPowerRate = m_NowStateData.m_fPowerRate; m_fPowerRate *= GetSkillDamageRateByBuff( m_NowStateData.m_eSkillID ); m_fPowerRate *= rate98` (98, below). March's `GetPowerRate` (`X2GUUser.cpp:23045`) returns `m_NowStateData.m_fPowerRate` directly, so the port multiplies that value at the same point.
-  - The summoned-NPC power helper `322ece70`, called 21 times from `CX2Game::SetUserSummonedNPCInfo` (`3230c1a0`, March `X2Game.cpp:14060`): `rate = ( base + ... ) * ( 3201ad10( id ) + 1 ) * GetSkillDamageRateByBuff( id ) * rate98summon * GetAdditionalAttackByType( AT_SPECIAL )` (@`322ed2f7`–`322ed32d`). March already multiplies `GetAdditionalAttackByType( AT_SPECIAL )` at each `case` (e.g. `X2Game.cpp:14277`, under `ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE`); the port multiplies `GetSkillDamageRateByBuff( skillId )` beside each of them.
+  - `CX2GUUser::DoStateEndStart` (`3203c3a0`, March `X2GUUser.cpp:6350`), right after `m_NowStateData` is set (@`3203c7de`–`3203c801`). June caches the state power rate in a protected float: `m_fPowerRate = m_NowStateData.m_fPowerRate; m_fPowerRate *= GetSkillDamageRateByBuff( m_NowStateData.m_eSkillID ); m_fPowerRate *= rate98` (98, below). June's `GetPowerRate` is `CX2GUUser` slot 129 (`31fcb230`) and returns that cache; March's (`X2GUUser.cpp:23045`) returns `m_NowStateData.m_fPowerRate` directly. Per-class state code multiplies the cache further (e.g. `32ad6ac0` by `+0x974c`, `32b1cd20`), so the buff term survives class rescaling.
+  - The summoned-NPC power helper `322ece70`, called 21 times from `CX2Game::SetUserSummonedNPCInfo` (`3230c1a0`, March `X2Game.cpp:14060`): `rate = ( base + ... ) * ( 3201ad10( id ) + 1 ) * GetSkillDamageRateByBuff( id ) * rate98summon * GetAdditionalAttackByType( AT_SPECIAL )` (@`322ed2f7`–`322ed32d`). March multiplies only `GetAdditionalAttackByType( AT_SPECIAL )` inline at each `case` (e.g. `X2Game.cpp:14277`, under `ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE`).
   - Phase 9 only: `32369bd0` (`RNSI_SA_LDN_SINISTER_MIND` 30048, @`32369c84`) and `3236df00`/`32773ee0` (`RNSI_A_CHG_MARK_OF_COMMANDER` 26214) are custom-function bodies; port them with those classes.
 
-**90 CHANGE_SKILL_DAMAGE_BY_SKILL_ID / 91 CHARGE_MP_HIT_BY_SKILL_ID — transcription-ready.**
+**90 CHANGE_SKILL_DAMAGE_BY_SKILL_ID / 91 CHARGE_MP_HIT_BY_SKILL_ID — 91 transcription-ready; 90's class, store and reader are, its hosts (shared with 89) are Opus-only.**
 - Classes `CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet` (vt `33535594`) and `CX2BuffChargeMpHitBySkillIDBehaviorTemplet` (vt `335355d0`). Member (+0x10) `vector< { float rate; vector<int> skillIds; } >` (element 0x14).
 - `SetFactor` `32e849c0` / `32e84d70`: no factor or not a user → false. If `DidStart() && T->GetAccumulationCountNow() == 0` erase the identity. Clear the member. Walk `v`: the value `-1.0` (`334380f0`) closes a block (`push( rate, ids )`, reset); the first value after a close is the rate; later values are `(int)` skill ids. Then insert the identity with the member (`3200ae70` for 90, `3200af50` for 91; insert only if absent); true.
 - `GetFactor` `32e7ef50` / `32e7f2e0`: per block `[ rate, id1..idn, -1.0 ]`. Packet `32e84b90` / `32e84f40`: same walk; insert if a user. `DoFinish` `32e75b90` / `32e75bb0`: if a user, erase (`31fe29e0` / `31fe2a30`).
 - Stores: new unit lists (June `+0x92e4` for 90, `+0x92f4` for 91), element ctors `320849a0` / `32084ae0`. Element getter (`32369aa0` for 90, `32369b10` for 91, byte-identical): `r = 1.0; for each block: if skillId ∈ ids: r = block.rate; return r` (**the last matching block wins**, no clamp).
 - 90 is read by `31fd7cc0` above.
 - 91 reader `31fd7df0( skillId )`: `r = 1; if ( skillId > 0 ) for each e in list91: r *= e->Get( skillId ); return r`. It is reached only through `CX2GUUser` vtable slot 109 (`31fd7ea0`): `GetChargeMpRateByBuff( const DamageData* pDD ) { return pDD ? 31fd7df0( pDD->m_iAppliedSkillID ) : 1.0f; }`. The `CX2GameUnit`/`CX2GUNPC` slot is `3208dd70` (`return 1.0f`), so declare it virtual on `CX2GameUnit`.
-- 91 read site: `CX2GameUnit::SetDamageExceptionProcess` (`322990e0`) @`32299510`–`3229954e`: `fHitAddMP *= attacker->GetChargeMpRateByBuff( pDamageData )`, on the same protected value that 85/86 scale just before it (@`3229947c`–`322994a3`).
+- 91 read site: `CX2GameUnit::SetDamageExceptionProcess` (`322990e0`) @`32299510`–`3229954e`: `fHitAddMP *= attacker->GetChargeMpRateByBuff( pDamageData )`, on the same protected value that 85/86 scale just before it (@`3229947c`–`322994a3`). **It is unconditional:** both `attackType != AT_COMMAND` branches (@`32299342`, @`32299460`) jump straight to `32299510`, so 91 applies to every attack type. The host is the same function Phase 5 edits for 85/86, so 91 follows Phase 5's treatment of it.
 
-**98 CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE — transcription-ready.**
+**98 CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE — class and reader transcription-ready; the host is Opus-only.**
 - Class `CX2AddDamageOfSkillSlotType` (vt `33535160`). Members `m_eSlotType` (+0x10, int), `m_fRate` (+0x14).
 - `ParsingBehavior` `32e75d20`: `SKILL_SLOT_TYPE` → `m_eSlotType`, 0 if absent.
 - `SetFactor` `32e78080`: no factor → false. `m_eSlotType = (int)v[0]` (0 if empty); **if negative → false**. `m_fRate = size>1 ? v[1] : 0`; true. No unit call.
@@ -783,8 +783,12 @@ Read-only Ghidra (no renames or comments). Uncarved functions were read with `bu
 - Consumers: both in `CX2GUUser::DoStateEndStart` (`3203c3a0`):
   - `if ( m_NowStateData.m_eSkillID != previous state's ) rate98 = 32039e00( skillId )` (@`3203c649`); it multiplies the state power rate (above).
   - `if ( IsSummonSkill( skillId ) ) rate98summon = 32039e00( skillId )` (@`3203c586`/`3203c599`). It is **not** reset for other skills, so the last summon skill's value persists. The summon helper reads it through `31fea430`.
-  - `31fc8200` = `IsSummonSkill( skillId )` after `32207210` (`GetSkillTemplet(id)->+0x178` if non-zero, the same "memo/base id" field `31fcf3e0` reads, else the id). Its 54 skill ids were enumerated by interpreting the function over 0–70000 (scratch `emu_switch.py`): 22020, 22027, 22036, 23015, 23213, 23216, 23218, 25000, 25011, 25014, 25015, 25020, 25030, 25055–25057, 25062, 25601, 26014, 26025, 26050, 26060, 26064, 26215, 26238, 28018, 28023, 28054, 28057, 29003, 29029, 29601, 30013, 30016, 30053, 31002, 31007, 31015, 31038, 31044, 31045, 31047, 31053–31055, 31059, 31065, 31082, 31087, 31096, 31229, 31232, 31234, 31320 (names: `RNSI_SA_AVP_HELL_DROP` … `RNSI_A_ROM_G_EX_MAGNETICFORCE_UPGRADE`; resolve them against June's `Enum.src.lua` when porting). The `+0x178` mapping needs the same skill-templet field that blocks `_ULTIMATE`; March has no such field, so the port uses the plain id and says so.
-- BFT 16 shares the slot-type idea (Phase 8); this type has no finalizer of its own.
+  - `31fc8200` = `IsSummonSkill( skillId )` after `32207210` (`GetSkillTemplet(id)->+0x178` if non-zero, the same "memo/base id" field `31fcf3e0` reads, else the id). Its 54 skill ids were enumerated by interpreting the function over 0–70000 (scratch `emu_switch.py`; the largest compare in it is 31320, so the list is complete): 22020, 22027, 22036, 23015, 23213, 23216, 23218, 25000, 25011, 25014, 25015, 25020, 25030, 25055–25057, 25062, 25601, 26014, 26025, 26050, 26060, 26064, 26215, 26238, 28018, 28023, 28054, 28057, 29003, 29029, 29601, 30013, 30016, 30053, 31002, 31007, 31015, 31038, 31044, 31045, 31047, 31053–31055, 31059, 31065, 31082, 31087, 31096, 31229, 31232, 31234, 31320 (names: `RNSI_SA_AVP_HELL_DROP` … `RNSI_A_ROM_G_EX_MAGNETICFORCE_UPGRADE`; resolve them against June's `Enum.src.lua` when porting). The `+0x178` mapping needs the same skill-templet field that blocks `_ULTIMATE`; March has no such field, so the port uses the plain id and says so.
+- BFT 16 shares the slot-type idea (Phase 8); this type has no finalizer of its own. **Phase 8 hand-off:** the only 98 buff in June data (`BTI_TRANSCENDENTAL_SLOT_*`) ends on `BFT_USE_SKILL_BY_SKILL_SLOTTYPE`, and 98's rate is cached in `DoStateEndStart` when the skill state starts. When item 4 maps BFT 16's increment site, record whether it fires before or after that cache; if before, the buff ends before it ever applies.
+- **Hosts (89, 90, 98), Opus-only under the no-partial rule.** Both hosts are June rewrites, not March functions with a buff term added:
+  - June's `DoStateEndStart` adds, besides the buff terms, a `+0x80d9` byte gate, a random sound/voice pick for state types 9/11/12, the protected power-rate cache (`+0x7cc8`/`+0x7cd4`/`+0x7ce0`, read by `GetPowerRate` and `31fea430`) and the `+0x2557..0x255a` resets. March's is 25 lines (`X2GUUser.cpp:6350`).
+  - June routes all 21 summon cases through `322ece70`, which also adds `3201ad10( id ) + 1`, `31fea430` and stat-scaling flags March lacks.
+  - The Opus session ports both whole (or decides with the user to keep March's and add only the buff terms, recording that as a deviation).
 
 **99 CONSUME_MP_RATE_BY_SKILLTYPE / 100 COOLTIME_RATE_BY_SKILLTYPE — class and reader transcription-ready; the host functions are Opus-only.**
 - Classes `CX2BuffChangeConsumeMpRateBySkillType` (vt `335353b4`) and `CX2BuffChangeCooltimeRateBySkillType` (vt `335353f0`) have byte-identical `SetFactor`, `GetFactor` and packet (`32e7b0d0`/`32e7b610`, `32e7f940`/`32e7fcb0`, `32e7b530`/`32e7ba70`). `DoFinish` is empty (`33093ad0`), `ParsingBehavior` is the default. Member (+0x10) `vector< { int skillType; int changeType; float value; } >`.
@@ -812,11 +816,36 @@ Read-only Ghidra (no renames or comments). Uncarved functions were read with `bu
   for each bf of type 103 in GetBuffFactor(): for each triple with (int)triple[1] == BCT_PERCENT:
       if ( map has key (int)triple[0] ) map[key] *= value; else map.insert( key, value );
   ```
-- Reader `31fd8bc0( skillType )`: `map[key]` or 1.0. Its only caller is `32896850( skillId )`: if `g_pX2Game` and its `GetMyUnit()`: `myUnit->31fd8bc0( 32205ab0( skillId ) )`, where `32205ab0` is a skill-id → int map lookup in `g_pData->GetSkillTree()`. The data keys this map by `SKILL_TYPE` (`ST_ACTIVE`, `ST_SPECIAL_ACTIVE_GRADE_1`, …), so it is read as `GetSkillTemplet( id )->m_eType` (inferred from the data; confirm in Phase 6 if the lookup misses).
-- Read site: `CX2UserSkillTree::OnFrameMove` (`32896930`, March `X2UserSkillTree.cpp:48`): for each of the 5 + 5 equipped slots with time left: `left -= 32896850( slotSkillId ) * fElapsedTime` (March: `-= fElapsedTime` at `:70`/`:85`), then clamp at 0. VALUE 2 therefore means "cooldowns run twice as fast", and only for the local player.
+- Reader `31fd8bc0( skillType )`: `map[key]` or 1.0. Its only caller is `32896850( skillId )`: if `g_pX2Game` and its `GetMyUnit()`: `myUnit->31fd8bc0( 32205ab0( skillId ) )`, where `32205ab0( id )` = `GetSkillTemplet( id )->m_eType`. Confirmed: it looks up the same skill-tree map with the same finder (`3221d5e0`) as `GetSkillTemplet` (`32206450`), which returns `node+0x10` (the templet, `m_eID` first), while `32205ab0` returns `node+0x14` (templet `+4`, `m_eType`). It skips `GetSkillTemplet`'s level gate. The data keys are `SKILL_TYPE` too (`ST_ACTIVE`, `ST_SPECIAL_ACTIVE_GRADE_1`, …).
+- Read site: `CX2UserSkillTree::OnFrameMove` (`32896930`, March `X2UserSkillTree.cpp:48`): for each of the 5 + 5 equipped slots with time left: `left -= 32896850( slotSkillId ) * fElapsedTime` (March: `-= fElapsedTime` at `:70`/`:85`), then clamp at 0 and `CX2GageManager::SetMySkillCoolTimeList` (`32489230`). Apart from that multiplier, June's function is March's (March's extra `NEXON_QA_CHEAT_REQ` branch aside), so the host is clean. VALUE 2 therefore means "cooldowns run twice as fast", and only for the local player.
 - June rebuilds in slot 499, which is not yet named (Phase 7 lists it as an INVINCIBLE reader). Rebuilding lazily inside the reader when the flag is set gives the same result.
 
-**Phase 6 readiness after item 1:** 75, 89, 90, 91, 98, 103 are transcription-ready. 99 and 100 are ready except for their host functions, which go to an Opus session (or Phase 4b, if it ports `GetActualMPConsume`).
+**Phase 6 readiness after item 1:**
+- **Transcription-ready (Sonnet):** 75, 91, 103. 75's host block in both `DamageReact`s also carries June's type-56 changes; the Phase 6 session lands them together under the Phase 4b flag or leaves 56 to 4b and says so.
+- **Class, store and reader ready; host Opus-only:** 89, 90, 98 (`DoStateEndStart` and the summon helper), 99 (`GetActualMPConsume`), 100 (`3235a710` and its 16 callers). A Sonnet session may add their classes, stores and readers; the Opus session wires the hosts.
+
+### Phase 1c — progress (2026-10-03)
+
+- **Item 1 done** (above), committed in two steps after an advisor review corrected the readiness split.
+- **Items 2–5 not started in this session.** Resume at item 2 (Phase 7 reader semantics) in a new session; first read Phase 4a's commits (`a546850`, `9133871`, `aeb6a21`), which recorded June's apply path and may already cover item 5 and 94's immunity read.
+- **Cost:** `/cost` is not readable from inside the session. Ask the user and add it here.
+
+Kickoff for the next 1c session:
+
+```
+Continuing the June buff/debuff port. Read JUNE_BUFF_PORT_PHASES.md in the repo root in
+full -- "Starting context", the "June buff function map", "Per-type map", the Phase 1
+Done note, "Phase 1c, item 1" and "Phase 1c — progress", plus the Phase 4a sections.
+Branch: mods/june-buff-port. Use the ghidra skill on unpacked_x2.exe; do not mutate the
+Ghidra project without asking.
+
+Your task (Phase 1c items 2-5, read-only, Opus 5.5 high): continue the Phase 1c list in
+the Done note from item 2, skipping anything Phase 4a already recorded. Same method and
+bar as item 1: parse/store/read-site pseudocode at June addresses, a host-function diff
+against March for every read site (a June-rewritten host makes the type Opus-only), and
+confirmed funcmap.tsv rows. Another session may be editing the doc: re-read before each
+edit and commit after each item. Record this session's /cost in the progress note.
+```
 
 ## Phase 2 — Enum reconciliation
 

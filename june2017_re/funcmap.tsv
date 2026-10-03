@@ -396,3 +396,7 @@ mesh+0x54c	none in March: CXMeshInstance previous-frame velocity snapshot	confir
 327bdb60	CX2GUNPC::CanApplyBuffToGameUnit	candidate	Buff Phase 4a: CX2GUNPC slot 132 (not decompiled; March: NCT_BASIC -> base)
 32028250	none in March: CX2GUUser slot 476 (+0x770) scale BFT 15/16 factor values	confirmed	Buff Phase 4a: called by 322a6960/322a7660 for a user unit unless the last arg is set; BFT 0xf count * value, BFT 0x10 per-slot values; Phase 8
 322b5630	none in March: CX2GameUnit slot 141 (+0x234), empty	confirmed	Buff Phase 4a: only releases its intrusive-ptr argument in every unit class
+31fcb230	CX2GUUser::GetPowerRate	confirmed	Buff Phase 1c: CX2GUUser vt 334781f4 slot 129; returns the protected float +0x7cc8 that DoStateEndStart 3203c3a0 fills (March X2GUUser.cpp:23045 returns m_NowStateData.m_fPowerRate)
+32205ab0	none in March: skill type by skill id (GetSkillTemplet(id)->m_eType without the level gate)	confirmed	Buff Phase 1c: same map and finder 3221d5e0 as GetSkillTemplet 32206450 (returns node+0x10 = templet); this returns node+0x14 = templet+4 = m_eType
+32206450	CX2SkillTree::GetSkillTemplet	confirmed	Buff Phase 1c: g_pData(33775860)+0x50 skill tree; map finder 3221d5e0, returns node+0x10; callers pass (id, 1)
+32489230	CX2GageManager::SetMySkillCoolTimeList	confirmed	Buff Phase 1c: called per slot by CX2UserSkillTree::OnFrameMove 32896930 with (index, left) like X2UserSkillTree.cpp:72/87
