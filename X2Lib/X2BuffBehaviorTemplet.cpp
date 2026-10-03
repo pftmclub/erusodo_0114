@@ -1757,9 +1757,12 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	if ( 0 == m_uiHyperModeCount )
 	{
 		m_uiHyperModeCount = static_cast<UINT>( (*pBehaviorFactor)[FO_HYPER_MODE_COUNT] );
-		if ( static_cast<UINT>(CX2GageUI::PGUWO_ORB3) < m_uiHyperModeCount || pGameUnit_->IsFullHyperMode() )
-			pGameUnit_->SetFullHyperMode( true );
 	}
+
+	/// June checks the orbs on every SetFactor, not only the first (the count != 0 branch jumps to the
+	/// CMP [ESI+0x10],2 at 32e7dc30); slot 41 is asked only when the count is 2 or less
+	if ( static_cast<UINT>(CX2GageUI::PGUWO_ORB3) < m_uiHyperModeCount || pGameUnit_->IsFullHyperMode() )
+		pGameUnit_->SetFullHyperMode( true );
 
 	/// June then calls 32b4dd50( count, or 1 ). It writes a June-only CX2GameUnit member (a protected int at
 	/// June +0x6844), not March's SetHyperModeCount, which is the gage's orb count. Its readers are not mapped

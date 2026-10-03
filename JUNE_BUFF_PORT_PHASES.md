@@ -2048,6 +2048,72 @@ buff_census.py --phase 4b must show no behavior pairs left. Build, deploy, commi
 record where you stopped if the session runs out.
 ```
 
+### Phase 4b-i part 1 — Review (2026-10-03, Opus 5.5 high)
+
+Independent review of `3f51f2b` and `905d514` (`SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`). It used fresh scratch scripts only; none of the 4b session's scripts (`buffre/`, `rawfn.py`, `compact.py`) or the earlier `disasm_range.py` were reused. They were:
+- Ghidra decompiles and disassembly, read-only;
+- a new PE-section-mapped capstone reader for the functions Ghidra has not carved (`32e798d0`, `32e768a0`, `32e76a00`, `32e7de90`) and for constants and jump tables;
+- a `.text` displacement scan for unit `+0x6844/+0x6848/+0x684c` and `+0x9f4/+0x9f8`;
+- a new byte-level unifdef for this one flag;
+- a fresh `elstools decompile-batch` of March's live `BattleFieldBuffFactor.lua` (353,105 B, equal to the live `data036.kom` entry) and of `Henir_Cube_L.lua`, evaluated under the bundled LuaJIT with stub enums, next to `june_src_fixed`'s factor files.
+
+**Verdict: one code defect (Low), fixed, rebuilt and redeployed.** HyperMode's full-orb check was nested inside the first-`SetFactor` branch, where June and March both run it on every `SetFactor` (R1). Everything else matches June. The three decisions handed to the review are measured below; none of them changes code.
+
+| # | Check | Result |
+|---|---|---|
+| 1a | `32d47620` level slice | **Pass.** I decoded the jump table myself (`32d48264` bytes → `32d4822c` dwords, `type-1`, 0x68 entries) and mapped the port's labels to numeric values from `X2BuffFactor.h`. All 33 ChangeStat labels (6–21, 24–26, 36–42, 44, 52, 72, 76, 78, 92, 93), the 7 copy-whole types (27, 88, 90, 91, 94, 95, 105) and every other case match June. EBX is zeroed at the loop head (`32d47666`), so each `push ebx` is index 0. Every `31fac820` push has `ECX = esp+0x20` after the argument push, which is the per-iteration output vector at `esp+0x1c`. Constants: `3342e850` = 1.0f, `33439c68` = 30.0, `334355b0` = 1.0, `33437820` = 2.0, `334355a8` = 2^32 (the unsigned fix-up). **Case 1:** type == 2 → count by FISTP under a chop control word, `cmp ebx,1 / jbe` → `[2],[4],[5],[6]`; otherwise `[lvl+1],[n+2],[n+3],[n+4]`. Non-relation: `[2]`, or `[lvl+1]` when count > 1. **ChangeStat:** relation → `[1]`, `[ebx=2]`, then `[3] <= 1.0` (`test ah,0x41`) → `[4]`, else `[lvl+3]`; otherwise `[1] <= 1.0` → `[2]`, else `[lvl+1]`. **0x17:** `FLD1` @`32d47cab` goes into the output vector, then size < 30 → `[0]`, else `[lvl]`. **0x35:** `[1] < 1.0` → 0.0, else `[lvl+1]`; then `[trunc([1]+1)+1]` and `[trunc([1]+2)+1]`. **Default:** `int([0])`, then `[1] < 30` → `[0]`, else `[lvl+1]` (0.0 past the end). June's `32071230` and March's `KBuffBehaviorFactor::operator[]` (`CommonPacket.h:1234`) both return 0.0 past the end on an unsigned compare. |
+| 1b | -1.0 pushes | **Pass, in the asm.** `32d42030` @`32d425bb` and `32d45040` @`32d454ea` both `FLD [334380f0]` (= -1.0f) when `32fe9e40` fails or the bool is false, and jump to `FLD1` only on `== 1`. ECX is the factor's own vector (cleaned up from the same slot afterwards). I decrypted the key bytes of `32d42030` independently; they read `USE_CREATOR_UNIT_DATA`, which agrees with `xorstrings.tsv`. Its relation branch reads `MULTIPLIER`, `BUFF_RELATION_TYPE`, a 0, then the flag; FIX and PERCENT read their table only. |
+| 1c | `32e7dbb0` HyperMode `SetFactor` | **Count-only-when-0: pass. Full-orb order: FAIL (R1, fixed).** `CMP [ESI+0x10],0 / JNZ 32e7dc30` skips only the count read, and lands on `CMP [ESI+0x10],2 / JA` → slot 40(1), else slot 41 → slot 40(1) if true. So the check runs on **every** `SetFactor`, and slot 41 is asked only when count ≤ 2 (`PGUWO_ORB3` = 2). The port nested it in the `0 == m_uiHyperModeCount` block. **`32b4dd50` is not March's `SetHyperModeCount`: confirmed.** It is a direct, non-virtual call on the unit (`MOV ECX,EDI`). March's `SetHyperModeCount` is pure virtual on `CX2GameUnit`, and `CX2GUUser`'s writes the gage orb count and `syncData`. `32b4dd50` writes one protected int at `+0x6844` (XOR pair `+0x6848/+0x684c`, checksum registration) and nothing else. Besides the buff (`32e7dc69`, `32e7de36`, `32e7ded7` = 0), its callers are `32b1e8e0` (Luciel region, `DLG_LUCIEL_BOUNDING_KEY`; writes 0 at init) and `32bc8030`/`32bc7eae`. Its other `.text` users are the `CX2GameUnit` ctor/dtor region (`322a0f9f`, `322a4e20`) and character-region readers (`32ba6dc1`: `== 1` decides state/skill `0x336`; also `32badd88`, `32bae1c5`, `32bb2980`, `32bc9b3b`, `32bf479b`). It is not `m_iLastStateHyperModeCount` either, which is a plain `int` on `CX2GUUser`. Leaving it out stands; its readers are part 2's. |
+| 2 | The rest vs June | **Pass.** **`32d46fc0`:** SWAP 0 / FIX 1 / MULTIPLIER 2 / PERCENT 3 → `ParsingTableForWhile`, anything else fails. March's PERCENT case is behind `ADDED_BBT_ALL_EQUIP_SKILL_SET_OR_RESET_COOLTIME`, which is unconditional at `Always.h:1489`. **`32d46000`:** type (PERCENT → table), `ATTACK_TYPE` required, `ADDITIONAL_ATTACK_TYPE` int, -1 when absent. **`32d45860`:** both keys optional (failure → 0), each pushed only when > 0.0 (`334350e8` = 0.0). **`32d4d670`:** a negative creator UID takes the unit's UID and `+0x264 == 0` (`GUT_USER` = 0), as ported; the lists equal March's for existing types (see correction 2). **`32d4cc90`:** prologue `FLDZ` vs `[4]`, `test ah,5 / jp` = proceed only when `0 < [4]`; game slot 50 `(uid, !isUser)`, falling back to the unit; stat words 7/8 = `m_fAtkPhysic`/`m_fAtkMagic` (after `ExtraStat`'s 6 and `m_fBaseHP`), MIX × 0.5 (`3342ebc8`); BRT 1/2/3 = PHYSIC/MAGIC/MIX. **`32e798d0`** (hand-traced x87 stack): resist = slot 195 / 500.0 (`33458fa8` = `EAR_MAX_VALUE`); started with count c > 0 → `old/(1+m(c-1))`, keep the new one only if `|new| > |that|`, × `(1+mc)`; c == 0 → larger absolute value; not started → new. **`32e7dae0/ddb0/de90`:** take the gage time when > 0, subtract, clamp at 0, set, slot 51, `32296cb0` at 0; the packet reads `[0]` count (with the same full-orb check), and `[1]` when size ≥ 2; DoFinish = my gage 0, unit gage 0, slot 50, `32b4dd50(0)`. **`32e860a0/d930/862c0`:** BFI 0 → false; DidStart → `322a06e0(templet+0x34)`; level = `32369da0` or 1; a user with `GetUnit()` null → false, and `SKILL_ID != 0` → skill level (≥ 1); flag = `size ≥ 3 && [2] > 0`; GetFactor `[BFI, SKILL, ±1]`; the packet uses count `+0x34` or 1, and a user always takes the skill level. **`32e768a0/76a00/7da30`:** started and count > 1 → `+= [1]`, else `= [1]`, then update or insert; the packet reads `[1]`, and GetFactor sends `+0x10` alone. **Wire layout:** only CreateBuffFactor's `GetFactor` changed, and it appends 2 values after March's one; HyperMode, Absorb and NowHp are unchanged. |
+| 3 | Census | `buff_census.py --phase 4b` rc 0: **19 pairs, 8 of them behavior** (NEVER_MOVE 3 + RESET_SKILL_COOL_TIME 5). Exclusions spot-checked against every key each cited function reads (XOR strings plus `s_` literals): `32d42030` reads only CHANGE_TYPE/RELATION/USE_CREATOR + FIX/MULTIPLIER/PERCENT, so no `DRAW_TEXT`/`TIME_INTERVAL`. `32d46fc0` has no `SKILL_TYPE`. `32d44320` and `32d46550` have no `BUFF_RELATION_TYPE`. `32e72e20` (NowMp templet) reads CHANGE_TYPE/TIME_INTERVAL/DRAW_TEXT, so no RELATION. `32d45b60` only opens the table, pushes and closes it (callees `32fe9940`/`32129000`/`32fe9a10`). **All hold.** |
+| 4 | Hygiene | With the flag undefined, `X2BuffBehaviorTemplet.cpp/.h` reduce byte-for-byte to `3f51f2b^`, and so does the R1-fixed working file. `X2BuffFactor.cpp` differs only by 3 CRLF blank lines. `--numstat 3f51f2b^` shows 0 deletions in every code file (after R1: `X2BuffBehaviorTemplet.cpp` 251/0). The 620 inserted lines (251 after R1) are ASCII and CRLF; `file` signatures are unchanged. The `#define` is only at `KTDXLIB/Always.h:4739` and in none of the `.vcxproj`s. |
+| 5 | Deploy | Before the fix, both exes were 19,009,536 B, md5 `218167fb31d751502c5b8f1fccc90d63`, with all 5 key strings. After R1 see "Build and deploy" below. |
+| 6 | Decisions | See below. |
+
+**Findings**
+- **R1, Low (code defect, fixed): HyperMode's full-orb check ran only on the first `SetFactor`.**
+  - June (`32e7dc30`) and March (`X2BuffBehaviorTemplet.cpp`'s `#else`) both check every time. The fix moves `if ( PGUWO_ORB3 < count || IsFullHyperMode() ) SetFullHyperMode( true );` below the count block, inside the flag's own inserted code.
+  - **Observable effect on March: practically none.** The flag is cleared only in the per-class `HyperModeBuffEffectEnd` (Ara/Chung/Raven/Eve), i.e. at DoFinish, so a re-application while the buff runs finds it already set. It is fixed because it is cheap and the port was the only one of the three that differed.
+  - The `SetFactorFromPacket` port already checked every time.
+- **R2, Low: flag dependencies.** `BEHAVIOR_PARITY` does not compile without `SERV_IRUHADEV_JUNE_BUFF_ENUM` (the level-slice labels for 73+ are declared in its block of `X2BuffFactor.h`) or without `ADD_LIVE_CREATOR_FINALIZER` (`Set/GetIsUserUID`, `X2BuffFactor.h:772`). Add this to the flag's `Always.h` comment the next time that header is touched; editing it now would force a full PCH rebuild.
+- **Info: `32296cb0`.** It stops the unit's effect-set handles at `+0x9f4/+0x9f8`. The writers of those slots (`3204ba71`, `3204bb7c`, `32298c4d`, …) create effect sets with no readable name nearby. **The claim "only June code creates them" was not re-verified.** If part 2 finds that a March effect maps onto those handles, HyperMode's OnFrameMove-at-0 call needs porting.
+
+**Decisions (measured, with a recommendation; no code changed)**
+- **6a: Absorb packet path reads `[1]` while `GetFactor` sends one value. Recommendation: keep June's quirk.**
+  - **Reach, measured in March.** `FinishAndClearAllBuff` (`X2GameUnit.cpp:12991`) saves your own buffs through `GetFactor` into the gage manager when a stage ends. `SetKBuffFactorFromGageManagerToGameUnit` (`:14514`) restores them through `SetFactorFromPacket` when the next game starts (`X2Game.cpp:1995/2101`, `X2BattleFieldGame.cpp:1511`), in every game type except PvP.
+  - **Effect.** A restored Absorb holds `0.0`. It **still absorbs**: `AbsorbEffectAttackProcess` (`X2GameUnit.cpp:12502`) still nulls a reflectable magic hit (`RT_DUMMY_DAMAGE`, `m_bNoDamage`). Only the MP gain becomes `MP+ 0`.
+  - **Data.** March has **2** Absorb factors (`BFI_SI_SA_EMK_PHOENIX_TALON`, `BFI_SHINING_BODY`; correction 3). June has 8: Shining Body ×4, Phoenix Talon ×2, and Nichts Feld ×2, whose value is already 0 and so is unaffected.
+  - **Not verified.** I did not locate June's own stage-change restore, so it is unconfirmed that June also routes it through `SetFactorFromPacket`. The class slots themselves are confirmed.
+  - **Alternative.** Reading `kFactor_[0]` on the packet path only would be a one-line change in `CX2BuffAbsorbEffectAttackBehaviorTemplet::SetFactorFromPacket`, at the cost of a known deviation from June.
+- **6b: NOW_HP single-multiplier relation slice. No action needed: no data reaches it.**
+  - March's live factor file has 366 factors and 39 NOW_HP `BCT_RELATION_VALUE` entries. Every `MULTIPLIER` has 30 (34 entries) or 33 (5 entries) elements.
+  - June has 1,130 factors with 87 such entries (78 × 30, 9 × 33), and `_INT` has 69 factors with 1 entry (× 30). None has a single element.
+  - The factor file is the only level-sliced source. Damage-data inline factors parse with `bIsSkill = false` (`X2DamageManager.cpp:3835`) and go straight onto the damage data without a level clone.
+  - Only one June entry sets `USE_CREATOR_UNIT_DATA = TRUE` (`BFI_DEBUFF_BLEEDING_REVOLVER_MASTERY`).
+  - **No tick turns negative.** Every real multiplier in both files is negative (DoTs), so the hypothetical `-1.0 ×` slice would have produced a small *heal*, not damage (correction 4).
+- **6c: CreateBuffFactor inserting for NPCs while `326309f0` is unported. Recommendation: keep it.**
+  - **Unreachable on March data.** March has 12 CREATE_BUFF_FACTOR factors: 9 player skills (`SKILL_ID` 4006/1011/1217) and 3 with `SKILL_ID = 0`. Of those three, `PROTECTION_OF_PTAH` comes only from `BuffTemplet.lua` (world buffs), and `HENIR_FIRE/WATER` come only from `Henir_Cube_L.lua`, which targets `GetUserUnit(0..3)` (decompiled). No March script puts any of them on an NPC.
+  - **For users nothing changed.** March already applied created factors on every attack type.
+  - **Precondition for Phase 13:** part 2's `326309f0` reader must land before June data is adopted. June has 18 CREATE entries, including `MS_DA_UP_PER_GROUP2/3` and `FEAR_OF_ABYSS` (`SKILL_ID` 0 or 210, which look monster-side) and two with `APPLY_TO_SPECIAL_ATTACK = TRUE` (`REASON_PRIDE_OBERON/OPHELIA`).
+
+**Doc corrections**
+1. **Worksheet row "Class HyperMode …" and "Behavior changes", HyperMode bullet:** "checks the full-orb flag only on the first `SetFactor`, as June does" is wrong. June checks on every `SetFactor` (R1, now fixed).
+2. **Worksheet "SGU … same type lists as March":** true for existing types only. June's `32d4d670` also sends 76, 78, 92 and 93 to the ChangeStat SGU `32d41700`, and 80–84 to `32d4ce60`. Phases 5–7 checklist step 4 has been rewritten to cite that list instead of "if the type uses `BCT_RELATION_VALUE`".
+3. **"March data has one Absorb entry, in the factor file":** there are two (Phoenix Talon, Shining Body).
+4. **"June's gives +/-multiplier, negative (damage) when the key is absent":** with real (negative) multipliers it would be a heal. No entry in March or June reaches that slice (6b).
+5. **"`32b4dd50` … Its readers are unmapped":** its callers and readers are now listed in check 1c; mapping their March equivalents is still part 2.
+
+**funcmap.tsv:** 11 rows added ("Buff Phase 4b-i review"). 8 are confirmed: `32071230`, `32e7da30`, `32e7dcf0`, `31e8c9d0`, `322a06e0`, `32281820`, `32283910` and `32b4dd50`'s readers (`32ba6dc1`). 3 are candidates: `32e78e00`, `32890620` and `32b1e8e0`.
+
+**Build and deploy (R1).**
+- Only `X2Lib/X2BuffBehaviorTemplet.cpp` changed (a `.cpp`, so no PCH touch). `X2Lib` and then `X2` were built at `US_SERVICE`: rc 0, 0 errors.
+- `.obj` 12:35:16 and `x2.exe` 12:35:39 are both later than the edit (12:34:44).
+- `x2.exe` is 19,009,536 B, md5 **`82bfdc8532245b35b5412d25653eb9e7`** (the pre-fix build was `218167fb…`). It was copied to the game directory as `X2_offline.exe`; the names were read programmatically, the md5 matches and all 5 key strings are present.
+- **Not launched.** There are no Lua changes, so no pack is needed.
+- `253581c`/`5850872` (Phase 1c item 4, committed by another session during this review) touch only the doc and `funcmap.tsv`, so this exe contains no other code change.
+
+**Review cost.** `/cost` is not readable from inside the session; ask the user.
+
 ## Phases 5–7 — New behavior types
 
 Each new BBT follows an 8-step checklist:
@@ -2055,7 +2121,7 @@ Each new BBT follows an 8-step checklist:
 1. Add the C++ enum, done in Phase 2.
 2. Add the factor parse case in **both** the skill and non-skill macro lists.
 3. Add the level-slice case. **Already done in Phase 4b-i:** June's whole `GetBehaviorFactorToLevel` (`32d47620`) is in, every new type's case included. Check the case is there; do not add another.
-4. Add a `SetGameUnitBehavior` case, if the type uses `BCT_RELATION_VALUE`.
+4. Add a `SetGameUnitBehavior` case where June's SGU `32d4d670` has one: 76, 78, 92 and 93 go to the ChangeStat SGU (`32d41700`), 80–84 to `32d4ce60`; no other new type has one. *(Corrected by the Phase 4b-i part 1 review; this used to read "if the type uses `BCT_RELATION_VALUE`".)*
 5. Add the templet class and its `CASE_BEHAVIOR_TEMPLET` entry.
 6. Add the unit store with insert and erase, plus June's read sites.
 7. Cover the UDP layout through `GetFactor`/`SetFactorFromPacket`.

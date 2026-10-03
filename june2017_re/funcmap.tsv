@@ -588,3 +588,14 @@ mesh+0x54c	none in March: CXMeshInstance previous-frame velocity snapshot	confir
 32281480	none in March: count own buff templets by IS_DEBUF	confirmed	Buff Phase 1c item 4: count_if over the +0xe14 templets with IS_DEBUF == arg
 32070c90	none in March: SetBuffSyncCount(v)	confirmed	Buff Phase 1c item 4: +0x6dd0 = v, +0x6dd4 = 0
 32061bf0	CX2GUUser::CommonFrameMoveFuture (slot 498)	confirmed	Buff Phase 1c item 4: writes +0x6dd0 into sync field +0x7e68 where March writes ucNumOfDeBuff (X2GUUser.cpp:14923); slot 499 CommonFrameMove (32063650) is the observer side: any user unit, 1 s mismatch with +0x8108 -> SetBuffSyncCount + message 0x1b to that unit's owner
+32071230	KBuffBehaviorFactor::operator[] const	confirmed	Buff Phase 4b-i review: unsigned index < size -> value, else FLDZ (CommonPacket.h:1234 returns 0.0f the same way)
+32e7da30	CX2BuffAbsorbEffectAttackBehaviorTemplet::GetFactor	confirmed	Buff Phase 4b-i review: pushes +0x10 alone (one value); SetFactorFromPacket 32e76a00 reads [1], so a packet copy gets 0.0
+32e7dcf0	CX2BuffChangeHyperModeBehaviorTemplet::GetFactor	confirmed	Buff Phase 4b-i review: [count (+0x10, unsigned->float), remaining time (+0x14)] = March order
+31e8c9d0	CX2GageData::SetHyperModeRemainTime	confirmed	Buff Phase 4b-i review: called on unit +0xc04 (gage) by HyperMode SetFactor/OnFrameMove/packet and on GetMyGageData (324943c0 -> 32489200) with 0.0 in DoFinish 32e7de90, as March
+322a06e0	CX2GameUnit::EraseTemporaryBuffFactor	confirmed	Buff Phase 4b-i review: Create SetFactor 32e860a0 calls it with templet+0x34 (identity) when DidStart, as March
+32281820	CX2GameUnit::CreateAndInsertAbsorbEffectAttack	confirmed	Buff Phase 4b-i review: Absorb SetFactor (not started) and SetFactorFromPacket (packet+0x20 identity)
+32283910	CX2GameUnit::UpdateAbsorbEffectAttack	confirmed	Buff Phase 4b-i review: Absorb SetFactor when started (value += [1] if count > 1, else = [1])
+32ba6dc1	none in March: reader of 32b4dd50's unit +0x6844 (no Ghidra function)	confirmed	Buff Phase 4b-i review: decodes the protected int; == 1 picks one call (slot 0x21c, 0x294) for state/skill 0x336. Other readers 32badd88 32bae1c5 32bae50b 32baf2b7 32bb242e 32bb2980 32bc9b3b 32bf479b 329f5374
+32e78e00	CX2BuffChangeNowHpPerSecondBehaviorTemplet::SelectDelegate	candidate	Buff Phase 4b-i review: called first in NowHp SetFactor 32e798d0 where March calls SelectDelegate; body not read in this review
+32890620	CX2UserSkillTree::GetSkillLevel	candidate	Buff Phase 4b-i review: called (SKILL_ID, 0, 0, 1) by Create SetFactor/packet where March calls GetSkillLevel(SKILL_ID); result < 1 -> 1
+32b1e8e0	none in March: Luciel-region init (DLG_LUCIEL_BOUNDING_KEY)	candidate	Buff Phase 4b-i review: calls 32b4dd50(0), then copies gage +0x114 into unit +0x7ec0 when slot 0x198 is true
