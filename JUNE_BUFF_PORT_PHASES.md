@@ -2184,12 +2184,26 @@ The only deletions in `--numstat` are three lines of part 1's own flagged Create
   | RELATION | adds cool time × rate | added the value |
   | PERCENT | sets cool time × rate | set cool time × rate |
 
-  Only SWAP and FIX report a change. **Count March's RSCT templets by change type** to see which ones flip. March's slot-B PERCENT gage index bug (index without `+4`) is fixed by the port.
+  Only SWAP and FIX report a change. March's slot-B PERCENT gage index bug (index without `+4`) is fixed by the port.
+
+  **Measured on March's live data (fresh `elstools decompile-batch` of the live `BattleFieldBuffTemplet.lua`/`BattleFieldBuffFactor.lua`, factor file 353,105 B): this is a regression until Phase 13.** June renumbered the types *in its data* alongside the code. For the same BTI, March FIX became June SWAP, and March RELATION became June FIX. So the new exe reads March's numbers with June's meanings:
+
+  | March templet (BFI value) | March type | Meaning with March data on the new exe | June data for the same BTI |
+  |---|---|---|---|
+  | `BTI_SI_SA_RBM_GIGA_DRIVE` (FIX 1) | FIX | adds 1 s instead of setting 1 s | SWAP |
+  | `BTI_BUFF_HARSH_SLAYER_ACTIVE` / `_SPECIAL` (MULTIPLIER -1) | RELATION | the value becomes a rate, so it subtracts the full cool time (no clamp), instead of 1 s | FIX |
+  | `BTI_SET_SKILL_COOLTIME_ONCE2` (`BFI_BUFF_FIRE_BLOSSOMS_APPLY2`, -2) | RELATION | subtracts 2 × the cool time instead of 2 s | FIX |
+  | `BTI_DEBUFF_EMP_SHOCK` (`_NEAR` 5–13.7, `_FAR` 2.5–6.85) | RELATION | adds 2.5–13.7 × the cool time instead of that many seconds | FIX |
+  | `BTI_SET_SKILL_COOLTIME_ONCE` (PERCENT 1 / 0) | PERCENT | unchanged | PERCENT |
+
+  Five of the six March RSCT templets therefore misbehave until June's templet and factor files are adopted (Phase 13), and must ship together with this exe. **The user decides** between keeping the deployed exe or holding the RSCT apply on March semantics until Phase 13.
+
+  ATTACK_BY_TYPE: March has one factor (`BFI_BUFF_PROTECTION_OF_LAHEL`, 1.2), so the clamp moving from 1 to 0 changes nothing on March data.
 - **Every attack type now takes the attacker's buff-factor lists.**
   - March took them only for `AT_NORMAL`. June takes `AT_COMMAND` too, and `AT_SPECIAL` only for flagged entries on a non-hyper skill.
   - So socket, skill and title factors now also apply to `AT_COMMAND` hits. No March damage data uses `AT_COMMAND` until June data is adopted.
   - **This closes 6c's precondition** for Phase 13.
-- **AttackByType's product is now clamped at 0, not at 1.** A March factor below 1.0 used to do nothing; now it lowers damage of that type.
+- **AttackByType's product is now clamped at 0, not at 1.** A factor below 1.0 used to do nothing; now it lowers damage of that type. March has none (measured below).
 - **AttackByType packets need all four values**, as June's `32e74740` does. A 3-value packet is ignored.
 - **NeverMove packets add the offset a second time.** This is June's quirk, like Absorb's: the stage-change restore (`X2GameUnit.cpp` `SetKBuffFactorFromGageManagerToGameUnit`) re-anchors 2× offset away. March data has no OFFSET_POSITION, so it is unaffected today.
 
@@ -2217,7 +2231,7 @@ The only deletions in `--numstat` are three lines of part 1's own flagged Create
 - Final `x2.exe`: 19,014,144 B, linked 13:40, md5 `ca1bed66e31b3d1e9004661ac71ddbd9`. It contains `IGNORE_NEVER_MOVE`, `FORCE_SKILL_ID`, `ADDITIONAL_ATTACK_TYPE` and `APPLY_TO_SPECIAL_ATTACK`.
 - Copied to the game directory as `X2_offline.exe`. The name was read programmatically and the md5 matches. **Not launched.**
 - No Lua changed, so no pack is needed.
-- **Launch check, expected:** the load summary is unchanged from part 1.
+- **Launch check, expected:** the load summary is unchanged from part 1. **Runtime is not unchanged**: with March data, 5 of the 6 cool-time-reset buffs misbehave (see "Behavior changes"). Giga Drive, Harsh Slayer and Fire Blossoms are player skills; EMP Shock is a debuff.
 - **Things to watch in play:**
   - skills that reset cool times (RSCT change-type semantics);
   - any March factor below 1.0 on ATTACK_BY_TYPE;
