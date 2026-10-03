@@ -707,6 +707,117 @@ the +0x1a0 sub-object). Promote a type to "transcription-ready" only when it mee
 Record this session's /cost in a Done note. Commit.
 ```
 
+### Phase 1c, item 1 — Phase 6 classes (2026-10-03)
+
+Read-only Ghidra (no renames or comments). Uncarved functions were read with `buffre/rawfn.py`. Every address below is in `funcmap.tsv`.
+
+**Shared facts used by several types.**
+- `GetFactor`/packet layouts below are read from the class's own slot 5 / slot 13, not from the factor parse. They are the wire layout.
+- Accumulation helpers on the templet: `32369da0` = `CX2BuffTemplet::GetAccumulationCountNow` (`UCM_ACCUMULATION_COUNT_NOW`, rounded), `32369f10` = `GetAccumulationMultiflier` (`UCM_ACCUMULATION_MULTIPLIER`), templet `+0x3c` = `m_uiAccumulationLimit`. `31c7b640` = float equality with epsilon (`IsSamef`).
+- `3229fd80` = `CX2GameUnit::GetBuffFactor( vector<KBuffFactor>& )` (March `X2GameUnit.cpp:14168`: every live, unfinished buff's `GetFactor`). **Types 98, 99, 100 and 103 have no unit store.** Their readers call this, walk every `KBuffBehaviorFactor` whose type is theirs, and read the values straight out of it. The templet's own member is the store.
+- `32206450( id, 1 )` = `CX2SkillTree::GetSkillTemplet`; skill templet `+4` = `m_eType` (`SKILL_TYPE`).
+- New DamageData fields that the readers below use, matched to March by the key `SetDamageDataFromLUA` (`32632390`) decrypts at the store: `+0x4dc` `NO_DAMAGE` = `m_bNoDamage`; `+0x514` `DECREASE_FORCE_DOWN` = `m_fDecreaseForceDown`; `+0x590` `USED_SKILL_ID` = `m_eUsedSkillID`; `+0x5c4` `APPLIED_SKILL_ID` = March's `m_iAppliedSkillID` (already parsed, `X2DamageManager.h:1158`).
+
+**75 DOUBLE_ATTACK_BUFF — transcription-ready.**
+- Class `CX2BuffDoubleAttackBuffBehaviorTemplet` (vt `33535070`). Members: `m_eChangeType` (+0x10, int), `m_fRate` (+0x14).
+- `ParsingBehavior` `32e75360`: `BUFF_CHANGE_TYPE` → `m_eChangeType`, 0 if absent. Same as March's type-56 class.
+- `SetFactor` `32e77be0`: no factor → false. `ct = (int)v[0]`; if `ct != m_eChangeType` or `ct != BCT_PERCENT` → false **with no popup**. `rate = size>1 ? v[1] : 0`. If `DidStart()`: erase this identity first. `m_fRate = rate`; insert `( identity, rate )`; true.
+- `GetFactor` `32e7e9f0`: `[ (float)m_eChangeType, m_fRate ]`. Packet `32e754f0`: if `size>1`: `m_eChangeType=(int)v[0]`, `m_fRate=v[1]`, insert (no erase). `DoFinish` `32e75540`: erase.
+- Store: a **new** unit list beside type 56's, `vector<CX2DoubleAttackBuffPtr>` (June `+0x65b4`; 56's is `+0x65a4` = March `m_vecDoubleAttack`). Element class `CX2DoubleAttackBuff` (RTTI, ctor `322af570`) has the same layout as `CX2DoubleAttack` (`322af360`): identity + rate. Insert `32281b00`, erase `32279d20`. Reader `32275050` is byte-identical to 56's `32274f60` (= March `IsDoubleAttackByBuff`, `X2GameUnit.cpp:12428`) on the other list: `for each: if GetRandomFloat() < rate return true`.
+- Reads (the attacker's list, not the defender's):
+  - `CX2GUUser::DamageReact` `320462a0` @`32048da7`–`32048dbc`: `attacker = DD.optrAttackerGameUnit; if ( DD.attackType != AT_SPECIAL && attacker && attacker->IsDoubleAttackBuffByBuff() ) bDoubleAttack = true`.
+  - `CX2GUNPC::DamageReact` `327b1f30` @`327b3ac7`–`327b3ae5`: same, plus `&& !DD.m_bNoDamage`.
+  - Then (both) `if ( bDoubleAttack ) { fFinalDamage *= 2; bShowRedPicture = true; }` (@`32048dfa`, @`327b3b23`). March has that tail at `X2GUUser.cpp:9143`.
+- **Phase 4b, type 56 in the same block (not new, but June changed it):** June's 56 check is `DD.attackType != AT_SPECIAL` on the **defender's own** list (`this`, @`32048d86`; March `X2GUUser.cpp:9137` uses `== AT_NORMAL`), and the NPC adds `!m_bNoDamage` (@`327b3a97`). June also adds, after 75: `if ( DD.m_eUsedSkillID ∈ { SI_SA_SDK_BRUTAL_CUTTER 8021, SI_SA_SCA_CRIMSON_BREAK 8025, SI_SA_SCA_DREAD_WEAPON 8026 } && attacker->HaveThisBuff( BTI_BUFF_SHADE_THE_ILLUSION 430 ) ) bDoubleAttack = true` (@`32048dc1`, @`327b3aea`).
+
+**89 CHANGE_SKILL_DAMAGE — transcription-ready.**
+- Class `CX2BuffChangeSkillDamageBehaviorTemplet` (vt `33535378`). Member `m_vecSkillTypeRate` (+0x10), `vector< pair<int SKILL_TYPE, float rate> >`. `ParsingBehavior` is the shared default (`32ec5990`).
+- `SetFactor` `32e7a9e0` (T = templet, `lim = T->m_uiAccumulationLimit`):
+  - `if ( lim >= 2 && T->GetAccumulationCountNow() >= lim ) return true;` (at the cap: no-op).
+  - No factor, or unit not `GUT_USER` (`+0x264 != 0`) → false.
+  - If `!DidStart()`: for `i = 0; i+1 < n; i += 2`: `push( (int)v[i], v[i+1] )`; `unit->InsertSkillDamage( identity, m_vec )` (`31fe3b30`: insert only if the identity is not already there); true.
+  - Else: `m = lim<2 ? 1 : ( IsSamef( mult, 0 ) ? 1 : mult )`; `tmp[i] = ( (int)v[i], v[i+1]*m )`. If `lim == 1`: `m_vec = tmp`. Otherwise for each `t` in `tmp`: if `m_vec` has `t.type`, `that.rate += t.rate - m`; else append `t`. Then `unit->UpdateSkillDamage( identity, m_vec )` (`31fe3c10`: erase identity, then insert); true.
+- Slot `[7]` `32e7c020( unit, T )` (bool; recompute for the current stack count): null args → false; `v = GetFactor()`; not a user → false. `c = T->GetAccumulationCountNow()`, `m = IsSamef( mult, 0 ) ? 1 : mult`. `base[i] = ( (int)v[i], ( v[i+1] + c*m ) / ( c*m + 1.0 ) )`. If `c > 1`: `res = base`, then `c-1` times `res[i].rate += base[i].rate*m - m`. `m_vec = c > 1 ? res : base`; `UpdateSkillDamage`; true.
+- `GetFactor` `32e7ecf0`: `[ t1, r1, t2, r2, ... ]` (type as float). Packet `32e7af60`: rebuild pairs from `[t, r]*`; if the unit is a user, insert. `DoFinish` `32e75b70` → `31fe2990` erase.
+- Store: new unit list `vector< ptr >` (June `+0x92d4`), element (ctor `3207bec0`, vt `33474684`) = identity + the pair vector. Element getter `32369a30( skillType )`: the first pair with that type → `max( rate, 0 )`; none → 1.0.
+- Reader `31fd7cc0` = `GetSkillDamageRateByBuff( skillId )` (a `CX2GameUnit` member; `ECX` = user):
+  ```
+  r = 1;
+  if ( skillId > 0 ) {
+      if ( g_pData->GetSkillTree() && ( pT = GetSkillTemplet( skillId ) ) )
+          for each e in list89: r *= e->Get( pT->m_eType );      // 89
+      for each e in list90: r *= e->Get( skillId );               // 90, outside the templet check
+  }
+  return r;
+  ```
+- Consumers of `31fd7cc0` (they are the read sites for 89 **and** 90):
+  - `CX2GUUser::DoStateEndStart` (`3203c3a0`, March `X2GUUser.cpp:6350`), right after `m_NowStateData` is set (@`3203c7de`–`3203c801`). June caches the state power rate in a protected float: `m_fPowerRate = m_NowStateData.m_fPowerRate; m_fPowerRate *= GetSkillDamageRateByBuff( m_NowStateData.m_eSkillID ); m_fPowerRate *= rate98` (98, below). March's `GetPowerRate` (`X2GUUser.cpp:23045`) returns `m_NowStateData.m_fPowerRate` directly, so the port multiplies that value at the same point.
+  - The summoned-NPC power helper `322ece70`, called 21 times from `CX2Game::SetUserSummonedNPCInfo` (`3230c1a0`, March `X2Game.cpp:14060`): `rate = ( base + ... ) * ( 3201ad10( id ) + 1 ) * GetSkillDamageRateByBuff( id ) * rate98summon * GetAdditionalAttackByType( AT_SPECIAL )` (@`322ed2f7`–`322ed32d`). March already multiplies `GetAdditionalAttackByType( AT_SPECIAL )` at each `case` (e.g. `X2Game.cpp:14277`, under `ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE`); the port multiplies `GetSkillDamageRateByBuff( skillId )` beside each of them.
+  - Phase 9 only: `32369bd0` (`RNSI_SA_LDN_SINISTER_MIND` 30048, @`32369c84`) and `3236df00`/`32773ee0` (`RNSI_A_CHG_MARK_OF_COMMANDER` 26214) are custom-function bodies; port them with those classes.
+
+**90 CHANGE_SKILL_DAMAGE_BY_SKILL_ID / 91 CHARGE_MP_HIT_BY_SKILL_ID — transcription-ready.**
+- Classes `CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet` (vt `33535594`) and `CX2BuffChargeMpHitBySkillIDBehaviorTemplet` (vt `335355d0`). Member (+0x10) `vector< { float rate; vector<int> skillIds; } >` (element 0x14).
+- `SetFactor` `32e849c0` / `32e84d70`: no factor or not a user → false. If `DidStart() && T->GetAccumulationCountNow() == 0` erase the identity. Clear the member. Walk `v`: the value `-1.0` (`334380f0`) closes a block (`push( rate, ids )`, reset); the first value after a close is the rate; later values are `(int)` skill ids. Then insert the identity with the member (`3200ae70` for 90, `3200af50` for 91; insert only if absent); true.
+- `GetFactor` `32e7ef50` / `32e7f2e0`: per block `[ rate, id1..idn, -1.0 ]`. Packet `32e84b90` / `32e84f40`: same walk; insert if a user. `DoFinish` `32e75b90` / `32e75bb0`: if a user, erase (`31fe29e0` / `31fe2a30`).
+- Stores: new unit lists (June `+0x92e4` for 90, `+0x92f4` for 91), element ctors `320849a0` / `32084ae0`. Element getter (`32369aa0` for 90, `32369b10` for 91, byte-identical): `r = 1.0; for each block: if skillId ∈ ids: r = block.rate; return r` (**the last matching block wins**, no clamp).
+- 90 is read by `31fd7cc0` above.
+- 91 reader `31fd7df0( skillId )`: `r = 1; if ( skillId > 0 ) for each e in list91: r *= e->Get( skillId ); return r`. It is reached only through `CX2GUUser` vtable slot 109 (`31fd7ea0`): `GetChargeMpRateByBuff( const DamageData* pDD ) { return pDD ? 31fd7df0( pDD->m_iAppliedSkillID ) : 1.0f; }`. The `CX2GameUnit`/`CX2GUNPC` slot is `3208dd70` (`return 1.0f`), so declare it virtual on `CX2GameUnit`.
+- 91 read site: `CX2GameUnit::SetDamageExceptionProcess` (`322990e0`) @`32299510`–`3229954e`: `fHitAddMP *= attacker->GetChargeMpRateByBuff( pDamageData )`, on the same protected value that 85/86 scale just before it (@`3229947c`–`322994a3`).
+
+**98 CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE — transcription-ready.**
+- Class `CX2AddDamageOfSkillSlotType` (vt `33535160`). Members `m_eSlotType` (+0x10, int), `m_fRate` (+0x14).
+- `ParsingBehavior` `32e75d20`: `SKILL_SLOT_TYPE` → `m_eSlotType`, 0 if absent.
+- `SetFactor` `32e78080`: no factor → false. `m_eSlotType = (int)v[0]` (0 if empty); **if negative → false**. `m_fRate = size>1 ? v[1] : 0`; true. No unit call.
+- `GetFactor` `32e7f890`: `[ (float)m_eSlotType, m_fRate ]`. Packet `32e78170`: `m_eSlotType = (int)v[0]`, `m_fRate = size>1 ? v[1] : 0`. `DoFinish` `32e75cc0`: if a user, erase from 89's list (`31fe2990`; harmless, 98 never inserts there).
+- No store. Reader `32039e00( skillId )`, the only function that compares a factor type against `0x62`:
+  ```
+  pT = GetSkillTemplet( skillId ); if ( !pT ) return 1;
+  if ( pT->m_eType == ST_HYPER_ACTIVE_SKILL /*13*/ ) return 1;
+  slot = userSkillTree.FindEquippedSlotIndex( skillId );   // 3288fff0: 0-4 = slot A row, 5-9 = slot B row; none -> return 1
+  r = 1;
+  for each KBuffFactor kf in GetBuffFactor(): for each bf in kf: if ( bf.type == 98 && bf.size() > 1 )
+      if ( SlotIndexToSlotType( slot ) == (int)round( bf[0] ) ) r *= bf[1];
+  return r;
+  ```
+  `3214f3d0` = `SlotIndexToSlotType`: `0–3 → SKILL_SLOT_A (1)`, `5–8 → SKILL_SLOT_B (2)`, `4, 9 → SKILL_SLOT_TC (3)`, else 0.
+- Consumers: both in `CX2GUUser::DoStateEndStart` (`3203c3a0`):
+  - `if ( m_NowStateData.m_eSkillID != previous state's ) rate98 = 32039e00( skillId )` (@`3203c649`); it multiplies the state power rate (above).
+  - `if ( IsSummonSkill( skillId ) ) rate98summon = 32039e00( skillId )` (@`3203c586`/`3203c599`). It is **not** reset for other skills, so the last summon skill's value persists. The summon helper reads it through `31fea430`.
+  - `31fc8200` = `IsSummonSkill( skillId )` after `32207210` (`GetSkillTemplet(id)->+0x178` if non-zero, the same "memo/base id" field `31fcf3e0` reads, else the id). Its 54 skill ids were enumerated by interpreting the function over 0–70000 (scratch `emu_switch.py`): 22020, 22027, 22036, 23015, 23213, 23216, 23218, 25000, 25011, 25014, 25015, 25020, 25030, 25055–25057, 25062, 25601, 26014, 26025, 26050, 26060, 26064, 26215, 26238, 28018, 28023, 28054, 28057, 29003, 29029, 29601, 30013, 30016, 30053, 31002, 31007, 31015, 31038, 31044, 31045, 31047, 31053–31055, 31059, 31065, 31082, 31087, 31096, 31229, 31232, 31234, 31320 (names: `RNSI_SA_AVP_HELL_DROP` … `RNSI_A_ROM_G_EX_MAGNETICFORCE_UPGRADE`; resolve them against June's `Enum.src.lua` when porting). The `+0x178` mapping needs the same skill-templet field that blocks `_ULTIMATE`; March has no such field, so the port uses the plain id and says so.
+- BFT 16 shares the slot-type idea (Phase 8); this type has no finalizer of its own.
+
+**99 CONSUME_MP_RATE_BY_SKILLTYPE / 100 COOLTIME_RATE_BY_SKILLTYPE — class and reader transcription-ready; the host functions are Opus-only.**
+- Classes `CX2BuffChangeConsumeMpRateBySkillType` (vt `335353b4`) and `CX2BuffChangeCooltimeRateBySkillType` (vt `335353f0`) have byte-identical `SetFactor`, `GetFactor` and packet (`32e7b0d0`/`32e7b610`, `32e7f940`/`32e7fcb0`, `32e7b530`/`32e7ba70`). `DoFinish` is empty (`33093ad0`), `ParsingBehavior` is the default. Member (+0x10) `vector< { int skillType; int changeType; float value; } >`.
+- `SetFactor`: no factor or not a user → false. If `!DidStart()`: for each triple `( (int)v[i], (int)v[i+1], v[i+2] )` push; true. Else (restack): `m = lim<2 ? 1 : ( IsSamef( mult, 0 ) ? 1 : mult )`, triples scaled `value*m`; `lim == 1` → replace; else for each new triple whose `(skillType, changeType)` already exists and whose `changeType` is `BCT_FIX_VALUE` or `BCT_PERCENT`: `old.value += new.value` (others are dropped); true.
+- `GetFactor`: triples `[ (float)skillType, (float)changeType, value ]*`. Packet: rebuild the triples.
+- No store. Readers (`r` is in/out; same body, different type id):
+  ```
+  apply( pSkillTemplet, float& r ):           // 99: 3203a250 ; 100: 3203a420(skillId, &r) returns "any applied"
+      for each KBuffFactor kf in GetBuffFactor(): for each bf with type 99 (100):
+          for each triple: if ( (int)triple[0] == pT->m_eType )
+              switch ( (int)triple[1] ) { case BCT_SWAP_VALUE: r = value; case BCT_FIX_VALUE: r += value;
+                                          case BCT_PERCENT: r *= 1 + value; default (100 only): applied = false }
+      r = max( r, 0 );
+  ```
+- 99 host: June `CX2GUUser::GetActualMPConsume` (`3203cf60`, `CX2GUUser` slot 423) calls it @`3203d024`, between the passive MP multipliers and the `+0x74dc` reduction. June's function is much larger than March's (`X2GUUser.cpp:21081`, which only returns the templet value): it adds `vfunc +0x75c`, `32039a50( id, 0x3f )`, `32358970( 0xb )` and the `+0x74dc` term. Under the no-partial rule, porting 99 means porting June's whole `GetActualMPConsume` first. **Opus-only.**
+- 100 host: `3235a710` (a `CX2Unit`-side helper: `this+0x494` is the user skill tree, `this+0x28` the unit UID) computes a cooldown from two rate getters and the skill's base, applies 100 through `32358770` (finds the user by UID and calls `3203a420`), and writes `SetSkillCoolTimeLeft` (`32893880`). It is called from 16 sites: the generic user path `31fd8ff0` and one per-class override each. March sets cooldowns inline in each class (`X2GUAdd.cpp:2683`, `X2GUAra.cpp:3924`, `X2GUChung.cpp:5983`, …). Mapping those 16 sites is **Opus-only**.
+
+**103 CHANGE_SKILL_COOL_TIME_SPEED — transcription-ready.**
+- Class `CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet` (vt `3353542c`; **no packet override**, slot 13 is the empty base, so peers never receive it). Member as 99.
+- `SetFactor` `32e7bb50`: user only (`+0x264 == 0`), else false. Same triple build and restack as 99, but the merge applies only when `changeType == BCT_PERCENT`. Sets the unit dirty flag (June `+0x9314`) on both paths; true. `DoFinish` `32e75ea0`: `if ( unit && T && unit is a user ) dirty = true`.
+- Store: a unit `map< int SKILL_TYPE, float >` (June `+0x931c`) plus the dirty flag. Rebuild `32039fb0`, called every frame from `CX2GUUser` slot 499 (`32063650` @`320636a8`):
+  ```
+  if ( !dirty ) return; dirty = false;
+  for each entry in map: entry = 1.0;                          // keys are kept
+  for each bf of type 103 in GetBuffFactor(): for each triple with (int)triple[1] == BCT_PERCENT:
+      if ( map has key (int)triple[0] ) map[key] *= value; else map.insert( key, value );
+  ```
+- Reader `31fd8bc0( skillType )`: `map[key]` or 1.0. Its only caller is `32896850( skillId )`: if `g_pX2Game` and its `GetMyUnit()`: `myUnit->31fd8bc0( 32205ab0( skillId ) )`, where `32205ab0` is a skill-id → int map lookup in `g_pData->GetSkillTree()`. The data keys this map by `SKILL_TYPE` (`ST_ACTIVE`, `ST_SPECIAL_ACTIVE_GRADE_1`, …), so it is read as `GetSkillTemplet( id )->m_eType` (inferred from the data; confirm in Phase 6 if the lookup misses).
+- Read site: `CX2UserSkillTree::OnFrameMove` (`32896930`, March `X2UserSkillTree.cpp:48`): for each of the 5 + 5 equipped slots with time left: `left -= 32896850( slotSkillId ) * fElapsedTime` (March: `-= fElapsedTime` at `:70`/`:85`), then clamp at 0. VALUE 2 therefore means "cooldowns run twice as fast", and only for the local player.
+- June rebuilds in slot 499, which is not yet named (Phase 7 lists it as an INVINCIBLE reader). Rebuilding lazily inside the reader when the flag is set gives the same result.
+
+**Phase 6 readiness after item 1:** 75, 89, 90, 91, 98, 103 are transcription-ready. 99 and 100 are ready except for their host functions, which go to an Opus session (or Phase 4b, if it ports `GetActualMPConsume`).
+
 ## Phase 2 — Enum reconciliation
 
 **Steps**

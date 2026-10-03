@@ -329,3 +329,65 @@ mesh+0x54c	none in March: CXMeshInstance previous-frame velocity snapshot	confir
 32ec6b30	none in March: CX2BuffTimeFinalizerTemplet slot 8 (reset remain time)	confirmed	Buff Phase 4a: remain (+0x1c protected) = duration (+0x28); blink flag +0x38 = 0; true. Base slot 8 31e4c550 = false
 3201ffb0	none in March: CX2GUUser slot 250 pre-apply hook(BTI)	confirmed	Buff Phase 4a: base 3208ddc0 empty. BTI 436/926 (CREST_OF_TIME) -> slot +0x740; BTI 807 (AMUSEMENT_ITEM_STAT_BUFF) -> game-mode check then 32d58dc0. Not ported (hook bodies go with their systems)
 3204dcd0	none in March: CX2GUUser slot 251 post-apply hook(BTI)	confirmed	Buff Phase 4a: base 3208ddc0 empty. Skill 0x76c9/0x76d3 passive gated on BTI 462 (SOUL_COLLECTOR) and BFI 523. Not ported
+32e77be0	CX2BuffDoubleAttackBuffBehaviorTemplet::SetFactor (BBT 75)	confirmed	Buff Phase 1c: slot 2 of vt 33535070 (RTTI); BCT_PERCENT only, inserts (identity, v[1]) via 32281b00
+32e7e9f0	CX2BuffDoubleAttackBuffBehaviorTemplet::GetFactor	confirmed	Buff Phase 1c: slot 5 of vt 33535070; pushes [(float)m_eChangeType, m_fRate]
+32e75540	CX2BuffDoubleAttackBuffBehaviorTemplet::DoFinish	confirmed	Buff Phase 1c: slot 6 of vt 33535070 (uncarved); erase via 32279d20
+32e754f0	CX2BuffDoubleAttackBuffBehaviorTemplet::SetFactorFromPacket	confirmed	Buff Phase 1c: slot 13 of vt 33535070
+32e75360	CX2BuffDoubleAttackBuffBehaviorTemplet::ParsingBehavior	confirmed	Buff Phase 1c: slot 12 of vt 33535070; decrypts BUFF_CHANGE_TYPE
+32281b00	none in March: CX2GameUnit::CreateAndInsertDoubleAttackBuffByBuff (BBT 75)	confirmed	Buff Phase 1c: called by 32e77be0/32e754f0; news 0x1c CX2DoubleAttackBuff (ctor 322af570) into list +0x65b4
+32279d20	none in March: CX2GameUnit::EraseDoubleAttackBuffByBuff	confirmed	Buff Phase 1c: erase-by-identity on +0x65b4; called by 32e75540
+32275050	none in March: CX2GameUnit::IsDoubleAttackBuffByBuff	confirmed	Buff Phase 1c: byte-identical to 32274f60 on list +0x65b4; called by both DamageReacts (32048db3, 327b3adc)
+32274f60	CX2GameUnit::IsDoubleAttackByBuff	confirmed	Buff Phase 1c: list +0x65a4 filled by BBT 56 insert 32281a50; GetRandomFloat() < rate; March X2GameUnit.cpp:12428
+32281a50	CX2GameUnit::CreateAndInsertDoubleAttackByBuff	confirmed	Buff Phase 1c: called by BBT 56 SetFactor 32e77860; ctor 322af360 (RTTI CX2DoubleAttack)
+32e7a9e0	CX2BuffChangeSkillDamageBehaviorTemplet::SetFactor (BBT 89)	confirmed	Buff Phase 1c: slot 2 of vt 33535378; accumulation merge; user only; 31fe3b30 / 31fe3c10
+32e7c020	none in March: CX2BuffChangeSkillDamageBehaviorTemplet slot 7 (recompute for stack count)	confirmed	Buff Phase 1c: slot 7 of vt 33535378; (r + c*m)/(c*m + 1.0) then c-1 accumulation passes
+32e7ecf0	CX2BuffChangeSkillDamageBehaviorTemplet::GetFactor	confirmed	Buff Phase 1c: slot 5 of vt 33535378; [type, rate]* pairs
+32e7af60	CX2BuffChangeSkillDamageBehaviorTemplet::SetFactorFromPacket	confirmed	Buff Phase 1c: slot 13 of vt 33535378
+31fe3b30	none in March: CX2GameUnit insert skill-damage-by-type list (BBT 89)	confirmed	Buff Phase 1c: list +0x92d4, insert if identity absent, element ctor 3207bec0
+31fe3c10	none in March: CX2GameUnit update skill-damage-by-type list (BBT 89)	confirmed	Buff Phase 1c: erase identity on +0x92d4 then 31fe3b30
+31fe2990	none in March: CX2GameUnit erase skill-damage-by-type list (BBT 89)	confirmed	Buff Phase 1c: erase-by-identity on +0x92d4; DoFinish of 89 (32e75b70) and 98 (32e75cc0)
+32369a30	none in March: skill-damage-by-type element Get(skillType)	confirmed	Buff Phase 1c: first pair with matching type -> max(rate,0), else 1.0
+31fd7cc0	none in March: CX2GameUnit::GetSkillDamageRateByBuff(skillId) (BBT 89 + 90)	confirmed	Buff Phase 1c: product over +0x92d4 by GetSkillTemplet(id)->m_eType and +0x92e4 by id
+3203c3a0	CX2GUUser::DoStateEndStart	confirmed	Buff Phase 1c: compares state-change counters, runs StateEnd/StateStart via the state table or vt 0x7dc/0x7c4 like X2GUUser.cpp:6350; caches power rate * 31fd7cc0 * 32039e00
+3230c1a0	CX2Game::SetUserSummonedNPCInfo	confirmed	Buff Phase 1c: calls the summon power helper 322ece70 21 times, one per summoned NPC case (March X2Game.cpp:14060)
+322ece70	none in March: summoned-NPC stat/power helper	confirmed	Buff Phase 1c: rate *= (3201ad10+1) * 31fd7cc0 * 31fea430 * 32274d60(AT_SPECIAL); writes NPC +0x8ce0
+32274d60	CX2GameUnit::GetAdditionalAttackByType	confirmed	Buff Phase 1c: called with 1 (AT_SPECIAL) beside 31fd7cc0 in 322ece70 and 32369bd0; list +0x6584, clamp >= 0
+32e849c0	CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet::SetFactor (BBT 90)	confirmed	Buff Phase 1c: slot 2 of vt 33535594 (uncarved; read with rawfn); -1.0 (334380f0) closes a block; 3200ae70
+32e7ef50	CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet::GetFactor	confirmed	Buff Phase 1c: slot 5 of vt 33535594; [rate, ids.., -1.0]*
+32e84b90	CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet::SetFactorFromPacket	confirmed	Buff Phase 1c: slot 13 of vt 33535594
+3200ae70	none in March: CX2GameUnit insert skill-damage-by-id list (BBT 90)	confirmed	Buff Phase 1c: list +0x92e4, element ctor 320849a0; erase 31fe29e0
+32369aa0	none in March: skill-damage-by-id element Get(skillId)	confirmed	Buff Phase 1c: last block containing the id wins, else 1.0
+32e84d70	CX2BuffChargeMpHitBySkillIDBehaviorTemplet::SetFactor (BBT 91)	confirmed	Buff Phase 1c: slot 2 of vt 335355d0; same walk as 90; 3200af50
+32e7f2e0	CX2BuffChargeMpHitBySkillIDBehaviorTemplet::GetFactor	confirmed	Buff Phase 1c: slot 5 of vt 335355d0
+32e84f40	CX2BuffChargeMpHitBySkillIDBehaviorTemplet::SetFactorFromPacket	confirmed	Buff Phase 1c: slot 13 of vt 335355d0
+3200af50	none in March: CX2GameUnit insert charge-MP-by-id list (BBT 91)	confirmed	Buff Phase 1c: list +0x92f4, element ctor 32084ae0; erase 31fe2a30
+31fd7df0	none in March: CX2GameUnit charge-MP rate by skill id (BBT 91)	confirmed	Buff Phase 1c: product of 32369b10(id) over +0x92f4; only caller 31fd7ea0
+31fd7ea0	none in March: CX2GUUser vslot 109 GetChargeMpRateByBuff(const DamageData*)	confirmed	Buff Phase 1c: CX2GUUser vt 334781f4 slot 109; null -> 1.0 else 31fd7df0(DD+0x5c4 APPLIED_SKILL_ID); base slot 3208dd70 returns 1.0; called @3229952f in SetDamageExceptionProcess
+32e78080	CX2AddDamageOfSkillSlotType::SetFactor (BBT 98)	confirmed	Buff Phase 1c: slot 2 of vt 33535160; negative slot type -> false; no unit call
+32e7f890	CX2AddDamageOfSkillSlotType::GetFactor	confirmed	Buff Phase 1c: slot 5 of vt 33535160; [(float)slotType, rate]
+32e78170	CX2AddDamageOfSkillSlotType::SetFactorFromPacket	confirmed	Buff Phase 1c: slot 13 of vt 33535160
+32e75d20	CX2AddDamageOfSkillSlotType::ParsingBehavior	confirmed	Buff Phase 1c: slot 12 of vt 33535160; decrypts SKILL_SLOT_TYPE
+32039e00	none in March: skill power rate by equipped slot type (BBT 98 reader)	confirmed	Buff Phase 1c: only cmp of a factor type against 0x62 in .text (@32039ee8); 1.0 for ST_HYPER_ACTIVE_SKILL; called twice by DoStateEndStart
+3214f3d0	none in March: equipped slot index -> SKILL_SLOT_TYPE	confirmed	Buff Phase 1c: 0-3 -> 1, 5-8 -> 2, 4/9 -> 3, else 0
+3288fff0	none in March: CX2UserSkillTree equipped-slot lookup by skill id	confirmed	Buff Phase 1c: 5 slot-A rows at +0x48, 5 slot-B rows at +0x23c (stride 100); returns index 0-9
+31fc8200	none in March: IsSummonSkill(skillId)	confirmed	Buff Phase 1c: pure switch after 32207210; 54 ids enumerated by interpretation (doc, Phase 1c item 1); gates the 98 summon cache +0x7ce0
+31fea430	none in March: get cached summon-skill 98 rate (+0x7ce0)	confirmed	Buff Phase 1c: protected float read; only caller 322ece70
+3229fd80	CX2GameUnit::GetBuffFactor	confirmed	Buff Phase 1c: walks buff list +0xe14, skips finished/world, collects GetFactor; the read path of BBT 98/99/100/103 (March X2GameUnit.cpp:14168)
+32e7b0d0	CX2BuffChangeConsumeMpRateBySkillType::SetFactor (BBT 99)	confirmed	Buff Phase 1c: slot 2 of vt 335353b4; triples (skillType, changeType, value); identical to 32e7b610
+32e7f940	CX2BuffChangeConsumeMpRateBySkillType::GetFactor	confirmed	Buff Phase 1c: slot 5 of vt 335353b4; triples, stride 0xc
+32e7b530	CX2BuffChangeConsumeMpRateBySkillType::SetFactorFromPacket	confirmed	Buff Phase 1c: slot 13 of vt 335353b4
+3203a250	none in March: apply BBT 99 to a skill MP cost	confirmed	Buff Phase 1c: only cmp against 99 at [reg-4] (@3203a2ce); SWAP/FIX/PERCENT by skill type, clamp >= 0
+3203cf60	CX2GUUser::GetActualMPConsume	confirmed	Buff Phase 1c: CX2GUUser vt 334781f4 slot 423; looks up the skill templet, calls 3203a250 @3203d024; much larger than March X2GUUser.cpp:21081
+32e7b610	CX2BuffChangeCooltimeRateBySkillType::SetFactor (BBT 100)	confirmed	Buff Phase 1c: slot 2 of vt 335353f0; identical to the BBT 99 SetFactor
+32e7fcb0	CX2BuffChangeCooltimeRateBySkillType::GetFactor	confirmed	Buff Phase 1c: slot 5 of vt 335353f0
+32e7ba70	CX2BuffChangeCooltimeRateBySkillType::SetFactorFromPacket	confirmed	Buff Phase 1c: slot 13 of vt 335353f0
+3203a420	none in March: apply BBT 100 to a skill cooldown	confirmed	Buff Phase 1c: only cmp against 100 at [reg-4] (@3203a4c4); returns whether a triple applied
+32358770	none in March: find user by unit UID and apply BBT 100	confirmed	Buff Phase 1c: g_pX2Game vfunc +0xa0(this+0x28/+0x2c) then tail-jumps to 3203a420
+3235a710	none in March: cooldown set with rates (CX2Unit side)	candidate	Buff Phase 1c: this+0x494 user skill tree; calls 32358770 then SetSkillCoolTimeLeft 32893880; 16 callers (31fd8ff0 + per-class overrides) not yet mapped to March
+32e7bb50	CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet::SetFactor (BBT 103)	confirmed	Buff Phase 1c: slot 2 of vt 3353542c; user only; merges only BCT_PERCENT; sets unit +0x9314
+32e80020	CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet::GetFactor	confirmed	Buff Phase 1c: slot 5 of vt 3353542c; triples; no packet override (slot 13 = 33108560)
+32e75ea0	CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet::DoFinish	confirmed	Buff Phase 1c: slot 6 of vt 3353542c; sets unit +0x9314 for a user
+32039fb0	none in March: rebuild cooldown-speed map (BBT 103)	confirmed	Buff Phase 1c: runs only if +0x9314; resets map +0x931c to 1.0, multiplies BCT_PERCENT triples by skill type; called from CX2GUUser slot 499 32063650
+31fd8bc0	none in March: cooldown speed for a skill type (BBT 103)	confirmed	Buff Phase 1c: map +0x931c lookup or 1.0; only caller 32896850
+32896850	none in March: my-unit cooldown speed for a skill id	confirmed	Buff Phase 1c: g_pX2Game->GetMyUnit()->31fd8bc0(32205ab0(skillId)); called by 32896930
+32896930	CX2UserSkillTree::OnFrameMove	confirmed	Buff Phase 1c: loops 5 slot-A + 5 slot-B rows, left -= 32896850(id) * fElapsedTime, clamp 0 (March X2UserSkillTree.cpp:48 does -= fElapsedTime)
