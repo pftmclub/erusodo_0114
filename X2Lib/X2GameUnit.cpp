@@ -1,9 +1,6 @@
 
 #include "StdAfx.h"
 #include ".\x2gameunit.h"
-#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-#include "Offline/X2OfflineLog.h"
-#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 
 const double CX2GameUnit::RANDOM_SEED_RESET_TIME = 0.3;
 
@@ -13322,11 +13319,6 @@ void CX2GameUnit::CreateAndInsertBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, 
 
 		case BBT_DASH_IMPOSSIBLE:
 			m_vecDashImpossiblePtr.push_back( ptrBuffIdentity );
-#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-			CX2OfflineLog::Server( L"[JUNE_BUFF] DEBUG DASH_IMPOSSIBLE applied: BTI %d on %s uid %I64d (list size %d)",
-				static_cast<int>( BuffIdentity_.m_eBuffTempletID ), ( GUT_USER == GetGameUnitType() ? L"user" : L"npc" ),
-				GetUnitUID(), static_cast<int>( m_vecDashImpossiblePtr.size() ) );
-#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;
 
 		case BBT_ATTACK_IMPOSSIBLE:
