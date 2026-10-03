@@ -2658,10 +2658,10 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The sessi
 - Range members, the ChangeStat hook and the Shade check: no reach.
 
 **Not ported, with what each needs**
-- **D2, damage-variance roll `322788c0`: decision for the user, plus RE.**
+- **D2, damage-variance roll `322788c0`: goes to Phase 5c (user, 2026-10-04); RE notes for that phase.**
   - Decoded: MSVC `mt19937` (the 4996-byte engine object), seeded with `defender->vslot 113( 0 ) & 0xffff` (user word `+0x80f8`, NPC word `+0x8474`, unmapped counters). It draws `normal( base · vslot121( arg ) + range · maxi, range · 0.5 )` and clamps to `[ base − range + 2 · range · maxi, base + range ]`. It fires only when range > 0.
   - Still open: the seed counters (they must agree between P2P peers), the two `GetFinalDamage` call sites (`@32284c1f`/`@32284c2f`), slot 121 per class, and the summoned-NPC copies (`3230ca8c`, `32763d6e`, which set the summon's basic from the owner's results).
-  - Dormant on March data (range 0). **Recommendation:** port it with 92 MAXIMIZE in Phase 5c, the only type that makes it matter.
+  - Dormant on March data (range 0). **Decided (user, 2026-10-04): port it in Phase 5c, with 92 MAXIMIZE.** Phase 5c owns the roll, the seed counters, both `GetFinalDamage` call sites and the summoned-NPC copies.
 - **RSCT DRAW_TEXT `32e857d0`.**
   - **Correction to part 2:** the formats are `%s = %d%s` (SWAP), `%s +%d%s` and `%s %d%s` (FIX, value ≥ 0 / < 0), not `-%d`. STR 38799 "COOLDOWN" and 38800 "SEC" read the same in March's and June's `General.ess`, so no data change is needed.
   - The draw is `g_pData+0x17c->DrawText( text, unit vslot 63 position, vslot 91 direction, AT_CENTER, 0.0, 0, 0 )`. `+0x17c` is **`PicCharYellowSmall`** (created by `31edd860`), a pic-char March's `CX2Data` lacks. The `PicCharYellowSmall` sequence is present in the staged `UIMajorParticle.txt`.
@@ -2687,7 +2687,7 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The sessi
 2. RSCT DRAW_TEXT: `CX2Data` `PicCharYellowSmall` plus the draw call.
 3. The dormant chain: map unit vslots 132/141/476 and `3236a430`'s UI tail, then port.
 4. The AnimStop `+0x8080` marker: trace the 7 register-passed vslot 153 callers; port the marker only if a March-equivalent path passes 1.
-5. **User decisions:** D2 (the roll: recommend Phase 5c) and the runtime popups (part 3). (The enchant rework is decided: Phase 15.)
+5. **User decision still open:** the runtime popups (part 3). Decided 2026-10-04: D2, the roll goes to Phase 5c; the enchant rework is Phase 15.
 6. Then 4b-ii (finalizers and displayers).
 
 **Review of part 4:** required (Opus 5.5). Suggested spot-checks:
@@ -2710,7 +2710,7 @@ BBT 6 HP-ratio rescale (June 32282723/32283113), RSCT DRAW_TEXT (CX2Data PicChar
 from 31edd860, then the 32e857d0 draw), and the dormant vslot 3/9/10/11 chain (map unit
 vslots +0x210/+0x234/+0x770 and 3236a430's UI tail first), then trace the 7 register-passed
 IsSuperArmor (vslot 153) callers for AnimStop's +0x8080 marker. Do not port the damage roll
-322788c0 unless the user has decided D2. Under SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY: port
+322788c0: it belongs to Phase 5c (user, 2026-10-04). Under SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY: port
 June's whole function wherever it differs, keep GetFactor/SetFactorFromPacket order (append
 only), byte-level CP949 edits, insert-only, flag-off unifdef check per file. Another session
 may have uncommitted edits in the doc: stage only your own hunks. Build, deploy, commit;
