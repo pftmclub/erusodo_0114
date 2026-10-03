@@ -951,9 +951,83 @@ dir) gives an unsupported list matching buff_census.py. Build, deploy, commit.
 - **Phase 4a:** 9 June templets (BTI 842, 864, 874, 881, 884, 912, 971, 986, 1020) have `ACCUMULATION_LIMIT > 1` and no `ACCUMULATION_MULTIPLIER`. March's `ParsingScript` requires the key in that case, so they fail. Check whether June's `3236a9b0` reads it optionally.
 - **Phase 13:** the trial directory is throwaway. Delete it once Phase 3 is confirmed; it holds only hardlinks and copies.
 
-**Review.** The required Opus 5.5 review has not been run.
+**Review.** Done; see "Phase 3 — Review" below. No code defects. Exit check 1 is met. Exit check 2's expected line above is wrong as staged (finding R1).
 
 **Cost.** Not recorded (no `/cost` figure in-session).
+
+### Phase 3 — Review (2026-10-03, Opus 5.5 high)
+
+Independent review of `2116952`, `e041a83` and `e527a72` (`SERV_IRUHADEV_JUNE_BUFF_LOADER`). It used fresh scratch scripts only; none of the Phase 3 session's scripts were reused. They were:
+- the six June functions decompiled and disassembled, with the XOR-built file names decoded;
+- `cl -EP` of the six buff TUs at `US_SERVICE` defines, from which the compiled `case` labels and C++ enum values were extracted;
+- a scratch Lua 5.1 interpreter built from `luaLib/` with the local VS2010, running a loader simulation written in Lua against the **real** buff files. Unlike a text parser, it fails exactly where the client's Lua would;
+- a fresh `elstools decompile-batch` of March's live buff bytecode (sizes equal to the live `data036.kom` entries).
+
+Ghidra was used read-only.
+
+**Verdict: no code defects, so nothing was changed or rebuilt.** One Medium finding (R1) means exit check 2 as written will report a mismatch on a loader that is behaving correctly. It also hides a hazard for Phase 13.
+
+**Exit check 1 (March data, real game directory): met.** The user packed the Phase 2 `Enum.lua` at 05:15. The live `data036.kom` now holds `Enum.lua` at 314,915 B; the buff files are unchanged at 353,105 / 152,564 B. The 05:15:52 launch logged exactly the Done note's "once the Phase 2 `Enum.lua` is packed" variant:
+- the duplicate BTI 87;
+- both `_INT` not-found lines;
+- ordinal rejects 481, 482, 483, 372 and 373, in that order (my simulation gives the same order);
+- `load summary: templets 320 loaded, 0 failed, 1 duplicate; factors 361 loaded + 0 placeholder(s); _INT factors 0 loaded + 0 placeholder(s); ordinal rejects 5 (+ 0 _INT)`;
+- 0 `unsupported` and 0 `warning` lines. My simulation also predicts 0 warnings.
+
+Two caveats:
+- March data raised no captured error, so the sink and `Report()` were **code-reviewed, not exercised**. The trial is their first real run.
+- "No popups" holds for load time only. See R4 for 87 runtime popups from a path Phase 3 did not touch.
+
+**Exit check 2 (June files, trial copy): not run.** The trial directory has no `ErrorLog.txt`, and its save files carry their copy-time mtimes, so it was never launched. `buff_trial_predict.py --log` therefore could not be run. What it will show is in R1.
+
+| # | Check | Result |
+|---|---|---|
+| 1 | June parity | Port matches all six functions. **`_INT` add `326c3f30`:** `CMP EAX,0x2710; JNC` at `326c3f5c`, so ids ≥ 10000 are claimed and the function returns 1 whatever happens. The rule is `size == id + 0xffffd8ef` (= id − 10001) at `326c3f7d`, so 10000 is always rejected; a parse failure pushes nothing. **`GetBuffFactorPtr` `326c32a0`:** `CMP ESI,0x2710; JBE` at `326c32d4`, so ≤ 10000 is main. Id 0 returns null silently. A NULL slot returns null with no message. `_INT` index is `[id−10001]`, and bad ids format a string that is discarded. **`AddBuffFactor_LUA` `326c4050`:** an unreadable id becomes 0 with no return, `326c3f30` is called before `size == id−1` (`SAR EDX,2; DEC EAX; CMP` at `326c41df`), and the parse is `ParsingBuffFactor( lua, 1 )`. **`AddBuffTemplet_LUA` `326c3990`:** create, `ParsingScript`, map insert; the inserted node is registered with June's anti-tamper call (not ported, per Phase 1). **Loaders `326c0020`/`326c13a0`:** they build `BattleFieldBuff{Templet,Factor}.lua` and then `…_INT.lua`. The success path (`326c0a61`) and both failure paths (`326c0a4b` → `326c0a80`) fall through to `326c0a9c`, the `_INT` block, so the `_INT` load is unconditional, as ported. |
+| 2 | Placeholder callers | 25 direct sites. Null-checked: `X2DamageManager.cpp:3988`, `X2GameUnit.cpp:11045/11077/11112`, `X2PremiumBuffManager.cpp:513/548/600/660`, `X2Unit.cpp:1682/4281`, `X2BuffTempletManager.cpp:356` (`…FromBuffFactorList` drops NULLs), `X2ItemManager_Preprocessing.cpp:1173` (log only). `X2SocketItem.cpp:182/309/697/701` store the pointer, and every consumer checks it (`X2GUUser.cpp:3220/3295/11225/30547/30706`, `X2GUNPC.cpp:11616`). `X2Item_Preprocessing.cpp:181` passes it through to `X2Game.cpp:18160` (7b, known). **Unchecked dereferences:** `X2Game.cpp:18160` (7b), and `X2BuffBehaviorTemplet.cpp:1152/1157` (`SetFactor`) and `:1207/1210` (`SetFactorFromPacket`), both `*ptrBuffFactor` of `BBT_CREATE_BUFF_FACTOR`'s target. The last two are **pre-existing, not new** (finding R2). |
+| 3 | DisplayErrorMessage sink | **TLS:** static `__declspec(thread)` in an exe is fine, and `KTDXApp.cpp` already uses it for `ms_pLuaBinder`. **Visibility:** `KTDXCommonFunc.h` is reachable only through `KTDX.h:1198`, after `Always.h` at `:190`, so every TU sees the flag. The inline function has one definition (no ODR split), and the `extern` is in the same header as the only definition's users. **Ownership:** the outermost capture owns, nested ones are no-ops, and the destructor clears only when it owns. No Lua error can be raised while a capture is live, because the entry's table is built before the C++ call, so RAII never depends on unwinding through Lua. **Outside a capture:** `StateLog` plus `MessageBox` as before. Two texts changed by design: default branches now name the type, and `GetBuffFactorPtr`'s bad-id popup became a log line (June parity). **Narrow copy:** 511 bytes max; an overflow makes `WideCharToMultiByte` fail and the zeroed buffer stays terminated. `CP_ACP` would mangle Korean text, but parse-path texts are ASCII. **Line buffer:** 1024 with `_TRUNCATE`. **Lifetime:** the manager is destroyed in `CX2Data`'s destructor (`X2Data.cpp:1053`), before CRT teardown; R3 notes the lock's scope. |
+| 4 | Reporting | `Report()`: failed → `unsupported`; parsed with texts → `warning`; else silent. The five `default:` branches return `UnsupportedType()`, i.e. `DisplayErrorMessage()`, which is `false` on every path, as before. The `ParsingBuffFactor` wrapper keeps `bIsSkill = true` (`X2BuffFactor.h:757`); `ParsingBuffFactorBody` has no default. The callers are the manager (default) and `X2DamageManager.cpp:3835` (`false`, inline path). That path pushes only on success, so the inline "not added" outcome is true. |
+| 5 | Predictor rules and numbers | Every rule matches the compiled code. The `-EP` case sets equal the census's for all five switches (72/13/13/72/13). `BBT_EMPTY` is `return true` in the templet factory and `break` in factor parse. The `bExceptionCase` guard is compiled for BEHAVIOR and DISPLAYER only. A factor BEHAVIOR without COMBINATION returns true and FINALIZER returns false. Every sub-parser requires its own sub-table. `ACCUMULATION_MULTIPLIER` is required when `ACCUMULATION_LIMIT > 1`. My simulation reproduces **March** exactly (pre-Phase-2 Enum: 320 + 1 duplicate (BTI 87), 364, rejects 372/373; packed Enum: 361, 5 rejects). For **June** it gives 894/107, 1024+106, `_INT` 69+0, 0 rejects, with the same 107 BTIs and 106 BFIs as `buff_trial_predict.py -v` (0 differ), **but only when `SKILL_SLOT_TYPE` is defined** (R1). |
+| 6 | Hygiene | All 10 code files are insert-only (`--numstat` deletions 0) and every inserted byte is ASCII. High-byte counts and `file` signatures are unchanged. Every inserted `#else`/`#endif` carries ` SERV_IRUHADEV_JUNE_BUFF_LOADER`. `KTDXCommonFunc.h`'s insertions are LF, matching its LF region (1568 → 1596 LF, CRLF 6 → 6). `X2BuffTempletManager.cpp`'s are all CRLF (LF-only stays 39), 46 of them next to the file's existing LF lines. |
+| 7 | Build, deploy, trial | `X2/US_SERVICE/x2.exe`, `$DATA/X2_offline.exe` and the trial's `X2_offline.exe` are all md5 `841b930a…`, 18,999,808 B, built 03:55:52, before the 04:05 commit. `git log 2116952..HEAD -- X2Lib X2 KTDXLIB X2ServerProtocol` is empty. All six new strings are present (narrow, and UTF-16 for `BattleFieldBuffFactor_INT.lua` and `unsupported %s %u`). Trial: 183 `.kom` plus every file under the five asset trees are hardlinks (same file id). The newest file in those trees in the real directory is 2026-09-19, so they are never written. All 71 root files are copies. `start_offline.bat` is byte-identical to the real one and uses only `cd /d "%~dp0"`. The real directory has no loose `.lua` besides the 5 user config files. |
+| 8 | Ghidra spot-checks (rule 10) | Three items, all pass: (a) `326c3f5c` `JNC` + `326c3f7d` `ADD 0xffffd8ef`, the `_INT` add boundary and rule; (b) `326c32d4` `JBE`, the lookup boundary; (c) `326c0a4b`/`326c0a61` both reach `326c0a9c`, the unconditional `_INT` load. No escalation. |
+
+**Findings**
+- **R1, Medium: June's buff files need `SKILL_SLOT_TYPE`, which the staged March `Enum.lua` lacks, so both main files abort partway.**
+  - June's `Enum.src.lua:17838` defines `SKILL_SLOT_TYPE = { SKILL_SLOT_None 0, A 1, B 2, TC 3 }`. Phase 2 ported only `BUFF_*` tables, and no C++ binding and none of 5,452 March `.lua` define it.
+  - `BattleFieldBuffTemplet.lua:26196` (inside BTI 820, `BTI_TRANSCENDENTAL_SLOT_ATTACK_EFFECT`) and `BattleFieldBuffFactor.lua:115261` (inside BFI 843) index it. That is a Lua runtime error, so `DoMemory` fails, and the client logs `KEM_ERROR73` and `XEM_ERROR2` for each file. Every entry before the error has already been added; every entry from it on is never run. The `_INT` files don't use it.
+  - **Expected trial result as staged:**
+    `load summary: templets 713 loaded, 61 failed, 0 duplicate; factors 779 loaded + 63 placeholder(s); _INT factors 69 loaded + 0 placeholder(s); ordinal rejects 0 (+ 0 _INT)`, 0 warnings.
+    - Its failure sets are strict subsets of the full run's.
+    - All 46 templets and 43 factors in the difference are BTI 820 / BFI 843 or later.
+    - `buff_trial_predict.py --log` will print those as "predicted, did not fail", plus a census miss for the same entries, and end `MISMATCH`.
+  - **With the table defined,** the Done note's line is right: 894/107, 1024+106, 69+0.
+  - **Recommendation:** for the trial, put a trial-only `Enum.lua` in the throwaway directory that adds June's 4-member table. That keeps exit check 2 a test of the loader. The alternative is teaching the predictor to stop at the first unresolved global.
+  - Not done here: the staged/packed `Enum.lua` is the user's, and the trial format is an open question.
+- **R1 hand-off to Phase 13 (the important part).** This truncation **passes Phase 13's gate as written**. "0 placeholders, no unsupported lines" can hold with about 227 templets and 288 factors never run. Phase 13 needs three more things:
+  - the loaded counts in the load summary must equal the source files' entry counts;
+  - no `KEM_ERROR73`/`XEM_ERROR2` for any buff file;
+  - `SKILL_SLOT_TYPE` (and any other June-only global) added to `Enum.src.lua`. Run an unknown-global pass (this review's harness: scratch `lua51.exe` from `luaLib/` plus `D3DXCOLOR`/`D3DXVECTOR2/3` stubs and an `_G` `__index` logger) on every June `.lua` Phase 13 adopts. In this run the only unknown globals besides `SKILL_SLOT_TYPE` were `STR_ID_*`, which are read with defaults.
+- **R2, Low: unchecked `*ptrBuffFactor` in `CX2BuffCreateBuffFactortBehaviorTemplet` (`X2BuffBehaviorTemplet.cpp:1152/1157/1207/1210`). Pre-existing; placeholders widen the trigger.**
+  - Before Phase 3 an unloaded target already returned NULL (out of range); now an in-range placeholder can too.
+  - Not reachable today:
+    - all 12 March targets are ≤ 167 and loaded under the packed Enum;
+    - no other March `.lua` names `BBT_CREATE_BUFF_FACTOR` (byte scan of `kom_contents` + `march2014`);
+    - none of June's 18 targets is one of the 106 placeholders.
+  - Checked against the factor files only. `SetFactorFromPacket` takes the id from a peer.
+  - Same class as 7b; a one-line guard belongs with Phase 4b's parity work on this type.
+- **R2b, Low: `GetBuffFactorPtrFromBuffFactorList` drops NULLs, so a placeholder in a skill's or item's `BUFF_FACTOR` list shifts later entries down.** Position-indexed users then get a different factor (`X2GameUnit.cpp:11140/11152`, `X2GUAra.cpp:1595`'s `[0]`). This already happened for out-of-range ids; placeholders make it possible for in-range ones. It matters only once June data with placeholders ships (Phase 13 requires 0 placeholders, which closes it).
+- **R3, Low: the `[JUNE_BUFF]` lock serialises only `[JUNE_BUFF]` writers.** `KLOG` is the global `KDbgStm` (`KSuperAssert.h:109`), and `ErrorLogMsg` writers on loader threads do not take this lock. The race is pre-existing; the worst case is an interleaved line.
+- **R4, Medium, outside Phase 3's scope: 87 runtime popups in the 05:15 session.**
+  - `State.log` has 87 `BuffTemplet doesn't exist` entries between 05:21:21 and 05:21:52, in the Ranox secret stage. They come from `CX2GameUnit::SetBuffFactorToGameUnit` (`X2GameUnit.cpp:11179`), outside any capture, so each one was a MessageBox. A factor was applied whose BTI has no templet among the 320 loaded.
+  - `MISS MATCH BUFF_CHANGE_TYPE` ×10 in the same session is likely related.
+  - The BTI is not logged, so it is unidentified here, and there is no earlier `State.log` to show whether it predates Phase 2/3.
+  - Hand-off: Phase 4a (apply path) or the Lanox phases. First step: log the BTI at that site behind a `_DEBUG` flag.
+- **Info.**
+  - BFI 512 (`BFI_BUFF_MAG_STONE_ATTACK_B`) was requested at 05:23:39, right after a `DamageEffect_NUI_MAG_STONE_Attack_A` hit. It is a June-era damage effect naming a factor March's file lacks, reached through the null-checked damage-data path. It was logged once where it used to be a popup. It is a Phase 13 data gap.
+  - The 05:15 repack gave the real `data036.kom` a new file, so the trial's `data036.kom` is now a stale copy (6,256,502 B). It is shadowed by the trial's loose `Enum.lua`. The link broke in the safe direction.
+- **Doc correction (low):** the Done note's exit-check-2 prediction needs R1's precondition. Its numbers hold only with `SKILL_SLOT_TYPE` defined.
+
+**Review cost.** `/usage` is not readable from inside the session; asked of the user.
 
 ## Phase 4a — Templet/factor top-level parity
 
@@ -1197,7 +1271,7 @@ pack to me. Commit.
 2. Rerun `buff_census.py`; it must report **0 unsupported**.
 3. Run a local trial-load harness against the C++ parse expectations.
 4. Build and deploy. Give the user one pack list naming every staged file across Phases 2, 10, 11, 12 and 13, together with this exe.
-5. After the user packs, confirm with `elstools inspect` on the live koms. Then ask before launching. Confirm `ErrorLog.txt` shows the load summary with 0 placeholders and no `[JUNE_BUFF] unsupported` lines.
+5. After the user packs, confirm with `elstools inspect` on the live koms. Then ask before launching. Confirm `ErrorLog.txt` shows the load summary with 0 placeholders and no `[JUNE_BUFF] unsupported` lines. Also confirm (Phase 3 review R1) that the loaded counts equal the source files' entry counts, and that no buff file logged `KEM_ERROR73`/`XEM_ERROR2`. A Lua runtime error truncates a file silently, and the first two checks still pass. Before staging, add `SKILL_SLOT_TYPE` (June `Enum.src.lua:17838`) and any other June-only global the adopted files read to `Enum.src.lua`.
 6. Clear the Phase 2 to-dos: remove the `BFI_DEBUFF_TELEPORT_CONSUME_MP` alias from `Enum.src.lua` (only once `NewSkillTempletVer2.lua` no longer names it), and repoint `Item.kim`'s Heretic potions (85003830 / 85003831) from 362/363 to 481/482 (see "Phase 2 — Done").
 
 **Run with:** Sonnet 5.5, medium effort. The work is compile, stage and pack-list behind a hard gate: census = 0, otherwise stop and report. An Opus 5.5 review of the staged set is required before the pack hand-off.
