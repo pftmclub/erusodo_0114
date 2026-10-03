@@ -47,9 +47,13 @@ The user decided (2026-10-02):
 | 3 | Loader hardening + `[JUNE_BUFF]` logging | 1, 2 | C++ | Opus 5.5 | high | required |
 | 4a | Templet/factor top-level parity (stacking, replace, conditions) | 3 | C++ | Opus 5.5 | high | required |
 | 4b | Existing BBT/BFT/BDT parser + runtime parity | 3 | C++ | Opus 5.5 | high | required |
-| 5 | New BBT group A: stat/multiplier | 2, 4b | C++ transcription | Sonnet 5.5 | high | required (Opus 5.5) |
-| 6 | New BBT group B: skill-scoped | 2, 4b | C++ transcription | Sonnet 5.5 | high | required (Opus 5.5) |
-| 7 | New BBT group C: flags/immunity | 2, 4b | C++ (new mechanisms) | Opus 5.5 | high | required |
+| 5 | New BBT group A: ChangeStat types (76, 85–87, 96, 108, 109) | 2, 4b | C++ transcription | Sonnet 5.5 | high | required (Opus 5.5) |
+| 5b | Group A: transcription-ready stat types (79–84, 93, 106, 107) | 5 | C++ transcription | Sonnet 5.5 | high | required (Opus 5.5) |
+| 5c | Group A: rewritten hosts (78, 88, 92) | 5b, 4b | C++ (June host rewrites) | Opus 5.5 | high | required |
+| 6 | New BBT group B: skill-scoped (75, 91, 103; classes of 89, 90, 98–100) | 5, 4b | C++ transcription | Sonnet 5.5 | high | required (Opus 5.5) |
+| 6b | Group B: hosts of 89, 90, 98, 99, 100 | 6 | C++ (June host rewrites) | Opus 5.5 | high | required |
+| 7 | New BBT group C: flags/immunity with ready readers (73, 94, 95, 104, 105) | 2, 4a | C++ | Opus 5.5 | high | required |
+| 7b | Group C: rewritten hosts, per-class virtuals (74, 77, 97, 101, 102, 110) | 7 | C++ (new mechanisms) | Opus 5.5 | high | required |
 | 8 | New finalizers + UDP counter sync | 2, 4b | C++ (new mechanisms) | Opus 5.5 | high | required |
 | 9 | Custom-function buffs (17 June BTIs) | 4b | C++ (new classes) | Opus 5.5 | high | required |
 | 10 | Buff groups + June-only script bindings | 3 | C++ + data | Opus 5.5 | high | required |
@@ -59,7 +63,7 @@ The user decided (2026-10-02):
 | 14 | Play-test sweep + close-out | 13 | verify + root-cause | Opus 5.5 | high | none |
 | 15 | Enchant system parity (added 2026-10-04) | – | RE + C++ + data | Opus 5.5 | high | required |
 
-Phases 5–9 are independent of each other and can run in any order. Phase 13 must come last among the data phases.
+Phases 5–9 are independent of each other and can run in any order, except inside a group: 5 → 5b → 5c (92 needs Phase 4b's BBT 7/8 second members), 5 → 6 → 6b (91 shares 85/86's host function) and 7 → 7b. Phases 5–7b each have a ready-to-paste kickoff prompt and review prompt under "Phases 5–7"; nothing in them needs substituting. Phase 13 must come last among the data phases.
 
 ### Model selection: cost vs performance
 
@@ -2770,6 +2774,28 @@ record where you stopped.
 
 ## Phases 5–7 — New behavior types
 
+Phases 5–7 are split into seven sessions. Each has its own scope, its own run-with line and a **ready-to-paste kickoff prompt and review prompt with nothing to substitute**. Take the prompt of the phase you are starting, and no other.
+
+| Phase | Types | Flag | Model / effort | Needs first |
+|---|---|---|---|---|
+| 5 | 76, 85, 86, 87, 96, 108, 109 | `NEW_STAT` | Sonnet 5.5 / high | Phase 2 (`AT_COMMAND`), 4b |
+| 5b | 79, 80, 81, 82, 83, 84, 93, 106, 107 | `NEW_STAT` | Sonnet 5.5 / high | Phase 5 |
+| 5c | 78, 88, 92 | `NEW_STAT` | Opus 5.5 / high | Phase 5b, 4b-i part 2 (BBT 7/8 second members) |
+| 6 | 75, 91, 103, plus the classes, stores and readers of 89, 90, 98, 99, 100 | `NEW_SKILL` | Sonnet 5.5 / high | Phase 5 (91 shares 85/86's host) |
+| 6b | the hosts of 89, 90, 98, 99, 100 | `NEW_SKILL` | Opus 5.5 / high | Phase 6 |
+| 7 | 73, 94, 95, 104, 105 | `NEW_FLAG` | Opus 5.5 / high | Phase 4a stubs (done) |
+| 7b | 74, 77, 97, 101, 102, 110 (111 and 112 are enum-only) | `NEW_FLAG` | Opus 5.5 / high | Phase 7 |
+
+Every flag is `SERV_IRUHADEV_JUNE_BUFF_<name>` and is defined once, in `KTDXLIB/Always.h`. The sub-phases of a group share their group's flag (it is one logical change in several sessions).
+
+**Changes from the earlier plan.** The doc used to list Phase 5b as one Opus session for 12 types and Phase 6 as one session for 8. Phase 1c items 1–3 then settled the classes:
+- 79, 82, 83, 84, 93, 106, 107 are transcription-ready (item 3), and 80 and 81 are ready except for a second member that follows Phase 4b. They moved to a **Sonnet** session (5b). Run 5b on Opus instead if you prefer; nothing in the prompt changes except the model line.
+- 78, 88 and 92 depend on host functions that June rewrote, so they stay on Opus (5c).
+- Phase 6's classes, stores and readers are transcription-ready, but the host functions of 89, 90, 98, 99 and 100 are June rewrites. They are Opus-only (6b).
+- Phase 7 is split into the types whose class and reader are ready (7) and the ones whose hosts June rewrote or whose per-class virtual March lacks (7b). **110 AWAKE_IMPOSSIBLE** was missing from the old Phase 7 list; item 2 settled it, so it is in 7b.
+
+### Shared checklist (every phase here)
+
 Each new BBT follows an 8-step checklist:
 
 1. Add the C++ enum, done in Phase 2.
@@ -2779,50 +2805,448 @@ Each new BBT follows an 8-step checklist:
 5. Add the templet class and its `CASE_BEHAVIOR_TEMPLET` entry.
 6. Add the unit store with insert and erase, plus June's read sites.
 7. Cover the UDP layout through `GetFactor`/`SetFactorFromPacket`.
-8. Log the type's first application under the DEBUG flag.
+8. Log the type's first application under the DEBUG flag (`SERV_IRUHADEV_JUNE_BUFF_DEBUG`, prefix `[JUNE_BUFF]`).
 
-**Phase 5, group A: stat and multiplier types** (flag `..._NEW_STAT`). *Re-split by Phase 1; see "Per-type map".*
-- **Phase 5 (Sonnet, transcription-ready):** 76 HYPER_DURATION, 85/86 *_COMMAND_MP_GAIN_RATE, 87/96 *_COMMAND_DAMAGE_RATE, 108/109 FINAL_DAMAGE_MULTIPLIER_NPC/USER. 85, 86, 87 and 96 need Phase 2's `AT_COMMAND`.
-- **Phase 5b (Opus, same flag):** 78 TYPE_ADDITIONAL_ATTACK_MULTIPLIER, 106/107 FORCE_DOWN_*_ATTACKED (their readers use June DamageData fields not yet mapped to March), 79 NOW_FORCE_DOWN_PER_SECOND, 80–84 *_BY_CONDITION, 88 IGNORE_DEFENCE (own classes not yet decoded), 92 MAXIMIZE (needs June's damage-variance roll), 93 EVERY_ATTR_DEF_HAVE_BUFF_OWNER (owner-UID subclass). `buff_census.py --phase 5b`.
+Rules for all seven sessions:
+- Cite the June address in a comment at every new path. Never invent a value or a formula, and never port a raw struct offset.
+- Types June uses only for characters March lacks (Rose, Ain, Lu/Ciel) are ported anyway (user decision).
+- **Escalation rule (Sonnet sessions).** If the map does not settle a type (missing layout, store or read site), do **not** reverse-engineer or guess it. Skip that type, mark it "Opus-only" in the doc with what is missing, and keep going.
+- **Opus sessions that hit a design decision** (a deviation from June, a DamageData key March lacks, a system March does not have): stop that type, write the question into the doc's Done note, and continue with the others. Hand the decision to the user. Do not choose silently.
+- Done means: `buff_census.py` lists none of the phase's types, the build is rc=0 with the PCH invalidated (`touch X2Lib/stdafx.cpp`), and the strings are in the deployed exe. `buff_census.py --phase <N>` lists the whole census group (for 5b, 5c and 7b that is wider than the sub-phase), so check the named types only.
+- Write a per-type **"how to see it in game"** line (a June BTI/BFI and where it comes from) into the Done note, for Phase 14.
+- Record the session's `/cost` or usage in the Done note. Commit.
+- A fresh Opus 5.5 review follows each phase (rule 10). Its prompt is under each phase. Review fixes go in the same phase's Done note.
 
-**Phase 6, group B: skill-scoped types** (flag `..._NEW_SKILL`). 75 DOUBLE_ATTACK_BUFF, 89 SKILL_DAMAGE, 90 BY_SKILL_ID, 91 CHARGE_MP_HIT_BY_SKILL_ID, 98 BY_SKILL_SLOTTYPE, 99 CONSUME_MP_RATE_BY_SKILLTYPE, 100 COOLTIME_RATE_BY_SKILLTYPE, 103 SKILL_COOL_TIME_SPEED. *Parse layouts are in the per-type map; the classes are not yet decoded, so this phase runs on Opus until a Phase 1b pass finishes them.*
+---
 
-**Phase 7, group C: flag and immunity types** (flag `..._NEW_FLAG`). 73 IGNORE_STATE_GUARD, 74 DETONATION_IMPOSSIBLE, 102 DETONATION_IMPOSSIBLE_GAGE_RESET, 77 INVINCIBLE, 94 IMMUNE_BUFF_DEBUFF (`IMMUNE_BUFF_TEMPLATE_ID`, `ALL_BUFF`/`ALL_DEBUFF`), 95 IMMUNE_NON_CONTROL_DEBUFF (on apply it also calls `DeleteNonControlDebuff`; coordinate with Phase 10), 97 CHANGE_MAX_CHARACTER_ADD_RESOURCE (moved here: a per-class virtual), 101 IGNORE_HP_DECREASE, 104 JUMP_IMPOSSIBLE, 105 IMMUNE_EDT. **111 MP_NATURAL_RECOVERY_IMPOSSIBLE and 112 REFLECT_PHYSIC are not implemented in June's client: enum only.**
+### Phase 5 — group A: ChangeStat-class types (Sonnet)
 
-**Phase 4a hand-offs these phases must pick up** (stubs and slots Phase 4a added for them):
-- **Phase 6, BBT 89:** `CX2BuffChangeSkillDamageBehaviorTemplet` needs `OnAccumulationCountDecreased` (June behavior slot 7, `32e7c020`). Without it, `BTI_BUFF_HEAVYFIREARMS_MASTERY` (`ACCUMULATION_DECREASE_WHEN_FINISH`) ends at its first timeout instead of decaying.
-- **Phase 7, BBT 94:** fill `CX2GameUnit::IsImmuneBuffByBuffBehavior` (June `322a80a0`). It reads the `ALL_BUFF`/`ALL_DEBUFF` counters and the `IMMUNE_BUFF_TEMPLATE_ID` lists. It returns false until this phase lands, which equals June's result with no BBT 94 buff on.
-- **Phase 7, BBT 95:** fill `CX2GameUnit::IsImmuneNonControlDebuffByBuffBehavior` (June `3227b790`): if the BBT 95 list is non-empty, return the templet's `IsNonControlDebuff()`. Same stub rule. `IsNonControlDebuff` already has June's BBT 104 case.
+**Scope.** Seven types, all transcription-ready (see "Per-type map", *Phase 5 — ChangeStat-class types*). All share March's `ParsingChangeStatBehavior` layout (`32d445d0`) and class `CX2BuffChangeStatBehaviorTemplet`.
+- **76 `BBT_CHANGE_HYPER_DURATION`.** New `CX2AdditionalStatByBuff` member `m_AdditionalHyperDuration`, basic 0.0. It joins both ChangeStat groups (lvl `32d47957`, SGU `32d4d6ef`). It is an **option value**: seed it in `InitAdditionalStatOptionValue` (June `32270dd0`, March `X2GameUnit.cpp:12442`) from `m_SocketData.m_fHyperModeTime`, and set 0 in the reset branch. Reader: `CX2GUUser::GetHyperModeTime` (June `31fd1c00`, March `X2GUUser.cpp:23448`), `fTotal += fTotal * m_AdditionalHyperDuration.GetResultValue() * 0.01f`. The class overrides (Ain `32a4fe50`, `329e5180`/`329e56c0`) are ported with their classes, not here.
+- **85 `BBT_CHANGE_RANGE_COMMAND_MP_GAIN_RATE` / 86 `BBT_CHANGE_MELEE_COMMAND_MP_GAIN_RATE`.** Two new members, basic 1.0. Reader in `CX2GameUnit::SetDamageExceptionProcess` after `fHitAddMP = attacker->GetChargeMpHit{Melee,Range}Attack()` (March `X2GameUnit.cpp:14259-14269`): `if ( attackType == AT_COMMAND ) fHitAddMP *= attacker->{86 melee, 85 range}`. Needs `AT_COMMAND` from Phase 2. Chung's virtual `32c16be0` is not part of this phase.
+- **87 `BBT_CHANGE_MELEE_COMMAND_DAMAGE_RATE` / 96 `BBT_CHANGE_RANGE_COMMAND_DAMAGE_RATE`.** Two new members, basic 1.0. Reader in `GetFinalDamage`'s main path (`@32286270`–`322862b9`): `if ( attackType == AT_COMMAND ) dmg *= m_bMeleeAttack ? attacker->87 : attacker->96`. Needs `AT_COMMAND`.
+- **108 `BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC` / 109 `…_USER`.** Two new members, basic 1.0. Readers in `GetFinalDamage`, both the fixed-damage path and the main path: `inc2 = dmg * ( ( defender is GUT_USER ? attacker->109 : attacker->108 ) - 1 )`, added beside March's `fIncreaseDamage` (`X2GameUnit.cpp:2613-2616`, `2704-2707`).
+- **No SGU case and no ChangeStat lvl case** for 85, 86, 87, 96, 108 and 109: June leaves them out of both switches, so they take the default level slice even though their data carries `BUFF_RELATION_TYPE`. Only 76 joins both ChangeStat groups.
+- Each needs `InsertAdditionalStat`/`EraseAdditionalStat` cases on its new member, `InitAdditionalStat` (basic value), `InitAdditionalPassiveMultipleAndSum` (multiple 1, sum 0), and `Verify()` plus the update-all loop like its siblings.
+- **Hand-off to Phase 6:** 91 `CHARGE_MP_HIT_BY_SKILL_ID` scales the same `fHitAddMP` value, in the same function, unconditionally on attack type. Write in the Done note exactly where 85/86's block landed so Phase 6 can add 91 beside it.
 
-**Run with:**
-- **Phases 5 and 6:** Sonnet 5.5, high effort. These are pure transcription into stores and patterns March already has, from Phase 1's transcription-ready map. An Opus 5.5 `/code-review` of the diff is required before build and pack.
-- **Phase 7:** Opus 5.5, high effort. It adds new mechanisms inside the user/NPC state machine. Review required.
-- Any type Phase 1 marked "Opus-only" moves to an Opus session, whichever group it is in.
-- Under rule 9, a Phase 7 type may move to Sonnet only if Phase 1 marked it transcription-ready; Phases 5 and 6 move to Opus if their reviews find errors.
-
-Kickoff template (substitute N, group and type list):
+**Run with:** Sonnet 5.5, high effort. Review required (Opus 5.5).
 
 ```
-Continuing the June buff/debuff port. Read JUNE_BUFF_PORT_PHASES.md in the repo root in
-full -- "Starting context", the "Investigation ledger", the "June buff function map" and
-"Phases 5-7" (the 8-step per-BBT checklist). Branch: mods/june-buff-port. Never launch
+Continuing the June buff/debuff port. Run this session on Sonnet 5.5 at high effort.
+Read JUNE_BUFF_PORT_PHASES.md in the repo root in full -- "Starting context", the
+"Investigation ledger", the "June buff function map", the "Per-type map" (its Phase 5
+table), the "Phases 5-7" shared checklist and "Phase 5". Branch: mods/june-buff-port.
+Never launch X2_offline.exe without asking first.
+
+Your task (Phase 5, group A): implement these seven June behavior types on March
+classes: 76 BBT_CHANGE_HYPER_DURATION, 85 BBT_CHANGE_RANGE_COMMAND_MP_GAIN_RATE,
+86 BBT_CHANGE_MELEE_COMMAND_MP_GAIN_RATE, 87 BBT_CHANGE_MELEE_COMMAND_DAMAGE_RATE,
+96 BBT_CHANGE_RANGE_COMMAND_DAMAGE_RATE, 108 BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC,
+109 BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER. 85, 86, 87 and 96 need Phase 2's AT_COMMAND.
+For each type open June's parse case, templet class and read sites in Ghidra ONLY at
+the addresses the Per-type map already gives, transcribe them, then follow the 8-step
+checklist. Do not search the binary for a function the map lacks. Cite the June address
+in a comment; never invent a value or formula. Use flag
+SERV_IRUHADEV_JUNE_BUFF_NEW_STAT. If the map does not settle a type, do NOT
+reverse-engineer or guess it: skip it, mark it "Opus-only" in the doc, and keep going.
+Record where 85/86's block landed in SetDamageExceptionProcess (Phase 6 needs it for 91).
+Done means: buff_census.py --phase 5 lists none of these seven types, the build is
+rc=0, and the strings are in the deployed exe. Write a per-type "how to see it in game"
+line (a June BTI/BFI and where it comes from) into the Phase 5 Done note for Phase 14.
+Record this session's /cost there. Commit.
+```
+
+**Review prompt (fresh Opus 5.5, high effort):**
+
+```
+Reviewing the June buff/debuff port, Phase 5 (fresh Opus 5.5 session, high effort).
+Read JUNE_BUFF_PORT_PHASES.md in the repo root -- "Starting context", the "Per-type map"
+Phase 5 table, the shared checklist and the Phase 5 Done note. Branch:
+mods/june-buff-port. Never launch X2_offline.exe without asking first.
+
+Review the Phase 5 commit(s) against the function map, for types 76, 85, 86, 87, 96, 108
+and 109: enum values, float/key order, store member and basic value, insert/erase/update
+cases, read sites, level-slice and SGU cases (76 only in both), and SERV_IRUHADEV_ / #else /
+CP949 hygiene (run `file` on every touched file and check `git diff --stat`). Spot-check
+2-3 types directly in Ghidra at the June addresses in the map (read-only); if a
+spot-check fails, re-check the whole phase. Fix clear transcription errors under the
+same flag; hand design decisions back to me. Write the findings into the doc as
+"Phase 5 -- Review", record this session's /cost, and commit.
+```
+
+---
+
+### Phase 5b — group A: transcription-ready stat types (Sonnet)
+
+**Scope.** Nine types, all settled by "Phase 1c, item 3" (read that section for the addresses). Run after Phase 5.
+- **79 `BBT_CHANGE_NOW_FORCE_DOWN_PER_SECOND`.** Transcription-ready. Class (create `32e86e90`): `m_eChangeType` is fixed at `BCT_FIX_VALUE` by the ctor, a `CKTDXCheckElapsedTime`, `m_fResultValue`, and two delegates. `ParsingBehavior` `32e755a0` requires `TIME_INTERVAL`. `SetFactor` `32e855f0` is March's `CX2BuffChangeNowHpPerSecondBehaviorTemplet::SetFactor` (`X2BuffBehaviorTemplet.cpp:249`) with regist fixed at 0 and no popups. `TIME_INTERVAL = 0` ticks every frame; the value is applied per tick, not per second. Transcribe as-is.
+- **80–84 `…_BY_CONDITION`.** Class `CX2BuffChangeStateByConditionBehaviorTemplet` (vt `335350ac`); both `BUFF_CHANGE_TYPE` and `BUFF_VALUE_CALCULATE_TYPE` are required keys. Value `32e77f40`: `vct == 0 ? v[3] + v[4] * ( 4.0 - v[5] ) : 0`. The SGU case `32d4ce60` appends the runtime user count (`BVC_RALLY_OF_HERO`). The `GT_PVE` halving cannot run in March (its `GAME_TYPE` stops at `GT_BATTLE_FIELD`): port the branch only if March has `GT_PVE`, otherwise comment it as unreachable. Stores: **82, 83, 84 are March's cases 9, 10 and 6** (84 also calls `SetMaxHp`, March's MAX_HP case `X2GameUnit.cpp:11745`). **80 and 81 follow whatever Phase 4b-i part 2 ported for BBT 7/8**, including the second member `+0x44ec`/`+0x45a0`. Check the 4b-i part 2 notes: if the second member is in, wire it; if not, wire the first member only and say so in the Done note.
+- **93 `BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER`.** Class `_HaveBuffOwner` (vt `33534ce4`): ChangeStat plus a `UidType` owner (`SetFactor` is a `jmp` to ChangeStat's; slots 14/15 return and set the UID). Store and readers are 42's. `GetFactor` `32e7d7f0` and the packet `32e76710` must be transcribed **verbatim, including June's index bug** (the UID words are written at indices 1–4 and read from 4–7). The owner aggregator `3227c620` is unreachable; skip it and say so in a comment.
+- **106 / 107 `BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED` / `…_RANGE_ATTACKED`.** Two new members, basic 0.0. Reader: `CX2GUUser::DamageReact` `@3204a118`–`3204a243`, against March's `SERV_SKILL_NOTE` block (`X2GUUser.cpp:9801-9812`). **User only**: NPCs ignore 106/107. It uses `m_fDecreaseForceDown` (DamageData `DECREASE_FORCE_DOWN`) and `m_bMeleeAttack`; check March parses both before relying on them.
+- **Phase 4b hand-off, not here:** June's BBT 6 insert and erase rescale now-HP to keep the HP ratio; 84's blocks do not, and neither does March's 6.
+
+**Run with:** Sonnet 5.5, high effort (the readiness bar in item 3 is met for all nine). Review required (Opus 5.5).
+
+```
+Continuing the June buff/debuff port. Run this session on Sonnet 5.5 at high effort.
+Read JUNE_BUFF_PORT_PHASES.md in the repo root in full -- "Starting context", the
+"Investigation ledger", the "June buff function map", "Phase 1c, item 3", the
+"Phases 5-7" shared checklist, "Phase 5" (its Done note, for where the shared host
+blocks landed) and "Phase 5b". Branch: mods/june-buff-port. Never launch X2_offline.exe
+without asking first.
+
+Your task (Phase 5b, group A): implement these nine June behavior types on March
+classes: 79 BBT_CHANGE_NOW_FORCE_DOWN_PER_SECOND, 80 BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION,
+81 BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION, 82 BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION,
+83 BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION, 84 BBT_CHANGE_MAX_HP_BY_CONDITION,
+93 BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER,
+106 BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED,
+107 BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED. Open June's parse case, templet class
+and read sites in Ghidra ONLY at the addresses "Phase 1c, item 3" gives, transcribe
+them, then follow the 8-step checklist. Do not search the binary for a function the doc
+lacks. Cite the June address in a comment; never invent a value or formula. Use flag
+SERV_IRUHADEV_JUNE_BUFF_NEW_STAT. 80 and 81 need the second physic/magic member only if
+Phase 4b-i part 2 ported it for BBT 7/8: check the doc, wire what exists, and say which
+you did. Transcribe 93's UDP index bug verbatim. If the doc does not settle a type, do
+NOT reverse-engineer or guess it: skip it, mark it "Opus-only", and keep going. Done
+means: buff_census.py --phase 5b lists none of these nine types (it will still list 78,
+88 and 92, which are Phase 5c), the build is rc=0, and the strings are in the deployed
+exe. Write a per-type "how to see it in game" line into the Phase 5b Done note for
+Phase 14. Record this session's /cost there. Commit.
+```
+
+**Review prompt (fresh Opus 5.5, high effort):**
+
+```
+Reviewing the June buff/debuff port, Phase 5b (fresh Opus 5.5 session, high effort).
+Read JUNE_BUFF_PORT_PHASES.md in the repo root -- "Starting context", "Phase 1c, item 3",
+the shared checklist and the Phase 5b Done note. Branch: mods/june-buff-port. Never
+launch X2_offline.exe without asking first.
+
+Review the Phase 5b commit(s) for types 79, 80, 81, 82, 83, 84, 93, 106 and 107
+against "Phase 1c, item 3": enum values, float/key order (GetFactor/packet), store
+member and which March case each type shares, the SGU case for 80-84 and 93, the 93
+verbatim index bug, 106/107 user-only reader, and SERV_IRUHADEV_ / #else / CP949 hygiene
+(run `file` on every touched file and check `git diff --stat`). Spot-check 2-3 types
+directly in Ghidra at the June addresses in the doc (read-only); if a spot-check
+fails, re-check the whole phase. Fix clear transcription errors under the same flag;
+hand design decisions back to me. Write the findings into the doc as "Phase 5b --
+Review", record this session's /cost, and commit.
+```
+
+---
+
+### Phase 5c — group A: stat types with rewritten hosts (Opus)
+
+**Scope.** Three types whose store and reader are mapped but whose host function is a June rewrite (item 3).
+- **78 `BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER`.** Store: new member, basic 1.0, insert `32282dff`. Readers: `CX2GUUser::DamageReact` `@32049466`–`32049561` (March `X2GUUser.cpp:9276-9291`) and `CX2GUNPC::DamageReact` `@327b42b0`–`327b43be`. The formula is `k = attacker->Opt5248() + this->Get78() + this->Opt5194()`, minus the defender's `Opt5ac8() * 0.01`, `v = max( k, 0 ) * attacker->GetAdditionalAttackDamage( pDD )`. The three option values come from socket-data fields March lacks, so in a March build they are 0 and `k = max( Get78(), 0 )`. **That deviation is exact on March data and may be ported; record it in the doc.** One block up, June also gates March's `GetAdditionalDefence` reduction on `!DD[+0x534]` (`IGNORE_DEFENCE_DECLINE`), which needs the same DamageData key as 88.
+- **88 `BBT_IGNORE_DEFENCE`.** Class, store and reader are ready (class vt `33535558`; list `+0x67dc`; reader `32274970` = `min( Σ rate, 1.0 )`, defender side). The host is June's rewrite of March's `fPiercingDefenceFactor` (`X2GameUnit.cpp:2330-2334`), which also needs four DamageData keys March does not parse: `IGNORE_DEFENCE_ON_PVP`, `IGNORE_DEFENCE_RATE`, `IGNORE_DEFENCE_RATE_ON_PVP`, `IGNORE_DEFENCE_DECLINE` (stores `+0x529`/`+0x52c`/`+0x530`/`+0x534` in `SetDamageDataFromLUA` `32632390`; defaults in item 3), and `CX2Game::IsPvpOrPve`. **Port June's whole block, parsing the four keys** (no partial updates). Skip the frozen-debuff resist scaling just above it: it is not a buff change. If the keys or `IsPvpOrPve` need a decision, record it and stop 88.
+- **92 `BBT_CHANGE_MAXIMIZE`.** Opus-only; the roll is decoded in item 3. Porting it means porting June's stat-level attack range (two new fields in the stat block that fill the second physic/magic members `+0x44ec`/`+0x45a0`), the second members themselves (**Phase 4b-i part 2 lists them with BBT 7/8; if they are not in, defer 92 and say so**), the variance roll `322788c0`, and its two `GetFinalDamage` call sites (`@32284c1f` physic, `@32284c2f` magic). First verify that March has no variance roll in `GetFinalDamage`. Where June's stat calc fills the two new stat-block fields was not traced; trace it, or stop 92 and hand it to me.
+
+**Run with:** Opus 5.5, high effort. Review required.
+
+```
+Continuing the June buff/debuff port. Run this session on Opus 5.5 at high effort.
+Read JUNE_BUFF_PORT_PHASES.md in the repo root in full -- "Starting context", the
+"Investigation ledger", the "June buff function map", "Phase 1c, item 3", the
+"Phases 5-7" shared checklist, the Phase 4b-i part 2 notes (second physic/magic
+members) and "Phase 5c". Branch: mods/june-buff-port. Never launch X2_offline.exe
+without asking first.
+
+Your task (Phase 5c, group A, hosts): implement 78 BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER,
+88 BBT_IGNORE_DEFENCE and 92 BBT_CHANGE_MAXIMIZE on March classes, including the host
+functions June rewrote. Use the addresses "Phase 1c, item 3" gives; open further
+Ghidra functions only where the doc says something was not traced (92's stat-block
+fill). Follow the 8-step checklist. 78: the three socket-derived terms are 0 on March
+data, so porting k = max( Get78(), 0 ) is an allowed deviation -- record it. 88: port
+June's whole fPiercingDefenceFactor block and parse its four DamageData keys; skip the
+frozen-debuff resist scaling. 92: first check that Phase 4b-i part 2 landed the
+second physic/magic members, and that March has no variance roll; if either blocks it,
+defer 92 and write why. Cite June addresses in comments; never invent a value or
+formula. Use flag SERV_IRUHADEV_JUNE_BUFF_NEW_STAT. If a type needs a design decision,
+stop that type, write the question in the Done note, and continue with the others. Done
+means: buff_census.py --phase 5b lists none of 78, 88, 92 (or says which are deferred
+and why), the build is rc=0, and the strings are in the deployed exe. Write a per-type
+"how to see it in game" line into the Done note for Phase 14. Record this session's
+/cost. Commit.
+```
+
+**Review prompt (fresh Opus 5.5, high effort):**
+
+```
+Reviewing the June buff/debuff port, Phase 5c (fresh Opus 5.5 session, high effort).
+Read JUNE_BUFF_PORT_PHASES.md in the repo root -- "Starting context", "Phase 1c, item 3",
+the shared checklist and the Phase 5c Done note. Branch: mods/june-buff-port. Never
+launch X2_offline.exe without asking first.
+
+Review the Phase 5c commit(s) for 78, 88 and 92 (whichever landed) against item 3: the
+host rewrites (78's multiplier block in both DamageReacts, 88's fPiercingDefenceFactor
+block and its four DamageData keys with their defaults, 92's roll and both
+GetFinalDamage call sites), the recorded deviations, and SERV_IRUHADEV_ / #else / CP949
+hygiene (run `file` on every touched file and check `git diff --stat`). Because every
+one of these is a damage-path change, diff the flag-off build path against March by
+reading the #else branches. Spot-check 2 of the 3 types directly in Ghidra
+(read-only); if a spot-check fails, re-check the whole phase. Fix clear transcription
+errors under the same flag; hand design decisions back to me. Write the findings into
+the doc as "Phase 5c -- Review", record this session's /cost, and commit.
+```
+
+---
+
+### Phase 6 — group B: skill-scoped types (Sonnet)
+
+**Scope.** Everything in group B that "Phase 1c, item 1" marked transcription-ready, without the host functions June rewrote. Run after Phase 5.
+- **Complete types (class, store, reader, host): 75, 91, 103.**
+  - **75 `BBT_DOUBLE_ATTACK_BUFF`.** Class `CX2BuffDoubleAttackBuffBehaviorTemplet` (vt `33535070`), same as March's type-56 class with a **new** unit list `vector<CX2DoubleAttackBuffPtr>` beside 56's (`m_vecDoubleAttack`); insert `32281b00`, erase `32279d20`, reader `32275050` (= March `IsDoubleAttackByBuff`, `X2GameUnit.cpp:12428`, on the new list). `SetFactor` `32e77be0` returns false with no popup unless the change type is `BCT_PERCENT`. Host: both `DamageReact`s, `@32048da7`–`32048dbc` (user) and `@327b3ac7`–`327b3ae5` (NPC, plus `!m_bNoDamage`): `if ( DD.attackType != AT_SPECIAL && attacker && attacker->IsDoubleAttackBuffByBuff() ) bDoubleAttack = true`. **That block also carries June's changes to type 56** (`!= AT_SPECIAL` on the defender's own list where March has `== AT_NORMAL` at `X2GUUser.cpp:9137`, the NPC `!m_bNoDamage`, and the `BTI_BUFF_SHADE_THE_ILLUSION 430` skill rule). Check whether Phase 4b-i part 2 already landed them; if not, land them under the Phase 4b flag that owns type 56 (see "Flags"), or leave 56 to 4b and say so in the Done note. Do not leave the block half-ported.
+  - **91 `BBT_CHARGE_MP_HIT_BY_SKILL_ID`.** Class `CX2BuffChargeMpHitBySkillIDBehaviorTemplet` (vt `335355d0`), unit list (`3200af50` insert, `31fe2a30` erase), element getter `32369b10` (**last matching block wins**), reader `31fd7df0`, reached only through `CX2GUUser` slot 109 `GetChargeMpRateByBuff( const DamageData* )`; declare it virtual on `CX2GameUnit` with a base returning 1.0. Host: `SetDamageExceptionProcess` `@32299510`–`3229954e`, `fHitAddMP *= attacker->GetChargeMpRateByBuff( pDamageData )`, **unconditional on attack type**, on the same value Phase 5's 85/86 block scales. Read Phase 5's Done note for where that block is.
+  - **103 `BBT_CHANGE_SKILL_COOL_TIME_SPEED`.** Class (vt `3353542c`; **no packet override**, so peers never receive it). `SetFactor` `32e7bb50` and `DoFinish` `32e75ea0` set a unit dirty flag. Store: a unit `map< int SKILL_TYPE, float >` rebuilt by `32039fb0` from every live type-103 behavior factor (`BCT_PERCENT` only). Reader `31fd8bc0`, reached by `32896850( skillId )` (local player only). Host: `CX2UserSkillTree::OnFrameMove` (June `32896930`, March `X2UserSkillTree.cpp:48`, subtractions at `:70` and `:85`): `left -= 32896850( slotSkillId ) * fElapsedTime`. June rebuilds in `CommonFrameMove` (slot 499); rebuilding lazily inside the reader when the flag is set gives the same result.
+- **Classes, stores and readers only (inert until Phase 6b wires their hosts): 89, 90, 98, 99, 100.** Do not touch `DoStateEndStart`, the summon helper, `GetActualMPConsume` or the cooldown helper `3235a710`.
+  - 89 `BBT_CHANGE_SKILL_DAMAGE`: class `CX2BuffChangeSkillDamageBehaviorTemplet` (vt `33535378`), `SetFactor` `32e7a9e0`, list `+0x92d4` with `InsertSkillDamage`/`UpdateSkillDamage`, reader `GetSkillDamageRateByBuff` `31fd7cc0`. **Phase 4a hand-off:** its slot 7 `32e7c020` (`OnAccumulationCountDecreased`) must be ported with the class, otherwise `BTI_BUFF_HEAVYFIREARMS_MASTERY` (`ACCUMULATION_DECREASE_WHEN_FINISH`) ends at its first timeout instead of decaying.
+  - 90 `BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_ID`: class vt `33535594`, `SetFactor` `32e849c0`, list (June `+0x92e4`), getter `32369aa0` (last matching block wins); read through 89's `31fd7cc0`.
+  - 98 `BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE`: class `CX2AddDamageOfSkillSlotType` (vt `33535160`), `SetFactor` `32e78080` (negative slot type → false), **no store**, reader `32039e00`, `SlotIndexToSlotType` `3214f3d0`, `FindEquippedSlotIndex` `3288fff0`.
+  - 99 `BBT_CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE` / 100 `BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE`: byte-identical classes (vt `335353b4` / `335353f0`), **no store** (readers walk `GetBuffFactor`, June `3229fd80`, March `X2GameUnit.cpp:14168`), readers `3203a250` / `3203a420`.
+- Port every June DamageData key these readers use only where March already parses it (`NO_DAMAGE`, `DECREASE_FORCE_DOWN`, `USED_SKILL_ID`, `APPLIED_SKILL_ID`); for any it does not, say so in the Done note.
+
+**Run with:** Sonnet 5.5, high effort. Review required (Opus 5.5).
+
+```
+Continuing the June buff/debuff port. Run this session on Sonnet 5.5 at high effort.
+Read JUNE_BUFF_PORT_PHASES.md in the repo root in full -- "Starting context", the
+"Investigation ledger", the "June buff function map", "Phase 1c, item 1", the
+"Phases 5-7" shared checklist, "Phase 5" (its Done note: where 85/86's block landed in
+SetDamageExceptionProcess) and "Phase 6". Branch: mods/june-buff-port. Never launch
 X2_offline.exe without asking first.
 
-Your task (Phase <N>, group <A|B|C>): implement these June behavior types on March
-classes: <type list from the doc>. For each one, open June's parse case, templet class
-and unit-side read sites in Ghidra ONLY at the addresses the function map already
-gives, transcribe them, then follow the 8-step checklist. Do not search the binary
-for a function the map lacks. Cite the June address in a comment and never invent a value or
-formula. Use new flag SERV_IRUHADEV_JUNE_BUFF_<NEW_STAT|NEW_SKILL|NEW_FLAG>. Types
-June only uses for characters March lacks (Rose/Ain/Lu-Ciel) are ported anyway --
-user decision. If you are running on Sonnet and the Phase 1 map does not settle a
-type (missing layout, store or read site), do NOT reverse-engineer or guess it: skip
-that type, mark it "Opus-only" in the doc, and keep going. Done means
-buff_census.py lists none of the types you completed, the build is rc=0, and the
-strings are in the deployed exe. Write a per-type "how to see it in game" line (a June
-BTI/BFI and where it comes from) into the doc for Phase 14. Record this session's
-/cost in the Done note. Commit.
+Your task (Phase 6, group B): implement June behavior types 75 BBT_DOUBLE_ATTACK_BUFF,
+91 BBT_CHARGE_MP_HIT_BY_SKILL_ID and 103 BBT_CHANGE_SKILL_COOL_TIME_SPEED completely
+(class, store, reader and host), and add the classes, stores and readers ONLY -- not
+the host functions -- for 89 BBT_CHANGE_SKILL_DAMAGE, 90 BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_ID,
+98 BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE, 99 BBT_CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE
+and 100 BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE (Phase 6b wires their hosts; do not edit
+DoStateEndStart, the summon-NPC helper, GetActualMPConsume or the cooldown setters).
+Port 89's slot-7 OnAccumulationCountDecreased with its class. Open Ghidra ONLY at the
+addresses "Phase 1c, item 1" gives; do not search the binary for a function the doc
+lacks. Follow the 8-step checklist. 75's host block also carries June's type-56
+changes: check whether Phase 4b-i part 2 landed them and either land them with 75 or say
+you left them. Cite the June address in a comment; never invent a value or formula. Use
+flag SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL. If the doc does not settle a type, do NOT
+reverse-engineer or guess it: skip it, mark it "Opus-only", and keep going. Done means:
+buff_census.py --phase 6 lists none of the eight types, the build is rc=0, and the
+strings are in the deployed exe. Write a per-type "how to see it in game" line into
+the Phase 6 Done note for Phase 14 (89/90/98/99/100 say "inert until 6b"). Record this
+session's /cost there. Commit.
 ```
+
+**Review prompt (fresh Opus 5.5, high effort):**
+
+```
+Reviewing the June buff/debuff port, Phase 6 (fresh Opus 5.5 session, high effort).
+Read JUNE_BUFF_PORT_PHASES.md in the repo root -- "Starting context", "Phase 1c, item 1",
+the shared checklist and the Phase 6 Done note. Branch: mods/june-buff-port. Never
+launch X2_offline.exe without asking first.
+
+Review the Phase 6 commit(s) for types 75, 91, 103 (complete) and 89, 90, 98, 99, 100
+(class, store, reader only) against "Phase 1c, item 1": enum values, GetFactor/packet
+float order, restack arithmetic in SetFactor, store members and getters (90 and 91:
+last matching block wins), 89's slot 7, 103's missing packet override and its
+rebuild/dirty flag, 75's DamageReact blocks (user and NPC, including what was done about
+type 56), 91's unconditional host, and SERV_IRUHADEV_ / #else / CP949 hygiene (run
+`file` on every touched file and check `git diff --stat`). Confirm no host function of
+89/90/98/99/100 was edited. Spot-check 2-3 types directly in Ghidra (read-only); if a
+spot-check fails, re-check the whole phase. Fix clear transcription errors under the same
+flag; hand design decisions back to me. Write the findings into the doc as "Phase 6 --
+Review", record this session's /cost, and commit.
+```
+
+---
+
+### Phase 6b — group B: skill-scoped hosts (Opus)
+
+**Scope.** Wire the inert Phase 6 types into the functions June rewrote. Under the no-partial rule the default is to **port June's whole function**, not to add only the buff term. If a whole-function port would pull in a system March lacks and cannot be finished in this session, stop that host, write what it needs into the Done note, and hand the decision to me.
+- **89, 90 and 98 → `CX2GUUser::DoStateEndStart`** (June `3203c3a0`, March `X2GUUser.cpp:6350`; the buff terms are at `@3203c7de`–`3203c801` for 89/90 and `@3203c649` for 98). June also adds a `+0x80d9` byte gate, a random sound/voice pick for state types 9/11/12, a protected power-rate cache read by `GetPowerRate` (June slot 129 `31fcb230`; March `X2GUUser.cpp:23045`) and `31fea430`, and the `+0x2557..0x255a` resets. 98's rate is cached at state start, so BFT 16 (Phase 8) ends the buff after the skill it applied to; Phase 8 depends on this order.
+- **89, 90 and 98 → the summoned-NPC power helper** `322ece70`, called 21 times from `CX2Game::SetUserSummonedNPCInfo` (June `3230c1a0`, March `X2Game.cpp:14060`). June multiplies `( 3201ad10( id ) + 1 ) * GetSkillDamageRateByBuff( id ) * rate98summon * GetAdditionalAttackByType( AT_SPECIAL )`; March multiplies only `GetAdditionalAttackByType( AT_SPECIAL )` inline at each case. `IsSummonSkill` `31fc8200` has 54 ids (listed in item 1). The `+0x178` memo/base id field March lacks means the port uses the plain skill id; say so.
+- **99 → `CX2GUUser::GetActualMPConsume`** (June `3203cf60`, slot 423; March `X2GUUser.cpp:21081`). June's function is much larger (`vfunc +0x75c`, `32039a50( id, 0x3f )`, `32358970( 0xb )`, the `+0x74dc` term); port it whole, then call 99's reader `3203a250` at `@3203d024`. Some of those terms may need systems March lacks: stop and report if so.
+- **100 → the cooldown helper `3235a710`** and its 16 callers (the generic user path `31fd8ff0` plus one per-class override each). March sets cooldowns inline in each class (`X2GUAdd.cpp:2683`, `X2GUAra.cpp:3924`, `X2GUChung.cpp:5983`, …). Map the 16 sites to March's inline setters, then route them through one helper that applies 100 through `3203a420`.
+- **Phase 9 only, do not port here:** `32369bd0`, `3236df00`, `32773ee0` (custom-function bodies that also read 89's list).
+
+**Run with:** Opus 5.5, high effort. Review required.
+
+```
+Continuing the June buff/debuff port. Run this session on Opus 5.5 at high effort.
+Read JUNE_BUFF_PORT_PHASES.md in the repo root in full -- "Starting context", the
+"Investigation ledger", the "June buff function map", "Phase 1c, item 1", the
+"Phases 5-7" shared checklist, the Phase 6 Done note and "Phase 6b". Branch:
+mods/june-buff-port. Never launch X2_offline.exe without asking first.
+
+Your task (Phase 6b, group B hosts): wire the Phase 6 classes into June's host
+functions: 89/90/98 into CX2GUUser::DoStateEndStart (June 3203c3a0; March
+X2GUUser.cpp:6350) and the summoned-NPC power helper 322ece70 (March
+CX2Game::SetUserSummonedNPCInfo, X2Game.cpp:14060), 99 into CX2GUUser::GetActualMPConsume
+(June 3203cf60; March X2GUUser.cpp:21081), and 100 into the cooldown helper 3235a710
+and its 16 callers. Default to porting June's WHOLE host function (no partial June
+updates); if a whole port needs a system March lacks and cannot be finished here, stop
+that host, write what it needs in the doc, and hand the decision to me. Open Ghidra at
+the addresses "Phase 1c, item 1" gives; do not search the binary for a function the
+doc lacks. Cite June addresses in comments; never invent a value or formula. Use flag
+SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL with the original code in #else. Done means: each
+of 89, 90, 98, 99, 100 has its host wired (or a written reason it does not), the build
+is rc=0, and the strings are in the deployed exe. Write per-type "how to see it in
+game" lines (a June BTI/BFI and where it comes from) into the Phase 6b Done note for
+Phase 14, and note the 98 -> BFT 16 ordering for Phase 8. Record this session's /cost.
+Commit.
+```
+
+**Review prompt (fresh Opus 5.5, high effort):**
+
+```
+Reviewing the June buff/debuff port, Phase 6b (fresh Opus 5.5 session, high effort).
+Read JUNE_BUFF_PORT_PHASES.md in the repo root -- "Starting context", "Phase 1c, item 1",
+the shared checklist and the Phase 6b Done note. Branch: mods/june-buff-port. Never
+launch X2_offline.exe without asking first.
+
+Review the Phase 6b commit(s): every host June rewrote (DoStateEndStart and the
+power-rate cache, the summon helper and its 21 call sites, GetActualMPConsume, the
+cooldown helper and its 16 callers) against "Phase 1c, item 1", including what the
+flag-off (#else) path does compared with March, any deviation recorded, and
+SERV_IRUHADEV_ / CP949 hygiene (run `file` on every touched file and check `git diff
+--stat`; X2GUUser.cpp is a 37k-line CP949 source, and a diff of hundreds of lines for a
+small change means the file was re-encoded). Spot-check 2-3 host sites directly in Ghidra
+(read-only); if a spot-check fails, re-check the whole phase. Fix clear transcription
+errors under the same flag; hand design decisions back to me. Write the findings into the
+doc as "Phase 6b -- Review", record this session's /cost, and commit.
+```
+
+---
+
+### Phase 7 — group C: flag and immunity types with ready readers (Opus)
+
+**Scope.** Five types whose class and reader are settled in "Phase 1c, item 2".
+- **73 `BBT_IGNORE_STATE_GUARD`.** Own class: `SetFactor` `32e752b0` (insert, list June `+0x67cc`), `DoFinish` `32e75300`, packet `32e728b0`; `GetFactor` `32e7e960` writes the header only. Reader in `GetFinalDamage` `@322862bf`, inserted before March's state-defence block (`X2GameUnit.cpp:2716-2731`): `if ( !defender->list73.empty() ) pDD->m_bIgnoreStateDefence = true; if ( attacker->HaveThisBuff( BTI_BUFF_SCHWERT_PLATZEN /*975*/ ) ) pDD->m_bIgnoreStateDefence = true;`. **BTI 975 is in March's Lua Enum but not in the C++ `BUFF_TEMPLET_ID` enum: add the enumerator.** June writes the flag into the attacker's DamageData, so on multi-target damage data it stays set for later targets; transcribe verbatim and note it for Phase 14.
+- **94 `BBT_IMMUNE_BUFF_DEBUFF`.** Factor parse `32d4a770`; `SetFactor` `32e79e30`; unit helpers `3227a910`, `322780f0`, `32278120`, `3227b6b0`. **Fill in Phase 4a's stub `CX2GameUnit::IsImmuneBuffByBuffBehavior`** (June `322a80a0`). Transcribe both June quirks verbatim: the loop starts at index 2 (the count is stored as an immune BTI, so an empty block also grants SILENCE immunity), and `GetFactor` sends the two `ALL_*` bytes as 0 so peers always receive 0.
+- **95 `BBT_IMMUNE_NON_CONTROL_DEBUFF`.** `SetFactor` `32e75c00` inserts into the list (`+0x75ac`) **and calls `DeleteNonControlDebuff`** (`3229dcc0`); the packet handler `32e728d0` inserts only. **Fill in the stub `IsImmuneNonControlDebuffByBuffBehavior`** (June `3227b790`): `!list95.empty() && templet->IsNonControlDebuff()`. Port `DeleteNonControlDebuff` as a `CX2GameUnit` member here; the Lua binding of the same name is Phase 10's.
+- **104 `BBT_JUMP_IMPOSSIBLE`.** Identity type, list `+0x42c0`. User: `CX2GUUser::SetInputData` (June `31fe83a0`, March `:28554`), the Up-key clear (`:28668`) becomes `m_fCanNotJumpTime > 0 || !list104.empty()`. NPC: `CX2GUNPC::CommonEventProcess` (June `3276d980`, March `:21405`), gate `SCT_AI_JUMP` on the list (`@3276e442`, March `:21819`). The same NPC switch also gates `SCT_AI_DASH`, `SCT_AI_JUMP_DIR` and `SCT_AI_DOWN_DIR` on the existing DASH_IMPOSSIBLE list (a Phase 4b item): land it if Phase 4b-i part 2 did not, or say so. Do not port the dead `+0xded` byte.
+- **105 `BBT_IMMUNE_EDT`.** Class `SetFactor` `32e79770`, no unit store (the templet's `m_vecEDT` is the store); reader `IsImmuneEDTByBuff` `322a0400` walks `GetBuffFactor()` for type 105. Host: `CX2GameUnit::ProcessEnchantExtraDamage` (June `322a0510`, slot 213; March `X2GameUnit.cpp:3529`), after `if ( rate < fRandomValue ) return false;` add `if ( IsImmuneEDTByBuff( basicExtraDamageType ) ) return false;`. **The host's rate math is Phase 4b's** (`CHANGE_ENCHANT_ATTACK_RATE`, `32274df0`/`32272d90`); do not touch it and say so.
+
+**Run with:** Opus 5.5, high effort. Review required.
+
+```
+Continuing the June buff/debuff port. Run this session on Opus 5.5 at high effort.
+Read JUNE_BUFF_PORT_PHASES.md in the repo root in full -- "Starting context", the
+"Investigation ledger", the "June buff function map", "Phase 1c, item 2", the
+"Phases 5-7" shared checklist and "Phase 7". Branch: mods/june-buff-port. Never launch
+X2_offline.exe without asking first.
+
+Your task (Phase 7, group C): implement these five June behavior types on March
+classes: 73 BBT_IGNORE_STATE_GUARD (add the BTI 975 C++ enumerator), 94
+BBT_IMMUNE_BUFF_DEBUFF (fill the Phase 4a stub IsImmuneBuffByBuffBehavior, June
+322a80a0), 95 BBT_IMMUNE_NON_CONTROL_DEBUFF (fill IsImmuneNonControlDebuffByBuffBehavior,
+June 3227b790; port DeleteNonControlDebuff 3229dcc0 as a unit member -- the Lua binding
+is Phase 10's), 104 BBT_JUMP_IMPOSSIBLE and 105 BBT_IMMUNE_EDT. Open Ghidra ONLY at the
+addresses "Phase 1c, item 2" gives; do not search the binary for a function the doc
+lacks. Follow the 8-step checklist. Transcribe 94's two June quirks verbatim. Leave
+105's enchant rate math to Phase 4b and say so. Cite June addresses in comments; never
+invent a value or formula. Use flag SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG with the original
+code in #else. Rose/Ain/Lu-Ciel cases are ported anyway (user decision). If a type needs
+a design decision, stop it, write the question in the doc, and continue. Done means:
+buff_census.py --phase 7 lists none of 73, 94, 95, 104, 105 (74, 77, 97, 101, 102 and
+110 are Phase 7b), the build is rc=0, and the strings are in the deployed exe. Write a
+per-type "how to see it in game" line (a June BTI/BFI and where it comes from) into the
+Phase 7 Done note for Phase 14. Record this session's /cost there. Commit.
+```
+
+**Review prompt (fresh Opus 5.5, high effort):**
+
+```
+Reviewing the June buff/debuff port, Phase 7 (fresh Opus 5.5 session, high effort).
+Read JUNE_BUFF_PORT_PHASES.md in the repo root -- "Starting context", "Phase 1c, item 2",
+the shared checklist and the Phase 7 Done note. Branch: mods/june-buff-port. Never
+launch X2_offline.exe without asking first.
+
+Review the Phase 7 commit(s) for types 73, 94, 95, 104 and 105 against item 2: enum
+values and the BTI 975 enumerator, identity-store insert/erase, the two stubs filled
+with exactly June's body, 94's two verbatim quirks, 95's DeleteNonControlDebuff walk,
+104's user and NPC gates, 105's reader and single-line host change, and SERV_IRUHADEV_ /
+#else / CP949 hygiene (run `file` on every touched file and check `git diff --stat`).
+Spot-check 2-3 types directly in Ghidra (read-only); if a spot-check fails, re-check the
+whole phase. Fix clear transcription errors under the same flag; hand design decisions
+back to me. Write the findings into the doc as "Phase 7 -- Review", record this session's
+/cost, and commit.
+```
+
+---
+
+### Phase 7b — group C: rewritten hosts and per-class virtuals (Opus)
+
+**Scope.** The Phase 7 types that need June's rewritten hosts or a mechanism March lacks ("Phase 1c, item 2", *Opus-only*).
+- **74 `BBT_DETONATION_IMPOSSIBLE` / 102 `BBT_DETONATION_IMPOSSIBLE_GAGE_RESET`.** Port June's split of March's `m_bNoDetonation` into two `CX2GameUnit` bytes (`+0x6890` the state flag, written by the per-class state code at about 50 sites where March calls `SetNoDetonation( true/false )`; `+0x6892` the damage flag, written from `pDD->m_bNoDetonation`). Hosts: `CX2GUUser::DetonationEventProcess` (June `31feb9f0`, March `X2GUUser.cpp:19238`; June **zeroes the charge** where March only returns, so every existing March skill that calls `SetNoDetonation( true )` also wipes the stored charge), `DamageReactStateChange` (June `31feabd0`, March `:11262`, around March's `:11894`, plus the `pDD->damageType != DT_BUFF` condition moved from `:11964`), and `CX2GUNPC::CommonEventProcessNonHost` (June `3276cb20`, March `X2GUNPC.cpp:20775`) with its June-only `CAN_DETONATION` condition (parsed at `32784c00` `@32794f62`; evaluated for non-host NPCs only; no June script uses it).
+- **77 `BBT_INVINCIBLE`.** Getter: `CX2GUUser` slot 96 `GetInvincible` (`31fcee80`) and the NPC slot 96 (`32758760`): `!list77.empty() || stateParam.bInvincible` (March `X2GUUser.h:1582`, `X2GUNPC.h:1950`). Frame-move half: the tail of `CX2GUUser::CommonFrameMove` (June `32063650`, slot 499, `@3206ce71`): `if ( !list77.empty() && m_fForceInvincibleTime <= 0 ) { SetForceInvincible( 0.5f ); SetShowInvincible( 0.5f ); }`; June's frame move is a 2,700-line superset of March's and was not diffed in full. **Check the 12 places where March reads `stateParam.bInvincible` directly** (`X2GUChung.cpp:613/646`, `X2GUNPC.cpp:8922/10268/11920/12719/18853/29201/29214`, `X2GUUser.cpp:7809/9919/17516`): in June, does each call slot 96 or read the field?
+- **97 `BBT_CHANGE_MAX_CHARACTER_ADD_RESOURCE`.** Empty factor parse; class overrides only `SetFactor` (`32e75c70`), which calls unit virtual `+0x324` (`CX2GameUnit` slot 201) with `1.0f`. The base slot is empty; June's overrides are `CX2GUAdd` `329e31e0`, `CX2GURose` `32ac5e20`, `CX2GULuciel` `32b14cd0`, `CX2GUAra` `32baafc0` and `CX2GUChung` `32bf4880`. Port the base virtual and each override for classes March has; Rose and Lu/Ciel stay dormant until those characters arrive (user decision).
+- **101 `BBT_IGNORE_HP_DECREASE`.** User only (NPCs ignore it). June made `UpNowHp`/`SetNowHp` virtual on `CX2GameUnit` (March `X2GameUnit.h:2311/2315`: non-virtual inlines); the user overrides are `3202fcf0` (slot 59) and `3202ff60` (slot 61), gated on `IgnoreHpDecrease()` (`322726d0`). They also carry two more refuse-decrease gates (`320072d0`, `3202b9a0`) and a low-HP UI call `3289db00( 0xd, 0|1, -1 )`, **none decoded**: decode them first, or stop and report.
+- **110 `BBT_AWAKE_IMPOSSIBLE`.** Getter `31fd4790` (slot 345). Consumer: `CX2GUUser::TryHyperModeStateChange` (slot 343 `31fe9a90`; Ain's copy `32a53150`). June replaced March's `ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE` macro (`X2GUUser.h:11`, 56 uses; Ara inlines it, `X2GUAra.cpp:6348` and five more) with this virtual, adding class hook slots 434/435 and fields `+0x8d78`/`+0x8d4c` that March lacks. Port June's whole function, or stop and report what it needs.
+- **111 `BBT_MP_NATURAL_RECOVERY_IMPOSSIBLE` and 112 `BBT_REFLECT_PHYSIC`:** not implemented in June's client; enum only (Phase 2 did that). Confirm the census excludes them and do nothing else.
+
+**Run with:** Opus 5.5, high effort. Review required. If the session grows long, finish 74/102 and 77 first, commit, and record where the rest resumes.
+
+```
+Continuing the June buff/debuff port. Run this session on Opus 5.5 at high effort.
+Read JUNE_BUFF_PORT_PHASES.md in the repo root in full -- "Starting context", the
+"Investigation ledger", the "June buff function map", "Phase 1c, item 2", the
+"Phases 5-7" shared checklist, the Phase 7 Done note and "Phase 7b". Branch:
+mods/june-buff-port. Never launch X2_offline.exe without asking first.
+
+Your task (Phase 7b, group C hosts): implement 74 BBT_DETONATION_IMPOSSIBLE and
+102 BBT_DETONATION_IMPOSSIBLE_GAGE_RESET (June's split of m_bNoDetonation into two
+unit bytes, plus the three rewritten hosts DetonationEventProcess,
+DamageReactStateChange and CX2GUNPC::CommonEventProcessNonHost with CAN_DETONATION),
+77 BBT_INVINCIBLE (getter, CommonFrameMove block, and the check of March's 12 direct
+bInvincible reads), 97 BBT_CHANGE_MAX_CHARACTER_ADD_RESOURCE (the CX2GameUnit slot-201
+virtual and the Add/Rose/Luciel/Ara/Chung overrides), 101 BBT_IGNORE_HP_DECREASE
+(virtual UpNowHp/SetNowHp user overrides; decode the two undecoded gates first) and 110
+BBT_AWAKE_IMPOSSIBLE (June's TryHyperModeStateChange replacing the
+ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE macro). 111 and 112 are enum-only: confirm the
+census excludes them. Open Ghidra at the addresses "Phase 1c, item 2" gives; open further
+functions only where the doc says something was not decoded. Follow the 8-step
+checklist. Default to porting June's WHOLE host function (no partial June updates); if
+that needs a system March lacks, stop that type, write what it needs in the doc, and hand
+the decision to me. Cite June addresses in comments; never invent a value or formula. Use
+flag SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG with the original code in #else. Rose/Ain/Lu-Ciel
+cases are ported anyway (user decision). If the session grows long, finish 74/102 and 77
+first, commit, and record where the rest resumes. Done means: buff_census.py --phase 7
+lists nothing but the enum-only 111 and 112 (or says which types are deferred and why),
+the build is rc=0, and the strings are in the deployed exe. Write a per-type "how to see
+it in game" line (a June BTI/BFI and where it comes from) into the Phase 7b Done note for
+Phase 14. Record this session's /cost there. Commit.
+```
+
+**Review prompt (fresh Opus 5.5, high effort):**
+
+```
+Reviewing the June buff/debuff port, Phase 7b (fresh Opus 5.5 session, high effort).
+Read JUNE_BUFF_PORT_PHASES.md in the repo root -- "Starting context", "Phase 1c, item 2",
+the shared checklist and the Phase 7b Done note. Branch: mods/june-buff-port. Never
+launch X2_offline.exe without asking first.
+
+Review the Phase 7b commit(s) for the types that landed (74, 77, 97, 101, 102, 110)
+against item 2: the m_bNoDetonation split (every write site of the two bytes, the
+charge-zeroing behavior change in DetonationEventProcess), the 77 getter and
+CommonFrameMove block and what was decided about the 12 direct bInvincible reads, 97's
+base virtual and per-class overrides, 101's virtual HP setters and their extra gates, 110's
+rewritten consumer, and SERV_IRUHADEV_ / #else / CP949 hygiene (run `file` on every
+touched file and check `git diff --stat`; X2GUUser.cpp and X2GUNPC.cpp are large CP949
+sources, and a diff of hundreds of lines for a small change means the file was
+re-encoded). Because every one of these touches a state machine every unit runs, read the
+#else branches and confirm the flag-off path equals March. Spot-check 2-3 types
+directly in Ghidra (read-only); if a spot-check fails, re-check the whole phase. Fix clear
+transcription errors under the same flag; hand design decisions back to me. Write the
+findings into the doc as "Phase 7b -- Review", record this session's /cost, and commit.
+```
+
+**Phase 4a hand-offs this group picks up** (stubs and slots Phase 4a added):
+- **BBT 94:** `CX2GameUnit::IsImmuneBuffByBuffBehavior` (June `322a80a0`) returns false until Phase 7 lands, which equals June's result with no BBT 94 buff on.
+- **BBT 95:** `CX2GameUnit::IsImmuneNonControlDebuffByBuffBehavior` (June `3227b790`), same stub rule. `IsNonControlDebuff` already has June's BBT 104 case.
+- **BBT 89** (Phase 6): `CX2BuffChangeSkillDamageBehaviorTemplet` needs `OnAccumulationCountDecreased` (June behavior slot 7, `32e7c020`).
+- Any type Phase 1 marked "Opus-only" moves to an Opus session, whichever group it is in. Under rule 9, a Phase 7 type may move to Sonnet only if Phase 1 marked it transcription-ready; Phases 5, 5b and 6 move to Opus if their reviews find errors.
 
 ## Phase 8 — New finalizers and counter sync
 
