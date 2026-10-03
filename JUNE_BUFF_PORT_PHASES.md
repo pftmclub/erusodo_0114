@@ -2486,6 +2486,91 @@ deploy, commit; record where you stopped.
 
 **Cost:** `/cost` is not readable from inside the session; ask the user.
 
+### Phase 4b-i part 3 — Review (2026-10-03, Opus 5.5 high)
+
+Independent review of `b553529`, `061eb71`, `06521c3`, `00583b2` and `67bbb82`. The code is `061eb71`, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`; no code file changed after it. The review was read-only on code: nothing was edited, built or deployed.
+
+Fresh tools only (part 3's `bp.py`, `p3_code.py` and `unifdef_check.py` were not reused):
+- Ghidra, read-only (DATA xrefs and function lookup).
+- A new PE-section-mapped capstone reader for every function body below. New `.text` scans: `E8`/`E9` calls to the deferral functions, `push 0x3f`, `cmp r32,0x3f`, byte stores at `+0x8040`/`+0x8080`, and `mov r,[r+0x264]` vslot loads.
+- A new byte-level unifdef of the one flag.
+- A fresh `elstools extract -v mar-2014` of the live `data036.kom`, then `decompile-batch` of `BattleFieldBuffTemplet.lua` (152,564 B) and `BattleFieldBuffFactor.lua` (353,105 B). Both sizes equal the live manifest entries.
+
+**Verdict: no code defect.** Every spot-check and every item-2 function matches June in the asm. One comment in the port names the wrong offset (R1). It was not fixed, because a comment edit would re-link a new exe for no behaviour change. Part 3's RE text has three errors, all in the deferrals and none in code (see "Doc corrections"). **June's ConsumeMpRate reader is found** (check 5). The runtime-popup question is still the user's and is not decided here.
+
+| # | Check | Result |
+|---|---|---|
+| 1a | `32e77370` EnchantAttackRate `SetFactor` | **Pass.** The change type is `ftol(v[0])` against `+0x10`; a mismatch returns false. Attribute jump table `32e775c4` (index type − 0x42): 66→1, 67→2, 68→3, 69→4, 70→5, 71→6, i.e. `BEAT_BLAZE`…`BEAT_SNATCH`. The port's labels resolve to 66–71 in `X2BuffFactor.h`. Type 54 leaves `+0x18` alone. Both branches then require change type 3 or 1. **Not started:** `m_fRate = v[1]` (0.0 when size ≤ 1), then insert `32281990(identity, rate, attr, ct)`. **Started, count c > 0:** `31c7b640(m, 0.0)` is `\|a − b\| <= FLT_EPSILON` (`334490f8`, the same test as March's `IsSamef`). True → return false: that is the zero-multiplier exit. Next comes erase `32279c70(identity, attr, ct)`, **before** the new value is computed; then `v[1] × (1 + m·c)` (count with the unsigned fix-up; `334355b0` = 1.0), store, insert. **c == 0:** st0 = \|new\|, st1 = \|old\|; `fcompp / test ah,0x41 / jne` leaves when \|new\| ≤ \|old\| (C0 or C3). So only a strictly larger \|new\| erases, stores and inserts. The port matches in every branch. It tests FIX/PERCENT once before `DidStart()`, where June tests in each branch; the result is the same. |
+| 1b | `32e76d10` Freeze `DoFinish` | **Pass.** Sequence: `3227a470(identity)` (erase), then vslot 238(1) = `SetStateToNowAnimation( XAS_PLAYING )`. **Gage data** `+0xc04` null → straight to the state test. **Non-null:** HP gage `+0x20` null → `XAP_ONE_WAIT`. Otherwise the protected NowHp is decoded and tested with `fldz / fcomp / test ah,1 / je`: `0 < NowHp` continues, anything else → `XAP_ONE_WAIT`. **State test:** vslot 93 `== 4` (`GUSI_DIE`) → `XAP_ONE_WAIT`, else vslot 231 (`AnimPlay`). `XAP_ONE_WAIT` is vslot 232 with 2, and `XAP_ONE_WAIT` = 2 (`KTDGXSkinAnim.h`). **Down:** `+0x14 == 1` and unit `+0x264 == 0` (`GUT_USER`); vslot 128 (riding) → `StateChange(0x55, 1)`, else `(0x1e, 1)`, March's. The port's `GetNowHp()` returns 0.0 for a null HP gage (`X2GageData.h:200`), so that case takes `XAP_ONE_WAIT`, as in June. |
+| 1c | `32e7c380` NowMp `SetFactor` | **Pass.** There is no PERCENT branch: the only change-type tests are the mismatch exit and the delegate bind (FIX(1) → `32e86f10`, PERCENT(3) → `32e86f20`, others unbound). There is no clamp: no `fldz` compare on the result anywhere. The value is `(1 − r)·v[1]` for every type, with r = vslot 195 / 500.0, which is March's `GetValueOrPercentPerSecond`. **Not started** → the value. **Started, c == 0** → `\|new\| > \|old\| ? new : old` (`test ah,5 / jp`; a tie keeps old). **c > 0** → `old / (1 + m(c − 1))`, the same larger-absolute pick, then `× (1 + m·c)`. The XOR writes are the protected float plus the anti-tamper registry `3376cdd0`, which is not ported, as in earlier parts. |
+| 1d | `32e74260` CanPass `SetFactor` | **Pass.** `GetBehaviorFactor` fails → false. Otherwise, for a non-null unit, `+0x11 = vslot 68(0)` and return true. There is no `DidStart` test, so it saves on every call. DoFinish `32e72890`: for a non-null unit, vslot 233 (`SetCanPassUnit`) with `+0x11`. **Vslot 68's argument 0 is the now frame.** User `3208e580` reads `+0x7fc4` for 0 (`+0x7d24` for 1). `+0x7fc4 + 0x30` = `+0x7ff4`, the protected `bSuperArmor` that `AnimPlay`/`AnimStop` write. March's `StateParam` puts `bSuperArmor` exactly 0x30 after `bCanPassUnit` (`KProtectedType<bool>` 0xc + `PROTECT_VECTOR2` 0x18 + 0xc), and March's `AnimPlay` writes `m_FrameDataNow`. **NPC:** vslot 68 `32755c50` ignores the argument and reads `+0x8344`, the field NPC vslot 233 `32755e90` writes. So `m_NPCFrameData.stateParam.bCanPassUnit` is right. |
+| 2a | HyperMode's three `32b4dd50` calls | **Pass.** SetFactor `@32e7dc69`: `mov eax,[esi+0x10] / cmp eax,1 / jae` → the count, else 1 (unsigned). It comes after the full-orb block and before the `v[0]` time add, the gage write and slot 49. Packet `@32e7de36`: the same, before `[1]` is read. DoFinish `@32e7ded7`: `push 0`, after slot 50. The port calls at the same three points. `m_iHyperModeCountByBuff` is a `KProtectedType<int>`, whose default constructor zeroes it. |
+| 2b | `32e764f0` ChangeStat `GetValue` | **Pass.** An outer jump table `32e76634` dispatches change types 0–3. **SWAP:** `v[1]`. **FIX:** byte table `32e7664c`, indexed by type − 11 over 62 entries. It picks `32e76644[0]` (the option path) for 11–16, 20, 21 and 72, and `[1]` (`v[1]·(1 − r)`) for the rest; types outside 11..72 also take `[1]`. **Option path:** vslot 131 (unit level), `cmp eax,0x5a / jle` (signed), else 90. Then `(L − 1)` as unsigned (`jns` plus the 2^32 fix-up) × 1.5 + 9.5 (doubles `334396c8`/`334b9c80`) × `v[1]` × (1 − r). **RELATION:** `v[3]` (0.0 when size ≤ 3) × `v[1]` × (1 − r). **PERCENT:** `v ≥ 1` → v; `v ≤ 0` → v; otherwise `1 − (1 − v)(1 − r)`. **Above 3:** 0.0. The port's labels resolve to 11–16, 20, 21 and 72; `FO_VALUE`/`FO_MULTIPLIER` are 1 and 3. |
+| 2c | `32e74b50` EnchantAttackRate packet | **Pass.** `size < 2` → return. `+0x10 = ftol(v[0])`, `+0x14 = v[1]`. Then erase `32279c70(kBuffFactor + 0x20, +0x18, ct)` and insert `32281990(identity, rate, +0x18, ct)`. The attribute is whatever the templet holds: ParsingBehavior `32e74820` writes `+0x18` from `ENCHANT_ATTRIBUTE_TYPE`, as March's `:3327` does. No per-type switch runs on this path. |
+| 2d | 3-argument erase vs `32279c70`/`322a95c0` | **Pass.** `32279c70` builds a 16-byte predicate {identity (8 bytes), attribute, change type} and calls `322aaa30`. That is `find_if` (`322a95c0`) followed by `322a9450` on the tail, i.e. `remove_if`; `3207b850` then erases `[result, end)`. So **every** match is erased, not just the first. `322a95c0` compares entry `+4`/`+8` (BTI and unique number, as March's `CX2BuffIdentity::IsSame`), the protected `+0x1c` (attribute) and `+0x28` (change type). The port's loop erases every match. |
+| 2e | User/NPC `AnimPlay` | **Pass, with R1 (comment).** **User vslot 231 `31fe8130`:** plays `+0x87d0`/`+0x87d4` with each anim's own play type (`[anim+0x2a8]`) and the June-only `+0x8e84`/`+0x8e88`. It then clears the protected `+0x7ff4` and the plain bytes `+0x8080` and `+0x8040`. Vslot 232 `31fe8050` is the same with the argument. **NPC `32757b40`/`32757b20`:** `+0x8604` only, with no state writes. **`+0x8040` is `bSuperArmorNotRed`:** `.text` has 69 immediate byte stores to `+0x8040` across character code, where March writes `bSuperArmorNotRed` (Ara, Aisha, Chung, …). `+0x8080` is written only by the three Anim functions and read only by user vslot 153. So the port's two clears are exactly June's March-side writes, and the skipped writes are June-only members. **Callers:** Freeze `DoFinish` is still the only `AnimPlay` caller (grep of `X2Lib`, `KTDXLIB` and `X2`), so NPC `AnimPlay` turning from a no-op into a play reaches only frozen NPCs. |
+| 3 | Three "same" classes, wire layout | **Pass, all three.** Vtables come from Ghidra DATA xrefs (UnitScale `33534ddc`, DoubleAttack `33534f80`, ReflectMagic `33534ff8`); slot 5 is GetFactor and slot 13 the packet path. **UnitScale:** `32e7df70` pushes `{type}` with no values; packet `32e73b20`, when not started, calls `32281bb0(identity, +0x10 scale)`. **DoubleAttack:** `32e7e5d0` makes exactly two `31fac820` pushes, `(float)+0x10` then `+0x14`; packet `32e74db0` requires `size ≥ 2`, sets ct = `v[0]` and rate = `v[1]`, then calls `32281a50(identity, rate)`. **ReflectMagic:** `32e7e7c0` sends `[(float)ct, value]`; packet `32e75060` reads `v[0]`/`v[1]` with no size check and calls `322822e0(identity, value)`. All three equal March (`X2BuffBehaviorTemplet.cpp:2280/2290`, `:3598/3612`, `:3884/3897`). There is no hidden push. |
+| 4 | Deferrals reached only from June-only content | **Pass on reach.** The part 3 list was incomplete (correction 1). **Scan** (`E8`/`E9` plus raw pointer search): `3227c360` has 4 callers, all pushing BTI 703 (`BTI_BUFF_OVERSTRIKE_REINFORCE`, June-only); `3236a430` has 1 (`322a77ba`, inside `322a7660`); `322a7660` has 13; `322a8a70` has 9. None of the four has a pointer reference. **Constant BFIs:** 517, 523, 548, 549, 737, 763, 812, 820, 841, 877, 910, 913, 923, 929 and 946. None exists by name or value in March's original Enum (`83ce6bc`) or in the pre-Phase-2 Enum (`2068485^`). `322a8a70`'s argument 1 is a BFI (it calls `326c32a0`). **Aisha `32cc5c16`, resolved.** The BFI is the first entry of skill templet `+0xb0` for skill `0x578a` = 22410, `RNSI_P_ADW_MANAFLOW_OVERDRIVE`. That is June's renewal skill; March's Manaflow Overdrive is `SI_P_ABM_MANAFLOW_OVERDRIVE` = 2414. 22410 is in neither March Enum, so `32206450` returns null and the function exits before the call. The BFI's name is not resolved: `NewSkillTempletVer2.lua` is not in `june_src_fixed`, and its bytecode yields no plain string. The other skill-keyed sites use 25417 (`RNSI_P_EEP_OPEN_MIND`) and 30015 (`RNSI_SA_LLD_PHANTOM_BLADE`), also June-only. **Not re-derived:** part 3's call-shape claim that vslots 3/9/10/11 have no caller besides `3236a430`/`3227c360`. Only those two functions' own callers were re-scanned. |
+| 5 | ConsumeMpRate | **Leaving it unported was right. June's reader is found.** See "ConsumeMpRate: June's reader" below. |
+| 6 | Hygiene | **Pass.** **Unifdef:** with the flag undefined, `X2BuffBehaviorTemplet.cpp/.h` reduce to `3f51f2b^`, `X2GameUnit.h/.cpp` and `X2GUUser.h/.cpp` to `66a1593`, and `X2GUNPC.h` to `b553529`, all byte for byte. Each raw file differs from its base, so the check is not vacuous. **`--numstat 2fc0ebb 061eb71`:** the code totals 322/7. All 7 deletions are in `X2BuffBehaviorTemplet.cpp`, and all are part 1's own flagged comments: the 3-line "not ported" note twice, and the DoFinish note. **Inserted lines:** 322, all ASCII and all CRLF. **`file`** signatures are unchanged for all seven files. **Deploy:** the game directory holds `x2.exe` and `X2_offline.exe` (names read programmatically). `X2_offline.exe` is 19,015,168 B, dated 16:48:59, md5 `57f7cf7475883d957a0e37a251ffbfd7`, equal to `X2/US_SERVICE/x2.exe` (16:47:58). |
+| 7 | March-data reach | **Reproduced; every number matches part 3.** 321 templets. **EnchantAttackRate 7:** BBT 54 ×4 (`PROTECTION_OF_ZACHIEL` PERCENT, `COMMON_AURA_EL_DEFENCE_ACCEL` FIX, `ANNIHILATION_WAY_OF_SWORD` PERCENT, `INCREASE_ENCHANT_ATTACK_RATE` PERCENT) plus Sword Enchant Fire/Ice/Poison (66/67/68, FIX); all limit 1; none for 69–71. **Freeze (`BBT_FROZEN`) 6:** `WATER_HOLD`, `FROZEN`, `SHADOW_KNOT`, `SHOCK` (limit 0) and `SLESHU_ONE_SLASH` have `IS_DOWN` TRUE; `BIND` has FALSE. **CanPass 1.** **NowMp 28, 5 of them PERCENT:** `MANA_BURN_REL` (limit 0); `DARK_POISON`, `RELATION_SHIP_SKILL`, `MAGIC_POINT_IMMEDIATELY_CHANGE_ONCE` and `IMMEDIATELY_CHANGE_HP_MP` (limit 1). No NowMp templet has a limit above 1, so the removed branch's zero reach holds. **HyperMode 2. ConsumeMpRate 1** (PERCENT). |
+
+**ConsumeMpRate: June's reader (check 5)**
+- **`32039a50(skillID, BBT)` → float, default 1.0.**
+  - It builds the unit's `KBuffFactor` list with `GetBuffFactor` (`3229fd80`: every live templet at `+0xe14`, through `GetFactor`).
+  - It walks each behavior factor of the given type and takes `v[2]` when `int(v[1]) == 32207210(skillID)`, or when `v[1] == 0` and `32070580(skill templet)` holds. The last match wins.
+  - `32207210` returns the skill templet's `+0x178`, else the ID itself. `32070580` is "skill type ≠ 12 and ≠ 13", so `v[1] == 0` means every skill except relationship and hyper-active.
+- **What `v[2]` is.** June's `GetFactor` `32e7e870` sends `[(float)ct, skill, rate]`, where rate is the stored `1 + v`. So `v[2]` is the multiplier.
+- **Callers** (each pushes `0x3f`):
+  - `3203cfe1` in `CX2GUUser::GetActualMPConsume` `3203cf60` (confirmed in Phase 1c). It multiplies vslot 471's skill rate by `32039a50(skill, 63)` for **every** skill, not only Teleport.
+  - Two character-code sites, `329a823d` and `329b20c4`.
+  - Part 3 ruled `3203cf60` out because it has no literal BBT 63 compare. The type is an argument to the helper.
+- **Why the class alone would be wrong.** March's Teleport reader (`X2GUArme_VioletMage.cpp:5471`, `FIX_SKILL_BALANCE_AISHA_LENA`) *replaces* the cost with `v[2]`. With June's class, `v[2]` would be 1.5, so Teleport would cost 1.5 MP.
+- **Port bundle (part 4).** Port these together:
+  - the class: `SetFactor` `32e7cef0`, `GetFactor` `32e7e870`, and the packet, DoFinish and ParsingBehavior slots;
+  - `32039a50`, with `3229fd80`'s filter;
+  - the multiply in March's `GetActualMPConsume`;
+  - March's Teleport override, disabled under the flag.
+
+  March has no `+0x178` field, so `32207210` falls back to the skill ID. The two character sites go to `JUNE2017_CHARACTER_PORT_CHECKLIST.md`.
+- **Effect on March data.** There is one factor, `BFI_DEBUFF_TELEPORT_CONSUME_MP`: SKILL_ID 2202, PERCENT 0.5 at every level.
+  - March: the cost becomes 1.5 × the cost computed when the debuff started.
+  - June: 1.5 × the live cost, on every call.
+
+**Findings**
+- **R1, Low (comment only; not fixed).** `X2GUUser.cpp`'s `AnimPlay` comment says June "clears a third state byte (+0x8040)".
+  - In fact `+0x8040` is `bSuperArmorNotRed`, which the port does clear. June's extra byte is `+0x8080`. The code is correct.
+  - The same slip is in part 3's `funcmap.tsv` row for `31fe8130`, which now has a superseding row.
+  - Fix the comment the next time that file is touched. Fixing it now would re-link a new exe for no behaviour change.
+- **Info, hand-off to part 4: June's `AnimStop` marker.**
+  - **The marker.** June's `AnimStop` (user vslot 230, `31fe7f70`) waits the two June-only anims too. When super armor was off, it sets `+0x8080 = 1`; then it sets `bSuperArmor` and `bSuperArmorNotRed`.
+  - **The reader.** User vslot 153, `31fcd7b0(bool)`:
+    - a non-empty list at `+0x42a0` → true;
+    - argument 0 → `bSuperArmor`;
+    - argument 1 → `bSuperArmor && !+0x8080`, i.e. super armor that `AnimStop` did not grant.
+  - **Why it matters.** Freeze calls `AnimStop` (`X2BuffBehaviorTemplet.cpp:2691/2727/2790`). So in June, a frozen unit's super armor is visible to vslot 153(0) but hidden from vslot 153(1). The port does not model that.
+  - **Size.** `.text` has 276 `mov r,[r+0x264]` vslot loads. Of these, one passes a constant 1 (`3229a669`, CX2GameUnit region), 6 pass a register and 56 pass 0. Some of these may be another class's slot at that offset.
+  - **Next step:** map `3229a669` and March's equivalent of vslot 153 before `AnimStop` is ported. This was outside part 3's scope, so it is not a defect.
+
+**Doc corrections**
+1. **Part 3, item 3, the BFI list ("523, 812, 820, 877, 910, 913, 929")** is incomplete.
+   - There are 15 constants: add 517, 548, 549, 737, 763, 841, 923 and 946. All are June-only.
+   - `3227c360`'s four sites all pass BTI 703.
+   - Aisha's `32cc5c16` is resolved (check 4).
+   - The conclusion stands: the chain is reached only from June-only content.
+2. **Part 3, ConsumeMpRate row ("June's reader is not in `3203cf60`/`3203a250` (no BBT 63 compare)")** is wrong for `3203cf60`. It calls `32039a50( skill, 0x3f )` (check 5).
+   - "Where part 3 stopped", item 3 is resolved: what remains is the port bundle above.
+   - Part 3's `funcmap.tsv` row for `32e7cef0` ("NOT PORTED until June's reader is found") now has a superseding row.
+3. **Part 3, `Code` section, the `X2GUUser` comment** has the R1 offset slip (`+0x8040`). That byte is `bSuperArmorNotRed`; the June-only one is `+0x8080`.
+
+**funcmap.tsv:** 18 rows added ("Buff Phase 4b-i part 3 review").
+- 17 are confirmed: `32039a50`, `32207210`, `32070580`, `322aaa30`, `322a95c0`, `31c7b640`, `31fe7f70`, `32755e90`, `32e7e870`, the six UnitScale/DoubleAttack/ReflectMagic GetFactor/packet slots, and superseding rows for `31fe8130` and `32e7cef0`.
+- 1 is a candidate: `31fcd7b0`.
+
+**Build and deploy:** none. There is no code change, and the deployed exe is still `57f7cf74…`.
+
+**Review cost:** `/cost` is not readable from inside the session; ask the user.
+
 ## Phases 5–7 — New behavior types
 
 Each new BBT follows an 8-step checklist:
