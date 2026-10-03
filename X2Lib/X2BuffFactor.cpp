@@ -768,7 +768,14 @@ void CX2BuffFactor::SetGameUnitBuffFactor( CX2GameUnit* pGameUnit_ )
 		}
 		else
 #endif ADD_LIVE_CREATOR_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		{	/// June 32d4d670: the default branch also records whether the unit is a user (+0x38)
 			SetUidGameUnit( pGameUnit_->GetUnitUID() );
+			SetIsUserUID( CX2GameUnit::GUT_USER == pGameUnit_->GetGameUnitType() );
+		}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+			SetUidGameUnit( pGameUnit_->GetUnitUID() );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 		BOOST_FOREACH( KBuffBehaviorFactor& factor, m_pDataBuffFactor->m_vecBuffBehaviorFactors )
 		{
@@ -924,6 +931,12 @@ bool CX2BuffFactor::ParsingChangeNowHpPerSecondBehavior( KLuaManager& luaManager
 
 				/// 3. 위의 타입과 관련한 공격력 (공간만 확보)
 				BuffBehaviorFactor.m_vecValues.push_back( 0.0f );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+				/// June 32d42030: 4. USE_CREATOR_UNIT_DATA, 1.0 or -1.0 (the SGU 32d4cc90 then takes the attack from the creator unit)
+				bool bUseCreatorUnitData = false;
+				LUA_GET_VALUE( luaManager_, "USE_CREATOR_UNIT_DATA", bUseCreatorUnitData, false );
+				BuffBehaviorFactor.m_vecValues.push_back( bUseCreatorUnitData ? 1.0f : -1.0f );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 			} break;
 
 		case BCT_PERCENT:
@@ -953,6 +966,57 @@ bool CX2BuffFactor::ParsingChangeNowHpPerSecondBehavior( KLuaManager& luaManager
 	@brief : GameUnit으로 부터 초당 HP가 변경되는 행동에서 필요한 정보들을 얻어옴
 	@param : 행동요소(factor_), 시전자 게임유닛(pGameUnit_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : SetGameUnitChangeNowHpPerSecondBehavior
+	@brief : June 32d4cc90. Only BCT_RELATION_VALUE fills the attack value (index 3). When the factor's
+		USE_CREATOR_UNIT_DATA (index 4) is positive, the stat comes from the buff's creator unit, found by
+		the UID / user flag SetGameUnitBuffFactor stored (June: CX2Game slot 50 with the UID and !isUser;
+		re-expressed with March's GetUserUnitByUID / GetNPCUnitByUID, as CX2BuffLiveCreatorFinalizer does).
+		An unknown relation type leaves the value alone, silently, as June does.
+*/
+void CX2BuffFactor::SetGameUnitChangeNowHpPerSecondBehavior( KBuffBehaviorFactor& factor_, CX2GameUnit* pGameUnit_ )
+{
+	if ( BCT_RELATION_VALUE != static_cast<int>( factor_[CX2BuffChangeNowHpPerSecondBehaviorTemplet::FO_CHANGE_TYPE] ) )
+		return;
+
+	const int iRelationType = static_cast<int>( factor_[CX2BuffChangeNowHpPerSecondBehaviorTemplet::FO_RELATION_TYPE] );
+
+	CX2GameUnit* pStatGameUnit = pGameUnit_;
+	if ( 4 < factor_.m_vecValues.size() && 0.0f < factor_.m_vecValues[4] && NULL != g_pX2Game )
+	{
+		CX2GameUnit* pCreatorGameUnit = NULL;
+		if ( GetIsUserUID() )
+			pCreatorGameUnit = g_pX2Game->GetUserUnitByUID( GetUidGameUnit() );
+		else
+			pCreatorGameUnit = g_pX2Game->GetNPCUnitByUID( static_cast<int>( GetUidGameUnit() ) );
+
+		if ( NULL != pCreatorGameUnit )
+			pStatGameUnit = pCreatorGameUnit;
+	}
+
+	const CX2Stat::Stat& kStat = pStatGameUnit->GetStat().GetStat();
+	if ( CX2BuffChangeNowHpPerSecondBehaviorTemplet::FO_ATTACK_VALUE < factor_.m_vecValues.size() )
+	{
+		switch ( iRelationType )
+		{
+		case BRT_PHYSIC_ATTACK:
+			factor_.m_vecValues[CX2BuffChangeNowHpPerSecondBehaviorTemplet::FO_ATTACK_VALUE] = kStat.m_fAtkPhysic;
+			break;
+
+		case BRT_MAGIC_ATTACK:
+			factor_.m_vecValues[CX2BuffChangeNowHpPerSecondBehaviorTemplet::FO_ATTACK_VALUE] = kStat.m_fAtkMagic;
+			break;
+
+		case BRT_MIX_ATTACK:
+			factor_.m_vecValues[CX2BuffChangeNowHpPerSecondBehaviorTemplet::FO_ATTACK_VALUE] = ( kStat.m_fAtkPhysic + kStat.m_fAtkMagic ) * 0.5f;
+			break;
+
+		default:
+			break;
+		}
+	}
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 void CX2BuffFactor::SetGameUnitChangeNowHpPerSecondBehavior( KBuffBehaviorFactor& factor_, CX2GameUnit* pGameUnit_ )
 {
 	BUFF_CHANGE_TYPE eChangeType 
@@ -999,6 +1063,8 @@ void CX2BuffFactor::SetGameUnitChangeNowHpPerSecondBehavior( KBuffBehaviorFactor
 		}
 	}
 }
+
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : TimeFinalizerParsing
 	@brief : 종료 부분 중 시간에 의해서 종료되는 요소를 읽어들임
@@ -1737,6 +1803,12 @@ bool CX2BuffFactor::ParsingCreateBuffFactorBehavior( KLuaManager& luaManager_, c
 		LUA_GET_VALUE_RETURN( luaManager_, "SKILL_ID", fSkillId, 0.0f, return DISPLAY_ERROR( L"SKILL_ID" ) );
 		BuffBehaviorFactor.m_vecValues.push_back( fSkillId );
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 32d45040: APPLY_TO_SPECIAL_ATTACK, 1.0 or -1.0
+		bool bApplyToSpecialAttack = false;
+		LUA_GET_VALUE( luaManager_, "APPLY_TO_SPECIAL_ATTACK", bApplyToSpecialAttack, false );
+		BuffBehaviorFactor.m_vecValues.push_back( bApplyToSpecialAttack ? 1.0f : -1.0f );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 		m_pDataBuffFactor->m_vecBuffBehaviorFactors.push_back( BuffBehaviorFactor );
 		return true;
@@ -1868,6 +1940,13 @@ bool CX2BuffFactor::ParsingGameUnitChangeHyperModeBehavior( KLuaManager& luaMana
 		/// 각성 시간이 지정되어 있으면
 		if ( 0.0f < fHyperTime )
 			BuffBehaviorFactor.m_vecValues.push_back( fHyperTime );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 32d45860: HYPER_COUNT, pushed only when positive (CX2BuffChangeHyperModeBehaviorTemplet::SetFactor reads [1])
+		float fHyperCount = 0.0f;
+		LUA_GET_VALUE( luaManager_, "HYPER_COUNT", fHyperCount, 0.0f );
+		if ( 0.0f < fHyperCount )
+			BuffBehaviorFactor.m_vecValues.push_back( fHyperCount );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 		m_pDataBuffFactor->m_vecBuffBehaviorFactors.push_back( BuffBehaviorFactor );
 		return true;
@@ -2015,7 +2094,11 @@ bool CX2BuffFactor::ParsingChangeAttackByTypeBehavior( KLuaManager& luaManager_,
 
 		default:
 			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+				/// June 32d46000 raises nothing for a non-PERCENT change type
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 				DISPLAY_ERROR( L"BCT_PERCENT Only!!" );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 			}
 			break;
 		}
@@ -2025,6 +2108,12 @@ bool CX2BuffFactor::ParsingChangeAttackByTypeBehavior( KLuaManager& luaManager_,
 		LUA_GET_VALUE_RETURN_ENUM( luaManager_, "ATTACK_TYPE", eAttackType, CX2DamageManager::ATTACK_TYPE,
 			CX2DamageManager::AT_NORMAL, return DISPLAY_ERROR( L"ATTACK_TYPE" ) );
 		BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( eAttackType ) );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 32d46000: ADDITIONAL_ATTACK_TYPE, an int, -1 when absent (appended after ATTACK_TYPE)
+		int iAdditionalAttackType = -1;
+		LUA_GET_VALUE( luaManager_, "ADDITIONAL_ATTACK_TYPE", iAdditionalAttackType, -1 );
+		BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( iAdditionalAttackType ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 		m_pDataBuffFactor->m_vecBuffBehaviorFactors.push_back( BuffBehaviorFactor );
 		return true;
@@ -2252,6 +2341,14 @@ bool CX2BuffFactor::ParsingResetSkillCoolTimeByBuffBehavior( KLuaManager& luaMan
 
 		switch ( eChangeType )
 		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		case BCT_SWAP_VALUE:	/// June 32d46fc0 also takes SWAP_VALUE
+			{
+				ParsingTableForWhile( luaManager_, "SWAP_VALUE", BuffBehaviorFactor.m_vecValues, bIsSkill );
+			}
+			break;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+
 		case BCT_FIX_VALUE:
 			{
 				/// 1. 수치를 읽어들임
@@ -2423,6 +2520,255 @@ void CX2BuffFactor::ParsingTableMinMaxForWhile( IN KLuaManager& luaManager_, IN 
 		DISPLAY_ERROR( pszTableName_ )
 }
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : GetBehaviorFactorToLevel
+	@brief : June 32d47620, whole (every case June has, the Phase 5-7 types included, so those phases need no
+		level-slice work). Index arithmetic is June's, verbatim, out-of-range reads included:
+		KBuffBehaviorFactor::operator[] returns 0 past the end, as June's 32071230 does. Counts are truncated
+		to unsigned (June: FISTP under a chop control word). Types not listed take June's default branch.
+*/
+void BUFF_FACTOR::GetBehaviorFactorToLevel( IN const vector<KBuffBehaviorFactor>& vecInBehaviorFactorList ,
+											  OUT vector<KBuffBehaviorFactor>& vecOutBehaviorFactorList, IN const UINT uiLevel_ )
+{
+	BOOST_FOREACH( const KBuffBehaviorFactor& factor, vecInBehaviorFactorList )
+	{
+		const BUFF_BEHAVIOR_TYPE eBehaviorType = static_cast<BUFF_BEHAVIOR_TYPE>( factor.m_uiType );
+		KBuffBehaviorFactor BuffBehaviorFactor( eBehaviorType );
+		const UINT uiSize = static_cast<UINT>( factor.m_vecValues.size() );
+
+		switch ( eBehaviorType )
+		{
+		case BBT_CHANGE_NOW_HP_PER_SECOND:		/// @32d4769b
+			{
+				const int iChangeType = static_cast<int>( factor[0] );
+				BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( iChangeType ) );
+				const UINT uiCount = static_cast<UINT>( factor[1] );
+
+				if ( BCT_RELATION_VALUE == iChangeType )
+				{
+					/// June's single-value slice reads 2, 4, 5, 6 (it skips the relation type at 3); transcribed as is
+					if ( uiCount < 2 )
+					{
+						BuffBehaviorFactor.m_vecValues.push_back( factor[2] );
+						BuffBehaviorFactor.m_vecValues.push_back( factor[4] );
+						BuffBehaviorFactor.m_vecValues.push_back( factor[5] );
+						BuffBehaviorFactor.m_vecValues.push_back( factor[6] );
+					}
+					else
+					{
+						BuffBehaviorFactor.m_vecValues.push_back( factor[uiLevel_ + 1] );
+						BuffBehaviorFactor.m_vecValues.push_back( factor[uiCount + 2] );
+						BuffBehaviorFactor.m_vecValues.push_back( factor[uiCount + 3] );
+						BuffBehaviorFactor.m_vecValues.push_back( factor[uiCount + 4] );
+					}
+				}
+				else
+				{
+					if ( uiCount < 2 )
+						BuffBehaviorFactor.m_vecValues.push_back( factor[2] );
+					else
+						BuffBehaviorFactor.m_vecValues.push_back( factor[uiLevel_ + 1] );
+				}
+
+				vecOutBehaviorFactorList.push_back( BuffBehaviorFactor );
+			} break;
+
+		case BBT_CHANGE_MAX_HP:					/// @32d47957, the ChangeStat group (June adds the three CHARGE_MP types)
+		case BBT_CHANGE_PHYSIC_ATTACK:
+		case BBT_CHANGE_MAGIC_ATTACK:
+		case BBT_CHANGE_PHYSIC_DEFENCE:
+		case BBT_CHANGE_MAGIC_DEFENCE:
+		case BBT_CHANGE_ANIM_SPEED:
+		case BBT_CHANGE_WALK_RUN_SPEED:
+		case BBT_CHANGE_JUMP_POWER:
+		case BBT_CHANGE_ACCURACY:
+		case BBT_CHANGE_AVOIDANCE:
+		case BBT_CHANGE_CRITICAL_RATE:
+		case BBT_CHANGE_CRITICAL_ATTACK:
+		case BBT_CHANGE_ANTI_CRITICAL_RATE:
+		case BBT_CHANGE_CRITICAL_DEFENCE:
+		case BBT_CHANGE_ADDITIONAL_ATTACK:
+		case BBT_CHANGE_ADDITIONAL_DEFENCE:
+		case BBT_CHARGE_MP_HIT_MELEE_ATTACK:
+		case BBT_CHARGE_MP_HIT_RANGE_ATTACK:
+		case BBT_CHARGE_MP_HITTED:
+		case BBT_CHANGE_ATTRIBUTE_BLAZE_DEFENCE:
+		case BBT_CHANGE_ATTRIBUTE_WATER_DEFENCE:
+		case BBT_CHANGE_ATTRIBUTE_NATURE_DEFENCE:
+		case BBT_CHANGE_ATTRIBUTE_WIND_DEFENCE:
+		case BBT_CHANGE_ATTRIBUTE_LIGHT_DEFENCE:
+		case BBT_CHANGE_ATTRIBUTE_DARK_DEFENCE:
+		case BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE:
+		case BBT_DRAIN_HP_NORMAL_ATTACK:
+		case BBT_CHANGE_MAX_MP:
+		case BBT_CHANGE_HYPER_CHARGE_SPEED:
+		case BBT_CHANGE_HYPER_DURATION:
+		case BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER:
+		case BBT_CHANGE_MAXIMIZE:
+		case BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER:
+			{
+				const int iChangeType = static_cast<int>( factor[0] );
+				BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( iChangeType ) );
+
+				if ( BCT_RELATION_VALUE == iChangeType )	/// [type, 0.0, relation, count, m1..mn] -> [type, 0.0, relation, m]
+				{
+					BuffBehaviorFactor.m_vecValues.push_back( factor[1] );
+					BuffBehaviorFactor.m_vecValues.push_back( factor[2] );
+					if ( factor[3] <= 1.0f )
+						BuffBehaviorFactor.m_vecValues.push_back( factor[4] );
+					else
+						BuffBehaviorFactor.m_vecValues.push_back( factor[uiLevel_ + 3] );
+				}
+				else if ( factor[1] <= 1.0f )
+					BuffBehaviorFactor.m_vecValues.push_back( factor[2] );
+				else
+					BuffBehaviorFactor.m_vecValues.push_back( factor[uiLevel_ + 1] );
+
+				vecOutBehaviorFactorList.push_back( BuffBehaviorFactor );
+			} break;
+
+		case BBT_CREATE_BUFF_FACTOR:			/// @32d47ae2: [BFI] or [BFI, SKILL_ID, APPLY_TO_SPECIAL_ATTACK]
+			{
+				BuffBehaviorFactor.m_vecValues.push_back( factor[0] );
+				if ( 3 <= uiSize )
+				{
+					BuffBehaviorFactor.m_vecValues.push_back( factor[1] );
+					BuffBehaviorFactor.m_vecValues.push_back( factor[2] );
+				}
+				vecOutBehaviorFactorList.push_back( BuffBehaviorFactor );
+			} break;
+
+		case BBT_ABSORB_EFFECT_ATTACK:			/// @32d47ca2: [1.0, value]; June's class reads [1]
+			{
+				BuffBehaviorFactor.m_vecValues.push_back( 1.0f );
+				if ( static_cast<float>( uiSize ) < 30.0f )
+					BuffBehaviorFactor.m_vecValues.push_back( factor[0] );
+				else
+					BuffBehaviorFactor.m_vecValues.push_back( factor[uiLevel_] );
+				vecOutBehaviorFactorList.push_back( BuffBehaviorFactor );
+			} break;
+
+		case BBT_CHANGE_HYPER_MODE:				/// copied whole
+		case BBT_IGNORE_DEFENCE:
+		case BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_ID:
+		case BBT_CHARGE_MP_HIT_BY_SKILL_ID:
+		case BBT_IMMUNE_BUFF_DEBUFF:
+		case BBT_IMMUNE_NON_CONTROL_DEBUFF:
+		case BBT_IMMUNE_EDT:
+			vecOutBehaviorFactorList.push_back( factor );
+			break;
+
+		case BBT_CUSTOM_FUNCTION:
+			{
+				BuffBehaviorFactor.m_vecValues.push_back( factor[0] );
+				if ( static_cast<float>( uiSize ) < 30.0f )
+					BuffBehaviorFactor.m_vecValues.push_back( factor[0] );
+				else
+					BuffBehaviorFactor.m_vecValues.push_back( factor[uiLevel_] );
+				vecOutBehaviorFactorList.push_back( BuffBehaviorFactor );
+			} break;
+
+		case BBT_CHANGE_ATTACK_BY_TYPE:			/// @32d47e9a: [type, count, v1..vn, ATTACK_TYPE, ADDITIONAL_ATTACK_TYPE] -> [type, v, attack, additional]
+			{
+				const int iChangeType = static_cast<int>( factor[0] );
+				BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( iChangeType ) );
+				const float fCount = factor[1];
+				if ( fCount < 1.0f )
+					BuffBehaviorFactor.m_vecValues.push_back( 0.0f );
+				else
+					BuffBehaviorFactor.m_vecValues.push_back( factor[uiLevel_ + 1] );
+				BuffBehaviorFactor.m_vecValues.push_back( factor[static_cast<UINT>( fCount + 1.0f ) + 1] );
+				BuffBehaviorFactor.m_vecValues.push_back( factor[static_cast<UINT>( fCount + 2.0f ) + 1] );
+				vecOutBehaviorFactorList.push_back( BuffBehaviorFactor );
+			} break;
+
+		case BBT_CHANGE_CONSUME_MP_RATE:		/// @32d47f65: [type, SKILL_ID, (PERCENT only) v]
+			{
+				const int iChangeType = static_cast<int>( factor[0] );
+				BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( iChangeType ) );
+				BuffBehaviorFactor.m_vecValues.push_back( factor[1] );
+				if ( BCT_PERCENT == iChangeType )
+					BuffBehaviorFactor.m_vecValues.push_back( factor[uiLevel_ + 2] );
+				vecOutBehaviorFactorList.push_back( BuffBehaviorFactor );
+			} break;
+
+		case BBT_CHANGE_NOW_FORCE_DOWN_PER_SECOND:	/// @32d478aa
+			{
+				BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( static_cast<int>( factor[0] ) ) );
+				if ( static_cast<UINT>( factor[1] ) < 2 )
+					BuffBehaviorFactor.m_vecValues.push_back( factor[2] );
+				else
+					BuffBehaviorFactor.m_vecValues.push_back( factor[uiLevel_ + 1] );
+				vecOutBehaviorFactorList.push_back( BuffBehaviorFactor );
+			} break;
+
+		case BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION:	/// @32d48063: the whole [type, calc type, count, v1..vn]
+		case BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION:
+		case BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION:
+		case BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION:
+		case BBT_CHANGE_MAX_HP_BY_CONDITION:
+			{
+				BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( static_cast<int>( factor[0] ) ) );
+				BuffBehaviorFactor.m_vecValues.push_back( factor[1] );
+				BuffBehaviorFactor.m_vecValues.push_back( factor[2] );
+				int iCount = static_cast<int>( factor[2] );
+				for ( UINT uiIndex = 3; 0 < iCount; ++uiIndex, --iCount )
+				{
+					if ( uiIndex < uiSize )
+						BuffBehaviorFactor.m_vecValues.push_back( factor[uiIndex] );
+				}
+				vecOutBehaviorFactorList.push_back( BuffBehaviorFactor );
+			} break;
+
+		case BBT_CHANGE_SKILL_DAMAGE:			/// @32d47a9e: per block [SKILL_TYPE, count, r1..rn] -> [SKILL_TYPE, r[min(level, count)]]
+			{
+				UINT uiIndex = 0;
+				while ( uiIndex < uiSize )
+				{
+					const UINT uiCount = static_cast<UINT>( factor[uiIndex + 1] );
+					BuffBehaviorFactor.m_vecValues.push_back( factor[uiIndex] );
+					BuffBehaviorFactor.m_vecValues.push_back( factor[min( uiCount, uiLevel_ ) + uiIndex + 1] );
+					uiIndex += 2 + uiCount;
+				}
+				vecOutBehaviorFactorList.push_back( BuffBehaviorFactor );
+			} break;
+
+		case BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE:	/// @32d47e66: [slot type, rate]
+			{
+				BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( static_cast<int>( factor[0] ) ) );
+				BuffBehaviorFactor.m_vecValues.push_back( factor[1] );
+				vecOutBehaviorFactorList.push_back( BuffBehaviorFactor );
+			} break;
+
+		case BBT_CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE:	/// @32d47b85: per block [SKILL_TYPE, change type, count, v1..vn] -> [SKILL_TYPE, change type, v[min(level, count)]]
+		case BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE:
+		case BBT_CHANGE_SKILL_COOL_TIME_SPEED:
+			{
+				UINT uiIndex = 0;
+				while ( uiIndex < uiSize )
+				{
+					const UINT uiCount = static_cast<UINT>( factor[uiIndex + 2] );
+					BuffBehaviorFactor.m_vecValues.push_back( factor[uiIndex] );
+					BuffBehaviorFactor.m_vecValues.push_back( factor[uiIndex + 1] );
+					BuffBehaviorFactor.m_vecValues.push_back( factor[min( uiCount, uiLevel_ ) + uiIndex + 2] );
+					uiIndex += 3 + uiCount;
+				}
+				vecOutBehaviorFactorList.push_back( BuffBehaviorFactor );
+			} break;
+
+		default:								/// @32d4812a
+			{
+				BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( static_cast<int>( factor[0] ) ) );
+				if ( factor[1] < 30.0f )
+					BuffBehaviorFactor.m_vecValues.push_back( factor[0] );
+				else
+					BuffBehaviorFactor.m_vecValues.push_back( factor[uiLevel_ + 1] );
+				vecOutBehaviorFactorList.push_back( BuffBehaviorFactor );
+			} break;
+		}
+	}
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 void BUFF_FACTOR::GetBehaviorFactorToLevel( IN const vector<KBuffBehaviorFactor>& vecInBehaviorFactorList ,
 											  OUT vector<KBuffBehaviorFactor>& vecOutBehaviorFactorList, IN const UINT uiLevel_ )
 {
@@ -2593,6 +2939,8 @@ void BUFF_FACTOR::GetBehaviorFactorToLevel( IN const vector<KBuffBehaviorFactor>
 		}
 	}
 }
+
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 void BUFF_FACTOR::GetFinalizerFactorToLevel( IN const vector<KBuffFinalizerFactor>& vecInFinalizerFactorList ,
 											OUT vector<KBuffFinalizerFactor>& vecOutFinalizerFactorList, IN const UINT uiLevel_ )

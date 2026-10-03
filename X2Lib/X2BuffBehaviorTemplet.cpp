@@ -246,6 +246,44 @@ bool CX2BuffBehaviorTemplet::SetFactorFromPacketTemplateMothod( const KBuffFacto
 	@brief : BuffFactor에 담겨진 값으로 Templet 셋팅
 	@param : 버프요소(BuffFactor_), 버프를 가지고 있을 게임유닛(pGameUnit_), 기존에 가지고 있던 또는 새로운 버프템플릿 포인터(pBuffTemplet_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/*virtual*/ bool CX2BuffChangeNowHpPerSecondBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	/// June 32e798d0. The restack is the multiplier formula for every change type: June has no BCT_PERCENT
+	/// branch (March's ADJUST_BUFF_ACCMULATION_CALCULATE), and both failures return false without an error.
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	const BUFF_CHANGE_TYPE eChangeType
+		= STATIC_CAST_FLOAT_TO_ENUM( BUFF_CHANGE_TYPE, (*pBehaviorFactor)[FO_CHANGE_TYPE] );
+	if ( eChangeType != m_eChangeType )
+		return false;
+
+	SelectDelegate();
+
+	const float fRegist = pGameUnit_->GetEnchantResist( static_cast<CX2EnchantItem::ENCHANT_TYPE>( pBuffTemplet_->GetRegistType() ) ) / CX2EnchantItem::EAR_MAX_VALUE;
+	const float fNewValueOrPercent = m_delegateGetValueOrPercentPerSecondFunc( pBehaviorFactor, fRegist );
+
+	if ( DidStart() )
+	{
+		const UINT uiAccumulationCountBefore = pBuffTemplet_->GetAccumulationCountNow();
+		if ( uiAccumulationCountBefore > 0 )
+		{
+			const float fAccumulationMultiflier = pBuffTemplet_->GetAccumulationMultiflier();
+			const float fOldValueOrPercent = m_fResultValue / ( 1 + fAccumulationMultiflier * (uiAccumulationCountBefore - 1) );
+			m_fResultValue = ( abs(fNewValueOrPercent) > abs(fOldValueOrPercent) ? fNewValueOrPercent : fOldValueOrPercent );
+			m_fResultValue *= ( 1 + fAccumulationMultiflier * uiAccumulationCountBefore );
+		}
+		else
+			m_fResultValue = ( abs(fNewValueOrPercent) > abs(m_fResultValue) ? fNewValueOrPercent : m_fResultValue );
+	}
+	else
+		m_fResultValue = fNewValueOrPercent;
+
+	return true;
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ bool CX2BuffChangeNowHpPerSecondBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
@@ -317,6 +355,7 @@ bool CX2BuffBehaviorTemplet::SetFactorFromPacketTemplateMothod( const KBuffFacto
 	else
 		return DISPLAY_ERROR( L"CX2BuffChangeNowHpPerSecondBehaviorTemplet GetBehaviorFactor didn't work" );
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : GetClonePtr
 	@return : CX2BuffBehaviorTempletPtr
@@ -1158,6 +1197,51 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	@brief : BuffFactor에 담겨진 값으로 Templet 셋팅
 	@param : 버프요소(BuffFactor_), 버프를 가지고 있을 게임유닛(pGameUnit_), 기존에 가지고 있던 또는 새로운 버프템플릿 포인터(pBuffTemplet_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/*virtual*/ bool CX2BuffCreateBuffFactortBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	/// June 32e860a0. NPCs get the created factor too (March inserted for users only), at the templet's stack
+	/// count; a user with SKILL_ID takes that skill's level instead. APPLY_TO_SPECIAL_ATTACK is kept and sent;
+	/// June hands it to the unit's list, whose reader (the damage manager, 326309f0) is not ported yet.
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	m_uiBuffFactorId = static_cast<UINT>( (*pBehaviorFactor)[FO_BUFF_FACTOR_ID] );
+	if ( 0 == m_uiBuffFactorId )
+		return false;
+
+	if ( DidStart() )
+		pGameUnit_->EraseTemporaryBuffFactor( pBuffTemplet_->GetBuffIdentity() );
+
+	m_uiSkillId = static_cast<UINT>( (*pBehaviorFactor)[FO_SKILL_ID] );
+	CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( m_uiBuffFactorId );
+
+	UINT uiLevel = pBuffTemplet_->GetAccumulationCountNow();
+	if ( 0 == uiLevel )
+		uiLevel = 1;
+
+	if ( pGameUnit_->GetGameUnitType() == CX2GameUnit::GUT_USER )
+	{
+		CX2GUUser* pUser = reinterpret_cast<CX2GUUser*>( pGameUnit_ );
+		if ( NULL == pUser->GetUnit() )
+			return false;
+
+		if ( 0 != m_uiSkillId )
+		{
+			const CX2UserSkillTree& userSkillTree = pUser->GetUnit()->GetUnitData().m_UserSkillTree;
+			const int iSkillTempletLevel = userSkillTree.GetSkillLevel( CX2SkillTree::SKILL_ID( m_uiSkillId ) );
+			uiLevel = ( iSkillTempletLevel < 1 ? 1 : static_cast<UINT>( iSkillTempletLevel ) );
+		}
+	}
+
+	m_bApplyToSpecialAttack = ( 2 < pBehaviorFactor->m_vecValues.size() && 0.0f < (*pBehaviorFactor)[2] );
+
+	if ( NULL != ptrBuffFactor )
+		pGameUnit_->CreateAndInsertTemporaryBuffFactor( *ptrBuffFactor, pBuffTemplet_->GetBuffIdentity(), uiLevel );
+	return true;
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ bool CX2BuffCreateBuffFactortBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
@@ -1203,6 +1287,7 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	else
 		return DISPLAY_ERROR( L"CX2BuffCreateBuffFactortBehaviorTemplet GetBehaviorFactor didn't work" );
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : GetClonePtr
 	@return : CX2BuffBehaviorTempletPtr
@@ -1216,6 +1301,18 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	@brief : 템플릿 인자들 중 필요 한 것들을 factor로 변환
 	@param : 버프요소 인스턴스(factor_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/*virtual*/ void CX2BuffCreateBuffFactortBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	/// June 32e7d930: [BFI, SKILL_ID, 1.0 / -1.0]; the two new values are appended after March's one
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+	KBuffBehaviorFactor& BehaviorFactor = vecFactors_.back();
+
+	BehaviorFactor.m_vecValues.push_back( static_cast<float>( m_uiBuffFactorId ) );
+	BehaviorFactor.m_vecValues.push_back( static_cast<float>( m_uiSkillId ) );
+	BehaviorFactor.m_vecValues.push_back( m_bApplyToSpecialAttack ? 1.0f : -1.0f );
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ void CX2BuffCreateBuffFactortBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
 {
 	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
@@ -1223,11 +1320,39 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 
 	BehaviorFactor.m_vecValues.push_back( static_cast<float>( m_uiBuffFactorId ) );
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : SetFactorFromPacket
 	@brief : 패킷으로 부터 받은 버프 정보로 다른 유닛에게 지정된 버프 또는 디버프를 적용할 수 있는 행동 템플릿을 셋팅
 	@param : 서버로 부터 받은 행동요소(kFactor_), 적용할 게임유닛(pGameUnit_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/*virtual*/ void CX2BuffCreateBuffFactortBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	/// June 32e862c0: SKILL_ID and the special-attack flag come from the packet (a March sender omits them: 0 / false),
+	/// the level is the packet's stack count or 1, and a user's SKILL_ID level replaces it
+	m_uiBuffFactorId = static_cast<UINT>( kFactor_[0] );
+	m_uiSkillId = static_cast<UINT>( kFactor_[1] );
+	m_bApplyToSpecialAttack = ( 2 < kFactor_.m_vecValues.size() && 0.0f < kFactor_[2] );
+
+	CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( m_uiBuffFactorId );
+
+	UINT uiLevel = ( 0 == kBuffFactor_.m_ucAccumulationCountNow ? 1 : kBuffFactor_.m_ucAccumulationCountNow );
+	if ( pGameUnit_->GetGameUnitType() == CX2GameUnit::GUT_USER )
+	{
+		CX2GUUser* pUser = reinterpret_cast<CX2GUUser*>( pGameUnit_ );
+		if ( NULL == pUser->GetUnit() )
+			return;
+
+		const CX2UserSkillTree& userSkillTree = pUser->GetUnit()->GetUnitData().m_UserSkillTree;
+		const int iSkillTempletLevel = userSkillTree.GetSkillLevel( CX2SkillTree::SKILL_ID( m_uiSkillId ) );
+		uiLevel = ( iSkillTempletLevel < 1 ? 1 : static_cast<UINT>( iSkillTempletLevel ) );
+	}
+
+	if ( NULL != ptrBuffFactor )
+		pGameUnit_->CreateAndInsertTemporaryBuffFactor( *ptrBuffFactor, kBuffFactor_.m_BuffIdentity, uiLevel );
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ void CX2BuffCreateBuffFactortBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
 {
 	m_uiBuffFactorId = static_cast<UINT>( kFactor_[0] );
@@ -1249,6 +1374,7 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	pGameUnit_->CreateAndInsertTemporaryBuffFactor( *ptrBuffFactor, kBuffFactor_.m_BuffIdentity );
 #endif //UPGRADE_SKILL_SYSTEM_2013
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : DoFinish
 	@brief : 버프가 종료됬을 때 정리해야하는 행동들을 처리
@@ -1267,6 +1393,31 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	@brief : BuffFactor에 담겨진 값으로 Templet 셋팅
 	@param : 버프요소(BuffFactor_), 버프를 가지고 있을 게임유닛(pGameUnit_), 기존에 가지고 있던 또는 새로운 버프템플릿 포인터(pBuffTemplet_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/*virtual*/ bool CX2BuffAbsorbEffectAttackBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	/// June 32e768a0: the value is index 1, where June's level slice (32d47620) puts it after a 1.0
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( DidStart() )
+	{
+		if ( pBuffTemplet_->GetAccumulationCountNow() > 1 )
+			m_fAbsorbValue += (*pBehaviorFactor)[1];
+		else
+			m_fAbsorbValue = (*pBehaviorFactor)[1];
+
+		pGameUnit_->UpdateAbsorbEffectAttack( pBuffTemplet_->GetBuffIdentity(), m_fAbsorbValue );
+	}
+	else
+	{
+		m_fAbsorbValue = (*pBehaviorFactor)[1];
+		pGameUnit_->CreateAndInsertAbsorbEffectAttack( pBuffTemplet_->GetBuffIdentity(), m_fAbsorbValue );
+	}
+	return true;
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ bool CX2BuffAbsorbEffectAttackBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
@@ -1295,6 +1446,7 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	else
 		return DISPLAY_ERROR( L"CX2BuffAbsorbEffectAttackBehaviorTemplet GetBehaviorFactor didn't work" );
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : GetClonePtr
 	@return : CX2BuffBehaviorTempletPtr
@@ -1320,11 +1472,21 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	@brief : 패킷으로 부터 받은 버프 정보로 이펙트를 흡수하여 MP로 전환하는 행동 템플릿을 셋팅
 	@param : 서버로 부터 받은 행동요소(kFactor_), 적용할 게임유닛(pGameUnit_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/*virtual*/ void CX2BuffAbsorbEffectAttackBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	/// June 32e76a00 reads index 1 too, though GetFactor (32e7da30, unchanged) sends one value: a peer's copy gets 0.
+	/// That is June's own behaviour, transcribed as is (flagged for the Phase 14 play-test).
+	m_fAbsorbValue = kFactor_[1];
+	pGameUnit_->CreateAndInsertAbsorbEffectAttack( kBuffFactor_.m_BuffIdentity, m_fAbsorbValue );
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ void CX2BuffAbsorbEffectAttackBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
 {
 	m_fAbsorbValue = kFactor_[0];
 	pGameUnit_->CreateAndInsertAbsorbEffectAttack( kBuffFactor_.m_BuffIdentity, m_fAbsorbValue );
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : DoFinish
 	@brief : 버프가 종료됬을 때 정리해야하는 행동들을 처리
@@ -1531,6 +1693,34 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	@brief : 보여주기용 각성 시간을 갱신
 	@param : 각성중인 유닛(pGameUnit_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+/*virtual*/ void CX2BuffChangeHyperModeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_, float fElapsedTime_ )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+/*virtual*/ void CX2BuffChangeHyperModeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+{
+	/// June 32e7dae0: the gage's remaining time (if positive) is taken back first, so a gage-side change wins
+	if ( 0.0f < m_fRemainTime )
+	{
+		if ( 0.0f < pGameUnit_->GetRemainHyperModeTime() )
+			m_fRemainTime = pGameUnit_->GetRemainHyperModeTime();
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+		m_fRemainTime -= fElapsedTime_;
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+		m_fRemainTime -= g_pKTDXApp->GetElapsedTime();
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+		if ( m_fRemainTime <= 0.0f )
+			m_fRemainTime = 0.0f;
+
+		pGameUnit_->SetRemainHyperModeTime( m_fRemainTime );
+		pGameUnit_->HyperModeBuffEffectOnFrameMove();
+		/// At 0 June calls 32296cb0, which stops two effect-set handles (unit +0x9f4/+0x9f8) that only
+		/// June code creates. March never creates them, so there is nothing to stop.
+	}
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 /*virtual*/ void CX2BuffChangeHyperModeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_, float fElapsedTime_ )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -1550,11 +1740,37 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 		pGameUnit_->HyperModeBuffEffectOnFrameMove();
 	}
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : SetFactor
 	@brief : BuffFactor에 담겨진 값으로 Templet 셋팅
 	@param : 버프요소(BuffFactor_), 버프를 가지고 있을 게임유닛(pGameUnit_), 기존에 가지고 있던 또는 새로운 버프템플릿 포인터(pBuffTemplet_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/*virtual*/ bool CX2BuffChangeHyperModeBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	/// June 32e7dbb0. Unit slots: 40 SetFullHyperMode, 41 IsFullHyperMode, 49 HyperModeBuffEffectStart.
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( 0 == m_uiHyperModeCount )
+	{
+		m_uiHyperModeCount = static_cast<UINT>( (*pBehaviorFactor)[FO_HYPER_MODE_COUNT] );
+		if ( static_cast<UINT>(CX2GageUI::PGUWO_ORB3) < m_uiHyperModeCount || pGameUnit_->IsFullHyperMode() )
+			pGameUnit_->SetFullHyperMode( true );
+	}
+
+	/// June then calls 32b4dd50( count, or 1 ). It writes a June-only CX2GameUnit member (a protected int at
+	/// June +0x6844), not March's SetHyperModeCount, which is the gage's orb count. Its readers are not mapped
+	/// yet (Phase 4b-i part 2), so it is not ported.
+
+	m_fRemainTime = m_fRemainTime + (*pBehaviorFactor)[FO_HYPER_MODE_TIME];
+	pGameUnit_->SetRemainHyperModeTime( m_fRemainTime );
+	pGameUnit_->HyperModeBuffEffectStart();
+	return true;
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ bool CX2BuffChangeHyperModeBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
@@ -1576,6 +1792,7 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	else
 		return DISPLAY_ERROR( L"CX2BuffChangeHyperModeBehaviorTemplet GetBehaviorFactor didn't work" );
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : GetClonePtr
 	@return : CX2BuffBehaviorTempletPtr
@@ -1602,6 +1819,23 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	@brief : 패킷으로 부터 받은 버프 정보로 각성 행동 템플릿을 셋팅
 	@param : 서버로 부터 받은 행동요소(kFactor_), 적용할 게임유닛(pGameUnit_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/*virtual*/ void CX2BuffChangeHyperModeBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	/// June 32e7ddb0: wire layout unchanged, [count, remaining time]
+	m_uiHyperModeCount = static_cast<UINT>( kFactor_[0] );
+	if ( static_cast<UINT>(CX2GageUI::PGUWO_ORB3) < m_uiHyperModeCount || pGameUnit_->IsFullHyperMode() )
+		pGameUnit_->SetFullHyperMode( true );
+
+	/// June then calls 32b4dd50( count, or 1 ). It writes a June-only CX2GameUnit member (a protected int at
+	/// June +0x6844), not March's SetHyperModeCount, which is the gage's orb count. Its readers are not mapped
+	/// yet (Phase 4b-i part 2), so it is not ported.
+
+	m_fRemainTime = kFactor_[1];
+	pGameUnit_->SetRemainHyperModeTime( m_fRemainTime );
+	pGameUnit_->HyperModeBuffEffectStart();
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ void CX2BuffChangeHyperModeBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
 {
 	m_uiHyperModeCount = static_cast<UINT>( kFactor_[0] );
@@ -1612,11 +1846,24 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	pGameUnit_->SetRemainHyperModeTime( m_fRemainTime );
 	pGameUnit_->HyperModeBuffEffectStart();
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : DoFinish
 	@brief : 버프가 종료됬을 때 정리해야하는 행동들을 처리
 	@param : @param : 해당 버프에 걸렸던 게임유닛(pGameUnit_), 버프템플릿(pBuffTemplet_)
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/*virtual*/ void CX2BuffChangeHyperModeBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	/// June 32e7de90: as March, then 32b4dd50( 0 ) on the June-only member (see SetFactor; not ported)
+	CX2GageData* pGageData = CX2GageManager::GetInstance()->GetMyGageData();
+	if ( NULL != pGageData )
+		pGageData->SetHyperModeRemainTime( 0.0f );
+
+	pGameUnit_->SetRemainHyperModeTime( 0.0f );
+	pGameUnit_->HyperModeBuffEffectEnd();
+}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ void CX2BuffChangeHyperModeBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
 {
 	CX2GageData* pGageData = CX2GageManager::GetInstance()->GetMyGageData();
@@ -1626,6 +1873,7 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	pGameUnit_->SetRemainHyperModeTime( 0.0f );
 	pGameUnit_->HyperModeBuffEffectEnd();
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////

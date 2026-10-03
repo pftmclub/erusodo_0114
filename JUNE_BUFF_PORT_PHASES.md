@@ -1732,6 +1732,113 @@ finish behaviors, commit, and record exactly where you stopped in the doc so 4b-
 resumes there. buff_census.py must show the in-type keys cleared. Build, deploy, commit.
 ```
 
+### Phase 4b-i, part 1 — Done (2026-10-03), launch check pending
+
+The scope was too large for one session, so 4b is split three ways:
+- **4b-i part 1 (this session):** the behavior parse layer, plus the classes that consume its new floats.
+- **4b-i part 2:** the remaining behavior classes, the unit stores and the read sites.
+- **4b-ii:** finalizers and displayers, including the Phase 4a review's `BFT_TIME` hand-offs.
+
+All changes are under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY` (`KTDXLIB/Always.h`). Every file is insert-only, the encodings are unchanged, and the March bodies are kept in `#else`. The R3 note (TEMPLET_PARITY needs LOADER) is now in `Always.h`.
+
+**RE method.**
+- June's behavior vtables were re-scanned (`buffre/vt.py CX2Buff`) and compared slot by slot with the base `CX2BuffBehaviorTemplet` (`33534be4`).
+- The June vtable has 14 slots where March has 8: `[0]` dtor, `[1]` OnFrameMove, `[2]` SetFactor, `[3]` new, `[4]` GetClonePtr, `[5]` GetFactor, `[6]` DoFinish, `[7]` accumulation, `[8]` checksum, `[9]–[11]` new, `[12]` ParsingBehavior, `[13]` SetFactorFromPacket.
+- Uncarved slots were read with `rawfn.py`; Ghidra stayed read-only.
+- The decompiler hid two pushes. Both `APPLY_TO_SPECIAL_ATTACK` and `USE_CREATOR_UNIT_DATA` push **-1.0** when false, not 0.0 (checked in the asm). Absorb's level slice really does push a leading `1.0` (`FLD1` @`32d47cab`, into the output vector).
+
+**Type-to-function maps (types 1–72; all three match March one-to-one).**
+- Factor parse `32d4bbf0`: the same parse function family as March's case list.
+- Templet factory `32e80450`: 24 classes, and the type-to-class mapping equals March's `CASE_BEHAVIOR_TEMPLET`.
+- SGU `32d4d670`: the same type lists as March (finalizer SGU has an extra case 5, left to 4b-ii).
+
+**Worksheet.** Status values: *same* = diffed, no difference; *ported* = June's version is in; *pending* = not diffed yet, or diffed and not ported, with the reason given.
+
+| Item | June | Status |
+|---|---|---|
+| Parse: ChangeStat group (6–21, 24–26, 36–42, 44, 52, 72) | `32d445d0` | same |
+| Parse: NOW_MP 2, ENCHANT/ATTRIBUTE rate 54/66–71, DOUBLE_ATTACK 56, REFLECT 62, CONSUME_MP 63, EFFECT_SET_WITH_DAMAGE 45, ADD_SKILL_LEVEL 59, ABSORB 23, CUSTOM 43, empty | `32d44320`, `32d46550`, `32d46800`, `32d46d20`, `32d472b0`, `32d45e60`, `32d46aa0`, `32d45570`, `32d45c50`, `32d45b60` | same (June drops some default-branch `DISPLAY_ERROR`s; Phase 3 already captures those at load) |
+| Parse: NOW_HP 1 | `32d42030` | **ported**: appends `USE_CREATOR_UNIT_DATA` 1/-1 |
+| Parse: CREATE_BUFF_FACTOR 22 | `32d45040` | **ported**: appends `APPLY_TO_SPECIAL_ATTACK` 1/-1 |
+| Parse: CHANGE_HYPER_MODE 27 | `32d45860` | **ported**: `HYPER_COUNT` when > 0 |
+| Parse: RESET_SKILL_COOL_TIME 34 | `32d46fc0` | **ported**: adds the `SWAP_VALUE` case |
+| Parse: CHANGE_ATTACK_BY_TYPE 53 | `32d46000` | **ported**: appends `ADDITIONAL_ATTACK_TYPE` (int, -1); no popup |
+| Level slice, whole | `32d47620` | **ported**, every June case including the Phase 5–7 types, so **those phases have no level-slice step left**. The March differences were 1 (an off-by-one plus the creator value), the ChangeStat relation slice (March dropped the relation type), 24–26 (now in the ChangeStat group), 22/53 (March used the default branch and lost values) and 23 (`[1.0, v]`). |
+| SGU `SetGameUnitBuffFactor` | `32d4d670` | **ported**: the default branch also records `IsUserUID` |
+| SGU NOW_HP | `32d4cc90` | **ported**: creator-unit stat when index 4 > 0 |
+| SGU ChangeStat / HyperMode | `32d41700` / `32d41a20` | same |
+| Class NowHp `SetFactor` | `32e798d0` | **ported**: no `BCT_PERCENT` restack branch |
+| Class NowHp OnFrameMove/GetFactor/packet/ParsingBehavior | `32e72d80`/`32e7d4c0`/`32e79a80`/`32e72a00` | pending (not diffed) |
+| Class HyperMode SetFactor/OnFrameMove/packet/DoFinish | `32e7dbb0`/`32e7dae0`/`32e7ddb0`/`32e7de90` | **ported**, except `32b4dd50` (GetFactor `32e7dcf0` same). `32b4dd50` writes a June-only `CX2GameUnit` int at `+0x6844`, set to the count (or 1) at start and 0 at finish. It is **not** March's `SetHyperModeCount`, which sets the gage's orb count, so mapping it there would wipe the player's orbs. Its readers are unmapped: pending, part 2. |
+| Class Create SetFactor/GetFactor/packet | `32e860a0`/`32e7d930`/`32e862c0` | **ported**; DoFinish same |
+| Class Absorb SetFactor/packet | `32e768a0`/`32e76a00` | **ported** (index 1); GetFactor and DoFinish same |
+| **Damage-manager reader of both buff-factor lists** | `326309f0` | **pending, part 2.** June makes both lists (`+0xe24` permanent, `+0xe34` temporary) `{ptr, bool}`. It skips them on `AT_SPECIAL` attacks unless the bool is set, and when it is set it still skips them for skill type 5. The permanent list's inserts (`322a25f0`, called from `3204f190` with 0 and from `32d1c560` ×3) still need tracing. Until that is done, Create stores and sends the flag, but nothing reads it. |
+| Class AttackByType SetFactor/packet/DoFinish | `32e77070`/`32e74740`/`32e747b0` | **pending, part 2.** The unit store `322818d0` gains the additional type (4 args), and its reader is not mapped. The level slice puts the new value last, so March's class still reads indices 0–2 correctly. |
+| Class NeverMove ParsingBehavior + slots 1/2/5/6/13 | `32e7a4a0` (keys `IS_GRAVITY`, `CAN_DOWN`, `OFFSET_POSITION`, `DELETE_BUFF_WHEN_DIE`), `32e77000`, `32e744c0`, `32e7e330`, `32e74550`, `32e76e70` | **pending, part 2: this is where part 2 starts** |
+| Class ResetSkillCoolTime ParsingBehavior + slots 1/2/5 | `32e78e90` (keys `BUFF_CHANGE_TYPE`, `SKILL_TYPE`, `RELATIVE_ALL_SKILL`, `FORCE_SET`, `DRAW_TEXT`, `SKILL_SLOT_TYPE`, `APPLY_ONCE`, plain `FORCE_SKILL_ID`/`IGNORE_SKILL_ID`), `32e85fe0`, `32e76aa0`, `32e7dee0` | pending, part 2 (no packet override in June) |
+| Classes NowMp (new slots 3, 9, 10), ChangeStat (`SetFactor`, slots 3 and 11; does June keep the `ADJUST_BUFF_ACCMULATION_CALCULATE` branch?), EnchantAttackRate (slot 3) | see `vt_buff` | pending, part 2 |
+| Classes ReverseLR, Identity, UnitScale, EffectSetWithDamage, Stun, FinishOther, Freeze, CanPass, DoubleAttack, AttackSphereScale, AddSkillLevel, Reflect, ConsumeMpRate, Custom | slots listed by `vt.py` | pending, part 2 (decompiles cached in scratch only; regenerate with `compact.py` / `rawfn.py`) |
+| Hand-offs | 1c items 1/2, the 105 note, 1b | pending, part 2: type 56 in both `DamageReact`s; the DASH_IMPOSSIBLE NPC AI gate (`3276e442` switch); the CHANGE_ENCHANT_ATTACK_RATE host math (`32274df0`/`32272d90`); the BBT 7/8 second members plus the variance roll `322788c0` |
+
+**Behavior changes on March's current data.**
+- **Skill-level slices change for March data that hits a fixed March bug:**
+  - ChangeStat `BCT_RELATION_VALUE` (the relation type now survives);
+  - CHARGE_MP_HIT/HITTED with level tables;
+  - CREATE_BUFF_FACTOR and ATTACK_BY_TYPE skill factors (the second and third values are no longer lost);
+  - NOW_HP relation (index).
+  Each of these now gives June's output.
+- **HyperMode** now takes the gage's remaining time back every frame, and checks the full-orb flag only on the first `SetFactor`, as June does. June's `+0x6844` write is not ported (see the worksheet).
+- **NowHp** stacking for `BCT_PERCENT` now uses the multiplier formula, not March's `ADJUST_BUFF_ACCMULATION_CALCULATE` formula.
+- **CreateBuffFactor** now also inserts for NPCs, at the stack count.
+- **A June quirk, transcribed:** Absorb's `SetFactorFromPacket` reads index 1, but `GetFactor` sends one value, so a peer's copy gets 0. A second one: NOW_HP's single-level relation slice skips the relation type. Phase 14 should watch both.
+
+**Census.** `buff_census.py --phase 4b` takes the in-type pairs from **41 to 19**:
+- **Ported:** `USE_CREATOR_UNIT_DATA`, `APPLY_TO_SPECIAL_ATTACK`, `HYPER_COUNT`, `ADDITIONAL_ATTACK_TYPE` and `SWAP_VALUE`.
+- **Excluded:** 26 type/origin/key rows go to the new `NOT_READ_BY_JUNE_TYPE` table, each citing the June reader for that origin (for example `BUFF_RELATION_TYPE` ×206 under DASH_IMPOSSIBLE sits on the empty parse `32d45b60`).
+- **Remaining:**
+  - behaviors: NEVER_MOVE (`CAN_DOWN`, `DELETE_BUFF_WHEN_DIE`, `OFFSET_POSITION`) and RESET_SKILL_COOL_TIME (`FORCE_SKILL_ID`, `DRAW_TEXT`, `FORCE_SET`, `IGNORE_SKILL_ID`, `SKILL_SLOT_TYPE`), all templet-level and all part 2;
+  - finalizers and displayers (4b-ii).
+
+The report now prints each pair's origin split `(templet/factor/inline)`.
+
+**funcmap.tsv:** 23 rows ("Buff Phase 4b").
+
+**Build and deploy.**
+- `KTDXLIB`, `X2Lib` and `X2` were built at `US_SERVICE` with rc=0 and 0 errors; both `stdafx.cpp` were touched first. `X2ServerProtocol` was unchanged, so it was not rebuilt.
+- A second, incremental `X2Lib` + `X2` pass took out a mapping that was wrong:
+  - The first pass mapped June's `32b4dd50` to `SetHyperModeCount`. On `CX2GUUser` that sets the gage orb count, so it would have wiped orbs.
+  - The `.obj` (11:44:40) is newer than the source edit (11:40:01).
+- `x2.exe` is 19,009,536 B, linked at 11:45:23, md5 `218167fb31d751502c5b8f1fccc90d63`. It contains `USE_CREATOR_UNIT_DATA`, `APPLY_TO_SPECIAL_ATTACK`, `HYPER_COUNT` and `ADDITIONAL_ATTACK_TYPE`.
+- It was copied to the game directory as `X2_offline.exe` (name read programmatically) and the md5 matches. **Not launched.**
+- **Pairing:** no Lua changes, so this exe needs no pack.
+- **Launch check, expected with March data:** the load summary is unchanged from Phase 4a's (`templets 320 loaded, ... ordinal rejects 5`), because no March factor carries the new keys.
+- **Things to watch in play:**
+  - awakening: HyperMode now re-reads the gage time each frame;
+  - recast refresh of percent HP-regen buffs (NowHp stacking);
+  - skill buffs whose level slice changed.
+- **Flag-off check:** with the flag stripped, `X2BuffBehaviorTemplet.cpp/.h` reduce byte-for-byte to `HEAD`. `X2BuffFactor.cpp` reduces to `HEAD` plus 3 blank lines outside the guards.
+- **Review:** required (Opus 5.5), not yet run. Spot-check suggestions:
+  - `32d47620`'s ChangeStat relation slice and case 1 (indices 2, 4, 5, 6);
+  - the -1.0 pushes in `32d45040`/`32d42030`;
+  - `32e7dbb0`'s count/full-orb order.
+- **Cost:** `/cost` cannot be read from inside the session; ask the user.
+
+**Kickoff for 4b-i part 2** (Opus 5.5 high):
+
+```
+Continuing the June buff/debuff port. Read JUNE_BUFF_PORT_PHASES.md in the repo root in
+full -- "Starting context", the "June buff function map", "Phase 4b" and "Phase 4b-i,
+part 1". Branch: mods/june-buff-port. Never launch X2_offline.exe without asking first.
+
+Your task (Phase 4b-i part 2): continue the 4b-i worksheet from its first pending row
+(NeverMove), under SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY: the remaining behavior classes,
+the 326309f0 damage-manager reader (trace the +0xe24 inserts first), the AttackByType
+unit store, and the four hand-offs. Port June's whole function wherever it differs, keep
+GetFactor/SetFactorFromPacket order (append only), byte-level CP949 edits, insert-only.
+buff_census.py --phase 4b must show no behavior pairs left. Build, deploy, commit;
+record where you stopped if the session runs out.
+```
+
 ## Phases 5–7 — New behavior types
 
 Each new BBT follows an 8-step checklist:

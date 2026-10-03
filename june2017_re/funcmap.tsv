@@ -454,6 +454,29 @@ mesh+0x54c	none in March: CXMeshInstance previous-frame velocity snapshot	confir
 3227b600	none in March: CX2GameUnit insert BBT 73 identity	confirmed	Buff Phase 1c item 2: push to list +0x67cc; reader GetFinalDamage @322862bf sets pDD->m_bIgnoreStateDefence (+0x541) before March X2GameUnit.cpp:2716 block (also when attacker HaveThisBuff(975))
 3227a870	none in March: CX2GameUnit erase BBT 73 identity	confirmed	Buff Phase 1c item 2: remove (322a9090) + range-erase 3207b700 on +0x67cc
 3207b700	vector range erase (identity lists)	confirmed	Buff Phase 1c item 2: used by every identity erase (3227a870, 3227a910); not a 104-specific call
+32d42030	CX2BuffFactor::ParsingChangeNowHpPerSecondBehavior	confirmed	Buff Phase 4b: relation case appends USE_CREATOR_UNIT_DATA as 1.0/-1.0 (FLD1 @32d425dc / -1.0 334380f0 @32d425bb)
+32d45040	CX2BuffFactor::ParsingCreateBuffFactorBehavior	confirmed	Buff Phase 4b: [BUFF_FACTOR_ID, SKILL_ID, APPLY_TO_SPECIAL_ATTACK 1.0/-1.0] (FLD1 @32d4555d / -1.0 @32d454ea)
+32d45860	CX2BuffFactor::ParsingGameUnitChangeHyperModeBehavior	confirmed	Buff Phase 4b: HYPER_TIME then HYPER_COUNT, each pushed only when > 0
+32d46fc0	CX2BuffFactor::ParsingResetSkillCoolTimeByBuffBehavior	confirmed	Buff Phase 4b: change type 0 SWAP_VALUE / 1 FIX_VALUE / 2 MULTIPLIER / 3 PERCENT tables; other -> error, no push
+32d46000	CX2BuffFactor::ParsingChangeAttackByTypeBehavior	confirmed	Buff Phase 4b: [type, PERCENT table if 3, ATTACK_TYPE, ADDITIONAL_ATTACK_TYPE (int, -1)]; no popup for non-PERCENT
+32d4cc90	CX2BuffFactor::SetGameUnitChangeNowHpPerSecondBehavior	confirmed	Buff Phase 4b: relation only; index 4 > 0 -> stat from creator (CX2Game slot 50 with factor +0x30 UID, !(+0x38) isUser)
+32d41700	CX2BuffFactor::SetGameUnitChangeStatBehavior	confirmed	Buff Phase 4b: same as March (relation, size > 1 -> 32d411a0 UpdateValueByRelationType on [1])
+32d41a20	CX2BuffFactor::SetGameUnitChangeHyperModeBehavior	confirmed	Buff Phase 4b: same as March: empty -> push unit slot 45 (GetHyperModeTime); push unit slot 44 (GetLastStateHyperModeCount)
+32e798d0	CX2BuffChangeNowHpPerSecondBehaviorTemplet::SetFactor	confirmed	Buff Phase 4b: no BCT_PERCENT restack branch (March ADJUST_BUFF_ACCMULATION_CALCULATE); resist /500.0 (33458fa8)
+32e7dbb0	CX2BuffChangeHyperModeBehaviorTemplet::SetFactor	confirmed	Buff Phase 4b: count only when 0; (count>=3 || slot41) -> slot40(1); 32b4dd50(count or 1); remain += [0]; gage set; slot 49
+32e7dae0	CX2BuffChangeHyperModeBehaviorTemplet::OnFrameMove	confirmed	Buff Phase 4b: takes gage remain back if > 0, subtracts dt, clamps, sets gage, slot 51; at 0 calls 32296cb0
+32e7ddb0	CX2BuffChangeHyperModeBehaviorTemplet::SetFactorFromPacket	confirmed	Buff Phase 4b: [count, remain]; (count>2 || slot41) -> slot40(1); 32b4dd50(count or 1)
+32e7de90	CX2BuffChangeHyperModeBehaviorTemplet::DoFinish	confirmed	Buff Phase 4b: as March plus 32b4dd50(0)
+32b4dd50	none in March: set a June-only CX2GameUnit protected int (+0x6844)	confirmed	Buff Phase 4b: writes +0x6844 if different; HyperMode class calls it with count/1 and 0. NOT March SetHyperModeCount (gage orb count); readers unmapped
+32296cb0	none in March: stop two June-only effect-set handles (unit +0x9f4/+0x9f8)	candidate	Buff Phase 4b: also called by the unit dtor 322a0730; no March member matches
+32e860a0	CX2BuffCreateBuffFactortBehaviorTemplet::SetFactor	confirmed	Buff Phase 4b: inserts for NPCs too at the stack count; user + SKILL_ID -> skill level; flag [2] > 0 -> +0x18; 322a2500(factor, identity, level, flag)
+32e7d930	CX2BuffCreateBuffFactortBehaviorTemplet::GetFactor	confirmed	Buff Phase 4b: [BFI, SKILL_ID, flag ? 1.0 : -1.0]
+32e862c0	CX2BuffCreateBuffFactortBehaviorTemplet::SetFactorFromPacket	confirmed	Buff Phase 4b: SKILL_ID/flag from the packet; level = KBuffFactor m_ucAccumulationCountNow (+0x34) or 1; user -> skill level
+322a2500	CX2GameUnit::CreateAndInsertTemporaryBuffFactor (June 4-arg)	confirmed	Buff Phase 4b: list +0xe34 element is {CX2BuffFactorPtr, bool APPLY_TO_SPECIAL_ATTACK} (push 322b52a0, 8-byte stride)
+326309f0	CX2DamageManager: attacker buff-factor lists -> DamageData (March X2DamageManager.cpp:3865-3885)	confirmed	Buff Phase 4b: both lists +0xe24/+0xe34 are {ptr,bool}; skips AT_SPECIAL unless flag (and then not for skill type 5); NOT PORTED, Phase 4b-i part 2
+32e768a0	CX2BuffAbsorbEffectAttackBehaviorTemplet::SetFactor	confirmed	Buff Phase 4b: reads index 1 (the level slice puts 1.0 first)
+32e76a00	CX2BuffAbsorbEffectAttackBehaviorTemplet::SetFactorFromPacket	confirmed	Buff Phase 4b: reads index 1 though GetFactor 32e7da30 sends one value (June quirk)
+32e77070	CX2BuffChangeAttackByTypeBehaviorTemplet::SetFactor	confirmed	Buff Phase 4b: members +0x18 attack type, +0x1c additional type; unit 322818d0(identity, attack, value, additional); NOT PORTED, part 2
 32e86e90	CX2BuffChangeNowForceDownPerSecondBehaviorTemplet create/ctor	confirmed	Buff Phase 1c item 3: 0x30 bytes, vt 335351d8; m_eChangeType=1 (BCT_FIX_VALUE, never re-read from the templet), timer/value 0, delegates null
 32e755a0	CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::ParsingBehavior	confirmed	Buff Phase 1c item 3: TIME_INTERVAL -> timer target (+0x14); required (AL=0 on miss)
 32e855f0	CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::SetFactor	confirmed	Buff Phase 1c item 3: = March ChangeNowHpPerSecond::SetFactor non-ADJUST branch, regist 0, no popups; value v[1]

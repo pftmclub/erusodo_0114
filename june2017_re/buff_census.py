@@ -663,6 +663,37 @@ NOT_READ_BY_JUNE_CLIENT = {
 }
 
 
+# Phase 4b: keys inside a type March handles that June's OWN reader for that origin never reads, so there is
+# nothing to port. Key: (section, type, origin kind), where 'factor' covers factor and inline entries (the
+# factor-parse function, ParsingCombinationBehavior 32d4bbf0's case) and 'templet' the templet class's
+# ParsingBehavior (vtable slot 12). Value: {key: June function}. Reported apart, never as unread.
+_ATTR_RATE = ('BBT_CHANGE_ENCHANT_ATTACK_RATE', 'BBT_CHANGE_ATTRIBUTE_BLAZE_ATTACK_RATE', 'BBT_CHANGE_ATTRIBUTE_WATER_ATTACK_RATE',
+              'BBT_CHANGE_ATTRIBUTE_NATURE_ATTACK_RATE', 'BBT_CHANGE_ATTRIBUTE_WIND_ATTACK_RATE',
+              'BBT_CHANGE_ATTRIBUTE_LIGHT_ATTACK_RATE', 'BBT_CHANGE_ATTRIBUTE_DARK_ATTACK_RATE')
+NOT_READ_BY_JUNE_TYPE = {}
+for _t in _ATTR_RATE:
+    NOT_READ_BY_JUNE_TYPE[('BEHAVIOR', _t, 'factor')] = {'BUFF_RELATION_TYPE': '32d46550'}
+    NOT_READ_BY_JUNE_TYPE[('BEHAVIOR', _t, 'templet')] = {'BUFF_RELATION_TYPE': '32e74820'}
+NOT_READ_BY_JUNE_TYPE.update({
+    ('BEHAVIOR', 'BBT_CHANGE_NOW_HP_PER_SECOND', 'factor'): {'DRAW_TEXT': '32d42030', 'TIME_INTERVAL': '32d42030'},
+    ('BEHAVIOR', 'BBT_CHANGE_NOW_HP_PER_SECOND', 'templet'): {'BUFF_RELATION_TYPE': '32e72a00'},
+    ('BEHAVIOR', 'BBT_CHANGE_NOW_MP_PER_SECOND', 'factor'): {'BUFF_RELATION_TYPE': '32d44320'},
+    ('BEHAVIOR', 'BBT_CHANGE_NOW_MP_PER_SECOND', 'templet'): {'BUFF_RELATION_TYPE': '32e72e20'},
+    ('BEHAVIOR', 'BBT_DASH_IMPOSSIBLE', 'factor'): {'BUFF_RELATION_TYPE': '32d45b60 (empty parse)'},
+    ('BEHAVIOR', 'BBT_DASH_IMPOSSIBLE', 'templet'): {'BUFF_RELATION_TYPE': 'Identity class, slot 12 = base 32ec5990'},
+    ('BEHAVIOR', 'BBT_DOUBLE_ATTACK', 'templet'): {'BUFF_RELATION_TYPE': '32e74c20'},
+    ('BEHAVIOR', 'BBT_FROZEN', 'factor'): {'IS_DOWN': '32d45b60 (empty parse)'},
+    ('BEHAVIOR', 'BBT_NEVER_MOVE', 'factor'): {'OFFSET_POSITION': '32d45b60 (empty parse)', 'IS_GRAVITY': '32d45b60 (empty parse)'},
+    ('BEHAVIOR', 'BBT_RESET_SKILL_COOL_TIME', 'factor'): {'SKILL_TYPE': '32d46fc0'},
+    ('BEHAVIOR', 'BBT_REVERSE_LEFT_RIGHT', 'factor'): {'TIME_INTERVAL': '32d45b60 (empty parse)'},
+})
+
+
+def not_read_by_june_type(section, typ, origin, key):
+    kind = 'templet' if origin == 'templet' else 'factor'
+    return NOT_READ_BY_JUNE_TYPE.get((section, typ, kind), {}).get(key)
+
+
 def not_read_by_june(level, key):
     if key in NOT_READ_BY_JUNE_CLIENT.get(level, ()):
         return True
@@ -1010,6 +1041,7 @@ def main():
         P('   caller\'s class chain); path A.B = key B nested in table A, reported at the first unread component.')
         P('   Literal match, not data flow: spot-check a key in source before acting on it.')
         per_type = collections.OrderedDict()
+        june_unread_type = collections.Counter()
         for (section, typ, path), origins in st['tkeys'].items():
             parts = path.split('.')
             for o, ids in origins.items():
@@ -1018,6 +1050,10 @@ def main():
                     continue                              # type not handled by C++ at all: its keys belong to the new type
                 for i in range(len(parts)):
                     if not lit_supported(parts[i], rd):
+                        fn = not_read_by_june_type(section, typ, o, parts[i])
+                        if fn:
+                            june_unread_type[(section, typ, 'templet' if o == 'templet' else 'factor', parts[i], fn)] += len(ids)
+                            break
                         pref = '.'.join(parts[:i + 1])
                         per_type.setdefault((section, typ, pref), set()).update((o, x) for x in ids)
                         break
@@ -1026,9 +1062,15 @@ def main():
             agg[(section, typ)].append((pref, len(ents), collections.Counter(o for o, _ in ents)))
         tot_unread = 0
         for (section, typ), lst in sorted(agg.items()):
-            P('  %-10s %-44s %s' % (section, typ, '  '.join('%s x%d' % (k, n) for k, n, _ in sorted(lst, key=lambda x: (-x[1], x[0])))))
+            # xN(t/f/i) = entry-uses split by origin: templet / factor / inline block
+            P('  %-10s %-44s %s' % (section, typ, '  '.join('%s x%d(%d/%d/%d)' % (k, n, c['templet'], c['factor'], c['inline'])
+                                                            for k, n, c in sorted(lst, key=lambda x: (-x[1], x[0])))))
             tot_unread += sum(n for _, n, _ in lst)
         P('  (%d type/key pair(s), %d entry-uses)' % (sum(len(v) for v in agg.values()), tot_unread))
+        if june_unread_type:
+            P('  not read by June\'s own reader for that origin either (excluded; see NOT_READ_BY_JUNE_TYPE):')
+            for (s_, t_, k_, key_, fn_), n_ in sorted(june_unread_type.items()):
+                P('    %-10s %-44s %-8s %-24s x%-4d June %s' % (s_, t_, k_, key_, n_, fn_))
         P_keys['per_type'] = [[s_, t_, k_, n_] for (s_, t_), v_ in agg.items() for k_, n_, _ in v_]
         P('')
 

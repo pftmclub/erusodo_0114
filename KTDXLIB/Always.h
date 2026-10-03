@@ -4718,5 +4718,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              not a MessageBox. Keys whose consumer March lacks (IS_STORE_BUFF,
 //              IS_INSTANCE_KILL_DEBUFF, NOT_SAVE_GAGEMANAGER) are parsed, stored
 //              and counted in one [JUNE_BUFF] line after the load summary.
+//              Requires SERV_IRUHADEV_JUNE_BUFF_LOADER (ParsingApplyCheckCondition
+//              is declared in its block of X2BuffFactor.h; Phase 4a review R3).
 #define SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-03
+// Description: June buff port Phase 4b (JUNE_BUFF_PORT_PHASES.md): existing
+//              buff behavior types brought to the June 2017 client. Factor
+//              parses gain June's extra floats (USE_CREATOR_UNIT_DATA,
+//              APPLY_TO_SPECIAL_ATTACK, HYPER_COUNT, ADDITIONAL_ATTACK_TYPE,
+//              RESET_SKILL_COOL_TIME SWAP_VALUE), the level slice is June's
+//              whole BUFF_FACTOR::GetBehaviorFactorToLevel (32d47620), the SGU
+//              takes NOW_HP attack from the creator unit when asked (32d4cc90),
+//              and the HyperMode / CreateBuffFactor / AbsorbEffectAttack /
+//              NowHp templet classes follow June. New floats are appended, so
+//              GetFactor/SetFactorFromPacket keep March's order on the wire.
+#define SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 //////////////////////////////////////////////////////////////////////////

@@ -327,6 +327,9 @@ protected:
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		, m_uiSkillId( 0 )
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		, m_bApplyToSpecialAttack( false )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	{}
 
 private:
@@ -334,6 +337,9 @@ private:
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 	UINT						m_uiSkillId;
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	bool						m_bApplyToSpecialAttack;	/// June 32e860a0 (+0x18): APPLY_TO_SPECIAL_ATTACK, sent as the 3rd GetFactor value
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 };
 
 /** @class : CX2BuffAbsorbEffectAttackBehaviorTemplet
