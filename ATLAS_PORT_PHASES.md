@@ -129,7 +129,7 @@ Atlas page). Texture atlases are always written **"TET atlas"**, because
 | A0 | Worktree, docs, `region_census.py` v1 | – | tooling | Sonnet 5.5 | high | light (Opus 5.5) |
 | A1a | RE + C++ reachability map (both halves) | A0 | Ghidra + C++ read-only | Opus 5.5 | **xhigh** | none (self-check vs census) |
 | A1b | Script-engine map (both halves) | A0 | Ghidra read-only | Opus 5.5 | **xhigh** | none |
-| A2 | Level cap 99 + EXP migration | A0 | C++ + data + offline DB | Opus 5.5 | high | required |
+| A2 | Level cap 99 + EXP migration | A0, **MARCH_2014_MIGRATION Phase 7** | C++ + data + offline DB | Opus 5.5 | high | required |
 | A3 | Region enums, Lua + C++ (both halves) | A1a, A1b | data + C++ | Sonnet 5.5 | high | required (Opus 5.5) |
 | A4 | Atlas-half script engine | A1b, A3 | C++ | Opus 5.5 (Sonnet 5.5 for names A1b marks transcription-ready) | high | required |
 | A5 | Atlas Station (rest 1008) | A3 | data + C++ switches | Opus 5.5 | high | required |
@@ -747,6 +747,10 @@ note with the session cost, then commit on mods/elysion-port.
 ---
 
 ## Phase A2 — Level cap 99
+
+**Precondition (user decision 2026-10-03, recorded from JUNE_PORT_BACKLOG_ORDER.md):**
+`MARCH_2014_MIGRATION.md` Phase 7 (bringing the pre-March save forward) must be done
+before A2 runs, so the forward-only EXP migration starts from a known save state.
 
 **Steps**
 1. **Sweep every 80-bound.** Grep and probe: `USE_MAXLEVEL_LIMIT_VAL` /

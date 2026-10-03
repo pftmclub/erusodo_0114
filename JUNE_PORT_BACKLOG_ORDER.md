@@ -1,0 +1,441 @@
+# June 2017 port backlog: execution order
+
+> Written 2026-10-03 on `mods/june-buff-port`. This file sets the **order** of the remaining June-parity backlog and says why. It does not plan any one stage in detail.
+>
+> Each stage gets its own phase doc, written by a planning session started from that stage's kickoff prompt (bottom of this file). Stage 1 already has its docs: `ATLAS_PORT_PHASES.md` and `ELYSION_PORT_PHASES.md`, commit `24de3d3`. The next stage to plan is Stage 2, and its kickoff is written out in full. The rest are short, and each one asks the planning session to re-check this file's assumptions first.
+
+## Context
+
+The standing goal is to bring the March 2014 engine as close to June 2017 as possible, so that each June feature becomes a data port instead of a fresh round of inference ([[goal-march-client-runs-june-effects]]). The effect rebuild was the first trial, and the buff port, Lanox and June UI parity followed.
+
+The user's remaining backlog, in the order they listed it:
+
+1. Port Atlas and Elysion.
+2. June revamped every March character (possibly a new base model) and added new characters.
+3. Character transcendence.
+4. The engine upgrade: the effect engine is done but needs checking; shaders and more remain.
+5. The skill tree update (driven by transcendence and the character revamp).
+6. The UI update.
+7. The skill slot update.
+8. The quest update.
+
+**User decisions this order is built on:**
+
+- **The offline client is the only target** (2026-10-03).
+  - Several stages must change headers under `KncWX2Server/Common/`, which the client shares with the servers. These are the skill-slot struct, `VILLAGE_MAP_ID`, and `UNIT_TYPE`/`UNIT_CLASS`.
+  - Those changes go behind `SERV_IRUHADEV_` flags, and only the offline emulator (`X2Lib/Offline/`) is kept in step.
+  - The real servers will desync with the ported client. That is accepted, so no stage writes matching server code. VS2003 is not installed here anyway.
+  - The shared headers stay VS2003/C++98-clean, per `CLAUDE.md`.
+- **Atlas/Elysion is already planned** (2026-10-03, a parallel session: `ATLAS_PORT_PHASES.md` A0–A13 and `ELYSION_PORT_PHASES.md` E0–E15). That session recorded these decisions:
+  - Work happens in its own worktree, `../Trunk_elysion` on `mods/elysion-port`.
+  - **Quests are deferred to a later quest plan**, together with the Lanox quests and possibly a Scaleform runtime. June's quest keys go in verbatim and inert.
+  - **The level cap goes to 99** (A2). The user authorised invented `StatTable`/`NpcExpTable` rows 81–99, for those two tables only.
+  - **June's `ExpTable.lua` is adopted whole**, so existing saves get a one-way EXP migration.
+  - **Tower and Memory are blocked on JUNE_BUFF Phase 10.**
+
+  This order slots around those decisions. It does not re-open them.
+
+---
+
+## The order at a glance
+
+| # | Stage | Backlog items covered | Why it sits here |
+|---|---|---|---|
+| 0 | Close the open loops | 4 (effects, buffs) | Nothing new stacks on a half-updated engine ([[no-partial-june-updates]]). Each open item is mapped below to the stage it actually gates. |
+| 1 | Atlas + Elysion *(already planned)* | 1, plus the level cap | Planned, and the user's current priority. It is content on the engine as it stands, with quests deliberately split out. It runs in its own worktree alongside Stage 0's buff work, and it raises the level cap that transcendence assumes. |
+| 2 | Engine remainder and measurements | 4 (shaders, render types) | June character effects need the missing render types and June's `.fx` contract. The measurements (models, UI widgets, effect check) size every later stage. |
+| 3 | Skill system core | 5 (engine half), 7 | Every character, transcendence and the dormant buff types BBT 98/BFT 16 sit on it. This stage removes the "June character attacks do 0 damage" blocker. |
+| 4 | Quest system | 8, plus the quests deferred from Lanox and Atlas/Elysion | Transcendence's class change is a quest type (`QT_CHANGE_TRANSCENDENTAL_CLASS`), and two regions' worth of inert quest keys wait on this engine. One quest engine serves all of them. |
+| 5 | Pilot character revamp | 2 (first character) | Proves the character pipeline end to end on one March character before repeating it seven times. |
+| 6 | Transcendence system, on the pilot | 3 | Needs slots (3), quests (4), the level cap (1) and a character already on its June kit (5). It is built once, on one character. |
+| 7 | Remaining March characters | 2, 3, 5 (per-class trees) | Repeats a proven recipe per character: revamp, the June-only later class paths, transcendence and the skill tree. |
+| 8 | New characters: Lu/Ciel, Rose, Ain | 2 (new characters) | The largest surface: a new `UNIT_TYPE`, creation, tutorial dungeons and server-side data. It goes last because it reuses everything before it. |
+| 9 | UI sweep | 6 | Whatever June UI no earlier stage delivered. See "Why UI is last" below. |
+
+**Concurrency.** At most two code sessions should run at once:
+- Stage 0's buff port, in the main Trunk;
+- Stage 1, in `Trunk_elysion`.
+
+Planning sessions are read-only, and can run any time. Stage 2 *planning* can start now. Stage 2 *code* waits for the buff port to finish in the main Trunk, because both touch `KTDXLIB/Always.h` and shared engine files, and a third concurrent branch multiplies merge work.
+
+**Merging.** Stage 1's branch is merged back before Stage 4 starts, because Stage 4 activates the quest keys that Stage 1 left inert.
+
+Stages 5–8 are the long pole. Stages 0–4 are prerequisites or self-contained content, so finishing them first means the character work is pure repetition and not discovery.
+
+---
+
+## Facts behind the order
+
+These were measured on 2026-10-03. Re-verify any of them before building on it.
+
+1. **June's skill templets are not in `june_src_fixed/`.**
+   - `data036_kom/NewSkillTempletVer2.lua` and `_LA.lua` are about 5.2 MB of bytecode each. They decompile `clean/complete` (`june2017_re/decompile_corpus.tsv:1634`) but fail the compile round-trip check (`june2017_re/decompile_verdicts.tsv:42457`), so the fixed decompiler never wrote them out.
+   - March loads `NewSkillTempletVer2Trans.lua` (`X2Lib/X2SkillTree.cpp:123`).
+   - The quest tables, `OptionItemData`, `PetTemplet` and `TitleTable` are in the same state (`JUNE2017_CHARACTER_PORT_CHECKLIST.md:156`).
+   - So Stage 3 starts with a tooling step: get these files out, and check them against `ljd_jun2017.py --check` or an equivalent.
+2. **The 0-damage blocker is in the skill system, not the character scripts.**
+   - 121 June character `DAMAGE_DATA` tables carry no `DAMAGE` table and take their numbers from June's numerical-skill-data override (`NUMERICAL_DATA_INDEX` into `NUMERICAL_DATA1..12`, `JUNE2017_CHARACTER_PORT_CHECKLIST.md` §1).
+   - The override's callees are not identified in Ghidra yet.
+   - Until that override exists, every character stage would port attacks that do nothing.
+3. **Skill slots change both the shared struct and the save.**
+   - March has 4+4 slots: `EQUIPPED_SKILL_SLOT_COUNT = 4` with arrays A and B, at `KncWX2Server/Common/CommonPacket.h:1051` and again at `:6387`.
+   - June has 5+5: `DLG_GAME_SKILL_SLOT_NEW_10slot` with `SlotA1..A5`/`SlotB1..B5`. June's `SlotIndexToSlotType` maps 0–3 to A, 5–8 to B, and 4 and 9 to `SKILL_SLOT_TC`, the transcendence slot (`JUNE_BUFF_PORT_PHASES.md:783`).
+   - The offline save stores one slot index per skill (`X2Lib/Offline/X2OfflineDB.cpp:2063`). March's B slots 4–7 would become June's 5–8, so this is a **forward-only migration of the user's real `els_db.sql`**. Take a `db_backup/` snapshot before running it ([[game-dir-db-backup-snapshots]]). Stage 1's A2 EXP migration runs first, so the two migrations must chain cleanly.
+   - Existing flags in this area: `SERV_IRUHADEV_SKILL_SLOT_B_FREE` and `SKILLTREE_NO_LOCK`. Read `MARCH_2014_MIGRATION.md`'s `SetUsingPage` trap first.
+4. **Transcendence touches almost everything.** Evidence in June's `Enum.src.lua`, all absent from March:
+   - `QT_CHANGE_TRANSCENDENTAL_CLASS`, `QR_TRANSCENDENTAL_CLASS`, `NUI_TRANSCEND_QUEST`;
+   - `SKILL_SLOT_TC`, `SMUCM_DISABLED_TRANSCENDENTAL_(EXPAND_)SKILL_SLOT_MOUSE_UP`;
+   - `USI_TRANSCENDENTAL_HYPER_MODE`, `SDT_WEAPON/DEFENCE_(SHINE_)TRANSCEND(_PVP)`;
+   - `TRANSCENDENTAL_SKILL_DATA`, `TranscendentalClassItem.src.lua`, and 12 `DLG_Transcendental_Change_Guide_<character>` dialogs.
+
+   March has essentially nothing. `X2Lib/Offline/X2OfflineLuaEnumSeed.h:39` notes the server's `UC_*_2` placeholder classes, which are compiled out of the client.
+5. **Atlas and Elysion are two halves of one region**, split by June's own pages.
+   - **Atlas:** Atlas Station (rest area 1008), Fields 01–02, and the AtlasDevelopment, AtlasCity and Tower dungeons.
+   - **Elysion:** the village (`VMI_ELYSION` = 20009), Field 03, and the SkyCrossroads, Adrian, Soless and Memory dungeons.
+   - Both are planned (see Context). This file only places them in the order.
+6. **Characters.** June's `Enum.src.lua` has 85 `UC_*` names March lacks:
+   - new characters: Lu/Ciel ×10, Rose ×9, Ain ×10, with new types `UT_LUCIEL`, `UT_ROSE`, `UT_AIN`;
+   - later paths for existing characters: Ara, Elesis, Add, Aisha, Chung, Eve and Rena;
+   - a few `UC_150..183` entries that appear only as numbers.
+
+   **The "new base model" claim is not verified.** Stage 2 measures it.
+7. **Shaders.**
+   - June's `.fx` files (`XRenderer.fx`, `GCSkin.fx`, `RenderState.fx`, `XPostEffect.fx`, …) are in `data041_kom`, which is not in `june_src_fixed/` (`JUNE_KOM_CONTENT_GUIDE.md:69`).
+   - Seven June `RENDER_TYPE`s are missing from `KTDXLIB/KTDGXRenderer.h`: `RT_CARTOON_ALPHA`, `RT_CARTOON_BLACK_EDGE_ALPHA`, `RT_CUSTOM`, `RT_DESTALPHA_SRCALPHA_CCW`, `RT_INVSRC_ALPHA_NOT_CULL`, `RT_UV_ANIM`, `RT_NONE`. About 25 June files use them.
+   - The June-only `CUSTOM_RENDER_STATE` enum table truncates June's Add and Ara scripts on March's `Enum.lua` (checklist).
+   - Swapping in June's `.fx` is a pure data change **only if** March's C++ sets the same effect parameters and techniques. That has to be checked, not assumed.
+8. **Level cap.** March uses `LIMIT_MAX_LEVEL 70` (`X2Lib/X2Define.h:18`) and `CX2OfflineStatTable::MAX_LEVEL 80`. Stage 1's A2 takes it to 99, so no separate progression stage is needed.
+
+---
+
+## Stage details
+
+### Stage 0: close the open loops
+
+No new plan doc. Every item already has one, with kickoff prompts. What this stage adds is **which item gates which later stage**, so nothing is finished early for no reason and nothing is forgotten.
+
+| Open item | Doc | Gates |
+|---|---|---|
+| Owed repacks and play-tests: Lanox P5/P10, UI parity 2 and 5, buff launch checks (3, 4a, 4b-i), effect 9 and 10, ExtraNPCStat P5 | the respective docs | **Stage 2 code.** Clear these first, so a later regression has a known-good baseline. Stage 1 follows its own docs' preconditions. |
+| Effect rebuild 8b (31 keys, including `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` and `DAMAGE_RATE_TO_SUPERAMOR`), 9's `SetDamageExceptionProcess`, 10c, 11 (enum tables plus June-data trial load), 12 | `JUNE2017_EFFECT_REBUILD_PLAN.md` | Stage 5. The character checklist §6 requires 8b and the 11 enum tables before any character script. |
+| Buff port 4b-i part 2 to 13, plus 14 | `JUNE_BUFF_PORT_PHASES.md` | **Phase 10 gates Stage 1's Tower (A10) and Memory lines.** All of it gates Stage 5. Port BBT 98/BFT 16 (skill-slot-type) code **dormant** now, as was done for the absent characters. Stage 3 wires them in. |
+| Lanox P6–P9 | `LANOX_REMAINING_PHASES.md` | Stage 1's own docs say what they need. Close them before Stage 1's play-test sweep (A13), so Lanox defects are not mistaken for Atlas ones. |
+| ExtraNPCStat P5 go/no-go, plus the "Lanox kills give 0 EXP/ED" follow-up | `LANOX_EXTRA_NPC_STAT_PLAN.md` | Stage 1. Atlas/Elysion monsters go through the same stat system. |
+| UI parity follow-ups (`IsActiveDungeon` / `RequireCompletedQuestID`, secret-dungeon difficulty) | `JUNE_UI_PARITY_PHASES.md` | Stage 4 takes `RequireCompletedQuestID`. The rest can wait for Stage 9. |
+| March migration Phase 7 (save migration, full verification) | `MARCH_2014_MIGRATION.md` | Before Stage 1's A2 EXP migration, so the save is migrated forward from a known state. The user confirmed this on 2026-10-03, and it is now in A2's dependency column in `ATLAS_PORT_PHASES.md`. |
+
+### Stage 1: Atlas + Elysion (already planned)
+
+Start from `ATLAS_PORT_PHASES.md`'s Phase A0 kickoff. That doc owns the shared groundwork (worktree, census, RE maps, level cap, enums); `ELYSION_PORT_PHASES.md` assumes it.
+
+**Why it is first among the new stages:**
+- The user has already decided on it and planned it.
+- It is content, with its own engine subsystems front-loaded (moving platforms, SimpleDLG gauges, dramatic messages, the script engine), and it needs no character or skill work.
+- It delivers the level cap that transcendence assumes.
+- Its quest split leaves Stage 4 a clean, well-defined job: activate the inert keys of three regions at once.
+
+**Hand-offs to later stages:** the inert quest keys, the dormant quest-driven NPC swaps (Yuno → Hyper Yuno → Nono), and the deferred quest movies (e.g. the Elysion clear movie, quest 22336) all go to Stage 4. Record them in the Atlas/Elysion Done notes as they are found.
+
+### Stage 2: engine remainder and measurements
+
+The planning session writes `JUNE_ENGINE_REMAINDER_PHASES.md` (full kickoff below).
+
+**Build:**
+- the 7 missing `RENDER_TYPE`s in `KTDGXRenderer`, plus `CUSTOM_RENDER_STATE`;
+- June's `.fx` set, adopted once the parameter and technique contract matches, with March's renderer brought to June wherever it does not;
+- any other June engine-side difference that the census finds in renderer or skin-mesh code March already has. The no-partial rule applies.
+
+**Measure** (findings only; these size Stages 5, 8 and 9):
+- **Models.** Per-character mesh, motion and texture diff between March (`24965799/kom_contents`) and June. Is there a new base model, new motions only, or nothing? See [[march-kom-contents-extract]] for the size rule.
+- **UI framework.** Widget and control types or keys used by June `DLG_*` files that March's `KTDGUI*` parser doesn't know. If any exist, they become a Stage 2 build phase, because every later stage's UI depends on them. Check first whether Stage 1's census already covered this.
+- **Effect-engine check** (the user's "still need checking"): one census plus trial-load run against the current tree. It confirms Stage 0's effect items really closed.
+
+**Why here:** the render types are a hard dependency of June character effects, and the measurements turn guesses about Stages 5, 8 and 9 into numbers. Both are cheap compared with discovering them mid-character. Atlas/Elysion doesn't need them, which is why Stage 1 can go first.
+
+### Stage 3: skill system core (skill tree engine + skill slots)
+
+**Sub-steps, in order:**
+- **3a. Extract `NewSkillTempletVer2(_LA).lua`.** Fix or work around the round-trip failure, verify with `--check`, then write it to `june_src_fixed/data036_kom/`. Do the quest tables, `OptionItemData`, `PetTemplet` and `TitleTable` in the same pass; Stage 4 and later need them.
+- **3b. RE June's numerical-skill-data override.** Identify the callees named in checklist §1, then port the override under its own flag. Every value that changes lands in `MODS.md`.
+- **3c. Bring the skill templet loader and `CX2SkillTree` to June.** Port the full June parser, including keys for absent characters, stored and logged.
+- **3d. Slots: 4+4 → 5+5, with types A/B/TC.**
+  - This is the shared struct (`CommonPacket.h`, flag-gated, offline-only), the client slot UI (`DLG_GAME_SKILL_SLOT_NEW_10slot`), the offline emulator handlers, and the save migration.
+  - Take the `db_backup/` snapshot first, and chain the migration after Stage 1's A2 EXP migration.
+  - Wire in the dormant buff BBT 98 and BFT 16 here.
+  - The TC slot exists but stays locked until Stage 6.
+- **3e. Skill tree UI and learn logic to June.** That means `DLG_SkillTree_*`, `DLG_Skill_Tree_Main`, and the emulator's learn/reset handlers.
+
+**Why here:** this is the single dependency shared by every character stage, by transcendence, and by two buff types. It also closes the 0-damage blocker. The skill tree's *per-class content* is not here; it comes with each character in Stages 5, 7 and 8.
+
+### Stage 4: quest system (including the deferred region quests)
+
+This is the "later quest plan" that the Atlas/Elysion docs defer to.
+
+**Engine:**
+- Bring `X2QuestManager` to June:
+  - the `QT_`/`QR_`/`SQT_` types March lacks (`QT_STORY`, `QT_CHANGE_TRANSCENDENTAL_CLASS`, `SQT_PVE_WIN`, `SQT_ITEM_EXCHANGE`, `SQT_IMMEDIATELY_CLEAR`, …);
+  - `AddChainQuestDays`, `AddGroupChainQuest`;
+  - the quest side of `AddVillageNpcRelationDataBy*` (Elysion E1 ports the mechanism);
+  - the `RequireCompletedQuestID` gate left over from UI parity;
+  - the quest UI.
+- Bring `X2OfflineQuest` up so every new sub-quest type can actually complete offline.
+
+**Content:**
+- the Lanox, Atlas and Elysion quest rows;
+- quest-gate C++ and the activation of the inert `REQUIRE_COMPLETE_QUEST_ID`/`REQUIRE_COMPLETE_SUB_QUEST_ID` keys;
+- quest-driven NPC swaps;
+- EventScene/GFx scenes and quest clear movies, which may need a Scaleform runtime decision;
+- the old-save quest migration.
+
+**Open decisions:**
+- **Guild quests** (`QT_GUILD`, `AddGuildQuestTemplet_LUA`, `GuildCoopQuestRewardTable`) in a single-player offline build. Either parse-and-log or a real port.
+- **Scaleform/GFx:** a runtime, or skipping the scenes with a log line.
+
+Ask both before planning past the parser.
+
+**Why here:** transcendence is quest-gated, and three regions' worth of inert quest keys wait on the same engine. Doing quests once, after all three regions are in and before transcendence, avoids porting the quest engine piecemeal inside each feature.
+
+### Stage 5: pilot character revamp
+
+- **Pick one March character**, by the smallest `june2017_re/charport_scan.py` gap and Stage 2's model diff. Then work through `JUNE2017_CHARACTER_PORT_CHECKLIST.md` end to end for it:
+  - its June scripts;
+  - its June-only later class path;
+  - its per-class skill tree data;
+  - its model and motions (if Stage 2 found changes);
+  - its `UNIT_CLASS` additions (shared header, flag-gated);
+  - its server-side per-level stat Lua (user packs).
+    - For classes March already has, rows 81–99 follow Stage 1's A2 method.
+    - For a **new** class ID (a June-only later path), see the stat-row decision below. A2's permission to invent rows does not extend to it.
+- **`ADD_RENA_SYSTEM`** needs the user's decision if the pilot is Rena; otherwise it waits for Stage 7.
+
+**Why a pilot:** every character repeats the same pipeline. Discovering a pipeline defect once, on one character, is far cheaper than discovering it across seven.
+
+### Stage 6: transcendence system, on the pilot
+
+- Transcended classes (decide how June represents them: `UC_*_2` or a flag; RE first).
+- The class-change quest (`QT_CHANGE_TRANSCENDENTAL_CLASS`), `TranscendentalClassItem`, and the guide UI.
+- Unlocking the TC slot, `TRANSCENDENTAL_SKILL_DATA`, and `USI_TRANSCENDENTAL_HYPER_MODE`.
+- Transcendence sockets (`SDT_*_TRANSCEND*`) and emulator support.
+
+**Live-DB gate:** if transcendence uses new class IDs, see the open decision on `GBase_Item` below.
+
+**Why after Stage 5:** transcendence skills are part of June's revamped kit, so transcending a March-kit character would be ported twice.
+
+### Stage 7: remaining March characters
+
+- Repeat Stages 5 and 6 per character with the proven recipe.
+- One phase doc per character, or one doc with a phase per character; the planning session chooses.
+
+### Stage 8: new characters (Lu/Ciel, Rose, Ain)
+
+Everything from Stages 5 and 6, plus:
+- a new `UNIT_TYPE` (shared header, flag-gated);
+- character creation and the emulator's create-unit path;
+- `Dungeon_Tutorial_{Luciel,Rose,Ain}`;
+- Lu/Ciel's duo mechanics (`DUO_TYPE`, `HIT_ADD_COMBINATION_POINT`) and Rose's `ROSE_WEAPON_TYPE`;
+- activating the dormant Rose/Ain/Lu/Ciel code from the buff port.
+
+**Hard gate:** the live-DB starter-item rows (below).
+
+### Stage 9: UI sweep
+
+Port whatever June UI is still March-shaped once Stages 1–8 have delivered their own dialogs.
+
+**Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
+
+---
+
+## Open decisions that gate stages
+
+| Decision | Gates | How to settle |
+|---|---|---|
+| **Starter items for classes the live DB never had.** Live `gup_create_unit` copies exactly ten `dbo.GBase_Item` rows per class and aborts with `-28` otherwise. Rose, Ain, Lu/Ciel, and possibly transcended classes, are almost certainly absent. The no-band-aid rule forbids inventing rows unless the user authorises it, as they did for A2's stat rows. | 8 (and 6 if transcendence adds class IDs) | Ask the user for a live-DB pull (query below). If the rows are absent, the user decides the source: June data, if it exists anywhere, or an explicit, logged, user-chosen set. |
+| **Stat rows for June-only class IDs.** The user authorised inventing `StatTable`/`NpcExpTable` rows 81–99 only for classes that already exist (Atlas A2). The later class paths and the new characters need a **full** per-level row set, and `KncWX2Server/ServerResource/US/` has none for them. | 5, 7, 8 | First look for June-side data: the June binary, any June server Lua, or the live DB. If there is none, ask the user whether A2's permission extends to these classes, and how the rows should be derived. |
+| **Guild quests offline** | 4 | Ask: parse-and-log or a real port. |
+| **Scaleform/GFx runtime** for EventScene and quest movies | 4 | Ask: a runtime, or skip with a log line. |
+| **`ADD_RENA_SYSTEM`** (Rena's natural force) | 5 or 7 | Ask when Rena is next. |
+| **Pilot character** | 5 | Chosen by data (`charport_scan.py` gap plus Stage 2's model diff); the user confirms. |
+
+```sql
+-- which classes have starter-item rows, and how many each
+SELECT UnitClass, COUNT(*) AS rows_
+FROM   dbo.GBase_Item
+GROUP  BY UnitClass
+ORDER  BY UnitClass;
+-- (column names as in the live table; adjust if they differ -- ask the user to
+--  run `SELECT TOP 1 * FROM dbo.GBase_Item` first if unsure)
+```
+
+---
+
+## Standing rules (every stage, every kickoff)
+
+- **Sources.** Read June Lua only from `june_src_fixed/`. Use the `june2017_re/` tools only to extract files missing there ([[june-lua-from-june-src-fixed]]). June C++ behaviour comes from the binary in Ghidra and cites the function address. Never port raw offsets.
+- **No partial June updates** ([[no-partial-june-updates]]). If June changed a function March already has, port June's whole version in the same pass.
+- **June wins, even when it removes a feature** ([[june-behaviour-wins-even-when-it-removes-features]]), and June's asset wins at the same filename ([[june-asset-wins-over-march-at-same-filename]]).
+- **Flags.** Every client change is behind a `SERV_IRUHADEV_` flag in `KTDXLIB/Always.h`, with the original code kept in `#else` and the `#endif FLAG` style. Shared-header changes are flag-gated and offline-only (decision above).
+- **Shared-struct flags must reach every project that sees the struct.**
+  - `X2ServerProtocol` never includes `KTDX.h`, so `Always.h` does not reach it. It does include `CommonPacket.h`/`ClientPacket.h` through `X2ServerProtocol/X2ServerProtocol.h`.
+  - Any flag that changes a shared struct's layout (`EQUIPPED_SKILL_SLOT_COUNT`, unit-info members) must also be defined in `X2ServerProtocol_2010.vcxproj`'s `X2TOOL|Win32` `PreprocessorDefinitions`, the same way `SERV_IRUHADEV_OFFLINE` is.
+  - Otherwise the two projects disagree on the struct's size and nothing reports it. See the `KSession` sizeof split in `CLAUDE.md`.
+  - Prove it with `cl /P` on a file from each project.
+- **CP949.** Make byte-level edits on CP949 files, then verify with `file` and `git diff --stat`.
+- **Packing.** The user packs `.lua` and assets. Build the degrade path, and name the files when the work is done ([[server-lua-packing-is-users-job]]).
+- **Data of record.** The live DB beats `DataBase/` and `ScriptData/` ([[live-db-over-repo-snapshot]]).
+- **Saves.** `els_db.sql` is the user's only copy. Snapshot it before any migration, and remember that migrations are forward-only.
+- **Models.** Justify the model per phase on cost versus failure. Fable 5.1 is not used ([[no-fable-model]]), so the top tier is Opus 5.5 at `xhigh`. Opus does RE and new mechanisms. Sonnet 5.5 does transcription and data work, with a scoped Opus review. State the effort in every kickoff, and record each session's usage in its Done note.
+- **Running the game.** Never launch `X2_offline.exe` without asking first ([[ask-before-running-deployed-exe]]).
+- **Play-test checks** cover only the phase's own log lines ([[scope-playtest-log-checks-to-the-phase]]).
+- **Commits.** Commit only your own hunks; parallel sessions edit the same docs and the same tree.
+
+---
+
+## Kickoff prompts
+
+### Stage 1, Atlas + Elysion
+
+Use `ATLAS_PORT_PHASES.md`'s **Phase A0 kickoff**. It is already written, and creates the worktree.
+
+### Stage 2 planning (full), Opus 5.5 high
+
+```
+Planning session for Stage 2 of the June 2017 port backlog (engine remainder and
+measurements). Read in the repo root: JUNE_PORT_BACKLOG_ORDER.md in full (order,
+concurrency note, "Facts behind the order", Stage 0's gate table, Stage 2, Standing
+rules), then CLAUDE.md, JUNE_KOM_CONTENT_GUIDE.md, JUNE2017_EFFECT_REBUILD_PLAN.md
+(status board + Phases 10-12), JUNE2017_CHARACTER_PORT_CHECKLIST.md,
+ATLAS_PORT_PHASES.md's investigation ledger (do not redo its census), and
+RANOX_PORT_PLAN.md's render-pass notes (grep CTT_RIM_LIGHT_BLUE / ".fx"). Ask which
+branch/worktree to plan on: the main Trunk is the buff port's, Trunk_elysion is
+Atlas/Elysion's. Never launch X2_offline.exe without asking first. This session
+plans and measures; it changes no C++.
+
+Goal: write JUNE_ENGINE_REMAINDER_PHASES.md in the repo root, in the same shape as
+JUNE_BUFF_PORT_PHASES.md (Context, fix philosophy, model/effort/review rules, phase
+table, investigation ledger, one kickoff prompt + Run-with line per phase).
+
+Before writing phases, measure and record in the ledger (file:line or tool output
+for every number):
+1. Shaders: extract June data041_kom's .fx files (XRenderer, GCSkin, RenderState,
+   XEnvBoxRenderer, XHeatShimmerRenderer, XPostEffect) and diff each against March's;
+   for every parameter/technique/pass June's .fx expects, find whether March's C++
+   (KTDXLIB KTDGXRenderer / skin-mesh / post-effect code) sets it. Use Ghidra on the
+   June binary for June's setter side. Result: which .fx can be adopted as data and
+   which need C++ brought to June first.
+2. The 7 RENDER_TYPEs missing from KTDXLIB/KTDGXRenderer.h (RT_CARTOON_ALPHA,
+   RT_CARTOON_BLACK_EDGE_ALPHA, RT_CUSTOM, RT_DESTALPHA_SRCALPHA_CCW,
+   RT_INVSRC_ALPHA_NOT_CULL, RT_UV_ANIM, RT_NONE) and the CUSTOM_RENDER_STATE table:
+   June's values, June's implementation addresses, which June files use them.
+3. Models: per character, diff mesh / motion / texture files between March
+   (24965799/kom_contents, trust only at live-manifest size) and June. Answer "new
+   base model, new motions only, or unchanged" per character.
+4. UI framework: control types / keys used by June DLG_* files that March's KTDGUI
+   parser does not handle (census, not eyeballing; reuse Atlas's region_census.py
+   output if it already covers this). Any hit becomes a Stage 2 build phase.
+5. Effect-engine check: rerun june2017_re/census.py and the June-data trial load
+   against the current tree; confirm which Stage 0 effect items are actually closed.
+
+Rules: JUNE_PORT_BACKLOG_ORDER.md's Standing rules apply. Per phase, justify the
+model (Opus 5.5 for RE/new mechanisms, Sonnet 5.5 + scoped Opus review for
+transcription; no Fable) and state effort. Code phases are scheduled after the buff
+port finishes in the main Trunk (concurrency note). If a measurement contradicts an
+assumption in JUNE_PORT_BACKLOG_ORDER.md (e.g. base models unchanged, UI framework
+gap found), update that file's affected rows with a dated note. Commit only your own
+files; record this session's usage in the doc.
+```
+
+### Stages 3–9 (short)
+
+Each of these is a **planning** session. Paste it, then let the session read and ask.
+
+**Stage 3, skill system core** (Opus 5.5 high):
+```
+Plan backlog Stage 3 (skill system core). Read JUNE_PORT_BACKLOG_ORDER.md (Stage 3,
+facts 1-3, Standing rules), JUNE2017_CHARACTER_PORT_CHECKLIST.md section 1,
+JUNE_BUFF_PORT_PHASES.md (BBT 98 / BFT 16 / SlotIndexToSlotType notes),
+MARCH_2014_MIGRATION.md (SKILL_SLOT_B_FREE, SKILLTREE_NO_LOCK, SetUsingPage trap),
+ATLAS_PORT_PHASES.md Phase A2 (the EXP save migration this one must chain after),
+and JUNE_ENGINE_REMAINDER_PHASES.md's outcome. Preconditions: Stage 0 gate rows
+closed, Stage 2 done. First re-check the order doc's facts still hold, and find
+every project that sees CommonPacket.h's skill-slot struct (X2Lib, X2ServerProtocol
+via X2ServerProtocol.h): the slot-count flag must be defined in each (Standing
+rules, shared-struct flags), proven with cl /P. Output:
+JUNE_SKILL_SYSTEM_PHASES.md with sub-steps 3a-3e as phases (3a extraction of
+NewSkillTempletVer2 + the other tokenizer-rejected tables; 3d includes the shared
+CommonPacket.h struct, flag-gated and offline-only, and an els_db.sql migration
+preceded by a db_backup/ snapshot). Never launch X2_offline.exe without asking.
+```
+
+**Stage 4, quest system** (Opus 5.5 high):
+```
+Plan backlog Stage 4 (quest system, including the quests deferred from Lanox,
+Atlas and Elysion). Read JUNE_PORT_BACKLOG_ORDER.md (Stage 4, Standing rules, open
+decisions), ATLAS_PORT_PHASES.md and ELYSION_PORT_PHASES.md (decision 2 "quests out
+of plan" and every Done note's quest hand-off), X2Lib/X2QuestManager.h/.cpp,
+X2Lib/Offline's quest module, JUNE_UI_PARITY_PHASES.md's
+IsActiveDungeon/RequireCompletedQuestID follow-up, and the June quest tables
+extracted in Stage 3a. Precondition: mods/elysion-port merged. First ask the user
+the guild-quest and Scaleform/GFx decisions. Output: JUNE_QUEST_SYSTEM_PHASES.md
+(engine: loader keys, new QT/QR/SQT types, chain/group quests, NPC relation quest
+side, quest UI, offline completion for every new sub-quest type; content: Lanox /
+Atlas / Elysion quest rows, activating the inert REQUIRE_COMPLETE_* keys, quest-
+driven NPC swaps, EventScene/movies, old-save quest migration). Never launch
+X2_offline.exe without asking.
+```
+
+**Stage 5, pilot character** (Opus 5.5 high):
+```
+Plan backlog Stage 5 (pilot character revamp). Read JUNE_PORT_BACKLOG_ORDER.md
+(fact 6, Stages 5-7, open decisions, Standing rules),
+JUNE2017_CHARACTER_PORT_CHECKLIST.md in full, Stage 2's model-diff results, and
+ATLAS_PORT_PHASES.md Phase A2 (how stat rows 81-99 were handled). Rerun
+june2017_re/census.py then charport_scan.py; propose the pilot (smallest gap among
+March characters) and get the user's confirmation. Output:
+JUNE_CHARACTER_<NAME>_PHASES.md covering scripts, the June-only later class path,
+per-class skill tree data, model/motions, UNIT_CLASS additions (shared, flag-gated,
+offline-only), server-side stat Lua the user packs. Write it as a reusable template
+for Stage 7. Never launch X2_offline.exe without asking.
+```
+
+**Stage 6, transcendence** (Opus 5.5 xhigh for the RE phase, high otherwise):
+```
+Plan backlog Stage 6 (transcendence, on the pilot character). Read
+JUNE_PORT_BACKLOG_ORDER.md (fact 4, Stage 6, open decisions, Standing rules), the
+Stage 3/4/5 phase docs' Done notes, X2Lib/Offline/X2OfflineLuaEnumSeed.h:39. First
+RE how June represents a transcended unit (class IDs vs flag) and whether new class
+IDs need GBase_Item rows; if so, raise the live-DB decision before planning further.
+Output: JUNE_TRANSCENDENCE_PHASES.md (classes, class-change quest,
+TranscendentalClassItem, guide UI, TC slot unlock, TRANSCENDENTAL_SKILL_DATA,
+hyper mode, SDT_*_TRANSCEND sockets, emulator). Never launch X2_offline.exe without
+asking.
+```
+
+**Stage 7, remaining March characters** (Opus 5.5 high to plan; per-character phases per the Stage 5 template):
+```
+Plan backlog Stage 7. Read JUNE_PORT_BACKLOG_ORDER.md (Stage 7, Standing rules)
+and the pilot's JUNE_CHARACTER_<NAME>_PHASES.md and JUNE_TRANSCENDENCE_PHASES.md
+Done notes, especially what the pilot got wrong. Order the remaining March
+characters by charport_scan.py gap; ask the ADD_RENA_SYSTEM decision when Rena is
+scheduled. Output: one phase doc per character from the pilot's template.
+```
+
+**Stage 8, new characters** (Opus 5.5 high):
+```
+Plan backlog Stage 8 (Lu/Ciel, Rose, Ain). Read JUNE_PORT_BACKLOG_ORDER.md (fact 6,
+Stage 8, open decisions, Standing rules), the Stage 5-7 docs, and
+JUNE_BUFF_PORT_PHASES.md's dormant Rose/Ain/Lu/Ciel notes. Hard gate first: ask the
+user for the live GBase_Item pull (query in the order doc) and settle the starter-
+item source. Output: one phase doc per new character (UNIT_TYPE in the shared
+header, flag-gated, offline-only; creation + emulator create-unit; tutorial dungeon;
+DUO_TYPE / ROSE_WEAPON_TYPE; activating dormant buff code). Never launch
+X2_offline.exe without asking.
+```
+
+**Stage 9, UI sweep** (Opus 5.5 high to census; Sonnet 5.5 for adopt-only phases, with Opus review):
+```
+Plan backlog Stage 9 (UI sweep). Read JUNE_PORT_BACKLOG_ORDER.md ("Why UI is last",
+Standing rules) and every earlier stage's Done notes for which DLG_* files they
+adopted. Census June DLG_* / UI_* files still March-shaped in the live koms, group
+them by the system behind them, and drop any whose backing system is absent (log
+why). Output: JUNE_UI_SWEEP_PHASES.md.
+```
