@@ -2890,6 +2890,8 @@ Log lines read afterwards: `first apply BBT 74/77/97/101/102/110`, `first read B
 
 ### Phase 7c — Done (2026-10-05)
 
+**Play-test (2026-10-05, user; exe `3f4d41ba`, run 04:52 after the 04:47 deploy): all 4 checks passed by eye.** `ErrorLog.txt:204` `first apply BBT 110 (awake impossible): BTI 990110`; `:205` `first read BBT 110: TryHyperModeStateChange refused awakening (state 23)`; load baseline unchanged. Correction to the hand-off: test templet 990110 has no icon data, so there is no buff icon to watch; time the 30 s instead.
+
 **The RE premise was wrong, and the record is corrected.** `322f8920` is `CX2Game::ProcessExpListByNpcUnitDie`. 7b's arm sites `@322faee8`/`@322fb40b` sit in a different function that the int3 range merged in: **`322fa960`, June's quick-slot item check**. It is June's form of the `SAT_SPECIAL_SKILL` branch in March's `CX2UIQuickSlot::KeyEventProcess` (same STR_ID_20120). When a throw/install item is accepted there, it sets `+0x8d78` = **10.0 s** (`3344a51c`). So `+0x8d78` is not an awakening cooldown. It is a two-way interlock:
 - While a quick-slot special item is pending: no awakening (`TryHyperModeStateChange`, the skill-cancel and Ara paths) and no no-state-change skill (every class's slot 510 `NoStateChangeActionFrameMove`).
 - While `+0x8d4c` (awakening started by a key) is set: no special item.
