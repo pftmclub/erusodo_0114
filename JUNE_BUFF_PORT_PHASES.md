@@ -2598,7 +2598,7 @@ Log lines read afterwards: `first host BBT …` and any `[JUNE_BUFF]` line namin
 - The reverse case: June maps Nasod Watch (384 / 519) to 25000 `DIMENSION_LINK_SENTRY`. March's Nasod Watch case sets no power rate (one of the 6 cases left as March). That stays with the character port.
 - **User veto:** if you would rather keep the case skill for these March-only summons, revert the three lines; they are commented.
 
-**Build.** `BUILD OK: X2/US_SERVICE/x2.exe 19,092,992 B, 2026-10-04 20:11:39` (`X2Game.obj` recompiled 20:11:30). **Deploy refused: the game was running.** DEPLOY line: _pending `python tools/build.py --deploy-only`_.
+**Build.** `BUILD OK: X2/US_SERVICE/x2.exe 19,092,992 B, 2026-10-04 20:11:39` (`X2Game.obj` recompiled 20:11:30). The first deploy was refused while the game ran; after it closed: `DEPLOY OK: X2_offline.exe is 19,092,992 B, dated 2026-10-04 20:13:31, md5 5a81b0eeecba7c4891b937da79c7aba1, equal to X2/US_SERVICE/x2.exe (2026-10-04 20:11:39); built at mods/june-buff-port c3010ac.` Range check `--range c3010ac^..c3010ac`: `1 PASS`, `RESULT: PASS`.
 
 **Answers to the Done note's open items.** (2) Answered and fixed, above. (1), (3) and (4) are unchanged. (4)'s claim that June's writer applies the event cut again was not re-read. (5) `/cost`: user, please paste it.
 
