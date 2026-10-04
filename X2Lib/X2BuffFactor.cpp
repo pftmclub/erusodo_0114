@@ -237,6 +237,17 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_, bool b
 				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER, bIsSkill )
 				CASE_BEHAVIOR_FACTOR_SKILL( ParsingIgnoreDefenceBehavior, BBT_IGNORE_DEFENCE, bIsSkill )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+				/// June buff port Phase 6: 75 shares 56's parse (June 32d46800); 90 / 91 / 98 / 99 / 100 / 103 have their own (see the Parsing* comments)
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingDoubleAttackByBuffBehavior, BBT_DOUBLE_ATTACK_BUFF, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeSkillDamageBehavior, BBT_CHANGE_SKILL_DAMAGE, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeSkillDamageBySkillIDBehavior, BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_ID, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChargeMpHitBySkillIDBehavior, BBT_CHARGE_MP_HIT_BY_SKILL_ID, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeSkillDamageBySkillSlotTypeBehavior, BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeRateBySkillTypeBehavior, BBT_CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeRateBySkillTypeBehavior, BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeSkillCoolTimeSpeedBehavior, BBT_CHANGE_SKILL_COOL_TIME_SPEED, bIsSkill )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 
 			case BBT_EMPTY:
 				break;
@@ -387,6 +398,17 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_ )
 						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER )
 						CASE_BEHAVIOR_FACTOR( ParsingIgnoreDefenceBehavior, BBT_IGNORE_DEFENCE )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+						/// June buff port Phase 6 (see the skill list above)
+						CASE_BEHAVIOR_FACTOR( ParsingDoubleAttackByBuffBehavior, BBT_DOUBLE_ATTACK_BUFF )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeSkillDamageBehavior, BBT_CHANGE_SKILL_DAMAGE )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeSkillDamageBySkillIDBehavior, BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_ID )
+						CASE_BEHAVIOR_FACTOR( ParsingChargeMpHitBySkillIDBehavior, BBT_CHARGE_MP_HIT_BY_SKILL_ID )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeSkillDamageBySkillSlotTypeBehavior, BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeRateBySkillTypeBehavior, BBT_CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeRateBySkillTypeBehavior, BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeSkillCoolTimeSpeedBehavior, BBT_CHANGE_SKILL_COOL_TIME_SPEED )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 			case BBT_EMPTY:
 				break;
 
@@ -1959,6 +1981,236 @@ bool CX2BuffFactor::ParsingIgnoreDefenceBehavior( KLuaManager& luaManager_, cons
 		return false;
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+//}}
+
+//{{ Iruha : 2026-10-04 // June buff port Phase 6 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+/** @function : ParsingChangeSkillDamageBehavior
+	@brief : June 32d49460 (BBT 89). For SKILL_CATEGORY_0, _1, ... until one is missing: the block's SKILL_TYPE (an int, required and non-zero) and then
+		its MULTIPLY_DAMAGE_RATE table with the count, so the factor is [ SKILL_TYPE, count, rate1..rateN ] per block. A block whose SKILL_TYPE is
+		missing or 0 rejects the whole factor (June ends that block's table and returns false with nothing pushed). No bIsSkill.
+	@return : true when the factor was pushed
+*/
+bool CX2BuffFactor::ParsingChangeSkillDamageBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill /*= true*/ )
+{
+	if ( luaManager_.BeginTable( pszTableName_ ) )
+	{
+		BOOST_SCOPE_EXIT( (&luaManager_) ) {
+			luaManager_.EndTable();
+		} BOOST_SCOPE_EXIT_END
+
+		KBuffBehaviorFactor BuffBehaviorFactor( eBehaviorType_ );
+
+		char szCategory[256];
+		for ( int iCategory = 0; ; ++iCategory )
+		{
+			StringCchPrintfA( szCategory, ARRAY_SIZE( szCategory ), "SKILL_CATEGORY_%d", iCategory );
+			if ( !luaManager_.BeginTable( szCategory ) )
+				break;
+
+			int iSkillType = 0;
+			if ( !luaManager_.GetValue( "SKILL_TYPE", iSkillType ) || 0 == iSkillType )
+			{
+				luaManager_.EndTable();
+				return DISPLAY_ERROR( L"SKILL_TYPE" );
+			}
+
+			BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( iSkillType ) );
+			ParsingTableForWhile( luaManager_, "MULTIPLY_DAMAGE_RATE", BuffBehaviorFactor.m_vecValues, true );
+			luaManager_.EndTable();
+		}
+
+		m_pDataBuffFactor->m_vecBuffBehaviorFactors.push_back( BuffBehaviorFactor );
+		return true;
+	}
+	else
+		return false;
+}
+
+/** @function : ParsingChangeSkillDamageBySkillIDBehavior
+	@brief : June 32d49810 (BBT 90). SKILL_CATEGORY_n blocks of { MULTIPLY_DAMAGE_RATE (a number, must be > 0), SKILL_ID_LIST (a table, must not be
+		empty) }; see ParsingSkillIDRateBlocks.
+*/
+bool CX2BuffFactor::ParsingChangeSkillDamageBySkillIDBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill /*= true*/ )
+{
+	return ParsingSkillIDRateBlocks( luaManager_, pszTableName_, eBehaviorType_, "MULTIPLY_DAMAGE_RATE", true );
+}
+
+/** @function : ParsingChargeMpHitBySkillIDBehavior
+	@brief : June 32d49da0 (BBT 91). The same blocks as 90 with MULTIPLY_MP_CHARGE_RATE, which may be 0 (June rejects only a negative rate).
+*/
+bool CX2BuffFactor::ParsingChargeMpHitBySkillIDBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill /*= true*/ )
+{
+	return ParsingSkillIDRateBlocks( luaManager_, pszTableName_, eBehaviorType_, "MULTIPLY_MP_CHARGE_RATE", false );
+}
+
+/** @function : ParsingSkillIDRateBlocks
+	@brief : The body of June 32d49810 / 32d49da0. For SKILL_CATEGORY_0, _1, ... until one is missing it pushes [ rate, id1..idn, -1.0 ]: the rate key
+		(required; a missing one or one that fails the sign test rejects the whole factor), then SKILL_ID_LIST read from index 1 while a number
+		is there and it is >= 0 (-1 is the sentinel the factor uses, so the list stops at a negative). An empty list rejects the factor too.
+		The factor is copied as-is by the level slice, so this is also the final layout.
+	@param : the rate key (pszRateKey_), true when the rate must be > 0 (90), false when 0 is allowed (91)
+*/
+bool CX2BuffFactor::ParsingSkillIDRateBlocks( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, const char* pszRateKey_, const bool bRateMustBePositive_ )
+{
+	if ( luaManager_.BeginTable( pszTableName_ ) )
+	{
+		BOOST_SCOPE_EXIT( (&luaManager_) ) {
+			luaManager_.EndTable();
+		} BOOST_SCOPE_EXIT_END
+
+		KBuffBehaviorFactor BuffBehaviorFactor( eBehaviorType_ );
+
+		char szCategory[256];
+		for ( int iCategory = 0; ; ++iCategory )
+		{
+			StringCchPrintfA( szCategory, ARRAY_SIZE( szCategory ), "SKILL_CATEGORY_%d", iCategory );
+			if ( !luaManager_.BeginTable( szCategory ) )
+				break;
+
+			float fRate = 0.0f;
+			if ( !luaManager_.GetValue( pszRateKey_, fRate ) || ( bRateMustBePositive_ ? fRate <= 0.0f : fRate < 0.0f ) )
+			{
+				luaManager_.EndTable();
+				return DISPLAY_ERROR( L"MULTIPLY RATE" );
+			}
+
+			vector<float> vecSkillID;
+			if ( luaManager_.BeginTable( "SKILL_ID_LIST" ) )
+			{
+				int iIndex = 1;
+				float fSkillID = -1.0f;
+				while ( luaManager_.GetValue( iIndex, fSkillID ) && 0.0f <= fSkillID )
+				{
+					vecSkillID.push_back( fSkillID );
+					++iIndex;
+					fSkillID = -1.0f;
+				}
+				luaManager_.EndTable();
+			}
+
+			if ( vecSkillID.empty() )
+			{
+				luaManager_.EndTable();
+				return DISPLAY_ERROR( L"SKILL_ID_LIST" );
+			}
+
+			BuffBehaviorFactor.m_vecValues.push_back( fRate );
+			BuffBehaviorFactor.m_vecValues.insert( BuffBehaviorFactor.m_vecValues.end(), vecSkillID.begin(), vecSkillID.end() );
+			BuffBehaviorFactor.m_vecValues.push_back( -1.0f );
+			luaManager_.EndTable();
+		}
+
+		m_pDataBuffFactor->m_vecBuffBehaviorFactors.push_back( BuffBehaviorFactor );
+		return true;
+	}
+	else
+		return false;
+}
+
+/** @function : ParsingChangeSkillDamageBySkillSlotTypeBehavior
+	@brief : June 32d4a370 (BBT 98, read from the disassembly). SKILL_SLOT_TYPE (an int; a missing key leaves 0; a negative value rejects the factor),
+		MULTIPLY_DAMAGE_RATE (a number, required, must be >= 0). Pushes [ slot type, rate, -1.0 ]; the level slice keeps the first two.
+*/
+bool CX2BuffFactor::ParsingChangeSkillDamageBySkillSlotTypeBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill /*= true*/ )
+{
+	if ( luaManager_.BeginTable( pszTableName_ ) )
+	{
+		BOOST_SCOPE_EXIT( (&luaManager_) ) {
+			luaManager_.EndTable();
+		} BOOST_SCOPE_EXIT_END
+
+		int iSlotType = 0;
+		luaManager_.GetValue( "SKILL_SLOT_TYPE", iSlotType );
+		if ( iSlotType < 0 )
+			return DISPLAY_ERROR( L"SKILL_SLOT_TYPE" );
+
+		float fRate = 0.0f;
+		if ( !luaManager_.GetValue( "MULTIPLY_DAMAGE_RATE", fRate ) || fRate < 0.0f )
+			return DISPLAY_ERROR( L"MULTIPLY_DAMAGE_RATE" );
+
+		KBuffBehaviorFactor BuffBehaviorFactor( eBehaviorType_ );
+		BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( iSlotType ) );
+		BuffBehaviorFactor.m_vecValues.push_back( fRate );
+		BuffBehaviorFactor.m_vecValues.push_back( -1.0f );
+
+		m_pDataBuffFactor->m_vecBuffBehaviorFactors.push_back( BuffBehaviorFactor );
+		return true;
+	}
+	else
+		return false;
+}
+
+/** @function : ParsingChangeRateBySkillTypeBehavior
+	@brief : June 32d4aa30 (BBT 99) / 32d4b020 (BBT 100), identical bodies. See ParsingSkillTypeChangeBlocks; the VALUE table is read for change types 0, 1 and 3.
+*/
+bool CX2BuffFactor::ParsingChangeRateBySkillTypeBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill /*= true*/ )
+{
+	return ParsingSkillTypeChangeBlocks( luaManager_, pszTableName_, eBehaviorType_, true );
+}
+
+/** @function : ParsingChangeSkillCoolTimeSpeedBehavior
+	@brief : June 32d4b610 (BBT 103). The same blocks as 99 / 100, but the VALUE table is read for change type 3 (BCT_PERCENT) only.
+*/
+bool CX2BuffFactor::ParsingChangeSkillCoolTimeSpeedBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill /*= true*/ )
+{
+	return ParsingSkillTypeChangeBlocks( luaManager_, pszTableName_, eBehaviorType_, false );
+}
+
+/** @function : ParsingSkillTypeChangeBlocks
+	@brief : The body of June 32d4aa30 / 32d4b020 / 32d4b610. For SKILL_CATEGORY_0, _1, ... until one is missing it pushes SKILL_TYPE (an int, required and
+		non-zero), BUFF_CHANGE_TYPE (an int, required), and, only for the change types the caller allows, the VALUE table with the count:
+		[ SKILL_TYPE, change type, count, v1..vn ]. For any other change type the block is just [ SKILL_TYPE, change type ] (June's level slice then
+		reads past it; the shipped June data only carries BCT_PERCENT). A block that fails a required key rejects the whole factor.
+	@param : true for 99 / 100 (VALUE for change types 0, 1 and 3), false for 103 (VALUE for 3 only)
+*/
+bool CX2BuffFactor::ParsingSkillTypeChangeBlocks( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, const bool bValueForAllChangeTypes_ )
+{
+	if ( luaManager_.BeginTable( pszTableName_ ) )
+	{
+		BOOST_SCOPE_EXIT( (&luaManager_) ) {
+			luaManager_.EndTable();
+		} BOOST_SCOPE_EXIT_END
+
+		KBuffBehaviorFactor BuffBehaviorFactor( eBehaviorType_ );
+
+		char szCategory[256];
+		for ( int iCategory = 0; ; ++iCategory )
+		{
+			StringCchPrintfA( szCategory, ARRAY_SIZE( szCategory ), "SKILL_CATEGORY_%d", iCategory );
+			if ( !luaManager_.BeginTable( szCategory ) )
+				break;
+
+			int iSkillType = 0;
+			if ( !luaManager_.GetValue( "SKILL_TYPE", iSkillType ) || 0 == iSkillType )
+			{
+				luaManager_.EndTable();
+				return DISPLAY_ERROR( L"SKILL_TYPE" );
+			}
+			BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( iSkillType ) );
+
+			int iChangeType = 0;
+			if ( !luaManager_.GetValue( "BUFF_CHANGE_TYPE", iChangeType ) )
+			{
+				luaManager_.EndTable();
+				return DISPLAY_ERROR( L"BUFF_CHANGE_TYPE" );
+			}
+			BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( iChangeType ) );
+
+			if ( ( bValueForAllChangeTypes_ && ( ( 0 <= iChangeType && iChangeType <= 1 ) || BCT_PERCENT == iChangeType ) )
+				|| ( !bValueForAllChangeTypes_ && BCT_PERCENT == iChangeType ) )
+				ParsingTableForWhile( luaManager_, "VALUE", BuffBehaviorFactor.m_vecValues, true );
+
+			luaManager_.EndTable();
+		}
+
+		m_pDataBuffFactor->m_vecBuffBehaviorFactors.push_back( BuffBehaviorFactor );
+		return true;
+	}
+	else
+		return false;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 //}}
 
 /** @function : ParsingCreateBuffFactorBehavior

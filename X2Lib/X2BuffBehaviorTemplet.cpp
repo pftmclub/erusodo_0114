@@ -163,6 +163,17 @@ case type_: \
 			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStatBehaviorTemplet, BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER )
 			CASE_BEHAVIOR_TEMPLET( CX2BuffIgnoreDefenceBehaviorTemplet, BBT_IGNORE_DEFENCE )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+			/// June buff port Phase 6 (June 32e80450 factory): 99 and 100 are byte-identical in June, so they share one class here
+			CASE_BEHAVIOR_TEMPLET( CX2BuffDoubleAttackBuffBehaviorTemplet, BBT_DOUBLE_ATTACK_BUFF )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeSkillDamageBehaviorTemplet, BBT_CHANGE_SKILL_DAMAGE )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet, BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_ID )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChargeMpHitBySkillIDBehaviorTemplet, BBT_CHARGE_MP_HIT_BY_SKILL_ID )
+			CASE_BEHAVIOR_TEMPLET( CX2AddDamageOfSkillSlotType, BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeRateBySkillTypeBehaviorTemplet, BBT_CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeRateBySkillTypeBehaviorTemplet, BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet, BBT_CHANGE_SKILL_COOL_TIME_SPEED )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 
 			case BBT_EMPTY:	/// 행동을 지정하지 않겠다고 명시적으로 해야함
 				return true;
@@ -4598,4 +4609,614 @@ float CX2BuffChangeStateByConditionBehaviorTemplet::GetValue( const KBuffBehavio
 	pGameUnit_->EraseIgnoreDefence( pBuffTemplet_->GetBuffIdentity() );
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+//}}
+
+//{{ Iruha : 2026-10-04 // June buff port Phase 6 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+
+/// June gates 89, 90, 91, 98 (erase), 99, 100 and 103 on the unit type (+0x264 == 0 is GUT_USER) and then calls CX2GUUser members.
+static CX2GUUser* JuneBuffNewSkillGetUser( CX2GameUnit* pGameUnit_ )
+{
+	if ( NULL != pGameUnit_ && CX2GameUnit::GUT_USER == pGameUnit_->GetGameUnitType() )
+		return static_cast<CX2GUUser*>( pGameUnit_ );
+
+	return NULL;
+}
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+/// One "[JUNE_BUFF] first apply" line per type (step 8 of the shared checklist).
+static bool JuneBuffNewSkillFirstApply( const int iBehaviorType_ )
+{
+	static std::set<int> s_setSeen;
+	return s_setSeen.insert( iBehaviorType_ ).second;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+
+/// The { rate, skill IDs... } blocks of BBT 90 and 91 out of their factor [ rate, id1..idn, -1.0 ]*. A value of exactly -1.0 (June 334380f0)
+/// closes a block, the first value after a close is the rate and every later one is a skill ID; a trailing block without its -1.0 is dropped.
+static void JuneBuffReadSkillIDRateBlocks( const KBuffBehaviorFactor& kFactor_, OUT vector<CX2SkillIDRateByBuff::SkillIDRateBlock>& vecBlock_ )
+{
+	vecBlock_.clear();
+
+	CX2SkillIDRateByBuff::SkillIDRateBlock kBlock;
+	bool bExpectRate = true;
+	for ( vector<float>::const_iterator vItr = kFactor_.m_vecValues.begin(); kFactor_.m_vecValues.end() != vItr; ++vItr )
+	{
+		if ( -1.0f == *vItr )
+		{
+			vecBlock_.push_back( kBlock );
+			kBlock = CX2SkillIDRateByBuff::SkillIDRateBlock();
+			bExpectRate = true;
+		}
+		else if ( bExpectRate )
+		{
+			kBlock.m_fRate = *vItr;
+			bExpectRate = false;
+		}
+		else
+			kBlock.m_vecSkillID.push_back( static_cast<int>( *vItr ) );
+	}
+}
+
+/// [ rate, id1..idn, -1.0 ] per block (GetFactor of 90 and 91, June 32e7ef50 / 32e7f2e0)
+static void JuneBuffWriteSkillIDRateBlocks( const vector<CX2SkillIDRateByBuff::SkillIDRateBlock>& vecBlock_, OUT KBuffBehaviorFactor& kFactor_ )
+{
+	for ( vector<CX2SkillIDRateByBuff::SkillIDRateBlock>::const_iterator vItr = vecBlock_.begin(); vecBlock_.end() != vItr; ++vItr )
+	{
+		kFactor_.m_vecValues.push_back( vItr->m_fRate );
+		for ( vector<int>::const_iterator vIdItr = vItr->m_vecSkillID.begin(); vItr->m_vecSkillID.end() != vIdItr; ++vIdItr )
+			kFactor_.m_vecValues.push_back( static_cast<float>( *vIdItr ) );
+		kFactor_.m_vecValues.push_back( -1.0f );
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 75: CX2BuffDoubleAttackBuffBehaviorTemplet (June vt 33535070), Phase 6
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @function : ParsingBehavior
+	@brief : June 32e75360. BUFF_CHANGE_TYPE, 0 (BCT_SWAP_VALUE) when absent. March's BBT 56 class fails the templet instead.
+*/
+/*virtual*/ bool CX2BuffDoubleAttackBuffBehaviorTemplet::ParsingBehavior( KLuaManager& luaManager_ )
+{
+	LUA_GET_VALUE_ENUM( luaManager_, "BUFF_CHANGE_TYPE", m_eChangeType, BUFF_CHANGE_TYPE, BCT_SWAP_VALUE );
+	return true;
+}
+
+/** @function : SetFactor
+	@brief : June 32e77be0. No factor: false. The change type must match the templet's and be BCT_PERCENT, else false with no popup.
+		rate = v[1] (0.0 when absent). A restack on a started behavior erases this buff's entry first, then the entry is inserted
+		(June 32281b00 on the unit's own BBT 75 list). March's 56 class inserts again without erasing.
+*/
+/*virtual*/ bool CX2BuffDoubleAttackBuffBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	const BUFF_CHANGE_TYPE eChangeType = static_cast<BUFF_CHANGE_TYPE>( static_cast<int>( (*pBehaviorFactor)[FO_CHANGE_TYPE] ) );
+	if ( eChangeType != m_eChangeType || BCT_PERCENT != eChangeType )
+		return false;
+
+	const float fRate = (*pBehaviorFactor)[FO_VALUE];
+
+	if ( DidStart() )
+		pGameUnit_->EraseDoubleAttackBuffByBuff( pBuffTemplet_->GetBuffIdentity() );
+
+	m_fRate = fRate;
+	pGameUnit_->CreateAndInsertDoubleAttackBuffByBuff( pBuffTemplet_->GetBuffIdentity(), m_fRate );
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( JuneBuffNewSkillFirstApply( 75 ) )
+		CX2JuneBuffCapture::Line( "first apply BBT 75 (double attack buff): BTI %d, rate %g", static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), m_fRate );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return true;
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffDoubleAttackBuffBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffDoubleAttackBuffBehaviorTemplet( *this ) );
+}
+
+/** @brief : June 32e7e9f0: [ (float)change type, rate ] */
+/*virtual*/ void CX2BuffDoubleAttackBuffBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+	KBuffBehaviorFactor& BehaviorFactor = vecFactors_.back();
+
+	BehaviorFactor.m_vecValues.push_back( static_cast<float>( m_eChangeType ) );
+	BehaviorFactor.m_vecValues.push_back( m_fRate );
+}
+
+/** @brief : June 32e754f0: with at least two values, change type = v[0], rate = v[1], then insert (no erase first). */
+/*virtual*/ void CX2BuffDoubleAttackBuffBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	if ( static_cast<UINT>( FO_END ) <= kFactor_.m_vecValues.size() )
+	{
+		m_eChangeType = static_cast<BUFF_CHANGE_TYPE>( static_cast<int>( kFactor_[FO_CHANGE_TYPE] ) );
+		m_fRate = kFactor_[FO_VALUE];
+
+		pGameUnit_->CreateAndInsertDoubleAttackBuffByBuff( kBuffFactor_.m_BuffIdentity, m_fRate );
+	}
+}
+
+/** @brief : June 32e75540: erase this buff's entry (June 32279d20) */
+/*virtual*/ void CX2BuffDoubleAttackBuffBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	pGameUnit_->EraseDoubleAttackBuffByBuff( pBuffTemplet_->GetBuffIdentity() );
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 89: CX2BuffChangeSkillDamageBehaviorTemplet (June vt 33535378), Phase 6
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @function : SetFactor
+	@brief : June 32e7a9e0. At the stack cap (limit >= 2 and count now >= limit) nothing changes and it returns true. No factor or not a
+		user: false. First apply: the { SKILL_TYPE, rate } pairs of the factor go to the unit's list (InsertSkillDamage, June 31fe3b30,
+		only when the buff is not there yet). A restack scales the new rates by the accumulation multiplier and either replaces the
+		pairs (limit 1) or adds into the matching skill type as old += new - m (June's arithmetic, not a plain sum), then
+		UpdateSkillDamage (June 31fe3c10: erase the buff's entry, insert again).
+*/
+/*virtual*/ bool CX2BuffChangeSkillDamageBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const UINT uiLimit = pBuffTemplet_->GetAccumulationLimit();
+	if ( 2 <= uiLimit && uiLimit <= pBuffTemplet_->GetAccumulationCountNow() )
+		return true;
+
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	CX2GUUser* pUser = JuneBuffNewSkillGetUser( pGameUnit_ );
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) || NULL == pUser )
+		return false;
+
+	const UINT uiSize = pBehaviorFactor->m_vecValues.size();
+
+	if ( !DidStart() )
+	{
+		for ( UINT uiIndex = 0; uiIndex + 1 < uiSize; uiIndex += 2 )
+			m_vecSkillTypeRate.push_back( CX2SkillTypeRateByBuff::SkillTypeRate( static_cast<int>( (*pBehaviorFactor)[uiIndex] ), (*pBehaviorFactor)[uiIndex + 1] ) );
+
+		pUser->InsertSkillDamage( pBuffTemplet_->GetBuffIdentity(), m_vecSkillTypeRate );
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		if ( JuneBuffNewSkillFirstApply( 89 ) )
+			CX2JuneBuffCapture::Line( "first apply BBT 89 (skill damage by skill type): BTI %d, %d pair(s), first type %d rate %g",
+				static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), static_cast<int>( m_vecSkillTypeRate.size() ),
+				m_vecSkillTypeRate.empty() ? 0 : m_vecSkillTypeRate.front().first, m_vecSkillTypeRate.empty() ? 0.0f : m_vecSkillTypeRate.front().second );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		return true;
+	}
+
+	float fMultiplier = 1.0f;
+	if ( 2 <= uiLimit )
+	{
+		fMultiplier = pBuffTemplet_->GetAccumulationMultiflier();
+		if ( IsSamef( fMultiplier ) )
+			fMultiplier = 1.0f;
+	}
+
+	vector<CX2SkillTypeRateByBuff::SkillTypeRate> vecNew;
+	for ( UINT uiIndex = 0; uiIndex + 1 < uiSize; uiIndex += 2 )
+		vecNew.push_back( CX2SkillTypeRateByBuff::SkillTypeRate( static_cast<int>( (*pBehaviorFactor)[uiIndex] ), (*pBehaviorFactor)[uiIndex + 1] * fMultiplier ) );
+
+	if ( 1 == uiLimit )
+		m_vecSkillTypeRate = vecNew;
+	else
+	{
+		for ( vector<CX2SkillTypeRateByBuff::SkillTypeRate>::const_iterator vItr = vecNew.begin(); vecNew.end() != vItr; ++vItr )
+		{
+			vector<CX2SkillTypeRateByBuff::SkillTypeRate>::iterator vFindItr = m_vecSkillTypeRate.begin();
+			while ( m_vecSkillTypeRate.end() != vFindItr && vFindItr->first != vItr->first )
+				++vFindItr;
+
+			if ( m_vecSkillTypeRate.end() != vFindItr )
+				vFindItr->second += vItr->second - fMultiplier;
+			else
+				m_vecSkillTypeRate.push_back( *vItr );
+		}
+	}
+
+	pUser->UpdateSkillDamage( pBuffTemplet_->GetBuffIdentity(), m_vecSkillTypeRate );
+	return true;
+}
+
+/** @function : OnAccumulationCountDecreased
+	@brief : June slot 7, 32e7c020. Re-derives the pairs for the stack count now (after ACCUMULATION_DECREASE_WHEN_FINISH lowered it),
+		otherwise BTI_BUFF_HEAVYFIREARMS_MASTERY would end at its first timeout instead of decaying. With c = count now and
+		m = the accumulation multiplier (1.0 when it is 0): base = ( rate + c*m ) / ( c*m + 1.0 ) per pair; for c > 1 the result is
+		base with ( base*m - m ) added c-1 times, else base itself. Then UpdateSkillDamage.
+	@return : false without a unit, a templet or a user; else true
+*/
+/*virtual*/ bool CX2BuffChangeSkillDamageBehaviorTemplet::OnAccumulationCountDecreased( CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	CX2GUUser* pUser = JuneBuffNewSkillGetUser( pGameUnit_ );
+	if ( NULL == pBuffTemplet_ || NULL == pUser )
+		return false;
+
+	const UINT uiCount = pBuffTemplet_->GetAccumulationCountNow();
+	float fMultiplier = pBuffTemplet_->GetAccumulationMultiflier();
+	if ( IsSamef( fMultiplier ) )
+		fMultiplier = 1.0f;
+
+	const float fCountMultiplier = static_cast<float>( uiCount ) * fMultiplier;
+
+	vector<CX2SkillTypeRateByBuff::SkillTypeRate> vecBase;
+	for ( vector<CX2SkillTypeRateByBuff::SkillTypeRate>::const_iterator vItr = m_vecSkillTypeRate.begin(); m_vecSkillTypeRate.end() != vItr; ++vItr )
+		vecBase.push_back( CX2SkillTypeRateByBuff::SkillTypeRate( vItr->first, ( vItr->second + fCountMultiplier ) / ( fCountMultiplier + 1.0f ) ) );
+
+	vector<CX2SkillTypeRateByBuff::SkillTypeRate> vecResult = vecBase;
+	if ( 1 < uiCount )
+	{
+		for ( UINT uiTimes = 1; uiTimes < uiCount; ++uiTimes )
+		{
+			for ( UINT uiIndex = 0; uiIndex < vecResult.size(); ++uiIndex )
+				vecResult[uiIndex].second += vecBase[uiIndex].second * fMultiplier - fMultiplier;
+		}
+	}
+
+	m_vecSkillTypeRate = ( 1 < uiCount ? vecResult : vecBase );
+	pUser->UpdateSkillDamage( pBuffTemplet_->GetBuffIdentity(), m_vecSkillTypeRate );
+	return true;
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffChangeSkillDamageBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffChangeSkillDamageBehaviorTemplet( *this ) );
+}
+
+/** @brief : June 32e7ecf0: [ skill type, rate ] per pair (the type as a float) */
+/*virtual*/ void CX2BuffChangeSkillDamageBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+	KBuffBehaviorFactor& BehaviorFactor = vecFactors_.back();
+
+	for ( vector<CX2SkillTypeRateByBuff::SkillTypeRate>::const_iterator vItr = m_vecSkillTypeRate.begin(); m_vecSkillTypeRate.end() != vItr; ++vItr )
+	{
+		BehaviorFactor.m_vecValues.push_back( static_cast<float>( vItr->first ) );
+		BehaviorFactor.m_vecValues.push_back( vItr->second );
+	}
+}
+
+/** @brief : June 32e7af60: rebuild the pairs from [ type, rate ]*, and insert them when the unit is a user (no erase first). */
+/*virtual*/ void CX2BuffChangeSkillDamageBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	m_vecSkillTypeRate.clear();
+	const UINT uiSize = kFactor_.m_vecValues.size();
+	for ( UINT uiIndex = 0; uiIndex + 1 < uiSize; uiIndex += 2 )
+		m_vecSkillTypeRate.push_back( CX2SkillTypeRateByBuff::SkillTypeRate( static_cast<int>( kFactor_[uiIndex] ), kFactor_[uiIndex + 1] ) );
+
+	CX2GUUser* pUser = JuneBuffNewSkillGetUser( pGameUnit_ );
+	if ( NULL != pUser )
+		pUser->InsertSkillDamage( kBuffFactor_.m_BuffIdentity, m_vecSkillTypeRate );
+}
+
+/** @brief : June 32e75b70: a user erases this buff's entry (June 31fe2990) */
+/*virtual*/ void CX2BuffChangeSkillDamageBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	CX2GUUser* pUser = JuneBuffNewSkillGetUser( pGameUnit_ );
+	if ( NULL != pUser )
+		pUser->EraseSkillDamage( pBuffTemplet_->GetBuffIdentity() );
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 90: CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet (June vt 33535594), Phase 6
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @function : SetFactor
+	@brief : June 32e849c0. No factor or not a user: false. A restack on a started behavior whose stack count is 0 erases the buff's entry
+		first. The blocks are re-read from the factor and the entry is inserted (June 3200ae70: only when the buff is not there yet).
+*/
+/*virtual*/ bool CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	CX2GUUser* pUser = JuneBuffNewSkillGetUser( pGameUnit_ );
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) || NULL == pUser )
+		return false;
+
+	if ( DidStart() && 0 == pBuffTemplet_->GetAccumulationCountNow() )
+		pUser->EraseSkillDamageBySkillID( pBuffTemplet_->GetBuffIdentity() );
+
+	JuneBuffReadSkillIDRateBlocks( *pBehaviorFactor, m_vecBlock );
+	pUser->InsertSkillDamageBySkillID( pBuffTemplet_->GetBuffIdentity(), m_vecBlock );
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( JuneBuffNewSkillFirstApply( 90 ) )
+		CX2JuneBuffCapture::Line( "first apply BBT 90 (skill damage by skill id): BTI %d, %d block(s), first rate %g",
+			static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), static_cast<int>( m_vecBlock.size() ), m_vecBlock.empty() ? 0.0f : m_vecBlock.front().m_fRate );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return true;
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet( *this ) );
+}
+
+/** @brief : June 32e7ef50: [ rate, id1..idn, -1.0 ] per block */
+/*virtual*/ void CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+	JuneBuffWriteSkillIDRateBlocks( m_vecBlock, vecFactors_.back() );
+}
+
+/** @brief : June 32e84b90: the same walk as SetFactor, and the insert when the unit is a user. */
+/*virtual*/ void CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	JuneBuffReadSkillIDRateBlocks( kFactor_, m_vecBlock );
+
+	CX2GUUser* pUser = JuneBuffNewSkillGetUser( pGameUnit_ );
+	if ( NULL != pUser )
+		pUser->InsertSkillDamageBySkillID( kBuffFactor_.m_BuffIdentity, m_vecBlock );
+}
+
+/** @brief : June 32e75b90: a user erases this buff's entry (June 31fe29e0) */
+/*virtual*/ void CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	CX2GUUser* pUser = JuneBuffNewSkillGetUser( pGameUnit_ );
+	if ( NULL != pUser )
+		pUser->EraseSkillDamageBySkillID( pBuffTemplet_->GetBuffIdentity() );
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 91: CX2BuffChargeMpHitBySkillIDBehaviorTemplet (June vt 335355d0), Phase 6
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @function : SetFactor
+	@brief : June 32e84d70, 90's twin on the MP-charge list (June 3200af50 inserts only when the buff is not there yet).
+*/
+/*virtual*/ bool CX2BuffChargeMpHitBySkillIDBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	CX2GUUser* pUser = JuneBuffNewSkillGetUser( pGameUnit_ );
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) || NULL == pUser )
+		return false;
+
+	if ( DidStart() && 0 == pBuffTemplet_->GetAccumulationCountNow() )
+		pUser->EraseChargeMpHitBySkillID( pBuffTemplet_->GetBuffIdentity() );
+
+	JuneBuffReadSkillIDRateBlocks( *pBehaviorFactor, m_vecBlock );
+	pUser->InsertChargeMpHitBySkillID( pBuffTemplet_->GetBuffIdentity(), m_vecBlock );
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( JuneBuffNewSkillFirstApply( 91 ) )
+		CX2JuneBuffCapture::Line( "first apply BBT 91 (charge MP hit by skill id): BTI %d, %d block(s), first rate %g",
+			static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), static_cast<int>( m_vecBlock.size() ), m_vecBlock.empty() ? 0.0f : m_vecBlock.front().m_fRate );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return true;
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffChargeMpHitBySkillIDBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffChargeMpHitBySkillIDBehaviorTemplet( *this ) );
+}
+
+/** @brief : June 32e7f2e0: [ rate, id1..idn, -1.0 ] per block */
+/*virtual*/ void CX2BuffChargeMpHitBySkillIDBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+	JuneBuffWriteSkillIDRateBlocks( m_vecBlock, vecFactors_.back() );
+}
+
+/** @brief : June 32e84f40 */
+/*virtual*/ void CX2BuffChargeMpHitBySkillIDBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	JuneBuffReadSkillIDRateBlocks( kFactor_, m_vecBlock );
+
+	CX2GUUser* pUser = JuneBuffNewSkillGetUser( pGameUnit_ );
+	if ( NULL != pUser )
+		pUser->InsertChargeMpHitBySkillID( kBuffFactor_.m_BuffIdentity, m_vecBlock );
+}
+
+/** @brief : June 32e75bb0: a user erases this buff's entry (June 31fe2a30) */
+/*virtual*/ void CX2BuffChargeMpHitBySkillIDBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	CX2GUUser* pUser = JuneBuffNewSkillGetUser( pGameUnit_ );
+	if ( NULL != pUser )
+		pUser->EraseChargeMpHitBySkillID( pBuffTemplet_->GetBuffIdentity() );
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 98: CX2AddDamageOfSkillSlotType (June vt 33535160), Phase 6
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @brief : June 32e75d20: SKILL_SLOT_TYPE, 0 when absent (June's enum SKILL_SLOT_TYPE: SKILL_SLOT_None 0, _A 1, _B 2, _TC 3) */
+/*virtual*/ bool CX2AddDamageOfSkillSlotType::ParsingBehavior( KLuaManager& luaManager_ )
+{
+	LUA_GET_VALUE( luaManager_, "SKILL_SLOT_TYPE", m_iSlotType, 0 );
+	return true;
+}
+
+/** @function : SetFactor
+	@brief : June 32e78080. No factor: false. slot type = (int)v[0] (0 when empty), negative: false. rate = v[1] (0.0 when absent). No unit call.
+*/
+/*virtual*/ bool CX2AddDamageOfSkillSlotType::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	m_iSlotType = static_cast<int>( (*pBehaviorFactor)[0] );
+	if ( m_iSlotType < 0 )
+		return false;
+
+	m_fRate = (*pBehaviorFactor)[1];
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( JuneBuffNewSkillFirstApply( 98 ) )
+		CX2JuneBuffCapture::Line( "first apply BBT 98 (skill damage by slot type): BTI %d, slot type %d, rate %g",
+			static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), m_iSlotType, m_fRate );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return true;
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2AddDamageOfSkillSlotType::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2AddDamageOfSkillSlotType( *this ) );
+}
+
+/** @brief : June 32e7f890: [ (float)slot type, rate ]. CX2GUUser::GetSkillDamageRateBySlotType reads exactly this. */
+/*virtual*/ void CX2AddDamageOfSkillSlotType::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+	KBuffBehaviorFactor& BehaviorFactor = vecFactors_.back();
+
+	BehaviorFactor.m_vecValues.push_back( static_cast<float>( m_iSlotType ) );
+	BehaviorFactor.m_vecValues.push_back( m_fRate );
+}
+
+/** @brief : June 32e78170: slot type = (int)v[0], rate = v[1] (0.0 when absent) */
+/*virtual*/ void CX2AddDamageOfSkillSlotType::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	m_iSlotType = static_cast<int>( kFactor_[0] );
+	m_fRate = kFactor_[1];
+}
+
+/** @brief : June 32e75cc0: a user erases this buff's entry from BBT 89's list (June 31fe2990, shared with 89). 98 never inserts there. */
+/*virtual*/ void CX2AddDamageOfSkillSlotType::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	CX2GUUser* pUser = JuneBuffNewSkillGetUser( pGameUnit_ );
+	if ( NULL != pUser )
+		pUser->EraseSkillDamage( pBuffTemplet_->GetBuffIdentity() );
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 99, 100 and 103: the shared body, then CX2BuffChangeRateBySkillTypeBehaviorTemplet and CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @brief : the { skill type, change type, value } triples of a factor, each value times fScale_ (an incomplete trailing triple is ignored) */
+/*static*/ void CX2BuffSkillTypeChangeBehaviorTemplet::ReadSkillTypeChanges( const KBuffBehaviorFactor& kFactor_, const float fScale_, OUT vector<SkillTypeChange>& vecChange_ )
+{
+	const UINT uiSize = kFactor_.m_vecValues.size();
+	for ( UINT uiIndex = 0; uiIndex + 2 < uiSize; uiIndex += 3 )
+		vecChange_.push_back( SkillTypeChange( static_cast<int>( kFactor_[uiIndex] ), static_cast<int>( kFactor_[uiIndex + 1] ), kFactor_[uiIndex + 2] * fScale_ ) );
+}
+
+/** @function : ApplySkillTypeChanges
+	@brief : The first-apply / restack arithmetic June 32e7b0d0, 32e7b610 and 32e7bb50 share. First apply: the triples as they are. A restack
+		scales the new values by the accumulation multiplier m (1.0 when the limit is below 2 or the multiplier is 0), then replaces the
+		list (limit 1) or adds into the entry with the same skill type and change type, but only for BCT_PERCENT, and for BCT_FIX_VALUE too
+		when bMergeFixValue_ (99 and 100; 103 merges PERCENT only). A new triple with no matching entry, or any other change type, is dropped.
+*/
+void CX2BuffSkillTypeChangeBehaviorTemplet::ApplySkillTypeChanges( const KBuffBehaviorFactor& kFactor_, const CX2BuffTemplet* pBuffTemplet_, const bool bMergeFixValue_ )
+{
+	if ( !DidStart() )
+	{
+		ReadSkillTypeChanges( kFactor_, 1.0f, m_vecChange );
+		return;
+	}
+
+	const UINT uiLimit = pBuffTemplet_->GetAccumulationLimit();
+	float fMultiplier = 1.0f;
+	if ( 2 <= uiLimit )
+	{
+		fMultiplier = pBuffTemplet_->GetAccumulationMultiflier();
+		if ( IsSamef( fMultiplier ) )
+			fMultiplier = 1.0f;
+	}
+
+	vector<SkillTypeChange> vecNew;
+	ReadSkillTypeChanges( kFactor_, fMultiplier, vecNew );
+
+	if ( 1 == uiLimit )
+	{
+		m_vecChange = vecNew;
+		return;
+	}
+
+	for ( vector<SkillTypeChange>::const_iterator vItr = vecNew.begin(); vecNew.end() != vItr; ++vItr )
+	{
+		for ( vector<SkillTypeChange>::iterator vOldItr = m_vecChange.begin(); m_vecChange.end() != vOldItr; ++vOldItr )
+		{
+			if ( vOldItr->m_iSkillType == vItr->m_iSkillType && vOldItr->m_iChangeType == vItr->m_iChangeType )
+			{
+				if ( BCT_PERCENT == vItr->m_iChangeType || ( bMergeFixValue_ && BCT_FIX_VALUE == vItr->m_iChangeType ) )
+					vOldItr->m_fValue += vItr->m_fValue;
+				break;
+			}
+		}
+	}
+}
+
+/** @brief : June 32e7f940 / 32e7fcb0 / (103's own, same shape): [ skill type, change type, value ] per triple, all as floats */
+/*virtual*/ void CX2BuffSkillTypeChangeBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+	KBuffBehaviorFactor& BehaviorFactor = vecFactors_.back();
+
+	for ( vector<SkillTypeChange>::const_iterator vItr = m_vecChange.begin(); m_vecChange.end() != vItr; ++vItr )
+	{
+		BehaviorFactor.m_vecValues.push_back( static_cast<float>( vItr->m_iSkillType ) );
+		BehaviorFactor.m_vecValues.push_back( static_cast<float>( vItr->m_iChangeType ) );
+		BehaviorFactor.m_vecValues.push_back( vItr->m_fValue );
+	}
+}
+
+/** @function : SetFactor
+	@brief : June 32e7b0d0 (99) / 32e7b610 (100). No factor or not a user: false; else ApplySkillTypeChanges (PERCENT and FIX_VALUE merge).
+*/
+/*virtual*/ bool CX2BuffChangeRateBySkillTypeBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) || NULL == JuneBuffNewSkillGetUser( pGameUnit_ ) )
+		return false;
+
+	ApplySkillTypeChanges( *pBehaviorFactor, pBuffTemplet_, true );
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( JuneBuffNewSkillFirstApply( static_cast<int>( GetType() ) ) )
+		CX2JuneBuffCapture::Line( "first apply BBT %d (%s by skill type): BTI %d, %d change(s)", static_cast<int>( GetType() ),
+			BBT_CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE == GetType() ? "consume MP rate" : "cool time rate",
+			static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), static_cast<int>( m_vecChange.size() ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return true;
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffChangeRateBySkillTypeBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffChangeRateBySkillTypeBehaviorTemplet( *this ) );
+}
+
+/** @brief : June 32e7b530 / 32e7ba70: rebuild the triples from the packet. No unit call: 99 and 100 have no store. */
+/*virtual*/ void CX2BuffChangeRateBySkillTypeBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	m_vecChange.clear();
+	ReadSkillTypeChanges( kFactor_, 1.0f, m_vecChange );
+}
+
+/** @function : SetFactor
+	@brief : June 32e7bb50. User only; no factor: false. Same triples as 99, merged for BCT_PERCENT only. Marks the unit's cooldown-speed table
+		dirty on both the first apply and a restack.
+*/
+/*virtual*/ bool CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	CX2GUUser* pUser = JuneBuffNewSkillGetUser( pGameUnit_ );
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) || NULL == pUser )
+		return false;
+
+	ApplySkillTypeChanges( *pBehaviorFactor, pBuffTemplet_, false );
+	pUser->SetSkillCoolTimeSpeedDirty();
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( JuneBuffNewSkillFirstApply( 103 ) )
+		CX2JuneBuffCapture::Line( "first apply BBT 103 (skill cool time speed): BTI %d, %d change(s), first type %d change type %d value %g",
+			static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), static_cast<int>( m_vecChange.size() ),
+			m_vecChange.empty() ? 0 : m_vecChange.front().m_iSkillType, m_vecChange.empty() ? 0 : m_vecChange.front().m_iChangeType,
+			m_vecChange.empty() ? 0.0f : m_vecChange.front().m_fValue );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return true;
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet( *this ) );
+}
+
+/** @brief : June 32e75ea0: with a unit, a templet and a user unit, mark the cooldown-speed table dirty (the buff is gone on the next rebuild) */
+/*virtual*/ void CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	CX2GUUser* pUser = JuneBuffNewSkillGetUser( pGameUnit_ );
+	if ( NULL != pBuffTemplet_ && NULL != pUser )
+		pUser->SetSkillCoolTimeSpeedDirty();
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 //}}

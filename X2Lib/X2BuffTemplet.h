@@ -1166,6 +1166,78 @@ private:
 #endif // VERIFY_STAT_BY_BUFF
 };
 
+//{{ Iruha : 2026-10-04 // June buff port Phase 6 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+/** @class : CX2SkillTypeRateByBuff
+	@brief : BBT 89 list element (June ctor 3207bec0, vt 33474684): one buff's identity plus its { SKILL_TYPE, rate } pairs.
+		GetRate is June 32369a30: the first pair with that skill type wins, floored at 0.0; no pair gives 1.0.
+*/
+class CX2SkillTypeRateByBuff;
+#ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
+typedef boost::intrusive_ptr<CX2SkillTypeRateByBuff> CX2SkillTypeRateByBuffPtr;
+#else   X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
+typedef boost::shared_ptr<CX2SkillTypeRateByBuff> CX2SkillTypeRateByBuffPtr;
+#endif  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
+class CX2SkillTypeRateByBuff : public CX2BuffIdentity
+{
+public:
+	typedef JuneSkillTypeRate		SkillTypeRate;
+
+	CX2SkillTypeRateByBuff( const KBuffIdentity& BuffIdentity_, const vector<SkillTypeRate>& vecSkillTypeRate_ )
+		: CX2BuffIdentity( BuffIdentity_ ), m_vecSkillTypeRate( vecSkillTypeRate_ )
+	{}
+
+	float GetRate( const int iSkillType_ ) const
+	{
+		for ( vector<SkillTypeRate>::const_iterator vItr = m_vecSkillTypeRate.begin(); m_vecSkillTypeRate.end() != vItr; ++vItr )
+		{
+			if ( iSkillType_ == vItr->first )
+				return ( 0.0f < vItr->second ? vItr->second : 0.0f );
+		}
+		return 1.0f;
+	}
+
+private:
+	vector<SkillTypeRate>	m_vecSkillTypeRate;
+};
+
+/** @class : CX2SkillIDRateByBuff
+	@brief : BBT 90 and BBT 91 list element. June has two RTTI classes with byte-identical layout and getter (90: ctor 320849a0,
+		getter 32369aa0; 91: ctor 32084ae0, getter 32369b10); one class serves both lists here. One buff's identity plus its
+		{ rate, skill IDs } blocks. GetRate: the LAST block that lists the skill ID wins, with no clamp; none gives 1.0.
+*/
+class CX2SkillIDRateByBuff;
+#ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
+typedef boost::intrusive_ptr<CX2SkillIDRateByBuff> CX2SkillIDRateByBuffPtr;
+#else   X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
+typedef boost::shared_ptr<CX2SkillIDRateByBuff> CX2SkillIDRateByBuffPtr;
+#endif  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
+class CX2SkillIDRateByBuff : public CX2BuffIdentity
+{
+public:
+	typedef JuneSkillIDRateBlock		SkillIDRateBlock;
+
+	CX2SkillIDRateByBuff( const KBuffIdentity& BuffIdentity_, const vector<SkillIDRateBlock>& vecBlock_ )
+		: CX2BuffIdentity( BuffIdentity_ ), m_vecBlock( vecBlock_ )
+	{}
+
+	float GetRate( const int iSkillID_ ) const
+	{
+		float fRate = 1.0f;
+		for ( vector<SkillIDRateBlock>::const_iterator vItr = m_vecBlock.begin(); m_vecBlock.end() != vItr; ++vItr )
+		{
+			if ( std::find( vItr->m_vecSkillID.begin(), vItr->m_vecSkillID.end(), iSkillID_ ) != vItr->m_vecSkillID.end() )
+				fRate = vItr->m_fRate;
+		}
+		return fRate;
+	}
+
+private:
+	vector<SkillIDRateBlock>	m_vecBlock;
+};
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+//}}
+
 /** @class : CX2AddSkillLevelByBuffPtr
 	@brief : 더블 어택 클래스
 	@date : 2013/04/16/

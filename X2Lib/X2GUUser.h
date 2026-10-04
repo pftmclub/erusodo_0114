@@ -2700,6 +2700,51 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		float						GetSkillRateByBuffBehavior( const CX2SkillTree::SKILL_ID eSkillID_, const BUFF_BEHAVIOR_TYPE eBehaviorType_ ) const;
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+		/// June buff port Phase 6 (JUNE_BUFF_PORT_PHASES.md). June keeps the BBT 89, 90, 91 and 103 stores on the user class; the behavior templets reach
+		/// them only for a GUT_USER unit. 98, 99 and 100 have no store: their readers walk GetBuffFactor (June 3229fd80, March GetBuffFactor).
+		/// 89 (list of { skill type, rate } per buff): insert 31fe3b30 (only when the buff is not there), update 31fe3c10 (erase, then insert), erase 31fe2990
+		void								InsertSkillDamage( const KBuffIdentity& BuffIdentity_, const vector<CX2SkillTypeRateByBuff::SkillTypeRate>& vecSkillTypeRate_ );
+		void								UpdateSkillDamage( const KBuffIdentity& BuffIdentity_, const vector<CX2SkillTypeRateByBuff::SkillTypeRate>& vecSkillTypeRate_ );
+		void								EraseSkillDamage( const KBuffIdentity& BuffIdentity_ );
+		/// 90 (list of { rate, skill IDs } blocks per buff): insert 3200ae70 (only when the buff is not there), erase 31fe29e0
+		void								InsertSkillDamageBySkillID( const KBuffIdentity& BuffIdentity_, const vector<CX2SkillIDRateByBuff::SkillIDRateBlock>& vecBlock_ );
+		void								EraseSkillDamageBySkillID( const KBuffIdentity& BuffIdentity_ );
+		/// 91 (the same shape on the MP-charge list): insert 3200af50, erase 31fe2a30
+		void								InsertChargeMpHitBySkillID( const KBuffIdentity& BuffIdentity_, const vector<CX2SkillIDRateByBuff::SkillIDRateBlock>& vecBlock_ );
+		void								EraseChargeMpHitBySkillID( const KBuffIdentity& BuffIdentity_ );
+		/// 89 x 90 readers: June 31fd7cc0 GetSkillDamageRateByBuff( skillId ). Phase 6b multiplies it into the state power rate (DoStateEndStart) and the summon helper.
+		float								GetSkillDamageRateByBuff( const int iSkillID_ ) const;
+		/// 91 readers: June 31fd7df0 and, as CX2GUUser slot 109, 31fd7ea0 GetChargeMpRateByBuff( const DamageData* )
+		float								GetChargeMpRateBySkillID( const int iSkillID_ ) const;
+		virtual float						GetChargeMpRateByBuff( const CX2DamageManager::DamageData* pDamageData_ ) const;
+		/// 98 reader: June 32039e00. Phase 6b multiplies it into the state power rate at state start, and into the summon helper for summon skills.
+		float								GetSkillDamageRateBySlotType( const int iSkillID_ ) const;
+		/// 99 / 100 readers: June 3203a250 / 3203a420 (and the loop they share). fRate_ is in and out; the result is floored at 0.0. Phase 6b calls them from
+		/// GetActualMPConsume and the cooldown helper 3235a710.
+		void								ApplySkillTypeConsumeMpRate( const CX2SkillTree::SkillTemplet* pSkillTemplet_, float& fRate_ ) const;
+		bool								ApplySkillTypeCoolTimeRate( const CX2SkillTree::SKILL_ID eSkillID_, float& fRate_ ) const;
+		bool								ApplySkillTypeRateBuff( const BUFF_BEHAVIOR_TYPE eBehaviorType_, const int iSkillType_, float& fRate_ ) const;
+		/// 103: the dirty flag (June +0x9314), the per-skill-type speed table (June +0x931c), rebuild 32039fb0 and reader 31fd8bc0
+		void								SetSkillCoolTimeSpeedDirty() { m_bSkillCoolTimeSpeedDirty = true; }
+		float								GetSkillCoolTimeSpeedBySkillType( const int iSkillType_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		/// Phase 6 console hook (DEBUG only): iMode_ 1 puts one new-type entry straight into its store, 0 takes it out, 2 only reads; the type's reader is logged each time.
+		/// 75 ( rate ), 89 ( skill type, rate ), 90 and 91 ( skill id, rate ), 103 ( skill type, speed ) have a store; 98, 99 and 100 only read (mode 2).
+		void								JuneBuffTestNewSkill_LUA( const int iBehaviorType_, const float fA_, const float fB_, const int iMode_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+
+	private:
+		void								RebuildSkillCoolTimeSpeed();
+
+		vector<CX2SkillTypeRateByBuffPtr>	m_vecSkillDamageByBuff;				/// 89 (June +0x92d4)
+		vector<CX2SkillIDRateByBuffPtr>		m_vecSkillDamageBySkillIDByBuff;	/// 90 (June +0x92e4)
+		vector<CX2SkillIDRateByBuffPtr>		m_vecChargeMpHitBySkillIDByBuff;	/// 91 (June +0x92f4)
+		bool								m_bSkillCoolTimeSpeedDirty;			/// 103 (June +0x9314); false at construction
+		map<int, float>						m_mapSkillCoolTimeSpeed;			/// 103: skill type -> speed, 1.0 when no buff (June +0x931c)
+
+	public:
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 		virtual float				GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;
 
 #ifdef NEXON_QA_CHEAT_REQ

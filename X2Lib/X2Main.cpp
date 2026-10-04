@@ -4577,6 +4577,9 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2GUUser>( L, "GetHyperModeUsed",			&CX2GUUser::GetHyperModeUsed );
 	lua_tinker::class_def<CX2GUUser>( L, "SetDevAddDamage",				&CX2GUUser::SetDevAddDamage );
 	lua_tinker::class_def<CX2GUUser>( L, "ForceChangeHyperMode",		&CX2GUUser::ForceChangeHyperMode );
+#if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
+	lua_tinker::class_def<CX2GUUser>( L, "JuneBuffTestNewSkill_LUA",	&CX2GUUser::JuneBuffTestNewSkill_LUA );	/// June buff port Phase 6 console hook, DEBUG only
+#endif defined( SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
 	lua_tinker::class_def<CX2GUUser>( L, "GetNowSpecialAttack",			&CX2GUUser::GetNowSpecialAttack );
 	lua_tinker::class_def<CX2GUUser>( L, "GetHoldSpecialAttack",		&CX2GUUser::GetHoldSpecialAttack );
 	lua_tinker::class_def<CX2GUUser>( L, "GetHoldingSpecialAttack",		&CX2GUUser::GetHoldingSpecialAttack );

@@ -459,6 +459,232 @@ private:
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 //}}
 
+//{{ Iruha : 2026-10-04 // June buff port Phase 6 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+/// June buff port Phase 6: the data the behavior classes below hold. X2Main.h includes this header BEFORE X2BuffTemplet.h, so the types live here;
+/// X2BuffTemplet.h's CX2SkillTypeRateByBuff / CX2SkillIDRateByBuff (the unit list elements) alias them.
+typedef std::pair<int, float>	JuneSkillTypeRate;		/// BBT 89: { SKILL_TYPE, rate }
+struct JuneSkillIDRateBlock							/// BBT 90 and 91: one { rate, skill IDs } block
+{
+	float			m_fRate;
+	vector<int>		m_vecSkillID;
+
+	JuneSkillIDRateBlock() : m_fRate( 1.0f ) {}
+};
+
+/** @class : CX2BuffDoubleAttackBuffBehaviorTemplet
+	@brief : BBT 75 (Phase 6). June class vt 33535070. Same shape as March's BBT 56 class (CX2BuffDoubleAttackBehaviorTemplet) but on its own
+		unit list (June +0x65b4, beside 56's +0x65a4), and read on the ATTACKER in both DamageReacts. Only BCT_PERCENT is accepted, and a
+		mismatch returns false with no popup. ParsingBehavior reads BUFF_CHANGE_TYPE with default 0 (56's one fails without it).
+		Slots: ParsingBehavior 32e75360, SetFactor 32e77be0, GetFactor 32e7e9f0, DoFinish 32e75540, packet 32e754f0.
+*/
+class CX2BuffDoubleAttackBuffBehaviorTemplet : public CX2BuffBehaviorTemplet
+{
+public:
+	enum FACTOR_ORDER
+	{
+		FO_CHANGE_TYPE,				/// BUFF_CHANGE_TYPE
+		FO_VALUE,					/// the rate
+		FO_END,
+	};
+
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffDoubleAttackBuffBehaviorTemplet ); }
+
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+
+protected:
+	CX2BuffDoubleAttackBuffBehaviorTemplet() : CX2BuffBehaviorTemplet(),
+		m_eChangeType( BCT_SWAP_VALUE ), m_fRate( 0.f )
+	{}
+
+	virtual bool ParsingBehavior( KLuaManager& luaManager_ );
+
+private:
+	BUFF_CHANGE_TYPE				m_eChangeType;	/// June +0x10
+	float							m_fRate;		/// June +0x14
+};
+
+/** @class : CX2BuffChangeSkillDamageBehaviorTemplet
+	@brief : BBT 89 (Phase 6; class, store and reader only, the host is Phase 6b). June class vt 33535378. The unit gets one list entry per
+		buff: the { SKILL_TYPE, rate } pairs (CX2GUUser::GetSkillDamageRateByBuff multiplies the entry rate for the skill's type into the
+		skill's power rate). ParsingBehavior is the shared default (32ec5990).
+		Slots: SetFactor 32e7a9e0, slot 7 32e7c020, GetFactor 32e7ecf0, DoFinish 32e75b70, packet 32e7af60.
+*/
+class CX2BuffChangeSkillDamageBehaviorTemplet : public CX2BuffBehaviorTemplet
+{
+public:
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffChangeSkillDamageBehaviorTemplet ); }
+
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+	virtual bool OnAccumulationCountDecreased( CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );	/// June slot 7, 32e7c020
+
+protected:
+	CX2BuffChangeSkillDamageBehaviorTemplet() : CX2BuffBehaviorTemplet()
+	{}
+
+private:
+	vector<JuneSkillTypeRate>	m_vecSkillTypeRate;	/// June +0x10
+};
+
+/** @class : CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet
+	@brief : BBT 90 (Phase 6; class, store and reader only). June class vt 33535594. The unit gets one list entry per buff: { rate, skill IDs }
+		blocks, read through the same CX2GUUser::GetSkillDamageRateByBuff as 89 (outside its skill-templet check).
+		Slots: SetFactor 32e849c0, GetFactor 32e7ef50, DoFinish 32e75b90, packet 32e84b90.
+*/
+class CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet : public CX2BuffBehaviorTemplet
+{
+public:
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet ); }
+
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+
+protected:
+	CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet() : CX2BuffBehaviorTemplet()
+	{}
+
+private:
+	vector<JuneSkillIDRateBlock>	m_vecBlock;	/// June +0x10, element 0x14
+};
+
+/** @class : CX2BuffChargeMpHitBySkillIDBehaviorTemplet
+	@brief : BBT 91 (Phase 6, complete). June class vt 335355d0, the twin of 90 on the MP-charge list: CX2GUUser::GetChargeMpRateByBuff
+		scales the attacker's hit MP gain for a hit whose APPLIED_SKILL_ID is in a block's list.
+		Slots: SetFactor 32e84d70, GetFactor 32e7f2e0, DoFinish 32e75bb0, packet 32e84f40.
+*/
+class CX2BuffChargeMpHitBySkillIDBehaviorTemplet : public CX2BuffBehaviorTemplet
+{
+public:
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffChargeMpHitBySkillIDBehaviorTemplet ); }
+
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+
+protected:
+	CX2BuffChargeMpHitBySkillIDBehaviorTemplet() : CX2BuffBehaviorTemplet()
+	{}
+
+private:
+	vector<JuneSkillIDRateBlock>	m_vecBlock;	/// June +0x10, element 0x14
+};
+
+/** @class : CX2AddDamageOfSkillSlotType
+	@brief : BBT 98 (Phase 6; class and reader only, the host is Phase 6b). June class vt 33535160. No unit store: CX2GUUser::
+		GetSkillDamageRateBySlotType walks the live buff factors and multiplies the skill's power rate by m_fRate when the skill sits in
+		a slot row of this slot type. A negative slot type rejects the factor.
+		Slots: ParsingBehavior 32e75d20, SetFactor 32e78080, GetFactor 32e7f890, DoFinish 32e75cc0, packet 32e78170.
+*/
+class CX2AddDamageOfSkillSlotType : public CX2BuffBehaviorTemplet
+{
+public:
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2AddDamageOfSkillSlotType ); }
+
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+
+protected:
+	CX2AddDamageOfSkillSlotType() : CX2BuffBehaviorTemplet(),
+		m_iSlotType( 0 ), m_fRate( 0.f )
+	{}
+
+	virtual bool ParsingBehavior( KLuaManager& luaManager_ );
+
+private:
+	int								m_iSlotType;	/// June +0x10, SKILL_SLOT_TYPE
+	float							m_fRate;		/// June +0x14
+};
+
+/** @class : CX2BuffSkillTypeChangeBehaviorTemplet
+	@brief : The shared body of BBT 99, 100 and 103 (Phase 6). June has three classes whose member (+0x10, element { int skill type, int
+		change type, float value }), GetFactor and first-apply/restack arithmetic are the same; they differ in the merge rule and in
+		what happens besides. The concrete classes below pick the rule and the extras.
+		The factor is [ SKILL_TYPE, BUFF_CHANGE_TYPE, value ] per block.
+*/
+class CX2BuffSkillTypeChangeBehaviorTemplet : public CX2BuffBehaviorTemplet
+{
+public:
+	struct SkillTypeChange
+	{
+		int		m_iSkillType;
+		int		m_iChangeType;
+		float	m_fValue;
+
+		SkillTypeChange() : m_iSkillType( 0 ), m_iChangeType( 0 ), m_fValue( 0.0f ) {}
+		SkillTypeChange( const int iSkillType_, const int iChangeType_, const float fValue_ )
+			: m_iSkillType( iSkillType_ ), m_iChangeType( iChangeType_ ), m_fValue( fValue_ ) {}
+	};
+
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+
+protected:
+	CX2BuffSkillTypeChangeBehaviorTemplet() : CX2BuffBehaviorTemplet()
+	{}
+
+	static void ReadSkillTypeChanges( const KBuffBehaviorFactor& kFactor_, const float fScale_, OUT vector<SkillTypeChange>& vecChange_ );
+	void ApplySkillTypeChanges( const KBuffBehaviorFactor& kFactor_, const CX2BuffTemplet* pBuffTemplet_, const bool bMergeFixValue_ );
+
+	vector<SkillTypeChange>			m_vecChange;	/// June +0x10
+};
+
+/** @class : CX2BuffChangeRateBySkillTypeBehaviorTemplet
+	@brief : BBT 99 CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE and BBT 100 CHANGE_COOLTIME_RATE_BY_SKILLTYPE (Phase 6; class and readers only, the hosts
+		are Phase 6b). June vt 335353b4 / 335353f0, byte-identical, so one C++ class serves both; the type comes from GetType(). No unit
+		store: CX2GUUser::ApplySkillTypeConsumeMpRate / ApplySkillTypeCoolTimeRate walk the live buff factors. DoFinish is empty.
+		Slots (99 / 100): SetFactor 32e7b0d0 / 32e7b610, GetFactor 32e7f940 / 32e7fcb0, packet 32e7b530 / 32e7ba70.
+*/
+class CX2BuffChangeRateBySkillTypeBehaviorTemplet : public CX2BuffSkillTypeChangeBehaviorTemplet
+{
+public:
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffChangeRateBySkillTypeBehaviorTemplet ); }
+
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+
+protected:
+	CX2BuffChangeRateBySkillTypeBehaviorTemplet() : CX2BuffSkillTypeChangeBehaviorTemplet()
+	{}
+};
+
+/** @class : CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet
+	@brief : BBT 103 CHANGE_SKILL_COOL_TIME_SPEED (Phase 6, complete). June vt 3353542c. NO packet override (June slot 13 is the empty base),
+		so peers never receive it: it is the local player's cooldown speed. SetFactor and DoFinish only mark the unit's cooldown-speed
+		table dirty; CX2GUUser rebuilds it from every live type-103 factor (June 32039fb0). The merge applies to BCT_PERCENT only.
+		Slots: SetFactor 32e7bb50, DoFinish 32e75ea0.
+*/
+class CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet : public CX2BuffSkillTypeChangeBehaviorTemplet
+{
+public:
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet ); }
+
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+
+protected:
+	CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet() : CX2BuffSkillTypeChangeBehaviorTemplet()
+	{}
+};
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+//}}
+
 /** @class : CX2BuffCreateBuffFactortBehaviorTemplet
 	@brief : 해당 버프가 걸려있는 동안에 BuffFactor 적용
 	@date : 2012/7/23/

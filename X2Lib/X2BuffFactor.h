@@ -901,6 +901,18 @@ public:
 	void SetGameUnitChangeStateByConditionBehavior( KBuffBehaviorFactor& factor_, CX2GameUnit* pGameUnit_ );	/// BBT 80-84, June 32d4ce60
 	bool ParsingIgnoreDefenceBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill = true );	/// BBT 88, June 32d49210 (Phase 5c)
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+	/// June buff port Phase 6. One signature for both macro lists. June's 89, 90, 91, 98 and 103 parses do not take bIsSkill at all and 99 / 100 ignore
+	/// it: every VALUE-style table is read with the count (ParsingTableForWhile( ..., 1 )), so the factor is always the counted layout.
+	bool ParsingChangeSkillDamageBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill = true );	/// BBT 89, June 32d49460
+	bool ParsingChangeSkillDamageBySkillIDBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill = true );	/// BBT 90, June 32d49810
+	bool ParsingChargeMpHitBySkillIDBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill = true );	/// BBT 91, June 32d49da0
+	bool ParsingSkillIDRateBlocks( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, const char* pszRateKey_, const bool bRateMustBePositive_ );	/// the body 90 and 91 share
+	bool ParsingChangeSkillDamageBySkillSlotTypeBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill = true );	/// BBT 98, June 32d4a370
+	bool ParsingChangeRateBySkillTypeBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill = true );	/// BBT 99 (June 32d4aa30) and 100 (June 32d4b020)
+	bool ParsingChangeSkillCoolTimeSpeedBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill = true );	/// BBT 103, June 32d4b610
+	bool ParsingSkillTypeChangeBlocks( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, const bool bValueForAllChangeTypes_ );	/// the body 99, 100 and 103 share
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 	
 
 	////////////////////////////////////////////////////////////////////////////////////////////////

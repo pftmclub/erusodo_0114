@@ -594,6 +594,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 , m_bIgnoreNeverMove( false )
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+, m_bSkillCoolTimeSpeedDirty( false )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 #ifdef RENA_SIEGE_MODE_ANGLE_TEST
 , m_bEnableLookAtIK_Spine( false )
 , m_fLookAtIKAngle_Spine( 0.f )
@@ -9177,7 +9180,12 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		{
 			CX2GameUnit* pJuneDoubleAttacker = pDamageData->optrAttackerGameUnit.GetObservable();
 
-			/// @32048da7: BBT 75 DOUBLE_ATTACK_BUFF (the attacker's list, not AT_SPECIAL) goes here. Phase 6 owns it.
+			/// @32048da7: BBT 75 DOUBLE_ATTACK_BUFF (the attacker's list, not AT_SPECIAL): Phase 6, just below.
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+			/// June tests the ATTACKER's BBT 75 list with its own random roll, separate from the 56 roll above (two IsDoubleAttack* calls).
+			if ( CX2DamageManager::AT_SPECIAL != pDamageData->attackType && NULL != pJuneDoubleAttacker && pJuneDoubleAttacker->IsDoubleAttackBuffByBuff() )
+				m_bDoubleAttack = true;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 
 			/// @32048dc1: SI_SA_SDK_BRUTAL_CUTTER 8021, SI_SA_SCA_CRIMSON_BREAK 8025 and SI_SA_SCA_DREAD_WEAPON 8026 (June
 			/// Enum.lua; skills March lacks) double while the attacker has BTI_BUFF_SHADE_THE_ILLUSION. June calls
@@ -21302,6 +21310,451 @@ float CX2GUUser::GetSkillRateByBuffBehavior( const CX2SkillTree::SKILL_ID eSkill
 }
 
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+//{{ Iruha : 2026-10-04 // June buff port Phase 6 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+/** @function : InsertSkillDamage
+	@brief : June 31fe3b30 (BBT 89). One list entry per buff: nothing is inserted when this buff is already in the list.
+*/
+void CX2GUUser::InsertSkillDamage( const KBuffIdentity& BuffIdentity_, const vector<CX2SkillTypeRateByBuff::SkillTypeRate>& vecSkillTypeRate_ )
+{
+	if ( m_vecSkillDamageByBuff.end() != FindSameBuffIdentity<vector<CX2SkillTypeRateByBuffPtr>::iterator, CX2SkillTypeRateByBuffPtr>( m_vecSkillDamageByBuff, BuffIdentity_ ) )
+		return;
+
+	m_vecSkillDamageByBuff.push_back( CX2SkillTypeRateByBuffPtr( new CX2SkillTypeRateByBuff( BuffIdentity_, vecSkillTypeRate_ ) ) );
+}
+
+/** @brief : June 31fe3c10: erase this buff's entry, then insert it again with the new pairs */
+void CX2GUUser::UpdateSkillDamage( const KBuffIdentity& BuffIdentity_, const vector<CX2SkillTypeRateByBuff::SkillTypeRate>& vecSkillTypeRate_ )
+{
+	EraseSkillDamage( BuffIdentity_ );
+	InsertSkillDamage( BuffIdentity_, vecSkillTypeRate_ );
+}
+
+/** @brief : June 31fe2990 */
+void CX2GUUser::EraseSkillDamage( const KBuffIdentity& BuffIdentity_ )
+{
+	vector<CX2SkillTypeRateByBuffPtr>::iterator vItr
+		= FindSameBuffIdentity<vector<CX2SkillTypeRateByBuffPtr>::iterator, CX2SkillTypeRateByBuffPtr>( m_vecSkillDamageByBuff, BuffIdentity_ );
+
+	if ( m_vecSkillDamageByBuff.end() != vItr )
+		m_vecSkillDamageByBuff.erase( vItr );
+}
+
+/** @brief : June 3200ae70 (BBT 90): inserted only when this buff is not in the list yet */
+void CX2GUUser::InsertSkillDamageBySkillID( const KBuffIdentity& BuffIdentity_, const vector<CX2SkillIDRateByBuff::SkillIDRateBlock>& vecBlock_ )
+{
+	if ( m_vecSkillDamageBySkillIDByBuff.end() != FindSameBuffIdentity<vector<CX2SkillIDRateByBuffPtr>::iterator, CX2SkillIDRateByBuffPtr>( m_vecSkillDamageBySkillIDByBuff, BuffIdentity_ ) )
+		return;
+
+	m_vecSkillDamageBySkillIDByBuff.push_back( CX2SkillIDRateByBuffPtr( new CX2SkillIDRateByBuff( BuffIdentity_, vecBlock_ ) ) );
+}
+
+/** @brief : June 31fe29e0 */
+void CX2GUUser::EraseSkillDamageBySkillID( const KBuffIdentity& BuffIdentity_ )
+{
+	vector<CX2SkillIDRateByBuffPtr>::iterator vItr
+		= FindSameBuffIdentity<vector<CX2SkillIDRateByBuffPtr>::iterator, CX2SkillIDRateByBuffPtr>( m_vecSkillDamageBySkillIDByBuff, BuffIdentity_ );
+
+	if ( m_vecSkillDamageBySkillIDByBuff.end() != vItr )
+		m_vecSkillDamageBySkillIDByBuff.erase( vItr );
+}
+
+/** @brief : June 3200af50 (BBT 91): inserted only when this buff is not in the list yet */
+void CX2GUUser::InsertChargeMpHitBySkillID( const KBuffIdentity& BuffIdentity_, const vector<CX2SkillIDRateByBuff::SkillIDRateBlock>& vecBlock_ )
+{
+	if ( m_vecChargeMpHitBySkillIDByBuff.end() != FindSameBuffIdentity<vector<CX2SkillIDRateByBuffPtr>::iterator, CX2SkillIDRateByBuffPtr>( m_vecChargeMpHitBySkillIDByBuff, BuffIdentity_ ) )
+		return;
+
+	m_vecChargeMpHitBySkillIDByBuff.push_back( CX2SkillIDRateByBuffPtr( new CX2SkillIDRateByBuff( BuffIdentity_, vecBlock_ ) ) );
+}
+
+/** @brief : June 31fe2a30 */
+void CX2GUUser::EraseChargeMpHitBySkillID( const KBuffIdentity& BuffIdentity_ )
+{
+	vector<CX2SkillIDRateByBuffPtr>::iterator vItr
+		= FindSameBuffIdentity<vector<CX2SkillIDRateByBuffPtr>::iterator, CX2SkillIDRateByBuffPtr>( m_vecChargeMpHitBySkillIDByBuff, BuffIdentity_ );
+
+	if ( m_vecChargeMpHitBySkillIDByBuff.end() != vItr )
+		m_vecChargeMpHitBySkillIDByBuff.erase( vItr );
+}
+
+/** @function : GetSkillDamageRateByBuff
+	@brief : June 31fd7cc0. For a skill ID above 0: the product of every BBT 89 entry's rate for the skill's SKILL_TYPE (only when the skill has a templet)
+		and every BBT 90 entry's rate for the skill ID (outside that templet check). 1.0 otherwise.
+	@return : the multiplier for the skill's power rate
+*/
+float CX2GUUser::GetSkillDamageRateByBuff( const int iSkillID_ ) const
+{
+	float fRate = 1.0f;
+	if ( 0 < iSkillID_ )
+	{
+		if ( NULL != g_pData && NULL != g_pData->GetSkillTree() )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+			if ( NULL != pSkillTemplet )
+			{
+				BOOST_FOREACH( const CX2SkillTypeRateByBuffPtr& ptrSkillDamage, m_vecSkillDamageByBuff )
+				{
+					if ( NULL != ptrSkillDamage )
+						fRate *= ptrSkillDamage->GetRate( static_cast<int>( pSkillTemplet->m_eType ) );
+				}
+			}
+		}
+
+		BOOST_FOREACH( const CX2SkillIDRateByBuffPtr& ptrSkillDamage, m_vecSkillDamageBySkillIDByBuff )
+		{
+			if ( NULL != ptrSkillDamage )
+				fRate *= ptrSkillDamage->GetRate( iSkillID_ );
+		}
+	}
+
+	return fRate;
+}
+
+/** @brief : June 31fd7df0: for a skill ID above 0, the product of every BBT 91 entry's rate for it; else 1.0 */
+float CX2GUUser::GetChargeMpRateBySkillID( const int iSkillID_ ) const
+{
+	float fRate = 1.0f;
+	if ( 0 < iSkillID_ )
+	{
+		BOOST_FOREACH( const CX2SkillIDRateByBuffPtr& ptrChargeMp, m_vecChargeMpHitBySkillIDByBuff )
+		{
+			if ( NULL != ptrChargeMp )
+				fRate *= ptrChargeMp->GetRate( iSkillID_ );
+		}
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( 1.0f != fRate )
+	{
+		static bool s_bSeenRead = false;
+		if ( !s_bSeenRead )
+		{
+			s_bSeenRead = true;
+			CX2JuneBuffCapture::Line( "first read BBT 91: skill %d MP gain x %g", iSkillID_, fRate );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return fRate;
+}
+
+/** @brief : June 31fd7ea0 (CX2GUUser vtable slot 109): the rate for the hit's APPLIED_SKILL_ID, 1.0 without a hit */
+/*virtual*/ float CX2GUUser::GetChargeMpRateByBuff( const CX2DamageManager::DamageData* pDamageData_ ) const
+{
+	return ( NULL != pDamageData_ ? GetChargeMpRateBySkillID( pDamageData_->m_iAppliedSkillID ) : 1.0f );
+}
+
+/** @function : GetSkillDamageRateBySlotType
+	@brief : June 32039e00 (BBT 98). No skill templet or a hyper-active skill: 1.0. Otherwise the skill's equipped slot row decides: a skill in no slot
+		gets 1.0, and for one in a row every live BBT 98 factor ( slot type, rate ) whose slot type is that row's multiplies in its rate.
+		June maps the slot index with 3214f3d0 (0-3 slot A, 5-8 slot B, 4 and 9 the transcendence slot); March has 4 + 4 slots and no transcendence
+		slot, so the row itself is the slot type (CX2UserSkillTree::GetEquippedSkillSlotType).
+*/
+float CX2GUUser::GetSkillDamageRateBySlotType( const int iSkillID_ ) const
+{
+	if ( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == GetUnit() )
+		return 1.0f;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if ( NULL == pSkillTemplet || CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType )
+		return 1.0f;
+
+	const int iSlotType = GetUnit()->GetUnitData().m_UserSkillTree.GetEquippedSkillSlotType( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if ( 0 == iSlotType )
+		return 1.0f;
+
+	float fRate = 1.0f;
+
+	vector<KBuffFactor> vecBuffFactor;
+	GetBuffFactor( vecBuffFactor );
+
+	BOOST_FOREACH( const KBuffFactor& kBuffFactor, vecBuffFactor )
+	{
+		BOOST_FOREACH( const KBuffBehaviorFactor& kBehavior, kBuffFactor.m_vecBuffBehaviorFactors )
+		{
+			if ( static_cast<UINT>( BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE ) == kBehavior.m_uiType && 1 < kBehavior.m_vecValues.size()
+				&& iSlotType == static_cast<int>( kBehavior[0] + 0.5f ) )
+				fRate *= kBehavior[1];
+		}
+	}
+
+	return fRate;
+}
+
+/** @function : ApplySkillTypeRateBuff
+	@brief : The loop June 3203a250 (99) and 3203a420 (100) share. Over every live buff's behavior factor of the given type, each
+		( skill type, change type, value ) triple whose skill type is iSkillType_ changes fRate_: change type 0 sets it to the value, 1 adds the value,
+		3 multiplies it by ( value + 1.0 ); any other change type counts as "not applied". The result is floored at 0.0.
+	@return : true when a triple matched and its change type was one of those three
+*/
+bool CX2GUUser::ApplySkillTypeRateBuff( const BUFF_BEHAVIOR_TYPE eBehaviorType_, const int iSkillType_, float& fRate_ ) const
+{
+	bool bApplied = false;
+
+	vector<KBuffFactor> vecBuffFactor;
+	GetBuffFactor( vecBuffFactor );
+
+	BOOST_FOREACH( const KBuffFactor& kBuffFactor, vecBuffFactor )
+	{
+		BOOST_FOREACH( const KBuffBehaviorFactor& kBehavior, kBuffFactor.m_vecBuffBehaviorFactors )
+		{
+			if ( static_cast<UINT>( eBehaviorType_ ) != kBehavior.m_uiType )
+				continue;
+
+			const UINT uiSize = kBehavior.m_vecValues.size();
+			for ( UINT uiIndex = 2; uiIndex < uiSize; uiIndex += 3 )
+			{
+				if ( iSkillType_ != static_cast<int>( kBehavior[uiIndex - 2] + 0.5f ) )
+					continue;
+
+				bApplied = true;
+				switch ( static_cast<int>( kBehavior[uiIndex - 1] + 0.5f ) )
+				{
+				case BCT_SWAP_VALUE:
+					fRate_ = kBehavior[uiIndex];
+					break;
+
+				case BCT_FIX_VALUE:
+					fRate_ += kBehavior[uiIndex];
+					break;
+
+				case BCT_PERCENT:
+					fRate_ = ( kBehavior[uiIndex] + 1.0f ) * fRate_;
+					break;
+
+				default:
+					bApplied = false;
+					break;
+				}
+			}
+		}
+	}
+
+	if ( fRate_ <= 0.0f )
+		fRate_ = 0.0f;
+
+	return bApplied;
+}
+
+/** @brief : June 3203a250 (BBT 99): with a skill templet, the loop above for BBT_CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE; without one nothing changes */
+void CX2GUUser::ApplySkillTypeConsumeMpRate( const CX2SkillTree::SkillTemplet* pSkillTemplet_, float& fRate_ ) const
+{
+	if ( NULL != pSkillTemplet_ )
+		ApplySkillTypeRateBuff( BBT_CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE, static_cast<int>( pSkillTemplet_->m_eType ), fRate_ );
+}
+
+/** @brief : June 3203a420 (BBT 100): false and nothing changed without a skill tree or the skill's templet, else the loop for
+		BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE and whether it applied */
+bool CX2GUUser::ApplySkillTypeCoolTimeRate( const CX2SkillTree::SKILL_ID eSkillID_, float& fRate_ ) const
+{
+	if ( NULL == g_pData || NULL == g_pData->GetSkillTree() )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID_ );
+	if ( NULL == pSkillTemplet )
+		return false;
+
+	return ApplySkillTypeRateBuff( BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE, static_cast<int>( pSkillTemplet->m_eType ), fRate_ );
+}
+
+/** @function : RebuildSkillCoolTimeSpeed
+	@brief : June 32039fb0 (BBT 103). Does nothing unless the dirty flag is set. Otherwise it clears the flag, sets every entry of the table to 1.0 (the
+		keys stay), then for every live type-103 factor and every BCT_PERCENT triple multiplies the entry for its skill type by the value (a new
+		entry takes the value). June runs it every frame from CommonFrameMove; it runs here when the table is read, which gives the same table.
+*/
+void CX2GUUser::RebuildSkillCoolTimeSpeed()
+{
+	if ( !m_bSkillCoolTimeSpeedDirty )
+		return;
+
+	m_bSkillCoolTimeSpeedDirty = false;
+
+	for ( map<int, float>::iterator mItr = m_mapSkillCoolTimeSpeed.begin(); m_mapSkillCoolTimeSpeed.end() != mItr; ++mItr )
+		mItr->second = 1.0f;
+
+	vector<KBuffFactor> vecBuffFactor;
+	GetBuffFactor( vecBuffFactor );
+
+	BOOST_FOREACH( const KBuffFactor& kBuffFactor, vecBuffFactor )
+	{
+		BOOST_FOREACH( const KBuffBehaviorFactor& kBehavior, kBuffFactor.m_vecBuffBehaviorFactors )
+		{
+			if ( static_cast<UINT>( BBT_CHANGE_SKILL_COOL_TIME_SPEED ) != kBehavior.m_uiType )
+				continue;
+
+			const UINT uiSize = kBehavior.m_vecValues.size();
+			for ( UINT uiIndex = 0; uiIndex + 2 < uiSize; uiIndex += 3 )
+			{
+				if ( BCT_PERCENT != static_cast<int>( kBehavior[uiIndex + 1] + 0.5f ) )
+					continue;
+
+				const int iSkillType = static_cast<int>( kBehavior[uiIndex] + 0.5f );
+				map<int, float>::iterator mItr = m_mapSkillCoolTimeSpeed.find( iSkillType );
+				if ( m_mapSkillCoolTimeSpeed.end() != mItr )
+					mItr->second *= kBehavior[uiIndex + 2];
+				else
+					m_mapSkillCoolTimeSpeed.insert( map<int, float>::value_type( iSkillType, kBehavior[uiIndex + 2] ) );
+			}
+		}
+	}
+}
+
+/** @brief : June 31fd8bc0: the speed for a skill type, 1.0 when no buff names it. Rebuilds first when a type-103 buff came or went. */
+float CX2GUUser::GetSkillCoolTimeSpeedBySkillType( const int iSkillType_ )
+{
+	RebuildSkillCoolTimeSpeed();
+
+	map<int, float>::const_iterator mItr = m_mapSkillCoolTimeSpeed.find( iSkillType_ );
+	const float fSpeed = ( m_mapSkillCoolTimeSpeed.end() != mItr ? mItr->second : 1.0f );
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( 1.0f != fSpeed )
+	{
+		static bool s_bSeenRead = false;
+		if ( !s_bSeenRead )
+		{
+			s_bSeenRead = true;
+			CX2JuneBuffCapture::Line( "first read BBT 103: skill type %d cool time runs x %g", iSkillType_, fSpeed );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return fSpeed;
+}
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+/** @function : JuneBuffTestNewSkill_LUA
+	@brief : Phase 6 console hook (declaration in X2GUUser.h). iMode_ 1 puts one entry straight into the type's store (75, 89, 90, 91, 103) and 0 takes it out
+		again; the identity is a made-up BTI (900000 + type) with unique number 1, so a 0 removes exactly what a 1 put in. 2 writes nothing. Whatever the mode,
+		the type's reader is then logged, so a buff applied through the real parse path (SetBuffFactorToGameUnitByBuffFactorID_LUA) can be read back with mode 2:
+		75 the attacker's roll, 89 / 90 / 98 / 99 / 100 the answer for each equipped skill, 91 the answer for skill fA_, 103 the speed of skill types 5, 6, 7, 13 and fA_.
+		The 103 write goes into the table WITHOUT the dirty flag: a rebuild would reset it to 1.0 for lack of a live type-103 buff.
+*/
+void CX2GUUser::JuneBuffTestNewSkill_LUA( const int iBehaviorType_, const float fA_, const float fB_, const int iMode_ )
+{
+	const KBuffIdentity BuffIdentity( 900000 + iBehaviorType_, 1 );
+
+	if ( 2 != iMode_ )
+	{
+		switch ( iBehaviorType_ )
+		{
+		case BBT_DOUBLE_ATTACK_BUFF:
+			if ( 0 != iMode_ )
+				CreateAndInsertDoubleAttackBuffByBuff( BuffIdentity, fA_ );
+			else
+				EraseDoubleAttackBuffByBuff( BuffIdentity );
+			break;
+
+		case BBT_CHANGE_SKILL_DAMAGE:
+			{
+				vector<CX2SkillTypeRateByBuff::SkillTypeRate> vecSkillTypeRate;
+				vecSkillTypeRate.push_back( CX2SkillTypeRateByBuff::SkillTypeRate( static_cast<int>( fA_ ), fB_ ) );
+				if ( 0 != iMode_ )
+					InsertSkillDamage( BuffIdentity, vecSkillTypeRate );
+				else
+					EraseSkillDamage( BuffIdentity );
+			} break;
+
+		case BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_ID:
+		case BBT_CHARGE_MP_HIT_BY_SKILL_ID:
+			{
+				vector<CX2SkillIDRateByBuff::SkillIDRateBlock> vecBlock;
+				CX2SkillIDRateByBuff::SkillIDRateBlock kBlock;
+				kBlock.m_fRate = fB_;
+				kBlock.m_vecSkillID.push_back( static_cast<int>( fA_ ) );
+				vecBlock.push_back( kBlock );
+
+				if ( BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_ID == iBehaviorType_ )
+				{
+					if ( 0 != iMode_ )
+						InsertSkillDamageBySkillID( BuffIdentity, vecBlock );
+					else
+						EraseSkillDamageBySkillID( BuffIdentity );
+				}
+				else
+				{
+					if ( 0 != iMode_ )
+						InsertChargeMpHitBySkillID( BuffIdentity, vecBlock );
+					else
+						EraseChargeMpHitBySkillID( BuffIdentity );
+				}
+			} break;
+
+		case BBT_CHANGE_SKILL_COOL_TIME_SPEED:
+			if ( 0 != iMode_ )
+				m_mapSkillCoolTimeSpeed[ static_cast<int>( fA_ ) ] = fB_;
+			else
+				m_mapSkillCoolTimeSpeed.erase( static_cast<int>( fA_ ) );
+			break;
+
+		default:
+			CX2JuneBuffCapture::Line( "console hook BBT %d: no store to write (98, 99 and 100 read live buff factors only; use mode 2)", iBehaviorType_ );
+			return;
+		}
+	}
+
+	CX2JuneBuffCapture::Line( "console hook BBT %d, a %g, b %g, %s", iBehaviorType_, fA_, fB_, 2 == iMode_ ? "read" : ( 0 != iMode_ ? "insert" : "erase" ) );
+
+	switch ( iBehaviorType_ )
+	{
+	case BBT_DOUBLE_ATTACK_BUFF:
+		CX2JuneBuffCapture::Line( "  reader BBT 75: IsDoubleAttackBuffByBuff = %d (one roll)", IsDoubleAttackBuffByBuff() ? 1 : 0 );
+		return;
+
+	case BBT_CHARGE_MP_HIT_BY_SKILL_ID:
+		CX2JuneBuffCapture::Line( "  reader BBT 91: skill %d GetChargeMpRateBySkillID = %g", static_cast<int>( fA_ ), GetChargeMpRateBySkillID( static_cast<int>( fA_ ) ) );
+		return;
+
+	case BBT_CHANGE_SKILL_COOL_TIME_SPEED:
+		{
+			const int aiSkillType[] = { 5, 6, 7, 13, static_cast<int>( fA_ ) };
+			for ( int iIndex = 0; iIndex < ARRAY_SIZE( aiSkillType ); ++iIndex )
+				CX2JuneBuffCapture::Line( "  reader BBT 103: skill type %d cool time speed = %g", aiSkillType[iIndex], GetSkillCoolTimeSpeedBySkillType( aiSkillType[iIndex] ) );
+		}
+		return;
+	}
+
+	/// 89, 90, 98, 99, 100: the reader's answer for every equipped skill
+	if ( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == GetUnit() )
+		return;
+
+	for ( int iSlot = 0; iSlot < 8; ++iSlot )
+	{
+		const CX2UserSkillTree::SkillSlotData* pSlot = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillSlot( iSlot, false );
+		if ( NULL == pSlot || CX2SkillTree::SI_NONE == pSlot->m_eID )
+			continue;
+
+		const int iSkillID = static_cast<int>( pSlot->m_eID );
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSlot->m_eID );
+		const int iSkillType = ( NULL != pSkillTemplet ? static_cast<int>( pSkillTemplet->m_eType ) : -1 );
+
+		float fRate = 1.0f;
+		switch ( iBehaviorType_ )
+		{
+		case BBT_CHANGE_SKILL_DAMAGE:
+		case BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_ID:
+			CX2JuneBuffCapture::Line( "  reader BBT 89 x 90: slot %d skill %d type %d GetSkillDamageRateByBuff = %g", iSlot, iSkillID, iSkillType, GetSkillDamageRateByBuff( iSkillID ) );
+			break;
+
+		case BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE:
+			CX2JuneBuffCapture::Line( "  reader BBT 98: slot %d skill %d type %d GetSkillDamageRateBySlotType = %g", iSlot, iSkillID, iSkillType, GetSkillDamageRateBySlotType( iSkillID ) );
+			break;
+
+		case BBT_CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE:
+			ApplySkillTypeConsumeMpRate( pSkillTemplet, fRate );
+			CX2JuneBuffCapture::Line( "  reader BBT 99: slot %d skill %d type %d MP cost rate from 1 = %g", iSlot, iSkillID, iSkillType, fRate );
+			break;
+
+		case BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE:
+			{
+				const bool bApplied = ApplySkillTypeCoolTimeRate( pSlot->m_eID, fRate );
+				CX2JuneBuffCapture::Line( "  reader BBT 100: slot %d skill %d type %d cool time rate from 1 = %g (applied %d)", iSlot, iSkillID, iSkillType, fRate, bApplied ? 1 : 0 );
+			} break;
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+//}}
 /** @function : GetActualCoolTime
 	@brief : 사용한 스킬의 쿨타임을 얻어옴
 	@param : 사용한 스킬의 ID, 사용한 스킬의 레벨

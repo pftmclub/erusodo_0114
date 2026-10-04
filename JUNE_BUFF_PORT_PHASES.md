@@ -4793,6 +4793,189 @@ For each check say where to be, the line to paste, what it does in one plain sen
 and what I should see if it works and if it does not.
 ```
 
+### Phase 6 — Done (2026-10-04), play-test pending
+
+**Result.** All eight types are ported under `SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL`; none is Opus-only. 75, 91 and 103 are complete (class, store, reader, host). 89, 90, 98, 99 and 100 have the class, store and reader only, and are **inert until Phase 6b**: no host function was touched (`DoStateEndStart`, the summon-NPC helper, `GetActualMPConsume` and the cooldown setters are as they were). `buff_census.py --phase 6` lists none of the eight types (March "handles 98", was 90). `US_SERVICE` build rc=0 for KTDXLIB, X2Lib (PCH invalidated with `touch X2Lib/stdafx.cpp`) and X2 (a new virtual on `CX2GameUnit`, so a full X2Lib rebuild). Deployed `X2/US_SERVICE/x2.exe` as `X2_offline.exe` (names read programmatically): 19,089,920 B, md5 **`cb9d90155b72a02fb4e417fb55ea249b`**, byte-identical to the build output. **Not launched.** The exe contains the eight `BBT_*` key strings (ASCII and UTF-16), `SKILL_CATEGORY_%d`, `MULTIPLY_MP_CHARGE_RATE`, and the debug strings `first apply BBT 75 (double attack buff)`, `first apply BBT 90` / `91` / `98` / `103`, `first read BBT 75` / `91` / `103`, `reader BBT 89 x 90` and `JuneBuffTestNewSkill_LUA`; the `first read` strings sit in `IsDoubleAttackBuffByBuff`, `GetChargeMpRateBySkillID` and `GetSkillCoolTimeSpeedBySkillType`, inside the flag, so they prove the readers compiled in.
+
+**Flags.** `SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL` (requires `_ENUM`, `_TEMPLET_PARITY` for 89's slot 7, and `_BEHAVIOR_PARITY` for the level-slice cases, the no-popup `DISPLAY_ERROR` and the type-56 block that 75 completes), appended to `KTDXLIB/Always.h`. The step-8 lines and the console hook sit under `SERV_IRUHADEV_JUNE_BUFF_DEBUG`. Every edit is a pure insertion inside the flag except two kinds: the two cooldown subtractions in `CX2UserSkillTree::OnFrameMove` are wrapped (the original line sits in the `#else`), and the two "Phase 6 owns it" placeholder comments Phase 4b-i part 2 left in the DamageReacts were reworded to "just below" (these are the 2 deleted lines in the diff stat).
+
+**What the doc's type-56 question turned out to be.** Phase 4b-i part 2 had already landed June's 56 changes in both `DamageReact`s (`!= AT_SPECIAL` on the defender's own list, the NPC's `!m_bNoDamage`, and the 8021/8025/8026 + `BTI_BUFF_SHADE_THE_ILLUSION` rule) and left a placeholder at `@32048da7` / `@327b3ac7`. Nothing about 56 was changed here; 75 only fills the two placeholders, as its own `if` with its own random roll (June makes two `IsDoubleAttack*` calls), using the attacker pointer the block already declared. The NPC side adds `!m_bNoDamage`, the user side does not, as June.
+
+**Per type** (June members are `CX2GameUnit` / `CX2GUUser` offsets; the port uses named members and never an offset):
+
+| Type | Factor parse | Level slice | SGU | Class | Store | Reader / host |
+|---|---|---|---|---|---|---|
+| 75 DOUBLE_ATTACK_BUFF | March's `ParsingDoubleAttackByBuffBehavior` (June `32d46800`, shared with 56) | already in (4b-i): default slice | none | new `CX2BuffDoubleAttackBuffBehaviorTemplet` (vt `33535070`) | new `CX2GameUnit::m_vecDoubleAttackBuff` (June `+0x65b4`; `CX2DoubleAttack` elements, June has an identical `CX2DoubleAttackBuff`) | `IsDoubleAttackBuffByBuff` (`32275050`); **host** both `DamageReact`s on the attacker's list |
+| 89 CHANGE_SKILL_DAMAGE | new `ParsingChangeSkillDamageBehavior` (`32d49460`) | already in (`32d47a9e`) | none | new `CX2BuffChangeSkillDamageBehaviorTemplet` (vt `33535378`), **with slot 7** `OnAccumulationCountDecreased` (`32e7c020`) | new `CX2GUUser::m_vecSkillDamageByBuff` (June `+0x92d4`) of `CX2SkillTypeRateByBuff` | `CX2GUUser::GetSkillDamageRateByBuff` (`31fd7cc0`); host is 6b |
+| 90 CHANGE_SKILL_DAMAGE_BY_SKILL_ID | new `ParsingChangeSkillDamageBySkillIDBehavior` (`32d49810`) | copy as is | none | new `CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet` (vt `33535594`) | new `m_vecSkillDamageBySkillIDByBuff` (`+0x92e4`), last matching block wins | the same `GetSkillDamageRateByBuff` (the 90 loop sits outside its skill-templet test); host is 6b |
+| 91 CHARGE_MP_HIT_BY_SKILL_ID | new `ParsingChargeMpHitBySkillIDBehavior` (`32d49da0`) | copy as is | none | new `CX2BuffChargeMpHitBySkillIDBehaviorTemplet` (vt `335355d0`) | new `m_vecChargeMpHitBySkillIDByBuff` (`+0x92f4`), last matching block wins | `GetChargeMpRateBySkillID` (`31fd7df0`) behind a new virtual `CX2GameUnit::GetChargeMpRateByBuff( const DamageData* )` (base 1.0, `CX2GUUser` override = slot 109 `31fd7ea0`); **host** `SetDamageExceptionProcess`, after the whole melee/range `if / else`, on the same `fHitAddMP`, for every attack type |
+| 98 CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE | new `ParsingChangeSkillDamageBySkillSlotTypeBehavior` (`32d4a370`) | already in (`32d47e66`) | none | new `CX2AddDamageOfSkillSlotType` (vt `33535160`) | none (reads live factors) | `CX2GUUser::GetSkillDamageRateBySlotType` (`32039e00`) with a new `CX2UserSkillTree::GetEquippedSkillSlotType`; host is 6b |
+| 99 CONSUME_MP_RATE_BY_SKILLTYPE / 100 COOLTIME_RATE_BY_SKILLTYPE | new `ParsingChangeRateBySkillTypeBehavior` (`32d4aa30` / `32d4b020`, byte-identical) | already in (`32d47b85`) | none | **one** class `CX2BuffChangeRateBySkillTypeBehaviorTemplet` for both (June's two are byte-identical; type from `GetType()`) | none | `CX2GUUser::ApplySkillTypeConsumeMpRate` (`3203a250`), `ApplySkillTypeCoolTimeRate` (`3203a420`) over one shared loop; hosts are 6b |
+| 103 CHANGE_SKILL_COOL_TIME_SPEED | new `ParsingChangeSkillCoolTimeSpeedBehavior` (`32d4b610`) | already in (`32d47b85`) | none | new `CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet` (vt `3353542c`), **no `SetFactorFromPacket`** (June slot 13 is the empty base) | new `CX2GUUser::m_mapSkillCoolTimeSpeed` + dirty flag (June `+0x931c`, `+0x9314`); rebuild `32039fb0` | `GetSkillCoolTimeSpeedBySkillType` (`31fd8bc0`); **host** `CX2UserSkillTree::OnFrameMove`, both slot rows: `left -= GetSkillCoolTimeSpeedByBuff( skillId ) * dt` (`32896850`) |
+
+99, 100 and 103 share one body in a base class (`CX2BuffSkillTypeChangeBehaviorTemplet`: the triples, `GetFactor`, and the first-apply / restack arithmetic; 103 merges BCT_PERCENT only). All eight are in the factor-parse switch of **both** macro lists and in the templet factory. UDP layout is through `GetFactor` / `SetFactorFromPacket`, as in the table (the 103 reader walks `GetBuffFactor`, so 103's `GetFactor` emits the triples).
+
+**What was settled by reading (the parse addresses are in the doc's per-type map; Ghidra was opened at them and nowhere else).**
+- **A failing parse returns false with nothing pushed.** June's `32d49460`, `32d49810`, `32d49da0`, `32d4a370`, `32d4aa30`, `32d4b020` and `32d4b610` all end a failed read at an `XOR AL,AL` return and push the factor only after the loop. The doc's "stops at the first missing or zero `SKILL_TYPE`" and "an entry is skipped" are therefore a **whole-factor reject**; the port does the same (and also ends the open category table, which June leaves open).
+- **The count is always written.** 89, 99, 100 and 103 call `ParsingTableForWhile( …, 1 )` with a literal 1 (99 and 100 take `bIsSkill` but never pass it on; 89, 90, 91, 98 and 103 take none), so the factor is always the counted layout, whichever macro list calls it. `VALUE` is read for change types 0, 1, 3 (99, 100) or 3 (103); another change type leaves a block as `[SKILL_TYPE, change type]` with no count, which June's level slice then reads past. The port reproduces that.
+- **90 / 91 key rules.** The rate key is required (`MULTIPLY_DAMAGE_RATE` for 90, `MULTIPLY_MP_CHARGE_RATE` for 91). 90 needs rate > 0, 91 accepts 0 (`TEST AH,1` against `TEST AH,0x41`). `SKILL_ID_LIST` is read from index 1 while a number ≥ 0 is there; an empty or missing list rejects the factor.
+- **98.** `SKILL_SLOT_TYPE` is read with its result ignored (so a missing key means 0) and a negative value rejects; the rate must be ≥ 0. June also rejects a negative slot type in `SetFactor`; both are in.
+- **`GetBuffFactor` filter.** The 98, 99, 100 and 103 readers walk `CX2GameUnit::GetBuffFactor`. March's skips finished buffs and **world buffs**; June's `3229fd80` is described as "every live, unfinished buff", with no world-buff mention. No June 98/99/100/103 buff is a world buff, so nothing differs in practice.
+- **103 is rebuilt lazily.** June rebuilds in `CommonFrameMove` when the dirty flag is set; the port rebuilds when the table is read, which gives the same table. Both `DoFinish` paths in March run to completion (the templet is erased in the same call) before the next read, so a finished buff cannot be seen by a rebuild.
+- **98's slot rows.** June has 5 + 5 slots (0–3 A, 5–8 B, 4 and 9 transcendence, `3214f3d0`); March has 4 + 4 and no transcendence slot, so the port maps the **row** to the slot type (`CX2UserSkillTree::GetEquippedSkillSlotType`: 0 none, 1 A, 2 B). The same applies to 103's host: it walks March's own two rows.
+- **Include order (a compile error found and fixed).** `X2Main.h` includes `X2BuffBehaviorTemplet.h` (line 144) **before** `X2BuffTemplet.h` (147), so the behavior classes could not name `CX2SkillTypeRateByBuff::…`. The two plain data types now live in `X2BuffBehaviorTemplet.h` (`JuneSkillTypeRate`, `JuneSkillIDRateBlock`) and the element classes in `X2BuffTemplet.h` alias them.
+- **DamageData keys.** The Phase 6 readers use `APPLIED_SKILL_ID` (91) and `NO_DAMAGE` (75's NPC side). Both are parsed (`m_iAppliedSkillID` by 4b's DAMAGEDATA parity, `m_bNoDamage` by March); `USED_SKILL_ID` (the 56 rule) was already in. Nothing was missing.
+- **Level slice of 75.** Measured on `june_src_fixed/data036_kom/BattleFieldBuffFactor.src.lua`: all nine 75 factors (BFI 466, 532, 591, 593, 779, 889, 955, 1041, 1042) carry `BCT_PERCENT` with a 30-entry table, so the default slice takes the per-level value (0.1 to 0.5 as the chance of a double hit). The 89, 100 and 103 tables are 1, 4 or 30 entries (all ≥ 1), so `min( level, count )` is always a real value.
+- **June DamageData reach of 91.** The only March data that sets `APPLIED_SKILL_ID` is one `DamageEffect` (`DamageEffect.lua`: `APPLIED_SKILL_ID = RNSI_SA_RHB_LOCKON_STRATOS`, skill 31012, an `AT_SPECIAL` hit). Every other March hit has `m_iAppliedSkillID` 0, so the 91 host reads 1.0 for it; the live read site can only be shown on that one attack until June damage data arrives. The reader itself is shown by the console hook below.
+
+**Findings for later phases.**
+1. **Phase 13 needs two Enum tables.** The staged Enum has neither `SKILL_SLOT_TYPE` (`SKILL_SLOT_None` 0, `_A` 1, `_B` 2, `_TC` 3) nor June's `ST_SPECIAL_ACTIVE_GRADE_1..3` (14–16), `ST_CORE` and `ST_CORE_PASSIVE` in `SKILL_TYPE`. June's 89, 100 and 103 data use `SKILL_TYPE.ST_SPECIAL_ACTIVE_GRADE_n` as the category key and 98's data uses `SKILL_SLOT_TYPE.SKILL_SLOT_TC`; with those names `nil`, the category's `SKILL_TYPE` is missing and the parse rejects the **whole** factor. The C++ `CX2SkillTree::SKILL_TYPE` also stops at `ST_HYPER_ACTIVE_SKILL` (13); only the console test needs numbers, the code compares ints, but the grade types need adding with the characters.
+2. **Phase 6b** still owns the five inert hosts. The readers it will call are: `GetSkillDamageRateByBuff` and `GetSkillDamageRateBySlotType` (power rate cache at state start; 98 first, as June), `ApplySkillTypeConsumeMpRate` (June calls it at `@3203d024`) and `ApplySkillTypeCoolTimeRate` (the cooldown helper). June skill ids use `+0x178` (the skill memo / base id), which March lacks, so 6b must say it passes plain ids.
+3. **Character-port checklist:** nothing added. No Phase 6 reader has a class override in a character function; 75, 89, 90, 91, 98, 99, 100 and 103 are all in common code.
+
+**Behaviour on March data: none for the five inert types, and 75, 91, 103 only when a factor carries them.** March's shipped data has no factor with any of the eight types, so the new code runs only when June data (Phase 13) or the console lines below put one in.
+
+**Hygiene.** `git diff --stat`: 1,874 insertions and 2 deletions over 15 files (`X2BuffBehaviorTemplet.cpp` 621, `X2GUUser.cpp` 455, `X2BuffFactor.cpp` 252, `X2BuffBehaviorTemplet.h` 226, `X2BuffTemplet.h` 72, `X2GameUnit.cpp` 56, `X2UserSkillTree.cpp` 55, `X2GUUser.h` 45, `Always.h` 19, `X2BuffFactor.h` 12, `X2GameUnit.h` 12, `X2GUNPC.cpp` 8, `X2UserSkillTree.h` 8, `X2Main.cpp` 3, and 32 rows in `funcmap.tsv`, 8 of them parse functions tagged "Buff Phase 6"). `file` is unchanged on every touched source (all added lines ASCII, CRLF where the file is CRLF; `X2UserSkillTree.cpp` and `.h` are mixed CRLF/LF and each edit follows the lines around it). Every deleted line is one of the five replaced lines named under *Flags* and keeps its original in an `#else` or is a comment.
+
+**How to see it in game (for Phase 14).** June numbers from `june_src_fixed/data036_kom/Enum.src.lua` and the factor file (BFI = ordinal in the file). The data comes with Phase 13; for a unit to *have* the buff the factor must be applied, e.g. `SetBuffFactorToGameUnitByBuffFactorID_LUA( BFI, 1 )` once June data is loaded. 89, 90, 98, 99 and 100 are **inert until 6b**: the console read-out in the hand-off shows their readers, nothing changes in play.
+
+| Type | June BFI (BTI) | Where it comes from | What to watch |
+|---|---|---|---|
+| 75 | `BFI_BUFF_BRUTAL_CUTTER` 466 (BTI 429), `BFI_BUFF_BLOODLUST` 779 (BTI 753), `BFI_BUFF_SCHWERT_PLATZEN` 1041 (BTI 975), `BFI_BUFF_SOCKET_BERSERKER` 532 (item) | skill and item buffs of June classes | your non-special hits on a monster double (red damage number); the chance is the level's `PERCENT` (0.1 to 0.5) |
+| 89 | `BFI_BUFF_2013_DEFENSE_BUFF` 195 (BTI 202), `BFI_BUFF_OVER_STRIKE` 707 (BTI 698), `BFI_BUFF_HEAVYFIREARMS_MASTERY` 721 (BTI 705, decays by `ACCUMULATION_DECREASE_WHEN_FINISH`, 4 levels of rate) | item and skill buffs | **inert until 6b**; later: the power rate of skills of the listed skill types |
+| 90 | `BFI_SI_A_LWS_NATURE_FORCE` 23 (BTI 23), `BFI_BUFF_RBM_COUNTER` 867, `BFI_BUFF_CDC_OPEN_MIND` 883 | skill buffs | **inert until 6b**; later: ×1.3 on the listed skill ids |
+| 91 | `BFI_DEBUFF_SI_A_LWS_NATURE_FORCE_MEMO` 123, `BFI_DEBUFF_SI_A_LWS_NATURE_FORCE` 950 (both BTI 137) | a skill debuff | MP gained from hits of the listed skill ids is scaled (0.8 in June's data) |
+| 98 | `BFI_TRANSCENDENTAL_SLOT_ATTACK_EFFECT` 843 (BTI 820), slot type `SKILL_SLOT_TC` | the transcendence slot (March has none) | **inert until 6b**; and needs a transcendence slot, so it cannot show in March |
+| 99 | none (June data does not use it) | – | **inert until 6b**; no data |
+| 100 | `BFI_BUFF_OVER_STRIKE_RSR_TRANSCENDENCE` 918 (BTI 888, `VALUE` −0.1) | a skill buff | **inert until 6b**; later: cooldowns 10 % shorter for the three grade types |
+| 103 | `BFI_BUFF_RAPID_GUARDIAN` 991 (BTI 936, `VALUE` 2) | a skill buff | your skill cooldown timers run twice as fast for the grade skill types (`ACTIVE`, `GRADE_1..3`) |
+
+**Cost.** `/cost` cannot be read from inside the session: user, please paste it here. *(Not invented.)*
+
+**Play-test hand-off (dev console, END key; `settings.auth_level` = 3 is already set).**
+
+How the lines were checked:
+- **Syntax and tables:** all eight setup lines were run under `elstools`' bundled LuaJIT against a mock manager. They build the tables with the ids named (templets 990075, 990089, 990090, 990091, 990098, 990099, 990100, 990103; factors 362 to 369).
+- **Not run in the game.** The C++ they reach has compiled but never run. The setup lines have the same shape as the 5b and 5c lines that did run.
+- **Ids assume a fresh launch.** The last load summary logged `factors 361 loaded`, so the next free factor ids are 362 to 369. If you pasted any other test definition this session, restart the game first; otherwise you will see `ordinal reject BFI 362 … the next id must be N`.
+- **The hook.** `JuneBuffTestNewSkill_LUA( type, a, b, mode )` is this phase's debug hook on your unit. Mode 2 only reads; it logs what the type's reader answers (so a buff applied through the real parse can be read back), and modes 1 / 0 write or remove one entry straight into the store. It writes to `ErrorLog.txt`, nothing on screen.
+- **Why the real path.** The shipped March data has no factor with these types, so the setup lines teach the game eight throw-away buffs through the real loader. Applying one then runs the parse, the level slice, the templet, `SetFactor` and the store or reader on a real factor.
+
+0. **Setup (once, right after loading in; paste all eight, in this order).**
+   - Where: any field or dungeon, after a fresh launch.
+   - What they define (all last 60 seconds and are applied to you by the checks below): 362 double hits (100 % chance), 363 +50 % power for skill types 6 and 7, 364 ×1.3 for skill ids 31011 to 31014, 365 no MP gain from hits of skill 31012, 366 ×1.2 for skills in the slot A row, 367 half MP cost for skill types 6 and 7, 368 10 % shorter cooldown for skill types 6 and 7, 369 cooldowns run twice as fast for skill types 5, 6, 7 and 13.
+
+   - Paste, factor 362 (type 75):
+
+     ```
+     local t = {} local r = {} local p = {} for i = 1, 30 do t[i] = 60 r[i] = 1 p[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990075, IS_WORLD_BUFF = FALSE, IS_DEBUF = FALSE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 75 }, BBT_DOUBLE_ATTACK_BUFF = { BUFF_CHANGE_TYPE = 3 } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 362, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990075, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 75 }, BBT_DOUBLE_ATTACK_BUFF = { BUFF_CHANGE_TYPE = 3, PERCENT = p } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+
+   - Paste, factor 363 (type 89):
+
+     ```
+     local t = {} local r = {} for i = 1, 30 do t[i] = 60 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990089, IS_WORLD_BUFF = FALSE, IS_DEBUF = FALSE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 89 }, BBT_CHANGE_SKILL_DAMAGE = {} }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 363, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990089, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 89 }, BBT_CHANGE_SKILL_DAMAGE = { SKILL_CATEGORY_0 = { SKILL_TYPE = 6, MULTIPLY_DAMAGE_RATE = { 1.5 } }, SKILL_CATEGORY_1 = { SKILL_TYPE = 7, MULTIPLY_DAMAGE_RATE = { 1.5 } } } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+
+   - Paste, factor 364 (type 90):
+
+     ```
+     local t = {} local r = {} for i = 1, 30 do t[i] = 60 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990090, IS_WORLD_BUFF = FALSE, IS_DEBUF = FALSE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 90 }, BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_ID = {} }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 364, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990090, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 90 }, BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_ID = { SKILL_CATEGORY_0 = { MULTIPLY_DAMAGE_RATE = 1.3, SKILL_ID_LIST = { 31011, 31012, 31013, 31014 } } } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+
+   - Paste, factor 365 (type 91):
+
+     ```
+     local t = {} local r = {} for i = 1, 30 do t[i] = 60 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990091, IS_WORLD_BUFF = FALSE, IS_DEBUF = FALSE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 91 }, BBT_CHARGE_MP_HIT_BY_SKILL_ID = {} }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 365, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990091, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 91 }, BBT_CHARGE_MP_HIT_BY_SKILL_ID = { SKILL_CATEGORY_0 = { MULTIPLY_MP_CHARGE_RATE = 0, SKILL_ID_LIST = { 31012 } } } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+
+   - Paste, factor 366 (type 98):
+
+     ```
+     local t = {} local r = {} for i = 1, 30 do t[i] = 60 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990098, IS_WORLD_BUFF = FALSE, IS_DEBUF = FALSE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 98 }, BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE = {} }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 366, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990098, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 98 }, BBT_CHANGE_SKILL_DAMAGE_BY_SKILL_SLOTTYPE = { MULTIPLY_DAMAGE_RATE = 1.2, SKILL_SLOT_TYPE = 1 } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+
+   - Paste, factor 367 (type 99):
+
+     ```
+     local t = {} local r = {} for i = 1, 30 do t[i] = 60 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990099, IS_WORLD_BUFF = FALSE, IS_DEBUF = FALSE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 99 }, BBT_CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE = {} }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 367, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990099, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 99 }, BBT_CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE = { SKILL_CATEGORY_0 = { SKILL_TYPE = 6, BUFF_CHANGE_TYPE = 3, VALUE = { -0.5 } }, SKILL_CATEGORY_1 = { SKILL_TYPE = 7, BUFF_CHANGE_TYPE = 3, VALUE = { -0.5 } } } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+
+   - Paste, factor 368 (type 100):
+
+     ```
+     local t = {} local r = {} for i = 1, 30 do t[i] = 60 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990100, IS_WORLD_BUFF = FALSE, IS_DEBUF = FALSE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 100 }, BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE = {} }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 368, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990100, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 100 }, BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE = { SKILL_CATEGORY_0 = { SKILL_TYPE = 6, BUFF_CHANGE_TYPE = 3, VALUE = { -0.1 } }, SKILL_CATEGORY_1 = { SKILL_TYPE = 7, BUFF_CHANGE_TYPE = 3, VALUE = { -0.1 } } } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+
+   - Paste, factor 369 (type 103):
+
+     ```
+     local t = {} local r = {} for i = 1, 30 do t[i] = 60 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990103, IS_WORLD_BUFF = FALSE, IS_DEBUF = FALSE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 103 }, BBT_CHANGE_SKILL_COOL_TIME_SPEED = {} }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 369, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990103, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 103 }, BBT_CHANGE_SKILL_COOL_TIME_SPEED = { SKILL_CATEGORY_0 = { SKILL_TYPE = 5, BUFF_CHANGE_TYPE = 3, VALUE = { 2 } }, SKILL_CATEGORY_1 = { SKILL_TYPE = 6, BUFF_CHANGE_TYPE = 3, VALUE = { 2 } }, SKILL_CATEGORY_2 = { SKILL_TYPE = 7, BUFF_CHANGE_TYPE = 3, VALUE = { 2 } }, SKILL_CATEGORY_3 = { SKILL_TYPE = 13, BUFF_CHANGE_TYPE = 3, VALUE = { 2 } } } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+
+   - What it does: teaches the game the eight test buffs. Nothing changes on screen yet.
+   - Look for: no popup, and no `ordinal reject BFI 36x` line in `ErrorLog.txt`.
+   - If not: an `ordinal reject … the next id must be N` line means the ids are off. Tell me N, or restart and paste all eight again.
+
+1. **Normal hits on monsters double (type 75, complete).**
+   - Where: a field or dungeon with ordinary monsters you can hit safely. Hit one a few times with your plain attack first and note the typical damage number.
+   - Paste:
+     ```
+     g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 362, 1 )
+     ```
+   - What it does: for 60 seconds every plain (non-skill) hit you land counts twice.
+   - Look for: your plain-attack damage numbers on monsters about double, with the red "extra" look. Skill hits are unchanged. `ErrorLog.txt` gets `first apply BBT 75 (double attack buff): BTI 990075, rate 1`, and after a hit `first read BBT 75: the attacker's double-attack roll succeeded (rate 1)`.
+   - If not: a `first apply` line but no doubling and no `first read BBT 75` means the new DamageReact block did not run; tell me "no first read". No `first apply BBT 75` line: send any `[JUNE_BUFF]` line naming BTI `990075` or `BBT_DOUBLE_ATTACK_BUFF`.
+   - Undo: wait 60 seconds.
+
+2. **Skill cooldowns run twice as fast (type 103, complete).**
+   - Where: a field or dungeon, with at least one skill equipped and enough MP to use it.
+   - Paste, first:
+     ```
+     g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 369, 1 )
+     ```
+   - Use one of your skills and watch its cooldown on the slot (compare with a normal use if you remember the time).
+   - Paste, second (writes what the game now holds into the log):
+     ```
+     g_pX2Game:GetMyUnit():JuneBuffTestNewSkill_LUA( 103, 0, 0, 2 )
+     ```
+   - What it does: for 60 seconds your skill cooldowns tick down twice as fast; the second line lists the speed the game has for skill types 5, 6, 7 and 13.
+   - Look for: the cooldown overlay of the skill you used empties in about half the time. `ErrorLog.txt` gets `first apply BBT 103 (skill cool time speed): BTI 990103, 4 change(s), first type 5 change type 3 value 2`, `first read BBT 103: skill type N cool time runs x 2` (N is the type of the skill you used), and from the second line four `reader BBT 103: skill type 5/6/7/13 cool time speed = 2` lines (the extra fifth line repeats type 0 as 1).
+   - If not: no `first apply` line: send any `[JUNE_BUFF]` line naming BTI `990103` or `BBT_CHANGE_SKILL_COOL_TIME_SPEED`. A `first apply` line but speed 1 in the reader lines means the table was not rebuilt; tell me. A `first apply` line, speed 2, but a normal cooldown means the host did not run, or your skill's type is none of 5, 6, 7 and 13; send the `first read` line (or its absence) and the skill's name.
+   - Undo: wait 60 seconds.
+
+3. **MP gain by skill id (type 91, complete) and the inert readers (89, 90, 98, 99, 100).**
+   - Where: any field or dungeon, with your skills equipped.
+   - Paste, first (puts all six buffs on you):
+     ```
+     local u = g_pX2Game:GetMyUnit() for _, f in ipairs( { 363, 364, 365, 366, 367, 368 } ) do u:SetBuffFactorToGameUnitByBuffFactorID_LUA( f, 1 ) end
+     ```
+   - Paste, second (asks every reader what it answers):
+     ```
+     local u = g_pX2Game:GetMyUnit() u:JuneBuffTestNewSkill_LUA( 89, 0, 0, 2 ) u:JuneBuffTestNewSkill_LUA( 90, 0, 0, 2 ) u:JuneBuffTestNewSkill_LUA( 91, 31012, 0, 2 ) u:JuneBuffTestNewSkill_LUA( 98, 0, 0, 2 ) u:JuneBuffTestNewSkill_LUA( 99, 0, 0, 2 ) u:JuneBuffTestNewSkill_LUA( 100, 0, 0, 2 )
+     ```
+   - What it does: gives you six test buffs and then writes into the log what each of the new "by skill" readers says for every skill you have equipped. **Nothing changes on screen**: 89, 90, 98, 99 and 100 are not wired into the game yet (Phase 6b), and 91's only live attack is one monster-side effect (skill 31012).
+   - Look for: one `first apply BBT n` line each for 89, 90, 91, 98, 99 and 100, then the `reader` lines. Per equipped skill (`type` is its skill type):
+     - `reader BBT 89 x 90 … GetSkillDamageRateByBuff`: 1.5 for a skill of type 6 or 7, ×1.3 more for skill ids 31011 to 31014, else 1.
+     - `reader BBT 98 … GetSkillDamageRateBySlotType`: 1.2 for a skill in the slot A row (the first four), 1 for slot B skills and hyper skills.
+     - `reader BBT 99 … MP cost rate from 1`: 0.5 for type 6 or 7, else 1.
+     - `reader BBT 100 … cool time rate from 1`: 0.9 and `applied 1` for type 6 or 7, else 1 and `applied 0`.
+     - `reader BBT 91: skill 31012 GetChargeMpRateBySkillID = 0`.
+   - If not: a missing `first apply BBT n` means that factor was not applied (look for `ordinal reject`, or a `[JUNE_BUFF]` line naming the type or its BTI 990nnn); a `reader` value of 1 where this list says otherwise is the one thing to send back, with the skill name and the line. A popup or crash: send the `[JUNE_BUFF]` lines.
+   - Undo: wait 60 seconds.
+
+4. **Direct store writes (types 75, 89, 90, 91, 103), optional.**
+   - Where: any field or dungeon.
+   - Paste (writes one entry into each store and reads it back, then takes it out again):
+     ```
+     local u = g_pX2Game:GetMyUnit() u:JuneBuffTestNewSkill_LUA( 91, 31012, 0.5, 1 ) u:JuneBuffTestNewSkill_LUA( 91, 31012, 0.5, 0 ) u:JuneBuffTestNewSkill_LUA( 103, 6, 2, 1 ) u:JuneBuffTestNewSkill_LUA( 103, 6, 2, 0 ) u:JuneBuffTestNewSkill_LUA( 89, 6, 1.5, 1 ) u:JuneBuffTestNewSkill_LUA( 89, 6, 1.5, 0 )
+     ```
+   - What it does: stores and then removes one entry per type, with no buff involved.
+   - Look for: `console hook BBT 91, a 31012, b 0.5, insert` followed by `reader BBT 91: skill 31012 GetChargeMpRateBySkillID = 0.5`, then the same with `erase` and `= 1`; likewise 103 (`skill type 6 cool time speed = 2`, then `= 1`) and 89 (`GetSkillDamageRateByBuff = 1.5` on type-6 skills, then 1).
+   - If not: a `= 1` after an insert, or an `= 0.5` after an erase, means the store or the erase is wrong; send the lines.
+
+**Log lines to read afterwards** (this phase's own, `ErrorLog.txt` in the game directory): `[JUNE_BUFF] first apply BBT 75 / 89 / 90 / 91 / 98 / 99 / 100 / 103 …`, `first read BBT 75`, `first read BBT 91`, `first read BBT 103`, `console hook BBT …`, the `reader BBT …` lines, and any `[JUNE_BUFF]` line naming one of the eight types or the ids 362 to 369. Nothing else is in scope.
+
 ---
 
 ### Phase 6b — group B: skill-scoped hosts (Opus)

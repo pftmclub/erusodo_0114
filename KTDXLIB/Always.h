@@ -4784,3 +4784,22 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Removable: undefine it and no log string remains.
 #define SERV_IRUHADEV_JUNE_BUFF_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-04
+// Description: June buff port Phase 6 (JUNE_BUFF_PORT_PHASES.md): the skill-
+//              scoped behavior types June added. Complete (class, store,
+//              reader and host): 75 DOUBLE_ATTACK_BUFF (both DamageReacts),
+//              91 CHARGE_MP_HIT_BY_SKILL_ID (SetDamageExceptionProcess) and
+//              103 CHANGE_SKILL_COOL_TIME_SPEED (CX2UserSkillTree::OnFrameMove).
+//              Class, store and reader only (inert until Phase 6b wires the
+//              hosts June rewrote): 89 CHANGE_SKILL_DAMAGE, 90 ..._BY_SKILL_ID,
+//              98 ..._BY_SKILL_SLOTTYPE, 99 CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE
+//              and 100 CHANGE_COOLTIME_RATE_BY_SKILLTYPE.
+//              Requires SERV_IRUHADEV_JUNE_BUFF_ENUM, _TEMPLET_PARITY (89's
+//              OnAccumulationCountDecreased slot) and _BEHAVIOR_PARITY (the
+//              level-slice cases, the no-popup DISPLAY_ERROR, and the type-56
+//              block in both DamageReacts that 75 completes).
+#define SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+//////////////////////////////////////////////////////////////////////////

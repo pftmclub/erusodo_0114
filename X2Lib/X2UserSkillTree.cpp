@@ -67,7 +67,12 @@ void CX2UserSkillTree::OnFrameMove( double fTime, float fElapsedTime )
 		SkillSlotData& skillData = m_aEquippedSkill[i];
 		if( skillData.m_fCoolTimeLeft > 0.f )
 		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+			/// June CX2UserSkillTree::OnFrameMove 32896930: BBT 103 makes the cooldown run faster (x GetSkillCoolTimeSpeedByBuff, June 32896850)
+			skillData.m_fCoolTimeLeft -= GetSkillCoolTimeSpeedByBuff( skillData.m_eID ) * fElapsedTime;
+#else
 			skillData.m_fCoolTimeLeft -= fElapsedTime;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 			if( skillData.m_fCoolTimeLeft < 0.f )
 			{
 				skillData.m_fCoolTimeLeft = 0.f;
@@ -82,7 +87,12 @@ void CX2UserSkillTree::OnFrameMove( double fTime, float fElapsedTime )
 		SkillSlotData& skillData = m_aEquippedSkillSlotB[i];
 		if( skillData.m_fCoolTimeLeft > 0.f )
 		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+			/// June CX2UserSkillTree::OnFrameMove 32896930, slot B row: the same BBT 103 speed
+			skillData.m_fCoolTimeLeft -= GetSkillCoolTimeSpeedByBuff( skillData.m_eID ) * fElapsedTime;
+#else
 			skillData.m_fCoolTimeLeft -= fElapsedTime;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 			if( skillData.m_fCoolTimeLeft < 0.f )
 			{
 				skillData.m_fCoolTimeLeft = 0.f;
@@ -1411,6 +1421,51 @@ const CX2UserSkillTree::SkillSlotData* CX2UserSkillTree::GetSkillSlot( const CX2
 	return NULL;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+/** @function : GetEquippedSkillSlotType
+	@brief : June buff port Phase 6 (BBT 98 reader). The slot A row is searched first, then the slot B row.
+	@return : 0 when the skill is in no equipped slot, 1 for the slot A row, 2 for the slot B row
+*/
+int CX2UserSkillTree::GetEquippedSkillSlotType( const CX2SkillTree::SKILL_ID eSkillID_ ) const
+{
+	if ( CX2SkillTree::SI_NONE == eSkillID_ )
+		return 0;
+
+	for ( UINT uiIndex = 0; uiIndex < ARRAY_SIZE( m_aEquippedSkill ); ++uiIndex )
+	{
+		if ( eSkillID_ == m_aEquippedSkill[uiIndex].m_eID )
+			return 1;
+	}
+
+	for ( UINT uiIndex = 0; uiIndex < ARRAY_SIZE( m_aEquippedSkillSlotB ); ++uiIndex )
+	{
+		if ( eSkillID_ == m_aEquippedSkillSlotB[uiIndex].m_eID )
+			return 2;
+	}
+
+	return 0;
+}
+
+/** @function : GetSkillCoolTimeSpeedByBuff
+	@brief : June 32896850 (BBT 103 reader). With a game and the local player's unit in it, the unit's speed for the skill's SKILL_TYPE (June 32205ab0
+		maps the ID to the type through the skill templet, without GetSkillTemplet's level gate); 1.0 otherwise.
+*/
+float CX2UserSkillTree::GetSkillCoolTimeSpeedByBuff( const CX2SkillTree::SKILL_ID eSkillID_ ) const
+{
+	if ( NULL == g_pX2Game || NULL == g_pData || NULL == g_pData->GetSkillTree() )
+		return 1.0f;
+
+	CX2GUUser* pMyUnit = g_pX2Game->GetMyUnit();
+	if ( NULL == pMyUnit )
+		return 1.0f;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID_ );
+	if ( NULL == pSkillTemplet )
+		return 1.0f;
+
+	return pMyUnit->GetSkillCoolTimeSpeedBySkillType( static_cast<int>( pSkillTemplet->m_eType ) );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 /** @function : ChangeMpConsumptionPercent
 	@brief : Mp 소모율 변경
 	@param : Mp 소모율을 변경할 스킬ID, 변경 인자(fMultiplier)

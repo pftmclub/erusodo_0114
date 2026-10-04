@@ -9809,7 +9809,13 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			CX2GameUnit* pJuneDoubleAttacker = pDamageData->optrAttackerGameUnit.GetObservable();
 
 			/// @327b3ac7: BBT 75 DOUBLE_ATTACK_BUFF (the attacker's list, not AT_SPECIAL, not m_bNoDamage) goes here.
-			/// Phase 6 owns it.
+			/// BBT 75 is Phase 6 (just below).
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+				/// June tests the ATTACKER's BBT 75 list with its own random roll, separate from the 56 roll above, and not on a no-damage hit.
+				if ( CX2DamageManager::AT_SPECIAL != pDamageData->attackType && false == pDamageData->m_bNoDamage
+					&& NULL != pJuneDoubleAttacker && pJuneDoubleAttacker->IsDoubleAttackBuffByBuff() )
+					bJuneDoubleAttack = true;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 
 			/// @327b3aea: SI_SA_SDK_BRUTAL_CUTTER 8021, SI_SA_SCA_CRIMSON_BREAK 8025 and SI_SA_SCA_DREAD_WEAPON 8026 (June
 			/// Enum.lua; skills March lacks) double while the attacker has BTI_BUFF_SHADE_THE_ILLUSION, with no

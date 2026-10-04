@@ -2075,6 +2075,56 @@ float CX2GameUnit::GetIgnoreDefenceRate() const
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+/** @function : CreateAndInsertDoubleAttackBuffByBuff
+	@brief : June buff port Phase 6, BBT 75. June 32281b00: a new { identity, rate } entry (June element ctor 322af570, the same layout as BBT 56's
+		CX2DoubleAttack) is pushed onto the unit's BBT 75 list (June +0x65b4), with no duplicate test.
+*/
+void CX2GameUnit::CreateAndInsertDoubleAttackBuffByBuff( const KBuffIdentity& BuffIdentity_, float fRate_ )
+{
+	CX2DoubleAttackPtr ptrDoubleAttack = CX2DoubleAttackPtr( new CX2DoubleAttack( BuffIdentity_, fRate_ ) );
+	if ( NULL != ptrDoubleAttack )
+		m_vecDoubleAttackBuff.push_back( ptrDoubleAttack );
+}
+
+/** @function : EraseDoubleAttackBuffByBuff
+	@brief : June 32279d20: find_if on the identity (BTI and unique number), then erase that one entry.
+*/
+void CX2GameUnit::EraseDoubleAttackBuffByBuff( const KBuffIdentity& BuffIdentity_ )
+{
+	vector<CX2DoubleAttackPtr>::iterator vItr
+		= FindSameBuffIdentity<vector<CX2DoubleAttackPtr>::iterator, CX2DoubleAttackPtr>( m_vecDoubleAttackBuff, BuffIdentity_ );
+
+	if ( m_vecDoubleAttackBuff.end() != vItr )
+		m_vecDoubleAttackBuff.erase( vItr );
+}
+
+/** @function : IsDoubleAttackBuffByBuff
+	@brief : June 32275050, byte-identical to 56's 32274f60 (IsDoubleAttackByBuff) on the other list: true as soon as one entry's rate beats a
+		fresh random float. Every call rolls once per entry, so 56 and 75 each make their own roll in the DamageReacts.
+*/
+bool CX2GameUnit::IsDoubleAttackBuffByBuff()
+{
+	BOOST_FOREACH( CX2DoubleAttackPtr ptrDoubleAttack, m_vecDoubleAttackBuff )
+	{
+		if ( NULL != ptrDoubleAttack && GetRandomFloat() < ptrDoubleAttack->GetRate() )
+		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			static bool s_bSeenRead = false;
+			if ( !s_bSeenRead )
+			{
+				s_bSeenRead = true;
+				CX2JuneBuffCapture::Line( "first read BBT 75: the attacker's double-attack roll succeeded (rate %g)", ptrDoubleAttack->GetRate() );
+			}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			return true;
+		}
+	}
+
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+
 // 자신이 받을 damage를 계산해준다
 float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData )
 {
@@ -15333,6 +15383,12 @@ void CX2GameUnit::SetDamageExceptionProcess( OUT CX2DamageManager::DamageData* p
 			pDamageData_->fHitAddMP *= pDamageData_->optrAttackerGameUnit->GetRangeCommandMpGainRate();
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 	}
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+	/// June buff port Phase 6, SetDamageExceptionProcess 322990e0 @32299510-3229954e: BBT 91 scales the same fHitAddMP for EVERY attack type (both
+	/// attackType != AT_COMMAND branches of June's 85/86 test jump straight here). The attacker's slot-109 virtual reads the hit's APPLIED_SKILL_ID.
+	pDamageData_->fHitAddMP *= pDamageData_->optrAttackerGameUnit->GetChargeMpRateByBuff( pDamageData_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 
 	pDamageData_->damage.fPhysic					*= fPowerRate;
 	pDamageData_->damage.fMagic					*= fPowerRate;		

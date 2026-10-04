@@ -3315,6 +3315,15 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void CreateAndInsertDoubleAttackByBuff( const KBuffIdentity& BuffIdentity_, float fRate_ );
 		void EraseDoubleAttackByBuff( const KBuffIdentity& BuffIdentity_ );
 		bool IsDoubleAttackByBuff();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+		/// June buff port Phase 6, BBT 75 (June list +0x65b4, beside 56's +0x65a4): insert 32281b00, erase 32279d20, reader 32275050 (the attacker's list)
+		void CreateAndInsertDoubleAttackBuffByBuff( const KBuffIdentity& BuffIdentity_, float fRate_ );
+		void EraseDoubleAttackBuffByBuff( const KBuffIdentity& BuffIdentity_ );
+		bool IsDoubleAttackBuffByBuff();
+		/// June buff port Phase 6, BBT 91: CX2GUUser slot 109 (31fd7ea0) reads the attacker's list through the hit's APPLIED_SKILL_ID; the CX2GameUnit and
+		/// CX2GUNPC slot is 3208dd70, which returns 1.0. SetDamageExceptionProcess scales fHitAddMP by it.
+		virtual float GetChargeMpRateByBuff( const CX2DamageManager::DamageData* pDamageData_ ) const { return 1.0f; }
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 
 		void SetKBuffFactorPacketToGameUnit( const vector<KBuffFactor>& vecBuffFactor_ );
 		
@@ -4670,6 +4679,9 @@ protected:
 		CX2AdditionalStatByBuff			m_AdditionalTypeAdditionalAttackMultiplier;	/// 78 basic 1.0
 		vector<CX2StatFactorByBuffPtr>	m_vecIgnoreDefencePtr;						/// 88: one { identity, rate } per buff (June element 0x1c, ctor 322afc00)
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+		vector<CX2DoubleAttackPtr>		m_vecDoubleAttackBuff;						/// 75: one { identity, rate } per buff (June +0x65b4, element class CX2DoubleAttackBuff, ctor 322af570)
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 
 		vector<CX2StunPtr>				m_vecStunPtr;		/// 기절 효과
 		vector<CX2FreezePtr>			m_vecFreezePtr;		/// 빙결 효과

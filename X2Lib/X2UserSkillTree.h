@@ -282,6 +282,14 @@ public:		/// public function
 #endif
 	const CX2UserSkillTree::SkillSlotData* GetSkillSlot( int iSlotIndex, bool bSlotB ) const;
 	const CX2UserSkillTree::SkillSlotData* GetSkillSlot( const CX2SkillTree::SKILL_ID eSkillID_ ) const;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+	/// June buff port Phase 6. 98's slot lookup: 0 when the skill is in no equipped slot, 1 for the slot A row, 2 for the slot B row (June SKILL_SLOT_TYPE
+	/// SKILL_SLOT_None / _A / _B; 3 is the transcendence slot March does not have). June 3288fff0 returns a 10-wide slot index and 3214f3d0 maps it to the
+	/// type (0-3 A, 5-8 B, 4 and 9 TC); March has 4 + 4 slots, so the row is the type.
+	int GetEquippedSkillSlotType( const CX2SkillTree::SKILL_ID eSkillID_ ) const;
+	/// 103's host reader, June 32896850: how fast the skill's cooldown runs (1.0 = normal). Only the local player's unit has it (CX2Game::GetMyUnit).
+	float GetSkillCoolTimeSpeedByBuff( const CX2SkillTree::SKILL_ID eSkillID_ ) const;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 
 	void ChangeMpConsumptionPercent( const CX2SkillTree::SKILL_ID eSkillID_, const float fMultiplier_ );
 	void SetMpConsumption( int iSlotIndex_, bool bSlotB_, float fMpConsumption_ );
