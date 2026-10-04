@@ -5101,6 +5101,16 @@ How the lines were checked:
 
 **Cost.** `/cost` cannot be read from inside the session: user, please paste it here. *(Not invented.)*
 
+**Play-test (2026-10-04, user; exe `f413b8bf…`, run started 18:47:56 after the 18:41 deploy; `ErrorLog.txt` and `offline_server.log` read afterwards).**
+- **Load:** the baseline as before: `factors 361 loaded`, 5 ordinal rejects (481–483, 372, 373), 1 duplicate BTI (87). No `ordinal reject BFI 362` or `363`.
+- **1 (75, the player side): passed** (user). `ErrorLog.txt:174` `first apply BBT 75 … BTI 990075, rate 1`, then `:175` `first read BBT 75: the attacker's double-attack roll succeeded (rate 1)` after a monster's hit.
+- **2 (91, fix 1): passed** (logs). `:176` `first apply BBT 91 … 2 block(s), first rate 0.5`; `:179` `skill 31012 … = 2` and `:181` `skill 31013 … = 2`. Before the fix, 31012 would have read 0.5. Re-read at 18:54:44: both still 2.
+- **2b (spawn the 31012 effect): ran, not conclusive.**
+  - The effect was spawned twice (18:54:36, :39). As predicted, the mesh is missing: `ErrorLog.txt:182` `OpenXSkinMesh … RHB_LOCKON_STRATOS_ATTACK.X`, and `offline_server.log:120-127` `no XMesh templet` / `effect not live`. No crash.
+  - The one-shot `first read BBT 91` had already fired at 18:49:13 from the console read (`:178`), which was pasted first. So the spawn could not print it, and the live host path is still read-verified only. It is neither shown nor failed.
+  - To show it: fresh launch, paste the 363 setup line, apply 363, then spawn, with no read line before the spawn.
+  - The `JUNE_FX unsupported APPLIED_SKILL_ID … (31012/0)` line at `offline_server.log:125` is a diagnostic from the effect port (`X2DamageEffect.cpp:1637`). It logs the effect's own copy of the key and clears nothing in `m_DamageData`.
+
 **Play-test hand-off (dev console, END key; `settings.auth_level` = 3 is already set).**
 
 How the lines were checked:
