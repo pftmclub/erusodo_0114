@@ -6,6 +6,14 @@
 
 #include "StdAfx.h"
 #include ".\X2BuffTempletManager.h"
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+
+/// June buff port 4b-ii: as in the five buff runtime files. Here it matters for GetBuffFactorPtrFromBuffFactorList
+/// ("uiBuffFactorId Invalid"), which item and skill templet loading call outside any capture; the other sites run
+/// inside the Phase 3 captures, where RuntimeError hands the text to the capture exactly as DisplayErrorMessage did.
+#undef DISPLAY_ERROR
+#define DISPLAY_ERROR( wszError_ ) CX2JuneBuffCapture::RuntimeError( wszError_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 CX2BuffTempletManager* CX2BuffTempletManager::pInstance = NULL;
 
@@ -136,12 +144,14 @@ void CX2JuneBuffCapture::Report( const bool bParsed_, const char* szEntry_, cons
 	if ( NULL != g_pIruhaDisplayErrorSink )
 		return DisplayErrorMessage( wszError_ );	/// inside a capture: collected and reported by its owner, as before
 
-	StateLog( wszError_ );							/// what DisplayErrorMessage writes before its MessageBox
 	char szError[512] = { 0, };
 	WideCharToMultiByte( CP_ACP, 0, NULL != wszError_ ? wszError_ : L"", -1, szError, sizeof( szError ) - 1, NULL, NULL );
 	const int iBuffTempletID = CX2JuneBuffRuntimeScope::GetBuffTempletID();
 	if ( JuneBuffFirstRuntimeReport( iBuffTempletID, szError ) )
+	{
+		StateLog( wszError_ );						/// what DisplayErrorMessage writes, but once: no popup throttles a per-frame error now
 		Line( "runtime error, BTI %d: %s (June raises no popup here; written once per buff and text)", iBuffTempletID, szError );
+	}
 	return false;
 }
 
@@ -150,10 +160,12 @@ void CX2JuneBuffCapture::Report( const bool bParsed_, const char* szEntry_, cons
 	if ( NULL != g_pIruhaDisplayErrorSink )
 		return DisplayErrorMessage( szError_ );	/// inside a capture: collected and reported by its owner, as before
 
-	StateLog( szError_ );
 	const int iBuffTempletID = CX2JuneBuffRuntimeScope::GetBuffTempletID();
 	if ( JuneBuffFirstRuntimeReport( iBuffTempletID, NULL != szError_ ? szError_ : "" ) )
+	{
+		StateLog( szError_ );						/// once, as the wide overload
 		Line( "runtime error, BTI %d: %s (June raises no popup here; written once per buff and text)", iBuffTempletID, NULL != szError_ ? szError_ : "" );
+	}
 	return false;
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
