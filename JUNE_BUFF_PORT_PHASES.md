@@ -4707,6 +4707,15 @@ How the lines were checked:
 
 **Log lines to read afterwards** (`ErrorLog.txt`): `first apply BBT 88 …`, `first read BBT 88 …`, and any `[JUNE_BUFF]` line naming `990088` or `363`.
 
+**Play-test (2026-10-04, user): pass.**
+- **On screen (user):** the 88 debuff hit harder, then wore off after 60 seconds.
+- **Log, launch of 17:07** (`ErrorLog.txt`; the exe is still md5 `fedca482…`):
+  - `17:7:37 first apply BBT 88 (ignore defence): BTI 990088, rate 1`
+  - `17:7:40 first read BBT 88: piercing defence factor 0 (buff rate 1, damage data rate 0)`
+- **No reject of 362 or 363,** and no other `[JUNE_BUFF]` line after load.
+- **The load summary is the known baseline:** `factors 361 loaded`, ordinal rejects 5 (481–483, 372, 373), as recorded in Phase 3. Nothing from this phase.
+- **Review complete.** The `/cost` line above is still the user's to paste.
+
 ---
 
 ### Phase 6 — group B: skill-scoped types (Sonnet)
