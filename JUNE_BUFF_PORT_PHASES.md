@@ -4785,6 +4785,76 @@ For each check say where to be, the line to paste, what it does in one plain sen
 and what I should see if it works and if it does not.
 ```
 
+### Phase 12 — Done (2026-10-04), play-test pending
+
+Data only: no C++, no flag, no exe change. Everything below is staged in `kom_contents/` and mirrored under `march2014/update/`; **the user packs.**
+
+**What was staged** (every copy md5-checked against its June source):
+
+| Archive | File | Source | Note |
+|---|---|---|---|
+| `data057.kom` | `DLG_UI_Common_Texture_Buff.TET` (34,728 B), `.tga` (1,048,620 B) | June `data215_kom/` | replaces 18,362 B / same-size `.tga`; manifest entries already existed |
+| `datai021.kom` | `DLG_UI_Common_Texture_Buff_INT.TET`, `.tga` | June `datai021_kom/` | **new**; 2 manifest entries added (live `datai021.kom` has 90 files, no Buff_INT) |
+| `datai020.kom` | `DLG_INT_Button02.TET` (3,126 B), `.tga` | June `data056_kom/` | **beyond the named atlases, see below**; replaces 268 B / 3 keys; manifest entries already existed |
+| `data034.kom` | `DLG_BuffManager.lua` (365 B, algo 2) | `june_src_fixed/data034_kom/DLG_BuffManager.src.lua`, `elstools compile-batch -v mar-2014` | replaces 269 B; decompiled back and diffed against the source: identical |
+
+Mirrors: `march2014/update/{data057,datai021,datai020,data034}/` (the two atlas pairs, the Button02 pair, `DLG_BuffManager.src.lua`) with their `_manifest.json` files (CRLF, 2-space, no trailing newline; each file's existing line-ending style kept; `datai021` is a new manifest). The originals that were overwritten are in `kom_contents_backup_june_buff_phase12/`.
+
+**Before staging, the live `.kom`s were compared with the `kom_contents/` directories** (`elstools inspect --input`): `data057`, `datai020`, `datai021` and `data034` match by name and size, so this pack changes **only** the files above. (`data034_kom/` also holds 38 loose `.src.lua` files that are not in its manifest; they do not ship.)
+
+**Findings**
+
+- **June's Buff atlas is a strict superset of March's.** All 195 March keys are in it with byte-identical UV records (40 B each); 175 keys are new. Keys are upper-cased on load and on lookup (`KTDXDeviceTexture.cpp:800/814`), so case differences do not matter.
+- **Art:** 186 of March's 195 icons have identical pixels in June's `.tga`; 9 differ: `BUFF_ICON_DISCHARGE`, `FIRE_BLOSSOMS`, `NASODARMOR`, `PLASMALINK`, `PLASMA_1`, `PYLON`, `RETURNOFELDRASIL`, `XMAS_2013`, `DEBUFF_ICON_JUDGEMENT_FIRE`. 166 of the 175 new keys sit on pixels that are transparent in March's `.tga`, so the new icons exist only in June's art.
+- **No regression for the live March data.** March's live templets carry 262 icon keys, 258 of them on the Buff atlas. 256 of those 258 resolve with March's own atlas and the same 256 with June's. The 2 that do not (`BTI_DEBUFF_SHADOW_KNOT`/`DEBUFF_SHADOW_JAIL`, `BTI_DEBUFF_MIND_BREAK`/`Buff_Icon_MpRecovery`) fail with both.
+- **June's 804 templets with an icon key** (735 in `BattleFieldBuffTemplet`, 69 in `_INT`), checked against the staged atlases by the texture name each templet gives:
+
+  | Atlas named by the templet | Templets | Resolve before (March files) | Resolve after (staged) |
+  |---|---|---|---|
+  | `DLG_UI_Common_Texture_Buff.tga` | 779 | 487 | 767 |
+  | `DLG_UI_Common_Texture_Buff_INT.tga` | 18 | 0 (no atlas) | 18 |
+  | `DLG_INT_Button02.tga` | 5 | 0 | 5 |
+  | `DLG_INT_Texture01.tga` | 2 | 2 | 2 |
+  | **Unresolved, of 804** | | **315** | **12** |
+
+  Without the optional `DLG_INT_Button02` pair the "after" figure is 17. The tool is `june2017_re/buff_icon_check.py` (`python june2017_re/buff_icon_check.py june`).
+- **The 12 that do not resolve even in June** (4 distinct keys, all June data defects; transcribed, not patched):
+
+  | Templet(s) | Key the templet asks for | What is in the atlas |
+  |---|---|---|
+  | `BTI_DEBUFF_SHADOW_KNOT` | `DEBUFF_SHADOW_JAIL` | the key exists **with a trailing space** (`'DEBUFF_SHADOW_JAIL '`); lookup does not trim |
+  | `BTI_BUFF_AEM_OPEN_MIND` | `Buff_Icon_Open_Mind` | in no `.TET` in either tree |
+  | `BTI_SPELL_OF_RECOVERY`, `BTI_BUFF_TR_HEAL` | `BUFF_ICON_POWER_ADRENALIM` | typo of `BUFF_ICON_POWER_ADRENALIN` |
+  | 8 `_INT` events: `BTI_BUFF_EVENT_FOOD_KEBAB`, `_CHAFING_DISH`, `_STEAMED_MUTTON`, `_SHUANGPINAI`, `_XIAOLONGBAO`, `_BEIING_KAOYA`, `_QUMIZ`, `_FOTIAOQIANG` | `BUFF_ICON_EVENT_1` | in no `.TET` in either tree |
+
+  What the client does with an unresolved key at draw time has **not** been observed; expect a blank icon. They stay as June shipped them.
+- **`DLG_INT_Button02` is a third icon atlas.** Five `_INT` templets (`BTI_EXP_BUFF_555`, `BTI_ELIOS_HERO_5`, `BTI_EXP_BUFF_4YEAR`, `BTI_ELIOS_HERO_4YEAR`, `BTI_BUFF_RETURN_OF_HERO_GLOBAL`) take their icons from it, and March's copy (in `datai020`, 3 keys) has none of them. June keeps it in `data056` with 38 keys; it was staged into March's `datai020` so there is one copy only. The 3 keys March reads (`BTN_COINCHANGE_NORMAL/OVER`, `BTN_DUMMY_NORMAL`) are in June's with identical UV records, so the March UI that uses them keeps working; the `.tga` art differs (June wins). **This file is an addition beyond the task's named atlases. Leave it out of the pack to skip it; the cost is 5 blank `_INT` buff icons.** `DLG_INT_Texture01.TET/.tga` are byte-identical between the two clients; nothing staged.
+- **The three other buff UI Lua files are already identical.** `DLG_UI_Buff_Apink`, `_Icon` and `_Title` decompile (March, `mar-2014`) to the same source as `june_src_fixed`'s, so nothing was restaged. Only `DLG_BuffManager.lua` differs: June adds `AddDummyPos(993, 26, 0)` and `AddDummyPos(993, 2, 0)`. March's C++ never calls `GetDummyPos` on that dialog (`X2GageUI.cpp` only calls `SetPos`), so the adoption is invisible. **Follow-up (not done):** if June's binary reads those two positions (the `X2GageUI` buff-icon layout), port the reader. Owner: Phase 14 triage unless the UI parity work finds it first.
+- **Premium `BuffTemplet.lua`/`_INT`** carry no `BUFF_ICON_TEXTURE_KEY`; nothing to check there.
+
+**Pack list for Phase 12** (Phase 13 merges this into the single list):
+
+| Archive | Source dir | Files |
+|---|---|---|
+| `data057.kom` | `kom_contents/data057_kom/` | `DLG_UI_Common_Texture_Buff.TET`, `.tga` |
+| `datai021.kom` | `kom_contents/datai021_kom/` | `DLG_UI_Common_Texture_Buff_INT.TET`, `.tga` (new) |
+| `datai020.kom` | `kom_contents/datai020_kom/` | `DLG_INT_Button02.TET`, `.tga` (optional, see above) |
+| `data034.kom` | `kom_contents/data034_kom/` | `DLG_BuffManager.lua` (algo 2) |
+
+Verify against the **live** `.kom`s with `elstools inspect --input`: `data057` Buff `.TET` 34,728 B; `datai021` 92 files with the `_INT` pair; `datai020` `DLG_INT_Button02.TET` 3,126 B; `data034` `DLG_BuffManager.lua` 365 B. No exe is needed for any of it (the same exe works before and after packing); the 12/17 new keys only become visible when Phase 13 adopts June's templets.
+
+#### Play-test (run after packing; it is a regression check, nothing new is visible yet)
+
+The live templets are still March's and March ships no `_INT` buff files, so none of the 175 new keys, nor the `_INT` atlas, can be seen until Phase 13. What can be checked now: March's own icons still render after the swap, and the 9 repainted icons show June's art. Each line is checked from source (`SetBuffFactorToGameUnitByBuffFactorID_LUA` is bound at `X2Main.cpp:4147`; the factors and their level-1 values were read from the decompiled live `BattleFieldBuffFactor.lua`); the first command pattern is the one run in Phases 4b-i and 4b-iii. **None of these three lines has been run.** Level 1 is used throughout; `PERCENT`/`RATE` are non-zero at level 1 in all three, so no popup is expected.
+
+1. **Where:** inside any dungeon, in the first room, with the buff icon row visible next to your own gauge. Open the console with END. **Paste:** `g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 95, 1 )`. **What it does:** gives you the "Blessing of Geb" buff (+5% attack for an hour). **Look for:** an icon appears in the buff row, same picture as before the repack. **If not:** no icon, or a gap where it should be; send a screenshot.
+2. **Where:** same room. **Paste:** `g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 353, 1 )`. **What it does:** gives you the "Nasod Armor" buff, which has no effect on your stats; it only shows its icon. **Look for:** a second icon appears. This is one of the 9 icons June repainted, so it may look different from what you remember; that is expected. **If not:** a blank square or nothing appears; send a screenshot.
+3. **Where:** same room. **Paste:** `g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 118, 1 )`. **What it does:** blinds you (lower accuracy) for 7 seconds. **Look for:** a debuff icon appears in the buff row for about 7 seconds, then it disappears. (I have not seen this icon; compare it with how it looked before the repack.) **If not:** no icon, or it never leaves; tell me which.
+
+Both long buffs end when you leave the dungeon. After the three checks, also confirm the buff row is where it was (the `DLG_BuffManager` dummy positions change nothing in March's code).
+
+Then read `ErrorLog.txt` for this phase's lines only: any `DLG_BuffManager.lua` or `Texture_Buff` error (there should be none), and no new `OpenScriptFile.log` failure for `DLG_BuffManager.lua`.
+
 ## Phase 13 — Adopt June buff data and ship
 
 **Precondition (Phase 4b-i part 1 review, 6c):** June's damage-manager reader `326309f0` must be ported (Phase 4b-i part 2) before June's factor data is adopted. Until then `CX2BuffCreateBuffFactortBehaviorTemplet` inserts created factors for NPCs too, and both NPC and user created factors apply on every attack type. June's 18 CREATE entries include `MS_DA_UP_PER_GROUP2/3` and `FEAR_OF_ABYSS`, which look monster-side, and two with `APPLY_TO_SPECIAL_ATTACK = TRUE` (`REASON_PRIDE_OBERON/OPHELIA`).
