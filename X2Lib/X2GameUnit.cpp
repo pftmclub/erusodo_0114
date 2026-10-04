@@ -11160,7 +11160,11 @@ void CX2GameUnit::UpNowHpPerHitbyAttackPower( IN const float fHitAddHpPer_ )
 			}
 		}
 		else
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+			return CX2JuneBuffCapture::RuntimeError( L"SkillTemplet Invalid" );	/// 4b-ii: no popup at runtime, logged once (June raises none)
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 			return DISPLAY_ERROR( L"SkillTemplet Invalid" );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	}
 	
 	return false;
@@ -12007,7 +12011,11 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 #endif //SERV_ADD_LUNATIC_PSYKER
 
 	default:
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		CX2JuneBuffCapture::RuntimeError( L"Behavior Type Invalid" );	/// 4b-ii: no popup at runtime, logged once (June 32282700 raises none)
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		DISPLAY_ERROR( L"Behavior Type Invalid" );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		break;
 	}
 }
@@ -12255,7 +12263,11 @@ void CX2GameUnit::UpdateAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 #endif //SERV_ADD_LUNATIC_PSYKER
 
 	default:
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		CX2JuneBuffCapture::RuntimeError( L"Behavior Type Invalid" );	/// 4b-ii: no popup at runtime, logged once (June 3226fd70 raises none)
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		DISPLAY_ERROR( L"Behavior Type Invalid" );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		break;
 	}
 }
@@ -12449,7 +12461,11 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 #endif //SERV_ADD_LUNATIC_PSYKER
 
 	default:
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		CX2JuneBuffCapture::RuntimeError( L"Behavior Type Invalid" );	/// 4b-ii: no popup at runtime, logged once (June 322830f0 raises none)
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		DISPLAY_ERROR( L"Behavior Type Invalid" );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		break;
 	}
 }

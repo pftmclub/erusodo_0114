@@ -6,6 +6,14 @@
 
 #include "StdAfx.h"
 #include ".\X2BuffFinalizerTemplet.h"
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+
+/// June buff port 4b-ii: June's buff code raises no popup (the user's 2026-10-04 decision: follow June, always
+/// log). Every DISPLAY_ERROR in this file is collected by an active capture, else written once per buff and
+/// text as a [JUNE_BUFF] line in ErrorLog.txt (CX2JuneBuffCapture::RuntimeError). Same trailing ';' as the original.
+#undef DISPLAY_ERROR
+#define DISPLAY_ERROR( wszError_ ) CX2JuneBuffCapture::RuntimeError( wszError_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #define CASE_FINALIZER_TEMPLET( class_, type_ ) \
 case type_: \
@@ -144,6 +152,13 @@ bool CX2BuffFinalizerTemplet::SetFactorFromPacketTemplateMothod( const KBuffFact
 {
 	LUA_GET_VALUE_RETURN_ENUM( luaManager_, "BUFF_DURATION_TIME_TYPE", m_eDurationTimeType,
 		BUFF_DURATION_TIME_TYPE, BDTT_NONE, return DISPLAY_ERROR( L"BUFF_DURATION_TIME_TYPE" ) );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 32ebe8b0 reads three optional keys after the type, in this order (a missing key leaves false / 0.0).
+	/// June also copies FROZEN_TIME into +0x2c here, so its prototype starts frozen; the port does not (see SetFactor)
+	LUA_GET_VALUE( luaManager_, "FROZEN_TIME", m_bFrozenTime, false );
+	LUA_GET_VALUE( luaManager_, "SHAKE_DECREASE_TIME_AT_ONCE", m_fShakeDecreaseTimeAtOnce, 0.0f );
+	LUA_GET_VALUE( luaManager_, "SHAKE_DECREASE_MAX_TIME", m_fShakeDecreaseMaxTime, 0.0f );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 	return true;
 }
@@ -159,6 +174,10 @@ bool CX2BuffFinalizerTemplet::SetFactorFromPacketTemplateMothod( const KBuffFact
 /*virtual*/ void CX2BuffTimeFinalizerTemplet::OnFrameMove( CX2GameUnit* pGameUnit_ )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	if ( m_bTimeFrozen )		/// June 32ec2670: the whole body runs only while +0x2c is clear
+		return;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     m_fDurationTime -= fElapsedTime_;	
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -244,6 +263,16 @@ bool CX2BuffFinalizerTemplet::SetFactorFromPacketTemplateMothod( const KBuffFact
 
 			//레이븐 용병의 처신술 패시브(SI_P_RWT_BEHAVIOR_OF_MERCENARY) 효과를 적용시키기 위해 추가
 			m_fDurationTime *= pGameUnit_->GetReduceDebuffDurationRate( pBuffTemplet_->GetBuffTempletID() );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+			/// June 32ec27d0 @32ec33bd: a debuff that is not a world buff also takes the unit's debuff-duration
+			/// decrease when it is above 0 (always 0 on March; see CX2GameUnit::GetDebuffDurationDecreaseRate)
+			if ( pBuffTemplet_->IsDeBuff() && !pBuffTemplet_->IsWorldBuff() )
+			{
+				const float fDebuffDurationDecreaseRate = pGameUnit_->GetDebuffDurationDecreaseRate();
+				if ( 0.0f < fDebuffDurationDecreaseRate )
+					m_fDurationTime *= 1.0f - fDebuffDurationDecreaseRate;
+			}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef BUFF_ICON_UI
 			m_eBuffTempleteID = BuffFactor_.GetBuffTempletID();
 			m_bIsAlreadyNotifyDurationTime = false;
@@ -251,6 +280,17 @@ bool CX2BuffFinalizerTemplet::SetFactorFromPacketTemplateMothod( const KBuffFact
 #ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 			m_fFullDurationTime = m_fDurationTime;	/// June 32ec34a5: +0x28 = the remaining time just set
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+			/// June 32ec34b0: FROZEN_TIME sets +0x2c and, for a user, 31fe2a80 records { BTI, (WORD) +0x81fc } so that
+			/// CX2GUUser::CommonStateStart can unfreeze it once vslot 329 no longer matches. Neither value has a March
+			/// counterpart (Rose's HEAVYFIREARMS_MASTERY is the only data), and a freeze without that unfreeze would never
+			/// end, so the timer runs unfrozen and says so once per buff
+			if ( m_bFrozenTime )
+				CX2JuneBuffCapture::RuntimeError( L"unsupported (June-only system): FROZEN_TIME, so this buff's timer runs unfrozen (June 31fe2a80 / 3200bde0 not mapped)" );
+			/// SHAKE_DECREASE_*: the data side is here (DecreaseDurationByShake); its input trigger is Phase 8's
+			if ( 0.0f < m_fShakeDecreaseMaxTime )
+				CX2JuneBuffCapture::RuntimeError( L"unsupported (Phase 8): SHAKE_DECREASE_* is stored, but stick shakes do not shorten this buff yet (June CX2Game +0xbae / 3236c990 trigger)" );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 			return true;
 		}
@@ -299,6 +339,9 @@ bool CX2BuffFinalizerTemplet::SetFactorFromPacketTemplateMothod( const KBuffFact
 //#ifdef  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
     DWORD dwCurFrameMoveCount = ( g_pX2Game != NULL ) ? g_pX2Game->GetFrameUDPPack().GetFrameMoveCount() : 0;
 	FinalizerFactor.m_vecValues.push_back( static_cast<float>( dwCurFrameMoveCount ) );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	FinalizerFactor.m_vecValues.push_back( m_fFullDurationTime );	/// June 32ec5290: the full duration, appended as a third value
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 //#else   SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 //	FinalizerFactor.m_vecValues.push_back( static_cast<float>( pGameUnit_->GetFrameMoveCountNow() ) );
 //#endif  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
@@ -331,7 +374,34 @@ bool CX2BuffFinalizerTemplet::SetFactorFromPacketTemplateMothod( const KBuffFact
 #ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 	m_fFullDurationTime = m_fDurationTime;	/// June 32ec53d0 sets +0x28 here too (32ec55d8 / 32ec55ed)
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// 4b-ii (Phase 4a review R1): June 32ec53d0 takes +0x28 from the packet's third value, and 0 when there is
+	/// none (32ec55d8 / 32ec55ed); GetFactor now sends it. This replaces the remaining-time value set just above.
+	m_fFullDurationTime = ( 2 < kFactor_.m_vecValues.size() ) ? kFactor_[2] : 0.0f;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+
+/** @function : DecreaseDurationByShake
+	@brief : June 32ec3610 (Time finalizer slot 11). While SHAKE_DECREASE_MAX_TIME is not used up, take
+		SHAKE_DECREASE_TIME_AT_ONCE (at most what is left of the max) off the remaining time; no clamp at 0.
+		The compares are June's x87 ones, so a NaN goes on as in June.
+	@return : true when time was taken off
+*/
+/*virtual*/ bool CX2BuffTimeFinalizerTemplet::DecreaseDurationByShake()
+{
+	if ( m_fShakeDecreaseMaxTime <= m_fShakeDecreasedTime )
+		return false;
+
+	float fDecrease = m_fShakeDecreaseTimeAtOnce;
+	if ( m_fShakeDecreaseMaxTime <= fDecrease + m_fShakeDecreasedTime )
+		fDecrease = m_fShakeDecreaseMaxTime - m_fShakeDecreasedTime;
+
+	m_fShakeDecreasedTime += fDecrease;
+	m_fDurationTime -= fDecrease;
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -346,6 +416,16 @@ bool CX2BuffFinalizerTemplet::SetFactorFromPacketTemplateMothod( const KBuffFact
 {
 	LUA_GET_VALUE_RETURN_ENUM( luaManager_, "BUFF_USE_COUNT_TYPE", m_eUseCountType,
 		BUFF_USE_COUNT_TYPE, BUCT_NOT_USE, return DISPLAY_ERROR( L"BUFF_USE_COUNT_TYPE" ) );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 32ec2300 also reads an optional ATTACK_TYPE table: the finalizer then counts only hits of those attack
+	/// types, through per-type counters on the unit (32274800, unit +0x4232..) that March does not keep. No June data
+	/// uses it, so it is not ported; a templet that has the table is logged and counts every attack type, as March
+	if ( luaManager_.BeginTable( "ATTACK_TYPE" ) )
+	{
+		luaManager_.EndTable();
+		DISPLAY_ERROR( L"unsupported (June-only system): BFT_HIT_COUNT ATTACK_TYPE, so every attack type is counted (June 32ec2300 / 32274800 not ported)" )
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	return true;
 }
 

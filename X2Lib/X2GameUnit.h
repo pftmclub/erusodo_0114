@@ -3340,6 +3340,12 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		
 		//레이븐 용병의 처신술 패시브(SI_P_RWT_BEHAVIOR_OF_MERCENARY) 효과를 적용시키기 위해 추가한 함수
 		virtual float GetReduceDebuffDurationRate(BUFF_TEMPLET_ID eBuffTempletID_){ return 1.f; }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June buff port 4b-ii: June 32ec27d0 (@32ec33bd) multiplies a non-world debuff's duration by (1 - this) when
+		/// it is above 0. June keeps it as an additional-stat result (+0x7428, member +0x7388) whose only feed is a
+		/// socket-option field March's socket data lacks (InitAdditionalStatOptionValue @322711e9, +0x2dc), so it is 0
+		float GetDebuffDurationDecreaseRate() const { return 0.0f; }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #ifdef SERV_NEW_DEFENCE_DUNGEON  // 적용날짜: 2013-03-23
 		/// 스크립트 내에서 트레이스 로그 출력을 해주는 함수

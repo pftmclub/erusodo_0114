@@ -686,6 +686,10 @@ NOT_READ_BY_JUNE_TYPE.update({
     ('BEHAVIOR', 'BBT_NEVER_MOVE', 'factor'): {'OFFSET_POSITION': '32d45b60 (empty parse)', 'IS_GRAVITY': '32d45b60 (empty parse)'},
     ('BEHAVIOR', 'BBT_RESET_SKILL_COOL_TIME', 'factor'): {'SKILL_TYPE': '32d46fc0'},
     ('BEHAVIOR', 'BBT_REVERSE_LEFT_RIGHT', 'factor'): {'TIME_INTERVAL': '32d45b60 (empty parse)'},
+    # Phase 4b-ii: June's only reader of the key, 32ebfd60, is the class's hiding non-virtual template method, with
+    # no caller; factory 32ec36f0 case 12 runs the base template 32ec0580 and slot 12 is the base 32ec5990 (true)
+    ('FINALIZER', 'BFT_RIDING_ON_OR_NOT', 'templet'): {'FINISH_WHEN_RIDING_ON': '32ec0580 -> base slot 12 32ec5990 (32ebfd60 is uncalled)'},
+    ('FINALIZER', 'BFT_RIDING_ON_OR_NOT', 'factor'): {'FINISH_WHEN_RIDING_ON': '32d44230 (empty parse)'},
 })
 
 

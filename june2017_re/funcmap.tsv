@@ -745,3 +745,42 @@ mesh+0x54c	none in March: CXMeshInstance previous-frame velocity snapshot	confir
 32369da0	CX2BuffTemplet::GetAccumulationCountNow	confirmed	Buff Phase 4b-i part 5 review: refines: map key 0, truncated (or 0xc00 = chop), 0 if absent; March static_cast<UINT> also truncates (R6)
 32369f10	CX2BuffTemplet::GetAccumulationMultiflier	confirmed	Buff Phase 4b-i part 5 review: map key 1, 0.0 if absent with no popup (March raises DISPLAY_ERROR; unreachable from data, R5)
 3229d320	CX2GameUnit::EraseBuffTempletFromGameUnitByIterator	confirmed	Buff Phase 4b-i part 5 review: order: counters +0x4235/+0x4236, vslot 148, 3236a630 behaviors DoFinish, 3236a660 displayers, 3236a6a0 BFT 15 hook (June-only, Phase 8), icon on +0xa8, 322b4b00 erase (R4)
+32d42da0	CX2BuffFactor::ParsingTimeFinalizer	confirmed	Buff Phase 4b-ii: BUFF_DURATION_TIME_TYPE, then NORMAL_TIME / RANDOM_TIME (32d41c70) / FORCE_TIME by type 1/2/3; same as March
+32d430f0	CX2BuffFactor::ParsingHitCountFinalizer	confirmed	Buff Phase 4b-ii: [type, COUNT table, 0.0]; same as March (32d433d0 Hitted is the same shape)
+32d436b0	CX2BuffFactor::ParsingDamageValueFinalizer	confirmed	Buff Phase 4b-ii: FIX [1, FIX_VALUE table]; RELATION [2, 0.0, BUFF_RELATION_TYPE, MULTIPLIER table]; other types fail; same as March
+32d43b00	CX2BuffFactor::ParsingPassHpFinalizer	confirmed	Buff Phase 4b-ii: [PASS_UP 1/0, BUFF_CHANGE_TYPE, CRITERION table]; same as March (32d43e90 PassMp the same)
+32d482d0	BUFF_FACTOR::PushFinalizerTimeToLevel	confirmed	Buff Phase 4b-ii: NORMAL [lvl+1] or [2]; RANDOM [lvl+1],[lvl+2] or [2],[3]; HYPER pushes only when [lvl+1] > 0, as March
+32d48640	BUFF_FACTOR::PushFinalizerHitToLevel	confirmed	Buff Phase 4b-ii: BUCT 0..2 only; count>1 [lvl+1] else [2]; then 0.0; same as March (32d487f0 Hitted)
+32d489a0	BUFF_FACTOR::PushFinalizerDamageValueToLevel	confirmed	Buff Phase 4b-ii: [type, v1, v2, RELATION ? v[lvl+3]/v[4] : v[lvl+2]/v[3]], count read from v[3]; same as March
+32d48b90	BUFF_FACTOR::PushFinalizerHpToLevel	confirmed	Buff Phase 4b-ii: [v0, type, count>1 ? v[lvl+2] : v[3]]; same as March (32d48d20 Mp)
+32d419b0	CX2BuffFactor::SetGameUnitTimeFinalizer	confirmed	Buff Phase 4b-ii: HYPER: unit +0x422c = last, last = slot 45; else push slot 45; same as March
+32d412c0	CX2BuffFactor::SetGameUnitHitCountFinalizer	confirmed	Buff Phase 4b-ii: size>=3: v2 = v1 (BUCT 0) or v1*count(false/true) (BUCT 1/2, 32281480); same as March (32d413b0 Hitted)
+32d414a0	CX2BuffFactor::SetGameUnitDamageValueFinalizer	confirmed	Buff Phase 4b-ii: RELATION -> 32d411a0 UpdateValueByRelationType on v1; same as March
+32ec0580	CX2BuffFinalizerTemplet::ParsingFinalizerTemplateMethod	confirmed	Buff Phase 4b-ii: BeginTable(name), vtable +0x30 (slot 12), EndTable; factory 32ec36f0 uses it for every case incl. 12 (Riding)
+32ebfd60	CX2BuffFinishRidingPetOnOrNotFinalizerTemplet::ParsingFinalizerTemplateMethod (hiding, uncalled)	confirmed	Buff Phase 4b-ii: only reader of FINISH_WHEN_RIDING_ON; no E8/E9 caller and no pointer: dead in June as in March
+32ebe8b0	CX2BuffTimeFinalizerTemplet::ParsingFinalizer	confirmed	Buff Phase 4b-ii: BUFF_DURATION_TIME_TYPE (required) +0x30; FROZEN_TIME +0x2d (copied to +0x2c); SHAKE_DECREASE_TIME_AT_ONCE base +0xc; SHAKE_DECREASE_MAX_TIME base +8
+32ec2670	CX2BuffTimeFinalizerTemplet::OnFrameMove	confirmed	Buff Phase 4b-ii: March body (tick, 5 s notify 32489a20, per-second 324895c0) inside if ( +0x2c == 0 ); ported
+32ebef20	CX2BuffTimeFinalizerTemplet::DidFinish	confirmed	Buff Phase 4b-ii: reserve || duration <= 0; same as March
+32ec3610	CX2BuffTimeFinalizerTemplet slot 11 (DecreaseDurationByShake)	confirmed	Buff Phase 4b-ii: max>done: d = min(atOnce, max-done), done += d, duration -= d, true; else false; ported
+32ec3580	CX2BuffTimeFinalizerTemplet slot 14 (set duration)	confirmed	Buff Phase 4b-ii: sets the protected duration; no caller outside the vtable; not ported
+32ebef60	CX2BuffTimeFinalizerTemplet slot 15 (get duration)	confirmed	Buff Phase 4b-ii: returns the protected duration; no caller outside the vtable; not ported
+32ec6840	CX2BuffTimeFinalizerTemplet::SetBuffTempletID	confirmed	Buff Phase 4b-ii: +0x34 = arg; same as March
+32ec65a0	CX2BuffTimeFinalizerTemplet copy ctor	confirmed	Buff Phase 4b-ii: base +4/+8/+0xc and every Time member copied; refcount and reserve reset
+3236c990	CX2BuffTemplet::DecreaseDurationByShake	confirmed	Buff Phase 4b-ii: finalizer slot 11 on a copy of the list (3236c830); true if any; caller OnFrameMoveBuff @3229d744 (Phase 8); ported, uncalled
+322cfc60	CX2Game: input actions 0x25 and 0x26 both set	confirmed	Buff Phase 4b-ii: [g_pKTDXApp+0x1f8] 31c488c0 (byte +0x4d+n != 0) for 0x25 and 0x26; stored in CX2Game +0xbae @322f74ed (Phase 8)
+31fe2a80	CX2GUUser: record a FROZEN_TIME buff	confirmed	Buff Phase 4b-ii: vector +0x9450 of {BTI, (WORD) protected +0x81fc}: push or update; not ported (no March counterpart)
+3200bde0	CX2GUUser: unfreeze FROZEN_TIME buffs	confirmed	Buff Phase 4b-ii: from CommonStateStart @320606b0: entries whose word != vslot 329 (3208e410) -> 3227beb0(BTI, false), erased; not ported
+3227beb0	CX2GameUnit: set Time finalizers frozen by BTI	confirmed	Buff Phase 4b-ii: dynamic_cast each finalizer of the BTI (3227b920) to Time, +0x2c = arg; then 3227ba10; not ported
+31e4f890	CX2GameUnit::GetRemainHyperModeTime	confirmed	Buff Phase 4b-ii: gage +0xe8 protected, 0 with no gage; = March
+32eb7460	CX2BuffSoundDisplayTemplet::ParsingDisplayer	confirmed	Buff Phase 4b-ii: [1] sound name (fail -> false), ONLY_MY_UNIT +0x2c; ported
+32eb9940	CX2BuffSoundDisplayTemplet::StartDisplayer	confirmed	Buff Phase 4b-ii: null unit -> nothing; ONLY_MY_UNIT: user only, and its UID = my unit (or no game / my unit); PlaySound(name,1,0); ported
+32eb82b0	CX2BuffEffectSetDisplayerTemplet::ParsingDisplayer	confirmed	Buff Phase 4b-ii: names [1..], REPLAY_EFFECT_SET_ACCUMULATION_LIMIT1 +0x30, ONLY_MY_UNIT +0x31, NOT_DELETE_EFFECT_SET_WHEN_FINISH +0x32; ported
+32eb9c70	CX2BuffEffectSetDisplayerTemplet::StartDisplayer	confirmed	Buff Phase 4b-ii: ONLY_MY_UNIT gate ported; awakening-BTI item effect override and creator visibility flag (CX2Game slot 50, 322d4d10, instance +0x1bc) not ported
+32eba380	CX2BuffEffectSetDisplayerTemplet::DoFinish	confirmed	Buff Phase 4b-ii: March stop loop behind !NOT_DELETE_EFFECT_SET_WHEN_FINISH; ported
+32eb9310	CX2BuffEffectSetDisplayerTemplet slot 5	confirmed	Buff Phase 4b-ii: new displayer slot: each instance 321de4f0((bool)arg->31fae370()); June-only effect-set flag; not ported (also CreateGap 32eb9ab0, OnlyMyClass 32eb9ba0)
+32eb8c30	CX2BuffEffectSetOnlyMyClassDisplayerTemplet::ParsingDisplayer	confirmed	Buff Phase 4b-ii: 12 keys ELSWORD AISHA RENA RAVEN EVE CHUNG ARA ELESIS ADD LUCIEL ROSE AIN, empty when absent; true when size == 12; ported
+32ebab00	CX2BuffEffectSetOnlyMyClassDisplayerTemplet::StartDisplayer	confirmed	Buff Phase 4b-ii: March body without the invalid-handle check; ported
+32eba690	CX2BuffEffectSetCreateGapDisplayerTemplet::StartDisplayer	confirmed	Buff Phase 4b-ii: runs only while the gap-timer list is empty; ported
+32ec2300	CX2BuffHitCountFinalizerTemplet::ParsingFinalizer	confirmed	Buff Phase 4b-ii: BUFF_USE_COUNT_TYPE, then an optional ATTACK_TYPE table into a set (+0x28, size +0x30) counted via 32274800 (unit +0x4232..); no June data; logged, not ported
+32ebf220	CX2BuffStateChangeFinalizerTemplet::SetFactor	confirmed	Buff Phase 4b-ii: March plus, for a user, +0x20 = unit +0x89d8 (DidFinish 32ebf290 also ends when it changes); +0x89d8 is written by 31fe0bb0 (a June class mode); not ported
+32ec5600	CX2BuffDungeonStageChangeFinalizerTemplet::SetFactor	confirmed	Buff Phase 4b-ii: game type 2 or 4 (June PVE game), dynamic_cast CX2DungeonGame -> 322f3780; same as March for March game types

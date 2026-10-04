@@ -140,6 +140,7 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	void SetAccumulationCountNow( const int iCount_, CX2GameUnit* pGameUnit_, const CX2BuffFactor& BuffFactor_ );	/// June 3236a430
 	void GetBehaviorPtrList( OUT vector<CX2BuffBehaviorTempletPtr>& vecBehaviorPtr_ ) const { vecBehaviorPtr_ = m_vecBehaviorPtr; }	/// June 3236c8e0
+	bool DecreaseDurationByShake();	/// June 3236c990: finalizer slot 11 on every finalizer; true when any took time off
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 //}}
 

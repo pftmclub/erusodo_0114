@@ -5,6 +5,14 @@
 
 #include "StdAfx.h"
 #include ".\X2BuffTemplet.h"
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+
+/// June buff port 4b-ii: June's buff code raises no popup (the user's 2026-10-04 decision: follow June, always
+/// log). Every DISPLAY_ERROR in this file is collected by an active capture, else written once per buff and
+/// text as a [JUNE_BUFF] line in ErrorLog.txt (CX2JuneBuffCapture::RuntimeError). Same trailing ';' as the original.
+#undef DISPLAY_ERROR
+#define DISPLAY_ERROR( wszError_ ) CX2JuneBuffCapture::RuntimeError( wszError_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : ParsingScript
 	@brief : 버프 템플릿 스크립트을 읽어들임
@@ -202,6 +210,9 @@ bool CX2BuffTemplet::ParsingScript( KLuaManager& luaManager_ )
 */
 bool CX2BuffTemplet::SetFactor( const CX2BuffFactor& buffFactor_, CX2GameUnit* pGameUnit_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	/// 행동조건 셋팅
 	BOOST_FOREACH( CX2BuffBehaviorTempletPtr ptrBehavior, m_vecBehaviorPtr )
 	{
@@ -252,6 +263,9 @@ bool CX2BuffTemplet::SetFactor( const CX2BuffFactor& buffFactor_, CX2GameUnit* p
 */
 bool CX2BuffTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, CX2GameUnit* pGameUnit_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	SetUniqueNum( kBuffFactor_.m_BuffIdentity.m_uiUniqueNum );
 
 	if ( GetAccumulationLimit() > 1 )	/// 중첩 가능한 것이면
@@ -368,6 +382,9 @@ void CX2BuffTemplet::OnFrameMoveBehavior( CX2GameUnit* pGameUnit_, float fElapse
 void CX2BuffTemplet::OnFrameMoveBehavior( CX2GameUnit* pGameUnit_ )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffBehaviorTempletPtr ptrBehavior, m_vecBehaviorPtr )
 	{
 		if ( NULL != ptrBehavior )
@@ -391,6 +408,9 @@ void CX2BuffTemplet::OnFrameMoveFinalizerAndCheckFinish( CX2GameUnit* pGameUnit_
 void CX2BuffTemplet::OnFrameMoveFinalizerAndCheckFinish( CX2GameUnit* pGameUnit_ )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffFinalizerTempletPtr ptrFinalizer, m_vecFinalizerPtr )
 	{
 		if ( NULL != ptrFinalizer )
@@ -436,6 +456,9 @@ void CX2BuffTemplet::OnFrameMoveDisplayer( CX2GameUnit* pGameUnit_, float fElaps
 void CX2BuffTemplet::OnFrameMoveDisplayer( CX2GameUnit* pGameUnit_ )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	if ( !m_vecDisplayerPtr.empty() )
 	{
 		BOOST_FOREACH( CX2BuffDisplayerTempletPtr ptrDisplayer, m_vecDisplayerPtr )
@@ -455,6 +478,9 @@ void CX2BuffTemplet::OnFrameMoveDisplayer( CX2GameUnit* pGameUnit_ )
 */
 void CX2BuffTemplet::DoFinishBehavior( CX2GameUnit* pGameUnit_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffBehaviorTempletPtr ptrBehavior, m_vecBehaviorPtr )
 	{
 		ptrBehavior->DoFinish( pGameUnit_, this );
@@ -467,6 +493,9 @@ void CX2BuffTemplet::DoFinishBehavior( CX2GameUnit* pGameUnit_ )
 */
 void CX2BuffTemplet::DoFinishDisplayer( CX2GameUnit* pGameUnit_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffDisplayerTempletPtr ptrDisplayer, m_vecDisplayerPtr )
 	{
 		ptrDisplayer->DoFinish( pGameUnit_, this );
@@ -510,6 +539,9 @@ void CX2BuffTemplet::GetFactor( OUT KBuffFactor& kBuffFactor_, const CX2GameUnit
 */
 bool CX2BuffTemplet::SetFactorToOnlyFinalizer( const CX2BuffFactor& buffFactor_, CX2GameUnit* pGameUnit_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	/// 종료조건 셋팅
 	BOOST_FOREACH( CX2BuffFinalizerTempletPtr ptrFinalizer, m_vecFinalizerPtr )
 	{
@@ -632,6 +664,9 @@ void CX2BuffTemplet::RestartDisplayerForAccumulationDecrease( CX2GameUnit* pGame
 */
 void CX2BuffTemplet::SetAccumulationCountNow( const int iCount_, CX2GameUnit* pGameUnit_, const CX2BuffFactor& BuffFactor_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffBehaviorTempletPtr ptrBehavior, m_vecBehaviorPtr )
 	{
 		if ( NULL != ptrBehavior && ptrBehavior->OnAccumulationCountSet( BuffFactor_, pGameUnit_, this, iCount_ ) )
@@ -651,6 +686,26 @@ void CX2BuffTemplet::SetAccumulationCountNow( const int iCount_, CX2GameUnit* pG
 			ptrDisplayer->SetStart( true );
 		}
 	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : DecreaseDurationByShake
+	@brief : June 3236c990. Every finalizer's slot 11 (DecreaseDurationByShake) on a copy of the list; only the
+		Time finalizer takes time off. June's OnFrameMoveBuff (@3229d744) calls it for my user unit while
+		CX2Game +0xbae is set and bumps the +0x6dd0 sync counter on true: both are Phase 8's, so nothing calls it yet.
+	@return : true when any finalizer took time off
+*/
+bool CX2BuffTemplet::DecreaseDurationByShake()
+{
+	bool bDecreased = false;
+	vector<CX2BuffFinalizerTempletPtr> vecFinalizerPtr;
+	GetFinalizerTempletPtrList( vecFinalizerPtr );
+	BOOST_FOREACH( CX2BuffFinalizerTempletPtr ptrFinalizer, vecFinalizerPtr )
+	{
+		if ( NULL != ptrFinalizer && ptrFinalizer->DecreaseDurationByShake() )
+			bDecreased = true;
+	}
+	return bDecreased;
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 //}}

@@ -35,6 +35,39 @@ namespace
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+namespace
+{
+	/// CX2JuneBuffRuntimeScope: the buff whose runtime code runs on this thread (0 = none named)
+	__declspec(thread) int					g_iJuneBuffRuntimeBTI = 0;
+	/// RuntimeError reports each (BTI, text) once, so a failure that repeats every frame cannot flood ErrorLog.txt
+	std::set< std::pair<int, string> >		g_setJuneBuffRuntimeReported;
+
+	bool JuneBuffFirstRuntimeReport( const int iBuffTempletID_, const char* szError_ )
+	{
+		EnterCriticalSection( &g_kJuneBuffLogLock.m_cs );
+		const bool bFirst = g_setJuneBuffRuntimeReported.insert( std::make_pair( iBuffTempletID_, string( szError_ ) ) ).second;
+		LeaveCriticalSection( &g_kJuneBuffLogLock.m_cs );
+		return bFirst;
+	}
+}
+
+CX2JuneBuffRuntimeScope::CX2JuneBuffRuntimeScope( const int iBuffTempletID_ )
+	: m_iPrevBuffTempletID( g_iJuneBuffRuntimeBTI )
+{
+	g_iJuneBuffRuntimeBTI = iBuffTempletID_;
+}
+
+CX2JuneBuffRuntimeScope::~CX2JuneBuffRuntimeScope()
+{
+	g_iJuneBuffRuntimeBTI = m_iPrevBuffTempletID;
+}
+
+/*static*/ int CX2JuneBuffRuntimeScope::GetBuffTempletID()
+{
+	return g_iJuneBuffRuntimeBTI;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 CX2JuneBuffCapture::CX2JuneBuffCapture()
 	: m_bOwner( NULL == g_pIruhaDisplayErrorSink )
 {
@@ -96,6 +129,34 @@ void CX2JuneBuffCapture::Report( const bool bParsed_, const char* szEntry_, cons
 	swprintf_s( wszError, _countof( wszError ), L"unsupported %s %u", wszKind_, uiType_ );
 	return DisplayErrorMessage( wszError );		/// captured during a parse; a MessageBox otherwise, as before
 }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+
+/*static*/ bool CX2JuneBuffCapture::RuntimeError( const WCHAR* wszError_ )
+{
+	if ( NULL != g_pIruhaDisplayErrorSink )
+		return DisplayErrorMessage( wszError_ );	/// inside a capture: collected and reported by its owner, as before
+
+	StateLog( wszError_ );							/// what DisplayErrorMessage writes before its MessageBox
+	char szError[512] = { 0, };
+	WideCharToMultiByte( CP_ACP, 0, NULL != wszError_ ? wszError_ : L"", -1, szError, sizeof( szError ) - 1, NULL, NULL );
+	const int iBuffTempletID = CX2JuneBuffRuntimeScope::GetBuffTempletID();
+	if ( JuneBuffFirstRuntimeReport( iBuffTempletID, szError ) )
+		Line( "runtime error, BTI %d: %s (June raises no popup here; written once per buff and text)", iBuffTempletID, szError );
+	return false;
+}
+
+/*static*/ bool CX2JuneBuffCapture::RuntimeError( const char* szError_ )
+{
+	if ( NULL != g_pIruhaDisplayErrorSink )
+		return DisplayErrorMessage( szError_ );	/// inside a capture: collected and reported by its owner, as before
+
+	StateLog( szError_ );
+	const int iBuffTempletID = CX2JuneBuffRuntimeScope::GetBuffTempletID();
+	if ( JuneBuffFirstRuntimeReport( iBuffTempletID, NULL != szError_ ? szError_ : "" ) )
+		Line( "runtime error, BTI %d: %s (June raises no popup here; written once per buff and text)", iBuffTempletID, NULL != szError_ ? szError_ : "" );
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 
 /** @function : OpenScriptFile

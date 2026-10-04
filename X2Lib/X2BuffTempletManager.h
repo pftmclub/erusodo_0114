@@ -29,12 +29,38 @@ public:
 	/// For a factory/parse switch's default branch: raises "unsupported <wszKind_> <uiType_>" (captured
 	/// like any DISPLAY_ERROR, so it becomes the line's reason) and returns false like DISPLAY_ERROR.
 	static bool UnsupportedType( const WCHAR* wszKind_, const UINT uiType_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June buff port 4b-ii (the user's 2026-10-04 decision: follow June, no popup, always log). DISPLAY_ERROR in
+	/// the buff runtime files lands here: inside a capture it is collected as before; otherwise it raises no
+	/// MessageBox (June's buff code raises none) and writes "[JUNE_BUFF] runtime error, BTI <n>: <text>" to
+	/// ErrorLog.txt once per buff and text (CX2JuneBuffRuntimeScope names the buff). Returns false.
+	static bool RuntimeError( const WCHAR* wszError_ );
+	static bool RuntimeError( const char* szError_ );	/// DisplayErrorMessage's narrow overload, same rules
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 private:
 	bool			m_bOwner;
 	vector<string>	m_vecError;
 };
 #endif SERV_IRUHADEV_JUNE_BUFF_LOADER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+
+/** @class : CX2JuneBuffRuntimeScope
+	@brief : June buff port 4b-ii. Names the buff (BTI) whose runtime code runs on this thread, for the line
+		CX2JuneBuffCapture::RuntimeError writes and for its once-per-buff-and-text dedupe. Scopes nest: the
+		innermost names the buff and the previous name comes back when it ends. 0 = no buff named.
+*/
+class CX2JuneBuffRuntimeScope
+{
+public:
+	explicit CX2JuneBuffRuntimeScope( const int iBuffTempletID_ );
+	~CX2JuneBuffRuntimeScope();
+	static int GetBuffTempletID();
+
+private:
+	int		m_iPrevBuffTempletID;
+};
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @class : CX2BuffTempletManager
 	@brief : 버프 템플릿을 관리하는 매니저 클래스

@@ -6,6 +6,14 @@
 
 #include "StdAfx.h"
 #include ".\X2BuffDisplayerTemplet.h"
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+
+/// June buff port 4b-ii: June's buff code raises no popup (the user's 2026-10-04 decision: follow June, always
+/// log). Every DISPLAY_ERROR in this file is collected by an active capture, else written once per buff and
+/// text as a [JUNE_BUFF] line in ErrorLog.txt (CX2JuneBuffCapture::RuntimeError). Same trailing ';' as the original.
+#undef DISPLAY_ERROR
+#define DISPLAY_ERROR( wszError_ ) CX2JuneBuffCapture::RuntimeError( wszError_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #define CASE_DISPLAYER_TEMPLET( class_, type_ ) \
 case type_: \
@@ -309,6 +317,11 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 	LUA_GET_VALUE( luaManager_, "REPLAY_EFFECT_SET_ACCUMULATION_LIMIT1", m_bIsReplayEffectSetAccumulationType1, false );
 	++iIndex;
 #endif // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 32eb82b0 reads two more optional keys after REPLAY_EFFECT_SET_ACCUMULATION_LIMIT1 (false when absent)
+	LUA_GET_VALUE( luaManager_, "ONLY_MY_UNIT", m_bOnlyMyUnit, false );
+	LUA_GET_VALUE( luaManager_, "NOT_DELETE_EFFECT_SET_WHEN_FINISH", m_bNotDeleteEffectSetWhenFinish, false );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	
 	if ( 1 != iIndex )	
 		return true;
@@ -322,6 +335,23 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 */
 /*virtual*/ void CX2BuffEffectSetDisplayerTemplet::StartDisplayer( CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 32eb9c70, first step: with ONLY_MY_UNIT, a user unit shows the set only when it is g_pX2Game's my unit
+	/// (or there is none) and an NPC never does. The rest of June's body is March's below, apart from two June-only
+	/// systems that are not ported: an equipped item's effect set replacing the awakening buffs' (BTI 157, 320,
+	/// 660, 661, 822, 823, 966-968; item lookup 32076c90 / 3264ec50 / 325d2370), and a per-instance flag taken from
+	/// the buff's creator (CX2Game slot 50, 322d4d10, instance +0x1bc). June's wider PlayEffectSet is the effect port's.
+	if ( NULL != g_pX2Game && m_bOnlyMyUnit && NULL != pGameUnit_ )
+	{
+		if ( CX2GameUnit::GUT_USER == pGameUnit_->GetGameUnitType() )
+		{
+			if ( NULL != g_pX2Game->GetMyUnit() && g_pX2Game->GetMyUnit()->GetUnitUID() != pGameUnit_->GetUnitUID() )
+				return;
+		}
+		else if ( CX2GameUnit::GUT_NPC == pGameUnit_->GetGameUnitType() )
+			return;
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	if ( NULL != g_pX2Game )
 	{
 		const UINT uiAccumulationLimit = pBuffTemplet_->GetAccumulationLimit();
@@ -382,6 +412,10 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 */
 /*virtual*/ void CX2BuffEffectSetDisplayerTemplet::DoFinish( CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	if ( m_bNotDeleteEffectSetWhenFinish )		/// June 32eba380: NOT_DELETE_EFFECT_SET_WHEN_FINISH leaves the sets playing
+		return;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	if ( NULL != g_pX2Game )
 	{
 		BOOST_FOREACH( CX2EffectSet::Handle& hHandle, m_vecHandleEffectSet )
@@ -890,7 +924,23 @@ void CX2BuffWeaponParticleDisplayerTemplet::OnFrameMoveSwordEnchant( CX2GameUnit
 */
 /*virtual*/ void CX2BuffSoundDisplayTemplet::StartDisplayer( CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 32eb9940: nothing without a unit; with ONLY_MY_UNIT only a user unit plays it, and only when it is
+	/// g_pX2Game's my unit (or there is no game or my unit); then PlaySound( name, 3D, no loop ) as March
+	if ( NULL == pGameUnit_ )
+		return;
+
+	if ( m_bOnlyMyUnit )
+	{
+		if ( CX2GameUnit::GUT_USER != pGameUnit_->GetGameUnitType() )
+			return;
+		if ( NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() && g_pX2Game->GetMyUnit()->GetUnitUID() != pGameUnit_->GetUnitUID() )
+			return;
+	}
+	pGameUnit_->PlaySound( m_wstrSoundName.c_str(), true, false );
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	pGameUnit_->PlaySound( m_wstrSoundName.c_str() );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 }
 
 /** @function : GetClonePtr
@@ -909,10 +959,17 @@ void CX2BuffWeaponParticleDisplayerTemplet::OnFrameMoveSwordEnchant( CX2GameUnit
 */
 /*virtual*/ bool CX2BuffSoundDisplayTemplet::ParsingDisplayer( KLuaManager& luaManager_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	if ( !luaManager_.GetValue( 1, m_wstrSoundName ) )		/// June 32eb7460: the sound name, as March
+		return false;
+	LUA_GET_VALUE( luaManager_, "ONLY_MY_UNIT", m_bOnlyMyUnit, false );	/// then ONLY_MY_UNIT (false when absent)
+	return true;
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	if ( luaManager_.GetValue( 1, m_wstrSoundName ) )
 		return true;
 	else
 		return false;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -962,6 +1019,12 @@ void CX2BuffWeaponParticleDisplayerTemplet::OnFrameMoveSwordEnchant( CX2GameUnit
 {
 	if ( NULL != g_pX2Game )
 	{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 32eba690: only a start with no gap timers yet creates the sets; March added another set of handles
+		/// and timers on every start (re-apply, accumulation restart), so the effects multiplied
+		if ( !m_vecCheckElapsedTimeForEffectSet.empty() )
+			return;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		typedef std::pair< wstring, float > PairEffectSetNameAndGap;
 
 		BOOST_FOREACH( const PairEffectSetNameAndGap& PairValue, m_vecPairEffectSetNameAndGap )
@@ -1048,6 +1111,22 @@ void CX2BuffWeaponParticleDisplayerTemplet::OnFrameMoveSwordEnchant( CX2GameUnit
 */
 /*virtual*/ bool CX2BuffEffectSetOnlyMyClassDisplayerTemplet::ParsingDisplayer( KLuaManager& luaManager_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 32eb8c30: twelve class keys in UNIT_TYPE order (index = type - 1), each "" when absent, and the parse
+	/// holds only when all twelve are stored. March read nine, and its ninth key was "NEW_CHARACTER", not "ADD"
+	static const char* const s_aszJuneClassKey[] =
+	{ "ELSWORD", "AISHA", "RENA", "RAVEN", "EVE", "CHUNG", "ARA", "ELESIS", "ADD", "LUCIEL", "ROSE", "AIN" };
+	const int iJuneClassKeyNum = sizeof( s_aszJuneClassKey ) / sizeof( s_aszJuneClassKey[0] );
+
+	for ( int i = 0; i < iJuneClassKeyNum; ++i )
+	{
+		wstring wstrEffectSetName = L"";
+		LUA_GET_VALUE( luaManager_, s_aszJuneClassKey[i], wstrEffectSetName, L"" );
+		m_vecEffectSetName.push_back( wstrEffectSetName );
+	}
+
+	return ( iJuneClassKeyNum == static_cast<int>( m_vecEffectSetName.size() ) );
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	const int iMaxUnitNum = static_cast<int>( CX2Unit::UT_END ) - 1;		/// 최대 유닛 수
 
 	/// 유닛수 만큼 순회
@@ -1085,6 +1164,7 @@ void CX2BuffWeaponParticleDisplayerTemplet::OnFrameMoveSwordEnchant( CX2GameUnit
 	}
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 }
 
 /** @function : StartDisplayer
@@ -1115,8 +1195,12 @@ void CX2BuffWeaponParticleDisplayerTemplet::OnFrameMoveSwordEnchant( CX2GameUnit
 					NULL, ( 0 < pGameUnit_->GetRemainHyperModeTime() ), pGameUnit_->GetPowerRate() );
 
 				/// 이펙트셋 생성 실패 했어요!!!
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+				/// June 32ebab00 does not check the handle: a class with no entry ("") plays nothing, silently
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 				if ( INVALID_EFFECTSET_HANDLE == m_hEffectSetHandle )
 					DISPLAY_ERROR( L"DISPLAYER EFFECTSET ONLY MY CLASS - UNKNOWN EFFECTSET NAME" );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 			}
 
 		}

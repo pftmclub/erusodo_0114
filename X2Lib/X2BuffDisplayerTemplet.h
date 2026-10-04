@@ -215,6 +215,10 @@ protected:
 		// 교체 되는 타입의 버프일 경우 해당 Flag 가 True 일 때, 이펙트 셋을 다시 뿌려준다.
 		m_bIsReplayEffectSetAccumulationType1 = false;
 #endif // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편		
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		m_bOnlyMyUnit = false;
+		m_bNotDeleteEffectSetWhenFinish = false;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		
 	}
 
@@ -227,6 +231,10 @@ private:
 	// 교체 되는 타입의 버프일 경우 해당 Flag 가 True 일 때, 이펙트 셋을 다시 뿌려준다.
 	bool								m_bIsReplayEffectSetAccumulationType1;
 #endif // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편	
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	bool								m_bOnlyMyUnit;						/// June +0x31 ONLY_MY_UNIT: show it on my own unit only (32eb9c70)
+	bool								m_bNotDeleteEffectSetWhenFinish;	/// June +0x32 NOT_DELETE_EFFECT_SET_WHEN_FINISH: DoFinish leaves the sets (32eba380)
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 };
 
 /** @class : CX2BuffUnitSlashTraceDisplayerTemplet
@@ -379,12 +387,18 @@ public:
 protected:
 	CX2BuffSoundDisplayTemplet() 
 		: CX2BuffDisplayerTemplet(), m_wstrSoundName()
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		, m_bOnlyMyUnit( false )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	{}
 
 	virtual bool ParsingDisplayer( KLuaManager& luaManager_ );
 	
 private:
 	wstring		m_wstrSoundName;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	bool		m_bOnlyMyUnit;		/// June +0x2c ONLY_MY_UNIT: play it on my own user unit only (32eb9940)
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 };
 
 #ifdef ADD_DISPLAYER_WEAPON_AFTER_IMAGE

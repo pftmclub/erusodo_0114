@@ -5,6 +5,14 @@
 
 #include "StdAfx.h"
 #include ".\X2BuffFactor.h"
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+
+/// June buff port 4b-ii: June's buff code raises no popup (the user's 2026-10-04 decision: follow June, always
+/// log). Every DISPLAY_ERROR in this file is collected by an active capture, else written once per buff and
+/// text as a [JUNE_BUFF] line in ErrorLog.txt (CX2JuneBuffCapture::RuntimeError). Same trailing ';' as the original.
+#undef DISPLAY_ERROR
+#define DISPLAY_ERROR( wszError_ ) CX2JuneBuffCapture::RuntimeError( wszError_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #define CASE_BEHAVIOR_FACTOR( func_, type_ ) \
 case type_: \

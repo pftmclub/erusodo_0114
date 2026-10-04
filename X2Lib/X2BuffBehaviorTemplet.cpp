@@ -6,6 +6,14 @@
 
 #include "StdAfx.h"
 #include ".\X2BuffBehaviorTemplet.h"
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+
+/// June buff port 4b-ii: June's buff code raises no popup (the user's 2026-10-04 decision: follow June, always
+/// log). Every DISPLAY_ERROR in this file is collected by an active capture, else written once per buff and
+/// text as a [JUNE_BUFF] line in ErrorLog.txt (CX2JuneBuffCapture::RuntimeError). Same trailing ';' as the original.
+#undef DISPLAY_ERROR
+#define DISPLAY_ERROR( wszError_ ) CX2JuneBuffCapture::RuntimeError( wszError_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #define CASE_BEHAVIOR_TEMPLET( class_, type_ ) \
 case type_: \
@@ -253,12 +261,12 @@ bool CX2BuffBehaviorTemplet::SetFactorFromPacketTemplateMothod( const KBuffFacto
 	/// branch (March's ADJUST_BUFF_ACCMULATION_CALCULATE), and both failures return false without an error.
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeNowHpPerSecondBehaviorTemplet::SetFactor: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
 	const BUFF_CHANGE_TYPE eChangeType
 		= STATIC_CAST_FLOAT_TO_ENUM( BUFF_CHANGE_TYPE, (*pBehaviorFactor)[FO_CHANGE_TYPE] );
 	if ( eChangeType != m_eChangeType )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeNowHpPerSecondBehaviorTemplet::SetFactor: BUFF_CHANGE_TYPE MISS MATCH" )	/// 4b-ii: June returns false here silently; logged once
 
 	SelectDelegate();
 
@@ -567,10 +575,10 @@ void CX2BuffChangeNowHpPerSecondBehaviorTemplet::DrawText( CX2GameUnit* pGameUni
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeNowMpPerSecondBehaviorTemplet::SetFactor: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
 	if ( STATIC_CAST_FLOAT_TO_ENUM( BUFF_CHANGE_TYPE, (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != m_eChangeType )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeNowMpPerSecondBehaviorTemplet::SetFactor: BUFF_CHANGE_TYPE MISS MATCH" )	/// 4b-ii: June returns false here silently; logged once
 
 	if ( BCT_FIX_VALUE == m_eChangeType || BCT_PERCENT == m_eChangeType )
 		SelectDelegate();
@@ -607,10 +615,10 @@ void CX2BuffChangeNowHpPerSecondBehaviorTemplet::DrawText( CX2GameUnit* pGameUni
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeNowMpPerSecondBehaviorTemplet::OnAccumulationCountSet: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
 	if ( STATIC_CAST_FLOAT_TO_ENUM( BUFF_CHANGE_TYPE, (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != m_eChangeType )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeNowMpPerSecondBehaviorTemplet::OnAccumulationCountSet: BUFF_CHANGE_TYPE MISS MATCH" )	/// 4b-ii: June returns false here silently; logged once
 
 	if ( BCT_FIX_VALUE == m_eChangeType || BCT_PERCENT == m_eChangeType )
 		SelectDelegate();
@@ -1199,10 +1207,10 @@ void CX2BuffChangeNowMpPerSecondBehaviorTemplet::DrawText( CX2GameUnit* pGameUni
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeStatBehaviorTemplet::OnAccumulationCountSet: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
 	if ( STATIC_CAST_FLOAT_TO_ENUM( BUFF_CHANGE_TYPE, (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != m_eChangeType )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeStatBehaviorTemplet::OnAccumulationCountSet: BUFF_CHANGE_TYPE MISS MATCH" )	/// 4b-ii: June returns false here silently; logged once
 
 	const float fRegist = pGameUnit_->GetEnchantResist( static_cast<CX2EnchantItem::ENCHANT_TYPE>( pBuffTemplet_->GetRegistType() ) ) / CX2EnchantItem::EAR_MAX_VALUE;
 	const float fNewValue = GetValue( pBehaviorFactor, pGameUnit_, fRegist );
@@ -1219,7 +1227,7 @@ void CX2BuffChangeNowMpPerSecondBehaviorTemplet::DrawText( CX2GameUnit* pGameUni
 	else
 	{
 		if ( IsSamef( pBuffTemplet_->GetAccumulationMultiflier() ) )
-			return false;
+			return DISPLAY_ERROR( L"CX2BuffChangeStatBehaviorTemplet::OnAccumulationCountSet: ACCUMULATION_MULTIPLIER is 0" )	/// 4b-ii: June returns false here silently; logged once
 
 		switch ( m_eChangeType )
 		{
@@ -1393,11 +1401,11 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	/// June hands it to the unit's list entry, which CX2DamageManager reads (326309f0).
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffCreateBuffFactortBehaviorTemplet::SetFactor: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
 	m_uiBuffFactorId = static_cast<UINT>( (*pBehaviorFactor)[FO_BUFF_FACTOR_ID] );
 	if ( 0 == m_uiBuffFactorId )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffCreateBuffFactortBehaviorTemplet::SetFactor: BUFF_FACTOR_ID is 0" )	/// 4b-ii: June returns false here silently; logged once
 
 	if ( DidStart() )
 		pGameUnit_->EraseTemporaryBuffFactor( pBuffTemplet_->GetBuffIdentity() );
@@ -1413,7 +1421,7 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	{
 		CX2GUUser* pUser = reinterpret_cast<CX2GUUser*>( pGameUnit_ );
 		if ( NULL == pUser->GetUnit() )
-			return false;
+			return DISPLAY_ERROR( L"CX2BuffCreateBuffFactortBehaviorTemplet::SetFactor: the user has no CX2Unit" )	/// 4b-ii: June returns false here silently; logged once
 
 		if ( 0 != m_uiSkillId )
 		{
@@ -1587,7 +1595,7 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	/// June 32e768a0: the value is index 1, where June's level slice (32d47620) puts it after a 1.0
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffAbsorbEffectAttackBehaviorTemplet::SetFactor: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
 	if ( DidStart() )
 	{
@@ -1940,7 +1948,7 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 	/// June 32e7dbb0. Unit slots: 40 SetFullHyperMode, 41 IsFullHyperMode, 49 HyperModeBuffEffectStart.
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeHyperModeBehaviorTemplet::SetFactor: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
 	if ( 0 == m_uiHyperModeCount )
 	{
@@ -2147,10 +2155,10 @@ void CX2BuffResetSkillCoolTimeBehaviorTemplet::DrawText( CX2GameUnit* pGameUnit_
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffResetSkillCoolTimeBehaviorTemplet::SetFactor: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
 	if ( static_cast<int>( (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != static_cast<int>( m_eChangeType ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffResetSkillCoolTimeBehaviorTemplet::SetFactor: BUFF_CHANGE_TYPE MISS MATCH" )	/// 4b-ii: June returns false here silently; logged once
 
 	switch ( m_eChangeType )
 	{
@@ -2168,7 +2176,7 @@ void CX2BuffResetSkillCoolTimeBehaviorTemplet::DrawText( CX2GameUnit* pGameUnit_
 		return ( 0.0f <= m_fCoolTimeRate && m_fCoolTimeRate <= 1.0f );
 
 	default:
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffResetSkillCoolTimeBehaviorTemplet::SetFactor: unknown BUFF_CHANGE_TYPE" )	/// 4b-ii: June returns false here silently; logged once
 	}
 }
 
@@ -2940,7 +2948,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffCanPassUnitBehaviorTemplet::SetFactor: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
 	if ( NULL != pGameUnit_ )
 		m_bCanPassUnitBeforeBuff = pGameUnit_->GetCanPassUnitNow();
@@ -3046,7 +3054,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffNeverMoveBehaviorTemplet::SetFactor: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
 	if ( !DidStart() )
 	{
@@ -3261,10 +3269,10 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeAttackByTypeBehaviorTemplet::SetFactor: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
 	if ( static_cast<int>( (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != static_cast<int>( m_eChangeType ) || BCT_PERCENT != m_eChangeType )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeAttackByTypeBehaviorTemplet::SetFactor: BUFF_CHANGE_TYPE MISS MATCH" )	/// 4b-ii: June returns false here silently; logged once
 
 	const float fNewValue = (*pBehaviorFactor)[FO_VALUE];
 
@@ -3466,10 +3474,10 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeEncahntAttackRateBehaviorTemplet::SetFactor: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
 	if ( STATIC_CAST_FLOAT_TO_ENUM( BUFF_CHANGE_TYPE, (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != m_eChangeType )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeEncahntAttackRateBehaviorTemplet::SetFactor: BUFF_CHANGE_TYPE MISS MATCH" )	/// 4b-ii: June returns false here silently; logged once
 
 	switch ( GetType() )
 	{
@@ -3483,7 +3491,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 	}
 
 	if ( BCT_PERCENT != m_eChangeType && BCT_FIX_VALUE != m_eChangeType )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeEncahntAttackRateBehaviorTemplet::SetFactor: BUFF_CHANGE_TYPE is neither FIX nor PERCENT" )	/// 4b-ii: June returns false here silently; logged once
 
 	const float fNewRate = (*pBehaviorFactor)[FO_VALUE];
 	if ( !DidStart() )
@@ -3498,7 +3506,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 	{
 		const float fAccumulationMultiflier = pBuffTemplet_->GetAccumulationMultiflier();
 		if ( IsSamef( fAccumulationMultiflier ) )
-			return false;
+			return DISPLAY_ERROR( L"CX2BuffChangeEncahntAttackRateBehaviorTemplet::SetFactor: ACCUMULATION_MULTIPLIER is 0" )	/// 4b-ii: June returns false here silently; logged once
 
 		pGameUnit_->EraseChangeEnchantAttackRate( pBuffTemplet_->GetBuffIdentity(), m_eEnchantAttributeType, m_eChangeType );
 		m_fRate = fNewRate * ( 1.0f + fAccumulationMultiflier * uiAccumulationCountNow );
@@ -3523,10 +3531,10 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 {
 	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
 	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeEncahntAttackRateBehaviorTemplet::OnAccumulationCountSet: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
 	if ( STATIC_CAST_FLOAT_TO_ENUM( BUFF_CHANGE_TYPE, (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != m_eChangeType )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeEncahntAttackRateBehaviorTemplet::OnAccumulationCountSet: BUFF_CHANGE_TYPE MISS MATCH" )	/// 4b-ii: June returns false here silently; logged once
 
 	switch ( GetType() )
 	{
@@ -3540,7 +3548,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 	}
 
 	if ( BCT_PERCENT != m_eChangeType && BCT_FIX_VALUE != m_eChangeType )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeEncahntAttackRateBehaviorTemplet::OnAccumulationCountSet: BUFF_CHANGE_TYPE is neither FIX nor PERCENT" )	/// 4b-ii: June returns false here silently; logged once
 
 	const float fNewRate = (*pBehaviorFactor)[FO_VALUE];
 	if ( DidStart() )
@@ -3549,7 +3557,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 		{
 			const float fAccumulationMultiflier = pBuffTemplet_->GetAccumulationMultiflier();
 			if ( IsSamef( fAccumulationMultiflier ) )
-				return false;
+				return DISPLAY_ERROR( L"CX2BuffChangeEncahntAttackRateBehaviorTemplet::OnAccumulationCountSet: ACCUMULATION_MULTIPLIER is 0" )	/// 4b-ii: June returns false here silently; logged once
 
 			pGameUnit_->EraseChangeEnchantAttackRate( pBuffTemplet_->GetBuffIdentity(), m_eEnchantAttributeType, m_eChangeType );
 			m_fRate = ( fAccumulationMultiflier * static_cast<float>( iCount_ - 1 ) + 1.0f ) * fNewRate;
@@ -4115,7 +4123,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 	/// ignores it; it has no MP lookup and no change-type test. The reader is CX2GUUser::GetSkillRateByBuffBehavior.
 	const KBuffBehaviorFactor* pJuneBehaviorFactor = NULL;
 	if ( false == BuffFactor_.GetBehaviorFactor( GetType(), &pJuneBehaviorFactor ) )
-		return false;
+		return DISPLAY_ERROR( L"CX2BuffChangeConsumeMpRate::SetFactor: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
 	m_uiSkillId = static_cast<UINT>( (*pJuneBehaviorFactor)[FO_SKILL_ID] );
 
@@ -4124,7 +4132,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 		CX2GUUser* pUser = reinterpret_cast<CX2GUUser*>( pGameUnit_ );
 
 		if ( NULL == pUser->GetUnit() )
-			return false;
+			return DISPLAY_ERROR( L"CX2BuffChangeConsumeMpRate::SetFactor: the user has no CX2Unit" )	/// 4b-ii: June returns false here silently; logged once
 
 		if ( DidStart() )
 			m_fResultValue += (*pJuneBehaviorFactor)[FO_VALUE];

@@ -43,6 +43,12 @@ public:
 	/// June finalizer vtable slot 8 (base 31e4c550 returns false): restart after ACCUMULATION_DECREASE_WHEN_FINISH
 	virtual bool RestartForAccumulationDecrease() { return false; }
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June finalizer vtable slot 11 (base 31e4c550 returns false; only Time overrides it, 32ec3610): a stick
+	/// shake takes SHAKE_DECREASE_TIME_AT_ONCE off the remaining time. Run by CX2BuffTemplet::DecreaseDurationByShake,
+	/// whose trigger (June OnFrameMoveBuff @3229d744 on CX2Game +0xbae) is Phase 8's with the BFT 15 input block
+	virtual bool DecreaseDurationByShake() { return false; }
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 	bool SetFactorFromPacketTemplateMothod( const KBuffFactor& kBuffFactor_, CX2GameUnit* pGameUnit_ );
 	BUFF_FINALIZER_TYPE GetType() const { return m_eType; }
@@ -129,6 +135,9 @@ public:
 		return true;
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	virtual bool DecreaseDurationByShake();		/// June 32ec3610
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #ifdef SERV_IRUHADEV_BUFF_DURATION_TEXT
 	virtual float GetRemainTime() const { return m_fDurationTime; }
@@ -143,6 +152,10 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 		, m_fFullDurationTime( 0.0f )
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		, m_bFrozenTime( false ), m_bTimeFrozen( false )
+		, m_fShakeDecreasedTime( 0.0f ), m_fShakeDecreaseMaxTime( 0.0f ), m_fShakeDecreaseTimeAtOnce( 0.0f )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef BUFF_ICON_UI //버프 남은 지속 시간 얻기
 		,m_eBuffTempleteID(BTI_NONE)
 		,m_bIsAlreadyNotifyDurationTime(false)
@@ -161,6 +174,14 @@ private:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 	float	m_fFullDurationTime;					/// June +0x28: the duration as last set, for RestartForAccumulationDecrease
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	bool	m_bFrozenTime;				/// June +0x2d: FROZEN_TIME (parsed and stored; the freeze itself is not ported, see SetFactor)
+	bool	m_bTimeFrozen;				/// June +0x2c: OnFrameMove does not tick while set. Never set here: June sets it at parse and
+										/// in SetFactor and clears it from CX2GUUser::CommonStateStart (3200bde0), which March cannot map
+	float	m_fShakeDecreasedTime;		/// June base +4: time taken off by stick shakes so far
+	float	m_fShakeDecreaseMaxTime;	/// June base +8: SHAKE_DECREASE_MAX_TIME
+	float	m_fShakeDecreaseTimeAtOnce;	/// June base +0xc: SHAKE_DECREASE_TIME_AT_ONCE
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef BUFF_ICON_UI //버프 남은 지속 시간 얻기
 	BUFF_TEMPLET_ID			m_eBuffTempleteID;
 	bool					m_bIsAlreadyNotifyDurationTime;
