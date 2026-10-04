@@ -1904,6 +1904,8 @@ Ghidra was used read-only.
 
 ## Phase 4b — Existing BBT/BFT/BDT parity
 
+**Status: complete (2026-10-04).** 4b-i parts 1-5, 4b-ii and 4b-iii are done, play-tested and reviewed. The 4b-iii review found no open code defect. Phase 5 is next.
+
 **Scope.** For each of the 73 existing BBT, 14 BFT and 14 BDT, diff June against March in four places, and port June in full wherever they differ:
 - the factor parse case;
 - the level-slice case;
@@ -3513,7 +3515,7 @@ Not exercisable from the console, so left to the review: the `DT_BUFF` hitted ga
 2. Every March-reachable difference ported whole, March in `#else`: **met** (render param, after-image colour, normal-attack gate, hitted gate, owner hit).
 3. Census 0: **met**.
 4. Unifdef, build, deploy, md5 and the user's play-test: **met**.
-5. Review with no open code defect: **pending** (kickoff below).
+5. Review with no open code defect: **met** (see "Phase 4b-iii — Review" below).
 
 **Cost:** `/cost` is not readable from inside the session; ask the user.
 
@@ -3545,6 +3547,56 @@ record the md5, and ask before launching. If nothing is open and the user's play
 passed, mark Phase 4b complete. Add confirmed funcmap.tsv rows. Stage only your own hunks.
 Commit. Record the review cost line.
 ```
+
+### Phase 4b-iii — Review (2026-10-04, Opus 5.5 high)
+
+Independent review of code commit `2cb90fa` (under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`) against the pre-session commit `6312f1d`, and of doc commits `4878e34`, `648817e` and `de252fa`. Read-only on code: nothing was edited, built or deployed.
+
+Fresh tools only; the session's patch, unifdef and `dispxref` scripts were not reused:
+- Ghidra, read-only (two decompiles; no renames or comments).
+- A new capstone reader over a hand-parsed PE section map, with a whole-`.text` linear sweep (resync on a decode failure). It reports every instruction whose memory displacement **or** immediate equals a target. That covers `lea`, indexed (`[base+idx+disp]`) and `add reg, imm` accesses as well as plain loads and stores.
+- A new one-flag byte-level unifdef over `git cat-file` blobs, with a flag-on control and a wrong-flag control (`SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY`).
+
+**Verdict: no code defect.** Every item on the kickoff's "especially" list matches June's asm. R1-R5 are all Info.
+
+| # | Check | Result |
+|---|---|---|
+| 1 | `ApplyRenderParam` `32275140` | **Pass.** `+0x6840` set → return. Then vslot 197 (`call [vt+0x314]`) runs unconditionally. `+0x669c == +0x66a0` (empty) → vslot 199 (`+0x31c`) and return. Otherwise `back()` (`[end-4]`); a null pointer skips. Each key is gated on its slot's begin ≠ end: render type `+0x10`, cartoon `+0x20`, outline width `+0x30`, outline colour `+0x40`, colour `+0x50`. Alpha blend `+0x60` is a `vector<bool>`, gated on bit count `+0x70` ≠ 0 and read from bit 0. Inside the colour gate, `fld gap(+0x74); fcomp [334350e8]` (a double 0.0); `test ah,0x41; jne` takes the plain colour when gap ≤ 0, otherwise `322722e0`. That is the port, ordering included. |
+| 2 | Parses `32eb7d50` / `32ebad40` | **Pass.** `32eb7d50`: `RENDER_TYPE` (`33449c38`), `CARTOON_TEX_TYPE`, `OUT_LINE_WIDE`, `COLOR_OUT_LINE`, `COLOR` (`3343aa84`) and `ALPHA_BLEND` are each read with `cmp al,1 / jne`, which skips the slot's push. So a key the script lacks stays empty. `FLICKER_COLOR_GAP` (XOR-decoded here) is stored at `+0x74`, with `fldz` on a miss. Return `al = 1`. `32ebad40`: the same six keys with the same `cmp al,1 / jne`. Its two colours inline `GetUserDefinedTypeValue`: `Get` `32fe98c0`, then `isuserdata(-1)` `32fe4de0`; on failure it pops and skips the push. That is `LuaCommon/KLuaManager.h:1082` exactly, which the port calls. No flicker read there. |
+| 3 | `EnableAfterImage` `32275a30` / `DisableAfterImage` `322720f0` | **Pass.** Enable: option `[0x3377585c]+0x1ac == 0` and `+0x3e59 == 0`, then `+0x194 = 1`. The colour is `back()+0x10..0x1c` when `+0x6744 != +0x6748`, **else** `+0x6880..+0x688c`. Disable: force, **or** an empty list, **or** option `== 2` → `+0x194 = 0`. There is no colour write on any path. The port matches both. |
+| 4 | `3236ed60` gate | **Pass.** `mov eax,[esp+0x48]` is the second argument, the attack type; `dec eax; je skip`, so only type 1 skips. The cool gate `fld cool; fld gap; fcompp; test ah,0x41; jp skip` proceeds when cool ≥ gap. That is the port's `AT_SPECIAL != type`. The impact-point sibling `3236ea50` has the same prologue. |
+| 5 | Hitted gates | **Pass.** User: vslot 102 (`+0x198`, `IsMyUnit`) at `320489c6`, then `cmp [ebx+0x56c],4 / je` at `320489d7` and `cmp [ebx],6 / je`, then `++[ebp+0x4230]`. NPC: `cmp byte [esp+0x32],1` (`bLocalUnit`) at `327b4b82`, then the same two compares at `327b4b91`. March: `DT_BUFF` = 6, `NFT_RESULT_BOMB` = 4, and `m_iNaturalForceType` defaults to −1 (`X2DamageManager.h:1371`). Read uncompressed, both port blocks sit inside their `IsMyUnit()` / `bLocalUnit` braces, and the unifdef shows the `#else` is March's code. |
+| 6 | NPC owner increment | **Pass.** `3276ae07`: `reActResult(+0x3c8) != 7` (`RT_DUMMY_DAMAGE` = 7) and vslot 103 (`+0x19c`) → `++hit`, `++[+0x4232+type]`. Then `32759f00` (call at `3276ae3c`) is null-checked, called again, and `++owner+0x4231` plus the owner's per-type counter, all inside the same branch. `32759f00` is observer `+0x8d5c` → observable − 0x1a0, i.e. March's `GetOwnerGameUnit`. |
+| 7 | Readers the `dispxref` sweep might miss | **None missed.** Displacements swept: `669c/66a0/66a4`, `66fc/6700/6704`, `670c/6710/6714`, `6744/6748/674c`, `675c/6760/6764`, `677c/6780/6784`, `4230`, `4231`, `4238`, `6880..688c`, `8cd4`, `7c80`. Then a second sweep for overlapping-width or neighbouring access: `8cd0..8cd3`, `8cd5`, `422c..422f`, `4234`, `4236`, `6740`, `687c`, `6890`. Every hit outside the session's table is one of these: `esp`-relative stack locals in four large functions (`31d95080`, `321abd20`, `32da1700`, `32e102f0`); a known writer; a ctor/dtor clear; or EH unwind funclets in `33251dd0` (`mov ecx,[ebp-0x10]; add ecx,disp; jmp dtor`). `+0x8cd0` is a separate float with its own users. `+0x4234`/`+0x4236` are other counters (the per-type ones are hand-off 5). |
+| 8 | `+0x8cd4` (AFTER_IMAGE_ALWAYS) | **No reader.** Three writers: setter `31e4d6f0` (one byte store, bound at `31e088dc` under the name decoded at `31e0876c`), the ctor `@327627c0`, and NPC init `327a0fa0 @327a2c5c` (`AFTER_IMAGE_ALWAYS`, `xorstrings.tsv` row `327a2b50`, through bool getter `32fe9e40`, 0 on a miss). |
+| 9 | Copies of `StBuffRenderParam` | **All through the copy ctor.** `X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR` is unconditional (`KTDX.h:340`), so `operator=` is private and undefined, and an assignment cannot compile. The copy paths: both `GetClonePtr`s copy-construct the displayer (June `32eb8020` calls `322ad270` on `+0x10`); `CX2RenderParamByBuff`'s ctor; and both `CreateAndInsertRenderParamByBuffUnitType` overrides pass `*ptr` to `CreateAndInsertRenderParamByBuff`. The by-unit-type map holds intrusive pointers. The new members are declared after `m_fFlickerColorGap` and initialised in the same order. |
+| 10 | NPC after-image colour | **Holds.** Neither March's nor June's `Ran.lua` / `Ran_Event.lua` has a bare `AFTER_IMAGE` state key. June's source has only the init keys. In March's bytecode the only bare-looking match is `USE_AFTER_IMAGE`. No March script among the 5,143 plain `.lua` files in `kom_contents` has the exact key `AFTER_IMAGE_COLOR`. June's NPC window `@327b6887` calls `EnableAfterImage(3)` / `DisableAfterImage(0,3)`, and no NPC path writes `+0x6880`. So June also repaints an NPC's init colour (`AFTER_IMAGE_COLOR_R/G/B/A`, `X2GUNPC.cpp:4124-4137`) to 0.8 gray on enable, and the port is June-equal. |
+| 11 | `AFTER_IMAGE_COLOR` read | **Pass.** The XOR bytes at `3379d708` decode to `AFTER_IMAGE_COLOR`. The read is at `3205b857..` via `31c9eba0` into `+0x6880`, with the 0.8 default (`3343b240`) on a miss. It comes after both `AFTER_IMAGE` branches join at `3205b70d`, and the else branch's `DisableAfterImage` (`322720f0`) runs first. That is the port's placement. |
+| 12 | Other "same" rows spot-checked | **Pass.** vslot 197 Aisha override `32cc1c50`: transform fade into `m_RenderParam` (`+0xc10` type 0x11, colour alpha), then base `3226e190`, as `X2GUArme_VioletMage.cpp:19744`. Damage-effect hit `31f87a60`: `!= RT_DUMMY_DAMAGE`, then the owner non-null, then owner vslot 102, then `++owner+0x4231`, as `X2DamageEffect.cpp:5460-5462`. March has no counter site beyond the ones in the table (grep of all `X2Lib`). `EnableWeaponAfterImage` `32275b00`: an empty list returns, with no else-colour branch, as March. |
+| 13 | Sync apply gate (the session's open item) | **Closed.** `3206c1a2`: vslot 102 (`IsMyUnit`) true → skip. Otherwise HP, then hit `+0x4231 = +0x80fa`, the per-type counters from `+0x8104..+0x8106`, hitted `+0x4230 = +0x80fb`, and debuff `+0x4235 = +0x80fc`. That is March's `if( IsMyUnit() == false )` block (`X2GUUser.cpp:17501-17514`) plus hand-off 5's fields. |
+| 14 | Hygiene and deploy | **Pass.** `numstat 6312f1d 2cb90fa`: 216/0 over the seven files. All 216 added lines are ASCII and CRLF, and `file` signatures are unchanged. The fresh unifdef gives strip(`2cb90fa`) == strip(`6312f1d`) flag-off on all seven; the flag-on and wrong-flag controls differ on all seven. `X2/US_SERVICE/x2.exe` and the game directory's `X2_offline.exe` are both 19,032,576 B, md5 **`a03acb224cb0c23221183083988a8544`** (names read programmatically). |
+
+**Not re-checked here** (the session's verdicts stand on its own evidence): slash trace `+0x4238`, the ImpactPoint/Hitted/NormalAttack inserts and erases, `PlayEffectSet*ByBuff`, the cool-time tick, vslot 154, the after-image insert and erase, and the vslot-197 overrides other than Aisha's.
+
+**Findings**
+- **R1, Info (open item closed).** The sync apply's `!IsMyUnit` gate is traced (row 13); it is the same as March.
+- **R2, Info (no missed reader).** Rows 7-8. The sweep method and its extra displacements are recorded above, so a later phase can extend it rather than redo it.
+- **R3, Info (kickoff addresses).** `@320489c6` is the `IsMyUnit` vcall; the hitted gate's first compare is `320489d7`. `@3276ae3a` is `mov ecx,esi`; the owner call is `3276ae3c`. The code comments already cite `@320489d7` and `@327b4b91`. No change.
+- **R4, Info (outside buff scope).** In the sync apply, after `SetNowHp` (vslot 61), June calls vslot 404 (`+0x650`) with no argument where March calls `SetNowMp( syncData.fNowMP )`. That function was not identified. It is not a buff store, so it is left for whichever phase owns sync parity.
+- **R5, Info (NPC init colour).** The Done note's "no practical change" covers both `ChangeAfterImageColor` and the init `AFTER_IMAGE_COLOR_R/G/B/A`. Row 10 confirms June repaints the init colour too, so the port is June-equal there, not just equal in practice.
+
+**funcmap.tsv:** 7 rows ("Buff Phase 4b-iii review"), all `confirmed` and all new:
+- `32eb8020` RenderParam `GetClonePtr`;
+- `31e4d6f0` `SetEnableAfterImageAlways`;
+- the by-name `KLuaManager::GetValue` int / float / bool (`32fe9fd0` / `32fea370` / `32fe9e40`);
+- `GetUserDefinedTypeValue<D3DXCOLOR>` `31c9eba0`;
+- `KLuaManager::Get` `32fe98c0`.
+
+**Build and deploy:** none, because there is no code defect. The deployed exe is still `a03acb22…` (`2cb90fa`). The user's play-test on it passed (above).
+
+**Phase 4b: complete.** All five "done when" items are met. Phase 5 starts next.
+
+**Review cost:** `/cost` is not readable from inside the session; ask the user.
 
 ## Phases 5–7 — New behavior types
 
