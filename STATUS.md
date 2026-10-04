@@ -14,7 +14,8 @@ paths. Builds queue through one lock (all worktrees share it). Read-only steps (
 that find nothing, planning) can always run alongside.
 
 States: `done` · `review` (done, review pending) · `play-test` (waiting on the user) ·
-`ready` (can start) · `blocked` (dependency not done) · `decision` (waiting on a user decision).
+`ready` (can start) · `queued` (could start, but the user ordered another plan first) ·
+`blocked` (dependency not done) · `decision` (waiting on a user decision).
 
 ---
 
@@ -56,6 +57,52 @@ Plan doc migrated 2026-10-04: finished Done/Review notes of 4b-i..6 are in
 `JUNE_BUFF_PORT_ARCHIVE.md` (headings kept as stubs that `tools/docsection.py` follows), and
 the inline prompts of unfinished phases point at `kickoffs/june-buff/`.
 
+## june-effect - June 2017 effect engine completion
+
+Plan `JUNE2017_EFFECT_COMPLETION_PHASES.md` (C0-C12; reference `JUNE2017_EFFECT_REBUILD_PLAN.md`) ·
+current branch · log tag `[JUNE_FX]` (ErrorLog.txt) · flags `SERV_IRUHADEV_JUNE_*` (one per phase,
+named in each kickoff) · kickoffs `kickoffs/june-effect/` ·
+**user's order (D1, 2026-10-04): finish the buff port first, then this plan.**
+
+The plan runs "Opus identifies, Sonnet transcribes, Opus reviews". The four phases that did both
+in one session (C1, C6, C8, C10) are split here into **a** (Opus, no code) and **b** (Sonnet,
+code), so each half gets its own conversation and model. "Sonnet 5" in the plan doc means
+today's Sonnet 5.5.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| C0 | queued | Sonnet 5.5 / high | - | `june2017_re/census.py`, C0's decision table (D1 already answered) | `C0.md` |
+| C1a | queued | Opus 5.5 / high | C0 | `funcmap.tsv` (no code) | `C1a.md` |
+| C1b | blocked | Sonnet 5.5 / high | C1a | X2DamageManager.cpp (SetDamageDataFromLUA), a new table loader, NewSkillTempletVer2.lua (user packs), MODS.md | `C1b.md` |
+| C1b review | blocked | Opus 5.5 / high | C1b | - | `C1b-review.md` |
+| C2 | queued | Opus 5.5 / high | - | `funcmap.tsv`, `june2017_re/README.md` (no code) | `C2.md` |
+| C3 | blocked | Sonnet 5.5 / high | C2 | X2DamageManager.cpp, consumers in X2DamageEffect.cpp / X2GameUnit.cpp | `C3.md` |
+| C3 review | blocked | Opus 5.5 / high | C3 | - | `C3-review.md` |
+| C4 | blocked | Sonnet 5.5 / high | C2 | X2DamageManager.cpp, X2GameUnit.cpp (GetFinalDamage), X2GUAdd.cpp | `C4.md` |
+| C4 review | blocked | Opus 5.5 / high | C4 | - | `C4-review.md` |
+| C5 | blocked | Sonnet 5.5 / high | C2 (+ coordinate with june-buff) | X2DamageManager.cpp, X2DamageEffect.cpp | `C5.md` |
+| C5 review | blocked | Opus 5.5 / high | C5 | - | `C5-review.md` |
+| C6a | queued (identification started 2026-09-29) | Opus 5.5 / high | - | `funcmap.tsv` (no code) | `C6a.md` |
+| C6b | blocked | Sonnet 5.5 / high | C6a | X2DamageEffect.cpp (CEffect, hit/die spawners) | `C6b.md` |
+| C6b review | blocked | Opus 5.5 / high | C6b | - | `C6b-review.md` |
+| C7 | blocked | Sonnet 5.5 / high | C6b | X2DamageEffect.cpp, KTDXLIB/KTDGXMeshPlayer.h (CXMeshInstance) | `C7.md` |
+| C7 review | blocked | Opus 5.5 / high | C7 | - | `C7-review.md` |
+| C8a | blocked | Opus 5.5 / high | C2 | `funcmap.tsv`, a port list in the plan (no code) | `C8a.md` |
+| C8b | blocked | Sonnet 5.5 / high | C8a, C1b | X2DamageEffect.cpp (hit paths), X2GameUnit.cpp, X2GUUser.cpp, X2GUNPC.cpp, per-class X2GU*.cpp (SetDamageExceptionProcess) | `C8b.md` |
+| C8b review | blocked | Opus 5.5 / high | C8b | - | `C8b-review.md` |
+| C9 | blocked | Sonnet 5.5 / high | C2 | X2Main.cpp (bindings), X2DamageManager.cpp, data036 staging (user packs) | `C9.md` |
+| C9 review | blocked | Opus 5.5 / high | C9 | - | `C9-review.md` |
+| C10a | blocked | Opus 5.5 / high | C0 (D2-D5), C2 | `funcmap.tsv` (no code) | `C10a.md` |
+| C10b | blocked | Sonnet 5.5 / high | C10a | per decided system (game option UI/save, damage path) | `C10b.md` |
+| C10b review | blocked | Opus 5.5 / high | C10b | - | `C10b-review.md` |
+| C11 | blocked | Sonnet 5.5 / high | C1-C10 | - (verification; one .dds staged) | `C11.md` |
+| C12 | blocked | Sonnet 5.5 / high | C11 | docs, MODS.md, maybe Always.h (D6) | `C12.md` |
+
+Running together: C0, C1a, C2, C6a and C8a/C10a touch no game code, so they can run alongside a
+code session. C1a, C2, C6a, C8a and C10a all add rows to `funcmap.tsv`, though, so run those one
+after another. C3, C4, C5 and C9 all edit X2DamageManager.cpp; C6b, C7 and C8b all edit
+X2DamageEffect.cpp: one at a time within each group.
+
 ## Other plans
 
 No `kickoffs/` files yet: `/x2-phase <plan> <phase>` writes the kickoff from the plan doc's
@@ -64,7 +111,6 @@ phase section (kickoffs/TEMPLATE.md) on first use and shows it before starting.
 | Plan | Doc | State (2026-10-04, from the doc's headings; verify before starting) |
 |---|---|---|
 | backlog | `JUNE_PORT_BACKLOG_ORDER.md` | The order of everything below: stage 0 (close open loops, incl. this buff port) -> 1 Atlas/Elysion -> 2 engine remainder -> 3 skill core -> ... -> 9 UI. |
-| june-effect | `JUNE2017_EFFECT_COMPLETION_PHASES.md` | C0-C12 not started; queued after the buff port (C1, numerical skill data, is the blocker). |
 | atlas | `ATLAS_PORT_PHASES.md` | Done notes exist through A13. |
 | elysion | `ELYSION_PORT_PHASES.md` | Done notes exist through E15. |
 | lanox | `LANOX_REMAINING_PHASES.md` + `JUNE_UI_PARITY_PHASES.md` | 12 items in phases 0-11; check the doc for which have landed. |

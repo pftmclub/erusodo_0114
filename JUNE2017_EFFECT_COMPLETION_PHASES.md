@@ -5,7 +5,15 @@ adopted June's own effect files on 2026-10-03. This document takes the engine fr
 **complete**: on June's own effect data, the March client does what the June client does, cited to
 June's binary, with nothing left on a default that June would not use.
 
-Run each phase in a fresh conversation:
+> **2026-10-04: this plan runs on the new workflow.** Start any phase with
+> `/x2-phase june-effect <phase>` in a fresh conversation, on the model `STATUS.md` names. The
+> maintained kickoffs are `kickoffs/june-effect/*.md`. C1, C6, C8 and C10 are split there into an
+> Opus half (`a`, identification) and a Sonnet half (`b`, code), each `b` followed by an Opus review.
+> Phase state lives in `STATUS.md` (block `june-effect`). The inline kickoff prompts below are
+> frozen history. Build, deploy, hygiene and log steps use `tools/` (CLAUDE.md, *Workflow automation*).
+> Write each phase's Done note under its section here, at most ~60 lines.
+
+Before 2026-10-04, each phase ran in a fresh conversation:
 1. paste the rebuild plan's **Starting context**;
 2. paste the phase section below;
 3. paste the phase's **Kickoff prompt**.
