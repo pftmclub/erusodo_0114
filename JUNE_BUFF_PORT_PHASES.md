@@ -3263,10 +3263,12 @@ JUNE_BUFF_PORT_PHASES.md in the repo root -- "Starting context", the "June buff 
 map", "Phase 4b-ii -- RE" and "Phase 4b-ii -- Done". Branch: mods/june-buff-port. Never
 launch X2_offline.exe.
 
-Your task: an independent review of Phase 4b-ii. Code: 159fb91 (under
-SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY); the RE commit is 2faeaf7. Use fresh scratch tools.
-Run the flag-off unifdef on the committed blobs of 159fb91 against 146ce5a, and take numstat
-from git diff 146ce5a 159fb91.
+Your task: an independent review of Phase 4b-ii. Code: 159fb91 and its fix 256c26d (under
+SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY); the RE commit is 2faeaf7; the doc commits are
+fefc838, 54117d0, 8ae7d73 and 149bbec (play-test passed). Use fresh scratch tools; do not
+reuse the session's patch or unifdef scripts. Run the flag-off unifdef on the committed
+blobs of 256c26d against 146ce5a, and take numstat from git diff 146ce5a 256c26d. The
+deployed X2_offline.exe should be md5 806e2223...; confirm that.
 
 Check, in Ghidra (read-only) and the raw asm, the section's suggested spot-checks and its
 "not diffed byte for byte" list; whether every buff runtime DISPLAY_ERROR on a March path now
