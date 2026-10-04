@@ -572,7 +572,7 @@ Every row is confirmed in `june2017_re/funcmap.tsv` unless marked *candidate*. "
 | `322830f0` | `CX2GameUnit::EraseAdditionalStat` | 5 |
 | `3226fd70` | update-or-insert additional stat (March's `UpdateAddtionalStatFactor` path) | 5 |
 | `32271540` | `InitAdditionalStat` (basic values) | 5 |
-| `32270dd0` | `CX2GameUnit::InitAdditionalStatOptionValue` (`X2GameUnit.cpp:12442`) | 5 |
+| `32270dd0` | `CX2GameUnit::InitAdditionalStatOptionValue` (`X2GameUnit.cpp:12956`) | 5 |
 | `322718e0` | `InitAdditionalPassiveMultipleAndSum` | 5 |
 | `3227ad60` | `CX2GameUnit::CreateAndInsertBuffIdentity` (switch `type-4`) | 7 |
 | `32279d70` | identity erase (the identity templet's `DoFinish`) | 7 |
@@ -597,10 +597,10 @@ Abbreviations: **parse** = factor-parse function and float order (the wire layou
 
 | Type | New member, basic value | Insert case | June reads |
 |---|---|---|---|
-| 76 CHANGE_HYPER_DURATION | `m_AdditionalHyperDuration`, 0.0 | `32282ddc` | **Option value:** `InitAdditionalStatOptionValue` (`32270dd0`, March `X2GameUnit.cpp:12442`) seeds it from `m_SocketData.m_fHyperModeTime` (`@322710a1`, beside HyperCharge's `m_fHyperModeChargeRate` `@32271089`), and sets 0 in the reset branch (`@3227143d`). **Reader:** `CX2GUUser::GetHyperModeTime` (`31fd1c00`, `CX2GUUser` slot 45; March `X2GUUser.cpp:23448`): June replaces `m_SocketData.m_fHyperModeTime` with this member's result, i.e. `fTotal += fTotal * m_AdditionalHyperDuration.GetResultValue() * 0.01f`. Class overrides read it too: Ain `32a4fe50`, and `329e5180`/`329e56c0` (a class with members at `+0x96xx`, not yet attributed). Port those with their classes. |
-| 85 RANGE_COMMAND_MP_GAIN_RATE / 86 MELEE_COMMAND_MP_GAIN_RATE | two new members, 1.0 | `32282ee6` / `32282ec3` | `SetDamageExceptionProcess`, after `fHitAddMP = attacker->GetChargeMpHit{Melee,Range}Attack()` (March `X2GameUnit.cpp:14259-14269`): `if ( attackType == AT_COMMAND ) fHitAddMP *= attacker->{86 melee @3229935a, 85 range @3229947c}`. The Chung virtual `32c16be0` also sets both members' passive values (port with Chung's passive code, not here). |
+| 76 CHANGE_HYPER_DURATION | `m_AdditionalHyperDuration`, 0.0 | `32282ddc` | **Option value:** `InitAdditionalStatOptionValue` (`32270dd0`, March `X2GameUnit.cpp:12956`) seeds it from `m_SocketData.m_fHyperModeTime` (`@322710a1`, beside HyperCharge's `m_fHyperModeChargeRate` `@32271089`), and sets 0 in the reset branch (`@3227143d`). **Reader:** `CX2GUUser::GetHyperModeTime` (`31fd1c00`, `CX2GUUser` slot 45; March `X2GUUser.cpp:23584`): June replaces `m_SocketData.m_fHyperModeTime` with this member's result, i.e. `fTotal += fTotal * m_AdditionalHyperDuration.GetResultValue() * 0.01f`. Class overrides read it too: Ain `32a4fe50`, and `329e5180`/`329e56c0` (a class with members at `+0x96xx`, not yet attributed). Port those with their classes. |
+| 85 RANGE_COMMAND_MP_GAIN_RATE / 86 MELEE_COMMAND_MP_GAIN_RATE | two new members, 1.0 | `32282ee6` / `32282ec3` | `SetDamageExceptionProcess`, after `fHitAddMP = attacker->GetChargeMpHit{Melee,Range}Attack()` (March `X2GameUnit.cpp:14854-14866`): `if ( attackType == AT_COMMAND ) fHitAddMP *= attacker->{86 melee @3229935a, 85 range @3229947c}`. The Chung virtual `32c16be0` also sets both members' passive values (port with Chung's passive code, not here). |
 | 87 MELEE_COMMAND_DAMAGE_RATE / 96 RANGE_COMMAND_DAMAGE_RATE | two new members, 1.0 | `32282f09` / `32282f2c` | `GetFinalDamage` main path `@32286270`–`322862b9`, after the final-defence/final-damage adds: `if ( attackType == AT_COMMAND ) dmg *= m_bMeleeAttack ? attacker->87 : attacker->96`. |
-| 108 FINAL_DAMAGE_MULTIPLIER_NPC / 109 …_USER | two new members, 1.0 | `32282f72` / `32282f95` | `GetFinalDamage`, both paths: fixed-damage path `@32285fba`–`32285fec` and main path `@3228620a`–`32286252`. `inc2 = dmg * ((defender->GetGameUnitType() == GUT_USER ? attacker->109 : attacker->108) - 1)`, added beside March's `fIncreaseDamage` (`X2GameUnit.cpp:2613-2616`, `2704-2707`). The unit-type field is `+0x264`. |
+| 108 FINAL_DAMAGE_MULTIPLIER_NPC / 109 …_USER | two new members, 1.0 | `32282f72` / `32282f95` | `GetFinalDamage`, both paths: fixed-damage path `@32285fba`–`32285fec` and main path `@3228620a`–`32286252`. `inc2 = dmg * ((defender->GetGameUnitType() == GUT_USER ? attacker->109 : attacker->108) - 1)`, added beside March's `fIncreaseDamage` (`X2GameUnit.cpp:2616-2621`, `2707-2710`). The unit-type field is `+0x264`. |
 
 **Phase 5 types that are not simple transcription.** Their store and readers are found, but each depends on a June mechanism or field March lacks.
 *1c item 3 settles every type in this list; its readiness summary supersedes the verdicts below.*
@@ -3598,6 +3598,40 @@ Fresh tools only; the session's patch, unifdef and `dispxref` scripts were not r
 
 **Review cost:** `/cost` is not readable from inside the session; ask the user.
 
+## Play-test hand-off (Phase 5 onward)
+
+This is the user's standing request (2026-10-04). It applies to every play-test a session asks for from Phase 5 on, including a review that changes code. Every kickoff and review prompt from Phase 5 on points here.
+
+**Use the dev console first.**
+- Open it with **END** while in a field or dungeon. It takes raw Lua, one line at a time.
+- It needs `settings.auth_level` = 3 in the game directory's `els_db.sql`. That is already set.
+- Use another route (an item, a skill, a particular monster or map) only when the console cannot reach the check, and say why.
+
+**Make every command copy-ready.**
+- Fill in every value yourself: the real BFI/BTI number from the staged data or the Enum, and the real level. Never leave a `<BFI>`, "your monster here" or "pick a level" for the user to replace.
+- If the right value depends on something only visible in game (which NPC, which slot), write the command so it does not need it, for example a loop over all NPCs.
+- Use level 1 unless you have checked the factor's per-level tables. Many end in 0, and a 0 `PERCENT` raises a modal popup per behavior.
+- Check the command in the session before handing it over: the method is Lua-bound (`lua_tinker::class_def` in `X2Lib/X2Main.cpp`) and the BFI exists in the data the exe will load. Say so if a line is checked from source but has never been run.
+
+**Format, one numbered block per check:**
+1. **Where:** village, field or dungeon, and anything to do first (for example "stand next to a monster").
+2. **Paste:** the command, in its own code block, on one line.
+3. **What it does:** one plain sentence, with no addresses or internal names.
+4. **Look for:** what you should see if it works.
+5. **If not:** what failure looks like, and what to send back (a screenshot, or "tell me nothing happened").
+
+End the hand-off with the log lines the session will read afterwards. Keep that check to this phase's own lines.
+
+**Command patterns.** The first is the one used in Phases 4b-i and 4b-iii. The second is checked from source but not yet run: `GetNPCUnit` returns `nil` for an empty slot (`lua_tinker.h:205`), and `CX2GUNPC` inherits the buff method (`X2Main.cpp:3895-3896`, `4147`, `4196`).
+- On yourself:
+  ```
+  g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 152, 1 )
+  ```
+- On every monster on the map:
+  ```
+  for i = 0, g_pX2Game:GetNPCUnitListSize() - 1 do local n = g_pX2Game:GetNPCUnit( i ) if n ~= nil then n:SetBuffFactorToGameUnitByBuffFactorID_LUA( 152, 1 ) end end
+  ```
+
 ## Phases 5–7 — New behavior types
 
 Phases 5–7 are split into seven sessions. Each has its own scope, its own run-with line and a **ready-to-paste kickoff prompt and review prompt with nothing to substitute**. Take the prompt of the phase you are starting, and no other.
@@ -3634,6 +3668,7 @@ Each new BBT follows an 8-step checklist:
 8. Log the type's first application under the DEBUG flag (`SERV_IRUHADEV_JUNE_BUFF_DEBUG`, prefix `[JUNE_BUFF]`).
 
 Rules for all seven sessions:
+- **March line numbers in a scope are hints.** They were measured when the scope was written, and every phase's edits shift them. Find the function by name first, then use the number to locate the spot inside it. Phase 5's numbers were re-measured on 2026-10-04 at `25f5bf3`; the later phases' numbers were not.
 - Cite the June address in a comment at every new path. Never invent a value or a formula, and never port a raw struct offset.
 - Types June uses only for characters March lacks (Rose, Ain, Lu/Ciel) are ported anyway (user decision).
 - **Escalation rule (Sonnet sessions).** If the map does not settle a type (missing layout, store or read site), do **not** reverse-engineer or guess it. Skip that type, mark it "Opus-only" in the doc with what is missing, and keep going.
@@ -3647,11 +3682,11 @@ Rules for all seven sessions:
 
 ### Phase 5 — group A: ChangeStat-class types (Sonnet)
 
-**Scope.** Seven types, all transcription-ready (see "Per-type map", *Phase 5 — ChangeStat-class types*). All share March's `ParsingChangeStatBehavior` layout (`32d445d0`) and class `CX2BuffChangeStatBehaviorTemplet`.
-- **76 `BBT_CHANGE_HYPER_DURATION`.** New `CX2AdditionalStatByBuff` member `m_AdditionalHyperDuration`, basic 0.0. It joins both ChangeStat groups (lvl `32d47957`, SGU `32d4d6ef`). It is an **option value**: seed it in `InitAdditionalStatOptionValue` (June `32270dd0`, March `X2GameUnit.cpp:12442`) from `m_SocketData.m_fHyperModeTime`, and set 0 in the reset branch. Reader: `CX2GUUser::GetHyperModeTime` (June `31fd1c00`, March `X2GUUser.cpp:23448`), `fTotal += fTotal * m_AdditionalHyperDuration.GetResultValue() * 0.01f`. The class overrides (Ain `32a4fe50`, `329e5180`/`329e56c0`) are ported with their classes, not here.
-- **85 `BBT_CHANGE_RANGE_COMMAND_MP_GAIN_RATE` / 86 `BBT_CHANGE_MELEE_COMMAND_MP_GAIN_RATE`.** Two new members, basic 1.0. Reader in `CX2GameUnit::SetDamageExceptionProcess` after `fHitAddMP = attacker->GetChargeMpHit{Melee,Range}Attack()` (March `X2GameUnit.cpp:14259-14269`): `if ( attackType == AT_COMMAND ) fHitAddMP *= attacker->{86 melee, 85 range}`. Needs `AT_COMMAND` from Phase 2. Chung's virtual `32c16be0` is not part of this phase.
+**Scope.** Seven types, all transcription-ready (see "Per-type map", *Phase 5 — ChangeStat-class types*). The March line numbers below and in that table were re-measured on 2026-10-04 at `25f5bf3`. All share March's `ParsingChangeStatBehavior` layout (`32d445d0`) and class `CX2BuffChangeStatBehaviorTemplet`.
+- **76 `BBT_CHANGE_HYPER_DURATION`.** New `CX2AdditionalStatByBuff` member `m_AdditionalHyperDuration`, basic 0.0. It joins both ChangeStat groups (lvl `32d47957`, SGU `32d4d6ef`). It is an **option value**: seed it in `InitAdditionalStatOptionValue` (June `32270dd0`, March `X2GameUnit.cpp:12956`) from `m_SocketData.m_fHyperModeTime`, and set 0 in the reset branch. Reader: `CX2GUUser::GetHyperModeTime` (June `31fd1c00`, March `X2GUUser.cpp:23584`), `fTotal += fTotal * m_AdditionalHyperDuration.GetResultValue() * 0.01f`. The class overrides (Ain `32a4fe50`, `329e5180`/`329e56c0`) are ported with their classes, not here.
+- **85 `BBT_CHANGE_RANGE_COMMAND_MP_GAIN_RATE` / 86 `BBT_CHANGE_MELEE_COMMAND_MP_GAIN_RATE`.** Two new members, basic 1.0. Reader in `CX2GameUnit::SetDamageExceptionProcess` after `fHitAddMP = attacker->GetChargeMpHit{Melee,Range}Attack()` (March `X2GameUnit.cpp:14854-14866`): `if ( attackType == AT_COMMAND ) fHitAddMP *= attacker->{86 melee, 85 range}`. Needs `AT_COMMAND` from Phase 2. Chung's virtual `32c16be0` is not part of this phase.
 - **87 `BBT_CHANGE_MELEE_COMMAND_DAMAGE_RATE` / 96 `BBT_CHANGE_RANGE_COMMAND_DAMAGE_RATE`.** Two new members, basic 1.0. Reader in `GetFinalDamage`'s main path (`@32286270`–`322862b9`): `if ( attackType == AT_COMMAND ) dmg *= m_bMeleeAttack ? attacker->87 : attacker->96`. Needs `AT_COMMAND`.
-- **108 `BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC` / 109 `…_USER`.** Two new members, basic 1.0. Readers in `GetFinalDamage`, both the fixed-damage path and the main path: `inc2 = dmg * ( ( defender is GUT_USER ? attacker->109 : attacker->108 ) - 1 )`, added beside March's `fIncreaseDamage` (`X2GameUnit.cpp:2613-2616`, `2704-2707`).
+- **108 `BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC` / 109 `…_USER`.** Two new members, basic 1.0. Readers in `GetFinalDamage`, both the fixed-damage path and the main path: `inc2 = dmg * ( ( defender is GUT_USER ? attacker->109 : attacker->108 ) - 1 )`, added beside March's `fIncreaseDamage` (`X2GameUnit.cpp:2616-2621`, `2707-2710`).
 - **No SGU case and no ChangeStat lvl case** for 85, 86, 87, 96, 108 and 109: June leaves them out of both switches, so they take the default level slice even though their data carries `BUFF_RELATION_TYPE`. Only 76 joins both ChangeStat groups.
 - Each needs `InsertAdditionalStat`/`EraseAdditionalStat` cases on its new member, `InitAdditionalStat` (basic value), `InitAdditionalPassiveMultipleAndSum` (multiple 1, sum 0), and `Verify()` plus the update-all loop like its siblings.
 - **Hand-off to Phase 6:** 91 `CHARGE_MP_HIT_BY_SKILL_ID` scales the same `fHitAddMP` value, in the same function, unconditionally on attack type. Write in the Done note exactly where 85/86's block landed so Phase 6 can add 91 beside it.
@@ -3681,6 +3716,11 @@ Done means: buff_census.py --phase 5 lists none of these seven types, the build 
 rc=0, and the strings are in the deployed exe. Write a per-type "how to see it in game"
 line (a June BTI/BFI and where it comes from) into the Phase 5 Done note for Phase 14.
 Record this session's /cost there. Commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 **Review prompt (fresh Opus 5.5, high effort):**
@@ -3699,6 +3739,11 @@ CP949 hygiene (run `file` on every touched file and check `git diff --stat`). Sp
 spot-check fails, re-check the whole phase. Fix clear transcription errors under the
 same flag; hand design decisions back to me. Write the findings into the doc as
 "Phase 5 -- Review", record this session's /cost, and commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 ---
@@ -3740,6 +3785,11 @@ means: buff_census.py --phase 5b lists none of these nine types (it will still l
 88 and 92, which are Phase 5c), the build is rc=0, and the strings are in the deployed
 exe. Write a per-type "how to see it in game" line into the Phase 5b Done note for
 Phase 14. Record this session's /cost there. Commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 **Review prompt (fresh Opus 5.5, high effort):**
@@ -3759,6 +3809,11 @@ directly in Ghidra at the June addresses in the doc (read-only); if a spot-check
 fails, re-check the whole phase. Fix clear transcription errors under the same flag;
 hand design decisions back to me. Write the findings into the doc as "Phase 5b --
 Review", record this session's /cost, and commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 ---
@@ -3796,6 +3851,11 @@ means: buff_census.py --phase 5b lists none of 78, 88, 92 (or says which are def
 and why), the build is rc=0, and the strings are in the deployed exe. Write a per-type
 "how to see it in game" line into the Done note for Phase 14. Record this session's
 /cost. Commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 **Review prompt (fresh Opus 5.5, high effort):**
@@ -3816,6 +3876,11 @@ reading the #else branches. Spot-check 2 of the 3 types directly in Ghidra
 (read-only); if a spot-check fails, re-check the whole phase. Fix clear transcription
 errors under the same flag; hand design decisions back to me. Write the findings into
 the doc as "Phase 5c -- Review", record this session's /cost, and commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 ---
@@ -3862,6 +3927,11 @@ buff_census.py --phase 6 lists none of the eight types, the build is rc=0, and t
 strings are in the deployed exe. Write a per-type "how to see it in game" line into
 the Phase 6 Done note for Phase 14 (89/90/98/99/100 say "inert until 6b"). Record this
 session's /cost there. Commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 **Review prompt (fresh Opus 5.5, high effort):**
@@ -3883,6 +3953,11 @@ type 56), 91's unconditional host, and SERV_IRUHADEV_ / #else / CP949 hygiene (r
 spot-check fails, re-check the whole phase. Fix clear transcription errors under the same
 flag; hand design decisions back to me. Write the findings into the doc as "Phase 6 --
 Review", record this session's /cost, and commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 ---
@@ -3921,6 +3996,11 @@ is rc=0, and the strings are in the deployed exe. Write per-type "how to see it 
 game" lines (a June BTI/BFI and where it comes from) into the Phase 6b Done note for
 Phase 14, and note the 98 -> BFT 16 ordering for Phase 8. Record this session's /cost.
 Commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 **Review prompt (fresh Opus 5.5, high effort):**
@@ -3941,6 +4021,11 @@ small change means the file was re-encoded). Spot-check 2-3 host sites directly 
 (read-only); if a spot-check fails, re-check the whole phase. Fix clear transcription
 errors under the same flag; hand design decisions back to me. Write the findings into the
 doc as "Phase 6b -- Review", record this session's /cost, and commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 ---
@@ -3979,6 +4064,11 @@ buff_census.py --phase 7 lists none of 73, 94, 95, 104, 105 (74, 77, 97, 101, 10
 110 are Phase 7b), the build is rc=0, and the strings are in the deployed exe. Write a
 per-type "how to see it in game" line (a June BTI/BFI and where it comes from) into the
 Phase 7 Done note for Phase 14. Record this session's /cost there. Commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 **Review prompt (fresh Opus 5.5, high effort):**
@@ -3998,6 +4088,11 @@ Spot-check 2-3 types directly in Ghidra (read-only); if a spot-check fails, re-c
 whole phase. Fix clear transcription errors under the same flag; hand design decisions
 back to me. Write the findings into the doc as "Phase 7 -- Review", record this session's
 /cost, and commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 ---
@@ -4043,6 +4138,11 @@ lists nothing but the enum-only 111 and 112 (or says which types are deferred an
 the build is rc=0, and the strings are in the deployed exe. Write a per-type "how to see
 it in game" line (a June BTI/BFI and where it comes from) into the Phase 7b Done note for
 Phase 14. Record this session's /cost there. Commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 **Review prompt (fresh Opus 5.5, high effort):**
@@ -4066,6 +4166,11 @@ re-encoded). Because every one of these touches a state machine every unit runs,
 directly in Ghidra (read-only); if a spot-check fails, re-check the whole phase. Fix clear
 transcription errors under the same flag; hand design decisions back to me. Write the
 findings into the doc as "Phase 7b -- Review", record this session's /cost, and commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 **Phase 4a hand-offs this group picks up** (stubs and slots Phase 4a added):
@@ -4103,6 +4208,11 @@ candidates to confirm. Sync the new counters over UDP the same way March syncs
 hit/hitted count (X2UDPPacket.h:310), and note the peer-build requirement in MODS.md.
 New flag SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER. Done means buff_census.py lists no
 BFT, the build is rc=0, and the deploy is done. Commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 ## Phase 9 — Custom-function buffs
@@ -4128,6 +4238,11 @@ hook body it needs, including the Rose/Ain/Lu-Ciel cases (user decision: port no
 Where June relocated March's per-class FLASH_BANG/PANDEMONIUM_FEAR handling, follow
 June. New flag SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION. If this is too large, finish one
 character family, commit, and record where 9b resumes. Build, deploy, commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 ## Phase 10 — Buff groups and June-only script bindings
@@ -4157,6 +4272,11 @@ CHECK_RIDINGPET_SPACIAR_BUFF keys where June reads them (this unblocks effect-pl
 New flag SERV_IRUHADEV_JUNE_BUFF_GROUP. Stage UnitApplyBuffGroup.lua (mar-2014 compile)
 in march2014/update/data036 AND kom_contents/data036_kom + _manifest.json. Build,
 deploy, then hand the pack to me. Commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 ## Phase 11 — Premium/world buffs and the offline path
@@ -4188,6 +4308,11 @@ implement them in X2Lib/Offline. If that needs a stored procedure or table, ask 
 it from the live DB rather than reading DataBase/. Flags:
 SERV_IRUHADEV_JUNE_BUFF_PREMIUM for client code, SERV_IRUHADEV_OFFLINE for the
 emulator. Build, deploy, then hand the pack to me. Commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 ## Phase 12 — Buff icons and UI assets
@@ -4212,6 +4337,11 @@ DLG_UI_Buff_*.lua. Check that every BUFF_ICON_TEXTURE_KEY in June's templets res
 in the adopted .tet, and list the ones that don't (about 12 are missing even in June).
 Stage into kom_contents/data057_kom + _manifest.json (and march2014/), then hand the
 pack to me. Commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 ## Phase 13 — Adopt June buff data and ship
@@ -4241,6 +4371,11 @@ buff_census.py must report 0 unsupported first. Build and deploy the exe, then g
 ONE pack list covering every file staged in Phases 2/10/11/12/13. After I pack, verify
 the live koms with elstools inspect. Then ask me before launching, and check ErrorLog.txt
 for the [JUNE_BUFF] load summary (0 placeholders, no unsupported lines). Commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 ## Phase 14 — Play-test sweep and close-out
@@ -4271,6 +4406,11 @@ do in game, then read offline_server.log and ErrorLog.txt for the [JUNE_BUFF] ev
 Fix confirmed defects under the owning phase's flag. Then disable
 SERV_IRUHADEV_JUNE_BUFF_DEBUG, update MODS.md and JUNE2017_CHARACTER_PORT_CHECKLIST.md,
 mark the doc's phases done with dates, and commit.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 ---
@@ -4310,6 +4450,11 @@ renumbering any EDT value March data depends on. Then port the EnchantData field
 functions, byte-level CP949 edits, insert-only, flag-off unifdef check per file. Stage June's
 AttribEnchantItem.lua (compile -v mar-2014, both staging dirs, manifest) and name it for the
 user to pack. Build, deploy, commit; record where you stopped.
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
+the dev console (END key) wherever it can reach the check, and give me copy-ready
+commands with every value already filled in (real BFI/BTI numbers, no placeholders).
+For each check say where to be, the line to paste, what it does in one plain sentence,
+and what I should see if it works and if it does not.
 ```
 
 ---
