@@ -21916,7 +21916,12 @@ void CX2GUNPC::CommonEventProcess()
 
 		case SCT_AI_JUMP:
 			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+				/// June buff port Phase 7, CX2GUNPC::CommonEventProcess (3276d980) @3276e442: not while a BBT_JUMP_IMPOSSIBLE buff is on
+				if( ( m_AIMessage == SCT_AI_JUMP || m_UnUseAIMessage == SCT_AI_JUMP ) && m_vecJumpImpossiblePtr.empty() )
+#else
 				if( m_AIMessage == SCT_AI_JUMP || m_UnUseAIMessage == SCT_AI_JUMP )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 				{										
 //{{ robobeg : 2008-10-28
 					//StateChange( pEventProcessData->m_wstrNextState.c_str() );													

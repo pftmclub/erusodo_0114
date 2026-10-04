@@ -29504,8 +29504,25 @@ void CX2GUUser::SetInputData( InputData* pInputData )
 		pInputData->oneDoubleDown	= false;
 		pInputData->pureDoubleDown	= false;
 	}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( !m_vecJumpImpossiblePtr.empty() && ( pInputData->oneUp || pInputData->pureUp ) )
+	{
+		static bool s_bSeenRead = false;
+		if ( !s_bSeenRead )
+		{
+			s_bSeenRead = true;
+			CX2JuneBuffCapture::Line( "first read BBT 104: the user's jump key was cleared" );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	/// June buff port Phase 7, CX2GUUser::SetInputData (June 31fe83a0): the Up keys are also cleared while a BBT_JUMP_IMPOSSIBLE buff is on.
+	/// (June's attack-impossible blocks also OR a byte +0xded that only a June-only PvP mode writes; not ported.)
+	if( m_fCanNotJumpTime > 0.0f || !m_vecJumpImpossiblePtr.empty() )
+#else
 
 	if( m_fCanNotJumpTime > 0.0f )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 	{				
 		pInputData->oneUp			= false;
 		pInputData->pureUp			= false;

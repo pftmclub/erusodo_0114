@@ -685,6 +685,105 @@ protected:
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 //}}
 
+//{{ Iruha : 2026-10-04 // June buff port Phase 7 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+/** @class : CX2BuffIgnoreStateGuardBehaviorTemplet
+	@brief : BBT 73 IGNORE_STATE_GUARD. June class with SetFactor 32e752b0, packet 32e728b0, GetFactor 32e7e960 (header only), DoFinish 32e75300.
+		While the unit has one, every hit it takes ignores its damage reduction and guard (CX2GameUnit::GetFinalDamage @322862bf).
+*/
+class CX2BuffIgnoreStateGuardBehaviorTemplet : public CX2BuffBehaviorTemplet
+{
+public:
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffIgnoreStateGuardBehaviorTemplet ); }
+
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+
+protected:
+	CX2BuffIgnoreStateGuardBehaviorTemplet() : CX2BuffBehaviorTemplet()
+	{}
+};
+
+/** @class : CX2BuffImmuneBuffDebuffBehaviorTemplet
+	@brief : BBT 94 IMMUNE_BUFF_DEBUFF. June class (ctor 32e871d0, clone 32e7a930) with SetFactor 32e79e30, packet 32e7a040, GetFactor 32e7f670,
+		DoFinish 32e75bd0. ALL_BUFF / ALL_DEBUFF put the buff's BTI in the unit's all-buff / all-debuff sets; the IMMUNE_BUFF_TEMPLATE_ID list goes
+		into the unit's immune list. CX2GameUnit::IsImmuneBuffByBuffBehavior (June 322a80a0) reads all three. Two June quirks are kept verbatim:
+		the list is read from index 2, which is the count (so the count itself becomes an immune BTI: 1 = BTI_DEBUFF_SILENCE for a one-entry or
+		empty list), and GetFactor sends two bytes (June +0x20 / +0x21) that nothing but the ctor and the clone ever writes, so peers always
+		receive ALL_BUFF = ALL_DEBUFF = 0.
+*/
+class CX2BuffImmuneBuffDebuffBehaviorTemplet : public CX2BuffBehaviorTemplet
+{
+public:
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffImmuneBuffDebuffBehaviorTemplet ); }
+
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+
+protected:
+	CX2BuffImmuneBuffDebuffBehaviorTemplet() : CX2BuffBehaviorTemplet(), m_bAllBuff( false ), m_bAllDebuff( false )
+	{}
+
+	void InsertToGameUnit( const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_, const KBuffIdentity& BuffIdentity_ );	/// the part SetFactor and the packet share
+
+private:
+	bool			m_bAllBuff;		/// June +0x20: zeroed by the ctor, copied by the clone, written nowhere else
+	bool			m_bAllDebuff;	/// June +0x21: the same
+	vector<int>		m_vecBTI;		/// June +0x10: factor values [2..] as int (count first, then the BTIs)
+};
+
+/** @class : CX2BuffImmuneNonControlDebuffBehaviorTemplet
+	@brief : BBT 95 IMMUNE_NON_CONTROL_DEBUFF. June class with SetFactor 32e75c00, packet 32e728d0 (insert only, no delete), GetFactor 32e7f770
+		(header only), DoFinish 32e75c50. The first apply also erases every non-control debuff the unit already has (CX2GameUnit::
+		DeleteNonControlDebuff, June 3229dcc0); while it is on, new ones are refused (IsImmuneNonControlDebuffByBuffBehavior, June 3227b790).
+*/
+class CX2BuffImmuneNonControlDebuffBehaviorTemplet : public CX2BuffBehaviorTemplet
+{
+public:
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffImmuneNonControlDebuffBehaviorTemplet ); }
+
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+
+protected:
+	CX2BuffImmuneNonControlDebuffBehaviorTemplet() : CX2BuffBehaviorTemplet()
+	{}
+};
+
+/** @class : CX2BuffImmuneEDTBehaviorTemplet
+	@brief : BBT 105 IMMUNE_EDT. June class with SetFactor 32e79770, packet 32e79810, GetFactor 32e80390; DoFinish is the empty base (33093ad0).
+		No unit store: the templet's EDT list is the store, and CX2GameUnit::IsImmuneEDTByBuff (June 322a0400) reads it back through
+		GetBuffFactor. ProcessEnchantExtraDamage then refuses those enchant extra-damage types.
+*/
+class CX2BuffImmuneEDTBehaviorTemplet : public CX2BuffBehaviorTemplet
+{
+public:
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffImmuneEDTBehaviorTemplet ); }
+
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+
+protected:
+	CX2BuffImmuneEDTBehaviorTemplet() : CX2BuffBehaviorTemplet()
+	{}
+
+private:
+	vector<int>		m_vecEDT;		/// June +0x10: the factor's values as int (EXTRA_DAMAGE_TYPE)
+};
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+//}}
+
 /** @class : CX2BuffCreateBuffFactortBehaviorTemplet
 	@brief : 해당 버프가 걸려있는 동안에 BuffFactor 적용
 	@date : 2012/7/23/

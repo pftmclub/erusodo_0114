@@ -3324,6 +3324,22 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		/// CX2GUNPC slot is 3208dd70, which returns 1.0. SetDamageExceptionProcess scales fHitAddMP by it.
 		virtual float GetChargeMpRateByBuff( const CX2DamageManager::DamageData* pDamageData_ ) const { return 1.0f; }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+		/// June buff port Phase 7: the unit stores of BBT 73 (June list +0x67cc), 94 (sets +0x65d4 / +0x65e4, list +0x65c4) and 95 (list +0x75ac)
+		void InsertIgnoreStateGuard( const KBuffIdentity& BuffIdentity_ );									/// June 3227b600
+		void EraseIgnoreStateGuard( const KBuffIdentity& BuffIdentity_ );									/// June 3227a870
+		bool IsIgnoreStateGuardByBuff() const { return !m_vecIgnoreStateGuardPtr.empty(); }					/// read by GetFinalDamage @322862bf
+		void InsertImmuneAllBuff( const int iBuffTempletID_ ) { m_setImmuneAllBuff.insert( iBuffTempletID_ ); }		/// June 322780f0
+		void EraseImmuneAllBuff( const int iBuffTempletID_ ) { m_setImmuneAllBuff.erase( iBuffTempletID_ ); }		/// June 32278840
+		void InsertImmuneAllDebuff( const int iBuffTempletID_ ) { m_setImmuneAllDebuff.insert( iBuffTempletID_ ); }	/// June 32278120
+		void EraseImmuneAllDebuff( const int iBuffTempletID_ ) { m_setImmuneAllDebuff.erase( iBuffTempletID_ ); }	/// June 32278880
+		void InsertImmuneBuffList( const KBuffIdentity& BuffIdentity_, const vector<int>& vecBuffTempletID_ );	/// June 3227b6b0
+		void EraseImmuneBuffList( const KBuffIdentity& BuffIdentity_ );										/// June 3227a910
+		void InsertImmuneNonControlDebuff( const KBuffIdentity& BuffIdentity_ );							/// June 3227aa40
+		void EraseImmuneNonControlDebuff( const KBuffIdentity& BuffIdentity_ );								/// June 32279a10
+		void DeleteNonControlDebuff();																		/// June 3229dcc0 (its Lua binding is Phase 10's)
+		bool IsImmuneEDTByBuff( const int iExtraDamageType_ ) const;										/// June 322a0400 (BBT 105)
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
 		void SetKBuffFactorPacketToGameUnit( const vector<KBuffFactor>& vecBuffFactor_ );
 		
@@ -4682,6 +4698,20 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 		vector<CX2DoubleAttackPtr>		m_vecDoubleAttackBuff;						/// 75: one { identity, rate } per buff (June +0x65b4, element class CX2DoubleAttackBuff, ctor 322af570)
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+		/// June buff port Phase 7
+		struct JuneImmuneBuffList											/// 94: June's list element (0x20 bytes, vt 33487988, built by 3227b6b0)
+		{
+			KBuffIdentity	m_BuffIdentity;
+			vector<int>		m_vecBuffTempletID;								/// the templet's BTI list, count first (quirk 1)
+		};
+		vector<CX2BuffIdentityPtr>		m_vecIgnoreStateGuardPtr;			/// 73: one identity per buff (June +0x67cc)
+		std::set<int>					m_setImmuneAllBuff;					/// 94 ALL_BUFF: the BTIs of the buffs that set it (June +0x65d4)
+		std::set<int>					m_setImmuneAllDebuff;				/// 94 ALL_DEBUFF (June +0x65e4)
+		vector<JuneImmuneBuffList>		m_vecImmuneBuffList;				/// 94 IMMUNE_BUFF_TEMPLATE_ID (June +0x65c4)
+		vector<CX2BuffIdentityPtr>		m_vecImmuneNonControlDebuffPtr;		/// 95: one identity per buff (June +0x75ac)
+		vector<CX2BuffIdentityPtr>		m_vecJumpImpossiblePtr;				/// 104: identity type (June +0x42c0, CreateAndInsertBuffIdentity 3227ad60)
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
 		vector<CX2StunPtr>				m_vecStunPtr;		/// 기절 효과
 		vector<CX2FreezePtr>			m_vecFreezePtr;		/// 빙결 효과

@@ -2125,6 +2125,134 @@ bool CX2GameUnit::IsDoubleAttackBuffByBuff()
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 
+//{{ Iruha : 2026-10-04 // June buff port Phase 7 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+/// One "[JUNE_BUFF] first read BBT n" line per reader and session, the first time it changes the outcome (each call site passes its own literal)
+static void JuneBuffNewFlagFirstRead( const int iType_, const char* szWhat_, const int iValue_ )
+{
+	static std::set<const char*> s_setSeen;
+	if ( !s_setSeen.insert( szWhat_ ).second )
+		return;
+
+	CX2JuneBuffCapture::Line( "first read BBT %d: %s (%d)", iType_, szWhat_, iValue_ );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+
+/** @function : InsertIgnoreStateGuard
+	@brief : June 3227b600: a new identity entry is pushed onto the unit's BBT 73 list (June +0x67cc), with no duplicate test.
+*/
+void CX2GameUnit::InsertIgnoreStateGuard( const KBuffIdentity& BuffIdentity_ )
+{
+	CX2BuffIdentityPtr ptrBuffIdentity( new CX2BuffIdentity( BuffIdentity_ ) );
+	if ( NULL != ptrBuffIdentity )
+		m_vecIgnoreStateGuardPtr.push_back( ptrBuffIdentity );
+}
+
+/** @function : EraseIgnoreStateGuard
+	@brief : June 3227a870: find the first entry with this identity (322a9090), then erase that one entry.
+*/
+void CX2GameUnit::EraseIgnoreStateGuard( const KBuffIdentity& BuffIdentity_ )
+{
+	ERASE_BUFF_IDENTITY( m_vecIgnoreStateGuardPtr, BuffIdentity_ );
+}
+
+/** @function : InsertImmuneBuffList
+	@brief : June 3227b6b0: one { identity, BTI list } entry is pushed onto the unit's BBT 94 list (June +0x65c4), with no duplicate test.
+*/
+void CX2GameUnit::InsertImmuneBuffList( const KBuffIdentity& BuffIdentity_, const vector<int>& vecBuffTempletID_ )
+{
+	JuneImmuneBuffList kEntry;
+	kEntry.m_BuffIdentity		= BuffIdentity_;
+	kEntry.m_vecBuffTempletID	= vecBuffTempletID_;
+	m_vecImmuneBuffList.push_back( kEntry );
+}
+
+/** @function : EraseImmuneBuffList
+	@brief : June 3227a910: find the first entry with this identity (322a9090), then erase that one entry.
+*/
+void CX2GameUnit::EraseImmuneBuffList( const KBuffIdentity& BuffIdentity_ )
+{
+	for ( vector<JuneImmuneBuffList>::iterator vItr = m_vecImmuneBuffList.begin(); m_vecImmuneBuffList.end() != vItr; ++vItr )
+	{
+		if ( vItr->m_BuffIdentity == BuffIdentity_ )
+		{
+			m_vecImmuneBuffList.erase( vItr );
+			return;
+		}
+	}
+}
+
+/** @function : InsertImmuneNonControlDebuff
+	@brief : June 3227aa40: a new identity entry is pushed onto the unit's BBT 95 list (June +0x75ac), with no duplicate test.
+*/
+void CX2GameUnit::InsertImmuneNonControlDebuff( const KBuffIdentity& BuffIdentity_ )
+{
+	CX2BuffIdentityPtr ptrBuffIdentity( new CX2BuffIdentity( BuffIdentity_ ) );
+	if ( NULL != ptrBuffIdentity )
+		m_vecImmuneNonControlDebuffPtr.push_back( ptrBuffIdentity );
+}
+
+/** @function : EraseImmuneNonControlDebuff
+	@brief : June 32279a10: find the first entry with this identity (322a9090), then erase that one entry.
+*/
+void CX2GameUnit::EraseImmuneNonControlDebuff( const KBuffIdentity& BuffIdentity_ )
+{
+	ERASE_BUFF_IDENTITY( m_vecImmuneNonControlDebuffPtr, BuffIdentity_ );
+}
+
+/** @function : DeleteNonControlDebuff
+	@brief : June 3229dcc0: walk the unit's buffs; every debuff (IS_DEBUF) that IsNonControlDebuff() is erased the full way
+		(3229d320 = EraseBuffTempletFromGameUnitByIterator: counters, DoFinish, icon), the others are skipped. BBT 95's first apply calls it.
+		An index walk: the erase moves the next buff into the same slot.
+*/
+void CX2GameUnit::DeleteNonControlDebuff()
+{
+	UINT uiIndex = 0;
+	while ( uiIndex < m_vecBuffTempletPtr.size() )
+	{
+		CX2BuffTempletPtr ptrBuffTemplet = m_vecBuffTempletPtr[uiIndex];
+		if ( NULL != ptrBuffTemplet && ptrBuffTemplet->IsDeBuff() && ptrBuffTemplet->IsNonControlDebuff() )
+		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			JuneBuffNewFlagFirstRead( 95, "an existing non-control debuff was erased, BTI", static_cast<int>( ptrBuffTemplet->GetBuffTempletID() ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			EraseBuffTempletFromGameUnitByIterator( m_vecBuffTempletPtr.begin() + uiIndex );
+		}
+		else
+			++uiIndex;
+	}
+}
+
+/** @function : IsImmuneEDTByBuff
+	@brief : June 322a0400: walk this unit's live buff factors (GetBuffFactor, June 3229fd80: not finished, not a world buff); true if a
+		BBT 105 behavior holds this extra-damage type ((int)value == edt).
+*/
+bool CX2GameUnit::IsImmuneEDTByBuff( const int iExtraDamageType_ ) const
+{
+	vector<KBuffFactor> vecBuffFactor;
+	GetBuffFactor( vecBuffFactor );
+
+	BOOST_FOREACH( const KBuffFactor& kBuffFactor, vecBuffFactor )
+	{
+		BOOST_FOREACH( const KBuffBehaviorFactor& kFactor, kBuffFactor.m_vecBuffBehaviorFactors )
+		{
+			if ( BBT_IMMUNE_EDT != kFactor.m_uiType )
+				continue;
+
+			BOOST_FOREACH( const float fValue, kFactor.m_vecValues )
+			{
+				if ( static_cast<int>( fValue ) == iExtraDamageType_ )
+					return true;
+			}
+		}
+	}
+
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+//}}
+
 // 자신이 받을 damage를 계산해준다
 float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData )
 {
@@ -2901,6 +3029,21 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 			fFinalDamage *= fCommandRate;
 		}
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	/// June buff port Phase 7, GetFinalDamage @322862bf, right after the 87/96 block: BBT 73 on the defender, or BTI 975 on the attacker,
+	/// makes this hit skip the state defence below (damage reduction and guard). June writes the flag into the attacker's DamageData, so on
+	/// multi-target damage data it stays set for every later target too (verbatim; noted for Phase 14).
+	if ( pDefender->IsIgnoreStateGuardByBuff() )
+	{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		if ( false == pAttDamageData->m_bIgnoreStateDefence )
+			JuneBuffNewFlagFirstRead( 73, "the defender's buff makes this hit ignore its state defence, reduce %", m_DamageReducePercent );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		pAttDamageData->m_bIgnoreStateDefence = true;
+	}
+	if ( pAttacker->HaveThisBuff( BTI_BUFF_SCHWERT_PLATZEN ) )
+		pAttDamageData->m_bIgnoreStateDefence = true;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
 	// 3.1 방어상태이면 데미지를 %만큼 줄여준다
 	float fDamageReduceRate = 0.f;
@@ -3783,6 +3926,18 @@ bool CX2GameUnit::ProcessEnchantExtraDamage( CX2DamageManager::DamageData* pDama
 		}
 #endif DAMAGEDATA_RATE_MODIFIER
 #endif
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+		/// June buff port Phase 7, ProcessEnchantExtraDamage (June 322a0510, slot 213), inside the attacker/enchant-data block right after the
+		/// rate test: a BBT 105 buff on this unit (the one the enchant lands on) refuses this enchant type (June IsImmuneEDTByBuff 322a0400).
+		/// The rate math above stays March's: June's version of it (32274df0 / 32272d90, CHANGE_ENCHANT_ATTACK_RATE) is Phase 4b's.
+		if ( IsImmuneEDTByBuff( basicExtraDamageType ) )
+		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			JuneBuffNewFlagFirstRead( 105, "this unit's buff refused the enchant extra damage, EDT", static_cast<int>( basicExtraDamageType ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			return false;
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 	}
 
 
@@ -11671,7 +11826,37 @@ void CX2GameUnit::PushNewBuffTempletToGameUnit( IN CX2BuffTempletPtr ptrBuffTemp
 */
 bool CX2GameUnit::IsImmuneBuffByBuffBehavior( const BUFF_TEMPLET_ID eBuffTempletID_ ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	/// June buff port Phase 7, the body of June 322a80a0: a BTI with no templet is never blocked (the list is not even read); a buff is blocked
+	/// while any ALL_BUFF buff is on, a debuff while any ALL_DEBUFF buff is on; otherwise any immune-list entry that names the BTI blocks it (32369d70).
+	const CX2BuffTempletPtr ptrBuffTemplet = CX2BuffTempletManager::GetInstance()->GetBuffTempletPtr( eBuffTempletID_ );
+	if ( NULL == ptrBuffTemplet )
+		return false;
+
+	if ( ( !m_setImmuneAllBuff.empty() && !ptrBuffTemplet->IsDeBuff() )
+		|| ( !m_setImmuneAllDebuff.empty() && ptrBuffTemplet->IsDeBuff() ) )
+	{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		JuneBuffNewFlagFirstRead( 94, "ALL_BUFF / ALL_DEBUFF refused BTI", static_cast<int>( eBuffTempletID_ ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		return true;
+	}
+
+	BOOST_FOREACH( const JuneImmuneBuffList& kEntry, m_vecImmuneBuffList )
+	{
+		if ( kEntry.m_vecBuffTempletID.end() != std::find( kEntry.m_vecBuffTempletID.begin(), kEntry.m_vecBuffTempletID.end(), static_cast<int>( eBuffTempletID_ ) ) )
+		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			JuneBuffNewFlagFirstRead( 94, "IMMUNE_BUFF_TEMPLATE_ID refused BTI", static_cast<int>( eBuffTempletID_ ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			return true;
+		}
+	}
+
 	return false;
+#else
+	return false;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 }
 
 /** @function : IsImmuneNonControlDebuffByBuffBehavior
@@ -11680,7 +11865,20 @@ bool CX2GameUnit::IsImmuneBuffByBuffBehavior( const BUFF_TEMPLET_ID eBuffTemplet
 */
 bool CX2GameUnit::IsImmuneNonControlDebuffByBuffBehavior( const CX2BuffTempletPtr ptrBuffTemplet_ ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	/// June buff port Phase 7, the body of June 3227b790
+	if ( NULL == ptrBuffTemplet_ || m_vecImmuneNonControlDebuffPtr.empty() )
+		return false;
+
+	const bool bImmune = ptrBuffTemplet_->IsNonControlDebuff();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( bImmune )
+		JuneBuffNewFlagFirstRead( 95, "a new non-control debuff was refused, BTI", static_cast<int>( ptrBuffTemplet_->GetBuffTempletID() ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return bImmune;
+#else
 	return false;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 }
 
 /** @function : CheckBuffApplyCondition
@@ -14047,6 +14245,21 @@ void CX2GameUnit::CreateAndInsertBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, 
 			break;
 #endif // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+		case BBT_JUMP_IMPOSSIBLE:		/// June buff port Phase 7: June CreateAndInsertBuffIdentity 3227ad60, list +0x42c0
+			m_vecJumpImpossiblePtr.push_back( ptrBuffIdentity );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			{
+				static bool s_bSeenApply = false;
+				if ( !s_bSeenApply )
+				{
+					s_bSeenApply = true;
+					CX2JuneBuffCapture::Line( "first apply BBT 104 (jump impossible): BTI %d", BuffIdentity_.m_eBuffTempletID );
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			break;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		default:
 			break;
 		}
@@ -14098,6 +14311,11 @@ void CX2GameUnit::EraseBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, const KBuf
 		ERASE_BUFF_IDENTITY( m_vecXImpossiblePtr, BuffIdentity_ );
 		break;
 #endif // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	case BBT_JUMP_IMPOSSIBLE:		/// June buff port Phase 7: June identity erase 32279d70
+		ERASE_BUFF_IDENTITY( m_vecJumpImpossiblePtr, BuffIdentity_ );
+		break;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 	}	
 }
 

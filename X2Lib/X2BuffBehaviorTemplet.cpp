@@ -174,6 +174,14 @@ case type_: \
 			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeRateBySkillTypeBehaviorTemplet, BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE )
 			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet, BBT_CHANGE_SKILL_COOL_TIME_SPEED )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+			/// June buff port Phase 7 (June 32e80450 factory): 104 is an identity type (June CreateAndInsertBuffIdentity 3227ad60), the others have their own classes
+			CASE_BEHAVIOR_TEMPLET( CX2BuffIgnoreStateGuardBehaviorTemplet, BBT_IGNORE_STATE_GUARD )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffImmuneBuffDebuffBehaviorTemplet, BBT_IMMUNE_BUFF_DEBUFF )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffImmuneNonControlDebuffBehaviorTemplet, BBT_IMMUNE_NON_CONTROL_DEBUFF )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffIdentityBehaviorTemplet, BBT_JUMP_IMPOSSIBLE )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffImmuneEDTBehaviorTemplet, BBT_IMMUNE_EDT )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
 			case BBT_EMPTY:	/// 행동을 지정하지 않겠다고 명시적으로 해야함
 				return true;
@@ -5227,4 +5235,236 @@ void CX2BuffSkillTypeChangeBehaviorTemplet::ApplySkillTypeChanges( const KBuffBe
 		pUser->SetSkillCoolTimeSpeedDirty();
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+//}}
+
+//{{ Iruha : 2026-10-04 // June buff port Phase 7 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+/// One "[JUNE_BUFF] first apply BBT n" line per type and session (the strings the Phase 7 gate looks for in the exe)
+static void JuneBuffNewFlagFirstApply( const int iType_, const char* szName_, const KBuffIdentity& BuffIdentity_ )
+{
+	static bool s_bSeen[5] = { false, false, false, false, false };
+	const int iSlot = ( 73 == iType_ ? 0 : 94 == iType_ ? 1 : 95 == iType_ ? 2 : 104 == iType_ ? 3 : 4 );
+	if ( s_bSeen[iSlot] )
+		return;
+
+	s_bSeen[iSlot] = true;
+	CX2JuneBuffCapture::Line( "first apply BBT %d (%s): BTI %d", iType_, szName_, BuffIdentity_.m_eBuffTempletID );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 73: CX2BuffIgnoreStateGuardBehaviorTemplet, Phase 7
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @brief : June 32e752b0. GetBehaviorFactor failing returns false; on the first apply the unit gets one entry for this buff (June 3227b600). */
+/*virtual*/ bool CX2BuffIgnoreStateGuardBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( !DidStart() )
+	{
+		pGameUnit_->InsertIgnoreStateGuard( pBuffTemplet_->GetBuffIdentity() );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		JuneBuffNewFlagFirstApply( 73, "ignore state guard", pBuffTemplet_->GetBuffIdentity() );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	}
+	return true;
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffIgnoreStateGuardBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffIgnoreStateGuardBehaviorTemplet( *this ) );
+}
+
+/** @brief : June 32e7e960: the header only */
+/*virtual*/ void CX2BuffIgnoreStateGuardBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+}
+
+/** @brief : June 32e728b0: the insert, with no first-apply test */
+/*virtual*/ void CX2BuffIgnoreStateGuardBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	pGameUnit_->InsertIgnoreStateGuard( kBuffFactor_.m_BuffIdentity );
+}
+
+/** @brief : June 32e75300: EraseIgnoreStateGuard( identity ) (June 3227a870) */
+/*virtual*/ void CX2BuffIgnoreStateGuardBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	pGameUnit_->EraseIgnoreStateGuard( pBuffTemplet_->GetBuffIdentity() );
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 94: CX2BuffImmuneBuffDebuffBehaviorTemplet, Phase 7
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @brief : June 32e79e30. GetBehaviorFactor failing returns false. A restack whose templet count is 0 first drops this buff's immune-list
+		entry (June 3227a910); then the values go to the unit (InsertToGameUnit). A restack with a count above 0 adds a second entry, as in June.
+*/
+/*virtual*/ bool CX2BuffImmuneBuffDebuffBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( DidStart() && 0 == pBuffTemplet_->GetAccumulationCountNow() )
+		pGameUnit_->EraseImmuneBuffList( pBuffTemplet_->GetBuffIdentity() );
+
+	InsertToGameUnit( *pBehaviorFactor, pGameUnit_, pBuffTemplet_->GetBuffIdentity() );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	JuneBuffNewFlagFirstApply( 94, "immune buff/debuff", pBuffTemplet_->GetBuffIdentity() );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return true;
+}
+
+/** @brief : The body June's SetFactor (from @32e79e79) and packet handler share: clear the BTI list; v[0] != 0 puts the BTI in the unit's all-buff
+		set (June 322780f0), v[1] != 0 in its all-debuff set (32278120); v[2..] become the BTI list (quirk 1: index 2 is the count); one immune-list
+		entry { identity, list } is pushed (3227b6b0).
+*/
+void CX2BuffImmuneBuffDebuffBehaviorTemplet::InsertToGameUnit( const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_, const KBuffIdentity& BuffIdentity_ )
+{
+	m_vecBTI.clear();
+
+	const UINT uiSize = static_cast<UINT>( kFactor_.m_vecValues.size() );
+	if ( 1 <= uiSize && 0.0f != kFactor_.m_vecValues[0] )
+		pGameUnit_->InsertImmuneAllBuff( BuffIdentity_.m_eBuffTempletID );
+
+	if ( 2 <= uiSize && 0.0f != kFactor_.m_vecValues[1] )
+		pGameUnit_->InsertImmuneAllDebuff( BuffIdentity_.m_eBuffTempletID );
+
+	for ( UINT uiIndex = 2; uiIndex < uiSize; ++uiIndex )
+		m_vecBTI.push_back( static_cast<int>( kFactor_.m_vecValues[uiIndex] ) );
+
+	pGameUnit_->InsertImmuneBuffList( BuffIdentity_, m_vecBTI );
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffImmuneBuffDebuffBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffImmuneBuffDebuffBehaviorTemplet( *this ) );
+}
+
+/** @brief : June 32e7f670: [ (float)m_bAllBuff, (float)m_bAllDebuff, m_vecBTI... ]. Quirk 2: both bools are always false, so peers get 0 / 0. */
+/*virtual*/ void CX2BuffImmuneBuffDebuffBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+	KBuffBehaviorFactor& BehaviorFactor = vecFactors_.back();
+
+	BehaviorFactor.m_vecValues.push_back( m_bAllBuff ? 1.0f : 0.0f );
+	BehaviorFactor.m_vecValues.push_back( m_bAllDebuff ? 1.0f : 0.0f );
+	BOOST_FOREACH( const int iBTI, m_vecBTI )
+		BehaviorFactor.m_vecValues.push_back( static_cast<float>( iBTI ) );
+}
+
+/** @brief : June 32e7a040: SetFactor without the restack erase */
+/*virtual*/ void CX2BuffImmuneBuffDebuffBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	InsertToGameUnit( kFactor_, pGameUnit_, kBuffFactor_.m_BuffIdentity );
+}
+
+/** @brief : June 32e75bd0: the immune-list entry (3227a910), then the BTI from both sets (32278840, 32278880) */
+/*virtual*/ void CX2BuffImmuneBuffDebuffBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffIdentity& BuffIdentity = pBuffTemplet_->GetBuffIdentity();
+	pGameUnit_->EraseImmuneBuffList( BuffIdentity );
+	pGameUnit_->EraseImmuneAllBuff( BuffIdentity.m_eBuffTempletID );
+	pGameUnit_->EraseImmuneAllDebuff( BuffIdentity.m_eBuffTempletID );
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 95: CX2BuffImmuneNonControlDebuffBehaviorTemplet, Phase 7
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @brief : June 32e75c00. GetBehaviorFactor failing returns false; on the first apply the unit gets one entry for this buff (June 3227aa40) and
+		then erases its non-control debuffs (3229dcc0).
+*/
+/*virtual*/ bool CX2BuffImmuneNonControlDebuffBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( !DidStart() )
+	{
+		pGameUnit_->InsertImmuneNonControlDebuff( pBuffTemplet_->GetBuffIdentity() );
+		pGameUnit_->DeleteNonControlDebuff();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		JuneBuffNewFlagFirstApply( 95, "immune non-control debuff", pBuffTemplet_->GetBuffIdentity() );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	}
+	return true;
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffImmuneNonControlDebuffBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffImmuneNonControlDebuffBehaviorTemplet( *this ) );
+}
+
+/** @brief : June 32e7f770: the header only */
+/*virtual*/ void CX2BuffImmuneNonControlDebuffBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+}
+
+/** @brief : June 32e728d0: the insert only (no first-apply test, no DeleteNonControlDebuff) */
+/*virtual*/ void CX2BuffImmuneNonControlDebuffBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	pGameUnit_->InsertImmuneNonControlDebuff( kBuffFactor_.m_BuffIdentity );
+}
+
+/** @brief : June 32e75c50: EraseImmuneNonControlDebuff( identity ) (June 32279a10) */
+/*virtual*/ void CX2BuffImmuneNonControlDebuffBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	pGameUnit_->EraseImmuneNonControlDebuff( pBuffTemplet_->GetBuffIdentity() );
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 105: CX2BuffImmuneEDTBehaviorTemplet, Phase 7
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @brief : June 32e79770. GetBehaviorFactor failing returns false. June's DidStart() branch calls GetAccumulationCountNow() and drops the
+		result (not ported: no effect). The EDT list is rebuilt from the factor's values as int on every apply.
+*/
+/*virtual*/ bool CX2BuffImmuneEDTBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	m_vecEDT.clear();
+	BOOST_FOREACH( const float fValue, pBehaviorFactor->m_vecValues )
+		m_vecEDT.push_back( static_cast<int>( fValue ) );
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	JuneBuffNewFlagFirstApply( 105, "immune EDT", pBuffTemplet_->GetBuffIdentity() );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return true;
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffImmuneEDTBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffImmuneEDTBehaviorTemplet( *this ) );
+}
+
+/** @brief : June 32e80390: [ (float)edt... ] */
+/*virtual*/ void CX2BuffImmuneEDTBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+	KBuffBehaviorFactor& BehaviorFactor = vecFactors_.back();
+
+	BOOST_FOREACH( const int iEDT, m_vecEDT )
+		BehaviorFactor.m_vecValues.push_back( static_cast<float>( iEDT ) );
+}
+
+/** @brief : June 32e79810: the same rebuild from the packet's values */
+/*virtual*/ void CX2BuffImmuneEDTBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	m_vecEDT.clear();
+	BOOST_FOREACH( const float fValue, kFactor_.m_vecValues )
+		m_vecEDT.push_back( static_cast<int>( fValue ) );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 //}}

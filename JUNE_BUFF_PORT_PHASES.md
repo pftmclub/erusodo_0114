@@ -2638,6 +2638,38 @@ No character in the save has a summon skill whose case matches June, so the posi
 
 **Review:** `kickoffs/june-buff/7-review.md` - start it with `/x2-phase june-buff 7 review`. The inline prompt that stood here was retired on 2026-10-04; `kickoffs/` is the source of truth.
 
+### Phase 7 — Done (2026-10-04)
+
+**Result.** 73, 94, 95, 104 and 105 are complete (parse, class, store, reader, host, packet) under the new flag `SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG` (`Always.h`); step-8 lines are under `_DEBUG`. `buff_census.py --phase 7 --reprobe` lists none of the five (left: 74, 77, 97, 101, 102, 110 = Phase 7b). Uncarved class functions were read with `june2017_re/disasm_range.py`; every item-2 decode held. One addition: each `SetFactor` first tests `GetBehaviorFactor` (`32d41780`) and returns false without it.
+
+| Type | Parse (switch `32d4bbf0`) | Class / store | Reader and host |
+|---|---|---|---|
+| 73 | empty `32d45b60` | own class; `m_vecIgnoreStateGuardPtr` (+0x67cc), insert first apply / packet, erase one | `GetFinalDamage` after the 87/96 block: defender's list or attacker `HaveThisBuff( BTI_BUFF_SCHWERT_PLATZEN = 975 )` (new enumerator) sets `m_bIgnoreStateDefence` |
+| 94 | `ParsingImmuneBuffDebuffBehavior` (`32d4a770`): ALL_BUFF, ALL_DEBUFF, list with count forced | own class; `std::set` all-buff / all-debuff by BTI, `m_vecImmuneBuffList` | stub `IsImmuneBuffByBuffBehavior` filled with `322a80a0` (null templet → false). Both quirks verbatim (loop from index 2; `GetFactor` sends 0/0) |
+| 95 | empty | own class; `m_vecImmuneNonControlDebuffPtr` (+0x75ac); first apply also `DeleteNonControlDebuff` (`3229dcc0`, new member, index walk over `EraseBuffTempletFromGameUnitByIterator`); packet inserts only | stub `IsImmuneNonControlDebuffByBuffBehavior` filled with `3227b790` |
+| 104 | empty | `CX2BuffIdentityBehaviorTemplet`; `m_vecJumpImpossiblePtr` via the identity switch | `CX2GUUser::SetInputData` Up clear `|| !list.empty()`; `CX2GUNPC::CommonEventProcess` `SCT_AI_JUMP` gated (@3276e442). The dash / jump-dir / down-dir gates were already in from 4b (`BEHAVIOR_PARITY`); `+0xded` not ported |
+| 105 | `ParsingCustomBehavior` (`32d45c50`, shared with CUSTOM_FUNCTION) | own class; `m_vecEDT` is the store | `IsImmuneEDTByBuff` (`322a0400`, via `GetBuffFactor` = `3229fd80`, same skips) inside `ProcessEnchantExtraDamage`'s attacker block after the rate test. **The rate math is untouched: Phase 4b's** (`32274df0`/`32272d90`) |
+
+**Hygiene.** `flagcheck JUNE_BUFF_NEW_FLAG --worktree` on the 9 code files: `files: 4 PASS, 4 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 4 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 4 are plain `#else` lines (the stubs, the two jump gates), as in 4b's NPC gates. The stubs keep March's `return false;` in `#else`.
+
+**Build and deploy.** `DEPLOY OK: X2_offline.exe is 19,104,256 B, dated 2026-10-04 20:46:55, md5 532eecfb210243d56152a5731af4b879, equal to X2/US_SERVICE/x2.exe (2026-10-04 20:46:50); built at mods/june-buff-port a663319 + 9 uncommitted code file(s).` The `first apply BBT %d (%s)`, `first apply BBT 104`, `first read BBT %d: %s (%d)`, `ALL_DEBUFF` and `IMMUNE_BUFF_TEMPLATE_ID` strings are in the exe. **Not launched.**
+
+**How to see it in game (Phase 14; June data, needs Phase 13).**
+- 73: `BFI_DEBUFF_PANDEMONIUM_FEAR` 212 → BTI 223 (Raven). The feared monster takes hits through guard and damage reduction. BTI 975 is Ain's (absent).
+- 94: `BFI_BUFF_BLOODLUST` 779 → BTI 753: refuses its listed BTIs. `BFI_DEBUFF_SLEEP` 811: quirk 1 also grants SILENCE immunity.
+- 95: BTI 809 `BTI_AMUSEMENT_ITEM_SHIELD_IN_DAMAGE`, an inline factor in `DamageEffect_ETC.src.lua:1290`. On apply it strips stun-free debuffs (dash/attack/jump-impossible…) and refuses new ones. `FIRE_DEVIL_CHAIN_IPLITAN` calls `DeleteNonControlDebuff` from Lua (Phase 10 binding).
+- 104: `BFI_DEBUFF_HEAVY_FIELD` 992 → BTI 937 (damage effect). No jumping; NPCs skip their jump AI.
+- 105: `BFI_BUFF_ALPTRAUM_READY` 1086 → BTI 1008 (Ain): immune to `EDT_ENCHANT_SHOCK`.
+
+**Notes for the review / Phase 14.**
+1. June renumbered `EXTRA_DAMAGE_TYPE` (BLAZE 1001; March 100). June data names the type (`EXTRA_DAMAGE_TYPE.EDT_ENCHANT_SHOCK`), so compiled against March's Enum it matches March's C++. A raw number in June data would not; none was found.
+2. `DeleteNonControlDebuff` erases from `m_vecBuffTempletPtr`. If a 95 buff were created from inside a loop over that vector (e.g. `BBT_CREATE_BUFF_FACTOR` during `OnFrameMoveBuff`), the loop would shift. June has the same order. Parity, not guarded.
+3. 73 and 104 take June's level-slice default branch (empty factor → `[0, 0]`), as June does; their classes ignore the values.
+4. 73's flag stays on the attacker's DamageData for later targets of a multi-target hit (verbatim).
+5. Cost: `/cost` cannot be read from inside the session. User, please paste it here.
+
+**Play-test** (hand-off given in the session; console lines checked from source, never run). Ids 362–367 assume a fresh launch at `factors 361 loaded`. Log lines read afterwards: `first apply BBT 73/94/95/104/105` and `first read BBT …`.
+
 ---
 
 ### Phase 7b — group C: rewritten hosts and per-class virtuals (Opus)

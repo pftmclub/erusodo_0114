@@ -248,6 +248,15 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_, bool b
 				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeRateBySkillTypeBehavior, BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE, bIsSkill )
 				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeSkillCoolTimeSpeedBehavior, BBT_CHANGE_SKILL_COOL_TIME_SPEED, bIsSkill )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+				/// June buff port Phase 7 (June factor switch 32d4bbf0): 73 / 95 / 104 parse empty (32d45b60), 105 shares BBT_CUSTOM_FUNCTION's list parse (32d45c50),
+				/// 94 has its own (32d4a770). None of them takes bIsSkill in June.
+				CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_IGNORE_STATE_GUARD )
+				CASE_BEHAVIOR_FACTOR( ParsingImmuneBuffDebuffBehavior, BBT_IMMUNE_BUFF_DEBUFF )
+				CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_IMMUNE_NON_CONTROL_DEBUFF )
+				CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_JUMP_IMPOSSIBLE )
+				CASE_BEHAVIOR_FACTOR( ParsingCustomBehavior, BBT_IMMUNE_EDT )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
 			case BBT_EMPTY:
 				break;
@@ -409,6 +418,14 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_ )
 						CASE_BEHAVIOR_FACTOR( ParsingChangeRateBySkillTypeBehavior, BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE )
 						CASE_BEHAVIOR_FACTOR( ParsingChangeSkillCoolTimeSpeedBehavior, BBT_CHANGE_SKILL_COOL_TIME_SPEED )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+						/// June buff port Phase 7 (see the skill list above)
+						CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_IGNORE_STATE_GUARD )
+						CASE_BEHAVIOR_FACTOR( ParsingImmuneBuffDebuffBehavior, BBT_IMMUNE_BUFF_DEBUFF )
+						CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_IMMUNE_NON_CONTROL_DEBUFF )
+						CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_JUMP_IMPOSSIBLE )
+						CASE_BEHAVIOR_FACTOR( ParsingCustomBehavior, BBT_IMMUNE_EDT )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 			case BBT_EMPTY:
 				break;
 
@@ -2211,6 +2228,43 @@ bool CX2BuffFactor::ParsingSkillTypeChangeBlocks( KLuaManager& luaManager_, cons
 		return false;
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+//}}
+
+//{{ Iruha : 2026-10-04 // June buff port Phase 7 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+/** @function : ParsingImmuneBuffDebuffBehavior
+	@brief : BBT 94, June 32d4a770. Pushes ALL_BUFF and ALL_DEBUFF (bools, false when absent, stored as 0.0 / 1.0), then reads
+		IMMUNE_BUFF_TEMPLATE_ID with ParsingTableForWhile( ..., true ): the `true` is a literal in June, so the count is always pushed and an
+		empty {} leaves the 1.0 placeholder. Final layout [ ALL_BUFF, ALL_DEBUFF, count, BTI1..BTIn ]; the level slice copies it whole.
+		June does not test the list's result: a missing table is the [JUNE_BUFF] runtime line and the factor still parses.
+*/
+bool CX2BuffFactor::ParsingImmuneBuffDebuffBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_ )
+{
+	if ( luaManager_.BeginTable( pszTableName_ ) )
+	{
+		BOOST_SCOPE_EXIT( (&luaManager_) ) {
+			luaManager_.EndTable();
+		} BOOST_SCOPE_EXIT_END
+
+		KBuffBehaviorFactor BuffBehaviorFactor( eBehaviorType_ );
+
+		bool bAllBuff = false;
+		LUA_GET_VALUE( luaManager_, "ALL_BUFF", bAllBuff, false );
+		BuffBehaviorFactor.m_vecValues.push_back( bAllBuff ? 1.0f : 0.0f );
+
+		bool bAllDebuff = false;
+		LUA_GET_VALUE( luaManager_, "ALL_DEBUFF", bAllDebuff, false );
+		BuffBehaviorFactor.m_vecValues.push_back( bAllDebuff ? 1.0f : 0.0f );
+
+		ParsingTableForWhile( luaManager_, "IMMUNE_BUFF_TEMPLATE_ID", BuffBehaviorFactor.m_vecValues, true );
+
+		m_pDataBuffFactor->m_vecBuffBehaviorFactors.push_back( BuffBehaviorFactor );
+		return true;
+	}
+	else
+		return false;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 //}}
 
 /** @function : ParsingCreateBuffFactorBehavior

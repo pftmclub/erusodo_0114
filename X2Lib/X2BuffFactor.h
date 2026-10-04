@@ -468,6 +468,9 @@ enum BUFF_TEMPLET_ID
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BTI_BUFF_SHADE_THE_ILLUSION					= 430,	// June; checked in both DamageReacts (@32048ddc, @327b3b05); Phase 4b-i part 4
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	BTI_BUFF_SCHWERT_PLATZEN					= 975,	// June; the attacker's buff that sets IGNORE_STATE_DEFENCE in GetFinalDamage (@322862bf); Phase 7
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 //#ifdef SERV_EVENT_ARA_NEW_CHAR_THE_ESSENCE_OF_HERETIC
 	BTI_BUFF_THE_ESSENCE_OF_WEAK_HERETIC_POTION	= 1318,
 	BTI_BUFF_THE_ESSENCE_OF_HERETIC_POTION		= 1319,
@@ -913,6 +916,10 @@ public:
 	bool ParsingChangeSkillCoolTimeSpeedBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill = true );	/// BBT 103, June 32d4b610
 	bool ParsingSkillTypeChangeBlocks( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, const bool bValueForAllChangeTypes_ );	/// the body 99, 100 and 103 share
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	/// June buff port Phase 7. June's 94 parse takes no bIsSkill; 73, 95 and 104 use ParsingEmptyBehavior (June 32d45b60) and 105 ParsingCustomBehavior (32d45c50).
+	bool ParsingImmuneBuffDebuffBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_ );	/// BBT 94, June 32d4a770
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 	
 
 	////////////////////////////////////////////////////////////////////////////////////////////////

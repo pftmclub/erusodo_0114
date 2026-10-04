@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 7-review` |
+| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 7 review` |
 | Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
 | Depends on | 7 done |
 | Flag | SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG |
@@ -20,6 +20,9 @@ build, deploy, check size/mtime, run a fresh unifdef, run `file`/`git diff --sta
 or read logs by hand, use `tools/build.py --deploy`, `tools/flagcheck.py`, `tools/logs.py` and
 `tools/bytepatch.py` instead (the x2-phase skill's "Tools" and "Finish" lists).
 Never launch X2_offline.exe; ask the user.
+
+Most of the June class functions (`32e7xxxx`) are not carved in Ghidra (`decompile_function` says "No function found").
+Read them with `python june2017_re/disasm_range.py <start> <end>` (raw capstone, bounds from the int3 padding), as Phase 7 did.
 
 ## Task (verbatim from the plan doc)
 

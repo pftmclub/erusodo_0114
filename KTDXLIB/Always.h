@@ -4803,3 +4803,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              block in both DamageReacts that 75 completes).
 #define SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-04
+// Description: June buff port Phase 7 (JUNE_BUFF_PORT_PHASES.md): the flag and
+//              immunity behavior types June added, each with its class, unit
+//              store and June's read sites: 73 IGNORE_STATE_GUARD (GetFinalDamage;
+//              adds BTI_BUFF_SCHWERT_PLATZEN = 975), 94 IMMUNE_BUFF_DEBUFF and
+//              95 IMMUNE_NON_CONTROL_DEBUFF (the Phase 4a immunity stubs, plus
+//              CX2GameUnit::DeleteNonControlDebuff), 104 JUMP_IMPOSSIBLE (user
+//              SetInputData, NPC SCT_AI_JUMP) and 105 IMMUNE_EDT
+//              (ProcessEnchantExtraDamage).
+//              Requires SERV_IRUHADEV_JUNE_BUFF_ENUM (the enumerators),
+//              _TEMPLET_PARITY (the immunity stubs and their call sites) and
+//              _BEHAVIOR_PARITY (June's level-slice cases for these types).
+#define SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+//////////////////////////////////////////////////////////////////////////
