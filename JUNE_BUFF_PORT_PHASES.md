@@ -4793,7 +4793,19 @@ For each check say where to be, the line to paste, what it does in one plain sen
 and what I should see if it works and if it does not.
 ```
 
-### Phase 6 — Done (2026-10-04), play-test pending
+### Phase 6 — Done (2026-10-04), play-test: checks 1-3 passed, check 4 inconclusive (contaminated, not failed)
+
+**Play-test (2026-10-04, user, deployed exe `cb9d9015…`; `ErrorLog.txt` read afterwards, no `runtime error` or `[JUNE_BUFF]` failure line besides the 5 startup ordinal rejects of other BFIs).**
+- **1 (75):** user passed. `first apply BBT 75 … rate 1`, then `first read BBT 75: the attacker's double-attack roll succeeded`.
+- **2 (103):** user passed. `first apply BBT 103 … 4 change(s), first type 5 change type 3 value 2`, then `first read BBT 103: skill type 5 cool time runs x 2` (the host and the lazy rebuild ran on a real parsed factor).
+- **3 (89, 90, 91, 98, 99, 100), judged from the log:** all six `first apply` lines appeared, so parse, level slice, templet and `SetFactor` worked on real factors. The user's four equipped skills (3014, 3003, 3000, 3216) are all skill type 7. Readers: 89 = 1.5 on all four; 98 = 1.2 on all four (slot A row); 99 = 0.5; 100 = 0.9 with `applied 1`; 91 skill 31012 = 0 (and its one-shot `first read BBT 91` fired). 90's ×1.3 did not show because none of the equipped ids is in 31011–31014 (the 90 line printed the same 1.5 as 89), so 90's reader is **not yet shown numerically**: the clean check 4 below does it.
+- **4:** run within 60 s of check 3, so it was contaminated exactly as the hand-off warned (the live 365 buff holds 91 at 0; the live 363 buff holds 89 at 1.5 and the test wrote type 6 while the skills are type 7; the expired 369 buff left the 103 dirty flag set, so the hook's own read-back rebuilt the table to 1.0). Not a failure; 103's store and read are proven by check 2. Clean rerun (fresh launch, no setup lines; types 7 and skill 3014 match this character):
+  ```
+  local u = g_pX2Game:GetMyUnit() u:JuneBuffTestNewSkill_LUA( 89, 7, 1.5, 1 ) u:JuneBuffTestNewSkill_LUA( 89, 7, 1.5, 0 ) u:JuneBuffTestNewSkill_LUA( 90, 3014, 1.3, 1 ) u:JuneBuffTestNewSkill_LUA( 90, 3014, 1.3, 0 ) u:JuneBuffTestNewSkill_LUA( 91, 31012, 0.5, 1 ) u:JuneBuffTestNewSkill_LUA( 91, 31012, 0.5, 0 ) u:JuneBuffTestNewSkill_LUA( 103, 7, 2, 1 ) u:JuneBuffTestNewSkill_LUA( 103, 7, 2, 0 )
+  ```
+  Expect: 89 = 1.5 on all four skills, then 1; 90 = 1.3 on slot 0 (skill 3014) only, then 1; 91 = 0.5 then 1; 103 type 7 = 2 then 1.
+
+**Original Done note (written before the play-test).**
 
 **Result.** All eight types are ported under `SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL`; none is Opus-only. 75, 91 and 103 are complete (class, store, reader, host). 89, 90, 98, 99 and 100 have the class, store and reader only, and are **inert until Phase 6b**: no host function was touched (`DoStateEndStart`, the summon-NPC helper, `GetActualMPConsume` and the cooldown setters are as they were). `buff_census.py --phase 6` lists none of the eight types (March "handles 98", was 90). `US_SERVICE` build rc=0 for KTDXLIB, X2Lib (PCH invalidated with `touch X2Lib/stdafx.cpp`) and X2 (a new virtual on `CX2GameUnit`, so a full X2Lib rebuild). Deployed `X2/US_SERVICE/x2.exe` as `X2_offline.exe` (names read programmatically): 19,089,920 B, md5 **`cb9d90155b72a02fb4e417fb55ea249b`**, byte-identical to the build output. **Not launched.** The exe contains the eight `BBT_*` key strings (ASCII and UTF-16), `SKILL_CATEGORY_%d`, `MULTIPLY_MP_CHARGE_RATE`, and the debug strings `first apply BBT 75 (double attack buff)`, `first apply BBT 90` / `91` / `98` / `103`, `first read BBT 75` / `91` / `103`, `reader BBT 89 x 90` and `JuneBuffTestNewSkill_LUA`; the `first read` strings sit in `IsDoubleAttackBuffByBuff`, `GetChargeMpRateBySkillID` and `GetSkillCoolTimeSpeedBySkillType`, inside the flag, so they prove the readers compiled in.
 
