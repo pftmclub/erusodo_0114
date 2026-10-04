@@ -2640,6 +2640,20 @@ No character in the save has a summon skill whose case matches June, so the posi
 
 ### Phase 7 — Done (2026-10-04)
 
+**Play-test (2026-10-04, user; exe `532eecfb`, run 20:52:53 after the 20:46 deploy): all 5 checks passed by eye.** `ErrorLog.txt`:
+- `:177-178` 104 first apply (BTI 990104) and jump key cleared.
+- `:179-180` 95 erased BTI 990004, then first apply.
+- `:181-182` 73 first apply and state defence ignored.
+- `:481-482` 94 first apply, `ALL_DEBUFF` refused BTI 990073.
+- `:502-503` 105 first apply, refused EDT 100.
+
+Load baseline unchanged (`factors 361 loaded`).
+
+Open:
+- (a) 95's "a new non-control debuff was refused" line is absent, though the user saw dash keep working. Asked whether 366 was re-pasted while 95 was on.
+- (b) With 94 on, a burn on self left no icon and no red tint, but its damage stayed. The icon and tint belong to the buff that 94 refused; the damage likely comes from a non-buff source (extra damage / damage effect). Asked what caused the burn.
+- (c) The console templets have no icon keys, so the missing buff icons are expected.
+
 **Result.** 73, 94, 95, 104 and 105 are complete (parse, class, store, reader, host, packet) under the new flag `SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG` (`Always.h`); step-8 lines are under `_DEBUG`. `buff_census.py --phase 7 --reprobe` lists none of the five (left: 74, 77, 97, 101, 102, 110 = Phase 7b). Uncarved class functions were read with `june2017_re/disasm_range.py`; every item-2 decode held. One addition: each `SetFactor` first tests `GetBehaviorFactor` (`32d41780`) and returns false without it.
 
 | Type | Parse (switch `32d4bbf0`) | Class / store | Reader and host |

@@ -30,8 +30,8 @@ flags `SERV_IRUHADEV_JUNE_BUFF_*` (+ `_DEBUG`) · kickoffs `kickoffs/june-buff/`
 | 6 | done, reviewed, play-tested (review `51701bb`..`071e58d`; user kept fix 1) | - | - | - | - |
 | 6b | done, play-tested 2026-10-04 (buff terms only, user decision; checks 1-2 passed, logs read) | Opus 5.5 / high | 6 | X2GUUser.cpp/.h (DoStateEndStart, GetActualMPConsume), X2Game.cpp (summon cases), X2Unit.cpp/.h, X2User.cpp, X2GU{Eve,Ara,Arme,Chung,EL,Elsword,Lire,Raven}.cpp (cooldowns) | `6b.md` |
 | 6b review | done 2026-10-04: 1 fix (Wally 9th / Fire Eve / Guardian SP1 summons pass skill 0, as June's 31fcf520); deployed 5a81b0ee; play-tested 2026-10-04 (no summon line, Nasod Element appeared); user owes /cost only | Opus 5.5 / high | 6b | X2Game.cpp (3 summon lines) | `6b-review.md` |
-| 7 | done 2026-10-04 (73/94/95/104/105; flag NEW_FLAG; deployed 532eecfb); user owes play-test (5 console checks) + /cost | Opus 5.5 / high | 4a | X2GameUnit.cpp (GetFinalDamage, ProcessEnchantExtraDamage), X2GUUser.cpp (SetInputData), X2GUNPC.cpp (CommonEventProcess), X2BuffBehaviorTemplet, C++ BUFF_TEMPLET_ID enum | `7.md` |
-| 7 review | ready (after the play-test) | Opus 5.5 / high | 7 | - | `7-review.md` |
+| 7 | done, play-tested 2026-10-04 (5/5 passed, logs read; 2 questions open in the Done note: 95 refuse line, burn under 94); user owes those answers + /cost | Opus 5.5 / high | 4a | X2GameUnit.cpp (GetFinalDamage, ProcessEnchantExtraDamage), X2GUUser.cpp (SetInputData), X2GUNPC.cpp (CommonEventProcess), X2BuffBehaviorTemplet, C++ BUFF_TEMPLET_ID enum | `7.md` |
+| 7 review | ready | Opus 5.5 / high | 7 | - | `7-review.md` |
 | 7b | ready | Opus 5.5 / high | 7 | X2GUUser.cpp/.h, X2GUNPC.cpp/.h, X2GameUnit.h, X2GUChung.cpp, X2GUAra.cpp | `7b.md` |
 | 7b review | blocked | Opus 5.5 / high | 7b | - | `7b-review.md` |
 | 8 | ready (6b recorded the 98 -> BFT 16 ordering: 98 is cached before StateStart) | Opus 5.5 / high | 2, 4b, 6b | X2BuffFinalizerTemplet, X2UDPPacket.h (every peer needs the same build), X2GUUser.cpp, X2GUNPC.cpp | `8.md` |
