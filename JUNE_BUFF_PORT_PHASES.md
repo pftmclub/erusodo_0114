@@ -3334,6 +3334,67 @@ Fresh tools only; the session's patch and unifdef scripts were not reused:
 
 **Review cost:** `/cost` is not readable from inside the session; ask the user.
 
+## Phase 4b-iii — Unit-side stores and read sites (4b-ii stop item 7)
+
+**Why this is still Phase 4b.** Phase 4b's scope (above) diffs four places per type. The fourth is "the unit-side store and read sites". 4b-i covered the behaviors' unit side, and 4b-ii diffed every finalizer and displayer class slot. What remains is the `CX2GameUnit` code those finalizer and displayer slots call, and the places that read what they store. Run it before Phase 5: it lives in `X2GameUnit.cpp`, where Phase 5 adds its members and readers, so any fix here should land on a clean baseline first.
+
+**Scope.** For each item, diff June's unit function against March's counterpart, find every reader of what it stores, and diff those too:
+- render param insert/erase `3227ac80` / `32279b20`, and the by-unit-type path through unit vslot 154;
+- after-image `3227b220` / `3227a2f0`;
+- weapon after-image `3227b300` / `3227a3a0`;
+- impact point / hitted / normal attack inserts `3227b0a0` / `3227b160` / `3227b540` and erases `3227a180` / `3227a220` / `3227a4c0` (call shapes in the 4b-ii review, row 7);
+- the slash-trace field `+0x4238`;
+- the finalizer counters: hit `+0x4231` and hitted `+0x4230`, with every increment site. The March sites are in the ledger's "March runtime map".
+
+Not in scope (already owned elsewhere): the per-instance visibility flags (EffectSet `+0x1bc`, particle `+0x1b0` via `32296da0`; effect port), HIT_COUNT `ATTACK_TYPE`'s per-type counters `32274800` (4b-ii hand-off 5), and BFT 15/16 counters (Phase 1c item 4 / Phase 8).
+
+**Phase 4b is done when:**
+1. Every item above, and every reader found, has a verdict in a table: **same**, **ported**, or **June-only, handed to <owner>**.
+2. Every difference that March can reach is ported whole under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`, with March's code in `#else` (no partial June updates).
+3. `buff_census.py --phase 4b` still shows 0 type/key pairs.
+4. If code changed: a flag-off unifdef per file, an `X2Lib` + `X2` build at `US_SERVICE`, a deploy as `X2_offline.exe` with the md5 recorded, and the user's play-test.
+5. The review below finds no open code defect.
+
+Then mark Phase 4b complete in this doc, and Phase 5 starts.
+
+**Run with:** Opus 5.5, high effort. Review required if code changed; if the session ends read-only with every item "same", the review is the user's call.
+
+```
+Continuing the June buff/debuff port. Run this session on Opus 5.5 at high effort. Read
+JUNE_BUFF_PORT_PHASES.md in the repo root -- "Starting context", the "Investigation ledger"
+(its March runtime map), the "June buff function map", "Phase 4b", "Phase 4b-ii -- Done"
+(its stop list), "Phase 4b-ii -- Review" and "Phase 4b-iii". Branch: mods/june-buff-port.
+Never launch X2_offline.exe without asking first.
+
+Your task (Phase 4b-iii, the last part of Phase 4b): diff the CX2GameUnit functions that the
+finalizer and displayer slots call, and every site that reads what they store, against
+June. The list is in "Phase 4b-iii -- Scope". Ghidra is read-only; many June slot bodies
+have no Ghidra function, so read them from the raw asm. Port every difference March can
+reach in full under SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY (insert-only, byte-level CP949
+edits, original in #else, flag-off unifdef per file). Hand June-only systems to their owner
+instead. Record a verdict table, confirmed funcmap.tsv rows and "Phase 4b is done when"
+status in the doc. If code changed: rebuild X2Lib and X2 at US_SERVICE (touch stdafx.cpp
+after a header edit), deploy as X2_offline.exe, record the md5, and ask before launching.
+Another session may have uncommitted edits in the doc: stage only your own hunks. Commit.
+Write the review kickoff into the doc. Record the cost line.
+```
+
+**Review prompt (fresh Opus 5.5, high effort):**
+
+```
+Reviewing the June buff/debuff port, Phase 4b-iii (fresh Opus 5.5 session, high effort).
+Read JUNE_BUFF_PORT_PHASES.md -- "Starting context", "Phase 4b", "Phase 4b-iii" and its
+Done note. Branch: mods/june-buff-port. Never launch X2_offline.exe.
+
+Independently re-check the verdict table in the raw asm (Ghidra read-only), especially
+every "same" verdict and every reader the session found; look for readers it missed.
+Use fresh scratch tools. Run the flag-off unifdef on the committed blobs against the
+pre-session commit, and confirm the deployed X2_offline.exe md5. Report numbered findings
+(R1, R2...) with a severity. Fix a code defect under the same flag, rebuild X2Lib and X2 at
+US_SERVICE, deploy, record the md5, and ask before launching. If nothing is open, mark
+Phase 4b complete. Stage only your own hunks. Commit. Record the review cost line.
+```
+
 ## Phases 5–7 — New behavior types
 
 Phases 5–7 are split into seven sessions. Each has its own scope, its own run-with line and a **ready-to-paste kickoff prompt and review prompt with nothing to substitute**. Take the prompt of the phase you are starting, and no other.
