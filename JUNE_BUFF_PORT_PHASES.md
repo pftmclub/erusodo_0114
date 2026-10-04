@@ -2541,6 +2541,83 @@ Moved to `JUNE_BUFF_PORT_ARCHIVE.md` (same heading); `tools/docsection.py` follo
 
 Log lines read afterwards: `first host BBT …` and any `[JUNE_BUFF]` line naming 362–365 or 990089/990098/990099/990100.
 
+### Phase 6b — Review (2026-10-04, Opus 5.5 high)
+
+**Verdict: one transcription error, fixed under `SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL`.** Everything else matches June. The deviations the Done note records (non-buff parts left out by user decision) are as described.
+
+**Hygiene, 6b code commit.** `flagcheck JUNE_BUFF_NEW_SKILL --commits 57546e5 --with JUNE_BUFF_DEBUG`: `files: 14 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. So the flag-off path is March byte for byte. The two replaced lines (the MP return, Distortion's `SetDefaultPowerRate`) keep March's code in `#else`. The three doc commits touch only `.md` files.
+
+**Ghidra spot-checks (read-only). All three pass.**
+- `GetActualMPConsume` `3203cf60` (raw disassembly; not carved). `rate = vslot471 × 32039a50( id, 0x3f )`. The bool argument adds `32358970( 0xb )`. Then `3203a250( templet, &mp )` @3203d024 applies 99 to the **MP value**; the `+0x74dc` cut (bool only) follows; the function returns `rate × mp` (@3203d09c). The port runs 99 on the MP value, then × the BBT 63 rate. Same order.
+- Cool-time helper `3235a710`:
+  1. Reads the left time back (`32891460`) and continues only if it is > 0.
+  2. Calls `32358770( id, &left )`.
+  3. If `max( 3234fbd0, 0.8 ) × 32358480 == 1`, it writes only when 100 applied; otherwise it scales.
+  4. Writes with `32893880`.
+  
+  `CX2Unit::ApplySkillCoolTimeRateByBuff` is this function with the product fixed at 1.0. `31fd8ff0` calls it outside the templet test, as the port does.
+- `DoStateEndStart` `3203c3a0`, in this order:
+  1. `IsSummonSkill` → summon 98 (`+0x7ce0`) @3203c586.
+  2. 98 (`+0x7cd4`) only if the old state's skill ≠ the new one's (@3203c63d/@3203c649).
+  3. Hook `+0x78c`.
+  4. Cache = the new state's `m_fPowerRate` (@3203c770).
+  5. × `31fd7cc0` (@3203c7e4/@3203c801).
+  6. × 98 (@3203c89a).
+  7. `CommonStateStart` (@3203c978).
+  
+  The port has the same order, without the hook (recorded deviation).
+
+**Further checks.**
+- All 54 `IsSummonSkillByJune` ids and their names match June's `Enum.src.lua`.
+- In all 8 classes, Raven `InitShadowStep` and both equip paths, the helper call comes after every cooldown set, with no `return` in between. Those 10 sites are null-safe.
+- Mortar: the buff terms come before `-= 1`, as June's flag `0x400` tail does.
+- The summon 98 term is unconditional in `322ece70`, which matches `GetSummonPowerRateByBuff`.
+- Other writes to `m_NowStateData.m_fPowerRate`:
+  - Chung, Elsword and Lire only multiply it, so the buff terms survive.
+  - Raven's three `=` assignments (`X2GURaven.cpp` ShadowStepThrust, ShadowBuster, ShadowStepPunisher) are the only overwrites. They are already Done-note open item (1).
+
+**Fix: the summon skill per case (Done-note open item 2).** June derives the summon's skill from the NPC: `31fcf520( npcId )`, then `31fcf430`, which is the identity when `+0x867c` is 0. It does not use the case's skill.
+- 10 of March's 14 patched cases match June's table by name. Each NPC id comes from June's `Enum.src.lua`:
+  - Ferdinand 1454 → 25601 `LINK_OVERCHARGE_ILLUSION`
+  - Guardian SP2 411 / 520 → 25013 `SONIC_WAVE`
+  - Atomic Shield 682 → 25011
+  - Anger of Elf 1420 / 1421 → 23216
+  - UFO 495 / 1575 → 22020 `HELL_DROP`
+  - Chung targeting 1419 → 26014 `QUANTUM_BALLISTA`
+  - Chung targeting 863 → 26025 `ARTILLERY_STRIKE_MISSILE_SHOWER`
+  - Evoke 1020 / 1025 → 23218
+  - Distortion 1091 → 22027
+  - Mortar 1100 → 26215
+- **Wally 9th (385), Fire Eve (386) and Guardian SP1 (410, memo 674) are not in `31fcf520`, so June returns 0.**
+  - They still reach the helper through `3230c1a0`'s switch default (flags 0, @3230ca64).
+  - `31fd7cc0( 0 )` returns 1.0, so June applies only the summon 98 term.
+  - The port had passed Dimension Link Blader, Dimension Link Guardian and Surface Cutting, so those summons got 89 × 90.
+  - **Fixed** (`X2Game.cpp`, inside 6b's flag block): those three cases now pass `GetSummonPowerRateByBuff( 0 )`.
+  - `flagcheck --worktree --files X2Lib/X2Game.cpp`: `1 PASS`; `6 deleted line(s)`, all of them 6b's own flagged lines being replaced; `0 encoding change(s)`; `RESULT: PASS`.
+  - Phase 6b play-test check 2 (Fire Eve × 1.5) exercised the old, wrong mapping.
+- The reverse case: June maps Nasod Watch (384 / 519) to 25000 `DIMENSION_LINK_SENTRY`. March's Nasod Watch case sets no power rate (one of the 6 cases left as March). That stays with the character port.
+- **User veto:** if you would rather keep the case skill for these March-only summons, revert the three lines; they are commented.
+
+**Build.** `BUILD OK: X2/US_SERVICE/x2.exe 19,092,992 B, 2026-10-04 20:11:39` (`X2Game.obj` recompiled 20:11:30). **Deploy refused: the game was running.** DEPLOY line: _pending `python tools/build.py --deploy-only`_.
+
+**Answers to the Done note's open items.** (2) Answered and fixed, above. (1), (3) and (4) are unchanged. (4)'s claim that June's writer applies the event cut again was not re-read. (5) `/cost`: user, please paste it.
+
+**Play-test hand-off (dev console, END).**
+- **Where:** a field or dungeon, fresh launch, as **jtCodeEmpress** (Eve, Code: Empress, Lv 80).
+- **Setup:** paste Done-note setup line 0's factor **362** (89).
+- **Paste:**
+  ```
+  g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 362, 1 )
+  ```
+  Then use **Dimension Link Guardian** (slot A, 1st) within 60 s, then Illusion Stinger once.
+- **What it does:** the summoned Nasod Element no longer gets the skill-damage buff, as in June. Your own skills still do.
+- **Look for in `ErrorLog.txt`:**
+  - No `first host BBT 89/90/98 summon` line.
+  - `first host BBT 89/90/98 DoStateEndStart: … x 1.5 (89 x 90)` still appears.
+- **If not:** a `summon:` line means the exe is stale. Send the `logs.py` header.
+
+No character in the save has a summon skill whose case matches June, so the positive summon path is left to Phase 14.
+
 ---
 
 ### Phase 7 — group C: flag and immunity types with ready readers (Opus)

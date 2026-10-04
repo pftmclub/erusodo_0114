@@ -14345,8 +14345,9 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					/// AT_SPECIAL 공격 배율 증가 버프 적용
 					float fSummonMonsterPowerRate	= 1.f;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
-					/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
-					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_SA_EN_DIMENSION_LINK_BLADER );
+					/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d (buff terms only). Phase 6b review: June reaches the helper for this NPC (385)
+					/// through the switch default (3230c1a0 @3230ca64), and its NPC -> skill map 31fcf520 returns 0 for 385, so 89 x 90 is 1.0; only the summon 98 cache applies
+					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( 0 );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 					fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 					pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
@@ -14396,8 +14397,9 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					/// AT_SPECIAL 공격 배율 증가 버프 적용
 					float fSummonMonsterPowerRate	= 1.f;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
-					/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
-					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_SA_EN_DIMENSION_LINK_GUARDIAN );
+					/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d (buff terms only). Phase 6b review: June reaches the helper for this NPC (386)
+					/// through the switch default (3230c1a0 @3230ca64), and its NPC -> skill map 31fcf520 returns 0 for 386, so 89 x 90 is 1.0; only the summon 98 cache applies
+					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( 0 );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 					fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 					pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
@@ -14453,8 +14455,9 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					/// AT_SPECIAL 공격 배율 증가 버프 적용
 					float fSummonMonsterPowerRate	= 1.f;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
-					/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
-					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_A_EAT_SURFACE_CUTING );
+					/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d (buff terms only). Phase 6b review: June reaches the helper for these NPCs (410, 674)
+					/// through the switch default (3230c1a0 @3230ca64), and its NPC -> skill map 31fcf520 returns 0 for both, so 89 x 90 is 1.0; only the summon 98 cache applies
+					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( 0 );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 					fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 					pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
