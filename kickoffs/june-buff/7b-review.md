@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 7b-review` |
+| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 7b review` |
 | Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
 | Depends on | 7b done |
 | Flag | SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG |
@@ -36,3 +36,22 @@ re-encoded). Because every one of these touches a state machine every unit runs,
 directly in Ghidra (read-only); if a spot-check fails, re-check the whole phase. Fix clear
 transcription errors under the same flag; hand design decisions back to me. Write the
 findings into the doc as "Phase 7b -- Review", record this session's /cost, and commit.
+
+## Scope as landed (Phase 7b, commit 25f51ed; added after the phase)
+
+- **110 is store and getter only.** `TryHyperModeStateChange` was not ported: it needs June's
+  awakening-lockout timer `+0x8d78` and flag `+0x8d4c`. Review decision (a) in the Done note
+  (options A/B/C are the user's), not a ported consumer.
+- Pieces 7b added that the task above does not name; check each against June:
+  - the `CAN_MANA_BREAK` state key (June `@320608b2`), placed next to the carry block in
+    `CX2GUUser::CommonStateStart` instead of where June has it; confirm nothing between the two
+    June positions reads `+0x6890`/`+0x6892`;
+  - `CHECK_NEVER_MOVE_TRUE` (`+0xbb`) in both NPC condition chains, and `CAN_DETONATION`
+    (`+0xba`) in the non-host chain only;
+  - the NPC carry block, anchored at the top of `CX2GUNPC::CommonStateStart` rather than at
+    June's `@327af365`; confirm no early return in March's NPC `CommonStateStart` lies between
+    the two positions;
+  - `JUNE_BUGS.md` #10 (the vestigial user carry block).
+- 97's Add/Ara/Rose/Luciel overrides and 101's death-prevention gates and low-HP UI went to
+  `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 7 by the standing rule; check the
+  attribution (Ara's `+0x9644`, Chung's gage layout), not their absence.
