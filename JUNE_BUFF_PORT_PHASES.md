@@ -2818,6 +2818,54 @@ local t = {} local r = {} for i = 1, 30 do t[i] = 30 r[i] = 1 end g_pBuffTemplet
 Checks (wait 30 s between them): 1. 363 on self among monsters: no damage, blinking. 2. 365 on self: hits show numbers, HP bar does not drop. 3. Baseline Mana Break without buffs, then 362, then 366: no Mana Break while either is on. 4. As **Freils** (Chung, Deadly Chaser, Lv 72), empty the cannon balls, 364 on self: one ball back. 5. 367 on self: log line only (awakening still works: decision (a)).
 Log lines read afterwards: `first apply BBT 74/77/97/101/102/110`, `first read BBT 77`, `first read BBT 101`.
 
+### Phase 7b — Review (2026-10-05)
+
+**Verdict: no transcription errors, no code change.** Reviewed the code commit `25f51ed`, plus the doc-only commits `c1f370a`, `01158f4` and `5e18b95` (the peer's 7c plan: docs, a kickoff and two RE helpers, no code). The deployed exe is still 7b's: `X2_offline.exe` md5 `bc9099a703cbf19be3cf3beb3c632697`, 19,110,400 B, 2026-10-04 21:58:42, re-read from the game directory. With no code change there was nothing to rebuild or deploy, and nothing new to play-test. Decision (a) is settled: the user chose A, which is Phase 7c.
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG --range 25f51ed^..25f51ed`:
+- `files: 9 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+- `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 27 #else/#endif without the flag token, 0 encoding change(s)`
+- `RESULT: PASS`
+
+`file` reports the same encoding as the parent for all 12 code files; the `CRLF, LF` on the four headers was already there. The PASS~ lines are a blank line and the closing brace of `DetonationEventProcess` (now after the flag's `#endif`) in X2GUUser.cpp, and the `//{{`/`//}}` markers in X2GameUnit.cpp. I read every `#else`: each holds March's line verbatim, so the flag-off build is March.
+
+**Checked against June** (read-only, with `june2017_re/disasm_range.py`, `funcdis.py` and `dispsweep.py`; Ghidra was not needed).
+- **Detonation bytes: whole-`.text` sweep** (`dispsweep 6890 6891 6892`).
+  - Outside the per-class code, every hit matches a port site:
+    - the ctor (`@322a5e38`, a dword store that zeroes all three bytes);
+    - `RidingOffEnd` and `CommonStateEnd` (`bl` = 0 after `xor bl, bl`), which clear both `+0x6890` and `+0x6892`;
+    - the user `DamageReact` (`@32046314`), which takes DD`+0x4f8` unconditionally and sets `+0x6891` = 1;
+    - user `CommonStateStart` (the carry block `@3205e9cd`, then `@320608b2`/`@320608ba`);
+    - user `DamageReactStateChange` and `DetonationEventProcess`;
+    - NPC `DamageReact` (`@327b1fd0`/`d6`), NPC `CommonStateStart` (`@327af366`–`87`), and the non-host chain.
+  - The 48 per-class hits all write `+0x6890` only.
+  - Phase 1c item 2 listed fewer writers than this; the port follows June, not 1c.
+- **`DamageReactStateChange`** (`31feb837`–`31feb964`).
+  - The reset block reads `+0x6890`, `+0x6892` and the 102 list `+0x681c`, then sets charge 0 and gage `+0xf6` = 0.
+  - `IsDamagedReaction` (`3226de80`) is followed by `damageType != 6`, and that test gates **both** `DamageFlushMp` (gage slot 12) and `FlushForceDown` (`32a31e10`).
+  - The tail writes `+0x6892` from DD`+0x4f8`. Matches.
+- **User `CommonStateStart`.**
+  - Between `@3205e9ef` and `@320608b2`, nothing reads or writes the bytes.
+  - March's `m_LuaManager` is at the state table there, because the top-level `ENABLE_ATTACK_BOX` reads come just before it.
+  - All 12 per-class `SetNoDetonation( true )` sites call `CommonStateStart()` first, so the merged position is safe (Done note 1 holds).
+- **NPC conditions** (`3276cb20` `@3276d76c`).
+  - The non-host order is `+0xba` → 74 list `+0x67ec` → 102 list → `+0x6890` → `+0x6892` → `+0xbb`/`+0x872b` → `m_iRate` (`+0x14`). That is the port's order, before the random draw.
+  - The host chain `3276d980` tests `+0xb7`/`b8`/`b9`/`bb` and never `+0xba`.
+  - March's NPC `CommonStateStart` has one early return (`m_pXSkinAnim`), and the carry block sits after it.
+  - Not checked: whether June feeds the two keys into `m_bNPCNonHostSimulatable`. No June script uses either key, so this is dormant.
+- **Keys.** `CAN_MANA_BREAK` (`@3206079f`), `CAN_DETONATION` (`@32794f62`) and `CHECK_NEVER_MOVE_TRUE` (`@327950be`) are status `ok` in `xorstrings.tsv`, and the port spells them the same. June's state scripts use `CAN_MANA_BREAK = FALSE` 32 times, so Phase 13 data will exercise it.
+- **97.**
+  - SetFactor `32e75c70`: `GetBehaviorFactor` failure returns false; `DidStart` (`+0xc`); unit `+0x324` with `fld1`.
+  - Chung `32bf4880`: `ftol`, then slot 39 (berserk) skips. Otherwise it adds to the protected now-count at gage `+0x110`, sets `+0x142`, and calls `3231d7a0`, which clamps to max and to 0 like March's `SetNowCannonBallCount`.
+  - Ara `32baafc0` (checklist §7): `+0x9644` is a protected int and the row's reading is right. Its "gage vslot 3" goes through unit slot 60 (`3208dd00`, forwards `(v, 1, 0)`), and the row now says so.
+- **77 / 101 coverage.**
+  - Every remaining March `stateParam.bInvincible` read and every `GetNoDetonation()` reader is in an `#else`.
+  - March's direct gage HP writes (`X2GameUnit.cpp:12277/12894`, `X2GUUser.cpp:34166`, `X2GageManager`) rescale or sync max HP; none is damage that bypasses 101.
+
+**Doc fix.** `JUNE_BUGS.md` #10 said `DamageReactStateChange`'s tail keeps the damage byte past the state change. It does not: `StateChange` only queues `DoStateEndStartFuture`, and `DoStateEndStart` (`OnFrameMove`, `X2GUUser.cpp:6802`) runs `CommonStateEnd` first, which clears the byte before the carry block reads it. The byte lives from the hit to the next state switch, which is shorter than March, where the carry worked. The row is corrected; the behaviour is June's and unchanged.
+
+**Cost.** `/cost` cannot be read from inside the session. User, please paste it here.
+
 ### Phase 7c — BBT 110 host: TryHyperModeStateChange and June's awakening lockout (Opus)
 
 **Why.** Phase 7b decision (a): the user chose option A (2026-10-05). Port June's awakening check whole, with the two June systems it reads.
