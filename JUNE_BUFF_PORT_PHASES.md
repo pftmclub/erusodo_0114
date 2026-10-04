@@ -2772,6 +2772,8 @@ The 4 are the plain `#else` lines (the two stubs and the two jump gates), as the
 
 ### Phase 7b — Done (2026-10-04)
 
+**Play-test (2026-10-05, user; exe `bc9099a7`, run 03:55:27 after the 21:58 deploy): all 5 checks passed by eye.** `ErrorLog.txt`: load baseline unchanged (`factors 361 loaded`, the same 5 ordinal rejects as before); `:174-175` 77 first apply and `forced invincibility renewed for 0.5 s`; `:176-177` 101 first apply and `UpNowHp refused a decrease of -4874.42`; `:219` 74 and `:220` 102 first apply (no Mana Break with either, baseline worked); `:240` 97 first apply (Chung gained a cannon ball); `:241` 110 first apply (log only; host awaits decision (a)). `:207-218` are a second paste of the setup lines after a character change: duplicate BTI / ordinal reject 362–367, harmless (the first definitions stay).
+
 **Result.** Under `SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG` (Phase 7's flag; `Always.h` comment extended): all six types parse (June switch `32d4bbf0`: every one is `ParsingEmptyBehavior` `32d45b60`) and have their templet (factory `32e80450`: 74/77/101/102/110 = identity class `32e866b0`, 97 = own class `32e86c90`). Identity stores from `CreateAndInsertBuffIdentity` `3227ad60`: 74 `+0x67ec`, 77 `+0x67fc`, 101 `+0x680c`, 102 `+0x681c`, 110 `+0x682c` (erase `32279d70`). `buff_census.py --phase 7` lists nothing; 111/112 stay "not implemented in the June client either". New RE rows are in `june2017_re/funcmap.tsv` (17 rows, "Buff Phase 7b").
 
 | Type | Hosts ported |
