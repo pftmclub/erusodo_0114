@@ -4414,7 +4414,7 @@ else factor = max( 1 - this->GetIgnoreDefenceRate() - ( IsPvpOrPve ? IGNORE_DEFE
   - Each `_ON_PVP` key takes its sibling's value when absent (`@3263c8a0` copies `+0x528`; `@3263cc7e` copies `+0x52c`). The port passes the already-read sibling as the `LUA_GET_VALUE` default; that macro assigns the default only on a miss, so the behaviour is the same.
   - `IGNORE_DEFENCE_RATE` defaults to 0.
   - `IGNORE_DEFENCE_DECLINE` defaults to false.
-- **Cross-plan note.** `JUNE2017_EFFECT_KEY_MATRIX.md` lists all four keys as "to-implement, 8b". This phase implements them. That matrix was not edited.
+- **Cross-plan note.** `JUNE2017_EFFECT_KEY_MATRIX.md` listed all four keys as "to-implement, 8b". This phase implements them, and the four matrix rows now say so (follow-up commit), so the effect plan's 8b must not parse them again.
 
 **March's runtime writers of `m_bIgnoreDefence`, checked against June.** PvP now reads the `_ON_PVP` twin, so each writer was checked for whether June also sets it:
 - **Rena, Powerful Bowstring** (`X2GULire_ElvenRanger.cpp`, two branches): June skill 23405 sets both bytes (`@32cada25`: `mov word [+0x528], 0x101`). The port now sets the twin in both March branches.
@@ -4444,6 +4444,7 @@ The kickoff's two blockers do not fire: Phase 4b-i part 4 landed the second ("ra
   - (a) Port June's template wholesale. This is a `BEHAVIOR_PARITY` item, outside 5c, and it changes the members listed above.
   - (b) Use June's formula for 92 only. That is a partial update of a function June changed.
   - (c) Leave March's formula. 92 then gives values June never would.
+- **Recommendation: (a).** The standing rule is no partial June updates: when June changed a function March has, port June's whole version. So the real question is whether you accept its reach on March's existing option-data members, listed above. On March's shipped data that reach is small: every disagreement needs a `PERCENT` factor ≠ 1 on a basic-0 member, or a socket bonus together with `PERCENT > 1` on a move/jump member. It would land under `BEHAVIOR_PARITY` with a census of the March factors it changes. 92 would then follow, once Q2 and Q3 are settled.
 
 **Q2. 92's option curve is a Lua function March's data lacks. Adopt June's `SocketOptionForm.lua`?**
 - The curve is `CalculateFinalDamageMaximizeRate( value, level )` (`322a9e30` → `320723b0`, string `334877dc`), at June `SocketOptionForm.src.lua:557`. It calls `CalculateIntermediateDamageMaximizeRate` and `NewDecrease`.
@@ -4492,6 +4493,11 @@ The kickoff's two blockers do not fire: Phase 4b-i part 4 landed the second ("ra
 1. **Phase 1c item 3, 92 roll:** slot 121 multiplies MAXIMIZE, not base (`@32278981`–`3227899c`).
 2. **Phase 1c item 2, `3207b700`:** in the identity and ignore-defence erases it is a single-element erase after a `find_if`, not a range erase.
 3. **5b review D1:** the `X2BuffBehaviorTemplet.cpp` comment is corrected in this commit. A comment line was added; the old one was kept, so the edit stays insert-only.
+
+**Reader sweep (after the build).**
+- **The 88 list.** A full `.text` displacement sweep of the list (`+0x67dc`/`+0x67e0`) finds only the insert `32282390`, the erase `3227a8c0`, the reader `32274970` and the unit ctor/dtor (`322a11f3`–`322a124c` frees it; `322a4dae` zero-initialises it). June has no wholesale clear on death or on a stage change, and March clears its sibling `CX2StatFactorByBuff` list nowhere either. So nothing else needed porting.
+- **78's getter.** `32071b50` has exactly two callers (raw `E8` scan), both in the user `DamageReact` (`@320494ad`, `@320494ed`). The NPC reads the member inline.
+- No code change came from the sweep.
 
 **Hygiene.**
 - **Flag-off unifdef.** With `NEW_STAT` and `DEBUG` undefined, the strip of both the working file and `HEAD` is byte-identical for 10 of the 11 code files. `X2GameUnit.cpp` differs by one blank line just outside a guard. Every raw file differs from `HEAD`.

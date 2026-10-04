@@ -474,10 +474,10 @@ The full spec is in the plan, Phases 4a and 4b.
 | `EXCEPT_ME_HP_UP` | to-implement | 8b | 1 | direct 32632390@3263bbed |  |  | e.g. DamageEffect:DamageEffect_Regeneration_Tower_Recovery |
 | `FORCE_BACK_SPEED` | to-implement | 8b | 26 | direct 32632390@3263859d |  |  | e.g. DamageEffect:DamageEffect_LGA_Rapid_Shot |
 | `IGNORE_ATTACK_SUCCESS` | to-implement | 8b | 2 | direct 32632390@3263f0e2 |  |  | e.g. DamageEffect:DamageEffect_MOONLIGHT_RHAPSODY_Debuff |
-| `IGNORE_DEFENCE_DECLINE` | to-implement | 8b | 18 | direct 32632390@3263ccde |  |  | e.g. DamageEffect:DamageEffect_VERITABLE_PANDEMONIUM_Damage_Impact_TRENSCENDENCE |
-| `IGNORE_DEFENCE_ON_PVP` | to-implement | 8b | 13 | direct 32632390@3263c72e |  |  | e.g. DamageEffect:DAMAGE_EFFECT_EVE_MANEUVER_CORE_ATTACK |
-| `IGNORE_DEFENCE_RATE` | to-implement | 8b | 25 | direct 32632390@3263c8fb |  |  | e.g. DamageEffect:DamageEffect_SA_ADW_Energy_Spurt |
-| `IGNORE_DEFENCE_RATE_ON_PVP` | to-implement | 8b | 25 | direct 32632390@3263cab8 |  |  | e.g. DamageEffect:DamageEffect_SA_ADW_Energy_Spurt |
+| `IGNORE_DEFENCE_DECLINE` | implemented (buff port 5c, `a3db272`) |  | 18 | direct 32632390@3263ccde | X2DamageManager:518 | bool, default false; read by both DamageReacts (skips the additional-defence cut) | e.g. DamageEffect:DamageEffect_VERITABLE_PANDEMONIUM_Damage_Impact_TRENSCENDENCE |
+| `IGNORE_DEFENCE_ON_PVP` | implemented (buff port 5c, `a3db272`) |  | 13 | direct 32632390@3263c72e | X2DamageManager:515 | bool, copies IGNORE_DEFENCE when absent; read by GetFinalDamage in a GT_PVP game | e.g. DamageEffect:DAMAGE_EFFECT_EVE_MANEUVER_CORE_ATTACK |
+| `IGNORE_DEFENCE_RATE` | implemented (buff port 5c, `a3db272`) |  | 25 | direct 32632390@3263c8fb | X2DamageManager:516 | float, default 0; GetFinalDamage subtracts it from the piercing-defence factor | e.g. DamageEffect:DamageEffect_SA_ADW_Energy_Spurt |
+| `IGNORE_DEFENCE_RATE_ON_PVP` | implemented (buff port 5c, `a3db272`) |  | 25 | direct 32632390@3263cab8 | X2DamageManager:517 | float, copies IGNORE_DEFENCE_RATE when absent; used when IsPvpOrPve (GT_PVP in this build) | e.g. DamageEffect:DamageEffect_SA_ADW_Energy_Spurt |
 | `INIT_EXTRA_DAMAGE_BEFORE_LOAD` | to-implement | 8b | 4 | direct 32632390@32635e57 |  |  | e.g. DamageEffect:ELSWORD_MAELSTROM |
 | `IS_AURA_BUFF` | to-implement | 8b | 1 | direct 32632390@3263efab |  |  | e.g. DamageEffect_ETC:DamageEffect_Hero_Dungeon_Aura_Buff |
 | `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` | to-implement | 8b | 1 | direct 32632390@326402d5 |  |  | e.g. DamageEffect_Character:DamageEffect_SA_RFY_M18A1_Claymore_Project |
