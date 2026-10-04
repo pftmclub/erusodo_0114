@@ -23586,7 +23586,23 @@ float CX2GUUser::GetReducedDamagePercentByMonsterAttack( int monsterID )
 	float fTotalTime 
 		= ( GetForceHyperModeTime() > 0.0f ? GetForceHyperModeTime() : GetMaxHyperModeTime() * GetLastStateHyperModeCount() );
 	// 기본각성시간(1필각성시간*각성구슬갯수) 에 m_fHyperModeTime 퍼센트 만큼 더해준다.
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	/// June buff port Phase 5, 31fd1c00: the socket hyper-time percent is the option value of the BBT 76 store, so the
+	/// result is that percent plus whatever the buffs add (basic 0). With no buff it equals m_fHyperModeTime.
+	fTotalTime += fTotalTime * GetHyperDurationPercent() * 0.01f;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	{
+		static bool s_bLogged = false;
+		if ( !s_bLogged && GetHyperDurationPercent() != m_SocketData.m_fHyperModeTime )
+		{
+			s_bLogged = true;
+			CX2JuneBuffCapture::Line( "first read BBT 76: hyper time percent %g (socket alone %g)", GetHyperDurationPercent(), m_SocketData.m_fHyperModeTime );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#else SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 	fTotalTime += fTotalTime * m_SocketData.m_fHyperModeTime * 0.01f;	/// 재각성에는 적용 안됨..
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	return fTotalTime;
 }

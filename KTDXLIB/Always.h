@@ -4757,3 +4757,30 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              the in-house console (END key) and its raw Lua commands.
 #define SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-04
+// Description: June buff port Phase 5 (JUNE_BUFF_PORT_PHASES.md): the first
+//              seven ChangeStat-class behavior types June added, each with its
+//              own unit store and June's read sites: 76 CHANGE_HYPER_DURATION
+//              (GetHyperModeTime), 85/86 RANGE/MELEE_COMMAND_MP_GAIN_RATE
+//              (SetDamageExceptionProcess), 87/96 MELEE/RANGE_COMMAND_DAMAGE_RATE
+//              and 108/109 FINAL_DAMAGE_MULTIPLIER_NPC/USER (GetFinalDamage).
+//              Requires SERV_IRUHADEV_JUNE_BUFF_ENUM (the enumerators and
+//              ATTACK_TYPE AT_COMMAND) and SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+//              (June's whole level-slice switch, which already carries these
+//              types, and the stat-update/ChangeStat templet parity).
+#define SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-04
+// Description: June buff port debug lines (JUNE_BUFF_PORT_PHASES.md, Phase 5
+//              onward). Writes "[JUNE_BUFF] first apply ..." to ErrorLog.txt the
+//              first time each new ChangeStat-class type lands on a unit, and a
+//              one-shot line the first time its read site changes a value.
+//              Removable: undefine it and no log string remains.
+#define SERV_IRUHADEV_JUNE_BUFF_DEBUG
+//////////////////////////////////////////////////////////////////////////

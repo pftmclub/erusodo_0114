@@ -3746,6 +3746,90 @@ For each check say where to be, the line to paste, what it does in one plain sen
 and what I should see if it works and if it does not.
 ```
 
+### Phase 5 — Done (2026-10-04), play-test pending
+
+**Result.** All seven types are ported under `SERV_IRUHADEV_JUNE_BUFF_NEW_STAT`; none is Opus-only. `buff_census.py --phase 5` no longer lists any of them (March "handles 79", was 72). Client build `US_SERVICE` rc=0 for KTDXLIB, X2Lib (PCH invalidated with `touch X2Lib/stdafx.cpp`) and X2. `git diff --stat`: 351 insertions, 0 deletions; `file` on every touched file unchanged. Deployed `X2/US_SERVICE/x2.exe` as `X2_offline.exe` (names read programmatically: `x2.exe`, `x2.exe.bak`, `x2.fx`, `X2_offline.exe`): 19,040,256 B, md5 **`407067dcf1f31a0ca858f39c1db3eb4d`**, byte-identical to the build output. The exe contains all seven `BBT_*` key strings (ASCII and UTF-16) and the debug strings `first apply BBT`, `first read BBT`, `console hook BBT`, `JuneBuffTestNewStat_LUA`. **Not launched.**
+
+**Flags.** `SERV_IRUHADEV_JUNE_BUFF_NEW_STAT` (requires `_ENUM` for the enumerators and `AT_COMMAND`, and `_BEHAVIOR_PARITY` for the level slice and the ChangeStat templet parity) and `SERV_IRUHADEV_JUNE_BUFF_DEBUG`, both appended to `KTDXLIB/Always.h`. `DEBUG` had been listed since Phase 3 but never defined; it is defined now so the step-8 first-application lines compile in. Undefine it and no debug string remains. Every edit is a pure insertion inside the flag; nothing needed an `#else` except `CX2GUUser::GetHyperModeTime`, where the original line sits in the `#else`.
+
+**Per type** (June members are `CX2GameUnit` offsets; the port uses new named members and never an offset):
+
+| Type | Member (basic) | June insert | Parse / slice / SGU | Read site (March) |
+|---|---|---|---|---|
+| 76 CHANGE_HYPER_DURATION | `m_AdditionalHyperDuration` (0.0) `+0x64a0` | `32282ddc` | parse both lists; slice already in (ChangeStat group); **SGU case added** | `CX2GUUser::GetHyperModeTime` (`X2GUUser.cpp`): `fTotal += fTotal * GetHyperDurationPercent() * 0.01f`. Option value seeded in `InitAdditionalStatOptionValue` from `m_SocketData.m_fHyperModeTime` |
+| 85 RANGE_COMMAND_MP_GAIN_RATE | `m_AdditionalRangeCommandMpGainRate` (1.0) `+0x68d4` | `32282ee6` | parse both lists; default slice; no SGU | `SetDamageExceptionProcess`, range branch (`@3229947c`) |
+| 86 MELEE_COMMAND_MP_GAIN_RATE | `m_AdditionalMeleeCommandMpGainRate` (1.0) `+0x6988` | `32282ec3` | same | `SetDamageExceptionProcess`, melee branch (`@3229935a`) |
+| 87 MELEE_COMMAND_DAMAGE_RATE | `m_AdditionalMeleeCommandDamageRate` (1.0) `+0x6a3c` | `32282f09` | same | `GetFinalDamage` main path, `@32286270` |
+| 96 RANGE_COMMAND_DAMAGE_RATE | `m_AdditionalRangeCommandDamageRate` (1.0) `+0x6af0` | `32282f2c` | same | `GetFinalDamage` main path, `@322862a7` |
+| 108 FINAL_DAMAGE_MULTIPLIER_NPC | `m_AdditionalFinalDamageMultiplierNpc` (1.0) `+0x5ce4` | `32282f72` | same | `GetFinalDamage`, fixed-damage path (`@32285fd9`) and main path (`@32286218`) |
+| 109 FINAL_DAMAGE_MULTIPLIER_USER | `m_AdditionalFinalDamageMultiplierUser` (1.0) `+0x5d98` | `32282f95` | same | same two paths (`@32285fba`, `@3228620a`) |
+
+All seven also got: templet-factory case (`CX2BuffChangeStatBehaviorTemplet`), Insert / Update-or-insert / Erase cases, a plain `CheckAndUpdateResultValue()` in `CheckAndUpdateAdditionalStat`, `SetBasicStatValue`, `InitAdditionalPassiveMultipleAndSum`, and the `Verify()` chain. UDP layout needs nothing (the factor is still type + `vector<float>`, `GetFactor`/`SetFactorFromPacket` are the ChangeStat ones).
+
+**What was settled by reading June (all inside the addresses the map names):**
+- **Refresh variant.** June's update-all `32290950` refreshes all seven members through the plain result update `3236d350` (`+0x64a0`, `+0x68d4`, `+0x6988`, `+0x6a3c`, `+0x6af0`, `+0x5ce4`, `+0x5d98`), not the option-data variant. So 76's result is `basic 0 + option (socket %) + FIX + RELATION`, and with no buff it equals `m_fHyperModeTime` exactly, as before the port. `SetOptionValue` marks the member dirty and `CX2GameUnit::OnFrameMove` refreshes every frame, as for `m_AdditionalHyperCharge`.
+- **Read-site decode.** In `GetFinalDamage` `32284aa0`: `[ESI+0x264]` is the defender's unit type (0 = `GUT_USER`); zero picks `+0x5d98` (109), non-zero `+0x5ce4` (108). `EBP` is the attacker. `[EBX+0x8] == 2` is `attackType == AT_COMMAND` and `[EBX+0x2c]` is `m_bMeleeAttack`; melee picks `+0x6a3c` (87), else `+0x6af0` (96). In `SetDamageExceptionProcess` `322990e0`, `[EDI+8] == 2` gates both; `+0x6988` (86) sits in the first block, `+0x68d4` (85) in the second. This corrects nothing in the map; it confirms every melee/range and NPC/user pairing.
+- **Order of terms.** June computes `inc2 = base * (member - 1)` from the same base as the final-defence term and the existing melee/range term, and sums all four (`base + decrease + increase + inc2`). 87/96 then multiply that sum, before the damage-reduce step. March's fixed-damage path gets only 108/109. Float order in the port is `(base + inc2) + increase` rather than `base + (inc2 + increase)`; algebraically equal.
+- **Option reset branch.** June's `InitAdditionalStatOptionValue` `32270dd0` is `if ( unitType == user ) { seed from the socket block } else { zero everything }` (the `@3227143d` zero is the NPC branch). March's function has no such branch (it seeds every unit from `m_SocketData`), so only the seed line was added; an NPC's `m_SocketData` is zero.
+
+**Where 85/86's block landed (for Phase 6, type 91).** `CX2GameUnit::SetDamageExceptionProcess`, in the `if ( pDamageData_->m_bMeleeAttack ) { … } else { … }` pair that follows the `#endif` of `BALANCE_PATCH_20120329`. Each branch ends with `pDamageData_->fHitAddMP = pDamageData_->optrAttackerGameUnit->GetChargeMpHit{Melee,Range}Attack();`. The `#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT` block (`if ( AT_COMMAND == attackType ) fHitAddMP *= GetMeleeCommandMpGainRate()` in the melee branch, `GetRangeCommandMpGainRate()` in the range branch) is inserted directly after that assignment line in each branch. 91 scales the same `fHitAddMP` unconditionally on attack type: add it after these two blocks, or after the whole if/else (both are equivalent as it does not depend on the branch).
+
+**Open items and decisions for the review / the user.**
+1. **Default level slice, possible value = change type (not fixed here).** June's jump table sends 85, 86, 87 and 96 to case 13 = `32d4812a`, and 108/109 are above the bound `0x68`, so also to the default. That default (already ported by 4b-i) pushes `[ (int)factor[0], factor[1] < 30 ? factor[0] : factor[level+1] ]`, i.e. **the change type as the value** when `factor[1]` is small. The ChangeStat group (`32d47957`) holds 17–21 (including the existing final-damage melee/range types), 76, 78 and 92. If this reads as I think, a BFI for 108 with `PERCENT = { 1.2, … }` would store 3.0 (= `BCT_PERCENT`). I confirmed the transcription against the disassembly (`PUSH EBX` with `EBX = 0` is `factor[0]`), but I could not run a real June factor through it: March's staged `BattleFieldBuffFactor.lua` has none of the seven types. **The new debug line `[JUNE_BUFF] first apply BBT <n>, change type <c>, value <v>` prints the value the store actually received.** When June data is loaded (Phase 13/14), a `value` equal to `change type` rather than the Lua number means the slice is the cause. Not touched, because it is a deliberate 4b-i transcription of June.
+2. **Console reach (user's request).** The shipped March data cannot reach these types through `SetBuffFactorToGameUnitByBuffFactorID_LUA`. I added a DEBUG-only hook, `JuneBuffTestNewStat_LUA( type, changeType, value, insert )` (`CX2GameUnit`, bound in `X2Main.cpp` beside `SetBuffFactorToGameUnitByBuffFactorID_LUA`, `#if defined( NEW_STAT ) && defined( DEBUG )`). It calls `InsertAdditionalStat` / `EraseAdditionalStat` with a made-up identity (BTI `900000 + type`, unique 1). It exercises the stores, the refresh and the read sites, **not** the parse, the level slice or the templet. Remove with `DEBUG`.
+3. **85/86/87/96 readers are not reachable in game yet.** They only act when `attackType == AT_COMMAND`, and no March damage data sets it (the 4b-iii review said the same). Only their stores can be checked until a June attack that carries `ATTACK_TYPE.AT_COMMAND` is loaded.
+4. **Not ported here, as the map says:** the class overrides of the 76 reader (Ain `32a4fe50`, `329e5180`/`329e56c0`) and Chung's virtual `32c16be0` (sets 85/86's passive values). Those classes are not in March and ride with their classes.
+
+**How to see it in game (for Phase 14).** June BFI/BTI numbers from `june_src_fixed/data036_kom/Enum.src.lua`; the data comes with Phase 13's June `BattleFieldBuffFactor`/`Templet`. For a unit to *have* the buff the factor must be applied, e.g. `SetBuffFactorToGameUnitByBuffFactorID_LUA( BFI, 1 )` once June data is loaded.
+
+| Type | June BFI (BTI) | Where it comes from | What to watch |
+|---|---|---|---|
+| 76 | `BFI_BUFF_ERDA_RESOURCE` 506 (`BTI_BUFF_ERDA_RESOURCE` 447); also `BFI_BUFF_DISPARATE_FORCE_POWER_OF_EL`, `BFI_BUFF_DESTROY_SEED_OF_CHAOS_RECREATION` | an item buff (ledger bucket "item") | the Hyper-mode timer after activating is longer by the buff's FIX % (10 at level 1) |
+| 85 | `BFI_BUFF_MIND_OF_MARKMAN` 626 (`BTI_BUFF_MIND_OF_MARKMAN` 536); also `BFI_BUFF_NATURAL_FORCE` 355 | a skill | MP gain on ranged *command* attacks (needs an `AT_COMMAND` attack) |
+| 86 | `BFI_BUFF_MIND_OF_MARKMAN` 626 | a skill | MP gain on melee command attacks |
+| 87 | `BFI_BUFF_MIND_OF_MARKMAN` 626; `BFI_AMUSEMENT_ITEM_SUPER` 822 (`BTI_AMUSEMENT_ITEM_SUPER` 797) | a skill, an amusement item | damage of melee command attacks |
+| 96 | `BFI_AMUSEMENT_ITEM_SUPER` 822 | an amusement item | damage of ranged command attacks |
+| 108 | `BFI_SPELL_OF_DESTROY` 1109 (`BTI_SPELL_OF_DESTROY` 1028); also `BFI_ERDA_SPELL_OF_SOURCE` 1111 | a spell buff | your hits on monsters deal more |
+| 109 | `BFI_SPELL_OF_BATTLE` 1110; also `BFI_ERDA_SPELL_OF_SOURCE` 1111 | a spell buff | monsters' (or enemy players') hits on you deal more |
+
+**Cost.** `/cost` cannot be read from inside the session: user, please paste it here. *(Not invented.)*
+
+**Play-test hand-off (dev console, END key; `settings.auth_level` = 3 is already set).** Every line below is **checked from source only and never run**: the hook is bound with `lua_tinker::class_def<CX2GameUnit>` exactly like `SetBuffFactorToGameUnitByBuffFactorID_LUA`, `GetNPCUnit` returns `nil` for an empty slot, and `CX2GUNPC` inherits the method (the doc's earlier note). The `value` is a multiplier for `change type 3` (percent) and a plain percent for `1`. Undo any check by repeating its line with the last argument `0`.
+
+1. **Your hits on monsters double (type 108).**
+   - Where: any field or dungeon, next to a monster you can hit.
+   - Paste: `g_pX2Game:GetMyUnit():JuneBuffTestNewStat_LUA( 108, 3, 2.0, 1 )`
+   - What it does: makes everything you hit a monster with deal twice the damage.
+   - Look for: damage numbers on your next hits about twice what they were; `ErrorLog.txt` gets `console hook BBT 108`, `first apply BBT 108, change type 3, value 2` and `first read BBT 108`.
+   - If not: damage unchanged, or no `first read BBT 108` line, means the fixed-damage/main path did not pick the member up. Tell me "nothing happened" and send the `[JUNE_BUFF]` lines.
+   - Undo: `g_pX2Game:GetMyUnit():JuneBuffTestNewStat_LUA( 108, 3, 2.0, 0 )`
+
+2. **Monsters hit you for double (type 109).**
+   - Where: a field or dungeon with monsters on the map, you not yet engaged.
+   - Paste: `for i = 0, g_pX2Game:GetNPCUnitListSize() - 1 do local n = g_pX2Game:GetNPCUnit( i ) if n ~= nil then n:JuneBuffTestNewStat_LUA( 109, 3, 2.0, 1 ) end end`
+   - What it does: gives every monster currently on the map a double-damage-against-players bonus.
+   - Look for: a monster hit takes about twice as much HP as before; log gets `first apply BBT 109, change type 3, value 2` and `first read BBT 109`.
+   - If not: HP loss unchanged means the user branch was not taken. Tell me, or send a screenshot of the damage number.
+   - Undo: the same line with the last `1` changed to `0`.
+
+3. **Hyper mode lasts longer (type 76).**
+   - Where: any field, with a character that has Hyper mode available.
+   - Paste: `g_pX2Game:GetMyUnit():JuneBuffTestNewStat_LUA( 76, 1, 100, 1 )`
+   - What it does: adds 100% to the Hyper mode duration.
+   - Look for: activate Hyper mode **after** pasting; it should last about twice as long as normal. Log gets `first apply BBT 76, change type 1, value 100` and `first read BBT 76: hyper time percent 100 (socket alone 0)` (the second number is your equipment's own bonus, so it may be larger than 0 and the first number then equals it plus 100).
+   - If not: if you see the `first apply` line but no `first read BBT 76`, hyper mode is not reading that getter; tell me "no first read".
+   - Undo: `g_pX2Game:GetMyUnit():JuneBuffTestNewStat_LUA( 76, 1, 100, 0 )`
+
+4. **The four command-attack stores accept and release a value (85, 86, 87, 96).**
+   - Where: any field or dungeon.
+   - Paste: `local u = g_pX2Game:GetMyUnit() u:JuneBuffTestNewStat_LUA( 85, 3, 2.0, 1 ) u:JuneBuffTestNewStat_LUA( 86, 3, 2.0, 1 ) u:JuneBuffTestNewStat_LUA( 87, 3, 2.0, 1 ) u:JuneBuffTestNewStat_LUA( 96, 3, 2.0, 1 )`
+   - What it does: stores a x2 for the four "command attack" types on you; they only act on command attacks, which no current attack is.
+   - Look for: nothing visible in play: normal attacks keep their damage and MP gain; no popup or crash; `ErrorLog.txt` gets four `first apply BBT 85/86/87/96` lines and no `runtime error` line.
+   - If not: a popup, crash or a `Behavior Type Invalid` line means a store is missing; send the lines.
+   - Undo: the same line with each last `1` changed to `0`.
+
+**Log lines to read afterwards** (this phase's own, `ErrorLog.txt` in the game directory): `[JUNE_BUFF] console hook BBT …`, `[JUNE_BUFF] first apply BBT …`, `[JUNE_BUFF] first read BBT …`. Nothing else is in scope. Per the standing rule these are all `[JUNE_BUFF]` lines and no popup is raised.
+
 ---
 
 ### Phase 5b — group A: transcription-ready stat types (Sonnet)

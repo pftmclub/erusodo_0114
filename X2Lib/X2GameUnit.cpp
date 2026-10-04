@@ -1999,6 +1999,43 @@ float CX2GameUnit::CalcExtraAttackPower( CX2DamageManager::DamageData* pAttDamag
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+/// June buff port Phase 5 debug: one "[JUNE_BUFF] first apply" line per new ChangeStat-class type, so a play-test log
+/// shows the value the store actually received (ErrorLog.txt).
+static void JuneBuffNewStatFirstApply( const BUFF_BEHAVIOR_TYPE eBehaviorType_, const BUFF_CHANGE_TYPE eChangeType_, const float fValue_ )
+{
+	static std::set<int> s_setSeen;
+	if ( s_setSeen.insert( static_cast<int>( eBehaviorType_ ) ).second )
+		CX2JuneBuffCapture::Line( "first apply BBT %d, change type %d, value %g", static_cast<int>( eBehaviorType_ ), static_cast<int>( eChangeType_ ), fValue_ );
+}
+
+/// One line per call site key the first time a read site actually changes a value (iKey_ = the BBT it belongs to).
+static void JuneBuffNewStatFirstRead( const int iKey_, const float fBase_, const float fFactor_ )
+{
+	static std::set<int> s_setSeen;
+	if ( s_setSeen.insert( iKey_ ).second )
+		CX2JuneBuffCapture::Line( "first read BBT %d: %g * %g", iKey_, fBase_, fFactor_ );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+
+#if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
+/// June buff port Phase 5 console hook (declaration in X2GameUnit.h). The identity is a made-up BTI (900000 + type) with
+/// unique number 1, so the same line with iInsert_ 0 removes exactly what an insert put in.
+void CX2GameUnit::JuneBuffTestNewStat_LUA( const int iBehaviorType_, const int iChangeType_, const float fValue_, const int iInsert_ )
+{
+	const KBuffIdentity BuffIdentity( 900000 + iBehaviorType_, 1 );
+	const BUFF_BEHAVIOR_TYPE eBehaviorType = static_cast<BUFF_BEHAVIOR_TYPE>( iBehaviorType_ );
+	const BUFF_CHANGE_TYPE eChangeType = static_cast<BUFF_CHANGE_TYPE>( iChangeType_ );
+
+	if ( 0 != iInsert_ )
+		InsertAdditionalStat( eBehaviorType, eChangeType, BuffIdentity, fValue_ );
+	else
+		EraseAdditionalStat( eBehaviorType, eChangeType, BuffIdentity );
+
+	CX2JuneBuffCapture::Line( "console hook BBT %d, change type %d, value %g, %s", iBehaviorType_, iChangeType_, fValue_, 0 != iInsert_ ? "insert" : "erase" );
+}
+#endif defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
+
 // 자신이 받을 damage를 계산해준다
 float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData )
 {
@@ -2618,6 +2655,12 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 				fFinalDamage * ( pAttacker->GetAdditionalFinalDamageMultiplierMeleeAttack() - 1.0f ) :
 				fFinalDamage * ( pAttacker->GetAdditionalFinalDamageMultiplierRangeAttack() - 1.0f ) );
 		
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+		/// June buff port Phase 5, GetFinalDamage 32285fba-32285fec: BBT 108/109 on the fixed-damage path too (87/96 are main path only)
+		const float fIncreaseDamageByUnitTypeFix = fFinalDamage * ( ( CX2GameUnit::GUT_USER == pDefender->GetGameUnitType() ?
+			pAttacker->GetAdditionalFinalDamageMultiplierUser() : pAttacker->GetAdditionalFinalDamageMultiplierNpc() ) - 1.0f );
+		fFinalDamage += fIncreaseDamageByUnitTypeFix;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		fFinalDamage += fIncreaseDamage;	/// 양수값
 
 		if( fFinalDamage <= 1.f )
@@ -2709,8 +2752,32 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 				fFinalDamage * ( pAttacker->GetAdditionalFinalDamageMultiplierMeleeAttack() - 1.0f ) :
 				fFinalDamage * ( pAttacker->GetAdditionalFinalDamageMultiplierRangeAttack() - 1.0f ) );
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+		/// June buff port Phase 5, GetFinalDamage 3228620a-32286252: BBT 108/109, a third increase on the same base as the
+		/// final-damage/defence terms; the multiplier is the attacker's, picked by the defender's unit type.
+		const float fIncreaseDamageByUnitType = fFinalDamage * ( ( CX2GameUnit::GUT_USER == pDefender->GetGameUnitType() ?
+			pAttacker->GetAdditionalFinalDamageMultiplierUser() : pAttacker->GetAdditionalFinalDamageMultiplierNpc() ) - 1.0f );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		fFinalDamage += fDecreaseDamage;	/// 음수값
 		fFinalDamage += fIncreaseDamage;	/// 양수값
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+		fFinalDamage += fIncreaseDamageByUnitType;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		if ( 0.0f != fIncreaseDamageByUnitType )
+			JuneBuffNewStatFirstRead( CX2GameUnit::GUT_USER == pDefender->GetGameUnitType() ? 109 : 108, fFinalDamage, fIncreaseDamageByUnitType );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+
+		/// June 32286270-322862b9: BBT 87/96 scale the sum above, command attacks only (melee picks 87, else 96)
+		if ( CX2DamageManager::AT_COMMAND == pAttDamageData->attackType )
+		{
+			const float fCommandRate = ( pAttDamageData->m_bMeleeAttack ? pAttacker->GetMeleeCommandDamageRate() : pAttacker->GetRangeCommandDamageRate() );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			if ( 1.0f != fCommandRate )
+				JuneBuffNewStatFirstRead( pAttDamageData->m_bMeleeAttack ? 87 : 96, fFinalDamage, fCommandRate );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			fFinalDamage *= fCommandRate;
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	// 3.1 방어상태이면 데미지를 %만큼 줄여준다
 	float fDamageReduceRate = 0.f;
@@ -12012,6 +12079,57 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 		m_AdditionalHyperCharge.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 		break;
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	/// June buff port Phase 5, 32282700: one store per new type (insert cases at the addresses in the Phase 5 notes)
+	case BBT_CHANGE_HYPER_DURATION:		/// June 32282ddc
+		m_AdditionalHyperDuration.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		break;
+
+	case BBT_CHANGE_RANGE_COMMAND_MP_GAIN_RATE:		/// June 32282ee6
+		m_AdditionalRangeCommandMpGainRate.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		break;
+
+	case BBT_CHANGE_MELEE_COMMAND_MP_GAIN_RATE:		/// June 32282ec3
+		m_AdditionalMeleeCommandMpGainRate.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		break;
+
+	case BBT_CHANGE_MELEE_COMMAND_DAMAGE_RATE:		/// June 32282f09
+		m_AdditionalMeleeCommandDamageRate.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		break;
+
+	case BBT_CHANGE_RANGE_COMMAND_DAMAGE_RATE:		/// June 32282f2c
+		m_AdditionalRangeCommandDamageRate.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		break;
+
+	case BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC:		/// June 32282f72
+		m_AdditionalFinalDamageMultiplierNpc.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		break;
+
+	case BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER:		/// June 32282f95
+		m_AdditionalFinalDamageMultiplierUser.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		break;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	default:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
@@ -12264,6 +12382,50 @@ void CX2GameUnit::UpdateAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 			break;
 		}
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	/// June buff port Phase 5, 3226fd70: update the factor, or insert it when absent (as the siblings)
+	case BBT_CHANGE_HYPER_DURATION:
+		{
+			if ( !m_AdditionalHyperDuration.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
+				m_AdditionalHyperDuration.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+		} break;
+
+	case BBT_CHANGE_RANGE_COMMAND_MP_GAIN_RATE:
+		{
+			if ( !m_AdditionalRangeCommandMpGainRate.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
+				m_AdditionalRangeCommandMpGainRate.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+		} break;
+
+	case BBT_CHANGE_MELEE_COMMAND_MP_GAIN_RATE:
+		{
+			if ( !m_AdditionalMeleeCommandMpGainRate.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
+				m_AdditionalMeleeCommandMpGainRate.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+		} break;
+
+	case BBT_CHANGE_MELEE_COMMAND_DAMAGE_RATE:
+		{
+			if ( !m_AdditionalMeleeCommandDamageRate.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
+				m_AdditionalMeleeCommandDamageRate.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+		} break;
+
+	case BBT_CHANGE_RANGE_COMMAND_DAMAGE_RATE:
+		{
+			if ( !m_AdditionalRangeCommandDamageRate.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
+				m_AdditionalRangeCommandDamageRate.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+		} break;
+
+	case BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC:
+		{
+			if ( !m_AdditionalFinalDamageMultiplierNpc.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
+				m_AdditionalFinalDamageMultiplierNpc.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+		} break;
+
+	case BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER:
+		{
+			if ( !m_AdditionalFinalDamageMultiplierUser.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
+				m_AdditionalFinalDamageMultiplierUser.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+		} break;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	default:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
@@ -12462,6 +12624,36 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 		m_AdditionalHyperCharge.EraseStatFactor( eChangeType_, BuffIdentity_ );
 		break;
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	/// June buff port Phase 5, 322830f0
+	case BBT_CHANGE_HYPER_DURATION:
+		m_AdditionalHyperDuration.EraseStatFactor( eChangeType_, BuffIdentity_ );
+		break;
+
+	case BBT_CHANGE_RANGE_COMMAND_MP_GAIN_RATE:
+		m_AdditionalRangeCommandMpGainRate.EraseStatFactor( eChangeType_, BuffIdentity_ );
+		break;
+
+	case BBT_CHANGE_MELEE_COMMAND_MP_GAIN_RATE:
+		m_AdditionalMeleeCommandMpGainRate.EraseStatFactor( eChangeType_, BuffIdentity_ );
+		break;
+
+	case BBT_CHANGE_MELEE_COMMAND_DAMAGE_RATE:
+		m_AdditionalMeleeCommandDamageRate.EraseStatFactor( eChangeType_, BuffIdentity_ );
+		break;
+
+	case BBT_CHANGE_RANGE_COMMAND_DAMAGE_RATE:
+		m_AdditionalRangeCommandDamageRate.EraseStatFactor( eChangeType_, BuffIdentity_ );
+		break;
+
+	case BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC:
+		m_AdditionalFinalDamageMultiplierNpc.EraseStatFactor( eChangeType_, BuffIdentity_ );
+		break;
+
+	case BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER:
+		m_AdditionalFinalDamageMultiplierUser.EraseStatFactor( eChangeType_, BuffIdentity_ );
+		break;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	default:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
@@ -12581,6 +12773,16 @@ void CX2GameUnit::CheckAndUpdateAdditionalStat()
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	m_AdditionalHyperCharge.CheckAndUpdateResultValueWithOptionData( &CX2SocketItem::GetFinalHyperGageChargeSpeedPercent, GetUnitLevel() );
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	/// June buff port Phase 5, 32290950: the seven new members refresh through the plain result update (3236d350)
+	m_AdditionalHyperDuration.CheckAndUpdateResultValue();
+	m_AdditionalRangeCommandMpGainRate.CheckAndUpdateResultValue();
+	m_AdditionalMeleeCommandMpGainRate.CheckAndUpdateResultValue();
+	m_AdditionalMeleeCommandDamageRate.CheckAndUpdateResultValue();
+	m_AdditionalRangeCommandDamageRate.CheckAndUpdateResultValue();
+	m_AdditionalFinalDamageMultiplierNpc.CheckAndUpdateResultValue();
+	m_AdditionalFinalDamageMultiplierUser.CheckAndUpdateResultValue();
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 }
 
 /** @function : CreateAndInsertTemporaryBuffFactor
@@ -12988,6 +13190,11 @@ void CX2GameUnit::InitAdditionalStatOptionValue()
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	m_AdditionalHyperCharge.SetOptionValue( m_SocketData.m_fHyperModeChargeRate );
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	/// June buff port Phase 5, 32270dd0 @322710a1: BBT 76's option value is the socket hyper-time percent. June's NPC branch
+	/// zeroes it; here m_SocketData is already 0 for a unit with no socket options, as for every sibling above.
+	m_AdditionalHyperDuration.SetOptionValue( m_SocketData.m_fHyperModeTime );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 // 	m_AdditionalFinalDamageMultiplier.SetOptionValue( 0.0f );
 // 	m_AdditionalFinalDefenceMultiplier.SetOptionValue( 0.0f );
@@ -13042,6 +13249,16 @@ void CX2GameUnit::InitAdditionalBasicStatValue()
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	m_AdditionalHyperCharge.SetBasicStatValue( 0.f );
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	/// June buff port Phase 5, 32271540: 76 starts at 0.0, the other six at 1.0
+	m_AdditionalHyperDuration.SetBasicStatValue( 0.0f );
+	m_AdditionalRangeCommandMpGainRate.SetBasicStatValue( 1.0f );
+	m_AdditionalMeleeCommandMpGainRate.SetBasicStatValue( 1.0f );
+	m_AdditionalMeleeCommandDamageRate.SetBasicStatValue( 1.0f );
+	m_AdditionalRangeCommandDamageRate.SetBasicStatValue( 1.0f );
+	m_AdditionalFinalDamageMultiplierNpc.SetBasicStatValue( 1.0f );
+	m_AdditionalFinalDamageMultiplierUser.SetBasicStatValue( 1.0f );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	CheckAndUpdateAdditionalStat();
 }
@@ -13093,6 +13310,16 @@ void CX2GameUnit::InitAdditionalPassive()
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	InitAdditionalPassiveMultipleAndSum(m_AdditionalHyperCharge);
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	/// June buff port Phase 5, 322718e0: multiple 1, sum 0
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalHyperDuration);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalRangeCommandMpGainRate);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalMeleeCommandMpGainRate);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalMeleeCommandDamageRate);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalRangeCommandDamageRate);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalFinalDamageMultiplierNpc);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalFinalDamageMultiplierUser);
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	/// 소켓옵션에 의한 것을 Passive쪽에 넣어줌(연산 로직 때문에 이렇게 함)
 	m_AdditionalChargeMpHitMeleeAttack.SetPassiveSum( m_SocketData.m_fMPMultiplyByAll );
@@ -14856,6 +15083,11 @@ void CX2GameUnit::SetDamageExceptionProcess( OUT CX2DamageManager::DamageData* p
 		pDamageData_->optrAttackerGameUnit->SetBasicStatValueChargeMpHitMeleeAttack( pDamageData_->fHitAddMP );
 		pDamageData_->optrAttackerGameUnit->CheckAndUpdateAdditionalChargeMpHitMeleeAttack();
 		pDamageData_->fHitAddMP = pDamageData_->optrAttackerGameUnit->GetChargeMpHitMeleeAttack();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+		/// June buff port Phase 5, SetDamageExceptionProcess 322990e0 @3229935a: BBT 86, command attacks only
+		if ( CX2DamageManager::AT_COMMAND == pDamageData_->attackType )
+			pDamageData_->fHitAddMP *= pDamageData_->optrAttackerGameUnit->GetMeleeCommandMpGainRate();
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	}
 	else
@@ -14863,6 +15095,11 @@ void CX2GameUnit::SetDamageExceptionProcess( OUT CX2DamageManager::DamageData* p
 		pDamageData_->optrAttackerGameUnit->SetBasicStatValueChargeMpHitRangeAttack( pDamageData_->fHitAddMP );
 		pDamageData_->optrAttackerGameUnit->CheckAndUpdateAdditionalChargeMpHitRangeAttack();
 		pDamageData_->fHitAddMP = pDamageData_->optrAttackerGameUnit->GetChargeMpHitRangeAttack();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+		/// June buff port Phase 5, SetDamageExceptionProcess 322990e0 @3229947c: BBT 85, command attacks only
+		if ( CX2DamageManager::AT_COMMAND == pDamageData_->attackType )
+			pDamageData_->fHitAddMP *= pDamageData_->optrAttackerGameUnit->GetRangeCommandMpGainRate();
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 	}
 
 	pDamageData_->damage.fPhysic					*= fPowerRate;
@@ -15510,6 +15747,15 @@ bool CX2GameUnit::VerifyStatByBuff()
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 		 && m_AdditionalHyperCharge.Verify()
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+		 && m_AdditionalHyperDuration.Verify()
+		 && m_AdditionalRangeCommandMpGainRate.Verify()
+		 && m_AdditionalMeleeCommandMpGainRate.Verify()
+		 && m_AdditionalMeleeCommandDamageRate.Verify()
+		 && m_AdditionalRangeCommandDamageRate.Verify()
+		 && m_AdditionalFinalDamageMultiplierNpc.Verify()
+		 && m_AdditionalFinalDamageMultiplierUser.Verify()
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		 )
 		 return true;
 	else

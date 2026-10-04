@@ -213,6 +213,16 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_, bool b
 				/// 각성 충전 속도
 				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_HYPER_CHARGE_SPEED, bIsSkill )
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+				/// June buff port Phase 5: the seven ChangeStat-class types share ParsingChangeStatBehavior (June 32d445d0)
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_HYPER_DURATION, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_RANGE_COMMAND_MP_GAIN_RATE, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_MELEE_COMMAND_MP_GAIN_RATE, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_MELEE_COMMAND_DAMAGE_RATE, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_RANGE_COMMAND_DAMAGE_RATE, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER, bIsSkill )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 			case BBT_EMPTY:
 				break;
@@ -340,6 +350,16 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_ )
 					CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_Z_ATTACK_IMPOSSIBLE )
 					CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_X_ATTACK_IMPOSSIBLE )
 #endif // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+						/// June buff port Phase 5 (see the skill list above)
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_CHANGE_HYPER_DURATION )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_CHANGE_RANGE_COMMAND_MP_GAIN_RATE )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_CHANGE_MELEE_COMMAND_MP_GAIN_RATE )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_CHANGE_MELEE_COMMAND_DAMAGE_RATE )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_CHANGE_RANGE_COMMAND_DAMAGE_RATE )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 			case BBT_EMPTY:
 				break;
 
@@ -837,6 +857,9 @@ void CX2BuffFactor::SetGameUnitBehavior( KBuffBehaviorFactor& factor_, CX2GameUn
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	case BBT_CHANGE_HYPER_CHARGE_SPEED:
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_HYPER_DURATION:		/// June buff port Phase 5: only 76 of the seven joins the ChangeStat SGU group (32d4d6ef)
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		SetGameUnitChangeStatBehavior( factor_, pGameUnit_ );
 		break;
 

@@ -2646,6 +2646,21 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 		float								GetHyperChargeSpeed() const { return m_AdditionalHyperCharge.GetResultValue(); }
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+		/// June buff port Phase 5: results of the seven new stores (June 32282700 inserts, readers per the Phase 5 notes)
+		float								GetHyperDurationPercent() const { return m_AdditionalHyperDuration.GetResultValue(); }		/// 76, % of the hyper duration (option value = socket m_fHyperModeTime)
+		float								GetRangeCommandMpGainRate() const { return m_AdditionalRangeCommandMpGainRate.GetResultValue(); }	/// 85
+		float								GetMeleeCommandMpGainRate() const { return m_AdditionalMeleeCommandMpGainRate.GetResultValue(); }	/// 86
+		float								GetMeleeCommandDamageRate() const { return m_AdditionalMeleeCommandDamageRate.GetResultValue(); }	/// 87
+		float								GetRangeCommandDamageRate() const { return m_AdditionalRangeCommandDamageRate.GetResultValue(); }	/// 96
+		float								GetAdditionalFinalDamageMultiplierNpc() const { return m_AdditionalFinalDamageMultiplierNpc.GetResultValue(); }	/// 108
+		float								GetAdditionalFinalDamageMultiplierUser() const { return m_AdditionalFinalDamageMultiplierUser.GetResultValue(); }	/// 109
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
+		/// June buff port Phase 5 console hook (DEBUG only): puts one new-type factor straight into its store, or takes it out.
+		/// iInsert_ 1 inserts, 0 erases. The shipped March buff data has no factor carrying these types.
+		void								JuneBuffTestNewStat_LUA( const int iBehaviorType_, const int iChangeType_, const float fValue_, const int iInsert_ );
+#endif defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
 
 		float								GetAdditionalDefence() const { return m_AdditionalChangeAdditionalDefence.GetResultValue(); }
 		float								GetAdditionalFinalDamageMultiplierMeleeAttack() const { return m_AdditionalFinalDamageMultiplierMeleeAttack.GetResultValue(); }
@@ -4630,6 +4645,16 @@ protected:
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 		CX2AdditionalStatByBuff			m_AdditionalHyperCharge;					/// 각성 충전 속도
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+		/// June buff port Phase 5: June's CX2GameUnit members at +0x64a0 (76), +0x68d4 (85), +0x6988 (86), +0x6a3c (87), +0x6af0 (96), +0x5ce4 (108), +0x5d98 (109)
+		CX2AdditionalStatByBuff			m_AdditionalHyperDuration;					/// 76 basic 0.0, option value = socket hyper time %
+		CX2AdditionalStatByBuff			m_AdditionalRangeCommandMpGainRate;		/// 85 basic 1.0
+		CX2AdditionalStatByBuff			m_AdditionalMeleeCommandMpGainRate;		/// 86 basic 1.0
+		CX2AdditionalStatByBuff			m_AdditionalMeleeCommandDamageRate;		/// 87 basic 1.0
+		CX2AdditionalStatByBuff			m_AdditionalRangeCommandDamageRate;		/// 96 basic 1.0
+		CX2AdditionalStatByBuff			m_AdditionalFinalDamageMultiplierNpc;	/// 108 basic 1.0
+		CX2AdditionalStatByBuff			m_AdditionalFinalDamageMultiplierUser;	/// 109 basic 1.0
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 		vector<CX2StunPtr>				m_vecStunPtr;		/// 기절 효과
 		vector<CX2FreezePtr>			m_vecFreezePtr;		/// 빙결 효과

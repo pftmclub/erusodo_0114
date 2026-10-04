@@ -4147,6 +4147,10 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2GameUnit>( L, "SetBuffFactorToGameUnitByBuffFactorID_LUA",	
 		&CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID );
 
+#if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
+	lua_tinker::class_def<CX2GameUnit>( L, "JuneBuffTestNewStat_LUA",	&CX2GameUnit::JuneBuffTestNewStat_LUA );	/// June buff port Phase 5 console hook, DEBUG only
+#endif defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
+
 #ifdef ADD_LIVE_CREATOR_FINALIZER
 	lua_tinker::class_def<CX2GameUnit>( L, "SetBuffFactorToGameUnitByBuffFactorIDAndCreatorID_LUA",	
 		&CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorIDAndCreatorID );
