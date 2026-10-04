@@ -2840,6 +2840,117 @@ Fresh tools only; part 4's patch and unifdef scripts were not reused:
 
 **Review cost:** `/cost` is not readable from inside the session; ask the user.
 
+### Phase 4b-i, part 5 — progress (2026-10-04), launch check pending
+
+Ran on Opus 5.5 high. Commits: `d34de09` reverts the part 4 debug commit `16a6d78`; `7ea72b2` is the code, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`.
+
+**Verdicts, in the stop-list order**
+
+| Item | June | Verdict |
+|---|---|---|
+| 0. Revert `16a6d78` | – | **done** (`d34de09`). The 4 files equal `16a6d78^` byte for byte; `file` signatures unchanged; KTDXLIB rebuilt for `Always.h` |
+| 1. BBT 6 HP-ratio rescale | `32282700` @`32282723`, `322830f0` @`32283113` | **ported** |
+| 2. RSCT DRAW_TEXT | `32e857d0`, pic-char `31edd860` | **ported**; needs the staged `UIMajorParticle.txt` packed |
+| 3. Dormant vslot 3/9/10/11 chain | `322a7660`, `3236a430`, `322a8a70`, `3227c360` | **mapped, not ported** (resume point below) |
+| 4. AnimStop `+0x8080` marker | callers of user vslot 153 | **resolved: not ported**. No March-equivalent path passes 1 |
+
+**1. BBT 6 (`X2GameUnit.cpp`, `InsertAdditionalStat`/`EraseAdditionalStat`, case `BBT_CHANGE_MAX_HP`).**
+- Helpers, from the asm: `31e4f900` = unit `GetNowHp` (no gage → 1.0, no HP gage → 0.0); `31e551a0` = unit `GetMaxHp` (same shape); `31e8c940` = gage `SetMaxHp`; `32081260` = gage `SetNowHp`. June's `SetNowHp` is March's clamp (`< 0` → as is, `> max` → max). It also writes a June-only previous-HP member (gage `+0x108`), which is not ported.
+- **Insert:** factor insert, result update, then `ratio = now / max`, read *before* the gage's max changes. Then `SetMaxHp( result )` and `SetNowHp( result × ratio )`. With no gage data (`+0xc04` null), neither write happens; March dereferenced the gage unguarded.
+- **Erase:** factor erase, result update, then with gage data: read `oldMax` and `now`, `SetMaxHp( result )`, and, if `now != 0` (`FUCOMPP` @`3228317d`, so a NaN still rescales), `SetNowHp( (newMax / oldMax) × now )`. Insert has no zero test.
+- **Unchanged:** the update path (`3226fd70` case 6 updates or inserts the factor only) and the refresh `32290950`. Neither writes the gage in June or in March. March's `UpdateAdditionalStat` fallback is member-level (`CreateAndInsertStatFactor`), as June's is, so the rescale does not fire there.
+- **Reach on March data: 5 templets** (live `BattleFieldBuffTemplet.lua`, 152,564 B): `BTI_BUFF_BELSSING_OF_CRONOS`, `BTI_BUFF_RALLY_OF_HERO_LEVEL_1/2/3` and `BTI_BUFF_PET_AURA_SKILL`. When one starts, the current HP now scales up with the max, so a unit at 50% stays at 50%. When it ends, the current HP scales down. March kept the current HP and never clamped it on the way down: `SetMaxHp` does not clamp.
+- **Watch: game transitions.** `X2Game.cpp:1995/2101` run `Init()`, which resets max HP to base, and then `SetKBuffFactorFromGageManagerToGameUnit`, which re-applies saved buffs through the packet path into `InsertAdditionalStat`. A unit at full HP therefore comes back at full *buffed* HP, where March left it at the base value. June's own transition order was not traced; it is listed for the play-test, not ruled.
+- **Hand-off to Phase 5b:** BBT 84 (`…_MAX_HP_BY_CONDITION`) must get its own case. Phase 1c item 3 says 84's blocks do not rescale, so it must not fall into case 6.
+
+**2. DRAW_TEXT (`X2BuffBehaviorTemplet.cpp/.h`, `X2Data.cpp/.h`).**
+- **The call** (`32e85fe0` @`32e86090`): `DrawText( unit, m_eChangeType +0x14, m_fCoolTime +0x18, m_fCoolTimeRate +0x1c )`. It fires only on `+0x46` (DRAW_TEXT) and a true reset result. The rate is passed but never read.
+- **The text:** `StringCchPrintfW` (`31aa55f0`) into 20 wide chars, with STR 38799 and 38800. Formats (read from the PE): SWAP `%s = %d%s` (`33535608`); FIX `%s +%d%s` (`3353561c`) when the value is ≥ 0 or NaN (`test ah,5 / jp`), else `%s %d%s` (`33535630`). Any other change type draws the zeroed buffer, i.e. an empty string, which the port reproduces. The value is truncated to int (`_ftol2`).
+  - The deployed March `data\general.ess` (XOR-16 UTF-16, loaded loose with `_wfopen`) holds 38799 = `COOLDOWN` and 38800 = `SEC`. A missing ID returns an empty string (`GetGeneralString`).
+  - **Not ported:** June's string-ID debug view (`[S%1%]%2%`, behind a June-only toggle).
+- **The draw:** `g_pData+0x17c` → `DrawText( text, vslot 63, vslot 91, AT_CENTER, 0.0, 0, 0 )`. User vslot 63 is `31fcac20` = `GetHeadBonePos` (head frame, y + 70.0, no further offset); vslot 91 is `3208dfe0` = `GetDirVector` (`+0x80b0`). The two trailing zeros are June-only parameters. With a zero gap time, March's `CKTDGPicChar::DrawText` emits particles at once, so no `OnFrameMove` or `Clear` is needed. June's X2Game pic-char loops (`322e5000`, `32308480`, `32309fb0`) indeed skip `+0x17c`; a `.text` scan finds no other reader of `g_pData+0x17c`.
+- **The pic-char** (`31edd860`): `new CKTDGPicChar( m_pPicChar, UIMajor->CreateSequence( NULL, L"PicCharYellowSmall", 0,0,0, 0,0 ) )`, then width 18.0 (`33458e68` into pic-char `+0x1c`, `m_fWidth`). June's own `PicCharYellow` (`31edd470`) has the same shape with width 30.0 (`33441b9c`), so the mapping is exact. June creates it from the loading state (`3258c470` @`3258da73`) among its June-only pic-chars (`+0x170`..`+0x180`). The port calls it from `LoadPicChar5`, which covers both March loading paths (`X2StateLoading.cpp:533/1090`) and `LoadPicCharAll_LUA`. The ctor nulls it and the dtor deletes it. A missing sequence leaves it NULL and writes one `[JUNE_BUFF] unsupported (data not packed)` line to `ErrorLog.txt`; the draw then does nothing.
+- **Glyphs:** the copy constructor shares the base `PC_` group (ASCII 32–124), which already draws letters for March's `"HP +%d"`.
+- **Data, for the user to pack.** `kom_contents/data036_kom/UIMajorParticle.txt` now carries June's `eventsequence "PicCharYellowSmall"` block (818 B, copied byte for byte from `14JUN17/data/data036_kom/UIMajorParticle.txt`). It sits right after `PicCharYellow`, with no separator line, which matches the surrounding blocks.
+  - Before: 592,530 B, md5 `03d57782df6aa386f0ccf160cce00b50`, equal to the live `data036.kom` entry (the part 4 review's fresh extract). After: 593,348 B, md5 `52e4308cee235b5a549566a622b47f52`. CRLF throughout; the file's 48 non-ASCII bytes are untouched.
+  - **Parser check:** every identifier token in the block already occurs in March's file, except the sequence name. So March's particle parser accepts it.
+  - The manifest already lists the file, so it is unchanged. **Flag for the user:** its value is `"2"`, but the non-lua → 0 packing rule says `"0"`. It was left as found.
+- **Why only the block, not June's whole file.** 10 of March's 857 sequence names are absent from June's `UIMajorParticle.txt`. One of them, `UI_Eve_Party_Event_StartEffect`, is read by `X2GUUser.cpp:25262`; June keeps it in `UIMajorParticle_INT.txt`. March also loads `_INT` (`X2StateStartUp.cpp:216`, `INT_RESOURCE_DEVIDE`), so a wholesale adopt must bring June's `UIMajorParticle.txt` and `_INT` together, checked as a pair. **Open item for the June UI parity work.** The other 9 missing names (`CHUNG_HOWLING01/02`, `CHUNG_STEEL_EDGE02`, `Nasod_King_SpellAttack_Splitlight06`, `PET_PETTE_BERTHE_STEB_3_Attack_C`/`_C_02`, `Pulsewave_Summon_Boss_SpecialAttackB01/02`, `ShockWave_Summon_Boss_SpecialAttackB`) have no C++ reader; Lua readers were not checked.
+- **Reach on March data: none until June data arrives.** March's RSCT factors carry no `DRAW_TEXT` key (part 2's census).
+
+**3. The dormant chain: mapped, not ported.**
+- **`322a7660( BFI, count, level, creatorUID )`**, "set a buff's stack count":
+  1. It gets the factor (`326c32a0`) and finds the unit's templet with that BTI (`322ae0a0` over `+0xe14`).
+  2. With count < 1 it erases the buff (`3229d320`).
+  3. Otherwise vslot 132 must return 1. A levelled factor copy is then built (`32089f60`, level).
+  4. For users only (`+0x264 == 0`), it calls vslot 476( factor, creatorUID or `+0x9274` ), then vslot 141( factor, 0 ).
+  5. Finally `3236a430( count, unit, factor )`.
+- **Unit vslots** (from all 19 `CX2GU*` vtables, found through RTTI):
+
+  | Slot | Base / user / NPC | March counterpart |
+  |---|---|---|
+  | 132 (`+0x210`) | `3229a2e0` / `32045dc0` / `327bdb60` | June's `CanApplyBuffToGameUnit( BTI, factor )`. With the null factor `322a7660` passes, the user body skips its June-only templet-flag checks (`+0xa9`/`+0xaa`, creator/party) and runs the base check `3229a2e0`, then "not `DIE_FRONT`/`DIE_BACK`" (vslots 280/281). That is March's `CX2GUUser::CanApplyBuffToGameUnit()` (`X2GUUser.cpp:5553`) |
+  | 141 (`+0x234`) | `322b5630` everywhere | empty (it only releases its argument). Ain (`32a6aa10`) and Rose (`32ac8f10`) override it: a dormant hook |
+  | 476 (`+0x770`) | users only: `32028250` in all 13 user classes; base and NPC vtables end before it | June-only: adjusts the levelled factor by an index (`31fdbbb0`, types 0xf/0x10) taken from the creator-UID argument or unit `+0x9274`. March has neither. Port as a logged no-op |
+
+- **`3236a430( count, unit, factor )`** = `CX2BuffTemplet` "set the stack count":
+  1. Every behavior's vslot 3 runs with `( factor, unit, templet, count )`; a true result sets its start flag (`+0xc`).
+  2. If the stack-count entry exists (`+0x54` map, key 0 = March's `UCM_ACCUMULATION_COUNT_NOW`), it is set to `(float)count`, and every displayer restarts (displayer slot 1, then start flag).
+  3. With `+0xa8` set, an icon refresh with the count follows (`322ab560`, `324943c0`, `32489810`, `32580100`). That is the `32489810` tail Phase 4a already left unported, because March's gage icon shows no count (`RestartDisplayerForAccumulationDecrease`).
+  - `32369da0` = `GetAccumulationCountNow` (the rounded map value).
+- **Behavior slot overrides** (all 38 behavior vtables, through RTTI). Defaults: 3 = `32e864d0` (true), 7 = `32e72980`, 9/10/11 = `3208ddc0` (empty).
+  - Slot 3 is overridden by ChangeStat (`32e786d0`, also on `_HaveBuffOwner`), NowMp (`32e7c680`) and EnchantAttackRate (`32e775e0`).
+  - Slots 9/10 are overridden by NowMp (`32e893a0` `+=`, `32e89430` `*=`), slot 11 by ChangeStat (`32e86500` `=`).
+  - Slot 7 is overridden by ChangeStat (`32e73500`, ported in 4a as `OnAccumulationCountDecreased`) and **ChangeSkillDamage** (`32e7c020`, Phase 6's June-only class).
+  - `32e7c680` (NowMp slot 3) is decompiled: it re-runs `SetFactor`'s value math at the given count. `32e786d0`, `32e775e0`, `32e89430` and `32e86500` are not carved in Ghidra and still need raw-asm reads.
+- **Reach: none on March data** (part 3 review: every caller of `322a7660`, `322a8a70` and `3227c360` passes a June-only BFI or BTI).
+
+**4. AnimStop's `+0x8080` marker: no March path asks for it.** A fresh `.text` scan finds 73 `+0x264` sites. 7 are data loads of the unit-type field (the base register is not a vtable). Of the 66 vtable calls, 57 push 0 and 1 pushes 1 (`3229a669`, June-only, part 4). The 6 that push a register, plus one more found by a jump, are not unit-`IsSuperArmor`-with-1:
+- `324bf210` and `324dc170` push four arguments, so this is another class's slot at that offset.
+- `3252c84e` is `dynamic_cast<CX2PVPGame*>( CX2Game )` → a zero-argument game method.
+- `327c92b0` is `CX2DungeonGame`/`CX2PVEGame` slot 159, calling the game's own slot 153.
+- `3276f4b9` is NPC code. NPC slot 153 (`32758440`) ignores its argument: list `+0x42a0`, else `+0x8374`.
+- `32b3727c` is reached from `32b3713d` with `push 0`, in Lu/Ciel's Bluff (`EffectSet_A_LLD_Bluff_*`).
+
+So by part 4's rule the marker is not ported: nothing in March could observe it.
+
+**Hygiene.**
+- A fresh byte-level unifdef of the flag: all 5 code files reduce byte-for-byte to `d34de09`, and each raw file differs from it.
+- `--numstat` shows 111 insertions and 9 deletions. Every deletion is our own flagged text: part 2's DRAW_TEXT log stub (6 lines, plus 2 doc-comment lines) and one member comment.
+- Inserted lines are ASCII, and line endings follow each host line (`X2Data.h` is mixed; its insertions are LF, as their neighbours are). The `file` signatures of all 5 files are unchanged.
+
+**Build and deploy.**
+- KTDXLIB (for `d34de09`'s `Always.h`), X2Lib (with `stdafx.cpp` touched) and X2, at `US_SERVICE`: rc 0, 0 errors. No warning in a touched file.
+- A whitespace-only fix in `X2Data.cpp` (one blank line moved inside the guard) was forced through a recompile and a relink.
+- `x2.exe` is 19,018,752 B, linked 07:16:09, md5 `88e67754d472c1b37f34e528b732a8b3`. `X2.map` carries `LoadPicCharYellowSmall`, `GetPicCharYellowSmall` and the RSCT `DrawText`.
+- Copied to the game directory as `X2_offline.exe` (the name was read programmatically); size and md5 match. **Not launched.** The debug build is gone.
+- **Pack:** `kom_contents/data036_kom/UIMajorParticle.txt` into `data036.kom`. Until then the exe logs the missing sequence once and draws no DRAW_TEXT; nothing else depends on it.
+
+**Things to watch in play:**
+- Blessing of Cronos, the Rally of Hero buffs (battle field) and the pet aura: current HP should keep its ratio when they start and end.
+- Entering a new game while one of them is active.
+- `ErrorLog.txt`: one `[JUNE_BUFF] unsupported (data not packed)` line until the pack, and none after it.
+
+**Where part 5 stopped / what resumes (in this order)**
+1. The dormant chain, now mapped (above). Read `32e786d0`, `32e775e0`, `32e89430`, `32e86500`, `322a8a70`, `3227c360`, `3229d320` and `32089f60` in raw asm. Then port:
+   - behavior slot 3 (base true, plus the three overrides) and slots 9/10/11;
+   - `3236a430` as `CX2BuffTemplet::SetAccumulationCountNow`, without the icon tail;
+   - `322a7660`/`322a8a70` on `CX2GameUnit`, with slot 132 = `CanApplyBuffToGameUnit()`, slot 141 as an empty virtual, and slot 476 as a user-only logged no-op;
+   - `3227c360`.
+2. **User decision still open:** the runtime popups (part 3).
+3. Then 4b-ii (finalizers and displayers).
+
+**Review of part 5:** required (Opus 5.5). Suggested spot-checks:
+- `32283181`'s `FUCOMPP`/`test ah,0x44`/`jnp` reading (now == 0 → no rescale);
+- insert's ratio taken before `31e8c940`;
+- `32e85899`'s sign test;
+- whether `32e857d0`'s other change types really draw an empty string (the `LAB_32e85f47` path with the zeroed buffer);
+- the slot-153 site list (73 sites; the 7 non-vtable loads).
+
+**funcmap.tsv:** 20 rows ("Buff Phase 4b-i part 5").
+
+**Cost:** `/cost` is not readable from inside the session; ask the user.
+
 ## Phases 5–7 — New behavior types
 
 Phases 5–7 are split into seven sessions. Each has its own scope, its own run-with line and a **ready-to-paste kickoff prompt and review prompt with nothing to substitute**. Take the prompt of the phase you are starting, and no other.
