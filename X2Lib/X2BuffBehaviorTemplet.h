@@ -323,6 +323,116 @@ private:
 	float						m_fResultValue;
 };
 
+//{{ Iruha : 2026-10-04 // June buff port Phase 5b (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+/** @class : CX2BuffChangeNowForceDownPerSecondBehaviorTemplet
+	@brief : BBT 79. June CX2BuffChangeNowForceDownPerSecondBehaviorTemplet (create 32e86e90): every TIME_INTERVAL seconds
+		the force-down gage of the unit is raised by the buff's value. The change type is fixed at BCT_FIX_VALUE by June's
+		constructor, so the templet's BUFF_CHANGE_TYPE is never read.
+*/
+class CX2BuffChangeNowForceDownPerSecondBehaviorTemplet : public CX2BuffBehaviorTemplet
+{
+public:
+	enum FACTOR_ORDER
+	{
+		FO_CHANGE_TYPE,				/// always BCT_FIX_VALUE (the parse rejects any other)
+		FO_VALUE,					/// force down per tick (after the level slice, June 32d478aa)
+		FO_END						/// enum end
+	};
+
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffChangeNowForceDownPerSecondBehaviorTemplet ); }
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	virtual void OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_, float fElapsedTime_ );
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	virtual void OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+
+protected:
+	CX2BuffChangeNowForceDownPerSecondBehaviorTemplet() : CX2BuffBehaviorTemplet(),
+		m_CheckElapsedTimeForInterval( 0.0f ), m_fResultValue( 0.0f ), m_eChangeType( BCT_FIX_VALUE )
+	{}
+
+	virtual bool ParsingBehavior( KLuaManager& luaManager_ );
+
+private:
+	CKTDXCheckElapsedTime		m_CheckElapsedTimeForInterval;	/// TIME_INTERVAL (June +0x14 target, +0x18 sum)
+	float						m_fResultValue;					/// force down per tick (June +0x1c)
+	BUFF_CHANGE_TYPE			m_eChangeType;					/// BCT_FIX_VALUE (June +0x10)
+};
+
+/** @class : CX2BuffChangeStateByConditionBehaviorTemplet
+	@brief : BBT 80-84 (*_BY_CONDITION). June CX2BuffChangeStateByConditionBehaviorTemplet (create 32e86c00, vt 335350ac):
+		ChangeStat's stack and store handling with a value taken from the number of users in the game (BVC_RALLY_OF_HERO).
+		80/81 write the attack stores of BBT 7/8 (main and range member), 82/83 the defence stores of 9/10, 84 the max HP store.
+*/
+class CX2BuffChangeStateByConditionBehaviorTemplet : public CX2BuffBehaviorTemplet
+{
+public:
+	enum FACTOR_ORDER
+	{
+		FO_CHANGE_TYPE,				/// BUFF_CHANGE_TYPE
+		FO_VALUE_CALCULATE_TYPE,	/// BUFF_VALUE_CALCULATE_TYPE
+		FO_VALUE_COUNT,				/// table length (counted layout)
+		FO_VALUE_0,					/// v[3]
+		FO_VALUE_1,					/// v[4]
+		FO_USER_NUM,				/// v[5], appended by CX2BuffFactor::SetGameUnitChangeStateByConditionBehavior
+		FO_END						/// enum end
+	};
+
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffChangeStateByConditionBehaviorTemplet ); }
+
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+
+protected:
+	CX2BuffChangeStateByConditionBehaviorTemplet() : CX2BuffBehaviorTemplet(),
+		m_eChangeType( BCT_SWAP_VALUE ), m_eValueCalculateType( BVC_RALLY_OF_HERO ), m_fResultValue( 0.0f )
+	{}
+
+	virtual bool ParsingBehavior( KLuaManager& luaManager_ );
+	float GetValue( const KBuffBehaviorFactor* pBehaviorFactor_ ) const;
+
+private:
+	BUFF_CHANGE_TYPE			m_eChangeType;			/// June +0x10
+	BUFF_VALUE_CALCULATE_TYPE	m_eValueCalculateType;	/// June +0x14
+	float						m_fResultValue;			/// June +0x18
+};
+
+/** @class : CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner
+	@brief : BBT 93. June CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner (create 32e86740, vt 33534ce4): ChangeStat plus the UID of
+		the unit that applied the buff (June +0x20). ChangeStat's SetFactor hands it over through SetBuffOwnerUID (vslot 15).
+		Slots 3, 6, 7, 8 and 12 are ChangeStat's; only GetFactor and the packet differ. June's owner aggregator (3227c620, reached
+		only through CX2GUNPC vslot 183) has no caller in June's .text and is not ported.
+*/
+class CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner : public CX2BuffChangeStatBehaviorTemplet
+{
+public:
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner ); }
+
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+	virtual UidType GetBuffOwnerUID() const { return m_uidBuffOwner; }									/// June 32ec60c0
+	virtual void SetBuffOwnerUID( const UidType uidBuffOwner_ ) { m_uidBuffOwner = uidBuffOwner_; }		/// June 32e86510
+
+protected:
+	CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner() : CX2BuffChangeStatBehaviorTemplet(), m_uidBuffOwner( 0 )
+	{}
+
+private:
+	UidType						m_uidBuffOwner;
+};
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+//}}
+
 /** @class : CX2BuffCreateBuffFactortBehaviorTemplet
 	@brief : 해당 버프가 걸려있는 동안에 BuffFactor 적용
 	@date : 2012/7/23/

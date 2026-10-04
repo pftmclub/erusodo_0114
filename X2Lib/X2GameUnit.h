@@ -2655,6 +2655,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		float								GetRangeCommandDamageRate() const { return m_AdditionalRangeCommandDamageRate.GetResultValue(); }	/// 96
 		float								GetAdditionalFinalDamageMultiplierNpc() const { return m_AdditionalFinalDamageMultiplierNpc.GetResultValue(); }	/// 108
 		float								GetAdditionalFinalDamageMultiplierUser() const { return m_AdditionalFinalDamageMultiplierUser.GetResultValue(); }	/// 109
+		/// June buff port Phase 5b: BBT 106 / 107 results (June getters 32071bb0 / 32071bd0, results at +0x5c1c / +0x5cd0), basic 0.0
+		float								GetForceDownMultiplierMeleeAttacked() const { return m_AdditionalForceDownMultiplierMeleeAttacked.GetResultValue(); }	/// 106
+		float								GetForceDownMultiplierRangeAttacked() const { return m_AdditionalForceDownMultiplierRangeAttacked.GetResultValue(); }	/// 107
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 #if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
 		/// June buff port Phase 5 console hook (DEBUG only): puts one new-type factor straight into its store, or takes it out.
@@ -4654,6 +4657,9 @@ protected:
 		CX2AdditionalStatByBuff			m_AdditionalRangeCommandDamageRate;		/// 96 basic 1.0
 		CX2AdditionalStatByBuff			m_AdditionalFinalDamageMultiplierNpc;	/// 108 basic 1.0
 		CX2AdditionalStatByBuff			m_AdditionalFinalDamageMultiplierUser;	/// 109 basic 1.0
+		/// June buff port Phase 5b: June's members at +0x5b7c (106, insert 32282bf2) and +0x5c30 (107, insert 32282c15)
+		CX2AdditionalStatByBuff			m_AdditionalForceDownMultiplierMeleeAttacked;	/// 106 basic 0.0
+		CX2AdditionalStatByBuff			m_AdditionalForceDownMultiplierRangeAttacked;	/// 107 basic 0.0
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 		vector<CX2StunPtr>				m_vecStunPtr;		/// 기절 효과

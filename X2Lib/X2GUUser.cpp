@@ -9855,7 +9855,29 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 
 #ifdef SERV_SKILL_NOTE
 			float fForceDownValue = pDamageData->fForceDownValue;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+			/// June buff port Phase 5b: BBT 106 / 107, CX2GUUser::DamageReact 320462a0 @3204a118-3204a243. When the defender is known, the
+			/// force down value of this hit is lowered by the defender's 106 (melee hit) or 107 (range hit) result. Users only: June's
+			/// NPC DamageReact (327b1f30) does not read them. With no buff the result is 0, so the hit is as before.
+			float fDecreaseForceDown = pDamageData->m_fDecreaseForceDown;
+			if ( null != pDamageData->optrDefenderGameUnit )
+			{
+				const float fForceDownMultiplierAttacked = ( pDamageData->m_bMeleeAttack ?
+					pDamageData->optrDefenderGameUnit->GetForceDownMultiplierMeleeAttacked() : pDamageData->optrDefenderGameUnit->GetForceDownMultiplierRangeAttacked() );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				if ( 0.0f != fForceDownMultiplierAttacked )
+				{
+					static std::set<int> s_setSeenForceDown;
+					if ( s_setSeenForceDown.insert( pDamageData->m_bMeleeAttack ? 106 : 107 ).second )
+						CX2JuneBuffCapture::Line( "first read BBT %d: force down decrease %g - %g", pDamageData->m_bMeleeAttack ? 106 : 107, fDecreaseForceDown, fForceDownMultiplierAttacked );
+				}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				fDecreaseForceDown -= fForceDownMultiplierAttacked;
+			}
+			fForceDownValue -= fDecreaseForceDown;
+#else SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 			fForceDownValue -= pDamageData->m_fDecreaseForceDown;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 #ifdef ENCHANT_BALANCE_101014 // oasis907 : 김상윤 [2010.10.5] // 속성 피어싱 데미지시 강제 다운 수치 -10
 			if(pDamageData->m_bPenetrate == true)
 			{

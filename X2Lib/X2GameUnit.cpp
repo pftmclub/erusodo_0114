@@ -11910,6 +11910,27 @@ void CX2GameUnit::EraseRenderParamByBuff( const KBuffIdentity& BuffIdentity_ )
 */
 void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, const BUFF_CHANGE_TYPE eChangeType_, const KBuffIdentity& BuffIdentity_, const float fValue_ )
 {
+#if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
+	/// June buff port Phase 5b step 8: the first insert of each 5b type that writes a store, logged with the value the store received
+	/// (79 has no unit store and logs from its own SetFactor)
+	switch ( eBehaviorType_ )
+	{
+	case BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION:
+	case BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION:
+	case BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION:
+	case BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION:
+	case BBT_CHANGE_MAX_HP_BY_CONDITION:
+	case BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER:
+	case BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED:
+	case BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED:
+		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+		break;
+
+	default:
+		break;
+	}
+#endif defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
+
 	switch ( eBehaviorType_ )
 	{
 	case BBT_CHANGE_MAX_HP:					/// 최대HP 변경
@@ -11933,6 +11954,17 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		break;
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_MAX_HP_BY_CONDITION:	/// June buff port Phase 5b, 32282700: BBT 84 has its own block: insert, refresh, SetMaxHp. No HP-ratio rescale (that is June's BBT 6 only, @32282723)
+		m_AdditionalMaxHp.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+
+		m_AdditionalMaxHp.CheckAndUpdateResultValue();
+
+		if ( NULL != GetGageData() )	/// crash guard; June does not test
+			GetGageData()->SetMaxHp( m_AdditionalMaxHp.GetResultValue() );
+		break;
+
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 	case BBT_CHANGE_MAX_MP:					/// 최대MP 변경
 		m_AdditionalMaxMp.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 
@@ -11942,6 +11974,9 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 		break;
 
 	case BBT_CHANGE_PHYSIC_ATTACK:			/// 물리공격력
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION:	/// June buff port Phase 5b: BBT 80 shares BBT 7's store (June 32282700 / 3226fd70 / 322830f0), range member included
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		m_AdditionalPhysicAttack.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		m_AdditionalPhysicAttackRange.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );	/// June 32282700 @3228289e
@@ -11949,6 +11984,9 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 		break;
 			
 	case BBT_CHANGE_MAGIC_ATTACK:			/// 마법공격력
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION:	/// June buff port Phase 5b: BBT 81 shares BBT 8's store, range member included
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		m_AdditionalMagicAttack.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		m_AdditionalMagicAttackRange.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );	/// June 32282700 @322828d6
@@ -11956,10 +11994,16 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 		break;
 			
 	case BBT_CHANGE_PHYSIC_DEFENCE:			/// 물리방어력
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION:	/// June buff port Phase 5b: BBT 82 shares BBT 9's store
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		m_AdditionalPhysicDefence.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 		break;
 
 	case BBT_CHANGE_MAGIC_DEFENCE:			/// 마법방어력
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION:	/// June buff port Phase 5b: BBT 83 shares BBT 10's store
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		m_AdditionalMagicDefence.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 		break;
 
@@ -12061,6 +12105,9 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 		break;
 
 	case BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE:
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER:	/// June buff port Phase 5b: BBT 93 shares BBT 42's six attribute-defence stores (insert 32282d0a, erase 322835ce, update 32270afb)
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		{
 			m_AdditionalChangeAttributeBlazeDefence.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 			m_AdditionalChangeAttributeWaterDefence.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
@@ -12129,6 +12176,15 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		break;
+
+	/// June buff port Phase 5b, 32282700: BBT 106 (member +0x5b7c, insert 32282bf2) and BBT 107 (+0x5c30, 32282c15)
+	case BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED:
+		m_AdditionalForceDownMultiplierMeleeAttacked.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+		break;
+
+	case BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED:
+		m_AdditionalForceDownMultiplierRangeAttacked.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+		break;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	default:
@@ -12150,6 +12206,9 @@ void CX2GameUnit::UpdateAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 	switch ( eBehaviorType_ )
 	{
 	case BBT_CHANGE_MAX_HP:					/// 최대HP 변경
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_MAX_HP_BY_CONDITION:	/// June buff port Phase 5b: BBT 84 updates like BBT 6 (June 3226fd70)
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		{
 			if ( !m_AdditionalMaxHp.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
 				m_AdditionalMaxHp.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
@@ -12162,6 +12221,9 @@ void CX2GameUnit::UpdateAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 		} break;
 
 	case BBT_CHANGE_PHYSIC_ATTACK:			/// 물리공격력
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION:	/// June buff port Phase 5b: BBT 80 shares BBT 7's store (June 32282700 / 3226fd70 / 322830f0), range member included
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		{
 			if ( !m_AdditionalPhysicAttack.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
 				m_AdditionalPhysicAttack.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
@@ -12173,6 +12235,9 @@ void CX2GameUnit::UpdateAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 		} break;
 
 	case BBT_CHANGE_MAGIC_ATTACK:			/// 마법공격력
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION:	/// June buff port Phase 5b: BBT 81 shares BBT 8's store, range member included
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		{
 			if ( !m_AdditionalMagicAttack.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
 				m_AdditionalMagicAttack.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
@@ -12184,12 +12249,18 @@ void CX2GameUnit::UpdateAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 		} break;
 
 	case BBT_CHANGE_PHYSIC_DEFENCE:			/// 물리방어력
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION:	/// June buff port Phase 5b: BBT 82 shares BBT 9's store
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		{
 			if ( !m_AdditionalPhysicDefence.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
 				m_AdditionalPhysicDefence.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 		} break;
 
 	case BBT_CHANGE_MAGIC_DEFENCE:			/// 마법방어력
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION:	/// June buff port Phase 5b: BBT 83 shares BBT 10's store
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		{
 			if ( !m_AdditionalMagicDefence.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
 				m_AdditionalMagicDefence.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
@@ -12348,6 +12419,9 @@ void CX2GameUnit::UpdateAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 		} break;
 
 	case BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE:		/// 모든 속성저항
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER:	/// June buff port Phase 5b: BBT 93 shares BBT 42's six attribute-defence stores (insert 32282d0a, erase 322835ce, update 32270afb)
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		{
 			if ( !m_AdditionalChangeAttributeBlazeDefence.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
 				m_AdditionalChangeAttributeBlazeDefence.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
@@ -12425,6 +12499,19 @@ void CX2GameUnit::UpdateAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 			if ( !m_AdditionalFinalDamageMultiplierUser.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
 				m_AdditionalFinalDamageMultiplierUser.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 		} break;
+
+	/// June buff port Phase 5b, 3226fd70: update the factor, or insert it when absent (as the siblings)
+	case BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED:
+		{
+			if ( !m_AdditionalForceDownMultiplierMeleeAttacked.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
+				m_AdditionalForceDownMultiplierMeleeAttacked.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+		} break;
+
+	case BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED:
+		{
+			if ( !m_AdditionalForceDownMultiplierRangeAttacked.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
+				m_AdditionalForceDownMultiplierRangeAttacked.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+		} break;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	default:
@@ -12470,6 +12557,17 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		break;
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_MAX_HP_BY_CONDITION:	/// June buff port Phase 5b, 322830f0: BBT 84's own erase block, the shape of its insert (no HP-ratio rescale, unlike BBT 6 @32283113)
+		m_AdditionalMaxHp.EraseStatFactor( eChangeType_, BuffIdentity_ );
+
+		m_AdditionalMaxHp.CheckAndUpdateResultValue();
+
+		if ( NULL != GetGageData() )	/// crash guard; June does not test
+			GetGageData()->SetMaxHp( m_AdditionalMaxHp.GetResultValue() );
+		break;
+
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 	case BBT_CHANGE_MAX_MP:					/// 최대MP 변경
 		m_AdditionalMaxMp.EraseStatFactor( eChangeType_, BuffIdentity_ );
 
@@ -12487,6 +12585,9 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 		break;
 
 	case BBT_CHANGE_PHYSIC_ATTACK:			/// 물리공격력
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION:	/// June buff port Phase 5b: BBT 80 shares BBT 7's store (June 32282700 / 3226fd70 / 322830f0), range member included
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		m_AdditionalPhysicAttack.EraseStatFactor( eChangeType_, BuffIdentity_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		m_AdditionalPhysicAttackRange.EraseStatFactor( eChangeType_, BuffIdentity_ );	/// June 322830f0 @3228326c
@@ -12494,6 +12595,9 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 		break;
 
 	case BBT_CHANGE_MAGIC_ATTACK:			/// 마법공격력
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION:	/// June buff port Phase 5b: BBT 81 shares BBT 8's store, range member included
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		m_AdditionalMagicAttack.EraseStatFactor( eChangeType_, BuffIdentity_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		m_AdditionalMagicAttackRange.EraseStatFactor( eChangeType_, BuffIdentity_ );	/// June 322830f0 @32283294
@@ -12501,10 +12605,16 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 		break;
 
 	case BBT_CHANGE_PHYSIC_DEFENCE:			/// 물리방어력
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION:	/// June buff port Phase 5b: BBT 82 shares BBT 9's store
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		m_AdditionalPhysicDefence.EraseStatFactor( eChangeType_, BuffIdentity_ );
 		break;
 
 	case BBT_CHANGE_MAGIC_DEFENCE:			/// 마법방어력
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION:	/// June buff port Phase 5b: BBT 83 shares BBT 10's store
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		m_AdditionalMagicDefence.EraseStatFactor( eChangeType_, BuffIdentity_ );
 		break;
 
@@ -12606,6 +12716,9 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 		break;
 
 	case BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE:		/// 모든 속성저항
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	case BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER:	/// June buff port Phase 5b: BBT 93 shares BBT 42's six attribute-defence stores (insert 32282d0a, erase 322835ce, update 32270afb)
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		{
 			m_AdditionalChangeAttributeBlazeDefence.EraseStatFactor( eChangeType_, BuffIdentity_ );
 			m_AdditionalChangeAttributeWaterDefence.EraseStatFactor( eChangeType_, BuffIdentity_ );
@@ -12652,6 +12765,15 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 
 	case BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER:
 		m_AdditionalFinalDamageMultiplierUser.EraseStatFactor( eChangeType_, BuffIdentity_ );
+		break;
+
+	/// June buff port Phase 5b, 322830f0
+	case BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED:
+		m_AdditionalForceDownMultiplierMeleeAttacked.EraseStatFactor( eChangeType_, BuffIdentity_ );
+		break;
+
+	case BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED:
+		m_AdditionalForceDownMultiplierRangeAttacked.EraseStatFactor( eChangeType_, BuffIdentity_ );
 		break;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
@@ -12782,6 +12904,9 @@ void CX2GameUnit::CheckAndUpdateAdditionalStat()
 	m_AdditionalRangeCommandDamageRate.CheckAndUpdateResultValue();
 	m_AdditionalFinalDamageMultiplierNpc.CheckAndUpdateResultValue();
 	m_AdditionalFinalDamageMultiplierUser.CheckAndUpdateResultValue();
+	/// June buff port Phase 5b, 32290950: 106 / 107 refresh through the plain result update too (+0x5b7c, +0x5c30)
+	m_AdditionalForceDownMultiplierMeleeAttacked.CheckAndUpdateResultValue();
+	m_AdditionalForceDownMultiplierRangeAttacked.CheckAndUpdateResultValue();
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 }
 
@@ -13258,6 +13383,9 @@ void CX2GameUnit::InitAdditionalBasicStatValue()
 	m_AdditionalRangeCommandDamageRate.SetBasicStatValue( 1.0f );
 	m_AdditionalFinalDamageMultiplierNpc.SetBasicStatValue( 1.0f );
 	m_AdditionalFinalDamageMultiplierUser.SetBasicStatValue( 1.0f );
+	/// June buff port Phase 5b, 32271540: 106 / 107 start at 0.0 (fldz)
+	m_AdditionalForceDownMultiplierMeleeAttacked.SetBasicStatValue( 0.0f );
+	m_AdditionalForceDownMultiplierRangeAttacked.SetBasicStatValue( 0.0f );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	CheckAndUpdateAdditionalStat();
@@ -13319,6 +13447,9 @@ void CX2GameUnit::InitAdditionalPassive()
 	InitAdditionalPassiveMultipleAndSum(m_AdditionalRangeCommandDamageRate);
 	InitAdditionalPassiveMultipleAndSum(m_AdditionalFinalDamageMultiplierNpc);
 	InitAdditionalPassiveMultipleAndSum(m_AdditionalFinalDamageMultiplierUser);
+	/// June buff port Phase 5b, 322718e0: multiple 1, sum 0
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalForceDownMultiplierMeleeAttacked);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalForceDownMultiplierRangeAttacked);
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	/// 소켓옵션에 의한 것을 Passive쪽에 넣어줌(연산 로직 때문에 이렇게 함)
@@ -15755,6 +15886,8 @@ bool CX2GameUnit::VerifyStatByBuff()
 		 && m_AdditionalRangeCommandDamageRate.Verify()
 		 && m_AdditionalFinalDamageMultiplierNpc.Verify()
 		 && m_AdditionalFinalDamageMultiplierUser.Verify()
+		 && m_AdditionalForceDownMultiplierMeleeAttacked.Verify()
+		 && m_AdditionalForceDownMultiplierRangeAttacked.Verify()
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		 )
 		 return true;

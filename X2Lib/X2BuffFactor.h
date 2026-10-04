@@ -239,6 +239,15 @@ enum BUFF_REPLACE_DETAIL_OP			/// June Enum.lua: BUFF_REPLACE_DETAIL_OPERATION o
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 //}}
 
+//{{ Iruha : 2026-10-04 // June buff port Phase 5b (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+enum BUFF_VALUE_CALCULATE_TYPE		/// June Enum.lua: BUFF_VALUE_CALCULATE_TYPE, the VALUE rule of BBT 80-84 (June 32d42910 / 32e77f40)
+{
+	BVC_RALLY_OF_HERO				= 0,	/// value = v[3] + v[4] * ( 4.0 - user count ), CX2BuffChangeStateByConditionBehaviorTemplet::GetValue
+};
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+//}}
+
 enum BUFF_DISPLAYER_TYPE
 {
 	BDT_NONE = 0,
@@ -885,6 +894,12 @@ public:
 #endif ADD_LIVE_CREATOR_FINALIZER
 	void SetGameUnitBehavior( KBuffBehaviorFactor& factor_, CX2GameUnit* pGameUnit_ );
 	void SetGameUnitFinalizer( KBuffFinalizerFactor& factor_, CX2GameUnit* pGameUnit_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	/// June buff port Phase 5b. One signature for both macro lists (bIsSkill defaults to true, as the skill list's others).
+	bool ParsingChangeNowForceDownPerSecondBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill = true );	/// BBT 79, June 32d42650
+	bool ParsingChangeStateByConditionBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill = true );	/// BBT 80-84, June 32d42910
+	void SetGameUnitChangeStateByConditionBehavior( KBuffBehaviorFactor& factor_, CX2GameUnit* pGameUnit_ );	/// BBT 80-84, June 32d4ce60
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 	
 
 	////////////////////////////////////////////////////////////////////////////////////////////////

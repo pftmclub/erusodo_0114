@@ -148,6 +148,17 @@ case type_: \
 			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStatBehaviorTemplet, BBT_CHANGE_RANGE_COMMAND_DAMAGE_RATE )
 			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStatBehaviorTemplet, BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC )
 			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStatBehaviorTemplet, BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER )
+			/// June buff port Phase 5b (June 32e80450 factory): 106/107 use the ChangeStat class, 93 its _HaveBuffOwner subclass (32e86740),
+			/// 79 and 80-84 their own classes (32e86e90, 32e86c00)
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStatBehaviorTemplet, BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStatBehaviorTemplet, BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner, BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeNowForceDownPerSecondBehaviorTemplet, BBT_CHANGE_NOW_FORCE_DOWN_PER_SECOND )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStateByConditionBehaviorTemplet, BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStateByConditionBehaviorTemplet, BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStateByConditionBehaviorTemplet, BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStateByConditionBehaviorTemplet, BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStateByConditionBehaviorTemplet, BBT_CHANGE_MAX_HP_BY_CONDITION )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 			case BBT_EMPTY:	/// 행동을 지정하지 않겠다고 명시적으로 해야함
@@ -4233,3 +4244,294 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 	pGameUnit_->EraseTemporaryBuffFactor( pBuffTemplet_->GetBuffIdentity() );
 }
 #endif //FIX_SKILL_BALANCE_AISHA_LENA
+
+//{{ Iruha : 2026-10-04 // June buff port Phase 5b (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 79: CX2BuffChangeNowForceDownPerSecondBehaviorTemplet (June create 32e86e90)
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @function : ParsingBehavior
+	@brief : June 32e755a0. TIME_INTERVAL is required: June returns false when it is absent (AL checked at both rets).
+*/
+/*virtual*/ bool CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::ParsingBehavior( KLuaManager& luaManager_ )
+{
+	float fTimeInterval = 0.0f;
+	LUA_GET_VALUE_RETURN( luaManager_, "TIME_INTERVAL", fTimeInterval, 0.0f, return DISPLAY_ERROR( L"TIME_INTERVAL" ); );
+	m_CheckElapsedTimeForInterval.SetTargetTime( fTimeInterval );
+	return true;
+}
+
+/** @function : OnFrameMove
+	@brief : June 32e756f0 and its tick 32e89800: the timer runs, and when the sum has reached the target it is cleared and the
+		force-down gage rises by the value (gage data of the unit +0xc04, Gage::Increase( v, 0 ) @31f8de20). TIME_INTERVAL 0 therefore
+		ticks every frame, and the value is applied per tick, not per second (June's data note; transcribed as is).
+		June does not test for missing gage data; the port does, as a crash guard.
+*/
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+/*virtual*/ void CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_, float fElapsedTime_ )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+/*virtual*/ void CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	m_CheckElapsedTimeForInterval.OnFrameMove( fElapsedTime_ );
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	m_CheckElapsedTimeForInterval.OnFrameMove();
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+
+	if ( m_CheckElapsedTimeForInterval.CheckAndResetElapsedTime() )
+	{
+		CX2GageData* pGageData = pGameUnit_->GetGageData();
+		if ( NULL != pGageData )
+		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			static bool s_bSeenTick = false;
+			if ( !s_bSeenTick )
+			{
+				s_bSeenTick = true;
+				CX2JuneBuffCapture::Line( "first read BBT 79: force down gage %g + %g (interval %g)", pGageData->GetNowForceDown(), m_fResultValue, m_CheckElapsedTimeForInterval.GetTargetTime() );
+			}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			pGageData->UpNowForceDown( m_fResultValue );
+		}
+	}
+}
+
+/** @function : SetFactor
+	@brief : June 32e855f0: March's CX2BuffChangeNowHpPerSecondBehaviorTemplet::SetFactor (the multiplier restack, no BCT_PERCENT branch) with the
+		resist fixed at 0 and no popups. The change type must equal BCT_FIX_VALUE; the new value is v[1] (0 when the factor has one value only).
+*/
+/*virtual*/ bool CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return DISPLAY_ERROR( L"CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::SetFactor: GetBehaviorFactor didn't work" );
+
+	if ( static_cast<int>( (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != static_cast<int>( m_eChangeType ) )
+		return DISPLAY_ERROR( L"CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::SetFactor: BUFF_CHANGE_TYPE MISS MATCH" );
+
+	const float fNewValue = ( 1 < pBehaviorFactor->m_vecValues.size() ? (*pBehaviorFactor)[FO_VALUE] : 0.0f );
+
+	if ( DidStart() )
+	{
+		const UINT uiAccumulationCountBefore = pBuffTemplet_->GetAccumulationCountNow();
+		if ( uiAccumulationCountBefore > 0 )
+		{
+			const float fAccumulationMultiflier = pBuffTemplet_->GetAccumulationMultiflier();
+			const float fOldValue = m_fResultValue / ( 1 + fAccumulationMultiflier * (uiAccumulationCountBefore - 1) );
+			m_fResultValue = ( abs(fNewValue) > abs(fOldValue) ? fNewValue : fOldValue );
+			m_fResultValue *= ( 1 + fAccumulationMultiflier * uiAccumulationCountBefore );
+		}
+		else
+			m_fResultValue = ( abs(fNewValue) > abs(m_fResultValue) ? fNewValue : m_fResultValue );
+	}
+	else
+		m_fResultValue = fNewValue;
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	{
+		static bool s_bSeenApply = false;
+		if ( !s_bSeenApply )
+		{
+			s_bSeenApply = true;
+			CX2JuneBuffCapture::Line( "first apply BBT 79 (force down per second): interval %g, value %g", m_CheckElapsedTimeForInterval.GetTargetTime(), m_fResultValue );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return true;
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffChangeNowForceDownPerSecondBehaviorTemplet( *this ) );
+}
+
+/** @brief : June 32e7eaa0: [ m ] */
+/*virtual*/ void CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+	KBuffBehaviorFactor& BehaviorFactor = vecFactors_.back();
+
+	BehaviorFactor.m_vecValues.push_back( m_fResultValue );
+}
+
+/** @brief : June 32e85790: m = v[0] (0 when the factor is empty); nothing else (no unit store). */
+/*virtual*/ void CX2BuffChangeNowForceDownPerSecondBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	m_fResultValue = kFactor_[0];
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 80-84: CX2BuffChangeStateByConditionBehaviorTemplet (June create 32e86c00)
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @function : ParsingBehavior
+	@brief : June 32e75790. BUFF_CHANGE_TYPE and BUFF_VALUE_CALCULATE_TYPE are both required (AL checked).
+*/
+/*virtual*/ bool CX2BuffChangeStateByConditionBehaviorTemplet::ParsingBehavior( KLuaManager& luaManager_ )
+{
+	LUA_GET_VALUE_RETURN_ENUM( luaManager_, "BUFF_CHANGE_TYPE", m_eChangeType,
+		BUFF_CHANGE_TYPE, BCT_SWAP_VALUE, return DISPLAY_ERROR( L"BUFF_CHANGE_TYPE" ); );
+
+	LUA_GET_VALUE_RETURN_ENUM( luaManager_, "BUFF_VALUE_CALCULATE_TYPE", m_eValueCalculateType,
+		BUFF_VALUE_CALCULATE_TYPE, BVC_RALLY_OF_HERO, return DISPLAY_ERROR( L"BUFF_VALUE_CALCULATE_TYPE" ); );
+
+	return true;
+}
+
+/** @function : GetValue
+	@brief : June 32e77f40 (unit and resist unused). With BVC_RALLY_OF_HERO (the class's calculate type, +0x14 == 0):
+		v[3] + v[4] * ( 4.0 - v[5] ), where v[5] is the user count the SGU appended; a missing element reads 0. Any other
+		calculate type gives 0. It is exact only for a two-element VALUE table, which all 25 June factors carry.
+*/
+float CX2BuffChangeStateByConditionBehaviorTemplet::GetValue( const KBuffBehaviorFactor* pBehaviorFactor_ ) const
+{
+	if ( BVC_RALLY_OF_HERO != m_eValueCalculateType )
+		return 0.0f;
+
+	return (*pBehaviorFactor_)[FO_VALUE_0] + (*pBehaviorFactor_)[FO_VALUE_1] * ( 4.0f - (*pBehaviorFactor_)[FO_USER_NUM] );
+}
+
+/** @function : SetFactor
+	@brief : June 32e78860: March's CX2BuffChangeStatBehaviorTemplet::SetFactor, the ADJUST_BUFF_ACCMULATION_CALCULATE branch, with three
+		differences: (1) a change type that differs from the class's, or BCT_RELATION_VALUE, returns false (June has no relation path),
+		(2) the value comes from GetValue above, (3) no popups: a zero accumulation multiplier returns false. The resist
+		( GetEnchantResist / 500 ) is computed by June and never used. The stat is written to the store of the type
+		(80/81/82/83/84 -> the stores of 7/8/9/10/6, see CX2GameUnit::InsertAdditionalStat).
+*/
+/*virtual*/ bool CX2BuffChangeStateByConditionBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return DISPLAY_ERROR( L"CX2BuffChangeStateByConditionBehaviorTemplet::SetFactor: GetBehaviorFactor didn't work" );
+
+	if ( STATIC_CAST_FLOAT_TO_ENUM( BUFF_CHANGE_TYPE, (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != m_eChangeType || BCT_RELATION_VALUE == m_eChangeType )
+		return DISPLAY_ERROR( L"CX2BuffChangeStateByConditionBehaviorTemplet::SetFactor: MISS MATCH BUFF_CHANGE_TYPE" );
+
+	const float fNewValue = GetValue( pBehaviorFactor );
+	if ( DidStart() )	/// stack or replace
+	{
+		const UINT uiAccumulationCountBefore = pBuffTemplet_->GetAccumulationCountNow();
+		if ( uiAccumulationCountBefore > 0 )
+		{
+			const float fAccumulationMultiflier = pBuffTemplet_->GetAccumulationMultiflier();
+			if ( IsSamef( fAccumulationMultiflier ) )
+				return DISPLAY_ERROR( L"CX2BuffChangeStateByConditionBehaviorTemplet::SetFactor: AccumulationMultiflier must not be 0" );
+
+			switch ( m_eChangeType )
+			{
+			case BCT_FIX_VALUE:
+				{
+					const float fOldValue =
+						(uiAccumulationCountBefore <= 1) ? m_fResultValue : ( m_fResultValue / ( 1 + fAccumulationMultiflier * (uiAccumulationCountBefore - 1) ) );
+
+					m_fResultValue = ( abs(fNewValue) > abs(fOldValue) ? fNewValue : fOldValue );
+					m_fResultValue += m_fResultValue * fAccumulationMultiflier * uiAccumulationCountBefore;
+				} break;
+
+			case BCT_PERCENT:
+				{
+					m_fResultValue = 1 + ( ( fNewValue - 1.0f ) * ( uiAccumulationCountBefore + 1 ) );
+					if( m_fResultValue < 0.0f )
+					{
+						DISPLAY_ERROR( L"CX2BuffChangeStateByConditionBehaviorTemplet::SetFactor: m_fResultValue error" );
+						m_fResultValue = max( m_fResultValue, 0.0f );
+					}
+				} break;
+
+			default:	/// a replace keeps the value for the other change types
+				break;
+			}
+		}
+		else	/// replace
+			m_fResultValue = ( abs(fNewValue) > abs(m_fResultValue) ? fNewValue : m_fResultValue );
+
+		pGameUnit_->UpdateAdditionalStat( GetType(), m_eChangeType, pBuffTemplet_->GetBuffIdentity(), m_fResultValue );
+	}
+	else	/// first apply, or a duplicate
+	{
+		m_fResultValue = fNewValue;
+		pGameUnit_->InsertAdditionalStat( GetType(), m_eChangeType, pBuffTemplet_->GetBuffIdentity(), m_fResultValue );
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	{
+		static std::set<int> s_setSeen;
+		if ( s_setSeen.insert( static_cast<int>( GetType() ) ).second )
+			CX2JuneBuffCapture::Line( "first SetFactor BBT %d (by condition): change type %d, calculate type %d, v[3..5] = %g %g %g, value %g",
+				static_cast<int>( GetType() ), static_cast<int>( m_eChangeType ), static_cast<int>( m_eValueCalculateType ),
+				(*pBehaviorFactor)[FO_VALUE_0], (*pBehaviorFactor)[FO_VALUE_1], (*pBehaviorFactor)[FO_USER_NUM], m_fResultValue );
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return true;
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffChangeStateByConditionBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffChangeStateByConditionBehaviorTemplet( *this ) );
+}
+
+/** @brief : June 32e7eb90: [ m ] */
+/*virtual*/ void CX2BuffChangeStateByConditionBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+	KBuffBehaviorFactor& BehaviorFactor = vecFactors_.back();
+
+	BehaviorFactor.m_vecValues.push_back( m_fResultValue );
+}
+
+/** @brief : June 32e77ef0: m = v[0], then InsertAdditionalStat( type, change type, identity, m ) */
+/*virtual*/ void CX2BuffChangeStateByConditionBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	m_fResultValue = kFactor_[0];
+	pGameUnit_->InsertAdditionalStat( GetType(), m_eChangeType, kBuffFactor_.m_BuffIdentity, m_fResultValue );
+}
+
+/** @brief : June 32e75720: EraseAdditionalStat( type, change type, identity ) */
+/*virtual*/ void CX2BuffChangeStateByConditionBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	pGameUnit_->EraseAdditionalStat( GetType(), m_eChangeType, pBuffTemplet_->GetBuffIdentity() );
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 93: CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner (June create 32e86740)
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner( *this ) );
+}
+
+/** @function : GetFactor
+	@brief : June 32e7d7f0: [ m, uid & 0xffff, ( uid >> 16 ) & 0xffff, ( uid >> 32 ) & 0xffff, uid >> 48 ], ChangeStat's [ m ] first.
+*/
+/*virtual*/ void CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	CX2BuffChangeStatBehaviorTemplet::GetFactor( vecFactors_ );
+
+	vector<float>& vecValues = vecFactors_.back().m_vecValues;
+	const unsigned __int64 ui64Owner = static_cast<unsigned __int64>( m_uidBuffOwner );
+	vecValues.push_back( static_cast<float>( ui64Owner & 0xffff ) );
+	vecValues.push_back( static_cast<float>( ( ui64Owner >> 16 ) & 0xffff ) );
+	vecValues.push_back( static_cast<float>( ( ui64Owner >> 32 ) & 0xffff ) );
+	vecValues.push_back( static_cast<float>( ui64Owner >> 48 ) );
+}
+
+/** @function : SetFactorFromPacket
+	@brief : June 32e76710: ChangeStat's insert ( m = v[0] ), then the owner UID is rebuilt from v[4], v[5], v[6] and v[7] (low word first).
+		JUNE INDEX BUG, TRANSCRIBED VERBATIM: GetFactor above writes the UID words at indices 1-4, this reads 4-7, so a peer ends up with a
+		wrong owner (v[4] is the top word, v[5..7] are past the end of a five-value factor and read as 0 here; June reads past the end).
+		Harmless: the UID's only consumer is June's owner aggregator 3227c620, which nothing calls.
+*/
+/*virtual*/ void CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	CX2BuffChangeStatBehaviorTemplet::SetFactorFromPacket( kBuffFactor_, kFactor_, pGameUnit_ );
+
+	m_uidBuffOwner = static_cast<UidType>( static_cast<int>( kFactor_[4] ) )
+		| ( static_cast<UidType>( static_cast<int>( kFactor_[5] ) ) << 16 )
+		| ( static_cast<UidType>( static_cast<int>( kFactor_[6] ) ) << 32 )
+		| ( static_cast<UidType>( static_cast<int>( kFactor_[7] ) ) << 48 );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+//}}

@@ -222,6 +222,16 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_, bool b
 				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_RANGE_COMMAND_DAMAGE_RATE, bIsSkill )
 				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC, bIsSkill )
 				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER, bIsSkill )
+				/// June buff port Phase 5b: 93, 106 and 107 share ParsingChangeStatBehavior (June 32d445d0); 79 and 80-84 have their own parsers
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeNowForceDownPerSecondBehavior, BBT_CHANGE_NOW_FORCE_DOWN_PER_SECOND, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStateByConditionBehavior, BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStateByConditionBehavior, BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStateByConditionBehavior, BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStateByConditionBehavior, BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStateByConditionBehavior, BBT_CHANGE_MAX_HP_BY_CONDITION, bIsSkill )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 			case BBT_EMPTY:
@@ -359,6 +369,16 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_ )
 						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_CHANGE_RANGE_COMMAND_DAMAGE_RATE )
 						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC )
 						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER )
+						/// June buff port Phase 5b (see the skill list above)
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeNowForceDownPerSecondBehavior, BBT_CHANGE_NOW_FORCE_DOWN_PER_SECOND )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStateByConditionBehavior, BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStateByConditionBehavior, BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStateByConditionBehavior, BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStateByConditionBehavior, BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStateByConditionBehavior, BBT_CHANGE_MAX_HP_BY_CONDITION )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 			case BBT_EMPTY:
 				break;
@@ -859,9 +879,21 @@ void CX2BuffFactor::SetGameUnitBehavior( KBuffBehaviorFactor& factor_, CX2GameUn
 #endif //SERV_ADD_LUNATIC_PSYKER
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 	case BBT_CHANGE_HYPER_DURATION:		/// June buff port Phase 5: only 76 of the seven joins the ChangeStat SGU group (32d4d6ef)
+	case BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER:	/// June buff port Phase 5b: 93 joins the ChangeStat SGU group too (32d4d6ef)
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		SetGameUnitChangeStatBehavior( factor_, pGameUnit_ );
 		break;
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	/// June buff port Phase 5b: 80-84 have their own SGU case (32d4ce60); 79, 106 and 107 have none
+	case BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION:
+	case BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION:
+	case BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION:
+	case BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION:
+	case BBT_CHANGE_MAX_HP_BY_CONDITION:
+		SetGameUnitChangeStateByConditionBehavior( factor_, pGameUnit_ );
+		break;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	case BBT_CHANGE_HYPER_MODE:
 		SetGameUnitChangeHyperModeBehavior( factor_, pGameUnit_ );
@@ -1809,6 +1841,91 @@ void CX2BuffFactor::SetGameUnitChangeStatBehavior( KBuffBehaviorFactor& factor_,
 			UpdateValueByRelationType( eRelationType, factor_.m_vecValues[uiIndex], pGameUnit_ );
 	}
 }
+
+//{{ Iruha : 2026-10-04 // June buff port Phase 5b (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+/** @function : ParsingChangeNowForceDownPerSecondBehavior
+	@brief : June 32d42650 (BBT 79). Reads BUFF_CHANGE_TYPE (required), then the FIX_VALUE table, and pushes
+		[ change type, FIX_VALUE... ]. Only BCT_FIX_VALUE (1) is accepted: June pushes nothing for any other change
+		type and the parse reports failure (@32d4283b, AL = 0), so the factor is rejected.
+	@param : lua manager (luaManager_), table name (pszTableName_), behavior type (eBehaviorType_), skill layout (bIsSkill)
+	@return : true when the factor was pushed
+*/
+bool CX2BuffFactor::ParsingChangeNowForceDownPerSecondBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill /*= true*/ )
+{
+	if ( luaManager_.BeginTable( pszTableName_ ) )
+	{
+		BOOST_SCOPE_EXIT( (&luaManager_) ) {
+			luaManager_.EndTable();
+		} BOOST_SCOPE_EXIT_END
+
+		KBuffBehaviorFactor BuffBehaviorFactor( eBehaviorType_ );
+
+		BUFF_CHANGE_TYPE eChangeType = BCT_SWAP_VALUE;
+		LUA_GET_VALUE_RETURN_ENUM( luaManager_, "BUFF_CHANGE_TYPE", eChangeType,
+			BUFF_CHANGE_TYPE, BCT_SWAP_VALUE, return DISPLAY_ERROR( L"BUFF_CHANGE_TYPE" ); );
+		BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( eChangeType ) );
+
+		if ( BCT_FIX_VALUE != eChangeType )
+			return DISPLAY_ERROR( L"BBT_CHANGE_NOW_FORCE_DOWN_PER_SECOND accepts BUFF_CHANGE_TYPE BCT_FIX_VALUE only" );
+
+		ParsingTableForWhile( luaManager_, "FIX_VALUE", BuffBehaviorFactor.m_vecValues, bIsSkill );
+		m_pDataBuffFactor->m_vecBuffBehaviorFactors.push_back( BuffBehaviorFactor );
+		return true;
+	}
+	else
+		return false;
+}
+
+/** @function : ParsingChangeStateByConditionBehavior
+	@brief : June 32d42910 (BBT 80-84). Reads BUFF_CHANGE_TYPE and BUFF_VALUE_CALCULATE_TYPE (both required), then the
+		VALUE table, and pushes [ change type, calculate type, VALUE... ] (counted when bIsSkill, as ParsingTableForWhile).
+	@return : true when the factor was pushed
+*/
+bool CX2BuffFactor::ParsingChangeStateByConditionBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill /*= true*/ )
+{
+	if ( luaManager_.BeginTable( pszTableName_ ) )
+	{
+		BOOST_SCOPE_EXIT( (&luaManager_) ) {
+			luaManager_.EndTable();
+		} BOOST_SCOPE_EXIT_END
+
+		KBuffBehaviorFactor BuffBehaviorFactor( eBehaviorType_ );
+
+		BUFF_CHANGE_TYPE eChangeType = BCT_SWAP_VALUE;
+		LUA_GET_VALUE_RETURN_ENUM( luaManager_, "BUFF_CHANGE_TYPE", eChangeType,
+			BUFF_CHANGE_TYPE, BCT_SWAP_VALUE, return DISPLAY_ERROR( L"BUFF_CHANGE_TYPE" ); );
+		BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( eChangeType ) );
+
+		BUFF_VALUE_CALCULATE_TYPE eValueCalculateType = BVC_RALLY_OF_HERO;
+		LUA_GET_VALUE_RETURN_ENUM( luaManager_, "BUFF_VALUE_CALCULATE_TYPE", eValueCalculateType,
+			BUFF_VALUE_CALCULATE_TYPE, BVC_RALLY_OF_HERO, return DISPLAY_ERROR( L"BUFF_VALUE_CALCULATE_TYPE" ); );
+		BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( eValueCalculateType ) );
+
+		ParsingTableForWhile( luaManager_, "VALUE", BuffBehaviorFactor.m_vecValues, bIsSkill );
+		m_pDataBuffFactor->m_vecBuffBehaviorFactors.push_back( BuffBehaviorFactor );
+		return true;
+	}
+	else
+		return false;
+}
+
+/** @function : SetGameUnitChangeStateByConditionBehavior
+	@brief : June 32d4ce60 (BBT 80-84 SGU). For BVC_RALLY_OF_HERO the number of users in the game is appended to the
+		levelled factor: [ ct, vct, n, v1..vn, x ] (the class reads v[3], v[4] and v[5]).
+		June also halves x when CX2Game::GetGameType() == GT_PVE (4). March's CX2Game::GAME_TYPE stops at
+		GT_BATTLE_FIELD, so that branch cannot run in this build and is not ported; it comes with GT_PVE.
+*/
+void CX2BuffFactor::SetGameUnitChangeStateByConditionBehavior( KBuffBehaviorFactor& factor_, CX2GameUnit* pGameUnit_ )
+{
+	if ( 1 < factor_.m_vecValues.size() && BVC_RALLY_OF_HERO == static_cast<int>( factor_.m_vecValues[1] ) )
+	{
+		const float fUserNum = ( NULL != g_pX2Game ? static_cast<float>( g_pX2Game->GetUserUnitNum() ) : 0.0f );
+		factor_.m_vecValues.push_back( fUserNum );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+//}}
 
 /** @function : ParsingCreateBuffFactorBehavior
 	@brief : 초당 MP가 감소하는 행동요소를 루아스크립트로 부터 읽어들임
