@@ -28,8 +28,8 @@ flags `SERV_IRUHADEV_JUNE_BUFF_*` (+ `_DEBUG`) · kickoffs `kickoffs/june-buff/`
 |---|---|---|---|---|---|
 | 0-5c | done, reviewed | - | - | - | - |
 | 6 | done, reviewed, play-tested (review `51701bb`..`071e58d`; user kept fix 1) | - | - | - | - |
-| 6b | done 2026-10-04 (buff terms only, user decision); **play-test owed** (hand-off in the 6b Done note) | Opus 5.5 / high | 6 | X2GUUser.cpp/.h (DoStateEndStart, GetActualMPConsume), X2Game.cpp (summon cases), X2Unit.cpp/.h, X2User.cpp, X2GU{Eve,Ara,Arme,Chung,EL,Elsword,Lire,Raven}.cpp (cooldowns) | `6b.md` |
-| 6b review | **ready** (after the 6b play-test) | Opus 5.5 / high | 6b | - | `6b-review.md` |
+| 6b | done, play-tested 2026-10-04 (buff terms only, user decision; checks 1-2 passed, logs read) | Opus 5.5 / high | 6 | X2GUUser.cpp/.h (DoStateEndStart, GetActualMPConsume), X2Game.cpp (summon cases), X2Unit.cpp/.h, X2User.cpp, X2GU{Eve,Ara,Arme,Chung,EL,Elsword,Lire,Raven}.cpp (cooldowns) | `6b.md` |
+| 6b review | **ready** | Opus 5.5 / high | 6b | - | `6b-review.md` |
 | 7 | ready | Opus 5.5 / high | 4a | X2GameUnit.cpp (GetFinalDamage, ProcessEnchantExtraDamage), X2GUUser.cpp (SetInputData), X2GUNPC.cpp (CommonEventProcess), X2BuffBehaviorTemplet, C++ BUFF_TEMPLET_ID enum | `7.md` |
 | 7 review | blocked | Opus 5.5 / high | 7 | - | `7-review.md` |
 | 7b | blocked | Opus 5.5 / high | 7 | X2GUUser.cpp/.h, X2GUNPC.cpp/.h, X2GameUnit.h, X2GUChung.cpp, X2GUAra.cpp | `7b.md` |

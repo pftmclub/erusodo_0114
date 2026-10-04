@@ -2488,6 +2488,8 @@ Moved to `JUNE_BUFF_PORT_ARCHIVE.md` (same heading); `tools/docsection.py` follo
 
 ### Phase 6b — Done (2026-10-04)
 
+**Play-test (2026-10-04, user, jtCodeEmpress; exe `c85baf49…`, run 19:58:14 after the 19:44 deploy): checks 1 and 2 passed.** `ErrorLog.txt`: load baseline unchanged (`factors 361 loaded`, no reject for 362–365); `:189-192` `first apply BBT 89/98/99/100`; `:193` `first host BBT 99 … skill 5003 MP 300 -> 150`; `:194` `first host BBT 100 … skill 5000 cool time left 9 -> 4.5`; `:195` `first host BBT 89/90/98 DoStateEndStart: state 53 skill 5000 power rate x 1.5 (89 x 90) x 1.2 (98) = 1.8`; `:197` `first host BBT 89/90/98 summon: skill 5003 power rate x 1.5 (89 x 90 1.5, 98 summon 1)`. All four hosts are shown live. 90 shares 89's reader and host, and was shown numerically in Phase 6. Only the review is owed.
+
 **Result.** 89, 90, 98, 99 and 100 have their hosts wired under `SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL` (no new flag; step-8 lines under `_DEBUG`). Each whole-function port pulled in June-only systems, so the user chose **"buff terms only"** for all four hosts (2026-10-04). June's buff math, order and timing are ported exactly; the June-only parts listed below stay out as recorded deviations.
 
 | Host (June) | March site | What landed | Not ported (user decision) |
