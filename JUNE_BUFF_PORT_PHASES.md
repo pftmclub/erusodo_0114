@@ -5001,6 +5001,7 @@ How the lines were checked:
 - The port now does the same, under the standing "June behaviour wins" rule.
 - It changes nothing on June's own data: all five 90/91 factors in `june_src_fixed/data036_kom/BattleFieldBuffFactor.src.lua` have exactly one block. Only custom or test factors with several blocks see it.
 - To undo it: put back the line `kBlock = CX2SkillIDRateByBuff::SkillIDRateBlock();` in `JuneBuffReadSkillIDRateBlocks` (`X2BuffBehaviorTemplet.cpp`).
+- **Decision (user, 2026-10-04): keep it.** June's behaviour stays: in a multi-block 90/91 factor, the last skill block wins.
 
 **Spot-checks (Ghidra read-only; uncarved functions read with `buffre/rawfn.py` and `disasm_range.py`).**
 1. **89, `SetFactor` `32e7a9e0` and slot 7 `32e7c020`: arithmetic matches.**
