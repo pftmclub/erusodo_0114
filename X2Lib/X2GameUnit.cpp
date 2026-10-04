@@ -11608,6 +11608,102 @@ void CX2GameUnit::EraseBuffTempletFromGameUnitByIterator( vector<CX2BuffTempletP
 #endif //BUFF_ICON_UI
 	m_vecBuffTempletPtr.erase( vItr_ );
 }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+
+/** @function : SetBuffAccumulationCount
+	@brief : June 322a7660. Sets the stack count of the buff that factor uiBuffFactorID_ belongs to, if the
+			 unit has it. Below 1 the buff is erased at once (3229d320 = EraseBuffTempletFromGameUnitByIterator).
+			 Otherwise, if a buff can be applied now (slot 132 with no factor = CanApplyBuffToGameUnit), the
+			 factor is levelled (32089f60), users run slots 476 and 141 on it, and the templet takes the count
+			 (3236a430). June's slot-476 fallback index is a June-only unit member (+0x9274); callers pass it.
+*/
+void CX2GameUnit::SetBuffAccumulationCount( const UINT uiBuffFactorID_, const int iCount_, const UINT uiLevel_, const int iAdjustIndex_ )
+{
+	CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( uiBuffFactorID_ );
+	if ( NULL == ptrBuffFactor )
+		return;
+
+	const BUFF_TEMPLET_ID eBuffTempletID = ptrBuffFactor->GetBuffTempletID();
+	vector<CX2BuffTempletPtr>::iterator vItr = m_vecBuffTempletPtr.begin();
+	for ( ; m_vecBuffTempletPtr.end() != vItr; ++vItr )
+	{
+		if ( NULL != *vItr && eBuffTempletID == (*vItr)->GetBuffTempletID() )
+			break;
+	}
+	if ( m_vecBuffTempletPtr.end() == vItr )
+		return;
+
+	if ( iCount_ < 1 )
+	{
+		EraseBuffTempletFromGameUnitByIterator( vItr );
+		return;
+	}
+
+	if ( !CanApplyBuffToGameUnit() )
+		return;
+
+	CX2BuffFactorPtr ptrLevelledFactor( new CX2BuffFactor( *ptrBuffFactor, uiLevel_ ) );
+	if ( GUT_USER == GetGameUnitType() )
+	{
+		AdjustBuffFactorByIndex( ptrLevelledFactor, iAdjustIndex_ );
+		OnBuffAccumulationFactorReady( ptrLevelledFactor, 0 );
+	}
+	(*vItr)->SetAccumulationCountNow( iCount_, this, *ptrLevelledFactor );
+}
+
+/** @function : AddBuffAccumulationCount
+	@brief : June 322a8a70. The current count (322a0090: the first live factor of that templet in
+			 GetBuffFactor, else 0) plus iDelta_, passed to SetBuffAccumulationCount.
+*/
+void CX2GameUnit::AddBuffAccumulationCount( const UINT uiBuffFactorID_, const int iDelta_, const UINT uiLevel_, const int iAdjustIndex_ )
+{
+	CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( uiBuffFactorID_ );
+	if ( NULL == ptrBuffFactor )
+		return;
+
+	UCHAR ucCountNow = 0;
+	vector<KBuffFactor> vecBuffFactor;
+	GetBuffFactor( vecBuffFactor );
+	BOOST_FOREACH( const KBuffFactor& kBuffFactor, vecBuffFactor )
+	{
+		if ( kBuffFactor.m_BuffIdentity.m_eBuffTempletID == static_cast<int>( ptrBuffFactor->GetBuffTempletID() ) )
+		{
+			ucCountNow = kBuffFactor.m_ucAccumulationCountNow;
+			break;
+		}
+	}
+
+	SetBuffAccumulationCount( uiBuffFactorID_, static_cast<int>( ucCountNow ) + iDelta_, uiLevel_, iAdjustIndex_ );
+}
+
+/** @function : OperateBuffBehaviorValue
+	@brief : June 3227c360. On the first buff with eBuffTempletID_, behavior uiBehaviorIndex_ adds (0,
+			 slot 9), multiplies (1, slot 10) or sets (2, slot 11) fValue_; any other operation does nothing.
+*/
+void CX2GameUnit::OperateBuffBehaviorValue( const int iOperation_, const BUFF_TEMPLET_ID eBuffTempletID_, const UINT uiBehaviorIndex_, const float fValue_ )
+{
+	vector<CX2BuffBehaviorTempletPtr> vecBehaviorPtr;
+	BOOST_FOREACH( CX2BuffTempletPtr ptrBuffTemplet, m_vecBuffTempletPtr )
+	{
+		if ( NULL != ptrBuffTemplet && eBuffTempletID_ == ptrBuffTemplet->GetBuffTempletID() )
+		{
+			ptrBuffTemplet->GetBehaviorPtrList( vecBehaviorPtr );
+			break;
+		}
+	}
+
+	if ( uiBehaviorIndex_ >= vecBehaviorPtr.size() || NULL == vecBehaviorPtr[uiBehaviorIndex_] )
+		return;
+
+	switch ( iOperation_ )
+	{
+	case 0:	vecBehaviorPtr[uiBehaviorIndex_]->AddValueByOperation( fValue_ );		break;
+	case 1:	vecBehaviorPtr[uiBehaviorIndex_]->MultiplyValueByOperation( fValue_ );	break;
+	case 2:	vecBehaviorPtr[uiBehaviorIndex_]->SetValueByOperation( fValue_ );		break;
+	default:	break;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : ReserveToFinishBuffTempletFromGameUnit
 	@brief : 다음 종료 체크시 해당 버프가 종료 되도록 하는 함수

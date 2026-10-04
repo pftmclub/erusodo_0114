@@ -2859,6 +2859,17 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void RemoveVecMoveSpeedFactor( SPEED_FACTOR_ID eID );
 
 		virtual bool CanApplyBuffToGameUnit() const;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June's stack-count setters, reached only from June-only content (renewal skills of Eve, Elesis,
+		/// Rose, Luciel and Aisha; JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7). Ported dormant.
+		void SetBuffAccumulationCount( const UINT uiBuffFactorID_, const int iCount_, const UINT uiLevel_, const int iAdjustIndex_ );	/// June 322a7660
+		void AddBuffAccumulationCount( const UINT uiBuffFactorID_, const int iDelta_, const UINT uiLevel_, const int iAdjustIndex_ );	/// June 322a8a70
+		void OperateBuffBehaviorValue( const int iOperation_, const BUFF_TEMPLET_ID eBuffTempletID_, const UINT uiBehaviorIndex_, const float fValue_ );	/// June 3227c360
+		/// June unit slot 476 (users only, 32028250): adjusts the levelled factor by an index (June-only system)
+		virtual void AdjustBuffFactorByIndex( CX2BuffFactorPtr ptrBuffFactor_, const int iAdjustIndex_ ) {}
+		/// June unit slot 141 (322b5630: empty; only Ain 32a6aa10 and Rose 32ac8f10 override it)
+		virtual void OnBuffAccumulationFactorReady( CX2BuffFactorPtr ptrBuffFactor_, const int iZero_ ) {}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
         virtual const std::vector<BUFF_TEMPLET_ID>& GetVecImmunityAtThisState() const = NULL;
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE

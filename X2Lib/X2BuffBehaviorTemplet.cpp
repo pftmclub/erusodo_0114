@@ -596,6 +596,43 @@ void CX2BuffChangeNowHpPerSecondBehaviorTemplet::DrawText( CX2GameUnit* pGameUni
 
 	return true;
 }
+
+/** @function : OnAccumulationCountSet
+	@brief : June 32e7c680 (behavior slot 3). Re-applies the value at a stack count set from outside
+			 (CX2BuffTemplet::SetAccumulationCountNow): the change type must match, the FIX/PERCENT delegate
+			 is bound again, the value is (1 - resist) * v[1], and once started with a stack count it is
+			 scaled by 1 + multiplier * (count - 1). Unlike SetFactor there is no larger-absolute pick.
+*/
+/*virtual*/ bool CX2BuffChangeNowMpPerSecondBehaviorTemplet::OnAccumulationCountSet( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_, const int iCount_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( STATIC_CAST_FLOAT_TO_ENUM( BUFF_CHANGE_TYPE, (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != m_eChangeType )
+		return false;
+
+	if ( BCT_FIX_VALUE == m_eChangeType || BCT_PERCENT == m_eChangeType )
+		SelectDelegate();
+
+	const float fRegist = pGameUnit_->GetEnchantResist( static_cast<CX2EnchantItem::ENCHANT_TYPE>( pBuffTemplet_->GetRegistType() ) ) / CX2EnchantItem::EAR_MAX_VALUE;
+	float fValueOrPercent = GetValueOrPercentPerSecond( pBehaviorFactor, fRegist );
+	if ( DidStart() && 0 < pBuffTemplet_->GetAccumulationCountNow() )
+		fValueOrPercent = ( pBuffTemplet_->GetAccumulationMultiflier() * static_cast<float>( iCount_ - 1 ) + 1.0f ) * fValueOrPercent;
+
+	m_fResultValue = fValueOrPercent;
+	return true;
+}
+
+/*virtual*/ void CX2BuffChangeNowMpPerSecondBehaviorTemplet::AddValueByOperation( const float fValue_ )
+{
+	m_fResultValue += fValue_;		/// June 32e893a0 (slot 9)
+}
+
+/*virtual*/ void CX2BuffChangeNowMpPerSecondBehaviorTemplet::MultiplyValueByOperation( const float fValue_ )
+{
+	m_fResultValue *= fValue_;		/// June 32e89430 (slot 10)
+}
 #else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /*virtual*/ bool CX2BuffChangeNowMpPerSecondBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
 {
@@ -1151,6 +1188,61 @@ void CX2BuffChangeNowMpPerSecondBehaviorTemplet::DrawText( CX2GameUnit* pGameUni
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : OnAccumulationCountSet
+	@brief : June 32e786d0 (behavior slot 3). The change type must match; v = GetValue at the resist.
+			 Not started: count * v, inserted. Started: with no stack count, count * v; with one, a zero
+			 multiplier returns false, FIX/RELATION take count * v, PERCENT 1 + (v - 1) * count clamped at 0,
+			 SWAP keeps its value; then the stat is updated (3226fd70, so BBT 6 gets no HP rescale here).
+*/
+/*virtual*/ bool CX2BuffChangeStatBehaviorTemplet::OnAccumulationCountSet( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_, const int iCount_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( STATIC_CAST_FLOAT_TO_ENUM( BUFF_CHANGE_TYPE, (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != m_eChangeType )
+		return false;
+
+	const float fRegist = pGameUnit_->GetEnchantResist( static_cast<CX2EnchantItem::ENCHANT_TYPE>( pBuffTemplet_->GetRegistType() ) ) / CX2EnchantItem::EAR_MAX_VALUE;
+	const float fNewValue = GetValue( pBehaviorFactor, pGameUnit_, fRegist );
+
+	if ( !DidStart() )
+	{
+		m_fResultValue = static_cast<float>( iCount_ ) * fNewValue;
+		pGameUnit_->InsertAdditionalStat( GetType(), m_eChangeType, pBuffTemplet_->GetBuffIdentity(), m_fResultValue );
+		return true;
+	}
+
+	if ( 0 == pBuffTemplet_->GetAccumulationCountNow() )
+		m_fResultValue = static_cast<float>( iCount_ ) * fNewValue;
+	else
+	{
+		if ( IsSamef( pBuffTemplet_->GetAccumulationMultiflier() ) )
+			return false;
+
+		switch ( m_eChangeType )
+		{
+		case BCT_FIX_VALUE:
+		case BCT_RELATION_VALUE:
+			m_fResultValue = static_cast<float>( iCount_ ) * fNewValue;
+			break;
+
+		case BCT_PERCENT:
+			m_fResultValue = ( fNewValue - 1.0f ) * static_cast<float>( iCount_ ) + 1.0f;
+			if ( m_fResultValue < 0.0f )
+				m_fResultValue = 0.0f;
+			break;
+
+		default:		/// SWAP keeps its value
+			break;
+		}
+	}
+
+	pGameUnit_->UpdateAdditionalStat( GetType(), m_eChangeType, pBuffTemplet_->GetBuffIdentity(), m_fResultValue );
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 //}}
 
 /** @function : GetValue
@@ -3418,6 +3510,60 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 		m_fRate = fNewRate;
 		pGameUnit_->CreateAndInsertChangeEnchantAttackRate( pBuffTemplet_->GetBuffIdentity(), m_fRate, m_eEnchantAttributeType, m_eChangeType );
 	}
+	return true;
+}
+
+/** @function : OnAccumulationCountSet
+	@brief : June 32e775e0 (behavior slot 3). The change type must match; the attribute is set per type as
+			 in SetFactor, and only FIX and PERCENT go on. Not started: insert v[1]. Started with a stack
+			 count: a zero multiplier returns false, else erase and insert v[1] * (1 + multiplier * (count - 1)).
+			 Started with no count: erase and insert v[1] (no larger-absolute pick, unlike SetFactor).
+*/
+/*virtual*/ bool CX2BuffChangeEncahntAttackRateBehaviorTemplet::OnAccumulationCountSet( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_, const int iCount_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( STATIC_CAST_FLOAT_TO_ENUM( BUFF_CHANGE_TYPE, (*pBehaviorFactor)[FO_CHANGE_TYPE] ) != m_eChangeType )
+		return false;
+
+	switch ( GetType() )
+	{
+	case BBT_CHANGE_ATTRIBUTE_BLAZE_ATTACK_RATE:	m_eEnchantAttributeType = BEAT_BLAZE;	break;
+	case BBT_CHANGE_ATTRIBUTE_WATER_ATTACK_RATE:	m_eEnchantAttributeType = BEAT_FROZEN;	break;
+	case BBT_CHANGE_ATTRIBUTE_NATURE_ATTACK_RATE:	m_eEnchantAttributeType = BEAT_POSION;	break;
+	case BBT_CHANGE_ATTRIBUTE_WIND_ATTACK_RATE:	m_eEnchantAttributeType = BEAT_PIERCING;	break;
+	case BBT_CHANGE_ATTRIBUTE_LIGHT_ATTACK_RATE:	m_eEnchantAttributeType = BEAT_SHOCK;	break;
+	case BBT_CHANGE_ATTRIBUTE_DARK_ATTACK_RATE:	m_eEnchantAttributeType = BEAT_SNATCH;	break;
+	default:	break;
+	}
+
+	if ( BCT_PERCENT != m_eChangeType && BCT_FIX_VALUE != m_eChangeType )
+		return false;
+
+	const float fNewRate = (*pBehaviorFactor)[FO_VALUE];
+	if ( DidStart() )
+	{
+		if ( 0 < pBuffTemplet_->GetAccumulationCountNow() )
+		{
+			const float fAccumulationMultiflier = pBuffTemplet_->GetAccumulationMultiflier();
+			if ( IsSamef( fAccumulationMultiflier ) )
+				return false;
+
+			pGameUnit_->EraseChangeEnchantAttackRate( pBuffTemplet_->GetBuffIdentity(), m_eEnchantAttributeType, m_eChangeType );
+			m_fRate = ( fAccumulationMultiflier * static_cast<float>( iCount_ - 1 ) + 1.0f ) * fNewRate;
+		}
+		else
+		{
+			pGameUnit_->EraseChangeEnchantAttackRate( pBuffTemplet_->GetBuffIdentity(), m_eEnchantAttributeType, m_eChangeType );
+			m_fRate = fNewRate;
+		}
+	}
+	else
+		m_fRate = fNewRate;
+
+	pGameUnit_->CreateAndInsertChangeEnchantAttackRate( pBuffTemplet_->GetBuffIdentity(), m_fRate, m_eEnchantAttributeType, m_eChangeType );
 	return true;
 }
 #else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY

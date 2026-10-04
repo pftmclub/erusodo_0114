@@ -2883,6 +2883,9 @@ public:
 		void						ApplyAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const float fAddtionalAccelBuffTime_, const D3DXVECTOR3& vMyPos_ );
 		virtual void				ApplyAuraAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const float fAddtionalAccelBuffTime_, const D3DXVECTOR3& vMyPos_ );
 		virtual bool				CanApplyBuffToGameUnit() const;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		virtual void				AdjustBuffFactorByIndex( CX2BuffFactorPtr ptrBuffFactor_, const int iAdjustIndex_ );	/// June 32028250 (user slot 476)
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
         virtual const std::vector<BUFF_TEMPLET_ID>& GetVecImmunityAtThisState() const   { return m_vecImmunityAtThisState; }
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE

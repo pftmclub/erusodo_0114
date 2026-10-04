@@ -5559,6 +5559,24 @@ void CX2GUUser::ApplyAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet
 	else
 		return false;	/// GameUnit에서 체크한 것이 false면 바로 false로 리턴 함
 }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+
+/** @function : AdjustBuffFactorByIndex
+	@brief : June 32028250 (user slot 476). With an index of 0 or more, June looks it up in a June-only
+			 table (31fdbbb0) and rescales the levelled factor (type 0xf: behavior 1's value; 0x10: a value
+			 list). March has neither that table nor the unit member June falls back on, so this logs once
+			 and does nothing. Reached only from SetBuffAccumulationCount, i.e. June-only content.
+*/
+/*virtual*/ void CX2GUUser::AdjustBuffFactorByIndex( CX2BuffFactorPtr ptrBuffFactor_, const int iAdjustIndex_ )
+{
+	static bool s_bLogged = false;
+	if ( false == s_bLogged && 0 <= iAdjustIndex_ )
+	{
+		s_bLogged = true;
+		CX2JuneBuffCapture::Line( "unsupported (June-only system): user slot 476 factor adjustment by index %d (June 32028250) skipped", iAdjustIndex_ );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 void CX2GUUser::InitEquippedActiveSkillState( bool bOnlySkillLevel /*= false*/ )
 {

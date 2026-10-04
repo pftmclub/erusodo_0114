@@ -137,6 +137,10 @@ public:
 	bool ReapplyBehaviorForAccumulationDecrease( CX2GameUnit* pGameUnit_ );		/// June 3236a930
 	void RestartDisplayerForAccumulationDecrease( CX2GameUnit* pGameUnit_ );	/// June 3236a190
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	void SetAccumulationCountNow( const int iCount_, CX2GameUnit* pGameUnit_, const CX2BuffFactor& BuffFactor_ );	/// June 3236a430
+	void GetBehaviorPtrList( OUT vector<CX2BuffBehaviorTempletPtr>& vecBehaviorPtr_ ) const { vecBehaviorPtr_ = m_vecBehaviorPtr; }	/// June 3236c8e0
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 //}}
 
 	/// 중복이 가능한 버프 인 경우에 구분할 수 있는 숫자(카운트)

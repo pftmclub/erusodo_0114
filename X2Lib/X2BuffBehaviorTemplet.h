@@ -42,6 +42,16 @@ public:
 	/// lowered the stack count (CX2BuffTemplet::ReapplyBehaviorForAccumulationDecrease)
 	virtual bool OnAccumulationCountDecreased( CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ ) { return false; }
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June behavior vtable slots 3 and 9/10/11, reached only from June-only content (CX2BuffTemplet::
+	/// SetAccumulationCountNow = 3236a430, CX2GameUnit::OperateBuffBehaviorValue = 3227c360). Slot 3 (base
+	/// 32e864d0: true) re-applies the behavior at a stack count set from outside; slots 9/10/11 (base
+	/// 3208ddc0: empty) add to, multiply or overwrite its value.
+	virtual bool OnAccumulationCountSet( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_, const int iCount_ ) { return true; }
+	virtual void AddValueByOperation( const float fValue_ ) {}
+	virtual void MultiplyValueByOperation( const float fValue_ ) {}
+	virtual void SetValueByOperation( const float fValue_ ) {}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	
 	bool SetFactorFromPacketTemplateMothod( const KBuffFactor& kBuffFactor_, CX2GameUnit* pGameUnit_ );
 	bool DidStart() const { return m_bStart; }
@@ -177,6 +187,11 @@ public:
 	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
 	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
 	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	virtual bool OnAccumulationCountSet( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_, const int iCount_ );	/// June 32e7c680
+	virtual void AddValueByOperation( const float fValue_ );		/// June 32e893a0
+	virtual void MultiplyValueByOperation( const float fValue_ );	/// June 32e89430
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 protected:
 	CX2BuffChangeNowMpPerSecondBehaviorTemplet() 
@@ -287,6 +302,9 @@ public:
 	/// Only June's _HaveBuffOwner subclass (BBT 93, Phase 5b) overrides them; SetFactor calls 15 on every apply.
 	virtual UidType GetBuffOwnerUID() const { return 0; }
 	virtual void SetBuffOwnerUID( const UidType ) {}
+	/// June ChangeStat slot 3 (32e786d0) and slot 11 (32e86500: a plain store to m_fResultValue)
+	virtual bool OnAccumulationCountSet( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_, const int iCount_ );
+	virtual void SetValueByOperation( const float fValue_ ) { m_fResultValue = fValue_; }
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 protected:
@@ -872,6 +890,9 @@ public:
 	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
 	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
 	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	virtual bool OnAccumulationCountSet( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_, const int iCount_ );	/// June 32e775e0
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
 
 protected:

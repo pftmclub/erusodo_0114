@@ -622,6 +622,37 @@ void CX2BuffTemplet::RestartDisplayerForAccumulationDecrease( CX2GameUnit* pGame
 	}
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/** @function : SetAccumulationCountNow
+	@brief : June 3236a430, reached only from CX2GameUnit::SetBuffAccumulationCount (June-only callers).
+		Every behavior re-applies itself at the new count (slot 3) and is marked started when that
+		succeeds; then, only if the templet keeps a stack count, the count becomes iCount_ and every
+		displayer starts again. June then refreshes the buff icon with the count (+0xa8 -> 32489810),
+		which is not ported, as in RestartDisplayerForAccumulationDecrease: March's icon shows no count.
+*/
+void CX2BuffTemplet::SetAccumulationCountNow( const int iCount_, CX2GameUnit* pGameUnit_, const CX2BuffFactor& BuffFactor_ )
+{
+	BOOST_FOREACH( CX2BuffBehaviorTempletPtr ptrBehavior, m_vecBehaviorPtr )
+	{
+		if ( NULL != ptrBehavior && ptrBehavior->OnAccumulationCountSet( BuffFactor_, pGameUnit_, this, iCount_ ) )
+			ptrBehavior->SetStart( true );
+	}
+
+	MAP_UN_COMMON_MEMBER::iterator mItr = m_mapUnCommonMember.find( UCM_ACCUMULATION_COUNT_NOW );
+	if ( m_mapUnCommonMember.end() == mItr )
+		return;
+
+	mItr->second = static_cast<float>( iCount_ );
+	BOOST_FOREACH( CX2BuffDisplayerTempletPtr ptrDisplayer, m_vecDisplayerPtr )
+	{
+		if ( NULL != ptrDisplayer )
+		{
+			ptrDisplayer->StartDisplayer( pGameUnit_, this );
+			ptrDisplayer->SetStart( true );
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 //}}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
