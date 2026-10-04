@@ -4100,6 +4100,146 @@ All nine are in the factor-parse switch of **both** macro lists and in the templ
 
 **Log lines to read afterwards** (this phase's own, `ErrorLog.txt` in the game directory): `[JUNE_BUFF] first apply BBT 79 / 80–84 / 93 / 106 / 107 …`, `first SetFactor BBT 80–84 …`, `first read BBT 79 …`, `first read BBT 106/107 …`, and any `[JUNE_BUFF]` line naming one of the nine types or the ids `362`, `363`, `364`. Nothing else is in scope.
 
+### Phase 5b — Review (2026-10-04, Opus 5.5 high)
+
+Independent review of code commit `9b79255` (against its parent `6f4f3d7`) and doc commits `7235480` and `bd44d6b`.
+- Ghidra was used read-only (a health call only). Most of the addresses are not carved into functions, so their bodies were read with `june2017_re/disasm_range.py` (raw capstone on the same binary). Jump tables and constants were decoded straight from the PE.
+- Hygiene was re-run with fresh tools: a byte-level unifdef, `file` at both commits, and `git diff --numstat`.
+
+**Verdict: the transcription is correct. No code changed.** All three spot-checks, the SGU and level-slice jump tables, and 79's tick match June's asm. One claim about 93's packet bug is wrong in the doc and in one code comment (D1); the code itself is right. The exe deployed in 5b (`b981a4c1…`) stays.
+
+| # | Check | Result |
+|---|---|---|
+| 1 | Enum values | **Pass.** These three agree: C++ `X2BuffFactor.h:117-122/131/144-145` with `BVC_RALLY_OF_HERO = 0`; June `Enum.src.lua` (the BBT block, and `BUFF_VALUE_CALCULATE_TYPE` at `:11906`); and the staged March `Enum.src.lua` (`:8360-8387`, `:10859`). |
+| 2 | Parse and factory | **Pass.** All nine types are in both macro lists and in the factory. 93, 106 and 107 use `ParsingChangeStatBehavior`; 79 and 80–84 use their own parsers. The non-skill list is the `#else` of `UPGRADE_SKILL_SYSTEM_2013`, so it is unreachable in this build. |
+| 3 | SGU (`32d4d670`; table `32d4d78c` → `32d4d774`, index type−1) | **Pass.** 76, 78, 92 and 93 go to ChangeStat `32d41700` (with 6–21, 36–42, 44, 52 and 72); 80–84 go to `32d4ce60`; 79 goes to default. 106 and 107 are above the bound (`0x5c`) and also go to default. The port's two SGU edits are exactly this. |
+| 4 | Level slice (`32d47620`; table `32d48264` → `32d4822c`) | **Pass.** 79 → `32d478aa`; 80–84 → `32d48063`; 93 → the ChangeStat group `32d47957`. 106 and 107 are above June's bound (type−1 > `0x68`), so they fall to default `32d4812a`. The port's `GetBehaviorFactorToLevel` routes all nine the same way. |
+| 5 | **Spot-check: 93** `GetFactor` `32e7d7f0`, packet `32e76710` | **Pass, with doc correction D1.** `GetFactor` pushes m (`+0x18`), then `uid & 0xffff`, `(uid >> 16) & 0xffff` (`shrd`), `(uid >> 32) & 0xffff` (`32fe3030`), and `movzx word [+0x26]`, which is an unsigned `uid >> 48`. The packet inserts `m = v[0]` through `32282700`. It then reads v[4], v[5], v[6] and v[7], **each behind its own size test** (`cmp size, 4/5/6/7`, `fldz` when the element is absent). It converts each with `32fe2626` (`__ftol2`, float to int64) and stores `v4 | v5<<16 | v6<<32 | v7<<48` at `+0x20`/`+0x24`. The port does the same; its `int` conversion is equal for 16-bit words. |
+| 6 | **Spot-check: 80–84** `GetValue` `32e77f40`, `SetFactor` `32e78860` | **Pass.** See "80–84 `SetFactor` in detail" below. |
+| 7 | **Spot-check: 106/107** reader `3204a118`–`3204a243` | **Pass, term for term.** `dec = DD+0x514`. If the defender `optr` at `DD+0x470` is set (`31e55680`), `dec −= DD+0x2c ? 32071bb0 (+0x5c1c, 106) : 32071bd0 (+0x5cd0, 107)`. Then `fForceDown = DD+0x3f0 − dec`, followed by the penetrate (`DD+0x4c5`) clamp. |
+| 8 | 79 tick `32e89800` | **Pass.** `if ( sum(+0x18) >= target(+0x14) ) { sum = 0; gage(+0xc04)+0x5c.Increase( m, 0 ) }`. This equals March's `CheckAndResetElapsedTime` (`KTDXTimer.h:47-52`) plus `UpNowForceDown` (`X2GageData.h:354`). |
+| 9 | Stores | **Pass.** See "Stores in detail" below. |
+| 10 | Hygiene | **Pass.** See "Hygiene in detail" below. |
+
+**80–84 `SetFactor` in detail (check 6).**
+- `GetValue`'s gate is the class member `+0x14 == 0`, i.e. the templet's calculate type. The Done note's correction of the map is right.
+- Every element is size-tested before it is read. The result is `( 4.0 − v5 ) · v4 + v3`, with 4.0 at `33437838`.
+- `SetFactor`:
+  - It returns false when `GetBehaviorFactor` fails, when `ftol( v[0] ) != +0x10`, or when `+0x10 == 2` (`BCT_RELATION_VALUE`).
+  - The regist is computed as resist / 500.0 (`33458fa8`) and passed, but never used.
+  - A zero multiplier returns false (`31c7b640`, `IsSamef`).
+  - PERCENT: `m = 1 + ( fNew − 1 )·( c + 1 )`, then `m < 0 → 0` with no popup.
+  - FIX: `c ≤ 1 ? m : m / ( 1 + mul·( c − 1 ) )`, using 1.0 from `334355b0`. The larger magnitude is kept.
+- The port matches. Its extra `DISPLAY_ERROR`s go through the 4b-ii redirect, which writes one `[JUNE_BUFF] runtime error` line and raises no popup. So June's "no popups" holds.
+
+**Stores in detail (check 9).**
+- 80 and 81 share the case labels of 7 and 8 in insert, update and erase. In all three, the shared body also writes the range member (under `BEHAVIOR_PARITY`); June's update gives 80 and 81 their own blocks (`322708d8`, `32270947`) of the same shape.
+- 82 and 83 share the stores of 9 and 10.
+- 84 has its own insert and erase blocks, and shares 6's update. In June, case 84 of update `3226fd70` (index type−6) is case 6's block `3226fd94`: update-or-insert on `+0x42d0`, then return, with no `SetMaxHp` (see R3).
+- 93 shares all three of 42's blocks.
+- 106 and 107 are in insert, update, erase, refresh, basic value (0.0), passive and `Verify`.
+
+**Hygiene in detail (check 10).**
+- `numstat 6f4f3d7 9b79255`: 303/1, 110/0, 117/0, 15/0, 22/0, 133/0 and 6/0 over the seven source files, plus 5/0 in `funcmap.tsv`.
+- `file` gives the same answer at both commits for all seven source files: CP949 (`ISO-8859` or `Non-ISO extended-ASCII`) with CRLF. The two headers' "CRLF, LF" was already there. HEAD equals `9b79255` on all seven.
+- **The one deletion is the old last line regaining its line end.** A line-level diff of `X2BuffBehaviorTemplet.cpp` gives exactly one `replace`: the old last line, `#endif //FIX_SKILL_BALANCE_AISHA_LENA` with no line end, becomes the same bytes plus `\r\n`, followed by the appended block. No byte was dropped.
+- **Flag-off strip** (`NEW_STAT` and `DEBUG` undefined, applied to both sides):
+  - `X2GUUser.cpp` and `X2GameUnit.h` are byte-identical to the parent.
+  - The other five differ only by blank lines, the `//{{ Iruha … //}}` markers and that EOF newline.
+  - The wrong-flag control (`TEMPLET_PARITY`) differs on every file.
+  - The replaced line in `X2GUUser.cpp` is in the `#else`.
+
+**Findings**
+- **D1, doc correction (93's packet bug): June does not read past the end of the factor.**
+  - Each of v[4..7] is size-tested and reads 0 when it is absent, exactly like the port's `KBuffBehaviorFactor::operator[]` (`CommonPacket.h:1234`).
+  - With `GetFactor`'s five values, a peer gets owner = `uid >> 48` (the top word alone), not "garbage".
+  - The wrong wording is in three places: item 3 ("peers get a garbage owner"), the 5b Done note ("June reads past the end; the port reads 0 there", which is right about the port but not about June), and the comment at `X2BuffBehaviorTemplet.cpp:4524`. The doc lines stay as written, so the history is readable, and this note supersedes them.
+  - The comment is not edited now: a comment-only change would re-link a new exe for no behaviour change (the 4b-i part 3 review's R1 precedent). Correct it with the next code edit to that file. `funcmap.tsv` has the corrected row.
+- **R1, Info (flag dependency).** Two pieces of 5b's behaviour sit under `BEHAVIOR_PARITY`, not `NEW_STAT`: 80/81's range-member writes, and the call that gives 93 its owner (ChangeStat `SetFactor`'s `SetBuffOwnerUID`, `X2BuffBehaviorTemplet.cpp:1051-1054`).
+  - `Always.h`'s `NEW_STAT` comment already says it requires `BEHAVIOR_PARITY`, but nothing enforces that. With `NEW_STAT` on and `BEHAVIOR_PARITY` off, the build still compiles: 80/81 write the main member only, and 93 sends owner 0.
+  - Both flags are on today. **User's call:** add an `#error` pair like the `DAMAGEEFFECT` one (`Always.h:4421-4422`). Not done.
+- **R2, Info (the templet and the factor can disagree).**
+  - The SGU tests the factor's `v[1]`; `GetValue` tests the templet's member.
+  - If a templet says `BVC_RALLY_OF_HERO` (0) and its factor says something else, no user count is appended and the value is `v3 + 4·v4`.
+  - This is June's behaviour, transcribed. June's data uses 0 on both sides, so it cannot happen with June data.
+- **R3, Info (a second stack of 84 does not move the gage's max HP).**
+  - 84's update shares case 6, which never calls `SetMaxHp`. So a second stack changes the store's result, but the HP bar keeps the first stack's max HP until the next max-HP insert or erase.
+  - This was read in June above (`3226fd94`), so it is June's behaviour, not a port gap. The play-test below shows it.
+- **Not covered:**
+  - The packet path at runtime needs a second client. The Ghidra read above is the only evidence for 93's layout.
+  - The default level slice that 106/107 use (ported wholesale in 4b-i) was not re-read in asm. Check 1 below tests it with a level-dependent value.
+
+**`funcmap.tsv`:** three rows were added ("Buff Phase 5b review"): `32e76710` (the range tests and the corrected owner), `32fe2626` (`__ftol2`, candidate), and `3226fd94` (update case 6/84, no `SetMaxHp`).
+
+**Review cost:** `/cost` cannot be read from inside the session. User, please paste it here.
+
+**Play-test hand-off (review).** These checks cover what 5b's four checks did not reach:
+- **106/107 through a real factor.** 5b's check 4 used the console hook, which writes straight into the store and skips the factor parse, the default level slice, the factory and ChangeStat's `SetFactor`.
+- **A second stack of 80/81/84** (the accumulation branch).
+- **84's expiry** (its own erase block), which was not reported back.
+
+How the lines were checked:
+- **Syntax:** checked with `elstools`' `luajit.exe`.
+- **Tables:** the two definition lines were run against a mock manager, which confirmed the tables and ids they build.
+- **Not run in the game:** none of the lines has been run there yet. Each is the same shape as the 5b lines that did run, and each is shorter than the longest of those (1,125 and 1,310 characters, against 1,740).
+- **Ids:** the factor ids assume a **fresh launch**. The last load logged `factors 361 loaded`, so the next free id is 362. If you already pasted 5b's definitions in this session, restart the game first; otherwise both ids are rejected (`ordinal reject BFI 362 … the next id must be N`).
+
+0. **Setup (once, right after loading in).**
+   - Where: any field or dungeon, after a fresh launch of the game.
+   - Paste, first (defines the force-down test buff, factor 362):
+     ```
+     local t = {} local r = {} local a = {} local b = {} for i = 1, 30 do t[i] = 60 r[i] = 1 a[i] = 100 + i b[i] = 200 + i end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990106, IS_WORLD_BUFF = FALSE, IS_DEBUF = FALSE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 106, 107 }, BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED = { BUFF_CHANGE_TYPE = 1, BUFF_RELATION_TYPE = 7 }, BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED = { BUFF_CHANGE_TYPE = 1, BUFF_RELATION_TYPE = 7 } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 362, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990106, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 106, 107 }, BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED = { BUFF_CHANGE_TYPE = 1, BUFF_RELATION_TYPE = 7, FIX_VALUE = a }, BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED = { BUFF_CHANGE_TYPE = 1, BUFF_RELATION_TYPE = 7, FIX_VALUE = b } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+   - Paste, second (defines the stacking rally buff, factor 363):
+     ```
+     local t = {} local r = {} for i = 1, 30 do t[i] = 20 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 2, ACCUMULATION_MULTIPLIER = 1, BUFF_TEMPLET_ID = 990081, IS_WORLD_BUFF = FALSE, IS_DEBUF = FALSE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 80, 81, 84 }, BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0 }, BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0 }, BBT_CHANGE_MAX_HP_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0 } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 363, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990081, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 80, 81, 84 }, BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0, VALUE = { 1.06, 0.35 } }, BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0, VALUE = { 1.06, 0.35 } }, BBT_CHANGE_MAX_HP_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0, VALUE = { 1.06, 0.07 } } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+   - What it does: teaches the game two test buffs; nothing changes on screen yet.
+   - Look for: no popup. `ErrorLog.txt` gets no `ordinal reject BFI 362` or `363` line.
+   - If not: an `ordinal reject … the next id must be N` line means the ids are off. Tell me N, or restart the game and paste the two lines again.
+
+1. **Force-down bonus through a real buff (types 106 and 107).**
+   - Where: a field or dungeon, next to a monster that hits you up close, ideally one that also shoots.
+   - Paste:
+     ```
+     g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 362, 1 )
+     ```
+   - What it does: for 60 seconds, gives you two different "force down taken" values: 101 for melee hits and 201 for ranged hits.
+   - Look for:
+     - Nothing visible; this only matters in PvP.
+     - `ErrorLog.txt` gets `first apply BBT 106, change type 1, value 101` and `first apply BBT 107, change type 1, value 201`. The 101/201 prove the buff's level 1 was picked from a table that is different at every level.
+     - After you are hit: `first read BBT 106: force down decrease 0 - 101` for a melee hit, or `first read BBT 107: … - 201` for a ranged hit. Get hit by both kinds if you can.
+   - If not:
+     - Values other than 101/201: send me the two lines.
+     - No `first apply` line: send any `[JUNE_BUFF]` line naming BTI `990106`, BFI `362`, or one of the two `BBT_CHANGE_FORCE_DOWN_MULTIPLIER_…` names.
+     - No `first read` line after a hit: tell me "no first read" and what hit you.
+
+2. **The rally buff stacks, then wears off (types 80, 81 and 84).**
+   - Where: any field or dungeon, on your own (one player), next to a monster you can hit safely. Before pasting:
+     - Note your **max HP** number.
+     - Hit the monster a few times with the same basic attack and note the **typical damage number**.
+   - Paste (once now, then a second time a few seconds later):
+     ```
+     g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 363, 1 )
+     ```
+   - What it does: the first paste gives the Rally of Hero bonus; the second stacks it once more. The buff runs out 20 seconds after your last paste.
+   - Look for:
+     - **After the first paste:** max HP rises to about 1.27 times what you noted, and the same attack hits for about 2.1 times as much.
+     - **After the second paste:** the attack hits for about 3.2 times the original. Max HP does **not** change again; that is June's behaviour (R3).
+     - **About 20 seconds after the second paste:** both go back to what you noted.
+     - `ErrorLog.txt` gets `first SetFactor BBT 80 (by condition): … v[3..5] = 1.06 0.35 1, value 2.11` (the same for 81), and `… BBT 84 … 1.06 0.07 1, value 1.27`. These come from the first paste only; the second stack writes no log line, so the damage numbers are the check.
+   - If not:
+     - Damage did not rise on the second paste: tell me "no stack".
+     - Max HP did not return after the buff ended: tell me "max HP stuck" with the before/after numbers.
+     - A `[JUNE_BUFF] runtime error` line naming BTI `990081`: send it.
+     - Screenshots of the damage numbers help.
+
+**Log lines to read afterwards** (this review's checks only, `ErrorLog.txt`):
+- `[JUNE_BUFF] first apply BBT 106` / `107`
+- `first read BBT 106` / `107`
+- `first SetFactor BBT 80` / `81` / `84` and their `first apply` lines
+- any `[JUNE_BUFF]` line naming `990106`, `990081`, `362` or `363`
+
 ---
 
 ### Phase 5c — group A: stat types with rewritten hosts (Opus)
