@@ -3116,6 +3116,164 @@ Recorded before any 4b-ii code. Ghidra read-only; uncarved slots read with a fre
 - **FROZEN_TIME.** At `SetFactor`, a frozen-capable finalizer sets `+0x2c = 1` and, for a user, `31fe2a80( BTI )` pushes `{ BTI, (WORD) protected +0x81fc }` into a user vector `+0x9450` (or updates that BTI's word). `CX2GUUser::CommonStateStart` (`@320606b0` → `3200bde0`) unfreezes and erases every entry whose word differs from user vslot 329 (`3208e410`: field `+0xc` of the record the protected state pointer `+0x7cbc` points at), through `3227beb0( BTI, false )` (each finalizer of that buff that `dynamic_cast`s to the Time class gets `+0x2c = false`). An NPC with the key is never unfrozen. **Not portable on March:** `+0x81fc` is a class-gated protected word (its other readers test `GetUnit()+0xaf0` type 10 = `UT_LUCIEL` and compare it to 1) and vslot 329 has no identified March counterpart. The only data is Rose's passive `BTI_BUFF_HEAVYFIREARMS_MASTERY` (`RNSI_P_RSR_HEAVYFIREARMS_MASTERY`). **Port: parse and store; never freeze; log once per BTI.** Freezing without the unfreeze would make the buff permanent.
 - **SHAKE_DECREASE.** Slot 11 `32ec3610`: if `max > done`: `d = min( atOnce, max − done )`, `done += d`, `duration −= d`, return true; else false (base slot 11 `31e4c550` returns false). `CX2BuffTemplet` `3236c990` runs slot 11 on a copy of the finalizer list and returns true if any did. Its caller is `OnFrameMoveBuff` (`@3229d744`), per templet, only for my user unit and only when `CX2Game +0xbae` is set; a true result bumps the `+0x6dd0` sync counter (Phase 8). `+0xbae` is written once per frame in the `CX2Game` input routine `322f7470` (`@322f74ed`), the same block that feeds BFT 15's counter (`31fc9fa0`), from `322cfc60` = input object (`[g_pKTDXApp+0x1f8]`) action states `0x25` and `0x26` both set (`31c488c0`: byte `+0x4d + n`). **Port: the data side dormant** (keys, members, slot 11, the `CX2BuffTemplet` helper); the trigger goes to Phase 8 with the BFT 15 input block and the counter. One `[JUNE_BUFF] unsupported` line per BTI when such a finalizer starts. Data: only `BTI_AMUSEMENT_ITEM_WATER_BALLOON_IN_DAMAGE` (max 2, at once 0.1).
 
+### Phase 4b-ii — Done (2026-10-04), launch check pending
+
+Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The RE is the section above (`2faeaf7`); the code is `159fb91`.
+
+**Hygiene.**
+- 12 code files. `--numstat 146ce5a` shows 411 insertions and 31 deletions. The 31 deletions are parts 1–5's own flagged `return false;` lines, each turned into a logged exit (item 1).
+- Every added line is ASCII and CRLF, as its host lines are, and the `file` signatures are unchanged.
+- A fresh byte-level unifdef of the flag reduces all 12 files byte-for-byte to `146ce5a`. Each raw file differs from it, and a wrong-flag control fails.
+- The first pass left 8 blank lines outside the guards; they were moved inside before the final build.
+
+**1. Runtime popups (the user's decision: follow June, no popup, always log).**
+- **`CX2JuneBuffCapture::RuntimeError( wide / narrow )`:**
+  - Inside a capture (the Phase 3 load captures), the text is collected as before.
+  - Otherwise it raises no MessageBox. It writes `StateLog` and, once per (BTI, text), `[JUNE_BUFF] runtime error, BTI <n>: <text> (June raises no popup here; written once per buff and text)` to `ErrorLog.txt`.
+  - The narrow overload exists because `DISPLAY_ERROR` is also called with table names.
+- **`CX2JuneBuffRuntimeScope`:** a thread-local BTI. It is set at the top of every `CX2BuffTemplet` runtime entry: `SetFactor`, `SetFactorFromPacket`, the three `OnFrameMove*`, `DoFinishBehavior`, `DoFinishDisplayer`, `SetFactorToOnlyFinalizer` and `SetAccumulationCountNow`. Every behavior, finalizer and displayer runtime call passes through one of those, so a line names its buff. Outside them it prints `BTI 0`.
+- **`DISPLAY_ERROR` is redirected** to `RuntimeError` (with the original's trailing `;`) in the five buff runtime files: `X2BuffBehaviorTemplet.cpp`, `X2BuffFinalizerTemplet.cpp`, `X2BuffDisplayerTemplet.cpp`, `X2BuffTemplet.cpp` and `X2BuffFactor.cpp`. This covers every class popup part 3 listed (NowHp `SelectDelegate`, the mismatch and zero-multiplier popups, every "GetBehaviorFactor didn't work") and the part 5 review's R5 (`GetAccumulationMultiflier`).
+- **`X2GameUnit.cpp`'s four buff runtime popups** are converted: "SkillTemplet Invalid", and "Behavior Type Invalid" in Insert/Update/`EraseAdditionalStat`.
+- **The silent exits in parts 1–5's June bodies** now log: 31 `return false;` become `return DISPLAY_ERROR( L"<Class>::<method>: <reason>" )`. They cover "GetBehaviorFactor didn't work", "BUFF_CHANGE_TYPE MISS MATCH", "ACCUMULATION_MULTIPLIER is 0", "BUFF_FACTOR_ID is 0", "the user has no CX2Unit", "unknown BUFF_CHANGE_TYPE" and "BUFF_CHANGE_TYPE is neither FIX nor PERCENT". The four `ParsingBehavior` exits were left alone, because the Phase 3 capture already reports a failed parse.
+- **Left as they are:**
+  - `X2BuffFactor.h`'s inline `GetRate`/`SetRate` "Rate is Empty!". The next statement's `.at( 0 )` throws on an empty vector anyway, and the file is a PCH header.
+  - `X2BuffTempletManager.cpp`'s load-time sites (Phase 3 capture), and its `GetBuffFactorPtr` lines (already logged once per id).
+
+**2. `BFT_TIME` (`X2BuffFinalizerTemplet.h/.cpp`, `X2BuffTemplet.h/.cpp`, `X2GameUnit.h`).**
+- **`GetFactor`** appends `m_fFullDurationTime` as a third value (`32ec5290`); `[0]`/`[1]` keep their place.
+- **`SetFactorFromPacket`** sets it from `v[2]`, or **0 when absent** (`32ec53d0`). That closes the Phase 4a review's R1.
+  - Decision: June's fallback, because "June wins". Nothing builds a 2-value `BFT_TIME`: the offline emulator builds no buff factors, and the only other `GetFactor` reader (Aisha's Death Sentence, `X2GUArme_VioletMage.cpp:15638`) reads `[0]`. So every packet now carries `[2]`.
+- **The debuff multiplier** (`32ec27d0` @`32ec33bd`) is applied at June's point: after `GetReduceDebuffDurationRate`, only for a debuff that is not a world buff, `× (1 − r)` when `r > 0`.
+  - `r` is `CX2GameUnit::GetDebuffDurationDecreaseRate()`, which is 0.0. June's only feed is a socket-option field March lacks.
+- **FROZEN_TIME** is parsed and stored (`m_bFrozenTime`). `SetFactor` logs it once per buff and does not freeze.
+  - `OnFrameMove` has June's gate on `m_bTimeFrozen`, which nothing sets: dormant until someone ports the unfreeze.
+  - Reach: Rose's `HEAVYFIREARMS_MASTERY` only.
+- **SHAKE_DECREASE_*** has its data side:
+  - three members;
+  - finalizer slot 11 `DecreaseDurationByShake` (base false, Time `32ec3610`);
+  - `CX2BuffTemplet::DecreaseDurationByShake` (`3236c990`), with no caller yet.
+  - A Time finalizer with a max > 0 logs once per buff that the trigger is Phase 8's. Reach: the water balloon only.
+
+**3. Displayers (`X2BuffDisplayerTemplet.h/.cpp`).**
+- **Sound:** `ParsingDisplayer` (`32eb7460`) reads `ONLY_MY_UNIT`. `StartDisplayer` (`32eb9940`) returns without a unit; with `ONLY_MY_UNIT` it plays only on a user unit that is `g_pX2Game`'s my unit (or when there is no game or my unit). Then `PlaySound( name, true, false )`, which is March's default arguments. Both are June's whole bodies, with March's in `#else`.
+- **EffectSet:**
+  - `ParsingDisplayer` reads `ONLY_MY_UNIT` and `NOT_DELETE_EFFECT_SET_WHEN_FINISH` after `REPLAY_EFFECT_SET_ACCUMULATION_LIMIT1` (`32eb82b0`).
+  - `StartDisplayer` runs June's `ONLY_MY_UNIT` gate first: my unit only, never an NPC. The rest of June's body is March's (`BALANCE_PATCH_20131107` branch). Its play flag is `GetRemainHyperModeTime() > 0`, the same thing (June `31e4f890` = gage `+0xe8`).
+  - `DoFinish` leaves the sets playing when `NOT_DELETE` is set (`32eba380`).
+  - **Not ported from June's `StartDisplayer`:**
+    - an equipped item's effect set replacing the awakening buffs' (BTI 157, 320, 660, 661, 822, 823, 966–968; `32076c90`/`3264ec50`/`325d2370`; these BTIs skip the next step);
+    - a per-instance flag taken from the buff's creator (`CX2Game` slot 50, `322d4d10`, instance `+0x1bc`);
+    - June's wider `PlayEffectSet` (the effect port's).
+- **OnlyMyClass:** `ParsingDisplayer` is June's `32eb8c30`, twelve keys in `UNIT_TYPE` order: ELSWORD, AISHA, RENA, RAVEN, EVE, CHUNG, ARA, ELESIS, ADD, LUCIEL, ROSE, AIN. A key that is absent stores "", and the parse holds when all twelve are stored.
+  - March read nine keys, and its ninth was "NEW_CHARACTER" (`SERV_9TH_NEW_CHARACTER`), so it never read ADD.
+  - `StartDisplayer` drops March's invalid-handle popup (`32ebab00` has no check).
+  - Reach on March data: the one templet, `BTI_BUFF_HAMEL_SECRET_DUNGEON_WEAPON`, uses only ELSWORD … ELESIS (bytecode constants of the staged `BattleFieldBuffTemplet.lua`, 152,564 B). It parses the same entries; Add and later classes stay "".
+- **CreateGap:** `StartDisplayer` creates the sets and their gap timers only while the timer list is empty (`32eba690`). March added another set of handles and timers on every start.
+- **New displayer slot 5** (`32eb9310` EffectSet, `32eb9ab0` CreateGap, `32eb9ba0` OnlyMyClass) pushes a unit flag (`31fae370`) into June's effect-set instances (`321de4f0`). It is June-only effect-system work: not ported.
+
+**4. Finalizer verdicts (all 14 BFT; the factor side of every one is "same", see the RE).**
+
+| BFT | Class slots (June) | Verdict |
+|---|---|---|
+| 1 TIME | see the RE table | **ported** (item 2) |
+| 2 HIT_COUNT | `32ec0620`/`32ec1a90`/`32ec0660`/`32ec4240`/`32ec06b0`, GetNewCount `32ec0760`, parse `32ec2300` | same, except June's optional `ATTACK_TYPE` set: the parse's table reads into `+0x28`, and the count then comes from per-attack-type unit counters (`32274800`, unit `+0x4232..`). No June data uses it. **Logged at parse** ("BFT_HIT_COUNT ATTACK_TYPE ... every attack type is counted"), not ported; it would need Phase 8-style counters |
+| 3 HITTED_COUNT | `32ebf1c0`/`32ec1b50`/`32ebf1f0`/`32ec4300`/`32ec0920`, GetNewCount `32ec09c0` | same (popups only) |
+| 4 STATE_CHANGE | `32ebf220`/`32ebf290`/`32ec43c0`/`32ec0b70` | same, except a user also stores unit `+0x89d8` and finishes when it changes. `+0x89d8` is written by `31fe0bb0` (six user callers; it plays an effect set) and compared against class-specific constants elsewhere: a June class mode with no March counterpart, which never changes on March classes. **Not ported**; character-port item. Wire layout unchanged (`[state]`) |
+| 5 DAMAGE_VALUE | `32ec1bf0`/`32ec1c50`/`32ebf630`/`32ec4470`/`32ec1d60` | same (max-pick and finish test traced in the x87, NaN included) |
+| 6 PASS_HP / 7 PASS_MP | `32ec21b0`/`32ebf8f0`/`32ec4530`; Mp the same shape | same |
+| 8 IMMEDIATE | `32ebfc70`/`32ebe7b0`/`32ec4690` | same |
+| 9 DUNGEON_STAGE_CHANGE | `32ec5600`/`32ec5710` | same for every March game type; June also accepts its game type 4 (a `CX2PVEGame`, June-only) |
+| 10 LIVE_CREATOR | `32ec1010`/`32ec4df0`/`32ec5840`/`32ec47d0`/`32ec4f60` | same; slot 10 `GetCreatorUID` (`32ec60c0`) has no caller (Phase 1c item 4), not ported |
+| 11 FINISH_HYPER | `32ec1140`/`32ebfca0`/`32ebfd10`/`32ec4920`/`32ec1100` | same |
+| 12 RIDING_ON_OR_NOT | `32ebfd30`/`32ebe7c0`/`32ec49d0` | same; `FINISH_WHEN_RIDING_ON` unread by June too (census exclusion) |
+| 13 X2STATE_CHANGE | `32ebff20`/`32ebff70`/`32ec4a60`/`32ec1320` | same |
+
+Time's slots 14/15 (set/get duration) have no caller outside the vtable and are not ported.
+
+**5. Displayer verdicts (BDT 1–13).**
+
+| BDT | Verdict |
+|---|---|
+| 1 RENDER_PARAM, 2 RENDER_PARAM_BY_UNIT_TYPE | same (start inserts by the templet's identity when not started, finish erases) |
+| 3 EFFECT_SET | **ported** (item 3), minus the June-only parts listed there |
+| 4 UNIT_SLASH_TRACE | same |
+| 5/6/12 IMPACT_POINT / HITTED / NORMAL_ATTACK | same at the slot level (start when not started, finish by type 5/6/12) |
+| 7 WEAPON_PARTICLE | same at the slot level (start by BTI, particle destroy, frame-move type 1/2) |
+| 8 AFTER_IMAGE, 10 WEAPON_AFTER_IMAGE | same |
+| 9 SOUND | **ported** (item 3) |
+| 11 CREATE_GAP | **ported** (item 3, the first-start guard); its OnFrameMove is March's (`GS_PLAY`, per-timer replay) |
+| 13 ONLY_MY_CLASS | **ported** (item 3) |
+
+**Not diffed byte for byte (for the review):**
+- the displayer parses other than Sound, EffectSet, OnlyMyClass and CreateGap (their keys are census-clean, but defaults and required-ness were not traced);
+- ImpactPoint's `32eb78f0`, WeaponParticle's `32eb9400`/`32eb9600`/`32eb9770`, DamageValue's `32ec0c40`/`32ec0ca0`;
+- PassMp (taken as PassHp's mirror);
+- the Hit/Hitted/DamageValue/PassHp/PassMp class parses beyond their key lists.
+
+**Behavior changes on March data.**
+- **No buff popup at runtime.** Each failure is one `[JUNE_BUFF] runtime error, BTI n: ...` line per buff and text.
+- **`BFT_TIME` packets carry three values.** A stage-change restore (`SetKBuffFactorFromGageManagerToGameUnit`) or a peer copy now restarts an accumulation decrease at the full duration. No March templet has `ACCUMULATION_DECREASE_WHEN_FINISH`, so there is no reach until Phase 13.
+- **CreateGap** no longer stacks another set of effect handles and gap timers each time the displayer restarts.
+- **OnlyMyClass, Sound, EffectSet:** no reach until June data. March data has none of the new keys, and the OnlyMyClass templet parses the same entries.
+
+**Census.** `buff_census.py --phase 4b`: **0 type/key pairs** (was 11). `FINISH_WHEN_RIDING_ON` is in `NOT_READ_BY_JUNE_TYPE` for both origins.
+
+**funcmap.tsv:** 39 rows ("Buff Phase 4b-ii").
+
+**Build and deploy.**
+- `X2Lib` (with `stdafx.cpp` touched) and `X2` at `US_SERVICE`. Two earlier passes failed: the narrow `DISPLAY_ERROR( const char* )` overload was missing (C2664, fixed by adding it), and then the first pass, still generating code, held the PDB (C1033). The final passes returned rc 0 with 0 errors, and no warning is in a touched file. `KTDXLIB` and `X2ServerProtocol` are unchanged (no `Always.h` edit).
+- `x2.exe` is 19,033,088 B, linked 09:29:05, md5 `529ff0c9fe279e8ee3138eea1c817943`. It contains `runtime error, BTI %d: %s`, `SHAKE_DECREASE_TIME_AT_ONCE`, `FROZEN_TIME`, `NOT_DELETE_EFFECT_SET_WHEN_FINISH`, `ONLY_MY_UNIT` and `LUCIEL`, plus the wide `BFT_HIT_COUNT ATTACK_TYPE` and `ACCUMULATION_MULTIPLIER is 0` texts.
+- Copied to the game directory as `X2_offline.exe` (the names, read programmatically, are `x2.exe` and `X2_offline.exe`); the size and md5 match. **Not launched.**
+- No Lua changed, so no pack is needed.
+- **Flag dependencies (add to `BEHAVIOR_PARITY`'s `Always.h` note the next time that header is touched):** it now also needs `SERV_IRUHADEV_JUNE_BUFF_LOADER` (`CX2JuneBuffCapture`) and `SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY` (`m_fFullDurationTime`).
+
+**Things to watch in play:**
+- `ErrorLog.txt`: any `[JUNE_BUFF] runtime error` line names a buff whose code used to raise a popup or failed silently. Each should appear once.
+- The Hamel secret dungeon weapon buff (OnlyMyClass).
+- Any create-gap effect buff re-applied while it runs.
+
+**Where 4b-ii stopped / hand-offs.** Phase 4b is complete apart from the items below; none of them blocks Phase 5.
+1. **Added Phase 8 scope.** The shake trigger: `CX2Game +0xbae` set from input actions `0x25`/`0x26` in the `322f7470` block, and `OnFrameMoveBuff` calling `CX2BuffTemplet::DecreaseDurationByShake` for my user unit, bumping `+0x6dd0`. It sits with BFT 15's input block and the sync counter. Phase 8 must first map June's action codes `0x25`/`0x26` (June's `GAME_ACTION` has more skill slots than March's; LEFT/RIGHT is the likely pair) and what `31c488c0`'s byte array is.
+2. **Character port** (`JUNE2017_CHARACTER_PORT_CHECKLIST.md`): FROZEN_TIME's record/unfreeze (`31fe2a80`, `3200bde0`, `3227beb0`; `+0x81fc` and vslot 329 to map) with Rose; StateChange's `+0x89d8` (`31fe0bb0`).
+3. **Effect port:** EffectSet's awakening item override, the creator visibility flag, displayer slot 5.
+4. **Socket port:** the debuff-duration decrease (`m_SocketData +0x2dc` → additional-stat member `+0x7388`).
+5. **HIT_COUNT `ATTACK_TYPE`:** per-attack-type hit counters, if June data ever uses it (none does).
+6. **Review of 4b-ii:** required (Opus 5.5). Suggested spot-checks:
+   - `32ec27d0` @`32ec33bd` (the `+0x64`/`+0x66` test order and the `> 0` gate);
+   - `32ec3610`'s two x87 compares;
+   - `32eb9c70`'s gate (`+0x264` 0 and 1 only);
+   - `32eb8c30`'s twelve key lengths against the decrypted bytes;
+   - the "not diffed byte for byte" list above;
+   - whether any March runtime path reaches a buff `DISPLAY_ERROR` outside the five redirected files.
+
+**Cost:** `/cost` is not readable from inside the session; ask the user.
+
+**Kickoff for the 4b-ii review** (Opus 5.5 high). It runs on its own; it is read-only unless it finds a code defect, which it then fixes, rebuilds and deploys.
+
+```
+Continuing the June buff/debuff port. Run this session on Opus 5.5 at high effort. Read
+JUNE_BUFF_PORT_PHASES.md in the repo root -- "Starting context", the "June buff function
+map", "Phase 4b-ii -- RE" and "Phase 4b-ii -- Done". Branch: mods/june-buff-port. Never
+launch X2_offline.exe.
+
+Your task: an independent review of Phase 4b-ii. Code: 159fb91 (under
+SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY); the RE commit is 2faeaf7. Use fresh scratch tools.
+Run the flag-off unifdef on the committed blobs of 159fb91 against 146ce5a, and take numstat
+from git diff 146ce5a 159fb91.
+
+Check, in Ghidra (read-only) and the raw asm, the section's suggested spot-checks and its
+"not diffed byte for byte" list; whether every buff runtime DISPLAY_ERROR on a March path now
+logs instead of popping up (and nothing outside the five redirected files was missed); and the
+March-data reach claims (OnlyMyClass on the staged BattleFieldBuffTemplet.lua, CreateGap,
+BFT_TIME's third value through the gage-manager restore).
+
+Report numbered findings (R1, R2...) with a severity. Fix a code defect under the same flag
+(insert-only, byte-level CP949 edits, flag-off unifdef per file), rebuild X2Lib and X2 at
+US_SERVICE (touch stdafx.cpp after a header edit), deploy as X2_offline.exe, record the md5,
+and ask before launching. Add confirmed funcmap.tsv rows. Another session may have
+uncommitted edits in the doc: stage only your own hunks. Commit. Record the review cost line.
+```
+
 ## Phases 5–7 — New behavior types
 
 Phases 5–7 are split into seven sessions. Each has its own scope, its own run-with line and a **ready-to-paste kickoff prompt and review prompt with nothing to substitute**. Take the prompt of the phase you are starting, and no other.
