@@ -2874,7 +2874,7 @@ Ran on Opus 5.5 high. Commits: `d34de09` reverts the part 4 debug commit `16a6d7
 - **Data, for the user to pack.** `kom_contents/data036_kom/UIMajorParticle.txt` now carries June's `eventsequence "PicCharYellowSmall"` block (818 B, copied byte for byte from `14JUN17/data/data036_kom/UIMajorParticle.txt`). It sits right after `PicCharYellow`, with no separator line, which matches the surrounding blocks.
   - Before: 592,530 B, md5 `03d57782df6aa386f0ccf160cce00b50`, equal to the live `data036.kom` entry (the part 4 review's fresh extract). After: 593,348 B, md5 `52e4308cee235b5a549566a622b47f52`. CRLF throughout; the file's 48 non-ASCII bytes are untouched.
   - **Parser check:** every identifier token in the block already occurs in March's file, except the sequence name. So March's particle parser accepts it.
-  - The manifest already lists the file, so it is unchanged. **Flag for the user:** its value is `"2"`, but the non-lua → 0 packing rule says `"0"`. It was left as found.
+  - The manifest already lists the file, so it is unchanged. Its value is `"2"`, which looks like it breaks the non-lua → 0 packing rule, but the live archive settles it: `elstools inspect --input data\data036.kom` lists `UIMajorParticle.txt` at algo 2, and so are all 32 `.txt` entries in `data036.kom` (only its 2 `.xml`, 1 `.ini` and 1 `.lua` are algo 0). So `"2"` is right, and the rule has this exception.
 - **Why only the block, not June's whole file.** 10 of March's 857 sequence names are absent from June's `UIMajorParticle.txt`. One of them, `UI_Eve_Party_Event_StartEffect`, is read by `X2GUUser.cpp:25262`; June keeps it in `UIMajorParticle_INT.txt`. March also loads `_INT` (`X2StateStartUp.cpp:216`, `INT_RESOURCE_DEVIDE`), so a wholesale adopt must bring June's `UIMajorParticle.txt` and `_INT` together, checked as a pair. **Open item for the June UI parity work.** The other 9 missing names (`CHUNG_HOWLING01/02`, `CHUNG_STEEL_EDGE02`, `Nasod_King_SpellAttack_Splitlight06`, `PET_PETTE_BERTHE_STEB_3_Attack_C`/`_C_02`, `Pulsewave_Summon_Boss_SpecialAttackB01/02`, `ShockWave_Summon_Boss_SpecialAttackB`) have no C++ reader; Lua readers were not checked.
 - **Reach on March data: none until June data arrives.** March's RSCT factors carry no `DRAW_TEXT` key (part 2's census).
 
@@ -2972,7 +2972,7 @@ Never launch X2_offline.exe.
 
 Your task: an independent review of Phase 4b-i part 5. Code: 7ea72b2 and 3bbf7d2 (under
 SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY); d34de09 reverts the part 4 debug commit; the doc
-commits are 30aa0cb and the one after 3bbf7d2. Use fresh scratch tools; do not reuse part 5's
+commits are 30aa0cb and 5e5adef, plus the manifest note after them. Use fresh scratch tools; do not reuse part 5's
 patch or unifdef scripts. Run the flag-off unifdef on the committed blobs against d34de09,
 and take numstat from git diff d34de09 3bbf7d2.
 
