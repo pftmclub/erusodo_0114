@@ -784,3 +784,42 @@ mesh+0x54c	none in March: CXMeshInstance previous-frame velocity snapshot	confir
 32ec2300	CX2BuffHitCountFinalizerTemplet::ParsingFinalizer	confirmed	Buff Phase 4b-ii: BUFF_USE_COUNT_TYPE, then an optional ATTACK_TYPE table into a set (+0x28, size +0x30) counted via 32274800 (unit +0x4232..); no June data; logged, not ported
 32ebf220	CX2BuffStateChangeFinalizerTemplet::SetFactor	confirmed	Buff Phase 4b-ii: March plus, for a user, +0x20 = unit +0x89d8 (DidFinish 32ebf290 also ends when it changes); +0x89d8 is written by 31fe0bb0 (a June class mode); not ported
 32ec5600	CX2BuffDungeonStageChangeFinalizerTemplet::SetFactor	confirmed	Buff Phase 4b-ii: game type 2 or 4 (June PVE game), dynamic_cast CX2DungeonGame -> 322f3780; same as March for March game types
+32eba8b0	CX2BuffEffectSetCreateGapDisplayerTemplet::DoFinish	confirmed	Buff Phase 4b-ii review: CreateGap vtable 335377cc slot 3: stops every +0x10 handle and leaves the +0x30 timer vector, as March; so 32eba690's empty-timer gate holds after a finish too
+32eb9400	CX2BuffWeaponParticleDisplayerTemplet::StartDisplayerByBuffTempletID	confirmed	Buff Phase 4b-ii review: BTI 3 -> type 1, 163-165 -> type 2, else type 0 with no error; then, beyond March, each handle through unit 32296da0( h, false ) for a non-null unit; then slot 4 ( unit, 0.0 )
+32eb9600	CX2BuffWeaponParticleDisplayerTemplet::OnFrameMoveSwordFire	confirmed	Buff Phase 4b-ii review: 3 handles: TRACE_START0, TRACE_END0, mid = (start - end) * 0.5 + end; SetPosition each; as March
+32eb9770	CX2BuffWeaponParticleDisplayerTemplet::OnFrameMoveSwordEnchant	confirmed	Buff Phase 4b-ii review: 8 handles: start, start, end, end, mid x4; as March
+32296da0	none: June-only CX2GameUnit particle tag (unit, handle, bool)	confirmed	Buff Phase 4b-ii review: instance (major system when false, minor when true) +0x1b0 = CX2Game 322d4d10( unit ); the per-instance visibility flag, here from the target unit; effect port, not ported
+32eb78f0	CX2BuffEffectSetImpactPointDisplayerTemplet::StartDisplayerByType	confirmed	Buff Phase 4b-ii review: tail-jumped from slot 1 32eb7a80 (!started), so Ghidra carves no function; type 5/6/12 -> unit 3227b0a0/3227b160/3227b540 ( identity, name, sound or empty, gap +0x48 ); as March
+32eb7890	CX2BuffEffectSetImpactPointDisplayerTemplet::DoFinish	confirmed	Buff Phase 4b-ii review: DoFinishByType inlined: started only; type 5/6/12 -> unit 3227a180/3227a220/3227a4c0 ( identity ); as March
+32ec0c40	CX2BuffDamageValueFinalizerTemplet::GetValue	confirmed	Buff Phase 4b-ii review: v[1] (0 if < 2 values); type 1 -> v[1]; type 2 -> v[3] * v[1] (0 if < 4); else 0; as March with operator[]'s range check
+32ec0ca0	CX2BuffDamageValueFinalizerTemplet::ModifyDamageValue	confirmed	Buff Phase 4b-ii review: now HP (1.0 no gage, 0.0 no HP block); now <= old: value -= old - now, else += now - old; as March
+32ec1fa0	CX2BuffPassHpFinalizerTemplet::SelectDelegate	confirmed	Buff Phase 4b-ii review: PASS_UP +0x34 picks 32ec5eb0 / 32ec5f10; type +0x2c 1 -> 32ec5920, 3 -> 32ec5f70, else 32ec5920; as March
+32ec1dc0	CX2BuffPassMpFinalizerTemplet::SelectDelegate	confirmed	Buff Phase 4b-ii review: PASS_UP +0x34 picks 32ec5b00 / 32ec5b40; type +0x2c 1 -> 32ec5920, 3 -> 32ec5930, else 32ec5920; as March
+32ec5eb0	CX2BuffPassHpFinalizerTemplet::CheckHpByUp	confirmed	Buff Phase 4b-ii review: now HP (gage; 1.0 / 0.0 without) > criterion; NaN false
+32ec5f10	CX2BuffPassHpFinalizerTemplet::CheckHpByDown	confirmed	Buff Phase 4b-ii review: now HP < criterion; NaN false
+32ec5f70	CX2BuffPassHpFinalizerTemplet::GetCriterionByPercent	confirmed	Buff Phase 4b-ii review: thunk to 32ec0e30 ( unit ): criterion x max HP from the gage
+32ec5b00	CX2BuffPassMpFinalizerTemplet::CheckMpByUp	confirmed	Buff Phase 4b-ii review: unit vslot 54 (+0xd8, now MP) > criterion; NaN false
+32ec5b40	CX2BuffPassMpFinalizerTemplet::CheckMpByDown	confirmed	Buff Phase 4b-ii review: now MP < criterion; NaN false
+32ec5930	CX2BuffPassMpFinalizerTemplet::GetCriterionByPercent	confirmed	Buff Phase 4b-ii review: unit vslot 55 (+0xdc, max MP) x criterion +0x30
+32ec5920	CX2BuffPassHpFinalizerTemplet::GetCriterionByValue (shared with PassMp)	confirmed	Buff Phase 4b-ii review: fld [this+0x30]; one body for both classes
+32ec21b0	CX2BuffPassHpFinalizerTemplet::SetFactor	confirmed	Buff Phase 4b-ii review: vtable 33537ce0 slot 2; same instructions as PassMp 32ec1fe0 but for the SelectDelegate target
+32ec0d10	CX2BuffPassHpFinalizerTemplet::GetClonePtr	confirmed	Buff Phase 4b-ii review: slot 3: new + copy ctor 32ec5a20
+32ebf8f0	CX2BuffPassHpFinalizerTemplet::DidFinish	confirmed	Buff Phase 4b-ii review: slot 4: reserve +0x18 || check delegate (+0x1c / +0x20); byte-identical to PassMp 32ebfbc0
+32ec4530	CX2BuffPassHpFinalizerTemplet::GetFactor	confirmed	Buff Phase 4b-ii review: slot 5: pushes the criterion +0x30; identical to PassMp 32ec45e0
+32ec22a0	CX2BuffPassHpFinalizerTemplet::SetFactorFromPacket	confirmed	Buff Phase 4b-ii review: slot 13: criterion = v[0] (0 if empty), then SelectDelegate inlined; identical to PassMp 32ec20d0 but for the delegate targets
+32ec1fe0	CX2BuffPassMpFinalizerTemplet::SetFactor	confirmed	Buff Phase 4b-ii review: vtable 33537d1c slot 2; PassHp's mirror
+32ec0ea0	CX2BuffPassMpFinalizerTemplet::GetClonePtr	confirmed	Buff Phase 4b-ii review: slot 3: new + copy ctor 32ec5a90
+32ebfbc0	CX2BuffPassMpFinalizerTemplet::DidFinish	confirmed	Buff Phase 4b-ii review: slot 4; identical to PassHp 32ebf8f0
+32ec45e0	CX2BuffPassMpFinalizerTemplet::GetFactor	confirmed	Buff Phase 4b-ii review: slot 5; identical to PassHp 32ec4530
+32ec20d0	CX2BuffPassMpFinalizerTemplet::SetFactorFromPacket	confirmed	Buff Phase 4b-ii review: slot 13; PassHp 32ec22a0's mirror
+32eb7250	CX2BuffUnitSlashTraceDisplayerTemplet::ParsingDisplayer	confirmed	Buff Phase 4b-ii review: slot 6: SLASH_TRACE_CONDITION, 0 (STC_NONE) when missing; always true; as March
+32eb7b90	CX2BuffAfterImageDisplayerTemplet::ParsingDisplayer	confirmed	Buff Phase 4b-ii review: COLOR, (1,1,1,1) when missing; true; as March
+32eb7c70	CX2BuffWeaponAfterImageDisplayerTemplet::ParsingDisplayer	confirmed	Buff Phase 4b-ii review: COLOR, (1,1,1,1) when missing; true; as March
+32eb7d50	CX2BuffRenderParamDisplayerTemplet::ParsingDisplayer	confirmed	Buff Phase 4b-ii review: RENDER_TYPE, CARTOON_TEX_TYPE, OUT_LINE_WIDE, COLOR_OUT_LINE, COLOR, ALPHA_BLEND, FLICKER_COLOR_GAP, all optional; true; as March
+32ebad40	CX2BuffRenderParamByUnitTypeDisplayerTemplet::ParsingDisplayer	confirmed	Buff Phase 4b-ii review: BeginTable(i) loop: UNIT_TYPE (0 if missing) + the six keys; duplicate insert -> false; result find( UT_NONE ) != end; as March
+32eb7410	CX2BuffEffectSetImpactPointDisplayerTemplet::ParsingDisplayer	confirmed	Buff Phase 4b-ii review: index 1 required (false otherwise), 2 sound and 3 gap (float) optional; true; as March
+32eb8a40	CX2BuffWeaponParticleDisplayerTemplet::ParsingDisplayer	confirmed	Buff Phase 4b-ii review: index loop, handle -1 each, false when nothing read; as March
+32ebf000	CX2BuffHittedCountFinalizerTemplet::ParsingFinalizer	confirmed	Buff Phase 4b-ii review: vtable 33537a88 slot 12: BUFF_USE_COUNT_TYPE required (al 0 on failure, no popup)
+32ebf330	CX2BuffDamageValueFinalizerTemplet::ParsingFinalizer	confirmed	Buff Phase 4b-ii review: BUFF_CHANGE_TYPE then BUFF_RELATION_TYPE (7 on failure), both required
+32ebf6a0	CX2BuffPassHpFinalizerTemplet::ParsingFinalizer	confirmed	Buff Phase 4b-ii review: PASS_UP (+0x34) then BUFF_CHANGE_TYPE (+0x2c), both required
+32ebf970	CX2BuffPassMpFinalizerTemplet::ParsingFinalizer	confirmed	Buff Phase 4b-ii review: PASS_UP then BUFF_CHANGE_TYPE, both required; PassHp's parse but for the XOR-string constants
