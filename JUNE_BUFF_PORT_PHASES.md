@@ -4785,7 +4785,7 @@ For each check say where to be, the line to paste, what it does in one plain sen
 and what I should see if it works and if it does not.
 ```
 
-### Phase 12 — Done (2026-10-04), play-test pending
+### Phase 12 — Done (2026-10-04), play-tested (user)
 
 Data only: no C++, no flag, no exe change. Everything below is staged in `kom_contents/` and mirrored under `march2014/update/`; **the user packs.**
 
@@ -4844,6 +4844,8 @@ Mirrors: `march2014/update/{data057,datai021,datai020,data034}/` (the two atlas 
 Verify against the **live** `.kom`s with `elstools inspect --input`: `data057` Buff `.TET` 34,728 B; `datai021` 92 files with the `_INT` pair; `datai020` `DLG_INT_Button02.TET` 3,126 B; `data034` `DLG_BuffManager.lua` 365 B. No exe is needed for any of it (the same exe works before and after packing); the 12/17 new keys only become visible when Phase 13 adopts June's templets.
 
 #### Play-test (run after packing; it is a regression check, nothing new is visible yet)
+
+**Result (2026-10-04): the user reported the play-test passed.** Not recorded: whether `datai020.kom` (optional `DLG_INT_Button02`) was packed, so check 4 (Guide Book buttons) is unconfirmed. `ErrorLog.txt` was not read by the session.
 
 The live templets are still March's and March ships no `_INT` buff files, so none of the 175 new keys, nor the `_INT` atlas, can be seen until Phase 13. What can be checked now: March's own icons still render after the swap, and a repainted icon shows June's art.
 
