@@ -430,6 +430,32 @@ protected:
 private:
 	UidType						m_uidBuffOwner;
 };
+
+/** @class : CX2BuffIgnoreDefenceBehaviorTemplet
+	@brief : BBT 88 (Phase 5c). June class vt 33535558 (ctor 32e890b0): the unit that has the buff loses IGNORE_DEFENCE_RATE of
+		its defence against every hit (CX2GameUnit::GetIgnoreDefenceRate, read by the defender in GetFinalDamage). One entry per
+		buff in the unit's ignore-defence list; no restack (June 32e7d260 inserts on the first apply only).
+		Slots: SetFactor 32e7d260, GetClonePtr 32e7d370, GetFactor 32e7ec40, DoFinish 32e75b00, packet 32e7d3f0. OnFrameMove,
+		ParsingBehavior and the new June slots 3/7/9-11 are the base ones.
+*/
+class CX2BuffIgnoreDefenceBehaviorTemplet : public CX2BuffBehaviorTemplet
+{
+public:
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffIgnoreDefenceBehaviorTemplet ); }
+
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ );
+
+protected:
+	CX2BuffIgnoreDefenceBehaviorTemplet() : CX2BuffBehaviorTemplet(), m_fIgnoreDefenceRate( 1.0f )
+	{}
+
+private:
+	KProtectedType<float>		m_fIgnoreDefenceRate;	/// June +0x10, set to 1.0 by the ctor
+};
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 //}}
 

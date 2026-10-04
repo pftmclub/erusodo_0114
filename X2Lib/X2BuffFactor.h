@@ -899,6 +899,7 @@ public:
 	bool ParsingChangeNowForceDownPerSecondBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill = true );	/// BBT 79, June 32d42650
 	bool ParsingChangeStateByConditionBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill = true );	/// BBT 80-84, June 32d42910
 	void SetGameUnitChangeStateByConditionBehavior( KBuffBehaviorFactor& factor_, CX2GameUnit* pGameUnit_ );	/// BBT 80-84, June 32d4ce60
+	bool ParsingIgnoreDefenceBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill = true );	/// BBT 88, June 32d49210 (Phase 5c)
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 	
 

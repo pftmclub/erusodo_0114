@@ -9320,7 +9320,12 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #endif
 		{
 			// 모든 계산을 거친 최종 대미지에 옵션 수치화의 데미지 감소를 적용 (snatch에 영향을 주지 않음)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+			/// June buff port Phase 5c (BBT 88 host family: June gates this reduction on !IGNORE_DEFENCE_DECLINE (DamageData +0x534), CX2GUUser::DamageReact @32049412)
+			if ( false == pDamageData->m_bIgnoreDefenceDecline && 0.0f < GetAdditionalDefence() )
+#else SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 			if ( 0.0f < GetAdditionalDefence() )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 			{
 				fFinalDamage -= min( fFinalDamage * GetAdditionalDefence(), fFinalDamage );
 			}
@@ -9333,7 +9338,28 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		{
 			if( NULL != pAttackerUnit )
 			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+				/// June buff port Phase 5c, BBT 78 host: CX2GUUser::DamageReact @32049466-32049561 multiplies the attacker's additional attack
+				/// damage (vslot 149) by k = attacker->Opt(+0x5248) + this->Get78() (32071b50) + this->Opt(+0x5194), less
+				/// defender->Opt(+0x5ac8) * 0.01 when that is above 0, then clamped at 0. The three Opt terms are option values June seeds from
+				/// socket-data fields March's socket data lacks (32270dd0: +0xcc, +0xc8, +0xd4), so they are 0 in this build and
+				/// k = max( 78, 0 ). Recorded deviation (Phase 5c): exact on March data. 78 is read on this unit, the one taking the hit.
+				const float fTypeAdditionalAttackMultiplier = max( GetTypeAdditionalAttackMultiplier(), 0.0f );
+				const float fAdditionalAttackValue = pAttackerUnit->GetAdditionalAttackDamage( pDamageData ) * fTypeAdditionalAttackMultiplier;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				if ( 1.0f != fTypeAdditionalAttackMultiplier && 0.0f < fAdditionalAttackValue )
+				{
+					static bool s_bSeenRead78User = false;
+					if ( !s_bSeenRead78User )
+					{
+						s_bSeenRead78User = true;
+						CX2JuneBuffCapture::Line( "first read BBT 78 (user hit): additional attack %g x %g", fAdditionalAttackValue / fTypeAdditionalAttackMultiplier, fTypeAdditionalAttackMultiplier );
+					}
+				}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#else SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 				const float fAdditionalAttackValue = pAttackerUnit->GetAdditionalAttackDamage( pDamageData );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 				if ( 0.0f < fAdditionalAttackValue )
 				{
 					fFinalDamage += fAdditionalAttackValue;

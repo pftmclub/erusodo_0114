@@ -9948,7 +9948,12 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #endif
 		{
 			// 모든 계산을 거친 최종 대미지에 옵션 수치화의 데미지 감소를 적용 (snatch에 영향을 주지 않음)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+			/// June buff port Phase 5c (BBT 88 host family: June gates this reduction on !IGNORE_DEFENCE_DECLINE (DamageData +0x534), CX2GUNPC::DamageReact @327b4221)
+			if ( false == pDamageData->m_bIgnoreDefenceDecline && 0.0f < GetAdditionalDefence() )
+#else SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 			if ( 0.0f < GetAdditionalDefence() )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 			{
 				fFinalDamage -= min( fFinalDamage * GetAdditionalDefence(), fFinalDamage );
 			}
@@ -9956,7 +9961,26 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			// 모든 계산을 거친 최종 대미지에 옵션 수치화의 데미지 감소를 적용 (snatch에 영향을 주지 않음)
 			if ( null != pDamageData->optrAttackerGameUnit )
 			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+				/// June buff port Phase 5c, BBT 78 host: CX2GUNPC::DamageReact @327b42b0-327b43be computes the same k inline as the user
+				/// (this NPC's 78 result +0x5450 and option +0x5194, the attacker's option +0x5248), except that it subtracts the defender's
+				/// option term whenever the defender exists (no > 0 test). All three option terms are 0 in this build: k = max( 78, 0 ).
+				const float fTypeAdditionalAttackMultiplier = max( GetTypeAdditionalAttackMultiplier(), 0.0f );
+				const float fAdditionalAttackValue = pDamageData->optrAttackerGameUnit->GetAdditionalAttackDamage( pDamageData ) * fTypeAdditionalAttackMultiplier;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				if ( 1.0f != fTypeAdditionalAttackMultiplier && 0.0f < fAdditionalAttackValue )
+				{
+					static bool s_bSeenRead78Npc = false;
+					if ( !s_bSeenRead78Npc )
+					{
+						s_bSeenRead78Npc = true;
+						CX2JuneBuffCapture::Line( "first read BBT 78 (npc hit): additional attack %g x %g", fAdditionalAttackValue / fTypeAdditionalAttackMultiplier, fTypeAdditionalAttackMultiplier );
+					}
+				}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#else SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 				const float fAdditionalAttackValue = pDamageData->optrAttackerGameUnit->GetAdditionalAttackDamage( pDamageData );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 			
 			
 				if ( 0.0f < fAdditionalAttackValue )

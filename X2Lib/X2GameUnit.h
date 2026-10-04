@@ -2658,6 +2658,12 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		/// June buff port Phase 5b: BBT 106 / 107 results (June getters 32071bb0 / 32071bd0, results at +0x5c1c / +0x5cd0), basic 0.0
 		float								GetForceDownMultiplierMeleeAttacked() const { return m_AdditionalForceDownMultiplierMeleeAttacked.GetResultValue(); }	/// 106
 		float								GetForceDownMultiplierRangeAttacked() const { return m_AdditionalForceDownMultiplierRangeAttacked.GetResultValue(); }	/// 107
+		/// June buff port Phase 5c: BBT 78 result (June getter 32071b50, result +0x5450), basic 1.0; read on the unit taking the hit in both DamageReacts
+		float								GetTypeAdditionalAttackMultiplier() const { return m_AdditionalTypeAdditionalAttackMultiplier.GetResultValue(); }	/// 78
+		/// June buff port Phase 5c: BBT 88 store (June list +0x67dc). Insert 32282390, erase 3227a8c0, reader 32274970 (the defender's, in GetFinalDamage)
+		void								InsertIgnoreDefence( const KBuffIdentity& BuffIdentity_, const float fIgnoreDefenceRate_ );
+		void								EraseIgnoreDefence( const KBuffIdentity& BuffIdentity_ );
+		float								GetIgnoreDefenceRate() const;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 #if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
 		/// June buff port Phase 5 console hook (DEBUG only): puts one new-type factor straight into its store, or takes it out.
@@ -4660,6 +4666,9 @@ protected:
 		/// June buff port Phase 5b: June's members at +0x5b7c (106, insert 32282bf2) and +0x5c30 (107, insert 32282c15)
 		CX2AdditionalStatByBuff			m_AdditionalForceDownMultiplierMeleeAttacked;	/// 106 basic 0.0
 		CX2AdditionalStatByBuff			m_AdditionalForceDownMultiplierRangeAttacked;	/// 107 basic 0.0
+		/// June buff port Phase 5c: June's member at +0x53b0 (78, insert 32282dff) and list at +0x67dc (88, insert 32282390)
+		CX2AdditionalStatByBuff			m_AdditionalTypeAdditionalAttackMultiplier;	/// 78 basic 1.0
+		vector<CX2StatFactorByBuffPtr>	m_vecIgnoreDefencePtr;						/// 88: one { identity, rate } per buff (June element 0x1c, ctor 322afc00)
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 		vector<CX2StunPtr>				m_vecStunPtr;		/// 기절 효과

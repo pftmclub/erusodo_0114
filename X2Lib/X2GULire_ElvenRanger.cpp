@@ -21440,6 +21440,9 @@ void CX2GULire_ElvenRanger::SetDamageExceptionProcess( CX2DamageManager::DamageD
 					min( iSkillLevel, MAX_LIMITED_SKILL_LEVEL ) ) )
 				{
 					pDamageData_->m_bIgnoreDefence = true;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+					pDamageData_->m_bIgnoreDefenceOnPvp = true;	/// June buff port Phase 5c: June's Powerful Bowstring (skill 23405, @32cada25) sets both bytes, mov word [+0x528], 0x101
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 					g_pData->GetGameEffectSet()->PlayEffectSet( L"EFFECTSET_DEBUFF_POWERFUL_BOWSTRING", this );
 				}
 			}
@@ -21455,6 +21458,9 @@ void CX2GULire_ElvenRanger::SetDamageExceptionProcess( CX2DamageManager::DamageD
 			if( GetRandomFloat() <= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE ) )
 			{
 				pDamageData_->m_bIgnoreDefence = true;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+				pDamageData_->m_bIgnoreDefenceOnPvp = true;	/// June buff port Phase 5c: June's Powerful Bowstring (skill 23405, @32cada25) sets both bytes, mov word [+0x528], 0x101
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 				g_pData->GetGameEffectSet()->PlayEffectSet( L"EFFECTSET_DEBUFF_POWERFUL_BOWSTRING", this );
 				//  			if( NULL != pSkillTemplet && !pSkillTemplet->m_vecBuffFactorPtr.empty() )
 				//  			{

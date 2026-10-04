@@ -4324,6 +4324,263 @@ For each check say where to be, the line to paste, what it does in one plain sen
 and what I should see if it works and if it does not.
 ```
 
+### Phase 5c — Done (2026-10-04): 78 and 88 ported, 92 deferred
+
+Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_NEW_STAT`. 78 and 88 are ported, with their June host rewrites. **92 is deferred.** It needs three decisions from the user, listed under "92 — deferred" below.
+
+**Result.**
+- **Census.** `buff_census.py --phase 5b` lists only 92 (`BBT_CHANGE_MAXIMIZE`, 20 templets and 21 factors), the deferred type. March now handles 90 behavior types; it was 88. `IGNORE_DEFENCE_RATE` has left the unread-key list.
+- **Build.** `X2Lib` (with `stdafx.cpp` touched first, since four headers changed) and `X2`, both at `US_SERVICE`: rc 0, 0 errors. The only warning in a touched file is the existing C4018 in `X2GUUser.cpp` (line 17966 now). `KTDXLIB` was not rebuilt: `Always.h` is unchanged.
+- **Deploy.** `X2/US_SERVICE/x2.exe`, 19,058,176 B, linked 16:14:07, md5 **`d555b21c8cce59c80e85480195096d0a`**, copied to the game directory as `X2_offline.exe`. The names were read programmatically (`x2.exe`, `x2.exe.bak`, `x2.fx`, `X2_offline.exe`), and the copy is byte-identical to the build. It replaces `b981a4c1…`. The exe contains `BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER` and `BBT_IGNORE_DEFENCE` (ASCII and UTF-16), the four `IGNORE_DEFENCE_*` keys, and the debug strings `first apply BBT 88 (ignore defence)`, `first read BBT 88: piercing defence factor`, `first read BBT 78 (user hit)` and `first read BBT 78 (npc hit)`. The last three sit inside the host blocks, so they prove the hosts compiled in. As expected, it has no `BBT_CHANGE_MAXIMIZE` string.
+- **Not launched.**
+
+**Flags.** Everything sits under `SERV_IRUHADEV_JUNE_BUFF_NEW_STAT`. The debug lines also need `SERV_IRUHADEV_JUNE_BUFF_DEBUG`. `Always.h` is unchanged. Every replaced March line stays in its `#else`.
+
+**78 `BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER`.**
+
+Where each piece sits:
+
+| Piece | June | March |
+|---|---|---|
+| Factor parse | `ParsingChangeStatBehavior` (`32d445d0`) | both macro lists |
+| Level slice | ChangeStat group (`32d47957`) | already in (4b-i); checked, not added |
+| SGU | ChangeStat group (`32d4d6ef`) | case added |
+| Templet class | `CX2BuffChangeStatBehaviorTemplet` | factory case added |
+| Store | member `+0x53b0`; insert `32282dff`, update `@322708a9`, erase `@32283685` | new member `m_AdditionalTypeAdditionalAttackMultiplier`, getter `GetTypeAdditionalAttackMultiplier()` |
+| Basic and passive | basic 1.0 (`@32271648`, `fld1`); passive multiple 1, sum 0 (`@32271b26`) | the same |
+| Refresh | plain result update (`@32290bc6`) | the same |
+| Option value | 0 in both branches of `32270dd0` | `SetOptionValue( 0 )` |
+| `Verify` chain | – | added, as for its siblings |
+
+**The host is the additional-attack block of both `DamageReact`s.**
+- User: `@32049405`–`32049561`. NPC: `@327b4214`–`327b43be`.
+- 78 is read on **the unit taking the hit**, not on the attacker. It multiplies the attacker's additional-attack damage (vslot 149) by `k`.
+- One block up, June gates the additional-defence reduction on `!IGNORE_DEFENCE_DECLINE` (DamageData `+0x534`; user `@32049412`, NPC `@327b4221`). Both gates are ported. The key itself is 88's (below).
+
+**Recorded deviation (allowed by the kickoff).**
+- June's `k` is `attacker->Opt(+0x5248) + this->78 + this->Opt(+0x5194)`.
+  - The user block then subtracts `defender->Opt(+0x5ac8) × 0.01` when that option is above 0.
+  - The NPC block subtracts it whenever a defender exists (no `> 0` test).
+  - `k` is then clamped at 0.
+- The three `Opt` terms are option values. June seeds them from socket-data fields March's socket data lacks (`32270dd0`: `+0xcc`, `+0xc8`, `+0xd4`).
+- So the port uses `k = max( 78, 0 )`. This is exact on March data. With no buff, `k` = 1.0, which is March's behaviour.
+
+**What June's data does with 78.** All three of June's 78 factors are `PERCENT` reductions of additional damage taken:
+- `BFI_BUFF_DEVIL_CHAIN_BALL` 553 (BTI 484): 0.0001, a monster made nearly immune to additional damage.
+- `BFI_BUFF_ELDER_SECRET_SET_NORMAL` 567 (BTI 494): 0.5.
+- `BFI_BUFF_ELDER_SECRET_SET_UPGRADE` 568 (BTI 494): 0.0001 at level 1.
+
+**88 `BBT_IGNORE_DEFENCE`.**
+
+Where each piece sits:
+
+| Piece | June | March |
+|---|---|---|
+| Factor parse | `32d49210`: `[ IGNORE_DEFENCE_RATE ]`, 1.0 when the key is absent; no change type, no count | new `ParsingIgnoreDefenceBehavior`, in both macro lists |
+| Level slice | copy whole | already in; checked |
+| SGU | none | none |
+| Templet class | vt `33535558` | new `CX2BuffIgnoreDefenceBehaviorTemplet` |
+
+Class slots, all from June:
+- `SetFactor` `32e7d260`: on the first apply only, rate = `v[0]` (0 when the factor is empty), then the insert. A restack changes nothing.
+- Packet `32e7d3f0`: the same insert, with no first-apply test.
+- `GetFactor` `32e7ec40`: `[ rate ]`.
+- `DoFinish` `32e75b00`: erase.
+- A `GetBehaviorFactor` failure returns false with no popup, as June does.
+
+**Store.**
+- New `m_vecIgnoreDefencePtr`, a `vector<CX2StatFactorByBuffPtr>`. March's `CX2StatFactorByBuff` has the same shape as June's 0x1c element (`322afc00`: identity plus a protected rate).
+- `InsertIgnoreDefence` (`32282390`) pushes with no duplicate test.
+- `EraseIgnoreDefence` (`3227a8c0`) removes **the first match only**:
+  - `322a9090` is a `find_if` on BTI and unique number, and `3207b700` is called here as a single-element erase.
+  - That is March's `FindSameBuffIdentity` plus `erase`.
+  - Phase 1c item 2 called `3207b700` a range erase; that is corrected in `funcmap.tsv`.
+- `GetIgnoreDefenceRate` (`32274970`) returns the sum of the rates, capped at 1.0.
+
+**Host: June's rewrite of `fPiercingDefenceFactor`** (`GetFinalDamage` `@3228568a`–`32285735`), ported whole:
+```
+bIgnore = GT_PVP game ? IGNORE_DEFENCE_ON_PVP : IGNORE_DEFENCE;
+if ( penetrate || bIgnore ) factor = 0;
+else factor = max( 1 - this->GetIgnoreDefenceRate() - ( IsPvpOrPve ? IGNORE_DEFENCE_RATE_ON_PVP : IGNORE_DEFENCE_RATE ), 0 );
+```
+- `this` is the defender (June calls `32274970` on `ECX`).
+- **`IsPvpOrPve`** (`322cc1a0`) is game type 1 or 4. March's `GAME_TYPE` has no `GT_PVE` (4), so in this build it can only match `GT_PVP`. That half is commented, the same way 5b handled `GT_PVE`. It is not a design stop.
+- The frozen-debuff resist scaling just above the block is **not** ported, per the scope: it is not a buff change.
+
+**The four DamageData keys.**
+- New members `m_bIgnoreDefenceOnPvp`, `m_fIgnoreDefenceRate`, `m_fIgnoreDefenceRateOnPvp` and `m_bIgnoreDefenceDecline`, with `SimpleInit` defaults. `DamageData` copies memberwise, so nothing else needed changing.
+- They are parsed in `SetDamageDataFromLUA` right after `IGNORE_DEFENCE`, in June's order (`32632390` stores: `@3263c863`, `@3263ca14`, `@3263cc40`, `@3263ce2b`).
+- **Defaults (verified in the asm).**
+  - Each `_ON_PVP` key takes its sibling's value when absent (`@3263c8a0` copies `+0x528`; `@3263cc7e` copies `+0x52c`). The port passes the already-read sibling as the `LUA_GET_VALUE` default; that macro assigns the default only on a miss, so the behaviour is the same.
+  - `IGNORE_DEFENCE_RATE` defaults to 0.
+  - `IGNORE_DEFENCE_DECLINE` defaults to false.
+- **Cross-plan note.** `JUNE2017_EFFECT_KEY_MATRIX.md` lists all four keys as "to-implement, 8b". This phase implements them. That matrix was not edited.
+
+**March's runtime writers of `m_bIgnoreDefence`, checked against June.** PvP now reads the `_ON_PVP` twin, so each writer was checked for whether June also sets it:
+- **Rena, Powerful Bowstring** (`X2GULire_ElvenRanger.cpp`, two branches): June skill 23405 sets both bytes (`@32cada25`: `mov word [+0x528], 0x101`). The port now sets the twin in both March branches.
+- **Phantom Sword third blade, memo 26** (`X2BuffTemplet.cpp`): June's branch (`@323710c6`, memo `600002`) writes `+0x528` and the 0.1 critical-damage field only. March's line is unchanged, which matches June.
+- **Add** (`X2GUAdd.cpp:10777`): June (`329e27e2`, `329e4aa0`) writes `+0x528` (and `+0x541`) only. Unchanged, which matches June.
+- **Consequence:** in a PvP match, Add's ignore-defence and the memo-26 third blade's no longer ignore defence. That is June's behaviour.
+
+**92 `BBT_CHANGE_MAXIMIZE` — deferred. Three decisions for the user.**
+
+The kickoff's two blockers do not fire: Phase 4b-i part 4 landed the second ("range") physic/magic members, and March's `GetFinalDamage` has no variance roll. Tracing the rest found three further dependencies. The store's value depends on the first of them, so 92 is not wired at all: no parse, no factory, no store. A half-wired 92 would have failed into "Behavior Type Invalid" and shown up in the census as handled.
+
+**Q1. June rewrote `CX2AdditionalStatByBuff::CheckAndUpdateResultValueWithOptionData` (`320839e0`), a shared host function. Port it?**
+- 92's member refreshes through the option-data variant (`@32290ec2`), not the plain one.
+- June's formula, checked in the asm:
+  - `base' = basic + 1` when `basic ≤ 0`, otherwise `basic`.
+  - `c = curve( option + FIX + RELATION, level )`; `c *= modifier` when `PERCENT ≥ 1`.
+  - `t = base'·(1 + c) − [basic ≤ 0]`.
+  - `P = (passiveSum + 1)·passiveMultiple·PERCENT`; when `P > 0`, `t *= ( PERCENT < 1 ? P : (P − 1)·modifier + 1 )`.
+  - The result is `max( t, 0 )`. A SWAP factor overrides all of this.
+- March (`X2BuffTemplet.h`, `UpdateResultValueWithOptionData`) subtracts the `1` *after* multiplying by the passive/PERCENT product, and applies the modifier to the whole product (under `ADJUST_BUFF_CALCULATE`, which `Always.h:161` defines).
+- **Where the two formulas disagree on March's option-data members:**
+  - the basic-0 members, whenever a `PERCENT` factor ≠ 1 (or a passive) is present: critical rate, additional attack, additional defence and hyper charge;
+  - the 0.5-modifier members (walk, dash, jump and dash-jump), whenever a socket bonus and a `PERCENT > 1` factor are both present (for example 1.155 against 1.16).
+  - Everywhere else the two agree.
+- **For 92 itself:** under June's formula, a `PERCENT`-only factor on the basic-0 member gives **0**. That covers 18 of June's 21 factors, so they are inert unless a `FIX` or option term is present. Under March's formula they would give `PERCENT − 1`.
+- **Options:**
+  - (a) Port June's template wholesale. This is a `BEHAVIOR_PARITY` item, outside 5c, and it changes the members listed above.
+  - (b) Use June's formula for 92 only. That is a partial update of a function June changed.
+  - (c) Leave March's formula. 92 then gives values June never would.
+
+**Q2. 92's option curve is a Lua function March's data lacks. Adopt June's `SocketOptionForm.lua`?**
+- The curve is `CalculateFinalDamageMaximizeRate( value, level )` (`322a9e30` → `320723b0`, string `334877dc`), at June `SocketOptionForm.src.lua:557`. It calls `CalculateIntermediateDamageMaximizeRate` and `NewDecrease`.
+- March's shipped `SocketOptionForm.lua` (`kom_contents/data036_kom`) has neither, and no `NewDecrease` at all. It is an older curve set: June's `CalculateFinalAnitEvadePercent` returns 0, for example.
+- **Options:**
+  - Adopt June's file wholesale ("June asset wins"). This changes every socket-option curve.
+  - Add only the three maximize functions to March's file.
+- Either way the user packs it. The code would log `[JUNE_BUFF]` and keep 92 off while the function is missing.
+- The option value also comes from a socket field March lacks: `m_fDamageMaximizeRate`, which the socket loader `32726850` reads into socket `+0x13c` and `32270dd0` (`@322710e9`) seeds into 92. That makes it 0 on March, as with 78's terms. Porting it is a socket-system item.
+
+**Q3. Where should the player's attack range come from?**
+- June's range basics come from **two extra ints in the server's `KStat`** (`322814a0`: `{ float hp; int atkP, atkM, rangeP, rangeM, defP, defM }`; March's `KStat` in `KncWX2Server/Common/CommonPacket.h` has five fields). `UnitData::m_Stat` and `m_GameStat` both come from those packets.
+- The server's formula is not in the client binary.
+- NPCs get no range in June either:
+  - `CX2GUNPC::SetNPCStat` (`32763770`) writes stat indices 6, 7, 8, 11 and 12 only, then calls slot 119.
+  - `ExtraNPCStat` fills stat types 1–7, none of them a range.
+  - Summons copy their owner's range (`SetUserSummonedNPCInfo` tail, `3230ca6d`).
+- All of June's BBT 7/8 data is `PERCENT` (129 and 127 entries), so no buff makes the range non-zero either.
+- So until a range exists, the roll never fires (it needs range > 0), and 92 has no effect even when fully ported.
+- **Options:**
+  - Extend `KStat` and have the offline emulator fill it. That touches `KncWX2Server/Common`, which this plan forbids, and the formula would have to come from somewhere.
+  - Accept range 0 for players, which makes 92 dormant.
+
+**Already decoded for 92, so the next session does not redo it** (all in `funcmap.tsv`, "Buff Phase 5c"):
+- **Member sites.** Member `+0x6d18`:
+  - insert `32282f4f`, update `@32270acc`, erase `@32283795`;
+  - basic 0 (`@322717f0`), and **no** passive init;
+  - option seed from socket `+0x13c`; the NPC branch zeroes it (`@32271470`);
+  - option-data refresh with the curve above.
+  - Note: `buffre/rawfn.py` stops after 200 instructions. That hid every case past it until a full disassembly found them.
+- **The roll `322788c0`.**
+  - It runs only when range > 0.
+  - `maxi` = the attacker's 92 result × attacker vslot 121 (DamageData). This corrects Phase 1c item 3, which said slot 121 multiplies base.
+  - The engine is a `boost::mt19937`, built fresh on every call and seeded with `this->vslot113( 0 ) & 0xffff`. `31ec9d90` is boost 1.44's seed, the version X2Lib already includes at `X2Main.h:606`.
+  - `s = variate_generator<mt19937&, normal_distribution<double>>( base + range·maxi, range·0.5 )()`; `322ab740` and `322ab1c0` are boost's classic Box–Muller.
+  - The result is `(L < s ? s : L)`, capped at `base + range`, where `L = base − range + 2·range·maxi`.
+  - The physic and magic calls share one seed, so each takes the same first (cos-branch) draw.
+  - Call sites: `GetFinalDamage` `@32284c1f` (physic) and `@32284c2f` (magic), right where March reads `fPhysicAttack`/`fMagicAttack` from the attacker.
+- **Slot 113** = the synced random-table index plus the offset: user `+0x80f8` is March's `m_FrameDataNow.syncData.m_usRandomTableIndex`, and NPC `+0x8474` is `GetNPCSyncData().m_usRandomTableIndex`. Its siblings, slots 114 and 115, are `GetRandomInt` and `GetRandomFloat` on the same word. The base is pure.
+- **Slot 121** returns 1.0 for every class except Rose (`32a7ece0`).
+- **Add/Ain `InitPassiveSkillState`** (vslot 420) set 92's passive sum from skill ability `0xc4`.
+- **Summon copy:** the tail of `SetUserSummonedNPCInfo` (`3230ca6d`) copies the owner's 92 and range results into the summon. The second copy, `32763d4f`, is inside the June-only binding `ApplyPassiveSkillOwnerUser_LUA` (`32763c10`).
+- Two rows were added to `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 7: Add/Ain's passive sum, and Rose's slot 121.
+
+**Corrections to earlier text.**
+1. **Phase 1c item 3, 92 roll:** slot 121 multiplies MAXIMIZE, not base (`@32278981`–`3227899c`).
+2. **Phase 1c item 2, `3207b700`:** in the identity and ignore-defence erases it is a single-element erase after a `find_if`, not a range erase.
+3. **5b review D1:** the `X2BuffBehaviorTemplet.cpp` comment is corrected in this commit. A comment line was added; the old one was kept, so the edit stays insert-only.
+
+**Hygiene.**
+- **Flag-off unifdef.** With `NEW_STAT` and `DEBUG` undefined, the strip of both the working file and `HEAD` is byte-identical for 10 of the 11 code files. `X2GameUnit.cpp` differs by one blank line just outside a guard. Every raw file differs from `HEAD`.
+- **Encodings and line endings.** `file` signatures are unchanged on every touched file. Every added line is ASCII. The line ending follows the host line: LF in the LF stretches of `X2DamageManager.cpp`/`.h` and `X2GULire_ElvenRanger.cpp`, CRLF elsewhere.
+- **Diff.** `git diff --stat`: 310 insertions and 0 deletions over 11 code files (`X2GameUnit.cpp` 102, `X2BuffBehaviorTemplet.cpp` 64, `X2BuffFactor.cpp` 34, `X2BuffBehaviorTemplet.h` 26, `X2GUUser.cpp` 26, `X2GUNPC.cpp` 24, `X2DamageManager.h` 15, `X2GameUnit.h` 9, `X2DamageManager.cpp` 8, `X2GULire_ElvenRanger.cpp` 6, `X2BuffFactor.h` 1). The docs add 27 `funcmap.tsv` rows (tag "Buff Phase 5c") and 2 rows in checklist section 7.
+
+**How to see it in game (for Phase 14).** June numbers come from `june_src_fixed/data036_kom/Enum.src.lua`; the BFI equals the factor ordinal. The data arrives with Phase 13.
+
+| Type | June BFI (BTI) | Where it comes from | What to watch |
+|---|---|---|---|
+| 78 | `BFI_BUFF_DEVIL_CHAIN_BALL` 553 (BTI 484); `BFI_BUFF_ELDER_SECRET_SET_NORMAL` 567 / `_UPGRADE` 568 (BTI 494) | a monster buff; an item-set buff | The unit wearing it takes almost no additional damage (0.0001), or half (0.5). Your additional-damage numbers on a Devil Chain Ball monster vanish. |
+| 88 | `BFI_DEBUFF_CUTTING_SWORD_IGNORE_DEFENCE` 630 (BTI 540; `IGNORE_DEFENCE_RATE` 1, ended by `BFT_HITTED_COUNT`) | a skill debuff | Hits on the debuffed unit ignore its whole defence until its hit count runs out. |
+| 92 | deferred. Factors include `BFI_SI_P_EIS_LIGHTNING_STEP` 81, `BFI_BUFF_PHANTOM_CIRCLE` 783, `BFI_SPA_STRONG_BUFF` 949 (`FIX` 10) and `BFI_ALWAYS_SPA_BUFF_2` 1029 (`FIX` 5) | skills, items | nothing until Q1–Q3 are answered |
+
+**Cost.** `/cost` cannot be read from inside the session. User, please paste it here. *(Not invented.)*
+
+**Play-test hand-off (dev console, END key; `settings.auth_level` = 3 is already set).**
+
+How the lines were checked:
+- **Syntax and tables:** all five lines were run under `elstools`' bundled LuaJIT against a mock manager. The definitions build their tables with the ids named.
+- **Not run in the game.** None of them has run in the game yet. Each has the same shape as lines from 5b and its review that did run.
+- **Ids assume a fresh launch.** The last load summary logged `factors 361 loaded`, so the next free factor ids are 362 and 363. If you have pasted any other test definition this session, restart the game first; otherwise you will see `ordinal reject BFI 362 … the next id must be N`.
+- **The hook.** `JuneBuffTestNewStat_LUA` is the Phase 5 debug hook. It writes straight into a stat store.
+
+0. **Setup (once, right after loading in).**
+   - Where: any field or dungeon, after a fresh launch.
+   - Paste, first (defines a 60-second "additional damage taken ×3" buff, factor 362):
+     ```
+     local t = {} local p = {} local r = {} for i = 1, 30 do t[i] = 60 p[i] = 3 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990078, IS_WORLD_BUFF = FALSE, IS_DEBUF = TRUE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 78 }, BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER = { BUFF_CHANGE_TYPE = 3, BUFF_RELATION_TYPE = 7 } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 362, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990078, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 78 }, BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER = { BUFF_CHANGE_TYPE = 3, BUFF_RELATION_TYPE = 7, PERCENT = p } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+   - Paste, second (defines a 60-second "ignore all defence" debuff, factor 363; the same shape as June's Cutting Sword debuff):
+     ```
+     local t = {} local r = {} for i = 1, 30 do t[i] = 60 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990088, IS_WORLD_BUFF = FALSE, IS_DEBUF = TRUE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 88 }, BBT_IGNORE_DEFENCE = {} }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 363, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990088, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 88 }, BBT_IGNORE_DEFENCE = { IGNORE_DEFENCE_RATE = 1 } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+   - What it does: teaches the game the two test buffs. Nothing changes on screen yet.
+   - Look for: no popup, and no `ordinal reject BFI 362` / `363` line in `ErrorLog.txt`.
+   - If not: an `ordinal reject … the next id must be N` line means the ids are off. Tell me N, or restart and paste both again.
+
+1. **Monsters take triple additional damage (type 78).**
+   - Where: a field or dungeon with ordinary monsters you can hit safely.
+   - Paste, first (gives your character a large additional-damage bonus, so there is something for 78 to multiply):
+     ```
+     g_pX2Game:GetMyUnit():JuneBuffTestNewStat_LUA( 20, 1, 5000, 1 )
+     ```
+   - Hit a monster a few times with the same basic attack and note the typical damage number.
+   - Paste, second (puts the ×3 buff on every monster on the map):
+     ```
+     for i = 0, g_pX2Game:GetNPCUnitListSize() - 1 do local n = g_pX2Game:GetNPCUnit( i ) if n ~= nil then n:SetBuffFactorToGameUnitByBuffFactorID_LUA( 362, 1 ) end end
+     ```
+   - What it does: for 60 seconds, the extra "additional damage" part of each of your hits on those monsters counts three times.
+   - Look for:
+     - Your damage numbers on the monsters rise; the additional part triples, so the rise depends on how big that part is.
+     - `ErrorLog.txt` gets `console hook BBT 20, change type 1, value 5000, insert`, then `first apply BBT 78, change type 3, value 3`.
+     - After the next hit it gets `first read BBT 78 (npc hit): additional attack A x 3`. A is your additional damage for that hit, before the ×3.
+   - If not:
+     - No `first apply BBT 78` line: send any `[JUNE_BUFF]` line naming BTI `990078`, BFI `362` or `BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER`.
+     - A `first apply` line but no `first read BBT 78` after several hits: tell me "no first read". Your additional damage may be 0; send the `console hook BBT 20` line.
+   - Undo the bonus afterwards:
+     ```
+     g_pX2Game:GetMyUnit():JuneBuffTestNewStat_LUA( 20, 1, 5000, 0 )
+     ```
+
+2. **Monsters lose all their defence (type 88).**
+   - Where: a field or dungeon with ordinary monsters. Hit one a few times first and note the typical damage number.
+   - Paste:
+     ```
+     for i = 0, g_pX2Game:GetNPCUnitListSize() - 1 do local n = g_pX2Game:GetNPCUnit( i ) if n ~= nil then n:SetBuffFactorToGameUnitByBuffFactorID_LUA( 363, 1 ) end end
+     ```
+   - What it does: for 60 seconds, every monster on the map takes your hits as if it had no defence at all.
+   - Look for:
+     - The same attack hits noticeably harder, and returns to normal after 60 seconds.
+     - `ErrorLog.txt` gets `first apply BBT 88 (ignore defence): BTI 990088, rate 1`.
+     - After a hit it gets `first read BBT 88: piercing defence factor 0 (buff rate 1, damage data rate 0)`.
+   - If not:
+     - No `first apply BBT 88`: send any `[JUNE_BUFF]` line naming `990088`, `363` or `BBT_IGNORE_DEFENCE`.
+     - A `first read` line whose factor is not 0: send it.
+     - Damage unchanged although both lines are there: tell me "no visible change". Monsters with very low defence show little difference.
+
+**Not reachable from the console in this build:**
+- `IGNORE_DEFENCE_DECLINE` and the `_ON_PVP` / `IGNORE_DEFENCE_RATE` DamageData keys: no March damage data sets them, so only their defaults run. That is March's behaviour.
+- The PvP paths (they need a PvP match).
+- The packet paths (they need a second client).
+
+**Log lines to read afterwards** (this phase's own, in `ErrorLog.txt`):
+- `[JUNE_BUFF] console hook BBT 20 …`
+- `first apply BBT 78 …`, `first read BBT 78 (npc hit) …`
+- `first apply BBT 88 …`, `first read BBT 88 …`
+- any `[JUNE_BUFF]` line naming `990078`, `990088`, `362` or `363`
+
 ---
 
 ### Phase 6 — group B: skill-scoped types (Sonnet)

@@ -1055,6 +1055,15 @@ class CX2DamageManager
 			float					m_fHitDamageEffectDamageRate;
 
 			bool					m_bIgnoreDefence;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+			/// June buff port Phase 5c (BBT 88 host): June DamageData +0x529 / +0x52c / +0x530 / +0x534, stored by SetDamageDataFromLUA
+			/// (32632390 @3263c863 / @3263ca14 / @3263cc40 / @3263ce2b) right after IGNORE_DEFENCE (+0x528). Read by GetFinalDamage's
+			/// fPiercingDefenceFactor block (@3228568a) and, for the decline flag, by both DamageReacts (@32049412, @327b4221).
+			bool					m_bIgnoreDefenceOnPvp;			/// IGNORE_DEFENCE_ON_PVP: IGNORE_DEFENCE for a GT_PVP game; copies IGNORE_DEFENCE when absent (@3263c8a0)
+			float					m_fIgnoreDefenceRate;			/// IGNORE_DEFENCE_RATE: share of the defence ignored, default 0
+			float					m_fIgnoreDefenceRateOnPvp;		/// IGNORE_DEFENCE_RATE_ON_PVP: the rate in a PvP/PvE game; copies IGNORE_DEFENCE_RATE when absent (@3263cc7e)
+			bool					m_bIgnoreDefenceDecline;		/// IGNORE_DEFENCE_DECLINE: skips the defender's additional-defence reduction, default false
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 #ifdef WIDE_BUFF_ANI_SPEED_UP
 			bool	m_bAnimationSpeedUp;
@@ -1292,6 +1301,12 @@ class CX2DamageManager
 				m_fHitDamageEffectDamageRate = 1.f;
 
 				m_bIgnoreDefence	= false;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+				m_bIgnoreDefenceOnPvp		= false;
+				m_fIgnoreDefenceRate		= 0.f;
+				m_fIgnoreDefenceRateOnPvp	= 0.f;
+				m_bIgnoreDefenceDecline		= false;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 #ifdef WIDE_BUFF_ANI_SPEED_UP
 				m_bAnimationSpeedUp = false;

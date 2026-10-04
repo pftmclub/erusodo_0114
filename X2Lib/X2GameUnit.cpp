@@ -2036,6 +2036,45 @@ void CX2GameUnit::JuneBuffTestNewStat_LUA( const int iBehaviorType_, const int i
 }
 #endif defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+/** @function : InsertIgnoreDefence
+	@brief : June buff port Phase 5c, BBT 88. June 32282390: a new { identity, rate } entry (June element ctor 322afc00) is pushed
+		onto the unit's ignore-defence list (June +0x67dc), with no duplicate test.
+*/
+void CX2GameUnit::InsertIgnoreDefence( const KBuffIdentity& BuffIdentity_, const float fIgnoreDefenceRate_ )
+{
+	CX2StatFactorByBuffPtr ptrIgnoreDefence = CX2StatFactorByBuffPtr( new CX2StatFactorByBuff( BuffIdentity_, fIgnoreDefenceRate_ ) );
+	if ( NULL != ptrIgnoreDefence )
+		m_vecIgnoreDefencePtr.push_back( ptrIgnoreDefence );
+}
+
+/** @function : EraseIgnoreDefence
+	@brief : June 3227a8c0: find_if on the identity (322a9090, BTI and unique number), then erase that one entry (3207b700).
+*/
+void CX2GameUnit::EraseIgnoreDefence( const KBuffIdentity& BuffIdentity_ )
+{
+	vector<CX2StatFactorByBuffPtr>::iterator vItr
+		= FindSameBuffIdentity<vector<CX2StatFactorByBuffPtr>::iterator, CX2StatFactorByBuffPtr>( m_vecIgnoreDefencePtr, BuffIdentity_ );
+
+	if ( m_vecIgnoreDefencePtr.end() != vItr )
+		m_vecIgnoreDefencePtr.erase( vItr );
+}
+
+/** @function : GetIgnoreDefenceRate
+	@brief : June 32274970: the sum of every entry's rate (null entries skipped), capped at 1.0. GetFinalDamage calls it on the defender.
+*/
+float CX2GameUnit::GetIgnoreDefenceRate() const
+{
+	float fSum = 0.0f;
+	for ( vector<CX2StatFactorByBuffPtr>::const_iterator vItr = m_vecIgnoreDefencePtr.begin(); m_vecIgnoreDefencePtr.end() != vItr; ++vItr )
+	{
+		if ( NULL != *vItr )
+			fSum += (*vItr)->GetValue();
+	}
+	return ( fSum <= 1.0f ? fSum : 1.0f );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+
 // 자신이 받을 damage를 계산해준다
 float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData )
 {
@@ -2368,10 +2407,44 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	
 	// 피어싱 데미지의 경우 방어력이 0
 	float fPiercingDefenceFactor = 1.f;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	/// June buff port Phase 5c (BBT 88 host): June GetFinalDamage @3228568a-32285735 rewrote this block.
+	/// - The flag that zeroes the factor is IGNORE_DEFENCE_ON_PVP in a GT_PVP game (CX2Game vslot 67 == 1) and IGNORE_DEFENCE otherwise.
+	/// - Otherwise the factor is 1 - the defender's ignore-defence rate (BBT 88, 32274970 on this unit) - the DamageData rate, clamped at 0.
+	///   The rate is IGNORE_DEFENCE_RATE_ON_PVP when CX2Game::IsPvpOrPve (322cc1a0: game type 1 or 4), else IGNORE_DEFENCE_RATE.
+	///   March's GAME_TYPE has no GT_PVE (4), so IsPvpOrPve can only match GT_PVP in this build; the GT_PVE half comes with GT_PVE.
+	/// June's frozen-debuff resist scaling just above (32285611-3228568a) is not a buff change and is not ported here.
+	{
+		const bool bPvpGame = ( CX2Game::GT_PVP == g_pX2Game->GetGameType() );
+		const bool bIgnoreDefence = ( bPvpGame ? pAttDamageData->m_bIgnoreDefenceOnPvp : pAttDamageData->m_bIgnoreDefence );
+		if ( true == pAttDamageData->m_bPenetrate || true == bIgnoreDefence )
+		{
+			fPiercingDefenceFactor = 0.f;
+		}
+		else
+		{
+			const float fDamageDataIgnoreRate = ( bPvpGame ? pAttDamageData->m_fIgnoreDefenceRateOnPvp : pAttDamageData->m_fIgnoreDefenceRate );
+			const float fBuffIgnoreRate = GetIgnoreDefenceRate();
+			fPiercingDefenceFactor = max( 1.f - fBuffIgnoreRate - fDamageDataIgnoreRate, 0.f );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			if ( 0.f < fBuffIgnoreRate )
+			{
+				static bool s_bSeenRead88 = false;
+				if ( !s_bSeenRead88 )
+				{
+					s_bSeenRead88 = true;
+					CX2JuneBuffCapture::Line( "first read BBT 88: piercing defence factor %g (buff rate %g, damage data rate %g)", fPiercingDefenceFactor, fBuffIgnoreRate, fDamageDataIgnoreRate );
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		}
+	}
+#else SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 	if( pAttDamageData->m_bPenetrate == true || pAttDamageData->m_bIgnoreDefence == true )
 	{
 		fPiercingDefenceFactor = 0.f;
 	}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 
 #ifdef ENCHANT_BALANCE_101014 
@@ -12185,6 +12258,14 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 	case BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED:
 		m_AdditionalForceDownMultiplierRangeAttacked.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 		break;
+
+	/// June buff port Phase 5c, 32282700: BBT 78 (member +0x53b0, insert 32282dff)
+	case BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER:
+		m_AdditionalTypeAdditionalAttackMultiplier.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		break;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	default:
@@ -12512,6 +12593,13 @@ void CX2GameUnit::UpdateAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 			if ( !m_AdditionalForceDownMultiplierRangeAttacked.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
 				m_AdditionalForceDownMultiplierRangeAttacked.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 		} break;
+
+	/// June buff port Phase 5c, 3226fd70 (@322708a9): BBT 78, update the factor or insert it when absent
+	case BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER:
+		{
+			if ( !m_AdditionalTypeAdditionalAttackMultiplier.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
+				m_AdditionalTypeAdditionalAttackMultiplier.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+		} break;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	default:
@@ -12775,6 +12863,11 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 	case BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED:
 		m_AdditionalForceDownMultiplierRangeAttacked.EraseStatFactor( eChangeType_, BuffIdentity_ );
 		break;
+
+	/// June buff port Phase 5c, 322830f0 (@32283685): BBT 78
+	case BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER:
+		m_AdditionalTypeAdditionalAttackMultiplier.EraseStatFactor( eChangeType_, BuffIdentity_ );
+		break;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	default:
@@ -12907,6 +13000,8 @@ void CX2GameUnit::CheckAndUpdateAdditionalStat()
 	/// June buff port Phase 5b, 32290950: 106 / 107 refresh through the plain result update too (+0x5b7c, +0x5c30)
 	m_AdditionalForceDownMultiplierMeleeAttacked.CheckAndUpdateResultValue();
 	m_AdditionalForceDownMultiplierRangeAttacked.CheckAndUpdateResultValue();
+	/// June buff port Phase 5c, 32290950 (@32290bc6): 78 refreshes through the plain result update (3236d350)
+	m_AdditionalTypeAdditionalAttackMultiplier.CheckAndUpdateResultValue();
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 }
 
@@ -13319,6 +13414,8 @@ void CX2GameUnit::InitAdditionalStatOptionValue()
 	/// June buff port Phase 5, 32270dd0 @322710a1: BBT 76's option value is the socket hyper-time percent. June's NPC branch
 	/// zeroes it; here m_SocketData is already 0 for a unit with no socket options, as for every sibling above.
 	m_AdditionalHyperDuration.SetOptionValue( m_SocketData.m_fHyperModeTime );
+	/// June buff port Phase 5c, 32270dd0 (@32270f59 user branch, @322712e9 NPC branch): BBT 78's option value is set to 0 in both.
+	m_AdditionalTypeAdditionalAttackMultiplier.SetOptionValue( 0.0f );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 // 	m_AdditionalFinalDamageMultiplier.SetOptionValue( 0.0f );
@@ -13386,6 +13483,8 @@ void CX2GameUnit::InitAdditionalBasicStatValue()
 	/// June buff port Phase 5b, 32271540: 106 / 107 start at 0.0 (fldz)
 	m_AdditionalForceDownMultiplierMeleeAttacked.SetBasicStatValue( 0.0f );
 	m_AdditionalForceDownMultiplierRangeAttacked.SetBasicStatValue( 0.0f );
+	/// June buff port Phase 5c, 32271540 (@32271648, fld1): 78 starts at 1.0
+	m_AdditionalTypeAdditionalAttackMultiplier.SetBasicStatValue( 1.0f );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	CheckAndUpdateAdditionalStat();
@@ -13450,6 +13549,8 @@ void CX2GameUnit::InitAdditionalPassive()
 	/// June buff port Phase 5b, 322718e0: multiple 1, sum 0
 	InitAdditionalPassiveMultipleAndSum(m_AdditionalForceDownMultiplierMeleeAttacked);
 	InitAdditionalPassiveMultipleAndSum(m_AdditionalForceDownMultiplierRangeAttacked);
+	/// June buff port Phase 5c, 322718e0 (@32271b26): 78, multiple 1, sum 0
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalTypeAdditionalAttackMultiplier);
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	/// 소켓옵션에 의한 것을 Passive쪽에 넣어줌(연산 로직 때문에 이렇게 함)
@@ -15888,6 +15989,7 @@ bool CX2GameUnit::VerifyStatByBuff()
 		 && m_AdditionalFinalDamageMultiplierUser.Verify()
 		 && m_AdditionalForceDownMultiplierMeleeAttacked.Verify()
 		 && m_AdditionalForceDownMultiplierRangeAttacked.Verify()
+		 && m_AdditionalTypeAdditionalAttackMultiplier.Verify()
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		 )
 		 return true;

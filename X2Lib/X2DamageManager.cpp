@@ -509,6 +509,14 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 #endif DAMAGEDATA_RATE_MODIFIER
 
 		LUA_GET_VALUE( luaManager, "IGNORE_DEFENCE",			pDamageData->m_bIgnoreDefence,	false );				
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+		/// June buff port Phase 5c (BBT 88 host): June 32632390 reads these four right after IGNORE_DEFENCE, in this order. Each _ON_PVP key
+		/// takes its sibling's value when it is absent (@3263c8a0 copies +0x528 into +0x529, @3263cc7e copies +0x52c into +0x530).
+		LUA_GET_VALUE( luaManager, "IGNORE_DEFENCE_ON_PVP",		pDamageData->m_bIgnoreDefenceOnPvp,		pDamageData->m_bIgnoreDefence );
+		LUA_GET_VALUE( luaManager, "IGNORE_DEFENCE_RATE",		pDamageData->m_fIgnoreDefenceRate,		0.f );
+		LUA_GET_VALUE( luaManager, "IGNORE_DEFENCE_RATE_ON_PVP",	pDamageData->m_fIgnoreDefenceRateOnPvp,	pDamageData->m_fIgnoreDefenceRate );
+		LUA_GET_VALUE( luaManager, "IGNORE_DEFENCE_DECLINE",	pDamageData->m_bIgnoreDefenceDecline,	false );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 #ifdef WIDE_BUFF_ANI_SPEED_UP
 		LUA_GET_VALUE( luaManager, "ANIMATION_SPEED_UP",			pDamageData->m_bAnimationSpeedUp, false );

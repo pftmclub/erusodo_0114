@@ -159,6 +159,9 @@ case type_: \
 			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStateByConditionBehaviorTemplet, BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION )
 			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStateByConditionBehaviorTemplet, BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION )
 			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStateByConditionBehaviorTemplet, BBT_CHANGE_MAX_HP_BY_CONDITION )
+			/// June buff port Phase 5c (June 32e80450 factory): 78 uses the ChangeStat class, 88 its own class (vt 33535558); 92 deferred
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStatBehaviorTemplet, BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffIgnoreDefenceBehaviorTemplet, BBT_IGNORE_DEFENCE )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 			case BBT_EMPTY:	/// 행동을 지정하지 않겠다고 명시적으로 해야함
@@ -4523,6 +4526,8 @@ float CX2BuffChangeStateByConditionBehaviorTemplet::GetValue( const KBuffBehavio
 		JUNE INDEX BUG, TRANSCRIBED VERBATIM: GetFactor above writes the UID words at indices 1-4, this reads 4-7, so a peer ends up with a
 		wrong owner (v[4] is the top word, v[5..7] are past the end of a five-value factor and read as 0 here; June reads past the end).
 		Harmless: the UID's only consumer is June's owner aggregator 3227c620, which nothing calls.
+		Phase 5c correction (5b review D1): June does not read past the end either. 32e76710 size-tests each of v[4..7] and reads
+		0.0 for a missing one, exactly like KBuffBehaviorFactor::operator[] here, so a peer gets owner = uid >> 48 (the top word).
 */
 /*virtual*/ void CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
 {
@@ -4532,6 +4537,65 @@ float CX2BuffChangeStateByConditionBehaviorTemplet::GetValue( const KBuffBehavio
 		| ( static_cast<UidType>( static_cast<int>( kFactor_[5] ) ) << 16 )
 		| ( static_cast<UidType>( static_cast<int>( kFactor_[6] ) ) << 32 )
 		| ( static_cast<UidType>( static_cast<int>( kFactor_[7] ) ) << 48 );
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 88: CX2BuffIgnoreDefenceBehaviorTemplet (June vt 33535558, ctor 32e890b0), Phase 5c
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @function : SetFactor
+	@brief : June 32e7d260. GetBehaviorFactor failing returns false (no popup in June). On the first apply only, the rate is v[0]
+		(0.0 when the factor is empty) and the unit gets one ignore-defence entry for this buff (June 32282390). A restack changes
+		nothing and still returns true.
+*/
+/*virtual*/ bool CX2BuffIgnoreDefenceBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( !DidStart() )
+	{
+		m_fIgnoreDefenceRate = ( pBehaviorFactor->m_vecValues.empty() ? 0.0f : (*pBehaviorFactor)[0] );
+		pGameUnit_->InsertIgnoreDefence( pBuffTemplet_->GetBuffIdentity(), m_fIgnoreDefenceRate );
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		static bool s_bSeenApply = false;
+		if ( !s_bSeenApply )
+		{
+			s_bSeenApply = true;
+			CX2JuneBuffCapture::Line( "first apply BBT 88 (ignore defence): BTI %d, rate %g", static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), static_cast<float>( m_fIgnoreDefenceRate ) );
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	}
+	return true;
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffIgnoreDefenceBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffIgnoreDefenceBehaviorTemplet( *this ) );
+}
+
+/** @brief : June 32e7ec40: [ rate ] */
+/*virtual*/ void CX2BuffIgnoreDefenceBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
+	KBuffBehaviorFactor& BehaviorFactor = vecFactors_.back();
+
+	BehaviorFactor.m_vecValues.push_back( m_fIgnoreDefenceRate );
+}
+
+/** @brief : June 32e7d3f0: rate = v[0] (0.0 when empty), then the insert, with no first-apply test. */
+/*virtual*/ void CX2BuffIgnoreDefenceBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	m_fIgnoreDefenceRate = ( kFactor_.m_vecValues.empty() ? 0.0f : kFactor_[0] );
+	pGameUnit_->InsertIgnoreDefence( kBuffFactor_.m_BuffIdentity, m_fIgnoreDefenceRate );
+}
+
+/** @brief : June 32e75b00: EraseIgnoreDefence( identity ) (June 3227a8c0) */
+/*virtual*/ void CX2BuffIgnoreDefenceBehaviorTemplet::DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ )
+{
+	pGameUnit_->EraseIgnoreDefence( pBuffTemplet_->GetBuffIdentity() );
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 //}}

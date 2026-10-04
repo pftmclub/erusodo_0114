@@ -232,6 +232,10 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_, bool b
 				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStateByConditionBehavior, BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION, bIsSkill )
 				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStateByConditionBehavior, BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION, bIsSkill )
 				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStateByConditionBehavior, BBT_CHANGE_MAX_HP_BY_CONDITION, bIsSkill )
+				/// June buff port Phase 5c: 78 shares ParsingChangeStatBehavior (June 32d445d0); 88 has its own parser (32d49210).
+				/// 92 (BBT_CHANGE_MAXIMIZE) is deferred: see the Phase 5c Done note.
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER, bIsSkill )
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingIgnoreDefenceBehavior, BBT_IGNORE_DEFENCE, bIsSkill )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 			case BBT_EMPTY:
@@ -379,6 +383,9 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_ )
 						CASE_BEHAVIOR_FACTOR( ParsingChangeStateByConditionBehavior, BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION )
 						CASE_BEHAVIOR_FACTOR( ParsingChangeStateByConditionBehavior, BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION )
 						CASE_BEHAVIOR_FACTOR( ParsingChangeStateByConditionBehavior, BBT_CHANGE_MAX_HP_BY_CONDITION )
+						/// June buff port Phase 5c (see the skill list above)
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER )
+						CASE_BEHAVIOR_FACTOR( ParsingIgnoreDefenceBehavior, BBT_IGNORE_DEFENCE )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 			case BBT_EMPTY:
 				break;
@@ -880,6 +887,7 @@ void CX2BuffFactor::SetGameUnitBehavior( KBuffBehaviorFactor& factor_, CX2GameUn
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 	case BBT_CHANGE_HYPER_DURATION:		/// June buff port Phase 5: only 76 of the seven joins the ChangeStat SGU group (32d4d6ef)
 	case BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER:	/// June buff port Phase 5b: 93 joins the ChangeStat SGU group too (32d4d6ef)
+	case BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER:	/// June buff port Phase 5c: 78 joins the ChangeStat SGU group (32d4d6ef); 88 has no SGU case (92 deferred)
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		SetGameUnitChangeStatBehavior( factor_, pGameUnit_ );
 		break;
@@ -1923,6 +1931,32 @@ void CX2BuffFactor::SetGameUnitChangeStateByConditionBehavior( KBuffBehaviorFact
 		const float fUserNum = ( NULL != g_pX2Game ? static_cast<float>( g_pX2Game->GetUserUnitNum() ) : 0.0f );
 		factor_.m_vecValues.push_back( fUserNum );
 	}
+}
+
+/** @function : ParsingIgnoreDefenceBehavior
+	@brief : June 32d49210 (BBT 88, Phase 5c). Pushes [ IGNORE_DEFENCE_RATE ], a float that defaults to 1.0 when the key is absent.
+		June has no other key, no change type and no count (bIsSkill is not used), and it never rejects the factor.
+	@return : true when the table exists
+*/
+bool CX2BuffFactor::ParsingIgnoreDefenceBehavior( KLuaManager& luaManager_, const char* pszTableName_, const BUFF_BEHAVIOR_TYPE eBehaviorType_, bool bIsSkill /*= true*/ )
+{
+	if ( luaManager_.BeginTable( pszTableName_ ) )
+	{
+		BOOST_SCOPE_EXIT( (&luaManager_) ) {
+			luaManager_.EndTable();
+		} BOOST_SCOPE_EXIT_END
+
+		KBuffBehaviorFactor BuffBehaviorFactor( eBehaviorType_ );
+
+		float fIgnoreDefenceRate = 1.0f;
+		LUA_GET_VALUE( luaManager_, "IGNORE_DEFENCE_RATE", fIgnoreDefenceRate, 1.0f );
+		BuffBehaviorFactor.m_vecValues.push_back( fIgnoreDefenceRate );
+
+		m_pDataBuffFactor->m_vecBuffBehaviorFactors.push_back( BuffBehaviorFactor );
+		return true;
+	}
+	else
+		return false;
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 //}}
