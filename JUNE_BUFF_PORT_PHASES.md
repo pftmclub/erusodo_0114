@@ -768,6 +768,7 @@ Read-only Ghidra (no renames or comments). Uncarved functions were read with `bu
 **90 CHANGE_SKILL_DAMAGE_BY_SKILL_ID / 91 CHARGE_MP_HIT_BY_SKILL_ID — 91 transcription-ready; 90's class, store and reader are, its hosts (shared with 89) are Opus-only.**
 - Classes `CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet` (vt `33535594`) and `CX2BuffChargeMpHitBySkillIDBehaviorTemplet` (vt `335355d0`). Member (+0x10) `vector< { float rate; vector<int> skillIds; } >` (element 0x14).
 - `SetFactor` `32e849c0` / `32e84d70`: no factor or not a user → false. If `DidStart() && T->GetAccumulationCountNow() == 0` erase the identity. Clear the member. Walk `v`: the value `-1.0` (`334380f0`) closes a block (`push( rate, ids )`, reset); the first value after a close is the rate; later values are `(int)` skill ids. Then insert the identity with the member (`3200ae70` for 90, `3200af50` for 91; insert only if absent); true.
+  - *Corrected by the Phase 6 review (2026-10-04): there is no reset.* The ids vector is zeroed once before the loop and never cleared inside it (`32e849c0` `[esp+0x1c]`, `32e84d70` likewise, packets `32e84b90` / `32e84f40` `[esp+0x20]`); at each `-1.0` the block is **copied** into the member (`32e87770` -> vector copy ctor `32079c50`). So block k lists the ids of blocks 1..k, and with the getter's last-match rule every listed id gets the last block's rate. The rate variable is not reset either (`fld1` once), which shows only on two `-1.0` in a row. June's own 90 / 91 data has one block per factor, where nothing differs.
 - `GetFactor` `32e7ef50` / `32e7f2e0`: per block `[ rate, id1..idn, -1.0 ]`. Packet `32e84b90` / `32e84f40`: same walk; insert if a user. `DoFinish` `32e75b90` / `32e75bb0`: if a user, erase (`31fe29e0` / `31fe2a30`).
 - Stores: new unit lists (June `+0x92e4` for 90, `+0x92f4` for 91), element ctors `320849a0` / `32084ae0`. Element getter (`32369aa0` for 90, `32369b10` for 91, byte-identical): `r = 1.0; for each block: if skillId ∈ ids: r = block.rate; return r` (**the last matching block wins**, no clamp).
 - 90 is read by `31fd7cc0` above.
@@ -4848,7 +4849,7 @@ and what I should see if it works and if it does not.
 
 **Behaviour on March data: none for the five inert types, and 75, 91, 103 only when a factor carries them.** March's shipped data has no factor with any of the eight types, so the new code runs only when June data (Phase 13) or the console lines below put one in.
 
-**Hygiene.** `git diff --stat`: 1,874 insertions and 2 deletions over 15 files (`X2BuffBehaviorTemplet.cpp` 621, `X2GUUser.cpp` 455, `X2BuffFactor.cpp` 252, `X2BuffBehaviorTemplet.h` 226, `X2BuffTemplet.h` 72, `X2GameUnit.cpp` 56, `X2UserSkillTree.cpp` 55, `X2GUUser.h` 45, `Always.h` 19, `X2BuffFactor.h` 12, `X2GameUnit.h` 12, `X2GUNPC.cpp` 8, `X2UserSkillTree.h` 8, `X2Main.cpp` 3, and 8 `funcmap.tsv` rows tagged "Buff Phase 6", the parse functions). **Commit note:** commit `54eaef6` also carries 24 `funcmap.tsv` rows tagged "Buff Phase 16" that a second session had left uncommitted in the same working tree when `git add -A` ran; they are not Phase 6's and history was not rewritten. The deployed exe was built on top of `5dcf460`; the commits between the session's start (`99b2dcf`) and `5dcf460` touch only `JUNE_BUFF_PORT_PHASES.md` and `funcmap.tsv`, so no Phase 15/16 source is in it. `file` is unchanged on every touched source (all added lines ASCII, CRLF where the file is CRLF; `X2UserSkillTree.cpp` and `.h` are mixed CRLF/LF and each edit follows the lines around it). Every deleted line is one of the five replaced lines named under *Flags* and keeps its original in an `#else` or is a comment.
+**Hygiene.** `git diff --stat`: 1,874 insertions and 2 deletions over 15 files (`X2BuffBehaviorTemplet.cpp` 621, `X2GUUser.cpp` 455, `X2BuffFactor.cpp` 252, `X2BuffBehaviorTemplet.h` 226, `X2BuffTemplet.h` 72, `X2GameUnit.cpp` 56, `X2UserSkillTree.cpp` 55, `X2GUUser.h` 45, `Always.h` 19, `X2BuffFactor.h` 12, `X2GameUnit.h` 12, `X2GUNPC.cpp` 8, `X2UserSkillTree.h` 8, `X2Main.cpp` 3, and 8 `funcmap.tsv` rows tagged "Buff Phase 6", the parse functions). **Commit note:** commit `54eaef6` also carries 24 `funcmap.tsv` rows tagged "Buff Phase 16" that a second session had left uncommitted in the same working tree when `git add -A` ran; they are not Phase 6's and history was not rewritten. The deployed exe was built on top of `5dcf460`; the commits between the session's start (`99b2dcf`) and `5dcf460` touch only `JUNE_BUFF_PORT_PHASES.md` and `funcmap.tsv`, so no Phase 15/16 source is in it. `file` is unchanged on every touched source (all added lines ASCII, CRLF where the file is CRLF; `X2UserSkillTree.cpp` and `.h` are mixed CRLF/LF and each edit follows the lines around it). Every deleted line is one of the five replaced lines named under *Flags* and keeps its original in an `#else` or is a comment. *(Review correction: the source diff has 2 deleted lines, both the placeholder comments; the two cooldown subtractions are wrapped, so their originals stay as context and are not deletions.)*
 
 **How to see it in game (for Phase 14).** June numbers from `june_src_fixed/data036_kom/Enum.src.lua` and the factor file (BFI = ordinal in the file). The data comes with Phase 13; for a unit to *have* the buff the factor must be applied, e.g. `SetBuffFactorToGameUnitByBuffFactorID_LUA( BFI, 1 )` once June data is loaded. 89, 90, 98, 99 and 100 are **inert until 6b**: the console read-out in the hand-off shows their readers, nothing changes in play.
 
@@ -4990,6 +4991,176 @@ How the lines were checked:
 **Log lines to read afterwards** (this phase's own, `ErrorLog.txt` in the game directory): `[JUNE_BUFF] first apply BBT 75 / 89 / 90 / 91 / 98 / 99 / 100 / 103 …`, `first read BBT 75`, `first read BBT 91`, `first read BBT 103`, `console hook BBT …`, the `reader BBT …` lines, and any `[JUNE_BUFF]` line naming one of the eight types or the ids 362 to 369. Nothing else is in scope.
 
 ---
+
+### Phase 6 — Review (2026-10-04, Opus 5.5 high)
+
+**Verdict: the transcription matches June except in three places, now fixed. The map (item 1) was wrong in one of them. The port had restructured June's order in the other two.** All three fixes sit in code `SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL` already owns, so there is no new flag and no `#else` (the replaced lines are this phase's own). Rebuilt and deployed, **not launched**. Fix 1 reproduces a June bug, so the user can veto it (below).
+
+**Your call (veto point): fix 1 copies a June bug on purpose.**
+- In June, a 90 or 91 factor with two or more `SKILL_CATEGORY` blocks gives every skill id it lists the rate of the **last** block. The reason: June never clears the id list between blocks, and the getter takes the last match.
+- The port now does the same, under the standing "June behaviour wins" rule.
+- It changes nothing on June's own data: all five 90/91 factors in `june_src_fixed/data036_kom/BattleFieldBuffFactor.src.lua` have exactly one block. Only custom or test factors with several blocks see it.
+- To undo it: put back the line `kBlock = CX2SkillIDRateByBuff::SkillIDRateBlock();` in `JuneBuffReadSkillIDRateBlocks` (`X2BuffBehaviorTemplet.cpp`).
+
+**Spot-checks (Ghidra read-only; uncarved functions read with `buffre/rawfn.py` and `disasm_range.py`).**
+1. **89, `SetFactor` `32e7a9e0` and slot 7 `32e7c020`: arithmetic matches.**
+   - At the cap it returns true before the user gate.
+   - `m` is 1 when `lim < 2` or the multiplier is 0.
+   - The restack merge is `old += v·m − m`.
+   - Slot 7 is `base = (c·m + v) / (c·m + 1.0)` (constant `[0x334355b0]` = 1.0, read from the PE), then `c − 1` passes of `res += base·m − m`, and `c < 2` keeps `base`.
+   - One difference: June collects unmatched pairs in a temporary vector and appends them **after** the loop. That became fix 2.
+2. **99, `SetFactor` `32e7b0d0`, and the readers `3203a250` / `3203a420`: match.**
+   - The restack merges only on the same (skill type, change type) pair, and only for FIX_VALUE or PERCENT. A triple with no match is **dropped**, unlike 89.
+   - `applied` starts at 0, becomes 1 on a skill-type match, and drops back to 0 on an unknown change type, so the last matching triple decides.
+   - The result is floored at 0 only when the skill has a templet.
+3. **90, `SetFactor` `32e849c0`: failed.**
+   - The erase fires only when `count == 0` (unsigned `ja` skips on > 0), as mapped.
+   - The `-1.0` test is exact (`fucompp`, `jp`), as mapped.
+   - The id list is **not** reset between blocks. That became fix 1, so the whole phase was re-checked.
+
+**Whole-phase re-check against the binary.** Every function the phase ports was read; only the three fixes below differ.
+- **75:**
+  - Parse `32e75360` (`BUFF_CHANGE_TYPE`, default 0).
+  - `SetFactor` `32e77be0` (`ct == m_eChangeType && ct == 3`, else false with no popup; erase before re-insert on a restack; `rate = size>1 ? v[1] : 0`).
+  - `GetFactor` `32e7e9f0` `[ct, rate]`; packet `32e754f0`; `DoFinish` `32e75540` (no user gate).
+  - Insert `32281b00` (no duplicate test), erase `32279d20`, reader `32275050`.
+- **89:**
+  - `GetFactor` `32e7ecf0` `[type, rate]*`.
+  - Packet `32e7af60` (appends, then inserts for a user); `DoFinish` `32e75b70`.
+  - Insert `31fe3b30` (only when absent), update `31fe3c10` (erase, then insert).
+  - Getter `32369a30` (first match, floored at 0, else 1); reader `31fd7cc0`.
+- **90 / 91:**
+  - `SetFactor` `32e849c0` / `32e84d70`; packets `32e84b90` / `32e84f40`.
+  - `GetFactor` `32e7ef50` / `32e7f2e0` (identical shape: rate `fld`, ids `fild`, then `-1.0`).
+  - `DoFinish` `32e75b90` / `32e75bb0` (user gate); inserts `3200ae70` / `3200af50` (same shape, lists `+0x92e4` / `+0x92f4`).
+  - Getters `32369aa0` / `32369b10`: byte-identical, and the **last** block that lists the id wins.
+  - 91 reader `31fd7df0`; slot 109 `31fd7ea0` (`pDD ? 31fd7df0( pDD->+0x5c4 ) : 1`); base `3208dd70` (`fld1`).
+- **98:**
+  - Parse `32e75d20`.
+  - `SetFactor` `32e78080` (a negative slot type returns false; `rate = size>1 ? v[1] : 0`; no unit call).
+  - `GetFactor` `32e7f890`; packet `32e78170`; `DoFinish` `32e75cc0` (erases from 89's list).
+  - Reader `32039e00` (skill type 13 returns 1; `ROUND(bf[0])`).
+  - Slot map `3214f3d0`; lookup `3288fff0`. The lookup's order is fix 3.
+- **99 / 100:** `SetFactor`, `GetFactor` and packet are byte-identical pairs, and the shared `DoFinish` `33093ad0` is empty.
+- **103:**
+  - `SetFactor` `32e7bb50`: user only, merges PERCENT only, and sets the dirty flag on every success path.
+  - `DoFinish` `32e75ea0`.
+  - Rebuild `32039fb0`: every key reset to 1.0, then multiply or insert per PERCENT triple.
+  - Reader `31fd8bc0`: the map entry or 1.0. Local-player wrapper `32896850`.
+  - Host `32896930`: `left -= 32896850( id ) * dt` on both rows.
+- **Parses:**
+  - `32d49460` / `32d49810` / `32d49da0` / `32d4a370` / `32d4aa30` / `32d4b020` / `32d4b610` have the shapes the Done note gives.
+  - 90's was read in full: rate > 0; ids read while ≥ 0; an empty list rejects. The id vector **is** reset per category at load, so the accumulation is runtime-only.
+- **Hosts:**
+  - User `DamageReact` @`32048da7`: `attackType != 1 && attacker && 32275050`.
+  - NPC `DamageReact` @`327b3ac7`: the same, plus `!+0x4dc` (`m_bNoDamage`).
+  - Each block is its own roll, after 56's and before the 8021/8025/8026 rule. 56 itself was landed by 4b-i part 2 and is unchanged here.
+  - 91 host @`32299510`: vtable `+0x1b4` (slot 109), reached from the non-command branch (`jne` at `32299460`), so it applies to every attack type. March's function returns early on a null attacker, so the port's call is guarded.
+
+**Fixes (all `SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL`).**
+1. **90 / 91 ids accumulate across blocks** (`X2BuffBehaviorTemplet.cpp`, `JuneBuffReadSkillIDRateBlocks`, used by both `SetFactor`s and both packet readers). The `kBlock` reset after a `-1.0` is gone.
+2. **89 restack append order** (`CX2BuffChangeSkillDamageBehaviorTemplet::SetFactor`). New pairs are matched only against the pairs held before the restack; unmatched ones are appended after the loop. Before the fix, a later pair of the same factor could merge into a pair appended earlier in the same call. June keeps both, and the getter returns the first.
+3. **98 slot lookup order** (`CX2UserSkillTree::GetEquippedSkillSlotType`). It now checks A[i] and then B[i] for each i, as `3288fff0` does. This decides only when one skill sits in both rows. 98 stays inert until 6b.
+
+**Recorded, not changed.**
+- **Rounding of factor ints.** June converts factor floats with `_ftol` (`32fe25f0`, truncation) in the 99/100 readers and the 103 rebuild, and with `ROUND` in 98's reader. The port adds 0.5 and casts. They agree on the exact integers every factor carries (written by `static_cast<float>( int )`).
+- **Packet readers don't clear the member.** June's 89/90/91/99/100 packet readers append to the member without clearing it; the port clears. The packet path always runs on a fresh clone (`X2GameUnit.cpp` `ptrCloneBuffTemplet->SetFactorFromPacket`), so nothing differs.
+- **Parse failures.** June's parsers do not call `EndTable` on a failure path; the port does. This was already in the Done note.
+
+**Review-list items.**
+- **Enums:** `X2BuffFactor.h` 75, 89, 90, 91, 98, 99, 100, 103; BCT 0 / 1 / 3.
+- **`GetFactor` / packet float order:** matches for every type (above).
+- **103:** declares no `SetFactorFromPacket` (base is empty, as June's slot 13). The lazy rebuild gives the same table as June's per-frame one.
+- **91's host:** unconditional (above).
+- **No 6b host was edited.**
+  - The commit's source hunks are only: the `CX2GUUser` ctor; both `DamageReact` placeholders; `SetDamageExceptionProcess`; `CX2UserSkillTree::OnFrameMove`; and pure insertions of new functions.
+  - `X2Game.cpp`, `DoStateEndStart`, `GetActualMPConsume`, `GetActualCoolTime` and the per-class cooldown setters are untouched.
+  - The five inert readers have no callers except each other and the DEBUG console hook.
+- **Census at HEAD:** `buff_census.py --phase 6` lists none of the eight, and March handles 98 behavior types.
+
+**Hygiene.**
+- **Phase 6 commit `54eaef6`:**
+  - `file` is identical before, after and in the working tree on all 14 touched sources.
+  - 1,842 insertions and 2 deletions (the placeholder comments); 0 non-ASCII bytes added.
+  - The 63 LF-only added lines are all in the LF regions of `X2UserSkillTree.cpp` / `.h`.
+  - The Done note's "five replaced lines" is corrected in place.
+- **Review fix:**
+  - `X2BuffBehaviorTemplet.cpp` +10/−2, `X2UserSkillTree.cpp` +5/−7.
+  - Patched at the byte level; `file` unchanged on both (CP949 + CRLF, and LF in the skill-tree region); 0 non-ASCII bytes.
+
+**Build and deploy.**
+- `X2Lib` and `X2` at `US_SERVICE`, rc 0, with both edited `.cpp` files in the compile list. `KTDXLIB` was not rebuilt: no header changed.
+- The one C4018 in `X2UserSkillTree.cpp(503)` is pre-existing and outside the edit.
+- Deployed `X2/US_SERVICE/x2.exe` as `X2_offline.exe`: 19,090,432 B, md5 **`f413b8bf1cb07b51ea3cdd6887e99638`**, 18:41:33. The names were read programmatically (`x2.exe`, `X2_offline.exe`), and the copy is byte-identical to the build. The replaced exe was `cb9d9015…`. **Not launched.**
+
+**Not shown in play (read-verified only).**
+- Fix 2 needs an accumulating 89 templet restacked by a different factor.
+- Fix 3 needs one skill equipped in both rows, and 98 is inert until 6b.
+- 91's live host path (`SetDamageExceptionProcess` → the slot-109 virtual) is read-verified. No March player attack carries a non-zero `APPLIED_SKILL_ID`, so it can only be seen on the one monster-side effect; the review's check below shows the reader and fix 1. A DEBUG one-shot inside the override would prove the dispatch; that is the user's call, and it was not added.
+- 75's user side (a monster's hit on you) was not covered by the Phase 6 play-test, which only had you hitting monsters. Check 1 below covers it.
+
+**Cost.** `/cost` cannot be read from inside the session: user, please paste it here. *(Not invented.)*
+
+**Play-test hand-off (dev console, END key; `settings.auth_level` = 3 is already set).**
+
+How the lines were checked:
+- **Syntax and values.** All five lines below were run under `elstools`' `luajit.exe` against a mock manager. They define templets 990075 and 990091 and factors 362 and 363 with the values named; the monster loop skips an empty slot.
+- **Not run in the game.** The setup lines are the Phase 6 hand-off's 362 and 365 lines; only the 91 factor's id is changed (363) and a second block is added. The monster loop has run before (Phase 5b's 79 check).
+- **Fresh launch required.** The last load summary logged `factors 361 loaded`, so the free factor ids are 362 and 363. Both one-shot log lines (`first apply BBT 75` / `91`, `first read BBT 75` / `91`) are also used up by whichever path runs first after launch.
+
+0. **Setup (once, right after loading in; paste both, in this order).**
+   - **Where:** a field or dungeon with ordinary monsters, after a fresh launch.
+   - **Paste,** factor 362 (monsters double their plain hits for 60 s):
+     ```
+     local t = {} local r = {} local p = {} for i = 1, 30 do t[i] = 60 r[i] = 1 p[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990075, IS_WORLD_BUFF = FALSE, IS_DEBUF = FALSE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 75 }, BBT_DOUBLE_ATTACK_BUFF = { BUFF_CHANGE_TYPE = 3 } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 362, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990075, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 75 }, BBT_DOUBLE_ATTACK_BUFF = { BUFF_CHANGE_TYPE = 3, PERCENT = p } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+   - **Paste,** factor 363 (a two-block MP-gain factor: ×0.5 for skill 31012, ×2 for skill 31013):
+     ```
+     local t = {} local r = {} for i = 1, 30 do t[i] = 60 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990091, IS_WORLD_BUFF = FALSE, IS_DEBUF = FALSE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 91 }, BBT_CHARGE_MP_HIT_BY_SKILL_ID = {} }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 363, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990091, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 91 }, BBT_CHARGE_MP_HIT_BY_SKILL_ID = { SKILL_CATEGORY_0 = { MULTIPLY_MP_CHARGE_RATE = 0.5, SKILL_ID_LIST = { 31012 } }, SKILL_CATEGORY_1 = { MULTIPLY_MP_CHARGE_RATE = 2, SKILL_ID_LIST = { 31013 } } } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+   - **What it does:** teaches the game the two test buffs. Nothing changes on screen yet.
+   - **Look for:** no popup, and no `ordinal reject BFI 362` or `363` line in `ErrorLog.txt`.
+   - **If not:** an `ordinal reject … the next id must be N` line means the ids are off. Tell me N, or restart and paste both again.
+
+1. **Monsters' plain hits on you double (type 75, the player side).**
+   - **Where:** the same field or dungeon. Let a monster hit you once or twice first and note the usual damage number. Keep your HP comfortable; the hits will double for a minute.
+   - **Paste:**
+     ```
+     for i = 0, g_pX2Game:GetNPCUnitListSize() - 1 do local n = g_pX2Game:GetNPCUnit( i ) if n ~= nil then n:SetBuffFactorToGameUnitByBuffFactorID_LUA( 362, 1 ) end end
+     ```
+   - **What it does:** for 60 seconds every monster on the map lands each plain (non-special) hit on you twice as hard.
+   - **Look for:** the damage numbers of monster hits on you are about double, in the red "extra" look.
+     - `ErrorLog.txt` gets `first apply BBT 75 (double attack buff): BTI 990075, rate 1`.
+     - After the first hit, it also gets `first read BBT 75: the attacker's double-attack roll succeeded (rate 1)`.
+   - **If not:**
+     - A `first apply` line but normal damage and no `first read BBT 75` means the player-side block did not run. Tell me "no first read", and which monster hit you.
+     - No `first apply` line means the buff did not land; send any `[JUNE_BUFF]` line naming `990075`.
+   - **Undo:** wait 60 seconds.
+
+2. **Two MP-gain blocks: the last one wins for both skills (type 91, review fix 1).**
+   - **Where:** anywhere in the same session, after the setup.
+   - **Paste, first** (puts the buff on you):
+     ```
+     g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 363, 1 )
+     ```
+   - **Paste, second** (writes what the game holds for both skills into the log):
+     ```
+     local u = g_pX2Game:GetMyUnit() u:JuneBuffTestNewSkill_LUA( 91, 31012, 0, 2 ) u:JuneBuffTestNewSkill_LUA( 91, 31013, 0, 2 )
+     ```
+   - **What it does:** gives you a buff whose first block says "×0.5 for skill 31012" and whose second says "×2 for skill 31013", then logs the rate the game uses for each skill. Nothing changes on screen.
+   - **Look for** in `ErrorLog.txt`:
+     - `first apply BBT 91 (charge MP hit by skill id): BTI 990091, 2 block(s), first rate 0.5`.
+     - Then `reader BBT 91: skill 31012 GetChargeMpRateBySkillID = 2` and `reader BBT 91: skill 31013 GetChargeMpRateBySkillID = 2`.
+     - **2 for both is right.** June carries skill 31012 into the second block, and the last block wins.
+   - **If not:**
+     - `= 0.5` for 31012 means the old exe is still running. Check that you launched `X2_offline.exe` after 18:41.
+     - `= 1` for either skill means the buff did not land; send any `[JUNE_BUFF]` line naming `990091`.
+
+**Log lines to read afterwards** (this check's own, in `ErrorLog.txt` in the game directory):
+- `[JUNE_BUFF] first apply BBT 75` and `first apply BBT 91`.
+- `first read BBT 75` and `first read BBT 91`.
+- `console hook BBT 91 … read` and the two `reader BBT 91` lines.
+- Any `[JUNE_BUFF]` line naming 990075, 990091, 362 or 363.
 
 ### Phase 6b — group B: skill-scoped hosts (Opus)
 

@@ -4634,6 +4634,10 @@ static bool JuneBuffNewSkillFirstApply( const int iBehaviorType_ )
 
 /// The { rate, skill IDs... } blocks of BBT 90 and 91 out of their factor [ rate, id1..idn, -1.0 ]*. A value of exactly -1.0 (June 334380f0)
 /// closes a block, the first value after a close is the rate and every later one is a skill ID; a trailing block without its -1.0 is dropped.
+/// June never clears its skill-ID vector (or its rate) between blocks (SetFactor 32e849c0 / 32e84d70, packet 32e84b90 / 32e84f40: the vector
+/// is zeroed once before the loop and the block is COPIED into the member at each -1.0), so block k lists the IDs of blocks 1..k, and with
+/// the getter's last-match rule every listed ID gets the last block's rate. Reproduced as June does it (Phase 6 review); June's own 90 / 91
+/// data has one block per factor, where nothing differs.
 static void JuneBuffReadSkillIDRateBlocks( const KBuffBehaviorFactor& kFactor_, OUT vector<CX2SkillIDRateByBuff::SkillIDRateBlock>& vecBlock_ )
 {
 	vecBlock_.clear();
@@ -4645,7 +4649,7 @@ static void JuneBuffReadSkillIDRateBlocks( const KBuffBehaviorFactor& kFactor_, 
 		if ( -1.0f == *vItr )
 		{
 			vecBlock_.push_back( kBlock );
-			kBlock = CX2SkillIDRateByBuff::SkillIDRateBlock();
+			/// no reset of kBlock here: June keeps the IDs (Phase 6 review, see above)
 			bExpectRate = true;
 		}
 		else if ( bExpectRate )
@@ -4802,6 +4806,9 @@ static void JuneBuffWriteSkillIDRateBlocks( const vector<CX2SkillIDRateByBuff::S
 		m_vecSkillTypeRate = vecNew;
 	else
 	{
+		/// June 32e7a9e0 matches every new pair against the pairs held BEFORE this restack only: an unmatched pair goes to a temporary list
+		/// that is appended after the loop (Phase 6 review; appending inline let a later pair of the same factor merge into it).
+		vector<CX2SkillTypeRateByBuff::SkillTypeRate> vecAppend;
 		for ( vector<CX2SkillTypeRateByBuff::SkillTypeRate>::const_iterator vItr = vecNew.begin(); vecNew.end() != vItr; ++vItr )
 		{
 			vector<CX2SkillTypeRateByBuff::SkillTypeRate>::iterator vFindItr = m_vecSkillTypeRate.begin();
@@ -4811,8 +4818,9 @@ static void JuneBuffWriteSkillIDRateBlocks( const vector<CX2SkillIDRateByBuff::S
 			if ( m_vecSkillTypeRate.end() != vFindItr )
 				vFindItr->second += vItr->second - fMultiplier;
 			else
-				m_vecSkillTypeRate.push_back( *vItr );
+				vecAppend.push_back( *vItr );
 		}
+		m_vecSkillTypeRate.insert( m_vecSkillTypeRate.end(), vecAppend.begin(), vecAppend.end() );
 	}
 
 	pUser->UpdateSkillDamage( pBuffTemplet_->GetBuffIdentity(), m_vecSkillTypeRate );

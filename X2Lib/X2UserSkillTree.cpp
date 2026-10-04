@@ -1423,7 +1423,8 @@ const CX2UserSkillTree::SkillSlotData* CX2UserSkillTree::GetSkillSlot( const CX2
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 /** @function : GetEquippedSkillSlotType
-	@brief : June buff port Phase 6 (BBT 98 reader). The slot A row is searched first, then the slot B row.
+	@brief : June buff port Phase 6 (BBT 98 reader). Searched in June 3288fff0's order: slot A index i, then slot B index i, for each i
+		(Phase 6 review; it decides only when one skill sits in both rows).
 	@return : 0 when the skill is in no equipped slot, 1 for the slot A row, 2 for the slot B row
 */
 int CX2UserSkillTree::GetEquippedSkillSlotType( const CX2SkillTree::SKILL_ID eSkillID_ ) const
@@ -1431,15 +1432,12 @@ int CX2UserSkillTree::GetEquippedSkillSlotType( const CX2SkillTree::SKILL_ID eSk
 	if ( CX2SkillTree::SI_NONE == eSkillID_ )
 		return 0;
 
-	for ( UINT uiIndex = 0; uiIndex < ARRAY_SIZE( m_aEquippedSkill ); ++uiIndex )
+	for ( UINT uiIndex = 0; uiIndex < ARRAY_SIZE( m_aEquippedSkill ) || uiIndex < ARRAY_SIZE( m_aEquippedSkillSlotB ); ++uiIndex )
 	{
-		if ( eSkillID_ == m_aEquippedSkill[uiIndex].m_eID )
+		if ( uiIndex < ARRAY_SIZE( m_aEquippedSkill ) && eSkillID_ == m_aEquippedSkill[uiIndex].m_eID )
 			return 1;
-	}
 
-	for ( UINT uiIndex = 0; uiIndex < ARRAY_SIZE( m_aEquippedSkillSlotB ); ++uiIndex )
-	{
-		if ( eSkillID_ == m_aEquippedSkillSlotB[uiIndex].m_eID )
+		if ( uiIndex < ARRAY_SIZE( m_aEquippedSkillSlotB ) && eSkillID_ == m_aEquippedSkillSlotB[uiIndex].m_eID )
 			return 2;
 	}
 
