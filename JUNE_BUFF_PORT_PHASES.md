@@ -2949,7 +2949,7 @@ So by part 4's rule the marker is not ported: nothing in March could observe it.
 
 **Where part 5 stopped / what resumes (in this order)**
 Part 5's list is done: items 0-4 above. 4b-i (behaviors) is complete apart from the open user decision.
-1. **User decision still open:** the runtime popups (part 3).
+1. **Runtime popups: decided (user, 2026-10-04): follow June, but always log.** No modal popup where June just returns false; every such failure (missing buff, unreadable factor, change-type mismatch, zero multiplier, unknown type) writes a `[JUNE_BUFF]` line to `ErrorLog.txt`. Planned as 4b-ii's first item: wrap the runtime entry points (apply, packet apply, per-frame) in a `CX2JuneBuffCapture` and report, deduped per templet and message so a per-frame error cannot flood the log. It covers behaviors, finalizers and displayers alike.
 2. 4b-ii: finalizers and displayers, including the Phase 4a review's `BFT_TIME` hand-offs (Phase 4b's scope).
 3. Open, owned elsewhere: the damage roll `322788c0` (Phase 5c), the enchant rework `32272d90` (Phase 15), BBT 84's own case (Phase 5b), a wholesale `UIMajorParticle.txt` + `_INT` adopt (June UI parity).
 
@@ -2999,7 +2999,9 @@ full -- "Starting context", the "Investigation ledger", the "June buff function 
 "Phase 4b" and every 4b-i part and review after it (parts 1-5). Branch: mods/june-buff-port.
 Never launch X2_offline.exe without asking first.
 
-Your task (Phase 4b-ii): bring every EXISTING March buff finalizer (14 BFT) and displayer
+Your task (Phase 4b-ii): first, the runtime-popup decision ("Where part 5 stopped" item 1:
+no popup as in June, always a deduped [JUNE_BUFF] line in ErrorLog.txt, via CX2JuneBuffCapture
+around the buff runtime entry points). Then bring every EXISTING March buff finalizer (14 BFT) and displayer
 (14 BDT) to June parity, including the Phase 4a review's BFT_TIME hand-offs (the full
 duration as an appended third packet value, 32ec5290/32ec53d0, and the debuff-duration
 multiplier in 32ec27d0). Per type, diff the factor parse case, the level-slice case
