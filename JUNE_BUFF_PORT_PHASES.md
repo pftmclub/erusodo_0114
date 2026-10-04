@@ -2842,7 +2842,7 @@ Fresh tools only; part 4's patch and unifdef scripts were not reused:
 
 ### Phase 4b-i, part 5 — progress (2026-10-04), launch check pending
 
-Ran on Opus 5.5 high. Commits: `d34de09` reverts the part 4 debug commit `16a6d78`; `7ea72b2` is the code, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`.
+Ran on Opus 5.5 high. Commits: `d34de09` reverts the part 4 debug commit `16a6d78`; `7ea72b2` (items 1-2) and `3bbf7d2` (item 3) are the code, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`; `30aa0cb` and this section's later commit are the doc.
 
 **Verdicts, in the stop-list order**
 
@@ -2851,7 +2851,7 @@ Ran on Opus 5.5 high. Commits: `d34de09` reverts the part 4 debug commit `16a6d7
 | 0. Revert `16a6d78` | – | **done** (`d34de09`). The 4 files equal `16a6d78^` byte for byte; `file` signatures unchanged; KTDXLIB rebuilt for `Always.h` |
 | 1. BBT 6 HP-ratio rescale | `32282700` @`32282723`, `322830f0` @`32283113` | **ported** |
 | 2. RSCT DRAW_TEXT | `32e857d0`, pic-char `31edd860` | **ported**; needs the staged `UIMajorParticle.txt` packed |
-| 3. Dormant vslot 3/9/10/11 chain | `322a7660`, `3236a430`, `322a8a70`, `3227c360` | **mapped, not ported** (resume point below) |
+| 3. Dormant vslot 3/9/10/11 chain | `322a7660`, `3236a430`, `322a8a70`, `3227c360` | **ported dormant** (`3bbf7d2`); slot 476 logged and skipped, the icon-count tail not ported |
 | 4. AnimStop `+0x8080` marker | callers of user vslot 153 | **resolved: not ported**. No March-equivalent path passes 1 |
 
 **1. BBT 6 (`X2GameUnit.cpp`, `InsertAdditionalStat`/`EraseAdditionalStat`, case `BBT_CHANGE_MAX_HP`).**
@@ -2878,7 +2878,7 @@ Ran on Opus 5.5 high. Commits: `d34de09` reverts the part 4 debug commit `16a6d7
 - **Why only the block, not June's whole file.** 10 of March's 857 sequence names are absent from June's `UIMajorParticle.txt`. One of them, `UI_Eve_Party_Event_StartEffect`, is read by `X2GUUser.cpp:25262`; June keeps it in `UIMajorParticle_INT.txt`. March also loads `_INT` (`X2StateStartUp.cpp:216`, `INT_RESOURCE_DEVIDE`), so a wholesale adopt must bring June's `UIMajorParticle.txt` and `_INT` together, checked as a pair. **Open item for the June UI parity work.** The other 9 missing names (`CHUNG_HOWLING01/02`, `CHUNG_STEEL_EDGE02`, `Nasod_King_SpellAttack_Splitlight06`, `PET_PETTE_BERTHE_STEB_3_Attack_C`/`_C_02`, `Pulsewave_Summon_Boss_SpecialAttackB01/02`, `ShockWave_Summon_Boss_SpecialAttackB`) have no C++ reader; Lua readers were not checked.
 - **Reach on March data: none until June data arrives.** March's RSCT factors carry no `DRAW_TEXT` key (part 2's census).
 
-**3. The dormant chain: mapped, not ported.**
+**3. The dormant chain: ported dormant (`3bbf7d2`).** The map first, then the port.
 - **`322a7660( BFI, count, level, creatorUID )`**, "set a buff's stack count":
   1. It gets the factor (`326c32a0`) and finds the unit's templet with that BTI (`322ae0a0` over `+0xe14`).
   2. With count < 1 it erases the buff (`3229d320`).
@@ -2902,15 +2902,26 @@ Ran on Opus 5.5 high. Commits: `d34de09` reverts the part 4 debug commit `16a6d7
   - Slot 3 is overridden by ChangeStat (`32e786d0`, also on `_HaveBuffOwner`), NowMp (`32e7c680`) and EnchantAttackRate (`32e775e0`).
   - Slots 9/10 are overridden by NowMp (`32e893a0` `+=`, `32e89430` `*=`), slot 11 by ChangeStat (`32e86500` `=`).
   - Slot 7 is overridden by ChangeStat (`32e73500`, ported in 4a as `OnAccumulationCountDecreased`) and **ChangeSkillDamage** (`32e7c020`, Phase 6's June-only class).
-  - `32e7c680` (NowMp slot 3) is decompiled: it re-runs `SetFactor`'s value math at the given count. `32e786d0`, `32e775e0`, `32e89430` and `32e86500` are not carved in Ghidra and still need raw-asm reads.
+  - Every body was read in raw asm (none but `32e7c680`/`32e893a0` is carved in Ghidra). All slot-3 overrides take `( factor, unit, templet, count )` (`ret 0x10`; offsets traced through each push).
+- **The port, March names.**
+  - Behavior base (`X2BuffBehaviorTemplet.h`): `OnAccumulationCountSet` (slot 3, true), `AddValueByOperation` / `MultiplyValueByOperation` / `SetValueByOperation` (slots 9/10/11, empty).
+  - **NowMp slot 3** (`32e7c680`): change-type check, `SelectDelegate()` for FIX/PERCENT, `v = (1 - resist) * v[1]` (`GetValueOrPercentPerSecond`), and when started with a stack count `v *= 1 + m * (count - 1)`; no larger-absolute pick. Slots 9/10 (`32e893a0`/`32e89430`): `m_fResultValue += v` / `*= v`.
+  - **ChangeStat slot 3** (`32e786d0`): `v = GetValue( factor, unit, resist )`. Not started: `count * v`, then `InsertAdditionalStat`. Started with no stack count: `count * v`. With one: multiplier ~ 0 returns false; FIX/RELATION `count * v`; PERCENT `1 + (v - 1) * count`, clamped at 0 (`fcom / test ah,0x41`); SWAP keeps its value. Then `UpdateAdditionalStat` (`3226fd70`), so BBT 6 gets no HP rescale on this path, as item 1 found. Slot 11 (`32e86500`): a plain store to `m_fResultValue`.
+  - **EnchantAttackRate slot 3** (`32e775e0`): change-type check, the per-type attribute, FIX/PERCENT only. Not started: insert `v[1]`. Started with a count: multiplier ~ 0 returns false, else erase and insert `v[1] * (1 + m * (count - 1))`. Started with no count: erase and insert `v[1]`.
+  - `CX2BuffTemplet::SetAccumulationCountNow( count, unit, factor )` (`3236a430`): every behavior's slot 3, `SetStart( true )` on success; then, only if `UCM_ACCUMULATION_COUNT_NOW` exists, the count is stored and each displayer runs `StartDisplayer` + `SetStart( true )` (displayer slot 1 + `+0xc`, the same pair Phase 4a's `3236a190` uses). The icon-count tail is not ported (Phase 4a's ruling). The behaviors run before the count is stored, as in June, so NowMp and ChangeStat test the *old* stored count while scaling by the new one. `GetBehaviorPtrList` is June's `3236c8e0` (copy of the behavior list).
+  - `CX2GameUnit::SetBuffAccumulationCount( BFI, count, level, x )` (`322a7660`): factor by BFI; the unit's first templet with its BTI; `count < 1` erases at once through `EraseBuffTempletFromGameUnitByIterator` (`3229d320`: counters, slot 148 `UnSetSpecificValueByBuffTempletID`, finish calls, icon erase, vector erase); otherwise `CanApplyBuffToGameUnit()` (slot 132 with no factor; base `3229a2e0` = March's base check exactly, NPC `327bdb60` = March's NCT_BASIC test plus a June-only per-BTI step on NPC `+0x8f70` that is not ported), `new CX2BuffFactor( *factor, level )` (`32089f60`), for users slot 476 then slot 141, then `SetAccumulationCountNow`.
+  - `AddBuffAccumulationCount( BFI, delta, level, x )` (`322a8a70`): the count from `322a0090` (first `GetBuffFactor()` entry with that BTI, its `m_ucAccumulationCountNow`, else 0) plus `delta`.
+  - `OperateBuffBehaviorValue( op, BTI, index, value )` (`3227c360`): the first templet with that BTI (null templets skipped), behavior `index` (unsigned bound check), op 0/1/2 = slot 9/10/11 (`sub eax,0 / dec / dec`), other ops nothing.
+  - Slot 476 is `CX2GameUnit::AdjustBuffFactorByIndex` (empty) with a `CX2GUUser` override that logs `[JUNE_BUFF] unsupported (June-only system)` once; it is called only for `GUT_USER`, as June does. Slot 141 is `OnBuffAccumulationFactorReady` (empty, Ain/Rose override it in June).
+  - `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 7 already listed every caller; its two rows now name these March functions and the `x` argument. Its `AnimPlay` row had part 3's `+0x8040` slip, now `+0x8080`.
 - **Reach: none on March data** (part 3 review: every caller of `322a7660`, `322a8a70` and `3227c360` passes a June-only BFI or BTI).
 
-**4. AnimStop's `+0x8080` marker: no March path asks for it.** A fresh `.text` scan finds 73 `+0x264` sites. 7 are data loads of the unit-type field (the base register is not a vtable). Of the 66 vtable calls, 57 push 0 and 1 pushes 1 (`3229a669`, June-only, part 4). The 6 that push a register, plus one more found by a jump, are not unit-`IsSuperArmor`-with-1:
+**4. AnimStop's `+0x8080` marker: no March path asks for it.** A fresh `.text` scan finds 73 `+0x264` sites. 9 are data loads of the unit-type field (the base register is not loaded from a vtable). Of the 64 vtable calls, 57 push 0, 1 pushes 1 (`3229a669`, June-only, part 4), and 6 push a register. None of the 6 is a unit `IsSuperArmor` with 1:
 - `324bf210` and `324dc170` push four arguments, so this is another class's slot at that offset.
-- `3252c84e` is `dynamic_cast<CX2PVPGame*>( CX2Game )` → a zero-argument game method.
+- `3252c84e` calls through `dynamic_cast<CX2PVPGame*>( CX2Game )` (`__RTDynamicCast` `32fe2daa`, type descriptors `33722a70`/`33732770`): the object is a game, not a unit.
 - `327c92b0` is `CX2DungeonGame`/`CX2PVEGame` slot 159, calling the game's own slot 153.
 - `3276f4b9` is NPC code. NPC slot 153 (`32758440`) ignores its argument: list `+0x42a0`, else `+0x8374`.
-- `32b3727c` is reached from `32b3713d` with `push 0`, in Lu/Ciel's Bluff (`EffectSet_A_LLD_Bluff_*`).
+- `32b3727c` is reached by a jump from `32b3713d`, which pushes 0, in Lu/Ciel's Bluff (`EffectSet_A_LLD_Bluff_*`); the scan saw an unrelated push before the jump.
 
 So by part 4's rule the marker is not ported: nothing in March could observe it.
 
@@ -2918,12 +2929,15 @@ So by part 4's rule the marker is not ported: nothing in March could observe it.
 - A fresh byte-level unifdef of the flag: all 5 code files reduce byte-for-byte to `d34de09`, and each raw file differs from it.
 - `--numstat` shows 111 insertions and 9 deletions. Every deletion is our own flagged text: part 2's DRAW_TEXT log stub (6 lines, plus 2 doc-comment lines) and one member comment.
 - Inserted lines are ASCII, and line endings follow each host line (`X2Data.h` is mixed; its insertions are LF, as their neighbours are). The `file` signatures of all 5 files are unchanged.
+- **Chain (`3bbf7d2`):** 8 code files, 330 insertions and 0 deletions; each reduces byte-for-byte to `30aa0cb` with the flag undefined (one leading blank line in `X2GUUser.cpp` was first outside the guard and was moved inside before the build). `file` signatures unchanged.
 
 **Build and deploy.**
 - KTDXLIB (for `d34de09`'s `Always.h`), X2Lib (with `stdafx.cpp` touched) and X2, at `US_SERVICE`: rc 0, 0 errors. No warning in a touched file.
 - A whitespace-only fix in `X2Data.cpp` (one blank line moved inside the guard) was forced through a recompile and a relink.
 - `x2.exe` is 19,018,752 B, linked 07:16:09, md5 `88e67754d472c1b37f34e528b732a8b3`. `X2.map` carries `LoadPicCharYellowSmall`, `GetPicCharYellowSmall` and the RSCT `DrawText`.
-- Copied to the game directory as `X2_offline.exe` (the name was read programmatically); size and md5 match. **Not launched.** The debug build is gone.
+- Copied to the game directory as `X2_offline.exe` (the name was read programmatically); size and md5 match. The debug build is gone.
+- **After the chain (`3bbf7d2`):** X2Lib (with `stdafx.cpp` touched) and X2 again, rc 0, 0 errors; X2 rebuilt its PCH and `X2.cpp`. The only warning in a touched file is the existing C4018 (`X2GUUser.cpp:17894`, shifted). `x2.exe` is 19,023,360 B, linked 07:43:19, md5 `b7379faae99d540c76870169cf912880`; `X2.map` carries the new symbols. Deployed as `X2_offline.exe`, size and md5 matching. **This is the deployed exe. Not launched.**
+- The `CX2Data` layout changed (a new member mid-class), so X2's own PCH had to rebuild with it: it did (`dxstdafx.cpp`, `X2.cpp`, the only `g_pData` user in `X2/`), so no stale object reads shifted offsets.
 - **Pack:** `kom_contents/data036_kom/UIMajorParticle.txt` into `data036.kom`. Until then the exe logs the missing sequence once and draws no DRAW_TEXT; nothing else depends on it.
 
 **Things to watch in play:**
@@ -2932,22 +2946,68 @@ So by part 4's rule the marker is not ported: nothing in March could observe it.
 - `ErrorLog.txt`: one `[JUNE_BUFF] unsupported (data not packed)` line until the pack, and none after it.
 
 **Where part 5 stopped / what resumes (in this order)**
-1. The dormant chain, now mapped (above). Read `32e786d0`, `32e775e0`, `32e89430`, `32e86500`, `322a8a70`, `3227c360`, `3229d320` and `32089f60` in raw asm. Then port:
-   - behavior slot 3 (base true, plus the three overrides) and slots 9/10/11;
-   - `3236a430` as `CX2BuffTemplet::SetAccumulationCountNow`, without the icon tail;
-   - `322a7660`/`322a8a70` on `CX2GameUnit`, with slot 132 = `CanApplyBuffToGameUnit()`, slot 141 as an empty virtual, and slot 476 as a user-only logged no-op;
-   - `3227c360`.
-2. **User decision still open:** the runtime popups (part 3).
-3. Then 4b-ii (finalizers and displayers).
+Part 5's list is done: items 0-4 above. 4b-i (behaviors) is complete apart from the open user decision.
+1. **User decision still open:** the runtime popups (part 3).
+2. 4b-ii: finalizers and displayers, including the Phase 4a review's `BFT_TIME` hand-offs (Phase 4b's scope).
+3. Open, owned elsewhere: the damage roll `322788c0` (Phase 5c), the enchant rework `32272d90` (Phase 15), BBT 84's own case (Phase 5b), a wholesale `UIMajorParticle.txt` + `_INT` adopt (June UI parity).
 
 **Review of part 5:** required (Opus 5.5). Suggested spot-checks:
 - `32283181`'s `FUCOMPP`/`test ah,0x44`/`jnp` reading (now == 0 → no rescale);
 - insert's ratio taken before `31e8c940`;
 - `32e85899`'s sign test;
 - whether `32e857d0`'s other change types really draw an empty string (the `LAB_32e85f47` path with the zeroed buffer);
-- the slot-153 site list (73 sites; the 7 non-vtable loads).
+- the slot-153 site list (73 sites; the 9 non-vtable loads);
+- `32e786d0`'s PERCENT clamp and SWAP fall-through, and `32e775e0`'s started-with-no-count path (erase + insert with no larger-absolute pick);
+- `3236a430`'s order (behaviors before the stored count) and its displayer step only when the count entry exists.
 
-**funcmap.tsv:** 20 rows ("Buff Phase 4b-i part 5").
+**funcmap.tsv:** 35 rows ("Buff Phase 4b-i part 5"): 20 with the items 1-2 commit, 15 with the chain.
+
+**Kickoff for the part 5 review** (Opus 5.5 high). It runs on its own; it is read-only unless it finds a code defect, which it then fixes, rebuilds and deploys.
+
+```
+Continuing the June buff/debuff port. Run this session on Opus 5.5 at high effort. Read
+JUNE_BUFF_PORT_PHASES.md in the repo root -- "Starting context", the "June buff function
+map", "Phase 4b-i part 4 -- Review" and "Phase 4b-i, part 5". Branch: mods/june-buff-port.
+Never launch X2_offline.exe.
+
+Your task: an independent review of Phase 4b-i part 5. Code: 7ea72b2 and 3bbf7d2 (under
+SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY); d34de09 reverts the part 4 debug commit; the doc
+commits are 30aa0cb and the one after 3bbf7d2. Use fresh scratch tools; do not reuse part 5's
+patch or unifdef scripts. Run the flag-off unifdef on the committed blobs against d34de09,
+and take numstat from git diff d34de09 3bbf7d2.
+
+Check, in Ghidra (read-only) and the raw asm, the part 5 section's suggested spot-checks,
+plus: the staged kom_contents/data036_kom/UIMajorParticle.txt equals the pristine live copy
+with only June's PicCharYellowSmall block inserted (md5s in the section); every "same as
+March" claim in the dormant-chain map (3229a2e0, 327bdb60's null-factor path, 3229d320,
+32089f60); and the March-data reach of BBT 6 (5 templets) on a fresh extract.
+
+Report numbered findings (R1, R2...) with a severity. Fix a code defect under the same flag
+(insert-only, byte-level CP949 edits, flag-off unifdef per file), rebuild X2Lib and X2 at
+US_SERVICE (touch stdafx.cpp after a header edit), deploy as X2_offline.exe, record the md5,
+and ask before launching. Add confirmed funcmap.tsv rows. Another session may have
+uncommitted edits in the doc: stage only your own hunks. Commit. Record the review cost line.
+```
+
+**Kickoff for 4b-ii** (Opus 5.5 high):
+
+```
+Continuing the June buff/debuff port. Read JUNE_BUFF_PORT_PHASES.md in the repo root in
+full -- "Starting context", the "Investigation ledger", the "June buff function map",
+"Phase 4b" and every 4b-i part and review after it (parts 1-5). Branch: mods/june-buff-port.
+Never launch X2_offline.exe without asking first.
+
+Your task (Phase 4b-ii): bring every EXISTING March buff finalizer (14 BFT) and displayer
+(14 BDT) to June parity, including the Phase 4a review's BFT_TIME hand-offs (the full
+duration as an appended third packet value, 32ec5290/32ec53d0, and the debuff-duration
+multiplier in 32ec27d0). Per type, diff the factor parse case, the level-slice case
+(32d4cb00), the templet class virtuals and the unit-side stores against June, and port
+June's whole function wherever it differs. Keep GetFactor/SetFactorFromPacket order (append
+only). Under SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY: byte-level CP949 edits, insert-only,
+flag-off unifdef check per file. buff_census.py --phase 4b must show the finalizer and
+displayer pairs cleared. Another session may have uncommitted edits in the doc: stage only
+your own hunks. Build, deploy, commit; record where you stopped.
+```
 
 **Cost:** `/cost` is not readable from inside the session; ask the user.
 
