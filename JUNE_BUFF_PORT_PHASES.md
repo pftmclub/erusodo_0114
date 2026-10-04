@@ -4793,7 +4793,7 @@ For each check say where to be, the line to paste, what it does in one plain sen
 and what I should see if it works and if it does not.
 ```
 
-### Phase 6 — Done (2026-10-04), play-test: checks 1-3 passed, check 4 inconclusive (contaminated, not failed)
+### Phase 6 — Done (2026-10-04), play-tested (user checks 1-2; logs checked for 3 and the clean check 4)
 
 **Play-test (2026-10-04, user, deployed exe `cb9d9015…`; `ErrorLog.txt` read afterwards, no `runtime error` or `[JUNE_BUFF]` failure line besides the 5 startup ordinal rejects of other BFIs).**
 - **1 (75):** user passed. `first apply BBT 75 … rate 1`, then `first read BBT 75: the attacker's double-attack roll succeeded`.
@@ -4804,6 +4804,7 @@ and what I should see if it works and if it does not.
   local u = g_pX2Game:GetMyUnit() u:JuneBuffTestNewSkill_LUA( 89, 7, 1.5, 1 ) u:JuneBuffTestNewSkill_LUA( 89, 7, 1.5, 0 ) u:JuneBuffTestNewSkill_LUA( 90, 3014, 1.3, 1 ) u:JuneBuffTestNewSkill_LUA( 90, 3014, 1.3, 0 ) u:JuneBuffTestNewSkill_LUA( 91, 31012, 0.5, 1 ) u:JuneBuffTestNewSkill_LUA( 91, 31012, 0.5, 0 ) u:JuneBuffTestNewSkill_LUA( 103, 7, 2, 1 ) u:JuneBuffTestNewSkill_LUA( 103, 7, 2, 0 )
   ```
   Expect: 89 = 1.5 on all four skills, then 1; 90 = 1.3 on slot 0 (skill 3014) only, then 1; 91 = 0.5 then 1; 103 type 7 = 2 then 1.
+- **4, clean rerun (fresh launch, 18:25 log): passed.** 89 = 1.5 on all four skills, then 1; 90 = 1.3 on slot 0 (skill 3014) only, 1 on the others, then 1 on all; 91 = 0.5, then 1; 103 type 7 = 2, then 1 (types 5, 6 and 13 stayed 1). So the store, reader and erase of 89, 90, 91 and 103 are shown, and 90's reader is no longer open. Nothing is owed from this phase except its Opus review.
 
 **Original Done note (written before the play-test).**
 
