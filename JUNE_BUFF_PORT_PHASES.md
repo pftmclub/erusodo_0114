@@ -2543,6 +2543,8 @@ Log lines read afterwards: `first host BBT …` and any `[JUNE_BUFF]` line namin
 
 ### Phase 6b — Review (2026-10-04, Opus 5.5 high)
 
+**Play-test passed (2026-10-04, jtCodeEmpress; exe `5a81b0ee`, run 20:16:06 after the 20:13 deploy, clean exit).** `ErrorLog.txt:191` `first apply BBT 89 … BTI 990089`; `:192` `first host BBT 89/90/98 DoStateEndStart: state 49 skill 5003 power rate x 1.5 (89 x 90) x 1 (98) = 1.5`; no `first host … summon` line in the whole run (the old exe logged ×1.5 for the same skill). The user confirmed that the Nasod Element appeared. Load baseline unchanged (factors 361). The review is closed.
+
 **Verdict: one transcription error, fixed under `SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL`.** Everything else matches June. The deviations the Done note records (non-buff parts left out by user decision) are as described.
 
 **Hygiene, 6b code commit.** `flagcheck JUNE_BUFF_NEW_SKILL --commits 57546e5 --with JUNE_BUFF_DEBUG`: `files: 14 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. So the flag-off path is March byte for byte. The two replaced lines (the MP return, Distortion's `SetDefaultPowerRate`) keep March's code in `#else`. The three doc commits touch only `.md` files.
