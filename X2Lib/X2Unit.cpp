@@ -4660,6 +4660,54 @@ bool CX2Unit::UnitData::_CheckGrowUpNow( GROW_UP_TYPE eType_ )
 }
 #endif //SERV_GROW_UP_SOCKET
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+/** @function : ApplySkillCoolTimeRateByBuff
+	@brief : June buff port Phase 6b. June 3235a710 (a CX2Unit member: +0x494 the user skill tree, +0x28 the unit UID), called right after a cooldown is
+		set from 16 places (CX2GUUser::ChangeEquippedSkillState 31fd8ff0, CX2User's 3264ad40, each class's skill-use function, vtable +0x800, and two
+		class helpers). It reads the cooldown left back (32891460 -> 3288ff80, the same A[i]-then-B[i] search as GetSkillSlot; -1.0 when the skill is in
+		no slot) and, when it is above 0: applies BBT 100 through the unit's CX2GUUser in the current game (32358770: g_pX2Game vtable +0xa0 by this UID,
+		then 3203a420); multiplies by June's two cool-time rates; and writes the result (32893880) unless both rates are 1.0 and 100 did not apply.
+		The two rates are not in March: 32358480 (a June skill-upgrade cool-time modifier) and max( 3234fbd0( skill ), 0.8 ) (the socket cool-time
+		factor, which Phase 16 adds here). Without them the rate is 1.0, as June's would be with no upgrade and no socket option, so the write happens
+		only when 100 applied. June passes the skill through 328905b0 first (the memo/base ID); March has no such mapping and uses the plain ID.
+*/
+void CX2Unit::ApplySkillCoolTimeRateByBuff( const CX2SkillTree::SKILL_ID eSkillID_ )
+{
+	CX2UserSkillTree& userSkillTree = AccessUnitData().m_UserSkillTree;
+	const CX2UserSkillTree::SkillSlotData* pSkillSlot = userSkillTree.GetSkillSlot( eSkillID_ );
+	float fCoolTime = ( NULL != pSkillSlot ? static_cast<float>( pSkillSlot->m_fCoolTimeLeft ) : -1.0f );
+	if ( fCoolTime <= 0.0f )
+		return;
+
+	bool bAppliedByBuff = false;
+	if ( NULL != g_pX2Game )
+	{
+		CX2GUUser* pUser = g_pX2Game->GetUserUnitByUID( GetUID() );
+		if ( NULL != pUser )
+			bAppliedByBuff = pUser->ApplySkillTypeCoolTimeRate( eSkillID_, fCoolTime );
+	}
+
+	const float fCoolTimeRate = 1.0f;	/// June: 32358480( skill ) * max( 3234fbd0( skill ), 0.8 ); neither is in March (see above)
+	if ( 1.0f == fCoolTimeRate )
+	{
+		if ( true != bAppliedByBuff )
+			return;
+	}
+	else
+		fCoolTime = fCoolTimeRate * fCoolTime;
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	static bool s_bSeenHost = false;
+	if ( !s_bSeenHost )
+	{
+		s_bSeenHost = true;
+		CX2JuneBuffCapture::Line( "first host BBT 100 cool time: skill %d cool time left %g -> %g",
+			static_cast<int>( eSkillID_ ), static_cast<float>( pSkillSlot->m_fCoolTimeLeft ), fCoolTime );
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	userSkillTree.SetSkillCoolTimeLeft( eSkillID_, fCoolTime );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 #ifdef SERV_LIMITED_DUNGEON_PLAY_TIMES
 wstring CX2Unit::GetLocalMapPlayTimesDesc( int iDungeonID )
 {

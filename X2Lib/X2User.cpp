@@ -248,6 +248,11 @@ void CX2User::ChangeEquippedSkillState( const int iSkillSlotId_, const int iSkil
 	{
 		pUnitData->m_UserSkillTree.SetSkillCoolTimeLeft( eSkillId, pSkillTemplet->GetSkillCoolTimeValue( iSkillLevel ) );
 	}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+	/// June buff port Phase 6b: June 3264ad40 @3264ae00 calls the cool-time helper 3235a710 (BBT 100) on the selected unit, outside the templet test.
+	/// In a village there is no game, so 100 cannot apply there (32358770 finds the user through g_pX2Game).
+	g_pData->GetMyUser()->GetSelectUnit()->ApplySkillCoolTimeRateByBuff( eSkillId );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 }
 #endif //FIX_SKILL_SLOT_COOLTIME_IN_VILLAGE
 

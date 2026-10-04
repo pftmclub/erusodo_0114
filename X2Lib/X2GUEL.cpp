@@ -3166,6 +3166,11 @@ void CX2GUEL::StateChangeSpecialAttack( IN const CX2SkillTree::SkillTemplet* pSk
 		const int iSkillTempletLevel = max( 1, accessUserSkillTree.GetSkillLevel( pSkillTemplet_->m_eID ) );	/// 스킬 레벨
 		accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet_->m_eID, GetActualCoolTime( pSkillTemplet_, iSkillTempletLevel) );
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+		/// June buff port Phase 6b: June CX2GUEL vtable +0x800 (32b73e60) @32b73fcd calls the cool-time helper 3235a710 (BBT 100) after the cooldown is set
+		if ( NULL != GetUnit() )
+			GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet_->m_eID );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 		if( false == SpecialAttackNoStageChange( pSkillTemplet_ ) )
 		{
 			if( GetRemainHyperModeTime() <= 0.f )

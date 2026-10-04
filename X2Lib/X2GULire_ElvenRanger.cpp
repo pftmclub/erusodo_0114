@@ -5441,6 +5441,11 @@ RENDER_HINT CX2GULire_ElvenRanger::CommonRender_Prepare()
 	}
 
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+	/// June buff port Phase 6b: June CX2GULire_ElvenRanger vtable +0x800 (32c89a20) @32c89ba0 calls the cool-time helper 3235a710 (BBT 100) after the cooldown is set
+	if ( NULL != GetUnit() )
+		GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet->m_eID );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 	if( false == SpecialAttackNoStageChange( pSkillTemplet ) )
 	{
 #ifdef SERV_RENA_NIGHT_WATCHER

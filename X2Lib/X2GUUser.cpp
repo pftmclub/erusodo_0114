@@ -596,6 +596,8 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 , m_bSkillCoolTimeSpeedDirty( false )
+, m_fSkillDamageRateBySlotType( 1.f )
+, m_fSkillDamageRateBySlotTypeForSummon( 1.f )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 #ifdef RENA_SIEGE_MODE_ANGLE_TEST
 , m_bEnableLookAtIK_Spine( false )
@@ -5848,6 +5850,10 @@ void CX2GUUser::ChangeEquippedSkillState( const int iSkillSlotId_, const int iSk
 	if ( NULL != pSkillTemplet )
 		pUnitData->m_UserSkillTree.SetSkillCoolTimeLeft( eSkillId, pSkillTemplet->m_fSkillCoolTime );
 #endif // UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+	/// June 31fd8ff0 @31fd9090: after the cooldown is set, the cool-time helper 3235a710 (BBT 100), when the user has a unit
+	GetUnit()->ApplySkillCoolTimeRateByBuff( eSkillId );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 	ChangeEquippedSkillState( kUnitData, eSkillId, iSlotIndex, bSlotB );
 
 }
@@ -6394,8 +6400,43 @@ void CX2GUUser::DoStateEndStart()
 
 		//m_FrameDataNow.unitCondition.nextState	= GUSI_NONE;
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+		/// June buff port Phase 6b: June 3203c3a0 compares the old state's skill with the new one's (@3203c5f7); the copy below overwrites the old one
+		const CX2SkillTree::SKILL_ID eJuneBuffOldStateSkillID = m_NowStateData.m_eSkillID;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 		m_NowStateData			= m_StateList[m_FrameDataNow.syncData.nowState];
 		m_NowStateData.stateID	= m_FrameDataNow.syncData.nowState;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+		{
+			/// June buff port Phase 6b: the buff terms of June's CX2GUUser::DoStateEndStart (3203c3a0), in June's order and before StateStart below.
+			/// Phase 8 relies on that order: BFT_USE_SKILL_BY_SKILL_SLOTTYPE ends a 98 buff in CommonStateStart (@3203c978), after 98 is cached here (@3203c649).
+			/// June keeps the power rate in its own protected cache (+0x7cc8, returned by GetPowerRate, slot 129 31fcb230); March's m_NowStateData is
+			/// already a per-state copy that GetPowerRate returns and the class StateStart code multiplies, so the copy is the cache.
+			/// Not ported (user decision, Phase 6b): the random START / WIN / LOSE state table pick (31fd65f0, lists +0x229f/+0x22a3/+0x22a7), the one-shot
+			/// StateEnd override and its resets (+0x2557..+0x255a), and the per-class hook at vtable +0x78c (empty in CX2GUUser, 31f3f070).
+			/// June passes the skill through the skill templet's +0x178 field (32207210) for the summon test; March has no such field, so the plain ID is used.
+			const int iJuneBuffSkillID = static_cast<int>( m_NowStateData.m_eSkillID );
+			if ( true == IsSummonSkillByJune( iJuneBuffSkillID ) )		/// @3203c586: kept until the next summon skill, not reset by others
+				m_fSkillDamageRateBySlotTypeForSummon = GetSkillDamageRateBySlotType( iJuneBuffSkillID );
+			if ( eJuneBuffOldStateSkillID != m_NowStateData.m_eSkillID )	/// @3203c649: recomputed only when the skill changes
+				m_fSkillDamageRateBySlotType = GetSkillDamageRateBySlotType( iJuneBuffSkillID );
+			const float fJuneBuffSkillDamageRate = GetSkillDamageRateByBuff( iJuneBuffSkillID );	/// @3203c7de: 89 x 90 (31fd7cc0)
+			m_NowStateData.m_fPowerRate *= fJuneBuffSkillDamageRate;
+			m_NowStateData.m_fPowerRate *= m_fSkillDamageRateBySlotType;							/// @3203c801: 98
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			if ( 1.0f != fJuneBuffSkillDamageRate || 1.0f != m_fSkillDamageRateBySlotType )
+			{
+				static bool s_bSeenHost = false;
+				if ( !s_bSeenHost )
+				{
+					s_bSeenHost = true;
+					CX2JuneBuffCapture::Line( "first host BBT 89/90/98 DoStateEndStart: state %d skill %d power rate x %g (89 x 90) x %g (98) = %g",
+						static_cast<int>( m_NowStateData.stateID ), iJuneBuffSkillID, fJuneBuffSkillDamageRate, m_fSkillDamageRateBySlotType, m_NowStateData.m_fPowerRate );
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 		//{{ robobeg : 2008-10-28
 		//m_StateTableName		= m_NowStateData.stateTable;
 		//}} robobeg : 2008-10-28
@@ -21253,8 +21294,29 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 	
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		/// June 3203cf60 @3203cfe1: every skill's cost is multiplied by the BBT_CHANGE_CONSUME_MP_RATE rate (32039a50)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+		/// June buff port Phase 6b: June 3203cf60 @3203d024 hands the MP value to 3203a250 (BBT 99) before the rate multiplies it (@3203d097: rate x mp).
+		/// The rest of June's function stays out (user decision, Phase 6b, same deviation as Phase 4b-i part 4): the alternate templet (323511f0),
+		/// vtable slot 471 (31fdbe20), 32358970( 0xb ) and the +0x74dc cost cut floored at 0.8 (both only when June's bool argument is set).
+		float fJuneBuffMPConsume = pSkillTemplet->GetSkillMPConsumptionValue( iSkillTempletLevel );
+		ApplySkillTypeConsumeMpRate( pSkillTemplet, fJuneBuffMPConsume );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		if ( pSkillTemplet->GetSkillMPConsumptionValue( iSkillTempletLevel ) != fJuneBuffMPConsume )
+		{
+			static bool s_bSeenHost = false;
+			if ( !s_bSeenHost )
+			{
+				s_bSeenHost = true;
+				CX2JuneBuffCapture::Line( "first host BBT 99 GetActualMPConsume: skill %d MP %g -> %g (before the BBT 63 rate)",
+					static_cast<int>( pSkillTemplet->m_eID ), pSkillTemplet->GetSkillMPConsumptionValue( iSkillTempletLevel ), fJuneBuffMPConsume );
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		return GetSkillRateByBuffBehavior( pSkillTemplet->m_eID, BBT_CHANGE_CONSUME_MP_RATE ) * fJuneBuffMPConsume;
+#else // SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 		return pSkillTemplet->GetSkillMPConsumptionValue( iSkillTempletLevel )
 			* GetSkillRateByBuffBehavior( pSkillTemplet->m_eID, BBT_CHANGE_CONSUME_MP_RATE );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 #else
 		return pSkillTemplet->GetSkillMPConsumptionValue( iSkillTempletLevel );
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
@@ -21555,6 +21617,101 @@ bool CX2GUUser::ApplySkillTypeCoolTimeRate( const CX2SkillTree::SKILL_ID eSkillI
 		return false;
 
 	return ApplySkillTypeRateBuff( BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE, static_cast<int>( pSkillTemplet->m_eType ), fRate_ );
+}
+
+/** @function : GetSummonPowerRateByBuff
+	@brief : June buff port Phase 6b. The buff terms of June's summoned-NPC power helper 322ece70 (@322ed2f7-322ed32d): 89 x 90 for the summoning
+		skill (31fd7cc0) times the 98 rate DoStateEndStart kept for the last summon skill (31fea430). CX2Game::SetUserSummonedNPCInfo multiplies it in
+		where March sets the summon's power rate (user decision: buff terms only; June's other terms in 322ece70 are not ported).
+*/
+float CX2GUUser::GetSummonPowerRateByBuff( const int iSkillID_ ) const
+{
+	const float fRate = GetSkillDamageRateByBuff( iSkillID_ ) * m_fSkillDamageRateBySlotTypeForSummon;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( 1.0f != fRate )
+	{
+		static bool s_bSeenHost = false;
+		if ( !s_bSeenHost )
+		{
+			s_bSeenHost = true;
+			CX2JuneBuffCapture::Line( "first host BBT 89/90/98 summon: skill %d power rate x %g (89 x 90 %g, 98 summon %g)",
+				iSkillID_, fRate, GetSkillDamageRateByBuff( iSkillID_ ), m_fSkillDamageRateBySlotTypeForSummon );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return fRate;
+}
+
+/** @function : IsSummonSkillByJune
+	@brief : June 31fc8200 (a pure switch; its ids were enumerated by interpretation over 0-70000, JUNE_BUFF_PORT_PHASES.md Phase 1c item 1).
+		These are June's skill ids (the RNSI_ numbering of June's Enum.lua, e.g. RNSI_SA_AVP_HELL_DROP 22020); March's C++ skills use the older
+		numbering, so no March skill matches and the summon 98 cache stays 1.0 until June's skills arrive with the character port.
+*/
+/*static*/ bool CX2GUUser::IsSummonSkillByJune( const int iSkillID_ )
+{
+	switch ( iSkillID_ )
+	{
+	case 22020:	/// RNSI_SA_AVP_HELL_DROP
+	case 22027:	/// RNSI_SA_ADW_DISTORTION
+	case 22036:	/// RNSI_SA_AVP_HELL_DROP_ADD_TRANS
+	case 23015:	/// RNSI_SA_RGA_GUNGNIR
+	case 23213:	/// RNSI_A_RGA_ENTANGLE
+	case 23216:	/// RNSI_A_RTR_ANGER_OF_ELF
+	case 23218:	/// RNSI_A_RTR_EVOKE
+	case 25000:	/// RNSI_SA_EVE_DIMENSION_LINK_SENTRY
+	case 25011:	/// RNSI_SA_ECN_ATOMIC_SHIELD
+	case 25014:	/// RNSI_SA_EAT_OBERON_GUARD
+	case 25015:	/// RNSI_SA_EAT_SURFACE_CUTING
+	case 25020:	/// RNSI_SA_ECE_ELECTRONIC_FIELD
+	case 25030:	/// RNSI_SA_EVE_DIMENSION_LINK_SENTRY_UPGRADE
+	case 25055:	/// RNSI_SA_ECN_ATOMIC_SHIELD_UPGRADE
+	case 25056:	/// RNSI_SA_EAT_OBERON_GUARD_UPGRADE
+	case 25057:	/// RNSI_SA_EAT_SURFACE_CUTING_UPGRADE
+	case 25062:	/// RNSI_SA_ECE_ELECTRONIC_FIELD_UPGRADE
+	case 25601:	/// RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION
+	case 26014:	/// RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA
+	case 26025:	/// RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER
+	case 26050:	/// RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA_UPGRADE
+	case 26060:	/// RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER_UPGRADE
+	case 26064:	/// RNSI_SA_CTT_HEAVY_FIELD
+	case 26215:	/// RNSI_A_CTT_AUTOMATIC_MORTAR
+	case 26238:	/// RNSI_A_CTT_AUTOMATIC_MORTAR_UPGRADE
+	case 28018:	/// RNSI_SA_SBH_WALL_OF_PROMINENCE
+	case 28023:	/// RNSI_SA_SCA_BLOOD_CUTTER
+	case 28054:	/// RNSI_SA_SBH_WALL_OF_PROMINENCE_UPGRADE
+	case 28057:	/// RNSI_SA_SCA_BLOOD_CUTTER_UPGRADE
+	case 29003:	/// RNSI_SA_AN_PARTICLE_PRISM
+	case 29029:	/// RNSI_SA_AN_PARTICLE_PRISM_UPGRADE
+	case 29601:	/// RNSI_HA_AMM_APOCALYPSE
+	case 30013:	/// RNSI_SA_LLD_SUMMON_DARKNESS
+	case 30016:	/// RNSI_SA_LCN_SHADOW_BOLT
+	case 30053:	/// RNSI_SA_LDN_GARDEN_OF_HAURES
+	case 31002:	/// RNSI_SA_ROSE_RX78_LAND_RUNNER
+	case 31007:	/// RNSI_SA_ROSE_RX78_LAND_RUNNER_UPGRADE
+	case 31015:	/// RNSI_SA_RHB_PROTON_BOMB
+	case 31038:	/// RNSI_SA_RFY_NEIL_THE_SNIPER
+	case 31044:	/// RNSI_SA_RMH_GALE_FORCE
+	case 31045:	/// RNSI_SA_RMH_EZ_8_COUNT_DOWN
+	case 31047:	/// RNSI_SA_RMH_SPARROW_FACTORY
+	case 31053:	/// RNSI_SA_RMH_GALE_FORCE_UPGRADE
+	case 31054:	/// RNSI_SA_RMH_EZ_8_COUNT_DOWN_UPGRADE
+	case 31055:	/// RNSI_SA_RSR_PHOTON_SHOWER
+	case 31059:	/// RNSI_SA_RFY_M18A1_CLAYMORE
+	case 31065:	/// RNSI_SA_RHB_PROTON_BOMB_UPGRADE
+	case 31082:	/// RNSI_SA_RFY_NEIL_THE_SNIPER_UPGRADE
+	case 31087:	/// RNSI_SA_RMH_SPARROW_FACTORY_UPGRADE
+	case 31096:	/// RNSI_SA_ROM_ARMORED_TEMPEST
+	case 31229:	/// RNSI_A_RMH_ALL_BOMB
+	case 31232:	/// RNSI_A_ROM_G_EX_MAGNETICFORCE
+	case 31234:	/// RNSI_A_RMH_ALL_BOMB_UPGRADE
+	case 31320:	/// RNSI_A_ROM_G_EX_MAGNETICFORCE_UPGRADE
+		return true;
+
+	default:
+		break;
+	}
+
+	return false;
 }
 
 /** @function : RebuildSkillCoolTimeSpeed

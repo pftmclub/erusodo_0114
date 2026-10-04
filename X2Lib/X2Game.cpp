@@ -14279,6 +14279,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						}
 #ifdef ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 						/// AT_SPECIAL 공격 배율 증가 버프 적용
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+						/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
+						fPowerRate *= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_HA_EEP_LINK_OVERCHARGE_ILLUSION );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 						fPowerRate *= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 
@@ -14340,6 +14344,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 					/// AT_SPECIAL 공격 배율 증가 버프 적용
 					float fSummonMonsterPowerRate	= 1.f;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+					/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
+					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_SA_EN_DIMENSION_LINK_BLADER );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 					fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 					pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -14387,6 +14395,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 					/// AT_SPECIAL 공격 배율 증가 버프 적용
 					float fSummonMonsterPowerRate	= 1.f;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+					/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
+					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_SA_EN_DIMENSION_LINK_GUARDIAN );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 					fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 					pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -14440,6 +14452,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 					/// AT_SPECIAL 공격 배율 증가 버프 적용
 					float fSummonMonsterPowerRate	= 1.f;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+					/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
+					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_A_EAT_SURFACE_CUTING );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 					fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 					pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -14489,6 +14505,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 					/// AT_SPECIAL 공격 배율 증가 버프 적용
 					float fSummonMonsterPowerRate	= 1.f;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+					/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
+					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_SA_EAT_SONIC_WAVE );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 					fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 					pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -14561,6 +14581,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 						/// AT_SPECIAL 공격 배율 증가 버프 적용
 						float fSummonMonsterPowerRate	= 1.f;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+						/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
+						fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_SA_ENS_ATOMIC_SHIELD );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 						fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 						pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -14647,6 +14671,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						}
 #ifdef ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 						/// AT_SPECIAL 공격 배율 증가 버프 적용
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+						/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
+						fPowerRate *= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_A_RNW_ANGER_OF_ELF );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 						fPowerRate *= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 
@@ -14701,6 +14729,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 							float fSummonMonsterPowerRate	= pSkillTemplet->m_fPowerRate;		/// 스킬 레벨에 따른 공격 배율
 	#endif // UPGRADE_SKILL_SYSTEM_2013
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+							/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
+							fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_A_ADM_HELL_DROP );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 							fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );	/// AT_SPECIAL 공격 배율 증가 버프 적용
 							pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #else ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -14763,6 +14795,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 							float fSummonMonsterPowerRate	= pSkillTemplet->m_fPowerRate;		/// 스킬 레벨에 따른 공격 배율
 #endif // UPGRADE_SKILL_SYSTEM_2013
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+							/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
+							fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_A_ADM_HELL_DROP );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 							fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );	/// AT_SPECIAL 공격 배율 증가 버프 적용
 							pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #else ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -14890,6 +14926,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 							const CX2UserSkillTree& userSkillTree = pUser->GetUnit()->GetUnitData().m_UserSkillTree;
 							const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( CX2SkillTree::SI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA ) );
 							float fSummonMonsterPowerRate	= pSkillTemplet->GetSkillPowerRateValue( iSkillTempletLevel );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+							/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
+							fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 							fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 							pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 							CX2GUChung* pChung = static_cast<CX2GUChung*> ( pUser );
@@ -14937,6 +14977,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 							float fSummonMonsterPowerRate	= pSkillTemplet->m_fPowerRate;		/// 스킬 레벨에 따른 공격 배율
 	#endif // UPGRADE_SKILL_SYSTEM_2013
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+							/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
+							fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_SA_CTT_ARTILLERY_STRIKE );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 							fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );	/// AT_SPECIAL 공격 배율 증가 버프 적용
 							pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #else ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -15051,6 +15095,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 
 #ifdef ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 						/// AT_SPECIAL 공격 배율 증가 버프 적용
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+						/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
+						fPowerRate *= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_A_LTR_EVOKE );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 						fPowerRate *= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 
@@ -15091,7 +15139,12 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 	
 							const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( CX2SkillTree::SI_A_ADW_DISTORTION ) );	/// 스킬 레벨
 	
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+							/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
+							pNPC->SetDefaultPowerRate( pSkillTemplet->GetSkillPowerRateValue( iSkillTempletLevel ) * pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_A_ADW_DISTORTION ) );
+#else // SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 							pNPC->SetDefaultPowerRate( pSkillTemplet->GetSkillPowerRateValue( iSkillTempletLevel ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 
 #ifdef MODIFY_DISTORTION_DESTRUCTION
 							// 몬스터 소환 유지 시간
@@ -15156,6 +15209,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 								fPowerRate *= pSkillTemplet->m_fPowerRate;
 	#endif // UPGRADE_SKILL_SYSTEM_2013
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+								/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d (this NPC's flags 0x44a include 0x400: the 1.0 is taken off after the whole
+								/// product, @322ed366), 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
+								fPowerRate *= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_A_CTT_AUTOMATIC_MORTAR );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 								fPowerRate -= 1.f;
 							}
 							

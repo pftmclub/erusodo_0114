@@ -6008,6 +6008,11 @@ RENDER_HINT CX2GUChung::CommonRender_Prepare()
 	accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTempletUsing->m_eID, pSkillTempletUsing->m_fSkillCoolTime );
 #endif
 	// state가 변경되지 말아야하는 스킬이 아니라면 스테이트 변경
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+	/// June buff port Phase 6b: June CX2GUChung vtable +0x800 (32bf5130) @32bf5251 calls the cool-time helper 3235a710 (BBT 100) after the cooldown is set
+	if ( NULL != GetUnit() )
+		GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTempletUsing->m_eID );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 	if( false == SpecialAttackNoStageChange( pSkillTempletUsing ) )
 	{
 #ifdef ADDITIONAL_MEMO

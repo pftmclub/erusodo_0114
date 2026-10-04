@@ -5826,6 +5826,11 @@ RENDER_HINT CX2GURaven::CommonRender_Prepare()
 	}
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+	/// June buff port Phase 6b: June CX2GURaven vtable +0x800 (32c43bf0) @32c43f70 calls the cool-time helper 3235a710 (BBT 100) after the cooldown is set
+	if ( NULL != GetUnit() )
+		GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet->m_eID );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 	if( false == SpecialAttackNoStageChange( pSkillTemplet ) )
 	{
 		if( GetRemainHyperModeTime() <= 0.f )
@@ -20999,6 +21004,10 @@ void CX2GURaven::InitShadowStep()
 		CX2UserSkillTree& accessUserSkillTree =  GetUnit()->AccessUnitData().m_UserSkillTree;
 
 		accessUserSkillTree.SetSkillCoolTimeLeft( CX2SkillTree::SI_A_RF_SHADOW_STEP, m_fShadowStepCooTime );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+		/// June buff port Phase 6b: June's InitShadowStep 32c4de60 @32c4deb8 calls the cool-time helper 3235a710 (BBT 100) after this set
+		GetUnit()->ApplySkillCoolTimeRateByBuff( CX2SkillTree::SI_A_RF_SHADOW_STEP );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 	}
 
 	m_fShadowStepCooTime	 = 0.f;			/// 쿨타임 초기화

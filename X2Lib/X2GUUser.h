@@ -2728,6 +2728,13 @@ public:
 		/// 103: the dirty flag (June +0x9314), the per-skill-type speed table (June +0x931c), rebuild 32039fb0 and reader 31fd8bc0
 		void								SetSkillCoolTimeSpeedDirty() { m_bSkillCoolTimeSpeedDirty = true; }
 		float								GetSkillCoolTimeSpeedBySkillType( const int iSkillType_ );
+		/// Phase 6b (hosts). The two BBT 98 caches June keeps on the user (+0x7cd4 and +0x7ce0, both 1.0 at construction: FLD1 @3203ef02 / @3203f0f6).
+		/// DoStateEndStart (June 3203c3a0) sets them; the summon one is read by the summon power rate (June 31fea430).
+		float								GetSkillDamageRateBySlotTypeForSummon() const { return m_fSkillDamageRateBySlotTypeForSummon; }
+		/// June 322ece70 @322ed2f7-322ed32d: the buff part of a summoned NPC's power rate, 89 x 90 for the summoning skill (31fd7cc0) x the summon 98 cache (31fea430)
+		float								GetSummonPowerRateByBuff( const int iSkillID_ ) const;
+		/// June 31fc8200: the 54 summon skills whose 98 rate DoStateEndStart keeps for the summon power rate
+		static bool							IsSummonSkillByJune( const int iSkillID_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		/// Phase 6 console hook (DEBUG only): iMode_ 1 puts one new-type entry straight into its store, 0 takes it out, 2 only reads; the type's reader is logged each time.
 		/// 75 ( rate ), 89 ( skill type, rate ), 90 and 91 ( skill id, rate ), 103 ( skill type, speed ) have a store; 98, 99 and 100 only read (mode 2).
@@ -2742,6 +2749,8 @@ public:
 		vector<CX2SkillIDRateByBuffPtr>		m_vecChargeMpHitBySkillIDByBuff;	/// 91 (June +0x92f4)
 		bool								m_bSkillCoolTimeSpeedDirty;			/// 103 (June +0x9314); false at construction
 		map<int, float>						m_mapSkillCoolTimeSpeed;			/// 103: skill type -> speed, 1.0 when no buff (June +0x931c)
+		float								m_fSkillDamageRateBySlotType;			/// 98 for the state's skill (June +0x7cd4), set in DoStateEndStart @3203c649
+		float								m_fSkillDamageRateBySlotTypeForSummon;	/// 98 for the last summon skill (June +0x7ce0), set in DoStateEndStart @3203c586
 
 	public:
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL

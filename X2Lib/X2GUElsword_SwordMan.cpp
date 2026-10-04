@@ -5204,6 +5204,11 @@ RENDER_HINT CX2GUElsword_SwordMan::CommonRender_Prepare()
 	}
 #endif ELSWORD_SHEATH_KNIGHT
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+	/// June buff port Phase 6b: June CX2GUElsword_SwordMan vtable +0x800 (32d0d8e0) @32d0da06 calls the cool-time helper 3235a710 (BBT 100) after the cooldown is set
+	if ( NULL != GetUnit() )
+		GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTempletUsing->m_eID );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 	if( false == SpecialAttackNoStageChange( pSkillTempletUsing ) )
 	{
 		if( GetRemainHyperModeTime() <= 0.f )

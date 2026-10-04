@@ -6095,6 +6095,11 @@ RENDER_HINT CX2GUEve::CommonRender_Prepare()
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+		/// June buff port Phase 6b: June CX2GUEve vtable +0x800 (32981130) @3298163b calls the cool-time helper 3235a710 (BBT 100) after the cooldowns are set
+		if ( NULL != GetUnit() )
+			GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTempletUsing->m_eID );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 		if( false == SpecialAttackNoStageChange( pSkillTempletUsing ) )
 		{
 			if( GetRemainHyperModeTime() <= 0.f )

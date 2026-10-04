@@ -28,13 +28,13 @@ flags `SERV_IRUHADEV_JUNE_BUFF_*` (+ `_DEBUG`) · kickoffs `kickoffs/june-buff/`
 |---|---|---|---|---|---|
 | 0-5c | done, reviewed | - | - | - | - |
 | 6 | done, reviewed, play-tested (review `51701bb`..`071e58d`; user kept fix 1) | - | - | - | - |
-| 6b | **ready** | Opus 5.5 / high | 6 | X2GUUser.cpp (DoStateEndStart, GetActualMPConsume), X2Game.cpp (summon helper), per-class X2GU*.cpp (cooldowns) | `6b.md` |
-| 6b review | blocked | Opus 5.5 / high | 6b | - | `6b-review.md` |
+| 6b | done 2026-10-04 (buff terms only, user decision); **play-test owed** (hand-off in the 6b Done note) | Opus 5.5 / high | 6 | X2GUUser.cpp/.h (DoStateEndStart, GetActualMPConsume), X2Game.cpp (summon cases), X2Unit.cpp/.h, X2User.cpp, X2GU{Eve,Ara,Arme,Chung,EL,Elsword,Lire,Raven}.cpp (cooldowns) | `6b.md` |
+| 6b review | **ready** (after the 6b play-test) | Opus 5.5 / high | 6b | - | `6b-review.md` |
 | 7 | ready | Opus 5.5 / high | 4a | X2GameUnit.cpp (GetFinalDamage, ProcessEnchantExtraDamage), X2GUUser.cpp (SetInputData), X2GUNPC.cpp (CommonEventProcess), X2BuffBehaviorTemplet, C++ BUFF_TEMPLET_ID enum | `7.md` |
 | 7 review | blocked | Opus 5.5 / high | 7 | - | `7-review.md` |
 | 7b | blocked | Opus 5.5 / high | 7 | X2GUUser.cpp/.h, X2GUNPC.cpp/.h, X2GameUnit.h, X2GUChung.cpp, X2GUAra.cpp | `7b.md` |
 | 7b review | blocked | Opus 5.5 / high | 7b | - | `7b-review.md` |
-| 8 | blocked (needs 6b's 98 -> BFT 16 ordering) | Opus 5.5 / high | 2, 4b, 6b | X2BuffFinalizerTemplet, X2UDPPacket.h (every peer needs the same build), X2GUUser.cpp, X2GUNPC.cpp | `8.md` |
+| 8 | ready (6b recorded the 98 -> BFT 16 ordering: 98 is cached before StateStart) | Opus 5.5 / high | 2, 4b, 6b | X2BuffFinalizerTemplet, X2UDPPacket.h (every peer needs the same build), X2GUUser.cpp, X2GUNPC.cpp | `8.md` |
 | 9 | ready | Opus 5.5 / high | 4b | X2GameUnit.cpp (CreateAndInsertCustomFunction), X2GUUser.cpp, X2GURaven.cpp, X2GUAra.cpp, new classes | `9.md` |
 | 10 | ready | Opus 5.5 / high | 3 | X2Main.cpp (bindings), X2Game.cpp, UnitApplyBuffGroup.lua (+ data036 staging manifest) | `10.md` |
 | 11 | ready | Opus 5.5 / high | 3 | X2PremiumBuffManager.cpp, X2Lib/Offline/ (handlers as needed), BuffTemplet.lua (+ data036 staging manifest) | `11.md` |

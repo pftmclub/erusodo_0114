@@ -1141,6 +1141,10 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 		float		GetSkillCoolTimeDecreaseRate(CX2SkillTree::SKILL_ID eSkillID, CX2SkillTree::SKILL_TYPE eSkillType) const;
 		float		GetSkillMpDecreaseRate(CX2SkillTree::SKILL_ID eSkillID, CX2SkillTree::SKILL_TYPE eSkillType) const;
 #endif //SERV_BALANCE_FINALITY_SKILL_EVENT
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+		/// June buff port Phase 6b: June 3235a710, the cool-time helper every skill-use and equip path calls right after it sets a cooldown (BBT 100)
+		void		ApplySkillCoolTimeRateByBuff( const CX2SkillTree::SKILL_ID eSkillID_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 
 	protected:		
 		bool			UpdateViewEqipPosition();

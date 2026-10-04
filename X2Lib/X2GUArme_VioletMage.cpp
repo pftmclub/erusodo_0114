@@ -5204,6 +5204,11 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 #endif AISHA_SECOND_CLASS_CHANGE
 
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+	/// June buff port Phase 6b: June CX2GUArme_VioletMage vtable +0x800 (32ccf4e0) @32ccf706 calls the cool-time helper 3235a710 (BBT 100) after the cooldown is set
+	if ( NULL != GetUnit() )
+		GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet->m_eID );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 	if( false == SpecialAttackNoStageChange( pSkillTemplet ) )
 	{
 		if( GetRemainHyperModeTime() <= 0.f )

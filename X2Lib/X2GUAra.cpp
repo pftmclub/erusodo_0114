@@ -3926,6 +3926,11 @@ void CX2GUAra::StateChangeSpecialAttack( IN const CX2SkillTree::SKILL_ID eSkillI
 #else  // ADD_ARA_MEMO
 		accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet->m_eID, pSkillTemplet->m_fSkillCoolTime );
 #endif // ADD_ARA_MEMO
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+		/// June buff port Phase 6b: June CX2GUAra vtable +0x800 (32bb1ff0) @32bb2268 calls the cool-time helper 3235a710 (BBT 100) after the cooldown is set
+		if ( NULL != GetUnit() )
+			GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet->m_eID );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 
 		if ( NULL != m_ComboAndSkillChainSystem.GetPtrNowUseChainInfo() )
 		{
