@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 6b-review` |
+| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 6b review` |
 | Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
 | Depends on | 6b done |
 | Flag | SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL |
