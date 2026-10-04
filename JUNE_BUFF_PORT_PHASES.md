@@ -2901,7 +2901,7 @@ Log lines read afterwards: `first apply BBT 74/77/97/101/102/110`, `first read B
 - `ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE` now expands to `else if( TryHyperModeStateChange( s ) ) {}`, so every live March use goes through 343 (52 in 8 files). June's slot-343 call sites per class match March's live macro uses: User 5/5, Eve 7/7, Arme 6/6, Chung 7/7, EL 6/6, Elsword 6/6, Lire 10/10, Raven 5/5. Add's 5 are June-only (checklist §7).
 - Ara's six inlined copies gain June's two gates: the item wait and `IsAwakeImpossible`. All six June sites (`32bb2d40`…`32bb3ab0`) are the same code; Ara's slot 430 equals March's ≥3-bead `ASI_BERSERK_MODE` choice.
 - `SKILL_CANCEL_AFTER` / `IF_SKILL_CANCEL_AFTER` take June's expansion (`+0x8c90` = `m_fSkillCancelAfter`):
-  - the skill branch also needs `IsOnSomethingFuture()` (`+0x7e1c`);
+  - the skill branch also needs `IsOnSomethingFuture()` (`+0x7e1c` = `unitCondition.bFootOnLine`: Eve `@3296a4f6` tests it explicitly; CX2GUUser `31fcc350` reuses `dl` loaded `@31fcc443`, where `!bFootOnLine` already left via `USI_JUMP_DOWN`). **This changes play with no buff on:** a skill cancel now also requires being on the ground (June parity, all classes);
   - the awakening branch uses `CanHyperMode`, adds `!IsQuickSlotSpecialItemWaiting()`, and sets the flag.
 - Members `m_fQuickSlotSpecialItemWaitTime` (`+0x8d78`) and `m_bHyperModeStartedByInput` (`+0x8d4c`), with June's homes:
   - ctor −1 / false;
@@ -2938,6 +2938,7 @@ Log lines read afterwards: `first apply BBT 74/77/97/101/102/110`, `first read B
 1. `jtLordKnight` (Elsword, Lord Knight): with 3 beads and 362 on, Ctrl in wait does nothing; 30 s later it awakens.
 2. `arasss` (Ara, Yama Raja): with 3 beads and no buff, Ctrl gives Berserk Mode.
 3. `arasss` again: with 362 on, Ctrl does nothing; 30 s later Berserk Mode.
+4. `jtLordKnight`, no buff: a skill pressed inside a ground combo's cancel window still fires (regression check for the ground gate).
 
 Log lines read afterwards: `first apply BBT 110` and `first read BBT 110: TryHyperModeStateChange refused awakening (state 23)`.
 
