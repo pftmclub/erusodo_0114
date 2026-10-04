@@ -5332,7 +5332,7 @@ June changed every link. 92 and the three socket terms in 78's multiplier sit at
    - **92:** a FIX factor (SPA-style `FIX 10`). PERCENT-only 92 gives 0 under June's formula, so it cannot be the check.
    - **Sanity:** a move-speed or attack-speed buff still looks right, and socket MP gain still works.
 
-**Q3 (open, a missing fact):** players' attack range comes only from the server's `KStat`, and June's formula is not in the client. The range stays 0 until the user supplies a June-era server source. The roll and 92 are dormant until then, even after this phase.
+**Q3 (user, 2026-10-04): no June-era server source exists, so design one.** Players' attack range comes only from the server's `KStat`, and June's formula is not in the client. The user's rule is to design a logical stand-in rather than leave 92 dormant. This phase therefore adds a **designed, not June** range source under its own flag (for example `SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN`). It is labelled in code and logged once. The formula and numbers are proposed to the user before it is built: a balance call, presented with a recommendation.
 
 **Run with:** Opus 5.5, high effort. Review required. Split the RE (step 1) into its own session if it grows.
 
