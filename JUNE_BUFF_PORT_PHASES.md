@@ -3495,11 +3495,24 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The pre-s
 - **After-image buff:** `BTI_BUFF_ELIXIR_FEATHER_OF_VENTUS` (or `BTI_BUFF_SPRINTER_MEDICINE`, `BTI_BUFF_GALE_APPLE`). On, in its colour, then off; an attack state's own after-image afterwards is gray.
 - **Logs:** `ErrorLog.txt` should show no new `[JUNE_BUFF] runtime error` lines.
 
+**Play-test (2026-10-04, user): passed** on the deployed exe `a03acb22…`. The checks were run from the dev console with `SetBuffFactorToGameUnitByBuffFactorID_LUA( BFI, 1 )`:
+- fire (152) and poison (168) on the player: red tint, outline kept;
+- fire (152) on every NPC: tint, outline kept;
+- Super Armor (143) and Stone Apple (201): the unit's own colour kept;
+- Sprinter Medicine (59): after-image in the buff's colour, off when the buff ends.
+
+Logs, read after the session (launched 11:49):
+- `ErrorLog.txt`: only the Phase 4a baseline `[JUNE_BUFF]` loader lines (duplicate BTI 87, both `_INT` not-found lines, ordinal rejects 481/482/483/372/373, the load summary) and **no `runtime error` line**.
+- `State.log`: 101 lines, so no flood.
+- The only `UNHANDLED` packet is `E_DISABLE_HB_CHECK_REQ` (×2), which is unrelated.
+
+Not exercisable from the console, so left to the review: the `DT_BUFF` hitted gate (only a few monster attacks deal `DT_BUFF`, e.g. `DamageEffect_Summon_Bat_Heavy_Debuff_Bite`), the NPC owner hit count, and the `AT_COMMAND` normal-attack gate (no March data uses it).
+
 **Phase 4b is done when — status:**
 1. Verdict table: **met** (above).
 2. Every March-reachable difference ported whole, March in `#else`: **met** (render param, after-image colour, normal-attack gate, hitted gate, owner hit).
 3. Census 0: **met**.
-4. Unifdef, build, deploy and md5: **met**. The user's play-test is **pending**.
+4. Unifdef, build, deploy, md5 and the user's play-test: **met**.
 5. Review with no open code defect: **pending** (kickoff below).
 
 **Cost:** `/cost` is not readable from inside the session; ask the user.
