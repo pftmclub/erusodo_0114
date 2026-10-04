@@ -4173,6 +4173,18 @@ Independent review of code commit `9b79255` (against its parent `6f4f3d7`) and d
 
 **Review cost:** `/cost` cannot be read from inside the session. User, please paste it here.
 
+**Play-test result (2026-10-04, user; exe `b981a4c1…`; `ErrorLog.txt` session from the 15:25:43 load summary, `factors 361 loaded`). The logs pass; the on-screen part of check 2 is not yet reported.**
+- **Setup:** both definitions were accepted. There is no `ordinal reject` line and no `[JUNE_BUFF]` line naming `990106`, `990081`, `362` or `363`.
+- **Check 1 (106/107 through a real factor): pass.**
+  - `first apply BBT 106, change type 1, value 101` and `first apply BBT 107, change type 1, value 201` prove the real factor path end to end: both macro-list parses, ChangeStat `SetFactor` and the stores. The default level slice picked level 1 out of a table that differs at every level.
+  - After a ranged hit (a Mag Charger fireball, per the `JUNE_FX` lines beside it): `first read BBT 107: force down decrease 0 - 201`.
+  - The melee branch (`first read BBT 106`) did not fire because no melee hit landed, the same as in 5b. It is the other arm of one expression, verified in asm (check 7), so it is not a gap.
+- **Check 2 (80/81/84):**
+  - The first paste logged `first SetFactor` / `first apply` for 80 and 81 (`v[3..5] = 1.06 0.35 1, value 2.11`) and for 84 (`1.06 0.07 1, value 1.27`).
+  - No `runtime error` line for BTI `990081` follows. So if the second paste ran, the restack raised no zero-multiplier or mismatch error.
+  - The second stack (damage about 3.2×) and the expiry (max HP back after 20 s) write no log line. **Awaiting the user's on-screen report.**
+- Out of scope and unchanged from earlier sessions: the `JUNE_FX MP_CRASH` lines (effect port), and the missing-texture and missing-control lines.
+
 **Play-test hand-off (review).** These checks cover what 5b's four checks did not reach:
 - **106/107 through a real factor.** 5b's check 4 used the console hook, which writes straight into the store and skips the factor parse, the default level slice, the factory and ChangeStat's `SetFactor`.
 - **A second stack of 80/81/84** (the accumulation branch).
