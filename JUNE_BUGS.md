@@ -1,0 +1,26 @@
+# June 2017 potential bugs
+
+June's code has mistakes of its own. **The rule (user, 2026-10-04) is that the port keeps every one of them exactly as June has it.** This file is where they are written down, so that a later decision to fix any of them starts from a list instead of a search.
+
+**Rules**
+- **Any session that finds a June bug adds a row here, in the same commit as its Done or Review note.** That covers ports, reviews, effect phases and character ports. Do not ask the user about it.
+  - A bug here means June code that looks unintended: a leak, an off-by-one, a value June always sends as 0, an index mismatch between `GetFactor` and the packet reader, or an order that defeats the code's own purpose.
+  - March's own odd behaviour does not belong here. Neither does a June change that is merely different.
+- **"Reached?" has three values:**
+  - **yes:** June's own data triggers it. Name the BFI or BTI.
+  - **latent:** the code is wrong, but no June data reaches it. Say why.
+  - **not counted:** nobody has checked yet.
+- **Fixing one is the user's call, one row at a time.** A fix goes behind its own `SERV_IRUHADEV_JUNE_FIX_*` flag, with June's code left in `#else`. Turning the flag off must bring back June's behaviour exactly.
+- Keep each row to one line. Long evidence stays in the plan doc that found the bug; the Source column links to it.
+
+| # | Area | June address | What goes wrong | Reached? | Port | Source |
+|---|---|---|---|---|---|---|
+| 1 | Buff 94 IMMUNE_BUFF_DEBUFF | SetFactor `32e79e30`, packet `32e7a040` | The immune-list loop starts at index 2, which holds the list's count. The count is stored as an immune BTI, so an empty or one-entry list also grants immunity to BTI 1 (`BTI_DEBUFF_SILENCE`), and Bloodlust's four-entry list grants BTI 4. | **yes:** `BFI_DEBUFF_SLEEP` (a sleeping unit is also Silence-immune); Bloodlust ×2 and Alptraum Ready add BTI 4 | verbatim, `JUNE_BUFF_NEW_FLAG` | `JUNE_BUFF_PORT_PHASES.md` "Phase 1c, item 2" (94) |
+| 2 | Buff 94 | GetFactor `32e7f670` | It sends the templet bytes `+0x20`/`+0x21` as ALL_BUFF/ALL_DEBUFF, but nothing ever writes them, so they always go out as 0. Peers never see the "all" immunity. The player's own unit also loses it at every field↔dungeon move, because the stage-change restore re-applies through the packet path. | **yes:** Infinity Potential (`ALL_DEBUFF = TRUE`) | verbatim, `JUNE_BUFF_NEW_FLAG` | "Phase 7 — Review" |
+| 3 | Buff 94 | SetFactor `32e79e30`, DoFinish `32e75bd0`, erase `3227a910` | A restack with an accumulation count above 0 pushes a second immune-list entry, and DoFinish erases only one. The leftover keeps refusing its BTIs (plus #1's count BTI) until the unit is destroyed. | **latent:** all four June 94 templets have `ACCUMULATION_LIMIT = 1`, and their count stays 0 | verbatim; user chose to keep it (2026-10-04) | "Phase 7 — Review" |
+| 4 | Buff 73 IGNORE_STATE_GUARD | GetFinalDamage `@322862bf` | The ignore-guard flag is written into the attacker's DamageData and never cleared. On a multi-target hit every later target also loses its guard and damage reduction. | not counted (likely: `BFI_DEBUFF_PANDEMONIUM_FEAR` with any multi-hit attack) | verbatim, `JUNE_BUFF_NEW_FLAG` | "Phase 7 — Done", note 4 |
+| 5 | Buff Absorb | packet `32e76a00` vs GetFactor `32e7da30` | The packet reader takes index 1, but GetFactor sends a single value. A packet-built copy holds 0. The hit is still absorbed, but the MP gain becomes 0, including for your own unit after a stage change. | **yes:** Shining Body, Phoenix Talon | verbatim; recommendation was keep | `JUNE_BUFF_PORT_ARCHIVE.md:70`, `:163` |
+| 6 | Buff NowHp level slice | (level slice) | For a skill factor with `BCT_RELATION_VALUE` and one multiplier, the slice reads indices 2, 4, 5 and 6. Index 3 becomes ±1.0 and the relation type is lost. With the key absent, the result is damage. | not counted | verbatim | `JUNE_BUFF_PORT_ARCHIVE.md:76` |
+| 7 | Buff NeverMove | packet path | The packet adds `OFFSET_POSITION` a second time, so a stage-change restore re-anchors the unit 2× the offset away. | latent in March data; June data not counted | verbatim | `JUNE_BUFF_PORT_ARCHIVE.md:286` |
+| 8 | Buff 93 (HaveBuffOwner) | GetFactor `32e7d7f0`, packet `32e76710` | The owner UID is written at indices 1–4 and read back from 4–7, so peers get a garbage owner. June reads past the end; the port reads 0 there. | **latent:** the UID's only consumer (`CX2GUNPC` slot 183) is never called | verbatim | `JUNE_BUFF_PORT_ARCHIVE.md:1802` |
+| 9 | Buff 90/91 skill-id rate | parse (multi `SKILL_CATEGORY`) | The skill-id list is never cleared between blocks, so every listed skill gets the **last** block's rate. | **latent:** all five June 90/91 factors have one block | verbatim; user chose to keep it (2026-10-04) | `JUNE_BUFF_PORT_ARCHIVE.md:2633` |
