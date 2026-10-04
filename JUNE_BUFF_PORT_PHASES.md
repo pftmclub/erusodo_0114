@@ -2954,7 +2954,7 @@ Log lines read afterwards: `first apply BBT 110` and `first read BBT 110: TryHyp
   - `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 9 #else/#endif without the flag token, 0 encoding change(s)`;
   - `RESULT: PASS`.
   - The 9 are plain `#else` lines (3 macros, 6 Ara sites); each holds March's text verbatim, so flag-off = March. The PASS~ is one blank line in `X2GUUser.h`.
-- Review fix: `flagcheck JUNE_BUFF_AWAKE_LOCK --worktree` on `X2GUUser.cpp`, `X2GUUser.h`, `Always.h`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `12 deleted line(s)` (all 7c's own lines: the two End-side blocks and the two reworded comments), `3 #else/#endif without the flag token` (the macros' existing plain `#else`), `0 encoding change(s)`; `RESULT: PASS`. Post-commit `--range`: `--range 4a0589b^..4a0589b` gives the same lines (`RESULT: PASS`); `--range e888197^..HEAD` (phase + review, summed per revision pair) gives `files: 4 PASS, 1 PASS~, 2 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `12 deleted line(s)` (the review commit's removal of 7c's own lines; net against `e888197^` is insert-only), `12 #else/#endif without the flag token` (9 + 3, the same plain `#else` lines), `RESULT: PASS`.
+- Review fix: `flagcheck JUNE_BUFF_AWAKE_LOCK --worktree` on `X2GUUser.cpp`, `X2GUUser.h`, `Always.h`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `12 deleted line(s)` (all 7c's own lines: the two End-side blocks and the two reworded comments), `3 #else/#endif without the flag token` (the macros' existing plain `#else`), `0 encoding change(s)`; `RESULT: PASS`. Re-preprocessed after the fix: `HyperModeStart` and `RidingHyperModeStart` each hold one `m_bHyperModeStartedByInput = false`, the two `End`s none. Post-commit `--range`: `--range 4a0589b^..4a0589b` gives the same lines (`RESULT: PASS`); `--range e888197^..HEAD` (phase + review, summed per revision pair) gives `files: 4 PASS, 1 PASS~, 2 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `12 deleted line(s)` (the review commit's removal of 7c's own lines; net against `e888197^` is insert-only), `12 #else/#endif without the flag token` (9 + 3, the same plain `#else` lines), `RESULT: PASS`.
 
 **Checked against June** (Ghidra read-only, `dispsweep.py`, capstone over `.text`).
 1. **Re-attribution holds.**
@@ -2971,7 +2971,7 @@ Log lines read afterwards: `first apply BBT 110` and `first read BBT 110: TryHyp
 3. **Macro sites.** Counted from preprocessed output (`cl -EP`, X2Lib US_SERVICE defines), not grep:
    - User 5, Eve 7, Arme 6, Chung 7, EL 6, Elsword 6, Lire 10, Raven 5 = **52**; Ara 0, Add 0.
    - The 66 textual uses are those 52, 6 commented out in Ara, and 8 in dead `#ifdef`s (Eve 7, User 1). The plan's "56 in 9" was a raw count.
-   - June's slot-343 loads (`dispsweep 55c`) by class range give the same eight numbers, and 0 in Ara's range.
+   - June's slot-343 loads (`dispsweep 55c`), bucketed by 64K address range with class boundaries assumed from known per-class functions, are consistent with the same eight numbers (corroboration, not an independent count), and Ara's range has none.
    - One site per class was sampled: each does `push 0x17` (User `0x2c`, Eve a register) and calls `[vt+0x55c]`.
 4. **Cancel expansion** (`31fcc350` `@31fcc56b-64f`, Eve `3296a1f0` `@3296a4cb-5ac`, Eve `32972b80` `@32972cc8`): `time ≥ 0`, `anim > time`, foot byte == 1, then SAEP(`push 1` = `ASUT_GROUND`, March's default).
    - The foot test is in the macro, not in Eve's code. Whole binary: of 1000 `+0x8d4c` set sites, the 954 that follow an SAEP call (`[vt+0x7f4]`) all test a byte == 1 right before it: 717 as `[+0x7e1c]`, the rest through a register loaded from `+0x7e1c` (checked `@31fcc443`, `@32972b85`, `@3296cab4`).
@@ -2988,7 +2988,7 @@ Log lines read afterwards: `first apply BBT 110` and `first read BBT 110: TryHyp
    - the clear: see the verdict.
 7. **Flag off = March:** the three macros are whole `#ifdef/#else` copies and every `#else` is March verbatim.
 
-**Build and deploy.** `DEPLOY OK: X2_offline.exe is 19,111,424 B, dated 2026-10-05 05:22:36, md5 46ef8895befd8fbacd846a97ebf668c6, equal to X2/US_SERVICE/x2.exe (2026-10-05 05:22:32); built at mods/june-buff-port e52bb0b + 3 uncommitted code file(s).` Not launched. No new play-test is needed: the flag has no reader in this build until (b), and the moved lines change nothing that the 7c checks covered.
+**Build and deploy.** `DEPLOY OK: X2_offline.exe is 19,111,424 B, dated 2026-10-05 05:22:36, md5 46ef8895befd8fbacd846a97ebf668c6, equal to X2/US_SERVICE/x2.exe (2026-10-05 05:22:32); built at mods/june-buff-port e52bb0b + 3 uncommitted code file(s).` Not launched. Play-test is **optional**: the flag has no reader until (b), but `HyperModeStart` now runs the moved line on every awakening, so a quick regression check on `46ef8895` is offered (7c's check 1 plus a plain Ctrl awakening).
 
 **For the user.**
 - Decision (b) still stands. The interlock window is short: from the awakening key until the Now-side StateStart, not the whole awakening. That makes option B's arm cheaper to reason about, but it is still your call.
