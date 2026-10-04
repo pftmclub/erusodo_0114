@@ -3060,7 +3060,7 @@ Fresh tools only; part 5's patch and unifdef scripts were not reused:
 - **R1, Info (count).** My filter finds 10 non-vtable `+0x264` loads followed by a call; the doc says 9. None of them is a slot-153 call: each of those calls goes through `+0x54` or `+0x428`. The AnimStop verdict stands.
 - **R2, Low (dormant; affects the slot-476 log only).** `322a7660` falls back to unit `+0x9274` when its 4th argument **equals 0** (`test ecx,ecx / jne` @`322a777b`), not when it is negative.
   - The port passes the argument straight to `AdjustBuffFactorByIndex`, which logs only for ≥ 0. Slot 476 is a logged no-op, so nothing else differs.
-  - Whoever ports slot 476 (the character port) must treat 0 as "use the unit's `+0x9274`".
+  - Whoever ports slot 476 (the character port) must treat 0 as "use the unit's `+0x9274`". `JUNE2017_CHARACTER_PORT_CHECKLIST.md` row `322a7660` already says so; only the part 5 section and the code comment leave it out.
   - Recorded in a superseding funcmap row. No code change.
 - **R3, Info (doc wording).** Part 5 calls NPC `327bdb60` "March's NCT_BASIC test plus a June-only per-BTI step".
   - When NPC `+0x8f70 > 0` and the BTI is > 0, `326c31c0`'s result *replaces* the base result (`mov bl,al` @`327bdbe1`). So June can return true for an NPC that the base check rejects.
