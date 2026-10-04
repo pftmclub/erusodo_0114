@@ -1986,8 +1986,8 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /** @function : OnFrameMove
 	@brief : June 32e85fe0. Hands both skill-ID lists to the unit (slots 161/162), then resets through
-			 slot 160 every frame, or on the first frame only with APPLY_ONCE. DRAW_TEXT's floating text
-			 (June 32e857d0, string ids 0x978f/0x9790) is not ported: it is logged once instead.
+			 slot 160 every frame, or on the first frame only with APPLY_ONCE. DRAW_TEXT floats the
+			 change over the unit when a slot changed (June 32e857d0, DrawText below).
 */
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 /*virtual*/ void CX2BuffResetSkillCoolTimeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_, float fElapsedTime_ )
@@ -2010,13 +2010,40 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 
 	if ( true == m_bDrawText && true == bChanged )
 	{
-		static bool s_bDrawTextLogged = false;
-		if ( false == s_bDrawTextLogged )
-		{
-			s_bDrawTextLogged = true;
-			CX2JuneBuffCapture::Line( "unsupported (stored, consumer not ported): BBT_RESET_SKILL_COOL_TIME DRAW_TEXT (June 32e857d0 floats the cool-time change over the unit)" );
-		}
+		DrawText( pGameUnit_, m_eChangeType, m_fCoolTime, m_fCoolTimeRate );		/// @32e86090: +0x14, +0x18, +0x1c
 	}
+}
+
+/** @function : DrawText
+	@brief : June 32e857d0. Floats the cool-time change in PicCharYellowSmall at the head bone
+			 (unit vslot 63 = GetHeadBonePos, vslot 91 = GetDirVector), centred, no gap time.
+			 STR 38799 "COOLDOWN" and 38800 "SEC"; StringCchPrintfW into 20 wide chars (31aa55f0).
+			 SWAP "%s = %d%s"; FIX "%s +%d%s", or "%s %d%s" below 0 (a NaN takes "+"); any other change
+			 type draws an empty string, as in June. The value is truncated to int (_ftol2). The rate is
+			 passed and unused, as in June. June's string-ID debug view ("[S%1%]%2%") is not ported.
+*/
+void CX2BuffResetSkillCoolTimeBehaviorTemplet::DrawText( CX2GameUnit* pGameUnit_, const BUFF_CHANGE_TYPE eChangeType_, const float fCoolTime_, const float /*fCoolTimeRate_*/ ) const
+{
+	WCHAR wszText[20] = { 0, };
+	switch ( eChangeType_ )
+	{
+	case BCT_SWAP_VALUE:
+		StringCchPrintf( wszText, _countof( wszText ), L"%s = %d%s", GET_STRING( 38799 ), static_cast<int>( fCoolTime_ ), GET_STRING( 38800 ) );
+		break;
+
+	case BCT_FIX_VALUE:
+		if ( fCoolTime_ < 0.0f )
+			StringCchPrintf( wszText, _countof( wszText ), L"%s %d%s", GET_STRING( 38799 ), static_cast<int>( fCoolTime_ ), GET_STRING( 38800 ) );
+		else
+			StringCchPrintf( wszText, _countof( wszText ), L"%s +%d%s", GET_STRING( 38799 ), static_cast<int>( fCoolTime_ ), GET_STRING( 38800 ) );
+		break;
+
+	default:
+		break;
+	}
+
+	if ( NULL != g_pData && NULL != g_pData->GetPicCharYellowSmall() && NULL != pGameUnit_ )
+		g_pData->GetPicCharYellowSmall()->DrawText( wszText, pGameUnit_->GetHeadBonePos(), pGameUnit_->GetDirVector(), CKTDGPicChar::AT_CENTER, 0.0f );
 }
 
 /** @function : SetFactor

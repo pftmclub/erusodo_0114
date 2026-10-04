@@ -541,8 +541,10 @@ private:
 	vector<int>			m_vecForceSkillID;		/// +0x34 FORCE_SKILL_ID: skills the reset always takes
 	bool				m_bApplyOnce;			/// +0x44 APPLY_ONCE: reset on the first frame only
 	bool				m_bApplied;				/// +0x45 runtime: set on every reset
-	bool				m_bDrawText;			/// +0x46 DRAW_TEXT: June 32e857d0 floats a text when a slot changed (not ported)
+	bool				m_bDrawText;			/// +0x46 DRAW_TEXT: June 32e857d0 floats a text when a slot changed
 	int					m_iSkillSlotType;		/// +0x48 SKILL_SLOT_TYPE: 0 any, 1 A, 2 B, 3 transcendence (none in March)
+
+	void DrawText( CX2GameUnit* pGameUnit_, const BUFF_CHANGE_TYPE eChangeType_, const float fCoolTime_, const float fCoolTimeRate_ ) const;
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 };

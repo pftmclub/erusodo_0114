@@ -98,6 +98,9 @@ class CX2Data : public CKTDXStage
 		void LoadPicChar8();
 		void LoadPicChar9();
 		void LoadPicChar10();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		void LoadPicCharYellowSmall();
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		void LoadPicCharAll_LUA();
 
 		void LoadEXPTable();
@@ -108,6 +111,9 @@ class CX2Data : public CKTDXStage
 		CKTDGPicChar*	GetPicCharBlue(){ return m_pPicCharBlue; }		
 		CKTDGPicChar*	GetPicCharGreen(){ return m_pPicCharGreen; }		
 		CKTDGPicChar*	GetPicCharYellow(){ return m_pPicCharYellow; }	
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		CKTDGPicChar*	GetPicCharYellowSmall(){ return m_pPicCharYellowSmall; }	/// June CX2Data +0x17c
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		CKTDGPicChar*	GetPicCharGameScore(){ return m_pPicCharGameScore; }	
 		CKTDGPicChar*	GetPicCharTechPoint(){ return m_pPicCharTechPoint; }
 		CKTDGPicChar*	GetScoreBonusPicChar(){ return m_pScoreBonusPicChar; }
@@ -556,6 +562,9 @@ class CX2Data : public CKTDXStage
 		CKTDGPicChar*			m_pPicCharBlue;
 		CKTDGPicChar*			m_pPicCharGreen;
 		CKTDGPicChar*			m_pPicCharYellow;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		CKTDGPicChar*			m_pPicCharYellowSmall;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		CKTDGPicChar*			m_pPicCharGameScore;
 		CKTDGPicChar*			m_pPicCharTechPoint;
 		CKTDGPicChar*			m_pScoreBonusPicChar;

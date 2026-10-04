@@ -11747,7 +11747,20 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 
 		m_AdditionalMaxHp.CheckAndUpdateResultValue();
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 32282700 @32282723: keeps the HP ratio. The ratio is now / max taken before the gage's max
+		/// changes (31e4f900 / 31e551a0), then the gage gets the new max and now = new max * ratio
+		/// (31e8c940, 32081260; June's SetNowHp also keeps a June-only previous-HP member, not ported).
+		/// No gage data: neither write happens (June tests unit +0xc04).
+		if ( NULL != GetGageData() )
+		{
+			const float fHpRatio = GetNowHp() / GetMaxHp();
+			GetGageData()->SetMaxHp( m_AdditionalMaxHp.GetResultValue() );
+			GetGageData()->SetNowHp( m_AdditionalMaxHp.GetResultValue() * fHpRatio );
+		}
+#else  SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		GetGageData()->SetMaxHp( m_AdditionalMaxHp.GetResultValue() );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		break;
 
 	case BBT_CHANGE_MAX_MP:					/// 최대MP 변경
@@ -12164,7 +12177,24 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 
 		m_AdditionalMaxHp.CheckAndUpdateResultValue();
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 322830f0 @32283113: keeps the HP ratio. The old max and the now HP are read before the
+		/// gage's max changes; the now HP is then scaled by new max / old max, unless it is 0 (a dead
+		/// unit stays at 0; FUCOMPP @3228317d, so a NaN still rescales). No gage data: no write at all.
+		if ( NULL != GetGageData() )
+		{
+			const float fMaxHpBefore = GetMaxHp();
+			const float fNowHp = GetNowHp();
+			GetGageData()->SetMaxHp( m_AdditionalMaxHp.GetResultValue() );
+			if ( 0.0f != fNowHp )
+			{
+				const float fHpRatio = GetMaxHp() / fMaxHpBefore;
+				GetGageData()->SetNowHp( fHpRatio * fNowHp );
+			}
+		}
+#else  SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		GetGageData()->SetMaxHp( m_AdditionalMaxHp.GetResultValue() );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		break;
 
 	case BBT_CHANGE_MAX_MP:					/// 최대MP 변경

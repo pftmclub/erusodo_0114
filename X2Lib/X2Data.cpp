@@ -947,6 +947,9 @@ CX2Data::CX2Data(void)
 	m_pPicCharBlue			= NULL;
 	m_pPicCharGreen			= NULL;
 	m_pPicCharYellow		= NULL;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	m_pPicCharYellowSmall	= NULL;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	m_pPicCharGameScore		= NULL;
 	m_pPicCharTechPoint		= NULL;
 
@@ -1105,6 +1108,9 @@ CX2Data::~CX2Data(void)
 	SAFE_DELETE( m_pPicCharBlue	);
 	SAFE_DELETE( m_pPicCharGreen );
 	SAFE_DELETE( m_pPicCharYellow );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	SAFE_DELETE( m_pPicCharYellowSmall );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	SAFE_DELETE( m_pPicCharGameScore );
 	SAFE_DELETE( m_pPicCharTechPoint );
 
@@ -1519,8 +1525,36 @@ void CX2Data::LoadPicChar5()
 {
 	m_pPicCharYellow	= new CKTDGPicChar( m_pPicChar, m_pUIMajorParticle->CreateSequence( NULL,  L"PicCharYellow", 0.0f, 0.0f, 0.0f,  0.0f, 0.0f ) );
 	m_pPicCharYellow->SetWidth( 30 );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	LoadPicCharYellowSmall();
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+
+/** @function : LoadPicCharYellowSmall
+	@brief : June 31edd860 (CX2Data +0x17c), the pic-char BBT_RESET_SKILL_COOL_TIME's DRAW_TEXT floats
+			 (June 32e857d0). The same shape as PicCharYellow, width 18. June creates it from the loading
+			 state among its June-only pic-chars; here LoadPicChar5 calls it, which covers both March
+			 loading paths. Without the eventsequence (not yet packed into data036.kom) it stays NULL and
+			 says so once; the draw then does nothing, as June's own NULL test would.
+*/
+void CX2Data::LoadPicCharYellowSmall()
+{
+	if ( NULL != m_pPicCharYellowSmall || NULL == m_pPicChar )
+		return;
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = m_pUIMajorParticle->CreateSequence( NULL,  L"PicCharYellowSmall", 0.0f, 0.0f, 0.0f,  0.0f, 0.0f );
+	if ( NULL == pSeq )
+	{
+		CX2JuneBuffCapture::Line( "unsupported (data not packed): eventsequence \"PicCharYellowSmall\" is missing from UIMajorParticle.txt, so BBT_RESET_SKILL_COOL_TIME DRAW_TEXT draws nothing. Pack the staged kom_contents/data036_kom/UIMajorParticle.txt into data036.kom." );
+		return;
+	}
+
+	m_pPicCharYellowSmall = new CKTDGPicChar( m_pPicChar, pSeq );
+	m_pPicCharYellowSmall->SetWidth( 18 );		/// June 33458e68 = 18.0, stored at pic-char +0x1c (m_fWidth)
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 void CX2Data::LoadPicChar6()
 {
