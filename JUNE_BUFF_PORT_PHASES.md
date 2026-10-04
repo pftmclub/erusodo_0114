@@ -3129,15 +3129,15 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The RE is
 **1. Runtime popups (the user's decision: follow June, no popup, always log).**
 - **`CX2JuneBuffCapture::RuntimeError( wide / narrow )`:**
   - Inside a capture (the Phase 3 load captures), the text is collected as before.
-  - Otherwise it raises no MessageBox. It writes `StateLog` and, once per (BTI, text), `[JUNE_BUFF] runtime error, BTI <n>: <text> (June raises no popup here; written once per buff and text)` to `ErrorLog.txt`.
+  - Otherwise it raises no MessageBox. Once per (BTI, text) it writes `StateLog` and `[JUNE_BUFF] runtime error, BTI <n>: <text> (June raises no popup here; written once per buff and text)` to `ErrorLog.txt`. `StateLog` sits inside the dedupe too: without the popup that used to throttle it, a per-frame error would otherwise write `State.log` every frame (fixed before the final build, `@@FIX@@`).
   - The narrow overload exists because `DISPLAY_ERROR` is also called with table names.
 - **`CX2JuneBuffRuntimeScope`:** a thread-local BTI. It is set at the top of every `CX2BuffTemplet` runtime entry: `SetFactor`, `SetFactorFromPacket`, the three `OnFrameMove*`, `DoFinishBehavior`, `DoFinishDisplayer`, `SetFactorToOnlyFinalizer` and `SetAccumulationCountNow`. Every behavior, finalizer and displayer runtime call passes through one of those, so a line names its buff. Outside them it prints `BTI 0`.
-- **`DISPLAY_ERROR` is redirected** to `RuntimeError` (with the original's trailing `;`) in the five buff runtime files: `X2BuffBehaviorTemplet.cpp`, `X2BuffFinalizerTemplet.cpp`, `X2BuffDisplayerTemplet.cpp`, `X2BuffTemplet.cpp` and `X2BuffFactor.cpp`. This covers every class popup part 3 listed (NowHp `SelectDelegate`, the mismatch and zero-multiplier popups, every "GetBehaviorFactor didn't work") and the part 5 review's R5 (`GetAccumulationMultiflier`).
+- **`DISPLAY_ERROR` is redirected** to `RuntimeError` (with the original's trailing `;`) in the five buff runtime files, and in `X2BuffTempletManager.cpp` (`@@FIX@@`), where `GetBuffFactorPtrFromBuffFactorList`'s "uiBuffFactorId Invalid" runs during item and skill templet loading (`X2ItemManager.cpp:663`, `X2SkillTree.cpp:663/979`), outside any capture. The five runtime files are `X2BuffBehaviorTemplet.cpp`, `X2BuffFinalizerTemplet.cpp`, `X2BuffDisplayerTemplet.cpp`, `X2BuffTemplet.cpp` and `X2BuffFactor.cpp`. This covers every class popup part 3 listed (NowHp `SelectDelegate`, the mismatch and zero-multiplier popups, every "GetBehaviorFactor didn't work") and the part 5 review's R5 (`GetAccumulationMultiflier`).
 - **`X2GameUnit.cpp`'s four buff runtime popups** are converted: "SkillTemplet Invalid", and "Behavior Type Invalid" in Insert/Update/`EraseAdditionalStat`.
 - **The silent exits in parts 1–5's June bodies** now log: 31 `return false;` become `return DISPLAY_ERROR( L"<Class>::<method>: <reason>" )`. They cover "GetBehaviorFactor didn't work", "BUFF_CHANGE_TYPE MISS MATCH", "ACCUMULATION_MULTIPLIER is 0", "BUFF_FACTOR_ID is 0", "the user has no CX2Unit", "unknown BUFF_CHANGE_TYPE" and "BUFF_CHANGE_TYPE is neither FIX nor PERCENT". The four `ParsingBehavior` exits were left alone, because the Phase 3 capture already reports a failed parse.
 - **Left as they are:**
   - `X2BuffFactor.h`'s inline `GetRate`/`SetRate` "Rate is Empty!". The next statement's `.at( 0 )` throws on an empty vector anyway, and the file is a PCH header.
-  - `X2BuffTempletManager.cpp`'s load-time sites (Phase 3 capture), and its `GetBuffFactorPtr` lines (already logged once per id).
+  - `X2BuffTempletManager.cpp`'s other sites run inside the Phase 3 captures, where the redirect hands the text over exactly as before; `GetBuffFactorPtr` already logs once per id.
 
 **2. `BFT_TIME` (`X2BuffFinalizerTemplet.h/.cpp`, `X2BuffTemplet.h/.cpp`, `X2GameUnit.h`).**
 - **`GetFactor`** appends `m_fFullDurationTime` as a third value (`32ec5290`); `[0]`/`[1]` keep their place.
@@ -3232,17 +3232,18 @@ Time's slots 14/15 (set/get duration) have no caller outside the vtable and are 
 - The Hamel secret dungeon weapon buff (OnlyMyClass).
 - Any create-gap effect buff re-applied while it runs.
 
-**Where 4b-ii stopped / hand-offs.** Phase 4b is complete apart from the items below; none of them blocks Phase 5.
+**Where 4b-ii stopped / hand-offs.** The class slots of every BFT and BDT are diffed and the census gate is met. Phase 4b is **not** complete: item 7 below (the unit-side stores and read sites behind the displayer and counter slots) was not diffed. None of these items blocks Phase 5.
 1. **Added Phase 8 scope.** The shake trigger: `CX2Game +0xbae` set from input actions `0x25`/`0x26` in the `322f7470` block, and `OnFrameMoveBuff` calling `CX2BuffTemplet::DecreaseDurationByShake` for my user unit, bumping `+0x6dd0`. It sits with BFT 15's input block and the sync counter. Phase 8 must first map June's action codes `0x25`/`0x26` (June's `GAME_ACTION` has more skill slots than March's; LEFT/RIGHT is the likely pair) and what `31c488c0`'s byte array is.
 2. **Character port** (`JUNE2017_CHARACTER_PORT_CHECKLIST.md`): FROZEN_TIME's record/unfreeze (`31fe2a80`, `3200bde0`, `3227beb0`; `+0x81fc` and vslot 329 to map) with Rose; StateChange's `+0x89d8` (`31fe0bb0`).
 3. **Effect port:** EffectSet's awakening item override, the creator visibility flag, displayer slot 5.
 4. **Socket port:** the debuff-duration decrease (`m_SocketData +0x2dc` → additional-stat member `+0x7388`).
 5. **HIT_COUNT `ATTACK_TYPE`:** per-attack-type hit counters, if June data ever uses it (none does).
+7. **Unit-side stores and read sites not diffed (4b scope, resume here).** The displayer slots match March, but the June unit functions they call were not compared with March's: render param insert/erase `3227ac80`/`32279b20` and by-unit-type unit vslot 154; after-image `3227b220`/`3227a2f0`; weapon after-image `3227b300`/`3227a3a0`; impact point / hitted / normal attack erase `3227a180`/`3227a220`/`3227a4c0` (and their inserts from `32eb78f0`); the slash-trace field `+0x4238`; and where each store is read. The same goes for the finalizer counters: hit `+0x4231`, hitted `+0x4230` and their increment sites (the March hit/hitted sites are listed in the ledger's runtime map).
 6. **Review of 4b-ii:** required (Opus 5.5). Suggested spot-checks:
    - `32ec27d0` @`32ec33bd` (the `+0x64`/`+0x66` test order and the `> 0` gate);
    - `32ec3610`'s two x87 compares;
    - `32eb9c70`'s gate (`+0x264` 0 and 1 only);
-   - `32eb8c30`'s twelve key lengths against the decrypted bytes;
+   - (`32eb8c30`'s keys are settled: AISHA and RENA, the two `xorstrings.tsv` lacked, were decrypted from the function's own init constants, and ELSWORD/EVE decode the same way as a control);
    - the "not diffed byte for byte" list above;
    - whether any March runtime path reaches a buff `DISPLAY_ERROR` outside the five redirected files.
 
