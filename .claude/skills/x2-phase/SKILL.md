@@ -48,6 +48,10 @@ Verify against `git log --oneline -15` before claiming a phase is done; STATUS c
 5. **Do the task** in the kickoff. Standing rules (CLAUDE.md, memory) still apply: one
    `SERV_IRUHADEV_` flag per logical change in `KTDXLIB/Always.h`, original code in `#else`,
    cite June addresses, never invent values, design decisions go back to the user.
+   **June bugs and quirks are kept verbatim without asking** (user rule, 2026-10-04): a leak, an
+   off-by-one, a value June sends as 0, a wrong-looking order. Port it as June has it, and record it
+   as a Phase 14 / play-test note in the Done or Review note, not as a question. Ask only when
+   copying June would break March (a crash, an unloadable script, a missing enum or system).
 
 ## Tools (use these, not hand-rolled equivalents)
 

@@ -2148,6 +2148,7 @@ Rules for all seven sessions:
   - Add on this branch is incomplete and will be ported from June; do not extend March's Add.
 - **Escalation rule (Sonnet sessions).** If the map does not settle a type (missing layout, store or read site), do **not** reverse-engineer or guess it. Skip that type, mark it "Opus-only" in the doc with what is missing, and keep going.
 - **Opus sessions that hit a design decision** (a deviation from June, a DamageData key March lacks, a system March does not have): stop that type, write the question into the doc's Done note, and continue with the others. Hand the decision to the user. Do not choose silently.
+- **June bugs and quirks are kept verbatim; never ask** (user, 2026-10-04, after the Phase 7 review asked about the 94 restack leak). If June has a leak, an off-by-one, a value it always sends as 0, or an odd order, port it exactly and record it as a Phase 14 note. That is not a design decision. Ask only when copying June would break March: a crash, an unloadable script, or a missing enum or system.
 - Done means: `buff_census.py` lists none of the phase's types, the build is rc=0 with the PCH invalidated (`touch X2Lib/stdafx.cpp`), and the strings are in the deployed exe. `buff_census.py --phase <N>` lists the whole census group (for 5b, 5c and 7b that is wider than the sub-phase), so check the named types only.
 - Write a per-type **"how to see it in game"** line (a June BTI/BFI and where it comes from) into the Done note, for Phase 14.
 - Record the session's `/cost` or usage in the Done note. Commit.
@@ -2732,7 +2733,7 @@ The 4 are the plain `#else` lines (the two stubs and the two jump gates), as the
   - By quirk 1 the leftover entry also holds the count as a BTI: 1 = `BTI_DEBUFF_SILENCE` for an empty or one-entry list, 4 = `BTI_SI_SA_EMK_PHOENIX_TALON` for Bloodlust's four.
   - The two sets are keyed by BTI and are not affected.
 - **Latent with June data.** June has five 94 factors on four templets: Bloodlust ×2, Sleep, Infinity Potential and Alptraum Ready. All four templets have `ACCUMULATION_LIMIT = 1` (`BattleFieldBuffTemplet.src.lua:23619`, `:24717`, `:26536`, `:33369`). The count only increments when the limit is above 1 (`X2BuffTemplet.cpp:229`), and it reads 0 otherwise (`:316`). So every June restack takes the erase-first branch, and the leak never fires.
-- **Your call:** keep June's code (current state), or make `DoFinish` erase every entry with that identity under a new flag. Recommendation: keep it, since no June data reaches it.
+- **Decided (user, 2026-10-04): keep June's behaviour.** No code change. The user made this a standing rule: June bugs and quirks are kept verbatim without asking (see "Shared checklist").
 
 **New Phase 14 note: quirk 2 also hits the player's own unit.**
 - A field↔dungeon move saves the unit's buffs through `GetBuffFactor`. That goes through `GetFactor`, which sends `ALL_BUFF = ALL_DEBUFF = 0` (`X2GageManager.cpp:3539`).
