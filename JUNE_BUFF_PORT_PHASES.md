@@ -5109,6 +5109,11 @@ How the lines were checked:
   - The effect was spawned twice (18:54:36, :39). As predicted, the mesh is missing: `ErrorLog.txt:182` `OpenXSkinMesh … RHB_LOCKON_STRATOS_ATTACK.X`, and `offline_server.log:120-127` `no XMesh templet` / `effect not live`. No crash.
   - The one-shot `first read BBT 91` had already fired at 18:49:13 from the console read (`:178`), which was pasted first. So the spawn could not print it, and the live host path is still read-verified only. It is neither shown nor failed.
   - To show it: fresh launch, paste the 363 setup line, apply 363, then spawn, with no read line before the spawn.
+- **2b rerun (fresh launch 18:57:10; the 91 factor renumbered to BFI 362, since 362 is the first free id; no read line pasted): passed.**
+  - `ErrorLog.txt:173` `first apply BBT 91 … 2 block(s), first rate 0.5`.
+  - At 18:57:40 the spawn: `:174` `OpenXSkinMesh … RHB_LOCKON_STRATOS_ATTACK.X`, then `:175` `first read BBT 91: skill 31012 MP gain x 2`, in the same second.
+  - No console read ran in this launch, so that line came from the live path: `SetDamageDataFromLUA` → `SetDamageExceptionProcess` → the slot-109 virtual `GetChargeMpRateByBuff` → the store. 91's host is now shown, not only read-verified.
+  - No ordinal reject for 362; the load summary is the usual baseline.
   - The `JUNE_FX unsupported APPLIED_SKILL_ID … (31012/0)` line at `offline_server.log:125` is a diagnostic from the effect port (`X2DamageEffect.cpp:1637`). It logs the effect's own copy of the key and clears nothing in `m_DamageData`.
 
 **Play-test hand-off (dev console, END key; `settings.auth_level` = 3 is already set).**
