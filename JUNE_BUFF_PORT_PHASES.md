@@ -3083,6 +3083,39 @@ Fresh tools only; part 5's patch and unifdef scripts were not reused:
 
 **Review cost:** `/cost` is not readable from inside the session; ask the user.
 
+### Phase 4b-ii — RE (2026-10-04)
+
+Recorded before any 4b-ii code. Ghidra read-only; uncarved slots read with a fresh capstone reader over the PE (scratch only).
+
+**Factor side, all 14 BFT: same as March.**
+- Parse switch `32d4c750`: 1 `32d42da0`, 2 `32d430f0`, 3 `32d433d0`, 5 `32d436b0`, 6 `32d43b00`, 7 `32d43e90`; 4 and 8–14 the empty parse `32d44230`. That is March's `CASE_FINALIZER_FACTOR(_SKILL)` list.
+- The six parses read the same keys in the same order and push the same floats: Time `[type, table]` (NORMAL_TIME / RANDOM_TIME / FORCE_TIME by type 1/2/3, anything else fails); Hit/Hitted `[type, COUNT table, 0.0]`; DamageValue `[type, FIX_VALUE table]` or `[2, 0.0, BUFF_RELATION_TYPE, MULTIPLIER table]`, other types fail; PassHp/PassMp `[PASS_UP 1/0, BUFF_CHANGE_TYPE, CRITERION table]`.
+- Level slice `32d4cb00`: 1 `32d482d0`, 2 `32d48640`, 3 `32d487f0`, 5 `32d489a0`, 6 `32d48b90`, 7 `32d48d20`, 15/16 (Phase 8), default `{type}` with no values. Each equals March's `PushFinalizer*ToLevel`, including the HYPER_MODE_COUNT quirk (`[level+1] > 0` gates the push in both branches) and Hit/Hitted dropping BUCT 3/4.
+- Finalizer SGU (second loop of `32d4d670`): 1 `32d419b0` (HYPER: `SetForceHyperModeTime(last)` + `GetHyperModeTime()`), 2 `32d412c0` / 3 `32d413b0` (`v[2] = v[1]` or `v[1] × GetAppliedBuffCount(false/true)`), 5 `32d414a0` (`UpdateValueByRelationType`). March's `SetGameUnitFinalizer` has the same four. **Correction to part 1:** "finalizer SGU has an extra case 5" — March already has `BFT_DAMAGE_VALUE` there.
+
+**`BFT_RIDING_ON_OR_NOT` `FINISH_WHEN_RIDING_ON`: not read by June either (census exclusion, both origins).**
+- The key's only reader is `32ebfd60`, which has no `E8`/`E9` caller and no pointer reference: it is the class's hiding, non-virtual `ParsingFinalizerTemplateMethod`, as in March (`X2BuffFinalizerTemplet.cpp`, `RIDING_SYSTEM`).
+- Factory `32ec36f0` case 12 calls the base template `32ec0580` like every other case: `BeginTable(name)`, vtable `+0x30` (slot 12), `EndTable`. Riding's slot 12 is the base `32ec5990` (true). So `m_bFinishRidingOn` stays false in June as in March. The factor-level copies sit on the empty parse `32d44230`.
+
+**`CX2BuffTimeFinalizerTemplet` (vt `33537e1c`, 16 slots).** Members: protected duration `+0x1c`, full duration `+0x28`, frozen `+0x2c`, FROZEN_TIME `+0x2d`, duration type `+0x30`, BTI `+0x34`, notified `+0x38`, last shown second `+0x3c`; three base floats `+4` (shake decreased so far), `+8` (SHAKE_DECREASE_MAX_TIME), `+0xc` (SHAKE_DECREASE_TIME_AT_ONCE). The copy ctor `32ec65a0` copies every one of them (base refcount and reserve reset, as March's base copy ctor), so March's implicit copy ctor is right.
+
+| Slot | June | Verdict |
+|---|---|---|
+| 1 OnFrameMove | `32ec2670` | March's body (tick, 5 s notify, per-second `SetDurationTime`; `BUFF_ICON_UI` and `DISPLAY_BUFF_DURATION_TIME` are on), all inside `if ( !frozen )` |
+| 2 SetFactor | `32ec27d0` | March's three duration branches (resist = unit slot 194 with the templet = March's `GetEnchantResist(regist)/EAR_MAX`; random = slot 114 `GetRandomInt(0)`), then `GetReduceDebuffDurationRate` (slot 167), then **new:** for a debuff templet (`+0x64`) that is not a world buff (`+0x66`), `× (1 − r)` when the unit's additional-stat result at `+0x7428` is > 0; `+0x28 = duration`; FROZEN_TIME hook; BTI and notified as March. No popups |
+| 4 DidFinish | `32ebef20` | same (`reserve || duration <= 0`) |
+| 5 GetFactor | `32ec5290` | appends `+0x28` as a third value (Phase 4a review R1) |
+| 6 SetBuffTempletID | `32ec6840` | same |
+| 8 restart | `32ec6b30` | ported in 4a |
+| 11 new | `32ec3610` | shake decrease, below |
+| 12 ParsingFinalizer | `32ebe8b0` | `BUFF_DURATION_TIME_TYPE` (required), `FROZEN_TIME` (bool, default false; also copied to `+0x2c`), `SHAKE_DECREASE_TIME_AT_ONCE` → `+0xc`, `SHAKE_DECREASE_MAX_TIME` → `+8` (floats, default 0) |
+| 13 packet | `32ec53d0` | March's, then `+0x28 = size > 2 ? v[2] : 0` |
+| 14 / 15 | `32ec3580` / `32ebef60` | set / get duration; no caller outside the vtable found |
+
+- **Debuff multiplier (`+0x7428`).** It is `M+0xa0` of an additional-stat member at `+0x7388` (the next one is `+0x743c`, 0xb4 apart). No `InsertAdditionalStat` case writes it; the only seeds are `InitAdditionalStatOptionValue` (`@322711e9`: `m_SocketData +0x2dc`, a June socket-option field March's socket data lacks), the basic/passive initialisers and the refresh. **Port: dormant**, a `CX2GameUnit` value that stays 0.0 with no March writer, applied at June's point.
+- **FROZEN_TIME.** At `SetFactor`, a frozen-capable finalizer sets `+0x2c = 1` and, for a user, `31fe2a80( BTI )` pushes `{ BTI, (WORD) protected +0x81fc }` into a user vector `+0x9450` (or updates that BTI's word). `CX2GUUser::CommonStateStart` (`@320606b0` → `3200bde0`) unfreezes and erases every entry whose word differs from user vslot 329 (`3208e410`: field `+0xc` of the record the protected state pointer `+0x7cbc` points at), through `3227beb0( BTI, false )` (each finalizer of that buff that `dynamic_cast`s to the Time class gets `+0x2c = false`). An NPC with the key is never unfrozen. **Not portable on March:** `+0x81fc` is a class-gated protected word (its other readers test `GetUnit()+0xaf0` type 10 = `UT_LUCIEL` and compare it to 1) and vslot 329 has no identified March counterpart. The only data is Rose's passive `BTI_BUFF_HEAVYFIREARMS_MASTERY` (`RNSI_P_RSR_HEAVYFIREARMS_MASTERY`). **Port: parse and store; never freeze; log once per BTI.** Freezing without the unfreeze would make the buff permanent.
+- **SHAKE_DECREASE.** Slot 11 `32ec3610`: if `max > done`: `d = min( atOnce, max − done )`, `done += d`, `duration −= d`, return true; else false (base slot 11 `31e4c550` returns false). `CX2BuffTemplet` `3236c990` runs slot 11 on a copy of the finalizer list and returns true if any did. Its caller is `OnFrameMoveBuff` (`@3229d744`), per templet, only for my user unit and only when `CX2Game +0xbae` is set; a true result bumps the `+0x6dd0` sync counter (Phase 8). `+0xbae` is written once per frame in the `CX2Game` input routine `322f7470` (`@322f74ed`), the same block that feeds BFT 15's counter (`31fc9fa0`), from `322cfc60` = input object (`[g_pKTDXApp+0x1f8]`) action states `0x25` and `0x26` both set (`31c488c0`: byte `+0x4d + n`). **Port: the data side dormant** (keys, members, slot 11, the `CX2BuffTemplet` helper); the trigger goes to Phase 8 with the BFT 15 input block and the counter. One `[JUNE_BUFF] unsupported` line per BTI when such a finalizer starts. Data: only `BTI_AMUSEMENT_ITEM_WATER_BALLOON_IN_DAMAGE` (max 2, at once 0.1).
+
 ## Phases 5–7 — New behavior types
 
 Phases 5–7 are split into seven sessions. Each has its own scope, its own run-with line and a **ready-to-paste kickoff prompt and review prompt with nothing to substitute**. Take the prompt of the phase you are starting, and no other.
