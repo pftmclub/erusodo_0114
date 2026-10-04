@@ -10123,6 +10123,17 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 
         if( true == bLocalUnit )
 		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+			/// June 327b1f30 @327b4b91: neither a natural-force bomb (DamageData +0x56c, NFT_RESULT_BOMB = 4)
+			/// nor DT_BUFF damage (DamageData +0x0 == 6, e.g. damage over time) counts as hitted.
+#ifdef ADD_RENA_SYSTEM
+			if ( CX2DamageManager::NFT_RESULT_BOMB != pDamageData->m_NaturalForceType &&
+#else // ADD_RENA_SYSTEM
+			if ( 4 /*NFT_RESULT_BOMB*/ != pDamageData->m_iNaturalForceType &&
+#endif // ADD_RENA_SYSTEM
+				 CX2DamageManager::DT_BUFF != pDamageData->damageType )
+				SetHittedCount( GetHittedCount() + 1 );
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	#ifdef ADD_RENA_SYSTEM
 			/// NF를 통해 발생된 폭발은 HitCount에 추가하지 않는다.
 			if ( CX2DamageManager::NFT_RESULT_BOMB != pDamageData->m_NaturalForceType )
@@ -10130,6 +10141,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	#else // ADD_RENA_SYSTEM
 			SetHittedCount( GetHittedCount() + 1 );
 	#endif // ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 			UpNowHp( -fFinalDamage );
 
 
@@ -13362,9 +13374,25 @@ void CX2GUNPC::AttackResult()
 		} break;
 	}    
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 3276a320 @3276ae07: the hit also counts for the NPC's owner (June 32759f00 =
+	/// GetOwnerGameUnit, the observer at +0x8d5c), so a summon's hits feed its summoner's
+	/// BFT_HIT_COUNT. June's per-attack-type counters (+0x4232 + attack type, both units) are
+	/// HIT_COUNT ATTACK_TYPE's (Phase 4b-ii hand-off 5) and are not ported.
+	if ( CX2DamageManager::RT_DUMMY_DAMAGE != m_DamageData.reActResult &&
+		 IsLocalUnit() )
+	{
+		SetHitCount( GetHitCount() + 1 );
+
+		CX2GUUser* pOwnerGameUnit = GetOwnerGameUnit();
+		if ( NULL != pOwnerGameUnit )
+			pOwnerGameUnit->SetHitCount( pOwnerGameUnit->GetHitCount() + 1 );
+	}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	if ( CX2DamageManager::RT_DUMMY_DAMAGE != m_DamageData.reActResult &&
 		 IsLocalUnit() )
 		SetHitCount( GetHitCount() + 1 );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 	if( IsLocalUnit() == true && m_DamageData.m_bDrain == true && NULL != pDefender)
 	{

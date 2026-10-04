@@ -1060,7 +1060,12 @@ void CX2EffectSetImpactPointByBuff::PlayEffectSetNormalAttackByBuff( CX2GameUnit
 {
 	if ( NULL != g_pX2Game )
 	{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 3236ed60: every attack type but AT_SPECIAL (1) plays, so AT_COMMAND (2) does too.
+		if ( m_fNowCoolTime >= m_fCreateGap && CX2DamageManager::AT_SPECIAL != eAttackType )
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		if ( m_fNowCoolTime >= m_fCreateGap && CX2DamageManager::AT_NORMAL == eAttackType )		/// 积己 埃拜捞 瘤车绊, 老馆 傍拜老锭 积己 贸府
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		{
 			g_pX2Game->GetEffectSet()->PlayEffectSet( m_wstrEffectSetName, pGameUnit_, 
 				NULL, ( 0.0f < pGameUnit_->GetRemainHyperModeTime() ), pGameUnit_->GetPowerRate(), -1.f, D3DXVECTOR3( 1.0f, 1.0f, 1.0f ) );

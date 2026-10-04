@@ -139,6 +139,63 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 		return DISPLAY_ERROR( pszTableNameUTF8_ );	
 }
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+/// June 32eb7d50 (BDT_RENDER_PARAM) and 32ebad40 (BDT_RENDER_PARAM_BY_UNIT_TYPE): each of the six keys is
+/// stored only when the script has it (June pushes it into a one-element slot) and
+/// CX2GameUnit::ApplyRenderParam (June 32275140) overrides only those. A missing key keeps the
+/// Initializer() value, so the value members read as before. FLICKER_COLOR_GAP is a plain value,
+/// read only by BDT_RENDER_PARAM, 0 when missing, as in March.
+/*static*/ void CX2BuffRenderParamDisplayerTemplet::JuneParsingBuffRenderParam( KLuaManager& luaManager_, BuffRenderParam& stBuffRenderParam_, const bool bReadFlickerColorGap_ )
+{
+	int iRenderType = 0;
+	if ( luaManager_.GetValue( "RENDER_TYPE", iRenderType ) )
+	{
+		stBuffRenderParam_.m_eRenderType = static_cast<CKTDGXRenderer::RENDER_TYPE>( iRenderType );
+		stBuffRenderParam_.m_bHasRenderType = true;
+	}
+
+	int iCartoonTexType = 0;
+	if ( luaManager_.GetValue( "CARTOON_TEX_TYPE", iCartoonTexType ) )
+	{
+		stBuffRenderParam_.m_eCartoonTexType = static_cast<CKTDGXRenderer::CARTOON_TEX_TYPE>( iCartoonTexType );
+		stBuffRenderParam_.m_bHasCartoonTexType = true;
+	}
+
+	float fOutLineWide = 0.0f;
+	if ( luaManager_.GetValue( "OUT_LINE_WIDE", fOutLineWide ) )
+	{
+		stBuffRenderParam_.m_fOutLineWide = fOutLineWide;
+		stBuffRenderParam_.m_bHasOutLineWide = true;
+	}
+
+	D3DXCOLOR d3dxColorOutLine( 1.0f, 1.0f, 1.0f, 1.0f );
+	if ( luaManager_.GetUserDefinedTypeValue( "COLOR_OUT_LINE", d3dxColorOutLine ) )
+	{
+		stBuffRenderParam_.m_d3dxColorOutLine = d3dxColorOutLine;
+		stBuffRenderParam_.m_bHasColorOutLine = true;
+	}
+
+	D3DXCOLOR d3dxColor( 1.0f, 1.0f, 1.0f, 1.0f );
+	if ( luaManager_.GetUserDefinedTypeValue( "COLOR", d3dxColor ) )
+	{
+		stBuffRenderParam_.m_d3dxColor = d3dxColor;
+		stBuffRenderParam_.m_bHasColor = true;
+	}
+
+	bool bAlphaBlend = false;
+	if ( luaManager_.GetValue( "ALPHA_BLEND", bAlphaBlend ) )
+	{
+		stBuffRenderParam_.m_bAlphaBlend = bAlphaBlend;
+		stBuffRenderParam_.m_bHasAlphaBlend = true;
+	}
+
+#ifdef SERV_ADD_LUNATIC_PSYKER
+	if ( bReadFlickerColorGap_ )
+		LUA_GET_VALUE( luaManager_, "FLICKER_COLOR_GAP", stBuffRenderParam_.m_fFlickerColorGap, 0.f );
+#endif //SERV_ADD_LUNATIC_PSYKER
+}
+
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /** @function : ParsingDisplayer
 	@brief : 게임유닛에 적용할 RenderParam 변경 정보를 템플릿을 루아로 부터 읽어들이는 함수
 	@param : 읽어들이려는 스크립트의 루아매니저(luaManager_)
@@ -150,6 +207,10 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 	TableBind( &luaManager_, g_pKTDXApp->GetLuaBinder() );
 #endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 32eb7d50: only the keys the script has are stored (see JuneParsingBuffRenderParam).
+	JuneParsingBuffRenderParam( luaManager_, m_stBuffRenderParam, true );
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	LUA_GET_VALUE_ENUM( luaManager_, "RENDER_TYPE", m_stBuffRenderParam.m_eRenderType, CKTDGXRenderer::RENDER_TYPE, CKTDGXRenderer::RT_REAL_COLOR );
 	LUA_GET_VALUE_ENUM( luaManager_, "CARTOON_TEX_TYPE", m_stBuffRenderParam.m_eCartoonTexType, CKTDGXRenderer::CARTOON_TEX_TYPE, CKTDGXRenderer::CTT_NORMAL );
 	LUA_GET_VALUE( luaManager_, "OUT_LINE_WIDE", m_stBuffRenderParam.m_fOutLineWide, 0.0f );
@@ -168,6 +229,7 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	LUA_GET_VALUE( luaManager_, "FLICKER_COLOR_GAP", m_stBuffRenderParam.m_fFlickerColorGap, 0.f );
 #endif //SERV_ADD_LUNATIC_PSYKER
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 	return true;
 }
@@ -230,6 +292,11 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 			CX2Unit::UNIT_TYPE eUnitType = CX2Unit::UT_NONE;
 			LUA_GET_VALUE_ENUM( luaManager_, "UNIT_TYPE", eUnitType, CX2Unit::UNIT_TYPE, CX2Unit::UT_NONE );
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+			/// June 32ebad40: the same six keys, each stored only when present; no FLICKER_COLOR_GAP
+			/// (neither June nor March reads it here).
+			CX2BuffRenderParamDisplayerTemplet::JuneParsingBuffRenderParam( luaManager_, *ptrStBuffRenderParam, false );
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 			LUA_GET_VALUE_ENUM( luaManager_, "RENDER_TYPE", ptrStBuffRenderParam->m_eRenderType, CKTDGXRenderer::RENDER_TYPE, CKTDGXRenderer::RT_REAL_COLOR );
 			LUA_GET_VALUE_ENUM( luaManager_, "CARTOON_TEX_TYPE", ptrStBuffRenderParam->m_eCartoonTexType, CKTDGXRenderer::CARTOON_TEX_TYPE, CKTDGXRenderer::CTT_NORMAL );
 			LUA_GET_VALUE( luaManager_, "OUT_LINE_WIDE", ptrStBuffRenderParam->m_fOutLineWide, 0.0f );
@@ -245,6 +312,7 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 #endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
 
 			LUA_GET_VALUE( luaManager_, "ALPHA_BLEND", ptrStBuffRenderParam->m_bAlphaBlend, false );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 			pair<map<CX2Unit::UNIT_TYPE, StBuffRenderParamPtr>::iterator, bool> pairReturn 
 				= m_mapStBuffRenderParamPtr.insert( make_pair( eUnitType, ptrStBuffRenderParam ) );

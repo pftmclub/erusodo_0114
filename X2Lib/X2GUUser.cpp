@@ -8980,6 +8980,17 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 
 		if ( IsMyUnit() )
 		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+			/// June 320462a0 @320489d7: neither a natural-force bomb (DamageData +0x56c, NFT_RESULT_BOMB = 4)
+			/// nor DT_BUFF damage (DamageData +0x0 == 6, e.g. damage over time) counts as hitted.
+#ifdef ADD_RENA_SYSTEM
+			if ( CX2DamageManager::NFT_RESULT_BOMB != pDamageData->m_NaturalForceType &&
+#else // ADD_RENA_SYSTEM
+			if ( 4 /*NFT_RESULT_BOMB*/ != pDamageData->m_iNaturalForceType &&
+#endif // ADD_RENA_SYSTEM
+				 CX2DamageManager::DT_BUFF != pDamageData->damageType )
+				SetHittedCount( GetHittedCount() + 1 );
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef ADD_RENA_SYSTEM
 			/// NF를 통해 발생된 폭발은 HitCount에 추가하지 않는다.
 			if ( CX2DamageManager::NFT_RESULT_BOMB != pDamageData->m_NaturalForceType )
@@ -8987,6 +8998,7 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #else // ADD_RENA_SYSTEM
 			SetHittedCount( GetHittedCount() + 1 );
 #endif // ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		}
 
 #ifdef DUNGEON_ITEM
@@ -14227,6 +14239,18 @@ void CX2GUUser::CommonStateStart()
 		v2AfterImage.y	= -1.0f;
 		DisableAfterImage();
 	}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June CommonStateStart 32057b80 @3205b70d: the state's AFTER_IMAGE_COLOR (key from the
+	/// function's own XOR bytes at 3379d708), 0.8 gray (3343b240, fld1) when missing; EnableAfterImage
+	/// uses it while no buff after-image is on. June's second AFTER_IMAGE table (+0x852c, its
+	/// alternate after-image) is a June-only system and is not read here.
+	{
+		D3DXCOLOR coAfterImageColor( 0.8f, 0.8f, 0.8f, 1.0f );
+		if ( false == m_LuaManager.GetUserDefinedTypeValue( "AFTER_IMAGE_COLOR", coAfterImageColor ) )
+			coAfterImageColor = D3DXCOLOR( 0.8f, 0.8f, 0.8f, 1.0f );
+		m_coAfterImageColorByState = coAfterImageColor;
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 	if( IsFocusUnit() == true && m_FrameDataNow.stateParam.bResetCamera == true )
 	{

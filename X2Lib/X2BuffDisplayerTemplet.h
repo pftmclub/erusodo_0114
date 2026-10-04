@@ -99,6 +99,17 @@ public:
 #ifdef SERV_ADD_LUNATIC_PSYKER // ±èÅÂÈ¯
 		float				m_fFlickerColorGap;					/// RenderParam Áß color ¹ÝÂ¦ÀÌ´Â °£°Ý
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 32eb7d50 / 32ebad40 keep each key in an empty-or-one slot and ApplyRenderParam
+		/// (June 32275140) overrides only the slots a script set. These say which keys were set;
+		/// the value members above keep March's defaults for anything that reads them by value.
+		bool				m_bHasRenderType;
+		bool				m_bHasCartoonTexType;
+		bool				m_bHasOutLineWide;
+		bool				m_bHasColorOutLine;
+		bool				m_bHasColor;
+		bool				m_bHasAlphaBlend;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 		BuffRenderParam() 
 #ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
@@ -119,6 +130,11 @@ public:
 #ifdef SERV_ADD_LUNATIC_PSYKER // ±èÅÂÈ¯
 		, m_fFlickerColorGap( rhs_.m_fFlickerColorGap )
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		, m_bHasRenderType( rhs_.m_bHasRenderType ), m_bHasCartoonTexType( rhs_.m_bHasCartoonTexType )
+		, m_bHasOutLineWide( rhs_.m_bHasOutLineWide ), m_bHasColorOutLine( rhs_.m_bHasColorOutLine )
+		, m_bHasColor( rhs_.m_bHasColor ), m_bHasAlphaBlend( rhs_.m_bHasAlphaBlend )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		{}
 
 		void Initializer()
@@ -132,6 +148,14 @@ public:
 #ifdef SERV_ADD_LUNATIC_PSYKER // ±èÅÂÈ¯
 			m_fFlickerColorGap	= 0.f;
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+			m_bHasRenderType	= false;
+			m_bHasCartoonTexType	= false;
+			m_bHasOutLineWide	= false;
+			m_bHasColorOutLine	= false;
+			m_bHasColor			= false;
+			m_bHasAlphaBlend	= false;
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		}
 
 #ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
@@ -144,6 +168,10 @@ public:
 	};
 
 	static CX2BuffDisplayerTempletPtr	CreateBuffDisplayerTempletPtr() { return CX2BuffDisplayerTempletPtr( new CX2BuffRenderParamDisplayerTemplet ); }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 32eb7d50 / 32ebad40: stores each render-param key only when the script has it (m_bHas*).
+	static void JuneParsingBuffRenderParam( KLuaManager& luaManager_, BuffRenderParam& stBuffRenderParam_, const bool bReadFlickerColorGap_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 	virtual void StartDisplayer( CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
 	virtual CX2BuffDisplayerTempletPtr	GetClonePtr() const;

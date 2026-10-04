@@ -172,6 +172,9 @@ m_fNoSkillTime( 0 )
 , m_ucNumOfBuff( 0 )
 , m_eUnitSlashTraceConditionToDo( CX2UnitSlashTraceManager::STC_NONE )
 , m_pAfterImage( NULL )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+, m_coAfterImageColorByState( 0.8f, 0.8f, 0.8f, 1.0f )	/// June ctor @322a5e05: 0.8 (3343b240) x3, fld1
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #ifdef SERV_ARME_DIMENSION_WITCH
 , m_fHitCreateDamageEffectRate ( 0.f )
@@ -13273,6 +13276,48 @@ void CX2GameUnit::EraseAllBuffAndExtraDamage()
 		return;
 	#endif //RIDING_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	/// June 32275140 (after the +0x6840 m_bPassDash return above): the unit's own render param
+	/// (vslot 197, ApplyRenderParamOnEmptyRenderParamByBuff, base 3226e190 and the Ara/Aisha/Chung/
+	/// Eve/Raven overrides, all as March) goes on first, every frame. With no buff render param the
+	/// world light follows (vslot 199), as in March. Otherwise the newest buff render param
+	/// overrides only the keys its script set; COLOR flickers when FLICKER_COLOR_GAP > 0.0
+	/// (334350e8), through GetFlickerColorByBuff (June 322722e0, as March).
+	ApplyRenderParamOnEmptyRenderParamByBuff( pRenderParam_ );
+
+	if ( m_vecRenderParamByBuffPtr.empty() )
+	{
+		ApplyWorldLightColor( pRenderParam_ );
+	}
+	else
+	{
+		CX2RenderParamByBuffPtr ptrBuffRenderParam = m_vecRenderParamByBuffPtr.back();
+		if ( NULL != ptrBuffRenderParam )
+		{
+			const StBuffRenderParam& stBuffRenderParam = ptrBuffRenderParam->GetBuffRenderParam();
+
+			if ( stBuffRenderParam.m_bHasRenderType )
+				pRenderParam_->renderType = stBuffRenderParam.m_eRenderType;
+			if ( stBuffRenderParam.m_bHasCartoonTexType )
+				pRenderParam_->cartoonTexType = stBuffRenderParam.m_eCartoonTexType;
+			if ( stBuffRenderParam.m_bHasOutLineWide )
+				pRenderParam_->fOutLineWide = stBuffRenderParam.m_fOutLineWide;
+			if ( stBuffRenderParam.m_bHasColorOutLine )
+				pRenderParam_->outLineColor = stBuffRenderParam.m_d3dxColorOutLine;
+			if ( stBuffRenderParam.m_bHasColor )
+			{
+#ifdef SERV_ADD_LUNATIC_PSYKER
+				if ( 0.f < stBuffRenderParam.m_fFlickerColorGap )
+					pRenderParam_->color	= GetFlickerColorByBuff( stBuffRenderParam.m_d3dxColor, stBuffRenderParam.m_fFlickerColorGap );
+				else
+#endif //SERV_ADD_LUNATIC_PSYKER
+					pRenderParam_->color	= stBuffRenderParam.m_d3dxColor;
+			}
+			if ( stBuffRenderParam.m_bHasAlphaBlend )
+				pRenderParam_->bAlphaBlend = stBuffRenderParam.m_bAlphaBlend;
+		}
+	}
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	if ( m_vecRenderParamByBuffPtr.empty() )
 	{
 		ApplyRenderParamOnEmptyRenderParamByBuff( pRenderParam_ );
@@ -13300,6 +13345,7 @@ void CX2GameUnit::EraseAllBuffAndExtraDamage()
 				pRenderParam_->color	= stBuffRenderParam.m_d3dxColor;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 }
 
 /** @function : ApplyHyperModeBuff
@@ -14209,6 +14255,14 @@ void CX2GameUnit::EnableAfterImage()
 			m_pAfterImage->Enable();
 			if ( !m_vecAfterImageByBuff.empty() )
 				m_pAfterImage->SetAfterImageColor( m_vecAfterImageByBuff.back()->GetColor() );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+			/// June 32275a30: with no buff after-image the colour is the state's AFTER_IMAGE_COLOR
+			/// (unit +0x6880, 0.8 gray unless a user state sets it), set on every enable. June also picks
+			/// between two after-images (mode 0/1/3, unit vslot 152 = user +0x8e90): a June-only system,
+			/// always the first after-image here.
+			else
+				m_pAfterImage->SetAfterImageColor( m_coAfterImageColorByState );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		}
 	}
 }
@@ -14225,8 +14279,14 @@ void CX2GameUnit::DisableAfterImage( const bool bForce_ /*= false*/ )
 			false == g_pMain->GetGameOption().GetOptionList().m_bEffect )
 #endif//X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
 		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+			/// June 322720f0 (and the inline copy in EraseAfterImageByBuff 3227a2f0): Disable leaves the
+			/// colour alone; EnableAfterImage sets it every time.
+			m_pAfterImage->Disable();
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 			m_pAfterImage->SetAfterImageColor( 0xffcccccc );
 			m_pAfterImage->Disable();
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		}
 	}
 }

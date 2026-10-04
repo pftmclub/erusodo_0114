@@ -4660,6 +4660,9 @@ protected:
 		vector<CX2CustomFunctionByBuffPtr>			m_vecCustomFunctionByBuffPtr;		/// 버프에 의한 효과 중 StateStart, CommonFrameMove, StageEnd에서 처리해야하는 하드코딩을 실행
 		vector<CX2AfterImageByBuffPtr>				m_vecAfterImageByBuff;				/// Element는 AfterImage의 색깔로, Element가 있다면 AfterImage가 Enable 되야함
 		CKTDGXSkinAfterImage*						m_pAfterImage;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		D3DXCOLOR									m_coAfterImageColorByState;	/// June +0x6880: the user state's AFTER_IMAGE_COLOR; EnableAfterImage uses it while no buff after-image is on
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef ADD_DISPLAYER_WEAPON_AFTER_IMAGE
 		vector<CX2WeaponAfterImageByBuffPtr>		m_vecWeaponAfterImageByBuff;		/// Element는 무기의 AfterImage의 색깔로, Element가 있다면 AfterImage가 Enable 되야함
 #endif ADD_DISPLAYER_WEAPON_AFTER_IMAGE
