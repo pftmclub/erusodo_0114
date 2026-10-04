@@ -4829,3 +4829,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              and 110 AWAKE_IMPOSSIBLE (store and getter only; host deferred).
 #define SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 7c (JUNE_BUFF_PORT_PHASES.md): the host of
+//              BBT 110 AWAKE_IMPOSSIBLE. June's CX2GUUser::TryHyperModeStateChange
+//              (slot 343, 31fe9a90) replaces March's
+//              ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE; CanHyperMode (344) and
+//              the class hooks 434/435 are virtuals with June's bases; Ara's six
+//              inlined copies gain June's two gates; the SKILL_CANCEL_AFTER macros
+//              take June's expansion. June's two members come with it: the
+//              quick-slot special item wait (+0x8d78: -1 in the ctor and
+//              THROW_ITEM_StateEnd, counted down in OnFrameMove; armed only by
+//              June's quick-slot item check, which is a user decision, so it stays
+//              at -1 for now) and the awakening-by-key flag (+0x8d4c: set by 343
+//              and the SKILL_CANCEL_AFTER macros, cleared by HyperModeEnd and
+//              RidingHyperModeEnd).
+//              Requires SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG (IsAwakeImpossible, 7b).
+#define SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+//////////////////////////////////////////////////////////////////////////

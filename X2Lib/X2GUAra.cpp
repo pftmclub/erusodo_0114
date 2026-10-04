@@ -6350,9 +6350,18 @@ void CX2GUAra::WaitEventProcess()
 		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
 		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
 	}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+	/// June buff port Phase 7c: June's Ara sites (here 32bb2d40 @32bb2e1a-32bb2e92; all six are the same code) add the
+	/// quick-slot item wait (32070d60) and BBT 110 AWAKE_IMPOSSIBLE (slot 345). They do not set +0x8d4c (JUNE_BUGS.md #12)
+	else if( false == IsThereEffectiveBlackHoleDamageEffect() && m_InputData.oneLCtr == true
+			 && m_FrameDataFuture.syncData.m_HyperModeCount > 0
+			 && ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() )
+			 && false == IsQuickSlotSpecialItemWaiting() && false == IsAwakeImpossible() )
+#else
 	else if( false == IsThereEffectiveBlackHoleDamageEffect() && m_InputData.oneLCtr == true
 			 && m_FrameDataFuture.syncData.m_HyperModeCount > 0
 			 && ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() ) )
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 	{
 		if ( 3 <= m_FrameDataFuture.syncData.m_HyperModeCount )
 			StateChange( ASI_BERSERK_MODE );
@@ -6441,9 +6450,17 @@ void CX2GUAra::HyperWaitEventProcess()
 		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
 		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
 	}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+	/// June buff port Phase 7c: the second of June's six Ara sites (32bb2ff0 @32bb30ca-32bb3142)
+	else if( false == IsThereEffectiveBlackHoleDamageEffect() && m_InputData.oneLCtr == true
+		&& m_FrameDataFuture.syncData.m_HyperModeCount > 0
+		&& ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() )
+		&& false == IsQuickSlotSpecialItemWaiting() && false == IsAwakeImpossible() )
+#else
 	else if( false == IsThereEffectiveBlackHoleDamageEffect() && m_InputData.oneLCtr == true
 		&& m_FrameDataFuture.syncData.m_HyperModeCount > 0
 		&& ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() ) )
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 	{
 		if ( 3 <= m_FrameDataFuture.syncData.m_HyperModeCount )
 			StateChange( ASI_BERSERK_MODE );
@@ -6561,9 +6578,17 @@ void CX2GUAra::WalkEventProcess()
 		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
 		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
 	}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+	/// June buff port Phase 7c: the third of June's six Ara sites (32bb3290 @32bb334b-32bb33c3)
+	else if( false == IsThereEffectiveBlackHoleDamageEffect() && m_InputData.oneLCtr == true
+		&& m_FrameDataFuture.syncData.m_HyperModeCount > 0
+		&& ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() )
+		&& false == IsQuickSlotSpecialItemWaiting() && false == IsAwakeImpossible() )
+#else
 	else if( false == IsThereEffectiveBlackHoleDamageEffect() && m_InputData.oneLCtr == true
 		&& m_FrameDataFuture.syncData.m_HyperModeCount > 0
 		&& ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() ) )
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 	{
 		if ( 3 <= m_FrameDataFuture.syncData.m_HyperModeCount )
 			StateChange( ASI_BERSERK_MODE );
@@ -6776,9 +6801,17 @@ void CX2GUAra::JumpLandingEventProcess()
 		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
 		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
 	}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+	/// June buff port Phase 7c: the fourth of June's six Ara sites (32bb34d0 @32bb35d1-32bb3646)
+	else if( false == IsThereEffectiveBlackHoleDamageEffect() && m_InputData.oneLCtr == true
+		&& m_FrameDataFuture.syncData.m_HyperModeCount > 0
+		&& ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() )
+		&& false == IsQuickSlotSpecialItemWaiting() && false == IsAwakeImpossible() )
+#else
 	else if( false == IsThereEffectiveBlackHoleDamageEffect() && m_InputData.oneLCtr == true
 		&& m_FrameDataFuture.syncData.m_HyperModeCount > 0
 		&& ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() ) )
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 	{
 		if ( 3 <= m_FrameDataFuture.syncData.m_HyperModeCount )
 			StateChange( ASI_BERSERK_MODE );
@@ -6840,9 +6873,17 @@ void CX2GUAra::DashEventProcess()
 		StateChange( USI_DASH_JUMP );
 		m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
 	}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+	/// June buff port Phase 7c: the fifth of June's six Ara sites (32bb37e0 @32bb38e3-32bb3958)
+	else if( false == IsThereEffectiveBlackHoleDamageEffect() && m_InputData.oneLCtr == true
+		&& m_FrameDataFuture.syncData.m_HyperModeCount > 0
+		&& ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() )
+		&& false == IsQuickSlotSpecialItemWaiting() && false == IsAwakeImpossible() )
+#else
 	else if( false == IsThereEffectiveBlackHoleDamageEffect() && m_InputData.oneLCtr == true
 		&& m_FrameDataFuture.syncData.m_HyperModeCount > 0
 		&& ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() ) )
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 	{
 		if ( 3 <= m_FrameDataFuture.syncData.m_HyperModeCount )
 			StateChange( ASI_BERSERK_MODE );
@@ -6973,9 +7014,17 @@ void CX2GUAra::DashEndEventProcess()
 	{
 		StateChange( USI_JUMP_READY );
 	}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+	/// June buff port Phase 7c: the sixth of June's six Ara sites (32bb3ab0 @32bb3d0c-32bb3d81)
+	else if( false == IsThereEffectiveBlackHoleDamageEffect() && m_InputData.oneLCtr == true
+		&& m_FrameDataFuture.syncData.m_HyperModeCount > 0
+		&& ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() )
+		&& false == IsQuickSlotSpecialItemWaiting() && false == IsAwakeImpossible() )
+#else
 	else if( false == IsThereEffectiveBlackHoleDamageEffect() && m_InputData.oneLCtr == true
 		&& m_FrameDataFuture.syncData.m_HyperModeCount > 0
 		&& ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() ) )
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 	{
 		if ( 3 <= m_FrameDataFuture.syncData.m_HyperModeCount )
 			StateChange( ASI_BERSERK_MODE );

@@ -2888,6 +2888,59 @@ Log lines read afterwards: `first apply BBT 74/77/97/101/102/110`, `first read B
 
 **Kickoff:** `kickoffs/june-buff/7c.md` - start it with `/x2-phase june-buff 7c`.
 
+### Phase 7c — Done (2026-10-05)
+
+**The RE premise was wrong, and the record is corrected.** `322f8920` is `CX2Game::ProcessExpListByNpcUnitDie`. 7b's arm sites `@322faee8`/`@322fb40b` sit in a different function that the int3 range merged in: **`322fa960`, June's quick-slot item check**. It is June's form of the `SAT_SPECIAL_SKILL` branch in March's `CX2UIQuickSlot::KeyEventProcess` (same STR_ID_20120). When a throw/install item is accepted there, it sets `+0x8d78` = **10.0 s** (`3344a51c`). So `+0x8d78` is not an awakening cooldown. It is a two-way interlock:
+- While a quick-slot special item is pending: no awakening (`TryHyperModeStateChange`, the skill-cancel and Ara paths) and no no-state-change skill (every class's slot 510 `NoStateChangeActionFrameMove`).
+- While `+0x8d4c` (awakening started by a key) is set: no special item.
+
+20 rows were added to `june2017_re/funcmap.tsv` ("Buff Phase 7c"). The 13 per-class `+0x8d78` readers are each class's slot 510 (Arme's is `32cebe80`), plus Ain's 343 copy and Luciel's slot 545.
+
+**Landed** (`SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK`, requires `_NEW_FLAG`). The 110 block does not depend on the timer.
+- `CX2GUUser::TryHyperModeStateChange` (343, `31fe9a90`) in June's order: `oneLCtr`, `IsAwakeImpossible` (345, logs `first read BBT 110`), hook 434 → 435, BlackHole, timer ≤ 0, `CanHyperMode` (344, virtual for Add's override), then flag = 1 and `StateChange`.
+- `ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE` now expands to `else if( TryHyperModeStateChange( s ) ) {}`, so every live March use goes through 343 (52 in 8 files). June's slot-343 call sites per class match March's live macro uses: User 5/5, Eve 7/7, Arme 6/6, Chung 7/7, EL 6/6, Elsword 6/6, Lire 10/10, Raven 5/5. Add's 5 are June-only (checklist §7).
+- Ara's six inlined copies gain June's two gates: the item wait and `IsAwakeImpossible`. All six June sites (`32bb2d40`…`32bb3ab0`) are the same code; Ara's slot 430 equals March's ≥3-bead `ASI_BERSERK_MODE` choice.
+- `SKILL_CANCEL_AFTER` / `IF_SKILL_CANCEL_AFTER` take June's expansion (`+0x8c90` = `m_fSkillCancelAfter`):
+  - the skill branch also needs `IsOnSomethingFuture()` (`+0x7e1c`);
+  - the awakening branch uses `CanHyperMode`, adds `!IsQuickSlotSpecialItemWaiting()`, and sets the flag.
+- Members `m_fQuickSlotSpecialItemWaitTime` (`+0x8d78`) and `m_bHyperModeStartedByInput` (`+0x8d4c`), with June's homes:
+  - ctor −1 / false;
+  - `THROW_ITEM_StateEnd` −1;
+  - `OnFrameMove` countdown (inside `IsLocalUnit`, after `PushFrameData`);
+  - `HyperModeEnd` / `RidingHyperModeEnd` clear the flag.
+- **The timer stays at −1 until decision (b) below**, so its readers are inert for now.
+
+**Not ported** (no March home, or waiting on (b)):
+- June's `CommonEventProcess` common-cancel block (`USE_COMMON_CANCEL_AFTER`, `+0x8ca0`), a June-only system.
+- The `+0x7e84` = 0x1c write in the Add-only hook branch (member not identified; checklist §7 Add row).
+- The arm, the slot-510 prefixes and the flag's quick-slot reader: decision (b).
+
+**Hygiene.** `flagcheck JUNE_BUFF_AWAKE_LOCK --worktree` on the 4 code files: `files: 2 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 9 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 9 are plain `#else` lines (3 macros, 6 Ara sites). The PASS~ is one blank line before the header block.
+
+**Build and deploy.** `DEPLOY OK: X2_offline.exe is 19,111,424 B, dated 2026-10-05 04:47:15, md5 3f4d41ba0de832875ae4fc3984471dc7, equal to X2/US_SERVICE/x2.exe (2026-10-05 04:47:11); built at mods/june-buff-port 6f34e2d + 4 uncommitted code file(s).` The string `first read BBT 110: TryHyperModeStateChange refused awakening (state %d)` is in the exe. **Not launched.**
+
+**JUNE_BUGS.md:**
+- #11: the skill-cancel awakening ignores 110.
+- #12: Ara's six sites never set `+0x8d4c` (latent until (b)).
+
+**Decision for the user.**
+- (b) **The quick-slot arm.** The only writer of the 10 s wait is inside June's rewrite of the quick-slot item check (`322fa960`). That rewrite adds gates March lacks (`+0x8ac4`, protected `+0x7cb0`, slot `0x524`, the Value1 0xd/0xe and Value2 4 cases) and is called from three places, one of them a June PvP mode. Options:
+  - **A:** a new phase ports `322fa960` whole, with the slot-510 prefixes and the flag reader (quick-slot work, not buff work).
+  - **B:** arm only, inside March's `KeyEventProcess` accept branch (a partial update; the standing rule needs your OK).
+  - **C:** leave it out. Throw items then never lock awakening or skills, and awakening never locks items.
+
+  Until you choose, 110 works fully and the interlock is off.
+- Cost: `/cost` cannot be read from inside the session. User, please paste it here.
+
+**How to see it in game (Phase 14).** 110: `BFI_DEBUFF_VOID_FIELD` 475 → BTI 437. Ctrl does nothing from wait/walk/dash while it lasts; inside a skill's cancel window it still awakens (#11).
+
+**Play-test hand-off.** Use a fresh launch (`factors 361 loaded`). The ordinal rule means the next factor id must be 362, so the 110 setup line uses factor **362** (templet 990110, 30 s), not 7b's 367. Checks:
+1. `jtLordKnight` (Elsword, Lord Knight): with 3 beads and 362 on, Ctrl in wait does nothing; 30 s later it awakens.
+2. `arasss` (Ara, Yama Raja): with 3 beads and no buff, Ctrl gives Berserk Mode.
+3. `arasss` again: with 362 on, Ctrl does nothing; 30 s later Berserk Mode.
+
+Log lines read afterwards: `first apply BBT 110` and `first read BBT 110: TryHyperModeStateChange refused awakening (state 23)`.
+
 ## Phase 8 — New finalizers and counter sync
 
 **Scope.**

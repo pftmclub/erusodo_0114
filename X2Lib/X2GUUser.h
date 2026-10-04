@@ -8,11 +8,19 @@ typedef srutil::delegate1<void, CKTDGLineMap*> DelegatePhysicProcessPortalByGame
 #ifdef	NEW_SKILL_2010_11
 
 // 각성할 수 있는지 (재각성 할 수 있는지 여부 추가)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+/// June buff port Phase 7c: June calls CX2GUUser::TryHyperModeStateChange (slot 343, 31fe9a90) where March expanded this
+/// test; it also refuses while BBT 110 AWAKE_IMPOSSIBLE is on (slot 345) and lets the class hook (434) take the key first
+#define ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( hyperModeState ) \
+	else if( true == TryHyperModeStateChange( hyperModeState ) ) \
+	{ }
+#else
 #define ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( hyperModeState ) \
 	else if( false == IsThereEffectiveBlackHoleDamageEffect() && \
 	m_InputData.oneLCtr == true && m_FrameDataFuture.syncData.m_HyperModeCount > 0 && \
 	( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() ) ) \
 	{ StateChange( hyperModeState ); }
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 
 #else
 
@@ -97,6 +105,22 @@ typedef srutil::delegate1<void, CKTDGLineMap*> DelegatePhysicProcessPortalByGame
 #ifdef SKILL_CANCEL_BY_HYPER_MODE // 김태환
 
 	/// 스킬 캔슬 메크로에 각성 캔슬도 추가
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+	/// June buff port Phase 7c: June's expansion (CX2GUUser 31fcc350 @31fcc56b-31fcc64f, Eve 3296a1f0 @3296a4cb-3296a5ac;
+	/// about 950 sites set +0x8d4c this way). The skill branch also needs IsOnSomethingFuture() (+0x7e1c); the awakening
+	/// branch tests CanHyperMode (slot 344) and the quick-slot item wait (32070d60), and sets the awakening-by-key flag
+	/// (+0x8d4c) before the state change. June does not test IsAwakeImpossible (slot 345) here (JUNE_BUGS.md #11).
+	#define SKILL_CANCEL_AFTER( time ) \
+	else if( (time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && \
+	true == IsOnSomethingFuture() && SpecialAttackEventProcess() == true ) \
+	{ } \
+	else if( false == IsThereEffectiveBlackHoleDamageEffect() && \
+	m_InputData.oneLCtr == true && m_FrameDataFuture.syncData.m_HyperModeCount > 0 && \
+	true == CanHyperMode() && \
+	(time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && \
+	false == IsQuickSlotSpecialItemWaiting() ) \
+	{ m_bHyperModeStartedByInput = true; StateChange( GetHypetMpdeStateID() ); }
+#else
 	#define SKILL_CANCEL_AFTER( time ) \
 	else if( (time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && \
 	SpecialAttackEventProcess() == true ) \
@@ -106,8 +130,22 @@ typedef srutil::delegate1<void, CKTDGLineMap*> DelegatePhysicProcessPortalByGame
 	( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() ) && \
 	(time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) ) \
 	{ StateChange( GetHypetMpdeStateID() ); }
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 
 	/// if로 시작하는 스킬 캔슬 메크로가 필요하여 추가 ( 위의 스킬 캔슬 메크로와 완전 동일 )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+	/// June buff port Phase 7c: the same expansion as SKILL_CANCEL_AFTER above, starting with if
+	#define IF_SKILL_CANCEL_AFTER( time ) \
+	if( (time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && \
+	true == IsOnSomethingFuture() && SpecialAttackEventProcess() == true ) \
+	{ } \
+	else if( false == IsThereEffectiveBlackHoleDamageEffect() && \
+	m_InputData.oneLCtr == true && m_FrameDataFuture.syncData.m_HyperModeCount > 0 && \
+	true == CanHyperMode() && \
+	(time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && \
+	false == IsQuickSlotSpecialItemWaiting() ) \
+	{ m_bHyperModeStartedByInput = true; StateChange( GetHypetMpdeStateID() ); }
+#else
 	#define IF_SKILL_CANCEL_AFTER( time ) \
 	if( (time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && \
 	SpecialAttackEventProcess() == true ) \
@@ -117,6 +155,7 @@ typedef srutil::delegate1<void, CKTDGLineMap*> DelegatePhysicProcessPortalByGame
 	( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() ) && \
 	(time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) ) \
 	{ StateChange( GetHypetMpdeStateID() ); }
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 
 #else // SKILL_CANCEL_BY_HYPER_MODE
 
@@ -2838,6 +2877,27 @@ public:
 #ifdef SKILL_CANCEL_BY_HYPER_MODE // 김태환
 		virtual const int GetHypetMpdeStateID() { return static_cast<int>( USI_HYPER_MODE ); }
 #endif //SKILL_CANCEL_BY_HYPER_MODE
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+		/// June buff port Phase 7c: June's awakening entry (CX2GUUser slots 343 / 344, class hooks 434 / 435)
+		virtual bool TryHyperModeStateChange( int iHyperModeState_ );	/// 343, 31fe9a90 (Ain's 32a53150 has no March class)
+		virtual bool CanHyperMode()										/// 344, 31fd4730 = March's macro condition; Add 32a31550, Ain 32a4dea0 override it
+		{
+			return m_FrameDataFuture.syncData.m_HyperModeCount > 0 &&
+				( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() );
+		}
+		virtual bool TryHyperModeStateChangeByClass() { return false; }	/// 434, base 31e4c550; only Add overrides it (329e2340)
+		virtual void OnHyperModeStateChangeByClass( int ) {}			/// 435, base 3208ddc0 (empty); Add 329e2360
+		bool IsQuickSlotSpecialItemWaiting() const { return m_fQuickSlotSpecialItemWaitTime > 0.f; }	/// 32070d60
+
+		/// +0x8d78: June arms it with 10.0 s (3344a51c) in its quick-slot special item check (CX2Game 322fa960 @322faee8,
+		/// @322fb40b); -1 in the ctor and THROW_ITEM_StateEnd; counted down in OnFrameMove. While it runs: no awakening,
+		/// no skill (every class's NoStateChangeActionFrameMove, slot 510). The arm is not ported yet (user decision).
+		float	m_fQuickSlotSpecialItemWaitTime;
+		/// +0x8d4c: set when an awakening key starts the hyper mode state (343, the SKILL_CANCEL_AFTER macros), cleared by
+		/// HyperModeEnd / RidingHyperModeEnd; June's quick-slot check refuses a special item while it is set
+		bool	m_bHyperModeStartedByInput;
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환
 		virtual void		UpNowDPValueByDamage( IN const float fDamage_ ) {}				/// 애드일 때, 피격시 DP 변동 처리

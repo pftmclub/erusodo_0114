@@ -1137,6 +1137,11 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	m_iLastStateHyperModeCount	= 0;
 	m_bReserveHyperModeZero		= false;
 #endif HYPER_MODE_FIX
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+	/// June buff port Phase 7c, CX2GUUser ctor (June 3203e850 @32042d98, @32042e47)
+	m_fQuickSlotSpecialItemWaitTime	= -1.f;
+	m_bHyperModeStartedByInput		= false;
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 
 #ifdef SERV_CHUNG_TACTICAL_TROOPER
 	m_iHyperModeCountUsed		= 0;
@@ -6758,6 +6763,12 @@ HRESULT CX2GUUser::OnFrameMove( double fTime, float fElapsedTime )
 //#else   SERV_OPTIMIZE_ROBUST_USER_NPC_PACKET_SEND
 //		PushFrameData();
 //#endif  SERV_OPTIMIZE_ROBUST_USER_NPC_PACKET_SEND
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+		/// June buff port Phase 7c, CX2GUUser::OnFrameMove (June 3206eaf0 @3206fe04, after PushFrameData 3203e130, inside
+		/// the IsLocalUnit block): the quick-slot special item wait counts down
+		if ( m_fQuickSlotSpecialItemWaitTime > 0.f )
+			m_fQuickSlotSpecialItemWaitTime -= fElapsedTime;
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 	}
 
 	//////////////////////////////////////////////////
@@ -25425,6 +25436,10 @@ void CX2GUUser::THROW_ITEM_StateEnd()
 		}
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+	/// June buff port Phase 7c, THROW_ITEM_StateEnd (June 31ffaad0 @31ffb0eb): the quick-slot special item wait ends
+	m_fQuickSlotSpecialItemWaitTime = -1.f;
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 	CommonStateEnd();
 }
 
@@ -26984,9 +26999,57 @@ void CX2GUUser::HyperModeEnd()
 {
 	CommonStateEnd();
 	m_iLastStateHyperModeCount = 0;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+	/// June buff port Phase 7c, the hyper mode StateEnd (June 31fe96c0 @31fe9826): the awakening-by-key flag ends
+	m_bHyperModeStartedByInput = false;
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 }
 #endif HYPER_MODE_FIX
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+/** @function : TryHyperModeStateChange
+	@brief : June buff port Phase 7c, CX2GUUser slot 343 (June 31fe9a90). June calls it where March expanded
+			 ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE: the awakening key, then BBT 110 AWAKE_IMPOSSIBLE (slot 345), then the
+			 class hook (434), then March's test plus the quick-slot item wait (+0x8d78)
+*/
+/*virtual*/ bool CX2GUUser::TryHyperModeStateChange( int iHyperModeState_ )
+{
+	if ( true != m_InputData.oneLCtr )		/// +0x8723
+		return false;
+
+	if ( true == IsAwakeImpossible() )		/// slot 345, 31fd4790: list110 (+0x682c) not empty
+	{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		static bool s_bSeenRead = false;
+		if ( !s_bSeenRead )
+		{
+			s_bSeenRead = true;
+			CX2JuneBuffCapture::Line( "first read BBT 110: TryHyperModeStateChange refused awakening (state %d)", iHyperModeState_ );
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		return false;
+	}
+
+	if ( true == TryHyperModeStateChangeByClass() )		/// slot 434 (base 31e4c550 = false; only Add overrides it)
+	{
+		/// June also writes 0x1c into the protected short +0x7e84 here (@31fe9ae0). That member is not identified in March,
+		/// and only Add's override reaches this branch: character port checklist section 7, Add's 434/435 row
+		OnHyperModeStateChangeByClass( 0 );				/// slot 435 (base 3208ddc0, empty)
+		return true;
+	}
+
+	if ( false == IsThereEffectiveBlackHoleDamageEffect() &&	/// 322731a0
+		 m_fQuickSlotSpecialItemWaitTime <= 0.f &&				/// +0x8d78
+		 true == CanHyperMode() )								/// slot 344, 31fd4730
+	{
+		m_bHyperModeStartedByInput = true;						/// +0x8d4c
+		StateChange( iHyperModeState_ );
+		return true;
+	}
+
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 /** @function : ShowMinorParticleHyperModeChange
 	@brief : 각성 상태로 변경하는 파티클을 보여줌
 */
@@ -37580,6 +37643,10 @@ void CX2GUUser::RidingHyperModeEventProcess()
 	{
 		CommonStateEnd();
 		m_iLastStateHyperModeCount = 0;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+		/// June buff port Phase 7c, the riding hyper mode StateEnd (June 31ffd490 @31ffd5fa): the awakening-by-key flag ends
+		m_bHyperModeStartedByInput = false;
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 	}
 
 	void CX2GUUser::RidingHyperModeStartFuture()
