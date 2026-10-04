@@ -2668,7 +2668,14 @@ No character in the save has a summon skill whose case matches June, so the posi
 4. 73's flag stays on the attacker's DamageData for later targets of a multi-target hit (verbatim).
 5. Cost: `/cost` cannot be read from inside the session. User, please paste it here.
 
-**Play-test** (hand-off given in the session; console lines checked from source, never run). Ids 362–367 assume a fresh launch at `factors 361 loaded`. Log lines read afterwards: `first apply BBT 73/94/95/104/105` and `first read BBT …`.
+**Play-test hand-off** (dev console, END). Use 6b's line shape, one factor per line, ids 362–367 in order after a **fresh launch** (`factors 361 loaded`). Checked from source, never run. Every buff lasts 30 s. Id map: 362 → 73 (BTI 990073, debuff), 363 → 94 (990094, `ALL_DEBUFF = TRUE`, empty list), 364 → 95 (990095), 365 → 104 (990104, debuff), 366 → BBT 4 dash-impossible (990004, debuff, a non-control test target), 367 → 105 (990105, EDT 100–105). Checks, in order, waiting 30 s between them:
+1. 104 on self: no jumping.
+2. 366, then 364, then 366 again: dash comes back, and the second 366 is refused.
+3. 363, then 362 on self: refused.
+4. 362 on every NPC, then hit one.
+5. 367 on every NPC, then hit them as **Iivue** (Eve, Code: Nemesis, Lv 80; equipped weapon Blaze + Blaze): no burn.
+
+Log lines read afterwards: `first apply BBT 73/94/95/104/105` and `first read BBT …` (73 state defence; 94 ALL_DEBUFF refused BTI 990073; 95 erased / refused BTI 990004; 104 jump key; 105 EDT 100).
 
 ---
 
