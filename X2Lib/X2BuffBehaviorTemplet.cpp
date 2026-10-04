@@ -181,6 +181,13 @@ case type_: \
 			CASE_BEHAVIOR_TEMPLET( CX2BuffImmuneNonControlDebuffBehaviorTemplet, BBT_IMMUNE_NON_CONTROL_DEBUFF )
 			CASE_BEHAVIOR_TEMPLET( CX2BuffIdentityBehaviorTemplet, BBT_JUMP_IMPOSSIBLE )
 			CASE_BEHAVIOR_TEMPLET( CX2BuffImmuneEDTBehaviorTemplet, BBT_IMMUNE_EDT )
+			/// June buff port Phase 7b (June 32e80450 factory): 74, 77, 101, 102 and 110 are identity types (32e866b0, like 104); 97 has its own class (32e86c90)
+			CASE_BEHAVIOR_TEMPLET( CX2BuffIdentityBehaviorTemplet, BBT_DETONATION_IMPOSSIBLE )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffIdentityBehaviorTemplet, BBT_INVINCIBLE )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeMaxCharacterAddResourceBehaviorTemplet, BBT_CHANGE_MAX_CHARACTER_ADD_RESOURCE )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffIdentityBehaviorTemplet, BBT_IGNORE_HP_DECREASE )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffIdentityBehaviorTemplet, BBT_DETONATION_IMPOSSIBLE_GAGE_RESET )
+			CASE_BEHAVIOR_TEMPLET( CX2BuffIdentityBehaviorTemplet, BBT_AWAKE_IMPOSSIBLE )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
 			case BBT_EMPTY:	/// 행동을 지정하지 않겠다고 명시적으로 해야함
@@ -5465,6 +5472,44 @@ void CX2BuffImmuneBuffDebuffBehaviorTemplet::InsertToGameUnit( const KBuffBehavi
 	m_vecEDT.clear();
 	BOOST_FOREACH( const float fValue, kFactor_.m_vecValues )
 		m_vecEDT.push_back( static_cast<int>( fValue ) );
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BBT 97: CX2BuffChangeMaxCharacterAddResourceBehaviorTemplet, Phase 7b
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @brief : June 32e75c70. GetBehaviorFactor failing returns false; the first apply calls the unit's slot 201 with 1.0f (fld1 @32e75c9c). */
+/*virtual*/ bool CX2BuffChangeMaxCharacterAddResourceBehaviorTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( !BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
+		return false;
+
+	if ( !DidStart() )
+	{
+		pGameUnit_->ChangeMaxCharacterAddResource( 1.0f );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		static bool s_bSeenApply = false;
+		if ( !s_bSeenApply )
+		{
+			s_bSeenApply = true;
+			CX2JuneBuffCapture::Line( "first apply BBT 97 (change max character add resource): BTI %d", pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID );
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	}
+
+	return true;
+}
+
+/*virtual*/ CX2BuffBehaviorTempletPtr CX2BuffChangeMaxCharacterAddResourceBehaviorTemplet::GetClonePtr() const
+{
+	return CX2BuffBehaviorTempletPtr( new CX2BuffChangeMaxCharacterAddResourceBehaviorTemplet( *this ) );
+}
+
+/** @brief : June 32e7f800: the header only */
+/*virtual*/ void CX2BuffChangeMaxCharacterAddResourceBehaviorTemplet::GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const
+{
+	vecFactors_.push_back( KBuffBehaviorFactor( GetType() ) );
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 //}}

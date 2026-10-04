@@ -32,8 +32,8 @@ flags `SERV_IRUHADEV_JUNE_BUFF_*` (+ `_DEBUG`) · kickoffs `kickoffs/june-buff/`
 | 6b review | done 2026-10-04: 1 fix (Wally 9th / Fire Eve / Guardian SP1 summons pass skill 0, as June's 31fcf520); deployed 5a81b0ee; play-tested 2026-10-04 (no summon line, Nasod Element appeared); user owes /cost only | Opus 5.5 / high | 6b | X2Game.cpp (3 summon lines) | `6b-review.md` |
 | 7 | done, play-tested 2026-10-04 (5/5 passed, logs read, check 2 re-run confirmed the 95 refuse line); user owes /cost only | Opus 5.5 / high | 4a | X2GameUnit.cpp (GetFinalDamage, ProcessEnchantExtraDamage), X2GUUser.cpp (SetInputData), X2GUNPC.cpp (CommonEventProcess), X2BuffBehaviorTemplet, C++ BUFF_TEMPLET_ID enum | `7.md` |
 | 7 review | done 2026-10-04: no transcription errors, no code change (exe stays 532eecfb); 94 restack leak kept as June (user, 2026-10-04; latent with June data); user owes /cost only | Opus 5.5 / high | 7 | - | `7-review.md` |
-| 7b | ready | Opus 5.5 / high | 7 | X2GUUser.cpp/.h, X2GUNPC.cpp/.h, X2GameUnit.h, X2GUChung.cpp, X2GUAra.cpp | `7b.md` |
-| 7b review | blocked | Opus 5.5 / high | 7b | - | `7b-review.md` |
+| 7b | done 2026-10-04, deployed bc9099a7: 74/77/97/101/102 complete, 110 store only; **user owes: decision (a) on 110's host, play-test (5 checks), /cost** | Opus 5.5 / high | 7 | X2GUUser.cpp/.h, X2GUNPC.cpp/.h, X2GameUnit.h, X2GUChung.cpp, X2GUAra.cpp | `7b.md` |
+| 7b review | ready (can run before or after the play-test) | Opus 5.5 / high | 7b | - | `7b-review.md` |
 | 8 | ready (6b recorded the 98 -> BFT 16 ordering: 98 is cached before StateStart) | Opus 5.5 / high | 2, 4b, 6b | X2BuffFinalizerTemplet, X2UDPPacket.h (every peer needs the same build), X2GUUser.cpp, X2GUNPC.cpp | `8.md` |
 | 9 | ready | Opus 5.5 / high | 4b | X2GameUnit.cpp (CreateAndInsertCustomFunction), X2GUUser.cpp, X2GURaven.cpp, X2GUAra.cpp, new classes | `9.md` |
 | 10 | ready | Opus 5.5 / high | 3 | X2Main.cpp (bindings), X2Game.cpp, UnitApplyBuffGroup.lua (+ data036 staging manifest) | `10.md` |

@@ -256,6 +256,13 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_, bool b
 				CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_IMMUNE_NON_CONTROL_DEBUFF )
 				CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_JUMP_IMPOSSIBLE )
 				CASE_BEHAVIOR_FACTOR( ParsingCustomBehavior, BBT_IMMUNE_EDT )
+				/// June buff port Phase 7b (June factor switch 32d4bbf0): 74, 77, 97, 101, 102 and 110 all parse empty (32d45b60)
+				CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_DETONATION_IMPOSSIBLE )
+				CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_INVINCIBLE )
+				CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_CHANGE_MAX_CHARACTER_ADD_RESOURCE )
+				CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_IGNORE_HP_DECREASE )
+				CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_DETONATION_IMPOSSIBLE_GAGE_RESET )
+				CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_AWAKE_IMPOSSIBLE )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
 			case BBT_EMPTY:
@@ -425,6 +432,13 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_ )
 						CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_IMMUNE_NON_CONTROL_DEBUFF )
 						CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_JUMP_IMPOSSIBLE )
 						CASE_BEHAVIOR_FACTOR( ParsingCustomBehavior, BBT_IMMUNE_EDT )
+						/// June buff port Phase 7b (see the skill list above)
+						CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_DETONATION_IMPOSSIBLE )
+						CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_INVINCIBLE )
+						CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_CHANGE_MAX_CHARACTER_ADD_RESOURCE )
+						CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_IGNORE_HP_DECREASE )
+						CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_DETONATION_IMPOSSIBLE_GAGE_RESET )
+						CASE_BEHAVIOR_FACTOR( ParsingEmptyBehavior, BBT_AWAKE_IMPOSSIBLE )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 			case BBT_EMPTY:
 				break;

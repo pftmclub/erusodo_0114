@@ -7701,6 +7701,12 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	m_FrameDataNow.unitCondition.bAttackerFront = true;
 
 #ifdef NO_DETONATION
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	/// June buff port Phase 7b, CX2GUUser::DamageReact (June 320462a0) @32046314: the damage byte (+0x6892) takes the hit's NO_DETONATION
+	/// unconditionally (June drops March's SERV_9TH_NEW_CHARACTER keep-on-DT_BUFF test; the state byte is not touched here), @3204631a +0x6891 = 1
+	SetNoDetonationByDamage( pDamageData->m_bNoDetonation );
+	m_bNowStateDamageReactForDetonation = true;
+#else
 
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환
 	/// DT_BUFF일 때, 기폭 불가능 설정 되어 있으면 유지 시켜 주자
@@ -7709,6 +7715,7 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		SetNoDetonation( pDamageData->m_bNoDetonation );
 
 	m_bNowStateDamageReact = true;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 #endif
 
 #ifdef SERV_PET_SYSTEM
@@ -7871,7 +7878,11 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	if( GetInvincible() == true &&		/// June buff port Phase 7b: June calls slot 96 here (@32046726), so BBT_INVINCIBLE counts
+#else
 	if( m_FrameDataNow.stateParam.bInvincible == true &&
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 #ifdef DUNGEON_ITEM
 		pDamageData->m_fHpPercentUp == 0.f && 
 		pDamageData->m_fMpPercentUp == 0.f && 
@@ -10068,7 +10079,11 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	// 타격받았을경우 이펙트 종료를 위해
 	// DELETE_EFFECT_SET_ON_DAMAGE_REACT가 TRUE인 경우 등록된 현재 스테이트의 effectset들을 지운다.	
 	if ( IsSuperArmor() == false && 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+		GetInvincible() == false &&		/// June buff port Phase 7b: slot 96 in June (@3204a6e9)
+#else
 		m_FrameDataNow.stateParam.bInvincible == false &&
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		CX2DamageManager::RT_DUMMY_DAMAGE != pDamageData->reActResult 
 		&& CX2DamageManager::RT_FLIP_DIFF_DIR_DUMMY_DAMAGE != pDamageData->reActResult 
 		)
@@ -12043,7 +12058,19 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	/// June buff port Phase 7b, CX2GUUser::DamageReactStateChange (June 31feabd0) @31feb837: a set state or damage byte, or a
+	/// BBT_DETONATION_IMPOSSIBLE_GAGE_RESET buff, empties the stored detonation charge and stops it charging (gage 32081640, +0xf6)
+	if ( GetNoDetonationByState() || GetNoDetonationByDamage() || IsDetonationImpossibleGageResetByBuff() )
+	{
+		GetGageData()->SetNowChargeMpForDetonation( 0.f );
+		GetGageData()->SetCanChargeMpForDetonation( false );
+	}
+	/// @31feb885: June skips the whole branch for a DT_BUFF hit (DetonationStateChange keeps its own DT_BUFF return, 31ff0ec3)
+	if( true == IsDamagedReaction( pDamageData ) && CX2DamageManager::DT_BUFF != pDamageData->damageType )
+#else
 	if( true == IsDamagedReaction( pDamageData ) )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 	{
 		if( DamageFlushMp()== true )
 		{
@@ -12098,7 +12125,11 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 #ifdef NO_DETONATION
 	if( pDamageData->m_bNoDetonation == true )
 	{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+		SetNoDetonationByDamage( true );	/// June buff port Phase 7b: the damage byte (+0x6892, @31feb964)
+#else
 		SetNoDetonation( true );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 	}
 #endif
 }
@@ -14689,6 +14720,22 @@ void CX2GUUser::CommonStateStart()
 	}
 
 #ifdef NO_DETONATION
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	/// June buff port Phase 7b, CX2GUUser::CommonStateStart (June 32057b80) @3205e9cd: March's carry block, on the damage byte
+	if( m_bNowStateDamageReactForDetonation == true && GetNoDetonationByDamage() == true )
+		SetNoDetonationByDamage( true );
+	else
+		SetNoDetonationByDamage( false );
+	m_bNowStateDamageReactForDetonation = false;
+
+	/// @320608b2: later in the same function June reads the state key CAN_MANA_BREAK (default TRUE, so a March script leaves the state byte 0),
+	/// sets the state byte to its negation and clears the damage byte, which makes the carry block above vestigial (verbatim). Nothing in
+	/// between reads either byte, so the two June blocks sit together here. Per-class state code sets the state byte after CommonStateStart.
+	bool bCanManaBreak = true;
+	LUA_GET_VALUE( m_LuaManager, "CAN_MANA_BREAK", bCanManaBreak, true );
+	SetNoDetonationByState( !bCanManaBreak );
+	SetNoDetonationByDamage( false );
+#else
 	if( m_bNowStateDamageReact == true && GetNoDetonation() == true )
 	{
 		SetNoDetonation(true);
@@ -14698,6 +14745,7 @@ void CX2GUUser::CommonStateStart()
 		SetNoDetonation(false);
 	}	
 	m_bNowStateDamageReact = false;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 #endif
 
 	if( IsMyUnit() == true && m_pComboGuide != NULL )
@@ -17681,7 +17729,11 @@ void CX2GUUser::CommonFrameMove()
 
 	KTDXPROFILE_END();
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	if( GetInvincible() == true || IsSuperArmor() )		/// June buff port Phase 7b: slot 96 in June's CommonFrameMove (@3206c7bb)
+#else
 	if( m_FrameDataNow.stateParam.bInvincible == true || IsSuperArmor() )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		m_FlyCount = 0;
 
 
@@ -18062,6 +18114,24 @@ void CX2GUUser::CommonFrameMove()
 	DoCustomFunctionByBuffInCommonFrameMove();
 
 	DamageDataChangeProcess();
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	/// June buff port Phase 7b, CX2GUUser::CommonFrameMove (June 32063650) @3206ce71: while a BBT_INVINCIBLE buff is on and the forced
+	/// invincibility has run out, renew it and its blink for 0.5 s (3343777c; slots 71 / 72)
+	if ( IsInvincibleByBuff() && GetForceInvincible() <= 0.f )
+	{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		static bool s_bSeenRead = false;
+		if ( !s_bSeenRead )
+		{
+			s_bSeenRead = true;
+			CX2JuneBuffCapture::Line( "first read BBT 77: forced invincibility renewed for 0.5 s" );
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		SetForceInvincible( 0.5f );
+		SetShowInvincible( 0.5f );
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 }
 
 
@@ -19410,6 +19480,19 @@ void CX2GUUser::CommonCameraMove()
 		return;
 #endif // RIDING_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	/// June buff port Phase 7b, CX2GUUser::DetonationEventProcess (June 31feb9f0): where March returned, June empties the stored charge,
+	/// so a state that sets the state byte (SetNoDetonation( true )) now also wipes it. BBT 102 does the same; BBT 74 only stops charging.
+	if ( GetNoDetonationByState() || GetNoDetonationByDamage() || IsDetonationImpossibleGageResetByBuff() )
+	{
+		GetGageData()->SetNowChargeMpForDetonation( 0.f );		/// 32081640
+		GetGageData()->SetCanChargeMpForDetonation( false );	/// gage +0xf6
+	}
+	else if ( !IsDetonationImpossibleByBuff() && ( m_OrgInputData.pureZ == true || m_OrgInputData.pureX == true ) )
+	{
+		GetGageData()->SetCanChargeMpForDetonation( true );
+	}
+#else
 #ifdef NO_DETONATION
 	if( true == GetNoDetonation() )
 		return;
@@ -19419,7 +19502,56 @@ void CX2GUUser::CommonCameraMove()
 	{
 		GetGageData()->SetCanChargeMpForDetonation( true );
 	}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 }
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+/** @function : UpNowHp
+	@brief : June buff port Phase 7b, BBT 101. June 3202fcf0 (CX2GUUser slot 59): a live unit refuses an HP decrease while a
+		BBT_IGNORE_HP_DECREASE buff is on (IgnoreHpDecrease, 322726d0), then the base. June's override also carries two death-prevention
+		gates (320072d0, 3202b9a0), a g_pData vector clear in front of them, the previous-HP store (gage +0x108) and the own unit's low-HP UI
+		call 3289db00( 0xd, 0|1, -1 ); those are character / UI code March lacks (JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7).
+*/
+/*virtual*/ void CX2GUUser::UpNowHp( const float hpIncrement, const float hpMinimum /*= 0.f*/ )
+{
+	if ( 0.f < GetNowHp() && 0.f > hpIncrement && IgnoreHpDecrease() )
+	{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		static bool s_bSeenRead = false;
+		if ( !s_bSeenRead )
+		{
+			s_bSeenRead = true;
+			CX2JuneBuffCapture::Line( "first read BBT 101: UpNowHp refused a decrease of %g", hpIncrement );
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		return;
+	}
+
+	CX2GameUnit::UpNowHp( hpIncrement, hpMinimum );
+}
+
+/** @function : SetNowHp
+	@brief : June buff port Phase 7b, BBT 101. June 3202ff60 (CX2GUUser slot 61): a live unit refuses a lower value while a
+		BBT_IGNORE_HP_DECREASE buff is on, then the base (322824b0). The same character / UI tail as UpNowHp is not ported.
+*/
+/*virtual*/ void CX2GUUser::SetNowHp( float fHPNow )
+{
+	if ( 0.f < GetNowHp() && fHPNow < GetNowHp() && IgnoreHpDecrease() )
+	{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		static bool s_bSeenRead = false;
+		if ( !s_bSeenRead )
+		{
+			s_bSeenRead = true;
+			CX2JuneBuffCapture::Line( "first read BBT 101: SetNowHp refused %g", fHPNow );
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		return;
+	}
+
+	CX2GameUnit::SetNowHp( fHPNow );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
 void CX2GUUser::CommonEventProcess()
 {
@@ -19632,6 +19764,11 @@ void CX2GUUser::CommonStateEnd()
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	/// June buff port Phase 7b, CX2GUUser::CommonStateEnd (June 32015250) @32015afe: both detonation bytes are cleared at every state end
+	SetNoDetonationByState( false );
+	SetNoDetonationByDamage( false );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 	DoCustomFunctionByBuffInCommonStateEnd();
 }
 
@@ -35162,7 +35299,13 @@ void CX2GUUser::RidingOffEnd()
 	m_bPassDash = false;
 
 	InitAddtionalDashAndJumpBasicStatValue();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	/// June buff port Phase 7b, RidingOffEnd (June 31fcde30 @31fcde81): both detonation bytes
+	SetNoDetonationByState( false );
+	SetNoDetonationByDamage( false );
+#else
 	SetNoDetonation( false );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 }
 #pragma endregion
 

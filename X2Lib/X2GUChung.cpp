@@ -452,6 +452,19 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 #endif
 }
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+/** @function : ChangeMaxCharacterAddResource
+	@brief : June buff port Phase 7b, BBT 97. June 32bf4880 (CX2GUChung slot 201): outside berserk mode (slot 39, gage +0x140), add
+		(int)fRate_ cannon balls (ftol 32fe25f0; BBT 97 passes 1.0f) through the clamping setter (3231d7a0), flagging the change (gage +0x142).
+		June's gage layout here is March's CX2ChungGageData field for field (now +0x110, max +0x11c, the Ex pair, then the three bools).
+*/
+/*virtual*/ void CX2GUChung::ChangeMaxCharacterAddResource( const float fRate_ )
+{
+	const int iUpCount = static_cast<int>( fRate_ );
+	if ( false == IsFullHyperMode() )
+		SetCannonBallCount( GetChungGageData()->GetNowCannonBallCount() + iUpCount );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 /** @function : DamageReact
 	@brief : 피격 당했을 때의 처리 부분
 	@param : pDamageData_(피격 당했을 때의 데미지 데이타)
@@ -610,7 +623,11 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 			if ( true == IsThisStateCanBeChangedToGuardStateOnHit() )
 			{
 #ifdef SERV_ADD_CHUNG_SHELLING_GUARDIAN
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+				if( GetInvincible() == false )		/// June buff port Phase 7b: June's Chung DamageReact (32c0cf90) calls slot 96
+#else
 				if( m_FrameDataNow.stateParam.bInvincible == false )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 #endif
 				{
 					StateChange( CSI_GUARD );
@@ -643,7 +660,11 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 				default:
 					{
 #ifdef SERV_ADD_CHUNG_SHELLING_GUARDIAN
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+						if( m_fChaosCannonTime > 0.f && GetInvincible() == false )		/// June buff port Phase 7b: as above
+#else
 						if( m_fChaosCannonTime > 0.f && m_FrameDataNow.stateParam.bInvincible == false )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 						{
 							StateChange( CSI_SI_A_CHG_CHAOS_CANNON_GUARD );
 						}

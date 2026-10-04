@@ -2308,11 +2308,21 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		}
 
 		// TODO: rename UpHP() -> ChangeHPByDamage() or something 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+		/// June buff port Phase 7b: virtual in June (CX2GameUnit slot 59); CX2GUUser overrides it for BBT 101 (3202fcf0)
+		virtual void UpNowHp( const float hpIncrement, const float hpMinimum = 0.f ) { GetGageData()->UpNowHp( hpIncrement, hpMinimum ); }
+#else
 		void UpNowHp( const float hpIncrement, const float hpMinimum = 0.f ) { GetGageData()->UpNowHp( hpIncrement, hpMinimum ); }
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		void UpNowMp( const float mpIncrement ) { GetGageData()->UpNowMp( mpIncrement ); }
 		void UpNowSoul( const float soulIncrement ) { GetGageData()->UpNowSoul( soulIncrement ); }
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+		/// June buff port Phase 7b: virtual in June (CX2GameUnit slot 61, base 322824b0); CX2GUUser overrides it for BBT 101 (3202ff60)
+		virtual void SetNowHp( float fHPNow );
+#else
 		void SetNowHp( float fHPNow );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		void SetNowMp( float fMPNow )			{ GetGageData()->SetNowMp( fMPNow ); }
 
 		float GetMaxSoul() const { return GetGageData()->GetMaxSoul(); }
@@ -3339,6 +3349,20 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void EraseImmuneNonControlDebuff( const KBuffIdentity& BuffIdentity_ );								/// June 32279a10
 		void DeleteNonControlDebuff();																		/// June 3229dcc0 (its Lua binding is Phase 10's)
 		bool IsImmuneEDTByBuff( const int iExtraDamageType_ ) const;										/// June 322a0400 (BBT 105)
+		/// June buff port Phase 7b: the identity stores CreateAndInsertBuffIdentity (June 3227ad60) fills for 74, 77, 101, 102 and 110
+		bool IsDetonationImpossibleByBuff() const { return !m_vecDetonationImpossiblePtr.empty(); }					/// 74 (+0x67ec)
+		bool IsInvincibleByBuff() const { return !m_vecInvinciblePtr.empty(); }										/// 77 (+0x67fc), both GetInvincible (slot 96)
+		bool IgnoreHpDecrease() const { return !m_vecIgnoreHpDecreasePtr.empty(); }									/// 101 (+0x680c), June 322726d0
+		bool IsDetonationImpossibleGageResetByBuff() const { return !m_vecDetonationImpossibleGageResetPtr.empty(); }	/// 102 (+0x681c)
+		bool IsAwakeImpossible() const { return !m_vecAwakeImpossiblePtr.empty(); }									/// 110 (+0x682c), June 31fd4790 (CX2GUUser slot 345)
+		/// June split March's CX2GUUser::m_bNoDetonation into CX2GameUnit bytes +0x6890 (state) and +0x6892 (damage); the ctor zeroes them (322a5e37)
+		bool GetNoDetonationByState() const { return m_bNoDetonationByState; }
+		void SetNoDetonationByState( const bool bNoDetonation_ ) { m_bNoDetonationByState = bNoDetonation_; }
+		bool GetNoDetonationByDamage() const { return m_bNoDetonationByDamage; }
+		void SetNoDetonationByDamage( const bool bNoDetonation_ ) { m_bNoDetonationByDamage = bNoDetonation_; }
+		/// BBT 97: June CX2GameUnit slot 201 (+0x324). The base is empty (3208ddc0); CX2GUChung overrides it (32bf4880). June's Add (329e31e0),
+		/// Ara (32baafc0), Rose (32ac5e20) and Lu/Ciel (32b14cd0) overrides are character-port rows (JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7).
+		virtual void ChangeMaxCharacterAddResource( const float fRate_ ) {}
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
 		void SetKBuffFactorPacketToGameUnit( const vector<KBuffFactor>& vecBuffFactor_ );
@@ -4711,6 +4735,15 @@ protected:
 		vector<JuneImmuneBuffList>		m_vecImmuneBuffList;				/// 94 IMMUNE_BUFF_TEMPLATE_ID (June +0x65c4)
 		vector<CX2BuffIdentityPtr>		m_vecImmuneNonControlDebuffPtr;		/// 95: one identity per buff (June +0x75ac)
 		vector<CX2BuffIdentityPtr>		m_vecJumpImpossiblePtr;				/// 104: identity type (June +0x42c0, CreateAndInsertBuffIdentity 3227ad60)
+		/// June buff port Phase 7b
+		vector<CX2BuffIdentityPtr>		m_vecDetonationImpossiblePtr;			/// 74: identity type (June +0x67ec)
+		vector<CX2BuffIdentityPtr>		m_vecInvinciblePtr;						/// 77 (June +0x67fc)
+		vector<CX2BuffIdentityPtr>		m_vecIgnoreHpDecreasePtr;				/// 101 (June +0x680c)
+		vector<CX2BuffIdentityPtr>		m_vecDetonationImpossibleGageResetPtr;	/// 102 (June +0x681c)
+		vector<CX2BuffIdentityPtr>		m_vecAwakeImpossiblePtr;				/// 110 (June +0x682c)
+		bool							m_bNoDetonationByState;					/// June +0x6890: March's SetNoDetonation (per-class state code) and !CAN_MANA_BREAK
+		bool							m_bNowStateDamageReactForDetonation;	/// June +0x6891: March's CX2GUUser::m_bNowStateDamageReact, now on NPCs too
+		bool							m_bNoDetonationByDamage;				/// June +0x6892: the hit's DamageData NO_DETONATION
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
 		vector<CX2StunPtr>				m_vecStunPtr;		/// 기절 효과

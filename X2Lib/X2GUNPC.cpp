@@ -6038,6 +6038,11 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
     #ifdef SUMMON_MONSTER_CARD_SYSTEM					
 					    LUA_GET_VALUE( luaManager_, "IS_ANOTHER_TEAM",					pConditionTableData->m_bCheckAnotherTeam,		false );
     #endif SUMMON_MONSTER_CARD_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+					    /// June buff port Phase 7b: June's condition parse (32784c00) reads these two right after IS_ANOTHER_TEAM (@32794f62, @327950be)
+					    LUA_GET_VALUE( luaManager_, "CAN_DETONATION",					pConditionTableData->m_bCanDetonation,			false );
+					    LUA_GET_VALUE( luaManager_, "CHECK_NEVER_MOVE_TRUE",			pConditionTableData->m_bCheckNeverMoveTrue,		false );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
                         pConditionTableData->m_bNPCNonHostSimulatable = false == ( 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -8691,6 +8696,11 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	m_bDoubleAttack = false;
 #endif  X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
 	m_NPCFrameData.unitCondition.bAttackerFront = true;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	/// June buff port Phase 7b, CX2GUNPC::DamageReact (June 327b1f30) @327b1fd0: NPCs carry the detonation damage byte too (read only by CAN_DETONATION)
+	SetNoDetonationByDamage( pDamageData->m_bNoDetonation );
+	m_bNowStateDamageReactForDetonation = true;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 	
 	if( pDamageData->bForceFly == true )
 	{
@@ -8919,7 +8929,11 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		return;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	if( GetInvincible() == true && 		/// June buff port Phase 7b: June asks slot 95 (3275bbf0), which falls back to slot 96
+#else
 	if( m_NPCFrameData.stateParam.bInvincible == true && 
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 #ifdef DUNGEON_ITEM
 		pDamageData->m_fHpPercentUp == 0.f && 
 		pDamageData->m_fMpPercentUp == 0.f && 
@@ -10342,7 +10356,11 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	// 타격받았을경우 이펙트 종료를 위해
 	// DELETE_EFFECT_SET_ON_DAMAGE_REACT가 TRUE인 경우 등록된 현재 스테이트의 effectset들을 지운다.	
 	if( IsSuperArmor() == false && 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+		GetInvincible() == false &&		/// June buff port Phase 7b: slot 95 in June (@327b5283), as above
+#else
 		m_NPCFrameData.stateParam.bInvincible == false &&
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		CX2DamageManager::RT_DUMMY_DAMAGE != pDamageData->reActResult 
 		&& CX2DamageManager::RT_FLIP_DIFF_DIR_DUMMY_DAMAGE != pDamageData->reActResult 
 		)
@@ -11994,7 +12012,11 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
                 && pDamageData->reActResult					!= CX2DamageManager::RT_SENSOR
 				&& pDamageData->reActResult					!= CX2DamageManager::RT_REVENGE
 				&& IsSuperArmor()	== false
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+				&& GetInvincible()	== false		/// June buff port Phase 7b: June reads the flag only through its getters
+#else
 				&& m_NPCFrameData.stateParam.bInvincible	== false
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 				&& m_NPCFrameData.syncData.nowState			!= m_SmallDamageLandFront
 				&& m_NPCFrameData.syncData.nowState			!= m_SmallDamageLandBack
 				&& m_NPCFrameData.syncData.nowState			!= m_SmallDamageAir
@@ -12793,7 +12815,11 @@ int CX2GUNPC::DamageReactStateChange_CheckOnly( CX2DamageManager::DamageData* pD
                 && pDamageData->reActResult					!= CX2DamageManager::RT_SENSOR
 				&& pDamageData->reActResult					!= CX2DamageManager::RT_REVENGE
 				&& IsSuperArmor()	== false
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+				&& GetInvincible()	== false		/// June buff port Phase 7b: as in DamageReactStateChange
+#else
 				&& m_NPCFrameData.stateParam.bInvincible	== false
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 				&& m_NPCFrameData.syncData.nowState			!= m_SmallDamageLandFront
 				&& m_NPCFrameData.syncData.nowState			!= m_SmallDamageLandBack
 				&& m_NPCFrameData.syncData.nowState			!= m_SmallDamageAir
@@ -14194,6 +14220,15 @@ void CX2GUNPC::CommonStateStart()
 
 	if ( NULL == m_pXSkinAnim )
 		return;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	/// June buff port Phase 7b, CX2GUNPC::CommonStateStart (June 327ac9d0) @327af365: the user's carry block on the NPC's damage byte.
+	/// June runs it later in the function (after the 0x2000 state-flag block); nothing in between reads either byte.
+	if( m_bNowStateDamageReactForDetonation == true && GetNoDetonationByDamage() == true )
+		SetNoDetonationByDamage( true );
+	else
+		SetNoDetonationByDamage( false );
+	m_bNowStateDamageReactForDetonation = false;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		
 #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	LoadImmunityAtThisStateFromScript( m_LuaManager );
@@ -15815,6 +15850,11 @@ void CX2GUNPC::CommonStateStart()
 #ifdef SUMMON_MONSTER_CARD_SYSTEM					
 					LUA_GET_VALUE( m_LuaManager, "IS_ANOTHER_TEAM",					pConditionTableData->m_bCheckAnotherTeam,		false );
 #endif SUMMON_MONSTER_CARD_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+					/// June buff port Phase 7b (see the other condition parse)
+					LUA_GET_VALUE( m_LuaManager, "CAN_DETONATION",					pConditionTableData->m_bCanDetonation,			false );
+					LUA_GET_VALUE( m_LuaManager, "CHECK_NEVER_MOVE_TRUE",			pConditionTableData->m_bCheckNeverMoveTrue,		false );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
 					pEventProcessData->m_pConditionTableData = pConditionTableData;
 
@@ -18943,7 +18983,11 @@ void CX2GUNPC::CommonFrameMove()
 	//if( m_pStandUpAttackMark != NULL && m_pStandUpAttackMark->GetLiveParticleNum() > 0 )
 	//	m_pStandUpAttackMark->SetPosition( markerPos );
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	if( GetInvincible() == true || IsSuperArmor() )		/// June buff port Phase 7b: slot 96 in June's CommonFrameMove (@327bca62)
+#else
 	if( m_NPCFrameData.stateParam.bInvincible == true || IsSuperArmor() )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		m_FlyCount = 0;
 
 
@@ -21454,6 +21498,18 @@ void    CX2GUNPC::CommonEventProcessNonHost()
 						break;
 				}
 #endif SUMMON_MONSTER_CARD_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+				/// June buff port Phase 7b, CX2GUNPC::CommonEventProcessNonHost (June 3276cb20) @3276d79a: CAN_DETONATION passes only with no
+				/// BBT 74 / 102 buff and both detonation bytes clear. June tests it here only, not on the host path (3276d980).
+				if( pConditionTableData->m_bCanDetonation == true )
+				{
+					if ( IsDetonationImpossibleByBuff() || IsDetonationImpossibleGageResetByBuff() || GetNoDetonationByState() || GetNoDetonationByDamage() )
+						break;
+				}
+				/// the next June condition, CHECK_NEVER_MOVE_TRUE: passes only while m_bNeverMove (+0x872b)
+				if( pConditionTableData->m_bCheckNeverMoveTrue == true && false == m_bNeverMove )
+					break;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 					//}}
 
 				if( pConditionTableData->m_iRate != -1 )
@@ -22689,6 +22745,11 @@ void CX2GUNPC::CommonEventProcess()
 						break;
 				}
 #endif SUMMON_MONSTER_CARD_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+				/// June buff port Phase 7b, CX2GUNPC::CommonEventProcess (June 3276d980): the host chain has CHECK_NEVER_MOVE_TRUE but not CAN_DETONATION
+				if( pConditionTableData->m_bCheckNeverMoveTrue == true && false == m_bNeverMove )
+					break;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 				//}}
 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -29311,7 +29372,11 @@ CX2GameUnit* CX2GUNPC::GetNearestUnitPosByOwnerUnit( float fAttackRange )		/// N
 			CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pUnitList[i] );
 			if( NULL == pNPC || 
 				CX2UnitManager::NCT_BASIC != pNPC->GetNPCTemplet().m_ClassType ||
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+				true == pNPC->GetInvincible()		/// June buff port Phase 7b: June reads the flag only through its getters
+#else
 				true == pNPC->m_NPCFrameData.stateParam.bInvincible
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 				)
 				continue;
 
@@ -29324,7 +29389,11 @@ CX2GameUnit* CX2GUNPC::GetNearestUnitPosByOwnerUnit( float fAttackRange )		/// N
 		{
 			CX2GUUser* pUser = static_cast<CX2GUUser*>( pUnitList[i] );
 			if ( NULL == pUser ||
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+				 true == pUser->GetInvincible() )		/// June buff port Phase 7b: as above
+#else
 				 true == pUser->GetFrameData().stateParam.bInvincible )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 				 continue;
 		}
 

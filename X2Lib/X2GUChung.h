@@ -759,6 +759,9 @@ public:
 	virtual void		UpdateEquipCollisionData();
 	
 	virtual bool		IsFullHyperMode() const { return GetChungGageData()->GetBerserkMode(); }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	virtual void		ChangeMaxCharacterAddResource( const float fRate_ );	/// June buff port Phase 7b, BBT 97: June 32bf4880
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 	virtual void		SetFullHyperMode( const bool bBerserkMode_ )
 	{
 		GetChungGageData()->SetBerserkModeChanged( true );

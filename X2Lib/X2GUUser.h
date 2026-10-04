@@ -1579,7 +1579,15 @@ public:
 		virtual bool				GetIsRightBefore() const					{ return m_FrameDataNowBefore.syncData.bIsRight; }
 
 		virtual GAME_UNIT_STATE_ID	GetGameUnitState() const					{ return (GAME_UNIT_STATE_ID)( (UCHAR) m_FrameDataNow.syncData.nowState); }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+		/// June buff port Phase 7b: CX2GUUser slot 96 (June 31fcee80) is true while a BBT_INVINCIBLE buff is on
+		virtual bool				GetInvincible()	const					{ return IsInvincibleByBuff() || m_FrameDataNow.stateParam.bInvincible; }
+		/// BBT 101: June's user overrides of the now-virtual HP setters (slots 59 / 61)
+		virtual void				UpNowHp( const float hpIncrement, const float hpMinimum = 0.f );	/// June 3202fcf0
+		virtual void				SetNowHp( float fHPNow );											/// June 3202ff60
+#else
 		virtual bool				GetInvincible()	const					{ return m_FrameDataNow.stateParam.bInvincible; }
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		virtual bool				GetIsFallDownState()					
         { 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -2322,8 +2330,15 @@ public:
 		void CreateTeleportEffect( const D3DXVECTOR3& vPos_, const D3DXVECTOR3& vRotDegree_ );	//optimization
 
 #ifdef NO_DETONATION
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+		/// June buff port Phase 7b: June moved this flag to CX2GameUnit +0x6890 (the state flag the per-class state code writes);
+		/// the damage half is CX2GameUnit::Set/GetNoDetonationByDamage (+0x6892)
+		bool GetNoDetonation() { return GetNoDetonationByState(); }
+		void SetNoDetonation(bool val) { SetNoDetonationByState( val ); }
+#else
 		bool GetNoDetonation() { return m_bNoDetonation; }
 		void SetNoDetonation(bool val) { m_bNoDetonation = val; }
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 #endif
 
 		virtual void SetEnableDash( bool bEnableDash, ENABLE_DASH_STATE eState = EDS_END );

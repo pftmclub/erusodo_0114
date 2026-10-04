@@ -273,6 +273,12 @@ m_fNoSkillTime( 0 )
 	m_HeadBoneName				= L"Bip01_Head";
 	m_fDieAfterTime				= 0.0f;
 	m_bDyingStart				= false;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+	/// June buff port Phase 7b: the CX2GameUnit ctor (June 322a2700 @322a5e37) zeroes +0x6890, +0x6891 and +0x6892
+	m_bNoDetonationByState				= false;
+	m_bNowStateDamageReactForDetonation	= false;
+	m_bNoDetonationByDamage				= false;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 	m_fForceInvincibleTime		= 0.0f;
 	m_fShowInvincibleTime		= 0.0f;
 	m_fShowInvincibleSwapTime	= 0.05f;
@@ -14196,6 +14202,23 @@ bool CX2GameUnit::CanApplyBuffToGameUnit() const
 		return true;
 }
 
+//{{ Iruha : 2026-10-04 // June buff port Phase 7b (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+/// One "[JUNE_BUFF] first apply BBT n" line per Phase 7b identity type and session
+static void JuneBuff7bFirstApply( const int iType_, const char* szName_, const KBuffIdentity& BuffIdentity_ )
+{
+	static bool s_bSeen[5] = { false, false, false, false, false };
+	const int iSlot = ( 74 == iType_ ? 0 : 77 == iType_ ? 1 : 101 == iType_ ? 2 : 102 == iType_ ? 3 : 4 );
+	if ( s_bSeen[iSlot] )
+		return;
+
+	s_bSeen[iSlot] = true;
+	CX2JuneBuffCapture::Line( "first apply BBT %d (%s): BTI %d", iType_, szName_, BuffIdentity_.m_eBuffTempletID );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+//}}
 /** @function : CreateAndInsertBuffIdentity
 	@brief : 버프에 의한 효과 생성 및 적용(대시불가, 공격불가, 수퍼아머 등)
 	@param : 버프 행동 타입(eType_), 버프 종료를 식별할 수 있는 요소(BuffIdentity_)
@@ -14259,6 +14282,37 @@ void CX2GameUnit::CreateAndInsertBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, 
 			}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;
+		/// June buff port Phase 7b: the same switch (3227ad60) pushes 74 / 77 / 101 / 102 / 110 onto +0x67ec / +0x67fc / +0x680c / +0x681c / +0x682c
+		case BBT_DETONATION_IMPOSSIBLE:
+			m_vecDetonationImpossiblePtr.push_back( ptrBuffIdentity );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			JuneBuff7bFirstApply( 74, "detonation impossible", BuffIdentity_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			break;
+		case BBT_INVINCIBLE:
+			m_vecInvinciblePtr.push_back( ptrBuffIdentity );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			JuneBuff7bFirstApply( 77, "invincible", BuffIdentity_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			break;
+		case BBT_IGNORE_HP_DECREASE:
+			m_vecIgnoreHpDecreasePtr.push_back( ptrBuffIdentity );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			JuneBuff7bFirstApply( 101, "ignore hp decrease", BuffIdentity_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			break;
+		case BBT_DETONATION_IMPOSSIBLE_GAGE_RESET:
+			m_vecDetonationImpossibleGageResetPtr.push_back( ptrBuffIdentity );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			JuneBuff7bFirstApply( 102, "detonation impossible gage reset", BuffIdentity_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			break;
+		case BBT_AWAKE_IMPOSSIBLE:
+			m_vecAwakeImpossiblePtr.push_back( ptrBuffIdentity );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			JuneBuff7bFirstApply( 110, "awake impossible", BuffIdentity_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			break;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		default:
 			break;
@@ -14314,6 +14368,22 @@ void CX2GameUnit::EraseBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, const KBuf
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 	case BBT_JUMP_IMPOSSIBLE:		/// June buff port Phase 7: June identity erase 32279d70
 		ERASE_BUFF_IDENTITY( m_vecJumpImpossiblePtr, BuffIdentity_ );
+		break;
+	/// June buff port Phase 7b: the same erase (32279d70)
+	case BBT_DETONATION_IMPOSSIBLE:
+		ERASE_BUFF_IDENTITY( m_vecDetonationImpossiblePtr, BuffIdentity_ );
+		break;
+	case BBT_INVINCIBLE:
+		ERASE_BUFF_IDENTITY( m_vecInvinciblePtr, BuffIdentity_ );
+		break;
+	case BBT_IGNORE_HP_DECREASE:
+		ERASE_BUFF_IDENTITY( m_vecIgnoreHpDecreasePtr, BuffIdentity_ );
+		break;
+	case BBT_DETONATION_IMPOSSIBLE_GAGE_RESET:
+		ERASE_BUFF_IDENTITY( m_vecDetonationImpossibleGageResetPtr, BuffIdentity_ );
+		break;
+	case BBT_AWAKE_IMPOSSIBLE:
+		ERASE_BUFF_IDENTITY( m_vecAwakeImpossiblePtr, BuffIdentity_ );
 		break;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 	}	

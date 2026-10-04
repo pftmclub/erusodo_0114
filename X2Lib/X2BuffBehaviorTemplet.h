@@ -781,6 +781,27 @@ protected:
 private:
 	vector<int>		m_vecEDT;		/// June +0x10: the factor's values as int (EXTRA_DAMAGE_TYPE)
 };
+
+/** @class : CX2BuffChangeMaxCharacterAddResourceBehaviorTemplet
+	@brief : BBT 97 CHANGE_MAX_CHARACTER_ADD_RESOURCE, Phase 7b. June class (factory 32e86c90, vtable 33535124): SetFactor 32e75c70,
+		GetFactor 32e7f800 (header only), packet 33108560 (nothing), DoFinish 33093ad0 (the empty base). The first apply calls the unit's
+		ChangeMaxCharacterAddResource( 1.0f ) (June CX2GameUnit slot 201, +0x324). Nothing undoes it.
+*/
+class CX2BuffChangeMaxCharacterAddResourceBehaviorTemplet : public CX2BuffBehaviorTemplet
+{
+public:
+	static CX2BuffBehaviorTempletPtr	CreateBuffBehaviorTempletPtr() { return CX2BuffBehaviorTempletPtr( new CX2BuffChangeMaxCharacterAddResourceBehaviorTemplet ); }
+
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffBehaviorTempletPtr GetClonePtr() const;
+	virtual void GetFactor( OUT vector<KBuffBehaviorFactor>& vecFactors_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ ) {}	/// June 33108560
+	virtual void DoFinish( CX2GameUnit* pGameUnit_, CX2BuffTemplet* pBuffTemplet_ ) {}	/// June 33093ad0
+
+protected:
+	CX2BuffChangeMaxCharacterAddResourceBehaviorTemplet() : CX2BuffBehaviorTemplet()
+	{}
+};
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 //}}
 

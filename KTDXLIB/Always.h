@@ -4818,5 +4818,14 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Requires SERV_IRUHADEV_JUNE_BUFF_ENUM (the enumerators),
 //              _TEMPLET_PARITY (the immunity stubs and their call sites) and
 //              _BEHAVIOR_PARITY (June's level-slice cases for these types).
+//              Phase 7b (same flag): 74 DETONATION_IMPOSSIBLE and 102 ..._GAGE_RESET
+//              (June's split of CX2GUUser::m_bNoDetonation into three
+//              CX2GameUnit bytes, DetonationEventProcess, DamageReactStateChange,
+//              Common{StateStart,StateEnd}, the CAN_MANA_BREAK state key, the NPC
+//              CAN_DETONATION / CHECK_NEVER_MOVE_TRUE conditions), 77 INVINCIBLE
+//              (both GetInvincible, CommonFrameMove, March's direct bInvincible
+//              reads), 97 CHANGE_MAX_CHARACTER_ADD_RESOURCE (unit virtual, Chung),
+//              101 IGNORE_HP_DECREASE (virtual UpNowHp/SetNowHp, user override)
+//              and 110 AWAKE_IMPOSSIBLE (store and getter only; host deferred).
 #define SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 //////////////////////////////////////////////////////////////////////////

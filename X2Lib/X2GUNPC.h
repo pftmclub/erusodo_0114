@@ -609,6 +609,10 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SUMMON_MONSTER_CARD_SYSTEM
 			bool		m_bCheckAnotherTeam;				// 다른 팀인지 검사
 #endif SUMMON_MONSTER_CARD_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+			bool		m_bCanDetonation;			/// June buff port Phase 7b: CAN_DETONATION (June condition byte +0xba, parsed @32794f62)
+			bool		m_bCheckNeverMoveTrue;		/// CHECK_NEVER_MOVE_TRUE (June +0xbb, parsed @327950be; not a buff key, ported with its neighbour)
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
 			ConditionTableData()
 			{
@@ -686,6 +690,10 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SUMMON_MONSTER_CARD_SYSTEM
 				m_bCheckAnotherTeam				= false;		// 다른 팀인지 검사
 #endif SUMMON_MONSTER_CARD_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+				m_bCanDetonation				= false;
+				m_bCheckNeverMoveTrue			= false;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
 			}
 
@@ -1947,7 +1955,12 @@ class CX2GUNPC : public CX2GameUnit
 		CX2UnitManager::NPC_CLASS_TYPE GetClassType() const { return GetNPCTemplet().m_ClassType; }
 
 		virtual GAME_UNIT_STATE_ID	GetGameUnitState() const					{ return (GAME_UNIT_STATE_ID)m_NPCFrameData.syncData.nowState; }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+		/// June buff port Phase 7b: CX2GUNPC slot 96 (June 32758760) is true while a BBT_INVINCIBLE buff is on
+		virtual bool				GetInvincible()	const						{ return IsInvincibleByBuff() || m_NPCFrameData.stateParam.bInvincible; }
+#else
 		virtual bool				GetInvincible()	const						{ return m_NPCFrameData.stateParam.bInvincible; }
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		virtual bool				GetIsFallDownState()						
         { 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
