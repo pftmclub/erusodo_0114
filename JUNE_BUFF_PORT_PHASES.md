@@ -3894,7 +3894,7 @@ Independent review of code commit `d899606` (against its parent `d0aa29c`) and d
      g_pX2Game:GetMyUnit():JuneBuffTestNewStat_LUA( 76, 1, 50, 1 )
      ```
    - What it does: lowers the DP each of Add's skills costs.
-   - Look for: the same skill now takes about half as much DP as before (a little less than half if your gear or passives already lower DP cost). Entering Dynamo Configuration mode itself costs the same as before; that is intended (June does not apply this to the entry cost). `ErrorLog.txt` gets `console hook BBT 76, change type 1, value 50, insert` and `first apply BBT 76, change type 1, value 50`.
+   - Look for: the same skill now takes about half as much DP as before (a little less than half if your gear or passives already lower DP cost). Entering Dynamo Configuration mode should also cost less, but a little less than half off (entry goes through the same DP step; March's own entry formula keeps its socket term, which June dropped, see R6). `ErrorLog.txt` gets `console hook BBT 76, change type 1, value 50, insert` and `first apply BBT 76, change type 1, value 50`.
    - If not: if the DP cost is unchanged but both log lines are there, tell me "DP cost unchanged". Before/after screenshots of the DP bar help. A popup or a crash: send the `[JUNE_BUFF]` lines.
    - Undo: `g_pX2Game:GetMyUnit():JuneBuffTestNewStat_LUA( 76, 1, 50, 0 )`
    - The value is 50, not Phase 5's 100, on purpose: +100 takes the DP cost rate to zero or below, so skills would cost nothing or even *give* DP. **If you have no Add character, this check cannot be reached:** the change only touches Add's DP code, and no console line makes another class use it. Say so and I will record it as unverified.
