@@ -339,6 +339,7 @@ Already confirmed: `32630d20` `ParsingBuffFactorID` and `32632390` `SetDamageDat
 | `SERV_IRUHADEV_JUNE_BUFF_PREMIUM` | 11 |
 | `SERV_IRUHADEV_JUNE_ENCHANT_PARITY` | 15 |
 | `SERV_IRUHADEV_JUNE_SOCKET_PARITY` | 16 |
+| `SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN` | 16 (designed, not June) |
 
 ## The exit metric every phase uses
 
@@ -5346,7 +5347,26 @@ June changed every link. 92 and the three socket terms in 78's multiplier sit at
    - **92:** a FIX factor (SPA-style `FIX 10`). PERCENT-only 92 gives 0 under June's formula, so it cannot be the check.
    - **Sanity:** a move-speed or attack-speed buff still looks right, and socket MP gain still works.
 
-**Q3 (user, 2026-10-04): no June-era server source exists, so design one.** Players' attack range comes only from the server's `KStat`, and June's formula is not in the client. The user's rule is to design a logical stand-in rather than leave 92 dormant. This phase therefore adds a **designed, not June** range source under its own flag (for example `SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN`). It is labelled in code and logged once. The formula and numbers are proposed to the user before it is built: a balance call, presented with a recommendation.
+**Q3 (user, 2026-10-04): no June-era server source exists, so design one.** Players' attack range comes only from the server's `KStat`, and June's formula is not in the client. The user's rule is to design a logical stand-in rather than leave 92 dormant. This phase therefore adds a **designed, not June** range source under its own flag (for example `SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN`). It is labelled in code and logged once.
+
+**Designed attack range — decided (user, 2026-10-04).**
+- **Rule:** each player's range = **10% of that player's own attack**. The **same share applies to both damage types**: physical range = 10% of physical attack, magical range = 10% of magical attack. This matches the live game, where the spread covers both.
+- **Why one share is enough:** every unit carries both stats, and each hit is tagged physical, magical or mixed. June rolls the physical stat and the magical stat separately (`322788c0`, arg 0 and arg 1), and the hit's type picks which result counts. A magic-leaning class (for example Rune Slayer) therefore gets a large magical range automatically, and a physical one (Lord Knight) a large physical range. No per-class numbers are needed.
+- **Where it lives:** client side, when the stats are applied (`CX2GameUnit::SetGameStat`, both overloads). There it sets the basic values of `m_AdditionalPhysicAttackRange`/`m_AdditionalMagicAttackRange` to 0.10 × the physical/magical attack basic. `KncWX2Server/Common` and the emulator's `KStat` are untouched.
+- **The 10% is one named constant** beside the code, so retuning is a one-line change. It is a balance value, not June data.
+- **Users only.** NPCs keep range 0, which is June's behaviour (`32763770`). Summons copy their owner's range results in the tail of `SetUserSummonedNPCInfo`, as June does (`3230ca6d`).
+- **Buffs:** June's BBT 7/8 (and 80/81) write the range member too, so a flat attack buff also widens the range. That is June's code and stays.
+- **Effect** (example: attack 10,000, so range 1,000):
+  - no MAXIMIZE: hits roll on a bell curve between 9,000 and 11,000, most within ±500;
+  - MAXIMIZE +0.5: average 10,500, floor 10,000;
+  - MAXIMIZE +1.0: every hit at 11,000.
+  - March never had damage spread, so with the flag on **every player hit varies a little**, even without a 92 buff. The user accepted this.
+- **Flag:** `SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN`, separate from `SERV_IRUHADEV_JUNE_SOCKET_PARITY`, so the spread can be switched off on its own. It needs `BEHAVIOR_PARITY` (the range members) and the roll (`NEW_STAT`).
+- **Logging:** one `[JUNE_BUFF] designed attack range (not June): 10% of attack` line on first use, and the first roll logged under `DEBUG`.
+- **Play-test:**
+  - The same basic attack on a dummy monster now gives varied numbers, all within ±10% of the old value (the pop-up number over the monster, not the chat log).
+  - With a 92 FIX buff, the numbers cluster toward the top.
+
 
 **Run with:** Opus 5.5, high effort. Review required. Split the RE (step 1) into its own session if it grows.
 
@@ -5360,8 +5380,10 @@ Your task (Phase 16, socket-option parity): do step 1 (RE, read-only) first and 
 verdicts in the doc, then steps 2-4: June's socket loader keys, the per-unit socket
 aggregate, InitAdditionalStatOptionValue seeds and passive init, the refresh variants and
 the option-data template 320839e0, June's SocketOptionForm.lua (staged for me to pack,
-after the arity gate), then BBT 92 end to end and 78's three socket terms. Flag
-SERV_IRUHADEV_JUNE_SOCKET_PARITY (92 stays under NEW_STAT). Port June's whole function
+after the arity gate), then BBT 92 end to end and 78's three socket terms, plus the
+designed attack range (10% of attack, both physical and magical, users only; see Q3) under
+SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN. Flag SERV_IRUHADEV_JUNE_SOCKET_PARITY (92 stays
+under NEW_STAT). Port June's whole function
 wherever it differs; cite June addresses; never invent a value; byte-level CP949 edits;
 flag-off unifdef per file; count the reach on March's live data before building. Build,
 deploy, commit; write a Done note with per-item "how to see it in game" lines and
