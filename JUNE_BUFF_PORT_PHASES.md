@@ -2840,7 +2840,7 @@ Fresh tools only; part 4's patch and unifdef scripts were not reused:
 
 **Review cost:** `/cost` is not readable from inside the session; ask the user.
 
-### Phase 4b-i, part 5 — progress (2026-10-04), launch check pending
+### Phase 4b-i, part 5 — Done (2026-10-04), play-tested
 
 Ran on Opus 5.5 high. Commits: `d34de09` reverts the part 4 debug commit `16a6d78`; `7ea72b2` (items 1-2) and `3bbf7d2` (item 3) are the code, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`; `30aa0cb` and this section's later commit are the doc.
 
@@ -2944,6 +2944,8 @@ So by part 4's rule the marker is not ported: nothing in March could observe it.
 - Blessing of Cronos, the Rally of Hero buffs (battle field) and the pet aura: current HP should keep its ratio when they start and end.
 - Entering a new game while one of them is active.
 - `ErrorLog.txt`: one `[JUNE_BUFF] unsupported (data not packed)` line until the pack, and none after it.
+
+**Play-test (2026-10-04, user): passed** on the deployed exe `b7379faa…` (`3bbf7d2`). The user reported a pass without per-check detail, so this does not record which of the four checks under "Things to watch in play" were run, or whether `UIMajorParticle.txt` had been packed by then.
 
 **Where part 5 stopped / what resumes (in this order)**
 Part 5's list is done: items 0-4 above. 4b-i (behaviors) is complete apart from the open user decision.
