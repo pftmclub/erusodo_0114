@@ -5143,6 +5143,14 @@ How the lines were checked:
      ```
      g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 363, 1 )
      ```
+   - **Paste, in between** (added after the review, at the user's suggestion; checked from source and under LuaJIT, never run): spawns the one March damage effect that carries skill 31012, with you as its owner, so the real host runs:
+     ```
+     local u = g_pX2Game:GetMyUnit() local p = u:GetPos() g_pX2Game:GetDamageEffect():CreateInstance_LUA( u, "DamageEffect_SA_RHB_Lockon_Stratos_Attack", p, p.y )
+     ```
+     - **Why it works:** 91 is applied when the effect's damage data loads, not at the hit (`SetDamageDataFromLUA` calls `SetDamageExceptionProcess` under `MODIFY_SET_DAMAGE_DATA`, `X2DamageManager.cpp:593`). The owner is set first (`X2DamageEffect.cpp:1499`), and nothing returns early before the load (`:1763`). `CX2GUUser`'s override chains to the base.
+     - **What you see:** probably nothing. The Rose mesh `RHB_Lockon_Stratos_Attack.X` is not in March's assets, so the effect dies at once (`m_bLive = false`), after its damage data has loaded. The `ASSERT( owner is an NPC )` in `CreateInstance_LUA` compiles to nothing in this build (`NDEBUG`).
+     - **Look for:** `first read BBT 91: skill 31012 MP gain x 2` in `ErrorLog.txt`. That proves the live host path (`SetDamageExceptionProcess` → the slot-109 virtual → the store). It must come **before** the second paste, which would otherwise use up the one-shot line.
+     - **If not:** no `first read BBT 91` line means the effect table is not in the packed `DamageEffect.lua`, or the host did not run; send any line naming `Lockon_Stratos` or `[JUNE_BUFF]`.
    - **Paste, second** (writes what the game holds for both skills into the log):
      ```
      local u = g_pX2Game:GetMyUnit() u:JuneBuffTestNewSkill_LUA( 91, 31012, 0, 2 ) u:JuneBuffTestNewSkill_LUA( 91, 31013, 0, 2 )
