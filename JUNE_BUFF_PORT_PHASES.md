@@ -5485,6 +5485,258 @@ deploy, commit; write a Done note with per-item "how to see it in game" lines an
 record /cost. Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)".
 ```
 
+### Phase 16 — Step 1 RE (2026-10-04, Opus 5.5 high, read-only)
+
+This session ran step 1 only. No code, Lua, build or Ghidra annotations were changed. Every new function is in `funcmap.tsv`, tag "Buff Phase 16". Steps 2–4 remain.
+
+**Corrections to the text above.**
+1. **The loader offsets are the aggregate's offsets.**
+   - The note above says the loader writes `+0x18` for both `m_fHyperModeChargeRate` and `m_iAnimationSpeedRate`. That came from a base-register change.
+   - The loader keeps two bases. `EDI` starts at the `SocketDataTemplet` (map node `+0x10`). Partway through, it is reloaded from `[ESP+0x14]` = node `+0xc` (the pair, 4 bytes lower).
+   - With the base tracked, every loader offset equals the aggregate offset. Hyper charge is `+0x18`, anim `+0x14`.
+   - Two independent readers use the same offsets: the seed function `32270dd0` and June's `ConvertAndAdd` body `3207cd70`.
+2. **March-only keys: 4, not 12.**
+   - Six of the earlier hits are table names June still reads as plain (non-XOR) strings: `STAT`, `STAT_RELATION_ADD_LEVEL`, `EXTRA_DAMAGE`, `RESIST_ENCHANT`, `ATTACK_ENCHANT`, `EFFECT_NAME`.
+   - The genuine March-only keys:
+     - `m_fEvadePercent` and `m_fAntiEvadePercent` (`X2SocketItem.cpp:399/401`).
+     - `m_iAllSkillLevelUpEx` (`:491`, `SKILL_LEVEL_UP_BY_POWER_RATE_TYPE`). The only define of that flag is commented out (`InHouse5.h:617`), so it is probably already dead in this build.
+     - `m_vecGrowUpSocketID` (`:707`, `SERV_GROW_UP_SOCKET`). The flag is defined in `ServerDefine_Global.h:899`, reachable from X2Lib. Its live state is not preprocessor-checked.
+   - June-only keys: the 39 names listed under "Loader" below, plus the table sub-keys `m_SkillType` and `m_PowerRate`. June's 140 key uses include repeats: `BLAZE`…`DARK` twice, and `m_sBuffLevel` and `m_fSkillAdditionalPowerRate` twice each.
+3. **78's three terms have names now:**
+   - `+0x5248` ← socket `+0xcc` `m_fAdditionalDamage` (attacker side);
+   - `+0x5194` ← `+0xc8` `m_fAdditionalDamageAfflicted`;
+   - `+0x5ac8` ← `+0xd4` `m_fAntiAddDamageRate` (defender).
+
+**The aggregate: classes and layout.**
+- **What the unit holds.** User `+0x87b4` is a heap `CX2SocketItem::SocketData*`, not an inline struct. NPCs never read it: the NPC branch of the seed function zeroes the members instead.
+- **Class tree (RTTI):**
+
+  | Class | vtable | Size | ctor |
+  |---|---|---|---|
+  | `SocketDataCommon` (base) | `33478a8c` | – | `32090990` |
+  | `SocketData` (the per-unit aggregate) | `33478a98` | 0x468 | `32091080` |
+  | `SocketData_DuoUnit` | `33478ab0` | 0x488 | `32091730` |
+  | `SocketDataTemplet` (the pool entry the loader fills) | `33478acc` | – | – |
+
+- **Where the aggregate is created.** The user ctor `3203e850` allocates it (`@32042060`–`320420e2`): `SocketData_DuoUnit` when `GetUnit()+0xaf0` type == 10 (`UT_LUCIEL`), otherwise `SocketData`.
+  - It is registered with the anti-tamper table `3376d8d8` (`31c59710`), and freed in the dtor (`@3203ae99`).
+- **Layout.**
+  - Every plain field below `+0x2f0` is a `SocketDataCommon` member at the same offset in the aggregate and in the templet.
+  - `+0x2f0` differs between the two:
+    - In the aggregate it is `KProtectedType<CX2Stat::Stat>`: vptr, checksum `+0x2f4`, then 13 XOR'd dwords.
+    - In the templet it is the raw 13-dword `Stat`: `m_Increase*` at indices 0–5, base HP / attack P / attack M at 6–8, **range P/M at 9/10** (no loader key fills them), defence P/M at 11/12.
+  - The `DuoUnit` keeps two protected per-mode pairs at `+0x468`/`+0x478`. They are read through `SocketData` vslots 3/4: `32091b10`/`32091b60`, with base versions `32091320`/`32091310`.
+- **Loader** `32726850`: the key → offset map, for the fields the seeds and readers use. Offsets are relative to `SocketData`.
+
+  | Offset | Key | Offset | Key |
+  |---|---|---|---|
+  | `+0xc` | `m_fMoveSpeed` | `+0x124` | `m_fMPMultiplyByAll` **+** `m_fMPIncByAttack_ReturnRate` |
+  | `+0x10` | `m_fJumpSpeed` | `+0x12c` | `m_fMPMultiplyByAll` **+** `m_fMPIncByAttacked_ReturnRate` |
+  | `+0x14` | `m_iAnimationSpeedRate` | `+0x134`/`+0x138` | `m_fCharacterSpecializationA`/`B` |
+  | `+0x18` | `m_fHyperModeChargeRate` | `+0x13c` | `m_fDamageMaximizeRate` (92) |
+  | `+0x1c` | `m_fHyperModeTime` | `+0x140` | `m_fDamageUpByAMADS` |
+  | `+0x20` | `m_fRepairPriceSale` | `+0x154` | `m_AllSkillLevelUp` |
+  | `+0x58` | `m_bIsPVERankLinkedStat` | `+0x18c`/`+0x190`/`+0x191`/`+0x192` | `DUNGEON_ONLY_TYPE` / `DUNGEON_ONLY` / `PVP_ONLY` / `OVER_LAP` |
+  | `+0x5c`/`+0x60` | `m_fDamageReduce` / `m_fPercentDamageReduce` | `+0x194`/`+0x198` | super armor % / time |
+  | `+0x90`/`+0x94` | `m_fDamageReduceByMonsterAttack` / `m_fPercentDRByMonsterAttack` | `+0x22c`…`+0x248` | `m_iAddMpValue` … `m_fSummonNpcCoolTime` (March's order) |
+  | `+0xb8` | `m_fSkillAdditionalPowerRate` | `+0x24c`/`+0x250` | `m_bIsLevelLinkedStat` / `m_iAddLevel` |
+  | `+0xbc` | `m_fPercentCritical` | `+0x254`…`+0x268` | `m_f*RelLV` (6) |
+  | `+0xc0` | `m_fCritical` | `+0x26c`/`+0x270`/`+0x274` | `m_bSocketExtraction` / `m_iSocketApply` / `m_iSocketCondition` |
+  | `+0xc4` | `m_fCriticalAfflicted` | `+0x290` | `m_fEffectiveValue` |
+  | `+0xc8` | `m_fAdditionalDamageAfflicted` | `+0x294` | `m_bIsRankLinkedStat` |
+  | `+0xcc` | `m_fAdditionalDamage` | `+0x296` | `m_sBuffLevel` (first) |
+  | `+0xd0` | `m_fAntiCriticalRate` | `+0x298` | `m_fBonusTitleMissionCountingRate` |
+  | `+0xd4` | `m_fAntiAddDamageRate` | `+0x29c` | conditional-buff vector (below) |
+  | `+0xd8` | `m_fAdditionalDefenceValue` | `+0x2ac`/`+0x2b0` | `m_fAtkPhysic`/`MagicPiercingRate` |
+  | `+0xdc` | `m_fAdditionalAttackValue` | `+0x2b4`/`+0x2b8` | `m_fHPRecoveryRate` / `m_fIncreaseItemDropRate` |
+  | `+0xe0` | `m_fAdditionalAttackedDamageValue` | `+0x2bc`/`+0x2c0` | `m_fIncreaseDmgRateToBoss` / `m_fIncreaseDefRateToBoss` |
+  | `+0xe4`/`+0xf4`/`+0x104`/`+0x114` | HP/MP-up-by-attack(ed) vectors | `+0x2c4`…`+0x2d0` | `m_fDecreaseActiveSkillCooltime`, `m_fDecrease1st`/`2nd`/`3rdSA_SkillCooltime` |
+  | | | `+0x2d4`/`+0x2d8` | `m_fIncreaseDmgEnemyHPFew_DmgRate` / `m_fIncreaseDefMyHPFew_DefRate` |
+  | | | `+0x2dc`/`+0x2e0`/`+0x2e4` | `m_fDecreaseDebuffTimeRate` / `m_fDecrease_MPCostRate` / `m_fIncreaseDmgRate_MyHpFew` |
+  | | | `+0x2e8`/`+0x2ec` | `m_fAllSkillCooltimeDecreaseRate` / `m_fAllSkillDamageIncreaseRate` |
+
+  - **The two MP fields are summed at load.** `m_fMPMultiplyByAll` is stored into both `+0x124` and `+0x12c`, and each `_ReturnRate` key is then added to its own field: `@32732977` (`fadd [esi+0x124]`) and `@32732be4`.
+  - **The conditional-buff vector `+0x29c`** has 0x10-byte entries, pushed `@32735bc5` via `3207b5d0`:
+    - `{ BUFF_FACTOR_ID, second m_sBuffLevel, m_bKillAbsoluteMonster (byte), m_eTypeSetItemEffectEx == 15 (byte), m_fIncreaseDmgEnemyHPFew_HpRate (an int) }`;
+    - an entry is pushed only when the factor and the level are both set, and either the kill flag is set, the HP rate is at least 1, or the set-effect type is 15.
+- **The loader's rescale tail** (`@32736fe7`–`32737097`), against March (`X2SocketItem.cpp:726-739`):
+  - ×100 on move (`+0xc`), jump (`+0x10`), critical % (`+0xbc`), hyper charge (`+0x18`), the HP-rate stat, additional attack (`+0xdc`), additional defence (`+0xd8`). Same as March.
+  - ×100, **new in June:** the MP pair `+0x124`/`+0x12c`, spec A/B `+0x134`/`+0x138`, and `m_fDamageMaximizeRate` `+0x13c`.
+  - ×1.5 on hyper time. Same as March.
+  - **Dropped:** March's ×100 on evade and anti-evade (June has neither key).
+
+**The templet → aggregate copy: the builder chain.**
+1. **`3204b4c0`** = `UpdateSocketDataAndEnchantData`. It calls aggregate vslot 2 (`ReInit`, `320922a0`; Duo `32092450`), clears the unit maps, calls vslot 484 (`+0x790`) with the aggregate, re-protects it (`31c594b0`), then calls vslot 487.
+2. **`3206d770`** = user vslot 484 = `InitSocketData( SocketData* )`.
+   - It calls `SumSocketOption` once for each source: equipment, pet, riding pet, title, set items (vslot `+0x798`) and premium buffs (`326c67f0`).
+   - Then it copies the extra-damage data into `DamageData` (`31e94d60`/`31e9c020`).
+   - Then `LimitMaximum` `320804f0`, then **`InitAdditionalStatOptionValue` `32270dd0`**, the same order as March (`X2GUUser.cpp:3077-3079`).
+3. **`3204f190`** = `SumSocketOption`. Per socket ID:
+   - It looks up the templet (`32715320`), with a game-mode gate: under `GT_PVE` (`322cc1c0`: game type == 4) only IDs 35318/35319 pass.
+   - Then the apply gate **`32001570`** (June's `CanApplySocketDataByGameType`):
+     - game types 2/3/5 reject `PVP_ONLY`, and also reject a `DUNGEON_ONLY_TYPE` that differs from the current dungeon type;
+     - type 4 rejects everything;
+     - the default case rejects `DUNGEON_ONLY`.
+     - March (`X2GUUser.cpp` `CanApplySocketDataByGameType`) checks only `GT_BATTLE_FIELD`/`GT_DUNGEON` and the two bools. The type-5 case and `DUNGEON_ONLY_TYPE` are June-only; `GT_PVE` cannot occur on March.
+   - Then `AddEnchantAttack`/`AddEnchantResist` (`31fddef0`/`31fe09c0`).
+   - Then one of three branches:
+     - **Rank-linked** (`+0x294`): the templet is copied (`32092030`) and scaled by a rank factor from `CX2Unit` maps (`31edfe70` at `+0x3b4`; the PVE map is `31edfeb0` at `+0x3f4`). **Located, not decoded.**
+     - **PVE rank-linked** (`+0x58`): the same, with a `+0x124`/`+0x12c` test. **Not decoded.**
+     - **Plain:** `ConvertAndAdd`.
+   - Then the skill-level-up loop (10 slots, `3288fe00`/`31fe14f0`), and the per-class hook vslot `+0x794` (empty for `CX2GUUser`).
+   - Then a recursion when the templet's `+0x38` list is non-empty.
+   - **New in June:** each templet's skill cool-time cuts go into a `map<slot, float>` at `CX2Unit+0xe78` (`32355d70`; `CX2Unit` = user `+0x867c`).
+     - Slot 1 gets Active (`+0x2c4`), slot 2 1st SA (`+0x2c8`), slot 3 2nd SA (`+0x2cc`), slot 4 3rd SA (`+0x2d0`).
+     - The all-skill cut `+0x2e8` goes into slots 1, 2, 3, 4 and 6.
+     - Socket 2000145 (`0x1e8511`) sets user byte `+0x7ca8`.
+4. **`32080670`** = `ConvertAndAdd( rhs, level, unitType )`.
+   - The stat part: `m_Stat` is unprotected, then `ConvertAndAddStat` with `CalculateHpIncrementValue( level )` (`320722f0`, `32070490`), then `LimitMaximum` and re-protection.
+   - Then **`3207cd70`**, the body. Every term is `+=` unless marked:
+     - Linear terms, `(int)( rhs.f · curve( level ) + 0.5 )`:
+
+       | Field | Curve |
+       |---|---|
+       | move `+0xc` | `CalculateLinearMoveSpeedValue` |
+       | jump `+0x10` | `CalculateLinearJumpSpeedValue` |
+       | anim `+0x14` | `CalculateLinearAnimationSpeedValue` |
+       | hyper charge `+0x18` | `CalculateLinearHyperGageChargeSpeedValue` |
+       | critical % `+0xbc` | `CalculateLinearCriticalValue` |
+       | additional defence `+0xd8` | `CalculateLinearAdditionalDefenceValue` |
+       | additional attack `+0xdc` | `CalculateLinearAdditionalAttackValue` |
+       | **MP by attack `+0x124`** | **`CalculateLinearMpIncValueByAttack`** |
+       | **MP by attacked `+0x12c`** | **`CalculateLinearMpIncValueByAttacked`** |
+       | **maximize `+0x13c`** | **`CalculateLinearDamageMaximizeRate`** |
+       | **spec A `+0x134`** | **`32073860`**: `CalculateLinear<Class>SpecializationAValue` |
+       | **spec B `+0x138`** | **`320739e0`**: `CalculateLinear<Class>SpecializationBValue` |
+
+       The two spec dispatchers switch on the unit type, 1 Elsword … 12 Ain, and return 0 for any other type.
+     - Plain adds: `+0x1c`, `+0x20`, `+0x5c`, `+0x60`, `+0xc0`…`+0xd4`, `+0xe0`, `+0x140`, `+0x180`…`+0x188`, `+0x154`, `+0x22c`…`+0x238`, `+0x254`…`+0x268`, and **`+0x2ac`…`+0x2ec`** (17 floats).
+     - `+0x23c` is multiplied, not added (March's `m_fAllAttackEnchantRate *=`).
+     - The four HP/MP vectors are appended. The super-armor max-merge goes into `+0x21c`…`+0x228`, as March's `SUPER_SOCKET_IN_TITLE`. Each `+0x29c` entry is appended.
+   - **Removed against March** (`X2SocketItem.h` `ConvertAndAdd`):
+     - evade and anti-evade;
+     - `m_fMPMultiplyByAll`'s plain add (now inside the two linear MP terms);
+     - **Add's 0.5 `fReformValue` on hyper charge and hyper time** (`SERV_9TH_NEW_CHARACTER`). The aggregate path has no 0.5 anywhere: `3204f190`, `32080670` and `3207cd70` were all checked. This is a June-removes-a-feature item for Add; whether June applies it somewhere downstream is not checked.
+     - `m_iAllSkillLevelUpEx` (probably dead in this build anyway).
+5. **`320804f0`** = `LimitMaximum`: the `Stat` limit, then hyper time ≤ 40, super-armor rate ≤ 0.5, super-armor time ≤ 10. **Identical to March**, with no limit on any June-only field.
+
+**Seeds** (`32270dd0`, user branch, the complete table; `@32270df3`–`32271228`). Member ← socket offset:
+- `47bc`←`14`
+- `4870`/`4924`←`c`
+- `49d8`/`4a8c`←`10`
+- `4b40`/`4bf4`←0 (accuracy and avoidance; March seeds anti-evade/evade)
+- `4ca8`←`bc`, `4d5c`←`c0`
+- **`50e0`←`c4`**, **`5248`←`cc`**, **`5194`←`c8`**, **`5a14`←`d0`**, **`5ac8`←`d4`**
+- `4e10`/`4ec4`/`53b0`←0
+- `4f78`←`dc`, `502c`←`d8`
+- **`52fc`←`e0`**
+- **`5474`/`5528`←`124`**, **`55dc`←`12c`**
+- `5e4c`…`6284` (7 members)←0
+- `63ec`←`18`, `64a0`←`1c`
+- **`6bb0`←`134`**, **`6c64`←`138`**, **`6d18`←`13c`**
+- **`6de8`←`2ac`, `6e9c`←`2b0`, `6f50`←`2b4`, `7004`←`2b8`, `70b8`←`2bc`, `716c`←`2c0`, `7220`←`2d4`, `72d4`←`2d8`, `7388`←`2dc`, `743c`←`2e0`, `74f0`←`2e4`**
+
+**Passive init: the "diff it" item** (`322718e0` `@32271ac0`–`32271b21`).
+- June gives 24/25/26 (`+0x5474`/`+0x5528`/`+0x55dc`) multiple 1 and sum 0 (`3236ccc0`/`3236cbf0`), and also `+0x52fc`.
+- **Verdict: March's `SetPassiveSum( m_SocketData.m_fMPMultiplyByAll )` (`X2GameUnit.cpp:13557-13559`) is replaced, not kept.**
+- June routes the socket MP bonus through load (summed into `+0x124`/`+0x12c`), then the linear curve, then the seed, then the option-data refresh with `CalculateFinalMpIncPercentBy…`. Keeping March's passive sum as well would count it twice.
+
+**Readers of each June-only field.**
+- The sweep: every `+0x87b4` site (52), plus a displacement/immediate sweep of each June option member's result `M+0xa0`/`+0xa4` and option value `M+0x24`.
+- Excluded as false positives:
+  - `31d95080` (ESP stack temps in the `X2Main` binder);
+  - the `push 0x539c`/`0x53a0`/`0x5ab4`/`0x5b68`/`0x7158` immediates (string or size constants, not member reads).
+- In `GetFinalDamage`, `EBP` is the attacking side and `EDI`/`ESI` the defending side. The evidence is the boss gate, `[edi+0x85f8]+0xdc == 1` on the unit hit, and the enemy-HP test on `EDI`.
+- **Unchecked:** whether `GetFinalDamage` runs on the attacker for every call path.
+
+| Field (socket offset → member) | Reader | What June does | Verdict for step 3 |
+|---|---|---|---|
+| `m_fAtk*PiercingRate` `2ac`/`2b0` → `6de8`/`6e9c` | `GetFinalDamage` `@32285850`/`@32285952` (and the twins `@32285a54`/`@32285b3a`), inside the damage-type switch | added into the defence-ignore sums | port; formula **not yet decoded** past the add |
+| `m_fHPRecoveryRate` `2b4` → `6f50` | `322fbc60` `@322fbd4f`, which reads `result − 1` | callers: user `DamageReact` `@3204780b`, user vslot `+0x7a0` `32024510`, `3200edb0`, `323046f0`, NPC `327c9c80` | **located, not decoded**; `322fbc60` is not identified |
+| `m_fIncreaseItemDropRate` `2b8` → `7004` | **no client reader** (no read of `+0x70a4`/`+0x7028` outside the seed and refresh) | server-side in June | an offline stand-in would be a design proposal for the user, not June |
+| `m_fIncreaseDmgRateToBoss` `2bc` → `70b8` | `GetFinalDamage` `@32286519` | `damage *= result` when the defender's NPC templet `+0xdc` == 1 (boss) or `bl` | port |
+| `m_fIncreaseDefRateToBoss` `2c0` → `716c` | getter `32071bf0`, user `DamageReact` `@3204884f` | added to the defender's reduction sum when the attacker is a boss (templet `+0xdc`) | port, with the `52fc` row |
+| skill cool-time cuts `2c4`…`2d0`, `2e8` | `SumSocketOption` puts them in `CX2Unit+0xe78`; read by **`3234fbd0`** | `max( 1 − Σ, 0 )` per skill. June skill type → slot: 6 Active → 1, 7 SA and 14 SA grade 1 → 2, 15 → 3, 16 → 4, 13 hyper → 5, 5 buff → 6 | see the cool-time note below |
+| `m_fIncreaseDmgEnemyHPFew_DmgRate` `2d4` → `7220` | `GetFinalDamage` `@32285344` | when the defender's HP/MaxHP ≤ 0.3 (`3343bd78`), attacker P/M attack `*= 1 + r` | port |
+| `m_fIncreaseDefMyHPFew_DefRate` `2d8` → `72d4` | `GetFinalDamage` `@3228692c` | when the defender's HP ratio ≤ 0.3, `damage *= 1 − r` | port |
+| `m_fDecreaseDebuffTimeRate` `2dc` → `7388` | `CX2BuffTimeFinalizerTemplet::SetFactor` `@32ec33cf` | already decoded in Phase 4b-ii (the `+0x7428` line); ported dormant | becomes live once seeded |
+| `m_fDecrease_MPCostRate` `2e0` → `743c` | `3203c9a0` `@3203d02d` (user skill MP cost) | when `r > 0` and skill type ≠ 13 (hyper): `cost *= max( 1 − r, 0.8 )` (`33478a78` = 0.8 as a double; the compare direction was checked) | port; `3203c9a0`'s March host is not named |
+| `m_fIncreaseDmgRate_MyHpFew` `2e4` → `74f0` | `GetFinalDamage` `@322853e5` | attacker: `r' = r · (1 − HP/MaxHP)`, P/M attack `*= 1 + r'` | port |
+| `m_fAllSkillDamageIncreaseRate` `2ec` | **`32275ba0`** = June's rewrite of `GetAdditionalAttackPowerRateByType` (`X2GameUnit.cpp:15780`), called from `GetFinalDamage` `@32286885`; also the summon helper `322ece70` `@322ed2bd` | `AT_SPECIAL`: `(1 + skillDamageUp [+ allSkillDamage unless skill type 13]) × GetAdditionalAttackByType`. A summoned-NPC branch reads the owner's (`+0x8614`) `+0x2ec` | **port the whole function** (June rewrote it) |
+| `m_fCriticalAfflicted` `c4` → `50e0` | getter `32071ad0` (option value), four sites in user `DamageReact` `@32048b97`…`@32048cb5` | added to the critical-damage multiplier, then `× 32071ab0()` | port; `32071ab0`, `32070e00` and `32070de0` not identified |
+| `m_fAntiCriticalRate` `d0` → `5a14` | `32273480` (option value), user `DamageReact` `@32048aa2` and NPC `327b1f30` | added to the critical-chance threshold before the random draw (vslot `+0x1cc`) | port; the threshold's sign is **not settled** |
+| `m_fAdditionalAttackedDamageValue` `e0` → `52fc` | `GetFinalDamage` `@3228538e` (`EBP` side: P/M attack `*= 1 + r` when `r > 0`); getter `32071b30` in user `DamageReact` `@3204885e` | subtracted from the defender's reduction sum | **roles not settled**: read on both sides; decode both before porting |
+| `m_fCharacterSpecializationA`/`B` `134`/`138` → `6bb0`/`6c64` | generic `CX2GUUser::AttackResult` `@32012da2` and `CEffect::AttackResult` `@31f86c29`: `x *= 1 + A`, or `1 − B` when vslot `+0x674` returns ±2; plus 18 (A) + 13 (B) per-class functions | class mechanics | **checklist section 7** (list below); the generic sites need vslot `+0x674` named |
+| `m_fDamageMaximizeRate` `13c` → `6d18` | the roll `322788c0`, the summon copy `3230ca6d` | 5c's "Already decoded for 92" | step 4 |
+| 78's three terms `c8`/`cc`/`d4` | both `DamageReact`s (5c) | – | retire the 5c deviation in step 4 |
+| conditional-buff vector `29c` | `322d6f20` (from `CX2Game` `3230b7b0`, on an NPC kill): for each entry with the kill byte set, when the killed NPC's `+0x9058` is set, the attacker gets vslot `+0x21c` (factor, 0, level, 0, 1); also `CX2GUUser::CommonStateStart` `@32060c3e` (the HP-rate variant, **not decoded**) | – | port; the NPC-side `+0x9048` death-buff list in the same function is NPC data, not socket |
+| `m_fBonusTitleMissionCountingRate` `298` | no reader beyond the socket-description UI (`3271a950`); **title-mission readers not checked** | – | unchecked |
+| `m_fSkillDamageUpRate` `238` (March field) | `32275ba0`, `322ece70` | March's reader is rewritten (above) | with `32275ba0` |
+| `SocketData_DuoUnit` vslots 3/4 | `32b0fa90` (`@32b0fac4`…`32b0fbaa`) | Lu/Ciel per-mode stat pair | **checklist section 7** |
+
+**The cool-time note.**
+- June's application point is **`3235a710`**, called from 16 skill-use sites. It reads the skill's base cool time from `CX2Unit+0x494` (`32891460`) and, when it is > 0, multiplies it by `32358480( skill ) × max( 3234fbd0( skill ), 0.8 )`. It writes the result with `32893880`.
+  - `32358480` is a June skill-upgrade cool-time modifier: a list walk through `32891e10`, `324550a0` and `324510e0`. It is **not** March's `CX2Unit::GetSkillCoolTimeDecreaseRate`, which is item-based (`X2Unit.cpp:4722`, called from `X2UserSkillTree.cpp:2404/2449`).
+  - **Conflict to settle in step 3:** `32358770` is called here as `( skill, &coolTime )`. The existing funcmap row for it ("find user by unit UID and apply BBT 100", Phase 1c) does not fit that call shape. The row was **not** edited. Re-check it before porting.
+- **Stop item for step 3:**
+  - June's SA grades are `ST_SPECIAL_ACTIVE_GRADE_1/2/3` = 14/15/16 (June `Enum.src.lua:7133-7145`). March's `SKILL_TYPE` has none of them; it stops at 13 (`ST_HYPER_ACTIVE_SKILL`).
+  - So on March data every SA is type 7, which maps to slot 2 ("1st SA"). The 2nd- and 3rd-SA cuts (`+0x2cc`/`+0x2d0`) can never match.
+  - Port the map faithfully and report those two as dormant, or ask the user. Do not invent a grade mapping.
+
+**Every `+0x87b4` site, by field.** "March" means a field March's `SocketData` already has, read the same way unless noted.
+
+| Site(s) | Field | Kind |
+|---|---|---|
+| `31fcb2e0` | `+0x140` `m_fDamageUpByAMADS` | March (getter) |
+| `31fcd6b4` | `+0x230` `m_iMPChangeValue` | March |
+| `31fd284e`/`2881`, `322851be`/`5255` | the protected `m_Stat` | March (the `GetFinalDamage` use is a game-type switch on stat indices 2–5) |
+| `31fd5833`/`5858`, `31fd6a2b`/`6a50` | `+0x38` list, `+0x154` `m_AllSkillLevelUp` | March (skill-level-up) |
+| `31fda18c`/`a20a`, `32047d40` | `+0x114` `m_vecMpUpByAttacked` | March, but June's element is **0x18 bytes**, against March's `D3DXVECTOR4`. Not decoded |
+| `31fe8719` | `+0x234` `m_fHPRelativeChangeRate` | March |
+| `32001205`…`32001275` | `+0x21c`…`+0x228`, super armor | March |
+| `3201ad1e`/`ad64`/`adba` | `+0x48` | March structure; member not identified |
+| `32024f71` | `+0x98`/`+0x9c` vector | not identified |
+| `3202d6d0`, `3202d8f0`, `32047b53` | `+0xe4`, `+0x104`, `+0xf4` HP/MP-up vectors | March |
+| `32045458` | `+0x458` vector | June list; with `+0x448` it is copied to the user `+0x744`/`+0x754` (`322a604c`/`6064`) |
+| `322a6035` | `+0x32c` extra damage → `DamageData` | March |
+| `3206d4b5`, `32298cea`, `329e24d9`, `32a71d89` | `+0x280` hyper-mode-effective list | March (`HAMEL_SECRET_DUNGEON`) |
+| `32ccc01e` | `+0x180` `m_fSpeedUpManaGather` | March |
+| `32060c3e`, `322d6f53` | `+0x29c` | **June-only** |
+| `32275c28`/`5ca1`, `322ed2bd`/`d2d7` | `+0x238`, `+0x2ec` | **June rewrite** |
+| `32b0fac4`…`fbaa` | vslots 3/4 | **Duo** |
+| `3203ae99`, `3204b4c3`…`b5bf`, `3204ea89`/`ea9d`, `322a021d`, `32042093`…`320420e2` | lifetime, `ReInit`, re-protect, null test | plumbing |
+| `3201133a`, `32c8bcdc`, `32d0c99d` | `mov esi, 0x87b4` immediates | not examined |
+
+**Curves the June C++ calls by name** (the input to step 2's arity gate; every one takes one argument, the level, except where marked):
+- `CalculateHpIncrementValue`
+- `CalculateLinearMoveSpeedValue`, `…JumpSpeedValue`, `…AnimationSpeedValue`, `…HyperGageChargeSpeedValue`, `…CriticalValue`, `…AdditionalDefenceValue`, `…AdditionalAttackValue`
+- `…MpIncValueByAttack`, `…MpIncValueByAttacked`, `…DamageMaximizeRate`
+- the 24 `CalculateLinear<Class>Specialization{A,B}Value` (Elsword, Arme, Lire, Raven, Eve, Chung, Ara, Elesis, Add, Luciel, Rose, Ain; strings `33472bac`…`33472f68`)
+- the option-data `CalculateFinal*` curves of the refresh, `( value, level )`, listed in 5c: `CalculateFinalDamageMaximizeRate`, `CalculateFinalMpIncPercentByAttack`/`…ByAttacked`, and the March set
+- June's `SocketOptionForm.src.lua` defines every Linear name above (lines 1–351).
+- Not swept: the `CalculateFinal*` curves the June-only option members `6de8`…`74f0` use in the refresh `32290950`. Step 2 must list them from `32290950` before the gate.
+
+**For checklist section 7: copy later** (this session may not edit the checklist):
+- `SocketData_DuoUnit` (Lu/Ciel): the per-mode protected stat pairs and vslots 3/4 (`32091b10`/`32091b60`), read in `32b0fa90`.
+- Spec A/B (`6bb0`/`6c64`) per-class readers:
+  - A: `328eab00`, `3297ee20`, `32981130`, `329a4680`, `329e59f0` (Add `UpNowDPValue`), `32a620e0`, `32ac8f10`, `32b14860`, `32bc9a60`, `32bed5d0`, `32c41170`, `32c43bf0`, `32c56be0`, `32ca7130`, `32cb6290`, `32cc7300`, `32ccda90`, `32ce7480`.
+  - B: `329b3cc0`, `329b5230`, `32a01b40`, `32a59e70`, `32ac7700`, `32b14860`, `32b37910`, `32ba6ef0`, `32bf5280`, `32c491a0`, `32c50330`, `32c85690`, `32ccfe30`.
+- Add's removed 0.5 socket hyper reform (above).
+
+**What step 1 settles for steps 2–4.**
+- The aggregate needs no new class to port. March's `SocketData` gains the June-only fields at its own offsets, the loader keys, the ×100 table, `ConvertAndAdd`'s June body and the cool-time map, all under `SOCKET_PARITY`. `DuoUnit` goes to section 7, because March has no Lu/Ciel.
+- `LimitMaximum` is unchanged.
+- **Open decode items before code** (step 3 must finish each, not assume a formula):
+  - the piercing formula;
+  - `322fbc60` (HP recovery);
+  - the two roles of `52fc`;
+  - anti-crit's sign;
+  - `32071ab0`;
+  - the rank-linked branches (inert on March data, because no March socket sets either rank flag; **counting that on March's live socket data is step 3's reach count**);
+  - the `+0x29c` HP-rate reader `32060c3e`;
+  - `3203c9a0`'s March host;
+  - `32358770`.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
