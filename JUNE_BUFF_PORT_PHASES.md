@@ -5381,6 +5381,8 @@ and what I should see if it works and if it does not.
 
 ### Phase 15, step 1 — RE (2026-10-04), read-only; step 2 not started
 
+**Step 1 is done. The next session begins at step 2, using the inputs listed at the end of this subsection. Do not redo the RE that the kickoff above asks for.**
+
 Ran on Opus 5.5 high. The session was read-only because a Phase 6 session and a Phase 16 session were working in the same tree: no code or Lua edits, no build, no Ghidra renames or comments.
 - March bodies were read from a `cl /P` of `X2GameUnit.cpp`, `X2EnchantItem.cpp` and `X2Data.cpp` with the `US_SERVICE` flags (output in the scratchpad only).
 - Blaze `3229b250` and Poison `3229bf90` have no Ghidra function. They were read with `disasm_range.py`.
@@ -5393,8 +5395,8 @@ Ran on Opus 5.5 high. The session was read-only because a Phase 6 session and a 
 3. **Two different "tiers".** Keep them apart in step 2 and step 3:
    - The *EDT tier* is the weapon's attribute grade: blaze 1001 / 2002 / 3003 / 4004, frozen 1011 / 2022 / 3033 / 4044, poison 1101 / 2202 / 3303 / 4404.
    - The *accumulation* is the defender's stack count.
-4. **Slots 214–219 are virtual, but nothing overrides them.** All 17 unit vtables (`CX2GameUnit`, `CX2GUUser`, `CX2GUNPC` and the 14 character classes) hold the base bodies: 214 `3229b250`, 215 `3229bd00`, 216 `3229bf90`, 217 `32289da0`, 218 `3229c980`, 219 `32278a90`.
-5. **The readers of the new fields are outside the six bodies.** They are in `CX2GUUser::CommonFrameMove` (`32063650`), the NPC tick hosts (`327b53b0`, `3276b400`) and `GetFinalDamage` (`32284aa0`, which already carries earlier-phase edits). Step 3's scope grows by those four hosts.
+4. **Slots 214–219 are virtual, but nothing overrides them.** All 18 unit vtables hold the base bodies. That is `CX2GameUnit`, plus 17 from the `CX2GU*` scan: `CX2GUUser` and 12 character classes, `CX2GUNPC` and 3 NPC subclasses. The bodies are 214 `3229b250`, 215 `3229bd00`, 216 `3229bf90`, 217 `32289da0`, 218 `3229c980`, 219 `32278a90`.
+5. **The readers of the new fields are outside the six bodies.** They are in `CX2GUUser::CommonFrameMove` (`32063650`), the NPC tick hosts (`327b53b0`, `3276b400`), `GetFinalDamage` (`32284aa0`, which already carries earlier-phase edits) and the tooltip (`3270d7b0` `GetToolTipForPure`, called three times by `3270ee40` `GetToolTip`). Step 3's scope grows by those five hosts.
 6. **"Depends on: nothing in the buff port" is false.** Shock and the poison/frozen slows now apply buffs that March's buff data does not define. See *Buff-data dependency* below.
 
 **`EnchantData` (June loader `32708f00`; node value at node+0x10)**
@@ -5443,7 +5445,7 @@ Common to Blaze, Frozen and Poison:
 Blaze and Poison damage:
 - **The tier is read on the new 1-based accumulation.** 1 → First, 2 → Second, ≥ 3 → Third; at 0, `m_DamagePerSec` stays 0. The NPC-attacker path does the same.
 - **New: `× ENCHANT_STAT_SCALE[ weapon item+0x18 ]`.** The table at `33487110` holds the values of March's `X2Define.h:233`. It is skipped when `32708c50` reports PvP (state 9) with channel class 9 (`PCC_FREE`). The index is not bounds-checked.
-  - This does not double-scale. March applies the +N scale only in `CX2Item` (`X2Item.cpp:650/659`), and the enchant bodies call the templet-only `CalculateItemStat`.
+  - Against March's stat call this would not double-scale: March applies the +N scale only in `CX2Item` (`X2Item.cpp:650/659`), and its enchant bodies call the templet-only `CalculateItemStat`. But a whole-function port uses June's stat call, the templet-bit-7 branch below that was not diffed. Whether that call already applies the +N scale decides parity, so settle it in step 3.
 - **The dungeon branch differs:**
   - It runs in states 11 and 23. March runs it in `XS_DUNGEON_GAME` only. June's 23 is probably `XS_BATTLE_FIELD`, which is 24 in March (23 there is `XS_ARCADE_ROOM`); that identity is unproven.
   - It has one quick-slot check (`328b26a0` on the room's dungeon ID). March has two: Henir challenge and defence dungeon.
@@ -5483,7 +5485,15 @@ Snatch:
   - NPC `3275aa80` forwards to the owner's slot 112 when `USE_OWNERS_ENCHANT` (`+0x7c7f`) is set and the owner (`+0x8d5c`) is live; otherwise it returns `GetNPCEnchantData`. Slot 111 (`3275aa20`) does the same.
   - The flag is read by `32289090` beside `MAX_HYPER_MODE_TIME`, so it is the `InitComponent` counterpart (candidate). Only `data037_kom/Lire_Evoke_trap(_Memo).src.lua` set it.
   - March has one non-virtual function (`X2GameUnit.h:2596`).
-- The 13 slot-`0x1c0` call sites are the six bodies, `322a0510`, the `GetFinalDamage` frozen block (`@322855ff`, March's DefenceDebuff fields) and five other-class sites. None reads `+0x3c..+0x70`.
+- There are 13 slot-`0x1c0` call sites:
+  - five bodies (Piercing never calls slot 112);
+  - `322a0510`;
+  - the `GetFinalDamage` frozen block (`@322855ff`, which reads March's DefenceDebuff fields);
+  - six sites in other classes: `31b806f7`, `327cfa35`, `327cfa4c`, `327d2e0f`, `327d4aed`, `331dad47`.
+- Only the bodies are proven not to read `+0x3c..+0x70`, because they were read by hand. The `GetFinalDamage` block and the six other sites were cleared by an `eax`-relative filter only.
+- The map lookup both getters wrap, `3270f540`, has two more callers:
+  - **`3270d7b0` = `GetToolTipForPure`.** It reads every new scalar (node `+0x4c..+0x5c` = ED `+0x3c..+0x4c`; the two rates × 100) and formats them into the tooltip. A port needs June's string IDs for those lines, and March's string table may not have them.
+  - `32807e00`, a lookup in another class's map (`+0x2c4`), which is unrelated.
 - `32d418a0` (`bbt, value, op`: 0 add / 1 multiply / 2 set on `value[1]`) and `32d41910` (the finalizer twin) are June buff-factor setters. March has neither.
 
 **Loaders**
@@ -5506,6 +5516,7 @@ Snatch:
 - **Number collision:** `0x3e9` is both `EDT_ENCHANT_BLAZE` and BFI 1001 (the push `@32067fe1`). Step 2's audit must not count the BFI as an EDT consumer.
 
 **Still open (step 3):**
+- The tooltip `3270d7b0`/`3270ee40` and the string IDs it uses.
 - Snatch's tail (`0xd8`, `DD+0x470`).
 - Blaze/Poison's templet-bit-7 stat call.
 - The shock-debuff trigger and its x.
