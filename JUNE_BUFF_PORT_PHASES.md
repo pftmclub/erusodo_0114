@@ -4621,6 +4621,91 @@ How the lines were checked:
 - `first apply BBT 88 …`, `first read BBT 88 …`
 - any `[JUNE_BUFF]` line naming `990078`, `990088`, `362` or `363`
 
+### Phase 5c — Review (2026-10-04, Opus 5.5 high)
+
+**Verdict: the transcription is correct. No code changed.** 78 and 88 match June in every host, store, class and key default checked. 92 landed no code, so it was out of scope; the two Ghidra spot-checks were 78 and 88, and both passed, so a whole-phase re-check was not needed.
+
+**What was reviewed.**
+- The code commit is `a3db272`. The play-test diagnostic `531c8ae` was reverted in `2406d67`, and `git diff a3db272 HEAD -- X2Lib KTDXLIB` is empty.
+- The deployed `X2_offline.exe` is still the play-tested build: 19,058,176 B, md5 `fedca4823fac169630c037e71971f67f`, byte-identical to `X2/US_SERVICE/x2.exe` (read programmatically).
+- **92 left nothing half-wired.** `BBT_CHANGE_MAXIMIZE` appears only in its enum (`X2BuffFactor.h:130`), the 4b-i level-slice case (`X2BuffFactor.cpp:2789`) and a comment. There is no parse, factory or store.
+
+**Spot-check 1 — 88, in Ghidra (read-only).**
+- **Host, `GetFinalDamage` `@3228568a`–`32285735`.**
+  - The flag comes from CX2Game vslot 67 (`+0x10c`). Type 1 reads `+0x529`; any other type reads `+0x528`.
+  - `m_bPenetrate` (`+0x4c5`) or that flag zeroes the factor.
+  - Otherwise `r = 322cc1a0() ? +0x530 : +0x52c`, and the factor is `1 − 32274970(this) − r`, kept only when `0 ≤` it, else 0.
+  - `322cc1a0` is `type == 1 || type == 4`.
+  - The port matches. Using `GT_PVP` for both selections equals June on March's `GAME_TYPE` (`GT_PVP` = 1, `X2Game.h:62`; no 4). June calls `32274970` twice; it has no side effects.
+- **Key defaults, `SetDamageDataFromLUA` `32632390`.**
+  - `IGNORE_DEFENCE`: miss → 0 (`@3263c6d8`, `AL` = 0 after the failed read).
+  - `_ON_PVP`: miss → the byte at `[esp+0x14]` = `+0x528` (`@3263c8a0`–`a6`).
+  - `IGNORE_DEFENCE_RATE`: miss → `fldz` (`@3263ca51`).
+  - `_RATE_ON_PVP`: miss → copies `+0x52c` (`@3263cc7e`).
+  - `IGNORE_DEFENCE_DECLINE`: miss → `BL` after `xor ebx,ebx` (`@3263ce49`/`65`) = 0.
+  - The order is `+0x528`, `+0x529`, `+0x52c`, `+0x530`, `+0x534`, as ported. `LUA_GET_VALUE` (`luaLib/KLuaManager.h:118`) assigns its default only on a miss, so passing the already-read sibling is exact.
+- **Factor parse `32d49210`.** `fld1` is stored before the read and again on a miss, so `IGNORE_DEFENCE_RATE` defaults to 1.0, as ported.
+
+**Spot-check 2 — 78, in Ghidra (read-only).**
+- **User `DamageReact` `@32049405`–`32049565`.**
+  - The `m_bLvDamage` (`+0x57c`) gate comes first. Inside it, the additional-defence reduction is skipped when `+0x534` is set (`@32049412`), which is the ported decline gate.
+  - Then: attacker non-null; defender = `DD+0x470`.
+  - `k = attacker.32071b10 + this.32071b50 (78) + this.32071af0`. When the defender exists and its `32071b90` is above 0, `k −= 32071b90 × [0x33478b70]`.
+  - `k = max( k, 0 )` (`@32049509`–`1c`), then `× vslot 149` (`+0x254`).
+  - Then the `v > 0` add and the double-attack add are March's.
+- **NPC `DamageReact` `@327b4214`–`327b43be`.**
+  - The same gates (decline `@327b4221`; the additional defence is read inline from `+0x50cc`).
+  - The same inline `k`: `this+0x5450` (78's result), `attacker+0x526c`, `this+0x51b8`. The defender term `+0x5aec` is subtracted whenever the defender exists, with no `> 0` test.
+  - Then the clamp and `× vslot 149`.
+- **The port matches.** The recorded deviation `k = max( 78, 0 )` drops only the three option terms, and all three are 0 on March data. The March context around both blocks (`if( m_bLvDamage == false )`, the attacker null test, the double-attack add) is unchanged.
+
+**Source checks (no Ghidra needed).**
+- **88 store.** `CX2StatFactorByBuff( identity, float )` / `GetValue()` (`X2BuffTemplet.h:812`/`816`). The erase is `FindSameBuffIdentity` plus a single `erase`. The reader is the sum, capped at 1.0. All as item 3 and the Done note say.
+- **`g_pX2Game` in the 88 host.** `GetFinalDamage` already returns early when it is null (`X2GameUnit.cpp:2099`), so the new `GetGameType()` call is safe.
+- **`DamageData` copies.** The copy ctor is `*this = rhs` (`X2DamageManager.h:1441`), there is no user `operator=`, and `Init()` routes through `SimpleInit()`. The only `"IGNORE_DEFENCE"` parser is `X2DamageManager.cpp:511`. So the four new members need nothing beyond the declaration, `SimpleInit` and the parse, as the Done note claims.
+- **Runtime writers of `m_bIgnoreDefence`.** A full `X2Lib` grep finds exactly the four the Done note checked: memo 26 (`X2BuffTemplet.cpp:1416`), Add (`X2GUAdd.cpp:10777`) and Rena ×2. Only Rena sets the twin, which matches June.
+
+**Hygiene.**
+- **`file`.** Signatures are unchanged on all 11 touched code files (parent against `a3db272`).
+- **Diff.** `git diff --stat a3db272^ a3db272 -- X2Lib`: **315 insertions, 0 deletions**. No added line has a non-ASCII byte.
+- **Flag-off build path.** A strip of `NEW_STAT` and `DEBUG` (taking every `#else`) of parent and commit is byte-identical for 10 files. `X2GameUnit.cpp` differs by one blank line just outside the new guard (after its `#endif`), which is cosmetic and was already in the Done note.
+  - Read directly, the three `#else` branches are March's lines verbatim: both `DamageReact`s' `if ( 0.0f < GetAdditionalDefence() )` and `fAdditionalAttackValue = …GetAdditionalAttackDamage( pDamageData )`, and `GetFinalDamage`'s penetrate/ignore block.
+  - Every other edit is a pure insertion (keys, members, store cases, Rena's twin).
+
+**Corrections.**
+1. **Done note, Hygiene:** "310 insertions" should read **315**. Its own per-file numbers add up to 315.
+
+**Not reachable from the console, and why** (in addition to the Done note's list):
+- **78's user-side host** (a hit taken by the player) cannot fire offline. `CX2GUNPC::GetAdditionalAttackDamage` returns 0 unless the NPC has an owner (`X2GUNPC.cpp:30611`), and the base returns 0. A player only takes additional damage from another player or an owned summon, which means PvP. It is the same block as the NPC side, which the play-test proved.
+
+**Cost.** `/cost` cannot be read from inside the session. User, please paste it here. *(Not invented.)*
+
+**Play-test hand-off (optional regression; dev console, END key).** The review changed no code, and the exe in the game directory already passed both of the Done note's checks. One path that play-test did not show is 88 **expiring**, i.e. the erase. It has no log line, so this check is visual only.
+
+1. **The no-defence debuff wears off (type 88).**
+   - **Where:** a field or dungeon with ordinary monsters, **after a fresh launch**. Hit one a few times and note the typical damage number.
+   - **Paste,** first (the Done note's two definitions, unchanged; both ran in the game on 2026-10-04):
+     ```
+     local t = {} local p = {} local r = {} for i = 1, 30 do t[i] = 60 p[i] = 3 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990078, IS_WORLD_BUFF = FALSE, IS_DEBUF = TRUE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 78 }, BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER = { BUFF_CHANGE_TYPE = 3, BUFF_RELATION_TYPE = 7 } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 362, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990078, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 78 }, BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER = { BUFF_CHANGE_TYPE = 3, BUFF_RELATION_TYPE = 7, PERCENT = p } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+     ```
+     local t = {} local r = {} for i = 1, 30 do t[i] = 60 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990088, IS_WORLD_BUFF = FALSE, IS_DEBUF = TRUE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 88 }, BBT_IGNORE_DEFENCE = {} }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 363, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990088, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 88 }, BBT_IGNORE_DEFENCE = { IGNORE_DEFENCE_RATE = 1 } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+   - **Paste,** then (puts the 60-second debuff on every monster on the map):
+     ```
+     for i = 0, g_pX2Game:GetNPCUnitListSize() - 1 do local n = g_pX2Game:GetNPCUnit( i ) if n ~= nil then n:SetBuffFactorToGameUnitByBuffFactorID_LUA( 363, 1 ) end end
+     ```
+   - **What it does:** for 60 seconds the monsters take your hits as if they had no defence. After that they should be back to normal.
+   - **Look for:**
+     - Hits are clearly harder right away.
+     - **More than 60 seconds later**, the same attack is back to the number you noted first.
+     - `ErrorLog.txt` has `first apply BBT 88 (ignore defence): BTI 990088, rate 1` and `first read BBT 88: piercing defence factor 0 …`, as before.
+   - **If not:**
+     - Still hitting hard well after 60 seconds: tell me "88 did not wear off", and how long you waited.
+     - An `ordinal reject BFI 362`/`363` line: the game was not freshly launched. Restart and paste again.
+
+**Log lines to read afterwards** (`ErrorLog.txt`): `first apply BBT 88 …`, `first read BBT 88 …`, and any `[JUNE_BUFF]` line naming `990088` or `363`.
+
 ---
 
 ### Phase 6 — group B: skill-scoped types (Sonnet)
