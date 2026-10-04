@@ -298,9 +298,12 @@ def deploy(cfg, build_start, dry):
         return 0
     src_md5 = md5(src)
     if os.path.exists(dst) and md5(dst) == src_md5:
-        p("deploy: %s already identical to x2.exe; copying anyway to refresh its time." % DEPLOY_NAME)
-    shutil.copyfile(src, dst)
-    time.sleep(3)  # Defender quarantine shows up as the file vanishing right after the copy
+        # Same bytes already deployed: do not copy, so the file time (and with it tools/logs.py's
+        # "run after deploy" judgement of logs written by these very bytes) stays put.
+        p("deploy: %s already has these exact bytes; registering it without copying." % DEPLOY_NAME)
+    else:
+        shutil.copyfile(src, dst)
+        time.sleep(3)  # Defender quarantine shows up as the file vanishing right after the copy
     names = os.listdir(GAME_DIR)
     if DEPLOY_NAME not in names:
         p("DEPLOY FAILED: %s is gone from the game directory right after the copy." % DEPLOY_NAME)

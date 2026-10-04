@@ -52,10 +52,9 @@ so run them one at a time; of these only 9 is known to be clear of 10's and 11's
 Every code phase appends to `KTDXLIB/Always.h` (bytepatch re-reads it, so two appends in a row
 are safe; two simultaneous ones are not).
 
-Not yet migrated (2026-10-04): the plan doc itself still carries the inline kickoff prompts and
-the long Done notes of 4b-i..5c. Moving those notes into `JUNE_BUFF_PORT_ARCHIVE.md` and
-pointing the inline prompts at `kickoffs/` waits until no session is writing the doc (user's
-call). Until then the `kickoffs/` files are the ones to use.
+Plan doc migrated 2026-10-04: finished Done/Review notes of 4b-i..6 are in
+`JUNE_BUFF_PORT_ARCHIVE.md` (headings kept as stubs that `tools/docsection.py` follows), and
+the inline prompts of unfinished phases point at `kickoffs/june-buff/`.
 
 ## Other plans
 

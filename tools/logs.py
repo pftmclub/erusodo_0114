@@ -69,7 +69,7 @@ def run_start(key, path, text):
     """Launch time of the run that wrote this log (logs are rewritten per launch)."""
     mt = os.path.getmtime(path)
     first = text[:200]
-    m = re.match(r"(\d{4})/(\d{1,2})/(\d{1,2}) (\d{1,2}):(\d{2}):(\d{2})", first)
+    m = re.match(r"(\d{4})/(\d{1,2})/(\d{1,2}) (\d{1,2}):(\d{1,2}):(\d{1,2})", first)  # KLOG drops leading zeros
     if m:
         return datetime.datetime(*map(int, m.groups())).timestamp()
     m = re.match(r"\[(\d{2}):(\d{2}):(\d{2})", first)
