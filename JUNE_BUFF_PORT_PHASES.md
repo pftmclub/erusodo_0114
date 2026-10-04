@@ -62,6 +62,7 @@ The user decided (2026-10-02):
 | 13 | Adopt June buff data, build, hand off pack | 4–12 | data + build | Sonnet 5.5 | medium | required (Opus 5.5) |
 | 14 | Play-test sweep + close-out | 13 | verify + root-cause | Opus 5.5 | high | none |
 | 15 | Enchant system parity (added 2026-10-04) | – | RE + C++ + data | Opus 5.5 | high | required |
+| 16 | Socket-option parity, then BBT 92 (added 2026-10-04, from 5c) | 5c | RE + C++ + data | Opus 5.5 | high | required |
 
 Phases 5–9 are independent of each other and can run in any order, except inside a group: 5 → 5b → 5c (92 needs Phase 4b's BBT 7/8 second members), 5 → 6 → 6b (91 shares 85/86's host function) and 7 → 7b. Phases 5–7b each have a ready-to-paste kickoff prompt and review prompt under "Phases 5–7"; nothing in them needs substituting. Phase 13 must come last among the data phases.
 
@@ -337,6 +338,7 @@ Already confirmed: `32630d20` `ParsingBuffFactorID` and `32632390` `SetDamageDat
 | `SERV_IRUHADEV_JUNE_BUFF_GROUP` | 10 |
 | `SERV_IRUHADEV_JUNE_BUFF_PREMIUM` | 11 |
 | `SERV_IRUHADEV_JUNE_ENCHANT_PARITY` | 15 |
+| `SERV_IRUHADEV_JUNE_SOCKET_PARITY` | 16 |
 
 ## The exit metric every phase uses
 
@@ -4468,6 +4470,23 @@ The kickoff's two blockers do not fire: Phase 4b-i part 4 landed the second ("ra
   - Extend `KStat` and have the offline emulator fill it. That touches `KncWX2Server/Common`, which this plan forbids, and the formula would have to come from somewhere.
   - Accept range 0 for players, which makes 92 dormant.
 
+**Resolved (user, 2026-10-04): "follow June, so no half-baked port."** It applies to all three questions. Tracing what that means turned up a fourth dependency, so 92 now moves into a new phase, **Phase 16 — Socket-option parity** (below). It does not land in 5c.
+- **Q1 → port June's template, as part of Phase 16.**
+  - A diff of every `CX2AdditionalStatByBuff` method found that only the option-data template changed. Insert `3236d110`, update `3236d370` (it still returns 1 when found), erase `3236c610`, the plain refresh `3236d350`/`3236d200`, the per-change-type update `3236cd90` and the four setters all equal March's.
+  - A member-by-member diff of June's refresh `32290950` against March's `CheckAndUpdateAdditionalStat` found the same refresh variant and modifier everywhere except three members. The MP-gain members **24, 25 and 26** (`ChargeMpHitMelee`/`Range`, `ChargeMpHitted`) moved from the plain refresh to option-data, with the new curves `CalculateFinalMpIncPercentByAttack` (`322a99e0`) and `CalculateFinalMpIncPercentByAttacked` (`32073ba0`).
+  - Every June curve reads only `(value, level)` (`[esp+4]`/`[esp+8]`), so March's call shape is enough.
+  - The template's inputs are the socket option values. Porting the formula while March's seeds stay March's would itself be a partial update.
+- **Q2 → adopt June's `SocketOptionForm.lua` wholesale, as part of Phase 16.** It must ship with the exe that reads the new curves.
+- **Q3 → no decision possible; it is a missing fact.**
+  - June's client has no range source: no range key in any June client string, and none in June's `CharacterStatTable.lua` (the same five stat columns as March), `ExtraNPCStat` or the NPC stat table.
+  - So following June ends at the server's `KStat`.
+  - Extending `KStat` is not done. The plan forbids touching `KncWX2Server/Common`, and with no formula the emulator could only send 0.
+  - Players' range stays 0, so the roll stays dormant until a source exists. **Question for the user:** do you have any June-era server binary, database or `ServerResource` that computes the attack range?
+- **The fourth dependency: June's socket system itself.**
+  - June's socket-option loader `32726850` reads 140 keys; March's `X2SocketItem.cpp` reads 111. **41 are June-only**, including `m_fDamageMaximizeRate` (92's seed), 78's three terms, the MP-gain return rates, the boss and low-HP damage rates, skill cool-time cuts and `m_fDecrease_MPCostRate`. **12 are March-only**, among them `m_fAntiEvadePercent` and `m_fEvadePercent`, which June no longer seeds.
+  - June's option-seed function `32270dd0` feeds about 30 members from the new socket aggregate (unit `+0x87b4`).
+  - Phase 16 lists all of this.
+
 **Already decoded for 92, so the next session does not redo it** (all in `funcmap.tsv`, "Buff Phase 5c"):
 - **Member sites.** Member `+0x6d18`:
   - insert `32282f4f`, update `@32270acc`, erase `@32283795`;
@@ -5251,6 +5270,89 @@ and what I should see if it works and if it does not.
 ```
 
 ---
+
+## Phase 16 — Socket-option parity (added 2026-10-04; carries 92 and 78's socket terms)
+
+**Why it exists.** In Phase 5c the user decided, for 92's three questions, "follow June, so no half-baked port". In June the option-data stats are one system, and it has to move together:
+
+> socket-option loader → per-unit socket aggregate → option seeds (`InitAdditionalStatOptionValue`) → option-data refresh template → Lua curves in `SocketOptionForm.lua`
+
+June changed every link. 92 and the three socket terms in 78's multiplier sit at the end of the chain, so they land here, after the system.
+
+**Already mapped** (Phase 5c and its follow-up; `funcmap.tsv`, "Buff Phase 5c"):
+- **Template** `320839e0`: June's formula is in the 5c Done note, Q1. Every other `CX2AdditionalStatByBuff` method equals March's.
+- **Refresh** `32290950`: the same as March apart from three members. 24/25/26 move to option-data with `CalculateFinalMpIncPercentByAttack` (`322a99e0`) and `…ByAttacked` (`32073ba0`). June-only option members `+0x6bb0`/`+0x6c64` use `322a9a10` and `322a9c20`, and `+0x52fc` uses the plain refresh. All curves are `(value, level)`.
+- **Option seeds** `32270dd0`, user branch (the NPC branch zeroes every member). Each entry is member → socket-aggregate offset:
+
+  | Member | Seed |
+  |---|---|
+  | 11 anim | `+0x14` |
+  | 12 move (both members) | `+0xc` |
+  | 13 jump (both members) | `+0x10` |
+  | 14 accuracy, 15 avoidance | **0**; March seeds anti-evade and evade |
+  | 16 critical rate | `+0xbc` |
+  | 17 critical attack | `+0xc0` |
+  | 18, 19 | 0 |
+  | 20 additional attack | `+0xdc` |
+  | 21 additional defence | `+0xd8` |
+  | **24 and 25** (MP melee/range) | `+0x124` |
+  | **26** (MP hitted) | `+0x12c` |
+  | 36–41, 44 | 0 |
+  | 72 hyper charge | `+0x18` |
+  | 76 hyper duration | `+0x1c` |
+  | 78 | 0 |
+  | **78's three terms** `+0x5194`/`+0x5248`/`+0x5ac8` | `+0xc8`/`+0xcc`/`+0xd4` |
+  | **92** | `+0x13c` (`m_fDamageMaximizeRate`) |
+  | June-only `+0x50e0`, `+0x52fc`, `+0x5a14`, `+0x6bb0` (Add's DP consume, checklist section 7), `+0x6c64`, and `+0x6de8`…`+0x74f0` | `+0xc4`, `+0xe0`, `+0xd0`, `+0x134`, `+0x138`, `+0x2ac`…`+0x2e4` |
+
+- **Passive init** `322718e0`: it sets the MP members 24/25/26 itself (`@32271ac6`–`32271b1b`). March instead puts `m_SocketData.m_fMPMultiplyByAll` into their passive sum (`X2GameUnit.cpp:13557-13559`). Diff it.
+- **Loader keys:** 41 June-only and 12 March-only (both lists are in the 5c Done note's resolution). In the loader, the stores go into a templet struct (`edi`) whose offsets are **not** the aggregate's: `+0x18` is written both for `m_fHyperModeChargeRate` and for `m_iAnimationSpeedRate`. Map the aggregate separately.
+- **Curves:** June's `SocketOptionForm.lua` adds `NewDecrease`/`NewDecreaseCoefficient`, `CalculateFinalDamageMaximizeRate`, the two MP curves and others. It also changes existing ones (`CalculateFinalAnitEvadePercent` returns 0).
+- **92's whole client side** (5c Done note, "Already decoded for 92"): the store, the refresh, the roll `322788c0` (boost 1.44), the virtuals for slots 113 and 121, the call sites and the summon copy.
+
+**Steps**
+1. **RE (read-only, like 1c).**
+   - The aggregate layout at unit `+0x87b4` and the function that builds it (March: `SocketData` `operator+=`, `X2SocketItem.h:779…`, and its limits `:872`).
+   - The templet → aggregate copy.
+   - Every reader of each June-only field: skill cool time, boss damage, low-HP damage, MP cost, debuff time, item drop and so on. Character-specific readers go to checklist section 7.
+   - Record verdicts before writing code.
+2. **Data gate for `SocketOptionForm.lua`.**
+   - Every curve March's C++ calls through `lua_tinker::call` (`X2SocketItem.h` and elsewhere) must exist in June's file with the same arity. A missing curve returns 0 and silently zeroes that stat.
+   - Also check June's file for globals March's Enum lacks.
+   - List the curves whose values change; that is the "June wins" reach to report.
+   - Compile with `elstools compile-batch -v mar-2014`, stage in both directories and update the manifest. The user packs it, together with the exe.
+   - Identify June's socket-option *data* files (the tables the loader reads) and decide adoption under the same rules.
+3. **Code, under a new flag `SERV_IRUHADEV_JUNE_SOCKET_PARITY`.** One commit per layer: loader + aggregate; seeds + passive; refresh variants + the template; then readers.
+   - Count the reach on March's live factor and socket data first. Which factors and socket options change value, by member? Put the numbers in the Done note.
+4. **92 under `SERV_IRUHADEV_JUNE_BUFF_NEW_STAT`** (its census type is 5c's), wrapped in `#if defined(NEW_STAT) && defined(BEHAVIOR_PARITY)` where it touches the range members.
+   - The curve's degrade path: one `[JUNE_BUFF]` line, and 92 off in the roll, while `CalculateFinalDamageMaximizeRate` is missing.
+   - Retire 78's recorded deviation by reading the three seeded terms.
+5. **Play-test.**
+   - **Roll:** a console-hook FIX on BBT 7 raises both attack and range, so the roll fires with maxi 0. Look for a visible damage spread and a first-roll log line.
+   - **92:** a FIX factor (SPA-style `FIX 10`). PERCENT-only 92 gives 0 under June's formula, so it cannot be the check.
+   - **Sanity:** a move-speed or attack-speed buff still looks right, and socket MP gain still works.
+
+**Q3 (open, a missing fact):** players' attack range comes only from the server's `KStat`, and June's formula is not in the client. The range stays 0 until the user supplies a June-era server source. The roll and 92 are dormant until then, even after this phase.
+
+**Run with:** Opus 5.5, high effort. Review required. Split the RE (step 1) into its own session if it grows.
+
+```
+Continuing the June buff/debuff port. Run this session on Opus 5.5 at high effort.
+Read JUNE_BUFF_PORT_PHASES.md in the repo root -- "Starting context", "Phase 5c -- Done"
+(including its "Resolved" block and "Already decoded for 92") and "Phase 16". Branch:
+mods/june-buff-port. Never launch X2_offline.exe without asking first.
+
+Your task (Phase 16, socket-option parity): do step 1 (RE, read-only) first and record
+verdicts in the doc, then steps 2-4: June's socket loader keys, the per-unit socket
+aggregate, InitAdditionalStatOptionValue seeds and passive init, the refresh variants and
+the option-data template 320839e0, June's SocketOptionForm.lua (staged for me to pack,
+after the arity gate), then BBT 92 end to end and 78's three socket terms. Flag
+SERV_IRUHADEV_JUNE_SOCKET_PARITY (92 stays under NEW_STAT). Port June's whole function
+wherever it differs; cite June addresses; never invent a value; byte-level CP949 edits;
+flag-off unifdef per file; count the reach on March's live data before building. Build,
+deploy, commit; write a Done note with per-item "how to see it in game" lines and
+record /cost. Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)".
+```
 
 ## Critical files
 
