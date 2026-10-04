@@ -4533,6 +4533,20 @@ The kickoff's two blockers do not fire: Phase 4b-i part 4 landed the second ("ra
 
 **Cost.** `/cost` cannot be read from inside the session. User, please paste it here. *(Not invented.)*
 
+**Play-test (2026-10-04, user): both checks pass.**
+- **88: pass.** On the first try, hits were visibly harder. The log has `first apply BBT 88 (ignore defence): BTI 990088, rate 1`, then `first read BBT 88: piercing defence factor 0 (buff rate 1, damage data rate 0)`.
+- **78: pass after a retest; the first "no change" was a display artefact.**
+  - The user watched the **chat-box damage log**. That line is the in-house feature `ADD_DAMAGE_LOG` (from `InHouse5.h`). It prints `CX2GUUser::GetCurrentDamage()`, which the attacker's `AttackResult` sets from `GetFinalDamage()` (`X2GUUser.cpp:12659`) before the defender's `DamageReact` adds the additional damage. So the chat line never included additional damage, in March either.
+  - 88 shows up there because it acts inside `GetFinalDamage`. 78 acts on the additional part, which only the damage number over the monster shows.
+  - A temporary per-hit diagnostic (`531c8ae`, reverted in `2406d67`) logged the same basic attack in three states:
+    - unbuffed: `damage 15424.5 + additional attack 2875.89 x 1 = 18300.4`;
+    - with a ×10 test buff (factor 362, BTI 990178): `… x 10 = 44183.4`;
+    - after the buff expired: back to `18300.4`.
+  - The on-screen number is drawn from that total. The user also reported the damage felt higher.
+- **Retest note.** The first ×10 retest never ran: the log has `duplicate BTI 990078`, so the original setup line had been pasted again instead of the ×10 one.
+- **Deployed exe** (diagnostic removed, same code as `a3db272`): 19,058,176 B, md5 `fedca4823fac169630c037e71971f67f`.
+- Out of scope, seen in the log: `BFI 512 requested but not loaded` (not one of this phase's ids).
+
 **Play-test hand-off (dev console, END key; `settings.auth_level` = 3 is already set).**
 
 How the lines were checked:
