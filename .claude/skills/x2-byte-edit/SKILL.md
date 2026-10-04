@@ -48,7 +48,7 @@ with Edit.
 ```sh
 python tools/flagcheck.py JUNE_BUFF_NEW_SKILL --with JUNE_BUFF_DEBUG            # flag lifetime + uncommitted
 python tools/flagcheck.py JUNE_BUFF_NEW_SKILL --range 890abd2..HEAD             # one phase's commits
-python tools/flagcheck.py JUNE_BUFF_NEW_SKILL --worktree                        # before committing
+python tools/flagcheck.py JUNE_BUFF_NEW_SKILL --worktree --files X2Lib/A.cpp X2Lib/A.h   # before committing: only your files
 python tools/flagcheck.py OFFLINE_AUTH_LEVEL --base c67ccab^ --at c67ccab       # doc style: reduce to a base
 ```
 
@@ -56,6 +56,9 @@ Verdicts: `PASS` byte-for-byte; `PASS~` only blank/`//{{ //}}` lines outside the
 `DEFINE` Always.h comment + `#define`; `OTHER` the change is inside other named flags (an edit to
 an earlier phase's flagged code: say which in the Done note); `FAIL` an unflagged change (fix it);
 `ERROR` a conditional the tool cannot evaluate (never treated as a pass; resolve by hand).
+Once any file in a commit mentions the flag, every other code file that commit changed is
+checked too: an edit outside every `SERV_IRUHADEV_` flag there is a FAIL (the forgotten
+`#ifdef`). New untracked files count in `--worktree`. A flag with no `#define` fails.
 The summary line also counts deleted lines (insert-only rule), non-ASCII inserted lines,
 EOL-mismatched inserts, `#else`/`#endif` without the flag token, and encoding changes.
 Paste the `files:` / `in this flag's files:` / `RESULT:` lines into the Done note's hygiene row.

@@ -5,7 +5,8 @@ Replaces the per-review hand-written unifdef scripts. Byte-level; never decodes 
     python tools/flagcheck.py FLAG                      # every commit in the flag's lifetime + uncommitted changes
     python tools/flagcheck.py FLAG --range A..B         # commits in a range (e.g. one phase)
     python tools/flagcheck.py FLAG --commits c1 c2      # specific commits
-    python tools/flagcheck.py FLAG --worktree           # only uncommitted changes vs HEAD
+    python tools/flagcheck.py FLAG --worktree           # only uncommitted changes vs HEAD (incl. new files)
+    python tools/flagcheck.py FLAG --worktree --files X2Lib/A.cpp X2Lib/A.h   # only your files (peers share the tree)
     python tools/flagcheck.py FLAG --base REV [--at REV] [FILE ...]
                                                        # doc style: FILE@at with FLAG stripped vs FILE@base
                                                        # (also stripped); --at defaults to the working tree
@@ -399,11 +400,12 @@ def check_pair(path, old, new, flag, rev_old, rev_new, extra=()):
 
 
 def code_files_changed(rev_old, rev_new):
-    if rev_new is None:
-        out = git("diff", "--name-only", rev_old)
+    if rev_new is None:  # working tree: tracked changes plus new untracked files
+        out = "\n".join([git("diff", "--name-only", rev_old), git(
+            "ls-files", "--others", "--exclude-standard", "--", *[d.rstrip("/") for d in CODE_DIRS])])
     else:
         out = git("diff", "--name-only", rev_old, rev_new)
-    return [f for f in out.splitlines() if f.lower().endswith(CODE_EXT) and f.startswith(CODE_DIRS)]
+    return [f for f in dict.fromkeys(out.splitlines()) if f.lower().endswith(CODE_EXT) and f.startswith(CODE_DIRS)]
 
 
 def define_sites(flag):
@@ -428,16 +430,52 @@ def print_row(label, r):
                                           ("  -- " + r["note"]) if r["note"] else ""))
 
 
-def run(flag, pairs, extra=()):
-    """pairs: list of (label, rev_old, rev_new(None=worktree), [paths] or None)."""
+def classify_unflagged(path, old, new):
+    """For a changed file that never mentions the flag: is the change inside SOME SERV_IRUHADEV_ flag?"""
+    if new == old:
+        return "SAME", ""
+    others = all_iruhadev(old, new)
+    try:
+        a, b = strip(new or b"", others), strip(old or b"", others)
+        if path.endswith(DEFINE_HOME):
+            a, b = strip_defines(a, others), strip_defines(b, others)
+            if a != b and define_file_only(b, a):
+                return "OTHER", "Always.h: other flags' comments/defines"
+    except Unevaluable as e:
+        return "ERROR", str(e)
+    if a == b or loose(a) == loose(b):
+        changed = [o for o in sorted(others) if loose(strip(new or b"", others - {o})) != loose(strip(old or b"", others - {o}))]
+        return "OTHER", "file does not mention the flag; change belongs to: %s" % ", ".join(changed or sorted(others))
+    d = first_diff(b, a)
+    note = "UNFLAGGED change in a file that does not mention the flag"
+    if d:
+        note += " (stripped line %d: old %r | new %r)" % (d[0], body(d[1])[:80], body(d[2])[:80])
+    return "FAIL", note
+
+
+def run(flag, pairs, extra=(), only=None):
+    """pairs: list of (label, rev_old, rev_new(None=worktree), [paths] or None).
+    A pair is in scope when any of its changed code files mentions the flag; then EVERY changed
+    code file of that pair is checked (a forgotten #ifdef in a flag-free file is a FAIL)."""
     totals = {"PASS": 0, "PASS~": 0, "DEFINE": 0, "OTHER": 0, "FAIL": 0, "ERROR": 0, "SAME": 0}
     dels = nonascii = eolbad = tok = encbad = 0
+    fb = flag.encode()
     for label, ro, rn, paths in pairs:
         files = paths if paths is not None else code_files_changed(ro, rn)
+        if only:
+            files = [f for f in files if f.replace("\\", "/") in only]
+        blobs = [(path, show(ro, path), show(rn, path)) for path in files]
+        if not any(fb in (o or b"") or fb in (n or b"") for _, o, n in blobs):
+            continue
         rows = []
-        for path in files:
-            old, new = show(ro, path), show(rn, path)
-            if flag.encode() not in (new or b"") and flag.encode() not in (old or b""):
+        for path, old, new in blobs:
+            if fb not in (new or b"") and fb not in (old or b""):
+                v, note = classify_unflagged(path, old, new)
+                if v == "SAME":
+                    continue
+                r = {"path": path, "verdict": v, "note": note, "dels": 0, "ins": 0, "nonascii": 0, "eolbad": 0,
+                     "enc": "%s->%s" % (enc_class(old), enc_class(new)), "tok": 0}
+                rows.append(r)
                 continue
             r = check_pair(path, old, new, flag, ro, rn, extra)
             if r["verdict"] == "SAME":
@@ -464,7 +502,9 @@ def run(flag, pairs, extra=()):
           % (totals["PASS"], totals["PASS~"], totals["DEFINE"], totals["OTHER"], totals["FAIL"], totals["ERROR"]))
     print("in this flag's files: %d deleted line(s), %d non-ASCII inserted line(s), %d EOL-mismatched inserted line(s), "
           "%d #else/#endif without the flag token, %d encoding change(s)" % (dels, nonascii, eolbad, tok, encbad))
-    ok = totals["FAIL"] == 0 and totals["ERROR"] == 0 and encbad == 0 and not bad_sites
+    ok = totals["FAIL"] == 0 and totals["ERROR"] == 0 and encbad == 0 and not bad_sites and bool(sites)
+    if not sites:
+        print("  FAIL: the flag is not #defined anywhere tracked (add it to %s)" % DEFINE_HOME)
     checked = sum(v for k, v in totals.items() if k != "SAME")
     if checked == 0:
         print("RESULT: NOTHING CHECKED (no changed file mentions %s in the given revisions)" % flag)
@@ -530,6 +570,15 @@ def selftest():
     # 12 identical file -> SAME (never a pass)
     cases.append(("vacuous", base, base, "SAME"))
     fails = 0
+    # scope: a file that never mentions the flag
+    for name, o, n, want in (
+            ("unflagged-file", base, base.replace(b"\tg();", b"\tg(1);"), "FAIL"),
+            ("other-flag-file", base,
+             base.replace(b"\tg();\r\n", b"\tg();\r\n#ifdef SERV_IRUHADEV_X\r\n\th();\r\n#endif\r\n"), "OTHER")):
+        got = classify_unflagged("X2Lib/u.cpp", o, n)[0]
+        ok = got == want
+        fails += not ok
+        print("  %-4s %-14s want %-6s got %s" % ("ok" if ok else "BAD", name, want, got))
     for name, old, new, want in cases:
         got = classify("X2Lib/t.cpp", old, new, F)[0]
         ok = got == want
@@ -551,6 +600,8 @@ def main():
     ap.add_argument("files", nargs="*")
     ap.add_argument("--range")
     ap.add_argument("--commits", nargs="+")
+    ap.add_argument("--files", nargs="+", dest="files_opt", metavar="FILE",
+                    help="limit the check to these files (use this after --commits, which takes several values)")
     ap.add_argument("--worktree", action="store_true")
     ap.add_argument("--base")
     ap.add_argument("--at")
@@ -563,6 +614,7 @@ def main():
     if not a.flag:
         ap.error("FLAG is required")
     flag = a.flag if a.flag.startswith(PREFIX) else PREFIX + a.flag
+    a.files = list(a.files or []) + list(a.files_opt or [])
     pairs = []
     if a.base:
         files = a.files or None
@@ -590,7 +642,10 @@ def main():
     extra = [x if x.startswith(PREFIX) else PREFIX + x for x in (a.with_ or [])]
     if extra:
         print("treated as part of the same change: %s" % ", ".join(extra))
-    return run(flag, pairs, extra)
+    only = set(x.replace("\\", "/") for x in a.files) if (a.files and not a.base) else None
+    if only:
+        print("only these files: %s" % ", ".join(sorted(only)))
+    return run(flag, pairs, extra, only)
 
 
 if __name__ == "__main__":

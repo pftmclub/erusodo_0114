@@ -12,6 +12,10 @@ Everything else (reading the right sections, building, deploying, hygiene, bookk
 Arguments: `status` | `next` | `<plan> <phase>` | `<plan> <phase> review` | `new-plan <name>`.
 `<plan>` is the key in STATUS.md (e.g. `june-buff`); `<phase>` as written there (e.g. `6b`, `15-step2`).
 
+**`kickoffs/` is the source of truth for kickoff prompts.** Plan docs written before
+2026-10-04 still carry inline copies; those are frozen. Never amend or "supersede" an inline
+kickoff in a plan doc: change the file in `kickoffs/` instead, and say why in the Done note.
+
 ## status / next (read-only)
 
 Read `STATUS.md` only. Answer in plain words, short:
@@ -57,7 +61,10 @@ Verify against `git log --oneline -15` before claiming a phase is done; STATUS c
 
 ## Finish (same session)
 
-1. `flagcheck.py <FLAG> --worktree` before committing: RESULT must be PASS (or every FAIL explained and fixed).
+1. `flagcheck.py <FLAG> --worktree --files <the code files you changed>` before committing
+   (`--files` keeps peers' uncommitted edits out of your verdict): RESULT must be PASS, every
+   FAIL fixed, every OTHER row and deleted line explained. After committing, run it once more
+   with `--range <your first commit>^..HEAD` and paste those summary lines.
 2. `build.py --deploy`: paste its `DEPLOY OK` line into the Done note. Check the phase's
    strings are in the deployed exe if the phase's gate asks for it.
 3. **Done note** in the plan doc, under the phase: what landed (commit, flag), hygiene lines
