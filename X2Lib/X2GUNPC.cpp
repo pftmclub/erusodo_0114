@@ -9968,17 +9968,13 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 				const float fTypeAdditionalAttackMultiplier = max( GetTypeAdditionalAttackMultiplier(), 0.0f );
 				const float fAdditionalAttackValue = pDamageData->optrAttackerGameUnit->GetAdditionalAttackDamage( pDamageData ) * fTypeAdditionalAttackMultiplier;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-				/// Phase 5c play-test diagnostic: every hit that carries additional damage, at most one line per second, buffed or not,
-				/// so the on-screen number can be compared with the total (before the double-attack doubling and later steps).
-				if ( 0.0f < fAdditionalAttackValue )
+				if ( 1.0f != fTypeAdditionalAttackMultiplier && 0.0f < fAdditionalAttackValue )
 				{
-					static DWORD s_dwLastRead78Npc = 0;
-					const DWORD dwNow78 = ::GetTickCount();
-					if ( dwNow78 - s_dwLastRead78Npc >= 1000 )
+					static bool s_bSeenRead78Npc = false;
+					if ( !s_bSeenRead78Npc )
 					{
-						s_dwLastRead78Npc = dwNow78;
-						CX2JuneBuffCapture::Line( "read BBT 78 (npc hit): damage %g + additional attack %g x %g = %g", fFinalDamage,
-							( 0.0f < fTypeAdditionalAttackMultiplier ? fAdditionalAttackValue / fTypeAdditionalAttackMultiplier : 0.0f ), fTypeAdditionalAttackMultiplier, fFinalDamage + fAdditionalAttackValue );
+						s_bSeenRead78Npc = true;
+						CX2JuneBuffCapture::Line( "first read BBT 78 (npc hit): additional attack %g x %g", fAdditionalAttackValue / fTypeAdditionalAttackMultiplier, fTypeAdditionalAttackMultiplier );
 					}
 				}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
