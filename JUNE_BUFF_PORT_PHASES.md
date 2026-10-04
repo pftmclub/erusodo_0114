@@ -3748,7 +3748,7 @@ and what I should see if it works and if it does not.
 
 ### Phase 5 — Done (2026-10-04), play-test pending
 
-**Result.** All seven types are ported under `SERV_IRUHADEV_JUNE_BUFF_NEW_STAT`; none is Opus-only. `buff_census.py --phase 5` no longer lists any of them (March "handles 79", was 72). Client build `US_SERVICE` rc=0 for KTDXLIB, X2Lib (PCH invalidated with `touch X2Lib/stdafx.cpp`) and X2. `git diff --stat`: 351 insertions, 0 deletions; `file` on every touched file unchanged. Deployed `X2/US_SERVICE/x2.exe` as `X2_offline.exe` (names read programmatically: `x2.exe`, `x2.exe.bak`, `x2.fx`, `X2_offline.exe`): 19,040,256 B, md5 **`407067dcf1f31a0ca858f39c1db3eb4d`**, byte-identical to the build output. The exe contains all seven `BBT_*` key strings (ASCII and UTF-16) and the debug strings `first apply BBT`, `first read BBT`, `console hook BBT`, `JuneBuffTestNewStat_LUA`. **Not launched.**
+**Result.** All seven types are ported under `SERV_IRUHADEV_JUNE_BUFF_NEW_STAT`; none is Opus-only. `buff_census.py --phase 5` no longer lists any of them (March "handles 79", was 72). Client build `US_SERVICE` rc=0 for KTDXLIB, X2Lib (PCH invalidated with `touch X2Lib/stdafx.cpp`) and X2. `git diff --stat`: 351 insertions, 0 deletions; `file` on every touched file unchanged. Deployed `X2/US_SERVICE/x2.exe` as `X2_offline.exe` (names read programmatically: `x2.exe`, `x2.exe.bak`, `x2.fx`, `X2_offline.exe`): 19,040,256 B, md5 **`407067dcf1f31a0ca858f39c1db3eb4d`**, byte-identical to the build output. The exe contains all seven `BBT_*` key strings (ASCII and UTF-16) and the debug strings `first apply BBT`, `first read BBT`, `console hook BBT`, `JuneBuffTestNewStat_LUA`. **Not launched.** The four read sites (fixed-damage path and main path of `GetFinalDamage`, melee and range branches of `SetDamageExceptionProcess`) were each proven compiled in under `US_SERVICE` with a temporary `#pragma message` and a one-file compile (removed again; `git status` clean afterwards).
 
 **Flags.** `SERV_IRUHADEV_JUNE_BUFF_NEW_STAT` (requires `_ENUM` for the enumerators and `AT_COMMAND`, and `_BEHAVIOR_PARITY` for the level slice and the ChangeStat templet parity) and `SERV_IRUHADEV_JUNE_BUFF_DEBUG`, both appended to `KTDXLIB/Always.h`. `DEBUG` had been listed since Phase 3 but never defined; it is defined now so the step-8 first-application lines compile in. Undefine it and no debug string remains. Every edit is a pure insertion inside the flag; nothing needed an `#else` except `CX2GUUser::GetHyperModeTime`, where the original line sits in the `#else`.
 
@@ -3775,7 +3775,7 @@ All seven also got: templet-factory case (`CX2BuffChangeStatBehaviorTemplet`), I
 **Where 85/86's block landed (for Phase 6, type 91).** `CX2GameUnit::SetDamageExceptionProcess`, in the `if ( pDamageData_->m_bMeleeAttack ) { … } else { … }` pair that follows the `#endif` of `BALANCE_PATCH_20120329`. Each branch ends with `pDamageData_->fHitAddMP = pDamageData_->optrAttackerGameUnit->GetChargeMpHit{Melee,Range}Attack();`. The `#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT` block (`if ( AT_COMMAND == attackType ) fHitAddMP *= GetMeleeCommandMpGainRate()` in the melee branch, `GetRangeCommandMpGainRate()` in the range branch) is inserted directly after that assignment line in each branch. 91 scales the same `fHitAddMP` unconditionally on attack type: add it after these two blocks, or after the whole if/else (both are equivalent as it does not depend on the branch).
 
 **Open items and decisions for the review / the user.**
-1. **Default level slice, possible value = change type (not fixed here).** June's jump table sends 85, 86, 87 and 96 to case 13 = `32d4812a`, and 108/109 are above the bound `0x68`, so also to the default. That default (already ported by 4b-i) pushes `[ (int)factor[0], factor[1] < 30 ? factor[0] : factor[level+1] ]`, i.e. **the change type as the value** when `factor[1]` is small. The ChangeStat group (`32d47957`) holds 17–21 (including the existing final-damage melee/range types), 76, 78 and 92. If this reads as I think, a BFI for 108 with `PERCENT = { 1.2, … }` would store 3.0 (= `BCT_PERCENT`). I confirmed the transcription against the disassembly (`PUSH EBX` with `EBX = 0` is `factor[0]`), but I could not run a real June factor through it: March's staged `BattleFieldBuffFactor.lua` has none of the seven types. **The new debug line `[JUNE_BUFF] first apply BBT <n>, change type <c>, value <v>` prints the value the store actually received.** When June data is loaded (Phase 13/14), a `value` equal to `change type` rather than the Lua number means the slice is the cause. Not touched, because it is a deliberate 4b-i transcription of June.
+1. **Default level slice: checked, closed.** June's jump table sends 85, 86, 87 and 96 to case 13 = `32d4812a`, and 108/109 are above the bound `0x68`, so all six use the default (already ported by 4b-i): `[ (int)factor[0], factor[1] < 30 ? factor[0] : factor[level+1] ]`. The factor file parses with `bIsSkill = true` (`ParsingBuffFactor` default), so the layout is counted, `[ct, count, v1..vN]`, and `factor[1]` is N. Measured in `june_src_fixed/data036_kom/BattleFieldBuffFactor.src.lua`: **every** `PERCENT` / `FIX_VALUE` table of all 18 rows carrying these six types plus 76 has exactly 30 entries (BFI 355, 506, 626, 822, 1109, 1110, 1111, the ERDA ones and the rest). `30 < 30` is false, so the default takes `factor[level+1]`, the per-level value. It would hand back the change type only for a table shorter than 30; none exists in June's data. (Transcription re-checked in the disassembly: `PUSH EBX` with `EBX = 0` is `factor[0]`.) The debug line `first apply BBT <n>, change type <c>, value <v>` still prints the value the store actually received, so Phase 14 can confirm it on real data.
 2. **Console reach (user's request).** The shipped March data cannot reach these types through `SetBuffFactorToGameUnitByBuffFactorID_LUA`. I added a DEBUG-only hook, `JuneBuffTestNewStat_LUA( type, changeType, value, insert )` (`CX2GameUnit`, bound in `X2Main.cpp` beside `SetBuffFactorToGameUnitByBuffFactorID_LUA`, `#if defined( NEW_STAT ) && defined( DEBUG )`). It calls `InsertAdditionalStat` / `EraseAdditionalStat` with a made-up identity (BTI `900000 + type`, unique 1). It exercises the stores, the refresh and the read sites, **not** the parse, the level slice or the templet. Remove with `DEBUG`.
 3. **85/86/87/96 readers are not reachable in game yet.** They only act when `attackType == AT_COMMAND`, and no March damage data sets it (the 4b-iii review said the same). Only their stores can be checked until a June attack that carries `ATTACK_TYPE.AT_COMMAND` is loaded.
 4. **Not ported here, as the map says:** the class overrides of the 76 reader (Ain `32a4fe50`, `329e5180`/`329e56c0`) and Chung's virtual `32c16be0` (sets 85/86's passive values). Those classes are not in March and ride with their classes.
@@ -3798,7 +3798,10 @@ All seven also got: templet-factory case (`CX2BuffChangeStatBehaviorTemplet`), I
 
 1. **Your hits on monsters double (type 108).**
    - Where: any field or dungeon, next to a monster you can hit.
-   - Paste: `g_pX2Game:GetMyUnit():JuneBuffTestNewStat_LUA( 108, 3, 2.0, 1 )`
+   - Paste:
+     ```
+     g_pX2Game:GetMyUnit():JuneBuffTestNewStat_LUA( 108, 3, 2.0, 1 )
+     ```
    - What it does: makes everything you hit a monster with deal twice the damage.
    - Look for: damage numbers on your next hits about twice what they were; `ErrorLog.txt` gets `console hook BBT 108`, `first apply BBT 108, change type 3, value 2` and `first read BBT 108`.
    - If not: damage unchanged, or no `first read BBT 108` line, means the fixed-damage/main path did not pick the member up. Tell me "nothing happened" and send the `[JUNE_BUFF]` lines.
@@ -3806,7 +3809,10 @@ All seven also got: templet-factory case (`CX2BuffChangeStatBehaviorTemplet`), I
 
 2. **Monsters hit you for double (type 109).**
    - Where: a field or dungeon with monsters on the map, you not yet engaged.
-   - Paste: `for i = 0, g_pX2Game:GetNPCUnitListSize() - 1 do local n = g_pX2Game:GetNPCUnit( i ) if n ~= nil then n:JuneBuffTestNewStat_LUA( 109, 3, 2.0, 1 ) end end`
+   - Paste:
+     ```
+     for i = 0, g_pX2Game:GetNPCUnitListSize() - 1 do local n = g_pX2Game:GetNPCUnit( i ) if n ~= nil then n:JuneBuffTestNewStat_LUA( 109, 3, 2.0, 1 ) end end
+     ```
    - What it does: gives every monster currently on the map a double-damage-against-players bonus.
    - Look for: a monster hit takes about twice as much HP as before; log gets `first apply BBT 109, change type 3, value 2` and `first read BBT 109`.
    - If not: HP loss unchanged means the user branch was not taken. Tell me, or send a screenshot of the damage number.
@@ -3814,15 +3820,21 @@ All seven also got: templet-factory case (`CX2BuffChangeStatBehaviorTemplet`), I
 
 3. **Hyper mode lasts longer (type 76).**
    - Where: any field, with a character that has Hyper mode available.
-   - Paste: `g_pX2Game:GetMyUnit():JuneBuffTestNewStat_LUA( 76, 1, 100, 1 )`
+   - Paste:
+     ```
+     g_pX2Game:GetMyUnit():JuneBuffTestNewStat_LUA( 76, 1, 100, 1 )
+     ```
    - What it does: adds 100% to the Hyper mode duration.
    - Look for: activate Hyper mode **after** pasting; it should last about twice as long as normal. Log gets `first apply BBT 76, change type 1, value 100` and `first read BBT 76: hyper time percent 100 (socket alone 0)` (the second number is your equipment's own bonus, so it may be larger than 0 and the first number then equals it plus 100).
-   - If not: if you see the `first apply` line but no `first read BBT 76`, hyper mode is not reading that getter; tell me "no first read".
+   - If not: if you see the `first apply` line but no `first read BBT 76`, hyper mode is not reading that getter; tell me "no first read". A `first read BBT 76` line that does not show your +100 means it fired early (it is a one-shot shared by every unit, so a bot with its own socket bonus can trip it); send it and I will look.
    - Undo: `g_pX2Game:GetMyUnit():JuneBuffTestNewStat_LUA( 76, 1, 100, 0 )`
 
 4. **The four command-attack stores accept and release a value (85, 86, 87, 96).**
    - Where: any field or dungeon.
-   - Paste: `local u = g_pX2Game:GetMyUnit() u:JuneBuffTestNewStat_LUA( 85, 3, 2.0, 1 ) u:JuneBuffTestNewStat_LUA( 86, 3, 2.0, 1 ) u:JuneBuffTestNewStat_LUA( 87, 3, 2.0, 1 ) u:JuneBuffTestNewStat_LUA( 96, 3, 2.0, 1 )`
+   - Paste:
+     ```
+     local u = g_pX2Game:GetMyUnit() u:JuneBuffTestNewStat_LUA( 85, 3, 2.0, 1 ) u:JuneBuffTestNewStat_LUA( 86, 3, 2.0, 1 ) u:JuneBuffTestNewStat_LUA( 87, 3, 2.0, 1 ) u:JuneBuffTestNewStat_LUA( 96, 3, 2.0, 1 )
+     ```
    - What it does: stores a x2 for the four "command attack" types on you; they only act on command attacks, which no current attack is.
    - Look for: nothing visible in play: normal attacks keep their damage and MP gain; no popup or crash; `ErrorLog.txt` gets four `first apply BBT 85/86/87/96` lines and no `runtime error` line.
    - If not: a popup, crash or a `Behavior Type Invalid` line means a store is missing; send the lines.
