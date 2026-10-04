@@ -4173,7 +4173,7 @@ Independent review of code commit `9b79255` (against its parent `6f4f3d7`) and d
 
 **Review cost:** `/cost` cannot be read from inside the session. User, please paste it here.
 
-**Play-test result (2026-10-04, user; exe `b981a4c1…`; `ErrorLog.txt` session from the 15:25:43 load summary, `factors 361 loaded`). The logs pass; the on-screen part of check 2 is not yet reported.**
+**Play-test result (2026-10-04, user; exe `b981a4c1…`; `ErrorLog.txt` session from the 15:25:43 load summary, `factors 361 loaded`). All checks pass.**
 - **Setup:** both definitions were accepted. There is no `ordinal reject` line and no `[JUNE_BUFF]` line naming `990106`, `990081`, `362` or `363`.
 - **Check 1 (106/107 through a real factor): pass.**
   - `first apply BBT 106, change type 1, value 101` and `first apply BBT 107, change type 1, value 201` prove the real factor path end to end: both macro-list parses, ChangeStat `SetFactor` and the stores. The default level slice picked level 1 out of a table that differs at every level.
@@ -4182,7 +4182,11 @@ Independent review of code commit `9b79255` (against its parent `6f4f3d7`) and d
 - **Check 2 (80/81/84):**
   - The first paste logged `first SetFactor` / `first apply` for 80 and 81 (`v[3..5] = 1.06 0.35 1, value 2.11`) and for 84 (`1.06 0.07 1, value 1.27`).
   - No `runtime error` line for BTI `990081` follows. So if the second paste ran, the restack raised no zero-multiplier or mismatch error.
-  - The second stack (damage about 3.2×) and the expiry (max HP back after 20 s) write no log line. **Awaiting the user's on-screen report.**
+  - The second stack and the expiry write no log line, so the user checked them on screen. **The user reports both exactly as predicted:**
+    - Damage rose again on the second paste, to about 3× the original. That is the PERCENT restack `1 + ( fNew − 1 )·( c + 1 )` through 80/81's update blocks.
+    - Max HP returned to normal about 20 s after the second paste. That is 84's own erase block plus `SetMaxHp`, and `BFT_TIME` restarting on the re-apply.
+  - **Check 2: pass.**
+- **The Phase 5b review is complete.** Every check passed. Nothing is owed except D1's comment fix (carried into 5c's scope) and R1 (the user's call). Phase 5c is next.
 - Out of scope and unchanged from earlier sessions: the `JUNE_FX MP_CRASH` lines (effect port), and the missing-texture and missing-control lines.
 
 **Play-test hand-off (review).** These checks cover what 5b's four checks did not reach:
