@@ -3233,6 +3233,11 @@ Time's slots 14/15 (set/get duration) have no caller outside the vtable and are 
 - The Hamel secret dungeon weapon buff (OnlyMyClass).
 - Any create-gap effect buff re-applied while it runs.
 
+**Play-test (2026-10-04, user): passed** on the deployed exe `806e2223…` (09:39–09:46). The user ran the planned checks: the Hamel secret-dungeon weapon buff (BFI 282), the Blazing Bomb elixir (187) re-applied while running, the Weapon Break debuff's sound (42), a timed buff carried across a stage change, and a full dungeon clear. All worked. Logs, read after the session:
+- `ErrorLog.txt`: the `[JUNE_BUFF]` lines are exactly the Phase 4a baseline (duplicate BTI 87, both `_INT` not-found lines, ordinal rejects 481/482/483/372/373, `templets 320 loaded, 0 failed, 1 duplicate; factors 361 loaded … ordinal rejects 5`). There are **no** `runtime error` lines. The session's other entries (local-map control lookups, `ErrorEnum(72)`) predate this phase.
+- `State.log`: 443 lines for the whole session, so no per-frame flood.
+- The offline logs: a clean shutdown. The only `UNHANDLED` packet is `E_DISABLE_HB_CHECK_REQ` (×2), which is unrelated to buffs.
+
 **Where 4b-ii stopped / hand-offs.** The class slots of every BFT and BDT are diffed and the census gate is met. Phase 4b is **not** complete: item 7 below (the unit-side stores and read sites behind the displayer and counter slots) was not diffed. None of these items blocks Phase 5.
 1. **Added Phase 8 scope.** The shake trigger: `CX2Game +0xbae` set from input actions `0x25`/`0x26` in the `322f7470` block, and `OnFrameMoveBuff` calling `CX2BuffTemplet::DecreaseDurationByShake` for my user unit, bumping `+0x6dd0`. It sits with BFT 15's input block and the sync counter. Phase 8 must first map June's action codes `0x25`/`0x26` (June's `GAME_ACTION` has more skill slots than March's; LEFT/RIGHT is the likely pair) and what `31c488c0`'s byte array is.
 2. **Character port** (`JUNE2017_CHARACTER_PORT_CHECKLIST.md`): FROZEN_TIME's record/unfreeze (`31fe2a80`, `3200bde0`, `3227beb0`; `+0x81fc` and vslot 329 to map) with Rose; StateChange's `+0x89d8` (`31fe0bb0`).
