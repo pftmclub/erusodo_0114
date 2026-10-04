@@ -3456,7 +3456,10 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The pre-s
   - June keeps the unit's own value.
   - Example: line 1645 of the decompiled templet sets only `RENDER_TYPE = RT_CARTOON_BLACK_EDGE` and a red `COLOR`. March drew it with a 0-width outline; it now keeps the unit's outline.
 - **After-image colour.** With no buff after-image, an enabled after-image is painted with the state colour, which is 0.8 gray on all March data: no March bytecode has the exact key `AFTER_IMAGE_COLOR`. Before, it was painted gray only on disable.
-  - **One visible loss, the June behaviour, kept:** `Ran.lua` and `Ran_Event.lua` call `ChangeAfterImageColor` (black, then magenta) in phases 2 and 3. June's NPC after-image window (`327b53b0 @327b6887`) calls `EnableAfterImage(3)`, which repaints `+0x6880` gray, so Ran's custom colour no longer shows. June's own `ChangeAfterImageColor` (`327582d0`) writes the after-image directly, as March's does, and nothing on the NPC side writes `+0x6880`. March never reads `m_bAfterImageAlways`. Say if this should be kept March-style.
+  - **NPC custom colours (`AFTER_IMAGE_COLOR_R/G/B/A`, `ChangeAfterImageColor`): no practical change.** June's NPC window (`327b53b0 @327b6887`) calls `EnableAfterImage(3)`, which repaints the state colour. But March's `DisableAfterImage` already repainted gray on every frame outside the window, and every state without an `AFTER_IMAGE` table calls it at its start. So a custom colour survived in March only in a window reached before any disable.
+  - **Ran (`Ran.lua`, `Ran_Event.lua`; checked, not a loss).** It calls `SetEnableAfterImageAlways(true)` and `ChangeAfterImageColor` in phases 2 and 3. Neither March's nor June's `Ran.lua` has any state `AFTER_IMAGE` table, so its after-image is never enabled except by a buff after-image, whose colour wins in both builds.
+    - The always flag is dead in both: March never reads `m_bAfterImageAlways`. June's (`+0x8cd4`) is written by its setter `31e4d6f0` (bound at `31e0876c`), the ctor `@327627c0` and the NPC init `@327a2c5c`, and `dispxref` finds no reader.
+    - June's `ChangeAfterImageColor` (`327582d0`) writes the after-image directly, as March's does.
   - June scripts that set `AFTER_IMAGE_COLOR`: `ELESIS_KNIGHT`, Ain, Luciel, Rose, `PVP_HERO_SHAY`/`TAV`. They reach March only when adopted.
 - **Hitted count.** `DT_BUFF` damage (damage over time) no longer advances `BFT_HITTED_COUNT`.
 - **Hit count.** A summoned NPC's hits now also advance its owner's `BFT_HIT_COUNT`.
@@ -3480,11 +3483,17 @@ Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The pre-s
 - Copied to the game directory as `X2_offline.exe` (names read programmatically: `x2.exe`, `X2_offline.exe`); the size and md5 match. **Not launched.**
 - No Lua changed, so no pack is needed.
 
-**Things to watch in play** (ask before launching):
-- Any outline or colour buff, for example a slow or stun debuff, or a hyper-mode-coloured class under a buff. The outline should keep the unit's width; a render param that sets only a colour should no longer flatten the outline.
-- The Ran fight's phases 2 and 3: the after-image is now gray (expected, see above).
-- An after-image buff, e.g. a speed elixir: on, coloured, then off.
-- `ErrorLog.txt`: no new `[JUNE_BUFF] runtime error` lines.
+**Flag dependencies** (add to `BEHAVIOR_PARITY`'s `Always.h` note the next time that header is touched): the NPC owner increment also needs `DUNGEON_RANK_NEW` (`Always.h:2521`, `GetOwnerGameUnit`) and `X2OPTIMIZE_UNITTYPE_BUG_FIX` (`KTDX.h:355`, its `CX2GUUser*` return). The hitted gate reads `DamageData::m_iNaturalForceType`, which is `SERV_IRUHADEV_JUNE_DAMAGEDATA`'s, already a listed dependency.
+
+**Excluded from the table:** `322a0730` is `CX2GameUnit`'s destructor. Its only callers are the scalar-deleting wrapper `322b5690` and the user and NPC destructors (`3203a620`, `3279fb60`).
+
+**Things to watch in play** (ask before launching). The templet names are from March's decompiled `BattleFieldBuffTemplet.lua`:
+- **Outline kept under a colour debuff.** These set `RENDER_TYPE` and `COLOR` but no `OUT_LINE_WIDE` / `COLOR_OUT_LINE` / `CARTOON_TEX_TYPE` / `ALPHA_BLEND`. March drew them with no outline; now the unit keeps its own:
+  - `BTI_DEBUFF_FIRE` and `BTI_DEBUFF_POISON` (burn or poison from monsters or an elemental weapon);
+  - the elixir debuffs `BTI_DEBUFF_ELIXIR_FLAME_RING_OF_ROSSO` and `BTI_DEBUFF_ELIXIR_ICE_BALL_OF_DENIPH`, on the monsters they hit.
+- **No visible change expected:** `BTI_BUFF_SUPER_ARMOR` and `BTI_BUFF_STONE_APPLE` set everything but `COLOR`, so the unit keeps its own colour where March forced white.
+- **After-image buff:** `BTI_BUFF_ELIXIR_FEATHER_OF_VENTUS` (or `BTI_BUFF_SPRINTER_MEDICINE`, `BTI_BUFF_GALE_APPLE`). On, in its colour, then off; an attack state's own after-image afterwards is gray.
+- **Logs:** `ErrorLog.txt` should show no new `[JUNE_BUFF] runtime error` lines.
 
 **Phase 4b is done when — status:**
 1. Verdict table: **met** (above).
@@ -3513,8 +3522,9 @@ when present), 32275a30/322720f0 (colour on enable, none on disable), 3236ed60's
 "!= 1" gate, the hitted gates @320489c6/@327b4b82 (+0x56c != 4, +0x0 != 6) and the NPC
 owner increment @3276ae3a. Look for readers of each store the dispxref sweep missed
 (e.g. an indexed or lea-based access). Check that every copy of StBuffRenderParam goes
-through the copy ctor (CX2RenderParamByBuff) so m_bHas* survive. Decide whether the Ran
-after-image loss is truly June's behaviour (June NPC path 327b53b0 @327b6887).
+through the copy ctor (CX2RenderParamByBuff) so m_bHas* survive. Re-check the NPC
+after-image colour conclusion: no reader of June's AFTER_IMAGE_ALWAYS byte +0x8cd4, and no
+AFTER_IMAGE state table in March's or June's Ran.lua.
 
 Report numbered findings (R1, R2...) with a severity. Fix a code defect under the same
 flag, rebuild X2Lib and X2 at US_SERVICE (touch stdafx.cpp after a header edit), deploy,
