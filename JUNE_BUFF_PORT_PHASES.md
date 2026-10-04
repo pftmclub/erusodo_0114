@@ -2789,7 +2789,7 @@ The 4 are the plain `#else` lines (the two stubs and the two jump gates), as the
 **Build and deploy.** `DEPLOY OK: X2_offline.exe is 19,110,400 B, dated 2026-10-04 21:58:42, md5 bc9099a703cbf19be3cf3beb3c632697, equal to X2/US_SERVICE/x2.exe (2026-10-04 21:58:38); built at mods/june-buff-port 3b3b839 + 12 uncommitted code file(s).` `CAN_MANA_BREAK`, `CAN_DETONATION`, `CHECK_NEVER_MOVE_TRUE`, `first apply BBT 97`, `first read BBT 77`, `first read BBT 101: UpNowHp` and `first apply BBT %d (%s): BTI %d` are in the exe. **Not launched.**
 
 **Decisions for the user.**
-- (a) **110's host.** June replaced March's `ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE` (56 uses, 6 inlined in Ara) with `TryHyperModeStateChange` (`31fe9a90`). Porting it whole needs two June systems March lacks: an awakening-lockout timer `+0x8d78` (set to -1 by the inits `31ffaad0` / `3203e850`, armed with a constant by `322f8920` when `+0x8d4c` is clear, counted down in `3206d770`, read by 13 per-class functions) and the flag `+0x8d4c` (set when awakening starts; 8+ writers). The class hooks 434/435 are Add-only (checklist §7). Options: **A** port the timer system with the function (new Phase 7c); **B** port the function with the timer treated as always ≤ 0 (a deviation: lockout never fires); **C** add only `!IsAwakeImpossible()` to March's macro and Ara's six copies (grafts onto a function June rewrote; the standing rule says not to). Until you choose, a 110 buff applies and logs but does not block awakening.
+- (a) **110's host.** June replaced March's `ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE` (56 uses, 6 inlined in Ara) with `TryHyperModeStateChange` (`31fe9a90`). Porting it whole needs two June systems March lacks: an awakening-lockout timer `+0x8d78` (set to -1 by the inits `31ffaad0` / `3203e850`, armed with a constant by `322f8920` when `+0x8d4c` is clear, counted down in `3206d770`, read by 13 per-class functions) and the flag `+0x8d4c` (set when awakening starts; 8+ writers). The class hooks 434/435 are Add-only (checklist §7). Options: **A** port the timer system with the function (new Phase 7c); **B** port the function with the timer treated as always ≤ 0 (a deviation: lockout never fires); **C** add only `!IsAwakeImpossible()` to March's macro and Ara's six copies (grafts onto a function June rewrote; the standing rule says not to). Until you choose, a 110 buff applies and logs but does not block awakening. **User chose A (2026-10-05): Phase 7c.**
 
 **Notes for the review / Phase 14** (June kept verbatim).
 1. A state that calls `SetNoDetonation( true )` now also empties the stored detonation charge (June zeroes it where March returned). All 13 March `true` sites run after `CommonStateStart`, so `CAN_MANA_BREAK` (default TRUE → 0) does not wipe them.
@@ -2817,6 +2817,28 @@ local t = {} local r = {} for i = 1, 30 do t[i] = 30 r[i] = 1 end g_pBuffTemplet
 ```
 Checks (wait 30 s between them): 1. 363 on self among monsters: no damage, blinking. 2. 365 on self: hits show numbers, HP bar does not drop. 3. Baseline Mana Break without buffs, then 362, then 366: no Mana Break while either is on. 4. As **Freils** (Chung, Deadly Chaser, Lv 72), empty the cannon balls, 364 on self: one ball back. 5. 367 on self: log line only (awakening still works: decision (a)).
 Log lines read afterwards: `first apply BBT 74/77/97/101/102/110`, `first read BBT 77`, `first read BBT 101`.
+
+### Phase 7c — BBT 110 host: TryHyperModeStateChange and June's awakening lockout (Opus)
+
+**Why.** Phase 7b decision (a): the user chose option A (2026-10-05). Port June's awakening check whole, with the two June systems it reads.
+
+**Scope.**
+- **The function.** `CX2GUUser::TryHyperModeStateChange( int state )` (June slot 343, `31fe9a90`; Ain's copy `32a53150`), which replaces March's `ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE` (`X2GUUser.h:11`, 56 uses in 9 class files) and Ara's six hand-inlined copies (June's Ara sites `32bb2d40`, `32bb2ff0`, `32bb3290`, `32bb34d0`, `32bb37e0`, `32bb3ab0` call slot 345 inline: check each). Body, decoded in 7b: `!m_InputData.oneLCtr` → false; `IsAwakeImpossible()` (slot 345, `31fd4790`, ported in 7b) → false; class hook slot 434 true → protected short `+0x7e84` = `0x1c`, slot 435( 0 ), true; `!IsThereEffectiveBlackHoleDamageEffect()` (`322731a0`) `&& +0x8d78 <= 0 && CanHyperMode()` (slot 344, `31fd4730` = March's macro condition) → `+0x8d4c` = true, `StateChange( state )`, true; else false.
+- **The lockout timer `+0x8d78` (float).** Set to -1 by `31ffaad0` and `3203e850` (inits); armed with the constant at `0x3344a51c` by `322f8920` (`@322faee8`, also `@322fb40b`) when `+0x8d4c` and `+0x8ac4` are clear; counted down per frame at `@3206fe04` (`fstart` puts it in `3206d770`: confirm the real host); read by `@32070d62` and 13 per-class functions (`329b5af0`, `32a20e70`, `32a53150`, `32a6dcd0`, `32ad7f80`, `32b3a310`, `32b3acf0`, `32b84a50`, `32bcfaa0`, `32c17830`, `32c58c30`, `32cac200`, `32cea0c0`, `32d1bd10`). **Not identified in 7b: what `322f8920` is and who calls it.** Do that first.
+- **The flag `+0x8d4c` (byte).** Set by `TryHyperModeStateChange` and `31fe7610`; cleared by `31fe96c0` and `31fcc350`, `31fcc740`, `31fcc9d0`, `31fcce20`, `31fcfb70`, `31fcfde0` (and more: re-run the sweep). Read by `322f8920`.
+- **Hooks 434/435.** Virtual, empty base (`31e4c550` false, `3208ddc0`); only Add overrides them (`329e2340`/`329e2360`): character checklist §7 row already written. Identify `+0x7e84` (protected short) before writing it.
+- Attribute every per-class reader to a class and March function before deferring it (Shared checklist rule). Readers in classes March has whose host June rewrote go to checklist §7; the buff side (store, getter, function, timer) goes in regardless.
+- If `322f8920` turns out to belong to a system March lacks entirely (a June-only mode or UI), stop, write what it needs here, and hand the decision to the user.
+
+**Tools.** `june2017_re/dispsweep.py <hex offsets>` (every displacement hit, with function start) and `june2017_re/funcdis.py --func <va>` (uncarved functions), both from 7b.
+
+**Flag.** `SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK` (new; requires `_NEW_FLAG`). March's macro and Ara's copies stay in `#else`.
+
+**Done gate.** `TryHyperModeStateChange` and the timer and flag are ported with every June read/write site that has a March home; build rc=0; a `first read BBT 110` line (DEBUG) and the function's strings in the deployed exe; a play-test where 7b's factor 367 (BTI 990110) blocks Ctrl awakening with full beads, and awakening works again after 30 s. Per-type "how to see it": `BFI_DEBUFF_VOID_FIELD` 475 → BTI 437.
+
+**Run with:** Opus 5.5, high effort. Review required (`kickoffs/june-buff/7c-review.md`, written by the phase). Touches `X2GUUser.cpp/.h` and every class file that uses the macro, so it runs alone among the `X2GUUser.cpp` phases (6b, 8, 9, 15, 16).
+
+**Kickoff:** `kickoffs/june-buff/7c.md` - start it with `/x2-phase june-buff 7c`.
 
 ## Phase 8 — New finalizers and counter sync
 
