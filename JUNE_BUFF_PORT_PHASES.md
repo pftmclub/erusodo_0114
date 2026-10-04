@@ -2909,7 +2909,7 @@ Log lines read afterwards: `first apply BBT 74/77/97/101/102/110`, `first read B
   - ctor −1 / false;
   - `THROW_ITEM_StateEnd` −1;
   - `OnFrameMove` countdown (inside `IsLocalUnit`, after `PushFrameData`);
-  - `HyperModeEnd` / `RidingHyperModeEnd` clear the flag.
+  - ~~`HyperModeEnd` / `RidingHyperModeEnd` clear the flag~~ **Review: June clears it in `HyperModeStart` (`31ffd490`) / `RidingHyperModeStart` (`31fe96c0`); moved there (see Phase 7c — Review).**
 - **The timer stays at −1 until decision (b) below**, so its readers are inert for now.
 
 **Not ported** (no March home, or waiting on (b)):
@@ -2943,6 +2943,56 @@ Log lines read afterwards: `first apply BBT 74/77/97/101/102/110`, `first read B
 4. `jtLordKnight`, no buff: a skill pressed inside a ground combo's cancel window still fires (regression check for the ground gate).
 
 Log lines read afterwards: `first apply BBT 110` and `first read BBT 110: TryHyperModeStateChange refused awakening (state 23)`.
+
+### Phase 7c — Review (2026-10-05)
+
+**Verdict: one transcription error, fixed under the same flag; everything else matches June.** June clears `+0x8d4c` when the hyper state **starts**, not when it ends. `31ffd490` is `CX2GUUser::HyperModeStart` and `31fe96c0` is `RidingHyperModeStart`. The proof is in Elsword's state init `32d1f8f0`: thunk `329caef0` (→ `31ffd490`) fills the StateStart delegate (`+0x28`) of state `0x17` `USI_HYPER_MODE`, and `329cb5d0` (→ `31fe96c0`) fills that of `0x2c` `USI_RIDING_HYPER_MODE`. The StateData base is fixed by `fPowerRate` = 1.0 at `+8`. `0x7c4` is `CommonStateStart` (funcmap row `3203c3a0`; `0x7dc` is `CommonStateEnd`). `31fe96c0` also has March's `m_ptrRidingPet->StateChange( wait )`. June's real `HyperModeEnd` (StateEnd `+0x58`, thunk `329cc5a0`) never writes the flag. Fix: the clear moved from `HyperModeEnd`/`RidingHyperModeEnd` to the end of `HyperModeStart`/`RidingHyperModeStart` (June writes it last, beside `+0x9176`); the header and `Always.h` comments were corrected. Every class's hyper and riding-hyper states (Ara's `ASI_BERSERK_MODE` included, `X2GUAra.cpp:517`) start through these two functions, so every setter is covered. **Effect:** the flag now means "awakening key pressed, hyper state not yet started on the Now side", which is the race guard June's quick-slot check reads. It is still inert until decision (b), so play does not change. `funcmap.tsv` rows `31fe96c0`/`31ffd490` were corrected and confirmed; rows were added for Ain's copy `32a599c0` and Add's `32a08150` (the other two zero-writes). `JUNE_BUGS.md` #12 was reworded to match.
+
+**Hygiene.**
+- Phase as committed, `flagcheck JUNE_BUFF_AWAKE_LOCK --range e888197^..HEAD --with JUNE_BUFF_DEBUG`:
+  - `files: 2 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  - `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 9 #else/#endif without the flag token, 0 encoding change(s)`;
+  - `RESULT: PASS`.
+  - The 9 are plain `#else` lines (3 macros, 6 Ara sites); each holds March's text verbatim, so flag-off = March. The PASS~ is one blank line in `X2GUUser.h`.
+- Review fix: `flagcheck JUNE_BUFF_AWAKE_LOCK --worktree` on `X2GUUser.cpp`, `X2GUUser.h`, `Always.h`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `12 deleted line(s)` (all 7c's own lines: the two End-side blocks and the two reworded comments), `3 #else/#endif without the flag token` (the macros' existing plain `#else`), `0 encoding change(s)`; `RESULT: PASS`. Post-commit `--range`: @@RANGE@@
+
+**Checked against June** (Ghidra read-only, `dispsweep.py`, capstone over `.text`).
+1. **Re-attribution holds.**
+   - Between `322f8920` and the switch table `322fbc28` the only function boundary is `ret`/`int3` and an SEH prologue at `322fa960`, so `@322faee8` and `@322fb40b` are `322fa960`'s.
+   - Callers: `322f8920` is called only from the two die handlers (`3230bb6b`, `32d53610`); `322fa960` is called directly from `329515d9`.
+   - `3344a51c` = 10.0f.
+   - The switch is `SAT − 16` → byte table `322fbc44`. SAT 18 lands on `322faa35`, which holds STR `0x4e98` (20120) and both `+0x8d78` writes, before case 34 at `322fb416`.
+   - `XSLItem.h` gives `SAT_SPECIAL_SKILL` = 18. March's `X2UIQuickSlot.cpp:546` gates on the same 5 states.
+   - (`CX2Game::UseItemSpecialAbility`'s case, `X2Game.cpp:10507`, is the later THROW/INSTALL state change, not the check.)
+2. **`TryHyperModeStateChange`** `31fe9a90`, matches test for test:
+   - `oneLCtr == 1`; slot 345 (`0x564`) → false; slot 434 (`0x6c8`) → `+0x7e84` write, slot 435(0), true;
+   - BlackHole; `0 < timer` fails; slot 344 (`0x560`); flag = AL (1); `StateChange( state, 0 )`; true.
+   - Leaving out `+0x7e84` holds: it is a protected short set to `0x1c` only when it differs, and the branch is reachable only through a 434 override. No March class has one (new name; grep is clean, and `CX2Eqip::CanHyperMode` is unrelated), so the branch is dead here.
+3. **Macro sites.** Counted from preprocessed output (`cl -EP`, X2Lib US_SERVICE defines), not grep:
+   - User 5, Eve 7, Arme 6, Chung 7, EL 6, Elsword 6, Lire 10, Raven 5 = **52**; Ara 0, Add 0.
+   - The 66 textual uses are those 52, 6 commented out in Ara, and 8 in dead `#ifdef`s (Eve 7, User 1). The plan's "56 in 9" was a raw count.
+   - June's slot-343 loads (`dispsweep 55c`) by class range give the same eight numbers, and 0 in Ara's range.
+   - One site per class was sampled: each does `push 0x17` (User `0x2c`, Eve a register) and calls `[vt+0x55c]`.
+4. **Cancel expansion** (`31fcc350` `@31fcc56b-64f`, Eve `3296a1f0` `@3296a4cb-5ac`, Eve `32972b80` `@32972cc8`): `time ≥ 0`, `anim > time`, foot byte == 1, then SAEP(`push 1` = `ASUT_GROUND`, March's default).
+   - The foot test is in the macro, not in Eve's code. Whole binary: of 1000 `+0x8d4c` set sites, the 954 that follow an SAEP call (`[vt+0x7f4]`) all test a byte == 1 right before it: 717 as `[+0x7e1c]`, the rest through a register loaded from `+0x7e1c` (checked `@31fcc443`, `@32972b85`, `@3296cab4`).
+   - `+0x7e1c` is Future `bFootOnLine`: `@31fcc443` is March's `if( false == IsOnSomethingFuture() ) { StateChange( USI_JUMP_DOWN ); position.y -= … }` (`X2GUUser.cpp:25115`).
+   - The awakening branch never calls slot 345 (#11 holds).
+   - Flag polarity: EBX = 1 from `@31fcc40a`, so these sites **set** `+0x8d4c`. 7b's "cleared by `31fcc350`…" list was wrong. The sweep shows ~1000 sets (`bl` = 1 or imm 1; the ctor's `bl` = 0), 2 `al` (343 and Ain's copy) and only 4 clears (the two Starts, Add `32a08150`, Ain `32a599c0`).
+5. **Ara** `32bb3ab0` `@32bb3d0c-81`:
+   - BlackHole, `oneLCtr`, count > 0, (remain ≤ 0 || `+0x8fc3`), `!32070d60`, `!slot 345`, `StateChange( slot 430 )`;
+   - no flag write. Matches, including #12.
+6. **Homes.** All four were confirmed live in the preprocessed `X2GUUser.i`:
+   - ctor `@32042d98` −1 and `@32042e47` `bl` = 0;
+   - `THROW_ITEM_StateEnd` `@31ffb0eb` −1, then tail-jump `CommonStateEnd`;
+   - countdown `@3206fe04`: `if timer > 0: timer -= [ebp+0x10]` (fElapsedTime), right after `PushFrameData`;
+   - the clear: see the verdict.
+7. **Flag off = March:** the three macros are whole `#ifdef/#else` copies and every `#else` is March verbatim.
+
+**Build and deploy.** `DEPLOY OK: X2_offline.exe is 19,111,424 B, dated 2026-10-05 05:22:36, md5 46ef8895befd8fbacd846a97ebf668c6, equal to X2/US_SERVICE/x2.exe (2026-10-05 05:22:32); built at mods/june-buff-port e52bb0b + 3 uncommitted code file(s).` Not launched. No new play-test is needed: the flag has no reader in this build until (b), and the moved lines change nothing that the 7c checks covered.
+
+**For the user.**
+- Decision (b) still stands. The interlock window is short: from the awakening key until the Now-side StateStart, not the whole awakening. That makes option B's arm cheaper to reason about, but it is still your call.
+- `/cost`: please paste it here.
 
 ## Phase 8 — New finalizers and counter sync
 

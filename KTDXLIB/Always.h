@@ -4844,8 +4844,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              THROW_ITEM_StateEnd, counted down in OnFrameMove; armed only by
 //              June's quick-slot item check, which is a user decision, so it stays
 //              at -1 for now) and the awakening-by-key flag (+0x8d4c: set by 343
-//              and the SKILL_CANCEL_AFTER macros, cleared by HyperModeEnd and
-//              RidingHyperModeEnd).
+//              and the SKILL_CANCEL_AFTER macros, cleared by HyperModeStart and
+//              RidingHyperModeStart: corrected by the 7c review).
 //              Requires SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG (IsAwakeImpossible, 7b).
 #define SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 //////////////////////////////////////////////////////////////////////////

@@ -2894,8 +2894,9 @@ public:
 		/// @322fb40b); -1 in the ctor and THROW_ITEM_StateEnd; counted down in OnFrameMove. While it runs: no awakening,
 		/// no skill (every class's NoStateChangeActionFrameMove, slot 510). The arm is not ported yet (user decision).
 		float	m_fQuickSlotSpecialItemWaitTime;
-		/// +0x8d4c: set when an awakening key starts the hyper mode state (343, the SKILL_CANCEL_AFTER macros), cleared by
-		/// HyperModeEnd / RidingHyperModeEnd; June's quick-slot check refuses a special item while it is set
+		/// +0x8d4c: set when an awakening key asks for the hyper mode state (343, the SKILL_CANCEL_AFTER macros), cleared
+		/// when that state starts on the Now side (HyperModeStart / RidingHyperModeStart, 7c review); June's quick-slot
+		/// check refuses a special item while it is set
 		bool	m_bHyperModeStartedByInput;
 #endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 

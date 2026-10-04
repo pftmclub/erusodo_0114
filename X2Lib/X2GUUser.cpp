@@ -26961,6 +26961,11 @@ void CX2GUUser::HyperModeStart()
 	m_FrameDataNow.syncData.m_HyperModeCount = 0;
 	m_bReserveHyperModeZero = false;
 #endif HYPER_MODE_FIX
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+	/// June buff port Phase 7c (moved here by the 7c review): June clears the awakening-by-key flag when the hyper mode
+	/// state starts on the Now side, CX2GUUser::HyperModeStart (June 31ffd490 @31ffd5fa; USI_HYPER_MODE StateStart)
+	m_bHyperModeStartedByInput = false;
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 
 }
 #ifdef HYPER_MODE_FIX
@@ -26999,10 +27004,6 @@ void CX2GUUser::HyperModeEnd()
 {
 	CommonStateEnd();
 	m_iLastStateHyperModeCount = 0;
-#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
-	/// June buff port Phase 7c, the hyper mode StateEnd (June 31fe96c0 @31fe9826): the awakening-by-key flag ends
-	m_bHyperModeStartedByInput = false;
-#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 }
 #endif HYPER_MODE_FIX
 
@@ -37624,6 +37625,11 @@ void CX2GUUser::RidingHyperModeStart()
 	m_FrameDataNow.syncData.m_HyperModeCount = 0;
 	m_bReserveHyperModeZero = false;
 #endif HYPER_MODE_FIX
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+	/// June buff port Phase 7c (moved here by the 7c review): the same clear in CX2GUUser::RidingHyperModeStart
+	/// (June 31fe96c0 @31fe9826; USI_RIDING_HYPER_MODE StateStart)
+	m_bHyperModeStartedByInput = false;
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 
 }
 void CX2GUUser::RidingHyperModeEventProcess()
@@ -37643,10 +37649,6 @@ void CX2GUUser::RidingHyperModeEventProcess()
 	{
 		CommonStateEnd();
 		m_iLastStateHyperModeCount = 0;
-#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
-		/// June buff port Phase 7c, the riding hyper mode StateEnd (June 31ffd490 @31ffd5fa): the awakening-by-key flag ends
-		m_bHyperModeStartedByInput = false;
-#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 	}
 
 	void CX2GUUser::RidingHyperModeStartFuture()
