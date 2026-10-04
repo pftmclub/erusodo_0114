@@ -2727,10 +2727,18 @@ The 4 are the plain `#else` lines (the two stubs and the two jump gates), as the
   - March's `GetBuffFactor` skips finished and world buffs the same way, and fills values through the templet's `GetFactor`, which is `m_vecEDT`. Matches.
 - **Store lifetime.** No store needs a bulk clear. March never clears its identity vectors (`m_vecDashImpossiblePtr`, `m_vecXImpossiblePtr`…) outside `DoFinish`; they die with the unit. The 6 new stores follow the same pattern.
 
-**Open, for the user (a decision).**
-- 94 restack leak, verbatim June. A restack whose accumulation count is above 0 pushes a **second** immune-list entry with the same identity, and `DoFinish` erases only one. The leftover entry keeps refusing its listed BTIs after the buff ends, until the unit is destroyed. The two sets are keyed by BTI and are not affected.
-- It only matters for a 94 factor with an `IMMUNE_BUFF_TEMPLATE_ID` list that restacks: an accumulating templet, or a re-cast that takes the `SetFactor` path.
-- Keep (June parity, the current state), or erase every entry with that identity in `DoFinish` under a new flag? **Not changed; your call.** Also for Phase 14.
+**Open, for the user (a decision, low stakes).**
+- **94 restack leak, verbatim June.** A restack whose accumulation count is above 0 pushes a **second** immune-list entry with the same identity, and `DoFinish` erases only one. The leftover entry keeps refusing its BTIs after the buff ends, until the unit is destroyed.
+  - By quirk 1 the leftover entry also holds the count as a BTI: 1 = `BTI_DEBUFF_SILENCE` for an empty or one-entry list, 4 = `BTI_SI_SA_EMK_PHOENIX_TALON` for Bloodlust's four.
+  - The two sets are keyed by BTI and are not affected.
+- **Latent with June data.** June has five 94 factors on four templets: Bloodlust ×2, Sleep, Infinity Potential and Alptraum Ready. All four templets have `ACCUMULATION_LIMIT = 1` (`BattleFieldBuffTemplet.src.lua:23619`, `:24717`, `:26536`, `:33369`). The count only increments when the limit is above 1 (`X2BuffTemplet.cpp:229`), and it reads 0 otherwise (`:316`). So every June restack takes the erase-first branch, and the leak never fires.
+- **Your call:** keep June's code (current state), or make `DoFinish` erase every entry with that identity under a new flag. Recommendation: keep it, since no June data reaches it.
+
+**New Phase 14 note: quirk 2 also hits the player's own unit.**
+- A field↔dungeon move saves the unit's buffs through `GetBuffFactor`. That goes through `GetFactor`, which sends `ALL_BUFF = ALL_DEBUFF = 0` (`X2GageManager.cpp:3539`).
+- The buffs are re-applied through `SetFactorFromPacket` (`SetKBuffFactorFromGageManagerToGameUnit`, `X2GameUnit.cpp:15555`).
+- So a player-side 94 with `ALL_DEBUFF` (June: Infinity Potential) loses that immunity at every stage change for the rest of its duration. The `IMMUNE_BUFF_TEMPLATE_ID` list survives.
+- This is verbatim June; the pre-sync join path (`X2Game.cpp:17840`/`17857`) behaves the same. Not changed.
 
 **Phase 14 notes (carried).** The Done note's items 1–4 stand: the EDT renumbering, `DeleteNonControlDebuff` erasing inside a loop, empty level slices for 73/104, and 73's flag sticking on multi-target DamageData.
 
