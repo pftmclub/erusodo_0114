@@ -3015,6 +3015,74 @@ your own hunks. Build, deploy, commit; record where you stopped.
 
 **Cost:** `/cost` is not readable from inside the session; ask the user.
 
+### Phase 4b-i part 5 — Review (2026-10-04, Opus 5.5 high)
+
+Independent review of code commits `7ea72b2` and `3bbf7d2` (under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`), the revert `d34de09`, and doc commits `30aa0cb`, `5e5adef` and `5bc9586` (the manifest note). Read-only on code: nothing was edited, built or deployed.
+
+Fresh tools only; part 5's patch and unifdef scripts were not reused:
+- Ghidra, read-only (one decompile, `32e7c680`).
+- A new capstone reader over a hand-parsed PE section map (`pefile` is not installed), plus a raw-byte scanner for `.text`. `.text` also holds rdata, so nothing relies on a linear sweep.
+- A new byte-level unifdef. It resolves only the one flag, reads `git cat-file` blobs, and has a negative control.
+- A fresh `elstools extract -v mar-2014` and `inspect` of the live `data036.kom`, then `decompile-batch` of `BattleFieldBuffTemplet.lua` (152,564 B), `BattleFieldBuffFactor.lua` and `BuffTemplet.lua`.
+
+**Verdict: no code defect.** Every suggested spot-check passes in the asm, and so do the extra checks. R1-R8 are Low or Info: doc wording, dormant-path notes and play-test evidence.
+
+| # | Check | Result |
+|---|---|---|
+| 1 | `32283181` `FUCOMPP` | **Pass.** `fld now; fldz; fucompp` compares 0 with now. `test ah,0x44 / jnp 322837d6` leaves only on equal (C3 alone has odd parity). Unequal (`0x00`) and NaN (`0x44`) have even parity, so both rescale. Then `GetMaxHp() / oldMax` (`fdiv [esp+0x10]`, before the `push`) × now. The port's `0.0f != fNowHp` behaves the same, NaN included. |
+| 2 | Insert's ratio before `31e8c940` | **Pass.** `31e4f900` (now) @`3228274d` and `31e551a0` (max) @`32282758`; `fdivr` = now / max, kept at `[esp+0x18]`. Only then come the `+0xc04` null test, `SetMaxHp` @`32282795` and `SetNowHp( result × ratio )` @`322827c2`. June computes the ratio even without gage data; the port computes it inside the guard, with the same effect. **Helpers:** both getters return 1.0 with no gage and 0.0 with a gage but no HP block (`[gage+0x20]`). March's `GetNowHp` returns 1 with no gage; March's `GetMaxHp` has no guard, but the port calls it only inside one. |
+| 3 | `32e85899`'s sign test | **Pass.** `fcomp qword [334350e8]` (= 0.0) / `test ah,5` / `jp 32e85acc`. It falls through only when the value is < 0 (C0 alone), to `33535630` `"%s %d%s"`. A value ≥ 0, or NaN, goes to `3353561c` `"%s +%d%s"`. Type 0 goes to `32e85d12` and `33535608` `"%s = %d%s"`. Every branch passes `( buf, 0x14, fmt, STR 0x978f, _ftol2( v ), STR 0x9790 )`, i.e. COOLDOWN, the int, SEC, as ported. March `BCT_SWAP_VALUE` = 0, `BCT_FIX_VALUE` = 1. |
+| 4 | Other change types draw an empty string | **Pass.** `sub eax,0 / je` takes 0; `dec / jne 32e85f47` takes anything but 1. So type ≥ 2 reaches `32e85f47` with the 20-wchar buffer at `esp+0x4c8`, zeroed at entry (`32e85822…69`, 40 B). The draw: `[g_pData]+0x17c` (null → skip), then `33228fe0( buf, head pos, *vslot 91, 2, 0.0, 0, 0 )`. The head position comes from vslot 63 at entry (@`32e8587a`), before the text is built. March `AT_CENTER` = 2. User vslot 63 (`31fcac20`) is the head frame's position + 70.0 (`33472990`), which is March's `CX2GUUser::GetHeadBonePos` (`X2GUUser.cpp:13059`). |
+| 5 | Slot-153 site list | **Pass; one count differs (R1).** A raw-byte scan for `64 02 00 00` behind a mod-10 ModRM finds 658 `+0x264` operands in `.text`, none of them a direct `call/jmp [reg+0x264]`. 74 are `mov r,[b+0x264]` followed by a call within 8 instructions. In 64 of them `b` was loaded from `[obj]` (a vtable). Of those, 57 push 0, 1 pushes 1 (`3229a669`), and 6 push a register (`324bf210`, `324dc170`, `3252c84e`, `3276f4b9`, `327c92c0`, `32b3727c`). That is the doc's split exactly. **`32b3727c`:** its block starts at `32b37274`, and the instruction before that is a `jmp`. Within ±0x10000 the block has exactly one predecessor, `jne` @`32b3713d`, with `push 0` @`32b37137`, and no absolute reference. |
+| 6 | `32e786d0` PERCENT clamp, SWAP | **Pass.** Not started (@`32e78815`): `count × v`, then `InsertAdditionalStat` (`32282700`). Started with count 0 (`32369da0`): `count × v`. Started with a count: `IsSamef( 32369f10(), 0 )` returns false. Types ≤ 0 or > 3 keep the value, so SWAP falls through to the update. Types 1-2 take `count × v`. Type 3 takes `(v − 1)·count + 1`, then `fldz / fcom st(1) / test ah,0x41 / jne` keeps it when 0 < r, r = 0 or r is NaN. Only r < 0 stores 0, which is the port's `< 0.0f`. Then `3226fd70` (update). The multiplier only gates here: FIX and PERCENT never scale by it, while NowMp and EnchantAttackRate do. That asymmetry is June's own, ported as is. `ret 0x10`; the count is `fild dword`. |
+| 7 | `32e775e0`, started with no count | **Pass.** The attribute table @`32e777d8` maps 66→1, 67→2, 68→3, 69→4, 70→5, 71→6 (March BBT 66-71, `BEAT_*` 1-6). Types other than 1 and 3 return false. Not started: insert `v[1]` (0 past the end) through `32281990( identity, rate, attr, type )`. Started with count 0 (@`32e7771d`): erase through `32279c70( identity, attr, type )`, then insert `v[1]`, with no larger-absolute pick. Started with a count: a zero multiplier returns false before the erase; otherwise erase, then insert `v[1] × ((count − 1)·m + 1.0)` (`334355b0` = 1.0). |
+| 8 | `3236a430`'s order | **Pass.** Behaviors first: slot 3 gets `( factor, unit, templet, count )`, and `+0xc = 1` on true. Then, only if the map is non-empty and key 0 is found, `fild count` is stored at `[node+0x10]`, and every displayer gets slot 1 `( unit, templet )` and `+0xc = 1`. The `+0xa8` icon tail comes last (not ported). So the behaviors test the old count, as the doc says. |
+| 9 | Staged `UIMajorParticle.txt` | **Pass.** The staged file equals the live entry (593,348 B, `52e4308c…`): the user has packed it. Cutting `[29845, 30663)` (818 B) leaves 592,530 B with md5 `03d57782…`, the pristine copy. The block equals June's bytes `[35258, 36076)`. In both files it follows `PicCharYellow`; next comes `ScoreBonusPicChar`. It has 24 CRLF lines, no bare LF and no non-ASCII byte; the file's other 48 non-ASCII bytes are untouched. The block's only string value is its name: there is no texture key, because the pic-char supplies the glyphs. |
+| 10 | "Same as March": `3229a2e0` | **Holds.** If byte `+0x4104` is set (March `m_bImmuneToExtraDamage`), it returns false. With gage data, it continues only when the now HP > 0 (`fcomp`/`test ah,5`/`jp`; 0 and NaN fail; no HP block fails). If vslot 67 == 4 (March `GUSI_DIE` = 4), it returns false. With no gage the HP test is skipped (March's `GetNowHp` returns 1). The three tests and their order are the same as March's `CX2GameUnit::CanApplyBuffToGameUnit`. |
+| 11 | `327bdb60`, null-factor path | **Holds; one wording fix (R3).** It returns false if the NPC templet's class (`+0x85f8` → `+4`) is not 0 (March: not `NCT_BASIC` → false). Otherwise it calls the base `3229a2e0( BTI, null )`. Then comes the June-only `+0x8f70` step. |
+| 12 | `3229d320` | **Holds for March data (R4).** In order: the counters (`+0x4235` debuff / `+0x4236` buff, chosen by `+0x64`); vslot 148 with the BTI; `3236a630` = every behavior's `DoFinish( unit, templet )` (slot 6); `3236a660` = every displayer's slot 3, then `+0xc = 0`; `3236a6a0` = the BFT 15 hook; the icon erase on `+0xa8`; the vector erase (`322b4b00`). That is March's order, plus the BFT 15 hook. |
+| 13 | `32089f60` | **Holds.** `new 0x70`, refcount 0, then `320844a0( src+8, level )` (the levelled `BUFF_FACTOR` copy), then `+0x68`/`+0x6c` are copied. Those are the 8 B after the 0x60-B `BUFF_FACTOR`, whose BTI sits at `+0x28`: the identity, which March copies as `m_DataBuffIdentity`. `m_bApplyToSpecialAttack` is June's per-list-entry bool and is not part of this object, so the port's `false` is right. |
+| 14 | The rest of the chain | **Pass.** `322a7660` ends in `ret 0x10`: four dwords, so the port's `int` 4th argument has the right width (but see R2). `322a8a70`: the pushes of `322a7660`'s level and `x` precede the call to `322a0090` (`ret 4`), so the call is `322a7660( BFI, (UCHAR)count + delta, level, x )`. `3227c360`: the first templet with the BTI (`+0x34`), null templets skipped, an unsigned `jb` bound check; ops 0/1/2 → `+0x24`/`+0x28`/`+0x2c`. NowMp `32e7c680` (decompiled): the delegate is rebound for types 1 and 3; `(1 − resist/EAR_MAX)·v[1]` is March's `GetValueOrPercentPerSecond`; `(m(count − 1) + 1)` applies when started with a count. |
+| 15 | Hygiene | **Pass.** **Unifdef:** `strip( 3bbf7d2 ) == strip( d34de09 )` for all 10 code files, and `strip( 7ea72b2 ) == strip( d34de09 )` for its 5. The raw blobs differ, and a wrong-flag control fails. **`numstat d34de09..3bbf7d2`:** code 441/9 (`X2BuffBehaviorTemplet.cpp` 181/8, `.h` 24/1, the rest insert-only), which is part 5's 111 + 330. The 9 deletions are part 2's DRAW_TEXT stub and comments. All 441 added lines are ASCII and CRLF, except `X2Data.h`'s 9, which are LF like its host's 678 LF lines. `file` signatures are unchanged on all 10. **`d34de09`** equals `16a6d78^` byte for byte on its 4 files. **Deploy:** `X2_offline.exe` = `X2/US_SERVICE/x2.exe`, 19,023,360 B, md5 `b7379faae99d540c76870169cf912880`. The game directory holds only `x2.exe` and `X2_offline.exe` (names read programmatically). |
+
+**Runtime traps, checked because DRAW_TEXT and the chain never run on March data**
+- `GET_STRING` is `GetGeneralString( id ).c_str()` on a `const wstring&`. Both macro forms yield a `const wchar_t*`, and a missing ID returns `m_wstrEmpty`. Passing it through `StringCchPrintf`'s `...` is safe.
+- `CreateSequence` returns NULL for a missing name, with no log and no default sequence, so the degrade path really fires.
+- `LoadPicChar5` runs once per load. The Lua re-entry `LoadPicCharAll_LUA` calls it only while `m_pPicCharYellow` is NULL. So "logged once" holds.
+
+**March-data reach (fresh extract)**
+- **BBT 6: 5 templets,** counted by behavior list in the decompile: `BTI_BUFF_BELSSING_OF_CRONOS`, `BTI_BUFF_RALLY_OF_HERO_LEVEL_1/2/3` and `BTI_BUFF_PET_AURA_SKILL`, all `BCT_PERCENT`.
+- The file has 321 templet entries, which matches `ErrorLog.txt`'s "320 loaded, 1 duplicate". 19 factor entries carry BBT 6.
+- `BuffTemplet.lua` (the premium-buff manager's file) has none.
+- In C++, every `Insert`/`EraseAdditionalStat` call is ChangeStat's (`X2BuffBehaviorTemplet.cpp:1101/1142/1151/1213`). Nothing calls them with `BBT_CHANGE_MAX_HP` directly.
+
+**Findings**
+- **R1, Info (count).** My filter finds 10 non-vtable `+0x264` loads followed by a call; the doc says 9. None of them is a slot-153 call: each of those calls goes through `+0x54` or `+0x428`. The AnimStop verdict stands.
+- **R2, Low (dormant; affects the slot-476 log only).** `322a7660` falls back to unit `+0x9274` when its 4th argument **equals 0** (`test ecx,ecx / jne` @`322a777b`), not when it is negative.
+  - The port passes the argument straight to `AdjustBuffFactorByIndex`, which logs only for ≥ 0. Slot 476 is a logged no-op, so nothing else differs.
+  - Whoever ports slot 476 (the character port) must treat 0 as "use the unit's `+0x9274`".
+  - Recorded in a superseding funcmap row. No code change.
+- **R3, Info (doc wording).** Part 5 calls NPC `327bdb60` "March's NCT_BASIC test plus a June-only per-BTI step".
+  - When NPC `+0x8f70 > 0` and the BTI is > 0, `326c31c0`'s result *replaces* the base result (`mov bl,al` @`327bdbe1`). So June can return true for an NPC that the base check rejects.
+  - It is not ported, and March has no `+0x8f70`, so there is no effect.
+- **R4, Info (the hand-off already exists).** `3229d320` calls the BFT 15 finish hook `3236a6a0`; March's erase lacks it. `SetBuffAccumulationCount` now reaches that erase as well, and Phase 8's item (`EraseBuffTempletFromGameUnitByIterator` + `3236a6a0`, under "Phase 8") covers both callers.
+- **R5, Info (dormant popup).** March's `GetAccumulationMultiflier` raises `DISPLAY_ERROR` when key 1 is missing; June's `32369f10` silently returns 0.0.
+  - The new slot-3 overrides call it only when key 0 exists. Both templet parsers (`X2BuffTemplet.cpp:46-47`, `:128-131`) insert keys 0 and 1 together, and the packet path (`:262`) only updates key 0 on a parsed clone. So data cannot reach the popup.
+  - It belongs on 4b-ii's popup sweep anyway.
+- **R6, Info (doc).** `32369da0` truncates (`or 0xc00` = round toward zero); the doc says "rounded". March's `static_cast<UINT>` truncates too, so no change is needed.
+- **R7, Info (play-test evidence).** The part 5 play-test ran on the packed particle file:
+  - `data036.kom` is dated 07:56. `ErrorLog.txt`'s only session starts at 07:56:40 and has no `data not packed` line. The live entry equals the staged file.
+  - That settles the open point in part 5's play-test note. It does not show a DRAW_TEXT on screen: no March factor carries the key.
+- **R8, Info (manifest note confirmed).** Fresh `inspect` of `data036.kom`: 180 entries. Algo 2: 143 `.lua`, all 32 `.txt` and 1 `.kim`. Algo 0: 2 `.xml`, 1 `.ini` and 1 `.lua` (`PvPDropTable.lua`, the known exception). `UIMajorParticle.txt` is algo 2 at 593,348 B.
+
+**funcmap.tsv:** 8 rows ("Buff Phase 4b-i part 5 review").
+- 3 are new: `32281990`, `32d41780` and `32fe25f0`.
+- 5 supersede or refine rows: `322a7660` (R2), `327bdb60` (R3), `32369da0` (R6), `32369f10` and `3229d320` (R4).
+
+**Build and deploy:** none, because there is no code defect. The deployed exe is still `b7379faa…` (`3bbf7d2`).
+
+**Review cost:** `/cost` is not readable from inside the session; ask the user.
+
 ## Phases 5–7 — New behavior types
 
 Phases 5–7 are split into seven sessions. Each has its own scope, its own run-with line and a **ready-to-paste kickoff prompt and review prompt with nothing to substitute**. Take the prompt of the phase you are starting, and no other.
