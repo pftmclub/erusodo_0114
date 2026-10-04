@@ -2650,8 +2650,8 @@ No character in the save has a summon skill whose case matches June, so the posi
 Load baseline unchanged (`factors 361 loaded`).
 
 Open:
-- (a) 95's "a new non-control debuff was refused" line is absent, though the user saw dash keep working. Asked whether 366 was re-pasted while 95 was on.
-- (b) With 94 on, a burn on self left no icon and no red tint, but its damage stayed. The icon and tint belong to the buff that 94 refused; the damage likely comes from a non-buff source (extra damage / damage effect). Asked what caused the burn.
+- (a) Settled: check 2 was re-run at 21:02 on the same exe. `:177-179` show 95 erased BTI 990004, its first apply, then `a new non-control debuff was refused, BTI (990004)` 9 s later. Dash kept working.
+- (b) The burn came from the ground fire in a Burning Forest dungeon. 94 refused its debuff (no icon, no tint); the remaining damage is most likely the fire's contact hits, which are not a buff. Not verified. If the review or Phase 14 sees damage keep ticking after leaving the fire with 94 on, check how June routes that burn.
 - (c) The console templets have no icon keys, so the missing buff icons are expected.
 
 **Result.** 73, 94, 95, 104 and 105 are complete (parse, class, store, reader, host, packet) under the new flag `SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG` (`Always.h`); step-8 lines are under `_DEBUG`. `buff_census.py --phase 7 --reprobe` lists none of the five (left: 74, 77, 97, 101, 102, 110 = Phase 7b). Uncarved class functions were read with `june2017_re/disasm_range.py`; every item-2 decode held. One addition: each `SetFactor` first tests `GetBehaviorFactor` (`32d41780`) and returns false without it.
