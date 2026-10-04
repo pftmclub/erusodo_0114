@@ -9474,7 +9474,14 @@ const float CX2GUAdd::GetEffectiveIncreaseDPValue()
 const float	CX2GUAdd::GetEffectiveDecreaseDPConsume()
 {
 	// 소켓 효과(각성지속시간)  (ex 6%증가 : 6 -> 0.06)		/// 애드는 절반만 적용 된다. ( 소켓 적용시 절반 깎으므로, 여기에선 절반 처리 제외 )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	/// June buff port Phase 5 review, June 329e5180 (inlined again in 329e56c0, the UpNowDPValue body): the socket
+	/// hyper-time percent is read through the BBT 76 store, as CX2GUUser::GetHyperModeTime does. With no buff it is
+	/// the socket value exactly (option value, basic 0).
+	const float fChangeRate_BySocket = GetHyperDurationPercent() * 0.01f;
+#else SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 	const float fChangeRate_BySocket = GetSocketData().m_fHyperModeTime * 0.01f;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	// 패시브 스킬(다이너모 연구) (ex -2%감소 : 0.98 -> 0.02)
 	const float fChangeRate_Passive = 1.f - m_fUsingDPValueChangeRate;
