@@ -3983,7 +3983,14 @@ For each check say where to be, the line to paste, what it does in one plain sen
 and what I should see if it works and if it does not.
 ```
 
-### Phase 5b — Done (2026-10-04), play-test pending
+### Phase 5b — Done (2026-10-04), play-tested (user, logs checked)
+
+**Play-test (2026-10-04, user, deployed exe `b981a4c1…`): all four console checks ran; `ErrorLog.txt` (read after the run) agrees and holds no runtime error, popup or `[JUNE_BUFF]` failure line other than the paste noise below.**
+- **79:** `first apply BBT 79 (force down per second): interval 1, value 50`, then `first read BBT 79: force down gage 0 + 50 (interval 1)`. So the parse (change type 1, `FIX_VALUE`), the level slice (level 1 gave 50), the templet, the SetFactor and the tick all ran on a real buff. The `duplicate BTI 990079` and `ordinal reject BFI 362` lines are the definition pasted a second time in the same session (as the hand-off warned); the first definition was kept.
+- **80–84:** `first SetFactor BBT 80..84 (by condition): change type 3, calculate type 0, v[3..5] = 1.06 0.35 1` (80, 81) and `1.06 0.07 1` (82, 83, 84), values 2.11 / 2.11 / 1.27 / 1.27 / 1.27, each followed by its `first apply`. This confirms the SGU appended the user count (the `1`), the value rule, and the stores for all five. The in-game max HP / damage change and the revert after 30 s were not reported back by the user; the logs show the stores received the right values.
+- **93:** `first apply BBT 93, change type 1, value -20` (parse, ChangeStat slice, the `_HaveBuffOwner` class and the shared store of 42).
+- **106 / 107:** both hook inserts logged, and `first read BBT 107: force down decrease 0 - 200` after a hit. The melee read (`first read BBT 106`) did not fire because the hit that landed was ranged; the two branches are one expression, so this is not a gap. No visible effect, as predicted (users take force down only in PvP).
+- Not covered: the packet path (`GetFactor` / `SetFactorFromPacket`, 93's index bug) needs a second client; the stack/restack branches need an accumulating templet.
 
 **Result.** All nine types are ported under `SERV_IRUHADEV_JUNE_BUFF_NEW_STAT`; none is Opus-only. `buff_census.py --phase 5b` lists none of 79, 80–84, 93, 106 and 107 (it still lists 78, 88 and 92, Phase 5c). Code commit `9b79255`. `X2Lib` (PCH invalidated with `touch X2Lib/stdafx.cpp`) and `X2`, `US_SERVICE`, both rc=0; no new warning in the touched files. Deployed `X2/US_SERVICE/x2.exe` as `X2_offline.exe` (names read programmatically: `x2.exe`, `x2.exe.bak`, `x2.fx`, `X2_offline.exe`): 19,053,568 B, md5 **`b981a4c1ac9453422108325b8699a862`**, identical to the build output. It replaces `9269dbc6…` (the Phase 5 review exe). **Not launched.** The exe contains the nine `BBT_*` key strings (ASCII and UTF-16), `BUFF_VALUE_CALCULATE_TYPE`, and the debug strings `first apply BBT 79 (force down per second)`, `first read BBT 79: force down gage`, `first SetFactor BBT %d (by condition)` and `first read BBT %d: force down decrease`. The last one sits in `CX2GUUser::DamageReact` inside the flag, so it proves the reader compiled in.
 
