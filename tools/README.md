@@ -10,6 +10,7 @@ has `--help`. Run from the Trunk root. Python 3, standard library only.
 | `flagcheck.py` | the per-review "fresh byte-level unifdef" scripts, `file` + `git diff --stat` hygiene | x2-byte-edit |
 | `bytepatch.py` | ad-hoc Python byte patches of CP949 sources | x2-byte-edit |
 | `docsection.py` | reading a 750 KB plan doc "in full" | x2-phase |
+| `createchar.py` | hand-written INSERTs adding a test character to els_db.sql (backup, March exp, slot/name guards) | x2-create-char |
 | `mdscan.py` | (older) reading a CrashRpt minidump against X2.map | - |
 
 Shared state (every worktree deploys into the same game directory):

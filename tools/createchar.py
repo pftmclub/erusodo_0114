@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+"""Create a character straight in the offline save (els_db.sql).
+
+    python tools/createchar.py <nickname> <class> <level> [--sp N] [--ed N] [--dry-run]
+
+<class> is a UNIT_CLASS id (120) or a name fragment (grand_master, blazing, uc_elesis_knight).
+Mirrors CX2OfflineDB::CreateUnit (X2OfflineDB.cpp:1199) plus the level-N exp from the March
+ExpTable (tools/data/march_exptable.tsv): one unit row and the default inventory_size rows.
+It does NOT seed skills, hotkeys, gear or the promotion costume - the real create path does
+(X2OfflineServer: BuildCreateUnitAck), this does not. Learn skills / equip in game.
+
+Refuses while X2_offline.exe runs (the emulator holds the DB). Always backs the save up to
+<data>/db_backup/ first. Never deletes or edits an existing unit.
+"""
+import argparse
+import os
+import re
+import sqlite3
+import subprocess
+import time
+
+DATA = r'F:\elsword stuff\elsword_2014\els_2014\237311\24965799\data'
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+# CX2Unit::UNIT_CLASS, X2Lib/X2Unit.h (March 2014). Basic classes first, then 1st/2nd jobs.
+CLASSES = {
+    1: 'ELSWORD_SWORDMAN', 2: 'ARME_VIOLET_MAGE', 3: 'LIRE_ELVEN_RANGER', 4: 'RAVEN_FIGHTER',
+    5: 'EVE_NASOD', 6: 'CHUNG_IRON_CANNON', 7: 'ARA_MARTIAL_ARTIST', 8: 'ELESIS_KNIGHT',
+    9: 'ADD_NASOD_RULER', 10: 'ELSWORD_KNIGHT', 11: 'ELSWORD_MAGIC_KNIGHT', 12: 'LIRE_COMBAT_RANGER',
+    13: 'LIRE_SNIPING_RANGER', 14: 'ARME_HIGH_MAGICIAN', 15: 'ARME_DARK_MAGICIAN',
+    16: 'RAVEN_SOUL_TAKER', 17: 'RAVEN_OVER_TAKER', 18: 'EVE_EXOTIC_GEAR', 19: 'EVE_ARCHITECTURE',
+    20: 'CHUNG_FURY_GUARDIAN', 21: 'CHUNG_SHOOTING_GUARDIAN', 22: 'ELSWORD_SHEATH_KNIGHT',
+    23: 'ARME_BATTLE_MAGICIAN', 24: 'LIRE_TRAPPING_RANGER', 25: 'RAVEN_WEAPON_TAKER',
+    26: 'EVE_ELECTRA', 27: 'CHUNG_SHELLING_GUARDIAN', 28: 'ARA_LITTLE_HSIEN',
+    29: 'ELESIS_SABER_KNIGHT', 30: 'ELESIS_PYRO_KNIGHT', 31: 'ARA_LITTLE_DEVIL',
+    32: 'ADD_PSYCHIC_TRACER', 100: 'ELSWORD_LORD_KNIGHT', 101: 'ELSWORD_RUNE_SLAYER',
+    102: 'LIRE_WIND_SNEAKER', 103: 'LIRE_GRAND_ARCHER', 104: 'ARME_ELEMENTAL_MASTER',
+    105: 'ARME_VOID_PRINCESS', 106: 'RAVEN_BLADE_MASTER', 107: 'RAVEN_RECKLESS_FIST',
+    108: 'EVE_CODE_NEMESIS', 109: 'EVE_CODE_EMPRESS', 110: 'CHUNG_IRON_PALADIN',
+    111: 'CHUNG_DEADLY_CHASER', 112: 'ELSWORD_INFINITY_SWORD', 113: 'ARME_DIMENSION_WITCH',
+    114: 'LIRE_NIGHT_WATCHER', 115: 'RAVEN_VETERAN_COMMANDER', 116: 'EVE_BATTLE_SERAPH',
+    117: 'CHUNG_TACTICAL_TROOPER', 118: 'ARA_SAKRA_DEVANAM', 119: 'ARA_YAMA_RAJA',
+    120: 'ELESIS_GRAND_MASTER', 121: 'ELESIS_BLAZING_HEART', 122: 'ADD_LUNATIC_PSYKER',
+}
+
+
+def die(msg):
+    raise SystemExit('createchar: ' + msg)
+
+
+def resolve_class(arg):
+    if arg.isdigit():
+        n = int(arg)
+        if n not in CLASSES:
+            die('class id %d is not a UNIT_CLASS (see CLASSES in this file)' % n)
+        return n
+    key = re.sub(r'^uc_', '', arg.lower().replace('-', '_').replace(' ', '_'))
+    hits = [i for i, n in CLASSES.items() if key in n.lower()]
+    exact = [i for i in hits if CLASSES[i].lower() == key]
+    hits = exact or hits
+    if len(hits) != 1:
+        die('class %r matches %s' % (arg, ', '.join('%d %s' % (i, CLASSES[i]) for i in hits) or 'nothing'))
+    return hits[0]
+
+
+def exp_for(level):
+    with open(os.path.join(HERE, 'data', 'march_exptable.tsv')) as f:
+        table = dict(tuple(map(int, l.split())) for l in f if l.strip() and not l.startswith('#'))
+    if level not in table:
+        die('level %d is outside the March ExpTable (1-%d)' % (level, max(table)))
+    return table[level]
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
+    ap.add_argument('nickname')
+    ap.add_argument('unit_class')
+    ap.add_argument('level', type=int)
+    ap.add_argument('--sp', type=int, help='default 1 at level 1, else 600')
+    ap.add_argument('--ed', type=int, help='default 0 at level 1, else 1000000')
+    ap.add_argument('--dry-run', action='store_true')
+    ap.add_argument('--data', default=DATA, help='game data directory')
+    a = ap.parse_args()
+
+    cls, exp = resolve_class(a.unit_class), exp_for(a.level)
+    sp = a.sp if a.sp is not None else (1 if a.level == 1 else 600)
+    ed = a.ed if a.ed is not None else (0 if a.level == 1 else 1000000)
+    if not re.fullmatch(r'[A-Za-z0-9]{2,16}', a.nickname):
+        die('nickname must be 2-16 ASCII letters/digits')
+
+    db = os.path.join(a.data, 'els_db.sql')
+    if not os.path.exists(db):
+        die('no save at ' + db)
+    # --data pointing somewhere else is a copy (testing); the emulator cannot be holding that open.
+    if (os.path.normcase(os.path.abspath(a.data)) == os.path.normcase(DATA)
+            and 'X2_offline.exe' in subprocess.run(['tasklist'], capture_output=True, text=True).stdout):
+        die('X2_offline.exe is running - close the game first (it holds the DB open).')
+
+    c = sqlite3.connect(db)
+    user, slots = c.execute('SELECT user_uid, unit_slots FROM account ORDER BY user_uid LIMIT 1').fetchone()
+    live = c.execute('SELECT COUNT(*) FROM unit WHERE user_uid=? AND del_date=reg_date', (user,)).fetchone()[0]
+    if live >= slots:
+        die('account is out of character slots (%d/%d)' % (live, slots))
+    if c.execute('SELECT 1 FROM unit WHERE nickname=?', (a.nickname,)).fetchone():
+        die('nickname %r is already taken' % a.nickname)
+    seed = c.execute('SELECT unit_uid FROM unit WHERE level=1 ORDER BY unit_uid LIMIT 1').fetchone()
+    if seed is None:
+        die('no level-1 unit to copy the default inventory sizes from')
+    sizes = c.execute('SELECT category, size FROM inventory_size WHERE unit_uid=?', seed).fetchall()
+
+    print('create %s  class %d %s  level %d  exp %d  sp %d  ed %d  (user %d, slot %d/%d)'
+          % (a.nickname, cls, CLASSES[cls], a.level, exp, sp, ed, user, live + 1, slots))
+    if a.dry_run:
+        print('dry run - nothing written')
+        return
+
+    stamp = time.strftime('%Y%m%d_%H%M%S')
+    bak = os.path.join(a.data, 'db_backup', 'els_db_%s_pre_createchar.sql' % stamp)
+    os.makedirs(os.path.dirname(bak), exist_ok=True)
+    n = 1
+    while os.path.exists(bak):  # two runs in one second must not overwrite the earlier backup
+        n += 1
+        bak = os.path.join(a.data, 'db_backup', 'els_db_%s_pre_createchar_%d.sql' % (stamp, n))
+    d = sqlite3.connect(bak)
+    c.backup(d)
+    d.close()
+    print('backup', bak)
+
+    now = int(time.time())
+    with c:
+        uid = c.execute(
+            'INSERT INTO unit(user_uid,unit_class,nickname,level,exp,ed,sp,spirit,last_pos,reg_date,del_date,last_date) '
+            'VALUES(?,?,?,?,?,?,?,0,20000,?,?,?)', (user, cls, a.nickname, a.level, exp, ed, sp, now, now, now)).lastrowid
+        c.executemany('INSERT OR REPLACE INTO inventory_size(unit_uid,category,size) VALUES(?,?,?)',
+                      [(uid, cat, size) for cat, size in sizes])
+    row = c.execute('SELECT unit_uid,unit_class,nickname,level,exp,sp,ed FROM unit WHERE unit_uid=?', (uid,)).fetchone()
+    ok = c.execute('PRAGMA integrity_check').fetchone()[0]
+    c.close()
+    print('inserted unit_uid=%d class=%d nick=%s level=%d exp=%d sp=%d ed=%d | integrity_check: %s' % (row + (ok,)))
+
+
+if __name__ == '__main__':
+    main()
