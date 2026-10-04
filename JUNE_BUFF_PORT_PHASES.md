@@ -3746,9 +3746,16 @@ For each check say where to be, the line to paste, what it does in one plain sen
 and what I should see if it works and if it does not.
 ```
 
-### Phase 5 — Done (2026-10-04), play-test pending
+### Phase 5 — Done (2026-10-04), play-tested (user)
 
 **Result.** All seven types are ported under `SERV_IRUHADEV_JUNE_BUFF_NEW_STAT`; none is Opus-only. `buff_census.py --phase 5` no longer lists any of them (March "handles 79", was 72). Client build `US_SERVICE` rc=0 for KTDXLIB, X2Lib (PCH invalidated with `touch X2Lib/stdafx.cpp`) and X2. `git diff --stat`: 351 insertions, 0 deletions; `file` on every touched file unchanged. Deployed `X2/US_SERVICE/x2.exe` as `X2_offline.exe` (names read programmatically: `x2.exe`, `x2.exe.bak`, `x2.fx`, `X2_offline.exe`): 19,040,256 B, md5 **`407067dcf1f31a0ca858f39c1db3eb4d`**, byte-identical to the build output. The exe contains all seven `BBT_*` key strings (ASCII and UTF-16) and the debug strings `first apply BBT`, `first read BBT`, `console hook BBT`, `JuneBuffTestNewStat_LUA`. **Not launched.** The four read sites (fixed-damage path and main path of `GetFinalDamage`, melee and range branches of `SetDamageExceptionProcess`) were each proven compiled in under `US_SERVICE` with a temporary `#pragma message` and a one-file compile (removed again; `git status` clean afterwards).
+
+**Play-test (2026-10-04, user): all four console checks passed** on the deployed exe `407067dc…`. The user reports the Hyper mode badge went from 30 s to 60 s with `JuneBuffTestNewStat_LUA( 76, 1, 100, 1 )`. `ErrorLog.txt` agrees, and holds no `runtime error` line:
+- 108: `first apply BBT 108, change type 3, value 2`, then `first read BBT 108: 19085.9 * 9542.96` (the sum is exactly 2x the base 9542.96); erase logged.
+- 109: `first apply BBT 109 … value 2` (once per monster), `first read BBT 109: 9578.55 * 4789.28` (2x).
+- 76: `first read BBT 76: hyper time percent 101.5 (socket alone 1.5)`, i.e. the socket bonus plus the +100, so the option-value seed works.
+- 85/86/87/96: four `first apply` lines, no error. Their read sites remain unexercised (no `AT_COMMAND` attack in March data).
+Not covered by this test, as stated above: the parse, level slice and templet path (needs June data, Phase 13/14).
 
 **Flags.** `SERV_IRUHADEV_JUNE_BUFF_NEW_STAT` (requires `_ENUM` for the enumerators and `AT_COMMAND`, and `_BEHAVIOR_PARITY` for the level slice and the ChangeStat templet parity) and `SERV_IRUHADEV_JUNE_BUFF_DEBUG`, both appended to `KTDXLIB/Always.h`. `DEBUG` had been listed since Phase 3 but never defined; it is defined now so the step-8 first-application lines compile in. Undefine it and no debug string remains. Every edit is a pure insertion inside the flag; nothing needed an `#else` except `CX2GUUser::GetHyperModeTime`, where the original line sits in the `#else`.
 
