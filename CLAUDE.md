@@ -8,6 +8,31 @@ Full source for **Elsword (internal codename "ProjectX2")** by KOG Studios — t
 
 **This file documents the US live build only.** The tree carries ~50 configurations for other regions and environments (EU, CN, TW/HK, JP, KR, ID, TH, BR, PH × internal/test/open-test/service). Ignore them unless explicitly asked; they change which publisher, billing, auth, and anti-cheat stack compiles in, and cross-referencing them is how you end up debugging the wrong code path.
 
+## Workflow automation: use `tools/` and the `x2-*` skills, not hand-typed commands
+
+Added 2026-10-04. Every repeated step of the phase loop is a script. A session that types msbuild, writes a throwaway byte-patch or unifdef script, or reads a plan doc "in full" is doing by hand what these already do and have been validated to do. See `tools/README.md`.
+
+| Step | Command | Skill |
+|---|---|---|
+| What's running / next / parallel | `STATUS.md` | `/x2-phase status` |
+| Start a phase or review | `kickoffs/<plan>/<phase>.md` | `/x2-phase <plan> <phase> [review]` |
+| Read part of a plan doc | `python tools/docsection.py <doc> "<heading>" ...` | x2-phase |
+| Edit a CP949 source | `python tools/bytepatch.py show / find / apply <spec>` | x2-byte-edit |
+| Flag hygiene (insert-only, `#else` intact, flag-off = base) | `python tools/flagcheck.py <FLAG> [--range A..B / --worktree / --base REV]` | x2-byte-edit |
+| Build and deploy | `python tools/build.py --deploy` (run in background) | x2-build-deploy |
+| Play-test logs | `python tools/logs.py --tag <TAG>` | x2-check-logs |
+
+- **Every phase and review finishes the same way** (x2-phase "Finish"):
+  - `flagcheck --worktree` passes;
+  - `build.py --deploy`, with its `DEPLOY OK` line pasted into the Done note;
+  - a Done note of at most ~60 lines;
+  - the phase's `STATUS.md` row updated in the same commit;
+  - the next kickoff file written if it is missing;
+  - a commit with explicit pathspecs (other sessions share this tree);
+  - a copy-ready play-test hand-off.
+- **New plans** follow x2-phase's `new-plan` shape: kickoff files that name sections, never "read in full", plus `STATUS.md` rows.
+- **Encoding guard:** `.claude/hooks/encoding_guard.py` blocks Edit/Write on non-UTF-8 files once it is registered in `.claude/settings.json` (the user's step). The rule holds either way: CP949 files are edited with `bytepatch.py` only.
+
 ## Rule: every client change goes behind a `SERV_IRUHADEV_` flag
 
 **All edits to client code — `X2/`, `X2Lib/`, `KTDXLIB/` — must be wrapped in a custom `#define` named with the `SERV_IRUHADEV_` prefix.** No exceptions, including one-line fixes. This follows the studio's own practice (see *Feature flags* below) and keeps every local change revertible by undefining a single macro.
@@ -196,6 +221,8 @@ Notes that matter in practice:
 
 **The VS2010 C++ compiler is on `D:`, not `C:`** — `D:\Program Files\VS\Microsoft Visual Studio 10.0\` (registry `HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7` → `10.0`). The `C:\Program Files (x86)\Microsoft Visual Studio 10.0\` tree holds only shell pieces and has no `VC` directory. **VS2003 is not installed at all** (no `SxS\VS7` entry for `7.1`), so the servers cannot be built in this environment — plan around that rather than discovering it mid-task.
 
+**`python tools/build.py` encodes everything in the rest of this section** (path, flags, order, configs, `SolutionDir`, PCH). The details below are reference for when a build fails in a new way, not a recipe to retype.
+
 **`msbuild` is not on `PATH`** in a Git Bash shell here — use the full path,
 `/c/Windows/Microsoft.NET/Framework/v4.0.30319/MSBuild.exe`
 (`C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe`). Pass
@@ -358,37 +385,17 @@ Two invariants worth knowing before changing anything in here:
 
 ### Deploying the offline client
 
-**This branch (`mods/offline-mod-2`) exists to build and run the offline client.** A change is not finished when it compiles; it is finished when the exe in the game directory has it and the logs show it working. The whole loop:
+**This branch exists to build and run the offline client.** A change is not finished when it compiles; it is finished when the exe in the game directory has it and the logs show it working. The whole loop is two commands (see *Workflow automation* at the top):
 
 ```sh
-MSBUILD="/c/Windows/Microsoft.NET/Framework/v4.0.30319/MSBuild.exe"         # not on PATH here
-TRUNK="F:/elsword stuff/.../source/EU_CN_US/Trunk"                   # this repo
-DATA="F:/elsword stuff/elsword_2014/els_2014/237311/24965799/data"   # the game directory
-MP="-m -p:MultiProcessorCompilation=true"                            # 16 cores, see *Toolchains*
-
-# 1. build - dependencies, then X2Lib, then the exe. See *Toolchains* for the
-#    full ordered list and why each config is what it is. NEVER build via
-#    X2Project_2010.sln: its US_INTERNAL build sweeps in ~15 dead tool/server
-#    projects and never runs X2_2010.vcxproj, so it produces no exe (US_SERVICE
-#    isn't even in the .sln's config list at all - see *Toolchains*). Client
-#    config is US_SERVICE by default - substitute US_INTERNAL only if asked.
-"$MSBUILD" X2ServerProtocol/X2ServerProtocol_2010.vcxproj -p:Configuration=X2TOOL      -p:Platform=Win32 "-p:SolutionDir=$TRUNK/" $MP
-"$MSBUILD" KTDXLIB/KTDXLIB_2010.vcxproj                   -p:Configuration=US_SERVICE -p:Platform=Win32 "-p:SolutionDir=$TRUNK/" $MP
-"$MSBUILD" X2Lib/X2Lib_2010.vcxproj                       -p:Configuration=US_SERVICE -p:Platform=Win32 "-p:SolutionDir=$TRUNK/" $MP
-"$MSBUILD" X2/X2_2010.vcxproj                             -p:Configuration=US_SERVICE -p:Platform=Win32 "-p:SolutionDir=$TRUNK/" $MP
-
-# 2. confirm the artifact. The post-build event is disabled under US_SERVICE (and
-#    US_INTERNAL), so the exit code is meaningful now - but still check the file and its date.
-ls -la X2/US_SERVICE/x2.exe
-
-# 3. deploy - the game directory names it X2_offline.exe
-cp X2/US_SERVICE/x2.exe "$DATA/X2_offline.exe"
-
-# 4. run, then read the logs it wrote next to itself
-cd "$DATA" && ./start_offline.bat
+python tools/build.py --deploy             # build all four projects in order, deploy, verify (run in background)
+# ...the user launches the game and plays - never launch it yourself, ask...
+python tools/logs.py --tag <PHASE_TAG>     # read this run's lines, after checking the run used the new exe
 ```
 
-Five things that go wrong at deploy time, all of them silently:
+The game directory is `F:\elsword stuff\elsword_2014\els_2014\237311\24965799\data`. `build.py` refuses to deploy while the game runs, copies `X2/US_SERVICE/x2.exe` to `X2_offline.exe`, and verifies the name programmatically along with size, md5, and survival after 3 s (Defender). It also handles PCH invalidation and serialises builds across sessions and worktrees.
+
+Five things that go wrong at deploy time, all of them silently. The tools now catch the first three; the reasons are kept here because they explain what the tools' messages mean:
 
 - **Deploy onto the exact name already in the game directory, and confirm it rather than assuming it.** It is `X2_offline.exe`, which is also the name `start_offline.bat` looks for. The source artifact is `x2.exe` **lowercase** out of `X2/US_SERVICE/` (or `X2/US_INTERNAL/` if that config was built instead - the two do not share an output directory, so check which one you actually built), and the old game directory holds half a dozen other `X2_*.exe` builds from earlier mods, so a near-miss name silently leaves the old exe in place and the next play-test measures stale code. `ls` in a terminal is not proof — read the name programmatically (`python -c "import os; print(os.listdir(DATA))"`) before claiming anything about it, and check the size and mtime of what you copied. A build that did not land is indistinguishable from a change that did not work.
 - **A stale PCH silently discards header edits.** `Always.h` and `X2Define.h` sit inside every project's precompiled header, and msbuild does not always notice. The flag is then simply absent at the call site with no error — the `#else` branch compiles and the change looks like it did nothing. After editing any header, `touch X2Lib/stdafx.cpp` before building, and if a change appears to have no effect, **prove the code compiled in** rather than re-reading the `#ifdef`s: put a `#pragma message` inside the guard, rebuild that one project, and read the compiler output.
@@ -396,21 +403,13 @@ Five things that go wrong at deploy time, all of them silently:
 - **The working directory must be the game directory.** `X2Main` mounts the `.kom` archives through a `"./"` prefix, and the offline server writes `els_db.sql` and both logs relative to the cwd. Launching from anywhere else finds no content, or quietly starts a second empty save somewhere surprising. `start_offline.bat` does `cd /d "%~dp0"` for exactly this; a shortcut with a different *Start in* field does not.
 - **The save file is real player data.** `els_db.sql` (plus `-wal`/`-shm`, and the `els_db.sql.bak` written on a clean exit) lives in the game directory and is the only copy of the character. Never delete it to "start clean" without asking, and never assume a schema change is reversible — `X2OfflineDB` migrates forward only. The pre-March save still sits in the **old** directory, `...\237311\22191271\data\els_db.sql`; migrating it is Phase 7 of `MARCH_2014_MIGRATION.md`.
 
-**Reading the result** is the actual verification; there is no test suite. Both logs are in the game directory and flushed per line:
-
-```sh
-cd "$DATA"
-grep -E "UNHANDLED|EXCEPTION" offline_packets.log | sort | uniq -c | sort -rn
-grep "CENSUS" offline_server.log          # clean-exit summary of every declined id
-tail -50 offline_server.log
-sqlite3 els_db.sql "select unit_uid, nickname, level from unit;"
-```
+**Reading the result** is the actual verification; there is no test suite. The logs are in the game directory, rewritten per launch and flushed per line. `python tools/logs.py` prints the deploy/run match and the UNHANDLED/EXCEPTION and CENSUS summary; `--tag`/`--grep` add the phase's lines. For the save itself: `sqlite3 els_db.sql "select unit_uid, nickname, level from unit;"`.
 
 **When a gameplay change cannot be verified by reading code**, add a temporary diagnostic rather than reasoning further: `CX2OfflineLog::Server( L"..." )` writes a printf-style wide line into `offline_server.log`, is flushed immediately, and is available anywhere in `X2Lib`. Gate it behind its own short-lived `SERV_IRUHADEV_*_DEBUG` flag so it is one `#define` to remove, tag the lines with a grep-able prefix, and throttle per-frame logging to about once a second. This is how a rate that "should" have applied gets settled in one play-test instead of three.
 
 ## Conventions
 
-- Comments and identifiers are frequently **Korean in CP949/ANSI encoding**, not UTF-8 — most editors and `grep` render them as mojibake. Do not "fix" the encoding of a file you are editing; write new comments in ASCII and leave existing bytes alone.
+- Comments and identifiers are frequently **Korean in CP949/ANSI encoding**, not UTF-8 — most editors and `grep` render them as mojibake. Do not "fix" the encoding of a file you are editing; write new comments in ASCII and leave existing bytes alone. **Edit these files with `tools/bytepatch.py`** (x2-byte-edit skill). It keeps every byte outside the edit and takes each inserted line's ending from its anchor line. Verify with `tools/flagcheck.py`, which reports any encoding-class change.
   - **This is not just an editorial preference — Claude Code's Edit tool can silently violate it.** On at least one CP949 file, a normal Read-then-Edit round-trip (touching only a handful of lines) re-encoded the *entire file* to UTF-8 and normalized its line endings, corrupting every Korean byte sequence in it while `git diff` looked deceptively plausible at a glance. **After editing any file that carries non-ASCII bytes, verify before trusting the result or committing:** run `file <path>` and confirm the encoding line hasn't changed (e.g. `ISO-8859 text` / `Non-ISO extended-ASCII text`, not `Unicode text, UTF-8 text`), and check `git diff --stat` — a change of a few lines should not produce a diff of hundreds or thousands. If it did, `git checkout -- <path>` to restore the pristine bytes (confirm with the user first — it's a destructive command) and redo the edit at the byte level instead (e.g. a small Python script opening the file in `"rb"`/`"wb"` mode, matching your target region by exact byte content, and leaving everything else untouched — reuse existing non-ASCII byte spans verbatim via slicing rather than retyping them).
 - Change blocks are marked `//{{ author : date // description` … `//}}` and are expected on non-trivial edits.
 - `#endif SERV_FOO` — a trailing token after `#endif` (invalid standard C++, tolerated by MSVC) is the house style for matching a long `#ifdef`. Keep it.

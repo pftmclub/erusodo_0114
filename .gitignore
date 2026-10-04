@@ -30,6 +30,17 @@
 !/*.md
 !/march2014/
 !/june2017_re/
+!/tools/
+!/kickoffs/
+# ---- .claude/: only the shared automation (hook + x2-* skills). Never
+# settings.local.json, lock files, or the user's own graphify/ghidra skills.
+!/.claude/
+/.claude/*
+!/.claude/hooks/
+!/.claude/settings.json
+!/.claude/skills/
+/.claude/skills/*
+!/.claude/skills/x2-*/
 
 # ---- march2014/ carries ported Ranox mesh/texture/audio assets alongside its
 # .lua source -- track the .lua, keep the (large, binary, re-derivable from
@@ -106,3 +117,7 @@ bin/
 *.aps
 *.bak
 *.log
+
+# ---- tools/build.py state (lock, build logs, last deploy manifest)
+.build/
+__pycache__/
