@@ -2691,6 +2691,51 @@ Open:
 
 Log lines read afterwards: `first apply BBT 73/94/95/104/105` and `first read BBT …` (73 state defence; 94 ALL_DEBUFF refused BTI 990073; 95 erased / refused BTI 990004; 104 jump key; 105 EDT 100).
 
+### Phase 7 — Review (2026-10-04)
+
+**Verdict: no transcription errors, no code change.** Reviewed `6892072` (code) plus the doc-only commits `fd4cc95`, `1d7fc10` and `58165a3`. The deployed exe is still Phase 7's: `X2_offline.exe` md5 `532eecfb210243d56152a5731af4b879`, 19,104,256 B, 2026-10-04 20:46:55, re-read from the game directory. With no code change there was nothing to rebuild or deploy, and nothing new to play-test.
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG --range 6892072^..HEAD`:
+- `files: 4 PASS, 4 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+- `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 4 #else/#endif without the flag token, 0 encoding change(s)`
+- `RESULT: PASS`
+
+The 4 are the plain `#else` lines (the two stubs and the two jump gates), as the Done note says. Every replaced line keeps March's code in `#else`.
+
+**Checked against June.** Each was read with `june2017_re/disasm_range.py`.
+- **Enums.** BBT 73/94/95/104/105 match June's `Enum.src.lua`. `BTI_BUFF_SCHWERT_PLATZEN = 975` matches March's Lua Enum `:9368` and June `@322862e0` (`push 0x3cf`).
+- **73** (`@322862bf`).
+  - It reads list `+0x67cc` on the same register the state-defence block below uses for `+0x9e4` (`m_DamageReducePercent`), then `HaveThisBuff( 0x3cf )` on the attacker, and writes DD`+0x541`.
+  - The port reads `pDefender`. All 6 March callers call `GetFinalDamage` on the defender (the Raven overheat one sets `optrDefenderGameUnit = this`), so `pDefender == this`. Equivalent.
+- **94 SetFactor** (`32e79e30`).
+  - Restack erase when `DidStart` (`+0xc`) and `GetAccumulationCountNow` (`32369da0`) == 0.
+  - Clear; `v[0]`/`v[1] != 0` into the two sets, keyed by the templet's BTI (`+0x34`); loop from index 2 (quirk 1); `InsertImmuneList`.
+  - Erase helper `3227a910`: find first (`322a9090`), erase one. Matches.
+- **94 stub** (`322a80a0`).
+  - Null templet returns false before the list is read (`322a8138` → `322a8226`, `xor al, al`).
+  - Then the all-buff set with `!IS_DEBUF` (`+0x64`), the all-debuff set with `IS_DEBUF`, and the list walk (`32369d70`, linear BTI match). Matches.
+- **95** `DeleteNonControlDebuff` (`3229dcc0`).
+  - Walks `+0xe14`, skipping null, `!IS_DEBUF` (`+0x64`) and `!IsNonControlDebuff` (`32369cc0`).
+  - Erases through `3229d320` (`EraseBuffTempletFromGameUnitByIterator`) and keeps the returned iterator. The port's index walk is the same.
+  - `IsNonControlDebuff` already has BBT 104 (Phase 4a, `X2BuffTemplet.cpp:1676`), so the Done note's "strips jump-impossible" holds.
+- **104**.
+  - User `31fe8479`: `m_fCanNotJumpTime` (`+0xde4`) `> 0 || list +0x42c0 non-empty` clears `[InputData+8]` as one dword. That dword is March's `pureUp`/`oneUp`/`pureDoubleUp`/`oneDoubleUp`.
+  - NPC `@3276e442`: the message match falls through to the list test, and a non-empty list skips the state change without clearing the message. The port does the same.
+- **105**.
+  - The host (`322a0510`) sets `edi = this` at `322a051f` and calls `IsImmuneEDTByBuff( basicExtraDamageType )` on it (`322a05f5`) right after the rate test.
+  - The reader (`322a0400`) walks `GetBuffFactor` (`3229fd80`) for type `0x69`, `ftol(value) == edt`.
+  - March's `GetBuffFactor` skips finished and world buffs the same way, and fills values through the templet's `GetFactor`, which is `m_vecEDT`. Matches.
+- **Store lifetime.** No store needs a bulk clear. March never clears its identity vectors (`m_vecDashImpossiblePtr`, `m_vecXImpossiblePtr`…) outside `DoFinish`; they die with the unit. The 6 new stores follow the same pattern.
+
+**Open, for the user (a decision).**
+- 94 restack leak, verbatim June. A restack whose accumulation count is above 0 pushes a **second** immune-list entry with the same identity, and `DoFinish` erases only one. The leftover entry keeps refusing its listed BTIs after the buff ends, until the unit is destroyed. The two sets are keyed by BTI and are not affected.
+- It only matters for a 94 factor with an `IMMUNE_BUFF_TEMPLATE_ID` list that restacks: an accumulating templet, or a re-cast that takes the `SetFactor` path.
+- Keep (June parity, the current state), or erase every entry with that identity in `DoFinish` under a new flag? **Not changed; your call.** Also for Phase 14.
+
+**Phase 14 notes (carried).** The Done note's items 1–4 stand: the EDT renumbering, `DeleteNonControlDebuff` erasing inside a loop, empty level slices for 73/104, and 73's flag sticking on multi-target DamageData.
+
+**Cost.** `/cost` cannot be read from inside the session. User, please paste it here.
+
 ---
 
 ### Phase 7b — group C: rewritten hosts and per-class virtuals (Opus)
