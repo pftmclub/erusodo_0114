@@ -4697,6 +4697,7 @@ How the lines were checked:
      ```
    - **What it does:** for 60 seconds the monsters take your hits as if they had no defence. After that they should be back to normal.
    - **Look for:**
+     - **Read the damage line in the chat box**, not the number over the monster. The chat line is the result 88 changes, without the additional-damage part the floating number adds. Compare non-critical hits of the same attack.
      - Hits are clearly harder right away.
      - **More than 60 seconds later**, the same attack is back to the number you noted first.
      - `ErrorLog.txt` has `first apply BBT 88 (ignore defence): BTI 990088, rate 1` and `first read BBT 88: piercing defence factor 0 …`, as before.
