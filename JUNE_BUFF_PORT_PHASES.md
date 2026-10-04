@@ -3395,6 +3395,134 @@ US_SERVICE, deploy, record the md5, and ask before launching. If nothing is open
 Phase 4b complete. Stage only your own hunks. Commit. Record the review cost line.
 ```
 
+### Phase 4b-iii — Done (2026-10-04), play-test pending
+
+Ran on Opus 5.5 high, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. The pre-session commit is `6312f1d`; the code is `2cb90fa`.
+
+**Method.**
+- Ghidra was used read-only, for decompiles only. Uncarved bodies were read with `buffre/rawfn.py` and `disasm_range.py`.
+- Every store's readers come from a `dispxref.py` sweep of each member's displacement:
+  - render param `+0x669c/+0x66a0`;
+  - after-image `+0x6744/+0x6748`;
+  - weapon after-image `+0x675c/+0x6760`;
+  - impact point, hitted and normal attack `+0x66fc`, `+0x670c`, `+0x677c` (and each `+4`);
+  - slash trace `+0x4238`;
+  - hitted `+0x4230`, hit `+0x4231`.
+- Each hit was mapped to its function through `funcs.txt`. Every function on the list is in the verdict table, except the ctor/dtor clears (`322a2700`, `322a0730`) and the finalizer readers already diffed in 4b-ii.
+- Unit vslots were resolved per class with `vtslot.py`. March's reach was measured on a fresh `elstools decompile-batch` of the staged `BattleFieldBuffTemplet.lua` (152,564 B, the live size) and `BuffTemplet.lua`.
+
+**Verdicts.**
+
+| Item | June | Verdict |
+|---|---|---|
+| Render param insert / erase | `3227ac80` / `32279b20` | same shape (copy into `+0x669c`, find-by-identity erase). The struct they copy differs: see the next three rows |
+| `StBuffRenderParam` | copy ctor `322ad270` | **ported.** June holds each of the six keys in a one-element slot that stays empty when the script lacks the key. March gets `m_bHas*` flags (struct, copy ctor, `Initializer`). The value members keep March's defaults |
+| RenderParam / ByUnitType parses | `32eb7d50` / `32ebad40` | **ported.** Each key is stored only when present. `FLICKER_COLOR_GAP` is a plain float, read only by RenderParam and 0 on a miss, as in March. This corrects 4b-ii's BDT 1/2 "same", which compared required-ness, not storage |
+| `ApplyRenderParam` | `32275140` | **ported.** After the `+0x6840` (`m_bPassDash`) return, vslot 197 (`ApplyRenderParamOnEmptyRenderParamByBuff`) always runs first. With an empty list, vslot 199 (`ApplyWorldLightColor`) follows, as in March. Otherwise the newest buff render param overrides only its set keys. Colour flickers when the gap is > 0.0 (`334350e8`) |
+| vslot 197 base + overrides | `3226e190`; Ara `32ba6e50`, Aisha `32cc1c50`, Chung `32bec310`, Eve `32978420`, Raven `32c3deb0` | same. The override set is exactly March's five classes and the bodies match (constants read: 0.8/0.6/0.2, 0.694/0.737). They now run every frame, also while a buff render param is active, as in June |
+| vslot 154 (by unit type) | user `31fd8600`, NPC `3275bba0` | same (own type, else `UT_NONE`; NPC `UT_NONE`) |
+| `GetFlickerColorByBuff` | `322722e0` | same |
+| After-image insert | `3227b220` | same, apart from June-only parts: `EnableAfterImage(3)`, then `+0x7c80 = 1` |
+| `EnableAfterImage` | `32275a30` | **ported (colour).** Enable needs option `== 0` (`OL_HIGH` = 0) and `+0x3e59 == 0` (absolute invisibility), as in March. Colour = the newest buff colour, **else the state colour `+0x6880`**; March left the colour as it was. The mode argument (0/1/3 → `+0x6754`/`+0x6758`/vslot 152) is June-only and always the first after-image on March |
+| `DisableAfterImage` | `322720f0` | **ported.** Same condition (force, empty list, or option `== 2` = `OL_LOW`), but **no `SetAfterImageColor( 0xffcccccc )`** |
+| After-image erase | `3227a2f0` | same as March's erase plus the ported `DisableAfterImage`. June-only parts: `+0x7c80 = 0`, and the after-images' `+0x1d1 = 0` |
+| State colour `+0x6880` | ctor `@322a5e05`; `CommonStateStart` `32057b80` `@3205b70d` | **ported.** A new member, (0.8, 0.8, 0.8, 1) from the ctor. `CX2GUUser::CommonStateStart` reads the state's `AFTER_IMAGE_COLOR` (decoded from the function's own XOR bytes at `3379d708`; read through `31c9eba0`, June's user-type getter), with the same default when it is missing. Nothing else writes it, and no NPC path does |
+| Weapon after-image insert / Enable / erase | `3227b300` / `32275b00` / `3227a3a0` | same. Pulse is (r,g,b,1)→(r,g,b,0.1), 0.5, 3600, `PWCI_UNDEFINED` (1). The erase's inline zeroing of `+0x416c..+0x4188` is March's `SetEnableWeaponRenderEffect(false)`, field for field |
+| ImpactPoint / Hitted / NormalAttack insert and erase | `3227b0a0`/`3227b160`/`3227b540`, `3227a180`/`3227a220`/`3227a4c0` | same (ctor `322aba40`: name, sound, gap; cool time 0) |
+| `PlayEffectSet*ByBuff` (unit) | `322752f0` / `32275910` / `32275cf0` | same |
+| Element players | `3236ea50` / `3236ebd0` / `3236ed60` | same, except **NormalAttack's gate is `type != 1` (`AT_SPECIAL`)**; March has `== AT_NORMAL`. **Ported**: `AT_COMMAND` (2, Phase 2) now plays too |
+| Cool-time tick | `323697b0`, from `3229ecc0 @3229f971..` | same (three lists, `cool < gap` → `+= dt`) |
+| Slash trace `+0x4238` | readers `3227af80` → `3227a0a0`; writer the displayer `32eb7460` | same. March's reader is compiled in (`UNIT_SLASH_TRACE_MANAGER_TEST`, `Always.h:2857`). June's missing-type default 5 is `STT_NONE` |
+| Hitted `+0x4230`, user / NPC | `320462a0 @320489c6` / `327b1f30 @327b4b82` | **ported.** June counts only when `DamageData +0x56c != 4` (`NFT_RESULT_BOMB`, March's `m_iNaturalForceType`, since `ADD_RENA_SYSTEM` is off) **and `+0x0 != 6` (`DT_BUFF`)**. March counted every hit |
+| Hit `+0x4231`, user | `32012b50 @320141ae` | same for the March counter. The per-attack-type `+0x4232+type` is hand-off 5 |
+| Hit, NPC | `3276a320 @3276ae07` | **ported:** the NPC's owner (`32759f00` = `GetOwnerGameUnit`, observer `+0x8d5c`) also gets `++hit`. Per-type counters: hand-off 5 |
+| Hit, damage effect | `31f85910 @31f87a60` | same |
+| Sync write / apply | `32061bf0 @32062f82` / `32063650 @3206c1ee` | same for hit, hitted and debuff. June also syncs the per-type counters (`+0x8104..`): hand-off 5 (wire layout). The apply's `!IsMyUnit` gate was not re-traced |
+
+**June-only, handed off (not ported).**
+- **Alternate after-image (character port).**
+  - Unit vslot 152 (`3208e160`) returns user byte `+0x8e90`; base and NPC (`31e4c550`) return false.
+  - `+0x8e90` is copied from `CX2Unit +0xe40` when the user unit is created (`32d51e80`), and set by `3204e030`.
+  - It selects between a second after-image `+0x6758` (created at `@31feed3d`) and a second head frame (`31fcac20`, the `+0x4218`/`+0x4200` choice in funcmap row 714).
+  - Its second `AFTER_IMAGE` table in `CommonStateStart` fills `+0x852c`.
+  - What the flag means was not identified.
+- **`+0x7c80` (character port).** "After-image on by buff": set by insert, cleared by erase and by `31ff27c0`. Its only reader is `CommonFrameMove @32065c06`, which re-enables the after-image when a June-only `+0x941c` show/hide block ends.
+- **After-image `+0x1d1` (character / effect port).** A saved-enable byte on `CKTDGXSkinAfterImage`, used by a suspend/restore pair (`31fd8250` saves and disables, then restores; `322727c0` sets it on both after-images). Erase clears it.
+- **Per-attack-type hit counters `+0x4232+type`.** Incremented next to `+0x4231` at the user and NPC hit sites (and for the NPC's owner), and synced at `+0x8104..+0x8106`. This is 4b-ii hand-off 5 (HIT_COUNT `ATTACK_TYPE`), now with its increment sites and wire fields located.
+
+**Behavior changes on March data.**
+- **Render params (reach: all 37 `BDT_RENDER_PARAM` blocks and the 9 by-unit-type entries).** Each omits at least one of the six keys (`COLOR` ×10, `CARTOON_TEX_TYPE` ×26, `OUT_LINE_WIDE`/`COLOR_OUT_LINE`/`ALPHA_BLEND` ×27; by-unit-type: `COLOR` ×9).
+  - March replaced each missing key with its default: outline width 0, white outline and colour, `CTT_NORMAL`, no alpha blend.
+  - June keeps the unit's own value.
+  - Example: line 1645 of the decompiled templet sets only `RENDER_TYPE = RT_CARTOON_BLACK_EDGE` and a red `COLOR`. March drew it with a 0-width outline; it now keeps the unit's outline.
+- **After-image colour.** With no buff after-image, an enabled after-image is painted with the state colour, which is 0.8 gray on all March data: no March bytecode has the exact key `AFTER_IMAGE_COLOR`. Before, it was painted gray only on disable.
+  - **One visible loss, the June behaviour, kept:** `Ran.lua` and `Ran_Event.lua` call `ChangeAfterImageColor` (black, then magenta) in phases 2 and 3. June's NPC after-image window (`327b53b0 @327b6887`) calls `EnableAfterImage(3)`, which repaints `+0x6880` gray, so Ran's custom colour no longer shows. June's own `ChangeAfterImageColor` (`327582d0`) writes the after-image directly, as March's does, and nothing on the NPC side writes `+0x6880`. March never reads `m_bAfterImageAlways`. Say if this should be kept March-style.
+  - June scripts that set `AFTER_IMAGE_COLOR`: `ELESIS_KNIGHT`, Ain, Luciel, Rose, `PVP_HERO_SHAY`/`TAV`. They reach March only when adopted.
+- **Hitted count.** `DT_BUFF` damage (damage over time) no longer advances `BFT_HITTED_COUNT`.
+- **Hit count.** A summoned NPC's hits now also advance its owner's `BFT_HIT_COUNT`.
+- **Normal-attack effect sets** also play on `AT_COMMAND` hits. No March data uses `AT_COMMAND` yet.
+
+**Hygiene.**
+- Seven code files: `X2BuffDisplayerTemplet.h/.cpp`, `X2GameUnit.h/.cpp`, `X2GUUser.cpp`, `X2GUNPC.cpp`, `X2BuffTemplet.cpp`.
+- `numstat 6312f1d 2cb90fa`: 216 insertions, 0 deletions. Every added line is ASCII and CRLF, and every `file` signature is unchanged.
+- A fresh one-flag byte-level unifdef (flag off) gives strip(`2cb90fa`) == strip(`6312f1d`) on all seven. The flag-on control and a wrong-flag control both fail.
+- The first pass left one blank line outside a guard in `X2BuffDisplayerTemplet.cpp`. That file was restored and re-patched before the build.
+- The shared render-param reader is a public static member of `CX2BuffRenderParamDisplayerTemplet`, not a file-static function. The census follows only class methods, so with a free function it reported the six keys as unread.
+
+**Census.** `buff_census.py --phase 4b`: **0 type/key pairs**.
+
+**funcmap.tsv:** 52 rows ("Buff Phase 4b-iii"). All are `confirmed` except `3200a590` (`likely`).
+
+**Build and deploy.**
+- `X2Lib` (with `stdafx.cpp` touched) and `X2` at `US_SERVICE`, rc 0 and 0 errors. The only warning in a touched file is a pre-existing C4018 at `X2GUUser.cpp:17918`.
+- `KTDXLIB` and `X2ServerProtocol` are unchanged (no `Always.h` edit).
+- `x2.exe` is 19,032,576 B, linked 11:34:50, md5 **`a03acb224cb0c23221183083988a8544`**. It contains the new exact string `AFTER_IMAGE_COLOR`.
+- Copied to the game directory as `X2_offline.exe` (names read programmatically: `x2.exe`, `X2_offline.exe`); the size and md5 match. **Not launched.**
+- No Lua changed, so no pack is needed.
+
+**Things to watch in play** (ask before launching):
+- Any outline or colour buff, for example a slow or stun debuff, or a hyper-mode-coloured class under a buff. The outline should keep the unit's width; a render param that sets only a colour should no longer flatten the outline.
+- The Ran fight's phases 2 and 3: the after-image is now gray (expected, see above).
+- An after-image buff, e.g. a speed elixir: on, coloured, then off.
+- `ErrorLog.txt`: no new `[JUNE_BUFF] runtime error` lines.
+
+**Phase 4b is done when — status:**
+1. Verdict table: **met** (above).
+2. Every March-reachable difference ported whole, March in `#else`: **met** (render param, after-image colour, normal-attack gate, hitted gate, owner hit).
+3. Census 0: **met**.
+4. Unifdef, build, deploy and md5: **met**. The user's play-test is **pending**.
+5. Review with no open code defect: **pending** (kickoff below).
+
+**Cost:** `/cost` is not readable from inside the session; ask the user.
+
+**Kickoff for the 4b-iii review** (Opus 5.5 high):
+
+```
+Reviewing the June buff/debuff port, Phase 4b-iii (fresh Opus 5.5 session, high effort).
+Read JUNE_BUFF_PORT_PHASES.md -- "Starting context", "Phase 4b", "Phase 4b-iii" and
+"Phase 4b-iii -- Done". Branch: mods/june-buff-port. Never launch X2_offline.exe.
+
+Code: 2cb90fa (under SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY); pre-session commit 6312f1d.
+Use fresh scratch tools; do not reuse the session's patch or unifdef scripts. Run the
+flag-off unifdef on the committed blobs of 2cb90fa against 6312f1d and take numstat from
+git diff 6312f1d 2cb90fa. Confirm the deployed X2_offline.exe is md5 a03acb22....
+
+Independently re-check the verdict table in the raw asm (Ghidra read-only), especially:
+32275140 (only set slots override; vslot 197 always first), 32eb7d50/32ebad40 (push only
+when present), 32275a30/322720f0 (colour on enable, none on disable), 3236ed60's
+"!= 1" gate, the hitted gates @320489c6/@327b4b82 (+0x56c != 4, +0x0 != 6) and the NPC
+owner increment @3276ae3a. Look for readers of each store the dispxref sweep missed
+(e.g. an indexed or lea-based access). Check that every copy of StBuffRenderParam goes
+through the copy ctor (CX2RenderParamByBuff) so m_bHas* survive. Decide whether the Ran
+after-image loss is truly June's behaviour (June NPC path 327b53b0 @327b6887).
+
+Report numbered findings (R1, R2...) with a severity. Fix a code defect under the same
+flag, rebuild X2Lib and X2 at US_SERVICE (touch stdafx.cpp after a header edit), deploy,
+record the md5, and ask before launching. If nothing is open and the user's play-test has
+passed, mark Phase 4b complete. Add confirmed funcmap.tsv rows. Stage only your own hunks.
+Commit. Record the review cost line.
+```
+
 ## Phases 5–7 — New behavior types
 
 Phases 5–7 are split into seven sessions. Each has its own scope, its own run-with line and a **ready-to-paste kickoff prompt and review prompt with nothing to substitute**. Take the prompt of the phase you are starting, and no other.
