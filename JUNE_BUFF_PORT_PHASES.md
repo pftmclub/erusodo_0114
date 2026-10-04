@@ -5379,6 +5379,154 @@ For each check say where to be, the line to paste, what it does in one plain sen
 and what I should see if it works and if it does not.
 ```
 
+### Phase 15, step 1 — RE (2026-10-04), read-only; step 2 not started
+
+Ran on Opus 5.5 high. The session was read-only because a Phase 6 session and a Phase 16 session were working in the same tree: no code or Lua edits, no build, no Ghidra renames or comments.
+- March bodies were read from a `cl /P` of `X2GameUnit.cpp`, `X2EnchantItem.cpp` and `X2Data.cpp` with the `US_SERVICE` flags (output in the scratchpad only).
+- Blaze `3229b250` and Poison `3229bf90` have no Ghidra function. They were read with `disasm_range.py`.
+- New `funcmap.tsv` rows are prefixed "Buff Phase 15 step 1:".
+
+**Corrections to the Phase 15 text above**
+
+1. **`g_pData+0x284` is `m_pCX2EnchantItem`, not a flag.** `31edc310` (`CX2Data::ResetEnchantItem`) deletes and re-creates it with `new` (0x34 bytes, ctor `3270eca0`). `32272d90`'s test is a null guard.
+2. **`EnchantData` gains five scalars and three arrays, not five fields.** It grows from 0x3c to 0x74 bytes; the map is in the table below.
+3. **Two different "tiers".** Keep them apart in step 2 and step 3:
+   - The *EDT tier* is the weapon's attribute grade: blaze 1001 / 2002 / 3003 / 4004, frozen 1011 / 2022 / 3033 / 4044, poison 1101 / 2202 / 3303 / 4404.
+   - The *accumulation* is the defender's stack count.
+4. **Slots 214–219 are virtual, but nothing overrides them.** All 17 unit vtables (`CX2GameUnit`, `CX2GUUser`, `CX2GUNPC` and the 14 character classes) hold the base bodies: 214 `3229b250`, 215 `3229bd00`, 216 `3229bf90`, 217 `32289da0`, 218 `3229c980`, 219 `32278a90`.
+5. **The readers of the new fields are outside the six bodies.** They are in `CX2GUUser::CommonFrameMove` (`32063650`), the NPC tick hosts (`327b53b0`, `3276b400`) and `GetFinalDamage` (`32284aa0`, which already carries earlier-phase edits). Step 3's scope grows by those four hosts.
+6. **"Depends on: nothing in the buff port" is false.** Shock and the poison/frozen slows now apply buffs that March's buff data does not define. See *Buff-data dependency* below.
+
+**`EnchantData` (June loader `32708f00`; node value at node+0x10)**
+
+| Offset | Key | June type | March |
+|---|---|---|---|
+| +0x00 | `m_ExtraDamageType` (also the map key) | int | same |
+| +0x04 / +0x08 | `m_fRate` / `m_Time` | float / int | same |
+| +0x0c / +0x10 / +0x14 | `m_First/Second/ThirdDamagePercent` | **float** (getter `32fea370`) | int. June's data uses fractions (`37.5`, `112.5`) that an int field truncates |
+| +0x18..+0x20 | `m_First/Second/ThirdSlowPercent` | int | same |
+| +0x24..+0x2c | `m_First/Second/ThirdDefenceDebuffPercent` | int | same |
+| +0x30 / +0x34 / +0x38 | `m_fTimeStun` / `m_HPDrainPercent` / `m_MPDrain` | float / int / int | same |
+| +0x3c | `m_fAttribReiterationRate` | float | new |
+| +0x40 | `m_fBlazeMpDrain` | float | new |
+| +0x44 | `m_fPiercingDamageFactor` | float | new |
+| +0x48 | `m_iShockDebuffTime` | int | new |
+| +0x4c | `m_fShockDebuffDamageFactor` | float | new |
+| +0x50 / +0x5c / +0x68 | `m_arrMovementSpeedDecrease` / `m_arrJumpSpeedDecrease` / `m_arrAttackSpeedDecrease` | float[3] each, read from Lua int lists 1..n | new |
+
+Loader details the port must handle:
+- A missing scalar becomes 0, as in March. `bIsForNPC` selects the map, and a duplicate key returns false, as in March.
+- June's default value zeroes only March's 15 dwords, so the new tail is left uninitialised. When an array key is missing, the array stays as garbage.
+- The array loop has no bound: a fourth list entry would overwrite the next field. **Port: zero-init all 29 dwords and stop at 3 entries.**
+- `31c59710( pair, 0x78, … )` after the reads is an anti-tamper hash. It is not ported.
+
+**The six bodies against March**
+
+| Slot | Body | June | Verdict |
+|---|---|---|---|
+| 214 | Blaze | `3229b250` | **differs** (common changes plus the damage changes below) |
+| 215 | Frozen | `3229bd00` | **differs** (common changes only; the time is `m_Time` as in March) |
+| 216 | Poison | `3229bf90` | **differs** (as Blaze; no particle or camera, as in March) |
+| 217 | Piercing | `32289da0` | **same**: `m_bPenetrate`, two particles, camera 20 / 0.3, sound |
+| 218 | Shock | `3229c980` | **March plus one store**: the attacker goes into `m_EnchantShock.m_optrGameUnit` (`+0x2538`). Time is `m_fTimeStun`, camera 15 / 0.5 then 20 / 0.5, `AnimStop`, three particles, all as in March |
+| 219 | Snatch | `32278a90` | **differs in the tail; not fully decoded** |
+
+Common to Blaze, Frozen and Poison:
+- **No `m_fTime > 0` gate.** The accumulation is the stored value + 1, capped at 3; March gives 0 unless the effect is live and caps at 2. So June's first proc sets 1 where March's sets 0.
+  - The reset moved into the tick. When the element's `m_fTime ≤ 0`, the tick zeroes the accumulation and the damage timer.
+  - User sites: `@32069a17` (blaze), `@3206adc3` (frozen), `@32068e94` (poison; guard read `@32068dd6`). NPC sites in `327b53b0`: `@327b9688`, `@327bb633`, `@327b94a2`.
+  - So in steady state the effect equals March's gate.
+- **A per-element "accumulation rose on this proc" byte:** `+0x7c7c` blaze, `+0x7c7d` frozen, `+0x7c7e` poison. It is cleared at the start of each body and zeroed in the unit ctor (`@322a5eb8`). Its reader is `32272780( element 1..3 )`, used by the slow ticks (below).
+- **Each body stores `pDD->optrAttackerGameUnit` in the element's `m_optrGameUnit`** (`ExtraDamageData+0xc4`). The ticks use it to find the attacker's `EnchantData`.
+- `m_ExtraDamagePack.Init( EDT )` is inlined as `element.Init(); element.m_ExtraDamageType = EDT`. That is March's effect.
+
+Blaze and Poison damage:
+- **The tier is read on the new 1-based accumulation.** 1 → First, 2 → Second, ≥ 3 → Third; at 0, `m_DamagePerSec` stays 0. The NPC-attacker path does the same.
+- **New: `× ENCHANT_STAT_SCALE[ weapon item+0x18 ]`.** The table at `33487110` holds the values of March's `X2Define.h:233`. It is skipped when `32708c50` reports PvP (state 9) with channel class 9 (`PCC_FREE`). The index is not bounds-checked.
+  - This does not double-scale. March applies the +N scale only in `CX2Item` (`X2Item.cpp:650/659`), and the enchant bodies call the templet-only `CalculateItemStat`.
+- **The dungeon branch differs:**
+  - It runs in states 11 and 23. March runs it in `XS_DUNGEON_GAME` only. June's 23 is probably `XS_BATTLE_FIELD`, which is 24 in March (23 there is `XS_ARCADE_ROOM`); that identity is unproven.
+  - It has one quick-slot check (`328b26a0` on the room's dungeon ID). March has two: Henir challenge and defence dungeon.
+  - The event list is March's 14 dungeons plus 41280 `DI_EVENT_WALLY_LAND`, which is June-only and missing from March's enum.
+- **Not diffed:** the stat call branches on templet bit 7 (`[templet+4] >> 7 & 1`) between `328d72c0`/`328d6d70` and `322725d0`. Do not assume it equals March's level-linked loop plus `CalculateItemStat`.
+- PvP (FREE/TOURNAMENT → stat, else × 0.1) and the tail (`ApplyEnchantResist`; Blaze `EnchantBlazeAttack` plus `UpDownCrashCamera(20, 0.5)`) are March's.
+
+Snatch:
+- The keys and the math match March: `m_HPDrainPercent × base / 100`, `m_MPDrain`, and two `ApplyEnchantResist(ET_DARK)` calls. It uses the same states as Blaze and has no +N multiply.
+- **Not decoded:** the defender's loss goes through vslot `0xd8`, then `UpNowHp(−hp)` (`0xec`) and `UpNowMp(−mp)` (`0xf0`). March uses `SetNowHp` with a clamp plus `m_fDamageHistory`.
+- **Not decoded:** a second "HP −/MP −" text is drawn on the unit behind `DD+0x470` when that pointer is set (pic char `g_pData+0x154`).
+
+**Accumulation modifier `32272d90` (args `pDD, basicEDT, miscEDT, rate`)**
+- `R = 0`. When `m_pCX2EnchantItem` exists and the attacker is live, `R` is the `m_fAttribReiterationRate` (+0x3c) of `GetEnchantData( misc )` for a user attacker or `GetNPCEnchantData( misc )` for an NPC (`+0x264` 0 / 1).
+- Only basic 1001, 1011 or 1101 qualify, and misc must be one of that element's four EDT tiers; otherwise the rate is returned unchanged.
+- With the defender's accumulation (before this proc's increment) at 1 the result is `rate + R`; at 2 it is `rate + 2R`; otherwise `rate`. March multiplies by 2 at accumulation 1–2.
+- With the 1-based count, the bonus starts at the second proc; March's starts at the third.
+- It reads the *misc EDT's* table directly, not slot 112, so `USE_OWNERS_ENCHANT` does not apply here.
+
+**Readers of the new fields**
+
+| Field | Reader | June behaviour |
+|---|---|---|
+| +0x3c | `32272d90` | above |
+| +0x40 | user `32063650` `@320691de`; NPC `3276b400` (= March `CX2GUNPC::CommonFrameMoveHost_ExtraDamage`, candidate) `@3276b95d` | On the blaze tick, when the tick damage is > 0 and `m_EnchantBlaze.m_optrGameUnit` is live, the defender loses `m_fBlazeMpDrain × (1 − GetEnchantResist(ET_BLAZE)/500)` MP. |
+| +0x44 | `GetFinalDamage` `32284aa0` `@322865ea` / `@322866c3` | When `DD.m_bPenetrate` (`+0x4c5`) is set, damage gains `factor/100 × base × 0.5 × (1 − defender GetEnchantResist(ET_WIND)/500)`. The base is the attacker's attack for an NPC, or the weapon item stat × `ENCHANT_STAT_SCALE` (same `32708c50` gate) for a user. |
+| +0x48, +0x4c | user `32063650` `@32068bc0`; NPC `327b53b0` `@327ba136` | Applies **BFI 1000 `BFI_DEBUFF_HARD_BODY`** (BTI 945) to the defender: `r = 1 − GetEnchantResist(ET_LIGHT)/500`, BBT 7 value `1 − r × factor`, BBT 8 value `1 − x × factor` (x not traced), `BFT_TIME = m_iShockDebuffTime × r`, then `SetBuffFactorToGameUnit` (slot 137). The trigger condition was not traced. |
+| arrays | user `@32067e9e` (poison), `@3206a3b0` (frozen); NPC `@327b901f`, `@327bab4f` | Entry `[accumulation − 1]` of each array, ÷ 100, scaled by `1 − GetEnchantResist(ET_NATURE or ET_WATER)/500`. Poison builds **BFI 1001 `BFI_DEBUFF_SLOW_POISON`** (BTI 946); frozen builds **BFI 1014 `BFI_DEBUFF_SLOW_FROZEN`** (BTI 958). Each sets BBT 11/13/12 (anim / jump / run). They re-apply, after erasing the old BTI (`3229e160`), only when the debuff is absent or `32272780( element )` is set. |
+
+- The arrays replace March's direct `m_First/Second/ThirdSlowPercent` speed clamps (`X2GUUser.cpp:16388` ff.). Not checked: whether June still reads the Slow percents anywhere.
+- In the ticks, June picks the table by the stored attacker's class (`GetEnchantData` for a user, `GetNPCEnchantData` for an NPC). March picks it by game type (PvP or not).
+- The ticks find the attacker's EDT with `32708080` = `CX2EnchantItem::DecomposeEnchantExtraDamage` applied to the attacker's slot 111 (user `3208e090` returns `[this+0x3db0]`, the weapon's composed EDT).
+
+**Getter surface**
+- Slot 112 (`+0x1c0`) `GetWeaponEnchantData` is virtual in June:
+  - User `31fcb1b0` = `GetEnchantData`, as in March.
+  - NPC `3275aa80` forwards to the owner's slot 112 when `USE_OWNERS_ENCHANT` (`+0x7c7f`) is set and the owner (`+0x8d5c`) is live; otherwise it returns `GetNPCEnchantData`. Slot 111 (`3275aa20`) does the same.
+  - The flag is read by `32289090` beside `MAX_HYPER_MODE_TIME`, so it is the `InitComponent` counterpart (candidate). Only `data037_kom/Lire_Evoke_trap(_Memo).src.lua` set it.
+  - March has one non-virtual function (`X2GameUnit.h:2596`).
+- The 13 slot-`0x1c0` call sites are the six bodies, `322a0510`, the `GetFinalDamage` frozen block (`@322855ff`, March's DefenceDebuff fields) and five other-class sites. None reads `+0x3c..+0x70`.
+- `32d418a0` (`bbt, value, op`: 0 add / 1 multiply / 2 set on `value[1]`) and `32d41910` (the finalizer twin) are June buff-factor setters. March has neither.
+
+**Loaders**
+- **Ctor `3270eca0`:** it now has a vtable and the same three maps. It loads `AttribEnchantItem.lua`, `AttribEnchantRequire.lua` and the new **`AttribEnchantRequireED.lua`**. The Lua bindings are still only `AddEnchantData_LUA` and `AddEnchantRequire_LUA`.
+- **`AddEnchantRequire_LUA` `3270bb90`:** March's five grades plus **`LEGEND` → `IG_LEGEND = 6`** (June `Enum.src.lua:133`).
+  - March has no `IG_LEGEND`, in the Lua Enum or in C++. Its `ITEM_GRADE` is in the shared `KncWX2Server/Common/X2Data/XSLItem.h:38`.
+  - Not settled: whether a missing `LEGEND` defaults to 0 or fails the entry as March's `goto fail_proc` does.
+- **`GetAttribEnchantRequireED` `327089e0`:** it calls the Lua `GetAttribEnchantRequiredED( count, bWeapon, level, grade )` and always returns true.
+  - The script is March's formula (`X2EnchantItem.cpp` `GetAttribEnchantRequireED`/`GetRequireEDFactor`) extended to count 4 (× 24), `LEGEND` (+8) and armour counts 3–4; March returns false for those.
+  - Consumer: the offline handler `Handlers_Inventory.cpp:2551`. The port needs a degrade-if-missing path.
+- **`AttribEnchantTable.lua` / `AttribAttachTable.lua`:** the June client has no loader. They are server resources that `X2OfflineAttribTable.cpp` loads, so they are not Phase 15 client data.
+
+**Buff-data dependency**
+- The six IDs are BFI 1000/1001/1014 and BTI 945/946/958.
+  - March's `Enum.src.lua` has the names.
+  - The staged March `BattleFieldBuffFactor`/`BattleFieldBuffTemplet` define none of them; only `Enum` matches in `kom_contents/data036_kom`.
+  - June defines them in `BattleFieldBuffFactor`, `BattleFieldBuffTemplet` and `UnitApplyBuffGroup`.
+  - March C++ has no enumerators for them.
+- June null-checks the factor (`@32068bfa`), so the code can land first. But the shock and slow play-test checks need those six entries shipped with the exe, either through Phase 13 or a staged subset.
+- **Number collision:** `0x3e9` is both `EDT_ENCHANT_BLAZE` and BFI 1001 (the push `@32067fe1`). Step 2's audit must not count the BFI as an EDT consumer.
+
+**Still open (step 3):**
+- Snatch's tail (`0xd8`, `DD+0x470`).
+- Blaze/Poison's templet-bit-7 stat call.
+- The shock-debuff trigger and its x.
+- The slow debuffs' durations.
+- Whether the Slow percents are still read.
+- `LEGEND` fail handling.
+- June's `X2_STATE` 23.
+
+**User decisions to collect (step 2 onward):**
+1. The EDT renumbering (step 2's stop).
+2. `IG_LEGEND` in the shared `XSLItem.h`. That is a shared-header change; the backlog rule accepts it when it is flag-gated and offline-only.
+3. The six buff entries: ship them with Phase 15, or wait for Phase 13.
+4. `USE_OWNERS_ENCHANT`. June changed a March function here, so the no-partial-updates rule says port it.
+5. The pack list grows. It is `AttribEnchantItem.lua`, `AttribEnchantRequire.lua` (whether it differs from March is not yet checked) and the new `AttribEnchantRequireED.lua`.
+
+**Where this stopped:** step 1 done; **step 2 not started**. Step 2's inputs are the EDT values the hosts compare:
+- `322a0510`'s switch (1001, 1011, 1101, 1543, 1654, 1765);
+- `32272d90`'s 12 tier values;
+- `32274df0`'s six;
+- `32708080`'s decompose table, which is the place to start the June EDT map.
+
 ---
 
 ## Phase 16 — Socket-option parity (added 2026-10-04; carries 92 and 78's socket terms)
