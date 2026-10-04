@@ -5862,7 +5862,17 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 - the 24 `CalculateLinear<Class>Specialization{A,B}Value` (Elsword, Arme, Lire, Raven, Eve, Chung, Ara, Elesis, Add, Luciel, Rose, Ain; strings `33472bac`…`33472f68`)
 - the option-data `CalculateFinal*` curves of the refresh, `( value, level )`, listed in 5c: `CalculateFinalDamageMaximizeRate`, `CalculateFinalMpIncPercentByAttack`/`…ByAttacked`, and the March set
 - June's `SocketOptionForm.src.lua` defines every Linear name above (lines 1–351).
-- Not swept: the `CalculateFinal*` curves the June-only option members `6de8`…`74f0` use in the refresh `32290950`. Step 2 must list them from `32290950` before the gate.
+- ~~Not swept: the `CalculateFinal*` curves the June-only option members `6de8`…`74f0` use in the refresh `32290950`. Step 2 must list them from `32290950` before the gate.~~ **Settled (addendum, same session):**
+  - **There are none.** `32290950` refreshes all eleven, `6de8`, `6e9c`, `6f50`, `7004`, `70b8`, `716c`, `7220`, `72d4`, `7388`, `743c` and `74f0`, with the **plain** `3236d350` (`@32290ef0`–`32290f64`), and no curve.
+  - The plain refresh equals March's `UpdateResultValue` (`X2BuffTemplet.cpp:835`): `basic + option + FIX + RELATION`, then `+ basic·(P − 1)`.
+  - So those members take the raw socket sum: plain adds in `3207cd70`, no ×100, no Linear curve.
+  - The only option-data (curve) members June adds are 24/25/26, `6bb0`/`6c64` (`322a9a10`/`322a9c20`, from 5c) and 92.
+- **Base-offset sweep (addendum).**
+  - `dispxref` on the 20 member bases `M` (as opposed to `M+0xa0`/`+0x24`), outside the seed, basic, passive, refresh, insert, erase and update functions, finds only:
+    - the unit ctor/dtor (`322a0730`/`322a2700`);
+    - 92's known sites (`3230ca8c`, `32763d6e`, Add `32a2bbc5`, Ain `32a4fbef`);
+    - `cmp reg, 0x5a14` immediates in five per-class functions (`32c7bdd0`, `32c7bed0`, `32c85690`, `32c886b0`, `32ca2af0`), which are constants, not member reads.
+  - No reader is missing from the table above, and `7004` (item drop) still has no client reader.
 
 **For checklist section 7: copy later** (this session may not edit the checklist):
 - `SocketData_DuoUnit` (Lu/Ciel): the per-mode protected stat pairs and vslots 3/4 (`32091b10`/`32091b60`), read in `32b0fa90`.
