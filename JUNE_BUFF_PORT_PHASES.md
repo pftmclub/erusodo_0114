@@ -2915,7 +2915,7 @@ Log lines read afterwards: `first apply BBT 74/77/97/101/102/110`, `first read B
 - The `+0x7e84` = 0x1c write in the Add-only hook branch (member not identified; checklist §7 Add row).
 - The arm, the slot-510 prefixes and the flag's quick-slot reader: decision (b).
 
-**Hygiene.** `flagcheck JUNE_BUFF_AWAKE_LOCK --worktree` on the 4 code files: `files: 2 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 9 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 9 are plain `#else` lines (3 macros, 6 Ara sites). The PASS~ is one blank line before the header block.
+**Hygiene** (commit `e888197`; `--range e888197^..HEAD` gives the same lines). `flagcheck JUNE_BUFF_AWAKE_LOCK --worktree` on the 4 code files: `files: 2 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 9 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 9 are plain `#else` lines (3 macros, 6 Ara sites). The PASS~ is one blank line before the header block.
 
 **Build and deploy.** `DEPLOY OK: X2_offline.exe is 19,111,424 B, dated 2026-10-05 04:47:15, md5 3f4d41ba0de832875ae4fc3984471dc7, equal to X2/US_SERVICE/x2.exe (2026-10-05 04:47:11); built at mods/june-buff-port 6f34e2d + 4 uncommitted code file(s).` The string `first read BBT 110: TryHyperModeStateChange refused awakening (state %d)` is in the exe. **Not launched.**
 
