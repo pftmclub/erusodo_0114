@@ -3983,6 +3983,116 @@ For each check say where to be, the line to paste, what it does in one plain sen
 and what I should see if it works and if it does not.
 ```
 
+### Phase 5b — Done (2026-10-04), play-test pending
+
+**Result.** All nine types are ported under `SERV_IRUHADEV_JUNE_BUFF_NEW_STAT`; none is Opus-only. `buff_census.py --phase 5b` lists none of 79, 80–84, 93, 106 and 107 (it still lists 78, 88 and 92, Phase 5c). Code commit `9b79255`. `X2Lib` (PCH invalidated with `touch X2Lib/stdafx.cpp`) and `X2`, `US_SERVICE`, both rc=0; no new warning in the touched files. Deployed `X2/US_SERVICE/x2.exe` as `X2_offline.exe` (names read programmatically: `x2.exe`, `x2.exe.bak`, `x2.fx`, `X2_offline.exe`): 19,053,568 B, md5 **`b981a4c1ac9453422108325b8699a862`**, identical to the build output. It replaces `9269dbc6…` (the Phase 5 review exe). **Not launched.** The exe contains the nine `BBT_*` key strings (ASCII and UTF-16), `BUFF_VALUE_CALCULATE_TYPE`, and the debug strings `first apply BBT 79 (force down per second)`, `first read BBT 79: force down gage`, `first SetFactor BBT %d (by condition)` and `first read BBT %d: force down decrease`. The last one sits in `CX2GUUser::DamageReact` inside the flag, so it proves the reader compiled in.
+
+**Tools.** Ghidra was read at `32d42650` and `32d42910` (the two parse functions; the doc gave their layouts, the decompile settled the failure paths). The tails that Ghidra cannot carve, `32e77f40`, `32290950`, `32271540`, `322718e0` and `32282bf2…c35` were read with `june2017_re/disasm_range.py` and `buffre/rawfn.py` (raw capstone, same binary). Five rows were added to `funcmap.tsv`. Nothing outside the doc's addresses was searched.
+
+**Per type** (June members are `CX2GameUnit` offsets; the port uses named members and never an offset):
+
+| Type | Factor parse | Level slice | SGU | Templet class | Store (basic) | Reader |
+|---|---|---|---|---|---|---|
+| 79 NOW_FORCE_DOWN_PER_SECOND | new `ParsingChangeNowForceDownPerSecondBehavior` (`32d42650`) | already in (4b-i, `32d478aa`) | none | new `CX2BuffChangeNowForceDownPerSecondBehaviorTemplet` (`32e86e90`) | none: the tick writes the unit's force-down gage | the class itself |
+| 80 / 81 PHYSIC / MAGIC_ATTACK_BY_CONDITION | new `ParsingChangeStateByConditionBehavior` (`32d42910`) | already in (`32d48063`, whole `[ct, vct, n, v1..vn]`) | new `SetGameUnitChangeStateByConditionBehavior` (`32d4ce60`) | new `CX2BuffChangeStateByConditionBehaviorTemplet` (`32e86c00`) | store of 7 / 8, **main and range member** (shared case labels) | March's readers of 7 / 8 |
+| 82 / 83 PHYSIC / MAGIC_DEFENCE_BY_CONDITION | same | same | same | same | store of 9 / 10 | March's readers of 9 / 10 |
+| 84 MAX_HP_BY_CONDITION | same | same | same | same | max HP store; **own** insert and erase blocks (insert, refresh, `SetMaxHp`; no HP-ratio rescale), update shares 6 | March's readers of 6 |
+| 93 EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER | `ParsingChangeStatBehavior` | already in (ChangeStat group) | joined the ChangeStat SGU group (`32d4d6ef`) | new `CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner` (`32e86740`), a ChangeStat subclass | the six attribute-defence stores of 42 (shared case labels) | March's readers of 42 |
+| 106 / 107 FORCE_DOWN_MULTIPLIER_MELEE / RANGE_ATTACKED | `ParsingChangeStatBehavior` | default slice (above June's bound 105) | none | `CX2BuffChangeStatBehaviorTemplet` | new `m_AdditionalForceDownMultiplierMeleeAttacked` (+0x5b7c, insert `32282bf2`) and `…RangeAttacked` (+0x5c30, `32282c15`), basic 0.0 | `CX2GUUser::DamageReact`, users only |
+
+All nine are in the factor-parse switch of **both** macro lists and in the templet factory (`CASE_BEHAVIOR_TEMPLET`). The new members of 106/107 got `InsertAdditionalStat` / `UpdateAdditionalStat` / `EraseAdditionalStat` cases, the plain refresh in `CheckAndUpdateAdditionalStat` (`32290950`), `SetBasicStatValue( 0 )` (`32271540`, `fldz`), `InitAdditionalPassiveMultipleAndSum` (`322718e0`) and the `Verify()` chain; a raw read of the three June functions confirms both members are in all of them. UDP layout: `GetFactor` / `SetFactorFromPacket` are in the classes (79 and 80–84 `[ m ]`, 93 below); 106/107 use ChangeStat's.
+
+**What was settled by reading (and corrections to the map).**
+- **79's parse.** A change type other than `BCT_FIX_VALUE` makes June return false at `32d4283b` with nothing pushed (`AL` = 0). The map's "pushes no factor" therefore means the factor is rejected. Ported as such. The change type is also checked in `SetFactor` (`32e855f0`), which is March's NowHp restack with regist 0.
+- **80–84 value rule `32e77f40`.** It tests the class member `+0x14` (the templet's `BUFF_VALUE_CALCULATE_TYPE`), not the factor's `v[1]`; the result is `v[3] + v[4] * ( 4.0 - v[5] )` for `BVC_RALLY_OF_HERO`, else 0. Missing elements read 0. `v[5]` is the user count that the SGU appended.
+- **80 / 81 second member.** Phase 4b-i part 2 ported it (store only), so 80 and 81 are wired through the same case labels as 7 and 8: main and range member, as June. On March data the range result stays 0 (only `BCT_PERCENT` data), and 80/81 are `BCT_PERCENT` in June's data as well.
+- **`GT_PVE` halving of the user count.** March's `GAME_TYPE` stops at `GT_BATTLE_FIELD`, so the branch cannot run and is commented, not ported (the doc said to do exactly that). It comes with `GT_PVE`.
+- **93's index bug, verbatim.** `GetFactor` writes `[ m, uid & 0xffff, ( uid >> 16 ) & 0xffff, ( uid >> 32 ) & 0xffff, uid >> 48 ]`; the packet inserts `m = v[0]` (ChangeStat's own) and rebuilds the owner from `v[4]..v[7]`. June reads past the end of a five-value factor; the port reads 0 there (`KBuffBehaviorFactor::operator[]` is range-safe). The owner aggregator `3227c620` is unreachable in June (nothing calls `CX2GUNPC` slot 183) and is not ported; the comment in `X2BuffBehaviorTemplet.h` says so.
+- **106 / 107 reader.** Ported at the March line `fForceDownValue -= pDamageData->m_fDecreaseForceDown;` (`SERV_SKILL_NOTE` block), which stays reachable in the `#else`. `DECREASE_FORCE_DOWN` and `MELEE_ATTACK` are both parsed by March (`X2DamageManager.cpp:502`, `m_bMeleeAttack`), so nothing was missing. **Finding for the play-test:** `CX2GUUser::AddForceDownDelay` (the consumer of this value) only acts in **PvP** (`g_pX2Game->GetGameType() == GT_PVP`, both `BALANCE_PATCH_20110303` branches). In a field or dungeon the reader runs but changes nothing visible, so 106/107 can only be shown there by the log line.
+- **Crash guards the port added** (June does not test): missing gage data in 79's tick and in 84's insert / erase (`NULL` test). Neither can fire on a normal unit.
+- **Level slices** for all nine were already in from 4b-i and were checked, not added again. No new unit-store member besides 106/107.
+
+**Behaviour on March data: none.** March's shipped data has no factor with any of these types, so the new code runs only when June data (Phase 13) or the console lines below put one in.
+
+**Hygiene.** `git show --stat 9b79255`: 711 insertions, 1 deletion over eight files (706 insertions over the seven source files, plus 5 rows in `funcmap.tsv`). The one deletion is the last line of `X2BuffBehaviorTemplet.cpp` (`#endif //FIX_SKILL_BALANCE_AISHA_LENA`), which had no newline at the end of the file and got one when the new block was appended after it. `file` is unchanged on all seven files; all added lines are ASCII and CRLF. A flag-off unifdef (`SERV_IRUHADEV_JUNE_BUFF_NEW_STAT` off, so `DEBUG` blocks go with it) against `6f4f3d7` differs only in the `//{{ Iruha … //}}` marker comments, blank lines outside the guards, and that EOF newline: no code differs. Every replaced line (`X2GUUser.cpp`) keeps its original in the `#else`.
+
+**Open items.**
+1. **80 and 81 and the range members:** with June data the range result stays 0 because the data is `BCT_PERCENT`. Nothing to do; recorded so Phase 5c's 92 (which fills those members) knows 80/81 are already wired.
+2. **106 / 107 and PvP.** If the user wants the effect shown, it needs a PvP match. Not required for the phase.
+3. **Console reach for 79 and the real path.** The shipped March data has no factor with these types, so the lines below define a throw-away templet and factor from the console (numeric ids `990079`, `990080`, `990093`; BFI `362`, `363`, `364`). The loader reports a wrong ordinal in `ErrorLog.txt` (`ordinal reject BFI n: … the next id must be N`). These lines go through the real parse, level slice, SGU, templet, store and finish paths.
+
+**How to see it in game (for Phase 14).** June numbers from `june_src_fixed/data036_kom/Enum.src.lua` and the factor file (BFI = ordinal). The data comes with Phase 13.
+
+| Type | June BFI (BTI) | Where it comes from | What to watch |
+|---|---|---|---|
+| 79 | `BFI_DEBUFF_JUDGEMENT_FIRE` 292 (BTI 291; `TIME_INTERVAL` 0, `FIX_VALUE` −30, ended by `BFT_IMMEDIATE`), `BFI_DEBUFF_SHADOW` 547 (BTI 480; interval 1), `BFI_DEBUFF_DECREASE_FORCE_DOWN_IMMEDIATELY` 555 (BTI 486) | damage effects of June monsters and skills | the unit's force-down gage moves by the value on every tick; a negative value (−30) makes the target harder to knock down |
+| 80–84 | `BFI_BUFF_RALLY_OF_HERO_LEVEL_1`/`_2`/`_3` 99 / 100 / 101 (BTI 118 / 119 / 120), `…_FOR_HERODUNGEON` 748 (BTI 722), `BFI_BUFF_RESERVATION_FOR_HERODUNGEON` 750 (BTI 724) | an item buff (a week long, `NORMAL_TIME` 604800) | level 1: attack ×( 1.06 + 0.35 × ( 4 − players ) ), defences and max HP ×( 1.06 + 0.07 × ( 4 − players ) ); with one player that is ×2.11 and ×1.27 |
+| 93 | `BFI_DECREASE_ENEMY_RESIST` 787 (BTI 761, 10 s, `FIX_VALUE` −1…−30 by level), `BFI_DECENT_TO_SHADOW` 1118 (BTI 1037) | a monster skill (`CX2GUNPC` slot 183 is its only caller and is dead) | the six element defences drop by the level's value |
+| 106 / 107 | `BFI_BUFF_PVP_ACCESSORY_SET_FORCE_DOWN` 1101 (BTI 1020, `FIX_VALUE` 0.6, 7 s), one factor carrying both | PvP accessory set | in PvP only: the force down of hits taken changes by the value |
+
+**Cost.** `/cost` cannot be read from inside the session: user, please paste it here. *(Not invented.)*
+
+**Play-test hand-off (dev console, END key; `settings.auth_level` = 3 is already set).** Every line below was **syntax-checked** with a Lua parser and, for the three definition lines, run against a mock manager to confirm the tables build and carry the ids named; none has run in the game. The factor numbers rely on `ErrorLog.txt`'s last load summary (`factors 361 loaded`, so the next free factor id is 362): if you changed or repacked the buff Lua since, the ids in the lines may need shifting by the same amount (the log will say). Paste the *definition* line once per game session; pasting it twice only logs a duplicate.
+
+1. **Monsters' force-down gage is pushed up each second (type 79).**
+   - Where: a field or dungeon with ordinary monsters on screen (not a boss).
+   - Paste, first (defines a 20-second buff that adds 50 force down every second):
+     ```
+     local t = {} local v = {} local r = {} for i = 1, 30 do t[i] = 20 v[i] = 50 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990079, IS_WORLD_BUFF = FALSE, IS_DEBUF = TRUE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 79 }, BBT_CHANGE_NOW_FORCE_DOWN_PER_SECOND = { TIME_INTERVAL = 1 } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 362, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990079, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 79 }, BBT_CHANGE_NOW_FORCE_DOWN_PER_SECOND = { BUFF_CHANGE_TYPE = 1, FIX_VALUE = v } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+   - Paste, second (puts it on every monster on the map):
+     ```
+     for i = 0, g_pX2Game:GetNPCUnitListSize() - 1 do local n = g_pX2Game:GetNPCUnit( i ) if n ~= nil then n:SetBuffFactorToGameUnitByBuffFactorID_LUA( 362, 1 ) end end
+     ```
+   - What it does: every monster's "about to fall over" meter fills by 50 each second for 20 seconds.
+   - Look for: ordinary monsters are knocked down within a few seconds; `ErrorLog.txt` gets `first apply BBT 79 (force down per second): interval 1, value 50` and `first read BBT 79: force down gage … + 50 (interval 1)`.
+   - If not: nothing falls and there is no `first apply` line. Look for a `[JUNE_BUFF] ordinal reject BFI 362 … the next id must be N` line (tell me N), or a `[JUNE_BUFF]` line naming `BBT_CHANGE_NOW_FORCE_DOWN_PER_SECOND` or `templet dropped`; send the lines. Monsters that resist knock-down (bosses) will not fall; the log lines still count.
+
+2. **The five "by condition" stats on yourself (types 80–84).**
+   - Where: any field or dungeon.
+   - Paste, first (defines a 30-second buff with June's real rally-of-hero numbers):
+     ```
+     local t = {} local r = {} for i = 1, 30 do t[i] = 30 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990080, IS_WORLD_BUFF = FALSE, IS_DEBUF = FALSE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 80, 81, 82, 83, 84 }, BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0 }, BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0 }, BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0 }, BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0 }, BBT_CHANGE_MAX_HP_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0 } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 363, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990080, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 80, 81, 82, 83, 84 }, BBT_CHANGE_PHYSIC_ATTACK_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0, VALUE = { 1.06, 0.35 } }, BBT_CHANGE_MAGIC_ATTACK_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0, VALUE = { 1.06, 0.35 } }, BBT_CHANGE_PHYSIC_DEFENCE_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0, VALUE = { 1.06, 0.07 } }, BBT_CHANGE_MAGIC_DEFENCE_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0, VALUE = { 1.06, 0.07 } }, BBT_CHANGE_MAX_HP_BY_CONDITION = { BUFF_CHANGE_TYPE = 3, BUFF_VALUE_CALCULATE_TYPE = 0, VALUE = { 1.06, 0.07 } } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+   - Paste, second:
+     ```
+     g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 363, 1 )
+     ```
+   - What it does: for 30 seconds gives you the Rally of Hero bonus: more attack, more defence and more max HP, larger the fewer players are in the game.
+   - Look for: your max HP number rises by about a quarter (×1.27 when you are the only player; your current HP does not rise, so the bar looks emptier) and your hits deal about double (×2.11); after 30 seconds both go back. `ErrorLog.txt` gets one `first SetFactor BBT 80 (by condition): change type 3, calculate type 0, v[3..5] = 1.06 0.35 1, value 2.11` line for each of 80 to 84 (the last number of `v[3..5]` is the player count the game saw; 84 shows `1.06 0.07 1, value 1.27`), then `first apply BBT 80 … 84`.
+   - If not: no `first SetFactor` line means the factor was not applied (a `[JUNE_BUFF] ordinal reject BFI 363 … must be N` line says why; if 362 was rejected earlier, 363 shifts by one too). If the line shows `v[3..5] = 0 0 0`, the VALUE table was not read, tell me. A popup or crash: send the `[JUNE_BUFF]` lines.
+   - Undo: wait 30 seconds; nothing else to do.
+
+3. **Attribute defences drop, owner subclass (type 93).**
+   - Where: any field or dungeon.
+   - Paste, first:
+     ```
+     local t = {} local v = {} local r = {} for i = 1, 30 do t[i] = 20 v[i] = -20 r[i] = 1 end g_pBuffTempletManager:AddBuffTemplet_LUA( { ACCUMULATION_LIMIT = 1, BUFF_TEMPLET_ID = 990093, IS_WORLD_BUFF = FALSE, IS_DEBUF = TRUE, REGIST_TYPE = 0, BEHAVIOR = { COMBINATION = { 93 }, BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER = { BUFF_CHANGE_TYPE = 1, BUFF_RELATION_TYPE = 7 } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1 } } } ) g_pBuffTempletManager:AddBuffFactor_LUA( { BUFF_FACTOR_ID = 364, BUFF_FACTOR = { BUFF_TEMPLET_ID = 990093, RATE = r, IGNORE_REGIST_FOR_RATE = TRUE, BEHAVIOR = { COMBINATION = { 93 }, BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER = { BUFF_CHANGE_TYPE = 1, BUFF_RELATION_TYPE = 7, FIX_VALUE = v } }, FINALIZER = { COMBINATION = { 1 }, BFT_TIME = { BUFF_DURATION_TIME_TYPE = 1, NORMAL_TIME = t } } } } )
+     ```
+   - Paste, second:
+     ```
+     g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 364, 1 )
+     ```
+   - What it does: for 20 seconds lowers all six element defences of your character by 20.
+   - Look for: nothing you can see in play unless your status window lists element defences (then each shows 20 lower for 20 seconds). `ErrorLog.txt` gets `first apply BBT 93, change type 1, value -20` (every `FIX_VALUE` entry is −20 here, so level 1 takes −20).
+   - If not: no `first apply BBT 93` line: look for `ordinal reject BFI 364 … must be N` (tell me N) or a `[JUNE_BUFF]` line naming `BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER`; send it.
+
+4. **Force-down multipliers, read site (types 106 and 107).**
+   - Where: a field or dungeon, next to a monster that hits you.
+   - Paste (puts 200 on both stores through the Phase 5 console hook):
+     ```
+     local u = g_pX2Game:GetMyUnit() u:JuneBuffTestNewStat_LUA( 106, 1, 200, 1 ) u:JuneBuffTestNewStat_LUA( 107, 1, 200, 1 )
+     ```
+   - What it does: gives you a large "force down taken" bonus, melee and ranged, so the new read site has something to report.
+   - Look for: **nothing visible** in a field or dungeon (the game applies the force down of hits taken to a player only in PvP). Let a monster hit you once; `ErrorLog.txt` gets `console hook BBT 106 …`, `first apply BBT 106, change type 1, value 200` (and 107), and after the hit `first read BBT 106: force down decrease 0 - 200` (or `107` for a ranged hit).
+   - If not: no `first read` line after being hit means the read site did not run; tell me "no first read". The force-down effect itself can only be seen in a PvP match, which is not needed here.
+   - Undo:
+     ```
+     local u = g_pX2Game:GetMyUnit() u:JuneBuffTestNewStat_LUA( 106, 1, 200, 0 ) u:JuneBuffTestNewStat_LUA( 107, 1, 200, 0 )
+     ```
+
+**Log lines to read afterwards** (this phase's own, `ErrorLog.txt` in the game directory): `[JUNE_BUFF] first apply BBT 79 / 80–84 / 93 / 106 / 107 …`, `first SetFactor BBT 80–84 …`, `first read BBT 79 …`, `first read BBT 106/107 …`, and any `[JUNE_BUFF]` line naming one of the nine types or the ids `362`, `363`, `364`. Nothing else is in scope.
+
 ---
 
 ### Phase 5c — group A: stat types with rewritten hosts (Opus)
