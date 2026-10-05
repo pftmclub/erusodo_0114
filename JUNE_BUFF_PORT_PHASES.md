@@ -3579,6 +3579,48 @@ Phase 10 parses and stores `IS_AURA_BUFF` and `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`
 
 **Kickoff:** `kickoffs/june-buff/11.md` - start it with `/x2-phase june-buff 11`. The inline prompt that stood here was retired on 2026-10-04; `kickoffs/` is the source of truth.
 
+### Phase 11 — RE (2026-10-05)
+
+The function rows are in `june2017_re/funcmap.tsv` (the "Buff Phase 11" rows).
+
+**Parse: no diff.**
+- June's `ParsingScript` (`326c6040`) and `AddBuffInfo_LUA` (`326c78f0`) are March's.
+- The only difference is the load: June also loads `BuffTemplet_INT.lua` (`3258c470`).
+- All five consumers of the premium templet match March one for one.
+
+**`NOT_USE_IN_PVE` / `_HENIR` / `_HUGE_BOSS_RAID` and `m_bEndBuffAt*` are server-only.**
+- There are 0 hits in the June exe, raw in ASCII or UTF-16, and none among the 6,241 decrypted XOR strings.
+- The bare `NOT_USE` key belongs to the behavior parser (`32d4bbf0`).
+- "PVE" is June's game type 4 (`GT_PVE`, `3231f4d0`), which March lacks.
+
+**Apply: both world-buff handlers are rewritten in June.**
+- `326c9030` (in room) and `326c9530` (village) replace March's `vector<BUFF_FACTOR_ID>` with a 40-byte record per buff at `CX2Unit+0xdbc`: factor, BTI, stack count, start, end, and "lasts at most 1 h".
+- Each buff is applied `count` times.
+- New skips:
+  - `BFI_EMPTY_EXP_BUFF` in battle fields and `GT_PVE` (village: always);
+  - `BFI_BUFF_2013_DEFENSE_BUFF` in PvP;
+  - `BFI_SPA_STRONG_BUFF` in June state 7.
+- Hooks:
+  - returning hero (500 = comeback end time, 114 = emblem);
+  - Rose event (10060 = emblem);
+  - PC room (BTI 138 change → socket refresh);
+  - guild agit (BTI 1033).
+- The erase loops dereference the factor pointer unchecked.
+- The village icon carries the stack count.
+
+**Wire: no change needed.**
+- June's `KBuffFactor` (`320e3950`) adds three fields, but every field the handlers read has a March member: BTI `+0x20`, count `m_ucAccumulationCountNow`, factor `m_iFactorID`, start/end.
+
+**Readers of the record vector:**
+- `ReInit` (`32022380`) re-applies each buff `count` times; March applies it once.
+- June's `GetIncreaseSkillLevelByBuff` (`323644a0`) returns 0 in PvP/PvE and always adds the world buffs.
+- Repair discount (`32363f00`), the factor-308 check (`32163070`) and the buff-list UI (`32e608f0`) go to **Phase 11b**.
+
+**Split** (by function, so each function is ported whole):
+- **11:** the loader with `_INT`, staging, both handlers, the record vector, `ReInit`, the skill level, and the emulator's item-buff route (user decision B, 2026-10-05: the emulator owns item buffs).
+- **11b:** the Phase 4a hand-offs (slot 250, `IS_STORE_BUFF` consumers) plus the three readers above.
+- March's `m_vecWorldBuffFactorID` stays filled as today, beside the new record vector, so its March readers keep working until 11b.
+
 ## Phase 12 — Buff icons and UI assets
 
 **Scope.**
