@@ -2926,7 +2926,7 @@ Log lines read afterwards: `first apply BBT 74/77/97/101/102/110`, `first read B
 - #12: Ara's six sites never set `+0x8d4c` (latent until (b)).
 
 **Decision for the user.**
-- (b) **The quick-slot arm.** The only writer of the 10 s wait is inside June's rewrite of the quick-slot item check (`322fa960`). That rewrite adds gates March lacks (`+0x8ac4`, protected `+0x7cb0`, slot `0x524`, the Value1 0xd/0xe and Value2 4 cases) and is called from three places, one of them a June PvP mode. Options:
+- (b) **The quick-slot arm.** **Decided: A (user, 2026-10-05) → Phase 7d.** The only writer of the 10 s wait is inside June's rewrite of the quick-slot item check (`322fa960`). That rewrite adds gates March lacks (`+0x8ac4`, protected `+0x7cb0`, slot `0x524`, the Value1 0xd/0xe and Value2 4 cases) and is called from three places, one of them a June PvP mode. Options:
   - **A:** a new phase ports `322fa960` whole, with the slot-510 prefixes and the flag reader (quick-slot work, not buff work).
   - **B:** arm only, inside March's `KeyEventProcess` accept branch (a partial update; the standing rule needs your OK).
   - **C:** leave it out. Throw items then never lock awakening or skills, and awakening never locks items.
@@ -2993,6 +2993,48 @@ Log lines read afterwards: `first apply BBT 110` and `first read BBT 110: TryHyp
 **For the user.**
 - Decision (b) still stands. The interlock window is short: from the awakening key until the Now-side StateStart, not the whole awakening. That makes option B's arm cheaper to reason about, but it is still your call.
 - `/cost`: please paste it here.
+
+### Phase 7d — June's quick-slot item check and the special-item interlock (Opus)
+
+**Why.** Phase 7c decision (b): the user chose option A (2026-10-05). Port June's quick-slot item check whole, as its own phase. That gives the quick-slot special-item wait `+0x8d78` and the awakening-by-key flag `+0x8d4c` their June writer and readers; 7c ported both and they are inert so far.
+
+**What is already known** (7c, 7c review; `june2017_re/funcmap.tsv` "Buff Phase 7c" rows):
+- **`322fa960`** (CX2Game, no March function): args (itemTemplet, user, bool* pAllow, ?, ?), ret 0x14. It walks the templet's special abilities (`328673c0`/`328673e0`, 24-byte rows) and switches on SAT 16/18/34/38/39/43 (`SAT − 16` → byte table `322fbc44` → jump table `322fbc28`).
+  - Case 18 `SAT_SPECIAL_SKILL` (`322faa35`) is June's form of the `SAT_SPECIAL_SKILL` branch in March's `CX2UIQuickSlot::KeyEventProcess` (`X2UIQuickSlot.cpp:546`). It uses the same STR_ID_20120 (`0x4e98`) and the same wait/walk/dash/chargeMP/dashEnd states.
+  - On accept, it sets `*pAllow` = 1, game `+0x3c5` (`EnableAllKeyProcess`) = 0, and user `+0x8d78` = 10.0 s (`3344a51c`) at `@322faee8` and `@322fb40b`.
+  - June adds gates March lacks: `+0x8ac4` == 0, protected `+0x7cb0`→`+0xc` == 0, slot `0x524` == 0, and `+0x8d4c` == 0 (`@322faec8`/`@322fb3e8`). It also adds the Value1 `0xd`/`0xe` and Value2 `4` cases.
+- **Callers:**
+  - `32951420`, June's quick-slot use: item templet `+0xc0`, HaveThisBuff gates `0x32d`/`0x324`/`0x13f`/`0x34`, returns the allow byte; direct call `@329515d9`;
+  - `32024510`, a CX2GUUser virtual slot;
+  - `3200edb0`, a PvP-winner range.
+- **Readers of `+0x8d78`:** every class's slot 510 `NoStateChangeActionFrameMove` starts with "if `+0x8d78` > 0, skip":
+  - March classes: Elsword `32d1bd10`, Eve `329b5af0`, Arme `32cebe80`, EL `32b84a50`, Ara `32bcfaa0`, Chung `32c17830`, Raven `32c58c30`, Lire `32cac200`, Add `32a20e70`;
+  - June-only: Ain `32a6dcd0`, Rose `32ad7f80`, Luciel `32b3a310` (+ slot 545 `32b3acf0`).
+  - `TryHyperModeStateChange`, the cancel macros and Ara's six sites already read it (7c).
+- **`+0x8d4c`** is set by an awakening key and cleared in `HyperModeStart`/`RidingHyperModeStart` (7c review). So the item check refuses an item only between the key and the Now-side state start.
+
+**Scope.**
+1. **Identify first** (read-only Ghidra, `funcdis.py`/`dispsweep.py`), and record each finding in `funcmap.tsv`:
+   - the remaining cases of `322fa960` (SAT 16, 34, 38, 39, 43; Value1 `0xd`/`0xe`; Value2 `4`), against March's `KeyEventProcess` loop and `CX2Game::UseItemSpecialAbility` (`X2Game.cpp`, the `SAT_SPECIAL_SKILL` case at ~10507);
+   - the June gates `+0x8ac4`, `+0x7cb0`→`+0xc` and slot `0x524`;
+   - `32951420`, `32024510` and `3200edb0`, and which March function each one replaces.
+2. **Port:**
+   - `322fa960` as a `CX2Game` member, with every case that has a March home;
+   - route March's `KeyEventProcess` special-ability loop through it, the way June's quick-slot use does;
+   - the slot-510 `+0x8d78` prefix in the eight March classes' `NoStateChangeActionFrameMove`. Add's row goes to checklist §7 (Add is ported from June).
+   - March's code stays in `#else`.
+3. **Stop and hand back** if a gate or caller belongs to a system March lacks entirely (the PvP-winner range, a June-only member): write what it needs here and ask. Never invent a gate's value. Port June quirks verbatim, each with a `JUNE_BUGS.md` row.
+
+**Flag.** `SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM` (new; requires `_AWAKE_LOCK`).
+
+**Done gate.**
+- Build rc=0, the new strings in the deployed exe, and a DEBUG `first arm quick-slot special item wait` line.
+- A play-test: a throw/install item used from the quick slot blocks Ctrl awakening and slot-510 skills until the throw ends (at most 10 s).
+- Regression checks: ordinary quick-slot items (potions) still work, and a throw item used outside the allowed states still shows STR_ID_20120.
+
+**Run with:** Opus 5.5, high effort. Review required (`kickoffs/june-buff/7d-review.md`, written by the phase). It touches `X2UIQuickSlot.cpp`, `X2Game.cpp/.h`, `X2GUUser.cpp/.h` and the eight class files' `NoStateChangeActionFrameMove`, so it runs alone among the `X2GUUser.cpp` phases (8, 9, 15, 16).
+
+**Kickoff:** `kickoffs/june-buff/7d.md` - start it with `/x2-phase june-buff 7d`.
 
 ## Phase 8 — New finalizers and counter sync
 
