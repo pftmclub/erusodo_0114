@@ -3526,6 +3526,42 @@ Phase 10 parses and stores `IS_AURA_BUFF` and `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`
 
 **Owed by the user:** /cost. Next: `/x2-phase june-buff 10b review` (Opus 5.5, high).
 
+### Phase 10b — Review (2026-10-05)
+
+**Verdict: 10b matches June. No transcription errors.** One fix in our own log line (below) and one new JUNE_BUGS row (#25). Ghidra checks were read-only, plus an independent capstone scan of `.text` and a raw scan of the whole file.
+
+**Kickoff checks.**
+1. **Aura gate, seven sites.** Each was disassembled: `IsMyUnit` (vslot `0x198`) on the target, `g_pData+0x5c`, `IsMyPartyMember` (`32431360`) on the attacker's UID, then the same-UID compare, which is absent only in GroundHit (`JZ` straight to `continue` `@32623c98`, #22).
+   - EffectToUnit's attacker is `31f8b560(effect)` (`+0x1dc`).
+   - In UnitToEffect, `EDX = [effect+0x1dc]` is the hit effect's owner, the same optr `31f8b560` reads for the self compare. Its attacker is the lambda's `+8` capture (`[ESP+0x190]+8`; `+4` is the DamageData).
+   - Order in UnitToUnit: `32622990`, then `+0x540`, then the gate, then `+0x50d`, then `+0x500` (ATTACK_OUR_TEAM). March's gate sits right before its DUNGEON_ITEM team block, which is the same place. The filters that come earlier only `continue`, so their order does not matter.
+2. **Reader census (own scan).** I decoded every `F0 05 00 00` at every start 1-10 bytes back (143 decodes). The non-stack byte reads are exactly 10b's set plus `3263f050` (the parse's `lea`). `31f8f3c9` is a zero store in an init run.
+   - June's CEffect embeds its DamageData at `+0x200`, so I also scanned `+0x7f0`. Its one byte read, `324d863f`, is `this+0x7f0` at the entry of `324d8600`. That function is vslot `0xe0` of `CX2StateDungeonGame`/`TrainingGame`/`PVEGame` (RTTI), a state member. Its next call, `32430b80`, is "party UID > 0". **No DamageData reader is missing.**
+3. **`32610df0`.**
+   - Guards in order: dd NULL, `+0x500`, `+0x5f0`, `[dd] != 6`. Then the attacker, then the target, each with `+0x264 == 0` (March `GUT_USER = 0`) and `0x1fd` (March `SI_GP_COMMON_CHANCE_TO_REVERSE = 509`). `RET 0xc`.
+   - Vslot `0x290` of `334781f4` reads `3202dd70`.
+   - `xrefs_to` gives exactly the eight sites. UnitToUnit pushes `(dd, attacker, defender)`. The EffectToUnit miss call passes `31f8b560(effect)`, like March's `pAttacker->GetOwnerUnit()`.
+   - **`pAttackUnit` can differ from June.** June's hit call reads the owner at `@3262f524` whether or not `IsLiveInstance` at `@3262f511` passed. If DamageReact removed the effect, June reads a removed instance and gets NULL or garbage. While the effect lives, the two are the same unit. The port's value is the safe one; JUNE_BUGS #25 (latent).
+   - **Hit log: guarded.** The helper treats both pointers as nullable, and the log fires when either side is a user, so a NULL partner would have crashed the log line. Both UIDs now use `NULL != p ? p->GetUnitUID() : (UidType)-1`, the aura helper's idiom (`_GUILD_REVERSE`). Every current site passes non-null for both.
+4. **DamageReacts.** The scan has no other `+0x5f0` read in `320462a0` or `327b1f30`. Only `PlayEffectSetHittedByBuff` is gated.
+5. **LIMIT dead code.** `3227a270`, `322759b0` and `32610880` are all function starts (CC padding; `322759b0` follows a `ret`). A raw scan finds no `E8`/`E9`/`0F 8x` rel32, no short `EB`/`7x`/`E0-E3`, and no absolute pointer anywhere in the file, so there is no vtable slot either. Not porting them matches June.
+6. **`32622990`.** Its first test is `322cc1c0`, which is `vslot 0x10c (GetGameType) == 4`. March's `GAME_TYPE` ends at `GT_BATTLE_FIELD = 3`. `GT_NUMS` (4) is used only as a bound (`X2Main.cpp:680`, `:16399-16443`), and `m_GameType` is only ever set to PVP, DUNGEON or BATTLE_FIELD. **There is no March path.**
+
+**Hygiene.**
+- 10b, `--range a9ff45a^..a9ff45a`, each flag `--with` the other three + `JUNE_BUFF_DEBUG`:
+  - `_AURA_PARTY`, `_GUILD_REVERSE`, `_DAMAGEDATA_KEY`: `files: 0 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`.
+  - `_AURA_REACT`: `0 PASS, 2 PASS~, 1 DEFINE, 1 OTHER`.
+  - All four: `0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  - OTHER rows: `X2GUUser.cpp`/`X2GUNPC.cpp` belong to `_AURA_REACT`, and `X2DamageManager.cpp` to the other three.
+  - The `5 deleted line(s)` in the `X2DamageManager.cpp` flags are Phase 10's own `_DAMAGEDATA_KEY` comments (3) and log strings (2), rewritten.
+- This review, `_GUILD_REVERSE` `--worktree --files X2Lib/X2DamageManager.cpp`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`. The `1 deleted line(s)` is 10b's own hit-log argument line, rewritten. `0 encoding change(s)`, `RESULT: PASS`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,142,656 B, dated 2026-10-05 14:00:02, md5 826c409ee382e8340839004ed49926f8, equal to X2/US_SERVICE/x2.exe (2026-10-05 13:59:57); built at mods/june-buff-port fc51e7d + 1 uncommitted code file(s).` That file is exactly this review's commit.
+
+**Play-test:** optional regression only. Melee a monster and look for the same `guild Chance to Reverse checked on a hit too` line, with both UIDs real.
+
+**Owed by the user:** /cost. Next: `/x2-phase june-buff 11` (Opus 5.5, high).
+
 ## Phase 11 — Premium/world buffs and the offline path
 
 **Scope.**

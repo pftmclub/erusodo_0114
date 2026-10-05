@@ -854,7 +854,7 @@ static void JuneGuildSkillChanceToReverse( const CX2DamageManager::DamageData* p
 		{
 			s_bHitLogged = true;
 			CX2JuneBuffCapture::Line( "guild Chance to Reverse checked on a hit too (first seen): attacker %I64d, target %I64d",
-				pAttacker_->GetUnitUID(), pDefender_->GetUnitUID() );
+				NULL != pAttacker_ ? pAttacker_->GetUnitUID() : (UidType)-1, NULL != pDefender_ ? pDefender_->GetUnitUID() : (UidType)-1 );
 		}
 	}
 
