@@ -3412,6 +3412,58 @@ Split by family as the kickoff allows: **9a = the shared engine + Elsword + Chun
 1. June's user `AttackResultByType` also runs `32011280` (June's Lanox "Secret Ammo" set: BTI 794, `DamageEffect_Ranox_Secret_Ammo_5`) and a riding-pet effect for BTI 562. Neither is a buff-port system. Left out; say if the Lanox plan should own it.
 2. Packet-path creator power rate = 1.0 (see above). It matters only for 9b classes that read it.
 
+### Phase 9a — Review (2026-10-05, Opus 5.5 high)
+
+**Verdict: no transcription errors, no code change.** The exe stays 0dd05880 and there is nothing to play-test. All eight kickoff items were checked in Ghidra and with `rawfn.py`, read-only.
+
+1. **Slot map: correct.**
+   - Dispatchers: `32275700` calls `+0x14` (unit, arg); `322757b0` calls `+0x18` (unit, arg1, arg2); `32275860` calls `+0x1c`; `3227a1d0` calls `+0x20` at `@3227a206`, before the erase `3207b700` at `@3227a214`.
+   - Every vtable from `vt.py CustomFunction` has the same empty stubs: `ret 8` at [1]–[5] and [7], `ret 0xc` at [6] (3 args), `ret 4` at [8] (1 arg). The overrides fall where 9a put them.
+   - Slot 6's argument order is confirmed twice. ChainViper `3236fae0` does `fld [arg2]`, so the float pointer is the second argument. The caller `@327b4802` pushes the DamageData, then `&[esp+0x2c]`.
+2. **Call sites: correct.**
+   - User `320144d0`: `32011280`, then slot 5. NPC `32773ee0`: slot 5 first.
+   - Ara `32bceca0 @32bcece3`: the base call is the first instruction after the prologue.
+   - Slot 7 (`322a8885`) is the last call before `return true`, with the factor (EDI). The port's line 11757 sits in `SetBuffFactorToGameUnit`'s Phase 4a body; git's hunk header naming `...AtLevel` is misleading.
+   - **NPC slot 6, the kickoff's question.** In June, `[esp+0x2c]` at the call is March's `fFinalDamage` after a few June-only steps that March does not have:
+     - attacker-class hooks (vslots `0x6d4` / `0x4f8` / `0x4fc`, and a `+0x7ca8` buff apply);
+     - an execute block for NPC 41350 (`0xa186`) below 20% HP, which sets the damage to 3e9;
+     - `322cfca0`: × 0.5 in dungeon mode `+0xd8 == 8` for attackers of type ≠ 2;
+     - the attacker's vslot `0x304`.
+
+     Nothing sits between slot 6 and the damage number in either build, so 9a's placement is right. Only ChainViper (9b) reads the value, and it gets March's damage. This is recorded in the 9b kickoff.
+3. **Creator info: correct.**
+   - `3236d400` looks up the creator through CX2Game slot 50 (UID, not-user). It writes `+0xbc` only when the creator is found.
+   - `32e79b00`: not-user = `sete` of factor `+0x38`.
+   - `32e73f90`: not-user = `KBuffFactor +0x3d` directly. That is `m_bIsMesGameUnitNpc`: Phase 11's serializer row has the bool there, right before the factor-ID int, which matches March's tail.
+   - Side note: March's `KBuffFactor` copy constructor does not copy that flag or the UID. 9a only prints them in the DEBUG line; 9b item 6 already owns the issue.
+4. **Case 56: correct.**
+   - `@3229e254`: `+0x264 != 0` leaves the case.
+   - The cool time is `32007b10( 0x26, 31fcf430( 0x65a3 ) )`; the ctor takes (identity, unit, float).
+   - June's parser `32216320` maps `"SA_EFFECTIVE_RATE"` to 5 (`@32218f22`) and `"SA_READY_TIME_REL"` to `0x26` (`@322193ed`). March's enum gives the same numbers, with no `#ifdef` gap before them.
+   - `32007b10` matches `JuneGetLearnedSkillAbilityValue`.
+5. **Phantom Sword: correct.**
+   - June's `SimpleInit` `31f8ee50` identifies the three fields: `+0x34` is zeroed (techPoint), `+0x3f8` is the protected float set to 6.0 (fHitAddMP's March default), `+0x51c` is set to 1.0 (`m_fRateModifier`).
+   - The write order at `32370f96`–`323710a6` matches the port.
+   - `32370e10` has no `attackType` (`+8`) store. The one `+4 = 0` (`@32370ed2`) is `attackerType = AT_UNIT`, the same line March has.
+6. **Bigbang Stream: correct.**
+   - `3236c6f0` skips when cool > 0 (`test ah,0x41 / jp`) and arms the cool time only on the table-success path after `EndTable`.
+   - `3236a040` runs the loop, then the tick, and clamps at ≤ 0.
+   - `3236dbf0` takes FABS of x (`@3236de60`) and z (`@3236de6e`). Velocity x = (|x|+|z|) × 0.3 × 10 + 100, y = y × 10 + 100, z = 0. Everything after the land y is a `CreateInstance` default.
+   - The ULTIMATE gate is `31fcf3e0` (memo map), which is false in March (Phase 10).
+7. **Mark of Commander: correct.**
+   - `3236df00` computes (physic + magic) × dungeon rate. For a user it then multiplies by `31fd7cc0(0x6666)` and by (1.0 + `3201ad10(0x6666)`). The guards are March's.
+   - `3201ad10`'s skill-type source (`32358970` on the CX2Unit, map `+0xaac`, keys 6–10) is June's per-type socket stat. March's nearest analog, `m_fSkillDamageUpRate`, is already applied at hit time to every AT_SPECIAL hit (`X2GameUnit.cpp` `GetAdditionalAttackPowerRateByType`), and the shell is AT_SPECIAL (June `DamageEffect.src.lua` `CHUNG_MARK_OF_COMMANDER_SHELL`). Mapping `3201ad10` onto it would count it twice, so 0 is right.
+8. **Pandemonium Fear: correct.**
+   - `3236e2a0` uses the guards with trigger 6, and checks the attacker before the interval.
+   - damageType 0 / 1 / 2 gives `+0x38` / `+0x3c` / (`+0x3c` + `+0x38`) × 0.5, else 1.0. March's `DT_*` and `Damage{fPhysic, fMagic}` agree.
+   - The position is the hit unit's vslot 178. It is re-aimed only for a user attacker on an NPC, with `(target, 1, 1, &pos)`. Then × `+0x18`. The name at `0x334902b0` is `DAMAGE_EFFECT_Pandemonium_Fear_Explosion`; the rotation is the hit unit's and the rest are defaults.
+   - `31fd5ef0`: the 700 compare is strict `>` (`0x3344ce98` is a double); the bone-nearer test is strict `<`. Mode 1 tests `32293b80 == vslot 0x170` and falls back to the centre under the same test; any other mode returns false.
+   - `32293b80`: true without a game, world or line map; false for an out-of-range or null line; otherwise dot > 0.0, strict.
+
+**Hygiene:** `flagcheck.py JUNE_BUFF_CUSTOM_FUNCTION --range b8bc0a1^..b8bc0a1 --with JUNE_BUFF_DEBUG`: `files: 5 PASS, 3 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+
+**Kickoff change:** `kickoffs/june-buff/9b.md` item 1 (ChainViper) now notes that slot 6 sees March's final damage, without June's modifiers (item 2 above).
+
 ## Phase 10 — Buff groups and June-only script bindings
 
 **Scope.**
