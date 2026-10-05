@@ -4083,6 +4083,8 @@ Check 5: back in the village, no icons appeared. The emulator's send after `EGS_
 
 **How to see it in game:** a monster or your character dies with a buff on. The buff stays on the body until it is removed or you revive. Before this change it vanished at the moment of death. Two console checks: BFI 152 on every monster, then kill one; BFI 3 on yourself, then `SetNowHP( 0 )`.
 
+**Play-test (2026-10-05, user; exe `229b4d0c`, run 21:15):** both checks passed (the fire stayed on a dying monster; the attack-buff icon stayed while the character was dead and was gone after the revive). Logs: run after the deploy, clean exit, load summary `320 loaded, 0 failed`, `361 loaded + 0 placeholder(s)`; neither check writes a line of its own. Unrelated: `BFI 512 requested but not loaded` (beyond the 361 March factors, Phase 13 data) and 2 `E_DISABLE_HB_CHECK_REQ` UNHANDLED.
+
 **For the user:** the Phase 9c funcmap row `3202a7d0` carries a spliced word ("buffserpart found"). It is left as committed, with this review's correction appended.
 
 ## Phase 12 — Buff icons and UI assets
