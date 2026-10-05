@@ -3282,7 +3282,7 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 **Build and deploy.** `DEPLOY OK: X2_offline.exe is 19,116,032 B, dated 2026-10-05 10:14:34, md5 be4fb8fe51ec74869ba07b26325001ac, equal to X2/US_SERVICE/x2.exe (2026-10-05 10:14:30); built at mods/june-buff-port a6684e4 + 3 uncommitted code file(s).` The three files are this fix's own (`X2GUAra.cpp`, `X2GUUser.h`, `Always.h`), committed as is right after. **Not launched.**
 
-**For the user:** a regression play-test of the fix (hand-off in the conversation). `/cost`: please paste it here.
+**Play-test (2026-10-05, user; exe `be4fb8fe`, run 10:24:43 after the 10:14 deploy): both regression checks passed by eye** (Ara FP cancel into a skill; field throw item, skills back afterwards). `ErrorLog.txt:195` `first arm quick-slot special item wait: item 78390, 10 s`; load baseline unchanged (`factors 361 loaded`, the same 5 ordinal rejects); 0 exceptions (2 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, unrelated). `/cost`: please paste it here.
 
 ## Phase 8 — New finalizers and counter sync
 
