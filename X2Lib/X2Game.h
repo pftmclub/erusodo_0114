@@ -1073,6 +1073,12 @@ class CX2Game : public CKTDXStage
 
 		void						UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, CX2GUUser* pCX2GUUser );
 		void						ApplyBuffFactorToGUUser( const CX2Item::ItemTemplet* pItemTemplet, CX2GUUser* pCX2GUUser );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+		/// June buff port Phase 7d: June's quick-slot item check (322fa960, called only from the quick-slot use 32951420).
+		/// pbAllow_ = June's allow byte (cleared on a refusal), pbWaitingAck_ = the quick slot's ACK wait (set on an accept).
+		/// June's 5th argument (an out pair at quick slot +0x110, written only by SAT 43) has no March home.
+		void						CheckQuickSlotItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet_, CX2GUUser* pUser_, bool* pbAllow_, bool* pbWaitingAck_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 
 #ifdef PET_ITEM_GM
 		void						UseItemPetAbility( const CX2Item::ItemTemplet* pItemTemplet, CX2GUUser* pCX2GUUser );

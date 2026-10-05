@@ -3038,6 +3038,55 @@ Log lines read afterwards: `first apply BBT 110` and `first read BBT 110: TryHyp
 
 **Kickoff:** `kickoffs/june-buff/7d.md` - start it with `/x2-phase june-buff 7d`.
 
+### Phase 7d — Done (2026-10-05)
+
+**Landed** (`SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM`, requires `_AWAKE_LOCK`). Evidence is in the "Buff Phase 7d" rows of `june2017_re/funcmap.tsv`: 15 new, 4 corrected.
+- `CX2Game::CheckQuickSlotItemSpecialAbility` = `322fa960`, case for case:
+  - 16 pepper: riding, plus June's Future-state-skill refusal (STR 813);
+  - 18 special skill: Value1 13/14 dungeon-only except item 100005189 (STR 20120); Value2 4 allowed with no wait; `bLandConnect`/`EnableAllKeyProcess`; the pre-start branch; riding (STR 24528); the six states; the four gates. The arm sets the ACK wait, keys off and **`+0x8d78` = 10 s**;
+  - 34 summon card, 39 riding stamina (STR 43633, which has no March STR_ID, so it shows empty), default → ACK wait.
+- `CX2UIQuickSlot::KeyEventProcess` follows June's `32951670`/`32951420`/`32950d60`: the pet GM check moves after the cooldown, the ability loop is that call, and a refusal clears the ACK wait (`@329517d0`).
+- The **"no skill while the item waits"** prefix went at the top of `SpecialAttackEventProcess` in all 8 March classes.
+- New: `CX2GUUser::GetSpecialItemUsableExtraStateID()` (vslot `0x4ac`, base = wait) and `GetSpecialAttackEventProcessedAtThisFrame()` (`+0x8ac4`).
+
+**Corrections to earlier records.**
+1. `322fa960` has one caller. Raw scan: `329515d9` only. 7c's `32024510`/`3200edb0` call `322fbc60` = `UseItemSpecialAbility`, so the PvP-winner stop condition does not apply.
+2. Its accept sets the **ACK wait** (4th arg), not `*pAllow`.
+3. **Slot 510 is not `NoStateChangeActionFrameMove`.** It returns bool, calls `31fcadd0` (= `CommonSpecialAttackEventProcess`), and is called first by slot 509 `SpecialAttackEventProcess` (Elsword `32cf3290`). That is why the prefix went where it did.
+4. June's state 21 = `XS_BATTLE_FIELD`: every `CX2StateBattleField` call `324bbd80` is gated on state `0x15`.
+5. `+0x8ac4` = `m_bSpecialAttackEventProcessedAtThisFrame`; `+0x8b61` = `m_bStarted`.
+
+**Scope widened under the no-partial-updates rule.** June's whole quick-slot use was compared, not only `322fa960`. These parts are June-only systems, recorded and not ported:
+- the PvP item bar: quick slot `+0x101`, PvP room `+0xf0 == 2`, keys `0x2f`/`0x30`, `329515f0`, and the PvP buff gates in `32951420`;
+- SAT 38 (Erda Island, GT 4; its flag is off in March) and SAT 43 (past `SAT_END`);
+- the GT 4 riding refusal;
+- event items 291687 (BTI 931) and 100003917;
+- June's pet-item check `3230fe70`;
+- the item-group `0x67` gate;
+- the in-house cooldown bypass;
+- `322f5140`'s pre-start allow paths (dungeon 38100, the `+0x92cc` start timer).
+
+**June quirks.** `JUNE_BUGS.md` #13 is new: an arm before the dungeon start, then a refusal, leaves the keys off. It is latent because units sit in `USI_START` until `m_bStarted`, and a DEBUG line marks it if it ever fires. #12 (Ara) is now reached.
+
+**Character port (§7):**
+- the vslot 510 prefix for Add/Ain/Rose/Luciel;
+- vslot `0x4ac` for Elsword `0xce` and EL `0xbb`, which are June-only states. March's EL `0xbb` is a skill state, so the number must not be copied.
+
+**Hygiene.** `flagcheck JUNE_BUFF_QUICKSLOT_ITEM --worktree --with JUNE_BUFF_DEBUG` on the 13 code files:
+- `files: 12 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+- `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)`;
+- `RESULT: PASS`.
+
+The 2 are plain `#else` lines in `X2UIQuickSlot.cpp`; each holds March's text verbatim.
+
+**Build and deploy.** `DEPLOY OK: X2_offline.exe is 19,113,472 B, dated 2026-10-05 07:46:16, md5 28343b611d94ec3a55f33bf687f20c95, equal to X2/US_SERVICE/x2.exe (2026-10-05 07:46:12); built at mods/june-buff-port f46ef86 + 13 uncommitted code file(s).` Both new DEBUG strings are in the exe, and the new code produced no compiler warnings. **Not launched.**
+
+**How to see it in game (Phase 14).** Use a throw orb from the quick slot, e.g. 78390 Wind Orbs. `ErrorLog.txt` then gets `first arm quick-slot special item wait: item 78390, 10 s`, and no skill or Ctrl awakening fires until the throw ends.
+
+**Correction to the kickoff's gate.** A throw item used mid-attack is refused **silently** in both March and June. STR 20120 appears only for Value1 13/14 outside a dungeon (no such item in this build's `item.kim`) and for a summon card outside a dungeon.
+
+**Open for the user:** none blocking. `/cost`: please paste it here.
+
 ## Phase 8 — New finalizers and counter sync
 
 **Scope.**

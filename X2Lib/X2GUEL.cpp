@@ -1798,6 +1798,12 @@ CX2GUEL::~CX2GUEL(void)
 			 
 /*virtual*/ bool CX2GUEL::SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition_ /*= CX2SkillTree::ASUT_GROUND */)
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+	/// June buff port Phase 7d: June EL 32b84a50 (the skill lookup its SpecialAttackEventProcess calls first) starts with
+	/// "if +0x8d78 > 0 return false": no skill while a quick-slot special item waits
+	if ( true == IsQuickSlotSpecialItemWaiting() )
+		return false;
+#endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 	KTDXPROFILE();
 
 	if ( false == CanUseSpecialAttack( eActiveSkillUseCondition_ ) )

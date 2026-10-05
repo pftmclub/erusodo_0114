@@ -4849,3 +4849,22 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Requires SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG (IsAwakeImpossible, 7b).
 #define SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 7d (JUNE_BUFF_PORT_PHASES.md): June's
+//              quick-slot item check. CX2Game::CheckQuickSlotItemSpecialAbility
+//              is June's 322fa960 (the per-special-ability check its quick-slot
+//              use 32951420 calls); CX2UIQuickSlot::KeyEventProcess routes its
+//              special-ability loop through it, checks the pet GM items after
+//              the cooldown and clears the ACK wait on a refusal, as June's
+//              32951670/32951420/32950d60 do. A throw/install item accepted there
+//              arms the user's quick-slot special item wait (+0x8d78 = 10 s,
+//              3344a51c), and every class's NoStateChangeActionFrameMove (slot
+//              510) skips while it runs. Gates that belong to June-only systems
+//              (the PvP item bar, Erda Island, event items, June's pet item
+//              check) are listed in the Done note, not ported.
+//              Requires SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK (the wait, 7c).
+#define SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+//////////////////////////////////////////////////////////////////////////

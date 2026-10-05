@@ -5231,6 +5231,12 @@ RENDER_HINT CX2GULire_ElvenRanger::CommonRender_Prepare()
 
 /*virtual*/ bool CX2GULire_ElvenRanger::SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+	/// June buff port Phase 7d: June Lire 32cac200 (the skill lookup its SpecialAttackEventProcess calls first) starts with
+	/// "if +0x8d78 > 0 return false": no skill while a quick-slot special item waits
+	if ( true == IsQuickSlotSpecialItemWaiting() )
+		return false;
+#endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 #if defined( _SERVICE_ ) 
 	ELSWORD_VIRTUALIZER_START
 #endif

@@ -468,6 +468,9 @@ bool CX2UIQuickSlot::KeyEventProcess()
 	#endif // SERV_NEW_DEFENCE_DUNGEON
 
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+	/// June buff port Phase 7d: June checks the pet GM items after the cooldown (32950d60, called from 32951420); see below
+#else
 #ifdef PET_ITEM_GM
 	if ( pQuickItem != NULL && pQuickItem->GetItemTemplet() != NULL )
 	{	
@@ -503,6 +506,7 @@ bool CX2UIQuickSlot::KeyEventProcess()
 		}
 	}
 #endif //PET_ITEM_GM
+#endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 
 	if ( pQuickItem != NULL && 
         pQuickItem->GetItemTemplet() != NULL 
@@ -534,6 +538,36 @@ bool CX2UIQuickSlot::KeyEventProcess()
 			}
 		}
 #endif // SERV_CHANGE_QUICK_SLOT_COOL_TIME_DB_SP
+#ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+		/// June buff port Phase 7d: June's quick-slot use 32951420 runs the cooldown above (3294cce0), then its item
+		/// checks (32950d60), then the special-ability check (CX2Game 322fa960). June-only parts are not ported: the
+		/// PvP item bar (quick slot +0x101, PvP room +0xf0 == 2, 32951420 @329514e1-6f), event item 291687 / BTI 931 and
+		/// item 100003917 (32950d60 @32950da8-fb6, @3295110f-2a7), June's pet item check (@32950ed1-f41), the group
+		/// 0x67 item gate (@32951576-9d) and the in-house cooldown bypass (3294cce0).
+		bool bAllowUseQuickSlotItem = true;
+#ifdef PET_ITEM_GM
+		/// June 32950d60 @329510f2-12ac: March's pet GM item check; a refusal returns false, so no request is sent
+		if( pQuickItem->GetItemTemplet()->GetItemID() == PET_ATTACK_SKILL_GM_ITEM_ID || pQuickItem->GetItemTemplet()->GetItemID() == PET_CHEER_SKILL_GM_ITEM_ID )
+		{
+			if( g_pData != NULL && g_pData->GetPetManager() != NULL )
+			{
+				CX2PET *pPet = g_pData->GetPetManager()->GetMyPet();
+				if( pPet == NULL || pPet->GetXSkinAnim() == NULL )
+				{
+					g_pChatBox->AddChatLog( NetError::GetErrStr(NetError::ERR_PET_06), KEGS_CHAT_REQ::CPT_TOTAL, D3DXCOLOR( 1,1,0,1 ), L"#CFFFF00" );
+					bAllowUseQuickSlotItem = false;
+				}
+			}
+			else
+			{
+				bAllowUseQuickSlotItem = false;
+			}
+		}
+#endif //PET_ITEM_GM
+		/// June 32951420 @329514c5 / @329515a7-d9: with no game the abilities are not checked
+		if ( true == bAllowUseQuickSlotItem && NULL != g_pX2Game )
+			g_pX2Game->CheckQuickSlotItemSpecialAbility( pQuickItem->GetItemTemplet(), pMyGUUser, &bAllowUseQuickSlotItem, &m_bWaiting_EGS_USE_QUICK_SLOT_ACK );
+#else
 		bool bAllowUseQuickSlotItem = true;
 		if ( pQuickItem->GetItemTemplet() != NULL )
 		{
@@ -665,6 +699,7 @@ bool CX2UIQuickSlot::KeyEventProcess()
 			}
 		}
 
+#endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 		if ( bAllowUseQuickSlotItem == true )
 		{
 #ifdef SERV_NEW_DEFENCE_DUNGEON // 적용날짜: 2013-04-11
@@ -674,6 +709,10 @@ bool CX2UIQuickSlot::KeyEventProcess()
 #endif // SERV_NEW_DEFENCE_DUNGEON
 				Handler_EGS_USE_QUICK_SLOT_REQ( slotID );
 		}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+		else
+			m_bWaiting_EGS_USE_QUICK_SLOT_ACK = false;	/// June 32951670 @329517d0: a refused item clears the ACK wait
+#endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 	}
 
 	if ( slotID != -1 )

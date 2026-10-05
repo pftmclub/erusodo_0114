@@ -5814,6 +5814,12 @@ RENDER_HINT CX2GUChung::CommonRender_Prepare()
 */
 /*virtual*/ bool CX2GUChung::SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+	/// June buff port Phase 7d: June Chung 32c17830 (the skill lookup its SpecialAttackEventProcess calls first) starts with
+	/// "if +0x8d78 > 0 return false": no skill while a quick-slot special item waits
+	if ( true == IsQuickSlotSpecialItemWaiting() )
+		return false;
+#endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 	KTDXPROFILE();
 
 	const int INVALID_SKILL_SLOT_INDEX = -1;

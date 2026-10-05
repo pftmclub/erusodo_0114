@@ -2899,6 +2899,15 @@ public:
 		/// check refuses a special item while it is set
 		bool	m_bHyperModeStartedByInput;
 #endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+		/// June buff port Phase 7d: what June's quick-slot item check (CX2Game 322fa960) reads off the user.
+		/// The arm itself (m_fQuickSlotSpecialItemWaitTime = 10 s) is written there; its reader is every class's
+		/// SpecialAttackEventProcess (June splits it: 509 calls the skill lookup 510, which starts with the wait test).
+		bool GetSpecialAttackEventProcessedAtThisFrame() const { return m_bSpecialAttackEventProcessedAtThisFrame; }	/// +0x8ac4
+		/// vslot 0x4ac, base 3208df00 = the wait state (vslot 0x438). June's Elsword (32d27130, 0xce) and EL (32b90420,
+		/// 0xbb) return June-only states: character port, JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7
+		virtual int GetSpecialItemUsableExtraStateID() { return GetWaitStateID(); }
+#endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환
 		virtual void		UpNowDPValueByDamage( IN const float fDamage_ ) {}				/// 애드일 때, 피격시 DP 변동 처리

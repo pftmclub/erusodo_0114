@@ -10640,6 +10640,173 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+/// June buff port Phase 7d: June's quick-slot item check, 322fa960 (switch on SAT - 16, tables 322fbc44/322fbc28).
+/// It replaces the special-ability loop of March's CX2UIQuickSlot::KeyEventProcess, case for case in June's order.
+/// Not ported (June-only systems, see the Phase 7d Done note): SAT 38 RETURN_TO_BASE_AT_PVE (@322fb7d8; flag off in
+/// March, needs June's game type 4 = Erda Island), SAT 43 (@322fb9c4; past March's SAT_END), the game type 4 riding
+/// refusal in SAT 18 (@322fb12d).
+namespace
+{
+	/// June @322fb300-3a8 (and @322fade4-e8f): the six states a special skill item may start from. June calls them as
+	/// user vslots 0x438 wait, 0x43c walk, 0x440 dash, the charge-MP member, 0x4ac (base 3208df00 = wait), 0x444 dash end.
+	bool IsQuickSlotSpecialSkillState( CX2GUUser* pUser_ )
+	{
+		const int iNowState = pUser_->GetNowFrameData().syncData.nowState;
+		return iNowState == pUser_->GetWaitStateID() ||
+			iNowState == pUser_->GetWalkStateID() ||
+			iNowState == pUser_->GetDashStateID() ||
+			iNowState == pUser_->GetChargeMpStateID() ||
+			iNowState == pUser_->GetSpecialItemUsableExtraStateID() ||
+			iNowState == pUser_->GetDashEndStateID();
+	}
+
+	/// June @322fae96-eef / @322fb3b0-40f: no skill state on either side (+0x7cb0 / vslot 0x524 -> +0x7cbc, each the
+	/// state data's skill ID), no special attack event this frame (+0x8ac4), no awakening key pending (+0x8d4c).
+	bool CanArmQuickSlotSpecialItemWait( CX2GUUser* pUser_ )
+	{
+		return CX2SkillTree::SI_NONE == pUser_->GetFutureStateSkillID() &&
+			CX2SkillTree::SI_NONE == pUser_->GetNowStateSkillID() &&
+			false == pUser_->GetSpecialAttackEventProcessedAtThisFrame() &&
+			false == pUser_->m_bHyperModeStartedByInput;
+	}
+}
+
+void CX2Game::CheckQuickSlotItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet_, CX2GUUser* pUser_, bool* pbAllow_, bool* pbWaitingAck_ )
+{
+	if ( NULL == pItemTemplet_ )
+		return;
+
+	const unsigned uNumSA = pItemTemplet_->GetNumSpecialAbility();
+	for ( int i = 0; i < (int)uNumSA; ++i )
+	{
+		const CX2Item::SpecialAbility* pSa = &pItemTemplet_->GetSpecialAbility( i );
+		if ( NULL == pSa )
+			continue;
+
+		switch ( pSa->GetType() )
+		{
+		case CX2Item::SAT_PEPPER_RUN:		/// 16, @322fb5ee
+			{
+				/// riding (March's case), or June's addition: a user whose Future state is a skill
+				if ( false == ( NULL != CX2RidingPetManager::GetInstance() && true == CX2RidingPetManager::GetInstance()->GetRidingOn() ) )
+				{
+					if ( NULL == pUser_ || CX2SkillTree::SI_NONE == pUser_->GetFutureStateSkillID() )
+						break;
+				}
+				GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, GET_STRING( STR_ID_813 ), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 1.f );
+				*pbAllow_ = false;
+			} break;
+
+		case CX2Item::SAT_SPECIAL_SKILL:	/// 18, @322faa35
+			{
+				/// June: Value1 13 (SST_ANGER_SPHERE) and 14 (June's next SST, no March enum) work only in a dungeon,
+				/// except item 100005189 (0x5f5f545). @322faa3f / @322fabd8, STR 0x4e98 to the chat box
+				if ( ( 13 == pSa->m_Value1 || 14 == pSa->m_Value1 ) &&
+					100005189 != pItemTemplet_->GetItemID() &&
+					GT_DUNGEON != GetGameType() )
+				{
+					if ( NULL != g_pChatBox )
+						g_pChatBox->AddChatLog( GET_STRING( STR_ID_20120 ), KEGS_CHAT_REQ::CPT_SYSTEM, D3DXCOLOR(1,1,0,1), L"#CFFFF00" );
+					*pbAllow_ = false;
+					break;
+				}
+
+				/// June @322fad63: motion type 4 (June's SSMT after DIRECT_USE; its UseItemSpecialAbility case is a June-only
+				/// user vslot 0x858) is allowed with no state check and no ACK wait
+				if ( 4 == pSa->m_Value2 )
+				{
+					*pbAllow_ = true;
+					break;
+				}
+
+				if ( NULL == pUser_ || true != pUser_->GetNowFrameData().stateParam.bLandConnect || true != GetEnableAllKeyProcess() )
+					break;
+
+				if ( GT_DUNGEON == GetGameType() && NULL != GetMyUnit() && false == GetMyUnit()->GetStarted() )
+				{
+					/// June @322fadb5-f69: before the start, the state check and the arm run as below, then June asks
+					/// 322f5140( true ) (inlined @322faefb): the party's dungeon 38100 (0x94d4) with party +0x38 == 1, or
+					/// CX2DungeonGame's 327c94d0 false and the user's start timer +0x92cc < 0. Those are June-only, so
+					/// the item is refused here, as March's FIX_QUICK_SLOT_USE_DUNGEON_PLAY refuses it (JUNE_BUGS.md #13:
+					/// an arm before that refusal leaves the keys off).
+					if ( true == IsQuickSlotSpecialSkillState( pUser_ ) && true == CanArmQuickSlotSpecialItemWait( pUser_ ) )
+					{
+						*pbWaitingAck_ = true;
+						SetEnableAllKeyProcess( false );
+						pUser_->m_fQuickSlotSpecialItemWaitTime = 10.f;		/// 3344a51c
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+						CX2JuneBuffCapture::Line( "quick-slot special item armed before the start and then refused (item %d)", pItemTemplet_->GetItemID() );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+					}
+					*pbAllow_ = false;
+					break;
+				}
+
+				if ( NULL != CX2RidingPetManager::GetInstance() && true == CX2RidingPetManager::GetInstance()->GetRidingOn() )
+				{
+					GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, GET_STRING( STR_ID_24528 ), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 1.f );
+					*pbAllow_ = false;
+					break;
+				}
+
+				if ( true == IsQuickSlotSpecialSkillState( pUser_ ) && true == CanArmQuickSlotSpecialItemWait( pUser_ ) )
+				{
+					*pbWaitingAck_ = true;
+					SetEnableAllKeyProcess( false );
+					pUser_->m_fQuickSlotSpecialItemWaitTime = 10.f;		/// @322fb40b, 3344a51c
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+					static bool s_bSeenArm = false;
+					if ( !s_bSeenArm )
+					{
+						s_bSeenArm = true;
+						CX2JuneBuffCapture::Line( "first arm quick-slot special item wait: item %d, %g s", pItemTemplet_->GetItemID(), pUser_->m_fQuickSlotSpecialItemWaitTime );
+					}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+					break;
+				}
+				*pbAllow_ = false;
+			} break;
+
+		case CX2Item::SAT_SUMMON_MONSTER:	/// 34, @322fb416
+			{
+				if ( GT_DUNGEON == GetGameType() )
+				{
+					if ( NULL != GetMyUnit() && false == GetMyUnit()->GetStarted() )
+					{
+						/// June 322f5140( false ): CX2DungeonGame's 327c94d0 false and the user's start timer +0x92cc < 0,
+						/// both June-only, so it refuses as March does
+						*pbAllow_ = false;
+						break;
+					}
+					*pbWaitingAck_ = true;
+				}
+				else
+				{
+					if ( NULL != g_pChatBox )
+						g_pChatBox->AddChatLog( GET_STRING( STR_ID_20120 ), KEGS_CHAT_REQ::CPT_SYSTEM, D3DXCOLOR(1,1,0,1), L"#CFFFF00" );
+					*pbAllow_ = false;
+				}
+			} break;
+
+		case CX2Item::SAT_RIDINGPET_STAMINA_PERCENT_UP:	/// 39, @322fba55: only while riding (June's string 43633 has no March STR_ID)
+			{
+				if ( NULL != pUser_ && false == pUser_->GetRidingOn() )
+				{
+					if ( NULL != g_pChatBox )
+						g_pChatBox->AddChatLog( GET_STRING( 43633 ), KEGS_CHAT_REQ::CPT_SYSTEM, D3DXCOLOR(1,1,0,1), L"#CFFFF00" );
+					*pbAllow_ = false;
+				}
+			} break;
+
+		default:	/// @322fbbe1 = March's COOLTIME_SHARE_GROUP_ITEM default
+			{
+				*pbWaitingAck_ = true;
+			} break;
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 #ifdef PET_ITEM_GM
 void CX2Game::UseItemPetAbility( const CX2Item::ItemTemplet* pItemTemplet, CX2GUUser* pCX2GUUser )
 {

@@ -3552,6 +3552,12 @@ RENDER_HINT CX2GUAra::CommonRender_Prepare()
 */
 /*virtual*/ bool CX2GUAra::SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+	/// June buff port Phase 7d: June Ara 32bcfaa0 (the skill lookup its SpecialAttackEventProcess calls first) starts with
+	/// "if +0x8d78 > 0 return false": no skill while a quick-slot special item waits
+	if ( true == IsQuickSlotSpecialItemWaiting() )
+		return false;
+#endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 	if ( false == CanUseSpecialAttack( eActiveSkillUseCondition ) )
 		return false;
 #ifdef FIX_SKILL_CANCEL_ARA
