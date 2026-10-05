@@ -101,7 +101,14 @@ bool CX2OfflineServer::Handler_EGS_STATE_CHANGE_FIELD_REQ( KOfflineSession& kSes
 			L" - allowed through, nothing persisted", kReq.m_iMapID );
 	}
 
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	// GSUserField.cpp:215-221: after the ACK, the whole buff list, only if there is one.
+	const bool bAckSent = Reply( kSes, EGS_STATE_CHANGE_FIELD_ACK, kAck );
+	SendUpdateBuffInfo( kSes, true );
+	return bAckSent;
+#else // SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 	return Reply( kSes, EGS_STATE_CHANGE_FIELD_ACK, kAck );
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -208,6 +215,11 @@ bool CX2OfflineServer::Handler_EGS_UPDATE_PLAY_STATUS_NOT( KOfflineSession& kSes
 	// matchmaking wait is counted out on it rather than on a timer the
 	// emulator does not have. See AUTO_PARTY_QUEUE_MS for what that costs.
 	TickAutoPartyMatch( kSes );
+
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	// ...and the premium buffs' expiry (KGSUser::CheckBuffPeriod, 1 s live).
+	CheckBuffPeriod( kSes );
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 
 	// Note this one carries a bare KGamePlayStatus, not the
 	// KGamePlayStatusContainer that EGS_SELECT_UNIT_4_NOT uses.

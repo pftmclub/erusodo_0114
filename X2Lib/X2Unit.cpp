@@ -4260,6 +4260,35 @@ void CX2Unit::ResetIncreaseSkillLevelByBuff()
 */
 int CX2Unit::GetIncreaseSkillLevelByBuff()
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_PREMIUM
+	/// June 323644a0: 0 in June's PvE game (IsPve 322cc1c0: game type 4, absent here); the unit's
+	/// own buffs when it exists; and then the world-buff records ALWAYS (March: only without a
+	/// unit), so in a game a world buff's skill level counts twice (JUNE_BUGS.md).
+	if ( NULL != g_pX2Game && 4 == g_pX2Game->GetGameType() )
+		return 0;
+
+	int iIncreaseSkillLevelByBuff = 0;
+
+	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() )
+		iIncreaseSkillLevelByBuff = g_pX2Game->GetMyUnit()->GetAddSkillLevelByBuff();
+
+	BOOST_FOREACH( const WorldBuffRecordPair& kRecord, g_pData->GetMyUser()->GetSelectUnit()->GetWorldBuffRecord() )
+	{
+		CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( static_cast<UINT>( kRecord.first ) );
+
+		if ( NULL != ptrBuffFactor )
+		{
+			const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+
+			ptrBuffFactor->GetBehaviorFactor( BBT_ADD_SKILL_LEVEL, &pBehaviorFactor );
+
+			if ( NULL != pBehaviorFactor )
+				iIncreaseSkillLevelByBuff += static_cast<int>( pBehaviorFactor->m_vecValues[0] );
+		}
+	}
+
+	return iIncreaseSkillLevelByBuff;
+#else // SERV_IRUHADEV_JUNE_BUFF_PREMIUM
 	int iIncreaseSkillLevelByBuff = 0;
 
 	/// 유닛 객체가 있다면, 유닛에게 적용된 버프의 효과 적용
@@ -4308,6 +4337,7 @@ int CX2Unit::GetIncreaseSkillLevelByBuff()
 	}
 
 	return iIncreaseSkillLevelByBuff;
+#endif SERV_IRUHADEV_JUNE_BUFF_PREMIUM
 }
 
 /** @function	: ResetIncreaseSkillLevelBySocket

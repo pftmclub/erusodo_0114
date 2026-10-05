@@ -2229,12 +2229,21 @@ void CX2GUUser::ReInit( bool bUseTeamPos, int startPosIndex )
 	 /// 부활시, 서버에서 준 버프를 적용해 준다.
 	 if ( NULL != GetUnit() )
 	 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_PREMIUM
+		/// June 32022380 @320242ab: each stored world buff is re-applied once per stack (slot 135, level 1)
+		BOOST_FOREACH( const CX2Unit::WorldBuffRecordPair& kRecord, GetUnit()->GetWorldBuffRecord() )
+		{
+			for ( int iCount = 0; iCount < kRecord.second.m_iAccumulationCount; ++iCount )
+				SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( kRecord.first ), 1 );
+		}
+#else // SERV_IRUHADEV_JUNE_BUFF_PREMIUM
 		 const vector<BUFF_FACTOR_ID>& vecWorldBuffFactorID = GetUnit()->GetWorldBuffFactorID();
 
 		 BOOST_FOREACH( BUFF_FACTOR_ID eWorldBuffFactorID, vecWorldBuffFactorID )
 		 {
 			 SetBuffFactorToGameUnitByBuffFactorID( eWorldBuffFactorID );
 		 }
+#endif SERV_IRUHADEV_JUNE_BUFF_PREMIUM
 	 }
 #endif // SET_WORLD_BUFF_AT_RESURRECTION
 

@@ -358,6 +358,21 @@ namespace
 		"  PRIMARY KEY( unit_uid, tc_id ) );"
 		;
 	//}} Iruha : 2026-09-17
+
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	// v14: the item-granted premium buffs (KUserServerBuffManager::m_mapBuff, keyed by
+	// buff templet ID). Live keeps these in the LoginServer's RAM; a file is the
+	// offline equivalent of a LoginServer that never restarts.
+	const char* const SCHEMA_V14 =
+		"CREATE TABLE IF NOT EXISTS unit_buff ("
+		"  unit_uid   INTEGER NOT NULL,"
+		"  buff_id    INTEGER NOT NULL,"
+		"  factor_id  INTEGER NOT NULL DEFAULT 0,"
+		"  start_time INTEGER NOT NULL DEFAULT 0,"
+		"  end_time   INTEGER NOT NULL DEFAULT 0,"
+		"  PRIMARY KEY( unit_uid, buff_id ) );"
+		;
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1012,6 +1027,17 @@ bool CX2OfflineDB::Migrate()
 	}
 	//}} Iruha : 2026-09-17
 
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	if( iFrom < 14 )
+	{
+		if( false == Exec( "BEGIN;" ) )			return false;
+		if( false == Exec( SCHEMA_V14 ) )		{ Exec( "ROLLBACK;" ); return false; }
+		if( false == Exec( "COMMIT;" ) )		return false;
+
+		CX2OfflineLog::Server( L"DB       schema upgraded to v14 (item-granted premium buffs)" );
+	}
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+
 	char szSetVersion[64];
 	_snprintf( szSetVersion, 64, "PRAGMA user_version = %d;", (int)SCHEMA_VERSION );
 	szSetVersion[63] = '\0';
@@ -1309,7 +1335,11 @@ bool CX2OfflineDB::FinalDeleteUnit( UidType nUnitUID )
 		{ "inventory_size", "item", "unit_skill", "unit_quest", "unit_dungeon",
 		  "unit_subquest", "unit_quest_complete", "unit_mission", "unit_submission",
 		  "unit_title", "unit_pet", "unit_riding_pet", "unit_skill_unsealed",
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+		  "unit_skill_note", "unit_tc_clear", "unit_buff" };	///< unit_tc_clear added 2026-09-17 (schema v13), unit_buff (v14)
+#else // SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 		  "unit_skill_note", "unit_tc_clear" };	///< unit_tc_clear added 2026-09-17 (schema v13)
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 	//}}
 
 	// Begin()/Commit(), not "BEGIN;": since phase 8 the whole dispatch is
@@ -1590,6 +1620,88 @@ bool CX2OfflineDB::LoadTCClears( UidType nUnitUID, OUT std::vector< KOfflineTCCl
 	return true;
 }
 //}} Iruha : 2026-09-17
+
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+bool CX2OfflineDB::LoadUnitBuffs( UidType nUnitUID, OUT std::vector< KOfflineBuffRow >& vecOut )
+{
+	KLocker lock( m_cs );
+
+	vecOut.clear();
+
+	if( NULL == m_pDB )
+		return false;
+
+	sqlite3_stmt* pStmt = Prepare(
+		"SELECT buff_id, factor_id, start_time, end_time FROM unit_buff WHERE unit_uid = ?1 ORDER BY buff_id;" );
+	if( NULL == pStmt )
+		return false;
+
+	sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+
+	while( SQLITE_ROW == sqlite3_step( pStmt ) )
+	{
+		KOfflineBuffRow kRow;
+		kRow.m_iBuffID		= sqlite3_column_int( pStmt, 0 );
+		kRow.m_iFactorID	= sqlite3_column_int( pStmt, 1 );
+		kRow.m_iStartTime	= (__int64)sqlite3_column_int64( pStmt, 2 );
+		kRow.m_iEndTime		= (__int64)sqlite3_column_int64( pStmt, 3 );
+
+		vecOut.push_back( kRow );
+	}
+
+	sqlite3_finalize( pStmt );
+	return true;
+}
+
+bool CX2OfflineDB::SaveUnitBuff( UidType nUnitUID, const KOfflineBuffRow& kRow )
+{
+	KLocker lock( m_cs );
+
+	if( NULL == m_pDB )
+		return false;
+
+	sqlite3_stmt* pStmt = Prepare(
+		"INSERT OR REPLACE INTO unit_buff ( unit_uid, buff_id, factor_id, start_time, end_time ) "
+		"VALUES ( ?1, ?2, ?3, ?4, ?5 );" );
+	if( NULL == pStmt )
+		return false;
+
+	sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+	sqlite3_bind_int(   pStmt, 2, kRow.m_iBuffID );
+	sqlite3_bind_int(   pStmt, 3, kRow.m_iFactorID );
+	sqlite3_bind_int64( pStmt, 4, (sqlite3_int64)kRow.m_iStartTime );
+	sqlite3_bind_int64( pStmt, 5, (sqlite3_int64)kRow.m_iEndTime );
+
+	bool bOK = ( SQLITE_DONE == sqlite3_step( pStmt ) );
+	if( false == bOK )
+		LogError( L"save unit_buff" );
+
+	sqlite3_finalize( pStmt );
+	return bOK;
+}
+
+bool CX2OfflineDB::DeleteUnitBuff( UidType nUnitUID, int iBuffID )
+{
+	KLocker lock( m_cs );
+
+	if( NULL == m_pDB )
+		return false;
+
+	sqlite3_stmt* pStmt = Prepare( "DELETE FROM unit_buff WHERE unit_uid = ?1 AND buff_id = ?2;" );
+	if( NULL == pStmt )
+		return false;
+
+	sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+	sqlite3_bind_int(   pStmt, 2, iBuffID );
+
+	bool bOK = ( SQLITE_DONE == sqlite3_step( pStmt ) );
+	if( false == bOK )
+		LogError( L"delete unit_buff" );
+
+	sqlite3_finalize( pStmt );
+	return bOK;
+}
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 
 //////////////////////////////////////////////////////////////////////////
 // inventory

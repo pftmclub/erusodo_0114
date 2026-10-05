@@ -1029,6 +1029,24 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 #else // SET_WORLD_BUFF_AT_RESURRECTION
 		vector<CX2BuffFactorPtr>& GetWorldBuffFactorPtr() { return m_vecWorldBuffFactorPtr; }
 #endif // SET_WORLD_BUFF_AT_RESURRECTION
+#ifdef SERV_IRUHADEV_JUNE_BUFF_PREMIUM
+		/// June 326c9030 / 326c9530: one record per world buff the server sent, kept at
+		/// CX2Unit+0xdbc as pair< factor ID, this > (40 B). The BTI and stack count come
+		/// from the packet's KBuffFactor; m_bUnderOneHour is 0 < end - start <= 3600.
+		struct WorldBuffRecord
+		{
+			int		m_iBuffTempletID;
+			int		m_iAccumulationCount;
+			__int64	m_iStartTime;
+			__int64	m_iEndTime;
+			bool	m_bUnderOneHour;
+
+			WorldBuffRecord() : m_iBuffTempletID( 0 ), m_iAccumulationCount( 0 ), m_iStartTime( 0 ), m_iEndTime( 0 ), m_bUnderOneHour( false ) {}
+		};
+		typedef std::pair< int, WorldBuffRecord > WorldBuffRecordPair;
+		/// Written by the two world-buff handlers beside March's m_vecWorldBuffFactorID (kept for its March readers).
+		vector<WorldBuffRecordPair>& GetWorldBuffRecord() { return m_vecWorldBuffRecord; }
+#endif SERV_IRUHADEV_JUNE_BUFF_PREMIUM
 
 #ifdef SERV_NEW_UNIT_TRADE_LIMIT
 		void		SetUnitCreateDate( wstring wstrUnitCreateDate )			{ m_wstrUnitCreateDate = wstrUnitCreateDate; }
@@ -1266,6 +1284,9 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 #else // SET_WORLD_BUFF_AT_RESURRECTION
 		vector<CX2BuffFactorPtr>	m_vecWorldBuffFactorPtr;		/// 마을 버프 컨테이너
 #endif // SET_WORLD_BUFF_AT_RESURRECTION
+#ifdef SERV_IRUHADEV_JUNE_BUFF_PREMIUM
+		vector<WorldBuffRecordPair>	m_vecWorldBuffRecord;		/// June CX2Unit+0xdbc (see GetWorldBuffRecord)
+#endif SERV_IRUHADEV_JUNE_BUFF_PREMIUM
 
 #ifdef SERV_NEW_UNIT_TRADE_LIMIT
 		wstring				m_wstrUnitCreateDate;

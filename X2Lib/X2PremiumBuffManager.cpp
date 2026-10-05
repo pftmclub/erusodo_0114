@@ -493,6 +493,112 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT( IN HWND hW
 	KEGS_UPDATE_BUFF_INFO_IN_ROOM_NOT kEvent;
 	DeSerialize( pBuff, &kEvent );
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_PREMIUM
+	/// June 326c9030 (Phase 11). The unit keeps one record per world buff (CX2Unit+0xdbc);
+	/// March's factor-ID list is kept in step beside it for its March readers (Phase 11b).
+	/// Recorded, not ported (no March home, see funcmap 326c9030): BFI 500's comeback end
+	/// time and its "gone" UI close (June's rewritten comeback members), and BFI 10060's
+	/// EI_ROSE_EVENT_INT emblem (34, absent from March's EMBLEM_ID).
+	if ( NULL != g_pX2Game )
+	{
+		CX2GUUser* pCX2GUUser = g_pX2Game->GetUserUnitByUID( kEvent.m_iUnitUID );
+
+		if ( NULL != pCX2GUUser && NULL != pCX2GUUser->GetUnit() )
+		{
+			CX2Unit* pCX2Unit = pCX2GUUser->GetUnit();
+			vector<CX2Unit::WorldBuffRecordPair>& vecRecord = pCX2Unit->GetWorldBuffRecord();
+			vector<BUFF_FACTOR_ID>& vecWorldBuffFactorID = pCX2Unit->GetWorldBuffFactorID();
+			bool bPcRoomBuffChanged = false;	/// June's flag for BTI_BUFF_PREMIUM_PC_ROOM
+
+			BOOST_FOREACH( const CX2Unit::WorldBuffRecordPair& kRecord, vecRecord )		/// erase every stored world buff
+			{
+				CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( static_cast<UINT>( kRecord.first ) );
+				if ( NULL == ptrBuffFactor )	/// June dereferences it unchecked (JUNE_BUGS.md)
+				{
+					CX2JuneBuffCapture::Line( "world buff (room): stored factor %d is not loaded, its buff is not erased (June 326c9030 dereferences it unchecked)", kRecord.first );
+					continue;
+				}
+
+				if ( BTI_BUFF_PREMIUM_PC_ROOM == ptrBuffFactor->GetBuffTempletID() )
+					bPcRoomBuffChanged = true;
+
+				pCX2GUUser->EraseBuffTempletFromGameUnit( ptrBuffFactor->GetBuffTempletID() );
+#ifdef BUFF_ICON_UI
+				CX2GageManager::GetInstance()->EraseBuff( pCX2GUUser->GetUnitUID(), ptrBuffFactor->GetBuffTempletID(), false );
+#endif // BUFF_ICON_UI
+			}
+
+			vecRecord.clear();
+			vecWorldBuffFactorID.clear();
+
+			BOOST_FOREACH( const KBuffInfo& kBuffInfo, kEvent.m_vecActivateBuffList )		/// apply what the server sent
+			{
+				const int iFactorID = kBuffInfo.m_kFactorInfo.m_iFactorID;
+
+				if ( BFI_EMPTY_EXP_BUFF == iFactorID )
+				{
+					const int iGameType = g_pX2Game->GetGameType();
+					if ( CX2Game::GT_BATTLE_FIELD == iGameType || 4 == iGameType )	/// 4 = June GT_PVE (no such game type here)
+						continue;
+				}
+				else if ( BFI_BUFF_2013_DEFENSE_BUFF == iFactorID )
+				{
+					if ( CX2Game::GT_PVP == g_pX2Game->GetGameType() )
+						continue;
+				}
+
+				CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( static_cast<UINT>( iFactorID ) );
+				if ( NULL == ptrBuffFactor )
+				{
+					CX2JuneBuffCapture::Line( "world buff (room): factor %d (BTI %d) is not loaded, not applied (June 326c9030)",
+						iFactorID, kBuffInfo.m_kFactorInfo.m_BuffIdentity.m_eBuffTempletID );
+					continue;
+				}
+
+				if ( static_cast<int>( ptrBuffFactor->GetBuffTempletID() ) != kBuffInfo.m_kFactorInfo.m_BuffIdentity.m_eBuffTempletID )
+					CX2JuneBuffCapture::Line( "world buff (room): factor %d is BTI %d here but the server sent BTI %d (applied as loaded, as June does)",
+						iFactorID, static_cast<int>( ptrBuffFactor->GetBuffTempletID() ), kBuffInfo.m_kFactorInfo.m_BuffIdentity.m_eBuffTempletID );
+
+				CX2BuffFactorPtr ptrBuffFactorClone = ptrBuffFactor->GetClonePtr();
+				if ( NULL == ptrBuffFactorClone )
+					continue;
+
+				CX2Unit::WorldBuffRecord kRecord;
+				kRecord.m_iBuffTempletID		= kBuffInfo.m_kFactorInfo.m_BuffIdentity.m_eBuffTempletID;
+				kRecord.m_iAccumulationCount	= ( 0 == kBuffInfo.m_kFactorInfo.m_ucAccumulationCountNow ? 1 : kBuffInfo.m_kFactorInfo.m_ucAccumulationCountNow );
+				kRecord.m_iStartTime			= kBuffInfo.m_iBuffStartTime;
+				kRecord.m_iEndTime				= kBuffInfo.m_iBuffEndTime;
+				kRecord.m_bUnderOneHour			= ( 0 < kRecord.m_iEndTime - kRecord.m_iStartTime && kRecord.m_iEndTime - kRecord.m_iStartTime <= 3600 );
+
+				/// June applies the factor once per stack (slot 135 with level 1; its two trailing
+				/// June-only arguments have no March parameter). The last result decides.
+				bool bApplied = false;
+				for ( int iCount = 0; iCount < kRecord.m_iAccumulationCount; ++iCount )
+					bApplied = pCX2GUUser->SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( iFactorID ), 1 );
+
+				/// Kept when it applied, or when the unit is dead (ReInit re-applies it at revival)
+				if ( true == bApplied || pCX2GUUser->GetNowHp() <= 0.0f || CX2GameUnit::GUSI_DIE == pCX2GUUser->GetNowStateID() )
+				{
+					vecRecord.push_back( CX2Unit::WorldBuffRecordPair( iFactorID, kRecord ) );
+					vecWorldBuffFactorID.push_back( static_cast<BUFF_FACTOR_ID>( iFactorID ) );
+				}
+
+				if ( BTI_BUFF_PREMIUM_PC_ROOM == kRecord.m_iBuffTempletID )
+					bPcRoomBuffChanged = !bPcRoomBuffChanged;
+			}
+
+			CX2JuneBuffCapture::Line( "world buff (room): unit %I64d, %u sent, %u kept (June 326c9030)",
+				kEvent.m_iUnitUID, static_cast<UINT>( kEvent.m_vecActivateBuffList.size() ), static_cast<UINT>( vecRecord.size() ) );
+
+			if ( true == bPcRoomBuffChanged )	/// June: the PC-room buff came or went, so its socket options did too
+			{
+				pCX2GUUser->UpdateSocketDataAndEnchantData();
+				pCX2GUUser->UpdatePassiveAndActiveSkillState();	/// June user slot 176 (31ffe920)
+			}
+		}
+	}
+#else // SERV_IRUHADEV_JUNE_BUFF_PREMIUM
+
 	if ( NULL != g_pX2Game )
 	{
 		CX2GUUser* pCX2GUUser = g_pX2Game->GetUserUnitByUID( kEvent.m_iUnitUID );
@@ -566,6 +672,7 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT( IN HWND hW
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_BUFF_PREMIUM
 
 	return true;
 }
@@ -580,6 +687,109 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_NOT( IN HWND hWnd, IN U
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
 	KEGS_UPDATE_BUFF_INFO_NOT kEvent;
 	DeSerialize( pBuff, &kEvent );
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_PREMIUM
+	/// June 326c9530 (Phase 11). Recorded, not ported (no March home, see funcmap 326c9530):
+	/// BFI 500's comeback end time and "gone" UI close, BTI 1033 in June's guild agit
+	/// state, the PC-room remaining-time warning (g_pData+0x334, 326c5cf0), and the stack
+	/// count June's PushBuff (32489810) shows on the icon (March's gage has no count).
+	if( NULL != g_pX2Game )		/// in a room, EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT does this
+		return true;
+
+	if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return true;
+
+	{
+		CX2Unit* pCX2Unit = g_pData->GetMyUser()->GetSelectUnit();
+		vector<CX2Unit::WorldBuffRecordPair>& vecRecord = pCX2Unit->GetWorldBuffRecord();
+		vector<BUFF_FACTOR_ID>& vecWorldBuffFactorID = pCX2Unit->GetWorldBuffFactorID();
+		bool bPcRoomBuffChanged = false;
+
+		BOOST_FOREACH( const CX2Unit::WorldBuffRecordPair& kRecord, vecRecord )		/// erase every stored icon
+		{
+			CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( static_cast<UINT>( kRecord.first ) );
+			if ( NULL == ptrBuffFactor )	/// June dereferences it unchecked (JUNE_BUGS.md)
+			{
+				CX2JuneBuffCapture::Line( "world buff (village): stored factor %d is not loaded, its icon is not erased (June 326c9530 dereferences it unchecked)", kRecord.first );
+				continue;
+			}
+
+			if ( BTI_BUFF_PREMIUM_PC_ROOM == ptrBuffFactor->GetBuffTempletID() )
+				bPcRoomBuffChanged = true;
+
+#ifdef BUFF_ICON_UI
+			CX2BuffTempletPtr ptrBuffTemplet = CX2BuffTempletManager::GetInstance()->GetBuffTempletPtr( ptrBuffFactor->GetBuffTempletID() );
+			if( NULL != ptrBuffTemplet && true == ptrBuffTemplet->GetUseBuffIcon() )
+				CX2GageManager::GetInstance()->EraseBuff( pCX2Unit->GetUID(), ptrBuffTemplet->GetBuffTempletID(), ptrBuffTemplet->IsDeBuff() );
+#endif // BUFF_ICON_UI
+		}
+
+		vecRecord.clear();
+		vecWorldBuffFactorID.clear();
+
+		BOOST_FOREACH( const KBuffInfo& kBuffInfo, kEvent.m_vecActivateBuffList )
+		{
+			const int iFactorID = kBuffInfo.m_kFactorInfo.m_iFactorID;
+
+			if ( BFI_EMPTY_EXP_BUFF == iFactorID )
+				continue;
+			else if ( BFI_BUFF_RETURN_OF_HERO == iFactorID )
+				CX2EmblemManager::GetInstance()->PlayEmblem( CX2EmblemManager::EI_RETURN_OF_HERO, false );
+			else if ( BFI_SPA_STRONG_BUFF == iFactorID && CX2Main::XS_PVP_LOBBY == g_pMain->GetNowStateID() )
+				continue;
+
+			if ( BFI_BUFF_ROSE_EVENT_INT == iFactorID )		/// June plays the returning-hero emblem here too (JUNE_BUGS.md)
+				CX2EmblemManager::GetInstance()->PlayEmblem( CX2EmblemManager::EI_RETURN_OF_HERO, false );
+
+			if ( BTI_BUFF_PREMIUM_PC_ROOM == kBuffInfo.m_kFactorInfo.m_BuffIdentity.m_eBuffTempletID )
+				bPcRoomBuffChanged = !bPcRoomBuffChanged;
+
+			CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( static_cast<UINT>( iFactorID ) );
+			if ( NULL == ptrBuffFactor )
+			{
+				CX2JuneBuffCapture::Line( "world buff (village): factor %d (BTI %d) is not loaded, no icon (June 326c9530)",
+					iFactorID, kBuffInfo.m_kFactorInfo.m_BuffIdentity.m_eBuffTempletID );
+				continue;
+			}
+
+			CX2BuffFactorPtr ptrBuffFactorClone = ptrBuffFactor->GetClonePtr();
+			if ( NULL == ptrBuffFactorClone )
+				continue;
+
+#ifdef BUFF_ICON_UI
+			CX2BuffTempletPtr ptrBuffTemplet = CX2BuffTempletManager::GetInstance()->GetBuffTempletPtr( ptrBuffFactor->GetBuffTempletID() );
+			if ( NULL != ptrBuffTemplet && true == ptrBuffTemplet->GetUseBuffIcon() )
+			{
+#ifdef SERV_IRUHADEV_BUFF_DURATION_TEXT
+				CX2GageManager::GetInstance()->PushBuff( pCX2Unit->GetUID(), CX2GageUI::BuffIcon( ptrBuffTemplet->GetBuffTempletID(),ptrBuffTemplet->GetIconFileName(),
+					ptrBuffTemplet->GetIconKeyName() , ptrBuffTemplet->GetBuffName(), ptrBuffTemplet->GetBuffDesc(), ptrBuffTemplet->GetRemainDurationTime() ), ptrBuffTemplet->IsDeBuff() );
+#else
+				CX2GageManager::GetInstance()->PushBuff( pCX2Unit->GetUID(), CX2GageUI::BuffIcon( ptrBuffTemplet->GetBuffTempletID(),ptrBuffTemplet->GetIconFileName(),
+					ptrBuffTemplet->GetIconKeyName() , ptrBuffTemplet->GetBuffName(), ptrBuffTemplet->GetBuffDesc() ), ptrBuffTemplet->IsDeBuff() );
+#endif //SERV_IRUHADEV_BUFF_DURATION_TEXT
+			}
+#endif // BUFF_ICON_UI
+
+			CX2Unit::WorldBuffRecord kRecord;
+			kRecord.m_iBuffTempletID		= kBuffInfo.m_kFactorInfo.m_BuffIdentity.m_eBuffTempletID;
+			kRecord.m_iAccumulationCount	= ( 0 == kBuffInfo.m_kFactorInfo.m_ucAccumulationCountNow ? 1 : kBuffInfo.m_kFactorInfo.m_ucAccumulationCountNow );
+			kRecord.m_iStartTime			= kBuffInfo.m_iBuffStartTime;
+			kRecord.m_iEndTime				= kBuffInfo.m_iBuffEndTime;
+			kRecord.m_bUnderOneHour			= ( 0 < kRecord.m_iEndTime - kRecord.m_iStartTime && kRecord.m_iEndTime - kRecord.m_iStartTime <= 3600 );
+
+			vecRecord.push_back( CX2Unit::WorldBuffRecordPair( iFactorID, kRecord ) );
+			vecWorldBuffFactorID.push_back( static_cast<BUFF_FACTOR_ID>( iFactorID ) );
+		}
+
+		CX2JuneBuffCapture::Line( "world buff (village): %u sent, %u kept (June 326c9530)",
+			static_cast<UINT>( kEvent.m_vecActivateBuffList.size() ), static_cast<UINT>( vecRecord.size() ) );
+
+		pCX2Unit->ResetIncreaseSkillLevelByBuff();		/// June 323646a0
+
+		if ( true == bPcRoomBuffChanged )
+			pCX2Unit->ResetIncreaseSkillLevelBySocket();	/// June 3235a080( 0 ): the same skill walk (June's extra argument has no March parameter)
+	}
+#else // SERV_IRUHADEV_JUNE_BUFF_PREMIUM
 
 	if( NULL != g_pX2Game )		/// 룸 안에 있는데 해당 패킷이 날아오면, 동작 않시킴
 		return true;
@@ -697,6 +907,7 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_NOT( IN HWND hWnd, IN U
 
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_BUFF_PREMIUM
 
 	return true;
 }
@@ -996,6 +1207,26 @@ void CX2PremiumBuffManager::AddBuffInfo_LUA()
 
 void CX2PremiumBuffManager::OpenScriptFile( const wchar_t* wszScriptFileName_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_PREMIUM
+	/// June 3258c470 hands BuffTemplet.lua and then BuffTemplet_INT.lua to this loader (326c6e20).
+	/// The count line is how a pack is confirmed.
+	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(),  "BuffManager", this );
+
+	const UINT uiBefore = static_cast<UINT>( m_mapPremiumBuffTempletMap.size() );
+	const HRESULT hr = g_pKTDXApp->LoadAndDoMemory_ErrorCode( g_pKTDXApp->GetLuaBinder(), wszScriptFileName_ );
+	if ( FAILED( hr ) )
+	{
+		ErrorLogMsg( XEM_ERROR2, wszScriptFileName_ );
+		if ( HRESULT_FROM_WIN32( ERROR_FILE_NOT_FOUND ) == hr )
+			CX2JuneBuffCapture::Line( "%S not found: its premium buffs are absent this run. Pack march2014/update/data036/%S into data036.kom (June 3258c470)",
+				wszScriptFileName_, wszScriptFileName_ );
+		else
+			CX2JuneBuffCapture::Line( "%S did not run (hr 0x%08x) (June 3258c470)", wszScriptFileName_, static_cast<UINT>( hr ) );
+	}
+
+	CX2JuneBuffCapture::Line( "%S: %u premium buff(s) added, %u in total (June 326c6e20)", wszScriptFileName_,
+		static_cast<UINT>( m_mapPremiumBuffTempletMap.size() ) - uiBefore, static_cast<UINT>( m_mapPremiumBuffTempletMap.size() ) );
+#else // SERV_IRUHADEV_JUNE_BUFF_PREMIUM
 	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(),  "BuffManager", this );
 
     if ( g_pKTDXApp->LoadLuaTinker( wszScriptFileName_ ) == false )
@@ -1004,6 +1235,7 @@ void CX2PremiumBuffManager::OpenScriptFile( const wchar_t* wszScriptFileName_ )
 		ErrorLogMsg( XEM_ERROR2, wszScriptFileName_ );
 		//return false;
     }
+#endif SERV_IRUHADEV_JUNE_BUFF_PREMIUM
 }
 
 CX2PremiumBuffTempletPtr CX2PremiumBuffManager::GetPremiumBuffTempletPtr( const CX2PremiumBuffTemplet::BUFF_ID ePremiumBuffID_ )

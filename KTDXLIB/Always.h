@@ -5042,6 +5042,47 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-05
+// Description: June buff port Phase 11: premium/world buffs. Loads
+//              BuffTemplet_INT.lua after BuffTemplet.lua (June 3258c470) with
+//              a count line per file; June's world-buff handlers
+//              (EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT 326c9030, _NOT 326c9530):
+//              a per-unit record (factor, BTI, stack count, start, end) beside
+//              March's factor-ID list, each buff applied `count` times, June's
+//              skips and hooks; ReInit re-applies `count` times (32022380);
+//              June's GetIncreaseSkillLevelByBuff (323644a0).
+#define SERV_IRUHADEV_JUNE_BUFF_PREMIUM
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: Offline mode: the emulator owns item-granted premium buffs,
+//              as the March GameServer's SERV_SERVER_BUFF_SYSTEM does
+//              (KGSUser::ActivateItemBuff, KUserServerBuffManager): BuffTemplet
+//              .lua read the server's way, the item -> BTI groups, the
+//              STRENGTHENING_BODY lockout, wall-clock periods kept in
+//              els_db.sql (schema v14, unit_buff), end-at-leave/die/end-game,
+//              and EGS_UPDATE_BUFF_INFO(_IN_ROOM)_NOT at the server's trigger
+//              points. Such items no longer get Phase 19's USE_QUICK_SLOT_NOT.
+//              Requires SERV_IRUHADEV_OFFLINE.
+#define SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 11: stand-in for June's server-only
+//              BuffTemplet keys (user decision 2026-10-05). NOT_USE_IN_HENIR
+//              leaves the buff out of the room list in a Henir dungeon;
+//              NOT_USE_IN_PVE (June game type 4) and NOT_USE_IN_HUGE_BOSS_RAID
+//              are parsed and logged but never fire (March has neither mode).
+//              Requires SERV_IRUHADEV_OFFLINE_ITEM_BUFF.
+#define SERV_IRUHADEV_JUNE_BUFF_NOT_USE_IN
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
 // Description: June buff port Phase 9a: June's custom-function-by-buff
 //              engine. CX2CustomFunctionByBuff gets June's four extra hooks
 //              (AttackResultByType, NPC final damage, buff applied, erase),

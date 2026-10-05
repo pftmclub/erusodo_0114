@@ -593,6 +593,17 @@ enum BUFF_FACTOR_ID
 //	BFI_BUFF_2YEARS_EVENT_CN_DAMAGE_INC_DEC_UP		= 311,
 //	BFI_BUFF_2YEARS_EVENT_CN_ALL_IN_ONE				= 312,
 // #endif //SERV_BONUS_BUFF_SYSTEM	
+//{{ Iruha : 2026-10-05 // June buff port Phase 11 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_PREMIUM
+	BFI_BUFF_2013_DEFENSE_BUFF					= 195,	// June; skipped in PvP by the world-buff handler (326c9030)
+	BFI_BUFF_RETURN_OF_HERO_GLOBAL				= 500,	// June; its end time is the comeback end (326c9030/326c9530)
+	BFI_SPA_STRONG_BUFF							= 949,	// June; not shown in the PvP lobby (326c9530)
+	BFI_BUFF_ROSE_EVENT_INT						= 10060,	// June _INT; plays an emblem (326c9030/326c9530)
+#ifndef FIX_REFORM_ENTRY_POINT_7TH
+	BFI_BUFF_RETURN_OF_HERO						= 114,	// June: the village handler plays EI_RETURN_OF_HERO (326c9530); March names it only under FIX_REFORM_ENTRY_POINT_7TH (OFF)
+#endif FIX_REFORM_ENTRY_POINT_7TH
+#endif SERV_IRUHADEV_JUNE_BUFF_PREMIUM
+//}}
 };
 
 

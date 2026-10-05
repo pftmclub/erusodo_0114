@@ -672,6 +672,9 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 
 #ifdef BUFF_TEMPLET_SYSTEM	
 			g_pData->GetPremiumBuffManager()->OpenScriptFile( L"BuffTemplet.lua" );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_PREMIUM
+			g_pData->GetPremiumBuffManager()->OpenScriptFile( L"BuffTemplet_INT.lua" );	/// June 3258c470 @3258ec1f: always, right after BuffTemplet.lua
+#endif SERV_IRUHADEV_JUNE_BUFF_PREMIUM
 #endif BUFF_TEMPLET_SYSTEM
 
 #ifdef SERV_GLOBAL_MISSION_MANAGER

@@ -40,6 +40,9 @@
 #include "X2OfflineTitle.h"
 #include "X2OfflineCashShop.h"
 #include "X2OfflineIgnore.h"
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+#include "X2OfflineBuff.h"
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 
 class CX2OfflineServer : public IX2OfflineHook
 {
@@ -1097,6 +1100,20 @@ private:
 	void QuestOnEnterDungeon( KOfflineSession& kSes );
 	void QuestOnFindNPC( KOfflineSession& kSes, const std::vector< int >& vecNpcID );
 	void QuestOnLevelUp( KOfflineSession& kSes );
+
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	//////////////////////////////////////////////////////////////////////////
+	// The item-granted premium buffs (Handlers_Buff.cpp, X2OfflineBuff).
+
+	/// KGSUser::SendUpdateBuffInfo (GSUserFunction.cpp:17015): in a PvP / dungeon /
+	/// battle-field room the room-filtered list as EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT,
+	/// anywhere else the whole list as EGS_UPDATE_BUFF_INFO_NOT. bOnlyIfAny is the
+	/// field-change send's rule (GSUserField.cpp:215: only when non-empty).
+	void SendUpdateBuffInfo( KOfflineSession& kSes, bool bOnlyIfAny = false );
+
+	/// KGSUser::CheckBuffPeriod, on EGS_UPDATE_PLAY_STATUS_NOT's three-second beat.
+	void CheckBuffPeriod( KOfflineSession& kSes );
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 
 	/// A quest instance has just come into existence, from any of the four
 	/// routes that can create one. Ticks whatever is already true about where

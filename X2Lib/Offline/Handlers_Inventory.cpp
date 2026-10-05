@@ -920,6 +920,19 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 	}
 	//}}
 
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	// The buff items' pre-checks (GSUserInventory.cpp:4394-4468), before anything is
+	// eaten: the Arcanum lockout (STRENGTHENING_BODY) and the two temp-code guards.
+	{
+		int iBuffErr = NetError::NET_OK;
+		if( false == CX2OfflineBuff::Instance()->CheckUseItem( kSes.m_nSelectedUnitUID, kRow.m_iItemID, kReq.m_iTempCode, iBuffErr ) )
+		{
+			kAck.m_iOK = iBuffErr;
+			return Reply( kSes, EGS_USE_ITEM_IN_INVENTORY_ACK, kAck );
+		}
+	}
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+
 	//{{ Iruha : 2026-09-08 // phase 37 - the consume, which one family skips
 	// Every route-A item is eaten except the two Cobo Express passes: the live
 	// handler hands bNotDeleteItem into KInventory::UseItemInInventory for
@@ -976,6 +989,18 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 		pTemplet->GetNumSpecialAbility(), pTemplet->GetNumBuffFactorPtr() );
 
 	Reply( kSes, EGS_USE_ITEM_IN_INVENTORY_ACK, kAck );
+
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	// KGSUser::OnUseItemInInventory -> ActivateItemBuff (GSUserFunction.cpp:7366-7383),
+	// then the LoginServer round trip that ends in SendUpdateBuffInfo. A server buff
+	// item gets nothing else: the live server never sends it EGS_USE_QUICK_SLOT_NOT,
+	// so Phase 19's route below is skipped for it.
+	const bool bServerBuffItem =
+		CX2OfflineBuff::Instance()->ActivateItemBuff( kSes.m_nSelectedUnitUID, kRow.m_iItemID, (int)pTemplet->GetNumBuffFactorPtr() );
+
+	if( true == bServerBuffItem )
+		SendUpdateBuffInfo( kSes );
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 
 	//{{ Iruha : 2026-09-08 // phase 37 - inventory expansion, and the pet skill
 	// Both are effects the ACK cannot carry, so both follow it - the same
@@ -1081,8 +1106,13 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 	// effect: Handler_EGS_USE_QUICK_SLOT_NOT's default branch is an
 	// ASSERT( !L"Can not use this item in this State" ), and an item with no
 	// ability and no buff factor would only add a "you used X" chat line.
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	if( S_ROOM == kSes.m_eState && NULL != pTemplet && false == bServerBuffItem &&
+		( 0 < pTemplet->GetNumSpecialAbility() || 0 < pTemplet->GetNumBuffFactorPtr() ) )
+#else // SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 	if( S_ROOM == kSes.m_eState && NULL != pTemplet &&
 		( 0 < pTemplet->GetNumSpecialAbility() || 0 < pTemplet->GetNumBuffFactorPtr() ) )
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 	{
 		KEGS_USE_QUICK_SLOT_NOT kNot;
 		kNot.m_UnitUID				= kSes.m_nSelectedUnitUID;
@@ -3186,3 +3216,684 @@ bool CX2OfflineServer::Handler_EGS_RESOLVE_ITEM_REQ( KOfflineSession& kSes, cons
 }
 
 #endif SERV_IRUHADEV_OFFLINE
+
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+#ifdef SERV_IRUHADEV_OFFLINE
+//////////////////////////////////////////////////////////////////////////
+// June buff port Phase 11: the item-granted premium buffs (X2OfflineBuff.h).
+// Folded into this file (the item-use handler's) so no new .cpp has to carry an
+// unflagged PCH include.
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// The ids the server names. CXSLItem / CXSLBuffManager are server headers, so the
+// values are carried here with the server's own names (Common/X2Data/XSLItem.h:
+// 1017-1038, 1152-1156; XSLBuffManager.h:26-37, 94-101, 156-161).
+
+namespace
+{
+	enum
+	{
+		// buff templet ids
+		BTI_BUFF_PROTECTION_OF_NUT					= 109,
+		BTI_BUFF_PROTECTION_OF_PTAH					= 110,
+		BTI_BUFF_PROTECTION_OF_LAHEL				= 111,
+		BTI_BUFF_PROTECTION_OF_ZACHIEL				= 112,
+		BTI_BUFF_BELSSING_OF_SERAPHIM				= 113,
+		BTI_BUFF_BELSSING_OF_GEB					= 114,
+		BTI_BUFF_BELSSING_OF_AMON					= 115,
+		BTI_BUFF_BELSSING_OF_CRONOS					= 116,
+		BTI_BUFF_STRENGTHENING_BODY					= 117,
+		BTI_SRV_BUFF_FIELD_DEFENCE					= 187,	///< OnLeaveBattleField removes it always
+		BTI_BUFF_ELIXIR_GIANT_POTION				= 191,	///< .. 198, SERV_NEW_DEFENCE_DUNGEON (ON)
+		BTI_SRV_BUFF_ELIXIR_BIG_HAND_POTION			= 198,
+		BTI_SRV_BUFF_RURIEL_MANA_ENERGIZE_POTION	= 1320,	///< SERV_EVENT_RURIEL_MANA_ENERGIZE_POTION (ON)
+
+		// item ids
+		SI_ARCANUM_NUT								= 78520,
+		SI_ARCANUM_PTAH								= 78530,
+		SI_ARCANUM_RACHEL							= 78540,
+		SI_ARCANUM_ZADKIEL							= 78550,
+		SI_ELIXIR_SERAPHIM							= 78560,
+		SI_ELIXIR_GEB								= 78570,
+		SI_ELIXIR_AMON								= 78580,
+		SI_ELIXIR_CRONOS							= 78590,
+		SI_ELIXIR_GIANT_POTION						= 78894,	///< .. 78901 -> BTI 191 .. 198
+		SI_ELIXIR_BIG_HAND_POTION					= 78901,
+		EI_BUFF_RURIEL_MANA_ENERGIZE_POTION			= 60008058,
+	};
+
+	/// Which group an item belongs to and what it grants. 0 = not a server buff item.
+	/// The Heretic pair (85003830/85003831 -> 1318/1319) is OFF for US
+	/// (SERV_EVENT_ARA_NEW_CHAR_THE_ESSENCE_OF_HERETIC commented out).
+	enum ITEM_BUFF_GROUP { IBG_NONE = 0, IBG_ARCANUM, IBG_ELIXIR };
+
+	ITEM_BUFF_GROUP ItemBuffOf( int iItemID, OUT int& iBuffID )
+	{
+		iBuffID = 0;
+
+		switch( iItemID )
+		{
+		case SI_ARCANUM_NUT:		iBuffID = BTI_BUFF_PROTECTION_OF_NUT;		return IBG_ARCANUM;
+		case SI_ARCANUM_PTAH:		iBuffID = BTI_BUFF_PROTECTION_OF_PTAH;		return IBG_ARCANUM;
+		case SI_ARCANUM_RACHEL:		iBuffID = BTI_BUFF_PROTECTION_OF_LAHEL;		return IBG_ARCANUM;
+		case SI_ARCANUM_ZADKIEL:	iBuffID = BTI_BUFF_PROTECTION_OF_ZACHIEL;	return IBG_ARCANUM;
+		case SI_ELIXIR_SERAPHIM:	iBuffID = BTI_BUFF_BELSSING_OF_SERAPHIM;	return IBG_ELIXIR;
+		case SI_ELIXIR_GEB:			iBuffID = BTI_BUFF_BELSSING_OF_GEB;			return IBG_ELIXIR;
+		case SI_ELIXIR_AMON:		iBuffID = BTI_BUFF_BELSSING_OF_AMON;		return IBG_ELIXIR;
+		case SI_ELIXIR_CRONOS:		iBuffID = BTI_BUFF_BELSSING_OF_CRONOS;		return IBG_ELIXIR;
+		case EI_BUFF_RURIEL_MANA_ENERGIZE_POTION:
+									iBuffID = BTI_SRV_BUFF_RURIEL_MANA_ENERGIZE_POTION;	return IBG_ELIXIR;
+		default:
+			break;
+		}
+
+		if( SI_ELIXIR_GIANT_POTION <= iItemID && iItemID <= SI_ELIXIR_BIG_HAND_POTION )
+		{
+			iBuffID = BTI_BUFF_ELIXIR_GIANT_POTION + ( iItemID - SI_ELIXIR_GIANT_POTION );
+			return IBG_ELIXIR;
+		}
+
+		return IBG_NONE;
+	}
+
+	/// The Elixir group's buffs: 113-116, 191-198, 1320 (GSUserFunction.cpp:17232-17254).
+	bool IsElixirGroupBuff( int iBuffID )
+	{
+		return ( BTI_BUFF_BELSSING_OF_SERAPHIM <= iBuffID && iBuffID <= BTI_BUFF_BELSSING_OF_CRONOS ) ||
+			   ( BTI_BUFF_ELIXIR_GIANT_POTION <= iBuffID && iBuffID <= BTI_SRV_BUFF_ELIXIR_BIG_HAND_POTION ) ||
+			   BTI_SRV_BUFF_RURIEL_MANA_ENERGIZE_POTION == iBuffID;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+CX2OfflineBuff* CX2OfflineBuff::ms_pInstance = NULL;
+
+CX2OfflineBuff* CX2OfflineBuff::Instance()
+{
+	if( NULL == ms_pInstance )
+		ms_pInstance = new CX2OfflineBuff;
+
+	return ms_pInstance;
+}
+
+void CX2OfflineBuff::Release()
+{
+	SAFE_DELETE( ms_pInstance );
+}
+
+CX2OfflineBuff::CX2OfflineBuff()
+: m_bLoadAttempted( false )
+, m_iRowsThisFile( 0 )
+{
+}
+
+CX2OfflineBuff::KTemplet::KTemplet()
+: m_iBuffID( 0 )
+, m_fBuffPeriodSecond( 0.0 )
+, m_iFactorID( 0 )
+, m_bEndBuffAtTheLeaveDungeonRoom( false )
+, m_bEndBuffAtTheEndDungeonGame( false )
+, m_bEndBuffAtTheLeavePvpRoom( false )
+, m_bEndBuffAtTheEndPvpGame( false )
+, m_bEndBuffAtTheUserDied( false )
+, m_bKeepBuffAtTheUserLogOut( false )
+, m_bEndBuffAtTheLeaveBattleFieldRoom( false )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NOT_USE_IN
+, m_bNotUseInPve( false )
+, m_bNotUseInHenir( false )
+, m_bNotUseInHugeBossRaid( false )
+#endif SERV_IRUHADEV_JUNE_BUFF_NOT_USE_IN
+{
+}
+
+bool CX2OfflineBuff::KTemplet::CheckRoomType( int iRoomType ) const
+{
+	for( size_t i = 0; i < m_vecRoomType.size(); ++i )
+	{
+		if( m_vecRoomType[i] == iRoomType )
+			return true;
+	}
+
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Loading
+
+void CX2OfflineBuff::EnsureLoaded()
+{
+	if( true == m_bLoadAttempted )
+		return;
+
+	m_bLoadAttempted = true;
+
+	if( NULL == g_pKTDXApp || NULL == g_pKTDXApp->GetLuaBinder() ||
+		NULL == g_pKTDXApp->GetLuaBinder()->GetLuaState() )
+	{
+		CX2OfflineLog::Server( L"BUFF     ERROR engine not ready - no premium buff can be activated this run" );
+		return;
+	}
+
+	lua_State* pLuaState = g_pKTDXApp->GetLuaBinder()->GetLuaState();
+
+	// The global the files call into. The client's CX2PremiumBuffManager binds the
+	// same name (X2PremiumBuffManager.cpp OpenScriptFile), so it is taken for these
+	// two runs and handed back below.
+	lua_tinker::class_add< CX2OfflineBuff >( pLuaState, "CX2OfflineBuff" );
+	lua_tinker::class_def< CX2OfflineBuff >( pLuaState, "AddBuffInfo", &CX2OfflineBuff::AddBuffInfo_LUA );
+	lua_tinker::decl( pLuaState, "BuffManager", this );
+
+	// The GameServer loads BuffTemplet.lua (GSSimLayer.cpp:1112); its _INT twin is
+	// the June client's (3258c470), staged beside it.
+	RunScript( L"BuffTemplet.lua" );
+	RunScript( L"BuffTemplet_INT.lua" );
+
+	if( NULL != g_pData && NULL != g_pData->GetPremiumBuffManager() )
+		lua_tinker::decl( pLuaState, "BuffManager", g_pData->GetPremiumBuffManager() );
+
+	CX2OfflineLog::Server( L"BUFF     %u premium buff templet(s) loaded", (unsigned int)m_mapTemplet.size() );
+}
+
+bool CX2OfflineBuff::RunScript( const wchar_t* wszFileName )
+{
+	m_iRowsThisFile = 0;
+
+	const HRESULT hr = g_pKTDXApp->LoadAndDoMemory_ErrorCode( g_pKTDXApp->GetLuaBinder(), wszFileName );
+	if( FAILED( hr ) )
+	{
+		if( HRESULT_FROM_WIN32( ERROR_FILE_NOT_FOUND ) == hr )
+			CX2OfflineLog::Server( L"BUFF     ERROR '%s' not found in any .kom or on disk - pack"
+				L" march2014/update/data036/%s into data036.kom; its buffs cannot be activated", wszFileName, wszFileName );
+		else
+			CX2OfflineLog::Server( L"BUFF     ERROR '%s' did not run (hr 0x%08x)", wszFileName, (unsigned int)hr );
+
+		return false;
+	}
+
+	CX2OfflineLog::Server( L"BUFF     '%s' loaded %d row(s)", wszFileName, m_iRowsThisFile );
+	return true;
+}
+
+bool CX2OfflineBuff::AddBuffInfo_LUA()
+{
+	// The table argument is on the Lua stack; KLuaManager reads its fields the way
+	// CXSLBuffManager::AddBuffInfo_LUA does (XSLBuffManager.cpp:34-126).
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+
+	KTemplet kTemplet;
+
+	LUA_GET_VALUE( luaManager, "m_eBuffID",				kTemplet.m_iBuffID,				0 );
+	if( kTemplet.m_iBuffID <= 0 )
+	{
+		// LUA_GET_VALUE_RETURN_ENUM( ..., goto end_proc ): the row is dropped and logged.
+		CX2OfflineLog::Server( L"BUFF     a BuffTemplet row has no resolvable m_eBuffID - dropped, as the server does" );
+		return false;
+	}
+
+	float fPeriod = 0.f;
+	LUA_GET_VALUE( luaManager, "m_fBuffPeriodSecond",	fPeriod,						0.f );
+	kTemplet.m_fBuffPeriodSecond = (double)fPeriod;
+
+	LUA_GET_VALUE( luaManager, "m_bEndBuffAtTheLeaveDungeonRoom",		kTemplet.m_bEndBuffAtTheLeaveDungeonRoom,		false );
+	LUA_GET_VALUE( luaManager, "m_bEndBuffAtTheEndDungeonGame",			kTemplet.m_bEndBuffAtTheEndDungeonGame,			false );
+	LUA_GET_VALUE( luaManager, "m_bEndBuffAtTheLeavePvpRoom",			kTemplet.m_bEndBuffAtTheLeavePvpRoom,			false );
+	LUA_GET_VALUE( luaManager, "m_bEndBuffAtTheEndPvpGame",				kTemplet.m_bEndBuffAtTheEndPvpGame,				false );
+	LUA_GET_VALUE( luaManager, "m_bEndBuffAtTheUserDied",				kTemplet.m_bEndBuffAtTheUserDied,				false );
+	LUA_GET_VALUE( luaManager, "m_bKeepBuffAtTheUserLogOut",			kTemplet.m_bKeepBuffAtTheUserLogOut,			false );
+	LUA_GET_VALUE( luaManager, "m_bEndBuffAtTheLeaveBattleFieldRoom",	kTemplet.m_bEndBuffAtTheLeaveBattleFieldRoom,	false );
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NOT_USE_IN
+	LUA_GET_VALUE( luaManager, "NOT_USE_IN_PVE",				kTemplet.m_bNotUseInPve,			false );
+	LUA_GET_VALUE( luaManager, "NOT_USE_IN_HENIR",				kTemplet.m_bNotUseInHenir,			false );
+	LUA_GET_VALUE( luaManager, "NOT_USE_IN_HUGE_BOSS_RAID",		kTemplet.m_bNotUseInHugeBossRaid,	false );
+#endif SERV_IRUHADEV_JUNE_BUFF_NOT_USE_IN
+
+	if( true == luaManager.BeginTable( "SOCKET_OPTION" ) )
+	{
+		int iIndex = 1;
+		int iSocketOption = -1;
+		while( true == luaManager.GetValue( iIndex, iSocketOption ) )
+		{
+			if( iSocketOption > 0 )
+				kTemplet.m_vecOption.push_back( iSocketOption );
+
+			++iIndex;
+		}
+		luaManager.EndTable();
+	}
+
+	if( true == luaManager.BeginTable( "BUFF_FACTOR" ) )
+	{
+		int iFactorID = -1;
+		if( true == luaManager.GetValue( 1, iFactorID ) && iFactorID > 0 )
+			kTemplet.m_iFactorID = iFactorID;
+
+		luaManager.EndTable();
+	}
+
+	if( true == luaManager.BeginTable( "USING_BUFF_ROOM_TYPE" ) )
+	{
+		int iIndex = 1;
+		int iRoomType = -1;
+		while( true == luaManager.GetValue( iIndex, iRoomType ) )
+		{
+			if( 0 <= iRoomType )
+				kTemplet.m_vecRoomType.push_back( iRoomType );
+
+			++iIndex;
+		}
+		luaManager.EndTable();
+	}
+
+	// std::map::insert keeps the first row for an id, as m_mapBuffList.insert does.
+	m_mapTemplet.insert( std::make_pair( kTemplet.m_iBuffID, kTemplet ) );
+	++m_iRowsThisFile;
+
+	return true;
+}
+
+const CX2OfflineBuff::KTemplet* CX2OfflineBuff::GetTemplet( int iBuffID )
+{
+	EnsureLoaded();
+
+	std::map< int, KTemplet >::const_iterator mit = m_mapTemplet.find( iBuffID );
+	return ( m_mapTemplet.end() != mit ) ? &mit->second : NULL;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// The active buffs (KUserServerBuffManager), backed by unit_buff
+
+bool CX2OfflineBuff::IsBuffActivated( UidType nUnitUID, int iBuffID )
+{
+	std::vector< KOfflineBuffRow > vecRow;
+	CX2OfflineDB::Instance()->LoadUnitBuffs( nUnitUID, vecRow );
+
+	for( size_t i = 0; i < vecRow.size(); ++i )
+	{
+		if( vecRow[i].m_iBuffID == iBuffID )
+			return true;
+	}
+
+	return false;
+}
+
+bool CX2OfflineBuff::ActivateBuff( UidType nUnitUID, int iBuffID, __int64 tUseTime )
+{
+	const KTemplet* pTemplet = GetTemplet( iBuffID );
+	if( NULL == pTemplet )
+	{
+		CX2OfflineLog::Server( L"BUFF     ERROR buff %d is not in BuffTemplet.lua - not activated (the server logs and refuses too)", iBuffID );
+		return false;
+	}
+
+	// Already active: refused, not refreshed (UserServerBuffManager.cpp:61-64).
+	if( true == IsBuffActivated( nUnitUID, iBuffID ) )
+	{
+		CX2OfflineLog::Server( L"BUFF     buff %d is already active - not refreshed, as the server does", iBuffID );
+		return false;
+	}
+
+	// The factor the client will be told to apply has to be the one the client
+	// loaded for this buff; a mismatch would hand the player some other buff.
+	// (Not a server check - the server cannot see the client's factor table.)
+	if( pTemplet->m_iFactorID <= 0 )
+	{
+		CX2OfflineLog::Server( L"BUFF     ERROR buff %d has no BUFF_FACTOR in BuffTemplet.lua - not activated", iBuffID );
+		return false;
+	}
+
+	if( NULL != CX2BuffTempletManager::GetInstance() )
+	{
+		CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( (UINT)pTemplet->m_iFactorID );
+		if( NULL == ptrBuffFactor )
+		{
+			CX2OfflineLog::Server( L"BUFF     ERROR buff %d names factor %d, which the client has not loaded"
+				L" (BattleFieldBuffFactor.lua) - not activated", iBuffID, pTemplet->m_iFactorID );
+			return false;
+		}
+
+		if( (int)ptrBuffFactor->GetBuffTempletID() != iBuffID )
+		{
+			CX2OfflineLog::Server( L"BUFF     ERROR buff %d names factor %d, which the client loaded as buff %d"
+				L" - BuffTemplet.lua and BattleFieldBuffFactor.lua disagree; not activated",
+				iBuffID, pTemplet->m_iFactorID, (int)ptrBuffFactor->GetBuffTempletID() );
+			return false;
+		}
+	}
+
+	KOfflineBuffRow kRow;
+	kRow.m_iBuffID		= iBuffID;
+	kRow.m_iFactorID	= pTemplet->m_iFactorID;
+	kRow.m_iStartTime	= ( 0 == tUseTime ) ? _time64( NULL ) : tUseTime;
+	kRow.m_iEndTime		= ( 0.0 == pTemplet->m_fBuffPeriodSecond )
+						? kRow.m_iStartTime
+						: kRow.m_iStartTime + (__int64)pTemplet->m_fBuffPeriodSecond;
+
+	if( false == CX2OfflineDB::Instance()->SaveUnitBuff( nUnitUID, kRow ) )
+		return false;
+
+	CX2OfflineLog::Server( L"BUFF     activated buff %d (factor %d) for %I64d s",
+		iBuffID, kRow.m_iFactorID, kRow.m_iEndTime - kRow.m_iStartTime );
+
+	return true;
+}
+
+bool CX2OfflineBuff::DeactivateBuff( UidType nUnitUID, int iBuffID )
+{
+	// KGSUser::DeactivateBuff: silent when the templet is unknown or the buff is not active.
+	if( NULL == GetTemplet( iBuffID ) || false == IsBuffActivated( nUnitUID, iBuffID ) )
+		return false;
+
+	if( false == CX2OfflineDB::Instance()->DeleteUnitBuff( nUnitUID, iBuffID ) )
+		return false;
+
+	CX2OfflineLog::Server( L"BUFF     deactivated buff %d", iBuffID );
+	return true;
+}
+
+void CX2OfflineBuff::GetBuffList( UidType nUnitUID, int iRoomType, bool bHenir, OUT std::vector< KBuffInfo >& vecOut )
+{
+	vecOut.clear();
+
+	std::vector< KOfflineBuffRow > vecRow;
+	CX2OfflineDB::Instance()->LoadUnitBuffs( nUnitUID, vecRow );
+
+	for( size_t i = 0; i < vecRow.size(); ++i )
+	{
+		const KTemplet* pTemplet = GetTemplet( vecRow[i].m_iBuffID );
+		if( NULL == pTemplet )
+			continue;
+
+		if( 0 <= iRoomType && false == pTemplet->CheckRoomType( iRoomType ) )
+			continue;
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NOT_USE_IN
+		// The stand-in: NOT_USE_IN_HENIR keeps a buff out of a Henir dungeon's list.
+		// NOT_USE_IN_PVE / _HUGE_BOSS_RAID name June-only modes and never fire here.
+		if( 0 <= iRoomType && true == bHenir && true == pTemplet->m_bNotUseInHenir )
+		{
+			CX2OfflineLog::Server( L"BUFF     buff %d is NOT_USE_IN_HENIR - left out of this Henir dungeon's list", vecRow[i].m_iBuffID );
+			continue;
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_NOT_USE_IN
+
+		// What KGSUser::ActivateBuff fills; everything else stays at its default.
+		KBuffInfo kBuff;
+		kBuff.m_kFactorInfo.m_BuffIdentity.m_eBuffTempletID	= vecRow[i].m_iBuffID;
+		kBuff.m_kFactorInfo.m_iFactorID						= vecRow[i].m_iFactorID;
+		kBuff.m_iBuffStartTime								= vecRow[i].m_iStartTime;
+		kBuff.m_iBuffEndTime								= vecRow[i].m_iEndTime;
+
+		vecOut.push_back( kBuff );
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Item use
+
+bool CX2OfflineBuff::CheckUseItem( UidType nUnitUID, int iItemID, __int64 iTempCode, OUT int& iErr )
+{
+	iErr = NetError::NET_OK;
+
+	int iBuffID = 0;
+	const ITEM_BUFF_GROUP eGroup = ItemBuffOf( iItemID, iBuffID );
+
+	if( IBG_ARCANUM == eGroup )
+	{
+		// GSUserInventory.cpp:4394-4400, unconditional: the "limit of the body" debuff.
+		if( true == IsBuffActivated( nUnitUID, BTI_BUFF_STRENGTHENING_BODY ) )
+		{
+			iErr = NetError::ERR_USE_ITEM_IN_INVENTORY_07;
+			CX2OfflineLog::Server( L"BUFF     refused Arcanum %d - STRENGTHENING_BODY (117) is active", iItemID );
+			return false;
+		}
+
+		// :4402-4415, only when the client sent a temp code (its rapid-click guard).
+		if( 0 != iTempCode )
+		{
+			for( int iID = BTI_BUFF_PROTECTION_OF_NUT; iID <= BTI_BUFF_PROTECTION_OF_ZACHIEL; ++iID )
+			{
+				if( true == IsBuffActivated( nUnitUID, iID ) )
+				{
+					iErr = NetError::ERR_USE_ITEM_IN_INVENTORY_07;
+					CX2OfflineLog::Server( L"BUFF     refused Arcanum %d - Arcanum buff %d is active (temp code %I64d)", iItemID, iID, iTempCode );
+					return false;
+				}
+			}
+		}
+	}
+	else if( IBG_ELIXIR == eGroup && 0 != iTempCode )
+	{
+		// :4436-4468: any Elixir-group buff active.
+		std::vector< KOfflineBuffRow > vecRow;
+		CX2OfflineDB::Instance()->LoadUnitBuffs( nUnitUID, vecRow );
+
+		for( size_t i = 0; i < vecRow.size(); ++i )
+		{
+			if( true == IsElixirGroupBuff( vecRow[i].m_iBuffID ) )
+			{
+				iErr = NetError::ERR_USE_ITEM_IN_INVENTORY_06;
+				CX2OfflineLog::Server( L"BUFF     refused Elixir %d - Elixir buff %d is active (temp code %I64d)", iItemID, vecRow[i].m_iBuffID, iTempCode );
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool CX2OfflineBuff::ActivateItemBuff( UidType nUnitUID, int iItemID, int iNumItemBuffFactor )
+{
+	int iBuffID = 0;
+	const ITEM_BUFF_GROUP eGroup = ItemBuffOf( iItemID, iBuffID );
+
+	if( IBG_NONE == eGroup )
+		return false;
+
+	// CXSLItemManager::IsBuffItem: the item's own BUFF_FACTOR (Item.lua) is set.
+	if( iNumItemBuffFactor <= 0 )
+	{
+		CX2OfflineLog::Server( L"BUFF     item %d has no BUFF_FACTOR in Item.lua - not a buff item, as the server judges it", iItemID );
+		return false;
+	}
+
+	EnsureLoaded();
+
+	const __int64 tNow = _time64( NULL );
+
+	if( IBG_ARCANUM == eGroup )
+	{
+		// GSUserFunction.cpp:17151-17169
+		for( int iID = BTI_BUFF_PROTECTION_OF_NUT; iID <= BTI_BUFF_PROTECTION_OF_ZACHIEL; ++iID )
+			DeactivateBuff( nUnitUID, iID );
+
+		ActivateBuff( nUnitUID, iBuffID, tNow );
+		ActivateBuff( nUnitUID, BTI_BUFF_STRENGTHENING_BODY, tNow );
+	}
+	else
+	{
+		// GSUserFunction.cpp:17232-17257
+		for( int iID = BTI_BUFF_BELSSING_OF_SERAPHIM; iID <= BTI_BUFF_BELSSING_OF_CRONOS; ++iID )
+			DeactivateBuff( nUnitUID, iID );
+		for( int iID = BTI_BUFF_ELIXIR_GIANT_POTION; iID <= BTI_SRV_BUFF_ELIXIR_BIG_HAND_POTION; ++iID )
+			DeactivateBuff( nUnitUID, iID );
+		DeactivateBuff( nUnitUID, BTI_SRV_BUFF_RURIEL_MANA_ENERGIZE_POTION );
+
+		ActivateBuff( nUnitUID, iBuffID, tNow );
+	}
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// The end flags and the period
+
+bool CX2OfflineBuff::OnLeaveRoom( UidType nUnitUID, int iRoomType )
+{
+	std::vector< KOfflineBuffRow > vecRow;
+	CX2OfflineDB::Instance()->LoadUnitBuffs( nUnitUID, vecRow );
+
+	bool bChanged = false;
+
+	// The hard-coded removals (Rally of Hero 118-121 on a dungeon leave) name buffs
+	// only the server's party system grants, which offline never activates.
+	if( (int)CX2Room::RT_BATTLE_FIELD == iRoomType )
+		bChanged |= DeactivateBuff( nUnitUID, BTI_SRV_BUFF_FIELD_DEFENCE );		///< OnLeaveBattleField, always
+
+	for( size_t i = 0; i < vecRow.size(); ++i )
+	{
+		const KTemplet* pTemplet = GetTemplet( vecRow[i].m_iBuffID );
+		if( NULL == pTemplet )
+			continue;
+
+		bool bEnd = false;
+		if( (int)CX2Room::RT_DUNGEON == iRoomType )				bEnd = pTemplet->m_bEndBuffAtTheLeaveDungeonRoom;
+		else if( (int)CX2Room::RT_BATTLE_FIELD == iRoomType )	bEnd = pTemplet->m_bEndBuffAtTheLeaveBattleFieldRoom;
+		else if( (int)CX2Room::RT_PVP == iRoomType )			bEnd = pTemplet->m_bEndBuffAtTheLeavePvpRoom;
+
+		if( true == bEnd )
+			bChanged |= DeactivateBuff( nUnitUID, vecRow[i].m_iBuffID );
+	}
+
+	return bChanged;
+}
+
+bool CX2OfflineBuff::OnEndDungeonGame( UidType nUnitUID )
+{
+	std::vector< KOfflineBuffRow > vecRow;
+	CX2OfflineDB::Instance()->LoadUnitBuffs( nUnitUID, vecRow );
+
+	bool bChanged = false;
+
+	for( size_t i = 0; i < vecRow.size(); ++i )
+	{
+		const KTemplet* pTemplet = GetTemplet( vecRow[i].m_iBuffID );
+		if( NULL != pTemplet && true == pTemplet->m_bEndBuffAtTheEndDungeonGame )
+			bChanged |= DeactivateBuff( nUnitUID, vecRow[i].m_iBuffID );
+	}
+
+	return bChanged;
+}
+
+bool CX2OfflineBuff::OnUserDied( UidType nUnitUID )
+{
+	std::vector< KOfflineBuffRow > vecRow;
+	CX2OfflineDB::Instance()->LoadUnitBuffs( nUnitUID, vecRow );
+
+	bool bChanged = false;
+
+	for( size_t i = 0; i < vecRow.size(); ++i )
+	{
+		const KTemplet* pTemplet = GetTemplet( vecRow[i].m_iBuffID );
+		if( NULL != pTemplet && true == pTemplet->m_bEndBuffAtTheUserDied )
+			bChanged |= DeactivateBuff( nUnitUID, vecRow[i].m_iBuffID );
+	}
+
+	return bChanged;
+}
+
+bool CX2OfflineBuff::CheckBuffPeriod( UidType nUnitUID )
+{
+	std::vector< KOfflineBuffRow > vecRow;
+	CX2OfflineDB::Instance()->LoadUnitBuffs( nUnitUID, vecRow );
+
+	if( true == vecRow.empty() )
+		return false;
+
+	const __int64 tNow = _time64( NULL );
+	bool bChanged = false;
+
+	for( size_t i = 0; i < vecRow.size(); ++i )
+	{
+		// UserServerBuffManager.cpp:272-303: a period-0 buff (start == end) never
+		// expires; otherwise strictly past the end.
+		if( vecRow[i].m_iStartTime == vecRow[i].m_iEndTime )
+			continue;
+
+		if( tNow > vecRow[i].m_iEndTime )
+		{
+			CX2OfflineLog::Server( L"BUFF     buff %d expired", vecRow[i].m_iBuffID );
+			bChanged |= DeactivateBuff( nUnitUID, vecRow[i].m_iBuffID );
+		}
+	}
+
+	return bChanged;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: Offline mode - sending the item-granted premium buffs (June buff
+//              port Phase 11, SERV_IRUHADEV_OFFLINE_ITEM_BUFF). The buff state
+//              itself is X2OfflineBuff's; this is the GameServer's
+//              KGSUser::SendUpdateBuffInfo and the 1-second CheckBuffPeriod tick,
+//              which here rides EGS_UPDATE_PLAY_STATUS_NOT's 3-second beat - the
+//              only regular beat the emulator has (Handlers_Field.cpp).
+//
+//              Live, every buff change goes GameServer -> LoginServer
+//              (ELG_UPDATE_USER_UNIT_BUFF_INFO_REQ) -> ACK -> SendUpdateBuffInfo;
+//              offline the LoginServer round trip collapses into calling this
+//              directly after the change.
+//////////////////////////////////////////////////////////////////////////
+
+
+C_ASSERT( 0 == CX2Room::RT_PVP && 1 == CX2Room::RT_DUNGEON && 7 == CX2Room::RT_BATTLE_FIELD );	///< = the server's RT_* = BuffTemplet.lua's URT_*
+
+void CX2OfflineServer::SendUpdateBuffInfo( KOfflineSession& kSes, bool bOnlyIfAny )
+{
+	if( 0 == kSes.m_nSelectedUnitUID )
+		return;
+
+	CX2OfflineBuff* pBuff = CX2OfflineBuff::Instance();
+
+	const int iRoomType = ( S_ROOM == kSes.m_eState && true == m_kRoom.m_bActive ) ? (int)m_kRoom.m_kInfo.m_RoomType : -1;
+
+	if( (int)CX2Room::RT_PVP == iRoomType || (int)CX2Room::RT_DUNGEON == iRoomType || (int)CX2Room::RT_BATTLE_FIELD == iRoomType )
+	{
+		const bool bHenir = ( (int)CX2Room::RT_DUNGEON == iRoomType &&
+			true == CX2Dungeon::IsHenirDungeon( (SEnum::DUNGEON_ID)m_kRoom.m_kInfo.m_iDungeonID ) );
+
+		// m_kGameStat is the unbuffed stat the CenterServer stores on the room user;
+		// no client handler reads it (March X2PremiumBuffManager.cpp, June 326c9030),
+		// so it goes out at its default.
+		KEGS_UPDATE_BUFF_INFO_IN_ROOM_NOT kNot;
+		kNot.m_iUnitUID = kSes.m_nSelectedUnitUID;
+		pBuff->GetBuffList( kSes.m_nSelectedUnitUID, iRoomType, bHenir, kNot.m_vecActivateBuffList );
+
+		if( true == bOnlyIfAny && true == kNot.m_vecActivateBuffList.empty() )
+			return;
+
+		CX2OfflineLog::Server( L"BUFF     sent %u buff(s) in room type %d%s",
+			(unsigned int)kNot.m_vecActivateBuffList.size(), iRoomType, true == bHenir ? L" (Henir)" : L"" );
+
+		Reply( kSes, EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT, kNot );
+	}
+	else
+	{
+		KEGS_UPDATE_BUFF_INFO_NOT kNot;
+		pBuff->GetBuffList( kSes.m_nSelectedUnitUID, -1, false, kNot.m_vecActivateBuffList );
+
+		if( true == bOnlyIfAny && true == kNot.m_vecActivateBuffList.empty() )
+			return;
+
+		CX2OfflineLog::Server( L"BUFF     sent %u buff(s) outside a room", (unsigned int)kNot.m_vecActivateBuffList.size() );
+
+		Reply( kSes, EGS_UPDATE_BUFF_INFO_NOT, kNot );
+	}
+}
+
+void CX2OfflineServer::CheckBuffPeriod( KOfflineSession& kSes )
+{
+	if( 0 == kSes.m_nSelectedUnitUID )
+		return;
+
+	if( true == CX2OfflineBuff::Instance()->CheckBuffPeriod( kSes.m_nSelectedUnitUID ) )
+		SendUpdateBuffInfo( kSes );
+}
+
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF

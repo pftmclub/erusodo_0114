@@ -1734,6 +1734,7 @@
     <ClInclude Include="Offline\X2OfflineAttribTable.h" />
     <ClInclude Include="Offline\X2OfflineSocketTable.h" />
     <ClInclude Include="Offline\X2OfflineBattleField.h" />
+    <ClInclude Include="Offline\X2OfflineBuff.h" />
     <ClInclude Include="Offline\X2OfflineIgnore.h" />
     <ClInclude Include="Offline\X2OfflineLog.h" />
     <ClInclude Include="Offline\X2OfflineServer.h" />

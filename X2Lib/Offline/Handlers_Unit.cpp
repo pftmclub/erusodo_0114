@@ -673,7 +673,16 @@ bool CX2OfflineServer::Handler_EGS_SELECT_UNIT_REQ( KOfflineSession& kSes, const
 	CX2OfflineLog::Server( L"SELECT   '%s' (unitUID=%I64d, class=%d, lv=%d)",
 		kRow.m_wstrNickName.c_str(), (__int64)kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel );
 
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	// OnAccountSelectUnitAck always sends the LoginServer a buff REQ
+	// (GSUserFunction.cpp:5661); its ACK brings the stored buffs back as
+	// EGS_UPDATE_BUFF_INFO_NOT, empty or not.
+	const bool bAckSent = Reply( kSes, EGS_SELECT_UNIT_ACK, kAck );
+	SendUpdateBuffInfo( kSes );
+	return bAckSent;
+#else // SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 	return Reply( kSes, EGS_SELECT_UNIT_ACK, kAck );
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 }
 
 //////////////////////////////////////////////////////////////////////////

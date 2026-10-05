@@ -1442,10 +1442,24 @@ bool CX2OfflineServer::Handler_EGS_LEAVE_ROOM_REQ( KOfflineSession& kSes, const 
 	CX2OfflineLog::Server( L"ROOM     leaving room %I64d (reason=%d)",
 		(__int64)m_kRoom.m_kInfo.m_RoomUID, kReq.m_iReason );
 
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	// ERM_LEAVE_ROOM_ACK (GSUserRoomCommon.cpp:935-982): the leave-room end flags,
+	// then the list again - from outside the room now, so as EGS_UPDATE_BUFF_INFO_NOT.
+	const bool bBuffChanged = ( true == m_kRoom.m_bActive &&
+		true == CX2OfflineBuff::Instance()->OnLeaveRoom( kSes.m_nSelectedUnitUID, (int)m_kRoom.m_kInfo.m_RoomType ) );
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+
 	m_kRoom.Clear();
 	kSes.m_eState = S_FIELD_MAP;
 
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	const bool bAckSent = Reply( kSes, EGS_LEAVE_ROOM_ACK, kAck );
+	if( true == bBuffChanged )
+		SendUpdateBuffInfo( kSes );
+	return bAckSent;
+#else // SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 	return Reply( kSes, EGS_LEAVE_ROOM_ACK, kAck );
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1586,6 +1600,12 @@ bool CX2OfflineServer::Handler_EGS_GAME_LOADING_REQ( KOfflineSession& kSes, cons
 		m_kRoom.m_kInfo.m_iDungeonID );
 
 	Reply( kSes, EGS_PLAY_START_NOT, kStart );
+
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	// GSUserRoomCommon.cpp:1223-1225: loading at 100 sends the room's buff list
+	// (SERV_CHANGE_UPDATE_BUFF_INFO_PROCESS_TEMP, ON for US).
+	SendUpdateBuffInfo( kSes );
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 
 	// Phase 6: SQT_VISIT_DUNGEON. The server does this on exactly this packet,
 	// one line after sending it (GSUserRoomCommon.cpp:1426-1432) - the dungeon
@@ -3389,7 +3409,17 @@ bool CX2OfflineServer::Handler_EGS_END_GAME_REQ( KOfflineSession& kSes, const KE
 	m_kRoom.m_iRewardED		= 0;
 	m_kRoom.m_iCollectedED	= 0;
 
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	// ERM_UPDATE_DUNGEON_UNIT_INFO_NOT (GSUserDungeon.cpp:848-856), the dungeon end:
+	// the end-dungeon-game flag, and the list again if anything went.
+	const bool bNotSent = Reply( kSes, EGS_END_GAME_NOT, kNot );
+	if( (char)CX2Room::RT_DUNGEON == m_kRoom.m_kInfo.m_RoomType &&
+		true == CX2OfflineBuff::Instance()->OnEndDungeonGame( kSes.m_nSelectedUnitUID ) )
+		SendUpdateBuffInfo( kSes );
+	return bNotSent;
+#else // SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 	return Reply( kSes, EGS_END_GAME_NOT, kNot );
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 }
 
 bool CX2OfflineServer::Handler_EGS_STATE_CHANGE_RESULT_REQ( KOfflineSession& kSes, const KEvent& kEvent )
@@ -3505,7 +3535,16 @@ bool CX2OfflineServer::Handler_EGS_USER_UNIT_DIE_REQ( KOfflineSession& kSes, con
 	CX2OfflineLog::Server( L"GAME     unitUID=%I64d died (killer NPC UID=%d)",
 		(__int64)m_kRoom.m_nUnitUID, kReq.m_KillerNPCUID );
 
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	// ERM_USER_UNIT_DIE_ACK -> OnUserDied (GSUserRoomCommon.cpp:1696-1705): the
+	// end-at-death buffs go, and the room hears the new list.
+	const bool bNotSent = Reply( kSes, EGS_USER_UNIT_DIE_NOT, kNot );
+	if( true == CX2OfflineBuff::Instance()->OnUserDied( kSes.m_nSelectedUnitUID ) )
+		SendUpdateBuffInfo( kSes );
+	return bNotSent;
+#else // SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 	return Reply( kSes, EGS_USER_UNIT_DIE_NOT, kNot );
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 }
 
 bool CX2OfflineServer::Handler_EGS_USER_UNIT_DIE_COMPLETE_REQ( KOfflineSession& kSes, const KEvent& /*kEvent*/ )

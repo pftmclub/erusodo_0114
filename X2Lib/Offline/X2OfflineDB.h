@@ -349,6 +349,27 @@ struct KOfflineTCClearRow
 };
 //}} Iruha : 2026-09-17
 
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+/// One active server buff - an entry of KUserServerBuffManager::m_mapBuff, which the
+/// live LoginServer keeps in RAM per unit (LoginServer/BuffManager.cpp). Times are
+/// absolute epoch seconds, so a buff's period keeps running while logged out, as live.
+struct KOfflineBuffRow
+{
+	int			m_iBuffID;		///< BUFF_TEMPLET_ID (the map key)
+	int			m_iFactorID;	///< the templet's first BUFF_FACTOR (KGSUser::ActivateBuff)
+	__int64		m_iStartTime;
+	__int64		m_iEndTime;
+
+	KOfflineBuffRow()
+		: m_iBuffID( 0 )
+		, m_iFactorID( 0 )
+		, m_iStartTime( 0 )
+		, m_iEndTime( 0 )
+	{
+	}
+};
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+
 //////////////////////////////////////////////////////////////////////////
 /// One row of `unit`, in the shape the packet handlers want it.
 struct KOfflineUnitRow
@@ -415,7 +436,11 @@ public:
 	{
 		/// Schema revision. Bump it and add a rung to Migrate() when a later
 		/// phase needs a new table, so existing saves are not wiped.
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+		SCHEMA_VERSION			= 14,	///< v14: unit_buff (the item-granted premium buffs)
+#else // SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 		SCHEMA_VERSION			= 13,
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 
 		//{{ Iruha : 2026-09-16 // Vanilla hardcodes iDelableDay = 1 (one full
 		// day) for every region (GSGameDBThread.cpp). This build has no
@@ -606,6 +631,14 @@ public:
 	/// forever - the training-list equivalent of the dungeon-lock bug above.
 	bool	LoadTCClears( UidType nUnitUID, OUT std::vector< KOfflineTCClearRow >& vecOut );
 	//}} Iruha : 2026-09-17
+
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	/// The unit's active server buffs (unit_buff, v14), in buff-ID order.
+	bool	LoadUnitBuffs( UidType nUnitUID, OUT std::vector< KOfflineBuffRow >& vecOut );
+	/// Insert or overwrite one buff - the LoginServer's AddUnitBuffInfo overwrites too.
+	bool	SaveUnitBuff( UidType nUnitUID, const KOfflineBuffRow& kRow );
+	bool	DeleteUnitBuff( UidType nUnitUID, int iBuffID );
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 
 	/// Skill points. Kept separate from SaveProgress because they move on their
 	/// own - a skill learned or reset changes SP without touching level or EXP.

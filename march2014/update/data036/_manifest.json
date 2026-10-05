@@ -1,4 +1,6 @@
 {
+  "BuffTemplet.lua": "2",
+  "BuffTemplet_INT.lua": "2",
   "NewNPCStat.lua": "2",
   "NewNPCStatFormula.lua": "2",
   "Ranox.xml": "0",
