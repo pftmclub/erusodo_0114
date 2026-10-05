@@ -3219,6 +3219,7 @@ bool CX2OfflineServer::Handler_EGS_RESOLVE_ITEM_REQ( KOfflineSession& kSes, cons
 
 #ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 #ifdef SERV_IRUHADEV_OFFLINE
+#include "X2OfflineLuaEnum.h"
 //////////////////////////////////////////////////////////////////////////
 // June buff port Phase 11: the item-granted premium buffs (X2OfflineBuff.h).
 // Folded into this file (the item-use handler's) so no new .cpp has to carry an
@@ -3379,6 +3380,14 @@ void CX2OfflineBuff::EnsureLoaded()
 
 	lua_State* pLuaState = g_pKTDXApp->GetLuaBinder()->GetLuaState();
 
+	// The files write `m_bEndBuffAtTheUserDied = True` / `NOT_USE_IN_PVE = True`.
+	// The staged Enum.lua already defines True = 1, but publish the server globals
+	// the way every other server-script loader here does, so a missing True can
+	// never quietly turn every flag false (KLuaManager reads a bool through
+	// lua_isnumber).
+	if( false == CX2OfflineLuaEnum::Publish() )
+		CX2OfflineLog::Server( L"BUFF     WARNING the server Lua globals (True/False) could not be published - relying on Enum.lua's" );
+
 	// The global the files call into. The client's CX2PremiumBuffManager binds the
 	// same name (X2PremiumBuffManager.cpp OpenScriptFile), so it is taken for these
 	// two runs and handed back below.
@@ -3394,7 +3403,23 @@ void CX2OfflineBuff::EnsureLoaded()
 	if( NULL != g_pData && NULL != g_pData->GetPremiumBuffManager() )
 		lua_tinker::decl( pLuaState, "BuffManager", g_pData->GetPremiumBuffManager() );
 
-	CX2OfflineLog::Server( L"BUFF     %u premium buff templet(s) loaded", (unsigned int)m_mapTemplet.size() );
+	// What the flags parsed to: proof that True resolved (BuffTemplet.lua ends four
+	// Arcanum buffs at death; June's _INT carries NOT_USE_IN_HENIR on six).
+	int iEndAtDeath = 0, iEndAtDungeonLeave = 0, iEndAtDungeonEnd = 0, iEndAtFieldLeave = 0, iNotUseInHenir = 0;
+	for( std::map< int, KTemplet >::const_iterator mit = m_mapTemplet.begin(); mit != m_mapTemplet.end(); ++mit )
+	{
+		if( true == mit->second.m_bEndBuffAtTheUserDied )				++iEndAtDeath;
+		if( true == mit->second.m_bEndBuffAtTheLeaveDungeonRoom )		++iEndAtDungeonLeave;
+		if( true == mit->second.m_bEndBuffAtTheEndDungeonGame )			++iEndAtDungeonEnd;
+		if( true == mit->second.m_bEndBuffAtTheLeaveBattleFieldRoom )	++iEndAtFieldLeave;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NOT_USE_IN
+		if( true == mit->second.m_bNotUseInHenir )						++iNotUseInHenir;
+#endif SERV_IRUHADEV_JUNE_BUFF_NOT_USE_IN
+	}
+
+	CX2OfflineLog::Server( L"BUFF     %u premium buff templet(s) loaded: end at death %d, at dungeon leave %d,"
+		L" at dungeon end %d, at field leave %d, NOT_USE_IN_HENIR %d",
+		(unsigned int)m_mapTemplet.size(), iEndAtDeath, iEndAtDungeonLeave, iEndAtDungeonEnd, iEndAtFieldLeave, iNotUseInHenir );
 }
 
 bool CX2OfflineBuff::RunScript( const wchar_t* wszFileName )
