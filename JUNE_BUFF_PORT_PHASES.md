@@ -4826,7 +4826,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 ### Phase 16 — Steps 2-4 Done, part 1 (2026-10-06, Opus 5.5 high)
 
-**Landed** (commit in STATUS): `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (loader, aggregate, seeds, passive, template, refresh, debuff-time reader, 78's terms), 92 under `_NEW_STAT`, and `SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN`. The remaining readers moved to **16-step3b** (kickoff written); none of them has a March socket that feeds it.
+**Landed** (`e485716`; post-commit `flagcheck --range e485716^..HEAD`: 6 PASS, 1 PASS~, 1 DEFINE, 5 OTHER, 0 FAIL, RESULT PASS): `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (loader, aggregate, seeds, passive, template, refresh, debuff-time reader, 78's terms), 92 under `_NEW_STAT`, and `SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN`. The remaining readers moved to **16-step3b** (kickoff written); none of them has a March socket that feeds it.
 
 **Step 2, data gate.**
 - Arity: every curve March's C++ calls exists in June's `SocketOptionForm.lua` with the same arity. The one June lacks, `…InDamageFreeGame`, is called only in `ADJUST_BUFF_CALCULATE`'s `#else`, which `Always.h:161` compiles out. No Enum globals.
