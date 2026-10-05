@@ -3492,6 +3492,8 @@ Flag `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (+ `_DEBUG`), commit `6d6e9e9`. R
 
 **How to see it in game:** the new classes show nothing until their data arrives. The play-test is regression: the `custom function created` lines (now with the class) for 29 / 56 / 62 from console applies, 241 still creating nothing, and a minute of ordinary combat for the per-hit bookkeeping (damage and criticals as before, no crash).
 
+**Play-test (2026-10-05, exe 44c5b837, user: 5/5 passed; logs read).** ErrorLog `:198` `custom function created: BTI 29 (class CX2CustomFunctionByBuffPhantomSword)` (jtLordKnight, creator 25), `:216` BTI 56 `BigBangStream` (Freils, creator 18), `:218` BTI 62 `MarkOfCommand` (NPC, creator 17, not-user 1). No `Death Sign:` or `Sinister Mind:` line; 241 created nothing, as it should. The run's 3 UNHANDLED `E_DISABLE_HB_CHECK_REQ` are not this phase's.
+
 **Open for the user:**
 1. **Geist Herrschaft's power** is the creator's power rate. On the packet path it is the 1.0 stand-in (June's `KBuffFactor +0x57` has no March field), so a Geist debuff restored from a packet hits at power 1.0, not the creator's rate. Keep the 1.0 stand-in, or add the field to the shared header (a server-visible struct change)?
 2. **Sinister Mind divides by `max / 3`** with no check (#33). Below a max of 3 that is a crash, so the port skips the effect swap there. Confirm the guard.
