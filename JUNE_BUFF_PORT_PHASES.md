@@ -3651,6 +3651,56 @@ The function rows are in `june2017_re/funcmap.tsv` (the "Buff Phase 11" rows).
 - **11b:** the Phase 4a hand-offs (slot 250, `IS_STORE_BUFF` consumers) plus the three readers above.
 - March's `m_vecWorldBuffFactorID` stays filled as today, beside the new record vector, so its March readers keep working until 11b.
 
+### Phase 11 — Done (2026-10-05)
+
+**Landed** in `af7741b`. The RE is in the "Buff Phase 11" funcmap rows; the server survey the emulator is transcribed from is in `JUNE_BUFF_PORT_ARCHIVE.md` ("Phase 11 — the March server's buff system").
+
+**`SERV_IRUHADEV_JUNE_BUFF_PREMIUM` (client):**
+- `X2StateLoading` also opens `BuffTemplet_INT.lua` (June `3258c470`). `OpenScriptFile` logs `<file>: N premium buff(s) added, M in total`, or `not found` with the pack instruction.
+- Both world-buff handlers follow June (`326c9030`, `326c9530`):
+  - a per-unit record (`CX2Unit::GetWorldBuffRecord`: factor, BTI, stack count, start, end, ≤1 h);
+  - each buff applied `count` times (slot 135 at level 1);
+  - kept when applied or dead;
+  - June's skips: `BFI_EMPTY_EXP_BUFF` in fields / `GT_PVE` (village: always), `BFI_BUFF_2013_DEFENSE_BUFF` in PvP, `BFI_SPA_STRONG_BUFF` in `XS_PVP_LOBBY`;
+  - the in-room gage erase;
+  - the returning-hero emblem for 114 / 10060 in the village;
+  - a PC-room (BTI 138) change refreshes the socket data (`UpdateSocketDataAndEnchantData` + `UpdatePassiveAndActiveSkillState` = user slot 176 in a room; `ResetIncreaseSkillLevelBySocket` in the village).
+- Log lines: `world buff (room|village): … sent, … kept`, plus a line for an unloaded factor or a BTI mismatch.
+- `ReInit` re-applies each record `count` times (`32022380`). `GetIncreaseSkillLevelByBuff` is June's (`323644a0`).
+- **Recorded, not ported** (no March home; funcmap): BFI 500's comeback end and "gone" UI (June's rewritten comeback members), the in-room emblem 34, BTI 1033 in `XS_GUILD_AGIT_GAME`, the PC-room remaining-time warning, and the icon stack count (June's gage `PushBuff` takes a count; March's does not).
+
+**`SERV_IRUHADEV_OFFLINE_ITEM_BUFF` (emulator; user decision B: the emulator owns item buffs):** this is the March GameServer's `SERV_SERVER_BUFF_SYSTEM`.
+- `CX2OfflineBuff` (`X2OfflineBuff.h`; the bodies are in `Handlers_Inventory.cpp`, so no new `.cpp` carries an unflagged PCH line).
+- **Loader:** it reads `BuffTemplet.lua` + `_INT` the server's way (`BUFF_FACTOR`, `m_bEndBuffAt*`, rooms). It takes the `BuffManager` global for its run and hands it back to the client's manager.
+- **Item use:** the item → BTI groups (Arcanum 78520-78550 → 109-112 + 117; Elixirs 78560-78590 / 78894-78901 / Ruriel → 113-116 / 191-198 / 1320) and the pre-checks (117 lockout → `ERR_USE_ITEM_IN_INVENTORY_07`; the temp-code guards → `_07` / `_06`).
+- **Activation:** an active buff is refused, not refreshed; the period comes from `m_fBuffPeriodSecond` in wall-clock epoch seconds.
+- **Storage:** `els_db.sql` schema **v14** (`unit_buff`), so a buff survives rooms and logins as it did in the LoginServer's RAM.
+- **Sends:** `EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT` (room-filtered) or `_NOT` on select unit, field change (only if any), loading 100, leave room (end flags), dungeon end, death, and expiry (3 s beat, 1 s live).
+- **Deliberate departures:**
+  - activation refuses a factor the client has not loaded, or one that names another BTI;
+  - such items no longer get Phase 19's `USE_QUICK_SLOT_NOT` (live never sends it).
+- 17 of the 18 grantable buffs resolve to a live factor of the same BTI. **Ruriel (1320 → factor 483) does not until Phase 13**, so the emulator refuses it with a log line.
+- Emulator lines start `BUFF     ` in `offline_server.log`.
+
+**`SERV_IRUHADEV_JUNE_BUFF_NOT_USE_IN`** (stand-in, user decision 2026-10-05, "dormant, like June"):
+- `NOT_USE_IN_HENIR` leaves the buff out of a Henir dungeon's list;
+- `NOT_USE_IN_PVE` and `NOT_USE_IN_HUGE_BOSS_RAID` are parsed but never fire (June-only modes).
+
+**Staged** (user packs into `data036.kom`):
+- `BuffTemplet.lua` (23,870 B) and `BuffTemplet_INT.lua` (12,482 B), compiled with mar-2014 from `june_src_fixed` (`1B 4B 4C 81`; round trip 138 / 71 entries).
+- They are in `march2014/update/data036/` and `kom_contents/data036_kom/`, and in both manifests.
+- Every name resolves in the staged Enum except `URT_GUILD_AGIT` (3 uses). It indexes to `nil` in a list, so it is harmless.
+
+**Save:** backed up before v14 as `db_backup/els_db_20261005_150843_pre_buff_phase11_v14.sql`. v14 is additive (`CREATE TABLE IF NOT EXISTS`), but a build with the flag off refuses a v14 save.
+
+**JUNE_BUGS.md:** #27 (unchecked erase dereference, guarded: a crash), #28 (the skill level counts a world buff twice in a game), #29 (the Rose event plays the returning-hero emblem in the village).
+
+**Hygiene:** `flagcheck --range af7741b^..af7741b`, each flag `--with` the other two: `_PREMIUM` `4 PASS, 2 PASS~, 1 DEFINE, 8 OTHER, 0 FAIL, 0 ERROR`; `_OFFLINE_ITEM_BUFF` `2 PASS, 6 PASS~, 1 DEFINE, 6 OTHER, 0 FAIL, 0 ERROR`; `_NOT_USE_IN` `1 PASS, 1 PASS~, 1 DEFINE, 12 OTHER, 0 FAIL, 0 ERROR`; all `RESULT: PASS`, `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`. OTHER = files carrying only the sibling flags (`X2OfflineDB.cpp`'s table list is `#ifdef`/`#else` with March's line intact).
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,173,376 B, dated 2026-10-05 15:18:52, md5 9ebc4b93754f5af2ac7027f416a1e92d, equal to X2/US_SERVICE/x2.exe (2026-10-05 15:18:48); built at mods/june-buff-port 87c3a3a + 16 uncommitted code file(s).` (those 16 = `af7741b`). The phase's strings (`world buff (room|village)`, `premium buff(s) added`, `BUFF     activated buff`, `schema upgraded to v14`, `NOT_USE_IN_HENIR`, `BuffTemplet_INT.lua`) are in the deployed exe.
+
+**How to see it in game:** the "Play-test" hand-off in this session's final message. A short version: buy an Arcanum / Elixir in the cash shop (products 11-26), use it from the bag, and enter a dungeon.
+
 ## Phase 12 — Buff icons and UI assets
 
 **Scope.**
