@@ -2892,7 +2892,15 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void SetVecJumpSpeedFactor( float fSpeedRate, float fDuration, SPEED_FACTOR_ID eId = CX2GameUnit::SFI_NONE, SPEED_FACTOR_SET_TYPE eSetType = SFST_MULTY );
 		void RemoveVecMoveSpeedFactor( SPEED_FACTOR_ID eID );
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+		/// June slot 132 (+0x210) takes ( BTI, factor ). The base and CX2GUUser ignore both (funcmap 3229a2e0, 32045dc0); CX2GUNPC
+		/// hands the BTI to its buff group. Six June callers pass the factor's BTI, the rest 0; the factor argument is not ported.
+		virtual bool CanApplyBuffToGameUnit( const BUFF_TEMPLET_ID eBuffTempletID_ = BTI_NONE ) const;
+#else SERV_IRUHADEV_JUNE_BUFF_GROUP
 		virtual bool CanApplyBuffToGameUnit() const;
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		/// June's stack-count setters, reached only from June-only content (renewal skills of Eve, Elesis,
 		/// Rose, Luciel and Aisha; JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7). Ported dormant.
@@ -2961,6 +2969,15 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void ReserveToFinishBuffTempletFromGameUnit( const BUFF_TEMPLET_ID eBuffTempletID_ );
 
 		bool HaveThisBuff( const BUFF_TEMPLET_ID eBuffTempletID_ );
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BINDING
+		int GetBuffAccumulationCountNow( const BUFF_TEMPLET_ID eBuffTempletID_ );		/// June 3227bbc0 (Lua: GetBuffAccumulationCountNow)
+#endif SERV_IRUHADEV_JUNE_BUFF_BINDING
+#ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+		bool CheckDamageDataKeyName( const CX2DamageManager::DamageData* pDamageData_ ) const;	/// June 3227a960
+		bool IsBuffBlockedBeforeApply( const CX2BuffFactor& buffFactor_ );						/// June 322a7960 (slot 139, +0x22c)
+#endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+//}}
 
 		UINT GetAppliedBuffCount( const bool bIsDeBuff_ ) const;
 

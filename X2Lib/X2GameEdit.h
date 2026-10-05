@@ -109,6 +109,11 @@ class CX2GameEdit
 //#ifdef SERV_PSHOP_AGENCY
 		void ShopCheat_LUA( int iPeriod );
 //#endif SERV_PSHOP_AGENCY
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BINDING
+		void ApplyBuffFactor_LUA( UINT uiBuffFactorID_, float fTime_ );		/// June 3274c880 (g_pGameEdit:ApplyBuffFactor, Slash_buffFactor)
+#endif SERV_IRUHADEV_JUNE_BUFF_BINDING
+//}}
 		//}}
 		//{{ 2011. 08. 11	최육사	투니 랜드 채널링 
 #ifdef SERV_TOONILAND_CHANNELING // SERV_JAPAN_CHANNELING

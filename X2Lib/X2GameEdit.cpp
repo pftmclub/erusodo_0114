@@ -599,6 +599,51 @@ void CX2GameEdit::ShopCheat_LUA( int iPeriod )
 	g_pData->GetServerProtocol()->SendPacket( EGS_ADMIN_PSHOP_AGENCY_CHEAT_REQ, kPacket );
 }
 //#endif SERV_PSHOP_AGENCY
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BINDING
+/** @function : ApplyBuffFactor_LUA
+	@brief : June 3274c880, the client-side cheat behind "/buffFactor <BFI> <time>" (GameEditCommandList's
+			 Slash_buffFactor). My user unit (looked up by the selected unit's UID, as June does) takes the
+			 factor at level 1 (slot 135, args BFI/0/1/0/0); with a time above 0, the buff's first finalizer,
+			 if it is a time finalizer, gets that duration (slot 14, 32ec3580), and the list goes back through
+			 3227ba10 (= ChangeBuffFinalizerTempletPtrList, which also stamps the BTI on each finalizer).
+*/
+void CX2GameEdit::ApplyBuffFactor_LUA( UINT uiBuffFactorID_, float fTime_ )
+{
+	if ( NULL == g_pData || NULL == g_pData->GetMyUser() )
+		return;
+
+	CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
+	if ( NULL == pUnit || NULL == g_pX2Game )
+		return;
+
+	CX2GUUser* pGUUser = g_pX2Game->GetUserUnitByUID( pUnit->GetUID() );
+	if ( NULL == pGUUser )
+		return;
+
+	pGUUser->SetBuffFactorToGameUnitByBuffFactorID( uiBuffFactorID_, 1 );
+
+	if ( 0.0f < fTime_ )
+	{
+		CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( uiBuffFactorID_ );
+		if ( NULL != ptrBuffFactor )
+		{
+			const BUFF_TEMPLET_ID eBuffTempletID = ptrBuffFactor->GetBuffTempletID();
+			vector<CX2BuffFinalizerTempletPtr> vecFinalizerPtr;
+			pGUUser->GetBuffFinalizerTempletPtrList( eBuffTempletID, vecFinalizerPtr );
+			if ( false == vecFinalizerPtr.empty() )
+			{
+				CX2BuffTimeFinalizerTemplet* pTimeFinalizer = dynamic_cast<CX2BuffTimeFinalizerTemplet*>( vecFinalizerPtr.front().get() );
+				if ( NULL != pTimeFinalizer )
+					pTimeFinalizer->SetDurationTime( fTime_ );
+
+				pGUUser->ChangeBuffFinalizerTempletPtrList( eBuffTempletID, vecFinalizerPtr );
+			}
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_BINDING
+//}}
 //}}
 
 //{{ 2011. 08. 11	최육사	투니 랜드 채널링 

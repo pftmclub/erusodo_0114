@@ -96,6 +96,26 @@ public:
 	CX2BuffFactorPtr GetBuffFactorPtr( const UINT uiBuffFactorNumber_ ) const;
 
 	void GetBuffFactorPtrFromBuffFactorList( IN KLuaManager& luaManager_, OUT vector<CX2BuffFactorPtr>& vecBuffFactorPtr_, OUT vector<UINT>& vecBuffFactorID_ );
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+	/// June's BUFF_GROUP_APPLY_DEFAULT_VALUE (Enum.lua): what a group does with a BTI its list does not name
+	enum BUFF_GROUP_APPLY_DEFAULT_VALUE
+	{
+		BGADV_NONE					= 0,
+		BGADV_ACTIVE				= 1,
+		BGADV_ACTIVE_JUST_BUFF		= 2,
+		BGADV_ACTIVE_JUST_DEBUFF	= 3,
+		BGADV_DEACTIVE				= 4,
+		BGADV_END					= 5,
+	};
+
+	void OpenScriptFileForBuffGroup();		/// June 326c26f0: UnitApplyBuffGroup.lua, right after the factor files
+	void AddBuffGroup_LUA();				/// June 326c3450
+	void AddOfficiallyBuffList_LUA();		/// June 326bfd80
+	bool IsApplyBuffByGroup( const BUFF_TEMPLET_ID eBuffTempletID_, const int iBuffGroupID_ ) const;	/// June 326c31c0
+	bool IsOfficiallyDebuff( const BUFF_TEMPLET_ID eBuffTempletID_ ) const;	/// June 326bfd50
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
 private:
@@ -133,5 +153,19 @@ private:
 	UINT	m_uiFactorOrdinalReject;	/// ids that failed size == id-1 (dropped, as in June/March)
 	UINT	m_uiFactorOrdinalRejectINT;	/// ids >= 10000 that failed size == id-10001
 #endif SERV_IRUHADEV_JUNE_BUFF_LOADER
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+	/// June's 0x18-byte group entry (326c3450 builds it, 326c4ff0 pushes it)
+	struct BuffGroup
+	{
+		int								m_iBuffGroupID;			/// BUFF_GROUP_ID (+0)
+		int								m_iApplyDefaultValue;	/// BUFF_GROUP_APPLY_DEFAULT_VALUE (+4)
+		map<BUFF_TEMPLET_ID, bool>		m_mapBuffTemplet;		/// BUFF_TEMPLET_LIST { BTI, apply } (+8)
+		BuffGroup() : m_iBuffGroupID( 0 ), m_iApplyDefaultValue( 0 ) {}
+	};
+	vector<BuffGroup>			m_vecBuffGroup;				/// June mgr+0x30, in load order (326c31c0 takes the first id match)
+	std::set<BUFF_TEMPLET_ID>	m_setOfficiallyDebuff;		/// June mgr+0x40; replaces CX2Game's hard-coded list
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 	
 };

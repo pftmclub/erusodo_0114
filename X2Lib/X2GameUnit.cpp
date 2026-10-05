@@ -11420,6 +11420,19 @@ void CX2GameUnit::UpNowHpPerHitbyAttackPower( IN const float fHitAddHpPer_ )
 	return false;
 }
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+/// June 322a6960 / 322a6b60 look the factor up first and pass its BTI to the can-apply check (slot 132).
+/// A missing factor returns false in June before the check; here the check sees BTI 0 and the factor test
+/// right after returns false, the same outcome (the check has no side effects).
+static BUFF_TEMPLET_ID JuneBuffTempletIDOfFactor( const UINT uiBuffFactorId_ )
+{
+	CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( uiBuffFactorId_ );
+	return NULL != ptrBuffFactor ? ptrBuffFactor->GetBuffTempletID() : BTI_NONE;
+}
+
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 /** @function : SetBuffFactorToGameUnitByBuffFactorID
 	@brief : 버프팩터 ID로 게임유닛에 버프 적용
 	@param : 버프팩터ID(uiBuffFactorId_)
@@ -11431,7 +11444,13 @@ void CX2GameUnit::UpNowHpPerHitbyAttackPower( IN const float fHitAddHpPer_ )
 /*virtual*/ bool CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID( const UINT uiBuffFactorId_ )
 #endif //UPGRADE_SKILL_SYSTEM_2013
 {
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+	if ( CanApplyBuffToGameUnit( JuneBuffTempletIDOfFactor( uiBuffFactorId_ ) ) )	/// June 322a6960 @322a6a08
+#else SERV_IRUHADEV_JUNE_BUFF_GROUP
 	if ( CanApplyBuffToGameUnit() )
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 	{
 		CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( uiBuffFactorId_ );
 		if ( NULL != ptrBuffFactor )
@@ -11466,7 +11485,13 @@ void CX2GameUnit::UpNowHpPerHitbyAttackPower( IN const float fHitAddHpPer_ )
 #endif //UPGRADE_SKILL_SYSTEM_2013
 {
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+	if ( CanApplyBuffToGameUnit( JuneBuffTempletIDOfFactor( uiBuffFactorId_ ) ) )	/// June 322a6b60 @322a6c07
+#else SERV_IRUHADEV_JUNE_BUFF_GROUP
 	if ( CanApplyBuffToGameUnit() )
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 	{
 		CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( uiBuffFactorId_ );
 		if ( NULL != ptrBuffFactor )
@@ -11495,7 +11520,15 @@ void CX2GameUnit::UpNowHpPerHitbyAttackPower( IN const float fHitAddHpPer_ )
 */
 /*virtual*/ bool CX2GameUnit::SetBuffFactorToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const UINT uiIndex_ )
 {
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+	/// June 3229af40 @3229b013: the BTI of the skill's factor (a user-only path, so no group applies)
+	if ( CanApplyBuffToGameUnit( ( NULL != pSkillTemplet_ && uiIndex_ < pSkillTemplet_->m_vecBuffFactorPtr.size() && NULL != pSkillTemplet_->m_vecBuffFactorPtr[uiIndex_] )
+		? pSkillTemplet_->m_vecBuffFactorPtr[uiIndex_]->GetBuffTempletID() : BTI_NONE ) )
+#else SERV_IRUHADEV_JUNE_BUFF_GROUP
 	if ( CanApplyBuffToGameUnit() )
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 	{
 		if ( NULL != pSkillTemplet_ && uiIndex_ < pSkillTemplet_->m_vecBuffFactorPtr.size() )
 		{
@@ -12082,7 +12115,13 @@ void CX2GameUnit::SetBuffAccumulationCount( const UINT uiBuffFactorID_, const in
 		return;
 	}
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+	if ( !CanApplyBuffToGameUnit( eBuffTempletID ) )	/// June 322a7660 @322a773a passes the factor's BTI (and no factor)
+#else SERV_IRUHADEV_JUNE_BUFF_GROUP
 	if ( !CanApplyBuffToGameUnit() )
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 		return;
 
 	CX2BuffFactorPtr ptrLevelledFactor( new CX2BuffFactor( *ptrBuffFactor, uiLevel_ ) );
@@ -14255,7 +14294,13 @@ void CX2GameUnit::EraseAllBuffAndExtraDamage()
 	@brief : 버프에 걸릴수 있는 상태인지 알아내는 함수
 	@return : 걸릴수 있으면 true, 없으면 false
 */
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+bool CX2GameUnit::CanApplyBuffToGameUnit( const BUFF_TEMPLET_ID eBuffTempletID_ /*= BTI_NONE*/ ) const	/// June 3229a2e0: the BTI is not read
+#else SERV_IRUHADEV_JUNE_BUFF_GROUP
 bool CX2GameUnit::CanApplyBuffToGameUnit() const
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 {
 	if ( IsImmuneToExtraDamage() || !(GetNowHp() > 0.0f) || GetNowStateID() == GUSI_DIE )
 		return false;
@@ -15028,6 +15073,137 @@ void CX2GameUnit::PlayEffectSetHittedByBuff()
 	@param : 적용할 Buff가 담긴 DamageData 포인터
 	@return : Buff가 적용 됫으면 true 리턴
 */
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+/// June 322a88c0, whole. Per factor, in June's order: the can-apply check with the factor's BTI (slot 132, so an NPC's buff
+/// group decides), the damage-data key check (3227a960), the state's immunity list (slot 133), June's CustomEventManager
+/// branch (absent here), the pre-apply roll (slot 139 = IsBuffBlockedBeforeApply), the attacker's slot 141 (empty for every
+/// March class; only Ain and Rose override it), then SetBuffFactorToGameUnit (slot 137). The result is true only when a
+/// factor actually applied (March: when one passed the immunity list).
+bool CX2GameUnit::ApplyBuffToGameUnitInDamageReact( const CX2DamageManager::DamageData* pDamageData_ )
+{
+	if ( pDamageData_ == NULL )
+		return false;
+
+	bool bBeApplied = false;
+	if ( pDamageData_->m_vecBuffFactorPtr.empty() )
+		return false;
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	const std::vector<BUFF_TEMPLET_ID>& vecImmunityAtThisState = GetVecImmunityAtThisState();
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	const std::vector<BUFF_TEMPLET_ID>& vecImmunityAtThisState = m_vecImmunityAtThisState;
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+
+	vector<CX2BuffFactorPtr>::const_iterator vItr = pDamageData_->m_vecBuffFactorPtr.begin();
+	for ( ; pDamageData_->m_vecBuffFactorPtr.end() != vItr; ++vItr )
+	{
+		if ( NULL == (*vItr) )
+			continue;
+
+		const BUFF_TEMPLET_ID eBuffTempletID = (*vItr)->GetBuffTempletID();
+		if ( true != CanApplyBuffToGameUnit( eBuffTempletID ) )
+			continue;
+
+		if ( true != CheckDamageDataKeyName( pDamageData_ ) )
+			continue;
+
+		if ( vecImmunityAtThisState.end() != std::find( vecImmunityAtThisState.begin(), vecImmunityAtThisState.end(), eBuffTempletID ) )
+			continue;
+
+		/// June @322a8993-322a89de: when the BTI is the CustomEventManager's dummy random buff (32696fa0 +0x398, set by
+		/// AddRandomBuffList / DUMMY_BUFF_TEMPLET_ID in CustomEventScript.lua), 322a7d50 applies a random factor from its
+		/// list instead and its result becomes the return value. March has no CustomEventManager or that script: not ported.
+
+		if ( true == IsBuffBlockedBeforeApply( **vItr ) )
+			continue;
+
+		/// June @322a89f2-322a8a2e: the attacker's slot 141 (+0x234) with this factor; the base 322b5630 is empty and only
+		/// CX2GUAin / CX2GURose override it, classes this build does not have.
+
+		if ( true == SetBuffFactorToGameUnit( **vItr ) )
+			bBeApplied = true;
+	}
+
+	return bBeApplied;
+}
+
+/** @function : CheckDamageDataKeyName
+	@brief : June 3227a960. With the damage data's key index (+0x618) at 1 or more it records (attacker UID, index, +0x61c)
+			 in this unit's map (+0x75e8) and refuses a second hit with the same key. The index is set only by
+			 DAMAGE_DATA_KEY_NAME's registration (FUN_32622220), which is the effect plan's C3; until then June's early
+			 out (index < 1: pass) is the whole function here.
+*/
+bool CX2GameUnit::CheckDamageDataKeyName( const CX2DamageManager::DamageData* pDamageData_ ) const
+{
+	if ( NULL == pDamageData_ )
+		return true;
+
+	return true;
+}
+
+/** @function : IsBuffBlockedBeforeApply
+	@brief : June 322a7960 (CX2GameUnit slot 139, no override in any class). A roll of its own against the factor's rate, before
+			 SetBuffFactorToGameUnit makes its own (June 322a83b0): above the rate, nothing; resisted, the RESIST text and
+			 nothing; passed, true (blocked) only for the HAMEL secret dungeon buffs: 265/266 while their _EVENT buff (347/348)
+			 is on, and 347/348 themselves, which June hands to the server (event 0x71c) instead of applying. The two rolls are
+			 independent (JUNE_BUGS.md).
+*/
+bool CX2GameUnit::IsBuffBlockedBeforeApply( const CX2BuffFactor& buffFactor_ )
+{
+	CX2BuffTempletPtr ptrBuffTemplet = CX2BuffTempletManager::GetInstance()->GetBuffTempletPtr( buffFactor_.GetBuffTempletID() );
+	if ( NULL == ptrBuffTemplet )
+		return false;
+
+	const float fRegist = ( buffFactor_.GetIgnoreRegistForRate() ?
+		0.0f : GetEnchantResist( static_cast<CX2EnchantItem::ENCHANT_TYPE>( ptrBuffTemplet->GetRegistType() ) ) / CX2EnchantItem::EAR_MAX_VALUE );
+#ifdef UPGRADE_SKILL_SYSTEM_2013
+	const float fRate = buffFactor_.GetRate( 1 );
+#else UPGRADE_SKILL_SYSTEM_2013
+	const float fRate = buffFactor_.GetRate();
+#endif UPGRADE_SKILL_SYSTEM_2013
+	const float fRateAndRegist = ( 1.0f - fRegist ) * fRate;
+	const float fRandomFloat = GetRandomFloat();
+
+	if ( fRate < fRandomFloat )
+		return false;
+
+	if ( fRateAndRegist < fRandomFloat )
+	{
+		if( NULL != g_pData->GetPicCharBlue() )
+			g_pData->GetPicCharBlue()->DrawText( L"RESIST", GetHeadBonePos(), GetDirVector(), CKTDGPicChar::AT_CENTER );
+		return false;
+	}
+
+	switch ( buffFactor_.GetBuffTempletID() )
+	{
+	case BTI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR:
+		return HaveUnfinishedBuff( BTI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR_EVENT );
+
+	case BTI_BUFF_HAMEL_SECRET_DUNGEON_WING:
+		return HaveUnfinishedBuff( BTI_BUFF_HAMEL_SECRET_DUNGEON_WING_EVENT );
+
+	case BTI_BUFF_HAMEL_SECRET_DUNGEON_ARMOR_EVENT:
+	case BTI_BUFF_HAMEL_SECRET_DUNGEON_WING_EVENT:
+		{
+			/// June @322a7b1e: g_pData +0x64 sends event 0x71c with the BTI. March's protocol has no such event; only June's
+			/// DamageEffect_INT data applies these buffs this way.
+			static bool s_bLogged = false;
+			if ( false == s_bLogged )
+			{
+				s_bLogged = true;
+				CX2JuneBuffCapture::Line( "BTI %d from damage data: June sends server event 0x71c here instead of applying it; this build has no such event, so nothing applies (June 322a7960)",
+					static_cast<int>( buffFactor_.GetBuffTempletID() ) );
+			}
+		}
+		return true;
+
+	default:
+		return false;
+	}
+}
+#else SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+//}}
 bool CX2GameUnit::ApplyBuffToGameUnitInDamageReact( const CX2DamageManager::DamageData* pDamageData_ )
 {
     if ( pDamageData_ == NULL )
@@ -15066,6 +15242,9 @@ bool CX2GameUnit::ApplyBuffToGameUnitInDamageReact( const CX2DamageManager::Dama
 
 	return bBeApplied;
 }
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+//}}
 
 
 
@@ -15633,6 +15812,25 @@ bool CX2GameUnit::HaveThisBuff( const BUFF_TEMPLET_ID eBuffTempletID_ )
 	return false;
 }
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BINDING
+/** @function : GetBuffAccumulationCountNow
+	@brief : June 3227bbc0 (bound as GetBuffAccumulationCountNow, used by ELYSION_M_SOLESS): the stack count of the unit's first
+			 buff with this BTI (32369da0: the templet's UCM_ACCUMULATION_COUNT_NOW, rounded), 0 when it has none. The count is a
+			 whole number, so March's truncating GetAccumulationCountNow gives the same value.
+*/
+int CX2GameUnit::GetBuffAccumulationCountNow( const BUFF_TEMPLET_ID eBuffTempletID_ )
+{
+	BOOST_FOREACH( CX2BuffTempletPtr ptr, m_vecBuffTempletPtr )
+	{
+		if ( NULL != ptr && ptr->GetBuffTempletID() == eBuffTempletID_ )
+			return static_cast<int>( ptr->GetAccumulationCountNow() );
+	}
+	return 0;
+}
+
+#endif SERV_IRUHADEV_JUNE_BUFF_BINDING
+//}}
 /** @function : GetShowOnMiniMap
 	@brief : 미니맵 상에서 보이는지 여부를 조사하는 함수
 	@return : 보이면 true, 안보이면 false

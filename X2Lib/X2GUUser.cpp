@@ -5583,7 +5583,13 @@ void CX2GUUser::ApplyAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet
 	@brief : 버프에 걸릴수 있는 상태인지 알아내는 함수
 	@return : 걸릴수 있으면 true, 없으면 false
 */
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+/*virtual*/ bool CX2GUUser::CanApplyBuffToGameUnit( const BUFF_TEMPLET_ID eBuffTempletID_ /*= BTI_NONE*/ ) const
+#else SERV_IRUHADEV_JUNE_BUFF_GROUP
 /*virtual*/ bool CX2GUUser::CanApplyBuffToGameUnit() const
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 {
 	/// GameUnit에서 체크 한 것이 true 인 경우 다시 한번 체크
 	if ( CX2GameUnit::CanApplyBuffToGameUnit() 
@@ -38048,6 +38054,27 @@ void CX2GUUser::EraseDebuffAndAddMP( IN const float fMPValue_ )
 #endif //ADJUST_SECRET_ITEM_OPTION
 
 		/// 해로운 효과라고 정의된 공식적인 디버프 목록 순환
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+		/// June 3204d440: walk the unit's own buffs and erase every one in the manager's officially-debuff set
+		/// (UnitApplyBuffGroup.lua, 326bfd50), in the unit's order and all of them; March walked its hard-coded
+		/// list and erased the first match of each. An index walk: the erase moves the next buff into the slot.
+		UINT uiIndex = 0;
+		while ( uiIndex < m_vecBuffTempletPtr.size() )
+		{
+			CX2BuffTempletPtr ptrBuffTemplet = m_vecBuffTempletPtr[uiIndex];
+			if ( NULL != ptrBuffTemplet && CX2BuffTempletManager::GetInstance()->IsOfficiallyDebuff( ptrBuffTemplet->GetBuffTempletID() ) )
+			{
+				EraseBuffTempletFromGameUnitByIterator( m_vecBuffTempletPtr.begin() + uiIndex );
+#ifndef ADJUST_SECRET_ITEM_OPTION
+				++iEraseCount;
+#endif ADJUST_SECRET_ITEM_OPTION
+			}
+			else
+				++uiIndex;
+		}
+#else SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 		BOOST_FOREACH( BUFF_TEMPLET_ID eBuffTempletID , g_pX2Game->GetOfficiallyDebuffList() )
 		{
 			auto FindFunc 
@@ -38068,6 +38095,9 @@ void CX2GUUser::EraseDebuffAndAddMP( IN const float fMPValue_ )
 #endif //ADJUST_SECRET_ITEM_OPTION
 			}
 		}
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 
 		// 무기 속성도 풀 수 있도록 추가
 		if( m_ExtraDamagePack.m_EnchantBlaze.m_fTime > 0.f )

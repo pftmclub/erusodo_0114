@@ -2660,6 +2660,11 @@ void CX2GUNPC::CommonConstructor()
 	m_bIsSetRightForce						= false;
 #endif  X2OPTIMIZE_ROBUST_NPC_ROTATION
 #endif // SERV_NEW_DEFENCE_DUNGEON
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+	m_iMonsterBuffGroupID					= 0;	/// June ctor 32762670 @327633a1 (EBX = 0)
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 
 
 #ifdef ADDED_NPC_REMAINING_WHEN_SUBSTAGE_CLEAR
@@ -4531,6 +4536,14 @@ void CX2GUNPC::InitComponent()
 		LUA_GET_VALUE( m_LuaManager, "BOSS_RAID_NPC",				bIsBossRaidNPC,	 false	);
 		m_eMonsterGrade = (true == bIsBossRaidNPC ) ? MG_BOSS_NPC : m_eMonsterGrade;
 #endif // FIELD_BOSS_RAID
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+		/// June 327a0fa0 @327ab348-327ab439: right after BOSS_RAID_NPC, int getter, 0 when absent, to +0x8f70.
+		/// 45 June NPC scripts set it (FIELD_BOSS 31, JUST_BUFF 12, MAYA 3 counting SetMonsterBuffGroupID).
+		if ( false == m_LuaManager.GetValue( "BUFF_GROUP_ID", m_iMonsterBuffGroupID ) )
+			m_iMonsterBuffGroupID = 0;
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 
 		m_LuaManager.EndTable();
 	}
@@ -29914,6 +29927,37 @@ void CX2GUNPC::GetBuffInfo( OUT vector<KNpcUnitBuffInfo>& vecNpcUnitBuffInfo_ ) 
 	@brief : 버프에 걸릴수 있는 상태인지 알아내는 함수로 BASIC 타입이 아니면 false 리턴
 	@return : 걸릴수 있으면 true, 없으면 false
 */
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+/** @function : CanApplyBuffToGameUnit
+	@brief : June 327bdb60 (CX2GUNPC slot 132). Only an NCT_BASIC NPC takes buffs (as March). It asks the base check
+			 (3229a2e0); then, with a group id and a BTI above 0, the buff group's answer (326c31c0) REPLACES that result
+			 rather than joining it, so a dead or extra-damage-immune NPC in a group that allows the buff still takes it
+			 (JUNE_BUGS.md). Callers that pass no BTI (the class files, June's 0 sites) skip the group.
+*/
+/*virtual*/ bool CX2GUNPC::CanApplyBuffToGameUnit( const BUFF_TEMPLET_ID eBuffTempletID_ /*= BTI_NONE*/ ) const
+{
+	if ( GetClassType() != CX2UnitManager::NCT_BASIC )
+		return false;
+
+	bool bCanApply = CX2GameUnit::CanApplyBuffToGameUnit( eBuffTempletID_ );
+	if ( 0 < m_iMonsterBuffGroupID && 0 < static_cast<int>( eBuffTempletID_ ) )
+	{
+		bCanApply = CX2BuffTempletManager::GetInstance()->IsApplyBuffByGroup( eBuffTempletID_, m_iMonsterBuffGroupID );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		if ( false == bCanApply )
+		{
+			static std::set< std::pair<int, int> > s_setLogged;
+			if ( s_setLogged.insert( std::make_pair( m_iMonsterBuffGroupID, static_cast<int>( eBuffTempletID_ ) ) ).second )
+				CX2JuneBuffCapture::Line( "buff group %d refused BTI %d on NPC %d (June 326c31c0)",
+					m_iMonsterBuffGroupID, static_cast<int>( eBuffTempletID_ ), static_cast<int>( GetNPCTemplet().m_nNPCUnitID ) );
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	}
+	return bCanApply;
+}
+#else SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 /*virtual*/ bool CX2GUNPC::CanApplyBuffToGameUnit() const
 {
 	if ( GetClassType() == CX2UnitManager::NCT_BASIC )
@@ -29924,6 +29968,9 @@ void CX2GUNPC::GetBuffInfo( OUT vector<KNpcUnitBuffInfo>& vecNpcUnitBuffInfo_ ) 
 		return false;	/// NCT_BASIC 이 아니면 false 리턴
 }
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 /** @function : IsSuperArmor
 	@brief : 현재 수퍼아머인가?
 	@return : 수퍼아머상태(true), 아님(false)

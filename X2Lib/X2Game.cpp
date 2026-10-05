@@ -545,7 +545,13 @@ m_bSkillSlotJustChanged(true)
 
 #ifdef HAMEL_SECRET_DUNGEON // 김태환
 	/// 해로운 효과라고 정의된 공식적인 디버프 리스트 설정
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+	/// June's CX2Game keeps no list: the officially-debuff set lives in the buff manager (UnitApplyBuffGroup.lua)
+#else SERV_IRUHADEV_JUNE_BUFF_GROUP
 	SetOfficiallyDebuffList();
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 #endif // HAMEL_SECRET_DUNGEON
 }
 

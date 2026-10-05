@@ -3075,7 +3075,13 @@ public:
 		virtual	float				GetAdditionalAccelBuffTime( const CX2SkillTree::SKILL_ID eSkillID_ ) const { return 0.0f; }	/// 엑셀레이터류 버프 추가시간
 		void						ApplyAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const float fAddtionalAccelBuffTime_, const D3DXVECTOR3& vMyPos_ );
 		virtual void				ApplyAuraAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const float fAddtionalAccelBuffTime_, const D3DXVECTOR3& vMyPos_ );
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+		virtual bool				CanApplyBuffToGameUnit( const BUFF_TEMPLET_ID eBuffTempletID_ = BTI_NONE ) const;	/// June 32045dc0 (slot 132): the BTI is not read
+#else SERV_IRUHADEV_JUNE_BUFF_GROUP
 		virtual bool				CanApplyBuffToGameUnit() const;
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		virtual void				AdjustBuffFactorByIndex( CX2BuffFactorPtr ptrBuffFactor_, const int iAdjustIndex_ );	/// June 32028250 (user slot 476)
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY

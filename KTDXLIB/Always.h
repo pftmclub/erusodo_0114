@@ -4927,3 +4927,79 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              (GetEquippedSkillSlotType).
 #define SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md): June's
+//              buff groups and officially-debuff list. UnitApplyBuffGroup.lua
+//              loads after the factor files (326c26f0: AddBuffGroup_LUA,
+//              AddOfficiallyBuffList_LUA). An NPC's group (BUFF_GROUP_ID in
+//              INIT_COMPONENT, or SetMonsterBuffGroupID; +0x8f70) decides in
+//              CX2GUNPC::CanApplyBuffToGameUnit, which takes the factor's BTI
+//              as June's slot 132 does (326c31c0). The manager's set replaces
+//              CX2Game's hard-coded list in EraseDebuffAndAddMP and Ara's
+//              GetReduceDebuffDurationRate. Without the packed file there are
+//              no groups and the set is empty (logged).
+//              Requires SERV_IRUHADEV_JUNE_BUFF_LOADER.
+#define SERV_IRUHADEV_JUNE_BUFF_GROUP
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 10: June's damage-react buff apply
+//              (CX2GameUnit::ApplyBuffToGameUnitInDamageReact, 322a88c0):
+//              the can-apply check per factor with its BTI (so buff groups
+//              gate damage-data debuffs), the damage-data key check (3227a960;
+//              passes until the effect plan's C3 registers DAMAGE_DATA_KEY_NAME),
+//              June's pre-apply roll with the RESIST text (322a7960), and a
+//              result that is true only when a factor applied.
+//              Requires SERV_IRUHADEV_JUNE_BUFF_GROUP and _TEMPLET_PARITY.
+#define SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 10: June-only script bindings
+//              DeleteNonControlDebuff and GetBuffAccumulationCountNow on
+//              CX2GameUnit, and the ApplyBuffFactor cheat on g_pGameEdit
+//              (3274c880, with CX2BuffTimeFinalizerTemplet::SetDurationTime).
+//              Requires SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG (DeleteNonControlDebuff).
+#define SERV_IRUHADEV_JUNE_BUFF_BINDING
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 10: June's
+//              CX2DamageManager::ParsingBuffFactorID (32630d20):
+//              APPLY_LEARNED_SKILL_BUFF_FACTOR_ID (+ _RELATIVE_SKILL_ID /
+//              _RELATIVE_BUFF_TEMPLATE_ID), BUFF_FACTOR_ID_ULTIMATE(_PVP) behind
+//              June's skill-memo gate (31fcf3e0: absent here, off like
+//              X2DamageEffect's), and BUFF_FACTOR_ID_PVP in a PvP game.
+#define SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 10: drop March's BUFF_FACTOR_ID_MEMO /
+//              BUFF_FACTOR_RELATIVE_MEMO_ID branch in ParsingBuffFactorID, as
+//              June did (no such key in June's binary). OFF until the user
+//              decides: March data uses it (DamageEffect, Elsword_SwordMan,
+//              RAVEN_FIGHTER) and June's replacement (_ULTIMATE) is gated off.
+//              Requires SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID.
+//#define SERV_IRUHADEV_JUNE_BUFF_MEMO_DROP
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 10: the DamageData keys IS_AURA_BUFF
+//              (+0x5f0) and LIMIT_APPLY_BUFF_COUNT_EACH_UNIT (+0x604), parsed
+//              and stored as June's SetDamageDataFromLUA does (32632390). Their
+//              readers (the party-only aura gate, the per-unit count) are
+//              Phase 10b's. Requires SERV_IRUHADEV_JUNE_BUFF_LOADER (the log line).
+#define SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY
+//////////////////////////////////////////////////////////////////////////

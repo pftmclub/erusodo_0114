@@ -228,6 +228,11 @@ void CX2StateStartUp::LoadData()
 #ifndef X2TOOL
 	CX2BuffTempletManager::GetInstance()->OpenScriptFileForTemplet();
 	CX2BuffTempletManager::GetInstance()->OpenScriptFileForFactor();
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+	CX2BuffTempletManager::GetInstance()->OpenScriptFileForBuffGroup();	/// June 32599e00: right after the factor loader
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 #endif
 
 	//유닛 데이타 로드

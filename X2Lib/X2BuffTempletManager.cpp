@@ -210,6 +210,155 @@ void CX2BuffTempletManager::OpenScriptFileForFactor()
 	LogLoadSummary();
 #endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 }
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+
+/** @function : OpenScriptFileForBuffGroup
+	@brief : June 326c26f0, called by the start-up right after the factor loader (32599e00). It binds
+			 g_pBuffTempletManager, runs UnitApplyBuffGroup.lua and logs a failure (June: error 0x48/0x49,
+			 then 0x2712). June then registers the group vector with its anti-tamper checksum (31c59710,
+			 326c0000); that is not ported, as in Phase 3's loaders. Without the file June has no groups
+			 (326c31c0 lets every buff through) and an empty officially-debuff set.
+*/
+void CX2BuffTempletManager::OpenScriptFileForBuffGroup()
+{
+	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "g_pBuffTempletManager", this );
+
+	const wchar_t* wszScriptFileName = L"UnitApplyBuffGroup.lua";
+	const HRESULT hr = g_pKTDXApp->LoadAndDoMemory_ErrorCode( g_pKTDXApp->GetLuaBinder(), wszScriptFileName );
+	if ( FAILED( hr ) )
+	{
+		ErrorLogMsg( XEM_ERROR2, wszScriptFileName );
+		if ( HRESULT_FROM_WIN32( ERROR_FILE_NOT_FOUND ) == hr )
+			CX2JuneBuffCapture::Line( "UnitApplyBuffGroup.lua not found: no buff groups and an empty officially-debuff list this run. Pack march2014/update/data036/UnitApplyBuffGroup.lua into data036.kom (June 326c26f0)" );
+		else
+			CX2JuneBuffCapture::Line( "UnitApplyBuffGroup.lua did not run (hr 0x%08x): no buff groups and an empty officially-debuff list this run (June 326c26f0)", static_cast<UINT>( hr ) );
+	}
+
+	CX2JuneBuffCapture::Line( "UnitApplyBuffGroup.lua: %u buff group(s), %u officially debuff(s) (June 326c26f0)",
+		static_cast<UINT>( m_vecBuffGroup.size() ), static_cast<UINT>( m_setOfficiallyDebuff.size() ) );
+}
+
+/** @function : AddBuffGroup_LUA
+	@brief : June 326c3450. BUFF_GROUP_ID and BUFF_GROUP_APPLY_DEFAULT_VALUE are ints, 0 when absent;
+			 BUFF_TEMPLET_LIST holds { BTI, apply } rows read by index until a row is missing (BTI 0 and
+			 apply true when a value is absent, as June presets them). map::insert keeps a BTI's first row.
+			 The group is pushed even when it repeats an id (no dedupe in June). June never closes
+			 BUFF_TEMPLET_LIST; the KLuaManager destructor drops the table stack (June 32fe9660, here
+			 KLuaManagerProxy's), so that is transcribed as June has it.
+*/
+void CX2BuffTempletManager::AddBuffGroup_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+
+	BuffGroup kBuffGroup;
+	if ( false == luaManager.GetValue( "BUFF_GROUP_ID", kBuffGroup.m_iBuffGroupID ) )
+		kBuffGroup.m_iBuffGroupID = 0;
+	if ( false == luaManager.GetValue( "BUFF_GROUP_APPLY_DEFAULT_VALUE", kBuffGroup.m_iApplyDefaultValue ) )
+		kBuffGroup.m_iApplyDefaultValue = 0;
+
+	if ( luaManager.BeginTable( "BUFF_TEMPLET_LIST" ) )
+	{
+		int iIndex = 1;
+		while ( luaManager.BeginTable( iIndex ) )
+		{
+			++iIndex;
+			UINT uiBuffTempletID = 0;
+			bool bApply = true;
+			luaManager.GetValue( 1, uiBuffTempletID );
+			luaManager.GetValue( 2, bApply );
+			kBuffGroup.m_mapBuffTemplet.insert( std::make_pair( static_cast<BUFF_TEMPLET_ID>( uiBuffTempletID ), bApply ) );
+			luaManager.EndTable();
+		}
+	}
+
+	m_vecBuffGroup.push_back( kBuffGroup );
+}
+
+/** @function : AddOfficiallyBuffList_LUA
+	@brief : June 326bfd80. Clears the set first (3260ea70), so the last call wins; then every
+			 OFFICIALLY_DEBUFF_TEMPLET_LIST value up to the first missing one goes in (0 included).
+*/
+void CX2BuffTempletManager::AddOfficiallyBuffList_LUA()
+{
+	m_setOfficiallyDebuff.clear();
+
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+	if ( luaManager.BeginTable( "OFFICIALLY_DEBUFF_TEMPLET_LIST" ) )
+	{
+		int iIndex = 1;
+		UINT uiBuffTempletID = 0;
+		while ( luaManager.GetValue( iIndex, uiBuffTempletID ) )
+		{
+			++iIndex;
+			m_setOfficiallyDebuff.insert( static_cast<BUFF_TEMPLET_ID>( uiBuffTempletID ) );
+		}
+		luaManager.EndTable();
+	}
+}
+
+/** @function : IsApplyBuffByGroup
+	@brief : June 326c31c0, called by CX2GUNPC::CanApplyBuffToGameUnit (327bdb60). The first group with this id
+			 decides; no group with it lets the buff through. A BTI the group's list names gets its own
+			 apply flag; any other BTI follows the group's default: NONE/ACTIVE yes, ACTIVE_JUST_BUFF only
+			 a buff, ACTIVE_JUST_DEBUFF only a debuff (templet +0x64 = IS_DEBUFF), DEACTIVE and the rest no.
+			 June reads the templet without a null check (JUNE_BUGS.md); a BTI with no templet is refused here
+			 with a log line instead of a crash.
+*/
+bool CX2BuffTempletManager::IsApplyBuffByGroup( const BUFF_TEMPLET_ID eBuffTempletID_, const int iBuffGroupID_ ) const
+{
+	vector<BuffGroup>::const_iterator vItr = m_vecBuffGroup.begin();
+	for ( ; m_vecBuffGroup.end() != vItr; ++vItr )
+	{
+		if ( iBuffGroupID_ == vItr->m_iBuffGroupID )
+			break;
+	}
+	if ( m_vecBuffGroup.end() == vItr )
+		return true;
+
+	map<BUFF_TEMPLET_ID, bool>::const_iterator mItr = vItr->m_mapBuffTemplet.find( eBuffTempletID_ );
+	if ( vItr->m_mapBuffTemplet.end() != mItr )
+		return mItr->second;
+
+	CX2BuffTempletPtr ptrBuffTemplet = GetBuffTempletPtr( eBuffTempletID_ );
+	if ( NULL == ptrBuffTemplet )
+	{
+		static std::set<int> s_setReported;
+		if ( s_setReported.insert( static_cast<int>( eBuffTempletID_ ) ).second )
+			CX2JuneBuffCapture::Line( "buff group %d: BTI %d has no templet, refused (June 326c31c0 would read a null templet)",
+				iBuffGroupID_, static_cast<int>( eBuffTempletID_ ) );
+		return false;
+	}
+
+	const bool bDebuff = ptrBuffTemplet->IsDeBuff();
+	switch ( vItr->m_iApplyDefaultValue )
+	{
+	case BGADV_NONE:
+	case BGADV_ACTIVE:
+		return true;
+
+	case BGADV_ACTIVE_JUST_BUFF:
+		return !bDebuff;
+
+	case BGADV_ACTIVE_JUST_DEBUFF:
+		return bDebuff;
+
+	case BGADV_DEACTIVE:
+	default:
+		return false;
+	}
+}
+
+/** @function : IsOfficiallyDebuff
+	@brief : June 326bfd50 (set find != end). Readers: EraseDebuffAndAddMP (3204d440), Ara's
+			 GetReduceDebuffDurationRate (32bd32f0), and 3204e6a0, which has no callers in June.
+*/
+bool CX2BuffTempletManager::IsOfficiallyDebuff( const BUFF_TEMPLET_ID eBuffTempletID_ ) const
+{
+	return m_setOfficiallyDebuff.end() != m_setOfficiallyDebuff.find( eBuffTempletID_ );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 
 /** @function : AddBuffTemplet_LUA
 	@brief : 버프템플릿 인스턴스 생성, 스크립트 파싱 및 map에 저장

@@ -145,6 +145,13 @@ public:
 
 #ifdef FIX_BUFF_FINALIZE_DURATION_TIME_CONTROL_BUG
 	virtual void SetBuffTempletID( BUFF_TEMPLET_ID eBuffTempletID_ ){ m_eBuffTempleteID = eBuffTempletID_;}
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BINDING
+	/// June 32ec3580 (Time finalizer slot 14): a different duration replaces the remaining one; the full duration
+	/// (+0x28) and the 5 s notify flag are left alone. Its only caller is the ApplyBuffFactor cheat (3274c880).
+	void SetDurationTime( const float fDurationTime_ ) { if ( fDurationTime_ != m_fDurationTime ) m_fDurationTime = fDurationTime_; }
+#endif SERV_IRUHADEV_JUNE_BUFF_BINDING
+//}}
 #endif // FIX_BUFF_FINALIZE_DURATION_TIME_CONTROL_BUG
 protected:
 	CX2BuffTimeFinalizerTemplet() : CX2BuffFinalizerTemplet(),

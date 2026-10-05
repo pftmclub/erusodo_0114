@@ -2984,7 +2984,13 @@ class CX2GUNPC : public CX2GameUnit
 	virtual void	HyperModeBuffEffectStart();
 	virtual float	GetHyperModeTime() const { return GetMaxHyperModeTime() * m_HyperModeCount; }
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+	virtual bool CanApplyBuffToGameUnit( const BUFF_TEMPLET_ID eBuffTempletID_ = BTI_NONE ) const;	/// June 327bdb60 (slot 132): + the buff group
+#else SERV_IRUHADEV_JUNE_BUFF_GROUP
 	virtual bool CanApplyBuffToGameUnit() const;
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     virtual const std::vector<BUFF_TEMPLET_ID>& GetVecImmunityAtThisState() const   { return GetNowStateData().m_vecImmunityAtThisState; }
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -3065,6 +3071,12 @@ class CX2GUNPC : public CX2GameUnit
 		bool GetNoRenderName() const { return m_bNoRenderName; }
 		void SetNoRenderName(bool val) { m_bNoRenderName = val; }
 #endif // SERV_NEW_DEFENCE_DUNGEON
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+		void SetMonsterBuffGroupID( const int iBuffGroupID_ ) { m_iMonsterBuffGroupID = iBuffGroupID_; }	/// June 31e4d770 (Lua: SetMonsterBuffGroupID)
+		int GetMonsterBuffGroupID() const { return m_iMonsterBuffGroupID; }
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 
 #ifdef USE_UNIT_FOG_RENDER_PARAM //JHKang
 		void SetFogNPC( float fNearX_, float fFarX_, float fNearY_, float fFarY_, float fDensity_, D3DXCOLOR fogColor_ )
@@ -4407,6 +4419,11 @@ class CX2GUNPC : public CX2GameUnit
 #endif  X2OPTIMIZE_ROBUST_NPC_ROTATION
 #endif // SERV_NEW_DEFENCE_DUNGEON
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+		int							m_iMonsterBuffGroupID;		/// June +0x8f70: BUFF_GROUP_ID (INIT_COMPONENT) or SetMonsterBuffGroupID; 0 = none
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 #ifdef ADDED_NPC_REMAINING_WHEN_SUBSTAGE_CLEAR
 		bool						m_bIsRemainingNpcWhenStageCleard;	// Stage, SubStage 가 클리어 되더라도
 																		// 해당 몬스터를 남길 것인가?

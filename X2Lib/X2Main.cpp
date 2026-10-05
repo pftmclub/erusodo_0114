@@ -4195,6 +4195,13 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2GameUnit>( L, "EraseAllBuffAndExtraDamage",	&CX2GameUnit::EraseAllBuffAndExtraDamage );
 #endif SERV_IRUHADEV_RANOX_ERASE_BUFF
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BINDING
+	lua_tinker::class_def<CX2GameUnit>( L, "DeleteNonControlDebuff",		&CX2GameUnit::DeleteNonControlDebuff );		/// June 3229dcc0 (bound @31decdfb)
+	lua_tinker::class_def<CX2GameUnit>( L, "GetBuffAccumulationCountNow",	&CX2GameUnit::GetBuffAccumulationCountNow );	/// June 3227bbc0 (bound @31debfe3)
+#endif SERV_IRUHADEV_JUNE_BUFF_BINDING
+//}}
+
 	//{{ GUNPC Start
 	lua_tinker::class_add<CX2GUNPC>( L, "CX2GUNPC" );
 	lua_tinker::class_inh<CX2GUNPC, CX2GameUnit>( L );
@@ -4572,6 +4579,12 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2GUNPC>( L, "GetRandomInt",					&CX2GUNPC::GetRandomInt );
 #endif SERV_EVENT_VALENTINE_DUNGEON_INT
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+	lua_tinker::class_def<CX2GUNPC>( L, "SetMonsterBuffGroupID",			&CX2GUNPC::SetMonsterBuffGroupID );	/// June 31e4d770 (bound @31e0c790)
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
+
 	lua_tinker::class_add<CX2GUUser>( L, "CX2GUUser" );
 	lua_tinker::class_inh<CX2GUUser, CX2GameUnit>( L );
 	lua_tinker::class_def<CX2GUUser>( L, "GetHyperModeUsed",			&CX2GUUser::GetHyperModeUsed );
@@ -4759,6 +4772,11 @@ void CX2Main::RegisterLuabind()
 //#ifdef SERV_PSHOP_AGENCY
 	lua_tinker::class_def<CX2GameEdit>( L, "ShopCheat",					&CX2GameEdit::ShopCheat_LUA );
 //#endif SERV_PSHOP_AGENCY
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BINDING
+	lua_tinker::class_def<CX2GameEdit>( L, "ApplyBuffFactor",				&CX2GameEdit::ApplyBuffFactor_LUA );	/// June 3274c880 (bound @31e205c7)
+#endif SERV_IRUHADEV_JUNE_BUFF_BINDING
+//}}
 	//}}
 	//{{ 2011. 08. 11	최육사	투니 랜드 채널링 
 #ifdef SERV_TOONILAND_CHANNELING // SERV_JAPAN_CHANNELING
@@ -5155,6 +5173,12 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_add<CX2BuffTempletManager>( L, "CX2BuffTempletManager" );
 	lua_tinker::class_def<CX2BuffTempletManager>( L, "AddBuffTemplet_LUA",			&CX2BuffTempletManager::AddBuffTemplet_LUA );
 	lua_tinker::class_def<CX2BuffTempletManager>( L, "AddBuffFactor_LUA",			&CX2BuffTempletManager::AddBuffFactor_LUA );
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+	lua_tinker::class_def<CX2BuffTempletManager>( L, "AddBuffGroup_LUA",			&CX2BuffTempletManager::AddBuffGroup_LUA );			/// June 326c3450 (bound @31e38292)
+	lua_tinker::class_def<CX2BuffTempletManager>( L, "AddOfficiallyBuffList_LUA",	&CX2BuffTempletManager::AddOfficiallyBuffList_LUA );	/// June 326bfd80 (bound @31e3847c)
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 
 #ifdef SERV_QUEST_POSSESSION_BUFF
 	lua_tinker::class_def<CX2PremiumBuffManager>( L, "AddEventQuestBuffInfo", &CX2PremiumBuffManager::AddEventQuestBuffInfo_LUA );

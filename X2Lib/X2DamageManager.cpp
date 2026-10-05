@@ -258,6 +258,34 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		if( -1 != pDamageData->m_iRoseWeaponAttackType )
 			JuneDamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"ROSE_WEAPON_ATTACK_TYPE", L"Rose weapon system", pDamageData->m_iRoseWeaponAttackType );
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY
+		// June2017 FUN_32632390 @3263efab-3263f08c: bool getter 32fe9e40, false when absent, to +0x5f0.
+		// Read by the damage manager's team checks (3261xxxx-3262xxxx, 326413c0, 327b1f30, 3204xxxx):
+		// an aura buff (DT_BUFF) reaches only the attacker's party. Those readers are Phase 10b's.
+		if ( false == luaManager.GetValue( "IS_AURA_BUFF", pDamageData->m_bIsAuraBuff ) )
+			pDamageData->m_bIsAuraBuff = false;
+		// June2017 FUN_32632390 @326402d5-326404f7: int getter 32fe9fd0, -1 when absent, to +0x604.
+		// Counted per unit by 3227a270 into +0x608 and checked before a buff applies (32275990); Phase 10b.
+		if ( false == luaManager.GetValue( "LIMIT_APPLY_BUFF_COUNT_EACH_UNIT", pDamageData->m_iLimitApplyBuffCountEachUnit ) )
+			pDamageData->m_iLimitApplyBuffCountEachUnit = -1;
+		if ( true == pDamageData->m_bIsAuraBuff || -1 != pDamageData->m_iLimitApplyBuffCountEachUnit )
+		{
+			static bool s_bAuraLogged = false, s_bLimitLogged = false;
+			if ( true == pDamageData->m_bIsAuraBuff && false == s_bAuraLogged )
+			{
+				s_bAuraLogged = true;
+				CX2JuneBuffCapture::Line( "IS_AURA_BUFF parsed (first seen in %s): stored, its party-only reader is Phase 10b", NULL != pTableName ? pTableName : "?" );
+			}
+			if ( -1 != pDamageData->m_iLimitApplyBuffCountEachUnit && false == s_bLimitLogged )
+			{
+				s_bLimitLogged = true;
+				CX2JuneBuffCapture::Line( "LIMIT_APPLY_BUFF_COUNT_EACH_UNIT %d parsed (first seen in %s): stored, its per-unit count is Phase 10b",
+					pDamageData->m_iLimitApplyBuffCountEachUnit, NULL != pTableName ? pTableName : "?" );
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY
+//}}
 
 		if( luaManager.BeginTable( "DAMAGE" ) == true )
 		{
@@ -4058,6 +4086,190 @@ bool CX2DamageManager::SetBuffFactorToDamageDataByBuffFactorID( OUT DamageData* 
 	}
 	return false;
 }
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID
+namespace
+{
+	/// June's list read (32630d20, five times): BeginTable, every non-zero value by index until one is missing, EndTable
+	bool JuneReadBuffFactorIDList( KLuaManager& luaManager_, const char* szTableName_, IN OUT vector<UINT>& vecUiBuffFactor_ )
+	{
+		if ( false == luaManager_.BeginTable( szTableName_ ) )
+			return false;
+
+		int iIndex = 1;
+		UINT uiBuffFactorID = 0;
+		while ( true == luaManager_.GetValue( iIndex, uiBuffFactorID ) )
+		{
+			if ( 0 != uiBuffFactorID )
+				vecUiBuffFactor_.push_back( uiBuffFactorID );
+			++iIndex;
+		}
+		luaManager_.EndTable();
+		return true;
+	}
+}
+
+/** @function : ParsingBuffFactorID
+	@brief : June 32630d20, in June's order:
+			 1. The _ULTIMATE gate (@32630d60-32630e0a): a user attacker (an NPC's master user, 32759f00) asks 31fcf3e0
+				whether the skill-memo version of APPLIED_SKILL_ID is equipped. That memo map (skill templet +0x178,
+				SkillTree +0x20, user skill tree +0x4ac) is a June system March lacks, and X2DamageEffect.cpp forces its own
+				copy of the gate (m_bUseUltimateDamageData) false for the same reason; it is false here too.
+			 2. APPLY_LEARNED_SKILL_BUFF_FACTOR_ID (@32630e0e-3263168a): a user attacker that has learned
+				..._RELATIVE_SKILL_ID (31fceab0 > 0) and, if ..._RELATIVE_BUFF_TEMPLATE_ID is set, has that buff (3227baf0 =
+				HaveThisBuff) takes this list; nothing else is read then.
+			 3. BUFF_FACTOR_ID_ULTIMATE_PVP / _ULTIMATE (@3263168f-326317cd), only through the gate.
+			 4. BUFF_FACTOR_ID_PVP in a PvP game, else BUFF_FACTOR_ID (@326317d4-3263197e), unless 2 or 3 took a list.
+			 5. The factor level (@32631980-32632326): March's rules, unchanged in June.
+			 June has no BUFF_FACTOR_ID_MEMO / BUFF_FACTOR_RELATIVE_MEMO_ID reads (absent from the binary as text and
+			 from every decrypted buffer). March's memo branch stays unless SERV_IRUHADEV_JUNE_BUFF_MEMO_DROP is on.
+*/
+#ifdef ADD_MEMO_1ST_CLASS
+void CX2DamageManager::ParsingBuffFactorID( KLuaManager& luaManager_, DamageData* pDamageData_, const bool IsEqippedMemo_ /*= false*/ )
+#else //ADD_MEMO_1ST_CLASS
+void CX2DamageManager::ParsingBuffFactorID( KLuaManager& luaManager_, DamageData* pDamageData_ )
+#endif //ADD_MEMO_1ST_CLASS
+{
+	vector<UINT> vecUiBuffFactor;
+	CX2GameUnit* pAttacker = ( null != pDamageData_->optrAttackerGameUnit ) ? pDamageData_->optrAttackerGameUnit.GetObservable() : NULL;
+	const bool bPvpGame = ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() );	/// 322cc1a0 IsPvpOrPve: March has no GT_PVE
+
+	/// 1. the _ULTIMATE gate (31fcf3e0): the skill-memo map is absent here, see the brief
+	const bool bUltimate = false;
+
+	/// 2. APPLY_LEARNED_SKILL_BUFF_FACTOR_ID
+	bool bFound = false;
+	if ( NULL != pAttacker )
+	{
+		UINT uiRelativeSkillID = 0;
+		if ( false == luaManager_.GetValue( "APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID", uiRelativeSkillID ) )
+			uiRelativeSkillID = 0;
+		UINT uiRelativeBuffTempletID = 0;
+		if ( false == luaManager_.GetValue( "APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID", uiRelativeBuffTempletID ) )
+			uiRelativeBuffTempletID = 0;
+
+		if ( 0 != uiRelativeSkillID && CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType() )
+		{
+			/// 31fceab0: 1 without a CX2Unit, else the skill level. Its other early 0 is a skill whose m_ePowerRate
+			/// (templet +0x174, stored by 32216320 @32217cbb) is 5 while unit +0x3c != 1: 5 is June's SPRT_HYPER_CLASS,
+			/// which March's SKILL_POWER_RATE_TYPE lacks (5 = SPRT_END there), so it cannot fire on March's skills.
+			const CX2GUUser* pGUUser = static_cast<CX2GUUser*>( pAttacker );
+			int iLearnedLevel = 1;
+			if ( NULL != pGUUser->GetUnit() )
+				iLearnedLevel = pGUUser->GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( uiRelativeSkillID ) );
+
+			if ( 0 < iLearnedLevel
+				&& ( 0 == uiRelativeBuffTempletID || pAttacker->HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( uiRelativeBuffTempletID ) ) )
+				&& JuneReadBuffFactorIDList( luaManager_, "APPLY_LEARNED_SKILL_BUFF_FACTOR_ID", vecUiBuffFactor ) )
+			{
+				bFound = true;
+			}
+		}
+	}
+
+	/// 3. the _ULTIMATE lists. June does not test bFound before the _PVP one (JUNE_BUGS.md).
+	if ( true == bUltimate )
+	{
+		if ( bPvpGame && JuneReadBuffFactorIDList( luaManager_, "BUFF_FACTOR_ID_ULTIMATE_PVP", vecUiBuffFactor ) )
+			bFound = true;
+		else if ( false == bFound && JuneReadBuffFactorIDList( luaManager_, "BUFF_FACTOR_ID_ULTIMATE", vecUiBuffFactor ) )
+			bFound = true;
+	}
+
+#ifndef SERV_IRUHADEV_JUNE_BUFF_MEMO_DROP
+	/// March only (BALANCE_PATCH_20131107 + ADD_MEMO_1ST_CLASS): with the skill's memo equipped, BUFF_FACTOR_ID_MEMO
+	/// replaces BUFF_FACTOR_ID. June dropped it for the _ULTIMATE lists above, whose gate is off here, so it stays
+	/// until the user decides (Phase 10 Done note); March data uses it in DamageEffect, Elsword_SwordMan, RAVEN_FIGHTER.
+	if ( false == bFound )
+	{
+#ifdef ADD_MEMO_1ST_CLASS
+		bool bMemoCheck = IsEqippedMemo_;
+#else //ADD_MEMO_1ST_CLASS
+		bool bMemoCheck = false;
+#endif //ADD_MEMO_1ST_CLASS
+		if ( NULL != pAttacker && CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType()
+#ifdef ADD_MEMO_1ST_CLASS
+			&& bMemoCheck == false
+#endif //ADD_MEMO_1ST_CLASS
+			)
+		{
+			const CX2GUUser* pGUUser = static_cast<CX2GUUser*>( pAttacker );
+			CX2SkillTree::SKILL_MEMO_ID eMemoID = CX2SkillTree::SMI_NONE;
+			LUA_GET_VALUE_ENUM( luaManager_, "BUFF_FACTOR_RELATIVE_MEMO_ID", eMemoID,	CX2SkillTree::SKILL_MEMO_ID,	CX2SkillTree::SMI_NONE );
+			if ( CX2SkillTree::SMI_NONE != eMemoID && NULL != pGUUser->GetUnit() )
+				bMemoCheck = pGUUser->GetUnit()->GetUnitData().m_UserSkillTree.GetEqipSkillMemo( eMemoID );
+		}
+
+		if ( true == bMemoCheck )
+		{
+			JuneReadBuffFactorIDList( luaManager_, "BUFF_FACTOR_ID_MEMO", vecUiBuffFactor );
+			bFound = true;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_MEMO_DROP
+
+	/// 4. BUFF_FACTOR_ID_PVP in a PvP game, else BUFF_FACTOR_ID
+	if ( false == bFound )
+	{
+		if ( false == bPvpGame || false == JuneReadBuffFactorIDList( luaManager_, "BUFF_FACTOR_ID_PVP", vecUiBuffFactor ) )
+			JuneReadBuffFactorIDList( luaManager_, "BUFF_FACTOR_ID", vecUiBuffFactor );
+	}
+
+	if ( vecUiBuffFactor.empty() )
+		return;
+
+	/// 5. the level: March's rules (June @32631980-32632326 matches them branch for branch)
+	UINT iBuffFactorLV = 1;
+	if ( NULL != pAttacker && CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType() )
+	{
+		const CX2GUUser* pGUUser = static_cast<CX2GUUser*>( pAttacker );
+		CX2SkillTree::SKILL_ID eSkillID = CX2SkillTree::SI_NONE;
+		LUA_GET_VALUE_ENUM( luaManager_, "BUFF_FACTOR_RELATIVE_SKILL_ID", eSkillID,	CX2SkillTree::SKILL_ID,	pGUUser->GetNowStateSkillID() );
+		bool CheckSkillLevel = false;
+		LUA_GET_VALUE( luaManager_, "RELATIVE_SKILL_LEARN_CHECK", CheckSkillLevel,	false );
+
+		if ( CX2SkillTree::SI_NONE != eSkillID && NULL != pGUUser->GetUnit() )
+		{
+			const UINT iSkillLevel = static_cast<UINT>( pGUUser->GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID ) );
+			if ( false == CheckSkillLevel || 1 <= iSkillLevel )
+				iBuffFactorLV = 0 < iSkillLevel ? iSkillLevel : 1;
+			else
+				iBuffFactorLV = 0;
+		}
+	}
+	else if ( NULL != pAttacker && CX2GameUnit::GUT_NPC == pAttacker->GetGameUnitType() )
+	{
+		bool bBuffFactorRelativeMasterUnit = false;
+		CX2SkillTree::SKILL_ID eSkillID = CX2SkillTree::SI_NONE;
+		LUA_GET_VALUE_ENUM( luaManager_, "BUFF_FACTOR_RELATIVE_SKILL_ID", eSkillID,	CX2SkillTree::SKILL_ID,	CX2SkillTree::SI_NONE );
+		LUA_GET_VALUE( luaManager_, "BUFF_FACTOR_RELATIVE_MASTER_UNIT", bBuffFactorRelativeMasterUnit, false );
+
+		if ( true == bBuffFactorRelativeMasterUnit && eSkillID != CX2SkillTree::SI_NONE )
+		{
+			CX2GUNPC* pGUNPC = static_cast<CX2GUNPC*>( pAttacker );
+			CX2AllyNPCAI* pAllyAI = static_cast<CX2AllyNPCAI*> ( pGUNPC->GetNPCAI() );
+			if ( NULL != pAllyAI && pAllyAI->GetAllyUnitUID() > -1 && NULL != g_pX2Game )
+			{
+				CX2GUUser* pMasterUser = g_pX2Game->GetUserUnitByUID( pAllyAI->GetAllyUnitUID() );
+				if ( NULL != pMasterUser && NULL != pMasterUser->GetUnit() )
+				{
+					const UINT iSkillLevel = static_cast<UINT>( pMasterUser->GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID ) );
+					iBuffFactorLV = 0 < iSkillLevel ? iSkillLevel : 0;
+				}
+			}
+		}
+	}
+
+	if ( 0 == iBuffFactorLV )
+		return;
+
+	BOOST_FOREACH( UINT uiBuffFactorID, vecUiBuffFactor )
+	{
+		SetBuffFactorToDamageDataByBuffFactorID( pDamageData_, uiBuffFactorID, iBuffFactorLV );	/// June 32630c00
+	}
+}
+#else SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID
+//}}
 /** @function : ParsingBuffFactorID
 	@brief : DamageData¿¡ ID·Î Á¤ÀÇµÈ ¹öÇÁÆÑÅÍ ÆÄ½Ì
 */
@@ -4232,6 +4444,9 @@ void CX2DamageManager::ParsingBuffFactorID( KLuaManager& luaManager_, DamageData
 
 
 }
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID
+//}}
 #endif // DAMAGE_DATA_BUFF_FACTOR_RELATIVE_SKILL_LEVEL
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE	  // ±èÁ¾ÈÆ, ¿¤¸®½Ã½º 1-2 ±×·£µå ¸¶½ºÅÍ, 2-2 ºí·¹ÀÌÂ¡ ÇÏÆ®

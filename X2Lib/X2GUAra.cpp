@@ -13900,11 +13900,23 @@ float CX2GUAra::GetReduceDebuffDurationRate(BUFF_TEMPLET_ID eBuffTempletID_)
 	if ( NULL != g_pX2Game )
 	{
 		/// 해로운 효과라고 정의된 공식적인 디버프 리스트에 해당 버프가 포함되어 있다면, 버프 시간 감소
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+		/// June 32bd32f0 (CX2GUAra slot 167): the manager's officially-debuff set (UnitApplyBuffGroup.lua, 326bfd50)
+		/// replaces CX2Game's hard-coded list. June then multiplies by skill 27415's value when it is learned and
+		/// a counter is full; March has no skill 27415 (JUNE2017_CHARACTER_PORT_CHECKLIST.md, Ara).
+		if ( CX2BuffTempletManager::GetInstance()->IsOfficiallyDebuff( eBuffTempletID_ ) )
+			fReduceDebuffDurationRate = m_fReduceEDTDurationRate;
+#else SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 		BOOST_FOREACH( BUFF_TEMPLET_ID eBuffTempletID, g_pX2Game->GetOfficiallyDebuffList() )
 		{
 			if ( eBuffTempletID_ == eBuffTempletID )
 				fReduceDebuffDurationRate = m_fReduceEDTDurationRate;
 		}
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 	}
 #else // HAMEL_SECRET_DUNGEON
 	switch( eBuffTempletID_ )

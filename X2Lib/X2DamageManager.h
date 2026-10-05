@@ -1175,6 +1175,12 @@ class CX2DamageManager
 			std::wstring		m_wstrNumericalDataName;			/// NUMERICAL_DATA_NAME (a stack local in June)
 			int					m_iRoseWeaponAttackType;			/// ROSE_WEAPON_ATTACK_TYPE (+0x600)
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY
+			bool				m_bIsAuraBuff;						/// IS_AURA_BUFF (+0x5f0): June's party-only gate in the team checks (Phase 10b)
+			int					m_iLimitApplyBuffCountEachUnit;		/// LIMIT_APPLY_BUFF_COUNT_EACH_UNIT (+0x604, -1 = none): per-unit buff count (Phase 10b)
+#endif SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY
+//}}
 
 			void SimpleInit()
 			{
@@ -1392,6 +1398,12 @@ class CX2DamageManager
 				m_wstrNumericalDataName					= L"";
 				m_iRoseWeaponAttackType					= -1;	/// RWAT_NONE in June's Enum.lua
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY
+				m_bIsAuraBuff							= false;	/// June 31f8f3c9 (BL = 0)
+				m_iLimitApplyBuffCountEachUnit			= -1;		/// June 31f8f3fb (EDI = -1)
+#endif SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY
+//}}
 			}
 
 			void Init()
