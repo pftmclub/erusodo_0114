@@ -34328,8 +34328,8 @@ void CX2GUUser::StickShakeInput( const bool bLeft_, const bool bRight_ )
 }
 
 /** @function : CountReservedSkillUse
-	@brief : June CommonStateStart (32057b80 @32057c23-d84). When the state that starts is the reserved skill's (not a no-stage-change
-		skill, slot 516), June spends the skill's MP (March already did, at use) and clears the reservation (slot 514); then, unless the
+	@brief : June CommonStateStart (32057b80 @32057c23-d84). When the state that starts is the reserved skill's, June spends the
+		skill's MP (March already did, at use) and clears the reservation (slot 514); then, unless the
 		state is excluded (slot 303) or the skill is a relationship or hyper skill (32070580: type 12 / 13), one use is counted for any
 		skill (key 0) and one for the slot type the skill is equipped in (3288fff0 + 3214f3d0, Phase 6's GetEquippedSkillSlotType).
 		June's other branch, which drops a stale reservation depending on its MP, is not ported: March reserves no MP, and the
@@ -34342,7 +34342,10 @@ void CX2GUUser::CountReservedSkillUse()
 		return;
 
 	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID );
-	if ( NULL == pSkillTemplet || SpecialAttackNoStageChange( pSkillTemplet ) )
+	/// June also skips a no-stage-change skill here (slot 516). March's SpecialAttackNoStageChange performs the skill's action
+	/// (it writes nowAction) instead of answering, so it is not called: such a skill never starts its own state, so its
+	/// reservation never matches and nothing is counted, the same result
+	if ( NULL == pSkillTemplet )
 		return;
 
 	ClearSkillUseReserve();		/// @32057cbe
