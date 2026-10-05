@@ -9525,7 +9525,25 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		}
 
 		ApplyBuffToGameUnitInDamageReact( pDamageData );
+//{{ Iruha : 2026-10-05 // June buff port Phase 10b (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AURA_REACT
+		// June2017 CX2GUNPC::DamageReact 327b1f30 @327b3122: after the damage-react apply (322a88c0), the
+		// hitted-by-buff effect sets (32275910) play only when the hit is not IS_AURA_BUFF (+0x5f0).
+		if ( false == pDamageData->m_bIsAuraBuff )
+			PlayEffectSetHittedByBuff();
+		else
+		{
+			static bool s_bAuraReactLogged = false;
+			if ( false == s_bAuraReactLogged )
+			{
+				s_bAuraReactLogged = true;
+				CX2JuneBuffCapture::Line( "aura hit on NPC %I64d: hitted-by-buff effect sets skipped (first seen)", GetUnitUID() );
+			}
+		}
+#else SERV_IRUHADEV_JUNE_BUFF_AURA_REACT
 		PlayEffectSetHittedByBuff();
+#endif SERV_IRUHADEV_JUNE_BUFF_AURA_REACT
+//}}
 		DoDelegateProcessInDamageReact();
 		DoDelegateProcessWithDamageDataInDamageReact( *pDamageData );
 	}

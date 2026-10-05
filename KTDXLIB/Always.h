@@ -5005,3 +5005,36 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Phase 10b's. Requires SERV_IRUHADEV_JUNE_BUFF_LOADER (the log line).
 #define SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 10b: IS_AURA_BUFF's party gate. In
+//              every hit path (GroundHit, AreaHit, UnitToUnit, MeshToUnit,
+//              CollisionDataToUnit, EffectToUnit, UnitToEffect) an aura buff
+//              skips this client's own unit when the attacker is not in my
+//              party and is not that unit (GroundHit: no self exception).
+//              Requires SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY and DUNGEON_ITEM.
+#define SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 10b: an IS_AURA_BUFF hit plays no
+//              hitted-by-buff effect set (CX2GUUser/CX2GUNPC::DamageReact).
+//              Requires SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY.
+#define SERV_IRUHADEV_JUNE_BUFF_AURA_REACT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 10b: June's guild skill Chance to
+//              Reverse check (32610df0). Skipped for ATTACK_OUR_TEAM,
+//              IS_AURA_BUFF and DT_BUFF damage, attacker first, and run on a
+//              hit after AttackResult as well as on a miss (March: miss only).
+//              Requires SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY, DUNGEON_ITEM
+//              and GUILD_SKILL_PART_2.
+#define SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
+//////////////////////////////////////////////////////////////////////////

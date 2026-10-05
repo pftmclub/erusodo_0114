@@ -261,12 +261,12 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 //{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY
 		// June2017 FUN_32632390 @3263efab-3263f08c: bool getter 32fe9e40, false when absent, to +0x5f0.
-		// Read by the damage manager's team checks (3261xxxx-3262xxxx, 326413c0, 327b1f30, 3204xxxx):
-		// an aura buff (DT_BUFF) reaches only the attacker's party. Those readers are Phase 10b's.
+		// Read (Phase 10b) by the hit paths' party gate (JuneAuraBuffSkipsTarget, 7 sites), the guild
+		// Chance to Reverse guard (32610df0) and both DamageReacts (320471d6, 327b3122).
 		if ( false == luaManager.GetValue( "IS_AURA_BUFF", pDamageData->m_bIsAuraBuff ) )
 			pDamageData->m_bIsAuraBuff = false;
 		// June2017 FUN_32632390 @326402d5-326404f7: int getter 32fe9fd0, -1 when absent, to +0x604.
-		// Counted per unit by 3227a270 into +0x608 and checked before a buff applies (32275990); Phase 10b.
+		// June never enforces it: its per-unit counter (3227a270) and check (322759b0) have no caller (Phase 10b, JUNE_BUGS).
 		if ( false == luaManager.GetValue( "LIMIT_APPLY_BUFF_COUNT_EACH_UNIT", pDamageData->m_iLimitApplyBuffCountEachUnit ) )
 			pDamageData->m_iLimitApplyBuffCountEachUnit = -1;
 		if ( true == pDamageData->m_bIsAuraBuff || -1 != pDamageData->m_iLimitApplyBuffCountEachUnit )
@@ -275,12 +275,12 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 			if ( true == pDamageData->m_bIsAuraBuff && false == s_bAuraLogged )
 			{
 				s_bAuraLogged = true;
-				CX2JuneBuffCapture::Line( "IS_AURA_BUFF parsed (first seen in %s): stored, its party-only reader is Phase 10b", NULL != pTableName ? pTableName : "?" );
+				CX2JuneBuffCapture::Line( "IS_AURA_BUFF parsed (first seen in %s): stored, read by the party-only aura gate", NULL != pTableName ? pTableName : "?" );
 			}
 			if ( -1 != pDamageData->m_iLimitApplyBuffCountEachUnit && false == s_bLimitLogged )
 			{
 				s_bLimitLogged = true;
-				CX2JuneBuffCapture::Line( "LIMIT_APPLY_BUFF_COUNT_EACH_UNIT %d parsed (first seen in %s): stored, its per-unit count is Phase 10b",
+				CX2JuneBuffCapture::Line( "LIMIT_APPLY_BUFF_COUNT_EACH_UNIT %d parsed (first seen in %s): stored, never enforced (as in June)",
 					pDamageData->m_iLimitApplyBuffCountEachUnit, NULL != pTableName ? pTableName : "?" );
 			}
 		}
@@ -777,6 +777,94 @@ if( null != pDamageData->optrAttackerGameUnit && pDamageData->optrAttackerGameUn
 	return true;
 }
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10b (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+// June2017 IS_AURA_BUFF party gate, inlined in front of every hit path's team check: GroundHit 32623110
+// @32623c5d, AreaHit 32624610 @32624885, UnitToUnit 32625000 @326250fa, MeshToUnit 32625670 @326257d7,
+// CollisionDataToUnit 32628890 @326289e3, EffectToUnit 3262b6e0 @3262b89e (attacker = the effect's owner,
+// 31f8b560), UnitToEffect's per-effect body 326413c0 @326414ad (target = the hit effect's owner).
+// An aura buff skips a target only when the target is this client's own unit (vslot 0x198 IsMyUnit), the party
+// manager exists (g_pData+0x5c) and the attacker's UID is not in my party (32431360 IsMyPartyMember), unless
+// attacker and target have the same UID (vslot 0x54 GetUnitUID). GroundHit's copy has no same-UID exception
+// (bAllowSelf_ false; JUNE_BUGS). A NULL attacker (only GroundHit can have one) is called through unchecked in
+// June; here the target is skipped. The team pre-filter 32622990 reads the key too, but only in June's PvE mode
+// (322cc1c0), which March lacks: not ported (effect Phase 9).
+static bool JuneAuraBuffSkipsTarget( const CX2DamageManager::DamageData* pDamageData_, CX2GameUnit* pAttacker_,
+	CX2GameUnit* pTarget_, const bool bAllowSelf_, const char* szSite_ )
+{
+	if ( true != pDamageData_->m_bIsAuraBuff )
+		return false;
+	if ( NULL == pTarget_ || true != pTarget_->IsMyUnit() )
+		return false;
+	CX2PartyManager* pPartyManager = g_pData->GetPartyManager();
+	if ( NULL == pPartyManager )
+		return false;
+	if ( NULL != pAttacker_ )
+	{
+		if ( true == pPartyManager->IsMyPartyMember( pAttacker_->GetUnitUID() ) )
+			return false;
+		if ( true == bAllowSelf_ && pAttacker_->GetUnitUID() == pTarget_->GetUnitUID() )
+			return false;
+	}
+
+	static int s_iLogged = 0;
+	if ( s_iLogged < 10 )
+	{
+		++s_iLogged;
+		CX2JuneBuffCapture::Line( "aura buff skipped my unit %I64d in %s: attacker %I64d is not in my party",
+			pTarget_->GetUnitUID(), szSite_, NULL != pAttacker_ ? pAttacker_->GetUnitUID() : (UidType)-1 );
+	}
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
+// June2017 FUN_32610df0 (a CX2DamageManager thiscall that never reads this): the guild skill Chance to Reverse
+// check, factored out of the hit paths. Its guard is also kept out of line, uncalled, as 32610880: the DamageData
+// is set, not ATTACK_OUR_TEAM (+0x500), not IS_AURA_BUFF (+0x5f0), damageType (+0) != DT_BUFF (6). Then the
+// attacker, then the target (March: target first), each only if a user (+0x264 == 0): vslot 0x290 (3202dd70 =
+// GuildSkillProcess) with 0x1fd (SI_GP_COMMON_CHANCE_TO_REVERSE; case 0x1fd -> 3202a890 if learned).
+// June calls it on a miss, where March did (UnitToUnit 3262551c, MeshToUnit 32628710, CollisionDataToUnit 3262b52d,
+// EffectToUnit 3262f2bb), and also on a hit right after AttackResult (326255f9, 32628818, 3262b422, 3262f532).
+// bOnHit_ is for the log only.
+static void JuneGuildSkillChanceToReverse( const CX2DamageManager::DamageData* pDamageData_, CX2GameUnit* pAttacker_,
+	CX2GameUnit* pDefender_, const bool bOnHit_ )
+{
+	if ( NULL == pDamageData_ )
+		return;
+	if ( true == pDamageData_->m_bAttackOurTeam || true == pDamageData_->m_bIsAuraBuff
+		|| CX2DamageManager::DT_BUFF == pDamageData_->damageType )
+	{
+		static bool s_bSkipLogged = false;
+		if ( false == s_bSkipLogged )
+		{
+			s_bSkipLogged = true;
+			CX2JuneBuffCapture::Line( "guild Chance to Reverse not checked for this damage (first seen): ATTACK_OUR_TEAM %d, IS_AURA_BUFF %d, damage type %d",
+				(int)pDamageData_->m_bAttackOurTeam, (int)pDamageData_->m_bIsAuraBuff, (int)pDamageData_->damageType );
+		}
+		return;
+	}
+
+	const bool bAttackerUser = ( NULL != pAttacker_ && CX2GameUnit::GUT_USER == pAttacker_->GetGameUnitType() );
+	const bool bDefenderUser = ( NULL != pDefender_ && CX2GameUnit::GUT_USER == pDefender_->GetGameUnitType() );
+	if ( true == bOnHit_ && ( true == bAttackerUser || true == bDefenderUser ) )
+	{
+		static bool s_bHitLogged = false;
+		if ( false == s_bHitLogged )
+		{
+			s_bHitLogged = true;
+			CX2JuneBuffCapture::Line( "guild Chance to Reverse checked on a hit too (first seen): attacker %I64d, target %I64d",
+				pAttacker_->GetUnitUID(), pDefender_->GetUnitUID() );
+		}
+	}
+
+	if ( true == bAttackerUser )
+		static_cast< CX2GUUser* >( pAttacker_ )->GuildSkillProcess( CX2SkillTree::SI_GP_COMMON_CHANCE_TO_REVERSE );
+	if ( true == bDefenderUser )
+		static_cast< CX2GUUser* >( pDefender_ )->GuildSkillProcess( CX2SkillTree::SI_GP_COMMON_CHANCE_TO_REVERSE );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
+//}}
 bool CX2DamageManager::DamageCheck( DamageData* pDamageData, bool bAttackOnlyThisUnit, UidType attackUnitUID )
 {
 	bool retval = false;
@@ -1122,6 +1210,13 @@ bool CX2DamageManager::GroundHit( DamageData* pDamageData, bool bAttackOnlyThisU
 					continue;
 			}
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10b
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+			// June2017 GroundHit 32623110 @32623c5d-32623c98: no same-UID exception (JUNE_BUGS)
+			if ( true == JuneAuraBuffSkipsTarget( pDamageData, pAttacker, pDefender, false, "GroundHit" ) )
+				continue;
+#endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+//}}
 #ifdef DUNGEON_ITEM
 			if( pDamageData->m_bAttackOurTeam == true )
 			{
@@ -1310,6 +1405,13 @@ bool CX2DamageManager::AreaHit( DamageData* pDamageData, bool bAttackOnlyThisUni
 				continue;
 		}
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10b
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+		// June2017 AreaHit 32624610 @32624885-326248e9
+		if ( true == JuneAuraBuffSkipsTarget( pDamageData, pAttacker, pDefender, true, "AreaHit" ) )
+			continue;
+#endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+//}}
 #ifdef DUNGEON_ITEM
 		if( pDamageData->m_bAttackOurTeam == true )
 		{
@@ -1564,6 +1666,13 @@ bool CX2DamageManager::UnitToUnit( DamageData* pDamageData, bool bAttackOnlyThis
 
 
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10b
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+		// June2017 UnitToUnit 32625000 @326250fa-3262515e
+		if ( true == JuneAuraBuffSkipsTarget( pDamageData, pAttacker, pDefender, true, "UnitToUnit" ) )
+			continue;
+#endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+//}}
 #ifdef DUNGEON_ITEM
 		if( pDamageData->m_bAttackOurTeam == true )
 		{
@@ -1711,6 +1820,9 @@ bool CX2DamageManager::UnitToUnit( DamageData* pDamageData, bool bAttackOnlyThis
 					pDamageData->reActResult = CX2DamageManager::RT_NO_DAMAGE;
 
 					//{{ kimhc // 2009-11-18 // 길드스킬 역전의 기회
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
+					JuneGuildSkillChanceToReverse( pDamageData, pAttacker, pDefender, false );	// June2017 UnitToUnit @3262551c
+#else SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
 #ifdef	GUILD_SKILL_PART_2
 					if ( pDefender->GetGameUnitType() == CX2GameUnit::GUT_USER )
 					{
@@ -1724,6 +1836,7 @@ bool CX2DamageManager::UnitToUnit( DamageData* pDamageData, bool bAttackOnlyThis
 						pUser->GuildSkillProcess( CX2SkillTree::SI_GP_COMMON_CHANCE_TO_REVERSE );
 					}
 #endif	GUILD_SKILL_PART_2
+#endif SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
 					//}} kimhc // 2009-11-18 // 길드스킬 역전의 기회
 
 #ifdef ADD_RENA_SYSTEM //김창한
@@ -1756,6 +1869,9 @@ bool CX2DamageManager::UnitToUnit( DamageData* pDamageData, bool bAttackOnlyThis
 			pDamageData->hitUnitList.push_back( hitUnit );
 
 			pAttacker->AttackResult();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
+			JuneGuildSkillChanceToReverse( pDamageData, pAttacker, pDefender, true );	// June2017 UnitToUnit @326255f9 (new in June: on a hit)
+#endif SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
 
 #ifdef UPGRADE_RAVEN
 			if ( pAttacker->GetGameUnitType() == CX2GameUnit::GUT_USER )
@@ -2144,6 +2260,13 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 		}
 #endif SERV_CHUNG_TACTICAL_TROOPER
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10b
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+		// June2017 EffectToUnit 3262b6e0 @3262b89e-3262b91d: the attacker is the effect's owner (31f8b560)
+		if ( true == JuneAuraBuffSkipsTarget( pDamageData, pAttacker->GetOwnerUnit(), pDefender, true, "EffectToUnit" ) )
+			continue;
+#endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+//}}
 #ifdef DUNGEON_ITEM
 		CX2GameUnit *pAttackUnit = pAttacker->GetOwnerUnit();
 		if( pDamageData->m_bAttackOurTeam == true )
@@ -2359,6 +2482,9 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 					pDamageData->reActResult = CX2DamageManager::RT_NO_DAMAGE;
 
 					//{{ kimhc // 2009-11-18 // 길드스킬 역전의 기회
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
+					JuneGuildSkillChanceToReverse( pDamageData, pAttacker->GetOwnerUnit(), pDefender, false );	// June2017 EffectToUnit @3262f2bb (owner 31f8b560)
+#else SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
 #ifdef	GUILD_SKILL_PART_2
 					if ( pDefender->GetGameUnitType() == CX2GameUnit::GUT_USER )
 					{
@@ -2372,6 +2498,7 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 						pUser->GuildSkillProcess( CX2SkillTree::SI_GP_COMMON_CHANCE_TO_REVERSE );
 					}
 #endif	GUILD_SKILL_PART_2
+#endif SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
 					//{{ kimhc // 2009-11-18 // 길드스킬 역전의 기회
 
 					HitUnit hitUnit;
@@ -2434,6 +2561,11 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 
 			if( pAttacker != NULL && g_pX2Game->GetDamageEffect()->IsLiveInstance( pAttacker ) == true )				
 				pAttacker->AttackResult();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
+			// June2017 EffectToUnit @3262f532 (new in June: on a hit), live or not; June reads the owner off the
+			// effect (31f8b560), here pAttackUnit, the same owner taken at this target's start (the effect may be gone)
+			JuneGuildSkillChanceToReverse( pDamageData, pAttackUnit, pDefender, true );
+#endif SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
 		}
 	}
 
@@ -2500,6 +2632,13 @@ bool CX2DamageManager::UnitToEffect( DamageData* pDamageData )
 		}
 #endif
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10b
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+		// June2017 UnitToEffect body 326413c0 @326414ad-3264158f: the target is the hit effect's owner
+		if ( true == JuneAuraBuffSkipsTarget( pDamageData, pAttacker, pDefender->GetOwnerUnit(), true, "UnitToEffect" ) )
+			LAMBDA_RETURN_OR_LOOP_CONTINUE;
+#endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+//}}
 #ifdef DUNGEON_ITEM
 		if( pDamageData->m_bAttackOurTeam == true )
 		{
@@ -2627,6 +2766,13 @@ bool CX2DamageManager::MeshToUnit( DamageData* pDamageData )
 		}
 #endif
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10b
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+		// June2017 MeshToUnit 32625670 @326257d7-32625842
+		if ( true == JuneAuraBuffSkipsTarget( pDamageData, pAttacker, pDefender, true, "MeshToUnit" ) )
+			continue;
+#endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+//}}
 #ifdef DUNGEON_ITEM
 		if( pDamageData->m_bAttackOurTeam == true )
 		{
@@ -2761,6 +2907,9 @@ bool CX2DamageManager::MeshToUnit( DamageData* pDamageData )
 					pDamageData->reActResult = CX2DamageManager::RT_NO_DAMAGE;
 
 					//{{ kimhc // 2009-11-18 // 길드스킬 역전의 기회
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
+					JuneGuildSkillChanceToReverse( pDamageData, pAttacker, pDefender, false );	// June2017 MeshToUnit @32628710
+#else SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
 #ifdef	GUILD_SKILL_PART_2
 					if ( pDefender->GetGameUnitType() == CX2GameUnit::GUT_USER )
 					{
@@ -2774,6 +2923,7 @@ bool CX2DamageManager::MeshToUnit( DamageData* pDamageData )
 						pUser->GuildSkillProcess( CX2SkillTree::SI_GP_COMMON_CHANCE_TO_REVERSE );
 					}
 #endif	GUILD_SKILL_PART_2
+#endif SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
 					//{{ kimhc // 2009-11-18 // 길드스킬 역전의 기회
 
 #ifdef ADD_RENA_SYSTEM //김창한
@@ -2805,6 +2955,9 @@ bool CX2DamageManager::MeshToUnit( DamageData* pDamageData )
 			pDamageData->hitUnitList.push_back( hitUnit );
 
 			pAttacker->AttackResult();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
+			JuneGuildSkillChanceToReverse( pDamageData, pAttacker, pDefender, true );	// June2017 MeshToUnit @32628818 (new in June: on a hit)
+#endif SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
 #ifdef UPGRADE_RAVEN
 			if ( pAttacker->GetGameUnitType() == CX2GameUnit::GUT_USER )
 			{
@@ -2847,6 +3000,13 @@ bool CX2DamageManager::CollisionDataToUnit( DamageData* pDamageData )
 		}
 #endif
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10b
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+		// June2017 CollisionDataToUnit 32628890 @326289e3-32628a4e
+		if ( true == JuneAuraBuffSkipsTarget( pDamageData, pAttacker, pDefender, true, "CollisionDataToUnit" ) )
+			continue;
+#endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
+//}}
 #ifdef DUNGEON_ITEM
 		if( pDamageData->m_bAttackOurTeam == true )
 		{
@@ -2962,6 +3122,9 @@ bool CX2DamageManager::CollisionDataToUnit( DamageData* pDamageData )
 					pDamageData->reActResult = CX2DamageManager::RT_NO_DAMAGE;
 
 					//{{ kimhc // 2009-11-18 // 길드스킬 역전의 기회
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
+					JuneGuildSkillChanceToReverse( pDamageData, pAttacker, pDefender, false );	// June2017 CollisionDataToUnit @3262b52d
+#else SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
 #ifdef	GUILD_SKILL_PART_2
 					if ( pDefender->GetGameUnitType() == CX2GameUnit::GUT_USER )
 					{
@@ -2975,6 +3138,7 @@ bool CX2DamageManager::CollisionDataToUnit( DamageData* pDamageData )
 						pUser->GuildSkillProcess( CX2SkillTree::SI_GP_COMMON_CHANCE_TO_REVERSE );
 					}
 #endif	GUILD_SKILL_PART_2
+#endif SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
 					//{{ kimhc // 2009-11-18 // 길드스킬 역전의 기회
 
 #ifdef ADD_RENA_SYSTEM //김창한
@@ -3007,6 +3171,9 @@ bool CX2DamageManager::CollisionDataToUnit( DamageData* pDamageData )
 			pDamageData->hitUnitList.push_back( hitUnit );
 
 			pAttacker->AttackResult();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
+			JuneGuildSkillChanceToReverse( pDamageData, pAttacker, pDefender, true );	// June2017 CollisionDataToUnit @3262b422 (new in June: on a hit)
+#endif SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
 #ifdef UPGRADE_RAVEN
 			if ( pAttacker->GetGameUnitType() == CX2GameUnit::GUT_USER )
 			{
