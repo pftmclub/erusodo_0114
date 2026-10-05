@@ -3710,6 +3710,7 @@ Check 5: back in the village, no icons appeared. The emulator's send after `EGS_
 - Live's icons come from the `ERM_JOIN_FIELD_ACK` round trip, which grants `WARM_ENERGE_OF_EL` (122) and so resends the list.
 - **Fix `1e29455`:** the list is resent at `EGS_FIELD_LOADING_COMPLETE_REQ` (village), only if non-empty.
 - Redeploy: `DEPLOY OK: X2_offline.exe is 19,173,376 B, dated 2026-10-05 15:49:57, md5 551a1dabd875dc31ddada7f7abb16361, equal to X2/US_SERVICE/x2.exe (2026-10-05 15:49:52); built at mods/june-buff-port fafc865 + 1 uncommitted code file(s).` (that 1 = `1e29455`).
+- **Recheck PASSED** (2026-10-05, exe `551a1dab`, run 15:57). Check 4 (not reached in the first run): `used item 78894` → `activated buff 191 (factor 186) for 1800 s` → `room: 1 sent, 1 kept`. Check 5: `FIELD … loaded` → `sent 1 buff(s) outside a room` → `village: 1 sent, 1 kept`, the same with 3 buffs and after the relog. The two buffs that expired while logged out were resent once at select, then removed by the first tick, as live does.
 - **Open question:** port live's village buff 122 too? It is a global buff, not an item buff.
 
 **How to see it in game:**
