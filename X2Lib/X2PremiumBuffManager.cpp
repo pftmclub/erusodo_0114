@@ -496,9 +496,11 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT( IN HWND hW
 #ifdef SERV_IRUHADEV_JUNE_BUFF_PREMIUM
 	/// June 326c9030 (Phase 11). The unit keeps one record per world buff (CX2Unit+0xdbc);
 	/// March's factor-ID list is kept in step beside it for its March readers (Phase 11b).
-	/// Recorded, not ported (no March home, see funcmap 326c9030): BFI 500's comeback end
-	/// time and its "gone" UI close (June's rewritten comeback members), and BFI 10060's
-	/// EI_ROSE_EVENT_INT emblem (34, absent from March's EMBLEM_ID).
+	/// BFI 500's end time is June's this+0x60 = March's m_iComeBackBuffEnd (June's STR_ID_2699
+	/// chat line @323bbcb9 reads it there). Recorded, not ported (no March home, see funcmap
+	/// 326c9030): BFI 500's "gone" close of UI 0x2a (June's DLG_UI_Return_User_Popup_Reward_
+	/// Global_Reform2016, 32159be0) and its this+0x68 flags, and BFI 10060's EI_ROSE_EVENT_INT
+	/// emblem (34, absent from March's EMBLEM_ID).
 	if ( NULL != g_pX2Game )
 	{
 		CX2GUUser* pCX2GUUser = g_pX2Game->GetUserUnitByUID( kEvent.m_iUnitUID );
@@ -546,6 +548,9 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT( IN HWND hW
 					if ( CX2Game::GT_PVP == g_pX2Game->GetGameType() )
 						continue;
 				}
+
+				if ( BFI_BUFF_RETURN_OF_HERO_GLOBAL == iFactorID )		/// June @326c92b4: before the factor check
+					m_iComeBackBuffEnd = kBuffInfo.m_iBuffEndTime;
 
 				CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( static_cast<UINT>( iFactorID ) );
 				if ( NULL == ptrBuffFactor )
@@ -689,8 +694,9 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_NOT( IN HWND hWnd, IN U
 	DeSerialize( pBuff, &kEvent );
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_PREMIUM
-	/// June 326c9530 (Phase 11). Recorded, not ported (no March home, see funcmap 326c9530):
-	/// BFI 500's comeback end time and "gone" UI close, BTI 1033 in June's guild agit
+	/// June 326c9530 (Phase 11). BFI 500's end time goes to m_iComeBackBuffEnd, as in room.
+	/// Recorded, not ported (no March home, see funcmap 326c9530):
+	/// BFI 500's "gone" close of UI 0x2a and this+0x68, BTI 1033 in June's guild agit
 	/// state, the PC-room remaining-time warning (g_pData+0x334, 326c5cf0), and the stack
 	/// count June's PushBuff (32489810) shows on the icon (March's gage has no count).
 	if( NULL != g_pX2Game )		/// in a room, EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT does this
@@ -738,6 +744,8 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_NOT( IN HWND hWnd, IN U
 			else if ( BFI_SPA_STRONG_BUFF == iFactorID && CX2Main::XS_PVP_LOBBY == g_pMain->GetNowStateID() )
 				continue;
 
+			if ( BFI_BUFF_RETURN_OF_HERO_GLOBAL == iFactorID )		/// June @326c9764: before the factor check
+				m_iComeBackBuffEnd = kBuffInfo.m_iBuffEndTime;
 			if ( BFI_BUFF_ROSE_EVENT_INT == iFactorID )		/// June plays the returning-hero emblem here too (JUNE_BUGS.md)
 				CX2EmblemManager::GetInstance()->PlayEmblem( CX2EmblemManager::EI_RETURN_OF_HERO, false );
 
