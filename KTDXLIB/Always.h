@@ -4986,11 +4986,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-05
 // Description: June buff port Phase 10: drop March's BUFF_FACTOR_ID_MEMO /
 //              BUFF_FACTOR_RELATIVE_MEMO_ID branch in ParsingBuffFactorID, as
-//              June did (no such key in June's binary). OFF until the user
-//              decides: March data uses it (DamageEffect, Elsword_SwordMan,
-//              RAVEN_FIGHTER) and June's replacement (_ULTIMATE) is gated off.
+//              June did (no such key in June's binary). ON by the user's
+//              decision (2026-10-05, Phase 10 review: follow June). March data
+//              that used it (DamageEffect, Elsword_SwordMan, RAVEN_FIGHTER)
+//              falls back to BUFF_FACTOR_ID; June's replacement (_ULTIMATE)
+//              stays gated off (no skill-memo map). Comment out to restore.
 //              Requires SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID.
-//#define SERV_IRUHADEV_JUNE_BUFF_MEMO_DROP
+#define SERV_IRUHADEV_JUNE_BUFF_MEMO_DROP
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
