@@ -3546,6 +3546,9 @@ Flag `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (+ `_DEBUG`), commit `6d6e9e9`. R
 - Servo Nitro's 721 has no custom function in June's templet, so its apply and erase inside the state loops cannot touch the vector.
 - Geist's `DestroyInstanceHandle` takes the handle by reference and resets it, so FrameMove stops after one destroy.
 
+**The user's answers (2026-10-05):** "for the questions, always follow June's flow, and when there is a potential bug, note it inside JUNE_BUGS.md". The project is offline-only, so server sync is not a concern. All three 9b questions are therefore answered by June and become **Phase 9c** (`kickoffs/june-buff/9c.md`).
+- Death Sign's `+0x48` is June's pending sub-stage clear type: default 5, set by the clear REQ path `327f03c0`, reset by the ACK `327eec80`. 4 = `CT_GAME`.
+
 **Not a finding:** Phase 13 makes these classes live. `kickoffs/june-buff/13.md` now carries a gate: the three questions above are to be answered before 13 ships data (Death Sign kills outright once 1038 is live).
 
 ## Phase 10 — Buff groups and June-only script bindings

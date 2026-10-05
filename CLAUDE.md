@@ -71,6 +71,11 @@ One flag per logical change, not one per file. Use the house `#endif SERV_IRUHAD
 
 If an edit touches `KncWX2Server/Common/` (packet structs, event IDs, shared enums), it is **not** a client-only change — the servers must be rebuilt (via `X2Project_2003.sln`, which needs a machine with VS2003 — it is **not** installed here) and the flag must be defined for both sides, or the wire format desyncs silently. See *The client/server contract* below.
 
+**Offline-only override (user, 2026-10-05): this project is dedicated to offline play, so server sync is not a concern.**
+- Shared-header and packet changes (`KncWX2Server/Common/` structs, Put/Get, enums) are made client-side, behind the `SERV_IRUHADEV_` flag in `Always.h`.
+- There is no server rebuild and no server-side flag, and **never ask the user about server desync**.
+- The in-process emulator shares the exe, so a Put/Get change reaches both ends at once. Keep the emulator's handlers and `X2OfflineDB` schema consistent; that is the only "other side" there is.
+
 ## Rule: server-side Lua the client needs is the user's to pack — never band-aid around it
 
 Some data only ever existed on the server: per-level stat tables, drop tables,
