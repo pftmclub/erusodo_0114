@@ -3553,7 +3553,7 @@ Flag `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (+ `_DEBUG`), commit `6d6e9e9`. R
 
 ### Phase 9c — Done (2026-10-05)
 
-Flags `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (items 1–2), and two new ones: `SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE` (the `KBuffFactor` struct and wire, item 1) and `SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE` (item 3). All use `_DEBUG`. Commit `@@COMMIT@@`. RE rows: `june2017_re/funcmap.tsv` "Buff Phase 9c". JUNE_BUGS #33 updated. All three 9b "Open for the user" items are **answered** (user, 2026-10-05: follow June's flow) and are ported below.
+Flags `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (items 1–2), and two new ones: `SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE` (the `KBuffFactor` struct and wire, item 1) and `SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE` (item 3). All use `_DEBUG`. Commit `508655f`. RE rows: `june2017_re/funcmap.tsv` "Buff Phase 9c". JUNE_BUGS #33 updated. All three 9b "Open for the user" items are **answered** (user, 2026-10-05: follow June's flow) and are ported below.
 
 1. **Geist Herrschaft's power (9b question 1): ported, with the rest of June's creator round trip.**
    - `KBuffFactor` gets `m_fJuneCreatorPowerRate`. It defaults to 1.0 (ctor `3211ea50 @3211ea94`), and the copy ctor copies it.
@@ -3604,7 +3604,7 @@ Flags `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (items 1–2), and two new ones:
   - 9b's copy-ctor `#ifdef` lines and initializer list, moved to `_FACTOR_WIRE` (`CommonPacket.h` 8);
   - the reader's two `SetNowHp` lines, now inside the `else` braces (`X2GUUser.cpp` 4);
   - the creator-info assignments, realigned (`X2BuffBehaviorTemplet.cpp` 4).
-- After commit: @@RANGE@@
+- After commit (`--range 508655f^..508655f`, same `--with`): CUSTOM_FUNCTION, FACTOR_WIRE and CLEAR_TYPE each give the same `files:` / deleted-line counts as above and `RESULT: PASS`.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,187,200 B, dated 2026-10-05 20:34:10, md5 bba821cf60ad5b4ac50f637658089d10, equal to X2/US_SERVICE/x2.exe (2026-10-05 20:34:05); built at mods/june-buff-port 05fefc2 + 11 uncommitted code file(s).` (the 11 are this phase's). Strings `reserved death spared`, `clear type %d -> %d`, `divide by zero next`, `clear ACK, June 327eec80` and `ClearSubStage, June 327f03c0` are each in the deployed exe once.
 
