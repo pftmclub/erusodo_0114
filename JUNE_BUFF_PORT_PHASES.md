@@ -3332,6 +3332,41 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 **How to see it in game.** No March data uses these types, so the play-test registers four throwaway buffs from the dev console after each launch: templets BTI 9001-9004, then factors 362-365 (the first ids after March's 361 slots; register them once, in this order). 9001 = BFT_TIME 30 s + BFT_STICK_SHAKE COUNT 4; 9002 = 60 s + BFT 16, slot A, COUNT 2; 9003 = 20 s with SHAKE_DECREASE 0.1 / max 2; 9004 = AURA. Apply with `g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 36x, 1 )`; the exact lines are in this phase's hand-off and the review kickoff. Without them, normal play only exercises the counter bumps and the shake trigger's key read.
 
+### Phase 8 — Review (2026-10-05)
+
+**Verdict: Phase 8 matches June. No transcription errors, no code change; the exe stays `8b491d7d`.** Ghidra spot-checks, all read-only: `322f7170` (the stick-shake block), `31c488c0`, `322cfc60`, `32ec4b10`, `32ec4c50`, `32ec1580`, `3236c570`, `32063650` (`@320636ad-6f1`, `@320637cd-393a`), `32057b80` (`@32057bfb-d86`), `32070580`, `32d5be30`.
+
+**Kickoff checks.**
+1. **Class bodies.** Aura GetFactor `32ec4b10` has no unit test and packs `+0x30` low word, `>>16`, `>>32` (`__allshr`), the word at `+0x36`, then `(float)+0x38`, as the port does. BFT 15 GetFactor `32ec4c50` returns early with no unit (`param_3 != 0`). BFT 15 SetFactorFromPacket `32ec1580` stores v[0], then v[1] as a byte, sets started, and subtracts 0x100 when the unit's `+0x75a8` byte is below the snapshot. It has no slot 256 call. The port's `DISPLAY_ERROR` on June's silent-false paths is this file's redefinition to `CX2JuneBuffCapture::RuntimeError` (`X2BuffFinalizerTemplet.cpp:15`), a log line with no popup.
+2. **Factor parse and level slice.** As in the Done note: the 1c item 4 RE, and `ParsingHitCountFinalizer` with a literal `true`. Not re-read beyond that.
+3. **Input mapping: confirmed twice.**
+   - June's `KeyProcess` calls `InputData` (`3230f5f0`, four outputs into `m_InputData` `+0x345`-`+0x353`) with 0x25, 0x26, 0x23, 0x24 (`@322f7525-7594`, and the same at `@322f7388-73f7`). March calls it with `GA_LEFT`, `GA_RIGHT`, `GA_UP`, `GA_DOWN` (`X2Game.cpp:5425-5428`).
+   - March's `GAME_ACTION` enum has UP/DOWN/LEFT/RIGHT = 0x21-0x24 (`KTDIManager.h:97-100`). June's are the same four, each +2.
+   - `31c488c0` returns `byte[this + 0x4d + action] != 0`, a plain array read with no lock. That is March's `GetPureActionState` (`m_State[Action]`), not the locking `GetActionState`.
+   - The shake call pushes the 0x26 result first, so 0x25 is the first argument (`bLeft`). `322cfc60` = 0x25 held && 0x26 held.
+4. **BFT 16's host.**
+   - Every class's skill use reaches `CountUsedSkill`: the 8 base classes, Add `StateChangeSpecialAttack` (`X2GUAdd.cpp:2650`), EL (`X2GUEL.cpp:3157`), and both of Ara's variants (`X2GUAra.cpp:3916`, `:4004`).
+   - The 1 s expiry `@320636ad-6f1` subtracts `+0x2b0` and, at `<= 0`, calls slot `0x808` = 514. The port's `CommonFrameMove` block does the same.
+   - In `32057b80`, the skill test is slot `0x524` (the same value compared with `+0x8eac`) `> 0` (`@32057cfe`). So the port's `0 < eSkillID` is June's test; the 1c note's "GetNowStateID() > 0" was loose wording. `32070580` = type is neither 0xc nor 0xd = March `ST_RELATIONSHIP_SKILL` 12 / `ST_HYPER_ACTIVE_SKILL` 13 (`X2SkillTree.h:46-50`).
+   - The rest of June's reserved branch (MP from `+0x8ea8` via slots `0x800`/`0x528`/`0x764`, `+0x9440`) is the MP spend March already makes at use. `f52a21b`'s slot 516 deviation stands: a no-stage-change skill never starts a state whose skill ID matches.
+5. **The sync.**
+   - Field flag: `32d5be30` reads a DWORD flag (`@32d5be42-53`, `OR [esi], ebx`). Bit `0x800000` (`@32d5c0f8`) reads a DWORD (`32d5bdc0`) into packet `+0x3d`.
+   - Serialize/Deserialize order is this build's own; it is wire-compatible only between this build's peers (`MODS.md`).
+   - `eUnitUserSync_DataField_All` includes the bit. The receiver presets `All` (`X2Game.cpp:899`), so `ReceiveFrameData`'s `!= All` gate (`X2GUUser.cpp:22853`) passes. `bySerialized` is `sizeof(KDYNAMIC_UNIT_USER_SYNC)` and grows with the struct.
+   - XPT 27: `SP_END` = 16 (`KTDNUDP.h:66`), and `SERV_PET_SYSTEM` is on (`ServerDefine.h:460`), so `XPT_BUFF_INFO_REQ` = 16 + 11 = 27 = 0x1b. The handler checks `m_Size` against the payload and reads `m_pRecvBuffer`, the same pattern as `XPT_PING_TEST_REQ`.
+   - Observer `@320637cd-393a`: `IsMyUnit` (slot `0x198`) skips the block (`@320637db`). It needs a game with my unit. It compares the low dwords `+0x8108` / `+0x6dd0`. Set to 1.0 / clear to 0 / subtract `+0x2b0` / fire at `<= 0`, then `32070c90( +0x8108 )`, then `33224850( this UID, 0x1b, &myUID, 8 )`. Every x87 branch was checked by hand, and the port is equivalent. June stores the negative remainder in place of 0; the next frame takes the same branch either way.
+6. **Bump sites and the double end hook.** `3236c570` runs `3236a6a0` at the end of **every** call while the buff's finished byte `+0x65` is set, not only on the transition. The port's `if ( GetDidFinish() ) DoFinishStickShake` at the function's end is the same. With the erase-time call, that gives #15's double `EndStickShake` (ref count clamped at 0). The four `IncreaseBuffSyncCount` sites are push, shake, the BFT 15 hook and the aura's `DidFinish` on my unit, as the Done note lists.
+
+**Not exercised.** The sync (XPT 27, the bit `0x800000` field) needs two peers running this build; offline play has none. Checked from source and June only.
+
+**Hygiene.**
+- The kickoff's command (`--range cb83083^..HEAD`) now spans Phase 10's `9eba9ad`: `files: 17 PASS, 1 PASS~, 1 DEFINE, 17 OTHER, 1 FAIL, 0 ERROR`, `RESULT: FAIL`. The FAIL is `9eba9ad`'s `Always.h`, which appends Phase 10's `#define`s after this flag's. The 17 OTHER rows are Phase 10's own flags. That is a problem with the command's range, not the code.
+- Scoped to Phase 8's own commits (`--range cb83083^..f52a21b --with JUNE_BUFF_DEBUG`): `files: 17 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 3 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  - The 3 deleted lines are `f52a21b` rewriting 2 comment lines and the `SpecialAttackNoStageChange` condition, all inside this flag's own `CountReservedSkillUse`.
+  - The PASS~ is the blank line before the new block in `X2BuffFinalizerTemplet.cpp`.
+
+**No build or deploy:** nothing changed. **Owed by the user:** /cost only.
+
 ## Phase 9 — Custom-function buffs
 
 **Scope.**
