@@ -3304,6 +3304,8 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 ### Phase 8 — Done (2026-10-05)
 
+**Play-test (2026-10-05, user; exe `8b491d7d`, run 11:49 after the 11:37 deploy): 4/4 passed, logs read.** `ErrorLog.txt:181` prompt shown; `:182-185` stick-shake count 1-4 alternating; `:186-187` the BFT 15 end hook twice (#15); `:188-189` skills 3014 and 3003 counted as slot A; `:190-209` twenty 0.1 s shake decreases, 2 s in total, then none; `:210` `aura (BFT 14) ended, BTI 9004, creator 12, my unit 1`. No ordinal reject for 362-365; 0 exceptions (2 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, unrelated).
+
 **Landed** under the new flag `SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER`, in two code commits. The RE is in the "Buff Phase 8" rows of `june2017_re/funcmap.tsv` (34 rows).
 - **`cb83083`: the three finalizers.** Factor parse (`32d4c750`): AURA is empty; 15 and 16 have the hit-count shape and read COUNT as a skill table with a literal 1. Level slice (`32d4cb00`): 15/16 = the hit slice under their own type; AURA takes the default. Factory and the classes `CX2BuffAura-`, `CX2BuffStickShakeCount-` and `CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet`, transcribed from the asm (1c item 4). Unit side: `+0x75a4/+0x75a8` with slots 256/257, the skill-use map `+0x75c8` (258-260), slots 181/182, `322a0090`, and the buff-change counter `+0x6dd0`.
 - **`ec6aece` (+ fix `f52a21b`): the increment sites and the sync.**
