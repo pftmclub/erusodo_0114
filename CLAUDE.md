@@ -41,7 +41,7 @@ Define the flag in **`KTDXLIB/Always.h`**. That is the flag file that reaches al
 
 Do **not** define client flags in:
 
-- `KncWX2Server/Common/ServerDefine.h` — that is the shared/server file. It *is* visible inside `X2Lib` (via `X2ServerPacket.h` → `CommonPacket.h:16`), but it is **not** visible inside `KTDXLIB`, and defining a client flag there drags it into the server build too.
+- `KncWX2Server/Common/ServerDefine.h` — that is the shared/server file (one exception: a flag guarding `CommonPacket.h` also goes there; see *Offline-only override* below). It *is* visible inside `X2Lib` (via `X2ServerPacket.h` → `CommonPacket.h:16`), but it is **not** visible inside `KTDXLIB`, and defining a client flag there drags it into the server build too.
 - `KTDXLIB/InHouse1.h`–`InHouse6.h`, `InHouseEtc.h` — as of the March 2014 snapshot these **are** compiled in under `US_INTERNAL` and (for now — see *Toolchains*) `US_SERVICE` too, both of which define `_IN_HOUSE_` — so a flag put there would take effect, but they are the studio's per-developer files, they carry ~84 apparent defines whose real state needs the preprocessor to settle, and a flag of ours buried among them is unfindable. Keep ours in `Always.h`.
 
 Pattern to follow — append to the end of `Always.h`, using the house comment block:

@@ -25,7 +25,7 @@ Review Phase 9c's commit(s) against June. What this phase could get wrong:
    - the copy ctor;
    - Put/Get against Get `320e3950`: uid after the identity, NPC flag before the factor ID, power last. The two June-only fields `+0x35`/`+0x39` are deliberately not carried.
 
-   Find June's **Put** and confirm it mirrors Get (9c did not locate it).
+   Find June's **Put** and confirm it mirrors Get (9c did not locate it). Also check whether anything in June's client reads or writes `+0x35`/`+0x39`. If neither happens, they are a value June always sends as 0: add a JUNE_BUGS row.
 2. **The templet's creator fields.** Check each against June:
    - SetFactor `3236d400`: `+0xb0/+0xb8` are stored after the lookup, creator found or not;
    - GetFactor `32369f50 @3236a009`: unconditional, inside not-finished;

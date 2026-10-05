@@ -3557,7 +3557,7 @@ Flags `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (items 1–2), and two new ones:
 
 1. **Geist Herrschaft's power (9b question 1): ported, with the rest of June's creator round trip.**
    - `KBuffFactor` gets `m_fJuneCreatorPowerRate`. It defaults to 1.0 (ctor `3211ea50 @3211ea94`), and the copy ctor copies it.
-   - Put/Get follow Get `320e3950`: uid after the identity, NPC flag before the factor ID, power last. June also carries an int `+0x35` and a float `+0x39`. Those are June-only and no client code writes them (the ctor zeroes them and `32369f50` skips them), so they are not carried. June's Put was not located.
+   - Put/Get follow Get `320e3950`: uid after the identity, NPC flag before the factor ID, power last. June also carries an int `+0x35` and a float `+0x39`. Those are June-only. The ctor zeroes them and `GetFactor` (`32369f50`) does not write them; no other writer or reader was searched for. They are not carried. June's Put was not located.
    - The writer of `+0x57` is the templet's `GetFactor` (`32369f50 @3236a009`). Outside the accumulation test it writes UID, NPC flag and power from the templet's `+0xb0`/`+0xb8`/`+0xbc`. Porting it needed the two creator members 9a skipped, `m_uidJuneCreator` and `m_bJuneCreatorNotUser`:
      - ctor: -1 and 0 (`@326c499b`, `@326c49a7`);
      - copy: `322ad9cd`;
@@ -3611,7 +3611,7 @@ Flags `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (items 1–2), and two new ones:
 **How to see it in game:**
 - Death Sign (1038) and Geist (1010) stay dormant until Phase 13, so the play-test is regression plus the new log lines:
   - 29 / 56 / 62 still create their classes;
-  - a restored buff now names its creator;
+  - the creator round trip (templet → `GetFactor` → Gage copy → restore) is **checked from source and by the clean link only**: the `custom function created` line logs once per BTI per launch, so a restore after a map change prints nothing;
   - a dungeon clear logs `clear type 5 -> 5 (clear REQ…)`, `5 -> 5 (clear ACK…)`, `5 -> n (ClearSubStage…)`, ending in `-> 4` at the last room.
 
 **Open for the user:** none. Backlog: June's sub-stage clear state machine (item 3, "Not ported"), and finding June's KBuffFactor Put (the review kickoff asks).
