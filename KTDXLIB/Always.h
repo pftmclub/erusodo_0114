@@ -4862,7 +4862,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              32951670/32951420/32950d60 do. A throw/install item accepted there
 //              arms the user's quick-slot special item wait (+0x8d78 = 10 s,
 //              3344a51c), and every class's SpecialAttackEventProcess (June's slot
-//              510 skill lookup, corrected by the 7d review) refuses a skill while
+//              510 skill lookup, corrected by the 7d review; Ara's CanUseSpecialAttack,
+//              so its FP cancels too, moved by the 7e review) refuses a skill while
 //              it runs. Phase 7e adds June's pre-start allow (322f5140: the now
 //              stage has no start motion and my unit's start-motion delay is
 //              below 0, or Henir practice in dungeon 38100) and SAT 38's refusal

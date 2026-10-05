@@ -2892,7 +2892,8 @@ public:
 
 		/// +0x8d78: June arms it with 10.0 s (3344a51c) in its quick-slot special item check (CX2Game 322fa960 @322faee8,
 		/// @322fb40b); -1 in the ctor and THROW_ITEM_StateEnd; counted down in OnFrameMove. While it runs: no awakening,
-		/// no skill (every class's SpecialAttackEventProcess, June's slot 510 skill lookup). Armed by
+		/// no skill (every class's SpecialAttackEventProcess, June's slot 510 skill lookup; Ara's CanUseSpecialAttack,
+		/// which its FP-cancel sites call too). Armed by
 		/// CX2Game::CheckQuickSlotItemSpecialAbility (Phase 7d).
 		float	m_fQuickSlotSpecialItemWaitTime;
 		/// +0x8d4c: set when an awakening key asks for the hyper mode state (343, the SKILL_CANCEL_AFTER macros), cleared

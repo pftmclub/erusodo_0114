@@ -3552,12 +3552,6 @@ RENDER_HINT CX2GUAra::CommonRender_Prepare()
 */
 /*virtual*/ bool CX2GUAra::SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
 {
-#ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
-	/// June buff port Phase 7d: June Ara 32bcfaa0 (the skill lookup its SpecialAttackEventProcess calls first) starts with
-	/// "if +0x8d78 > 0 return false": no skill while a quick-slot special item waits
-	if ( true == IsQuickSlotSpecialItemWaiting() )
-		return false;
-#endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 	if ( false == CanUseSpecialAttack( eActiveSkillUseCondition ) )
 		return false;
 #ifdef FIX_SKILL_CANCEL_ARA
@@ -3582,6 +3576,14 @@ RENDER_HINT CX2GUAra::CommonRender_Prepare()
 */
 bool CX2GUAra::CanUseSpecialAttack( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+	/// June buff port Phase 7d (moved here by the 7e review): June Ara slot 510 32bcfaa0 = this function, which starts with
+	/// "if +0x8d78 > 0 return false" (@32bcfae1-f0): no skill while a quick-slot special item waits. Its callers are
+	/// SpecialAttackEventProcess (509, 32b90c20) and every FP-cancel site ([vt+0x7f8] @32b99930, 32b9ef43, 32bac17e-32badb1e,
+	/// 32bc2158, 32bc9f18), so the FP cancel is refused too
+	if ( true == IsQuickSlotSpecialItemWaiting() )
+		return false;
+#endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 	KTDXPROFILE();
 
 	int iPressedSkillSlotIndex = -1;

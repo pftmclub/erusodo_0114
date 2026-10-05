@@ -3230,6 +3230,60 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 **Open for the user:** none blocking. `/cost`: please paste it here.
 
+### Phase 7e — Review (2026-10-05)
+
+**Verdict: 7e matches June. One placement error from 7d, found under kickoff item 5, is fixed under `SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM`** (commit below). Ghidra spot-checks, all read-only: `3206eaf0`, `31fcf040`, `3230f110`, `322f5140`, `322fa960` SAT 18/34/38, `329cc370`, `322f7170`'s riding block, Ara `32bcfaa0`, and the writer `32563a8c` (raw `disasm_range.py`).
+
+**Finding (fixed): Ara's `+0x8d78` test was in the wrong function, so Ara's FP cancels skipped it.**
+- June Ara slot 510 `32bcfaa0` is March's `CanUseSpecialAttack`. It opens with the test (`@32bcfae1-f0`).
+- Its only static reference is the vtable (`33505b0c`). A raw `8b ?? f8 07 00 00` scan finds every `[vt+0x7f8]` load. In Ara they are 509 (`32b90c41`) and 37 FP-cancel sites (`32b99930`, `32b9a080`, `32b9ef43`, `32bac17e`-`32badb1e`, `32bc2158`, `32bc9f18`). All 37 were checked by script. Each has March's shape: `!+0x9620 && +0x9618 <= t && +0x961c > t && 510(1)` → `+0x9620 = 1`. Two of them (`32bac6a3`, `32bad853`) pass 2 instead of 1 and jump back to a shared write.
+- 7d put the test at the top of Ara's `SpecialAttackEventProcess`. While a throw item waited, March's FP cancel still set `m_bFPCancel`, and `ComboXX...EventProcess` then calls `StateChangeSpecialAttack` directly (`X2GUAra.cpp:8771`). That is a skill June refuses.
+- **Fix:** the test moved to the first statement of `CX2GUAra::CanUseSpecialAttack`. The 509 path is unchanged, because it calls `CanUseSpecialAttack` first.
+- This corrects the 7d review's item 3 ("CanUseSpecialAttack sits after the test"), which holds only for 509.
+- Elesis is left as it is. Her March `CanUseSpecialAttack` has one caller (`X2GUEL.cpp:1809`), so the placement changes nothing.
+- The scan's other 11 hits are each class's 509 calling 510. The `31d*` hits are member reads at `+0x7f8`, not vtable calls.
+- `Always.h` and `X2GUUser.h` comments are updated.
+- June-only `+0x9621`, which the FP-cancel sites also write, goes to the character port. It is recorded in funcmap and not ported.
+- Not reproduced in game: it needs an armed item whose throw never starts while Ara is mid-combo.
+
+**Kickoff checks.**
+1. **Countdown home.** `@32070053` is in `3206eaf0` (ret 0xc @32070183; fElapsedTime `[ebp+0x10]`). It runs for every user. The only bypass is the `GUSI_DIE` jump (`@3206f335-41` → `3207015e`), which is March's `:6648` return, so the port's place at the end of `OnFrameMove` is equivalent. The x87 conditions were checked by hand (`>= 0` subtracts; NaN takes the `else`, as `test ah,0x41; jp` does).
+2. **`31fcf040`.** It tests `+0x867c` → `3234ca90` (`GetRidingPetInfo`). Both calls are `push 0`. `32932230` true or no pet → 9, else `0x48`.
+   - The left-out tests have no March home: `X2Dungeon.h` has no bitset, and no March `DI_*` is ≥ 42000.
+   - `USI_START` = 9 (`GUSI_END` = 5 → `USI_BASE` 6). `USI_RIDING_START`/`_WAIT` are 4 apart, as `0x48`/`0x4c` are.
+3. **Henir path.** The writer `32563a8c` falls back to 30000 when the ID is invalid, then maps `GetDungeonType(+0x10)`: 2 → `+0x38` = 1, 3 → ebx, 5 → 5. That is March's `#else` mapping in `X2LocalMapUI.cpp` (`dd63297`, :197; `DT_HENIR` = 2, `DM_HENIR_PRACTICE` = 1, `X2Dungeon.h:36-47`). `32931920` is `== 0x94d4` (38100, `DI_ELDER_HENIR_SPACE`). June's party struct layout differs from March's `PartyData`, but the meaning of the fields is pinned.
+4. **SAT 18/34/38.**
+   - SAT 18: state check or gate failure clears the allow byte, then `322f5140(true)` is inlined.
+   - SAT 34: `322f5140(false)`; true → no ACK wait (`@322fb5d2`).
+   - SAT 38: the pre-start test, then `[vt+0x10c] != 4` refuses. `PushText(3 = XUF_DODUM_20_BOLD, STR 0x76a7, (1,1,1,1), (0,0,0,1), 1 = DT_CENTER, 1.f, 1.f)`.
+   - All three match the port test for test.
+5. **Riding-key wait reader.** In all 8 classes it sits right after `CheckSkillUsePVPOfficial` (the `726607a` hunks). Ara: see the finding above. The setter `@322f80a8` writes to `[vt+0x98]()` (`GetMyUnit`) after summon/unsummon. The `3230f110` test ANDs into the `GetRidingOnState` branch, and both fall through to the 24526/24527 text (`@322f80b9`).
+6. **Recorded, not ported.** None has a March home:
+   - `+0x89e0` (June class mode);
+   - `g_pMain+0x16a` (no `CX2Main` member);
+   - the Ride button UID recompute (June's sorted riding lists);
+   - `3202d140`/`3202d3c0` (character port);
+   - `322f11d0`/`322f4c60`/`324cf360` (June's skip-the-start: game `+0xb40`, NPC flag `0x2000`, event `0x4ac`);
+   - the bitset bit 8 and `32932230` (item 2).
+
+**Hygiene.**
+- The kickoff's commands as given:
+  - `START_DELAY --range f20a31c^..HEAD --with JUNE_BUFF_DEBUG`: `files: 4 PASS, 1 PASS~, 1 DEFINE, 14 OTHER, 1 FAIL, 0 ERROR`, `RESULT: FAIL`.
+  - `QUICKSLOT_ITEM ... --with JUNE_BUFF_DEBUG JUNE_BUFF_START_DELAY`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 17 OTHER, 1 FAIL, 0 ERROR`, `RESULT: FAIL`.
+  - Both FAILs are `726607a`'s `Always.h`, which appends `RIDING_KEY_WAIT`'s `#define` after theirs. That is a problem with the command, not the code.
+- With the sibling flag in `--with`:
+  - `START_DELAY`: `files: 7 PASS, 1 PASS~, 2 DEFINE, 11 OTHER, 0 FAIL, 0 ERROR`, `3 deleted line(s) ... 0 encoding change(s)`, `RESULT: PASS`;
+  - `QUICKSLOT_ITEM`: `files: 12 PASS, 0 PASS~, 2 DEFINE, 7 OTHER, 0 FAIL, 0 ERROR`, `14 deleted line(s) ... 0 encoding change(s)`, `RESULT: PASS`.
+- `RIDING_KEY_WAIT --range f20a31c^..HEAD`: `files: 11 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s) ... 0 encoding change(s)`, `RESULT: PASS`.
+- Deleted lines were checked with `git show f20a31c -- Always.h X2GUUser.h`: 3 + 1 comment lines, as the Done note says. The other 11 are 7d's SAT 18/34 code, replaced under the same flag.
+- The fix, `--worktree`: `files: 1 PASS, 0 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`, `7 deleted line(s), 0 non-ASCII ... 0 encoding change(s)`, `RESULT: PASS`.
+  - The 7 deleted lines are the moved 7d block (6) and one comment line in each of `Always.h` and `X2GUUser.h`, all our own.
+  - `X2GUUser.h` is OTHER because the `+0x8d78` member sits in 7c's `_AWAKE_LOCK` block.
+
+**Build and deploy.** `DEPLOY OK: X2_offline.exe is 19,116,032 B, dated 2026-10-05 10:14:34, md5 be4fb8fe51ec74869ba07b26325001ac, equal to X2/US_SERVICE/x2.exe (2026-10-05 10:14:30); built at mods/june-buff-port a6684e4 + 3 uncommitted code file(s).` The three files are this fix's own (`X2GUAra.cpp`, `X2GUUser.h`, `Always.h`), committed as is right after. **Not launched.**
+
+**For the user:** a regression play-test of the fix (hand-off in the conversation). `/cost`: please paste it here.
+
 ## Phase 8 — New finalizers and counter sync
 
 **Scope.**
