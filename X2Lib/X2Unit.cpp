@@ -4261,16 +4261,17 @@ void CX2Unit::ResetIncreaseSkillLevelByBuff()
 int CX2Unit::GetIncreaseSkillLevelByBuff()
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_PREMIUM
-	/// June 323644a0: 0 in June's PvE game (IsPve 322cc1c0: game type 4, absent here); the unit's
-	/// own buffs when it exists; and then the world-buff records ALWAYS (March: only without a
-	/// unit), so in a game a world buff's skill level counts twice (JUNE_BUGS.md).
+	/// June 323644a0: 0 in June's PvE game (IsPve 322cc1c0: game type 4, absent here); the game
+	/// unit's own buffs when it exists (@323645e0, then straight to the return at @323645e4);
+	/// otherwise the world-buff records. That is March's split (Phase 11 review: 11 read the
+	/// record walk as unconditional; the assembly returns before it).
 	if ( NULL != g_pX2Game && 4 == g_pX2Game->GetGameType() )
 		return 0;
 
 	int iIncreaseSkillLevelByBuff = 0;
 
 	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() )
-		iIncreaseSkillLevelByBuff = g_pX2Game->GetMyUnit()->GetAddSkillLevelByBuff();
+		return g_pX2Game->GetMyUnit()->GetAddSkillLevelByBuff();
 
 	BOOST_FOREACH( const WorldBuffRecordPair& kRecord, g_pData->GetMyUser()->GetSelectUnit()->GetWorldBuffRecord() )
 	{

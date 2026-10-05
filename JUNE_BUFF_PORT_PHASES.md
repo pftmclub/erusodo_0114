@@ -3772,6 +3772,43 @@ Check 5: back in the village, no icons appeared. The emulator's send after `EGS_
 - The client always sends temp code 1 (`:7268`), so re-using an item from the same group is refused, never a replace.
 - Die with the console line `g_pX2Game:GetMyUnit():SetNowHP( 0 )`. Offline revival is refused (no stones).
 
+### Phase 11 — Review (2026-10-05, Opus 5.5 high)
+
+**Verdict: one transcription error, fixed (`323644a0`); everything else matches June and the March server.** Every June check below was read from the assembly (Ghidra, read-only), not the decompile.
+
+**Fix — `GetIncreaseSkillLevelByBuff` (`323644a0`), `X2Unit.cpp`, under `_PREMIUM`.** With a game unit, June returns `GetAddSkillLevelByBuff()` at once (`@323645e0` falls into the epilogue at `323645e4`; even the decompile says `goto LAB_323645e4`). The record walk (`@323645fb`) runs only without a unit, which is March's split. Phase 11 had the walk always run. The port now returns early; the `IsPve` (type 4) early-out is unchanged. **JUNE_BUGS #28 is withdrawn** (row kept, struck through); funcmap row `323644a0` corrected. No visible change offline: no grantable buff's factor carries `BBT_ADD_SKILL_LEVEL`.
+
+**Kickoff checks.**
+1. **Handlers.**
+   - In room (`326c9030`): `factor - 0x9a` → type `== 3` or `== 4` skip; `- 0x29` (195) → type `== 1` skip. 500 / 10060 follow, then factor + clone null checks.
+   - Record: BTI `+0x20`, count byte `+0x34` (0 → 1), `0 < end - start < 0xe11`. Slot `0x21c` `(factor,0,1,0,1)` × count; kept on the last `AL == 1`, `hp <= 0` (`FCOMP`/`TEST AH,0x41`) or state `== 4`.
+   - BTI-138 toggle after the keep, i.e. only past the factor/clone checks. Erase: unchecked `[ptr+0x28]`, `3229e160`, then `324898c0(uid, BTI, 0)`.
+   - Village (`326c9530`): drops the packet while a game exists. `154` skip / `114` emblem `0xc` / `949` with `[g_pMain+0x8c] == 7` skip is one else-if chain; 10060 → emblem `0xc`. The 138 toggle comes **before** the factor check (port: same).
+   - Icon only when templet `+0xa8`; record whenever the clone succeeds. Post: `323646a0`, then 138 → `3235a080(0)`. The village erase passes `templet+0x64` (IsDeBuff).
+   - Enum values: `GT_PVP 1`, `GT_BATTLE_FIELD 3`, `XS_PVP_LOBBY 7`, `EI_RETURN_OF_HERO 12`, BFI 154/195/114/949/10060, BTI 138. All match.
+2. **Recorded, not ported.** June's `+0x60`/`+0x68` belong to its rewritten comeback flow. `326c7a10` sets `+0x68 = 1` on every comeback packet and opens `DLG_UI_Return_User_Popup_Small`; March's `m_iComeBackBuffEnd` is set only by `EGS_COME_BACK_BUFF_NOT`. The PC-room warning (`326c5cf0`) reads a June-only int64 end time at manager `+0xc8`. Note: `g_pData+0x334` is the premium-buff manager itself (the loader calls `326c6e20` on it). March's gage has no count field. Agit 1033 / emblem 34 have no March state or emblem. **No March home was missed.**
+3. **ReInit** `@320242ab`: count `<= 0` → no apply, else slot 135 × count. Matches. **`3235a080(0)`** is March's `ResetIncreaseSkillLevelBySocket`: the active-page skill walk calls the socket getter `32357a70` (which takes June's extra argument) and the setter, then the skill-tree UI update. Candidate confirmed.
+4. **Emulator vs the March server.**
+   - Matches line for line: the parser (`XSLBuffManager.cpp:34-126`), `ActivateBuff` (`UserServerBuffManager.cpp:40-96`: refuse if active; period 0 → end = start), `GetBuffList` (`:152-176`), `CheckBuffPeriod` (`:272-303`) and `OnLeavePVPRoom` (`:556-582`: the flag only).
+   - Also matching: both item groups and the pre-checks (`GSUserInventory.cpp:4390-4470`), `ActivateItemBuff` (`GSUserFunction.cpp:17117-17273`) and `CheckDeselectUnitBuff` 122 (`:17302`).
+   - Trigger points: as listed in 11's Done note.
+   - One side effect of the deliberate factor refusal: live checks only the templet before it deactivates the group. The emulator deactivates the Elixir group first and only then refuses Ruriel (1320, factor 483 until Phase 13). The item is spent and an active Elixir is lost. It is reachable only with a Ruriel potion. **User's call** whether to move the refusal ahead of the consume.
+5. **Lua hand-back.** This run's `ErrorLog.txt` shows `BuffTemplet.lua: 138 … 138 in total` and `_INT: 71 … 209 in total` at 16:20:35. The emulator's own `loaded 138` / `71` lines come after, at 16:20:43. The client's `OpenScriptFile` re-declares `BuffManager` before each load, so no interleaving can misroute rows.
+6. **Village Rest buff.** Live `ERM_JOIN_FIELD_ACK` (`GSUserField.cpp:533-546`) grants 122 and resends only if it was newly activated. The emulator's fallback resend when 122 is already active (village to village) is `1e29455`'s documented fix: it sends more, never less. Removal in `OpenRoom` = `OnLeaveField` (`:305-326`).
+7. **Lua files.** The live `data036.kom` holds `BuffTemplet.lua` 23,870 B and `_INT` 12,482 B (algo 2), the same as the staged copies. Both staged copies are md5-identical, start `1B 4B 4C 81`, and their `.src.lua` are byte-identical to `june_src_fixed`. There is no loose copy in the game directory. **The pack is confirmed.**
+
+**Hygiene** (`--range af7741b^..af37a76 --with` all four + `OFFLINE JUNE_BUFF_DEBUG`):
+- `_PREMIUM`: `4 PASS, 2 PASS~, 2 DEFINE, 14 OTHER, 0 FAIL, 0 ERROR`; 0 deleted; `RESULT: PASS`.
+- `_OFFLINE_ITEM_BUFF`: `14 PASS, 1 PASS~, 2 DEFINE, 7 OTHER, 0 FAIL, 0 ERROR`; 1 deleted line; `RESULT: PASS`.
+- `_NOT_USE_IN`: `4 PASS, 1 PASS~, 2 DEFINE, 16 OTHER, 0 FAIL, 0 ERROR`; 1 deleted line; `RESULT: PASS`.
+- `_OFFLINE_VILLAGE_BUFF`: `6 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; 0 deleted; `RESULT: PASS`.
+- The 1 deleted line is `da55146` rewriting 11's own load-summary log line in `Handlers_Inventory.cpp`. OTHER = files that carry only the sibling flags. No encoding, EOL or `#endif`-token issues.
+- The fix: `flagcheck JUNE_BUFF_PREMIUM --worktree --files X2Lib/X2Unit.cpp`: `1 PASS … 0 FAIL`, `RESULT: PASS`. Its 4 deleted lines are 11's own flagged lines (3 comment lines and the assignment); March's `#else` is untouched.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,173,376 B, dated 2026-10-05 16:33:01, md5 778adb67f4ee3389964a784b101e7b33, equal to X2/US_SERVICE/x2.exe (2026-10-05 16:32:56); built at mods/june-buff-port 2c71b8c + 1 uncommitted code file(s).` (that 1 = the fix; `X2Unit.obj` was rebuilt at 16:32:46).
+
+**Play-test:** nothing new is visible. An optional regression check: the village "Rest" icon appears, and an Elixir used in a dungeon still shows `room: 1 sent, 1 kept`.
+
 ## Phase 12 — Buff icons and UI assets
 
 **Scope.**
