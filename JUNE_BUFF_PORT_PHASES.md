@@ -3464,6 +3464,39 @@ Split by family as the kickoff allows: **9a = the shared engine + Elsword + Chun
 
 **Kickoff change:** `kickoffs/june-buff/9b.md` item 1 (ChainViper) now notes that slot 6 sees March's final damage, without June's modifiers (item 2 above).
 
+### Phase 9b — Done (2026-10-05)
+
+Flag `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (+ `_DEBUG`), commit `6d6e9e9`. RE rows: `june2017_re/funcmap.tsv` ("Buff Phase 9b"). June bugs #30–#35. Character halves: `JUNE2017_CHARACTER_PORT_CHECKLIST.md` §7 (8 rows).
+
+**Gate met.** Every June case of `3229e1a0` now has its class: 439 Moonlight Rhapsody, 720/920 Servo Nitro, 767 Sinister Mind, 819/894 Summon NPC Target, 891 Chain Viper, 927 Atomic Blaster, 952 Attack Me (NPCs; any other unit erases 952, a no-op on a fresh apply: #34), 1010 Geist Herrschaft, 1022 Moder, 1038 Death Sign. The `custom function created: BTI n (class …)` DEBUG line names the class through `typeid`, so 9a's four are named too. Ctor arguments, vtables and every override, including the six non-default destructors, follow June. All are dormant: none of these BTIs is in March's live data until Phase 13, and the Rose / Ain / Lu-Ciel calls are empty `CX2GUUser` hooks.
+
+**New state the classes read (all under the flag):**
+- DamageData `m_fJuneAddCriticalRate` (+0x5d4, 0), added to `GetCriticalPercent`'s result in both DamageReacts before WayOfSword (`@32048a49`, `@327b36ef`); Atomic Blaster adds 1.0 on an `AT_COMMAND` hit.
+- DamageData `m_iJuneAttackerStateID` (+0x5e0, -1) and `m_iJuneAttackSerial` (+0x5e8), written at the end of `SetDamageExceptionProcess` (`@322996e0`), with the attacker's serial `+0x40d8` (++, wraps to 0).
+- Unit `m_iJuneLastHitAttackSerial` (+0x40dc): both DamageReacts store the hit's serial first thing inside `IsDamagedReaction` (`@3204719d`, `@327b306b`). Chain Viper's count seed.
+- Unit `m_bJuneReservedDeath` (+0x258, `32082790`): Death Sign's erase hook sets it; `CX2GUUser::OnFrameMove` clears it and calls `SetNowHp( 0 )` (`@3206f833`); `ReInit` clears it (`@320244ab`).
+- `KBuffFactor`'s copy ctor (`CommonPacket.h`) now copies `m_uidMesGameUnit` and `m_bIsMesGameUnitNpc` (item 6). Only `X2Lib` compiles that header (`X2ServerProtocol`'s include is commented out), the servers never see `Always.h`, and Put/Get are unchanged: no wire change.
+
+**Kickoff items 2–8:**
+2. `+0x5d4` writers: SimpleInit (0, ported); `3202ad3d` is the skill-memo switch `3202ac40` (memo absent here, recorded); `32d28444` / `32d3641d` initialise a different struct (`+0x5c0` is a float there, a word in DamageData). The DamageData copy (`31e9ca2a`) is March's implicit copy.
+3. Ten hooks on `CX2GUUser` (Rose `32a800a0`, `32ad0e90`, `32ad0fd0`, `32ac2c50`, `32ac2d50`; Ain `32a4ddb0`, `32a4de20`; June-only summon target `32011960`, `31fd0590`, `32011ab0`). `32082790` is base code (ported). Attack Me's `3275b390` is March's `CX2NPCAI::SetTargetGameUnit`.
+4. June Raven's slot 167 (`32c273f0`) lists the same 12 BTIs as March's `GetReduceDebuffDurationRate`: no change.
+5. FLASH_BANG 100, TRAPPINGARROW_FUNGUS 241, BLOOD_REVENGE_COUNTER 427: no reader anywhere in June's binary (`HaveThisBuff`, `GetBuffAccumulationCountNow`, the BTI-taking helpers, the factor-list scans) or Lua; their templets are an empty CUSTOM_FUNCTION plus a timer, so in June they are inert tags too. BLOOD_RUNAWAY 426: only Elesis `32b87880` (§7 row). The `0x1a8`–`0x1ac` run is skill→state mapping, not BTIs.
+6. See above. Geist Herrschaft is the only class that reads the power rate (question 1 below).
+7. Slot 5 coverage matches March one for one: UnitToUnit user + NPC, MeshToUnit user, CollisionDataToUnit user, EffectToUnit NPC, DamageEffect `AttackResult` user.
+8. `322a1457` / `322a4cee` are the unit's destruction / construction (vector release, zeroing). Neither runs slot 8, as in March.
+
+**Hygiene:** `flagcheck.py JUNE_BUFF_CUSTOM_FUNCTION --range 6d6e9e9^..6d6e9e9 --with JUNE_BUFF_DEBUG`: `files: 3 PASS, 7 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 6 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. The 6 deleted lines are this flag's own code in `X2GameUnit.cpp`: 9a's switch brief (3 lines) and its DEBUG line (3), rewritten.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,186,176 B, dated 2026-10-05 16:59:03, md5 44c5b837c54db774400411c335c63ef8, equal to X2/US_SERVICE/x2.exe (2026-10-05 16:58:58); built at mods/june-buff-port 6d6e9e9.` The bytes were linked by a peer session's build from this shared tree, after all of 9b's edits (my own build relinked nothing); the 9b strings (`custom function created: BTI %d (%s)`, `Death Sign: reserved death fired`, `DamageEffect_Debuff_Geist_Herrschaft`, …) are in the deployed exe.
+
+**How to see it in game:** nothing new to see; it is all dormant. The regression is Phase 9a's: Phantom Sword (29), Bigbang Stream (56), Mark of Commander (62), plus 241 (still creates nothing). See the hand-off.
+
+**Open for the user:**
+1. **Geist Herrschaft's power** is the creator's power rate. On the packet path it is the 1.0 stand-in (June's `KBuffFactor +0x57` has no March field), so a Geist debuff restored from a packet hits at power 1.0, not the creator's rate. Keep the 1.0 stand-in, or add the field to the shared header (a server-visible struct change)?
+2. **Sinister Mind divides by `max / 3`** with no check (#33). Below a max of 3 that is a crash, so the port skips the effect swap there. Confirm the guard.
+3. **Death Sign's dungeon exemption** is not ported: June spares the user when the current sub-stage's June field `+0x48` is 4 (game `+0xc44` → `+4` → `+4`), and I could not match that field to March's `CX2DungeonSubStage`. A reserved death therefore always fires here.
+
 ## Phase 10 — Buff groups and June-only script bindings
 
 **Scope.**
