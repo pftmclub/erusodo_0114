@@ -3051,6 +3051,13 @@ bool CX2GUEL::CanUseSpecialAttack( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eAct
 		// 공식대전에서 사용 가능한 스킬인지 검사
 		if( false == CheckSkillUsePVPOfficial( pSkillTemplet->m_eID ) )
 			return false;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
+		/// June buff port Phase 7e: June Elesis 32b84a50 (slot 510, which holds June's only Elesis CheckSkillUsePVPOfficial
+		/// call, so March's home is CanUseSpecialAttack) @32b84d61, after 3202cba0 and June's 3202d140 / 3202d3c0: no skill
+		/// while the riding-key skill wait runs (329cc370)
+		if( true == IsRidingKeySkillWaiting() )
+			return false;
+#endif SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
 
 #ifdef FIX_NO_STATE_SKILL_BUG
 		// 탈 것 탑승 상태에서 사용 가능한 스킬인지 검사

@@ -1146,6 +1146,10 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	/// June buff port Phase 7e, CX2GUUser ctor (June 3203e850 @32041c8b: the x87 stack holds 334380f0 = -1.0f)
 	m_fStartMotionDelayTime			= -1.f;
 #endif SERV_IRUHADEV_JUNE_BUFF_START_DELAY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
+	/// June buff port Phase 7e, CX2GUUser ctor (June 3203e850 @320431a4-bc: fld 334380f0 = -1.0f)
+	m_fRidingKeySkillWaitTime		= -1.f;
+#endif SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
 
 #ifdef SERV_CHUNG_TACTICAL_TROOPER
 	m_iHyperModeCountUsed		= 0;
@@ -6877,6 +6881,15 @@ HRESULT CX2GUUser::OnFrameMove( double fTime, float fElapsedTime )
 			m_fStartMotionDelayTime = -1.f;
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_START_DELAY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
+	/// June buff port Phase 7e, OnFrameMove's tail right after the start-motion delay (June 3206eaf0 @320700e8-121)
+	if ( m_fRidingKeySkillWaitTime >= 0.f )		/// fcom; test ah, 0x41; jp: taken only below 0
+	{
+		m_fRidingKeySkillWaitTime -= fElapsedTime;
+		if ( m_fRidingKeySkillWaitTime < 0.f )
+			m_fRidingKeySkillWaitTime = -1.f;		/// @32070115, 334380f0
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
 
 	return S_OK;
 }

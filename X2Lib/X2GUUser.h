@@ -2922,6 +2922,14 @@ public:
 		void	StartMotionStateChange();		/// 31fcf040
 		float	m_fStartMotionDelayTime;
 #endif SERV_IRUHADEV_JUNE_BUFF_START_DELAY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
+		/// June buff port Phase 7e: June's riding-key skill wait (+0x92d0). -1.0f in the ctor (3203e850 @320431bc,
+		/// 334380f0); 0.1 s (334395e0) after the riding key's summon / unsummon request (CX2Game::KeyProcess 322f7170
+		/// @322f80a8); OnFrameMove (3206eaf0 @320700e8-121) counts it down while it is >= 0 and stores -1 when it drops
+		/// below 0. Read by 329cc370 (fucompp; test ah, 0x44; jnp: true while it is not -1) in every class's slot 510.
+		bool	IsRidingKeySkillWaiting() const { return -1.f != m_fRidingKeySkillWaitTime; }	/// 329cc370
+		float	m_fRidingKeySkillWaitTime;
+#endif SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
 
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환
 		virtual void		UpNowDPValueByDamage( IN const float fDamage_ ) {}				/// 애드일 때, 피격시 DP 변동 처리

@@ -5643,6 +5643,12 @@ RENDER_HINT CX2GURaven::CommonRender_Prepare()
 	// 공식대전에서 사용 가능한 스킬인지 검사
 	if( false == CheckSkillUsePVPOfficial( pSkillTemplet->m_eID ) )
 		return false;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
+	/// June buff port Phase 7e: June Raven 32c58c30 @32c58f01 (after CheckSkillUsePVPOfficial 3202cba0 and June's
+	/// 3202d140 / 3202d3c0): no skill while the riding-key skill wait runs (329cc370)
+	if( true == IsRidingKeySkillWaiting() )
+		return false;
+#endif SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
 
 #ifdef UPGRADE_RAVEN
 	if( m_bParrying == true && pSkillTemplet->m_eID != CX2SkillTree::SI_A_RF_SHADOW_STEP )

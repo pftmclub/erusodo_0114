@@ -5676,6 +5676,12 @@ void CX2Game::KeyProcess()
 									pRidingPetManager->Handler_EGS_SUMMON_RIDING_PET_REQ( pRidingPetManager->GetFirstRidingPetUID() );
 								else
 									pRidingPetManager->Handler_EGS_UNSUMMON_RIDING_PET_REQ();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
+								/// June buff port Phase 7e, CX2Game::KeyProcess (June 322f7170 @322f8094-b4): after the request,
+								/// my unit's riding-key skill wait = 0.1 s (334395e0)
+								if ( NULL != GetMyUnit() )
+									GetMyUnit()->m_fRidingKeySkillWaitTime = 0.1f;
+#endif SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
 							}
 						}
 						else

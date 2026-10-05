@@ -4890,3 +4890,17 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              it is not -1 (3230f110), and the quick-slot item check (7d flag).
 #define SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 7e (JUNE_BUFF_PORT_PHASES.md): June's
+//              riding-key skill wait (CX2GUUser +0x92d0), found in the riding-key
+//              block 7e's start-motion reader edits. -1 in the ctor; the riding
+//              key in CX2Game::KeyProcess sets it to 0.1 s after the summon or
+//              unsummon request (322f80a8, 334395e0); OnFrameMove counts it down
+//              and stores -1 when it drops below 0 (320700e8-121); while it is not
+//              -1 (329cc370) every class's SpecialAttackEventProcess refuses the
+//              skill right after CheckSkillUsePVPOfficial, as June's slot 510 does.
+#define SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
+//////////////////////////////////////////////////////////////////////////

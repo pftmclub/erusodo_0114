@@ -3618,6 +3618,13 @@ bool CX2GUAra::CanUseSpecialAttack( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eAc
 	// 공식대전에서 사용 가능한 스킬인지 검사
 	if( false == CheckSkillUsePVPOfficial( pSkillTemplet->m_eID ) )
 		return false;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
+	/// June buff port Phase 7e: June Ara 32bcfaa0 (slot 510, which holds June's only Ara CheckSkillUsePVPOfficial call,
+	/// so March's home is CanUseSpecialAttack) @32bcfd23, after 3202cba0 and June's 3202d140 / 3202d3c0: no skill while
+	/// the riding-key skill wait runs (329cc370)
+	if( true == IsRidingKeySkillWaiting() )
+		return false;
+#endif SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
 	
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
 	if ( NULL == GetUnit() )
