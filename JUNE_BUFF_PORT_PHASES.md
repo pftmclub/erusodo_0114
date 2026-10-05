@@ -3154,7 +3154,7 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
   - the `== −1` getter `3230f110` (callers `322f803e`, `32903cad`);
   - `3200bc20`'s `322f5140( true )` call (callers `3252bfb0`, `32eed115`);
   - `322f11d0`'s triggers: `322f4c60` (solo) and `324cf360` (party event `0x4ac`).
-- SAT 38: not answered yet.
+- SAT 38: **yes** (user, 2026-10-05): 7e ports June's refusal.
 
 ## Phase 8 — New finalizers and counter sync
 
