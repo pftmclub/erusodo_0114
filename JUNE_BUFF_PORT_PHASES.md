@@ -3302,6 +3302,34 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 **Kickoff:** `kickoffs/june-buff/8.md` - start it with `/x2-phase june-buff 8`. The inline prompt that stood here was retired on 2026-10-04; `kickoffs/` is the source of truth.
 
+### Phase 8 — Done (2026-10-05)
+
+**Landed** under the new flag `SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER`, in two code commits. The RE is in the "Buff Phase 8" rows of `june2017_re/funcmap.tsv` (34 rows).
+- **`cb83083`: the three finalizers.** Factor parse (`32d4c750`): AURA is empty; 15 and 16 have the hit-count shape and read COUNT as a skill table with a literal 1. Level slice (`32d4cb00`): 15/16 = the hit slice under their own type; AURA takes the default. Factory and the classes `CX2BuffAura-`, `CX2BuffStickShakeCount-` and `CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet`, transcribed from the asm (1c item 4). Unit side: `+0x75a4/+0x75a8` with slots 256/257, the skill-use map `+0x75c8` (258-260), slots 181/182, `322a0090`, and the buff-change counter `+0x6dd0`.
+- **`ec6aece` (+ fix `f52a21b`): the increment sites and the sync.**
+  - **BFT 15:** `CX2Game::KeyProcess` (`322f7170`) feeds a lone held left/right (June actions 0x25/0x26 = `GA_LEFT`/`GA_RIGHT`, from June's `InputData` call order) into `StickShakeInput` (`31fc9fa0`). The user's slots 256/257 show and remove the "StickShake" prompt (`32011130`/`32011210`); the dtor drops it too. The end hook `3236a6a0` became `CX2BuffTemplet::DoFinishStickShake`, run where June runs it (finish found + the three erases).
+  - **SHAKE_DECREASE (4b-ii hand-off):** `+0xbae` = left and right both held (`322cfc60`); `OnFrameMoveBuff` calls `DecreaseDurationByShake` for my user unit and bumps the counter. 4b-ii's "unsupported (Phase 8)" line is gone (`#else`).
+  - **BFT 16:** June reserves the used skill (slot 513, 1 s life) and counts it when the skill's state starts (`CommonStateStart` `@32057c23-d84`), after 6b's 98 cache. March has no reservation and spends MP at use, so `CountUsedSkill` (every class's skill use, just before the MP) takes the reservation and `CountReservedSkillUse` at the top of `CommonStateStart` counts key 0 and the slot type (Phase 6's `GetEquippedSkillSlotType`), skipping hyper/relationship skills (`32070580`). June's MP and its stale-reservation branch are not ported. **Deviation (`f52a21b`):** June's slot 516 test is not called, because March's `SpecialAttackNoStageChange` performs the action (writes `nowAction`); a no-stage-change skill never starts its state, so its reservation never matches anyway.
+  - **Sync:** the kickoff said "sync the new counters like hit/hitted"; June does not. It syncs one buff-change counter. Ported as June has it: `+0x6dd0` bumped at June's four sites (push, shake, BFT 15 end, aura end on my unit); the user sync carries its low 32 bits as a DWORD at June's bit `0x800000` with the field flag widened to 32 bits (`32d5be30`); on a unit that is not mine, 1 s of disagreement adopts the value and sends **XPT 27** (June `0x1b`, right after the wedding sync) with my UID; the owner answers with March's existing `SendBuffInfoNot` (= June `3203d0b0`, `EGS_UPDATE_USER_UNIT_BUFF_INFO_NOT`). Every peer needs this build (`MODS.md`). March's debuff-count sync stays (June still sends it).
+- **Debug lines** (`_DEBUG`): prompt shown, each stick-shake count, the BFT 15 end hook, each counted skill use, each shake decrease, an aura end, a resync request.
+- **BFT_ATTACK (17):** nothing to port; June's factor-parse (`32d4c750`) and level-slice (`32d4cb00`) switches stop at 0x10.
+- **Census:** `buff_census.py --phase 8` reports FINALIZER "not handled 0" (BFT_ATTACK excluded as June-unimplemented).
+
+**Answers to 1c item 4's open items.**
+1. `0x1b`: handled at `322ed9c0 @322edf68`; the reply is a server packet, no new reply type.
+2. `+0x8108`: the Now syncData (`+0x80d4`) `+0x34`, filled from packet `+0x3d` by `3201f5f0`. June added a field; it did **not** repurpose the debuff count (`+0x80fc` → `+0x4235` is still applied, `@3206c233`).
+3. **Correction:** the observer block runs only for units that are **not** mine (`IsMyUnit` → skip, `@320637d9`), not "every user unit".
+4. `+0x8eac` locality: only the per-class skill use sets it (vslot 513); in the port the reservation is local by construction (`CountUsedSkill` runs on key input).
+5. `32ec18f0` equals `32ec1620`; `322f7170` is `CX2Game::KeyProcess`.
+
+**Hand-offs.** Aura's socket side → **Phase 16** (user, 2026-10-05): slot 181 needs SIEE 15 and the socket `BUFF_FACTOR_ID` list (`+0x29c`), and the emitter (`ProcessSocketEffectEx` case 15) is Phase 16's; until then a user's aura ends at its first check, and the slot logs one `unsupported (Phase 16)` line if it ever sees SIEE 15. Add's slot 303 override → checklist §7. June bugs kept: `JUNE_BUGS.md` #15 (double `EndStickShake`), #16 (packet-built 15/16/aura copies never finish by themselves).
+
+**Hygiene** (`flagcheck.py JUNE_BUFF_NEW_FINALIZER --range cb83083^..HEAD --with JUNE_BUFF_DEBUG`, before `f52a21b`): `files: 16 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The PASS~ is the blank line before the new block in `X2BuffFinalizerTemplet.cpp`. `f52a21b` only edits this flag's own lines.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,141,120 B, dated 2026-10-05 11:37:26, md5 8b491d7d1a8108c1a208ad94ae196580, equal to X2/US_SERVICE/x2.exe (2026-10-05 11:37:21); built at mods/june-buff-port f52a21b + 18 uncommitted code file(s).` The 18 files are peers' work in progress (Phase 10 `JUNE_BUFF_GROUP`/`_BINDING` in X2BuffTempletManager, X2Main, X2StateStartUp, X2GameEdit, X2GUUser, X2Game; the effect work in X2DamageManager, X2GUNPC, X2GUAra), built in with it.
+
+**How to see it in game.** No March data uses these types, so the play-test registers four throwaway buffs from the dev console after each launch: templets BTI 9001-9004, then factors 362-365 (the first ids after March's 361 slots; register them once, in this order). 9001 = BFT_TIME 30 s + BFT_STICK_SHAKE COUNT 4; 9002 = 60 s + BFT 16, slot A, COUNT 2; 9003 = 20 s with SHAKE_DECREASE 0.1 / max 2; 9004 = AURA. Apply with `g_pX2Game:GetMyUnit():SetBuffFactorToGameUnitByBuffFactorID_LUA( 36x, 1 )`; the exact lines are in this phase's hand-off and the review kickoff. Without them, normal play only exercises the counter bumps and the shake trigger's key read.
+
 ## Phase 9 — Custom-function buffs
 
 **Scope.**

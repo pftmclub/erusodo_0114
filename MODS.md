@@ -41,6 +41,7 @@ column.
 | `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE` | 2026-09-26, extended 2026-09-26 (Phase 6a) | `KTDXLIB/Always.h:4347` | `X2Lib/X2DamageEffect.h:611` (new `DamageEffectDataInLua::m_vecDamageDataNextChain`), `:1131` (new `CEffect` members); `X2Lib/X2DamageEffect.cpp:1457` (`APPLIED_SKILL_ID`/`_NOT_AFFECT_MEMO` + master ultimate flag), `:1504` (`MAIN_EFFECT_NAME_ULTIMATE`), `:1572` (`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`), `:1587` (`USE_ADVANCE_COLLISIOIN_CHECK`), `:1593` (`DAMAGE_DATA`/`_ULTIMATE` wiring), `:1609` (`IGNORE_MI_HUGE`), `:1680` (`USE_OWNER_ATTACK_SPEED`), `:1689` (`DAMAGE_DATA_CHANGE_TIME(_GLOBAL_TIME)` array reads), `:1745` (`FOLLOW_LINE_ULTIMATE`/`FOLLOW_LINE_NEW_ULTIMATE`), `:1776` (`FOLLOW_LINE_WITH_CUSTOM_ROTATE`/`FOLLOW_LINE_GRAVITY`/`TRACE_OWNER_BONE(_ONLY_ROTATE)`), `:1829` (`DAMAGE_DATA_NEXT(_ULTIMATE)`/`DAMAGE_DATA_NEXT%d` chain), `:1901` (`INHERIT_CRITICAL_RATE`/`_DAMAGE_RATE`), `:1934` (`RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT`), `:2160` (destructor cleanup of the chain vector). Phase 6a additions: `X2Lib/X2DamageEffect.h:98` (new `DAMAGE_EFFECT_DIE_CONDITION_TYPE` enum), `:302` (new `DamageEffectData` fields: `fLoopInterval`, `uiLoopEndCount`, `fLoopEndTime`, `vLoopAddPos`, `bSetDieWhenMasterEffectDie`, `bInheritLifeTime`, `bInheritDamage`, `bInheritLockOnData`, `vScale`), `:448` (new `DieCheckCondition` struct), `:970` (`LoadDieCheckConditionBlock`/`LoadDieCheckCondition` decls), `:1252` (`m_vecDieCheckCondition`); `X2Lib/X2DamageEffect.cpp:1805` (ctor call to `LoadDieCheckCondition`), `:6782` (`LoadDieCheckConditionBlock`: shared `CONDITION_` loop for `AND_OPERATION`/`OR_OPERATION`), `:6837` (`LoadDieCheckCondition`: opens `DAMAGE_EFFECT_DIE_CHECK_CONDITION`), `:7040` (`LoadDieDamageEffect`'s `DIE_DAMAGE_EFFECT_ULTIMATE%d` gate+loop, forced off), `:7078` (`LoadDieDamageEffect`'s new keys), `:7366` (`LoadDamageEffect`'s `LOOP_*`/`SET_DIE_WHEN_MASTER_EFFECT_DIE`/`INHERIT_LIFE_TIME`/`INHERIT_DAMAGE`), `:7472` (`LoadHitDamageEffect`'s `HIT_DAMAGE_EFFECT_ULTIMATE%d` gate+loop, forced off), `:7562` (`LoadHitDamageEffect`'s new keys) | -- |
 | `SERV_IRUHADEV_JUNE_DAMAGEDATA` | 2026-09-29 (Phase 8a) | `KTDXLIB/Always.h:4439` | `X2Lib/X2DamageManager.h:582` (new `ExtraDamageData::m_bManaDamageWithNoDisplay`), `:662` (its `Init()` reset), `:735` (its copy); `X2Lib/X2DamageManager.cpp:6` (`JUNE_EDT_MANA_DAMAGE_WITH_NO_DISPLAY` = 67, log include), `:169` (the `EXTRA_DAMAGE_TYPE` remap in `SetDamageDataFromLUA`). Phase 8c additions: `X2Lib/X2DamageManager.h:1121` (eight absent-system `DamageData` members), `:1336` (their `SimpleInit()` defaults), `:1537` (`SetJuneDamageDataTemplet` + `JuneDamageDataTempletScope`), `:1567` (`m_pwszJuneDamageDataTemplet`); `X2Lib/X2DamageManager.cpp:15` (log include, `JuneDamageDataUnsupported`), `:67` (ctor init), `:201` (the eight reads and their rule-5 lines); `X2Lib/X2DamageEffect.cpp:1746` (the CEffect ctor's templet scope) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_LOADER` | 2026-10-03 (June buff port Phase 3) | `KTDXLIB/Always.h:4701` | `X2Lib/X2BuffTempletManager.h`/`.cpp` (`CX2JuneBuffCapture`; June's `AddBuffTemplet_LUA`/`AddBuffFactor_LUA`/`GetBuffFactorPtr`, new `AddBuffFactorINT`/`PushBuffFactor`/`LoadINTScriptFile`/`LogLoadSummary`, `m_vecBuffFactorPtrINT` and the counters), `X2Lib/X2BuffFactor.h`/`.cpp` (`ParsingBuffFactor` wraps the original, now `ParsingBuffFactorBody`; BBT/BFT `default:` branches), `X2Lib/X2BuffBehaviorTemplet.cpp`, `X2BuffFinalizerTemplet.cpp`, `X2BuffDisplayerTemplet.cpp` (`default:` branches), `KTDXLIB/KTDXCommonFunc.h` (`DisplayErrorMessage` sink), `KTDXLIB/KTDXApp.cpp` (`g_pIruhaDisplayErrorSink`) | -- |
+| `SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER` | 2026-10-05 (June buff port Phase 8) | `KTDXLIB/Always.h:4928` | `X2Lib/X2BuffFactor.cpp`, `X2BuffFinalizerTemplet.h`/`.cpp` (BFT 14/15/16), `X2BuffTemplet.h`/`.cpp`, `X2GameUnit.h`/`.cpp`, `X2GUUser.h`/`.cpp`, `X2Game.h`/`.cpp`, **`X2UDPPacket.h`/`.cpp` (P2P wire format)** | -- (P2P only; no server packet changes) |
 
 What each one does:
 
@@ -2872,6 +2873,21 @@ Design, the expected log lines for both March's files and a June trial, and the 
 Built `US_SERVICE`, rc 0. `x2.exe`: 18,999,808 B, 2026-10-03 03:55. Deployed to `X2_offline.exe` (md5 match). Not launched.
 
 **Needs packing:** nothing. **Revert:** undefine `SERV_IRUHADEV_JUNE_BUFF_LOADER` and rebuild all four projects (it sits in the PCH).
+
+### June buff port, Phase 8: new finalizers and the buff-change sync (changes the P2P wire format)
+
+New flag `SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER` (`KTDXLIB/Always.h`).
+- June's finalizers `BFT_AURA` (14), `BFT_STICK_SHAKE` (15) and `BFT_USE_SKILL_BY_SKILL_SLOTTYPE` (16), with their unit counters and
+  the sites that move them: left/right alternation while a BFT 15 buff runs, and one count per skill use (any, and per slot type).
+- June's buff-change counter (`CX2GameUnit +0x6dd0`) and its resync: a peer whose copy of a unit's counter disagrees for 1 s asks
+  that unit's owner for its buff list (new P2P message `XPT_BUFF_INFO_REQ` = 27, answered with the existing `SendBuffInfoNot`).
+- **Every peer in a game must run the same build.** The user sync's field flag is now 32 bits (June's width) and carries a new
+  DWORD at bit `0x800000`, and message 27 is new. A client built without the flag reads this build's user sync wrongly, and the
+  other way round. Offline play has no peers, so it is unaffected. No server code changes.
+
+Details, June addresses and the play-test are in `JUNE_BUFF_PORT_PHASES.md`, "Phase 8 -- Done".
+
+**Needs packing:** nothing. **Revert:** undefine the flag and rebuild all four projects, on every peer.
 
 ## Reverting to stock
 

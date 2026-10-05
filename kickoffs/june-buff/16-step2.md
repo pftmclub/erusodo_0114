@@ -38,3 +38,16 @@ cite June addresses; never invent a value; byte-level CP949 edits; flag-off chec
 count the reach on March's live data before building. Step 1's "For checklist section 7"
 items go into JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7 in this session. Build, deploy,
 commit; write a Done note with per-item "how to see it in game" lines.
+
+## Added by Phase 8 (2026-10-05): BFT_AURA's socket side
+
+The user put the aura's socket half here. Phase 8 ported the `BFT_AURA` class, its check (slot 9)
+and unit slot 182; `CX2GUUser::HasSocketAuraFor` (slot 181, June `3204e380`) stops at the SIEE 15
+lookup and logs one `unsupported (Phase 16)` line. Port, with the socket loader:
+- SIEE 12-20 (at least 15, `SIEE_ALWAYS_PLAY_EFFECT_SET`) and the socket-data fields `EFFECT_NAME`
+  (`+0x1fc`), `m_fIntervalTime` (`+0x1e8`) and the `BUFF_FACTOR_ID` list (`+0x29c`, flag byte 9);
+- slot 181's inner loop (socket ids under `map[15]` -> their list -> a factor of the asked BTI);
+- the emitter: `ProcessSocketEffectEx` case 15 (`32029fff`), called from user slot 484 with 0xf.
+
+Read `python tools/docsection.py JUNE_BUFF_PORT_PHASES.md "Phase 1c, item 4" "Phase 8 -- Done"`
+(the BFT 14 block) first. Data: the 10 June `BFT_AURA` buffs in `OptionItemData.src.lua`.
