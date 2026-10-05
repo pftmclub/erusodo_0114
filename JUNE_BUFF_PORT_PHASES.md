@@ -3216,6 +3216,11 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
   - 3 are `Always.h` 7d comment lines;
   - 1 is the `X2GUUser.h` `+0x8d78` comment, in the `_AWAKE_LOCK` block.
 - The PASS~ blank line is the separator before the `OnFrameMove` block.
+- Post-commit, `--range f20a31c^..HEAD`:
+  - `RIDING_KEY_WAIT --with JUNE_BUFF_DEBUG`: `files: 11 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS`;
+  - `START_DELAY --with JUNE_BUFF_DEBUG JUNE_BUFF_RIDING_KEY_WAIT`: `files: 7 PASS, 1 PASS~, 2 DEFINE, 11 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS`;
+  - `QUICKSLOT_ITEM --with JUNE_BUFF_DEBUG JUNE_BUFF_START_DELAY JUNE_BUFF_RIDING_KEY_WAIT`: `files: 12 PASS, 0 PASS~, 2 DEFINE, 7 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS`.
+  - Without the sibling flags in `--with`, `726607a`'s `Always.h` reports FAIL: it adds another 7e flag's `#define` block, which the check does not count as this flag's define.
 
 **Build and deploy.** `DEPLOY OK: X2_offline.exe is 19,116,032 B, dated 2026-10-05 09:37:27, md5 fa09029220a974011a01da4f768e5f34, equal to X2/US_SERVICE/x2.exe (2026-10-05 09:37:22); built at mods/june-buff-port 726607a.` All four 7e strings are in the exe (the two new DEBUG lines, `START_MOTION_DELAYTIME`, and the kept refusal line). Compiler warnings for the new code were not checked line by line. **Not launched.**
 
