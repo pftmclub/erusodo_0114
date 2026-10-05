@@ -3380,6 +3380,36 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 **Kickoff:** `kickoffs/june-buff/9.md` - start it with `/x2-phase june-buff 9`. The inline prompt that stood here was retired on 2026-10-04; `kickoffs/` is the source of truth.
 
+### Phase 9a — Done (2026-10-05)
+
+Split by family as the kickoff allows: **9a = the shared engine + Elsword + Chung** (the four custom-function BTIs March's live data carries: 29, 56, 62, 223). **9b resumes** with the dormant families (`kickoffs/june-buff/9b.md`). Flag `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION`, commit `b8bc0a1` (code). RE rows: `june2017_re/funcmap.tsv` ("Buff Phase 9a").
+
+**Slot map (corrects Phase 4a's "slots 3–6").** June's `CX2CustomFunctionByBuff` vtable has 9 slots: [0] dtor, [1]–[4] March's StateStart / FrameMove / StateEnd / DamageReact, then four June-only hooks, all ported with their dispatchers and call sites:
+- [5] `AttackResultByType` (dispatch `32275700`): first thing in `CX2GUUser::AttackResultByType` (`320144d0`, vslot 312) and `CX2GUNPC::AttackResultByType` (`32773ee0`). June's Ara calls the base first (`32bceca0`), March's did not: added.
+- [6] NPC final damage (`322757b0`): `CX2GUNPC::DamageReact` only, right before the damage number (`X2GUNPC.cpp`, before the `m_bDamageOutScreen` block).
+- [7] buff applied (`32275860`): end of `SetBuffFactorToGameUnit` (Phase 4a body).
+- [8] erase (`3227a1d0 @3227a206`): before the erase in `EraseCustomFunctionByBuff`.
+
+**Creator info.** `CreateAndInsertCustomFunctionByBuff` takes June's third argument (`KCustomFunctionCreatorInfo`: not-user, creator UID, creator power rate). `CX2BuffTemplet::SetFactor` stores the creator's `GetPowerRate()` first, as June `3236d400` (+0xbc). The packet path has no power rate (June's `KBuffFactor +0x57` is absent from March's shared header): it keeps 1.0. Only 9b's classes read it.
+
+**Switch (`3229e1a0`), 9a cases.** 29 Phantom Sword, 56 Unfixed Clip (**users only**, June's gate), 62 Mark of Commander, 223 Pandemonium Fear (new class). The other ten June cases still create nothing.
+
+**Class bodies, June vs March:**
+- **Phantom Sword:** StateStart / FrameMove / StateEnd / dtor match March. `CreateAndInsertThirdBladeData` (`32370e10`) halves techPoint, fHitAddMP and `m_fRateModifier` (new constant 0.5), where March zeroed fHitAddMP. It no longer forces `AT_SPECIAL`. The memo variants are gone: `31fca9e0`, June's `GetEqippedSkillMemo`, is a stub returning false. Not ported: `32296ee0`, the game-option effect alpha on the centre mesh.
+- **Bigbang Stream:** gains a cool time, `SA_READY_TIME_REL` of `SI_SA_CHG_BIGBANG_STREAM` at the learned level (`32007b10`, ported as `JuneGetLearnedSkillAbilityValue`). StateStart skips while it runs and arms it after the table. FrameMove ticks it. DoExtraAttack always throws HAND_GRENADE_0: the memo grenade is gone, and June's ULTIMATE variant sits behind the absent skill-memo map. The throw takes `abs()` of both x and z.
+- **Mark of Commander:** a user's shell power × `GetSkillDamageRateByBuff( SI_A_CHG_MARK_OF_COMMANDER )` × (1 + `3201ad10`). `3201ad10` is June's skill damage-up total; every source is June-only, so it is 0 here (Phase 16 may own its `+0x87b4` map). Always the plain shell (no memo).
+- **Pandemonium Fear (new):** FrameMove ticks a value[0] interval. DamageReact copies Mark of Commander's guards (trigger 6). It creates `DAMAGE_EFFECT_Pandemonium_Fear_Explosion` at the hit unit's centre, re-aimed by June's `31fd5ef0` when a user hits an NPC (`JuneGetTargetHitPos` + `32293b80` / nearest collision frame), with power = damage by type × value[1]. **March's DamageEffect.lua has no such effect, so nothing appears until Phase 13.**
+
+**FLASH_BANG / PANDEMONIUM_FEAR "per-class handling"** (scope bullet 3): both March sites are reduce-debuff-duration lists, not behaviour. Ara's list was replaced in Phase 10. Raven's (`X2GURaven.cpp` `GetReduceDebuffDurationRate`) and the four BTIs June has no case for (100, 241, 426, 427) are **9b items 4–5**.
+
+**Hygiene / deploy:** `flagcheck.py JUNE_BUFF_CUSTOM_FUNCTION --range b8bc0a1^..b8bc0a1 --with JUNE_BUFF_DEBUG`: `files: 5 PASS, 3 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. Always.h and X2GUUser.cpp also held Phase 11's uncommitted lines: only 9a's hunks were staged. Deploy: __DEPLOY__
+
+**How to see it in game:** see the hand-off (Elsword Phantom Sword, Chung Bigbang Stream and Mark of Commander regression; first-creation `[JUNE_BUFF]` lines).
+
+**Open for the user:**
+1. June's user `AttackResultByType` also runs `32011280` (June's Lanox "Secret Ammo" set: BTI 794, `DamageEffect_Ranox_Secret_Ammo_5`) and a riding-pet effect for BTI 562. Neither is a buff-port system. Left out; say if the Lanox plan should own it.
+2. Packet-path creator power rate = 1.0 (see above). It matters only for 9b classes that read it.
+
 ## Phase 10 — Buff groups and June-only script bindings
 
 **Scope.**
