@@ -3945,6 +3945,14 @@ Check 5: back in the village, no icons appeared. The emulator's send after `EGS_
 - **Buff time text:** in a dungeon or field, use an Arcanum (item 78520, 180 s) or an Elixir (78894, 1800 s), as in Phase 11's checks. The buff icon's number counts minutes in green, then seconds in white below one minute.
 - **Repair:** prices are unchanged offline. No grantable buff is in the discount list, and the clamp only mattered above a 10 % socket discount.
 
+**Play-test (2026-10-05, user; exe `d423c1c6`, run 19:28):**
+- **Check 1 (timer) passed in the field.** Logs: `activated buff 109 (factor 90) for 180 s` and `117 … 300 s`, then `world buff (room): unit 12, 2 sent, 2 kept`.
+- **No timer text in the village.** This is June's behaviour. June's `CX2GageManager::SetDurationTime` (`324895c0`, which inlines `IsNotUseNotifyTimeBuff`) has one caller, the time finalizer `32ec2670`, which ticks only on a game unit. The village resend (`village: 3 sent, 3 kept`) shows icons only, in June as in March.
+- **Check 2 (repair regression) was not run:** all the user's gear is at 100 % durability. It is low risk:
+  - the shop change only differs at a rate of exactly 0;
+  - the clamp only differs above a 10 % socket discount.
+- The run's 2 UNHANDLED lines are `E_DISABLE_HB_CHECK_REQ`, which is not this phase's.
+
 ## Phase 12 — Buff icons and UI assets
 
 **Scope.**
