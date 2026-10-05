@@ -17,6 +17,12 @@ python tools/docsection.py JUNE_BUFF_PORT_PHASES.md "Starting context" "Phase 16
 
 ## Task
 
+0. Add the part-1 identifications to `june2017_re/funcmap.tsv` (tag "Buff Phase 16"; part 1 left them out because a
+   peer had uncommitted rows there): `322a9a10` / `322a9c20` take the unit type as the template's third argument
+   (refresh prologue `@32290926`..`3229094a`); the factory `32e80450` jump table `32e84808` is indexed by type - 1; BBT 78
+   and 92 share the ChangeStat ctor `32e866f0`; `3236ca50` = `SetBasicStatValue`; `32001570` = `CanApplySocketDataByGameType`
+   (types 2/3/5, 4, default).
+
 Check part 1 against June, item by item, in Ghidra / `june2017_re/funcdis.py` (Ghidra's
 `strings` endpoint is too slow here; use the raw-file scripts):
 

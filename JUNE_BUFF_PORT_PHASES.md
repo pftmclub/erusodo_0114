@@ -4843,6 +4843,8 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 - 78: June's whole k in both DamageReacts; 5c's deviation retired. JUNE_BUGS #42-#45.
 - Degrade: one line each when June's curves are missing (`SocketOptionForm.lua has no June curves …`, `CalculateFinalDamageMaximizeRate is missing …`); the June-only curve calls are then skipped.
 - Inherited, not changed: `SumSocketOption` passes **my** unit type for every user's specialization curve (March).
+- The designed range is set only in `SetGameStat`; no other code writes a user's attack basic (the other writers are `CX2GUNPC`'s), so it never lags. AI party bots take the owner's range through the summon copy (every case of `SetUserSummonedNPCInfo` reaches it), so their hits vary too.
+- The template counts are over all 366 `AddBuffFactor_LUA` calls in the staged factor file, including the 5 the loader rejects by ordinal.
 
 **Hygiene.** `flagcheck JUNE_SOCKET_PARITY --with JUNE_BUFF_NEW_STAT JUNE_ATTACK_RANGE_DESIGN JUNE_BUFF_DEBUG --worktree`: 6 PASS, 1 PASS~ (one blank line in `X2GameUnit.cpp`), 1 DEFINE, 5 OTHER (the 92 wiring files, under `_NEW_STAT`), 0 FAIL; 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 untagged `#else`/`#endif`, 0 encoding changes.
 
