@@ -3077,7 +3077,7 @@ Log lines read afterwards: `first apply BBT 110` and `first read BBT 110: TryHyp
 - `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)`;
 - `RESULT: PASS`.
 
-The 2 are plain `#else` lines in `X2UIQuickSlot.cpp`; each holds March's text verbatim.
+The 2 are plain `#else` lines in `X2UIQuickSlot.cpp`; each holds March's text verbatim. Post-commit, `--range 50d4e32^..50d4e32` gives the same three lines (`RESULT: PASS`).
 
 **Build and deploy.** `DEPLOY OK: X2_offline.exe is 19,113,472 B, dated 2026-10-05 07:46:16, md5 28343b611d94ec3a55f33bf687f20c95, equal to X2/US_SERVICE/x2.exe (2026-10-05 07:46:12); built at mods/june-buff-port f46ef86 + 13 uncommitted code file(s).` Both new DEBUG strings are in the exe, and the new code produced no compiler warnings. **Not launched.**
 
