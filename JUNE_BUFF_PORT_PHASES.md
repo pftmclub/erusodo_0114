@@ -3558,7 +3558,7 @@ Phase 10 parses and stores `IS_AURA_BUFF` and `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,142,656 B, dated 2026-10-05 14:00:02, md5 826c409ee382e8340839004ed49926f8, equal to X2/US_SERVICE/x2.exe (2026-10-05 13:59:57); built at mods/june-buff-port fc51e7d + 1 uncommitted code file(s).` That file is exactly this review's commit.
 
-**Play-test:** optional regression only. Melee a monster and look for the same `guild Chance to Reverse checked on a hit too` line, with both UIDs real.
+**Play-test (2026-10-05, user; exe `826c409e`, run 14:02:22 after the 14:00 deploy): passed.** `ErrorLog.txt:192` `guild Chance to Reverse checked on a hit too (first seen): attacker 25, target 4` (both UIDs real). Load baseline unchanged (361 factors, 5 ordinal rejects, 3 groups / 109 debuffs); 0 exceptions; the 2 `E_DISABLE_HB_CHECK_REQ` UNHANDLED are not this phase's.
 
 **Owed by the user:** /cost. Next: `/x2-phase june-buff 11` (Opus 5.5, high).
 
