@@ -3497,6 +3497,35 @@ Phase 10 parses and stores `IS_AURA_BUFF` and `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`
 
 **Kickoff:** `kickoffs/june-buff/10b.md` — start it with `/x2-phase june-buff 10b`.
 
+### Phase 10b — Done (2026-10-05)
+
+**Landed** in `a9ff45a` (`X2DamageManager.cpp`, `X2GUUser.cpp`, `X2GUNPC.cpp`, `Always.h`). The RE is in the "Buff Phase 10b" rows of `june2017_re/funcmap.tsv` (15 new rows; `32622990` and `3227a270` corrected).
+
+**Reader census.** A byte scan of `.text` for every byte read of `[reg+0x5f0]` found the scope's 12 sites plus three: `32610897` = `32610880`, an uncalled out-of-line copy of `32610df0`'s guard; `31e9ca7f`, the DamageData copy; and `325c99xx`/`325cbxxx`, a different class (`+0x244`). Slot `0x198` is **IsMyUnit** (not "is a user"), so the gate only filters this client's own unit as a target.
+- **`SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY`:** June's party gate, inlined at all seven hit paths in front of the team check: GroundHit `@32623c5d`, AreaHit `@32624885`, UnitToUnit `@326250fa`, MeshToUnit `@326257d7`, CollisionDataToUnit `@326289e3`, EffectToUnit `@3262b89e` (attacker = the effect's owner), UnitToEffect `@326414ad` (target = the hit effect's owner). An aura buff skips my own unit when the party manager exists and the attacker's UID is neither in my party (`32431360`) nor my own. One helper, `JuneAuraBuffSkipsTarget`. GroundHit has no self exception (JUNE_BUGS #22), and its NULL attacker is guarded (#24).
+- **`SERV_IRUHADEV_JUNE_BUFF_AURA_REACT`:** both DamageReacts (`320471d6`, `327b3122`) play the hitted-by-buff effect sets only for a non-aura hit.
+- **`SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE`:** `32610df0` is June's factored guild-skill **Chance to Reverse** check (`3202dd70` = `GuildSkillProcess`, `0x1fd` = `SI_GP_COMMON_CHANCE_TO_REVERSE`, `3202a890` = `DoGuildSkillChanceToReverse`). It is skipped for ATTACK_OUR_TEAM, IS_AURA_BUFF and DT_BUFF damage, and checks the attacker first. June calls it on a miss (March's four `GUILD_SKILL_PART_2` blocks, now in `#else`) **and on a hit right after AttackResult** in UnitToUnit, MeshToUnit, CollisionDataToUnit and EffectToUnit. It was ported as `JuneGuildSkillChanceToReverse` at all eight sites.
+- **`_DAMAGEDATA_KEY` (Phase 10's lines):** its two comments and two parse log strings no longer say "Phase 10b" (these are the 5 deleted lines below).
+
+**Not ported, with reasons.**
+- `32622990` (team pre-filter): its first test is `IsPve` (`322cc1c0`), which needs June's PvE mode. Every caller repeats the gate inline.
+- **LIMIT_APPLY_BUFF_COUNT_EACH_UNIT is dead in June.** The checker is `322759b0`, not `32275990`, which is the previous function's tail. Neither it nor the counter `3227a270` has a call, jmp, jcc, short jump or pointer anywhere in the binary. June parses the key and never enforces it, and Phase 10 already matches that. The per-unit list question settles itself: June's DamageData copy deep-copies the vector (`32388c70`), but nothing reads or writes it, so March gets no list member (JUNE_BUGS #23).
+
+**Visible side effects.**
+1. A guild member with Chance to Reverse learned now rolls it on every hit they land or take, as well as on a dodge. No character in `els_db.sql` has it (offline has no guild skills), so here the only trace is a one-time log line.
+2. Nothing in March data sets `IS_AURA_BUFF`, so the gate and the effect-set skip are dormant until June's `DamageEffect_Hero_Dungeon_Aura_Buff` (data Phase 13, socket aura Phase 16) ships. Even then, offline has no party members or other players, so only the self case is reachable.
+
+**Hygiene** (`flagcheck --worktree`, the four files, each flag `--with` the other three + `JUNE_BUFF_DEBUG`; `--range` after the commit below):
+- `--range a9ff45a^..a9ff45a`, every flag `RESULT: PASS`, `0 FAIL, 0 ERROR`, 0 non-ASCII inserted, 0 EOL-mismatched, 0 `#else`/`#endif` without the flag token, 0 encoding changes.
+- `_AURA_PARTY`: `files: 0 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags)`; `_AURA_REACT`: `0 PASS, 2 PASS~, 1 DEFINE, 1 OTHER`; `_GUILD_REVERSE` and `_DAMAGEDATA_KEY`: `0 PASS, 1 PASS~, 1 DEFINE, 2 OTHER`. The OTHER rows are the other 10b flags sharing `X2DamageManager.cpp`.
+- `5 deleted line(s)` in the X2DamageManager.cpp rows: Phase 10's own comments (3 lines) and two log strings inside `_DAMAGEDATA_KEY`, rewritten. No studio line is deleted (March's guild-skill blocks stay in `#else`).
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,142,656 B, dated 2026-10-05 13:41:08, md5 3e0330222c25ecf5199c7ffd240359e0, equal to X2/US_SERVICE/x2.exe (2026-10-05 13:41:04); built at mods/june-buff-port 67bd730 + 4 uncommitted code file(s).` (those 4 are exactly `a9ff45a`). All 9 phase strings checked in the deployed exe.
+
+**Play-test:** regression only (the hand-off is in the session). `JUNE_BUFF` lines to read: `guild Chance to Reverse checked on a hit too (first seen)` and no `aura buff skipped`.
+
+**Owed by the user:** the play-test, then /cost. Next: `/x2-phase june-buff 10b review` (Opus 5.5, high).
+
 ## Phase 11 — Premium/world buffs and the offline path
 
 **Scope.**
