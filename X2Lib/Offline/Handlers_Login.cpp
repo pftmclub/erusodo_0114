@@ -224,6 +224,13 @@ bool CX2OfflineServer::Handler_EGS_CHECK_MACHINE_ID_REQ( KOfflineSession& kSes, 
 
 bool CX2OfflineServer::Handler_EGS_STATE_CHANGE_SERVER_SELECT_REQ( KOfflineSession& kSes, const KEvent& /*kEvent*/ )
 {
+#ifdef SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
+	// OnDeselectUnit -> CheckDeselectUnitBuff (GSUserFunction.cpp:17295-17356):
+	// the village "Rest" buff is always deleted when the character is deselected.
+	if( 0 != kSes.m_nSelectedUnitUID )
+		CX2OfflineBuff::Instance()->OnLeaveVillage( kSes.m_nSelectedUnitUID );
+#endif SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
+
 	kSes.m_eState = S_SERVER_SELECT;
 
 	KEGS_STATE_CHANGE_SERVER_SELECT_ACK kAck;

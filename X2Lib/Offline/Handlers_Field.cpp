@@ -161,7 +161,16 @@ bool CX2OfflineServer::Handler_EGS_FIELD_LOADING_COMPLETE_REQ( KOfflineSession& 
 	// 2026-10-05: no icons until the next send). Offline grants no 122 - a live
 	// global village buff, not an item buff - so the resend is made directly,
 	// and only when there is something to show.
+#ifdef SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
+	// With the village buff ported, the live sequence itself: grant 122, and its
+	// round trip ends in SendUpdateBuffInfo (always, as the ACK always sends).
+	if( true == CX2OfflineBuff::Instance()->OnJoinVillage( kSes.m_nSelectedUnitUID ) )
+		SendUpdateBuffInfo( kSes );
+	else
+		SendUpdateBuffInfo( kSes, true );
+#else // SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
 	SendUpdateBuffInfo( kSes, true );
+#endif SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
 #endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 
 	// Phase 6: standing in a village finishes a SQT_VISIT_VILLAGE step, and it

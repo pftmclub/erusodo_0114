@@ -104,6 +104,15 @@ public:
 	bool	OnEndDungeonGame( UidType nUnitUID );
 	bool	OnUserDied( UidType nUnitUID );
 
+#ifdef SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
+	/// The village "Rest" buff (BTI 122): ERM_JOIN_FIELD_ACK activates it
+	/// (GSUserField.cpp:535-546); OnLeaveField (UserServerBuffManager.cpp:305-326)
+	/// and CheckDeselectUnitBuff (GSUserFunction.cpp:17302) remove it. Each returns
+	/// true when the buff list changed.
+	bool	OnJoinVillage( UidType nUnitUID );
+	bool	OnLeaveVillage( UidType nUnitUID );
+#endif SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
+
 	/// KUserServerBuffManager::CheckBuffPeriod: start != end and now > end.
 	bool	CheckBuffPeriod( UidType nUnitUID );
 

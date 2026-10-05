@@ -678,6 +678,11 @@ bool CX2OfflineServer::Handler_EGS_SELECT_UNIT_REQ( KOfflineSession& kSes, const
 	// (GSUserFunction.cpp:5661); its ACK brings the stored buffs back as
 	// EGS_UPDATE_BUFF_INFO_NOT, empty or not.
 	const bool bAckSent = Reply( kSes, EGS_SELECT_UNIT_ACK, kAck );
+#ifdef SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
+	// Live runs OnDeselectUnit on a disconnect too; offline a closed game sends
+	// nothing, so the deselect cleanup of the village "Rest" buff runs here.
+	CX2OfflineBuff::Instance()->OnLeaveVillage( kSes.m_nSelectedUnitUID );
+#endif SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
 	SendUpdateBuffInfo( kSes );
 	return bAckSent;
 #else // SERV_IRUHADEV_OFFLINE_ITEM_BUFF

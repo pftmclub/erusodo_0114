@@ -5083,6 +5083,19 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-05
+// Description: Offline mode: the village "Rest" buff (BTI 122
+//              BTI_BUFF_WARM_ENERGE_OF_EL, STR_ID_20716 "Rest" / 20717 "HP
+//              Recovery", behavior BBT_EMPTY = icon only), granted on every
+//              village join and removed on leaving the village and at deselect,
+//              as the March GameServer does (ERM_JOIN_FIELD_ACK,
+//              OnLeaveField, CheckDeselectUnitBuff). User request 2026-10-05.
+//              Requires SERV_IRUHADEV_OFFLINE_ITEM_BUFF.
+#define SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
 // Description: June buff port Phase 9a: June's custom-function-by-buff
 //              engine. CX2CustomFunctionByBuff gets June's four extra hooks
 //              (AttackResultByType, NPC final damage, buff applied, erase),

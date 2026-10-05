@@ -3246,6 +3246,9 @@ namespace
 		BTI_BUFF_BELSSING_OF_AMON					= 115,
 		BTI_BUFF_BELSSING_OF_CRONOS					= 116,
 		BTI_BUFF_STRENGTHENING_BODY					= 117,
+#ifdef SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
+		BTI_SRV_BUFF_WARM_ENERGE_OF_EL				= 122,	///< the village "Rest" icon (BBT_EMPTY)
+#endif SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
 		BTI_SRV_BUFF_FIELD_DEFENCE					= 187,	///< OnLeaveBattleField removes it always
 		BTI_BUFF_ELIXIR_GIANT_POTION				= 191,	///< .. 198, SERV_NEW_DEFENCE_DUNGEON (ON)
 		BTI_SRV_BUFF_ELIXIR_BIG_HAND_POTION			= 198,
@@ -3819,6 +3822,20 @@ bool CX2OfflineBuff::OnUserDied( UidType nUnitUID )
 
 	return bChanged;
 }
+
+#ifdef SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
+bool CX2OfflineBuff::OnJoinVillage( UidType nUnitUID )
+{
+	// ActivateBuff refuses an already active buff, as the server does, so a
+	// village-to-village move that never left the village changes nothing.
+	return ActivateBuff( nUnitUID, BTI_SRV_BUFF_WARM_ENERGE_OF_EL, 0 );
+}
+
+bool CX2OfflineBuff::OnLeaveVillage( UidType nUnitUID )
+{
+	return DeactivateBuff( nUnitUID, BTI_SRV_BUFF_WARM_ENERGE_OF_EL );
+}
+#endif SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
 
 bool CX2OfflineBuff::CheckBuffPeriod( UidType nUnitUID )
 {

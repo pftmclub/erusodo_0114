@@ -522,6 +522,13 @@ bool CX2OfflineServer::OpenRoom( KOfflineSession& kSes, int iRoomType, const KRo
 
 	kSes.m_eState = S_ROOM;
 
+#ifdef SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
+	// Every way into a room leaves the village: SetFieldUID( 0 ) -> OnLeaveField
+	// (GSUserFunction.cpp:8988-9001) deletes the village "Rest" buff, so it is
+	// never in a room's buff list (its USING_BUFF_ROOM_TYPE would allow it).
+	CX2OfflineBuff::Instance()->OnLeaveVillage( kRow.m_nUnitUID );
+#endif SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF
+
 	return true;
 }
 
