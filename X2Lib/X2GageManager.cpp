@@ -3535,8 +3535,29 @@ void CX2GageManager::SetDurationTime( UidType uiUnitUID, BUFF_TEMPLET_ID eBuffID
 */
 void CX2GageManager::GetBuffFactorFromGameUnit( const CX2GameUnit* pGameUnit_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
+	/// June 32494560. Its gate also skips June's GT_PVE (322cc1c0, type 4), which March has no type for.
+	/// Its second argument picks 3229ff80 (skip templets with a given behavior type) over GetBuffFactor
+	/// (3229fd80); the only caller passes 0 (@3229fb5e), so that branch is never taken.
+	if ( NULL != g_pX2Game && CX2Game::GT_PVP != g_pX2Game->GetGameType() && g_pMain->GetNowStateID() != CX2Main::XS_TRAINING_GAME )
+	{
+		pGameUnit_->GetBuffFactor( m_vecTempBuffFactor );
+
+		/// 32499ef0 / 32499d60 with predicate 32499c10, over the whole vector: a factor stays only if its
+		/// templet exists and is IS_STORE_BUFF (templet +0x67)
+		vector<KBuffFactor> vecStoreBuffFactor;
+		BOOST_FOREACH( const KBuffFactor& kFactor, m_vecTempBuffFactor )
+		{
+			CX2BuffTempletPtr ptrBuffTemplet = CX2BuffTempletManager::GetInstance()->GetBuffTempletPtr( static_cast<BUFF_TEMPLET_ID>( kFactor.m_BuffIdentity.m_eBuffTempletID ) );
+			if ( NULL != ptrBuffTemplet && ptrBuffTemplet->IsStoreBuff() )
+				vecStoreBuffFactor.push_back( kFactor );
+		}
+		m_vecTempBuffFactor.swap( vecStoreBuffFactor );
+	}
+#else // SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 	if ( NULL != g_pX2Game && CX2Game::GT_PVP != g_pX2Game->GetGameType() && g_pMain->GetNowStateID() != CX2Main::XS_TRAINING_GAME )
 		pGameUnit_->GetBuffFactor( m_vecTempBuffFactor );
+#endif SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 }
 
 /** @function : UpdatePartyMemberLevel

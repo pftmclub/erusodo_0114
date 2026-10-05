@@ -5113,3 +5113,43 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Comment out to restore March's three-case switch.
 #define SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 11b: IS_STORE_BUFF's consumers. June's
+//              clear-all (3229fb10) takes bKeepStoreBuff: with it set, my
+//              unit's buffs go to the gage first, and the gage keeps only the
+//              IS_STORE_BUFF factors (32494560 + predicate 32499c10), so only
+//              those carry into the next field or dungeon; flagged buffs skip
+//              their finish calls. ~CX2Game and the five Delete*Unit* pass
+//              true. OFF BY DEFAULT (user, 2026-10-05): March's live templets
+//              carry no IS_STORE_BUFF key, so with this on no buff would carry
+//              over at all. Turn it on with Phase 13's June templet data.
+//              Requires SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY.
+//#define SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 11b: June's repair discount (32363f00).
+//              The world buffs are read from the Phase 11 record vector;
+//              June adds BTI 207 / 10027 / 10038 (and 876, whose June event
+//              check has no March home), drops March's 0.1 clamp, and its
+//              shop callers apply a rate of 0 or more (March: above 0).
+//              Requires SERV_IRUHADEV_JUNE_BUFF_PREMIUM.
+#define SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 11b: June's buff-icon time text
+//              (CX2MyGageUI::SetDurationTime, 32e608f0 + 32e5cb30). A world
+//              buff whose record lasts at most an hour shows the time left by
+//              its end time: minutes in green from 60 s, seconds in white
+//              below. Other buffs keep March's text. Requires
+//              SERV_IRUHADEV_JUNE_BUFF_PREMIUM.
+#define SERV_IRUHADEV_JUNE_BUFF_DURATION_TIME
+//////////////////////////////////////////////////////////////////////////

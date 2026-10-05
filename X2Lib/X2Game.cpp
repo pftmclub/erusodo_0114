@@ -627,7 +627,11 @@ CX2Game::~CX2Game()
 	{
 		CX2GameUnit* pCX2GameUnit = m_UnitList[i];
 		if ( NULL != pCX2GameUnit )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
+			pCX2GameUnit->FinishAndClearAllBuff( true );	/// June ~CX2Game 323080c0 @32308101
+#else // SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 			pCX2GameUnit->FinishAndClearAllBuff();
+#endif SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 #ifdef  X2OPTIMIZE_X2GAME_RELEASE_CRASH_BUG_FIX
 		if ( pCX2GameUnit->GetGameUnitType() == CX2GameUnit::GUT_USER )
 		{
@@ -4832,7 +4836,11 @@ bool CX2Game::DeleteUserUnitByData( CX2GameUnit* pGameUnit )
 		}
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
+	pGameUnit->FinishAndClearAllBuff( true );	/// June DeleteUserUnitByData 322d64e0 @322d659a
+#else // SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 	pGameUnit->FinishAndClearAllBuff();
+#endif SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 	m_pDamageEffect->UnitDeleteProcess( pGameUnit );
 	CX2GameUnit::DeleteKTDGObject( pGameUnit );
 
@@ -4943,7 +4951,11 @@ bool CX2Game::DeleteUserUnitByUID( UidType unitUID )
 		if( m_optrFocusUnit.GetObservable() == pUserGameUnit )
 			ChangeFocusUnit( pUserGameUnit );
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
+		pUserGameUnit->FinishAndClearAllBuff( true );	/// June DeleteUserUnitByUID 322d65c0 @322d6743
+#else // SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 		pUserGameUnit->FinishAndClearAllBuff();
+#endif SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 		
 		// note!! 일단 npc의 경우 damageeffect에서 owner unit을 참조하는 경우가 잘 없으므로 따로 삭제 처리는 해주지 않는걸로 해두고, 나중에 수정하자
 		if ( m_pDamageEffect != NULL )
@@ -5033,7 +5045,11 @@ bool CX2Game::DeleteNPCUnit( int index )
 
 	if ( NULL != pCX2GUNPC )
 	{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
+		pCX2GUNPC->FinishAndClearAllBuff( true );	/// June DeleteNPCUnit 322ddfc0 @322de124
+#else // SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 		pCX2GUNPC->FinishAndClearAllBuff();
+#endif SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 		pCX2GUNPC->SetUserGrapReset();
 	}
 
@@ -5117,7 +5133,11 @@ bool CX2Game::DeleteNPCUnitByUID( const UINT uiNpcUid_ )
 
 	if ( NULL != pCX2NPCUnit )
 	{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
+		pCX2NPCUnit->FinishAndClearAllBuff( true );	/// June DeleteNPCUnitByUID 322de150 @322de2ac
+#else // SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 		pCX2NPCUnit->FinishAndClearAllBuff();
+#endif SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 		pCX2NPCUnit->SetUserGrapReset();
 	}
 
@@ -5233,7 +5253,11 @@ bool CX2Game::DeleteAllNPCUnit()
 			CX2GameUnit* pGameUnit = *vItrGameUnit;
 			if ( pCX2GUNPC == pGameUnit )
 			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
+				pGameUnit->FinishAndClearAllBuff( true );	/// June DeleteAllNPCUnit 322de2d0 @322de3a3
+#else // SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 				pGameUnit->FinishAndClearAllBuff();
+#endif SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 				CX2GUNPC::DeleteKTDGObject( pGameUnit );
 				vItrGameUnit = m_UnitList.erase( vItrGameUnit );
 				break;

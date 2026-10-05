@@ -3902,6 +3902,49 @@ Check 5: back in the village, no icons appeared. The emulator's send after `EGS_
 
 **Play-test:** nothing new is visible. An optional regression check: the village "Rest" icon appears, and an Elixir used in a dungeon still shows `room: 1 sent, 1 kept`.
 
+### Phase 11b — Done (2026-10-05)
+
+**Landed** in `<COMMIT>`. Kickoff `kickoffs/june-buff/11b.md`; every June function has a "Buff Phase 11b" funcmap row.
+
+**Ported:**
+- **`SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF`: defined but commented out** (user, 2026-10-05: "port now, flag off"). It is June's clear-all `3229fb10` = `FinishAndClearAllBuff( bool bKeepStoreBuff )`:
+  - the gage save runs only when the bool is set; March saved on every call;
+  - flagged templets skip their finish calls, but the vector is still emptied whole, so the flagged buff is erased unfinished (JUNE_BUGS #39);
+  - the gage save `32494560` keeps only factors whose templet is `IS_STORE_BUFF` (predicate `32499c10`).
+  - June passes true from `~CX2Game` and the five `Delete*Unit*` (CX2Game vtable slots 55-59), which are March's six `X2Game.cpp` sites.
+  - Why it is off: March's live templets carry no `IS_STORE_BUFF` key, so with the flag on no buff would carry from one field or dungeon into the next. Turn it on with Phase 13's June templets (119 flagged).
+  - Compile-tested with the flag on (X2Lib, 503 s, 0 errors).
+- **`_REPAIR_DISCOUNT` (on):** June's `32363f00` reads the world buffs from Phase 11's record vector:
+  - 202 +0.5, 203 −1.5, 204 +0.7 (March's three), plus June's 207 +0.1, 10027 +0.2, 10038 +0.5;
+  - 876 would set the rate to 1.0, but its June event-map check has no March home, so the case is inert (JUNE_BUGS #40);
+  - March's 0.1 `MAX_REPAIR_PRICE_DISCOUNT` clamp is gone, as in June;
+  - all ten June shop callers apply a rate of 0 or more, so March's four `X2UIShop.cpp` `> 0.f` tests are now `>= 0.f`.
+- **`_DURATION_TIME` (on):** June's `CX2MyGageUI::SetDurationTime` (`32e608f0`, slot 18 of every `*MyGageUI`; `32e5cb30`). For a world buff whose record lasts at most an hour, the icon shows the time left from the record's end time: minutes in green from 60 s, seconds in white from 59 to 1, unchanged at 0. Every other buff keeps March's 1..998 s text.
+
+**Recorded, not ported** (funcmap rows):
+- **Slot 250 (`3201ffb0`).**
+  - BTI 436/926: Crest of Time, a June common SA. The hook takes an HP/MP/gauge snapshot (`0x740`, 9 class overrides), which only the death-prevention check `320072d0` restores (`0x744`, then BFI 683). This is folded into the existing checklist §7 death-prevention row.
+  - BTI 807: a June PvP room type 8. March has types 0-3.
+  - None of 436/807/926 is in March's live data.
+- **Slot 251 (`3204dcd0`):** Luciel's Soul Collector. New checklist §7 row.
+- **`32163070`:** the "rechallenge rest" check (BTI 313 / BFI 308). Its only caller is `CX2UIInventory`'s use branch for June item 100005712.
+- **Clear-all callers passing false:** `3202a7d0`, `324ae320` and `3277ee10`, all June-only.
+- **Open for the review:** June's base `DyingStart` was not located. March clears all buffs there, so the port's call there passes false (no gage save). This is dormant while the flag is off.
+
+**`m_vecWorldBuffFactorID`:** with the flags as built, nothing reads it any more. Phase 11's two handlers only clear it and push to it, and every March reader sits in an `#else`. Removing it is the user's call.
+
+**Hygiene** (`--worktree --files` the 8 code files, `--with` the other two flags):
+- `_REPAIR_DISCOUNT`: `2 PASS, 0 PASS~, 1 DEFINE, 5 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- `_DURATION_TIME`: `1 PASS, 0 PASS~, 1 DEFINE, 6 OTHER, 0 FAIL, 0 ERROR`; same zeros; `RESULT: PASS`.
+- `_STORE_BUFF`: `4 PASS, 0 PASS~, 1 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`; same zeros; `RESULT: PASS` (run with the `#define` briefly uncommented, since the tool requires one, then put back).
+- OTHER = the files carrying only the sibling flags. `git diff --stat`: 247 insertions, 0 deletions.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,186,688 B, dated 2026-10-05 18:22:10, md5 d423c1c64cd89f418cbd75e3b260f6e5, equal to X2/US_SERVICE/x2.exe (2026-10-05 18:22:05); built at mods/june-buff-port d61ae5c + 8 uncommitted code file(s).` (the 8 = this phase's code files; `_STORE_BUFF` off in the deployed exe)
+
+**How to see it in game:**
+- **Buff time text:** in a dungeon or field, use an Arcanum (item 78520, 180 s) or an Elixir (78894, 1800 s), as in Phase 11's checks. The buff icon's number counts minutes in green, then seconds in white below one minute.
+- **Repair:** prices are unchanged offline. No grantable buff is in the discount list, and the clamp only mattered above a 10 % socket discount.
+
 ## Phase 12 — Buff icons and UI assets
 
 **Scope.**

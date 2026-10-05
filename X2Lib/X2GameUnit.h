@@ -3875,7 +3875,11 @@ public:
 		void	OnFrameMoveBuff();
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 		virtual void	ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
+		void	FinishAndClearAllBuff( bool bKeepStoreBuff_ = false );	/// June 3229fb10
+#else // SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 		void	FinishAndClearAllBuff();
+#endif SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 #ifdef SERV_IRUHADEV_RANOX_ERASE_BUFF
 		void	EraseAllBuffAndExtraDamage();
 #endif SERV_IRUHADEV_RANOX_ERASE_BUFF

@@ -14072,6 +14072,39 @@ void CX2GameUnit::OnFrameMoveBuff()
 /** @function : FinishAndClearAllBuff
 	@brief : 모든 버프를 종료후 모두 clear 함
 */
+#ifdef SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
+/// June 3229fb10. With bKeepStoreBuff_ set, my unit's buffs are saved to the gage first (June saves
+/// only then; March saved on every call), and IS_STORE_BUFF templets skip the finish calls. The whole
+/// vector is still emptied (@3229fc20), so a flagged buff leaves the unit unfinished (JUNE_BUGS #39).
+/// June passes true from ~CX2Game (323080c0) and the five Delete*Unit* (CX2Game vtable slots 55-59).
+void CX2GameUnit::FinishAndClearAllBuff( bool bKeepStoreBuff_ /*= false*/ )
+{
+	CX2GageManager* pGageManager = CX2GageManager::GetInstance();
+
+	if ( IsMyUnit() && true == bKeepStoreBuff_ )
+		pGageManager->GetBuffFactorFromGameUnit( this );	/// June 32494560 @3229fb62
+
+	BOOST_FOREACH( CX2BuffTempletPtr ptrBuffTemplet, m_vecBuffTempletPtr )
+	{
+		if ( NULL != ptrBuffTemplet && ( false == bKeepStoreBuff_ || false == ptrBuffTemplet->IsStoreBuff() ) )	/// @3229fb9e (templet +0x67)
+		{
+			( true == ptrBuffTemplet->IsDeBuff() ? SetNumOfDeBuff( GetNumOfDeBuff() - 1 ) : SetNumOfBuff( GetNumOfBuff() - 1 ) );
+			UnSetSpecificValueByBuffTempletID( ptrBuffTemplet->GetBuffTempletID() );
+			ptrBuffTemplet->DoFinishBehavior( this );
+			ptrBuffTemplet->DoFinishDisplayer( this );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+			ptrBuffTemplet->DoFinishStickShake( this );	/// @3229fbf3
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+		}
+	}
+
+	m_vecBuffTempletPtr.clear();
+	m_vecBuffTempletPtr.swap( vector<CX2BuffTempletPtr>() );
+#ifdef BUFF_ICON_UI
+	pGageManager->ClearBuffList(m_UnitUID);
+#endif //BUFF_ICON_UI
+}
+#else // SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 void CX2GameUnit::FinishAndClearAllBuff()
 {
 	CX2GageManager* pGageManager = CX2GageManager::GetInstance();
@@ -14100,6 +14133,7 @@ void CX2GameUnit::FinishAndClearAllBuff()
 	pGageManager->ClearBuffList(m_UnitUID);
 #endif //BUFF_ICON_UI
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 
 #ifdef SERV_IRUHADEV_RANOX_ERASE_BUFF
 /** @function : EraseAllBuffAndExtraDamage

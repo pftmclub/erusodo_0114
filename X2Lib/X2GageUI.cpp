@@ -1747,6 +1747,69 @@ void CX2MyGageUI::SetBuffIconGuideDesc()
 }
 #endif //BUFF_ICON_UI
 #ifdef DISPLAY_BUFF_DURATION_TIME
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DURATION_TIME
+/// June 32e608f0 (slot 18 of every *MyGageUI). A world buff whose record lasts at most an hour
+/// (32e5cb30: the first record of that BTI, its under-one-hour flag) shows the time left by the
+/// record's end time; any other buff keeps March's 1..998 s text.
+/*virtual*/ void CX2MyGageUI::SetDurationTime( BUFF_TEMPLET_ID eBuffID_, int iTime_)
+{
+	if( NULL != m_pDlgBuffIcon )
+	{
+		WCHAR szStaticName[20];
+		StringCchPrintfW( szStaticName, 20, L"Buff_%d", eBuffID_);
+		if( true == m_pDlgBuffIcon->CheckControl(szStaticName) )
+		{
+			CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>(m_pDlgBuffIcon->GetControl(szStaticName)) ;
+
+			const CX2Unit::WorldBuffRecord* pRecord = NULL;
+			if ( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+			{
+				BOOST_FOREACH( const CX2Unit::WorldBuffRecordPair& kRecord, g_pData->GetMyUser()->GetSelectUnit()->GetWorldBuffRecord() )
+				{
+					if ( static_cast<int>( eBuffID_ ) == kRecord.second.m_iBuffTempletID )
+					{
+						pRecord = &kRecord.second;
+						break;
+					}
+				}
+			}
+
+			if ( NULL != pRecord && true == pRecord->m_bUnderOneHour )	/// @32e609a9
+			{
+				if ( NULL == pStatic )
+					return;
+
+				if ( NULL != pStatic->GetString(0) )
+				{
+					/// @32e60a36: low 32 bits of the end time minus _time64( NULL )
+					const int iLeft = static_cast<int>( pRecord->m_iEndTime ) - static_cast<int>( _time64( NULL ) );
+					if ( 60 <= iLeft )
+					{
+						pStatic->GetString(0)->color = D3DXCOLOR( 0.f, 1.f, 0.f, 1.f );		/// @32e60a50, green
+						pStatic->GetString(0)->msg = GET_REPLACED_STRING( ( STR_ID_2632, "i", iLeft / 60 ) );	/// minutes
+					}
+					else if ( 1 <= iLeft )
+					{
+						pStatic->GetString(0)->color = D3DXCOLOR( 1.f, 1.f, 1.f, 1.f );		/// @32e60b24, white
+						pStatic->GetString(0)->msg = GET_REPLACED_STRING( ( STR_ID_2632, "i", iLeft ) );		/// seconds
+					}
+					return;		/// at 0 or below June leaves the text as it was
+				}
+			}
+
+			if( NULL != pStatic && NULL != pStatic->GetString(0))	/// @32e60bac: March's text
+			{
+				if( (iTime_ > 0) && (iTime_ < 999) )
+				{
+					pStatic->GetString(0)->msg = GET_REPLACED_STRING((STR_ID_2632, "i", iTime_));
+				}
+				else
+					pStatic->GetString(0)->msg = L"";
+			}
+		}
+	}
+}
+#else // SERV_IRUHADEV_JUNE_BUFF_DURATION_TIME
 /*virtual*/ void CX2MyGageUI::SetDurationTime( BUFF_TEMPLET_ID eBuffID_, int iTime_)
 {
 	if( NULL != m_pDlgBuffIcon )
@@ -1768,6 +1831,7 @@ void CX2MyGageUI::SetBuffIconGuideDesc()
 		}
 	}
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_DURATION_TIME
 #endif // DISPLAY_BUFF_DURATION_TIME
 
 #ifdef SERV_NEW_UNIT_TRADE_LIMIT

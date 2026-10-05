@@ -1999,7 +1999,11 @@ void CX2UIShop::RepairItem( UidType RepairItemUID )
 				int repairVPCost = pItem->GetVPToRepair(); 
 				
 				float fDiscountRate = g_pData->GetMyUser()->GetSelectUnit()->GetRepairDiscountRate();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
+				if( fDiscountRate >= 0.f )	/// June's ten repair callers apply a rate of 0 or more (e.g. @32458679)
+#else // SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
 				if( fDiscountRate > 0.f )
+#endif SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
 				{
 #ifdef SERV_NEW_DEFENCE_DUNGEON	// 적용날짜: 2013-04-19
 					repairEDCost = static_cast<int>( repairEDCost * fDiscountRate );		/// 수리비 증가 버프로 인한 공식 수정
@@ -2066,7 +2070,11 @@ bool CX2UIShop::Handler_EGS_REPAIR_ITEM_REQ( UidType ItemUID )
 		int vpToRepair = pItem->GetVPToRepair();
 
 		float fDiscountRate = g_pData->GetMyUser()->GetSelectUnit()->GetRepairDiscountRate();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
+		if( fDiscountRate >= 0.f )	/// June: a rate of 0 or more (e.g. @32458679)
+#else // SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
 		if( fDiscountRate > 0.f )
+#endif SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
 		{
 #ifdef SERV_NEW_DEFENCE_DUNGEON	// 적용날짜: 2013-04-19
 			edToRepair = static_cast<int>( edToRepair * fDiscountRate );		/// 수리비 증가 버프로 인한 공식 수정
@@ -2285,7 +2293,11 @@ void CX2UIShop::RepairAllEquippedItem()
 
 	// 할인율 적용
 	float fDiscountRate = g_pData->GetMyUser()->GetSelectUnit()->GetRepairDiscountRate();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
+	if( fDiscountRate >= 0.f )	/// June: a rate of 0 or more (e.g. @32458679)
+#else // SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
 	if( fDiscountRate > 0.f )
+#endif SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
 	{
 #ifdef SERV_NEW_DEFENCE_DUNGEON	// 적용날짜: 2013-04-19
 		edToRepair = static_cast<int>( edToRepair * fDiscountRate );		/// 수리비 증가 버프로 인한 공식 수정
@@ -2335,7 +2347,11 @@ void CX2UIShop::AllEquippingItemRepairREQ()
 
 	// 할인율 적용
 	float fDiscountRate = g_pData->GetMyUser()->GetSelectUnit()->GetRepairDiscountRate();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
+	if( fDiscountRate >= 0.f )	/// June: a rate of 0 or more (e.g. @32458679)
+#else // SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
 	if( fDiscountRate > 0.f )
+#endif SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
 	{
 #ifdef SERV_NEW_DEFENCE_DUNGEON	// 적용날짜: 2013-04-19
 		edToRepair = static_cast<int>( edToRepair * fDiscountRate );		/// 수리비 증가 버프로 인한 공식 수정

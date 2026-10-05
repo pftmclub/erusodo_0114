@@ -1672,6 +1672,49 @@ float CX2Unit::GetRepairDiscountRate()
 
 #ifdef SERV_NEW_DEFENCE_DUNGEON // 적용날짜: 2013-04-18
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
+	/// June 32363f00 @32364246: each world-buff record's factor, by the factor's templet ID (+0x28)
+	BOOST_FOREACH( const WorldBuffRecordPair& kRecord, m_vecWorldBuffRecord )
+	{
+		if ( NULL == CX2BuffTempletManager::GetInstance() )
+			continue;
+
+		CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( static_cast<UINT>( kRecord.first ) );
+		if ( NULL == ptrBuffFactor )
+			continue;
+
+		switch ( static_cast<int>( ptrBuffFactor->GetBuffTempletID() ) )	/// jump table 32364480 covers 202..207
+		{
+		case BTI_BUFF_2013_DEFENSE_BUFF:		/// 202
+		case 10038:								/// BTI_SURPRISE_SALE_EVENT
+			fDiscountRate += 0.5f;
+			break;
+		case BTI_BUFF_2013_DEFENSE_DEBUFF:		/// 203
+			fDiscountRate -= 1.5f;
+			break;
+		case BTI_BUFF_2013_DEFENSE_BUFF_EVENT:	/// 204
+			fDiscountRate += 0.7f;
+			break;
+		case 207:								/// BTI_FESTIVAL_EVENT_BUFF
+			fDiscountRate += 0.1f;
+			break;
+		case 10027:								/// BTI_FESTIVAL_EVENT_BUFF_INT
+			fDiscountRate += 0.2f;
+			break;
+		case 876:								/// BTI_SUMMER_VACATION_2016_KR_VER2_BUFF
+			/// June @32364315 SETS the rate to 1.0 when key 17 of June's event map (global 33775864 +0xa18,
+			/// also read by 32950d60) is on. March has no such map, so the key reads as absent and the
+			/// case does nothing here (JUNE_BUGS #40).
+			break;
+		}
+	}
+
+	/// June @323643c1: no MAX_REPAIR_PRICE_DISCOUNT clamp; below 0 the rate is negated, otherwise 1 - rate
+	if ( 0.f > fDiscountRate )
+		fDiscountRate *= -1.f;
+	else
+		fDiscountRate = 1.f - fDiscountRate;
+#else // SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
 #ifdef SET_WORLD_BUFF_AT_RESURRECTION // 김태환		서버에서 준 버프 정보를 버프 펙터 아이디로 저장하였기 때문에, 수정
 	BOOST_FOREACH( BUFF_FACTOR_ID eBuffFactorID, m_vecWorldBuffFactorID )
 	{
@@ -1731,6 +1774,7 @@ float CX2Unit::GetRepairDiscountRate()
 		fDiscountRate = 1.f - fDiscountRate;
 	else							/// 수리비 증가시
 		fDiscountRate *= -1.f ;
+#endif SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT
 
 #else // SERV_NEW_DEFENCE_DUNGEON
 
