@@ -50,8 +50,9 @@ SECOND_HOMES = {
 }
 
 
-def is_define_home(path):
-    return path.endswith(DEFINE_HOME) or any(path.endswith(h) for h in SECOND_HOMES.values())
+def is_define_home(path, flags):
+    """Always.h for every flag; a SECOND_HOMES file only for the flags it is the second home of."""
+    return path.endswith(DEFINE_HOME) or any(path.endswith(SECOND_HOMES[f]) for f in flags if f in SECOND_HOMES)
 PREFIX = "SERV_IRUHADEV_"
 
 
@@ -364,7 +365,7 @@ def classify(path, old, new, flag, extra=()):
         s_old = strip(old or b"", targets)
     except Unevaluable as e:
         return "ERROR", str(e), 0
-    if is_define_home(path):
+    if is_define_home(path, targets):
         s_new, s_old = strip_defines(s_new, targets), strip_defines(s_old, targets)
         if s_new != s_old and define_file_only(s_old, s_new):
             return "DEFINE", "only comment/blank lines and the #define changed", stats["tok"]
@@ -377,8 +378,11 @@ def classify(path, old, new, flag, extra=()):
     if others:
         try:
             a, b = strip(s_new, others), strip(s_old, others)
-            if is_define_home(path):
+            if is_define_home(path, others):
                 a, b = strip_defines(a, others), strip_defines(b, others)
+                # another flag's block appended to the define file: its comment lines stay after the strip
+                if a != b and define_file_only(b, a):
+                    return "OTHER", "%s: other flags' comments/defines" % os.path.basename(path), stats["tok"]
             if a == b or loose(a) == loose(b):
                 changed = []
                 for o in sorted(others):  # o is involved if stripping everything else still leaves a diff
@@ -446,10 +450,10 @@ def classify_unflagged(path, old, new):
     others = all_iruhadev(old, new)
     try:
         a, b = strip(new or b"", others), strip(old or b"", others)
-        if is_define_home(path):
+        if is_define_home(path, others):
             a, b = strip_defines(a, others), strip_defines(b, others)
             if a != b and define_file_only(b, a):
-                return "OTHER", "Always.h: other flags' comments/defines"
+                return "OTHER", "%s: other flags' comments/defines" % os.path.basename(path)
     except Unevaluable as e:
         return "ERROR", str(e)
     if a == b or loose(a) == loose(b):
@@ -591,6 +595,21 @@ def selftest():
         print("  %-4s %-14s want %-6s got %s" % ("ok" if ok else "BAD", name, want, got))
     for name, old, new, want in cases:
         got = classify("X2Lib/t.cpp", old, new, F)[0]
+        ok = got == want
+        fails += not ok
+        print("  %-4s %-14s want %-6s got %s" % ("ok" if ok else "BAD", name, want, got))
+    # define files: a later commit appends another flag's block to Always.h (OTHER, not FAIL); a #define in a
+    # SECOND_HOMES file counts only for the flag that file is the second home of
+    blk = lambda f: b"\r\n////////\r\n// Description: " + f + b"\r\n#define " + f + b"\r\n////////\r\n"
+    ah = b"#define SERV_IRUHADEV_A\r\n" + blk(b"SERV_IRUHADEV_T")
+    sd = b"#include \"x.h\"\r\n"
+    wire = sorted(SECOND_HOMES)[0]
+    for name, path, old, new, flag, want in (
+            ("define-home", DEFINE_HOME, b"#define SERV_IRUHADEV_A\r\n", ah, F, "DEFINE"),
+            ("peer-define", DEFINE_HOME, ah, ah + blk(b"SERV_IRUHADEV_PEER"), F, "OTHER"),
+            ("not-2nd-home", SECOND_HOMES[wire], sd, sd + blk(b"SERV_IRUHADEV_T"), F, "FAIL"),
+            ("second-home", SECOND_HOMES[wire], sd, sd + blk(wire.encode()), wire, "DEFINE")):
+        got = classify(path, old, new, flag)[0]
         ok = got == want
         fails += not ok
         print("  %-4s %-14s want %-6s got %s" % ("ok" if ok else "BAD", name, want, got))
