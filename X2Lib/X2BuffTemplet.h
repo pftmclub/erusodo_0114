@@ -1199,6 +1199,46 @@ private:
 template<typename Func>
 void CX2AdditionalStatByBuff::UpdateResultValueWithOptionData( Func func_ptr, const int iUserLevel_, const float fModifier_ /*= 1.0f*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port Phase 16: June's 320839e0 (5c Done note, Q1; re-read in the asm 2026-10-06). A basic at or below 0
+	/// is lifted by 1 and lowered again before the passive / PERCENT product (March lowers it after); the modifier scales
+	/// the curve when PERCENT >= 1 and scales the product's excess over 1, not the whole product.
+	if ( !m_vecStatFactorArray[BCT_SWAP_VALUE].empty() )
+	{
+		SetResultValue( m_fArrayResultValueByChangeType[BCT_SWAP_VALUE] );
+	}
+	else
+	{
+		const float fBasic = GetBasicStatValue();
+		const bool bShouldMinus = !( 0.0f < fBasic );
+		const float fBase = bShouldMinus ? fBasic + 1.0f : fBasic;
+
+		const float fIntermediateValue = GetOptionValue()
+			+ m_fArrayResultValueByChangeType[BCT_FIX_VALUE] + m_fArrayResultValueByChangeType[BCT_RELATION_VALUE];
+		const float fPercent = m_fArrayResultValueByChangeType[BCT_PERCENT];
+
+		float fCurve = func_ptr( fIntermediateValue, iUserLevel_ );
+		if ( fPercent >= 1.0f )
+			fCurve *= fModifier_;
+
+		float fResultValue = fBase * ( 1.0f + fCurve );
+		if ( bShouldMinus )
+			fResultValue -= 1.0f;
+
+		const float fPassiveAndPercent = ( 1.0f + GetPassiveSum() ) * GetPassiveMultiple() * fPercent;
+		if ( fPassiveAndPercent > 0.0f )
+		{
+			if ( fPercent >= 1.0f )
+				fResultValue *= ( fPassiveAndPercent - 1.0f ) * fModifier_ + 1.0f;
+			else
+				fResultValue *= fPassiveAndPercent;
+		}
+
+		SetResultValue( max( fResultValue, 0.0f ) );
+	}
+	SetMustChangeResultValue( false );
+}
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	if ( !m_vecStatFactorArray[BCT_SWAP_VALUE].empty() )	/// 치환요소가 있다면
 	{
 		/// 무조건 치환요소중 제일 나중에 걸린것 적용
@@ -1251,6 +1291,7 @@ void CX2AdditionalStatByBuff::UpdateResultValueWithOptionData( Func func_ptr, co
 	}
 	SetMustChangeResultValue( false );
 }
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 /** @function : CheckAndUpdateResultValueWithOptionData
 	@brief : 옵션수치화와 관련한 스탯에 대하여 변경되었는지 여부를 판단하고 갱신을 수행하게 하는 함수

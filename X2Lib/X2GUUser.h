@@ -1830,6 +1830,10 @@ public:
 
 		virtual int 				GetRandomInt( int iOffset = 0 ) { return CKTDXRandomNumbers::GetRandomInt( m_FrameDataNow.syncData.m_usRandomTableIndex + iOffset ); }
 		virtual float				GetRandomFloat( int iOffset = 0 ) { return CKTDXRandomNumbers::GetRandomFloat( m_FrameDataNow.syncData.m_usRandomTableIndex + iOffset ); }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+		/// June buff port Phase 16: June slot 113 for a user (+0x80f8 = m_FrameDataNow.syncData.m_usRandomTableIndex)
+		virtual int					GetRandomTableIndex( int iOffset = 0 ) { return m_FrameDataNow.syncData.m_usRandomTableIndex + iOffset; }
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 
 		virtual const D3DXVECTOR3&	GetLandPosition() const { return m_FrameDataNow.unitCondition.landPosition; }

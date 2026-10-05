@@ -2587,6 +2587,10 @@ class CX2GUNPC : public CX2GameUnit
 
 		virtual int GetRandomInt( int iOffset = 0 ) { return CKTDXRandomNumbers::GetRandomInt( GetNPCSyncData().m_usRandomTableIndex + iOffset ); }
 		virtual float GetRandomFloat( int iOffset = 0 ) { return CKTDXRandomNumbers::GetRandomFloat( GetNPCSyncData().m_usRandomTableIndex + iOffset ); }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+		/// June buff port Phase 16: June slot 113 for an NPC (+0x8474 = GetNPCSyncData().m_usRandomTableIndex)
+		virtual int GetRandomTableIndex( int iOffset = 0 ) { return GetNPCSyncData().m_usRandomTableIndex + iOffset; }
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
         virtual void SetCanPassUnit( const bool bFlag_ ) { m_NPCFrameData.stateParam.bCanPassUnit = bFlag_; }
 

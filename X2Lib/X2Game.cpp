@@ -15614,6 +15614,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 				} break;
 #endif // SERV_9TH_NEW_CHARACTER
 			}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+			/// June buff port Phase 16: June 3230ca6d, reached by every summon case above: the summon's 92 and range
+			/// basics take the owner's results
+			pNPC->CopyJuneMaximizeAndRangeFrom( *pUser );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		}
 	}
 }

@@ -5216,3 +5216,36 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              lets IS_STORE_BUFF buffs survive a death once that flag is on.
 #define SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-06
+// Description: June buff port Phase 16: June 2017's socket-option system.
+//              The loader keys June added (32726850) and the fields they fill,
+//              June's ConvertAndAdd body (3207cd70: MP pair, class
+//              specializations and 92's maximize as linear terms, no evade,
+//              no Add 0.5 hyper reform), the x100 rescale tail, the
+//              +0x29c conditional-buff list, June's game-type gate
+//              (32001570), the option seeds (32270dd0) and passive init
+//              (322718e0), the option-data template (320839e0) and refresh
+//              (32290950), and the readers of the new fields. Needs June's
+//              SocketOptionForm.lua (staged in march2014/data036). Requires
+//              SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY and _NEW_STAT.
+#define SERV_IRUHADEV_JUNE_SOCKET_PARITY
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-06
+// Description: June buff port Phase 16: DESIGNED, NOT JUNE (user decision
+//              2026-10-04, Q3). June's player attack range came from its
+//              server's KStat with a formula the client lacks; here each
+//              user's physic / magic range basic is 10% of that user's own
+//              physic / magic attack (one constant in X2GameUnit.cpp), set in
+//              CX2GameUnit::SetGameStat. NPCs keep 0 (June); summons copy the
+//              owner's. With range > 0 June's damage roll (322788c0) runs, so
+//              every player hit varies within +/-10% (accepted by the user).
+//              Comment out to switch the spread off on its own. Requires
+//              SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY and _NEW_STAT.
+#define SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN
+//////////////////////////////////////////////////////////////////////////

@@ -10024,7 +10024,16 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 				/// June buff port Phase 5c, BBT 78 host: CX2GUNPC::DamageReact @327b42b0-327b43be computes the same k inline as the user
 				/// (this NPC's 78 result +0x5450 and option +0x5194, the attacker's option +0x5248), except that it subtracts the defender's
 				/// option term whenever the defender exists (no > 0 test). All three option terms are 0 in this build: k = max( 78, 0 ).
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				/// June buff port Phase 16 retires 5c's deviation: June's whole k (@327b42b0..327b439c), the NPC form: the
+				/// defender's anti-add-damage option is subtracted whenever the damage data's defender exists (no > 0 test).
+				float fJuneK = pDamageData->optrAttackerGameUnit->GetSocketAdditionalDamage() + GetTypeAdditionalAttackMultiplier() + GetSocketAdditionalDamageAfflicted();
+				if ( null != pDamageData->optrDefenderGameUnit )
+					fJuneK -= pDamageData->optrDefenderGameUnit->GetSocketAntiAddDamageRate() * 0.01f;
+				const float fTypeAdditionalAttackMultiplier = max( fJuneK, 0.0f );
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				const float fTypeAdditionalAttackMultiplier = max( GetTypeAdditionalAttackMultiplier(), 0.0f );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				const float fAdditionalAttackValue = pDamageData->optrAttackerGameUnit->GetAdditionalAttackDamage( pDamageData ) * fTypeAdditionalAttackMultiplier;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 				if ( 1.0f != fTypeAdditionalAttackMultiplier && 0.0f < fAdditionalAttackValue )

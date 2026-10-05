@@ -2273,6 +2273,112 @@ bool CX2GameUnit::IsImmuneEDTByBuff( const int iExtraDamageType_ ) const
 //}}
 
 // 자신이 받을 damage를 계산해준다
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#include <boost/random.hpp>
+
+/// June buff port Phase 16: 92's degrade path. June's SocketOptionForm.lua defines CalculateFinalDamageMaximizeRate,
+/// March's does not; until June's file is packed, 92 refreshes without the curve and the roll reads 0.
+/*static*/ bool CX2GameUnit::IsJuneDamageMaximizeCurveLoaded()
+{
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	static int s_iLoaded = -1;
+	if ( -1 == s_iLoaded )
+	{
+		s_iLoaded = CX2SocketItem::IsLuaCurveLoaded( "CalculateFinalDamageMaximizeRate" ) ? 1 : 0;
+		if ( 0 == s_iLoaded )
+			CX2JuneBuffCapture::Line( "CalculateFinalDamageMaximizeRate is missing from SocketOptionForm.lua: BBT 92 is off in the damage roll. Pack June's SocketOptionForm.lua (march2014/data036) into data036.kom" );
+	}
+	return 1 == s_iLoaded;
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	return false;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+}
+
+float CX2GameUnit::GetJuneDamageMaximizeForRoll() const
+{
+	return IsJuneDamageMaximizeCurveLoaded() ? GetDamageMaximizeRate() : 0.0f;
+}
+
+/// June 322788c0, transcribed. Only when the attacker's range result is above 0: maximize = attacker's 92 result
+/// x attacker slot 121; a fresh boost mt19937 seeded with this unit's slot 113 (0) & 0xffff draws one
+/// normal( base + range x maximize, range x 0.5 ) value (boost's classic Box-Muller, 322ab740 / 322ab1c0); the
+/// result is max( base - range + 2 x range x maximize, draw ), capped at base + range. Physic and magic share the
+/// seed, so both take the same first draw.
+void CX2GameUnit::JuneDamageMaximizeRoll( CX2GameUnit* pAttacker_, const int iType_, CX2DamageManager::DamageData* pDamageData_, float& fAttack_ )
+{
+	if ( NULL == pAttacker_ )
+		return;
+
+	float fBase = 0.0f;
+	float fRange = 0.0f;
+	switch ( iType_ )
+	{
+	case 0:	fBase = pAttacker_->GetPhysicAttackValue();	fRange = pAttacker_->GetPhysicAttackRangeValue();	break;	/// +0x4424 / +0x458c
+	case 1:	fBase = pAttacker_->GetMagicAttackValue();	fRange = pAttacker_->GetMagicAttackRangeValue();	break;	/// +0x44d8 / +0x4640
+	default: return;
+	}
+
+	if ( !( 0.0f < fRange ) )
+		return;
+
+	const float fMaximize = pAttacker_->GetJuneDamageMaximizeForRoll() * pAttacker_->GetDamageMaximizeMultiplier( pDamageData_ );
+
+	boost::mt19937 kEngine( static_cast<boost::uint32_t>( GetRandomTableIndex( 0 ) & 0xffff ) );
+	boost::normal_distribution<double> kNormal( fBase + fRange * fMaximize, fRange * 0.5 );
+	boost::variate_generator< boost::mt19937&, boost::normal_distribution<double> > kGenerator( kEngine, kNormal );
+	const float fDraw = static_cast<float>( kGenerator() );
+
+	const float fLow = ( fBase - fRange ) + ( fRange + fRange ) * fMaximize;
+	const float fHigh = fBase + fRange;
+	float fResult = ( fLow < fDraw ) ? fDraw : fLow;
+	if ( !( fHigh > fResult ) )
+		fResult = fHigh;
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	static bool s_bSeenRoll = false;
+	if ( !s_bSeenRoll )
+	{
+		s_bSeenRoll = true;
+		CX2JuneBuffCapture::Line( "first damage roll (%s): base %g, range %g, maximize %g -> %g (floor %g, cap %g)", 0 == iType_ ? "physic" : "magic", fBase, fRange, fMaximize, fResult, fLow, fHigh );
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+
+	fAttack_ = fResult;
+}
+
+/// June 3230ca6d (SetUserSummonedNPCInfo, after every summon case): 3236ca50 = SetBasicStatValue
+void CX2GameUnit::CopyJuneMaximizeAndRangeFrom( const CX2GameUnit& Owner_ )
+{
+	m_AdditionalDamageMaximize.SetBasicStatValue( Owner_.GetDamageMaximizeRate() );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+	m_AdditionalPhysicAttackRange.SetBasicStatValue( Owner_.GetPhysicAttackRangeValue() );
+	m_AdditionalMagicAttackRange.SetBasicStatValue( Owner_.GetMagicAttackRangeValue() );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+
+#if defined( SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
+/// DESIGNED, NOT JUNE. June's player range basics come from two KStat fields its server filled (322814a0) with a
+/// formula the client does not have; the user decided (2026-10-04, plan Phase 16 Q3) that a player's range is this
+/// share of the player's own attack, the same share for physic and magic. A balance value, not June data: retune here.
+static const float JUNE_DESIGNED_ATTACK_RANGE_RATE = 0.10f;
+
+void CX2GameUnit::SetJuneDesignedAttackRangeBasic( const CX2Stat::Stat& Stat_ )
+{
+	if ( GUT_USER != GetGameUnitType() )	/// NPCs keep range 0, as June's SetNPCStat (32763770); summons copy their owner's
+		return;
+
+	m_AdditionalPhysicAttackRange.SetBasicStatValue( Stat_.m_fAtkPhysic * JUNE_DESIGNED_ATTACK_RANGE_RATE );
+	m_AdditionalMagicAttackRange.SetBasicStatValue( Stat_.m_fAtkMagic * JUNE_DESIGNED_ATTACK_RANGE_RATE );
+
+	static bool s_bLogged = false;
+	if ( !s_bLogged )
+	{
+		s_bLogged = true;
+		CX2JuneBuffCapture::Line( "designed attack range (not June): %d%% of attack, physic and magic (first user: physic %g, magic %g)", static_cast<int>( JUNE_DESIGNED_ATTACK_RANGE_RATE * 100.0f + 0.5f ), Stat_.m_fAtkPhysic * JUNE_DESIGNED_ATTACK_RANGE_RATE, Stat_.m_fAtkMagic * JUNE_DESIGNED_ATTACK_RANGE_RATE );
+	}
+}
+#endif defined( SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
 float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData )
 {
 #if defined( _SERVICE_ ) 
@@ -2310,6 +2416,11 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	
 	float fPhysicAttack = pAttacker->GetPhysicAttackValue();
 	float fMagicAttack = pAttacker->GetMagicAttackValue();
+#if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
+	/// June buff port Phase 16: GetFinalDamage @32284c1f / @32284c2f rolls both attacks right here (no-op at range 0)
+	JuneDamageMaximizeRoll( pAttacker, 0, pAttDamageData, fPhysicAttack );
+	JuneDamageMaximizeRoll( pAttacker, 1, pAttDamageData, fMagicAttack );
+#endif defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
 	float fPhysicDefence = pDefender->GetPhysicDefenceValue();
 	float fMagicDefence = pDefender->GetMagicDefenceValue();
 
@@ -12645,6 +12756,14 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		break;
+
+	/// June buff port Phase 16, 32282700: BBT 92 (member +0x6d18, insert 32282f4f)
+	case BBT_CHANGE_MAXIMIZE:
+		m_AdditionalDamageMaximize.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		break;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	default:
@@ -12979,6 +13098,13 @@ void CX2GameUnit::UpdateAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 			if ( !m_AdditionalTypeAdditionalAttackMultiplier.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
 				m_AdditionalTypeAdditionalAttackMultiplier.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 		} break;
+
+	/// June buff port Phase 16, 3226fd70 (@32270acc): BBT 92, update the factor or insert it when absent
+	case BBT_CHANGE_MAXIMIZE:
+		{
+			if ( !m_AdditionalDamageMaximize.UpdateAddtionalStatFactor( eChangeType_, BuffIdentity_, fValue_ ) )
+				m_AdditionalDamageMaximize.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
+		} break;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	default:
@@ -13247,6 +13373,11 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 	case BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER:
 		m_AdditionalTypeAdditionalAttackMultiplier.EraseStatFactor( eChangeType_, BuffIdentity_ );
 		break;
+
+	/// June buff port Phase 16, 322830f0 (@32283795): BBT 92
+	case BBT_CHANGE_MAXIMIZE:
+		m_AdditionalDamageMaximize.EraseStatFactor( eChangeType_, BuffIdentity_ );
+		break;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	default:
@@ -13271,6 +13402,9 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 	m_AdditionalMaxHp.SetBasicStatValue( kStat.m_fBaseHP );
 	m_AdditionalPhysicAttack.SetBasicStatValue( kStat.m_fAtkPhysic );
 	m_AdditionalMagicAttack.SetBasicStatValue( kStat.m_fAtkMagic );
+#if defined( SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
+	SetJuneDesignedAttackRangeBasic( kStat );
+#endif defined( SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
 	m_AdditionalPhysicDefence.SetBasicStatValue( kStat.m_fDefPhysic );
 	m_AdditionalMagicDefence.SetBasicStatValue( kStat.m_fDefMagic );	
 }
@@ -13290,6 +13424,9 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 	m_AdditionalMaxHp.SetBasicStatValue( kStat.m_fBaseHP );
 	m_AdditionalPhysicAttack.SetBasicStatValue( kStat.m_fAtkPhysic );
 	m_AdditionalMagicAttack.SetBasicStatValue( kStat.m_fAtkMagic );
+#if defined( SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
+	SetJuneDesignedAttackRangeBasic( kStat );
+#endif defined( SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
 	m_AdditionalPhysicDefence.SetBasicStatValue( kStat.m_fDefPhysic );
 	m_AdditionalMagicDefence.SetBasicStatValue( kStat.m_fDefMagic );	
 }
@@ -13342,10 +13479,28 @@ void CX2GameUnit::CheckAndUpdateAdditionalStat()
 
 	m_AdditionalChangeAdditionalDefence.CheckAndUpdateResultValueWithOptionData( &CX2SocketItem::GetFinalAdditionalDefencePercent, GetUnitLevel() );
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	if ( false == CX2SocketItem::IsJuneSocketOptionFormLoaded() )
+	{
+		/// March's SocketOptionForm.lua lacks June's MP curves: the plain update (the option value is 0 then)
+		m_AdditionalChargeMpHitMeleeAttack.CheckAndUpdateResultValue();
+		m_AdditionalChargeMpHitRangeAttack.CheckAndUpdateResultValue();
+		m_AdditionalChargeMpHitted.CheckAndUpdateResultValue();
+	}
+	else
+	{
+	/// June 32290950 (@32290ca0..32290d32): 24/25/26 refresh through the option-data template, modifier 1.0
+	m_AdditionalChargeMpHitMeleeAttack.CheckAndUpdateResultValueWithOptionData( &CX2SocketItem::GetFinalMpIncPercentByAttack, GetUnitLevel() );
+	m_AdditionalChargeMpHitRangeAttack.CheckAndUpdateResultValueWithOptionData( &CX2SocketItem::GetFinalMpIncPercentByAttack, GetUnitLevel() );
+
+	m_AdditionalChargeMpHitted.CheckAndUpdateResultValueWithOptionData( &CX2SocketItem::GetFinalMpIncPercentByAttacked, GetUnitLevel() );
+	}
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	m_AdditionalChargeMpHitMeleeAttack.CheckAndUpdateResultValue();
 	m_AdditionalChargeMpHitRangeAttack.CheckAndUpdateResultValue();
 
 	m_AdditionalChargeMpHitted.CheckAndUpdateResultValue();
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	m_AdditionalFinalDamageMultiplierMeleeAttack.CheckAndUpdateResultValue();
 	m_AdditionalFinalDamageMultiplierRangeAttack.CheckAndUpdateResultValue();
@@ -13381,7 +13536,49 @@ void CX2GameUnit::CheckAndUpdateAdditionalStat()
 	m_AdditionalForceDownMultiplierRangeAttacked.CheckAndUpdateResultValue();
 	/// June buff port Phase 5c, 32290950 (@32290bc6): 78 refreshes through the plain result update (3236d350)
 	m_AdditionalTypeAdditionalAttackMultiplier.CheckAndUpdateResultValue();
+	/// June buff port Phase 16, 32290950 (@32290ecd..32290eeb): 92 refreshes through the option-data template with
+	/// CalculateFinalDamageMaximizeRate, modifier 1.0; without the curve it takes the plain update and the roll reads 0
+	if ( IsJuneDamageMaximizeCurveLoaded() )
+	{
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		m_AdditionalDamageMaximize.CheckAndUpdateResultValueWithOptionData( &CX2SocketItem::GetFinalDamageMaximizeRate, GetUnitLevel() );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	}
+	else
+		m_AdditionalDamageMaximize.CheckAndUpdateResultValue();
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	{
+		/// June buff port Phase 16, 32290950: the socket members. June's refresh passes the user's unit type
+		/// (CX2Unit +0xaf0; 0 for an NPC) as a third curve argument, which only the class specializations read.
+		CX2Unit::UNIT_TYPE eJuneUnitType = CX2Unit::UT_NONE;
+		if ( GUT_USER == GetGameUnitType() && NULL != static_cast<CX2GUUser*>( this )->GetUnit() )
+			eJuneUnitType = static_cast<CX2GUUser*>( this )->GetUnitType();
+
+		m_AdditionalAdditionalAttackedDamage.CheckAndUpdateResultValue();			/// plain (3236d350)
+		if ( false == CX2SocketItem::IsJuneSocketOptionFormLoaded() )
+		{
+			m_AdditionalCharacterSpecializationA.CheckAndUpdateResultValue();	/// March's SocketOptionForm.lua lacks the class curves
+			m_AdditionalCharacterSpecializationB.CheckAndUpdateResultValue();
+		}
+		else
+		{
+		m_AdditionalCharacterSpecializationA.CheckAndUpdateResultValueWithOptionData( CX2SocketItem::JuneSpecializationFinal( eJuneUnitType, true ), GetUnitLevel() );		/// @32290e77
+		m_AdditionalCharacterSpecializationB.CheckAndUpdateResultValueWithOptionData( CX2SocketItem::JuneSpecializationFinal( eJuneUnitType, false ), GetUnitLevel() );	/// @32290eb1
+		}
+		m_AdditionalAtkPhysicPiercingRate.CheckAndUpdateResultValue();				/// @32290ef0..32290f64: the eleven plain refreshes
+		m_AdditionalAtkMagicPiercingRate.CheckAndUpdateResultValue();
+		m_AdditionalHPRecoveryRate.CheckAndUpdateResultValue();
+		m_AdditionalIncreaseItemDropRate.CheckAndUpdateResultValue();
+		m_AdditionalIncreaseDmgRateToBoss.CheckAndUpdateResultValue();
+		m_AdditionalIncreaseDefRateToBoss.CheckAndUpdateResultValue();
+		m_AdditionalIncreaseDmgEnemyHPFew.CheckAndUpdateResultValue();
+		m_AdditionalIncreaseDefMyHPFew.CheckAndUpdateResultValue();
+		m_AdditionalDecreaseDebuffTimeRate.CheckAndUpdateResultValue();
+		m_AdditionalDecreaseMPCostRate.CheckAndUpdateResultValue();
+		m_AdditionalIncreaseDmgRateMyHpFew.CheckAndUpdateResultValue();
+	}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 }
 
 /** @function : CreateAndInsertTemporaryBuffFactor
@@ -13765,8 +13962,14 @@ void CX2GameUnit::InitAdditionalStatOptionValue()
 	m_AdditionalJumpPower.SetOptionValue( m_SocketData.m_fJumpSpeed );
 	m_AdditionalDashJumpPower.SetOptionValue( m_SocketData.m_fJumpSpeed );
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June 32270dd0 (user branch) seeds accuracy and avoidance with 0
+	m_AdditionalAccuracy.SetOptionValue( 0.0f );
+	m_AdditionalAvoidance.SetOptionValue( 0.0f );
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	m_AdditionalAccuracy.SetOptionValue( m_SocketData.m_fAntiEvadePercent );
 	m_AdditionalAvoidance.SetOptionValue( m_SocketData.m_fEvadePercent );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	m_AdditionalCriticalRate.SetOptionValue( m_SocketData.m_fPercentCritical );
 	m_AdditionalCriticalAttack.SetOptionValue( m_SocketData.m_fCritical );
 
@@ -13796,6 +13999,33 @@ void CX2GameUnit::InitAdditionalStatOptionValue()
 	/// June buff port Phase 5c, 32270dd0 (@32270f59 user branch, @322712e9 NPC branch): BBT 78's option value is set to 0 in both.
 	m_AdditionalTypeAdditionalAttackMultiplier.SetOptionValue( 0.0f );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port Phase 16: the rest of June's seeds (32270dd0 @32270df3..32271228, the complete user-branch table).
+	/// June's NPC branch zeroes them; m_SocketData is all 0 for a unit with no socket options, as for the siblings above.
+	m_AdditionalChargeMpHitMeleeAttack.SetOptionValue( m_SocketData.m_fMPIncByAttack );		/// 24 <- +0x124
+	m_AdditionalChargeMpHitRangeAttack.SetOptionValue( m_SocketData.m_fMPIncByAttack );		/// 25 <- +0x124
+	m_AdditionalChargeMpHitted.SetOptionValue( m_SocketData.m_fMPIncByAttacked );			/// 26 <- +0x12c
+	m_AdditionalSocketCriticalAfflicted.SetOptionValue( m_SocketData.m_fCriticalAfflicted );
+	m_AdditionalSocketAdditionalDamageAfflicted.SetOptionValue( m_SocketData.m_fAdditionalDamageAfflicted );
+	m_AdditionalSocketAdditionalDamage.SetOptionValue( m_SocketData.m_fAdditionalDamage );
+	m_AdditionalSocketAntiCriticalRate.SetOptionValue( m_SocketData.m_fAntiCriticalRate );
+	m_AdditionalSocketAntiAddDamageRate.SetOptionValue( m_SocketData.m_fAntiAddDamageRate );
+	m_AdditionalAdditionalAttackedDamage.SetOptionValue( m_SocketData.m_fAdditionalAttackedDamageValue );
+	m_AdditionalCharacterSpecializationA.SetOptionValue( m_SocketData.m_fCharacterSpecializationA );
+	m_AdditionalCharacterSpecializationB.SetOptionValue( m_SocketData.m_fCharacterSpecializationB );
+	m_AdditionalDamageMaximize.SetOptionValue( m_SocketData.m_fDamageMaximizeRate );		/// 92 <- +0x13c (@322710e9)
+	m_AdditionalAtkPhysicPiercingRate.SetOptionValue( m_SocketData.m_fAtkPhysicPiercingRate );
+	m_AdditionalAtkMagicPiercingRate.SetOptionValue( m_SocketData.m_fAtkMagicPiercingRate );
+	m_AdditionalHPRecoveryRate.SetOptionValue( m_SocketData.m_fHPRecoveryRate );
+	m_AdditionalIncreaseItemDropRate.SetOptionValue( m_SocketData.m_fIncreaseItemDropRate );
+	m_AdditionalIncreaseDmgRateToBoss.SetOptionValue( m_SocketData.m_fIncreaseDmgRateToBoss );
+	m_AdditionalIncreaseDefRateToBoss.SetOptionValue( m_SocketData.m_fIncreaseDefRateToBoss );
+	m_AdditionalIncreaseDmgEnemyHPFew.SetOptionValue( m_SocketData.m_fIncreaseDmgEnemyHPFew_DmgRate );
+	m_AdditionalIncreaseDefMyHPFew.SetOptionValue( m_SocketData.m_fIncreaseDefMyHPFew_DefRate );
+	m_AdditionalDecreaseDebuffTimeRate.SetOptionValue( m_SocketData.m_fDecreaseDebuffTimeRate );
+	m_AdditionalDecreaseMPCostRate.SetOptionValue( m_SocketData.m_fDecrease_MPCostRate );
+	m_AdditionalIncreaseDmgRateMyHpFew.SetOptionValue( m_SocketData.m_fIncreaseDmgRate_MyHpFew );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 // 	m_AdditionalFinalDamageMultiplier.SetOptionValue( 0.0f );
 // 	m_AdditionalFinalDefenceMultiplier.SetOptionValue( 0.0f );
@@ -13865,6 +14095,28 @@ void CX2GameUnit::InitAdditionalBasicStatValue()
 	/// June buff port Phase 5c, 32271540 (@32271648, fld1): 78 starts at 1.0
 	m_AdditionalTypeAdditionalAttackMultiplier.SetBasicStatValue( 1.0f );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	/// June buff port Phase 16, 32271540 (@322717f0, fldz): 92 starts at 0.0
+	m_AdditionalDamageMaximize.SetBasicStatValue( 0.0f );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port Phase 16, 32271540 (@32271681, @322717ce..322718b7): the socket members' basics. The five
+	/// option-only members (+0x50e0, +0x5194, +0x5248, +0x5a14, +0x5ac8) have no basic in June (ctor 0).
+	m_AdditionalAdditionalAttackedDamage.SetBasicStatValue( 0.0f );
+	m_AdditionalCharacterSpecializationA.SetBasicStatValue( 0.0f );
+	m_AdditionalCharacterSpecializationB.SetBasicStatValue( 0.0f );
+	m_AdditionalAtkPhysicPiercingRate.SetBasicStatValue( 0.0f );
+	m_AdditionalAtkMagicPiercingRate.SetBasicStatValue( 0.0f );
+	m_AdditionalHPRecoveryRate.SetBasicStatValue( 1.0f );
+	m_AdditionalIncreaseItemDropRate.SetBasicStatValue( 1.0f );
+	m_AdditionalIncreaseDmgRateToBoss.SetBasicStatValue( 1.0f );
+	m_AdditionalIncreaseDefRateToBoss.SetBasicStatValue( 0.0f );
+	m_AdditionalIncreaseDmgEnemyHPFew.SetBasicStatValue( 0.0f );
+	m_AdditionalIncreaseDefMyHPFew.SetBasicStatValue( 0.0f );
+	m_AdditionalDecreaseDebuffTimeRate.SetBasicStatValue( 0.0f );
+	m_AdditionalDecreaseMPCostRate.SetBasicStatValue( 0.0f );
+	m_AdditionalIncreaseDmgRateMyHpFew.SetBasicStatValue( 0.0f );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	CheckAndUpdateAdditionalStat();
 }
@@ -13931,11 +14183,31 @@ void CX2GameUnit::InitAdditionalPassive()
 	/// June buff port Phase 5c, 322718e0 (@32271b26): 78, multiple 1, sum 0
 	InitAdditionalPassiveMultipleAndSum(m_AdditionalTypeAdditionalAttackMultiplier);
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port Phase 16, 322718e0 (@32271aa4, @32271e18..32271fc1): multiple 1, sum 0. 92 has no passive init in June.
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalAdditionalAttackedDamage);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalCharacterSpecializationA);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalCharacterSpecializationB);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalAtkPhysicPiercingRate);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalAtkMagicPiercingRate);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalHPRecoveryRate);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalIncreaseItemDropRate);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalIncreaseDmgRateToBoss);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalIncreaseDefRateToBoss);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalIncreaseDmgEnemyHPFew);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalIncreaseDefMyHPFew);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalDecreaseDebuffTimeRate);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalDecreaseMPCostRate);
+	InitAdditionalPassiveMultipleAndSum(m_AdditionalIncreaseDmgRateMyHpFew);
+	/// June sets 24/25/26 to multiple 1, sum 0 (@32271ac6..32271b1b, done above) and never puts m_fMPMultiplyByAll into
+	/// their passive sum: the socket MP bonus now arrives as their option value (seeds) through the option-data refresh.
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	/// 소켓옵션에 의한 것을 Passive쪽에 넣어줌(연산 로직 때문에 이렇게 함)
 	m_AdditionalChargeMpHitMeleeAttack.SetPassiveSum( m_SocketData.m_fMPMultiplyByAll );
 	m_AdditionalChargeMpHitRangeAttack.SetPassiveSum( m_SocketData.m_fMPMultiplyByAll );
 	m_AdditionalChargeMpHitted.SetPassiveSum( m_SocketData.m_fMPMultiplyByAll );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 }
 
 /** @function : InitAdditionalPassiveMultipleAndSum
@@ -16895,6 +17167,30 @@ bool CX2GameUnit::VerifyStatByBuff()
 		 && m_AdditionalForceDownMultiplierRangeAttacked.Verify()
 		 && m_AdditionalTypeAdditionalAttackMultiplier.Verify()
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+		 && m_AdditionalDamageMaximize.Verify()
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		 && m_AdditionalSocketCriticalAfflicted.Verify()
+		 && m_AdditionalSocketAdditionalDamageAfflicted.Verify()
+		 && m_AdditionalSocketAdditionalDamage.Verify()
+		 && m_AdditionalSocketAntiCriticalRate.Verify()
+		 && m_AdditionalSocketAntiAddDamageRate.Verify()
+		 && m_AdditionalAdditionalAttackedDamage.Verify()
+		 && m_AdditionalCharacterSpecializationA.Verify()
+		 && m_AdditionalCharacterSpecializationB.Verify()
+		 && m_AdditionalAtkPhysicPiercingRate.Verify()
+		 && m_AdditionalAtkMagicPiercingRate.Verify()
+		 && m_AdditionalHPRecoveryRate.Verify()
+		 && m_AdditionalIncreaseItemDropRate.Verify()
+		 && m_AdditionalIncreaseDmgRateToBoss.Verify()
+		 && m_AdditionalIncreaseDefRateToBoss.Verify()
+		 && m_AdditionalIncreaseDmgEnemyHPFew.Verify()
+		 && m_AdditionalIncreaseDefMyHPFew.Verify()
+		 && m_AdditionalDecreaseDebuffTimeRate.Verify()
+		 && m_AdditionalDecreaseMPCostRate.Verify()
+		 && m_AdditionalIncreaseDmgRateMyHpFew.Verify()
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		 )
 		 return true;
 	else

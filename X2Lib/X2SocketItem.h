@@ -522,6 +522,68 @@ class CX2SocketItem
 			map<int, vector<int>>	m_mapGrowUpSocketID;		// 성장 소켓 그룹
 #endif //SERV_GROW_UP_SOCKET
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			/// June buff port Phase 16: the SocketDataCommon fields June's loader 32726850 fills and March lacks.
+			/// The comments give June's offset (the same in the templet and in the per-unit aggregate).
+			struct JuneConditionalBuff				/// June +0x29c entry (0x10 bytes), pushed @32735bc5 (3207b5d0)
+			{
+				UINT	m_uiBuffFactorID;				/// +0 BUFF_FACTOR_ID
+				int		m_iBuffLevel;					/// +4 the second m_sBuffLevel
+				bool	m_bKillAbsoluteMonster;			/// +8
+				bool	m_bAlwaysPlayEffectSet;			/// +9 m_eTypeSetItemEffectEx == 15 (SIEE_ALWAYS_PLAY_EFFECT_SET)
+				int		m_iEnemyHPFewHpRate;			/// +0xc m_fIncreaseDmgEnemyHPFew_HpRate (read as an int)
+			};
+			int		m_iDungeonOnlyType;					/// +0x18c DUNGEON_ONLY_TYPE (a DUNGEON_TYPE, 0 = any)
+			float	m_fCriticalAfflicted;				/// +0xc4
+			float	m_fAdditionalDamageAfflicted;		/// +0xc8 (78's term +0x5194)
+			float	m_fAdditionalDamage;				/// +0xcc (78's term +0x5248)
+			float	m_fAntiCriticalRate;				/// +0xd0
+			float	m_fAntiAddDamageRate;				/// +0xd4 (78's term +0x5ac8)
+			float	m_fAdditionalAttackedDamageValue;	/// +0xe0
+			float	m_fMPIncByAttack;					/// +0x124 = m_fMPMultiplyByAll + m_fMPIncByAttack_ReturnRate (@32732977)
+			float	m_fMPIncByAttacked;					/// +0x12c = m_fMPMultiplyByAll + m_fMPIncByAttacked_ReturnRate (@32732be4)
+			float	m_fCharacterSpecializationA;		/// +0x134
+			float	m_fCharacterSpecializationB;		/// +0x138
+			float	m_fDamageMaximizeRate;				/// +0x13c (BBT 92's option seed)
+			float	m_fBonusTitleMissionCountingRate;	/// +0x298 (loaded; no client reader found, not summed by 3207cd70)
+			vector<JuneConditionalBuff>	m_vecConditionalBuff;	/// +0x29c
+			float	m_fAtkPhysicPiercingRate;			/// +0x2ac
+			float	m_fAtkMagicPiercingRate;			/// +0x2b0
+			float	m_fHPRecoveryRate;					/// +0x2b4
+			float	m_fIncreaseItemDropRate;			/// +0x2b8 (no client reader in June: server-side)
+			float	m_fIncreaseDmgRateToBoss;			/// +0x2bc
+			float	m_fIncreaseDefRateToBoss;			/// +0x2c0
+			float	m_fDecreaseActiveSkillCooltime;		/// +0x2c4
+			float	m_fDecrease1stSA_SkillCooltime;		/// +0x2c8
+			float	m_fDecrease2ndSA_SkillCooltime;		/// +0x2cc
+			float	m_fDecrease3rdSA_SkillCooltime;		/// +0x2d0
+			float	m_fIncreaseDmgEnemyHPFew_DmgRate;	/// +0x2d4
+			float	m_fIncreaseDefMyHPFew_DefRate;		/// +0x2d8
+			float	m_fDecreaseDebuffTimeRate;			/// +0x2dc
+			float	m_fDecrease_MPCostRate;				/// +0x2e0
+			float	m_fIncreaseDmgRate_MyHpFew;			/// +0x2e4
+			float	m_fAllSkillCooltimeDecreaseRate;	/// +0x2e8
+			float	m_fAllSkillDamageIncreaseRate;		/// +0x2ec
+			bool	m_bIsRankLinkedStat;				/// +0x294 (June 3204f190's rank branch; not decoded, see SumSocketOption)
+			bool	m_bIsPVERankLinkedStat;				/// +0x58
+
+			void InitJuneSocketParity()					/// the ctor's and ReInit's (320922a0) zeroing of the fields above
+			{
+				m_iDungeonOnlyType = 0;
+				m_fCriticalAfflicted = m_fAdditionalDamageAfflicted = m_fAdditionalDamage = 0.f;
+				m_fAntiCriticalRate = m_fAntiAddDamageRate = m_fAdditionalAttackedDamageValue = 0.f;
+				m_fMPIncByAttack = m_fMPIncByAttacked = 0.f;
+				m_fCharacterSpecializationA = m_fCharacterSpecializationB = m_fDamageMaximizeRate = 0.f;
+				m_fBonusTitleMissionCountingRate = 0.f;
+				m_vecConditionalBuff.clear();
+				m_fAtkPhysicPiercingRate = m_fAtkMagicPiercingRate = m_fHPRecoveryRate = m_fIncreaseItemDropRate = 0.f;
+				m_fIncreaseDmgRateToBoss = m_fIncreaseDefRateToBoss = 0.f;
+				m_fDecreaseActiveSkillCooltime = m_fDecrease1stSA_SkillCooltime = m_fDecrease2ndSA_SkillCooltime = m_fDecrease3rdSA_SkillCooltime = 0.f;
+				m_fIncreaseDmgEnemyHPFew_DmgRate = m_fIncreaseDefMyHPFew_DefRate = m_fDecreaseDebuffTimeRate = 0.f;
+				m_fDecrease_MPCostRate = m_fIncreaseDmgRate_MyHpFew = m_fAllSkillCooltimeDecreaseRate = m_fAllSkillDamageIncreaseRate = 0.f;
+				m_bIsRankLinkedStat = m_bIsPVERankLinkedStat = false;
+			}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			SocketData()
 			{
 				m_ID								= 0;
@@ -644,6 +706,9 @@ class CX2SocketItem
 				m_eHyperModeEffectiveType	= HMET_NONE;
 				m_fEffectiveValue			= 0.f;
 #endif // HAMEL_SECRET_DUNGEON
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				InitJuneSocketParity();
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			}
 
 			//{{ // kimhc // 실시간 엘소드 중 실시간 아바타 및 장비 교체 중 소켓 옵션
@@ -762,6 +827,9 @@ class CX2SocketItem
 #ifdef HAMEL_SECRET_DUNGEON // 김태환
 				m_vecInfoByUseHyperMode.clear();	/// 각성시 사용하는 효과 설정 저장 컨테이너
 #endif // HAMEL_SECRET_DUNGEON
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				InitJuneSocketParity();
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			}
 #endif REAL_TIME_ELSWORD
 			//}} // kimhc // 실시간 엘소드 중 실시간 아바타 및 장비 교체 중 소켓 옵션
@@ -931,6 +999,58 @@ class CX2SocketItem
 			{
 				return static_cast<int>( m_fAdditionalAttackValue * lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "CalculateLinearAdditionalAttackValue", iSocketLevel_ ) + 0.5f );
 			}
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			/// June 3207cd70's three new linear terms (strings in June's SocketOptionForm.lua, lines 91-120)
+			int GetLinearMpIncValueByAttack( const int iSocketLevel_ ) const
+			{
+				return static_cast<int>( m_fMPIncByAttack * lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "CalculateLinearMpIncValueByAttack", iSocketLevel_ ) + 0.5f );
+			}
+
+			int GetLinearMpIncValueByAttacked( const int iSocketLevel_ ) const
+			{
+				return static_cast<int>( m_fMPIncByAttacked * lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "CalculateLinearMpIncValueByAttacked", iSocketLevel_ ) + 0.5f );
+			}
+
+			int GetLinearDamageMaximizeRate( const int iSocketLevel_ ) const
+			{
+				return static_cast<int>( m_fDamageMaximizeRate * lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "CalculateLinearDamageMaximizeRate", iSocketLevel_ ) + 0.5f );
+			}
+
+			/// June 32073860 (A) / 320739e0 (B): the unit type picks CalculateLinear<Class>Specialization{A,B}Value.
+			/// June's types 10-12 (Luciel, Rose, Ain) have no March UNIT_TYPE; any other type returns 0, as in June.
+			static const char* GetJuneSpecializationCurveName( const CX2Unit::UNIT_TYPE eUnitType_, const bool bA_ )
+			{
+				switch ( eUnitType_ )
+				{
+				case CX2Unit::UT_ELSWORD:	return bA_ ? "CalculateLinearElswordSpecializationAValue" : "CalculateLinearElswordSpecializationBValue";
+				case CX2Unit::UT_ARME:		return bA_ ? "CalculateLinearArmeSpecializationAValue" : "CalculateLinearArmeSpecializationBValue";
+				case CX2Unit::UT_LIRE:		return bA_ ? "CalculateLinearLireSpecializationAValue" : "CalculateLinearLireSpecializationBValue";
+				case CX2Unit::UT_RAVEN:		return bA_ ? "CalculateLinearRavenSpecializationAValue" : "CalculateLinearRavenSpecializationBValue";
+				case CX2Unit::UT_EVE:		return bA_ ? "CalculateLinearEveSpecializationAValue" : "CalculateLinearEveSpecializationBValue";
+				case CX2Unit::UT_CHUNG:		return bA_ ? "CalculateLinearChungSpecializationAValue" : "CalculateLinearChungSpecializationBValue";
+				case CX2Unit::UT_ARA:		return bA_ ? "CalculateLinearAraSpecializationAValue" : "CalculateLinearAraSpecializationBValue";
+				case CX2Unit::UT_ELESIS:	return bA_ ? "CalculateLinearElesisSpecializationAValue" : "CalculateLinearElesisSpecializationBValue";
+				case CX2Unit::UT_ADD:		return bA_ ? "CalculateLinearAddSpecializationAValue" : "CalculateLinearAddSpecializationBValue";
+				default:					return NULL;
+				}
+			}
+
+			int GetLinearCharacterSpecializationAValue( const int iSocketLevel_, const CX2Unit::UNIT_TYPE eUnitType_ ) const
+			{
+				const char* pszCurve = GetJuneSpecializationCurveName( eUnitType_, true );
+				if ( NULL == pszCurve )
+					return 0;
+				return static_cast<int>( m_fCharacterSpecializationA * lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), pszCurve, iSocketLevel_ ) + 0.5f );
+			}
+
+			int GetLinearCharacterSpecializationBValue( const int iSocketLevel_, const CX2Unit::UNIT_TYPE eUnitType_ ) const
+			{
+				const char* pszCurve = GetJuneSpecializationCurveName( eUnitType_, false );
+				if ( NULL == pszCurve )
+					return 0;
+				return static_cast<int>( m_fCharacterSpecializationB * lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), pszCurve, iSocketLevel_ ) + 0.5f );
+			}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	#ifdef SERV_9TH_NEW_CHARACTER // 김태환
 			void ConvertAndAdd( const SocketData& rhs_, const int iSocketLevel_, const CX2Unit::UNIT_TYPE eUnitType_ )
@@ -947,6 +1067,11 @@ class CX2SocketItem
 				m_fJumpSpeed += rhs_.GetLinearJumpSpeedValue( iSocketLevel_ );
 
 				m_fAnimationSpeedRate += rhs_.GetLinearAnimationSpeedValue( iSocketLevel_ );
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				/// June 3207cd70 has no 0.5 reform for Add on hyper charge / hyper time (checklist section 7)
+				m_fHyperModeChargeRate += rhs_.GetLinearHyperGageChargeSpeedValue( iSocketLevel_ );
+				m_fHyperModeTime += rhs_.m_fHyperModeTime;
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 
 	#ifdef SERV_9TH_NEW_CHARACTER // 김태환
@@ -960,15 +1085,20 @@ class CX2SocketItem
 				m_fHyperModeTime += rhs_.m_fHyperModeTime;
 	#endif // SERV_9TH_NEW_CHARACTER
 				
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				m_fRepairPriceSale += rhs_.m_fRepairPriceSale;
 				
 			
 				m_fDamageReduce += rhs_.m_fDamageReduce;
 				m_fPercentDamageReduce += rhs_.m_fPercentDamageReduce;
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				/// June 3207cd70 adds neither evade nor anti-evade (June's loader has neither key)
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				m_fEvadePercent += rhs_.GetLinearEvadeValue( iSocketLevel_ );
 
 				m_fAntiEvadePercent += rhs_.GetLinearAntiEvadeValue( iSocketLevel_ );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 
 				m_fPercentCritical += rhs_.GetLinearCriticalValue( iSocketLevel_ );
@@ -1025,9 +1155,13 @@ class CX2SocketItem
 				m_AllSkillLevelUp += rhs_.m_AllSkillLevelUp;
 
 				//{{ 2011.09.05 / 이지헌 / 대만/홍콩 / 마법의 목걸이 개편 / 병합 : 강정훈
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				/// June 3207cd70 has no plain add of m_fMPMultiplyByAll: the loader already summed it into the MP pair
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef MAGIC_NEC_FIX
 				m_fMPMultiplyByAll += rhs_.m_fMPMultiplyByAll;
 #endif
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				//}}
 #ifdef BUFF_TEMPLET_SYSTEM
 				m_iAddMPValue					+= rhs_.m_iAddMPValue;					// MP 증가량
@@ -1045,6 +1179,46 @@ class CX2SocketItem
 				// POWER_RATE_TYPE 상수 값을 곱해서 증가시켜주는 스킬 레벨업 소켓 옵션
 				m_iAllSkillLevelUpEx += rhs_.m_iAllSkillLevelUpEx;
 #endif // SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				/// June 3207cd70: the MP pair and 92's maximize are linear, the class specializations go through
+				/// 32073860 / 320739e0, the rest are plain adds; the +0x29c list is appended
+				if ( CX2SocketItem::IsJuneSocketOptionFormLoaded() )
+				{
+				m_fMPIncByAttack				+= rhs_.GetLinearMpIncValueByAttack( iSocketLevel_ );
+				m_fMPIncByAttacked				+= rhs_.GetLinearMpIncValueByAttacked( iSocketLevel_ );
+				m_fDamageMaximizeRate			+= rhs_.GetLinearDamageMaximizeRate( iSocketLevel_ );
+				m_fCharacterSpecializationA		+= rhs_.GetLinearCharacterSpecializationAValue( iSocketLevel_, eUnitType_ );
+				m_fCharacterSpecializationB		+= rhs_.GetLinearCharacterSpecializationBValue( iSocketLevel_, eUnitType_ );
+				}
+
+				m_fCriticalAfflicted				+= rhs_.m_fCriticalAfflicted;
+				m_fAdditionalDamageAfflicted		+= rhs_.m_fAdditionalDamageAfflicted;
+				m_fAdditionalDamage					+= rhs_.m_fAdditionalDamage;
+				m_fAntiCriticalRate					+= rhs_.m_fAntiCriticalRate;
+				m_fAntiAddDamageRate				+= rhs_.m_fAntiAddDamageRate;
+				m_fAdditionalAttackedDamageValue	+= rhs_.m_fAdditionalAttackedDamageValue;
+
+				m_fAtkPhysicPiercingRate			+= rhs_.m_fAtkPhysicPiercingRate;
+				m_fAtkMagicPiercingRate				+= rhs_.m_fAtkMagicPiercingRate;
+				m_fHPRecoveryRate					+= rhs_.m_fHPRecoveryRate;
+				m_fIncreaseItemDropRate				+= rhs_.m_fIncreaseItemDropRate;
+				m_fIncreaseDmgRateToBoss			+= rhs_.m_fIncreaseDmgRateToBoss;
+				m_fIncreaseDefRateToBoss			+= rhs_.m_fIncreaseDefRateToBoss;
+				m_fDecreaseActiveSkillCooltime		+= rhs_.m_fDecreaseActiveSkillCooltime;
+				m_fDecrease1stSA_SkillCooltime		+= rhs_.m_fDecrease1stSA_SkillCooltime;
+				m_fDecrease2ndSA_SkillCooltime		+= rhs_.m_fDecrease2ndSA_SkillCooltime;
+				m_fDecrease3rdSA_SkillCooltime		+= rhs_.m_fDecrease3rdSA_SkillCooltime;
+				m_fIncreaseDmgEnemyHPFew_DmgRate	+= rhs_.m_fIncreaseDmgEnemyHPFew_DmgRate;
+				m_fIncreaseDefMyHPFew_DefRate		+= rhs_.m_fIncreaseDefMyHPFew_DefRate;
+				m_fDecreaseDebuffTimeRate			+= rhs_.m_fDecreaseDebuffTimeRate;
+				m_fDecrease_MPCostRate				+= rhs_.m_fDecrease_MPCostRate;
+				m_fIncreaseDmgRate_MyHpFew			+= rhs_.m_fIncreaseDmgRate_MyHpFew;
+				m_fAllSkillCooltimeDecreaseRate		+= rhs_.m_fAllSkillCooltimeDecreaseRate;
+				m_fAllSkillDamageIncreaseRate		+= rhs_.m_fAllSkillDamageIncreaseRate;
+
+				if ( false == rhs_.m_vecConditionalBuff.empty() )
+					m_vecConditionalBuff.insert( m_vecConditionalBuff.end(), rhs_.m_vecConditionalBuff.begin(), rhs_.m_vecConditionalBuff.end() );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			}
 			//}} kimhc // 2011-07-05 // 옵션데이타 수치화 작업
 #ifdef VIEW_SPECIAL_OPTIONDATA	
@@ -1121,6 +1295,68 @@ class CX2SocketItem
 			// fPower_ 은 각 스테이트의 공격배율*파워레이트 이다.
 			return lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "CalculateFinalAdditionalAttackValueInDamageFreeGame", fSumValue_, iUserLevel_ );
 		}
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port Phase 16: the option-data curves June's refresh (32290950) adds. Every curve is called
+		/// ( value, level ); June also passes the unit type, which only the class specializations read.
+		static float GetFinalMpIncPercentByAttack( const float fSumValue_, const int iUserLevel_ )		/// June 322a99e0 (members 24/25)
+		{
+			return lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "CalculateFinalMpIncPercentByAttack", fSumValue_, iUserLevel_ );
+		}
+
+		static float GetFinalMpIncPercentByAttacked( const float fSumValue_, const int iUserLevel_ )		/// June 32073ba0 (member 26)
+		{
+			return lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "CalculateFinalMpIncPercentByAttacked", fSumValue_, iUserLevel_ );
+		}
+
+		static float GetFinalDamageMaximizeRate( const float fSumValue_, const int iUserLevel_ )		/// June 322a9e30 -> 320723b0 (BBT 92)
+		{
+			return lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "CalculateFinalDamageMaximizeRate", fSumValue_, iUserLevel_ );
+		}
+
+		/// True when the loaded SocketOptionForm.lua defines this global function (March's file lacks June's curves)
+		static bool IsLuaCurveLoaded( const char* pszName_ )
+		{
+			lua_State* L = g_pKTDXApp->GetLuaBinder()->GetLuaState();
+			lua_getfield( L, LUA_GLOBALSINDEX, pszName_ );
+			const bool bFunction = ( 0 != lua_isfunction( L, -1 ) );
+			lua_pop( L, 1 );
+			return bFunction;
+		}
+
+		/// True when June's SocketOptionForm.lua is loaded (CalculateFinalMpIncPercentByAttack stands for June's curve set).
+		/// Checked once; when false, one [JUNE_BUFF] line names the file, and the June-only curve calls are skipped (the
+		/// socket MP gain, class specializations and 92's maximize then stay 0) rather than failing one by one in Lua.
+		static bool IsJuneSocketOptionFormLoaded();
+
+		/// June 322a9a10 (A) / 322a9c20 (B): the unit type (types 1..12) picks CalculateFinal<Class>Specialization{A,B}Percent;
+		/// any other type (an NPC passes 0) returns 0 (@322a9be0). Luciel, Rose and Ain have no March UNIT_TYPE.
+		struct JuneSpecializationFinal
+		{
+			CX2Unit::UNIT_TYPE	m_eUnitType;
+			bool				m_bA;
+
+			JuneSpecializationFinal( const CX2Unit::UNIT_TYPE eUnitType_, const bool bA_ ) : m_eUnitType( eUnitType_ ), m_bA( bA_ ) {}
+
+			float operator()( const float fSumValue_, const int iUserLevel_ ) const
+			{
+				const char* pszCurve = NULL;
+				switch ( m_eUnitType )
+				{
+				case CX2Unit::UT_ELSWORD:	pszCurve = m_bA ? "CalculateFinalElswordSpecializationAPercent" : "CalculateFinalElswordSpecializationBPercent";	break;
+				case CX2Unit::UT_ARME:		pszCurve = m_bA ? "CalculateFinalArmeSpecializationAPercent" : "CalculateFinalArmeSpecializationBPercent";			break;
+				case CX2Unit::UT_LIRE:		pszCurve = m_bA ? "CalculateFinalLireSpecializationAPercent" : "CalculateFinalLireSpecializationBPercent";			break;
+				case CX2Unit::UT_RAVEN:		pszCurve = m_bA ? "CalculateFinalRavenSpecializationAPercent" : "CalculateFinalRavenSpecializationBPercent";		break;
+				case CX2Unit::UT_EVE:		pszCurve = m_bA ? "CalculateFinalEveSpecializationAPercent" : "CalculateFinalEveSpecializationBPercent";			break;
+				case CX2Unit::UT_CHUNG:		pszCurve = m_bA ? "CalculateFinalChungSpecializationAPercent" : "CalculateFinalChungSpecializationBPercent";		break;
+				case CX2Unit::UT_ARA:		pszCurve = m_bA ? "CalculateFinalAraSpecializationAPercent" : "CalculateFinalAraSpecializationBPercent";			break;
+				case CX2Unit::UT_ELESIS:	pszCurve = m_bA ? "CalculateFinalElesisSpecializationAPercent" : "CalculateFinalElesisSpecializationBPercent";		break;
+				case CX2Unit::UT_ADD:		pszCurve = m_bA ? "CalculateFinalAddSpecializationAPercent" : "CalculateFinalAddSpecializationBPercent";			break;
+				default:					return 0.f;
+				}
+				return lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), pszCurve, fSumValue_, iUserLevel_ );
+			}
+		};
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef ELSWORD_WAY_OF_SWORD 
 		// 옵션 점감선
 		static float GetOptionRateCorrection( const float fOptionRate_ );

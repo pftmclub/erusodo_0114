@@ -3160,6 +3160,18 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 
 		if ( !CanApplySocketDataByGameType( kSocketData ) )
 			continue;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June 3204f190 scales a rank-linked (+0x294) or PVE-rank-linked (+0x58) socket by a rank factor from
+		/// CX2Unit maps (31edfe70 / 31edfeb0) instead of ConvertAndAdd. That branch is located, not decoded, and no
+		/// March socket sets either flag; such a socket is skipped and logged rather than applied unscaled.
+		if ( kSocketData.m_bIsRankLinkedStat || kSocketData.m_bIsPVERankLinkedStat )
+		{
+			static std::set<int> s_setLoggedRankLinkedSocket;
+			if ( s_setLoggedRankLinkedSocket.insert( kSocketData.m_ID ).second )
+				CX2JuneBuffCapture::Line( "socket %d is rank-linked (%s): June's rank scaling is not ported, the socket is not applied", kSocketData.m_ID, kSocketData.m_bIsRankLinkedStat ? "m_bIsRankLinkedStat" : "m_bIsPVERankLinkedStat" );
+			continue;
+		}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 
 #ifdef PET_AURA_SKILL
@@ -9557,7 +9569,16 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 				/// defender->Opt(+0x5ac8) * 0.01 when that is above 0, then clamped at 0. The three Opt terms are option values June seeds from
 				/// socket-data fields March's socket data lacks (32270dd0: +0xcc, +0xc8, +0xd4), so they are 0 in this build and
 				/// k = max( 78, 0 ). Recorded deviation (Phase 5c): exact on March data. 78 is read on this unit, the one taking the hit.
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				/// June buff port Phase 16 retires 5c's deviation: June's whole k (@32049466..3204951e). The defender is the
+				/// damage data's (+0x470); its anti-add-damage option is subtracted only when above 0 (3342e84c).
+				float fJuneK = pAttackerUnit->GetSocketAdditionalDamage() + GetTypeAdditionalAttackMultiplier() + GetSocketAdditionalDamageAfflicted();
+				if ( null != pDamageData->optrDefenderGameUnit && 0.0f < pDamageData->optrDefenderGameUnit->GetSocketAntiAddDamageRate() )
+					fJuneK -= pDamageData->optrDefenderGameUnit->GetSocketAntiAddDamageRate() * 0.01f;
+				const float fTypeAdditionalAttackMultiplier = max( fJuneK, 0.0f );
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				const float fTypeAdditionalAttackMultiplier = max( GetTypeAdditionalAttackMultiplier(), 0.0f );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				const float fAdditionalAttackValue = pAttackerUnit->GetAdditionalAttackDamage( pDamageData ) * fTypeAdditionalAttackMultiplier;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 				if ( 1.0f != fTypeAdditionalAttackMultiplier && 0.0f < fAdditionalAttackValue )
@@ -35297,6 +35318,36 @@ void CX2GUUser::SetEnterCashShop(bool bVal)
 */
 bool CX2GUUser::CanApplySocketDataByGameType( const CX2SocketItem::SocketData& kSocketData_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port Phase 16: June's 32001570. Game types 2, 3 and 5 refuse a PVP_ONLY socket and a
+	/// DUNGEON_ONLY_TYPE other than the game's dungeon type (game vslot +0x1c8, March GetDungeonType);
+	/// type 4 (GT_PVE) refuses every socket; any other type refuses DUNGEON_ONLY. March has no game
+	/// type 4 or 5, so only the dungeon / field case and the default remain.
+	if ( NULL != g_pX2Game )
+	{
+		switch ( g_pX2Game->GetGameType() )
+		{
+		case CX2Game::GT_DUNGEON:
+		case CX2Game::GT_BATTLE_FIELD:
+			{
+				if ( kSocketData_.m_bPVPOnly )
+					return false;
+
+				if ( 0 != kSocketData_.m_iDungeonOnlyType && g_pX2Game->GetDungeonType() != kSocketData_.m_iDungeonOnlyType )
+					return false;
+			} break;
+
+		default:
+			{
+				if ( kSocketData_.m_bDungeonOnly )
+					return false;
+			} break;
+		}
+	}
+
+	return true;
+}
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	if ( NULL != g_pX2Game )
 	{
 		switch ( g_pX2Game->GetGameType() )
@@ -35318,6 +35369,7 @@ bool CX2GUUser::CanApplySocketDataByGameType( const CX2SocketItem::SocketData& k
 
 	return true;
 }
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef MODIFY_SET_DAMAGE_DATA
 void CX2GUUser::SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate)
 {

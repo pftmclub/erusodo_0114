@@ -4824,6 +4824,38 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
   - `3203c9a0`'s March host;
   - `32358770`.
 
+### Phase 16 — Steps 2-4 Done, part 1 (2026-10-06, Opus 5.5 high)
+
+**Landed** (commit in STATUS): `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (loader, aggregate, seeds, passive, template, refresh, debuff-time reader, 78's terms), 92 under `_NEW_STAT`, and `SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN`. The remaining readers moved to **16-step3b** (kickoff written); none of them has a March socket that feeds it.
+
+**Step 2, data gate.**
+- Arity: every curve March's C++ calls exists in June's `SocketOptionForm.lua` with the same arity. The one June lacks, `…InDamageFreeGame`, is called only in `ADJUST_BUFF_CALCULATE`'s `#else`, which `Always.h:161` compiles out. No Enum globals.
+- Compiled `-v mar-2014`; the bytecode equals June's source on 643,860 evaluations (a round-trip decompile differs only by `and`/`or` rendering). Staged in `march2014/data036/` (md5 in the hand-off). **Copying it into `kom_contents/data036_kom/` was refused by the permission check: user step.**
+- Curve reach, against March's live bytecode: Linear equal for levels 2-90 (level 1: 9.5 to 10; above 90 June caps at 143). Final equal below each soft cap, different above (move/jump/anim at intermediate 40: 0.230 to 0.255; critical 60: 0.584 to 0.560; hyper 30: 0.297 to 0.285; add-defence 100: 0.416 to 0.450). Evade and anti-evade: 0. March sockets losing evade / anti-evade: 473 / 434; using `m_fMPMultiplyByAll`: 9. The save's 13 sockets are animation speed, critical and hyper charge only.
+- **Template reach (5c Q1 was "small"; it is not):** March's staged factor file (366 factors) has PERCENT ≠ 1 on critical rate 25×, additional defence 4×, hyper charge 1×, and PERCENT > 1 on walk/run 34×, jump 8×. Under June's formula a PERCENT-only factor on a basic-0 member gives 0 without a socket bonus: BFI 27 (critical ×1.5) was +0.50 crit chance, is now 0 (with a 0.2 socket crit: 0.80 to 0.30). Walk/jump change only when a move/jump socket is present too.
+- Socket data files (decision for the user, below): June's `OptionItemData.lua` loads against March's Enum (13,408 entries) but names 80 `SOCKET_DATA_TYPE`, 9 SIEE (12-20), `HMET_FEVER`, 18 `EXTRA_DAMAGE_TYPE` and 20 `STR_ID` values March lacks; 247 March IDs are absent from it (none in the save); 1,367 shared IDs differ. With March's file every June-only key reads 0.
+
+**Code** (June addresses in the comments; `funcmap.tsv` unchanged).
+- Loader `32726850`: 35 June keys (not loaded, no reader decoded: `m_fSkillAdditionalPowerRate` / `m_eSkillIDForAdditionalPowerRate` / the `m_SkillType`-`m_PowerRate` table, `m_bSocketExtraction`, `m_iSocketApply`, `m_iSocketCondition`, the first `m_sBuffLevel` `+0x296`, `m_fAllStatRelLV`: 3b), the MP sum, the `+0x29c` list and its two error messages (log lines), the x100 tail; evade keys dropped. Rank-linked sockets are skipped with one line each (scaling not decoded); grow-up kept (June has no key, its `+0x38` recursion is not decoded).
+- `ConvertAndAdd` = `3207cd70` (no Add 0.5 reform: checklist §7); game-type gate = `32001570` (`GetDungeonType` stands for vslot `+0x1c8`).
+- Seeds `32270dd0`, basics `32271540`, passive `322718e0` (March's MP passive sum removed), template `320839e0`, refresh `32290950` (MP 24/25/26, spec A/B with the unit type, 92, the eleven plain members). 20 new members.
+- 92: parse, factory, SGU, insert/update/erase, refresh, roll `322788c0` (boost mt19937 + Box-Muller, seed = defender's slot 113), summon copy `3230ca6d`. Slot 121 is a virtual returning 1.0 (Rose: checklist §7).
+- 78: June's whole k in both DamageReacts; 5c's deviation retired. JUNE_BUGS #42-#45.
+- Degrade: one line each when June's curves are missing (`SocketOptionForm.lua has no June curves …`, `CalculateFinalDamageMaximizeRate is missing …`); the June-only curve calls are then skipped.
+- Inherited, not changed: `SumSocketOption` passes **my** unit type for every user's specialization curve (March).
+
+**Hygiene.** `flagcheck JUNE_SOCKET_PARITY --with JUNE_BUFF_NEW_STAT JUNE_ATTACK_RANGE_DESIGN JUNE_BUFF_DEBUG --worktree`: 6 PASS, 1 PASS~ (one blank line in `X2GameUnit.cpp`), 1 DEFINE, 5 OTHER (the 92 wiring files, under `_NEW_STAT`), 0 FAIL; 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 untagged `#else`/`#endif`, 0 encoding changes.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,190,272 B, dated 2026-10-06 05:45:33, md5 f530f04f1f273846584230412fd5c9b4, equal to X2/US_SERVICE/x2.exe (2026-10-06 05:45:28); built at mods/june-buff-port 033b87c + 13 uncommitted code file(s).` The phase strings are in it (`BBT_CHANGE_MAXIMIZE` ASCII and UTF-16; the eight new log texts and the June keys/curve names ASCII). Not launched.
+
+**How to see it in game** (hand-off below has the commands).
+- Damage spread: the same basic attack on a monster now varies within ±10% (floating number, not the chat log); log `designed attack range (not June)`, `first damage roll`.
+- 92: a console `FIX` 92 buff pushes hits toward the top of the spread.
+- Curve state: `June SocketOptionForm.lua curves loaded` or the missing-curves line.
+- Crit buffs (BTI 26 etc.) without a critical socket no longer raise crit chance (template reach above).
+
+**Open for the user.** (1) Adopt June's `OptionItemData.lua` (it needs the Enum additions above), June's plus March's 247 IDs, or keep March's. (2) Keep June's template given its reach on March's PERCENT crit/defence buffs (it is June's behaviour; a separate flag would let it be switched alone). /cost not available in-session.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`

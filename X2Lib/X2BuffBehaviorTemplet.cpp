@@ -161,6 +161,8 @@ case type_: \
 			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStateByConditionBehaviorTemplet, BBT_CHANGE_MAX_HP_BY_CONDITION )
 			/// June buff port Phase 5c (June 32e80450 factory): 78 uses the ChangeStat class, 88 its own class (vt 33535558); 92 deferred
 			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStatBehaviorTemplet, BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER )
+			/// June buff port Phase 16: 92 is the ChangeStat class too (June factory case 92 @32e83509 builds 32e866f0, as 78 does)
+			CASE_BEHAVIOR_TEMPLET( CX2BuffChangeStatBehaviorTemplet, BBT_CHANGE_MAXIMIZE )
 			CASE_BEHAVIOR_TEMPLET( CX2BuffIgnoreDefenceBehaviorTemplet, BBT_IGNORE_DEFENCE )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL

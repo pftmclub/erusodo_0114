@@ -235,6 +235,8 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_, bool b
 				/// June buff port Phase 5c: 78 shares ParsingChangeStatBehavior (June 32d445d0); 88 has its own parser (32d49210).
 				/// 92 (BBT_CHANGE_MAXIMIZE) is deferred: see the Phase 5c Done note.
 				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER, bIsSkill )
+				/// June buff port Phase 16: 92 shares ParsingChangeStatBehavior too (32d445d0)
+				CASE_BEHAVIOR_FACTOR_SKILL( ParsingChangeStatBehavior, BBT_CHANGE_MAXIMIZE, bIsSkill )
 				CASE_BEHAVIOR_FACTOR_SKILL( ParsingIgnoreDefenceBehavior, BBT_IGNORE_DEFENCE, bIsSkill )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
@@ -412,6 +414,7 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_ )
 						CASE_BEHAVIOR_FACTOR( ParsingChangeStateByConditionBehavior, BBT_CHANGE_MAX_HP_BY_CONDITION )
 						/// June buff port Phase 5c (see the skill list above)
 						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER )
+						CASE_BEHAVIOR_FACTOR( ParsingChangeStatBehavior, BBT_CHANGE_MAXIMIZE )		/// June buff port Phase 16
 						CASE_BEHAVIOR_FACTOR( ParsingIgnoreDefenceBehavior, BBT_IGNORE_DEFENCE )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
@@ -948,6 +951,7 @@ void CX2BuffFactor::SetGameUnitBehavior( KBuffBehaviorFactor& factor_, CX2GameUn
 	case BBT_CHANGE_HYPER_DURATION:		/// June buff port Phase 5: only 76 of the seven joins the ChangeStat SGU group (32d4d6ef)
 	case BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER:	/// June buff port Phase 5b: 93 joins the ChangeStat SGU group too (32d4d6ef)
 	case BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER:	/// June buff port Phase 5c: 78 joins the ChangeStat SGU group (32d4d6ef); 88 has no SGU case (92 deferred)
+	case BBT_CHANGE_MAXIMIZE:	/// June buff port Phase 16: 92 is in the ChangeStat SGU group too (32d4d670 switch)
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		SetGameUnitChangeStatBehavior( factor_, pGameUnit_ );
 		break;

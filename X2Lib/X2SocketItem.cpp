@@ -170,6 +170,10 @@ bool CX2SocketItem::AddSocketData_LUA()
 	//{{ kimhc // 2011-07-19 // 옵션데이타 수치화 작업
 	LUA_GET_VALUE( luaManager,		"m_fAdditionalAttackValue",		pSocketData->m_fAdditionalAttackValue,	0.0f	);
 	LUA_GET_VALUE( luaManager,		"m_fAdditionalDefenceValue",	pSocketData->m_fAdditionalDefenceValue,	0.0f	);
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port Phase 16: June's loader 32726850 reads this key here (@32728741, socket +0xe0, default 0)
+	LUA_GET_VALUE( luaManager,		"m_fAdditionalAttackedDamageValue",	pSocketData->m_fAdditionalAttackedDamageValue,	0.0f	);
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	//}} kimhc // 2011-07-19 // 옵션데이타 수치화 작업
 
 	UINT uiBuffFactorId = 0;
@@ -351,6 +355,10 @@ bool CX2SocketItem::AddSocketData_LUA()
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June @32729c9f: a DUNGEON_TYPE the socket is limited to (+0x18c, default 0 = any)
+	LUA_GET_VALUE(		luaManager, "DUNGEON_ONLY_TYPE",	pSocketData->m_iDungeonOnlyType,	0 );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	LUA_GET_VALUE(		luaManager, "DUNGEON_ONLY",		pSocketData->m_bDungeonOnly,		false );
 	LUA_GET_VALUE(		luaManager, "PVP_ONLY",			pSocketData->m_bPVPOnly,			false );
 
@@ -396,9 +404,13 @@ bool CX2SocketItem::AddSocketData_LUA()
 	LUA_GET_VALUE(		luaManager, "m_DescEvadeByMonsterAttack",				pSocketData->m_DescEvadeByMonsterAttack,		L"" );
 
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June's loader has neither m_fEvadePercent nor m_fAntiEvadePercent (the keys stay in June's data, unread)
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	LUA_GET_VALUE(		luaManager, "m_fEvadePercent",							pSocketData->m_fEvadePercent,				0.0f );
 
 	LUA_GET_VALUE(		luaManager, "m_fAntiEvadePercent",						pSocketData->m_fAntiEvadePercent,			0.0f );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 
 
@@ -412,6 +424,14 @@ bool CX2SocketItem::AddSocketData_LUA()
 	
 	//{{ kimhc // 2011-05-25 // SetOption, TitleOption에만 적용 되는 option 모든 itemOption에 적용 되도록 수정
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June @3272b452..3272bbaa: five floats after m_fCritical (socket +0xc4..+0xd4, default 0)
+	LUA_GET_VALUE(		luaManager, "m_fCriticalAfflicted",					pSocketData->m_fCriticalAfflicted,			0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fAdditionalDamageAfflicted",			pSocketData->m_fAdditionalDamageAfflicted,	0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fAdditionalDamage",						pSocketData->m_fAdditionalDamage,			0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fAntiCriticalRate",						pSocketData->m_fAntiCriticalRate,			0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fAntiAddDamageRate",					pSocketData->m_fAntiAddDamageRate,			0.0f );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	D3DXVECTOR2 vRateAndHpUpRatio;
 	//  공격을 당했을 때 HP 증가 효과가 발동할 확률
 	LUA_GET_VALUE(		luaManager, "m_fHPRecoverRateByAttacked",		vRateAndHpUpRatio.x,		0.0f );
@@ -460,6 +480,20 @@ bool CX2SocketItem::AddSocketData_LUA()
 #ifdef MAGIC_NEC_FIX
 	LUA_GET_VALUE(		luaManager, "m_fMPMultiplyByAll",						pSocketData->m_fMPMultiplyByAll,				0.0f );
 #endif
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	{
+		/// June @327326ff..32732bf6: m_fMPMultiplyByAll is stored into both MP fields (+0x124/+0x12c), then each
+		/// _ReturnRate key is added to its own field. ConvertAndAdd no longer adds m_fMPMultiplyByAll itself.
+		float fReturnRate = 0.0f;
+		pSocketData->m_fMPIncByAttack	= pSocketData->m_fMPMultiplyByAll;
+		pSocketData->m_fMPIncByAttacked	= pSocketData->m_fMPMultiplyByAll;
+		LUA_GET_VALUE(	luaManager, "m_fMPIncByAttack_ReturnRate",		fReturnRate,		0.0f );
+		pSocketData->m_fMPIncByAttack	+= fReturnRate;
+		fReturnRate = 0.0f;
+		LUA_GET_VALUE(	luaManager, "m_fMPIncByAttacked_ReturnRate",	fReturnRate,		0.0f );
+		pSocketData->m_fMPIncByAttacked	+= fReturnRate;
+	}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	//}}
 
 	LUA_GET_VALUE(		luaManager, "m_fDamageUpByAMADS",						pSocketData->m_fDamageUpByAMADS,			0.0f );
@@ -678,6 +712,67 @@ bool CX2SocketItem::AddSocketData_LUA()
 			pSocketData->m_vecEffectName.push_back( wstrEffectName );
 	}
 #endif SERV_SECRET_HELL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June @32732e34..32736165: the June-only keys after the MP pair, every one defaulting to 0 / false
+	LUA_GET_VALUE(		luaManager, "m_fCharacterSpecializationA",				pSocketData->m_fCharacterSpecializationA,		0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fCharacterSpecializationB",				pSocketData->m_fCharacterSpecializationB,		0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fDamageMaximizeRate",					pSocketData->m_fDamageMaximizeRate,				0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fBonusTitleMissionCountingRate",		pSocketData->m_fBonusTitleMissionCountingRate,	0.0f );
+	{
+		/// The +0x29c conditional buff (@3273361d..32735be3). June pushes { BUFF_FACTOR_ID, level, kill flag,
+		/// type == SIEE 15, HP rate } when the kill flag is set, the HP rate is at least 1 or the type is 15, and
+		/// both the factor and the level are non-zero; the pushed factor then is not the socket's own buff
+		/// (June sets the HAMEL bIsSetBuffFactor byte @32735bde). June's two error messages become log lines.
+		int iConditionalBuffLevel = 0;
+		bool bKillAbsoluteMonster = false;
+		int iEnemyHPFewHpRate = 0;
+		LUA_GET_VALUE(	luaManager, "m_sBuffLevel",						iConditionalBuffLevel,	0 );
+		LUA_GET_VALUE(	luaManager, "m_bKillAbsoluteMonster",			bKillAbsoluteMonster,	false );
+		LUA_GET_VALUE(	luaManager, "m_fIncreaseDmgEnemyHPFew_HpRate",	iEnemyHPFewHpRate,		0 );
+
+		if ( 0 == uiBuffFactorId && 0 < iConditionalBuffLevel )
+			CX2JuneBuffCapture::Line( "socket %d: m_sBuffLevel %d without a BUFF_FACTOR_ID (June 32735b44)", pSocketData->m_ID, iConditionalBuffLevel );
+
+		const bool bAlwaysPlayEffectSet = ( 15 == static_cast<int>( pSocketData->m_eTypeSocketItemEffectEx ) );
+		if ( true == bKillAbsoluteMonster || 1 <= iEnemyHPFewHpRate || true == bAlwaysPlayEffectSet )
+		{
+			if ( 0 != uiBuffFactorId && 0 != iConditionalBuffLevel )
+			{
+				SocketData::JuneConditionalBuff kConditionalBuff;
+				kConditionalBuff.m_uiBuffFactorID			= uiBuffFactorId;
+				kConditionalBuff.m_iBuffLevel				= iConditionalBuffLevel;
+				kConditionalBuff.m_bKillAbsoluteMonster		= bKillAbsoluteMonster;
+				kConditionalBuff.m_bAlwaysPlayEffectSet		= bAlwaysPlayEffectSet;
+				kConditionalBuff.m_iEnemyHPFewHpRate		= iEnemyHPFewHpRate;
+				pSocketData->m_vecConditionalBuff.push_back( kConditionalBuff );
+#ifdef HAMEL_SECRET_DUNGEON
+				bIsSetBuffFactor = true;
+#endif HAMEL_SECRET_DUNGEON
+			}
+			else
+				CX2JuneBuffCapture::Line( "socket %d: m_bKillAbsoluteMonster, m_fIncreaseDmgEnemyHPFew_HpRate or SIEE 15 without both BUFF_FACTOR_ID and m_sBuffLevel (June 32735be8)", pSocketData->m_ID );
+		}
+	}
+	LUA_GET_VALUE(		luaManager, "m_fAtkPhysicPiercingRate",				pSocketData->m_fAtkPhysicPiercingRate,			0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fAtkMagicPiercingRate",					pSocketData->m_fAtkMagicPiercingRate,			0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fHPRecoveryRate",						pSocketData->m_fHPRecoveryRate,					0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fIncreaseItemDropRate",					pSocketData->m_fIncreaseItemDropRate,			0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fIncreaseDmgRateToBoss",				pSocketData->m_fIncreaseDmgRateToBoss,			0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fIncreaseDefRateToBoss",				pSocketData->m_fIncreaseDefRateToBoss,			0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fDecreaseActiveSkillCooltime",			pSocketData->m_fDecreaseActiveSkillCooltime,	0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fDecrease1stSA_SkillCooltime",			pSocketData->m_fDecrease1stSA_SkillCooltime,	0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fDecrease2ndSA_SkillCooltime",			pSocketData->m_fDecrease2ndSA_SkillCooltime,	0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fDecrease3rdSA_SkillCooltime",			pSocketData->m_fDecrease3rdSA_SkillCooltime,	0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fIncreaseDmgEnemyHPFew_DmgRate",		pSocketData->m_fIncreaseDmgEnemyHPFew_DmgRate,	0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fIncreaseDefMyHPFew_DefRate",			pSocketData->m_fIncreaseDefMyHPFew_DefRate,		0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fDecreaseDebuffTimeRate",				pSocketData->m_fDecreaseDebuffTimeRate,			0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fDecrease_MPCostRate",					pSocketData->m_fDecrease_MPCostRate,			0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fIncreaseDmgRate_MyHpFew",				pSocketData->m_fIncreaseDmgRate_MyHpFew,		0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fAllSkillCooltimeDecreaseRate",			pSocketData->m_fAllSkillCooltimeDecreaseRate,	0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fAllSkillDamageIncreaseRate",			pSocketData->m_fAllSkillDamageIncreaseRate,		0.0f );
+	LUA_GET_VALUE(		luaManager, "m_bIsRankLinkedStat",						pSocketData->m_bIsRankLinkedStat,				false );	/// @32736cf4
+	LUA_GET_VALUE(		luaManager, "m_bIsPVERankLinkedStat",					pSocketData->m_bIsPVERankLinkedStat,			false );	/// @32736ed4
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 //}} kimhc // 2010.4.1 // 비밀던전 작업(셋트아이템효과)
 
 #ifdef HAMEL_SECRET_DUNGEON // 김태환
@@ -725,8 +820,18 @@ bool CX2SocketItem::AddSocketData_LUA()
 	// 소수로 표기된 확률에 100을 곱하여 배율(기획에서 편의상 의미하는 단계)로 사용함
 	pSocketData->m_fMoveSpeed			*= 100;
 	pSocketData->m_fJumpSpeed			*= 100;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June's rescale tail (@32736fe7..32737097) drops the evade pair and adds the MP pair, the class
+	/// specializations and 92's maximize rate
+	pSocketData->m_fMPIncByAttack				*= 100;
+	pSocketData->m_fMPIncByAttacked				*= 100;
+	pSocketData->m_fCharacterSpecializationA	*= 100;
+	pSocketData->m_fCharacterSpecializationB	*= 100;
+	pSocketData->m_fDamageMaximizeRate			*= 100;
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	pSocketData->m_fAntiEvadePercent	*= 100;
 	pSocketData->m_fEvadePercent		*= 100;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	pSocketData->m_fPercentCritical		*= 100;
 	pSocketData->m_fHyperModeChargeRate	*= 100;
 
@@ -764,6 +869,21 @@ bool CX2SocketItem::AddSocketData_LUA()
 #endif  X2OPTIMIZE_REMOVE_UNNECESSARY_PTR
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/*static*/ bool CX2SocketItem::IsJuneSocketOptionFormLoaded()
+{
+	static int s_iLoaded = -1;
+	if ( -1 == s_iLoaded )
+	{
+		s_iLoaded = IsLuaCurveLoaded( "CalculateFinalMpIncPercentByAttack" ) ? 1 : 0;
+		if ( 0 == s_iLoaded )
+			CX2JuneBuffCapture::Line( "SocketOptionForm.lua has no June curves (CalculateFinalMpIncPercentByAttack is missing): socket MP gain, class specializations and BBT 92 stay 0. Pack June's SocketOptionForm.lua (march2014/data036) into data036.kom" );
+		else
+			CX2JuneBuffCapture::Line( "June SocketOptionForm.lua curves loaded" );
+	}
+	return 1 == s_iLoaded;
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef LUA_TRANS_DEVIDE
 bool CX2SocketItem::AddSocketDataTrans_LUA()
 {

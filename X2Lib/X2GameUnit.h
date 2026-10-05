@@ -2670,6 +2670,45 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		float								GetForceDownMultiplierRangeAttacked() const { return m_AdditionalForceDownMultiplierRangeAttacked.GetResultValue(); }	/// 107
 		/// June buff port Phase 5c: BBT 78 result (June getter 32071b50, result +0x5450), basic 1.0; read on the unit taking the hit in both DamageReacts
 		float								GetTypeAdditionalAttackMultiplier() const { return m_AdditionalTypeAdditionalAttackMultiplier.GetResultValue(); }	/// 78
+		/// June buff port Phase 16: 92's result (June +0x6db8)
+		float								GetDamageMaximizeRate() const { return m_AdditionalDamageMaximize.GetResultValue(); }	/// 92
+		/// June slot 113 (user 31fc..., NPC: the synced random-table index plus the offset; its siblings 114/115 are
+		/// GetRandomInt / GetRandomFloat on the same word). Seeds 92's roll.
+		virtual int							GetRandomTableIndex( int iOffset = 0 ) { return iOffset; }
+		/// June slot 121: multiplies 92's maximize in the roll. 1.0 for every class but Rose (32a7ece0, checklist section 7).
+		virtual float						GetDamageMaximizeMultiplier( CX2DamageManager::DamageData* /*pDamageData_*/ ) const { return 1.0f; }
+		/// 92's result as the roll sees it: 0 while CalculateFinalDamageMaximizeRate is not loaded (one [JUNE_BUFF] line)
+		float								GetJuneDamageMaximizeForRoll() const;
+		static bool							IsJuneDamageMaximizeCurveLoaded();
+		/// June 322788c0: this is the unit taking the hit (it seeds the engine), pAttacker_ the hitter; iType_ 0 physic, 1 magic
+		void								JuneDamageMaximizeRoll( CX2GameUnit* pAttacker_, const int iType_, CX2DamageManager::DamageData* pDamageData_, float& fAttack_ );
+		/// June 3230ca6d: a user's summon takes the owner's 92 and physic / magic range results as its basics
+		void								CopyJuneMaximizeAndRangeFrom( const CX2GameUnit& Owner_ );
+#ifdef SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN
+		/// DESIGNED, NOT JUNE (user decision 2026-10-04, plan Phase 16 Q3): a user's range basics from its own attack
+		void								SetJuneDesignedAttackRangeBasic( const CX2Stat::Stat& Stat_ );
+#endif SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port Phase 16: the socket option members' readers (option value = M+0x24, result = M+0xa0)
+		float								GetSocketCriticalAfflicted() const { return m_AdditionalSocketCriticalAfflicted.GetOptionValue(); }			/// June 32071ad0
+		float								GetSocketAdditionalDamageAfflicted() const { return m_AdditionalSocketAdditionalDamageAfflicted.GetOptionValue(); }	/// June 32071af0
+		float								GetSocketAdditionalDamage() const { return m_AdditionalSocketAdditionalDamage.GetOptionValue(); }				/// June 32071b10
+		float								GetSocketAntiCriticalRate() const { return m_AdditionalSocketAntiCriticalRate.GetOptionValue(); }				/// June 32273480
+		float								GetSocketAntiAddDamageRate() const { return m_AdditionalSocketAntiAddDamageRate.GetOptionValue(); }			/// June 32071b90
+		float								GetAdditionalAttackedDamage() const { return m_AdditionalAdditionalAttackedDamage.GetResultValue(); }			/// June 32071b30
+		float								GetCharacterSpecializationA() const { return m_AdditionalCharacterSpecializationA.GetResultValue(); }
+		float								GetCharacterSpecializationB() const { return m_AdditionalCharacterSpecializationB.GetResultValue(); }
+		float								GetAtkPhysicPiercingRate() const { return m_AdditionalAtkPhysicPiercingRate.GetResultValue(); }
+		float								GetAtkMagicPiercingRate() const { return m_AdditionalAtkMagicPiercingRate.GetResultValue(); }
+		float								GetHPRecoveryRate() const { return m_AdditionalHPRecoveryRate.GetResultValue(); }
+		float								GetIncreaseDmgRateToBoss() const { return m_AdditionalIncreaseDmgRateToBoss.GetResultValue(); }
+		float								GetIncreaseDefRateToBoss() const { return m_AdditionalIncreaseDefRateToBoss.GetResultValue(); }		/// June 32071bf0
+		float								GetIncreaseDmgEnemyHPFew() const { return m_AdditionalIncreaseDmgEnemyHPFew.GetResultValue(); }
+		float								GetIncreaseDefMyHPFew() const { return m_AdditionalIncreaseDefMyHPFew.GetResultValue(); }
+		float								GetDecreaseDebuffTimeRate() const { return m_AdditionalDecreaseDebuffTimeRate.GetResultValue(); }
+		float								GetDecreaseMPCostRate() const { return m_AdditionalDecreaseMPCostRate.GetResultValue(); }
+		float								GetIncreaseDmgRateMyHpFew() const { return m_AdditionalIncreaseDmgRateMyHpFew.GetResultValue(); }
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		/// June buff port Phase 5c: BBT 88 store (June list +0x67dc). Insert 32282390, erase 3227a8c0, reader 32274970 (the defender's, in GetFinalDamage)
 		void								InsertIgnoreDefence( const KBuffIdentity& BuffIdentity_, const float fIgnoreDefenceRate_ );
 		void								EraseIgnoreDefence( const KBuffIdentity& BuffIdentity_ );
@@ -3476,7 +3515,12 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		/// June buff port 4b-ii: June 32ec27d0 (@32ec33bd) multiplies a non-world debuff's duration by (1 - this) when
 		/// it is above 0. June keeps it as an additional-stat result (+0x7428, member +0x7388) whose only feed is a
 		/// socket-option field March's socket data lacks (InitAdditionalStatOptionValue @322711e9, +0x2dc), so it is 0
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port Phase 16: the member is seeded from socket +0x2dc now (32270dd0); June reads its result (+0x7428)
+		float GetDebuffDurationDecreaseRate() const { return GetDecreaseDebuffTimeRate(); }
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		float GetDebuffDurationDecreaseRate() const { return 0.0f; }
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #ifdef SERV_NEW_DEFENCE_DUNGEON  // 적용날짜: 2013-03-23
@@ -4782,6 +4826,33 @@ protected:
 		CX2AdditionalStatByBuff			m_AdditionalTypeAdditionalAttackMultiplier;	/// 78 basic 1.0
 		vector<CX2StatFactorByBuffPtr>	m_vecIgnoreDefencePtr;						/// 88: one { identity, rate } per buff (June element 0x1c, ctor 322afc00)
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+		/// June buff port Phase 16: 92's member (June +0x6d18; insert 32282f4f, update @32270acc, erase @32283795), basic 0
+		CX2AdditionalStatByBuff			m_AdditionalDamageMaximize;					/// 92
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port Phase 16: June's option members whose only feed is the socket aggregate (seeds 32270dd0).
+		/// The first five are read as option values only and June never refreshes them.
+		CX2AdditionalStatByBuff			m_AdditionalSocketCriticalAfflicted;		/// +0x50e0 <- socket +0xc4
+		CX2AdditionalStatByBuff			m_AdditionalSocketAdditionalDamageAfflicted;	/// +0x5194 <- +0xc8 (78's term)
+		CX2AdditionalStatByBuff			m_AdditionalSocketAdditionalDamage;			/// +0x5248 <- +0xcc (78's term)
+		CX2AdditionalStatByBuff			m_AdditionalSocketAntiCriticalRate;			/// +0x5a14 <- +0xd0
+		CX2AdditionalStatByBuff			m_AdditionalSocketAntiAddDamageRate;		/// +0x5ac8 <- +0xd4 (78's term)
+		CX2AdditionalStatByBuff			m_AdditionalAdditionalAttackedDamage;		/// +0x52fc <- +0xe0, basic 0, plain refresh
+		CX2AdditionalStatByBuff			m_AdditionalCharacterSpecializationA;		/// +0x6bb0 <- +0x134, basic 0, option-data (322a9a10)
+		CX2AdditionalStatByBuff			m_AdditionalCharacterSpecializationB;		/// +0x6c64 <- +0x138, basic 0, option-data (322a9c20)
+		CX2AdditionalStatByBuff			m_AdditionalAtkPhysicPiercingRate;			/// +0x6de8 <- +0x2ac, basic 0
+		CX2AdditionalStatByBuff			m_AdditionalAtkMagicPiercingRate;			/// +0x6e9c <- +0x2b0, basic 0
+		CX2AdditionalStatByBuff			m_AdditionalHPRecoveryRate;					/// +0x6f50 <- +0x2b4, basic 1
+		CX2AdditionalStatByBuff			m_AdditionalIncreaseItemDropRate;			/// +0x7004 <- +0x2b8, basic 1 (no client reader)
+		CX2AdditionalStatByBuff			m_AdditionalIncreaseDmgRateToBoss;			/// +0x70b8 <- +0x2bc, basic 1
+		CX2AdditionalStatByBuff			m_AdditionalIncreaseDefRateToBoss;			/// +0x716c <- +0x2c0, basic 0
+		CX2AdditionalStatByBuff			m_AdditionalIncreaseDmgEnemyHPFew;			/// +0x7220 <- +0x2d4, basic 0
+		CX2AdditionalStatByBuff			m_AdditionalIncreaseDefMyHPFew;				/// +0x72d4 <- +0x2d8, basic 0
+		CX2AdditionalStatByBuff			m_AdditionalDecreaseDebuffTimeRate;			/// +0x7388 <- +0x2dc, basic 0
+		CX2AdditionalStatByBuff			m_AdditionalDecreaseMPCostRate;				/// +0x743c <- +0x2e0, basic 0
+		CX2AdditionalStatByBuff			m_AdditionalIncreaseDmgRateMyHpFew;			/// +0x74f0 <- +0x2e4, basic 0
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 		vector<CX2DoubleAttackPtr>		m_vecDoubleAttackBuff;						/// 75: one { identity, rate } per buff (June +0x65b4, element class CX2DoubleAttackBuff, ctor 322af570)
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
