@@ -1951,6 +1951,23 @@ public:
 			return m_FrameDataFuture.unitCondition.bFootOnLine;
 //#endif STEP_ON_MONSTER_TEST
 		}
+//{{ Iruha : 2026-10-05 // June buff port Phase 9b (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+		/// June's custom-function classes call these on the creator user. Each is class code (Rose, Ain) or a June-only
+		/// CX2GUUser system March does not have, so they are empty here; the character port fills them in
+		/// (JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7, one row each).
+		virtual void JuneRoseServoNitro( const bool bOn_ ) {}																	/// Rose 32a800a0: Servo Nitro ctor (1), dtor (0)
+		virtual void JuneRoseChainViperBegin( CX2GameUnit* pTarget_, const int iCount_ ) {}										/// Rose 32ad0e90: Chain Viper ctor
+		virtual void JuneRoseChainViperEnd( CX2GameUnit* pTarget_, const int iCount_ ) {}										/// Rose 32ad0fd0: Chain Viper dtor
+		virtual void JuneRoseChainViperNpcFinalDamage( CX2GameUnit* pTarget_, const float fFinalDamage_, const int iCount_ ) {}	/// Rose 32ac2c50: Chain Viper slot 6
+		virtual void JuneRoseChainViperBuffApplied( CX2GameUnit* pTarget_, const CX2BuffFactor& buffFactor_, const int iCount_ ) {}	/// Rose 32ac2d50: Chain Viper slot 7 (BTI_DEBUFF_BLEEDING)
+		virtual void JuneAinModerMark( const UidType uidTarget_, const int iTargetGameUnitType_ ) {}							/// Ain 32a4ddb0: Moder ctor
+		virtual void JuneAinModerUnmark() {}																					/// Ain 32a4de20: Moder FrameMove (target dead) and dtor
+		virtual void JuneClearSummonTarget( const bool bEraseMarks_ ) {}														/// June CX2GUUser 32011960: Summon NPC Target ctor (1), dtor (0)
+		virtual void JuneSetSummonTarget( CX2GameUnit* pTarget_ ) {}															/// June CX2GUUser 31fd0590: Summon NPC Target ctor
+		virtual void JuneApplySummonTargetToSummons() {}																		/// June CX2GUUser 32011ab0: Summon NPC Target ctor
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 
 #ifdef CLIFF_CLIMBING_TEST
 		

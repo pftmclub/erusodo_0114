@@ -3185,6 +3185,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void DoCustomFunctionByBuffInAttackResultByType( IN CX2DamageManager::DamageData& damageData_ );	/// June 32275700: slot 5
 		void DoCustomFunctionByBuffInNpcFinalDamage( IN const float* pfFinalDamage_, IN CX2DamageManager::DamageData* pDamageData_ );	/// June 322757b0: slot 6
 		void DoCustomFunctionByBuffInSetBuffFactor( IN const CX2BuffFactor& buffFactor_ );	/// June 32275860: slot 7
+		/// June buff port Phase 9b: June's per-unit fields the custom-function classes read
+		int GetJuneLastHitAttackSerial() const { return m_iJuneLastHitAttackSerial; }	/// June +0x40dc (Chain Viper's count seed)
+		void SetJuneLastHitAttackSerial( const int iSerial_ ) { m_iJuneLastHitAttackSerial = iSerial_; }
+		bool GetJuneReservedDeath() const { return m_bJuneReservedDeath; }		/// June +0x258 (a protected bool)
+		void SetJuneReservedDeath( const bool bReserved_ ) { m_bJuneReservedDeath = bReserved_; }	/// June 32082790 (Death Sign's erase hook sets it)
 #else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 		void CreateAndInsertCustomFunctionByBuff( const KBuffIdentity& BuffIdentity_, const KBuffBehaviorFactor& kBehaviorFactor_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
@@ -4835,6 +4840,13 @@ protected:
 
 		vector<CX2CustomFunctionByBuffPtr>			m_vecCustomFunctionByBuffPtr;		/// 버프에 의한 효과 중 StateStart, CommonFrameMove, StageEnd에서 처리해야하는 하드코딩을 실행
 		vector<CX2AfterImageByBuffPtr>				m_vecAfterImageByBuff;				/// Element는 AfterImage의 색깔로, Element가 있다면 AfterImage가 Enable 되야함
+//{{ Iruha : 2026-10-05 // June buff port Phase 9b (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+		int											m_iJuneAttackSerial;			/// June +0x40d8: ++ per SetDamageExceptionProcess, copied to DamageData +0x5e8
+		int											m_iJuneLastHitAttackSerial;		/// June +0x40dc: the serial of the last hit this unit took (both DamageReacts)
+		bool										m_bJuneReservedDeath;			/// June +0x258: CX2GUUser::OnFrameMove kills the user once it is set
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 		CKTDGXSkinAfterImage*						m_pAfterImage;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		D3DXCOLOR									m_coAfterImageColorByState;	/// June +0x6880: the user state's AFTER_IMAGE_COLOR; EnableAfterImage uses it while no buff after-image is on

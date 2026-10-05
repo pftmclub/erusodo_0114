@@ -9497,6 +9497,11 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	if( true == IsDamagedReaction( pDamageData ) )
 	{
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+		/// June buff port Phase 9b, CX2GUNPC::DamageReact @327b306b-327b3071: a damaging hit first records its attack
+		/// serial (DamageData +0x5e8) as this unit's last-hit serial (+0x40dc)
+		SetJuneLastHitAttackSerial( pDamageData->m_iJuneAttackSerial );
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 #ifdef GRAPPLING_TEST
 		ResetGrapplingState();
 #endif GRAPPLING_TEST
@@ -9706,6 +9711,9 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			//}} 2011-04 에 패치될 청 메모 헤드샷
 
 		float fCriticalRate = pDamageData->optrAttackerGameUnit->GetCriticalPercent( pDamageData->damageType, pDamageData->m_fCriticalRate );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+		fCriticalRate += pDamageData->m_fJuneAddCriticalRate;	/// June @327b36ef: DamageData +0x5d4, before WayOfSword
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 
 #ifdef ELSWORD_WAY_OF_SWORD
 		pDamageData->optrAttackerGameUnit->SetCriticalPercent_WayOfSword( IN pDamageData->m_WayofSwordType, 

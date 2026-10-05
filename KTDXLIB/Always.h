@@ -5103,6 +5103,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              (3229e1a0) and the templet keeps it (3236d400), and the
 //              Elsword/Chung classes follow June: Phantom Sword, Bigbang
 //              Stream (Unfixed Clip), Mark of Commander, Pandemonium Fear.
+//              Phase 9b (2026-10-05): June's remaining cases and classes
+//              (Moonlight Rhapsody, Servo Nitro, Sinister Mind, Summon NPC
+//              Target, Chain Viper, Atomic Blaster, Attack Me, Geist
+//              Herrschaft, Moder, Death Sign; dormant until Phase 13 and their
+//              characters), the DamageData / unit fields they read, the
+//              Death Sign reserved death, and KBuffFactor's copy ctor copying
+//              the creator UID and NPC flag (CommonPacket.h, client only).
 //              Comment out to restore March's three-case switch.
 #define SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //////////////////////////////////////////////////////////////////////////

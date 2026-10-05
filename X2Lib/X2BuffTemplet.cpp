@@ -2095,6 +2095,559 @@ static bool JuneGetTargetHitPos( const CX2GameUnit* pAttacker_, const CX2GameUni
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
+//{{ Iruha : 2026-10-05 // June buff port Phase 9b (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+/// June Enum.lua UNIT_TYPE: March's CX2Unit::UNIT_TYPE ends at UT_ADD (9), so the Rose and Ain checks use the numbers
+static const int JUNE_UT_ROSE = 11;
+static const int JUNE_UT_AIN = 12;
+/// June Enum.lua RNSI_SA_LDN_SINISTER_MIND (no March SKILL_ID)
+static const int JUNE_RNSI_SA_LDN_SINISTER_MIND = 30048;
+
+/// June 31e4d0e0: the user's GetUnit()->GetUnitTemplet()->m_UnitType ([[user +0x867c] +0xaf0] -> [0]), 0 without one
+static int JuneGetUserUnitType( const CX2GUUser* pUser_ )
+{
+	if ( NULL == pUser_ || NULL == pUser_->GetUnit() || NULL == pUser_->GetUnit()->GetUnitTemplet() )
+		return 0;
+	return static_cast<int>( pUser_->GetUnit()->GetUnitTemplet()->m_UnitType );
+}
+
+/// CX2Game slot 40 (322cca00, GetUserUnitByUID) with the creator UID, as every 9b class does
+static CX2GUUser* JuneGetCreatorUser( const UidType uidCreator_ )
+{
+	return ( NULL != g_pX2Game ? g_pX2Game->GetUserUnitByUID( uidCreator_ ) : NULL );
+}
+
+/// Mark of Commander's and Pandemonium Fear's DamageReact guards (June 3236e2a0 / 32370430 @3237046b-32370509), with the
+/// class's own damage trigger: false (no reaction) for a heal-up hit, a damage-effect or no-damage react type, a dummy or
+/// sensor result, a ground hit, the trigger itself, a NO_DAMAGE hit or a hit without an attacker.
+static bool JuneCustomFunctionDamageReactGuards( const CX2DamageManager::DamageData& damageData_, const int iTrigger_ )
+{
+	if ( 0.f < damageData_.m_fHpPercentUp
+		|| CX2DamageManager::RT_CREATE_DAMAGE_EFFECT == damageData_.reActType
+		|| CX2DamageManager::RT_NO_DAMAGE == damageData_.reActType
+		|| CX2DamageManager::RT_DUMMY_DAMAGE == damageData_.reActResult
+		|| CX2DamageManager::RT_SENSOR == damageData_.reActResult
+		|| CX2DamageManager::HT_GROUND_HIT == damageData_.hitType
+		|| iTrigger_ == static_cast<int>( damageData_.m_eDamageTrigger )
+		|| true == damageData_.m_bNoDamage
+		|| null == damageData_.optrAttackerGameUnit )
+		return false;
+	return true;
+}
+
+/** @function : FunctionInDamageReact
+	@brief : June 32370430. The guards with trigger 7 (June Enum.lua DTT_MOONLIGHT_RHAPSODY), then the stack count of the
+			 last live BTI 439 factor whose count is above 0 (GetBuffFactor 3229fd80, KBuffFactor +0x34). With none, nothing
+			 happens. Otherwise the attacker plays EffectSet_MOONLIGHT_RHAPSODY_Debuff_Explosion_Accumulation_<count> (counts
+			 1-3; any other count plays nothing) at the hit's impact point (+0x460), hyper when its remaining hyper time is
+			 above 0, with power = value[1] (x ( 1 + 3201ad10( 29024 ) ) for a user attacker; 3201ad10 is 0 here, Phase 9a),
+			 and the debuff erases itself (3229e160). June passes PlayEffectSet one more trailing 1.0 than March's has.
+*/
+/*virtual*/ void CX2CustomFunctionByBuffMoonlightRhapsody::FunctionInDamageReact( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ )
+{
+	const int JUNE_DTT_MOONLIGHT_RHAPSODY = 7;
+	if ( false == JuneCustomFunctionDamageReactGuards( damageData_, JUNE_DTT_MOONLIGHT_RHAPSODY ) )
+		return;
+
+	CX2GameUnit* pAttackerGameUnit = damageData_.optrAttackerGameUnit.GetObservable();
+	if ( NULL == pAttackerGameUnit )
+		return;
+
+	const D3DXVECTOR3 vImpactPoint = damageData_.impactPoint;
+
+	int iAccumulationCount = 0;
+	vector<KBuffFactor> vecBuffFactor;
+	pGameUnit_->GetBuffFactor( vecBuffFactor );
+	BOOST_FOREACH( const KBuffFactor& kBuffFactor, vecBuffFactor )
+	{
+		if ( BTI_DEBUFF_MOONLIGHT_RHAPSODY == kBuffFactor.m_BuffIdentity.m_eBuffTempletID && 0 != kBuffFactor.m_ucAccumulationCountNow )
+			iAccumulationCount = kBuffFactor.m_ucAccumulationCountNow;
+	}
+	if ( iAccumulationCount <= 0 )
+		return;
+
+	float fPowerRate = m_fPowerRate;
+	if ( CX2GameUnit::GUT_USER == pAttackerGameUnit->GetGameUnitType() )
+	{
+		const float fJuneSkillDamageAddRate = 0.0f;	/// 3201ad10( 0x7160 ), see Phase 9a
+		fPowerRate = ( fJuneSkillDamageAddRate + 1.0f ) * fPowerRate;
+	}
+
+	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+	{
+		const WCHAR* pwszEffectSetName = NULL;
+		switch ( iAccumulationCount )
+		{
+		case 1: pwszEffectSetName = L"EffectSet_MOONLIGHT_RHAPSODY_Debuff_Explosion_Accumulation_1"; break;
+		case 2: pwszEffectSetName = L"EffectSet_MOONLIGHT_RHAPSODY_Debuff_Explosion_Accumulation_2"; break;
+		case 3: pwszEffectSetName = L"EffectSet_MOONLIGHT_RHAPSODY_Debuff_Explosion_Accumulation_3"; break;
+		default: break;
+		}
+
+		if ( NULL != pwszEffectSetName )
+		{
+			const bool bHyper = ( 0.0f < pAttackerGameUnit->GetRemainHyperModeTime() );
+			g_pX2Game->GetEffectSet()->PlayEffectSet( pwszEffectSetName, pAttackerGameUnit, NULL, bHyper, fPowerRate, -1.f,
+				D3DXVECTOR3( 1.f, 1.f, 1.f ), true, vImpactPoint );
+		}
+	}
+
+	pGameUnit_->EraseBuffTempletFromGameUnit( BTI_DEBUFF_MOONLIGHT_RHAPSODY );
+}
+
+/** @function : CX2CustomFunctionByBuffServoNitro
+	@brief : June 323698b0: a user unit is kept (+0x10) and, for Rose, 32a800a0( 1 ) runs on it
+*/
+CX2CustomFunctionByBuffServoNitro::CX2CustomFunctionByBuffServoNitro( const KBuffIdentity& BuffIdentity_, CX2GameUnit* pGameUnit_ )
+	: CX2CustomFunctionByBuff( BuffIdentity_ ), m_pUser( NULL )
+{
+	if ( NULL != pGameUnit_ && CX2GameUnit::GUT_USER == pGameUnit_->GetGameUnitType() )
+	{
+		m_pUser = pGameUnit_;
+		CX2GUUser* pUser = static_cast<CX2GUUser*>( pGameUnit_ );
+		if ( JUNE_UT_ROSE == JuneGetUserUnitType( pUser ) )
+			pUser->JuneRoseServoNitro( true );
+	}
+}
+
+/** @function : ~CX2CustomFunctionByBuffServoNitro
+	@brief : June 3236f390: while the game still has the user (CX2Game 322ccf50 = IsValidUnit), BTI 721 is erased and,
+			 for Rose, 32a800a0( 0 ) runs
+*/
+/*virtual*/ CX2CustomFunctionByBuffServoNitro::~CX2CustomFunctionByBuffServoNitro()
+{
+	if ( NULL == g_pX2Game || NULL == m_pUser || false == g_pX2Game->IsValidUnit( m_pUser ) )
+		return;
+
+	m_pUser->EraseBuffTempletFromGameUnit( BTI_BUFF_NITRO_SERVO_ADD_STAT_IN_AIR );
+	CX2GUUser* pUser = static_cast<CX2GUUser*>( m_pUser );
+	if ( JUNE_UT_ROSE == JuneGetUserUnitType( pUser ) )
+		pUser->JuneRoseServoNitro( false );
+}
+
+/** @function : FunctionInCommonStateStart
+	@brief : June 32369950: a user whose next frame is in the air (+0x7e1c = IsOnSomethingFuture() false) gets
+			 BFI_BUFF_NITRO_SERVO_ADD_STAT_IN_AIR (slot 135 with level 1)
+*/
+/*virtual*/ void CX2CustomFunctionByBuffServoNitro::FunctionInCommonStateStart( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ )
+{
+	if ( NULL == pGameUnit_ || CX2GameUnit::GUT_USER != pGameUnit_->GetGameUnitType() )
+		return;
+
+	if ( false == static_cast<CX2GUUser*>( pGameUnit_ )->IsOnSomethingFuture() )
+		pGameUnit_->SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_NITRO_SERVO_ADD_STAT_IN_AIR, 1 );
+}
+
+/** @function : FunctionInCommonStateEnd
+	@brief : June 32369990: a user whose next frame is on a line loses BTI 721 (3229e160)
+*/
+/*virtual*/ void CX2CustomFunctionByBuffServoNitro::FunctionInCommonStateEnd( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ )
+{
+	if ( NULL == pGameUnit_ || CX2GameUnit::GUT_USER != pGameUnit_->GetGameUnitType() )
+		return;
+
+	if ( true == static_cast<CX2GUUser*>( pGameUnit_ )->IsOnSomethingFuture() )
+		pGameUnit_->EraseBuffTempletFromGameUnit( BTI_BUFF_NITRO_SERVO_ADD_STAT_IN_AIR );
+}
+
+/// June 32369bd0 (the creator): 1.0 without one. Else ( GetHyperModeTime() (slot 45) == 0 ? 1.0 : 1.2 ), and when
+/// RNSI_SA_LDN_SINISTER_MIND is equipped (31fca8e0, March GetEquippedActiveSkillTemplet; June swaps the id for its memo
+/// first, a no-op here) times, in June's order, the templet's power rate at the learned level (< 1 -> 1; 32071720 =
+/// GetSkillPowerRateValue), GetAdditionalAttackByType( AT_SPECIAL ) (32274d60), GetSkillDamageRateByBuff (31fd7cc0) and
+/// ( 1 + 3201ad10 ), 3201ad10 being 0 here (Phase 9a).
+static float JuneSinisterMindPowerRate( CX2GUUser* pCreator_ )
+{
+	if ( NULL == pCreator_ )
+		return 1.0f;
+
+	float fRate = ( 0.0f == pCreator_->GetHyperModeTime() ? 1.0f : 1.2f );
+	const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( JUNE_RNSI_SA_LDN_SINISTER_MIND );
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = pCreator_->GetEquippedActiveSkillTemplet( eSkillID );
+	if ( NULL != pSkillTemplet )
+	{
+		int iLevel = ( NULL != pCreator_->GetUnit() ? pCreator_->GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID ) : 0 );
+		if ( iLevel < 1 )
+			iLevel = 1;
+
+		const float fJuneSkillDamageAddRate = 0.0f;	/// 3201ad10( 0x7560 ), see Phase 9a
+		fRate = pSkillTemplet->GetSkillPowerRateValue( iLevel ) * fRate;
+		fRate = pCreator_->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL ) * fRate;
+		fRate = pCreator_->GetSkillDamageRateByBuff( JUNE_RNSI_SA_LDN_SINISTER_MIND ) * fRate;
+		fRate = ( fJuneSkillDamageAddRate + 1.0f ) * fRate;
+	}
+	return fRate;
+}
+
+/** @function : ~CX2CustomFunctionByBuffSinisterMind
+	@brief : June 3236f480: the seed effect set stops; while the creator user and the unit are still in the game, a last
+			 DamageEffect_SA_LDN_Sinister_Mind_Seed_Damage goes off at the unit (a real hit, unlike FrameMove's)
+*/
+/*virtual*/ CX2CustomFunctionByBuffSinisterMind::~CX2CustomFunctionByBuffSinisterMind()
+{
+	if ( NULL == g_pX2Game )
+		return;
+
+	if ( NULL != g_pX2Game->GetEffectSet() )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hSeedEffectSet );
+
+	CX2GUUser* pCreator = JuneGetCreatorUser( m_uidCreator );
+	if ( NULL != pCreator && true == g_pX2Game->IsValidUnit( m_pGameUnit ) )
+		CreateSeedDamage( pCreator, m_pGameUnit, false );
+}
+
+/** @function : CreateSeedDamage
+	@brief : June 3236e915-3236ea22 (FrameMove) and 3236f5a7-3236f68d (dtor): the creator's
+			 DamageEffect_SA_LDN_Sinister_Mind_Seed_Damage at the unit's GetPos( false ), rotated as the creator, power from
+			 32369bd0, every other CreateInstance argument at its default; its physic and magic damage x the count, and
+			 FrameMove's one is a dummy hit (reActType RT_DUMMY_DAMAGE, CEffect +0x224 = 7)
+*/
+void CX2CustomFunctionByBuffSinisterMind::CreateSeedDamage( CX2GUUser* pCreator_, CX2GameUnit* pGameUnit_, const bool bDummy_ )
+{
+	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetDamageEffect() || NULL == pGameUnit_ )
+		return;
+
+	CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pCreator_, L"DamageEffect_SA_LDN_Sinister_Mind_Seed_Damage",
+		JuneSinisterMindPowerRate( pCreator_ ), pGameUnit_->GetPos( false ), pCreator_->GetRotateDegree(), pCreator_->GetRotateDegree() );
+	if ( NULL == pEffect )
+		return;
+
+	pEffect->GetDamageData().damage.fPhysic = static_cast<float>( m_iCount ) * pEffect->GetDamageData().damage.fPhysic;
+	pEffect->GetDamageData().damage.fMagic = static_cast<float>( m_iCount ) * pEffect->GetDamageData().damage.fMagic;
+	if ( true == bDummy_ )
+		pEffect->GetDamageData().reActType = CX2DamageManager::RT_DUMMY_DAMAGE;
+}
+
+/** @function : FunctionInCommonStateStart
+	@brief : June 323697d0: the unit's state at its state start (vslot 67)
+*/
+/*virtual*/ void CX2CustomFunctionByBuffSinisterMind::FunctionInCommonStateStart( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ )
+{
+	if ( NULL != pGameUnit_ )
+		m_iStateID = pGameUnit_->GetNowStateID();
+}
+
+/** @function : FunctionInCommonFrameMove
+	@brief : June 3236e770. Needs the unit and the creator user. With no seed effect set yet: the level goes back to 0 and
+			 EffectSet_SA_LDN_SINISTER_MIND_Seed_Plant_1 plays on the unit. Then, each time the timer is not above 0, it
+			 restarts at the interval and the seed damage goes off (a dummy hit); else it runs down by the unit's elapsed time.
+*/
+/*virtual*/ void CX2CustomFunctionByBuffSinisterMind::FunctionInCommonFrameMove( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ )
+{
+	CX2GUUser* pCreator = JuneGetCreatorUser( m_uidCreator );
+	if ( NULL == pGameUnit_ || NULL == pCreator )
+		return;
+
+	if ( INVALID_EFFECTSET_HANDLE == m_hSeedEffectSet && NULL != g_pX2Game->GetEffectSet() )
+	{
+		m_iSeedLevel = 0;
+		m_hSeedEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_LDN_SINISTER_MIND_Seed_Plant_1", pGameUnit_ );
+	}
+
+	if ( !( 0.0f < m_fRemainDamageTime ) )
+	{
+		m_fRemainDamageTime = m_fDamageInterval;
+		CreateSeedDamage( pCreator, pGameUnit_, true );
+	}
+	else
+		m_fRemainDamageTime -= pGameUnit_->GetElapsedTime();
+}
+
+/** @function : FunctionInAttackResultByType
+	@brief : June 3236e490 (the seeded unit's own hit; slot 5). Only the first hit of the state the unit started last counts
+			 (DamageData +0x5e0 = the attacker's state, from SetDamageExceptionProcess). Below the full count the count goes
+			 up, and when count / ( max / 3 ) passes the level (June never stores the level, so every counted hit past the
+			 first step replays it) the seed effect set is swapped for Seed_Plant_2 (level 1) or Seed_Plant_3. At the full
+			 count the unit gets BFI_DEBUFF_SINISTER_MIND_ARMOR_BREAK from the creator (slot 136, user, level 1).
+			 June divides by max / 3 without a check, which is 0 below a max of 3 (a crash); the port skips the swap there.
+*/
+/*virtual*/ void CX2CustomFunctionByBuffSinisterMind::FunctionInAttackResultByType( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ )
+{
+	if ( m_iStateID != damageData_.m_iJuneAttackerStateID )
+		return;
+
+	if ( m_iCount < m_iMaxCount )
+	{
+		++m_iCount;
+		const int iStep = static_cast<int>( static_cast<double>( m_iMaxCount ) / 3.0 );
+		if ( 0 < iStep )
+		{
+			const int iLevel = m_iCount / iStep;
+			if ( m_iSeedLevel < iLevel && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+			{
+				g_pX2Game->GetEffectSet()->StopEffectSet( m_hSeedEffectSet );
+				m_hSeedEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( ( 1 == iLevel
+					? L"EffectSet_SA_LDN_SINISTER_MIND_Seed_Plant_2" : L"EffectSet_SA_LDN_SINISTER_MIND_Seed_Plant_3" ), pGameUnit_ );
+			}
+		}
+		else
+		{
+			static bool s_bStepZeroLogged = false;
+			if ( false == s_bStepZeroLogged )
+			{
+				s_bStepZeroLogged = true;
+				CX2JuneBuffCapture::Line( "Sinister Mind: max count %d gives a 0 step (June divides by it at 3236e516); seed effect not swapped", m_iMaxCount );
+			}
+		}
+	}
+	else if ( NULL != pGameUnit_ )
+		pGameUnit_->SetBuffFactorToGameUnitByBuffFactorIDAndCreatorID( BFI_DEBUFF_SINISTER_MIND_ARMOR_BREAK, m_uidCreator, true, 1 );
+
+	m_iStateID = -1;
+}
+
+/** @function : CX2CustomFunctionBySummonNpcTarget
+	@brief : June 3236f6b0: with the creator user in the game, its June-only summon-target calls run on it:
+			 32011960( true ) (clear the old target and its 819/894 marks), 31fd0590( unit ) (aim at this unit),
+			 32011ab0() (hand the target to every ally summon)
+*/
+CX2CustomFunctionBySummonNpcTarget::CX2CustomFunctionBySummonNpcTarget( const KBuffIdentity& BuffIdentity_, const UidType uidCreator_, CX2GameUnit* pGameUnit_ )
+	: CX2CustomFunctionByBuff( BuffIdentity_ ), m_uidCreator( uidCreator_ ), m_pGameUnit( pGameUnit_ )
+{
+	CX2GUUser* pCreator = JuneGetCreatorUser( m_uidCreator );
+	if ( NULL == pCreator )
+		return;
+
+	pCreator->JuneClearSummonTarget( true );
+	pCreator->JuneSetSummonTarget( m_pGameUnit );
+	pCreator->JuneApplySummonTargetToSummons();
+}
+
+/** @function : ~CX2CustomFunctionBySummonNpcTarget
+	@brief : June 3236f7c0: 32011960( false ) on the creator user, if it is still in the game
+*/
+/*virtual*/ CX2CustomFunctionBySummonNpcTarget::~CX2CustomFunctionBySummonNpcTarget()
+{
+	CX2GUUser* pCreator = JuneGetCreatorUser( m_uidCreator );
+	if ( NULL != pCreator )
+		pCreator->JuneClearSummonTarget( false );
+}
+
+/// the creator user when it is a Rose (the check every Chain Viper hook makes), else NULL
+CX2GUUser* CX2CustomFunctionByChainViper::GetRoseCreator() const
+{
+	CX2GUUser* pCreator = JuneGetCreatorUser( m_uidCreator );
+	return ( JUNE_UT_ROSE == JuneGetUserUnitType( pCreator ) ? pCreator : NULL );
+}
+
+/** @function : CX2CustomFunctionByChainViper
+	@brief : June 3236f890. For a Rose creator: the count is the unit's last-hit serial (+0x40dc) + 1. A value[0] of 0 or
+			 less is overwritten with it, in the factor June was handed (a JUNE_BUGS row); a value[0] above 0 becomes the
+			 count instead. Then Rose's 32ad0e90( unit, count ).
+*/
+CX2CustomFunctionByChainViper::CX2CustomFunctionByChainViper( const KBuffIdentity& BuffIdentity_, const KBuffBehaviorFactor& kBuffBehaviorFactor_,
+	const UidType uidCreator_, CX2GameUnit* pGameUnit_ )
+	: CX2CustomFunctionByBuff( BuffIdentity_ ), m_uidCreator( uidCreator_ ), m_pGameUnit( pGameUnit_ ), m_iCount( 0 )
+{
+	CX2GUUser* pCreator = GetRoseCreator();
+	if ( NULL == pCreator || NULL == m_pGameUnit )
+		return;
+
+	m_iCount = m_pGameUnit->GetJuneLastHitAttackSerial() + 1;
+	KBuffBehaviorFactor& kWritableFactor = const_cast<KBuffBehaviorFactor&>( kBuffBehaviorFactor_ );
+	if ( false == kWritableFactor.m_vecValues.empty() )
+	{
+		const int iValue = static_cast<int>( kWritableFactor.m_vecValues[0] );
+		if ( iValue <= 0 )
+			kWritableFactor.m_vecValues[0] = static_cast<float>( m_iCount );
+		else
+			m_iCount = iValue;
+	}
+
+	pCreator->JuneRoseChainViperBegin( m_pGameUnit, m_iCount );
+}
+
+/** @function : ~CX2CustomFunctionByChainViper
+	@brief : June 3236f9f0: Rose's 32ad0fd0( unit, count )
+*/
+/*virtual*/ CX2CustomFunctionByChainViper::~CX2CustomFunctionByChainViper()
+{
+	CX2GUUser* pCreator = GetRoseCreator();
+	if ( NULL != pCreator )
+		pCreator->JuneRoseChainViperEnd( m_pGameUnit, m_iCount );
+}
+
+/** @function : FunctionInNpcFinalDamage
+	@brief : June 3236fae0 (slot 6): Rose's 32ac2c50( unit, final damage, count ). In March the final damage lacks June's
+			 last DamageReact steps (Phase 9a review, item 2).
+*/
+/*virtual*/ void CX2CustomFunctionByChainViper::FunctionInNpcFinalDamage( CX2GameUnit* pGameUnit_, IN const float* pfFinalDamage_, IN CX2DamageManager::DamageData* pDamageData_ )
+{
+	CX2GUUser* pCreator = GetRoseCreator();
+	if ( NULL != pCreator && NULL != pfFinalDamage_ )
+		pCreator->JuneRoseChainViperNpcFinalDamage( m_pGameUnit, *pfFinalDamage_, m_iCount );
+}
+
+/** @function : FunctionInSetBuffFactor
+	@brief : June 3236fb90 (slot 7): a BTI_DEBUFF_BLEEDING factor (+0x28 == 99) applied to the unit calls Rose's
+			 32ac2d50( unit, factor, count )
+*/
+/*virtual*/ void CX2CustomFunctionByChainViper::FunctionInSetBuffFactor( CX2GameUnit* pGameUnit_, IN const CX2BuffFactor& buffFactor_ )
+{
+	if ( BTI_DEBUFF_BLEEDING != buffFactor_.GetBuffTempletID() )
+		return;
+
+	CX2GUUser* pCreator = GetRoseCreator();
+	if ( NULL != pCreator )
+		pCreator->JuneRoseChainViperBuffApplied( m_pGameUnit, buffFactor_, m_iCount );
+}
+
+/** @function : FunctionInDamageReact
+	@brief : June 323697f0: a command hit (attackType 2) on the debuffed unit gets +1.0 on DamageData +0x5d4, which both
+			 DamageReacts add to the critical rate
+*/
+/*virtual*/ void CX2CustomFunctionByAtomicBlaster::FunctionInDamageReact( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ )
+{
+	if ( CX2DamageManager::AT_COMMAND == damageData_.attackType )
+		damageData_.m_fJuneAddCriticalRate += 1.0f;
+}
+
+/** @function : CX2CustomFunctionByAttackMe
+	@brief : June 3236fc50: the creator is looked up as an NPC first, then as a user (CX2Game slot 50 with not-user 1,
+			 then 0); an NPC unit's AI then targets it (3275b390: AI +0x3c observer = the creator; March SetTargetGameUnit).
+			 The class keeps no other state and its dtor is the base one, so the target is not reset when the debuff ends.
+*/
+CX2CustomFunctionByAttackMe::CX2CustomFunctionByAttackMe( const KBuffIdentity& BuffIdentity_, const UidType uidCreator_, CX2GameUnit* pGameUnit_ )
+	: CX2CustomFunctionByBuff( BuffIdentity_ ), m_uidCreator( uidCreator_ ), m_pGameUnit( pGameUnit_ )
+{
+	if ( NULL == g_pX2Game || NULL == m_pGameUnit )
+		return;
+
+	CX2GameUnit* pCreator = g_pX2Game->GetNPCUnitByUID( static_cast<int>( m_uidCreator ) );
+	if ( NULL == pCreator )
+		pCreator = g_pX2Game->GetUserUnitByUID( m_uidCreator );
+
+	if ( NULL != pCreator && CX2GameUnit::GUT_NPC == m_pGameUnit->GetGameUnitType() )
+	{
+		CX2GUNPC* pNpc = static_cast<CX2GUNPC*>( m_pGameUnit );
+		if ( NULL != pNpc->GetNPCAI() )
+			pNpc->GetNPCAI()->SetTargetGameUnit( pCreator );
+	}
+}
+
+/** @function : CX2CustomFunctionByGeistHerrschaft
+	@brief : June 3236fd90. With the unit and the creator user in the game: the creator's DamageEffect_Debuff_Geist_Herrschaft
+			 at the unit's bone nearest its GetPos( false ) (32278580, then GetBonePos, slot 33), rotated as the creator,
+			 power = the creator info's power rate, every other CreateInstance argument at its default. Its handle is kept
+			 and its lock-on unit is this one (LockOnData +0x18 UID for a user, +0x20 NPC UID otherwise).
+*/
+CX2CustomFunctionByGeistHerrschaft::CX2CustomFunctionByGeistHerrschaft( const KBuffIdentity& BuffIdentity_, const UidType uidCreator_,
+	const float fCreatorPowerRate_, CX2GameUnit* pGameUnit_ )
+	: CX2CustomFunctionByBuff( BuffIdentity_ ), m_fPowerRate( fCreatorPowerRate_ ), m_uidCreator( uidCreator_ ), m_pGameUnit( pGameUnit_ )
+	, m_hDamageEffect( INVALID_DAMAGE_EFFECT_HANDLE )
+{
+	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetDamageEffect() || NULL == m_pGameUnit )
+		return;
+
+	CX2GUUser* pCreator = JuneGetCreatorUser( m_uidCreator );
+	if ( NULL == pCreator )
+		return;
+
+	const std::wstring wstrFrameName = JuneGetNearestCollisionFrameName( m_pGameUnit, m_pGameUnit->GetPos( false ) );
+	const D3DXVECTOR3 vBonePos = m_pGameUnit->GetBonePos( wstrFrameName.c_str() );
+	CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pCreator, L"DamageEffect_Debuff_Geist_Herrschaft",
+		m_fPowerRate, vBonePos, pCreator->GetRotateDegree(), pCreator->GetRotateDegree() );
+	if ( NULL == pEffect )
+		return;
+
+	m_hDamageEffect = pEffect->GetHandle();
+	if ( CX2GameUnit::GUT_USER == m_pGameUnit->GetGameUnitType() )
+		pEffect->GetLockOnData().m_LockOnUnitUID = m_pGameUnit->GetUnitUID();
+	else
+		pEffect->GetLockOnData().m_LockOnNPCUID = static_cast<int>( m_pGameUnit->GetUnitUID() );
+}
+
+/** @function : ~CX2CustomFunctionByGeistHerrschaft
+	@brief : June 32370000: the damage effect is destroyed (DestroyInstanceHandle, not silently)
+*/
+/*virtual*/ CX2CustomFunctionByGeistHerrschaft::~CX2CustomFunctionByGeistHerrschaft()
+{
+	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hDamageEffect, false );
+}
+
+/** @function : FunctionInCommonFrameMove
+	@brief : June 323700c0: while the effect lives, a missing unit or one at 0 HP or less destroys it
+*/
+/*virtual*/ void CX2CustomFunctionByGeistHerrschaft::FunctionInCommonFrameMove( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ )
+{
+	if ( INVALID_DAMAGE_EFFECT_HANDLE == m_hDamageEffect || NULL == g_pX2Game || NULL == g_pX2Game->GetDamageEffect() )
+		return;
+
+	if ( NULL == pGameUnit_ || pGameUnit_->GetNowHp() <= 0.0f )
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hDamageEffect, false );
+}
+
+/// June 32370150: the creator user when it is an Ain, else NULL
+CX2GUUser* CX2CustomFunctionByModer::GetAinCreator() const
+{
+	CX2GUUser* pCreator = JuneGetCreatorUser( m_uidCreator );
+	return ( JUNE_UT_AIN == JuneGetUserUnitType( pCreator ) ? pCreator : NULL );
+}
+
+/** @function : CX2CustomFunctionByModer
+	@brief : June 32370210: for an Ain creator, its 32a4ddb0( unit UID, unit type ), and the unit is marked (+0x10)
+*/
+CX2CustomFunctionByModer::CX2CustomFunctionByModer( const KBuffIdentity& BuffIdentity_, const UidType uidCreator_, CX2GameUnit* pGameUnit_ )
+	: CX2CustomFunctionByBuff( BuffIdentity_ ), m_bMarked( false ), m_uidCreator( uidCreator_ ), m_pGameUnit( pGameUnit_ )
+{
+	if ( NULL == m_pGameUnit )
+		return;
+
+	CX2GUUser* pAin = GetAinCreator();
+	if ( NULL == pAin )
+		return;
+
+	pAin->JuneAinModerMark( m_pGameUnit->GetUnitUID(), static_cast<int>( m_pGameUnit->GetGameUnitType() ) );
+	m_bMarked = true;
+}
+
+/** @function : ~CX2CustomFunctionByModer
+	@brief : June 32370300: a marked unit is unmarked through the Ain creator (32a4de20)
+*/
+/*virtual*/ CX2CustomFunctionByModer::~CX2CustomFunctionByModer()
+{
+	if ( false == m_bMarked )
+		return;
+
+	CX2GUUser* pAin = GetAinCreator();
+	if ( NULL != pAin )
+	{
+		pAin->JuneAinModerUnmark();
+		m_bMarked = false;
+	}
+}
+
+/** @function : FunctionInCommonFrameMove
+	@brief : June 323703b0: a marked unit that is gone or at 0 HP or less is unmarked through the Ain creator (32a4de20);
+			 without the creator the mark stays
+*/
+/*virtual*/ void CX2CustomFunctionByModer::FunctionInCommonFrameMove( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ )
+{
+	if ( false == m_bMarked )
+		return;
+
+	if ( NULL != pGameUnit_ && 0.0f < pGameUnit_->GetNowHp() )
+		return;
+
+	CX2GUUser* pAin = GetAinCreator();
+	if ( NULL != pAin )
+	{
+		pAin->JuneAinModerUnmark();
+		m_bMarked = false;
+	}
+}
+
+/** @function : FunctionInErase
+	@brief : June 3236d3f0 (slot 8, when the buff is erased): 32082790( unit, 1 ) reserves the unit's death, which
+			 CX2GUUser::OnFrameMove carries out next frame (an NPC's flag is never read)
+*/
+/*virtual*/ void CX2CustomFunctionByBuffDeathSign::FunctionInErase( CX2GameUnit* pGameUnit_ )
+{
+	if ( NULL != pGameUnit_ )
+		pGameUnit_->SetJuneReservedDeath( true );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 
 #ifdef BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 // 행동 불능 디버프 인가? 특정 BBT 를 가지고 있으면 참을 반환

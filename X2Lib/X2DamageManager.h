@@ -1181,6 +1181,15 @@ class CX2DamageManager
 			int					m_iLimitApplyBuffCountEachUnit;		/// LIMIT_APPLY_BUFF_COUNT_EACH_UNIT (+0x604, -1 = none): per-unit buff count (Phase 10b)
 #endif SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY
 //}}
+//{{ Iruha : 2026-10-05 // June buff port Phase 9b (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+			/// June-only runtime fields (no Lua key). The +0x offsets are June's DamageData layout, cited only.
+			float				m_fJuneAddCriticalRate;				/// +0x5d4: added to GetCriticalPercent's result in both DamageReacts
+																	///   (@32048a49, @327b36ef); the Atomic Blaster debuff adds 1.0 on a command hit
+			int					m_iJuneAttackerStateID;				/// +0x5e0: the attacker's GetNowStateID() (SetDamageExceptionProcess @322996ec)
+			int					m_iJuneAttackSerial;				/// +0x5e8: the attacker's attack serial (SetDamageExceptionProcess @322996f8)
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 
 			void SimpleInit()
 			{
@@ -1403,6 +1412,13 @@ class CX2DamageManager
 				m_bIsAuraBuff							= false;	/// June 31f8f3c9 (BL = 0)
 				m_iLimitApplyBuffCountEachUnit			= -1;		/// June 31f8f3fb (EDI = -1)
 #endif SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY
+//}}
+//{{ Iruha : 2026-10-05 // June buff port Phase 9b (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+				m_fJuneAddCriticalRate					= 0.f;	/// June SimpleInit 31f8ee50: +0x5d4 = 0
+				m_iJuneAttackerStateID					= -1;	/// +0x5e0 = -1
+				m_iJuneAttackSerial						= 0;	/// +0x5e8 = 0
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
 			}
 

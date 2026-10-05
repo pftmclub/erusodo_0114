@@ -864,6 +864,194 @@ private:
 };
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
+//{{ Iruha : 2026-10-05 // June buff port Phase 9b (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+/// June buff port Phase 9b: the rest of June's CreateAndInsertCustomFunctionByBuff (3229e1a0) classes. Every one of these
+/// BTIs is absent from March's live data, so they stay dormant until Phase 13 adopts June's templets; the Rose, Ain and
+/// Lu/Ciel ones also need their characters (the creator-side calls are CX2GUUser hooks, empty until then).
+/// June's offsets are cited per member; vtables from buffre/vt.py CustomFunction.
+class CX2GUUser;	/// X2Main.h includes X2GUUser.h after this header
+
+/** @class : CX2CustomFunctionByBuffMoonlightRhapsody
+	@brief : June vt 3348789c, ctor 322aaef0 (0x14 B), BTI_DEBUFF_MOONLIGHT_RHAPSODY. DamageReact 323708e0 -> 32370430.
+*/
+class CX2CustomFunctionByBuffMoonlightRhapsody : public CX2CustomFunctionByBuff
+{
+public:
+	CX2CustomFunctionByBuffMoonlightRhapsody( const KBuffIdentity& BuffIdentity_, const KBuffBehaviorFactor kBuffBehaviorFactor_ )
+		: CX2CustomFunctionByBuff( BuffIdentity_ )
+		, m_fPowerRate( 1 < kBuffBehaviorFactor_.m_vecValues.size() ? kBuffBehaviorFactor_.m_vecValues[1] : 0.0f )	/// June @322aaf22: value[1], else 0
+	{}
+
+	virtual void FunctionInDamageReact( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ );
+
+private:
+	float	m_fPowerRate;	/// June +0x10
+};
+
+/** @class : CX2CustomFunctionByBuffServoNitro
+	@brief : June vt 334900f4, ctor 323698b0 (0x14 B), BTI_BUFF_NITRO_SERVO and _UPGRADE (one class for both).
+			 StateStart 32369950, StateEnd 32369990, dtor 32372c20 -> 3236f390.
+*/
+class CX2CustomFunctionByBuffServoNitro : public CX2CustomFunctionByBuff
+{
+public:
+	CX2CustomFunctionByBuffServoNitro( const KBuffIdentity& BuffIdentity_, CX2GameUnit* pGameUnit_ );
+	virtual ~CX2CustomFunctionByBuffServoNitro();
+
+	virtual void FunctionInCommonStateStart( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ );
+	virtual void FunctionInCommonStateEnd( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ );
+
+private:
+	CX2GameUnit*	m_pUser;	/// June +0x10: the unit, stored only when it is a user (June leaves it unset otherwise; NULL here)
+};
+
+/** @class : CX2CustomFunctionByBuffSinisterMind
+	@brief : June vt 334878c4, ctor 322aaf80 (0x40 B), BTI_DEBUFF_SINISTER_MIND_SEED. StateStart 323697d0, FrameMove 3236e770,
+			 AttackResultByType 3236e490, dtor 322ab010 -> 3236f480.
+*/
+class CX2CustomFunctionByBuffSinisterMind : public CX2CustomFunctionByBuff
+{
+public:
+	CX2CustomFunctionByBuffSinisterMind( const KBuffIdentity& BuffIdentity_, const UidType uidCreator_, const int iMaxCount_,
+		const float fDamageInterval_, CX2GameUnit* pGameUnit_ )
+		: CX2CustomFunctionByBuff( BuffIdentity_ ), m_iSeedLevel( 0 ), m_iCount( 1 ), m_iMaxCount( iMaxCount_ )
+		, m_fDamageInterval( fDamageInterval_ ), m_fRemainDamageTime( 0.0f ), m_hSeedEffectSet( INVALID_EFFECTSET_HANDLE )
+		, m_iStateID( -1 ), m_uidCreator( uidCreator_ ), m_pGameUnit( pGameUnit_ )
+	{}
+	virtual ~CX2CustomFunctionByBuffSinisterMind();
+
+	virtual void FunctionInCommonStateStart( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ );
+	virtual void FunctionInCommonFrameMove( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ );
+	virtual void FunctionInAttackResultByType( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ );
+
+private:
+	void CreateSeedDamage( CX2GUUser* pCreator_, CX2GameUnit* pGameUnit_, const bool bDummy_ );
+
+	int						m_iSeedLevel;			/// June +0x10: 0 (FrameMove resets it; slot 5 compares, never stores)
+	int						m_iCount;				/// June +0x14: 1
+	int						m_iMaxCount;			/// June +0x18: SA_EFFECTIVE_COUNT of RNSI_SA_LDN_SINISTER_MIND at the creator's level
+	float					m_fDamageInterval;		/// June +0x1c: SA_COOLTIME_1 of the same skill
+	float					m_fRemainDamageTime;	/// June +0x20: 0
+	CX2EffectSet::Handle	m_hSeedEffectSet;		/// June +0x24: -1
+	int						m_iStateID;				/// June +0x28: -1; the unit's state at its last state start
+	UidType					m_uidCreator;			/// June +0x30
+	CX2GameUnit*			m_pGameUnit;			/// June +0x38
+};
+
+/** @class : CX2CustomFunctionBySummonNpcTarget
+	@brief : June vt 334904a0, ctor 3236f6b0 (0x20 B), BTI_DEBUFF_TARGET and BTI_DEBUFF_AIMING_STIGMA. Overrides only the dtor
+			 (32372c40 -> 3236f7c0). The work is on the creator user: June-only CX2GUUser calls, empty hooks here.
+*/
+class CX2CustomFunctionBySummonNpcTarget : public CX2CustomFunctionByBuff
+{
+public:
+	CX2CustomFunctionBySummonNpcTarget( const KBuffIdentity& BuffIdentity_, const UidType uidCreator_, CX2GameUnit* pGameUnit_ );
+	virtual ~CX2CustomFunctionBySummonNpcTarget();
+
+private:
+	UidType			m_uidCreator;	/// June +0x10
+	CX2GameUnit*	m_pGameUnit;	/// June +0x18
+};
+
+/** @class : CX2CustomFunctionByChainViper
+	@brief : June vt 334904c8, ctor 3236f890 (0x20 B), BTI_DEBUFF_SA_RCR_CHAIN_VIPER. NPC final damage 3236fae0 (slot 6),
+			 buff applied 3236fb90 (slot 7), dtor 32372c60 -> 3236f9f0. Each calls a Rose method on the creator.
+*/
+class CX2CustomFunctionByChainViper : public CX2CustomFunctionByBuff
+{
+public:
+	CX2CustomFunctionByChainViper( const KBuffIdentity& BuffIdentity_, const KBuffBehaviorFactor& kBuffBehaviorFactor_,
+		const UidType uidCreator_, CX2GameUnit* pGameUnit_ );
+	virtual ~CX2CustomFunctionByChainViper();
+
+	virtual void FunctionInNpcFinalDamage( CX2GameUnit* pGameUnit_, IN const float* pfFinalDamage_, IN CX2DamageManager::DamageData* pDamageData_ );
+	virtual void FunctionInSetBuffFactor( CX2GameUnit* pGameUnit_, IN const CX2BuffFactor& buffFactor_ );
+
+private:
+	CX2GUUser* GetRoseCreator() const;
+
+	UidType			m_uidCreator;	/// June +0x10
+	CX2GameUnit*	m_pGameUnit;	/// June +0x18
+	int				m_iCount;		/// June +0x1c (June sets it only for a Rose creator; 0 here)
+};
+
+/** @class : CX2CustomFunctionByAtomicBlaster
+	@brief : June vt 334871f8, ctor 322a8e80 (0x10 B), BTI_DEBUFF_ATOMIC_BLASTER_PLASMAGUN_UPGRADE. DamageReact 323697f0.
+*/
+class CX2CustomFunctionByAtomicBlaster : public CX2CustomFunctionByBuff
+{
+public:
+	CX2CustomFunctionByAtomicBlaster( const KBuffIdentity& BuffIdentity_ ) : CX2CustomFunctionByBuff( BuffIdentity_ ) {}
+
+	virtual void FunctionInDamageReact( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ );
+};
+
+/** @class : CX2CustomFunctionByAttackMe
+	@brief : June vt 334904f0, ctor 3236fc50 (0x20 B), BTI_DEBUFF_ATTACK_ME (NPCs only). Overrides only the dtor (322aaf60,
+			 the base one); the ctor makes the NPC's AI target the creator.
+*/
+class CX2CustomFunctionByAttackMe : public CX2CustomFunctionByBuff
+{
+public:
+	CX2CustomFunctionByAttackMe( const KBuffIdentity& BuffIdentity_, const UidType uidCreator_, CX2GameUnit* pGameUnit_ );
+
+private:
+	UidType			m_uidCreator;	/// June +0x10
+	CX2GameUnit*	m_pGameUnit;	/// June +0x18
+};
+
+/** @class : CX2CustomFunctionByGeistHerrschaft
+	@brief : June vt 33490568, ctor 3236fd90 (0x28 B), BTI_DEBUFF_GEIST_HERRSCHAFT. FrameMove 323700c0, dtor 32372c80 -> 32370000.
+*/
+class CX2CustomFunctionByGeistHerrschaft : public CX2CustomFunctionByBuff
+{
+public:
+	CX2CustomFunctionByGeistHerrschaft( const KBuffIdentity& BuffIdentity_, const UidType uidCreator_, const float fCreatorPowerRate_,
+		CX2GameUnit* pGameUnit_ );
+	virtual ~CX2CustomFunctionByGeistHerrschaft();
+
+	virtual void FunctionInCommonFrameMove( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ );
+
+private:
+	float							m_fPowerRate;		/// June +0x10: the creator info's power rate
+	UidType							m_uidCreator;		/// June +0x18
+	CX2GameUnit*					m_pGameUnit;		/// June +0x20
+	CX2DamageEffect::CEffectHandle	m_hDamageEffect;	/// June +0x24: the effect's handle (CEffect +0xe8), -1 before
+};
+
+/** @class : CX2CustomFunctionByModer
+	@brief : June vt 33490590, ctor 32370210 (0x24 B), BTI_DEBUFF_A_AAP_MODER_MARKING. FrameMove 323703b0, dtor 32372ca0 ->
+			 32370300. Each calls an Ain method on the creator.
+*/
+class CX2CustomFunctionByModer : public CX2CustomFunctionByBuff
+{
+public:
+	CX2CustomFunctionByModer( const KBuffIdentity& BuffIdentity_, const UidType uidCreator_, CX2GameUnit* pGameUnit_ );
+	virtual ~CX2CustomFunctionByModer();
+
+	virtual void FunctionInCommonFrameMove( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ );
+
+private:
+	CX2GUUser* GetAinCreator() const;	/// June 32370150
+
+	bool			m_bMarked;		/// June +0x10 (June sets it only on a mark; false here)
+	UidType			m_uidCreator;	/// June +0x18
+	CX2GameUnit*	m_pGameUnit;	/// June +0x20
+};
+
+/** @class : CX2CustomFunctionByBuffDeathSign
+	@brief : June vt 334871b0, ctor 322a8e50 (0x10 B), BTI_BUFF_DEATH_SIGN. Erase hook 3236d3f0 (slot 8).
+*/
+class CX2CustomFunctionByBuffDeathSign : public CX2CustomFunctionByBuff
+{
+public:
+	CX2CustomFunctionByBuffDeathSign( const KBuffIdentity& BuffIdentity_ ) : CX2CustomFunctionByBuff( BuffIdentity_ ) {}
+
+	virtual void FunctionInErase( CX2GameUnit* pGameUnit_ );
+};
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 // /** @class : CX2CustomFunctionByBuffMagicalMakeUp
 // 	@brief : 매지컬메이크업 처리 클래스
 // 	@date : 2012/8/23/

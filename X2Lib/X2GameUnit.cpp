@@ -285,6 +285,13 @@ m_fNoSkillTime( 0 )
 	m_iStickShakeCount					= 0;
 	m_ui64BuffSyncCount					= 0;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// June buff port Phase 9b: the CX2GameUnit ctor (June 322a2700 @322a43db / @322a43e5) zeroes +0x40d8 and +0x40dc;
+	/// +0x258 is a protected bool June constructs false (@322a227d).
+	m_iJuneAttackSerial					= 0;
+	m_iJuneLastHitAttackSerial			= 0;
+	m_bJuneReservedDeath				= false;
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	m_fForceInvincibleTime		= 0.0f;
 	m_fShowInvincibleTime		= 0.0f;
 	m_fShowInvincibleSwapTime	= 0.05f;
@@ -14965,9 +14972,9 @@ static float JuneGetLearnedSkillAbilityValue( const CX2GUUser* pUser_, const CX2
 
 /** @function : CreateAndInsertCustomFunctionByBuff
 	@brief : June 3229e1a0: one case per BTI, each news its class (refcount +0xc) and push_backs it (322ad1e0).
-			 Phase 9a ports the Elsword and Chung cases: 29, 56 (users only, with the skill's cool time), 62, 223.
-			 June's other cases (439, 720 / 920, 767, 819 / 894, 891, 927, 952, 1010, 1022, 1038) are Phase 9b's and
-			 still create nothing here, as March. The third argument is June's creator info (see the struct).
+			 Phase 9a ported the Elsword and Chung cases: 29, 56 (users only, with the skill's cool time), 62, 223.
+			 Phase 9b ports the rest (439, 720 / 920, 767, 819 / 894, 891, 927, 952, 1010, 1022, 1038); June's switch has
+			 no other case. The third argument is June's creator info (see the struct).
 */
 void CX2GameUnit::CreateAndInsertCustomFunctionByBuff( const KBuffIdentity& BuffIdentity_, const KBuffBehaviorFactor& kBehaviorFactor_, const KCustomFunctionCreatorInfo& kCreatorInfo_ )
 {
@@ -15005,6 +15012,73 @@ void CX2GameUnit::CreateAndInsertCustomFunctionByBuff( const KBuffIdentity& Buff
 		ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByBuffPandemoniumFear( BuffIdentity_, kBehaviorFactor_ ) );
 		break;
 
+	/// Phase 9b: June's remaining cases. The creator-user gates are CX2Game slot 40 (GetUserUnitByUID) with the creator
+	/// info's UID (@3229e424, @3229e485, @3229e572).
+	case BTI_DEBUFF_MOONLIGHT_RHAPSODY:		/// @3229e38a
+		ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByBuffMoonlightRhapsody( BuffIdentity_, kBehaviorFactor_ ) );
+		break;
+
+	case BTI_BUFF_NITRO_SERVO:				/// @3229e63d, one class for both
+	case BTI_BUFF_NITRO_SERVO_UPGRADE:
+		ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByBuffServoNitro( BuffIdentity_, this ) );
+		break;
+
+	case BTI_DEBUFF_SINISTER_MIND_SEED:		/// @3229e47b
+		{
+			/// the creator user must exist; the max count and the damage interval are its SA_EFFECTIVE_COUNT (2, truncated)
+			/// and SA_COOLTIME_1 (0x94; June's parser 32216320 @3221a37a, no March enumerator) of RNSI_SA_LDN_SINISTER_MIND
+			/// (0x7560), both through 32007b10 on the creator
+			CX2GUUser* pCreator = ( NULL != g_pX2Game ? g_pX2Game->GetUserUnitByUID( kCreatorInfo_.m_uidCreator ) : NULL );
+			if ( NULL == pCreator )
+				break;
+
+			const CX2SkillTree::SKILL_ID eSinisterMind = static_cast<CX2SkillTree::SKILL_ID>( 30048 );
+			const CX2SkillTree::SKILL_ABILITY_TYPE eJuneCoolTime1 = static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( 0x94 );
+			const int iMaxCount = static_cast<int>( JuneGetLearnedSkillAbilityValue( pCreator, CX2SkillTree::SA_EFFECTIVE_COUNT, eSinisterMind ) );
+			const float fDamageInterval = JuneGetLearnedSkillAbilityValue( pCreator, eJuneCoolTime1, eSinisterMind );
+			ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByBuffSinisterMind( BuffIdentity_, kCreatorInfo_.m_uidCreator,
+				iMaxCount, fDamageInterval, this ) );
+		} break;
+
+	case BTI_DEBUFF_TARGET:					/// @3229e40a: 819 runs 894's branch; the creator user must exist
+	case BTI_DEBUFF_AIMING_STIGMA:
+		if ( NULL != g_pX2Game && NULL != g_pX2Game->GetUserUnitByUID( kCreatorInfo_.m_uidCreator ) )
+			ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionBySummonNpcTarget( BuffIdentity_, kCreatorInfo_.m_uidCreator, this ) );
+		break;
+
+	case BTI_DEBUFF_SA_RCR_CHAIN_VIPER:		/// @3229e558: the creator user must exist
+		if ( NULL != g_pX2Game && NULL != g_pX2Game->GetUserUnitByUID( kCreatorInfo_.m_uidCreator ) )
+			ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByChainViper( BuffIdentity_, kBehaviorFactor_, kCreatorInfo_.m_uidCreator, this ) );
+		break;
+
+	case BTI_DEBUFF_ATOMIC_BLASTER_PLASMAGUN_UPGRADE:	/// @3229e6b1
+		ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByAtomicBlaster( BuffIdentity_ ) );
+		break;
+
+	case BTI_DEBUFF_ATTACK_ME:				/// @3229e6ea: NPCs only (+0x264 == 1)
+		if ( GUT_NPC != GetGameUnitType() )
+		{
+			/// June 3229e160( 952 ) erases the buff and creates nothing. SetFactor runs before the new clone is pushed
+			/// (PushNewBuffTempletToGameUnit), so on a fresh apply there is nothing to erase yet: the buff stays, inert.
+			EraseBuffTempletFromGameUnit( BTI_DEBUFF_ATTACK_ME );
+			break;
+		}
+		ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByAttackMe( BuffIdentity_, kCreatorInfo_.m_uidCreator, this ) );
+		break;
+
+	case BTI_DEBUFF_GEIST_HERRSCHAFT:		/// @3229e760: the creator info's power rate is the effect's power
+		ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByGeistHerrschaft( BuffIdentity_, kCreatorInfo_.m_uidCreator,
+			kCreatorInfo_.m_fCreatorPowerRate, this ) );
+		break;
+
+	case BTI_DEBUFF_A_AAP_MODER_MARKING:		/// @3229e7c6
+		ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByModer( BuffIdentity_, kCreatorInfo_.m_uidCreator, this ) );
+		break;
+
+	case BTI_BUFF_DEATH_SIGN:				/// @3229e81e
+		ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByBuffDeathSign( BuffIdentity_ ) );
+		break;
+
 	default:
 		break;
 	}
@@ -15015,9 +15089,10 @@ void CX2GameUnit::CreateAndInsertCustomFunctionByBuff( const KBuffIdentity& Buff
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		static std::set<int> s_setSeenBTI;
 		if ( s_setSeenBTI.insert( static_cast<int>( BuffIdentity_.m_eBuffTempletID ) ).second )
-			CX2JuneBuffCapture::Line( "custom function created: BTI %d on unit type %d, creator UID %I64d not-user %d power rate %g, value count %d",
-				static_cast<int>( BuffIdentity_.m_eBuffTempletID ), static_cast<int>( GetGameUnitType() ), kCreatorInfo_.m_uidCreator,
-				( kCreatorInfo_.m_bNotUser ? 1 : 0 ), kCreatorInfo_.m_fCreatorPowerRate, static_cast<int>( kBehaviorFactor_.m_vecValues.size() ) );
+			CX2JuneBuffCapture::Line( "custom function created: BTI %d (%s) on unit type %d, creator UID %I64d not-user %d power rate %g, value count %d",
+				static_cast<int>( BuffIdentity_.m_eBuffTempletID ), typeid( *ptrCustomFunctionByBuff ).name(), static_cast<int>( GetGameUnitType() ),
+				kCreatorInfo_.m_uidCreator, ( kCreatorInfo_.m_bNotUser ? 1 : 0 ), kCreatorInfo_.m_fCreatorPowerRate,
+				static_cast<int>( kBehaviorFactor_.m_vecValues.size() ) );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	}
 }
@@ -16122,6 +16197,16 @@ void CX2GameUnit::SetDamageExceptionProcess( OUT CX2DamageManager::DamageData* p
 		pDamageData_->m_ExtraDamage.m_DamagePerSec	*= fPowerRate;
 		pDamageData_->m_ExtraDamage.m_Damage			*= fPowerRate;
 	}	
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// June buff port Phase 9b, SetDamageExceptionProcess 322990e0 @322996e0-32299708: the hit carries the attacker's
+	/// state (vslot 67, read by the Sinister Mind seed's slot 5) and its attack serial (read back by the defender's
+	/// DamageReact into +0x40dc, the Chain Viper count seed); the serial wraps to 0 when it turns negative.
+	pDamageData_->m_iJuneAttackerStateID	= GetNowStateID();
+	pDamageData_->m_iJuneAttackSerial		= m_iJuneAttackSerial;
+	++m_iJuneAttackSerial;
+	if ( m_iJuneAttackSerial < 0 )
+		m_iJuneAttackSerial = 0;
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 }
 #endif //MODIFY_SET_DAMAGE_DATA
 

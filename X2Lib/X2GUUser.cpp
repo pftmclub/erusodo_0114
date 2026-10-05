@@ -2259,6 +2259,11 @@ void CX2GUUser::ReInit( bool bUseTeamPos, int startPosIndex )
 	 // 스킬 관련 저장 초기화
 	 m_AllDamageRelateSkillData.Init();
 #endif //ADD_RENA_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// June buff port Phase 9b, CX2GUUser::ReInit 32022380 @32024490-320244ab: a revive clears a reserved death
+	if ( true == GetJuneReservedDeath() )
+		SetJuneReservedDeath( false );
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 }
 
 #ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
@@ -6742,6 +6747,20 @@ HRESULT CX2GUUser::OnFrameMove( double fTime, float fElapsedTime )
 #endif //ADJUST_SECRET_ITEM_OPTION
 
 #endif SERV_SECRET_HELL
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// June buff port Phase 9b, CX2GUUser::OnFrameMove 3206eaf0 @3206f833-3206f987, after the socket cool-time
+	/// countdowns and before the IsLocalUnit block: a user whose death the Death Sign buff reserved (its erase hook,
+	/// 3236d3f0 -> 32082790) clears the flag and dies (SetNowHp, slot 61, with 0). June spares it in one case: a
+	/// dungeon game (CX2Game slot 67 == GT_DUNGEON) whose current sub-stage holds 4 in a June field (game +0xc44
+	/// m_pDungeon -> +4 -> +4 -> +0x48) that March's sub-stage has no match for. That exemption is not ported.
+	/// June's own block just before it (+0x9520, a field timer) belongs to no buff and is not ported either.
+	if ( true == GetJuneReservedDeath() )
+	{
+		SetJuneReservedDeath( false );
+		SetNowHp( 0.f );
+		CX2JuneBuffCapture::Line( "Death Sign: reserved death fired on user UID %I64d (HP set to 0)", GetUnitUID() );
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}} kimhc // 2010.4.6 // 비밀던전 작업(셋트아이템효과)
 
 	//////////////////////////////////////////////////
@@ -8486,6 +8505,11 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 
 	if( true == IsDamagedReaction( pDamageData ) )
 	{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+		/// June buff port Phase 9b, CX2GUUser::DamageReact @3204719d-320471a3: a damaging hit first records its attack
+		/// serial (DamageData +0x5e8) as this unit's last-hit serial (+0x40dc)
+		SetJuneLastHitAttackSerial( pDamageData->m_iJuneAttackSerial );
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 		DoCustomFunctionByBuffInDamageReact( *pDamageData );
 		const bool bBuffApplied = ApplyBuffToGameUnitInDamageReact( pDamageData );
 //{{ Iruha : 2026-10-05 // June buff port Phase 10b (JUNE_BUFF_PORT_PHASES.md)
@@ -9194,6 +9218,9 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			//}} 2011-04 에 패치될 청 메모 헤드샷
 
 			float fCriticalRate = pAttackerUnit->GetCriticalPercent( pDamageData->damageType, pDamageData->m_fCriticalRate );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+			fCriticalRate += pDamageData->m_fJuneAddCriticalRate;	/// June @32048a49: DamageData +0x5d4, before WayOfSword
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 
 #ifdef ELSWORD_WAY_OF_SWORD
 			pAttackerUnit->SetCriticalPercent_WayOfSword( IN pDamageData->m_WayofSwordType, OUT fCriticalRate );

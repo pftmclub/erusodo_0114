@@ -1317,8 +1317,19 @@ DECL_DATA( KBuffFactor )
 	{
 	}
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 9b (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// The creator's UID and NPC flag are copied too: a copied packet factor hands them to the custom-function classes
+	/// (SetFactorFromPacket, June 32e73f90 reads +0x28/+0x2c and +0x3d), and March's ctor left both indeterminate.
+	/// Client-only: Always.h, where the flag lives, is not seen by the servers, and Put/Get are unchanged.
+	KBuffFactor( const KBuffFactor& rhs_ ) : m_BuffIdentity( rhs_.m_BuffIdentity ), m_uidMesGameUnit( rhs_.m_uidMesGameUnit ),
+		m_fAccumulationMultiplier( rhs_.m_fAccumulationMultiplier ), m_ucAccumulationCountNow( rhs_.m_ucAccumulationCountNow ),
+		m_bIsMesGameUnitNpc( rhs_.m_bIsMesGameUnitNpc ), m_iFactorID( rhs_.m_iFactorID )
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	KBuffFactor( const KBuffFactor& rhs_ ) : m_BuffIdentity( rhs_.m_BuffIdentity ),
 		m_fAccumulationMultiplier( rhs_.m_fAccumulationMultiplier ), m_ucAccumulationCountNow( rhs_.m_ucAccumulationCountNow ), m_iFactorID( rhs_.m_iFactorID )
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 	{
 		m_vecBuffBehaviorFactors = rhs_.m_vecBuffBehaviorFactors;
 		m_vecBuffFinalizerFactors = rhs_.m_vecBuffFinalizerFactors;
