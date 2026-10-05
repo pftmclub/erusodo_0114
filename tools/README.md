@@ -11,6 +11,7 @@ has `--help`. Run from the Trunk root. Python 3, standard library only.
 | `bytepatch.py` | ad-hoc Python byte patches of CP949 sources | x2-byte-edit |
 | `docsection.py` | reading a 750 KB plan doc "in full" | x2-phase |
 | `createchar.py` | hand-written INSERTs adding a test character to els_db.sql (backup, March exp, slot/name guards) | x2-create-char |
+| `kom.py` | hand-run `elstools pack` / `compile-dir` and copying `dataNNN_packed.kom` to the game dir (manifest/algo checks, entry diff vs live, backup, md5 verify) | elstools, x2-kom-packed |
 | `mdscan.py` | (older) reading a CrashRpt minidump against X2.map | - |
 
 Shared state (every worktree deploys into the same game directory):

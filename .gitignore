@@ -41,6 +41,7 @@
 !/.claude/skills/
 /.claude/skills/*
 !/.claude/skills/x2-*/
+!/.claude/skills/elstools/
 
 # ---- march2014/ carries ported Ranox mesh/texture/audio assets alongside its
 # .lua source -- track the .lua, keep the (large, binary, re-derivable from
