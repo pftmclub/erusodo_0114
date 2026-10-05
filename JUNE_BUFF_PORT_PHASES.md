@@ -3653,7 +3653,7 @@ The function rows are in `june2017_re/funcmap.tsv` (the "Buff Phase 11" rows).
 
 ### Phase 11 — Done (2026-10-05)
 
-**Landed** in `af7741b`. The RE is in the "Buff Phase 11" funcmap rows; the server survey the emulator is transcribed from is in `JUNE_BUFF_PORT_ARCHIVE.md` ("Phase 11 — the March server's buff system").
+**Landed** in `af7741b` + `da55146` (the emulator publishes `True`/`False` before running `BuffTemplet.lua`, and logs the parsed end-flag counts). The RE is in the "Buff Phase 11" funcmap rows; the server survey the emulator is transcribed from is in `JUNE_BUFF_PORT_ARCHIVE.md` ("Phase 11 — the March server's buff system").
 
 **`SERV_IRUHADEV_JUNE_BUFF_PREMIUM` (client):**
 - `X2StateLoading` also opens `BuffTemplet_INT.lua` (June `3258c470`). `OpenScriptFile` logs `<file>: N premium buff(s) added, M in total`, or `not found` with the pack instruction.
@@ -3697,7 +3697,7 @@ The function rows are in `june2017_re/funcmap.tsv` (the "Buff Phase 11" rows).
 
 **Hygiene:** `flagcheck --range af7741b^..af7741b`, each flag `--with` the other two: `_PREMIUM` `4 PASS, 2 PASS~, 1 DEFINE, 8 OTHER, 0 FAIL, 0 ERROR`; `_OFFLINE_ITEM_BUFF` `2 PASS, 6 PASS~, 1 DEFINE, 6 OTHER, 0 FAIL, 0 ERROR`; `_NOT_USE_IN` `1 PASS, 1 PASS~, 1 DEFINE, 12 OTHER, 0 FAIL, 0 ERROR`; all `RESULT: PASS`, `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`. OTHER = files carrying only the sibling flags (`X2OfflineDB.cpp`'s table list is `#ifdef`/`#else` with March's line intact).
 
-**Deploy:** `DEPLOY OK: X2_offline.exe is 19,173,376 B, dated 2026-10-05 15:18:52, md5 9ebc4b93754f5af2ac7027f416a1e92d, equal to X2/US_SERVICE/x2.exe (2026-10-05 15:18:48); built at mods/june-buff-port 87c3a3a + 16 uncommitted code file(s).` (those 16 = `af7741b`). The phase's strings (`world buff (room|village)`, `premium buff(s) added`, `BUFF     activated buff`, `schema upgraded to v14`, `NOT_USE_IN_HENIR`, `BuffTemplet_INT.lua`) are in the deployed exe.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,173,376 B, dated 2026-10-05 15:25:08, md5 0dd0588096c23e6495e92d9c2a55af8c, equal to X2/US_SERVICE/x2.exe (2026-10-05 15:25:04); built at mods/june-buff-port 9d70f0c + 1 uncommitted code file(s).` (that 1 = `da55146`; the first deploy, `9ebc4b93` at 15:18, lacked it). Range hygiene `af7741b^..HEAD` for `_OFFLINE_ITEM_BUFF`: `3 PASS, 6 PASS~, 1 DEFINE, 6 OTHER, 0 FAIL, 0 ERROR`, RESULT PASS; its 1 deleted line is `da55146` rewriting Phase 11's own load-summary log line. The phase's strings (`world buff (room|village)`, `premium buff(s) added`, `BUFF     activated buff`, `schema upgraded to v14`, `NOT_USE_IN_HENIR`, `BuffTemplet_INT.lua`, `end at death`) are in the deployed exe. March's 58 premium BTIs are all still in June's 209 (none dropped; `X2ItemSlotManager.cpp:3384` null-checks anyway).
 
 **How to see it in game:** the "Play-test" hand-off in this session's final message. A short version: buy an Arcanum / Elixir in the cash shop (products 11-26), use it from the bag, and enter a dungeon.
 
