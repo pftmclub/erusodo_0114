@@ -151,6 +151,19 @@ bool CX2OfflineServer::Handler_EGS_FIELD_LOADING_COMPLETE_REQ( KOfflineSession& 
 	SendPendingPetRestore( kSes );
 	//////////////////////////////////////////////////////////////////////////
 
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	// ERM_JOIN_FIELD_ACK (GSUserField.cpp:533-546): joining a village grants
+	// WARM_ENERGE_OF_EL (122), and that LoginServer round trip ends in
+	// SendUpdateBuffInfo - the copy the client actually takes, because by then
+	// it is in the village. The copy sent after EGS_STATE_CHANGE_FIELD_ACK
+	// (GSUserField.cpp:215) arrives while the old dungeon/field game still
+	// exists, and CX2PremiumBuffManager's village handler drops it (play-test
+	// 2026-10-05: no icons until the next send). Offline grants no 122 - a live
+	// global village buff, not an item buff - so the resend is made directly,
+	// and only when there is something to show.
+	SendUpdateBuffInfo( kSes, true );
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+
 	// Phase 6: standing in a village finishes a SQT_VISIT_VILLAGE step, and it
 	// is also where a character that levelled elsewhere is told which title
 	// missions it has grown into. Done here rather than at
