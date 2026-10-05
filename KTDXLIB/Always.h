@@ -5201,3 +5201,18 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION.
 #define SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 11b review: June clears a dying unit's
+//              buffs when its death state ENDS, not in DyingStart. June's
+//              clear-all (3229fb10) has nine call sites and none is a
+//              DyingStart: a user's DIE_FRONT / DIE_BACK StateEnd (3202a7d0)
+//              and CX2GUNPC::CommonStateEnd (3277ee10, for dying states and
+//              DYING_END / ESCAPE_END states) call it, both with false. So a
+//              dead unit keeps its buffs until it revives, its state ends or
+//              the game deletes it. Independent of _STORE_BUFF, but it is what
+//              lets IS_STORE_BUFF buffs survive a death once that flag is on.
+#define SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
+//////////////////////////////////////////////////////////////////////////

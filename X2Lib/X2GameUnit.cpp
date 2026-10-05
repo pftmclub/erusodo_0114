@@ -5530,8 +5530,13 @@ void CX2GameUnit::DyingStart()
 	m_bDyingStart = true; 
 
 	DeleteEffectSetOnDie();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
+	/// June: no DyingStart clears buffs (3229fb10's nine call sites). Users clear at their die states' StateEnd
+	/// (CX2GUUser::DoStateEndStart), NPCs at CX2GUNPC::CommonStateEnd.
+#else // SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
 
 	FinishAndClearAllBuff();	/// 버프 종료 및 삭제
+#endif SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
 	++m_iDieCount;
 }
 

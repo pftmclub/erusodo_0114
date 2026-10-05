@@ -6435,6 +6435,12 @@ void CX2GUUser::DoStateEndStart()
 
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
 		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
+			/// June 3202a7d0 is the StateEnd of every class's DIE_FRONT / DIE_BACK (thunk 329cada0, delegate +0x54,
+			/// e.g. @329b8140): clear-all(false) @3202a7ea, then CommonStateEnd. March's die states register no StateEnd.
+			if ( USI_DIE_FRONT == m_NowStateData.stateID || USI_DIE_BACK == m_NowStateData.stateID )
+				FinishAndClearAllBuff();
+#endif SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
 			if( m_NowStateData.StateEnd != NULL )
 				m_NowStateData.StateEnd();
 			else

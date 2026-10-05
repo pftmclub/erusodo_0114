@@ -4028,6 +4028,63 @@ Check 5: back in the village, no icons appeared. The emulator's send after `EGS_
   - the clamp only differs above a 10 % socket discount.
 - The run's 2 UNHANDLED lines are `E_DISABLE_HB_CHECK_REQ`, which is not this phase's.
 
+### Phase 11b — Review (2026-10-05, Opus 5.5 high)
+
+**Verdict: no transcription errors in 11b's three flags. The open point found a June change: buffs are cleared when a death state *ends*, not in `DyingStart`. It is ported under its own flag, `SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR` (on).** Every June check was read from the assembly. The funcmap rows `3229fb10`, `3277ee10`, `3202a7d0`, `3228a120` and `32015250` are updated.
+
+**The open point: June's death clear (kickoff item 2).**
+- **No `DyingStart` clears in June.** `3229fb10` has exactly nine direct call sites in a raw scan of `.text`. There is no inlined copy: the gage save `32494560` has one caller (`@3229fb62`).
+- **Users: the die states' `StateEnd`.** `329cada0` → `3202a7d0` sits in the `StateEnd` delegate (`+0x54`) of every class's DIE_FRONT/DIE_BACK. The registration (`@329b8140`) fills March's nine-delegate `UserUnitStateData` layout (`+0x14..+0x54`, probed), so the Phase 9c row's "start function" was wrong. `3202a7d0` calls clear-all(false) and then tail-calls `CommonStateEnd` (`32015250`, likely). March's die states register no `StateEnd` (`DoStateEndStart` → `CommonStateEnd`).
+- **NPCs: `CX2GUNPC::CommonStateEnd` (`3277ee10`, vslot 280).** It is not "not DyingStart because of user slot 280": slot 280 is past the 264-slot `CX2GameUnit` base. Its tail is clear-all(false) when:
+  - the ending state has `DYING_END` (June bit 23) or `ESCAPE_END` (bit 24), read from June's parser `32784c00`; or
+  - it is one of the four dying states (March's `_IsDyingState`).
+  - Under event-map key 5 the two flags count only for the state sets `+0x9018`/`+0x9028`. March has no such map.
+- **The ported move** (`X2GameUnit.cpp`, `X2GUUser.cpp`, `X2GUNPC.cpp`):
+  - the base `DyingStart` no longer clears;
+  - `DoStateEndStart` clears before `CommonStateEnd` for `USI_DIE_FRONT`/`USI_DIE_BACK` (all 9 classes register both, none with a `StateEnd`);
+  - the NPC `CommonStateEnd` clears on June's default path.
+  - **Effect:** a dead unit keeps its buffs until it revives, its state ends, or the game deletes it (`true` from `~CX2Game`/`Delete*Unit`). That is what lets an `IS_STORE_BUFF` buff survive a death once `_STORE_BUFF` is on.
+  - **Why it is not under `_STORE_BUFF`:** it is its own logical change, live with that flag off.
+  - **Safety:** HP-per-second behaviors skip HP ≤ 0 (`FIX_RECOVERY_HP`, on), so a corpse is neither healed nor ticked. June's `OnFrameMoveBuff` has no death guard either. March's gage already appended a dying player's buffs at death, so saving them at teardown carries nothing new.
+- **Not ported (no March home or unidentified):** the key-5 branch; `31fffd50` and `ProcessSocketEffectEx(18)` in `3202a7d0` (March's SIEE ends at 11).
+- **Small difference:** June's die-state end has no `m_bDyingStart` guard, and neither does the port.
+- **Ranox `EraseAllBuffAndExtraDamage` (ours): keep `FinishAndClearAllBuff()` = false.** With `_STORE_BUFF` on, false finishes every buff (store buffs too) and skips the gage save, as June does for every clear but the six teardown sites. `true` would erase flagged buffs unfinished (JUNE_BUGS #39). Noted in `kickoffs/june-buff/13.md`.
+
+**Kickoff checks.**
+1. **Clear-all `3229fb10`: matches.**
+   - The gage save runs only if vslot `0x198` (`IsMyUnit`) and the bool is 1.
+   - Flagged templets (`+0x67`) skip the finish calls.
+   - `322ae690(end, end, begin)` is a move with an empty source that returns `begin`, so the vector is emptied whole (JUNE_BUGS #39 holds).
+   - It ends with `ClearBuffList` (`32489980`). The callers' arguments are as recorded: six pass 1, three pass 0.
+2. **Gage save `32494560`: matches.**
+   - It is gated on PvP (type 1), PvE (type 4, no March type) and main state `0x12`.
+   - The predicate `32499c10` drops a factor whose templet is missing or not `+0x67`, via remove_if `32499ef0` and erase `32141240`.
+   - The only caller pushes 0 (`@3229fb5e`), so `3229ff80` is unreachable.
+3. **Repair `32363f00`: matches.**
+   - The jump table `32364480` gives 202 +0.5, 203 −1.5, 204 +0.7, 205/206 nothing, 207 +0.1. Outside it: 10027 +0.2, 10038 +0.5, and 876 sets the rate to 1.0 if event key 17 is on.
+   - The final step is `rate < 0 ? −rate : 1 − rate` with no clamp.
+   - All ten callers skip only when the rate is below 0 or NaN (`fcom`/`test ah,1`), which is `>= 0.f`.
+   - The ported block is live: `SERV_NEW_DEFENCE_DUNGEON` is ON (flagprobe).
+4. **`SetDurationTime` `32e608f0`: matches.**
+   - It uses the first record of the BTI and the flag at record `+0x20` (`32e5cb30`).
+   - The time is the end time's low dword minus `_time64`.
+   - From 60 s: green (0,1,0,1) at UIStringData `+0x2c`, and `/60`. From 1 to 59: white, in seconds. At 0 or below: unchanged. Otherwise March's 1..998 text, or `L""`.
+5. **Recorded items: confirmed.**
+   - BTI 807 tests `g_pData+0x6c`, the PvP room: June's MyUser is `+0x68`, and March has `m_pMyUser` `0x84` then `m_pPVPRoom` `0x88` (probed). The `+0xd8 == 8` game-type reading is inferred; March's PGT ends at 3 either way.
+   - The only immediate 100005712 in `.text` (`321bdf0d`) is in `32163070`'s sole caller.
+   - Slot 251 is `3204dcd0`.
+
+**Hygiene** (11b, `--range 32202c5^..32202c5 --with` the other two; `_STORE_BUFF` with its `#define` briefly uncommented, `Always.h` md5 unchanged after):
+- `_STORE_BUFF`: `files: 4 PASS, 0 PASS~, 1 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`. `_REPAIR_DISCOUNT`: `2 PASS, 0 PASS~, 1 DEFINE, 5 OTHER, 0 FAIL, 0 ERROR`. `_DURATION_TIME`: `1 PASS, 0 PASS~, 1 DEFINE, 6 OTHER, 0 FAIL, 0 ERROR`.
+- All three: `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- `_DEATH_CLEAR` (`--worktree --files` its 4 files): `files: 3 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; the same zeros; `RESULT: PASS`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,187,712 B, dated 2026-10-05 21:12:32, md5 229b4d0cf029fcbba1a4e5872aef58c5, equal to X2/US_SERVICE/x2.exe (2026-10-05 21:12:28); built at mods/june-buff-port fd5c92e + 4 uncommitted code file(s).` (the 4 = this review's files)
+
+**How to see it in game:** a monster or your character dies with a buff on. The buff stays on the body until it is removed or you revive. Before this change it vanished at the moment of death. Two console checks: BFI 152 on every monster, then kill one; BFI 3 on yourself, then `SetNowHP( 0 )`.
+
+**For the user:** the Phase 9c funcmap row `3202a7d0` carries a spliced word ("buffserpart found"). It is left as committed, with this review's correction appended.
+
 ## Phase 12 — Buff icons and UI assets
 
 **Scope.**

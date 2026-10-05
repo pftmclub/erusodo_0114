@@ -23728,6 +23728,14 @@ void CX2GUNPC::CommonStateEnd()
 	DeleteEffectSetOnStateEnd();
 
 	DoCustomFunctionByBuffInCommonStateEnd();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
+	/// June CX2GUNPC::CommonStateEnd 3277ee10 @3277fb2e-@3277fbd2: clear-all(false) when the ending state has
+	/// DYING_END (June bit 23) or ESCAPE_END (bit 24), or is one of the four dying states. June's other branch, taken
+	/// when key 5 of its event map (33775864 +0xa18) is on, limits the two flags to the state sets +0x9018 / +0x9028;
+	/// March has no such map, so this is June's default path.
+	if ( NOWSTATE_FLAG( DYING_END ) || NOWSTATE_FLAG( ESCAPE_END ) || _IsDyingState( m_NPCFrameData.syncData.nowState ) )
+		FinishAndClearAllBuff();
+#endif SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
 }
 
 
