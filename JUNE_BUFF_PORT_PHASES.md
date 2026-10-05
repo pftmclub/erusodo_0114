@@ -3156,6 +3156,73 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
   - `322f11d0`'s triggers: `322f4c60` (solo) and `324cf360` (party event `0x4ac`).
 - SAT 38: **yes** (user, 2026-10-05): 7e ports June's refusal.
 
+### Phase 7e — Done (2026-10-05)
+
+**Landed** in two commits. The RE is in the "Buff Phase 7e" rows of `june2017_re/funcmap.tsv` (15 new, 6 corrected).
+- **`f20a31c`, `SERV_IRUHADEV_JUNE_BUFF_START_DELAY`:** June's start-motion delay, CX2GUUser `+0x92cc`.
+  - The ctor sets −1.0f (`@32041c8b`; the x87 stack holds `334380f0`).
+  - `StageData` reads `START_MOTION_DELAYTIME` right after `START_MOTION`, default 0 (`327f4e30`).
+  - `StageLoad` (`327cd1b0`): on a start-motion stage it stores the delay and does not change state. On any other stage it sets the (riding) wait state and −1.
+  - The countdown sits at the end of `CX2GUUser::OnFrameMove` (`3206eaf0 @32070053-e2`). Below 0 it calls `StartMotionStateChange` (`31fcf040`: riding start if `GetUnit()->GetRidingPetInfo()`, else `USI_START`, bDirectChange false). Once the Now state is a start state, it stores −1.
+  - Readers with a March home, via `3230f110` (== −1): the riding key in `CX2Game::KeyProcess` and the pet window's Ride button (`329031f0` case 44019). Each refuses with its existing 24526/24527 text.
+- **Same commit, `SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM`:**
+  - `322f1f90` → `CX2Game::IsNowStageStartMotion`, `322f5140` → `CanUseQuickSlotItemBeforeStart`.
+  - SAT 18 before the start: arm, then allow on true (`@322faefb-57`). A failed state check or gate refuses either way.
+  - SAT 34 before the start: allow on true with no ACK wait (`@322fb5a2`).
+  - SAT 38 (`@322fb7d7`): the pre-start test, then any game type but 4 refuses with STR 30375 as info text. March has no type 4, so it always refuses.
+  - The Henir path is ported: party `+0x38` is `m_iDungeonMode`, and `== 1` is **`DM_HENIR_PRACTICE`**, not CHALLENGE as the 7d review guessed. The writer `32563a8c` maps DT_HENIR → 1, as `X2LocalMapUI.cpp` does.
+- **`726607a`, `SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT`:** June's riding-key skill wait `+0x92d0`, found in the riding block this phase edits.
+  - The ctor sets −1. The riding key sets it to 0.1 s after its summon/unsummon request (`@322f80a8`). The countdown runs right after `+0x92cc`'s.
+  - The reader `329cc370` (≠ −1 → return false) sits right after `CheckSkillUsePVPOfficial` in all 8 March classes: in `CanUseSpecialAttack` for Ara and Elesis, which hold that check there, and in `SpecialAttackEventProcess` for the rest.
+  - Add/Ain/Rose/Luciel get it with their port (character checklist §7, new row).
+- `Always.h`'s 7d comment and `X2GUUser.h`'s `+0x8d78` comment now name `SpecialAttackEventProcess`, as the 7d review asked.
+
+**Corrections to earlier records.**
+1. The countdown is in `OnFrameMove`'s tail (ret 0xc, fElapsedTime `[ebp+0x10]`), not `CommonFrameMove`. `funcdis` merges `3206d770` with `3206eaf0`, so funcmap row "3206d770 slot 484" was mis-bounded the same way.
+2. `@3200c113` is in `3200c030`, not `3200bc20`. `3200bc20` is a PlagHeadMark effect refresh. `3200c030` is June's HP/MP auto-potion gate, which goes through `g_pData+0x328` → `329515f0` (7d's June-only item bar).
+
+**Step 1 answers (not ported, no March home).**
+- `322f11d0`'s triggers are June's skip-the-start system:
+  - The solo trigger `322f4c60` comes from a base `CX2State` key handler (`31f1e1a0`).
+  - The party trigger is event `0x4ac`'s answer, `324cf360`.
+  - Both act on a game `+0xb40` struct that only the NPC init (`327af325`, NPC flag bit `0x2000`) arms. Dungeon 41470's `31d87420` has no March DUNGEON_ID.
+- `31fcf040`'s other two tests are June-only: dungeon-data bitset bit 8 (`327d9df0`; March's `DungeonData` has no such set) and `32932230` (dungeon IDs ≥ 100000; March's highest is 41311).
+- In the blocks 7e edits, June also has:
+  - `+0x89e0 = 0` in StageLoad (June's class-mode slot, `31fe0bb0`, June-only per Phase 4b-ii);
+  - the riding key's `g_pMain+0x16a` gate (setter `31d716c0`, no matching March `CX2Main` member);
+  - the Ride button's UID recompute over June's sorted riding lists (`328f3900`);
+  - two more skill-ban checks before the riding-wait reader (`3202d140`, `3202d3c0`; character-port territory).
+
+  All are recorded in funcmap and not ported.
+
+**Not checked:** no March dungeon script sets `START_MOTION_DELAYTIME`, so with March data a start-motion stage starts one frame after StageLoad instead of inside it. Nothing between the two reads the start state: `StageStart` only repositions, fades in when there is no start motion, and sets the camera.
+
+**`JUNE_BUGS.md` #13** is latent again: on a no-start-motion stage `322f5140` is now true, so an armed item is used.
+
+**Hygiene** (`flagcheck --worktree`, before each commit):
+- `JUNE_BUFF_START_DELAY --with JUNE_BUFF_DEBUG`, 9 files:
+  - `files: 4 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  - `RESULT: PASS`.
+- `JUNE_BUFF_QUICKSLOT_ITEM --with JUNE_BUFF_DEBUG JUNE_BUFF_START_DELAY`:
+  - `files: 2 PASS, 0 PASS~, 1 DEFINE, 6 OTHER, 0 FAIL, 0 ERROR`;
+  - `RESULT: PASS`.
+  - Without `START_DELAY` in `--with`, `Always.h` is FAIL only because its diff also carries `START_DELAY`'s new `#define`.
+- `JUNE_BUFF_RIDING_KEY_WAIT`, 12 files:
+  - `files: 11 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+  - `in this flag's files: 0 deleted line(s) ... 0 encoding change(s)`;
+  - `RESULT: PASS`.
+- Deleted lines, all in our own code:
+  - 11 are 7d's SAT 18/34 pre-start code in `X2Game.cpp`, replaced under the same `_QUICKSLOT_ITEM` flag;
+  - 3 are `Always.h` 7d comment lines;
+  - 1 is the `X2GUUser.h` `+0x8d78` comment, in the `_AWAKE_LOCK` block.
+- The PASS~ blank line is the separator before the `OnFrameMove` block.
+
+**Build and deploy.** `DEPLOY OK: X2_offline.exe is 19,116,032 B, dated 2026-10-05 09:37:27, md5 fa09029220a974011a01da4f768e5f34, equal to X2/US_SERVICE/x2.exe (2026-10-05 09:37:22); built at mods/june-buff-port 726607a.` All four 7e strings are in the exe (the two new DEBUG lines, `START_MOTION_DELAYTIME`, and the kept refusal line). Compiler warnings for the new code were not checked line by line. **Not launched.**
+
+**How to see it in game:** the hand-off below. The proof lines are `first pre-start quick-slot allow (322f5140)` (tutorial) and `first start-motion delay end (31fcf040)` (any dungeon start).
+
+**Open for the user:** none blocking. `/cost`: please paste it here.
+
 ## Phase 8 — New finalizers and counter sync
 
 **Scope.**
