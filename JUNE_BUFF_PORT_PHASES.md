@@ -3355,6 +3355,51 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 **Kickoff:** `kickoffs/june-buff/10.md` - start it with `/x2-phase june-buff 10`. The inline prompt that stood here was retired on 2026-10-04; `kickoffs/` is the source of truth.
 
+### Phase 10 — Done (2026-10-05)
+
+**Landed** in `9eba9ad` (18 code files, 905 insertions, 0 deletions). The RE is in the "Buff Phase 10" rows of `june2017_re/funcmap.tsv` (23 rows; `31fceab0` promoted to confirmed).
+- **`SERV_IRUHADEV_JUNE_BUFF_GROUP`** (`9eba9ad`):
+  - `CX2BuffTempletManager::OpenScriptFileForBuffGroup` (June `326c26f0`) runs `UnitApplyBuffGroup.lua` right after the factor files and logs `N buff group(s), M officially debuff(s)`, or that the file is missing. June's checksum tail is anti-tamper (`31c59710`), not a sort: not ported.
+  - `AddBuffGroup_LUA` (`326c3450`), `AddOfficiallyBuffList_LUA` (`326bfd80`, clears the set per call), `IsApplyBuffByGroup` (`326c31c0`), `IsOfficiallyDebuff` (`326bfd50`).
+  - `CanApplyBuffToGameUnit` takes the factor's BTI (June slot 132) in all three classes. The BTI is passed at June's sites: `SetBuffFactorToGameUnitByBuffFactorID` (and `…AndCreatorID`), `SetBuffFactorToGameUnit(skill)`, `SetBuffAccumulationCount`, the damage-react apply. The class files pass none, as in June.
+  - `CX2GUNPC` (`327bdb60`): `BUFF_GROUP_ID` read after `BOSS_RAID_NPC` in `INIT_COMPONENT` (`327ab348`), `SetMonsterBuffGroupID` (`31e4d770`), 0 in the ctor. With a group, the group's answer replaces the base check (JUNE_BUGS).
+  - The officially-debuff set replaces `CX2Game::SetOfficiallyDebuffList` in `EraseDebuffAndAddMP` (`3204d440`: walks the unit's buffs, erases every member) and Ara's `GetReduceDebuffDurationRate` (`32bd32f0`). Its skill-27415 tail went to the character checklist §7.
+- **`SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY`:** June's `ApplyBuffToGameUnitInDamageReact` (`322a88c0`) whole: per factor can-apply(BTI) → key check (`3227a960`, passes until effect C3 registers `DAMAGE_DATA_KEY_NAME`) → immunity list → pre-apply roll (`322a7960`: its own RESIST roll; 265/266 under 347/348, and 347/348 go to a server event March lacks) → `SetBuffFactorToGameUnit`; true only when one applied.
+- **`SERV_IRUHADEV_JUNE_BUFF_BINDING`:** `DeleteNonControlDebuff`, `GetBuffAccumulationCountNow` (`3227bbc0`), `g_pGameEdit:ApplyBuffFactor(BFI, time)` (`3274c880`) with `CX2BuffTimeFinalizerTemplet::SetDurationTime` (`32ec3580`).
+- **`SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID`:** June's `ParsingBuffFactorID` (`32630d20`): `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID` (gates `31fceab0`, `HaveThisBuff`), `BUFF_FACTOR_ID_ULTIMATE(_PVP)` behind the skill-memo gate `31fcf3e0` (June's skill→memo map, absent; forced off like `X2DamageEffect`'s), `BUFF_FACTOR_ID_PVP`. The level rules are March's (June matches them).
+- **`SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY`:** `IS_AURA_BUFF` (`+0x5f0`) and `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` (`+0x604`, −1) parsed and stored; readers are **Phase 10b** (new section below).
+- **Staged:** `UnitApplyBuffGroup.lua` (mar-2014, `1B 4B 4C 81`, 4,909 B; 3 groups, 109 officially debuffs, all 113 BTI names resolve in the staged Enum) in `march2014/update/data036/` and `kom_contents/data036_kom/` + both `_manifest.json`.
+
+**Recorded, not ported** (no March home; funcmap rows): `AddRandomBuffList`/`DUMMY_BUFF_TEMPLET_ID` (June's CustomEventManager, `3267c370`, and its branch in `322a88c0`); `CHECK_RIDINGPET_SPACIAR_BUFF` (transforming riding pet, `32d2f3d0`); `SetPveBalanceBuffGiveScore_LUA` (PvE mode); `SendRandomMissionRewardBuffCheat` (server event 0x497); `3204e6a0` (no callers). `DELETE_BUFF_WHEN_DIE` was already ported in 4b.
+
+**Correction:** `31fceab0`'s other exit tests the skill's `m_ePowerRate` (templet `+0x174`) against 5 = June's `SPRT_HYPER_CLASS`, absent from March's enum (5 = `SPRT_END`); it cannot fire here. `+0x178` (6b's memo/base id) is written separately, so there is no conflict with 6b.
+
+**Decision for the user (open):** June removed March's `BUFF_FACTOR_ID_MEMO` / `BUFF_FACTOR_RELATIVE_MEMO_ID` branch (no such key in June's binary) for `_ULTIMATE`, whose gate is off here. March data uses it in `DamageEffect`, `Elsword_SwordMan`, `RAVEN_FIGHTER`. It is **kept** (the effect plan kept March's memo reads); `#define SERV_IRUHADEV_JUNE_BUFF_MEMO_DROP` in `Always.h` drops it.
+
+**JUNE_BUGS.md:** the group replaces the base check; the unchecked templet in `326c31c0` (guarded here: a crash); `_ULTIMATE_PVP` skips the found test; the two independent rolls.
+
+**Hygiene** (`flagcheck --range 9eba9ad^..9eba9ad`, each flag `--with` the other four + `JUNE_BUFF_DEBUG JUNE_BUFF_MEMO_DROP`):
+- `_GROUP`: `files: 0 PASS, 12 PASS~ (blank/marker only), 1 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`.
+- `_REACT_APPLY`: `files: 0 PASS, 2 PASS~, 1 DEFINE, 15 OTHER, 0 FAIL, 0 ERROR`; `_BINDING`: `0 PASS, 6 PASS~, 1 DEFINE, 11 OTHER`; `_FACTOR_ID`: `0 PASS, 1 PASS~, 1 DEFINE, 16 OTHER`; `_DAMAGEDATA_KEY`: `0 PASS, 2 PASS~, 1 DEFINE, 15 OTHER`; each `0 FAIL, 0 ERROR`, `RESULT: PASS`.
+- Every flag: `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`. The OTHER rows are this phase's other four flags.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,141,120 B, dated 2026-10-05 11:37:26, md5 8b491d7d1a8108c1a208ad94ae196580, equal to X2/US_SERVICE/x2.exe (2026-10-05 11:37:21); built at mods/june-buff-port f52a21b + 18 uncommitted code file(s).` (those 18 are exactly `9eba9ad`). All 13 phase strings found in the deployed exe.
+
+**Play-test:** after packing `UnitApplyBuffGroup.lua` into `data036.kom` (hand-off in the session; log tag `[JUNE_BUFF]`).
+
+## Phase 10b — The DamageData buff keys' readers (added 2026-10-05 by Phase 10)
+
+Phase 10 parses and stores `IS_AURA_BUFF` and `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` (flag `SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY`); their readers are this phase's.
+
+**Scope.**
+- **`IS_AURA_BUFF`** (DamageData `+0x5f0`, bool). June reads it in the damage manager's team checks: `32610897`, `32610df0`, `32622990`, `32623110`, `32624610`, `326250fa`, `32625670`, `32628890`, `3262b6e0`, `326413c0`, plus `320471d6` (CX2GUUser) and `327b1f30` (CX2GUNPC::DamageReact `@327b3122`). In `32622990` an aura buff reaches a target only when the target is a user (slot `0x198`), the party manager exists (`g_pData+0x5c`) and the attacker's UID is in the party (`32431360`), or attacker and target are the same unit. Map each reader to its March function, then port the gate. June data: `DamageEffect_Hero_Dungeon_Aura_Buff` (`DamageEffect_ETC`).
+- **`LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`** (DamageData `+0x604`, int, −1 = none) and its per-unit list (`+0x608`/`+0x60c`: `{count, unit type, UID}`). `3227a270` counts a hit per unit (called from `32275990`, which compares the count with the limit before a buff applies; read `@322759c3`, `@32275a16`). Decide where the list lives in March's DamageData (it is copied per hit; check whether June's copy shares it) and port both. June data: Rose's `DamageEffect_SA_RFY_M18A1_Claymore_Project` only (Rose is absent), so it stays dormant until Rose arrives.
+- Out of scope, recorded by Phase 10: `CHECK_RIDINGPET_SPACIAR_BUFF` (June's transforming riding pet, `32d2f560`/`32d2f3d0`; March has no Bumblebee pet), `AddRandomBuffList`/`DUMMY_BUFF_TEMPLET_ID` (June's CustomEventManager, `3267c370`, `322a7d50`), `3227a960`'s key-name dedupe (effect plan C3).
+
+**Run with:** Opus 5.5, high effort. Review required.
+
+**Kickoff:** `kickoffs/june-buff/10b.md` — start it with `/x2-phase june-buff 10b`.
+
 ## Phase 11 — Premium/world buffs and the offline path
 
 **Scope.**

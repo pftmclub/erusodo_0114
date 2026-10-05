@@ -43,7 +43,9 @@ flags `SERV_IRUHADEV_JUNE_BUFF_*` (+ `_DEBUG`) · kickoffs `kickoffs/june-buff/`
 | 8 | done 2026-10-05 (`cb83083`, `ec6aece`, fix `f52a21b`), exe 8b491d7d deployed: BFT 14/15/16 parse + classes (census: no BFT left; 17 has no June code), stick-shake input/prompt, BFT 16 count at state start, SHAKE_DECREASE trigger, buff-change counter + its UDP resync (field flag 32-bit, XPT 27: **every peer needs this build**, MODS.md); aura socket side -> Phase 16 (user, 2026-10-05); JUNE_BUGS #15, #16; **user owes the 4-check play-test** (console-registered test buffs), then /cost | Opus 5.5 / high | 2, 4b, 6b | X2BuffFactor.cpp, X2BuffFinalizerTemplet.h/.cpp, X2BuffTemplet.h/.cpp, X2GameUnit.h/.cpp, X2GUUser.h/.cpp, X2Game.h/.cpp, X2UDPPacket.h/.cpp, Always.h | `8.md` |
 | 8 review | ready after the play-test | Opus 5.5 / high | 8 | review only (fixes under the same flag) | `8-review.md` |
 | 9 | ready | Opus 5.5 / high | 4b | X2GameUnit.cpp (CreateAndInsertCustomFunction), X2GUUser.cpp, X2GURaven.cpp, X2GUAra.cpp, new classes | `9.md` |
-| 10 | ready | Opus 5.5 / high | 3 | X2Main.cpp (bindings), X2Game.cpp, UnitApplyBuffGroup.lua (+ data036 staging manifest) | `10.md` |
+| 10 | done 2026-10-05 (`9eba9ad`), exe 8b491d7d deployed: buff groups + officially-debuff set (UnitApplyBuffGroup.lua), `CanApplyBuffToGameUnit(BTI)` + NPC group gate, June's damage-react apply, bindings (DeleteNonControlDebuff, GetBuffAccumulationCountNow, ApplyBuffFactor cheat), June's ParsingBuffFactorID, IS_AURA_BUFF/LIMIT parsed; **user owes:** pack `UnitApplyBuffGroup.lua` into data036.kom, play-test, decision on `_MEMO_DROP`, /cost | Opus 5.5 / high | 3 | X2BuffTempletManager, X2GameUnit.cpp/.h, X2GUUser.cpp/.h, X2GUNPC.cpp/.h, X2DamageManager.cpp/.h, X2Main.cpp, X2Game.cpp, X2GUAra.cpp, X2GameEdit, X2BuffFinalizerTemplet.h, X2StateStartUp.cpp, UnitApplyBuffGroup.lua (+ data036 staging manifest) | `10.md` |
+| 10 review | ready after the play-test | Opus 5.5 / high | 10 | review only (fixes under the same flags) | `10-review.md` |
+| 10b | ready (after 10's play-test) | Opus 5.5 / high | 10 | X2DamageManager.cpp (team checks), X2GameUnit.cpp, X2GUNPC.cpp (DamageReact), X2GUUser.cpp, DamageData | `10b.md` |
 | 11 | ready | Opus 5.5 / high | 3 | X2PremiumBuffManager.cpp, X2Lib/Offline/ (handlers as needed), BuffTemplet.lua (+ data036 staging manifest) | `11.md` |
 | 12 | done, play-tested | - | - | - | - |
 | 13 | blocked (last data phase) | Sonnet 5.5 / medium | 4-12 | buff Lua data, staging dirs | `13.md` |
@@ -53,7 +55,7 @@ flags `SERV_IRUHADEV_JUNE_BUFF_*` (+ `_DEBUG`) · kickoffs `kickoffs/june-buff/`
 
 "Touches" lists the files each phase's section names (checked 2026-10-04 with
 `tools/docsection.py`); a phase may touch more once it is underway.
-Parallel pairs with no shared file: **9 + 10**, **9 + 11**. Phases 10 and 11 both stage Lua
+Parallel pairs with no shared file: **9 + 11** (10 turned out to edit X2GameUnit/X2GUUser/X2GUNPC, so 9 + 10b is not one). Phases 10 and 11 both stage Lua
 into `data036` and its `_manifest.json`, so run them one after the other. 15 and 11 both edit
 `X2Lib/Offline/`. Phases 6b, 7, 7b, 7d, 8, 9, 15 and 16 all edit `X2GUUser.cpp` and/or `X2GameUnit.cpp`,
 so run them one at a time; of these only 9 is known to be clear of 10's and 11's files.
