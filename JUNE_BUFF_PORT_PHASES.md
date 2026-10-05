@@ -3904,7 +3904,7 @@ Check 5: back in the village, no icons appeared. The emulator's send after `EGS_
 
 ### Phase 11b — Done (2026-10-05)
 
-**Landed** in `<COMMIT>`. Kickoff `kickoffs/june-buff/11b.md`; every June function has a "Buff Phase 11b" funcmap row.
+**Landed** in `32202c5`. Kickoff `kickoffs/june-buff/11b.md`; every June function has a "Buff Phase 11b" funcmap row.
 
 **Ported:**
 - **`SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF`: defined but commented out** (user, 2026-10-05: "port now, flag off"). It is June's clear-all `3229fb10` = `FinishAndClearAllBuff( bool bKeepStoreBuff )`:
