@@ -3415,7 +3415,7 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 **Correction:** `31fceab0`'s other exit tests the skill's `m_ePowerRate` (templet `+0x174`) against 5 = June's `SPRT_HYPER_CLASS`, absent from March's enum (5 = `SPRT_END`); it cannot fire here. `+0x178` (6b's memo/base id) is written separately, so there is no conflict with 6b.
 
-**Decision for the user (open):** June removed March's `BUFF_FACTOR_ID_MEMO` / `BUFF_FACTOR_RELATIVE_MEMO_ID` branch (no such key in June's binary) for `_ULTIMATE`, whose gate is off here. March data uses it in `DamageEffect`, `Elsword_SwordMan`, `RAVEN_FIGHTER`. It is **kept** (the effect plan kept March's memo reads); `#define SERV_IRUHADEV_JUNE_BUFF_MEMO_DROP` in `Always.h` drops it.
+**Decision for the user (resolved in the review: on, `e6757fb`):** June removed March's `BUFF_FACTOR_ID_MEMO` / `BUFF_FACTOR_RELATIVE_MEMO_ID` branch (no such key in June's binary) for `_ULTIMATE`, whose gate is off here. March data uses it in `DamageEffect`, `Elsword_SwordMan`, `RAVEN_FIGHTER`. It is **kept** (the effect plan kept March's memo reads); `#define SERV_IRUHADEV_JUNE_BUFF_MEMO_DROP` in `Always.h` drops it.
 
 **JUNE_BUGS.md:** the group replaces the base check; the unchecked templet in `326c31c0` (guarded here: a crash); `_ULTIMATE_PVP` skips the found test; the two independent rolls.
 
@@ -3475,7 +3475,14 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,141,632 B, dated 2026-10-05 12:54:57, md5 58398ae287e54921625ae284e1d4934f, equal to X2/US_SERVICE/x2.exe (2026-10-05 12:54:53); built at mods/june-buff-port bc77561 + 3 uncommitted code file(s).` (those 3 are exactly `e107d9b`).
 
-**Play-test:** none. `SetBuffFactorToGameUnitAtLevel` has no caller and the other edit is a comment, so nothing in game changes. **Owed by the user:** the `_MEMO_DROP` decision (still open from the Done note), and /cost.
+**Play-test:** none. `SetBuffFactorToGameUnitAtLevel` has no caller and the other edit is a comment, so nothing in game changes.
+
+**`_MEMO_DROP` decided (user, 2026-10-05: "follow what June offers"): on, `e6757fb`.** March's `BUFF_FACTOR_ID_MEMO` / `BUFF_FACTOR_RELATIVE_MEMO_ID` branch is gone, as in June. A skill with its memo equipped now takes `BUFF_FACTOR_ID` (March data: `RAVEN_OVER_TAKER_CHARGED_BOLT_BLOOD` in `DamageEffect`, and entries in `Elsword_SwordMan` and `RAVEN_FIGHTER`). June's replacement `_ULTIMATE` stays off (no skill-memo map). The effect plan's memo reads in `X2DamageEffect` (`APPLIED_SKILL_ID_NOT_AFFECT_MEMO`, the alternate damage data) are a separate system and do not change.
+- Hygiene (`--range 9eba9ad^..HEAD`, `--with` the other five + `JUNE_BUFF_DEBUG`): `files: 0 PASS, 1 PASS~ (blank/marker only), 2 DEFINE, 16 OTHER (other flags), 0 FAIL, 0 ERROR`; `4 deleted line(s)` (the block's old OFF comment and the commented-out `#define`, rewritten), 0 non-ASCII, 0 EOL-mismatched, 0 encoding change(s); `RESULT: PASS`.
+- `DEPLOY OK: X2_offline.exe is 19,141,120 B, dated 2026-10-05 13:11:12, md5 0b06cc942de046ab571c58019de43230, equal to X2/US_SERVICE/x2.exe (2026-10-05 13:11:07); built at mods/june-buff-port 48c3072 + 1 uncommitted code file(s).` (that file is exactly `e6757fb`; 512 B smaller than `58398ae2`, the dropped branch).
+- Not play-tested: it shows only with one of those memos equipped, and the result is the plain buff, the same as without the memo.
+
+**Owed by the user:** /cost.
 
 ## Phase 10b — The DamageData buff keys' readers (added 2026-10-05 by Phase 10)
 
