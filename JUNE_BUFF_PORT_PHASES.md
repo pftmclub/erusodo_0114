@@ -3100,6 +3100,48 @@ Log check (`python tools/logs.py --tag JUNE_BUFF`): `first arm quick-slot specia
 
 **Open for the user:** none blocking. `/cost`: please paste it here.
 
+### Phase 7d — Review (2026-10-05)
+
+**Verdict: no code change (exe stays `28343b61`). One finding needs a decision (c), and a smaller one goes with it; everything else matches June.** Evidence rows are in `june2017_re/funcmap.tsv` ("7d review").
+
+**Finding 1, decision (c): before the start, the port refuses where June allows, and that refusal can freeze the keys.**
+- `322f1f90` is not June-only. It is "the now stage has a start motion": `m_pDungeon` (`+0xc44`) → `m_pNowStage` (`+4`) → `m_pStageData` (`+0`) → byte 0 = `StageData::m_bStartMotion` (`X2DungeonStage.h:29`), or 1 if any pointer is null.
+- `+0x92cc` is June's start-motion delay. `CX2DungeonGame::StageLoad` `327cd1b0` runs March's loop (`X2DungeonGame.cpp:814-848`), but a start-motion stage stores the stage's delay there (`@327cdb01`), and a stage without one changes to the wait state and stores −1 (`@327cdb46`). Nothing turns −1 back into ≥ 0 that March can reach: `322f11d0` zeroes only values other than −1 (`@322f1259-64`), and `31d87420` only in dungeon 41470, which March does not have. **So on a no-start-motion stage `322f5140` is true: June arms, allows and uses the item.** The port arms and then refuses, so the keys stay off until `ReInit` or death (#13's lock).
+- **Reachable in March data.** `m_bStarted` has one writer, `StartEnd` (`X2GUUser.cpp:26210`). In March's dungeon scripts (`es-server-mar/ClientScript/Dungeon`, first stage block) only 15 dungeons start without a start motion: the 8 `Dungeon_Battle_Field_Tutorial_*` (39600+, the tutorial after character creation, `XS_DUNGEON_GAME`), the 6 `Dungeon_ElTutorial_*` and `Dungeon_Training_Free` (`XS_TRAINING_GAME`, where the quick slot is off). Repro: a throw item in the quick slot, pressed while standing in the post-creation tutorial. The 7d play-test ran in a field.
+- SAT 34 (summon card) asks the same `322f5140( false )`. June allows it there, with no ACK wait.
+- Dungeon 38100 **is** in March: `DI_ELDER_HENIR_SPACE` (`DungeonEnum.h:351`), which corrects 7d. June's party path (party `+0x38 == 1`, a candidate for `m_iDungeonMode == DM_HENIR_CHALLENGE`) changes nothing reachable: Henir's first stage has a start motion, and a unit in `USI_START` never arms.
+- **Options:**
+  - **A (recommended):** port `322f5140` the way March can express it: allowed when the now stage's `m_bStartMotion` is false. That stage always has June's `+0x92cc` < 0, as shown above. Leave out the Henir path, since it is unreachable. Apply it to SAT 18 and SAT 34. Flag off stays March. #13 goes back to latent, because only start-motion stages refuse and their units sit in `USI_START`.
+  - **B:** also port the `+0x92cc` member, its writes and the countdown (`@32070053`, `31fcf040` at 0). March has no start delay (`START_MOTION_DELAYTIME` is a June key), so this adds nothing over A.
+  - **C:** keep the refusal but skip the arm before the start. Not June; the smallest change.
+  - **D:** keep it as it is, and record #13 as reachable.
+
+**Finding 2 (goes with (c)): SAT 38 has a March home.** `SAT_RETURN_TO_BASE_AT_PVE` = 38 is in March's enum unconditionally (`X2Item_Preprocessing.inl`), and `STR_ID_30375` exists. June's case (`@322fb7d8`) refuses it, with STR 30375 as info text, whenever the game type is not 4, and March has no type 4. The port's `default` sets the ACK wait and sends the request instead, which is March's behaviour. Not checked: whether any March item carries SAT 38 (`item.kim` is binary). Recommended: port that refusal together with A.
+
+**Also for the follow-up:** `Always.h`'s flag comment still says "NoStateChangeActionFrameMove (slot 510)" where the reader is each class's `SpecialAttackEventProcess`. The `X2GUUser.h` comment is right.
+
+**Kickoff checks.**
+1. **One caller.** A raw `e8`/`e9` scan of `.text` finds `322fa960` ← `329515d9` only, and no absolute reference anywhere in the file. `322fbc60` ← `3200ee66`, `32024aec`, `323049ca`, `3294e76c`.
+2. **Argument roles.** `@329515a7-d9` pushes: `&slot+0x110`, `32951420`'s pWaitingAck, `&allow`, user, templet. The allow byte is only ever cleared, except Value2 4 sets it (`@322fad63` → `@322fbbe5`). The ACK wait is set on both accepts and in `default`.
+3. **Slot 509.** Eve `32969300`, Chung `32bd8790`, EL `32b4ee20` and Ara `32b90c20` have Elsword's shape: they call `[vt+0x7f8]` (510) first. Eve's, Chung's and Ara's 510 open with `fldz; fcomp [+0x8d78]` → `jnp` to `return false` (Ara: `32bcfcbe xor al, al`) before anything else. Ara's `CanUseSpecialAttack` and `FIX_SKILL_CANCEL_ARA` block therefore sit after the test, so the early return skips nothing June runs.
+4. **Cases.** 16, 18, 34, 39 and `default` match June test for test. SAT numbers were checked against `X2Item_Preprocessing.inl`; `GT_DUNGEON` = 2.
+   - **Future/Now settled:** StageLoad `@327cdacc` reads `+0x7cbc`'s state index == 4 (`GUSI_DIE`), which is March's `GetNowStateID() != GUSI_DIE` (`:822`). So `+0x7cbc` is Now, `+0x7cb0` is Future, and `3208e410` is confirmed. Only SAT 16 depends on this.
+   - STR 43633 is past March's table (highest STR_ID 30534); `GetGeneralString` returns empty, and release `ASSERT` is empty (`KTDX.h:855`).
+5. **Left out.**
+   - SAT 43 (past `SAT_END` = 40), game type 4, the PvP bar, BTI 931, June's pet manager and the cooldown bypass are June-only, as 7d said.
+   - SAT 38 and the pre-start paths: see the two findings.
+   - Item 100003917 and the group `0x67` gate were not re-checked.
+6. **KeyEventProcess.** `bl` = 1 (`@3295168e`); `call 32951420; cmp al, bl; jne 329517d0` → `mov byte [ebp], 0` with ebp = `&+0xe4` (`@32951688`). The order cooldown → `32950d60` → no-game check (`@329514c5`) → `322fa960` matches the port, and the `#else` is March.
+
+**Hygiene.** `flagcheck JUNE_BUFF_QUICKSLOT_ITEM --range 50d4e32^..HEAD --with JUNE_BUFF_DEBUG`:
+- `files: 12 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+- `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)`;
+- `RESULT: PASS`.
+
+The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each holding March verbatim. No build: nothing changed.
+
+**For the user.** Decision (c): A, B, C or D, and whether SAT 38's refusal goes with it. `kickoffs/june-buff/7e.md` is written for A plus SAT 38. `/cost`: please paste it here.
+
 ## Phase 8 — New finalizers and counter sync
 
 **Scope.**
