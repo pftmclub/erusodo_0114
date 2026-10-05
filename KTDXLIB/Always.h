@@ -4861,10 +4861,32 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              the cooldown and clears the ACK wait on a refusal, as June's
 //              32951670/32951420/32950d60 do. A throw/install item accepted there
 //              arms the user's quick-slot special item wait (+0x8d78 = 10 s,
-//              3344a51c), and every class's NoStateChangeActionFrameMove (slot
-//              510) skips while it runs. Gates that belong to June-only systems
+//              3344a51c), and every class's SpecialAttackEventProcess (June's slot
+//              510 skill lookup, corrected by the 7d review) refuses a skill while
+//              it runs. Phase 7e adds June's pre-start allow (322f5140: the now
+//              stage has no start motion and my unit's start-motion delay is
+//              below 0, or Henir practice in dungeon 38100) and SAT 38's refusal
+//              (STR 30375). Gates that belong to June-only systems
 //              (the PvP item bar, Erda Island, event items, June's pet item
 //              check) are listed in the Done note, not ported.
-//              Requires SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK (the wait, 7c).
+//              Requires SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK (the wait, 7c) and
+//              SERV_IRUHADEV_JUNE_BUFF_START_DELAY (the start-motion delay, 7e).
 #define SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 7e (JUNE_BUFF_PORT_PHASES.md): June's
+//              start-motion delay (CX2GUUser +0x92cc). -1 in the ctor; StageData
+//              reads START_MOTION_DELAYTIME (default 0); CX2DungeonGame::StageLoad
+//              stores it on a start-motion stage instead of changing state, and
+//              -1 with the (riding) wait state otherwise; OnFrameMove counts it
+//              down and starts the motion when it drops below 0 (31fcf040), then
+//              stores -1 once the unit is in its start state. March data has no
+//              delay key, so a start-motion stage starts one frame after
+//              StageLoad. Its readers with a March home: the riding key in
+//              CX2Game::KeyProcess and the pet window's Ride button refuse while
+//              it is not -1 (3230f110), and the quick-slot item check (7d flag).
+#define SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 //////////////////////////////////////////////////////////////////////////

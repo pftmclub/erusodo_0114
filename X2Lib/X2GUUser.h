@@ -2892,7 +2892,8 @@ public:
 
 		/// +0x8d78: June arms it with 10.0 s (3344a51c) in its quick-slot special item check (CX2Game 322fa960 @322faee8,
 		/// @322fb40b); -1 in the ctor and THROW_ITEM_StateEnd; counted down in OnFrameMove. While it runs: no awakening,
-		/// no skill (every class's NoStateChangeActionFrameMove, slot 510). The arm is not ported yet (user decision).
+		/// no skill (every class's SpecialAttackEventProcess, June's slot 510 skill lookup). Armed by
+		/// CX2Game::CheckQuickSlotItemSpecialAbility (Phase 7d).
 		float	m_fQuickSlotSpecialItemWaitTime;
 		/// +0x8d4c: set when an awakening key asks for the hyper mode state (343, the SKILL_CANCEL_AFTER macros), cleared
 		/// when that state starts on the Now side (HyperModeStart / RidingHyperModeStart, 7c review); June's quick-slot
@@ -2908,6 +2909,19 @@ public:
 		/// 0xbb) return June-only states: character port, JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7
 		virtual int GetSpecialItemUsableExtraStateID() { return GetWaitStateID(); }
 #endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+#ifdef SERV_IRUHADEV_JUNE_BUFF_START_DELAY
+		/// June buff port Phase 7e: June's start-motion delay (+0x92cc). -1.0f in the ctor (3203e850 @32041c8b,
+		/// 334380f0). CX2DungeonGame::StageLoad (327cd1b0) stores the stage's START_MOTION_DELAYTIME on a start-motion
+		/// stage (@327cdb01) and -1 with the wait state otherwise (@327cdb46). OnFrameMove (3206eaf0 @32070053-e2) counts
+		/// it down while it is >= 0 and calls StartMotionStateChange when it drops below 0; below 0, it stores -1 once
+		/// the Now state is USI_START or USI_RIDING_START. Read by IsStartMotionDelayNone (3230f110) and June's
+		/// quick-slot pre-start allow (CX2Game 322f5140).
+		bool	IsStartMotionDelayNone() const { return -1.f == m_fStartMotionDelayTime; }	/// 3230f110 (fucompp == -1)
+		float	GetStartMotionDelayTime() const { return m_fStartMotionDelayTime; }
+		void	SetStartMotionDelayTime( float fTime_ ) { m_fStartMotionDelayTime = fTime_; }
+		void	StartMotionStateChange();		/// 31fcf040
+		float	m_fStartMotionDelayTime;
+#endif SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환
 		virtual void		UpNowDPValueByDamage( IN const float fDamage_ ) {}				/// 애드일 때, 피격시 DP 변동 처리

@@ -1078,6 +1078,10 @@ class CX2Game : public CKTDXStage
 		/// pbAllow_ = June's allow byte (cleared on a refusal), pbWaitingAck_ = the quick slot's ACK wait (set on an accept).
 		/// June's 5th argument (an out pair at quick slot +0x110, written only by SAT 43) has no March home.
 		void						CheckQuickSlotItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet_, CX2GUUser* pUser_, bool* pbAllow_, bool* pbWaitingAck_ );
+		/// June buff port Phase 7e: June 322f1f90, "the now dungeon stage has a start motion" (true outside a dungeon or
+		/// when any pointer on the way is NULL), and 322f5140, "a quick-slot item may be used before the start".
+		bool						IsNowStageStartMotion();
+		bool						CanUseQuickSlotItemBeforeStart( bool bHenirPractice_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 
 #ifdef PET_ITEM_GM

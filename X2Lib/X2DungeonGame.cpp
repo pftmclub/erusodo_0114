@@ -821,6 +821,27 @@ void CX2DungeonGame::StageLoading( int stageNum )
 		pCX2GUUser->InitPosition( true );
 		if( pCX2GUUser->GetNowHp() > 0.0f || pCX2GUUser->GetNowStateID() != CX2GameUnit::GUSI_DIE )
 		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_START_DELAY
+			/// June buff port Phase 7e, CX2DungeonGame::StageLoad (June 327cd1b0 @327cdafb-b4c): a start-motion stage
+			/// stores the stage's delay and leaves the state alone; the unit's OnFrameMove starts the motion when the
+			/// delay runs out (31fcf040). Any other stage: the (riding) wait state, as March, and -1.
+			if( pStageData->m_bStartMotion == true )
+			{
+				pCX2GUUser->SetStartMotionDelayTime( pStageData->m_fStartMotionDelayTime );		/// @327cdb01, StageData +0xac
+			}
+			else
+			{
+#ifdef RIDING_SYSTEM
+				if ( pCX2GUUser->GetRidingOn() )
+					pCX2GUUser->StateChange( pCX2GUUser->GetRidingWaitStateID(), true );		/// push 1; push 0x4c
+				else
+					pCX2GUUser->StateChange( pCX2GUUser->GetWaitStateID(), true );
+#else //RIDING_SYSTEM
+				pCX2GUUser->StateChange( pCX2GUUser->GetWaitStateID(), true );
+#endif //RIDING_SYSTEM
+				pCX2GUUser->SetStartMotionDelayTime( -1.f );		/// @327cdb46, 334380f0
+			}
+#else SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 			if( pStageData->m_bStartMotion == true ) // 첫번째 또는 마지막 stage에만 start motion을 취한다.
 			{
 #ifdef RIDING_SYSTEM
@@ -843,6 +864,7 @@ void CX2DungeonGame::StageLoading( int stageNum )
 				pCX2GUUser->StateChange( pCX2GUUser->GetWaitStateID(), true );
 #endif //RIDING_SYSTEM
 			}
+#endif SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 		}
 
 		pCX2GUUser->SetPepperRunTime( 0.f );

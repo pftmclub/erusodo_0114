@@ -1142,6 +1142,10 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	m_fQuickSlotSpecialItemWaitTime	= -1.f;
 	m_bHyperModeStartedByInput		= false;
 #endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#ifdef SERV_IRUHADEV_JUNE_BUFF_START_DELAY
+	/// June buff port Phase 7e, CX2GUUser ctor (June 3203e850 @32041c8b: the x87 stack holds 334380f0 = -1.0f)
+	m_fStartMotionDelayTime			= -1.f;
+#endif SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 
 #ifdef SERV_CHUNG_TACTICAL_TROOPER
 	m_iHyperModeCountUsed		= 0;
@@ -6845,6 +6849,34 @@ HRESULT CX2GUUser::OnFrameMove( double fTime, float fElapsedTime )
 	if( m_fSlotChangeLeftCoolTime > 0.f )
 		m_fSlotChangeLeftCoolTime -= fElapsedTime;
 #endif // FIX_SKILL_SLOT_CHANGE_BUG
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_START_DELAY
+	/// June buff port Phase 7e, the tail of CX2GUUser::OnFrameMove (June 3206eaf0 @32070053-e2, after the Now pop loop)
+	if ( m_fStartMotionDelayTime >= 0.f )		/// fcom; test ah, 0x41; jp: taken only below 0
+	{
+		m_fStartMotionDelayTime -= fElapsedTime;
+		if ( m_fStartMotionDelayTime < 0.f )
+		{
+			StartMotionStateChange();		/// @32070084, 31fcf040
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			static bool s_bSeenStartMotionDelayEnd = false;
+			if ( !s_bSeenStartMotionDelayEnd && true == IsMyUnit() )
+			{
+				s_bSeenStartMotionDelayEnd = true;
+				CX2JuneBuffCapture::Line( "first start-motion delay end (31fcf040): my unit starts its start motion, riding %d",
+					( NULL != GetUnit() && NULL != GetUnit()->GetRidingPetInfo() ) ? 1 : 0 );
+			}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		}
+	}
+	else
+	{
+		/// @3207008d-e2: the Now state (+0x7cbc) is 0x48 (June's riding start) or 9 (USI_START)
+		const int iNowStateID = GetNowStateID();
+		if ( iNowStateID == GetRidingStartStateID() || iNowStateID == USI_START )
+			m_fStartMotionDelayTime = -1.f;
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 
 	return S_OK;
 }
@@ -26110,6 +26142,25 @@ void CX2GUUser::StartEventProcess()
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_START_DELAY
+/// June buff port Phase 7e: June 31fcf040, called by OnFrameMove when the start-motion delay runs out. The riding start
+/// when the unit has a riding pet (+0x867c -> 3234ca90 = CX2Unit::GetRidingPetInfo, the test Init uses for its start
+/// state), else USI_START; both with bDirectChange false (push 0 @31fcf0cc, @31fcf0dc), where StageLoad used true.
+/// June's two other tests veto the riding start and have no March home: flag 8 of the dungeon data's bitset<15>
+/// (31edf8f0 -> 327d9df0; March's DungeonData has no such set) in game states 0xb / 0x17, and 32932230 (dungeon IDs
+/// 100000-100532, 110001-110310, 120000, 120010; March's highest DUNGEON_ID is 41311).
+void CX2GUUser::StartMotionStateChange()
+{
+#ifdef RIDING_SYSTEM
+	if ( NULL != GetUnit() && NULL != GetUnit()->GetRidingPetInfo() )
+		StateChange( GetRidingStartStateID(), false );
+	else
+		StateChange( USI_START, false );
+#else //RIDING_SYSTEM
+	StateChange( USI_START, false );
+#endif //RIDING_SYSTEM
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 /** @function : StartEnd
 	@brief : 자기 유닛인 경우에만 시작했다는 파티클을 보여주고, 펫은 초기화 함
 */

@@ -5660,7 +5660,13 @@ void CX2Game::KeyProcess()
 					CX2RidingPetManager* pRidingPetManager = CX2RidingPetManager::GetInstance();
 					if( NULL != pRidingPetManager && true == pRidingPetManager->GetHasRidingPet() )
 					{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_START_DELAY
+						/// June buff port Phase 7e, the start-motion delay read in CX2Game::KeyProcess (June 322f7170 @322f803c-50):
+						/// only once my unit's delay is -1 (3230f110); otherwise the 24526 / 24527 text below (@322f80b9)
+						if( true == pMyGUUser->IsStartMotionDelayNone() && true == pRidingPetManager->GetRidingOnState() )
+#else SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 						if( true == pRidingPetManager->GetRidingOnState() )
+#endif SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 						{
 							if ( true == pRidingPetManager->CanPushSummonButton() )
 							{
@@ -10672,6 +10678,39 @@ namespace
 	}
 }
 
+/// June buff port Phase 7e: June 322f1f90. Game type not 2 (or June's 4) -> true; else dynamic_cast<CX2DungeonGame>
+/// (RTTI 3372bc38) -> m_pDungeon (+0xc44) -> m_pNowStage (+4) -> m_pStageData (+0) -> m_bStartMotion; true when any is NULL
+bool CX2Game::IsNowStageStartMotion()
+{
+	if ( GT_DUNGEON != GetGameType() )
+		return true;
+
+	CX2DungeonGame* pDungeonGame = dynamic_cast<CX2DungeonGame*>( this );
+	if ( NULL == pDungeonGame || NULL == pDungeonGame->GetDungeon() ||
+		NULL == pDungeonGame->GetDungeon()->GetNowStage() ||
+		NULL == pDungeonGame->GetDungeon()->GetNowStage()->GetStageData() )
+		return true;
+
+	return pDungeonGame->GetDungeon()->GetNowStage()->GetStageData()->m_bStartMotion;
+}
+
+/// June buff port Phase 7e: June 322f5140( bool ). With the argument set, a party in dungeon 38100 (32931920, 0x94d4 =
+/// DI_ELDER_HENIR_SPACE) decides by party +0x38 == 1 alone: +0x38 is PartyData::m_iDungeonMode (June's writer 32563a8c
+/// stores 1 for dungeon type 2, as X2LocalMapUI.cpp stores DM_HENIR_PRACTICE for DT_HENIR) and +0x10 m_iDungeonID.
+/// Otherwise: the now stage has no start motion and my unit's start-motion delay is below 0 (fldz; fcomp; test ah, 0x41).
+bool CX2Game::CanUseQuickSlotItemBeforeStart( bool bHenirPractice_ )
+{
+	if ( true == bHenirPractice_ &&
+		SEnum::DI_ELDER_HENIR_SPACE == g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonID )
+	{
+		return CX2Dungeon::DM_HENIR_PRACTICE == g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonMode;
+	}
+
+	if ( true == IsNowStageStartMotion() || NULL == GetMyUnit() )
+		return false;
+
+	return GetMyUnit()->GetStartMotionDelayTime() < 0.f;
+}
 void CX2Game::CheckQuickSlotItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet_, CX2GUUser* pUser_, bool* pbAllow_, bool* pbWaitingAck_ )
 {
 	if ( NULL == pItemTemplet_ )
@@ -10725,21 +10764,41 @@ void CX2Game::CheckQuickSlotItemSpecialAbility( const CX2Item::ItemTemplet* pIte
 
 				if ( GT_DUNGEON == GetGameType() && NULL != GetMyUnit() && false == GetMyUnit()->GetStarted() )
 				{
-					/// June @322fadb5-f69: before the start, the state check and the arm run as below, then June asks
-					/// 322f5140( true ) (inlined @322faefb): the party's dungeon 38100 (0x94d4) with party +0x38 == 1, or
-					/// CX2DungeonGame's 327c94d0 false and the user's start timer +0x92cc < 0. Those are June-only, so
-					/// the item is refused here, as March's FIX_QUICK_SLOT_USE_DUNGEON_PLAY refuses it (JUNE_BUGS.md #13:
-					/// an arm before that refusal leaves the keys off).
+					/// June @322fadb5-f69: before the start, the state check and the arm run as below (a failed check or gate
+					/// clears the allow byte, @322fae91 / @322faef4), then June asks 322f5140( true ) (inlined @322faefb-57):
+					/// on true the item is used, on false it is refused (JUNE_BUGS.md #13: an arm before that refusal
+					/// leaves the keys off for a frame and skills locked for 10 s).
+					bool bArmedBeforeStart = false;
 					if ( true == IsQuickSlotSpecialSkillState( pUser_ ) && true == CanArmQuickSlotSpecialItemWait( pUser_ ) )
 					{
 						*pbWaitingAck_ = true;
 						SetEnableAllKeyProcess( false );
-						pUser_->m_fQuickSlotSpecialItemWaitTime = 10.f;		/// 3344a51c
+						pUser_->m_fQuickSlotSpecialItemWaitTime = 10.f;		/// @322faee8, 3344a51c
+						bArmedBeforeStart = true;
+					}
+					else
+						*pbAllow_ = false;
+
+					if ( false == CanUseQuickSlotItemBeforeStart( true ) )
+					{
+						*pbAllow_ = false;		/// @322faf5d
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-						CX2JuneBuffCapture::Line( "quick-slot special item armed before the start and then refused (item %d)", pItemTemplet_->GetItemID() );
+						if ( true == bArmedBeforeStart )
+							CX2JuneBuffCapture::Line( "quick-slot special item armed before the start and then refused (item %d)", pItemTemplet_->GetItemID() );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 					}
-					*pbAllow_ = false;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+					else if ( true == bArmedBeforeStart )
+					{
+						static bool s_bSeenPreStartAllow = false;
+						if ( !s_bSeenPreStartAllow )
+						{
+							s_bSeenPreStartAllow = true;
+							CX2JuneBuffCapture::Line( "first pre-start quick-slot allow (322f5140): item %d, now stage start motion %d, start-motion delay %g",
+								pItemTemplet_->GetItemID(), IsNowStageStartMotion() ? 1 : 0, NULL != GetMyUnit() ? GetMyUnit()->GetStartMotionDelayTime() : 0.f );
+						}
+					}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 					break;
 				}
 
@@ -10774,9 +10833,10 @@ void CX2Game::CheckQuickSlotItemSpecialAbility( const CX2Item::ItemTemplet* pIte
 				{
 					if ( NULL != GetMyUnit() && false == GetMyUnit()->GetStarted() )
 					{
-						/// June 322f5140( false ): CX2DungeonGame's 327c94d0 false and the user's start timer +0x92cc < 0,
-						/// both June-only, so it refuses as March does
-						*pbAllow_ = false;
+						/// June @322fb5a2-de: before the start, 322f5140( false ) decides: true uses the item with no ACK
+						/// wait, false refuses
+						if ( false == CanUseQuickSlotItemBeforeStart( false ) )
+							*pbAllow_ = false;
 						break;
 					}
 					*pbWaitingAck_ = true;
@@ -10789,6 +10849,21 @@ void CX2Game::CheckQuickSlotItemSpecialAbility( const CX2Item::ItemTemplet* pIte
 				}
 			} break;
 
+		case CX2Item::SAT_RETURN_TO_BASE_AT_PVE:	/// 38, @322fb7d7
+			{
+				/// June's two tests: before the start, 322f5140( false ) false refuses (@322fb7e3-80d); then any game type
+				/// but 4 refuses with STR 30375 (0x76a7) as info text (@322fb80f-28, @322fb8c0). Type 4 is June's (Erda
+				/// Island); March's GAME_TYPE ends at GT_BATTLE_FIELD = 3, so the item is always refused here.
+				if ( NULL != GetMyUnit() && false == GetMyUnit()->GetStarted() &&
+					false == CanUseQuickSlotItemBeforeStart( false ) )
+					*pbAllow_ = false;
+
+				if ( 4 != GetGameType() )
+				{
+					*pbAllow_ = false;
+					GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, GET_STRING( STR_ID_30375 ), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 1.f );
+				}
+			} break;
 		case CX2Item::SAT_RIDINGPET_STAMINA_PERCENT_UP:	/// 39, @322fba55: only while riding (June's string 43633 has no March STR_ID)
 			{
 				if ( NULL != pUser_ && false == pUser_->GetRidingOn() )

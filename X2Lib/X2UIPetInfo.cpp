@@ -932,7 +932,15 @@ bool CX2UIPetInfo::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 					&& ( NULL != g_pMain->GetNowState() && static_cast<CX2State*>(g_pMain->GetNowState())->GetEnableShortCutKey() ) )
 				{
 					pRidingManager->RefreshSummonButtonElpasedTime();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_START_DELAY
+					/// June buff port Phase 7e, PLUCM_RIDING_PET_RIDE (June 329031f0 case 44019 @32903c0c-cb4): in a game,
+					/// only once my unit's start-motion delay is -1 (3230f110); otherwise the 24526 text below (@32903d04)
+					if( true == pRidingManager->GetRidingOnState() &&
+						( NULL == g_pX2Game ||
+						( NULL != g_pX2Game->GetMyUnit() && true == g_pX2Game->GetMyUnit()->IsStartMotionDelayNone() ) ) )
+#else SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 					if( true == pRidingManager->GetRidingOnState() )
+#endif SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 					{
 						if( true == pRidingManager->GetRidingOn() )
 							pRidingManager->Handler_EGS_UNSUMMON_RIDING_PET_REQ( true, m_ViewRidingPetUid );

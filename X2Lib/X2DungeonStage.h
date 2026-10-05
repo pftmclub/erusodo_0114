@@ -27,6 +27,10 @@ class CX2DungeonStage
 		struct StageData	
 		{
 			bool										m_bStartMotion;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_START_DELAY
+			/// June buff port Phase 7e: June's StageData +0xac, START_MOTION_DELAYTIME (327f4e30 @327f51b5-e2, default 0)
+			float										m_fStartMotionDelayTime;
+#endif SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 			CX2World::WORLD_ID							m_WorldID;
 			//{{ 2010. 03. 24  최육사	비밀던전 헬모드
 			STAGE_TYPE									m_eStageType;
@@ -48,6 +52,9 @@ class CX2DungeonStage
 
 			StageData()
 			    : m_bStartMotion( false )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_START_DELAY
+                , m_fStartMotionDelayTime( 0.f )
+#endif SERV_IRUHADEV_JUNE_BUFF_START_DELAY
                 , m_WorldID( CX2World::WI_NONE )
                 , m_eStageType( CX2DungeonStage::ST_NONE )
                 , m_WorldColor( -1, -1, -1, 1 )

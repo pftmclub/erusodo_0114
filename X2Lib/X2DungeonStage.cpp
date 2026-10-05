@@ -386,6 +386,11 @@ bool CX2DungeonStage::StageData::LoadData( KLuaManager& luaManager, bool bIsNpcL
 	LUA_GET_VALUE( luaManager, "SECRET_STAGE", m_bSecretStage, false );
 	
 	LUA_GET_VALUE( luaManager, "START_MOTION", m_bStartMotion, false );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_START_DELAY
+	/// June buff port Phase 7e: June reads it right after START_MOTION (327f4e30 @327f50a5, xorstrings; @327f51d7-e2:
+	/// a failed read stores 0)
+	LUA_GET_VALUE( luaManager, "START_MOTION_DELAYTIME", m_fStartMotionDelayTime, 0.f );
+#endif SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 	LUA_GET_VALUE_ENUM( luaManager, "WORLD_ID", m_WorldID, CX2World::WORLD_ID, CX2World::WI_NONE );
 #ifdef X2TOOL
 	LUA_GET_VALUE( luaManager, "WORLD_DATA_NAME", m_wstrWorldDataName, L"" );
