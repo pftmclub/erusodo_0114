@@ -3040,6 +3040,8 @@ Log lines read afterwards: `first apply BBT 110` and `first read BBT 110: TryHyp
 
 ### Phase 7d — Done (2026-10-05)
 
+**Play-test (2026-10-05, user; exe `28343b61`, run 07:56:47 after the 07:46 deploy): all 3 checks passed by eye.** `ErrorLog.txt:176` `first arm quick-slot special item wait: item 78390, 10 s`; no `armed before the start` line; load baseline unchanged (`factors 361 loaded`, the same 5 ordinal rejects); no exception in the run.
+
 **Landed** (`SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM`, requires `_AWAKE_LOCK`). Evidence is in the "Buff Phase 7d" rows of `june2017_re/funcmap.tsv`: 15 new, 4 corrected.
 - `CX2Game::CheckQuickSlotItemSpecialAbility` = `322fa960`, case for case:
   - 16 pepper: riding, plus June's Future-state-skill refusal (STR 813);
