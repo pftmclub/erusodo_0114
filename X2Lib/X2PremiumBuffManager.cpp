@@ -509,7 +509,9 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT( IN HWND hW
 		{
 			CX2Unit* pCX2Unit = pCX2GUUser->GetUnit();
 			vector<CX2Unit::WorldBuffRecordPair>& vecRecord = pCX2Unit->GetWorldBuffRecord();
+#ifndef SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 			vector<BUFF_FACTOR_ID>& vecWorldBuffFactorID = pCX2Unit->GetWorldBuffFactorID();
+#endif SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 			bool bPcRoomBuffChanged = false;	/// June's flag for BTI_BUFF_PREMIUM_PC_ROOM
 
 			BOOST_FOREACH( const CX2Unit::WorldBuffRecordPair& kRecord, vecRecord )		/// erase every stored world buff
@@ -531,7 +533,9 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT( IN HWND hW
 			}
 
 			vecRecord.clear();
+#ifndef SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 			vecWorldBuffFactorID.clear();
+#endif SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 
 			BOOST_FOREACH( const KBuffInfo& kBuffInfo, kEvent.m_vecActivateBuffList )		/// apply what the server sent
 			{
@@ -585,7 +589,9 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT( IN HWND hW
 				if ( true == bApplied || pCX2GUUser->GetNowHp() <= 0.0f || CX2GameUnit::GUSI_DIE == pCX2GUUser->GetNowStateID() )
 				{
 					vecRecord.push_back( CX2Unit::WorldBuffRecordPair( iFactorID, kRecord ) );
+#ifndef SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 					vecWorldBuffFactorID.push_back( static_cast<BUFF_FACTOR_ID>( iFactorID ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 				}
 
 				if ( BTI_BUFF_PREMIUM_PC_ROOM == kRecord.m_iBuffTempletID )
@@ -708,7 +714,9 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_NOT( IN HWND hWnd, IN U
 	{
 		CX2Unit* pCX2Unit = g_pData->GetMyUser()->GetSelectUnit();
 		vector<CX2Unit::WorldBuffRecordPair>& vecRecord = pCX2Unit->GetWorldBuffRecord();
+#ifndef SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 		vector<BUFF_FACTOR_ID>& vecWorldBuffFactorID = pCX2Unit->GetWorldBuffFactorID();
+#endif SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 		bool bPcRoomBuffChanged = false;
 
 		BOOST_FOREACH( const CX2Unit::WorldBuffRecordPair& kRecord, vecRecord )		/// erase every stored icon
@@ -731,7 +739,9 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_NOT( IN HWND hWnd, IN U
 		}
 
 		vecRecord.clear();
+#ifndef SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 		vecWorldBuffFactorID.clear();
+#endif SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 
 		BOOST_FOREACH( const KBuffInfo& kBuffInfo, kEvent.m_vecActivateBuffList )
 		{
@@ -786,7 +796,9 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_NOT( IN HWND hWnd, IN U
 			kRecord.m_bUnderOneHour			= ( 0 < kRecord.m_iEndTime - kRecord.m_iStartTime && kRecord.m_iEndTime - kRecord.m_iStartTime <= 3600 );
 
 			vecRecord.push_back( CX2Unit::WorldBuffRecordPair( iFactorID, kRecord ) );
+#ifndef SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 			vecWorldBuffFactorID.push_back( static_cast<BUFF_FACTOR_ID>( iFactorID ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 		}
 
 		CX2JuneBuffCapture::Line( "world buff (village): %u sent, %u kept (June 326c9530)",

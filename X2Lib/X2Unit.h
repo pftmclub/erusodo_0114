@@ -1025,7 +1025,9 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 
 #ifdef SET_WORLD_BUFF_AT_RESURRECTION // 김태환
 		/// 서버에서 걸어주는 버프 항목을 지우기 위해, 버프 펙터 아이디 저장
+#ifndef SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 		vector<BUFF_FACTOR_ID>& GetWorldBuffFactorID() { return m_vecWorldBuffFactorID; }
+#endif SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 #else // SET_WORLD_BUFF_AT_RESURRECTION
 		vector<CX2BuffFactorPtr>& GetWorldBuffFactorPtr() { return m_vecWorldBuffFactorPtr; }
 #endif // SET_WORLD_BUFF_AT_RESURRECTION
@@ -1280,7 +1282,9 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 
 #ifdef SET_WORLD_BUFF_AT_RESURRECTION // 김태환
 		/// 유저 부활시 해당 버프들을 다시 적용해 줘야 하기 때문에, 펙터 아이디를 저장
+#ifndef SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 		vector<BUFF_FACTOR_ID>		m_vecWorldBuffFactorID;			/// 마을 버프 컨테이너
+#endif SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 #else // SET_WORLD_BUFF_AT_RESURRECTION
 		vector<CX2BuffFactorPtr>	m_vecWorldBuffFactorPtr;		/// 마을 버프 컨테이너
 #endif // SET_WORLD_BUFF_AT_RESURRECTION

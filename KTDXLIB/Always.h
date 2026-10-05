@@ -5153,3 +5153,18 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              SERV_IRUHADEV_JUNE_BUFF_PREMIUM.
 #define SERV_IRUHADEV_JUNE_BUFF_DURATION_TIME
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 11b: remove March's world-buff factor
+//              ID list (CX2Unit::m_vecWorldBuffFactorID). June keeps only the
+//              record vector (+0xdbc): its two world-buff handlers, ReInit,
+//              the skill level, the repair discount and the icon time text
+//              read nothing else. With the flags below on, nothing read it
+//              either. User request 2026-10-05. Requires
+//              SERV_IRUHADEV_JUNE_BUFF_PREMIUM and
+//              SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT (their #else paths are
+//              March's readers): comment this out before turning either off.
+#define SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
+//////////////////////////////////////////////////////////////////////////

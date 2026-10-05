@@ -3932,6 +3932,11 @@ Check 5: back in the village, no icons appeared. The emulator's send after `EGS_
 - **Open for the review:** June's base `DyingStart` was not located. March clears all buffs there, so the port's call there passes false (no gage save). This is dormant while the flag is off.
 
 **`m_vecWorldBuffFactorID`:** with the flags as built, nothing reads it any more. Phase 11's two handlers only clear it and push to it, and every March reader sits in an `#else`. Removing it is the user's call.
+- **Removed** (user, 2026-10-05: "if it's really unused, remove it") under `SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID`, which needs `_PREMIUM` and `_REPAIR_DISCOUNT` on.
+  - It is checked against June first. Both handlers (`326c9030`, `326c9530`), `ReInit` (`32022380`) and the skill level (`323644a0`) touch only `+0xdbc`/`+0xdc0`, the record vector. A sweep for `+0xdb0..+0xdb8` finds only other classes.
+  - The member, its getter, and Phase 11's six writes (`X2PremiumBuffManager.cpp`) are `#ifndef`-wrapped.
+  - flagcheck `--worktree`: `2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, 0 deleted, `RESULT: PASS`.
+  - Deploy: `DEPLOY OK: X2_offline.exe is 19,186,176 B, dated 2026-10-05 19:46:43, md5 abe45d3443526b32953e3e3223fba56d, equal to X2/US_SERVICE/x2.exe (2026-10-05 19:46:39); built at mods/june-buff-port 3d00f6b + 3 uncommitted code file(s).` Regression only: the field timer and the village resend should look as in the play-test above.
 
 **Hygiene** (`--worktree --files` the 8 code files, `--with` the other two flags):
 - `_REPAIR_DISCOUNT`: `2 PASS, 0 PASS~, 1 DEFINE, 5 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
