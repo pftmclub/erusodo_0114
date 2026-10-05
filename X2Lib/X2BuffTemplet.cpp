@@ -443,6 +443,11 @@ void CX2BuffTemplet::OnFrameMoveFinalizerAndCheckFinish( CX2GameUnit* pGameUnit_
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	/// June 3236c570 @3236c5f9: a buff that has finished runs the BFT 15 hook here; its erase runs it again
+	if ( GetDidFinish() )
+		DoFinishStickShake( pGameUnit_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 }
 
 
@@ -708,6 +713,29 @@ bool CX2BuffTemplet::DecreaseDurationByShake()
 	return bDecreased;
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+
+/** @function : DoFinishStickShake
+	@brief : June 3236a6a0. For each BFT_STICK_SHAKE finalizer of this buff: the unit's slot 257 (EndStickShake) and one more on the
+		buff-change counter. June runs it when the finish is found (3236c570) and again from every erase (OnFrameMoveBuff,
+		EraseBuffTempletFromGameUnitByIterator 3229d320, the clear-all 3229fb10), so one BFT 15 buff ends the shake twice (JUNE_BUGS.md)
+*/
+void CX2BuffTemplet::DoFinishStickShake( CX2GameUnit* pGameUnit_ )
+{
+	BOOST_FOREACH( CX2BuffFinalizerTempletPtr ptrFinalizer, m_vecFinalizerPtr )
+	{
+		if ( NULL != ptrFinalizer && BFT_STICK_SHAKE == ptrFinalizer->GetType() )
+		{
+			pGameUnit_->EndStickShake();
+			pGameUnit_->IncreaseBuffSyncCount();	/// @3236a6cc
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			CX2JuneBuffCapture::Line( "BFT 15 end hook, BTI %d: stick shaking %d, count %d, buff-change counter %I64u",
+				static_cast<int>( GetBuffTempletID() ), pGameUnit_->IsStickShaking() ? 1 : 0, pGameUnit_->GetStickShakeCount(), pGameUnit_->GetBuffSyncCount() );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 //}}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

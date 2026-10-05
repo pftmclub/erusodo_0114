@@ -1150,6 +1150,16 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	/// June buff port Phase 7e, CX2GUUser ctor (June 3203e850 @320431a4-bc: fld 334380f0 = -1.0f)
 	m_fRidingKeySkillWaitTime		= -1.f;
 #endif SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	/// June buff port Phase 8, CX2GUUser ctor (June 3203e850): the latches (@32043223), the prompt handle (@32041e32), the
+	/// reservation (@32040e7a) and the resync timer (@32041de7)
+	m_bStickShakeLeftLatch			= false;
+	m_bStickShakeRightLatch			= false;
+	m_hStickShakePrompt				= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_eSkillUseReservedSkillID		= CX2SkillTree::SI_NONE;
+	m_fSkillUseReserveTime			= 0.0f;
+	m_fBuffSyncMismatchTime			= 0.0f;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 #ifdef SERV_CHUNG_TACTICAL_TROOPER
 	m_iHyperModeCountUsed		= 0;
@@ -1231,6 +1241,11 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 
 CX2GUUser::~CX2GUUser(void)
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	/// June buff port Phase 8: the user dtor drops the stick-shake prompt (June @3203aff3)
+	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetMajorParticle() )
+		g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hStickShakePrompt );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 #ifdef SERV_GATE_OF_DARKNESS_SUPPORT_EVENT
 	if( -1 != m_iAllyEventMonsterUID )
 	{
@@ -14019,6 +14034,9 @@ void CX2GUUser::CommonStateStartFuture()
 void CX2GUUser::CommonStateStart()
 {
 	KTDXPROFILE();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	CountReservedSkillUse();	/// June 32057b80: the reserved-skill block comes first (@32057bfb)
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 #ifdef UNIT_SLASH_TRACE_MANAGER_TEST
 	if( NULL != m_pUnitSlashTraceManager )
@@ -15193,6 +15211,9 @@ void CX2GUUser::CommonFrameMoveFuture()
 	m_FrameDataFuture.syncData.ucHitCount			= GetHitCount();
 	m_FrameDataFuture.syncData.ucHittedCount		= GetHittedCount();
 	m_FrameDataFuture.syncData.ucNumOfDeBuff		= GetNumOfDeBuff();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	m_FrameDataFuture.syncData.dwBuffSyncCount		= static_cast<DWORD>( GetBuffSyncCount() );	/// June CommonFrameMoveFuture @32061d46-64
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 	CommonFrameMoveFuture_ExtraDamage();
 
@@ -15496,6 +15517,47 @@ void CX2GUUser::CommonFrameMove()
 
 	KTDXPROFILE();
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	/// June buff port Phase 8, June CommonFrameMove (32063650). @320636ad-6f1: the skill reservation lives 1 s (slot 514 when it runs out)
+	if ( 0.0f < m_fSkillUseReserveTime )
+	{
+		m_fSkillUseReserveTime -= m_fElapsedTime;
+		if ( m_fSkillUseReserveTime <= 0.0f )
+		{
+			m_fSkillUseReserveTime = 0.0f;
+			ClearSkillUseReserve();
+		}
+	}
+	/// @320637cd-393a: on a unit that is not mine (in a game with my unit), a synced buff-change counter whose low 32 bits differ from
+	/// this copy's for 1 s is taken over, and the unit's owner is asked for its buff list (XPT 27 carrying my UID; the owner answers with
+	/// SendBuffInfoNot). June also clears a byte at +0x9541 there that nothing reads; not ported
+	if ( !IsMyUnit() && NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() )
+	{
+		const DWORD dwSyncedCount = m_FrameDataNow.syncData.dwBuffSyncCount;
+		const bool bSame = ( dwSyncedCount == static_cast<DWORD>( GetBuffSyncCount() ) );
+		if ( !( 0.0f < m_fBuffSyncMismatchTime ) )
+			m_fBuffSyncMismatchTime = ( bSame ? 0.0f : 1.0f );
+		else if ( bSame )
+			m_fBuffSyncMismatchTime = 0.0f;
+
+		if ( 0.0f < m_fBuffSyncMismatchTime )
+		{
+			m_fBuffSyncMismatchTime -= m_fElapsedTime;
+			if ( m_fBuffSyncMismatchTime <= 0.0f )
+			{
+				m_fBuffSyncMismatchTime = 0.0f;
+				SetBuffSyncCount( dwSyncedCount );		/// 32070c90
+				const UidType uidMyUnit = g_pX2Game->GetMyUnit()->GetUnitUID();
+				if ( NULL != g_pData->GetGameUDP() )
+					g_pData->GetGameUDP()->SendToPeer( GetUnitUID(), XPT_BUFF_INFO_REQ, &uidMyUnit, sizeof(uidMyUnit) );	/// 33224850( this UID, 0x1b, &my UID, 8 )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				CX2JuneBuffCapture::Line( "buff resync: unit %I64d's synced buff-change counter %u differed for 1 s, so its buff list was asked for", GetUnitUID(), dwSyncedCount );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			}
+		}
+	}
+
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 #ifdef RIDING_SYSTEM
 	if ( GetNowStateID() == USI_RIDING_WAIT && m_ePlayedEmotion == CX2Unit::ET_NONE  )
     {
@@ -22575,6 +22637,9 @@ void CX2GUUser::SendFrameData()
                 kXPT_UNIT_USER_SYNC.m_ucHitCount = pSyncData->ucHitCount;
 			    kXPT_UNIT_USER_SYNC.m_ucHittedCount = pSyncData->ucHittedCount;
                 kXPT_UNIT_USER_SYNC.m_ucNumOfDeBuff = pSyncData->ucNumOfDeBuff;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+                kXPT_UNIT_USER_SYNC.m_dwBuffSyncCount = pSyncData->dwBuffSyncCount;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
                 kXPT_UNIT_USER_SYNC.m_dwRelativePos = pSyncData->m_dwRelativePos;
                 BYTE* pByBuffer = &bySerialized[0];
@@ -33265,6 +33330,16 @@ void CX2GUUser::CountUsedSkill( int iSlotNumber_ )
 		m_iSkillSlotBCount[iSlotNumber_]++;
 	else
 		m_iSkillSlotACount[iSlotNumber_]++;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	/// June buff port Phase 8: June reserves the used skill (slot 513) and counts it once its state starts (CommonStateStart ->
+	/// CountReservedSkillUse). Every class's skill use passes here just before it spends the MP, so the reservation is made here
+	if ( NULL != GetUnit() )
+	{
+		const CX2UserSkillTree::SkillSlotData* pSkillSlotData = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillSlot( iSlotNumber_, bSlotB_ );
+		if ( NULL != pSkillSlotData )
+			ReserveSkillUseCount( pSkillSlotData->m_eID );
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 }
 #endif DUNGEON_RANK_NEW
 //}} JHKang / 강정훈 / 2011/02/14 / 던전 랭크 개선 관련
@@ -33647,6 +33722,9 @@ void CX2GUUser::SyncData::SetData( const KDYNAMIC_UNIT_USER_SYNC& SyncPacket, DW
 	ucHitCount				= SyncPacket.m_ucHitCount;
 	ucHittedCount			= SyncPacket.m_ucHittedCount;
 	ucNumOfDeBuff			= SyncPacket.m_ucNumOfDeBuff;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	dwBuffSyncCount			= SyncPacket.m_dwBuffSyncCount;		/// June 3201f5f0 @3201f73a: syncData +0x34 from packet +0x3d
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
     m_dwRelativePos         = SyncPacket.m_dwRelativePos;
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
@@ -34184,6 +34262,106 @@ void CX2GUUser::SendBuffInfoNot( const UidType uidGameUnitToSendNot_ )
 		}
 	}
 	return false;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+
+/** @function : BeginStickShake
+	@brief : June CX2GUUser slot 256, 32011130. One more BFT 15 buff, the latches cleared, and on my own unit with no prompt yet the
+		"StickShake" particle 40 px above the unit's projected position (the call March's NPC SHOW_STICK_SHAKE makes)
+*/
+/*virtual*/ void CX2GUUser::BeginStickShake()
+{
+	CX2GameUnit::BeginStickShake();
+	m_bStickShakeLeftLatch = false;
+	m_bStickShakeRightLatch = false;
+
+	if ( IsMyUnit() && INVALID_PARTICLE_SEQUENCE_HANDLE == m_hStickShakePrompt )
+	{
+		D3DXVECTOR2 projPos = g_pKTDXApp->GetProj3DPos( GetPos() );
+		projPos.y -= 40.0f;		/// 33439c70
+		m_hStickShakePrompt = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) this, L"StickShake", projPos.x, projPos.y, 0.0f );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		CX2JuneBuffCapture::Line( "stick-shake prompt %s at (%g, %g)", INVALID_PARTICLE_SEQUENCE_HANDLE == m_hStickShakePrompt ? "NOT created" : "shown", projPos.x, projPos.y );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	}
+}
+
+/** @function : EndStickShake
+	@brief : June CX2GUUser slot 257, 32011210. The base counting; once no BFT 15 buff is left, my own unit's prompt goes
+*/
+/*virtual*/ void CX2GUUser::EndStickShake()
+{
+	CX2GameUnit::EndStickShake();
+	if ( !IsStickShaking() && IsMyUnit() && INVALID_PARTICLE_SEQUENCE_HANDLE != m_hStickShakePrompt )
+		g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hStickShakePrompt );
+}
+
+/** @function : StickShakeInput
+	@brief : June 31fc9fa0 (its only caller is CX2Game::KeyProcess). Left held without right counts once until right is held without
+		left, and the other way round
+*/
+void CX2GUUser::StickShakeInput( const bool bLeft_, const bool bRight_ )
+{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	const int iCountBefore = m_iStickShakeCount;
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( bLeft_ && !bRight_ )
+	{
+		if ( !m_bStickShakeLeftLatch )
+		{
+			m_bStickShakeLeftLatch = true;
+			m_bStickShakeRightLatch = false;
+			++m_iStickShakeCount;
+		}
+	}
+	else if ( bRight_ && !bLeft_ && !m_bStickShakeRightLatch )
+	{
+		++m_iStickShakeCount;
+		m_bStickShakeRightLatch = true;
+		m_bStickShakeLeftLatch = false;
+	}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( iCountBefore != m_iStickShakeCount )
+		CX2JuneBuffCapture::Line( "stick-shake count %d (%s)", m_iStickShakeCount, bLeft_ ? "left" : "right" );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+}
+
+/** @function : CountReservedSkillUse
+	@brief : June CommonStateStart (32057b80 @32057c23-d84). When the state that starts is the reserved skill's (not a no-stage-change
+		skill, slot 516), June spends the skill's MP (March already did, at use) and clears the reservation (slot 514); then, unless the
+		state is excluded (slot 303) or the skill is a relationship or hyper skill (32070580: type 12 / 13), one use is counted for any
+		skill (key 0) and one for the slot type the skill is equipped in (3288fff0 + 3214f3d0, Phase 6's GetEquippedSkillSlotType).
+		June's other branch, which drops a stale reservation depending on its MP, is not ported: March reserves no MP, and the
+		reservation still runs out after 1 s
+*/
+void CX2GUUser::CountReservedSkillUse()
+{
+	const CX2SkillTree::SKILL_ID eSkillID = GetNowStateSkillID();
+	if ( CX2SkillTree::SI_NONE == m_eSkillUseReservedSkillID || m_eSkillUseReservedSkillID != eSkillID )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID );
+	if ( NULL == pSkillTemplet || SpecialAttackNoStageChange( pSkillTemplet ) )
+		return;
+
+	ClearSkillUseReserve();		/// @32057cbe
+
+	if ( !IsSkillUseCountExcludedState() && 0 < static_cast<int>( eSkillID )
+		&& CX2SkillTree::ST_RELATIONSHIP_SKILL != pSkillTemplet->m_eType && CX2SkillTree::ST_HYPER_ACTIVE_SKILL != pSkillTemplet->m_eType )
+	{
+		AddSkillUseCount( 0, 1 );	/// @32057d17
+		if ( NULL != GetUnit() )
+		{
+			const int iSkillSlotType = GetUnit()->GetUnitData().m_UserSkillTree.GetEquippedSkillSlotType( eSkillID );
+			if ( 0 != iSkillSlotType )
+				AddSkillUseCount( iSkillSlotType, 1 );	/// @32057d7c
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			CX2JuneBuffCapture::Line( "skill use counted: skill %d, slot type %d; uses now: any %d, slot A %d, slot B %d",
+				static_cast<int>( eSkillID ), iSkillSlotType, GetSkillUseCount( 0 ), GetSkillUseCount( 1 ), GetSkillUseCount( 2 ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		}
+	}
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 

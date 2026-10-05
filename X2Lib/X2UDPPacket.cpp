@@ -234,6 +234,10 @@ void    KDYNAMIC_UNIT_USER_SYNC::Serialize( BYTE*& pbyBuffer, const KDYNAMIC_UNI
 	if( pPrevSync == NULL || pPrevSync->m_dwRelativePos != m_dwRelativePos )
 		m_usDataFieldFlag |= eUnitUserSync_DataField_RelativePos;
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	if( pPrevSync == NULL || pPrevSync->m_dwBuffSyncCount != m_dwBuffSyncCount )
+		m_usDataFieldFlag |= eUnitUserSync_DataField_BuffSyncCount;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
     
     _Serialize( pbyBuffer, m_usDataFieldFlag );
     if ( m_usDataFieldFlag & eUnitUserSync_DataField_nowState )
@@ -280,11 +284,19 @@ void    KDYNAMIC_UNIT_USER_SYNC::Serialize( BYTE*& pbyBuffer, const KDYNAMIC_UNI
 	if( m_usDataFieldFlag & eUnitUserSync_DataField_RelativePos )
         _Serialize( pbyBuffer, m_dwRelativePos );
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	if( m_usDataFieldFlag & eUnitUserSync_DataField_BuffSyncCount )
+		_Serialize( pbyBuffer, m_dwBuffSyncCount );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 }
 
 bool    KDYNAMIC_UNIT_USER_SYNC::Deserialize( const BYTE*& pbyBuffer, const BYTE* pbyEnd )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+    DWORD   usDataFieldFlag = eUnitUserSync_DataField_No;	/// June buff port Phase 8: a 32-bit field flag, as June's 32d5be30
+#else SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
     USHORT  usDataFieldFlag = eUnitUserSync_DataField_No;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
     if ( false == _Deserialize( pbyBuffer, pbyEnd, usDataFieldFlag ) )
         return false;
     m_usDataFieldFlag |= usDataFieldFlag;
@@ -384,6 +396,13 @@ bool    KDYNAMIC_UNIT_USER_SYNC::Deserialize( const BYTE*& pbyBuffer, const BYTE
             return false;
     }
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	if ( usDataFieldFlag & eUnitUserSync_DataField_BuffSyncCount )
+	{
+		if ( false == _Deserialize( pbyBuffer, pbyEnd, m_dwBuffSyncCount ) )
+			return false;
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
     return true;
 }

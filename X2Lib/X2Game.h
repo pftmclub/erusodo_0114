@@ -1083,6 +1083,12 @@ class CX2Game : public CKTDXStage
 		bool						IsNowStageStartMotion();
 		bool						CanUseQuickSlotItemBeforeStart( bool bHenirPractice_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+		/// June buff port Phase 8: June's CX2Game +0xbae, whether left and right are both held this frame (KeyProcess, 322cfc60).
+		/// OnFrameMoveBuff's SHAKE_DECREASE trigger reads it
+		bool						GetStickShakeBothKeys() const { return m_bStickShakeBothKeys; }
+		bool						m_bStickShakeBothKeys;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 #ifdef PET_ITEM_GM
 		void						UseItemPetAbility( const CX2Item::ItemTemplet* pItemTemplet, CX2GUUser* pCX2GUUser );

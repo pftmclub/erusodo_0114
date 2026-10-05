@@ -848,6 +848,9 @@ public:
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
             DWORD                   m_dwRelativePos;
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+			DWORD				dwBuffSyncCount;	/// June buff port Phase 8: the buff-change counter (June +0x7e68 Future / +0x8108 Now, syncData +0x34)
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 			SyncData()
 			{
@@ -894,6 +897,9 @@ public:
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
                 m_dwRelativePos         = 0;
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+				dwBuffSyncCount			= 0;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 			}
 
 //#ifdef SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
@@ -2935,6 +2941,26 @@ public:
 		/// June buff port Phase 8: CX2GUUser's slot 181 (3204e380) and slot 182 (32039bf0)
 		virtual bool HasSocketAuraFor( const int iSocketEffectEx_, const BUFF_TEMPLET_ID eBuffTempletID_ ) const;
 		virtual bool HasFinalizerFactorWithCreator( const UidType uidCreator_, const BUFF_FINALIZER_TYPE eFinalizerType_ ) const;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+		/// June slots 256 / 257 on the user (32011130 / 32011210): the base counting, plus the latches and my unit's "StickShake" prompt
+		virtual void BeginStickShake();
+		virtual void EndStickShake();
+		void StickShakeInput( const bool bLeft_, const bool bRight_ );		/// June 31fc9fa0: a side held alone, alternating, counts one
+		/// June's skill-use reservation (slot 513 31fc93e0 / slot 514 31fc9410): +0x8eac the skill, +0x8eb4 a 1 s life. June also keeps
+		/// the skill's MP there (+0x8ea8) and spends it when the state starts; March spends it at use, so only the skill is kept
+		void ReserveSkillUseCount( const CX2SkillTree::SKILL_ID eSkillID_ ) { m_eSkillUseReservedSkillID = eSkillID_; m_fSkillUseReserveTime = 1.0f; }
+		void ClearSkillUseReserve() { m_eSkillUseReservedSkillID = CX2SkillTree::SI_NONE; }
+		void CountReservedSkillUse();		/// June CommonStateStart 32057b80 @32057c23-d84
+		/// June slot 303 (base 31e4c550: false): a state in which a skill use is not counted. Only June's Add overrides it (329e65c0:
+		/// state index 0x123-0x126 or 0x12b), a character-port row (JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7)
+		virtual bool IsSkillUseCountExcludedState() const { return false; }
+		bool												m_bStickShakeLeftLatch;		/// June +0x9498
+		bool												m_bStickShakeRightLatch;	/// June +0x9499
+		CKTDGParticleSystem::CParticleEventSequenceHandle	m_hStickShakePrompt;		/// June +0x949c: my unit's "StickShake" particle
+		CX2SkillTree::SKILL_ID								m_eSkillUseReservedSkillID;	/// June +0x8eac
+		float												m_fSkillUseReserveTime;		/// June +0x8eb4
+		float												m_fBuffSyncMismatchTime;	/// June +0x9448: how long the synced buff-change counter has disagreed
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 #ifdef SERV_9TH_NEW_CHARACTER // ±Ë≈¬»Ø

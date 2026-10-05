@@ -43,6 +43,9 @@ enum X2_PACKET_TYPE
 #endif  SERV_PET_SYSTEM
 	XPT_UNIT_USER_SYNC_PACK,
 	XPT_UNIT_USER_SYNC_PACK_FOR_WEDDING_HALL,		/// 예식장 싱크패킷.
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	XPT_BUFF_INFO_REQ,		/// June buff port Phase 8: June's P2P message 0x1b (27, right after the wedding-hall sync): "send me your buff list", UidType
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 };
 
 
@@ -257,6 +260,9 @@ struct KDYNAMIC_UNIT_USER_SYNC
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
         eUnitUserSync_DataField_RelativePos = ( 1 << 15 ),
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+		eUnitUserSync_DataField_BuffSyncCount = ( 1 << 23 ),	/// June buff port Phase 8: June's bit for the buff-change counter (32d5be30 @32d5c0f8)
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 		eUnitUserSync_DataField_All = eUnitUserSync_DataField_nowState | 
 													eUnitUserSync_DataField_nowAction | 
 													eUnitUserSync_DataField_stateChangeNum | 
@@ -275,9 +281,16 @@ struct KDYNAMIC_UNIT_USER_SYNC
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
                                                     | eUnitUserSync_DataField_RelativePos
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+                                                    | eUnitUserSync_DataField_BuffSyncCount
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	};
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+    DWORD               m_usDataFieldFlag;		/// June buff port Phase 8: June's field flag is 32 bits (32d5be30 reads a DWORD); the name is kept
+#else SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
     USHORT              m_usDataFieldFlag;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	UCHAR				m_ucNowState;
 	UCHAR				m_ucNowAction;
 	char				m_cStateChangeNum;
@@ -311,6 +324,9 @@ struct KDYNAMIC_UNIT_USER_SYNC
 	UCHAR				m_ucHittedCount;		/// 피격횟수
 	UCHAR				m_ucNumOfDeBuff;		/// 디버프개수
     DWORD               m_dwRelativePos;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	DWORD				m_dwBuffSyncCount;		/// June buff port Phase 8: the sender's buff-change counter (CX2GameUnit +0x6dd0, low 32 bits), June packet +0x3d
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
     KDYNAMIC_UNIT_USER_SYNC()
@@ -336,6 +352,9 @@ struct KDYNAMIC_UNIT_USER_SYNC
         m_ucHittedCount = 0;
         m_ucNumOfDeBuff = 0;
         m_dwRelativePos = 0;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+        m_dwBuffSyncCount = 0;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
     }
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 

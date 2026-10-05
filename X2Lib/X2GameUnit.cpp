@@ -11805,6 +11805,9 @@ void CX2GameUnit::PushNewBuffTempletToGameUnit( IN CX2BuffTempletPtr ptrBuffTemp
 		ptrCloneBuffTemplet->SetUniqueNum( uiUniqueNum_ );
 		if ( ptrCloneBuffTemplet->SetFactor( buffFactor_, this ) )
 		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+			IncreaseBuffSyncCount();	/// June 3229dee0 @3229dfc0: a pushed buff bumps the buff-change counter
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 			/// 디버프면 디버프카운트를, 버프면 버프카운트를 증가
 			( true == ptrCloneBuffTemplet->IsDeBuff() ? SetNumOfDeBuff( GetNumOfDeBuff() + 1 ) : SetNumOfBuff( GetNumOfBuff() + 1 ) );
 			/// 각 유닛마다 특정 버프가 실행될 때 셋팅해줘야 하는 값(ex: 매지컬메이크업이 시전중이라는 플래그 등...)
@@ -12038,6 +12041,9 @@ void CX2GameUnit::EraseBuffTempletFromGameUnitByIterator( vector<CX2BuffTempletP
 	UnSetSpecificValueByBuffTempletID( (*vItr_)->GetBuffTempletID() );
 	(*vItr_)->DoFinishBehavior( this );
 	(*vItr_)->DoFinishDisplayer( this );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	(*vItr_)->DoFinishStickShake( this );	/// June 3229d320 @3229d36d
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 #ifdef BUFF_ICON_UI		
 	if( true == (*vItr_)->GetUseBuffIcon() )
@@ -13935,6 +13941,19 @@ void CX2GameUnit::OnFrameMoveBuff()
 
 		while ( m_vecBuffTempletPtr.end() != vItr )
 		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+			/// June 3229d620 @3229d712-766: on my own user unit, while left and right are both held (CX2Game +0xbae), the buff's
+			/// SHAKE_DECREASE_* takes time off (3236c990); when it does, the buff-change counter goes up
+			if ( IsMyUnit() && GUT_USER == GetGameUnitType() && NULL != g_pX2Game && g_pX2Game->GetStickShakeBothKeys()
+				&& (*vItr)->DecreaseDurationByShake() )
+			{
+				IncreaseBuffSyncCount();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				CX2JuneBuffCapture::Line( "stick shake took time off BTI %d: %g s left, buff-change counter %I64u",
+					static_cast<int>( (*vItr)->GetBuffTempletID() ), (*vItr)->GetRemainDurationTime(), GetBuffSyncCount() );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 #ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 			(*vItr)->FrameMoveAccumulationDelay( fElapsedTime );	/// June 3229d620
@@ -13954,6 +13973,9 @@ void CX2GameUnit::OnFrameMoveBuff()
 				UnSetSpecificValueByBuffTempletID( (*vItr)->GetBuffTempletID() );
 				(*vItr)->DoFinishBehavior( this );
 				(*vItr)->DoFinishDisplayer( this );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+				(*vItr)->DoFinishStickShake( this );	/// June OnFrameMoveBuff @3229d845
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 #ifdef BUFF_ICON_UI
 				if( true == (*vItr)->GetUseBuffIcon() )
@@ -13988,6 +14010,9 @@ void CX2GameUnit::FinishAndClearAllBuff()
 			UnSetSpecificValueByBuffTempletID( ptrBuffTemplet->GetBuffTempletID() );
 			ptrBuffTemplet->DoFinishBehavior( this );
 			ptrBuffTemplet->DoFinishDisplayer( this );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+			ptrBuffTemplet->DoFinishStickShake( this );	/// June's clear-all 3229fb10 @3229fbf3
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 		}
 	}
 

@@ -142,6 +142,9 @@ public:
 	void GetBehaviorPtrList( OUT vector<CX2BuffBehaviorTempletPtr>& vecBehaviorPtr_ ) const { vecBehaviorPtr_ = m_vecBehaviorPtr; }	/// June 3236c8e0
 	bool DecreaseDurationByShake();	/// June 3236c990: finalizer slot 11 on every finalizer; true when any took time off
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	void DoFinishStickShake( CX2GameUnit* pGameUnit_ );	/// June 3236a6a0: each BFT_STICK_SHAKE finalizer ends the unit's stick shake (slot 257) and bumps the buff-change counter
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 //}}
 
 	/// 중복이 가능한 버프 인 경우에 구분할 수 있는 숫자(카운트)

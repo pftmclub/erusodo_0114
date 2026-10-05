@@ -327,6 +327,9 @@ m_bSkillSlotJustChanged(true)
 //#ifdef  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
     m_kFrameUDPPack.ResetFrameUDPPack( false );
 //#endif  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	m_bStickShakeBothKeys = false;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 #ifdef	ELOG_STATISTICS_NEW_DATA
 	m_kGameStatistics.Init();
@@ -1210,6 +1213,19 @@ bool CX2Game::P2PPacketHandler( CKTDNUDP::RecvData* pRecvData )
 			}
         }
         return true;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	case XPT_BUFF_INFO_REQ:
+		{
+			/// June buff port Phase 8, June's P2P handler (322ed9c0, case 0x1b @322edf68): a peer whose copy of my unit's buff-change
+			/// counter disagreed for 1 s sends its UID, and my unit sends its buff list to it through the server (June 3203d0b0 =
+			/// SendBuffInfoNot, EGS_UPDATE_USER_UNIT_BUFF_INFO_NOT)
+			if ( pRecvData->m_Size != sizeof(UidType) )
+				return false;
+			if ( NULL != GetMyUnit() )
+				static_cast<CX2GUUser*>( GetMyUnit() )->SendBuffInfoNot( *reinterpret_cast<const UidType*>( pRecvData->m_pRecvBuffer ) );
+		}
+		return true;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
     case XPT_UDP_PACKET_PACK:
         {
             if ( pRecvData->m_Size < sizeof(XPT_UDP_PACKET_PACK_PREFIX) + sizeof(WORD) )
@@ -5357,6 +5373,16 @@ void CX2Game::KeyProcess()
 		}
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	/// June buff port Phase 8, June CX2Game::KeyProcess (322f7170 @322f749b-74ed), between the edit-box test and the key gate: while a
+	/// BFT 15 buff runs on my unit, a left or a right held alone feeds its stick-shake count (31fc9fa0); then whether both are held is
+	/// kept for SHAKE_DECREASE (322cfc60). June's actions 0x25 / 0x26 are March's GA_LEFT / GA_RIGHT (June fills m_InputData from
+	/// 0x25, 0x26, 0x23 where March has GA_LEFT, GA_RIGHT, GA_UP), read as the held state (31c488c0), with no edit-box test
+	if ( pMyGUUser->IsStickShaking() )
+		pMyGUUser->StickShakeInput( TRUE == GET_PUREKEY_STATE( GA_LEFT ), TRUE == GET_PUREKEY_STATE( GA_RIGHT ) );
+	m_bStickShakeBothKeys = ( TRUE == GET_PUREKEY_STATE( GA_LEFT ) && TRUE == GET_PUREKEY_STATE( GA_RIGHT ) );
+
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	bool bEnableKeyProcessMisc = true;
 
 //#ifdef PVP_BOSS_COMBAT_TEST
