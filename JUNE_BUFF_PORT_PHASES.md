@@ -4030,7 +4030,7 @@ Check 5: back in the village, no icons appeared. The emulator's send after `EGS_
 
 ### Phase 11b — Review (2026-10-05, Opus 5.5 high)
 
-**Verdict: no transcription errors in 11b's three flags. The open point found a June change: buffs are cleared when a death state *ends*, not in `DyingStart`. It is ported under its own flag, `SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR` (on).** Every June check was read from the assembly. The funcmap rows `3229fb10`, `3277ee10`, `3202a7d0`, `3228a120` and `32015250` are updated.
+**Verdict: no transcription errors in 11b's three flags. The open point found a June change: buffs are cleared when a death state *ends*, not in `DyingStart`. It is ported under its own flag, `SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR` (on).** Landed in `ea5f932`; post-commit `--range ea5f932^..ea5f932`: `3 PASS, 1 DEFINE, 0 FAIL`, `RESULT: PASS`. Every June check was read from the assembly. The funcmap rows `3229fb10`, `3277ee10`, `3202a7d0`, `3228a120` and `32015250` are updated.
 
 **The open point: June's death clear (kickoff item 2).**
 - **No `DyingStart` clears in June.** `3229fb10` has exactly nine direct call sites in a raw scan of `.text`. There is no inlined copy: the gage save `32494560` has one caller (`@3229fb62`).
