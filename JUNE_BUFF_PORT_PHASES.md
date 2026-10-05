@@ -3522,9 +3522,9 @@ Phase 10 parses and stores `IS_AURA_BUFF` and `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,142,656 B, dated 2026-10-05 13:41:08, md5 3e0330222c25ecf5199c7ffd240359e0, equal to X2/US_SERVICE/x2.exe (2026-10-05 13:41:04); built at mods/june-buff-port 67bd730 + 4 uncommitted code file(s).` (those 4 are exactly `a9ff45a`). All 9 phase strings checked in the deployed exe.
 
-**Play-test:** regression only (the hand-off is in the session). `JUNE_BUFF` lines to read: `guild Chance to Reverse checked on a hit too (first seen)` and no `aura buff skipped`.
+**Play-test (2026-10-05, user; exe `3e033022`, run 13:46:30 after the 13:41 deploy): passed, regression (melee, projectile, being hit).** `ErrorLog.txt:192` `guild Chance to Reverse checked on a hit too (first seen): attacker 25, target 18` (jtLordKnight's melee). No `aura buff skipped` and no `aura hit on` lines, as expected with no `IS_AURA_BUFF` data; no `not checked` line this run. Load baseline unchanged (361 factors, 5 ordinal rejects, 3 groups / 109 debuffs); 0 exceptions. The 3 `E_DISABLE_HB_CHECK_REQ` UNHANDLED packets are not this phase's.
 
-**Owed by the user:** the play-test, then /cost. Next: `/x2-phase june-buff 10b review` (Opus 5.5, high).
+**Owed by the user:** /cost. Next: `/x2-phase june-buff 10b review` (Opus 5.5, high).
 
 ## Phase 11 — Premium/world buffs and the offline path
 
