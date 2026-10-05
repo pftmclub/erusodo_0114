@@ -6751,14 +6751,30 @@ HRESULT CX2GUUser::OnFrameMove( double fTime, float fElapsedTime )
 	/// June buff port Phase 9b, CX2GUUser::OnFrameMove 3206eaf0 @3206f833-3206f987, after the socket cool-time
 	/// countdowns and before the IsLocalUnit block: a user whose death the Death Sign buff reserved (its erase hook,
 	/// 3236d3f0 -> 32082790) clears the flag and dies (SetNowHp, slot 61, with 0). June spares it in one case: a
-	/// dungeon game (CX2Game slot 67 == GT_DUNGEON) whose current sub-stage holds 4 in a June field (game +0xc44
-	/// m_pDungeon -> +4 -> +4 -> +0x48) that March's sub-stage has no match for. That exemption is not ported.
+	/// dungeon game (CX2Game slot 67 == GT_DUNGEON) whose current sub-stage (game +0xc44 m_pDungeon -> +4 -> +4) holds
+	/// CT_GAME (4) in its clear type (+0x48; Phase 9c, CX2DungeonSubStage::GetJuneClearType), i.e. once the dungeon's
+	/// final clear has run. A missing link kills (@3206f977). The flag is cleared either way, first.
 	/// June's own block just before it (+0x9520, a field timer) belongs to no buff and is not ported either.
 	if ( true == GetJuneReservedDeath() )
 	{
 		SetJuneReservedDeath( false );
-		SetNowHp( 0.f );
-		CX2JuneBuffCapture::Line( "Death Sign: reserved death fired on user UID %I64d (HP set to 0)", GetUnitUID() );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
+		bool bSpared = false;
+		if ( NULL != g_pX2Game && CX2Game::GT_DUNGEON == g_pX2Game->GetGameType() )
+		{
+			CX2Dungeon* pDungeon = static_cast<CX2DungeonGame*>( g_pX2Game )->GetDungeon();
+			if ( NULL != pDungeon && NULL != pDungeon->GetNowStage() && NULL != pDungeon->GetNowStage()->GetNowSubStage()
+				&& CX2DungeonSubStage::CT_GAME == pDungeon->GetNowStage()->GetNowSubStage()->GetJuneClearType() )
+				bSpared = true;
+		}
+		if ( true == bSpared )
+			CX2JuneBuffCapture::Line( "Death Sign: reserved death spared on user UID %I64d (dungeon cleared, sub-stage clear type 4)", GetUnitUID() );
+		else
+#endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
+		{
+			SetNowHp( 0.f );
+			CX2JuneBuffCapture::Line( "Death Sign: reserved death fired on user UID %I64d (HP set to 0)", GetUnitUID() );
+		}
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}} kimhc // 2010.4.6 // 비밀던전 작업(셋트아이템효과)

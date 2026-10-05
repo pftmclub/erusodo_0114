@@ -230,6 +230,10 @@ bool CX2BuffTemplet::SetFactor( const CX2BuffFactor& buffFactor_, CX2GameUnit* p
 		if ( NULL != pCreatorGameUnit )
 			m_fCreatorPowerRate = pCreatorGameUnit->GetPowerRate();
 	}
+	/// Phase 9c: June then stores the factor's creator UID (+0xb0/+0xb4) and !isUser (+0xb8), creator found or not
+	/// (@3236d43b-3236d457). GetFactor sends them on with the power rate.
+	m_uidJuneCreator		= buffFactor_.GetUidGameUnit();
+	m_bJuneCreatorNotUser	= !buffFactor_.GetIsUserUID();
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
 	/// 행동조건 셋팅
@@ -324,6 +328,16 @@ bool CX2BuffTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, CX2Ga
 			ptrDisplayer->SetStart( true );
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// June buff port Phase 9c, June 3236c440 @3236c4f0: after the displayers June restores the creator from the
+	/// factor (UID +0x28/+0x2c -> +0xb0/+0xb4, NPC flag +0x3d -> +0xb8, power rate +0x57 -> +0xbc), so a restored
+	/// buff's next GetFactor sends the same creator on.
+	m_uidJuneCreator		= kBuffFactor_.m_uidMesGameUnit;
+	m_bJuneCreatorNotUser	= kBuffFactor_.m_bIsMesGameUnitNpc;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
+	m_fCreatorPowerRate		= kBuffFactor_.m_fJuneCreatorPowerRate;
+#endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 
 	return true;
 }
@@ -553,6 +567,15 @@ void CX2BuffTemplet::GetFactor( OUT KBuffFactor& kBuffFactor_, const CX2GameUnit
 			kBuffFactor_.m_fAccumulationMultiplier = GetAccumulationMultiflier();
 			kBuffFactor_.m_ucAccumulationCountNow = GetAccumulationCountNow();
 		}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+		/// June buff port Phase 9c, June 32369f50 @3236a009: last, whatever the accumulation limit, the creator that
+		/// SetFactor stored: UID +0xb0/+0xb4 -> +0x28/+0x2c, NPC flag +0xb8 -> +0x3d, power rate +0xbc -> +0x57.
+		kBuffFactor_.m_uidMesGameUnit			= m_uidJuneCreator;
+		kBuffFactor_.m_bIsMesGameUnitNpc		= m_bJuneCreatorNotUser;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
+		kBuffFactor_.m_fJuneCreatorPowerRate	= m_fCreatorPowerRate;
+#endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	}
 }
 
@@ -2358,7 +2381,8 @@ void CX2CustomFunctionByBuffSinisterMind::CreateSeedDamage( CX2GUUser* pCreator_
 			 up, and when count / ( max / 3 ) passes the level (June never stores the level, so every counted hit past the
 			 first step replays it) the seed effect set is swapped for Seed_Plant_2 (level 1) or Seed_Plant_3. At the full
 			 count the unit gets BFI_DEBUFF_SINISTER_MIND_ARMOR_BREAK from the creator (slot 136, user, level 1).
-			 June divides by max / 3 without a check, which is 0 below a max of 3 (a crash); the port skips the swap there.
+			 June divides by max / 3 without a check, which is 0 below a max of 3: a divide-by-zero crash, ported as June
+			 has it (Phase 9c, JUNE_BUGS #33). A DEBUG line names the max just before the divide.
 */
 /*virtual*/ void CX2CustomFunctionByBuffSinisterMind::FunctionInAttackResultByType( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ )
 {
@@ -2369,24 +2393,16 @@ void CX2CustomFunctionByBuffSinisterMind::CreateSeedDamage( CX2GUUser* pCreator_
 	{
 		++m_iCount;
 		const int iStep = static_cast<int>( static_cast<double>( m_iMaxCount ) / 3.0 );
-		if ( 0 < iStep )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		if ( 0 == iStep )	/// Phase 9c: the last line a crash bundle's ErrorLog.txt holds before June's divide
+			CX2JuneBuffCapture::Line( "Sinister Mind: max count %d gives a 0 step; June divides by it at 3236e516 (JUNE_BUGS #33): divide by zero next", m_iMaxCount );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		const int iLevel = m_iCount / iStep;	/// June 3236e506-3236e516: idiv, no zero check
+		if ( m_iSeedLevel < iLevel && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
 		{
-			const int iLevel = m_iCount / iStep;
-			if ( m_iSeedLevel < iLevel && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
-			{
-				g_pX2Game->GetEffectSet()->StopEffectSet( m_hSeedEffectSet );
-				m_hSeedEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( ( 1 == iLevel
-					? L"EffectSet_SA_LDN_SINISTER_MIND_Seed_Plant_2" : L"EffectSet_SA_LDN_SINISTER_MIND_Seed_Plant_3" ), pGameUnit_ );
-			}
-		}
-		else
-		{
-			static bool s_bStepZeroLogged = false;
-			if ( false == s_bStepZeroLogged )
-			{
-				s_bStepZeroLogged = true;
-				CX2JuneBuffCapture::Line( "Sinister Mind: max count %d gives a 0 step (June divides by it at 3236e516); seed effect not swapped", m_iMaxCount );
-			}
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_hSeedEffectSet );
+			m_hSeedEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( ( 1 == iLevel
+				? L"EffectSet_SA_LDN_SINISTER_MIND_Seed_Plant_2" : L"EffectSet_SA_LDN_SINISTER_MIND_Seed_Plant_3" ), pGameUnit_ );
 		}
 	}
 	else if ( NULL != pGameUnit_ )

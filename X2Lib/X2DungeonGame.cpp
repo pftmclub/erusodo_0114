@@ -1880,6 +1880,13 @@ bool CX2DungeonGame::Handler_EGS_DUNGEON_SUB_STAGE_CLEAR_ACK( KEGS_DUNGEON_SUB_S
 {
 	if( g_pMain->DeleteServerPacket( EGS_DUNGEON_SUB_STAGE_CLEAR_ACK ) == true )
 	{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
+		/// June buff port Phase 9c, June's clear ACK (CX2DungeonGame slot 157 327c98d0 -> 327eec80): success and a
+		/// refused request both reset the sub-stage's clear type to 5 first. On success ClearSubStage below then
+		/// stores the new one, as June's NOT (327f03c0) does after its ACK.
+		if ( NULL != GetDungeon() && NULL != GetDungeon()->GetNowStage() && NULL != GetDungeon()->GetNowStage()->GetNowSubStage() )
+			GetDungeon()->GetNowStage()->GetNowSubStage()->SetJuneClearType( 5, "clear ACK, June 327eec80" );
+#endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 		if( g_pMain->IsValidPacket( kEGS_DUNGEON_SUB_STAGE_CLEAR_ACK.m_iOK ) == true )
 		{
 			// 서버쪽에 셋팅이 완료 됐으니 실제 처리를 하자

@@ -2564,13 +2564,16 @@ void CX2BuffResetSkillCoolTimeBehaviorTemplet::DrawText( CX2GameUnit* pGameUnit_
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	/// June 32e73f90: the creator info from the KBuffFactor: the UID (+0x28/+0x2c = m_uidMesGameUnit), not-user
-	/// (+0x3d = m_bIsMesGameUnitNpc) and the creator's power rate (+0x57). The last is a field June added to
-	/// KBuffFactor; March's (a shared header) has none, so the struct keeps its 1.0 (the templet ctor's default).
+	/// (+0x3d = m_bIsMesGameUnitNpc) and the creator's power rate (+0x57 = m_fJuneCreatorPowerRate, Phase 9c). June's
+	/// templet GetFactor (32369f50) writes all three from the creator its SetFactor stored.
 	if ( !DidStart() )
 	{
 		KCustomFunctionCreatorInfo kCreatorInfo;
-		kCreatorInfo.m_bNotUser		= kBuffFactor_.m_bIsMesGameUnitNpc;
-		kCreatorInfo.m_uidCreator	= kBuffFactor_.m_uidMesGameUnit;
+		kCreatorInfo.m_bNotUser				= kBuffFactor_.m_bIsMesGameUnitNpc;
+		kCreatorInfo.m_uidCreator			= kBuffFactor_.m_uidMesGameUnit;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
+		kCreatorInfo.m_fCreatorPowerRate	= kBuffFactor_.m_fJuneCreatorPowerRate;
+#endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 		pGameUnit_->CreateAndInsertCustomFunctionByBuff( kBuffFactor_.m_BuffIdentity, kFactor_, kCreatorInfo );
 	}
 #else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION

@@ -4643,3 +4643,15 @@
 #elif defined( SERV_COUNTRY_IN )
 #	include "OnlyGlobal/ServerDefine/ServerDefine_IN.h"
 #endif
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 9c, client flag (offline only). Also
+//              defined in KTDXLIB/Always.h; this second home exists because
+//              CommonPacket.h is compiled before Always.h is reachable
+//              (X2Main.h:4 -> X2ServerProtocolLib.h -> SystemPacket.h) and
+//              includes this file (CommonPacket.h:16). User decision
+//              2026-10-05. See the Always.h entry. Comment out both together.
+#define SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
+//////////////////////////////////////////////////////////////////////////

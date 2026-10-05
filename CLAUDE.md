@@ -75,6 +75,7 @@ If an edit touches `KncWX2Server/Common/` (packet structs, event IDs, shared enu
 - Shared-header and packet changes (`KncWX2Server/Common/` structs, Put/Get, enums) are made client-side, behind the `SERV_IRUHADEV_` flag in `Always.h`.
 - There is no server rebuild and no server-side flag, and **never ask the user about server desync**.
 - The in-process emulator shares the exe, so a Put/Get change reaches both ends at once. Keep the emulator's handlers and `X2OfflineDB` schema consistent; that is the only "other side" there is.
+- **Exception for `CommonPacket.h` (user, 2026-10-05):** `X2Main.h:4` reaches `CommonPacket.h` through `X2ServerProtocolLib.h` → `SystemPacket.h` *before* `KTDX.h` includes `Always.h`, so an `Always.h`-only flag is silently never seen there (the `#else` compiles). A flag that guards code in `CommonPacket.h` is therefore also `#define`d at the end of `KncWX2Server/Common/ServerDefine.h` (which `CommonPacket.h:16` includes), and both defines are toggled together. The first such flag is `SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE`. Add each new one to `SECOND_HOMES` in `tools/flagcheck.py`. Headers included after `KTDX.h` (`Enum.h`, `DungeonEnum.h`, …) are unaffected.
 
 ## Rule: server-side Lua the client needs is the user's to pack — never band-aid around it
 

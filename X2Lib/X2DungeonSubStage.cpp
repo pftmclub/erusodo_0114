@@ -25,6 +25,9 @@ CX2DungeonSubStage::CX2DungeonSubStage( int subStageIndex, SubStageData* pSubSta
 	m_bDoneClearSubStage	= false;
 	m_bCheckedClearSubStage	= false;
 	m_bCheckedClearSubStage_NotHost = false;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
+	m_iJuneClearType = 5;	/// June ctor 327f06d0 (param_1[0x12] = 5): no clear in progress
+#endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 
 	m_fDelayTimeClearSubstage = 0.f;
 
@@ -453,6 +456,24 @@ void CX2DungeonSubStage::PrepareClearSubStage( int iClearConditionIndex )
 }
 #endif // SERV_STAGE_CLEAR_IN_SERVER
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
+/** @function : SetJuneClearType
+	@brief : June buff port Phase 9c. June's sub-stage +0x48 holds the clear type of the clear in progress, 5 when
+			 none (ctor 327f06d0). June's clear handshake writes it: the clear-condition check resets it to 5 as it
+			 sends the request (327f0c10 @327f127c), the ACK resets it to 5 (327eec80, success or refusal), and the
+			 clear itself stores the type before acting on it (the NOT handler 327f03c0, CX2DungeonGame slot 158; Lua's
+			 ClearSubStage 327f05c0; both run the switch 327eee60). March's ClearSubStage is that last step. The one
+			 reader is Death Sign's reserved death (CX2GUUser::OnFrameMove, June @3206f971): 4 (CT_GAME) spares the user.
+			 June's state machine around it (+0x30, the NOT, the CT_GAME/CT_FAILURE work in the ACK) is not ported.
+*/
+void CX2DungeonSubStage::SetJuneClearType( const int iClearType_, const char* szSite_ )
+{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	CX2JuneBuffCapture::Line( "sub-stage %d clear type %d -> %d (%s)", m_SubStageIndex, m_iJuneClearType, iClearType_, szSite_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	m_iJuneClearType = iClearType_;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 void CX2DungeonSubStage::ClearSubStage( int clearType, int nextStageNum, int nextSubStageNum )
 {
 #if defined( _SERVICE_ ) 
@@ -461,6 +482,12 @@ void CX2DungeonSubStage::ClearSubStage( int clearType, int nextStageNum, int nex
 	if( NULL == g_pX2Game )
 		return;
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
+	/// June buff port Phase 9c: June stores the clear type (+0x48) before it acts on the clear, host or not
+	/// (327f03c0, the NOT every client gets; the switch below is June's 327eee60).
+	SetJuneClearType( clearType, "ClearSubStage, June 327f03c0" );
+
+#endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 	if( g_pX2Game->IsHost() == false )
 		return;
 
@@ -940,6 +967,9 @@ void CX2DungeonSubStage::CheckIfSubStageCleared()
 		m_bCheckedClearSubStage = false;
 
 #ifdef SERV_STAGE_CLEAR_IN_SERVER// 작업날짜: 2013-10-30	// 박세훈
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
+		SetJuneClearType( 5, "clear REQ, June 327f0c10 @327f127c" );	/// June resets it as it sends the request
+#endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 		PrepareClearSubStage( iCompletedClearCondIndex );
 #else // SERV_STAGE_CLEAR_IN_SERVER
 		int iRandomNumber = rand()%100;

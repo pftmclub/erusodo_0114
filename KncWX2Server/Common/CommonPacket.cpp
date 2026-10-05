@@ -9093,6 +9093,22 @@ SERIALIZE_DEFINE_GET( KBuffIdentity, obj, ks )
 //////////////////////////////////////////////////////////////////////////
 SERIALIZE_DEFINE_PUT( KBuffFactor, obj, ks )
 {
+//{{ Iruha : 2026-10-05 // June buff port Phase 9c (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
+	/// June's order (Get 320e3950): the creator UID after the identity, the NPC flag before the factor ID, and the
+	/// power rate last. June also carries an int (+0x35) and a float (+0x39) between the count and the NPC flag:
+	/// June-only members that no client code writes (ctor 3211ea50 zeroes them, GetFactor 32369f50 leaves them), not carried.
+	return PUT( m_vecBuffBehaviorFactors )
+		&& PUT( m_vecBuffFinalizerFactors )
+		&& PUT( m_BuffIdentity )
+		&& PUT( m_uidMesGameUnit )
+		&& PUT( m_fAccumulationMultiplier )
+		&& PUT( m_ucAccumulationCountNow )
+		&& PUT( m_bIsMesGameUnitNpc )
+		&& PUT( m_iFactorID )
+		&& PUT( m_fJuneCreatorPowerRate )
+		;
+#else SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 	return PUT( m_vecBuffBehaviorFactors )
 		&& PUT( m_vecBuffFinalizerFactors )
 		&& PUT( m_BuffIdentity )
@@ -9100,10 +9116,26 @@ SERIALIZE_DEFINE_PUT( KBuffFactor, obj, ks )
 		&& PUT( m_ucAccumulationCountNow )
 		&& PUT( m_iFactorID )
 		;
+#endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
+//}}
 }
 
 SERIALIZE_DEFINE_GET( KBuffFactor, obj, ks )
 {
+//{{ Iruha : 2026-10-05 // June buff port Phase 9c (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
+	/// June 320e3950, less +0x35 / +0x39 (see Put).
+	return GET( m_vecBuffBehaviorFactors )
+		&& GET( m_vecBuffFinalizerFactors )
+		&& GET( m_BuffIdentity )
+		&& GET( m_uidMesGameUnit )
+		&& GET( m_fAccumulationMultiplier )
+		&& GET( m_ucAccumulationCountNow )
+		&& GET( m_bIsMesGameUnitNpc )
+		&& GET( m_iFactorID )
+		&& GET( m_fJuneCreatorPowerRate )
+		;
+#else SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 	return GET( m_vecBuffBehaviorFactors )
 		&& GET( m_vecBuffFinalizerFactors )
 		&& GET( m_BuffIdentity )
@@ -9111,6 +9143,8 @@ SERIALIZE_DEFINE_GET( KBuffFactor, obj, ks )
 		&& GET( m_ucAccumulationCountNow )
 		&& GET( m_iFactorID )
 		;
+#endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
+//}}
 }
 
 

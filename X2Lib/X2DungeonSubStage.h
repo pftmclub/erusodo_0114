@@ -437,6 +437,11 @@ class CX2DungeonSubStage
 		void				SetEnableClearCondition( int iIndex, bool bEnable );
 
 		bool				GetDoneClearSubStage() const { return m_bDoneClearSubStage; }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
+		/// June sub-stage +0x48: the clear type of the clear in progress, 5 when none (see SetJuneClearType)
+		int					GetJuneClearType() const { return m_iJuneClearType; }
+		void				SetJuneClearType( const int iClearType_, const char* szSite_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 
 
 #ifdef HENIR_TEST
@@ -491,6 +496,9 @@ class CX2DungeonSubStage
 		float				m_fElapsedTimeSubStage;		// substage가 시작된 후로 흐른 시간
 		bool				m_bDoneClearSubStage;		// ClearSubStage() 함수를 호출했는지
 		
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
+		int					m_iJuneClearType;			/// June +0x48 (ctor 327f06d0: 5)
+#endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 		bool				m_bIsBossStage;
 		bool				m_bBossStageHaveManyNextStage;	// 2개 이상의 next stage data가 존재한다
 		

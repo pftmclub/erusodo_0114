@@ -3551,6 +3551,71 @@ Flag `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (+ `_DEBUG`), commit `6d6e9e9`. R
 
 **Not a finding:** Phase 13 makes these classes live. `kickoffs/june-buff/13.md` now carries a gate: the three questions above are to be answered before 13 ships data (Death Sign kills outright once 1038 is live).
 
+### Phase 9c — Done (2026-10-05)
+
+Flags `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (items 1–2), and two new ones: `SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE` (the `KBuffFactor` struct and wire, item 1) and `SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE` (item 3). All use `_DEBUG`. Commit `@@COMMIT@@`. RE rows: `june2017_re/funcmap.tsv` "Buff Phase 9c". JUNE_BUGS #33 updated. All three 9b "Open for the user" items are **answered** (user, 2026-10-05: follow June's flow) and are ported below.
+
+1. **Geist Herrschaft's power (9b question 1): ported, with the rest of June's creator round trip.**
+   - `KBuffFactor` gets `m_fJuneCreatorPowerRate`. It defaults to 1.0 (ctor `3211ea50 @3211ea94`), and the copy ctor copies it.
+   - Put/Get follow Get `320e3950`: uid after the identity, NPC flag before the factor ID, power last. June also carries an int `+0x35` and a float `+0x39`. Those are June-only and no client code writes them (the ctor zeroes them and `32369f50` skips them), so they are not carried. June's Put was not located.
+   - The writer of `+0x57` is the templet's `GetFactor` (`32369f50 @3236a009`). Outside the accumulation test it writes UID, NPC flag and power from the templet's `+0xb0`/`+0xb8`/`+0xbc`. Porting it needed the two creator members 9a skipped, `m_uidJuneCreator` and `m_bJuneCreatorNotUser`:
+     - ctor: -1 and 0 (`@326c499b`, `@326c49a7`);
+     - copy: `322ad9cd`;
+     - SetFactor: stored after the creator lookup, creator found or not (`3236d400`).
+   - `SetFactorFromPacket` (`3236c440 @3236c4f0`) restores all three after the displayers. A restored buff therefore passes its creator on again.
+   - The custom-function packet reader (`32e73f90`) now takes the power from `+0x57`, replacing the 1.0 stand-in.
+   - **Offline path:** the Gage copies factors across games in memory. `GetFactor` → copy → `SetKBuffFactorPacketToGameUnit` is what carries the creator now; before 9c it arrived as UID 0, user, 1.0.
+   - **Emulator:** `CX2OfflineBuff::GetBuffList` builds each `KBuffInfo` fresh, and `X2OfflineDB` stores only the factor ID. Item buffs get June's defaults (UID 0, user, 1.0). No schema change. Nothing in the emulator relays a client `KBuffFactor` back.
+   - **9b correction (port error):** `CommonPacket.h` never sees an `Always.h` flag. `X2Main.h:4` reaches it through `X2ServerProtocolLib.h` → `SystemPacket.h`, before `KTDX.h` includes `Always.h`. 9b's copy-ctor change therefore compiled its `#else` and was dead code. The 9b Done note and the 9b review both said otherwise. The first build of 9c failed for the same reason: the member was missing, while `CommonPacket.cpp`'s Put/Get saw the flag.
+   - **User decision (2026-10-05):** the struct and wire code moved to `_FACTOR_WIRE`, which is defined in `Always.h` **and** at the end of `ServerDefine.h` (`CommonPacket.h:16` includes it). CLAUDE.md's offline-only override now records the exception. `tools/flagcheck.py` gained `SECOND_HOMES` so the second define is checked like `Always.h`. The three power-rate lines in X2Lib nest `_FACTOR_WIRE` inside CUSTOM_FUNCTION.
+   - **ABI:** X2ServerProtocol now compiles the same layout through `ServerDefine.h`. Its rebuilt `.lib` holds no `KBuffFactor@@` / `KBuffInfo@@` / `KUnitBuffInfo@@` / `KNpcUnitBuffInfo@@` symbol (dumpbin: 0 buff symbols), so it emits no code for the struct anyway. Other flagged shared headers (`Enum.h`, `DungeonEnum.h`, …) come after `KTDX.h` and are not affected.
+2. **Sinister Mind (9b question 2, JUNE_BUGS #33): verbatim.**
+   - The 0-step guard is gone. `count / ftol(max / 3.0)` divides as June does (`3236e506-3236e516`).
+   - A `_DEBUG` line names the max just before a 0 divide. `KLOG << fileout` writes it out first.
+3. **Death Sign's dungeon exemption (9b question 3): ported, with the sub-stage clear type it reads.**
+   - **June's flow:**
+     - The clear check (`327f0c10`) resets `+0x48` to 5 when it sends the REQ (`@327f127c`).
+     - The ACK (`327eec80`, from vslot 157) resets it to 5 on success or refusal.
+     - The clear NOT (vslot 158 → `327f03c0`) stores the type on every client, then runs the switch `327eee60`.
+     - Lua's `ClearSubStage` (`327c9e60` → `327f05c0`, host only, type ≠ 0) stores it too.
+     - For `CT_GAME` it stays 4 until the game ends.
+   - **March port:**
+     - March's `ClearSubStage` is the NOT and Lua step: it stores the type before the host test.
+     - The reset sits before `PrepareClearSubStage`.
+     - The ACK handler resets before it calls `ClearSubStage`.
+     - Ctor default: 5.
+     - The reader spares the user when `GT_DUNGEON` → dungeon → stage → sub-stage clear type == `CT_GAME`, and kills on any missing link. The flag is cleared first either way (`3206f8c9-3206f975`).
+   - **Order (kickoff question):** the 9b review guessed that "the clear erases every buff". It does not. June's only user clear-all outside teardown is the die-state start (`3202a7d0`, via thunk `329cada0` in every class's `ENSI_DIE_FRONT`/`_BACK`). So the exemption covers any Death Sign erase (timeout or cure) after the final clear. OnFrameMove consumes the flag on the user's next frame.
+   - **Not ported** (backlog, the rest of June's handshake):
+     - the `+0x30` state machine (its state 4 also blocks March's `CT_STAGE_FORCE` re-check after a `CT_GAME` clear);
+     - June's 5-int ACK and the NOT packet;
+     - `327eec80`'s `CT_GAME` game writes (`+0xc50`/`+0xc4d`/`+0x3b9`/`+0x47c`) and its `CT_FAILURE` call.
+
+     None of these is read by a buff.
+
+**Hygiene** (`--worktree --files` the 11 code files, `--with JUNE_BUFF_DEBUG JUNE_BUFF_CUSTOM_FUNCTION JUNE_BUFF_CLEAR_TYPE JUNE_BUFF_FACTOR_WIRE`; each flag alone FAILs the files the others share):
+- CUSTOM_FUNCTION: `files: 4 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 34 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+- FACTOR_WIRE: `files: 2 PASS, 2 PASS~, 2 DEFINE (Always.h, ServerDefine.h), 5 OTHER, 0 FAIL, 0 ERROR` / `30 deleted line(s)`, the rest 0 / `RESULT: PASS`.
+- CLEAR_TYPE: `files: 4 PASS, 0 PASS~, 1 DEFINE, 6 OTHER, 0 FAIL, 0 ERROR` / `4 deleted line(s)`, the rest 0 / `RESULT: PASS`. On its own three files with only `_DEBUG`: `3 PASS … 0 deleted … RESULT: PASS`.
+- **OTHER rows:** each is a file owned by one of the other two flags.
+- **Deleted lines:** all are 9a/9b code rewritten under these flags:
+  - Sinister Mind's guard (18 lines);
+  - 9b's "not ported" and "Put/Get unchanged" comments;
+  - 9b's copy-ctor `#ifdef` lines and initializer list, moved to `_FACTOR_WIRE` (`CommonPacket.h` 8);
+  - the reader's two `SetNowHp` lines, now inside the `else` braces (`X2GUUser.cpp` 4);
+  - the creator-info assignments, realigned (`X2BuffBehaviorTemplet.cpp` 4).
+- After commit: @@RANGE@@
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,187,200 B, dated 2026-10-05 20:34:10, md5 bba821cf60ad5b4ac50f637658089d10, equal to X2/US_SERVICE/x2.exe (2026-10-05 20:34:05); built at mods/june-buff-port 05fefc2 + 11 uncommitted code file(s).` (the 11 are this phase's). Strings `reserved death spared`, `clear type %d -> %d`, `divide by zero next`, `clear ACK, June 327eec80` and `ClearSubStage, June 327f03c0` are each in the deployed exe once.
+
+**How to see it in game:**
+- Death Sign (1038) and Geist (1010) stay dormant until Phase 13, so the play-test is regression plus the new log lines:
+  - 29 / 56 / 62 still create their classes;
+  - a restored buff now names its creator;
+  - a dungeon clear logs `clear type 5 -> 5 (clear REQ…)`, `5 -> 5 (clear ACK…)`, `5 -> n (ClearSubStage…)`, ending in `-> 4` at the last room.
+
+**Open for the user:** none. Backlog: June's sub-stage clear state machine (item 3, "Not ported"), and finding June's KBuffFactor Put (the review kickoff asks).
+
 ## Phase 10 — Buff groups and June-only script bindings
 
 **Scope.**

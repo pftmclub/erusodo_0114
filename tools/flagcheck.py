@@ -43,6 +43,15 @@ TRUNK = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CODE_EXT = (".cpp", ".h", ".c", ".hpp", ".inl", ".cxx")
 CODE_DIRS = ("X2/", "X2Lib/", "KTDXLIB/", "X2ServerProtocol/", "KncWX2Server/")
 DEFINE_HOME = "KTDXLIB/Always.h"
+# Flags the user allowed a second #define for, in a header included before Always.h is reachable
+# (CLAUDE.md, offline-only override). The second file is checked like Always.h.
+SECOND_HOMES = {
+    "SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE": "KncWX2Server/Common/ServerDefine.h",  # CommonPacket.h precedes Always.h (X2Main.h:4)
+}
+
+
+def is_define_home(path):
+    return path.endswith(DEFINE_HOME) or any(path.endswith(h) for h in SECOND_HOMES.values())
 PREFIX = "SERV_IRUHADEV_"
 
 
@@ -355,7 +364,7 @@ def classify(path, old, new, flag, extra=()):
         s_old = strip(old or b"", targets)
     except Unevaluable as e:
         return "ERROR", str(e), 0
-    if path.endswith(DEFINE_HOME):
+    if is_define_home(path):
         s_new, s_old = strip_defines(s_new, targets), strip_defines(s_old, targets)
         if s_new != s_old and define_file_only(s_old, s_new):
             return "DEFINE", "only comment/blank lines and the #define changed", stats["tok"]
@@ -368,7 +377,7 @@ def classify(path, old, new, flag, extra=()):
     if others:
         try:
             a, b = strip(s_new, others), strip(s_old, others)
-            if path.endswith(DEFINE_HOME):
+            if is_define_home(path):
                 a, b = strip_defines(a, others), strip_defines(b, others)
             if a == b or loose(a) == loose(b):
                 changed = []
@@ -437,7 +446,7 @@ def classify_unflagged(path, old, new):
     others = all_iruhadev(old, new)
     try:
         a, b = strip(new or b"", others), strip(old or b"", others)
-        if path.endswith(DEFINE_HOME):
+        if is_define_home(path):
             a, b = strip_defines(a, others), strip_defines(b, others)
             if a != b and define_file_only(b, a):
                 return "OTHER", "Always.h: other flags' comments/defines"
@@ -495,7 +504,8 @@ def run(flag, pairs, extra=(), only=None):
     sites = define_sites(flag)
     print()
     print("define: %s" % ("; ".join(sites) if sites else "NOT FOUND in tracked files"))
-    bad_sites = [s for s in sites if not s.startswith(DEFINE_HOME + ":")]
+    homes = [DEFINE_HOME] + ([SECOND_HOMES[flag]] if flag in SECOND_HOMES else [])
+    bad_sites = [s for s in sites if not any(s.startswith(h + ":") for h in homes)]
     if bad_sites:
         print("  WARNING: #define outside %s: %s" % (DEFINE_HOME, bad_sites))
     print("files: %d PASS, %d PASS~ (blank/marker only), %d DEFINE, %d OTHER (other flags), %d FAIL, %d ERROR"

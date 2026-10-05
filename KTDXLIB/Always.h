@@ -5110,6 +5110,11 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              characters), the DamageData / unit fields they read, the
 //              Death Sign reserved death, and KBuffFactor's copy ctor copying
 //              the creator UID and NPC flag (CommonPacket.h, client only).
+//              Phase 9c (2026-10-05): KBuffFactor gets June's creator power
+//              rate (+0x57); the templet keeps June's creator UID / NPC flag
+//              (+0xb0/+0xb8), GetFactor and SetFactorFromPacket carry all three,
+//              and Put/Get send them in June's order (offline only). Sinister
+//              Mind divides by its step as June does (JUNE_BUGS #33).
 //              Comment out to restore March's three-case switch.
 #define SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //////////////////////////////////////////////////////////////////////////
@@ -5167,4 +5172,32 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              SERV_IRUHADEV_JUNE_BUFF_REPAIR_DISCOUNT (their #else paths are
 //              March's readers): comment this out before turning either off.
 #define SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 9c: June's sub-stage clear type
+//              (CX2DungeonSubStage +0x48, 5 = none). ClearSubStage stores it,
+//              the clear request and the ACK reset it to 5 (June 327f03c0,
+//              327f0c10, 327eec80). Its reader: Death Sign's reserved death
+//              spares the user while it is CT_GAME (June @3206f971; needs
+//              SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION). Comment out to make a
+//              reserved death always fire, as Phase 9b did.
+#define SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 9c: June's KBuffFactor (CommonPacket.h):
+//              the creator power rate member (+0x57, default 1.0), a copy ctor
+//              that copies the creator UID / NPC flag / power rate, and Put/Get
+//              in June's order (320e3950). ALSO DEFINED in
+//              KncWX2Server/Common/ServerDefine.h, the only place
+//              CommonPacket.h can see (it is compiled before this file is
+//              reachable): comment out both together. The power-rate lines in
+//              X2BuffTemplet.cpp / X2BuffBehaviorTemplet.cpp nest it inside
+//              SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION.
+#define SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 //////////////////////////////////////////////////////////////////////////

@@ -1313,22 +1313,35 @@ DECL_DATA( KBuffFactor )
 	bool									m_bIsMesGameUnitNpc;				/// 시전자가 NPC인가?(true면 NPC)
 	int										m_iFactorID;						/// 버프 팩터 아이디 - 서버에서 버프 발동 시 필요
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 9c (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
+	/// This flag is defined in ServerDefine.h (included above) as well as Always.h: X2Main.h:4 reaches this header
+	/// through X2ServerProtocolLib.h before KTDX.h includes Always.h, so an Always.h-only flag is never seen here.
+	float									m_fJuneCreatorPowerRate;			/// June +0x57: the creator's power rate (templet +0xbc), the last field June's Put/Get carry (320e3950)
+
+	KBuffFactor() : m_BuffIdentity(), m_uidMesGameUnit( 0 ), m_fAccumulationMultiplier( 0.0f ), m_ucAccumulationCountNow( 0 ), m_bIsMesGameUnitNpc( false ), m_iFactorID( 0 ),
+		m_fJuneCreatorPowerRate( 1.0f )		/// June ctor 3211ea50 @3211ea94 (FLD1)
+#else SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 	KBuffFactor() : m_BuffIdentity(), m_uidMesGameUnit( 0 ), m_fAccumulationMultiplier( 0.0f ), m_ucAccumulationCountNow( 0 ), m_bIsMesGameUnitNpc( false ), m_iFactorID( 0 )
+#endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
+//}}
 	{
 	}
 
-//{{ Iruha : 2026-10-05 // June buff port Phase 9b (JUNE_BUFF_PORT_PHASES.md)
-#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
-	/// The creator's UID and NPC flag are copied too: a copied packet factor hands them to the custom-function classes
-	/// (SetFactorFromPacket, June 32e73f90 reads +0x28/+0x2c and +0x3d), and March's ctor left both indeterminate.
-	/// Client-only: Always.h, where the flag lives, is not seen by the servers, and Put/Get are unchanged.
+//{{ Iruha : 2026-10-05 // June buff port Phase 9b (JUNE_BUFF_PORT_PHASES.md); flag moved in Phase 9c
+#ifdef SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
+	/// The creator's UID, NPC flag (Phase 9b) and power rate (Phase 9c) are copied too: a copied factor hands them to the
+	/// custom-function classes (SetFactorFromPacket, June 32e73f90 reads +0x28/+0x2c, +0x3d and +0x57; the Gage keeps
+	/// factors by copy across games), and March's ctor left the first two indeterminate. Put/Get carry all three in
+	/// June's order (CommonPacket.cpp). 9b guarded this with SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION, which this header
+	/// never sees (see the member above), so the March #else was what compiled until Phase 9c. Offline only.
 	KBuffFactor( const KBuffFactor& rhs_ ) : m_BuffIdentity( rhs_.m_BuffIdentity ), m_uidMesGameUnit( rhs_.m_uidMesGameUnit ),
 		m_fAccumulationMultiplier( rhs_.m_fAccumulationMultiplier ), m_ucAccumulationCountNow( rhs_.m_ucAccumulationCountNow ),
-		m_bIsMesGameUnitNpc( rhs_.m_bIsMesGameUnitNpc ), m_iFactorID( rhs_.m_iFactorID )
-#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+		m_bIsMesGameUnitNpc( rhs_.m_bIsMesGameUnitNpc ), m_iFactorID( rhs_.m_iFactorID ), m_fJuneCreatorPowerRate( rhs_.m_fJuneCreatorPowerRate )
+#else SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 	KBuffFactor( const KBuffFactor& rhs_ ) : m_BuffIdentity( rhs_.m_BuffIdentity ),
 		m_fAccumulationMultiplier( rhs_.m_fAccumulationMultiplier ), m_ucAccumulationCountNow( rhs_.m_ucAccumulationCountNow ), m_iFactorID( rhs_.m_iFactorID )
-#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+#endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 //}}
 	{
 		m_vecBuffBehaviorFactors = rhs_.m_vecBuffBehaviorFactors;
