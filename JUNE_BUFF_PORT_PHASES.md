@@ -3391,7 +3391,7 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,141,120 B, dated 2026-10-05 11:37:26, md5 8b491d7d1a8108c1a208ad94ae196580, equal to X2/US_SERVICE/x2.exe (2026-10-05 11:37:21); built at mods/june-buff-port f52a21b + 18 uncommitted code file(s).` (those 18 are exactly `9eba9ad`). All 13 phase strings found in the deployed exe.
 
-**Play-test:** after packing `UnitApplyBuffGroup.lua` into `data036.kom` (hand-off in the session; log tag `[JUNE_BUFF]`).
+**Play-test (2026-10-05, user; exe `8b491d7d`, run 11:59:24 after the 11:37 deploy, live `data036.kom` has `UnitApplyBuffGroup.lua` 4,909 B): 4/4 passed.** `ErrorLog.txt:152` `UnitApplyBuffGroup.lua: 3 buff group(s), 109 officially debuff(s)`; `:191` `buff group 4 refused BTI 37 on NPC 5086` (Sword Fire, the damage-react path); `:193` `buff group 3 refused BTI 37 on NPC 5084` (console); group 0 burned both times; the `ApplyBuffFactor` cheat burned for about 3 s (by eye, no log line). Load baseline unchanged (361 factors, 5 ordinal rejects); 0 exceptions. A first run (11:54) had the kom packed but not copied into the game directory, so it logged `not found`.
 
 ## Phase 10b — The DamageData buff keys' readers (added 2026-10-05 by Phase 10)
 
