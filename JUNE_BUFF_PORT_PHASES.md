@@ -3701,9 +3701,22 @@ The function rows are in `june2017_re/funcmap.tsv` (the "Buff Phase 11" rows).
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,173,376 B, dated 2026-10-05 15:25:08, md5 0dd0588096c23e6495e92d9c2a55af8c, equal to X2/US_SERVICE/x2.exe (2026-10-05 15:25:04); built at mods/june-buff-port 9d70f0c + 1 uncommitted code file(s).` (that 1 = `da55146`; the first deploy, `9ebc4b93` at 15:18, lacked it). Range hygiene `af7741b^..HEAD` for `_OFFLINE_ITEM_BUFF`: `3 PASS, 6 PASS~, 1 DEFINE, 6 OTHER, 0 FAIL, 0 ERROR`, RESULT PASS; its 1 deleted line is `da55146` rewriting Phase 11's own load-summary log line. The phase's strings (`world buff (room|village)`, `premium buff(s) added`, `BUFF     activated buff`, `schema upgraded to v14`, `NOT_USE_IN_HENIR`, `BuffTemplet_INT.lua`, `end at death`) are in the deployed exe. March's 58 premium BTIs are all still in June's 209 (none dropped; `X2ItemSlotManager.cpp:3384` null-checks anyway).
 
-**How to see it in game:** the "Play-test" hand-off in this session's final message. A short version: buy an Arcanum / Elixir in the cash shop (Consumables → Restore, products 11-26), claim it, enter a dungeon or field, and use it from the bag there.
-- **The client allows these items only in `XS_DUNGEON_GAME` / `XS_BATTLE_FIELD`** (`X2UIInventory.cpp:7259-7276`). Anywhere else it shows `STR_ID_16529` and sends nothing; the first play-test (15:38) hit this.
-- It always sends temp code 1 (`:7268`), so the server's double-use guards always apply. Re-using an item from the same group is refused, never a replace.
+**Play-test (2026-10-05, user; exe `0dd05880`): checks 1-4 passed, 5 partly.** Logs:
+- `209 premium buff templet(s) loaded: end at death 5, at dungeon leave 23, at dungeon end 23, at field leave 17, NOT_USE_IN_HENIR 6`;
+- `activated buff 109 (factor 90) for 180 s` and `117 … 300 s`, then `world buff (room): … 2 sent, 2 kept`;
+- `refused Arcanum 78520 - STRENGTHENING_BODY (117) is active`;
+- on death, `deactivated buff 109` → `1 sent, 1 kept`.
+Check 5: back in the village, no icons appeared. The emulator's send after `EGS_STATE_CHANGE_FIELD_ACK` (live `GSUserField.cpp:215`) arrives while the field game still exists, and the village handler drops it.
+- Live's icons come from the `ERM_JOIN_FIELD_ACK` round trip, which grants `WARM_ENERGE_OF_EL` (122) and so resends the list.
+- **Fix `1e29455`:** the list is resent at `EGS_FIELD_LOADING_COMPLETE_REQ` (village), only if non-empty.
+- Redeploy: `DEPLOY OK: X2_offline.exe is 19,173,376 B, dated 2026-10-05 15:49:57, md5 551a1dabd875dc31ddada7f7abb16361, equal to X2/US_SERVICE/x2.exe (2026-10-05 15:49:52); built at mods/june-buff-port fafc865 + 1 uncommitted code file(s).` (that 1 = `1e29455`).
+- **Open question:** port live's village buff 122 too? It is a global buff, not an item buff.
+
+**How to see it in game:**
+- Buy an Arcanum / Elixir (cash shop → Consumables → Restore, products 11-26) and claim it.
+- Use it from the bag **inside a dungeon or field**: the client refuses these items elsewhere (`X2UIInventory.cpp:7259-7276`, `STR_ID_16529`).
+- The client always sends temp code 1 (`:7268`), so re-using an item from the same group is refused, never a replace.
+- Die with the console line `g_pX2Game:GetMyUnit():SetNowHP( 0 )`. Offline revival is refused (no stones).
 
 ## Phase 12 — Buff icons and UI assets
 
