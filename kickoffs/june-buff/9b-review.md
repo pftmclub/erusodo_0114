@@ -37,4 +37,4 @@ Spot-check at least three classes directly in Ghidra / `rawfn.py` (read-only); i
 Fix clear transcription errors under the same flag (then `tools/build.py --deploy`); hand
 design decisions back to the user (the Done note's three open questions stay the user's). Write "Phase 9b — Review" into the plan doc, update the
 phase's STATUS.md row, check the next kickoff (`13.md` is the next phase that depends on 9), and commit.
-For a play-test, regression only: the BTIs in March's data (29, 56, 62, 223, 241); everything 9b added is dormant.
+For a play-test, regression only: the BTIs in March's data (29, 56, 62, 223, 241) and ordinary combat (the per-hit serial / state / critical bookkeeping runs on every hit); the new classes are dormant.
