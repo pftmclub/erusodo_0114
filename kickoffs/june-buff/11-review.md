@@ -5,7 +5,7 @@
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 11 review` |
 | Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
 | Depends on | 11 done (its Done note and commits, see STATUS.md) |
-| Flag | `SERV_IRUHADEV_JUNE_BUFF_PREMIUM` (client), `SERV_IRUHADEV_OFFLINE_ITEM_BUFF` (emulator), `SERV_IRUHADEV_JUNE_BUFF_NOT_USE_IN` (stand-in) |
+| Flag | `SERV_IRUHADEV_JUNE_BUFF_PREMIUM` (client), `SERV_IRUHADEV_OFFLINE_ITEM_BUFF` (emulator), `SERV_IRUHADEV_JUNE_BUFF_NOT_USE_IN` (stand-in), `SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF` (village Rest buff 122, user request) |
 | Log tag | `[JUNE_BUFF]` (`python tools/logs.py --tag JUNE_BUFF`); emulator lines are `BUFF     ` in `offline_server.log` (`--grep "BUFF     "`) |
 | Review | none |
 
@@ -46,11 +46,12 @@ Review Phase 11 against June (client) and against the March GameServer (emulator
    Phase 19's `USE_QUICK_SLOT_NOT` is skipped for a server buff item.
 5. **The Lua binding hand-back**: `BuffManager` is re-declared to the client's manager after the
    emulator's run; confirm the client's own `OpenScriptFile` count lines are unchanged by it.
-6. Confirm `BuffTemplet.lua` / `_INT` staged in both places are the mar-2014 compile of
+6. **The village Rest buff (BTI 122):** granted at `EGS_FIELD_LOADING_COMPLETE_REQ`, removed in `OpenRoom`, at back-to-select and at select; compare with `ERM_JOIN_FIELD_ACK`, `OnLeaveField` and `CheckDeselectUnitBuff` (archive section).
+7. Confirm `BuffTemplet.lua` / `_INT` staged in both places are the mar-2014 compile of
    `june_src_fixed` (round-trip count 138 / 71) and the live `.kom` sizes once packed.
 
 Hygiene, one command per flag with `--range <first Phase 11 code commit>^..<last>` and
-`--with JUNE_BUFF_PREMIUM OFFLINE_ITEM_BUFF JUNE_BUFF_NOT_USE_IN OFFLINE JUNE_BUFF_DEBUG`.
+`--with JUNE_BUFF_PREMIUM OFFLINE_ITEM_BUFF JUNE_BUFF_NOT_USE_IN OFFLINE_VILLAGE_BUFF OFFLINE JUNE_BUFF_DEBUG`.
 Paste the `files:` / `in this flag's files:` / `RESULT:` lines. Explain every OTHER row and
 every deleted line; a FAIL or ERROR is a finding.
 
