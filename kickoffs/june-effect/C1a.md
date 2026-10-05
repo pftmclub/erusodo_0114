@@ -26,6 +26,11 @@ skill's Tools and Finish lists). Never launch X2_offline.exe; ask the user. Ghid
 
 ## Task
 
+**Census contract (C0, 2026-10-05):** `census_completion.py`'s `_src_numerical` copies the plan's wording (numerical index>0
+or name, plus `APPLIED_SKILL_ID` or `DAMAGE_SKILL_ID`) and counts 1,913 blocks. Confirm June's real gate from
+`32632390@3263fe41-32640054` (is `USED_SKILL_ID` a third trigger? it appears in 378 blocks); if it differs, fix the predicate and
+record the corrected count here.
+
 **This session does step 1 only** (identify, verdicts into funcmap.tsv, March vs June NewSkillTempletVer2.lua diff, stop for the user if adopting June's file changes more than numerical data). Step 2 is C1b, a new Sonnet conversation.
 
 Verbatim kickoff prompt from the plan:
@@ -41,6 +46,6 @@ and how skill level selects a row; write verdicts to funcmap.tsv; diff March vs 
 NewSkillTempletVer2.lua and stop for me if adopting June's changes more than numerical data.
 Step 2 (after /model to Sonnet): transcribe the loader and the override under
 SERV_IRUHADEV_JUNE_NUMERICAL_DATA, store APPLIED_SKILL_ID/DAMAGE_SKILL_ID where it needs them.
-CP949 byte-level edits; build US_SERVICE, deploy, ASK before launching. Done when census.py's
-damage-regression check passes and three of the 492 named skills show damage in play.
+CP949 byte-level edits; build US_SERVICE, deploy, ASK before launching. Done when census.py's numerical-skill-data item-1 line
+passes and three of the 492 named skills show damage in play.
 ```

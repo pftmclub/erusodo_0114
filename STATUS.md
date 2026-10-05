@@ -77,7 +77,7 @@ today's Sonnet 5.5.
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| C0 | queued | Sonnet 5.5 / high | - | `june2017_re/census.py`, C0's decision table (D1 already answered) | `C0.md` |
+| C0 | done 2026-10-05: D2 build, D3 hand off (Rena), D4 build, D5 decide after C2, D6 keep; census now has `handed-off`/`declined`, owners, item-1/3 checks (`census_completion.py`); item-1 shows 1,913 numerical + 7 HP-rate blocks | Sonnet 5.5 / high | - | `june2017_re/census.py`, `census_completion.py`, C0's decision table | `C0.md` |
 | C1a | queued | Opus 5.5 / high | C0 | `funcmap.tsv` (no code) | `C1a.md` |
 | C1b | blocked | Sonnet 5.5 / high | C1a | X2DamageManager.cpp (SetDamageDataFromLUA), a new table loader, NewSkillTempletVer2.lua (user packs), MODS.md | `C1b.md` |
 | C1b review | blocked | Opus 5.5 / high | C1b | - | `C1b-review.md` |

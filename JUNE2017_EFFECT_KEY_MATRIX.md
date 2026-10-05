@@ -30,6 +30,10 @@ when its rows leave `to-implement`; `python june2017_re/census.py --summary` pri
     positional entry, or under a sub-table June never opens). Nothing to implement.
     **This fifth status is not in the plan's list of four**: without it, June's own dead
     data would have to be mislabelled `to-implement`.
+  - `handed-off`: as `to-implement` / `unsupported`, but another port owns it (the buff port, the Rena or Rose
+    character port). The `receiver` column of `census.tsv` names the document and phase. Set by
+    `census_completion.py` (decision table of `JUNE2017_EFFECT_COMPLETION_PHASES.md` C0), not derived from the data.
+  - `declined`: the user declined the system; `receiver` names the decision and its date. Same source.
 - **Phases** follow the plan: EffectSet templet 2; `EFFECT%d` and its sub-blocks 3; CEffect top
   level 5; create/die/hit damage effects and die conditions 6a; the other sub-loaders 6b;
   DamageData 8a (keys March reads: semantics), 8b (new, system present), 8c (absent system).
@@ -63,30 +67,39 @@ when its rows leave `to-implement`; `python june2017_re/census.py --summary` pri
 - PASS KTDGParticleSystem: every `unsupported` key is still parsed by March (plan rule 5)
 - PASS KTDGParticleSystem: no June data key is one June's own parser rejects
 - PASS KTDGParticleSystem: every hand-written runtime citation names a key March now reads
+- PASS every open row has an owning C-phase (or is handed-off / declined)
+- PASS every `unsupported` row names a recorded decision (build / handed-off / declined / pending), definition item 4
+- PASS every `handed-off` / `declined` row names its receiver (document + phase or section)
+- PASS definition item 3: every binary-only row has a March parse site (3 sited; 14 owed to the phase that closes them: C10 1, C3 6, C4 4, C5 3)
+- **FAIL** definition item 1, numerical skill data (June SetDamageDataFromLUA override, 32632390@3263fe41): 1913 of 7948 June DAMAGE_DATA* blocks get damage only from it, and March lacks it (owner C1, flag SERV_IRUHADEV_JUNE_NUMERICAL_DATA). By file: DamageEffect.lua 1510, DamageEffect_Character.lua 394, DamageEffect_Dungeon.lua 9. First: AIMING_EXPLOSION/DAMAGE_DATA, AIMING_EXPLOSION_EXTRA/DAMAGE_DATA, AISHA_ELEMENTAL_MASTER_CYCLONE_OUTSIDE/DAMAGE_DATA (2 more set numerical data without a skill ID, where June's override does not run either)
+- **FAIL** definition item 1, HP-rate damage (HP_RATE_DAMAGE_TYPE/VALUE; C10a confirms the formula): 7 of 7948 June DAMAGE_DATA* blocks get damage only from it, and March lacks it (owner C10, flag not named yet). By file: DamageEffect_ETC.lua 4, DamageEffect_Dungeon.lua 1, DamageEffect_Character.lua 1, DamageEffect_INT.lua 1. First: DamageEffect_2017_Teacher_Benders_Laser/DAMAGE_DATA, DamageEffect_Abnormal_State_AttackDummy/DAMAGE_DATA, DamageEffect_ITEM_PVP_PHOENIX_Attack/DAMAGE_DATA
 
 ## Summary
 
 | status | rows |
 |---|---|
-| implemented | 605 |
-| to-implement | 48 |
-| unsupported | 3 |
+| implemented | 602 |
+| to-implement | 39 |
+| unsupported | 12 |
 | binary-only | 17 |
+| handed-off | 3 |
+| declined | 0 |
 | june-ignores | 305 |
 
 Open work per phase (`to-implement` / `unsupported` / `binary-only`):
 
 | phase | to-implement | unsupported | binary-only |
 |---|---|---|---|
-| 2 | 0 | 1 | 0 |
+| 2 | 0 | 2 | 0 |
 | 3 | 0 | 1 | 0 |
-| 5 | 1 | 1 | 0 |
+| 5 | 0 | 2 | 0 |
 | 6a | 0 | 0 | 2 |
 | 6b | 0 | 0 | 2 |
-| 8b | 31 | 0 | 13 |
-| unassigned | 16 | 0 | 0 |
+| 8b | 27 | 0 | 13 |
+| 8c | 0 | 6 | 0 |
+| unassigned | 12 | 1 | 0 |
 
-Semantics of the rows March parses (implemented, plus unsupported rows parsed under plan rule 5): 391 same, 2 **semantics-differ**, 180 unchecked, 35 n/a.
+Semantics of the rows March parses (implemented, plus unsupported rows parsed under plan rule 5): 393 same, 2 **semantics-differ**, 185 unchecked, 33 n/a.
 
 ## semantics-differ
 
@@ -95,7 +108,7 @@ everything else → the parser phase in the `phase` column.
 
 | phase | scope | key | verdict | June site | March site |
 |---|---|---|---|---|---|
-| 6b | `DE.LOCK_ON_DATA` (top) | `NOT_TARGET_PRE_LOCK_ON_TARGET` | differ(type: June int (getter 32fe9fd0) vs March bool) | 31f72367 → 32fe9fd0 int, default None | X2DamageEffect.cpp:7883 |
+| 6b | `DE.LOCK_ON_DATA` (top) | `NOT_TARGET_PRE_LOCK_ON_TARGET` | differ(type: June int (getter 32fe9fd0) vs March bool) | 31f72367 → 32fe9fd0 int, default None | X2DamageEffect.cpp:7897 |
 | 8a | `DE.DAMAGE_DATA` EXTRA_DAMAGE | `EXTRA_DAMAGE_TYPE` | differ(post: 32632390@32636204-32636214 remaps EDT_MANA_DAMAGE_WITH_NO_DISPLAY 67 -> EDT_MANA_DAMAGE 16 and sets a no-display flag; default EBX=0 = EDT_NONE is the same; fixed under SERV_IRUHADEV_JUNE_DAMAGEDATA) | 326361ec → 32fe9fd0 int, default None | X2DamageManager.cpp:295 |
 
 ### March reads it, June does not
@@ -106,8 +119,8 @@ June dropped these, so March behaviour here is not June's. The owning phase deci
 
 | phase | scope | key | why June ignores it | March site |
 |---|---|---|---|---|
-| 8a | `DE.DAMAGE_DATA` (top) | `BUFF_FACTOR_ID_MEMO` | as BUFF_FACTOR_RELATIVE_MEMO_ID (March X2DamageManager.cpp:3526, same #ifdef) | X2DamageManager:4025 |
-| 8a | `DE.DAMAGE_DATA` (top) | `BUFF_FACTOR_RELATIVE_MEMO_ID` | March reads it only under #ifdef ADD_MEMO_1ST_CLASS (X2DamageManager.cpp:3511). June's counterpart 32630d20 decrypts the non-memo neighbours (BUFF_FACTOR_RELATIVE_SKILL_ID, RELATIV | X2DamageManager:4010 |
+| 8a | `DE.DAMAGE_DATA` (top) | `BUFF_FACTOR_ID_MEMO` | as BUFF_FACTOR_RELATIVE_MEMO_ID (March X2DamageManager.cpp:3526, same #ifdef) | X2DamageManager:4108 |
+| 8a | `DE.DAMAGE_DATA` (top) | `BUFF_FACTOR_RELATIVE_MEMO_ID` | March reads it only under #ifdef ADD_MEMO_1ST_CLASS (X2DamageManager.cpp:3511). June's counterpart 32630d20 decrypts the non-memo neighbours (BUFF_FACTOR_RELATIVE_SKILL_ID, RELATIV | X2DamageManager:4093 |
 
 ### Scaled after reading
 
@@ -331,24 +344,24 @@ The full spec is in the plan, Phases 4a and 4b.
 
 #### `DE.top` (top)
 
-114 rows: implemented 70, june-ignores 42, to-implement 1, unsupported 1. June: `31f7aab0`, `31f8ba80`, `31f8b370`. March: `CEffect`, `LoadLockOnData`, `LoadBlackHoleData` ….
+114 rows: implemented 70, june-ignores 42, unsupported 2. June: `31f7aab0`, `31f8ba80`, `31f8b370`. March: `CEffect`, `LoadLockOnData`, `LoadBlackHoleData` ….
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `APPLIED_SKILL_ID` | to-implement | 5 | 2 | direct 31f7aab0@31f7b483 |  |  | compiled elsewhere: X2DamageEffect:1618, X2EffectSet:3633; raw literal 5 (X2Lib/X2DamageEffect.cpp:1618); bare id 16; e.g. DamageEffect:[] |
+| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | 5 | 2 | direct 31f7aab0@31f7b483 |  |  | compiled elsewhere: X2DamageEffect:1618, X2EffectSet:3633; raw literal 5 (X2Lib/X2DamageEffect.cpp:1618); bare id 22; e.g. DamageEffect:[] |
 | `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | unsupported(Effect-alpha option (absent)) | 5 |  | binary-only 31f7aab0@31f7bff3 | X2DamageEffect:1731 | same [June enum = 0] | compiled elsewhere: X2DamageEffect:1731, X2EffectSet:3641; raw literal 6 (X2Lib/X2DamageEffect.cpp:1731); bare id 20; runtime 7a: unsupported (done) |
-| `AFTER_IMAGE` | implemented |  | 11 | other-func 31f74a80 | X2DamageEffect:9756 | unchecked(June reads it in callee 31f74a80, not a scope reader) |  |
+| `AFTER_IMAGE` | implemented |  | 11 | other-func 31f74a80 | X2DamageEffect:9770 | unchecked(June reads it in callee 31f74a80, not a scope reader) |  |
 | `APPLY_SCALE_BY_UNIT` | implemented |  | 169 | direct 31f7aab0@31f7ea60 | X2DamageEffect:2084 | same [June bool = 1] |  |
 | `ATTACKED_BY_EFFECT` | implemented |  | 6309 | direct 31f7aab0@31f7d151 | X2DamageEffect:1847 | same [June bool = 0] |  |
 | `ATTACKED_BY_UNIT` | implemented |  | 6322 | direct 31f7aab0@31f7d00c | X2DamageEffect:1846 | same [June bool = 0] |  |
 | `ATTACK_TIME_END` | implemented |  | 1717 | direct 31f7aab0@31f7d667 | X2DamageEffect:1863 | same [June float = 100] | runtime 9: same (-) |
 | `ATTACK_TIME_START` | implemented |  | 1677 | direct 31f7aab0@31f7d518 | X2DamageEffect:1862 | same [June float = 0] | runtime 9: same (-) |
-| `BLACKHOLE_DATA` | implemented |  | 223 | direct 31f7aab0 | X2DamageEffect:8154 | n/a (sub-table name) |  |
-| `BLACKHOLE_DATA_ULTIMATE` | implemented |  | 1 | direct 31f7aab0 | X2DamageEffect:8145 | n/a (sub-table name) |  |
-| `CAMERA%d` | implemented |  | 879 | other-func 31f650f0 | X2DamageEffect:9191 | unchecked(June reads it in callee 31f650f0, not a scope reader) | 2 names |
+| `BLACKHOLE_DATA` | implemented |  | 223 | direct 31f7aab0 | X2DamageEffect:8168 | n/a (sub-table name) |  |
+| `BLACKHOLE_DATA_ULTIMATE` | implemented |  | 1 | direct 31f7aab0 | X2DamageEffect:8159 | n/a (sub-table name) |  |
+| `CAMERA%d` | implemented |  | 879 | other-func 31f650f0 | X2DamageEffect:9205 | unchecked(June reads it in callee 31f650f0, not a scope reader) | 2 names |
 | `CHANGE_DAMAGE_TIME` | implemented |  | 1 | direct 31f7aab0@31f7e8e6 | X2DamageEffect:2074 | unchecked(unchecked-default(June: default store not recognised: xor cl, cl; jmp 0x31f7e9fa)) [June bool = None] |  |
 | `CLEAR_HIT_UNIT_ON_DAMAGE_DATA_CHANGE` | implemented |  | 106 | direct 31f7aab0@31f7d94d | X2DamageEffect:1916 | same [June bool = 0] |  |
-| `CREATE_DAMAGE_EFFECT%d` | implemented |  | 1823 | other-func 31f6ac60 | X2DamageEffect:9265 | unchecked(June reads it in callee 31f6ac60, not a scope reader) | 50 names |
+| `CREATE_DAMAGE_EFFECT%d` | implemented |  | 1823 | other-func 31f6ac60 | X2DamageEffect:9279 | unchecked(June reads it in callee 31f6ac60, not a scope reader) | 50 names |
 | `DAMAGE_DATA` | implemented |  | 6773 | direct 31f7aab0 | X2DamageEffect:1616, X2DamageEffect:1763 | n/a (sub-table name) |  |
 | `DAMAGE_DATA_CHANGE_TIME` | implemented |  | 55 | direct 31f7aab0 | X2DamageEffect:1865, X2DamageEffect:1890 | n/a (sub-table name) | runtime 7a: semantics-differ (done) |
 | `DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME` | implemented |  | 431 | direct 31f7aab0 | X2DamageEffect:1866, X2DamageEffect:1908 | n/a (sub-table name) | runtime 7a: semantics-differ (done) |
@@ -359,11 +372,11 @@ The full spec is in the plan, Phases 4a and 4b.
 | `DAMAGE_DATA_NEXT_ULTIMATE` | implemented |  | 4 | direct 31f7aab0 | X2DamageEffect:2026 | n/a (sub-table name) |  |
 | `DAMAGE_DATA_NEXT_ULTIMATE%d` | implemented |  |  | binary-only 31f7aab0 | X2DamageEffect:2047 | n/a (sub-table name) | binary-only: no June data uses it |
 | `DAMAGE_DATA_ULTIMATE` | implemented |  | 16 | direct 31f7aab0 | X2DamageEffect:1761 | n/a (sub-table name) |  |
-| `DAMAGE_EFFECT_DIE_CHECK_CONDITION` | implemented |  | 1 | direct 31f7aab0 | X2DamageEffect:8269 | n/a (sub-table name) |  |
+| `DAMAGE_EFFECT_DIE_CHECK_CONDITION` | implemented |  | 1 | direct 31f7aab0 | X2DamageEffect:8283 | n/a (sub-table name) |  |
 | `DAMAGE_TIME` | implemented |  | 7407 | direct 31f7aab0@31f7cef2 | X2DamageEffect:1845 | same [June int = 1] |  |
-| `DIE_CREATE_NPC%d` | implemented |  | 3 | other-func 31f66230 | X2DamageEffect:9561 | unchecked(June reads it in callee 31f66230, not a scope reader) | runtime 7e: new (done) |
-| `DIE_DAMAGE_EFFECT%d` | implemented |  | 1657 | other-func 31f6e7e0 | X2DamageEffect:9024 | unchecked(June reads it in callee 31f6e7e0, not a scope reader) | 9 names |
-| `DIE_DAMAGE_EFFECT_ULTIMATE%d` | implemented |  | 13 | other-func 31f6e7e0 | X2DamageEffect:8986 | unchecked(June reads it in callee 31f6e7e0, not a scope reader) |  |
+| `DIE_CREATE_NPC%d` | implemented |  | 3 | other-func 31f66230 | X2DamageEffect:9575 | unchecked(June reads it in callee 31f66230, not a scope reader) | runtime 7e: new (done) |
+| `DIE_DAMAGE_EFFECT%d` | implemented |  | 1657 | other-func 31f6e7e0 | X2DamageEffect:9038 | unchecked(June reads it in callee 31f6e7e0, not a scope reader) | 9 names |
+| `DIE_DAMAGE_EFFECT_ULTIMATE%d` | implemented |  | 13 | other-func 31f6e7e0 | X2DamageEffect:9000 | unchecked(June reads it in callee 31f6e7e0, not a scope reader) |  |
 | `EFFECT_TYPE` | implemented |  | 8822 | direct 31f7aab0@31f7cdd9 | X2DamageEffect:1844 | same [June enum = 0] |  |
 | `FOLLOW_LINE` | implemented |  | 1830 | direct 31f7aab0 | X2DamageEffect:1917 | unchecked(June: no decrypt site, direct) |  |
 | `FOLLOW_LINE_GRAVITY` | implemented |  | 7 | direct 31f7aab0@31f7e306 | X2DamageEffect:1960 | same [June bool = 0] | runtime 7a: new (deferred) |
@@ -372,16 +385,16 @@ The full spec is in the plan, Phases 4a and 4b.
 | `FOLLOW_LINE_WITH_CUSTOM_ROTATE` | implemented |  | 12 | direct 31f7aab0@31f7dfea | X2DamageEffect:1959 | same [June bool = 0] | runtime 7a: new (done) |
 | `FOLLOW_ON_LINE` | implemented |  | 191 | direct 31f7aab0@31f7dea4 | X2DamageEffect:1946 | same [June bool = 0] |  |
 | `GROUP_DAMAGE` | implemented |  | 161 | direct 31f7aab0@31f7f0f6 | X2DamageEffect:2101 | same [June bool = 0] |  |
-| `HIT_DAMAGE_EFFECT%d` | implemented |  | 719 | other-func 31f6e850 | X2DamageEffect:9456 | unchecked(June reads it in callee 31f6e850, not a scope reader) | 8 names |
-| `HIT_DAMAGE_EFFECT_ULTIMATE%d` | implemented |  | 16 | other-func 31f6e850 | X2DamageEffect:9414 | unchecked(June reads it in callee 31f6e850, not a scope reader) |  |
-| `HIT_PARTICLE%d` | implemented |  | 12900 | other-func 31f6cd00 | X2DamageEffect:9378 | unchecked(June reads it in callee 31f6cd00, not a scope reader) | 10 names |
+| `HIT_DAMAGE_EFFECT%d` | implemented |  | 719 | other-func 31f6e850 | X2DamageEffect:9470 | unchecked(June reads it in callee 31f6e850, not a scope reader) | 8 names |
+| `HIT_DAMAGE_EFFECT_ULTIMATE%d` | implemented |  | 16 | other-func 31f6e850 | X2DamageEffect:9428 | unchecked(June reads it in callee 31f6e850, not a scope reader) |  |
+| `HIT_PARTICLE%d` | implemented |  | 12900 | other-func 31f6cd00 | X2DamageEffect:9392 | unchecked(June reads it in callee 31f6cd00, not a scope reader) | 10 names |
 | `IGNORE_MI_HUGE` | implemented |  | 2 | direct 31f7aab0@31f7c6b7 | X2DamageEffect:1774 | same [June bool = 0] | runtime 7a: new (deferred) |
 | `INHERIT_CRITICAL_DAMAGE_RATE` | implemented |  | 7 | direct 31f7aab0@31f7ef09 | X2DamageEffect:2093 | same [June bool = 0] | runtime 7d: new (done) |
 | `INHERIT_CRITICAL_RATE` | implemented |  | 9 | direct 31f7aab0@31f7ed68 | X2DamageEffect:2092 | same [June bool = 0] | runtime 7d: new (done) |
 | `INHERIT_FORCEDOWNRATE` | implemented |  | 13 | direct 31f7aab0@31f7ebd6 | X2DamageEffect:2086 | same [June bool = 0] |  |
 | `LINK_EFFECT_RATE` | implemented |  | 16 | direct 31f7aab0@31f7f507 | X2DamageEffect:2118 | same [June float = -1] |  |
-| `LOCK_ON_DATA` | implemented |  | 382 | direct 31f7aab0 | X2DamageEffect:7852 | n/a (sub-table name) |  |
-| `LOCK_ON_DATA_ULTIMATE` | implemented |  | 3 | direct 31f7aab0 | X2DamageEffect:7844 | n/a (sub-table name) |  |
+| `LOCK_ON_DATA` | implemented |  | 382 | direct 31f7aab0 | X2DamageEffect:7866 | n/a (sub-table name) |  |
+| `LOCK_ON_DATA_ULTIMATE` | implemented |  | 3 | direct 31f7aab0 | X2DamageEffect:7858 | n/a (sub-table name) |  |
 | `MAIN_EFFECT_NAME` | implemented |  | 8847 | direct 31f7aab0 | X2DamageEffect:1647 | unchecked(June: no decrypt site, direct) |  |
 | `MAIN_EFFECT_NAME%d` | implemented |  | 240 | direct 31f7aab0@31f7b90e | X2DamageEffect:1652 | unchecked(March: `MAIN_EFFECT_NAME%d` at X2DamageEffect.cpp:1652 is not a GetValue key) | 3 names |
 | `MAIN_EFFECT_NAME_ULTIMATE` | implemented |  | 9 | direct | X2DamageEffect:1662 | unchecked(June: no decrypt site, direct) |  |
@@ -390,17 +403,17 @@ The full spec is in the plan, Phases 4a and 4b.
 | `NOTIFY_TO_OWNER_WHEN_DIE` | implemented |  | 21 | direct 31f7aab0@31f7f357 | X2DamageEffect:2113 | same [June bool = 0] |  |
 | `NOT_CULL` | implemented |  | 1019 | direct 31f7aab0@31f7bebf | X2DamageEffect:1718 | unchecked(unchecked-default(June: non-standard shape after the call: test je mov cmp)) [June bool = None] |  |
 | `ONLY_RELATIONSHIP` | implemented |  | 2 | direct 31f7aab0@31f7f1fd | X2DamageEffect:2107 | same [June bool = 0] | runtime 7d: semantics-differ (done) |
-| `PASSIVE_PARTICLE%d` | implemented |  | 12121 | other-func 31f6a940 | X2DamageEffect:9139 | unchecked(June reads it in callee 31f6a940, not a scope reader) | 28 names |
+| `PASSIVE_PARTICLE%d` | implemented |  | 12121 | other-func 31f6a940 | X2DamageEffect:9153 | unchecked(June reads it in callee 31f6a940, not a scope reader) | 28 names |
 | `REACT_ANIMSPEED` | implemented |  | 4 | direct 31f7aab0@31f7dd74 | X2DamageEffect:1945 | same [June float = 0] | runtime 7d: same (-) |
 | `REFLECT` | implemented |  | 5492 | direct 31f7aab0@31f7d297 | X2DamageEffect:1848 | same [June bool = 0] |  |
 | `REFRESH_LAND_POS` | implemented |  | 8 | direct 31f7aab0@31f7dc33 | X2DamageEffect:1939 | same [June bool = 1] | runtime 7a: semantics-differ (done) |
 | `RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT` | implemented |  | 1 | direct 31f7aab0@31f7f6b3 | X2DamageEffect:2127 | same [June float = -1] | runtime 7d: new (done) |
-| `SCREEN%d` | implemented |  | 21 | other-func 31f65730 | X2DamageEffect:9215 | unchecked(June reads it in callee 31f65730, not a scope reader) |  |
-| `SIN_MOVE_DATA` | implemented |  | 13 | other-func 31f64200 | X2DamageEffect:8348 | unchecked(June reads it in callee 31f64200, not a scope reader) |  |
-| `SOUND%d` | implemented |  | 2349 | other-func 31f73f30 | X2DamageEffect:9239 | unchecked(June reads it in callee 31f73f30, not a scope reader) | 5 names |
-| `START_PARTICLE%d` | implemented |  | 5006 | other-func 31f6a7b0 | X2DamageEffect:9113 | unchecked(June reads it in callee 31f6a7b0, not a scope reader) | 17 names |
-| `TIME_PARTICLE%d` | implemented |  | 4440 | other-func 31f6aad0 | X2DamageEffect:9165 | unchecked(June reads it in callee 31f6aad0, not a scope reader) | 66 names |
-| `TOUCH_LAND_DAMAGE_EFFECT%d` | implemented |  | 1 | other-func 31f76a90 | X2DamageEffect:9580 | unchecked(June reads it in callee 31f76a90, not a scope reader) | runtime 7e: new (deferred) |
+| `SCREEN%d` | implemented |  | 21 | other-func 31f65730 | X2DamageEffect:9229 | unchecked(June reads it in callee 31f65730, not a scope reader) |  |
+| `SIN_MOVE_DATA` | implemented |  | 13 | other-func 31f64200 | X2DamageEffect:8362 | unchecked(June reads it in callee 31f64200, not a scope reader) |  |
+| `SOUND%d` | implemented |  | 2349 | other-func 31f73f30 | X2DamageEffect:9253 | unchecked(June reads it in callee 31f73f30, not a scope reader) | 5 names |
+| `START_PARTICLE%d` | implemented |  | 5006 | other-func 31f6a7b0 | X2DamageEffect:9127 | unchecked(June reads it in callee 31f6a7b0, not a scope reader) | 17 names |
+| `TIME_PARTICLE%d` | implemented |  | 4440 | other-func 31f6aad0 | X2DamageEffect:9179 | unchecked(June reads it in callee 31f6aad0, not a scope reader) | 66 names |
+| `TOUCH_LAND_DAMAGE_EFFECT%d` | implemented |  | 1 | other-func 31f76a90 | X2DamageEffect:9594 | unchecked(June reads it in callee 31f76a90, not a scope reader) | runtime 7e: new (deferred) |
 | `TRACE_OWNER_BONE` | implemented |  | 9 | direct 31f7aab0@31f7e469 | X2DamageEffect:1961 | same [June string = ''] | runtime 7a: new (done) |
 | `TRACE_OWNER_BONE_ONLY_ROTATE` | implemented |  | 3 | direct 31f7aab0@31f7e5d9 | X2DamageEffect:1962 | same [June string = ''] | runtime 7a: unsupported (done) |
 | `USE_ADVANCE_COLLISIOIN_CHECK` | implemented |  | 99 | direct 31f7aab0@31f7c343 | X2DamageEffect:1742 | same [June bool = 0] | runtime 9: new (done) |
@@ -422,8 +435,8 @@ The full spec is in the plan, Phases 4a and 4b.
 | `CAN_REVENGE` | june-ignores(dead-here) |  | 7 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
 | `CLEAR_SCREEN` | june-ignores(dead-here) |  | 3 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
 | `DAMAGE` | june-ignores(dead-here) |  | 2 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
-| `DAMAGE_DATA_MEMO` | june-ignores(unread) |  | 9 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:14264 |  |  |  |
-| `DAMAGE_DATA_NEXT_MEMO` | june-ignores(unread) |  | 2 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:36216 |  |  |  |
+| `DAMAGE_DATA_MEMO` | june-ignores(unread) |  | 9 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:14519 |  |  |  |
+| `DAMAGE_DATA_NEXT_MEMO` | june-ignores(unread) |  | 2 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:37442 |  |  |  |
 | `DAMAGE_DATA_NEXT_MEMO%d` | june-ignores(unread) |  | 4 | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |  |  | 2 names |
 | `DAMAGE_TYPE` | june-ignores(dead-here) |  | 2 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
 | `DamageTime` | june-ignores(typo) |  | 1 | data typo of `DAMAGE_TIME` (this scope, decrypted in 31f7aab0); the binary never reads this spelling |  |  |  |
@@ -454,7 +467,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 #### `DE.DAMAGE_DATA` (top)
 
-163 rows: binary-only 12, implemented 98, june-ignores 28, to-implement 25. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
+163 rows: binary-only 12, handed-off 2, implemented 94, june-ignores 28, to-implement 21, unsupported 6. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
@@ -474,15 +487,17 @@ The full spec is in the plan, Phases 4a and 4b.
 | `EXCEPT_ME_HP_UP` | to-implement | 8b | 1 | direct 32632390@3263bbed |  |  | e.g. DamageEffect:DamageEffect_Regeneration_Tower_Recovery |
 | `FORCE_BACK_SPEED` | to-implement | 8b | 26 | direct 32632390@3263859d |  |  | e.g. DamageEffect:DamageEffect_LGA_Rapid_Shot |
 | `IGNORE_ATTACK_SUCCESS` | to-implement | 8b | 2 | direct 32632390@3263f0e2 |  |  | e.g. DamageEffect:DamageEffect_MOONLIGHT_RHAPSODY_Debuff |
-| `IGNORE_DEFENCE_DECLINE` | implemented (buff port 5c, `a3db272`) |  | 18 | direct 32632390@3263ccde | X2DamageManager:518 | bool, default false; read by both DamageReacts (skips the additional-defence cut) | e.g. DamageEffect:DamageEffect_VERITABLE_PANDEMONIUM_Damage_Impact_TRENSCENDENCE |
-| `IGNORE_DEFENCE_ON_PVP` | implemented (buff port 5c, `a3db272`) |  | 13 | direct 32632390@3263c72e | X2DamageManager:515 | bool, copies IGNORE_DEFENCE when absent; read by GetFinalDamage in a GT_PVP game | e.g. DamageEffect:DAMAGE_EFFECT_EVE_MANEUVER_CORE_ATTACK |
-| `IGNORE_DEFENCE_RATE` | implemented (buff port 5c, `a3db272`) |  | 25 | direct 32632390@3263c8fb | X2DamageManager:516 | float, default 0; GetFinalDamage subtracts it from the piercing-defence factor | e.g. DamageEffect:DamageEffect_SA_ADW_Energy_Spurt |
-| `IGNORE_DEFENCE_RATE_ON_PVP` | implemented (buff port 5c, `a3db272`) |  | 25 | direct 32632390@3263cab8 | X2DamageManager:517 | float, copies IGNORE_DEFENCE_RATE when absent; used when IsPvpOrPve (GT_PVP in this build) | e.g. DamageEffect:DamageEffect_SA_ADW_Energy_Spurt |
 | `INIT_EXTRA_DAMAGE_BEFORE_LOAD` | to-implement | 8b | 4 | direct 32632390@32635e57 |  |  | e.g. DamageEffect:ELSWORD_MAELSTROM |
 | `IS_AURA_BUFF` | to-implement | 8b | 1 | direct 32632390@3263efab |  |  | e.g. DamageEffect_ETC:DamageEffect_Hero_Dungeon_Aura_Buff |
 | `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` | to-implement | 8b | 1 | direct 32632390@326402d5 |  |  | e.g. DamageEffect_Character:DamageEffect_SA_RFY_M18A1_Claymore_Project |
 | `ONYL_ATTACK_USER` | to-implement | 8b | 1 | direct 32632390@3263f60a |  |  | e.g. DamageEffect_ETC:DamageEffect_Abnormal_State_Dummy |
 | `PAUSE_NPC_AI_TIME` | to-implement | 8b | 1 | direct 32632390@3263f977 |  |  | e.g. DamageEffect_INT:SPECIAL_ITEM_LUCKY_BAG_C_Explosion |
+| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | 8c | 2669 | direct 32632390@32632446 | X2DamageManager:209 | same (32632390@3263256a: int, default EBX, zeroed @3263254f) [June int = None] | compiled elsewhere: X2DamageEffect:1618, X2EffectSet:3633; raw literal 5 (X2Lib/X2DamageEffect.cpp:1618); bare id 22; e.g. DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 |
+| `HIT_ADD_COMBINATION_POINT` | unsupported(Combination point (absent)) | 8c | 15 | direct 32632390@3263dfd2 | X2DamageManager:224 | same [June int = 0] | compiled elsewhere: X2DamageManager:224; raw literal 2 (X2Lib/X2DamageManager.cpp:224); bare id 1; e.g. DamageEffect:DamageEffect_LLC_M_DashCombo_ZXXX |
+| `HP_RATE_DAMAGE_TYPE` | unsupported(HP-rate damage (absent)) | 8c | 8 | direct 32632390@3263f2ad | X2DamageManager:230 | same [June enum = 0] | compiled elsewhere: X2DamageManager:230; raw literal 2 (X2Lib/X2DamageManager.cpp:230); bare id 2; e.g. DamageEffect_Character:DamageEffect_SA_ALP_SupersonicFX |
+| `HP_RATE_DAMAGE_VALUE` | unsupported(HP-rate damage (absent)) | 8c | 8 | direct 32632390@3263f45f | X2DamageManager:235 | same [June float = 0] | compiled elsewhere: X2DamageManager:235; raw literal 2 (X2Lib/X2DamageManager.cpp:235); bare id 1; e.g. DamageEffect_Character:DamageEffect_SA_ALP_SupersonicFX |
+| `NUMERICAL_DATA_INDEX` | unsupported(Numerical skill data (absent)) | 8c | 2065 | direct 32632390@3263fb25 | X2DamageManager:248 | same (32632390@3263fc86: int into a stack local, default EBX, zeroed @3263fc6b) [June int = None] | compiled elsewhere: X2DamageManager:248; raw literal 2 (X2Lib/X2DamageManager.cpp:248); bare id 1; e.g. DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 |
+| `NUMERICAL_DATA_NAME` | unsupported(Numerical skill data (absent)) | 8c |  | binary-only 32632390@3263fcdd | X2DamageManager:249 | same [June string = ''] | compiled elsewhere: X2DamageManager:249; raw literal 2 (X2Lib/X2DamageManager.cpp:249); bare id 1 |
 | `APPLIED_MEMO_ID` | binary-only | 8b |  | binary-only 32632390@326325cc |  |  |  |
 | `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` | binary-only | 8b |  | binary-only 32630d20@3263127f |  |  |  |
 | `BUFF_FACTOR_ID_ULTIMATE_PVP` | binary-only | 8b |  | binary-only 32630d20 |  |  |  |
@@ -495,22 +510,23 @@ The full spec is in the plan, Phases 4a and 4b.
 | `DIVISION_NUM` | binary-only | 8b |  | binary-only 32632390@32632898 |  |  |  |
 | `DIVISION_OFF_TIME` | binary-only | 8b |  | binary-only 32632390@326329dc |  |  |  |
 | `HIT_ADD_MP_PERCENT` | binary-only | 8b |  | binary-only 32632390@32638e7f |  |  |  |
-| `APPLIED_SKILL_ID` | implemented |  | 2669 | direct 32632390@32632446 | X2DamageManager:209 | same (32632390@3263256a: int, default EBX, zeroed @3263254f) [June int = None] |  |
-| `APPLY_CRITICAL_DAMAGE_PERCENT` | implemented |  | 2 | direct 32632390@3263e462 | X2DamageManager:553 | same [June float = 0] |  |
+| `NATURAL_FORCE_TYPE` | handed-off |  | 367 | direct 32632390@32635398 | X2DamageManager:218 | same (32632390@326354db: int, default EDI=-1 = NFT_NONE, set @3263532a and not rewritten before the store) [June int = None] |  |
+| `ROSE_WEAPON_ATTACK_TYPE` | handed-off |  | 38 | direct 32632390@326400bc | X2DamageManager:257 | same [June int = -1] |  |
+| `APPLY_CRITICAL_DAMAGE_PERCENT` | implemented |  | 2 | direct 32632390@3263e462 | X2DamageManager:561 | same [June float = 0] |  |
 | `APPLY_MOTION_OFFSET` | implemented |  | 19 | direct 32632390@32638716 | X2DamageManager:424 | same [June bool = 1] |  |
 | `ARRANGED_FLY` | implemented |  | 2350 | direct 32632390@32639f6b | X2DamageManager:451 | same [June bool = 0] |  |
 | `ATTACKER_GET` | implemented |  |  | binary-only 32632390 | X2DamageManager:270 | same (32632390@32635b14-32635cf1: HP/MP floats default 0 into protected members; March attackerGet the same) | binary-only: no June data uses it |
 | `ATTACK_ALL_TEAM` | implemented |  | 9 | direct 32632390@3263324a | X2DamageManager:151 | same [June bool = 0] |  |
 | `ATTACK_OUR_TEAM` | implemented |  | 78 | direct 32632390@3263b82d | X2DamageManager:490 | same [June bool = 0] |  |
-| `ATTACK_TRIGGER_TYPE` | implemented |  | 697 | direct 32632390@3263cebe | X2DamageManager:519 | same [June enum = 0] |  |
+| `ATTACK_TRIGGER_TYPE` | implemented |  | 697 | direct 32632390@3263cebe | X2DamageManager:527 | same [June enum = 0] |  |
 | `ATTACK_TYPE` | implemented |  | 5108 | direct 32632390@32632c7b | X2DamageManager:137 | same [June enum = 0] |  |
 | `BACK_SPEED_W` | implemented |  | 2 | direct 32632390@32637e94 | X2DamageManager:418 | same [June bool = 0] |  |
 | `BACK_SPEED_X` | implemented |  | 5464 | direct 32632390@32637fb5 | X2DamageManager:419 | same [June float = 0] |  |
 | `BACK_SPEED_Y` | implemented |  | 3544 | direct 32632390@326380d8 | X2DamageManager:420 | same [June float = 0] |  |
-| `BUFF_FACTOR` | implemented |  | 967 | other-func 32630910 | X2DamageManager:3809 | same (32630910: BeginTable, ParsingBuffFactor(lua, false), SetGameUnitBuffFactor(attacker), push_back = March ParsingBuffFactor; nested keys not compared) |  |
-| `BUFF_FACTOR_ID` | implemented |  | 361 | direct 32630d20 | X2DamageManager:4043 | n/a (sub-table name) |  |
-| `BUFF_FACTOR_RELATIVE_MASTER_UNIT` | implemented |  | 1 | direct 32630d20@326320df | X2DamageManager:4115 | same (32630d20@326320df: bool, default false; master lookup and level-0 skip identical) [June bool = None] |  |
-| `BUFF_FACTOR_RELATIVE_SKILL_ID` | implemented |  | 114 | direct 32630d20@32631a60, 32630d20@32631edc | X2DamageManager:4074, X2DamageManager:4114 | same (32630d20@32631a60: user default = vtable 0x524, a now-state skill-ID getter (GetNowStateSkillID); @32631edc: NPC default 0; level rule and learn-check identical) [June int = None] |  |
+| `BUFF_FACTOR` | implemented |  | 967 | other-func 32630910 | X2DamageManager:3838 | same (32630910: BeginTable, ParsingBuffFactor(lua, false), SetGameUnitBuffFactor(attacker), push_back = March ParsingBuffFactor; nested keys not compared) |  |
+| `BUFF_FACTOR_ID` | implemented |  | 361 | direct 32630d20 | X2DamageManager:4126 | n/a (sub-table name) |  |
+| `BUFF_FACTOR_RELATIVE_MASTER_UNIT` | implemented |  | 1 | direct 32630d20@326320df | X2DamageManager:4198 | same (32630d20@326320df: bool, default false; master lookup and level-0 skip identical) [June bool = None] |  |
+| `BUFF_FACTOR_RELATIVE_SKILL_ID` | implemented |  | 114 | direct 32630d20@32631a60, 32630d20@32631edc | X2DamageManager:4157, X2DamageManager:4197 | same (32630d20@32631a60: user default = vtable 0x524, a now-state skill-ID getter (GetNowStateSkillID); @32631edc: NPC default 0; level rule and learn-check identical) [June int = None] |  |
 | `CAMERA_CRASH_GAP` | implemented |  | 5814 | direct 32632390@32639481 | X2DamageManager:441 | same [June float = 0] |  |
 | `CAMERA_CRASH_TIME` | implemented |  | 5814 | direct 32632390@326395f1 | X2DamageManager:442 | same [June float = 0] |  |
 | `CAMERA_SHAKE_TYPE` | implemented |  | 5 | direct 32632390@326392f9 | X2DamageManager:440 | same [June int = 3] |  |
@@ -531,7 +547,7 @@ The full spec is in the plan, Phases 4a and 4b.
 | `CUSTOM_HIT_PARTICLE%d` | implemented |  | 7 | direct 32632390 | X2DamageManager:404 | n/a (sub-table name) |  |
 | `DAMAGE` | implemented |  | 5063 | direct 32632390 | X2DamageManager:262 | n/a (sub-table name) |  |
 | `DAMAGE_AREA_TYPE` | implemented |  | 10 | direct 32632390@3263a906 | X2DamageManager:467 | same [June enum = 0] |  |
-| `DAMAGE_DATA_KEY_NAME` | implemented |  | 3 | direct 32632390@3263ec64 | X2DamageManager:566 | same [June string = ''] |  |
+| `DAMAGE_DATA_KEY_NAME` | implemented |  | 3 | direct 32632390@3263ec64 | X2DamageManager:574 | same [June string = ''] |  |
 | `DAMAGE_DISTANCE` | implemented |  | 42 | direct 32632390@3263a6c7 | X2DamageManager:462 | same [June float = 99999] |  |
 | `DAMAGE_LINEGROUP` | implemented |  | 20 | direct 32632390@3263a557 | X2DamageManager:461 | same [June bool = 0] |  |
 | `DAMAGE_TYPE` | implemented |  | 7264 | direct 32632390@32632b5a | X2DamageManager:136 | same [June enum = 0] |  |
@@ -552,46 +568,43 @@ The full spec is in the plan, Phases 4a and 4b.
 | `FORCE_DOWN` | implemented |  | 1597 | direct 32632390@326388a8 | X2DamageManager:428 | same [June float = 0] |  |
 | `FORCE_FLY` | implemented |  | 1656 | direct 32632390@3263a088 | X2DamageManager:454 | same [June bool = 0] |  |
 | `GROGGY_TIME` | implemented |  | 18 | direct 32632390@326389b0 | X2DamageManager:429 | same [June float = 0] |  |
-| `HIT_ADD_COMBINATION_POINT` | implemented |  | 15 | direct 32632390@3263dfd2 | X2DamageManager:224 | same [June int = 0] |  |
-| `HIT_ADD_FORCE_POWER` | implemented |  | 4 | direct 32632390@3263dcd5 | X2DamageManager:539 | same (32632390@3263de28: int, default EBX, zeroed @3263de06) [June int = None] |  |
+| `HIT_ADD_FORCE_POWER` | implemented |  | 4 | direct 32632390@3263dcd5 | X2DamageManager:547 | same (32632390@3263de28: int, default EBX, zeroed @3263de06) [June int = None] |  |
 | `HIT_ADD_HP_PERCENT` | implemented |  | 3 | direct 32632390@32638c66 | X2DamageManager:434 | same [June float = 0] |  |
-| `HIT_ADD_HP_PERCENT_ATTACKPOWER` | implemented |  | 1 | direct 32632390@3263e6c4 | X2DamageManager:554 | same [June float = 0] |  |
+| `HIT_ADD_HP_PERCENT_ATTACKPOWER` | implemented |  | 1 | direct 32632390@3263e6c4 | X2DamageManager:562 | same [June float = 0] |  |
 | `HIT_ADD_MP` | implemented |  | 3105 | direct 32632390@32638ac9 | X2DamageManager:431 | same [June float = 6] |  |
 | `HIT_DAMAGE_EFFECT_INVOKE_RATE` | implemented |  | 36 | direct 32632390@3263beae | X2DamageManager:497 | same [June float = 1] |  |
 | `HIT_GAP` | implemented |  | 3748 | direct 32632390@3263a479 | X2DamageManager:459 | same [June float = 0] |  |
 | `HIT_TYPE` | implemented |  | 7291 | direct 32632390@32632d91 | X2DamageManager:138 | same [June enum = 0] |  |
 | `HP_PERCENT_UP` | implemented |  | 22 | direct 32632390@3263b97e | X2DamageManager:491 | same [June float = 0] |  |
-| `HP_RATE_DAMAGE_TYPE` | implemented |  | 8 | direct 32632390@3263f2ad | X2DamageManager:230 | same [June enum = 0] |  |
-| `HP_RATE_DAMAGE_VALUE` | implemented |  | 8 | direct 32632390@3263f45f | X2DamageManager:235 | same [June float = 0] |  |
 | `IGNORE_DEFENCE` | implemented |  | 34 | direct 32632390@3263c5d2 | X2DamageManager:511 | same [June bool = 0] |  |
-| `IGNORE_STATE_DEFENCE` | implemented |  | 70 | direct 32632390@3263d168 | X2DamageManager:521 | same [June bool = 0] |  |
-| `INCREASE_MP` | implemented |  | 1 | direct 32632390@3263dbac | X2DamageManager:530 | same [June float = 0] |  |
+| `IGNORE_DEFENCE_DECLINE` | implemented |  | 18 | direct 32632390@3263ccde | X2DamageManager:518 | same [June bool = 0] |  |
+| `IGNORE_DEFENCE_ON_PVP` | implemented |  | 13 | direct 32632390@3263c72e | X2DamageManager:515 | unchecked(unchecked-default(June: default store not recognised: mov ecx, dword ptr [esp + 0x14]; mov dl, byte ptr [ecx]; mov byte ptr [edi], dl)) [June bool = None] |  |
+| `IGNORE_DEFENCE_RATE` | implemented |  | 25 | direct 32632390@3263c8fb | X2DamageManager:516 | same [June float = 0] |  |
+| `IGNORE_DEFENCE_RATE_ON_PVP` | implemented |  | 25 | direct 32632390@3263cab8 | X2DamageManager:517 | unchecked(unchecked-default(June: default store not recognised: fld dword ptr [ebp]; fstp dword ptr [edi])) [June float = None] |  |
+| `IGNORE_STATE_DEFENCE` | implemented |  | 70 | direct 32632390@3263d168 | X2DamageManager:529 | same [June bool = 0] |  |
+| `INCREASE_MP` | implemented |  | 1 | direct 32632390@3263dbac | X2DamageManager:538 | same [June float = 0] |  |
 | `LEVEL_DAMAGE` | implemented |  | 2 | direct 32632390@3263b312 | X2DamageManager:478 | same [June bool = 0] |  |
-| `MAKE_TARGET` | implemented |  | 1 | direct 32632390@3263eb25 | X2DamageManager:561 | same [June bool = 0] |  |
+| `MAKE_TARGET` | implemented |  | 1 | direct 32632390@3263eb25 | X2DamageManager:569 | same [June bool = 0] |  |
 | `MELEE_ATTACK` | implemented |  | 100 | direct 32632390@32632f88 | X2DamageManager:140 | same (32632390@3263305e: bool getter, result ignored, so a missing key leaves the member as it was = March default-to-itself) [June bool = None] |  |
 | `MP_PERCENT_UP` | implemented |  | 10 | direct 32632390@3263bab1 | X2DamageManager:492 | same [June float = 0] |  |
-| `NATURAL_FORCE_TYPE` | implemented |  | 367 | direct 32632390@32635398 | X2DamageManager:218 | same (32632390@326354db: int, default EDI=-1 = NFT_NONE, set @3263532a and not rewritten before the store) [June int = None] |  |
 | `NO_BUFF` | implemented |  | 57 | direct 32632390@3263c3be | X2DamageManager:505 | same [June bool = 0] |  |
 | `NO_DAMAGE` | implemented |  | 514 | direct 32632390@3263ade6 | X2DamageManager:471 | same [June bool = 0] |  |
 | `NO_DETONATION` | implemented |  | 322 | direct 32632390@3263b439 | X2DamageManager:482 | same [June bool = 0] |  |
-| `NO_MISS` | implemented |  | 203 | direct 32632390@3263d301 | X2DamageManager:522 | same [June bool = 0] |  |
-| `NUMERICAL_DATA_INDEX` | implemented |  | 2065 | direct 32632390@3263fb25 | X2DamageManager:248 | same (32632390@3263fc86: int into a stack local, default EBX, zeroed @3263fc6b) [June int = None] |  |
-| `NUMERICAL_DATA_NAME` | implemented |  |  | binary-only 32632390@3263fcdd | X2DamageManager:249 | same [June string = ''] | binary-only: no June data uses it |
-| `ONLY_BASIC` | implemented |  | 18 | direct 32632390@3263d055 | X2DamageManager:520 | same [June bool = 0] |  |
+| `NO_MISS` | implemented |  | 203 | direct 32632390@3263d301 | X2DamageManager:530 | same [June bool = 0] |  |
+| `ONLY_BASIC` | implemented |  | 18 | direct 32632390@3263d055 | X2DamageManager:528 | same [June bool = 0] |  |
 | `PVP_RATE` | implemented |  | 1504 | direct 32632390@32635d43 | X2DamageManager:290 | same [June float = 1] |  |
 | `RATE_MODIFIER` | implemented |  | 943 | direct 32632390@3263c495 | X2DamageManager:508 | same [June float = 1] |  |
 | `REACT_TYPE` | implemented |  | 7309 | direct 32632390@32632e7d | X2DamageManager:139 | same [June enum = 0] |  |
-| `RELATIVE_SKILL_LEARN_CHECK` | implemented |  | 25 | direct 32630d20@32631c6b | X2DamageManager:4079 | same [June bool = 0] |  |
-| `RELAX_NPC_REACTION_STATE_CHECK` | implemented |  | 4 | direct 32632390@3263e1f6 | X2DamageManager:549 | same [June bool = 0] |  |
+| `RELATIVE_SKILL_LEARN_CHECK` | implemented |  | 25 | direct 32630d20@32631c6b | X2DamageManager:4162 | same [June bool = 0] |  |
+| `RELAX_NPC_REACTION_STATE_CHECK` | implemented |  | 4 | direct 32632390@3263e1f6 | X2DamageManager:557 | same [June bool = 0] |  |
 | `RESIST` | implemented |  | 7 | direct 32632390@3263b75c | X2DamageManager:489 | same [June int = 0] |  |
 | `RE_ATTACK` | implemented |  | 5198 | direct 32632390@3263a38d | X2DamageManager:458 | same [June bool = 0] |  |
-| `ROSE_WEAPON_ATTACK_TYPE` | implemented |  | 38 | direct 32632390@326400bc | X2DamageManager:257 | same [June int = -1] |  |
 | `STOP_TIME_ATT` | implemented |  | 2828 | direct 32632390@32639084 | X2DamageManager:437 | same [June float = 0] |  |
 | `STOP_TIME_DEF` | implemented |  | 3648 | direct 32632390@326391b7 | X2DamageManager:438 | same [June float = 0] |  |
 | `TECH_POINT` | implemented |  | 2833 | direct 32632390@32637d94 | X2DamageManager:417 | same [June int = 0] |  |
 | `TRACE_NEAREST_BONE` | implemented |  | 16 | direct 32632390@32634bac | X2DamageManager:180 | same [June bool = 0] |  |
 | `TRACE_UNIT_DIE_DELETE_EFFECT_SET` | implemented |  | 16 | direct 32632390@32634d60 | X2DamageManager:184 | same [June bool = 1] |  |
-| `USED_SKILL_ID` | implemented |  | 373 | direct 32632390@3263de71 | X2DamageManager:542 | same [June enum = 0] |  |
+| `USED_SKILL_ID` | implemented |  | 373 | direct 32632390@3263de71 | X2DamageManager:550 | same [June enum = 0] |  |
 | `WAY_OF_SWORD_TYPE` | implemented |  | 423 | direct 32632390@32634fd7 | X2DamageManager:188 | same [June enum = 0] |  |
 | `ANIMATION_SPEED_UP` | june-ignores(removed-in-June) |  | 2 | March reads it in SetDamageDataFromLUA (X2DamageManager.cpp:360) between IGNORE_DEFENCE and ATTACK_TRIGGER_TYPE. June 32632390 decrypts NO_BUFF, RATE_MODIFIER,  |  |  |  |
 | `ANIMATION_SPEED_UP_RATE` | june-ignores(removed-in-June) |  | 2 | see ANIMATION_SPEED_UP (March X2DamageManager.cpp:361) |  |  |  |
@@ -601,8 +614,8 @@ The full spec is in the plan, Phases 4a and 4b.
 | `ATTACK_DEALY` | june-ignores(unread) |  | 3 | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |  |  |  |
 | `ATTACK_TIME%d` | june-ignores(unread) |  | 1 | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |  |  |  |
 | `BACK_SPEED_y` | june-ignores(typo) |  | 2 | data typo of `BACK_SPEED_Y` (this scope, decrypted in 32632390); the binary never reads this spelling |  |  |  |
-| `BUFF_FACTOR_ID_MEMO` | june-ignores(unread) |  | 2 | as BUFF_FACTOR_RELATIVE_MEMO_ID (March X2DamageManager.cpp:3526, same #ifdef) | X2DamageManager:4025 |  | **March reads it, June does not** |
-| `BUFF_FACTOR_RELATIVE_MEMO_ID` | june-ignores(unread) |  | 2 | March reads it only under #ifdef ADD_MEMO_1ST_CLASS (X2DamageManager.cpp:3511). June's counterpart 32630d20 decrypts the non-memo neighbours (BUFF_FACTOR_RELATI | X2DamageManager:4010 |  | **March reads it, June does not** |
+| `BUFF_FACTOR_ID_MEMO` | june-ignores(unread) |  | 2 | as BUFF_FACTOR_RELATIVE_MEMO_ID (March X2DamageManager.cpp:3526, same #ifdef) | X2DamageManager:4108 |  | **March reads it, June does not** |
+| `BUFF_FACTOR_RELATIVE_MEMO_ID` | june-ignores(unread) |  | 2 | March reads it only under #ifdef ADD_MEMO_1ST_CLASS (X2DamageManager.cpp:3511). June's counterpart 32630d20 decrypts the non-memo neighbours (BUFF_FACTOR_RELATI | X2DamageManager:4093 |  | **March reads it, June does not** |
 | `CAN_PASS` | june-ignores(dead-here) |  | 2 | every guard of the readers accounted for and no callee names it; named only in unrelated 31c705c0 (decrypted): not on this scope's call path |  |  |  |
 | `CAN_PUSH_UNIT` | june-ignores(dead-here) |  | 2 | every guard of the readers accounted for and no callee names it; named only in unrelated 320506f0 (decrypted), 32057b80 (decrypted), 32784c00 (decrypted), 32d2c |  |  |  |
 | `DAMAGE_DATA` | june-ignores(dead-here) |  | 2 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f7aab0 (plaintext referenced), 32057b80 (plaintext referenced), 32370 |  |  |  |
@@ -635,16 +648,16 @@ The full spec is in the plan, Phases 4a and 4b.
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR
 
-6 rows: implemented 6. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
+6 rows: implemented 5, unsupported 1. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `APPLIED_SKILL_ID` | implemented |  | 2 | direct 32632390@32632446 | X2DamageManager:209 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BEHAVIOR` | implemented |  | 967 | other-func 32d4c9c0 | X2BuffFactor:532 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_TEMPLET_ID` | implemented |  | 967 | direct 32632390@3263d647 | X2BuffFactor:492 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FINALIZER` | implemented |  | 967 | other-func 32d4ca60 | X2BuffFactor:559 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `IGNORE_REGIST_FOR_RATE` | implemented |  | 967 | other-func 32d4d850@32d4da34 | X2BuffFactor:501 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `RATE` | implemented |  | 967 | direct 32632390@3263623e | X2BuffFactor:496, X2DamageManager:314 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | unassigned | 2 | direct 32632390@32632446 | X2DamageManager:209 | unchecked(buff parser row: March matched path-insensitively) | compiled elsewhere: X2DamageEffect:1618, X2EffectSet:3633; raw literal 5 (X2Lib/X2DamageEffect.cpp:1618); bare id 22; e.g. DamageEffect:DamageEffect_ESK_DoubleSlash_FirstImpact_Memo |
+| `BEHAVIOR` | implemented |  | 967 | other-func 32d4c9c0 | X2BuffFactor:793 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_TEMPLET_ID` | implemented |  | 967 | direct 32632390@3263d647 | X2BuffFactor:633 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FINALIZER` | implemented |  | 967 | other-func 32d4ca60 | X2BuffFactor:820 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `IGNORE_REGIST_FOR_RATE` | implemented |  | 967 | other-func 32d4d850@32d4da34 | X2BuffFactor:642 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `RATE` | implemented |  | 967 | direct 32632390@3263623e | X2BuffFactor:637, X2DamageManager:314 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 ### DamageData
 
@@ -687,7 +700,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `RANGE%d` | binary-only | 8b |  | binary-only 32632390 |  |  |  |
+| `RANGE%d` | binary-only | 8b |  | binary-only 32632390 |  |  | bare id 1 |
 
 #### `DE.DAMAGE_DATA` EXTRA_DAMAGE
 
@@ -716,65 +729,65 @@ The full spec is in the plan, Phases 4a and 4b.
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR
 
-40 rows: implemented 38, to-implement 2. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
+40 rows: implemented 40. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BBT_IMMUNE_NON_CONTROL_DEBUFF` | to-implement | unassigned | 1 | nested-subtable 32d4c9c0, 32d4bbf0 |  |  | e.g. DamageEffect_ETC:DamageEffect_Shield_AttackDummy |
-| `BBT_INVINCIBLE` | to-implement | unassigned | 1 | nested-subtable 32d4c9c0, 32d4bbf0 |  |  | e.g. DamageEffect_ETC:DamageEffect_Shield_AttackDummy |
-| `BBT_ABSORB_EFFECT_ATTACK` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:135, X2BuffBehaviorTemplet:73 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_ATTACK_IMPOSSIBLE` | implemented |  | 12 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:114, X2BuffBehaviorTemplet:55 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_ACCURACY` | implemented |  | 10 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:125, X2BuffBehaviorTemplet:64 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_ADDITIONAL_ATTACK` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:131, X2BuffBehaviorTemplet:70 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_ADDITIONAL_DEFENCE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:132, X2BuffBehaviorTemplet:71 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_ANIM_SPEED` | implemented |  | 135 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:122, X2BuffBehaviorTemplet:61 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_ANTI_CRITICAL_RATE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:129, X2BuffBehaviorTemplet:68 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_ATTRIBUTE_BLAZE_DEFENCE` | implemented |  | 6 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:156, X2BuffBehaviorTemplet:86 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_ATTRIBUTE_DARK_DEFENCE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:161, X2BuffBehaviorTemplet:91 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_ATTRIBUTE_WATER_DEFENCE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:157, X2BuffBehaviorTemplet:87 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_AVOIDANCE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:126, X2BuffBehaviorTemplet:65 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_CRITICAL_RATE` | implemented |  | 7 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:127, X2BuffBehaviorTemplet:66 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:162, X2BuffBehaviorTemplet:92 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_FINAL_DEFENCE_MULTIPLIER` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:147, X2BuffBehaviorTemplet:81 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_JUMP_POWER` | implemented |  | 41 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:124, X2BuffBehaviorTemplet:63 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_MAGIC_ATTACK` | implemented |  | 25 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:119, X2BuffBehaviorTemplet:58 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_MAGIC_DEFENCE` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:121, X2BuffBehaviorTemplet:60 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_MAX_HP` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:117, X2BuffBehaviorTemplet:56 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_MAX_MP` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:174, X2BuffBehaviorTemplet:102 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_NOW_HP_PER_SECOND` | implemented |  | 528 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:110, X2BuffBehaviorTemplet:51 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_NOW_MP_PER_SECOND` | implemented |  | 80 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:111, X2BuffBehaviorTemplet:52 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_PHYSIC_ATTACK` | implemented |  | 26 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:118, X2BuffBehaviorTemplet:57 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_PHYSIC_DEFENCE` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:120, X2BuffBehaviorTemplet:59 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_UNIT_SCALE` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:154, X2BuffBehaviorTemplet:85 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CHANGE_WALK_RUN_SPEED` | implemented |  | 63 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:123, X2BuffBehaviorTemplet:62 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_CUSTOM_FUNCTION` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:164, X2BuffBehaviorTemplet:93 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_DASH_IMPOSSIBLE` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:113, X2BuffBehaviorTemplet:54 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_DOWN_IMPOSSIBLE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:115, X2BuffBehaviorTemplet:107 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_EFFECT_SET_WITH_DAMAGE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:166, X2BuffBehaviorTemplet:95 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_FINISH_OTHER_BUFF_DEBUFF` | implemented |  | 13 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:169, X2BuffBehaviorTemplet:97 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_FROZEN` | implemented |  | 65 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:170, X2BuffBehaviorTemplet:98 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_NEVER_MOVE` | implemented |  | 64 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:173, X2BuffBehaviorTemplet:101 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_RESET_SKILL_COOL_TIME` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:152, X2BuffBehaviorTemplet:84 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_REVERSE_LEFT_RIGHT` | implemented |  | 16 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:112, X2BuffBehaviorTemplet:53 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_SKILL_ATTACK_IMPOSSIBLE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:181, X2BuffBehaviorTemplet:109 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_STUN` | implemented |  | 134 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:168, X2BuffBehaviorTemplet:96 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_SUPER_ARMOR` | implemented |  | 48 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:142, X2BuffBehaviorTemplet:78 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `COMBINATION` | implemented |  | 967 | nested-subtable 32d4c9c0, 326bfe70 | X2BuffTempletManager:128 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_ABSORB_EFFECT_ATTACK` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:143, X2BuffBehaviorTemplet:81 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_ATTACK_IMPOSSIBLE` | implemented |  | 12 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:122, X2BuffBehaviorTemplet:63 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_ACCURACY` | implemented |  | 10 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:133, X2BuffBehaviorTemplet:72 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_ADDITIONAL_ATTACK` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:139, X2BuffBehaviorTemplet:78 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_ADDITIONAL_DEFENCE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:140, X2BuffBehaviorTemplet:79 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_ANIM_SPEED` | implemented |  | 135 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:130, X2BuffBehaviorTemplet:69 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_ANTI_CRITICAL_RATE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:137, X2BuffBehaviorTemplet:76 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_ATTRIBUTE_BLAZE_DEFENCE` | implemented |  | 6 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:164, X2BuffBehaviorTemplet:94 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_ATTRIBUTE_DARK_DEFENCE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:169, X2BuffBehaviorTemplet:99 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_ATTRIBUTE_WATER_DEFENCE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:165, X2BuffBehaviorTemplet:95 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_AVOIDANCE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:134, X2BuffBehaviorTemplet:73 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_CRITICAL_RATE` | implemented |  | 7 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:135, X2BuffBehaviorTemplet:74 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:170, X2BuffBehaviorTemplet:100 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_FINAL_DEFENCE_MULTIPLIER` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:155, X2BuffBehaviorTemplet:89 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_JUMP_POWER` | implemented |  | 41 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:132, X2BuffBehaviorTemplet:71 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_MAGIC_ATTACK` | implemented |  | 25 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:127, X2BuffBehaviorTemplet:66 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_MAGIC_DEFENCE` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:129, X2BuffBehaviorTemplet:68 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_MAX_HP` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:125, X2BuffBehaviorTemplet:64 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_MAX_MP` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:182, X2BuffBehaviorTemplet:110 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_NOW_HP_PER_SECOND` | implemented |  | 528 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:118, X2BuffBehaviorTemplet:59 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_NOW_MP_PER_SECOND` | implemented |  | 80 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:119, X2BuffBehaviorTemplet:60 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_PHYSIC_ATTACK` | implemented |  | 26 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:126, X2BuffBehaviorTemplet:65 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_PHYSIC_DEFENCE` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:128, X2BuffBehaviorTemplet:67 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_UNIT_SCALE` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:162, X2BuffBehaviorTemplet:93 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CHANGE_WALK_RUN_SPEED` | implemented |  | 63 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:131, X2BuffBehaviorTemplet:70 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_CUSTOM_FUNCTION` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:172, X2BuffBehaviorTemplet:101 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_DASH_IMPOSSIBLE` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:121, X2BuffBehaviorTemplet:62 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_DOWN_IMPOSSIBLE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:123, X2BuffBehaviorTemplet:115 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_EFFECT_SET_WITH_DAMAGE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:174, X2BuffBehaviorTemplet:103 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_FINISH_OTHER_BUFF_DEBUFF` | implemented |  | 13 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:177, X2BuffBehaviorTemplet:105 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_FROZEN` | implemented |  | 65 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:178, X2BuffBehaviorTemplet:106 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_IMMUNE_NON_CONTROL_DEBUFF` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:256, X2BuffBehaviorTemplet:181 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_INVINCIBLE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:261, X2BuffBehaviorTemplet:186 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_NEVER_MOVE` | implemented |  | 64 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:181, X2BuffBehaviorTemplet:109 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_RESET_SKILL_COOL_TIME` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:160, X2BuffBehaviorTemplet:92 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_REVERSE_LEFT_RIGHT` | implemented |  | 16 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:120, X2BuffBehaviorTemplet:61 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_SKILL_ATTACK_IMPOSSIBLE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:189, X2BuffBehaviorTemplet:117 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_STUN` | implemented |  | 134 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:176, X2BuffBehaviorTemplet:104 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_SUPER_ARMOR` | implemented |  | 48 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:150, X2BuffBehaviorTemplet:86 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `COMBINATION` | implemented |  | 967 | nested-subtable 32d4c9c0, 326bfe70 | X2BuffTempletManager:345 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/FINALIZER
 
-8 rows: implemented 7, to-implement 1. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
+8 rows: handed-off 1, implemented 7. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BFT_AURA` | to-implement | unassigned | 1 | nested-subtable 32d4ca60, 32d4c750 |  |  | e.g. DamageEffect:DamageEffect_Buff_Phase_of_Perkisas |
-| `BFT_DAMAGE_VALUE` | implemented |  | 1 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:374, X2BuffFinalizerTemplet:53 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BFT_DUNGEON_STAGE_CHANGE` | implemented |  | 10 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:379, X2BuffFinalizerTemplet:57 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BFT_HITTED_COUNT` | implemented |  | 127 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:373, X2BuffFinalizerTemplet:51 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BFT_IMMEDIATE` | implemented |  | 13 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:378, X2BuffFinalizerTemplet:56 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BFT_TIME` | implemented |  | 952 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:371, X2BuffFinalizerTemplet:49 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BFT_X2STATE_CHANGE` | implemented |  | 3 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:383, X2BuffFinalizerTemplet:67 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `COMBINATION` | implemented |  | 967 | nested-subtable 32d4ca60, 326bfe70 | X2BuffTempletManager:128 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BFT_AURA` | handed-off |  | 1 | nested-subtable 32d4ca60, 32d4c750 |  |  |  |
+| `BFT_DAMAGE_VALUE` | implemented |  | 1 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:490, X2BuffFinalizerTemplet:61 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BFT_DUNGEON_STAGE_CHANGE` | implemented |  | 10 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:495, X2BuffFinalizerTemplet:65 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BFT_HITTED_COUNT` | implemented |  | 127 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:489, X2BuffFinalizerTemplet:59 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BFT_IMMEDIATE` | implemented |  | 13 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:494, X2BuffFinalizerTemplet:64 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BFT_TIME` | implemented |  | 952 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:487, X2BuffFinalizerTemplet:57 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BFT_X2STATE_CHANGE` | implemented |  | 3 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:499, X2BuffFinalizerTemplet:75 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `COMBINATION` | implemented |  | 967 | nested-subtable 32d4ca60, 326bfe70 | X2BuffTempletManager:345 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 ### DamageData
 
@@ -784,8 +797,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `ATTACK_TRIGGER_TYPE` | to-implement | 8b | 1 | direct 32632390@3263d4a0 |  |  | compiled elsewhere: X2DamageManager:519; raw literal 1 (X2Lib/X2DamageManager.cpp:519); e.g. DamageEffect_Character:DamageEffect_SA_RCR_Punishment_Attack2 |
-| `BUFF_TEMPLET_ID` | to-implement | 8b | 1 | direct 32632390@3263d647 |  |  | compiled elsewhere: X2BuffFactor:492; raw literal 4 (X2Lib/X2BuffFactor.cpp:492); bare id 140; e.g. DamageEffect_Character:DamageEffect_SA_RCR_Punishment_Attack2 |
+| `ATTACK_TRIGGER_TYPE` | to-implement | 8b | 1 | direct 32632390@3263d4a0 |  |  | compiled elsewhere: X2DamageManager:527; raw literal 1 (X2Lib/X2DamageManager.cpp:527); e.g. DamageEffect_Character:DamageEffect_SA_RCR_Punishment_Attack2 |
+| `BUFF_TEMPLET_ID` | to-implement | 8b | 1 | direct 32632390@3263d647 |  |  | compiled elsewhere: X2BuffFactor:633; raw literal 6 (X2Lib/X2BuffFactor.cpp:633); bare id 162; e.g. DamageEffect_Character:DamageEffect_SA_RCR_Punishment_Attack2 |
 | `POWER_RATE` | to-implement | 8b | 1 | direct 32632390@3263d7a2 |  |  | e.g. DamageEffect_Character:DamageEffect_SA_RCR_Punishment_Attack2 |
 | `POWER_RATE_ACCUMULATION_MULTIPLIER` | to-implement | 8b | 1 | direct 32632390@3263d8e7 |  |  | e.g. DamageEffect_Character:DamageEffect_SA_RCR_Punishment_Attack2 |
 
@@ -797,7 +810,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `ABSORB_VALUE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d45570 | X2BuffFactor:1615 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `ABSORB_VALUE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d45570 | X2BuffFactor:2342 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ACCURACY
 
@@ -805,8 +818,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 10 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 10 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 10 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 10 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ADDITIONAL_ATTACK
 
@@ -814,10 +827,10 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:747, X2BuffFactor:1202 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 17 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1031, X2BuffFactor:1545 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 17 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ADDITIONAL_DEFENCE
 
@@ -825,9 +838,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:747, X2BuffFactor:1202 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1031, X2BuffFactor:1545 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ANIM_SPEED
 
@@ -835,10 +848,10 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 135 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 117 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:747, X2BuffFactor:1202 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 131 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 135 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 117 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1031, X2BuffFactor:1545 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 131 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ANTI_CRITICAL_RATE
 
@@ -846,9 +859,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:747, X2BuffFactor:1202 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1031, X2BuffFactor:1545 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ATTRIBUTE_BLAZE_DEFENCE
 
@@ -856,9 +869,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 6 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 6 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 6 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:747, X2BuffFactor:1202 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 6 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 6 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 6 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1031, X2BuffFactor:1545 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ATTRIBUTE_DARK_DEFENCE
 
@@ -866,8 +879,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:747, X2BuffFactor:1202 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1031, X2BuffFactor:1545 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ATTRIBUTE_WATER_DEFENCE
 
@@ -875,9 +888,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:747, X2BuffFactor:1202 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1031, X2BuffFactor:1545 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_AVOIDANCE
 
@@ -885,9 +898,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_CRITICAL_RATE
 
@@ -895,11 +908,11 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 7 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:747, X2BuffFactor:1202 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `SWAP_VALUE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d445d0 | X2BuffFactor:1479 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 7 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1031, X2BuffFactor:1545 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `SWAP_VALUE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d445d0 | X2BuffFactor:1822, X2BuffFactor:2849 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE
 
@@ -907,9 +920,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:747, X2BuffFactor:1202 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1031, X2BuffFactor:1545 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_FINAL_DEFENCE_MULTIPLIER
 
@@ -917,9 +930,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_JUMP_POWER
 
@@ -927,10 +940,10 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 41 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 40 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 36 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `SWAP_VALUE` | implemented |  | 5 | nested-subtable 32d4c9c0, 32d445d0 | X2BuffFactor:1479 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 41 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 40 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 36 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `SWAP_VALUE` | implemented |  | 5 | nested-subtable 32d4c9c0, 32d445d0 | X2BuffFactor:1822, X2BuffFactor:2849 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_MAGIC_ATTACK
 
@@ -938,9 +951,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 25 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 25 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 25 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 25 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_MAGIC_DEFENCE
 
@@ -948,9 +961,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_MAX_HP
 
@@ -958,9 +971,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_MAX_MP
 
@@ -968,9 +981,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_NOW_HP_PER_SECOND
 
@@ -978,12 +991,12 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 528 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 521 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `DRAW_TEXT` | implemented |  | 5 | nested-subtable 32d4c9c0, 32e72a00@32e72cb9 | X2BuffBehaviorTemplet:219, X2BuffBehaviorTemplet:493 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `MULTIPLIER` | implemented |  | 520 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:760, X2BuffFactor:1226 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `TIME_INTERVAL` | implemented |  | 5 | nested-subtable 32d4c9c0, 32e72a00@32e72bb5 | X2BuffBehaviorTemplet:216, X2BuffBehaviorTemplet:490 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 528 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 521 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `DRAW_TEXT` | implemented |  | 5 | nested-subtable 32d4c9c0, 32e72a00@32e72cb9 | X2BuffBehaviorTemplet:281, X2BuffBehaviorTemplet:594 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `MULTIPLIER` | implemented |  | 520 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1044, X2BuffFactor:1569 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `TIME_INTERVAL` | implemented |  | 5 | nested-subtable 32d4c9c0, 32e72a00@32e72bb5 | X2BuffBehaviorTemplet:278, X2BuffBehaviorTemplet:591 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_NOW_MP_PER_SECOND
 
@@ -991,9 +1004,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 80 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 72 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:747, X2BuffFactor:1202 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 80 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 72 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1031, X2BuffFactor:1545 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_PHYSIC_ATTACK
 
@@ -1001,9 +1014,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 26 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 26 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 26 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 26 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_PHYSIC_DEFENCE
 
@@ -1011,9 +1024,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_WALK_RUN_SPEED
 
@@ -1021,10 +1034,10 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 63 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 44 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 58 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `SWAP_VALUE` | implemented |  | 5 | nested-subtable 32d4c9c0, 32d445d0 | X2BuffFactor:1479 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 63 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 44 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 58 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `SWAP_VALUE` | implemented |  | 5 | nested-subtable 32d4c9c0, 32d445d0 | X2BuffFactor:1822, X2BuffFactor:2849 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_DASH_IMPOSSIBLE
 
@@ -1032,7 +1045,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_RELATION_TYPE` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_FROZEN
 
@@ -1040,16 +1053,16 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `IS_DOWN` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e74170@32e741bc | X2BuffBehaviorTemplet:2244 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `IS_DOWN` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e74170@32e741bc | X2BuffBehaviorTemplet:2981 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_NEVER_MOVE
 
-2 rows: implemented 1, to-implement 1. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
+2 rows: implemented 2. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `OFFSET_POSITION` | to-implement | unassigned | 1 | nested-subtable 32d4c9c0, 32e7a4a0@32e7a69e |  |  | e.g. DamageEffect_ETC:DamageEffect_WaterBalloon_Hit_AttackDummy |
-| `IS_GRAVITY` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e7a4a0@32e7a4ef | X2BuffBehaviorTemplet:2324 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `IS_GRAVITY` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e7a4a0@32e7a4ef | X2BuffBehaviorTemplet:3086 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `OFFSET_POSITION` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e7a4a0@32e7a69e | X2BuffBehaviorTemplet:3093 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_RESET_SKILL_COOL_TIME
 
@@ -1057,8 +1070,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:780, X2BuffFactor:1433 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1070, X2BuffFactor:1776 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_REVERSE_LEFT_RIGHT
 
@@ -1066,7 +1079,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `TIME_INTERVAL` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e72a00@32e72bb5 | X2BuffBehaviorTemplet:216, X2BuffBehaviorTemplet:490 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `TIME_INTERVAL` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e72a00@32e72bb5 | X2BuffBehaviorTemplet:278, X2BuffBehaviorTemplet:591 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/FINALIZER/BFT_DAMAGE_VALUE
 
@@ -1074,9 +1087,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4ca60, 32d42030@32d420f6 | X2BuffFactor:737, X2BuffFactor:1193 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4ca60, 32d42030@32d422f4 | X2BuffFactor:769, X2BuffFactor:1221 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `MULTIPLIER` | implemented |  | 1 | nested-subtable 32d4ca60, 32d42030 | X2BuffFactor:760, X2BuffFactor:1226 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4ca60, 32d42030@32d420f6 | X2BuffFactor:1021, X2BuffFactor:1536 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4ca60, 32d42030@32d422f4 | X2BuffFactor:1053, X2BuffFactor:1564 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `MULTIPLIER` | implemented |  | 1 | nested-subtable 32d4ca60, 32d42030 | X2BuffFactor:1044, X2BuffFactor:1569 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/FINALIZER/BFT_HITTED_COUNT
 
@@ -1084,8 +1097,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_USE_COUNT_TYPE` | implemented |  | 127 | nested-subtable 32d4ca60, 32d430f0@32d431be | X2BuffFactor:1000, X2BuffFactor:1085 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `COUNT` | implemented |  | 127 | nested-subtable 32d4ca60, 31f65730@31f65a26 | X2BuffFactor:1006, X2BuffFactor:1091 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_USE_COUNT_TYPE` | implemented |  | 127 | nested-subtable 32d4ca60, 32d430f0@32d431be | X2BuffFactor:1343, X2BuffFactor:1428 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `COUNT` | implemented |  | 127 | nested-subtable 32d4ca60, 31f65730@31f65a26 | X2BuffFactor:1349, X2BuffFactor:1434 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/FINALIZER/BFT_TIME
 
@@ -1093,8 +1106,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_DURATION_TIME_TYPE` | implemented |  | 952 | nested-subtable 32d4ca60, 32d42da0@32d42e78 | X2BuffFactor:871, X2BuffFinalizerTemplet:141 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `NORMAL_TIME` | implemented |  | 952 | nested-subtable 32d4ca60, 32d42da0 | X2BuffFactor:881 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_DURATION_TIME_TYPE` | implemented |  | 952 | nested-subtable 32d4ca60, 32d42da0@32d42e78 | X2BuffFactor:1214, X2BuffFinalizerTemplet:153 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `NORMAL_TIME` | implemented |  | 952 | nested-subtable 32d4ca60, 32d42da0 | X2BuffFactor:1224 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 ### DamageEffect sub-loaders
 
@@ -1104,37 +1117,37 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `APPLY_ROTATE` | implemented |  | 3769 | direct 31f66e60@31f67141 | X2DamageEffect:6527 | same [June bool = 1] |  |
-| `APPLY_ROTATED_OFFSET` | implemented |  | 857 | direct 31f66e60@31f67a13 | X2DamageEffect:6537 | same [June bool = 0] |  |
-| `APPLY_START_PARTICLE_SCALE` | implemented |  | 36 | direct 31f66e60@31f68d90 | X2DamageEffect:6592 | unchecked(unchecked-default(June: non-standard shape after the call: test mov jne mov)) [June int = None] |  |
-| `BONE_NAME` | implemented |  | 17390 | direct 31f66e60@31f675f9 | X2DamageEffect:6532 | same [June string = ''] |  |
-| `EVENT_TIME` | implemented |  | 4671 | direct 31f66e60@31f676cf | X2DamageEffect:6533 | same [June float = -1] |  |
-| `FORCE_DIE` | implemented |  | 1661 | direct 31f66e60@31f6722f | X2DamageEffect:6528 | same [June bool = 0] |  |
-| `FORCE_DIE_HIT` | implemented |  | 539 | direct 31f66e60@31f672ff | X2DamageEffect:6529 | same [June bool = 0] |  |
-| `MOVE_ANGLE_X_PER_FRAME` | implemented |  |  | binary-only 31f66e60@31f67ed4 | X2DamageEffect:6554 | same [June float = 0] | binary-only: no June data uses it |
-| `MOVE_ANGLE_Y_PER_FRAME` | implemented |  | 1 | direct 31f66e60@31f68067 | X2DamageEffect:6555 | same [June float = 0] |  |
-| `MOVE_ANGLE_Z_PER_FRAME` | implemented |  | 20 | direct 31f66e60@31f681fa | X2DamageEffect:6556 | same [June float = 0] |  |
-| `OFFSET_X` | implemented |  | 1096 | direct 31f66e60@31f677a3 | X2DamageEffect:6534 | same [June float = 0] |  |
-| `OFFSET_Y` | implemented |  | 2281 | direct 31f66e60@31f67859 | X2DamageEffect:6535 | same [June float = 0] |  |
-| `OFFSET_Z` | implemented |  | 282 | direct 31f66e60@31f6790f | X2DamageEffect:6536 | same [June float = 0] |  |
-| `PARTICLE_NAME` | implemented |  | 34242 | direct 31f66e60@31f67036 | X2DamageEffect:6526 | same [June string = ''] |  |
-| `POSITION_TYPE` | implemented |  | 34448 | direct 31f66e60@31f66f2d | X2DamageEffect:6525 | same [June enum = 0] |  |
-| `REVERSE_Y` | implemented |  | 127 | direct 31f66e60@31f68ba9 | X2DamageEffect:6581 | same [June bool = 0] |  |
-| `ROTATE_X` | implemented |  | 302 | direct 31f66e60@31f67b64 | X2DamageEffect:6541 | same [June float = 0] |  |
-| `ROTATE_Y` | implemented |  | 375 | direct 31f66e60@31f67c1a | X2DamageEffect:6542 | same [June float = 0] |  |
-| `ROTATE_Z` | implemented |  | 698 | direct 31f66e60@31f67cd0 | X2DamageEffect:6543 | same [June float = 0] |  |
-| `SCALE_BY_MAINEFFECT_SCALE_Y` | implemented |  | 50 | direct 31f66e60@31f6886c | X2DamageEffect:6572 | same [June bool = 0] |  |
-| `SCALE_X` | implemented |  | 7949 | direct 31f66e60@31f6836b | X2DamageEffect:6559 | same [June float = 1] |  |
-| `SCALE_Y` | implemented |  | 7929 | direct 31f66e60@31f68418 | X2DamageEffect:6560 | same [June float = 1] |  |
-| `SCALE_Z` | implemented |  | 7884 | direct 31f66e60@31f684c5 | X2DamageEffect:6561 | same [June float = 1] |  |
-| `SHOW_INNER_LANDHEIGHT` | implemented |  | 4 | direct 31f66e60@31f68a3d | X2DamageEffect:6576 | same [June float = 99999] |  |
-| `SHOW_LEVEL` | implemented |  |  | binary-only 31f66e60@31f68c7c | X2DamageEffect:6585 | unchecked(unchecked-default(March default `(int) CX2GameOption::OL_LOW`)) [June int = 2] | binary-only: no June data uses it |
-| `TRACE` | implemented |  | 4138 | direct 31f66e60@31f68569 | X2DamageEffect:6563 | same [June bool = 1] |  |
-| `TRACE_DEFENDER_UNIT` | implemented |  | 32 | direct 31f66e60@31f686f0 | X2DamageEffect:6568 | same [June bool = 0] |  |
-| `TRACE_MORE` | implemented |  | 1800 | direct 31f66e60@31f68600 | X2DamageEffect:6565 | same [June bool = 0] |  |
-| `TRIGGER_COUNT` | implemented |  | 12927 | direct 31f66e60@31f67403 | X2DamageEffect:6530 | same [June int = -1] |  |
-| `TRIGGER_TIME` | implemented |  | 479 | direct 31f66e60@31f67506 | X2DamageEffect:6531 | same [June float = -1] |  |
-| `USE_GLOBAL_TIME` | implemented |  | 2648 | direct 31f66e60@31f67d9e | X2DamageEffect:6548 | same [June bool = 0] |  |
+| `APPLY_ROTATE` | implemented |  | 3769 | direct 31f66e60@31f67141 | X2DamageEffect:6541 | same [June bool = 1] |  |
+| `APPLY_ROTATED_OFFSET` | implemented |  | 857 | direct 31f66e60@31f67a13 | X2DamageEffect:6551 | same [June bool = 0] |  |
+| `APPLY_START_PARTICLE_SCALE` | implemented |  | 36 | direct 31f66e60@31f68d90 | X2DamageEffect:6606 | unchecked(unchecked-default(June: non-standard shape after the call: test mov jne mov)) [June int = None] |  |
+| `BONE_NAME` | implemented |  | 17390 | direct 31f66e60@31f675f9 | X2DamageEffect:6546 | same [June string = ''] |  |
+| `EVENT_TIME` | implemented |  | 4671 | direct 31f66e60@31f676cf | X2DamageEffect:6547 | same [June float = -1] |  |
+| `FORCE_DIE` | implemented |  | 1661 | direct 31f66e60@31f6722f | X2DamageEffect:6542 | same [June bool = 0] |  |
+| `FORCE_DIE_HIT` | implemented |  | 539 | direct 31f66e60@31f672ff | X2DamageEffect:6543 | same [June bool = 0] |  |
+| `MOVE_ANGLE_X_PER_FRAME` | implemented |  |  | binary-only 31f66e60@31f67ed4 | X2DamageEffect:6568 | same [June float = 0] | binary-only: no June data uses it |
+| `MOVE_ANGLE_Y_PER_FRAME` | implemented |  | 1 | direct 31f66e60@31f68067 | X2DamageEffect:6569 | same [June float = 0] |  |
+| `MOVE_ANGLE_Z_PER_FRAME` | implemented |  | 20 | direct 31f66e60@31f681fa | X2DamageEffect:6570 | same [June float = 0] |  |
+| `OFFSET_X` | implemented |  | 1096 | direct 31f66e60@31f677a3 | X2DamageEffect:6548 | same [June float = 0] |  |
+| `OFFSET_Y` | implemented |  | 2281 | direct 31f66e60@31f67859 | X2DamageEffect:6549 | same [June float = 0] |  |
+| `OFFSET_Z` | implemented |  | 282 | direct 31f66e60@31f6790f | X2DamageEffect:6550 | same [June float = 0] |  |
+| `PARTICLE_NAME` | implemented |  | 34242 | direct 31f66e60@31f67036 | X2DamageEffect:6540 | same [June string = ''] |  |
+| `POSITION_TYPE` | implemented |  | 34448 | direct 31f66e60@31f66f2d | X2DamageEffect:6539 | same [June enum = 0] |  |
+| `REVERSE_Y` | implemented |  | 127 | direct 31f66e60@31f68ba9 | X2DamageEffect:6595 | same [June bool = 0] |  |
+| `ROTATE_X` | implemented |  | 302 | direct 31f66e60@31f67b64 | X2DamageEffect:6555 | same [June float = 0] |  |
+| `ROTATE_Y` | implemented |  | 375 | direct 31f66e60@31f67c1a | X2DamageEffect:6556 | same [June float = 0] |  |
+| `ROTATE_Z` | implemented |  | 698 | direct 31f66e60@31f67cd0 | X2DamageEffect:6557 | same [June float = 0] |  |
+| `SCALE_BY_MAINEFFECT_SCALE_Y` | implemented |  | 50 | direct 31f66e60@31f6886c | X2DamageEffect:6586 | same [June bool = 0] |  |
+| `SCALE_X` | implemented |  | 7949 | direct 31f66e60@31f6836b | X2DamageEffect:6573 | same [June float = 1] |  |
+| `SCALE_Y` | implemented |  | 7929 | direct 31f66e60@31f68418 | X2DamageEffect:6574 | same [June float = 1] |  |
+| `SCALE_Z` | implemented |  | 7884 | direct 31f66e60@31f684c5 | X2DamageEffect:6575 | same [June float = 1] |  |
+| `SHOW_INNER_LANDHEIGHT` | implemented |  | 4 | direct 31f66e60@31f68a3d | X2DamageEffect:6590 | same [June float = 99999] |  |
+| `SHOW_LEVEL` | implemented |  |  | binary-only 31f66e60@31f68c7c | X2DamageEffect:6599 | unchecked(unchecked-default(March default `(int) CX2GameOption::OL_LOW`)) [June int = 2] | binary-only: no June data uses it |
+| `TRACE` | implemented |  | 4138 | direct 31f66e60@31f68569 | X2DamageEffect:6577 | same [June bool = 1] |  |
+| `TRACE_DEFENDER_UNIT` | implemented |  | 32 | direct 31f66e60@31f686f0 | X2DamageEffect:6582 | same [June bool = 0] |  |
+| `TRACE_MORE` | implemented |  | 1800 | direct 31f66e60@31f68600 | X2DamageEffect:6579 | same [June bool = 0] |  |
+| `TRIGGER_COUNT` | implemented |  | 12927 | direct 31f66e60@31f67403 | X2DamageEffect:6544 | same [June int = -1] |  |
+| `TRIGGER_TIME` | implemented |  | 479 | direct 31f66e60@31f67506 | X2DamageEffect:6545 | same [June float = -1] |  |
+| `USE_GLOBAL_TIME` | implemented |  | 2648 | direct 31f66e60@31f67d9e | X2DamageEffect:6562 | same [June bool = 0] |  |
 | `APPLY_MATRIX` | june-ignores(dead-here) |  | 15 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f6ac60 (decrypted): not on this scope's call path |  |  |  |
 | `APPLY_ROTATE_ORIGIN` | june-ignores(dead-here) |  | 3 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f6ac60 (decrypted), 31f6ceb0 (decrypted), 31f76a90 (decrypted): not o |  |  |  |
 | `APPLY_ROTATION` | june-ignores(unread) |  | 1 | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |  |  |  |
@@ -1164,31 +1177,31 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `APPLY_MATRIX` | implemented |  | 3 | direct 31f6ac60@31f6bb11 | X2DamageEffect:9288 | same [June bool = 0] |  |
-| `APPLY_ROTATE` | implemented |  | 692 | direct 31f6ac60@31f6b286 | X2DamageEffect:9272 | same [June bool = 1] |  |
-| `APPLY_ROTATED_OFFSET` | implemented |  | 336 | direct 31f6ac60@31f6b51c | X2DamageEffect:9276 | same [June bool = 0] | runtime 7c: same (done) |
-| `APPLY_ROTATE_ORIGIN` | implemented |  | 138 | direct 31f6ac60@31f6b3bb | X2DamageEffect:9273 | same [June bool = 0] | runtime 7c: same (done) |
-| `AUTO_DIE` | implemented |  | 19 | direct 31f6ac60@31f6bc26 | X2DamageEffect:9289 | same [June bool = 0] | runtime 7c: same (done) |
-| `BONE_NAME` | implemented |  | 1255 | direct 31f6ac60@31f6b18e | X2DamageEffect:9271 | same [June string = ''] |  |
-| `DAMAGE_EFFECT_NAME` | implemented |  | 1823 | direct 31f6ac60@31f6b04a | X2DamageEffect:9270 | same [June string = ''] |  |
-| `EVENT_TIME` | implemented |  | 1823 | direct 31f6ac60@31f6adf7 | X2DamageEffect:9268 | same [June float = -1] |  |
-| `INHERIT_BUFF_FACTOR` | implemented |  | 14 | direct 31f6ac60@31f6be22 | X2DamageEffect:9297 | same [June bool = 0] | runtime 7c: same (done) |
-| `INHERIT_DAMAGE` | implemented |  | 2 | direct 31f6ac60@31f6ca85 | X2DamageEffect:9317 | same [June bool = 0] | runtime 7d: new (done) |
-| `INHERIT_LIFE_TIME` | implemented |  | 9 | direct 31f6ac60@31f6c943 | X2DamageEffect:9316 | same [June bool = 0] | runtime 7c: new (done) |
-| `LOOP_ADD_POS_X` | implemented |  | 4 | direct 31f6ac60@31f6c343 | X2DamageEffect:9312 | same [June float = 0] | runtime 7c: new (done) |
-| `LOOP_ADD_POS_Y` | implemented |  | 2 | direct 31f6ac60@31f6c490 | X2DamageEffect:9313 | same [June float = 0] | runtime 7c: new (done) |
-| `LOOP_ADD_POS_Z` | implemented |  |  | binary-only 31f6ac60@31f6c5dd | X2DamageEffect:9314 | same [June float = 0] | binary-only: no June data uses it; runtime 7c: new (done) |
-| `LOOP_END_COUNT` | implemented |  | 558 | direct 31f6ac60@31f6c0b7 | X2DamageEffect:9310 | same [June int = 1] | runtime 7c: new (done) |
-| `LOOP_END_TIME` | implemented |  | 373 | direct 31f6ac60@31f6c202 | X2DamageEffect:9311 | same [June float = 99999] | runtime 7c: new (done) |
-| `LOOP_INTERVAL` | implemented |  | 557 | direct 31f6ac60@31f6bf7a | X2DamageEffect:9309 | same [June float = 0] | runtime 7c: new (done) |
-| `OFFSET_X` | implemented |  | 286 | direct 31f6ac60@31f6b8b5 | X2DamageEffect:9283 | same [June float = 0] |  |
-| `OFFSET_Y` | implemented |  | 440 | direct 31f6ac60@31f6b98c | X2DamageEffect:9284 | same [June float = 0] |  |
-| `OFFSET_Z` | implemented |  | 178 | direct 31f6ac60@31f6ba4e | X2DamageEffect:9285 | same [June float = 0] |  |
-| `POSITION_TYPE` | implemented |  | 1823 | direct 31f6ac60@31f6af03 | X2DamageEffect:9269 | same [June enum = 0] |  |
-| `ROTATE_Y` | implemented |  | 66 | direct 31f6ac60@31f6b725 | X2DamageEffect:9280 | same [June float = 0] |  |
-| `ROTATE_Z` | implemented |  | 120 | direct 31f6ac60@31f6b7fc | X2DamageEffect:9281 | same [June float = 0] |  |
-| `SET_DIE_WHEN_MASTER_EFFECT_DIE` | implemented |  | 4 | direct 31f6ac60@31f6c752 | X2DamageEffect:9315 | same [June bool = 0] | runtime 7c: new (done) |
-| `SET_GROUP_ID` | implemented |  | 101 | direct 31f6ac60@31f6bce7 | X2DamageEffect:9293 | same [June int = -1] | runtime 7c: same (done) |
+| `APPLY_MATRIX` | implemented |  | 3 | direct 31f6ac60@31f6bb11 | X2DamageEffect:9302 | same [June bool = 0] |  |
+| `APPLY_ROTATE` | implemented |  | 692 | direct 31f6ac60@31f6b286 | X2DamageEffect:9286 | same [June bool = 1] |  |
+| `APPLY_ROTATED_OFFSET` | implemented |  | 336 | direct 31f6ac60@31f6b51c | X2DamageEffect:9290 | same [June bool = 0] | runtime 7c: same (done) |
+| `APPLY_ROTATE_ORIGIN` | implemented |  | 138 | direct 31f6ac60@31f6b3bb | X2DamageEffect:9287 | same [June bool = 0] | runtime 7c: same (done) |
+| `AUTO_DIE` | implemented |  | 19 | direct 31f6ac60@31f6bc26 | X2DamageEffect:9303 | same [June bool = 0] | runtime 7c: same (done) |
+| `BONE_NAME` | implemented |  | 1255 | direct 31f6ac60@31f6b18e | X2DamageEffect:9285 | same [June string = ''] |  |
+| `DAMAGE_EFFECT_NAME` | implemented |  | 1823 | direct 31f6ac60@31f6b04a | X2DamageEffect:9284 | same [June string = ''] |  |
+| `EVENT_TIME` | implemented |  | 1823 | direct 31f6ac60@31f6adf7 | X2DamageEffect:9282 | same [June float = -1] |  |
+| `INHERIT_BUFF_FACTOR` | implemented |  | 14 | direct 31f6ac60@31f6be22 | X2DamageEffect:9311 | same [June bool = 0] | runtime 7c: same (done) |
+| `INHERIT_DAMAGE` | implemented |  | 2 | direct 31f6ac60@31f6ca85 | X2DamageEffect:9331 | same [June bool = 0] | runtime 7d: new (done) |
+| `INHERIT_LIFE_TIME` | implemented |  | 9 | direct 31f6ac60@31f6c943 | X2DamageEffect:9330 | same [June bool = 0] | runtime 7c: new (done) |
+| `LOOP_ADD_POS_X` | implemented |  | 4 | direct 31f6ac60@31f6c343 | X2DamageEffect:9326 | same [June float = 0] | runtime 7c: new (done) |
+| `LOOP_ADD_POS_Y` | implemented |  | 2 | direct 31f6ac60@31f6c490 | X2DamageEffect:9327 | same [June float = 0] | runtime 7c: new (done) |
+| `LOOP_ADD_POS_Z` | implemented |  |  | binary-only 31f6ac60@31f6c5dd | X2DamageEffect:9328 | same [June float = 0] | binary-only: no June data uses it; runtime 7c: new (done) |
+| `LOOP_END_COUNT` | implemented |  | 558 | direct 31f6ac60@31f6c0b7 | X2DamageEffect:9324 | same [June int = 1] | runtime 7c: new (done) |
+| `LOOP_END_TIME` | implemented |  | 373 | direct 31f6ac60@31f6c202 | X2DamageEffect:9325 | same [June float = 99999] | runtime 7c: new (done) |
+| `LOOP_INTERVAL` | implemented |  | 557 | direct 31f6ac60@31f6bf7a | X2DamageEffect:9323 | same [June float = 0] | runtime 7c: new (done) |
+| `OFFSET_X` | implemented |  | 286 | direct 31f6ac60@31f6b8b5 | X2DamageEffect:9297 | same [June float = 0] |  |
+| `OFFSET_Y` | implemented |  | 440 | direct 31f6ac60@31f6b98c | X2DamageEffect:9298 | same [June float = 0] |  |
+| `OFFSET_Z` | implemented |  | 178 | direct 31f6ac60@31f6ba4e | X2DamageEffect:9299 | same [June float = 0] |  |
+| `POSITION_TYPE` | implemented |  | 1823 | direct 31f6ac60@31f6af03 | X2DamageEffect:9283 | same [June enum = 0] |  |
+| `ROTATE_Y` | implemented |  | 66 | direct 31f6ac60@31f6b725 | X2DamageEffect:9294 | same [June float = 0] |  |
+| `ROTATE_Z` | implemented |  | 120 | direct 31f6ac60@31f6b7fc | X2DamageEffect:9295 | same [June float = 0] |  |
+| `SET_DIE_WHEN_MASTER_EFFECT_DIE` | implemented |  | 4 | direct 31f6ac60@31f6c752 | X2DamageEffect:9329 | same [June bool = 0] | runtime 7c: new (done) |
+| `SET_GROUP_ID` | implemented |  | 101 | direct 31f6ac60@31f6bce7 | X2DamageEffect:9307 | same [June int = -1] | runtime 7c: same (done) |
 | `FORCE_DIE` | june-ignores(dead-here) |  | 12 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f66e60 (decrypted): not on this scope's call path |  |  |  |
 | `ONLY_APPLY_ROTATE` | june-ignores(dead-here) |  | 31 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f68f30 (decrypted), 31f6ceb0 (decrypted), 31f76a90 (decrypted): not o |  |  |  |
 | `REVERSE_Y` | june-ignores(dead-here) |  | 82 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f66e60 (decrypted), 321e48e0 (decrypted): not on this scope's call pa |  |  |  |
@@ -1205,22 +1218,22 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `APPLY_ROTATE` | implemented |  | 794 | direct 31f68f30@31f69460 | X2DamageEffect:8995, X2DamageEffect:9032 | same [June bool = 1] |  |
-| `APPLY_ROTATED_OFFSET` | implemented |  | 117 | direct 31f68f30@31f69591 | X2DamageEffect:8996, X2DamageEffect:9035 | same [June bool = 0] |  |
-| `BONE_NAME` | implemented |  | 42 | direct 31f68f30@31f69368 | X2DamageEffect:8994, X2DamageEffect:9031 | same [June string = ''] |  |
-| `DAMAGE_EFFECT_NAME` | implemented |  | 1668 | direct 31f68f30@31f69221 | X2DamageEffect:8993, X2DamageEffect:9030 | same [June string = ''] |  |
-| `INHERITLOCKONDATA` | implemented |  | 12 | direct 31f68f30@31f6a1fe | X2DamageEffect:9007, X2DamageEffect:9064 | same [June bool = 0] |  |
-| `INHERIT_BUFF_FACTOR` | implemented |  | 11 | direct 31f68f30@31f6a09f | X2DamageEffect:9006, X2DamageEffect:9060 | same [June bool = 0] | runtime 7d: same (-) |
-| `LAND_CRASH_ONLY` | implemented |  | 48 | direct 31f68f30@31f69cd6 | X2DamageEffect:9004, X2DamageEffect:9051 | same [June bool = 0] |  |
-| `LIFE_TIME_ONLY` | implemented |  | 30 | direct 31f68f30@31f69e2b | X2DamageEffect:9005, X2DamageEffect:9052 | same [June bool = 0] |  |
-| `OFFSET_X` | implemented |  | 96 | direct 31f68f30@31f69a81 | X2DamageEffect:9001, X2DamageEffect:9046 | same [June float = 0] |  |
-| `OFFSET_Y` | implemented |  | 198 | direct 31f68f30@31f69b49 | X2DamageEffect:9002, X2DamageEffect:9047 | same [June float = 0] |  |
-| `ONLY_APPLY_ROTATE` | implemented |  | 29 | direct 31f68f30@31f696fa | X2DamageEffect:8997, X2DamageEffect:9039 | same [June bool = 0] |  |
-| `POSITION_TYPE` | implemented |  | 1670 | direct 31f68f30@31f690da | X2DamageEffect:8992, X2DamageEffect:9029 | same [June enum = 0] |  |
-| `ROTATE_Z` | implemented |  | 36 | direct 31f68f30@31f699cb | X2DamageEffect:9000, X2DamageEffect:9044 | same [June float = 0] |  |
-| `SCALE_X` | implemented |  | 89 | direct 31f68f30@31f6a473 | X2DamageEffect:9008, X2DamageEffect:9065 | same [June float = 1] | runtime 7d: semantics-differ (done) |
-| `SCALE_Y` | implemented |  | 89 | direct 31f68f30@31f6a520 | X2DamageEffect:9009, X2DamageEffect:9066 | same [June float = 1] | runtime 7d: semantics-differ (done) |
-| `SCALE_Z` | implemented |  | 89 | direct 31f68f30@31f6a5cd | X2DamageEffect:9010, X2DamageEffect:9067 | same [June float = 1] | runtime 7d: semantics-differ (done) |
+| `APPLY_ROTATE` | implemented |  | 794 | direct 31f68f30@31f69460 | X2DamageEffect:9009, X2DamageEffect:9046 | same [June bool = 1] |  |
+| `APPLY_ROTATED_OFFSET` | implemented |  | 117 | direct 31f68f30@31f69591 | X2DamageEffect:9010, X2DamageEffect:9049 | same [June bool = 0] |  |
+| `BONE_NAME` | implemented |  | 42 | direct 31f68f30@31f69368 | X2DamageEffect:9008, X2DamageEffect:9045 | same [June string = ''] |  |
+| `DAMAGE_EFFECT_NAME` | implemented |  | 1668 | direct 31f68f30@31f69221 | X2DamageEffect:9007, X2DamageEffect:9044 | same [June string = ''] |  |
+| `INHERITLOCKONDATA` | implemented |  | 12 | direct 31f68f30@31f6a1fe | X2DamageEffect:9021, X2DamageEffect:9078 | same [June bool = 0] |  |
+| `INHERIT_BUFF_FACTOR` | implemented |  | 11 | direct 31f68f30@31f6a09f | X2DamageEffect:9020, X2DamageEffect:9074 | same [June bool = 0] | runtime 7d: same (-) |
+| `LAND_CRASH_ONLY` | implemented |  | 48 | direct 31f68f30@31f69cd6 | X2DamageEffect:9018, X2DamageEffect:9065 | same [June bool = 0] |  |
+| `LIFE_TIME_ONLY` | implemented |  | 30 | direct 31f68f30@31f69e2b | X2DamageEffect:9019, X2DamageEffect:9066 | same [June bool = 0] |  |
+| `OFFSET_X` | implemented |  | 96 | direct 31f68f30@31f69a81 | X2DamageEffect:9015, X2DamageEffect:9060 | same [June float = 0] |  |
+| `OFFSET_Y` | implemented |  | 198 | direct 31f68f30@31f69b49 | X2DamageEffect:9016, X2DamageEffect:9061 | same [June float = 0] |  |
+| `ONLY_APPLY_ROTATE` | implemented |  | 29 | direct 31f68f30@31f696fa | X2DamageEffect:9011, X2DamageEffect:9053 | same [June bool = 0] |  |
+| `POSITION_TYPE` | implemented |  | 1670 | direct 31f68f30@31f690da | X2DamageEffect:9006, X2DamageEffect:9043 | same [June enum = 0] |  |
+| `ROTATE_Z` | implemented |  | 36 | direct 31f68f30@31f699cb | X2DamageEffect:9014, X2DamageEffect:9058 | same [June float = 0] |  |
+| `SCALE_X` | implemented |  | 89 | direct 31f68f30@31f6a473 | X2DamageEffect:9022, X2DamageEffect:9079 | same [June float = 1] | runtime 7d: semantics-differ (done) |
+| `SCALE_Y` | implemented |  | 89 | direct 31f68f30@31f6a520 | X2DamageEffect:9023, X2DamageEffect:9080 | same [June float = 1] | runtime 7d: semantics-differ (done) |
+| `SCALE_Z` | implemented |  | 89 | direct 31f68f30@31f6a5cd | X2DamageEffect:9024, X2DamageEffect:9081 | same [June float = 1] | runtime 7d: semantics-differ (done) |
 | `APPLY_ROTATE_ORIGIN` | june-ignores(dead-here) |  | 11 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f6ac60 (decrypted), 31f6ceb0 (decrypted), 31f76a90 (decrypted): not o |  |  |  |
 | `EVENT_TIME` | june-ignores(dead-here) |  | 1 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f64c80 (decrypted), 31f650f0 (decrypted), 31f65730 (decrypted), 31f66 |  |  |  |
 | `LOOP_END_COUNT` | june-ignores(dead-here) |  | 1 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f6ac60 (decrypted): not on this scope's call path |  |  |  |
@@ -1237,24 +1250,24 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `APPLY_ROTATE` | implemented |  | 204 | direct 31f6ceb0@31f6d3e1 | X2DamageEffect:9423, X2DamageEffect:9464 | same [June bool = 1] |  |
-| `APPLY_ROTATED_OFFSET` | implemented |  | 39 | direct 31f6ceb0@31f6d7bc | X2DamageEffect:9426, X2DamageEffect:9472 | same [June bool = 0] |  |
-| `APPLY_ROTATE_ORIGIN` | implemented |  | 72 | direct 31f6ceb0@31f6d516 | X2DamageEffect:9424, X2DamageEffect:9465 | same [June bool = 0] |  |
-| `BONE_NAME` | implemented |  | 19 | direct 31f6ceb0@31f6d2e9 | X2DamageEffect:9422, X2DamageEffect:9463 | same [June string = ''] |  |
-| `DAMAGE_EFFECT_NAME` | implemented |  | 735 | direct 31f6ceb0@31f6d1a2 | X2DamageEffect:9421, X2DamageEffect:9462 | same [June string = ''] |  |
-| `INHERIT_BUFF_FACTOR` | implemented |  | 14 | direct 31f6ceb0@31f6e3d7 | X2DamageEffect:9439, X2DamageEffect:9493 | same [June bool = 0] | runtime 7d: same (-) |
-| `INHERIT_LIFE_TIME` | implemented |  | 2 | direct 31f6ceb0@31f6e536 | X2DamageEffect:9443, X2DamageEffect:9500 | same [June bool = 0] | runtime 7d: new (done) |
-| `OFFSET_X` | implemented |  | 28 | direct 31f6ceb0@31f6db5d | X2DamageEffect:9430, X2DamageEffect:9480 | same [June float = 0] |  |
-| `OFFSET_Y` | implemented |  | 35 | direct 31f6ceb0@31f6dc31 | X2DamageEffect:9431, X2DamageEffect:9481 | same [June float = 0] |  |
-| `ONLY_APPLY_ROTATE` | implemented |  | 12 | direct 31f6ceb0@31f6d672 | X2DamageEffect:9425, X2DamageEffect:9468 | same [June bool = 0] |  |
-| `PASSIVE_PARTICLE_X` | implemented |  |  | binary-only 31f6ceb0@31f6dfd3 | X2DamageEffect:9436, X2DamageEffect:9488 | same [June float = 0] | binary-only: no June data uses it |
-| `PASSIVE_PARTICLE_Y` | implemented |  |  | binary-only 31f6ceb0@31f6e128 | X2DamageEffect:9437, X2DamageEffect:9489 | same [June float = 0] | binary-only: no June data uses it |
-| `PASSIVE_PARTICLE_Z` | implemented |  |  | binary-only 31f6ceb0@31f6e27d | X2DamageEffect:9438, X2DamageEffect:9490 | same [June float = 0] | binary-only: no June data uses it |
-| `POSITION_TYPE` | implemented |  | 735 | direct 31f6ceb0@31f6d05b | X2DamageEffect:9420, X2DamageEffect:9461 | same [June enum = 0] |  |
-| `ROTATE_Z` | implemented |  | 2 | direct 31f6ceb0@31f6da89 | X2DamageEffect:9429, X2DamageEffect:9478 | same [June float = 0] |  |
-| `SCALE_X` | implemented |  | 60 | direct 31f6ceb0@31f6ddb3 | X2DamageEffect:9440, X2DamageEffect:9497 | same [June float = 1] | runtime 7d: semantics-differ (done) |
-| `SCALE_Y` | implemented |  | 60 | direct 31f6ceb0@31f6de60 | X2DamageEffect:9441, X2DamageEffect:9498 | same [June float = 1] | runtime 7d: semantics-differ (done) |
-| `SCALE_Z` | implemented |  | 60 | direct 31f6ceb0@31f6df0d | X2DamageEffect:9442, X2DamageEffect:9499 | same [June float = 1] | runtime 7d: semantics-differ (done) |
+| `APPLY_ROTATE` | implemented |  | 204 | direct 31f6ceb0@31f6d3e1 | X2DamageEffect:9437, X2DamageEffect:9478 | same [June bool = 1] |  |
+| `APPLY_ROTATED_OFFSET` | implemented |  | 39 | direct 31f6ceb0@31f6d7bc | X2DamageEffect:9440, X2DamageEffect:9486 | same [June bool = 0] |  |
+| `APPLY_ROTATE_ORIGIN` | implemented |  | 72 | direct 31f6ceb0@31f6d516 | X2DamageEffect:9438, X2DamageEffect:9479 | same [June bool = 0] |  |
+| `BONE_NAME` | implemented |  | 19 | direct 31f6ceb0@31f6d2e9 | X2DamageEffect:9436, X2DamageEffect:9477 | same [June string = ''] |  |
+| `DAMAGE_EFFECT_NAME` | implemented |  | 735 | direct 31f6ceb0@31f6d1a2 | X2DamageEffect:9435, X2DamageEffect:9476 | same [June string = ''] |  |
+| `INHERIT_BUFF_FACTOR` | implemented |  | 14 | direct 31f6ceb0@31f6e3d7 | X2DamageEffect:9453, X2DamageEffect:9507 | same [June bool = 0] | runtime 7d: same (-) |
+| `INHERIT_LIFE_TIME` | implemented |  | 2 | direct 31f6ceb0@31f6e536 | X2DamageEffect:9457, X2DamageEffect:9514 | same [June bool = 0] | runtime 7d: new (done) |
+| `OFFSET_X` | implemented |  | 28 | direct 31f6ceb0@31f6db5d | X2DamageEffect:9444, X2DamageEffect:9494 | same [June float = 0] |  |
+| `OFFSET_Y` | implemented |  | 35 | direct 31f6ceb0@31f6dc31 | X2DamageEffect:9445, X2DamageEffect:9495 | same [June float = 0] |  |
+| `ONLY_APPLY_ROTATE` | implemented |  | 12 | direct 31f6ceb0@31f6d672 | X2DamageEffect:9439, X2DamageEffect:9482 | same [June bool = 0] |  |
+| `PASSIVE_PARTICLE_X` | implemented |  |  | binary-only 31f6ceb0@31f6dfd3 | X2DamageEffect:9450, X2DamageEffect:9502 | same [June float = 0] | binary-only: no June data uses it |
+| `PASSIVE_PARTICLE_Y` | implemented |  |  | binary-only 31f6ceb0@31f6e128 | X2DamageEffect:9451, X2DamageEffect:9503 | same [June float = 0] | binary-only: no June data uses it |
+| `PASSIVE_PARTICLE_Z` | implemented |  |  | binary-only 31f6ceb0@31f6e27d | X2DamageEffect:9452, X2DamageEffect:9504 | same [June float = 0] | binary-only: no June data uses it |
+| `POSITION_TYPE` | implemented |  | 735 | direct 31f6ceb0@31f6d05b | X2DamageEffect:9434, X2DamageEffect:9475 | same [June enum = 0] |  |
+| `ROTATE_Z` | implemented |  | 2 | direct 31f6ceb0@31f6da89 | X2DamageEffect:9443, X2DamageEffect:9492 | same [June float = 0] |  |
+| `SCALE_X` | implemented |  | 60 | direct 31f6ceb0@31f6ddb3 | X2DamageEffect:9454, X2DamageEffect:9511 | same [June float = 1] | runtime 7d: semantics-differ (done) |
+| `SCALE_Y` | implemented |  | 60 | direct 31f6ceb0@31f6de60 | X2DamageEffect:9455, X2DamageEffect:9512 | same [June float = 1] | runtime 7d: semantics-differ (done) |
+| `SCALE_Z` | implemented |  | 60 | direct 31f6ceb0@31f6df0d | X2DamageEffect:9456, X2DamageEffect:9513 | same [June float = 1] | runtime 7d: semantics-differ (done) |
 | `LIFE_TIME_ONLY` | june-ignores(dead-here) |  | 11 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f68f30 (decrypted): not on this scope's call path |  |  |  |
 | `POS_RELATIVE_TO_UNIT` | june-ignores(unread) |  | 4 | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |  |  |  |
 | `REVERSE_Y` | june-ignores(dead-here) |  | 20 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f66e60 (decrypted), 321e48e0 (decrypted): not on this scope's call pa |  |  |  |
@@ -1267,8 +1280,8 @@ The full spec is in the plan, Phases 4a and 4b.
 |---|---|---|---|---|---|---|---|
 | `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | binary-only | 6a |  | binary-only 31f7aab0@31f7bff3 |  |  | compiled elsewhere: X2DamageEffect:1731, X2EffectSet:3641; raw literal 6 (X2Lib/X2DamageEffect.cpp:1731); bare id 20 |
 | `DAMAGE_DATA_NEXT_ULTIMATE%d` | binary-only | 6a |  | binary-only 31f7aab0 |  |  | compiled elsewhere: X2DamageEffect:2047; raw literal 1 (X2Lib/X2DamageEffect.cpp:2047); bare id 1 |
-| `AND_OPERATION` | implemented |  | 1 | direct 31f7aab0 | X2DamageEffect:8271 | n/a (sub-table name) | runtime 7c: same (done) |
-| `OR_OPERATION` | implemented |  | 1 | direct 31f7aab0 | X2DamageEffect:8272 | n/a (sub-table name) | runtime 7c: same (done) |
+| `AND_OPERATION` | implemented |  | 1 | direct 31f7aab0 | X2DamageEffect:8285 | n/a (sub-table name) | runtime 7c: same (done) |
+| `OR_OPERATION` | implemented |  | 1 | direct 31f7aab0 | X2DamageEffect:8286 | n/a (sub-table name) | runtime 7c: same (done) |
 
 #### `DE.DIE_CHECK_CONDITION` AND_OPERATION
 
@@ -1276,7 +1289,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `CONDITION_%d` | implemented |  | 2 | direct 31f66700 | X2DamageEffect:8218 | n/a (sub-table name) | 2 names |
+| `CONDITION_%d` | implemented |  | 2 | direct 31f66700 | X2DamageEffect:8232 | n/a (sub-table name) | 2 names |
 
 #### `DE.DIE_CHECK_CONDITION` AND_OPERATION/CONDITION_%d
 
@@ -1284,10 +1297,10 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `CHECK_DAMAGE_TIME_VALUE` | implemented |  | 1 | direct 31f66700@31f66b2c | X2DamageEffect:8235 | same [June float = -1] | runtime 7c: same (done) |
-| `DAMAGE_EFFECT_DIE_CONDITION_TYPE` | implemented |  | 2 | direct 31f66700@31f66826 | X2DamageEffect:8221 | unchecked(March: `DAMAGE_EFFECT_DIE_CONDITION_TYPE` at X2DamageEffect.cpp:8221 is not a GetValue key) [June int = -1] | runtime 7c: same (done) |
-| `IS_EXIST` | implemented |  | 1 | direct 31f66700@31f66a3f | X2DamageEffect:8240 | same [June bool = 0] | runtime 7c: new (done) |
-| `IS_OVER` | implemented |  | 1 | direct 31f66700@31f66cad | X2DamageEffect:8236 | same [June bool = 1] | runtime 7c: new (done) |
+| `CHECK_DAMAGE_TIME_VALUE` | implemented |  | 1 | direct 31f66700@31f66b2c | X2DamageEffect:8249 | same [June float = -1] | runtime 7c: same (done) |
+| `DAMAGE_EFFECT_DIE_CONDITION_TYPE` | implemented |  | 2 | direct 31f66700@31f66826 | X2DamageEffect:8235 | unchecked(March: `DAMAGE_EFFECT_DIE_CONDITION_TYPE` at X2DamageEffect.cpp:8235 is not a GetValue key) [June int = -1] | runtime 7c: same (done) |
+| `IS_EXIST` | implemented |  | 1 | direct 31f66700@31f66a3f | X2DamageEffect:8254 | same [June bool = 0] | runtime 7c: new (done) |
+| `IS_OVER` | implemented |  | 1 | direct 31f66700@31f66cad | X2DamageEffect:8250 | same [June bool = 1] | runtime 7c: new (done) |
 
 #### `DE.LOCK_ON_DATA` (top)
 
@@ -1295,28 +1308,28 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `AT_RAID_FIELD` | binary-only | 6b |  | binary-only 31f71930@31f732aa |  |  | compiled elsewhere: X2DamageEffect:7959; raw literal 1 (X2Lib/X2DamageEffect.cpp:7973); bare id 1; runtime 7b: new (done) |
-| `CURVE_SPEED` | implemented |  | 385 | direct 31f71930@31f71ab4 | X2DamageEffect:7862 | same [June float = 0] | runtime 7b: same (done) |
-| `DUNGEON_TARGET_RANGE_MIN_MAX` | implemented |  | 147 | direct 31f71930 | X2DamageEffect:7969 | n/a (sub-table name) | runtime 7b: semantics-differ (done) |
-| `INIT_TARGET` | implemented |  | 3 | direct 31f71930@31f73691 | X2DamageEffect:7937 | same [June bool = 0] | runtime 7b: new (done) |
-| `IN_DISTANCE_TO_DIE_EFFECT` | implemented |  | 55 | direct 31f71930@31f71bc1 | X2DamageEffect:7865 | same [June float = -1] | runtime 7b: same (done) |
-| `LOCK_ON_OFFSET_Y_POS` | implemented |  |  | binary-only 31f71930@31f72e3d | X2DamageEffect:7935 | same [June float = 100] | binary-only: no June data uses it; runtime 7b: new (done) |
-| `LOCK_ON_RANGE_FROM_OWNER` | implemented |  | 36 | direct 31f71930 | X2DamageEffect:7954 | n/a (sub-table name) | runtime 7b: new (done) |
-| `LOCK_ON_TARGET_BONE_NAME` | implemented |  | 2 | direct 31f71930@31f72fbe | X2DamageEffect:7936 | same [June string = ''] | runtime 7b: semantics-differ (done) |
-| `LOCK_ON_TYPE` | implemented |  | 385 | direct 31f71930@31f719b2 | X2DamageEffect:7861 | same [June enum = 0] | runtime 7b: semantics-differ (done) |
-| `NOT_FIND_TARGET_MOVE_STOP` | implemented |  | 24 | direct 31f71930@31f72b9e | X2DamageEffect:7920 | same [June bool = 0] | runtime 7b: same (done) |
-| `NOT_LOCKON_INVINCIBLE_TARGET` | implemented |  | 1 | direct 31f71930@31f73846 | X2DamageEffect:7938 | same [June bool = 0] | runtime 7b: new (done) |
-| `NOT_TARGET_PRE_LOCK_ON_TARGET` | implemented | 6b | 110 | direct 31f71930@31f721dd | X2DamageEffect:7883, X2DamageEffect:7944 | differ(type: June int (getter 32fe9fd0) vs March bool) [June int = None] | runtime 7b: semantics-differ (done) |
-| `ONLY_FRONT` | implemented |  | 27 | direct 31f71930@31f7288b | X2DamageEffect:7901 | same [June bool = 0] | runtime 7b: same (done) |
-| `ONLY_TARGET_ATTACK` | implemented |  | 9 | direct 31f71930@31f72a32 | X2DamageEffect:7911 | same [June bool = 0] |  |
-| `PVP_TARGET_RANGE_MIN_MAX` | implemented |  | 144 | direct 31f71930 | X2DamageEffect:7985 | n/a (sub-table name) | runtime 7b: semantics-differ (done) |
-| `RANDOM_SEED` | implemented |  | 3 | direct 31f71930@31f7359b | X2DamageEffect:7931 | same [June int = -1] | runtime 7b: semantics-differ (done) |
-| `RETARGET_COOLTIME_AFTER_ATTACK` | implemented |  | 30 | direct 31f71930@31f726a6 | X2DamageEffect:7933 | same [June float = -1] | runtime 7b: new (done) |
-| `TARGET_RANGE` | implemented |  | 3 | direct 31f71930@31f720b1 | X2DamageEffect:7879 | same [June float = -1] | runtime 7b: same (done) |
-| `TIME_UNLOCK_AFTER_START` | implemented |  | 19 | direct 31f71930@31f71f2a | X2DamageEffect:7876 | same [June float = 9999] | runtime 7b: same (done) |
-| `TIME_UNLOCK_FROM_START` | implemented |  | 237 | direct 31f71930@31f71d82 | X2DamageEffect:7872 | same [June float = 0] | runtime 7b: semantics-differ (done) |
-| `UNLOCK_START_AFTER_ATTACK` | implemented |  | 16 | direct 31f71930@31f724d0 | X2DamageEffect:7932 | same [June int = -1] | runtime 7b: new (done) |
-| `Y_DIR_INIT` | implemented |  | 48 | direct 31f71930@31f72d4e | X2DamageEffect:7934 | same [June bool = 0] | runtime 7b: new (done) |
+| `AT_RAID_FIELD` | binary-only | 6b |  | binary-only 31f71930@31f732aa |  |  | compiled elsewhere: X2DamageEffect:7973; raw literal 1 (X2Lib/X2DamageEffect.cpp:7973); bare id 1; runtime 7b: new (done) |
+| `CURVE_SPEED` | implemented |  | 385 | direct 31f71930@31f71ab4 | X2DamageEffect:7876 | same [June float = 0] | runtime 7b: same (done) |
+| `DUNGEON_TARGET_RANGE_MIN_MAX` | implemented |  | 147 | direct 31f71930 | X2DamageEffect:7983 | n/a (sub-table name) | runtime 7b: semantics-differ (done) |
+| `INIT_TARGET` | implemented |  | 3 | direct 31f71930@31f73691 | X2DamageEffect:7951 | same [June bool = 0] | runtime 7b: new (done) |
+| `IN_DISTANCE_TO_DIE_EFFECT` | implemented |  | 55 | direct 31f71930@31f71bc1 | X2DamageEffect:7879 | same [June float = -1] | runtime 7b: same (done) |
+| `LOCK_ON_OFFSET_Y_POS` | implemented |  |  | binary-only 31f71930@31f72e3d | X2DamageEffect:7949 | same [June float = 100] | binary-only: no June data uses it; runtime 7b: new (done) |
+| `LOCK_ON_RANGE_FROM_OWNER` | implemented |  | 36 | direct 31f71930 | X2DamageEffect:7968 | n/a (sub-table name) | runtime 7b: new (done) |
+| `LOCK_ON_TARGET_BONE_NAME` | implemented |  | 2 | direct 31f71930@31f72fbe | X2DamageEffect:7950 | same [June string = ''] | runtime 7b: semantics-differ (done) |
+| `LOCK_ON_TYPE` | implemented |  | 385 | direct 31f71930@31f719b2 | X2DamageEffect:7875 | same [June enum = 0] | runtime 7b: semantics-differ (done) |
+| `NOT_FIND_TARGET_MOVE_STOP` | implemented |  | 24 | direct 31f71930@31f72b9e | X2DamageEffect:7934 | same [June bool = 0] | runtime 7b: same (done) |
+| `NOT_LOCKON_INVINCIBLE_TARGET` | implemented |  | 1 | direct 31f71930@31f73846 | X2DamageEffect:7952 | same [June bool = 0] | runtime 7b: new (done) |
+| `NOT_TARGET_PRE_LOCK_ON_TARGET` | implemented | 6b | 110 | direct 31f71930@31f721dd | X2DamageEffect:7897, X2DamageEffect:7958 | differ(type: June int (getter 32fe9fd0) vs March bool) [June int = None] | runtime 7b: semantics-differ (done) |
+| `ONLY_FRONT` | implemented |  | 27 | direct 31f71930@31f7288b | X2DamageEffect:7915 | same [June bool = 0] | runtime 7b: same (done) |
+| `ONLY_TARGET_ATTACK` | implemented |  | 9 | direct 31f71930@31f72a32 | X2DamageEffect:7925 | same [June bool = 0] |  |
+| `PVP_TARGET_RANGE_MIN_MAX` | implemented |  | 144 | direct 31f71930 | X2DamageEffect:7999 | n/a (sub-table name) | runtime 7b: semantics-differ (done) |
+| `RANDOM_SEED` | implemented |  | 3 | direct 31f71930@31f7359b | X2DamageEffect:7945 | same [June int = -1] | runtime 7b: semantics-differ (done) |
+| `RETARGET_COOLTIME_AFTER_ATTACK` | implemented |  | 30 | direct 31f71930@31f726a6 | X2DamageEffect:7947 | same [June float = -1] | runtime 7b: new (done) |
+| `TARGET_RANGE` | implemented |  | 3 | direct 31f71930@31f720b1 | X2DamageEffect:7893 | same [June float = -1] | runtime 7b: same (done) |
+| `TIME_UNLOCK_AFTER_START` | implemented |  | 19 | direct 31f71930@31f71f2a | X2DamageEffect:7890 | same [June float = 9999] | runtime 7b: same (done) |
+| `TIME_UNLOCK_FROM_START` | implemented |  | 237 | direct 31f71930@31f71d82 | X2DamageEffect:7886 | same [June float = 0] | runtime 7b: semantics-differ (done) |
+| `UNLOCK_START_AFTER_ATTACK` | implemented |  | 16 | direct 31f71930@31f724d0 | X2DamageEffect:7946 | same [June int = -1] | runtime 7b: new (done) |
+| `Y_DIR_INIT` | implemented |  | 48 | direct 31f71930@31f72d4e | X2DamageEffect:7948 | same [June bool = 0] | runtime 7b: new (done) |
 
 #### `DE.LOCK_ON_DATA` LOCK_ON_RANGE_FROM_OWNER
 
@@ -1324,9 +1337,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `AT_DUNGEON` | implemented |  | 36 | direct 31f71930@31f73197 | X2DamageEffect:7957 | unchecked(June: first call 32fe9a10 is not a known getter) | runtime 7b: new (done) |
-| `AT_FIELD` | implemented |  | 36 | direct 31f71930@31f7339a | X2DamageEffect:7958 | unchecked(unchecked-default(June: default store not recognised: fld dword ptr [0x33437b40]; push 1; mov ecx, esi)) [June float = None] | runtime 7b: new (done) |
-| `AT_PVP` | implemented |  | 36 | direct 31f71930@31f73468 | X2DamageEffect:7960 | same [June float = 99999] | runtime 7b: new (done) |
+| `AT_DUNGEON` | implemented |  | 36 | direct 31f71930@31f73197 | X2DamageEffect:7971 | unchecked(June: first call 32fe9a10 is not a known getter) | runtime 7b: new (done) |
+| `AT_FIELD` | implemented |  | 36 | direct 31f71930@31f7339a | X2DamageEffect:7972 | unchecked(unchecked-default(June: default store not recognised: fld dword ptr [0x33437b40]; push 1; mov ecx, esi)) [June float = None] | runtime 7b: new (done) |
+| `AT_PVP` | implemented |  | 36 | direct 31f71930@31f73468 | X2DamageEffect:7974 | same [June float = 99999] | runtime 7b: new (done) |
 
 #### `DE.BLACKHOLE_DATA` (top)
 
@@ -1334,10 +1347,10 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `CAN_PASS_UNIT` | implemented |  | 129 | direct 31f637e0@31f63c0c | X2DamageEffect:8173 | same [June bool = 0] |  |
-| `DRAGGING_RANGE` | implemented |  | 224 | direct 31f637e0@31f63973 | X2DamageEffect:8169 | same [June float = 1] |  |
-| `DRAGGING_SPEED` | implemented |  | 224 | direct 31f637e0@31f63858 | X2DamageEffect:8168 | same [June float = 1] |  |
-| `DRAG_ONLY_HITTED_UNIT` | implemented |  | 88 | direct 31f637e0@31f63a9d | X2DamageEffect:8171 | same [June bool = 0] |  |
+| `CAN_PASS_UNIT` | implemented |  | 129 | direct 31f637e0@31f63c0c | X2DamageEffect:8187 | same [June bool = 0] |  |
+| `DRAGGING_RANGE` | implemented |  | 224 | direct 31f637e0@31f63973 | X2DamageEffect:8183 | same [June float = 1] |  |
+| `DRAGGING_SPEED` | implemented |  | 224 | direct 31f637e0@31f63858 | X2DamageEffect:8182 | same [June float = 1] |  |
+| `DRAG_ONLY_HITTED_UNIT` | implemented |  | 88 | direct 31f637e0@31f63a9d | X2DamageEffect:8185 | same [June bool = 0] |  |
 
 #### `DE.SIN_MOVE_DATA` (top)
 
@@ -1345,10 +1358,10 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `SIN_MOVE_MAX` | implemented |  | 13 | direct 31f64200@31f6426f | X2DamageEffect:8352 | same [June float = 0] |  |
-| `SIN_MOVE_MIN` | implemented |  | 13 | direct 31f64200@31f64367 | X2DamageEffect:8353 | same [June float = 0] |  |
-| `SIN_MOVE_TIME_MAX` | implemented |  | 13 | direct 31f64200@31f6446d | X2DamageEffect:8354 | same [June float = 0] |  |
-| `SIN_MOVE_TIME_MIN` | implemented |  | 13 | direct 31f64200@31f645b4 | X2DamageEffect:8355 | same [June float = 0] |  |
+| `SIN_MOVE_MAX` | implemented |  | 13 | direct 31f64200@31f6426f | X2DamageEffect:8366 | same [June float = 0] |  |
+| `SIN_MOVE_MIN` | implemented |  | 13 | direct 31f64200@31f64367 | X2DamageEffect:8367 | same [June float = 0] |  |
+| `SIN_MOVE_TIME_MAX` | implemented |  | 13 | direct 31f64200@31f6446d | X2DamageEffect:8368 | same [June float = 0] |  |
+| `SIN_MOVE_TIME_MIN` | implemented |  | 13 | direct 31f64200@31f645b4 | X2DamageEffect:8369 | same [June float = 0] |  |
 
 #### `DE.CAMERA` (top)
 
@@ -1356,13 +1369,13 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `ACCEL` | implemented |  |  | binary-only 31f650f0@31f65414 | X2DamageEffect:9197 | same [June float = 0] | binary-only: no June data uses it |
-| `CRASH_TYPE` | implemented |  | 879 | direct 31f650f0@31f652ad | X2DamageEffect:9195 | same [June int = 3] |  |
-| `EVENT_TIME` | implemented |  | 866 | direct 31f650f0@31f6559a | X2DamageEffect:9200 | unchecked(post-processing imul@31f65656) post: imul@31f65656 [June float = 0] |  |
-| `GAP` | implemented |  | 879 | direct 31f650f0@31f6549f | X2DamageEffect:9198 | same [June float = 0] |  |
-| `SPEED` | implemented |  |  | binary-only 31f650f0@31f65387 | X2DamageEffect:9196 | same [June float = 0] | binary-only: no June data uses it |
-| `TIME` | implemented |  | 879 | direct 31f650f0@31f6550c | X2DamageEffect:9199 | same [June float = 0] |  |
-| `UNIT_SELECT` | implemented |  | 714 | direct 31f650f0@31f651b4 | X2DamageEffect:9194 | same [June enum = 0] |  |
+| `ACCEL` | implemented |  |  | binary-only 31f650f0@31f65414 | X2DamageEffect:9211 | same [June float = 0] | binary-only: no June data uses it |
+| `CRASH_TYPE` | implemented |  | 879 | direct 31f650f0@31f652ad | X2DamageEffect:9209 | same [June int = 3] |  |
+| `EVENT_TIME` | implemented |  | 866 | direct 31f650f0@31f6559a | X2DamageEffect:9214 | unchecked(post-processing imul@31f65656) post: imul@31f65656 [June float = 0] |  |
+| `GAP` | implemented |  | 879 | direct 31f650f0@31f6549f | X2DamageEffect:9212 | same [June float = 0] |  |
+| `SPEED` | implemented |  |  | binary-only 31f650f0@31f65387 | X2DamageEffect:9210 | same [June float = 0] | binary-only: no June data uses it |
+| `TIME` | implemented |  | 879 | direct 31f650f0@31f6550c | X2DamageEffect:9213 | same [June float = 0] |  |
+| `UNIT_SELECT` | implemented |  | 714 | direct 31f650f0@31f651b4 | X2DamageEffect:9208 | same [June enum = 0] |  |
 | `SCALE_X` | june-ignores(dead-here) |  | 1 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ceb0 (decrypted), 31f76 |  |  |  |
 | `SCALE_Y` | june-ignores(dead-here) |  | 1 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ceb0 (decrypted), 31f76 |  |  |  |
 | `SCALE_Z` | june-ignores(dead-here) |  | 1 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f66e60 (decrypted), 31f68f30 (decrypted), 31f6ceb0 (decrypted), 31f76 |  |  |  |
@@ -1373,13 +1386,13 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `COLOR_A` | implemented |  |  | binary-only 31f65730@31f65abe | X2DamageEffect:9221 | same [June float = 1] | binary-only: no June data uses it |
-| `COLOR_B` | implemented |  |  | binary-only 31f65730@31f65cce | X2DamageEffect:9224 | unchecked(post-processing imul@31f65d69) post: imul@31f65d69 [June float = 1] | binary-only: no June data uses it |
-| `COLOR_G` | implemented |  |  | binary-only 31f65730@31f65c1e | X2DamageEffect:9223 | same [June float = 1] | binary-only: no June data uses it |
-| `COLOR_R` | implemented |  |  | binary-only 31f65730@31f65b6e | X2DamageEffect:9222 | same [June float = 1] | binary-only: no June data uses it |
-| `COUNT` | implemented |  | 21 | direct 31f65730@31f65a26 | X2DamageEffect:9220 | same [June int = 1] |  |
-| `EVENT_TIME` | implemented |  | 21 | direct 31f65730@31f6594e | X2DamageEffect:9219 | same [June float = 0] |  |
-| `UNIT_SELECT` | implemented |  | 17 | direct 31f65730@31f65843 | X2DamageEffect:9218 | same [June enum = 0] |  |
+| `COLOR_A` | implemented |  |  | binary-only 31f65730@31f65abe | X2DamageEffect:9235 | same [June float = 1] | binary-only: no June data uses it |
+| `COLOR_B` | implemented |  |  | binary-only 31f65730@31f65cce | X2DamageEffect:9238 | unchecked(post-processing imul@31f65d69) post: imul@31f65d69 [June float = 1] | binary-only: no June data uses it |
+| `COLOR_G` | implemented |  |  | binary-only 31f65730@31f65c1e | X2DamageEffect:9237 | same [June float = 1] | binary-only: no June data uses it |
+| `COLOR_R` | implemented |  |  | binary-only 31f65730@31f65b6e | X2DamageEffect:9236 | same [June float = 1] | binary-only: no June data uses it |
+| `COUNT` | implemented |  | 21 | direct 31f65730@31f65a26 | X2DamageEffect:9234 | same [June int = 1] |  |
+| `EVENT_TIME` | implemented |  | 21 | direct 31f65730@31f6594e | X2DamageEffect:9233 | same [June float = 0] |  |
+| `UNIT_SELECT` | implemented |  | 17 | direct 31f65730@31f65843 | X2DamageEffect:9232 | same [June enum = 0] |  |
 
 #### `DE.SOUND` (top)
 
@@ -1387,12 +1400,12 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `DELETE_WHEN_EFFECT_END` | implemented |  | 40 | direct 31f73f30@31f744af | X2DamageEffect:9250 | same [June bool = 0] |  |
-| `EVENT_TIME` | implemented |  | 2345 | direct 31f73f30@31f74065 | X2DamageEffect:9242 | same [June float = 0] |  |
-| `FILE_NAME` | implemented |  | 2348 | direct 31f73f30@31f74161 | X2DamageEffect:9243 | same [June string = ''] |  |
-| `LOOP` | implemented |  | 22 | direct 31f73f30@31f74407 | X2DamageEffect:9247 | same [June bool = 0] |  |
-| `THREE_DIMENSIONAL_SOUND` | implemented |  | 6 | direct 31f73f30@31f74649 | X2DamageEffect:9251 | unchecked(post-processing imul@31f747b8) post: imul@31f747b8 [June bool = 1] |  |
-| `USE_GLOBAL_TIME` | implemented |  | 6 | direct 31f73f30@31f742cb | X2DamageEffect:9245 | same [June bool = 0] |  |
+| `DELETE_WHEN_EFFECT_END` | implemented |  | 40 | direct 31f73f30@31f744af | X2DamageEffect:9264 | same [June bool = 0] |  |
+| `EVENT_TIME` | implemented |  | 2345 | direct 31f73f30@31f74065 | X2DamageEffect:9256 | same [June float = 0] |  |
+| `FILE_NAME` | implemented |  | 2348 | direct 31f73f30@31f74161 | X2DamageEffect:9257 | same [June string = ''] |  |
+| `LOOP` | implemented |  | 22 | direct 31f73f30@31f74407 | X2DamageEffect:9261 | same [June bool = 0] |  |
+| `THREE_DIMENSIONAL_SOUND` | implemented |  | 6 | direct 31f73f30@31f74649 | X2DamageEffect:9265 | unchecked(post-processing imul@31f747b8) post: imul@31f747b8 [June bool = 1] |  |
+| `USE_GLOBAL_TIME` | implemented |  | 6 | direct 31f73f30@31f742cb | X2DamageEffect:9259 | same [June bool = 0] |  |
 
 #### `DE.AFTER_IMAGE` (top)
 
@@ -1400,13 +1413,13 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `AFTER_IMAGE_COLOR_A` | implemented |  | 11 | direct 31f74a80@31f753a4 | X2DamageEffect:9766 | same [June float = 1] |  |
-| `AFTER_IMAGE_COLOR_B` | implemented |  | 11 | direct 31f74a80@31f75236 | X2DamageEffect:9765 | same [June float = 0.797] |  |
-| `AFTER_IMAGE_COLOR_G` | implemented |  | 11 | direct 31f74a80@31f750c8 | X2DamageEffect:9764 | same [June float = 0.797] |  |
-| `AFTER_IMAGE_COLOR_R` | implemented |  | 11 | direct 31f74a80@31f74f5a | X2DamageEffect:9763 | same [June float = 0.797] |  |
-| `AFTER_IMAGE_ENDTIME` | implemented |  | 11 | direct 31f74a80@31f74c8b | X2DamageEffect:9759 | same [June float = -1] |  |
-| `AFTER_IMAGE_LAYER` | implemented |  | 11 | direct 31f74a80@31f74df2 | X2DamageEffect:9761 | unchecked(unchecked-default(June: non-standard shape after the call: mov test je mov)) [June int = None] |  |
-| `AFTER_IMAGE_STARTTIME` | implemented |  | 11 | direct 31f74a80@31f74b02 | X2DamageEffect:9758 | same [June float = -1] |  |
+| `AFTER_IMAGE_COLOR_A` | implemented |  | 11 | direct 31f74a80@31f753a4 | X2DamageEffect:9780 | same [June float = 1] |  |
+| `AFTER_IMAGE_COLOR_B` | implemented |  | 11 | direct 31f74a80@31f75236 | X2DamageEffect:9779 | same [June float = 0.797] |  |
+| `AFTER_IMAGE_COLOR_G` | implemented |  | 11 | direct 31f74a80@31f750c8 | X2DamageEffect:9778 | same [June float = 0.797] |  |
+| `AFTER_IMAGE_COLOR_R` | implemented |  | 11 | direct 31f74a80@31f74f5a | X2DamageEffect:9777 | same [June float = 0.797] |  |
+| `AFTER_IMAGE_ENDTIME` | implemented |  | 11 | direct 31f74a80@31f74c8b | X2DamageEffect:9773 | same [June float = -1] |  |
+| `AFTER_IMAGE_LAYER` | implemented |  | 11 | direct 31f74a80@31f74df2 | X2DamageEffect:9775 | unchecked(unchecked-default(June: non-standard shape after the call: mov test je mov)) [June int = None] |  |
+| `AFTER_IMAGE_STARTTIME` | implemented |  | 11 | direct 31f74a80@31f74b02 | X2DamageEffect:9772 | same [June float = -1] |  |
 
 #### `DE.TOUCH_LAND_DAMAGE_EFFECT` (top)
 
@@ -1414,11 +1427,11 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `APPLY_ROTATE` | implemented |  | 1 | direct 31f76a90@31f76f58 | X2DamageEffect:9587 | same [June bool = 1] | runtime 7e: new (deferred) |
-| `DAMAGE_EFFECT_NAME` | implemented |  | 1 | direct 31f76a90@31f76cd9 | X2DamageEffect:9585 | same [June string = ''] | runtime 7e: new (deferred) |
-| `PASSIVE_PARTICLE_X` | implemented |  |  | binary-only 31f76a90@31f77ceb | X2DamageEffect:9602 | same [June float = 0] | binary-only: no June data uses it; runtime 7e: new (deferred) |
-| `PASSIVE_PARTICLE_Y` | implemented |  |  | binary-only 31f76a90@31f77e85 | X2DamageEffect:9603 | same [June float = 0] | binary-only: no June data uses it; runtime 7e: new (deferred) |
-| `PASSIVE_PARTICLE_Z` | implemented |  |  | binary-only 31f76a90@31f7801f | X2DamageEffect:9604 | same [June float = 0] | binary-only: no June data uses it; runtime 7e: new (deferred) |
+| `APPLY_ROTATE` | implemented |  | 1 | direct 31f76a90@31f76f58 | X2DamageEffect:9601 | same [June bool = 1] | runtime 7e: new (deferred) |
+| `DAMAGE_EFFECT_NAME` | implemented |  | 1 | direct 31f76a90@31f76cd9 | X2DamageEffect:9599 | same [June string = ''] | runtime 7e: new (deferred) |
+| `PASSIVE_PARTICLE_X` | implemented |  |  | binary-only 31f76a90@31f77ceb | X2DamageEffect:9616 | same [June float = 0] | binary-only: no June data uses it; runtime 7e: new (deferred) |
+| `PASSIVE_PARTICLE_Y` | implemented |  |  | binary-only 31f76a90@31f77e85 | X2DamageEffect:9617 | same [June float = 0] | binary-only: no June data uses it; runtime 7e: new (deferred) |
+| `PASSIVE_PARTICLE_Z` | implemented |  |  | binary-only 31f76a90@31f7801f | X2DamageEffect:9618 | same [June float = 0] | binary-only: no June data uses it; runtime 7e: new (deferred) |
 
 #### `DE.HIT_EFFECT_SET` (top)
 
@@ -1426,8 +1439,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `HIT_EFFECT_SET%d` | binary-only | 6b |  | binary-only 31f64c80 |  |  | compiled elsewhere: X2DamageEffect:9544; raw literal 2 (X2Lib/X2DamageEffect.cpp:6158); bare id 6; runtime 7e: new (done) |
-| `EFFECT_SET_NAME` | implemented |  |  | binary-only 31f64c80@31f64e93 | X2DamageEffect:9548 | same [June string = ''] | binary-only: no June data uses it; runtime 7e: new (done) |
+| `HIT_EFFECT_SET%d` | binary-only | 6b |  | binary-only 31f64c80 |  |  | compiled elsewhere: X2DamageEffect:9558; raw literal 2 (X2Lib/X2DamageEffect.cpp:6158); bare id 6; runtime 7e: new (done) |
+| `EFFECT_SET_NAME` | implemented |  |  | binary-only 31f64c80@31f64e93 | X2DamageEffect:9562 | same [June string = ''] | binary-only: no June data uses it; runtime 7e: new (done) |
 
 #### `DE.DIE_CREATE_NPC` (top)
 
@@ -1435,20 +1448,20 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `EVENT_TIME` | implemented |  | 1 | direct 31f66230@31f662f6 | X2DamageEffect:9564 | same [June float = -1] | runtime 7e: - (done) |
-| `NPC_ID` | implemented |  | 3 | direct 31f66230@31f663d1 | X2DamageEffect:9565 | same [June enum = 0] | runtime 7e: new (done) |
+| `EVENT_TIME` | implemented |  | 1 | direct 31f66230@31f662f6 | X2DamageEffect:9578 | same [June float = -1] | runtime 7e: - (done) |
+| `NPC_ID` | implemented |  | 3 | direct 31f66230@31f663d1 | X2DamageEffect:9579 | same [June enum = 0] | runtime 7e: new (done) |
 
 ### EffectSet
 
 #### `ES.templet` (top)
 
-24 rows: implemented 12, june-ignores 11, unsupported 1. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
+24 rows: implemented 11, june-ignores 11, unsupported 2. June: `321da420`, `321e48e0`, `321f2a60`, `321f2db0` …. March: `AddEffectSetTemplet_LUA`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
+| `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | 2 | 170 | direct 321e48e0@321e5675 | X2EffectSet:3633 | same [June enum = 0] | compiled elsewhere: X2DamageEffect:1618, X2EffectSet:3633; raw literal 5 (X2Lib/X2DamageEffect.cpp:1618); bare id 22; e.g. EffectSet:call:AddEffectSetTemplet_LUA; runtime 4a: unsupported (done) |
 | `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | unsupported(Effect-alpha option (absent)) | 2 | 24 | direct 321e48e0@321e5a5d | X2EffectSet:3641 | unchecked(unchecked-default(June: non-standard shape after the call: mov neg sbb and)) [June int = None] | compiled elsewhere: X2DamageEffect:1731, X2EffectSet:3641; raw literal 6 (X2Lib/X2DamageEffect.cpp:1731); bare id 20; e.g. EffectSet:call:AddEffectSetTemplet_LUA; runtime 4a: unsupported (done) |
 | `AFFECTED_BY_UNIT_SCALE` | implemented |  | 171 | direct 321e48e0@321e4f93 | X2EffectSet:3612 | same [June bool = 1] | runtime 4a: same (-) |
-| `APPLIED_SKILL_ID` | implemented |  | 170 | direct 321e48e0@321e5675 | X2EffectSet:3633 | same [June enum = 0] | runtime 4a: unsupported (done) |
 | `CAMERA_SHAKE%d` | implemented |  | 3816 | direct 321e48e0 | X2EffectSet:4135 | n/a (sub-table name) | 12 names; runtime 4b: same (-) |
 | `DELETE_EFFECTSET_AT_TRACE_UNIT_DIE` | implemented |  | 2 | direct 321e48e0@321e531f | X2EffectSet:3629 | same [June bool = 0] | runtime 4b: new (done) |
 | `DELETE_SHAKE_COUNT` | implemented |  | 14 | direct 321e48e0@321e5162 | X2EffectSet:3615 | same [June int = -1] | runtime 4b: same (-) |
@@ -1679,16 +1692,16 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `HTD_BEEHOUSE` | implemented |  | 48 | direct 32610ff0@32611666 | X2DamageManager:3127 | same [June string = ''] |  |
-| `HTD_DEFAULT` | implemented |  | 51 | direct 32610ff0@32611071 | X2DamageManager:3117 | same [June string = ''] |  |
-| `HTD_GUARD_1` | implemented |  | 49 | direct 32610ff0@3261176b | X2DamageManager:3131 | same [June string = ''] |  |
-| `HTD_GUARD_2` | implemented |  | 49 | direct 32610ff0@32611863 | X2DamageManager:3136 | same [June string = ''] |  |
-| `HTD_MEAT` | implemented |  | 46 | direct 32610ff0@32611160 | X2DamageManager:3118 | same [June string = ''] |  |
-| `HTD_METAL` | implemented |  | 45 | direct 32610ff0@326114a6 | X2DamageManager:3124 | same [June string = ''] |  |
-| `HTD_METAL2` | implemented |  | 45 | direct 32610ff0@3261157f | X2DamageManager:3125 | same [June string = ''] |  |
-| `HTD_STONE` | implemented |  | 48 | direct 32610ff0@326112eb | X2DamageManager:3121 | same [June string = ''] |  |
-| `HTD_STONE2` | implemented |  | 48 | direct 32610ff0@326113c4 | X2DamageManager:3122 | same [June string = ''] |  |
-| `HTD_WOOD` | implemented |  | 48 | direct 32610ff0@32611223 | X2DamageManager:3119 | same [June string = ''] |  |
+| `HTD_BEEHOUSE` | implemented |  | 48 | direct 32610ff0@32611666 | X2DamageManager:3156 | same [June string = ''] |  |
+| `HTD_DEFAULT` | implemented |  | 51 | direct 32610ff0@32611071 | X2DamageManager:3146 | same [June string = ''] |  |
+| `HTD_GUARD_1` | implemented |  | 49 | direct 32610ff0@3261176b | X2DamageManager:3160 | same [June string = ''] |  |
+| `HTD_GUARD_2` | implemented |  | 49 | direct 32610ff0@32611863 | X2DamageManager:3165 | same [June string = ''] |  |
+| `HTD_MEAT` | implemented |  | 46 | direct 32610ff0@32611160 | X2DamageManager:3147 | same [June string = ''] |  |
+| `HTD_METAL` | implemented |  | 45 | direct 32610ff0@326114a6 | X2DamageManager:3153 | same [June string = ''] |  |
+| `HTD_METAL2` | implemented |  | 45 | direct 32610ff0@3261157f | X2DamageManager:3154 | same [June string = ''] |  |
+| `HTD_STONE` | implemented |  | 48 | direct 32610ff0@326112eb | X2DamageManager:3150 | same [June string = ''] |  |
+| `HTD_STONE2` | implemented |  | 48 | direct 32610ff0@326113c4 | X2DamageManager:3151 | same [June string = ''] |  |
+| `HTD_WOOD` | implemented |  | 48 | direct 32610ff0@32611223 | X2DamageManager:3148 | same [June string = ''] |  |
 
 ### Outside the scope roots
 
@@ -1985,19 +1998,21 @@ evidence. An unsupported row that March parses that way stays `unsupported`, wit
 
 | system | keys (pattern) | verdict | evidence | compiled hits (parser TUs) | raw hits | enclosing flags | rule-5 hits (not evidence) |
 |---|---|---|---|---|---|---|---|
-| Rose weapon | `ROSE_WEAPON` | **present** | no Rose class (`CX2GURose*`), unit class, enum or `ROSE_WEAPON_*` identifier in the client or `KncWX2Server/Common`; `CX2Unit::UNIT_TYPE` ends at `UT_ADD` (X2Unit.h), and every other `ROSE` stem hit is a skill or NPC name (Phase 8c) | X2DamageEffect.cpp 1, X2EffectSet.cpp 1, X2DamageManager.cpp 1 | 0 | - | 7 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
-| Natural force | `NATURAL_FORCE` | **present** | Rena natural-force code exists, but only under `ADD_RENA_SYSTEM`, which is off under `US_SERVICE` | X2DamageEffect.cpp 1, X2EffectSet.cpp 1, X2DamageManager.cpp 1 | 122 in 9 files (`X2Lib/X2GULire_ElvenRanger.cpp`, `X2Lib/X2GageData.h`) | `ADD_RENA_SYSTEM` off | 7 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
+| Rose weapon | `ROSE_WEAPON` | **absent** | no Rose class (`CX2GURose*`), unit class, enum or `ROSE_WEAPON_*` identifier in the client or `KncWX2Server/Common`; `CX2Unit::UNIT_TYPE` ends at `UT_ADD` (X2Unit.h), and every other `ROSE` stem hit is a skill or NPC name (Phase 8c) | 0 | 0 | - | 7 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
+| Natural force | `NATURAL_FORCE` | **gated-off** | Rena natural-force code exists, but only under `ADD_RENA_SYSTEM`, which is off under `US_SERVICE` | 0 | 122 in 9 files (`X2Lib/X2GULire_ElvenRanger.cpp`, `X2Lib/X2GageData.h`) | `ADD_RENA_SYSTEM` off | 13 in 4 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2GUNPC.cpp`) |
 | Skill memo | `MEMO` | **present** | compiled in: `ADD_MEMO_1ST_CLASS` is ON under `US_SERVICE` (March reads memo keys June does not; see *March reads it, June does not*) | X2DamageManager.cpp 11, X2DamageEffect.cpp 5, X2EffectSet.cpp 5 | 31 in 5 files (`X2Lib/X2GUUser.cpp`, `X2Lib/X2GameUnit.cpp`) | `ADD_MEMO_1ST_CLASS` ON, `BALANCE_PATCH_20131107` ON | 4 in 2 files (`X2Lib/X2EffectSet.cpp`, `X2Lib/X2DamageEffect.cpp`) |
-| Numerical skill data | `NUMERICAL_DATA` | **present** | no identifier anywhere (a plan-listed absent system) | X2DamageEffect.cpp 2, X2EffectSet.cpp 2, X2DamageManager.cpp 2 | 0 | - | 14 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
-| HP-rate damage | `HP_RATE_DAMAGE` | **present** | no identifier anywhere, and no `HP_RATE_DAMAGE_TYPE` enum (a plan-listed absent system) | X2DamageEffect.cpp 2, X2EffectSet.cpp 2, X2DamageManager.cpp 2 | 0 | - | 14 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
-| Applied skill ID | `^APPLIED_SKILL_ID$` | **present** | no March identifier for the key (a plan-listed absent system); the search is by the key's own name. June's two DamageData readers, `ParsingBuffFactorID`'s `_ULTIMATE` gate (`31fcf3e0`, unidentified, Phase 8b) and the numerical-data override (`32632390@3263fe41-32640054`), have no March counterpart. `DamageData::m_eUsedSkillID` (`SERV_ARA_CHANGE_CLASS_SECOND`) is a C++-set skill ID, not this key (Phase 8c) | X2DamageEffect.cpp 2, X2EffectSet.cpp 2, X2DamageManager.cpp 2 | 0 | - | 36 in 6 files (`X2Lib/X2EffectSet.cpp`, `X2Lib/X2DamageEffect.cpp`) |
+| Numerical skill data | `NUMERICAL_DATA` | **absent** | no identifier anywhere (a plan-listed absent system) | 0 | 0 | - | 14 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
+| HP-rate damage | `HP_RATE_DAMAGE` | **absent** | no identifier anywhere, and no `HP_RATE_DAMAGE_TYPE` enum (a plan-listed absent system) | 0 | 0 | - | 14 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
+| Applied skill ID | `^APPLIED_SKILL_ID$` | **absent** | no March identifier for the key (a plan-listed absent system); the search is by the key's own name. June's two DamageData readers, `ParsingBuffFactorID`'s `_ULTIMATE` gate (`31fcf3e0`, unidentified, Phase 8b) and the numerical-data override (`32632390@3263fe41-32640054`), have no March counterpart. `DamageData::m_eUsedSkillID` (`SERV_ARA_CHANGE_CLASS_SECOND`) is a C++-set skill ID, not this key (Phase 8c) | 0 | 0 | - | 38 in 7 files (`X2Lib/X2EffectSet.cpp`, `X2Lib/X2DamageEffect.cpp`) |
 | Nasod armor combo | `NASOD_ARMOR_COMBO` | **present-elsewhere** | compiled in: Add's Nasod-armor combo states (`X2GUAdd`) under `SERV_9TH_NEW_CHARACTER`, which is ON | 0 | 51 in 2 files (`X2Lib/X2GUAdd.cpp`, `X2Lib/X2GUAdd.h`) | `SERV_ADD_LUNATIC_PSYKER` ON, `SERV_9TH_NEW_CHARACTER` ON | 0 |
-| Combination point | `COMBINATION_POINT` | **present** | no March identifier for the key (a plan-listed absent system); the search is by the key's own name | X2DamageEffect.cpp 1, X2EffectSet.cpp 1, X2DamageManager.cpp 1 | 0 | - | 7 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
+| Combination point | `COMBINATION_POINT` | **absent** | no March identifier for the key (a plan-listed absent system); the search is by the key's own name | 0 | 0 | - | 7 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
 | Effect-alpha option | `EFFECT_ALPHA_CONDITION` | **absent** | no per-owner effect-alpha game option: `X2GameOption` has only the effect-detail level (`m_eEffect`/`m_bEffect`, X2GameOption.h:48-52) and `m_bFlashEffect`. June's enum (`AEACBO_MY_EFFECT` / `_MY_TEAM_EFFECT` / `_ANOTHER_TEAM_EFFECT`) names an option this client never had. Honouring the key needs that option (UI + save): **a decision for the user**, not a transcription | 0 | 0 | - | 40 in 4 files (`X2Lib/X2EffectSet.cpp`, `X2Lib/X2EffectSet.h`) |
 
 Search terms: Rose weapon: `ROSE_WEAPON_\w+`, `\w*RoseWeapon\w*`, `CX2GURose\w*`, `UC_ROSE\w*`; Natural force: `NATURAL_FORCE_TYPE`, `NFT_\w+`, `m_\w*NaturalForce\w*`, `\w*NATURAL_FORCE_VALUE\w*`; Skill memo: `APPLIED_MEMO_ID`, `IsEqippedMemo_?`, `BUFF_FACTOR_ID_MEMO`, `BUFF_FACTOR_RELATIVE_MEMO_ID`, `DAMAGE_DATA(_NEXT)?_MEMO\d*`, `NOT_ALLOW_MEMO`, `APPLIED_SKILL_ID_NOT_AFFECT_MEMO`; Numerical skill data: `NUMERICAL_DATA_\w+`, `\w*NumericalData\w*`; HP-rate damage: `HP_RATE_DAMAGE_\w+`, `\w*HpRateDamage\w*`; Applied skill ID: `APPLIED_SKILL_ID`, `\w*AppliedSkillI[dD]\w*`; Nasod armor combo: `CAN_ACTIVATE_NASOD_ARMOR_COMBO`, `\w*NasodArmorCombo\w*`; Combination point: `\w*COMBINATION_POINT\w*`, `\w*CombinationPoint\w*`; Effect-alpha option: `\w*EFFECT_ALPHA_CONDITION\w*`, `\w*EffectAlphaCondition\w*`, `AEACBO_\w+`, `\w*MY_TEAM_EFFECT\w*`, `\w*ANOTHER_TEAM_EFFECT\w*`, `\w*OtherTeamEffect\w*`.
 
-Unsupported rows (3): `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`ES.EFFECT` (top), Effect-alpha option (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`ES.templet` (top), Effect-alpha option (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`DE.top` (top), Effect-alpha option (absent)).
+Unsupported rows (12): `APPLIED_SKILL_ID` (`DE.DAMAGE_DATA` (top), Applied skill ID (absent)), `APPLIED_SKILL_ID` (`DE.DAMAGE_DATA` BUFF_FACTOR, Applied skill ID (absent)), `APPLIED_SKILL_ID` (`DE.top` (top), Applied skill ID (absent)), `APPLIED_SKILL_ID` (`ES.templet` (top), Applied skill ID (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`ES.EFFECT` (top), Effect-alpha option (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`ES.templet` (top), Effect-alpha option (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`DE.top` (top), Effect-alpha option (absent)), `HIT_ADD_COMBINATION_POINT` (`DE.DAMAGE_DATA` (top), Combination point (absent)), `HP_RATE_DAMAGE_TYPE` (`DE.DAMAGE_DATA` (top), HP-rate damage (absent)), `HP_RATE_DAMAGE_VALUE` (`DE.DAMAGE_DATA` (top), HP-rate damage (absent)), `NUMERICAL_DATA_INDEX` (`DE.DAMAGE_DATA` (top), Numerical skill data (absent)), `NUMERICAL_DATA_NAME` (`DE.DAMAGE_DATA` (top), Numerical skill data (absent)).
+
+Handed-off / declined rows (3; `census_completion.py`, decisions D1-D6 of `JUNE2017_EFFECT_COMPLETION_PHASES.md` C0): `BFT_AURA` (`DE.DAMAGE_DATA` BUFF_FACTOR/FINALIZER) -> JUNE_BUFF_PORT_PHASES.md Phase 8 (BFT 14-17 finalizers; nested BFT_AURA = 14); the BBT behaviors landed in 4b/7/7b, data in 13; `NATURAL_FORCE_TYPE` (`DE.DAMAGE_DATA` (top)) -> JUNE2017_CHARACTER_PORT_CHECKLIST.md section 3 (Rena port); `ROSE_WEAPON_ATTACK_TYPE` (`DE.DAMAGE_DATA` (top)) -> JUNE2017_CHARACTER_PORT_CHECKLIST.md section 3 (Rose port).
 
 ## Enum census
 
@@ -2035,21 +2050,21 @@ rows are listed separately just under it rather than only in the raw diff.
 | `HIT_TYPE` | `HT_SWORD_SLASH1` | 2 | missing | **missing** | `HIT_TYPE` | HIT_TYPE implemented 8a |
 | `INIT_PHYSIC` | `WALK_SPEED` | 1 | table missing | table missing | `BACK_SPEED_X` | BACK_SPEED_X implemented 8a |
 | `REACT_TYPE` | `RT_BIG` | 1 | missing | **missing** | `REACT_TYPE` | REACT_TYPE implemented 8a |
-| `SKILL_ID` | `AASI_SA_ALE_ZWEIT_SCHNEIDEN` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ADM_HELL_STONE` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ADW_HEAVY_PRESS` | 2 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AEM_CHAIN_LIGHTNING` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AVP_HELL_STONE` | 3 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALA_BLATT_BLUME_MUT` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CC_DETONATION` | 5 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CC_GIGANTIC_IMPACT` | 2 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EIS_SWORD_FALL` | 4 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EL_POWER_BURSTER` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ERS_STORM_BLADE` | 8 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SPK_SWORD_ERUPTION` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `TSI_COMMON_A_COMMON_STEAL` | 2 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `TSI_COMMON_A_GHOST_HARVESTING` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `TSI_COMMON_A_TARGET_CHASE` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `AASI_SA_ALE_ZWEIT_SCHNEIDEN` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ADM_HELL_STONE` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ADW_HEAVY_PRESS` | 2 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AEM_CHAIN_LIGHTNING` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AVP_HELL_STONE` | 3 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALA_BLATT_BLUME_MUT` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CC_DETONATION` | 5 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CC_GIGANTIC_IMPACT` | 2 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EIS_SWORD_FALL` | 4 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EL_POWER_BURSTER` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ERS_STORM_BLADE` | 8 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SPK_SWORD_ERUPTION` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `TSI_COMMON_A_COMMON_STEAL` | 2 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `TSI_COMMON_A_GHOST_HARVESTING` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `TSI_COMMON_A_TARGET_CHASE` | 1 | missing | **missing** | `APPLIED_SKILL_ID` | APPLIED_SKILL_ID unsupported 8c |
 
 (1289 members present in both with the same value are omitted.)
 
@@ -2317,8 +2332,8 @@ in both March's Lua table and its C++ enum, and absent from `KncWX2Server/Common
 | `HIT_TYPE` | `HT_PIERCE_HIT_2` | 64 | new-member | HIT_TYPE implemented 8a |
 | `HIT_TYPE` | `HT_SOUL_BIG_HIT` | 60 | new-member | HIT_TYPE implemented 8a |
 | `HIT_TYPE` | `HT_SOUL_HIT` | 59 | new-member | HIT_TYPE implemented 8a |
-| `HP_RATE_DAMAGE_TYPE` | `HRDT_MAX_HP` | 2 | new-table | HP_RATE_DAMAGE_TYPE implemented 8a |
-| `HP_RATE_DAMAGE_TYPE` | `HRDT_NOW_HP` | 1 | new-table | HP_RATE_DAMAGE_TYPE implemented 8a |
+| `HP_RATE_DAMAGE_TYPE` | `HRDT_MAX_HP` | 2 | new-table | HP_RATE_DAMAGE_TYPE unsupported 8c |
+| `HP_RATE_DAMAGE_TYPE` | `HRDT_NOW_HP` | 1 | new-table | HP_RATE_DAMAGE_TYPE unsupported 8c |
 | `LOCK_ON_TYPE` | `LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE` | 8 | new-member | LOCK_ON_TYPE implemented 6b |
 | `NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE` | `NTPLOTT_TARGET_LIST_CLEAR` | 1 | new-table | NOT_TARGET_PRE_LOCK_ON_TARGET implemented 6b |
 | `NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE` | `NTPLOTT_TARGET_LIST_NOT_CLEAR` | 2 | new-table | NOT_TARGET_PRE_LOCK_ON_TARGET implemented 6b |
@@ -2326,716 +2341,716 @@ in both March's Lua table and its C++ enum, and absent from `KncWX2Server/Common
 | `NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE` | `NTPLOTT_TARGET_LIST_SAVE_ONE` | 3 | new-table | NOT_TARGET_PRE_LOCK_ON_TARGET implemented 6b |
 | `NPC_UNIT_ID` | `NUI_P_RMH_MECHANIC_MASTERY` | 2208 | new-member | NPC_ID implemented 6b |
 | `NPC_UNIT_ID` | `NUI_SI_SA_RG_RX78_LAND_RUNNER` | 2175 | new-member | NPC_ID implemented 6b |
-| `ROSE_WEAPON_ATTACK_TYPE` | `RWAT_REVOLVER_BLADE` | 5 | new-table | ROSE_WEAPON_ATTACK_TYPE implemented 8a |
-| `ROSE_WEAPON_ATTACK_TYPE` | `RWAT_REVOLVER_CHAIN` | 4 | new-table | ROSE_WEAPON_ATTACK_TYPE implemented 8a |
-| `SKILL_ID` | `RNSI_A_AAH_DRITT_GELERECHI` | 32207 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AAH_FANTASIEGEBILDE_SPEER` | 32206 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AAH_ZWEIT_RITUS` | 32208 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AAP_LEERE` | 32231 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AAP_MODER` | 32232 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AAT_RUSHING_DRONE_DYNAMO` | 29208 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ABM_ENERGY_DRAIN` | 22213 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ABM_ENERGY_ROAD` | 22211 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ADE_FORCE_FINGER` | 29215 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ADE_REVERSE_FIELD` | 29223 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ADM_DARK_ROAD` | 22206 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ADM_MANA_INTAKE` | 22208 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ADW_ENERGY_RING` | 22226 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ADW_WORM_HOLE` | 22214 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AEE_ALCHIMIE_EID` | 32219 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AEE_RUHIG` | 32220 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AEE_VERSCHMELZEN` | 32221 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AEM_CIRCLE_FLAME` | 22204 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AEM_FIRE_RING` | 22224 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AHM_FIRE_ROAD` | 22201 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AIN_ABSCHLUSS` | 32201 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AIN_DRITT_STILETT` | 32202 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALA_ECHO_LICHT` | 32217 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALA_EID_WEISE` | 32216 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALA_LIED_SCHWACH` | 32218 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALD_CONVERSION_HEALTH` | 27210 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALD_FINGER_BULLET` | 27209 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALD_FORCE_SPEAR` | 27211 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALD_WOLF_CLAW` | 27208 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALE_DREHEN_HINTER` | 32204 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALE_SABELHIEB_SEQUENZ` | 32203 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALE_ZWEIT_SICHELN` | 32205 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALH_DRAGON_FALLING` | 27204 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALH_ROCK_CRASH` | 27202 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALH_TIGER_CLAW` | 27203 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALP_PSIONIC_BEAT` | 29207 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALP_SPEAR_DYNAMO` | 29221 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALP_TWIRL_RUSH` | 29206 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALS_MANA_DRAIN` | 27216 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALS_SHAKE_CHAOS` | 27215 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALS_VIEW_BETWEEN` | 27214 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALW_BRECHEN` | 32228 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALW_GEIST_HERRSCHAFT` | 32229 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ALW_WECHSEL` | 32227 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AMM_AIMING_NOVA` | 29222 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AMM_COUNTDOWN_BOMB_DYNAMO` | 29211 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AMM_DIVIDING_MISSILE_DYNAMO` | 29209 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AMM_FLICK_DISC_DYNAMO` | 29210 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AN_MIND_BREAK` | 29214 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AN_PHASE_SHIFT` | 29201 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AN_PULSE_BULLET` | 29202 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_APT_DESOLVER_DYNAMO` | 29203 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_APT_MAGNETRON_DYNAMO` | 29205 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_APT_PYLON_DYNAMO` | 29204 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ARA_GAIN_FORCE` | 27200 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ARA_SHOULDER_BLOW` | 27201 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ASD_SWALLOW_ASSAULT_TEETH` | 27226 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ASR_FOX_GHOST` | 27228 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ASR_RAID` | 27218 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ASR_SPECTER_WALK` | 27219 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ATT_SPACE_CRACK` | 29212 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AVP_DARK_RING` | 22225 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AVP_SUMMON_BAT` | 22209 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AYR_GAIN_GOOD_ENERGY_BALL` | 27227 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_AYR_HIGH_SPEED` | 27212 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CC_AIMMING_SHOT` | 26203 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CC_SIEGE_SHELLING` | 26201 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CDC_GATLING_SHOT` | 26211 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CDC_RUMBLE_SHOT` | 26210 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CDC_STUN_SHOT` | 26227 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CDC_TRICK_SHOT` | 26209 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CFG_GUARD` | 26207 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CFG_LEAP_ATTACK` | 26204 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CHG_ELASTIC_BOMB_HAND_GRENADE` | 26212 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CHG_MARK_OF_COMMANDER` | 26214 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CIP_ARTILLERY_NOVA` | 26206 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CIP_LAND_SMASH` | 26226 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CIP_SUDDEN_BURSTER` | 26205 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CSG_HEAD_SHOT` | 26208 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CSG_MAGNUM_SHOT` | 26213 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CTT_AUTOMATIC_MORTAR` | 26215 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_CTT_FATAL_CANNON` | 26228 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_EAT_FAENA` | 25224 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_EAT_MEGA_ELECTRONBALL` | 25207 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ECB_TASER_PILUM` | 25212 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ECB_TESLA_SHOCK` | 25211 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ECE_SPIT_FIRE_FLUSH` | 25209 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ECE_TESLA_SHOCK` | 25208 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ECN_SPEAR_BURST` | 25206 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ECN_TESLA_SHOCK` | 25205 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_EEG_METAL_DUST_AURA` | 25204 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_EEL_ILLUSION_RAY` | 25210 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_EIS_ANOTHER_SWORD` | 21224 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_EIS_HARSH_CHASER` | 21215 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ELK_POWER_SMASH` | 21222 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ELK_ROLLING_SMASH` | 21205 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_EL_ENDURANCE_POWER` | 28201 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_EMK_BIG_BURST` | 21207 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_EMK_CRITICAL_SWORD` | 21209 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_EMK_SWORD_WAVE` | 21208 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ENS_SHOT_GUN` | 25221 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ERS_RUNE_OF_FIRE` | 21210 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ESK_IMPACT_SMASH` | 21203 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ETK_FATAL_SLAP` | 21213 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ETK_MIRAGE_STING` | 21214 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ETK_SWORD_SHIELD` | 21212 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_EVE_PHOTON_BLINK` | 25200 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LCG_SHADOW` | 30209 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LCG_SOUL_STRIKE` | 30207 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LCN_SOUL_SPREAD` | 30305 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LCN_SUMMON_FAMILIAR` | 30208 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LCN_SWIFT_SMASH` | 30210 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LDB_ABYSS_STRIKE` | 30215 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LDB_PHANTOM_RUSH` | 30216 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LDN_PUNISHER` | 30218 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LDN_RAPID_FURY` | 30306 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LDN_RAPID_IMPACT` | 30217 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LLD_CHAINS_OF_BONDAGE` | 30206 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LLD_FEAR_ABSORPTION` | 30204 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LUCIEL_HAUNTING_BEAT` | 30202 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_LUCIEL_HEAVY_HIT` | 30201 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RBD_FAKE_SHOT` | 31215 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RBD_HEAD_SHOT` | 31214 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RBM_SONIC_SLASH` | 24210 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RBM_SONIC_SLASH_UPGRADE` | 24234 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RCR_ASSAULT_IMPACT` | 23206 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RCR_BACK_KICK` | 23203 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RCR_BLOODY_CHAIN` | 31217 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RCR_BLOOD_BULLET` | 31306 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RCR_GUN_GUARD` | 31218 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RCR_LOW_KICK` | 23204 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RCR_RISING_FALCON` | 23202 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RCR_WESTERN_FIRE` | 31216 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RENA_BACKJUMP_SHOT` | 23200 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RENA_SIEGEMODE` | 23201 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RFY_BLAZING_BULLET` | 31225 | new-member | APPLIED_SKILL_ID to-implement 5 |
-| `SKILL_ID` | `RNSI_A_RFY_PHANTOM_CHASER` | 31224 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RFY_PHANTOM_SHOT` | 31307 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RFY_SPIRAL_SHOT` | 31223 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RF_FLAME_SWORD` | 24201 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RF_SHADOW_STEP` | 24200 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RGA_ENTANGLE` | 23213 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RGA_ONE_TARGET_SHOT` | 23226 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RGA_STIGMA_ARROW` | 23211 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RHB_CANNON_BALL` | 31207 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RHB_STEYR_ANTITANK` | 31208 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RMH_ALL_BOMB` | 31229 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RMH_KS_83` | 31228 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RNW_BUTTERFLY` | 23227 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RNW_DELAYED_FIRE` | 23217 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RNW_SEED_OF_RUIN` | 23219 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ROM_AIMING_STIGMA` | 31308 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ROM_G_3_RAPTOR` | 31231 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ROM_G_EX_MAGNETICFORCE` | 31232 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ROM_SPARROW_GUARDER` | 31230 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ROSE_BACK_STEP_AND_TOP_SPIN` | 31201 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ROSE_NEEDLE_SOBAT` | 31203 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ROSE_RISING_SHOT_AND_SILVER_BULLET` | 31202 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ROT_HELL_DIVE` | 24202 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_ROT_WEAPON_BREAK` | 24204 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RRF_ENCHANT_HAND` | 24206 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RRF_SPREAD` | 24224 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RSR_ARC_SHOT` | 23208 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RSR_BOOSTER_CANNON` | 31212 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RSR_DUST_SHOT` | 31305 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RSR_MIND_OF_SHARPSHOOTER` | 23210 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RSR_PLASMA_SHOCK` | 31213 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RSR_PT15_PROTOTYPE` | 31211 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RSR_RAPID_SHOT` | 23212 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RSR_SHOOTING_MAGNUM` | 23209 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RST_ARMOR_BREAK` | 24209 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RST_ONE_FLASH` | 24207 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RTR_ANGER_OF_ELF` | 23216 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RTR_EVOKE` | 23218 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RTR_EXPLOSION_TRAP` | 23214 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RTR_ROSEBUSH_TRAP` | 23215 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RVC_BREAKING_FIST` | 24215 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RVC_BREAKING_FIST_UPGRADE` | 24238 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RVC_FLAME_SWORD_ANOTHER` | 24226 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RVC_GROUND_IMPACT` | 24216 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RVK_G35L_FLASH_BANG` | 31221 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RVK_VIPER_SHOT` | 31222 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RWS_NATURE_FORCE` | 23205 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RWS_PAIN` | 23225 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RWS_REFLEX_MAGIC` | 23207 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RWT_BARRAGE_ATTACK` | 24212 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RWT_MENTAL_BREAK` | 24214 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_RWT_NAPALM_GRENADE` | 24213 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SBH_FLAME_PROTECTION` | 28223 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SBH_FLAME_SWORD` | 28210 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SBH_SCALET_ROSE` | 28211 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SCA_ASSAULT_STRIKE` | 28216 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SCA_SHADOW_EDGE` | 28215 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SDK_DARK_WAVE` | 28212 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SDK_INJECTION_STIGMA` | 28213 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SDK_SHADE_SCRATCH` | 28214 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SGM_DRASTIC_CHARGE` | 28206 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SGM_PROVOKE` | 28205 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SPK_AVATAR_OF_THE_FIRE` | 28208 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SPK_BIG_BURST` | 28207 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SPK_FIREWORKS` | 28209 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SSK_LEAP_CRASH` | 28204 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_A_SSK_POWER_BREAK` | 28203 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_AAH_ERST_DER_LETZT` | 32601 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_AAP_ENDE_DER_WELT` | 32605 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_ADE_PARANOIA` | 29602 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_ADW_FATE_SPACE` | 22602 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_AEE_FLAMME_EMOTION` | 32603 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_AEM_ELEMENTAL_STORM` | 22600 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_ALP_DOOMS_DAY` | 29600 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_AMM_APOCALYPSE` | 29601 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_ASD_THOUSANDS_BLOSSOMS` | 27600 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_ASR_NINE_TAILED_FOX` | 27602 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_AVP_ABYSS_ANGOR` | 22601 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_AYR_ENERGY_CANNON` | 27601 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_CDC_OUTRAGE_STRIKE` | 26601 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_CIP_DOOM_STRIKE` | 26600 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_CTT_SATELLITE_RAIN` | 26602 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_ECB_PSYCHIC_ARTILLERRY` | 25602 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION` | 25601 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_ECN_LUNATIC_SCUD` | 25600 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_EIS_BLADE_RAIN` | 21602 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_ELK_GIGANTIC_SLASH` | 21600 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_ERS_SHININGRUNE_BUSTER` | 21601 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_LCN_CASTLE_OF_ABADDON` | 30602 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_LDN_DIABOLIC_DISASTER` | 30605 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_LLD_DESCENT_DARKNESS` | 30601 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_RBM_EXTREM_BLADE` | 24601 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_RCR_BLOOD_AND_CHAINS` | 31603 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_RFY_D_DAY` | 31605 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_RGA_SHOOTER_DESTINY` | 23601 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_RLW_INNOCENT` | 23602 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_ROM_MECAVOLT_MX` | 31607 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_RRF_INFERNAL_ARMS` | 24600 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_RSR_ANCIENT_TRIGGER` | 31601 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_RVC_BURNING_BUSTER` | 24602 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_RWS_SPIRAL_STRIKE` | 23600 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_SBH_ANCIENT_FIRE` | 28601 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_SCA_FATE_SMASHER` | 28602 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_HA_SGM_SWORD_OF_RELICS` | 28600 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_P_APT_DUST_STORM` | 29401 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_P_CTT_CANNONEER_WITHSTANDING` | 26413 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_P_CTT_MOBILE_ARMORED_MODE` | 26412 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `ROSE_WEAPON_ATTACK_TYPE` | `RWAT_REVOLVER_BLADE` | 5 | new-table | ROSE_WEAPON_ATTACK_TYPE handed-off 8c |
+| `ROSE_WEAPON_ATTACK_TYPE` | `RWAT_REVOLVER_CHAIN` | 4 | new-table | ROSE_WEAPON_ATTACK_TYPE handed-off 8c |
+| `SKILL_ID` | `RNSI_A_AAH_DRITT_GELERECHI` | 32207 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AAH_FANTASIEGEBILDE_SPEER` | 32206 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AAH_ZWEIT_RITUS` | 32208 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AAP_LEERE` | 32231 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AAP_MODER` | 32232 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AAT_RUSHING_DRONE_DYNAMO` | 29208 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ABM_ENERGY_DRAIN` | 22213 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ABM_ENERGY_ROAD` | 22211 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ADE_FORCE_FINGER` | 29215 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ADE_REVERSE_FIELD` | 29223 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ADM_DARK_ROAD` | 22206 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ADM_MANA_INTAKE` | 22208 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ADW_ENERGY_RING` | 22226 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ADW_WORM_HOLE` | 22214 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AEE_ALCHIMIE_EID` | 32219 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AEE_RUHIG` | 32220 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AEE_VERSCHMELZEN` | 32221 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AEM_CIRCLE_FLAME` | 22204 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AEM_FIRE_RING` | 22224 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AHM_FIRE_ROAD` | 22201 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AIN_ABSCHLUSS` | 32201 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AIN_DRITT_STILETT` | 32202 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALA_ECHO_LICHT` | 32217 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALA_EID_WEISE` | 32216 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALA_LIED_SCHWACH` | 32218 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALD_CONVERSION_HEALTH` | 27210 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALD_FINGER_BULLET` | 27209 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALD_FORCE_SPEAR` | 27211 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALD_WOLF_CLAW` | 27208 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALE_DREHEN_HINTER` | 32204 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALE_SABELHIEB_SEQUENZ` | 32203 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALE_ZWEIT_SICHELN` | 32205 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALH_DRAGON_FALLING` | 27204 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALH_ROCK_CRASH` | 27202 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALH_TIGER_CLAW` | 27203 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALP_PSIONIC_BEAT` | 29207 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALP_SPEAR_DYNAMO` | 29221 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALP_TWIRL_RUSH` | 29206 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALS_MANA_DRAIN` | 27216 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALS_SHAKE_CHAOS` | 27215 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALS_VIEW_BETWEEN` | 27214 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALW_BRECHEN` | 32228 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALW_GEIST_HERRSCHAFT` | 32229 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ALW_WECHSEL` | 32227 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AMM_AIMING_NOVA` | 29222 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AMM_COUNTDOWN_BOMB_DYNAMO` | 29211 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AMM_DIVIDING_MISSILE_DYNAMO` | 29209 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AMM_FLICK_DISC_DYNAMO` | 29210 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AN_MIND_BREAK` | 29214 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AN_PHASE_SHIFT` | 29201 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AN_PULSE_BULLET` | 29202 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_APT_DESOLVER_DYNAMO` | 29203 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_APT_MAGNETRON_DYNAMO` | 29205 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_APT_PYLON_DYNAMO` | 29204 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ARA_GAIN_FORCE` | 27200 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ARA_SHOULDER_BLOW` | 27201 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ASD_SWALLOW_ASSAULT_TEETH` | 27226 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ASR_FOX_GHOST` | 27228 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ASR_RAID` | 27218 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ASR_SPECTER_WALK` | 27219 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ATT_SPACE_CRACK` | 29212 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AVP_DARK_RING` | 22225 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AVP_SUMMON_BAT` | 22209 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AYR_GAIN_GOOD_ENERGY_BALL` | 27227 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_AYR_HIGH_SPEED` | 27212 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CC_AIMMING_SHOT` | 26203 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CC_SIEGE_SHELLING` | 26201 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CDC_GATLING_SHOT` | 26211 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CDC_RUMBLE_SHOT` | 26210 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CDC_STUN_SHOT` | 26227 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CDC_TRICK_SHOT` | 26209 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CFG_GUARD` | 26207 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CFG_LEAP_ATTACK` | 26204 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CHG_ELASTIC_BOMB_HAND_GRENADE` | 26212 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CHG_MARK_OF_COMMANDER` | 26214 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CIP_ARTILLERY_NOVA` | 26206 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CIP_LAND_SMASH` | 26226 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CIP_SUDDEN_BURSTER` | 26205 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CSG_HEAD_SHOT` | 26208 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CSG_MAGNUM_SHOT` | 26213 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CTT_AUTOMATIC_MORTAR` | 26215 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_CTT_FATAL_CANNON` | 26228 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_EAT_FAENA` | 25224 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_EAT_MEGA_ELECTRONBALL` | 25207 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ECB_TASER_PILUM` | 25212 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ECB_TESLA_SHOCK` | 25211 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ECE_SPIT_FIRE_FLUSH` | 25209 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ECE_TESLA_SHOCK` | 25208 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ECN_SPEAR_BURST` | 25206 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ECN_TESLA_SHOCK` | 25205 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_EEG_METAL_DUST_AURA` | 25204 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_EEL_ILLUSION_RAY` | 25210 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_EIS_ANOTHER_SWORD` | 21224 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_EIS_HARSH_CHASER` | 21215 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ELK_POWER_SMASH` | 21222 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ELK_ROLLING_SMASH` | 21205 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_EL_ENDURANCE_POWER` | 28201 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_EMK_BIG_BURST` | 21207 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_EMK_CRITICAL_SWORD` | 21209 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_EMK_SWORD_WAVE` | 21208 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ENS_SHOT_GUN` | 25221 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ERS_RUNE_OF_FIRE` | 21210 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ESK_IMPACT_SMASH` | 21203 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ETK_FATAL_SLAP` | 21213 | new-member | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_ETK_MIRAGE_STING` | 21214 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ETK_SWORD_SHIELD` | 21212 | new-member | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_EVE_PHOTON_BLINK` | 25200 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_LCG_SHADOW` | 30209 | new-member | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LCG_SOUL_STRIKE` | 30207 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LCN_SOUL_SPREAD` | 30305 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_LCN_SUMMON_FAMILIAR` | 30208 | new-member | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LCN_SWIFT_SMASH` | 30210 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_LDB_ABYSS_STRIKE` | 30215 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_LDB_PHANTOM_RUSH` | 30216 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LDN_PUNISHER` | 30218 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_LDN_RAPID_FURY` | 30306 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_LDN_RAPID_IMPACT` | 30217 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_LLD_CHAINS_OF_BONDAGE` | 30206 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LLD_FEAR_ABSORPTION` | 30204 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_LUCIEL_HAUNTING_BEAT` | 30202 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_LUCIEL_HEAVY_HIT` | 30201 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RBD_FAKE_SHOT` | 31215 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RBD_HEAD_SHOT` | 31214 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RBM_SONIC_SLASH` | 24210 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RBM_SONIC_SLASH_UPGRADE` | 24234 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RCR_ASSAULT_IMPACT` | 23206 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RCR_BACK_KICK` | 23203 | new-member | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RCR_BLOODY_CHAIN` | 31217 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RCR_BLOOD_BULLET` | 31306 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RCR_GUN_GUARD` | 31218 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RCR_LOW_KICK` | 23204 | new-member | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RCR_RISING_FALCON` | 23202 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RCR_WESTERN_FIRE` | 31216 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RENA_BACKJUMP_SHOT` | 23200 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RENA_SIEGEMODE` | 23201 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RFY_BLAZING_BULLET` | 31225 | new-member | APPLIED_SKILL_ID unsupported 5 |
+| `SKILL_ID` | `RNSI_A_RFY_PHANTOM_CHASER` | 31224 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RFY_PHANTOM_SHOT` | 31307 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RFY_SPIRAL_SHOT` | 31223 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RF_FLAME_SWORD` | 24201 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RF_SHADOW_STEP` | 24200 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RGA_ENTANGLE` | 23213 | new-member | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_A_RGA_ONE_TARGET_SHOT` | 23226 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RGA_STIGMA_ARROW` | 23211 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RHB_CANNON_BALL` | 31207 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RHB_STEYR_ANTITANK` | 31208 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RMH_ALL_BOMB` | 31229 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RMH_KS_83` | 31228 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RNW_BUTTERFLY` | 23227 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RNW_DELAYED_FIRE` | 23217 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RNW_SEED_OF_RUIN` | 23219 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ROM_AIMING_STIGMA` | 31308 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ROM_G_3_RAPTOR` | 31231 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ROM_G_EX_MAGNETICFORCE` | 31232 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ROM_SPARROW_GUARDER` | 31230 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ROSE_BACK_STEP_AND_TOP_SPIN` | 31201 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ROSE_NEEDLE_SOBAT` | 31203 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ROSE_RISING_SHOT_AND_SILVER_BULLET` | 31202 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ROT_HELL_DIVE` | 24202 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_ROT_WEAPON_BREAK` | 24204 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RRF_ENCHANT_HAND` | 24206 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RRF_SPREAD` | 24224 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RSR_ARC_SHOT` | 23208 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RSR_BOOSTER_CANNON` | 31212 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RSR_DUST_SHOT` | 31305 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RSR_MIND_OF_SHARPSHOOTER` | 23210 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RSR_PLASMA_SHOCK` | 31213 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RSR_PT15_PROTOTYPE` | 31211 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RSR_RAPID_SHOT` | 23212 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RSR_SHOOTING_MAGNUM` | 23209 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RST_ARMOR_BREAK` | 24209 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RST_ONE_FLASH` | 24207 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RTR_ANGER_OF_ELF` | 23216 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RTR_EVOKE` | 23218 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RTR_EXPLOSION_TRAP` | 23214 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RTR_ROSEBUSH_TRAP` | 23215 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RVC_BREAKING_FIST` | 24215 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RVC_BREAKING_FIST_UPGRADE` | 24238 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RVC_FLAME_SWORD_ANOTHER` | 24226 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RVC_GROUND_IMPACT` | 24216 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RVK_G35L_FLASH_BANG` | 31221 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RVK_VIPER_SHOT` | 31222 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RWS_NATURE_FORCE` | 23205 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RWS_PAIN` | 23225 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RWS_REFLEX_MAGIC` | 23207 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RWT_BARRAGE_ATTACK` | 24212 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RWT_MENTAL_BREAK` | 24214 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_RWT_NAPALM_GRENADE` | 24213 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SBH_FLAME_PROTECTION` | 28223 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SBH_FLAME_SWORD` | 28210 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SBH_SCALET_ROSE` | 28211 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SCA_ASSAULT_STRIKE` | 28216 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SCA_SHADOW_EDGE` | 28215 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SDK_DARK_WAVE` | 28212 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SDK_INJECTION_STIGMA` | 28213 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SDK_SHADE_SCRATCH` | 28214 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SGM_DRASTIC_CHARGE` | 28206 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SGM_PROVOKE` | 28205 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SPK_AVATAR_OF_THE_FIRE` | 28208 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SPK_BIG_BURST` | 28207 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SPK_FIREWORKS` | 28209 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SSK_LEAP_CRASH` | 28204 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_A_SSK_POWER_BREAK` | 28203 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_AAH_ERST_DER_LETZT` | 32601 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_AAP_ENDE_DER_WELT` | 32605 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_ADE_PARANOIA` | 29602 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_ADW_FATE_SPACE` | 22602 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_AEE_FLAMME_EMOTION` | 32603 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_AEM_ELEMENTAL_STORM` | 22600 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_ALP_DOOMS_DAY` | 29600 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_AMM_APOCALYPSE` | 29601 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_ASD_THOUSANDS_BLOSSOMS` | 27600 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_ASR_NINE_TAILED_FOX` | 27602 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_AVP_ABYSS_ANGOR` | 22601 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_AYR_ENERGY_CANNON` | 27601 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_CDC_OUTRAGE_STRIKE` | 26601 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_CIP_DOOM_STRIKE` | 26600 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_CTT_SATELLITE_RAIN` | 26602 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_ECB_PSYCHIC_ARTILLERRY` | 25602 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION` | 25601 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_ECN_LUNATIC_SCUD` | 25600 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_EIS_BLADE_RAIN` | 21602 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_ELK_GIGANTIC_SLASH` | 21600 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_ERS_SHININGRUNE_BUSTER` | 21601 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_LCN_CASTLE_OF_ABADDON` | 30602 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_LDN_DIABOLIC_DISASTER` | 30605 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_LLD_DESCENT_DARKNESS` | 30601 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_RBM_EXTREM_BLADE` | 24601 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_RCR_BLOOD_AND_CHAINS` | 31603 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_RFY_D_DAY` | 31605 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_RGA_SHOOTER_DESTINY` | 23601 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_RLW_INNOCENT` | 23602 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_ROM_MECAVOLT_MX` | 31607 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_RRF_INFERNAL_ARMS` | 24600 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_RSR_ANCIENT_TRIGGER` | 31601 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_RVC_BURNING_BUSTER` | 24602 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_RWS_SPIRAL_STRIKE` | 23600 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_HA_SBH_ANCIENT_FIRE` | 28601 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_SCA_FATE_SMASHER` | 28602 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_HA_SGM_SWORD_OF_RELICS` | 28600 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_P_APT_DUST_STORM` | 29401 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_P_CTT_CANNONEER_WITHSTANDING` | 26413 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_P_CTT_MOBILE_ARMORED_MODE` | 26412 | new-member | APPLIED_SKILL_ID unsupported 8c |
 | `SKILL_ID` | `RNSI_P_EIS_INFINITY_POTENTIAL` | 21420 | new-member | APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID to-implement 8b |
-| `SKILL_ID` | `RNSI_P_ELK_WIND_SLICER` | 21402 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_P_ELK_WIND_SLICER` | 21402 | new-member | APPLIED_SKILL_ID unsupported 8c |
 | `SKILL_ID` | `RNSI_P_LLC_SEIZED_BY_FEAR` | 30401 | new-member | USED_SKILL_ID implemented 8a |
 | `SKILL_ID` | `RNSI_P_LLD_LORD_OF_FEAR` | 30403 | new-member | USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_P_RGA_VIBRATION_SHOOTING` | 23407 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_P_RRF_EXPLOSIVE_NASOD_HAND` | 24402 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAH_AUTOSUGGESTION` | 32011 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAH_BEWACHSEN_FESTE_GOTT_WAFFE` | 32018 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAH_BRENNEN_PANTASMA_BODEN` | 32017 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAH_BROCKEN_PHANTASM` | 32012 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAH_DREIMAL_SCHWERTTANZ` | 32013 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAH_DRITT_EROSION` | 32016 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAH_FRAGARACH` | 32014 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAH_STILL_LENZE` | 32015 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAP_ABGRUND` | 32065 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAP_AUSROTTUNG` | 32067 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAP_BEFREIUNG_FELD` | 32069 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAP_CHAOS_FELD` | 32068 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAP_FESSELN` | 32063 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAP_GOTTVERGESSEN_SENSE` | 32062 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAP_MAUER` | 32066 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAP_TOTENTANZ` | 32064 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAT_INSTALLATION_DRONE_ACTIVATOR` | 29013 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAT_PANZER_BUSTER` | 29012 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAT_PHANTOM_SEEKER` | 29015 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AAT_PSIONIC_GENERATOR` | 29014 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ABM_ENERGY_SPURT` | 22025 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ABM_GUILLOTINE_PRESS` | 22024 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ABM_SUPER_NOVA` | 22023 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADE_DIMENSION_BREAKER` | 29060 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADE_GRAVITY_BURSTER` | 29019 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADE_MOONLIGHT_BREAKER` | 29042 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADE_MOONLIGHT_RHAPSODY` | 29024 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADE_REVERSE_CIRCLE` | 29020 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADE_REVERSE_STIGMA` | 29025 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADE_VOID_IMPACT` | 29041 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADM_AGING` | 22015 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADM_DARK_CLOUD` | 22014 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADM_DEATH_FIELD` | 22016 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADM_HELL_STONE` | 22017 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADW_AIR_STUNNER` | 22045 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADW_CRAZY_WORM` | 22046 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADW_HEAVY_PRESS` | 22026 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADW_IMPACT_HAMMER` | 22029 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADW_IMPACT_ZONE` | 22070 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ADW_SCREW_DRIVER` | 22028 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEE_ELFE` | 32043 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEE_LIND_SCHEINEN` | 32042 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEE_LUFT_VERSPRENGEN` | 32040 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEE_REQUIEM` | 32039 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEE_SATZ_AURORA` | 32046 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEE_STOM_STARK` | 32041 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEE_VERTRAUEN_MELODIE` | 32044 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEE_WINDHOSE` | 32045 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEM_BLAZE_STEP` | 22010 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEM_CHAIN_BURST` | 22013 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEM_CIRCLE_ELEMENTAL` | 22041 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEM_CYCLONE` | 22011 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEM_ELEMENTAL_EDGE` | 22042 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEM_ICICLE_SPEAR` | 22068 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AEM_LIGHTNING_SHOWER` | 22012 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AHM_BLIZZARD_SHOWER` | 22008 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AHM_CHAIN_LIGHTNING` | 22009 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AHM_MAGIC_MISSILE` | 22006 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AHM_METEOR_SHOWER` | 22007 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AIN_BOHREN_VEREISEN` | 32003 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AIN_ERST_BOHREN` | 32002 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AIN_EXPLOSION` | 32001 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AIN_SAKROSANKT_ZERTRETEN` | 32004 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AIN_SCHWERT_PLATZEN` | 32005 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AISHA_CHAIN_FIREBALL` | 22000 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AISHA_GUST_SCREW` | 22001 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AISHA_GUST_STORM` | 22002 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AISHA_LIGHTNING_BOLT` | 22003 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AISHA_METEOR_CALL` | 22004 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALA_ANGRIFF` | 32034 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALA_BLATT_BLUME` | 32038 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALA_DIAMANT_REGEN` | 32036 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALA_VERTIEIDI` | 32035 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALA_WIND_EINFALLEN` | 32037 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALD_ENERGY_WAVE` | 27015 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALD_HELL_OF_TORNADO` | 27013 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALD_PRISON_SPEAR` | 27016 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALD_SUPPRESSION_ENERGY` | 27017 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALD_WOLF_SPEAR` | 27014 | new-member | APPLIED_SKILL_ID implemented 8a; DAMAGE_SKILL_ID to-implement 8b |
-| `SKILL_ID` | `RNSI_SA_ALE_BROCKEN_AUSHAUEN` | 32006 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALE_DRITT_ATTENTAT` | 32008 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALE_FESSEL_HEILIG` | 32009 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALE_VIERT_WERFEN_SPEER` | 32010 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALE_ZWEIT_SCHNEIDEN` | 32007 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALH_DOUBLE_COLLISION` | 27006 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALH_LINK_FLOWER` | 27007 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALH_MOONLIGHT_SLASH` | 27008 | new-member | APPLIED_SKILL_ID implemented 8a; DAMAGE_SKILL_ID to-implement 8b |
-| `SKILL_ID` | `RNSI_SA_ALH_SUPPRESSION` | 27009 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALH_WHITE_TIGER` | 27005 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALP_PION_RUSING` | 29037 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALP_PSYCHIC_STORM` | 29009 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALP_QUICKSILVER_ACCEL` | 29011 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALP_QUICKSILVER_STRIKE` | 29038 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALP_SUPERSONIC` | 29058 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALS_RESTRAINTS_SPECTER` | 27022 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALS_SEVER` | 27024 | new-member | APPLIED_SKILL_ID implemented 8a; DAMAGE_SKILL_ID to-implement 8b |
-| `SKILL_ID` | `RNSI_SA_ALS_SPECTER_OF_STORM` | 27021 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALS_SPECTER_OF_THUNDER` | 27023 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALS_SUPPRESSION_SPECTER` | 27025 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALW_ALPTRAUM` | 32057 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALW_ENTFERNEN` | 32061 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALW_REFLEXION` | 32060 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALW_SCHMERZ` | 32058 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ALW_VERZWEIFLUNG` | 32059 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AMM_CHARGED_IMPULSAR` | 29039 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AMM_EXTREME_CHASER` | 29059 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AMM_FORCE_FILED` | 29040 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AMM_INSTALLATION_SHOOTING_CHASER` | 29018 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AMM_INSTALLATION_STAR_FALL` | 29016 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AMM_INSTALLATION_ULTIMATE_FURY` | 29017 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AN_ENERGY_BOOM` | 29000 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AN_NEUTRON_BOMB` | 29004 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AN_PARTICLE_ACCELERATOR` | 29002 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AN_PARTICLE_PRISM` | 29003 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AN_VOID_BREAKER` | 29001 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_APT_CONQUERER` | 29008 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_APT_EMP_SHOCK` | 29010 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_APT_PULSE_CANNON` | 29006 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_APT_QUAKE_BUSTER` | 29005 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_APT_STASIS_FIELD` | 29007 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ARA_FALLING_DRAGON` | 27002 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ARA_PULLING_PIERCE` | 27001 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ARA_SHADOW_KNOT` | 27004 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ARA_TEMPEST_DANCE` | 27000 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ARA_WIND_WEDGE` | 27003 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ASD_ADVENT_DRAGON` | 27064 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ASD_CONTINUITY_STRIKE_THROWING` | 27044 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ASD_LINK_FLOWER_SLASH` | 27043 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ASD_PEERLESSNESS_SLASH` | 27012 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ASD_SWALLOW_ASSAULT` | 27011 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ASD_TURBULENT_WAVE` | 27010 | new-member | APPLIED_SKILL_ID implemented 8a; DAMAGE_SKILL_ID to-implement 8b |
-| `SKILL_ID` | `RNSI_SA_ASR_FIRE_FOX` | 27027 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ASR_FOX_PHANTOM` | 27066 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ASR_GET_BLOOD` | 27026 | new-member | APPLIED_SKILL_ID implemented 8a; DAMAGE_SKILL_ID to-implement 8b |
-| `SKILL_ID` | `RNSI_SA_ASR_NECROMANCY` | 27028 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ASR_SHADOW_RISING` | 27047 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ASR_SPECTER_OF_BLADE` | 27048 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ATT_MAXIMUM_STRIKE` | 29022 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ATT_STARDUST_SHOWER` | 29021 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ATT_VOID_FIELD` | 29023 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AVP_ABYSS_FIELD` | 22069 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AVP_DARK_BURST` | 22021 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AVP_HELL_DROP` | 22020 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AVP_PHANTOM_BREATHING` | 22019 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AVP_PLASMA_CUTTER` | 22018 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AVP_RUIN` | 22044 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AVP_SUMMON_BAT_MILLIONS` | 22043 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AYR_ENERGY_BEAD` | 27018 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AYR_ENERGY_VOID` | 27019 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AYR_RAKSASA_FIRE` | 27065 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AYR_RESTRICTION_ENERGY` | 27045 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AYR_REVERSE_GRAVITY_FIELD` | 27046 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_AYR_STEAL_SOUL` | 27020 | new-member | APPLIED_SKILL_ID implemented 8a; DAMAGE_SKILL_ID to-implement 8b |
-| `SKILL_ID` | `RNSI_SA_CC_ACELDAMA` | 26002 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CC_BRUTAL_SWING` | 26005 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CC_IMPACT_DETONATION` | 26021 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CC_LUNATIC_BLOW` | 26001 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CC_SCARE_CHASE` | 26000 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CDC_BULLET_BLITZ` | 26018 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CDC_BURNING_PUNISHER` | 26063 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CDC_COMET_CRASHER` | 26017 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CDC_DEADLY_SHOT` | 26013 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CDC_EXCITING_CRASH` | 26040 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CDC_SHARPSHOOTER_SYNDROME` | 26012 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CDC_SHOOTING_BIND` | 26039 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CFG_LUNATIC_FURY` | 26006 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CFG_PAIN_OF_CALADBOLG` | 26009 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CFG_PANDEMONIUM_CHAOS` | 26004 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CHG_BIGBANG_STREAM` | 26019 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CHG_CANNON_STRIKE` | 26026 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CHG_CARPET_BOMBING` | 26023 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CHG_CHAOS_CANNON` | 26022 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CIP_BURST_WOLF` | 26003 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CIP_CRACK_CRASHER` | 26037 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CIP_IRON_HOWLING` | 26008 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE` | 26007 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CIP_RAGE_OF_GUARDIAN` | 26038 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CIP_RAPID_GUARDIAN` | 26062 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA` | 26014 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CSG_DUAL_BUSTER` | 26011 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CSG_HEAVY_RAILGUN` | 26016 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CSG_SHOOTING_STAR` | 26015 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER` | 26025 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CTT_BOMBING_ARTILLERRY` | 26042 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CTT_CANNON_PRISON` | 26041 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CTT_DREAD_CHASE` | 26020 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CTT_HEAVY_FIELD` | 26064 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CTT_TACTICAL_FIELD_INDURANCE` | 26024 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_CTT_WONDER_WALL` | 26010 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EAT_HEAVENS_FIST_PRESSURE` | 25012 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EAT_HEAVENS_FIST_SWEEPER` | 25016 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EAT_OBERON_GUARD` | 25014 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EAT_SONIC_WAVE` | 25013 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EAT_SURFACE_CUTING` | 25015 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EBS_LASER_POLE` | 25048 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EBS_NEEDLES_CUTTING` | 25047 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ECB_ENERGY_NEEDLES` | 25027 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ECB_EXTREME_VIRTUAL` | 25237 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ECB_LINEAR_DIVIDER` | 25026 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ECB_THOUSANDS_OF_STARS` | 25028 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ECE_ASSUALT_SPEAR_BURST` | 25018 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ECE_ELECTRONIC_FIELD` | 25020 | new-member | APPLIED_SKILL_ID implemented 8a; APPLIED_SKILL_ID_NOT_AFFECT_MEMO june-ignores 8b |
-| `SKILL_ID` | `RNSI_SA_ECE_GENOCIDE_RIPPER` | 25017 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ECE_REASON_PRIDE` | 25236 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ECE_SPACE_WRENCH` | 25019 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ECN_ASSAULT_SPEAR_ANNIHILATOR` | 25009 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ECN_ATOMIC_SHIELD` | 25011 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ECN_IRONSCRAPS` | 25010 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ECN_JUNK_BREAK` | 25008 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ECN_PSYKER_KINESIS` | 25235 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EEG_ATOMIC_BLASTER_PLASMAGUN` | 25005 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EEG_EXPLOSION_IMPACT` | 25004 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EEG_GENERATE_BLACKHOLE` | 25007 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EEG_HORNET_STING_EXPLOSION` | 25006 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EEG_QUEENS_THRONE` | 25003 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EEL_GIGA_STREAM` | 25025 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EEL_KUGELBLITZ` | 25024 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EEL_PARTICLE_RAY` | 25023 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EEL_PHOTON_FLARE` | 25022 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EEL_SWEEP_ROLLING_OVER_CHARGE` | 25021 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EEP_ELECTRONIC_THUNDER` | 25046 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EEP_TESLA_FLARE` | 25045 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EIS_BLADE_CIRCLE` | 21042 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EIS_INFINITY_CHASER` | 21041 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EIS_INFINITY_STRIKE` | 21060 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EIS_MAELSTROM_RAGE` | 21024 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EIS_MAELSTROM_RAGE_UPGRADE` | 21056 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EIS_RAGE_CUTTER` | 21023 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EIS_SWORD_BLASTING` | 21025 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EIS_SWORD_BLASTING_UPGRADE` | 21057 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ELK_GRAND_CROSS` | 21058 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ELK_IMPERIAL_CRUSHER` | 21038 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ELK_SAND_STORM` | 21009 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ELK_SAND_STORM_UPGRADE` | 21045 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ELK_SONIC_BLADE` | 21011 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ELK_SONIC_BLADE_CRESCENT` | 21037 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ELK_WINDMILL` | 21010 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EL_MEGA_BURSTER` | 28002 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EL_SPIRAL_BLAST` | 28000 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EL_UNLIMITED_BLADE` | 28004 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EL_WILD_SHOCK` | 28001 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EMK_RISING_SLASH` | 21012 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EMK_STORM_BLADE` | 21014 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EMK_WIND_BLADE` | 21013 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ENS_EXTREMING_CUTTING` | 25044 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ENS_ILLUSIONIC_THORN` | 25043 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ERS_EXTREME_RUNE_BUSTER` | 21059 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ERS_LUNA_BLADE` | 21017 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ERS_OVERS_GEYSER` | 21040 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ERS_PHOENIX_TALON` | 21015 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ERS_PHOENIX_TALON_UPGRADE` | 21049 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ERS_SPLASH_EXPLOSION` | 21018 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ERS_SWORD_FIRE` | 21016 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ERS_TRIPLE_SABER` | 21039 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ESK_DOUBLE_SLASH` | 21007 | new-member | APPLIED_SKILL_ID implemented 8a; APPLIED_SKILL_ID implemented unassigned |
-| `SKILL_ID` | `RNSI_SA_ESK_MORTAL_BLOW` | 21006 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ESK_SPIRAL_BLAST` | 21005 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ES_FLAME_GEYSER` | 21001 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ES_MEGASLASH` | 21000 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ES_TRIPLE_GEYSER` | 21004 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ES_UNLIMITED_BLADE` | 21002 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ETK_CRESCENT_CUT` | 21020 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ETK_FINAL_STRIKE` | 21021 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ETK_FINAL_STRIKE_UPGRADE` | 21053 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ETK_PHANTOM_SWORD` | 21022 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ETK_SWORD_FALL` | 21019 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EVE_DIMENSION_LINK_GUARDIAN` | 25002 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_EVE_ILLUSION_STINGER` | 25001 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LCG_DEATH_CRISIS_OF_MARBAS` | 30018 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LCG_DEMONIC_BREATH` | 30017 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LCG_ESCHATON` | 30020 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LCG_FANTASIE_IMPROMPTU_1ST_MOVEMENT` | 30021 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LCG_SOUL_EXTORTION` | 30019 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LCN_FANTASIE_IMPROMPTU_2ND_MOVEMENT` | 30023 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LCN_MAGDONIC_CANNON` | 30058 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LCN_RAIN_OF_CHAOS` | 30084 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LCN_SHADOW_BOLT` | 30016 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LCN_SOUL_LOCK` | 30057 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LCN_SPECTRAL_SPEAR` | 30024 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LCN_TWILIGHT_JUDGEMENT` | 30022 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDB_ALTAR_OF_EVIL` | 30043 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDB_BLOODLUST` | 30041 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDB_DEATH_TOUCH` | 30044 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDB_LAND_CRASHER` | 30040 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDB_NIGHTMARE` | 30042 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDN_ABYSS_EXTINCTION` | 30085 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDN_ABYSS_SNIPING` | 30059 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDN_DEMONIC_RUSH` | 30060 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDN_DESPERADO` | 30047 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDN_GARDEN_OF_HAURES` | 30053 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDN_SHADOW_FURY` | 30050 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDN_SINISTER_MIND` | 30048 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LDN_TRANSCENDENCE` | 30049 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LLC_APOLLYON` | 30011 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LLC_DARK_CRESCENT` | 30009 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LLC_DEAD_HANDS` | 30008 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LLC_POWER_OF_ORIAX` | 30010 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LLC_RUINOUS_IMPACT` | 30007 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LLD_DEAD_CROSS` | 30056 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LLD_DEMONIC_CANNON` | 30083 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LLD_FEAR_TOMORROW` | 30055 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LLD_OBLIVION` | 30014 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LLD_PHANTOM_BLADE` | 30015 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LLD_SUMMON_DARKNESS` | 30013 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LLD_SUPREME_PUNISHMENT` | 30012 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LUCIEL_EVIL_CLAW` | 30005 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LUCIEL_FLICK_SHOT` | 30003 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LUCIEL_NETHER_SHREDDER` | 30004 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LUCIEL_SOUL_INFEST` | 30006 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LUCIEL_STOMP` | 30002 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_LUCIEL_TRIPLE_SHOT` | 30001 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RBD_CHAIN_SNATCH` | 31023 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RBD_DOUBLE_GUNHAW` | 31022 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RBD_GUN_DANCE` | 31026 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RBD_MOVING_SHOT` | 31025 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RBD_SONIC_SPIKE` | 31024 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RBM_BLOODY_ACCEL` | 24014 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RBM_DEADLY_BLOW` | 24035 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RBM_GIGA_DRIVE_LIMITER` | 24015 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RBM_SHAPT_CHARGE` | 24056 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RBM_SHOCKWAVE_FRONT` | 24016 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RBM_SHOOTUP_GENOCIDE` | 24036 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RBM_WOLF_FANG` | 24017 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RCR_BLOODY_CARNIVAL` | 31027 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RCR_BLOODY_SPIKE` | 31028 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RCR_CHAIN_VIPER` | 31057 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RCR_CRESCENT_KICK` | 23005 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RCR_DANCING_RUSH` | 31058 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RCR_DIVE_KICK_BOMBING` | 23007 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RCR_MULTI_HEAD_SHOT` | 31029 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RCR_PUNISHMENT` | 31094 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RCR_THE_KILL_POINT` | 31030 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RENA_AERO_TORNADO` | 23002 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RENA_ASSAULT_KICK` | 23003 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RENA_PERFECT_STORM` | 23001 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RENA_PHOENIX_STRIKE` | 23004 | new-member | APPLIED_SKILL_ID implemented 8a; APPLIED_SKILL_ID implemented unassigned |
-| `SKILL_ID` | `RNSI_SA_RENA_RAIL_STINGER` | 23000 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RFF_ARC_ENEMY` | 24008 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RFF_NUCLEAR` | 24007 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RFY_C4_REMOTE_CONTROL` | 31039 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RFY_C4_REMOTE_CONTROL_UPGRADE` | 31083 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RFY_EINHERJAR` | 31095 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RFY_G96_PRESSURE_GRENADE` | 31041 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RFY_M18A1_CLAYMORE` | 31059 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RFY_NEIL_THE_SNIPER` | 31038 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RFY_PHOTON_BOMB` | 31040 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RFY_VIPER_SHOWER` | 31060 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RF_CANNON_BLADE` | 24001 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RF_MAXIMUM_CANNON` | 24000 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RF_POWER_ASSAULT` | 24002 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RF_SEVEN_BURST` | 24003 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RGA_ACEINTHEHOLE` | 23059 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RGA_AERO_STRAFE` | 23017 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RGA_BLAST_ARROW` | 23039 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RGA_CUTLASS_WIND` | 23040 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RGA_FREEZING_ARROW` | 23018 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RGA_GUNGNIR` | 23015 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RGA_WIND_BLAST` | 23016 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RHB_FM31_GREAT_LAUNCHER` | 31013 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RHB_HARD_FLAMETHROWER` | 31011 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RHB_LASER_BAZOOKA` | 31014 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RHB_LOCKON_STRATOS` | 31012 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RHB_PROTON_BOMB` | 31015 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RMH_EX_S_VIPER` | 31046 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RMH_EZ_8_COUNT_DOWN` | 31045 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RMH_GALE_FORCE` | 31044 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RMH_MECA_DROP` | 31048 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RMH_SPARROW_FACTORY` | 31047 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RNW_CALL_OF_RUIN` | 23022 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RNW_ERADICATION` | 23060 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RNW_GLIDING_STRIKE` | 23023 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RNW_RAGE_FUNGUS` | 23042 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RNW_SEED_OF_RUIN_POLE` | 23041 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RNW_TRAPPING_ARROW_FUNGUS` | 23024 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROM_ARMORED_TEMPEST` | 31096 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROM_G_0_BATTLEROID` | 31049 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROM_G_1_CORONA` | 31050 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROM_G_2_ROLLING_THUNDER` | 31052 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROM_G_4_FRISBEE` | 31051 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROM_G_EX_ANCIENT_BUSTER` | 31062 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROM_VIPER_CANNON` | 31061 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROSE_BBQ` | 31001 | new-member | APPLIED_SKILL_ID implemented 8a; USED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROSE_M137_GATLING_GUN` | 31004 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROSE_M3_FLAMETHROWER` | 31005 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROSE_RX78_LAND_RUNNER` | 31002 | new-member | APPLIED_SKILL_ID implemented 2; APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROSE_SPRIGGAN` | 31003 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG` | 24005 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROT_GUARDIAN_STRIKE` | 24006 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_ROT_VALKYRIESJAVELIN` | 24004 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RRF_DEVASTATING_STRIKE` | 24057 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RRF_MAXIMUM_DIVE` | 24037 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RRF_POWER_BOMB` | 24038 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RRF_WILD_CHARGE` | 24009 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RRF_X_CRASH` | 24010 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RSR_AIMING_STRIKE` | 31056 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RSR_BUST_GRENADE` | 31093 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RSR_CRAZY_SHOT` | 23014 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RSR_FM92_MK2` | 31019 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RSR_GUIDED_ARROW` | 23012 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RSR_OPERATION_LASE` | 31018 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RSR_PAMPERO_BOOSTER` | 31020 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RSR_PHOTON_SHOWER` | 31055 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RSR_WINDWARD` | 23013 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RSR_X1_EXTRUDER` | 31021 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RST_BERSERKER_BLADE` | 24012 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RST_HYPER_SONIC_STAB` | 24013 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RST_SHOCKWAVE` | 24011 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RTR_FATALITY` | 23019 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RTR_HUMMING_WIND` | 23020 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RTR_KARMA` | 23021 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RVC_BURSTING_BLADE` | 24040 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RVC_DEADLY_RAID` | 24024 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RVC_FLAME_HELL` | 24039 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RVC_GIGA_PROMINENCE` | 24021 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RVC_IFRIT_FLAME` | 24058 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RVC_IGNITION_CROW_INCINERATION` | 24023 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RVC_IGNITION_CROW_NAPALM` | 24022 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RVK_CROSSMORE` | 31035 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RVK_EMP_STORM` | 31037 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RVK_FREEZING_BULLET` | 31033 | new-member | APPLIED_SKILL_ID implemented 8a; APPLIED_SKILL_ID to-implement 5 |
-| `SKILL_ID` | `RNSI_SA_RVK_G18C_FREEZE_GRENADE` | 31036 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RVK_LIGHTWEIGHT_MINE` | 31034 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RWS_AIRELINNA` | 23010 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RWS_GYRO_KICK` | 23038 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RWS_SHARPFALL` | 23009 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RWS_SLIDE_KICK` | 23011 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RWS_SPINNING_CRESCENT` | 23037 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RWS_TEMPEST` | 23058 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RWS_VIOLENT_ATTACK` | 23008 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RWT_HARPOON_SPEAR` | 24018 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RWT_HELLFIRE_GATLING` | 24020 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR` | 24019 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SBH_BLAZE_WING` | 28017 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SBH_BLAZING_DANCE` | 28016 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SBH_BURST_RISING` | 28041 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SBH_ETERNAL_FIRE` | 28015 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SBH_IGNIS_CRASHER` | 28042 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SBH_SOUL_IGNITION` | 28063 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SBH_WALL_OF_PROMINENCE` | 28018 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SCA_BLOOD_CUTTER` | 28023 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SCA_BLOOD_FALLS` | 28064 | new-member | APPLIED_SKILL_ID implemented 8a; APPLIED_SKILL_ID june-ignores - |
-| `SKILL_ID` | `RNSI_SA_SCA_BRANDISH_BREAKER` | 28022 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SCA_DREAD_WEAPON` | 28025 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SCA_SHADE` | 28044 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SCA_SHADE_THE_ILLUSION` | 28024 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SDK_BURNING_PHANTOM` | 28021 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SDK_EJECTION_BUSTER` | 28019 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SGM_CROSS_SLASH` | 28039 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SGM_DIVINE_BLADE` | 28040 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SGM_GIGA_BLAST` | 28062 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SGM_JUGGERNAUT_BUSTER` | 28010 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SGM_SONIC_BLADE` | 28011 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SGM_WAR_PRELUDE` | 28009 | new-member | APPLIED_SKILL_ID implemented 8a; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SPK_INFERNAL_BLADE` | 28014 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SPK_SCALDIC_SWORD` | 28013 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SPK_SWORDFIRE` | 28012 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SSK_EXTINCTION` | 28005 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `RNSI_SA_SSK_JUDGEMENT_DRIVE` | 28007 | new-member | APPLIED_SKILL_ID implemented 8a |
-| `SKILL_ID` | `TSI_P_COMMON_CHAIN_LIGHTNING` | 20400 | new-member | APPLIED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_P_RGA_VIBRATION_SHOOTING` | 23407 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_P_RRF_EXPLOSIVE_NASOD_HAND` | 24402 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAH_AUTOSUGGESTION` | 32011 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAH_BEWACHSEN_FESTE_GOTT_WAFFE` | 32018 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAH_BRENNEN_PANTASMA_BODEN` | 32017 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAH_BROCKEN_PHANTASM` | 32012 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAH_DREIMAL_SCHWERTTANZ` | 32013 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAH_DRITT_EROSION` | 32016 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAH_FRAGARACH` | 32014 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAH_STILL_LENZE` | 32015 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAP_ABGRUND` | 32065 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAP_AUSROTTUNG` | 32067 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAP_BEFREIUNG_FELD` | 32069 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAP_CHAOS_FELD` | 32068 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAP_FESSELN` | 32063 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAP_GOTTVERGESSEN_SENSE` | 32062 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAP_MAUER` | 32066 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAP_TOTENTANZ` | 32064 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAT_INSTALLATION_DRONE_ACTIVATOR` | 29013 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAT_PANZER_BUSTER` | 29012 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAT_PHANTOM_SEEKER` | 29015 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AAT_PSIONIC_GENERATOR` | 29014 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ABM_ENERGY_SPURT` | 22025 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ABM_GUILLOTINE_PRESS` | 22024 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ABM_SUPER_NOVA` | 22023 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADE_DIMENSION_BREAKER` | 29060 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADE_GRAVITY_BURSTER` | 29019 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADE_MOONLIGHT_BREAKER` | 29042 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADE_MOONLIGHT_RHAPSODY` | 29024 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADE_REVERSE_CIRCLE` | 29020 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADE_REVERSE_STIGMA` | 29025 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADE_VOID_IMPACT` | 29041 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADM_AGING` | 22015 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADM_DARK_CLOUD` | 22014 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADM_DEATH_FIELD` | 22016 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADM_HELL_STONE` | 22017 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADW_AIR_STUNNER` | 22045 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADW_CRAZY_WORM` | 22046 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADW_HEAVY_PRESS` | 22026 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADW_IMPACT_HAMMER` | 22029 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADW_IMPACT_ZONE` | 22070 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ADW_SCREW_DRIVER` | 22028 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEE_ELFE` | 32043 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEE_LIND_SCHEINEN` | 32042 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEE_LUFT_VERSPRENGEN` | 32040 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEE_REQUIEM` | 32039 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEE_SATZ_AURORA` | 32046 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEE_STOM_STARK` | 32041 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEE_VERTRAUEN_MELODIE` | 32044 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEE_WINDHOSE` | 32045 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEM_BLAZE_STEP` | 22010 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEM_CHAIN_BURST` | 22013 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEM_CIRCLE_ELEMENTAL` | 22041 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEM_CYCLONE` | 22011 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEM_ELEMENTAL_EDGE` | 22042 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEM_ICICLE_SPEAR` | 22068 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AEM_LIGHTNING_SHOWER` | 22012 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AHM_BLIZZARD_SHOWER` | 22008 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AHM_CHAIN_LIGHTNING` | 22009 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AHM_MAGIC_MISSILE` | 22006 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AHM_METEOR_SHOWER` | 22007 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AIN_BOHREN_VEREISEN` | 32003 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AIN_ERST_BOHREN` | 32002 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AIN_EXPLOSION` | 32001 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AIN_SAKROSANKT_ZERTRETEN` | 32004 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AIN_SCHWERT_PLATZEN` | 32005 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AISHA_CHAIN_FIREBALL` | 22000 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AISHA_GUST_SCREW` | 22001 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AISHA_GUST_STORM` | 22002 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AISHA_LIGHTNING_BOLT` | 22003 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AISHA_METEOR_CALL` | 22004 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALA_ANGRIFF` | 32034 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALA_BLATT_BLUME` | 32038 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALA_DIAMANT_REGEN` | 32036 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALA_VERTIEIDI` | 32035 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALA_WIND_EINFALLEN` | 32037 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALD_ENERGY_WAVE` | 27015 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALD_HELL_OF_TORNADO` | 27013 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALD_PRISON_SPEAR` | 27016 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALD_SUPPRESSION_ENERGY` | 27017 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALD_WOLF_SPEAR` | 27014 | new-member | APPLIED_SKILL_ID unsupported 8c; DAMAGE_SKILL_ID to-implement 8b |
+| `SKILL_ID` | `RNSI_SA_ALE_BROCKEN_AUSHAUEN` | 32006 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALE_DRITT_ATTENTAT` | 32008 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALE_FESSEL_HEILIG` | 32009 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALE_VIERT_WERFEN_SPEER` | 32010 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALE_ZWEIT_SCHNEIDEN` | 32007 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALH_DOUBLE_COLLISION` | 27006 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALH_LINK_FLOWER` | 27007 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALH_MOONLIGHT_SLASH` | 27008 | new-member | APPLIED_SKILL_ID unsupported 8c; DAMAGE_SKILL_ID to-implement 8b |
+| `SKILL_ID` | `RNSI_SA_ALH_SUPPRESSION` | 27009 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALH_WHITE_TIGER` | 27005 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALP_PION_RUSING` | 29037 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALP_PSYCHIC_STORM` | 29009 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALP_QUICKSILVER_ACCEL` | 29011 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALP_QUICKSILVER_STRIKE` | 29038 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALP_SUPERSONIC` | 29058 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALS_RESTRAINTS_SPECTER` | 27022 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALS_SEVER` | 27024 | new-member | APPLIED_SKILL_ID unsupported 8c; DAMAGE_SKILL_ID to-implement 8b |
+| `SKILL_ID` | `RNSI_SA_ALS_SPECTER_OF_STORM` | 27021 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALS_SPECTER_OF_THUNDER` | 27023 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALS_SUPPRESSION_SPECTER` | 27025 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALW_ALPTRAUM` | 32057 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALW_ENTFERNEN` | 32061 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALW_REFLEXION` | 32060 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALW_SCHMERZ` | 32058 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ALW_VERZWEIFLUNG` | 32059 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AMM_CHARGED_IMPULSAR` | 29039 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AMM_EXTREME_CHASER` | 29059 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AMM_FORCE_FILED` | 29040 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AMM_INSTALLATION_SHOOTING_CHASER` | 29018 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AMM_INSTALLATION_STAR_FALL` | 29016 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AMM_INSTALLATION_ULTIMATE_FURY` | 29017 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AN_ENERGY_BOOM` | 29000 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AN_NEUTRON_BOMB` | 29004 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AN_PARTICLE_ACCELERATOR` | 29002 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AN_PARTICLE_PRISM` | 29003 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AN_VOID_BREAKER` | 29001 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_APT_CONQUERER` | 29008 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_APT_EMP_SHOCK` | 29010 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_APT_PULSE_CANNON` | 29006 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_APT_QUAKE_BUSTER` | 29005 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_APT_STASIS_FIELD` | 29007 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ARA_FALLING_DRAGON` | 27002 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ARA_PULLING_PIERCE` | 27001 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ARA_SHADOW_KNOT` | 27004 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ARA_TEMPEST_DANCE` | 27000 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ARA_WIND_WEDGE` | 27003 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ASD_ADVENT_DRAGON` | 27064 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ASD_CONTINUITY_STRIKE_THROWING` | 27044 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ASD_LINK_FLOWER_SLASH` | 27043 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ASD_PEERLESSNESS_SLASH` | 27012 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ASD_SWALLOW_ASSAULT` | 27011 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ASD_TURBULENT_WAVE` | 27010 | new-member | APPLIED_SKILL_ID unsupported 8c; DAMAGE_SKILL_ID to-implement 8b |
+| `SKILL_ID` | `RNSI_SA_ASR_FIRE_FOX` | 27027 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ASR_FOX_PHANTOM` | 27066 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ASR_GET_BLOOD` | 27026 | new-member | APPLIED_SKILL_ID unsupported 8c; DAMAGE_SKILL_ID to-implement 8b |
+| `SKILL_ID` | `RNSI_SA_ASR_NECROMANCY` | 27028 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ASR_SHADOW_RISING` | 27047 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ASR_SPECTER_OF_BLADE` | 27048 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ATT_MAXIMUM_STRIKE` | 29022 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ATT_STARDUST_SHOWER` | 29021 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ATT_VOID_FIELD` | 29023 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AVP_ABYSS_FIELD` | 22069 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AVP_DARK_BURST` | 22021 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AVP_HELL_DROP` | 22020 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AVP_PHANTOM_BREATHING` | 22019 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AVP_PLASMA_CUTTER` | 22018 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AVP_RUIN` | 22044 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AVP_SUMMON_BAT_MILLIONS` | 22043 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AYR_ENERGY_BEAD` | 27018 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AYR_ENERGY_VOID` | 27019 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AYR_RAKSASA_FIRE` | 27065 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AYR_RESTRICTION_ENERGY` | 27045 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AYR_REVERSE_GRAVITY_FIELD` | 27046 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_AYR_STEAL_SOUL` | 27020 | new-member | APPLIED_SKILL_ID unsupported 8c; DAMAGE_SKILL_ID to-implement 8b |
+| `SKILL_ID` | `RNSI_SA_CC_ACELDAMA` | 26002 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CC_BRUTAL_SWING` | 26005 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CC_IMPACT_DETONATION` | 26021 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CC_LUNATIC_BLOW` | 26001 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CC_SCARE_CHASE` | 26000 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CDC_BULLET_BLITZ` | 26018 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CDC_BURNING_PUNISHER` | 26063 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CDC_COMET_CRASHER` | 26017 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CDC_DEADLY_SHOT` | 26013 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CDC_EXCITING_CRASH` | 26040 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CDC_SHARPSHOOTER_SYNDROME` | 26012 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CDC_SHOOTING_BIND` | 26039 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CFG_LUNATIC_FURY` | 26006 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CFG_PAIN_OF_CALADBOLG` | 26009 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CFG_PANDEMONIUM_CHAOS` | 26004 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CHG_BIGBANG_STREAM` | 26019 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CHG_CANNON_STRIKE` | 26026 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CHG_CARPET_BOMBING` | 26023 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CHG_CHAOS_CANNON` | 26022 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CIP_BURST_WOLF` | 26003 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CIP_CRACK_CRASHER` | 26037 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CIP_IRON_HOWLING` | 26008 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE` | 26007 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CIP_RAGE_OF_GUARDIAN` | 26038 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CIP_RAPID_GUARDIAN` | 26062 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA` | 26014 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CSG_DUAL_BUSTER` | 26011 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CSG_HEAVY_RAILGUN` | 26016 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CSG_SHOOTING_STAR` | 26015 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER` | 26025 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CTT_BOMBING_ARTILLERRY` | 26042 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CTT_CANNON_PRISON` | 26041 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CTT_DREAD_CHASE` | 26020 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CTT_HEAVY_FIELD` | 26064 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CTT_TACTICAL_FIELD_INDURANCE` | 26024 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_CTT_WONDER_WALL` | 26010 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EAT_HEAVENS_FIST_PRESSURE` | 25012 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EAT_HEAVENS_FIST_SWEEPER` | 25016 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EAT_OBERON_GUARD` | 25014 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EAT_SONIC_WAVE` | 25013 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EAT_SURFACE_CUTING` | 25015 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EBS_LASER_POLE` | 25048 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EBS_NEEDLES_CUTTING` | 25047 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ECB_ENERGY_NEEDLES` | 25027 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ECB_EXTREME_VIRTUAL` | 25237 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ECB_LINEAR_DIVIDER` | 25026 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ECB_THOUSANDS_OF_STARS` | 25028 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ECE_ASSUALT_SPEAR_BURST` | 25018 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ECE_ELECTRONIC_FIELD` | 25020 | new-member | APPLIED_SKILL_ID unsupported 8c; APPLIED_SKILL_ID_NOT_AFFECT_MEMO june-ignores 8b |
+| `SKILL_ID` | `RNSI_SA_ECE_GENOCIDE_RIPPER` | 25017 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ECE_REASON_PRIDE` | 25236 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ECE_SPACE_WRENCH` | 25019 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ECN_ASSAULT_SPEAR_ANNIHILATOR` | 25009 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ECN_ATOMIC_SHIELD` | 25011 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ECN_IRONSCRAPS` | 25010 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ECN_JUNK_BREAK` | 25008 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ECN_PSYKER_KINESIS` | 25235 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EEG_ATOMIC_BLASTER_PLASMAGUN` | 25005 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EEG_EXPLOSION_IMPACT` | 25004 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EEG_GENERATE_BLACKHOLE` | 25007 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EEG_HORNET_STING_EXPLOSION` | 25006 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EEG_QUEENS_THRONE` | 25003 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EEL_GIGA_STREAM` | 25025 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EEL_KUGELBLITZ` | 25024 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EEL_PARTICLE_RAY` | 25023 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EEL_PHOTON_FLARE` | 25022 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EEL_SWEEP_ROLLING_OVER_CHARGE` | 25021 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EEP_ELECTRONIC_THUNDER` | 25046 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EEP_TESLA_FLARE` | 25045 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EIS_BLADE_CIRCLE` | 21042 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EIS_INFINITY_CHASER` | 21041 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EIS_INFINITY_STRIKE` | 21060 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EIS_MAELSTROM_RAGE` | 21024 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EIS_MAELSTROM_RAGE_UPGRADE` | 21056 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EIS_RAGE_CUTTER` | 21023 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EIS_SWORD_BLASTING` | 21025 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EIS_SWORD_BLASTING_UPGRADE` | 21057 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ELK_GRAND_CROSS` | 21058 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ELK_IMPERIAL_CRUSHER` | 21038 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ELK_SAND_STORM` | 21009 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ELK_SAND_STORM_UPGRADE` | 21045 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ELK_SONIC_BLADE` | 21011 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ELK_SONIC_BLADE_CRESCENT` | 21037 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ELK_WINDMILL` | 21010 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EL_MEGA_BURSTER` | 28002 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EL_SPIRAL_BLAST` | 28000 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EL_UNLIMITED_BLADE` | 28004 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EL_WILD_SHOCK` | 28001 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EMK_RISING_SLASH` | 21012 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EMK_STORM_BLADE` | 21014 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EMK_WIND_BLADE` | 21013 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ENS_EXTREMING_CUTTING` | 25044 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ENS_ILLUSIONIC_THORN` | 25043 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ERS_EXTREME_RUNE_BUSTER` | 21059 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ERS_LUNA_BLADE` | 21017 | new-member | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ERS_OVERS_GEYSER` | 21040 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ERS_PHOENIX_TALON` | 21015 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ERS_PHOENIX_TALON_UPGRADE` | 21049 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ERS_SPLASH_EXPLOSION` | 21018 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ERS_SWORD_FIRE` | 21016 | new-member | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ERS_TRIPLE_SABER` | 21039 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ESK_DOUBLE_SLASH` | 21007 | new-member | APPLIED_SKILL_ID unsupported 8c; APPLIED_SKILL_ID unsupported unassigned |
+| `SKILL_ID` | `RNSI_SA_ESK_MORTAL_BLOW` | 21006 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ESK_SPIRAL_BLAST` | 21005 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ES_FLAME_GEYSER` | 21001 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ES_MEGASLASH` | 21000 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ES_TRIPLE_GEYSER` | 21004 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ES_UNLIMITED_BLADE` | 21002 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ETK_CRESCENT_CUT` | 21020 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ETK_FINAL_STRIKE` | 21021 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ETK_FINAL_STRIKE_UPGRADE` | 21053 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ETK_PHANTOM_SWORD` | 21022 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ETK_SWORD_FALL` | 21019 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EVE_DIMENSION_LINK_GUARDIAN` | 25002 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_EVE_ILLUSION_STINGER` | 25001 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LCG_DEATH_CRISIS_OF_MARBAS` | 30018 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LCG_DEMONIC_BREATH` | 30017 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LCG_ESCHATON` | 30020 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LCG_FANTASIE_IMPROMPTU_1ST_MOVEMENT` | 30021 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LCG_SOUL_EXTORTION` | 30019 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LCN_FANTASIE_IMPROMPTU_2ND_MOVEMENT` | 30023 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LCN_MAGDONIC_CANNON` | 30058 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LCN_RAIN_OF_CHAOS` | 30084 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LCN_SHADOW_BOLT` | 30016 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LCN_SOUL_LOCK` | 30057 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LCN_SPECTRAL_SPEAR` | 30024 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LCN_TWILIGHT_JUDGEMENT` | 30022 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDB_ALTAR_OF_EVIL` | 30043 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LDB_BLOODLUST` | 30041 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LDB_DEATH_TOUCH` | 30044 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LDB_LAND_CRASHER` | 30040 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LDB_NIGHTMARE` | 30042 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LDN_ABYSS_EXTINCTION` | 30085 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LDN_ABYSS_SNIPING` | 30059 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LDN_DEMONIC_RUSH` | 30060 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LDN_DESPERADO` | 30047 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LDN_GARDEN_OF_HAURES` | 30053 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LDN_SHADOW_FURY` | 30050 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LDN_SINISTER_MIND` | 30048 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LDN_TRANSCENDENCE` | 30049 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LLC_APOLLYON` | 30011 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LLC_DARK_CRESCENT` | 30009 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LLC_DEAD_HANDS` | 30008 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LLC_POWER_OF_ORIAX` | 30010 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LLC_RUINOUS_IMPACT` | 30007 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LLD_DEAD_CROSS` | 30056 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LLD_DEMONIC_CANNON` | 30083 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LLD_FEAR_TOMORROW` | 30055 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LLD_OBLIVION` | 30014 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LLD_PHANTOM_BLADE` | 30015 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LLD_SUMMON_DARKNESS` | 30013 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LLD_SUPREME_PUNISHMENT` | 30012 | new-member | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LUCIEL_EVIL_CLAW` | 30005 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LUCIEL_FLICK_SHOT` | 30003 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LUCIEL_NETHER_SHREDDER` | 30004 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LUCIEL_SOUL_INFEST` | 30006 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_LUCIEL_STOMP` | 30002 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_LUCIEL_TRIPLE_SHOT` | 30001 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RBD_CHAIN_SNATCH` | 31023 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RBD_DOUBLE_GUNHAW` | 31022 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RBD_GUN_DANCE` | 31026 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RBD_MOVING_SHOT` | 31025 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RBD_SONIC_SPIKE` | 31024 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RBM_BLOODY_ACCEL` | 24014 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RBM_DEADLY_BLOW` | 24035 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RBM_GIGA_DRIVE_LIMITER` | 24015 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RBM_SHAPT_CHARGE` | 24056 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RBM_SHOCKWAVE_FRONT` | 24016 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RBM_SHOOTUP_GENOCIDE` | 24036 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RBM_WOLF_FANG` | 24017 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RCR_BLOODY_CARNIVAL` | 31027 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RCR_BLOODY_SPIKE` | 31028 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RCR_CHAIN_VIPER` | 31057 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RCR_CRESCENT_KICK` | 23005 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RCR_DANCING_RUSH` | 31058 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RCR_DIVE_KICK_BOMBING` | 23007 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RCR_MULTI_HEAD_SHOT` | 31029 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RCR_PUNISHMENT` | 31094 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RCR_THE_KILL_POINT` | 31030 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RENA_AERO_TORNADO` | 23002 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RENA_ASSAULT_KICK` | 23003 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RENA_PERFECT_STORM` | 23001 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RENA_PHOENIX_STRIKE` | 23004 | new-member | APPLIED_SKILL_ID unsupported 8c; APPLIED_SKILL_ID unsupported unassigned |
+| `SKILL_ID` | `RNSI_SA_RENA_RAIL_STINGER` | 23000 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RFF_ARC_ENEMY` | 24008 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RFF_NUCLEAR` | 24007 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RFY_C4_REMOTE_CONTROL` | 31039 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RFY_C4_REMOTE_CONTROL_UPGRADE` | 31083 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RFY_EINHERJAR` | 31095 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RFY_G96_PRESSURE_GRENADE` | 31041 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RFY_M18A1_CLAYMORE` | 31059 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RFY_NEIL_THE_SNIPER` | 31038 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RFY_PHOTON_BOMB` | 31040 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RFY_VIPER_SHOWER` | 31060 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RF_CANNON_BLADE` | 24001 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RF_MAXIMUM_CANNON` | 24000 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RF_POWER_ASSAULT` | 24002 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RF_SEVEN_BURST` | 24003 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RGA_ACEINTHEHOLE` | 23059 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RGA_AERO_STRAFE` | 23017 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RGA_BLAST_ARROW` | 23039 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RGA_CUTLASS_WIND` | 23040 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RGA_FREEZING_ARROW` | 23018 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RGA_GUNGNIR` | 23015 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RGA_WIND_BLAST` | 23016 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RHB_FM31_GREAT_LAUNCHER` | 31013 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RHB_HARD_FLAMETHROWER` | 31011 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RHB_LASER_BAZOOKA` | 31014 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RHB_LOCKON_STRATOS` | 31012 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RHB_PROTON_BOMB` | 31015 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RMH_EX_S_VIPER` | 31046 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RMH_EZ_8_COUNT_DOWN` | 31045 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RMH_GALE_FORCE` | 31044 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RMH_MECA_DROP` | 31048 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RMH_SPARROW_FACTORY` | 31047 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RNW_CALL_OF_RUIN` | 23022 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RNW_ERADICATION` | 23060 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RNW_GLIDING_STRIKE` | 23023 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RNW_RAGE_FUNGUS` | 23042 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RNW_SEED_OF_RUIN_POLE` | 23041 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RNW_TRAPPING_ARROW_FUNGUS` | 23024 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ROM_ARMORED_TEMPEST` | 31096 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ROM_G_0_BATTLEROID` | 31049 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ROM_G_1_CORONA` | 31050 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ROM_G_2_ROLLING_THUNDER` | 31052 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ROM_G_4_FRISBEE` | 31051 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ROM_G_EX_ANCIENT_BUSTER` | 31062 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ROM_VIPER_CANNON` | 31061 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ROSE_BBQ` | 31001 | new-member | APPLIED_SKILL_ID unsupported 8c; USED_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_ROSE_M137_GATLING_GUN` | 31004 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ROSE_M3_FLAMETHROWER` | 31005 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ROSE_RX78_LAND_RUNNER` | 31002 | new-member | APPLIED_SKILL_ID unsupported 2; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ROSE_SPRIGGAN` | 31003 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG` | 24005 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ROT_GUARDIAN_STRIKE` | 24006 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_ROT_VALKYRIESJAVELIN` | 24004 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RRF_DEVASTATING_STRIKE` | 24057 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RRF_MAXIMUM_DIVE` | 24037 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RRF_POWER_BOMB` | 24038 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RRF_WILD_CHARGE` | 24009 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RRF_X_CRASH` | 24010 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RSR_AIMING_STRIKE` | 31056 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RSR_BUST_GRENADE` | 31093 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RSR_CRAZY_SHOT` | 23014 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RSR_FM92_MK2` | 31019 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RSR_GUIDED_ARROW` | 23012 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RSR_OPERATION_LASE` | 31018 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RSR_PAMPERO_BOOSTER` | 31020 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RSR_PHOTON_SHOWER` | 31055 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RSR_WINDWARD` | 23013 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RSR_X1_EXTRUDER` | 31021 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RST_BERSERKER_BLADE` | 24012 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RST_HYPER_SONIC_STAB` | 24013 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RST_SHOCKWAVE` | 24011 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RTR_FATALITY` | 23019 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RTR_HUMMING_WIND` | 23020 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RTR_KARMA` | 23021 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RVC_BURSTING_BLADE` | 24040 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RVC_DEADLY_RAID` | 24024 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RVC_FLAME_HELL` | 24039 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RVC_GIGA_PROMINENCE` | 24021 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RVC_IFRIT_FLAME` | 24058 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RVC_IGNITION_CROW_INCINERATION` | 24023 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RVC_IGNITION_CROW_NAPALM` | 24022 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RVK_CROSSMORE` | 31035 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RVK_EMP_STORM` | 31037 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RVK_FREEZING_BULLET` | 31033 | new-member | APPLIED_SKILL_ID unsupported 5; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RVK_G18C_FREEZE_GRENADE` | 31036 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RVK_LIGHTWEIGHT_MINE` | 31034 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RWS_AIRELINNA` | 23010 | new-member | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_RWS_GYRO_KICK` | 23038 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RWS_SHARPFALL` | 23009 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RWS_SLIDE_KICK` | 23011 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RWS_SPINNING_CRESCENT` | 23037 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RWS_TEMPEST` | 23058 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RWS_VIOLENT_ATTACK` | 23008 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RWT_HARPOON_SPEAR` | 24018 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RWT_HELLFIRE_GATLING` | 24020 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR` | 24019 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SBH_BLAZE_WING` | 28017 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SBH_BLAZING_DANCE` | 28016 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SBH_BURST_RISING` | 28041 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SBH_ETERNAL_FIRE` | 28015 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SBH_IGNIS_CRASHER` | 28042 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SBH_SOUL_IGNITION` | 28063 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SBH_WALL_OF_PROMINENCE` | 28018 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SCA_BLOOD_CUTTER` | 28023 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SCA_BLOOD_FALLS` | 28064 | new-member | APPLIED_SKILL_ID june-ignores -; APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SCA_BRANDISH_BREAKER` | 28022 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SCA_DREAD_WEAPON` | 28025 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SCA_SHADE` | 28044 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SCA_SHADE_THE_ILLUSION` | 28024 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SDK_BURNING_PHANTOM` | 28021 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SDK_EJECTION_BUSTER` | 28019 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SGM_CROSS_SLASH` | 28039 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SGM_DIVINE_BLADE` | 28040 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SGM_GIGA_BLAST` | 28062 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SGM_JUGGERNAUT_BUSTER` | 28010 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SGM_SONIC_BLADE` | 28011 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SGM_WAR_PRELUDE` | 28009 | new-member | APPLIED_SKILL_ID unsupported 8c; BUFF_FACTOR_RELATIVE_SKILL_ID implemented 8a |
+| `SKILL_ID` | `RNSI_SA_SPK_INFERNAL_BLADE` | 28014 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SPK_SCALDIC_SWORD` | 28013 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SPK_SWORDFIRE` | 28012 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SSK_EXTINCTION` | 28005 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `RNSI_SA_SSK_JUDGEMENT_DRIVE` | 28007 | new-member | APPLIED_SKILL_ID unsupported 8c |
+| `SKILL_ID` | `TSI_P_COMMON_CHAIN_LIGHTNING` | 20400 | new-member | APPLIED_SKILL_ID unsupported 8c |
 | `UNIT_TYPE` | `UT_AIN` | 12 | new-member | - |
 | `UNIT_TYPE` | `UT_ROSE` | 11 | new-member | - |
 
@@ -3047,7 +3062,7 @@ in both March's Lua table and its C++ enum, and absent from `KncWX2Server/Common
 No phase of the plan owns these scopes. Their rows are `unassigned` rather than folded into
 a neighbouring phase:
 
-- nested `DAMAGE_DATA/BUFF_FACTOR/...` (the buff parser): 4 open (implemented 138, to-implement 4).
+- nested `DAMAGE_DATA/BUFF_FACTOR/...` (the buff parser): 1 open (handed-off 1, implemented 140, unsupported 1).
 - `ES.Description` (EffectSet_Description (effect-tool only)): 3 open (to-implement 3); March reads it only under `#ifdef EFFECT_TOOL` (X2EffectSet.cpp:3380), compiled out of the client.
 - `InsertDamageData` (InsertDamageData_LUA (Elsword_DamageData.lua)): 9 open (to-implement 9); March has no reader for `Elsword_DamageData.lua` at all; June's reader 32621080 is a candidate.
 - `DamageSound` (DamageSound): 0 open (implemented 10); March reads it (`ParseDamageSoundBlock`); June's reader 32610ff0 is a candidate.
@@ -3156,7 +3171,7 @@ formats are tokenizers, not Lua, and their keywords are **plaintext** in the Jun
 | `MP.templet` | `ZWRITEENABLE` | implemented | `31c8b934` | `KTDGXMeshPlayer.cpp:1020` | 1886 | 844 |  |
 | `MP.templet` | `USEMESHBILLBOARD` | march-only | - | `KTDGXMeshPlayer.cpp:1032` | 0 | 0 |  |
 | `PS.event` | `BLACKHOLETIME` | implemented | `31cf20bb` | `KTDGParticleSystem.cpp:1707` | 61 | 38 |  |
-| `PS.event` | `COLOR` | implemented | `31cf1fc1` | `KTDGParticleSystem.cpp:1702` | 85859 | 29352 |  |
+| `PS.event` | `COLOR` | implemented | `31cf1fc1` | `KTDGParticleSystem.cpp:1702` | 85859 | 29354 |  |
 | `PS.event` | `CRASH` | implemented | `31cf211b` | `KTDGParticleSystem.cpp:1709` | 574 | 194 |  |
 | `PS.event` | `DIRSPEED` | implemented | `31cf208b` | `KTDGParticleSystem.cpp:1706` | 1608 | 416 |  |
 | `PS.event` | `EVENTTIMER` | implemented | `31cf1f72` | `KTDGParticleSystem.cpp:1701` | 291 | 90 |  |
@@ -3164,24 +3179,24 @@ formats are tokenizers, not Lua, and their keywords are **plaintext** in the Jun
 | `PS.event` | `RESETCRASH` | implemented | `31cf20eb` | `KTDGParticleSystem.cpp:1708` | 161 | 111 |  |
 | `PS.event` | `ROTATE` | implemented | `31cf205b` | `KTDGParticleSystem.cpp:1705` | 26497 | 9428 |  |
 | `PS.event` | `SCALE` | implemented | `31cf1f23` | `KTDGParticleSystem.cpp:1700` | 8509 | 2591 |  |
-| `PS.event` | `SIZE` | implemented | `31cf1ea8` | `KTDGParticleSystem.cpp:1699` | 61648 | 22866 |  |
+| `PS.event` | `SIZE` | implemented | `31cf1ea8` | `KTDGParticleSystem.cpp:1699` | 61648 | 22870 |  |
 | `PS.event` | `STRETCH` | implemented | `31cf21fa` | `KTDGParticleSystem.cpp:1715` | 973 | 155 |  |
 | `PS.event` | `TEX0UV` | implemented | `31cf217b` | `KTDGParticleSystem.cpp:1711` | 1536 | 93 |  |
 | `PS.event` | `TEX1UV` | implemented | `31cf21a8` | `KTDGParticleSystem.cpp:1712` | 0 | 0 | binary-only (no June data uses it) |
 | `PS.event` | `TEX2UV` | implemented | `31cf21d1` | `KTDGParticleSystem.cpp:1713` | 4 | 4 |  |
 | `PS.event` | `TEXTURE` | implemented | `31cf214b` | `KTDGParticleSystem.cpp:1710` | 21348 | 8319 |  |
-| `PS.event` | `VELOCITY` | implemented | `31cf1ff9` | `KTDGParticleSystem.cpp:1703` | 16875 | 6809 |  |
+| `PS.event` | `VELOCITY` | implemented | `31cf1ff9` | `KTDGParticleSystem.cpp:1703` | 16875 | 6815 |  |
 | `PS.sequence` | `POSTEFFECT` | unsupported | `31cfafef` | `KTDGParticleSystem.cpp:1554` | 0 | 0 | binary-only (no June data uses it); absent: June's post-effect render pass (DG manager 31cd7810 mode 1, fed by vtable slot 11: mesh 31c83500, particle 31cef710); March's KTDGManager has none, CKTDGPostEffect is ADD_POSTEFFECT-only; stored; `JUNE_FX unsupported POSTEFFECT` in ErrorLog.txt when TRUE |
 | `PS.sequence` | `ADDROTATEREL` | implemented | `31cfaba5` | `KTDGParticleSystem.cpp:1418` | 166 | 114 |  |
 | `PS.sequence` | `ALPHATEST` | implemented | `31cfb0bf` | `KTDGParticleSystem.cpp:1549` | 23 | 0 |  |
 | `PS.sequence` | `ANINAME` | implemented | `31cfb25b` | `KTDGParticleSystem.cpp:1588` | 0 | 0 | binary-only (no June data uses it) |
 | `PS.sequence` | `ANIXET` | implemented | `31cfb22e` | `KTDGParticleSystem.cpp:1587` | 26 | 0 |  |
 | `PS.sequence` | `APPLYUNITSCALE` | implemented | `31cfb0a5` | `KTDGParticleSystem.cpp:1546` | 527 | 178 |  |
-| `PS.sequence` | `BILLBOARDTYPE` | implemented | `31cfaf3a` | `KTDGParticleSystem.cpp:1521` | 29884 | 10472 |  |
+| `PS.sequence` | `BILLBOARDTYPE` | implemented | `31cfaf3a` | `KTDGParticleSystem.cpp:1521` | 29884 | 10473 |  |
 | `PS.sequence` | `BLACKHOLEPOS` | implemented | `31cfab11` | `KTDGParticleSystem.cpp:1416` | 10 | 22 |  |
 | `PS.sequence` | `CHANGETEXXET` | implemented | `31cfb1d4` | `KTDGParticleSystem.cpp:1585` | 1332 | 484 |  |
 | `PS.sequence` | `CULLMODE` | implemented | `31cfad6f` | `KTDGParticleSystem.cpp:1466` | 269 | 35 |  |
-| `PS.sequence` | `DESTBLENDMODE` | implemented | `31cfacda` | `KTDGParticleSystem.cpp:1447` | 30083 | 10878 |  |
+| `PS.sequence` | `DESTBLENDMODE` | implemented | `31cfacda` | `KTDGParticleSystem.cpp:1447` | 30083 | 10879 |  |
 | `PS.sequence` | `DRAWCOUNT` | implemented | `31cfa8f9` | `KTDGParticleSystem.cpp:1378` | 10138 | 3162 |  |
 | `PS.sequence` | `EMITRADIUS` | implemented | `31cfaabd` | `KTDGParticleSystem.cpp:1413` | 12427 | 4945 |  |
 | `PS.sequence` | `EMITRADIUSMIN` | implemented | `31cfaad9` | `KTDGParticleSystem.cpp:1414` | 4 | 4 |  |
@@ -3190,19 +3205,19 @@ formats are tokenizers, not Lua, and their keywords are **plaintext** in the Jun
 | `PS.sequence` | `FORCELAYER` | implemented | `31cfb08b` | `KTDGParticleSystem.cpp:1544` | 14 | 132 |  |
 | `PS.sequence` | `GRAVITY` | implemented | `31cfaaf5` | `KTDGParticleSystem.cpp:1415` | 5235 | 2993 |  |
 | `PS.sequence` | `LANDPOS` | implemented | `31cfa91d` | `KTDGParticleSystem.cpp:1379` | 413 | 112 |  |
-| `PS.sequence` | `LAYER` | implemented | `31cfa942` | `KTDGParticleSystem.cpp:1380` | 30083 | 10879 |  |
-| `PS.sequence` | `LIFETIME` | implemented | `31cfa85c` | `KTDGParticleSystem.cpp:1374` | 30058 | 10877 |  |
+| `PS.sequence` | `LAYER` | implemented | `31cfa942` | `KTDGParticleSystem.cpp:1380` | 30083 | 10880 |  |
+| `PS.sequence` | `LIFETIME` | implemented | `31cfa85c` | `KTDGParticleSystem.cpp:1374` | 30058 | 10878 |  |
 | `PS.sequence` | `LIGHTPOS` | implemented | `31cfab5d` | `KTDGParticleSystem.cpp:1417` | 248 | 208 |  |
 | `PS.sequence` | `MESH` | implemented | `31cfb17a` | `KTDGParticleSystem.cpp:1583` | 10674 | 2839 |  |
 | `PS.sequence` | `MESHRENDERTYPE` | implemented | `31cfaea2` | `KTDGParticleSystem.cpp:1503` | 953 | 1140 |  |
 | `PS.sequence` | `MULTITEXXET` | implemented | `31cfb201` | `KTDGParticleSystem.cpp:1586` | 1 | 0 |  |
-| `PS.sequence` | `NUMPARTICLES` | implemented | `31cfa87f` | `KTDGParticleSystem.cpp:1375` | 30061 | 10878 |  |
-| `PS.sequence` | `PARTICLETYPE` | implemented | `31cfae04` | `KTDGParticleSystem.cpp:1485` | 30083 | 10878 |  |
+| `PS.sequence` | `NUMPARTICLES` | implemented | `31cfa87f` | `KTDGParticleSystem.cpp:1375` | 30061 | 10879 |  |
+| `PS.sequence` | `PARTICLETYPE` | implemented | `31cfae04` | `KTDGParticleSystem.cpp:1485` | 30083 | 10879 |  |
 | `PS.sequence` | `RESOLUTIONCONVERT` | implemented | `31cfb057` | `KTDGParticleSystem.cpp:1543` | 1612 | 494 |  |
 | `PS.sequence` | `SCREWROTATESPEED` | implemented | `31cfa980` | `KTDGParticleSystem.cpp:1382` | 1 | 1 |  |
 | `PS.sequence` | `SCREWVALUE` | implemented | `31cfa961` | `KTDGParticleSystem.cpp:1381` | 1 | 1 |  |
 | `PS.sequence` | `SKINMESH` | implemented | `31cfb1a7` | `KTDGParticleSystem.cpp:1584` | 0 | 0 | binary-only (no June data uses it) |
-| `PS.sequence` | `SOURCEBLENDMODE` | implemented | `31cfacc0` | `KTDGParticleSystem.cpp:1446` | 30083 | 10878 |  |
+| `PS.sequence` | `SOURCEBLENDMODE` | implemented | `31cfacc0` | `KTDGParticleSystem.cpp:1446` | 30083 | 10879 |  |
 | `PS.sequence` | `SPHERICAL_EMITAZIMUTH` | implemented | `31cfa9c2` | `KTDGParticleSystem.cpp:1385` | 47 | 37 |  |
 | `PS.sequence` | `SPHERICAL_EMITPOLAR` | implemented | `31cfa9fb` | `KTDGParticleSystem.cpp:1386` | 47 | 37 |  |
 | `PS.sequence` | `SPHERICAL_EMITRADIUS` | implemented | `31cfa99f` | `KTDGParticleSystem.cpp:1384` | 47 | 37 |  |
@@ -3214,5 +3229,5 @@ formats are tokenizers, not Lua, and their keywords are **plaintext** in the Jun
 | `PS.sequence` | `TRIGGERTIME` | implemented | `31cfa8cc` | `KTDGParticleSystem.cpp:1377` | 11443 | 7241 |  |
 | `PS.sequence` | `USELAND` | implemented | `31cfafd5` | `KTDGParticleSystem.cpp:1539` | 2124 | 1420 |  |
 | `PS.sequence` | `WIREFRAME` | implemented | `31cfb071` | `KTDGParticleSystem.cpp:1563` | 44 | 0 | sequence Draw sets D3DFILL_WIREFRAME around every particle type and restores the previous fill mode (31cf7500 @31cf757c, @31cf77dc); default false (31cf78a0 @31cf7c7c), copied by the clone (31cf8af0 @31cf8fef) |
-| `PS.sequence` | `ZENABLE` | implemented | `31cfb023` | `KTDGParticleSystem.cpp:1541` | 8466 | 3584 |  |
+| `PS.sequence` | `ZENABLE` | implemented | `31cfb023` | `KTDGParticleSystem.cpp:1541` | 8466 | 3585 |  |
 | `PS.sequence` | `ZWRITEENABLE` | implemented | `31cfb03d` | `KTDGParticleSystem.cpp:1542` | 16491 | 2919 |  |

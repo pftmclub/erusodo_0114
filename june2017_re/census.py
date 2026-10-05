@@ -21,7 +21,9 @@ Later phases run this as their exit test, so every input is re-read from the tre
                "BBT_STUN". Raw-source quoted-literal and bare-identifier hits are kept
                as leads only.
 
-One census row is (family, scope root, sub-path, key). A row's status is exactly one of:
+One census row is (family, scope root, sub-path, key). A row's status is exactly one of the seven below (the
+first five are decided here from the data; `handed-off` and `declined` are set afterwards by
+census_completion.apply(), from the decision table of JUNE2017_EFFECT_COMPLETION_PHASES.md C0):
 
   implemented            June reads it and March reads it at the same sub-table path
   to-implement           June reads it and March does not; `phase` names the owner
@@ -34,6 +36,9 @@ One census row is (family, scope root, sub-path, key). A row's status is exactly
                          key under a sub-table June never opens. Nothing to implement.
                          This fifth status is not in the plan's list of four; see the
                          matrix preamble.
+  handed-off             as to-implement/unsupported, but another port owns it; `receiver`
+                         names the document + phase (C0, 2026-10-05)
+  declined               the user declined the system; `receiver` names the decision and date
 
 `semantics` (implemented rows): `same`, `differ(type|default)` or `unchecked(...)`, from
 June's getter call at the decrypt site against March's expanded GetValue statement.
@@ -55,6 +60,7 @@ JUNE_FLAG_PREFIX = 'SERV_IRUHADEV_JUNE_'
 sys.path.insert(0, HERE)
 import reconcile as R    # noqa: E402
 import xordecrypt as X   # noqa: E402
+import census_completion as C0   # noqa: E402  (C0 of JUNE2017_EFFECT_COMPLETION_PHASES.md)
 
 MATRIX = os.path.join(TRUNK, 'JUNE2017_EFFECT_KEY_MATRIX.md')
 TSV = os.path.join(HERE, 'census.tsv')
@@ -1905,6 +1911,7 @@ def build(reuse_pp):
             hand = HAND_SEMANTICS.get((r['root'], r['rel'], r['key']))
             if hand:
                 r['sem'] = hand
+    C0.apply(list(rows.values()))     # handed-off / declined statuses, owners (after semantics, which read the old status)
 
     # ---- enums
     june_enum = parse_enum_lua(JUNE_ENUM)
@@ -3022,6 +3029,10 @@ def write(rows, code_keys, sysev, sysv, flag_state, enum_rows, june_enum, march_
     w('    positional entry, or under a sub-table June never opens). Nothing to implement.')
     w('    **This fifth status is not in the plan\'s list of four**: without it, June\'s own dead')
     w('    data would have to be mislabelled `to-implement`.')
+    w('  - `handed-off`: as `to-implement` / `unsupported`, but another port owns it (the buff port, the Rena or Rose')
+    w('    character port). The `receiver` column of `census.tsv` names the document and phase. Set by')
+    w('    `census_completion.py` (decision table of `JUNE2017_EFFECT_COMPLETION_PHASES.md` C0), not derived from the data.')
+    w('  - `declined`: the user declined the system; `receiver` names the decision and its date. Same source.')
     w('- **Phases** follow the plan: EffectSet templet 2; `EFFECT%d` and its sub-blocks 3; CEffect top')
     w('  level 5; create/die/hit damage effects and die conditions 6a; the other sub-loaders 6b;')
     w('  DamageData 8a (keys March reads: semantics), 8b (new, system present), 8c (absent system).')
@@ -3042,7 +3053,7 @@ def write(rows, code_keys, sysev, sysv, flag_state, enum_rows, june_enum, march_
     w('')
     w('| status | rows |')
     w('|---|---|')
-    for s in ('implemented', 'to-implement', 'unsupported', 'binary-only', 'june-ignores'):
+    for s in ('implemented', 'to-implement', 'unsupported', 'binary-only', 'handed-off', 'declined', 'june-ignores'):
         w('| %s | %d |' % (s, st[s]))
     w('')
     ph = collections.Counter((r['phase'], r['status']) for r in rows.values() if r['status'] in ('to-implement', 'unsupported', 'binary-only'))
@@ -3199,6 +3210,10 @@ def write(rows, code_keys, sysev, sysv, flag_state, enum_rows, june_enum, march_
     ur = [r for r in rows.values() if r['status'] == 'unsupported']
     w('Unsupported rows (%d): %s.' % (len(ur), ', '.join('`%s` (%s, %s)' % (r['key'], scope_s(r), r['system']) for r in sorted(ur, key=lambda r: r['key'])) or 'none'))
     w('')
+    hr = [r for r in rows.values() if r['status'] in ('handed-off', 'declined')]
+    w('Handed-off / declined rows (%d; `census_completion.py`, decisions D1-D6 of `JUNE2017_EFFECT_COMPLETION_PHASES.md` C0): %s.' % (
+        len(hr), '; '.join('`%s` (%s) -> %s' % (r['key'], scope_s(r), r['receiver']) for r in sorted(hr, key=lambda r: r['key'])) or 'none'))
+    w('')
     # ---- enums
     w('## Enum census')
     w('')
@@ -3301,7 +3316,7 @@ def write(rows, code_keys, sysev, sysv, flag_state, enum_rows, june_enum, march_
     open(MATRIX, 'w', encoding='utf-8', newline='\n').write('\n'.join(L))
 
 
-STATUS_ORDER = ['to-implement', 'unsupported', 'binary-only', 'implemented', 'june-ignores']
+STATUS_ORDER = ['to-implement', 'unsupported', 'binary-only', 'handed-off', 'declined', 'implemented', 'june-ignores']
 _J = None
 
 
@@ -3388,14 +3403,15 @@ def msite_s(r):
 
 def write_tsv(rows):
     cols = ['family', 'root', 'subpath', 'key', 'status', 'phase', 'system', 'june_cat', 'june_sites', 'march_sites',
-            'semantics', 'uses', 'files', 'names']
+            'semantics', 'uses', 'files', 'names', 'owner', 'receiver']
     out = ['\t'.join(cols)]
     for r in rows.values():
         out.append('\t'.join(str(x) for x in [
             r['fam'], r['root'], path_s(r['rel']), r['key'], r['status'], r['phase'], r['system'] or '', r['cat'],
             ' '.join('%08x@%s' % (f, ('%08x' % va) if va else '-') for f, va in r['sites'][:4]),
             ' '.join('%s:%d' % (tu, ln) for tu, ln, _, _ in r['march'][:4]), (r['sem'] or '').replace('\t', ' '),
-            r['uses'], ' '.join('%s:%d' % kv for kv in sorted(r['files'].items())), ' '.join(sorted(r['raw']))]))
+            r['uses'], ' '.join('%s:%d' % kv for kv in sorted(r['files'].items())), ' '.join(sorted(r['raw'])),
+            r.get('owner', ''), r.get('receiver', '')]))
     open(TSV, 'w', encoding='utf-8', newline='\n').write('\n'.join(out) + '\n')
 
 
@@ -3767,6 +3783,8 @@ def main():
     ap.add_argument('--summary', action='store_true')
     ap.add_argument('--meshplayer', action='store_true', help='run only the .txt templet census (mesh player + particles) and print it')
     ap.add_argument('--reuse-pp', action='store_true')
+    ap.add_argument('--final', action='store_true',
+                    help='C11/C12 gate: definition items 2-4 strict (no to-implement, no binary-only row still owed, every absent system built or handed off)')
     a = ap.parse_args()
     if a.meshplayer:
         mrows = mp_census(a.reuse_pp)
@@ -3828,15 +3846,18 @@ def main():
                    'parsed, stored and logged under plan rule 5 (Phase 8c exit)%s' % ('' if not open8c else ': ' + ', '.join(sorted(open8c)))))
     ph = collections.Counter((r['phase'], r['status']) for r in rows.values())
     print('status: '+ ', '.join('%s %d' % (s, st[s]) for s in STATUS_ORDER))
-    print('phase   to-implement unsupported binary-only implemented june-ignores')
+    print('phase   to-implement unsupported binary-only handed-off declined implemented june-ignores')
     for p in sorted(set(p for p, _ in ph), key=phase_key):
-        print('%-8s %12d %11d %11d %11d %12d' % (p, ph[(p, 'to-implement')], ph[(p, 'unsupported')], ph[(p, 'binary-only')],
-                                                  ph[(p, 'implemented')], ph[(p, 'june-ignores')]))
+        print('%-8s %12d %11d %11d %10d %8d %11d %12d' % (p, ph[(p, 'to-implement')], ph[(p, 'unsupported')], ph[(p, 'binary-only')],
+                                                          ph[(p, 'handed-off')], ph[(p, 'declined')], ph[(p, 'implemented')], ph[(p, 'june-ignores')]))
     semd = sum(1 for r in rows.values() if (r['sem'] or '').startswith('differ'))
     print('semantics-differ: %d' % semd)
     print(mp_summary(mrows))
     mchecks = mp_checks(mrows)
     checks += mchecks
+    checks += C0.checks(list(rows.values()), lambda n: M.tu[n].text if n in M.tu else None, final=a.final)
+    for line in C0.summary_lines(list(rows.values())):
+        print(line)
     for ok, text in checks:
         print(('PASS ' if ok else 'FAIL ') + text[:300])
     if not a.summary:

@@ -26,6 +26,12 @@ skill's Tools and Finish lists). Never launch X2_offline.exe; ask the user. Ghid
 
 ## Task
 
+**Census contract (C0, 2026-10-05):** `census.py` counts the numerical-data source as landed when
+`SERV_IRUHADEV_JUNE_NUMERICAL_DATA` is defined in `KTDXLIB/Always.h` and tested by an `#if` in `X2Lib`/`KTDXLIB` code, so use
+exactly that name. Its item-1 line then reads 0 blocks (it counts 1,913 today).
+`--final`'s item 4 passes all four `APPLIED_SKILL_ID` rows (`DE.DAMAGE_DATA`, `DE.top`, `ES.templet`, nested `BUFF_FACTOR`) once that
+flag exists, so confirm each of the four has a consumer, or record which ones June itself never consumes.
+
 **This session does step 2 only**, from C1a's verdicts. If a verdict it needs is missing or `candidate`, stop and say so (escalate to Opus) rather than identify it. The loader follows CLAUDE.md's Lua rule (shipped load path, degrade-if-missing, name the file to pack). After it lands, re-adopt June's effect data per D1 (`stage_june_fx.py --apply`) and name what the user must repack.
 
 Verbatim kickoff prompt from the plan:
@@ -41,6 +47,6 @@ and how skill level selects a row; write verdicts to funcmap.tsv; diff March vs 
 NewSkillTempletVer2.lua and stop for me if adopting June's changes more than numerical data.
 Step 2 (after /model to Sonnet): transcribe the loader and the override under
 SERV_IRUHADEV_JUNE_NUMERICAL_DATA, store APPLIED_SKILL_ID/DAMAGE_SKILL_ID where it needs them.
-CP949 byte-level edits; build US_SERVICE, deploy, ASK before launching. Done when census.py's
-damage-regression check passes and three of the 492 named skills show damage in play.
+CP949 byte-level edits; build US_SERVICE, deploy, ASK before launching. Done when census.py's numerical-skill-data item-1 line
+passes and three of the 492 named skills show damage in play.
 ```

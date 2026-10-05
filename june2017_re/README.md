@@ -150,6 +150,14 @@ python census.py --reuse-pp   # development only: reuse pp/*.i (gitignored) inst
 
 It writes `../JUNE2017_EFFECT_KEY_MATRIX.md` and `census.tsv`, and exits 1 when a check fails.
 
+**C0 additions (2026-10-05, `census_completion.py`, for `JUNE2017_EFFECT_COMPLETION_PHASES.md`).** Two more row
+statuses, `handed-off` and `declined` (each row's `receiver` names the document + phase or the decision and date);
+an `owner` column (the C-phase that closes each open row); and the definition-of-complete checks: item 1, one line per
+damage source (blocks that get damage from June's numerical skill table / HP-rate only, read from
+`assets_cache/june_fx.json`), item 3 (binary-only rows need a March parse site), and the decision table
+(`SYSTEM_DISPOSITION`). `python census.py --final` is the C11/C12 gate: items 2-4 strict. A system counts as landed when
+its flag is defined in `KTDXLIB/Always.h` and tested by an `#if` in `X2Lib`/`KTDXLIB` code.
+
 **If it fails with `C1083: Cannot open compiler generated file: '...pp\X.i': Permission denied`**,
 another process has that cached `.i` open. Since Phase 7b (2026-09-27) this has been
 `pp/X2BuffBehaviorTemplet.i`, most likely a long-running MCP server's indexer. The file can be

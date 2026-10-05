@@ -99,18 +99,18 @@ Not in this definition, handed to their owners (C0 records each hand-off):
 
 ## C0 - Decisions and census plumbing (user + Sonnet, no game code)
 
-**Status: not started.**
+**Status: done 2026-10-05 (decisions D1-D6 answered; census plumbing in `june2017_re/census_completion.py`, hooked into `census.py`).**
 
 **Decisions for the user.** Each row needs one answer before the phase that depends on it.
 
 | # | question | recommendation | blocks |
 |---|---|---|---|
 | D1 | **Answered 2026-10-04: rolled back.** The 48 live koms were restored from `kom_backup_pre_june_fx/` (hash-checked) and the 12 new koms removed; `data036.kom` again carries the merged `EffectSet.lua`/`DamageEffect.lua`. The June `dataXXX_packed.kom` files are kept. **The `kom_contents` staging was reverted the same day** (`stage_june_fx.py --revert`), so a buff-port pack of `data036` cannot bring June's effects back. Re-adopt after C1 with `--apply`, then repack. **Order (user, 2026-10-04): finish the buff port first, then this plan.** Original question: **Live data, now.** June's effect files are live and 1,915 damage blocks deal 0 damage (see C1). Roll the live koms back to the pre-adoption backup until C1 lands, or keep June's data live? | roll back: `kom_backup_pre_june_fx/` restore, 12 new koms removed. Re-adopt after C1, by re-packing from `kom_contents` (staging untouched) | everything you play-test meanwhile |
-| D2 | Effect-alpha option (`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`, 4 rows): build June's per-owner effect-transparency game option (UI + save), or decline? | build: small, and June data uses it 29 times | C10 |
-| D3 | Natural force: March has Rena's natural-force code under `ADD_RENA_SYSTEM` (off). Turn it on (character territory: a Rena system), or hand it to the Rena character port? | hand off to the Rena port; turning on a whole character system is not an effect-engine change | C10 |
-| D4 | HP-rate damage (`HP_RATE_DAMAGE_TYPE/VALUE`, 8 uses): build here? | build: self-contained in the damage path | C10 |
-| D5 | Combination point (`HIT_ADD_COMBINATION_POINT`, 15 uses): identify its owner first, then decide | identify in C2 | C10 |
-| D6 | `SERV_IRUHADEV_JUNE_FX_DEBUG`: keep it through C11, then remove? | keep until C11 passes | C12 |
+| D2 | **Answered 2026-10-05: build.** C10 builds the per-owner effect-alpha option (UI, save, the four parse sites), flag named by C10b. Original question: Effect-alpha option (`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION`, 4 rows): build June's per-owner effect-transparency game option (UI + save), or decline? | build: small, and June data uses it 29 times | C10 |
+| D3 | **Answered 2026-10-05: hand off to the Rena port.** The census row is `handed-off`, receiver `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 3. C10 does not turn on `ADD_RENA_SYSTEM`. Original question: Natural force: March has Rena's natural-force code under `ADD_RENA_SYSTEM` (off). Turn it on (character territory: a Rena system), or hand it to the Rena character port? | hand off to the Rena port; turning on a whole character system is not an effect-engine change | C10 |
+| D4 | **Answered 2026-10-05: build in C10.** Original question: HP-rate damage (`HP_RATE_DAMAGE_TYPE/VALUE`, 8 uses): build here? | build: self-contained in the damage path | C10 |
+| D5 | **Answered 2026-10-05: identify in C2, decide then.** The census row stays `unsupported` with disposition `pending`; C10a asks again once C2 names the owner. Original question: Combination point (`HIT_ADD_COMBINATION_POINT`, 15 uses): identify its owner first, then decide | identify in C2 | C10 |
+| D6 | **Answered 2026-10-05: keep until C11 passes;** C12 asks again whether to remove it. Original question: `SERV_IRUHADEV_JUNE_FX_DEBUG`: keep it through C11, then remove? | keep until C11 passes | C12 |
 
 **Census plumbing (Sonnet):**
 - add the status `handed-off`, with `receiver` = document + phase, for the hand-off rows above;
@@ -118,8 +118,47 @@ Not in this definition, handed to their owners (C0 records each hand-off):
   definition);
 - add the check "every binary-only row has a March parse site" (item 3).
 
-**Exit:** the decisions are recorded in this table, and `census.py` runs all-PASS except the new
-item-1 check, which fails until C1.
+**Recorded in the census (`census_completion.py`).** The decision table above is also data: `SYSTEM_DISPOSITION`
+maps each absent system to build / handed-off / declined / pending, and `census.py` fails if an `unsupported` row has no
+entry. The two new statuses are `handed-off` (receiver = document + phase) and `declined` (receiver = the decision and
+its date). Dispositions as of 2026-10-05:
+- **build:** numerical skill data and applied skill ID (C1); effect-alpha option (D2) and HP-rate damage (D4) (C10).
+- **handed-off:** natural force (D3) to the Rena port and `ROSE_WEAPON_ATTACK_TYPE` to the Rose port, both
+  `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 3; nested `BUFF_FACTOR/*` to `JUNE_BUFF_PORT_PHASES.md`.
+- **pending:** combination point (D5), until C2 identifies its owner.
+- **declined:** nothing yet.
+
+**What the three checks do, and what they found** (census 2026-10-05):
+- *Item 1* is one check line per damage source, so C1 can close its line without waiting for C10's. A block counts when
+  it has no non-zero `DAMAGE` table of its own, uses the source, and the source's flag is not yet defined in
+  `Always.h` **and** tested by an `#if` in `X2Lib`/`KTDXLIB`. Numerical skill data: **1,913** blocks (not the 1,915 measured
+  on 2026-10-04: 2 of those 1,915 set numerical data without a skill ID, where June's override does not run either, so
+  they deal 0 in June as well). **HP-rate damage: 7 more blocks that deal damage only through `HP_RATE_DAMAGE_*`**,
+  which the 2026-10-04 measurement did not look for. Their line closes in C10, not C1.
+- *Item 3* passes a binary-only row that has a March parse site (found by the census, or hand-cited in
+  `HAND_PARSE_SITES` and verified against the preprocessed TU: `DAMAGE_DATA_NEXT_ULTIMATE%d`, `AT_RAID_FIELD`,
+  `HIT_EFFECT_SET%d`), or is *owed* to C3/C4/C5/C10, which the plan makes responsible for giving it one. Owed rows are
+  listed in the check line. `python june2017_re/census.py --final` (C11/C12) turns every owed row into a failure, and
+  also makes items 2 and 4 strict.
+- Every open row now has an owning C-phase in `owner_of()` (a new open row without one fails the census).
+
+**Exit:** the decisions are recorded in this table, and `census.py` runs all-PASS except the two item-1 lines
+(numerical skill data, closed by C1; HP-rate damage, closed by C10).
+
+**Done note (2026-10-05).** No game code: `flagcheck`, `build.py --deploy` and the play-test do not apply to C0.
+- Census run (`--reuse-pp`, X2Lib/KTDXLIB untouched since the full run at 10:38): to-implement 39, unsupported 12,
+  binary-only 17, **handed-off 3** (`NATURAL_FORCE_TYPE`, `ROSE_WEAPON_ATTACK_TYPE`, nested `BFT_AURA`), declined 0. The
+  plan's 2026-10-04 counts (46 / 14) had drifted: buff-port phases 7-7e since made three nested `BBT_*` rows `implemented`.
+- `census.py` exits 1 with exactly the two item-1 lines failing (numerical 1,913 blocks, owner C1; HP-rate 7 blocks,
+  owner C10); every other line PASS. `--final` additionally fails items 2, 3 and 4 until C3-C10 land, as intended.
+- Two deviations from the plan text, for the user to confirm: (1) the item-1 check has a second line, HP-rate damage,
+  so the census exits 1 until C10, not only until C1; (2) item 3 passes an *owed* binary-only row (14 of 17) in the
+  default run, because the census defines a binary-only row as one with no March parse site found, so a strict check
+  would fail all of them today. `--final` is strict.
+- Files: `june2017_re/census_completion.py` (new), `census.py` (hook, `--final`, two statuses, tsv columns
+  `owner`/`receiver`, matrix preamble), regenerated `census.tsv` and `JUNE2017_EFFECT_KEY_MATRIX.md` (line numbers had
+  drifted since Oct 1), `june2017_re/README.md`, kickoffs C1a/C1b/C10b (census contract notes), `STATUS.md`.
+- Next: `/x2-phase june-effect C1a` (Opus 5.5, high). It stays queued until the buff port is finished (D1).
 
 **Kickoff prompt:**
 ```
@@ -171,7 +210,8 @@ the keys only (Phase 8c). Measured 2026-10-04 on June's live effect files:
 Every value this changes lands in `MODS.md`. The user packs any `.lua` this needs.
 
 **Exit.**
-- The C0 item-1 check passes: 0 blocks that get damage in June and none in March.
+- The C0 item-1 line for numerical skill data passes: 0 blocks that get damage in June and none in March. (The
+  HP-rate line is C10's.)
 - A play-test with damage numbers on 3 of the 492, e.g. Rena `ANGER_OF_ELF_SPARK`, Chung
   `CHUNG_ACELDAMA_SHELL`, Aisha `AISHA_ELEMENTAL_MASTER_CYCLONE_OUTSIDE`, compared against the March
   value. June's balance may differ, and that is expected: record both.
@@ -433,7 +473,10 @@ high.
 
 Each gets its own flag. Rows the user declined become `declined` in the census, with the date.
 
-**Exit:** the census has no `unsupported` row left except the handed-off and declined ones.
+**Exit:** `python june2017_re/census.py --final` has no failing line for the decided systems: every `unsupported` row is
+built (its flag named in `census_completion.py`'s `SYSTEM_DISPOSITION` and defined in `Always.h`, tested by an `#if`),
+handed-off or declined, and the HP-rate item-1 line passes. (Built systems stay `unsupported` in the census: code under a
+`SERV_IRUHADEV_JUNE_*` flag is deliberately not evidence of a system.)
 
 **Kickoff prompt:**
 ```
