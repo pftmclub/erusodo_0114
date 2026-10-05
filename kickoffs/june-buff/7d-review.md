@@ -32,7 +32,11 @@ Review the Phase 7d commit against June. Check these first, because 7d corrected
 3. **Slot 510 is not `NoStateChangeActionFrameMove`.** 7d found it returns bool, calls
    `31fcadd0` (CommonSpecialAttackEventProcess) and is called first by slot 509
    (`32cf3290`, SpecialAttackEventProcess), so the prefix went to the top of each March class's
-   `SpecialAttackEventProcess`. Confirm in two classes besides Elsword.
+   `SpecialAttackEventProcess`. Confirm in two classes besides Elsword. June gates only the 510
+   lookup; 509 itself does nothing of March's before calling 510 (7d checked Elsword `32cf3290` and
+   Ara `32b90c20`). Confirm that the early return skips nothing June keeps outside 510, e.g. Ara's
+   `FIX_SKILL_CANCEL_ARA` reserved-skill block and `CanUseSpecialAttack` at the top of March's Ara/EL/Add
+   functions, and any non-skill input handled inside a class's `SpecialAttackEventProcess`.
 4. **Each ported case** of `CX2Game::CheckQuickSlotItemSpecialAbility` against the switch:
    16 (riding, Future skill ID via `+0x7cb0`), 18 (Value1 13/14 + item 100005189, Value2 4,
    bLandConnect `+0x7fb4` / `+0x3c5`, the pre-start branch, riding, the six states including

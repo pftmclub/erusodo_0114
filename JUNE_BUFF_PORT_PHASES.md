@@ -3085,6 +3085,17 @@ The 2 are plain `#else` lines in `X2UIQuickSlot.cpp`; each holds March's text ve
 
 **Correction to the kickoff's gate.** A throw item used mid-attack is refused **silently** in both March and June. STR 20120 appears only for Value1 13/14 outside a dungeon (no such item in this build's `item.kim`) and for a summon card outside a dungeon.
 
+**`JUNE_BUGS.md` #14 (reached, kept verbatim).** Only the throw state's end resets the wait. An install item (77220) or a direct-use item (e.g. 90000703) therefore locks skills and Ctrl for the full 10 s.
+
+**What a player can see.** March's throw state does not handle Ctrl either. Its only skill path is `CommonEventProcess`'s "anytime" skills. So "Ctrl does nothing during the throw" looks the same with the flag off, and **the log line is the proof of the arm**. The visible checks below are regressions: the lock must end with the throw, potions must be unaffected, and a refusal must change nothing.
+
+**Play-test hand-off.** The dev console is not used, because quick-slot use is a key press and the console cannot press keys. Character: **reyaa** (Rena, Grand Archer, Lv 80). Quick slot 3 holds Complete Recovery Potion 130165; slot 5 holds 83 Wind Orbs 78390, a throw item. Play in a field, or in a dungeon after the start motion ends; before that, the item is refused by design.
+1. Stand still and press **5**. The orb is thrown and the count drops to 82. Press a skill key right after the throw animation ends: it fires at once, with no 10 s delay.
+2. Take a hit, then press **3**. HP and MP refill as before.
+3. Start a combo (Z Z Z) and press **5** during it. Nothing happens, there is no chat message and the count does not change. Then press 5 while standing: it throws.
+
+Log check (`python tools/logs.py --tag JUNE_BUFF`): `first arm quick-slot special item wait: item 78390, 10 s` must appear, and `armed before the start and then refused` must **not**.
+
 **Open for the user:** none blocking. `/cost`: please paste it here.
 
 ## Phase 8 — New finalizers and counter sync
