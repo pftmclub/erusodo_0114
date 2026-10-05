@@ -3406,6 +3406,8 @@ Split by family as the kickoff allows: **9a = the shared engine + Elsword + Chun
 
 **How to see it in game:** see the hand-off (Elsword Phantom Sword, Chung Bigbang Stream and Mark of Commander regression; first-creation `[JUNE_BUFF]` lines).
 
+**Play-test (2026-10-05, exe 0dd05880, user: 4/4 passed; logs read).** `custom function created` for BTI 29 (Lord Knight, creator itself), 56 (Freils, `cool time 1 s`: Bigbang Stream is not learned, so June's 1.0 default) and 62 (NPC, creator the NPC); a `ChungMarkOfCommanderShell` JUNE_FX line shows the shells fell. **No line for BTI 223, as it should be:** March's live templet for 223 (fresh `elstools decompile-batch` of `BattleFieldBuffTemplet.lua`, 152,564 B) is SKILL_ATTACK_IMPOSSIBLE + CHANGE_ANTI_CRITICAL_RATE with no BBT_CUSTOM_FUNCTION, so the class is created only once Phase 13 adopts June's templet (SKILL_ATTACK_IMPOSSIBLE + CUSTOM_FUNCTION + IGNORE_STATE_GUARD). The run's 3 UNHANDLED `E_DISABLE_HB_CHECK_REQ` are not this phase's.
+
 **Open for the user:**
 1. June's user `AttackResultByType` also runs `32011280` (June's Lanox "Secret Ammo" set: BTI 794, `DamageEffect_Ranox_Secret_Ammo_5`) and a riding-pet effect for BTI 562. Neither is a buff-port system. Left out; say if the Lanox plan should own it.
 2. Packet-path creator power rate = 1.0 (see above). It matters only for 9b classes that read it.
