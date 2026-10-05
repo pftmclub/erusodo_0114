@@ -3428,6 +3428,55 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 **Play-test (2026-10-05, user; exe `8b491d7d`, run 11:59:24 after the 11:37 deploy, live `data036.kom` has `UnitApplyBuffGroup.lua` 4,909 B): 4/4 passed.** `ErrorLog.txt:152` `UnitApplyBuffGroup.lua: 3 buff group(s), 109 officially debuff(s)`; `:191` `buff group 4 refused BTI 37 on NPC 5086` (Sword Fire, the damage-react path); `:193` `buff group 3 refused BTI 37 on NPC 5084` (console); group 0 burned both times; the `ApplyBuffFactor` cheat burned for about 3 s (by eye, no log line). Load baseline unchanged (361 factors, 5 ordinal rejects); 0 exceptions. A first run (11:54) had the kom packed but not copied into the game directory, so it logged `not found`.
 
+### Phase 10 — Review (2026-10-05)
+
+**Verdict: Phase 10 matches June. No transcription errors in live code.** One comment was wrong, and one engine function was missing; both are fixed under `SERV_IRUHADEV_JUNE_BUFF_GROUP`. Ghidra checks, all read-only: `327bdb60`, `326c31c0`, `326c3170`, `3229a2e0`, `322a88c0`, `322a7960` (its switch bodies read from the exe bytes, `@322a7b1e-7b7e`), `32630d20`, `31fceab0` / `32205590`, `326c3450`, `326bfd80`, `3204d440`, `3274c880`, `322a6960`, `3229af40`, `3229b0a0`, `32fe9660`, plus the key reads `@3263f050` (`+0x5f0`), `@326404ba` (`+0x604`), `@327ab406` (`+0x8f70`) and `IS_DEBUF` `@3236accd` (templet `+0x64`).
+
+**Kickoff checks.**
+1. **Group decision.**
+   - The default switch: 0/1 yes, 2 `!debuff`, 3 debuff, 4 no, and 5 and above no (the result byte is preset to 0).
+   - A listed BTI returns its map value. No group with this id returns 1.
+   - `327bdb60` overwrites the base result with the group's answer (JUNE_BUGS #17).
+   - Templet `+0x64` is `IS_DEBUF`: the templet parser writes it there (`lea edi,[ebp+0x64]`).
+2. **Slot-132 callers.**
+   - An `.text` scan for `mov reg,[reg+0x210]` followed by `call reg` finds June's 12 game-unit sites; the other 5 hits are UI or field objects.
+   - The five BTI sites (`322a6960`, `322a6b60`, `322a7660`, `3229af40`, `322a88c0`) each pass the factor's or the clone's `+0x28`, as the port does.
+   - The six class-file sites each `push 0`.
+   - **`3229b0a0` has no March counterpart.** It is `3229af40` with the level as an argument instead of a skill-tree read; its only caller is Rose `32ababc0 @32abaec8` (level 2). It is engine code, so it is now **ported dormant** as `CX2GameUnit::SetBuffFactorToGameUnitAtLevel`, and the Rose call site went to the character checklist §7.
+3. **`322a88c0` / `322a7960`.**
+   - The per-factor order is as ported: 132, `3227a960`, immunity, CustomEvent branch, 139, 141, 137.
+   - `322a7960` returns 0 for a null templet, above-rate and RESIST (`XOR AL,AL @322a7ba5`). It returns 1 for 265/266 with 347/348 unfinished, and for 347/348 after event `0x71c` (`MOV AL,1 @322a7b4b`, `@322a7b6c`).
+   - The RESIST draw and `GetRate(1)` = `m_vecRate[0]` match the 4a port of `322a83b0`.
+   - Slot 141 is empty for every March class.
+4. **`ParsingBuffFactorID`.**
+   - The order is learned, then `_ULTIMATE_PVP`/`_ULTIMATE`, then `_PVP`/plain, then the level. Every list skips 0, and a `BeginTable` success counts as found even when the list is empty.
+   - `31fceab0`'s other exit is `+0x174 == 5` (`32205590`); March's enum ends `SPRT_END = 5`.
+   - March's memo branch is transcribed faithfully: a memo with no `BUFF_FACTOR_ID_MEMO` table yields nothing, as in March.
+5. **Loader.**
+   - The presets are BTI 0 / apply 1. The two ints default to 0. The set is cleared per call.
+   - **Comment corrected:** the missing `EndTable` is not "dropped by the KLuaManager destructor". June's `32fe9660` and March's `DetachLuaState` only unref. The table goes when the C call returns to Lua (the void functor returns 0), so it is harmless.
+   - The checksum tail is anti-tamper, as the Done note says.
+6. **`3204d440`** walks `+0xe14`, erases every member, and does not advance after an erase. Ara's 27415 tail is in §7.
+
+**Also checked.**
+- No header outside the three changed classes declares `CanApplyBuffToGameUnit`, so nothing silently stops overriding it.
+- `GetOfficiallyDebuffList` has no reader left outside the two `#else` branches.
+
+**Recorded, not ported.** User slot 476 (`32028250`, skill-memo scaling of a factor) was handed to Phase 10 by the 4b-i correction, and Phase 10's Done note did not say what became of it.
+- June calls it from `322a6960`, `3229af40` and `3229b0a0` as well as `322a7660`.
+- It needs June's skill-memo table (`31fdbbb0`), which March lacks, the same reason the `_ULTIMATE` gate is off.
+- The port keeps the `322a7660` call, which logs once and skips, and adds no others. It belongs with June's skill-memo system.
+
+**New June quirk:** JUNE_BUGS #21. The key check runs per factor, so once C3 registers keys, a keyed damage data applies only its first factor.
+
+**Hygiene.**
+- Phase 10's five flags (`--range 9eba9ad^..HEAD`, each `--with` the other four + `JUNE_BUFF_DEBUG JUNE_BUFF_MEMO_DROP`), before this review: every `RESULT: PASS`, `0 deleted line(s)`. `_GROUP`: `0 PASS, 12 PASS~, 1 DEFINE, 5 OTHER, 0 FAIL, 0 ERROR`. `_REACT_APPLY`: `0/2/1/15`. `_BINDING`: `0/6/1/11`. `_FACTOR_ID`: `0/1/1/16`. `_DAMAGEDATA_KEY`: `0/2/1/15`. The OTHER rows are the other four flags.
+- This review: `e107d9b` (`_GROUP`, `--range 9eba9ad^..HEAD`, same `--with`): `files: 1 PASS, 14 PASS~ (blank/marker only), 1 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 2 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 2 deleted lines are the two `AddBuffGroup_LUA` comment lines that `9eba9ad` itself added inside this flag and `e107d9b` rewrote.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,141,632 B, dated 2026-10-05 12:54:57, md5 58398ae287e54921625ae284e1d4934f, equal to X2/US_SERVICE/x2.exe (2026-10-05 12:54:53); built at mods/june-buff-port bc77561 + 3 uncommitted code file(s).` (those 3 are exactly `e107d9b`).
+
+**Play-test:** none. `SetBuffFactorToGameUnitAtLevel` has no caller and the other edit is a comment, so nothing in game changes. **Owed by the user:** the `_MEMO_DROP` decision (still open from the Done note), and /cost.
+
 ## Phase 10b — The DamageData buff keys' readers (added 2026-10-05 by Phase 10)
 
 Phase 10 parses and stores `IS_AURA_BUFF` and `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` (flag `SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY`); their readers are this phase's.
