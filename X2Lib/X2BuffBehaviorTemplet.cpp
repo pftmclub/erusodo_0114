@@ -2519,7 +2519,17 @@ void CX2BuffResetSkillCoolTimeBehaviorTemplet::DrawText( CX2GameUnit* pGameUnit_
 		if ( !DidStart() )
 		{
 			m_kBuffBehaviorFactor = *pBehaviorFactor;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+			/// June 32e79b00: the third argument is { !factor +0x38, factor +0x30 (the creator SetGameUnitBuffFactor
+			/// stored), templet +0xbc (the creator's power rate, CX2BuffTemplet::SetFactor) }
+			KCustomFunctionCreatorInfo kCreatorInfo;
+			kCreatorInfo.m_bNotUser				= !BuffFactor_.GetIsUserUID();
+			kCreatorInfo.m_uidCreator			= BuffFactor_.GetUidGameUnit();
+			kCreatorInfo.m_fCreatorPowerRate	= pBuffTemplet_->GetCreatorPowerRate();
+			pGameUnit_->CreateAndInsertCustomFunctionByBuff( pBuffTemplet_->GetBuffIdentity(), *pBehaviorFactor, kCreatorInfo );
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 			pGameUnit_->CreateAndInsertCustomFunctionByBuff( pBuffTemplet_->GetBuffIdentity(), *pBehaviorFactor );
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 		}
 
 		return true;
@@ -2552,8 +2562,21 @@ void CX2BuffResetSkillCoolTimeBehaviorTemplet::DrawText( CX2GameUnit* pGameUnit_
 */
 /*virtual*/ void CX2BuffCustomFunctionBehaviorTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, const KBuffBehaviorFactor& kFactor_, CX2GameUnit* pGameUnit_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// June 32e73f90: the creator info from the KBuffFactor: the UID (+0x28/+0x2c = m_uidMesGameUnit), not-user
+	/// (+0x3d = m_bIsMesGameUnitNpc) and the creator's power rate (+0x57). The last is a field June added to
+	/// KBuffFactor; March's (a shared header) has none, so the struct keeps its 1.0 (the templet ctor's default).
+	if ( !DidStart() )
+	{
+		KCustomFunctionCreatorInfo kCreatorInfo;
+		kCreatorInfo.m_bNotUser		= kBuffFactor_.m_bIsMesGameUnitNpc;
+		kCreatorInfo.m_uidCreator	= kBuffFactor_.m_uidMesGameUnit;
+		pGameUnit_->CreateAndInsertCustomFunctionByBuff( kBuffFactor_.m_BuffIdentity, kFactor_, kCreatorInfo );
+	}
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	if ( !DidStart() )
 		pGameUnit_->CreateAndInsertCustomFunctionByBuff( kBuffFactor_.m_BuffIdentity, kFactor_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 }
 
 /** @function : DoFinish

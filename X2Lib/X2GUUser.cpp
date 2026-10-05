@@ -13117,6 +13117,12 @@ void CX2GUUser::AttackResult()
 #ifdef UPGRADE_RAVEN
 void CX2GUUser::AttackResultByType( CX2DamageManager::DamageData &pDamageData )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// June 320144d0 (vslot 312): 32011280, then the custom-function list's slot 5 (32275700), then an effect set for the
+	/// June riding pet BTI 562 (BTI_BUFF_RIDING_PPORU_RICKSHAW). 32011280 is June's Lanox "Secret Ammo" set
+	/// (BTI 794, skills 87012 / 87002, DamageEffect_Ranox_Secret_Ammo_5); neither it nor the riding pet is a buff-port system.
+	DoCustomFunctionByBuffInAttackResultByType( pDamageData );
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	return;
 }
 #endif

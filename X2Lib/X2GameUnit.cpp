@@ -11754,6 +11754,10 @@ bool CX2GameUnit::SetBuffFactorToGameUnitAtLevel( const CX2SkillTree::SkillTempl
 
 	/// June then runs unit slot 251 (post-apply hook; empty but for CX2GUUser 3204dcd0) and the
 	/// custom-function-by-buff list's slot 7 (32275860, Phase 9). Neither is ported.
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// June buff port Phase 9a: slot 7 is ported (32275860 @322a8885, the factor just applied); slot 251 still is not.
+	DoCustomFunctionByBuffInSetBuffFactor( buffFactor_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	return true;
 #else SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 	CX2BuffTempletPtr ptrBuffTemplet = CX2BuffTempletManager::GetInstance()->GetBuffTempletPtr( buffFactor_.GetBuffTempletID() );
@@ -14937,6 +14941,88 @@ D3DXVECTOR3 CX2GameUnit::GetChangeUnitScaleByBuff()
 
 #endif POSSIBLE_ADD_CHANGE_SCALE_BUFF_VALUE
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+/// June 32007b10 (CX2GUUser; ability type, skill): 1.0 without a skill tree or a CX2Unit; at a learned level above 0
+/// and with a skill templet, the templet's ability at that level, else 1.0. June's templet getter (32206e50) also
+/// takes IsPvpOrPve (322cc1a0) for June's PvP split of ability values; March's SkillTemplet keeps one value per level.
+/// The caller's 31fcf430 first swaps the id for its skill-memo version (328905b0, June's memo map); unchanged here.
+static float JuneGetLearnedSkillAbilityValue( const CX2GUUser* pUser_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const CX2SkillTree::SKILL_ID eSkillID_ )
+{
+	if ( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == pUser_->GetUnit() )
+		return 1.0f;
+
+	const int iLevel = pUser_->GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID_ );
+	if ( iLevel <= 0 )
+		return 1.0f;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID_ );
+	if ( NULL == pSkillTemplet )
+		return 1.0f;
+
+	return pSkillTemplet->GetSkillAbilityValue( eType_, iLevel );
+}
+
+/** @function : CreateAndInsertCustomFunctionByBuff
+	@brief : June 3229e1a0: one case per BTI, each news its class (refcount +0xc) and push_backs it (322ad1e0).
+			 Phase 9a ports the Elsword and Chung cases: 29, 56 (users only, with the skill's cool time), 62, 223.
+			 June's other cases (439, 720 / 920, 767, 819 / 894, 891, 927, 952, 1010, 1022, 1038) are Phase 9b's and
+			 still create nothing here, as March. The third argument is June's creator info (see the struct).
+*/
+void CX2GameUnit::CreateAndInsertCustomFunctionByBuff( const KBuffIdentity& BuffIdentity_, const KBuffBehaviorFactor& kBehaviorFactor_, const KCustomFunctionCreatorInfo& kCreatorInfo_ )
+{
+	CX2CustomFunctionByBuffPtr ptrCustomFunctionByBuff;
+	switch ( BuffIdentity_.m_eBuffTempletID )
+	{
+	case BTI_SI_SA_ETK_PHANTOM_SWORD:
+		ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByBuffPhantomSword( BuffIdentity_, this ) );
+		break;
+
+	case BTI_BUFF_UNFIXED_CLIP:
+		{
+			/// June @3229e254: a user only (+0x264 == 0; March had no gate). The cool time is
+			/// 32007b10( SA_READY_TIME_REL (0x26), 31fcf430( RNSI_SA_CHG_BIGBANG_STREAM = 26019 ) ).
+			if ( GUT_USER != GetGameUnitType() )
+				break;
+
+			const float fCoolTime = JuneGetLearnedSkillAbilityValue( static_cast<CX2GUUser*>( this ), CX2SkillTree::SA_READY_TIME_REL, CX2SkillTree::SI_SA_CHG_BIGBANG_STREAM );
+			ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByBuffBigBangStream( BuffIdentity_, this, fCoolTime ) );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			static bool s_bSeenBigBang = false;
+			if ( !s_bSeenBigBang )
+			{
+				s_bSeenBigBang = true;
+				CX2JuneBuffCapture::Line( "first custom function BTI 56 (Unfixed Clip / Bigbang Stream): cool time %g s (SA_READY_TIME_REL)", fCoolTime );
+			}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		} break;
+
+	case BTI_DEBUFF_MARK_OF_COMMANDER:
+		ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByBuffMarkOfCommand( BuffIdentity_, kBehaviorFactor_ ) );
+		break;
+
+	case BTI_DEBUFF_PANDEMONIUM_FEAR:
+		ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByBuffPandemoniumFear( BuffIdentity_, kBehaviorFactor_ ) );
+		break;
+
+	default:
+		break;
+	}
+
+	if ( NULL != ptrCustomFunctionByBuff )
+	{
+		m_vecCustomFunctionByBuffPtr.push_back( ptrCustomFunctionByBuff );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		static std::set<int> s_setSeenBTI;
+		if ( s_setSeenBTI.insert( static_cast<int>( BuffIdentity_.m_eBuffTempletID ) ).second )
+			CX2JuneBuffCapture::Line( "custom function created: BTI %d on unit type %d, creator UID %I64d not-user %d power rate %g, value count %d",
+				static_cast<int>( BuffIdentity_.m_eBuffTempletID ), static_cast<int>( GetGameUnitType() ), kCreatorInfo_.m_uidCreator,
+				( kCreatorInfo_.m_bNotUser ? 1 : 0 ), kCreatorInfo_.m_fCreatorPowerRate, static_cast<int>( kBehaviorFactor_.m_vecValues.size() ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	}
+}
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 /** @function : CreateAndInsertCustomFunctionByBuff
 	@brief : 버프에 의한 효과 중 StateStart, CommonFrameMove, StageEnd에서 처리해야하는 하드코딩을 수행하는 instance 생성 및 추가
 	@param : 행동팩터(kBehaviorFactor_), 버프식별자(BuffIdentity_)
@@ -14970,6 +15056,9 @@ void CX2GameUnit::CreateAndInsertCustomFunctionByBuff( const KBuffIdentity& Buff
 		break;
 	}
 }
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 
 /** @function : EraseCustomFunctionByBuff
 	@brief : 버프에 의한 효과 중 StateStart, CommonFrameMove, StageEnd에서 처리해야하는 하드코딩을 수행하는 instance 삭제
@@ -14981,7 +15070,15 @@ void CX2GameUnit::EraseCustomFunctionByBuff( const KBuffIdentity& BuffIdentity_ 
 		= FindSameBuffIdentity<vector<CX2CustomFunctionByBuffPtr>::iterator, CX2CustomFunctionByBuffPtr>( m_vecCustomFunctionByBuffPtr, BuffIdentity_ );
 
 	if ( m_vecCustomFunctionByBuffPtr.end() != vItr )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	{
+		/// June 3227a1d0 @3227a1fe-3227a214: slot 8 first, then the erase
+		(*vItr)->FunctionInErase( this );
 		m_vecCustomFunctionByBuffPtr.erase( vItr );
+	}
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+		m_vecCustomFunctionByBuffPtr.erase( vItr );
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 }
 
 /** @function : DoCustomFunctionByBuffInCommonStateStart
@@ -15043,6 +15140,58 @@ void CX2GameUnit::DoCustomFunctionByBuffInDamageReact( IN CX2DamageManager::Dama
 		}
 	}
 }
+
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+/** @function : DoCustomFunctionByBuffInAttackResultByType
+	@brief : June 32275700: slot 5 of every custom function, called first in CX2GUUser::AttackResultByType
+			 (320144d0, vslot 312) and CX2GUNPC::AttackResultByType (32773ee0)
+*/
+void CX2GameUnit::DoCustomFunctionByBuffInAttackResultByType( IN CX2DamageManager::DamageData& damageData_ )
+{
+	if ( !m_vecCustomFunctionByBuffPtr.empty() )
+	{
+		BOOST_FOREACH( CX2CustomFunctionByBuffPtr ptrCustomFunction, m_vecCustomFunctionByBuffPtr )
+		{
+			if ( NULL != ptrCustomFunction )
+				ptrCustomFunction->FunctionInAttackResultByType( this, damageData_ );
+		}
+	}
+}
+
+/** @function : DoCustomFunctionByBuffInNpcFinalDamage
+	@brief : June 322757b0: slot 6, called by CX2GUNPC::DamageReact only (@327b480a) with the final damage
+			 right before the damage number is shown
+*/
+void CX2GameUnit::DoCustomFunctionByBuffInNpcFinalDamage( IN const float* pfFinalDamage_, IN CX2DamageManager::DamageData* pDamageData_ )
+{
+	if ( !m_vecCustomFunctionByBuffPtr.empty() )
+	{
+		BOOST_FOREACH( CX2CustomFunctionByBuffPtr ptrCustomFunction, m_vecCustomFunctionByBuffPtr )
+		{
+			if ( NULL != ptrCustomFunction )
+				ptrCustomFunction->FunctionInNpcFinalDamage( this, pfFinalDamage_, pDamageData_ );
+		}
+	}
+}
+
+/** @function : DoCustomFunctionByBuffInSetBuffFactor
+	@brief : June 32275860: slot 7, at the end of SetBuffFactorToGameUnit (322a83b0 @322a8885), for the factor just
+			 applied (any buff, not only a custom-function one)
+*/
+void CX2GameUnit::DoCustomFunctionByBuffInSetBuffFactor( IN const CX2BuffFactor& buffFactor_ )
+{
+	if ( !m_vecCustomFunctionByBuffPtr.empty() )
+	{
+		BOOST_FOREACH( CX2CustomFunctionByBuffPtr ptrCustomFunction, m_vecCustomFunctionByBuffPtr )
+		{
+			if ( NULL != ptrCustomFunction )
+				ptrCustomFunction->FunctionInSetBuffFactor( this, buffFactor_ );
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 
 /** @function : CreateAndInsertEffectSetHittedByBuff
 	@brief : 피격시  출력할 이펙트셋을 지정

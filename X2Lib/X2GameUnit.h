@@ -3180,7 +3180,14 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void EraseBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, const KBuffIdentity& BuffIdentity_ );
 
 		/// BuffIdentity에 의해 구분되는 효과 중 StateStart, CommonFrameMove, StageEnd에서 처리해야하는 하드코딩을 수행
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+		void CreateAndInsertCustomFunctionByBuff( const KBuffIdentity& BuffIdentity_, const KBuffBehaviorFactor& kBehaviorFactor_, const KCustomFunctionCreatorInfo& kCreatorInfo_ );	/// June 3229e1a0
+		void DoCustomFunctionByBuffInAttackResultByType( IN CX2DamageManager::DamageData& damageData_ );	/// June 32275700: slot 5
+		void DoCustomFunctionByBuffInNpcFinalDamage( IN const float* pfFinalDamage_, IN CX2DamageManager::DamageData* pDamageData_ );	/// June 322757b0: slot 6
+		void DoCustomFunctionByBuffInSetBuffFactor( IN const CX2BuffFactor& buffFactor_ );	/// June 32275860: slot 7
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 		void CreateAndInsertCustomFunctionByBuff( const KBuffIdentity& BuffIdentity_, const KBuffBehaviorFactor& kBehaviorFactor_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 		void EraseCustomFunctionByBuff( const KBuffIdentity& BuffIdentity_ );
 		void DoCustomFunctionByBuffInCommonStateStart();
 		void DoCustomFunctionByBuffInCommonFrameMove();

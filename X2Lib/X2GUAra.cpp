@@ -17065,6 +17065,9 @@ bool CX2GUAra::IsNoStageChangeSkill( IN const CX2SkillTree::SkillTemplet* pSkill
 //#ifdef FIX_GAIN_FORCE_BUG
 /*virtual*/void CX2GUAra::AttackResultByType( CX2DamageManager::DamageData &pDamageData )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	CX2GUUser::AttackResultByType( pDamageData );	/// June 32bceca0 @32bcece3 calls the base first, as Add, Eve, Raven and Lire do in March
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	if( CX2SkillTree::SI_A_AM_GAIN_FORCE == m_NowStateData.m_eSkillID )
 	{
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE

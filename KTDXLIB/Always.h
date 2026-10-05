@@ -5038,3 +5038,17 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              and GUILD_SKILL_PART_2.
 #define SERV_IRUHADEV_JUNE_BUFF_GUILD_REVERSE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 9a: June's custom-function-by-buff
+//              engine. CX2CustomFunctionByBuff gets June's four extra hooks
+//              (AttackResultByType, NPC final damage, buff applied, erase),
+//              CreateAndInsertCustomFunctionByBuff takes June's creator info
+//              (3229e1a0) and the templet keeps it (3236d400), and the
+//              Elsword/Chung classes follow June: Phantom Sword, Bigbang
+//              Stream (Unfixed Clip), Mark of Commander, Pandemonium Fear.
+//              Comment out to restore March's three-case switch.
+#define SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//////////////////////////////////////////////////////////////////////////

@@ -10066,6 +10066,11 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		//}} kimhc // 2011-07-05 // 옵션데이타 수치화 작업
 
 		// 데미지가 보여야 하는 경우 (아토믹 실드에 맞은 경우에는 보이지 않아야 함)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+		/// June 327b1f30 @327b4802-327b480a: slot 6 with the final damage, after the attacker's vslot 0x304 and right
+		/// before the damage number (+0x8d35 = m_bDamageOutScreen)
+		DoCustomFunctionByBuffInNpcFinalDamage( &fFinalDamage, pDamageData );
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 		if ( true == m_bDamageOutScreen 
 #ifdef SHOW_ONLY_MY_DAMAGE
 			&& true == bShowDamageReact
@@ -29444,6 +29449,9 @@ CX2GameUnit* CX2GUNPC::GetNearestUnitPosByOwnerUnit( float fAttackRange )		/// N
 
 void CX2GUNPC::AttackResultByType( CX2DamageManager::DamageData &pDamageData )
 {
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	DoCustomFunctionByBuffInAttackResultByType( pDamageData );	/// June 32773ee0: slot 5 first
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 #ifdef SERV_ADD_CHUNG_SHELLING_GUARDIAN
 	if( pDamageData.m_fHpPercentUp <= 0.f &&
 		pDamageData.m_fIncreaseMP <= 0.f &&

@@ -213,6 +213,25 @@ bool CX2BuffTemplet::SetFactor( const CX2BuffFactor& buffFactor_, CX2GameUnit* p
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// June 3236d400 @3236d400-3236d457, before the behaviors: the creator (CX2Game slot 50 with the factor's UID and
+	/// !isUser; March's GetUserUnitByUID / GetNPCUnitByUID, as CX2BuffLiveCreatorFinalizer does) gives its
+	/// GetPowerRate() to +0xbc; without a creator the old value stays. June also copies the UID and not-user flag
+	/// to +0xb0/+0xb8, which March reads from the factor itself.
+	if ( NULL != g_pX2Game )
+	{
+		CX2GameUnit* pCreatorGameUnit = NULL;
+		if ( buffFactor_.GetIsUserUID() )
+			pCreatorGameUnit = g_pX2Game->GetUserUnitByUID( buffFactor_.GetUidGameUnit() );
+		else
+			pCreatorGameUnit = g_pX2Game->GetNPCUnitByUID( static_cast<int>( buffFactor_.GetUidGameUnit() ) );
+
+		if ( NULL != pCreatorGameUnit )
+			m_fCreatorPowerRate = pCreatorGameUnit->GetPowerRate();
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 	/// 행동조건 셋팅
 	BOOST_FOREACH( CX2BuffBehaviorTempletPtr ptrBehavior, m_vecBehaviorPtr )
 	{
@@ -1128,6 +1147,9 @@ CX2CustomFunctionByBuffPhantomSword::CX2CustomFunctionByBuffPhantomSword( const 
 	, MAGIC_PHANTOM_DAMAGE_MULTIPLIER( 1.2f )
 	, MAGIC_PHANTOM_STOP_TIME_DEF( 0.033f )
 	, MAGIC_MAX_COUNT_CATCH_UP( 2 )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	, MAGIC_PHANTOM_GAIN_RATE( 0.5f )		/// June ctor 3236eee0: +0x20 = 0x3343777c (0.5)
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	, m_fThirdBladeTime( 0.0f )
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
     , m_hDamageEffectThirdBlade( INVALID_DAMAGE_EFFECT_HANDLE )
@@ -1325,12 +1347,17 @@ CX2CustomFunctionByBuffPhantomSword::CX2CustomFunctionByBuffPhantomSword( const 
 void CX2CustomFunctionByBuffPhantomSword::InitializeDamageEffectThridBlade( CX2GameUnit* pGameUnit_ )
 {
 	wstring wstrEffectName = L"THIRD_BLADE";
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// June 3236d670: THIRD_BLADE + L"_MEMO" only when 31fca9e0( 601026 ) is true. 31fca9e0 is June's
+	/// GetEqippedSkillMemo and returns false unconditionally (June has no skill memos), so the name is THIRD_BLADE.
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 
 #ifdef ADD_MEMO_1ST_CLASS //김창한
 	CX2GUUser* pUser = static_cast<CX2GUUser*>( pGameUnit_ );
 	if( NULL != pUser && pUser->GetEqippedSkillMemo(CX2SkillTree::SMI_ELSWORD_MEMO26) == true )
 		wstrEffectName += L"_MEMO";
 #endif //ADD_MEMO_1ST_CLASS
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
     CX2DamageEffect::CEffect*
@@ -1368,6 +1395,11 @@ void CX2CustomFunctionByBuffPhantomSword::InitializeDamageEffectThridBlade( CX2G
 void CX2CustomFunctionByBuffPhantomSword::InitializeMeshThirdBaldeCenter( CX2GameUnit* pGameUnit_ )
 {
 	CKTDGXMeshPlayer::CXMeshInstance* pMeshInstCenter = NULL;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// June 3236d920: ThirdBladeCenter_MEMO only behind 31fca9e0( 601026 ), which is always false (see above).
+	/// June then hands the mesh to 32296ee0, the game option's effect alpha for other units' effects
+	/// (322d4d10 -> mesh +0x4a8), a system this build does not have: not ported.
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 
 #ifdef ADD_MEMO_1ST_CLASS //김창한
 	CX2GUUser* pUser = static_cast<CX2GUUser*>( pGameUnit_ );
@@ -1378,6 +1410,7 @@ void CX2CustomFunctionByBuffPhantomSword::InitializeMeshThirdBaldeCenter( CX2Gam
 	}
 	else
 #endif //ADD_MEMO_1ST_CLASS
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	pMeshInstCenter = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( pGameUnit_,  L"ThirdBladeCenter",
 		pGameUnit_->GetPos(), pGameUnit_->GetRotateDegree(), pGameUnit_->GetRotateDegree() );
 
@@ -1426,6 +1459,22 @@ void CX2CustomFunctionByBuffPhantomSword::CreateAndInsertThirdBladeData( CX2Game
 
 			ptrThirdBladeDamageData->m_vAttackTime.x				= m_fThirdBladeTime + vDelayedAttackTime.x + MAGIC_PHANTOM_SWORD_DELAY; 
 			ptrThirdBladeDamageData->m_vAttackTime.y				= m_fThirdBladeTime + vDelayedAttackTime.y + MAGIC_PHANTOM_SWORD_DELAY; 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+			/// June 32370e10 @32370f96-323710e7, in its order. Where March zeroed fHitAddMP, June halves techPoint,
+			/// fHitAddMP and m_fRateModifier (MAGIC_PHANTOM_GAIN_RATE); June does not force AT_SPECIAL, so the
+			/// blade keeps the state's ATTACK_TYPE. The memo branch (IgnoreDefence, +0.1 critical damage) sits behind
+			/// 31fca9e0( 601026 ), June's GetEqippedSkillMemo, which always returns false.
+			ptrThirdBladeDamageData->m_DamageData.damage.fPhysic	*= MAGIC_PHANTOM_DAMAGE_MULTIPLIER;
+			ptrThirdBladeDamageData->m_DamageData.damage.fMagic		*= MAGIC_PHANTOM_DAMAGE_MULTIPLIER;
+			ptrThirdBladeDamageData->m_DamageData.fForceDownValue	= 0.f;
+			ptrThirdBladeDamageData->m_DamageData.techPoint			= static_cast<int>( ptrThirdBladeDamageData->m_DamageData.techPoint * MAGIC_PHANTOM_GAIN_RATE );
+			ptrThirdBladeDamageData->m_DamageData.fHitAddMP			*= MAGIC_PHANTOM_GAIN_RATE;
+			ptrThirdBladeDamageData->m_DamageData.m_fRateModifier	*= MAGIC_PHANTOM_GAIN_RATE;
+			ptrThirdBladeDamageData->m_DamageData.fStopTimeDef		+= MAGIC_PHANTOM_STOP_TIME_DEF;
+			ptrThirdBladeDamageData->m_DamageData.backSpeed			= m_vPhantomBladeBackSpeed;
+			ptrThirdBladeDamageData->m_DamageData.bArrangedFly		= true;
+			ptrThirdBladeDamageData->m_DamageData.optrAttackerGameUnit	= pGameUnit_;
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 			ptrThirdBladeDamageData->m_DamageData.damage.fPhysic	*= MAGIC_PHANTOM_DAMAGE_MULTIPLIER;
 			ptrThirdBladeDamageData->m_DamageData.damage.fMagic		*= MAGIC_PHANTOM_DAMAGE_MULTIPLIER;
 			ptrThirdBladeDamageData->m_DamageData.fForceDownValue	= 0.f;
@@ -1446,6 +1495,7 @@ void CX2CustomFunctionByBuffPhantomSword::CreateAndInsertThirdBladeData( CX2Game
 				}
 			}
 #endif //ADD_MEMO_1ST_CLASS
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 
 			if ( CX2DamageManager::RT_NO_DAMAGE != m_PhantomBladeReActType )
 				ptrThirdBladeDamageData->m_DamageData.reActType = m_PhantomBladeReActType;
@@ -1514,6 +1564,39 @@ void CX2CustomFunctionByBuffPhantomSword::MoveDataDataToDamageEffect( CX2GameUni
 // // 	}	
 // }
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+/** @function : FunctionInCommonStateStart
+	@brief : June 3236c6f0. As March, but a state start while the cool time (June +0x2c) runs leaves the queued
+			 grenades alone, and a state with a BIG_BANG_STREAM table arms the cool time (+0x30, the ctor's
+			 SA_READY_TIME_REL) after EndTable.
+*/
+/*virtual*/ void CX2CustomFunctionByBuffBigBangStream::FunctionInCommonStateStart( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ )
+{
+	if ( 0.0f < m_fRemainCoolTime )
+		return;
+
+	m_vecAnimationTime.resize( 0 );
+	if ( luaManager_.BeginTable( "BIG_BANG_STREAM" ) )
+	{
+		int iIndex = 1;
+		float fValue = 0.0f;
+		while ( luaManager_.GetValue( iIndex, fValue ) )
+		{
+			m_vecAnimationTime.push_back( fValue );
+			++iIndex;
+		}
+
+		/// largest first, as March: FrameMove fires from the back
+		std::sort( m_vecAnimationTime.begin(), m_vecAnimationTime.end(), std::greater<float>() );
+		m_vStateStartPos = pGameUnit_->GetPos();
+
+		luaManager_.EndTable();
+		m_fRemainCoolTime = m_fCoolTime;
+	}
+}
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 /*virtual*/ void CX2CustomFunctionByBuffBigBangStream::FunctionInCommonStateStart( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ )
 {
 	m_vecAnimationTime.resize( 0 );
@@ -1535,6 +1618,45 @@ void CX2CustomFunctionByBuffPhantomSword::MoveDataDataToDamageEffect( CX2GameUni
 	}
 }
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+/** @function : DoExtraAttack
+	@brief : June 3236dbf0 (vtable slot 9). Bip01, then HAND_GRENADE_0 at GetPowerRate(); March's 20% memo grenade
+			 (SMI_CHUNG_MEMO26) is gone. June's replacement, CHUNG_BIGBANGSTREAM_ULTIMATE when GetRandomFloat( 0 ) <=
+			 the skill's SA_EFFECTIVE_RATE (32007c40( 5, 26019 )), is gated by 31fcf3e0( RNSI_SA_CHG_BIGBANG_STREAM ),
+			 June's skill-memo map, which March lacks (ParsingBuffFactorID keeps the same gate false), so the grenade
+			 is always HAND_GRENADE_0. The throw takes the absolute value of both the x and the z part of
+			 GetDirVector() * 150 (FABS @3236de60 / @3236de6e; March's FIX_BIGBANG_STREAM_BUFF keeps x signed).
+*/
+/*virtual*/ void CX2CustomFunctionByBuffBigBangStream::DoExtraAttack( CX2GameUnit* pGameUnit_ )
+{
+	const D3DXVECTOR3& vBonePos = pGameUnit_->GetBonePos( L"Bip01" );
+	CX2DamageEffect::CEffect* pDamageEffect
+		= g_pX2Game->GetDamageEffect()->CreateInstance(
+		pGameUnit_, L"HAND_GRENADE_0", pGameUnit_->GetPowerRate(), vBonePos,
+		pGameUnit_->GetRotateDegree(), pGameUnit_->GetRotateDegree(),  pGameUnit_->GetLandPos().y );
+	if ( NULL == pDamageEffect )
+		return;
+
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	g_pX2Game->AddRemoveDamageEffect( pDamageEffect->GetHandle() );		/// June 32a2dec0 on g_pX2Game +0x8a4
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	g_pX2Game->AddRemoveDamageEffect( pDamageEffect );
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+
+	CKTDGXMeshPlayer::CXMeshInstance *pMesh = pDamageEffect->GetMainEffect();
+	if ( NULL != pMesh )
+	{
+		const D3DXVECTOR3 vDir = pGameUnit_->GetDirVector() * 150.f;
+		const float fDirX = ( ( fabs( vDir.x ) + fabs( vDir.z ) ) * 0.3f ) * 10.f + 100.f;
+		const float fDirY = ( vDir.y * 10.f ) + 100.f;
+		pMesh->SetVelocity( D3DXVECTOR3( fDirX, fDirY, 0.f ) );
+	}
+}
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 /*virtual*/ void CX2CustomFunctionByBuffBigBangStream::DoExtraAttack( CX2GameUnit* pGameUnit_ )
 {
 	const D3DXVECTOR3& vBonePos = pGameUnit_->GetBonePos( L"Bip01" );
@@ -1583,6 +1705,9 @@ void CX2CustomFunctionByBuffPhantomSword::MoveDataDataToDamageEffect( CX2GameUni
 }
 
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 /*virtual*/ void CX2CustomFunctionByBuffMarkOfCommand::FunctionInCommonFrameMove( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ )
 {
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -1592,6 +1717,34 @@ void CX2CustomFunctionByBuffPhantomSword::MoveDataDataToDamageEffect( CX2GameUni
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 }
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+/** @function : FunctionInCommonFrameMove
+	@brief : June 3236a040. March's grenade loop, then the cool time runs down by the unit's elapsed time
+			 (+0x2b0) and stops at 0.
+*/
+/*virtual*/ void CX2CustomFunctionByBuffBigBangStream::FunctionInCommonFrameMove( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ )
+{
+	if ( !m_vecAnimationTime.empty() && pGameUnit_->GetSkinAnimPtr() )
+	{
+		const float fNowAnimationTime = pGameUnit_->GetSkinAnimPtr()->GetNowAnimationTime();
+
+		while ( !m_vecAnimationTime.empty() && m_vecAnimationTime.back() <= fNowAnimationTime )
+		{
+			DoExtraAttack( pGameUnit_ );
+			m_vecAnimationTime.pop_back();
+		}
+	}
+
+	if ( 0.0f < m_fRemainCoolTime )
+	{
+		m_fRemainCoolTime -= pGameUnit_->GetElapsedTime();
+		if ( m_fRemainCoolTime <= 0.0f )
+			m_fRemainCoolTime = 0.0f;
+	}
+}
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 /*virtual*/ void CX2CustomFunctionByBuffBigBangStream::FunctionInCommonFrameMove( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ )
 {
 	if ( !m_vecAnimationTime.empty() && pGameUnit_->GetSkinAnimPtr() )
@@ -1606,11 +1759,86 @@ void CX2CustomFunctionByBuffPhantomSword::MoveDataDataToDamageEffect( CX2GameUni
 	}
 }
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 /*virtual*/ void CX2CustomFunctionByBuffMarkOfCommand::FunctionInDamageReact( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ )
 {
 	DoMarkOfCommand( pGameUnit_, damageData_ );
 }
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+/** @function : DoMarkOfCommand
+	@brief : June 3236df00 (slot 4 jumps here from 3236f370). March's guards and shells, with two changes:
+			 1. a user attacker's shell power also takes the Mark of Commander skill: x GetSkillDamageRateByBuff
+			    (31fd7cc0, BBT 89 x 90) and x ( 1 + 3201ad10( 26214 ) ). 3201ad10 is June's skill damage-up total
+			    (the per-unit map +0x87b4, the transcendence skill, the item 215434 option); every source is a June
+			    system this build lacks, so it adds 0.
+			 2. March's memo shell (CHUNG_MARK_OF_COMMANDER_SHELL_MEMO by m_fMemoRate) is gone: always the shell.
+			 June asks the trigger through 32610fb0( 3 ), which also searches a June-only DamageData list
+			 (+0x544..+0x548); March has the one m_eDamageTrigger.
+*/
+void CX2CustomFunctionByBuffMarkOfCommand::DoMarkOfCommand( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ )
+{
+#ifdef SERV_ADD_CHUNG_SHELLING_GUARDIAN
+	if( damageData_.m_fHpPercentUp <= 0.f &&
+		damageData_.reActType != CX2DamageManager::RT_CREATE_DAMAGE_EFFECT &&
+		damageData_.reActType != CX2DamageManager::RT_NO_DAMAGE &&
+		damageData_.reActResult != CX2DamageManager::RT_DUMMY_DAMAGE &&
+		damageData_.reActResult != CX2DamageManager::RT_SENSOR &&
+		damageData_.hitType != CX2DamageManager::HT_GROUND_HIT &&
+		damageData_.m_eDamageTrigger != CX2DamageManager::DTT_MARK_OF_COMMANDER &&
+		damageData_.m_bNoDamage == false &&
+		null != damageData_.optrAttackerGameUnit &&
+		m_checkElapsedTime.CheckAndResetElapsedTime() )
+	{
+		CX2GameUnit* pAttackerGameUnit = damageData_.optrAttackerGameUnit.GetObservable();
+
+		D3DXVECTOR3 vDirectVectorZeroY = pAttackerGameUnit->GetDirVector();
+		vDirectVectorZeroY.y	= 0.f;
+		const float fConstUnitHeight = 1080.f;
+		float fShellPowerRate = damageData_.damage.GetAllDamage() * damageData_.m_fDungeonRate;
+
+		if ( CX2GameUnit::GUT_USER == pAttackerGameUnit->GetGameUnitType() )
+		{
+			float fSkillDamageRateByBuff = 1.0f;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+			fSkillDamageRateByBuff = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillDamageRateByBuff( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER );	/// June 26214 = RNSI_A_CHG_MARK_OF_COMMANDER
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+			const float fJuneSkillDamageAddRate = 0.0f;	/// 3201ad10, see the brief
+			fShellPowerRate = ( fJuneSkillDamageAddRate + 1.0f ) * ( fSkillDamageRateByBuff * fShellPowerRate );
+		}
+
+		for ( UINT uiIndex = 0; uiIndex < m_uiDamageEffectCount; ++uiIndex )
+		{
+			float fRandReservTime = 0.5f;
+			D3DXVECTOR3 vRotateDegree = pAttackerGameUnit->GetRotateDegree();
+
+			if ( 0 < uiIndex )
+			{
+				fRandReservTime += pAttackerGameUnit->GetRandomFloat( uiIndex ) * 0.3f * uiIndex;
+				fRandReservTime += pAttackerGameUnit->GetRandomFloat( pGameUnit_->GetUnitIndex() ) * 0.3f;
+				vRotateDegree.z += ( pAttackerGameUnit->GetRandomFloat( pGameUnit_->GetUnitIndex() + uiIndex) * 10.f - 5.f );
+			}
+
+			D3DXVECTOR3 vShellStartPos = pGameUnit_->GetPos();
+			vShellStartPos.y += fConstUnitHeight;
+
+			if ( pAttackerGameUnit->GetIsRight() )
+				vShellStartPos += ( m_fBasicPosX[uiIndex] * vDirectVectorZeroY );
+			else
+				vShellStartPos -= ( m_fBasicPosX[uiIndex] * vDirectVectorZeroY );
+
+			g_pX2Game->GetDamageEffect()->CreateInstance( pAttackerGameUnit, L"CHUNG_MARK_OF_COMMANDER_SHELL",
+				fShellPowerRate * m_fAddPowerRate, vShellStartPos, vRotateDegree, vRotateDegree,
+				pAttackerGameUnit->GetLandPos().y, true, fRandReservTime );
+		}
+	}
+#endif SERV_ADD_CHUNG_SHELLING_GUARDIAN
+}
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 void CX2CustomFunctionByBuffMarkOfCommand::DoMarkOfCommand( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ )
 {
 #ifdef SERV_ADD_CHUNG_SHELLING_GUARDIAN
@@ -1674,6 +1902,199 @@ if( damageData_.m_fHpPercentUp <= 0.f &&
 #endif SERV_ADD_CHUNG_SHELLING_GUARDIAN
 
 }
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+/// June unit vslot 178 (0x2c8): a user's centre is GetPos( false ) plus half its height (CX2GUUser 31fc9380);
+/// every other unit answers GetPos( false ) (CX2GUNPC 322b5530). No class overrides it.
+static D3DXVECTOR3 JuneGetUnitCenterPos( const CX2GameUnit* pUnit_ )
+{
+	D3DXVECTOR3 vPos = pUnit_->GetPos( false );
+	if ( CX2GameUnit::GUT_USER == pUnit_->GetGameUnitType() )
+		vPos.y += pUnit_->GetUnitHeight( false ) * 0.5f;
+	return vPos;
+}
+
+/// June CX2GUNPC vslot 269 (0x434, 327574e0): GetPos( false ) plus half the height (an NPC-only virtual).
+static D3DXVECTOR3 JuneGetNpcCenterPos( const CX2GameUnit* pNpc_ )
+{
+	D3DXVECTOR3 vPos = pNpc_->GetPos( false );
+	vPos.y += pNpc_->GetUnitHeight( false ) * 0.5f;
+	return vPos;
+}
+
+/// June 32278580 (target, OUT name, pos): the frame name of the target's collision point nearest vPos_
+/// (GetPointStart, strict <, from 99999; empty without collision data). The same walk as the effect port's
+/// JuneGetLockOnAimPos (X2DamageEffect.cpp), which inlines it.
+static std::wstring JuneGetNearestCollisionFrameName( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vPos_ )
+{
+	std::wstring wstrNearestFrame;
+	float fNearest = 99999.f;
+	const CKTDXCollision::CollisionDataListSet& AttackListSet = pUnit_->GetCollisionListSet();
+	BOOST_FOREACH( const CKTDXCollision::CollisionDataList* collisionDataList, AttackListSet )
+	{
+		if( NULL == collisionDataList )
+			continue;
+		BOOST_FOREACH( CKTDXCollision::CollisionData* collisionData, *collisionDataList )
+		{
+			if( NULL == collisionData )
+				continue;
+			const float fDist = GetDistance( vPos_, collisionData->GetPointStart() );
+			if( fDist < fNearest )
+			{
+				fNearest = fDist;
+				wstrNearestFrame = collisionData->m_FrameName;
+			}
+		}
+	}
+	return wstrNearestFrame;
+}
+
+/// June 32293b80 (CX2GameUnit, pos by value): true when there is no game, world or line map; false when the
+/// unit's last touched line (vslot 0x12c, GetLastTouchLineIndex( true )) is out of range or has no data;
+/// else whether the way from the unit (GetPos( false )) to vPos_ runs along that line's dirVector (+0x54):
+/// the dot product of the two normalised vectors is above 0.
+static bool JuneIsPosAlongLastTouchLine( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vPos_ )
+{
+	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetLineMap() )
+		return true;
+
+	const CKTDGLineMap::LineData* pLineData = g_pX2Game->GetLineMap()->GetLineData( pUnit_->GetLastTouchLineIndex( true ) );
+	if ( NULL == pLineData )
+		return false;
+
+	D3DXVECTOR3 vToPos = vPos_ - pUnit_->GetPos( false );
+	D3DXVec3Normalize( &vToPos, &vToPos );
+	D3DXVECTOR3 vLineDir = pLineData->dirVector;
+	D3DXVec3Normalize( &vLineDir, &vLineDir );
+	return 0.0f < D3DXVec3Dot( &vToPos, &vLineDir );
+}
+
+/// June 31fd5ef0 (CX2GUUser; target, centre, mode, OUT pos; RET 0x10). The Pandemonium Fear explosion calls
+/// it with ( the NPC it hit, true, 1 ). From the attacker's centre to the target's centre: the target's
+/// collision frame nearest its centre and that bone's position (GetBonePos( name, out ), vslot 32). The bone
+/// is the answer when it is more than 700 (0x3344ce98) from the target's centre and nearer the attacker than
+/// the centre is; else the centre is. Mode 1 also needs the answer to lie the way the attacker faces along
+/// its line (32293b80 == GetIsRight), and a refused bone falls back to the centre under the same test.
+/// Returns false, vOut_ untouched, when nothing passes (or for a mode other than 0/1).
+static bool JuneGetTargetHitPos( const CX2GameUnit* pAttacker_, const CX2GameUnit* pTarget_, const bool bCenter_, const BYTE byMode_, OUT D3DXVECTOR3& vOut_ )
+{
+	if ( NULL == pTarget_ )
+		return false;
+
+	const D3DXVECTOR3 vMyPos = ( bCenter_ ? JuneGetUnitCenterPos( pAttacker_ ) : pAttacker_->GetPos( false ) );
+	const D3DXVECTOR3 vTargetPos = ( bCenter_ ? JuneGetNpcCenterPos( pTarget_ ) : pTarget_->GetPos( false ) );
+	const float fTargetDistance = GetDistance( vTargetPos, vMyPos );
+
+	const std::wstring wstrFrameName = JuneGetNearestCollisionFrameName( pTarget_, vTargetPos );
+	D3DXVECTOR3 vBonePos( 0.0f, 0.0f, 0.0f );
+	if ( true == pTarget_->GetBonePos( wstrFrameName.c_str(), vBonePos )
+		&& 700.0f < GetDistance( vTargetPos, vBonePos )
+		&& GetDistance( vMyPos, vBonePos ) < fTargetDistance )
+	{
+		if ( 0 == byMode_ )
+		{
+			vOut_ = vBonePos;
+			return true;
+		}
+		else if ( 1 == byMode_ )
+		{
+			if ( JuneIsPosAlongLastTouchLine( pAttacker_, vBonePos ) == pAttacker_->GetIsRight() )
+			{
+				vOut_ = vBonePos;
+				return true;
+			}
+		}
+		else
+			return false;
+	}
+
+	if ( 0 == byMode_ )
+	{
+		vOut_ = vTargetPos;
+		return true;
+	}
+	else if ( 1 == byMode_ && JuneIsPosAlongLastTouchLine( pAttacker_, vTargetPos ) == pAttacker_->GetIsRight() )
+	{
+		vOut_ = vTargetPos;
+		return true;
+	}
+	return false;
+}
+
+/** @function : FunctionInCommonFrameMove
+	@brief : June 32369890: the interval timer runs on the unit's elapsed time (+0x2b0)
+*/
+/*virtual*/ void CX2CustomFunctionByBuffPandemoniumFear::FunctionInCommonFrameMove( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ )
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	m_checkElapsedTime.OnFrameMove( pGameUnit_->GetElapsedTime() );
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	m_checkElapsedTime.OnFrameMove();
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+}
+
+/** @function : FunctionInDamageReact
+	@brief : June 3236e2a0. Mark of Commander's guards with trigger 6 (June Enum.lua DTT_PANDEMONIUM_FEAR; March's
+			 C++ enum ends at 5, its Lua at DTT_END = 6), then, once per interval, the attacker creates
+			 DAMAGE_EFFECT_Pandemonium_Fear_Explosion on the hit unit: power = the hit's physic, magic or half their
+			 sum by damageType (else 1.0) x value[1], at the unit's centre, re-aimed by 31fd5ef0 when a user hits an
+			 NPC, rotated as the hit unit, every other CreateInstance argument at its default.
+			 June's own DamageEffect sets ATTACK_TRIGGER_TYPE = DTT_PANDEMONIUM_CHAOS on the explosion, a name June's
+			 Enum.lua lacks, so the trigger reads DTT_NONE there and the explosion does not block itself.
+			 March's data has no DAMAGE_EFFECT_Pandemonium_Fear_Explosion yet (Phase 13), so CreateInstance makes nothing.
+*/
+/*virtual*/ void CX2CustomFunctionByBuffPandemoniumFear::FunctionInDamageReact( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ )
+{
+	const int JUNE_DTT_PANDEMONIUM_FEAR = 6;
+
+	if ( 0.f < damageData_.m_fHpPercentUp
+		|| CX2DamageManager::RT_CREATE_DAMAGE_EFFECT == damageData_.reActType
+		|| CX2DamageManager::RT_NO_DAMAGE == damageData_.reActType
+		|| CX2DamageManager::RT_DUMMY_DAMAGE == damageData_.reActResult
+		|| CX2DamageManager::RT_SENSOR == damageData_.reActResult
+		|| CX2DamageManager::HT_GROUND_HIT == damageData_.hitType
+		|| JUNE_DTT_PANDEMONIUM_FEAR == static_cast<int>( damageData_.m_eDamageTrigger )
+		|| true == damageData_.m_bNoDamage
+		|| null == damageData_.optrAttackerGameUnit
+		|| false == m_checkElapsedTime.CheckAndResetElapsedTime() )
+		return;
+
+	CX2GameUnit* pAttackerGameUnit = damageData_.optrAttackerGameUnit.GetObservable();
+	if ( NULL == pAttackerGameUnit )
+		return;
+
+	float fPowerRate = 1.0f;
+	switch ( damageData_.damageType )
+	{
+	case CX2DamageManager::DT_PHYSIC:
+		fPowerRate = damageData_.damage.fPhysic;
+		break;
+
+	case CX2DamageManager::DT_MAGIC:
+		fPowerRate = damageData_.damage.fMagic;
+		break;
+
+	case CX2DamageManager::DT_MIX:
+		fPowerRate = ( damageData_.damage.fMagic + damageData_.damage.fPhysic ) * 0.5f;
+		break;
+
+	default:
+		break;
+	}
+
+	D3DXVECTOR3 vPos = JuneGetUnitCenterPos( pGameUnit_ );
+	if ( CX2GameUnit::GUT_USER == pAttackerGameUnit->GetGameUnitType() && CX2GameUnit::GUT_NPC == pGameUnit_->GetGameUnitType() )
+		JuneGetTargetHitPos( pAttackerGameUnit, pGameUnit_, true, 1, vPos );
+
+	fPowerRate *= m_fPowerRate;
+
+	g_pX2Game->GetDamageEffect()->CreateInstance( pAttackerGameUnit, L"DAMAGE_EFFECT_Pandemonium_Fear_Explosion", fPowerRate,
+		vPos, pGameUnit_->GetRotateDegree(), pGameUnit_->GetRotateDegree() );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 
 #ifdef BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 // 행동 불능 디버프 인가? 특정 BBT 를 가지고 있으면 참을 반환

@@ -37,6 +37,9 @@ public:
 		, m_fAccumulationDelayTime( rhs_.m_fAccumulationDelayTime ), m_fAccumulationDelayTimeNow( rhs_.m_fAccumulationDelayTimeNow )
 		, m_eReplaceDetailOp( rhs_.m_eReplaceDetailOp )
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+		, m_fCreatorPowerRate( rhs_.m_fCreatorPowerRate )	/// June 322ada11 copies +0xbc
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 #ifdef BUFF_ICON_UI
 		, m_wstIconFileName ( rhs_.m_wstIconFileName ), m_wstIconKeyName ( rhs_.m_wstIconKeyName )
 		, m_iBuffName( rhs_.m_iBuffName ), m_iBuffDesc( rhs_.m_iBuffDesc ), m_bUseBuffIcon ( rhs_.m_bUseBuffIcon )
@@ -145,6 +148,13 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	void DoFinishStickShake( CX2GameUnit* pGameUnit_ );	/// June 3236a6a0: each BFT_STICK_SHAKE finalizer ends the unit's stick shake (slot 257) and bumps the buff-change counter
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// June templet +0xbc: the creator's GetPowerRate() when the buff was applied (3236d400, the top of
+	/// SetFactor; ctor 326c48a0 sets 1.0). June's custom-function SetFactor passes it on (32e79b00).
+	float GetCreatorPowerRate() const { return m_fCreatorPowerRate; }
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 //}}
 
 	/// 중복이 가능한 버프 인 경우에 구분할 수 있는 숫자(카운트)
@@ -191,6 +201,9 @@ protected:
 						,m_fAccumulationDelayTime( 0.0f ), m_fAccumulationDelayTimeNow( 0.0f )
 						,m_eReplaceDetailOp( BRDO_NOTDEFINED )
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+						,m_fCreatorPowerRate( 1.0f )	/// June ctor 326c48a0 @326c4974
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 #ifdef BUFF_ICON_UI
 						,m_iBuffName( -1 ), m_iBuffDesc( -1 ), m_bUseBuffIcon ( false )
 #endif //BUFF_ICON_UI
@@ -244,6 +257,11 @@ private:
 	float									m_fAccumulationDelayTimeNow;			/// time left before this buff can be stacked again
 	BUFF_REPLACE_DETAIL_OP					m_eReplaceDetailOp;						/// BUFF_REPLACE_DETAIL_OPERATION
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+//}}
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	float									m_fCreatorPowerRate;					/// June +0xbc (see GetCreatorPowerRate)
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
 
 #ifdef BUFF_ICON_UI
@@ -610,6 +628,21 @@ private:
 	@brief : 버프에 의한 행동 중CommonStateStart, CommonFrameMove, CommonStateEnd 에서 처리되야 하는 하드코딩 함수를 수행하도록 처리 되도록 하는 클래스
 	@date : 2012/8/21/
 */
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+/// June's third argument of CreateAndInsertCustomFunctionByBuff (3229e1a0), 0x14 bytes on the stack.
+/// The custom-function behavior's SetFactor (32e79b00) fills it from the factor and the templet;
+/// its SetFactorFromPacket (32e73f90) from the KBuffFactor (+0x28/+0x2c UID, +0x3d, +0x57).
+struct KCustomFunctionCreatorInfo
+{
+	bool		m_bNotUser;				/// +0x0: !factor.m_bIsUserUID (June factor +0x38)
+	UidType		m_uidCreator;			/// +0x8: factor.m_uidGameUnit (June factor +0x30)
+	float		m_fCreatorPowerRate;	/// +0x10: CX2BuffTemplet::GetCreatorPowerRate() (June templet +0xbc)
+
+	KCustomFunctionCreatorInfo() : m_bNotUser( false ), m_uidCreator( 0 ), m_fCreatorPowerRate( 1.0f ) {}
+};
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 class CX2CustomFunctionByBuff;
 #ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
 typedef boost::intrusive_ptr<CX2CustomFunctionByBuff> CX2CustomFunctionByBuffPtr;
@@ -628,6 +661,19 @@ public:
 	virtual void FunctionInCommonFrameMove( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ ) {};
 	virtual void FunctionInCommonStateEnd( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ ) {};
 	virtual void FunctionInDamageReact( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ ) {}
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// June's vtable has 9 slots (March 5): [0] dtor, [1]-[4] the four hooks above, then these four.
+	/// [5] AttackResultByType, first thing in CX2GUUser 320144d0 (vslot 312) and CX2GUNPC 32773ee0 (dispatch 32275700)
+	virtual void FunctionInAttackResultByType( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ ) {}
+	/// [6] CX2GUNPC::DamageReact only, right before the damage number (dispatch 322757b0 @327b480a)
+	virtual void FunctionInNpcFinalDamage( CX2GameUnit* pGameUnit_, IN const float* pfFinalDamage_, IN CX2DamageManager::DamageData* pDamageData_ ) {}
+	/// [7] the end of SetBuffFactorToGameUnit, every apply of any buff (dispatch 32275860 @322a8885)
+	virtual void FunctionInSetBuffFactor( CX2GameUnit* pGameUnit_, IN const CX2BuffFactor& buffFactor_ ) {}
+	/// [8] EraseCustomFunctionByBuff, before the erase (3227a1d0 @3227a206)
+	virtual void FunctionInErase( CX2GameUnit* pGameUnit_ ) {}
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 };
 
 /** @class : CX2CustomFunctionByBuffPhantomSword
@@ -681,6 +727,9 @@ private:
 	const float MAGIC_PHANTOM_DAMAGE_MULTIPLIER;	/// 팬텀소드 1.2배 데미지
 	const float MAGIC_PHANTOM_STOP_TIME_DEF;		/// 팬텀소드에 맞았을 때 스탑되는 시간
 	const float MAGIC_MAX_COUNT_CATCH_UP;			/// 팬텀소드가 한타임 늦게 따라가도록 하려는 건..가?
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	const float MAGIC_PHANTOM_GAIN_RATE;			/// June +0x20 = 0.5: techPoint, fHitAddMP and m_fRateModifier of the blade's hit (32370e10)
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 
 	float											m_fThirdBladeTime;				/// 팬텀소드 현재까지 진행된 시간 
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
@@ -708,9 +757,17 @@ private:
 class CX2CustomFunctionByBuffBigBangStream : public CX2CustomFunctionByBuff
 {
 public:
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	/// June ctor 322ab4e0: the third argument is the skill's SA_READY_TIME_REL (3229e1a0 @3229e262-3229e276)
+	CX2CustomFunctionByBuffBigBangStream( const KBuffIdentity& BuffIdentity_, CX2GameUnit* pGameUnit_, const float fCoolTime_ )
+		: CX2CustomFunctionByBuff( BuffIdentity_ ), m_vStateStartPos( D3DXVECTOR3( 0.0f, 0.0f, 0.0f ) )
+		, m_fRemainCoolTime( 0.0f ), m_fCoolTime( fCoolTime_ )
+	{ m_vecAnimationTime.clear(); }
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	CX2CustomFunctionByBuffBigBangStream( const KBuffIdentity& BuffIdentity_, CX2GameUnit* pGameUnit_ )
 		: CX2CustomFunctionByBuff( BuffIdentity_ ), m_vStateStartPos( D3DXVECTOR3( 0.0f, 0.0f, 0.0f ) )
 	{ m_vecAnimationTime.clear(); }
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 
 	~CX2CustomFunctionByBuffBigBangStream()
 	{
@@ -726,6 +783,10 @@ private:
 private:
 	vector<float>	m_vecAnimationTime;
 	D3DXVECTOR3		m_vStateStartPos;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+	float			m_fRemainCoolTime;	/// June +0x2c: a state start re-arms the grenades only when this is 0
+	float			m_fCoolTime;		/// June +0x30
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 };
 
 /** @class : CX2CustomFunctionByBuffMarkOfCommand
@@ -778,6 +839,31 @@ private:
 #endif // UPGRADE_SKILL_SYSTEM_2013 // 청 스킬 개편, 김종훈
 };
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+/** @class : CX2CustomFunctionByBuffPandemoniumFear
+	@brief : June class (vtable 33487874, ctor 322aae50) for BTI_DEBUFF_PANDEMONIUM_FEAR (Chung, Pandemonium - Fear).
+			 March had no custom function for it. Overrides FrameMove (32369890) and DamageReact (3236f380 -> 3236e2a0).
+*/
+class CX2CustomFunctionByBuffPandemoniumFear : public CX2CustomFunctionByBuff
+{
+public:
+	CX2CustomFunctionByBuffPandemoniumFear( const KBuffIdentity& BuffIdentity_, const KBuffBehaviorFactor kBuffBehaviorFactor_ )
+		: CX2CustomFunctionByBuff( BuffIdentity_ ), m_checkElapsedTime( kBuffBehaviorFactor_[0] ), m_fPowerRate( kBuffBehaviorFactor_[1] )
+	{}
+
+	~CX2CustomFunctionByBuffPandemoniumFear()
+	{}
+
+	virtual void FunctionInCommonFrameMove( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ );
+	virtual void FunctionInDamageReact( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ );
+
+private:
+	CKTDXCheckElapsedTime	m_checkElapsedTime;	/// June +0x10/+0x14: both value[0], so the first hit is ready
+	float					m_fPowerRate;		/// June +0x18: value[1]
+};
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+//}}
 // /** @class : CX2CustomFunctionByBuffMagicalMakeUp
 // 	@brief : 매지컬메이크업 처리 클래스
 // 	@date : 2012/8/23/
