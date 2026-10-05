@@ -4905,3 +4905,25 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              skill right after CheckSkillUsePVPOfficial, as June's slot 510 does.
 #define SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-05
+// Description: June buff port Phase 8 (JUNE_BUFF_PORT_PHASES.md): June's
+//              finalizers BFT_AURA (14), BFT_STICK_SHAKE (15) and
+//              BFT_USE_SKILL_BY_SKILL_SLOTTYPE (16): factor parse, level slice,
+//              factory and classes; their unit counters (stick-shake count and
+//              reference, skill uses per slot type) and increment sites (left /
+//              right in CX2Game::KeyProcess, the skill reserved when it is used
+//              and counted when its state starts), the stick-shake prompt, the
+//              SHAKE_DECREASE trigger, and the buff-change counter (+0x6dd0)
+//              with its UDP sync: a DWORD in the user sync (bit 0x800000, the
+//              field flag widened to 32 bits as June's) and June's "send me your
+//              buffs" request, XPT 27. The UDP change means every peer needs the
+//              same build (MODS.md). BFT_ATTACK (17) has no June client code.
+//              The aura's socket side (SIEE 15) is Phase 16's.
+//              Requires SERV_IRUHADEV_JUNE_BUFF_ENUM, _LOADER, _TEMPLET_PARITY,
+//              _BEHAVIOR_PARITY (DecreaseDurationByShake) and _NEW_SKILL
+//              (GetEquippedSkillSlotType).
+#define SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+//////////////////////////////////////////////////////////////////////////

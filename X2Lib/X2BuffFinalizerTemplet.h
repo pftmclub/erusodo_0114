@@ -613,6 +613,136 @@ private:
 	bool	m_bFinishRidingOn;
 };
 #endif	RIDING_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+
+/** @class : CX2BuffAuraFinalizerTemplet
+	@brief : June buff port Phase 8. BFT_AURA (14), June vt 33537d94 (create 32ec6260, 0x40 bytes). The buff lasts while its user
+		creator is alive, still has the socket aura (SIEE 15) that carries its BTI and, when it is someone else, is in my party. Only my
+		own unit re-checks that (every 0.5 s); any other unit's copy never ends by itself, only through the buff resync. The socket side
+		(unit slot 181) is Phase 16's, so for now a user's aura ends at its first check, as June's does with no aura socket.
+		June's slot 10 (GetCreatorUID, 32ec6150) and slot 14 (the BTI, 33180f80) have no caller outside this class; not ported.
+*/
+class CX2BuffAuraFinalizerTemplet : public CX2BuffFinalizerTemplet
+{
+public:
+	static CX2BuffFinalizerTempletPtr CreateBuffFinalizerTempletPtr() { return CX2BuffFinalizerTempletPtr( new CX2BuffAuraFinalizerTemplet ); }
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    virtual void OnFrameMove( CX2GameUnit* pGameUnit_, float fElapsedTime_ );
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	virtual void OnFrameMove( CX2GameUnit* pGameUnit_ );
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffFinalizerTempletPtr GetClonePtr() const;		/// June 32ec2170
+	virtual bool DidFinish( CX2GameUnit* pGameUnit_ ) const;
+	virtual void GetFactor( OUT vector<KBuffFinalizerFactor>& vecFactors_, const CX2GameUnit* pGameUnit_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFinalizerFactor& kFactor_, CX2GameUnit* pGameUnit_ ) {}	/// June 32ebe7f0 is empty (ret 8)
+
+protected:
+	CX2BuffAuraFinalizerTemplet() : CX2BuffFinalizerTemplet(),
+		m_iAuraState( 0 ), m_fElapsedTime( 0.0f ), m_uidCreator( -1 ), m_eBuffTempletID( BTI_NONE )
+	{}
+
+	int CheckAura( CX2GameUnit* pGameUnit_, CX2GameUnit* pCreator_ ) const;
+
+private:
+	int					m_iAuraState;		/// June +0x1c: the last CheckAura result; 2 ends the buff
+	CX2GameUnitoPtr		m_optrCreator;		/// June +0x20: the creator, once a check passed
+	float				m_fElapsedTime;		/// June +0x28: time since the last check
+	UidType				m_uidCreator;		/// June +0x30: the applier's UID (ctor -1)
+	BUFF_TEMPLET_ID		m_eBuffTempletID;	/// June +0x38: the factor's BTI
+};
+
+/** @class : CX2BuffStickShakeCountFinalizerTemplet
+	@brief : June buff port Phase 8. BFT_STICK_SHAKE (15), June vt 33537c68 (create 32ec5e10, 0x28 bytes). The hit-count finalizer's
+		shape on the unit's stick-shake count (left / right alternations while a BFT 15 buff is on); SetFactor starts the unit's stick
+		shake (slot 256) and the buff's end stops it (CX2BuffTemplet::DoFinishStickShake, slot 257).
+*/
+class CX2BuffStickShakeCountFinalizerTemplet : public CX2BuffFinalizerTemplet
+{
+public:
+	static const int	MAX_COUNT = 256;
+
+	enum FACTOR_ORDER	/// the hit-count order (the factor is parsed and sliced by the hit-count code)
+	{
+		FO_USE_BUFF_COUNT_TYPE,
+		FO_COUNT,
+		FO_RESULT_COUNT,
+		FO_END,
+	};
+
+	static CX2BuffFinalizerTempletPtr CreateBuffFinalizerTempletPtr() { return CX2BuffFinalizerTempletPtr( new CX2BuffStickShakeCountFinalizerTemplet ); }
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    virtual void OnFrameMove( CX2GameUnit* pGameUnit_, float fElapsedTime_ );
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	virtual void OnFrameMove( CX2GameUnit* pGameUnit_ );
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffFinalizerTempletPtr GetClonePtr() const;		/// June 32ec1500
+	virtual bool DidFinish( CX2GameUnit* pGameUnit_ ) const;
+	virtual void GetFactor( OUT vector<KBuffFinalizerFactor>& vecFactors_, const CX2GameUnit* pGameUnit_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFinalizerFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+
+protected:
+	CX2BuffStickShakeCountFinalizerTemplet() : CX2BuffFinalizerTemplet(),
+		m_eUseCountType( BUCT_NOT_USE ), m_iCountToBeFinished( 0 ), m_ucCountWhenStart( 0 ), m_bStart( false ) {}
+
+	virtual bool ParsingFinalizer( KLuaManager& luaManager_ );
+	int GetNewCount( const KBuffFinalizerFactor* pFactor_, CX2GameUnit* pGameUnit_ ) const;
+
+private:
+	BUFF_USE_COUNT_TYPE		m_eUseCountType;		/// June +0x1c
+	int						m_iCountToBeFinished;	/// June +0x20
+	UCHAR					m_ucCountWhenStart;		/// June +0x24
+	bool					m_bStart;				/// June +0x25
+};
+
+/** @class : CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet
+	@brief : June buff port Phase 8. BFT_USE_SKILL_BY_SKILL_SLOTTYPE (16), June vt 33537ca4 (create 32ec5e60, 0x2c bytes). BFT 15's
+		shape on the unit's skill-use count of one SKILL_SLOT_TYPE (0 any skill, 1 slot A, 2 slot B, 3 the transcendence slot).
+*/
+class CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet : public CX2BuffFinalizerTemplet
+{
+public:
+	static const int	MAX_COUNT = 256;
+
+	enum FACTOR_ORDER	/// the hit-count order
+	{
+		FO_USE_BUFF_COUNT_TYPE,
+		FO_COUNT,
+		FO_RESULT_COUNT,
+		FO_END,
+	};
+
+	static CX2BuffFinalizerTempletPtr CreateBuffFinalizerTempletPtr() { return CX2BuffFinalizerTempletPtr( new CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet ); }
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    virtual void OnFrameMove( CX2GameUnit* pGameUnit_, float fElapsedTime_ );
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	virtual void OnFrameMove( CX2GameUnit* pGameUnit_ );
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	virtual bool SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );
+	virtual CX2BuffFinalizerTempletPtr GetClonePtr() const;		/// June 32ec17c0
+	virtual bool DidFinish( CX2GameUnit* pGameUnit_ ) const;
+	virtual void GetFactor( OUT vector<KBuffFinalizerFactor>& vecFactors_, const CX2GameUnit* pGameUnit_ ) const;
+	virtual void SetFactorFromPacket( const KBuffFinalizerFactor& kFactor_, CX2GameUnit* pGameUnit_ );
+
+protected:
+	CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet() : CX2BuffFinalizerTemplet(),
+		m_eUseCountType( BUCT_NOT_USE ), m_iSkillSlotType( 0 ), m_iCountToBeFinished( 0 ), m_ucCountWhenStart( 0 ), m_bStart( false ) {}
+
+	virtual bool ParsingFinalizer( KLuaManager& luaManager_ );
+	int GetNewCount( const KBuffFinalizerFactor* pFactor_, CX2GameUnit* pGameUnit_ ) const;
+
+private:
+	BUFF_USE_COUNT_TYPE		m_eUseCountType;		/// June +0x1c
+	int						m_iSkillSlotType;		/// June +0x20: SKILL_SLOT_TYPE
+	int						m_iCountToBeFinished;	/// June +0x24
+	UCHAR					m_ucCountWhenStart;		/// June +0x28
+	bool					m_bStart;				/// June +0x29
+};
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 /** @class : CX2BuffDungeonStageChangeFinalizerTemplet
 	@brief : X2 스테이트 변경 되면 종료 되는 템플릿

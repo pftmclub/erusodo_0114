@@ -279,6 +279,12 @@ m_fNoSkillTime( 0 )
 	m_bNowStateDamageReactForDetonation	= false;
 	m_bNoDetonationByDamage				= false;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+	/// June buff port Phase 8: the CX2GameUnit ctor (June 322a2700) zeroes +0x6dd0/+0x6dd4 (322a5387) and +0x75a4/+0x75a8 (322a5469)
+	m_iStickShakeRefCount				= 0;
+	m_iStickShakeCount					= 0;
+	m_ui64BuffSyncCount					= 0;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	m_fForceInvincibleTime		= 0.0f;
 	m_fShowInvincibleTime		= 0.0f;
 	m_fShowInvincibleSwapTime	= 0.05f;
@@ -11970,6 +11976,36 @@ UINT CX2GameUnit::GetBuffAppliedCount( const BUFF_TEMPLET_ID eBuffTempletID_ ) c
 	return ( m_mapBuffAppliedCount.end() != mItr ? mItr->second : 0 );
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+
+/** @function : EndStickShake
+	@brief : June slot 257, base and NPC 322b5590. One BFT 15 buff fewer; with none left the stick-shake count goes back to 0.
+*/
+/*virtual*/ void CX2GameUnit::EndStickShake()
+{
+	if ( 0 < m_iStickShakeRefCount )
+		--m_iStickShakeRefCount;
+
+	if ( 0 == m_iStickShakeRefCount )
+		m_iStickShakeCount = 0;
+}
+
+/** @function : GetBuffAccumulationCountNowInFactor
+	@brief : June 322a0090. The stack count of the first buff factor of this BTI in GetBuffFactor (live, unfinished buffs), 0 if none.
+		AURA's check (finalizer slot 9) reads it.
+*/
+UCHAR CX2GameUnit::GetBuffAccumulationCountNowInFactor( const BUFF_TEMPLET_ID eBuffTempletID_ ) const
+{
+	vector<KBuffFactor> vecBuffFactor;
+	GetBuffFactor( vecBuffFactor );
+	BOOST_FOREACH( const KBuffFactor& kBuffFactor, vecBuffFactor )
+	{
+		if ( static_cast<int>( eBuffTempletID_ ) == static_cast<int>( kBuffFactor.m_BuffIdentity.m_eBuffTempletID ) )
+			return kBuffFactor.m_ucAccumulationCountNow;
+	}
+	return 0;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 //}}
 
 /** @function : EraseBuffTempletFromGameUnit

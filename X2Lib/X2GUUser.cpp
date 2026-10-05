@@ -34135,6 +34135,57 @@ void CX2GUUser::SendBuffInfoNot( const UidType uidGameUnitToSendNot_ )
 
 	g_pData->GetServerProtocol()->SendPacket( EGS_UPDATE_USER_UNIT_BUFF_INFO_NOT, kPacket );
 }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+
+/** @function : HasSocketAuraFor
+	@brief : June CX2GUUser slot 181, 3204e380. Only SIEE 15 (June's SIEE_ALWAYS_PLAY_EFFECT_SET) answers: for each socket option the
+		user has under it, true when an entry of the option's BUFF_FACTOR_ID list (socket data +0x29c, an entry flagged for SIEE 15)
+		is a factor of this BTI. March's socket enum ends at 11, so nothing is ever filed under 15, and its socket data has no such
+		list: both are Phase 16's (socket-option parity). Until then this is false and an aura made by a user ends at its first check.
+*/
+/*virtual*/ bool CX2GUUser::HasSocketAuraFor( const int iSocketEffectEx_, const BUFF_TEMPLET_ID eBuffTempletID_ ) const
+{
+	SOCKET_EFFECT_EX_MAP::const_iterator mItr = m_mapSocketItemEffectEx.find( static_cast<CX2SocketItem::SOCKET_ITEM_EFFECT_EX>( iSocketEffectEx_ ) );
+	if ( m_mapSocketItemEffectEx.end() == mItr || 15 != iSocketEffectEx_ )
+		return false;
+
+	static bool s_bReported = false;
+	if ( !s_bReported )
+	{
+		s_bReported = true;
+		CX2JuneBuffCapture::Line( "unsupported (Phase 16): a socket option under SIEE 15 has no BUFF_FACTOR_ID list in March's socket data, so no aura matches BTI %d",
+			static_cast<int>( eBuffTempletID_ ) );
+	}
+	return false;
+}
+
+/** @function : HasFinalizerFactorWithCreator
+	@brief : June CX2GUUser slot 182, 32039bf0. Walks GetBuffFactor's finalizer factors; one of the asked type whose first four values
+		rebuild the UID (16 bits each, low word first) is a match. June tests the type against 14 as well, so only BFT_AURA can match.
+*/
+/*virtual*/ bool CX2GUUser::HasFinalizerFactorWithCreator( const UidType uidCreator_, const BUFF_FINALIZER_TYPE eFinalizerType_ ) const
+{
+	vector<KBuffFactor> vecBuffFactor;
+	GetBuffFactor( vecBuffFactor );
+	BOOST_FOREACH( const KBuffFactor& kBuffFactor, vecBuffFactor )
+	{
+		BOOST_FOREACH( const KBuffFinalizerFactor& kFinalizerFactor, kBuffFactor.m_vecBuffFinalizerFactors )
+		{
+			if ( static_cast<UINT>( eFinalizerType_ ) != kFinalizerFactor.m_uiType || BFT_AURA != eFinalizerType_
+				|| 4 > kFinalizerFactor.m_vecValues.size() )
+				continue;
+
+			const UidType uidFactor = static_cast<__int64>( kFinalizerFactor.m_vecValues[0] )
+				| ( static_cast<__int64>( kFinalizerFactor.m_vecValues[1] ) << 16 )
+				| ( static_cast<__int64>( kFinalizerFactor.m_vecValues[2] ) << 32 )
+				| ( static_cast<__int64>( kFinalizerFactor.m_vecValues[3] ) << 48 );
+			if ( uidFactor == uidCreator_ )
+				return true;
+		}
+	}
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 /** @function : HyperModeBuffEffectStart
 	@brief : 각성 시 나와야하는 이펙트들 시작

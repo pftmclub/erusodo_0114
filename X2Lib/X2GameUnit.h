@@ -3364,6 +3364,30 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		/// Ara (32baafc0), Rose (32ac5e20) and Lu/Ciel (32b14cd0) overrides are character-port rows (JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7).
 		virtual void ChangeMaxCharacterAddResource( const float fRate_ ) {}
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+		/// June buff port Phase 8: the counters BFT_STICK_SHAKE (15) and BFT_USE_SKILL_BY_SKILL_SLOTTYPE (16) poll, and the buff-change counter.
+		/// June slot 256 (base and NPC 322b5580): a BFT 15 buff starts; a reference count. CX2GUUser adds the prompt (32011130)
+		virtual void BeginStickShake() { ++m_iStickShakeRefCount; }
+		/// June slot 257 (base and NPC 322b5590): a BFT 15 buff ends; the count resets with the last one. CX2GUUser drops the prompt (32011210)
+		virtual void EndStickShake();
+		bool IsStickShaking() const { return 0 < m_iStickShakeRefCount; }		/// June 31fc9f90
+		int GetStickShakeCount() const { return m_iStickShakeCount; }			/// June +0x75a8, read as a whole by DidFinish and as a byte elsewhere
+		/// June slots 258-260 (3208ed20 / 3208ed40 / 3208ed60, no override): skill uses per SKILL_SLOT_TYPE (0 any, 1 A, 2 B, 3 TC), map +0x75c8.
+		/// Set has no June caller
+		int GetSkillUseCount( const int iSkillSlotType_ ) { return m_mapSkillUseCount[iSkillSlotType_]; }
+		void SetSkillUseCount( const int iSkillSlotType_, const int iCount_ ) { m_mapSkillUseCount[iSkillSlotType_] = iCount_; }
+		void AddSkillUseCount( const int iSkillSlotType_, const int iCount_ ) { m_mapSkillUseCount[iSkillSlotType_] += iCount_; }
+		/// June slot 181 (base and NPC 330fb7d0 return false): whether this unit's socket effect iSocketEffectEx_ carries an aura buff for the BTI
+		virtual bool HasSocketAuraFor( const int iSocketEffectEx_, const BUFF_TEMPLET_ID eBuffTempletID_ ) const { return false; }
+		/// June slot 182 (base and NPC 31ae1500 return false): whether a buff on this unit has a finalizer of that type from that creator
+		virtual bool HasFinalizerFactorWithCreator( const UidType uidCreator_, const BUFF_FINALIZER_TYPE eFinalizerType_ ) const { return false; }
+		UCHAR GetBuffAccumulationCountNowInFactor( const BUFF_TEMPLET_ID eBuffTempletID_ ) const;	/// June 322a0090
+		/// June +0x6dd0 (64 bits): bumped when a buff is pushed, when a stick shake shortens one, when a BFT 15 buff ends and when an aura
+		/// ends on my unit. The user sync carries it; a peer that disagrees for 1 s asks the owner for its buff list (CX2GUUser::CommonFrameMove)
+		unsigned __int64 GetBuffSyncCount() const { return m_ui64BuffSyncCount; }
+		void SetBuffSyncCount( const DWORD dwCount_ ) { m_ui64BuffSyncCount = dwCount_; }		/// June 32070c90
+		void IncreaseBuffSyncCount() { ++m_ui64BuffSyncCount; }
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 		void SetKBuffFactorPacketToGameUnit( const vector<KBuffFactor>& vecBuffFactor_ );
 		
@@ -4745,6 +4769,13 @@ protected:
 		bool							m_bNowStateDamageReactForDetonation;	/// June +0x6891: March's CX2GUUser::m_bNowStateDamageReact, now on NPCs too
 		bool							m_bNoDetonationByDamage;				/// June +0x6892: the hit's DamageData NO_DETONATION
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+		/// June buff port Phase 8
+		int								m_iStickShakeRefCount;		/// June +0x75a4: BFT 15 buffs running (slots 256 / 257)
+		int								m_iStickShakeCount;			/// June +0x75a8: left / right alternations while stick shaking (31fc9fa0)
+		std::map<int, int>				m_mapSkillUseCount;			/// June +0x75c8: skill uses per SKILL_SLOT_TYPE (slots 258-260)
+		unsigned __int64				m_ui64BuffSyncCount;		/// June +0x6dd0 / +0x6dd4: the buff-change counter
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 		vector<CX2StunPtr>				m_vecStunPtr;		/// 기절 효과
 		vector<CX2FreezePtr>			m_vecFreezePtr;		/// 빙결 효과

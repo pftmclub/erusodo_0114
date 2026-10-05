@@ -73,6 +73,12 @@ case type_: \
 			CASE_FINALIZER_TEMPLET( CX2BuffFinishRidingPetOnOrNotFinalizerTemplet, BFT_RIDING_ON_OR_NOT )
 #endif	// RIDING_SYSTEM
 			CASE_FINALIZER_TEMPLET( CX2BuffX2StateChangeFinalizerTemplet, BFT_X2STATE_CHANGE )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+			/// June buff port Phase 8, June 32ec36f0: AURA (create 32ec6260), STICK_SHAKE (32ec5e10), USE_SKILL_BY_SKILL_SLOTTYPE (32ec5e60)
+			CASE_FINALIZER_TEMPLET( CX2BuffAuraFinalizerTemplet, BFT_AURA )
+			CASE_FINALIZER_TEMPLET( CX2BuffStickShakeCountFinalizerTemplet, BFT_STICK_SHAKE )
+			CASE_FINALIZER_TEMPLET( CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet, BFT_USE_SKILL_BY_SKILL_SLOTTYPE )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 #ifdef EXCEPTION_BUFF_FACTOR
 			case BFT_RIDING_ON_OR_NOT:
@@ -1838,6 +1844,406 @@ bool CX2BuffFinishRidingPetOnOrNotFinalizerTemplet::ParsingFinalizerTemplateMeth
 	/// 버프가 시작되었을 때의 스테이트
 	m_uiIndex = static_cast<UINT>( kFactor_[0] );
 }
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// June buff port Phase 8: BFT_AURA (14), BFT_STICK_SHAKE (15), BFT_USE_SKILL_BY_SKILL_SLOTTYPE (16)
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @function : OnFrameMove
+	@brief : June 32ec1370. On my own unit only: every 0.5 s (0x3343777c) the aura is checked again against its creator, which is
+		null when the applier was an NPC or was not found (that check ends it).
+*/
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+/*virtual*/ void CX2BuffAuraFinalizerTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, float fElapsedTime_ )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+/*virtual*/ void CX2BuffAuraFinalizerTemplet::OnFrameMove( CX2GameUnit* pGameUnit_ )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+{
+	if ( NULL == pGameUnit_ || !pGameUnit_->IsMyUnit() )
+		return;
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	m_fElapsedTime += fElapsedTime_;
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	m_fElapsedTime += g_pKTDXApp->GetElapsedTime();
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( 0.5f <= m_fElapsedTime )
+	{
+		m_iAuraState = CheckAura( pGameUnit_, m_optrCreator.GetObservable() );
+		m_fElapsedTime = 0.0f;
+	}
+}
+
+/** @function : SetFactor
+	@brief : June 32ec51d0. Stores the applier's UID and the factor's BTI; a user applier is checked at once (slot 9) and, when the
+		check passes (0), kept as the creator with state 1. An NPC applier leaves the state as it was (0 on a new buff).
+*/
+/*virtual*/ bool CX2BuffAuraFinalizerTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	if ( NULL == pGameUnit_ )
+		return true;	/// June: no unit is a success
+
+	const KBuffFinalizerFactor* pFactor = NULL;
+	if ( !BuffFactor_.GetFinalizerFactor( GetType(), &pFactor ) )
+		return DISPLAY_ERROR( L"CX2BuffAuraFinalizerTemplet GetFinalizerFactor didn't work" );	/// silent false in June
+
+	m_uidCreator = BuffFactor_.GetUidGameUnit();			/// June factor +0x30
+	m_eBuffTempletID = BuffFactor_.GetBuffTempletID();		/// June factor +0x28
+	if ( BuffFactor_.GetIsUserUID() )						/// June factor +0x38
+	{
+		CX2GameUnit* pCreator = g_pX2Game->GetUserUnitByUID( m_uidCreator );	/// CX2Game slot 40
+		if ( NULL != pCreator )
+		{
+			m_iAuraState = CheckAura( pGameUnit_, pCreator );
+			if ( 0 == m_iAuraState )
+			{
+				m_optrCreator = CX2GameUnitoPtr( pCreator );
+				m_iAuraState = 1;
+			}
+		}
+	}
+
+	return true;
+}
+
+/*virtual*/ CX2BuffFinalizerTempletPtr CX2BuffAuraFinalizerTemplet::GetClonePtr() const
+{
+	return CX2BuffFinalizerTempletPtr( new CX2BuffAuraFinalizerTemplet( *this ) );
+}
+
+/** @function : DidFinish
+	@brief : June 32ec5890. Finished while the last check said 2; on my own unit each such poll bumps the buff-change counter. June
+		does not read the reserve-to-finish flag here.
+*/
+/*virtual*/ bool CX2BuffAuraFinalizerTemplet::DidFinish( CX2GameUnit* pGameUnit_ ) const
+{
+	if ( NULL == g_pX2Game || NULL == pGameUnit_ )
+		return true;
+
+	if ( 2 != m_iAuraState )
+		return false;
+
+	if ( pGameUnit_->IsMyUnit() )
+		pGameUnit_->IncreaseBuffSyncCount();	/// June @32ec58f4: ++(+0x6dd0)
+
+	return true;
+}
+
+/** @function : GetFactor
+	@brief : June 32ec4b10: the creator UID in 16-bit pieces (LiveCreator's FACTOR_ORDER, low word first), then the BTI
+*/
+/*virtual*/ void CX2BuffAuraFinalizerTemplet::GetFactor( OUT vector<KBuffFinalizerFactor>& vecFactors_, const CX2GameUnit* pGameUnit_ ) const
+{
+	vecFactors_.push_back( KBuffFinalizerFactor( GetType() ) );
+	KBuffFinalizerFactor& FinalizerFactor = vecFactors_.back();
+
+	const unsigned __int64 ui64Creator = static_cast<unsigned __int64>( m_uidCreator );
+	FinalizerFactor.m_vecValues.push_back( static_cast<float>( ui64Creator & 0xFFFF ) );
+	FinalizerFactor.m_vecValues.push_back( static_cast<float>( ( ui64Creator >> 16 ) & 0xFFFF ) );
+	FinalizerFactor.m_vecValues.push_back( static_cast<float>( ( ui64Creator >> 32 ) & 0xFFFF ) );
+	FinalizerFactor.m_vecValues.push_back( static_cast<float>( ( ui64Creator >> 48 ) & 0xFFFF ) );
+	FinalizerFactor.m_vecValues.push_back( static_cast<float>( m_eBuffTempletID ) );
+}
+
+/** @function : CheckAura
+	@brief : June finalizer slot 9, the aura override 32ec13e0 (the base 31cbc910 returns 0).
+	@return : 2 ends the buff; 1 keeps it (not my unit, or this creator's aura is already on with a stack); 0 the check passed
+*/
+int CX2BuffAuraFinalizerTemplet::CheckAura( CX2GameUnit* pGameUnit_, CX2GameUnit* pCreator_ ) const
+{
+	if ( NULL == pGameUnit_ || NULL == pCreator_ )
+		return 2;
+
+	if ( !pGameUnit_->IsMyUnit() )				/// unit slot 102
+		return 1;
+
+	if ( pCreator_->GetNowHp() <= 0.0f )		/// 31e4f900
+		return 2;
+
+	/// unit slot 181 with SIEE 15 (June's SIEE_ALWAYS_PLAY_EFFECT_SET; March's enum ends at 11)
+	if ( !pCreator_->HasSocketAuraFor( 15, m_eBuffTempletID ) )
+		return 2;
+
+	if ( pCreator_->GetUnitUID() != pGameUnit_->GetUnitUID() )
+	{
+		if ( NULL == g_pData->GetPartyManager() || !g_pData->GetPartyManager()->IsMyPartyMember( pCreator_->GetUnitUID() ) )	/// g_pData +0x5c, 32431360
+			return 2;
+
+		if ( CX2GameUnit::GUT_USER != pGameUnit_->GetGameUnitType() )	/// +0x264
+			return 2;
+	}
+
+	if ( pGameUnit_->HasFinalizerFactorWithCreator( m_uidCreator, BFT_AURA )	/// unit slot 182
+		&& 0 != pGameUnit_->GetBuffAccumulationCountNowInFactor( m_eBuffTempletID ) )	/// 322a0090
+		return 1;
+
+	return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @function : ParsingFinalizer
+	@brief : June 32ebffe0. BUFF_USE_COUNT_TYPE is required (a missing key fails the templet).
+*/
+/*virtual*/ bool CX2BuffStickShakeCountFinalizerTemplet::ParsingFinalizer( KLuaManager& luaManager_ )
+{
+	LUA_GET_VALUE_RETURN_ENUM( luaManager_, "BUFF_USE_COUNT_TYPE", m_eUseCountType,
+		BUFF_USE_COUNT_TYPE, BUCT_NOT_USE, return DISPLAY_ERROR( L"BUFF_USE_COUNT_TYPE" ) );
+	return true;
+}
+
+/** @function : OnFrameMove
+	@brief : June 32ec01a0. The hit-count finalizer's byte wraparound, on the stick-shake count.
+*/
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+/*virtual*/ void CX2BuffStickShakeCountFinalizerTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, float fElapsedTime_ )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+/*virtual*/ void CX2BuffStickShakeCountFinalizerTemplet::OnFrameMove( CX2GameUnit* pGameUnit_ )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+{
+	if ( NULL != pGameUnit_ && m_bStart && MAX_COUNT <= m_iCountToBeFinished
+		&& static_cast<UCHAR>( pGameUnit_->GetStickShakeCount() ) < m_ucCountWhenStart )
+		m_iCountToBeFinished -= MAX_COUNT;
+}
+
+/** @function : SetFactor
+	@brief : June 32ec1e00. Starts the unit's stick shake (slot 256), takes the start count once, and keeps the later of the old and
+		the new end count.
+*/
+/*virtual*/ bool CX2BuffStickShakeCountFinalizerTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	if ( NULL == pGameUnit_ )
+		return false;
+
+	const KBuffFinalizerFactor* pFactor = NULL;
+	if ( !BuffFactor_.GetFinalizerFactor( GetType(), &pFactor ) )
+		return DISPLAY_ERROR( L"CX2BuffStickShakeCountFinalizerTemplet GetFinalizerFactor didn't work" );	/// silent false in June
+
+	const float fUseCountType = ( pFactor->m_vecValues.empty() ? 0.0f : (*pFactor)[FO_USE_BUFF_COUNT_TYPE] );
+	if ( STATIC_CAST_FLOAT_TO_ENUM( BUFF_USE_COUNT_TYPE, fUseCountType ) != m_eUseCountType )
+		return DISPLAY_ERROR( L"BUFF_USE_COUNT_TYPE MISS MATCH" );	/// silent false in June
+
+	pGameUnit_->BeginStickShake();
+	const UCHAR ucCountNow = static_cast<UCHAR>( pGameUnit_->GetStickShakeCount() );
+	if ( false == m_bStart )
+	{
+		m_ucCountWhenStart = ucCountNow;
+		m_bStart = true;
+	}
+
+	const int iCountNew = GetNewCount( pFactor, pGameUnit_ );
+	if ( m_iCountToBeFinished - static_cast<int>( ucCountNow ) <= iCountNew )
+		m_iCountToBeFinished = static_cast<int>( ucCountNow ) + iCountNew;
+
+	return true;
+}
+
+/*virtual*/ CX2BuffFinalizerTempletPtr CX2BuffStickShakeCountFinalizerTemplet::GetClonePtr() const
+{
+	return CX2BuffFinalizerTempletPtr( new CX2BuffStickShakeCountFinalizerTemplet( *this ) );
+}
+
+/** @function : DidFinish
+	@brief : June 32ec01d0. The whole count (not its byte) against the end count, or a reserved finish.
+*/
+/*virtual*/ bool CX2BuffStickShakeCountFinalizerTemplet::DidFinish( CX2GameUnit* pGameUnit_ ) const
+{
+	return ( NULL != pGameUnit_ && m_bStart
+		&& ( m_iCountToBeFinished <= pGameUnit_->GetStickShakeCount() || DidReserveToFinish() ) );
+}
+
+/** @function : GetFactor
+	@brief : June 32ec4c50: [ end count, start count ], only with a unit
+*/
+/*virtual*/ void CX2BuffStickShakeCountFinalizerTemplet::GetFactor( OUT vector<KBuffFinalizerFactor>& vecFactors_, const CX2GameUnit* pGameUnit_ ) const
+{
+	if ( NULL == pGameUnit_ )
+		return;
+
+	vecFactors_.push_back( KBuffFinalizerFactor( GetType() ) );
+	KBuffFinalizerFactor& FinalizerFactor = vecFactors_.back();
+
+	FinalizerFactor.m_vecValues.push_back( static_cast<float>( m_iCountToBeFinished ) );
+	FinalizerFactor.m_vecValues.push_back( static_cast<float>( m_ucCountWhenStart ) );
+}
+
+/** @function : SetFactorFromPacket
+	@brief : June 32ec1580. It does not start the unit's stick shake (no slot 256), so a peer's copy only ends through the resync.
+*/
+/*virtual*/ void CX2BuffStickShakeCountFinalizerTemplet::SetFactorFromPacket( const KBuffFinalizerFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	if ( NULL == pGameUnit_ )
+		return;
+
+	m_iCountToBeFinished = static_cast<int>( kFactor_.m_vecValues.empty() ? 0.0f : kFactor_[0] );
+	m_ucCountWhenStart = static_cast<UCHAR>( static_cast<int>( 1 < kFactor_.m_vecValues.size() ? kFactor_[1] : 0.0f ) );
+	m_bStart = true;
+	if ( static_cast<UCHAR>( pGameUnit_->GetStickShakeCount() ) < m_ucCountWhenStart )
+		m_iCountToBeFinished -= MAX_COUNT;
+}
+
+/** @function : GetNewCount
+	@brief : June 32ec1620 (16's 32ec18f0 is the same). A result count above 0 wins; otherwise COUNT, times the unit's own buff or
+		debuff count for BUCT_MY_*; the enemy types give 0. Truncated, as June's fistp under a truncating control word.
+*/
+int CX2BuffStickShakeCountFinalizerTemplet::GetNewCount( const KBuffFinalizerFactor* pFactor_, CX2GameUnit* pGameUnit_ ) const
+{
+	if ( NULL == pGameUnit_ )
+		return 0;
+
+	const float fResultCount = ( FO_RESULT_COUNT < pFactor_->m_vecValues.size() ? (*pFactor_)[FO_RESULT_COUNT] : 0.0f );
+	if ( 0.0f < fResultCount )
+		return static_cast<int>( fResultCount );
+
+	const float fCount = ( FO_COUNT < pFactor_->m_vecValues.size() ? (*pFactor_)[FO_COUNT] : 0.0f );
+	switch ( m_eUseCountType )
+	{
+	case BUCT_NOT_USE:
+		return static_cast<int>( fCount );
+
+	case BUCT_MY_BUFF_COUNT:
+		return static_cast<int>( static_cast<float>( pGameUnit_->GetAppliedBuffCount( false ) ) * fCount );	/// 32281480( false )
+
+	case BUCT_MY_DEBUFF_COUNT:
+		return static_cast<int>( static_cast<float>( pGameUnit_->GetAppliedBuffCount( true ) ) * fCount );
+
+	default:
+		return 0;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** @function : ParsingFinalizer
+	@brief : June 32ec0240. BUFF_USE_COUNT_TYPE, then SKILL_SLOT_TYPE; both are required.
+*/
+/*virtual*/ bool CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::ParsingFinalizer( KLuaManager& luaManager_ )
+{
+	LUA_GET_VALUE_RETURN_ENUM( luaManager_, "BUFF_USE_COUNT_TYPE", m_eUseCountType,
+		BUFF_USE_COUNT_TYPE, BUCT_NOT_USE, return DISPLAY_ERROR( L"BUFF_USE_COUNT_TYPE" ) );
+	LUA_GET_VALUE_RETURN( luaManager_, "SKILL_SLOT_TYPE", m_iSkillSlotType, 0, return DISPLAY_ERROR( L"SKILL_SLOT_TYPE" ) );
+	return true;
+}
+
+/** @function : OnFrameMove
+	@brief : June 32ebe800. BFT 15's wraparound, on the skill-use count of the slot type.
+*/
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+/*virtual*/ void CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, float fElapsedTime_ )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+/*virtual*/ void CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::OnFrameMove( CX2GameUnit* pGameUnit_ )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+{
+	if ( NULL != pGameUnit_ && m_bStart && MAX_COUNT <= m_iCountToBeFinished
+		&& static_cast<UCHAR>( pGameUnit_->GetSkillUseCount( m_iSkillSlotType ) ) < m_ucCountWhenStart )
+		m_iCountToBeFinished -= MAX_COUNT;
+}
+
+/** @function : SetFactor
+	@brief : June 32ec1eb0. BFT 15's SetFactor on the skill-use count (slot 258), without slot 256.
+*/
+/*virtual*/ bool CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::SetFactor( const CX2BuffFactor& BuffFactor_, CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ )
+{
+	if ( NULL == pGameUnit_ )
+		return false;
+
+	const KBuffFinalizerFactor* pFactor = NULL;
+	if ( !BuffFactor_.GetFinalizerFactor( GetType(), &pFactor ) )
+		return DISPLAY_ERROR( L"CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet GetFinalizerFactor didn't work" );	/// silent false in June
+
+	const float fUseCountType = ( pFactor->m_vecValues.empty() ? 0.0f : (*pFactor)[FO_USE_BUFF_COUNT_TYPE] );
+	if ( STATIC_CAST_FLOAT_TO_ENUM( BUFF_USE_COUNT_TYPE, fUseCountType ) != m_eUseCountType )
+		return DISPLAY_ERROR( L"BUFF_USE_COUNT_TYPE MISS MATCH" );	/// silent false in June
+
+	const UCHAR ucCountNow = static_cast<UCHAR>( pGameUnit_->GetSkillUseCount( m_iSkillSlotType ) );
+	if ( false == m_bStart )
+	{
+		m_ucCountWhenStart = ucCountNow;
+		m_bStart = true;
+	}
+
+	const int iCountNew = GetNewCount( pFactor, pGameUnit_ );
+	if ( m_iCountToBeFinished - static_cast<int>( ucCountNow ) <= iCountNew )
+		m_iCountToBeFinished = static_cast<int>( ucCountNow ) + iCountNew;
+
+	return true;
+}
+
+/*virtual*/ CX2BuffFinalizerTempletPtr CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::GetClonePtr() const
+{
+	return CX2BuffFinalizerTempletPtr( new CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet( *this ) );
+}
+
+/** @function : DidFinish
+	@brief : June 32ec0540. The whole skill-use count against the end count, or a reserved finish.
+*/
+/*virtual*/ bool CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::DidFinish( CX2GameUnit* pGameUnit_ ) const
+{
+	return ( NULL != pGameUnit_ && m_bStart
+		&& ( m_iCountToBeFinished <= pGameUnit_->GetSkillUseCount( m_iSkillSlotType ) || DidReserveToFinish() ) );
+}
+
+/** @function : GetFactor
+	@brief : June 32ec4d20: [ end count, start count ], only with a unit
+*/
+/*virtual*/ void CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::GetFactor( OUT vector<KBuffFinalizerFactor>& vecFactors_, const CX2GameUnit* pGameUnit_ ) const
+{
+	if ( NULL == pGameUnit_ )
+		return;
+
+	vecFactors_.push_back( KBuffFinalizerFactor( GetType() ) );
+	KBuffFinalizerFactor& FinalizerFactor = vecFactors_.back();
+
+	FinalizerFactor.m_vecValues.push_back( static_cast<float>( m_iCountToBeFinished ) );
+	FinalizerFactor.m_vecValues.push_back( static_cast<float>( m_ucCountWhenStart ) );
+}
+
+/** @function : SetFactorFromPacket
+	@brief : June 32ec1840
+*/
+/*virtual*/ void CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::SetFactorFromPacket( const KBuffFinalizerFactor& kFactor_, CX2GameUnit* pGameUnit_ )
+{
+	if ( NULL == pGameUnit_ )
+		return;
+
+	m_iCountToBeFinished = static_cast<int>( kFactor_.m_vecValues.empty() ? 0.0f : kFactor_[0] );
+	m_bStart = true;
+	m_ucCountWhenStart = static_cast<UCHAR>( static_cast<int>( 1 < kFactor_.m_vecValues.size() ? kFactor_[1] : 0.0f ) );
+	if ( static_cast<UCHAR>( pGameUnit_->GetSkillUseCount( m_iSkillSlotType ) ) < m_ucCountWhenStart )
+		m_iCountToBeFinished -= MAX_COUNT;
+}
+
+/** @function : GetNewCount
+	@brief : June 32ec18f0, the same body as BFT 15's 32ec1620
+*/
+int CX2BuffUseSkillBySkillSlotTypeFinalizerTemplet::GetNewCount( const KBuffFinalizerFactor* pFactor_, CX2GameUnit* pGameUnit_ ) const
+{
+	if ( NULL == pGameUnit_ )
+		return 0;
+
+	const float fResultCount = ( FO_RESULT_COUNT < pFactor_->m_vecValues.size() ? (*pFactor_)[FO_RESULT_COUNT] : 0.0f );
+	if ( 0.0f < fResultCount )
+		return static_cast<int>( fResultCount );
+
+	const float fCount = ( FO_COUNT < pFactor_->m_vecValues.size() ? (*pFactor_)[FO_COUNT] : 0.0f );
+	switch ( m_eUseCountType )
+	{
+	case BUCT_NOT_USE:
+		return static_cast<int>( fCount );
+
+	case BUCT_MY_BUFF_COUNT:
+		return static_cast<int>( static_cast<float>( pGameUnit_->GetAppliedBuffCount( false ) ) * fCount );
+
+	case BUCT_MY_DEBUFF_COUNT:
+		return static_cast<int>( static_cast<float>( pGameUnit_->GetAppliedBuffCount( true ) ) * fCount );
+
+	default:
+		return 0;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////

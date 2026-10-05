@@ -2931,6 +2931,11 @@ public:
 		bool	IsRidingKeySkillWaiting() const { return -1.f != m_fRidingKeySkillWaitTime; }	/// 329cc370
 		float	m_fRidingKeySkillWaitTime;
 #endif SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+		/// June buff port Phase 8: CX2GUUser's slot 181 (3204e380) and slot 182 (32039bf0)
+		virtual bool HasSocketAuraFor( const int iSocketEffectEx_, const BUFF_TEMPLET_ID eBuffTempletID_ ) const;
+		virtual bool HasFinalizerFactorWithCreator( const UidType uidCreator_, const BUFF_FINALIZER_TYPE eFinalizerType_ ) const;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환
 		virtual void		UpNowDPValueByDamage( IN const float fDamage_ ) {}				/// 애드일 때, 피격시 DP 변동 처리

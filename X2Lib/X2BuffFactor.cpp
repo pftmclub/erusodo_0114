@@ -497,6 +497,13 @@ bool CX2BuffFactor::ParsingCombinationFinalizer( KLuaManager& luaManager_ )
 				CASE_FINALIZER_FACTOR( ParsingEmptyFinalizer, BFT_FINISH_HYPER );
 				CASE_FINALIZER_FACTOR( ParsingEmptyFinalizer, BFT_RIDING_ON_OR_NOT )
 				CASE_FINALIZER_FACTOR( ParsingEmptyFinalizer, BFT_X2STATE_CHANGE )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+				/// June buff port Phase 8, June 32d4c750: AURA's factor is empty (32d44230); 15 (32d44a80) and 16 (32d44d60) are the
+				/// hit-count shape, BUFF_USE_COUNT_TYPE + COUNT + 0.0, and read COUNT as a skill table always (a literal 1, not bIsSkill)
+				CASE_FINALIZER_FACTOR( ParsingEmptyFinalizer, BFT_AURA )
+				CASE_FINALIZER_FACTOR_SKILL( ParsingHitCountFinalizer, BFT_STICK_SHAKE, true )
+				CASE_FINALIZER_FACTOR_SKILL( ParsingHitCountFinalizer, BFT_USE_SKILL_BY_SKILL_SLOTTYPE, true )
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 #else //UPGRADE_SKILL_SYSTEM_2013
 				CASE_FINALIZER_FACTOR( ParsingTimeFinalizer, BFT_TIME );
 				CASE_FINALIZER_FACTOR( ParsingHitCountFinalizer, BFT_HIT_COUNT );
@@ -3481,6 +3488,19 @@ void BUFF_FACTOR::GetFinalizerFactorToLevel( IN const vector<KBuffFinalizerFacto
 			{
 				PushFinalizerMpToLevel( vecOutFinalizerFactorList, factor, uiLevel_ );
 			} break;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+
+		case BFT_STICK_SHAKE:
+		case BFT_USE_SKILL_BY_SKILL_SLOTTYPE:
+			{
+				/// June buff port Phase 8, June 32d4cb00: 15 (32d48eb0) and 16 (32d49060) are the hit-count slice (32d48640) under their
+				/// own type. AURA (14) takes the default branch, as in June
+				const size_t uiSizeBefore = vecOutFinalizerFactorList.size();
+				PushFinalizerHitToLevel( vecOutFinalizerFactorList, factor, uiLevel_ );
+				if ( uiSizeBefore < vecOutFinalizerFactorList.size() )
+					vecOutFinalizerFactorList.back().m_uiType = eFinalizerType;
+			} break;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 		default:
 			{
