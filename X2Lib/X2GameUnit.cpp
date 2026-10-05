@@ -11563,6 +11563,34 @@ static BUFF_TEMPLET_ID JuneBuffTempletIDOfFactor( const UINT uiBuffFactorId_ )
 	return false;
 }
 
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 review (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+/** @function : SetBuffFactorToGameUnitAtLevel
+	@brief : June 3229b0a0, dormant. June's SetBuffFactorToGameUnit( skill, index ) (3229af40) with the level taken from
+			 the caller instead of the user's skill tree. Same guards (a skill templet, an index in range, a user with a
+			 CX2Unit), then the levelled clone (32089f60), the can-apply check with its BTI (slot 132), the creator stamp
+			 (32d4d670) and SetBuffFactorToGameUnit (slot 137). Between the check and the stamp June calls user slot 476
+			 (32028250, the skill-memo scaling) with the skill id, as 3229af40 does; March has no skill-memo table and the
+			 3229af40 port above omits that call too. June's only caller is Rose's 32ababc0 (character checklist section 7).
+*/
+bool CX2GameUnit::SetBuffFactorToGameUnitAtLevel( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const UINT uiIndex_, const UINT uiLevel_ )
+{
+	if ( NULL == pSkillTemplet_ || uiIndex_ >= pSkillTemplet_->m_vecBuffFactorPtr.size() || GUT_USER != GetGameUnitType()
+		|| NULL == static_cast<CX2GUUser*>( this )->GetUnit() )
+		return false;
+
+	if ( NULL == pSkillTemplet_->m_vecBuffFactorPtr[uiIndex_] )
+		return false;
+
+	CX2BuffFactorPtr ptrBuffFactorClone = pSkillTemplet_->m_vecBuffFactorPtr[uiIndex_]->GetClonePtr( uiLevel_ );
+	if ( NULL == ptrBuffFactorClone || true != CanApplyBuffToGameUnit( ptrBuffFactorClone->GetBuffTempletID() ) )
+		return false;
+
+	ptrBuffFactorClone->SetGameUnitBuffFactor( this );
+	return SetBuffFactorToGameUnit( *ptrBuffFactorClone );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 /** @function : SetBuffFactorToGameUnit
 	@brief : 게임유닛에게 버프 적용
 	@param : 어떤 버프를 적용할 것인가에 대한 정보(buffFactor_)

@@ -2933,6 +2933,12 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #endif ADD_LIVE_CREATOR_FINALIZER
 		virtual bool SetBuffFactorToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const UINT uiIndex_ );
 		virtual bool SetBuffFactorToGameUnit( const CX2BuffFactor& buffFactor_ );
+//{{ Iruha : 2026-10-05 // June buff port Phase 10 review (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
+		/// June 3229b0a0 (non-virtual): the skill-templet apply at a level the caller gives. Only caller Rose 32ababc0: dormant.
+		bool SetBuffFactorToGameUnitAtLevel( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const UINT uiIndex_, const UINT uiLevel_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
 #ifdef SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 		/// June buff port Phase 4a: the checks and stores of June's SetBuffFactorToGameUnit (322a83b0)
 		virtual bool IsImmuneBuffBySocketOption( const BUFF_TEMPLET_ID eBuffTempletID_ ) { return false; }	/// June unit slot 179: false but for CX2GUUser

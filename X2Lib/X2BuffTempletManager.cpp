@@ -244,8 +244,9 @@ void CX2BuffTempletManager::OpenScriptFileForBuffGroup()
 			 BUFF_TEMPLET_LIST holds { BTI, apply } rows read by index until a row is missing (BTI 0 and
 			 apply true when a value is absent, as June presets them). map::insert keeps a BTI's first row.
 			 The group is pushed even when it repeats an id (no dedupe in June). June never closes
-			 BUFF_TEMPLET_LIST; the KLuaManager destructor drops the table stack (June 32fe9660, here
-			 KLuaManagerProxy's), so that is transcribed as June has it.
+			 BUFF_TEMPLET_LIST, and neither KLuaManager destructor pops it (June 32fe9660 and LuaCommon's
+			 DetachLuaState only release refs). The table goes when this call returns to Lua (the void functor
+			 returns 0 results), so leaving it open is harmless; transcribed as June has it.
 */
 void CX2BuffTempletManager::AddBuffGroup_LUA()
 {
