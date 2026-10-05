@@ -3370,6 +3370,10 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 - **`SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY`:** `IS_AURA_BUFF` (`+0x5f0`) and `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` (`+0x604`, −1) parsed and stored; readers are **Phase 10b** (new section below).
 - **Staged:** `UnitApplyBuffGroup.lua` (mar-2014, `1B 4B 4C 81`, 4,909 B; 3 groups, 109 officially debuffs, all 113 BTI names resolve in the staged Enum) in `march2014/update/data036/` and `kom_contents/data036_kom/` + both `_manifest.json`.
 
+**Visible side effect (June's, kept):** the damage-react apply now returns true only when a factor really applied (March: when one passed the immunity list). `CX2GUUser`'s hit code (`X2GUUser.cpp` `bBuffApplied`) uses it to fire the socket effects `SIEE_STAT_UP` / `SIEE_UP_MANA_RECOVERY_VALUE`, so those now trigger only when a debuff lands, not on a resisted one.
+
+**Matrix:** `census.py` rerun (`cc1ad03`): every Phase 10 key is `implemented`; `BUFF_FACTOR_ID_MEMO` / `_RELATIVE_MEMO_ID` stay `june-ignores` (kept by the memo decision).
+
 **Recorded, not ported** (no March home; funcmap rows): `AddRandomBuffList`/`DUMMY_BUFF_TEMPLET_ID` (June's CustomEventManager, `3267c370`, and its branch in `322a88c0`); `CHECK_RIDINGPET_SPACIAR_BUFF` (transforming riding pet, `32d2f3d0`); `SetPveBalanceBuffGiveScore_LUA` (PvE mode); `SendRandomMissionRewardBuffCheat` (server event 0x497); `3204e6a0` (no callers). `DELETE_BUFF_WHEN_DIE` was already ported in 4b.
 
 **Correction:** `31fceab0`'s other exit tests the skill's `m_ePowerRate` (templet `+0x174`) against 5 = June's `SPRT_HYPER_CLASS`, absent from March's enum (5 = `SPRT_END`); it cannot fire here. `+0x178` (6b's memo/base id) is written separately, so there is no conflict with 6b.
