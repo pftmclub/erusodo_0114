@@ -3158,6 +3158,8 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 ### Phase 7e — Done (2026-10-05)
 
+**Play-test (2026-10-05, user; exe `fa090292`, run 09:46:47 after the 09:37 deploy): all 4 checks passed by eye.** `ErrorLog.txt:560` `first pre-start quick-slot allow (322f5140): item 78390, now stage start motion 0, start-motion delay -1` (the tutorial really is before the start, so the allow path ran); `:1032` `first start-motion delay end (31fcf040): ... riding 0`; `:1033` `first arm quick-slot special item wait: item 78390, 10 s`; no `armed before the start` line; load baseline unchanged (`factors 361 loaded`, the same 5 ordinal rejects); 0 exceptions (3 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, unrelated).
+
 **Landed** in two commits. The RE is in the "Buff Phase 7e" rows of `june2017_re/funcmap.tsv` (15 new, 6 corrected).
 - **`f20a31c`, `SERV_IRUHADEV_JUNE_BUFF_START_DELAY`:** June's start-motion delay, CX2GUUser `+0x92cc`.
   - The ctor sets −1.0f (`@32041c8b`; the x87 stack holds `334380f0`).
