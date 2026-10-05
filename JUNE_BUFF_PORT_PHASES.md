@@ -3499,6 +3499,55 @@ Flag `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (+ `_DEBUG`), commit `6d6e9e9`. R
 2. **Sinister Mind divides by `max / 3`** with no check (#33). Below a max of 3 that is a crash, so the port skips the effect swap there. Confirm the guard.
 3. **Death Sign's dungeon exemption** is not ported: June spares the user when the current sub-stage's June field `+0x48` is 4 (game `+0xc44` → `+4` → `+4`), and I could not match that field to March's `CX2DungeonSubStage`. A reserved death therefore always fires here.
 
+### Phase 9b — Review (2026-10-05, Opus 5.5 high)
+
+**Verdict: no transcription errors, no code change.** The exe stays 44c5b837, and the 9b play-test (5/5) already covers the regression. Three new June bugs (JUNE_BUGS #36–#38), #31's open question answered, and one Done-note claim corrected. Read-only Ghidra / `disasm_range.py`; the June-side jump-table decode was done by hand from the exe.
+
+**Hygiene:** `flagcheck.py JUNE_BUFF_CUSTOM_FUNCTION --range 6d6e9e9^..HEAD --with JUNE_BUFF_DEBUG`: `files: 3 PASS, 7 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 6 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. The 6 deleted lines are 9a's switch brief and DEBUG line, rewritten (as the Done note says).
+
+1. **Switch arguments: correct.**
+   - Register map: `ESI` = identity, `[esp+0x2c]` = factor, `[esp+0x30]` = creator info, `EBX` = unit.
+   - Both jump tables decode to the 14 cases. The `0x37e` table gives 894/920/927/952/1010/1022/1038.
+   - Each ctor's pushes match the port: 439 (identity, factor copy); 720/920 (identity, unit); 819/894, 952, 1022 (identity, uid, unit); 891 (identity, factor *pointer*, uid, unit); 927, 1038 (identity); 1010 (identity, uid, `FLD [info+0x10]`, unit).
+   - 767: both `32007b10` calls run with `ECX` = the creator (`2`, `0x7560` → `ftol`; `0x94`, `0x7560`). June's ctor also takes a factor copy it never reads, so the port drops it.
+   - 952's gate is `[EBX+0x264] == 1`. On any other unit it calls `3229e160(0x3b8)`.
+   - Attack Me's creator lookup is CX2Game slot 50 (`322d80a0`): unit-list walk, UID **and** `+0x264` type. It runs `(uid, 1)` (NPC), then `(uid, 0)`, matching the port's `GetNPCUnitByUID` → `GetUserUnitByUID`.
+2. **Destructors: correct.** All six (`3236f390`, `3236f7c0`, `3236f9f0`, `32370000`, `32370300`, `3236f480`) were decompiled. Guards, the erase of 721 on the stored user, the Rose `[[+0x867c]+0xaf0] == 0xb` checks and the `(+0x18, +0x1c)` arguments all match. The Sinister Mind dtor's `CreateInstance` (`31f8ff00` on game `+0x3b4`) uses March's defaults exactly: land 0, reserve 0, −1, 1, 1, −1, −1, 0, −1. It has no reActType write.
+3. **Sinister Mind: correct.**
+   - The step is `ftol(max/3.0)` with an `idiv` and no zero check; the level is compared but not stored (#32, #33). The swap is `Seed_Plant_2` for level 1 and `_3` otherwise (strings at `33490308` / `33490360`).
+   - At the full count it calls slot 136 `(0x31a, uid lo, uid hi, 1, 1)`, and `+0x28 = -1` follows both branches.
+   - FrameMove writes `+0x224 = 7` (the dummy hit) only on its own effect, and times out on `<= 0` (`test ah,5 / jp`). The power-rate multiply order matches `32369bd0`.
+4. **Moonlight Rhapsody: correct.**
+   - Guards, then trigger 7 via `32610fb0(7)`.
+   - The scan keeps the last non-zero `+0x34` (stride `0x5b`) of BTI `0x1b7`.
+   - Count `<= 0` skips the erase (`JLE` past `3229e160`). Any count other than 1–3 erases without playing anything.
+   - The attacker's hyper state uses `31e4f890` (remaining time) `> 0.0`.
+   - `PlayEffectSet` gets (attacker, 0, hyper, power, −1, 1,1,1, custom 1, `&+0x460`, 0-vec, 0-vec, 1.0); the trailing 1.0 has no March parameter.
+   - The erase acts on the debuffed unit (`[esp+0x24]`).
+5. **New fields: correct.**
+   - SetDamageExceptionProcess `@322996e0`: `+0x5e0` = vslot 67, `+0x5e8` = `+0x40d8`, `inc`/`JNS` wrap. June's early exits (null attacker, `@322990f4..3229910c`) skip the tail, as the port's `return` does.
+   - `+0x40dc` is stored first inside `IsDamagedReaction`: user `@3204719d`, before vslot 200; NPC `@327b306b`.
+   - The critical add is `fld [DD+0x5d4]; fadd` straight after GetCriticalPercent (vslot 117) at both `@32048a49` and `@327b36ef`.
+   - `+0x258` is a KProtected bool (`@3206f833` xors `+0x25c`/`+0x260`), cleared with `32082790(0)` before `SetNowHp` (vslot 61) with 0.
+6. **`KBuffFactor` copy ctor: correct, but the Done note's reason is wrong.**
+   - The member order matches the declaration.
+   - X2ServerProtocol **does** compile `CommonPacket.h`, without the flag: `StdAfx.h` → `X2ServerProtocolLib.h:68` → `SystemPacket.h:5`.
+   - It emits no code for it: `X2Lib/X2ServerProtocol.lib` holds only debug type names, with no `??0KBuffFactor` and no mangled `KBuffFactor@@` / `KBuffInfo@@` symbol. So the only copy the linker can pick is `X2Lib`'s flagged one.
+   - Re-check this if X2ServerProtocol ever starts copying `KBuffFactor` / `KBuffInfo`.
+7. **Hooks: correct.** The 10 hooks and `32b87880` each appear in `JUNE2017_CHARACTER_PORT_CHECKLIST.md` §7. Argument orders match the calls above.
+
+**New June bugs (rows added, all verbatim in the port):**
+- **#36:** Moonlight Rhapsody erases its own buff inside the DamageReact loop. June's slot-4 dispatcher `32275650` walks the live vector with a cached end, like BOOST_FOREACH.
+- **#37:** Atomic Blaster's `+= 1.0` lands in the attacker's shared DamageData, the same mechanism as #4.
+- **#38:** Sinister Mind's ×1.2 keys off slot 45 `GetHyperModeTime`, which is non-zero only during the awakening state itself. March clears `m_iLastStateHyperModeCount` in `HyperModeEnd`.
+
+**Also checked:**
+- **#31 answered:** the DamageReact apply path hands over the attacker DamageData's own factor (`SetBuffFactorToGameUnit( **vItr )` → `PushNewBuffTempletToGameUnit` → `SetFactor`, no clone). Chain Viper's value[0] write therefore sticks for every later target of that DamageData.
+- Servo Nitro's 721 has no custom function in June's templet, so its apply and erase inside the state loops cannot touch the vector.
+- Geist's `DestroyInstanceHandle` takes the handle by reference and resets it, so FrameMove stops after one destroy.
+
+**Not a finding:** Phase 13 makes these classes live. `kickoffs/june-buff/13.md` now carries a gate: the three questions above are to be answered before 13 ships data (Death Sign kills outright once 1038 is live).
+
 ## Phase 10 — Buff groups and June-only script bindings
 
 **Scope.**
