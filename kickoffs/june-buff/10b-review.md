@@ -37,6 +37,8 @@ Review the Phase 10b commit against June. Check these first:
    sites: a miss and a hit in UnitToUnit, MeshToUnit, CollisionDataToUnit and EffectToUnit. In
    EffectToUnit the hit call uses `pAttackUnit` (the owner taken at the target's start) where
    June reads the owner off the effect after `AttackResult`: say whether that can differ.
+   Also: the helper's one-time hit log prints both UIDs after null-checking only one side; every
+   call site passes non-null for both today, so decide whether it needs a guard.
 4. **`320471d6` / `327b3122`:** only `PlayEffectSetHittedByBuff` is gated; nothing else in
    either DamageReact reads `+0x5f0`.
 5. **LIMIT_APPLY_BUFF_COUNT_EACH_UNIT:** confirm `3227a270` and `322759b0` have no caller of
