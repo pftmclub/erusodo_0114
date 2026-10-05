@@ -3621,6 +3621,56 @@ Flags `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (items 1–2), and two new ones:
 
 **Open for the user:** none. Backlog: June's sub-stage clear state machine (item 3, "Not ported"), and finding June's KBuffFactor Put (the review kickoff asks).
 
+### Phase 9c — Review (2026-10-05, Opus 5.5 high)
+
+**Verdict: no transcription errors, no code change.** The exe stays bba821cf; the 9c play-test (4/4) covers the regression, so there is nothing new to play-test. One tool fix (`b1b7e0d`, flagcheck) and JUNE_BUGS #41. The Ghidra reads were read-only. Every item below was checked against June directly, so it is more than a spot-check.
+
+1. **`KBuffFactor` (`_FACTOR_WIRE`): correct.**
+   - **The flag reaches `CommonPacket.h`.** A `cl /P` of X2Lib's `stdafx.h` lists every header before `Always.h`, and the struct there carries `m_fJuneCreatorPowerRate`. Only `CommonPacket.h` (the flag) and `ServerDefine.h` (the define) in that list name a `SERV_IRUHADEV_` flag. `CommonPacket.h`'s one mention of `_CUSTOM_FUNCTION` is in a comment.
+   - **The ctor matches** `3211ea50` (`+0x57` = 1.0).
+   - **The copy ctor matches** June's `31e8bfa0`, for every member the port carries.
+   - **June's Put is `320cdc70`.** It mirrors Get `320e3950` field for field: uid `+0x28` after the identity, `+0x35` int, `+0x39` float, NPC flag `+0x3d`, factor `+0x3e`, power `+0x57` last. The port's order, minus `+0x35`/`+0x39`, matches.
+   - **`+0x35`/`+0x39` are always 0 from the client.** Nothing reads or writes them, so they get **JUNE_BUGS #41**; the port does not carry them. Two searches:
+     - a .text sweep for `[reg+0x35/0x39]` next to `+0x57`;
+     - all 22 functions that call the ctor, copy ctor, Put or Get (stack copies included), plus `3236c440`.
+
+     Only the ctor (zeroes) and the copy ctor / Put / Get touch them. The reader `32e73f90` reads `+0x28/+0x2c/+0x3d/+0x57` only.
+   - June's members `+0x42..+0x53` are not on the wire either and are not ported.
+2. **The templet's creator fields: correct at all five sites.**
+   - **SetFactor `3236d400`:** `+0xbc` only when the slot-50 lookup finds the creator. `+0xb0/+0xb4` = uid and `+0xb8` = (isUser == 0) are stored whether or not it does (`@3236d45d-3236d476`).
+   - **GetFactor `32369f50`:** returns at once if finished (`+0x65`), and runs the accumulation block only when the limit `+0x3c` ≥ 2. `@3236a009` is the label both paths reach.
+   - **SetFactorFromPacket `3236c440 @3236c53d`:** runs after the displayer loop, on the success path only.
+   - **Copy ctor `322ad9cd-322ad9ec`.**
+   - **Ctor:** `+0xb0/+0xb4` = EAX = −1 (`or eax,-1 @326c4971`), `+0xb8` = BX = 0.
+3. **ABI: confirmed.** `dumpbin /symbols X2Lib/X2ServerProtocol.lib` (the 9c rebuild, 20:24) shows 0 `KBuffFactor@@` / `KBuffInfo@@` / `KUnitBuffInfo@@` / `KNpcUnitBuffInfo@@` among its 6,100 externals. No other `SERV_IRUHADEV_` guard sits in a header before `KTDX.h` (the `cl /P` list above).
+4. **Sinister Mind: correct.** June does `fild max; fdiv 3.0; ftol; idiv` with no check (`3236e4fc-3236e516`). The port's `_DEBUG` line runs before its divide.
+5. **Death Sign / clear type: correct.**
+   - The NOT `327f03c0` stores type/next/state before anything else, with no host test.
+   - The REQ reset (`327f127c`) sits in the met-condition block, with state 1.
+   - The reader is `GT_DUNGEON` = 2 (`cmp eax,2`), then four null links, then `+0x48 == 4` (`CT_GAME` = 4 in March's enum); any miss kills.
+   - **Does the unported state machine change the answer? No.** June's clear check runs only while `+0x30 == 0`, so once a clear has run, nothing in June resets `+0x48`. March can overwrite a `CT_GAME` in two ways:
+     - **(a) `CT_STAGE_FORCE` re-check:** the conditions are re-checked after `m_bDoneClearSubStage`, but in the same sub-stage only. A decompile census (scratchpad only) of March's three `CT_STAGE_FORCE` dungeons (Besma Secret Common and Hell, Peita Chapel Expert) puts it on stage 1 sub-stages 1–3 only, never with `CT_GAME`. June's dungeon scripts have no `CT_STAGE_FORCE` at all.
+     - **(b) a Lua `ClearSubStage(0)`:** June's Lua path `327f05c0` skips type 0, and March stores it. Lua `ClearSubStage` appears only in 33 March tutorial, training and arcade scripts.
+
+     Neither reaches a dungeon clear with Death Sign. Two minor divergences, recorded only:
+     - June's ACK resets only when the ACK's stage/sub-stage match (`327c98d0`), and on a refusal only in state 1 (`327eec80`). March resets on every ACK, which is always the answer to a REQ.
+     - June's Lua path is host only; offline, the player is always host.
+
+**Hygiene.**
+- **`flagcheck` bug, fixed in `b1b7e0d`.** `--range 508655f^..HEAD` first FAILed `Always.h` at `ea5f932` (the 11b review's DEATH_CLEAR block). In the define file, `classify()`'s others path never asked `define_file_only`. The same commit scopes `SECOND_HOMES` to its flag. A misplaced `#define` already failed RESULT through `bad_sites`; now the row says FAIL too. Selftest +4 cases, PASS. DEATH_CLEAR alone still PASSes.
+- **After the fix**, `--range 508655f^..HEAD --with JUNE_BUFF_DEBUG JUNE_BUFF_CUSTOM_FUNCTION JUNE_BUFF_CLEAR_TYPE JUNE_BUFF_FACTOR_WIRE`:
+  - CUSTOM_FUNCTION: `files: 4 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 9 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 34 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+  - FACTOR_WIRE: `files: 2 PASS, 2 PASS~, 2 DEFINE, 9 OTHER, 0 FAIL, 0 ERROR` / `30 deleted line(s)`, the rest 0 / `RESULT: PASS`.
+  - CLEAR_TYPE: `files: 4 PASS, 0 PASS~, 1 DEFINE, 10 OTHER, 0 FAIL, 0 ERROR` / `4 deleted line(s)`, the rest 0 / `RESULT: PASS`.
+  - With only `_DEBUG`, on its three files: `files: 3 PASS … 0 deleted line(s) …` / `RESULT: PASS`.
+- **OTHER rows:**
+  - each 9c file owned by one of the other two flags;
+  - `ServerDefine.h` for the two flags it does not define;
+  - `ea5f932`'s four files (DEATH_CLEAR, a peer's).
+- **Deleted lines:** the same as 9c's Done note explains (guard 18, the 9b comments, the copy-ctor move, `SetNowHp` braces, realignment); counts unchanged.
+
+**Open for the user:** none. Backlog unchanged: June's sub-stage clear state machine (9c item 3). `kickoffs/june-buff/13.md` gates on 9c, which is done. It now also names the Sinister Mind crash to expect and the two clear-type divergences.
+
 ## Phase 10 — Buff groups and June-only script bindings
 
 **Scope.**
