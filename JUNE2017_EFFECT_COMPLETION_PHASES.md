@@ -145,7 +145,7 @@ its date). Dispositions as of 2026-10-05:
 **Exit:** the decisions are recorded in this table, and `census.py` runs all-PASS except the two item-1 lines
 (numerical skill data, closed by C1; HP-rate damage, closed by C10).
 
-**Done note (2026-10-05).** No game code: `flagcheck`, `build.py --deploy` and the play-test do not apply to C0.
+**Done note (2026-10-05, commit `66fef08`).** No game code: `flagcheck`, `build.py --deploy` and the play-test do not apply to C0.
 - Census run (`--reuse-pp`, X2Lib/KTDXLIB untouched since the full run at 10:38): to-implement 39, unsupported 12,
   binary-only 17, **handed-off 3** (`NATURAL_FORCE_TYPE`, `ROSE_WEAPON_ATTACK_TYPE`, nested `BFT_AURA`), declined 0. The
   plan's 2026-10-04 counts (46 / 14) had drifted: buff-port phases 7-7e since made three nested `BBT_*` rows `implemented`.
