@@ -3614,6 +3614,11 @@ Flags `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (items 1–2), and two new ones:
   - the creator round trip (templet → `GetFactor` → Gage copy → restore) is **checked from source and by the clean link only**: the `custom function created` line logs once per BTI per launch, so a restore after a map change prints nothing;
   - a dungeon clear logs `clear type 5 -> 5 (clear REQ…)`, `5 -> 5 (clear ACK…)`, `5 -> n (ClearSubStage…)`, ending in `-> 4` at the last room.
 
+**Play-test (2026-10-05, exe bba821cf, user: 4/4 passed; logs read).**
+- ErrorLog `:195` BTI 29 `PhantomSword` (creator UID 25, not-user 0, power rate 1), `:212` BTI 56 `BigBangStream` (creator 18), `:225` BTI 62 `MarkOfCommand` (NPC, creator 22, not-user 1).
+- Dungeon run: 9 room clears (`:643`–`:772`), each logged `5 -> 5` (REQ), `5 -> 5` (ACK), then `5 -> n` (ClearSubStage): n = 0 for sub-stage clears and 1 for stage clears. The last room went `5 -> 4` (`:772`, CT_GAME) and the dungeon ended normally.
+- No `Death Sign` or `Sinister Mind` line, as expected while their BTIs are dormant. The run's 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ` are not this phase's.
+
 **Open for the user:** none. Backlog: June's sub-stage clear state machine (item 3, "Not ported"), and finding June's KBuffFactor Put (the review kickoff asks).
 
 ## Phase 10 — Buff groups and June-only script bindings
