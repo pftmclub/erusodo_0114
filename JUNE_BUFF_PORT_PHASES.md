@@ -3701,7 +3701,9 @@ The function rows are in `june2017_re/funcmap.tsv` (the "Buff Phase 11" rows).
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,173,376 B, dated 2026-10-05 15:25:08, md5 0dd0588096c23e6495e92d9c2a55af8c, equal to X2/US_SERVICE/x2.exe (2026-10-05 15:25:04); built at mods/june-buff-port 9d70f0c + 1 uncommitted code file(s).` (that 1 = `da55146`; the first deploy, `9ebc4b93` at 15:18, lacked it). Range hygiene `af7741b^..HEAD` for `_OFFLINE_ITEM_BUFF`: `3 PASS, 6 PASS~, 1 DEFINE, 6 OTHER, 0 FAIL, 0 ERROR`, RESULT PASS; its 1 deleted line is `da55146` rewriting Phase 11's own load-summary log line. The phase's strings (`world buff (room|village)`, `premium buff(s) added`, `BUFF     activated buff`, `schema upgraded to v14`, `NOT_USE_IN_HENIR`, `BuffTemplet_INT.lua`, `end at death`) are in the deployed exe. March's 58 premium BTIs are all still in June's 209 (none dropped; `X2ItemSlotManager.cpp:3384` null-checks anyway).
 
-**How to see it in game:** the "Play-test" hand-off in this session's final message. A short version: buy an Arcanum / Elixir in the cash shop (products 11-26), use it from the bag, and enter a dungeon.
+**How to see it in game:** the "Play-test" hand-off in this session's final message. A short version: buy an Arcanum / Elixir in the cash shop (Consumables → Restore, products 11-26), claim it, enter a dungeon or field, and use it from the bag there.
+- **The client allows these items only in `XS_DUNGEON_GAME` / `XS_BATTLE_FIELD`** (`X2UIInventory.cpp:7259-7276`). Anywhere else it shows `STR_ID_16529` and sends nothing; the first play-test (15:38) hit this.
+- It always sends temp code 1 (`:7268`), so the server's double-use guards always apply. Re-using an item from the same group is refused, never a replace.
 
 ## Phase 12 — Buff icons and UI assets
 
