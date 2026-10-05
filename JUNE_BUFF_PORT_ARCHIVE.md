@@ -3182,3 +3182,126 @@ flag-off unifdef per file; count the reach on March's live data before building.
 deploy, commit; write a Done note with per-item "how to see it in game" lines and
 record /cost. Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)".
 ```
+
+## Phase 11 — the March server's buff system (2026-10-05)
+
+This is the source the emulator's item-buff route is transcribed from (user decision B, 2026-10-05). Paths are under `KncWX2Server/`.
+
+The flag states below were settled by running `cl /EP` on `Common/ServerDefine.h` with `/DWIN32 /DNDEBUG /D_WINDOWS /DSERV_COUNTRY_US`.
+
+### Flags
+
+- **ON:**
+  - `SERV_SERVER_BUFF_SYSTEM`, `SERV_REFORM_THE_GATE_OF_DARKNESS`, `SERV_2012_PVP_SEASON2_2`;
+  - `SERV_NEW_DEFENCE_DUNGEON` (+ `_ENTER_LOGIC`, `_NO_USE_DEFENSE_BUFF_AND_DEBUFF`);
+  - `SERV_EVENT_RURIEL_MANA_ENERGIZE_POTION`, `SERV_CHANGE_UPDATE_BUFF_INFO_PROCESS(_TEMP)`, `SERV_COME_BACK_USER_REWARD`;
+  - `SERV_BATTLE_FIELD_SYSTEM`, `SERV_NEW_UNIT_TRADE_LIMIT`, `SERV_PVP_REMATCH`.
+- **OFF:** `SERV_EVENT_ARA_NEW_CHAR_THE_ESSENCE_OF_HERETIC`, `SERV_PLAY_WITH_CHAR_PARTY_BONUS_EXP` (so `m_mapBonusRate` is not on the wire), `SERV_BONUS_BUFF_SYSTEM`.
+
+### `KUserServerBuffManager` (`GameServer/UserServerBuffManager.cpp`)
+
+**State.** `map<int, KBuffInfo> m_mapBuff`, keyed by BTI, plus `m_iInsertTime`. `KUserServerBuff` is dead code.
+
+**`ActivateBuff(kBuff, out, tUseTime=0, iPeriod=0)`** (`:40-96`):
+1. A missing templet → false.
+2. **Already active → false**: no refresh, and no change to the stack count.
+3. Start = now (or `tUseTime`), in epoch seconds as `__int64`.
+4. End:
+   - `iPeriod==0` → `m_fBuffPeriodSecond==0 ? start : start+(int64)m_fBuffPeriodSecond`;
+   - otherwise `start+iPeriod`.
+5. Insert, then push the full `KBuffInfo` to `out`.
+
+A server-made `KBuffInfo` carries only the BTI, `m_iFactorID` (the templet's first `BUFF_FACTOR`, `KGSUser::ActivateBuff` GSUserFunction.cpp:17110) and start/end. Everything else is default.
+
+**Other members:**
+- `DeactivateBuff`: not active → false; otherwise erase and push the id.
+- `GetBuffList(vec, iRoomType=RT_NONE)` (`:152-176`):
+  - With a room type, a buff is kept only if that type is in the templet's `USING_BUFF_ROOM_TYPE` (`CheckRoomType`, XSLBuffManager.cpp:140-150). An empty list means the buff is never in a room list.
+  - Without a room type it returns every active buff.
+  - Server room types: `RT_PVP 0`, `RT_DUNGEON 1`, `RT_BATTLE_FIELD 7`.
+- `CheckBuffPeriod` (`:272-303`):
+  - every 1 s, once the state is past `S_SERVER_SELECT`;
+  - a buff with `start != end` and `now > end` (strictly) is deactivated;
+  - a period-0 buff never expires;
+  - the room-type argument is unused.
+
+**End flags.** These are the only readers.
+
+| Flag | Where | Trigger |
+|---|---|---|
+| `m_bEndBuffAtTheLeaveDungeonRoom` | `OnLeaveDungeonRoom` (`:369-384`) | leaving a dungeon room (`ERM_LEAVE_ROOM_ACK`, leave-for-village, `SetRoomUID(0)`) |
+| `m_bEndBuffAtTheEndDungeonGame` | `OnEndDungeonGame` (`:492-507`) | `ERM_UPDATE_DUNGEON_UNIT_INFO_NOT` (dungeon end) |
+| `m_bEndBuffAtTheLeaveBattleFieldRoom` | `OnLeaveBattleField` (`:436-441`) | battlefield leave |
+| `m_bEndBuffAtTheLeavePvpRoom` | `OnLeavePVPRoom` (`:571`) | PvP room leave |
+| `m_bEndBuffAtTheUserDied` | `OnUserDied` (`:534`) | `ERM_USER_UNIT_DIE_ACK` |
+| `m_bEndBuffAtTheEndPvpGame`, `m_bKeepBuffAtTheUserLogOut` | none | parsed only |
+
+The hard-coded cases:
+- Rally of Hero 118-120 are always removed on dungeon leave.
+- `REST_OF_RELLY` 121 depends on bad attitude.
+- `FIELD_DEFENCE` 187 is removed on battlefield leave.
+- `WARM_ENERGE_OF_EL` 122 is removed on field leave.
+- PvP end/leave strips every buff whose templet lists `RT_PVP`.
+
+### When the client is told
+
+**`SendUpdateBuffInfo`** (GSUserFunction.cpp:17015-17093):
+- In a PvP, dungeon or battle-field room, it sends `EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT{ unit UID, room-filtered list, unbuffed KStat }`, broadcast to the room.
+- Anywhere else it sends `EGS_UPDATE_BUFF_INFO_NOT{ unfiltered list }`.
+
+**Callers:**
+- The LoginServer ACK (`ELG_UPDATE_USER_UNIT_BUFF_INFO_ACK`, GSUserGameCommon.cpp:8065-8087). That ACK follows every REQ, so each REQ site is an indirect send:
+  - item use, the expiry tick, unit select;
+  - field join (122) and field leave;
+  - room leave, dungeon end, PvP leave/end;
+  - death, a Gate of Darkness revive;
+  - party / come-back events.
+- `EGS_GAME_LOADING_REQ` at 100 % (GSUserRoomCommon.cpp:1223).
+- `ERM_UPDATE_BUFF_INFO_NOT` (game start, battle-field join, PvP intrude).
+- `EGS_UPDATE_BUFF_INFO_NOT` is also sent directly after a successful `EGS_STATE_CHANGE_FIELD_REQ`, if the list is non-empty (GSUserField.cpp:215).
+- The room/slot info carries the room-filtered list in `KRoomUserInfo.m_vecBuffInfo`.
+
+### Item use
+
+**Pre-checks** (`EGS_USE_ITEM_IN_INVENTORY_REQ`, GSUserInventory.cpp:4055). There is no village or room restriction.
+- **Arcanum**, always: `STRENGTHENING_BODY` (117) active → `ERR_USE_ITEM_IN_INVENTORY_07` (`:4394-4400`). This is the only check on 117.
+- **Arcanum**, `m_iTempCode != 0`: any of 109-112 active → `ERR_07`.
+- **Elixir / Ruriel**, `m_iTempCode != 0`: any of 113-116, 191-198 or 1320 active → `ERR_06` (`:4436-4468`).
+
+**Then:**
+1. `OnUseItemInInventory` (GSUserFunction.cpp:7279-7400) runs `ActivateItemBuff` (`:7372`, return value ignored).
+2. The REQ goes to the LoginServer, the ACK comes back, and `SendUpdateBuffInfo` runs.
+3. Nothing quick-slot related is sent; quick-slot use never activates a server buff.
+4. Gate: `IsBuffItem` = the item templet's `BUFF_FACTOR` first entry > 0 (XSLItemManager.cpp:2004, parsed from Item.lua at `:360`).
+
+**`ActivateItemBuff`** (GSUserFunction.cpp:17117-17273). Item IDs are from Common/X2Data/XSLItem.h; BTIs from XSLBuffManager.h.
+
+| Item | ID | BTI |
+|---|---|---|
+| ARCANUM_NUT / PTAH / RACHEL / ZADKIEL | 78520 / 78530 / 78540 / 78550 | 109 / 110 / 111 / 112 |
+| ELIXIR_SERAPHIM / GEB / AMON / CRONOS | 78560 / 78570 / 78580 / 78590 | 113 / 114 / 115 / 116 |
+| ELIXIR_GIANT_POTION … BIG_HAND_POTION | 78894 … 78901 | 191 … 198 |
+| EI_BUFF_RURIEL_MANA_ENERGIZE_POTION | 60008058 | 1320 |
+
+- **Arcanum group:** deactivate 109-112, activate the mapped buff, then activate 117.
+- **Elixir group:** deactivate 113-116, 191-198 and 1320 (the Heretic pair 1318/1319 is OFF), then activate the mapped buff. There is no 117 in this group.
+- Re-use: deactivate + activate in one REQ, which acts as a replace with a fresh period.
+
+### Persistence
+
+- The LoginServer keeps buffs in RAM only (`LoginServer/BuffManager.cpp`).
+  - `P_GBuffeffect_UPD` never runs, because nothing fills its vector.
+  - The 6-hour purge has no caller, and `DeleteUnitAllBuffInfo` has an inverted check.
+- **On unit select** (GSUserFunction.cpp:5472-5661):
+  1. A REQ is always sent.
+  2. The ACK returns the stored buffs.
+  3. `EGS_UPDATE_BUFF_INFO_NOT` follows.
+- **On deselect** (`CheckDeselectUnitBuff` `:17295-17356`): 122, 118-120, 130-132 and 138 are always deleted; 213 and 133 conditionally.
+- **Everything else** (Arcanum, Elixirs, 117) survives with absolute epoch end times. Time keeps running while logged out, and an expired buff is resent once, then removed by the next 1 s tick.
+
+### Death and revive
+
+- **Death:** `ERM_USER_UNIT_DIE_ACK` → `OnUserDied` removes `m_bEndBuffAtTheUserDied` buffs (Arcanum 109-112 in June's data), then REQ → ACK → in-room resend.
+- **Revive:** only the Gate of Darkness continue path re-activates 189. Arcanum and Elixirs are not restored by the server. The client re-applies stored world buffs in `ReInit`.
+
+**The server's own `BuffTemplet.lua` is not in the tree** (GSSimLayer.cpp:1112 loads it). The client's copy (March and June) uses the same keys and the `URT_*` room enum.
