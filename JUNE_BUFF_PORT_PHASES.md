@@ -3142,6 +3142,20 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 **For the user.** Decision (c): A, B, C or D, and whether SAT 38's refusal goes with it. `kickoffs/june-buff/7e.md` is written for A plus SAT 38. `/cost`: please paste it here.
 
+**Decision (c) = B (user, 2026-10-05):** port June's start-motion delay timer `+0x92cc` with `322f5140`. Read before rewriting the 7e kickoff:
+- `StageData::LoadData` `327f4e30` reads `START_MOTION` (byte `+0`, default false) and `START_MOTION_DELAYTIME` (float `+0xac`, **default 0**). So `ebp` at StageLoad `@327cdafb` is the StageData.
+- The countdown in `CommonFrameMove`'s tail (`@32070053-e2`) runs as follows:
+  - While the timer is ≥ 0, it subtracts fElapsedTime.
+  - When the result drops below 0, it calls `31fcf040`. That function does `StateChange( 0x48 )` (riding start) or `StateChange( 9 )` (`USI_START`).
+  - Otherwise, if the Now state is 9 or `0x48`, it stores −1.
+- **On March data no stage has the delay key, so a start-motion stage starts one frame after StageLoad instead of inside it.** Nothing else visible changes.
+- Still open for 7e:
+  - the constructor value (`@32041c8b`; the x87 stack suggests −1);
+  - the `== −1` getter `3230f110` (callers `322f803e`, `32903cad`);
+  - `3200bc20`'s `322f5140( true )` call (callers `3252bfb0`, `32eed115`);
+  - `322f11d0`'s triggers: `322f4c60` (solo) and `324cf360` (party event `0x4ac`).
+- SAT 38: not answered yet.
+
 ## Phase 8 — New finalizers and counter sync
 
 **Scope.**
