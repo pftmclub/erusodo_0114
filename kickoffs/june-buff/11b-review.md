@@ -30,6 +30,9 @@ Review 11b's commit against June (Ghidra, read-only; read the assembly, not the 
    or user `DieFront` state start's call), say whether June still clears there and with which
    argument, and fix the port's call under `_STORE_BUFF` if it differs. The flag is off, so the
    fix is dormant.
+   Decide the Ranox call site together with it: `CX2GameUnit::EraseAllBuffAndExtraDamage`
+   (`SERV_IRUHADEV_RANOX_ERASE_BUFF`, ours, not June's) calls `FinishAndClearAllBuff()`, so with the
+   flag on it also stops saving to the gage. Phase 13 turns the flag on only after this review.
 3. **Gage save `32494560`** and its predicate `32499c10`: the whole-vector filter, the GT_PVE
    gate (no March type), and that the only caller passes 0 (so `3229ff80` is unreachable).
 4. **Repair discount `32363f00`**: the six BTI deltas (jump table `32364480`), 876's set-to-1.0
