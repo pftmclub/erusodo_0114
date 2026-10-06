@@ -5830,6 +5830,12 @@ Offsets, heights, random terms, the elapsed-time reset and the EVE tail match Ma
 - Item 5: one `socket 215434 hyper-skill term ... not ported` line.
 - Items 1, 2, 4 and 7 are dormant on this save: no Chung, no Dimension Link (5201) on Iivue, and no class overrides vslot 485.
 
+**Play-test (2026-10-06, user: passed; exe bb2f8924, logs read).** The run started after the deploy and exited cleanly: 0 EXCEPTION, 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (unrelated, as before). `ErrorLog.txt`:
+- `:252` `item 116934 all-stat level 10 (other five sum 32, ...)`. The weapon already has five-term level data (sum 32), so March computed it through the Lua formula too; the templet's own stats (0) were not what March showed.
+- So the before/after is `:251`: HP 0 -> 983, phys atk 3181 -> 3755 (mag atk 3974 with the term; its no-term value is not logged). The term applies through `CalculateRealStatData` as June's does.
+- `:266` the socket 215434 not-ported line, once.
+- `:227/:262/:265` 3b5's lines unchanged (census, socket 95003 -> skill 5003 x 1.1).
+- Iivue's item 579 keeps `40110,74035,95003,120000009`.
 **Open for the user.** /cost is not available in-session.
 
 ## Critical files
