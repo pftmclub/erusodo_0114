@@ -39557,6 +39557,14 @@ void CX2GUUser::EraseDebuffAndAddMP( IN const float fMPValue_ )
 #endif //ADJUST_SECRET_ITEM_OPTION
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port 16-step3b6 review: June 3204d440 @3204d79a..3204d820 is the ADJUST_SECRET_ITEM_OPTION form, which
+		/// US March compiles out: after the walk and the four enchant timers, UpNowMp( value ) (slot 0xf0) and
+		/// DisplayAddMPInformation( value, GetPos( false ), GetDirVector() ) (322d38f0), every time. US March gave
+		/// value x the number erased, and nothing when nothing was erased.
+		UpNowMp( fMPValue_ );
+		g_pX2Game->DisplayAddMPInformation( fMPValue_, GetPos(), GetDirVector() );
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef ADJUST_SECRET_ITEM_OPTION //김창한
 		UpNowMp( fMPValue_ );
 		/// 회복량 표시
@@ -39572,6 +39580,7 @@ void CX2GUUser::EraseDebuffAndAddMP( IN const float fMPValue_ )
 			g_pX2Game->DisplayAddMPInformation( fAddMP, GetPos(), GetDirVector() );
 		}
 #endif //ADJUST_SECRET_ITEM_OPTION
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	}
 }
 #endif // HAMEL_SECRET_DUNGEON
