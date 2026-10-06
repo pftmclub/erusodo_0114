@@ -2605,6 +2605,27 @@ bool CX2OfflineServer::Handler_EGS_NPC_UNIT_DIE_REQ( KOfflineSession& kSes, cons
 		bFieldDropRow = ( true == bKnownNpc &&
 						  CX2OfflineDropTable::Instance()->HasNpcRow( m_kRoom.m_kInfo.m_iBattleFieldID, true, iNpcID ) );
 		bCountQuest   = ( true == bPayReward && true == bFieldDropRow && fFieldShare >= 0.5f );
+
+#ifdef SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN
+		// DESIGNED, NOT SERVER OR JUNE (user OK 2026-10-06). The server sends no
+		// quest-complete NOT for a field monster without a drop row
+		// (BattleFieldRoom.cpp:5127-5145). June's live server had rows for its Lanox
+		// field monsters (5154..), which March data lacks, and ReadDropBlock drops an
+		// empty row that the server would still find. So a paid kill with a 0.5 share
+		// counts here without the row. Logged once per monster ID.
+		if( false == bFieldDropRow && true == bPayReward && fFieldShare >= 0.5f )
+		{
+			bCountQuest = true;
+
+			static std::set< int > s_setLoggedNoRowQuest;
+			if( s_setLoggedNoRowQuest.insert( iNpcID ).second )
+			{
+				CX2OfflineLog::Server( L"[OFFLINE_GRADE] designed: field %d monster %d has no field drop row - "
+					L"its kills count for hunt quests anyway (FIELD_QUEST_NO_ROW_DESIGN)",
+					m_kRoom.m_kInfo.m_iBattleFieldID, iNpcID );
+			}
+		}
+#endif SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN
 	}
 
 	const bool bCountKill = ( true == bKnownNpc && true == bAddKillCountState &&

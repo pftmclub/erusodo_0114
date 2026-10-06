@@ -40,8 +40,14 @@ re-open at its line:
 - **The `#else`:** the original gate, kill count and `QuestOnNpcDie` still compile flag-off.
   `bCountKill` dereferences `pDieTemplet` only behind `bKnownNpc`.
 
-Hygiene is one command:
-`python tools/flagcheck.py SERV_IRUHADEV_OFFLINE_MONSTER_GRADE --range <3c code commit>^..HEAD`.
+- **Designed follow-up** `SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN` (user OK, "designed,
+  not server/June"). It waives only the field drop-row test for quests. Check that it keeps the
+  `bPayReward` and 0.5-share conditions, and that it is labelled as designed in code, `Always.h`,
+  `MODS.md` and the Done note.
+
+Hygiene is one command per flag:
+`python tools/flagcheck.py SERV_IRUHADEV_OFFLINE_MONSTER_GRADE --range e6cc509^..HEAD` and
+`python tools/flagcheck.py SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN --range <its commit>^..HEAD`.
 Paste its `files:` / `in this flag's files:` / `RESULT:` lines into the review. Explain every
 OTHER row and every deleted line; a FAIL or ERROR is a finding.
 

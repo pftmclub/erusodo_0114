@@ -47,7 +47,8 @@ column.
 | `SERV_IRUHADEV_JUNE_BUFF_BINDING` | 2026-10-05 (June buff port Phase 10) | `KTDXLIB/Always.h:4969` | `X2Lib/X2Main.cpp`, `X2GameUnit.h`/`.cpp` (`GetBuffAccumulationCountNow`), `X2GameEdit.h`/`.cpp` (`ApplyBuffFactor` cheat), `X2BuffFinalizerTemplet.h` (`SetDurationTime`) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID` (+ `_MEMO_DROP`, off) | 2026-10-05 (June buff port Phase 10) | `KTDXLIB/Always.h:4981` | `X2Lib/X2DamageManager.cpp` (June's `ParsingBuffFactorID`) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY` | 2026-10-05 (June buff port Phase 10) | `KTDXLIB/Always.h:5004` | `X2Lib/X2DamageManager.h`/`.cpp` (`IS_AURA_BUFF`, `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`) | -- |
-| `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` | 2026-10-06 (offline grade Phases 1-3b) | `KTDXLIB/Always.h:5263` | `X2Lib/X2DungeonSubStage.h`/`.cpp` (stage-script grade -> NPCData), `X2Lib/Offline/Handlers_Room.cpp`, `X2OfflineServer.h`, `X2OfflineBattleField.h`/`.cpp`, `X2OfflineDropTable.h`/`.cpp` | -- |
+| `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` | 2026-10-06 (offline grade Phases 1-3c) | `KTDXLIB/Always.h:5263` | `X2Lib/X2DungeonSubStage.h`/`.cpp` (stage-script grade -> NPCData), `X2Lib/Offline/Handlers_Room.cpp`, `X2OfflineServer.h`, `X2OfflineBattleField.h`/`.cpp`, `X2OfflineDropTable.h`/`.cpp` | -- |
+| `SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN` (designed, not server/June) | 2026-10-06 (offline grade Phase 3c) | `KTDXLIB/Always.h:5277` | `X2Lib/Offline/Handlers_Room.cpp` (a paid field kill with share >= 0.5 counts for hunt quests without a field drop row) | -- |
 
 What each one does:
 

@@ -5262,3 +5262,17 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              The one flag for every phase of that plan.
 #define SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-06
+// Description: DESIGNED, NOT SERVER OR JUNE (offline grade Phase 3c, user OK).
+//              A field kill counts for hunt quests without a field drop row
+//              when it is paid and the player's share is at least 0.5. The
+//              server needs the row (BattleFieldRoom.cpp:5127-5145); June's
+//              live server had rows for its Lanox field monsters, which March
+//              data lacks, and offline cannot see an empty row. Requires
+//              SERV_IRUHADEV_OFFLINE_MONSTER_GRADE. Comment out for the
+//              server's rule.
+#define SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN
+//////////////////////////////////////////////////////////////////////////

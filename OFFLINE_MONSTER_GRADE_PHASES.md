@@ -815,6 +815,23 @@ the original gate stays in `#else`).
 - An auto-party clear shows three `die state KILL_SELF ... unknown UID` lines.
 - A killed eater shows `die state BONUS_DROP ...` and `bonus drop: monster N -> item 70055/70056`. One that runs away shows `die state ESCAPE ... quest yes (was no)`.
 
+**Play-test PASSED 2026-10-06** (19:02-19:13, exe d187a0de; logs read; 0 EXCEPTION):
+- Normal kills are unchanged: the `kill` lines show the same factors in dungeons 30000 and 32950. Boss uid 22 paid x12 and dropped 70058.
+- The three auto-party bots at the 30000 clear logged `KILL_SELF ... unknown UID ... nothing`.
+- Mana eater (id 425) in 32950:
+  - killed: `BONUS_DROP ... reward yes (was no)` and `-> item 70055`;
+  - escaped: `ESCAPE ... quest yes (was no)`.
+- 12 KILL_SELF deaths: the field id 386 x6, ids 632, 438 and 1027, and the 3 bots. All were NO_DROP or unknown UID, so each logged why it paid nothing.
+- Burned Forest's gate 1694 died KILL_BY_USER (the player hit it); its fire traps did not self-kill this run.
+- Seen and server-correct: NO_DROP ids 625/134/440/441/1694 lose their EXP; non-NPC templets (ids 20, 440, 441, 1694) leave the kill count.
+
+**Follow-up (user OK 2026-10-06, "follow your recommendation as long as it follows June").** Lanox field monsters 5154-5158 logged `quest no (was yes); no field drop row`.
+- June's live server had rows for them; March data has none, and `ReadDropBlock` drops an empty row the server would still find.
+- New flag `SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN` (`Always.h:5277`, designed, not server/June): a paid field kill with share >= 0.5 counts for quests without the row. It logs `[OFFLINE_GRADE] designed: field F monster M ...` once per monster ID.
+- Flagcheck `--worktree`: `files: 0 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s)`; `RESULT: PASS`.
+- `DEPLOY OK: X2_offline.exe is 19,243,008 B, dated 2026-10-06 19:26:16, md5 aad7844e586855b018eb9ce8210bfbff ... built at mods/june-buff-port 1a560d9 + 2 uncommitted code file(s).` The 2 files are this follow-up's own, and the string is in the exe.
+- **User owes:** optional check: kill a few Lanox field monsters and look for the `designed:` line.
+
 **Open for the user:** none blocking. The dungeon ALLY quest count is the server's rule; it is in effect only if a hunt quest targets an ally NPC's ID.
 
 ## Reviews
