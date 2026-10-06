@@ -2350,7 +2350,8 @@ C5 of `JUNE2017_EFFECT_COMPLETION_PHASES.md`, extending `SERV_IRUHADEV_JUNE_DAMA
   or by `(POWER_RATE - 1) * (n - 1) * MULT + POWER_RATE` when MULT > 0, with n the defender's stack count of the entry's buff (n > 0 only).
 - **Consumer 2:** `EffectSetInstance::JuneSetTraceNearestBone` (`321da350`), called in `CEffect::AttackResult`'s
   `RT_CREATE_EFFECT_SET` case after the DELAYTIME block; the new `EffectSetInstance::m_wstrTraceNearestBone` replaces the effect's
-  bone in `GetEffectPosition` and `GetEffectPositionByBoneName` for a trace target. Name from the new
+  bone in the `ESM_GAME` branch of `GetEffectPosition` and `GetEffectPositionByBoneName` for a trace target (June also reads it in
+  the field and pet modes; not ported, nothing can set it there). Name from the new
   `CX2GameUnit::JuneGetNearestCollisionFrameName` (`32278580`).
 - **Log lines** (`SERV_IRUHADEV_JUNE_FX_DEBUG`, offline_server.log): `JUNE_FX trigger_parse`, `JUNE_FX trigger_data`, `JUNE_FX trace_nearest_bone`.
 - **Inert on today's data:** no March `data036` script sets any of these keys; they act once a June DamageEffect that does is adopted.

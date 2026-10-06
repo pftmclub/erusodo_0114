@@ -4643,10 +4643,13 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPosition( EffectData* pEff
 			if( null != m_optrTraceTargetGameUnit )
 			{
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
-				// June2017 GetEffectPosition 321dcd30 @321dceaa-321dcedd (effect completion C5): with a trace target and a
-				// non-empty TRACE_NEAREST_BONE name (instance +0x130), the position is the trace target's bone of that name
-				// (unit vslot 0x80 = GetBonePos( name, out )) instead of the effect's own BONE_NAME / weapon bone / unit
-				// position below; the offset (SetEffectSetOffset, 321d9820 @321dcf61) follows as for the others.
+				// June2017 GetEffectPosition 321dcd30, mode 1 = ESM_GAME @321dd270-321dd2a3 (effect completion C5): with a
+				// valid trace target (31e55680 @321dd260) and a non-empty TRACE_NEAREST_BONE name (instance +0x130), the
+				// position is the trace target's bone of that name (unit vslot 0x80 = GetBonePos( name, out )) instead of the
+				// effect's own BONE_NAME / weapon bone / unit position below; the offset follows as for the others.
+				// June reads +0x130 in the other two modes too (ESM_FIELD @321dd01e, ESM_COMMON @321dceaa; +0xd4 is the pet
+				// there, not a trace unit). Not ported: only an ESM_GAME instance ever gets the name (AttackResult passes a
+				// game unit), so those two reads cannot fire.
 				if( false == m_wstrTraceNearestBone.empty() )
 				{
 					m_optrTraceTargetGameUnit->GetBonePos( m_wstrTraceNearestBone.c_str(), vPos );
@@ -6225,8 +6228,10 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPositionByBoneName( IN Eff
 			if( null != m_optrTraceTargetGameUnit )
 			{
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
-				// June2017 321dd590 @321dd6d5-321dd706 (effect completion C5): the TRACE_NEAREST_BONE name (instance +0x130),
-				// when set, replaces the bone name asked for: bBoneFound_ is that bone's GetBonePos result (no head-bone case).
+				// June2017 321dd590, mode 1 = ESM_GAME @321dda93-321ddac6 (effect completion C5): the TRACE_NEAREST_BONE name
+				// (instance +0x130), when set, replaces the bone name asked for: bBoneFound_ is that bone's GetBonePos result
+				// (no head-bone case). The ESM_FIELD (@321dd84e) and ESM_COMMON (@321dd6d5) reads are not ported, as in
+				// GetEffectPosition.
 				if( false == m_wstrTraceNearestBone.empty() )
 				{
 					bBoneFound_ = m_optrTraceTargetGameUnit->GetBonePos( m_wstrTraceNearestBone.c_str(), vPos );

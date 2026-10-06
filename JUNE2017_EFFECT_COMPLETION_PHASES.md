@@ -450,8 +450,9 @@ plan when census shows 0 open 8b rows; update matrix and MODS.md.
 - **Readers** on `DamageData`: `JuneIsAttackTrigger` (= `32610fb0`), `JuneFindDamageTriggerData` (= `32610e60`).
 - **`3227c940`** = `CX2GameUnit::JuneApplyMultipleDamageByDebuff`, called in `GetFinalDamage` right after the `<= 0` clamp, as June's `@322869b2` follows `@32286995`.
   - Polarity read from the operands (`fld MULT; fcomp 0.0`, constants `334350e8` = 0.0 and `334355b0` = 1.0): the formula runs for MULT > 0 and n > 0. `x87test.py` was not used: it covers the reversed `fldz; fcom mem` idiom, not this one.
-- **`321da350`** = `EffectSetInstance::JuneSetTraceNearestBone`, called in `CEffect::AttackResult` after the DELAYTIME block with the main-effect mesh position (`ebp` at `@31f8679d` is the `GetMeshInstance` result, `+0x3f0` is `m_vPos`). Readers patched in `GetEffectPosition` (`@321dceaa`) and `GetEffectPositionByBoneName` (`@321dd6d5`).
-  - **The override applies to the trace target**: the observable at instance `+0x14` is ctor arg 3 (`@321df2b7`). C2's row said only "unit".
+- **`321da350`** = `EffectSetInstance::JuneSetTraceNearestBone`, called in `CEffect::AttackResult` after the DELAYTIME block with the main-effect mesh position (`ebp` at `@31f8679d` is the `GetMeshInstance` result; mesh `+0x3f0` is `CXMeshInstance::m_vPos`, funcmap row 91). Readers patched in the **ESM_GAME** branch of `GetEffectPosition` (`@321dd270`) and `GetEffectPositionByBoneName` (`@321dda93`).
+  - **The override applies to the trace target**: the observable at instance `+0x14` is ctor arg 3 (`@321df2b7`). C2's row said "trace unit (+0xd4)"; `+0xd4` is the **pet** slot (mode 3, `ESM_COMMON`).
+  - **June reads the name in all three modes** (ESM_GAME `@321dd270`/`@321dda93`, ESM_FIELD `@321dd01e`/`@321dd84e`, ESM_COMMON `@321dceaa`/`@321dd6d5`). Only the ESM_GAME reads are ported: `AttackResult` passes a game unit, so only an ESM_GAME instance can carry the name. An earlier draft of the code comments cited the mode-3 addresses; fixed in a second commit (6 comment lines replaced, the only deletions).
   - **No pooled-instance reset is needed**: `EffectSetInstance` is created per `PlayEffectSet`; the member is a plain `std::wstring`.
 - **The `ParsingBuffFactorID` family is not touched**: buff Phase 10 owns it (`SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID`, `X2DamageManager.cpp` ~`:4260-4390`), and the census shows all six keys `implemented`.
 
@@ -463,7 +464,7 @@ RESULT: PASS
 ```
 With `--with JUNE_FX_DEBUG`, `X2EffectSet.cpp` shows `tok! 1`: one `#endif` of that family with no token. It is not in this diff; without `--with` it is 0.
 
-**Deploy:** `DEPLOY OK: X2_offline.exe is 19,264,000 B, dated 2026-10-06 22:21:35, md5 64d0520e9b83ce36a1036f516ce7646a, equal to X2/US_SERVICE/x2.exe (2026-10-06 22:21:17); built at mods/june-buff-port d247d41 + 9 uncommitted code file(s).` That exe also carries a peer's uncommitted `Always.h` and `X2EnchantItem.cpp` edits. The three log strings (`trigger_parse`, `trigger_data`, `trace_nearest_bone`) and the three key names are in the deployed exe.
+**Deploy** (after the comment-only second commit): `DEPLOY OK: X2_offline.exe is 19,264,000 B, dated 2026-10-06 22:34:24, md5 055976c6a5a28ddfa546f51ef22189a9, equal to X2/US_SERVICE/x2.exe (2026-10-06 22:34:19); built at mods/june-buff-port a9ac1df + 1 uncommitted code file(s).` The three log strings (`trigger_parse`, `trigger_data`, `trace_nearest_bone`) and the three key names were found in the first deployed exe, which has the same code.
 
 **Census** (`census.py`): all 8 C5 rows (`ADDITIONAL_ATTACK_TRIGGER_TYPE`, `DAMAGE_TRIGGER_DATA` and its four entry keys, `DAMAGE_TRIGGER_CONDITION`) and `TRACE_NEAREST_BONE` are `implemented`; "open rows by owner" lists no C5. **8b is not marked done**: C3 19, C4 5, C9 11 rows are still open (the one FAIL line is C10b-1's HP-rate item, unchanged). Funcmap rows 1181, 1275-1278, 1280 carry the port notes.
 
@@ -476,7 +477,8 @@ With `--with JUNE_FX_DEBUG`, `X2EffectSet.cpp` shows `tok! 1`: one `#endif` of t
 
 **Open for the review:**
 1. `CX2GameUnit::JuneGetNearestCollisionFrameName` is a third copy of `32278580`'s walk (the others: the file-`static` in `X2BuffTemplet.cpp`, and the inline loop in `CEffect::JuneGetLockOnAimPos`). I put it on the unit and did not touch buff-port code; folding the other two is an OTHER row.
-2. The stale comment above `m_bTraceNearestBone` in `X2DamageManager.h` (and the one at `X2DamageManager.cpp` ~`:176`) still says "parsed only". Left as is to keep the diff insert-only; the review may rewrite them.
+2. Settled in this session, for the record: the early `return fFinalDamage;` inside `GetFinalDamage` (the fixed-damage / level path) is June's `JMP 32284b01 @32286063` (the epilogue), which also skips `@322869b2`, so the new call sits on the same paths as June's.
+3. The stale comment above `m_bTraceNearestBone` in `X2DamageManager.h` (and the one at `X2DamageManager.cpp` ~`:176`) still says "parsed only". Left as is to keep the diff insert-only; the review may rewrite them.
 
 ---
 
