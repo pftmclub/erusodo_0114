@@ -5265,6 +5265,49 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 
 **Open for the user.** When creating the offline mob-ranking plan, include point (b) above. /cost is not available in-session.
 
+### Phase 16-step3b3 — Done, items 0-2 (2026-10-06, Opus 5.5 high)
+
+**Landed** under `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (first-apply lines under `_DEBUG`): `fed40d3` item 0, `23ea90a` item 1, `576b635` item 2. Decodes: 11 `funcmap.tsv` rows tagged "Buff Phase 16-step3b3". **Item 3 (the rest of item 9) is split off as 16-step3b5** (kickoff written): located and decoded, not ported.
+
+**Item 0, the MP cost cut** (June `3203cf60`, slot 423).
+- June applies the bool-gated terms after BBT 99: `mp *= max( 1 − r, 0.8 )` for the socket `m_fDecrease_MPCostRate` result r > 0 on a skill that is not type 13 (`@3203d02d`), and `rate *= 1 + 32358970( 0xb ) × 0.01` (`@3203cffb`).
+- The bool, mapped: every June vtable call at `+0x6a0`/`+0x69c` passes 1 (about 40 sites). Every class override of slot 424 (`31fd1840`) calls the base with a hard-coded 1 (only June's Ain forwards its own). The one 0 is Add's `GetActualDPConsume` (`329e7820 @329e78a6`), a direct base call.
+- So March's virtual `GetActualMPConsume` is June's 424 with true. A new base `GetActualMPConsumeJune( skill, level, bool )` carries the bool, and Add's DP cost calls it with false. No class signature changed. 3b2's "not applied" line is retired.
+- Named and left at their neutral value, because March has none of these systems:
+  - `32358970` is June's per-`CX2Unit` "ability" map (end `+0xab0`) × the `g_pData+0x5a4` table: 0 here;
+  - slot 471 (`31fdbe20`) and the alternate templet `323511f0` read June's typed skill-memo list (`31fdbbb0`): 1.0 and none.
+
+**Item 1, the summon helper's socket term** (`322ece70 @322ed2ae-322ed332`).
+- Power rate = (1 + `m_fSkillDamageUpRate` [+ `m_fAllSkillDamageIncreaseRate` unless the equipped summoning skill is type 13; a null templet keeps it]) × the rate argument × …. The stat scale reads no socket field.
+- `[esp+0xb0]` per case: 1.0 in 19 of the 21 calls. Evoke 1020/1025 (`@3230c6c4-3230c6fa`) and Anger of Elf 1420/1421 (`@3230c868-3230c89e`) pass skill 23408's ability 0xf when learned, which is March's own `fPowerRate` in those two cases.
+- Port: `CX2GUUser::GetSummonPowerRateBySocket( skill )` is multiplied at Phase 6b's 14 power-rate sites, with the case's skill as 6b passes it, and before Mortar's −1 (flag 0x400). The five March stat-scale terms (`FIX_SUMMON_NPC_SKILL_DAMAGE_BY_USE_PROTECTION_OF_LAHELL`: Nasod Watch, Wally 9th, Fire Eve, Guardian SP1/SP2) are gone.
+- Nasod Watch's term moves onto its default power rate. June flags `0x240` (`31fcf520`: skill 25000 = Dimension Link).
+- **Settles Phase 6b open item 3:** June's flag-0x200 cases write the protected factor `+0x8ce4` (`31e8d610`), and the NPC's power rate is `+0x8ce0 × +0x8ce4` (`32759630`). So scaling March's default power rate is the same product (Ferdinand and Nasod Watch).
+- Not ported: `(3201ad10 + 1)`, which is item 3's reader (16-step3b5).
+
+**Item 2, item HP recovery** (`322fbc60`, SAT jump table `322ff6d0`/`322ff65c` on type − 1).
+- `[60]` = March's Master of Alchemist rate. `[64]` = the HP-recovery result (basic 1.0 + socket sum) − 1, or 0 without a `CX2Unit` (`@322fbd4f`).
+- HP up (`@322fbdf3`), MP up (`@322fc258`) and HP % up (`@322fd47a`) take rate + `[64]`. MP % up (`@322fd965`) takes × (`[64]` + 1). Team HP up (`@322fdd83`) reads no rate.
+- A user without the socket heals exactly as before (result 1.0). JUNE_BUGS #46's NPC 2.0 is not reachable here.
+- **JUNE_BUGS #54:** MP items also get the HP-recovery socket.
+- Chung's metabolism term stays as March has it. June changed it (class 0x14/0x6e, skill 0x6720, epsilon 5e-8 against March's `CalculateIncreasingRate` 5e-5); that goes to checklist §7.
+
+**Item 3, split to 16-step3b5.**
+- `m_eSkillIDForAdditionalPowerRate`: the "Group N" tokens are looked up in the `CX2SocketItem` group map `+0x40` (`32715680`), and each member `{ skill, rate }` goes into the templet map `+0x48`. The float lands at `+0xb8`; the `m_SkillType`/`m_PowerRate` table fills the vectors `+0x98`/`+0xa8`.
+- The reader is `3201ad10` (the `+0x48` lookup), which has 17 callers. This corrects funcmap row 1183's "every source June-only".
+- `m_fAllStatRelLV` is a sixth float at `+0x268`; no reader was found.
+- Who fills the group map is the first open question.
+
+**Reach** (June `OptionItemData` entries; **none in the save's 13 sockets**, 40005…40420, checked in `els_db.sql`): MP cost 25, skill damage up 29, all-skill damage 28, HP recovery 41, group power 2,491, all-stat RelLV 30.
+
+**Hygiene.** `--worktree --files` before each commit: all PASS. Post-commit `--range fed40d3^..HEAD --with JUNE_BUFF_DEBUG JUNE_BUFF_NEW_SKILL JUNE_BUFF_BEHAVIOR_PARITY`: `files: 7 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 6 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 4 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 6 deleted lines are 3b2's own "not applied" block (item 4), retired here. The 4 token-less lines are two older bare `#else` lines in `X2GUUser.cpp` (`:9532`, `:21921`, not this phase's), counted once per commit that touches the file.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,231,232 B, dated 2026-10-06 13:23:20, md5 85077f68625a57f7208e29035151b125, equal to X2/US_SERVICE/x2.exe (2026-10-06 13:22:36); built at mods/june-buff-port 576b635.` The three new first-apply texts are in the exe, and 3b2's "not applied" text is gone. Not launched.
+
+**How to see it in game.** No socket on the save reaches these readers, and no console route reaches the socket-only members. Expect a clean run with potions, MP potions, skills and (if the character has one) a summon, and **no** `first socket MP cost cut`, `first socket summon power rate` or `first socket item recovery` lines. An optional live check is in the hand-off: it puts two June sockets on one item, and only with the user's go-ahead.
+
+**Open for the user.** (1) The four no-power-rate summon cases (Entangle, Stone Wall, Particle Prism, Fire Blossom) and the default case (which includes the AI-party bots) get the socket term in June too. They are left as March, as with 6b's buff terms; say if you want them. (2) /cost is not available in-session.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
