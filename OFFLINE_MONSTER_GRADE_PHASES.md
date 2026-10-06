@@ -579,7 +579,7 @@ Phase 0 found it reachable.
   - **Field:** EXP x `GetEXPFactor()` x factor and ED x `GetEDFactor()` x factor, one float product (`BattleFieldRoom.cpp:4403/:5050`).
   - **Order:** the server factor first, then the offline 3x boost.
 - **Field middle boss ED x20.** This was not in the plan. The live dispatch (`BattleFieldRoom.cpp:1744`, `SERV_BATTLE_FIELD_BOSS`) sends a set member to `MiddleBossMonsterDieProcess` -> `BattleFieldMiddleBossDropProcess` (`:4378`). That function sets `ED = (10 + ED*lv) * 20` (`:4594-4596`). The plan's `:2016/:2217` sit in the dead `#else`.
-- **Boss coins:** 10-20 for grade 1 (`m_bIsBoss`, `KDropTable.cpp:1254`); a middle boss keeps 2-3. **Gold bar:** a coin worth more than 1999 ED is 127041 (`:1176`; the client accepts it under `FIELD_BOSS_RAID`, `Always.h:582`). The pickup path uses the same function.
+- **Boss coins:** 10-20 for grade 1 (`m_bIsBoss`, `KDropTable.cpp:1254`); a middle boss keeps 2-3. **Gold bar:** a coin worth more than 1999 ED is 127041 (`:1176`; the client accepts it under `FIELD_BOSS_RAID`, `Always.h:582`). The pickup path uses the same function. **March's `item.kim` has no 127041 row** (127020, 70057 and 70058 are there), so while the templet is missing the coin is drawn as a gold coin, logged once (`[OFFLINE_GRADE] gold bar 127041 is not in the item data`). The value lives in `m_mapDropED`, so it is unaffected.
 - **Special drop** (`NpcSpecialDropItem` grade switch, `KDropTable.cpp:1905-1931`):
   - 70057 at 50 % for grade 2, 70058 for grade 1, 70057 for grade 3. It runs after the NO_DROP gate.
   - **Not for a field middle boss:** the server's middle-boss process never calls it (correcting "Established facts").
@@ -593,7 +593,7 @@ Phase 0 found it reachable.
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
 `RESULT: PASS`
 
-**Deploy.** `DEPLOY OK: X2_offline.exe is 19,242,496 B, dated 2026-10-06 16:20:35, md5 708bb123537de151aad30e156ff1ac30, equal to X2/US_SERVICE/x2.exe (2026-10-06 16:20:31); built at mods/june-buff-port 5851da3 + 5 uncommitted code file(s).` A peer's build linked it; the last source edit was 16:11. The `[OFFLINE_GRADE] kill`, `field middle boss, ED x20` and `special drop` strings are in the deployed exe. The exe also carries a peer's uncommitted `X2GUUser.*` / `X2SocketItem.cpp` edits.
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,244,032 B, dated 2026-10-06 16:23:48, md5 944e95e4a67be9d978884be87d222888, equal to X2/US_SERVICE/x2.exe (2026-10-06 16:23:43); built at mods/june-buff-port 6bb652d + 1 uncommitted code file(s).` (that one file is this fix). The `[OFFLINE_GRADE] kill` and gold-bar strings are in the deployed exe.
 
 **How to see it** (log tag `[OFFLINE_GRADE]`):
 - **Dungeon boss:** `grade=1 factor=12 (dungeon)`, with B = A x 12 and C = B x 3. 10-20 coins fall, and the `special drop ... item 70058` line appears.

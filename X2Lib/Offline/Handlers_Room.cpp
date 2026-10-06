@@ -2779,7 +2779,22 @@ bool CX2OfflineServer::Handler_EGS_WORLD_TRIGGER_RELOCATION_REQ( KOfflineSession
 	// The gold bar above 1999 (KDropTable.cpp:1176, SERV_BATTLE_FIELD_BOSS, live on
 	// US). Reachable once a boss pays x12 or a field middle boss x4 x20. The client
 	// takes 127041 as ED under FIELD_BOSS_RAID (X2ItemManager.h:448, Always.h:582).
-	if( iED > 1999 )	return GOLD_BAR_ED_ITEM_ID;
+	// But March's item.kim has no 127041 row, and a floor drop with no templet has
+	// nothing to draw. So the gold coin stands in for its picture, logged once.
+	// The value is unaffected: it lives in m_mapDropED, keyed by drop UID.
+	if( iED > 1999 )
+	{
+		if( NULL != g_pData->GetItemManager()->GetItemTemplet( GOLD_BAR_ED_ITEM_ID ) )
+			return GOLD_BAR_ED_ITEM_ID;
+
+		static bool s_bGoldBarLogged = false;
+		if( false == s_bGoldBarLogged )
+		{
+			s_bGoldBarLogged = true;
+			CX2OfflineLog::Server( L"[OFFLINE_GRADE] gold bar %d is not in the item data - "
+				L"coins over 1999 ED are shown as gold coins %d", GOLD_BAR_ED_ITEM_ID, GOLD_ED_ITEM_ID );
+		}
+	}
 #endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 	return GOLD_ED_ITEM_ID;
