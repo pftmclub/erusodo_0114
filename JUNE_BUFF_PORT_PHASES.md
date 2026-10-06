@@ -5459,6 +5459,12 @@ No new JUNE_BUGS rows: none found.
 - 3b3's lines are unchanged: `:491` MP 300 -> 285, `:499` factor 0.95, `:502` summon x 1.05, `:497` all-skill damage 0.05.
 - As expected there is no `first socket effect fired` line, because no equipped socket on the save has an SIEE type.
 
+**Decisions (user, 2026-10-06: "follow June").**
+1. The effect-set buff list (`321e3650` / `+0x160` / `321ee480`) is ported as **16-step3b4b** (`kickoffs/june-buff/16-step3b4b.md`). Its class-code callers go to checklist section 7.
+2. June's socket-effect effect sets, damage effects and meshes are staged as **16-step3b4c** (data).
+   - The 20 missing buff factors are Phase 13's, which adopts all of June's buff data. 3b4c lists them for it.
+3. The test save edit is deferred to 3b4c's hand-off, where it can show something. That step still asks once before touching `els_db.sql`.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
