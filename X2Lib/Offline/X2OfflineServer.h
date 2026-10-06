@@ -984,9 +984,11 @@ private:
 #ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 	/// fContribution: the player's share of the kill as BattleFieldMiddleBossDropProcess
 	/// computes it (damage / max HP, capped at 1.5, under 0.08 counts as 0). Only the
-	/// field middle-boss bonus items read it.
+	/// field middle-boss bonus items read it. cNpcDieState: the death's
+	/// KEGS_NPC_UNIT_DIE_REQ::NPC_DIE_STATE; NDS_BONUS_DROP gives a mana/blood eater
+	/// its special item (Phase 3c).
 	void PushNpcDrop( KOfflineSession& kSes, int iNpcUID, int iNpcID, int iED,
-					  const VECTOR3& kDiePos, float fContribution );
+					  const VECTOR3& kDiePos, float fContribution, char cNpcDieState );
 #else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 	void PushNpcDrop( KOfflineSession& kSes, int iNpcUID, int iNpcID, int iED,
 					  const VECTOR3& kDiePos );

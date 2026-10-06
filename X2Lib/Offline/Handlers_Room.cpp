@@ -2515,11 +2515,140 @@ bool CX2OfflineServer::Handler_EGS_NPC_UNIT_DIE_REQ( KOfflineSession& kSes, cons
 		kReq.m_nDieNPCUID, iNpcID, iNpcLevel,
 		( iDieState >= 0 && iDieState < 5 ) ? DIE_STATE[ iDieState ] : L"?" );
 
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	// Phase 3c: the die state decides what a death pays, as on the server.
+	// IsDropDieState (DungeonRoom.cpp:2576, BattleFieldRoom.cpp:853) is true for
+	// KILL_BY_USER, KILL_SELF and BONUS_DROP, and false for ALLY and ESCAPE. What
+	// the client sends (X2GUNPC.cpp:13944-13981): KILL_SELF when nobody hit the NPC
+	// (attacker -1); ALLY when the DYING NPC's own AI is NAT_ALLY, not when an ally
+	// killed it; BONUS_DROP when its script set SetBonusDrop, tested ahead of ALLY
+	// under ADD_VELDER_ACADEMY_EVENT_MONSTER (Always.h:1987).
+	//
+	// Each consumer has its own gate on the server:
+	// - Reward (EXP, ED, drops). The NPC must be alive in the room (IsMonsterAlive,
+	//   else ERR_ROOM_21) and have a templet, must not be NO_DROP, and must die in a
+	//   drop state (DungeonRoom.cpp:6240; BattleFieldRoom.cpp:5078, :4429 middle
+	//   boss). On a field only a player with an entry in the damage map is paid
+	//   (:5191-5197, :4550-4556).
+	// - Hunt quests and title missions. KGSUser counts them on each
+	//   ERM_NPC_UNIT_DIE_NOT (GSUserRoomCommon.cpp:1966/:1972). A dungeon sends that
+	//   NOT for every death, from the paying branch and from its else alike
+	//   (DungeonRoom.cpp:6940-6960), so ALLY, ESCAPE and NO_DROP deaths count there.
+	//   A field sends it only from the paying branch. It sets m_bQuestComplete for a
+	//   share of at least 0.5 (BattleFieldRoom.cpp:5211, :4575) and only past the
+	//   drop-row lookup (:5127-5145, :4486). Only then does the field handler count
+	//   (GSUserRoomCommon.cpp:2337/:2383).
+	// - The result screen's kill count. AddKillNPC( attacker ) needs an NPC
+	//   templet, KILL_BY_USER or BONUS_DROP (bAddRoomUserKillCount,
+	//   DungeonRoom.cpp:6060; BattleFieldRoom.cpp:5041, :4395) and an attacker that
+	//   is not -1 (:6187). It fails for anyone but a room user, so offline it is the
+	//   player's own kill. It is checked before the NO_DROP gate.
+	// - Field danger: every death (OnFieldNpcDie below), unchanged.
+	// Before this phase offline paid all three for KILL_BY_USER and ALLY and nothing
+	// else. The [OFFLINE_GRADE] line below names every death the new rules treat
+	// differently, and every death that is not KILL_BY_USER.
+	const char cDieState = kReq.m_cNpcDieState;
+
+	const bool bDropDieState		= ( KEGS_NPC_UNIT_DIE_REQ::NDS_KILL_BY_USER	== cDieState ||
+										KEGS_NPC_UNIT_DIE_REQ::NDS_KILL_SELF	== cDieState ||
+										KEGS_NPC_UNIT_DIE_REQ::NDS_BONUS_DROP	== cDieState );
+	const bool bAddKillCountState	= ( true == bDropDieState &&
+										KEGS_NPC_UNIT_DIE_REQ::NDS_KILL_SELF != cDieState );
+	const bool bOldGate				= ( KEGS_NPC_UNIT_DIE_REQ::NDS_KILL_BY_USER	== cDieState ||
+										KEGS_NPC_UNIT_DIE_REQ::NDS_ALLY			== cDieState );
+
+	const bool bDieOnField = ( 0 != m_kRoom.m_kInfo.m_iBattleFieldID );
+
+	// A UID the room never issued is not a live monster to the server. An AI party
+	// member is one: its slot UID gets no m_mapNpcID row (EGS_NPC_UNIT_CREATE_REQ),
+	// and the client kills all three KILL_SELF at a dungeon clear.
+	const CX2UnitManager::NPCUnitTemplet* pDieTemplet = NULL;
+	if( iNpcID > 0 && NULL != g_pData && NULL != g_pData->GetUnitManager() )
+		pDieTemplet = g_pData->GetUnitManager()->GetNPCUnitTemplet( (CX2UnitManager::NPC_UNIT_ID)iNpcID );
+
+	const bool bKnownNpc = ( iNpcID > 0 && NULL != pDieTemplet );
+
+	bool bNoDropNpc = false;
+	{
+		std::map< int, bool >::const_iterator mitND = m_kRoom.m_mapNpcNoDrop.find( kReq.m_nDieNPCUID );
+		if( mitND != m_kRoom.m_mapNpcNoDrop.end() )
+			bNoDropNpc = mitND->second;
+	}
+
+	// The player's field share: party damage / max HP, capped at 1.5, / party
+	// members, 1 when solo (BattleFieldRoom.cpp:5106-5113; GetSamePartyMember,
+	// BattleFieldUserManager.cpp:499). The middle boss divides before the cap and
+	// zeroes a share under 0.08 (:4459-4467); neither changes the 0.5 test. A max HP
+	// of 0 divides to infinity on the server and caps at 1.5.
+	bool  bInDamageMap	= false;
+	float fFieldShare	= 0.0f;
+	{
+		std::map< UidType, float >::const_iterator mitDmg = kReq.m_mapDamageByUser.find( m_kRoom.m_nUnitUID );
+		if( mitDmg != kReq.m_mapDamageByUser.end() )
+		{
+			bInDamageMap = true;
+			fFieldShare  = ( kReq.m_iNpcMaxHP > 0 )
+							? mitDmg->second / static_cast<float>( kReq.m_iNpcMaxHP )
+							: 1.5f;
+			if( fFieldShare > 1.5f )
+				fFieldShare = 1.5f;
+		}
+	}
+
+	const bool bPayReward = ( true == bKnownNpc && false == bNoDropNpc && true == bDropDieState &&
+							  ( false == bDieOnField || true == bInDamageMap ) );
+
+	bool bFieldDropRow = false;
+	bool bCountQuest   = bKnownNpc;
+	if( true == bDieOnField )
+	{
+		bFieldDropRow = ( true == bKnownNpc &&
+						  CX2OfflineDropTable::Instance()->HasNpcRow( m_kRoom.m_kInfo.m_iBattleFieldID, true, iNpcID ) );
+		bCountQuest   = ( true == bPayReward && true == bFieldDropRow && fFieldShare >= 0.5f );
+	}
+
+	const bool bCountKill = ( true == bKnownNpc && true == bAddKillCountState &&
+							  true == pDieTemplet->m_bIsNPC && m_kRoom.m_nUnitUID == kReq.m_uiAttUnit );
+
+	// What the old gate did: the reward and the kill count for KILL_BY_USER and
+	// ALLY, and a quest count that QuestOnNpcDie dropped for an unknown NPC.
+	const bool bOldQuest = ( true == bOldGate && iNpcID > 0 );
+
+	if( KEGS_NPC_UNIT_DIE_REQ::NDS_KILL_BY_USER != cDieState ||
+		bOldGate != bPayReward || bOldQuest != bCountQuest || bOldGate != bCountKill )
+	{
+		const wchar_t* pwszWhy = L"";
+		if( false == bKnownNpc )
+			pwszWhy = L"; unknown UID or no templet (an AI party member, or never spawned) - nothing, as ERR_ROOM_21";
+		else if( false == bDropDieState )
+			pwszWhy = L"; not a drop die state - no reward";
+		else if( true == bNoDropNpc )
+			pwszWhy = L"; NO_DROP monster - no reward";
+		else if( true == bDieOnField && false == bInDamageMap )
+			pwszWhy = L"; player not in the damage map - no reward on a field";
+		else if( true == bDieOnField && false == bCountQuest )
+			pwszWhy = ( false == bFieldDropRow ) ? L"; no field drop row - no quest count"
+												 : L"; field share under 0.5 - no quest count";
+
+		CX2OfflineLog::Server( L"[OFFLINE_GRADE] die state %s uid=%d id=%d att=%I64d%s share=%.2f: "
+			L"reward %s (was %s), quest %s (was %s), kill count %s (was %s)%s",
+			( iDieState >= 0 && iDieState < 5 ) ? DIE_STATE[ iDieState ] : L"?",
+			kReq.m_nDieNPCUID, iNpcID, kReq.m_uiAttUnit,
+			bDieOnField ? L" field" : L" dungeon", fFieldShare,
+			bPayReward ? L"yes" : L"no", bOldGate ? L"yes" : L"no",
+			bCountQuest ? L"yes" : L"no", bOldQuest ? L"yes" : L"no",
+			bCountKill ? L"yes" : L"no", bOldGate ? L"yes" : L"no",
+			pwszWhy );
+	}
+
+	if( true == bPayReward )
+#else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 	// Only a kill by a player pays out. NDS_KILL_SELF / NDS_ESCAPE /
 	// NDS_BONUS_DROP are a monster removing itself, and the real server's
 	// bNoDrop path skips the reward for those too.
 	if( KEGS_NPC_UNIT_DIE_REQ::NDS_KILL_BY_USER == kReq.m_cNpcDieState ||
 		KEGS_NPC_UNIT_DIE_REQ::NDS_ALLY == kReq.m_cNpcDieState )
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 	{
 		// A battlefield's monsters come out of a different table in the file,
 		// keyed by battlefield ID rather than dungeon ID + difficulty.
@@ -2630,7 +2759,11 @@ bool CX2OfflineServer::Handler_EGS_NPC_UNIT_DIE_REQ( KOfflineSession& kSes, cons
 #endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 		m_kRoom.m_iRewardEXP += iEXP;
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+		// The kill count follows its own rule (bCountKill), after this branch.
+#else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 		++m_kRoom.m_iKillNPCNum;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 		// m_iRewardED is now only a running total of what the run *offered*,
 		// for the log line below. The money itself is credited when a coin is
@@ -2715,17 +2848,33 @@ bool CX2OfflineServer::Handler_EGS_NPC_UNIT_DIE_REQ( KOfflineSession& kSes, cons
 			}
 		}
 
-		PushNpcDrop( kSes, kReq.m_nDieNPCUID, iNpcID, iED, kReq.m_DiePos, fContribution );
+		PushNpcDrop( kSes, kReq.m_nDieNPCUID, iNpcID, iED, kReq.m_DiePos, fContribution, cDieState );
 #else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 		PushNpcDrop( kSes, kReq.m_nDieNPCUID, iNpcID, iED, kReq.m_DiePos );
 #endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+		// Phase 3c: the hunt count follows its own rule (bCountQuest), after this
+		// branch. A dungeon counts every death, not just a paid one.
+#else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 		// Phase 6: hunt sub-quests and hunt sub-missions. Only a real kill
 		// counts, which is why this is inside the reward branch rather than
 		// beside the field bookkeeping below - the server charges the kill to
 		// the quest from the same ERM_NPC_UNIT_DIE_NOT that pays the EXP.
 		QuestOnNpcDie( kSes, iNpcID );
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 	}
+
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	// AddKillNPC sits before the NO_DROP gate (DungeonRoom.cpp:6187,
+	// BattleFieldRoom.cpp:5061). Hunt quests and title missions ride the
+	// ERM_NPC_UNIT_DIE_NOT, after the drops, as before.
+	if( true == bCountKill )
+		++m_kRoom.m_iKillNPCNum;
+
+	if( true == bCountQuest )
+		QuestOnNpcDie( kSes, iNpcID );
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 	// Field bookkeeping: free the cap slot, queue the respawn, add the danger and
 	// roll for the middle boss. Deliberately outside the reward branch above -
@@ -2862,7 +3011,7 @@ static bool IsEventDropDungeon( int iDungeonID )
 
 #ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 void CX2OfflineServer::PushNpcDrop( KOfflineSession& kSes, int iNpcUID, int iNpcID, int iED,
-									const VECTOR3& kDiePos, float fContribution )
+									const VECTOR3& kDiePos, float fContribution, char cNpcDieState )
 #else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 void CX2OfflineServer::PushNpcDrop( KOfflineSession& kSes, int iNpcUID, int iNpcID, int iED,
 									const VECTOR3& kDiePos )
@@ -2917,10 +3066,57 @@ void CX2OfflineServer::PushNpcDrop( KOfflineSession& kSes, int iNpcUID, int iNpc
 	// reaches it: BattleFieldMiddleBossDropProcess (:4378) has no such call, so it is
 	// skipped here by set membership (OnFieldNpcDie erases the member after this).
 	// The mana/blood eater half of the function is keyed on NDS_BONUS_DROP, which
-	// never reaches PushNpcDrop offline, and is not ported.
+	// reaches PushNpcDrop since Phase 3c and is ported just below.
 	{
 		const bool bFieldMiddleBoss = ( true == bBattleField &&
 										m_kRoom.m_setMiddleBossAlive.count( iNpcUID ) > 0 );
+
+		// NpcSpecialDropItem's first switch (KDropTable.cpp:1875-1901): a mana eater
+		// gives 70055 and a blood eater 70056, only on NDS_BONUS_DROP. That is the
+		// state the client sends for an NPC whose script called SetBonusDrop( true )
+		// (X2GUNPC.cpp:13970). It is pushed before the grade item, in the server's
+		// order, and skipped for a field middle boss with the rest of the function.
+		if( false == bFieldMiddleBoss && KEGS_NPC_UNIT_DIE_REQ::NDS_BONUS_DROP == cNpcDieState )
+		{
+			int iEaterItemID = 0;
+
+			switch( iNpcID )
+			{
+			case CX2UnitManager::NUI_MANA_EATER:
+			case CX2UnitManager::NUI_HALLOWEEN_MANA_EATER:
+			case CX2UnitManager::NUI_DEFENCE_MANA_EATER:
+			case CX2UnitManager::NUI_MANA_EATER_FD:
+				iEaterItemID = 70055;
+				break;
+
+			case CX2UnitManager::NUI_BLOOD_EATER:
+			case CX2UnitManager::NUI_DEFENCE_BLOOD_EATER:
+			case CX2UnitManager::NUI_BLOOD_EATER_FD:
+				iEaterItemID = 70056;
+				break;
+
+			default:
+				break;
+			}
+
+			if( 0 == iEaterItemID )
+			{
+				CX2OfflineLog::Server( L"[OFFLINE_GRADE] bonus drop: monster %d (uid=%d) died BONUS_DROP "
+					L"but is not a mana/blood eater - no special item, as on the server", iNpcID, iNpcUID );
+			}
+			else if( NULL != g_pData->GetItemManager()->GetItemTemplet( iEaterItemID ) )
+			{
+				CX2OfflineLog::Server( L"[OFFLINE_GRADE] bonus drop: monster %d (uid=%d) -> item %d",
+					iNpcID, iNpcUID, iEaterItemID );
+
+				vecItemID.push_back( iEaterItemID );
+			}
+			else
+			{
+				CX2OfflineLog::Server( L"[OFFLINE_GRADE] bonus drop: monster %d (uid=%d) -> item %d "
+					L"is not in the item data - skipped", iNpcID, iNpcUID, iEaterItemID );
+			}
+		}
 
 		int iSpecialItemID = 0;
 
