@@ -80,9 +80,9 @@ when its rows leave `to-implement`; `python june2017_re/census.py --summary` pri
 |---|---|
 | implemented | 611 |
 | to-implement | 33 |
-| unsupported | 12 |
+| unsupported | 11 |
 | binary-only | 15 |
-| handed-off | 2 |
+| handed-off | 3 |
 | declined | 0 |
 | june-ignores | 305 |
 
@@ -96,10 +96,10 @@ Open work per phase (`to-implement` / `unsupported` / `binary-only`):
 | 6a | 0 | 0 | 2 |
 | 6b | 0 | 0 | 2 |
 | 8b | 21 | 0 | 11 |
-| 8c | 0 | 6 | 0 |
+| 8c | 0 | 5 | 0 |
 | unassigned | 12 | 1 | 0 |
 
-Semantics of the rows March parses (implemented, plus unsupported rows parsed under plan rule 5): 393 same, 2 **semantics-differ**, 191 unchecked, 36 n/a.
+Semantics of the rows March parses (implemented, plus unsupported rows parsed under plan rule 5): 393 same, 2 **semantics-differ**, 191 unchecked, 35 n/a.
 
 ## semantics-differ
 
@@ -117,10 +117,7 @@ Rows June never reads (`june-ignores`) at a path where March does read them unde
 June dropped these, so March behaviour here is not June's. The owning phase decides: keep
 (a local feature) or put it behind the June flag.
 
-| phase | scope | key | why June ignores it | March site |
-|---|---|---|---|---|
-| 8a | `DE.DAMAGE_DATA` (top) | `BUFF_FACTOR_ID_MEMO` | as BUFF_FACTOR_RELATIVE_MEMO_ID (March X2DamageManager.cpp:3526, same #ifdef) | X2DamageManager:4205 |
-| 8a | `DE.DAMAGE_DATA` (top) | `BUFF_FACTOR_RELATIVE_MEMO_ID` | March reads it only under #ifdef ADD_MEMO_1ST_CLASS (X2DamageManager.cpp:3511). June's counterpart 32630d20 decrypts the non-memo neighbours (BUFF_FACTOR_RELATIVE_SKILL_ID, RELATIV | X2DamageManager:4198 |
+None.
 
 ### Scaled after reading
 
@@ -435,8 +432,8 @@ The full spec is in the plan, Phases 4a and 4b.
 | `CAN_REVENGE` | june-ignores(dead-here) |  | 7 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
 | `CLEAR_SCREEN` | june-ignores(dead-here) |  | 3 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
 | `DAMAGE` | june-ignores(dead-here) |  | 2 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
-| `DAMAGE_DATA_MEMO` | june-ignores(unread) |  | 9 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:14543 |  |  |  |
-| `DAMAGE_DATA_NEXT_MEMO` | june-ignores(unread) |  | 2 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:37629 |  |  |  |
+| `DAMAGE_DATA_MEMO` | june-ignores(unread) |  | 9 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:14646 |  |  |  |
+| `DAMAGE_DATA_NEXT_MEMO` | june-ignores(unread) |  | 2 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:37763 |  |  |  |
 | `DAMAGE_DATA_NEXT_MEMO%d` | june-ignores(unread) |  | 4 | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |  |  | 2 names |
 | `DAMAGE_TYPE` | june-ignores(dead-here) |  | 2 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
 | `DamageTime` | june-ignores(typo) |  | 1 | data typo of `DAMAGE_TIME` (this scope, decrypted in 31f7aab0); the binary never reads this spelling |  |  |  |
@@ -467,7 +464,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 #### `DE.DAMAGE_DATA` (top)
 
-163 rows: binary-only 10, handed-off 2, implemented 102, june-ignores 28, to-implement 15, unsupported 6. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
+163 rows: binary-only 10, handed-off 3, implemented 102, june-ignores 28, to-implement 15, unsupported 5. June: `32632390`, `31f79c20`, `32630d20`. March: `SetDamageDataFromLUA`, `ParsingBuffFactorID`, `ParsingBuffFactor`.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
@@ -487,7 +484,6 @@ The full spec is in the plan, Phases 4a and 4b.
 | `ONYL_ATTACK_USER` | to-implement | 8b | 1 | direct 32632390@3263f60a |  |  | e.g. DamageEffect_ETC:DamageEffect_Abnormal_State_Dummy |
 | `PAUSE_NPC_AI_TIME` | to-implement | 8b | 1 | direct 32632390@3263f977 |  |  | e.g. DamageEffect_INT:SPECIAL_ITEM_LUCKY_BAG_C_Explosion |
 | `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | 8c | 2669 | direct 32632390@32632446 | X2DamageManager:209 | same (32632390@3263256a: int, default EBX, zeroed @3263254f) [June int = None] | compiled elsewhere: X2DamageEffect:1618, X2EffectSet:3633; raw literal 5 (X2Lib/X2DamageEffect.cpp:1618); bare id 23; e.g. DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 |
-| `HIT_ADD_COMBINATION_POINT` | unsupported(Combination point (absent)) | 8c | 15 | direct 32632390@3263dfd2 | X2DamageManager:224 | same [June int = 0] | compiled elsewhere: X2DamageManager:224; raw literal 2 (X2Lib/X2DamageManager.cpp:224); bare id 1; e.g. DamageEffect:DamageEffect_LLC_M_DashCombo_ZXXX |
 | `HP_RATE_DAMAGE_TYPE` | unsupported(HP-rate damage (absent)) | 8c | 8 | direct 32632390@3263f2ad | X2DamageManager:230 | same [June enum = 0] | compiled elsewhere: X2DamageManager:230; raw literal 2 (X2Lib/X2DamageManager.cpp:230); bare id 2; e.g. DamageEffect_Character:DamageEffect_SA_ALP_SupersonicFX |
 | `HP_RATE_DAMAGE_VALUE` | unsupported(HP-rate damage (absent)) | 8c | 8 | direct 32632390@3263f45f | X2DamageManager:235 | same [June float = 0] | compiled elsewhere: X2DamageManager:235; raw literal 2 (X2Lib/X2DamageManager.cpp:235); bare id 1; e.g. DamageEffect_Character:DamageEffect_SA_ALP_SupersonicFX |
 | `NUMERICAL_DATA_INDEX` | unsupported(Numerical skill data (absent)) | 8c | 2065 | direct 32632390@3263fb25 | X2DamageManager:248 | same (32632390@3263fc86: int into a stack local, default EBX, zeroed @3263fc6b) [June int = None] | compiled elsewhere: X2DamageManager:248; raw literal 2 (X2Lib/X2DamageManager.cpp:248); bare id 1; e.g. DamageEffect:ELSWORD_SA_RAGECUTTER_HIT_M02 |
@@ -502,12 +498,13 @@ The full spec is in the plan, Phases 4a and 4b.
 | `DIVISION_NUM` | binary-only | 8b |  | binary-only 32632390@32632898 |  |  |  |
 | `DIVISION_OFF_TIME` | binary-only | 8b |  | binary-only 32632390@326329dc |  |  |  |
 | `HIT_ADD_MP_PERCENT` | binary-only | 8b |  | binary-only 32632390@32638e7f |  |  |  |
+| `HIT_ADD_COMBINATION_POINT` | handed-off |  | 15 | direct 32632390@3263dfd2 | X2DamageManager:224 | same [June int = 0] |  |
 | `NATURAL_FORCE_TYPE` | handed-off |  | 367 | direct 32632390@32635398 | X2DamageManager:218 | same (32632390@326354db: int, default EDI=-1 = NFT_NONE, set @3263532a and not rewritten before the store) [June int = None] |  |
 | `ROSE_WEAPON_ATTACK_TYPE` | handed-off |  | 38 | direct 32632390@326400bc | X2DamageManager:257 | same [June int = -1] |  |
 | `APPLY_CRITICAL_DAMAGE_PERCENT` | implemented |  | 2 | direct 32632390@3263e462 | X2DamageManager:589 | same [June float = 0] |  |
-| `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID` | implemented |  | 1 | direct 32630d20 | X2DamageManager:4163 | n/a (sub-table name) |  |
-| `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` | implemented |  |  | binary-only 32630d20@3263127f | X2DamageManager:4148 | unchecked(March: `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` at X2DamageManager.cpp:4148 is not a GetValue key) [June enum = 0] | binary-only: no June data uses it |
-| `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID` | implemented |  | 1 | direct 32630d20@32630efe | X2DamageManager:4145 | unchecked(March: `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID` at X2DamageManager.cpp:4145 is not a GetValue key) [June enum = 0] |  |
+| `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID` | implemented |  | 1 | direct 32630d20 | X2DamageManager:4330 | n/a (sub-table name) |  |
+| `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` | implemented |  |  | binary-only 32630d20@3263127f | X2DamageManager:4315 | unchecked(March: `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` at X2DamageManager.cpp:4315 is not a GetValue key) [June enum = 0] | binary-only: no June data uses it |
+| `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID` | implemented |  | 1 | direct 32630d20@32630efe | X2DamageManager:4312 | unchecked(March: `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID` at X2DamageManager.cpp:4312 is not a GetValue key) [June enum = 0] |  |
 | `APPLY_MOTION_OFFSET` | implemented |  | 19 | direct 32632390@32638716 | X2DamageManager:452 | same [June bool = 1] |  |
 | `ARRANGED_FLY` | implemented |  | 2350 | direct 32632390@32639f6b | X2DamageManager:479 | same [June bool = 0] |  |
 | `ATTACKER_GET` | implemented |  |  | binary-only 32632390 | X2DamageManager:298 | same (32632390@32635b14-32635cf1: HP/MP floats default 0 into protected members; March attackerGet the same) | binary-only: no June data uses it |
@@ -518,13 +515,13 @@ The full spec is in the plan, Phases 4a and 4b.
 | `BACK_SPEED_W` | implemented |  | 2 | direct 32632390@32637e94 | X2DamageManager:446 | same [June bool = 0] |  |
 | `BACK_SPEED_X` | implemented |  | 5464 | direct 32632390@32637fb5 | X2DamageManager:447 | same [June float = 0] |  |
 | `BACK_SPEED_Y` | implemented |  | 3544 | direct 32632390@326380d8 | X2DamageManager:448 | same [June float = 0] |  |
-| `BUFF_FACTOR` | implemented |  | 967 | other-func 32630910 | X2DamageManager:3866 | same (32630910: BeginTable, ParsingBuffFactor(lua, false), SetGameUnitBuffFactor(attacker), push_back = March ParsingBuffFactor; nested keys not compared) |  |
-| `BUFF_FACTOR_ID` | implemented |  | 361 | direct 32630d20 | X2DamageManager:4215 | n/a (sub-table name) |  |
-| `BUFF_FACTOR_ID_PVP` | implemented |  | 2 | direct 32630d20 | X2DamageManager:4214 | n/a (sub-table name) |  |
-| `BUFF_FACTOR_ID_ULTIMATE` | implemented |  | 26 | direct 32630d20 | X2DamageManager:4175 | n/a (sub-table name) |  |
-| `BUFF_FACTOR_ID_ULTIMATE_PVP` | implemented |  |  | binary-only 32630d20 | X2DamageManager:4173 | unchecked(June: no decrypt site, binary-only) | binary-only: no June data uses it |
-| `BUFF_FACTOR_RELATIVE_MASTER_UNIT` | implemented |  | 1 | direct 32630d20@326320df | X2DamageManager:4245 | same (32630d20@326320df: bool, default false; master lookup and level-0 skip identical) [June bool = None] |  |
-| `BUFF_FACTOR_RELATIVE_SKILL_ID` | implemented |  | 114 | direct 32630d20@32631a60, 32630d20@32631edc | X2DamageManager:4227, X2DamageManager:4244 | same (32630d20@32631a60: user default = vtable 0x524, a now-state skill-ID getter (GetNowStateSkillID); @32631edc: NPC default 0; level rule and learn-check identical) [June int = None] |  |
+| `BUFF_FACTOR` | implemented |  | 967 | other-func 32630910 | X2DamageManager:4033 | same (32630910: BeginTable, ParsingBuffFactor(lua, false), SetGameUnitBuffFactor(attacker), push_back = March ParsingBuffFactor; nested keys not compared) |  |
+| `BUFF_FACTOR_ID` | implemented |  | 361 | direct 32630d20 | X2DamageManager:4382 | n/a (sub-table name) |  |
+| `BUFF_FACTOR_ID_PVP` | implemented |  | 2 | direct 32630d20 | X2DamageManager:4381 | n/a (sub-table name) |  |
+| `BUFF_FACTOR_ID_ULTIMATE` | implemented |  | 26 | direct 32630d20 | X2DamageManager:4342 | n/a (sub-table name) |  |
+| `BUFF_FACTOR_ID_ULTIMATE_PVP` | implemented |  |  | binary-only 32630d20 | X2DamageManager:4340 | unchecked(June: no decrypt site, binary-only) | binary-only: no June data uses it |
+| `BUFF_FACTOR_RELATIVE_MASTER_UNIT` | implemented |  | 1 | direct 32630d20@326320df | X2DamageManager:4412 | same (32630d20@326320df: bool, default false; master lookup and level-0 skip identical) [June bool = None] |  |
+| `BUFF_FACTOR_RELATIVE_SKILL_ID` | implemented |  | 114 | direct 32630d20@32631a60, 32630d20@32631edc | X2DamageManager:4394, X2DamageManager:4411 | same (32630d20@32631a60: user default = vtable 0x524, a now-state skill-ID getter (GetNowStateSkillID); @32631edc: NPC default 0; level rule and learn-check identical) [June int = None] |  |
 | `CAMERA_CRASH_GAP` | implemented |  | 5814 | direct 32632390@32639481 | X2DamageManager:469 | same [June float = 0] |  |
 | `CAMERA_CRASH_TIME` | implemented |  | 5814 | direct 32632390@326395f1 | X2DamageManager:470 | same [June float = 0] |  |
 | `CAMERA_SHAKE_TYPE` | implemented |  | 5 | direct 32632390@326392f9 | X2DamageManager:468 | same [June int = 3] |  |
@@ -595,7 +592,7 @@ The full spec is in the plan, Phases 4a and 4b.
 | `PVP_RATE` | implemented |  | 1504 | direct 32632390@32635d43 | X2DamageManager:318 | same [June float = 1] |  |
 | `RATE_MODIFIER` | implemented |  | 943 | direct 32632390@3263c495 | X2DamageManager:536 | same [June float = 1] |  |
 | `REACT_TYPE` | implemented |  | 7309 | direct 32632390@32632e7d | X2DamageManager:139 | same [June enum = 0] |  |
-| `RELATIVE_SKILL_LEARN_CHECK` | implemented |  | 25 | direct 32630d20@32631c6b | X2DamageManager:4229 | same [June bool = 0] |  |
+| `RELATIVE_SKILL_LEARN_CHECK` | implemented |  | 25 | direct 32630d20@32631c6b | X2DamageManager:4396 | same [June bool = 0] |  |
 | `RELAX_NPC_REACTION_STATE_CHECK` | implemented |  | 4 | direct 32632390@3263e1f6 | X2DamageManager:585 | same [June bool = 0] |  |
 | `RESIST` | implemented |  | 7 | direct 32632390@3263b75c | X2DamageManager:517 | same [June int = 0] |  |
 | `RE_ATTACK` | implemented |  | 5198 | direct 32632390@3263a38d | X2DamageManager:486 | same [June bool = 0] |  |
@@ -614,8 +611,8 @@ The full spec is in the plan, Phases 4a and 4b.
 | `ATTACK_DEALY` | june-ignores(unread) |  | 3 | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |  |  |  |
 | `ATTACK_TIME%d` | june-ignores(unread) |  | 1 | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |  |  |  |
 | `BACK_SPEED_y` | june-ignores(typo) |  | 2 | data typo of `BACK_SPEED_Y` (this scope, decrypted in 32632390); the binary never reads this spelling |  |  |  |
-| `BUFF_FACTOR_ID_MEMO` | june-ignores(unread) |  | 2 | as BUFF_FACTOR_RELATIVE_MEMO_ID (March X2DamageManager.cpp:3526, same #ifdef) | X2DamageManager:4205 |  | **March reads it, June does not** |
-| `BUFF_FACTOR_RELATIVE_MEMO_ID` | june-ignores(unread) |  | 2 | March reads it only under #ifdef ADD_MEMO_1ST_CLASS (X2DamageManager.cpp:3511). June's counterpart 32630d20 decrypts the non-memo neighbours (BUFF_FACTOR_RELATI | X2DamageManager:4198 |  | **March reads it, June does not** |
+| `BUFF_FACTOR_ID_MEMO` | june-ignores(unread) |  | 2 | as BUFF_FACTOR_RELATIVE_MEMO_ID (March X2DamageManager.cpp:3526, same #ifdef) |  |  |  |
+| `BUFF_FACTOR_RELATIVE_MEMO_ID` | june-ignores(unread) |  | 2 | March reads it only under #ifdef ADD_MEMO_1ST_CLASS (X2DamageManager.cpp:3511). June's counterpart 32630d20 decrypts the non-memo neighbours (BUFF_FACTOR_RELATI |  |  |  |
 | `CAN_PASS` | june-ignores(dead-here) |  | 2 | every guard of the readers accounted for and no callee names it; named only in unrelated 31c705c0 (decrypted): not on this scope's call path |  |  |  |
 | `CAN_PUSH_UNIT` | june-ignores(dead-here) |  | 2 | every guard of the readers accounted for and no callee names it; named only in unrelated 320506f0 (decrypted), 32057b80 (decrypted), 32784c00 (decrypted), 32d2c |  |  |  |
 | `DAMAGE_DATA` | june-ignores(dead-here) |  | 2 | every guard of the readers accounted for and no callee names it; named only in unrelated 31f7aab0 (plaintext referenced), 32057b80 (plaintext referenced), 32370 |  |  |  |
@@ -653,11 +650,11 @@ The full spec is in the plan, Phases 4a and 4b.
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
 | `APPLIED_SKILL_ID` | unsupported(Applied skill ID (absent)) | unassigned | 2 | direct 32632390@32632446 | X2DamageManager:209 | unchecked(buff parser row: March matched path-insensitively) | compiled elsewhere: X2DamageEffect:1618, X2EffectSet:3633; raw literal 5 (X2Lib/X2DamageEffect.cpp:1618); bare id 23; e.g. DamageEffect:DamageEffect_ESK_DoubleSlash_FirstImpact_Memo |
-| `BEHAVIOR` | implemented |  | 967 | other-func 32d4c9c0 | X2BuffFactor:800 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_TEMPLET_ID` | implemented |  | 967 | direct 32632390@3263d647 | X2BuffFactor:640 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FINALIZER` | implemented |  | 967 | other-func 32d4ca60 | X2BuffFactor:827 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `IGNORE_REGIST_FOR_RATE` | implemented |  | 967 | other-func 32d4d850@32d4da34 | X2BuffFactor:649 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `RATE` | implemented |  | 967 | direct 32632390@3263623e | X2BuffFactor:644, X2DamageManager:342 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BEHAVIOR` | implemented |  | 967 | other-func 32d4c9c0 | X2BuffFactor:803 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_TEMPLET_ID` | implemented |  | 967 | direct 32632390@3263d647 | X2BuffFactor:643 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FINALIZER` | implemented |  | 967 | other-func 32d4ca60 | X2BuffFactor:830 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `IGNORE_REGIST_FOR_RATE` | implemented |  | 967 | other-func 32d4d850@32d4da34 | X2BuffFactor:652 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `RATE` | implemented |  | 967 | direct 32632390@3263623e | X2BuffFactor:647, X2DamageManager:342 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 ### DamageData
 
@@ -764,15 +761,15 @@ The full spec is in the plan, Phases 4a and 4b.
 | `BBT_EFFECT_SET_WITH_DAMAGE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:174, X2BuffBehaviorTemplet:103 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `BBT_FINISH_OTHER_BUFF_DEBUFF` | implemented |  | 13 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:177, X2BuffBehaviorTemplet:105 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `BBT_FROZEN` | implemented |  | 65 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:178, X2BuffBehaviorTemplet:106 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_IMMUNE_NON_CONTROL_DEBUFF` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:256, X2BuffBehaviorTemplet:181 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BBT_INVINCIBLE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:261, X2BuffBehaviorTemplet:186 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_IMMUNE_NON_CONTROL_DEBUFF` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:258, X2BuffBehaviorTemplet:183 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BBT_INVINCIBLE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:263, X2BuffBehaviorTemplet:188 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `BBT_NEVER_MOVE` | implemented |  | 64 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:181, X2BuffBehaviorTemplet:109 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `BBT_RESET_SKILL_COOL_TIME` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:160, X2BuffBehaviorTemplet:92 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `BBT_REVERSE_LEFT_RIGHT` | implemented |  | 16 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:120, X2BuffBehaviorTemplet:61 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `BBT_SKILL_ATTACK_IMPOSSIBLE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:189, X2BuffBehaviorTemplet:117 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `BBT_STUN` | implemented |  | 134 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:176, X2BuffBehaviorTemplet:104 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `BBT_SUPER_ARMOR` | implemented |  | 48 | nested-subtable 32d4c9c0, 32d4bbf0 | X2BuffFactor:150, X2BuffBehaviorTemplet:86 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `COMBINATION` | implemented |  | 967 | nested-subtable 32d4c9c0, 326bfe70 | X2BuffTempletManager:494 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `COMBINATION` | implemented |  | 967 | nested-subtable 32d4c9c0, 326bfe70 | X2BuffTempletManager:495 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/FINALIZER
 
@@ -780,14 +777,14 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BFT_AURA` | implemented |  | 1 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:503, X2BuffFinalizerTemplet:78 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BFT_DAMAGE_VALUE` | implemented |  | 1 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:490, X2BuffFinalizerTemplet:61 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BFT_DUNGEON_STAGE_CHANGE` | implemented |  | 10 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:495, X2BuffFinalizerTemplet:65 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BFT_HITTED_COUNT` | implemented |  | 127 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:489, X2BuffFinalizerTemplet:59 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BFT_IMMEDIATE` | implemented |  | 13 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:494, X2BuffFinalizerTemplet:64 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BFT_TIME` | implemented |  | 952 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:487, X2BuffFinalizerTemplet:57 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BFT_X2STATE_CHANGE` | implemented |  | 3 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:499, X2BuffFinalizerTemplet:75 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `COMBINATION` | implemented |  | 967 | nested-subtable 32d4ca60, 326bfe70 | X2BuffTempletManager:494 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BFT_AURA` | implemented |  | 1 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:506, X2BuffFinalizerTemplet:78 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BFT_DAMAGE_VALUE` | implemented |  | 1 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:493, X2BuffFinalizerTemplet:61 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BFT_DUNGEON_STAGE_CHANGE` | implemented |  | 10 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:498, X2BuffFinalizerTemplet:65 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BFT_HITTED_COUNT` | implemented |  | 127 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:492, X2BuffFinalizerTemplet:59 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BFT_IMMEDIATE` | implemented |  | 13 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:497, X2BuffFinalizerTemplet:64 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BFT_TIME` | implemented |  | 952 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:490, X2BuffFinalizerTemplet:57 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BFT_X2STATE_CHANGE` | implemented |  | 3 | nested-subtable 32d4ca60, 32d4c750 | X2BuffFactor:502, X2BuffFinalizerTemplet:75 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `COMBINATION` | implemented |  | 967 | nested-subtable 32d4ca60, 326bfe70 | X2BuffTempletManager:495 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 ### DamageData
 
@@ -797,8 +794,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `ATTACK_TRIGGER_TYPE` | to-implement | 8b | 1 | direct 32632390@3263d4a0 |  |  | compiled elsewhere: X2DamageManager:555; raw literal 1 (X2Lib/X2DamageManager.cpp:555); e.g. DamageEffect_Character:DamageEffect_SA_RCR_Punishment_Attack2 |
-| `BUFF_TEMPLET_ID` | to-implement | 8b | 1 | direct 32632390@3263d647 |  |  | compiled elsewhere: X2BuffFactor:640; raw literal 6 (X2Lib/X2BuffFactor.cpp:640); bare id 191; e.g. DamageEffect_Character:DamageEffect_SA_RCR_Punishment_Attack2 |
+| `ATTACK_TRIGGER_TYPE` | to-implement | 8b | 1 | direct 32632390@3263d4a0 |  |  | compiled elsewhere: X2DamageManager:555; raw literal 1 (X2Lib/X2DamageManager.cpp:555); bare id 1; e.g. DamageEffect_Character:DamageEffect_SA_RCR_Punishment_Attack2 |
+| `BUFF_TEMPLET_ID` | to-implement | 8b | 1 | direct 32632390@3263d647 |  |  | compiled elsewhere: X2BuffFactor:643; raw literal 6 (X2Lib/X2BuffFactor.cpp:643); bare id 193; e.g. DamageEffect_Character:DamageEffect_SA_RCR_Punishment_Attack2 |
 | `POWER_RATE` | to-implement | 8b | 1 | direct 32632390@3263d7a2 |  |  | e.g. DamageEffect_Character:DamageEffect_SA_RCR_Punishment_Attack2 |
 | `POWER_RATE_ACCUMULATION_MULTIPLIER` | to-implement | 8b | 1 | direct 32632390@3263d8e7 |  |  | e.g. DamageEffect_Character:DamageEffect_SA_RCR_Punishment_Attack2 |
 
@@ -810,7 +807,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `ABSORB_VALUE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d45570 | X2BuffFactor:2349 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `ABSORB_VALUE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d45570 | X2BuffFactor:2353 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ACCURACY
 
@@ -818,8 +815,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 10 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 10 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 10 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 10 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ADDITIONAL_ATTACK
 
@@ -827,10 +824,10 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1038, X2BuffFactor:1552 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 17 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1042, X2BuffFactor:1556 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 17 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ADDITIONAL_DEFENCE
 
@@ -838,9 +835,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1038, X2BuffFactor:1552 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1042, X2BuffFactor:1556 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ANIM_SPEED
 
@@ -848,10 +845,10 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 135 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 117 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1038, X2BuffFactor:1552 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 131 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 135 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 117 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1042, X2BuffFactor:1556 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 131 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ANTI_CRITICAL_RATE
 
@@ -859,9 +856,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1038, X2BuffFactor:1552 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1042, X2BuffFactor:1556 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ATTRIBUTE_BLAZE_DEFENCE
 
@@ -869,9 +866,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 6 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 6 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 6 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1038, X2BuffFactor:1552 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 6 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 6 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 6 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1042, X2BuffFactor:1556 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ATTRIBUTE_DARK_DEFENCE
 
@@ -879,8 +876,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1038, X2BuffFactor:1552 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1042, X2BuffFactor:1556 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ATTRIBUTE_WATER_DEFENCE
 
@@ -888,9 +885,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1038, X2BuffFactor:1552 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1042, X2BuffFactor:1556 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_AVOIDANCE
 
@@ -898,9 +895,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_CRITICAL_RATE
 
@@ -908,11 +905,11 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 7 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1038, X2BuffFactor:1552 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `SWAP_VALUE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d445d0 | X2BuffFactor:1829, X2BuffFactor:2856 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 7 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 4 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1042, X2BuffFactor:1556 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 2 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `SWAP_VALUE` | implemented |  | 3 | nested-subtable 32d4c9c0, 32d445d0 | X2BuffFactor:1833, X2BuffFactor:2860 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE
 
@@ -920,9 +917,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1038, X2BuffFactor:1552 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1042, X2BuffFactor:1556 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_FINAL_DEFENCE_MULTIPLIER
 
@@ -930,9 +927,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_JUMP_POWER
 
@@ -940,10 +937,10 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 41 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 40 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 36 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `SWAP_VALUE` | implemented |  | 5 | nested-subtable 32d4c9c0, 32d445d0 | X2BuffFactor:1829, X2BuffFactor:2856 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 41 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 40 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 36 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `SWAP_VALUE` | implemented |  | 5 | nested-subtable 32d4c9c0, 32d445d0 | X2BuffFactor:1833, X2BuffFactor:2860 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_MAGIC_ATTACK
 
@@ -951,9 +948,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 25 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 25 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 25 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 25 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_MAGIC_DEFENCE
 
@@ -961,9 +958,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 19 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_MAX_HP
 
@@ -971,9 +968,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_MAX_MP
 
@@ -981,9 +978,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_NOW_HP_PER_SECOND
 
@@ -991,12 +988,12 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 528 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 521 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `DRAW_TEXT` | implemented |  | 5 | nested-subtable 32d4c9c0, 32e72a00@32e72cb9 | X2BuffBehaviorTemplet:281, X2BuffBehaviorTemplet:594 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `MULTIPLIER` | implemented |  | 520 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1051, X2BuffFactor:1576 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `TIME_INTERVAL` | implemented |  | 5 | nested-subtable 32d4c9c0, 32e72a00@32e72bb5 | X2BuffBehaviorTemplet:278, X2BuffBehaviorTemplet:591 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 528 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 521 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `DRAW_TEXT` | implemented |  | 5 | nested-subtable 32d4c9c0, 32e72a00@32e72cb9 | X2BuffBehaviorTemplet:283, X2BuffBehaviorTemplet:596 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `MULTIPLIER` | implemented |  | 520 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1055, X2BuffFactor:1580 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `TIME_INTERVAL` | implemented |  | 5 | nested-subtable 32d4c9c0, 32e72a00@32e72bb5 | X2BuffBehaviorTemplet:280, X2BuffBehaviorTemplet:593 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_NOW_MP_PER_SECOND
 
@@ -1004,9 +1001,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 80 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `FIX_VALUE` | implemented |  | 72 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1038, X2BuffFactor:1552 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 80 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `FIX_VALUE` | implemented |  | 72 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1042, X2BuffFactor:1556 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_PHYSIC_ATTACK
 
@@ -1014,9 +1011,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 26 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 26 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 26 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 8 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 26 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_PHYSIC_DEFENCE
 
@@ -1024,9 +1021,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 18 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_WALK_RUN_SPEED
 
@@ -1034,10 +1031,10 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 63 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 44 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 58 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `SWAP_VALUE` | implemented |  | 5 | nested-subtable 32d4c9c0, 32d445d0 | X2BuffFactor:1829, X2BuffFactor:2856 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 63 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 44 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 58 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `SWAP_VALUE` | implemented |  | 5 | nested-subtable 32d4c9c0, 32d445d0 | X2BuffFactor:1833, X2BuffFactor:2860 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_DASH_IMPOSSIBLE
 
@@ -1045,7 +1042,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_RELATION_TYPE` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 11 | nested-subtable 32d4c9c0, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_FROZEN
 
@@ -1053,7 +1050,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `IS_DOWN` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e74170@32e741bc | X2BuffBehaviorTemplet:2981 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `IS_DOWN` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e74170@32e741bc | X2BuffBehaviorTemplet:3009 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_NEVER_MOVE
 
@@ -1061,8 +1058,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `IS_GRAVITY` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e7a4a0@32e7a4ef | X2BuffBehaviorTemplet:3086 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `OFFSET_POSITION` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e7a4a0@32e7a69e | X2BuffBehaviorTemplet:3093 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `IS_GRAVITY` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e7a4a0@32e7a4ef | X2BuffBehaviorTemplet:3114 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `OFFSET_POSITION` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e7a4a0@32e7a69e | X2BuffBehaviorTemplet:3121 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_RESET_SKILL_COOL_TIME
 
@@ -1070,8 +1067,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1077, X2BuffFactor:1783 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `PERCENT` | implemented |  | 1 | nested-subtable 32d4c9c0, 32d42030 | X2BuffFactor:1081, X2BuffFactor:1787 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/BEHAVIOR/BBT_REVERSE_LEFT_RIGHT
 
@@ -1079,7 +1076,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `TIME_INTERVAL` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e72a00@32e72bb5 | X2BuffBehaviorTemplet:278, X2BuffBehaviorTemplet:591 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `TIME_INTERVAL` | implemented |  | 1 | nested-subtable 32d4c9c0, 32e72a00@32e72bb5 | X2BuffBehaviorTemplet:280, X2BuffBehaviorTemplet:593 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/FINALIZER/BFT_DAMAGE_VALUE
 
@@ -1087,9 +1084,9 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4ca60, 32d42030@32d420f6 | X2BuffFactor:1028, X2BuffFactor:1543 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4ca60, 32d42030@32d422f4 | X2BuffFactor:1060, X2BuffFactor:1571 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `MULTIPLIER` | implemented |  | 1 | nested-subtable 32d4ca60, 32d42030 | X2BuffFactor:1051, X2BuffFactor:1576 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_CHANGE_TYPE` | implemented |  | 1 | nested-subtable 32d4ca60, 32d42030@32d420f6 | X2BuffFactor:1032, X2BuffFactor:1547 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_RELATION_TYPE` | implemented |  | 1 | nested-subtable 32d4ca60, 32d42030@32d422f4 | X2BuffFactor:1064, X2BuffFactor:1575 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `MULTIPLIER` | implemented |  | 1 | nested-subtable 32d4ca60, 32d42030 | X2BuffFactor:1055, X2BuffFactor:1580 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/FINALIZER/BFT_HITTED_COUNT
 
@@ -1097,8 +1094,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_USE_COUNT_TYPE` | implemented |  | 127 | nested-subtable 32d4ca60, 32d430f0@32d431be | X2BuffFactor:1350, X2BuffFactor:1435 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `COUNT` | implemented |  | 127 | nested-subtable 32d4ca60, 31f65730@31f65a26 | X2BuffFactor:1356, X2BuffFactor:1441 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_USE_COUNT_TYPE` | implemented |  | 127 | nested-subtable 32d4ca60, 32d430f0@32d431be | X2BuffFactor:1354, X2BuffFactor:1439 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `COUNT` | implemented |  | 127 | nested-subtable 32d4ca60, 31f65730@31f65a26 | X2BuffFactor:1360, X2BuffFactor:1445 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 #### `DE.DAMAGE_DATA` BUFF_FACTOR/FINALIZER/BFT_TIME
 
@@ -1106,8 +1103,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `BUFF_DURATION_TIME_TYPE` | implemented |  | 952 | nested-subtable 32d4ca60, 32d42da0@32d42e78 | X2BuffFactor:1221, X2BuffFinalizerTemplet:159 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `NORMAL_TIME` | implemented |  | 952 | nested-subtable 32d4ca60, 32d42da0 | X2BuffFactor:1231 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_DURATION_TIME_TYPE` | implemented |  | 952 | nested-subtable 32d4ca60, 32d42da0@32d42e78 | X2BuffFactor:1225, X2BuffFinalizerTemplet:159 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `NORMAL_TIME` | implemented |  | 952 | nested-subtable 32d4ca60, 32d42da0 | X2BuffFactor:1235 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 ### DamageEffect sub-loaders
 
@@ -1692,16 +1689,16 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `HTD_BEEHOUSE` | implemented |  | 48 | direct 32610ff0@32611666 | X2DamageManager:3184 | same [June string = ''] |  |
-| `HTD_DEFAULT` | implemented |  | 51 | direct 32610ff0@32611071 | X2DamageManager:3174 | same [June string = ''] |  |
-| `HTD_GUARD_1` | implemented |  | 49 | direct 32610ff0@3261176b | X2DamageManager:3188 | same [June string = ''] |  |
-| `HTD_GUARD_2` | implemented |  | 49 | direct 32610ff0@32611863 | X2DamageManager:3193 | same [June string = ''] |  |
-| `HTD_MEAT` | implemented |  | 46 | direct 32610ff0@32611160 | X2DamageManager:3175 | same [June string = ''] |  |
-| `HTD_METAL` | implemented |  | 45 | direct 32610ff0@326114a6 | X2DamageManager:3181 | same [June string = ''] |  |
-| `HTD_METAL2` | implemented |  | 45 | direct 32610ff0@3261157f | X2DamageManager:3182 | same [June string = ''] |  |
-| `HTD_STONE` | implemented |  | 48 | direct 32610ff0@326112eb | X2DamageManager:3178 | same [June string = ''] |  |
-| `HTD_STONE2` | implemented |  | 48 | direct 32610ff0@326113c4 | X2DamageManager:3179 | same [June string = ''] |  |
-| `HTD_WOOD` | implemented |  | 48 | direct 32610ff0@32611223 | X2DamageManager:3176 | same [June string = ''] |  |
+| `HTD_BEEHOUSE` | implemented |  | 48 | direct 32610ff0@32611666 | X2DamageManager:3351 | same [June string = ''] |  |
+| `HTD_DEFAULT` | implemented |  | 51 | direct 32610ff0@32611071 | X2DamageManager:3341 | same [June string = ''] |  |
+| `HTD_GUARD_1` | implemented |  | 49 | direct 32610ff0@3261176b | X2DamageManager:3355 | same [June string = ''] |  |
+| `HTD_GUARD_2` | implemented |  | 49 | direct 32610ff0@32611863 | X2DamageManager:3360 | same [June string = ''] |  |
+| `HTD_MEAT` | implemented |  | 46 | direct 32610ff0@32611160 | X2DamageManager:3342 | same [June string = ''] |  |
+| `HTD_METAL` | implemented |  | 45 | direct 32610ff0@326114a6 | X2DamageManager:3348 | same [June string = ''] |  |
+| `HTD_METAL2` | implemented |  | 45 | direct 32610ff0@3261157f | X2DamageManager:3349 | same [June string = ''] |  |
+| `HTD_STONE` | implemented |  | 48 | direct 32610ff0@326112eb | X2DamageManager:3345 | same [June string = ''] |  |
+| `HTD_STONE2` | implemented |  | 48 | direct 32610ff0@326113c4 | X2DamageManager:3346 | same [June string = ''] |  |
+| `HTD_WOOD` | implemented |  | 48 | direct 32610ff0@32611223 | X2DamageManager:3343 | same [June string = ''] |  |
 
 ### Outside the scope roots
 
@@ -2010,9 +2007,9 @@ evidence. An unsupported row that March parses that way stays `unsupported`, wit
 
 Search terms: Rose weapon: `ROSE_WEAPON_\w+`, `\w*RoseWeapon\w*`, `CX2GURose\w*`, `UC_ROSE\w*`; Natural force: `NATURAL_FORCE_TYPE`, `NFT_\w+`, `m_\w*NaturalForce\w*`, `\w*NATURAL_FORCE_VALUE\w*`; Skill memo: `APPLIED_MEMO_ID`, `IsEqippedMemo_?`, `BUFF_FACTOR_ID_MEMO`, `BUFF_FACTOR_RELATIVE_MEMO_ID`, `DAMAGE_DATA(_NEXT)?_MEMO\d*`, `NOT_ALLOW_MEMO`, `APPLIED_SKILL_ID_NOT_AFFECT_MEMO`; Numerical skill data: `NUMERICAL_DATA_\w+`, `\w*NumericalData\w*`; HP-rate damage: `HP_RATE_DAMAGE_\w+`, `\w*HpRateDamage\w*`; Applied skill ID: `APPLIED_SKILL_ID`, `\w*AppliedSkillI[dD]\w*`; Nasod armor combo: `CAN_ACTIVATE_NASOD_ARMOR_COMBO`, `\w*NasodArmorCombo\w*`; Combination point: `\w*COMBINATION_POINT\w*`, `\w*CombinationPoint\w*`; Effect-alpha option: `\w*EFFECT_ALPHA_CONDITION\w*`, `\w*EffectAlphaCondition\w*`, `AEACBO_\w+`, `\w*MY_TEAM_EFFECT\w*`, `\w*ANOTHER_TEAM_EFFECT\w*`, `\w*OtherTeamEffect\w*`.
 
-Unsupported rows (12): `APPLIED_SKILL_ID` (`DE.DAMAGE_DATA` (top), Applied skill ID (absent)), `APPLIED_SKILL_ID` (`DE.DAMAGE_DATA` BUFF_FACTOR, Applied skill ID (absent)), `APPLIED_SKILL_ID` (`DE.top` (top), Applied skill ID (absent)), `APPLIED_SKILL_ID` (`ES.templet` (top), Applied skill ID (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`ES.EFFECT` (top), Effect-alpha option (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`ES.templet` (top), Effect-alpha option (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`DE.top` (top), Effect-alpha option (absent)), `HIT_ADD_COMBINATION_POINT` (`DE.DAMAGE_DATA` (top), Combination point (absent)), `HP_RATE_DAMAGE_TYPE` (`DE.DAMAGE_DATA` (top), HP-rate damage (absent)), `HP_RATE_DAMAGE_VALUE` (`DE.DAMAGE_DATA` (top), HP-rate damage (absent)), `NUMERICAL_DATA_INDEX` (`DE.DAMAGE_DATA` (top), Numerical skill data (absent)), `NUMERICAL_DATA_NAME` (`DE.DAMAGE_DATA` (top), Numerical skill data (absent)).
+Unsupported rows (11): `APPLIED_SKILL_ID` (`DE.DAMAGE_DATA` (top), Applied skill ID (absent)), `APPLIED_SKILL_ID` (`DE.DAMAGE_DATA` BUFF_FACTOR, Applied skill ID (absent)), `APPLIED_SKILL_ID` (`DE.top` (top), Applied skill ID (absent)), `APPLIED_SKILL_ID` (`ES.templet` (top), Applied skill ID (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`ES.EFFECT` (top), Effect-alpha option (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`ES.templet` (top), Effect-alpha option (absent)), `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (`DE.top` (top), Effect-alpha option (absent)), `HP_RATE_DAMAGE_TYPE` (`DE.DAMAGE_DATA` (top), HP-rate damage (absent)), `HP_RATE_DAMAGE_VALUE` (`DE.DAMAGE_DATA` (top), HP-rate damage (absent)), `NUMERICAL_DATA_INDEX` (`DE.DAMAGE_DATA` (top), Numerical skill data (absent)), `NUMERICAL_DATA_NAME` (`DE.DAMAGE_DATA` (top), Numerical skill data (absent)).
 
-Handed-off / declined rows (2; `census_completion.py`, decisions D1-D6 of `JUNE2017_EFFECT_COMPLETION_PHASES.md` C0): `NATURAL_FORCE_TYPE` (`DE.DAMAGE_DATA` (top)) -> JUNE2017_CHARACTER_PORT_CHECKLIST.md section 3 (Rena port); `ROSE_WEAPON_ATTACK_TYPE` (`DE.DAMAGE_DATA` (top)) -> JUNE2017_CHARACTER_PORT_CHECKLIST.md section 3 (Rose port).
+Handed-off / declined rows (3; `census_completion.py`, decisions D1-D6 of `JUNE2017_EFFECT_COMPLETION_PHASES.md` C0): `HIT_ADD_COMBINATION_POINT` (`DE.DAMAGE_DATA` (top)) -> JUNE2017_CHARACTER_PORT_CHECKLIST.md section 3 (Lu/Ciel port); `NATURAL_FORCE_TYPE` (`DE.DAMAGE_DATA` (top)) -> JUNE2017_CHARACTER_PORT_CHECKLIST.md section 3 (Rena port); `ROSE_WEAPON_ATTACK_TYPE` (`DE.DAMAGE_DATA` (top)) -> JUNE2017_CHARACTER_PORT_CHECKLIST.md section 3 (Rose port).
 
 ## Enum census
 

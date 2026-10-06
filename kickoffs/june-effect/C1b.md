@@ -29,6 +29,14 @@ skill's Tools and Finish lists). Never launch X2_offline.exe; ask the user. Ghid
 - **`DAMAGE_SKILL_ID`** (DD+0x5cc) is the NUMERICAL_DATA override's skill-id fallback: `APPLIED_SKILL_ID ? APPLIED_SKILL_ID : DAMAGE_SKILL_ID` @`3263fee4`-`3263fefc`.
 - The `DAMAGE_DATA_KEY_NAME` record (C9) is applied @`3263edee`, before the override @`3263fe41`. The override therefore wins where both apply.
 
+## C1a findings (2026-10-06; rows tagged "Effect C1a" in `june2017_re/funcmap.tsv`, Done note under C1)
+
+- **Do not start until the user has answered C1a's decision (a/b/c).** Under (a), this phase moves to the character ports.
+- **No separate table file.** `NUMERICAL_DATA<n>` (`m_wstrName`, `m_ParamType`, `m_Value`, `m_Pvp_Rate`, `m_Tech_Point`, `m_Hit_Add_MP`) is a field of each skill templet, parsed by June's `AddSkillTemplet_LUA` (`32216320 @322186f5-32218e62`). The "loader" is therefore an extension of March's `CX2SkillTree::AddSkillTemplet_LUA` (X2SkillTree), not a `LoadDataFile` + `DoMemory` reader. The Lua rule's degrade path becomes "a templet without NUMERICAL_DATA: the override does not run".
+- **Override:** transcribe from the `3263fe41` C1a row (gate, attacker resolution, level and templet, DT split, write order, zero row on a miss). The site is just before `luaManager.EndTable()` in `SetDamageDataFromLUA` (X2DamageManager.cpp:605), so `SetDamageExceptionProcess` still applies `fPowerRate`.
+- **Census:** item 1 passes as soon as the flag is defined and `#if`-tested. It is not proof of damage in play: every block's skill is a reform ID (21000-32605) that no March character has learned today.
+- **`JUNE_BUGS.md` row owed:** three blocks index past their skill's data and get a zero row (names in the C1a Done note).
+
 ## Task
 
 **Census contract (C0, 2026-10-05):** `census.py` counts the numerical-data source as landed when

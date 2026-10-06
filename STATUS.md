@@ -93,8 +93,8 @@ today's Sonnet 5.5.
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | C0 | done 2026-10-05: D2 build, D3 hand off (Rena), D4 build, D5 decide after C2, D6 keep; census now has `handed-off`/`declined`, owners, item-1/3 checks (`census_completion.py`); item-1 shows 1,913 numerical + 7 HP-rate blocks | Sonnet 5.5 / high | - | `june2017_re/census.py`, `census_completion.py`, C0's decision table | `C0.md` |
-| C1a | queued | Opus 5.5 / high | C0 | `funcmap.tsv` (no code) | `C1a.md` |
-| C1b | blocked | Sonnet 5.5 / high | C1a | X2DamageManager.cpp (SetDamageDataFromLUA), a new table loader, NewSkillTempletVer2.lua (user packs), MODS.md | `C1b.md` |
+| C1a | done 2026-10-06, **stopped for the user**: 10 funcmap rows, override fully transcribed; the table is a skill-templet field (`NUMERICAL_DATA<n>` in `AddSkillTemplet_LUA`), not a file; all 1,913 blocks use June reform skill IDs (21000-32605) that no March character has learned, so a port is inert in play; June's NewSkillTempletVer2 is a different skill system (451/521 shared changed, +1,825 templets). User owes: choose (a) hand C1 to the character ports, (b) adopt June's file now, (c) dormant port + new exit | Opus 5.5 / high | C0 | `funcmap.tsv` (no code) | `C1a.md` |
+| C1b | blocked: user decision from C1a (a/b/c in the C1a Done note) | Sonnet 5.5 / high | C1a + that decision | X2DamageManager.cpp (SetDamageDataFromLUA), a new table loader, NewSkillTempletVer2.lua (user packs), MODS.md | `C1b.md` |
 | C1b review | blocked | Opus 5.5 / high | C1b | - | `C1b-review.md` |
 | C2 | done 2026-10-06: 29 funcmap rows; DIVISION = buff-apply gate (row 1134 corrected), DAMAGE_SKILL_ID -> C1b, KEY_NAME -> C9, C5 group 2 already ported, ES.Description declined; D5 = handed off to the Lu/Ciel port; DIVISION gate follows June (buff-react apply stub) | Opus 5.5 / high | - | `funcmap.tsv`, `june2017_re/README.md` (no code) | `C2.md` |
 | C3 | queued (C2 done) | Sonnet 5.5 / high | C2 | X2DamageManager.cpp, consumers in X2DamageEffect.cpp / X2GameUnit.cpp | `C3.md` |
