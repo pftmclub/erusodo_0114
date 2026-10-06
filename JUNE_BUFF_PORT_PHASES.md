@@ -4959,7 +4959,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 **Reach (step 5)**, on the data the game now loads:
 - **IDs.** 247 March IDs gone, 6,226 June-only, 1,366 shared IDs differ (part 1 said 1,367; this compares every field at `%.17g`).
 - **The save.** Its 13 socket IDs (34 items, `sockets`/`random_sockets`) are all identical in both files, and none is June-only, rank-linked, `+0x29c` or SIEE 12-20.
-- **Emulator.** The roll pools (`SocketItemTable.lua`, 3,586 rows, 1,291 IDs) lose none; 840 of their IDs now carry June's rows.
+- **Emulator.** The roll pools (`SocketItemTable.lua`, 3,586 rows, 1,291 IDs) lose none; 840 of their IDs now carry June's rows. Built-in options lose none either: `TitleTable.lua` (266 IDs) and `SocketGroupDataForCashAvatar.lua` (22) name no dropped ID (one title ID is in neither file, as before). Set-item options in `Item.kim`: not counted. March's stat add (`ConvertAndAdd`, X2GUUser.cpp:3192) runs before the gate (:3234) and the buff insert (:3283) after it, the same order as June (`3204f485` < `3204f5ef`). `OptionItemDataTrans.lua`'s ID check is compiled out (`LUA_TRANS_DEVIDE` commented, `Always_Global.h:181`), and June's file has no duplicate ID (no `XEM_ERROR127` popup).
 - **June-only keys,** entries per key:
   - skill power-rate pair: 2,491;
   - `m_bSocketExtraction`: 2,485;
