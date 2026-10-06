@@ -14624,7 +14624,12 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef FIX_SUMMON_NPC_SKILL_DAMAGE_BY_USE_PROTECTION_OF_LAHELL
 					if( NULL != pUser )
 					{
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+						/// June buff port 16-step3b3 item 1: June's summon helper 322ece70 reads no socket field for the stat scale;
+						/// the term is on this NPC's power rate (below)
+#else // SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						fStatScale *= (1.f + pUser->GetSocketData().m_fSkillDamageUpRate);
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					}
 #endif FIX_SUMMON_NPC_SKILL_DAMAGE_BY_USE_PROTECTION_OF_LAHELL
 #endif NEW_SKILL_TREE
@@ -14636,6 +14641,14 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						npcStat.m_fAtkMagic		* fStatScale	* 1.f * fStatAtkRate,
 						npcStat.m_fDefPhysic	* fStatScale	* 1.f,
 						npcStat.m_fDefMagic		* fStatScale	* 0.8f );
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+					/// June buff port 16-step3b3 item 1: Nasod Watch (384/519) reaches June's summon helper through 3230c1a0 @3230ca64 (flags
+					/// 0x240), whose skill map 31fcf520 gives 25000 (Dimension Link). March sets no power rate here (Phase 6b left the buff terms
+					/// off); the socket term March had in the stat scale moves onto the power rate, as in June (@322ed2bd). Flag 0x200 makes June
+					/// write the rate to the protected factor +0x8ce4 (31e8d610) instead of +0x8ce0; the NPC's power rate 32759630 is
+					/// +0x8ce0 x +0x8ce4, so scaling March's default power rate gives the same product
+					pNPC->SetDefaultPowerRate( pNPC->GetDefaultPowerRate() * pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_A_EN_DIMENSION_LINK ) );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 
 #ifdef FINALITY_SKILL_SYSTEM //김창한
@@ -14665,6 +14678,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
 						fPowerRate *= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_HA_EEP_LINK_OVERCHARGE_ILLUSION );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+						/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket skill-damage term on the power rate
+						fPowerRate *= pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_HA_EEP_LINK_OVERCHARGE_ILLUSION );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						fPowerRate *= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 
@@ -14711,7 +14728,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef FIX_SUMMON_NPC_SKILL_DAMAGE_BY_USE_PROTECTION_OF_LAHELL
 					if( NULL != pUser )
 					{
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+						/// June buff port 16-step3b3 item 1: no socket field in the stat scale (322ece70); the term is on the power rate
+#else // SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						fStatScale *= (1.f + pUser->GetSocketData().m_fSkillDamageUpRate);
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					}
 #endif FIX_SUMMON_NPC_SKILL_DAMAGE_BY_USE_PROTECTION_OF_LAHELL
 #endif NEW_SKILL_TREE
@@ -14731,6 +14752,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					/// through the switch default (3230c1a0 @3230ca64), and its NPC -> skill map 31fcf520 returns 0 for 385, so 89 x 90 is 1.0; only the summon 98 cache applies
 					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( 0 );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+					/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket term (moved here from the stat scale above)
+					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateBySocket( 0 );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 					pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -14763,7 +14788,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef FIX_SUMMON_NPC_SKILL_DAMAGE_BY_USE_PROTECTION_OF_LAHELL
 					if( NULL != pUser )
 					{
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+						/// June buff port 16-step3b3 item 1: no socket field in the stat scale (322ece70); the term is on the power rate
+#else // SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						fStatScale *= (1.f + pUser->GetSocketData().m_fSkillDamageUpRate);
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					}
 #endif FIX_SUMMON_NPC_SKILL_DAMAGE_BY_USE_PROTECTION_OF_LAHELL
 #endif NEW_SKILL_TREE
@@ -14783,6 +14812,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					/// through the switch default (3230c1a0 @3230ca64), and its NPC -> skill map 31fcf520 returns 0 for 386, so 89 x 90 is 1.0; only the summon 98 cache applies
 					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( 0 );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+					/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket term (moved here from the stat scale above)
+					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateBySocket( 0 );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 					pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -14820,7 +14853,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef FIX_SUMMON_NPC_SKILL_DAMAGE_BY_USE_PROTECTION_OF_LAHELL
 					if( NULL != pUser )
 					{
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+						/// June buff port 16-step3b3 item 1: no socket field in the stat scale (322ece70); the term is on the power rate
+#else // SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						fStatScale *= (1.f + pUser->GetSocketData().m_fSkillDamageUpRate);
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					}
 #endif FIX_SUMMON_NPC_SKILL_DAMAGE_BY_USE_PROTECTION_OF_LAHELL
 #endif NEW_SKILL_TREE
@@ -14841,6 +14878,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					/// through the switch default (3230c1a0 @3230ca64), and its NPC -> skill map 31fcf520 returns 0 for both, so 89 x 90 is 1.0; only the summon 98 cache applies
 					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( 0 );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+					/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket term (moved here from the stat scale above)
+					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateBySocket( 0 );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 					pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -14875,7 +14916,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef FIX_SUMMON_NPC_SKILL_DAMAGE_BY_USE_PROTECTION_OF_LAHELL
 					if( NULL != pUser )
 					{
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+						/// June buff port 16-step3b3 item 1: no socket field in the stat scale (322ece70); the term is on the power rate
+#else // SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						fStatScale *= (1.f + pUser->GetSocketData().m_fSkillDamageUpRate);
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					}
 #endif FIX_SUMMON_NPC_SKILL_DAMAGE_BY_USE_PROTECTION_OF_LAHELL
 #endif NEW_SKILL_TREE
@@ -14894,6 +14939,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
 					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_SA_EAT_SONIC_WAVE );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+					/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket term (moved here from the stat scale above)
+					fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_SA_EAT_SONIC_WAVE );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 					pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -14970,6 +15019,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
 						fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_SA_ENS_ATOMIC_SHIELD );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+						/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket skill-damage term on the power rate
+						fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_SA_ENS_ATOMIC_SHIELD );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 						pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -15060,6 +15113,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
 						fPowerRate *= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_A_RNW_ANGER_OF_ELF );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+						/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket skill-damage term on the power rate. June's rate
+						/// argument here (1420/1421, 3230c1a0 @3230c868-3230c89e) is skill 23408's ability 0xf when learned, else 1.0: March's own fPowerRate
+						fPowerRate *= pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_A_RNW_ANGER_OF_ELF );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						fPowerRate *= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 
@@ -15118,6 +15176,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 							/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
 							fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_A_ADM_HELL_DROP );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+							/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket skill-damage term on the power rate
+							fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_A_ADM_HELL_DROP );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 							fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );	/// AT_SPECIAL 공격 배율 증가 버프 적용
 							pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #else ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -15184,6 +15246,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 							/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
 							fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_A_ADM_HELL_DROP );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+							/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket skill-damage term on the power rate
+							fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_A_ADM_HELL_DROP );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 							fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );	/// AT_SPECIAL 공격 배율 증가 버프 적용
 							pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #else ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -15315,6 +15381,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 							/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
 							fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+							/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket skill-damage term on the power rate
+							fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 							fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 							pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 							CX2GUChung* pChung = static_cast<CX2GUChung*> ( pUser );
@@ -15366,6 +15436,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 							/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
 							fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_SA_CTT_ARTILLERY_STRIKE );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+							/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket skill-damage term on the power rate
+							fSummonMonsterPowerRate			*= pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_SA_CTT_ARTILLERY_STRIKE );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 							fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );	/// AT_SPECIAL 공격 배율 증가 버프 적용
 							pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #else ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
@@ -15484,6 +15558,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						/// June buff port Phase 6b: June 322ece70 @322ed2f7-322ed32d, 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
 						fPowerRate *= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_A_LTR_EVOKE );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+						/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket skill-damage term on the power rate. June's rate
+						/// argument here (1020/1025, 3230c1a0 @3230c6c4-3230c6fa) is skill 23408's ability 0xf when learned, else 1.0: March's own fPowerRate
+						fPowerRate *= pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_A_LTR_EVOKE );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						fPowerRate *= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 
@@ -15530,6 +15609,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #else // SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 							pNPC->SetDefaultPowerRate( pSkillTemplet->GetSkillPowerRateValue( iSkillTempletLevel ) );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+							/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket skill-damage term on the power rate
+							pNPC->SetDefaultPowerRate( pNPC->GetDefaultPowerRate() * pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_A_ADW_DISTORTION ) );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 #ifdef MODIFY_DISTORTION_DESTRUCTION
 							// 몬스터 소환 유지 시간
@@ -15599,6 +15682,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 								/// product, @322ed366), 89 x 90 for the summoning skill x the summon 98 cache (buff terms only)
 								fPowerRate *= pUser->GetSummonPowerRateByBuff( CX2SkillTree::SI_A_CTT_AUTOMATIC_MORTAR );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+								/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket term, before the 1.0 comes off (flag 0x400, @322ed366)
+								fPowerRate *= pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_A_CTT_AUTOMATIC_MORTAR );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 								fPowerRate -= 1.f;
 							}
 							

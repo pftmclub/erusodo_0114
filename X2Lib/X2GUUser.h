@@ -2784,6 +2784,10 @@ public:
 		/// pass 1); this is the base body with the bool, for the one June caller that passes 0 (Add's GetActualDPConsume, 329e78a6).
 		float						GetActualMPConsumeJune( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_, const bool bJuneMPRate_ ) const;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port 16-step3b3 item 1: the socket part of a summoned NPC's power rate, June 322ece70 @322ed2bd-322ed2f7
+		float						GetSummonPowerRateBySocket( const int iSkillID_ ) const;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		float						GetSkillRateByBuffBehavior( const CX2SkillTree::SKILL_ID eSkillID_, const BUFF_BEHAVIOR_TYPE eBehaviorType_ ) const;
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY

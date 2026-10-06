@@ -21935,6 +21935,35 @@ float CX2GUUser::GetActualMPConsumeJune( const CX2SkillTree::SKILL_ID eSkillID_,
 #endif // UPGRADE_SKILL_SYSTEM_2013
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/** @function : GetSummonPowerRateBySocket
+	@brief : June buff port 16-step3b3 item 1. June's summon helper 322ece70 (21 calls in SetUserSummonedNPCInfo 3230c1a0) builds
+		every summoned NPC's power rate as ( 1 + m_fSkillDamageUpRate (+0x238) [+ m_fAllSkillDamageIncreaseRate (+0x2ec) unless the
+		summoning skill is type 13] ) x its rate argument x ( 3201ad10 + 1 ) x 31fd7cc0 x 31fea430 x GetAdditionalAttackByType( AT_SPECIAL )
+		(@322ed2ae-322ed332) and reads no socket field for the stat scale. The type test is on 31fca8e0( skill, 1 )
+		(GetEquippedActiveSkillTemplet): no templet takes the all-skill term (@322ed2b0). This is the first factor; the call sites
+		multiply it beside GetSummonPowerRateByBuff (89 x 90 x 98), with the case's skill as Phase 6b passes it.
+*/
+float CX2GUUser::GetSummonPowerRateBySocket( const int iSkillID_ ) const
+{
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	const bool bHyper = ( NULL != pSkillTemplet && CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType );
+	const float fRate = 1.f + GetSocketData().m_fSkillDamageUpRate + ( bHyper ? 0.f : GetSocketData().m_fAllSkillDamageIncreaseRate );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( 1.0f != fRate )
+	{
+		static bool s_bSeenSummonSocket = false;
+		if ( !s_bSeenSummonSocket )
+		{
+			s_bSeenSummonSocket = true;
+			CX2JuneBuffCapture::Line( "first socket summon power rate: skill %d x %g (skill damage %g, all-skill %g%s)", iSkillID_, fRate,
+				GetSocketData().m_fSkillDamageUpRate, GetSocketData().m_fAllSkillDamageIncreaseRate, bHyper ? ", hyper: all-skill left out" : "" );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return fRate;
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /** @function : GetSkillRateByBuffBehavior
 	@brief : June 32039a50 (CX2GUUser). Walks every live buff's factor (GetBuffFactor, 3229fd80) and, for each behavior
