@@ -9975,6 +9975,29 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b3 item 2: June 322fbc60 (this function) keeps two rates. [esp+0x60] is March's
+	/// fIncreaseRateFromMasterOfAlchemistSkill (1.0, or guild skill 0x1f7's ability 0x37, @322fbcdd-322fbd4b); [esp+0x64] is
+	/// the user's socket HP recovery result (+0x6ff0, basic 1.0 + the socket m_fHPRecoveryRate sum) - 1.0 (@322fbd4f-322fbd73),
+	/// set only when the user has a CX2Unit, else 0. HP up (@322fbdf3), MP up (@322fc258) and HP % up (@322fd47a) multiply the
+	/// value by [64] + [60] (+ Chung's metabolism term, which stays as March has it); MP % up (@322fd965) multiplies by
+	/// ( [64] + 1 ). Team HP up (@322fdd83) and every other case read neither rate.
+	float fJuneSocketHPRecoveryRate = 0.f;
+	if ( NULL != pCX2GUUser && NULL != pCX2GUUser->GetUnit() )
+		fJuneSocketHPRecoveryRate = pCX2GUUser->GetHPRecoveryRate() - 1.f;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( 0.f != fJuneSocketHPRecoveryRate )
+	{
+		static bool s_bSeenItemRecovery = false;
+		if ( !s_bSeenItemRecovery )
+		{
+			s_bSeenItemRecovery = true;
+			CX2JuneBuffCapture::Line( "first socket item recovery: item %d, HP recovery %g (HP up, MP up, HP %% up rate + %g; MP %% up x %g)",
+				static_cast<int>( pItemTemplet->GetItemID() ), fJuneSocketHPRecoveryRate, fJuneSocketHPRecoveryRate, fJuneSocketHPRecoveryRate + 1.f );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
     unsigned int    uNumSA = pItemTemplet->GetNumSpecialAbility();
 	for( int i = 0; i < (int)uNumSA ; i++ )
 	{
@@ -10031,6 +10054,10 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 //}} kimhc // 2011.1.14 // 청 1차 전직
 
 					//{{ kimhc // 2009-11-17 //길드 스킬 중 연금술의 달인(포션, 음식, 던전 회복 아이템의 효과가 X%증가)
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+					/// June buff port 16-step3b3 item 2: HP up, value x ( [64] + [60] + metabolism ) (@322fbdf3-322fbe8d)
+					fIncreateRateHpUp += fJuneSocketHPRecoveryRate;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef	GUILD_SKILL
 					fValue *= fIncreateRateHpUp;
 #endif	GUILD_SKILL
@@ -10089,6 +10116,11 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 				float fIncreaseRateMpUp = fIncreaseRateFromMasterOfAlchemistSkill;
 				float fValue = static_cast< float >( pSa->m_Value1 );
 				//{{ kimhc // 2009-11-17 //길드 스킬 중 연금술의 달인(포션, 음식, 던전 회복 아이템의 효과가 X%증가)
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				/// June buff port 16-step3b3 item 2: MP up, value x ( [64] + [60] ) (@322fc258-322fc271): June scales MP items by the
+				/// socket HP recovery rate too (JUNE_BUGS #54)
+				fIncreaseRateMpUp += fJuneSocketHPRecoveryRate;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef	GUILD_SKILL
 				fValue *= fIncreaseRateMpUp;
 #endif	GUILD_SKILL
@@ -10374,6 +10406,10 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 					}
 #endif	GUILD_SKILL
 					//}} kimhc // 2009-11-17 //길드 스킬 중 연금술의 달인(포션, 음식, 던전 회복 아이템의 효과가 X%증가)
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+					/// June buff port 16-step3b3 item 2: HP % up, value / 100 x ( [64] + [60] + metabolism ) (@322fd47a-322fd510)
+					fIncreateRateHpPercentUp += fJuneSocketHPRecoveryRate;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					fValue *= fIncreateRateHpPercentUp;
 
 					if( pCX2GUUser->IsMyUnit() == true )
@@ -10419,6 +10455,10 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 #endif	GUILD_SKILL
 				//}} kimhc // 2009-11-17 //길드 스킬 중 연금술의 달인(포션, 음식, 던전 회복 아이템의 효과가 X%증가)
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				/// June buff port 16-step3b3 item 2: MP % up, value / 100 x ( skill ? [60] : 1 ) x ( [64] + 1 ) (@322fd965-322fd99d)
+				fValue *= fJuneSocketHPRecoveryRate + 1.f;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				if( pCX2GUUser->IsMyUnit() == true )
 					pCX2GUUser->UpNowMp( pCX2GUUser->GetMaxMp() * fValue );
 
