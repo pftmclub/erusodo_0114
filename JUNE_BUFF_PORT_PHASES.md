@@ -5547,6 +5547,13 @@ What the counts are:
 
 **3b5 kickoff:** checked; one line added (item 6: reword case 20's state-mapping comment while 3b5 edits X2GUUser.cpp).
 
+**Play-test (2026-10-06, user: regression passed; logs read).**
+- **Exe:** the run (17:10:56) used a peer's deploy, `307ebfa3` at `61b50f0`, which contains `e5d20bb`. It exited cleanly (census present), with 0 EXCEPTION. The 2 UNHANDLED are `E_DISABLE_HB_CHECK_REQ`, as before.
+- **Load lines:** `ErrorLog.txt:155-222` has the nine SIEE 12-20 load census lines in 3b4's wording.
+- **Live cases:** `:427` and `:428` are `first socket effect fired` for SIEE 3 (cure debuff) and SIEE 8 (poison burst), with `(random offset 0, victim no)`. These are the first live firings of the ported function's March-era cases.
+- **3b3's lines:** not in this run (MP cut, summon rate). This character's gear has no socket with those keys.
+- **Boss line:** `:435-436` show `first socket boss grade ... boss yes`. That is the offline grade plan's path reaching 3b2's boss terms, at rate 1.
+
 **Doc repair (this commit):** `8ef55d8` had deleted the 16-step3b2 Review, 16-step3b3 Done and Review, and 16-step3b4 Done sections. None of the four was anywhere else in the repo. They are restored verbatim from `8ef55d8^`. That commit's new decisions block (effect plan C6a2/C6b/C11) replaces 3b4's superseded one, in the 3b4 Done section, instead of sitting at the end of 3b2's Done.
 
 ## Critical files
