@@ -89,5 +89,5 @@ June addresses; byte-level CP949 edits.
   them. The loader logs one `[JUNE_BUFF]` line per June-only SIEE / EDT / HMET type.
 - Reach on the loaded data: SIEE 15 on 180 entries, 13 on 27, 14 on 17, the rest ≤ 9; 185 rank-linked
   (120 + 65); `m_sBuffLevel` (`+0x29c`) on 280. None of the save's 13 socket IDs is in any of these.
-- Not in this phase unless the user says so: the 18 June-only EDTs (179 entries) and `HMET_FEVER`
-  (1 entry), which are logged and dropped / no-op.
+- Not in this phase: the 18 June-only EDTs (179 entries) and `HMET_FEVER` (1 entry) belong to
+  **16-step3c** (user, 2026-10-06).

@@ -4990,7 +4990,9 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
   - `DEPLOY OK: X2_offline.exe is 19,207,168 B, dated 2026-10-06 09:06:18, md5 aa173377797fe2e79226b223ec3718a6, equal to X2/US_SERVICE/x2.exe (2026-10-06 09:06:13); built at mods/june-buff-port 4e1de6b + 1 uncommitted code file(s).`
 - **Expected, not fixed:** 55 `BFI N requested but not loaded` (52 + 3 `_INT`). These are June socket buffs whose factors are not in March's staged factor file; they arrive with the June buff data (Phase 13). Those sockets carry no buff until then.
 
-**Open for the user.** The handlers this step logs and does not port: the 18 EDTs and `HMET_FEVER` have no phase yet (SIEE 12-20 are 16-step3b item 10). Say which plan owns them. /cost not available in-session.
+**Play-test 2 (2026-10-06, exe aa173377): PASSED, logs read.** 0 `without both` lines (180 before), the 28 per-type lines; `BFI … not loaded` 52 → 42 (the SIEE 15 factors now go to the conditional list, as in June, not through `GetBuffFactorPtr`).
+
+**Decided (user, 2026-10-06).** The 18 EDT handlers and `HMET_FEVER` go to a new **16-step3c** (after 16-step3b and june-effect C5; kickoff written). SIEE 12-20 stay 16-step3b item 10. /cost not available in-session.
 
 ## Critical files
 
