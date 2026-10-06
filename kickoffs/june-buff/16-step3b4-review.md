@@ -38,6 +38,6 @@ Paste its `files:` / `in this flag's files:` / `RESULT:` lines. Explain every OT
 is a finding.
 
 Spot-check 2-3 items directly in Ghidra (read-only); if one fails, re-check the whole phase. Fix clear transcription errors
-under the same flag (then `tools/build.py --deploy`); hand design decisions back to the user (the Done note's open items:
-the effect-set buff list, staging June's SIEE effect sets and buffs, the other users of the cool-time store). Write
+under the same flag (then `tools/build.py --deploy`); hand design decisions back to the user (the Done note's one open item: the other users of the cool-time store; the effect-set buff list and the SIEE
+effect data are the june-effect plan's since 2026-10-06, C6a2/C6b and C11). Write
 "Phase 16-step3b4 -- Review" into the plan doc, update the STATUS row, check `16-step3b5.md`, and commit.
