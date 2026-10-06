@@ -5838,6 +5838,47 @@ Offsets, heights, random terms, the elapsed-time reset and the EVE tail match Ma
 - Iivue's item 579 keeps `40110,74035,95003,120000009`.
 **Open for the user.** /cost is not available in-session.
 
+### Phase 16-step3b7 — Review (2026-10-06, Opus 5.5 high)
+
+**Verdict: 3b7 matches June. No transcription errors, so no code change, no rebuild and no play-test.** The deployed `X2_offline.exe` is md5 `bb2f8924`, the same file as `X2/US_SERVICE/x2.exe`, built from `1620e09` + `d29574e`; no code changed after it. One reach correction (below) and one checklist §7 row.
+
+**Checked against June (Ghidra plus raw bytes of `unpacked_x2.exe`).**
+- **Item 1.** `@3236e002`: `JNZ` on the user test, `31fd7cc0( 0x6666 )` then `3201ad10( 0x6666 )`, `ecx = esi` both times, `fadd 334355b0` (= 1.0), then `fmul`. `@323705a2`: `edi` after `cmp [edi+0x264], 0` (GUT_USER), skill `0x7160`, no `31fd7cc0`. `@32369c98`: `esi` = the creator (the same register as `32274d60( 1 )` and `31fd7cc0( 0x7560 )`). All three match the port.
+- **Item 2, `32773ee0 @32773ffd..32774527` read whole.**
+  - Owner: `32759f00` goes to `[esp+0x14]`; null jumps to `32774732` (March: `return`). Count: `(int)+0x3248`, capped at 5.
+  - Constants read from the binary: x -1000/-900/-1100/-800/-1200, y 1000, height 80, velocity 1500/-1500/0, reserve time 0.5 + rand(i) x 0.3 x i + rand(index) x 0.3, rotation z rand x 10 - 5, y direction term x 0.0. All equal to March.
+  - Power: (`+0x38` + `+0x3c`) x `+0x30`, then x `31fd7cc0`, then x (`3201ad10` + 1.0), both on the owner.
+  - `GetLandPos( false )` is vslot 0x134. `CreateInstance`'s tail is true, rand, 1, 1, -1, -1.0, 0, -1.0, 0, 0, which is March's arguments plus defaults.
+  - There is one shell, `0x3349026c`, with the velocity set on `31f6eb30 +0x534`. Then elapsed = 0 and the EVE tail.
+- **Item 4.** `322ece70 @322ed386..3a6`: `31e8d610( product )`, then `3201ad10( esi )`, with the same `esi` the socket term uses (`@322ed2f0`), + 1.0, then `fstp qword [ebx+0x8800]`; `31e4d340` = `fld qword [ecx+eax*8+0x8800]` = `m_NumberList[]` (double, as March's).
+  - Flags: 384/519 go through the jump table (`3230cec0`/`ced4`, index 0) to `@3230ca28` (`push 0x240`), and 1454 to `@3230c84f` (`0x260`).
+  - None of 1604/1621/1622/2206/2214 is in March's NPC enum.
+  - The case skills are 3b3's: 5201 (Dimension Link) and 5601 (Link Overcharge Illusion).
+  - June calls the helper for 1454 with no Eve test. March's site keeps its own `UT_EVE` test, and only Eve summons 1454.
+- **Item 5.** June's premium dispatcher `326c9bb0` handles 0x331, 0x332, 0x397, 0x398, 0x53b (-> `326c8c70`) and 0x724. March's `CX2PremiumBuffManager::UIServerEventProc` handles 4 events (come-back user/buff, buff info, buff info in room), with no service-flag struct. So the term stays 0, which is also June's own value when the server never sends 0x53b.
+- **Item 6.**
+  - `328d68c0`: AtkPhys `+4`, DefPhys `+0xc`, AtkMag `+8`, DefMag `+0x10` (each `+ +0x14`), and HP `+0x14 + +0`, in that order. Matches.
+  - `328d8880` compares all six floats `+0..+0x14` in order (less -> true, greater -> false). That is the port's `operator<`.
+  - Every March aggregation goes through `AddStat`: `X2SocketItem.h:1309` (AddSocketData), `:1576` (ConvertAndAdd) and `GetSocketOptionStatRelLV`. Nothing copies the five fields by hand.
+  - March's item-templet struct (`X2Item_Preprocessing.inl:294`) has 5 BYTEs and is part of the precompiled item format, so June's sixth byte is rightly left out.
+- **Item 7.** `@3204f4df..4ed`: `push ebx` (templet), `push edi` (aggregate), call `+0x794`. `edi` is the aggregate and `ebx` the templet, proven by `@3204f44c` (`ecx = edi`, `ebx` pushed, `32080670` = ConvertAndAdd). June's no-unit branch `@3204f292` jumps to `3204f485`, the slot loop, then the hook, so the hook runs without a unit. March calls it outside the `GetUnit()` test, as ported.
+
+**Reach correction (3b5's group sockets, and items 1-2 here).** March's live skill IDs are not the `= N` values that grep finds. `UPGRADE_SKILL_SYSTEM_2013` is on, so `X2SkillTree.h:85-677` is the live enum, numbered implicitly.
+- A `cl /P` probe gives `SI_A_CHG_MARK_OF_COMMANDER` = **6223** (`:1269`'s 4210 is the dead `#else`), `SI_SA_EN_DIMENSION_LINK_GUARDIAN` = 5003, `SI_A_EN_DIMENSION_LINK` = 5201 and `SI_HA_EEP_LINK_OVERCHARGE_ILLUSION` = 5601.
+- June pushes the reform IDs 26214 / 25000 / 25601 (`RNSI_*`; June keeps 6223 as the old `SI_A_CHG_MARK_OF_COMMANDER`).
+- The port is consistent: the slot pass files a rate under the slot's March ID, and every reader looks up the March ID. So type-table sockets reach these skills.
+- Group sockets do not. Of `SkillLevelUpSocketGroup.lua`'s 722 distinct skill IDs:
+  - 16 have a March value, all the same skill (5003 among them, so 3b5's x 1.1 play-test boosted the right skill);
+  - 706 are June-only, 150 of them March skills under a reform ID (e.g. Chung's groups 1/7 list 26214).
+- No translation table was added (it would be invented). The character ports bring June's IDs (checklist §1), and the readers keyed by March IDs must then move to June's: new checklist §7 row.
+
+**Hygiene** (`--range 1620e09^..HEAD`):
+- `JUNE_SOCKET_PARITY --with JUNE_BUFF_DEBUG`: `files: 8 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- `JUNE_BUFF_NEW_SKILL` and `JUNE_BUFF_CUSTOM_FUNCTION`, each `--files X2Lib/X2GUNPC.cpp`: the same two count lines with `files: 0 PASS ... 1 OTHER`, 0 deleted, `RESULT: PASS`.
+- The OTHER row is X2GUNPC.cpp, whose 17 lines belong to the three flags together. `JUNE_SOCKET_PARITY --with JUNE_BUFF_NEW_SKILL JUNE_BUFF_CUSTOM_FUNCTION --files X2Lib/X2GUNPC.cpp` gives `files: 1 PASS`, 0 deleted, `RESULT: PASS`.
+
+**Open for the user.** /cost. Next june-buff phase: 16-step3c (`kickoffs/june-buff/16-step3c.md` exists), still blocked on june-effect C5.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
