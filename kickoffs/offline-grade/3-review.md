@@ -18,6 +18,9 @@ python tools/docsection.py OFFLINE_MONSTER_GRADE_PHASES.md "Rules" "Established 
 
 Review Phase 3's commit(s) against the server citations in "Established facts" and the June
 addresses. Check `GetMonsterTypeFactor` / `GetBattleFieldMonsterTypeFactor` (attribute before grade), where the factor lands in EXP/ED (and the item lottery), the order against the offline boost, the ED piles, the 70057 / 70058 rule, and the MODS.md entry.
+Phase 3 went past the plan in two places: the field middle boss's ED x20, and no special drop for
+it (the live `SERV_BATTLE_FIELD_BOSS` dispatch, `BattleFieldRoom.cpp:1744`). It also added the gold-bar
+coin tier. Check those three against the server first.
 
 Hygiene is one command, not a fresh script:
 `python tools/flagcheck.py SERV_IRUHADEV_OFFLINE_MONSTER_GRADE --range <first phase commit>^..HEAD`.

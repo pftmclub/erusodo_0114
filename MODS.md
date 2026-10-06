@@ -47,6 +47,7 @@ column.
 | `SERV_IRUHADEV_JUNE_BUFF_BINDING` | 2026-10-05 (June buff port Phase 10) | `KTDXLIB/Always.h:4969` | `X2Lib/X2Main.cpp`, `X2GameUnit.h`/`.cpp` (`GetBuffAccumulationCountNow`), `X2GameEdit.h`/`.cpp` (`ApplyBuffFactor` cheat), `X2BuffFinalizerTemplet.h` (`SetDurationTime`) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID` (+ `_MEMO_DROP`, off) | 2026-10-05 (June buff port Phase 10) | `KTDXLIB/Always.h:4981` | `X2Lib/X2DamageManager.cpp` (June's `ParsingBuffFactorID`) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY` | 2026-10-05 (June buff port Phase 10) | `KTDXLIB/Always.h:5004` | `X2Lib/X2DamageManager.h`/`.cpp` (`IS_AURA_BUFF`, `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`) | -- |
+| `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` | 2026-10-06 (offline grade Phases 1-3) | `KTDXLIB/Always.h:5263` | `X2Lib/X2DungeonSubStage.h`/`.cpp` (stage-script grade -> NPCData), `X2Lib/Offline/Handlers_Room.cpp`, `X2OfflineServer.h`, `X2OfflineBattleField.h`/`.cpp`, `X2OfflineDropTable.h` | -- |
 
 What each one does:
 
@@ -2893,6 +2894,25 @@ New flag `SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER` (`KTDXLIB/Always.h`).
 Details, June addresses and the play-test are in `JUNE_BUFF_PORT_PHASES.md`, "Phase 8 -- Done".
 
 **Needs packing:** nothing. **Revert:** undefine the flag and rebuild all four projects, on every peer.
+
+### Offline monster grade: the emulator ranks monsters as the real server did
+
+Flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` (`KTDXLIB/Always.h`), one flag for all three phases. Plan:
+`OFFLINE_MONSTER_GRADE_PHASES.md`.
+- **Phase 1, dungeons.** The client parser now keeps a stage script's `MONSTER_GRADE` in `NPCData`, the emulator sends it in
+  `KNPCUnitReq::m_cMonsterGrade`, and the NPC's ExtraNPCStat grade follows June's path (`327edb60`/`327ef71d`). This is what wakes
+  the June socket boss terms on dungeon bosses with an ExtraNPCStat row (JUNE_BUGS #52 goes live with them).
+- **Phase 2, battlefields.** The middle-boss loader reads `SPAWN_GROUP_ID` (before this no middle boss ever spawned offline). Each
+  UID keeps its grade, the boss set is tracked by membership, and danger stops rising while a member lives, as on the server.
+- **Phase 3, rewards.** EXP and ED take the server's monster type factor (`GetMonsterTypeFactor`): x12 for a boss, x4 for a middle
+  boss, x1 otherwise. On dungeons it is `fDungeonFactor`; on fields it multiplies the field EXP/ED factors. The offline 3x boost is
+  applied after it. A field middle boss's ED also gets the server's x20. A boss scatters 10-20 coins instead of 2-3, and a coin
+  worth more than 1999 ED is the gold bar (127041). Special drops: 70058 for a boss, 70057 at 50 % for a dungeon middle boss, and
+  70057 for grade 3 (not for a field middle boss, which the server never gives one). The item lottery is unchanged, as on the
+  server. One `[OFFLINE_GRADE]` line per kill in `offline_server.log`.
+
+**Needs packing:** nothing. **Revert:** undefine the flag and rebuild all four projects (it sits in the PCH). Rewards, coins and
+drops go back to the flat x1 rates, and no middle boss spawns on fields again.
 
 ## Reverting to stock
 

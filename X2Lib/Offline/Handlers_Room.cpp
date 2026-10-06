@@ -2531,15 +2531,72 @@ bool CX2OfflineServer::Handler_EGS_NPC_UNIT_DIE_REQ( KOfflineSession& kSes, cons
 
 		CX2OfflineDropTable::Instance()->GetNpcReward( iKey, bBattleField, iNpcID, iNpcLevel, iEXP, iED );
 
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+		// The monster type factor, keyed on the grade the room stored for this UID
+		// (stage script on dungeons, spawn path on fields, client-sent for
+		// EGS_NPC_UNIT_CREATE_REQ). CXSLUnitManager::GetMonsterTypeFactor
+		// (XSLUnitManager.cpp:238) and GetBattleFieldMonsterTypeFactor (:274) both
+		// test the attribute first; offline never spawns an attributed NPC, so that
+		// branch is never taken. Then MTF_MIDDLE_BOSS_NPC 4, MTF_BOSS_NPC 12, else 1.
+		char cGrade = 0;
+		{
+			std::map< int, char >::const_iterator mitGr = m_kRoom.m_mapNpcGrade.find( kReq.m_nDieNPCUID );
+			if( mitGr != m_kRoom.m_mapNpcGrade.end() )
+				cGrade = mitGr->second;
+		}
+
+		const int iTypeFactor = ( 2 == cGrade ) ? 4 : ( ( 1 == cGrade ) ? 12 : 1 );
+
+		// A field middle boss is dispatched by set membership, not by grade
+		// (KBattleFieldRoom ERM_NPC_UNIT_DIE_REQ, BattleFieldRoom.cpp:1760 ->
+		// MiddleBossMonsterDieProcess :6483 -> BattleFieldMiddleBossDropProcess :4378).
+		// OnFieldNpcDie erases the member after this, so it is still in the set here.
+		const bool bFieldMiddleBoss = ( true == bBattleField &&
+										m_kRoom.m_setMiddleBossAlive.count( kReq.m_nDieNPCUID ) > 0 );
+
+		const int iBaseEXP = iEXP;
+		const int iBaseED  = iED;
+
+		if( false == bBattleField )
+		{
+			// fDungeonFactor = the type factor (DungeonRoom.cpp:6177/6182), folded into
+			// NpcDropItem's EXP and ED (KDropTable.cpp:1232, :1239). fContribution and
+			// fLevelFactor stay 1 offline, as before; fDropRate (the event rate) is 1.
+			iEXP = (int)( (float)iEXP * (float)iTypeFactor );
+			iED  = (int)( (float)iED  * (float)iTypeFactor );
+		}
+		else if( true == bFieldMiddleBoss && iED > 0 )
+		{
+			// BattleFieldMiddleBossDropProcess only: ED = ( 10 + ED * level ) * 20
+			// (BattleFieldRoom.cpp:4594-4596), before the field factor. GetNpcReward
+			// already returned the ( 10 + ED * level ) part, after the EDProperty roll.
+			iED *= 20;
+		}
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+
 		// A field scales both rewards. SetBattleFieldEXPFactor / EDFactor come out
 		// of BattleFieldServerData.lua; without that file the live US values stand
 		// in, so the numbers are right even unpacked.
 		if( true == bBattleField )
 		{
 			CX2OfflineBattleField* pBF = CX2OfflineBattleField::Instance();
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+			// fFieldEXPFactor / fFieldEDFactor = the field factor * the type factor
+			// (BattleFieldRoom.cpp:4403-4404 middle boss, :5050-5051 normal), one float
+			// product truncated once, as BattleFieldNpcDropItem does (KDropTable.cpp:3384).
+			iEXP = (int)( (float)iEXP * pBF->GetEXPFactor() * (float)iTypeFactor );
+			iED  = (int)( (float)iED  * pBF->GetEDFactor()  * (float)iTypeFactor );
+#else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 			iEXP = (int)( (float)iEXP * pBF->GetEXPFactor() );
 			iED  = (int)( (float)iED  * pBF->GetEDFactor() );
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 		}
+
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+		// The server's numbers, before the offline boost below.
+		const int iFactorEXP = iEXP;
+		const int iFactorED  = iED;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 		//{{ Iruha : 2026-09-06 // offline QoL: 3x EXP and ED
 #ifdef SERV_IRUHADEV_OFFLINE_EXP_BOOST
@@ -2561,6 +2618,16 @@ bool CX2OfflineServer::Handler_EGS_NPC_UNIT_DIE_REQ( KOfflineSession& kSes, cons
 		iED  = (int)( (float)iED  * SERV_IRUHADEV_OFFLINE_ED_RATE );
 #endif SERV_IRUHADEV_OFFLINE_EXP_BOOST
 		//}} Iruha : 2026-09-06
+
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+		// One line per paid kill, factor 1 included: that is what shows a normal
+		// kill is unchanged. EXP: table -> server factor -> offline boost.
+		CX2OfflineLog::Server( L"[OFFLINE_GRADE] kill uid=%d id=%d grade=%d factor=%d%s: "
+			L"exp %d -> %d -> %d, ED %d -> %d -> %d",
+			kReq.m_nDieNPCUID, iNpcID, (int)cGrade, iTypeFactor,
+			bBattleField ? ( bFieldMiddleBoss ? L" (field middle boss, ED x20)" : L" (field)" ) : L" (dungeon)",
+			iBaseEXP, iFactorEXP, iEXP, iBaseED, iFactorED, iED );
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 		m_kRoom.m_iRewardEXP += iEXP;
 		++m_kRoom.m_iKillNPCNum;
@@ -2708,6 +2775,12 @@ bool CX2OfflineServer::Handler_EGS_WORLD_TRIGGER_RELOCATION_REQ( KOfflineSession
 	if( iED <= 0 )		return 0;
 	if( iED <= 50 )		return BRONZE_ED_ITEM_ID;
 	if( iED <= 150 )	return SILVER_ED_ITEM_ID;
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	// The gold bar above 1999 (KDropTable.cpp:1176, SERV_BATTLE_FIELD_BOSS, live on
+	// US). Reachable once a boss pays x12 or a field middle boss x4 x20. The client
+	// takes 127041 as ED under FIELD_BOSS_RAID (X2ItemManager.h:448, Always.h:582).
+	if( iED > 1999 )	return GOLD_BAR_ED_ITEM_ID;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 	return GOLD_ED_ITEM_ID;
 }
@@ -2784,6 +2857,71 @@ void CX2OfflineServer::PushNpcDrop( KOfflineSession& kSes, int iNpcUID, int iNpc
 
 	std::vector<int> vecItemID;
 	CX2OfflineDropTable::Instance()->GetNpcItemDrop( iKey, bBattleField, iNpcID, vecItemID );
+
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	char cGrade = 0;
+	{
+		std::map< int, char >::const_iterator mitGr = m_kRoom.m_mapNpcGrade.find( iNpcUID );
+		if( mitGr != m_kRoom.m_mapNpcGrade.end() )
+			cGrade = mitGr->second;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// KDropTable::NpcSpecialDropItem's grade switch (KDropTable.cpp:1905-1931,
+	// SERV_KILL_BOSS_MIDDLE_BOSS_DROP_ITEM ServerDefine.h:3236 and
+	// SERV_ADD_MONSTER_GRADE_FOR_DEFINITELY_DROP_HP_BALL_ITEM :4060): middle boss
+	// 70057 at 50 %, boss 70058, HP-ball grade 70057. Called for every dungeon kill
+	// (DungeonRoom.cpp:6471, once per live member; offline has one) and for a
+	// field's normal kills (BattleFieldRoom.cpp:5270). A field middle boss never
+	// reaches it: BattleFieldMiddleBossDropProcess (:4378) has no such call, so it is
+	// skipped here by set membership (OnFieldNpcDie erases the member after this).
+	// The mana/blood eater half of the function is keyed on NDS_BONUS_DROP, which
+	// never reaches PushNpcDrop offline, and is not ported.
+	{
+		const bool bFieldMiddleBoss = ( true == bBattleField &&
+										m_kRoom.m_setMiddleBossAlive.count( iNpcUID ) > 0 );
+
+		int iSpecialItemID = 0;
+
+		if( false == bFieldMiddleBoss )
+		{
+			switch( cGrade )
+			{
+			case 2:		///< MG_MIDDLE_BOSS_NPC
+				if( rand() % 100 < 50 )
+					iSpecialItemID = 70057;
+				break;
+
+			case 1:		///< MG_BOSS_NPC
+				iSpecialItemID = 70058;
+				break;
+
+			case 3:		///< MG_DEFINITELY_DROP_HP_BALL
+				iSpecialItemID = 70057;
+				break;
+
+			default:
+				break;
+			}
+		}
+
+		if( iSpecialItemID > 0 )
+		{
+			if( NULL != g_pData->GetItemManager()->GetItemTemplet( iSpecialItemID ) )
+			{
+				CX2OfflineLog::Server( L"[OFFLINE_GRADE] special drop: monster %d (uid=%d) grade %d -> item %d",
+					iNpcID, iNpcUID, (int)cGrade, iSpecialItemID );
+
+				vecItemID.push_back( iSpecialItemID );
+			}
+			else
+			{
+				CX2OfflineLog::Server( L"[OFFLINE_GRADE] special drop: monster %d (uid=%d) grade %d -> item %d "
+					L"is not in the item data - skipped", iNpcID, iNpcUID, (int)cGrade, iSpecialItemID );
+			}
+		}
+	}
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 	//////////////////////////////////////////////////////////////////////////
 	// Phase 27: the drop that belongs to the PLACE.
@@ -2893,7 +3031,14 @@ void CX2OfflineServer::PushNpcDrop( KOfflineSession& kSes, int iNpcUID, int iNpc
 	// picked up, which means walking past one loses it - exactly as on live.
 	if( iED > 0 )
 	{
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+		// m_bIsBoss is grade == MG_BOSS_NPC on both room types (RoomMonsterManager.cpp:75,
+		// BattleFieldMonsterManager.cpp:861), so a boss scatters [10,20] coins
+		// (KDropTable.cpp:1254) and a middle boss still [2,3].
+		const int iCoinNum	= ( 1 == cGrade ) ? ( ( rand() % 11 ) + 10 ) : ( ( rand() % 2 ) + 2 );
+#else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 		const int iCoinNum	= ( rand() % 2 ) + 2;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 		const int iPerCoin	= iED / iCoinNum;
 
 		if( iPerCoin > 0 )

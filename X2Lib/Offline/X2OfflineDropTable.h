@@ -107,6 +107,15 @@ public:
 	/// No ED coins. KDropTable drops ED as pickup items (GetEDItemID) and the
 	/// pickup converts them; phase 4 already credits the kill's ED directly out
 	/// of GetNpcReward, so dropping coins as well would pay twice.
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	/// Correction (offline grade Phase 3; the two notes above are stale):
+	/// - ED IS dropped as coins now (PushNpcDrop), and credited on pickup, not
+	///   out of GetNpcReward.
+	/// - fDungeonFactor and m_bIsBoss never reach the item lottery on the server
+	///   (KDropTable.cpp:1291-1358); they scale EXP and ED and pick the coin count
+	///   only. So no factor belongs here. The handler applies the type factor to
+	///   EXP and ED; the grade reaches items only through the special drop.
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 	void	GetNpcItemDrop( int iKey, bool bBattleField, int iNpcID,
 							OUT std::vector<int>& vecItemID );
 

@@ -571,7 +571,37 @@ Phase 0 found it reachable.
 
 ### Phase 3 - Done
 
-(not yet)
+2026-10-06, Opus 5.5 high. Flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` (no new flag). Code in `X2Lib/Offline/Handlers_Room.cpp`, note in `X2OfflineDropTable.h`, entry in `MODS.md`. **Play-test pending.**
+
+**What landed** (tasks 1-8):
+- **Type factor** from the UID's stored grade (`m_mapNpcGrade`): attribute first (never true offline), then 4 / 12 / 1 (`XSLUnitManager.cpp:238/:274`).
+  - **Dungeon:** `fDungeonFactor` on EXP and ED (`KDropTable.cpp:1232/:1239`), right after `GetNpcReward`. The item lottery gets no factor, as on the server.
+  - **Field:** EXP x `GetEXPFactor()` x factor and ED x `GetEDFactor()` x factor, one float product (`BattleFieldRoom.cpp:4403/:5050`).
+  - **Order:** the server factor first, then the offline 3x boost.
+- **Field middle boss ED x20.** This was not in the plan. The live dispatch (`BattleFieldRoom.cpp:1744`, `SERV_BATTLE_FIELD_BOSS`) sends a set member to `MiddleBossMonsterDieProcess` -> `BattleFieldMiddleBossDropProcess` (`:4378`). That function sets `ED = (10 + ED*lv) * 20` (`:4594-4596`). The plan's `:2016/:2217` sit in the dead `#else`.
+- **Boss coins:** 10-20 for grade 1 (`m_bIsBoss`, `KDropTable.cpp:1254`); a middle boss keeps 2-3. **Gold bar:** a coin worth more than 1999 ED is 127041 (`:1176`; the client accepts it under `FIELD_BOSS_RAID`, `Always.h:582`). The pickup path uses the same function.
+- **Special drop** (`NpcSpecialDropItem` grade switch, `KDropTable.cpp:1905-1931`):
+  - 70057 at 50 % for grade 2, 70058 for grade 1, 70057 for grade 3. It runs after the NO_DROP gate.
+  - **Not for a field middle boss:** the server's middle-boss process never calls it (correcting "Established facts").
+  - A missing templet logs and skips. The mana/blood eater half (`NDS_BONUS_DROP`) is not ported, because that state never reaches `PushNpcDrop`.
+- **Kill-all rule:** not ported (Phase 0 item 6). **Field boss raid** (`BattleFieldBossDropProcess`, factor 16x1.1^(lv-49)): unreachable offline, so no code.
+- **Log:** `[OFFLINE_GRADE] kill uid= id= grade= factor= (dungeon|field|field middle boss, ED x20): exp A -> B -> C, ED A -> B -> C`. The three numbers are table -> server factor -> boost, logged on every paid kill (factor 1 too). There is also `[OFFLINE_GRADE] special drop: ...`.
+- `X2OfflineDropTable.h`: a flagged correction under the stale note (coins are dropped; no factor reaches items). The original lines are kept.
+
+**Hygiene.** `flagcheck --worktree --files X2Lib/Offline/Handlers_Room.cpp X2Lib/Offline/X2OfflineDropTable.h`:
+`files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+`RESULT: PASS`
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,242,496 B, dated 2026-10-06 16:20:35, md5 708bb123537de151aad30e156ff1ac30, equal to X2/US_SERVICE/x2.exe (2026-10-06 16:20:31); built at mods/june-buff-port 5851da3 + 5 uncommitted code file(s).` A peer's build linked it; the last source edit was 16:11. The `[OFFLINE_GRADE] kill`, `field middle boss, ED x20` and `special drop` strings are in the deployed exe. The exe also carries a peer's uncommitted `X2GUUser.*` / `X2SocketItem.cpp` edits.
+
+**How to see it** (log tag `[OFFLINE_GRADE]`):
+- **Dungeon boss:** `grade=1 factor=12 (dungeon)`, with B = A x 12 and C = B x 3. 10-20 coins fall, and the `special drop ... item 70058` line appears.
+- **Dungeon middle boss:** `grade=2 factor=4`. Item 70057 appears about half the time.
+- **Normal kill:** `grade=0 factor=1`, A = B.
+- **Field middle boss (optional):** `factor=4 (field middle boss, ED x20)`, and no special-drop line.
+
+**Open question for the user (proposed Phase 3b).** A field middle boss also gives 70070 (HP), 70050 (MP), a common bonus item and cubes by contribution rank (`BattleFieldRoom.cpp:4700-4790`). That comes from `FieldBonusDrop.lua`, which is server-only (`KncWX2Server/ServerResource/US/FieldBonusDrop.lua`, `BattleFieldMiddleBossDropInfo`). Porting it is a loader plus a degrade path, and the user packs the file. It is not in this phase: OK it as 3b, or drop it.
 
 ## Reviews
 
