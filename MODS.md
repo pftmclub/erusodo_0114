@@ -48,7 +48,7 @@ column.
 | `SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID` (+ `_MEMO_DROP`, off) | 2026-10-05 (June buff port Phase 10) | `KTDXLIB/Always.h:4981` | `X2Lib/X2DamageManager.cpp` (June's `ParsingBuffFactorID`) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY` | 2026-10-05 (June buff port Phase 10) | `KTDXLIB/Always.h:5004` | `X2Lib/X2DamageManager.h`/`.cpp` (`IS_AURA_BUFF`, `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`) | -- |
 | `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` | 2026-10-06 (offline grade Phases 1-3c) | `KTDXLIB/Always.h:5263` | `X2Lib/X2DungeonSubStage.h`/`.cpp` (stage-script grade -> NPCData), `X2Lib/Offline/Handlers_Room.cpp`, `X2OfflineServer.h`, `X2OfflineBattleField.h`/`.cpp`, `X2OfflineDropTable.h`/`.cpp` | -- |
-| `SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN` (designed, not server/June) | 2026-10-06 (offline grade Phase 3c) | `KTDXLIB/Always.h:5277` | `X2Lib/Offline/Handlers_Room.cpp` (a paid field kill with share >= 0.5 counts for hunt quests without a field drop row) | -- |
+| `SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN` (designed, not server/June) | 2026-10-06 (offline grade Phase 3c) | `KTDXLIB/Always.h:5281` | `X2Lib/Offline/Handlers_Room.cpp` (a paid field kill with share >= 0.5 counts for hunt quests without a field drop row; since the Phase 3c review a row-less field monster also still drops its quest items, while its special, static and eater items stay off as on the server) | -- |
 
 What each one does:
 
@@ -2914,6 +2914,14 @@ Flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` (`KTDXLIB/Always.h`), one flag for al
 - **Phase 3b, field middle-boss bonus items.** These come from the server's `FieldBonusDrop.lua`, now in data036: `FieldBonusDrop.src.lua`
   is the server file byte for byte, and `FieldBonusDrop.lua` is its compiled form at algo 2. A field middle boss kill with a drop row
   and some damage from the player drops 70070, 70050, 99988 and one cube 160712. Solo is always the low cube count, as on the server.
+- **Phase 3c, die states.** What a death pays follows the server's `IsDropDieState`: KILL_BY_USER, KILL_SELF and BONUS_DROP are
+  paid, ALLY and ESCAPE are not, and NO_DROP pays nothing (EXP included). On a field the player must be in the damage map. Dungeon
+  hunt quests count every death of a known NPC; field ones need a paid kill with share >= 0.5 and a field drop row. The result kill
+  count is the player's own KILL_BY_USER/BONUS_DROP. Mana/blood eaters dying BONUS_DROP drop 70055/70056. Since the review, a field
+  monster with no drop row drops no special, static or eater item, as on the server.
+- **`SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN` (designed, not server/June).** Without a field drop row, a paid kill with share
+  >= 0.5 still counts for hunt quests and still drops quest items (Lanox field monsters 5154.. have no row in March data; June's
+  server had them). Comment it out for the server's rule, e.g. once a generated drop table supplies the rows.
 
 **Needs packing:** `FieldBonusDrop.lua` in data036 (packed by `kom.py pack data036`; without it the bonus items are off and logged).
 **Revert:** undefine the flag and rebuild all four projects (it sits in the PCH). Rewards, coins and drops go back to the flat x1

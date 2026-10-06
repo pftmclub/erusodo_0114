@@ -2521,8 +2521,10 @@ bool CX2OfflineServer::Handler_EGS_NPC_UNIT_DIE_REQ( KOfflineSession& kSes, cons
 	// KILL_BY_USER, KILL_SELF and BONUS_DROP, and false for ALLY and ESCAPE. What
 	// the client sends (X2GUNPC.cpp:13944-13981): KILL_SELF when nobody hit the NPC
 	// (attacker -1); ALLY when the DYING NPC's own AI is NAT_ALLY, not when an ally
-	// killed it; BONUS_DROP when its script set SetBonusDrop, tested ahead of ALLY
-	// under ADD_VELDER_ACADEMY_EVENT_MONSTER (Always.h:1987).
+	// killed it; BONUS_DROP when its script set SetBonusDrop. ALLY is tested first:
+	// ADD_VELDER_ACADEMY_EVENT_MONSTER (Always.h:1987), which would test BONUS_DROP
+	// first, is #undef'd for global builds (OnlyGlobal/Always_Global.h:27; proved
+	// with cl /EP on X2GUNPC.cpp), so an ally bonus-drop NPC sends ALLY.
 	//
 	// Each consumer has its own gate on the server:
 	// - Reward (EXP, ED, drops). The NPC must be alive in the room (IsMonsterAlive,
@@ -3065,6 +3067,47 @@ void CX2OfflineServer::PushNpcDrop( KOfflineSession& kSes, int iNpcUID, int iNpc
 								? m_kRoom.m_kInfo.m_iBattleFieldID
 								: ( m_kRoom.m_kInfo.m_iDungeonID +
 									(int)m_kRoom.m_kInfo.m_DifficultyLevel );
+
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	// Phase 3c review: a field NPC with no field drop row drops nothing. The server
+	// looks the row up (GetBattleFieldNpcDropInfo, KDropTable.cpp:3361, battlefield
+	// key then key 0) before its per-user loop and returns without one
+	// (BattleFieldRoom.cpp:5127-5145, middle boss :4486-4504). The special item
+	// (:5270, eater and grade), the static drop (:5305) and the quest items (:5343)
+	// all sit after that return. Without a row the ED is 0 here anyway.
+	if( true == bBattleField &&
+		false == CX2OfflineDropTable::Instance()->HasNpcRow( iKey, true, iNpcID ) )
+	{
+#ifdef SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN
+		// DESIGNED, NOT SERVER OR JUNE (user OK 2026-10-06): quest items still drop,
+		// for the same reason the hunt count still counts (June's server had rows
+		// for its Lanox field monsters; March data lacks them). The block is the
+		// quest-item roll further down, unchanged.
+		{
+			KOfflineUnitRow kQuestRow;
+			if( true == LoadQuestState( kSes, kQuestRow ) )
+			{
+				std::vector<int> vecQuestItem;
+
+				CX2OfflineQuest::Instance()->GetQuestItemDrops(
+					m_kRoom.m_kInfo.m_iDungeonID, m_kRoom.m_kInfo.m_DifficultyLevel,
+					m_kRoom.m_kInfo.m_iBattleFieldID, iNpcID, kQuestRow, vecQuestItem );
+
+				for( size_t i = 0; i < vecQuestItem.size(); ++i )
+					GrantQuestItemDrop( kSes, vecQuestItem[i] );
+			}
+		}
+#endif SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN
+
+		static std::set< int > s_setLoggedNoRowDrop;
+		if( s_setLoggedNoRowDrop.insert( iNpcID ).second )
+		{
+			CX2OfflineLog::Server( L"[OFFLINE_GRADE] no-row drop: field %d monster %d has no field drop row - "
+				L"no special, static or eater item, as on the server", iKey, iNpcID );
+		}
+		return;
+	}
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 	std::vector<int> vecItemID;
 	CX2OfflineDropTable::Instance()->GetNpcItemDrop( iKey, bBattleField, iNpcID, vecItemID );

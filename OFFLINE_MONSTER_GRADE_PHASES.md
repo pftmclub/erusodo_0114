@@ -777,7 +777,7 @@ the original gate stays in `#else`).
 
 | Consumer | Dungeon | Field (normal and middle boss) |
 |---|---|---|
-| EXP, ED, drops | known NPC with a templet, not NO_DROP, drop state (`DungeonRoom.cpp:6240`) | the same, plus the player must be in the damage map (`BattleFieldRoom.cpp:5078/:5191`, `:4429/:4550`) |
+| EXP, ED, drops | known NPC with a templet, not NO_DROP, drop state (`DungeonRoom.cpp:6240`) | the same, plus the player must be in the damage map (`BattleFieldRoom.cpp:5078/:5191`, `:4429/:4550`), and every item needs a field drop row (`:5127-5145`, `:4486`; added in review) |
 | Hunt quests, title missions | **every** death of a known NPC. The `else` at `:6940-6960` also broadcasts the NOT, and GS counts on each NOT (`GSUserRoomCommon.cpp:1966/:1972`), so ALLY, ESCAPE and NO_DROP count | paid deaths only, with share >= 0.5 (`:5211`, `:4575`) and a field drop row (`:5127-5145`, `:4486`); GS counts only on `m_bQuestComplete` (`:2337/:2383`) |
 | Result kill count | `m_bIsNPC`, KILL_BY_USER or BONUS_DROP, attacker = a room user (`:6060/:6187`), counted before the NO_DROP gate. Offline: the player's own kills | the same (`:5041/:5061`, `:4395/:4413`) |
 | Danger | - | every death, unchanged |
@@ -788,8 +788,8 @@ the original gate stays in `#else`).
   - Before this phase, a bot dying ALLY in combat had `++m_iKillNPCNum` with 0 EXP, and a bot dying KILL_SELF had nothing.
   - No run log on hand has an ALLY line: the current `offline_server.log` is a field-load run with no deaths. The play-test settles it.
 - **BONUS_DROP** pays the reward and now goes into `PushNpcDrop`. The eater half of `NpcSpecialDropItem` (`KDropTable.cpp:1875-1901`) is ported: mana eaters give 70055, blood eaters 70056. It is skipped for a field middle boss, as before, and skipped and logged if the item is not in `item.kim`.
-  - BONUS_DROP wins over ALLY on the client because `ADD_VELDER_ACADEMY_EVENT_MONSTER` is a top-level define in `Always.h:1987` with no `#undef` anywhere in `KTDXLIB`/`X2Lib` (checked by reading, not with `cl /EP`).
-  - **Reach in March:** 9 `data037` NPC scripts call `SetBonusDrop`: the 7 eaters (`Blood_Eate_FD.lua` sic) plus `Event_Teacher_Echo` and `Golden_Chest_Summon_Money`. The last two pay their normal reward and log "not an eater".
+  - ~~BONUS_DROP wins over ALLY~~ **Corrected in review:** ALLY wins over BONUS_DROP. `ADD_VELDER_ACADEMY_EVENT_MONSTER` (`Always.h:1987`) is `#undef`'d in `KTDXLIB/OnlyGlobal/Always_Global.h:27`; `cl /EP` on `X2GUNPC.cpp` keeps the `#else` order.
+  - **Reach in March:** 9 `data037` NPC scripts call `SetBonusDrop`: the 7 eaters (`Blood_Eate_FD.lua` sic) plus `Event_Teacher_Echo` and `Golden_Chest_Summon_Money`. The last two pay their normal reward and log "not an eater" when they die as an enemy; spawned as an ally (Echo, the event's ally teacher) they send ALLY and pay nothing (review).
   - Eaters spawn in Peita Chapel, Offerings Altar and Tower Heart, Velder Gate and Bridge of Hope, Elder Halloween, Henir Space, and `Velder_Field_00`.
 - **Behaviour changes for KILL_BY_USER** (server rules, each one logged):
   - a NO_DROP monster no longer pays EXP (before, only its drops were blocked);
@@ -836,6 +836,39 @@ the original gate stays in `#else`).
   - If kills by June-ported effects keep arriving without a damage entry, the June effect damage path skips `AddToDamagedMap` (`X2GUNPC.cpp:10243`). That would be a june-effect item, not this plan's. Seen once.
 
 **Open for the user:** none blocking. The dungeon ALLY quest count is the server's rule; it is in effect only if a hunt quest targets an ally NPC's ID.
+
+### Phase 3c - Review
+
+2026-10-06, Opus 5.5 high. Reviewed `e6cc509` and the designed follow-up `96f7c68`. **The gate logic is correct. Two findings: one transcription gap fixed in code (user's call), and one wrong claim fixed in comments and docs.**
+
+**Confirmed at the server line** (live `SERV_REFORM_ITEM_DROP` handler):
+- Dungeon: templet early out `:6064` (before both branches); `bAddRoomUserKillCount` `:6060`; `AddKillNPC` `:6187` before the gate `:6240`; NOT per member `:6589` before the NO_DROP / die-state `continue`s; `else` broadcast `:6940-6960`.
+  - `GetLiveMemberList` (`RoomUserManager.cpp:7567`) under REFORM lists every room user, dead or not, so "every death counts" holds.
+- Field: no `else`. Kill count `:5061` / `:4413`. Row return `:5127-5145` / `:4486-4504`. Damage map `:5191` / `:4550`. Quest test `share * GetSamePartyMember >= 0.5` `:5211` / `:4575` (solo = 1, `BattleFieldUserManager.cpp:499`; middle boss < 0.08 -> 0 cannot pass). Row lookup with the key-0 wildcard (`KDropTable.cpp:3361`) = `HasNpcRow`.
+- GS: dungeon quest/title `:1966/:1972` before the NO_DROP return `:1976`; field `:2337/:2383` on `m_bQuestComplete` only, with no early return before them.
+- Eater half `KDropTable.cpp:1875-1901`: the seven names and items match; pushed before the grade switch; a field middle boss is skipped (it never calls `NpcSpecialDropItem`).
+- `#else`: the old gate, `++m_iKillNPCNum` and `QuestOnNpcDie` sit intact behind it. `bCountKill` reads `pDieTemplet` only after `true == bKnownNpc &&`.
+- Designed flag keeps `bPayReward` and the 0.5 share; it is labelled designed in code, `Always.h`, `MODS.md` and the Done note.
+
+**Finding 1 (fixed in docs, no behaviour change): the client's ALLY/BONUS_DROP order.** `ADD_VELDER_ACADEMY_EVENT_MONSTER` is `#undef`'d in `KTDXLIB/OnlyGlobal/Always_Global.h:27`, a subdirectory the phase's search missed.
+- `cl /EP` on `X2GUNPC.cpp` with the US_SERVICE defines keeps the `#else` order: ALLY first.
+- So an ally bonus-drop NPC sends ALLY and pays nothing. That is the Velder Academy event teacher Echo, the case the define's own comment names.
+- The US server got the same packet, so the handler is still server-correct. Fixed: the handler comment and the Done note bullets.
+
+**Finding 2 (fixed in code): the field drop row gates items, not just quests.** On the server a row-less field NPC returns before the per-user loop: no special/eater item `:5270`, no static drop `:5305`, no quest item `:5343`. Offline `PushNpcDrop` still pushed those.
+- User 2026-10-06: "i want the droptable to be generated later, so i leave the choice to you".
+- Fix under `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE`: a row-less field NPC drops nothing. Under the designed `SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN`, quest items still drop, the same reasoning as its hunt count.
+- When the generated table supplies the rows, commenting out the designed flag gives the pure server rule. Log: `[OFFLINE_GRADE] no-row drop: field F monster M ...`, once per monster ID.
+- The `Always.h` description of the designed flag (bytepatch, CP949 kept) and `MODS.md` (row plus a Phase 3c paragraph) now say this.
+- Reach seen so far: Lanox 5154-5158 on 40029; the 19:34 run dropped nothing for them anyway.
+
+**Noted, not changed:**
+- Offline never forgets a dead NPC's UID (`m_mapNpcID` is never erased), so there is no `IsMonsterAlive`/`ERR_ROOM_21` for a repeated die packet. This predates the plan; the client does not resend.
+- uid 11: `X2GUNPC.cpp:10243-10257` fills the damage map only when the hit carries an attacker unit. That is a june-effect handoff, not this plan's.
+
+**Hygiene.** Before the fix, `--range e6cc509^..HEAD`: `files: 2 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` · `5 deleted line(s)` (the flag's own: call, signature, eater comment, declaration comment + parameter) · `RESULT: PASS`. The OTHER row is `Always.h` in `96f7c68`, the designed flag's define. `--range 96f7c68^..HEAD` for the designed flag: `files: 0 PASS, 1 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR` · `0 deleted line(s)` · `RESULT: PASS`. Review fix, `--worktree --files Handlers_Room.cpp Always.h`: main flag `files: 0 PASS, 1 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR` · `2 deleted line(s)` (the two replaced comment lines inside the flag) · `RESULT: PASS`; designed flag `0 PASS, 0 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR` · `0 deleted line(s)` · `RESULT: PASS` (OTHER = its quest-item block nests inside the main flag's block).
+
+**Deploy.** pending (queued behind a peer build; filled in by the next commit).
 
 ## Reviews
 

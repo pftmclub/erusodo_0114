@@ -5274,5 +5274,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              data lacks, and offline cannot see an empty row. Requires
 //              SERV_IRUHADEV_OFFLINE_MONSTER_GRADE. Comment out for the
 //              server's rule.
+//              Since the Phase 3c review it also lets a row-less field
+//              monster drop its quest items. The server drops nothing without
+//              the row; the special, static and eater items stay off offline
+//              too (Handlers_Room.cpp PushNpcDrop).
 #define SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN
 //////////////////////////////////////////////////////////////////////////
