@@ -246,7 +246,56 @@ the user if the reach is too small to be worth it.
 
 ### Phase 0 - Done
 
-(not yet)
+2026-10-06, Opus 5.5 high. No code, no flag, no build. The census is in `OFFLINE_MONSTER_GRADE_CENSUS.tsv`. The June decodes are 16 new `funcmap.tsv` rows tagged "Offline grade Phase 0", and row `323752f0` gained an addendum.
+
+**1. Census.**
+- **Source:** the 208 bytecode stage scripts in `data035_kom`, all at their live-manifest size, decompiled with `elstools decompile-batch`. They were walked like the server's `LoadNPCData` (`NPC_GROUP[i]`, `SUB_NPCj`, `NPC_GROUPn`).
+- **Checks:** the Ranox decompiles match the 19 text `.src.lua` exactly. All 620 `MONSTER_GRADE =` lines and all 358 `HAVE_BOSS_GAGE = TRUE` lines are accounted for. No file has a stray global.
+- **Grades over all entries:** grade 1 ×245, 2 ×275, 3 ×100; the other 22,982 entries are 0.
+- **The 173 reachable files** (named in `DungeonData.lua`): grade 1 is 198 entries over 76 NPC IDs, grade 2 is 236 over 67, grade 3 is 9 over 3 (Secret Ranox Cruel Mag/Berserker).
+- **Unreachable:** 35 files have no `DungeonData` row: the old El Forest, Besma Mine/Dragon Canyon, Elder Nature Cave/Halloween, Ruben/Hamel Secret and Event Halloween Day.
+- **Dungeons with no grade-1 NPC:** none among the reachable graded files.
+- **Files with no `MONSTER_GRADE` at all** (69): Henir, Defence Hard/Expert, Arcade, the tutorials and trainings, Newyear, Treeday, the battleships and the test dungeons. All of these are grade 0 on the server too.
+- **`bScriptCheck` mismatches:** 0, whether or not Henir, event and test dungeons are excluded.
+
+**2. Reach: not small.**
+- 66 of the 76 grade-1 IDs have an ExtraNPCStat row. They cover 178 of 198 entries and 154 of 173 files.
+- **No row (10 IDs):** Mushroom King (El Forest Gate), Ent, Wally 7th, the four Secret Common/Normal bosses, Ancient Bone Dragon (Common), Elsword Parasite (Common) and the Defence gate.
+- **This depends on row presence, not on `EXTRA_NPC_STAT_PARITY`.** `IsJuneSocketBossGrade` tests `HasExtraNPCStat`, and June writes `+0xdc` for every row ID.
+  - If Phase 1 set the grade only inside the base-only stat branch (no legacy `NPCStat.lua` row), the reach would drop to **4**: Ignia 1896, Mulsayrena 1888 and Secret Magi 2241/2242.
+  - So set it whenever the row exists.
+- **Play-test target:**
+  - **Character:** `reyaa` (Lire, Grand Archer, Lv80).
+  - **Dungeon:** Lanox Ashes Village Normal (33280; reyaa has cleared it).
+  - **Boss:** `NUI_SMITH_STAIN` 1693, grade 1, with a row.
+  - **Shorter alternative:** El Tree Normal, boss `NUI_BENDERS_NORMAL` 5; every character has cleared it.
+  - **Primary check, no item needed:** `[JUNE_BUFF] first socket boss grade: NPC 1693 grade 1, ExtraNPCStat row yes -> boss yes`.
+  - **Damage check, optional:** it needs a save edit, which is the user's call. Weapon socket option 86322 (`SDT_WEAPON_HUNTING`) gives +3 % damage to bosses. 74043 gives +10 %, but it is a title socket. reyaa's weapon is `item_uid 810`, with sockets `40120,40124,40024,40024`.
+
+**3. June (Ghidra).**
+- **`327edb60` (AddNPCData):** copies packet `+0x66` into NPCData `+0x44` as a sign-extended char. Nothing initialises `+0x44`.
+- **June's client never reads a stage script's `MONSTER_GRADE`.** Its parser `327eb8e0` has 24 keys and none of them is the grade. The only `MONSTER_GRADE` key is the Hero-dungeon grade-stat binding `327defc0`, which March lacks. So the grade arrives only by packet, and offline the emulator has to play the server.
+- **`327ef570` (CreateGUNPC):** always passes `+0x44` to `32384d10` (`@327ef704`). The `+0xdc` write and the scan 50 / near 1000 write inside it happen only when the NPC ID has a row (`32384daa`).
+- **`SetMonsterGrade` (`327574c0`) has zero callers.** It is inlined only in the battlefield constructor. The dungeon path never writes `m_eMonsterGrade` (`+0x8f08`), so Phase 1 does not call it.
+- **Order:** the grade reaches the templet first (`327ef71d`). Then come the constructor, `Init`, and `SetNPCStat` `32763950`, which reads scan/near (`+0xc8`/`+0xcc`). `SetNpcHardLevel` runs last. No other reader of `+0x44` exists.
+
+**4. Battlefield.**
+- **The loader bug is confirmed.** `X2OfflineBattleField.cpp:516` opens the scalar `SET_BOSS_GROUP_NAME` as a table. `m_vecSpawnGroupID` stays empty, the gate at `:529` drops every entry, and `GetMiddleBossMonsterInfo` returns at `:942`. **No middle boss ever spawns offline.** So june-buff 16-step3b2's "Lanox middle boss" check cannot happen before Phase 2.
+- **Middle-boss tables:** every field from 40001 to 40032 has one, except Ruben 40000, the two ships 40020/40021 and the raid field 40026. Their groups are all `IS_BOSS_MONSTER_GROUP` groups in the per-field files.
+- **`SPAWN_ID > 100`:** no rows; the maximum is 19. `SERV_BATTLEFIELD_EVENT_BOSS_INT` is not defined on US.
+- **Raid field:** only 40026 (Iron Eltrion). Offline never spawns it: its only group is boss-flagged, so `EnsureFieldLoaded` fails. Its `VILLAGE_MAP_ID` seed is also missing, which is unverified.
+- **UID-range "middle boss" test (`Handlers_Room.cpp:817`):** latent today, live once the loader is fixed. A respawn kill while the boss lives would be charged factor 4 and clear the marker.
+
+**5. Reward inputs.**
+- **70057 / 70058** exist in the live `item.kim`: "Essence of Life", the small and big HP orbs.
+- **The attribute input is a bool on dungeons** (`IsAttribNpc`; `AttribNpcTable.lua` exists only on the server). It travels in `KEGS_DUNGEON_STAGE_LOAD_NOT::m_mapAttribNpcInfo`. Offline never spawns attributed NPCs, so the attribute branch is always false.
+- **`fDungeonFactor` and `m_bIsBoss` never reach the item lottery** (`KDropTable.cpp:1291-1358`). They change only EXP, ED and the ED pile count. The grade reaches items only through `NpcSpecialDropItem`.
+- **Offline coins:** 2-3 coins on kill (`Handlers_Room.cpp:2785`), with ED paid on pickup. So `X2OfflineDropTable.h:99-109` is stale twice: coins are dropped, and the server does not fold the factors into items. Bosses also get 2-3 coins, not 10-20.
+
+**6. Kill-all rule: not a work item.**
+- The server's boss-only check can only refuse more than the emulator's unconditional `true`.
+- A false answer means no clear: the hack report is `_SERVICE_`-only.
+- An honest client always passes, with grade 0 or grade 1.
 
 ## Phase 1 - Dungeon grade end to end
 

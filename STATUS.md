@@ -154,8 +154,8 @@ it is the grade per spawn path (XSLBattleField). Then the grade-keyed rewards. T
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| 0 | ready: census of the 227 stage scripts (208 bytecode), reach (grade-1 bosses with an ExtraNPCStat row; **stops for the user if small**), June `327edb60`/`327ef71d` check, battlefield data, reward inputs | Opus 5.5 / high | - | `OFFLINE_MONSTER_GRADE_CENSUS.tsv`, plan, kickoffs, funcmap rows (no code) | `0.md` |
-| 1 | blocked (0): dungeon grade script -> packet -> NPCData -> ExtraNPCStat grade | Sonnet 5.5 / high | 0 (june-buff 16-step3b2 review done) | Always.h, X2DungeonSubStage.h/.cpp, Offline/Handlers_Room.cpp, JUNE_BUGS.md (#52 reach) | `1.md` |
+| 0 | **done** 2026-10-06 (no code). Reach is **66 of 76** grade-1 boss IDs with an ExtraNPCStat row (154 of 173 files); it would be 4 if gated on the base-only branch. June reads no script grade (packet only) and never calls `SetMonsterGrade` on dungeons. The middle-boss loader bug is confirmed. User owes: see the reach, OK Phase 1 | Opus 5.5 / high | - | `OFFLINE_MONSTER_GRADE_CENSUS.tsv`, plan, kickoffs, funcmap rows (no code) | `0.md` |
+| 1 | ready (after the user OKs the reach): dungeon grade script -> packet -> NPCData -> ExtraNPCStat grade | Sonnet 5.5 / high | 0 (june-buff 16-step3b2 review done) | Always.h, X2DungeonSubStage.h/.cpp, Offline/Handlers_Room.cpp, JUNE_BUGS.md (#52 reach) | `1.md` |
 | 1 review | blocked | Opus 5.5 / high | 1 | review (fixes under the flag) | `1-review.md` |
 | 2 | blocked (1): middle-boss loader fix (`SPAWN_GROUP_ID`), grades per spawn path, per-UID grade, middle boss by grade | Sonnet 5.5 / high | 1 | Offline/X2OfflineBattleField.cpp/.h, Offline/Handlers_Room.cpp, JUNE_BUGS.md (#52 reach) | `2.md` |
 | 2 review | blocked | Opus 5.5 / high | 2 | review (fixes under the flag) | `2-review.md` |
