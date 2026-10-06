@@ -595,6 +595,54 @@ byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
 
 **Hygiene:** docs and TSV only. `funcmap.tsv` stays ASCII / LF, 4 fields per row. No game file changed.
 
+### C6a2 - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build)
+
+**What landed:**
+- 20 new rows and 6 updated rows in `june2017_re/funcmap.tsv`, all tagged `Effect C6a2`.
+- C6b's kickoff gains a "C6a2 findings" section.
+- A new phase, **C6c**, gets `kickoffs/june-effect/C6c.md` and `C6c-review.md`.
+- JUNE_BUGS rows 59-61; checklist sections 3 and 7a.
+
+**Verdicts on `321ee600 @321ef5e6-321ef6d8`:**
+- **`@321ef5ea-321ef632`** is March's `SetLockOn( pEffect, 0, LockOnType )` (default modulus 30) followed by the first-attack / relate-skill copy, inside the GUT_USER branch.
+  - **Correction to C6a:** the copy, the DamageData members and every spawner copy sit under `ADD_RENA_SYSTEM`, which is **off** (`Always.h:238`). So "already in March" holds for the source only; nothing is compiled.
+  - It goes with checklist section 3's `ADD_RENA_SYSTEM` decision (D3). Port nothing here.
+  - SetLockOn touches neither velocity nor follow-line, so March's different block order is harmless.
+- **`@321ef639-321ef66d`** are three unconditional stamps from the instance:
+  - `m_iIndex` and new DD `+0x638` (`m_iJuneDamageEffectIndex`, Luciel's per-(skill, index) hit key) both come from instance `+0x1b8`. Unit vslot `0x248` writes `+0x1b8`; the base is a no-op and the ctor sets 0.
+  - DD `+0x5e0`, which is buff 9b's `m_iJuneAttackerStateID`, comes from instance `+0x15c` = the owner's `GetNowStateID()` at PlayEffectSet (ctor -1).
+  - These overwrite what SetDamageExceptionProcess wrote at CreateInstance.
+  - DD `+0x638` also has SDEP (vslot `0x2e0`, base -1), SetDamageDataNext and NEXT-parse writers. Its only reader is Luciel.
+  - **All of it goes to C6b**, under `SERV_IRUHADEV_JUNE_SPAWN_INHERIT`. It is the same logical change as the tail, because `31f8fdb0` copies `m_iIndex` and `m_bHyper` to children.
+- **The `m_iIndex` stamp is safe in March** (index 0 instead of -1), so it is ported as the kickoff planned:
+  - Rena's indices are `unitIndex*100 + 1..100`;
+  - `GetInstanceByIndex` is fed only by her `DET_*_GROUND` effects;
+  - nothing compares a CEffect index with -1.
+- **Loader `@321ebf45/55` writes EffectData `PLAY_TYPE`.** It is unrelated to the instance's `+0x15c`.
+- **`321ee480` x2 is the effect-set buff list.**
+  - **EffectData `+0x118` is dead in June:** the ctor and dtor touch it, nothing writes it, and it has no key. No member and no call.
+  - **Instance `+0x160`** is filled by `321e3650`. Its callers are SIEE 15 (data) and class code. The class-only variants `321e3730` (Rose) and `321e3830` (Add) carry behavior/finalizer modifiers.
+  - Per entry, the consumer runs: GetBuffFactorPtr (**no null test**), a clone at level, the modifiers (`32d418a0` / `32d41960`->`32d40dd0`), then `PushBuffFactor( clone, true )`.
+  - **Port: C6c**, flag `SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST`, with the SIEE 15 attach moved there from C6b.
+  - It gets its own phase and flag because it is a different change with its own data caller (`X2GUUser.cpp`) and its own play-test. It runs after C6b, which edits the same block.
+- **`321db1b0` on instance `+0x170`** is class code only and stays in checklist 7a. **`m_bHyper` `@321ef6d5`** is C6b's (unchanged).
+- **The vslot `0x10c` naming is not a conflict.** It is GetNowStateID (`3208ec80`); rows 614/733 test it against GUSI_DIE, which is a state ID.
+
+**June quirks** (JUNE_BUGS):
+- **59:** clear-per-entry, so only the last entry survives. Verbatim.
+- **60:** no null test on GetBuffFactorPtr. The user's call; see below.
+- **61:** the uninitialised Rate byte. A harmless no-op, not ported.
+
+**Open for the user (asked 2026-10-07; C6c stops on it if unanswered):**
+- **Q (JUNE_BUGS 60).** June `321ee480` dereferences NULL when a set's buff list names a BFI that does not exist. June's own data never does this. March lacks June's aura BFIs until june-buff Phase 13.
+- **(a) Recommended:** guard behind `SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL`: skip the entry and log once, with June's line in `#else`.
+- **(b) Verbatim:** a crash once a June aura set with a missing BFI plays.
+- Answer: _pending_.
+
+**Also noted for june-buff:** June's NEXT parse resets `m_iJuneAttackSerial` (+0x5e8) to -1 (`31f79c20 @31f79ce3`); Phase 9b does not. SDEP restamps it whenever there is an attacker.
+
+**Hygiene:** docs, kickoffs and TSV only. `funcmap.tsv` is still ASCII / LF with 4 fields per row. No game file changed.
+
 ---
 
 ## C7 - Touch-land runtime (old Phase 10c, step 3)

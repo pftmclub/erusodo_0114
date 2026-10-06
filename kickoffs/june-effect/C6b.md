@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C6b` |
 | Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
-| Depends on | C6a (done 2026-10-06), C6a2 (may add EffectSet items to this phase), C5 (`31f64c00` needs C5's `ADDITIONAL_ATTACK_TRIGGER_TYPE` list member) |
+| Depends on | C6a (done 2026-10-06), C6a2 (done 2026-10-07: added the EffectSet stamps below, moved the buff list to C6c), C5 (`31f64c00` needs C5's `ADDITIONAL_ATTACK_TRIGGER_TYPE` list member) |
 | Flag | `SERV_IRUHADEV_JUNE_SPAWN_INHERIT` |
 | Log tag | `[JUNE_FX]` in ErrorLog.txt (`python tools/logs.py --tag JUNE_FX`) |
 | Review | `kickoffs/june-effect/C6b-review.md` |
@@ -91,10 +91,7 @@ These supersede the rebuild plan's Phase 10c text where they differ.
 - **`+0xb64` writer (EffectSet).**
   - `OnFrameMove_CreateEffect @321ef6d5-321ef6d8` sets the damage effect's `m_bHyper` from `EffectSetInstance::m_bHyper`.
   - It sits right after the `USE_IS_RIGHT_WHEN_CREATE` block that Phase 4a ported (`X2EffectSet.cpp` ~:1088). Port it with the copy, so `X2EffectSet.cpp` is in Touches.
-- **The rest of that EffectSet block belongs to C6a2** (user, 2026-10-06). C6a2 adds whatever must be ported to this file; until it does, do not port it. Three parts:
-  - `@321ef639-321ef66d`: `m_iIndex` and an unidentified `+0x838` from instance `+0x1b8`, which unit vslot `0x248` stamps (base no-op; Luciel and Ain override it). It also writes an unidentified `+0x7e0`.
-  - `321ee480` x2: not identified.
-  - The runtime modifier list `321db1b0` (instance `+0x170`): only class code fills it.
+- **The rest of that EffectSet block was identified by C6a2.** See "C6a2 findings" below: the three stamps are this phase's; the buff list is C6c's; the runtime modifier list `321db1b0` (instance `+0x170`) stays with the character ports (checklist 7a).
 - **Expected play-test.**
   - No March code sets any gate flag (all setters are Add, Eve, Rose, Elsword and Ain class code: see the checklist section 7 addendum), and every entry's rate is 1.0. So the play-test can only show that the tail runs and changes nothing.
   - **The one check that can fail:** `m_iIndex` now reaches hit, CREATE and RT_CREATE children, and Rena Night Watcher looks up her effects by index (`CheckDamageEffectType`, arrow detonation). Play a Night Watcher with Arrow of Explosion, Delayed Firing and Explosion Trap, the skills whose effects have hit children. Look for detonations behaving as before, and nothing triggering twice. That is June parity, but it is the one place a regression would show.
@@ -103,22 +100,79 @@ These supersede the rebuild plan's Phase 10c text where they differ.
     - The `m_bHyper` flag is carried down.
   - The `JUNE_FX` line should print the entry rate, the four gate flags and the index per spawn, throttled.
 
-## Added from the buff port (june-buff 16-step3b4, 2026-10-06)
+## C6a2 findings (2026-10-07; rows tagged `Effect C6a2` in `june2017_re/funcmap.tsv`)
 
-User decision 2026-10-06 ("follow June"): June's effect-set buff list is ported here. Use C6a2's verdicts on `321e3650`
-/ EffectSetInstance `+0x160` / `321ee480` (see `C6a2.md`, "From the buff port").
+C6a2 identified the rest of EffectSet `OnFrameMove_CreateEffect`'s damage block (`321ee600 @321ef5e6-321ef6d8`).
+This phase ports the three instance stamps below, with `m_bHyper`. The buff list (`321ee480` x2) moved to **C6c**
+(see the end of this file). All of it goes under `SERV_IRUHADEV_JUNE_SPAWN_INHERIT`. It is the same logical change as the
+tail: what a June damage effect carries from whatever created it. `31f8fdb0` then copies `m_iIndex` and `m_bHyper` on to
+the children, so splitting it would leave a flag state that matches neither March nor June.
 
-The SIEE 15 call site in `X2Lib/X2GUUser.cpp` (`ProcessSocketEffectEx`, case `SIEE_ALWAYS_PLAY_EFFECT_SET`) is the one
-data-driven caller:
-- Replace its `unsupported (effect-set buff list, 321e3650)` log with the attach (handle, `m_uiBuffFactorID`,
-  `m_iBuffLevel` for every `m_vecConditionalBuff` entry with `m_bAlwaysPlayEffectSet`).
-- Put the attach under this phase's flag, nested inside the existing `SERV_IRUHADEV_JUNE_SOCKET_PARITY` block, with the log line in `#else`.
-- Its flagcheck will show an OTHER row for that file; explain it.
-- `X2GUUser.cpp` is shared with june-buff 16-step3b5. Never run the two together.
+**Port (June order: SetLockOn, the stamps, the buff list (C6c), velocity tag 1, IS_RIGHT, `m_bHyper`):**
+1. **`EffectSetInstance` members** (`X2EffectSet.h`, ctor initialiser near `X2EffectSet.cpp:4465`):
+   - `m_iDamageEffectIndex`: int, ctor **0** (`321df230 @321df510`; not -1). June `+0x1b8`.
+   - `m_iOwnerStateIDOnPlay`: int, ctor **-1** (`@321df4a9`). June `+0x15c`.
+2. **Two `CX2GameUnit` virtuals, base only** (`X2GameUnit.h`):
+   - `JuneStampEffectSetIndex( EffectSetInstance* )`: June vslot `0x248` `3226e220`, base no-op.
+   - `GetJuneDamageEffectIndex() const`: June vslot `0x2e0` `31abe300`, base `return -1`.
+   - The Luciel and Ain overrides go to checklist 7a.
+   - `EffectSetInstance` is nested in `CX2EffectSet`, so it cannot be forward-declared. If `X2GameUnit.h` cannot see
+     `X2EffectSet.h`, declare the parameter as `void*` and cast in the (future) overrides, with a comment. Do not change
+     the call order to dodge it.
+3. **`PlayEffectSet`, the game-unit overload** (`X2EffectSet.cpp:3142`):
+   - After the `m_vScale` / `GIANT_UNIT_GIANT_EFFECT_TEST` block and before `m_bCustomPosition`:
+     `pGameUnit->JuneStampEffectSetIndex( pEffectSetInstance )` (`@321e2029-321e2033`).
+   - After the custom-position block, the last store before the push_back / return:
+     `pEffectSetInstance->m_iOwnerStateIDOnPlay = pGameUnit->GetNowStateID()` (`@321e20bf-321e20ce`; unit vslot `0x10c` =
+     `3208ec80` = GetNowStateID).
+   - The square and pet overloads write neither (June), so their sets stamp 0 / -1.
+4. **`DamageData::m_iJuneDamageEffectIndex`**, a new int (`X2DamageManager.h`; June `+0x638`).
+   - `SimpleInit`: -1 (`31f8f47b`).
+   - `CX2GameUnit::SetDamageExceptionProcess`, after the Phase 9b serial wrap (`X2GameUnit.cpp:~17059`):
+     `= GetJuneDamageEffectIndex()` (`@32299712-3229971e`).
+   - `CEffect::SetDamageDataNext` (`X2DamageEffect.cpp:~9649`, the field-by-field copy into `m_pDamageDataNext`): copy it
+     (`31f799c0 @31f79b87/8d`). June copies neither `+0x5e0` nor `+0x5e8` there, which matches Phase 9b.
+   - The `DAMAGE_DATA_NEXT` parse (`X2DamageEffect.cpp:~1635`, June `31f79c20 @31f79ce9`): reset it to -1 after the
+     parent copy and before `SetDamageDataFromLUA`.
+   - The copy ctor (implicit `operator=`) carries it already (June `31e9c190`).
+   - The only readers are Luciel's (checklist 7a). In March it is written and never read.
+   - **June also resets `+0x5e8` (`m_iJuneAttackSerial`) to -1 there (`@31f79ce3`); Phase 9b did not.** That member is
+     june-buff's: name it in the Done note as an open item and leave it alone.
+5. **The stamps**, in `OnFrameMove_CreateEffect`'s `ET_DAMAGE_EFFECT` case (`X2EffectSet.cpp:1039-1123`, inside `if( NULL != pEffect )`).
+   - Put one block after `#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` (`:1097`) and before `#ifdef RIDING_SYSTEM`.
+   - The block is unconditional for every owner (`@321ef639-321ef66d`):
+     - `pEffect->SetIndex( m_iDamageEffectIndex )`;
+     - `GetDamageData().m_iJuneDamageEffectIndex = m_iDamageEffectIndex`;
+     - `GetDamageData().m_iJuneAttackerStateID = m_iOwnerStateIDOnPlay`, nested in `#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (the member's flag);
+     - then `m_bHyper` (`@321ef6d5`), already in this phase's scope.
+   - These overwrite what `SetDamageExceptionProcess` wrote during `CreateInstance` (the state at creation, and -1). That is June's behaviour.
+   - **Order:** June runs SetLockOn first. March's SetLockOn writes neither velocity nor follow-line, so this order is equivalent (funcmap `321ef5ea-321ef632`).
+6. **`m_iIndex` = 0 on every EffectSet-made effect is safe in March** (funcmap `3226e220`):
+   - Rena's indices are `unitIndex*100 + 1..100`.
+   - `GetInstanceByIndex` is Rena-only and fed only from `DET_*_GROUND` effects.
+   - No code compares a CEffect index with -1.
+   - The Night Watcher check in "Expected play-test" above still applies.
 
-The aura's end-to-end play-test also needs three things outside this phase:
-- the aura's effect set, damage effect and mesh, which come with C11's re-adoption of June's effect files;
-- its buff factor, which comes with june-buff Phase 13;
-- a socket on the player's gear (a save edit; ask first).
+**Not this phase:**
+- **The first-attack / relate-skill copies are compiled out.**
+  - This covers `@321ef60a-321ef632`, the spawners' `m_eFirstAttack` / `m_RelateSkillData` copies in the tail order above, and SetDamageDataNext's.
+  - They sit under `ADD_RENA_SYSTEM`, which is **off** (`KTDXLIB/Always.h:238`), so C6a's "already in March" verdict was wrong.
+  - They go with the `ADD_RENA_SYSTEM` decision (checklist section 3). Leave those `#ifdef`s untouched.
+- **EffectData `+0x118`, the `321ee480` call `@321ef676`, is dead in June.** No writer exists anywhere. Add no member and no call.
+- **The runtime modifier list `321db1b0`** (instance `+0x170`) stays in checklist 7a.
 
-Until then, the check is the attach path's own `[JUNE_FX]` line on any June set that carries a buff list.
+**Touches added by C6a2:**
+- `X2EffectSet.h` (two instance members)
+- `X2GameUnit.h/.cpp` (two virtuals, the SetDamageExceptionProcess tail)
+- `X2DamageManager.h` (member, SimpleInit)
+- `X2DamageEffect.cpp` (SetDamageDataNext, NEXT parse)
+
+`X2GUUser.cpp` is no longer this phase's (it moved to C6c).
+
+**JUNE_FX line** (under `SERV_IRUHADEV_JUNE_FX_DEBUG`, throttled): the stamped index, the state ID and `m_bHyper` per EffectSet damage effect.
+
+## Moved to C6c (C6a2, 2026-10-07)
+
+The effect-set buff list is no longer this phase's: the buff port's "Added from the buff port" section, `321e3650` /
+`321ee480` and the SIEE 15 call site in `X2GUUser.cpp`. They are `kickoffs/june-effect/C6c.md`, with their own flag.
+C6c runs after this phase because both edit the same `OnFrameMove_CreateEffect` block.
