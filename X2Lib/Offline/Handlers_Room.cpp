@@ -832,7 +832,8 @@ void CX2OfflineServer::OnFieldNpcDie( int iNpcUID )
 	}
 
 	// IsRemainMiddleBoss() after the erase: the server charges danger only when no
-	// member of the set is left (BattleFieldRoom.cpp:1783/1833/1869).
+	// member of the set is left (BattleFieldRoom.cpp:1783, the live
+	// SERV_BATTLE_FIELD_BOSS branch; MiddleBossMonsterDieProcess erases first, :6500).
 	const bool bIncreaseDanger = m_kRoom.m_setMiddleBossAlive.empty();
 #else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 	const bool bWasMiddleBoss = ( m_kRoom.m_iMiddleBossAlive > 0 &&
@@ -895,8 +896,8 @@ void CX2OfflineServer::OnFieldNpcDie( int iNpcUID )
 	const int iFactor = ( 2 == cGrade ) ? 4 : ( ( 1 == cGrade ) ? 12 : 1 );
 
 	// A kill while a middle-boss member is still alive adds nothing and rolls
-	// nothing: KBattleFieldGameManager::OnNpcUnitDie returns at bIncreaseDanger
-	// == false (BattleFieldGameManager.cpp:80-87).
+	// nothing: KBattleFieldRoom::OnNpcUnitDie does nothing at bIncreaseDanger
+	// == false (BattleFieldRoom.cpp:5804/5816).
 	if( false == bIncreaseDanger )
 	{
 		CX2OfflineLog::Server( L"[OFFLINE_GRADE] field kill uid=%d grade=%d danger factor %d, "
@@ -1047,6 +1048,8 @@ void CX2OfflineServer::TickField( KOfflineSession& kSes )
 			m_kRoom.m_iMiddleBossAlive = vecBoss[i].m_UID;
 
 #ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+		// The comment above predates the set: m_iMiddleBossAlive is now only a
+		// "some member lives" marker, and OnFieldNpcDie decides by membership.
 		m_kRoom.m_setMiddleBossAlive.insert( vecBoss[i].m_UID );
 
 		CX2OfflineLog::Server( L"[OFFLINE_GRADE] field %d middle boss NPC %d grade %d uid=%d",

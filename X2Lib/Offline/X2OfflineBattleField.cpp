@@ -1047,6 +1047,20 @@ void CX2OfflineBattleField::GetMiddleBossMonsterInfo( int iBattleFieldID, int iD
 		for( mitN = mitG->second.m_mapSpawnNpc.begin();
 			 mitN != mitG->second.m_mapSpawnNpc.end(); ++mitN )
 		{
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+			// The comment above is wrong: the server gives each NPC of the group a
+			// one-case KLottery at its RATE (XSLBattleField.cpp:915-917, Decision is a
+			// uniform roll over [0,100], Lottery.cpp:121-141) and skips it on a miss.
+			// Every March boss group has RATE 100, so this changes nothing there;
+			// June's Sander_Field_02 has two 50/50 groups.
+			if( (float)( rand() % 10000 ) / 100.0f >= mitN->second.m_fRate )
+			{
+				CX2OfflineLog::Server( L"[OFFLINE_GRADE] field %d middle boss %d group %d: NPC %d missed its RATE %.0f",
+					iBattleFieldID, pBoss->m_iSpawnID, mitG->first, mitN->second.m_iNpcID, mitN->second.m_fRate );
+				continue;
+			}
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+
 			KNPCUnitReq kReq;
 			MakeMiddleBoss( mitG->second, mitN->second, *pBoss,
 				kField.m_iStandardMonsterLevel, kReq );
