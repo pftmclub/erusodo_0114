@@ -4476,6 +4476,37 @@ Snatch:
 
 ---
 
+### Phase 15, step 2 — chunks A-C (2026-10-07)
+
+Ran on Opus 5.5 high, flag `SERV_IRUHADEV_JUNE_ENCHANT_PARITY`. **Stopped after chunk C; chunk D (ticks, piercing term, owner's enchant, June's `AttribEnchantItem.lua`, the play-test) is `kickoffs/june-buff/15-step2b.md`.** New funcmap rows: "Buff Phase 15 step 2".
+
+**Decisions (user, 2026-10-07):** EDTs renumbered to June's values; the six buff entries (BFI 1000/1001/1014, BTI 945/946/958) wait for Phase 13. Covered by standing rules, not asked: `USE_OWNERS_ENCHANT` is ported (no partial updates; in 2b); Claude packs, the copy is asked. **Step 1 premise corrected:** the client's `ITEM_GRADE` is `X2Lib/X2Item_Preprocessing.inl`, so `IG_LEGEND` needed no shared-header change.
+
+**What landed**
+- **A `835b5ef`**: `EDT_ENCHANT_*` = June's values in `X2DamageManager.h` and `Enum.lua` (a combined type is the sum of its slots' elements). The 33 June-only names need a 4th attribute slot; March items have 3, so they are unreachable. Compose `32707ce0`, decompose `32708080`, base type `327087e0`: tables taken by emulating the June binary (unicorn). Audit: every C++ use and every data file names EDTs (no arithmetic, nothing saved, no narrow packet field).
+- **Pairing incident:** another session's deploy (22:21) shipped the chunk A exe while live data036 had March's Enum (enchants inert). Fixed with your OK: `COPY OK data036` md5 b8ef2198 (Enum only). STATUS row carries the pairing rule.
+- **B1 `5d8f827`**: EnchantData +0x3c..+0x70 (loader `32708f00`; lists capped at 3, zeroed). `LEGEND` optional (`3270bb90`). `AttribEnchantRequireED.lua` loaded; `GetAttribEnchantRequireED` calls its Lua (`327089e0`), with March's formula as the fallback, logged once. Whole June functions: `GetAttribEnchantType` `32707fc0` (QUADRA weapon / TRIPLE armour), `GetEnchantResistValue` `327088f0` (double master 135), `GetEnchantResistName` `3270ca30` / `ToolTip` `3270d0f0` (masters now "Excellent ... resist"; all 27 combined types decompose, where March named 9), `GetSlashTraceTextureName` `32708de0`. Lua: Enum `IG_LEGEND`, `AET_QUADRA_WEAPON`, `AET_TRIPLE_ARMOR`, `ACT_QUADRA`. June's `AttribEnchantRequire` (81 rows differ, `LEGEND` added) and `AttribEnchantRequireED` staged.
+- **C + B2 `6d304a1`**:
+  - June's modifier `32272d90` (`+ R` / `+ 2R`) at the host.
+  - Bodies: 1-based accumulation capped at 3 with the "rose" flags; the attacker stored on the element; tiers 1/2/3+.
+  - Blaze/Poison/Snatch: Henir check out, `DI_EVENT_WALLY_LAND` 41280 in, `x ENCHANT_STAT_SCALE[enchant level]` (gate `32708c50`).
+  - Snatch's tail: `UpNowHp/UpNowMp(-)` (March's own `REFACTORING_BY_TOOL_TEAM` form), then the cure effect, then a red "HP -n MP -n" over the defender.
+  - Float `DamagePercent` with June's `GetToolTipForPure` `3270d7b0`: all text from EnchantData (DamagePercent x2, speed lists, reiteration); June's socket/stat block there is dead and is not ported. `GetToolTip` equals March's.
+
+**Settled RE (was open in step 1)**
+- June state 23 = `XS_PVE_GAME` (June-only), not the battle field (June 21). March runs the branch in `XS_DUNGEON_GAME` only.
+- Templet flag bit 7 = "special ability `SAT_PVP_EQUIP` (40)" (loader `325bcdc0 @325bf219`). March has no SAT 40 and `SERV_PVP_EQUIPMENT` is undefined, so June's PvP-item stat branch is unreachable and not coded. The non-PvP branch equals March's `CalculateItemStat` (June's level argument is 16-step3b7's unported item).
+- The 22-ID uncached lists (`33486fb8`, `334c0cb8`, `334b5de8`) are identical: 100003738-48 and 100005577-87, all June-only items.
+- Snatch's `0xd8` = `GetNowMp`, `0x1f4` = `ShowSnatchCureEffect`, `DD+0x470` = the defender, PicChar `+0x154` = red.
+- `ENCHANT_STAT_SCALE` has 21 entries; save enchant levels are 0..10 (JUNE_BUGS #58). Decompose default: JUNE_BUGS #57.
+- March's general.ess equals June's (0 of 45,160 rows differ): every June string ID exists.
+
+**Hygiene / build:** range flagcheck `835b5ef^..HEAD`: 9 PASS, 1 DEFINE, 7 OTHER (peer flags in the same files), 0 deleted, RESULT PASS; each chunk also had a `--worktree` PASS; DEPLOY OK: X2_offline.exe 19,267,072 B, 2026-10-07 05:29:26, md5 df448406d058ccce17f21b6960c99a77 (= HEAD 6d304a1 code). Exe holds the new `HP -` / ` MP -` and `AttribEnchantRequireED.lua` strings. Live data036 = chunk A Enum only; B1's staged Lua (Enum additions, Require, RequireED) is packed with 2b, so until then the ED cost uses the logged March fallback.
+
+**Open for the user**
+- A 3rd attribute on armour: June's tables allow it (see the 2b kickoff, item 5).
+- No play-test yet. Frozen/poison slows and the tick readers come with 2b, so a check now would measure a half-ported phase.
+
 ## Phase 16 — Socket-option parity (added 2026-10-04; carries 92 and 78's socket terms)
 
 **Why it exists.** In Phase 5c the user decided, for 92's three questions, "follow June, so no half-baked port". In June the option-data stats are one system, and it has to move together:
