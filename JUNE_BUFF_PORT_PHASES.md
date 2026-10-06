@@ -4866,7 +4866,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **Verdict.** Items 1-8 checked against June (raw disassembly; the template, the class dispatchers and the curve files were run, not read). There were three transcription errors, all fixed under `SERV_IRUHADEV_JUNE_SOCKET_PARITY`, and all dormant on March data. Everything else matches. New identifications are in `funcmap.tsv`, tagged "Buff Phase 16 review", and the old `32273480` row is corrected.
 
-**Fixes** (commit in STATUS):
+**Fixes** (`2c1fe79`):
 1. **Rank-linked sockets** (`X2GUUser.cpp` `SumSocketOption`). In June `3204f190`, the rank-linked and PVE-rank-linked branches replace only `ConvertAndAdd`: copy `32092030`, scale it, then `32080670`. The enchant (`31fddef0`/`31fe09c0`) runs before the branch, and all three branches rejoin at `3204f485` (skill-level-up loop, hook, `+0x38` recursion). Part 1 skipped the whole socket. It now leaves out only the stat part, and the log says `its stats are not applied (enchant and skill level-up are)`.
 2. **Loader** (`X2SocketItem.cpp`). June logs `m_bIsRankLinkedStat, m_bIsPVERankLinkedStat … must not both be set` (`@32736ee9`, `334b71b8`) and loads on. It is now a `[JUNE_BUFF]` line, like part 1's two `+0x29c` messages.
 3. **NPC seeds** (`X2GameUnit.cpp` `InitAdditionalStatOptionValue`). June's NPC branch (`@32271234`..`32271531`) never reads the aggregate. It zeroes every new member except HP recovery, item drop and boss damage, which get **1.0** (`fld1 @322714a9/@322714ba/@322714cb`). Their basics are 1.0 too, so NPC results are 2.0. It is now written out explicitly. JUNE_BUGS #46.
@@ -4915,7 +4915,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 - **8 `DUNGEON_ONLY_TYPE` = `DT_SECRET`** (300000-300007).
 - None of the save's 13 socket IDs is in any of these sets.
 
-**Hygiene.** `flagcheck JUNE_SOCKET_PARITY --with JUNE_BUFF_NEW_STAT JUNE_ATTACK_RANGE_DESIGN JUNE_BUFF_DEBUG --worktree --files` (3 files): 3 PASS, RESULT PASS. The 11 deleted lines are part 1's own rank-skip block, moved (range line in STATUS).
+**Hygiene.** `flagcheck JUNE_SOCKET_PARITY --with JUNE_BUFF_NEW_STAT JUNE_ATTACK_RANGE_DESIGN JUNE_BUFF_DEBUG --worktree --files` (3 files): 3 PASS, RESULT PASS. The 11 deleted lines are part 1's own rank-skip block, moved. Post-commit `--range e485716^..HEAD`: 9 PASS, 1 PASS~, 1 DEFINE, 5 OTHER, 0 FAIL, RESULT PASS (the same 11 lines, deleted by `2c1fe79` from `e485716`'s insert); `--base e485716^ --at HEAD`: 0 deleted lines, RESULT PASS.
 
 **Deploy.** `DEPLOY OK: X2_offline.exe is 19,204,608 B, dated 2026-10-06 07:40:56, md5 f42d59d2c5873a5ffa0037cb0b0853c9, equal to X2/US_SERVICE/x2.exe (2026-10-06 07:40:50); built at mods/june-buff-port cfbd8de + 3 uncommitted code file(s).` Both new log texts are in the exe (ASCII), and part 1's old skip text is gone. Not launched.
 
