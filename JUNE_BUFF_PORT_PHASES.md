@@ -4746,7 +4746,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 | `m_fCharacterSpecializationA`/`B` `134`/`138` → `6bb0`/`6c64` | generic `CX2GUUser::AttackResult` `@32012da2` and `CEffect::AttackResult` `@31f86c29`: `x *= 1 + A`, or `1 − B` when vslot `+0x674` returns ±2; plus 18 (A) + 13 (B) per-class functions | class mechanics | **checklist section 7** (list below); the generic sites need vslot `+0x674` named |
 | `m_fDamageMaximizeRate` `13c` → `6d18` | the roll `322788c0`, the summon copy `3230ca6d` | 5c's "Already decoded for 92" | step 4 |
 | 78's three terms `c8`/`cc`/`d4` | both `DamageReact`s (5c) | – | retire the 5c deviation in step 4 |
-| conditional-buff vector `29c` | `322d6f20` (from `CX2Game` `3230b7b0`, on an NPC kill): for each entry with the kill byte set, when the killed NPC's `+0x9058` is set, the attacker gets vslot `+0x21c` (factor, 0, level, 0, 1); also `CX2GUUser::CommonStateStart` `@32060c3e` (the HP-rate variant, **not decoded**) | – | port; the NPC-side `+0x9048` death-buff list in the same function is NPC data, not socket |
+| conditional-buff vector `29c` | `322d6f20` (from `CX2Game` `3230b7b0`, on an NPC kill): for each entry with the kill byte set, when the killed NPC's `+0x9058` is set, my unit (corrected in 16-step3b) gets vslot `+0x21c` (factor, 0, level, 0, 1); also `CX2GUUser::CommonStateStart` `@32060c3e` (not an HP rate: a skill-category reader, decoded in 16-step3b) | – | port; the NPC-side `+0x9048` death-buff list in the same function is NPC data, not socket |
 | `m_fBonusTitleMissionCountingRate` `298` | no reader beyond the socket-description UI (`3271a950`); **title-mission readers not checked** | – | unchecked |
 | `m_fSkillDamageUpRate` `238` (March field) | `32275ba0`, `322ece70` | March's reader is rewritten (above) | with `32275ba0` |
 | `SocketData_DuoUnit` vslots 3/4 | `32b0fa90` (`@32b0fac4`…`32b0fbaa`) | Lu/Ciel per-mode stat pair | **checklist section 7** |
@@ -5048,6 +5048,37 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
   - The counts in `16-step3b.md` and `16-step3c.md` are corrected.
 
 **Deploy.** No code change, so no rebuild. The deployed `X2_offline.exe` md5 is aa173377, the same as `X2/US_SERVICE/x2.exe`. Play-test 2 passed on that exe. No play-test is owed.
+
+### Phase 16-step3b — Done, items 7-8 (2026-10-06, Opus 5.5 high)
+
+**Landed** under `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (first-apply lines under `_DEBUG`), one commit per item: `7199cd5` (item 7) and the item 8 commit after it. New rows in `june2017_re/funcmap.tsv` are tagged "Buff Phase 16-step3b"; row `322d6f20` is corrected. Items 1-6, 9 and 10 move to **16-step3b2** (`kickoffs/june-buff/16-step3b2.md`).
+
+**Item 7: the `+0x29c` conditional buffs.** Corrections to step 1: entry `+0xc` is not an HP rate. It is the key `m_fIncreaseDmgEnemyHPFew_HpRate` read as an int and used as a **skill category** (June data: 1-4, 20 sockets each, "Upon using … Skill"). The kill hook buffs **my unit**, not the attacker, and its 0x287 loop walks NPCs, not users.
+- **Skill-use reader** (`CommonStateStart @32060bda..32060ccb`; ported after the CAN_MANA_BREAK block). For every user unit (June has no IsMyUnit test): when the now state has a skill (slot 329 = `GetNowStateSkillID`) and is a skill-slot state, each entry whose `+0xc` equals `32070510`(skill templet) applies its factor at its level.
+  - June's gate is state byte `+0x11` (slot 330). All 12 June classes set it on the slot's normal and hyper state in slot 493 (`SetEquippedSkillFuncBySkillSlotIndex`, e.g. Elsword `32d2248a`). March has no such byte, so `IsJuneSkillSlotState` (the four `_CONST_GUUSER_` arrays) stands for it. Rose's extra class states (`32adbc95`) go to checklist §7.
+  - Not ported: June's slot 474 call in the same block (`31fe9ed0`, skill-memo type 14).
+  - JUNE_BUGS #48: kill-only and SIEE-15 entries carry `+0xc` = 0, and so does a relationship skill's category, so a couple skill fires them.
+- **Kill hook** `CX2Game::ApplyBuffFactorOnNpcKill` = `322d6f20`. It is called only from the dungeon die handler (`@3230bd2b`, when `m_uiAttUnit != -1`); the battlefield handler does not call it, as in June. It is ported whole: the NPC members `+0x9058`/`+0x9048` are on `CX2GUNPC`. It is **dormant**: their only writer, `3277cf10`, reads a June-only stage-load map (`+0x78`, keyed by NPC UID, read at sub-stage start `327cf620`) that the server sends. A kill-flag socket logs `socket kill buff BFI … not applied` once.
+- Reach on June's data: 280 entries = 180 SIEE 15 (item 10) + 80 skill-category (40 reachable: categories 3/4 need SA grades 15/16, which March lacks) + 20 kill (dormant). None is in the save.
+
+**Item 8: rank-linked scaling** (`3204f190 @3204f2a8/@3204f351`). The rate comes from `g_pData` tables filled by client Lua, not from `CX2Unit` maps.
+- `SocketData::SetJuneRankLinkedScaled` = `320925f0`: the stat block plus 34 fields, each × rate; the `+0x29c` entries are copied; everything else stays default (JUNE_BUGS #50, latent).
+- The copy is then `ConvertAndAdd`'ed in place of the socket. The enchant, skill level-up and monster sets still come from the socket.
+- Rate: rank-linked uses the PVP table (`31edfe70`) at `m_cRank`. PVE-rank-linked uses the PVE table (`31edfeb0`), or its MP table when `+0x124 > 0 && == +0x12c`. The MP table is compared against the wrong end (JUNE_BUGS #49); a miss reads 0 here, the one deviation.
+- Tables: `AddPvpReferData_LUA`, `AddPveReferData_LUA` and `AddPveReferDataForMP_LUA` (map insert; first rate kept). They are loaded by June's `PVPData.lua`/`PVEData.lua`, run after the event-scene scripts (June `3258c470`). The other 7 calls in those files are logging no-ops: `SetPVPRewardItemList`, `SetPVPRewardRankLinkedItemList`, `AddContinueKillSoundEffect`, `SetSendPveGameSyncPacketTimer`, `SetPveBalanceBuffGiveScore`, `SetPveGameTimeStopDistance`, `SetPveAreaTypeByPortalLineMap`.
+- Enum (Lua): `PVPRANK_RANK_STAR = 10` and June's `PVE_RANK` table. Without them, `PVEData.lua` aborts at its first line.
+- Bytecode equals source (stub `g_pData`, KOG LuaJIT): PVP 11 rows (ARRANGE 1.0 … STAR 7.5), PVE 10, PVE-for-MP 10.
+- `PACK OK data036` (184 entries; vs live: +PVEData.lua, +PVPData.lua, ~Enum.lua). **COPY not done: it needs the user's OK.**
+- Reach: 120 rank + 65 PVE sockets, none with `EFFECT_NAME` (#47) and none with a dropped key; 1 PVE socket is an MP socket. Offline every character's PvP rank is ARRANGE (`DefaultPvpRank`), so rate 1.0. The PvE rank (June `CX2Unit +0xa00 >= 5 ? +0xa0c : 0`) has no March source, so the key is 0: rate 1.0, and 0 for the MP socket. None of these sockets is in the save.
+- Not ported: June's `+0x87b8` resize after every ConvertAndAdd. It is the per-entry cooldown timer vector of June's 0x18-byte `m_vecMpUpByAttacked` element (ticked by `31fda180`, read in `DamageReact` via `31fd9100 @32047d55`); March keeps that timer in the element's `.w`. It is open, outside rank scaling.
+
+**Hygiene.** Item 7 `--worktree --files` (7 files): 5 PASS, 2 PASS~ (a blank separator line), RESULT PASS. The 2 deleted lines are this flag's own `m_iEnemyHPFewHpRate` rename. Item 8 (6 files): 6 PASS, RESULT PASS. The 7 deleted lines are part 1's rank-skip body, replaced.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,225,088 B, dated 2026-10-06 10:06:54, md5 2902bd16759e5992f49c4bb06aa79de3, equal to X2/US_SERVICE/x2.exe (2026-10-06 10:06:27); built at mods/june-buff-port 7199cd5 + 6 uncommitted code file(s).` Those 6 files are item 8's. The new log texts and the 10 binding names are in the exe. Not launched.
+
+**How to see it in game.** At load, `ErrorLog.txt` shows `[JUNE_BUFF] June rank tables: PVP 11, PVE 10, PVE for MP 10 row(s)` once data036 is copied (before that: the two `did not load` lines and `0, 0, 0`), plus one `June-only, not ported: g_pData:…` line per call above. In play, skills and dungeon kills behave as before: the save has no socket that reaches either reader.
+
+**Open for the user.** (1) The kill path needs June's server decision of which NPCs are "absolute monsters". Keep it dormant, or design a stand-in (own flag). (2) The PvE rank has no source offline; key 0 is what an unranked June character gets. (3) Copy data036 (game closed).
 
 ## Critical files
 

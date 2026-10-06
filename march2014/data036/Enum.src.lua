@@ -5149,7 +5149,27 @@ PVP_RANK = {
 	PVPRANK_RANK_C = 4,
 	PVPRANK_RANK_B = 5,
 	PVPRANK_RANK_A = 6,
-	PVPRANK_RANK_SS = 8
+	PVPRANK_RANK_SS = 8,
+	--{{ Iruha : 2026-10-06 // June buff port Phase 16-step3b (JUNE_BUFF_PORT_PHASES.md)
+	-- June's PVPRANK_RANK_STAR, named by June's PVPData.lua. Value verbatim from June's Enum.lua.
+	--}}
+	PVPRANK_RANK_STAR = 10
+}
+--{{ Iruha : 2026-10-06 // June buff port Phase 16-step3b (JUNE_BUFF_PORT_PHASES.md)
+-- June's PVE_RANK, named by June's PVEData.lua. Values verbatim from June's Enum.lua.
+--}}
+PVE_RANK = {
+	PVE_RANK_A = 5,
+	PVE_RANK_S = 6,
+	PVE_RANK_B = 4,
+	PVE_RANK_NONE = 0,
+	PVE_RANK_END = 10,
+	PVE_RANK_SSS = 8,
+	PVE_RANK_X = 9,
+	PVE_RANK_E = 1,
+	PVE_RANK_C = 3,
+	PVE_RANK_SS = 7,
+	PVE_RANK_D = 2
 }
 PVP_CHANNEL_CLASS = {
 	PCC_E2 = 2,

@@ -105,6 +105,24 @@ class CX2Data : public CKTDXStage
 
 		void LoadEXPTable();
 		void LoadPVPResultTable();
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port Phase 16-step3b, item 8: the rank tables June's PVPData.lua / PVEData.lua fill
+		void LoadJuneRankReferData();
+		void AddJunePvpReferData_LUA( int iRank_, float fRate_ );				/// June 31ee36c0 (AddPvpReferData_LUA)
+		void AddJunePveReferData_LUA( int iRank_, float fRate_ );				/// June 31ee37c0 (AddPveReferData_LUA)
+		void AddJunePveReferDataForMP_LUA( int iRank_, float fRate_ );			/// June 31ee3800 (AddPveReferDataForMP_LUA)
+		float GetJunePvpReferData( const int iRank_ ) const;					/// June 31edfe70
+		float GetJunePveReferData( const int iRank_, const bool bForMP_ ) const;	/// June 31edfeb0
+		/// The other June-only calls in the two files: bound as no-ops that log their name once (not ported)
+		void JuneSetPVPRewardItemList_LUA()				{ JuneDataCallNotPorted( "SetPVPRewardItemList_LUA" ); }
+		void JuneSetPVPRewardRankLinkedItemList_LUA()	{ JuneDataCallNotPorted( "SetPVPRewardRankLinkedItemList_LUA" ); }
+		void JuneAddContinueKillSoundEffect_LUA()		{ JuneDataCallNotPorted( "AddContinueKillSoundEffect_LUA" ); }
+		void JuneSetSendPveGameSyncPacketTimer_LUA()	{ JuneDataCallNotPorted( "SetSendPveGameSyncPacketTimer_LUA" ); }
+		void JuneSetPveBalanceBuffGiveScore_LUA()		{ JuneDataCallNotPorted( "SetPveBalanceBuffGiveScore_LUA" ); }
+		void JuneSetPveGameTimeStopDistance_LUA()		{ JuneDataCallNotPorted( "SetPveGameTimeStopDistance_LUA" ); }
+		void JuneSetPveAreaTypeByPortalLineMap_LUA()	{ JuneDataCallNotPorted( "SetPveAreaTypeByPortalLineMap_LUA" ); }
+		void JuneDataCallNotPorted( const char* szName_ );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 		CKTDGPicChar*	GetPicChar(){ return m_pPicChar; }
 		CKTDGPicChar*	GetPicCharRed(){ return m_pPicCharRed; }		
@@ -565,6 +583,11 @@ class CX2Data : public CKTDXStage
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		CKTDGPicChar*			m_pPicCharYellowSmall;
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		std::map<int, float>	m_mapJunePvpReferData;			/// June CX2Data +0x3b4 (rank -> rate)
+		std::map<int, float>	m_mapJunePveReferData;			/// June CX2Data +0x3f4
+		std::map<int, float>	m_mapJunePveReferDataForMP;		/// June CX2Data +0x404
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		CKTDGPicChar*			m_pPicCharGameScore;
 		CKTDGPicChar*			m_pPicCharTechPoint;
 		CKTDGPicChar*			m_pScoreBonusPicChar;

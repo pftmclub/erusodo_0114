@@ -3497,6 +3497,62 @@ float CX2Data::RotateYSelectCharacterType( CX2Unit::UNIT_CLASS eClass_ )
 #pragma endregion 유닛 회전 값 지정
 #endif //REFORM_ENTRY_POINT
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/** @function : LoadJuneRankReferData
+	@brief : June 3258c470 runs PVPData.lua (@3259092e) and PVEData.lua (@32591022) on the global state right after
+			 the event-scene scripts. They fill the three rank tables rank-linked sockets scale by (SumSocketOption).
+			 Degrade: a missing file leaves its table empty, every lookup then reads 0 and such sockets add no stats.
+*/
+void CX2Data::LoadJuneRankReferData()
+{
+	if ( false == g_pKTDXApp->LoadLuaTinker( L"PVPData.lua" ) )
+		CX2JuneBuffCapture::Line( "PVPData.lua did not load: rank-linked sockets get rate 0 (no stats). Pack June's PVPData.lua into data036.kom." );
+	if ( false == g_pKTDXApp->LoadLuaTinker( L"PVEData.lua" ) )
+		CX2JuneBuffCapture::Line( "PVEData.lua did not load: PVE-rank-linked sockets get rate 0 (no stats). Pack June's PVEData.lua (and the Enum with PVE_RANK) into data036.kom." );
+	CX2JuneBuffCapture::Line( "June rank tables: PVP %d, PVE %d, PVE for MP %d row(s)",
+		static_cast<int>( m_mapJunePvpReferData.size() ), static_cast<int>( m_mapJunePveReferData.size() ), static_cast<int>( m_mapJunePveReferDataForMP.size() ) );
+}
+
+/// June 31ee36c0 / 31ee37c0 / 31ee3800: map insert (32821f20), so a repeated rank keeps its first rate
+void CX2Data::AddJunePvpReferData_LUA( int iRank_, float fRate_ )
+{
+	m_mapJunePvpReferData.insert( std::make_pair( iRank_, fRate_ ) );
+}
+
+void CX2Data::AddJunePveReferData_LUA( int iRank_, float fRate_ )
+{
+	m_mapJunePveReferData.insert( std::make_pair( iRank_, fRate_ ) );
+}
+
+void CX2Data::AddJunePveReferDataForMP_LUA( int iRank_, float fRate_ )
+{
+	m_mapJunePveReferDataForMP.insert( std::make_pair( iRank_, fRate_ ) );
+}
+
+/// June 31edfe70: the PVP table's rate for the rank, 0 when absent
+float CX2Data::GetJunePvpReferData( const int iRank_ ) const
+{
+	std::map<int, float>::const_iterator mit = m_mapJunePvpReferData.find( iRank_ );
+	return ( m_mapJunePvpReferData.end() != mit ? mit->second : 0.f );
+}
+
+/// June 31edfeb0: bForMP_ picks the MP table (+0x404) over the PVE table (+0x3f4). June tests the found node against
+/// the PVE table's end (+0x3f8) in both cases, so a rank missing from the MP table reads that table's head node, an
+/// undefined value (JUNE_BUGS #49). Not June: such a miss reads 0 here. June's PVEData.lua fills every rank in both.
+float CX2Data::GetJunePveReferData( const int iRank_, const bool bForMP_ ) const
+{
+	const std::map<int, float>& mapRate = ( true == bForMP_ ? m_mapJunePveReferDataForMP : m_mapJunePveReferData );
+	std::map<int, float>::const_iterator mit = mapRate.find( iRank_ );
+	return ( mapRate.end() != mit ? mit->second : 0.f );
+}
+
+void CX2Data::JuneDataCallNotPorted( const char* szName_ )
+{
+	static std::set<std::string> s_setLogged;
+	if ( true == s_setLogged.insert( szName_ ).second )
+		CX2JuneBuffCapture::Line( "June-only, not ported: g_pData:%s (PVPData.lua / PVEData.lua)", szName_ );
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_GLOBAL_MISSION_MANAGER
 CX2GlobalMissionManager* CX2Data::ResetGlobalMissionManager()
 {

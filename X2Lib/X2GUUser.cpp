@@ -3167,15 +3167,47 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 #endif
 		AddEnchantResist( kSocketData );
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-		/// June 3204f190 (@3204f2a8 / @3204f351): a rank-linked (+0x294) or PVE-rank-linked (+0x58) socket is copied
-		/// (32092030), scaled by a rank factor from CX2Unit maps (31edfe70 / 31edfeb0) and then ConvertAndAdd'ed, in
-		/// place of the plain ConvertAndAdd. The enchant above and everything below still run: all three branches
-		/// rejoin at 3204f485. The scaling is located, not decoded, so only the stat part of such a socket is left out.
+		/// June 3204f190 (@3204f2a8 / @3204f351; buff port Phase 16-step3b, item 8): a rank-linked (+0x294) or
+		/// PVE-rank-linked (+0x58) socket is ConvertAndAdd'ed as a scaled copy (SetJuneRankLinkedScaled = 320925f0)
+		/// in place of itself. The enchant above and everything below still use the socket (all three branches rejoin
+		/// at 3204f485). The rate:
+		///   rank-linked: g_pData's PVP table (31edfe70) at the PvP rank (CX2Unit +0x114 = m_UnitData.m_cRank);
+		///   PVE-rank-linked: the PVE table (31edfeb0) at the PVE rank (June: CX2Unit +0xa00 >= 5 ? +0xa0c : 0), its MP
+		///   table when m_fMPIncByAttack > 0 and equals m_fMPIncByAttacked. March has no PVE rank, so the key is 0
+		///   (PVE_RANK_NONE). That is a missing server value, not June's design.
+		/// Not ported: June's resize of user +0x87b8 (32077f50) after every ConvertAndAdd, in all three branches: it
+		/// belongs to June's 0x18-byte m_vecMpUpByAttacked element, not to the rank scaling.
 		if ( kSocketData.m_bIsRankLinkedStat || kSocketData.m_bIsPVERankLinkedStat )
 		{
-			static std::set<int> s_setLoggedRankLinkedSocket;
-			if ( s_setLoggedRankLinkedSocket.insert( kSocketData.m_ID ).second )
-				CX2JuneBuffCapture::Line( "socket %d is rank-linked (%s): June's rank scaling is not ported, its stats are not applied (enchant and skill level-up are)", kSocketData.m_ID, kSocketData.m_bIsRankLinkedStat ? "m_bIsRankLinkedStat" : "m_bIsPVERankLinkedStat" );
+			if ( NULL != GetUnit() )	/// June @3204f290: no unit, no ConvertAndAdd branch at all
+			{
+				float fRankRate = 0.f;
+				int iRankKey = 0;
+				if ( true == kSocketData.m_bIsRankLinkedStat )
+				{
+					iRankKey = static_cast<int>( static_cast<char>( GetUnit()->GetUnitData().m_cRank ) );
+					fRankRate = g_pData->GetJunePvpReferData( iRankKey );
+				}
+				else
+				{
+					const bool bForMP = ( 0.f < kSocketData.m_fMPIncByAttack && kSocketData.m_fMPIncByAttack == kSocketData.m_fMPIncByAttacked );
+					fRankRate = g_pData->GetJunePveReferData( iRankKey, bForMP );
+				}
+
+				static std::set<int> s_setLoggedRankLinkedSocket;
+				if ( s_setLoggedRankLinkedSocket.insert( kSocketData.m_ID ).second )
+					CX2JuneBuffCapture::Line( "socket %d is %s: rank key %d, rate %g (320925f0 scaled copy)", kSocketData.m_ID,
+						kSocketData.m_bIsRankLinkedStat ? "rank-linked (PVP table)" : "PVE-rank-linked (PVE table)", iRankKey, fRankRate );
+
+				CX2SocketItem::SocketData kScaledSocketData;
+				kScaledSocketData.SetJuneRankLinkedScaled( kSocketData, fRankRate );
+#ifdef SERV_9TH_NEW_CHARACTER
+				if ( NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+					m_SocketData.ConvertAndAdd( kScaledSocketData, iSocketLevel_, g_pData->GetMyUser()->GetSelectUnit()->GetType() );
+#else SERV_9TH_NEW_CHARACTER
+				m_SocketData.ConvertAndAdd( kScaledSocketData, iSocketLevel_ );
+#endif SERV_9TH_NEW_CHARACTER
+			}
 		}
 		else
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY

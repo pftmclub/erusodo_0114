@@ -3286,6 +3286,19 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2Data>( L, "GetPVPRoom",					&CX2Data::GetPVPRoom );
 	lua_tinker::class_def<CX2Data>( L, "GetDungeonRoom",				&CX2Data::GetDungeonRoom );
 	lua_tinker::class_def<CX2Data>( L, "GetMyUser",						&CX2Data::GetMyUser );
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port Phase 16-step3b: the calls June's PVPData.lua / PVEData.lua make (June binder 31d95080)
+	lua_tinker::class_def<CX2Data>( L, "AddPvpReferData_LUA",					&CX2Data::AddJunePvpReferData_LUA );
+	lua_tinker::class_def<CX2Data>( L, "AddPveReferData_LUA",					&CX2Data::AddJunePveReferData_LUA );
+	lua_tinker::class_def<CX2Data>( L, "AddPveReferDataForMP_LUA",				&CX2Data::AddJunePveReferDataForMP_LUA );
+	lua_tinker::class_def<CX2Data>( L, "SetPVPRewardItemList_LUA",				&CX2Data::JuneSetPVPRewardItemList_LUA );
+	lua_tinker::class_def<CX2Data>( L, "SetPVPRewardRankLinkedItemList_LUA",	&CX2Data::JuneSetPVPRewardRankLinkedItemList_LUA );
+	lua_tinker::class_def<CX2Data>( L, "AddContinueKillSoundEffect_LUA",		&CX2Data::JuneAddContinueKillSoundEffect_LUA );
+	lua_tinker::class_def<CX2Data>( L, "SetSendPveGameSyncPacketTimer_LUA",	&CX2Data::JuneSetSendPveGameSyncPacketTimer_LUA );
+	lua_tinker::class_def<CX2Data>( L, "SetPveBalanceBuffGiveScore_LUA",		&CX2Data::JuneSetPveBalanceBuffGiveScore_LUA );
+	lua_tinker::class_def<CX2Data>( L, "SetPveGameTimeStopDistance_LUA",		&CX2Data::JuneSetPveGameTimeStopDistance_LUA );
+	lua_tinker::class_def<CX2Data>( L, "SetPveAreaTypeByPortalLineMap_LUA",	&CX2Data::JuneSetPveAreaTypeByPortalLineMap_LUA );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	lua_tinker::class_def<CX2Data>( L, "GetUIMajorParticle",			&CX2Data::GetUIMajorParticle );
 	lua_tinker::class_def<CX2Data>( L, "GetUIMajorXMeshPlayer",			&CX2Data::GetUIMajorXMeshPlayer );
 	lua_tinker::class_def<CX2Data>( L, "GetUIMinorParticle",			&CX2Data::GetUIMinorParticle );

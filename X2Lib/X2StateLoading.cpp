@@ -750,6 +750,9 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 #ifdef EVENT_SCENE
 			g_pData->ResetEventScene(L"EventSceneObject.lua", L"EventScene.lua");
 #endif EVENT_SCENE
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			g_pData->LoadJuneRankReferData();	/// June 3258c470 @3259092e / @32591022, after the event-scene scripts
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 			// slide shot
 			g_pData->ResetSlideShot();

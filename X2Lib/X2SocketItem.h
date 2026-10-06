@@ -880,6 +880,63 @@ class CX2SocketItem
 				m_fDecrease_MPCostRate = m_fIncreaseDmgRate_MyHpFew = m_fAllSkillCooltimeDecreaseRate = m_fAllSkillDamageIncreaseRate = 0.f;
 				m_bIsRankLinkedStat = m_bIsPVERankLinkedStat = false;
 			}
+
+			/// June 320925f0 (buff port Phase 16-step3b, item 8): the scaled copy SumSocketOption makes of a rank-linked
+			/// socket. Called on a default-constructed SocketData: it takes the stat block and these fields from rhs_,
+			/// each times fRate_, and copies the +0x29c entries unscaled; every other field keeps its default (June's
+			/// copy drops e.g. m_fPercentDamageReduce while scaling m_fDamageReduce, JUNE_BUGS #50). The stat block is
+			/// March's 11 floats of June's 13 (June's range P/M at indices 9/10 are not in March's Stat).
+			void SetJuneRankLinkedScaled( const SocketData& rhs_, const float fRate_ )
+			{
+				m_Stat.m_fBaseHP	= rhs_.m_Stat.m_fBaseHP * fRate_;
+				m_Stat.m_fAtkPhysic	= rhs_.m_Stat.m_fAtkPhysic * fRate_;
+				m_Stat.m_fAtkMagic	= rhs_.m_Stat.m_fAtkMagic * fRate_;
+				m_Stat.m_fDefPhysic	= rhs_.m_Stat.m_fDefPhysic * fRate_;
+				m_Stat.m_fDefMagic	= rhs_.m_Stat.m_fDefMagic * fRate_;
+				m_Stat.m_ExtraStat.m_fIncreaseHPRate		= rhs_.m_Stat.m_ExtraStat.m_fIncreaseHPRate * fRate_;
+#ifdef PET_AURA_SKILL
+				m_Stat.m_ExtraStat.m_fIncreaseMPRate		= rhs_.m_Stat.m_ExtraStat.m_fIncreaseMPRate * fRate_;
+				m_Stat.m_ExtraStat.m_fIncreaseAtkPhysicRate	= rhs_.m_Stat.m_ExtraStat.m_fIncreaseAtkPhysicRate * fRate_;
+				m_Stat.m_ExtraStat.m_fIncreaseAtkMagicRate	= rhs_.m_Stat.m_ExtraStat.m_fIncreaseAtkMagicRate * fRate_;
+				m_Stat.m_ExtraStat.m_fIncreaseDefPhysicRate	= rhs_.m_Stat.m_ExtraStat.m_fIncreaseDefPhysicRate * fRate_;
+				m_Stat.m_ExtraStat.m_fIncreaseDefMagicRate	= rhs_.m_Stat.m_ExtraStat.m_fIncreaseDefMagicRate * fRate_;
+#endif PET_AURA_SKILL
+				m_fAntiCriticalRate					= rhs_.m_fAntiCriticalRate * fRate_;					/// +0xd0
+				m_fAntiAddDamageRate				= rhs_.m_fAntiAddDamageRate * fRate_;					/// +0xd4
+				m_fAdditionalAttackValue			= rhs_.m_fAdditionalAttackValue * fRate_;				/// +0xdc
+				m_fAdditionalDefenceValue			= rhs_.m_fAdditionalDefenceValue * fRate_;				/// +0xd8
+				m_fAdditionalAttackedDamageValue	= rhs_.m_fAdditionalAttackedDamageValue * fRate_;		/// +0xe0
+				m_fAnimationSpeedRate				= rhs_.m_fAnimationSpeedRate * fRate_;					/// +0x14
+				m_fDamageReduce						= rhs_.m_fDamageReduce * fRate_;						/// +0x5c
+				m_fHyperModeChargeRate				= rhs_.m_fHyperModeChargeRate * fRate_;					/// +0x18
+				m_fHyperModeTime					= rhs_.m_fHyperModeTime * fRate_;						/// +0x1c
+				m_fJumpSpeed						= rhs_.m_fJumpSpeed * fRate_;							/// +0x10
+				m_fMoveSpeed						= rhs_.m_fMoveSpeed * fRate_;							/// +0xc
+				m_fPercentCritical					= rhs_.m_fPercentCritical * fRate_;						/// +0xbc
+				m_fMPIncByAttack					= rhs_.m_fMPIncByAttack * fRate_;						/// +0x124
+				m_fMPIncByAttacked					= rhs_.m_fMPIncByAttacked * fRate_;						/// +0x12c
+				m_fCharacterSpecializationA			= rhs_.m_fCharacterSpecializationA * fRate_;			/// +0x134
+				m_fCharacterSpecializationB			= rhs_.m_fCharacterSpecializationB * fRate_;			/// +0x138
+				m_fDamageMaximizeRate				= rhs_.m_fDamageMaximizeRate * fRate_;					/// +0x13c
+				m_vecConditionalBuff				= rhs_.m_vecConditionalBuff;							/// +0x29c, entries copied (3207b5d0)
+				m_fAtkPhysicPiercingRate			= rhs_.m_fAtkPhysicPiercingRate * fRate_;				/// +0x2ac..+0x2ec
+				m_fAtkMagicPiercingRate				= rhs_.m_fAtkMagicPiercingRate * fRate_;
+				m_fHPRecoveryRate					= rhs_.m_fHPRecoveryRate * fRate_;
+				m_fIncreaseItemDropRate				= rhs_.m_fIncreaseItemDropRate * fRate_;
+				m_fIncreaseDmgRateToBoss			= rhs_.m_fIncreaseDmgRateToBoss * fRate_;
+				m_fIncreaseDefRateToBoss			= rhs_.m_fIncreaseDefRateToBoss * fRate_;
+				m_fDecreaseActiveSkillCooltime		= rhs_.m_fDecreaseActiveSkillCooltime * fRate_;
+				m_fDecrease1stSA_SkillCooltime		= rhs_.m_fDecrease1stSA_SkillCooltime * fRate_;
+				m_fDecrease2ndSA_SkillCooltime		= rhs_.m_fDecrease2ndSA_SkillCooltime * fRate_;
+				m_fDecrease3rdSA_SkillCooltime		= rhs_.m_fDecrease3rdSA_SkillCooltime * fRate_;
+				m_fIncreaseDmgEnemyHPFew_DmgRate	= rhs_.m_fIncreaseDmgEnemyHPFew_DmgRate * fRate_;
+				m_fIncreaseDefMyHPFew_DefRate		= rhs_.m_fIncreaseDefMyHPFew_DefRate * fRate_;
+				m_fDecreaseDebuffTimeRate			= rhs_.m_fDecreaseDebuffTimeRate * fRate_;
+				m_fDecrease_MPCostRate				= rhs_.m_fDecrease_MPCostRate * fRate_;
+				m_fIncreaseDmgRate_MyHpFew			= rhs_.m_fIncreaseDmgRate_MyHpFew * fRate_;
+				m_fAllSkillCooltimeDecreaseRate		= rhs_.m_fAllSkillCooltimeDecreaseRate * fRate_;
+				m_fAllSkillDamageIncreaseRate		= rhs_.m_fAllSkillDamageIncreaseRate * fRate_;
+			}
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			SocketData()
 			{
