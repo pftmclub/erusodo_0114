@@ -5380,7 +5380,7 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 
 **Closed.** The kickoff's open design question (the socket term on the no-power-rate summons and the default case) was settled by the user's item 1b decision ("follow June").
 
-**Open for the user.** /cost. Regression play-test (below). No character on the save has Entangle, Stone Wall or Scarlet Rose/Fire Blossoms, so the three changed cases cannot be exercised without a save edit.
+**Open for the user.** /cost. Regression play-test: Iivue (Code: Empress) dungeon run with the bots, Dimension Link Guardian, one HP and one MP potion; expect 3b3's first-apply lines (`skill 0 x 1.05` at bot spawn, `MP 300 -> 285`, factor 0.95, JUNE_BUGS #55's `HP recovery -1` at init) and 0 EXCEPTION. No character on the save has Entangle, Stone Wall or Scarlet Rose/Fire Blossoms, so the three changed cases are not exercised.
 
 ## Critical files
 
