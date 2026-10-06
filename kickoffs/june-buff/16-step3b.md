@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_BUFF_PORT_PHASES.md "Starting context" "Play-test hand-off (Phase 5 onward)" "Phase 16 -- Step 1 RE" "Phase 16 -- Steps 2-4 Done, part 1"
-python tools/docsection.py JUNE_BUFF_PORT_PHASES.md "Phase 1c, item 4" "Phase 8 -- Done"
+python tools/docsection.py JUNE_BUFF_PORT_PHASES.md "Phase 1c, item 4" "Phase 8 -- Done" "Phase 16 -- Review"
 ```
 
 ## Task
@@ -58,3 +58,21 @@ Count the reach of each reader on March's live socket data before building (part
 socket that sets any June-only key, so most readers are dormant until the user adopts June's
 `OptionItemData.lua`; say so per reader). Port June's whole function wherever it differs; cite
 June addresses; byte-level CP949 edits.
+
+## From the 16 review (2026-10-06)
+
+- **Item 2, anti-critical:** `32273480` is not a getter. It returns
+  `(prot +0x2b28 > 0 ? prot +0x2bc4 : 0) - result(+0x4e10) - (opt(+0x5a14) > 0 ? opt x 0.01 : 0)`,
+  so the anti-crit option is *subtracted*, scaled by 0.01 (funcmap row corrected). Name
+  `+0x2b28`/`+0x2bc4`/`+0x4e10` and port the whole function; then fix the comment on
+  `CX2GameUnit::GetSocketAntiCriticalRate` (`X2GameUnit.h`), which still calls `32273480` the getter.
+- **Item 5 / item 1 (boss damage):** for NPCs, June seeds HP recovery, item drop and boss damage with
+  option 1.0 on top of basic 1.0 (JUNE_BUGS #46, ported by the review), so NPC results are 2.0. Keep
+  that verbatim in the readers.
+- **Item 8, rank-linked:** the review narrowed part 1's skip to `ConvertAndAdd` only (all three
+  branches rejoin at `3204f485`). Each branch, the plain one included, also calls `32077f50`
+  (= `std::vector<float>::resize(n, 0.0f)`) on user `+0x87b8` with n = the aggregate's `+0x114`
+  vector count (`m_vecMpUpByAttacked`, 0x18-byte elements in June). That per-entry vector is
+  June-only and not ported: decode its reader with the `+0x114` element layout.
+- **Item 10, SIEE handlers:** June's loader routes SIEE 11/13/17 buff factors to the custom-use
+  pointer (see `16-data.md`); 16-data ports the routing, the handlers are here.

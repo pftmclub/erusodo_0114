@@ -4862,6 +4862,65 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **Was open for the user.** (1) Adopt June's `OptionItemData.lua` (it needs the Enum additions above), June's plus March's 247 IDs, or keep March's. (2) Keep June's template given its reach on March's PERCENT crit/defence buffs (it is June's behaviour; a separate flag would let it be switched alone). /cost not available in-session.
 
+### Phase 16 — Review (2026-10-06, Opus 5.5 high)
+
+**Verdict.** Items 1-8 checked against June (raw disassembly; the template, the class dispatchers and the curve files were run, not read). There were three transcription errors, all fixed under `SERV_IRUHADEV_JUNE_SOCKET_PARITY`, and all dormant on March data. Everything else matches. New identifications are in `funcmap.tsv`, tagged "Buff Phase 16 review", and the old `32273480` row is corrected.
+
+**Fixes** (commit in STATUS):
+1. **Rank-linked sockets** (`X2GUUser.cpp` `SumSocketOption`). In June `3204f190`, the rank-linked and PVE-rank-linked branches replace only `ConvertAndAdd`: copy `32092030`, scale it, then `32080670`. The enchant (`31fddef0`/`31fe09c0`) runs before the branch, and all three branches rejoin at `3204f485` (skill-level-up loop, hook, `+0x38` recursion). Part 1 skipped the whole socket. It now leaves out only the stat part, and the log says `its stats are not applied (enchant and skill level-up are)`.
+2. **Loader** (`X2SocketItem.cpp`). June logs `m_bIsRankLinkedStat, m_bIsPVERankLinkedStat … must not both be set` (`@32736ee9`, `334b71b8`) and loads on. It is now a `[JUNE_BUFF]` line, like part 1's two `+0x29c` messages.
+3. **NPC seeds** (`X2GameUnit.cpp` `InitAdditionalStatOptionValue`). June's NPC branch (`@32271234`..`32271531`) never reads the aggregate. It zeroes every new member except HP recovery, item drop and boss damage, which get **1.0** (`fld1 @322714a9/@322714ba/@322714cb`). Their basics are 1.0 too, so NPC results are 2.0. It is now written out explicitly. JUNE_BUGS #46.
+
+**Items.**
+- **1 Loader.** Every part-1 key has June's destination and its default of 0. The table is from a key-by-key sweep of `32726850`, getter, `lea`/`add` target and the store after a failed read.
+  - The MP pair: `m_fMPMultiplyByAll` → `+0x124`/`+0x12c` (`@32732716`/`@32732725`), then `fadd` per `_ReturnRate`.
+  - The `+0x29c` push matches: factor `[esp+0x54]`, level `[esp+0x60]`, kill byte, `+0x1dc == 15`, HP rate. Its branch sets the HAMEL byte `[esp+0x3b]` (`@32735bde`), the one the HAMEL gate reads (`@32736609`).
+  - The ×100 tail matches.
+  - **Outside part 1:** June's HAMEL custom-use routing also takes SIEE 13 and 17 (`+0x1dc` in {11, 13, 17}, `@3273661d`). That goes to 16-data / 16-step3b.
+- **2 `ConvertAndAdd` `3207cd70`.** Both directions match: every June term against `X2SocketItem.h`, and every flag-resolved March `+=` (`flagprobe`: `MAGIC_NEC_FIX` on, `SKILL_LEVEL_UP_BY_POWER_RATE_TYPE` off, `SERV_9TH_NEW_CHARACTER` on).
+  - The spec dispatchers `32073860`/`320739e0` take (level, unit type) and compute `(int)(rhs±0x134/0x138 × curve + 0.5)`.
+  - Their four jump tables map types 1-9 to the same classes as March's `UNIT_TYPE`.
+  - All 42 curve names exist in the staged `SocketOptionForm.src.lua`.
+- **3 Seeds, basics, passive, refresh.** Every new member, its basic and its passive init match (`32270dd0`, `32271540`, `322718e0`). 92 has basic 0 and no passive init.
+  - The refresh `32290950` passes the unit type in `EDI`: `*(CX2Unit+0xaf0)` when `+0x264 == 0`, else 0.
+  - 24/25 refresh through `322a99e0`, 26 through `32073ba0`, 92 through `322a9e30`, and A/B through `322a9a10`/`322a9c20`. The eleven plain members use `3236d350`.
+- **4 Template `320839e0`.** Emulated under Unicorn: 360 input sets, 0 mismatches. The basic-0, PERCENT-1.5 case gives 0 (March 0.5). The curve gets (option + FIX + RELATION, level, unit type).
+- **5 BBT 92.**
+  - Factory: table `32e84808`, index type − 1. Entries 78/92 → ctor `32e866f0`, and case 92 stores `0x5c`.
+  - The SGU byte table sends 76/78/92/93 to `32d4d6ef`. Insert, update and erase all hit `+0x6d18`.
+  - Roll `322788c0`:
+    - base/range `+0x4424`/`+0x458c` (physic) and `+0x44d8`/`+0x4640` (magic);
+    - maximize = 92 result `+0x6db8` × attacker slot 121(DD);
+    - seed = this slot 113 `& 0xffff` (user `+0x80f8`, NPC `+0x8474`);
+    - `N(base + range·M, 0.5·range)`, then `min(max(base − range + 2·range·M, draw), base + range)`, with ties as ported.
+  - Call sites: this = `GetFinalDamage`'s this (`EDI`), arguments (DD attacker, DD).
+  - Slot 121 is `fld1` everywhere except Rose.
+  - Summon copy `3230ca6d`: `6d18`←`6db8`, `44ec`←`458c`, `45a0`←`4640`.
+  - The vendored Boost (≤ 1.44) uses Box-Muller, like June.
+- **6 78's k.** User: attacker (`[DD+0xc]`, `ESI`) `+0x526c`, plus this `+0x5450` and `+0x51b8`, minus the DD defender's `+0x5aec` ×0.01 only if > 0. NPC: the same with no > 0 test. Then `max(k, 0)`.
+- **7 Gate `32001570`.** June types 2/3/5 = `GT_DUNGEON`/`GT_BATTLE_FIELD`/(none in March); 4 = `GT_PVE` rejects all.
+  - Game vslot `+0x1c8` is `m_pDungeon->GetDungeonData()->m_eDungeonType` (`327c9ef0`), and 0 in a field (`3231f510`). That is March's `GetDungeonType`.
+- **8 Designed range.** Users only, both `SetGameStat` overloads, one log line.
+
+**Reach numbers, re-run** (bundled KOG LuaJIT, March's live `SocketOptionForm` bytecode against the staged June file; the factor file run under a stub manager):
+- Every Done-note number reproduces: Linear level 1 9.5→10 and the cap at 143 above 90; move 0.230→0.255; crit 0.584→0.560; hyper 0.297→0.285; add-defence 0.4157→0.450; 366 factors, crit 25, add-defence 4, hyper 1, walk/run 34, jump 8.
+- Two additions:
+  - Final and Intermediate also differ at level 1, for the same 19/20 reason.
+  - `CalculateFinalAdditionalAttackValue` differs above intermediate 40 (at 80: 0.276→0.263).
+- Anim speed (37 PERCENT ≠ 1) is unaffected, because its basic is > 0 and its modifier is 1.
+
+**What 16-data makes live** (June `OptionItemData.src.lua`, 13,408 entries):
+- **185 rank-linked:** 120 rank, 65 PVE, none both. Fix 1 keeps their enchant (7 carry `RESIST_ENCHANT`), but their stats stay out until 16-step3b item 8 decodes the scaling.
+- **About 280 `+0x29c` pushes.** Each sets the HAMEL byte, so the socket gets no `m_ptrBuffFactor`. Their buff does nothing until the readers (16-step3b item 7).
+- **8 `DUNGEON_ONLY_TYPE` = `DT_SECRET`** (300000-300007).
+- None of the save's 13 socket IDs is in any of these sets.
+
+**Hygiene.** `flagcheck JUNE_SOCKET_PARITY --with JUNE_BUFF_NEW_STAT JUNE_ATTACK_RANGE_DESIGN JUNE_BUFF_DEBUG --worktree --files` (3 files): 3 PASS, RESULT PASS. The 11 deleted lines are part 1's own rank-skip block, moved (range line in STATUS).
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,204,608 B, dated 2026-10-06 07:40:56, md5 f42d59d2c5873a5ffa0037cb0b0853c9, equal to X2/US_SERVICE/x2.exe (2026-10-06 07:40:50); built at mods/june-buff-port cfbd8de + 3 uncommitted code file(s).` Both new log texts are in the exe (ASCII), and part 1's old skip text is gone. Not launched.
+
+**Open for the user.** Before 16-data: accept the window above (185 rank-linked sockets without stats, about 280 conditional buffs inert until 16-step3b), or move 16-step3b items 7-8 ahead of 16-data. /cost not available in-session.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`

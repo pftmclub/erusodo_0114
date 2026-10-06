@@ -14025,6 +14025,35 @@ void CX2GameUnit::InitAdditionalStatOptionValue()
 	m_AdditionalDecreaseDebuffTimeRate.SetOptionValue( m_SocketData.m_fDecreaseDebuffTimeRate );
 	m_AdditionalDecreaseMPCostRate.SetOptionValue( m_SocketData.m_fDecrease_MPCostRate );
 	m_AdditionalIncreaseDmgRateMyHpFew.SetOptionValue( m_SocketData.m_fIncreaseDmgRate_MyHpFew );
+	if ( GUT_USER != GetGameUnitType() )
+	{
+		/// June buff port Phase 16 review: June's NPC branch (@32271234..32271531) never reads the aggregate. It zeroes
+		/// every member above except HP recovery, item drop and boss damage, which it seeds with 1.0 (fld1 @322714a9,
+		/// @322714ba, @322714cb) on top of their 1.0 basics, so an NPC's three results are 2.0 (JUNE_BUGS #46).
+		m_AdditionalChargeMpHitMeleeAttack.SetOptionValue( 0.0f );
+		m_AdditionalChargeMpHitRangeAttack.SetOptionValue( 0.0f );
+		m_AdditionalChargeMpHitted.SetOptionValue( 0.0f );
+		m_AdditionalSocketCriticalAfflicted.SetOptionValue( 0.0f );
+		m_AdditionalSocketAdditionalDamageAfflicted.SetOptionValue( 0.0f );
+		m_AdditionalSocketAdditionalDamage.SetOptionValue( 0.0f );
+		m_AdditionalSocketAntiCriticalRate.SetOptionValue( 0.0f );
+		m_AdditionalSocketAntiAddDamageRate.SetOptionValue( 0.0f );
+		m_AdditionalAdditionalAttackedDamage.SetOptionValue( 0.0f );
+		m_AdditionalCharacterSpecializationA.SetOptionValue( 0.0f );
+		m_AdditionalCharacterSpecializationB.SetOptionValue( 0.0f );
+		m_AdditionalDamageMaximize.SetOptionValue( 0.0f );
+		m_AdditionalAtkPhysicPiercingRate.SetOptionValue( 0.0f );
+		m_AdditionalAtkMagicPiercingRate.SetOptionValue( 0.0f );
+		m_AdditionalHPRecoveryRate.SetOptionValue( 1.0f );
+		m_AdditionalIncreaseItemDropRate.SetOptionValue( 1.0f );
+		m_AdditionalIncreaseDmgRateToBoss.SetOptionValue( 1.0f );
+		m_AdditionalIncreaseDefRateToBoss.SetOptionValue( 0.0f );
+		m_AdditionalIncreaseDmgEnemyHPFew.SetOptionValue( 0.0f );
+		m_AdditionalIncreaseDefMyHPFew.SetOptionValue( 0.0f );
+		m_AdditionalDecreaseDebuffTimeRate.SetOptionValue( 0.0f );
+		m_AdditionalDecreaseMPCostRate.SetOptionValue( 0.0f );
+		m_AdditionalIncreaseDmgRateMyHpFew.SetOptionValue( 0.0f );
+	}
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 // 	m_AdditionalFinalDamageMultiplier.SetOptionValue( 0.0f );

@@ -772,6 +772,8 @@ bool CX2SocketItem::AddSocketData_LUA()
 	LUA_GET_VALUE(		luaManager, "m_fAllSkillDamageIncreaseRate",			pSocketData->m_fAllSkillDamageIncreaseRate,		0.0f );
 	LUA_GET_VALUE(		luaManager, "m_bIsRankLinkedStat",						pSocketData->m_bIsRankLinkedStat,				false );	/// @32736cf4
 	LUA_GET_VALUE(		luaManager, "m_bIsPVERankLinkedStat",					pSocketData->m_bIsPVERankLinkedStat,			false );	/// @32736ed4
+	if ( pSocketData->m_bIsRankLinkedStat && pSocketData->m_bIsPVERankLinkedStat )	/// June's message @32736ee9 (334b71b8)
+		CX2JuneBuffCapture::Line( "socket %d: m_bIsRankLinkedStat and m_bIsPVERankLinkedStat must not both be set (June 32736ee9)", pSocketData->m_ID );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 //}} kimhc // 2010.4.1 // 비밀던전 작업(셋트아이템효과)
 

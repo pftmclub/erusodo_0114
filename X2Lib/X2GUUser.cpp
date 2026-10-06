@@ -3160,24 +3160,25 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 
 		if ( !CanApplySocketDataByGameType( kSocketData ) )
 			continue;
-#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-		/// June 3204f190 scales a rank-linked (+0x294) or PVE-rank-linked (+0x58) socket by a rank factor from
-		/// CX2Unit maps (31edfe70 / 31edfeb0) instead of ConvertAndAdd. That branch is located, not decoded, and no
-		/// March socket sets either flag; such a socket is skipped and logged rather than applied unscaled.
-		if ( kSocketData.m_bIsRankLinkedStat || kSocketData.m_bIsPVERankLinkedStat )
-		{
-			static std::set<int> s_setLoggedRankLinkedSocket;
-			if ( s_setLoggedRankLinkedSocket.insert( kSocketData.m_ID ).second )
-				CX2JuneBuffCapture::Line( "socket %d is rank-linked (%s): June's rank scaling is not ported, the socket is not applied", kSocketData.m_ID, kSocketData.m_bIsRankLinkedStat ? "m_bIsRankLinkedStat" : "m_bIsPVERankLinkedStat" );
-			continue;
-		}
-#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 
 #ifdef PET_AURA_SKILL
 		AddEnchantAttack( kSocketData );
 #endif
 		AddEnchantResist( kSocketData );
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June 3204f190 (@3204f2a8 / @3204f351): a rank-linked (+0x294) or PVE-rank-linked (+0x58) socket is copied
+		/// (32092030), scaled by a rank factor from CX2Unit maps (31edfe70 / 31edfeb0) and then ConvertAndAdd'ed, in
+		/// place of the plain ConvertAndAdd. The enchant above and everything below still run: all three branches
+		/// rejoin at 3204f485. The scaling is located, not decoded, so only the stat part of such a socket is left out.
+		if ( kSocketData.m_bIsRankLinkedStat || kSocketData.m_bIsPVERankLinkedStat )
+		{
+			static std::set<int> s_setLoggedRankLinkedSocket;
+			if ( s_setLoggedRankLinkedSocket.insert( kSocketData.m_ID ).second )
+				CX2JuneBuffCapture::Line( "socket %d is rank-linked (%s): June's rank scaling is not ported, its stats are not applied (enchant and skill level-up are)", kSocketData.m_ID, kSocketData.m_bIsRankLinkedStat ? "m_bIsRankLinkedStat" : "m_bIsPVERankLinkedStat" );
+		}
+		else
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 		//{{ kimhc // 2011-07-05 // 옵션데이타 수치화 작업
 

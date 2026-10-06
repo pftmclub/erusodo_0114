@@ -12,7 +12,7 @@
 ## Read first (and nothing else from the plan doc unless you need it)
 
 ```sh
-python tools/docsection.py JUNE_BUFF_PORT_PHASES.md "Starting context" "Play-test hand-off (Phase 5 onward)" "Phase 16 -- Steps 2-4 Done, part 1"
+python tools/docsection.py JUNE_BUFF_PORT_PHASES.md "Starting context" "Play-test hand-off (Phase 5 onward)" "Phase 16 -- Steps 2-4 Done, part 1" "Phase 16 -- Review"
 ```
 
 ## Task
@@ -58,3 +58,20 @@ Steps:
 Play-test: a dungeon run with sockets equipped, plus whatever step 2 makes visible. Log lines:
 the loader's error lines, rank-linked skips (`is rank-linked`, now reachable: 185 June entries),
 and step 2's per-type lines.
+
+## From the 16 review (2026-10-06)
+
+- **Ask the user first** (the Review note's open question): adopting June's file makes 185
+  rank-linked sockets live (120 rank, 65 PVE), whose stats stay out until 16-step3b item 8
+  decodes the scaling (their enchant and skill level-up do apply since the review's fix 1), and
+  about 280 `+0x29c` sockets whose buff factor is withheld (June sets the HAMEL byte for them) until
+  16-step3b item 7. Either accept that window or run 16-step3b items 7-8 first. None of the save's
+  13 socket IDs is in either set.
+- The play-test log line for those sockets is now `socket %d is rank-linked (...): June's rank
+  scaling is not ported, its stats are not applied (enchant and skill level-up are)`.
+- SIEE 13 (`SIEE_BUFF_WHEN_SUCCESS_ATTACK`) and 17 (`SIEE_BUFF_PERIODICALLY`): June's loader routes
+  their `BUFF_FACTOR_ID` to the custom-use pointer (`+0x278`) like SIEE 11 and `HMET_USE_BUFF`
+  (`32726850 @3273661d..32736630`); March's HAMEL block knows only those two. When step 2 adds the
+  enumerators, port that routing in the loader under `SOCKET_PARITY` (funcmap row `32726850 @32736ee9`).
+- `DUNGEON_ONLY_TYPE` appears on 8 June sockets (300000-300007, `DT_SECRET`); the gate already
+  handles it.
