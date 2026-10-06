@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 16-step3b4` |
 | Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
-| Depends on | 16-step3b2 (done); independent of 16-step3b3 except for shared files (commit with pathspecs) |
+| Depends on | 16-step3b2 (done); 16-step3b3 done first (both edit X2GUUser.cpp and X2SocketItem.cpp/.h; never in parallel) |
 | Flag | `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (same flag; `_DEBUG` for first-apply lines) |
 | Log tag | `[JUNE_BUFF]` (`python tools/logs.py --tag JUNE_BUFF`) |
 | Review | write `16-step3b4-review.md` when done |
