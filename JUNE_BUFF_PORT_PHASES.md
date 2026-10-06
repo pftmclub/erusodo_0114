@@ -5599,6 +5599,12 @@ All take the rate + 1.0. A new caller `32369bd0` (not in the kickoff's list) goe
 
 **How to see it in game.** Load line `skill-group power sockets: 2491 with a skill map (36373 entries), 313 with m_SkillType/m_PowerRate, 2491 with a rate; tokens: 313 groups, 2178 skill IDs (19 groups in SkillLevelUpSocketGroup.lua)` (always on). Live check with the user's OK: socket 95003 on Iivue's weapon, then `first skill-group power socket on an equipped skill: socket 95003, skill 5003 ... rate 0 -> 0.1` and `first skill-group power rate read: skill 5003, rate 0.1 (power rate x 1.1)`.
 
+**Play-test (2026-10-06, user: passed; exe d187a0de, logs read).** Setup: `COPY OK data036` (md5 cb9ac802); socket 95003 appended to Iivue's weapon (item 579 -> `40110,74035,95003`; backup `db_backup/els_db_20261006_185739_pre_socket_95003.sql`). The run started after the deploy and exited cleanly: 0 EXCEPTION, 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (unrelated, as before). `ErrorLog.txt`:
+- `:227` the load census, exactly the predicted numbers (2491 / 36373 / 313 / 2491; 313 group tokens, 2178 skill IDs, 19 groups): June's group file loads before OptionItemData and every group resolves;
+- `:283` `first skill-group power socket on an equipped skill: socket 95003, skill 5003 (type 7, power-rate type 0), rate 0 -> 0.1` (the no-table path of `31fe14f0`);
+- `:286` `first skill-group power rate read: skill 5003, rate 0.1 (power rate x 1.1)` (the reader, at the slot-state setup);
+- 3b3's lines unchanged (`:285` MP 300 -> 285, `:292` summon x 1.05, `:298` all-skill 1.05). No reduction-on-cool-time line: no equipped set option has an interval, as expected.
+
 **Open for the user.** /cost is not available in-session.
 
 ## Critical files
