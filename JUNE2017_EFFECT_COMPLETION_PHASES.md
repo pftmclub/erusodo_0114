@@ -509,6 +509,7 @@ byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
   - `321ee480` x2;
   - the runtime modifier list.
 - Options: a small identification phase, or leaving it to the Luciel/Ain ports.
+- **Decided 2026-10-06 (user):** a small identification phase, C6a2 (`kickoffs/june-effect/C6a2.md`, Opus, no code). It runs before C6b and adds anything data- or engine-driven to C6b's scope.
 
 **Hygiene:** docs and TSV only. `funcmap.tsv` stays ASCII / LF, 4 fields per row. No game file changed.
 

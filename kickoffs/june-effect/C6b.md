@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C6b` |
 | Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
-| Depends on | C6a (done 2026-10-06), C5 (`31f64c00` needs C5's `ADDITIONAL_ATTACK_TRIGGER_TYPE` list member) |
+| Depends on | C6a (done 2026-10-06), C6a2 (may add EffectSet items to this phase), C5 (`31f64c00` needs C5's `ADDITIONAL_ATTACK_TRIGGER_TYPE` list member) |
 | Flag | `SERV_IRUHADEV_JUNE_SPAWN_INHERIT` |
 | Log tag | `[JUNE_FX]` in ErrorLog.txt (`python tools/logs.py --tag JUNE_FX`) |
 | Review | `kickoffs/june-effect/C6b-review.md` |
@@ -90,7 +90,7 @@ These supersede the rebuild plan's Phase 10c text where they differ.
 - **`+0xb64` writer (EffectSet).**
   - `OnFrameMove_CreateEffect @321ef6d5-321ef6d8` sets the damage effect's `m_bHyper` from `EffectSetInstance::m_bHyper`.
   - It sits right after the `USE_IS_RIGHT_WHEN_CREATE` block that Phase 4a ported (`X2EffectSet.cpp` ~:1088). Port it with the copy, so `X2EffectSet.cpp` is in Touches.
-- **The rest of that EffectSet block is out of scope for C6b. Ask the user; do not port it.** Three parts:
+- **The rest of that EffectSet block belongs to C6a2** (user, 2026-10-06). C6a2 adds whatever must be ported to this file; until it does, do not port it. Three parts:
   - `@321ef639-321ef66d`: `m_iIndex` and an unidentified `+0x838` from instance `+0x1b8`, which unit vslot `0x248` stamps (base no-op; Luciel and Ain override it). It also writes an unidentified `+0x7e0`.
   - `321ee480` x2: not identified.
   - The runtime modifier list `321db1b0` (instance `+0x170`): only class code fills it.

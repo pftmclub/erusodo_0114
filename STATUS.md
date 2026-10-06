@@ -103,8 +103,9 @@ today's Sonnet 5.5.
 | C4 review | blocked | Opus 5.5 / high | C4 | - | `C4-review.md` |
 | C5 | queued (C2 done) | Sonnet 5.5 / high | C2 (+ coordinate with june-buff); 8b close-out also waits for C9 (C2); `DAMAGE_SKILL_ID` is handed off with C1 (D7) | X2DamageManager.cpp, X2DamageEffect.cpp | `C5.md` |
 | C5 review | blocked | Opus 5.5 / high | C5 | - | `C5-review.md` |
-| C6a | done 2026-10-06 (`2456285`): 30 funcmap rows (`Effect C6a`); `+0xb00`/`+0xb04` = March `m_iIndex`/`m_iType`, gate flags `b44`-`b65` June-only and set only by class code (checklist 7a), `+0xb5c` is a ctor init, invoke-rate gate = March; C6b scope widened (CREATE loop, RT_CREATE, EffectSet `m_bHyper`) and now waits for C5; **user owes:** answer the open EffectSet `m_iIndex`/`+0x838` question in the Done note | Opus 5.5 / high | - | `funcmap.tsv` (no code) | `C6a.md` |
-| C6b | blocked (C5) | Sonnet 5.5 / high | C6a, C5 (ADDITIONAL_ATTACK_TRIGGER_TYPE member) | X2DamageEffect.h/.cpp (CEffect, hit/die spawners, CREATE loop, RT_CREATE), X2DamageManager.h (DD flag), X2EffectSet.cpp (`m_bHyper`), Always.h | `C6b.md` |
+| C6a | done 2026-10-06 (`2456285`): 30 funcmap rows (`Effect C6a`); `+0xb00`/`+0xb04` = March `m_iIndex`/`m_iType`, gate flags `b44`-`b65` June-only and set only by class code (checklist 7a), `+0xb5c` is a ctor init, invoke-rate gate = March; C6b scope widened (CREATE loop, RT_CREATE, EffectSet `m_bHyper`) and now waits for C5; open EffectSet block -> C6a2 (user, 2026-10-06) | Opus 5.5 / high | - | `funcmap.tsv` (no code) | `C6a.md` |
+| C6a2 | queued (user agreed 2026-10-06) | Opus 5.5 / high | C6a | `funcmap.tsv`, `C6b.md`, checklist 7a (no code) | `C6a2.md` |
+| C6b | blocked (C5, C6a2) | Sonnet 5.5 / high | C6a, C6a2 (EffectSet block scope), C5 (ADDITIONAL_ATTACK_TRIGGER_TYPE member) | X2DamageEffect.h/.cpp (CEffect, hit/die spawners, CREATE loop, RT_CREATE), X2DamageManager.h (DD flag), X2EffectSet.cpp (`m_bHyper`), Always.h | `C6b.md` |
 | C6b review | blocked | Opus 5.5 / high | C6b | - | `C6b-review.md` |
 | C7 | blocked | Sonnet 5.5 / high | C6b | X2DamageEffect.cpp, KTDXLIB/KTDGXMeshPlayer.h (CXMeshInstance) | `C7.md` |
 | C7 review | blocked | Opus 5.5 / high | C7 | - | `C7-review.md` |
@@ -119,8 +120,8 @@ today's Sonnet 5.5.
 | C11 | blocked | Sonnet 5.5 / high | C2-C10 (C1 handed off, D7) | - (verification; one .dds staged) | `C11.md` |
 | C12 | blocked | Sonnet 5.5 / high | C11 | docs, MODS.md, maybe Always.h (D6) | `C12.md` |
 
-Running together: C0, C1a, C2, C6a and C8a/C10a touch no game code, so they can run alongside a
-code session. C1a, C2, C6a, C8a and C10a all add rows to `funcmap.tsv`, though, so run those one
+Running together: C0, C1a, C2, C6a, C6a2 and C8a/C10a touch no game code, so they can run alongside a
+code session. C1a, C2, C6a, C6a2, C8a and C10a all add rows to `funcmap.tsv`, though, so run those one
 after another. C3, C4, C5 and C9 all edit X2DamageManager.cpp; C6b, C7 and C8b all edit
 X2DamageEffect.cpp: one at a time within each group.
 
