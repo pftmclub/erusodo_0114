@@ -464,6 +464,53 @@ hit and die spawners under SERV_IRUHADEV_JUNE_SPAWN_INHERIT. Never port an offse
 byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
 ```
 
+### C6a - Done (2026-10-06, Opus 5.5 high; no code, no flag, no build)
+
+**What landed:**
+- 30 verdicts in `june2017_re/funcmap.tsv`, all tagged `Effect C6a`.
+  - 5 rows upgraded in place from candidate to confirmed: `31f8fdb0`, `31f649d0`, `31f64c00`, `31f65e40`, `31f65f90`.
+  - Row `321db1b0` gains its full 23-tag table.
+  - 24 new rows: one per CEffect / DamageData / DamageEffectData offset, the modifier adders, the entry ctor `31f8bf00`, the invoke-rate gate, the tail order, and unit vslot `0x248`.
+- The C6b kickoff now carries the findings, and C6b depends on C5 (see "Changes to C6b").
+- The checklist's section 7a lists the class code that drives the tail.
+
+**Answers to Phase 10c's step-1 questions:**
+- **`+0xb00` / `+0xb04`** are March's own `m_iIndex` / `m_iType` (`SERV_RENA_NIGHT_WATCHER`).
+  - Same defaults (-1 / DET_NONE), same member order, same CheckDamageEffectType `32273980`.
+- **`+0xb32`** is APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION. **`+0xb66`** is March's `m_bInheritDamageFromMaster` (7d).
+- **`+0xb44`-`b47`, `+0xb5c`/`b60`, `+0xb64`, `+0xb65`** are June-only gate flags, and nothing sets them except class code.
+  - Mostly through June's EffectSet "damage-effect modifier" list (`321db050`/`321dad70` -> `321db1b0` tags 12/13/14/16/17/19).
+  - Directly by Add, Eve, Rose, Elsword and Ain skill functions.
+  - In March they are absent (rule 5), so the tail runs inert until the characters are ported.
+  - `+0xb64` is the one exception: the EffectSet copies it from `EffectSetInstance::m_bHyper`.
+- **`+0xb5c @31f7f98b` is a ctor init** (BL = 0, fldz), not the destination of RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT. The guess in Phase 10c was wrong.
+- **Entry fields.** `+0xb0` is a float, default 1.0. `+0xb4`/`+0xb5` are bools, default 0. All come from the DamageEffectData ctor `31f8bf00`.
+  - No loader writes any of them.
+  - Only `31f649d0` / `31f65e40` / `31f65f90` (and class code calling them) change them.
+- **DamageData.** `+0x5a4`/`+0x5a8` are `m_eFirstAttack` / `m_RelateSkillData`, confirmed by four independent sites.
+  - The spawners' `+0x7a4`/`+0x7a8` copy is already in March.
+  - `+0x5fd` is a June-only bool with no Lua key; its only reader is Add.
+- **Invoke-rate gate:** identical to March (`m_iType != DET_ARROW_OF_EXPLOSION`) in both the hit and touch-land spawners. No hit-spawner change.
+
+**Changes to C6b (`kickoffs/june-effect/C6b.md`, the source of truth):**
+- **Five call sites, not two.**
+  - Hit, die, the OnFrameMove CREATE_DAMAGE_EFFECT loop (all five callees), and RT_CREATE_DAMAGE_EFFECT (`31f8fdb0` only).
+  - The no-partial rule covers them all.
+  - 7d's inlined INHERIT_DAMAGE copy at `:2891` is replaced, not doubled.
+- **C6b now depends on C5.** `31f64c00` needs C5's ADDITIONAL_ATTACK_TRIGGER_TYPE list member.
+- **The EffectSet `m_bHyper` write** (`@321ef6d5`) joins C6b, which adds `X2EffectSet.cpp` to its Touches.
+- **Three June quirks to keep verbatim, each with a JUNE_BUGS row:** `b47` copies only `+0x528`, the entry marks are always set to 1, and there is no null test on DAMAGE_DATA_NEXT.
+
+**Open (for the user):**
+- The rest of EffectSet `OnFrameMove_CreateEffect @321ef639-321ef66d` is not ported anywhere yet:
+  - `m_iIndex` from instance `+0x1b8`, stamped by unit vslot `0x248` (base no-op; Luciel/Ain override). With it, every EffectSet-made effect of a March class gets index 0 instead of -1.
+  - two unidentified CEffect members, `+0x838` and `+0x7e0`;
+  - `321ee480` x2;
+  - the runtime modifier list.
+- Options: a small identification phase, or leaving it to the Luciel/Ain ports.
+
+**Hygiene:** docs and TSV only. `funcmap.tsv` stays ASCII / LF, 4 fields per row. No game file changed.
+
 ---
 
 ## C7 - Touch-land runtime (old Phase 10c, step 3)
