@@ -3177,6 +3177,10 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 		///   (PVE_RANK_NONE). That is a missing server value, not June's design.
 		/// Not ported: June's resize of user +0x87b8 (32077f50) after every ConvertAndAdd, in all three branches: it
 		/// belongs to June's 0x18-byte m_vecMpUpByAttacked element, not to the rank scaling.
+		/// June @3204f28a..3204f2a6 (16-step3b review): all three ConvertAndAdd calls pass this user's own unit type,
+		/// *(CX2Unit +0xaf0) = GetUnit()->GetType() (0 without a templet), and none runs without a CX2Unit (@3204f290).
+		/// March passed the local player's type (GetMyUser()->GetSelectUnit()) for every user.
+		const CX2Unit::UNIT_TYPE eJuneUnitType = ( NULL != GetUnit() && NULL != GetUnit()->GetUnitTemplet() ) ? GetUnit()->GetType() : CX2Unit::UT_NONE;
 		if ( kSocketData.m_bIsRankLinkedStat || kSocketData.m_bIsPVERankLinkedStat )
 		{
 			if ( NULL != GetUnit() )	/// June @3204f290: no unit, no ConvertAndAdd branch at all
@@ -3202,8 +3206,7 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 				CX2SocketItem::SocketData kScaledSocketData;
 				kScaledSocketData.SetJuneRankLinkedScaled( kSocketData, fRankRate );
 #ifdef SERV_9TH_NEW_CHARACTER
-				if ( NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-					m_SocketData.ConvertAndAdd( kScaledSocketData, iSocketLevel_, g_pData->GetMyUser()->GetSelectUnit()->GetType() );
+				m_SocketData.ConvertAndAdd( kScaledSocketData, iSocketLevel_, eJuneUnitType );
 #else SERV_9TH_NEW_CHARACTER
 				m_SocketData.ConvertAndAdd( kScaledSocketData, iSocketLevel_ );
 #endif SERV_9TH_NEW_CHARACTER
@@ -3211,6 +3214,16 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 		}
 		else
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		if ( NULL != GetUnit() )	/// June @3204f446: the plain branch (the else above), this user's unit type
+		{
+#ifdef SERV_9TH_NEW_CHARACTER
+			m_SocketData.ConvertAndAdd( kSocketData, iSocketLevel_, eJuneUnitType );
+#else SERV_9TH_NEW_CHARACTER
+			m_SocketData.ConvertAndAdd( kSocketData, iSocketLevel_ );
+#endif SERV_9TH_NEW_CHARACTER
+		}
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 		//{{ kimhc // 2011-07-05 // 옵션데이타 수치화 작업
 
@@ -3226,6 +3239,7 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 #else // SERV_9TH_NEW_CHARACTER
 		m_SocketData.ConvertAndAdd( kSocketData, iSocketLevel_ );
 #endif // SERV_9TH_NEW_CHARACTER
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		
 		//}} kimhc // 2011-07-05 // 옵션데이타 수치화 작업
 		

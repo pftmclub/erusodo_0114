@@ -861,7 +861,7 @@ class CX2SocketItem
 			float	m_fIncreaseDmgRate_MyHpFew;			/// +0x2e4
 			float	m_fAllSkillCooltimeDecreaseRate;	/// +0x2e8
 			float	m_fAllSkillDamageIncreaseRate;		/// +0x2ec
-			bool	m_bIsRankLinkedStat;				/// +0x294 (June 3204f190's rank branch; not decoded, see SumSocketOption)
+			bool	m_bIsRankLinkedStat;				/// +0x294 (June 3204f190's rank branch: scaled copy 320925f0, see SumSocketOption)
 			bool	m_bIsPVERankLinkedStat;				/// +0x58
 
 			void InitJuneSocketParity()					/// the ctor's and ReInit's (320922a0) zeroing of the fields above
