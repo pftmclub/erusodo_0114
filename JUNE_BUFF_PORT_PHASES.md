@@ -5382,6 +5382,15 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 
 **Open for the user.** /cost. Regression play-test: Iivue (Code: Empress) dungeon run with the bots, Dimension Link Guardian, one HP and one MP potion; expect 3b3's first-apply lines (`skill 0 x 1.05` at bot spawn, `MP 300 -> 285`, factor 0.95, JUNE_BUGS #55's `HP recovery -1` at init) and 0 EXCEPTION. No character on the save has Entangle, Stone Wall or Scarlet Rose/Fire Blossoms, so the three changed cases are not exercised.
 
+**Play-test (2026-10-06, user: passed; exe f6f22eb2, logs read).** The run started 15:37:36, after the deploy, and exited cleanly (census present): 0 EXCEPTION; 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (unrelated, as before). `ErrorLog.txt` lines:
+- `:490` `first socket item recovery: item 230040, HP recovery -1` (JUNE_BUGS #55, at init);
+- `:491` `MP 300 -> 285`;
+- `:493` `first socket summon power rate: skill 0 x 1.05`;
+- `:503` factor 0.95 and `:504` BBT 100 `18 -> 17.1`;
+- `:792` all-skill damage 1.05.
+
+The bots spawned (`offline_server.log`, ally of 19) and the dungeon was cleared. This matches 3b3's runs: no regression.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
