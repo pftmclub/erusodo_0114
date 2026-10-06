@@ -116,9 +116,15 @@ class CX2EnchantItem
 
 			int m_Time;						//지속시간
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			float m_FirstDamagePercent;		/// June buff port Phase 15: float in June (32fea370; June data has 37.5, 112.5)
+			float m_SecondDamagePercent;
+			float m_ThirdDamagePercent;
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			int m_FirstDamagePercent;		//이것들은 정수로
 			int m_SecondDamagePercent;
 			int m_ThirdDamagePercent;
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 			int m_FirstSlowPercent;
 			int m_SecondSlowPercent;
@@ -226,6 +232,10 @@ class CX2EnchantItem
 		static int DecomposeEnchantExtraDamage( CX2DamageManager::EXTRA_DAMAGE_TYPE eComposedEDT, CX2DamageManager::EXTRA_DAMAGE_TYPE& eDecomposedEDT1, CX2DamageManager::EXTRA_DAMAGE_TYPE& eDecomposedEDT2 );
 
 		bool ProcessEnchant( CX2GameUnit* pDefender, CX2DamageManager::DamageData* pDamageData, float fRandValue1, float fRandValue2 );
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		/// June 32708c50: false only in a PvP game on a free channel; there the enchant damage skips ENCHANT_STAT_SCALE
+		static bool JuneIsEnchantStatScaleOn();
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 		//{{ JHKang // 강정훈 // 2010. 10. 6 // 자동 줄나누기 두 번 실행 방지
 #ifdef FIX_TOOLTIP

@@ -3775,6 +3775,20 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #endif
 #ifdef ENCHANT_ACCUMULATION_RATE_MODIFIER
 		float EnchantAccumulationRateModifier( CX2DamageManager::EXTRA_DAMAGE_TYPE basicExtraDamageType, CX2DamageManager::EXTRA_DAMAGE_TYPE miscExtraDamageType, float fRate );
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		/// June buff port Phase 15: June 32272d90 ( pDD, basic, misc, rate ): + 1x / 2x the attacker's m_fAttribReiterationRate
+		/// at the defender's accumulation 1 / 2 (March: x2 at 1-2)
+		float JuneEnchantAccumulationRateModifier( CX2DamageManager::DamageData* pDamageData_, CX2DamageManager::EXTRA_DAMAGE_TYPE basicExtraDamageType, CX2DamageManager::EXTRA_DAMAGE_TYPE miscExtraDamageType, float fRate );
+		/// June 32272780 ( element 1 blaze / 2 frozen / 3 poison ): did that accumulation rise on its last proc (bytes +0x7c7c..+0x7c7e,
+		/// cleared at the start of each body, zeroed in the ctor @322a5eb8). Read by the slow ticks.
+		bool JuneIsEnchantAccumulationRose( const int iElement_ ) const { return m_kJuneEnchantAccumulationRose.m_abRose[iElement_ - 1]; }
+		struct JuneEnchantAccumulationRose
+		{
+			bool m_abRose[3];
+			JuneEnchantAccumulationRose() { m_abRose[0] = m_abRose[1] = m_abRose[2] = false; }
+		};
+		JuneEnchantAccumulationRose m_kJuneEnchantAccumulationRose;
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #endif ENCHANT_ACCUMULATION_RATE_MODIFIER
 		
 

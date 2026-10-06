@@ -4301,7 +4301,11 @@ bool CX2GameUnit::ProcessEnchantExtraDamage( CX2DamageManager::DamageData* pDama
 #ifdef PET_AURA_SKILL
 		float fRate = pWeaponEnchantData->m_fRate;
 #ifdef ENCHANT_ACCUMULATION_RATE_MODIFIER
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		fRate = JuneEnchantAccumulationRateModifier( pDamageData, basicExtraDamageType, miscExtraDamageType, fRate );	/// June 322a0510 -> 32272d90
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		fRate = EnchantAccumulationRateModifier(basicExtraDamageType, miscExtraDamageType, fRate);
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #endif ENCHANT_ACCUMULATION_RATE_MODIFIER
 
 
@@ -4430,6 +4434,17 @@ bool CX2GameUnit::ProcessEnchantBlaze( CX2DamageManager::DamageData* pDamageData
 	if ( pEnchantData == NULL )
 		return false;
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June 3229b250: no m_fTime gate; the accumulation is the stored value + 1, capped at 3 (1-based; March: 0 on a
+	/// fresh proc, capped at 2). The tick resets it when the effect ends (March's own reset). The rose flag is for the slow ticks.
+	int finalAccumulation = m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation;
+	m_kJuneEnchantAccumulationRose.m_abRose[0] = false;
+	if ( finalAccumulation < 3 )
+	{
+		finalAccumulation += 1;
+		m_kJuneEnchantAccumulationRose.m_abRose[0] = true;
+	}
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	int finalAccumulation = 0;
 
 	if ( m_ExtraDamagePack.m_EnchantBlaze.m_fTime > 0.0f )
@@ -4443,6 +4458,7 @@ bool CX2GameUnit::ProcessEnchantBlaze( CX2DamageManager::DamageData* pDamageData
 			finalAccumulation = m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 	
 #ifdef CHUNG_SECOND_CLASS_CHANGE
@@ -4458,6 +4474,9 @@ bool CX2GameUnit::ProcessEnchantBlaze( CX2DamageManager::DamageData* pDamageData
 	
 
 	m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation = finalAccumulation;
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	m_ExtraDamagePack.m_EnchantBlaze.m_optrGameUnit = pDamageData->optrAttackerGameUnit;	/// June: the ticks find the attacker's EnchantData through it
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 	if ( null != pDamageData->optrAttackerGameUnit && pDamageData->optrAttackerGameUnit->GetGameUnitType() == CX2GameUnit::GUT_USER )
 	{
@@ -4551,6 +4570,7 @@ bool CX2GameUnit::ProcessEnchantBlaze( CX2DamageManager::DamageData* pDamageData
 			{
 
 
+#ifndef SERV_IRUHADEV_JUNE_ENCHANT_PARITY	/// June keeps only the defence-dungeon check (328b26a0) here; the Henir challenge check is gone
 #ifdef HENIR_TEST
 #ifndef NEW_HENIR_DUNGEON // 1레벨 보정 -> 연동 레벨 던전으로 변경
 				if( true == CX2Dungeon::IsHenirDungeon( static_cast<const SEnum::DUNGEON_ID>( g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonID ) ) &&
@@ -4564,6 +4584,7 @@ bool CX2GameUnit::ProcessEnchantBlaze( CX2DamageManager::DamageData* pDamageData
 				}
 #endif // NEW_HENIR_DUNGEON
 #endif HENIR_TEST
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 				//{{ 허상형 : [2011/3/29/] //	월드 미션
 #ifdef SERV_INSERT_GLOBAL_SERVER
@@ -4629,6 +4650,9 @@ bool CX2GameUnit::ProcessEnchantBlaze( CX2DamageManager::DamageData* pDamageData
 						case SEnum::DI_ELDER_HALLOWEEN_EXPERT:
 							//}} oasis907 : 김상윤 [2010.10.21] // 
 						case SEnum::DI_EVENT_VALENTINE_DAY:
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+						case 41280:	/// June's list adds DI_EVENT_WALLY_LAND (no March enumerator); also June's XS_PVE_GAME (23) runs this branch, March has no such state
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #ifdef SERV_HALLOWEEN_EVENT_2013 // 2013.10.14 / JHKang
 						case SEnum::DI_EVENT_HALLOWEEN_DAY:
 #endif //SERV_HALLOWEEN_EVENT_2013
@@ -4641,8 +4665,23 @@ bool CX2GameUnit::ProcessEnchantBlaze( CX2DamageManager::DamageData* pDamageData
 					}
 				}
 			}
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			/// June: x ENCHANT_STAT_SCALE[ weapon enchant level ] (item +0x18) unless free-channel PvP (32708c50); June does not bound
+			/// the index (JUNE_BUGS.md; the table covers +0..+20)
+			if ( true == CX2EnchantItem::JuneIsEnchantStatScaleOn() )
+				fFinalDamage *= ENCHANT_STAT_SCALE[ pItem->GetItemData().m_EnchantLevel ];
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		/// June: the tier is read on the 1-based accumulation (1 First, 2 Second, >= 3 Third)
+		if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation == 1 )
+			m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec = pEnchantData->m_FirstDamagePercent / 100.0f * fFinalDamage;
+		else if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation == 2 )
+			m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec = pEnchantData->m_SecondDamagePercent / 100.0f * fFinalDamage;
+		else if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation >= 3 )
+			m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec = pEnchantData->m_ThirdDamagePercent / 100.0f * fFinalDamage;
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation == 0 )
 		{
 			m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec = pEnchantData->m_FirstDamagePercent / 100.0f * fFinalDamage ;
@@ -4655,6 +4694,7 @@ bool CX2GameUnit::ProcessEnchantBlaze( CX2DamageManager::DamageData* pDamageData
 		{
 			m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec = pEnchantData->m_ThirdDamagePercent / 100.0f * fFinalDamage;
 		}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 		float fTempDamage = m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec;
 		ApplyEnchantResist( CX2EnchantItem::ET_BLAZE, fTempDamage );
@@ -4668,6 +4708,15 @@ bool CX2GameUnit::ProcessEnchantBlaze( CX2DamageManager::DamageData* pDamageData
 		
 		fFinalDamage = pGUNpc->GetStat().GetStat().m_fAtkPhysic + pGUNpc->GetStat().GetStat().m_fAtkMagic;
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		/// June: the tier is read on the 1-based accumulation (1 First, 2 Second, >= 3 Third)
+		if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation == 1 )
+			m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec = pEnchantData->m_FirstDamagePercent / 100.0f * fFinalDamage;
+		else if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation == 2 )
+			m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec = pEnchantData->m_SecondDamagePercent / 100.0f * fFinalDamage;
+		else if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation >= 3 )
+			m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec = pEnchantData->m_ThirdDamagePercent / 100.0f * fFinalDamage;
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation == 0 )
 		{
 			m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec = pEnchantData->m_FirstDamagePercent / 100.0f * fFinalDamage ;
@@ -4680,6 +4729,7 @@ bool CX2GameUnit::ProcessEnchantBlaze( CX2DamageManager::DamageData* pDamageData
 		{
 			m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec = pEnchantData->m_ThirdDamagePercent / 100.0f * fFinalDamage;
 		}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 		float fTempDamage = m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec;
 		ApplyEnchantResist( CX2EnchantItem::ET_BLAZE, fTempDamage );
@@ -4723,6 +4773,17 @@ bool CX2GameUnit::ProcessEnchantFrozen( CX2DamageManager::DamageData* pDamageDat
 		return false;
 
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June 3229bd00: no m_fTime gate; the accumulation is the stored value + 1, capped at 3 (1-based; March: 0 on a
+	/// fresh proc, capped at 2). The tick resets it when the effect ends (March's own reset). The rose flag is for the slow ticks.
+	int finalAccumulation = m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation;
+	m_kJuneEnchantAccumulationRose.m_abRose[1] = false;
+	if ( finalAccumulation < 3 )
+	{
+		finalAccumulation += 1;
+		m_kJuneEnchantAccumulationRose.m_abRose[1] = true;
+	}
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	int finalAccumulation = 0;
 
 	if ( m_ExtraDamagePack.m_EnchantFrozen.m_fTime > 0.0f )
@@ -4736,6 +4797,7 @@ bool CX2GameUnit::ProcessEnchantFrozen( CX2DamageManager::DamageData* pDamageDat
 			finalAccumulation = m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 	
 	//m_ExtraDamagePack.m_EnchantFrozen = pDamageData->pAttackerUnit->GetWeaponEnchantData()->m_ExtraDamageData;
@@ -4747,6 +4809,9 @@ bool CX2GameUnit::ProcessEnchantFrozen( CX2DamageManager::DamageData* pDamageDat
 	m_ExtraDamagePack.m_EnchantFrozen.m_fTime = (float)pEnchantData->m_Time;
 
 	m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation = finalAccumulation;
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	m_ExtraDamagePack.m_EnchantFrozen.m_optrGameUnit = pDamageData->optrAttackerGameUnit;	/// June: the ticks find the attacker's EnchantData through it
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 	return true;
 }
@@ -4780,6 +4845,17 @@ bool CX2GameUnit::ProcessEnchantPoison( CX2DamageManager::DamageData* pDamageDat
 	if ( pEnchantData == NULL )
 		return false;
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June 3229bf90: no m_fTime gate; the accumulation is the stored value + 1, capped at 3 (1-based; March: 0 on a
+	/// fresh proc, capped at 2). The tick resets it when the effect ends (March's own reset). The rose flag is for the slow ticks.
+	int finalAccumulation = m_ExtraDamagePack.m_EnchantPoison.m_Accumulation;
+	m_kJuneEnchantAccumulationRose.m_abRose[2] = false;
+	if ( finalAccumulation < 3 )
+	{
+		finalAccumulation += 1;
+		m_kJuneEnchantAccumulationRose.m_abRose[2] = true;
+	}
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	int finalAccumulation = 0;
 
 	if ( m_ExtraDamagePack.m_EnchantPoison.m_fTime > 0.0f )
@@ -4793,6 +4869,7 @@ bool CX2GameUnit::ProcessEnchantPoison( CX2DamageManager::DamageData* pDamageDat
 			finalAccumulation = m_ExtraDamagePack.m_EnchantPoison.m_Accumulation;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 	
 
@@ -4808,6 +4885,9 @@ bool CX2GameUnit::ProcessEnchantPoison( CX2DamageManager::DamageData* pDamageDat
 #endif  X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
 
 	m_ExtraDamagePack.m_EnchantPoison.m_Accumulation = finalAccumulation;
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	m_ExtraDamagePack.m_EnchantPoison.m_optrGameUnit = pDamageData->optrAttackerGameUnit;	/// June: the ticks find the attacker's EnchantData through it
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 	if ( null != pDamageData->optrAttackerGameUnit && pDamageData->optrAttackerGameUnit->GetGameUnitType() == CX2GameUnit::GUT_USER )
 	{
@@ -4896,6 +4976,7 @@ bool CX2GameUnit::ProcessEnchantPoison( CX2DamageManager::DamageData* pDamageDat
 			}
 			else if( g_pMain->GetNowStateID() == CX2Main::XS_DUNGEON_GAME)
 			{
+#ifndef SERV_IRUHADEV_JUNE_ENCHANT_PARITY	/// June keeps only the defence-dungeon check (328b26a0) here; the Henir challenge check is gone
 #ifdef HENIR_TEST
 #ifndef NEW_HENIR_DUNGEON // 1레벨 보정 -> 연동 레벨 던전으로 변경
 				if( true == CX2Dungeon::IsHenirDungeon( static_cast<const SEnum::DUNGEON_ID>( g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonID ) ) &&
@@ -4909,6 +4990,7 @@ bool CX2GameUnit::ProcessEnchantPoison( CX2DamageManager::DamageData* pDamageDat
 				}
 #endif // NEW_HENIR_DUNGEON
 #endif HENIR_TEST
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 				//{{ 허상형 : [2011/3/29/] //	월드미션
 #ifdef SERV_INSERT_GLOBAL_SERVER
@@ -4974,6 +5056,9 @@ bool CX2GameUnit::ProcessEnchantPoison( CX2DamageManager::DamageData* pDamageDat
 						case SEnum::DI_ELDER_HALLOWEEN_EXPERT:
 							//}} oasis907 : 김상윤 [2010.10.21] // 
 						case SEnum::DI_EVENT_VALENTINE_DAY:
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+						case 41280:	/// June's list adds DI_EVENT_WALLY_LAND (no March enumerator); also June's XS_PVE_GAME (23) runs this branch, March has no such state
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 							//{{ 허상형 : [2011/3/3/] //	월드 미션
 #ifdef SERV_HALLOWEEN_EVENT_2013 // 2013.10.14 / JHKang
 						case SEnum::DI_EVENT_HALLOWEEN_DAY:
@@ -4991,8 +5076,23 @@ bool CX2GameUnit::ProcessEnchantPoison( CX2DamageManager::DamageData* pDamageDat
 					}
 				}
 			}
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			/// June: x ENCHANT_STAT_SCALE[ weapon enchant level ] (item +0x18) unless free-channel PvP (32708c50); June does not bound
+			/// the index (JUNE_BUGS.md; the table covers +0..+20)
+			if ( true == CX2EnchantItem::JuneIsEnchantStatScaleOn() )
+				fFinalDamage *= ENCHANT_STAT_SCALE[ pItem->GetItemData().m_EnchantLevel ];
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		/// June: the tier is read on the 1-based accumulation (1 First, 2 Second, >= 3 Third)
+		if ( m_ExtraDamagePack.m_EnchantPoison.m_Accumulation == 1 )
+			m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec = pEnchantData->m_FirstDamagePercent / 100.0f * fFinalDamage;
+		else if ( m_ExtraDamagePack.m_EnchantPoison.m_Accumulation == 2 )
+			m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec = pEnchantData->m_SecondDamagePercent / 100.0f * fFinalDamage;
+		else if ( m_ExtraDamagePack.m_EnchantPoison.m_Accumulation >= 3 )
+			m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec = pEnchantData->m_ThirdDamagePercent / 100.0f * fFinalDamage;
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		if ( m_ExtraDamagePack.m_EnchantPoison.m_Accumulation == 0 )
 		{
 			m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec = pEnchantData->m_FirstDamagePercent / 100.0f * fFinalDamage;
@@ -5005,6 +5105,7 @@ bool CX2GameUnit::ProcessEnchantPoison( CX2DamageManager::DamageData* pDamageDat
 		{
 			m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec = pEnchantData->m_ThirdDamagePercent / 100.0f * fFinalDamage;
 		}	
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 		float fTempDamage = m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec;
 		ApplyEnchantResist( CX2EnchantItem::ET_NATURE, fTempDamage );
@@ -5017,6 +5118,15 @@ bool CX2GameUnit::ProcessEnchantPoison( CX2DamageManager::DamageData* pDamageDat
 
 		fFinalDamage = pGUNpc->GetStat().GetStat().m_fAtkPhysic + pGUNpc->GetStat().GetStat().m_fAtkMagic;
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		/// June: the tier is read on the 1-based accumulation (1 First, 2 Second, >= 3 Third)
+		if ( m_ExtraDamagePack.m_EnchantPoison.m_Accumulation == 1 )
+			m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec = pEnchantData->m_FirstDamagePercent / 100.0f * fFinalDamage;
+		else if ( m_ExtraDamagePack.m_EnchantPoison.m_Accumulation == 2 )
+			m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec = pEnchantData->m_SecondDamagePercent / 100.0f * fFinalDamage;
+		else if ( m_ExtraDamagePack.m_EnchantPoison.m_Accumulation >= 3 )
+			m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec = pEnchantData->m_ThirdDamagePercent / 100.0f * fFinalDamage;
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		if ( m_ExtraDamagePack.m_EnchantPoison.m_Accumulation == 0 )
 		{
 			m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec = pEnchantData->m_FirstDamagePercent / 100.0f * fFinalDamage ;
@@ -5029,6 +5139,7 @@ bool CX2GameUnit::ProcessEnchantPoison( CX2DamageManager::DamageData* pDamageDat
 		{
 			m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec = pEnchantData->m_ThirdDamagePercent / 100.0f * fFinalDamage;
 		}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 		float fTempDamage = m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec;
 		ApplyEnchantResist( CX2EnchantItem::ET_NATURE, fTempDamage );
@@ -5133,6 +5244,9 @@ bool CX2GameUnit::ProcessEnchantShock( CX2DamageManager::DamageData* pDamageData
 	float fTempTime = m_ExtraDamagePack.m_EnchantShock.m_fTime;
 	ApplyEnchantResist( CX2EnchantItem::ET_LIGHT, fTempTime );
 	m_ExtraDamagePack.m_EnchantShock.m_fTime = fTempTime;
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	m_ExtraDamagePack.m_EnchantShock.m_optrGameUnit = pDamageData->optrAttackerGameUnit;	/// June: the ticks find the attacker's EnchantData through it
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 #ifdef CHUNG_SECOND_CLASS_CHANGE
 	// 바로 위에서 타입 설정됨. 인챈트를 pack에 넣을때는 아래와 같이 하면 안되고, 타입을 통일해야함.
@@ -5260,6 +5374,7 @@ bool CX2GameUnit::ProcessEnchantSnatch( CX2DamageManager::DamageData* pDamageDat
 			{
 
 
+#ifndef SERV_IRUHADEV_JUNE_ENCHANT_PARITY	/// June keeps only the defence-dungeon check (328b26a0) here; the Henir challenge check is gone
 #ifdef HENIR_TEST
 #ifndef NEW_HENIR_DUNGEON // 1레벨 보정 -> 연동 레벨 던전으로 변경
 				if( true == CX2Dungeon::IsHenirDungeon( static_cast<const SEnum::DUNGEON_ID>( g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonID ) ) &&
@@ -5274,6 +5389,7 @@ bool CX2GameUnit::ProcessEnchantSnatch( CX2DamageManager::DamageData* pDamageDat
 				}
 #endif // NEW_HENIR_DUNGEON
 #endif HENIR_TEST
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 				//{{ 허상형 : [2011/3/29/] //	월드 미션
 #ifdef SERV_INSERT_GLOBAL_SERVER
@@ -5338,6 +5454,9 @@ bool CX2GameUnit::ProcessEnchantSnatch( CX2DamageManager::DamageData* pDamageDat
 					case SEnum::DI_ELDER_HALLOWEEN_EXPERT:
 						//}} oasis907 : 김상윤 [2010.10.21] // 
 					case SEnum::DI_EVENT_VALENTINE_DAY:
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+					case 41280:	/// June's list adds DI_EVENT_WALLY_LAND (no March enumerator); also June's XS_PVE_GAME (23) runs this branch, March has no such state
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 						//{{ 허상형 : [2011/3/3/] //	월드 미션
 #ifdef SERV_HALLOWEEN_EVENT_2013 // 2013.10.14 / JHKang
 					case SEnum::DI_EVENT_HALLOWEEN_DAY:
@@ -5403,6 +5522,27 @@ bool CX2GameUnit::ProcessEnchantSnatch( CX2DamageManager::DamageData* pDamageDat
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		/// June 32278a90: the defender loses HP/MP through UpNowHp/UpNowMp (March's own REFACTORING_BY_TOOL_TEAM form: no
+		/// clamp, no damage history), the cure effect plays, then a red "HP -n MP -n" with what it actually lost
+		/// is drawn over the DamageData's defender (DD +0x470, PicChar g_pData +0x154)
+		const float fJuneNowHpBefore = GetNowHp();
+		const float fJuneNowMpBefore = GetNowMp();
+		UpNowHp( -fUpHP );
+		UpNowMp( -fUpMP );
+		pAttackerGameUnit->ShowSnatchCureEffect();
+		CX2GameUnit* pJuneDefender = pDamageData->optrDefenderGameUnit.GetObservable();
+		if ( NULL != pJuneDefender )
+		{
+			std::wstringstream wstrmJuneLoss;
+			wstrmJuneLoss << L"HP -" << (int)( fJuneNowHpBefore - GetNowHp() );
+			wstrmJuneLoss << L" MP -" << (int)( fJuneNowMpBefore - GetNowMp() );
+			D3DXVECTOR3 vJunePos = pJuneDefender->GetPos();
+			vJunePos.y += 50.0f;
+			if ( NULL != g_pData->GetPicCharRed() )
+				g_pData->GetPicCharRed()->DrawText( wstrmJuneLoss.str().c_str(), vJunePos, pJuneDefender->GetDirVector(), CKTDGPicChar::AT_CENTER );
+		}
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #ifdef REFACTORING_BY_TOOL_TEAM
 		UpNowHp( -fUpHP );
 #else REFACTORING_BY_TOOL_TEAM
@@ -5433,6 +5573,7 @@ bool CX2GameUnit::ProcessEnchantSnatch( CX2DamageManager::DamageData* pDamageDat
 #endif REFACTORING_BY_TOOL_TEAM
 
 		pAttackerGameUnit->ShowSnatchCureEffect();
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 		
 		
@@ -5479,6 +5620,27 @@ bool CX2GameUnit::ProcessEnchantSnatch( CX2DamageManager::DamageData* pDamageDat
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		/// June 32278a90: the defender loses HP/MP through UpNowHp/UpNowMp (March's own REFACTORING_BY_TOOL_TEAM form: no
+		/// clamp, no damage history), the cure effect plays, then a red "HP -n MP -n" with what it actually lost
+		/// is drawn over the DamageData's defender (DD +0x470, PicChar g_pData +0x154)
+		const float fJuneNowHpBefore = GetNowHp();
+		const float fJuneNowMpBefore = GetNowMp();
+		UpNowHp( -fUpHP );
+		UpNowMp( -fUpMP );
+		pAttackerGameUnit->ShowSnatchCureEffect();
+		CX2GameUnit* pJuneDefender = pDamageData->optrDefenderGameUnit.GetObservable();
+		if ( NULL != pJuneDefender )
+		{
+			std::wstringstream wstrmJuneLoss;
+			wstrmJuneLoss << L"HP -" << (int)( fJuneNowHpBefore - GetNowHp() );
+			wstrmJuneLoss << L" MP -" << (int)( fJuneNowMpBefore - GetNowMp() );
+			D3DXVECTOR3 vJunePos = pJuneDefender->GetPos();
+			vJunePos.y += 50.0f;
+			if ( NULL != g_pData->GetPicCharRed() )
+				g_pData->GetPicCharRed()->DrawText( wstrmJuneLoss.str().c_str(), vJunePos, pJuneDefender->GetDirVector(), CKTDGPicChar::AT_CENTER );
+		}
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #ifdef REFACTORING_BY_TOOL_TEAM
 		UpNowHp( -fUpHP );
 #else REFACTORING_BY_TOOL_TEAM
@@ -5504,6 +5666,7 @@ bool CX2GameUnit::ProcessEnchantSnatch( CX2DamageManager::DamageData* pDamageDat
 
 
 		pAttackerGameUnit->ShowSnatchCureEffect();
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	}
 
 	return true;
@@ -5853,6 +6016,54 @@ float CX2GameUnit::EnchantAccumulationRateModifier( CX2DamageManager::EXTRA_DAMA
 	}
 	return fRate;
 }
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+/// June buff port Phase 15: June 32272d90. R = the misc EDT's m_fAttribReiterationRate from the attacker's own table
+/// (user or NPC; the misc EDT's table directly, so USE_OWNERS_ENCHANT does not apply); only the basic
+/// blaze/frozen/poison with one of that element's four tiers qualifies; accumulation (before this proc) 1 -> + R, 2 -> + 2R.
+float CX2GameUnit::JuneEnchantAccumulationRateModifier( CX2DamageManager::DamageData* pDamageData_, CX2DamageManager::EXTRA_DAMAGE_TYPE basicExtraDamageType, CX2DamageManager::EXTRA_DAMAGE_TYPE miscExtraDamageType, float fRate )
+{
+	float fReiterationRate = 0.0f;
+	CX2GameUnit* pAttacker = ( NULL != pDamageData_ ) ? pDamageData_->optrAttackerGameUnit.GetObservable() : NULL;
+	if ( NULL != g_pData->GetEnchantItem() && NULL != pAttacker )
+	{
+		const CX2EnchantItem::EnchantData* pEnchantData = NULL;
+		if ( CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType() )
+			pEnchantData = g_pData->GetEnchantItem()->GetEnchantData( miscExtraDamageType );
+		else if ( CX2GameUnit::GUT_NPC == pAttacker->GetGameUnitType() )
+			pEnchantData = g_pData->GetEnchantItem()->GetNPCEnchantData( miscExtraDamageType );
+		if ( NULL != pEnchantData )
+			fReiterationRate = pEnchantData->m_fAttribReiterationRate;
+	}
+
+	int iAccumulation = 0;
+	switch ( basicExtraDamageType )
+	{
+	case CX2DamageManager::EDT_ENCHANT_BLAZE:
+		if ( CX2DamageManager::EDT_ENCHANT_BLAZE != miscExtraDamageType && CX2DamageManager::EDT_ENCHANT_BLAZE_MASTER != miscExtraDamageType && CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER != miscExtraDamageType && CX2DamageManager::EDT_ENCHANT_QUADRA_BLAZE_MASTER != miscExtraDamageType )
+			return fRate;
+		iAccumulation = m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation;
+		break;
+	case CX2DamageManager::EDT_ENCHANT_FROZEN:
+		if ( CX2DamageManager::EDT_ENCHANT_FROZEN != miscExtraDamageType && CX2DamageManager::EDT_ENCHANT_FROZEN_MASTER != miscExtraDamageType && CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER != miscExtraDamageType && CX2DamageManager::EDT_ENCHANT_QUADRA_FROZEN_MASTER != miscExtraDamageType )
+			return fRate;
+		iAccumulation = m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation;
+		break;
+	case CX2DamageManager::EDT_ENCHANT_POISON:
+		if ( CX2DamageManager::EDT_ENCHANT_POISON != miscExtraDamageType && CX2DamageManager::EDT_ENCHANT_POISON_MASTER != miscExtraDamageType && CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER != miscExtraDamageType && CX2DamageManager::EDT_ENCHANT_QUADRA_POISON_MASTER != miscExtraDamageType )
+			return fRate;
+		iAccumulation = m_ExtraDamagePack.m_EnchantPoison.m_Accumulation;
+		break;
+	default:
+		return fRate;
+	}
+
+	if ( 1 == iAccumulation )
+		return fReiterationRate + fRate;
+	if ( 2 == iAccumulation )
+		return fReiterationRate + fReiterationRate + fRate;
+	return fRate;
+}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #endif ENCHANT_ACCUMULATION_RATE_MODIFIER
 
 

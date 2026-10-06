@@ -833,6 +833,16 @@ bool CX2EnchantItem::ProcessEnchant( CX2GameUnit* pDefender, CX2DamageManager::D
 	return bGetExtraDamage;
 	
 }
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+/// June buff port Phase 15: June 32708c50 (g_pMain state 9 = XS_PVP_GAME and the connected channel's class 9 = PCC_FREE -> 0)
+/*static*/ bool CX2EnchantItem::JuneIsEnchantStatScaleOn()
+{
+	if ( NULL != g_pMain && CX2Main::XS_PVP_GAME == g_pMain->GetNowStateID() &&
+		KPVPChannelInfo::PCC_FREE == g_pMain->GetPVPChannelClass( g_pMain->GetConnectedChannelID() ) )
+		return false;
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 //{{ JHKang // 강정훈 // 2010. 10. 6 // 자동 줄나누기 두 번 실행 방지
 #ifdef FIX_TOOLTIP
@@ -1180,6 +1190,100 @@ wstring CX2EnchantItem::GetEnchantResistToolTip( CX2DamageManager::EXTRA_DAMAGE_
 
 wstring CX2EnchantItem::GetToolTipForPure( CX2DamageManager::EXTRA_DAMAGE_TYPE extraDamageType, CX2Item* pItem )
 {
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June 3270d7b0 (decoded: june2017_re funcmap / Phase 15 Done note): every value comes from EnchantData; the
+	/// "weapon's average attack power" lines print DamagePercent x 2. June still scans the sockets and runs
+	/// CalculateItemStat into a local nothing reads (no x87 stack load in the function); that dead block is not ported.
+	const CX2EnchantItem::EnchantData* pEnchantData = GetEnchantData( extraDamageType );
+	if ( pEnchantData == NULL )
+		return L"";
+	if ( NULL == pItem )
+		return L"";
+
+	wstring tempDesc = L"";
+	switch( extraDamageType )
+	{
+	case CX2DamageManager::EDT_ENCHANT_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_BLAZE_MASTER:
+		{
+			wstringstream wstrstm;
+			wstrstm << GET_REPLACED_STRING( ( 43283, "fif", pEnchantData->m_fRate * 100.0f, pEnchantData->m_Time, pEnchantData->m_fAttribReiterationRate * 100.0f ) );
+			wstrstm << GET_REPLACED_STRING( ( 43284, "ff", pEnchantData->m_FirstDamagePercent * 2.0f, pEnchantData->m_fBlazeMpDrain ) );
+			wstrstm << GET_REPLACED_STRING( ( 43285, "ff", pEnchantData->m_SecondDamagePercent * 2.0f, pEnchantData->m_fBlazeMpDrain ) );
+			wstrstm << GET_REPLACED_STRING( ( 43286, "ff", pEnchantData->m_ThirdDamagePercent * 2.0f, pEnchantData->m_fBlazeMpDrain ) );
+			tempDesc += wstrstm.str().c_str();
+		}
+		break;
+
+	case CX2DamageManager::EDT_ENCHANT_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_FROZEN_MASTER:
+		{
+			wstringstream wstrstm;
+			wstrstm << GET_REPLACED_STRING( ( 43287, "fif", pEnchantData->m_fRate * 100.0f, pEnchantData->m_Time, pEnchantData->m_fAttribReiterationRate * 100.0f ) );
+			wstrstm << GET_REPLACED_STRING( ( 43288, "ii", static_cast<int>( pEnchantData->m_arrAttackSpeedDecrease[0] ), pEnchantData->m_FirstDefenceDebuffPercent ) );
+			wstrstm << GET_REPLACED_STRING( ( 43289, "ii", static_cast<int>( pEnchantData->m_arrAttackSpeedDecrease[1] ), pEnchantData->m_SecondDefenceDebuffPercent ) );
+			wstrstm << GET_REPLACED_STRING( ( 43290, "ii", static_cast<int>( pEnchantData->m_arrAttackSpeedDecrease[2] ), pEnchantData->m_ThirdDefenceDebuffPercent ) );
+			tempDesc += wstrstm.str().c_str();
+		}
+		break;
+
+	case CX2DamageManager::EDT_ENCHANT_POISON:
+	case CX2DamageManager::EDT_ENCHANT_POISON_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_POISON_MASTER:
+		{
+			wstringstream wstrstm;
+			wstrstm << GET_REPLACED_STRING( ( 43291, "fif", pEnchantData->m_fRate * 100.0f, pEnchantData->m_Time, pEnchantData->m_fAttribReiterationRate * 100.0f ) );
+			wstrstm << GET_REPLACED_STRING( ( 43292, "fi", pEnchantData->m_FirstDamagePercent * 2.0f, static_cast<int>( pEnchantData->m_arrMovementSpeedDecrease[0] ) ) );
+			wstrstm << GET_REPLACED_STRING( ( 43293, "fi", pEnchantData->m_SecondDamagePercent * 2.0f, static_cast<int>( pEnchantData->m_arrMovementSpeedDecrease[1] ) ) );
+			wstrstm << GET_REPLACED_STRING( ( 43294, "fi", pEnchantData->m_ThirdDamagePercent * 2.0f, static_cast<int>( pEnchantData->m_arrMovementSpeedDecrease[2] ) ) );
+			tempDesc += wstrstm.str().c_str();
+		}
+		break;
+
+	case CX2DamageManager::EDT_ENCHANT_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_MASTER_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_PIERCING_MASTER:
+		{
+			wstringstream wstrstm;
+			wstrstm << GET_REPLACED_STRING( ( 43295, "ff", pEnchantData->m_fRate * 100.0f, pEnchantData->m_fPiercingDamageFactor ) );
+			tempDesc += wstrstm.str().c_str();
+		}
+		break;
+
+	case CX2DamageManager::EDT_ENCHANT_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_MASTER_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_SHOCK_MASTER:
+		{
+			wstringstream wstrstm;
+			wstrstm << GET_REPLACED_STRING( ( 43296, "ffif", pEnchantData->m_fRate * 100.0f, pEnchantData->m_fTimeStun, pEnchantData->m_iShockDebuffTime, pEnchantData->m_fShockDebuffDamageFactor * 100.0f ) );
+			tempDesc += wstrstm.str().c_str();
+		}
+		break;
+
+	case CX2DamageManager::EDT_ENCHANT_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_MASTER_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_SNATCH_MASTER:
+		{
+			wstringstream wstrstm;
+			wstrstm << GET_REPLACED_STRING( ( 43297, "fii", pEnchantData->m_fRate * 100.0f, pEnchantData->m_HPDrainPercent * 2, pEnchantData->m_MPDrain ) );
+			wstrstm << GET_STRING( STR_ID_163 );
+			tempDesc += wstrstm.str().c_str();
+		}
+		break;
+
+	default:
+		break;
+	}
+	return tempDesc;
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	const CX2EnchantItem::EnchantData* pEnchantData = GetEnchantData( extraDamageType );
 	if ( pEnchantData == NULL )
 		return L"";
@@ -1512,6 +1616,7 @@ wstring CX2EnchantItem::GetToolTipForPure( CX2DamageManager::EXTRA_DAMAGE_TYPE e
 	}
 
 	return tempDesc;
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 }
 
 
