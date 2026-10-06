@@ -493,6 +493,50 @@ edit `Handlers_Room.cpp`).
 
 Open questions for the user: none.
 
+### Phase 2 - Review
+
+2026-10-06, Opus 5.5 high, review of `e76ec1a` (play-test waived, so the code was read against the server line by line). **Verdict: Phase 2 is correct.** One older mismatch it made reachable is fixed under the flag. Two comment citations were wrong and are fixed too.
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_OFFLINE_MONSTER_GRADE --range e76ec1a^..c23f671` (Phase 2 alone):
+`files: 3 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+`RESULT: PASS`. The `PASS~` is the blank line after the `TickField` block's `#endif`.
+Review fix, `--range e76ec1a^..HEAD`: `files: 4 PASS, 2 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` · `in this flag's files: 3 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` · `RESULT: PASS` (fix commit `069eddc`).
+The deleted lines are three of Phase 2's own comment lines inside the flag, rewritten. The new `PASS~` is the blank line after the RATE roll's `#endif`.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,234,304 B, dated 2026-10-06 16:00:18, md5 9aab75296caf6cf5abc3e0bfde7da3bb, equal to X2/US_SERVICE/x2.exe (2026-10-06 16:00:13); built at mods/june-buff-port c23f671 + 2 uncommitted code file(s).` (those two files are `069eddc`). The `missed its RATE` string is in the deployed exe. No play-test is owed: on March data the roll always passes, so the behaviour is unchanged.
+
+**Checked against the sources (all match).**
+- **Loader.** `XSLBattleField.cpp:187-250`: `SPAWN_GROUP_ID` table, `buf > 0`, a repeated ID kept once. `SPAWN_ID > 100` only splits under `SERV_BATTLEFIELD_EVENT_BOSS_INT`, which is not defined, so every row joins. Client `X2BattleFieldManager.cpp:556/567` reads the same two keys.
+- **March data** (29 field tables decompiled from `kom_contents/data036_kom`, plus `BattleFieldData.src.lua`):
+  - 25 fields have rows (85 in total). Every field's `SPAWN_RATE` sums to 100, and every listed group exists in its field table.
+  - The largest `SPAWN_ID` is 19.
+  - So the emulator's `rand() % iTotalRate` matches `KLottery`, and the server's other failure paths (empty group list, missing group) are never reached.
+- **Grades.**
+  - `MakeMiddleBossMonsterInfo` sets 2 (`:1003`), matching `MakeMiddleBoss` (`X2OfflineBattleField.cpp:980`).
+  - Normal spawns are 0 (`:817`).
+  - Raid grade 1 is "not reached" (field 40026 is never spawned): accepted.
+- **Live death path.** `SERV_BATTLE_FIELD_BOSS` is a top-level define (`ServerDefine.h:4257`), so the live dispatch is `BattleFieldRoom.cpp:1744-1787`.
+  - `MiddleBossMonsterDieProcess` erases the member (`:6500`, `SetMiddleBossMonsterDie`) before `!IsRemainMiddleBoss()` is evaluated at `:1783`.
+  - The grade comes from the stored `NPC_DATA` (`:6511`, `:6593`).
+  - `KBattleFieldRoom::OnNpcUnitDie` (`:5804`) does nothing unless `bIncreaseDanger` (`:5816`), and it passes the attribute flag as `false`.
+  - That is exactly erase → `empty()` → early return in `OnFieldNpcDie`. Factor table: `XSLUnitManager.cpp:238-269`, 4 / 12 / 1.
+- **Client-sent grades.** Battlefield `ERM_NPC_UNIT_CREATE_REQ` (`BattleFieldRoom.cpp:1653`) keeps the request's grade through `CreateMonster`, as the dungeon handler does. So one store in `Handler_EGS_NPC_UNIT_CREATE_REQ` is right for both.
+- **State.** `m_setMiddleBossAlive` and `m_iMiddleBossAlive` are reset together only in `Init()`, and the boss-group UIDs never respawn (group 0). Nothing leaves the set stale.
+
+**Fixed (under the flag).**
+- **Per-NPC RATE roll.** The server gives every NPC in a middle-boss group its own one-case `KLottery` at `RATE` (`XSLBattleField.cpp:915-917`; `Decision`, `Lottery.cpp:121-141`, is a uniform roll over [0,100]) and skips the NPC on a miss. `GetMiddleBossMonsterInfo` spawned every NPC, under a comment that cites `:770-802` (commented-out respawn code).
+  - It is now rolled, with a `[OFFLINE_GRADE] ... missed its RATE` line on a miss.
+  - **Latent in March:** all 148 boss groups have `RATE` 100.
+  - June's `Sander_Field_02` has two 50/50 groups, so this matters once June field tables are adopted.
+- **Citations.** `OnFieldNpcDie` cited the dead `#else` copies (`BattleFieldRoom.cpp:1833/1869`, `BattleFieldGameManager.cpp:80-87`). It now cites `:1783` / `:6500` and `:5804/5816`.
+- **Stale comment.** The `TickField` comment ("every UID from here up belongs to this boss set") is left in place; a note inside the flag now says the set decides.
+
+**Notes (not fixed).**
+- `OnFieldNpcDie`'s leading comment still says the marker decides; the flagged lines below it say otherwise.
+- Server-only failure paths are not mirrored, because the data never reaches them: a missing group makes the server drop the whole boss, while the emulator skips the group. Re-check this if field data changes.
+- **Kickoff 3:** `Handlers_Room.cpp:2881` → `:2884` (+3 lines from this review). `X2OfflineDropTable.h:99-109` checked: still the stale "no coins / factors are 1.0" notes Phase 3 corrects.
+
 ## Phase 3 - Rewards and remaining consumers
 
 **Scope.** The server's grade-keyed rewards (user decision 2), plus the kill-all rule if
