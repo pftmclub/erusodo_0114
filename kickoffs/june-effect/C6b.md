@@ -101,3 +101,23 @@ These supersede the rebuild plan's Phase 10c text where they differ.
     - Hit and CREATE children now inherit the parent's `m_iIndex`, as die children already did.
     - The `m_bHyper` flag is carried down.
   - The `JUNE_FX` line should print the entry rate, the four gate flags and the index per spawn, throttled.
+
+## Added from the buff port (june-buff 16-step3b4, 2026-10-06)
+
+User decision 2026-10-06 ("follow June"): June's effect-set buff list is ported here. Use C6a2's verdicts on `321e3650`
+/ EffectSetInstance `+0x160` / `321ee480` (see `C6a2.md`, "From the buff port").
+
+The SIEE 15 call site in `X2Lib/X2GUUser.cpp` (`ProcessSocketEffectEx`, case `SIEE_ALWAYS_PLAY_EFFECT_SET`) is the one
+data-driven caller:
+- Replace its `unsupported (effect-set buff list, 321e3650)` log with the attach (handle, `m_uiBuffFactorID`,
+  `m_iBuffLevel` for every `m_vecConditionalBuff` entry with `m_bAlwaysPlayEffectSet`).
+- Put the attach under this phase's flag, nested inside the existing `SERV_IRUHADEV_JUNE_SOCKET_PARITY` block, with the log line in `#else`.
+- Its flagcheck will show an OTHER row for that file; explain it.
+- `X2GUUser.cpp` is shared with june-buff 16-step3b5. Never run the two together.
+
+The aura's end-to-end play-test also needs three things outside this phase:
+- the aura's effect set, damage effect and mesh, which come with C11's re-adoption of June's effect files;
+- its buff factor, which comes with june-buff Phase 13;
+- a socket on the player's gear (a save edit; ask first).
+
+Until then, the check is the attach path's own `[JUNE_FX]` line on any June set that carries a buff list.
