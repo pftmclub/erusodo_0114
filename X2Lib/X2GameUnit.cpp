@@ -17189,6 +17189,64 @@ void CX2GameUnit::ProcessGroupDamageData( float fElapsedTime_ )
 */
 float CX2GameUnit::GetAdditionalAttackPowerRateByType( CX2DamageManager::DamageData* pDamageData_ )		/// 특정 공격에 따른 데미지 배율 반환 함수 ( AT_SPECIAL, AT_NORMAL )
 {
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b2 item 3: June 32275ba0, its rewrite of this function (called from GetFinalDamage @32286885).
+	/// For a user attacker:
+	/// - AT_SPECIAL: GetAdditionalAttackByType( AT_SPECIAL ) * ( 1 + m_fSkillDamageUpRate + m_fAllSkillDamageIncreaseRate ),
+	///   without the all-skill term when the DamageData's APPLIED_SKILL_ID (+0x5c4) is a hyper active skill (type 13);
+	/// - AT_NORMAL: GetAdditionalAttackByType( AT_NORMAL ) + m_fAllSkillDamageIncreaseRate (added, not multiplied);
+	/// - any other attack type: GetAdditionalAttackByType( that type ) (March passed AT_NORMAL for all of them).
+	/// Any other attacker: 1.0. The APPLIED_SKILL_ID is the June DamageData key the effect port parses; March's Lua sets it
+	/// nowhere (SetDamageDataFromLUA logs it), so the hyper test is false and AT_SPECIAL always takes the all-skill term.
+	{
+		bool bJuneHyperSkill = false;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		const CX2SkillTree::SkillTemplet* pAppliedSkillTemplet
+			= g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( pDamageData_->m_iAppliedSkillID ) );
+		bJuneHyperSkill = ( NULL != pAppliedSkillTemplet && CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pAppliedSkillTemplet->m_eType );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+		if ( null == pDamageData_->optrAttackerGameUnit
+			|| CX2GameUnit::GUT_USER != pDamageData_->optrAttackerGameUnit->GetGameUnitType() )
+			return 1.f;
+
+		CX2GUUser* pJuneAttackerUser = static_cast<CX2GUUser*>( pDamageData_->optrAttackerGameUnit.GetObservable() );
+		const CX2SocketItem::SocketData& kJuneSocketData = pJuneAttackerUser->GetSocketData();
+		if ( CX2DamageManager::AT_SPECIAL == pDamageData_->attackType )
+		{
+			const float fJuneSkillDamage = ( bJuneHyperSkill ? kJuneSocketData.m_fSkillDamageUpRate
+				: kJuneSocketData.m_fAllSkillDamageIncreaseRate + kJuneSocketData.m_fSkillDamageUpRate );
+			const float fJuneRate = fJuneSkillDamage + 1.f;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			if ( 0.f != kJuneSocketData.m_fAllSkillDamageIncreaseRate && false == bJuneHyperSkill )
+			{
+				static bool s_bSeenAllSkillSpecial = false;
+				if ( !s_bSeenAllSkillSpecial )
+				{
+					s_bSeenAllSkillSpecial = true;
+					CX2JuneBuffCapture::Line( "first socket all-skill damage (special active): rate %g, skill damage term %g", kJuneSocketData.m_fAllSkillDamageIncreaseRate, fJuneRate );
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			return pJuneAttackerUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL ) * fJuneRate;
+		}
+		if ( CX2DamageManager::AT_NORMAL == pDamageData_->attackType )
+		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			if ( 0.f != kJuneSocketData.m_fAllSkillDamageIncreaseRate )
+			{
+				static bool s_bSeenAllSkillNormal = false;
+				if ( !s_bSeenAllSkillNormal )
+				{
+					s_bSeenAllSkillNormal = true;
+					CX2JuneBuffCapture::Line( "first socket all-skill damage (normal attack type): + %g", kJuneSocketData.m_fAllSkillDamageIncreaseRate );
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			return pJuneAttackerUser->GetAdditionalAttackByType( CX2DamageManager::AT_NORMAL ) + kJuneSocketData.m_fAllSkillDamageIncreaseRate;
+		}
+		return pJuneAttackerUser->GetAdditionalAttackByType( pDamageData_->attackType );
+	}
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	float fPowerRate = 1.f;
 
 	if ( null != pDamageData_->optrAttackerGameUnit && 
@@ -17211,6 +17269,7 @@ float CX2GameUnit::GetAdditionalAttackPowerRateByType( CX2DamageManager::DamageD
 	}
 
 	return fPowerRate;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 }
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
 
