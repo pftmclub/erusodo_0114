@@ -5080,7 +5080,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **Play-test (2026-10-06, user; exe 2902bd16 + data036 2f9247de; logs read).** `ErrorLog.txt:238-244`: the seven `June-only, not ported: g_pData:…` lines; `:245` `June rank tables: PVP 11, PVE 10, PVE for MP 10 row(s)`; no `did not load`. A dungeon run (sub-stages 0 and 1, skills and kills) with a clean exit: 0 EXCEPTION; 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (unrelated, as before). As expected, there were no skill-use, kill or rank-linked lines, because the save has no socket that reaches them. Those paths are verified by code reading only (16-step3b review).
 
-**Open for the user.** (1) The kill path needs June's server decision of which NPCs are "absolute monsters". Keep it dormant, or design a stand-in (own flag). (2) The PvE rank has no source offline; key 0 is what an unranked June character gets.
+**Decisions (user, 2026-10-06: "follow which is closest to June").** (1) Kill path stays dormant: "absolute (Supreme) monsters" exist only in June's Hero Dungeon mode (`HeroDungeonData_Client.lua`, `Add_HeroDungeon_AbsoluteMonsterTeleport`; the 20 sockets are `BFI_BUFF_HERO_DUNGEON_KILL_ABSOL_*` items), which March does not have, so June itself never fires them in any dungeon March has. (2) PvE rank key 0 stays: it is what June gives a character outside its June-only PvE mode. No stand-in for either.
 
 ## Critical files
 
