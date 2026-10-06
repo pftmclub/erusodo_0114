@@ -464,7 +464,7 @@ hit and die spawners under SERV_IRUHADEV_JUNE_SPAWN_INHERIT. Never port an offse
 byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
 ```
 
-### C6a - Done (2026-10-06, Opus 5.5 high; no code, no flag, no build)
+### C6a - Done (2026-10-06, `2456285`, Opus 5.5 high; no code, no flag, no build)
 
 **What landed:**
 - 30 verdicts in `june2017_re/funcmap.tsv`, all tagged `Effect C6a`.
