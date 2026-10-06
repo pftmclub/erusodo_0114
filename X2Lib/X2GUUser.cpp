@@ -32109,12 +32109,13 @@ bool CX2GUUser::InitSocketEffectEx( const CX2SocketItem::SocketData& kSocketData
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 /** @function : ProcessSocketEffectEx
 	@brief : June buff port 16-step3b4. June 32028ba0, ported whole (SIEE 1-20). Against March:
-		- each roll is "random < m_fProbability" on June's raw random offset: 10-19 for SIEE 1-11 (March's SRO_ values), 0x18 / 0x19 / 0x1c
+		- each roll is "random < m_fProbability" on June's raw random offset: 10-19 for SIEE 1-11 (June's literals; March's SRO_ values match
+		  for 1-7, and for 8-11 only if SERV_TRAPPING_RANGER_TEST reaches KTDXRandomNumbers.h), 0x18 / 0x19 / 0x1c
 		  plus the socket's index for 12 / 13 / 18, iRandomOffset_ plus the index for 14 / 15 / 16, 0x1f for 20, none for 17 and 19;
 		- SIEE 7, 10, 11 and every new case gate on the socket's own cool time (GetJuneSocketCoolTime <= 0; set to m_fIntervalTime after
 		  firing) instead of March's single m_fSocketOptionCoolTime (10, 11) or nothing (7);
 		- SIEE 11 does not re-apply a buff at its accumulation limit; at the limit BTI 1003 swaps to BFI 1081 (cool time m_iCount);
-		- the return value is the case's SIEE when it fired (none for 4, 6 and 17's... see each case).
+		- the return value is the case's SIEE when it fired; 4, 6 and the 11 / 13 accumulation-limit swaps act but return NONE.
 	The socket data offsets June reads: +0x1e0 m_eStatUpType, +0x1e4 m_fDurationTime, +0x1e8 m_fProbability, +0x1f0 m_fIncOrDecVal,
 	+0x1f4 m_iCount, +0x1f8 m_fIntervalTime, +0x1fc m_vecEffectName, +0x24 m_ptrBuffFactor, +0x278 m_ptrBuffFactorCustomUse, +0x29c the
 	conditional-buff list (16-step3b item 7).

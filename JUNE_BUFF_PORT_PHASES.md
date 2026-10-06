@@ -5402,7 +5402,7 @@ The bots spawned (`offline_server.log`, ally of 19) and the dungeon was cleared.
 
 **`ProcessSocketEffectEx` (`32028ba0`), whole.**
 - **Signature.** June takes two more arguments: a random offset and a victim unit. March's two-argument form forwards with 0 and NULL, which is what every June caller pushes except attack success.
-- **Rolls.** Each roll is "random < probability" at June's raw offset: 10-19 for SIEE 1-11 (= March's `SRO_`), 0x18/0x19/0x1c + index for 12/13/18, offset + index for 14/15/16, 0x1f for 20.
+- **Rolls.** Each roll is "random < probability" at June's raw offset: 10-19 for SIEE 1-11 (June's literals; March's `SRO_` values match for 1-7, and for 8-11 only if `SERV_TRAPPING_RANGER_TEST` reaches KTDXLIB), 0x18/0x19/0x1c + index for 12/13/18, offset + index for 14/15/16, 0x1f for 20.
 - **Cool-time store.** New `map` at user `+0x8b98`, with get `31fd8b70`, set `31fe0b90` and tick `31fd7bd0` (OnFrameMove, right after the bone shield). SIEE 7 (new), 10 and 11 (instead of March's single `m_fSocketOptionCoolTime`) and every new case gate on it.
 - **11 / 13.** Neither re-applies a buff at its accumulation limit (`322a7c30`). At the limit, BTI 1003 swaps to BFI 1081 and BTI 910 to BFI 940 (cool time `m_iCount`). 13 at the limit with `EFFECT_NAME` plays its sets and erases the buff. With title 930 (Oath of Ruin, `CX2Unit +0x9a0`), 13 also buffs my live ally summons (`322dd7f0`).
 - **The new cases:**
