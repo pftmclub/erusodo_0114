@@ -4927,7 +4927,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 ### Phase 16-data — Done (2026-10-06, Opus 5.5 high)
 
-**Landed** (`this commit`, all under `SERV_IRUHADEV_JUNE_SOCKET_PARITY`, no new flag): June's `OptionItemData.lua` wholesale (13,408 entries; March had 7,429), the Enum it needs (Lua and C++), June's SIEE gate and the 13/17 routing. Data staged in `march2014/data036/` and `kom_contents/data036_kom/` (manifest already listed both files). `PACK OK data036` (182 entries; vs live: ~ `Enum.lua`, ~ `OptionItemData.lua`); the copy waits on the user.
+**Landed** (`01c297b`, all under `SERV_IRUHADEV_JUNE_SOCKET_PARITY`, no new flag): June's `OptionItemData.lua` wholesale (13,408 entries; March had 7,429), the Enum it needs (Lua and C++), June's SIEE gate and the 13/17 routing. Data staged in `march2014/data036/` and `kom_contents/data036_kom/` (manifest already listed both files). `PACK OK data036` (182 entries; vs live: ~ `Enum.lua`, ~ `OptionItemData.lua`); the copy waits on the user.
 
 **Enum** (`Enum.src.lua`, values from June's `Enum.src.lua`; Phase 2's comment style):
 - `SOCKET_DATA_TYPE`: all 273 June-only members (122-…; none collides). `SOCKET_ITEM_EFFECT_EX`: 12-20. `HYPER_MODE_EFFECTIVE_TYPE`: `HMET_FEVER = 3`, `HMET_END` 3 → 4 (June).
@@ -4976,7 +4976,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 - **New types.** SDT ≥ 122 on 3,219 entries. SIEE 12-20 on 259 (15: 180, 13: 27, 14: 17, others ≤ 9). New EDTs on 179. `HMET_FEVER` on 1.
 - `SOCKET_DATA_TYPE` is overwritten by the emulator's 122-member seed when `CX2OfflineLuaEnum::Publish` runs at login. `OptionItemData.lua` loads earlier, at StartUp, so it is not affected. The seed is left as is: `SocketItemTable.lua` names March types only.
 
-**Hygiene.** `flagcheck JUNE_SOCKET_PARITY --worktree --files` (4 files): 4 PASS, 0 deleted, 0 non-ASCII, 0 EOL-mismatched, RESULT PASS. Post-commit: in the follow-up commit.
+**Hygiene.** `flagcheck JUNE_SOCKET_PARITY --worktree --files` (4 files): 4 PASS, 0 deleted, 0 non-ASCII, 0 EOL-mismatched, RESULT PASS. Post-commit `--range 01c297b^..HEAD`: 4 PASS, 0 OTHER, 0 FAIL, 0 deleted, RESULT PASS.
 
 **Deploy.** `DEPLOY OK: X2_offline.exe is 19,207,168 B, dated 2026-10-06 08:23:00, md5 6184b9fd9ff94e88f2eb33edeac6c6f1, equal to X2/US_SERVICE/x2.exe (2026-10-06 08:22:56); built at mods/june-buff-port 59dd026 + 4 uncommitted code file(s).` The three new log texts and the type names are in the exe (ASCII). Not launched.
 
