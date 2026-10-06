@@ -1914,6 +1914,10 @@ CX2GUNPC::CX2GUNPC( const CNpcCreatedInfoPtr NpcCreatedInfoPtr_
 #ifdef FIELD_BOSS_RAID // 중보 분류
 	SetMonsterGrade( static_cast<MONSTER_GRADE>(NpcCreatedInfoPtr_->GetMonsterGrade()) );
 #endif // FIELD_BOSS_RAID
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b2: the packet's monster grade, as June keeps it in the NPC templet (+0xdc)
+	m_cJuneSocketMonsterGrade = NpcCreatedInfoPtr_->GetMonsterGrade();
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 }
 
 CX2GUNPC::~CX2GUNPC(void)
@@ -2328,6 +2332,9 @@ void CX2GUNPC::CommonConstructor()
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
 	m_iExtraNPCStatMonsterGrade		= 0;
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	m_cJuneSocketMonsterGrade		= 0;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 	m_bExtraNPCStatNoHardLevel		= false;
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY

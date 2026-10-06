@@ -2412,6 +2412,18 @@ float CX2GameUnit::GetJuneCriticalThresholdTerm() const
 	if ( 0.0f < m_ExtraDamagePack.m_Panic.m_fTime )
 		fTerm += m_ExtraDamagePack.m_Panic.m_fCriticalRateToDefender;
 	fTerm -= GetAntiCritialRate();		/// result of +0x4e10
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( 0.0f != GetAntiCritialRate() || 0.0f < m_ExtraDamagePack.m_Panic.m_fTime )
+	{
+		static bool s_bSeenThreshold = false;
+		if ( !s_bSeenThreshold )
+		{
+			s_bSeenThreshold = true;
+			CX2JuneBuffCapture::Line( "first critical threshold term: anti-critical %g, panic time %g -> attacker's chance %+g (March's sign: %+g)",
+				GetAntiCritialRate(), static_cast<float>( m_ExtraDamagePack.m_Panic.m_fTime ), fTerm, fTerm + 2.0f * GetAntiCritialRate() );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	const float fSocketAntiCritical = GetSocketAntiCriticalRate();		/// option value of +0x5a14 (+0x5a38)
 	if ( 0.0f < fSocketAntiCritical )
 	{
