@@ -48,6 +48,13 @@ Owner decided by the user (2026-10-06): this phase owns the handlers 16-data log
 - `DamageReact_ExtraDamage` `3203c9a0` (tail, `LAB_3203ce96`) rolls each `+0x3b4` entry unconditionally, with `SRO + i`.
 
 Port that list with the two handlers. C8b deliberately leaves the `32045340` copy to this phase.
+
+**Also (june-effect C5 review, 2026-10-07): three trigger compares in `X2BuffTemplet.cpp` -> `damageData_.JuneIsAttackTrigger( n )`.**
+June asks `32610fb0` at all three (args checked in Ghidra). The sites are `:1814` (`DoMarkOfCommand`, `@3236df5b`, 3),
+`:2087` (Pandemonium Fear, `@3236e306`, 6) and `:2160` (`JuneCustomFunctionDamageReactGuards`, `@323704cb`, 7).
+**Not `:1880`**: that one is in the `#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` branch (opened at `:1869`), i.e. March's own code, and it stays as is.
+`JuneIsAttackTrigger` exists only under `SERV_IRUHADEV_JUNE_DAMAGEDATA`, so nest
+`#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA` / call / `#else` / today's compare / `#endif` inside the buff flag's block. Line numbers are as of `a3e1eda`.
 Then port what is portable under the flag (June bugs verbatim, `JUNE_BUGS.md` rows), and record the rest as
 "located, not portable until <data/phase>".
 

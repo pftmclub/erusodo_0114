@@ -193,10 +193,9 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		LUA_GET_VALUE(		luaManager, "CREATE_EFFECT_SET_TRACE_UNIT",		pDamageData->m_bCreateEffectSetTraceUnit,	false );
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
-		// June2017 FUN_32632390 @32634b5b-32634cf0. Parsed only: runtime (FUN_321da350
-		// @31f8679f-31f867ad, called with the created effect set instance, the main effect's
-		// world position and the trace unit) is not ported -- its callees (FUN_32278580,
-		// FUN_31c1c1a0, FUN_31f54910) are not identified.
+		// June2017 FUN_32632390 @32634b5b-32634cf0. Consumer (effect completion C5): CEffect::AttackResult
+		// (FUN_31f85910 @31f8679f-31f867ad) -> EffectSetInstance::JuneSetTraceNearestBone (321da350),
+		// which stores the trace unit's nearest collision frame (32278580) on the created instance.
 		LUA_GET_VALUE(		luaManager, "TRACE_NEAREST_BONE",			pDamageData->m_bTraceNearestBone,	false );
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 

@@ -3610,7 +3610,9 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	// June2017 GetFinalDamage 32284aa0 @322869b2 (effect completion C5): right after the damage <= 0 clamp
 	// (@32286995-322869a8), 3227c940 multiplies the damage by the attacker's DAMAGE_TRIGGER_DATA rate for
 	// DTT_MULTIPLE_DAMAGE_BY_DEBUFF, scaled by this (the defender's) stack count of the entry's buff.
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BINDING
 	JuneApplyMultipleDamageByDebuff( fFinalDamage, *pAttDamageData );
+#endif SERV_IRUHADEV_JUNE_BUFF_BINDING
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 	
 #ifdef APPLY_THEMIDA
@@ -3628,6 +3630,8 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 }
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+// C5 review: needs GetBuffAccumulationCountNow, which exists only under SERV_IRUHADEV_JUNE_BUFF_BINDING.
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BINDING
 /** @function : JuneApplyMultipleDamageByDebuff
 	@brief : June 3227c940 (called only from GetFinalDamage @322869b2; ECX = the defender, args &damage, DamageData).
 			 e = the DamageData's DAMAGE_TRIGGER_DATA entry for type 40 (June Enum.lua DTT_MULTIPLE_DAMAGE_BY_DEBUFF,
@@ -3666,6 +3670,7 @@ void CX2GameUnit::JuneApplyMultipleDamageByDebuff( IN OUT float& fDamage_, IN co
 
 	fDamage_ = static_cast<float>( static_cast<double>( fDamage_ ) * dRate );
 }
+#endif SERV_IRUHADEV_JUNE_BUFF_BINDING
 
 /** @function : JuneGetNearestCollisionFrameName
 	@brief : June 32278580 (this = the unit, OUT name, pos): the frame name of the collision point nearest vPos_

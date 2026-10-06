@@ -1264,10 +1264,10 @@ class CX2DamageManager
 			bool				m_bCreateEffectSetMainEffectLifetime;	/// CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME
 			bool				m_bCreateEffectSetMainEffectDelaytime;	/// CREATE_EFFECT_SET_MAIN_EFFECT_DELAYTIME
 
-			/// +0x4c3 (CEffect +0x6c3): parsed only. Runtime (FUN_321da350 @31f8679f-31f867ad,
-			/// called with the effect set instance, the main effect's world position and the
-			/// trace unit) is not ported: its callees (FUN_32278580, FUN_31c1c1a0, FUN_31f54910)
-			/// are not identified.
+			/// +0x4c3 (CEffect +0x6c3). Consumed since effect completion C5: CEffect::AttackResult
+			/// (FUN_31f85910 @31f8679f-31f867ad) calls EffectSetInstance::JuneSetTraceNearestBone
+			/// (321da350) with the main effect's position and the trace unit; the stored bone name
+			/// overrides the ESM_GAME position reads (GetEffectPosition, GetEffectPositionByBoneName).
 			bool				m_bTraceNearestBone;				/// TRACE_NEAREST_BONE
 
 			/// June2017, effect completion C5. +0x544..+0x548: ADDITIONAL_ATTACK_TRIGGER_TYPE, every value kept (zeros too),

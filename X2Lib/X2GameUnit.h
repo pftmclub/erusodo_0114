@@ -3023,10 +3023,13 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 		/// June 3227c940 (effect completion C5): DAMAGE_TRIGGER_DATA's DTT_MULTIPLE_DAMAGE_BY_DEBUFF rate, this = the defender
 		void JuneApplyMultipleDamageByDebuff( IN OUT float& fDamage_, IN const CX2DamageManager::DamageData& damageData_ );
-		/// June 32278580 (effect completion C5): the frame name of this unit's collision point nearest vPos_ (empty without one)
-		std::wstring JuneGetNearestCollisionFrameName( IN const D3DXVECTOR3& vPos_ ) const;
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #endif SERV_IRUHADEV_JUNE_BUFF_BINDING
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		/// June 32278580 (effect completion C5): the frame name of this unit's collision point nearest vPos_ (empty without one).
+		/// Outside SERV_IRUHADEV_JUNE_BUFF_BINDING (C5 review): it has no buff dependency and X2EffectSet.cpp calls it.
+		std::wstring JuneGetNearestCollisionFrameName( IN const D3DXVECTOR3& vPos_ ) const;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 		bool CheckDamageDataKeyName( const CX2DamageManager::DamageData* pDamageData_ ) const;	/// June 3227a960
 		bool IsBuffBlockedBeforeApply( const CX2BuffFactor& buffFactor_ );						/// June 322a7960 (slot 139, +0x22c)

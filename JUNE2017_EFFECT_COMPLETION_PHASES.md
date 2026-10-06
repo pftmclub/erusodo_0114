@@ -480,6 +480,49 @@ With `--with JUNE_FX_DEBUG`, `X2EffectSet.cpp` shows `tok! 1`: one `#endif` of t
 2. Settled in this session, for the record: the early `return fFinalDamage;` inside `GetFinalDamage` (the fixed-damage / level path) is June's `JMP 32284b01 @32286063` (the epilogue), which also skips `@322869b2`, so the new call sits on the same paths as June's.
 3. The stale comment above `m_bTraceNearestBone` in `X2DamageManager.h` (and the one at `X2DamageManager.cpp` ~`:176`) still says "parsed only". Left as is to keep the diff insert-only; the review may rewrite them.
 
+### C5 - Review (2026-10-07, Opus 5.5 high)
+
+**Verdict: correct against June; one flag-nesting fix and comment fixes landed (commit below), no behaviour change.**
+
+**Checked in Ghidra (read-only):**
+- `3227c940`: the argument order (`&damage`, then DamageData as ECX of `32610e60`), the polarity (`fcomp 0.0; test ah,0x41; jnz` skips on MULT <= 0 or NaN) and the formula `(PR - 1) * (n - 1) * MULT + PR` all match. Call `@322869b2` comes right after the clamp, EDI = GetFinalDamage's `this`.
+- The call site `@31f8678b-31f867ad` matches:
+  - `[ESP+0x24]` is the trace unit: 0 unless `+0x6c0` (`CREATE_EFFECT_SET_TRACE_UNIT`), then `+0x670`'s observable = `optrDefenderGameUnit` (`@31f86173-31f8618f`), as March's `pTraceUnit`.
+  - EBP is restored from `[ESP+0x20]` on every path. That is `GetMeshInstance( +0x1e4 )` (`@31f85bb8`), i.e. `pMeshInst`.
+- `321da350` (templet `+0x80`, list `+0x1c/+0x20`, unit, `L""` miss, assign `+0x130`) and `32278580` (the unit's `+0x204` set, `GetPointStart`, strict `<` from `33441c60`) match the port. All three copies of the walk are identical.
+- `32610fb0` (`+0x53c` first, then `+0x544..+0x548`) and `32610e60` (stride 16 over `+0x554..+0x558`, NULL on a miss) match the two readers.
+- `GetEffectPosition @321dd270`:
+  - `+0x140` is the `+0x130` wstring's size. It is tested inside the `31e55680(+0x14)` validity check, then vslot `0x80` is called.
+  - All branches converge at `@321dd51b` = `SetEffectSetOffset` (`321d9820`), as the port's `else` chain does.
+  - **Open item (the observable) settled:** June's own BONE_NAME branch (`@321dd2bd`) uses the same `EBP = EDI+0x14` that March reads as `m_optrTraceTargetGameUnit`.
+
+**Fixed (flag `SERV_IRUHADEV_JUNE_DAMAGEDATA`):**
+- **Cross-flag compile dependency.** Both new `CX2GameUnit` declarations sat inside `#ifdef SERV_IRUHADEV_JUNE_BUFF_BINDING` (`X2GameUnit.h:3021`), while their definitions and callers needed only `JUNE_DAMAGEDATA`. Undefining `BUFF_BINDING` alone would not compile. The fix:
+  - `JuneGetNearestCollisionFrameName`'s declaration now sits in its own `DAMAGEDATA` block after `#endif BUFF_BINDING`.
+  - `JuneApplyMultipleDamageByDebuff`'s definition and its `GetFinalDamage` call are now nested in `BUFF_BINDING`, because they need `GetBuffAccumulationCountNow`.
+- **Open item 3:** the two "parsed only / not ported" comments (`X2DamageManager.h:1267`, `X2DamageManager.cpp:196`) now name the consumer.
+
+**Hygiene:**
+- Range, before the fix (`--range ba39843^..HEAD`): `files: 4 PASS, 4 PASS~, 0 DEFINE, 4 OTHER, 0 FAIL, 0 ERROR`, `6 deleted line(s)`, `RESULT: PASS`. The 4 OTHER rows are peer commit `6d304a1` (`SERV_IRUHADEV_JUNE_ENCHANT_PARITY`, buff Phase 15) inside the range. The 6 deleted lines are `a86d69c`'s own comment fix.
+- The fix, `--worktree --files` on the 4 files: `files: 4 PASS, 0 OTHER, 0 FAIL, 0 ERROR`, `10 deleted line(s)`, `RESULT: PASS`. The 10 lines are this flag's own: 8 comment lines rewritten, 2 declaration lines moved.
+- Range after the commit: see STATUS.
+
+**Census:** unchanged by the review. All 8 C5 rows and `TRACE_NEAREST_BONE` are `implemented`. Open rows by owner: `C3 19, C4 5, C9 11` (+ C10 6, C11 3), none C5. 8b stays open on C3/C4/C9 only, as the Done note says.
+
+**Settled:**
+- **Open item 1 (fold the three walks): declined.** The copies are identical to June and to each other. Folding would add an OTHER row in buff-port code for no behaviour.
+- **The three buff-port trigger compares:** the Done note's list was wrong on one line. `X2BuffTemplet.cpp:1880` is March's own code in `#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (`:1869`). The real sites are `:1814`, `:2087` and `:2160`; June calls `32610fb0` with 3, 6 and 7 there (`@3236df5b`, `@3236e306`, `@323704cb`). This is written into `kickoffs/june-buff/16-step3c.md`, which owns the change. It is not done here, to keep out of the buff port's file.
+
+**New, not C5's keys (for the user):** June's `RT_CREATE_EFFECT_SET` case has a branch March lacks, `31f861e2-31f8672a`, before the PlayEffectSet. Funcmap row `31f85910 @31f861e2-31f8672a`.
+- It applies with a trace unit, when `32481fa0` is true (main `+0x8c == 0x15`, then `3266cdc0`) and the trace unit's vslot `0x54` UID equals that of the unit reached through `3266cb90`/`31e56700`.
+- It finds the nearest live NPC with ID `0x621` = `NUI_FIELD_BOSS_COLLISION_BOX_1` and plays the set with other arguments (three PlayEffectSet variants).
+- March's `X2_STATE` 21 is `XS_ARCADE_GAME`, not `XS_BATTLE_FIELD` (25), so June's state 0x15 is not settled.
+- It does not touch `321da350`'s inputs. Under the no-partial rule this case is now part-June. Proposed owners: C6a2 identifies it, C6b ports it (C6b already rewrites AttackResult's RT_CREATE). **The user decides.**
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,267,072 B, dated 2026-10-07 05:58:47, md5 87310d3ce9e3c44cc59f5093352cc332, equal to X2/US_SERVICE/x2.exe (2026-10-07 05:58:40); built at mods/june-buff-port a3e1eda + 4 uncommitted code file(s).` (the 4 are this review's files)
+
+**Play-test:** none new. The changes are a declaration move, a nesting that is a no-op in the shipped build (both flags on), and comments. The 2026-10-07 regression pass stands.
+
 ---
 
 ## C6 - Spawner post-create tail (old Phase 10c, steps 1-2)
