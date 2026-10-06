@@ -811,6 +811,9 @@ bool CX2SocketItem::AddSocketData_LUA()
 	}
 #endif //ADJUST_SECRET_ITEM_OPTION
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June reads EFFECT_NAME later, after m_fAllSkillDamageIncreaseRate (@32736174): see there
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	if ( luaManager.BeginTable( "EFFECT_NAME" ) == true )
 	{
 		wstring wstrEffectName;
@@ -818,6 +821,7 @@ bool CX2SocketItem::AddSocketData_LUA()
 		for ( int i = 1; luaManager.GetValue( i, wstrEffectName ) == true; i++ )
 			pSocketData->m_vecEffectName.push_back( wstrEffectName );
 	}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #endif SERV_SECRET_HELL
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	/// June @32732e34..32736165: the June-only keys after the MP pair, every one defaulting to 0 / false
@@ -877,6 +881,18 @@ bool CX2SocketItem::AddSocketData_LUA()
 	LUA_GET_VALUE(		luaManager, "m_fIncreaseDmgRate_MyHpFew",				pSocketData->m_fIncreaseDmgRate_MyHpFew,		0.0f );
 	LUA_GET_VALUE(		luaManager, "m_fAllSkillCooltimeDecreaseRate",			pSocketData->m_fAllSkillCooltimeDecreaseRate,	0.0f );
 	LUA_GET_VALUE(		luaManager, "m_fAllSkillDamageIncreaseRate",			pSocketData->m_fAllSkillDamageIncreaseRate,		0.0f );
+	/// June's place for EFFECT_NAME (@32736174, BeginTable 32fe9940, GetValue 32feafd0). June, like March, never
+	/// calls EndTable, so every key read after it (m_fEffectiveValue, HYPER_MODE_EFFECTIVE_TYPE, level-linked,
+	/// m_eDescStringID, the rank flags) comes from inside the list for a socket that has one, i.e. reads as its
+	/// default. Kept verbatim (JUNE_BUGS #47). Read at March's earlier place, it also hid m_sBuffLevel and the
+	/// other June keys above from all 236 June sockets that have an EFFECT_NAME list.
+	if ( luaManager.BeginTable( "EFFECT_NAME" ) == true )
+	{
+		wstring wstrEffectName;
+
+		for ( int i = 1; luaManager.GetValue( i, wstrEffectName ) == true; i++ )
+			pSocketData->m_vecEffectName.push_back( wstrEffectName );
+	}
 	LUA_GET_VALUE(		luaManager, "m_bIsRankLinkedStat",						pSocketData->m_bIsRankLinkedStat,				false );	/// @32736cf4
 	LUA_GET_VALUE(		luaManager, "m_bIsPVERankLinkedStat",					pSocketData->m_bIsPVERankLinkedStat,			false );	/// @32736ed4
 	if ( pSocketData->m_bIsRankLinkedStat && pSocketData->m_bIsPVERankLinkedStat )	/// June's message @32736ee9 (334b71b8)

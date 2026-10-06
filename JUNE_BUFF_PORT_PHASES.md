@@ -4982,6 +4982,14 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **How to see it in game.** At load, `[JUNE_BUFF]` lines in `ErrorLog.txt`: one per June-only EDT / SIEE / HMET type, plus the rank-linked lines (`is rank-linked … (enchant and skill level-up are)`), now reachable. The equipped sockets read and work as before (identical rows, same description string IDs).
 
+**Play-test 1 (2026-10-06, exe 6184b9fd + copied data036): logs read.** Every June-only type logged once, as designed: 18 EDT, SIEE 12-20, `HMET_FEVER` (socket 74042). Also `June SocketOptionForm.lua curves loaded`, the designed range and the first damage roll. No `is rank-linked` line: the save has none. Two findings:
+- **Fixed: 180 × `SIEE 15 without both BUFF_FACTOR_ID and m_sBuffLevel`** (100012000-…), although June's data sets both.
+  - Cause: March reads `EFFECT_NAME` early (`X2SocketItem.cpp`, before part 1's June keys) and, like June, never calls `EndTable`. Every key after it therefore read as its default for the 236 sockets that have a list.
+  - June reads the list after `m_fAllSkillDamageIncreaseRate` (`@32736174`; BeginTable `32fe9940`, GetValue `32feafd0`, no EndTable). Then only `m_fEffectiveValue`, HMET, level-linked, `m_eDescStringID` and the rank flags follow it, and of June's data only socket 2000171's description is lost.
+  - The read now sits at June's place under `_SOCKET_PARITY` (March's place in `#else`). June's missing EndTable is kept: JUNE_BUGS #47.
+  - `DEPLOY OK: X2_offline.exe is 19,207,168 B, dated 2026-10-06 09:06:18, md5 aa173377797fe2e79226b223ec3718a6, equal to X2/US_SERVICE/x2.exe (2026-10-06 09:06:13); built at mods/june-buff-port 4e1de6b + 1 uncommitted code file(s).`
+- **Expected, not fixed:** 55 `BFI N requested but not loaded` (52 + 3 `_INT`). These are June socket buffs whose factors are not in March's staged factor file; they arrive with the June buff data (Phase 13). Those sockets carry no buff until then.
+
 **Open for the user.** The handlers this step logs and does not port: the 18 EDTs and `HMET_FEVER` have no phase yet (SIEE 12-20 are 16-step3b item 10). Say which plan owns them. /cost not available in-session.
 
 ## Critical files
