@@ -748,7 +748,7 @@ the original gate stays in `#else`).
 1. **The gate.** Pay `KILL_BY_USER`, `KILL_SELF` and `BONUS_DROP`; stop paying `ALLY`. Fix the
    comment.
 2. **What else keys on the die state** on the server: read the dungeon die handler around
-   `IsDropDieState`'s callers and `BattleFieldRoom.cpp:4392-4394` (`bAddRoomUserKillCount`
+   `IsDropDieState`'s callers and `BattleFieldRoom.cpp:2002-2003`, `:4394-4395`, `:5041` (`bAddRoomUserKillCount`
    excludes `KILL_SELF`). For each consumer the offline reward branch feeds (EXP, ED, coins,
    lottery, static/event drops, 70057/70058, hunt sub-quests and sub-missions, field danger, kill
    counts), port the server's rule. In particular, decide from the server whether a `KILL_SELF`
