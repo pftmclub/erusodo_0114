@@ -306,6 +306,10 @@ bool CX2SocketItem::AddSocketData_LUA()
 		LUA_GET_VALUE( luaManager,	"m_fAtkMagicRelLV",		pSocketData->m_kStatRelLVData.m_fAtkMagicRelLV, 0.f );
 		LUA_GET_VALUE( luaManager,	"m_fDefPhysicRelLV",	pSocketData->m_kStatRelLVData.m_fDefPhysicRelLV, 0.f );
 		LUA_GET_VALUE( luaManager,	"m_fDefMagicRelLV",		pSocketData->m_kStatRelLVData.m_fDefMagicRelLV, 0.f );
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// buff port 16-step3b7 item 6: June 32726850 @32727838, the sixth key of the same table (0.0 when absent)
+		LUA_GET_VALUE( luaManager,	"m_fAllStatRelLV",		pSocketData->m_kStatRelLVData.m_fAllStatRelLV, 0.f );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 		luaManager.EndTable();
 	}
@@ -2348,6 +2352,14 @@ void CX2SocketItem::PrintOptionInfo_ToExcel( KProtectedType<int> iLevel )
 		}		
 	}
 #ifdef SERV_NEW_ITEM_SYSTEM_2013_05
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	else if( m_kStatRelLVData.m_fAllStatRelLV != 0.f )
+	{
+		/// buff port 16-step3b7 item 6: June 3271f310 @32721b07 tests the sixth float first, after the summon-NPC branch, and prints the
+		/// script's own string (+0x64, the m_DescEvadeByMonsterAttack the HMET branch prints too: "Heroic Rank Lv. N") with no STR_ID
+		wstrstm << m_DescEvadeByMonsterAttack;
+	}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	else if( m_kStatRelLVData.m_fBaseHPRelLV != 0.f )
 	{				
 		wstrstm << GET_REPLACED_STRING( ( STR_ID_25059, "f", ( m_kStatRelLVData.m_fBaseHPRelLV ) ));

@@ -2793,6 +2793,10 @@ public:
 		float						GetSkillAdditionalPowerRateJune( const int iSkillID_ ) const;
 		/// June 32000320: one socket's damage reduction for GetBasicReducedDamagePercent (March's helper is ADJUST_SECRET_ITEM_OPTION-only)
 		float						GetJuneSocketReducedDamagePercent( const CX2SocketItem::SocketData& kSocketData_ );
+		/// June buff port 16-step3b7 item 7: user vslot 485 (+0x794), which SumSocketOption 3204f190 calls with ( aggregate, socket
+		/// templet ) right after the equipped-slot loop (@3204f4df..4ed). The base 33093ad0 is a bare ret 8; only Lu/Ciel 32b0e670 and
+		/// Ara 32badc80 override it (checklist section 7), so no March class does: empty
+		virtual void				JuneSumSocketOptionAfterSlots( CX2SocketItem::SocketData& kAggregate_, const CX2SocketItem::SocketData& kSocketData_ ) {}
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		float						GetSkillRateByBuffBehavior( const CX2SkillTree::SKILL_ID eSkillID_, const BUFF_BEHAVIOR_TYPE eBehaviorType_ ) const;

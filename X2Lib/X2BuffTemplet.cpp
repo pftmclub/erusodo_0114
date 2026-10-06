@@ -1829,7 +1829,13 @@ void CX2CustomFunctionByBuffMarkOfCommand::DoMarkOfCommand( CX2GameUnit* pGameUn
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 			fSkillDamageRateByBuff = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillDamageRateByBuff( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER );	/// June 26214 = RNSI_A_CHG_MARK_OF_COMMANDER
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			/// buff port 16-step3b7 item 1: June @3236e002 3201ad10( 0x6666 ) on the attacker user (esi), + 1.0 (334355b0) below;
+			/// June's 26214 is March's SI_A_CHG_MARK_OF_COMMANDER, the key 16-step3b5's slot pass files the rate under
+			const float fJuneSkillDamageAddRate = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillAdditionalPowerRateJune( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER );
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			const float fJuneSkillDamageAddRate = 0.0f;	/// 3201ad10, see the brief
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			fShellPowerRate = ( fJuneSkillDamageAddRate + 1.0f ) * ( fSkillDamageRateByBuff * fShellPowerRate );
 		}
 
@@ -2192,7 +2198,13 @@ static bool JuneCustomFunctionDamageReactGuards( const CX2DamageManager::DamageD
 	float fPowerRate = m_fPowerRate;
 	if ( CX2GameUnit::GUT_USER == pAttackerGameUnit->GetGameUnitType() )
 	{
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// buff port 16-step3b7 item 1: June @323705a2 3201ad10( 0x7160 = 29024 ) on the attacker user (edi), + 1.0 below. 29024 is a
+		/// June-only skill (no March SKILL_ID), so no equipped slot files a rate under it: 0 until that skill is ported
+		const float fJuneSkillDamageAddRate = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillAdditionalPowerRateJune( 29024 );
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		const float fJuneSkillDamageAddRate = 0.0f;	/// 3201ad10( 0x7160 ), see Phase 9a
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		fPowerRate = ( fJuneSkillDamageAddRate + 1.0f ) * fPowerRate;
 	}
 
@@ -2292,7 +2304,12 @@ static float JuneSinisterMindPowerRate( CX2GUUser* pCreator_ )
 		if ( iLevel < 1 )
 			iLevel = 1;
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// buff port 16-step3b7 item 1: June @32369c98 3201ad10( 0x7560 ) on the creator (esi), + 1.0 below; June-only skill, 0 as above
+		const float fJuneSkillDamageAddRate = pCreator_->GetSkillAdditionalPowerRateJune( JUNE_RNSI_SA_LDN_SINISTER_MIND );
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		const float fJuneSkillDamageAddRate = 0.0f;	/// 3201ad10( 0x7560 ), see Phase 9a
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		fRate = pSkillTemplet->GetSkillPowerRateValue( iLevel ) * fRate;
 		fRate = pCreator_->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL ) * fRate;
 		fRate = pCreator_->GetSkillDamageRateByBuff( JUNE_RNSI_SA_LDN_SINISTER_MIND ) * fRate;

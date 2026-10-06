@@ -5785,6 +5785,53 @@ Log: `python tools/logs.py --tag JUNE_BUFF --grep "hyper-mode socket"` → `sock
   - The type-1 cool time holds.
 - Iivue's item 510 keeps `72700,72701,72905`.
 
+
+### Phase 16-step3b7 — Done (2026-10-06, Opus 5.5 high)
+
+**Landed** under `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (first-apply lines under `_DEBUG`); item 2 also uses Phase 9a's `JUNE_BUFF_NEW_SKILL` and `JUNE_BUFF_CUSTOM_FUNCTION`. Commit: see STATUS. Decodes: 12 `funcmap.tsv` rows tagged "Buff Phase 16-step3b7".
+
+**Item 1, the three X2BuffTemplet.cpp placeholders.** Each is now the attacker user's `GetSkillAdditionalPowerRateJune` (+ 1.0 as before): Mark of Command `@3236e002` with March's `SI_A_CHG_MARK_OF_COMMANDER` (June's 26214), Moonlight Rhapsody `@323705a2` (29024) and the Sinister Mind creator rate `@32369c98` (30048). The last two are June-only skills, so they read 0 until those skills exist.
+
+**Item 2, the NPC Mark of Commander shelling block** (`32773ee0`, diffed whole against March's `AttackResultByType`). `ecx` at `@32774310` is the owner user (`32759f00`, stored `[esp+0x14]` `@32774004`), i.e. March's `pOwnerUnit`. June differs from March in two places, the same two Phase 9a changed in `DoMarkOfCommand`:
+- the power rate also takes `31fd7cc0( 0x6666 )` (`JUNE_BUFF_NEW_SKILL`), then `( 3201ad10 + 1 )` (`SOCKET_PARITY`);
+- June always creates `CHUNG_MARK_OF_COMMANDER_SHELL` (no memo shell; `JUNE_BUFF_CUSTOM_FUNCTION`).
+
+Offsets, heights, random terms, the elapsed-time reset and the EVE tail match March.
+
+**Item 3, `3201f850` / `32028190`: no engine code.** June hoisted March's per-class `SetSkillLevelStateData` (El, Add, Ara, Rena, Raven) into `CX2GUUser`, adding `x ( 3201ad10 + 1 )`. `32028190` is user vslot 490, the by-state-id wrapper. March has no `CX2GUUser` host, so this went to a checklist §7 row with the class callers.
+
+**Item 4, the summon helper's 0x200 store.** NPC `+0x8800` is `m_NumberList[0]` (`Get/SetNumber_LUA`), and June stores `( 3201ad10( case skill ) + 1.0 )` as a double there.
+- The 0x200 cases of `3230c1a0` (unicorn, outside calls stubbed) are 384/519, 1454, 1604, 1621/1622, 2206 and 2214. Of these, March has 384, 519 and 1454; the store is ported for those, with 3b3's case skills.
+- The reader is June's NPC Lua: `SetMultiplyPowerRate_LUA( GetNumber_LUA() )` in Nasod_Watch_Eve, SI_HA_APOCALYPSE and SI_HA_FERDINAND. `SetMultiplyPowerRate_LUA` is `31e8d610` itself, the `+0x8ce4` writer.
+- March has neither the binding nor those script calls, so the store stays dormant. The binding and its factor went to a checklist §7 row, with the scripts.
+
+**Item 5, socket 215434's term: not ported, one log line.** The kickoff's "CX2Unit flag" is wrong. `g_pData +0x334` is June's `CX2PremiumBuffManager` (ctor `326c8170`), and the term needs byte 1 of its service-flag struct `+0x6a`. That struct is filled only by June's server packet 0x53b (`326c9bb0` -> `326c8c70`), which March's premium manager does not handle.
+- The other conditions: not Henir (`DT_HENIR` = 2), not PvP, and map `!= 40033` (`VMI_BOSS_RAID_PERKISAS`). The skill must be a hyper-active skill.
+- June then adds socket 215434's own map entry whether or not the socket is equipped.
+- The line: `socket 215434 hyper-skill term in 3201ad10 not ported: ...`, once per run.
+
+**Item 6, `m_fAllStatRelLV`: ported, live.** June's sixth level float has a reader: `CalculateRealStatData` (`328d68c0`) adds it to each of the five stats' level terms.
+- The stat-by-level struct (`KItemStatRelLVData`) carries it now: loader key, `AddStat` (which covers ConvertAndAdd), `Init`, the validity sum (`328d6f60`) and the cache-key comparator (`328d8880`, six floats in order).
+- The socket description prints the script's own string first (`3271f310 @32721b07`, `+0x64` = `m_DescEvadeByMonsterAttack`).
+- Reach: the 30 June "Heroic Rank Lv. 1-30" sockets (120000000-120000029, +1 to +30), already live in data036.
+- **Not ported:** June's item templet carries a sixth level byte too (key `m_fAllStatRelLV` in item preprocessing). March's item templets are precompiled with five, so that half stays out (an item-system change).
+- **Not ported:** June's `CalculateItemStat` also changes the level argument and `GetStatDataTable`'s inputs. Neither is a socket term.
+
+**Item 7, the per-class hook.** `CX2GUUser::JuneSumSocketOptionAfterSlots( aggregate, templet )` is an empty virtual (user vslot 485, base `33093ad0` = `ret 8`). It is called after 3b5's slot loop and outside its `GetUnit()` test, because June's loop has none. Dormant: no March class overrides it.
+
+**Hygiene.** `--worktree --files` (8 code files, `--with JUNE_BUFF_DEBUG`): `files: 7 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The OTHER row is X2GUNPC.cpp, item 2's two Phase 9a flags. Both of those flags PASS on that file on their own (0 deleted).
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,246,592 B, dated 2026-10-06 21:16:02, md5 ab77efe0fc143267c7ee0cfcb8b54162, equal to X2/US_SERVICE/x2.exe (2026-10-06 21:15:57); built at mods/june-buff-port 61283f6 + 8 uncommitted code file(s).` The 8 are this phase's. The four new texts are in the exe. Not launched.
+
+**Save.** Socket 120000009 ("Heroic Rank Lv. 10", all stats +10 levels) was appended to Iivue's weapon (item 579 -> `40110,74035,95003,120000009`). Backup: `db_backup/els_db_20261006_210841_pre_socket_120000009.sql`.
+
+**How to see it in game.**
+- Item 6: the weapon's tooltip lists "Heroic Rank Lv. 10", and its stats rise. `ErrorLog.txt` gets `all-stat level term (m_fAllStatRelLV) 10 at item level N: HP a -> b, phys atk c -> d, ...` (debug, up to 3 lines).
+- Item 5: one `socket 215434 hyper-skill term ... not ported` line.
+- Items 1, 2, 4 and 7 are dormant on this save: no Chung, no Dimension Link (5201) on Iivue, and no class overrides vslot 485.
+
+**Open for the user.** /cost is not available in-session.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`

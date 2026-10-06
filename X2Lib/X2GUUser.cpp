@@ -3266,6 +3266,9 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 				}
 			}
 		}
+		/// buff port 16-step3b7 item 7: then user vslot 485 ( aggregate, templet ) (@3204f4df..4ed). June's slot loop has no CX2Unit
+		/// test (it reads +0x867c directly), so the call is outside the GetUnit() test above
+		JuneSumSocketOptionAfterSlots( m_SocketData, kSocketData );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		
 		//}} kimhc // 2011-07-05 // 옵션데이타 수치화 작업
@@ -22143,6 +22146,19 @@ float CX2GUUser::GetSkillAdditionalPowerRateJune( const int iSkillID_ ) const
 			CX2JuneBuffCapture::Line( "first skill-group power rate read: skill %d, rate %g (power rate x %g)", iSkillID_, fRate, fRate + 1.f );
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	/// buff port 16-step3b7 item 5, socket 215434's term (June 3201ad10 @3201ae3f..3201afbe), not ported. June adds, for a hyper-active
+	/// skill (templet +4 == 13, 32206450), the entry of socket 215434's own map (+0x48 via 32715320( 0x3498a ); keys through 328905b0)
+	/// that matches the skill, whether or not the user has the socket, when all of these hold: a CX2Unit; byte 1 of the service-flag
+	/// struct g_pData->premium buff manager (+0x334, ctor 326c8170) +0x6a, read through its copy 31f4c400; a game that is not Henir (game
+	/// vslot 0x1c8 != 2 = DT_HENIR) and not PvP (vslot 0x10c != 1); and map g_pData +0x134 != 40033 (VMI_BOSS_RAID_PERKISAS). The
+	/// service flags come only from June's server packet 0x53b (premium manager 326c9bb0 -> 326c8c70, which also sets the PC-room byte
+	/// +5 and feeds the ListBoxServiceList UI); March's CX2PremiumBuffManager has no such handler or struct, so the term stays 0.
+	static bool s_bJuneSocket215434Logged = false;
+	if ( false == s_bJuneSocket215434Logged )
+	{
+		s_bJuneSocket215434Logged = true;
+		CX2JuneBuffCapture::Line( "socket 215434 hyper-skill term in 3201ad10 not ported: gated on June's premium service flag (server packet 0x53b), which March lacks; term = 0" );
+	}
 	return fRate;
 }
 

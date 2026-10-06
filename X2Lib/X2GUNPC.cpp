@@ -29589,7 +29589,23 @@ void CX2GUNPC::AttackResultByType( CX2DamageManager::DamageData &pDamageData )
 					vShellStartPos -= ( fConstBasicX * vDirectVectorZeroY );
 
 				float fShellPowerRate = pDamageData.damage.GetAllDamage() * pDamageData.m_fDungeonRate;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+				/// buff port 16-step3b7 item 2: June 32773ee0 @327742fa, x 31fd7cc0( 0x6666 ) on the owner user ([esp+0x14] = 32759f00, stored
+				/// @32774004 = March's pOwnerUnit), as Phase 9a's DoMarkOfCommand; June's 26214 = March's SI_A_CHG_MARK_OF_COMMANDER
+				fShellPowerRate = pOwnerUnit->GetSkillDamageRateByBuff( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER ) * fShellPowerRate;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				/// buff port 16-step3b7 item 2: then x ( 3201ad10( 0x6666 ) + 1.0 ) on the same owner (@32774310, 334355b0 = 1.0)
+				fShellPowerRate = ( pOwnerUnit->GetSkillAdditionalPowerRateJune( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER ) + 1.f ) * fShellPowerRate;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+				/// buff port 16-step3b7 item 2: June @327743c1 always creates CHUNG_MARK_OF_COMMANDER_SHELL (0x3349026c) and sets the velocity on
+				/// its main effect (31f6eb30, +0x534); March's memo shell (ADDITIONAL_MEMO, SMI_CHUNG_MEMO17) is gone, as in Phase 9a's DoMarkOfCommand
+				CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"CHUNG_MARK_OF_COMMANDER_SHELL", fShellPowerRate, vShellStartPos, vRotateDegree, vRotateDegree,  GetLandPos().y, true, fRandReservTime );
+				if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+					pMeshInstance->SetVelocity( vVelocity );
+#else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 #ifdef ADDITIONAL_MEMO
 				if( pOwnerUnit->GetEqippedSkillMemo( CX2SkillTree::SMI_CHUNG_MEMO17 ) == true && GetRandomFloat(i + 3) <= 0.2f )
 				{
@@ -29606,6 +29622,7 @@ void CX2GUNPC::AttackResultByType( CX2DamageManager::DamageData &pDamageData )
                 if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
 				    pMeshInstance->SetVelocity( vVelocity );
 #endif
+#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 			}
 			pDamageData.optrDefenderGameUnit->AccessExtraDamagePack().m_MarkOfCommander.m_fElapsedTimeToEffectDamage	= 0.f;
 

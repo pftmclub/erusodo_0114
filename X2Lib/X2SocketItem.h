@@ -581,6 +581,11 @@ class CX2SocketItem
 			float m_fAtkMagicRelLV;
 			float m_fDefPhysicRelLV;
 			float m_fDefMagicRelLV;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			/// June buff port 16-step3b7 item 6: June's sixth float m_fAllStatRelLV (socket templet +0x268, loader 32726850 @32727838,
+			/// aggregate add 3207cd70 @3207d3fc), added to every stat's level term by CalculateRealStatData (328d68c0)
+			float m_fAllStatRelLV;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 			KItemStatRelLVData()
 			{
@@ -589,7 +594,12 @@ class CX2SocketItem
 
 			inline bool IsValideCheck() const
 			{
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				/// June 328d6f60: the sum of all six (its order AtkPhysic + BaseHP + ..., the same value) == 0 -> the templet's base stats
+				return 0.f != (m_fBaseHPRelLV + m_fAtkPhysicRelLV + m_fAtkMagicRelLV + m_fDefPhysicRelLV + m_fDefMagicRelLV + m_fAllStatRelLV);
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				return 0.f != (m_fBaseHPRelLV + m_fAtkPhysicRelLV + m_fAtkMagicRelLV + m_fDefPhysicRelLV + m_fDefMagicRelLV);
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			}
 
 			void AddStat( const KItemStatRelLVData& sStatRelLVData_)
@@ -599,6 +609,9 @@ class CX2SocketItem
 				this->m_fAtkMagicRelLV += sStatRelLVData_.m_fAtkMagicRelLV;
 				this->m_fDefPhysicRelLV += sStatRelLVData_.m_fDefPhysicRelLV;
 				this->m_fDefMagicRelLV += sStatRelLVData_.m_fDefMagicRelLV;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				this->m_fAllStatRelLV += sStatRelLVData_.m_fAllStatRelLV;	/// June 3207cd70 @3207d3fc (ConvertAndAdd) and 328d6f60's sum
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			}
 
 			void Init()
@@ -608,6 +621,9 @@ class CX2SocketItem
 				m_fAtkMagicRelLV = 0.f;
 				m_fDefPhysicRelLV = 0.f;
 				m_fDefMagicRelLV = 0.f;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				m_fAllStatRelLV = 0.f;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			}
 
 			bool operator < ( const KItemStatRelLVData& rhs ) const 
@@ -634,6 +650,14 @@ class CX2SocketItem
 
 				if( m_fDefMagicRelLV < rhs.m_fDefMagicRelLV )
 					return true;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				/// June's cache key comparator 328d8880 compares all six floats in order, the sixth last
+				else if( m_fDefMagicRelLV > rhs.m_fDefMagicRelLV )
+					return false;
+
+				if( m_fAllStatRelLV < rhs.m_fAllStatRelLV )
+					return true;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 				return false;
 			}

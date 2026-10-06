@@ -308,6 +308,49 @@ void CX2ItemStatCalculator::CalculateRealStatData( OUT CX2Item::KItemFormatStatD
 													IN int iItemLevel_,
 													IN const CX2SocketItem::KItemStatRelLVData& sStatRelLVData_ ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b7 item 6: June 328d68c0 makes the same five calls in the same order, each with its stat's level term
+	/// + m_fAllStatRelLV (+0x14; for HP the sum is All + BaseHP, the same value)
+	const float fJuneAllStatRelLV = sStatRelLVData_.m_fAllStatRelLV;
+	sRealStatData_.m_fAtkPhysic =
+		lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(),	"CalculatePhysicalAndMagicalStat",
+		sClassStatTable_.m_fAtkPhysic, sCharStatTable_.m_fAtkPhysic,
+		sEqipStat_.m_fAtkPhysic, iItemLevel_, sStatRelLVData_.m_fAtkPhysicRelLV + fJuneAllStatRelLV );
+
+	sRealStatData_.m_fDefPhysic =
+		lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(),	"CalculatePhysicalAndMagicalStat",
+		sClassStatTable_.m_fDefPhysic, sCharStatTable_.m_fDefPhysic,
+		sEqipStat_.m_fDefPhysic, iItemLevel_, sStatRelLVData_.m_fDefPhysicRelLV + fJuneAllStatRelLV );
+
+	sRealStatData_.m_fAtkMagic =
+		lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(),	"CalculatePhysicalAndMagicalStat",
+		sClassStatTable_.m_fAtkMagic, sCharStatTable_.m_fAtkMagic,
+		sEqipStat_.m_fAtkMagic, iItemLevel_, sStatRelLVData_.m_fAtkMagicRelLV + fJuneAllStatRelLV );
+
+	sRealStatData_.m_fDefMagic =
+		lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(),	"CalculatePhysicalAndMagicalStat",
+		sClassStatTable_.m_fDefMagic, sCharStatTable_.m_fDefMagic,
+		sEqipStat_.m_fDefMagic, iItemLevel_, sStatRelLVData_.m_fDefMagicRelLV + fJuneAllStatRelLV );
+
+	sRealStatData_.m_fBaseHP =
+		lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(),	"CalculateHPStat",
+		sClassStatTable_.m_fBaseHP, sCharStatTable_.m_fBaseHP,
+		sEqipStat_.m_fBaseHP, iItemLevel_, fJuneAllStatRelLV + sStatRelLVData_.m_fBaseHPRelLV );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	static int s_iJuneAllStatLines = 0;
+	if ( 0.f != fJuneAllStatRelLV && s_iJuneAllStatLines < 3 )
+	{
+		++s_iJuneAllStatLines;
+		const float fNoAllHP = lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "CalculateHPStat",
+			sClassStatTable_.m_fBaseHP, sCharStatTable_.m_fBaseHP, sEqipStat_.m_fBaseHP, iItemLevel_, sStatRelLVData_.m_fBaseHPRelLV );
+		const float fNoAllAtkPhysic = lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "CalculatePhysicalAndMagicalStat",
+			sClassStatTable_.m_fAtkPhysic, sCharStatTable_.m_fAtkPhysic, sEqipStat_.m_fAtkPhysic, iItemLevel_, sStatRelLVData_.m_fAtkPhysicRelLV );
+		CX2JuneBuffCapture::Line( "all-stat level term (m_fAllStatRelLV) %g at item level %d: HP %g -> %g, phys atk %g -> %g, mag atk %g, phys def %g, mag def %g",
+			fJuneAllStatRelLV, iItemLevel_, fNoAllHP, sRealStatData_.m_fBaseHP, fNoAllAtkPhysic, sRealStatData_.m_fAtkPhysic,
+			sRealStatData_.m_fAtkMagic, sRealStatData_.m_fDefPhysic, sRealStatData_.m_fDefMagic );
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	//¹°°ø 
 	sRealStatData_.m_fAtkPhysic = 
 		lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(),	"CalculatePhysicalAndMagicalStat", 
@@ -337,6 +380,7 @@ void CX2ItemStatCalculator::CalculateRealStatData( OUT CX2Item::KItemFormatStatD
 		lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(),	"CalculateHPStat", 
 		sClassStatTable_.m_fBaseHP, sCharStatTable_.m_fBaseHP, 
 		sEqipStat_.m_fBaseHP, iItemLevel_, sStatRelLVData_.m_fBaseHPRelLV );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 }
 
 /** @function : SetUnitData

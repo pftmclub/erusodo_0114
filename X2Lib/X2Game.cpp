@@ -14508,6 +14508,29 @@ static void JuneApplySummonPowerRate( CX2GUNPC* pNPC_, CX2GUUser* pUser_, const 
 	pNPC_->SetDefaultPowerRate( pNPC_->GetDefaultPowerRate() * fJuneRate );
 }
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/// June buff port 16-step3b7 item 4: with flag 0x200, June's summon helper 322ece70 also stores ( 3201ad10( case skill ) + 1.0 ) as a
+/// double in the NPC's +0x8800 (@322ed394..322ed3a6) = m_NumberList[0] (Get/SetNumber_LUA, 31e4d340/31e4d350). The 0x200 cases of
+/// 3230c1a0 (emulated over NPC ids 0-70000, stubbed calls): 384/519 (0x240), 1454 (0x260), 1604 (0x220), 1621/1622 (0x240), 2206
+/// (0x250), 2214 (0x260); March has 384, 519 and 1454. The reader is June's NPC Lua: Nasod_Watch_Eve, SI_HA_APOCALYPSE and
+/// SI_HA_FERDINAND call SetMultiplyPowerRate_LUA( GetNumber_LUA() ), and SetMultiplyPowerRate_LUA is 31e8d610 itself (the +0x8ce4
+/// writer). March's scripts never call GetNumber_LUA and March has no SetMultiplyPowerRate_LUA, so the store is dormant until those
+/// June scripts and the binding are adopted.
+static void JuneStoreSummonGroupPowerRateNumber( CX2GUNPC* pNPC_, CX2GUUser* pUser_, const int iSkillID_ )
+{
+	if ( NULL == pNPC_ || NULL == pUser_ )
+		return;
+
+	const double dNumber = static_cast<double>( pUser_->GetSkillAdditionalPowerRateJune( iSkillID_ ) ) + 1.0;	/// fadd qword 334355b0
+	pNPC_->SetNumber_LUA( 0, dNumber );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	static std::set<int> s_setJuneSummonNumberSeen;
+	if ( true == s_setJuneSummonNumberSeen.insert( pNPC_->GetNPCTemplet().m_nNPCUnitID ).second )
+		CX2JuneBuffCapture::Line( "first summon group-power number: NPC %d, skill %d, m_NumberList[0] = %g (June's SetMultiplyPowerRate_LUA reader is not in March)",
+			static_cast<int>( pNPC_->GetNPCTemplet().m_nNPCUnitID ), iSkillID_, dNumber );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAllyUID, CX2GUNPC* pNPC, int iHyperMode, CX2UnitManager::NPC_UNIT_ID unitID )
 {
 	// 이브의 소환 필살기에 의해 소환된 몬스터의 경우 npc stat을 직접 설정 해준다
@@ -14718,6 +14741,8 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					/// +0x8ce0 x +0x8ce4, so scaling March's default power rate gives the same product
 					/// (user 2026-10-06, "follow June": the whole June power rate, with the buff terms and AT_SPECIAL, not only the socket term)
 					JuneApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_A_EN_DIMENSION_LINK );
+					/// 16-step3b7 item 4: flags 0x240 include 0x200 (322ece70 @322ed38c..322ed3a6), same case skill
+					JuneStoreSummonGroupPowerRateNumber( pNPC, pUser, CX2SkillTree::SI_A_EN_DIMENSION_LINK );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 
@@ -14765,6 +14790,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 							npcStat.m_fDefMagic		* fStatScale	* 1.f );
 
 						pNPC->SetDefaultPowerRate( fPowerRate );
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+						/// buff port 16-step3b7 item 4: Ferdinand (1454) reaches 322ece70 with flags 0x260 (3230c84f), 0x200 set: the number store,
+						/// with the skill 16-step3b3 passes to GetSummonPowerRateBySocket here
+						JuneStoreSummonGroupPowerRateNumber( pNPC, pUser, CX2SkillTree::SI_HA_EEP_LINK_OVERCHARGE_ILLUSION );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						pNPC->SetNearestGUUser(pUser);
 						const int iNpcUid = pNPC->GetUID();
 						CX2GUEve* pEve = static_cast<CX2GUEve*>( pUser );
