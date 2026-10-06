@@ -247,6 +247,13 @@ bool CX2OfflineBattleField::EnsureFieldLoaded( int iBattleFieldID )
 
 	UnbindGlobal();
 
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	// Read FieldBonusDrop.lua with the first field rather than at the first middle-boss
+	// kill, so entering any field shows in the log whether it loaded (the server reads
+	// it at startup). Once only; it does its own bind/unbind.
+	EnsureBonusDropLoaded();
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+
 	CX2OfflineLog::Server( L"FIELDNPC field %d '%s': %u group(s), level %d, max %d monster(s)",
 		iBattleFieldID, kField.m_wstrNpcTableFileName.c_str(),
 		(unsigned int)kField.m_vecGroup.size(),
