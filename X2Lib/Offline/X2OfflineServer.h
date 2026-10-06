@@ -981,8 +981,16 @@ private:
 	/// them up into - and credited ED silently at kill time, which left the
 	/// floor of a dungeon empty and the money appearing out of nowhere. Both
 	/// halves land here.
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	/// fContribution: the player's share of the kill as BattleFieldMiddleBossDropProcess
+	/// computes it (damage / max HP, capped at 1.5, under 0.08 counts as 0). Only the
+	/// field middle-boss bonus items read it.
+	void PushNpcDrop( KOfflineSession& kSes, int iNpcUID, int iNpcID, int iED,
+					  const VECTOR3& kDiePos, float fContribution );
+#else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 	void PushNpcDrop( KOfflineSession& kSes, int iNpcUID, int iNpcID, int iED,
 					  const VECTOR3& kDiePos );
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 	/// Grants one quest-collection item straight to inventory - no floor
 	/// object, no drop UID. Live never puts these on the floor either; see

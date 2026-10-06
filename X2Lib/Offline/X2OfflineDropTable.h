@@ -91,6 +91,16 @@ public:
 	void	GetNpcReward( int iKey, bool bBattleField, int iNpcID, int iNpcLevel,
 						  OUT int& iEXP, OUT int& iED );
 
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	/// Whether the monster has a drop row, specific key first and then the
+	/// wildcard: KDropTable::GetBattleFieldNpcDropInfo (KDropTable.cpp:3361) and
+	/// the lookup GetNpcReward does. A field middle boss without one gets nothing
+	/// from BattleFieldMiddleBossDropProcess, bonus items included. One known
+	/// difference: ReadDropBlock does not store a row with no EXP, ED or item, so
+	/// such a row reads as absent here while the server would find it.
+	bool	HasNpcRow( int iKey, bool bBattleField, int iNpcID );
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+
 	/// The item lottery for one kill (phase 5). Rolls the same two-stage draw
 	/// KDropTable::NpcDropItem does: one pick across the monster's whole case
 	/// list, and if that pick names a group, a second pick inside the group.

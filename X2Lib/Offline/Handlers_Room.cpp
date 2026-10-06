@@ -2697,7 +2697,28 @@ bool CX2OfflineServer::Handler_EGS_NPC_UNIT_DIE_REQ( KOfflineSession& kSes, cons
 		// The loot: ED as coins, plus whatever the item lottery drew. Phase 4
 		// left both out - items because there was no inventory to hold them,
 		// ED because it was credited invisibly instead.
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+		// The player's contribution, as BattleFieldMiddleBossDropProcess computes it
+		// (BattleFieldRoom.cpp:4459-4467): party damage / max HP / party members
+		// (1 offline), capped at 1.5, and under 0.08 it is 0. Absent from the map
+		// (the player never hit it) is no entry on the server, which gives nothing.
+		float fContribution = 0.0f;
+		{
+			std::map< UidType, float >::const_iterator mitDmg = kReq.m_mapDamageByUser.find( m_kRoom.m_nUnitUID );
+			if( mitDmg != kReq.m_mapDamageByUser.end() && kReq.m_iNpcMaxHP > 0 )
+			{
+				fContribution = mitDmg->second / static_cast<float>( kReq.m_iNpcMaxHP );
+				if( fContribution > 1.5f )
+					fContribution = 1.5f;
+				if( fContribution < 0.08f )
+					fContribution = 0.0f;
+			}
+		}
+
+		PushNpcDrop( kSes, kReq.m_nDieNPCUID, iNpcID, iED, kReq.m_DiePos, fContribution );
+#else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 		PushNpcDrop( kSes, kReq.m_nDieNPCUID, iNpcID, iED, kReq.m_DiePos );
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 		// Phase 6: hunt sub-quests and hunt sub-missions. Only a real kill
 		// counts, which is why this is inside the reward branch rather than
@@ -2839,8 +2860,13 @@ static bool IsEventDropDungeon( int iDungeonID )
 	return true;
 }
 
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+void CX2OfflineServer::PushNpcDrop( KOfflineSession& kSes, int iNpcUID, int iNpcID, int iED,
+									const VECTOR3& kDiePos, float fContribution )
+#else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 void CX2OfflineServer::PushNpcDrop( KOfflineSession& kSes, int iNpcUID, int iNpcID, int iED,
 									const VECTOR3& kDiePos )
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 {
 	if( iNpcID <= 0 )
 		return;
@@ -2933,6 +2959,75 @@ void CX2OfflineServer::PushNpcDrop( KOfflineSession& kSes, int iNpcUID, int iNpc
 			{
 				CX2OfflineLog::Server( L"[OFFLINE_GRADE] special drop: monster %d (uid=%d) grade %d -> item %d "
 					L"is not in the item data - skipped", iNpcID, iNpcUID, (int)cGrade, iSpecialItemID );
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		// The field middle boss's bonus items, BattleFieldMiddleBossDropProcess
+		// (BattleFieldRoom.cpp:4700-4790, the live branch; :4636-4697 is the dead
+		// EVENT_BOSS_INT one). Gates, in the server's order:
+		// - the monster has a field drop row, or the process returns early (:4486);
+		// - a FieldBonusDrop.lua row for (field, NPC) (GetBattleFieldMiddleBossDropInfo);
+		// - contribution > 0 and level factor > 0 (:4703). The level factor is 1
+		//   offline, as for every other reward here.
+		// Then 70070 (HP), 70050 (MP), the common item x count, and the cube x High
+		// for the top 30 % of parties, else x Low. CalculatePartyRank's top count is
+		// (int)( parties * 0.3 ), which is 0 for a solo player, so offline always gets
+		// Low (BattleFieldUserManager.cpp:1657).
+		if( true == bFieldMiddleBoss )
+		{
+			CX2OfflineBattleField::KMiddleBossBonus kBonus;
+
+			if( false == CX2OfflineDropTable::Instance()->HasNpcRow( iKey, true, iNpcID ) )
+			{
+				CX2OfflineLog::Server( L"[OFFLINE_GRADE] field middle boss %d has no field drop row - no bonus items", iNpcID );
+			}
+			else if( false == CX2OfflineBattleField::Instance()->GetMiddleBossBonus( iKey, iNpcID, kBonus ) )
+			{
+				CX2OfflineLog::Server( L"[OFFLINE_GRADE] field middle boss %d: no FieldBonusDrop row for field %d - no bonus items",
+					iNpcID, iKey );
+			}
+			else if( fContribution <= 0.0f )
+			{
+				CX2OfflineLog::Server( L"[OFFLINE_GRADE] field middle boss %d: contribution %.3f - no bonus items",
+					iNpcID, fContribution );
+			}
+			else
+			{
+				std::vector< int > vecBonus;
+				vecBonus.push_back( 70070 );	///< HP 100 %
+				vecBonus.push_back( 70050 );	///< MP 150
+
+				for( int i = 0; i < kBonus.m_iCommonCount; ++i )
+				{
+					if( kBonus.m_iCommonItemID <= 0 )
+						break;
+					vecBonus.push_back( kBonus.m_iCommonItemID );
+				}
+
+				for( int i = 0; i < kBonus.m_iCountLow; ++i )
+				{
+					if( kBonus.m_iBonusItemID <= 0 )
+						break;
+					vecBonus.push_back( kBonus.m_iBonusItemID );
+				}
+
+				for( size_t i = 0; i < vecBonus.size(); ++i )
+				{
+					if( NULL == g_pData->GetItemManager()->GetItemTemplet( vecBonus[i] ) )
+					{
+						CX2OfflineLog::Server( L"[OFFLINE_GRADE] field middle boss bonus item %d is not in the item data - skipped",
+							vecBonus[i] );
+						continue;
+					}
+
+					vecItemID.push_back( vecBonus[i] );
+				}
+
+				CX2OfflineLog::Server( L"[OFFLINE_GRADE] field middle boss %d bonus: contribution %.3f, 70070 + 70050"
+					L" + %d x %d + %d x %d (Low; solo is never top 30 %%)",
+					iNpcID, fContribution, kBonus.m_iCommonCount, kBonus.m_iCommonItemID,
+					kBonus.m_iCountLow, kBonus.m_iBonusItemID );
 			}
 		}
 	}

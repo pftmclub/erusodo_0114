@@ -130,6 +130,33 @@ public:
 	float	GetEXPFactor();
 	float	GetEDFactor();
 
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	/// One BattleFieldMiddleBossDropInfo row of FieldBonusDrop.lua
+	/// (CXSLBattleFieldManager::KFieldMiddleBossDropInfo, XSLBattleFieldManager.cpp:425).
+	struct KMiddleBossBonus
+	{
+		int		m_iCommonItemID;	///< SetMiddleBossCommonBonusItemID
+		int		m_iCommonCount;		///< SetMiddleBossCommonBonusItemCount
+		int		m_iBonusItemID;		///< SetMiddleBossBonusItemID
+		int		m_iCountHigh;		///< SetMiddleBossBonusItemIDCount_High (top 30 % of parties)
+		int		m_iCountLow;		///< SetMiddleBossBonusItemIDCount_Low
+
+		KMiddleBossBonus()
+			: m_iCommonItemID( 0 ), m_iCommonCount( 0 ), m_iBonusItemID( 0 )
+			, m_iCountHigh( 0 ), m_iCountLow( 0 )
+		{
+		}
+	};
+
+	/// GetBattleFieldMiddleBossDropInfo (XSLBattleFieldManager.cpp:464): keyed by
+	/// (battlefield ID, NPC ID), no wildcard. False when the row is absent or
+	/// FieldBonusDrop.lua is not packed (logged once, at the first lookup).
+	bool	GetMiddleBossBonus( int iBattleFieldID, int iNpcID, OUT KMiddleBossBonus& kOut );
+
+	/// FieldBonusDrop.lua: g_pBattleFieldManager:BattleFieldMiddleBossDropInfo{ ... }
+	void	BattleFieldMiddleBossDropInfo_LUA();
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+
 	//////////////////////////////////////////////////////////////////////////
 	// Bound into Lua as g_pBattleFieldManager:*. Public only because lua_tinker
 	// needs their addresses.
@@ -341,6 +368,15 @@ private:
 	int								m_iEliteMonsterDropValue;	///< 15
 	float							m_fEXPFactor;			///< 1.5
 	float							m_fEDFactor;			///< 0.8
+
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	/// FieldBonusDrop.lua, read once on the first field middle-boss kill.
+	void	EnsureBonusDropLoaded();
+
+	std::map< std::pair< int, int >, KMiddleBossBonus >	m_mapMiddleBossBonus;
+	bool							m_bBonusDropAttempted;
+	int								m_iBonusRows;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 };
 
 #endif SERV_IRUHADEV_OFFLINE

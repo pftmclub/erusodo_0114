@@ -11,6 +11,9 @@ namespace
 {
 	const wchar_t* const SCRIPT_BATTLE_FIELD_DATA = L"BattleFieldData.lua";
 	const wchar_t* const SCRIPT_SERVER_DATA			= L"BattleFieldServerData.lua";
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	const wchar_t* const SCRIPT_FIELD_BONUS_DROP	= L"FieldBonusDrop.lua";
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -31,6 +34,10 @@ CX2OfflineBattleField::CX2OfflineBattleField()
 , m_iEliteMonsterDropValue( 15 )
 , m_fEXPFactor( 1.5f )
 , m_fEDFactor( 0.8f )
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+, m_bBonusDropAttempted( false )
+, m_iBonusRows( 0 )
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 {
 }
 
@@ -93,6 +100,13 @@ void CX2OfflineBattleField::BindGlobal()
 		&CX2OfflineBattleField::SetDangerousValueEventRate_LUA );
 	lua_tinker::class_def< CX2OfflineBattleField >( pLuaState, "AddEliteMonsterDropInfo",
 		&CX2OfflineBattleField::AddEliteMonsterDropInfo_LUA );
+
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	// FieldBonusDrop.lua (CXSLBattleFieldManager binds the same name,
+	// XSLBattleFieldManager.cpp:69).
+	lua_tinker::class_def< CX2OfflineBattleField >( pLuaState, "BattleFieldMiddleBossDropInfo",
+		&CX2OfflineBattleField::BattleFieldMiddleBossDropInfo_LUA );
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 	lua_tinker::decl( pLuaState, "g_pBattleFieldManager", this );
 }
@@ -328,6 +342,92 @@ void CX2OfflineBattleField::EnsureServerDataLoaded()
 		m_iDangerValueMax, m_iDangerValueWarning, m_iBossCheckUserCount,
 		m_fEXPFactor, m_fEDFactor );
 }
+
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+void CX2OfflineBattleField::EnsureBonusDropLoaded()
+{
+	if( true == m_bBonusDropAttempted )
+		return;
+
+	m_bBonusDropAttempted = true;
+
+	if( NULL == g_pKTDXApp || NULL == g_pKTDXApp->GetLuaBinder() ||
+		NULL == g_pKTDXApp->GetDeviceManager() ||
+		NULL == g_pKTDXApp->GetDeviceManager()->GetMassFileManager() ||
+		NULL == g_pKTDXApp->GetLuaBinder()->GetLuaState() )
+	{
+		return;
+	}
+
+	// The server's own file (KncWX2Server/ServerResource/US/FieldBonusDrop.lua),
+	// shipped here as data036's FieldBonusDrop.lua. Without it a field middle
+	// boss gives its EXP, ED and lottery items but none of the bonus items.
+	BindGlobal();
+
+	int iBefore = 0;
+	const bool bOK = RunScript( SCRIPT_FIELD_BONUS_DROP, iBefore, m_iBonusRows );
+
+	UnbindGlobal();
+
+	if( false == bOK )
+	{
+		CX2OfflineLog::Server( L"[OFFLINE_GRADE] '%s' is not loaded - field middle bosses give no bonus items"
+			L" (70070, 70050, common bonus item, cubes). Pack it into data036.kom.", SCRIPT_FIELD_BONUS_DROP );
+		return;
+	}
+
+	CX2OfflineLog::Server( L"[OFFLINE_GRADE] '%s' loaded %d row(s)", SCRIPT_FIELD_BONUS_DROP, m_iBonusRows );
+}
+
+bool CX2OfflineBattleField::GetMiddleBossBonus( int iBattleFieldID, int iNpcID, OUT KMiddleBossBonus& kOut )
+{
+	EnsureBonusDropLoaded();
+
+	std::map< std::pair< int, int >, KMiddleBossBonus >::const_iterator mit =
+		m_mapMiddleBossBonus.find( std::make_pair( iBattleFieldID, iNpcID ) );
+
+	if( mit == m_mapMiddleBossBonus.end() )
+		return false;
+
+	kOut = mit->second;
+	return true;
+}
+
+namespace
+{
+	void LogSkippedBonusRow( const wchar_t* szKey )
+	{
+		CX2OfflineLog::Server( L"[OFFLINE_GRADE] WARN FieldBonusDrop row without %s - skipped, as the server does", szKey );
+	}
+}
+
+void CX2OfflineBattleField::BattleFieldMiddleBossDropInfo_LUA()
+{
+	// CXSLBattleFieldManager::SetBattleFieldMiddleBossDropInfo_LUA
+	// (XSLBattleFieldManager.cpp:425-461): every key is required (LUA_GET_VALUE_RETURN
+	// drops the row), and a repeated (field, NPC) key keeps the first row.
+	KLuaManager kLua( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+
+	int iBattleFieldID = 0;
+	int iNpcID = 0;
+	KMiddleBossBonus kInfo;
+
+	LUA_GET_VALUE_RETURN( kLua, "BattleFieldID",						iBattleFieldID,			0, return LogSkippedBonusRow( L"BattleFieldID" ) );
+	LUA_GET_VALUE_RETURN( kLua, "MonsterID",							iNpcID,					0, return LogSkippedBonusRow( L"MonsterID" ) );
+	LUA_GET_VALUE_RETURN( kLua, "SetMiddleBossCommonBonusItemID",		kInfo.m_iCommonItemID,	0, return LogSkippedBonusRow( L"SetMiddleBossCommonBonusItemID" ) );
+	LUA_GET_VALUE_RETURN( kLua, "SetMiddleBossCommonBonusItemCount",	kInfo.m_iCommonCount,	0, return LogSkippedBonusRow( L"SetMiddleBossCommonBonusItemCount" ) );
+	LUA_GET_VALUE_RETURN( kLua, "SetMiddleBossBonusItemID",				kInfo.m_iBonusItemID,	0, return LogSkippedBonusRow( L"SetMiddleBossBonusItemID" ) );
+	LUA_GET_VALUE_RETURN( kLua, "SetMiddleBossBonusItemIDCount_High",	kInfo.m_iCountHigh,		0, return LogSkippedBonusRow( L"SetMiddleBossBonusItemIDCount_High" ) );
+	LUA_GET_VALUE_RETURN( kLua, "SetMiddleBossBonusItemIDCount_Low",	kInfo.m_iCountLow,		0, return LogSkippedBonusRow( L"SetMiddleBossBonusItemIDCount_Low" ) );
+
+	const std::pair< int, int > kKey( iBattleFieldID, iNpcID );
+	if( m_mapMiddleBossBonus.find( kKey ) != m_mapMiddleBossBonus.end() )
+		return;
+
+	m_mapMiddleBossBonus.insert( std::make_pair( kKey, kInfo ) );
+	++m_iBonusRows;
+}
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 bool CX2OfflineBattleField::HasServerData()
 {

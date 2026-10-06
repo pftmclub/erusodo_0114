@@ -650,6 +650,40 @@ The comment at `:2518-2520` states the opposite of the server. A fix would be it
 - **3b** is being implemented by a peer session as this review is written: uncommitted edits under this flag in `Handlers_Room.cpp`, `X2OfflineBattleField.*`, `X2OfflineDropTable.*` and `X2OfflineServer.h`. This review did not touch them.
 - **3b's own review** must re-check `MODS.md`, which will then need `X2OfflineDropTable.cpp`.
 
+## Phase 3b - Field middle-boss bonus items
+
+**Scope.** `BattleFieldMiddleBossDropProcess`'s bonus items (`BattleFieldRoom.cpp:4700-4790`): 70070 (HP), 70050 (MP), the common
+bonus item and the cubes, from the server-only `FieldBonusDrop.lua`. The user OK'd this on 2026-10-06 and asked for the file to go
+into data036 as `FieldBonusDrop.src.lua`, with the manifest naming `FieldBonusDrop.lua` at algo 2. Run in the Phase 3 session.
+
+### Phase 3b - Done
+
+2026-10-06, Opus 5.5 high. Flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE`. **Play-test pending.**
+
+**Data.**
+- `kom_contents/data036_kom/FieldBonusDrop.src.lua` is byte-identical to `KncWX2Server/ServerResource/US/FieldBonusDrop.lua`, BOM and CRLF included. It compiles cleanly.
+- `FieldBonusDrop.lua` is the `kom.py compile` output, and the `_manifest.json` entry is `"FieldBonusDrop.lua": "2"`.
+- `PACK OK data036`: 185 entries, `+1 added, -0 removed, ~0 changed` against the live kom. Copied to the game only after the user OKs it.
+- **Content:** 70 live rows (fields 40001-40032), all identical: common item 99988 x1, cube 160712 x2 (High) / x1 (Low). All four items are in March `item.kim`.
+
+**Code.**
+- `X2OfflineBattleField`: `BattleFieldMiddleBossDropInfo_LUA` is bound on `g_pBattleFieldManager`.
+  - All seven keys are required, as `LUA_GET_VALUE_RETURN` drops the row on the server; a repeated (field, NPC) keeps the first (`XSLBattleFieldManager.cpp:425-461`).
+  - `GetMiddleBossBonus` does an exact-key lookup, and the file loads once on the first lookup.
+  - Degrade: if the file is missing, one `[OFFLINE_GRADE] 'FieldBonusDrop.lua' is not loaded` line.
+- `X2OfflineDropTable::HasNpcRow` is the server's drop-row gate (`:4486`; `KDropTable.cpp:3361`). An all-zero row is not stored offline, so it reads as absent; this is noted in the header.
+- **`PushNpcDrop`** takes the player's contribution, computed in the handler as damage / max HP, capped at 1.5, and 0 below 0.08 (`:4459-4467`). For a field middle boss (set member):
+  - with a drop row, a bonus row and contribution > 0, it adds 70070 + 70050 + common x count + cube x **Low**;
+  - the level factor is 1 offline, as for every other reward;
+  - a missing templet logs and skips.
+- **Server quirk kept:** `CalculatePartyRank`'s top count is `(int)(parties * 0.3)`, which is 0 for one party (`BattleFieldUserManager.cpp:1657`). So a solo player always gets the Low count: 1 cube, never 2.
+
+**Hygiene.** `flagcheck --worktree --files` (6 offline files): `files: 2 PASS, 4 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,249,664 B, dated 2026-10-06 17:05:16, md5 307ebfa3ebe8209709dc0ff0c9c9dfed, equal to X2/US_SERVICE/x2.exe (2026-10-06 17:05:11); built at mods/june-buff-port 61b50f0 + 6 uncommitted code file(s).` (the six are this phase's). The `FieldBonusDrop.lua` and `bonus: contribution` strings are in the exe.
+
+**How to see it** (tag `[OFFLINE_GRADE]`). Kill a field middle boss. First `'FieldBonusDrop.lua' loaded 70 row(s)`, then `field middle boss <id> bonus: contribution 0.xxx, 70070 + 70050 + 1 x 99988 + 1 x 160712`, with those four items on the floor.
+
 ## Reviews
 
 `1-review`, `2-review`, `3-review`: Opus 5.5 / high. Each checks its phase against the server

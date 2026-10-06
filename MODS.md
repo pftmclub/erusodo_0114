@@ -2910,9 +2910,13 @@ Flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` (`KTDXLIB/Always.h`), one flag for al
   worth more than 1999 ED is the gold bar (127041). Special drops: 70058 for a boss, 70057 at 50 % for a dungeon middle boss, and
   70057 for grade 3 (not for a field middle boss, which the server never gives one). The item lottery is unchanged, as on the
   server. One `[OFFLINE_GRADE]` line per kill in `offline_server.log`.
+- **Phase 3b, field middle-boss bonus items.** These come from the server's `FieldBonusDrop.lua`, now in data036: `FieldBonusDrop.src.lua`
+  is the server file byte for byte, and `FieldBonusDrop.lua` is its compiled form at algo 2. A field middle boss kill with a drop row
+  and some damage from the player drops 70070, 70050, 99988 and one cube 160712. Solo is always the low cube count, as on the server.
 
-**Needs packing:** nothing. **Revert:** undefine the flag and rebuild all four projects (it sits in the PCH). Rewards, coins and
-drops go back to the flat x1 rates, and no middle boss spawns on fields again.
+**Needs packing:** `FieldBonusDrop.lua` in data036 (packed by `kom.py pack data036`; without it the bonus items are off and logged).
+**Revert:** undefine the flag and rebuild all four projects (it sits in the PCH). Rewards, coins and drops go back to the flat x1
+rates, and no middle boss spawns on fields again. The extra data036 entry is then unused and harmless.
 
 ## Reverting to stock
 

@@ -674,6 +674,19 @@ int CX2OfflineDropTable::GetNpcExp( int iNpcLevel ) const
 	return rit->second;
 }
 
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+bool CX2OfflineDropTable::HasNpcRow( int iKey, bool bBattleField, int iNpcID )
+{
+	EnsureLoaded();
+
+	const std::map< std::pair< int, int >, KNpcReward >& mapDrop =
+		( true == bBattleField ) ? m_mapBattleFieldDrop : m_mapMonsterDrop;
+
+	return ( mapDrop.find( std::make_pair( iKey, iNpcID ) ) != mapDrop.end() ||
+			 mapDrop.find( std::make_pair( 0, iNpcID ) ) != mapDrop.end() );
+}
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+
 void CX2OfflineDropTable::GetNpcReward( int iKey, bool bBattleField, int iNpcID, int iNpcLevel,
 										OUT int& iEXP, OUT int& iED )
 {
