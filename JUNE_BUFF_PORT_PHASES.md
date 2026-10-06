@@ -5607,6 +5607,52 @@ All take the rate + 1.0. A new caller `32369bd0` (not in the kickoff's list) goe
 
 **Open for the user.** /cost is not available in-session.
 
+### Phase 16-step3b5 — Review (2026-10-06, Opus 5.5 high)
+
+**Result: PASS, no code change.** Items 0-4 match June. Read in Ghidra (decompile and disassembly), and with `disasm_range.py` for the callers.
+
+**Checked, matches June.**
+- **Item 0, `3201aff0` / `32000320`.**
+  - The sum is `[esp+0x10]` (FLDZ `@3201aff9`); EBX is the loop index (`@3201b045`).
+  - The interval test `@3201b087` (`TEST AH,5; JP`) takes the no-interval path at <= 0 and on NaN, the same as `false == ( 0 < interval )`.
+  - The store: an entry is skipped while its cool time is > 0 (`@3201b0c9`, `TEST AH,1`). It is set to `+0x1f8` only when the reduction is > 0 (`@3201b0e2`/`@3201b10b`).
+  - The title loop returns `+0x5c` + the sum, with `DUNGEON_ONLY_TYPE` against vslot `0x1c8` (= `GetDungeonType`, funcmap `327c9ef0`; March's port at `X2GUUser.cpp:36505` already uses it). PVP_ONLY uses `322cc1a0` (JUNE_BUGS #56). `32000320` uses `322cc180`.
+  - **`ADJUST_SECRET_ITEM_OPTION` is OFF in US.** It is defined only at `Always.h:703` and undefined at `Always_US.h:4`, which `Always.h:3428` includes later. The `cl /EP` probe on `KTDX.h` prints `"PROBE ADJUST_SECRET_ITEM_OPTION OFF"`.
+- **Items 1-2, the loader.**
+  - `@3272e4e2` ("Group 0") and `@3272e4ff` (no space) jump to `3272ebbb`.
+  - Tokens are cut between spaces from the position after the first space (`31aa57e0`, `pos + 1`); "0" is skipped. A last token "0" goes to `3272eb3e`, past the float and both tables.
+  - Groups are inserted per member, and anything else as a skill ID (`32737f00`, `32078230` + `32821f20`).
+  - The float goes to pair `+0xbc` (= templet `+0xb8`). `m_SkillType`/`m_PowerRate` go through `327150b0`/`32715110` into `+0x9c`/`+0xac` (pair) = `+0x98`/`+0xa8`, each followed by `EndTable` only when its `BeginTable` succeeded.
+  - `32715680` has no class filter. `32716860 @32716aff` loads the group file first.
+- **Item 3, `31fe14f0`.**
+  - The type x rate-type double loop compares templet `+4` with the type and `+0x174` (3 -> 2) with the rate type, then adds into the aggregate `+0x48` (ECX = arg 1 `+0x48`, `@31fe159c`). The both-empty path looks the skill up in the templet's own map.
+  - In SumSocketOption `@3204f485..4dd`, 10 slots with the original templet (EBX). June reads `+0x867c` there without a NULL test; the port's NULL guard only avoids a crash.
+  - `m_eJunePowerRateType`: the only templet builder is `AddSkillTemplet_LUA` (`AddSkillTempletTrans_LUA` is dead; `LUA_TRANS_DEVIDE` is commented out). June's default when the key is absent is 0 (`@32217c9c..cbb`), the same as March's `SPRT_BASIC_CLASS`. The enum values match (Lua, both versions).
+  - `GetUserSkillTemplet` = `32890720( skill, 1 )` without June's memo swap.
+- **Aggregate reset.** June's ReInit `320922a0` -> `32091360` clears the `+0x48` map (`31d06e90` = std::map clear) and leaves `+0x98`/`+0xa8`/`+0xb8` alone. Nothing writes those on the aggregate, so the port's extra clears change nothing. June runs it as the first step of `UpdateSocketDataAndEnchantData` `3204b4c0` (aggregate vslot `+8`, vtable `33478a98`), the same as March's `X2GUUser.cpp:29108`. The rate does not compound on a gear rebuild.
+- **Item 4, the reader and its callers.**
+  - `3201ad10`: hit = `+0x10`. The transcendence and memo fallbacks run only on a miss. The ability and 215434 terms are as the 3b7 kickoff describes them.
+  - `32024b00 @32024d36/@32024d4d`: both states x (rate + 1.0), skill = templet `+8`.
+  - Reflex Magic `@32046bae`: before the `+0x679c` override, matching `X2GUUser.cpp:8484`.
+  - `@322ed2f7`: same `esi` as `31fd7cc0 @322ed30d`.
+
+**Live census.** A recount from the staged sources (June OptionItemData + SkillLevelUpSocketGroup, March's class filter applied) gives 2491 / 36373 / 313 / 2491, with 313 group tokens, 2178 skill IDs and 19 groups. That equals the play-test's `ErrorLog.txt:227`. The live `data036.kom` md5 is `cb9ac802`, and both staged `.lua` equal `kom_contents`. March's filter drops 1,829 rows, and none of them is a skill in March's `SKILL_ID`, so no March skill loses a group.
+
+**New open item (moved to checklist §7, D8 rule).** Right after the slot loop, SumSocketOption calls user vslot 485 (`+0x794`, `@3204f4ed`). The base slot `33093ad0` is empty. Two of June's 12 class vtables override it, and both run `31fe14f0` for skills outside the slots:
+- Lu/Ciel `32b0e670`: 30044-30046 / 30050-30052;
+- Ara `32badc80`: the `32d3f040` list.
+
+This is a new checklist row. Nothing changes in March, which has no Lu/Ciel and no Ara hook.
+
+**Hygiene** (`flagcheck.py JUNE_SOCKET_PARITY --range 1d285ef^..HEAD --with JUNE_BUFF_DEBUG`):
+- `files: 7 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+- `in this flag's files: 2 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+- `RESULT: PASS`
+
+**Correction to the Done note:** the two deleted lines are the SIEE 20 comment (X2GUUser.cpp) and the 3b3 comment line (X2Game.cpp). `return fRate;` was not deleted: git pairs it with the new reader's return.
+
+**Exe.** No rebuild. The deployed `X2_offline.exe` (md5 `aad7844e`, 19:26:16) is a peer's deploy at `1a560d9`, which contains `1d285ef`, plus the offline grade's 2 files. No play-test is owed: there was no code change, and 3b5's play-test passed.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
