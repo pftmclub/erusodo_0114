@@ -344,7 +344,7 @@ june-buff 16-step3b2 review it waited on is committed (`60d0571`).
 
 ### Phase 1 - Done
 
-2026-10-06, Sonnet 5.5 high. Flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` (the one flag, defined in `KTDXLIB/Always.h`). **Code done and deployed; play-test pending.**
+2026-10-06, Sonnet 5.5 high. Flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` (the one flag, defined in `KTDXLIB/Always.h`). **Code done and deployed; play-tested 2026-10-06 (result below); reviewed (see "Phase 1 - Review").**
 
 **What landed** (tasks 1-4):
 - `X2DungeonSubStage.h`: `NPCData::m_cMonsterGrade` (a `char`; X2TOOL's `m_MonsterGrade` untouched).
@@ -390,6 +390,42 @@ The user played Ranox Burnded Forest Normal (33270) instead of the planned targe
 3. Optional: the boss-damage socket (86322 on weapon `item_uid 810`) raising the number on the boss. It needs the user's OK for a save edit, and first confirming that `InitSocketData` sums an equipment socket of that type. Not done.
 
 Expected `scriptCheck` warnings: 0 (census). Open questions for the user: none.
+
+### Phase 1 - Review
+
+2026-10-06, Opus 5.5 high, review of `ac0fe70`. **Verdict: correct, no code change.** No rebuild was
+needed, so the deployed exe is still the play-tested `be1c9b56...`.
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_OFFLINE_MONSTER_GRADE --range ac0fe70^..HEAD`:
+`files: 2 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+`RESULT: PASS`. The `PASS~` is the one blank line after the logging block's `#endif` in `Handlers_Room.cpp`.
+
+**Checked against the sources (all match).**
+- **Server.** `XSLDungeonSubStage.cpp:197` (`LUA_GET_VALUE_ENUM MONSTER_GRADE`, default 0) matches `FetchNPCData`. `:221-246` gives the two warning cases. `XSLDungeon.cpp:391` is the copy that `BuildStageNpcData` mirrors.
+- **June `327edb60` (AddNPCData).** `NPCData[0x11] = (int)(char)req[+0x66]`. `+0x66` is `m_cMonsterGrade`: it sits between `m_cAllyTeam` `+0x65` and `m_usBossGaugeHPLines` `+0x67`.
+- **June `327ef71d`.** `CreateGUNPC` passes `NPCData +0x44` as the fetch `32384d10`'s 3rd argument, before the factory `327b1d40` and `Init` (vtable `+0x40`).
+- **The three copies of the grade.**
+  - FetchNPCData read: `X2DungeonSubStage.cpp:1610-1618`.
+  - BuildStageNpcData send: `Handlers_Room.cpp:1891`.
+  - AddNPCData copy: `X2DungeonSubStage.cpp:2206`.
+- **Zero-init.** All 5 game-build `new NPCData()` sites set it. These are the only allocations, and nothing copies an NPCData by value.
+- **Order.** `m_iExtraNPCStatMonsterGrade` is zeroed only in `CommonConstructor` (`X2GUNPC.cpp:2352`), not in `Init`. The setter (`:2455`) runs before `Init` (`:2463`) and before `SetNpcHardLevel` (`:387`, the only reader's caller). `CreateAndAppendGUNPC` → `CX2Dungeon::CreateStageNPCs` has no caller.
+- **The client's own parse never spawns NPCs.** It runs only for `bIsNpcLoad` dungeons (`:1533`), i.e. the emulator's throwaway, so in-game NPCs get their grade from the packet, as in June.
+- **`#else` paths.** The send keeps the original comment, and every other edit is insert-only.
+
+**Coverage checks (no finding).**
+- **Mid-game spawns.** June's other fetch callers all pass grade 0: `CX2Game::CreateNPC` `3230d5c9`, plus `31f0ba27`, `32e8d00a` and `32e8d0bd`. So `EGS_NPC_UNIT_CREATE_NOT` NPCs carrying no grade is June's behaviour, not a gap.
+- **Other grade readers.** None changed. The client's `m_bIsBossStage` comes from clear conditions. The server's `bIsBossStage` (`XSLDungeon.cpp:402`) gates only event monsters (`DungeonRoom.cpp:3764`) and is in no packet.
+- **Per-NPC versus June's per-ID grade** (the 16-step3b2 choice, now live for dungeons). I re-decompiled 163 boss stage files, and the other 10 are Ranox text. No grade-1 boss ID appears as a grade-0 `NPC_GROUP` entry or is spawned by a stage trigger, so the difference has no reach in stage data. NPC-script self-summons were not swept.
+- **`bScriptCheck` scope.** The emulator warns only on shipped NPCs, after the rate roll and the SUB_NPC pick. The census walked every entry, losers included, and found 0 mismatches, so nothing is missed.
+
+**Notes (not fixed).**
+- The X2TOOL constructor (`X2DungeonSubStage.h:178`) does not set `m_cMonsterGrade`, so the Done note's "use the constructor" overstates it. X2TOOL is never built here.
+- Two stale comments still say the dungeon grade is not plumbed: `X2GUNPC.h:2365` and `:3771-3780`. They are left as they are, because the code is june-buff's (hands-off) and correcting them would cost a full PCH rebuild for an identical binary.
+- The member sits inside the studio's `//{{ ... //}}` SERV_ALLY_NPC block. This is cosmetic.
+- The scan 50 / near 1000 change is still not exercised (it has no log line).
+- **Kickoffs.** Phase 1 moved `Handlers_Room.cpp` by +8 / +39 lines. `kickoffs/offline-grade/2.md` (`:1894` → `:1902`, `:2332` → `:2371`) and `3.md` (`:2785` → `:2824`) are updated. `2.md` already says no client change on battlefields.
 
 ## Phase 2 - Battlefield like the CenterServer
 
