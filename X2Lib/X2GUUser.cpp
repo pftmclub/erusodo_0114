@@ -2924,6 +2924,11 @@ void CX2GUUser::InitSocketData()
 		m_SocketData.m_SocketExtraDamage.m_DamagePerSec = GetStat().GetStat().m_fAtkMagic;	// 혹시 아래의 코드에서 초기화가 안되는 경우를 대비해서
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b2 item 6: June 3206d770 @3206d909 clears the CX2Unit cool-time cut map (3234fcc0) before the
+	/// first SumSocketOption
+	GetUnit()->ClearJuneSocketCoolTimeCut();
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	for( int i = 0; i < (int)GetUnit()->GetUnitData().m_NowEqipItemUIDList.size(); i++ )
 	{
 		UidType eqipUID = GetUnit()->GetUnitData().m_NowEqipItemUIDList[i];
@@ -3411,6 +3416,27 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 			m_SocketData.m_vecInfoByUseHyperMode.push_back( sInfoByUseHyperMode );
 		}
 #endif // HAMEL_SECRET_DUNGEON
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port 16-step3b2 item 6: June 3204f190 @32050009..320500eb, the last thing each socket does (after its
+		/// +0x896c socket-ID push and the socket-2000145 user flag +0x7ca8, neither in March): with a CX2Unit, the templet's
+		/// cool-time cuts go into the unit's slot map (32355d70), active / 1st / 2nd / 3rd SA to slots 1-4, then the all-skill
+		/// cut to slots 1, 2, 3, 4 and 6. They come from the templet, so rank scaling never touches them.
+		if ( NULL != GetUnit() )
+		{
+			GetUnit()->AddJuneSocketCoolTimeCut( 1, kSocketData.m_fDecreaseActiveSkillCooltime );
+			GetUnit()->AddJuneSocketCoolTimeCut( 2, kSocketData.m_fDecrease1stSA_SkillCooltime );
+			GetUnit()->AddJuneSocketCoolTimeCut( 3, kSocketData.m_fDecrease2ndSA_SkillCooltime );
+			GetUnit()->AddJuneSocketCoolTimeCut( 4, kSocketData.m_fDecrease3rdSA_SkillCooltime );
+		}
+		if ( NULL != GetUnit() )
+		{
+			GetUnit()->AddJuneSocketCoolTimeCut( 1, kSocketData.m_fAllSkillCooltimeDecreaseRate );
+			GetUnit()->AddJuneSocketCoolTimeCut( 2, kSocketData.m_fAllSkillCooltimeDecreaseRate );
+			GetUnit()->AddJuneSocketCoolTimeCut( 3, kSocketData.m_fAllSkillCooltimeDecreaseRate );
+			GetUnit()->AddJuneSocketCoolTimeCut( 4, kSocketData.m_fAllSkillCooltimeDecreaseRate );
+			GetUnit()->AddJuneSocketCoolTimeCut( 6, kSocketData.m_fAllSkillCooltimeDecreaseRate );
+		}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	}
 }
 
@@ -14234,7 +14260,7 @@ void CX2GUUser::CommonStateStartFuture()
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 /// June 32070510: a skill's category, as the socket +0x29c list and the cool-time map count it. June's SA grades
 /// 14/15/16 (ST_SPECIAL_ACTIVE_GRADE_1/2/3) do not exist in March's SKILL_TYPE, so 3 and 4 never come back here.
-static int JuneSkillCategory( const CX2SkillTree::SkillTemplet& kSkillTemplet_ )
+int JuneSkillCategory( const CX2SkillTree::SkillTemplet& kSkillTemplet_ )	/// 16-step3b2: not static, the cool-time map shares it (X2Unit.h)
 {
 	switch ( static_cast<int>( kSkillTemplet_.m_eType ) )
 	{
@@ -21832,6 +21858,21 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 			}
 		}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port 16-step3b2 item 4: June 3203cf60 @3203d02d cuts the MP by max( 1 - r, 0.8 ) for the socket
+		/// m_fDecrease_MPCostRate result r > 0 on any skill that is not hyper (type 13), but only when its third (bool)
+		/// argument is set (the slot refresh 31fd6880 passes 1). March's GetActualMPConsume has no such argument (Phase 6b
+		/// deviation), so the cut is not applied: open for the user. One line says so when a socket asks for it.
+		if ( 0.f < GetDecreaseMPCostRate() )
+		{
+			static bool s_bSeenMPCostCut = false;
+			if ( !s_bSeenMPCostCut )
+			{
+				s_bSeenMPCostCut = true;
+				CX2JuneBuffCapture::Line( "socket MP cost cut %g not applied: June applies it only with GetActualMPConsume's bool argument, which this build lacks (open)", GetDecreaseMPCostRate() );
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		return GetSkillRateByBuffBehavior( pSkillTemplet->m_eID, BBT_CHANGE_CONSUME_MP_RATE ) * fJuneBuffMPConsume;
 #else // SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 		return pSkillTemplet->GetSkillMPConsumptionValue( iSkillTempletLevel )

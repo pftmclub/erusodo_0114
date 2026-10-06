@@ -10,6 +10,10 @@
 class CX2Item;
 class CX2Inventory;
 class CX2Eqip;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/// June 32070510 (defined in X2GUUser.cpp): a skill's June category, shared by the socket +0x29c list and the cool-time map
+int JuneSkillCategory( const CX2SkillTree::SkillTemplet& kSkillTemplet_ );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 {
 	public: 
@@ -1165,6 +1169,16 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 		/// June buff port Phase 6b: June 3235a710, the cool-time helper every skill-use and equip path calls right after it sets a cooldown (BBT 100)
 		void		ApplySkillCoolTimeRateByBuff( const CX2SkillTree::SKILL_ID eSkillID_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port 16-step3b2 item 6: June's socket skill cool-time cuts, a map<slot, float> at CX2Unit +0xe78.
+		/// Clear 3234fcc0 (InitSocketData @3206d909), add 32355d70 (SumSocketOption @32050023..320500eb), factor 3234fbd0
+		/// (read by the cool-time helper 3235a710 = ApplySkillCoolTimeRateByBuff). Slots: 1 active, 2 1st SA, 3 2nd SA,
+		/// 4 3rd SA, 5 hyper, 6 buff (June 32070510's categories, JuneSkillCategory).
+		void		ClearJuneSocketCoolTimeCut() { m_mapJuneSocketCoolTimeCut.clear(); }
+		void		AddJuneSocketCoolTimeCut( const int iSlot_, const float fCut_ );
+		float		GetJuneSocketCoolTimeFactor( const CX2SkillTree::SKILL_ID eSkillID_ ) const;
+		std::map<int, float>	m_mapJuneSocketCoolTimeCut;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	protected:		
 		bool			UpdateViewEqipPosition();

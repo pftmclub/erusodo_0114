@@ -4762,7 +4762,14 @@ void CX2Unit::ApplySkillCoolTimeRateByBuff( const CX2SkillTree::SKILL_ID eSkillI
 			bAppliedByBuff = pUser->ApplySkillTypeCoolTimeRate( eSkillID_, fCoolTime );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b2 item 6: June @3235a71d..3235a74b. The socket factor is max( 3234fbd0( skill ), 0.8 ); the
+	/// skill-upgrade modifier 32358480 is still not in March (1.0).
+	const float fJuneSocketFactor = GetJuneSocketCoolTimeFactor( eSkillID_ );
+	const float fCoolTimeRate = 1.0f * ( ( fJuneSocketFactor < 0.8f ) ? 0.8f : fJuneSocketFactor );
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	const float fCoolTimeRate = 1.0f;	/// June: 32358480( skill ) * max( 3234fbd0( skill ), 0.8 ); neither is in March (see above)
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	if ( 1.0f == fCoolTimeRate )
 	{
 		if ( true != bAppliedByBuff )
@@ -4783,6 +4790,49 @@ void CX2Unit::ApplySkillCoolTimeRateByBuff( const CX2SkillTree::SKILL_ID eSkillI
 	userSkillTree.SetSkillCoolTimeLeft( eSkillID_, fCoolTime );
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/** @function : AddJuneSocketCoolTimeCut
+	@brief : June 32355d70: map[ slot ] += cut, inserting the slot when it is missing (16-step3b2 item 6)
+*/
+void CX2Unit::AddJuneSocketCoolTimeCut( const int iSlot_, const float fCut_ )
+{
+	std::map<int, float>::iterator mit = m_mapJuneSocketCoolTimeCut.find( iSlot_ );
+	if ( m_mapJuneSocketCoolTimeCut.end() != mit )
+		mit->second += fCut_;
+	else
+		m_mapJuneSocketCoolTimeCut.insert( std::make_pair( iSlot_, fCut_ ) );
+}
+
+/** @function : GetJuneSocketCoolTimeFactor
+	@brief : June 3234fbd0: the skill's slot (June's categories, JuneSkillCategory), then max( 1 - map[ slot ], 0 ), or 1.0
+		when the skill has no templet or the slot is not in the map. June's SA grades 14/15/16 do not exist in March, so
+		every SA is slot 2 and the 2nd / 3rd SA cuts (slots 3 / 4) never match (16-step3b2 item 6).
+*/
+float CX2Unit::GetJuneSocketCoolTimeFactor( const CX2SkillTree::SKILL_ID eSkillID_ ) const
+{
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID_ );
+	if ( NULL == pSkillTemplet )
+		return 1.0f;
+
+	std::map<int, float>::const_iterator mit = m_mapJuneSocketCoolTimeCut.find( JuneSkillCategory( *pSkillTemplet ) );
+	if ( m_mapJuneSocketCoolTimeCut.end() == mit )
+		return 1.0f;
+
+	const float fFactor = 1.0f - mit->second;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( 1.0f != fFactor )
+	{
+		static bool s_bSeenFactor = false;
+		if ( !s_bSeenFactor )
+		{
+			s_bSeenFactor = true;
+			CX2JuneBuffCapture::Line( "first socket cool-time factor: skill %d slot %d cut %g -> factor %g", static_cast<int>( eSkillID_ ), mit->first, mit->second, ( fFactor < 0.0f ) ? 0.0f : fFactor );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return ( fFactor < 0.0f ) ? 0.0f : fFactor;
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_LIMITED_DUNGEON_PLAY_TIMES
 wstring CX2Unit::GetLocalMapPlayTimesDesc( int iDungeonID )
 {
