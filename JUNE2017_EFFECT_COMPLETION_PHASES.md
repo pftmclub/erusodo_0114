@@ -741,8 +741,13 @@ disposition each, are in `june2017_re/c10a_alpha_sites.tsv`. D3 and D5 were alre
 - **Not ported:**
   - `31f64040`, which is dead in June;
   - `SetEffectAlpha_LUA`, which is an EffectSet fade, not this option.
-- **Test on March data.** In `GameOptions.lua`, `MY_EFFECT_ALPHA = 0.3` fades my effects,
-  `ANOTHER_TEAM_EFFECT_ALPHA` the monsters' effects, and `MY_TEAM_EFFECT_ALPHA` the AI party's.
+- **Test on March data.** In `GameOptions.lua`, `MY_EFFECT_ALPHA = 0.3` fades my effects and
+  `ANOTHER_TEAM_EFFECT_ALPHA` the monsters' effects.
+  - The offline AI-party bots spawn as `NAT_ALLY` with my UID. `CreateNPC` then gives them me as owner
+    (`SetOwnerGameUnit` under `DUNGEON_RANK_NEW`; C10b-2 confirms with the preprocessor).
+  - So they count as my summons: their effects, bodies and weapons all fade with `MY_EFFECT_ALPHA`, as June does for
+    summons.
+  - `MY_TEAM_EFFECT_ALPHA` then has nothing to show in solo offline play.
 
 *Size.* D2 called this small. It touches CKTDXApp, GameOption, CX2Game, user, NPC, Weapon, CEffect, EffectSet, mesh,
 particle, slash trace and two buff displayers, hence the three-way split.
