@@ -5724,6 +5724,57 @@ Lines I will read (`python tools/logs.py --tag JUNE_BUFF --grep "hyper-mode sock
 - **72701 (PvP-only): no line.** `CanApplySocketDataByGameType` drops it in GT_BATTLE_FIELD before it is filed, as in June. The hand-off's expected place-skip line was wrong, and the fill note above is corrected. The place gate inside `3206d480` is June's second test, reached only when the game type and the state disagree.
 - Iivue's item 510 keeps 72700/72701.
 
+### Phase 16-step3b6 — Review (2026-10-06, Opus 5.5 high)
+
+**Verdict: 3b6 matches June with no transcription errors. One fix landed, approved by the user: June's MP tail in the function that type 1 calls (`b7dce8b`, `SERV_IRUHADEV_JUNE_SOCKET_PARITY`).**
+
+**Checked against June.**
+- **Fill `3204f190 @3204fc22..fcd3`.**
+  - The place order is `+0x190` → 1, then `+0x191` → 2. The five fields come from `+0x27c`, `+0x278` (refcounted), `+0x290`, `+0x1f8` and `+0x4`.
+  - The push runs for every type that is not -1, with or without a buff.
+  - The offsets were re-derived from June's socket loader `32726850` key by key. Its node pair is `node+0xc` with SocketData at `+0x10`, so pair offsets are SocketData + 4.
+  - `ID` → `+0x4` (`@32726a4b`), `DUNGEON_ONLY`/`PVP_ONLY` → `+0x190`/`+0x191` (`@32729d8f`/`@32729e6c`), `m_fIntervalTime` → `+0x1f8` (`@32732152`), `m_fEffectiveValue` → `+0x290` (`@32736381`, pair `+0x294`), `HYPER_MODE_EFFECTIVE_TYPE` → `+0x27c` (`@327365f5`, pair `+0x280`), custom-use buff → `+0x278`.
+- **`3206d480`.**
+  - Cool-time skip: `0 < t` skips (`FLDZ/FCOMP`, `TEST AH,5`, `JNP`). A miss proceeds. This matches `GetJuneSocketCoolTime` returning 0 on a miss.
+  - Place bytes `@3206d740`: state 9 skips place 1; states 0xb, 0x12, 0x15, 0x17 and 0x1a skip place 2; every other state, and anything above 0x1a, has no gate. Through `31d6fd60` these are XS_PVP_GAME, DUNGEON_GAME, TRAINING_GAME, BATTLE_FIELD, PVE_GAME and PHOTOZONE_GAME. March has no PVE or PHOTOZONE state.
+  - Type table `@3206d754` = `d563/d5c2/d5e9/d6ab`; unsigned > 3 skips.
+  - Type 0 starts its cool time whenever the buff is non-null, even when the clone is null.
+  - Type 2: `UpNowHp( maxHp × v, 0.0 )`. The display is `(v × 100.0 [3342f360], GetPos(0), GetDirVector, 1)` and runs only with a game. The cool time always starts.
+  - Type 3 starts its cool time only when the Fever call ran (`30.0f` = `33441b9c`).
+  - The setter `31fe0b90` is `operator[] =`, the same as `SetJuneSocketCoolTime`.
+- **Callers.**
+  - `3206d480` has exactly 3 call sites (`32298d00`, `32a71d9f`, `329e24f0`) and no pointer to it anywhere in the image.
+  - The base gates on `+0x264 == 0` plus a non-empty list, as March's two do.
+  - Add (June: no user test) is always a user.
+  - March's Ara, Chung and Raven overrides call the base.
+  - `m_fSocketOptionHyperCoolTime` is declared only inside `ADJUST_SECRET_ITEM_OPTION` (`X2GUUser.h:4078-4081`), which is off in US, so the US build cannot reference it.
+- **A second June push site (no effect on 3b6).**
+  - `32364790` pushes the same entry with socket ID -1 onto `CX2Unit +0xe1c` (RTTI `.?AVCX2Unit@@`, vtable `3348ffe4` slots 1 and 2).
+  - It is a separate object: the user allocates its own at `+0x87b4` (`@32042093`/`@320420d7`), and `CX2Unit` allocates its own at `@32363d53`.
+  - Its entries never reach `3206d480`. March's `CX2Unit` has no such aggregate. Its reader is not identified (outside this plan's socket scope).
+- **Homes.** The checklist §7 Add/Ain row is present. `HMET_FEVER` is named in 16-step3c's kickoff with `@3206d6ab`. `32083190( 0 )` stays open; its third writer is `CommonStateStart @320619a6`, which writes vslot `0x51c`'s result (funcmap).
+
+**Fix (user, 2026-10-06: "fix in this review").**
+- Type 1 calls `EraseDebuffAndAddMP`. Phase 10 ported its debuff walk but kept March's tail.
+- June `3204d440 @3204d79a..d820` is the ADJUST form: `UpNowMp( value )` (slot 0xf0) and `DisplayAddMPInformation( value, GetPos( 0 ), GetDirVector() )`, every time.
+- US March gave `value × erased count`, and nothing when nothing was erased. That is the same ADJUST-off gap as 3b6's missing cool time.
+- Reach: the 8 type-1 sockets (72900/72901/72905-72909, 81871). There is no JUNE_BUGS row, because this is a March difference that June fixed.
+
+**Hygiene** (`flagcheck.py JUNE_SOCKET_PARITY --range 0d2543c^..HEAD --with JUNE_BUFF_DEBUG`):
+- `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+- `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+- `RESULT: PASS`
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,245,056 B, dated 2026-10-06 20:32:44, md5 f9f26a28b5bc321e2515a18acbcf6345, equal to X2/US_SERVICE/x2.exe (2026-10-06 20:32:39); built at mods/june-buff-port 4e574f2 + 1 uncommitted code file(s).` That file is `b7dce8b`'s. The game was not launched.
+
+**Save.** Socket 72905 (DUNGEON_ONLY, erase debuffs + 50 MP, 30 s) was added to Iivue's item 510, which is now `72700,72701,72905`. Backup: `db_backup/els_db_20261006_203244_pre_socket_72905.sql`.
+
+**Play-test hand-off.** Iivue (Code: Empress), any dungeon, with MP below full (use a skill first).
+1. **Paste:** `g_pX2Game:GetMyUnit():ForceChangeHyperMode( 1 )`, with no debuff on you. **Look for:** a `+50` MP number, beside 72700's `+10%` HP. **If not:** there was no MP number (US March gave none with 0 debuffs erased).
+2. **Paste the same line within 30 s.** **Look for:** no MP number. **If not:** a second `+50` means the cool time failed.
+
+Log: `python tools/logs.py --tag JUNE_BUFF --grep "hyper-mode socket"` → `socket 72905 fired: type 1, value 50`, then `72905 skipped: own cool time`.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
