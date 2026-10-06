@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C8b` |
 | Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
-| Depends on | C8a (done 2026-10-06). The per-class overrides are **not** this phase: they are C8c, which waits for C5 and D8. |
+| Depends on | C8a (done 2026-10-06). The per-class overrides are **not** this phase: D8 (2026-10-06) handed them, as C8c, to the character ports. |
 | Flag | `SERV_IRUHADEV_JUNE_COLLISION` (hit paths), `SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION` (new, the layers; append to `Always.h`) |
 | Log tag | `[JUNE_FX]`. The hit trace goes to `offline_server.log` (`python tools/logs.py --tag JUNE_FX`) |
 | Review | `kickoffs/june-effect/C8b-review.md` |

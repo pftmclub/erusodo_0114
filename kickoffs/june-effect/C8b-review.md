@@ -19,7 +19,7 @@ Also read: `june2017_re/funcmap.tsv` rows the phase cites, and its commits (`git
 
 ## Task
 
-Review C8b's commit(s) against the June binary and the C8a Done note's "C8b port list" (C8a split the per-class overrides off into C8c). Check:
+Review C8b's commit(s) against the June binary and the C8a Done note's "C8b port list" (the per-class overrides went to the character ports by D8). Check:
 - each of UnitToUnit, UnitToEffect, MeshToUnit and CollisionDataToUnit against its June counterpart (operand order, guard or no guard, advance off);
 - the `+0x4108` member, gate and -1 reset;
 - the `0x758` hook and its rule-5 stub;

@@ -1,5 +1,7 @@
 # June effect completion - C8c review
 
+> **Handed off (D8, 2026-10-06):** not run in the effect plan. Kept as the brief for the character ports (`JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 7b); each port takes its own class's blocks. Under D8 (a), March's Bowstring, Sharp Kick and Fitness blocks are replaced by June's only in the Rena/Aisha ports.
+
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C8c review` |
