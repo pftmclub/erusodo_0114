@@ -5318,6 +5318,70 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 
 **Open for the user.** /cost is not available in-session.
 
+### Phase 16-step3b3 — Review (2026-10-06, Opus 5.5 high)
+
+**Verdict.** Items 0, 1 and 2 match June. Item 1b had **one transcription error, now fixed** (`b7cdcf2`, same flag): three case skills were not June's. Read from June directly with `june2017_re/disasm_range.py`, because Ghidra has no function at `3203cf60`/`32759630`. Three new funcmap rows (`31fcf520 (full map)`, `3203cf60 + 31fd1840 (callers)`, `322ed3ae`), plus `june2017_re/summon_npc_skill_map.tsv`.
+
+**Item 0 (bool map), confirmed.**
+- **June's order** (`3203cf60`):
+  - with no templet it returns its own mp argument; with no `CX2Unit` it returns 0;
+  - rate = vslot 471 (`+0x75c`) × BBT 63 (`32039a50(id, 0x3f)`);
+  - with the bool, rate × (1 + `32358970(0xb)` × 0.01) (`@3203cffb`; constants `334436a0` = 0.01, `334355b0` = 1.0);
+  - BBT 99 (`3203a250`, `@3203d024`);
+  - with the bool, the cut: r > 0 (`fcomp`/`test ah,5`/`jp`), skip when templet `+4` == 0xd (`@3203d056`), × max(1 − r, 0.8) (`33478a78` = 0.8; equality takes 1 − r);
+  - returns rate × mp.
+- March's `ST_HYPER_ACTIVE_SKILL` = 13. Slot 424 passes its own third argument to vtable `+0x69c` (`31fd190c`).
+- **Every caller, by capstone sweep of `.text`:**
+  - all 38 calls through `+0x6a0`/`+0x69c` pass 1;
+  - the 17 direct calls of `31fd1840` pass 1, except Add's DP `329e78a6` (0, a direct base call) and June's Ain `32a67355` (forwards its own);
+  - the register cases were traced (`ebx` = 1 at `32b79784`, `32b20540`, `32be1779`, `32be2479`);
+  - nothing calls `3203cf60` directly.
+- **March side:** the 9 class overrides all call the base qualified (true), with signatures unchanged. Add's DP cost is the only `false`. The virtual only forwards.
+
+**Item 1, confirmed.**
+- `@322ed2ae`: a null templet jumps to the all-skill sum (`@322ed2bd`), and type 13 drops the all-skill term.
+- Each of the 14 sites passes the same skill as its Phase 6b `GetSummonPowerRateByBuff` call (15 calls of each, including the 1b helper).
+- Mortar's term sits before the `-= 1`.
+- The five stat-scale lines survive only in `#else`.
+- `32759630` = `+0x8ce0` × protected `+0x8ce4`.
+- **Evoke and Anger of Elf:** June's argument (`@3230c6c4`, `@3230c868`) is 23408 = `RNSI_P_RTR_HUNTERS_ABILITY` ability 0xf = `SA_DAMAGE_REL` alone. June applies the skill's own power rate to the stat scale (`32071720` = `GetSkillPowerRateValue`, `@322ed08c`, part of the class rewrite already in checklist §7), not to the power rate. The socket factor's product is unchanged; only the code comments ("March's own fPowerRate") were imprecise, now corrected.
+
+**Item 1b, fixed.**
+- **June's map.** `31fcf520( NPC id )` was emulated (unicorn) over ids 0–70000: 51 ids give a skill. Every one that exists in March has its own `SetUserSummonedNPCInfo` case, so the default's 0 is right. This also settles Phase 6b open item 2 for every case.
+- **The three corrected cases:**
+  - Entangle Trap 457 → 23213 `RNSI_A_RGA_ENTANGLE` = March `SI_A_LSR_ENTANGLE`, the skill that creates 457 (`X2GULire_ElvenRanger.cpp:15910`); it was 0;
+  - Stone Wall 501 → 0 (June does not list it); it was `SI_A_AEM_STONE_WALL`;
+  - Fire Blossom 1567 → 28211 `RNSI_A_SBH_SCALET_ROSE` = March `SI_A_SBH_SCALET_ROSE`; it was 0.
+- Particle Prism, Nasod Watch and the default already matched.
+- Only the 89 × 90 × 98 terms differ, and only with such a buff active. The socket term is the same, because none of these skills is hyper.
+- **Store vs. scale.** Without flag 0x200, June *stores* the product in `+0x8ce0` (`@322ed3ae`). March's `m_fDefaultPowerRate` has no writer before these cases except the ctor's 1.0 (`X2GUNPC.cpp:2205`), so scaling is the store; the helper comment says so now.
+- With 0x200, June also stores `3201ad10 + 1` to NPC `+0x8800`. That goes to the 16-step3b5 kickoff.
+
+**Item 2, confirmed.**
+- `[60]` = 1.0 / Master of Alchemist (`0x1f7`, ability 0x37). `[64]` = 0, set only with a `CX2Unit` (`@322fbcd7`), to the `+0x6ff0` result − 1.
+- The only reads of `[64]`/`[60]` at the base stack depth are HP up `@322fbdf3`, MP up `@322fc258`, HP % up `@322fd47a` (all `[64] + [60]`) and MP % up `@322fd965` (`skill ? [60] : 1`, then × (`[64]` + 1)).
+- `322fbd9a` and `322fe218` read other slots: one and 0x28 bytes of pushes deep (the templet argument and an `[esp+0x38]` local).
+- March's adds sit after Chung's metabolism term, before the multiply. Without the socket, the result is 1.0 and the term is 0, as March.
+- JUNE_BUGS #54's wording is accurate.
+
+**Hygiene.**
+- `--worktree --files X2Lib/X2Game.cpp`: 1 PASS, 8 deleted.
+- Range `fed40d3^..HEAD --with JUNE_BUFF_DEBUG JUNE_BUFF_NEW_SKILL JUNE_BUFF_BEHAVIOR_PARITY`:
+  - `files: 9 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 ERROR`
+  - `in this flag's files: 15 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 4 #else/#endif without the flag token, 0 encoding change(s)`
+  - `RESULT: PASS`
+- The 15 deleted lines: 6 are 3b2's retired "not applied" block, 1 is 1b's own Nasod Watch line, and 8 are this review's own replaced 1b/comment lines.
+- The 4 token-less lines are the two bare `#else` lines from Phase 4b-i part 4 (`b9999a2`, `X2GUUser.cpp:9532`, `:21921`, the `BEHAVIOR_PARITY` blocks), counted once per commit.
+- The 4 OTHER rows are a peer's `ac0fe70` (offline grade Phase 1) inside the range.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,232,256 B, dated 2026-10-06 15:14:00, md5 f6f22eb20a640d436c0bf3c0155f4f32, equal to X2/US_SERVICE/x2.exe (2026-10-06 15:13:55); built at mods/june-buff-port 6ce3414 + 1 uncommitted code file(s).` The uncommitted file is this review's `X2Game.cpp`, committed as `b7cdcf2`. Not launched.
+
+**Kickoffs.** `16-step3b4.md` needs nothing. `16-step3b5.md` item 4 now names the helper's two `3201ad10` uses.
+
+**Closed.** The kickoff's open design question (the socket term on the no-power-rate summons and the default case) was settled by the user's item 1b decision ("follow June").
+
+**Open for the user.** /cost. Regression play-test (below). No character on the save has Entangle, Stone Wall or Scarlet Rose/Fire Blossoms, so the three changed cases cannot be exercised without a save edit.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`

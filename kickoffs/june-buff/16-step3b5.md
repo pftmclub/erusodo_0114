@@ -39,6 +39,9 @@ differs, cite June addresses, byte-level CP949 edits. Count each reader's reach 
    `3201f850`, `320462a0`, the summon helper `322ece70` x2, `3236df00`, `32370430`, `32773ee0`) are this phase's;
    name each March host first. Class callers (`329968a0`, `329fdbe0`, `32ad2bb0`, `32c058a0`, `32d076f0`, `3297762a`,
    `32bec286`) go to checklist section 7 (D8 rule). The `+0x98`/`+0xa8` vector reader is `32024f71` (Step 1 table).
+   The summon helper's two calls differ (3b3 review, funcmap `322ed3ae`): `@322ed2f7` multiplies the power rate as
+   `( 3201ad10 + 1 )` (March hosts: the 14 sites beside `GetSummonPowerRateBySocket` and `JuneApplySummonPowerRate` in
+   `X2Game.cpp`); `@322ed394` runs only with flag 0x200 and stores `3201ad10 + 1` to the NPC double `+0x8800`: find its reader first.
 5. **`m_fAllStatRelLV`** (`32727838`, `+0x268`, a sixth float after the five `KItemStatRelLVData` members): find its
    reader (start from June's `KItemStatRelLVData` users) and port it, or leave it dormant with one line if none.
 
