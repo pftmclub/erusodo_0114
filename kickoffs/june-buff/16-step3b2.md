@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_BUFF_PORT_PHASES.md "Starting context" "Play-test hand-off (Phase 5 onward)" "Phase 16 -- Step 1 RE" "Phase 16 -- Steps 2-4 Done, part 1"
-python tools/docsection.py JUNE_BUFF_PORT_PHASES.md "Phase 1c, item 4" "Phase 8 -- Done" "Phase 16 -- Review" "Phase 16-step3b -- Done, items 7-8"
+python tools/docsection.py JUNE_BUFF_PORT_PHASES.md "Phase 1c, item 4" "Phase 8 -- Done" "Phase 16 -- Review" "Phase 16-step3b -- Done, items 7-8" "Phase 16-step3b -- Review"
 ```
 
 ## Task
@@ -87,3 +87,12 @@ June addresses; byte-level CP949 edits.
   (120 + 65); `m_sBuffLevel` (`+0x29c`) on 280. None of the save's 13 socket IDs is in any of these.
 - Not in this phase: the 18 June-only EDTs (160 entries; 16-data review) and `HMET_FEVER` (1 entry) belong to
   **16-step3c** (user, 2026-10-06).
+
+## From the 16-step3b review (2026-10-06)
+
+- `SumSocketOption` now computes `eJuneUnitType` (June `ESI`, `@3204f28a`: this user's own unit type) once
+  before the rank/plain branch and passes it to all three ConvertAndAdd calls; the plain branch is gated
+  on `GetUnit()` like June (`@3204f290`). Item 6 fills the `CX2Unit+0xe78` map in the same function: put
+  its code where June has it relative to that branch, and reuse the variable rather than re-reading the type.
+- Items 7-8 are confirmed against June; do not reopen them. June's `+0x87b8` resize (`32077f50`) after
+  every ConvertAndAdd is still open (it belongs to the 0x18-byte `m_vecMpUpByAttacked` element).

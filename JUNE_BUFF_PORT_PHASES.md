@@ -5082,6 +5082,60 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **Decisions (user, 2026-10-06: "follow which is closest to June").** (1) Kill path stays dormant: "absolute (Supreme) monsters" exist only in June's Hero Dungeon mode (`HeroDungeonData_Client.lua`, `Add_HeroDungeon_AbsoluteMonsterTeleport`; the 20 sockets are `BFI_BUFF_HERO_DUNGEON_KILL_ABSOL_*` items), which March does not have, so June itself never fires them in any dungeon March has. (2) PvE rank key 0 stays: it is what June gives a character outside its June-only PvE mode. No stand-in for either.
 
+### Phase 16-step3b — Review (2026-10-06, Opus 5.5 high)
+
+**Verdict.** Items 7 and 8 match June (Ghidra and raw disassembly, read-only). The review found one transcription gap in the function item 8 edits (June `3204f190`) and fixed it (`14879a2`) under `SERV_IRUHADEV_JUNE_SOCKET_PARITY`. The fix is dormant offline. Everything else checked is unchanged.
+
+**Fix: the unit type every ConvertAndAdd gets** (`X2GUUser.cpp` `SumSocketOption`).
+- June computes `ESI = *(CX2Unit +0xaf0)` once, before the three-way branch (`@3204f28a..3204f2a6`; 0 when that pointer is null). It pushes `ESI` as the unit type in all three calls to `32080670`: `@3204f30d` (rank), `@3204f3df` (PVE rank) and `@3204f449` (plain). No CX2Unit (`@3204f290`) skips all three.
+- March passed the local player's type (`GetMyUser()->GetSelectUnit()->GetType()`) for every user. Item 8 copied that into its rank branch.
+- Now `eJuneUnitType` = `GetUnit()->GetType()`, or `UT_NONE` without a templet, is used in all three calls. The plain branch is gated on `GetUnit()` like June. March's block stays in the `#else`.
+- This corrects the 16 review's "ConvertAndAdd matches" at the call site. That review checked `3207cd70`'s terms, not what the caller passes.
+- Under the flag, the type only selects the spec A/B curves (612 June sockets carry `m_fCharacterSpecializationA`/`B`); Add's 0.5 reform is already gone.
+- **Dormant offline.** AI-party bots are NPC slots (`X2Game.cpp` moves them into `m_vecNpcSlot`), not `CX2GUUser`, so the player is the only user that sums sockets, and the player's own type is the same value as before. A PvP opponent or real party member would get its own class's curve, as in June.
+- Also: part 1's comment on `m_bIsRankLinkedStat` (`X2SocketItem.h`) no longer says "not decoded". New funcmap row `3204f190 @3204f28a`.
+
+**Item 7, skill-use reader** (`@32060bda..32060ccb`):
+- The gate order is June's: slot 329 `!= 0` → slot 474 (not ported) → slot 330(0) `== 1` → `g_pData+0x50` → loop. `GetSkillTemplet(slot329(), 1)` runs per entry and is compared with `+0xc`. Slot 135 is called with `(BFI, 0, level, 0, 1)`; arg 5 = 1 only skips slot 476's skill-memo scaling (`322a6960`), a system March does not have.
+- There is no IsMyUnit test.
+- `32070510`'s jump table (`3207054c`) maps 5→6, 6→1, 7/14→2, 13→5, 15→3, 16→4, else 0. March's `SKILL_TYPE` has the same numbers (`ST_BUFF` 5 … `ST_HYPER_ACTIVE_SKILL` 13).
+- **The slot-state stand-in holds.** Elsword's slot 493 (`32d223e0`) sets `+0x11` on the normal state from `33521204`/`3352132c` (slot A/B) and `+0x10..11 = 0x101` on the hyper state from `33521318`/`33521340`. Those are June's arrays `{50..58}`, `{51..59}`, `{60..68}`, `{61..69}`, i.e. the four `_CONST_GUUSER_` arrays. All 9 March classes enter a skill only through those arrays (each class's `SetEquippedSkillFuncBySkillSlotIndex` and `StateChange` sites).
+
+**Item 7, kill hook** (`322d6f20`):
+- It uses `GetMyUnit` (game slot 0x98 = `3231f550`). The `+0x9058` gate and the kill byte `+8` loop over `+0x29c` are June's.
+- The death list `+0x9048` goes to my unit at level 1. `0x287` gives `0x286` to every other NPC except the killed one, skipping an NPC whose AI (`+0x7c98`) has `+0x38 == 1` (`NAT_ALLY`; a null AI is buffed).
+- Game slots 0xf4 = `3231f530` (NPC list size, `+0x324`) and 0xb8 = `322ccba0` (`GetNPCUnit`, index > 0x4f → null).
+- Call site `@3230bd1b`: the 64-bit `m_uiAttUnit` (`UidType`) `!= -1`, before `GetOwnerGameUnit`. March's battlefield override does not reach the base handler either.
+
+**Item 8, scaled copy** (`320925f0`, `RET 0x398` = templet by value + rate):
+- The 13-dword stat block is copied and every element scaled (March has 11 of them; June's range P/M have no March field).
+- 17 fields are scaled at the same offsets in and out (`+0xd0 … +0x13c`), the `+0x29c` list is cleared and re-pushed (`3207b5d0`), and `+0x2ac..+0x2ec` (17) are scaled. These are exactly the 34 fields in `SetJuneRankLinkedScaled`.
+- March's `SocketData()` gives no summed member a non-zero default (the one 1.0, `m_fAllAttackEnchantRate`, is multiplied).
+- Lookups: `31edfe70` (`+0x3b4`, 0 when absent) and `31edfeb0` (`+0x404`/`+0x3f4`, both compared with `+0x3f8`, JUNE_BUGS #49).
+- Rank key: the protected char `+0x114` is sign-extended (`movsx`). Its only other reader is the getter `32071890`.
+- MP flag from the x87 tests: `0 < +0x124` (`TEST AH,5`/`JP`) and `+0x124 == +0x12c` (`TEST AH,0x44`/`JNP`).
+- The three bindings match.
+
+**Item 8, data** (live `data036.kom` md5 2f9247de, extracted with `elstools -v mar-2014`, run under the bundled KOG LuaJIT with a stub `g_pData`):
+- Tables: PVP 11 (`0=1 1=1 2=3.5 … 10=7.5`), PVE 10 (`0=1 … 9=7.5`), PVE for MP 10 (`0..5=0, 6=1, 7=3, 8=5, 9=6`). The MP socket's rate 0 at key 0 is a real table value, not a miss.
+- Only the 7 named June-only calls.
+- Enum, dumped against the previous live one (backup `.20261006_101131`, f1ae990f): `PVE_RANK` (11 values) and `PVP_RANK.PVPRANK_RANK_STAR = 10` added, nothing else. `PVP_RANK` 0-9 equals March's C++ `CX2PVPEmblem::PVP_RANK`.
+
+**Hygiene.**
+- Fix, `--worktree --files X2GUUser.cpp X2SocketItem.h --with JUNE_BUFF_DEBUG`: 2 PASS, RESULT PASS; 3 deleted lines (item 8's two `GetMyUser` lines, part 1's one comment line).
+- Range before the fix, `--range 7199cd5^..HEAD --with JUNE_BUFF_DEBUG`:
+  - `files: 11 PASS, 2 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+  - `in this flag's files: 9 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+  - `RESULT: PASS`
+  - The 9 deleted lines are the Done note's: 2 rename + 7 rank-skip. The two PASS~ are one blank line each.
+- Post-commit range: after the fix commit `14879a2`, `--range 7199cd5^..HEAD --with JUNE_BUFF_DEBUG`: `files: 13 PASS, 2 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 12 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 12 deleted lines are the 9 above plus the fix's 3.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,224,576 B, dated 2026-10-06 10:37:46, md5 6cce4121c5534b3c5f1150775c8277c0, equal to X2/US_SERVICE/x2.exe (2026-10-06 10:37:42); built at mods/june-buff-port eb03b5a + 2 uncommitted code file(s).` Those two files are `14879a2`'s (eb03b5a is a peer's docs-only commit). data036 is unchanged (2f9247de). Not launched.
+
+**How to see it in game.** Nothing changes for the player: no ConvertAndAdd result moves, because the player's own unit type is the value March already passed. The play-test is a regression run: load, a dungeon with skills and kills, and the same `[JUNE_BUFF]` load lines as the 16-step3b play-test.
+
+**Open for the user.** Nothing new. /cost not available in-session.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
