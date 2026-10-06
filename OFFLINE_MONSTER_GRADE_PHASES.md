@@ -693,7 +693,9 @@ into data036 as `FieldBonusDrop.src.lua`, with the manifest naming `FieldBonusDr
 - **Contribution** (`:4460-4467`): party damage / max HP / party members, capped at 1.5, then 0 below 0.08.
   - For a solo player, `GetPartyTotalDamage` returns the player's own damage (`BattleFieldUserManager.cpp:1531`) and `GetSamePartyMember` returns 1 (`:499`), so the offline formula is exact.
   - The map key is the attacker's unit UID (`X2GameUnit.cpp:16256`), and ally-NPC damage is credited to its owner (`X2GUNPC.cpp:10254`) on both sides.
-  - One non-finding: with `m_iNpcMaxHP == 0`, the server divides by zero (contribution 1.5) where offline uses 0. The client always sends a real max HP.
+  - **Client inputs.** Every die request passes `static_cast<int>( GetMaxHp() )` (`X2GUNPC.cpp:13926`, `:13953`, `:14001`, `:14047`), so max HP is never 0. That makes the server's divide-by-zero case (contribution 1.5, where offline would use 0) unreachable.
+  - **The player's entry survives to the die request.** `m_DamagedMap` is cleared only on a comeback state (`X2GUNPC.cpp:14442/:14463`, same on both sides). A chained boss-group member hands its entries to the next member (`:13865-13870`, also the same).
+  - **No sync overwrite offline.** The `SetToDamagedMap` sync (`X2State.cpp:12928`) needs `EGS_SYNC_BATTLE_FIELD_DAMAGED_MAP_REQ`, which only a non-host sends (`X2BattleFieldGame.cpp:931`). The solo player is the host, and the last `offline_packets.log` has 0 `DAMAGED_MAP` lines.
 - **Drop-row early return** (`:4486` -> `KDropTable.cpp:3361`): the specific key first, then `(0, npc)`. `HasNpcRow` does the same lookup.
   - The documented all-zero-row difference is latent: all 70 FieldBonusDrop keys have a non-empty `AddBattleFieldNpcDropInfo` row in `DropTable.lua`. None is missing and none is all-zero.
 - **Bonus gate** (`:4700` lookup, then `:4703` contribution > 0 and level factor > 0). The live branch is right: `SERV_BATTLEFIELD_EVENT_BOSS_INT` is defined only for ID, PH and TH, and `SERV_CAMERA_EVENT` / `SERV_BURNING_CHAR_EVENT_SUB_QUEST` are not US.
