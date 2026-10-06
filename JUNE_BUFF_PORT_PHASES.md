@@ -4547,6 +4547,8 @@ Ran on Opus 5.5 high, flag `SERV_IRUHADEV_JUNE_ENCHANT_PARITY`. Phase 15's code 
 - Tooltip: hover over Iivue's weapon.
 - ED cost: an attribute enchant succeeds, and the "GetAttribEnchantRequiredED is not loaded" line is absent.
 
+**Play-test PASSED 2026-10-07** (user: all 5 checks; logs read, exe c4c7d0ab, run after deploy, clean exit, 0 EXCEPTION): ErrorLog 297-339 `enchant blaze MP drain (NPC): MP 300, drain 4 x keep 1 -> MP 296` (NPC host, no resist, June BLAZE_MASTER row 4); 379-384 `enchant piercing: base 4848.25, factor 40, keep 0.9 -> damage ... + 872.685` (= 40/100 x 4848.25 x 0.5 x 0.9); no "GetAttribEnchantRequiredED is not loaded" line (June ED Lua in use); no "has no factor" line (nobody has frozen/poison/shock).
+
 **Open for the user**
 - **Frozen and poison enchants no longer slow anything until Phase 13 ships BFI 1001/1014, and shock no longer debuffs until BFI 1000 ships.** This is June's code with March data (user decision 2026-10-07: those entries wait for Phase 13). One `[JUNE_BUFF] enchant: BFI n has no factor` line per BFI says so.
 
