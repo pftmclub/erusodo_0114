@@ -684,6 +684,38 @@ into data036 as `FieldBonusDrop.src.lua`, with the manifest naming `FieldBonusDr
 
 **How to see it** (tag `[OFFLINE_GRADE]`). Kill a field middle boss. First `'FieldBonusDrop.lua' loaded 70 row(s)`, then `field middle boss <id> bonus: contribution 0.xxx, 70070 + 70050 + 1 x 99988 + 1 x 160712`, with those four items on the floor.
 
+### Phase 3b - Review
+
+2026-10-06, Opus 5.5 high. Reviewed `b51866a` (+ `56884bc`, `8d749ba`, `bb411a5`, bookkeeping only). **The code is correct, so there is no code change and no rebuild** (the deployed exe 307ebfa3 stands). There is one doc fix: the `MODS.md` row now lists `X2OfflineDropTable.cpp` and says "Phases 1-3b".
+
+**Checked against the server** (each line opened; `BattleFieldRoom.cpp` unless named):
+- **Outer gate.** `m_bNoDrop == false && bDropDieState` (`:4429`). Offline returns early for NO_DROP at the top of `PushNpcDrop`. The die-state difference is the Phase 3 review's known gap, unchanged.
+- **Contribution** (`:4460-4467`): party damage / max HP / party members, capped at 1.5, then 0 below 0.08.
+  - For a solo player, `GetPartyTotalDamage` returns the player's own damage (`BattleFieldUserManager.cpp:1531`) and `GetSamePartyMember` returns 1 (`:499`), so the offline formula is exact.
+  - The map key is the attacker's unit UID (`X2GameUnit.cpp:16256`), and ally-NPC damage is credited to its owner (`X2GUNPC.cpp:10254`) on both sides.
+  - One non-finding: with `m_iNpcMaxHP == 0`, the server divides by zero (contribution 1.5) where offline uses 0. The client always sends a real max HP.
+- **Drop-row early return** (`:4486` -> `KDropTable.cpp:3361`): the specific key first, then `(0, npc)`. `HasNpcRow` does the same lookup.
+  - The documented all-zero-row difference is latent: all 70 FieldBonusDrop keys have a non-empty `AddBattleFieldNpcDropInfo` row in `DropTable.lua`. None is missing and none is all-zero.
+- **Bonus gate** (`:4700` lookup, then `:4703` contribution > 0 and level factor > 0). The live branch is right: `SERV_BATTLEFIELD_EVENT_BOSS_INT` is defined only for ID, PH and TH, and `SERV_CAMERA_EVENT` / `SERV_BURNING_CHAR_EVENT_SUB_QUEST` are not US.
+- **Items and order** (`:4745-4780`): 70070, 70050, common x count, then the cube x High or x Low, each loop breaking on an ID <= 0. They are appended after the lottery, as offline appends them after `GetNpcItemDrop`.
+- **Solo is always Low** (`CalculatePartyRank`, `BattleFieldUserManager.cpp:1657`). A user with no party becomes their own one-member party, and the top count is `(int)(1 * 0.3)` = 0. The user is then inserted with `false`, so `mapBonusItem.find(CID)` (`:4758`) hits and gives the Low count. This is confirmed, not just "no entry".
+- **Loader** (`XSLBattleFieldManager.cpp:425-461`): the same seven keys, each `LUA_GET_VALUE_RETURN`, a repeated key keeps the first row, and `GetBattleFieldMiddleBossDropInfo` (`:464`) is an exact `(field, npc)` find with no wildcard. The offline port matches line for line, and `UnbindGlobal` hands `g_pBattleFieldManager` back to the client.
+
+**Data.**
+- `kom_contents/data036_kom/FieldBonusDrop.src.lua` is byte-identical to `KncWX2Server/ServerResource/US/FieldBonusDrop.lua` (32756 B, BOM, 830 CRLF and no bare LF).
+- The `_manifest.json` entry `"FieldBonusDrop.lua": "2"` is the last key. The file is all CRLF with a 2-space indent and ends `}` with no newline. The `.src.lua` is not in the manifest, which is right.
+- The game's `data036.kom` md5 is 9b46acf0, equal to the COPY OK line.
+- **Done-note correction:** the 70 rows cover **23 fields, 40001-40019 and 40022-40025**, not "40001-40032". All rows have numeric IDs, so no enum globals are needed. Every row has all 7 keys, and the values are 99988 x1 plus cube 160712 x2 (High) / x1 (Low).
+
+**Consistent with an older, deliberate simplification (not 3b's).** The server also multiplies a field kill's EXP and ED by contribution, skips the lottery at contribution 0, and scales its odds by contribution x party (`KDropTable.cpp:3441`, `:3459`, `:3509`, `:3517`). It also pays nothing at all to a user absent from the damage map (`:4551`). Offline keeps contribution at 1.0 for those, by offline Phase 4's choice (`OFFLINE_MODE_PLAN.md:2591-2596`). 3b uses the real value for the bonus gate only.
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_OFFLINE_MONSTER_GRADE --range b51866a^..HEAD`:
+`files: 2 PASS, 4 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+`RESULT: PASS`. The PASS~ rows are blank lines beside the new blocks. There are no OTHER rows and no deleted lines.
+
+**User owes:** nothing for 3b. The plan's phases are all done. Still open from earlier reviews: the `IsDropDieState` gap (Phase 3 review, a possible small phase) and whether the 70058 orb was visible.
+
 ## Reviews
 
 `1-review`, `2-review`, `3-review`: Opus 5.5 / high. Each checks its phase against the server
