@@ -610,6 +610,46 @@ Phase 0 found it reachable.
 
 **Open question for the user (proposed Phase 3b).** A field middle boss also gives 70070 (HP), 70050 (MP), a common bonus item and cubes by contribution rank (`BattleFieldRoom.cpp:4700-4790`). That comes from `FieldBonusDrop.lua`, which is server-only (`KncWX2Server/ServerResource/US/FieldBonusDrop.lua`, `BattleFieldMiddleBossDropInfo`). Porting it is a loader plus a degrade path, and the user packs the file. It is not in this phase: OK it as 3b, or drop it.
 
+### Phase 3 - Review
+
+2026-10-06, Opus 5.5 high. Reviewed `7c79f69` + `fee21f9`. **Correct, no code change, no rebuild** (the deployed exe 944e95e4 stands).
+
+**Checked against the server** (each line opened):
+- **Type factor.** `GetMonsterTypeFactor` (`XSLUnitManager.cpp:238-268`) and `GetBattleFieldMonsterTypeFactor` (`:274-293`) both test the attribute first, then 4 / 12 / 1 (`MTF_*`, `XSLUnitManager.h:2693-2700`). Offline never spawns an attributed NPC, so the port's grade-only switch is exact.
+- **Dungeon.** `DungeonRoom.cpp:6177/6182`: `fDungeonFactor` = type factor. It reaches `NormalNpcDropItem` (`KDropTable.cpp:1563`), and Henir and ExtraStage get it the same way. `NpcDropItem` multiplies it into EXP (`:1232`) and ED (`:1239`, the live `SERV_DROP_EVENT_RENEWAL` branch) and nowhere else: no line after `:1244` up to the function's end (`:1459`, the lottery included) reads it. Contribution and level factor stay 1 offline.
+- **Field.** `fFieldEXP/EDFactor` = field factor x type factor (`BattleFieldRoom.cpp:4403-4404` middle boss, `:5050-5051` normal). `BattleFieldNpcDropItem` (`KDropTable.cpp:3441-3479`) does a float product truncated once. The association differs: the server computes `ED x (F x TF)`, offline computes `(ED x F) x TF`. That is a non-finding. Offline a field TF is 1 or 4, and x4 is exact in float. TF 12 needs the field boss raid, which is unreachable offline.
+- **Field middle boss.**
+  - The live dispatch is `:1744` (`SERV_BATTLE_FIELD_BOSS`, ServerDefine.h:4257) -> `:1760` -> `MiddleBossMonsterDieProcess` `:6483` -> `BattleFieldMiddleBossDropProcess` `:4378`.
+  - `:4594-4596`: ED = (10 + ED x lv) x 20, before the field factor, with EXP = `GetNpcExp(lv)` as on a normal kill (`:5222/:5230`).
+  - No `NpcSpecialDropItem` call anywhere in `:4378-5023`, so dropping 70057 for it is right. "Established facts" was wrong there.
+- **Coins.** `m_bIsBoss = grade == 1` (`RoomMonsterManager.cpp:75`, `BattleFieldMonsterManager.cpp:861`) gives [10,20] coins (`KDropTable.cpp:1254`, `:3487`); otherwise [2,3].
+  - Gold bar: `1999 < nED` (`:1176`, `SERV_BATTLE_FIELD_BOSS`). The IDs agree: client `GOLD_BAR_ED_ITEM_ID` and server `EDI_GOLD_BAR` are both 127041 (`X2Define.h:1267`, `XSLItem.h:914`).
+  - `FIELD_BOSS_RAID` (`Always.h:582`) is unconditional, so the client accepts the gold bar as ED (`X2ItemManager.h:447`).
+  - The `fee21f9` gold-coin picture fallback is display only; the value stays in `m_mapDropED`.
+- **Special drop.** `KDropTable.cpp:1905-1931` matches case for case: 50 % 70057 / 70058 / 70057. `SERV_KILL_BOSS_MIDDLE_BOSS_DROP_ITEM` (`ServerDefine.h:3236`) and `..._HP_BALL_ITEM` (`:4060`) are both live. The dungeon call (`DungeonRoom.cpp:6471`) sits inside the `m_bNoDrop == false` gate, as offline does.
+- **Order.** Server factor, then the 3x boost (`SERV_IRUHADEV_OFFLINE_EXP_BOOST`), as planned.
+  - Both `bFieldMiddleBoss` tests run before the only `m_setMiddleBossAlive.erase` (`OnFieldNpcDie`, `Handlers_Room.cpp:825`, called at `:2715`, after `PushNpcDrop` at `:2700`).
+- **MODS.md** lists every committed file that uses the flag. `Always.h:5263` is right.
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_OFFLINE_MONSTER_GRADE --range 7c79f69^..HEAD`:
+`files: 2 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+`in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+`RESULT: PASS`
+- The deleted line is 7c79f69's own flagged one-liner `if( iED > 1999 ) return GOLD_BAR_ED_ITEM_ID;`, which `fee21f9` replaced inside the flag.
+- PASS~ is blank lines beside the new blocks.
+- The interleaved june-buff commits in the range carry no line of this flag.
+
+**Known gap, older than this plan (user's call; not fixed).** The offline handler pays `NDS_KILL_BY_USER` and `NDS_ALLY` (`Handlers_Room.cpp:2521`, offline Phase 4 `b8bab69`). The server's `IsDropDieState` (`DungeonRoom.cpp:2576`, `BattleFieldRoom.cpp:853`) pays `KILL_BY_USER`, `KILL_SELF` and `BONUS_DROP`, not `ALLY`. With grades live:
+- a boss that dies `KILL_SELF` loses its 70058 and its x12 ED offline;
+- an ally kill is paid x12 where the server pays nothing;
+- the mana/blood eater `BONUS_DROP` items stay unreachable.
+
+The comment at `:2518-2520` states the opposite of the server. A fix would be its own small phase.
+
+**Still owed by the user:** was the 70058 orb visible on the floor (Phase 3 run, dropUID 211)?
+- **3b** is being implemented by a peer session as this review is written: uncommitted edits under this flag in `Handlers_Room.cpp`, `X2OfflineBattleField.*`, `X2OfflineDropTable.*` and `X2OfflineServer.h`. This review did not touch them.
+- **3b's own review** must re-check `MODS.md`, which will then need `X2OfflineDropTable.cpp`.
+
 ## Reviews
 
 `1-review`, `2-review`, `3-review`: Opus 5.5 / high. Each checks its phase against the server
