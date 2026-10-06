@@ -4512,7 +4512,7 @@ Ran on Opus 5.5 high, flag `SERV_IRUHADEV_JUNE_ENCHANT_PARITY`. **Stopped after 
 
 Ran on Opus 5.5 high, flag `SERV_IRUHADEV_JUNE_ENCHANT_PARITY`. Phase 15's code is complete. New funcmap rows: "Buff Phase 15 step 2b". June bugs #62-#66.
 
-**What landed** (commit: see the STATUS row)
+**What landed** (`6322917`)
 - **Helpers** (`X2GameUnit.cpp/.h`): June's attacker-table lookup (decompose the attacker's slot 111, then the user or NPC map by the attacker's class), slot-111 accessor, slow and shock debuffs, slow erase, blaze MP drain, `322d39e0` MP text. `X2BuffFactor.h`: `32d418a0`/`32d41910` as `JuneSetBehaviorValue` / `JuneSetTimeFinalizerValue`. The user host (`32063650`) and the NPC hosts (`327b53b0`, `3276b400`) run byte-identical code for these blocks (address-stripped diff), so both call the same helpers.
 - **Ticks (user and NPC):**
   - Emoticon tiers moved to 3 / 2 / live.
