@@ -5819,14 +5819,14 @@ Offsets, heights, random terms, the elapsed-time reset and the EVE tail match Ma
 
 **Item 7, the per-class hook.** `CX2GUUser::JuneSumSocketOptionAfterSlots( aggregate, templet )` is an empty virtual (user vslot 485, base `33093ad0` = `ret 8`). It is called after 3b5's slot loop and outside its `GetUnit()` test, because June's loop has none. Dormant: no March class overrides it.
 
-**Hygiene.** `--worktree --files` (8 code files, `--with JUNE_BUFF_DEBUG`): `files: 7 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The OTHER row is X2GUNPC.cpp, item 2's two Phase 9a flags. Both of those flags PASS on that file on their own (0 deleted).
+**Hygiene.** `--worktree --files` (8 code files, `--with JUNE_BUFF_DEBUG`): `files: 7 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The OTHER row is X2GUNPC.cpp, item 2's two Phase 9a flags. Both of those flags PASS on that file on their own (0 deleted), worktree and `--range 1620e09^..HEAD`. Item 4 checks: March's `Nasod_Watch_Eve_Memo.lua` (519) has no `GetNumber_LUA` either, no C++ reads `m_NumberList[0]`, and `CommonConstructor` is its only zeroing, so the store survives.
 
-**Deploy.** `DEPLOY OK: X2_offline.exe is 19,246,592 B, dated 2026-10-06 21:16:02, md5 ab77efe0fc143267c7ee0cfcb8b54162, equal to X2/US_SERVICE/x2.exe (2026-10-06 21:15:57); built at mods/june-buff-port 61283f6 + 8 uncommitted code file(s).` The 8 are this phase's. The four new texts are in the exe. Not launched.
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,247,104 B, dated 2026-10-06 21:20:42, md5 bb2f8924683d8cea06518650002faa44, equal to X2/US_SERVICE/x2.exe (2026-10-06 21:20:36); built at mods/june-buff-port c7fb31c + 1 uncommitted code file(s).` The one file is the item 6 debug line in `CalculateItemStat` (committed right after). The new texts are in the exe. Not launched.
 
 **Save.** Socket 120000009 ("Heroic Rank Lv. 10", all stats +10 levels) was appended to Iivue's weapon (item 579 -> `40110,74035,95003,120000009`). Backup: `db_backup/els_db_20261006_210841_pre_socket_120000009.sql`.
 
 **How to see it in game.**
-- Item 6: the weapon's tooltip lists "Heroic Rank Lv. 10", and its stats rise. `ErrorLog.txt` gets `all-stat level term (m_fAllStatRelLV) 10 at item level N: HP a -> b, phys atk c -> d, ...` (debug, up to 3 lines).
+- Item 6: the weapon's tooltip lists "Heroic Rank Lv. 10", and its stats change. Whether they go up or down depends on the Lua formula against the templet, which has not been checked yet. The comparison line is `item 116934 all-stat level 10 (other five sum S, 0 = March showed the templet stats): HP t -> n, ...` (debug, once per item); with S = 0 the left values are what March showed. The other line, `all-stat level term (m_fAllStatRelLV) ...`, compares the Lua formula with and without the term, not with March.
 - Item 5: one `socket 215434 hyper-skill term ... not ported` line.
 - Items 1, 2, 4 and 7 are dormant on this save: no Chung, no Dimension Link (5201) on Iivue, and no class overrides vslot 485.
 

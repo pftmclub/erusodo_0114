@@ -242,6 +242,26 @@ void CX2ItemStatCalculator::CalculateItemStat( OUT CX2Item::KItemFormatStatData&
 		// 얻은 정보를 토대로 계산하기
 		CalculateRealStatData(sRealStatData_, sClassStatTable, sCharStatTable, 
 			sEqipStatTable,	iItemLevel, kStatRelationAddLV);
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		/// buff port 16-step3b7 item 6: what March showed for this item when only m_fAllStatRelLV makes the sum non-zero (the other
+		/// five 0 -> IsValideCheck false -> the templet's own stats) next to June's result
+		if ( 0.f != kStatRelationAddLV.m_fAllStatRelLV )
+		{
+			static std::set<int> s_setJuneAllStatItemSeen;
+			if ( true == s_setJuneAllStatItemSeen.insert( pItemTemplet_->GetItemID() ).second )
+			{
+				const CX2Item::KItemFormatStatData& kJuneTempletStat = pItemTemplet_->GetStatData();
+				CX2JuneBuffCapture::Line( "item %d all-stat level %g (other five sum %g, 0 = March showed the templet stats): HP %g -> %g, phys atk %g -> %g, mag atk %g -> %g, phys def %g -> %g, mag def %g -> %g",
+					pItemTemplet_->GetItemID(), kStatRelationAddLV.m_fAllStatRelLV,
+					kStatRelationAddLV.m_fBaseHPRelLV + kStatRelationAddLV.m_fAtkPhysicRelLV + kStatRelationAddLV.m_fAtkMagicRelLV + kStatRelationAddLV.m_fDefPhysicRelLV + kStatRelationAddLV.m_fDefMagicRelLV,
+					kJuneTempletStat.m_fBaseHP, sRealStatData_.m_fBaseHP, kJuneTempletStat.m_fAtkPhysic, sRealStatData_.m_fAtkPhysic,
+					kJuneTempletStat.m_fAtkMagic, sRealStatData_.m_fAtkMagic, kJuneTempletStat.m_fDefPhysic, sRealStatData_.m_fDefPhysic,
+					kJuneTempletStat.m_fDefMagic, sRealStatData_.m_fDefMagic );
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 		if( m_mapItemTemplmetStat.size() >= _CONST_::MAX_ITEM_TEMPLET_STAT_COUNT )
 			m_mapItemTemplmetStat.clear();
