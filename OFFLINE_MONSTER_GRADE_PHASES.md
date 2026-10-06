@@ -571,7 +571,7 @@ Phase 0 found it reachable.
 
 ### Phase 3 - Done
 
-2026-10-06, Opus 5.5 high. Flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` (no new flag). Code in `X2Lib/Offline/Handlers_Room.cpp`, note in `X2OfflineDropTable.h`, entry in `MODS.md`. **Play-test pending.**
+2026-10-06, Opus 5.5 high. Flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` (no new flag). Code in `X2Lib/Offline/Handlers_Room.cpp`, note in `X2OfflineDropTable.h`, entry in `MODS.md`. **Play-tested, gate passed** (below).
 
 **What landed** (tasks 1-8):
 - **Type factor** from the UID's stored grade (`m_mapNpcGrade`): attribute first (never true offline), then 4 / 12 / 1 (`XSLUnitManager.cpp:238/:274`).
@@ -600,6 +600,13 @@ Phase 0 found it reachable.
 - **Dungeon middle boss:** `grade=2 factor=4`. Item 70057 appears about half the time.
 - **Normal kill:** `grade=0 factor=1`, A = B.
 - **Field middle boss (optional):** `factor=4 (field middle boss, ED x20)`, and no special-drop line.
+
+**Play-test 2026-10-06 16:40-16:47 (exe 944e95e4, run after deploy): gate passed.** Run: reyaa, Benders Cave Normal 30050.
+- **Middle boss** Pporu Giant Red 28 (uid 32): `grade=2 factor=4 (dungeon): exp 114 -> 456 -> 1368, ED 186 -> 744 -> 2232`, 2 coins. The 50 % roll missed, so no 70057 this run.
+- **Boss** Benders 40 (uid 45): `grade=1 factor=12: exp 114 -> 1368 -> 4104, ED 186 -> 2232 -> 6696`, 10 coins of 669, and `special drop ... item 70058`.
+- **Normal kills:** all `factor=1`, base = server (114 -> 114 -> 342).
+- **Logs:** no `[OFFLINE_GRADE]` errors; the only UNHANDLED is `E_DISABLE_HB_CHECK_REQ`, which is unrelated.
+- **Open observation:** 70058 was sent (dropUID 211), but the client never asked to pick it up. It picked up 208-210 and 212 but not 211, and logged no "no drop viewer" box. Either the orb was out of reach when the stage cleared 5 s later, or its floor particle failed and the drop manager dropped it silently (`X2DropItemManager.cpp:93-107`). The user is asked whether an orb was visible.
 
 **Open question for the user (proposed Phase 3b).** A field middle boss also gives 70070 (HP), 70050 (MP), a common bonus item and cubes by contribution rank (`BattleFieldRoom.cpp:4700-4790`). That comes from `FieldBonusDrop.lua`, which is server-only (`KncWX2Server/ServerResource/US/FieldBonusDrop.lua`, `BattleFieldMiddleBossDropInfo`). Porting it is a loader plus a degrade path, and the user packs the file. It is not in this phase: OK it as 3b, or drop it.
 
