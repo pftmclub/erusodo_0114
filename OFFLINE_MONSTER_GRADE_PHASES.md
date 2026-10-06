@@ -804,10 +804,10 @@ the original gate stays in `#else`).
 - `RESULT: PASS`
 - The 5 deleted lines are all this flag's own earlier lines: the `PushNpcDrop` call, signature and eater comment, and the declaration's comment and parameter line.
 
-**Deploy.** Not yet deployed.
-- `Handlers_Room.cpp` compiled cleanly. Both builds (17:38 and 17:47) failed in a peer session's uncommitted june-buff edits (`X2SkillTree.*`, `X2SocketItem.*`, `X2GUUser.*`), which were still being written.
-- HEAD contains `e6cc509`, so the next good build of the shared tree deploys it.
-- A bounded retry (60 min) builds once the peer's files have been quiet for 3 min.
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,242,496 B, dated 2026-10-06 18:13:48, md5 d187a0deef752044e68d6ec5a8981571, equal to X2/US_SERVICE/x2.exe (2026-10-06 18:13:43); built at mods/june-buff-port 2b78b57 + 7 uncommitted code file(s).`
+- Two earlier builds (17:38, 17:47) failed only in a peer session's in-progress june-buff edits.
+- This exe also carries those 7 uncommitted june-buff files.
+- The deployed exe contains the phase's wide strings: `[OFFLINE_GRADE] die state` x1, `bonus drop` x2, `unknown UID or no templet` x1.
 
 **How to see it in game** (`python tools/logs.py --tag OFFLINE_GRADE`):
 - An ordinary kill shows the same `kill ... factor` line as before and no `die state` line.
