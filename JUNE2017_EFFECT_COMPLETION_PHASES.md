@@ -445,7 +445,7 @@ plan when census shows 0 open 8b rows; update matrix and MODS.md.
 
 ### C5 - Done (2026-10-06, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_DAMAGEDATA`, no new flag)
 
-**What landed** (pure insertions; details in `MODS.md`, "damage triggers and nearest bone"):
+**What landed** (commit `ba39843`; pure insertions; details in `MODS.md`, "damage triggers and nearest bone"). `flagcheck --range ba39843^..ba39843`: `files: 3 PASS, 4 PASS~, 0 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s)`, `RESULT: PASS`.
 - **Parse** in `SetDamageDataFromLUA`: `ADDITIONAL_ATTACK_TRIGGER_TYPE` (list, zeros kept), `DAMAGE_TRIGGER_DATA` (positional sub-tables; defaults type 0, BTI 0, POWER_RATE 1.0, MULT 0.0), `DAMAGE_TRIGGER_CONDITION` (int, -1, rule-5 log). Both vectors are emptied on every parse, as June does (`@3263d39c`, `@3263d40f`), so `DAMAGE_DATA_NEXT` does not inherit them.
 - **Readers** on `DamageData`: `JuneIsAttackTrigger` (= `32610fb0`), `JuneFindDamageTriggerData` (= `32610e60`).
 - **`3227c940`** = `CX2GameUnit::JuneApplyMultipleDamageByDebuff`, called in `GetFinalDamage` right after the `<= 0` clamp, as June's `@322869b2` follows `@32286995`.
