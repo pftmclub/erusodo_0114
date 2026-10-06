@@ -41,7 +41,7 @@ Port exactly items 1-5 of the C8a Done note's "C8b port list", citing the June a
    It is inert on March data. The `= 2` write is the Raven port's, not yours.
 3. **User vslot `0x758` hook (`3202ac40`), as June has it.**
    - `31fdbbb0` is a plan-rule-5 stub: it returns null and logs `JUNE_FX unsupported skill memo` once.
-   - Skip, with a comment, any case whose DD offset has no March member.
+   - Map each case's DD offset with the list in funcmap row `3202ac40` (`Effect C8a`). Skip exactly the offsets that row marks SKIP, with a comment naming each. Do not map offsets yourself: never port an offset.
    - Call order in the user layer: Raven block, then `0x758`, then `0x780`.
 4. **NPC override `32759f30`**: the base, then the master's `0x758`, under row 196's conditions.
 5. **An empty `CX2GUUser` vslot `0x780` hook `(DD, fPowerRate)`**, called last.
@@ -53,14 +53,14 @@ Port exactly items 1-5 of the C8a Done note's "C8b port list", citing the June a
 
 **Do not port:**
 - DD `+0x638`;
-- the socket copy to DD `+0x3b4` (june-buff 16-step3b's).
+- the socket copy to DD `+0x3b4` (june-buff 16-step3c's).
 
 Update MODS.md: close the "Known gap", and add the `_DAMAGE_EXCEPTION` entry. Every `fPowerRate` multiply is unchanged, so no damage number moves; say so.
 
-**Play-test hand-off.** One check per path, using the C8a note's triggers:
-- MeshToUnit: Aisha `EvasionStandupAttack` / `ComboX3down`;
-- CollisionDataToUnit: Aisha `ComboX3front` / Raven `COMBO_ZZZX`;
-- UnitToEffect: melee on an enemy `ATTACKED_BY_UNIT` effect;
-- UnitToUnit: any melee.
+**Play-test hand-off.** One check per path. All four trigger functions are in the current exe (`X2/US_SERVICE/X2.map`). The characters are in `els_db.sql`, checked 2026-10-06:
+- MeshToUnit: `jtVoidPrincess` (uid 28, Aisha / Void Princess, lv 80), `EvasionStandupAttack` or `ComboX3down` (`AT_MESH`).
+- CollisionDataToUnit: the same character's `ComboX3front`, or `ravbe` (uid 23, Raven / Reckless Fist, lv 67) `COMBO_ZZZX` (`AT_MANUAL_COLLISION_DATA`).
+- UnitToEffect: `/CM "LIZARDMAN_SHAMAN" 0 70`, then melee its `LIZARDMAN_SHAMAN_MAGIC_MISSILE`, an `ATTACKED_BY_UNIT` templet used by `data037 Lizardman_Shaman.lua`.
+- UnitToUnit: any melee on that shaman.
 
 Each check expects a `JUNE_FX HIT` line with its path tag. Also add the Mag Charger re-run for T6 (`/CM "MAG_CHARGER" 0 70`), and ask how many Mag Chargers were on screen.

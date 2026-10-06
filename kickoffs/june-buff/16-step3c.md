@@ -38,6 +38,14 @@ Owner decided by the user (2026-10-06): this phase owns the handlers 16-data log
 3. Find June's awakening handler for `HMET_FEVER` (the switch March has at the `HMET_*` cases).
 4. Count the reach: which of the 160 entries the emulator's roll pools (`SocketItemTable.lua`) or the
    save can produce; which drop/box tables hand out items that carry them.
+**Already located, for 150 `DECREASE_ENEMY_RESIST` and 159 `DECENT_TO_SHADOW` (june-effect C8a, funcmap row `32045340 @32045458-32045483`).** June does not store these two in `m_MultipleSocketExtraDamage`. They take a second, June-only list, and it is carried in five places:
+- the loader `32726850 @32729310` pushes them into socket option `+0x384`;
+- `SumSocketOption` `3204f89e` folds that into aggregate `+0x458`;
+- `InitSocketData` `3206e917` copies it to the unit DamageData's `+0x3b4` (`+0x754` on the unit);
+- `CX2GUUser::SetDamageExceptionProcess` `32045340 @32045458` copies the attacker's aggregate `+0x458` into any hit DamageData whose `+0x3b4` is empty, when the hit has physic or magic damage above 0;
+- `DamageReact_ExtraDamage` `3203c9a0` (tail, `LAB_3203ce96`) rolls each `+0x3b4` entry unconditionally, with `SRO + i`.
+
+Port that list with the two handlers. C8b deliberately leaves the `32045340` copy to this phase.
 Then port what is portable under the flag (June bugs verbatim, `JUNE_BUGS.md` rows), and record the rest as
 "located, not portable until <data/phase>".
 

@@ -599,7 +599,7 @@ each. CP949 byte-level; build, deploy, ASK before launching; update matrix and M
   - the state and serial tail (`_CUSTOM_FUNCTION`).
 - **Not ported:**
   - DD `+0x638` = vslot `0x2e0` (always -1; reader unknown);
-  - the socket copy `@32045458` to DD `+0x3b4`, which belongs to **june-buff 16-step3b**: it carries only June EDT 150/159, which 16-data drops.
+  - the socket copy `@32045458` to DD `+0x3b4`, which belongs to **june-buff 16-step3c** (owner of the 18 June-only EDTs; item added to its kickoff): it carries only June EDT 150/159, which 16-data drops.
 
 **C8c port list** (Sonnet; depends on **C5**, for `ATTACK_TRIGGER_TYPE` `+0x53c` and `32610fb0`, and on **D8**). Port the blocks dormant, citing the addresses in each class's funcmap row:
 - Eve `329bc560`; Chung `32bf28f0`; Raven `32c5c080`; Elsword `32d1e0e0`;
