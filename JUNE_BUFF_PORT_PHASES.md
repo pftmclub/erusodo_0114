@@ -4497,15 +4497,16 @@ Ran on Opus 5.5 high, flag `SERV_IRUHADEV_JUNE_ENCHANT_PARITY`. **Stopped after 
 - June state 23 = `XS_PVE_GAME` (June-only), not the battle field (June 21). March runs the branch in `XS_DUNGEON_GAME` only.
 - Templet flag bit 7 = "special ability `SAT_PVP_EQUIP` (40)" (loader `325bcdc0 @325bf219`). March has no SAT 40 and `SERV_PVP_EQUIPMENT` is undefined, so June's PvP-item stat branch is unreachable and not coded. The non-PvP branch equals March's `CalculateItemStat` (June's level argument is 16-step3b7's unported item).
 - The 22-ID uncached lists (`33486fb8`, `334c0cb8`, `334b5de8`) are identical: 100003738-48 and 100005577-87, all June-only items.
-- Snatch's `0xd8` = `GetNowMp`, `0x1f4` = `ShowSnatchCureEffect`, `DD+0x470` = the defender, PicChar `+0x154` = red.
+- Snatch's `0x1f4` = `ShowSnatchCureEffect` (vtslot), `DD+0x470` = the defender (C2 row), PicChar `+0x154` = red. `0xd8` = `GetNowMp` is a candidate (read before/after the MP loss; not decompiled).
 - `ENCHANT_STAT_SCALE` has 21 entries; save enchant levels are 0..10 (JUNE_BUGS #58). Decompose default: JUNE_BUGS #57.
 - March's general.ess equals June's (0 of 45,160 rows differ): every June string ID exists.
 
 **Hygiene / build:** range flagcheck `835b5ef^..HEAD`: 9 PASS, 1 DEFINE, 7 OTHER (peer flags in the same files), 0 deleted, RESULT PASS; each chunk also had a `--worktree` PASS; DEPLOY OK: X2_offline.exe 19,267,072 B, 2026-10-07 05:29:26, md5 df448406d058ccce17f21b6960c99a77 (= HEAD 6d304a1 code). Exe holds the new `HP -` / ` MP -` and `AttribEnchantRequireED.lua` strings. Live data036 = chunk A Enum only; B1's staged Lua (Enum additions, Require, RequireED) is packed with 2b, so until then the ED cost uses the logged March fallback.
 
 **Open for the user**
-- A 3rd attribute on armour: June's tables allow it (see the 2b kickoff, item 5).
-- No play-test yet. Frozen/poison slows and the tick readers come with 2b, so a check now would measure a half-ported phase.
+- **Decided (user, 2026-10-07): follow June** - armour may take a 3rd attribute (June's `AET_TRIPLE_ARMOR` rows, resist 135); nothing to code, it goes live with the next data036 pack.
+- Checked before closing: March resets the accumulation when the element ends in both ticks (user `X2GUUser.cpp:17215/17353/17677`, NPC `X2GUNPC.cpp:17983/18064/18491`), so the ungated 1-based bodies are safe in the deployed exe.
+- **The deployed exe is an intermediate state: enchant play in it is not representative until 2b.** The bodies are 1-based while March's tick readers are 0-based (poison slow tiers, the enchant visual shift one tier on the first proc), and with March's data R = 0, so March's x2 at stacks is simply gone. No play-test yet. Frozen/poison slows and the tick readers come with 2b, so a check now would measure a half-ported phase.
 
 ## Phase 16 — Socket-option parity (added 2026-10-04; carries 92 and 78's socket terms)
 

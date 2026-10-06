@@ -50,9 +50,4 @@ host, insert-only, March in `#else`:
    EDT_NONE: latent), pack data036, **ask before the copy**, then hand over one play-test of the
    whole phase (blaze tick damage and MP drain, piercing extra damage, snatch "HP -" text, the
    new tooltip, the attribute ED cost from `AttribEnchantRequireED.lua`).
-5. **Decision to collect (step 2 left it open):** a 3rd attribute on armour. June's tables
-   (`AET_TRIPLE_ARMOR`, its Require rows, resist 135, the "+135" strings) allow it; March refused
-   it only because the type lookup returned `AET_NONE`. The offline handler
-   (`Handlers_Inventory.cpp`, the `ACT_DUAL` case) does not check weapon vs armour, so with the
-   June tables an armour can now take a 3rd attribute if the UI sends the request. Ask the user:
-   follow June (allow) or keep March's refusal with a flagged guard.
+5. **Decided already (user, 2026-10-07): follow June** - armour may take a 3rd attribute; nothing to code.
