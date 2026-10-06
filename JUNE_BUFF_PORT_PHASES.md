@@ -5705,7 +5705,7 @@ D8 split (advisor): the empty hook and its call (`33093ad0` is a bare `ret 8`; e
 
 **How to see it in game** (play-test hand-off). Iivue (Code: Empress) now has sockets 72700 (heal 10 % on awakening, dungeon only, 30 s) and 72701 (heal 5 %, PvP only) on item 510. The command `ForceChangeHyperMode` is Lua-bound (`X2Main.cpp:4605`): it adds awakening beads and enters the awakening state, whose Eve state calls `ApplyHyperModeBuff` (`X2GUEve.cpp:8352`). It is checked from source and has not been run.
 1. **Where:** Iivue, any dungeon, after taking a little damage. **Paste:** `g_pX2Game:GetMyUnit():ForceChangeHyperMode( 1 )`. **Does:** awakens you. **Look for:** a green `+10%` HP number over you. **If not:** tell me nothing showed.
-2. **Where:** the same dungeon, within 30 s of check 1. **Paste:** the same line again (if no awakening animation plays, wait until the awakening ends, still inside 30 s). **Look for:** no `+10%` this time. **If not:** a second `+10%` means the cool time did not hold; tell me.
+2. **Where:** the same dungeon, within 30 s of check 1. **Paste:** the same line again; it re-enters the awakening state even while awake (`StateChange( USI_HYPER_MODE )`). **Look for:** the awakening animation plays and no `+10%` shows. The real pass is the log's cool-time skip line: no number without the animation proves nothing. **If not:** a second `+10%` means the cool time did not hold; tell me.
 3. **Where:** the same dungeon, more than 30 s after check 1. **Paste:** the same line. **Look for:** `+10%` again. **If not:** tell me.
 Lines I will read (`python tools/logs.py --tag JUNE_BUFF --grep "hyper-mode socket"`):
 - check 1: `socket 72700 fired` and `socket 72701 skipped: place 2 not allowed in state 11`;
