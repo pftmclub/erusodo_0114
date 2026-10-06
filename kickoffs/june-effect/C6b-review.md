@@ -21,6 +21,25 @@ Also read: `june2017_re/funcmap.tsv` rows the phase cites, and its commits (`git
 
 Review C6b's commit(s) against the June binary and the plan's C6b section: the five callees 31f8fdb0, 31f649d0, 31f64c00, 31f65e40, 31f65f90 as CEffect methods, both spawners calling them, no June offset ported, and the JUNE_FX line.
 
+This review also covers C6a2's identification, which had no review of its own. Check C6b's "C6a2 findings" items against funcmap rows tagged `Effect C6a2` and spot-check them in the binary:
+- **The stamps (`321ee600 @321ef639-321ef66d`):**
+  - `m_iIndex` and `DamageData::m_iJuneDamageEffectIndex` both come from `EffectSetInstance::m_iDamageEffectIndex`. It defaults to **0**, not -1.
+  - `m_iJuneAttackerStateID` comes from `m_iOwnerStateIDOnPlay` (default -1), nested in `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION`.
+- **PlayEffectSet (`321e1e60`):**
+  - the vslot `0x248` call sits at `@321e2029`, before the custom-position block;
+  - `GetNowStateID` is stored last, at `@321e20ce`;
+  - neither appears in the square or pet overloads.
+- **The four `m_iJuneDamageEffectIndex` writers:**
+  - SimpleInit -1;
+  - the SetDamageExceptionProcess tail `@3229971e`, from the base virtual returning -1;
+  - the SetDamageDataNext copy `@31f79b87`;
+  - the NEXT-parse reset `@31f79ce9`, before SetDamageDataFromLUA.
+- **C6a2's negative verdicts:**
+  - EffectData `+0x118` has no writer: `321f4690`'s four callers;
+  - `ADD_RENA_SYSTEM` is off (`flagprobe.py`), so the first-attack copies stay untouched;
+  - `m_iIndex` 0 cannot reach Rena's `GetInstanceByIndex`.
+- If an identification turns out wrong, correct its funcmap row and tell the user; C6c (the buff list) builds on the same rows.
+
 The plan's model rule is "transcription on Sonnet, then an Opus review"; this is that review.
 Hygiene is one command: `python tools/flagcheck.py <FLAG> --range <first C6b commit>^..HEAD`
 for each flag the phase used. Paste its `files:` / `in this flag's files:` / `RESULT:` lines, and
