@@ -3420,6 +3420,26 @@ public:
 		bool	InitSocketEffectEx( const CX2SocketItem::SocketData& kSocketData );		// SOCKET_ITEM_EFFECT_EX 값이 있으면 처리
 		CX2SocketItem::SOCKET_ITEM_EFFECT_EX ProcessSocketEffectEx( const CX2SocketItem::SOCKET_ITEM_EFFECT_EX eEx_, CX2GameUnit* pGameUnit_ );		// 해당 셋트효과가 발생될지 안될지를 결정함, 리턴값은 발생여부를 판단함, 발생이 안되면 NONE를 리턴
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port 16-step3b4. June's ProcessSocketEffectEx (32028ba0) takes two more arguments: a random-table offset (SIEE 14-16;
+		/// the attack-success caller passes the defender's UID, low 32 bits) and the victim unit (SIEE 16's trace target). The two-argument
+		/// form above forwards with 0 and NULL, which is what every other June caller pushes.
+		CX2SocketItem::SOCKET_ITEM_EFFECT_EX ProcessSocketEffectEx( const CX2SocketItem::SOCKET_ITEM_EFFECT_EX eEx_, CX2GameUnit* pGameUnit_,
+			const int iRandomOffset_, CX2GameUnit* pVictimUnit_ );
+		/// June's per-socket cool time (user +0x8b98, map of socket ID to seconds): get 31fd8b70 (0 when absent), set 31fe0b90,
+		/// tick 31fd7bd0 (OnFrameMove: minus the elapsed time, erased at 0 or below)
+		float	GetJuneSocketCoolTime( const int iSocketID_ ) const;
+		void	SetJuneSocketCoolTime( const int iSocketID_, const float fCoolTime_ ) { m_mapJuneSocketCoolTime[iSocketID_] = fCoolTime_; }
+		void	CheckJuneSocketCoolTime( const float fElapsedTime_ );
+		/// June 322a7c30 (CX2GameUnit): the unit's buff of this BTI has reached its templet's accumulation limit (only when the limit is above 1)
+		bool	IsBuffAtAccumulationLimitJune( const BUFF_TEMPLET_ID eBuffTempletID_ ) const;
+		/// June slot 252 (3202ab70, called at the end of AttackResult): SIEE 13, 14 and 16 on a successful non-special hit
+		void	ProcessSocketEffectByAttackSuccess( CX2DamageManager::DamageData& kDamageData_ );
+		/// June slot 334 (3208eb60): the Future (true) or Now state is one of CX2GUUser's ten hit-reaction states (slots 283-297)
+		bool	IsJuneSocketDownTargetState( const bool bFuture_ ) const;
+		/// June 3202b9a0: the own unit's SIEE 19 (return from death) gate in UpNowHp / SetNowHp
+		bool	ProcessSocketReturnFromDeath();
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		float	GetManaRecoveryVal() const { return m_fManaRecoveryVal; }
 		float	GetManaRecoveryTime() const { return m_fManaRecoveryDurationTime; }
 		void	CheckNChangeManaRecoveryValueNTime( float fElpasedTime );		// 자연마나회복량을 늘려주는 시간을 체크한 후에 time이 0이되면 valu를 0.0f로 변경 시켜주고 자연 마나회복량 역시 원래되로 돌려줌
@@ -4168,6 +4188,8 @@ public:
 #endif //NEW_CHARACTER_EL
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	float m_fJuneAddPhysicAttackCriticalDamageRate;	/// June +0x8dfc, 16-step3b2 (ctor 0, June @32040df6)
+	map<int, float> m_mapJuneSocketCoolTime;		/// June +0x8b98, 16-step3b4 (per-socket cool time; never cleared but by the dtor)
+	bool m_bJuneSocketReturnFromDeathDown;			/// June +0x8e78, 16-step3b4 (ctor 0 @32040e48; CommonEventProcess knocks the unit down once)
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //김창한

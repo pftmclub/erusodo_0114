@@ -90,8 +90,9 @@ namespace
 				iSocketID_, iValue_, szName );
 			break;
 		case 'S':
-			CX2JuneBuffCapture::Line( "socket %d (first of its type): SIEE %d %s is filed like June (31fe4730), but March has no ProcessSocketEffectEx case for it, so it does nothing (not ported%s)",
-				iSocketID_, iValue_, szName, CX2SocketItem::SIEE_ALWAYS_PLAY_EFFECT_SET == iValue_ ? "; the aura is 16-step3b's" : "" );
+			/// 16-step3b4: ProcessSocketEffectEx has June's cases 12-20 now; the line stays as a load census of the June-only types
+			CX2JuneBuffCapture::Line( "socket %d (first of its type): SIEE %d %s is filed like June (31fe4730) and handled by June's ProcessSocketEffectEx case (32028ba0)%s",
+				iSocketID_, iValue_, szName, CX2SocketItem::SIEE_ALWAYS_PLAY_EFFECT_SET == iValue_ ? "; its aura buff needs June's effect-set buff list (not ported)" : "" );
 			break;
 		case 'H':
 			CX2JuneBuffCapture::Line( "socket %d (first of its type): HYPER_MODE_EFFECTIVE_TYPE %d %s is June-only and March has no awakening handler for it, so it does nothing (not ported)",

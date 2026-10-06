@@ -717,6 +717,7 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #endif //NEW_CHARACTER_EL
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 , m_fJuneAddPhysicAttackCriticalDamageRate(0.f)
+, m_bJuneSocketReturnFromDeathDown( false )
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //김창한
 , m_bSetCustomRenderParam( false )
@@ -6523,6 +6524,11 @@ void CX2GUUser::DoStateEndStart()
 
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
 		{
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			/// June buff port 16-step3b4: the die states' StateEnd (3202a7d0) plays SIEE 18 (@3202a7e1) before its clear-all
+			if ( USI_DIE_FRONT == m_NowStateData.stateID || USI_DIE_BACK == m_NowStateData.stateID )
+				ProcessSocketEffectEx( CX2SocketItem::SIEE_PLAY_EFFECTSET_WHEN_DIE, this );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
 			/// June 3202a7d0 is the StateEnd of every class's DIE_FRONT / DIE_BACK (thunk 329cada0, delegate +0x54,
 			/// e.g. @329b8140): clear-all(false) @3202a7ea, then CommonStateEnd. March's die states register no StateEnd.
@@ -6833,6 +6839,10 @@ HRESULT CX2GUUser::OnFrameMove( double fTime, float fElapsedTime )
 	CheckNChangeManaRecoveryValueNTime( fElapsedTime );
 	CheckNChangeIntervalTimeForCureDebuff( fElapsedTime );
 	CheckAndDeleteBoneShield( fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b4: June OnFrameMove 3206eaf0 ticks the per-socket cool times right after the bone shield (31fd7bd0 @3206f71a)
+	CheckJuneSocketCoolTime( fElapsedTime );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 #ifdef ADJUST_SECRET_ITEM_OPTION //김창한
 	CheckSocketOptionCoolTime( fElapsedTime );
@@ -7049,6 +7059,11 @@ HRESULT CX2GUUser::OnFrameMove( double fTime, float fElapsedTime )
 			m_fRidingKeySkillWaitTime = -1.f;		/// @32070115, 334380f0
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b4: SIEE 15 (the always-on effect sets, e.g. the Hero Dungeon party auras), every frame, random offset 0
+	/// (June 3206eaf0 @32070125-12e, right after the riding-key wait)
+	ProcessSocketEffectEx( CX2SocketItem::SIEE_ALWAYS_PLAY_EFFECT_SET, this, 0, NULL );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	return S_OK;
 }
@@ -8675,6 +8690,10 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 				ProcessSocketEffectEx( CX2SocketItem::SIEE_ABSORB_HP_NO_REACT, this  );		/// 피격 시 HP 흡수 세트 효과 ( 경직 제거 )
 				ProcessSocketEffectEx( CX2SocketItem::SIEE_ACTIVE_BUFF, this  );			/// 피격 시 버프 적용 효과
 			#endif // HAMEL_SECRET_DUNGEON
+			#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				/// June buff port 16-step3b4: June DamageReact 320462a0 calls SIEE 12 right after 11 (@320472a4)
+				ProcessSocketEffectEx( CX2SocketItem::SIEE_PLAY_EFFECTSET, this );
+			#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 			}
 			break;
@@ -13226,6 +13245,10 @@ void CX2GUUser::AttackResult()
 	/// 일반 공격 타격시 이펙트 셋 생성하는 함수 검사
 	PlayEffectSetNormalAttackByBuff( m_DamageData.attackType );
 #endif // SERV_NEW_DEFENCE_DUNGEON
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b4: June AttackResult 32012b50 calls slot 252 with m_DamageData (@32014204) right after this
+	ProcessSocketEffectByAttackSuccess( m_DamageData );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 }
 
@@ -13879,6 +13902,13 @@ void CX2GUUser::DyingStart()
 void CX2GUUser::CommonStateStartFuture()
 {
 	KTDXPROFILE();
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b4, June 320506f0 @3205072a-32050753: entering a hit-reaction state (slot 334 with true) gives SIEE 20
+	/// its roll; when it fires it has already changed the state to a down state, and the rest of this start is skipped (@32057b3f)
+	if ( true == IsJuneSocketDownTargetState( true ) &&
+		CX2SocketItem::SIEE_DOWN == ProcessSocketEffectEx( CX2SocketItem::SIEE_DOWN, this ) )
+		return;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	int index = 0;
 	// fix!! 죽고 스테이지 넘어가는 경우에 wait상태에서 현재 HP가 0이 될 수 있다, 다른 방법으로 해킹을 막자
@@ -15808,6 +15838,10 @@ void CX2GUUser::CommonFrameMove()
 
 	KTDXPROFILE();
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b4: June CommonFrameMove 32063650 starts with SIEE 17 (@320636a1)
+	ProcessSocketEffectEx( CX2SocketItem::SIEE_BUFF_PERIODICALLY, this );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	/// June buff port Phase 8, June CommonFrameMove (32063650). @320636ad-6f1: the skill reservation lives 1 s (slot 514 when it runs out)
 	if ( 0.0f < m_fSkillUseReserveTime )
@@ -19936,6 +19970,13 @@ void CX2GUUser::CommonCameraMove()
 		return;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b4, June 3202fcf0 @3202fd9d-fe47: a live unit that this decrease would take to 0 or below runs the death
+	/// gates, and a gate that fires cancels the decrease. The first gate (320072d0, class passives) is checklist section 7; the second is
+	/// SIEE 19 (3202b9a0). June's g_pData vector clear in front of them (@3202fde7) is not identified and not ported.
+	if ( 0.f < GetNowHp() && GetNowHp() + hpIncrement <= 0.f && true == ProcessSocketReturnFromDeath() )
+		return;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	CX2GameUnit::UpNowHp( hpIncrement, hpMinimum );
 }
 
@@ -19958,12 +19999,26 @@ void CX2GUUser::CommonCameraMove()
 		return;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b4, June 3202ff60 @3203003b-3203006d: the same death gates for a live unit set to 0 or below
+	if ( 0.f < GetNowHp() && fHPNow <= 0.f && true == ProcessSocketReturnFromDeath() )
+		return;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	CX2GameUnit::SetNowHp( fHPNow );
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
 void CX2GUUser::CommonEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b4, June CommonEventProcess 31fe7610 @31fe7902-1918: after a death gate fired (+0x8e78), the unit is knocked
+	/// down once (June state 0x1e = USI_DAMAGE_DOWN_FRONT). The blocks June runs before it are its CommonEventProcess rewrite (Phase 7c, not ported).
+	if ( true == m_bJuneSocketReturnFromDeathDown )
+	{
+		StateChange( USI_DAMAGE_DOWN_FRONT, false );
+		m_bJuneSocketReturnFromDeathDown = false;
+	}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	const int iSecretSkillStateId = m_ComboAndSkillChainSystem.GetTriggerSecretSkillState( this );
 	if ( 0 != iSecretSkillStateId )
 		StateChange( iSecretSkillStateId );
@@ -32051,6 +32106,598 @@ bool CX2GUUser::InitSocketEffectEx( const CX2SocketItem::SocketData& kSocketData
 	
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/** @function : ProcessSocketEffectEx
+	@brief : June buff port 16-step3b4. June 32028ba0, ported whole (SIEE 1-20). Against March:
+		- each roll is "random < m_fProbability" on June's raw random offset: 10-19 for SIEE 1-11 (March's SRO_ values), 0x18 / 0x19 / 0x1c
+		  plus the socket's index for 12 / 13 / 18, iRandomOffset_ plus the index for 14 / 15 / 16, 0x1f for 20, none for 17 and 19;
+		- SIEE 7, 10, 11 and every new case gate on the socket's own cool time (GetJuneSocketCoolTime <= 0; set to m_fIntervalTime after
+		  firing) instead of March's single m_fSocketOptionCoolTime (10, 11) or nothing (7);
+		- SIEE 11 does not re-apply a buff at its accumulation limit; at the limit BTI 1003 swaps to BFI 1081 (cool time m_iCount);
+		- the return value is the case's SIEE when it fired (none for 4, 6 and 17's... see each case).
+	The socket data offsets June reads: +0x1e0 m_eStatUpType, +0x1e4 m_fDurationTime, +0x1e8 m_fProbability, +0x1f0 m_fIncOrDecVal,
+	+0x1f4 m_iCount, +0x1f8 m_fIntervalTime, +0x1fc m_vecEffectName, +0x24 m_ptrBuffFactor, +0x278 m_ptrBuffFactorCustomUse, +0x29c the
+	conditional-buff list (16-step3b item 7).
+*/
+CX2SocketItem::SOCKET_ITEM_EFFECT_EX CX2GUUser::ProcessSocketEffectEx( const CX2SocketItem::SOCKET_ITEM_EFFECT_EX eEx_, CX2GameUnit* pGameUnit_,
+	const int iRandomOffset_, CX2GameUnit* pVictimUnit_ )
+{
+	SOCKET_EFFECT_EX_MAP::iterator mItr = m_mapSocketItemEffectEx.find( eEx_ );
+	CX2SocketItem::SOCKET_ITEM_EFFECT_EX eReturnVal = CX2SocketItem::SIEE_NONE;
+
+	if ( mItr == m_mapSocketItemEffectEx.end() )
+		return eReturnVal;
+
+	const vector<int>& vecSocketID = mItr->second;
+
+	switch ( eEx_ )
+	{
+	case CX2SocketItem::SIEE_STAT_UP:		/// @32028c30, as March
+		{
+			if ( m_StatUpBufferBySocketItem.m_fBufferTime > 0.0f )
+				return eReturnVal;
+
+			for ( UINT i = 0; i < vecSocketID.size(); ++i )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL != pSocketData && GetRandomFloat( 10 ) < pSocketData->m_fProbability )
+				{
+					SetStatUpBufferBySocketItem( pSocketData->m_fIncOrDecVal, pSocketData->m_fDurationTime );
+					m_StatUpType = pSocketData->m_eStatUpType;
+					eReturnVal = CX2SocketItem::SIEE_STAT_UP;
+					break;
+				}
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_UP_MANA_RECOVERY_VALUE:	/// @32028ce0, as March: the first socket only, no roll
+		{
+			if ( GetManaRecoveryTime() > 0.0f )
+				return eReturnVal;
+
+			const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[0] );
+			if ( NULL != pSocketData )
+			{
+				SetManaRecoveryVal( pSocketData->m_fIncOrDecVal );
+				SetManaRecoveryTime( pSocketData->m_fDurationTime );
+				ResetMPChangeRate( GetNowMPChange() + GetManaRecoveryVal() );
+				eReturnVal = CX2SocketItem::SIEE_UP_MANA_RECOVERY_VALUE;
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_CURE_DEBUFF:		/// @32028d90, as March
+		{
+			if ( m_fIntervalTimeForCureDebuff > 0.0f )
+				return eReturnVal;
+
+			for ( UINT i = 0; i < vecSocketID.size(); ++i )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL != pSocketData && GetRandomFloat( 11 ) < pSocketData->m_fProbability )
+				{
+					CureExtraDamage( pSocketData->m_iCount );
+					m_fIntervalTimeForCureDebuff = pSocketData->m_fIntervalTime;
+					eReturnVal = CX2SocketItem::SIEE_CURE_DEBUFF;
+					break;
+				}
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_DEBUFF_ATTACKER:	/// @32028eb0, as March: the socket's buff on pGameUnit_ (the attacker); no return value
+		{
+			for ( UINT i = 0; i < vecSocketID.size(); ++i )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL != pSocketData && GetRandomFloat( 12 ) < pSocketData->m_fProbability )
+				{
+					if ( NULL != pSocketData->m_ptrBuffFactor )
+					{
+						CX2BuffFactorPtr ptrBuffFactor = pSocketData->m_ptrBuffFactor->GetClonePtr( 0 );
+						if ( NULL != ptrBuffFactor )
+						{
+							ptrBuffFactor->SetGameUnitBuffFactor( this );
+							pGameUnit_->SetBuffFactorToGameUnit( *ptrBuffFactor );
+						}
+					}
+					break;
+				}
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_BONE_SHIELD:		/// @32028f70, as March
+		{
+			for ( UINT i = 0; i < vecSocketID.size(); ++i )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL != pSocketData && GetRandomFloat( 13 ) < pSocketData->m_fProbability )
+				{
+					CreateBoneShield( *pSocketData );
+					eReturnVal = CX2SocketItem::SIEE_BONE_SHIELD;
+					break;
+				}
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_ATTACK_SPEED_UP:	/// @32028fd7, as March: BFI 141 at level 1; no return value
+		{
+			for ( UINT i = 0; i < vecSocketID.size(); ++i )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL != pSocketData && GetRandomFloat( 14 ) < pSocketData->m_fProbability )
+				{
+					SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_MECHANIZATION_SPEED_UP, 1 );
+					break;
+				}
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_ICE_NOVA:			/// @32029050: June adds the socket's cool time, tested before the roll
+		{
+			for ( UINT i = 0; i < vecSocketID.size(); ++i )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL == pSocketData || 0.f < GetJuneSocketCoolTime( pSocketData->m_ID ) )
+					continue;
+
+				if ( GetRandomFloat( 15 ) < pSocketData->m_fProbability )
+				{
+					g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SIEE_ICE_NOVA", this );
+					SetJuneSocketCoolTime( pSocketData->m_ID, pSocketData->m_fIntervalTime );
+					eReturnVal = CX2SocketItem::SIEE_ICE_NOVA;
+					break;
+				}
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_POISON_BURST:		/// @320291c0, as March (June offset 0x11)
+		{
+			for ( UINT i = 0; i < vecSocketID.size(); ++i )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL != pSocketData && GetRandomFloat( 17 ) < pSocketData->m_fProbability )
+				{
+					g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SIEE_POISON_BURST", this );
+					eReturnVal = CX2SocketItem::SIEE_POISON_BURST;
+					break;
+				}
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_ABSORB_HP:			/// @32029310, as March (June offset 0x12)
+		{
+			for ( UINT i = 0; i < vecSocketID.size(); ++i )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL != pSocketData && GetRandomFloat( 18 ) < pSocketData->m_fProbability )
+				{
+					g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SIEE_ABSORB_HP", this );
+					eReturnVal = CX2SocketItem::SIEE_ABSORB_HP;
+					break;
+				}
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_ABSORB_HP_NO_REACT:	/// @32029450: the roll (offset 0x12), then the socket's own cool time (a socket on cool time is skipped)
+		{
+			for ( UINT i = 0; i < vecSocketID.size(); ++i )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL == pSocketData || false == ( GetRandomFloat( 18 ) < pSocketData->m_fProbability ) ||
+					0.f < GetJuneSocketCoolTime( pSocketData->m_ID ) )
+					continue;
+
+				D3DXVECTOR3 vPos = GetBonePos( L"Bip01" );
+				CX2DamageEffect::CEffect* pCEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this,
+					L"DAMAGE_EFFECT_SIEE_ABSORB_HP_NO_REACT", GetPowerRate(), vPos, GetDirVector(), GetDirVector(),
+					m_FrameDataNow.unitCondition.landPosition.y );
+				if ( NULL != pCEffect )
+					pCEffect->SetDamageTime( static_cast<int>( pSocketData->m_fEffectiveValue ) );
+
+				if ( NULL != g_pX2Game->GetEffectSet() )
+					g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Siee_Absorb_Hp", this );
+
+				SetJuneSocketCoolTime( pSocketData->m_ID, pSocketData->m_fIntervalTime );
+				eReturnVal = CX2SocketItem::SIEE_ABSORB_HP_NO_REACT;
+				break;
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_ACTIVE_BUFF:		/// @320296f0 (offset 0x13); the custom-use factor, cloned at level 0
+		{
+			for ( UINT i = 0; i < vecSocketID.size(); ++i )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL == pSocketData || false == ( GetRandomFloat( 19 ) < pSocketData->m_fProbability ) ||
+					NULL == pSocketData->m_ptrBuffFactorCustomUse || 0.f < GetJuneSocketCoolTime( pSocketData->m_ID ) )
+					continue;
+
+				CX2BuffFactorPtr pCloneBuffFactorPtr = pSocketData->m_ptrBuffFactorCustomUse->GetClonePtr( 0 );
+				if ( NULL != pCloneBuffFactorPtr )
+				{
+					const BUFF_TEMPLET_ID eBuffTempletID = pCloneBuffFactorPtr->GetBuffTempletID();
+					if ( false == IsBuffAtAccumulationLimitJune( eBuffTempletID ) )
+					{
+						if ( true == SetBuffFactorToGameUnit( *pCloneBuffFactorPtr ) )
+						{
+							SetJuneSocketCoolTime( pSocketData->m_ID, pSocketData->m_fIntervalTime );
+							eReturnVal = CX2SocketItem::SIEE_ACTIVE_BUFF;
+						}
+					}
+					else if ( 1003 == eBuffTempletID )		/// @3202978d: BTI_BUFF_ELPIERCE_INNERRAY at its limit -> BFI_BUFF_ELPIERCE_INNERRAY_HEAL
+					{
+						EraseBuffTempletFromGameUnit( eBuffTempletID );
+						SetBuffFactorToGameUnitByBuffFactorID( 1081, 1 );
+						SetJuneSocketCoolTime( pSocketData->m_ID, static_cast<float>( pSocketData->m_iCount ) );
+					}
+				}
+				break;
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_PLAY_EFFECTSET:	/// @32029840 (DamageReact): each EFFECT_NAME set, offset 0x18 + index
+		{
+			int iRandomOffset = 0x18;
+			for ( UINT i = 0; i < vecSocketID.size(); ++i, ++iRandomOffset )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL == pSocketData || true == pSocketData->m_vecEffectName.empty() ||
+					false == ( GetRandomFloat( iRandomOffset ) < pSocketData->m_fProbability ) || 0.f < GetJuneSocketCoolTime( pSocketData->m_ID ) )
+					continue;
+
+				/// June calls slot 78 (GetPos, false) here @320298d0 and drops the result
+				for ( UINT j = 0; j < pSocketData->m_vecEffectName.size(); ++j )
+					g_pX2Game->GetEffectSet()->PlayEffectSet( pSocketData->m_vecEffectName[j], this );
+
+				SetJuneSocketCoolTime( pSocketData->m_ID, pSocketData->m_fIntervalTime );
+				eReturnVal = eEx_;
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_BUFF_WHEN_SUCCESS_ATTACK:	/// @32029ca0 (attack success): offset 0x19 + index, the custom-use factor
+		{
+			int iRandomOffset = 0x19;
+			for ( UINT i = 0; i < vecSocketID.size(); ++i, ++iRandomOffset )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL == pSocketData || false == ( GetRandomFloat( iRandomOffset ) < pSocketData->m_fProbability ) ||
+					NULL == pSocketData->m_ptrBuffFactorCustomUse || 0.f < GetJuneSocketCoolTime( pSocketData->m_ID ) )
+					continue;
+
+				if ( GetNowHp() <= 0.f )		/// @32029d37: a dead unit ends the case
+					break;
+
+				CX2BuffFactorPtr pCloneBuffFactorPtr = pSocketData->m_ptrBuffFactorCustomUse->GetClonePtr( 0 );
+				if ( NULL == pCloneBuffFactorPtr )
+					continue;
+
+				const BUFF_TEMPLET_ID eBuffTempletID = pCloneBuffFactorPtr->GetBuffTempletID();
+				if ( true == IsBuffAtAccumulationLimitJune( eBuffTempletID ) )
+				{
+					if ( false == pSocketData->m_vecEffectName.empty() )		/// @32029eb6: at the limit, play the sets and take the buff off
+					{
+						for ( UINT j = 0; j < pSocketData->m_vecEffectName.size(); ++j )
+							g_pX2Game->GetEffectSet()->PlayEffectSet( pSocketData->m_vecEffectName[j], this );
+						EraseBuffTempletFromGameUnit( eBuffTempletID );
+						break;
+					}
+					else if ( 910 == eBuffTempletID )		/// @32029fbb: BTI_BUFF_SOCKET_ENERGY_OF_EL at its limit -> BFI_BUFF_SOCKET_BLESS_OF_EL
+					{
+						EraseBuffTempletFromGameUnit( eBuffTempletID );
+						SetBuffFactorToGameUnitByBuffFactorID( 940, 1 );
+						SetJuneSocketCoolTime( pSocketData->m_ID, static_cast<float>( pSocketData->m_iCount ) );
+						break;
+					}
+				}
+
+				if ( true == SetBuffFactorToGameUnit( *pCloneBuffFactorPtr ) )
+				{
+					SetJuneSocketCoolTime( pSocketData->m_ID, pSocketData->m_fIntervalTime );
+					eReturnVal = eEx_;
+
+					/// @32029dd4: with title 930 (Oath of Ruin, CX2Unit +0x9a0) the buff also goes to my live ally summons (322dd7f0)
+					if ( NULL != GetUnit() && 930 == GetUnit()->GetTitleId() && NULL != g_pX2Game )
+					{
+						for ( int iNPC = 0; iNPC < g_pX2Game->GetNPCUnitListSize(); ++iNPC )
+						{
+							CX2GUNPC* pNPC = g_pX2Game->GetNPCUnit( iNPC );
+							if ( NULL == pNPC || pNPC->GetNowHp() <= 0.f || NULL == pNPC->GetNPCAI() ||
+								CX2NPCAI::NAT_ALLY != pNPC->GetNPCAI()->GetAIType() ||
+								static_cast<CX2AllyNPCAI*>( pNPC->GetNPCAI() )->GetAllyUnitUID() != GetUnitUID() )
+								continue;
+							pNPC->SetBuffFactorToGameUnit( *pCloneBuffFactorPtr );
+						}
+					}
+				}
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_PLAY_EFFECTSET_WHEN_SUCCESS_ATTACK:			/// @32029a00 (attack success), shared with 16
+	case CX2SocketItem::SIEE_PLAY_EFFECTSET_TO_VICTIM_WHEN_SUCCESS_ATTACK:	/// 16 traces the sets on the victim when there is one
+		{
+			int iRandomOffset = iRandomOffset_;
+			for ( UINT i = 0; i < vecSocketID.size(); ++i, ++iRandomOffset )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL == pSocketData || true == pSocketData->m_vecEffectName.empty() ||
+					false == ( GetRandomFloat( iRandomOffset ) < pSocketData->m_fProbability ) || 0.f < GetJuneSocketCoolTime( pSocketData->m_ID ) )
+					continue;
+
+				for ( UINT j = 0; j < pSocketData->m_vecEffectName.size(); ++j )
+				{
+					if ( CX2SocketItem::SIEE_PLAY_EFFECTSET_TO_VICTIM_WHEN_SUCCESS_ATTACK == eEx_ && NULL != pVictimUnit_ )
+						g_pX2Game->GetEffectSet()->PlayEffectSet( pSocketData->m_vecEffectName[j], this, pVictimUnit_ );
+					else
+						g_pX2Game->GetEffectSet()->PlayEffectSet( pSocketData->m_vecEffectName[j], this );
+				}
+
+				SetJuneSocketCoolTime( pSocketData->m_ID, pSocketData->m_fIntervalTime );
+				eReturnVal = eEx_;
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_ALWAYS_PLAY_EFFECT_SET:	/// @3202a010 (every frame): offset iRandomOffset_ + index
+		{
+			int iRandomOffset = iRandomOffset_;
+			for ( UINT i = 0; i < vecSocketID.size(); ++i, ++iRandomOffset )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL == pSocketData || true == pSocketData->m_vecEffectName.empty() ||
+					false == ( GetRandomFloat( iRandomOffset ) < pSocketData->m_fProbability ) || 0.f < GetJuneSocketCoolTime( pSocketData->m_ID ) )
+					continue;
+
+				for ( UINT j = 0; j < pSocketData->m_vecEffectName.size(); ++j )
+				{
+					const CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( pSocketData->m_vecEffectName[j], this );
+					if ( INVALID_EFFECTSET_HANDLE == hEffectSet )
+					{
+						/// June attaches nothing to a set that did not play (@3202a1a5). March's data has no EffectSet_Hero_Dungeon_Aura_Buff.
+						static bool s_bMissingReported = false;
+						if ( false == s_bMissingReported )
+						{
+							s_bMissingReported = true;
+							CX2JuneBuffCapture::Line( "SIEE 15 socket %d: effect set %S did not play (not in March's effect sets), so its aura buff is not given",
+								pSocketData->m_ID, pSocketData->m_vecEffectName[j].c_str() );
+						}
+						continue;
+					}
+
+					/// @3202a1aa-1f4: every +0x29c entry flagged for SIEE 15 is attached to the set (321e3650: EffectSetInstance +0x160,
+					/// which OnFrameMove_CreateEffect hands to each damage effect the set creates, 321ee480 @321ef689). That effect-set
+					/// buff list is not in March's CX2EffectSet (16-step3b4 hand-off).
+					for ( UINT k = 0; k < pSocketData->m_vecConditionalBuff.size(); ++k )
+					{
+						if ( true != pSocketData->m_vecConditionalBuff[k].m_bAlwaysPlayEffectSet )
+							continue;
+						static bool s_bAttachReported = false;
+						if ( false == s_bAttachReported )
+						{
+							s_bAttachReported = true;
+							CX2JuneBuffCapture::Line( "unsupported (effect-set buff list, 321e3650): SIEE 15 socket %d played %S but BFI %u level %d is not attached",
+								pSocketData->m_ID, pSocketData->m_vecEffectName[j].c_str(), pSocketData->m_vecConditionalBuff[k].m_uiBuffFactorID,
+								pSocketData->m_vecConditionalBuff[k].m_iBuffLevel );
+						}
+					}
+				}
+
+				SetJuneSocketCoolTime( pSocketData->m_ID, pSocketData->m_fIntervalTime );
+				eReturnVal = eEx_;
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_BUFF_PERIODICALLY:	/// @3202a250 (CommonFrameMove): no roll; the custom-use factor whenever the cool time is over
+		{
+			for ( UINT i = 0; i < vecSocketID.size(); ++i )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL == pSocketData || NULL == pSocketData->m_ptrBuffFactorCustomUse || 0.f < GetJuneSocketCoolTime( pSocketData->m_ID ) )
+					continue;
+
+				if ( GetNowHp() <= 0.f )		/// @3202a2b3: a dead unit ends the case
+					break;
+
+				CX2BuffFactorPtr pCloneBuffFactorPtr = pSocketData->m_ptrBuffFactorCustomUse->GetClonePtr( 0 );
+				if ( NULL != pCloneBuffFactorPtr && true == SetBuffFactorToGameUnit( *pCloneBuffFactorPtr ) )
+				{
+					SetJuneSocketCoolTime( pSocketData->m_ID, pSocketData->m_fIntervalTime );
+					eReturnVal = eEx_;
+				}
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_PLAY_EFFECTSET_WHEN_DIE:	/// @3202a340 (die states' StateEnd): offset 0x1c + index
+		{
+			int iRandomOffset = 0x1c;
+			for ( UINT i = 0; i < vecSocketID.size(); ++i, ++iRandomOffset )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL == pSocketData || true == pSocketData->m_vecEffectName.empty() ||
+					false == ( GetRandomFloat( iRandomOffset ) < pSocketData->m_fProbability ) || 0.f < GetJuneSocketCoolTime( pSocketData->m_ID ) )
+					continue;
+
+				/// June calls slot 78 (GetPos, false) here @3202a3e4 and drops the result
+				for ( UINT j = 0; j < pSocketData->m_vecEffectName.size(); ++j )
+					g_pX2Game->GetEffectSet()->PlayEffectSet( pSocketData->m_vecEffectName[j], this );
+
+				SetJuneSocketCoolTime( pSocketData->m_ID, pSocketData->m_fIntervalTime );
+				eReturnVal = eEx_;
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_RETURN_FROM_DEATH:		/// @3202a540 (death gate): no roll; HP becomes m_fIncOrDecVal, then the socket's buff
+		{
+			for ( UINT i = 0; i < vecSocketID.size(); ++i )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL == pSocketData || false == ( 0.f < pSocketData->m_fIncOrDecVal ) || 0.f < GetJuneSocketCoolTime( pSocketData->m_ID ) )
+					continue;
+
+				SetNowHp( pSocketData->m_fIncOrDecVal );
+				if ( NULL != pSocketData->m_ptrBuffFactor )
+				{
+					CX2BuffFactorPtr pCloneBuffFactorPtr = pSocketData->m_ptrBuffFactor->GetClonePtr( 0 );
+					if ( NULL != pCloneBuffFactorPtr )
+						SetBuffFactorToGameUnit( *pCloneBuffFactorPtr );
+				}
+				SetJuneSocketCoolTime( pSocketData->m_ID, pSocketData->m_fIntervalTime );
+				eReturnVal = eEx_;
+
+				/// @3202a60f: in PvP (June: PvP or PvE, 322cc1a0; March has no PvE) slot 160 = ResetLeftSkillCoolTimeByBuff
+				/// with June's pushes (type 0, 1.0, false, change type 3, rate 1.0, relative-all true, slot type 0)
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+				if ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() )
+					ResetLeftSkillCoolTimeByBuff( static_cast<CX2SkillTree::SKILL_TYPE>( 0 ), 1.f, false, static_cast<BUFF_CHANGE_TYPE>( 3 ), 1.f, true, 0 );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+				break;
+			}
+		} break;
+
+	case CX2SocketItem::SIEE_DOWN:		/// @3202a650 (CommonStateStartFuture): June's state IDs are GUSI_END + n; March's USI are n - 1
+		{
+			for ( UINT i = 0; i < vecSocketID.size(); ++i )
+			{
+				const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketID[i] );
+				if ( NULL == pSocketData || 0.f < GetJuneSocketCoolTime( pSocketData->m_ID ) )
+					continue;
+				if ( false == ( pSocketData->m_fProbability > GetRandomFloat( 0x1f ) ) )		/// 32070350( prob, random ): prob > random
+					continue;
+
+				int iDownStateID = 0;
+				if ( true == IsOnSomethingFuture() )		/// +0x7e1c
+				{
+					if ( true == m_FrameDataFuture.unitCondition.bAttackerFront )		/// +0x7e2d
+						iDownStateID = ( true == GetRidingOn() ) ? USI_RIDING_DAMAGE_FRONT : USI_DAMAGE_DOWN_FRONT;	/// June 0x55 / 0x1e
+					else
+						iDownStateID = ( true == GetRidingOn() ) ? USI_RIDING_DAMAGE_BACK : USI_DAMAGE_DOWN_BACK;	/// June 0x56 / 0x1f
+				}
+				else
+					iDownStateID = ( true == GetRidingOn() ) ? USI_RIDING_DAMAGE_FRONT : USI_DAMAGE_AIR_DOWN_INVINCIBLE;	/// June 0x55 / 0x24
+				StateChange( iDownStateID, true );
+
+				SetJuneSocketCoolTime( pSocketData->m_ID, pSocketData->m_fIntervalTime );
+				eReturnVal = eEx_;
+				break;
+			}
+		} break;
+
+	default:
+		break;
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( CX2SocketItem::SIEE_NONE != eReturnVal )
+	{
+		static std::set<int> s_setFiredReported;
+		if ( true == s_setFiredReported.insert( static_cast<int>( eEx_ ) ).second )
+			CX2JuneBuffCapture::Line( "first socket effect fired: SIEE %d on unit %I64d (random offset %d, victim %s, %d socket(s) filed)",
+				static_cast<int>( eEx_ ), GetUnitUID(), iRandomOffset_, NULL != pVictimUnit_ ? "yes" : "no", static_cast<int>( vecSocketID.size() ) );
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return eReturnVal;
+}
+
+/// June buff port 16-step3b4: the two-argument form March calls everywhere; June's callers push 0 and NULL for the last two
+CX2SocketItem::SOCKET_ITEM_EFFECT_EX CX2GUUser::ProcessSocketEffectEx( const CX2SocketItem::SOCKET_ITEM_EFFECT_EX eEx_, CX2GameUnit* pGameUnit_ )
+{
+	return ProcessSocketEffectEx( eEx_, pGameUnit_, 0, NULL );
+}
+
+/// June 31fd8b70: the socket's remaining cool time, 0 when it has none
+float CX2GUUser::GetJuneSocketCoolTime( const int iSocketID_ ) const
+{
+	map<int, float>::const_iterator mItr = m_mapJuneSocketCoolTime.find( iSocketID_ );
+	if ( m_mapJuneSocketCoolTime.end() == mItr )
+		return 0.f;
+	return mItr->second;
+}
+
+/// June 31fd7bd0: every entry loses the elapsed time; one at 0 or below is erased
+void CX2GUUser::CheckJuneSocketCoolTime( const float fElapsedTime_ )
+{
+	map<int, float>::iterator mItr = m_mapJuneSocketCoolTime.begin();
+	while ( m_mapJuneSocketCoolTime.end() != mItr )
+	{
+		mItr->second -= fElapsedTime_;
+		if ( 0.f < mItr->second )
+			++mItr;
+		else
+			mItr = m_mapJuneSocketCoolTime.erase( mItr );
+	}
+}
+
+/// June 322a7c30: the templet's ACCUMULATION_LIMIT is above 1 and the unit's buff of that BTI has reached it
+bool CX2GUUser::IsBuffAtAccumulationLimitJune( const BUFF_TEMPLET_ID eBuffTempletID_ ) const
+{
+	CX2BuffTempletPtr ptrBuffTemplet = CX2BuffTempletManager::GetInstance()->GetBuffTempletPtr( eBuffTempletID_ );
+	if ( NULL == ptrBuffTemplet || true == m_vecBuffTempletPtr.empty() )
+		return false;
+
+	const UINT uiAccumulationLimit = ptrBuffTemplet->GetAccumulationLimit();
+	if ( 1 >= uiAccumulationLimit )
+		return false;
+
+	for ( UINT i = 0; i < m_vecBuffTempletPtr.size(); ++i )		/// 322ae0a0: the first templet of that BTI
+	{
+		if ( NULL != m_vecBuffTempletPtr[i] && eBuffTempletID_ == m_vecBuffTempletPtr[i]->GetBuffTempletID() )
+			return uiAccumulationLimit <= m_vecBuffTempletPtr[i]->GetAccumulationCountNow();
+	}
+	return false;
+}
+
+/** @function : ProcessSocketEffectByAttackSuccess
+	@brief : June CX2GUUser slot 252 (3202ab70), called at the end of AttackResult with m_DamageData. Skips a special attack (attackType 1)
+		and a hit whose m_fRateModifier is not above 0. The random offset for 14 and 16 is the defender's UID (low 32 bits, slot 21), or 0.
+*/
+void CX2GUUser::ProcessSocketEffectByAttackSuccess( CX2DamageManager::DamageData& kDamageData_ )
+{
+	if ( CX2DamageManager::AT_SPECIAL == kDamageData_.attackType || false == ( 0.f < kDamageData_.m_fRateModifier ) )
+		return;
+
+	CX2GameUnit* pDefenderUnit = kDamageData_.optrDefenderGameUnit.GetObservable();
+	const int iRandomOffset = ( NULL != pDefenderUnit ) ? static_cast<int>( pDefenderUnit->GetUnitUID() ) : 0;
+
+	ProcessSocketEffectEx( CX2SocketItem::SIEE_BUFF_WHEN_SUCCESS_ATTACK, this, iRandomOffset, NULL );
+	ProcessSocketEffectEx( CX2SocketItem::SIEE_PLAY_EFFECTSET_WHEN_SUCCESS_ATTACK, this, iRandomOffset, NULL );
+	ProcessSocketEffectEx( CX2SocketItem::SIEE_PLAY_EFFECTSET_TO_VICTIM_WHEN_SUCCESS_ATTACK, this, iRandomOffset, pDefenderUnit );
+}
+
+/** @function : IsJuneSocketDownTargetState
+	@brief : June CX2GUUser slot 334 (3208eb60): the Future (true) or Now state is one of the ten states CX2GUUser's slots 283-297 return
+		(June 0x1a-0x1d, 0x22, 0x26-0x2a = GUSI_END + 21-24, 29, 33-37). One June class overrides those slots (vtable 334f06fc): checklist section 7.
+*/
+bool CX2GUUser::IsJuneSocketDownTargetState( const bool bFuture_ ) const
+{
+	const int iStateID = ( true == bFuture_ ) ? static_cast<int>( m_FrameDataFuture.syncData.nowState ) : static_cast<int>( m_FrameDataNow.syncData.nowState );
+	switch ( iStateID )
+	{
+	case USI_DAMAGE_SMALL_FRONT:
+	case USI_DAMAGE_SMALL_BACK:
+	case USI_DAMAGE_BIG_FRONT:
+	case USI_DAMAGE_BIG_BACK:
+	case USI_DAMAGE_AIR_SMALL:
+	case USI_DAMAGE_AIR_FALL:
+	case USI_DAMAGE_AIR_UP:
+	case USI_DAMAGE_AIR_FLY_FRONT:
+	case USI_DAMAGE_AIR_FLY_BACK:
+	case USI_DAMAGE_REVENGE:
+		return true;
+	default:
+		return false;
+	}
+}
+
+/// June 3202b9a0: the own unit's SIEE 19; when it fires, CommonEventProcess knocks the unit down once (+0x8e78)
+bool CX2GUUser::ProcessSocketReturnFromDeath()
+{
+	if ( false == IsMyUnit() || CX2SocketItem::SIEE_NONE == ProcessSocketEffectEx( CX2SocketItem::SIEE_RETURN_FROM_DEATH, this ) )
+		return false;
+
+	m_bJuneSocketReturnFromDeathDown = true;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	CX2JuneBuffCapture::Line( "SIEE 19 return from death: HP now %g, knocked down at the next event process", GetNowHp() );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return true;
+}
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 CX2SocketItem::SOCKET_ITEM_EFFECT_EX CX2GUUser::ProcessSocketEffectEx( const CX2SocketItem::SOCKET_ITEM_EFFECT_EX eEx_, CX2GameUnit* pGameUnit_ )
 {
 	SOCKET_EFFECT_EX_MAP::iterator mItr = m_mapSocketItemEffectEx.find( eEx_ );
@@ -32319,6 +32966,7 @@ CX2SocketItem::SOCKET_ITEM_EFFECT_EX CX2GUUser::ProcessSocketEffectEx( const CX2
 	return eReturnVal;
 }
 
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 void CX2GUUser::CheckNChangeManaRecoveryValueNTime( float fElpasedTime )
 {
 	if ( GetManaRecoveryTime() > 0.0f )
@@ -34609,12 +35257,32 @@ void CX2GUUser::SendBuffInfoNot( const UidType uidGameUnitToSendNot_ )
 		is a factor of this BTI. March's socket enum ends at 11, so nothing is ever filed under 15, and its socket data has no such
 		list: both are Phase 16's (socket-option parity). Until then this is false and an aura made by a user ends at its first check.
 */
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/*	16-step3b4: since 16-data June's SIEE 15 sockets are filed (31fe4730) and carry the +0x29c list (16-step3b item 7), so the body
+	below is June's whole loop: true when one of the user's SIEE 15 sockets has an entry flagged for SIEE 15 whose factor is of this BTI.
+	June does not test the socket data for NULL (@3204e400); the IDs come from loaded data. */
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 /*virtual*/ bool CX2GUUser::HasSocketAuraFor( const int iSocketEffectEx_, const BUFF_TEMPLET_ID eBuffTempletID_ ) const
 {
 	SOCKET_EFFECT_EX_MAP::const_iterator mItr = m_mapSocketItemEffectEx.find( static_cast<CX2SocketItem::SOCKET_ITEM_EFFECT_EX>( iSocketEffectEx_ ) );
 	if ( m_mapSocketItemEffectEx.end() == mItr || 15 != iSocketEffectEx_ )
 		return false;
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	for ( UINT i = 0; i < mItr->second.size(); ++i )
+	{
+		const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( mItr->second[i] );
+		for ( UINT k = 0; k < pSocketData->m_vecConditionalBuff.size(); ++k )
+		{
+			if ( true != pSocketData->m_vecConditionalBuff[k].m_bAlwaysPlayEffectSet )
+				continue;
+			CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( pSocketData->m_vecConditionalBuff[k].m_uiBuffFactorID );
+			if ( NULL != ptrBuffFactor && eBuffTempletID_ == ptrBuffFactor->GetBuffTempletID() )
+				return true;
+		}
+	}
+	return false;
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	static bool s_bReported = false;
 	if ( !s_bReported )
 	{
@@ -34623,6 +35291,7 @@ void CX2GUUser::SendBuffInfoNot( const UidType uidGameUnitToSendNot_ )
 			static_cast<int>( eBuffTempletID_ ) );
 	}
 	return false;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 }
 
 /** @function : HasFinalizerFactorWithCreator
