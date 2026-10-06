@@ -5653,6 +5653,65 @@ D8 split (advisor): the empty hook and its call (`33093ad0` is a bare `ret 8`; e
 
 **Exe.** No rebuild. The deployed `X2_offline.exe` (md5 `aad7844e`, 19:26:16) is a peer's deploy at `1a560d9`, which contains `1d285ef`, plus the offline grade's 2 files. No play-test is owed: there was no code change, and 3b5's play-test passed.
 
+### Phase 16-step3b6 — Done (2026-10-06, Opus 5.5 high)
+
+**Identified:** `3206d480` is June's `CX2GUUser::ApplyBuffByUseHyperMode`, the awakening-socket effects March already has (`HAMEL_SECRET_DUNGEON`). It is a buff-port system, so it was **ported here whole** (`0d2543c`, under `SERV_IRUHADEV_JUNE_SOCKET_PARITY`). Decodes are in `funcmap.tsv` (rows "Buff Phase 16-step3b6").
+
+**Corrections to the kickoff and the 3b4 review row.**
+- The list is not on `CX2Unit`. `+0x87b4` is the socket aggregate, so `+0x280/+0x284` is `m_vecInfoByUseHyperMode`.
+- The store key is the entry's socket ID (`+0x14`), not entry[0]. Entry[0] is the place.
+- June fills the list in SumSocketOption `3204f190 @3204fc22`:
+  - place: `+0x190` DUNGEON_ONLY → 1, else `+0x191` PVP_ONLY → 2;
+  - type `+0x27c`, buff `+0x278`, value `+0x290`;
+  - cool time `+0x1f8` (`m_fIntervalTime`), socket ID `+0x4`.
+- The three callers are `ApplyHyperModeBuff`: CX2GameUnit `32298590`, Ain `32a71a90` and Add `329e2410`. They are not periodic: the function runs once per awakening.
+
+**Collisions:** none in data. The store is keyed by socket ID by design. None of the 32 hyper-mode sockets in the live OptionItemData has an SIEE, a reduction or any other key that a store user reads.
+
+**What landed.**
+- **X2SocketItem.h:** `InfoByUseHyperMode` gains `m_fJuneCoolTime` and `m_iJuneSocketID`. They are new fields; the old `m_fCoolTime` is ADJUST-gated and off in US.
+- **X2GUUser.cpp, fill:** June's place test. March tested `m_bDungeonOnly` twice, so its 13 PVP_ONLY hyper-mode sockets were PUP_ALL and also fired in dungeons. The fill also records the cool time and the socket ID.
+- **X2GUUser.cpp, `ApplyBuffByUseHyperMode`:** June's loop. Per entry:
+  1. Skip while the socket's own cool time runs (3b4's store).
+  2. Place gate by state name:
+     - June's state numbers drift from March's: it inserts `XS_GUILD_AGIT_GAME` at 0xf (`31d6fd60`).
+     - In PvP, DUNGEON_ONLY entries are skipped. In dungeons, training and battlefields, PVP_ONLY entries are skipped.
+  3. Run the entry by type:
+     - 0, buff: the cool time starts only when the buff is non-null.
+     - 1: `EraseDebuffAndAddMP`.
+     - 2: heal of max HP × value. The number shows only with a game; the cool time always starts.
+     - 3, Fever: logs once, starts no cool time, and stays with **16-step3c**. Its kickoff now names June's case `@3206d6ab`.
+     - Any other type: skipped. March's ASSERT is replaced by a one-time log.
+- **Behaviour change on US:** March US had no hyper-mode cool time at all (no `ADJUST_SECRET_ITEM_OPTION`), so every awakening re-fired every socket. Each socket now waits its `m_fIntervalTime` (30 s for 28 of the 32; 41231/41232 have none, 81871 60 s, Fever 74042 180 s).
+- **Callers unchanged.** March's two `ApplyHyperModeBuff` already call it, as June's do, for a user with a non-empty list.
+- **No JUNE_BUGS row.** The two differences from March are March bugs that June fixed.
+
+**Reach.**
+- No saved item carries any of the 32 IDs. Set-option reach was not counted.
+- 9 of the 19 buff sockets name a BFI that is not in the staged `BattleFieldBuffFactor.lua`: the 7 Besma and the 2 `DECREASE_DAMAGE_*_PVP`. Their buff is null, so nothing fires and no cool time starts, the same as June with a null buff.
+- The play-test uses sockets 72700 and 72701, which are buff-free. They were added to Iivue's item 510 (backup `db_backup/els_db_20261006_194719_pre_socket_72700_72701.sql`).
+
+**Homes for the rest (D8, no question).**
+- Add's and Ain's own June `ApplyHyperModeBuff` changes go to a new row in `JUNE2017_CHARACTER_PORT_CHECKLIST.md` §7.
+- The base function's awakening effect sets are 4b-i part 2's "no March member" (`32296cb0`).
+- **Open:** `32083190( 0 )`, a protected byte at `+0x952c` that June's base and Ain callers write after the list. It is unidentified and does not block.
+
+**Hygiene** (`flagcheck.py JUNE_SOCKET_PARITY --range 0d2543c^..HEAD --with JUNE_BUFF_DEBUG`):
+- `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+- `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+- `RESULT: PASS`
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,245,056 B, dated 2026-10-06 20:01:00, md5 7e41542eaf4ffd015c8ae15599ef7277, equal to X2/US_SERVICE/x2.exe (2026-10-06 20:00:55); built at mods/june-buff-port 635ea7a + 2 uncommitted code file(s).` The two files are this phase's (`0d2543c`). The deployed exe contains the `hyper-mode socket %d fired` string. The game was not launched.
+
+**How to see it in game** (play-test hand-off). Iivue (Code: Empress) now has sockets 72700 (heal 10 % on awakening, dungeon only, 30 s) and 72701 (heal 5 %, PvP only) on item 510. The command `ForceChangeHyperMode` is Lua-bound (`X2Main.cpp:4605`): it adds awakening beads and enters the awakening state, whose Eve state calls `ApplyHyperModeBuff` (`X2GUEve.cpp:8352`). It is checked from source and has not been run.
+1. **Where:** Iivue, any dungeon, after taking a little damage. **Paste:** `g_pX2Game:GetMyUnit():ForceChangeHyperMode( 1 )`. **Does:** awakens you. **Look for:** a green `+10%` HP number over you. **If not:** tell me nothing showed.
+2. **Where:** the same dungeon, within 30 s of check 1. **Paste:** the same line again (if no awakening animation plays, wait until the awakening ends, still inside 30 s). **Look for:** no `+10%` this time. **If not:** a second `+10%` means the cool time did not hold; tell me.
+3. **Where:** the same dungeon, more than 30 s after check 1. **Paste:** the same line. **Look for:** `+10%` again. **If not:** tell me.
+Lines I will read (`python tools/logs.py --tag JUNE_BUFF --grep "hyper-mode socket"`):
+- check 1: `socket 72700 fired` and `socket 72701 skipped: place 2 not allowed in state 11`;
+- check 2: `socket 72700 skipped: own cool time`;
+- check 3: `fired` again.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
