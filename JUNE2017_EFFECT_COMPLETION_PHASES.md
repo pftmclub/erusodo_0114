@@ -113,6 +113,7 @@ Not in this definition, handed to their owners (C0 records each hand-off):
 | D6 | **Answered 2026-10-05: keep until C11 passes;** C12 asks again whether to remove it. Original question: `SERV_IRUHADEV_JUNE_FX_DEBUG`: keep it through C11, then remove? | keep until C11 passes | C12 |
 | D7 | **Answered 2026-10-06: hand C1 off to the character ports** (C1a's recommendation). Census: `Numerical skill data` and `Applied skill ID` are `handed-off`, receiver `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 1, and `DAMAGE_SKILL_ID` follows them (`KEY_SYSTEM`); item 1's numerical line passes as handed off. C1b and its review are not run here. Question: C1a found that every numerical block uses a June reform skill ID (21000-32605) no March character learns, and June's `NewSkillTempletVer2.lua` is a different skill system. (a) hand off, (b) adopt June's file now, (c) dormant port? | (a) hand off | character ports |
 | D8 | **Answered 2026-10-06: (a) hand off, and as a standing rule (user): anything in this plan that belongs to a character port is handed to the character ports, not ported here.** So all of C8c (every per-class `SetDamageExceptionProcess` block, Ara's `0x780` body) goes to `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 7b; C8c and its review are not run here. Original question (C8a): June re-keys three passives March characters have now. Rena's Powerful Bowstring (3405 -> 23405) and Sharp Kick (3400 -> 23400) are the same skills under reform IDs. Aisha's Battle Magician Fitness block (2413) is gone, and in its place Magical Staff (22409) applies the same two abilities (`SA_FORCE_DOWN_RANGE_REL`, `SA_MP_GAIN_ON_HIT_REL`). No March character learns a reform ID, so a verbatim port switches the three passives off. (a) hand the three blocks to the Rena/Aisha character ports, March's blocks stay until then; (b) port verbatim in C8c now | (a) hand off: the D7 precedent, and the port that brings the reform skills turns them on together | C8c (the Rena and Aisha parts only) |
+| D9 | **Open (C10a, 2026-10-06).** The effect-alpha option's UI. June's option window is Scaleform GFx: `32f246d0` (`DW_GAME_SET_VALUE`, one of 39 `DW_*` GFx data wrappers) pushes `fEffectAlphaMineValue` / `fEffectAlphaMyTeamValue` / `fEffectAlphaOtherTeamValue` into a Flash movie. March has no GFx, so June's UI cannot be ported, and C10b-3 builds a designed stand-in under its own flag. (a) three sliders (my / my team / other team effects, 10-100 %) in March's option window `DLG_UI_Option_Back_New.lua` (data034), wired like `Slider_Sound_Volume` in `X2StateOption.cpp`; (b) no UI: the `GameOptions.lua` keys (C10b-2) plus a dev-console line; (c) defer the UI | (a): D2 asked for a UI, and the sound sliders are March's own pattern for a 0-1 value | C10b-3 |
 
 **Census plumbing (Sonnet):**
 - add the status `handed-off`, with `receiver` = document + phase, for the hand-off rows above;
@@ -660,8 +661,9 @@ byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
 
 ## C10 - Decided absent systems
 
-**Status: not started; scope set by C0's D2-D5.** **Model:** Opus, high, to identify; then Sonnet 5,
-high.
+**Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),
+C10b-2 (effect-alpha engine) and C10b-3 (effect-alpha UI, waits for D9).** **Model:** Opus, high, to identify; then
+Sonnet 5, high.
 
 - **D2 = build:** effect-alpha option. Port June's game option (the `AEACBO_*` enum is already in
   `Enum.lua`): the option storage, its UI, and the readers at the four parse sites.
@@ -683,6 +685,70 @@ C10), the rebuild plan's Starting context and Phase 8c, funcmap.tsv. Build exact
 says to build, each under its own SERV_IRUHADEV_JUNE_* flag, cited to June; mark declined ones in
 census.py. CP949 byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
 ```
+
+**C10a - Done note (2026-10-06, Opus 5.5, no code).** `flagcheck`, `build.py` and a play-test do not apply (the C0/C1a
+precedent). 43 funcmap rows are tagged `Effect C10a`; they landed in peer commit `1d511ed` (june-buff 16-step3b),
+which staged `funcmap.tsv` while this session was appending. The 265 call sites of June's alpha-tagging helpers, with a
+disposition each, are in `june2017_re/c10a_alpha_sites.tsv`. D3 and D5 were already handed off, so C10 builds two systems.
+
+*HP-rate damage (D4) goes to **C10b-1**, flag `SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE`.*
+- `32273e80` is a new `CX2GameUnit::GetHpRateDamage( float* pOut, DamageData* )`:
+  - type 1 (`HRDT_NOW_HP`): `*pOut = GetNowHp() * HP_RATE_DAMAGE_VALUE`;
+  - type 2 (`HRDT_MAX_HP`): `*pOut = GetMaxHp() * HP_RATE_DAMAGE_VALUE`;
+  - it writes only when the gage and its HP gage exist and now HP > 1.0 (strictly), otherwise `*pOut` is left alone;
+  - it **overwrites** the damage; it does not add to it.
+- It has two call sites:
+  - `GetFinalDamage`, on `optrDefenderGameUnit`. It runs after the `(1 - this+0x7374)` multiply and before the
+    `DTT_MULTIPLE_DAMAGE_BY_DEBUFF` consumer, then clamps the damage to >= 0.
+  - `CX2GUUser::DamageReact`, after the additional defence/attack block (BBT 78).
+- A user defender is therefore overwritten twice, and the second write discards whatever DamageReact took off in
+  between; an NPC defender is overwritten once. Kept verbatim; C10b-1 owes the `JUNE_BUGS.md` row.
+- The `GetFinalDamage` gate `322726f0` is false only for `RNSI_SA_ALP_SUPERSONIC` (29058) against some NPCs. That is
+  Rena reform-skill material, so it goes to checklist 7c under D8; in March the call is unconditional.
+- **Test vehicle.** No deployed templet uses HP-rate, and March's `Enum.lua` has no `HP_RATE_DAMAGE_TYPE` table
+  (Phase 8c's Phase 11 handoff). C10b-1 stages one templet using raw ints (`TYPE = 2`, `VALUE = 0.1`).
+
+*Effect-alpha option (D2) goes to **C10b-2** (engine, flag `SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION`) and **C10b-3**
+(UI, flag `SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION_UI`, after D9).*
+- **Storage** is on `CKTDXApp`, so KTDXLIB's renderers can read it:
+  - three floats (my / my team / other team), default 1.0;
+  - the setter clamps to [0.1, 1.0];
+  - the getter returns 1.0 for categories 0 and 1.
+- **Load and save.** `GameOptions.lua` carries `MY_EFFECT_ALPHA`, `MY_TEAM_EFFECT_ALPHA` and
+  `ANOTHER_TEAM_EFFECT_ALPHA` (the decryptor and the save format agree), default 1.0.
+- **Category** (`322d4d10`), from the effect's owner:
+  - my unit or my summon -> 2;
+  - same team -> 3;
+  - otherwise 4;
+  - 0 without a my-unit, an owner or `m_pGameEdit`.
+  - A user override forces 1 (no alpha) in USI_START, USI_WIN and USI_LOSE, or USI_RIDING_WAIT_HABIT and
+    USI_RIDING_WAIT while riding. June numbers these 9/11/12/75/76; translate by name, not by number.
+- **Readers.**
+  - The EffectSet factory and `OnFrameMove_CreateEffect`, which hands the category to the damage effect, mesh or
+    particle.
+  - CEffect: the ctor (0 -> category), OnFrameMove (main mesh, every frame), `SetParticleData`, and `AttackResult`
+    (the hit effect set, an unconditional overwrite).
+- **Render.**
+  - The mesh `OnFrameMove`, plus its two slash traces.
+  - The particle mesh-draw and vertex paths. The blend rule is `31ceefb0`.
+  - Owned NPCs: their body and `CX2GameUnit::Weapon` fade. Users return category 0, so a user's body and weapon never do.
+- **Lua binds.** `CreateApplyAlphaParticleSequence_LUA` and `CreateApplyAlphaMeshInstance_LUA` have 49 uses in June.
+  March's deployed `SMITH_CART.lua` already calls the first one, so that call fails today because March does not bind it.
+- **Call sites.**
+  - C10b-2 ports 16 common ones, plus 3 in june-buff files (the two buff displayers and PhantomSword).
+  - 238 are class sites (Eve 167, Elsword 29, Aisha 22, Add 12, Rena 8). They go to checklist 7c.
+  - 8 are CX2GUUser sites that sit in June-only blocks. Each is ported with its host.
+- **Not ported:**
+  - `31f64040`, which is dead in June;
+  - `SetEffectAlpha_LUA`, which is an EffectSet fade, not this option.
+- **Test on March data.** In `GameOptions.lua`, `MY_EFFECT_ALPHA = 0.3` fades my effects,
+  `ANOTHER_TEAM_EFFECT_ALPHA` the monsters' effects, and `MY_TEAM_EFFECT_ALPHA` the AI party's.
+
+*Size.* D2 called this small. It touches CKTDXApp, GameOption, CX2Game, user, NPC, Weapon, CEffect, EffectSet, mesh,
+particle, slash trace and two buff displayers, hence the three-way split.
+*Census.* C10b-1 registers its flag in `census_completion.py` (`DAMAGE_SOURCES` and `SYSTEM_DISPOSITION`); C10b-2
+registers the alpha flag in `SYSTEM_DISPOSITION`.
+*Open for the user:* D9 (the UI stand-in).
 
 ---
 

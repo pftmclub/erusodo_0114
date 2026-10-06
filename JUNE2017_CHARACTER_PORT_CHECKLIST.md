@@ -272,3 +272,24 @@ Each row below is what turns one of them on. The verdicts are the funcmap rows t
 | `31fdbbb0` (skill-memo entry for `APPLIED_SKILL_ID`) behind user vslot `0x758` `3202ac40` and the NPC override `32759f30` | every user (and summons with a live master) | June's data-driven skill memo: per memo type, scales damage, force-down, MP gain and buff factors on the hit | June's memo table. C8b stubs the lookup (plan rule 5, returns null) |
 | the per-class blocks in funcmap rows `329bc560`, `32b80f20`, `32bf28f0`, `32c5c080`, `32cad510`, `32cccc70`, `32d1e0e0`, and Ara's vslot `0x780` `32bca010` | Eve, Elesis, Chung, Raven, Rena, Aisha, Elsword, Ara | Passives keyed on June reform skill IDs (`RNSI_*`) | the blocks themselves (brief: `kickoffs/june-effect/C8c.md`) plus the reform skills; needs effect C5 (`ATTACK_TRIGGER_TYPE`) |
 | D8 (completion plan): Rena's Powerful Bowstring 3405 → 23405 and Sharp Kick 3400 → 23400; Aisha's Fitness 2413 block replaced by Magical Staff 22409 | Rena, Aisha | June re-keys or replaces passives March characters have now | D8 = hand off: March's blocks stay until this port, which swaps in June's versions together with the reform skills |
+
+### 7c. Effect-alpha tags that only character code applies (from June effect completion C10a)
+
+C10b-2 ports June's effect-alpha option engine under `SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION`. It brings the game
+option, the category (`CX2Game::GetEffectAlphaCondition`), the EffectSet/CEffect readers, the renderers and the five
+`CX2Game` tag helpers.
+- Effects created through EffectSet or DamageEffect fade with no class code.
+- Particles and meshes that class code creates directly fade only where June's class code calls a tag helper right
+  after creating them.
+- D8 hands those calls here: each character port adds its class's calls.
+- Every site is a row in `june2017_re/c10a_alpha_sites.tsv` with disposition `checklist 7c`. The helpers' meaning is in
+  the funcmap rows tagged `Effect C10a`.
+
+| June | Class | What it does | What the port must bring |
+|---|---|---|---|
+| 167 sites in 0x32965e30-0x329cf260 (`32296d60` particle x119, `32296ee0` mesh x41, `32296da0` / `32296e40` handles x7) | Eve | Tags her particles and meshes with her alpha category right after creating them | one `CX2Game` tag-helper call per site, inside the class code being ported |
+| 29 sites (`32d0d660` .. `32d1ecc0`) | Elsword | as above | as above |
+| 22 sites (`32ccdb70` .. `32ce0010`) | Aisha | as above | as above |
+| 12 sites (`329f4350`, `329f9ff0`, `32a03b70`, `32a27360`; four of them effect-set handles via `32296f30`) | Add | as above | as above |
+| 8 sites (`32c89310`, `32c89460`, `32c895b0`; `32296da0` handles) | Rena | as above | as above |
+| `322726f0`: the HP-rate gate in `GetFinalDamage` returns false for `RNSI_SA_ALP_SUPERSONIC` (29058) against an NPC defender (GameUnitType 1) when it has `+0x8aeb` / `+0x8ae9` set, vslots `0x3c8` / `0x3cc` / `0x430` true, or `+0x8e80` set, or when its `+0x8f08` is 1 or 2 | Rena | Supersonic's HP-rate damage skips some NPCs | the gate's false branch, with the reform skill. C10b-1 calls `GetHpRateDamage` unconditionally until then |
