@@ -830,7 +830,10 @@ the original gate stays in `#else`).
 - New flag `SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN` (`Always.h:5277`, designed, not server/June): a paid field kill with share >= 0.5 counts for quests without the row. It logs `[OFFLINE_GRADE] designed: field F monster M ...` once per monster ID.
 - Flagcheck `--worktree`: `files: 0 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s)`; `RESULT: PASS`.
 - `DEPLOY OK: X2_offline.exe is 19,243,008 B, dated 2026-10-06 19:26:16, md5 aad7844e586855b018eb9ce8210bfbff ... built at mods/june-buff-port 1a560d9 + 2 uncommitted code file(s).` The 2 files are this follow-up's own, and the string is in the exe.
-- **User owes:** optional check: kill a few Lanox field monsters and look for the `designed:` line.
+- **Checked in game 2026-10-06 19:34** (exe aad7844e): one `designed:` line each for 5154-5158 on field 40029 (`Ranox_Field_00`), and no quest-change lines.
+- **For the review:** uid 11 (id 5164) died KILL_BY_USER 27 ms after a `JUNE_FX HIT GUIDED_ARROW_MEMO ... march=1` hit, with no player entry in its damage map.
+  - The field gate paid nothing (`reward no (was yes)`), which is what the server does with that packet.
+  - If kills by June-ported effects keep arriving without a damage entry, the June effect damage path skips `AddToDamagedMap` (`X2GUNPC.cpp:10243`). That would be a june-effect item, not this plan's. Seen once.
 
 **Open for the user:** none blocking. The dungeon ALLY quest count is the server's rule; it is in effect only if a hunt quest targets an ally NPC's ID.
 
