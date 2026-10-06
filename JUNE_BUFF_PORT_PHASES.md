@@ -4537,7 +4537,7 @@ Ran on Opus 5.5 high, flag `SERV_IRUHADEV_JUNE_ENCHANT_PARITY`. Phase 15's code 
 **Hygiene / build / pack**
 - worktree flagcheck before commit: `files: 6 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
 - `DEPLOY OK: X2_offline.exe is 19,271,168 B, dated 2026-10-07 06:21:13, md5 c4c7d0ab324da85dc3c50ac0dd89b1bf, equal to X2/US_SERVICE/x2.exe (2026-10-07 06:20:59); built at mods/june-buff-port 4cf92bb + 6 uncommitted code file(s).` (= this commit's code). The deployed exe contains `MP- %d`, `USE_OWNERS_ENCHANT` and the new log strings.
-- `PACK OK data036`: +AttribEnchantRequireED, ~AttribEnchantItem, ~AttribEnchantRequire, ~Enum against live. **Copy: asked separately.**
+- `PACK OK data036`: +AttribEnchantRequireED, ~AttribEnchantItem, ~AttribEnchantRequire, ~Enum against live. `COPY OK data036: ... 6401651 bytes, 186 entries, md5 26ebfe5d5e524673ef2b80d52bb0d98f` (user OK 2026-10-07; backup `kom_backup_tools/data036.kom.20261007_065115`).
 - Save edit for the play-test: Dark (6) is now attribute 3 on Iivue's weapon (item 579, now DOUBLE_BLAZE_SNATCH 3767). Backup: `db_backup/els_db_20261007_062222_pre_attrib_dark_579.sql`.
 
 **How to see it in game**
