@@ -5307,6 +5307,13 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 
 **How to see it in game.** No socket on the save reaches these readers, and no console route reaches the socket-only members. Expect a clean run with potions, MP potions, skills and (if the character has one) a summon, and **no** `first socket MP cost cut`, `first socket summon power rate` or `first socket item recovery` lines. An optional live check is in the hand-off: it puts two June sockets on one item, and only with the user's go-ahead.
 
+**Play-test (2026-10-06, user: passed; exe 85077f68, logs read).** Setup, with the user's OK: June socket 74035 (MP cost, all-skill damage and all-skill cooldown, each 0.05) was appended to Iivue's weapon (item 579: `40110` → `40110,74035`; backup `db_backup/els_db_20261006_140204_pre_socket_74035.sql`), and the user changed Iivue's job to Code: Empress for the summon. The run started after the deploy and exited cleanly (census present): 0 EXCEPTION; 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (unrelated, as before). `ErrorLog.txt`:
+- `:289` `first socket MP cost cut: skill 5003, rate 0.05, MP 300 -> 285` (item 0);
+- `:311` `first socket cool-time factor: skill 5003 slot 2 cut 0.05 -> factor 0.95` and `:312` BBT 100 `18 -> 17.1` (3b2 item 6, now live);
+- `:314` `first socket summon power rate: skill 0 x 1.05 (skill damage 0, all-skill 0.05)` (item 1);
+- `:409` `first socket all-skill damage (special active): rate 0.05, skill damage term 1.05` (3b2 item 3a).
+**Finding, kept verbatim (JUNE_BUGS #55).** `:288` `first socket item recovery: item 230040, HP recovery -1` comes from the equip pass at unit init: `CX2GUUser::Init` calls `InitEqip` (`X2GUUser.cpp:1549`, every equipped item through `UseItemSpecialAbility`) before `InitAdditionalBasicStatValue` (`:1554`), so the HP-recovery result is still its constructor 0 and `[64]` is −1. June has the same order (`3204ea20`: vslot `0x7a0` = `32024510` `@3204ead3`, then the basics `32271540` `@3204eaf2`; the protected-float ctor `31c204b0` starts at 0), so June reads −1 there too. Potions used during play read 1.0 (the basics plus the per-frame refresh). Only an equipped item that carries an HP/MP SAT is affected (it heals 0, or MP % × 0, at init). The debug line fires for any item, so this line alone shows nothing was lost.
+
 **Open for the user.** (1) The four no-power-rate summon cases (Entangle, Stone Wall, Particle Prism, Fire Blossom) and the default case (which includes the AI-party bots) get the socket term in June too. They are left as March, as with 6b's buff terms; say if you want them. (2) /cost is not available in-session.
 
 ## Critical files
