@@ -14491,6 +14491,10 @@ D3DXVECTOR3 CX2Game::GetEmptyStartPos()
 /// 10, 0, 0x148: no 0x400 / 0x800), whose power rate is socket term x rate 1.0 x ( 3201ad10 + 1 ) x 31fd7cc0 x 31fea430 x
 /// GetAdditionalAttackByType( AT_SPECIAL ) (@322ed2ae-322ed332). 3201ad10 is 16-step3b5's (0 here). This scales the NPC's
 /// default power rate by the rest; with flag 0x200 June writes the protected factor +0x8ce4 instead, the same product (32759630).
+/// 16-step3b3 review: without 0x200 June stores the product in +0x8ce0 (@322ed3ae) rather than scaling it; March's m_fDefaultPowerRate
+/// is still the ctor's 1.0 when these cases run (X2GUNPC.cpp m_fDefaultPowerRate = 1.f; no writer before SetUserSummonedNPCInfo), so
+/// scaling is the store. The case skill is June's 31fcf520( NPC id ) mapped to March (emulated over ids 0-70000: 51 ids, every one
+/// March has gets its own case, so the switch default is 0).
 static void JuneApplySummonPowerRate( CX2GUNPC* pNPC_, CX2GUUser* pUser_, const int iSkillID_ )
 {
 	if ( NULL == pNPC_ || NULL == pUser_ )
@@ -15125,8 +15129,9 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						pRena->AddEntangleTrap( pNPC );
 					}
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-					/// June buff port 16-step3b3 item 1: Entangle Trap (457 = 0x1c9) reaches 322ece70 with flags 0 (3230c1a0)
-					JuneApplySummonPowerRate( pNPC, pUser, 0 );
+					/// June buff port 16-step3b3 item 1: Entangle Trap (457 = 0x1c9) reaches 322ece70 with flags 0 (3230c1a0). 16-step3b3 review:
+					/// June's 31fcf520 maps 457 to 23213 (RNSI_A_RGA_ENTANGLE), March's SI_A_LSR_ENTANGLE (the skill that creates 457)
+					JuneApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_A_LSR_ENTANGLE );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 
@@ -15185,7 +15190,9 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket skill-damage term on the power rate. June's rate
-						/// argument here (1420/1421, 3230c1a0 @3230c868-3230c89e) is skill 23408's ability 0xf when learned, else 1.0: March's own fPowerRate
+						/// argument here (1420/1421, 3230c1a0 @3230c868-3230c89e) is skill 23408's ability 0xf when learned, else 1.0 (review: 23408 =
+						/// RNSI_P_RTR_HUNTERS_ABILITY, 0xf = SA_DAMAGE_REL: the Hunter's Ability factor of fPowerRate; June puts the skill's own power
+						/// rate in the stat scale instead, 32071720 @322ed08c, part of the class rewrite in checklist 7). The socket product is the same
 						fPowerRate *= pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_A_RNW_ANGER_OF_ELF );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						fPowerRate *= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
@@ -15412,8 +15419,9 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						}
 					}
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-					/// June buff port 16-step3b3 item 1: Stone Wall (501 = 0x1f5) reaches 322ece70 with flags 10
-					JuneApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_A_AEM_STONE_WALL );
+					/// June buff port 16-step3b3 item 1: Stone Wall (501 = 0x1f5) reaches 322ece70 with flags 10. 16-step3b3 review: June's
+					/// 31fcf520 does not list 501 (returns 0), so the case skill is 0
+					JuneApplySummonPowerRate( pNPC, pUser, 0 );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 
@@ -15634,7 +15642,9 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						/// June buff port 16-step3b3 item 1: 322ece70 @322ed2bd, the socket skill-damage term on the power rate. June's rate
-						/// argument here (1020/1025, 3230c1a0 @3230c6c4-3230c6fa) is skill 23408's ability 0xf when learned, else 1.0: March's own fPowerRate
+						/// argument here (1020/1025, 3230c1a0 @3230c6c4-3230c6fa) is skill 23408's ability 0xf when learned, else 1.0 (review: 23408 =
+						/// RNSI_P_RTR_HUNTERS_ABILITY, 0xf = SA_DAMAGE_REL: the Hunter's Ability factor of fPowerRate; June puts the skill's own power
+						/// rate in the stat scale instead, 32071720 @322ed08c, part of the class rewrite in checklist 7). The socket product is the same
 						fPowerRate *= pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_A_LTR_EVOKE );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						fPowerRate *= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
@@ -15790,8 +15800,9 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						pNPC->SetRealatedSkillLevel(iSkillLevel);
 					}
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-					/// June buff port 16-step3b3 item 1: Fire Blossom (1567 = 0x61f) reaches 322ece70 with flags 0 (a passive skill: case skill 0)
-					JuneApplySummonPowerRate( pNPC, pUser, 0 );
+					/// June buff port 16-step3b3 item 1: Fire Blossom (1567 = 0x61f) reaches 322ece70 with flags 0. 16-step3b3 review: June's
+					/// 31fcf520 maps 1567 to 28211 (RNSI_A_SBH_SCALET_ROSE), March's SI_A_SBH_SCALET_ROSE
+					JuneApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_A_SBH_SCALET_ROSE );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 #endif //SERV_ELESIS_SECOND_CLASS_CHANGE //±Ë√¢«—
