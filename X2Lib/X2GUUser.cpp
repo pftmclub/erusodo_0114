@@ -715,6 +715,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 , m_fAddMagicAttackCriticalRate(0.f)
 , m_fAddMagicAttackCriticalDamageRate(0.f)
 #endif //NEW_CHARACTER_EL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+, m_fJuneAddPhysicAttackCriticalDamageRate(0.f)
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //김창한
 , m_bSetCustomRenderParam( false )
 #endif //SERV_ELESIS_SECOND_CLASS_CHANGE
@@ -9218,9 +9221,35 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 				CX2GUNPC* pGUNPC = static_cast<CX2GUNPC*>( pAttackerUnit );
 
 				fReducedDamagePercent += GetReducedDamagePercentByMonsterAttack( pGUNPC->GetNPCTemplet().m_nNPCUnitID );
+#if defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_EXTRA_NPC_STAT )
+				/// June buff port 16-step3b2 item 2: June @32048845..32048885, still inside "the attacker is an NPC":
+				/// - a boss attacker (templet +0xdc == 1, IsJuneSocketBossGrade) adds this user's m_fIncreaseDefRateToBoss (32071bf0);
+				/// - this user's own m_fAdditionalAttackedDamageValue (32071b30, the 52fc result), when > 0, is subtracted: the
+				///   socket that raises its owner's attack in GetFinalDamage (@3228538e) also raises the damage monsters deal to it.
+				if ( pGUNPC->IsJuneSocketBossGrade() )
+					fReducedDamagePercent += GetIncreaseDefRateToBoss();
+				if ( 0.f < GetAdditionalAttackedDamage() )
+				{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+					static bool s_bSeenAttackedDamageTaken = false;
+					if ( !s_bSeenAttackedDamageTaken )
+					{
+						s_bSeenAttackedDamageTaken = true;
+						CX2JuneBuffCapture::Line( "first socket additional attacked damage (damage taken): reduction %g -> %g", fReducedDamagePercent, fReducedDamagePercent - GetAdditionalAttackedDamage() );
+					}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+					fReducedDamagePercent -= GetAdditionalAttackedDamage();
+				}
+#endif defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_EXTRA_NPC_STAT )
 			}
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port 16-step3b2 item 2: June @3204888b..320488a0 caps the reduction at 1.0 before it is applied
+		/// (March applied it uncapped)
+		if ( 1.f < fReducedDamagePercent )
+			fReducedDamagePercent = 1.f;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		if ( pDamageData->m_bPenetrate == false )
 		{
 			fFinalDamage -= fFinalDamage * fReducedDamagePercent;
@@ -9325,7 +9354,12 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 
 			//{{ 2011-04 에 패치될 청 캐시 스킬
 #ifdef	CASH_SKILL_FOR_CHUNG_2011_04
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			/// June buff port 16-step3b2 item 2: June @32048aa0..32048ac8 (GetJuneCriticalThresholdTerm = June 32273480)
+			if( GetRandomFloat( CKTDXRandomNumbers::SRO_ATTACK_CRITICAL ) <= fCriticalRate + GetJuneCriticalThresholdTerm() )
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			if( GetCriticalValueFromDefender() <= fCriticalRate )
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #else	CASH_SKILL_FOR_CHUNG_2011_04				
 			if( GetRandomFloat( CKTDXRandomNumbers::SRO_ATTACK_CRITICAL ) <= fCriticalRate )
 #endif	CASH_SKILL_FOR_CHUNG_2011_04				
@@ -9343,6 +9377,15 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 				}
 #endif RENA_SECOND_CLASS_CHANGE
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				/// June buff port 16-step3b2 item 2: June @32048b15..32048cd7 (GetJuneCriticalDamageRate, with this user's socket
+				/// critical-afflicted term)
+				{
+					const float fCritical = GetJuneCriticalDamageRate( pAttackerUnit, pDamageData, fDefenderCriticalValue, true );
+					if ( fCritical >= 1.0f )
+						fFinalDamage *= fCritical;
+				}
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef NEW_CHARACTER_EL
 				// 마법 공격에만 적용되는 크리티컬 데미지 배율 설정
 				if( CX2GUUser::GUT_USER	== pAttackerUnit->GetGameUnitType() )
@@ -9394,6 +9437,7 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 					if ( fCritical >= 1.0f )
 						fFinalDamage *= fCritical;
 				}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 				//크리티컬~~
 				D3DXVECTOR3 criticalEffPos = criticalNumPos;

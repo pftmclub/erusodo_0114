@@ -2693,7 +2693,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		float								GetSocketCriticalAfflicted() const { return m_AdditionalSocketCriticalAfflicted.GetOptionValue(); }			/// June 32071ad0
 		float								GetSocketAdditionalDamageAfflicted() const { return m_AdditionalSocketAdditionalDamageAfflicted.GetOptionValue(); }	/// June 32071af0
 		float								GetSocketAdditionalDamage() const { return m_AdditionalSocketAdditionalDamage.GetOptionValue(); }				/// June 32071b10
-		float								GetSocketAntiCriticalRate() const { return m_AdditionalSocketAntiCriticalRate.GetOptionValue(); }				/// June 32273480
+		float								GetSocketAntiCriticalRate() const { return m_AdditionalSocketAntiCriticalRate.GetOptionValue(); }				/// option value +0x5a38, read inside 32273480 (GetJuneCriticalThresholdTerm)
 		float								GetSocketAntiAddDamageRate() const { return m_AdditionalSocketAntiAddDamageRate.GetOptionValue(); }			/// June 32071b90
 		float								GetAdditionalAttackedDamage() const { return m_AdditionalAdditionalAttackedDamage.GetResultValue(); }			/// June 32071b30
 		float								GetCharacterSpecializationA() const { return m_AdditionalCharacterSpecializationA.GetResultValue(); }
@@ -2708,6 +2708,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		float								GetDecreaseDebuffTimeRate() const { return m_AdditionalDecreaseDebuffTimeRate.GetResultValue(); }
 		float								GetDecreaseMPCostRate() const { return m_AdditionalDecreaseMPCostRate.GetResultValue(); }
 		float								GetIncreaseDmgRateMyHpFew() const { return m_AdditionalIncreaseDmgRateMyHpFew.GetResultValue(); }
+		/// June buff port 16-step3b2 item 2: June 32273480 and the DamageReacts' critical damage multiplier (X2GameUnit.cpp)
+		float								GetJuneCriticalThresholdTerm() const;
+		float								GetJuneCriticalDamageRate( CX2GameUnit* pAttacker_, const CX2DamageManager::DamageData* pDamageData_, const float fDefenderCriticalValue_, const bool bAddCriticalAfflicted_ );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		/// June buff port Phase 5c: BBT 88 store (June list +0x67dc). Insert 32282390, erase 3227a8c0, reader 32274970 (the defender's, in GetFinalDamage)
 		void								InsertIgnoreDefence( const KBuffIdentity& BuffIdentity_, const float fIgnoreDefenceRate_ );

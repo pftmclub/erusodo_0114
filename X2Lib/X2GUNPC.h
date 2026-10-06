@@ -2356,6 +2356,13 @@ class CX2GUNPC : public CX2GameUnit
 		// Iruha : 2026-09-27 // see m_iExtraNPCStatMonsterGrade's comment
 		void						SetExtraNPCStatMonsterGrade( int iGrade ) { m_iExtraNPCStatMonsterGrade = iGrade; }
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
+#if defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_EXTRA_NPC_STAT )
+		/// June buff port 16-step3b2: June's boss test for the socket boss terms (GetFinalDamage @3228650b, user DamageReact
+		/// @32048845) is NPC templet +0xdc == 1, the monster grade June's stat builder 323752f0 stores (its param_4, 1 =
+		/// MG_BOSS_NPC). m_iExtraNPCStatMonsterGrade is that same value (ExtraNPCStat port): only the two battlefield creation
+		/// paths set it, and the offline dungeon server sends no grade (Handlers_Room.cpp), so dungeon bosses stay 0.
+		bool						IsJuneSocketBossGrade() const { return ( 1 == m_iExtraNPCStatMonsterGrade ); }
+#endif defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_EXTRA_NPC_STAT )
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
 		// Iruha : 2026-09-27 // Phase 4 diagnostic only, short-lived with the
 		// rest of _DEBUG -- which battlefield call site created this spawn,

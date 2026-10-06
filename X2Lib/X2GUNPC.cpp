@@ -9742,7 +9742,12 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #endif CHUNG_SECOND_CLASS_CHANGE
 			//{{ 2011-04 에 패치될 청 캐시 스킬
 #ifdef	CASH_SKILL_FOR_CHUNG_2011_04				
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			/// June buff port 16-step3b2 item 2: June @327b375d..327b3786 (GetJuneCriticalThresholdTerm = June 32273480)
+			if( GetRandomFloat( CKTDXRandomNumbers::SRO_ATTACK_CRITICAL ) <= fCriticalRate + GetJuneCriticalThresholdTerm() )
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			if( GetCriticalValueFromDefender() <= fCriticalRate )
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #else	CASH_SKILL_FOR_CHUNG_2011_04				
 			if( GetRandomFloat( CKTDXRandomNumbers::SRO_ATTACK_CRITICAL ) <= fCriticalRate )
 #endif	CASH_SKILL_FOR_CHUNG_2011_04				
@@ -9759,6 +9764,14 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 				}
 #endif RENA_SECOND_CLASS_CHANGE
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				/// June buff port 16-step3b2 item 2: June @327b37d3..327b39cb (GetJuneCriticalDamageRate, no afflicted term on an NPC)
+				{
+					const float fCritical = GetJuneCriticalDamageRate( pDamageData->optrAttackerGameUnit.GetObservable(), pDamageData, fDefenderCriticalValue, false );
+					if ( fCritical >= 1.0f )
+						fFinalDamage *= fCritical;
+				}
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef NEW_CHARACTER_EL
 				// 마법 공격에만 적용되는 크리티컬 데미지 배율 설정
 				if( CX2GUUser::GUT_USER	== pAttackerUnit->GetGameUnitType() )
@@ -9812,6 +9825,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 					if ( fCritical >= 1.0f )
 						fFinalDamage *= fCritical;
 				}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 #ifdef SHOW_ONLY_MY_DAMAGE
 				if( true == bShowDamageReact )

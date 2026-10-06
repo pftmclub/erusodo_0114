@@ -2874,6 +2874,13 @@ public:
 		float GetAddMagicAttackCriticalDamageRate() const { return min(m_fAddMagicAttackCriticalDamageRate, 1.f); }
 		void SetAddMagicAttackCriticalDamageRate(float val) { m_fAddMagicAttackCriticalDamageRate = val; }
 #endif // NEW_CHARACTER_EL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port 16-step3b2 item 2: June user +0x8dfc beside the magic rate (+0x8df8); getter 32070e00 = min( it, 1 ).
+		/// The critical damage multiplier adds it for physic and (half) mix damage. June's writer is class code (32b45e0c,
+		/// CX2GUEL region): checklist section 7. March has none, so it stays 0.
+		float GetJuneAddPhysicAttackCriticalDamageRate() const { return min( m_fJuneAddPhysicAttackCriticalDamageRate, 1.f ); }
+		void SetJuneAddPhysicAttackCriticalDamageRate( float val ) { m_fJuneAddPhysicAttackCriticalDamageRate = val; }
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		const vector< int >& GetSetItemOptions(){ return m_vecSetItemOptions; }
 		int GetMyUnitSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_ );
 #ifdef FIX_FORCE_DOWN_AND_DETONATION_BUG
@@ -4149,6 +4156,9 @@ public:
 	float m_fAddMagicAttackCriticalRate;  /// 집중력 향상 패시브, 마법 공격 크리티컬 발동 확률 증가 값( 기본값 : 0 / 최대값 1 )
 	float m_fAddMagicAttackCriticalDamageRate;  /// 집중력 향상 패시브, 마법 공격 크리티컬 데미지 증가 증가 배율 값( 기본값 : 0 / 최대값 1 )
 #endif //NEW_CHARACTER_EL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	float m_fJuneAddPhysicAttackCriticalDamageRate;	/// June +0x8dfc, 16-step3b2 (ctor 0, June @32040df6)
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //김창한
 	bool		m_bSetCustomRenderParam;			/// 정의한 m_RenderParam의 값을 그대로 적용할 수 있게하기 위한 변수.

@@ -2379,6 +2379,106 @@ void CX2GameUnit::SetJuneDesignedAttackRangeBasic( const CX2Stat::Stat& Stat_ )
 	}
 }
 #endif defined( SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/// June buff port 16-step3b2 item 1: June GetFinalDamage's DT_PHYSIC / DT_MAGIC / DT_MIX cases (@32285849..32285bef, run
+/// under Unicorn) scale each defence by 1 - min( the attacker's piercing rate, 0.2 ), clamped at 0, before the piercing
+/// defence factor. The weapon cases read no rate. A negative rate raises the defence (no lower clamp in June).
+static float JuneSocketPiercingKeep( const float fPiercingRate_ )
+{
+	const float fRate = ( 0.2f < fPiercingRate_ ) ? 0.2f : fPiercingRate_;
+	const float fKeep = 1.0f - fRate;
+	return ( fKeep < 0.0f ) ? 0.0f : fKeep;
+}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+/// 16-step3b2: one "[JUNE_BUFF] first socket <term>" line per socket term, the first time it changes a value
+static void JuneSocketFirstApply( bool& bSeen_, const char* szTerm_, const float fRate_, const float fBefore_, const float fAfter_ )
+{
+	if ( bSeen_ )
+		return;
+	bSeen_ = true;
+	CX2JuneBuffCapture::Line( "first socket %s: rate %g, %g -> %g", szTerm_, fRate_, fBefore_, fAfter_ );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+
+/// June buff port 16-step3b2 item 2: June 32273480, the defender's critical-threshold term. June's DamageReacts (user
+/// @32048aa2, NPC @327b375f) add it to the attacker's critical rate and compare the sum with a bare GetRandomFloat( 1 )
+/// (unit vslot 0x1cc = 3208e0d0), in place of March's GetCriticalValueFromDefender() <= rate. March subtracted the
+/// panic and anti-critical terms from the random value, so the anti-critical rate RAISED the attacker's chance; June
+/// subtracts it from the threshold, so it lowers it. The socket anti-critical option (+0x5a14) is a percent (x 0.01).
+float CX2GameUnit::GetJuneCriticalThresholdTerm() const
+{
+	float fTerm = 0.0f;
+	/// protected +0x2b28 / +0x2bc4 = m_Panic's time / m_fCriticalRateToDefender (March GetCriticalValueFromDefender's term)
+	if ( 0.0f < m_ExtraDamagePack.m_Panic.m_fTime )
+		fTerm += m_ExtraDamagePack.m_Panic.m_fCriticalRateToDefender;
+	fTerm -= GetAntiCritialRate();		/// result of +0x4e10
+	const float fSocketAntiCritical = GetSocketAntiCriticalRate();		/// option value of +0x5a14 (+0x5a38)
+	if ( 0.0f < fSocketAntiCritical )
+	{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		static bool s_bSeenAntiCritical = false;
+		JuneSocketFirstApply( s_bSeenAntiCritical, "anti-critical (critical threshold)", fSocketAntiCritical, fTerm, fTerm - fSocketAntiCritical * 0.01f );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		fTerm -= fSocketAntiCritical * 0.01f;
+	}
+	return fTerm;
+}
+
+/// June buff port 16-step3b2 item 2: the critical damage multiplier, as both June DamageReacts compute it inline
+/// (user @32048b15..32048cd7 with the socket critical-afflicted term, NPC @327b37d3..327b39cb without it):
+/// - a user attacker: GetCriticalValue, plus by damage type (jump tables 3204a834 / 327b5390) the magic rate (DT_MAGIC,
+///   DT_WEAPON_MAGIC), half the magic and half the physic rate (DT_MIX, DT_WEAPON_MIX) or the physic rate (any other),
+///   plus the DamageData's m_fApplyCriticalDamage;
+/// - any other attacker: GetCriticalValue alone;
+/// - then + the defender's socket critical-afflicted option (32071ad0, user DamageReact only), then x its critical
+///   defence (32071ab0 = result of +0x4ec4). The caller multiplies the damage only when the rate is >= 1.0, for every
+///   type (March skipped that test for its magic types).
+/// The physic rate is June's user +0x8dfc (32070e00 = min( it, 1 )), next to the magic one (+0x8df8, 32070de0 = March's
+/// GetAddMagicAttackCriticalDamageRate). March has no writer for it (June's is class code, checklist section 7), so it is 0.
+float CX2GameUnit::GetJuneCriticalDamageRate( CX2GameUnit* pAttacker_, const CX2DamageManager::DamageData* pDamageData_, const float fDefenderCriticalValue_, const bool bAddCriticalAfflicted_ )
+{
+	float fCritical = 0.0f;
+	if ( CX2GameUnit::GUT_USER == pAttacker_->GetGameUnitType() )
+	{
+		CX2GUUser* pGUUser = static_cast<CX2GUUser*>( pAttacker_ );
+		fCritical = pGUUser->GetCriticalValue( fDefenderCriticalValue_ );
+		switch ( pDamageData_->damageType )
+		{
+		case CX2DamageManager::DT_MAGIC:
+		case CX2DamageManager::DT_WEAPON_MAGIC:
+			fCritical += pGUUser->GetAddMagicAttackCriticalDamageRate();
+			break;
+		case CX2DamageManager::DT_MIX:
+		case CX2DamageManager::DT_WEAPON_MIX:
+			fCritical += pGUUser->GetAddMagicAttackCriticalDamageRate() * 0.5f;
+			fCritical += pGUUser->GetJuneAddPhysicAttackCriticalDamageRate() * 0.5f;
+			break;
+		default:
+			fCritical += pGUUser->GetJuneAddPhysicAttackCriticalDamageRate();
+			break;
+		}
+		fCritical += pDamageData_->m_fApplyCriticalDamage;
+	}
+	else
+	{
+		fCritical = pAttacker_->GetCriticalValue( fDefenderCriticalValue_ );
+	}
+	if ( bAddCriticalAfflicted_ )
+	{
+		const float fAfflicted = GetSocketCriticalAfflicted();
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		if ( 0.0f != fAfflicted )
+		{
+			static bool s_bSeenAfflicted = false;
+			JuneSocketFirstApply( s_bSeenAfflicted, "critical afflicted (critical damage)", fAfflicted, fCritical, fCritical + fAfflicted );
+		}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		fCritical += fAfflicted;
+	}
+	fCritical *= GetCriticalDefence();
+	return fCritical;
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData )
 {
 #if defined( _SERVICE_ ) 
@@ -2625,6 +2725,59 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 		break;
 	}
 #endif	PET_AURA_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b2 item 1: June GetFinalDamage @322852db..32285481 (after the pet-aura block, before the
+	/// defence-memo x2; run under Unicorn) multiplies a user attacker's physic and magic attack by three socket terms in turn:
+	/// - @32285344 m_fIncreaseDmgEnemyHPFew_DmgRate: when the defender's MaxHp is not 0, its NowHp > 0 and
+	///   NowHp / MaxHp <= 0.3, attack *= 1 + r for any r != 0;
+	/// - @3228538e m_fAdditionalAttackedDamageValue (the attacker's own 52fc): attack *= 1 + r when r > 0. Its other role
+	///   is in the user DamageReact (@3204885e), where the same value raises the damage that user takes from monsters;
+	/// - @322853e5 m_fIncreaseDmgRate_MyHpFew: when r > 0 and the attacker's NowHp > 0, r' = ( 1 - NowHp / MaxHp ) * r and
+	///   attack *= 1 + r' for r' != 0. June does not test the attacker's MaxHp for 0 here (kept).
+	if ( CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType() )
+	{
+		if ( false == IsSamef( pDefender->GetMaxHp(), 0.f ) && 0.f < pDefender->GetNowHp()
+			 && pDefender->GetNowHp() / pDefender->GetMaxHp() <= 0.3f )
+		{
+			const float fEnemyHPFewRate = pAttacker->GetIncreaseDmgEnemyHPFew();
+			if ( 0.f != fEnemyHPFewRate )
+			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				static bool s_bSeenEnemyHPFew = false;
+				JuneSocketFirstApply( s_bSeenEnemyHPFew, "enemy-HP-few damage (physic attack)", fEnemyHPFewRate, fPhysicAttack, fPhysicAttack + fPhysicAttack * fEnemyHPFewRate );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				fPhysicAttack += fPhysicAttack * fEnemyHPFewRate;
+				fMagicAttack += fMagicAttack * fEnemyHPFewRate;
+			}
+		}
+
+		const float fAttackedDamageRate = pAttacker->GetAdditionalAttackedDamage();
+		if ( 0.f < fAttackedDamageRate )
+		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			static bool s_bSeenAttackedDamage = false;
+			JuneSocketFirstApply( s_bSeenAttackedDamage, "additional attacked damage (physic attack)", fAttackedDamageRate, fPhysicAttack, fPhysicAttack + fPhysicAttack * fAttackedDamageRate );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			fPhysicAttack += fPhysicAttack * fAttackedDamageRate;
+			fMagicAttack += fMagicAttack * fAttackedDamageRate;
+		}
+
+		const float fMyHpFewRate = pAttacker->GetIncreaseDmgRateMyHpFew();
+		if ( 0.f < fMyHpFewRate && 0.f < pAttacker->GetNowHp() )
+		{
+			const float fMyHpFewScaled = ( 1.f - pAttacker->GetNowHp() / pAttacker->GetMaxHp() ) * fMyHpFewRate;
+			if ( 0.f != fMyHpFewScaled )
+			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				static bool s_bSeenMyHpFew = false;
+				JuneSocketFirstApply( s_bSeenMyHpFew, "my-HP-few damage (physic attack)", fMyHpFewScaled, fPhysicAttack, fPhysicAttack + fPhysicAttack * fMyHpFewScaled );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				fPhysicAttack += fPhysicAttack * fMyHpFewScaled;
+				fMagicAttack += fMagicAttack * fMyHpFewScaled;
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 #ifdef SERV_SKILL_NOTE
 	if( pDefender->GetDefenceMemoTime() > 0.f )
@@ -2789,16 +2942,28 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 		{
 			fAttackPower = fPhysicAttack + pAttackerStat->GetAddOnStat().m_fAtkPhysic + fExtraAttackPower;
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			/// June @32285850: the attacker's physic piercing rate (16-step3b2 item 1, JuneSocketPiercingKeep)
+			fDefencePower = fPhysicDefence + pDefenderStat->GetAddOnStat().m_fDefPhysic;
+			fDefencePower = fPiercingDefenceFactor * ( fDefencePower * JuneSocketPiercingKeep( pAttacker->GetAtkPhysicPiercingRate() ) );
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			fDefencePower = fPhysicDefence + pDefenderStat->GetAddOnStat().m_fDefPhysic;
 			fDefencePower *= fPiercingDefenceFactor;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		} break;
 
 	case CX2DamageManager::DT_MAGIC:
 		{
 			fAttackPower = fMagicAttack + pAttackerStat->GetAddOnStat().m_fAtkMagic + fExtraAttackPower;
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			/// June @32285952: the attacker's magic piercing rate (16-step3b2 item 1, JuneSocketPiercingKeep)
+			fDefencePower = fMagicDefence + pDefenderStat->GetAddOnStat().m_fDefMagic;
+			fDefencePower = fPiercingDefenceFactor * ( fDefencePower * JuneSocketPiercingKeep( pAttacker->GetAtkMagicPiercingRate() ) );
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			fDefencePower = fMagicDefence + pDefenderStat->GetAddOnStat().m_fDefMagic;
 			fDefencePower *= fPiercingDefenceFactor;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		} break;
 	case CX2DamageManager::DT_MIX:
 		{
@@ -2807,8 +2972,15 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 			fDefencePowerPhysic = fPhysicDefence + pDefenderStat->GetAddOnStat().m_fDefPhysic;
 			fDefencePowerMagic = fMagicDefence + pDefenderStat->GetAddOnStat().m_fDefMagic;;			           
 			
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			/// June @32285a54 / @32285b3a: each defence takes its own piercing rate before the average (16-step3b2 item 1)
+			fDefencePowerPhysic *= JuneSocketPiercingKeep( pAttacker->GetAtkPhysicPiercingRate() );
+			fDefencePowerMagic *= JuneSocketPiercingKeep( pAttacker->GetAtkMagicPiercingRate() );
+			fDefencePower = fPiercingDefenceFactor * ( ( fDefencePowerMagic + fDefencePowerPhysic ) * 0.5f );
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			fDefencePower = (fDefencePowerPhysic + fDefencePowerMagic) * 0.5f;
 			fDefencePower *= fPiercingDefenceFactor;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		}
 		break;
 
@@ -3241,6 +3413,21 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 //			{
 				float fIncreasePercent = pAttacker->GetDamageUpPercentBySMA( pGUNPC->GetNPCTemplet().m_nNPCUnitID );
 				fFinalDamage += fFinalDamage * fIncreasePercent;
+#if defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_EXTRA_NPC_STAT )
+				/// June buff port 16-step3b2 item 1: June @32286505..32286541, after this block's GetDamageUpPercentBySMA (June's
+				/// NPC +0x8fd4 multiplier between the two is not socket data and is not ported): when the NPC hit is a boss,
+				/// damage *= the attacker's m_fIncreaseDmgRateToBoss result (basic 1.0; an NPC attacker's is 2.0, JUNE_BUGS #46).
+				/// June's other boss route (@32286482..32286505: an NPC listed in the custom event manager's +0x604 map, only in
+				/// DI_SPACE_OF_THOUGHT_1/2/3/DUMMY = 41480-41510, June DungeonEnum.lua) has neither half in March: not ported.
+				if ( pGUNPC->IsJuneSocketBossGrade() )
+				{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+					static bool s_bSeenToBoss = false;
+					JuneSocketFirstApply( s_bSeenToBoss, "damage to boss (final damage)", pAttacker->GetIncreaseDmgRateToBoss(), fFinalDamage, pAttacker->GetIncreaseDmgRateToBoss() * fFinalDamage );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+					fFinalDamage = pAttacker->GetIncreaseDmgRateToBoss() * fFinalDamage;
+				}
+#endif defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_EXTRA_NPC_STAT )
 		//	} break;
 		//}
 	}
@@ -3381,6 +3568,24 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 		fFinalDamage *= fAtkDamageRateBySkill;
 	}
 #endif // SERV_9TH_NEW_CHARACTER
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b2 item 1: June @322868d1..32286968, after the attacker-skill rate and before the clamp:
+	/// when the defender's MaxHp is not 0, its NowHp > 0 and NowHp / MaxHp <= 0.3, damage *= 1 - r for the defender's
+	/// m_fIncreaseDefMyHPFew_DefRate r != 0.
+	if ( false == IsSamef( pDefender->GetMaxHp(), 0.f ) && 0.f < pDefender->GetNowHp()
+		 && pDefender->GetNowHp() / pDefender->GetMaxHp() <= 0.3f )
+	{
+		const float fDefMyHPFewRate = pDefender->GetIncreaseDefMyHPFew();
+		if ( 0.f != fDefMyHPFewRate )
+		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			static bool s_bSeenDefMyHPFew = false;
+			JuneSocketFirstApply( s_bSeenDefMyHPFew, "my-HP-few defence (final damage)", fDefMyHPFewRate, fFinalDamage, ( 1.f - fDefMyHPFewRate ) * fFinalDamage );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			fFinalDamage = ( 1.f - fDefMyHPFewRate ) * fFinalDamage;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	// 최종데미지가 0보다 작다면 0으로 보정
 	if( fFinalDamage <= 0.f )
