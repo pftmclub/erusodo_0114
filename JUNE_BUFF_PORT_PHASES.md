@@ -5788,7 +5788,7 @@ Log: `python tools/logs.py --tag JUNE_BUFF --grep "hyper-mode socket"` → `sock
 
 ### Phase 16-step3b7 — Done (2026-10-06, Opus 5.5 high)
 
-**Landed** under `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (first-apply lines under `_DEBUG`); item 2 also uses Phase 9a's `JUNE_BUFF_NEW_SKILL` and `JUNE_BUFF_CUSTOM_FUNCTION`. Commit: see STATUS. Decodes: 12 `funcmap.tsv` rows tagged "Buff Phase 16-step3b7".
+**Landed** under `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (first-apply lines under `_DEBUG`); item 2 also uses Phase 9a's `JUNE_BUFF_NEW_SKILL` and `JUNE_BUFF_CUSTOM_FUNCTION`. Commit `1620e09`; range flagcheck `1620e09^..HEAD`: same summary, RESULT: PASS. Decodes: 12 `funcmap.tsv` rows tagged "Buff Phase 16-step3b7".
 
 **Item 1, the three X2BuffTemplet.cpp placeholders.** Each is now the attacker user's `GetSkillAdditionalPowerRateJune` (+ 1.0 as before): Mark of Command `@3236e002` with March's `SI_A_CHG_MARK_OF_COMMANDER` (June's 26214), Moonlight Rhapsody `@323705a2` (29024) and the Sinister Mind creator rate `@32369c98` (30048). The last two are June-only skills, so they read 0 until those skills exist.
 
