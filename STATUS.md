@@ -111,9 +111,11 @@ today's Sonnet 5.5.
 | C6b review | blocked | Opus 5.5 / high | C6b | - | `C6b-review.md` |
 | C7 | blocked | Sonnet 5.5 / high | C6b | X2DamageEffect.cpp, KTDXLIB/KTDGXMeshPlayer.h (CXMeshInstance) | `C7.md` |
 | C7 review | blocked | Opus 5.5 / high | C7 | - | `C7-review.md` |
-| C8a | queued (C2 done) | Opus 5.5 / high | C2 | `funcmap.tsv`, a port list in the plan (no code) | `C8a.md` |
-| C8b | blocked | Sonnet 5.5 / high | C8a (C1b dropped by D7: the hooks read the stored `m_iAppliedSkillID`) | X2DamageEffect.cpp (hit paths), X2GameUnit.cpp, X2GUUser.cpp, X2GUNPC.cpp, per-class X2GU*.cpp (SetDamageExceptionProcess) | `C8b.md` |
+| C8a | done 2026-10-06: 24 funcmap rows (`Effect C8a`); all four hit paths carry June's collision math (CollisionDataToUnit has no guard, as March); Add and Elesis's Way of the Sword identical to March; every other per-class block keyed on June reform skills; `322a2700` is the GameUnit ctor; port lists in the plan (C8b, C8c); socket copy -> june-buff 16-step3b; T6 far samples not settled (log gone; C8b traces). **User owes D8** (Rena/Aisha re-keyed passives) | Opus 5.5 / high | C2 | `funcmap.tsv`, plan, checklist 7b (no code) | `C8a.md` |
+| C8b | queued (C8a done): the four hit paths + base/user/NPC layers (`+0x4108` gate, `0x758` memo hook with a rule-5 stub, NPC override, empty `0x780` hook) | Sonnet 5.5 / high | C8a | X2DamageManager.cpp (collision, trace), X2GameUnit.h/.cpp, X2GUUser.h/.cpp, X2GUNPC.h/.cpp, Always.h | `C8b.md` |
 | C8b review | blocked | Opus 5.5 / high | C8b | - | `C8b-review.md` |
+| C8c | blocked (C5, D8): per-class overrides Eve/Chung/Raven/Elsword/Elesis/Rena/Aisha + Ara `0x780`, dormant on March data | Sonnet 5.5 / high | C8b, C5 (ATTACK_TRIGGER_TYPE, `32610fb0`), D8 | per-class X2GU*.h/.cpp | `C8c.md` |
+| C8c review | blocked | Opus 5.5 / high | C8c | - | `C8c-review.md` |
 | C9 | queued (C2 done) | Sonnet 5.5 / high | C2 | X2Main.cpp (bindings), X2DamageManager.cpp, data036 staging (user packs) | `C9.md` |
 | C9 review | blocked | Opus 5.5 / high | C9 | - | `C9-review.md` |
 | C10a | blocked | Opus 5.5 / high | C0 (D2-D5), C2 | `funcmap.tsv` (no code) | `C10a.md` |
@@ -124,8 +126,9 @@ today's Sonnet 5.5.
 
 Running together: C0, C1a, C2, C6a, C6a2 and C8a/C10a touch no game code, so they can run alongside a
 code session. C1a, C2, C6a, C6a2, C8a and C10a all add rows to `funcmap.tsv`, though, so run those one
-after another. C3, C4, C5 and C9 all edit X2DamageManager.cpp; C6b, C7 and C8b all edit
-X2DamageEffect.cpp: one at a time within each group.
+after another. C3, C4, C5, C8b and C9 all edit X2DamageManager.cpp; C6b and C7 edit
+X2DamageEffect.cpp: one at a time within each group (C8b's hit paths are in X2DamageManager.cpp, not
+X2DamageEffect.cpp, per C8a).
 
 ## Other plans
 

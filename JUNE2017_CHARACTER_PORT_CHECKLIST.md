@@ -260,3 +260,15 @@ The verdicts are the funcmap rows tagged `Effect C6a`.
 | `32d18230` (`RunSlayer_RUNE_GUARD_FIRE`: tag 19) | Elsword | Main-effect life-time rate, inherited by children | `m_bInheritMainEffectLifeTimeRate` / `m_fMainEffectLifeTimeRate` |
 | `32a63ba0` (tag 23: `m_iIndex`); `32a64d00` (tag 17); readers of `m_iIndex` and `m_bHyper` in `32a63e80`, `32a63f60`, `32a64800`, `32a65620`, `32a65860`, `32a6a850`, `32a6a8e0`, `32a6af10`; vslot `0x248` override `32a51410` | Ain | Indexes its effects and tests whether they came from a hyper effect set | `m_iIndex`, `m_bHyper` |
 | vslot `0x248` override `32b0efc0` (instance `+0x1b8` = unit `+0x988c`, a counter advanced by `32b0fa00`) | Luciel | Stamps each effect set it plays with an index that its damage effects inherit as `m_iIndex` | none: the EffectSet `m_iIndex` write and vslot `0x248` were left out of C6b (C6b kickoff, "the rest of that EffectSet block") |
+
+### 7b. SetDamageExceptionProcess hooks that only character code drives (from June effect completion C8a)
+
+C8b ports the base, user and NPC layers of `SetDamageExceptionProcess` (slot `0x2b8`), and C8c ports the per-class overrides, all dormant on March data.
+Each row below is what turns one of them on. The verdicts are the funcmap rows tagged `Effect C8a`.
+
+| June | Class | What it does | What the port must bring |
+|---|---|---|---|
+| `32c57660` (`+0x9688` = skill 24401 learned); `32c43120 @32c43ac4` (`+0x4108` = 2 with `ChangeDamageType`) | Raven | Burning Nasod Hand's damage-type change then applies only to `AT_COMMAND` hits (the user-layer gate `32045340 @320453a0`) | the 24401 setter and the `= 2` write, together with June's `RAVEN_FIGHTER.lua`, which marks 46 attacks `AT_COMMAND`. March data marks none, so the `= 2` write alone switches the passive off |
+| `31fdbbb0` (skill-memo entry for `APPLIED_SKILL_ID`) behind user vslot `0x758` `3202ac40` and the NPC override `32759f30` | every user (and summons with a live master) | June's data-driven skill memo: per memo type, scales damage, force-down, MP gain and buff factors on the hit | June's memo table. C8b stubs the lookup (plan rule 5, returns null) |
+| the per-class blocks in funcmap rows `329bc560`, `32b80f20`, `32bf28f0`, `32c5c080`, `32cad510`, `32cccc70`, `32d1e0e0`, and Ara's vslot `0x780` `32bca010` | Eve, Elesis, Chung, Raven, Rena, Aisha, Elsword, Ara | Passives keyed on June reform skill IDs (`RNSI_*`) | the reform skills themselves; C8c ports the blocks dormant |
+| D8 (completion plan): Rena's Powerful Bowstring 3405 → 23405 and Sharp Kick 3400 → 23400; Aisha's Fitness 2413 block replaced by Magical Staff 22409 | Rena, Aisha | June re-keys or replaces passives March characters have now | depends on the user's D8 answer |

@@ -112,6 +112,7 @@ Not in this definition, handed to their owners (C0 records each hand-off):
 | D5 | **Answered 2026-10-06: hand off to the Lu/Ciel port** (C2: the only reader is `CX2GULuciel` `32b14bc0`); census row `handed-off`. Earlier, 2026-10-05: identify in C2, decide then. The census row stays `unsupported` with disposition `pending`; C10a asks again once C2 names the owner. Original question: Combination point (`HIT_ADD_COMBINATION_POINT`, 15 uses): identify its owner first, then decide | identify in C2 | C10 |
 | D6 | **Answered 2026-10-05: keep until C11 passes;** C12 asks again whether to remove it. Original question: `SERV_IRUHADEV_JUNE_FX_DEBUG`: keep it through C11, then remove? | keep until C11 passes | C12 |
 | D7 | **Answered 2026-10-06: hand C1 off to the character ports** (C1a's recommendation). Census: `Numerical skill data` and `Applied skill ID` are `handed-off`, receiver `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 1, and `DAMAGE_SKILL_ID` follows them (`KEY_SYSTEM`); item 1's numerical line passes as handed off. C1b and its review are not run here. Question: C1a found that every numerical block uses a June reform skill ID (21000-32605) no March character learns, and June's `NewSkillTempletVer2.lua` is a different skill system. (a) hand off, (b) adopt June's file now, (c) dormant port? | (a) hand off | character ports |
+| D8 | **Open (C8a, 2026-10-06).** June re-keys three passives March characters have now. Rena's Powerful Bowstring (3405 -> 23405) and Sharp Kick (3400 -> 23400) are the same skills under reform IDs. Aisha's Battle Magician Fitness block (2413) is gone, and in its place Magical Staff (22409) applies the same two abilities (`SA_FORCE_DOWN_RANGE_REL`, `SA_MP_GAIN_ON_HIT_REL`). No March character learns a reform ID, so a verbatim port switches the three passives off. (a) hand the three blocks to the Rena/Aisha character ports, March's blocks stay until then; (b) port verbatim in C8c now | (a) hand off: the D7 precedent, and the port that brings the reform skills turns them on together | C8c (the Rena and Aisha parts only) |
 
 **Census plumbing (Sonnet):**
 - add the status `handed-off`, with `receiver` = document + phase, for the hand-off rows above;
@@ -540,7 +541,7 @@ play-test; update matrix and MODS.md.
 
 ## C8 - Hit path, second half (old Phase 9)
 
-**Status: not started.** Phase 9 ported June's collision for `EffectToUnit` only.
+**Status: C8a done 2026-10-06 (see below); C8b (collision + base/user/NPC layers) queued; C8c (per-class) waits for C5 and D8.** Phase 9 ported June's collision for `EffectToUnit` only.
 **Model:** Opus, high, for the comparisons; Sonnet 5, high, for the edits.
 
 - **Collision:** switch `UnitToUnit` (`32611970` inlines the same code), `UnitToEffect`,
@@ -569,6 +570,64 @@ JUNE2017_EFFECT_COMPLETION_PHASES.md (C8). On Opus: confirm each remaining hit p
 counterpart and compare the eight SetDamageExceptionProcess overrides. On Sonnet: port, citing
 each. CP949 byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
 ```
+
+### C8a - Done (2026-10-06, Opus 5.5 high; no code, no flag, no build)
+
+**What landed:** 24 funcmap rows tagged `Effect C8a`. Rows `329bc560`…`32d1e0e0` move from candidate to confirmed, each with its verdict. 16 rows are new: the hit paths, the user-layer items, the helpers, and `322a2700`, which is the `CX2GameUnit` **ctor** (row 901 had it as the dtor). Checklist section 7b is new.
+
+**Hit paths: all four switch to June's math.** In every pair test, each normalize is followed by the ×0.5 halfway impact. March's `LineToSphere` follows its normalize with a dot product instead. The advance branch (`31c7b640`) exists only in EffectToUnit.
+
+| path (March site) | June | shape | guard |
+|---|---|---|---|
+| UnitToUnit (`CollisionDataCheckFromUnitToUnit` `:3979`) | `32611970` | 3 × listSet×listSet (attack `+0x214`, sub `+0x224`, pair subs); fresh flags each; returns on a hit or on guard-only | yes |
+| UnitToEffect (`:2688-2700`) | `326413c0` | 3 × listSet × the effect's list | yes |
+| MeshToUnit (`:2827`) | `32625670` | list×listSet: EffectToUnit's template, advance off (83% aligned) | yes |
+| CollisionDataToUnit (`:3061`) | `32628890` | defender set (A) × manual datum (B), March's order; halfway from A | **no** (as March) |
+
+**C8b port list** (Sonnet; depends on C8a only):
+1. The four paths above, under `SERV_IRUHADEV_JUNE_COLLISION`. Generalise `JuneEffectCollisionDataCheck` to take an attack list set, or loop it, with advance off. Add a listSet × datum variant without the guard. March's call stays in the `#else`. COLLIDE/DIFF lines gain a path tag. The traced `TEST` line gains the owner UID and the effect's age (T6).
+2. `SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION`, user layer `32045340`:
+   - the `+0x4108` member, set to 2 in the ctor (`@322a5bf7`) and to -1 in `ResetDamageType` (`@32c438a5`);
+   - the gate `@320453a0`: -1, or equal to `attackType`.
+   Inert on March data: only Raven's 24401 path writes 2, and that path belongs to the Raven port (checklist 7b).
+3. The user vslot `0x758` hook `3202ac40`, as June has it. `31fdbbb0` is a rule-5 stub: it returns null and logs `JUNE_FX unsupported skill memo` once. Cases whose DD offset has no March member are skipped, with a comment naming the offset. Call order in the user layer: Raven block, then `0x758`, then (the socket copy, not ported), then `0x780`.
+4. The NPC override `32759f30`: base, then the master's `0x758` (row 196's conditions).
+5. An empty `CX2GUUser` vslot `0x780` hook `(DD, fPowerRate)`, called last. Only Ara overrides it (C8c).
+- **Done already, do not re-add:**
+  - AT_COMMAND 85/86 (`_JUNE_BUFF_NEW_STAT`);
+  - `GetChargeMpRateByBuff` (`_NEW_SKILL`);
+  - the state and serial tail (`_CUSTOM_FUNCTION`).
+- **Not ported:**
+  - DD `+0x638` = vslot `0x2e0` (always -1; reader unknown);
+  - the socket copy `@32045458` to DD `+0x3b4`, which belongs to **june-buff 16-step3b**: it carries only June EDT 150/159, which 16-data drops.
+
+**C8c port list** (Sonnet; depends on **C5**, for `ATTACK_TRIGGER_TYPE` `+0x53c` and `32610fb0`, and on **D8**). Port the blocks dormant, citing the addresses in each class's funcmap row:
+- Eve `329bc560`; Chung `32bf28f0`; Raven `32c5c080`; Elsword `32d1e0e0`;
+- Elesis `@32b81008-32b811ef`;
+- Rena's additions (all but Bowstring and Sharp Kick);
+- Aisha's Cyclone (22011/22051);
+- Ara's vslot `0x780` `32bca010`.
+
+Every gate is a June reform skill (`RNSI_*`, absent from March's enum). The helpers are in the new rows: vslot `0x238` `32028af0`, PushBuffFactor `329cf6d0`/`322b5320`, ability getters `32007ce0`/`32007c40`, `32610e90` (`32d40dd0` still to decode).
+- **Identical to March, nothing to port:**
+  - Add `329e4a50` (`ProcessBodyOfTranscendence`);
+  - Elesis's Way of the Sword `@32b80f33-32b81001`.
+- **D8:** Rena's Bowstring/Sharp Kick and Aisha's Fitness → Magical Staff.
+
+**T6, far TEST samples: not settled; the 2026-10-03 log is overwritten.**
+- Ruled out: the near group's fireball.
+  - x stays at 12818-12842 across samples at least 1 s apart, while a live fireball moves about 500 a second.
+  - y is 1263-1526, about 1300 below the land height 2788 where every shot crash-lands (`MP_CRASH`).
+- Left:
+  - a second charger on a lower, deeper layer (the throttle keys on the effect name, so chargers mix);
+  - or a mesh that outlives its crash-landing.
+- C8b's trace (owner UID, age) and its hand-off ("how many Mag Chargers?") settle it.
+
+**C8b exit, a trigger for each path** (March sites):
+- MeshToUnit: Aisha `EvasionStandupAttack` / `ComboX3down` (`AT_MESH`, `X2GUArme_VioletMage.cpp:8036/9279`);
+- CollisionDataToUnit: Aisha `ComboX3front` (`:9074`), Raven `COMBO_ZZZX` (`X2GURaven.cpp:7945`);
+- UnitToEffect: melee on an enemy's `ATTACKED_BY_UNIT` effect (221 templets in `DamageEffect.src.lua`);
+- UnitToUnit: any melee.
 
 ---
 

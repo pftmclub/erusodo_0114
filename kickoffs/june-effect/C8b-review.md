@@ -19,7 +19,14 @@ Also read: `june2017_re/funcmap.tsv` rows the phase cites, and its commits (`git
 
 ## Task
 
-Review C8b's commit(s) against the June binary and the plan's C8b section: each of UnitToUnit, UnitToEffect, MeshToUnit, CollisionDataToUnit against its June counterpart, every ported SetDamageExceptionProcess override (per class and NPC), and the melee and projectile JUNE_FX HIT lines.
+Review C8b's commit(s) against the June binary and the C8a Done note's "C8b port list" (C8a split the per-class overrides off into C8c). Check:
+- each of UnitToUnit, UnitToEffect, MeshToUnit and CollisionDataToUnit against its June counterpart (operand order, guard or no guard, advance off);
+- the `+0x4108` member, gate and -1 reset;
+- the `0x758` hook and its rule-5 stub;
+- the NPC override;
+- the empty `0x780` hook;
+- that nothing the buff port already ported was added twice;
+- the per-path JUNE_FX HIT lines.
 
 The plan's model rule is "transcription on Sonnet, then an Opus review"; this is that review.
 Hygiene is one command: `python tools/flagcheck.py <FLAG> --range <first C8b commit>^..HEAD`

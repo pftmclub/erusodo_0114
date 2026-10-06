@@ -1,39 +1,66 @@
-# June effect completion - C8 step 2 - port the hit paths and overrides
+# June effect completion - C8 step 2 - port the hit paths and the base/user/NPC layers
 
 | | |
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C8b` |
 | Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
-| Depends on | C8a. (C1b was dropped by D7, 2026-10-06: the `APPLIED_SKILL_ID` hooks read `DamageData::m_iAppliedSkillID`, stored since Phase 8c; port them as June has them.) |
-| Flag | `SERV_IRUHADEV_JUNE_COLLISION`, `SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION` |
-| Log tag | `[JUNE_FX]` in ErrorLog.txt (`python tools/logs.py --tag JUNE_FX`) |
+| Depends on | C8a (done 2026-10-06). The per-class overrides are **not** this phase: they are C8c, which waits for C5 and D8. |
+| Flag | `SERV_IRUHADEV_JUNE_COLLISION` (hit paths), `SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION` (new, the layers; append to `Always.h`) |
+| Log tag | `[JUNE_FX]`. The hit trace goes to `offline_server.log` (`python tools/logs.py --tag JUNE_FX`) |
 | Review | `kickoffs/june-effect/C8b-review.md` |
 
 ## Read first (and nothing else from the plan docs unless you need it)
 
 ```sh
-python tools/docsection.py JUNE2017_EFFECT_COMPLETION_PHASES.md "C8 - Hit path"
-python tools/docsection.py JUNE2017_EFFECT_REBUILD_PLAN.md "Starting context" "Phase 9"
+python tools/docsection.py JUNE2017_EFFECT_COMPLETION_PHASES.md "C8 - Hit path" "C8a - Done"
+python tools/docsection.py JUNE2017_EFFECT_REBUILD_PLAN.md "Starting context"
 ```
 
-Also read: `MODS.md` (the two flags' entries), `june2017_re/funcmap.tsv`, C8a's port list in the plan
+Also read:
+- the funcmap rows tagged `Effect C8a` (`grep "Effect C8a" june2017_re/funcmap.tsv`), and rows 194-196;
+- `MODS.md`'s `SERV_IRUHADEV_JUNE_COLLISION` entry ("Known gap");
+- `X2Lib/X2DamageManager.cpp`: `JuneEffectCollisionDataCheck` and the `JUNE_FX HIT` trace (Phase 9's port, the template for this phase).
 
-The inline prompt below predates `tools/`: wherever it says to build, deploy, check the exe,
-make CP949 edits, run a unifdef or read logs by hand, use `tools/build.py --deploy`,
-`tools/bytepatch.py`, `tools/flagcheck.py` and `tools/logs.py --tag JUNE_FX` instead (the x2-phase
-skill's Tools and Finish lists). Never launch X2_offline.exe; ask the user. Ghidra work uses the
-`ghidra` skill; identification verdicts go into `june2017_re/funcmap.tsv`.
+Edit CP949 files with `tools/bytepatch.py` only. Build with `tools/build.py --deploy`, and check hygiene with `tools/flagcheck.py`. Never launch X2_offline.exe: ask the user.
 
 ## Task
 
-**This session does the Sonnet half**: port exactly C8a's list, citing each.
+Port exactly items 1-5 of the C8a Done note's "C8b port list", citing the June address on each new code path. In short:
 
-Verbatim kickoff prompt from the plan:
+1. **Hit paths** (`_JUNE_COLLISION`):
+   - UnitToUnit (`CollisionDataCheckFromUnitToUnit`, three calls);
+   - UnitToEffect (three calls);
+   - MeshToUnit;
+   - CollisionDataToUnit (a set × datum variant without the guard).
 
-```
-June2017 effect completion C8. Read the rebuild plan's Starting context and Phase 9, MODS.md's
-SERV_IRUHADEV_JUNE_COLLISION / _DAMAGE_EXCEPTION entries, funcmap.tsv slot-0x2b8 rows,
-JUNE2017_EFFECT_COMPLETION_PHASES.md (C8). On Opus: confirm each remaining hit path's June
-counterpart and compare the eight SetDamageExceptionProcess overrides. On Sonnet: port, citing
-each. CP949 byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
-```
+   All take June's pair math. The advance branch stays in EffectToUnit only. March's calls stay in the `#else`. Tag the COLLIDE/DIFF lines with the path. Add the owner UID and the effect's age to the traced `TEST` line.
+2. **`+0x4108`** (`_JUNE_DAMAGE_EXCEPTION`):
+   - the member, with ctor 2 and `ResetDamageType` -1;
+   - the user-layer gate.
+
+   It is inert on March data. The `= 2` write is the Raven port's, not yours.
+3. **User vslot `0x758` hook (`3202ac40`), as June has it.**
+   - `31fdbbb0` is a plan-rule-5 stub: it returns null and logs `JUNE_FX unsupported skill memo` once.
+   - Skip, with a comment, any case whose DD offset has no March member.
+   - Call order in the user layer: Raven block, then `0x758`, then `0x780`.
+4. **NPC override `32759f30`**: the base, then the master's `0x758`, under row 196's conditions.
+5. **An empty `CX2GUUser` vslot `0x780` hook `(DD, fPowerRate)`**, called last.
+
+**Do not re-add** what the buff port already ported in `CX2GameUnit::SetDamageExceptionProcess`:
+- AT_COMMAND 85/86;
+- `GetChargeMpRateByBuff`;
+- the state/serial tail.
+
+**Do not port:**
+- DD `+0x638`;
+- the socket copy to DD `+0x3b4` (june-buff 16-step3b's).
+
+Update MODS.md: close the "Known gap", and add the `_DAMAGE_EXCEPTION` entry. Every `fPowerRate` multiply is unchanged, so no damage number moves; say so.
+
+**Play-test hand-off.** One check per path, using the C8a note's triggers:
+- MeshToUnit: Aisha `EvasionStandupAttack` / `ComboX3down`;
+- CollisionDataToUnit: Aisha `ComboX3front` / Raven `COMBO_ZZZX`;
+- UnitToEffect: melee on an enemy `ATTACKED_BY_UNIT` effect;
+- UnitToUnit: any melee.
+
+Each check expects a `JUNE_FX HIT` line with its path tag. Also add the Mag Charger re-run for T6 (`/CM "MAG_CHARGER" 0 70`), and ask how many Mag Chargers were on screen.
