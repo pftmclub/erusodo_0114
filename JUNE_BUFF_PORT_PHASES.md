@@ -5282,13 +5282,14 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 - `[esp+0xb0]` per case: 1.0 in 19 of the 21 calls. Evoke 1020/1025 (`@3230c6c4-3230c6fa`) and Anger of Elf 1420/1421 (`@3230c868-3230c89e`) pass skill 23408's ability 0xf when learned, which is March's own `fPowerRate` in those two cases.
 - Port: `CX2GUUser::GetSummonPowerRateBySocket( skill )` is multiplied at Phase 6b's 14 power-rate sites, with the case's skill as 6b passes it, and before Mortar's −1 (flag 0x400). The five March stat-scale terms (`FIX_SUMMON_NPC_SKILL_DAMAGE_BY_USE_PROTECTION_OF_LAHELL`: Nasod Watch, Wally 9th, Fire Eve, Guardian SP1/SP2) are gone.
 - Nasod Watch's term moves onto its default power rate. June flags `0x240` (`31fcf520`: skill 25000 = Dimension Link).
-- **Settles Phase 6b open item 3:** June's flag-0x200 cases write the protected factor `+0x8ce4` (`31e8d610`), and the NPC's power rate is `+0x8ce0 × +0x8ce4` (`32759630`). So scaling March's default power rate is the same product (Ferdinand and Nasod Watch).
+- **Settles Phase 6b open item 3:** June's flag-0x200 cases write the protected factor `+0x8ce4` (`31e8d610`), and the NPC's power rate is `+0x8ce0 × +0x8ce4` (`32759630`, the only reader of `+0x8ce0`). NPC init sets `+0x8ce0` to 1.0 (`@327627ac`), as March does, so scaling March's default power rate gives the same product (Ferdinand and Nasod Watch).
+- June rewrote the rest of this function wholesale: summon stats come from the user's stat line, with per-case flags and follow-ups. That is class material, now a checklist §7 row (with the Metabolism one below).
 - Not ported: `(3201ad10 + 1)`, which is item 3's reader (16-step3b5).
 
 **Item 2, item HP recovery** (`322fbc60`, SAT jump table `322ff6d0`/`322ff65c` on type − 1).
 - `[60]` = March's Master of Alchemist rate. `[64]` = the HP-recovery result (basic 1.0 + socket sum) − 1, or 0 without a `CX2Unit` (`@322fbd4f`).
 - HP up (`@322fbdf3`), MP up (`@322fc258`) and HP % up (`@322fd47a`) take rate + `[64]`. MP % up (`@322fd965`) takes × (`[64]` + 1). Team HP up (`@322fdd83`) reads no rate.
-- A user without the socket heals exactly as before (result 1.0). JUNE_BUGS #46's NPC 2.0 is not reachable here.
+- A user without the socket heals exactly as before. `InitAdditionalBasicStatValue` sets basic 1.0 and refreshes at once, the refresh also runs every frame, and the percent factor defaults to 1.0, so the result is exactly 1.0 and the term is 0. JUNE_BUGS #46's NPC 2.0 is not reachable here.
 - **JUNE_BUGS #54:** MP items also get the HP-recovery socket.
 - Chung's metabolism term stays as March has it. June changed it (class 0x14/0x6e, skill 0x6720, epsilon 5e-8 against March's `CalculateIncreasingRate` 5e-5); that goes to checklist §7.
 
