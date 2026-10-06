@@ -5134,6 +5134,8 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **How to see it in game.** Nothing changes for the player: no ConvertAndAdd result moves, because the player's own unit type is the value March already passed. The play-test is a regression run: load, a dungeon with skills and kills, and the same `[JUNE_BUFF]` load lines as the 16-step3b play-test.
 
+**Play-test (2026-10-06, user: passed; exe 6cce4121, data036 2f9247de; logs read).** The run started after the deploy (`ErrorLog.txt` 10:46:34). `ErrorLog.txt:238-244`: the seven `June-only, not ported: g_pData:…` lines; `:245` `June rank tables: PVP 11, PVE 10, PVE for MP 10 row(s)`; no `did not load`. Field → dungeon (`State.log:142`, 75 `NPC_UNIT_DIE` packets) → field, clean exit (census present): 0 EXCEPTION. 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` are unrelated, as before. There were no rank-linked, skill-use or kill lines, as expected: the save has no socket that reaches them.
+
 **Open for the user.** Nothing new. /cost not available in-session.
 
 ## Critical files
