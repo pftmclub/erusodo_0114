@@ -344,7 +344,44 @@ june-buff 16-step3b2 review it waited on is committed (`60d0571`).
 
 ### Phase 1 - Done
 
-(not yet)
+2026-10-06, Sonnet 5.5 high. Flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` (the one flag, defined in `KTDXLIB/Always.h`). **Code done and deployed; play-test pending.**
+
+**What landed** (tasks 1-4):
+- `X2DungeonSubStage.h`: `NPCData::m_cMonsterGrade` (a `char`; X2TOOL's `m_MonsterGrade` untouched).
+- `X2DungeonSubStage.cpp`:
+  - `FetchNPCData` reads `MONSTER_GRADE` (int, default 0). This is the emulator playing `XSLDungeonSubStage.cpp:197`.
+  - All 5 game-build `new NPCData()` sites set the member to 0. The 2 X2TOOL sites use the constructor and were left alone.
+  - `AddNPCData` copies `kNPCUnitReq.m_cMonsterGrade` (June `327edb60`).
+  - `CreateGUNPC( const NPCData* )` calls `SetExtraNPCStatMonsterGrade` for every NPC (the readers test the ExtraNPCStat row themselves, as June does at `32384daa`).
+- `Offline/Handlers_Room.cpp` `BuildStageNpcData`:
+  - sends `kReq.m_cMonsterGrade`;
+  - the wrong `:1886` comment is now in the `#else`;
+  - logs one `[OFFLINE_GRADE] dungeon= stage= sub= npc= uid= grade= bossGauge=` line per graded NPC;
+  - logs `[OFFLINE_GRADE] WARN scriptCheck ...` for the server's two mismatches (boss gauge with grade not 1/2; grade 1 without a gauge). It logs only and never refuses the stage, and it does not skip Henir/event/test dungeons the way the server does.
+- No `SetMonsterGrade` call (June has no dungeon caller), no `X2GUNPC.*` edit.
+
+**Order proof.** `CreateGUNPC` sets the grade right after the factory returns, before `Init()`. The only reader is `SetHardLevel`'s scan/near block (`X2GUNPC.cpp:7226`). Its dungeon caller is `SetNpcHardLevel` in `SwapToGameNPCUnit` (`X2DungeonSubStage.cpp:387`), which runs after `CreateGUNPC` returns (`:375`). `IsJuneSocketBossGrade` reads it only at damage time.
+
+**Side effects.**
+- ExtraNPCStat-row NPCs of grade 1/2 now scan at 50 / near range 1000 instead of 10 / 500.
+- JUNE_BUGS #52 is live for dungeon bosses (AI-party bots, summons and ally NPCs deal x2 to a grade-1 boss with a row). Its reach column is updated.
+- `m_eMonsterGrade` is unchanged.
+- `X2GUNPC.h:2365` still says the dungeon grade is "not plumbed here". It is stale now; the kickoff forbids editing `X2GUNPC.*`, so the Phase 1 review may correct it.
+
+**Hygiene.** `flagcheck --worktree --files KTDXLIB/Always.h X2Lib/X2DungeonSubStage.h X2Lib/X2DungeonSubStage.cpp X2Lib/Offline/Handlers_Room.cpp`:
+`files: 2 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+`RESULT: PASS`
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,232,256 B, dated 2026-10-06 14:32:54, md5 be1c9b56b9c6eb0a6bdbf092f20d074f, equal to X2/US_SERVICE/x2.exe (2026-10-06 14:32:49); built at mods/june-buff-port aab81d7 + 5 uncommitted code file(s).`
+That exe was linked by another session's build with my edits already in the tree, and it also contains that session's uncommitted `X2Game.cpp` edit. The `[OFFLINE_GRADE]` strings are confirmed in the deployed exe.
+
+**Gate (needs the play-test).** Target: reyaa, Lanox Ashes Village Normal (33280), boss `NUI_SMITH_STAIN` 1693.
+1. `offline_server.log` shows `[OFFLINE_GRADE] ... npc=1693 ... grade=1 bossGauge=1`.
+2. `ErrorLog.txt` shows `[JUNE_BUFF] first socket boss grade: NPC 1693 grade 1, ExtraNPCStat row yes -> boss yes`.
+3. Optional: the boss-damage socket (86322 on weapon `item_uid 810`) raising the number on the boss. It needs the user's OK for a save edit, and first confirming that `InitSocketData` sums an equipment socket of that type. Not done.
+
+Expected `scriptCheck` warnings: 0 (census). Open questions for the user: none.
 
 ## Phase 2 - Battlefield like the CenterServer
 

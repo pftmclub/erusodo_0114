@@ -1883,11 +1883,19 @@ void CX2OfflineServer::BuildStageNpcData( int iStageID, OUT std::map< int, KNPCL
 			kReq.m_Level = (char)( bRelative ? ( iRelativeBase + pNpc->m_Level ) : pNpc->m_Level );
 #endif SERV_IRUHADEV_OFFLINE_NPC_GROUP_RATE
 
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+			// The stage script's MONSTER_GRADE, as CXSLDungeon::GetNPCData copies it
+			// (XSLDungeon.cpp:391). The parse does carry it now: FetchNPCData reads
+			// MONSTER_GRADE under this flag. The client then takes it from this packet
+			// via AddNPCData (June 327edb60), never from its own parse.
+			kReq.m_cMonsterGrade	= pNpc->m_cMonsterGrade;
+#else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 			// m_cMonsterGrade stays MG_NORMAL_NPC: the client's NPCData only
 			// carries a grade under X2TOOL, so it is not in this build's copy of
 			// the script data. The only thing that costs offline is the boss
 			// flag on the reward side; m_bHasBossGage still marks bosses for the
 			// UI, and drop-table lookups are per monster ID anyway.
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 			// The offline server owns the UID, exactly as
 			// KRoomMonsterManager::CreateMonster does - the script has none.
@@ -1909,6 +1917,37 @@ void CX2OfflineServer::BuildStageNpcData( int iStageID, OUT std::map< int, KNPCL
 				kReq.m_nStartPos,
 				( true == kReq.m_bActive ) ? L"" : L" INACTIVE",
 				( true == kReq.m_bHasBossGage ) ? L" BOSS" : L"" );
+
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+			// One line per graded NPC, and one warning per mismatch of the server's own
+			// bScriptCheck (XSLDungeonSubStage.cpp:221-246: a boss gauge needs grade 1/2,
+			// grade 1 needs a boss gauge). The server refuses the load for those and skips
+			// the check for Henir, event and test dungeons (XSLDungeon.cpp:1229); this
+			// only logs, whichever dungeon it is, and never refuses the stage.
+			if( 0 != (int)kReq.m_cMonsterGrade )
+			{
+				CX2OfflineLog::Server(
+					L"[OFFLINE_GRADE] dungeon=%d stage=%d sub=%u npc=%d uid=%d grade=%d bossGauge=%d",
+					(int)eDungeonID, iStageID, (unsigned int)iSub, kReq.m_NPCID, iNpcUID,
+					(int)kReq.m_cMonsterGrade, kReq.m_bHasBossGage ? 1 : 0 );
+			}
+
+			if( true == kReq.m_bHasBossGage )
+			{
+				if( 1 != (int)kReq.m_cMonsterGrade && 2 != (int)kReq.m_cMonsterGrade )
+				{
+					CX2OfflineLog::Server(
+						L"[OFFLINE_GRADE] WARN scriptCheck dungeon=%d stage=%d sub=%u npc=%d uid=%d: boss gauge but grade=%d (server would refuse the load)",
+						(int)eDungeonID, iStageID, (unsigned int)iSub, kReq.m_NPCID, iNpcUID, (int)kReq.m_cMonsterGrade );
+				}
+			}
+			else if( 1 == (int)kReq.m_cMonsterGrade )
+			{
+				CX2OfflineLog::Server(
+					L"[OFFLINE_GRADE] WARN scriptCheck dungeon=%d stage=%d sub=%u npc=%d uid=%d: grade 1 without a boss gauge (server would refuse the load)",
+					(int)eDungeonID, iStageID, (unsigned int)iSub, kReq.m_NPCID, iNpcUID );
+			}
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 			kList.m_NPCList.push_back( kReq );
 		}

@@ -1607,6 +1607,16 @@ void CX2DungeonSubStage::SubStageData::FetchNPCData( KLuaManager& luaManager, CX
 	LUA_GET_VALUE( luaManager, "LEVEL", 				pNPCData->m_Level,			0		);
 
 	LUA_GET_VALUE( luaManager, "HAVE_BOSS_GAGE",		pNPCData->m_bHasBossGage,	false	);
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	// The emulator plays the server's part here: CXSLDungeonSubStage::SubStageData::FetchNPCData reads MONSTER_GRADE
+	// (XSLDungeonSubStage.cpp:197, default MG_NORMAL_NPC). June's client never reads it from a script (327eb8e0).
+	// BuildStageNpcData sends it; the game's NPCs take their grade from AddNPCData, never from this parse.
+	{
+		int iMonsterGrade = 0;
+		LUA_GET_VALUE( luaManager, "MONSTER_GRADE",		iMonsterGrade,	0	);
+		pNPCData->m_cMonsterGrade = (char)iMonsterGrade;
+	}
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 	LUA_GET_VALUE( luaManager, "SHOW_BOSS_NAME",		pNPCData->m_bShowBossName,	false	);
 	LUA_GET_VALUE( luaManager, "SHOW_SUB_BOSS_NAME",	pNPCData->m_bShowSubBossName,	false	);
 
@@ -1904,6 +1914,9 @@ void CX2DungeonSubStage::SubStageData::LoadNPCData( KLuaManager& luaManager )
 				if( true == luaManager.BeginTable( "SUB_NPC", i ) )
 				{
 					NPCData* pNPCData = new NPCData();
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+					pNPCData->m_cMonsterGrade = 0;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 					pNPCData->m_bSubNpc = true;
 					FetchNPCData( luaManager, pNPCData );
 					m_NPCDataList.push_back( pNPCData );
@@ -1949,6 +1962,9 @@ void CX2DungeonSubStage::SubStageData::LoadNPCData( KLuaManager& luaManager )
 			if( false == bThereWasSubNPCScript )
 			{
 				NPCData* pNPCData = new NPCData();
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+				pNPCData->m_cMonsterGrade = 0;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 				pNPCData->m_bSubNpc = false;
 				FetchNPCData( luaManager, pNPCData );
 				m_NPCDataList.push_back( pNPCData );
@@ -2072,6 +2088,9 @@ void CX2DungeonSubStage::SubStageData::ParseNpcGroupTable( KLuaManager& luaManag
 			if( true == luaManager.BeginTable( "SUB_NPC", i ) )
 			{
 				NPCData* pNPCData = new NPCData();
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+				pNPCData->m_cMonsterGrade = 0;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 				pNPCData->m_bSubNpc = true;
 				FetchNPCData( luaManager, pNPCData );
 				vecOut.push_back( pNPCData );
@@ -2121,6 +2140,9 @@ void CX2DungeonSubStage::SubStageData::ParseNpcGroupTable( KLuaManager& luaManag
 		if( false == bThereWasSubNPCScript )
 		{
 			NPCData* pNPCData = new NPCData();
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+			pNPCData->m_cMonsterGrade = 0;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 			pNPCData->m_bSubNpc = false;
 			FetchNPCData( luaManager, pNPCData );
 			vecOut.push_back( pNPCData );
@@ -2156,6 +2178,9 @@ int CX2DungeonSubStage::SubStageData::GetRandomNpcGroupID() const
 void CX2DungeonSubStage::SubStageData::AddNPCData( KNPCUnitReq& kNPCUnitReq )
 {
 	NPCData* pNPCData = new NPCData();
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	pNPCData->m_cMonsterGrade = 0;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 	pNPCData->m_UID				= kNPCUnitReq.m_UID;
 	pNPCData->m_UnitID			= (CX2UnitManager::NPC_UNIT_ID)kNPCUnitReq.m_NPCID ;
@@ -2176,6 +2201,10 @@ void CX2DungeonSubStage::SubStageData::AddNPCData( KNPCUnitReq& kNPCUnitReq )
 	//}}	
 	pNPCData->m_bNoDrop			= kNPCUnitReq.m_bNoDrop;
 	pNPCData->m_fUnitScale		= kNPCUnitReq.m_fUnitScale;
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	// June 327edb60: packet +0x66 (m_cMonsterGrade) -> NPCData +0x44, sign-extended char.
+	pNPCData->m_cMonsterGrade	= kNPCUnitReq.m_cMonsterGrade;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 #ifdef SERV_BOSS_GAUGE_HP_LINES
 	pNPCData->m_usBossGaugeHPLines = kNPCUnitReq.m_usBossGaugeHPLines;
@@ -2418,6 +2447,13 @@ CX2GUNPC*    CX2DungeonSubStage::CreateGUNPC( const NPCData* pNpcData_ )
 	if ( pCX2GUNPC == NULL )
 		return NULL;
 
+#if defined( SERV_IRUHADEV_OFFLINE_MONSTER_GRADE ) && defined( SERV_IRUHADEV_EXTRA_NPC_STAT )
+	// June 327ef71d: 327ef570 passes NPCData +0x44 to the fetch 32384d10 before the constructor, Init() and SetNPCStat,
+	// and SetNpcHardLevel runs last. Here the setter runs right after the factory returns, before Init() below and
+	// before every caller's SetNpcHardLevel (SwapToGameNPCUnit :387), the only reader (SetHardLevel's scan/near block).
+	// Set for every NPC; the readers test the ExtraNPCStat row themselves (June writes +0xdc only for an ID with a row).
+	pCX2GUNPC->SetExtraNPCStatMonsterGrade( (int)pNpcData_->m_cMonsterGrade );
+#endif defined( SERV_IRUHADEV_OFFLINE_MONSTER_GRADE ) && defined( SERV_IRUHADEV_EXTRA_NPC_STAT )
 	pCX2GUNPC->SetActiveMonster( pNpcData_->m_bActive );
 	pCX2GUNPC->SetAddPos( pNpcData_->m_AddPos );
 	pCX2GUNPC->SetKeyCode( pNpcData_->m_KeyCode );

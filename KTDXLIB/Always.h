@@ -5249,3 +5249,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY and _NEW_STAT.
 #define SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-06
+// Description: Offline monster grade, Phase 1 (OFFLINE_MONSTER_GRADE_PHASES.md).
+//              The emulator sends each dungeon NPC's MONSTER_GRADE (read from
+//              the stage script, as XSLDungeonSubStage.cpp:197 does) in
+//              KNPCUnitReq::m_cMonsterGrade; the client carries it through
+//              AddNPCData -> NPCData::m_cMonsterGrade -> CreateGUNPC, which
+//              hands it to the ExtraNPCStat grade (June 327edb60 / 327ef71d).
+//              The one flag for every phase of that plan.
+#define SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+//////////////////////////////////////////////////////////////////////////
