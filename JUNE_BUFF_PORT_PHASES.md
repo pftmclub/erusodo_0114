@@ -5670,7 +5670,7 @@ D8 split (advisor): the empty hook and its call (`33093ad0` is a bare `ret 8`; e
 
 **What landed.**
 - **X2SocketItem.h:** `InfoByUseHyperMode` gains `m_fJuneCoolTime` and `m_iJuneSocketID`. They are new fields; the old `m_fCoolTime` is ADJUST-gated and off in US.
-- **X2GUUser.cpp, fill:** June's place test. March tested `m_bDungeonOnly` twice, so its 13 PVP_ONLY hyper-mode sockets were PUP_ALL and also fired in dungeons. The fill also records the cool time and the socket ID.
+- **X2GUUser.cpp, fill:** June's place test (March tested `m_bDungeonOnly` twice, so its 13 PVP_ONLY hyper-mode sockets were filed as PUP_ALL), plus the cool time and the socket ID. The typo was never visible: `CanApplySocketDataByGameType` (June `32001570`) drops PVP_ONLY sockets in dungeons and battlefields before the fill, in March and June alike (corrected after the play-test).
 - **X2GUUser.cpp, `ApplyBuffByUseHyperMode`:** June's loop. Per entry:
   1. Skip while the socket's own cool time runs (3b4's store).
   2. Place gate by state name:
@@ -5684,7 +5684,7 @@ D8 split (advisor): the empty hook and its call (`33093ad0` is a bare `ret 8`; e
      - Any other type: skipped. March's ASSERT is replaced by a one-time log.
 - **Behaviour change on US:** March US had no hyper-mode cool time at all (no `ADJUST_SECRET_ITEM_OPTION`), so every awakening re-fired every socket. Each socket now waits its `m_fIntervalTime` (30 s for 28 of the 32; 41231/41232 have none, 81871 60 s, Fever 74042 180 s).
 - **Callers unchanged.** March's two `ApplyHyperModeBuff` already call it, as June's do, for a user with a non-empty list.
-- **No JUNE_BUGS row.** The two differences from March are March bugs that June fixed.
+- **No JUNE_BUGS row.** Both differences from March are March bugs that June fixed; only the missing cool time was visible.
 
 **Reach.**
 - No saved item carries any of the 32 IDs. Set-option reach was not counted.
@@ -5708,9 +5708,21 @@ D8 split (advisor): the empty hook and its call (`33093ad0` is a bare `ret 8`; e
 2. **Where:** the same dungeon, within 30 s of check 1. **Paste:** the same line again; it re-enters the awakening state even while awake (`StateChange( USI_HYPER_MODE )`). **Look for:** the awakening animation plays and no `+10%` shows. The real pass is the log's cool-time skip line: no number without the animation proves nothing. **If not:** a second `+10%` means the cool time did not hold; tell me.
 3. **Where:** the same dungeon, more than 30 s after check 1. **Paste:** the same line. **Look for:** `+10%` again. **If not:** tell me.
 Lines I will read (`python tools/logs.py --tag JUNE_BUFF --grep "hyper-mode socket"`):
-- check 1: `socket 72700 fired` and `socket 72701 skipped: place 2 not allowed in state 11`;
+- check 1: `socket 72700 fired` (72701 leaves no line: the game-type gate drops it before the fill);
 - check 2: `socket 72700 skipped: own cool time`;
 - check 3: `fired` again.
+
+**Play-test (2026-10-06, user: all 3 checks passed; logs read).**
+- **Exe:** the run (20:13:27) used the deployed exe `7e41542e`, which contains `0d2543c`. It exited cleanly (census present) with 0 EXCEPTION. The 4 UNHANDLED are `E_DISABLE_HB_CHECK_REQ`, as before.
+- **Where:** a battlefield (state 24, `XS_BATTLE_FIELD`), not a dungeon. The gate treats both the same.
+- **Lines** (`ErrorLog.txt:328-345`):
+  - `:328` 20:15:30, 72700 fired (type 2, value 0.1, cool time 30 s).
+  - `:329` 20:15:59, skipped with 0.055 s left.
+  - `:330` 20:16:07, fired again.
+  - `:331`/`:332`, skipped with 24.5 s and 14.5 s left.
+  - `:345` 20:16:44, fired.
+- **72701 (PvP-only): no line.** `CanApplySocketDataByGameType` drops it in GT_BATTLE_FIELD before it is filed, as in June. The hand-off's expected place-skip line was wrong, and the fill note above is corrected. The place gate inside `3206d480` is June's second test, reached only when the game type and the state disagree.
+- Iivue's item 510 keeps 72700/72701.
 
 ## Critical files
 
