@@ -83,10 +83,10 @@ These supersede the rebuild plan's Phase 10c text where they differ.
 - **June quirks to keep verbatim** (each gets a `JUNE_BUGS.md` row):
   1. `31f8fdb0`'s `b47` branch copies `m_bIgnoreDefence` but not `m_bIgnoreDefenceOnPvp`.
   2. `31f65e40` and `31f65f90` mark the entries 1 even when the value passed is false, so a child can lose its own Lua IGNORE_DEFENCE.
-  3. `31f649d0` does not null-test DAMAGE_DATA_NEXT entries. March's chain never holds null, so add no test.
+  3. `31f649d0`, `31f65e40` and `31f65f90` do not null-test the DAMAGE_DATA_NEXT entries of June's `+0xd8` vector. That vector simply has no element when an effect has no NEXT table, but March's `m_DamageEffectDataInLua.m_pDamageDataNext` is a pointer that is NULL then (`SAFE_DELETE` at X2DamageEffect.cpp ~:2033). So in March: apply to `m_pDamageDataNext` only when it is non-null, then to each `m_vecDamageDataNextChain` entry with no test. The quirk to record is only the untested chain entries. Without the `m_pDamageDataNext` check, the first ported Eve or Add skill crashes on every effect that has no NEXT table.
 - **`31f64c00` needs C5.**
   - It copies values 29/30 (`DTT_RCR_TRANSCENDENCE_*`, June-only, Rose) of the parent's `ADDITIONAL_ATTACK_TRIGGER_TYPE` list, unconditionally. Then, under `b65`, it copies `m_eDamageTrigger` and the whole list.
-  - The list member is C5's. Run C6b after C5. Use literal 29/30 with the June Enum.lua names in a comment, since March's enum ends at 6.
+  - The list member is C5's, and so is any June DTT enumerator. `31f64c00` itself belongs to C6b (C5's kickoff says so). Run C6b after C5. For 29/30, use C5's enumerators if C5 added them; otherwise use literals with the June Enum.lua names in a comment, since March's enum ends at 6.
 - **`+0xb64` writer (EffectSet).**
   - `OnFrameMove_CreateEffect @321ef6d5-321ef6d8` sets the damage effect's `m_bHyper` from `EffectSetInstance::m_bHyper`.
   - It sits right after the `USE_IS_RIGHT_WHEN_CREATE` block that Phase 4a ported (`X2EffectSet.cpp` ~:1088). Port it with the copy, so `X2EffectSet.cpp` is in Touches.
@@ -96,6 +96,7 @@ These supersede the rebuild plan's Phase 10c text where they differ.
   - The runtime modifier list `321db1b0` (instance `+0x170`): only class code fills it.
 - **Expected play-test.**
   - No March code sets any gate flag (all setters are Add, Eve, Rose, Elsword and Ain class code: see the checklist section 7 addendum), and every entry's rate is 1.0. So the play-test can only show that the tail runs and changes nothing.
+  - **The one check that can fail:** `m_iIndex` now reaches hit, CREATE and RT_CREATE children, and Rena Night Watcher looks up her effects by index (`CheckDamageEffectType`, arrow detonation). Play a Night Watcher with Arrow of Explosion, Delayed Firing and Explosion Trap, the skills whose effects have hit children. Look for detonations behaving as before, and nothing triggering twice. That is June parity, but it is the one place a regression would show.
   - Two things do change, in both cases the same as June:
     - Hit and CREATE children now inherit the parent's `m_iIndex`, as die children already did.
     - The `m_bHyper` flag is carried down.

@@ -499,7 +499,8 @@ byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
   - 7d's inlined INHERIT_DAMAGE copy at `:2891` is replaced, not doubled.
 - **C6b now depends on C5.** `31f64c00` needs C5's ADDITIONAL_ATTACK_TRIGGER_TYPE list member.
 - **The EffectSet `m_bHyper` write** (`@321ef6d5`) joins C6b, which adds `X2EffectSet.cpp` to its Touches.
-- **Three June quirks to keep verbatim, each with a JUNE_BUGS row:** `b47` copies only `+0x528`, the entry marks are always set to 1, and there is no null test on DAMAGE_DATA_NEXT.
+- **Three June quirks to keep verbatim, each with a JUNE_BUGS row:** `b47` copies only `+0x528`, the entry marks are always set to 1, and there is no null test on DAMAGE_DATA_NEXT chain entries.
+  - March's `m_pDamageDataNext` can be NULL, so C6b must test it. The kickoff says so; without the test it crashes.
 
 **Open (for the user):**
 - The rest of EffectSet `OnFrameMove_CreateEffect @321ef639-321ef66d` is not ported anywhere yet:
