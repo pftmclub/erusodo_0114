@@ -663,7 +663,7 @@ into data036 as `FieldBonusDrop.src.lua`, with the manifest naming `FieldBonusDr
 **Data.**
 - `kom_contents/data036_kom/FieldBonusDrop.src.lua` is byte-identical to `KncWX2Server/ServerResource/US/FieldBonusDrop.lua`, BOM and CRLF included. It compiles cleanly.
 - `FieldBonusDrop.lua` is the `kom.py compile` output, and the `_manifest.json` entry is `"FieldBonusDrop.lua": "2"`.
-- `PACK OK data036`: 185 entries, `+1 added, -0 removed, ~0 changed` against the live kom. Copied to the game only after the user OKs it.
+- `PACK OK data036`: 185 entries, `+1 added, -0 removed, ~0 changed` against the live kom. `COPY OK data036` 2026-10-06 17:08, md5 9b46acf04031376ada07f9aceaa7427a (backup `kom_backup_tools/data036.kom.20261006_170827`).
 - **Content:** 70 live rows (fields 40001-40032), all identical: common item 99988 x1, cube 160712 x2 (High) / x1 (Low). All four items are in March `item.kim`.
 
 **Code.**
