@@ -868,7 +868,11 @@ the original gate stays in `#else`).
 
 **Hygiene.** Before the fix, `--range e6cc509^..HEAD`: `files: 2 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` · `5 deleted line(s)` (the flag's own: call, signature, eater comment, declaration comment + parameter) · `RESULT: PASS`. The OTHER row is `Always.h` in `96f7c68`, the designed flag's define. `--range 96f7c68^..HEAD` for the designed flag: `files: 0 PASS, 1 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR` · `0 deleted line(s)` · `RESULT: PASS`. Review fix, `--worktree --files Handlers_Room.cpp Always.h`: main flag `files: 0 PASS, 1 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR` · `2 deleted line(s)` (the two replaced comment lines inside the flag) · `RESULT: PASS`; designed flag `0 PASS, 0 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR` · `0 deleted line(s)` · `RESULT: PASS` (OTHER = its quest-item block nests inside the main flag's block).
 
-**Deploy.** pending (queued behind a peer build; filled in by the next commit).
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,245,056 B, dated 2026-10-06 20:01:00, md5 7e41542eaf4ffd015c8ae15599ef7277, equal to X2/US_SERVICE/x2.exe (2026-10-06 20:00:55); built at mods/june-buff-port 635ea7a + 2 uncommitted code file(s).`
+- The 2 files are a peer's june-buff work (`X2GUUser.cpp`, `X2SocketItem.h`), built in too. A peer build linked the exe at 20:00:55 from these sources; this build found nothing to relink.
+- Strings in the exe: `[OFFLINE_GRADE] no-row drop: field` x1, `designed: field %d monster` x1, `die state` x1.
+
+**How to see it in game:** on Ranox_Field_00 (40029), kill a 5154-5158 monster. Look for one `[OFFLINE_GRADE] no-row drop: field 40029 monster 515x` line per monster ID. No `DROP` line for that ID, unless a quest item drops (a `QUEST`/quest-item grant line), and the `designed:` line as before.
 
 ## Reviews
 
