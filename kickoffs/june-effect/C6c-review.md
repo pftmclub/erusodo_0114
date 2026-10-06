@@ -5,7 +5,7 @@
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C6c review` |
 | Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` |
 | Depends on | C6c done (its Done note and commits) |
-| Flag | `SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST` (and `SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL` if the user chose the guard) |
+| Flag | `SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST` and `SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL` (user chose the guard, 2026-10-07) |
 | Log tag | `[JUNE_FX]` |
 
 ## Read first

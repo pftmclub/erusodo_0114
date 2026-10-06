@@ -633,11 +633,11 @@ byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
 - **60:** no null test on GetBuffFactorPtr. The user's call; see below.
 - **61:** the uninitialised Rate byte. A harmless no-op, not ported.
 
-**Open for the user (asked 2026-10-07; C6c stops on it if unanswered):**
+**Decided by the user (asked and answered 2026-10-07):**
 - **Q (JUNE_BUGS 60).** June `321ee480` dereferences NULL when a set's buff list names a BFI that does not exist. June's own data never does this. March lacks June's aura BFIs until june-buff Phase 13.
 - **(a) Recommended:** guard behind `SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL`: skip the entry and log once, with June's line in `#else`.
 - **(b) Verbatim:** a crash once a June aura set with a missing BFI plays.
-- Answer: _pending_.
+- **Answer (user, 2026-10-07): (a), the guard.** C6c implements it.
 
 **Also noted for june-buff:** June's NEXT parse resets `m_iJuneAttackSerial` (+0x5e8) to -1 (`31f79c20 @31f79ce3`); Phase 9b does not. SDEP restamps it whenever there is an attacker.
 

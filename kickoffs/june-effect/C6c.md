@@ -5,7 +5,7 @@
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C6c` |
 | Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
 | Depends on | C6a2 (done 2026-10-07), C6b (both edit the same `OnFrameMove_CreateEffect` block; run after it). Never run alongside june-buff 16-step3b5 (both edit `X2GUUser.cpp`) |
-| Flag | `SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST` (+ `SERV_IRUHADEV_JUNE_FX_DEBUG` for the log line) |
+| Flag | `SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST`, `SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL` (JUNE_BUGS 60 fix) (+ `SERV_IRUHADEV_JUNE_FX_DEBUG` for the log line) |
 | Log tag | `[JUNE_FX]` in ErrorLog.txt (`python tools/logs.py --tag JUNE_FX`) |
 | Review | `kickoffs/june-effect/C6c-review.md` |
 
@@ -44,11 +44,9 @@ never port an offset.
    - Do not port `321e3730` / `321e3830` (Rose / Add only): they are checklist 7a's.
 3. **The consumer.** `CX2EffectSet::ApplyBuffFactorListToDamageEffect( CEffect*, const vector<BuffFactorListEntry>& )` (June `321ee480`), per entry in order:
    1. `g_pData->GetBuffTempletManager()->GetBuffFactorPtr( BFI )` (June `326c32a0`).
-      **June has no null test here** (JUNE_BUGS row 60). Follow the user's answer to the C6a2 question, recorded in the
-      C6a2 Done note and STATUS row:
-      - **(a) Guard:** under a separate `SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL`. Skip the entry and log once per BFI with `[JUNE_FX]`; June's unguarded line goes in `#else`.
-      - **(b) Verbatim.**
-      - **No answer recorded:** stop and ask.
+      **June has no null test here** (JUNE_BUGS row 60). **User's answer (2026-10-07): (a), guard it.**
+      Put the guard under a separate `SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL`: skip the entry and log once per BFI with
+      `[JUNE_FX]`. June's unguarded line goes in `#else`, so turning the fix flag off restores June exactly.
    2. `clone = factor->GetClonePtr( level )` (June `32089f60`).
    3. For each mod:
       - behavior: June `32d418a0`. Find the behavior of `m_iType` with at least 2 values; op 0 add, 1 multiply, 2 set on `value[1]`.
