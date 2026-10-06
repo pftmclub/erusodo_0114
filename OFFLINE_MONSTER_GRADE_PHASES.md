@@ -769,6 +769,54 @@ the original gate stays in `#else`).
   the server, or the log names why none happened in the run.
 - `BONUS_DROP` is ported or logged as unreachable in March data.
 
+### Phase 3c - Done
+
+2026-10-06, Opus 5.5 high. Commit `e6cc509`. Code in `X2Lib/Offline/Handlers_Room.cpp` (`Handler_EGS_NPC_UNIT_DIE_REQ`, `PushNpcDrop`) and `X2OfflineServer.h`, under `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE`. The old gate stays in `#else`.
+
+**The server has four separate gates, not one** (read from source; this corrects the task text). For dungeons it is the live `SERV_REFORM_ITEM_DROP` handler.
+
+| Consumer | Dungeon | Field (normal and middle boss) |
+|---|---|---|
+| EXP, ED, drops | known NPC with a templet, not NO_DROP, drop state (`DungeonRoom.cpp:6240`) | the same, plus the player must be in the damage map (`BattleFieldRoom.cpp:5078/:5191`, `:4429/:4550`) |
+| Hunt quests, title missions | **every** death of a known NPC. The `else` at `:6940-6960` also broadcasts the NOT, and GS counts on each NOT (`GSUserRoomCommon.cpp:1966/:1972`), so ALLY, ESCAPE and NO_DROP count | paid deaths only, with share >= 0.5 (`:5211`, `:4575`) and a field drop row (`:5127-5145`, `:4486`); GS counts only on `m_bQuestComplete` (`:2337/:2383`) |
+| Result kill count | `m_bIsNPC`, KILL_BY_USER or BONUS_DROP, attacker = a room user (`:6060/:6187`), counted before the NO_DROP gate. Offline: the player's own kills | the same (`:5041/:5061`, `:4395/:4413`) |
+| Danger | - | every death, unchanged |
+
+- **ALLY** pays no reward anywhere. In a dungeon it still counts for quests, as the server does. On a field it counts for nothing.
+- **KILL_SELF** pays the reward. It does not add to the kill count. A field pays it only if the player hit the monster.
+- **AI party bots** die KILL_SELF at a clear, three per clear (memory). They have no `m_mapNpcID` row, so they are "unknown UID" and get nothing, as `ERR_ROOM_21` gives on the server.
+  - Before this phase, a bot dying ALLY in combat had `++m_iKillNPCNum` with 0 EXP, and a bot dying KILL_SELF had nothing.
+  - No run log on hand has an ALLY line: the current `offline_server.log` is a field-load run with no deaths. The play-test settles it.
+- **BONUS_DROP** pays the reward and now goes into `PushNpcDrop`. The eater half of `NpcSpecialDropItem` (`KDropTable.cpp:1875-1901`) is ported: mana eaters give 70055, blood eaters 70056. It is skipped for a field middle boss, as before, and skipped and logged if the item is not in `item.kim`.
+  - BONUS_DROP wins over ALLY on the client because `ADD_VELDER_ACADEMY_EVENT_MONSTER` is a top-level define in `Always.h:1987` with no `#undef` anywhere in `KTDXLIB`/`X2Lib` (checked by reading, not with `cl /EP`).
+  - **Reach in March:** 9 `data037` NPC scripts call `SetBonusDrop`: the 7 eaters (`Blood_Eate_FD.lua` sic) plus `Event_Teacher_Echo` and `Golden_Chest_Summon_Money`. The last two pay their normal reward and log "not an eater".
+  - Eaters spawn in Peita Chapel, Offerings Altar and Tower Heart, Velder Gate and Bridge of Hope, Elder Halloween, Henir Space, and `Velder_Field_00`.
+- **Behaviour changes for KILL_BY_USER** (server rules, each one logged):
+  - a NO_DROP monster no longer pays EXP (before, only its drops were blocked);
+  - a kill whose attacker is not the player (monster on monster, possibly a bot) no longer adds to the result kill count;
+  - a field kill below a 0.5 share, or with no field drop row, no longer counts for quests.
+- **Not ported (deliberate):** a field sends no `ERM_BATTLE_FIELD_NPC_UNIT_DIE_NOT` for an ALLY, ESCAPE or NO_DROP death. Offline still sends `EGS_NPC_UNIT_DIE_NOT` with no EXP entry, because the client's handler also does `MarkNPCUnitDieNotReceived` and the killed-keycode count (`X2BattleFieldGame.cpp:1255-1272`).
+- **Log:** one `[OFFLINE_GRADE] die state <STATE> uid id att dungeon|field share: reward / quest / kill count yes|no (was ...)` line, plus a reason. It is written for every death that is not KILL_BY_USER, and for any KILL_BY_USER whose outcome changed.
+
+**Hygiene.** `flagcheck --range e6cc509^..e6cc509` (the worktree check before the commit gave the same lines):
+- `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+- `in this flag's files: 5 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+- `RESULT: PASS`
+- The 5 deleted lines are all this flag's own earlier lines: the `PushNpcDrop` call, signature and eater comment, and the declaration's comment and parameter line.
+
+**Deploy.** Not yet deployed.
+- `Handlers_Room.cpp` compiled cleanly. Both builds (17:38 and 17:47) failed in a peer session's uncommitted june-buff edits (`X2SkillTree.*`, `X2SocketItem.*`, `X2GUUser.*`), which were still being written.
+- HEAD contains `e6cc509`, so the next good build of the shared tree deploys it.
+- A bounded retry (60 min) builds once the peer's files have been quiet for 3 min.
+
+**How to see it in game** (`python tools/logs.py --tag OFFLINE_GRADE`):
+- An ordinary kill shows the same `kill ... factor` line as before and no `die state` line.
+- A trap or no-hit death shows `die state KILL_SELF ... reward yes (was no)`, or the reason it paid nothing.
+- An auto-party clear shows three `die state KILL_SELF ... unknown UID` lines.
+- A killed eater shows `die state BONUS_DROP ...` and `bonus drop: monster N -> item 70055/70056`. One that runs away shows `die state ESCAPE ... quest yes (was no)`.
+
+**Open for the user:** none blocking. The dungeon ALLY quest count is the server's rule; it is in effect only if a hunt quest targets an ally NPC's ID.
+
 ## Reviews
 
 `1-review`, `2-review`, `3-review`: Opus 5.5 / high. Each checks its phase against the server
