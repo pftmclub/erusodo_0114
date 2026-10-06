@@ -45,5 +45,9 @@ differs, cite June addresses, byte-level CP949 edits. Count each reader's reach 
 5. **`m_fAllStatRelLV`** (`32727838`, `+0x268`, a sixth float after the five `KItemStatRelLVData` members): find its
    reader (start from June's `KItemStatRelLVData` users) and port it, or leave it dormant with one line if none.
 
+6. **Comment fix from the 3b4 review** (no behaviour change): in `ProcessSocketEffectEx`'s SIEE 20 case, the comment
+   "June's state IDs are GUSI_END + n; March's USI are n - 1" holds for the hit block only. Reword it: hit block June = March + 1,
+   riding block June = March + 5 (riding wait `0x4c`, funcmap `3208ddd0`), walk/dash = March.
+
 A reader that cannot be settled from the disassembly stays dormant with one `[JUNE_BUFF]` line and is listed as open.
 If the phase is too large for one session, split it at the item boundary the way 16-step3b2 did.

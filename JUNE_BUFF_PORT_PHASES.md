@@ -5545,7 +5545,7 @@ What the counts are:
    - Proposed home: the Lanox plan or checklist section 7.
 3. **`3206d480`** (called from `32298590`, `32a71a90` and `329e2410`): not identified. It keeps a periodic list of 24-byte entries on `CX2Unit +0x280` in the same store. Its four entry types are a buff, `3204d440`, a heal scaled by `3342f360`, and one gated on game type. Proposed: identify it in 3b6.
 
-**3b5 kickoff:** checked, unchanged.
+**3b5 kickoff:** checked; one line added (item 6: reword case 20's state-mapping comment while 3b5 edits X2GUUser.cpp).
 
 **Doc repair (this commit):** `8ef55d8` had deleted the 16-step3b2 Review, 16-step3b3 Done and Review, and 16-step3b4 Done sections. None of the four was anywhere else in the repo. They are restored verbatim from `8ef55d8^`. That commit's new decisions block (effect plan C6a2/C6b/C11) replaces 3b4's superseded one, in the 3b4 Done section, instead of sitting at the end of 3b2's Done.
 
