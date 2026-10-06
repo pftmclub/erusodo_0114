@@ -827,7 +827,8 @@ class CX2SocketItem
 				int		m_iBuffLevel;					/// +4 the second m_sBuffLevel
 				bool	m_bKillAbsoluteMonster;			/// +8
 				bool	m_bAlwaysPlayEffectSet;			/// +9 m_eTypeSetItemEffectEx == 15 (SIEE_ALWAYS_PLAY_EFFECT_SET)
-				int		m_iEnemyHPFewHpRate;			/// +0xc m_fIncreaseDmgEnemyHPFew_HpRate (read as an int)
+				int		m_iUseSkillCategory;			/// +0xc the key m_fIncreaseDmgEnemyHPFew_HpRate, read as an int: June uses it as
+														/// the skill category (32070510) the entry fires on (CommonStateStart @32060c9c)
 			};
 			int		m_iDungeonOnlyType;					/// +0x18c DUNGEON_ONLY_TYPE (a DUNGEON_TYPE, 0 = any)
 			float	m_fCriticalAfflicted;				/// +0xc4

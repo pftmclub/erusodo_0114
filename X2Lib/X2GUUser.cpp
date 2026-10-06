@@ -14141,6 +14141,39 @@ void CX2GUUser::CommonStateStartFuture()
 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/// June 32070510: a skill's category, as the socket +0x29c list and the cool-time map count it. June's SA grades
+/// 14/15/16 (ST_SPECIAL_ACTIVE_GRADE_1/2/3) do not exist in March's SKILL_TYPE, so 3 and 4 never come back here.
+static int JuneSkillCategory( const CX2SkillTree::SkillTemplet& kSkillTemplet_ )
+{
+	switch ( static_cast<int>( kSkillTemplet_.m_eType ) )
+	{
+	case CX2SkillTree::ST_BUFF:					return 6;
+	case CX2SkillTree::ST_ACTIVE:				return 1;
+	case CX2SkillTree::ST_SPECIAL_ACTIVE:
+	case 14:									return 2;
+	case CX2SkillTree::ST_HYPER_ACTIVE_SKILL:	return 5;
+	case 15:									return 3;
+	case 16:									return 4;
+	default:									return 0;
+	}
+}
+
+/// June's state-data byte +0x11 (user slot 330, 3208e430): every class's equip-skill function sets it on the slot's
+/// state data after Init (e.g. 32b46622, 32bd0b1f for the normal and hyper pair). March's state data has no such
+/// byte; the skill-slot states it marks are these. (A few June classes also mark states of their own, e.g.
+/// 32adbc95: class code, checklist section 7.)
+static bool IsJuneSkillSlotState( const int iStateID_ )
+{
+	for ( int i = 0; i < ARRAY_SIZE( _CONST_GUUSER_::aNormalSkillStateID ); ++i )
+	{
+		if ( _CONST_GUUSER_::aNormalSkillStateID[i] == iStateID_ || _CONST_GUUSER_::aHyperSkillStateID[i] == iStateID_
+			|| _CONST_GUUSER_::aNormalSkillStateIDSlotB[i] == iStateID_ || _CONST_GUUSER_::aHyperSkillStateIDSlotB[i] == iStateID_ )
+			return true;
+	}
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 void CX2GUUser::CommonStateStart()
 {
 	KTDXPROFILE();
@@ -14931,6 +14964,38 @@ void CX2GUUser::CommonStateStart()
 	m_bNowStateDamageReact = false;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 #endif
+
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June CommonStateStart (32057b80) @32060bda..32060ccb, between CAN_MANA_BREAK (@320608b2) and EVENT_PROCESS_TIME:
+	/// the skill-use half of the socket +0x29c conditional-buff list (buff port Phase 16-step3b, item 7). It runs for
+	/// every user unit (June has no IsMyUnit test here). When the now state carries a skill (slot 329 = GetNowStateSkillID
+	/// != 0) and is a skill-slot state (slot 330( false ), see IsJuneSkillSlotState), each entry whose +0xc equals the
+	/// skill's category (32070510 on GetSkillTemplet 32206450) applies its factor at its level (slot 135). Kept verbatim:
+	/// the kill-only and SIEE 15 entries carry +0xc = 0, the category of a skill type outside 5/6/7/13-16 (JUNE_BUGS #48).
+	/// Not ported: June's slot 474 call in the same block (31fe9ed0, the skill-memo type 14 path; skill-memo work).
+	if ( CX2SkillTree::SI_NONE != GetNowStateSkillID() && true == IsJuneSkillSlotState( GetNowStateID() )
+		&& NULL != g_pData && NULL != g_pData->GetSkillTree() )
+	{
+		const vector<CX2SocketItem::SocketData::JuneConditionalBuff>& vecConditionalBuff = m_SocketData.m_vecConditionalBuff;
+		for ( UINT i = 0; i < vecConditionalBuff.size(); ++i )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( GetNowStateSkillID() );
+			if ( NULL != pSkillTemplet && JuneSkillCategory( *pSkillTemplet ) == vecConditionalBuff[i].m_iUseSkillCategory )
+			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				static bool s_bLoggedSkillUseBuff = false;
+				if ( false == s_bLoggedSkillUseBuff )
+				{
+					s_bLoggedSkillUseBuff = true;
+					CX2JuneBuffCapture::Line( "first socket skill-use buff (@32060c3e): skill %d (category %d), BFI %u level %d, state %d",
+						static_cast<int>( GetNowStateSkillID() ), vecConditionalBuff[i].m_iUseSkillCategory, vecConditionalBuff[i].m_uiBuffFactorID, vecConditionalBuff[i].m_iBuffLevel, GetNowStateID() );
+				}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				SetBuffFactorToGameUnitByBuffFactorID( vecConditionalBuff[i].m_uiBuffFactorID, vecConditionalBuff[i].m_iBuffLevel );
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	if( IsMyUnit() == true && m_pComboGuide != NULL )
 	{

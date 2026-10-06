@@ -8097,6 +8097,13 @@ ELSWORD_VIRTUALIZER_END
 	//	ProcessSummonNPCDieEvent( kEvent );
 #endif //FINALITY_SKILL_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June 3230b7b0 @3230bd1b..3230bd2b: when the packet names a killer, the kill hook 322d6f20, just before
+		/// the summon-owner cleanup (@3230bd32, GetOwnerGameUnit 32759f00)
+		if ( -1 != kEvent.m_uiAttUnit )
+			ApplyBuffFactorOnNpcKill( pCX2GUNPC );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+
 #ifdef ADD_RENA_SYSTEM //김창한
 		//유저가 소환한 npc가 죽었을 경우 공격을 성공하지 못했을 경우를 대비해
 		//스킬 관련 데이터를 체크해서 지워준다
@@ -8113,6 +8120,77 @@ ELSWORD_VIRTUALIZER_END
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/** @function : ApplyBuffFactorOnNpcKill
+	@brief : June 322d6f20 (buff port Phase 16-step3b, item 7). It buffs GetMyUnit() (game slot 0x98), not the killer,
+			 on every kill the packet names a killer for, as June does.
+			 1. When the killed NPC is an absolute monster (+0x9058 != 0), each of my unit's socket +0x29c entries with
+				the kill flag (+8) applies its factor at its level (slot 135 = SetBuffFactorToGameUnitByBuffFactorID).
+			 2. The NPC's death-buff list (+0x9048) applies each factor to my unit at level 1; factor 647 (0x287) also
+				gives factor 646 (0x286) at level 1 to every other NPC whose AI type (AI +0x38) is not NAT_ALLY.
+			 Both halves read what only June's 3277cf10 writes, from a server-sent stage-load map (+0x78, keyed by the
+			 NPC UID, read at sub-stage start 327cf620 @327cf951) that March's packet does not carry. Not ported: the
+			 20 kill-flag sockets in June's OptionItemData stay inactive until the user decides on a stand-in.
+*/
+void CX2Game::ApplyBuffFactorOnNpcKill( CX2GUNPC* pKilledNpc_ )
+{
+	if ( NULL == pKilledNpc_ )
+		return;
+
+	CX2GUUser* pMyUnit = GetMyUnit();
+	if ( NULL == pMyUnit )
+		return;
+
+	const vector<CX2SocketItem::SocketData::JuneConditionalBuff>& vecConditionalBuff = pMyUnit->GetSocketData().m_vecConditionalBuff;
+	if ( 0 != pKilledNpc_->GetJuneAbsoluteMonsterState() )
+	{
+		for ( UINT i = 0; i < vecConditionalBuff.size(); ++i )
+		{
+			if ( true == vecConditionalBuff[i].m_bKillAbsoluteMonster )
+			{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				static bool s_bLoggedKillBuff = false;
+				if ( false == s_bLoggedKillBuff )
+				{
+					s_bLoggedKillBuff = true;
+					CX2JuneBuffCapture::Line( "first socket kill buff (322d6f20): BFI %u level %d on NPC %d", vecConditionalBuff[i].m_uiBuffFactorID, vecConditionalBuff[i].m_iBuffLevel, pKilledNpc_->GetUID() );
+				}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				pMyUnit->SetBuffFactorToGameUnitByBuffFactorID( vecConditionalBuff[i].m_uiBuffFactorID, vecConditionalBuff[i].m_iBuffLevel );
+			}
+		}
+	}
+	else
+	{
+		/// Not June: one line per session when a kill-flag socket meets a kill, so its silence is visible.
+		static bool s_bLoggedNoAbsoluteMonster = false;
+		for ( UINT i = 0; i < vecConditionalBuff.size() && false == s_bLoggedNoAbsoluteMonster; ++i )
+		{
+			if ( true == vecConditionalBuff[i].m_bKillAbsoluteMonster )
+			{
+				s_bLoggedNoAbsoluteMonster = true;
+				CX2JuneBuffCapture::Line( "socket kill buff BFI %u not applied: no NPC is an absolute monster (June's server-sent stage data, read by 3277cf10, is not ported)", vecConditionalBuff[i].m_uiBuffFactorID );
+			}
+		}
+	}
+
+	const vector<int>& vecDeathBuff = pKilledNpc_->GetJuneAbsoluteDeathBuffFactorIDList();
+	for ( UINT i = 0; i < vecDeathBuff.size(); ++i )
+	{
+		pMyUnit->SetBuffFactorToGameUnitByBuffFactorID( vecDeathBuff[i], 1 );
+		if ( 0x287 == vecDeathBuff[i] )
+		{
+			for ( int j = 0; j < GetNPCUnitListSize(); ++j )
+			{
+				CX2GUNPC* pNpc = GetNPCUnit( j );
+				if ( NULL != pNpc && pKilledNpc_ != pNpc
+					&& ( NULL == pNpc->GetNPCAI() || CX2NPCAI::NAT_ALLY != pNpc->GetNPCAI()->GetAIType() ) )
+					pNpc->SetBuffFactorToGameUnitByBuffFactorID( 0x286, 1 );
+			}
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 bool CX2Game::CheckEnableKeyProcess()
 {
 	if( GetOpenChatBox() == true )

@@ -886,6 +886,9 @@ class CX2Game : public CKTDXStage
 		//virtual bool				Handler_EGS_NOTIFY_MSG_NOT( KEGS_NOTIFY_MSG_NOT& kEGS_NOTIFY_MSG_NOT );
 
 		void						ProcessExpListByNpcUnitDie( const KEGS_NPC_UNIT_DIE_NOT& kEvent );
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		void						ApplyBuffFactorOnNpcKill( CX2GUNPC* pKilledNpc_ );	/// June 322d6f20
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef ARA_CHARACTER_BASE
 		void						ProcessIKillThisNpc( const KEGS_NPC_UNIT_DIE_NOT& kEvent );
 #endif

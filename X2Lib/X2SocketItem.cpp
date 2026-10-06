@@ -854,7 +854,7 @@ bool CX2SocketItem::AddSocketData_LUA()
 				kConditionalBuff.m_iBuffLevel				= iConditionalBuffLevel;
 				kConditionalBuff.m_bKillAbsoluteMonster		= bKillAbsoluteMonster;
 				kConditionalBuff.m_bAlwaysPlayEffectSet		= bAlwaysPlayEffectSet;
-				kConditionalBuff.m_iEnemyHPFewHpRate		= iEnemyHPFewHpRate;
+				kConditionalBuff.m_iUseSkillCategory		= iEnemyHPFewHpRate;	/// a skill category 1-4 in June's data, not an HP rate
 				pSocketData->m_vecConditionalBuff.push_back( kConditionalBuff );
 #ifdef HAMEL_SECRET_DUNGEON
 				bIsSetBuffFactor = true;

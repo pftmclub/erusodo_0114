@@ -2080,6 +2080,10 @@ class CX2GUNPC : public CX2GameUnit
 
 
 		CX2NPCAI*					GetNPCAI() { return m_pAI; }
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		int							GetJuneAbsoluteMonsterState() const { return m_iJuneAbsoluteMonsterState; }
+		const vector<int>&			GetJuneAbsoluteDeathBuffFactorIDList() const { return m_vecJuneAbsoluteDeathBuffFactorID; }
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 		void						PushAIMessage( STATE_CHANGE_TYPE message, bool bIsRight );
 //{{oasis:±ËªÛ¿±////2009-10-7////
@@ -3384,6 +3388,13 @@ class CX2GUNPC : public CX2GameUnit
 
 //{{ Protected Variable Start
 		CX2NPCAI*										m_pAI;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port Phase 16-step3b: June's "absolute monster" members, read by CX2Game::ApplyBuffFactorOnNpcKill
+		/// (June 322d6f20). Their only writer is June's 3277cf10 (+0x9058 = 1, then 2 with BFI 694 in its own list),
+		/// fed from server-sent stage data March's packet lacks; not ported, so both stay at the ctor's 0 / empty.
+		int												m_iJuneAbsoluteMonsterState;		/// June +0x9058
+		vector<int>										m_vecJuneAbsoluteDeathBuffFactorID;	/// June +0x9048 (each pair's second)
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
         std::vector<StateRuntime>                       m_vecStateRuntime;

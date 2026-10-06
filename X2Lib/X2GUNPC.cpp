@@ -1748,6 +1748,9 @@ CX2GUNPC::CX2GUNPC( int unitIndex, int teamNum, int uid, const CX2UnitManager::N
 #ifdef USE_UNIT_FOG_RENDER_PARAM //JHKang
 , m_bUnitFog( false )
 #endif //USE_UNIT_FOG_RENDER_PARAM //JHKang
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+, m_iJuneAbsoluteMonsterState( 0 )		/// June ctor @327b07c8
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef ALWAYS_EVENT_MONSTER_ALPHA_BLEND
 , m_bForceColor(false)
 #endif ALWAYS_EVENT_MONSTER_ALPHA_BLEND
@@ -1875,6 +1878,9 @@ CX2GUNPC::CX2GUNPC( const CNpcCreatedInfoPtr NpcCreatedInfoPtr_
 #ifdef USE_UNIT_FOG_RENDER_PARAM //JHKang
 , m_bUnitFog( false )
 #endif //USE_UNIT_FOG_RENDER_PARAM //JHKang
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+, m_iJuneAbsoluteMonsterState( 0 )		/// June ctor @327b1bd5
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 {
     if ( pNPCUnitInfo == NULL || pNPCUnitInfo->m_pInitData == NULL )
 		return;
