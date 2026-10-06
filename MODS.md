@@ -2333,6 +2333,30 @@ Built `US_SERVICE` (`touch X2Lib/stdafx.cpp` first; KTDXLIB, X2Lib and X2 all 0 
 Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEDATA`. This phase is pure addition: 181 lines inserted,
 none deleted.
 
+### June2017 effect engine: damage triggers and nearest bone (effect completion C5)
+
+C5 of `JUNE2017_EFFECT_COMPLETION_PHASES.md`, extending `SERV_IRUHADEV_JUNE_DAMAGEDATA` (no new flag),
+2026-10-06. Files: `X2Lib/X2DamageManager.{h,cpp}`, `X2GameUnit.{h,cpp}`, `X2EffectSet.{h,cpp}`,
+`X2DamageEffect.cpp`. Pure insertions (flagcheck: 0 deleted lines).
+
+- **Parse** (`SetDamageDataFromLUA`, June `32632390 @3263d396-3263db70`, `@3263e8d7-3263ead2`): new `DamageData` members
+  `m_vecAdditionalAttackTriggerType` (every value kept, zeros too), `m_vecDamageTriggerData` (`DamageData::JuneDamageTriggerData`
+  entries `{ATTACK_TRIGGER_TYPE, BUFF_TEMPLET_ID, POWER_RATE = 1.0, POWER_RATE_ACCUMULATION_MULTIPLIER = 0.0}`) and
+  `m_iDamageTriggerCondition` (default -1). Both vectors are emptied on every parse, as June does, so `DAMAGE_DATA_NEXT` does not
+  inherit them. `DAMAGE_TRIGGER_CONDITION` is parsed and logged under plan rule 5 (June has no reader).
+- **Readers:** `DamageData::JuneIsAttackTrigger( int )` = June `32610fb0`; `JuneFindDamageTriggerData( int )` = `32610e60`.
+- **Consumer 1:** `CX2GameUnit::JuneApplyMultipleDamageByDebuff` (`3227c940`), called in `GetFinalDamage` right after the
+  `damage <= 0` clamp (`@322869b2`): for trigger type 40 (`DTT_MULTIPLE_DAMAGE_BY_DEBUFF`) the damage is multiplied by POWER_RATE,
+  or by `(POWER_RATE - 1) * (n - 1) * MULT + POWER_RATE` when MULT > 0, with n the defender's stack count of the entry's buff (n > 0 only).
+- **Consumer 2:** `EffectSetInstance::JuneSetTraceNearestBone` (`321da350`), called in `CEffect::AttackResult`'s
+  `RT_CREATE_EFFECT_SET` case after the DELAYTIME block; the new `EffectSetInstance::m_wstrTraceNearestBone` replaces the effect's
+  bone in `GetEffectPosition` and `GetEffectPositionByBoneName` for a trace target. Name from the new
+  `CX2GameUnit::JuneGetNearestCollisionFrameName` (`32278580`).
+- **Log lines** (`SERV_IRUHADEV_JUNE_FX_DEBUG`, offline_server.log): `JUNE_FX trigger_parse`, `JUNE_FX trigger_data`, `JUNE_FX trace_nearest_bone`.
+- **Inert on today's data:** no March `data036` script sets any of these keys; they act once a June DamageEffect that does is adopted.
+
+Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEDATA` (this also reverts every earlier 8a-8c addition), or delete the blocks above.
+
 ### June2017 effect engine: the damage-effect hit test (Phase 9)
 
 Phase 9 of `JUNE2017_EFFECT_REBUILD_PLAN.md`. New flag **`SERV_IRUHADEV_JUNE_COLLISION`**

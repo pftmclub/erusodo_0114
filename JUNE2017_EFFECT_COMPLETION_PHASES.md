@@ -418,7 +418,7 @@ before/after damage numbers; update matrix and MODS.md.
 
 ## C5 - 8b, buff-factor selection, damage triggers, nearest bone
 
-**Status: not started. Model:** Sonnet 5, high, then an Opus review. Needs C2. **Coordinate with the
+**Status: code done 2026-10-06 (Sonnet 5.5 high), Opus review and play-test pending; see "C5 - Done" below. Model:** Sonnet 5, high, then an Opus review. Needs C2. **Coordinate with the
 buff port**, which owns the buff factors these keys select: read `JUNE_BUFF_PORT_PHASES.md` first and
 do not duplicate its work.
 
@@ -442,6 +442,41 @@ TRACE_NEAREST_BONE, extending SERV_IRUHADEV_JUNE_DAMAGEDATA; leave anything the 
 and say where. CP949 byte-level; build, deploy, ASK before launching; mark 8b done in the rebuild
 plan when census shows 0 open 8b rows; update matrix and MODS.md.
 ```
+
+### C5 - Done (2026-10-06, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_DAMAGEDATA`, no new flag)
+
+**What landed** (pure insertions; details in `MODS.md`, "damage triggers and nearest bone"):
+- **Parse** in `SetDamageDataFromLUA`: `ADDITIONAL_ATTACK_TRIGGER_TYPE` (list, zeros kept), `DAMAGE_TRIGGER_DATA` (positional sub-tables; defaults type 0, BTI 0, POWER_RATE 1.0, MULT 0.0), `DAMAGE_TRIGGER_CONDITION` (int, -1, rule-5 log). Both vectors are emptied on every parse, as June does (`@3263d39c`, `@3263d40f`), so `DAMAGE_DATA_NEXT` does not inherit them.
+- **Readers** on `DamageData`: `JuneIsAttackTrigger` (= `32610fb0`), `JuneFindDamageTriggerData` (= `32610e60`).
+- **`3227c940`** = `CX2GameUnit::JuneApplyMultipleDamageByDebuff`, called in `GetFinalDamage` right after the `<= 0` clamp, as June's `@322869b2` follows `@32286995`.
+  - Polarity read from the operands (`fld MULT; fcomp 0.0`, constants `334350e8` = 0.0 and `334355b0` = 1.0): the formula runs for MULT > 0 and n > 0. `x87test.py` was not used: it covers the reversed `fldz; fcom mem` idiom, not this one.
+- **`321da350`** = `EffectSetInstance::JuneSetTraceNearestBone`, called in `CEffect::AttackResult` after the DELAYTIME block with the main-effect mesh position (`ebp` at `@31f8679d` is the `GetMeshInstance` result, `+0x3f0` is `m_vPos`). Readers patched in `GetEffectPosition` (`@321dceaa`) and `GetEffectPositionByBoneName` (`@321dd6d5`).
+  - **The override applies to the trace target**: the observable at instance `+0x14` is ctor arg 3 (`@321df2b7`). C2's row said only "unit".
+  - **No pooled-instance reset is needed**: `EffectSetInstance` is created per `PlayEffectSet`; the member is a plain `std::wstring`.
+- **The `ParsingBuffFactorID` family is not touched**: buff Phase 10 owns it (`SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID`, `X2DamageManager.cpp` ~`:4260-4390`), and the census shows all six keys `implemented`.
+
+**Hygiene** (`flagcheck JUNE_DAMAGEDATA --worktree --files <the 7 code files>`):
+```
+files: 3 PASS, 4 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR
+in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)
+RESULT: PASS
+```
+With `--with JUNE_FX_DEBUG`, `X2EffectSet.cpp` shows `tok! 1`: one `#endif` of that family with no token. It is not in this diff; without `--with` it is 0.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,264,000 B, dated 2026-10-06 22:21:35, md5 64d0520e9b83ce36a1036f516ce7646a, equal to X2/US_SERVICE/x2.exe (2026-10-06 22:21:17); built at mods/june-buff-port d247d41 + 9 uncommitted code file(s).` That exe also carries a peer's uncommitted `Always.h` and `X2EnchantItem.cpp` edits. The three log strings (`trigger_parse`, `trigger_data`, `trace_nearest_bone`) and the three key names are in the deployed exe.
+
+**Census** (`census.py`): all 8 C5 rows (`ADDITIONAL_ATTACK_TRIGGER_TYPE`, `DAMAGE_TRIGGER_DATA` and its four entry keys, `DAMAGE_TRIGGER_CONDITION`) and `TRACE_NEAREST_BONE` are `implemented`; "open rows by owner" lists no C5. **8b is not marked done**: C3 19, C4 5, C9 11 rows are still open (the one FAIL line is C10b-1's HP-rate item, unchanged). Funcmap rows 1181, 1275-1278, 1280 carry the port notes.
+
+**How to see it in game: nothing yet.** No March `data036` script sets any of these keys (`march2014/data036/*.src.lua` has none), so the change is inert until a June DamageEffect that does is adopted, and the play-test is a regression check on `GetFinalDamage` and the effect-set hit path. Staging a test templet (one DamageEffect with `DAMAGE_TRIGGER_DATA` for a bleeding debuff, and one with `TRACE_NEAREST_BONE`) is the user's decision; offered, not done.
+
+**Left to others (named, not changed):**
+- The three buff-port callers still compare `m_eDamageTrigger` only: `DoMarkOfCommand` (`X2BuffTemplet.cpp` ~`:1814`, `:1880`), Pandemonium Fear (`:2087`) and `JuneCustomFunctionDamageReactGuards` (`:2160`). They diverge from June (`32610fb0`) once a script fills the list. Replace them with `damageData_.JuneIsAttackTrigger( n )`, a one-line change each (buff port).
+- About 57 per-class call sites of `32610fb0` go to the character ports (checklist 7b already names C5 as their prerequisite).
+- `31f64c00` (child copy of the list) is C6b's. Its kickoff now names the member and the reader.
+
+**Open for the review:**
+1. `CX2GameUnit::JuneGetNearestCollisionFrameName` is a third copy of `32278580`'s walk (the others: the file-`static` in `X2BuffTemplet.cpp`, and the inline loop in `CEffect::JuneGetLockOnAimPos`). I put it on the unit and did not touch buff-port code; folding the other two is an OTHER row.
+2. The stale comment above `m_bTraceNearestBone` in `X2DamageManager.h` (and the one at `X2DamageManager.cpp` ~`:176`) still says "parsed only". Left as is to keep the diff insert-only; the review may rewrite them.
 
 ---
 

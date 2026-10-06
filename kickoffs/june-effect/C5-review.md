@@ -26,6 +26,11 @@ for each flag the phase used. Paste its `files:` / `in this flag's files:` / `RE
 explain every OTHER row and deleted line; a FAIL or ERROR is a finding. Check `census.py` moved the
 way the phase's Exit says.
 
+Points the C5 Done note asks the review to settle (see its "Open for the review" list):
+- the `GetEffectPosition` override branch: `321dceaa` loads the unit from the observable at instance `+0x14` (ctor arg 3 = the trace target, `321df2b7`), not from `+0xd4`'s raw copy;
+- `CX2GameUnit::JuneGetNearestCollisionFrameName` is a third copy of `32278580`'s walk (the other two: the buff port's file-`static` in `X2BuffTemplet.cpp`, and `CEffect::JuneGetLockOnAimPos`). Fold them only if you judge it worth an OTHER row in buff-port code;
+- the three buff-port callers that still compare `m_eDamageTrigger` instead of `JuneIsAttackTrigger` (listed in the Done note).
+
 Spot-check 2-3 sites directly in Ghidra (read-only); if one fails, re-check the whole phase.
 Fix clear transcription errors under the same flag (then `tools/build.py --deploy`); hand design
 decisions back to the user. Write "C5 - Review" under the phase in the plan, update the

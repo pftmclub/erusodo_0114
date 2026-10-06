@@ -1023,6 +1023,19 @@ class CX2DamageManager
 		};
 #endif //ADD_RENA_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		/// June2017 DAMAGE_TRIGGER_DATA entry (16 bytes, DamageData +0x554..+0x558; built in FUN_32632390
+		/// @3263d5fc-3263db40): ATTACK_TRIGGER_TYPE and BUFF_TEMPLET_ID (default 0), POWER_RATE (default 1.0),
+		/// POWER_RATE_ACCUMULATION_MULTIPLIER (default 0.0). The types are June Enum.lua ints (March's C++
+		/// DAMAGE_TRIGGER_TYPE stops at DTT_END = 6), so they are stored as int. Effect completion C5.
+		struct JuneDamageTriggerData
+		{
+			int		m_iAttackTriggerType;
+			int		m_iBuffTempletID;
+			float	m_fPowerRate;
+			float	m_fPowerRateAccumulationMultiplier;
+		};
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		struct DamageData
 		{
 			DAMAGE_TYPE						damageType;
@@ -1256,6 +1269,39 @@ class CX2DamageManager
 			/// trace unit) is not ported: its callees (FUN_32278580, FUN_31c1c1a0, FUN_31f54910)
 			/// are not identified.
 			bool				m_bTraceNearestBone;				/// TRACE_NEAREST_BONE
+
+			/// June2017, effect completion C5. +0x544..+0x548: ADDITIONAL_ATTACK_TRIGGER_TYPE, every value kept (zeros too),
+			/// cleared at the start of every parse (FUN_3221db80 @3263d39c). +0x554..+0x558: DAMAGE_TRIGGER_DATA entries,
+			/// cleared the same way (@3263d40f). +0x5ac: DAMAGE_TRIGGER_CONDITION, parsed int, default -1; June has no
+			/// reader of it (funcmap row 3263e8d7), so it is parsed and logged only.
+			std::vector<int>					m_vecAdditionalAttackTriggerType;	/// ADDITIONAL_ATTACK_TRIGGER_TYPE
+			std::vector<JuneDamageTriggerData>	m_vecDamageTriggerData;				/// DAMAGE_TRIGGER_DATA
+			int									m_iDamageTriggerCondition;			/// DAMAGE_TRIGGER_CONDITION
+
+			/// June 32610fb0 (ADDITIONAL_ATTACK_TRIGGER_TYPE consumer): true when ATTACK_TRIGGER_TYPE == iTrigger_ or iTrigger_
+			/// is in the additional list. About 60 June call sites, mostly per-class code (the character ports).
+			bool JuneIsAttackTrigger( const int iTrigger_ ) const
+			{
+				if ( static_cast<int>( m_eDamageTrigger ) == iTrigger_ )
+					return true;
+				for ( std::vector<int>::const_iterator it = m_vecAdditionalAttackTriggerType.begin(); it != m_vecAdditionalAttackTriggerType.end(); ++it )
+				{
+					if ( *it == iTrigger_ )
+						return true;
+				}
+				return false;
+			}
+
+			/// June 32610e60: the first DAMAGE_TRIGGER_DATA entry whose type is iTrigger_, else NULL.
+			const JuneDamageTriggerData* JuneFindDamageTriggerData( const int iTrigger_ ) const
+			{
+				for ( std::vector<JuneDamageTriggerData>::const_iterator it = m_vecDamageTriggerData.begin(); it != m_vecDamageTriggerData.end(); ++it )
+				{
+					if ( it->m_iAttackTriggerType == iTrigger_ )
+						return &( *it );
+				}
+				return NULL;
+			}
 
 			/// +0x5c1 (CEffect +0x7c1), read in AttackResult's default case (@31f86a9d): stores
 			/// the defender's UnitUID/GameUnitType onto the owner (CX2GameUnit::m_uidMakeTarget /
@@ -1501,6 +1547,9 @@ class CX2DamageManager
 				m_bCreateEffectSetMainEffectLifetime	= false;
 				m_bCreateEffectSetMainEffectDelaytime	= false;
 				m_bTraceNearestBone						= false;
+				m_vecAdditionalAttackTriggerType.clear();
+				m_vecDamageTriggerData.clear();
+				m_iDamageTriggerCondition				= -1;
 				m_bMakeTarget								= false;
 				m_wstrDamageDataKeyName					= L"";
 				m_iAppliedSkillID						= 0;

@@ -58,6 +58,26 @@ static void JuneDamageDataUnsupportedInt( const WCHAR* pwszTemplet_, const char*
 	StringCchPrintfW( wszValue, ARRAY_SIZE(wszValue), L"%d", iValue_ );
 	JuneDamageDataUnsupported( pwszTemplet_, pTableName_, pwszKey_, pwszSystem_, wszValue );
 }
+
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+// Effect completion C5 diagnostic: once per templet, how many ADDITIONAL_ATTACK_TRIGGER_TYPE values and
+// DAMAGE_TRIGGER_DATA entries the parse read (only templets that carry either are logged).
+static void JuneDamageDataTriggerParsed( const WCHAR* pwszTemplet_, const char* pTableName_, const int iAdditional_, const int iData_ )
+{
+	WCHAR wszTemplet[256] = L"";
+	if( NULL != pwszTemplet_ )
+		StringCchPrintfW( wszTemplet, ARRAY_SIZE(wszTemplet), L"%s", pwszTemplet_ );
+	else
+		StringCchPrintfW( wszTemplet, ARRAY_SIZE(wszTemplet), L"(no templet) %S", ( NULL != pTableName_ ? pTableName_ : "(null)" ) );
+
+	static std::set<std::wstring> s_setLogged;
+	if( false == s_setLogged.insert( wszTemplet ).second )
+		return;
+
+	CX2OfflineLog::Server( L"JUNE_FX trigger_parse in %s: ADDITIONAL_ATTACK_TRIGGER_TYPE=%d DAMAGE_TRIGGER_DATA=%d",
+		wszTemplet, iAdditional_, iData_ );
+}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 CX2DamageManager::CX2DamageManager(void)
@@ -600,6 +620,60 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		// manager (FUN_32622220 @3263edee) when non-empty. Parsed only: the registration's
 		// purpose and reader are not identified.
 		LUA_GET_VALUE(		luaManager, "DAMAGE_DATA_KEY_NAME",		pDamageData->m_wstrDamageDataKeyName,	L"" );
+
+		// June2017 FUN_32632390 @3263d396-3263d405: ADDITIONAL_ATTACK_TRIGGER_TYPE. The list is cleared on every parse
+		// (FUN_3221db80, even when the key is absent, so DAMAGE_DATA_NEXT does not inherit its parent's list), then
+		// BeginTable( key ) and every value by index 1.. until the first miss, all pushed (FUN_31f8b860), zeros
+		// included. Consumer: CX2DamageManager::DamageData::JuneIsAttackTrigger (June 32610fb0).
+		pDamageData->m_vecAdditionalAttackTriggerType.clear();
+		if( luaManager.BeginTable( "ADDITIONAL_ATTACK_TRIGGER_TYPE" ) == true )
+		{
+			int iIndex = 1;
+			int iTriggerType = 0;
+			while( luaManager.GetValue( iIndex, iTriggerType ) == true )
+			{
+				pDamageData->m_vecAdditionalAttackTriggerType.push_back( iTriggerType );
+				++iIndex;
+			}
+			luaManager.EndTable();
+		}
+
+		// June2017 FUN_32632390 @3263d405-3263db70: DAMAGE_TRIGGER_DATA, a list of positional sub-tables
+		// (FUN_32fe99b0 = BeginTable( index ), index 1.. until the first miss). Each entry that opens is pushed
+		// (FUN_3207b5d0), whatever its fields: ATTACK_TRIGGER_TYPE and BUFF_TEMPLET_ID as an int that is 0 on a
+		// miss (@3263d5ed-3263d5fc, @3263d758-3263d768), POWER_RATE 1.0 on a miss (fld1 @3263d865),
+		// POWER_RATE_ACCUMULATION_MULTIPLIER 0.0 on a miss (fldz @3263db2b). The vector is emptied first (@3263d40f).
+		// Consumer: CX2GameUnit::JuneApplyMultipleDamageByDebuff (June 3227c940, from GetFinalDamage).
+		pDamageData->m_vecDamageTriggerData.clear();
+		if( luaManager.BeginTable( "DAMAGE_TRIGGER_DATA" ) == true )
+		{
+			int iEntryIndex = 1;
+			while( luaManager.BeginTable( iEntryIndex ) == true )
+			{
+				JuneDamageTriggerData kEntry;
+				LUA_GET_VALUE( luaManager, "ATTACK_TRIGGER_TYPE",					kEntry.m_iAttackTriggerType,				0 );
+				LUA_GET_VALUE( luaManager, "BUFF_TEMPLET_ID",						kEntry.m_iBuffTempletID,					0 );
+				LUA_GET_VALUE( luaManager, "POWER_RATE",							kEntry.m_fPowerRate,						1.f );
+				LUA_GET_VALUE( luaManager, "POWER_RATE_ACCUMULATION_MULTIPLIER",	kEntry.m_fPowerRateAccumulationMultiplier,	0.f );
+				pDamageData->m_vecDamageTriggerData.push_back( kEntry );
+				++iEntryIndex;
+				luaManager.EndTable();
+			}
+			luaManager.EndTable();
+		}
+
+		// June2017 FUN_32632390 @3263e8d7-3263ead2: DAMAGE_TRIGGER_CONDITION, int, default -1, to DamageData +0x5ac.
+		// No reader anywhere in June's .text and no June script sets it (funcmap row 3263e8d7), so plan rule 5:
+		// parsed, stored, logged once per templet when set, no behaviour.
+		LUA_GET_VALUE( luaManager, "DAMAGE_TRIGGER_CONDITION",	pDamageData->m_iDamageTriggerCondition,	-1 );
+		if( -1 != pDamageData->m_iDamageTriggerCondition )
+			JuneDamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"DAMAGE_TRIGGER_CONDITION", L"damage-trigger condition reader (none in June)", pDamageData->m_iDamageTriggerCondition );
+
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		if( false == pDamageData->m_vecAdditionalAttackTriggerType.empty() || false == pDamageData->m_vecDamageTriggerData.empty() )
+			JuneDamageDataTriggerParsed( pwszJuneTemplet, pTableName,
+				static_cast<int>( pDamageData->m_vecAdditionalAttackTriggerType.size() ), static_cast<int>( pDamageData->m_vecDamageTriggerData.size() ) );
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 		luaManager.EndTable();

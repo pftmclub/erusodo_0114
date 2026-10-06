@@ -736,6 +736,15 @@ public:
 		bool			m_bTraceUnitDieDeleteEffectSet;				// trace하던 유닛이 죽으면 그 이펙트를 지운다.
 #endif //TRACE_UNIT_DIE_DELETE_EFFECTSET
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		/// June2017 EffectSetInstance +0x130 (a std::wstring, ctor 321df230 @321df42c): the trace target's nearest collision
+		/// frame name, stored by TRACE_NEAREST_BONE (321da350). While it is non-empty, GetEffectPosition and
+		/// GetEffectPositionByBoneName take the trace target's bone of that name instead of the effect's own bone.
+		/// Effect completion C5. Instances are never reused, so there is no reset path.
+		std::wstring					m_wstrTraceNearestBone;
+		bool JuneSetTraceNearestBone( IN const D3DXVECTOR3& vPos_, IN CX2GameUnit* pTraceUnit_ );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+
 #ifdef SERV_PET_SYSTEM
 		CX2PET *m_pPet;
 #endif

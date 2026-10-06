@@ -4642,6 +4642,17 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPosition( EffectData* pEff
 
 			if( null != m_optrTraceTargetGameUnit )
 			{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+				// June2017 GetEffectPosition 321dcd30 @321dceaa-321dcedd (effect completion C5): with a trace target and a
+				// non-empty TRACE_NEAREST_BONE name (instance +0x130), the position is the trace target's bone of that name
+				// (unit vslot 0x80 = GetBonePos( name, out )) instead of the effect's own BONE_NAME / weapon bone / unit
+				// position below; the offset (SetEffectSetOffset, 321d9820 @321dcf61) follows as for the others.
+				if( false == m_wstrTraceNearestBone.empty() )
+				{
+					m_optrTraceTargetGameUnit->GetBonePos( m_wstrTraceNearestBone.c_str(), vPos );
+				}
+				else
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 				if( false == pEffectData->m_PositionBoneName.empty() )
 				{
 					if( 0 == pEffectData->m_PositionBoneName.compare( L"_HEAD_BONE" ) )
@@ -6213,6 +6224,15 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPositionByBoneName( IN Eff
 
 			if( null != m_optrTraceTargetGameUnit )
 			{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+				// June2017 321dd590 @321dd6d5-321dd706 (effect completion C5): the TRACE_NEAREST_BONE name (instance +0x130),
+				// when set, replaces the bone name asked for: bBoneFound_ is that bone's GetBonePos result (no head-bone case).
+				if( false == m_wstrTraceNearestBone.empty() )
+				{
+					bBoneFound_ = m_optrTraceTargetGameUnit->GetBonePos( m_wstrTraceNearestBone.c_str(), vPos );
+				}
+				else
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 				// @ 321dda83-321ddb21: the trace target's bone (unit vfunc 0x80 = GetBonePos( name, out ), as
 				// GetEffectPosition's MODIFY_GET_BONE_POS call); no head-bone fallback
 				if( 0 == wstrBoneName_.compare( L"_HEAD_BONE" ) )
@@ -6270,6 +6290,38 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPositionByBoneName( IN Eff
 	return vPos;
 }
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+/** @function : JuneSetTraceNearestBone
+	@brief : June 321da350 (thiscall on the instance; args the main effect's position and the trace unit; RET 8; bool).
+			 Needs the instance's templet with a non-empty effect list (+0x80, +0x1c/+0x20) and a unit. The name is the
+			 unit's nearest collision frame to vPos_ (32278580); an empty name is a miss (31c1c1a0 compare with L"",
+			 false). Else it is stored in +0x130 (31f54910 = std::wstring::assign) and the result is true.
+			 Called from CEffect::AttackResult's RT_CREATE_EFFECT_SET case (31f85910 @31f8679f-31f867ad).
+*/
+bool CX2EffectSet::EffectSetInstance::JuneSetTraceNearestBone( IN const D3DXVECTOR3& vPos_, IN CX2GameUnit* pTraceUnit_ )
+{
+	if( NULL == m_pEffectSetData || true == m_pEffectSetData->m_vecpEffectData.empty() || NULL == pTraceUnit_ )
+		return false;
+
+	const std::wstring wstrNearestBone = pTraceUnit_->JuneGetNearestCollisionFrameName( vPos_ );
+	if( true == wstrNearestBone.empty() )
+		return false;
+
+	m_wstrTraceNearestBone = wstrNearestBone;
+
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if( s_iLogged < 20 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX trace_nearest_bone set=%s bone=%s pos=(%.0f,%.0f,%.0f)",
+			m_pEffectSetData->m_wstrEffectSetName.c_str(), wstrNearestBone.c_str(), vPos_.x, vPos_.y, vPos_.z );
+	}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 #ifdef SERV_9TH_NEW_CHARACTER // ±Ë≈¬»Ø
 /** @function	: SetPos

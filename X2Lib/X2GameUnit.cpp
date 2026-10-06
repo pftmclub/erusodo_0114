@@ -1,6 +1,9 @@
 
 #include "StdAfx.h"
 #include ".\x2gameunit.h"
+#if defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_DAMAGEDATA && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 
 const double CX2GameUnit::RANDOM_SEED_RESET_TIME = 0.3;
 
@@ -3602,6 +3605,13 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	// 최종데미지가 0보다 작다면 0으로 보정
 	if( fFinalDamage <= 0.f )
 		fFinalDamage = 0.f;
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+	// June2017 GetFinalDamage 32284aa0 @322869b2 (effect completion C5): right after the damage <= 0 clamp
+	// (@32286995-322869a8), 3227c940 multiplies the damage by the attacker's DAMAGE_TRIGGER_DATA rate for
+	// DTT_MULTIPLE_DAMAGE_BY_DEBUFF, scaled by this (the defender's) stack count of the entry's buff.
+	JuneApplyMultipleDamageByDebuff( fFinalDamage, *pAttDamageData );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 	
 #ifdef APPLY_THEMIDA
 	ENCODE_END
@@ -3617,6 +3627,74 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	return fFinalDamage;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+/** @function : JuneApplyMultipleDamageByDebuff
+	@brief : June 3227c940 (called only from GetFinalDamage @322869b2; ECX = the defender, args &damage, DamageData).
+			 e = the DamageData's DAMAGE_TRIGGER_DATA entry for type 40 (June Enum.lua DTT_MULTIPLE_DAMAGE_BY_DEBUFF,
+			 found by 32610e60). Without one nothing happens. n = this unit's GetBuffAccumulationCountNow( e.BUFF_TEMPLET_ID )
+			 (3227bbc0); n <= 0 leaves the damage alone (jle @3227c964). Else rate = POWER_RATE, or, when
+			 POWER_RATE_ACCUMULATION_MULTIPLIER is above 0 (fcomp 0.0 then test ah,0x41 / jne @3227c96f-3227c97b: st0 is the
+			 multiplier, so it skips on <= 0 and on NaN), ( POWER_RATE - 1 ) * ( n - 1 ) * MULT + POWER_RATE;
+			 damage *= rate. The arithmetic is x87 (double 1.0 @334355b0, 0.0 @334350e8), so it is done in double and
+			 rounded to float once, at the store (@3227c994).
+*/
+void CX2GameUnit::JuneApplyMultipleDamageByDebuff( IN OUT float& fDamage_, IN const CX2DamageManager::DamageData& damageData_ )
+{
+	const int JUNE_DTT_MULTIPLE_DAMAGE_BY_DEBUFF = 40;
+	const CX2DamageManager::JuneDamageTriggerData* pEntry = damageData_.JuneFindDamageTriggerData( JUNE_DTT_MULTIPLE_DAMAGE_BY_DEBUFF );
+	if ( NULL == pEntry )
+		return;
+
+	const int iCount = GetBuffAccumulationCountNow( static_cast<BUFF_TEMPLET_ID>( pEntry->m_iBuffTempletID ) );
+	if ( iCount <= 0 )
+		return;
+
+	double dRate = static_cast<double>( pEntry->m_fPowerRate );
+	if ( 0.0 < static_cast<double>( pEntry->m_fPowerRateAccumulationMultiplier ) )
+		dRate = ( dRate - 1.0 ) * static_cast<double>( iCount - 1 ) * static_cast<double>( pEntry->m_fPowerRateAccumulationMultiplier ) + dRate;
+
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 20 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX trigger_data MULTIPLE_DAMAGE_BY_DEBUFF bti=%d count=%d power_rate=%.3f mult=%.3f rate=%.3f damage %.1f -> %.1f",
+			pEntry->m_iBuffTempletID, iCount, pEntry->m_fPowerRate, pEntry->m_fPowerRateAccumulationMultiplier, dRate,
+			fDamage_, static_cast<float>( static_cast<double>( fDamage_ ) * dRate ) );
+	}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+
+	fDamage_ = static_cast<float>( static_cast<double>( fDamage_ ) * dRate );
+}
+
+/** @function : JuneGetNearestCollisionFrameName
+	@brief : June 32278580 (this = the unit, OUT name, pos): the frame name of the collision point nearest vPos_
+			 (walks the collision list set, GetPointStart, strict <, from 99999; empty without collision data).
+*/
+std::wstring CX2GameUnit::JuneGetNearestCollisionFrameName( IN const D3DXVECTOR3& vPos_ ) const
+{
+	std::wstring wstrNearestFrame;
+	float fNearest = 99999.f;
+	const CKTDXCollision::CollisionDataListSet& AttackListSet = GetCollisionListSet();
+	BOOST_FOREACH( const CKTDXCollision::CollisionDataList* collisionDataList, AttackListSet )
+	{
+		if( NULL == collisionDataList )
+			continue;
+		BOOST_FOREACH( CKTDXCollision::CollisionData* collisionData, *collisionDataList )
+		{
+			if( NULL == collisionData )
+				continue;
+			const float fDist = GetDistance( vPos_, collisionData->GetPointStart() );
+			if( fDist < fNearest )
+			{
+				fNearest = fDist;
+				wstrNearestFrame = collisionData->m_FrameName;
+			}
+		}
+	}
+	return wstrNearestFrame;
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 void    CX2GameUnit::InitDeviceData::AppendToDeviceList( CKTDXDeviceDataList& listInOut_ ) const
 {
  	BOOST_TEST_FOREACH( const wstring&, strTexture, m_vecstrReadyTexture )

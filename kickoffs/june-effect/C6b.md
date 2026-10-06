@@ -87,6 +87,7 @@ These supersede the rebuild plan's Phase 10c text where they differ.
 - **`31f64c00` needs C5.**
   - It copies values 29/30 (`DTT_RCR_TRANSCENDENCE_*`, June-only, Rose) of the parent's `ADDITIONAL_ATTACK_TRIGGER_TYPE` list, unconditionally. Then, under `b65`, it copies `m_eDamageTrigger` and the whole list.
   - The list member is C5's, and so is any June DTT enumerator. `31f64c00` itself belongs to C6b (C5's kickoff says so). Run C6b after C5. For 29/30, use C5's enumerators if C5 added them; otherwise use literals with the June Enum.lua names in a comment, since March's enum ends at 6.
+  - **C5 landed (2026-10-06):** the member is `CX2DamageManager::DamageData::m_vecAdditionalAttackTriggerType` (`std::vector<int>`, cleared on every parse and by `SimpleInit`), and `32610fb0` is `DamageData::JuneIsAttackTrigger( int )`. C5 added no DTT enumerators: use literals 29/30 with the June Enum.lua names in a comment. `m_eDamageTrigger` is March's `+0x53c`.
 - **`+0xb64` writer (EffectSet).**
   - `OnFrameMove_CreateEffect @321ef6d5-321ef6d8` sets the damage effect's `m_bHyper` from `EffectSetInstance::m_bHyper`.
   - It sits right after the `USE_IS_RIGHT_WHEN_CREATE` block that Phase 4a ported (`X2EffectSet.cpp` ~:1088). Port it with the copy, so `X2EffectSet.cpp` is in Touches.

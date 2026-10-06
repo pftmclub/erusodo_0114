@@ -4891,6 +4891,15 @@ void CX2DamageEffect::CEffect::AttackResult()
 								pInstance->m_fDelayTime = pMeshInst->GetMaxLifeTime() - pMeshInst->GetNowLifeTime();
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+							// June2017 FUN_31f85910 @31f8678b-31f867ad (effect completion C5): TRACE_NEAREST_BONE, after the
+							// DELAYTIME write and before the m_bTraceUnitDieDeleteEffectSet copy (@31f867b2). With a trace unit
+							// and the main-effect mesh (ebp = the mesh instance GetMeshInstance returned, [ebp + 0x3f0] its
+							// position), 321da350 stores the trace unit's nearest collision frame onto the instance.
+							if( m_DamageData.m_bTraceNearestBone && NULL != pTraceUnit && NULL != pMeshInst )
+								pInstance->JuneSetTraceNearestBone( pMeshInst->GetPos(), pTraceUnit );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+
 							pInstance->m_bTraceUnitDieDeleteEffectSet = m_DamageData.m_bTraceUnitDieDeleteEffectSet;
 							pInstance->m_bCreateEffectSetTraceUnit = m_DamageData.m_bCreateEffectSetTraceUnit;
 
