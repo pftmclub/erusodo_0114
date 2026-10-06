@@ -874,6 +874,11 @@ the original gate stays in `#else`).
 
 **How to see it in game:** on Ranox_Field_00 (40029), kill a 5154-5158 monster. Look for one `[OFFLINE_GRADE] no-row drop: field 40029 monster 515x` line per monster ID. No `DROP` line for that ID, unless a quest item drops (a `QUEST`/quest-item grant line), and the `designed:` line as before.
 
+**Play-test PASSED 2026-10-06** (20:13-20:15, exe 7e41542e, `reyaa`; logs read, 0 EXCEPTION):
+- On field 40029, one `no-row drop:` line each for 5154, 5156, 5157, 5158 and 5160. 5160 is a newly seen row-less ID.
+- No `DROP` line for any of those kills, and no quest-item grant (no active collection quest).
+- `designed:` lines as before. uid 14 (5158) died at share 0.45 and correctly got `quest no`. Its reason text says "no field drop row" because the reason check tests the row first. With the designed flag on, the share is what decided it. This is log wording only, left as is.
+
 ## Reviews
 
 `1-review`, `2-review`, `3-review`: Opus 5.5 / high. Each checks its phase against the server
