@@ -686,6 +686,8 @@ into data036 as `FieldBonusDrop.src.lua`, with the manifest naming `FieldBonusDr
 - The game's `data036.kom` was extracted: its `FieldBonusDrop.lua` equals the compiled file and decompiles to 70 rows, all 99988 / 160712.
 - The load moved from the first middle-boss kill to the first field with monsters (`EnsureFieldLoaded`, flagged), so entering a field logs `loaded 70 row(s)`. Hygiene PASS. `DEPLOY OK: X2_offline.exe is 19,249,664 B, dated 2026-10-06 17:16:40, md5 cc4c40d04ea33ad87897343c342d9849, equal to X2/US_SERVICE/x2.exe (2026-10-06 17:16:35); built at mods/june-buff-port 0a4b694 + 1 uncommitted code file(s).`
 
+**Load check play-tested 2026-10-06 17:18 (exe cc4c40d0):** entering field 40000 logged `[OFFLINE_GRADE] 'FieldBonusDrop.lua' loaded 70 row(s)`, with no ERROR. The bonus drop at a middle-boss kill is still unseen.
+
 **How to see it** (tag `[OFFLINE_GRADE]`). Kill a field middle boss. First `'FieldBonusDrop.lua' loaded 70 row(s)`, then `field middle boss <id> bonus: contribution 0.xxx, 70070 + 70050 + 1 x 99988 + 1 x 160712`, with those four items on the floor.
 
 ### Phase 3b - Review
