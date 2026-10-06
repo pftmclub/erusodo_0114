@@ -967,3 +967,20 @@ each region nobody has looked at yet.
   byte and resolving its `rel32` found exactly 6 callers of `31f70330` and 6 of `31f83400`,
   pairing 1:1 — confirming the pairing generalizes rather than trusting the handful of call sites
   the decompile happened to surface.
+- **Effect C2 (2026-10-06): three ways an identification went wrong before, and how C2 avoided them.**
+  - *A displacement hit that decodes as `mov esi, 0x570` is a misaligned real read.* `dispsweep.py` picks
+    the first start that decodes, so re-decode 2-4 bytes earlier: `329f64b2` is `cmp byte ptr [esi+0x570], 1`
+    @`329f64b1`, the CAN_ACTIVATE_NASOD_ARMOR_COMBO reader. Byte-level re-decode found it when the sweep's
+    listing showed nothing.
+  - *Name an offset from its getter destination before naming its reader.* The buff port read DD+0x618 as a
+    DAMAGE_DATA_KEY_NAME index. `sdd_walk.py --compact <KEY>` shows it is DIVISION_NUM. The `--all` dump is
+    regex-able for a key-to-offset table, but take each offset from that key's own block: a default store or
+    stack temp can sit there too.
+  - *An inlined or restructured March function is found by its literals, not by a member offset.*
+    Process_ExtraDamage's `+0x151` scan was noise because the field is `ExtraDamageData +0x101`. Searching the
+    image for March's own UTF-16 literals (`DAMAGE_EFFECT_EDT_FIRE_WRAITH`, ...) and resolving their absolute
+    refs found `32034e50`/`327995c0` at once. The same `"MP -"` literal led to the wrong functions
+    (DRAIN_MP_REACT), so check which March branch the literal belongs to.
+  - *A census row "other-func" is a name match, not a reader.* `DESC`/`NAME`/`VERSION` in `32378e20`/`32680da0`
+    belong to AddNPCTemplet/AddNextStepPackage. Resolve the bind name in `31d95080` (the decrypted name just
+    before the `push <handler>`) before assigning a file to a function.

@@ -111,7 +111,7 @@ no reader for it at all. It is a separate port item.
 | Numerical skill data | absent | every June character (section 1) | build it (section 1) |
 | Natural force | code exists, gated off: `ADD_RENA_SYSTEM` is **off** under `US_SERVICE` | Rena (`Lire_ElvenRanger`, 77 `NATURAL_FORCE_TYPE` uses) | **a decision for you:** turn `ADD_RENA_SYSTEM` on (the studio's own Rena code, untested in this build) or leave Rena without natural force. Phase 8c's read steps aside by itself when the flag is on |
 | Applied skill ID | absent: its June readers (`ParsingBuffFactorID`'s `_ULTIMATE` gate `31fcf3e0`; the numerical override) have no March counterpart | every character (167 uses) | comes with the numerical-data work and 8b group 2. The "absent" verdict depends on 8b identifying `31fcf3e0`; if it turns out to be March's memo path, revisit it |
-| Combination point | absent | Lu/Ciel (`Luciel_Duo` ×6) | new-character system |
+| Combination point | absent | Lu/Ciel (`Luciel_Duo` ×6) | new-character system; **handed off here by effect C2/D5 (2026-10-06)**: reader `CX2GULuciel` `32b14bc0` (DD `+0x594` > 0, then `32b14860`), see `funcmap.tsv` |
 | Rose weapon | absent: no `UT_ROSE`; `CX2Unit::UNIT_TYPE` ends at `UT_ADD` | Rose (every `Rose_*` script) | new-character system, plus the unit type itself |
 | Lu/Ciel duo | absent (no `DUO_TYPE` enum) | Lu/Ciel, plus `CharCustomData`, `EmotionData`, `EventScene*`, `UnitViewerEffectSetTable` | new-character system |
 

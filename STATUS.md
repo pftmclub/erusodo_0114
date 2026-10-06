@@ -96,22 +96,22 @@ today's Sonnet 5.5.
 | C1a | queued | Opus 5.5 / high | C0 | `funcmap.tsv` (no code) | `C1a.md` |
 | C1b | blocked | Sonnet 5.5 / high | C1a | X2DamageManager.cpp (SetDamageDataFromLUA), a new table loader, NewSkillTempletVer2.lua (user packs), MODS.md | `C1b.md` |
 | C1b review | blocked | Opus 5.5 / high | C1b | - | `C1b-review.md` |
-| C2 | queued | Opus 5.5 / high | - | `funcmap.tsv`, `june2017_re/README.md` (no code) | `C2.md` |
-| C3 | blocked | Sonnet 5.5 / high | C2 | X2DamageManager.cpp, consumers in X2DamageEffect.cpp / X2GameUnit.cpp | `C3.md` |
+| C2 | done 2026-10-06: 29 funcmap rows; DIVISION = buff-apply gate (row 1134 corrected), DAMAGE_SKILL_ID -> C1b, KEY_NAME -> C9, C5 group 2 already ported, ES.Description declined; D5 = handed off to the Lu/Ciel port; DIVISION gate follows June (buff-react apply stub) | Opus 5.5 / high | - | `funcmap.tsv`, `june2017_re/README.md` (no code) | `C2.md` |
+| C3 | queued (C2 done) | Sonnet 5.5 / high | C2 | X2DamageManager.cpp, consumers in X2DamageEffect.cpp / X2GameUnit.cpp | `C3.md` |
 | C3 review | blocked | Opus 5.5 / high | C3 | - | `C3-review.md` |
-| C4 | blocked | Sonnet 5.5 / high | C2 | X2DamageManager.cpp, X2GameUnit.cpp (GetFinalDamage), X2GUAdd.cpp | `C4.md` |
+| C4 | queued (C2 done) | Sonnet 5.5 / high | C2 | X2DamageManager.cpp, X2GameUnit.cpp (GetFinalDamage), X2GUAdd.cpp | `C4.md` |
 | C4 review | blocked | Opus 5.5 / high | C4 | - | `C4-review.md` |
-| C5 | blocked | Sonnet 5.5 / high | C2 (+ coordinate with june-buff) | X2DamageManager.cpp, X2DamageEffect.cpp | `C5.md` |
+| C5 | queued (C2 done) | Sonnet 5.5 / high | C2 (+ coordinate with june-buff); 8b close-out also waits for C9 + C1b (C2) | X2DamageManager.cpp, X2DamageEffect.cpp | `C5.md` |
 | C5 review | blocked | Opus 5.5 / high | C5 | - | `C5-review.md` |
 | C6a | queued (identification started 2026-09-29) | Opus 5.5 / high | - | `funcmap.tsv` (no code) | `C6a.md` |
 | C6b | blocked | Sonnet 5.5 / high | C6a | X2DamageEffect.cpp (CEffect, hit/die spawners) | `C6b.md` |
 | C6b review | blocked | Opus 5.5 / high | C6b | - | `C6b-review.md` |
 | C7 | blocked | Sonnet 5.5 / high | C6b | X2DamageEffect.cpp, KTDXLIB/KTDGXMeshPlayer.h (CXMeshInstance) | `C7.md` |
 | C7 review | blocked | Opus 5.5 / high | C7 | - | `C7-review.md` |
-| C8a | blocked | Opus 5.5 / high | C2 | `funcmap.tsv`, a port list in the plan (no code) | `C8a.md` |
+| C8a | queued (C2 done) | Opus 5.5 / high | C2 | `funcmap.tsv`, a port list in the plan (no code) | `C8a.md` |
 | C8b | blocked | Sonnet 5.5 / high | C8a, C1b | X2DamageEffect.cpp (hit paths), X2GameUnit.cpp, X2GUUser.cpp, X2GUNPC.cpp, per-class X2GU*.cpp (SetDamageExceptionProcess) | `C8b.md` |
 | C8b review | blocked | Opus 5.5 / high | C8b | - | `C8b-review.md` |
-| C9 | blocked | Sonnet 5.5 / high | C2 | X2Main.cpp (bindings), X2DamageManager.cpp, data036 staging (user packs) | `C9.md` |
+| C9 | queued (C2 done) | Sonnet 5.5 / high | C2 | X2Main.cpp (bindings), X2DamageManager.cpp, data036 staging (user packs) | `C9.md` |
 | C9 review | blocked | Opus 5.5 / high | C9 | - | `C9-review.md` |
 | C10a | blocked | Opus 5.5 / high | C0 (D2-D5), C2 | `funcmap.tsv` (no code) | `C10a.md` |
 | C10b | blocked | Sonnet 5.5 / high | C10a | per decided system (game option UI/save, damage path) | `C10b.md` |

@@ -24,6 +24,11 @@ make CP949 edits, run a unifdef or read logs by hand, use `tools/build.py --depl
 skill's Tools and Finish lists). Never launch X2_offline.exe; ask the user. Ghidra work uses the
 `ghidra` skill; identification verdicts go into `june2017_re/funcmap.tsv`.
 
+## C2 findings (2026-10-06; rows tagged "Effect C2" in `june2017_re/funcmap.tsv`)
+
+- **`DAMAGE_SKILL_ID`** (DD+0x5cc) is the NUMERICAL_DATA override's skill-id fallback: `APPLIED_SKILL_ID ? APPLIED_SKILL_ID : DAMAGE_SKILL_ID` @`3263fee4`-`3263fefc`.
+- The `DAMAGE_DATA_KEY_NAME` record (C9) is applied @`3263edee`, before the override @`3263fe41`. The override therefore wins where both apply.
+
 ## Task
 
 **Census contract (C0, 2026-10-05):** `census.py` counts the numerical-data source as landed when
