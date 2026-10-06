@@ -4921,7 +4921,9 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **Play-test (2026-10-06, user: passed; exe f42d59d2).** Logs: `June SocketOptionForm.lua curves loaded`; `designed attack range (not June): 10% … (first user: physic 115.9, magic 95.3)`; `first damage roll (physic): base 1159, range 115.9, maximize 0 -> 1155.33`; no `is rank-linked` / `must not both be set` (March data). Out of scope: 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ`.
 
-**Open for the user.** Before 16-data: accept the window above (185 rank-linked sockets without stats, about 280 conditional buffs inert until 16-step3b), or move 16-step3b items 7-8 ahead of 16-data. /cost not available in-session.
+**Decision (user, 2026-10-06): accept the window.** 16-data runs next; 16-step3b does items 7-8 (conditional buffs, rank scaling) first.
+
+**Was open for the user.** Before 16-data: accept the window above (185 rank-linked sockets without stats, about 280 conditional buffs inert until 16-step3b), or move 16-step3b items 7-8 ahead of 16-data. /cost not available in-session.
 
 ## Critical files
 

@@ -61,12 +61,13 @@ and step 2's per-type lines.
 
 ## From the 16 review (2026-10-06)
 
-- **Ask the user first** (the Review note's open question): adopting June's file makes 185
+- **Decided (user, 2026-10-06): accept the window, run 16-data now**; 16-step3b does items 7-8 first.
+  Adopting June's file makes 185
   rank-linked sockets live (120 rank, 65 PVE), whose stats stay out until 16-step3b item 8
   decodes the scaling (their enchant and skill level-up do apply since the review's fix 1), and
   about 280 `+0x29c` sockets whose buff factor is withheld (June sets the HAMEL byte for them) until
-  16-step3b item 7. Either accept that window or run 16-step3b items 7-8 first. None of the save's
-  13 socket IDs is in either set.
+  16-step3b item 7. None of the save's 13 socket IDs is in either set; say in the Done note whether
+  the save's items now carry any of them.
 - The play-test log line for those sockets is now `socket %d is rank-linked (...): June's rank
   scaling is not ported, its stats are not applied (enchant and skill level-up are)`.
 - SIEE 13 (`SIEE_BUFF_WHEN_SUCCESS_ATTACK`) and 17 (`SIEE_BUFF_PERIODICALLY`): June's loader routes

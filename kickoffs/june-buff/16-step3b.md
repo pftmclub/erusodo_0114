@@ -18,6 +18,10 @@ python tools/docsection.py JUNE_BUFF_PORT_PHASES.md "Phase 1c, item 4" "Phase 8 
 
 ## Task
 
+**Order (user decision 2026-10-06, 16 review): do items 7 and 8 first**, in that order, each
+in its own commit; then 1-6, 9 and 10. 16-data adopted June's OptionItemData with the window open:
+until 7-8 land, about 280 `+0x29c` sockets get no buff and 185 rank-linked sockets give no stats.
+
 Part 1 seeded every June-only option member and gave `CX2GameUnit` getters for each
 (`GetIncreaseDmgRateToBoss()`, `GetSocketAntiCriticalRate()`, ...). Nothing reads most of them
 yet. Port the readers from step 1's "Readers of each June-only field" table, one commit per
@@ -43,8 +47,8 @@ be settled from the disassembly stays dormant with one `[JUNE_BUFF]` line and is
    March: port the map as June has it and report the 2nd/3rd-SA cuts as dormant.
 7. The `+0x29c` conditional-buff list: NPC-kill hook `322d6f20` (from `CX2Game` `3230b7b0`) and the
    HP-rate reader in `CX2GUUser::CommonStateStart @32060c3e` (**decode**).
-8. Rank-linked scaling in `SumSocketOption` (`31edfe70` / `31edfeb0`; part 1 skips such sockets
-   with a log line): decode, then replace the skip.
+8. Rank-linked scaling in `SumSocketOption` (`31edfe70` / `31edfeb0`; since the 16 review only the
+   stat part of such a socket is left out, with a log line): decode, then replace that skip.
 9. The loader keys part 1 left out (listed in its Done note): find a reader for each or record
    "no reader".
 10. **BFT_AURA's socket side** (owned by Phase 16 since Phase 8): SIEE 12-20 (the enum values land in
@@ -54,9 +58,9 @@ be settled from the disassembly stays dormant with one `[JUNE_BUFF]` line and is
     `m_vecConditionalBuff`, `m_bAlwaysPlayEffectSet`), and `CX2GUUser::HasSocketAuraFor`'s inner
     loop (slot 181, `3204e380`).
 
-Count the reach of each reader on March's live socket data before building (part 1 found no March
-socket that sets any June-only key, so most readers are dormant until the user adopts June's
-`OptionItemData.lua`; say so per reader). Port June's whole function wherever it differs; cite
+Count the reach of each reader on the socket data the game loads after 16-data (June's
+`OptionItemData.lua`; part 1 found no March socket that sets any June-only key) before building,
+and say it per reader. Port June's whole function wherever it differs; cite
 June addresses; byte-level CP949 edits.
 
 ## From the 16 review (2026-10-06)
