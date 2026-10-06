@@ -5492,7 +5492,7 @@ No new JUNE_BUGS rows: none found.
 - As expected there is no `first socket effect fired` line, because no equipped socket on the save has an SIEE type.
 
 **Decisions (user, 2026-10-06: "follow June"; moved to the effect plan the same day, user).**
-1. The effect-set buff list (`321e3650` / `+0x160` / `321ee480`) goes to **june-effect C6a2** (identify) and **C6b** (port).
+1. The effect-set buff list (`321e3650` / `+0x160` / `321ee480`) goes to **june-effect C6a2** (identify) and **C6b** (port). (Port moved to C6c by C6a2, 2026-10-07.)
    - C6b also replaces SIEE 15's `unsupported (effect-set buff list…)` line in `ProcessSocketEffectEx` with the attach.
    - Both kickoffs carry this phase's decode. The class-code callers go to checklist 7a.
 2. June's socket-effect effect sets, damage effects and meshes come with the effect plan's re-adoption of June's effect files.

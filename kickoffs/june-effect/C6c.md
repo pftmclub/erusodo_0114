@@ -69,7 +69,7 @@ never port an offset.
 6. **JUNE_FX** (under `SERV_IRUHADEV_JUNE_FX_DEBUG`, throttled): one line per attach (handle, BFI, level) and one per
    consumer run (entries, the BFI kept).
 
-**Done gate:**
+**Done gate** (write the note as `### C6c - Done` under C6; `C6c-review.md` reads that heading):
 - flagcheck passes and the build deploys;
 - the `[JUNE_FX]` attach line is in the deployed exe's strings;
 - `MODS.md` is updated, plus the key matrix if it has a row for this (no census or matrix row tracked the effect-set buff list as of C6a2);

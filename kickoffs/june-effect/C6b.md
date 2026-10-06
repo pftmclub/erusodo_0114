@@ -95,9 +95,11 @@ These supersede the rebuild plan's Phase 10c text where they differ.
 - **Expected play-test.**
   - No March code sets any gate flag (all setters are Add, Eve, Rose, Elsword and Ain class code: see the checklist section 7 addendum), and every entry's rate is 1.0. So the play-test can only show that the tail runs and changes nothing.
   - **The one check that can fail:** `m_iIndex` now reaches hit, CREATE and RT_CREATE children, and Rena Night Watcher looks up her effects by index (`CheckDamageEffectType`, arrow detonation). Play a Night Watcher with Arrow of Explosion, Delayed Firing and Explosion Trap, the skills whose effects have hit children. Look for detonations behaving as before, and nothing triggering twice. That is June parity, but it is the one place a regression would show.
-  - Two things do change, in both cases the same as June:
+  - Four things do change, in every case the same as June:
     - Hit and CREATE children now inherit the parent's `m_iIndex`, as die children already did.
     - The `m_bHyper` flag is carried down.
+    - (C6a2) Every EffectSet-made damage effect gets `m_iIndex` 0 instead of -1 (safe: see "C6a2 findings" item 6).
+    - (C6a2) Its `m_iJuneAttackerStateID` is the owner's state when the set was **played**, not when the effect was created. The only reader is buff 9b's Sinister Mind seed (`X2BuffTemplet.cpp:2406`, BTI 767), which only June class code applies, so this is inert in March data.
   - The `JUNE_FX` line should print the entry rate, the four gate flags and the index per spawn, throttled.
 
 ## C6a2 findings (2026-10-07; rows tagged `Effect C6a2` in `june2017_re/funcmap.tsv`)
@@ -116,9 +118,8 @@ the children, so splitting it would leave a flag state that matches neither Marc
    - `JuneStampEffectSetIndex( EffectSetInstance* )`: June vslot `0x248` `3226e220`, base no-op.
    - `GetJuneDamageEffectIndex() const`: June vslot `0x2e0` `31abe300`, base `return -1`.
    - The Luciel and Ain overrides go to checklist 7a.
-   - `EffectSetInstance` is nested in `CX2EffectSet`, so it cannot be forward-declared. If `X2GameUnit.h` cannot see
-     `X2EffectSet.h`, declare the parameter as `void*` and cast in the (future) overrides, with a comment. Do not change
-     the call order to dodge it.
+   - `X2GameUnit.h` already sees `CX2EffectSet` (it holds `CX2EffectSet::Handle` members), so declare the parameter as
+     `CX2EffectSet::EffectSetInstance*`.
 3. **`PlayEffectSet`, the game-unit overload** (`X2EffectSet.cpp:3142`):
    - After the `m_vScale` / `GIANT_UNIT_GIANT_EFFECT_TEST` block and before `m_bCustomPosition`:
      `pGameUnit->JuneStampEffectSetIndex( pEffectSetInstance )` (`@321e2029-321e2033`).
