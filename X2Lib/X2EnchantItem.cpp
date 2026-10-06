@@ -355,6 +355,25 @@ CX2DamageManager::EXTRA_DAMAGE_TYPE CX2EnchantItem::GetExtraDamageType( const st
 // aAttribEnchant : CX2EnchantItem::ENCHANT_TYPEÀÇ ¹è¿­
 CX2DamageManager::EXTRA_DAMAGE_TYPE CX2EnchantItem::GetExtraDamageType( const CX2EnchantItem::ItemEnchantedAttribute& enchantedAttribute )
 {
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	// June 32707ce0: the combined type is the sum of each slot's element value. June loops over 4 slots,
+	// March items have 3. A sum that names no EDT (for example blaze + piercing + shock) is returned as is,
+	// as in June; March mapped that one to EDT_ENCHANT_BLAZE_PIERCING.
+	int iJuneComposedEDT = 0;
+	for ( int iJuneSlot = 0; iJuneSlot < ARRAY_SIZE( enchantedAttribute.m_aEnchantedType ); iJuneSlot++ )
+	{
+		switch( enchantedAttribute.m_aEnchantedType[iJuneSlot] )
+		{
+		case CX2EnchantItem::ET_BLAZE:	iJuneComposedEDT += CX2DamageManager::EDT_ENCHANT_BLAZE;	break;
+		case CX2EnchantItem::ET_WATER:	iJuneComposedEDT += CX2DamageManager::EDT_ENCHANT_FROZEN;	break;
+		case CX2EnchantItem::ET_NATURE:	iJuneComposedEDT += CX2DamageManager::EDT_ENCHANT_POISON;	break;
+		case CX2EnchantItem::ET_WIND:	iJuneComposedEDT += CX2DamageManager::EDT_ENCHANT_PIERCING;	break;
+		case CX2EnchantItem::ET_LIGHT:	iJuneComposedEDT += CX2DamageManager::EDT_ENCHANT_SHOCK;	break;
+		case CX2EnchantItem::ET_DARK:	iJuneComposedEDT += CX2DamageManager::EDT_ENCHANT_SNATCH;	break;
+		}
+	}
+	return (CX2DamageManager::EXTRA_DAMAGE_TYPE) iJuneComposedEDT;
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	int attribEnchantCount[CX2EnchantItem::ET_END] = { 0, };
 	for ( int i = 0; i < ARRAY_SIZE( enchantedAttribute.m_aEnchantedType) ; i++ )
 	{
@@ -559,6 +578,7 @@ CX2DamageManager::EXTRA_DAMAGE_TYPE CX2EnchantItem::GetExtraDamageType( const CX
 
 
 	return CX2DamageManager::EDT_NONE;
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 }
 
 
@@ -1589,10 +1609,222 @@ int	CX2EnchantItem::GetRequireEDFactor( int iItemGrade )
 			return 2;
 		} break;
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	// June buff port Phase 15: June 32708080's cases March lacks (4-slot types), then June's default.
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_BLAZE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_FROZEN_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_POISON_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_PIERCING_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_SHOCK_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_SNATCH_MASTER:
+		{
+			eDecomposedEDT1 = eComposedEDT;
+			eDecomposedEDT2 = CX2DamageManager::EDT_NONE;
+			return 1;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_PIERCING:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_PIERCING;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_PIERCING:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_PIERCING;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SHOCK:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_SHOCK;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SHOCK:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_SHOCK;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SNATCH:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_SNATCH;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SNATCH:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_SNATCH;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_PIERCING:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_PIERCING;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SHOCK:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_SHOCK;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SNATCH:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_SNATCH;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_PIERCING:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_BLAZE_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_MASTER_PIERCING;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_PIERCING:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_FROZEN_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_MASTER_PIERCING;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_PIERCING:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_POISON_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_MASTER_PIERCING;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SHOCK:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_BLAZE_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_MASTER_SHOCK;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SHOCK:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_FROZEN_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_MASTER_SHOCK;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SHOCK:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_POISON_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_MASTER_SHOCK;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SNATCH:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_BLAZE_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_MASTER_SNATCH;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SNATCH:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_FROZEN_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_MASTER_SNATCH;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_BLAZE:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_BLAZE;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_PIERCING;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_FROZEN:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_FROZEN;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_PIERCING;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_POISON:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_POISON;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_PIERCING;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SNATCH:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_POISON_MASTER;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_MASTER_SNATCH;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_BLAZE:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_BLAZE;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SHOCK;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_FROZEN:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_FROZEN;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SHOCK;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_POISON:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_POISON;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SHOCK;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_BLAZE:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_BLAZE;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SNATCH;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_FROZEN:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_FROZEN;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SNATCH;
+			return 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_POISON:
+		{
+			eDecomposedEDT1 = CX2DamageManager::EDT_ENCHANT_POISON;
+			eDecomposedEDT2 = CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SNATCH;
+			return 2;
+		} break;
+
+	default:
+		{
+			// June: an unknown value keeps the caller's eDecomposedEDT1 and returns 2 with the rest in
+			// eDecomposedEDT2 (March asserted and returned 0). Kept verbatim, JUNE_BUGS.md.
+			eDecomposedEDT2 = (CX2DamageManager::EXTRA_DAMAGE_TYPE)( (int)eComposedEDT - (int)eDecomposedEDT1 );
+			return 2;
+		} break;
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	default:
 		{
 			ASSERT( !"NO" );
 		} break;
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	}
 
 	return 0;
@@ -1654,6 +1886,33 @@ CX2DamageManager::EXTRA_DAMAGE_TYPE CX2EnchantItem::GetBaseExtraDamageType( CX2D
 			return CX2DamageManager::EDT_ENCHANT_SNATCH;
 		} break;
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	// June buff port Phase 15: June 327087e0's 4-slot cases (the rest equal March's).
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_BLAZE_MASTER:
+		{
+			return CX2DamageManager::EDT_ENCHANT_BLAZE;
+		} break;
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_FROZEN_MASTER:
+		{
+			return CX2DamageManager::EDT_ENCHANT_FROZEN;
+		} break;
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_POISON_MASTER:
+		{
+			return CX2DamageManager::EDT_ENCHANT_POISON;
+		} break;
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_PIERCING_MASTER:
+		{
+			return CX2DamageManager::EDT_ENCHANT_PIERCING;
+		} break;
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_SHOCK_MASTER:
+		{
+			return CX2DamageManager::EDT_ENCHANT_SHOCK;
+		} break;
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_SNATCH_MASTER:
+		{
+			return CX2DamageManager::EDT_ENCHANT_SNATCH;
+		} break;
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	default:
 		{
 			ASSERT( !"NO" );

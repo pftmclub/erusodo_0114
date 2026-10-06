@@ -5280,3 +5280,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              too (Handlers_Room.cpp PushNpcDrop).
 #define SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-06
+// Description: June buff port Phase 15 (JUNE_BUFF_PORT_PHASES.md): June's
+//              attribute-enchant system. Chunk A: EDT_ENCHANT_* renumbered to
+//              June's values (a combined type is the sum of its slots' element
+//              values; Enum.lua renumbered with it, they ship together), June's
+//              compose 32707ce0, decompose 32708080 and base type 327087e0.
+#define SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+//////////////////////////////////////////////////////////////////////////
