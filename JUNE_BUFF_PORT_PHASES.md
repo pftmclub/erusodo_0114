@@ -5140,7 +5140,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 ### Phase 16-step3b2 — Done, items 1-4 and 6 (2026-10-06, Opus 5.5 high)
 
-**Landed** under `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (first-apply lines under `_DEBUG`): `e002c27` items 1-2, `e002237` item 3a, `60fd058` items 4 and 6. Decodes: 19 `funcmap.tsv` rows tagged "Buff Phase 16-step3b2". **Split at the item boundary:** items 3b, 5 and the rest of 9 go to **16-step3b3**, and item 10 to **16-step3b4** (kickoffs written).
+**Landed** under `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (first-apply lines under `_DEBUG`): `e002c27` items 1-2, `e002237` item 3a, `60fd058` items 4 and 6, `fb92b03` the boss grade from the server packet + an anti-critical debug line. Decodes: 19 `funcmap.tsv` rows tagged "Buff Phase 16-step3b2". **Split at the item boundary:** items 3b, 5 and the rest of 9 go to **16-step3b3**, and item 10 to **16-step3b4** (kickoffs written).
 
 **Item 1, `GetFinalDamage`** (the x87 blocks were run under Unicorn).
 - User attacker only, after the pet-aura block (`@322852db`). Each term multiplies physic and magic attack by 1 + r:
@@ -5149,7 +5149,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
   - my-HP-few, as r × (1 − HP ratio).
 - Piercing (`@32285849`): DT_PHYSIC, DT_MAGIC and DT_MIX defence × (1 − min(r, 0.2)), before the piercing factor. DT_MIX scales each side before the average. The weapon types read no rate.
 - Damage to boss (`@32286519`): damage × the attacker's result.
-  - Boss means June templet `+0xdc` == 1, the monster grade that `323752f0` stores. Here it is the ExtraNPCStat port's `m_iExtraNPCStatMonsterGrade`, which only the battlefield paths set; the offline dungeon server sends no grade.
+  - Boss means June templet `+0xdc` == 1, the monster grade that `323752f0` stores, which is the server's `KNPCUnitReq::m_cMonsterGrade`. Here it is that packet value (`m_cJuneSocketMonsterGrade`, set by the battlefield constructor). Dungeon NPCs lose it at `AddNPCData`, and the offline servers send 0 or 2, so the boss terms are **dormant offline**. (A first version reused the ExtraNPCStat port's designed grade; it was replaced before hand-off as a stand-in nobody approved.)
   - June's Space-of-Thought route (`32863880`, custom event manager `+0x604`) has neither half in March.
 - My-HP-few defence (`@3228692c`): damage × (1 − r), before the clamp.
 
@@ -5157,7 +5157,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 - User reduction (`@32048845`), with an NPC attacker: + boss defence (boss attacker), − this user's own 52fc (when > 0). The sum is then capped at 1.0, as June does. 52fc's two roles are now settled: more attack, and more damage taken from monsters.
 - Critical chance: the attacker's rate + `32273480` is compared with a bare random (vslot `0x1cc` = `3208e0d0`).
   - `32273480` = panic (`+0x2b28`/`+0x2bc4` = `m_Panic`) − the anti-critical result − socket anti-critical × 0.01.
-  - Sign settled: March subtracted the terms from the random, so anti-critical **raised** the chance; June lowers it.
+  - Sign settled: March subtracted the terms from the random, so anti-critical **raised** the chance; June lowers it. June's data follows the new sign except `BFI_DEBUFF_PANIC_PANDEMONIUM` (49, +0.15), which now protects its target (JUNE_BUGS #53).
 - Critical damage (`GetJuneCriticalDamageRate`, both DamageReacts):
   - user attacker: + magic rate / half magic + half physic rate / physic rate, by damage type; + `m_fApplyCriticalDamage`;
   - user DamageReact only: + the socket critical-afflicted option;
@@ -5189,17 +5189,17 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 
 **Seen, not owned:** the NPC `+0x8fd4` multiplier, `+0x412c`, DamageData `+0x620`/`+0x624`, and the frozen-resist scaling in `GetFinalDamage`; the `+0x896c` socket-ID vector and socket 2000145's user flag `+0x7ca8` in `SumSocketOption`.
 
-**JUNE_BUGS** #51 (my-HP-few has no MaxHp test; latent) and #52 (an NPC attacker deals ×2 to bosses via #46).
+**JUNE_BUGS** #51 (my-HP-few has no MaxHp test; latent), #52 (an NPC attacker deals ×2 to bosses via #46; latent offline), #53 (the Panic debuff's anti-critical value under June's sign; reached).
 
-**Hygiene.** `--worktree --files` before each commit: all PASS. Post-commit `--range e002c27^..HEAD --with JUNE_BUFF_DEBUG JUNE_BUFF_NEW_SKILL JUNE_DAMAGEDATA EXTRA_NPC_STAT`: `files: 10 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 2 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The two deleted lines are this flag's own (part 1's `GetSocketAntiCriticalRate` comment, item 7's `static` on `JuneSkillCategory`).
+**Hygiene.** `--worktree --files` before each commit: all PASS. Post-commit `--range e002c27^..HEAD --with JUNE_BUFF_DEBUG JUNE_BUFF_NEW_SKILL JUNE_DAMAGEDATA EXTRA_NPC_STAT`: `files: 13 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 8 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. All 8 deleted lines are this flag's own: part 1's `GetSocketAntiCriticalRate` comment, item 7's `static` on `JuneSkillCategory`, and the first version's boss-grade getter (6).
 
-**Deploy.** `DEPLOY OK: X2_offline.exe is 19,229,696 B, dated 2026-10-06 11:41:10, md5 7f2cc2325075cd0b6ff8f6803c68f513, equal to X2/US_SERVICE/x2.exe (2026-10-06 11:41:06); built at mods/june-buff-port e002c27 + 4 uncommitted code file(s).` Those four files are `e002237` and `60fd058`. The new log texts are in the exe. Not launched.
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,230,208 B, dated 2026-10-06 11:56:09, md5 f17026d45f4197851ca94b185b24c37c, equal to X2/US_SERVICE/x2.exe (2026-10-06 11:56:04); built at mods/june-buff-port fec3dc2 + 3 uncommitted code file(s).` Those three files are `fb92b03`'s. The new log texts are in the exe. Not launched.
 
-**How to see it in game.** The save has no socket that reaches these readers, so this is a regression run: a dungeon with skills, critical hits and kills, then a clean exit. Expect no `[JUNE_BUFF] first socket …` lines and no MP-cost line.
+**How to see it in game.** The save has no socket that reaches these readers, so expect no `[JUNE_BUFF] first socket …` lines and no MP-cost line in a dungeon run with skills, critical hits and kills. The one live change that can be seen is the anti-critical sign: put `BFI_DEBUFF_PANIC_PANDEMONIUM` (49) on every monster from the console. The log then shows `first critical threshold term: anti-critical …`, with June's chance negative and March's positive.
 
 **Open for the user.**
 1. Item 4: add June's bool argument to `GetActualMPConsume` and its class overrides, or leave the cut out?
-2. The boss terms use the ExtraNPCStat port's grade, which comes from its battlefield stand-ins (`m_bShowBossName`, boss group). Is that acceptable as June's templet grade?
+2. The boss terms are dormant offline (no server sends grade 1). A designed stand-in is possible: grade 1 for an NPC with `m_bHasBossGage` / `m_bShowBossName`. That would be proposed only, not built; the default is no stand-in, as for the kill hook.
 
 ## Critical files
 
