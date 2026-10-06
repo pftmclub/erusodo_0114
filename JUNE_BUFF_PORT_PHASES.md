@@ -5545,6 +5545,11 @@ What the counts are:
    - Proposed home: the Lanox plan or checklist section 7.
 3. **`3206d480`** (called from `32298590`, `32a71a90` and `329e2410`): not identified. It keeps a periodic list of 24-byte entries on `CX2Unit +0x280` in the same store. Its four entry types are a buff, `3204d440`, a heal scaled by `3342f360`, and one gated on game type. Proposed: identify it in 3b6.
 
+**Decisions (user, 2026-10-06).**
+1. `3201aff0` (June's `GetBasicReducedDamagePercent`) becomes **16-step3b5 item 0**, its first item.
+2. The Lanox Secret Ammo functions (`32011280`, `322a0180`) go to checklist section 7, as a new row in `JUNE2017_CHARACTER_PORT_CHECKLIST.md`.
+3. `3206d480` becomes **16-step3b6** (`kickoffs/june-buff/16-step3b6.md`). Its first step is read-only: identify the function, then decide where it belongs.
+
 **3b5 kickoff:** checked; one line added (item 6: reword case 20's state-mapping comment while 3b5 edits X2GUUser.cpp).
 
 **Play-test (2026-10-06, user: regression passed; logs read).**

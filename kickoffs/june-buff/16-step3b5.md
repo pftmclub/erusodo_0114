@@ -12,7 +12,7 @@
 ## Read first (and nothing else from the plan doc unless you need it)
 
 ```sh
-python tools/docsection.py JUNE_BUFF_PORT_PHASES.md "Starting context" "Play-test hand-off (Phase 5 onward)" "Phase 16 -- Step 1 RE" "Phase 16-step3b3 -- Done"
+python tools/docsection.py JUNE_BUFF_PORT_PHASES.md "Starting context" "Play-test hand-off (Phase 5 onward)" "Phase 16 -- Step 1 RE" "Phase 16-step3b3 -- Done" "Phase 16-step3b4 -- Review"
 ```
 
 The `funcmap.tsv` rows tagged "Buff Phase 16-step3b3" for `32726850 @3272e4b5..3272eb3e`, `3201ad10`, `32727838`
@@ -24,6 +24,12 @@ Item 9's rest, split off by 16-step3b3 (located and decoded, not ported). Port J
 differs, cite June addresses, byte-level CP949 edits. Count each reader's reach on June's `OptionItemData.src.lua`
 (`m_fSkillAdditionalPowerRate` 2,491 entries, `m_fAllStatRelLV` 30) and on the save's 13 sockets.
 
+0. **First: June's `GetBasicReducedDamagePercent` (`3201aff0`)** (user, 2026-10-06, from the 16-step3b4 review). June keys
+   each reduction socket with `m_fIntervalTime` > 0 on the per-socket cool-time store `+0x8b98` (inline: find `322aa950 @3201b0ab`,
+   `operator[] 3207a5e0 @3201b10b`, interval `+0x1f8`); March's `CX2GUUser::GetBasicReducedDamagePercent` still uses the single
+   `m_fSocketOptionCoolTime`. Port the whole June function (also `32000320`, the set options' sum, and `322cc1c0`, called
+   `@3201b026`, not decoded yet) onto 3b4's `GetJuneSocketCoolTime` / `SetJuneSocketCoolTime`. If nothing else then reads `m_fSocketOptionCoolTime`,
+   say so (its tick `CheckSocketOptionCoolTime` stays in `#else`).
 1. **The group table.** `32715680` looks "Group N" up in the `CX2SocketItem` manager's map `+0x40` (find `32076c90`,
    values = a list of skill IDs). Find who fills that map (its inserter, the Lua binder or loader that feeds it, and the
    June data file with the groups) before anything else. If the groups live in a server-only or missing file, stop
