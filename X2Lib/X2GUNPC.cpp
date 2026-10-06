@@ -1914,11 +1914,30 @@ CX2GUNPC::CX2GUNPC( const CNpcCreatedInfoPtr NpcCreatedInfoPtr_
 #ifdef FIELD_BOSS_RAID // 중보 분류
 	SetMonsterGrade( static_cast<MONSTER_GRADE>(NpcCreatedInfoPtr_->GetMonsterGrade()) );
 #endif // FIELD_BOSS_RAID
-#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-	/// June buff port 16-step3b2: the packet's monster grade, as June keeps it in the NPC templet (+0xdc)
-	m_cJuneSocketMonsterGrade = NpcCreatedInfoPtr_->GetMonsterGrade();
-#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 }
+
+#if defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_EXTRA_NPC_STAT )
+/// June buff port 16-step3b2 review: June's unit info +0xdc == 1 (see X2GUNPC.h). The grade is the battlefield spawn's
+/// (X2BattleFieldGame.cpp, ExtraNPCStat port), and June writes it only for an NPC ID with an ExtraNPCStat row. June keeps
+/// it in the shared per-ID unit info (last spawn of that ID wins); this keeps it per NPC, as the ExtraNPCStat port does.
+bool CX2GUNPC::IsJuneSocketBossGrade() const
+{
+	if ( 1 != m_iExtraNPCStatMonsterGrade )
+		return false;
+	const CX2UnitManager* pUnitManager = ( NULL != g_pData ) ? g_pData->GetUnitManager() : NULL;
+	const bool bBoss = ( NULL != pUnitManager && pUnitManager->HasExtraNPCStat( GetNPCTemplet().m_nNPCUnitID ) );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	static bool s_bSeenBossGrade = false;
+	if ( !s_bSeenBossGrade )
+	{
+		s_bSeenBossGrade = true;
+		CX2JuneBuffCapture::Line( "first socket boss grade: NPC %d grade 1, ExtraNPCStat row %s -> boss %s",
+			static_cast<int>( GetNPCTemplet().m_nNPCUnitID ), bBoss ? "yes" : "no", bBoss ? "yes" : "no" );
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	return bBoss;
+}
+#endif defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_EXTRA_NPC_STAT )
 
 CX2GUNPC::~CX2GUNPC(void)
 {
@@ -2332,9 +2351,6 @@ void CX2GUNPC::CommonConstructor()
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
 	m_iExtraNPCStatMonsterGrade		= 0;
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
-#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-	m_cJuneSocketMonsterGrade		= 0;
-#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY
 	m_bExtraNPCStatNoHardLevel		= false;
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY

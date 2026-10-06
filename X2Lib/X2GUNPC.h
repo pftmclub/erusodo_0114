@@ -2356,15 +2356,15 @@ class CX2GUNPC : public CX2GameUnit
 		// Iruha : 2026-09-27 // see m_iExtraNPCStatMonsterGrade's comment
 		void						SetExtraNPCStatMonsterGrade( int iGrade ) { m_iExtraNPCStatMonsterGrade = iGrade; }
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
-#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-		/// June buff port 16-step3b2: June's boss test for the socket boss terms (GetFinalDamage @3228650b, user DamageReact
-		/// @32048845) is NPC templet +0xdc == 1: the monster grade June's stat builder 323752f0 stores (its param_4, 1 =
-		/// MG_BOSS_NPC), which is the server's KNPCUnitReq::m_cMonsterGrade (e.g. 32d52951 reads the packet char). Here it is
-		/// that packet value, kept by the battlefield constructor. Dungeon NPCs lose it at SubStageData::AddNPCData (March's
-		/// NPCData has no grade outside X2TOOL), and the offline servers send 0 or 2, so the boss terms stay dormant offline.
-		bool						IsJuneSocketBossGrade() const { return ( 1 == m_cJuneSocketMonsterGrade ); }
-		char						m_cJuneSocketMonsterGrade;		/// 0 in CommonConstructor
-#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#if defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_EXTRA_NPC_STAT )
+		/// June buff port 16-step3b2 review: June's boss test for the socket boss terms (GetFinalDamage @3228650b, user
+		/// DamageReact @32048845) is NPC unit info +0xdc == 1, written only by 323752f0, which the fetch 32384d10 calls only for
+		/// an NPC ID with an ExtraNPCStat row; its grade is the fetch's 3rd argument. Battlefield callers pass
+		/// KNPCUnitReq.m_bShowBossName != 0 (32d528f0 @32d5292c, req +0x52 = m_bShowBossName, 327edc2d) or
+		/// NpcCreatedInfo.m_uiBossGroupId > 0 (32d539c0 @32d539f5): the ExtraNPCStat port's m_iExtraNPCStatMonsterGrade.
+		/// The dungeon caller 327ef570 passes NPCData +0x44 (KNPCUnitReq.m_cMonsterGrade, 0 offline): not plumbed here (0).
+		bool						IsJuneSocketBossGrade() const;		/// X2GUNPC.cpp
+#endif defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_EXTRA_NPC_STAT )
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
 		// Iruha : 2026-09-27 // Phase 4 diagnostic only, short-lived with the
 		// rest of _DEBUG -- which battlefield call site created this spawn,
