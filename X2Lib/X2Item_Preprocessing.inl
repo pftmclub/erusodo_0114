@@ -32,6 +32,9 @@ enum ITEM_GRADE
     IG_RARE,
     IG_NORMAL,
     IG_LOW,
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+    IG_LEGEND,      /// June buff port Phase 15: June ITEM_GRADE.IG_LEGEND = 6 (Enum.lua), AttribEnchantRequire LEGEND
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
     IG_NUM,
 };
 

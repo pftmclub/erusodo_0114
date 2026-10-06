@@ -6,6 +6,9 @@ CX2EnchantItem::CX2EnchantItem(void)
 {
 	OpenScriptFile( L"AttribEnchantItem.lua" );
 	OpenScriptFile( L"AttribEnchantRequire.lua" );
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	OpenScriptFile( L"AttribEnchantRequireED.lua" );	/// June ctor 3270eca0: the ED cost moved into Lua
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 }
 
 CX2EnchantItem::~CX2EnchantItem(void)
@@ -131,6 +134,33 @@ bool CX2EnchantItem::AddEnchantData_LUA()
 	
 	LUA_GET_VALUE(		luaManager, "m_HPDrainPercent",			pEnchantData->m_HPDrainPercent,			0 );
 	LUA_GET_VALUE(		luaManager, "m_MPDrain",					pEnchantData->m_MPDrain,				0 );
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June 32708f00: five scalars and three int lists after m_MPDrain; a missing key reads 0. June's list loop
+	/// has no bound (a 4th entry would overwrite the next field); the port stops at 3.
+	LUA_GET_VALUE(		luaManager, "m_fAttribReiterationRate",	pEnchantData->m_fAttribReiterationRate,	0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fBlazeMpDrain",			pEnchantData->m_fBlazeMpDrain,			0.0f );
+	LUA_GET_VALUE(		luaManager, "m_fPiercingDamageFactor",	pEnchantData->m_fPiercingDamageFactor,	0.0f );
+	LUA_GET_VALUE(		luaManager, "m_iShockDebuffTime",		pEnchantData->m_iShockDebuffTime,		0 );
+	LUA_GET_VALUE(		luaManager, "m_fShockDebuffDamageFactor",	pEnchantData->m_fShockDebuffDamageFactor,	0.0f );
+	if ( luaManager.BeginTable( "m_arrMovementSpeedDecrease" ) == true )
+	{
+		for ( int iJune = 1, iValue = 0; iJune <= 3 && luaManager.GetValue( iJune, iValue ) == true; iJune++ )
+			pEnchantData->m_arrMovementSpeedDecrease[iJune - 1] = static_cast<float>( iValue );
+		luaManager.EndTable();
+	}
+	if ( luaManager.BeginTable( "m_arrJumpSpeedDecrease" ) == true )
+	{
+		for ( int iJune = 1, iValue = 0; iJune <= 3 && luaManager.GetValue( iJune, iValue ) == true; iJune++ )
+			pEnchantData->m_arrJumpSpeedDecrease[iJune - 1] = static_cast<float>( iValue );
+		luaManager.EndTable();
+	}
+	if ( luaManager.BeginTable( "m_arrAttackSpeedDecrease" ) == true )
+	{
+		for ( int iJune = 1, iValue = 0; iJune <= 3 && luaManager.GetValue( iJune, iValue ) == true; iJune++ )
+			pEnchantData->m_arrAttackSpeedDecrease[iJune - 1] = static_cast<float>( iValue );
+		luaManager.EndTable();
+	}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 #ifndef  X2OPTIMIZE_REMOVE_UNNECESSARY_PTR
 	if ( bIsForNPC == false )
@@ -156,6 +186,9 @@ bool CX2EnchantItem::AddEnchantRequire_LUA( int iAttribEnchantType, int iCharLv 
 	int iRare = 0;
 	int iElite = 0;
 	int iUnique = 0;
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	int iLegend = 0;	/// June 3270bb90: LEGEND -> IG_LEGEND, optional (a missing key reads 0, no fail_proc)
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 	// 테이블 키값
 	pairKey.first = iAttribEnchantType;
@@ -167,12 +200,18 @@ bool CX2EnchantItem::AddEnchantRequire_LUA( int iAttribEnchantType, int iCharLv 
 	LUA_GET_VALUE_RETURN( luaManager, "RARE",		iRare,	 0, goto fail_proc; );
 	LUA_GET_VALUE_RETURN( luaManager, "ELITE",		iElite,	 0, goto fail_proc; );
 	LUA_GET_VALUE_RETURN( luaManager, "UNIQUE",		iUnique, 0, goto fail_proc; );
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	LUA_GET_VALUE( luaManager, "LEGEND",		iLegend, 0 );
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 	mapItemGradeTable.insert( std::make_pair( CX2Item::IG_LOW,	  iLow ) );
 	mapItemGradeTable.insert( std::make_pair( CX2Item::IG_NORMAL, iNormal ) );
 	mapItemGradeTable.insert( std::make_pair( CX2Item::IG_RARE,   iRare ) );
 	mapItemGradeTable.insert( std::make_pair( CX2Item::IG_ELITE,  iElite ) );
 	mapItemGradeTable.insert( std::make_pair( CX2Item::IG_UNIQUE, iUnique ) );
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	mapItemGradeTable.insert( std::make_pair( CX2Item::IG_LEGEND, iLegend ) );
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 	m_mapEnchantRequireInfo.insert( std::make_pair( pairKey, mapItemGradeTable ) );
 	return true;
@@ -212,6 +251,27 @@ bool CX2EnchantItem::GetAttribEnchantRequireMagicStoneCount( bool bWeapon, int i
 
 bool CX2EnchantItem::GetAttribEnchantRequireED( bool bWeapon, int iCurrEnchantedCount, int iEqipLevel, int iItemGrade, int& iRequireED )
 {
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June 327089e0: AttribEnchantRequireED.lua's GetAttribEnchantRequiredED( count, bWeapon, level, grade ),
+	/// truncated to int, always true. Without the script, March's formula below runs and says so once.
+	{
+		lua_State* pJuneLuaState = g_pKTDXApp->GetLuaBinder()->GetLuaState();
+		lua_getglobal( pJuneLuaState, "GetAttribEnchantRequiredED" );
+		const bool bJuneHasFunction = ( lua_isfunction( pJuneLuaState, -1 ) != 0 );
+		lua_pop( pJuneLuaState, 1 );
+		if ( true == bJuneHasFunction )
+		{
+			iRequireED = static_cast<int>( lua_tinker::call<double>( pJuneLuaState, "GetAttribEnchantRequiredED", iCurrEnchantedCount, bWeapon, iEqipLevel, iItemGrade ) );
+			return true;
+		}
+		static bool s_bJuneMissingLogged = false;
+		if ( false == s_bJuneMissingLogged )
+		{
+			s_bJuneMissingLogged = true;
+			CX2JuneBuffCapture::Line( "enchant: GetAttribEnchantRequiredED is not loaded (AttribEnchantRequireED.lua missing from data036); March's ED formula is used" );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	if( true == bWeapon )
 	{
 		switch( iCurrEnchantedCount )
@@ -835,6 +895,73 @@ wstring CX2EnchantItem::GetToolTip( CX2DamageManager::EXTRA_DAMAGE_TYPE extraDam
 
 wstring CX2EnchantItem::GetEnchantResistName( CX2DamageManager::EXTRA_DAMAGE_TYPE enchantedCombination, bool bTwoLine /*= false*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June 3270ca30 (emulated): masters/double masters use June's strings (general.ess, same text in March's);
+	/// all 27 combined types decompose (March named 9); 4-slot types get STR_ID_EMPTY as in June
+	int iStringIndex = STR_ID_EMPTY;
+	switch( enchantedCombination )
+	{
+	case CX2DamageManager::EDT_ENCHANT_BLAZE:	iStringIndex = STR_ID_144;	break;
+	case CX2DamageManager::EDT_ENCHANT_FROZEN:	iStringIndex = STR_ID_145;	break;
+	case CX2DamageManager::EDT_ENCHANT_POISON:	iStringIndex = STR_ID_146;	break;
+	case CX2DamageManager::EDT_ENCHANT_PIERCING:	iStringIndex = STR_ID_147;	break;
+	case CX2DamageManager::EDT_ENCHANT_SHOCK:	iStringIndex = STR_ID_148;	break;
+	case CX2DamageManager::EDT_ENCHANT_SNATCH:	iStringIndex = STR_ID_149;	break;
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_MASTER:	iStringIndex = 43298;	break;
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_MASTER:	iStringIndex = 43299;	break;
+	case CX2DamageManager::EDT_ENCHANT_POISON_MASTER:	iStringIndex = 43300;	break;
+	case CX2DamageManager::EDT_ENCHANT_MASTER_PIERCING:	iStringIndex = 43301;	break;
+	case CX2DamageManager::EDT_ENCHANT_MASTER_SHOCK:	iStringIndex = 43302;	break;
+	case CX2DamageManager::EDT_ENCHANT_MASTER_SNATCH:	iStringIndex = 43303;	break;
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER:	iStringIndex = 43277;	break;
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER:	iStringIndex = 43278;	break;
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER:	iStringIndex = 43279;	break;
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_PIERCING:	iStringIndex = 43280;	break;
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SHOCK:	iStringIndex = 43281;	break;
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SNATCH:	iStringIndex = 43282;	break;
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SNATCH:
+		{
+			CX2DamageManager::EXTRA_DAMAGE_TYPE eDecomposedEDT1 = CX2DamageManager::EDT_NONE;
+			CX2DamageManager::EXTRA_DAMAGE_TYPE eDecomposedEDT2 = CX2DamageManager::EDT_NONE;
+			DecomposeEnchantExtraDamage( enchantedCombination, eDecomposedEDT1, eDecomposedEDT2 );
+			wstring wstrName = L"";
+			if( CX2DamageManager::EDT_NONE != eDecomposedEDT1 )
+				wstrName += GetEnchantResistName( eDecomposedEDT1 );
+			if( false == wstrName.empty() )
+				wstrName += ( true == bTwoLine ) ? L"\n" : L" + ";
+			if( CX2DamageManager::EDT_NONE != eDecomposedEDT2 )
+				wstrName += GetEnchantResistName( eDecomposedEDT2 );
+			return wstrName;
+		} break;
+	}
+	return GET_STRING( iStringIndex );
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	int iStringIndex = STR_ID_EMPTY;
 
 	switch( enchantedCombination )
@@ -904,6 +1031,7 @@ wstring CX2EnchantItem::GetEnchantResistName( CX2DamageManager::EXTRA_DAMAGE_TYP
 	}
 
 	return GET_STRING( iStringIndex );
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 }
 
 
@@ -911,6 +1039,73 @@ wstring CX2EnchantItem::GetEnchantResistName( CX2DamageManager::EXTRA_DAMAGE_TYP
 
 wstring CX2EnchantItem::GetEnchantResistToolTip( CX2DamageManager::EXTRA_DAMAGE_TYPE enchantedCombination, bool bTwoLine /*= false*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June 3270d0f0 (emulated): masters/double masters use June's strings (general.ess, same text in March's);
+	/// all 27 combined types decompose (March named 9); 4-slot types get STR_ID_EMPTY as in June
+	int iStringIndex = STR_ID_EMPTY;
+	switch( enchantedCombination )
+	{
+	case CX2DamageManager::EDT_ENCHANT_BLAZE:	iStringIndex = STR_ID_150;	break;
+	case CX2DamageManager::EDT_ENCHANT_FROZEN:	iStringIndex = STR_ID_151;	break;
+	case CX2DamageManager::EDT_ENCHANT_POISON:	iStringIndex = STR_ID_152;	break;
+	case CX2DamageManager::EDT_ENCHANT_PIERCING:	iStringIndex = STR_ID_153;	break;
+	case CX2DamageManager::EDT_ENCHANT_SHOCK:	iStringIndex = STR_ID_154;	break;
+	case CX2DamageManager::EDT_ENCHANT_SNATCH:	iStringIndex = STR_ID_155;	break;
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_MASTER:	iStringIndex = STR_ID_4763;	break;
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_MASTER:	iStringIndex = STR_ID_4764;	break;
+	case CX2DamageManager::EDT_ENCHANT_POISON_MASTER:	iStringIndex = STR_ID_4765;	break;
+	case CX2DamageManager::EDT_ENCHANT_MASTER_PIERCING:	iStringIndex = STR_ID_4766;	break;
+	case CX2DamageManager::EDT_ENCHANT_MASTER_SHOCK:	iStringIndex = STR_ID_4767;	break;
+	case CX2DamageManager::EDT_ENCHANT_MASTER_SNATCH:	iStringIndex = STR_ID_4768;	break;
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER:	iStringIndex = 43271;	break;
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER:	iStringIndex = 43272;	break;
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER:	iStringIndex = 43273;	break;
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_PIERCING:	iStringIndex = 43274;	break;
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SHOCK:	iStringIndex = 43275;	break;
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SNATCH:	iStringIndex = 43276;	break;
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SNATCH:
+		{
+			CX2DamageManager::EXTRA_DAMAGE_TYPE eDecomposedEDT1 = CX2DamageManager::EDT_NONE;
+			CX2DamageManager::EXTRA_DAMAGE_TYPE eDecomposedEDT2 = CX2DamageManager::EDT_NONE;
+			DecomposeEnchantExtraDamage( enchantedCombination, eDecomposedEDT1, eDecomposedEDT2 );
+			wstring wstrName = L"";
+			if( CX2DamageManager::EDT_NONE != eDecomposedEDT1 )
+				wstrName += GetEnchantResistToolTip( eDecomposedEDT1 );
+			if( false == wstrName.empty() )
+				wstrName += ( true == bTwoLine ) ? L"\n" : L", ";
+			if( CX2DamageManager::EDT_NONE != eDecomposedEDT2 )
+				wstrName += GetEnchantResistToolTip( eDecomposedEDT2 );
+			return wstrName;
+		} break;
+	}
+	return GET_STRING( iStringIndex );
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 	int iStringIndex = STR_ID_EMPTY;
 
@@ -979,6 +1174,7 @@ wstring CX2EnchantItem::GetEnchantResistToolTip( CX2DamageManager::EXTRA_DAMAGE_
 	}
 
 	return GET_STRING( iStringIndex );
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 }
 
@@ -1322,6 +1518,29 @@ wstring CX2EnchantItem::GetToolTipForPure( CX2DamageManager::EXTRA_DAMAGE_TYPE e
 
 int	CX2EnchantItem::GetAttribEnchantType( bool bWeapon, int iCurrEnchantedCount )
 {
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June 32707fc0 (emulated): weapon 0..3 -> SINGLE/DUAL/TRIPLE/QUADRA, armour 0..2 -> ARMOR/DUAL/TRIPLE_ARMOR
+	if( true == bWeapon )
+	{
+		switch( iCurrEnchantedCount )
+		{
+		case 0:	return CX2EnchantItem::AET_SINGLE_WEAPON;
+		case 1:	return CX2EnchantItem::AET_DUAL_WEAPON;
+		case 2:	return CX2EnchantItem::AET_TRIPLE_WEAPON;
+		case 3:	return CX2EnchantItem::AET_QUADRA_WEAPON;
+		}
+	}
+	else
+	{
+		switch( iCurrEnchantedCount )
+		{
+		case 0:	return CX2EnchantItem::AET_ARMOR;
+		case 1:	return CX2EnchantItem::AET_DUAL_ARMOR;
+		case 2:	return CX2EnchantItem::AET_TRIPLE_ARMOR;
+		}
+	}
+	return AET_NONE;
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	if( true == bWeapon )
 	{
 		switch( iCurrEnchantedCount )
@@ -1360,6 +1579,7 @@ int	CX2EnchantItem::GetAttribEnchantType( bool bWeapon, int iCurrEnchantedCount 
 
 
 	return AET_NONE;
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 }
 
@@ -1926,6 +2146,22 @@ CX2DamageManager::EXTRA_DAMAGE_TYPE CX2EnchantItem::GetBaseExtraDamageType( CX2D
 
 /*static*/ int CX2EnchantItem::GetEnchantResistValue( CX2DamageManager::EXTRA_DAMAGE_TYPE extraDamageType )
 {
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June 327088f0 (emulated): March's two groups, plus 135 for the double masters (a 3-attribute armour, AET_TRIPLE_ARMOR)
+	switch( extraDamageType )
+	{
+	case CX2DamageManager::EDT_ENCHANT_BLAZE:	case CX2DamageManager::EDT_ENCHANT_FROZEN:	case CX2DamageManager::EDT_ENCHANT_POISON:
+	case CX2DamageManager::EDT_ENCHANT_PIERCING:	case CX2DamageManager::EDT_ENCHANT_SHOCK:	case CX2DamageManager::EDT_ENCHANT_SNATCH:
+		return (int)CX2EnchantItem::EAR_VALUE;
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_MASTER:	case CX2DamageManager::EDT_ENCHANT_FROZEN_MASTER:	case CX2DamageManager::EDT_ENCHANT_POISON_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_MASTER_PIERCING:	case CX2DamageManager::EDT_ENCHANT_MASTER_SHOCK:	case CX2DamageManager::EDT_ENCHANT_MASTER_SNATCH:
+		return (int)CX2EnchantItem::EAR_MASTER_VALUE;
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER:	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER:	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_PIERCING:	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SHOCK:	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SNATCH:
+		return 135;
+	}
+	return 0;
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 	switch( extraDamageType )
 	{
@@ -1953,10 +2189,24 @@ CX2DamageManager::EXTRA_DAMAGE_TYPE CX2EnchantItem::GetBaseExtraDamageType( CX2D
 	}
 
 	return 0;
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 }
 
 /*static*/ const wstring CX2EnchantItem::GetSlashTraceTextureName( CX2Unit::UNIT_TYPE eUnitTYpe, CX2DamageManager::EXTRA_DAMAGE_TYPE eExtraDamageType )
 {
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June 32708de0 (emulated): no unit-type switch; the 3/4-slot frozen and poison types pick ice/poison, everything else fire
+	switch( eExtraDamageType )
+	{
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER:	case CX2DamageManager::EDT_ENCHANT_QUADRA_FROZEN_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_PIERCING:	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SHOCK:	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SNATCH:
+		return L"Elsword_SlashTrace_Texture_Ice.dds";
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER:	case CX2DamageManager::EDT_ENCHANT_QUADRA_POISON_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_PIERCING:	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SHOCK:	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SNATCH:
+		return L"Elsword_SlashTrace_Texture_Poision.dds";
+	}
+	return L"Elsword_SlashTrace_Texture_Fire.dds";
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	switch( eUnitTYpe )
 	{
 	case CX2Unit::UT_ELSWORD:
@@ -1989,4 +2239,5 @@ CX2DamageManager::EXTRA_DAMAGE_TYPE CX2EnchantItem::GetBaseExtraDamageType( CX2D
 
 	ASSERT( "NOT GOOD" );
 	return L"Elsword_SlashTrace_Texture_Fire.dds";
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 }

@@ -71,6 +71,11 @@ class CX2EnchantItem
 
 			AET_TRIPLE_WEAPON,
 			AET_DUAL_ARMOR,
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			/// June buff port Phase 15: June's 4th weapon / 3rd armour attribute types (Enum.lua ATTRIB_ENCHANT_TYPE)
+			AET_QUADRA_WEAPON	= 6,
+			AET_TRIPLE_ARMOR	= 7,
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		};
 
 		enum ENCHANT_ARMOR_RESIST
@@ -129,6 +134,17 @@ class CX2EnchantItem
 
 			int m_HPDrainPercent;
 			int m_MPDrain;
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			/// June buff port Phase 15: June EnchantData +0x3c..+0x70 (loader 32708f00)
+			float m_fAttribReiterationRate;		/// +0x3c, read by the accumulation modifier 32272d90
+			float m_fBlazeMpDrain;				/// +0x40, blaze tick MP drain
+			float m_fPiercingDamageFactor;		/// +0x44, GetFinalDamage piercing term
+			int m_iShockDebuffTime;				/// +0x48, shock debuff (BFI 1000) time
+			float m_fShockDebuffDamageFactor;	/// +0x4c, shock debuff factor
+			float m_arrMovementSpeedDecrease[3];	/// +0x50, per accumulation 1..3 (Lua int list)
+			float m_arrJumpSpeedDecrease[3];		/// +0x5c
+			float m_arrAttackSpeedDecrease[3];	/// +0x68
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 			EnchantData()
 			{
@@ -155,6 +171,20 @@ class CX2EnchantItem
 
 				m_HPDrainPercent		= 0;
 				m_MPDrain				= 0;
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+				/// June's default zeroes only March's 15 dwords; the port zeroes the June tail too (a missing list would be garbage in June)
+				m_fAttribReiterationRate	= 0.0f;
+				m_fBlazeMpDrain				= 0.0f;
+				m_fPiercingDamageFactor		= 0.0f;
+				m_iShockDebuffTime			= 0;
+				m_fShockDebuffDamageFactor	= 0.0f;
+				for ( int iJune = 0; iJune < 3; iJune++ )
+				{
+					m_arrMovementSpeedDecrease[iJune]	= 0.0f;
+					m_arrJumpSpeedDecrease[iJune]		= 0.0f;
+					m_arrAttackSpeedDecrease[iJune]		= 0.0f;
+				}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			}
 		};
 
