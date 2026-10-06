@@ -5068,7 +5068,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 - Tables: `AddPvpReferData_LUA`, `AddPveReferData_LUA` and `AddPveReferDataForMP_LUA` (map insert; first rate kept). They are loaded by June's `PVPData.lua`/`PVEData.lua`, run after the event-scene scripts (June `3258c470`). The other 7 calls in those files are logging no-ops: `SetPVPRewardItemList`, `SetPVPRewardRankLinkedItemList`, `AddContinueKillSoundEffect`, `SetSendPveGameSyncPacketTimer`, `SetPveBalanceBuffGiveScore`, `SetPveGameTimeStopDistance`, `SetPveAreaTypeByPortalLineMap`.
 - Enum (Lua): `PVPRANK_RANK_STAR = 10` and June's `PVE_RANK` table. Without them, `PVEData.lua` aborts at its first line.
 - Bytecode equals source (stub `g_pData`, KOG LuaJIT): PVP 11 rows (ARRANGE 1.0 … STAR 7.5), PVE 10, PVE-for-MP 10.
-- `PACK OK data036` (184 entries; vs live: +PVEData.lua, +PVPData.lua, ~Enum.lua). **COPY not done: it needs the user's OK.**
+- `PACK OK data036` (184 entries; vs live: +PVEData.lua, +PVPData.lua, ~Enum.lua). `COPY OK data036` (184 entries, md5 2f9247de, user OK; backup `kom_backup_tools/data036.kom.20261006_101131`).
 - Reach: 120 rank + 65 PVE sockets, none with `EFFECT_NAME` (#47) and none with a dropped key; 1 PVE socket is an MP socket. Offline every character's PvP rank is ARRANGE (`DefaultPvpRank`), so rate 1.0. The PvE rank (June `CX2Unit +0xa00 >= 5 ? +0xa0c : 0`) has no March source, so the key is 0: rate 1.0, and 0 for the MP socket. None of these sockets is in the save.
 - Not ported: June's `+0x87b8` resize after every ConvertAndAdd. It is the per-entry cooldown timer vector of June's 0x18-byte `m_vecMpUpByAttacked` element (ticked by `31fda180`, read in `DamageReact` via `31fd9100 @32047d55`); March keeps that timer in the element's `.w`. It is open, outside rank scaling.
 
@@ -5078,7 +5078,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **How to see it in game.** At load, `ErrorLog.txt` shows `[JUNE_BUFF] June rank tables: PVP 11, PVE 10, PVE for MP 10 row(s)` once data036 is copied (before that: the two `did not load` lines and `0, 0, 0`), plus one `June-only, not ported: g_pData:…` line per call above. In play, skills and dungeon kills behave as before: the save has no socket that reaches either reader.
 
-**Open for the user.** (1) The kill path needs June's server decision of which NPCs are "absolute monsters". Keep it dormant, or design a stand-in (own flag). (2) The PvE rank has no source offline; key 0 is what an unranked June character gets. (3) Copy data036 (game closed).
+**Open for the user.** (1) The kill path needs June's server decision of which NPCs are "absolute monsters". Keep it dormant, or design a stand-in (own flag). (2) The PvE rank has no source offline; key 0 is what an unranked June character gets.
 
 ## Critical files
 
