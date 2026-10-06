@@ -265,7 +265,7 @@ the user if the reach is too small to be worth it.
   - If Phase 1 set the grade only inside the base-only stat branch (no legacy `NPCStat.lua` row), the reach would drop to **4**: Ignia 1896, Mulsayrena 1888 and Secret Magi 2241/2242.
   - So set it whenever the row exists.
 - **Play-test target:**
-  - **Character:** `reyaa` (Lire, Grand Archer, Lv80).
+  - **Character:** `reyaa` (Rena / Lire, Grand Archer, Lv80).
   - **Dungeon:** Lanox Ashes Village Normal (33280; reyaa has cleared it).
   - **Boss:** `NUI_SMITH_STAIN` 1693, grade 1, with a row.
   - **Shorter alternative:** El Tree Normal, boss `NUI_BENDERS_NORMAL` 5; every character has cleared it.
