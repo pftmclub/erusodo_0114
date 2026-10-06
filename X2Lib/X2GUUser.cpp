@@ -21813,7 +21813,25 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 	@param : 사용한 스킬의 ID, 사용한 스킬의 레벨
 	@return : 소모될 MP 수치
 */
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/// June buff port 16-step3b3 item 0. June slot 424 (31fd1840, skill, level, bool) looks the MP up and calls slot 423 (3203cf60,
+/// mp, skill, bool). Every June call through the vtable passes 1 (the 40-odd sites at +0x6a0/+0x69c, e.g. the slot refresh
+/// 31fd6880 @31fd68d5, X2Game 322e0cb8, 3200f760), and every class override of 424 calls the base with a hard-coded 1
+/// (Eve 329a79cb, Add 329e81c3, Rose, Luciel, EL 32b7ebec, Ara, Chung, Raven, Lire 32c8569c, Arme 32ccfe30, Elsword 32cf4b7a;
+/// only June's Ain, absent here, forwards its own). So March's virtual is June's 424 with true.
 /*virtual*/ float CX2GUUser::GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const
+{
+	return GetActualMPConsumeJune( eSkillID_, iSkillLevel_, true );
+}
+
+/** @function : GetActualMPConsumeJune
+	@brief : the base body with June's bool (3203cf60). The only June caller that passes false is Add's GetActualDPConsume
+		(329e7820 @329e78a6, a direct call to the base 31fd1840).
+*/
+float CX2GUUser::GetActualMPConsumeJune( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_, const bool bJuneMPRate_ ) const
+#else // SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/*virtual*/ float CX2GUUser::GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 {
 #ifdef NEXON_QA_CHEAT_REQ
 	if( NULL != g_pData->GetMyUser() && g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_SPECIAL_USER )
@@ -21859,19 +21877,41 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 		}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-		/// June buff port 16-step3b2 item 4: June 3203cf60 @3203d02d cuts the MP by max( 1 - r, 0.8 ) for the socket
-		/// m_fDecrease_MPCostRate result r > 0 on any skill that is not hyper (type 13), but only when its third (bool)
-		/// argument is set (the slot refresh 31fd6880 passes 1). March's GetActualMPConsume has no such argument (Phase 6b
-		/// deviation), so the cut is not applied: open for the user. One line says so when a socket asks for it.
-		if ( 0.f < GetDecreaseMPCostRate() )
+		/// June buff port 16-step3b3 item 0 (retires 16-step3b2 item 4's "not applied" line). June 3203cf60, with its bool set:
+		/// (1) @3203cffb the rate is multiplied by 1 + 32358970( 0xb ) x 0.01 (334436a0). 32358970 reads the CX2Unit ability map
+		/// (322aa950, end +0xab0) scaled by the g_pData+0x5a4 table (32608cb0), June's skill damage-up "ability" (funcmap 3201ad10);
+		/// March has neither, so the term is 1.0 and is not written here.
+		/// (2) @3203d02d after BBT 99 (3203a250) the MP is cut by max( 1 - r, 0.8 ) (33478a78) for the socket m_fDecrease_MPCostRate
+		/// result r (+0x74dc) > 0 when the templet type is not 13 (ST_HYPER_ACTIVE_SKILL, @3203d056).
+		/// Always (with or without the bool), and not written here: the alternate templet 323511f0 and vslot 471 (31fdbe20) both read
+		/// June's typed skill-memo list (31fdbbb0, memo types 0x13/0x14 and 3/7/8), which March lacks: no alternate, rate 1.0.
+		if ( bJuneMPRate_ && 0.f < GetDecreaseMPCostRate() && CX2SkillTree::ST_HYPER_ACTIVE_SKILL != pSkillTemplet->m_eType )
 		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			const float fJuneMPBeforeCut = fJuneBuffMPConsume;
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			fJuneBuffMPConsume *= max( 1.f - GetDecreaseMPCostRate(), 0.8f );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			static bool s_bSeenMPCostCut = false;
 			if ( !s_bSeenMPCostCut )
 			{
 				s_bSeenMPCostCut = true;
-				CX2JuneBuffCapture::Line( "socket MP cost cut %g not applied: June applies it only with GetActualMPConsume's bool argument, which this build lacks (open)", GetDecreaseMPCostRate() );
+				CX2JuneBuffCapture::Line( "first socket MP cost cut: skill %d, rate %g, MP %g -> %g", static_cast<int>( pSkillTemplet->m_eID ),
+					GetDecreaseMPCostRate(), fJuneMPBeforeCut, fJuneBuffMPConsume );
+			}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		else if ( !bJuneMPRate_ && 0.f < GetDecreaseMPCostRate() )
+		{
+			static bool s_bSeenMPCostNoCut = false;
+			if ( !s_bSeenMPCostNoCut )
+			{
+				s_bSeenMPCostNoCut = true;
+				CX2JuneBuffCapture::Line( "first socket MP cost cut skipped (June's bool false, Add's DP cost): skill %d, rate %g", static_cast<int>( pSkillTemplet->m_eID ), GetDecreaseMPCostRate() );
 			}
 		}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		return GetSkillRateByBuffBehavior( pSkillTemplet->m_eID, BBT_CHANGE_CONSUME_MP_RATE ) * fJuneBuffMPConsume;
 #else // SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL

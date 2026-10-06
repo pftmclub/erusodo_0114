@@ -2778,6 +2778,12 @@ public:
 
 		// 오현빈 // X2Game에서 UI에 출력 하기 위해 사용 할 수 있도록 public으로 이동.
 		virtual float				GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June buff port 16-step3b3 item 0: June's base GetActualMPConsume takes a third (bool) argument (slot 424 31fd1840 passes it
+		/// to slot 423 3203cf60). The virtual above is June's slot 424 called with true (every June virtual call and every class override
+		/// pass 1); this is the base body with the bool, for the one June caller that passes 0 (Add's GetActualDPConsume, 329e78a6).
+		float						GetActualMPConsumeJune( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_, const bool bJuneMPRate_ ) const;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		float						GetSkillRateByBuffBehavior( const CX2SkillTree::SKILL_ID eSkillID_, const BUFF_BEHAVIOR_TYPE eBehaviorType_ ) const;
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY

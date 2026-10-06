@@ -9262,7 +9262,13 @@ const float CX2GUAdd::GetActualDPConsume( IN const CX2UserSkillTree::SkillSlotDa
 		if ( 0.f < fUseDPSkillAtFormationMode )
 		{
 			/// 소모 MP의 배율로 DP 소모 ( UI에 표시된 DP에 비해 실 DP는 20배 크다 )
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			/// June buff port 16-step3b3 item 0: June's GetActualDPConsume (329e7820 @329e78a6) is the one caller that passes the base
+			/// GetActualMPConsume a false bool, so the socket MP cost cut does not lower the DP cost
+			const float fMPConsume = CX2GUUser::GetActualMPConsumeJune( pSkillSlotData_->m_eID, GetSkillLevelValue( pSkillSlotData_->m_eID ), false );
+#else // SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			const float fMPConsume = CX2GUUser::GetActualMPConsume( pSkillSlotData_->m_eID, GetSkillLevelValue( pSkillSlotData_->m_eID ) );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 			fDPConsume = fUseDPSkillAtFormationMode * fMPConsume * 20.f;
 		}
