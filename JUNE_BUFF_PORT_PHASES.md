@@ -4927,7 +4927,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 ### Phase 16-data — Done (2026-10-06, Opus 5.5 high)
 
-**Landed** (`01c297b`, all under `SERV_IRUHADEV_JUNE_SOCKET_PARITY`, no new flag): June's `OptionItemData.lua` wholesale (13,408 entries; March had 7,429), the Enum it needs (Lua and C++), June's SIEE gate and the 13/17 routing. Data staged in `march2014/data036/` and `kom_contents/data036_kom/` (manifest already listed both files). `PACK OK data036` (182 entries; vs live: ~ `Enum.lua`, ~ `OptionItemData.lua`); the copy waits on the user.
+**Landed** (`01c297b`, all under `SERV_IRUHADEV_JUNE_SOCKET_PARITY`, no new flag): June's `OptionItemData.lua` wholesale (13,408 entries; March had 7,429), the Enum it needs (Lua and C++), June's SIEE gate and the 13/17 routing. Data staged in `march2014/data036/` and `kom_contents/data036_kom/` (manifest already listed both files). `PACK OK data036` (182 entries; vs live: ~ `Enum.lua`, ~ `OptionItemData.lua`); `COPY OK data036` (md5 f1ae990f, user OK; backup `kom_backup_tools/data036.kom.20261006_085804`).
 
 **Enum** (`Enum.src.lua`, values from June's `Enum.src.lua`; Phase 2's comment style):
 - `SOCKET_DATA_TYPE`: all 273 June-only members (122-…; none collides). `SOCKET_ITEM_EFFECT_EX`: 12-20. `HYPER_MODE_EFFECTIVE_TYPE`: `HMET_FEVER = 3`, `HMET_END` 3 → 4 (June).
