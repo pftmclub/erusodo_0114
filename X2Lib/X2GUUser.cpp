@@ -32646,7 +32646,8 @@ bool CX2GUUser::IsBuffAtAccumulationLimitJune( const BUFF_TEMPLET_ID eBuffTemple
 
 /** @function : ProcessSocketEffectByAttackSuccess
 	@brief : June CX2GUUser slot 252 (3202ab70), called at the end of AttackResult with m_DamageData. Skips a special attack (attackType 1)
-		and a hit whose m_fRateModifier is not above 0. The random offset for 14 and 16 is the defender's UID (low 32 bits, slot 21), or 0.
+		and a hit whose m_fRateModifier is not above 0. The random offset passed to 13, 14 and 16 (13 ignores it) is the defender's UID (low 32 bits, slot 21), or 0.
+		16-step3b4 review: without a defender June calls 13 and 14 only (@3202abd2-abdf -> @3202ac29 calls 14 and returns); 16 runs only with one.
 */
 void CX2GUUser::ProcessSocketEffectByAttackSuccess( CX2DamageManager::DamageData& kDamageData_ )
 {
@@ -32658,7 +32659,8 @@ void CX2GUUser::ProcessSocketEffectByAttackSuccess( CX2DamageManager::DamageData
 
 	ProcessSocketEffectEx( CX2SocketItem::SIEE_BUFF_WHEN_SUCCESS_ATTACK, this, iRandomOffset, NULL );
 	ProcessSocketEffectEx( CX2SocketItem::SIEE_PLAY_EFFECTSET_WHEN_SUCCESS_ATTACK, this, iRandomOffset, NULL );
-	ProcessSocketEffectEx( CX2SocketItem::SIEE_PLAY_EFFECTSET_TO_VICTIM_WHEN_SUCCESS_ATTACK, this, iRandomOffset, pDefenderUnit );
+	if ( NULL != pDefenderUnit )
+		ProcessSocketEffectEx( CX2SocketItem::SIEE_PLAY_EFFECTSET_TO_VICTIM_WHEN_SUCCESS_ATTACK, this, iRandomOffset, pDefenderUnit );
 }
 
 /** @function : IsJuneSocketDownTargetState
