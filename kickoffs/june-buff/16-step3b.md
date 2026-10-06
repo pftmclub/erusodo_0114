@@ -56,7 +56,8 @@ be settled from the disassembly stays dormant with one `[JUNE_BUFF]` line and is
     `ProcessSocketEffectEx` case 15 (`32029fff`, called from user slot 484 with 0xf), the
     socket-data `EFFECT_NAME` / interval / `BUFF_FACTOR_ID` list (part 1 loads the list as
     `m_vecConditionalBuff`, `m_bAlwaysPlayEffectSet`), and `CX2GUUser::HasSocketAuraFor`'s inner
-    loop (slot 181, `3204e380`).
+    loop (slot 181, `3204e380`). Its `@brief` (`X2GUUser.cpp`, under `_BUFF_NEW_FINALIZER`) still says "nothing is
+    ever filed under 15": since 16-data, 180 SIEE 15 sockets are filed (16-data review). Rewrite it with the loop.
 
 Count the reach of each reader on the socket data the game loads after 16-data (June's
 `OptionItemData.lua`; part 1 found no March socket that sets any June-only key) before building,
@@ -87,7 +88,7 @@ June addresses; byte-level CP949 edits.
   **filed** like June (`31fe4730` accepts 1-20; the caller skips the socket's tail), and SIEE 13/17
   route to the custom-use pointer. `ProcessSocketEffectEx` has no case for 12-20 yet: item 10 adds
   them. The loader logs one `[JUNE_BUFF]` line per June-only SIEE / EDT / HMET type.
-- Reach on the loaded data: SIEE 15 on 180 entries, 13 on 27, 14 on 17, the rest ≤ 9; 185 rank-linked
+- Reach on the loaded data: SIEE 15 on 180 entries, 13 on 28, 14 on 18, the rest ≤ 9 (248 in all; 16-data review); 185 rank-linked
   (120 + 65); `m_sBuffLevel` (`+0x29c`) on 280. None of the save's 13 socket IDs is in any of these.
-- Not in this phase: the 18 June-only EDTs (179 entries) and `HMET_FEVER` (1 entry) belong to
+- Not in this phase: the 18 June-only EDTs (160 entries; 16-data review) and `HMET_FEVER` (1 entry) belong to
   **16-step3c** (user, 2026-10-06).

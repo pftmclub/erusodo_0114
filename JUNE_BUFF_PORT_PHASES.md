@@ -4994,6 +4994,61 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **Decided (user, 2026-10-06).** The 18 EDT handlers and `HMET_FEVER` go to a new **16-step3c** (after 16-step3b and june-effect C5; kickoff written). SIEE 12-20 stay 16-step3b item 10. /cost not available in-session.
 
+### Phase 16-data — Review (2026-10-06, Opus 5.5 high)
+
+**Verdict: PASS. No code change, no transcription error.** Two reach counts in the Done note were over-counted, and that has no code consequence. The review covered `01c297b` and the play-test fix `9fa7e16`.
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SOCKET_PARITY --range 01c297b^..HEAD`:
+- `files: 5 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+- `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+- `RESULT: PASS`
+
+**1. Lua Enum.**
+- Source check: each of the 301 added members (SDT 273, SIEE 9, EDT 18, `HMET_FEVER`) equals June's `Enum.src.lua` value. Only `HMET_END` changed (3 → 4, June's value). No table has a duplicate value.
+- Shipped bytecode, every global dumped: the pre-copy backup (`kom_backup_tools/data036.kom.20261006_085804`) against the live `data036.kom` gives 301 added, 1 changed, 0 removed. No peer edit rode along.
+- The 34 June-only EDT names that were not taken, the 45 renumbered `EDT_ENCHANT_*` and `EDT_BEDCLOTHES_FEATHER` appear in no staged file under `kom_contents/` or `march2014/`. Only June's `AttribEnchantItem` names them, and it is not staged.
+
+**2. C++ enumerators.** Checked with `cl /P` on a probe that includes `StdAfx.h`, `X2DamageManager.h` and `X2SocketItem.h`, using X2Lib's US_SERVICE flags, then evaluating the four enums:
+- every member shared with the Lua has the same value, and no enum has a duplicate value;
+- `HMET_*` = −1..4 (`HMET_FEVER` 3, `HMET_END` 4);
+- nothing reads `HMET_END` (and no `SIEE_END`/`EDT_END` exists).
+- The 3 Lua-only EDTs (67, 148, 158) predate this phase.
+
+**3. The gate.**
+- Ghidra `31fe4730 @31fe4769`: `dec`, `cmp eax,0x13`, `ja`. `3204f190 @3204f5ef` calls the gate and `@3204f5f6` jumps to `320500f0`, the loop increment.
+- March: the nine new `case` labels fall through to the filing code. `default` still returns false.
+- `m_mapSocketItemEffectEx` is only cleared and `find`-ed (recursive grep over `X2Lib`, `KTDXLIB`, `X2`). Every `ProcessSocketEffectEx` caller passes a fixed SIEE between 1 and 11.
+- `GetSocketDescEx`'s `default` writes `L""`.
+- Stale comment: `HasSocketAuraFor`'s `@brief` still says nothing is filed under 15. Noted in `16-step3b.md`.
+
+**4. Routing.** Ghidra `32726850 @32736614..32736630`: `[ESI+0x280]` (HMET) == 0, else `[ESI+0x1e0]` (SIEE) in {0xb, 0xd, 0x11} → custom use.
+- The fields are identified by their keys: SIEE's store `@327319cf` follows `m_eTypeSetItemEffectEx` (`327316de`), and HMET's follows `32736426`.
+- The loader's `ESI` sits 4 bytes below the socket base, so these are the gate's `+0x1dc` and the funcmap's `+0x27c`.
+- The port gives the same set.
+
+**4b. `9fa7e16` (EFFECT_NAME).**
+- June's EndTable is `32fe9a10` (settop −2, depth −1). The loader calls BeginTable 8× and EndTable 7×, and no EndTable sits between the `EFFECT_NAME` BeginTable (`@32736174`, plain string `334b7238`) and the next key. JUNE_BUGS #47 holds.
+- June's keys after it: `m_fEffectiveValue`, `HYPER_MODE_EFFECTIVE_TYPE`, `m_bIsLevelLinkedStat`, `m_iAddLevel`, `m_eDescStringID` and both rank flags. The port reads exactly these.
+- March's `m_vecGrowUpSocketID` is compiled out: `SERV_GROW_UP_SOCKET` does not reach X2Lib, and the preprocessed header has no `m_mapGrowUpSocketID`.
+
+**5. Bytecode.** Archive `data036.kom` md5 f1ae990f, extracted to scratch with `elstools extract -v mar-2014`. Entries: `Enum.lua` a05b0333, `OptionItemData.lua` 3e544cb7.
+- Under `elstools/vendor/luajit`, with a stub `g_pCX2SocketItem` and a trap on `_G` and every Enum table:
+  - the live bytecode (Enum + `StringID_def` + OptionItemData) and the source (`march2014` Enum + `june_src_fixed` OptionItemData) each give 13,408 entries and 0 unresolved names;
+  - the two dumps are byte-identical. The md5 differs from the note's `c8e34870` only because this review's serializer differs.
+- Control: the pre-phase Enum gives 97 unresolved, as the note says.
+- The staged source md5 equals June's.
+- No loose `Enum`/`OptionItemData`/`StringID_def` `.lua` sits in the game directory (`os.listdir`), so the archive is what loads.
+
+**6. Reach.** Recounted on live against March (backup):
+- confirmed: 7,429 → 13,408 entries; 247 gone, 6,226 June-only, 1,366 shared IDs differ; all 39 June-only key counts; SDT ≥ 122 on 3,219; rank 120, PVE rank 65; `HMET_FEVER` 1; the save's 13 IDs identical.
+- **Corrected:**
+  - SIEE 12-20 are on **248** entries, not 259: 12:8, 13:28, 14:18, 15:180, 16:9, 17:1, 18:2, 19:1, 20:1.
+  - The 18 new EDTs are on **160** entries, not 179.
+  - Both counts are confirmed by a grep of the source.
+  - The counts in `16-step3b.md` and `16-step3c.md` are corrected.
+
+**Deploy.** No code change, so no rebuild. The deployed `X2_offline.exe` md5 is aa173377, the same as `X2/US_SERVICE/x2.exe`. Play-test 2 passed on that exe. No play-test is owed.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`

@@ -23,7 +23,7 @@ Owner decided by the user (2026-10-06): this phase owns the handlers 16-data log
   146 SUPREME_PUNISHMENT, 147 SPECTRAL_SPEAR, 149 BALLISTA_BOLT, 150 DECREASE_ENEMY_RESIST,
   151 COMMAND_HIT_EXPLOSION, 152-155 FORWARD300_{FLAME,ICE,POISON,WIND}GROUND,
   156 COMMAND_10HIT_DECREASE_SKILL_COOLTIME, 157 MAGI_HIT_COUNT_ATTACK, 159 DECENT_TO_SHADOW.
-  They are on 179 June socket entries. Today the loader's switch (`X2SocketItem.cpp`, the `EXTRA_DAMAGE`
+  They are on 160 June socket entries (16-data review; the Done note's 179 was an over-count). Today the loader's switch (`X2SocketItem.cpp`, the `EXTRA_DAMAGE`
   block) drops them with one log line per type.
 - **`HMET_FEVER` (3)**: 1 socket (74042). Today it is an explicit no-op case in the awakening switch
   (`X2GUUser.cpp`, after `HMET_ADD_HP_IMMEDIATELY`).
@@ -36,7 +36,7 @@ Owner decided by the user (2026-10-06): this phase owns the handlers 16-data log
    `.lua` in `datai016_kom`, an effect set, a BFI from Phase 13)? Check against `june_src_fixed/`
    and what is staged.
 3. Find June's awakening handler for `HMET_FEVER` (the switch March has at the `HMET_*` cases).
-4. Count the reach: which of the 179 entries the emulator's roll pools (`SocketItemTable.lua`) or the
+4. Count the reach: which of the 160 entries the emulator's roll pools (`SocketItemTable.lua`) or the
    save can produce; which drop/box tables hand out items that carry them.
 Then port what is portable under the flag (June bugs verbatim, `JUNE_BUGS.md` rows), and record the rest as
 "located, not portable until <data/phase>".
