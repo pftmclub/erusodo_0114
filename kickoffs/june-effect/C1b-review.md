@@ -1,5 +1,10 @@
 # June effect completion - C1b review
 
+> **Handed off (D7, 2026-10-06).** Not run in the effect-completion plan. The user chose C1a's option (a):
+> the numerical-data port moves to the character ports (`JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 1),
+> because every block uses June reform skill IDs that no March character learns. This file is kept as the
+> brief for whichever character-port phase picks it up; its `/x2-phase june-effect` start line no longer applies.
+
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C1b review` |

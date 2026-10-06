@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C8b` |
 | Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
-| Depends on | C8a; C1b for the APPLIED_SKILL_ID hooks |
+| Depends on | C8a. (C1b was dropped by D7, 2026-10-06: the `APPLIED_SKILL_ID` hooks read `DamageData::m_iAppliedSkillID`, stored since Phase 8c; port them as June has them.) |
 | Flag | `SERV_IRUHADEV_JUNE_COLLISION`, `SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION` |
 | Log tag | `[JUNE_FX]` in ErrorLog.txt (`python tools/logs.py --tag JUNE_FX`) |
 | Review | `kickoffs/june-effect/C8b-review.md` |

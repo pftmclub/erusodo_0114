@@ -63,10 +63,33 @@ It copies the June scripts into `<scratch dir>` and never writes to the June dir
 
 **What porting needs first:** the numerical skill data system itself.
 - The override is cited above.
-- **Lead, not confirmed:** the table is probably `NewSkillTempletVer2.lua`. It is the only June script
-  with `NUMERICAL_DATA1` … `NUMERICAL_DATA12` keys.
-- The override's callees (`32890620`, `31fca8e0`, `320717e0` by index, `32078060` by name) are not
-  identified. That is Opus-level identification work (plan, "Model and effort per phase").
+- **Owned here since D7 (2026-10-06).** The effect-completion plan identified it (C1a) and handed the port
+  to the character ports. Its C1b brief is `kickoffs/june-effect/C1b.md`. The C1a Done note in
+  `JUNE2017_EFFECT_COMPLETION_PHASES.md` has the full findings.
+- **Identified (C1a, all `confirmed` in `june2017_re/funcmap.tsv`, rows tagged "Effect C1a"):**
+  - The data is a field of each June skill templet: `NUMERICAL_DATA<n>` in `NewSkillTempletVer2.lua`,
+    parsed by June's `AddSkillTemplet_LUA` (`32216320 @322186f5`). It is not a separate file.
+    - Each `m_Value` entry is one row.
+    - `m_Pvp_Rate` defaults to 1; `m_Tech_Point` and `m_Hit_Add_MP` default to 0.
+    - Each side array is clamped to its last entry.
+  - The override (`3263fe41` row):
+    - It needs a skill the attacker has **learned** (level > 0) and an equipped or user templet.
+    - The level picks the row.
+    - It writes PHYSIC and/or MAGIC as value × 0.01, plus PVP_RATE, TECH_POINT and HIT_ADD_MP.
+    - Its March site is just before `EndTable` in `SetDamageDataFromLUA`.
+- **It depends on June's skill reform.**
+  - All 1,913 numerical blocks point at reform skill IDs (21000-32605).
+  - March's `Enum.lua` names them, but March's skill file has none: its IDs run 100-8409.
+  - No March character has learned one.
+  - So the override only works once a ported character uses June's skill templets and skill tree,
+    that is, June's `NewSkillTempletVer2.lua`. That file is a different skill system: 451 of 521
+    shared templets changed, plus 1,825 June-only templets.
+  - Per-block evidence: `june2017_re/c1a_numerical_blocks.tsv`. Templet diff:
+    `june2017_re/c1a_skilltemplet_diff.tsv`.
+- **June's damage scale differs from March's** (Aceldama 9.5 vs 2.33, Aiming Shot 14.82 vs 5.63), so
+  record both values in `MODS.md`.
+- **Three blocks** index past their skill's data and get a zero row. They need a `JUNE_BUGS.md` row when
+  ported (names in the C1a note).
 - Because this changes damage values, it goes under its own flag, and every value lands in `MODS.md`.
 
 ## 2. DamageData keys June's character scripts use that March does not parse yet
@@ -164,7 +187,8 @@ values, before loading the script. Otherwise **every state after the first refer
 1. Finish Phase 8b, **including the two bold keys in section 2**.
 2. Phase 11's enum-table additions (the effect files' five tables), plus the section 4 tables for the
    character being ported.
-3. The numerical skill data system (section 1). Without it, June character damage is 0.
+3. The numerical skill data system (section 1), together with June's skill templets and skill tree it
+   depends on. Without it, June character damage is 0.
 4. Decide on `ADD_RENA_SYSTEM` (section 3) before touching Rena.
 5. A per-character parser census (section 5).
 6. Only then copy the character's June script, and rerun `charport_scan.py` to confirm nothing new

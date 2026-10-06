@@ -93,15 +93,15 @@ today's Sonnet 5.5.
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | C0 | done 2026-10-05: D2 build, D3 hand off (Rena), D4 build, D5 decide after C2, D6 keep; census now has `handed-off`/`declined`, owners, item-1/3 checks (`census_completion.py`); item-1 shows 1,913 numerical + 7 HP-rate blocks | Sonnet 5.5 / high | - | `june2017_re/census.py`, `census_completion.py`, C0's decision table | `C0.md` |
-| C1a | done 2026-10-06, **stopped for the user**: 10 funcmap rows, override fully transcribed; the table is a skill-templet field (`NUMERICAL_DATA<n>` in `AddSkillTemplet_LUA`), not a file; all 1,913 blocks use June reform skill IDs (21000-32605) that no March character has learned, so a port is inert in play; June's NewSkillTempletVer2 is a different skill system (451/521 shared changed, +1,825 templets). User owes: choose (a) hand C1 to the character ports, (b) adopt June's file now, (c) dormant port + new exit | Opus 5.5 / high | C0 | `funcmap.tsv` (no code) | `C1a.md` |
-| C1b | blocked: user decision from C1a (a/b/c in the C1a Done note) | Sonnet 5.5 / high | C1a + that decision | X2DamageManager.cpp (SetDamageDataFromLUA), a new table loader, NewSkillTempletVer2.lua (user packs), MODS.md | `C1b.md` |
-| C1b review | blocked | Opus 5.5 / high | C1b | - | `C1b-review.md` |
+| C1a | done 2026-10-06, **stopped for the user**: 10 funcmap rows, override fully transcribed; the table is a skill-templet field (`NUMERICAL_DATA<n>` in `AddSkillTemplet_LUA`), not a file; all 1,913 blocks use June reform skill IDs (21000-32605) that no March character has learned, so a port is inert in play; June's NewSkillTempletVer2 is a different skill system (451/521 shared changed, +1,825 templets). User chose (a) 2026-10-06 = D7: C1 handed off to the character ports (checklist section 1) | Opus 5.5 / high | C0 | `funcmap.tsv` (no code) | `C1a.md` |
+| C1b | handed off (D7, 2026-10-06): not run in this plan; the port lives in `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 1 with the June skill reform | Sonnet 5.5 / high | - | - | `C1b.md` (kept for the character port) |
+| C1b review | handed off (D7) | Opus 5.5 / high | - | - | `C1b-review.md` |
 | C2 | done 2026-10-06: 29 funcmap rows; DIVISION = buff-apply gate (row 1134 corrected), DAMAGE_SKILL_ID -> C1b, KEY_NAME -> C9, C5 group 2 already ported, ES.Description declined; D5 = handed off to the Lu/Ciel port; DIVISION gate follows June (buff-react apply stub) | Opus 5.5 / high | - | `funcmap.tsv`, `june2017_re/README.md` (no code) | `C2.md` |
 | C3 | queued (C2 done) | Sonnet 5.5 / high | C2 | X2DamageManager.cpp, consumers in X2DamageEffect.cpp / X2GameUnit.cpp | `C3.md` |
 | C3 review | blocked | Opus 5.5 / high | C3 | - | `C3-review.md` |
 | C4 | queued (C2 done) | Sonnet 5.5 / high | C2 | X2DamageManager.cpp, X2GameUnit.cpp (GetFinalDamage), X2GUAdd.cpp | `C4.md` |
 | C4 review | blocked | Opus 5.5 / high | C4 | - | `C4-review.md` |
-| C5 | queued (C2 done) | Sonnet 5.5 / high | C2 (+ coordinate with june-buff); 8b close-out also waits for C9 + C1b (C2) | X2DamageManager.cpp, X2DamageEffect.cpp | `C5.md` |
+| C5 | queued (C2 done) | Sonnet 5.5 / high | C2 (+ coordinate with june-buff); 8b close-out also waits for C9 (C2); `DAMAGE_SKILL_ID` is handed off with C1 (D7) | X2DamageManager.cpp, X2DamageEffect.cpp | `C5.md` |
 | C5 review | blocked | Opus 5.5 / high | C5 | - | `C5-review.md` |
 | C6a | queued (identification started 2026-09-29) | Opus 5.5 / high | - | `funcmap.tsv` (no code) | `C6a.md` |
 | C6b | blocked | Sonnet 5.5 / high | C6a | X2DamageEffect.cpp (CEffect, hit/die spawners) | `C6b.md` |
@@ -109,14 +109,14 @@ today's Sonnet 5.5.
 | C7 | blocked | Sonnet 5.5 / high | C6b | X2DamageEffect.cpp, KTDXLIB/KTDGXMeshPlayer.h (CXMeshInstance) | `C7.md` |
 | C7 review | blocked | Opus 5.5 / high | C7 | - | `C7-review.md` |
 | C8a | queued (C2 done) | Opus 5.5 / high | C2 | `funcmap.tsv`, a port list in the plan (no code) | `C8a.md` |
-| C8b | blocked | Sonnet 5.5 / high | C8a, C1b | X2DamageEffect.cpp (hit paths), X2GameUnit.cpp, X2GUUser.cpp, X2GUNPC.cpp, per-class X2GU*.cpp (SetDamageExceptionProcess) | `C8b.md` |
+| C8b | blocked | Sonnet 5.5 / high | C8a (C1b dropped by D7: the hooks read the stored `m_iAppliedSkillID`) | X2DamageEffect.cpp (hit paths), X2GameUnit.cpp, X2GUUser.cpp, X2GUNPC.cpp, per-class X2GU*.cpp (SetDamageExceptionProcess) | `C8b.md` |
 | C8b review | blocked | Opus 5.5 / high | C8b | - | `C8b-review.md` |
 | C9 | queued (C2 done) | Sonnet 5.5 / high | C2 | X2Main.cpp (bindings), X2DamageManager.cpp, data036 staging (user packs) | `C9.md` |
 | C9 review | blocked | Opus 5.5 / high | C9 | - | `C9-review.md` |
 | C10a | blocked | Opus 5.5 / high | C0 (D2-D5), C2 | `funcmap.tsv` (no code) | `C10a.md` |
 | C10b | blocked | Sonnet 5.5 / high | C10a | per decided system (game option UI/save, damage path) | `C10b.md` |
 | C10b review | blocked | Opus 5.5 / high | C10b | - | `C10b-review.md` |
-| C11 | blocked | Sonnet 5.5 / high | C1-C10 | - (verification; one .dds staged) | `C11.md` |
+| C11 | blocked | Sonnet 5.5 / high | C2-C10 (C1 handed off, D7) | - (verification; one .dds staged) | `C11.md` |
 | C12 | blocked | Sonnet 5.5 / high | C11 | docs, MODS.md, maybe Always.h (D6) | `C12.md` |
 
 Running together: C0, C1a, C2, C6a and C8a/C10a touch no game code, so they can run alongside a

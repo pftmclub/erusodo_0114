@@ -42,8 +42,10 @@ OPEN_STATUSES = ('to-implement', 'unsupported', 'binary-only')
 # name = the census SYSTEMS name. (disposition, owner or receiver, flag that lands it or None, decision)
 # disposition: build | handed-off | declined | pending
 SYSTEM_DISPOSITION = {
-    'Numerical skill data': ('build', 'C1', 'SERV_IRUHADEV_JUNE_NUMERICAL_DATA', 'C1; D1 2026-10-04'),
-    'Applied skill ID': ('build', 'C1', 'SERV_IRUHADEV_JUNE_NUMERICAL_DATA', 'C1; D1 2026-10-04'),
+    'Numerical skill data': ('handed-off', '%s section 1 (character ports: June skill reform)' % CHECKLIST, None,
+                             'D7 2026-10-06: C1a found every block uses June reform skill IDs no March character learns'),
+    'Applied skill ID': ('handed-off', '%s section 1 (character ports: June skill reform)' % CHECKLIST, None,
+                         'D7 2026-10-06: its readers (numerical override, memo/ultimate gate) need the June skill system'),
     'Effect-alpha option': ('build', 'C10', None, 'D2 2026-10-05: build'),
     'HP-rate damage': ('build', 'C10', None, 'D4 2026-10-05: build'),
     'Combination point': ('handed-off', '%s section 3 (Lu/Ciel port)' % CHECKLIST, None,
@@ -69,7 +71,7 @@ def disposition_of(r):
     """-> (disposition, owner-or-receiver, note) for an open row, else None."""
     if r['status'] not in OPEN_STATUSES and r['status'] not in ('handed-off', 'declined'):
         return None
-    sysn = _system_name(r)
+    sysn = _system_name(r) or KEY_SYSTEM.get(r['key'])
     if sysn in SYSTEM_DISPOSITION:      # first: the plan gives C1 all four APPLIED_SKILL_ID rows, nested one included
         d, who, _flag, note = SYSTEM_DISPOSITION[sysn]
         return (d, who, note)
@@ -94,6 +96,11 @@ def apply(rows):
 
 
 # ------------------------------------------------------------------ owners
+# Keys with no census system whose only June reader belongs to a system above (C2: DAMAGE_SKILL_ID is read only by
+# the NUMERICAL_DATA override, 3263fefc), so they follow that system's disposition.
+KEY_SYSTEM = {'DAMAGE_SKILL_ID': 'Numerical skill data'}
+
+
 # C-phase that closes each open row (JUNE2017_EFFECT_COMPLETION_PHASES.md "Where things stand" + C1..C11).
 _C1 = {'NUMERICAL_DATA_INDEX', 'NUMERICAL_DATA_NAME', 'APPLIED_SKILL_ID', 'DAMAGE_SKILL_ID'}
 _C3 = {'INIT_EXTRA_DAMAGE_BEFORE_LOAD', 'ADD_MEMBER_COUNT', 'ADD_MEMBER_COUNT_DISTANCE', 'BOUNDING_BACK_SPEED_X',
@@ -188,8 +195,8 @@ def _src_hp_rate(t):
 # Each source is its own check line, so C1 can close its line without waiting for C10's.
 DAMAGE_SOURCES = [
     ('numerical skill data (June SetDamageDataFromLUA override, 32632390@3263fe41)', _src_numerical,
-     'SERV_IRUHADEV_JUNE_NUMERICAL_DATA', 'C1'),
-    ('HP-rate damage (HP_RATE_DAMAGE_TYPE/VALUE; C10a confirms the formula)', _src_hp_rate, None, 'C10'),
+     'SERV_IRUHADEV_JUNE_NUMERICAL_DATA', 'C1', 'Numerical skill data'),
+    ('HP-rate damage (HP_RATE_DAMAGE_TYPE/VALUE; C10a confirms the formula)', _src_hp_rate, None, 'C10', 'HP-rate damage'),
 ]
 
 
@@ -303,6 +310,11 @@ def checks(rows, tu_text, final=False, fx_path=JUNE_FX):
         n, per, no_skill = damage_regression(fx_path)
         for src, hits in per:
             by_file = collections.Counter(f for f, _, _ in hits)
+            disp = SYSTEM_DISPOSITION.get(src[4], ('build',))
+            if hits and disp[0] in ('handed-off', 'declined'):
+                out.append((True, 'definition item 1, %s: %s to %s (%s); %d of %d June DAMAGE_DATA* blocks depend on it' % (
+                    src[0], disp[0], disp[1], disp[3], len(hits), n)))
+                continue
             if hits:
                 msg = ('definition item 1, %s: %d of %d June DAMAGE_DATA* blocks get damage only from it, and March lacks it '
                        '(owner %s, flag %s). By file: %s. First: %s' % (

@@ -34,7 +34,7 @@ DE	DE.DAMAGE_DATA	(top)	HIT_GAP	implemented	8a		direct	32632390@3263a479	X2Damag
 DE	DE.DAMAGE_DATA	(top)	CAMERA_CRASH_GAP	implemented	8a		direct	32632390@32639481	X2DamageManager.cpp:469	same	5814	DamageEffect:4300 DamageEffect_Character:482 DamageEffect_Dungeon:549 DamageEffect_ETC:251 DamageEffect_INT:232	CAMERA_CRASH_GAP		
 DE	DE.DAMAGE_DATA	(top)	TECH_POINT	implemented	8a		direct	32632390@32637d94	X2DamageManager.cpp:445	same	2833	DamageEffect:1989 DamageEffect_Character:188 DamageEffect_Dungeon:212 DamageEffect_ETC:299 DamageEffect_INT:145	TECH_POINT		
 DE	DE.DAMAGE_DATA	(top)	CAMERA_CRASH_TIME	implemented	8a		direct	32632390@326395f1	X2DamageManager.cpp:470	same	5814	DamageEffect:4300 DamageEffect_Character:482 DamageEffect_Dungeon:549 DamageEffect_ETC:251 DamageEffect_INT:232	CAMERA_CRASH_TIME		
-DE	DE.DAMAGE_DATA	(top)	NUMERICAL_DATA_INDEX	unsupported	8c	Numerical skill data (absent)	direct	32632390@3263fb25	X2DamageManager.cpp:248	same (32632390@3263fc86: int into a stack local, default EBX, zeroed @3263fc6b)	2065	DamageEffect:1491 DamageEffect_Character:395 DamageEffect_Dungeon:177 DamageEffect_INT:2	NUMERICAL_DATA_INDEX	C1	
+DE	DE.DAMAGE_DATA	(top)	NUMERICAL_DATA_INDEX	handed-off	8c	Numerical skill data (absent)	direct	32632390@3263fb25	X2DamageManager.cpp:248	same (32632390@3263fc86: int into a stack local, default EBX, zeroed @3263fc6b)	2065	DamageEffect:1491 DamageEffect_Character:395 DamageEffect_Dungeon:177 DamageEffect_INT:2	NUMERICAL_DATA_INDEX		JUNE2017_CHARACTER_PORT_CHECKLIST.md section 1 (character ports: June skill reform)
 DE	DE.DAMAGE_DATA	(top)	WAY_OF_SWORD_TYPE	implemented	8a		direct	32632390@32634fd7	X2DamageManager.cpp:188	same	423	DamageEffect:342 DamageEffect_Character:62 DamageEffect_Dungeon:19	WAY_OF_SWORD_TYPE		
 DE	DE.DAMAGE_DATA	(top)	DAMAGE_TYPE	implemented	8a		direct	32632390@32632b5a	X2DamageManager.cpp:136	same	7264	DamageEffect:5315 DamageEffect_Character:601 DamageEffect_Dungeon:717 DamageEffect_ETC:328 DamageEffect_INT:303	DAMAGE_TYPE		
 DE	DE.DAMAGE_DATA	(top)	HIT_TYPE	implemented	8a		direct	32632390@32632d91	X2DamageManager.cpp:138	same	7291	DamageEffect:5337 DamageEffect_Character:602 DamageEffect_Dungeon:718 DamageEffect_ETC:330 DamageEffect_INT:304	HIT_TYPE		
@@ -61,7 +61,7 @@ DE	DE.DAMAGE_DATA	(top)	FORCE_FLY	implemented	8a		direct	32632390@3263a088	X2Dam
 DE	DE.DAMAGE_DATA	(top)	CAN_REVENGE	implemented	8a		direct	32632390@3263a17e	X2DamageManager.cpp:483	same	6361	DamageEffect:4525 DamageEffect_Character:579 DamageEffect_Dungeon:665 DamageEffect_ETC:311 DamageEffect_INT:281	CAN_REVENGE		
 DE	DE.DAMAGE_DATA	(top)	CAN_REFLEX	implemented	8a		direct	32632390@3263a290	X2DamageManager.cpp:484	same	3830	DamageEffect:2455 DamageEffect_Character:511 DamageEffect_Dungeon:390 DamageEffect_ETC:272 DamageEffect_INT:202	CAN_REFLEX		
 DE	DE.DAMAGE_DATA	(top)	RE_ATTACK	implemented	8a		direct	32632390@3263a38d	X2DamageManager.cpp:486	same	5198	DamageEffect:3858 DamageEffect_Character:301 DamageEffect_Dungeon:474 DamageEffect_ETC:293 DamageEffect_INT:272	RE_ATTACK		
-DE	DE.DAMAGE_DATA	(top)	APPLIED_SKILL_ID	unsupported	8c	Applied skill ID (absent)	direct	32632390@32632446	X2DamageManager.cpp:209	same (32632390@3263256a: int, default EBX, zeroed @3263254f)	2669	DamageEffect:1940 DamageEffect_Character:485 DamageEffect_Dungeon:238 DamageEffect_ETC:1 DamageEffect_INT:5	APPLIED_SKILL_ID	C1	
+DE	DE.DAMAGE_DATA	(top)	APPLIED_SKILL_ID	handed-off	8c	Applied skill ID (absent)	direct	32632390@32632446	X2DamageManager.cpp:209	same (32632390@3263256a: int, default EBX, zeroed @3263254f)	2669	DamageEffect:1940 DamageEffect_Character:485 DamageEffect_Dungeon:238 DamageEffect_ETC:1 DamageEffect_INT:5	APPLIED_SKILL_ID		JUNE2017_CHARACTER_PORT_CHECKLIST.md section 1 (character ports: June skill reform)
 DE	DE.top	(top)	HIT_PARTICLE%d	implemented	6b		other-func	31f6cd00@-	X2DamageEffect.cpp:9392	unchecked(June reads it in callee 31f6cd00, not a scope reader)	12900	DamageEffect:10734 DamageEffect_Character:324 DamageEffect_Dungeon:920 DamageEffect_ETC:432 DamageEffect_INT:490	HIT_PARTICLE0 HIT_PARTICLE1 HIT_PARTICLE2 HIT_PARTICLE3 HIT_PARTICLE4 HIT_PARTICLE5 HIT_PARTICLE6 HIT_PARTICLE7 HIT_PARTICLE8 HIT_PARTICLE9		
 DE	DE.PARTICLE	(top)	TRIGGER_COUNT	implemented	6b		direct	31f66e60@31f67403	X2DamageEffect.cpp:6544	same	12927	DamageEffect:10816 DamageEffect_Character:251 DamageEffect_Dungeon:913 DamageEffect_ETC:436 DamageEffect_INT:511	TRIGGER_COUNT		
 DE	DE.top	(top)	DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME	implemented	5		direct	31f7aab0@-	X2DamageEffect.cpp:1866 X2DamageEffect.cpp:1908	n/a (sub-table name)	431	DamageEffect:289 DamageEffect_Character:45 DamageEffect_Dungeon:82 DamageEffect_ETC:10 DamageEffect_INT:5	DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME		
@@ -164,7 +164,7 @@ DE	DE.DAMAGE_DATA	BUFF_FACTOR/FINALIZER	BFT_HITTED_COUNT	implemented	unassigned	
 DE	DE.DAMAGE_DATA	BUFF_FACTOR/FINALIZER/BFT_HITTED_COUNT	BUFF_USE_COUNT_TYPE	implemented	unassigned		nested-subtable	32d4ca60@- 32d430f0@32d431be 32d433d0@32d4349e	X2BuffFactor.cpp:1354 X2BuffFactor.cpp:1439 X2BuffFinalizerTemplet.cpp:427	unchecked(buff parser row: March matched path-insensitively)	127	DamageEffect:104 DamageEffect_Character:5 DamageEffect_Dungeon:12 DamageEffect_ETC:4 DamageEffect_INT:2	BUFF_USE_COUNT_TYPE		
 DE	DE.DAMAGE_DATA	BUFF_FACTOR/FINALIZER/BFT_HITTED_COUNT	COUNT	implemented	unassigned		nested-subtable	32d4ca60@- 31f65730@31f65a26 32d430f0@-	X2BuffFactor.cpp:1360 X2BuffFactor.cpp:1445	unchecked(buff parser row: March matched path-insensitively)	127	DamageEffect:104 DamageEffect_Character:5 DamageEffect_Dungeon:12 DamageEffect_ETC:4 DamageEffect_INT:2	COUNT		
 DE	DE.DAMAGE_DATA	(top)	USED_SKILL_ID	implemented	8a		direct	32632390@3263de71	X2DamageManager.cpp:578	same	373	DamageEffect:324 DamageEffect_Character:22 DamageEffect_Dungeon:27	USED_SKILL_ID		
-DE	DE.DAMAGE_DATA	BUFF_FACTOR	APPLIED_SKILL_ID	unsupported	unassigned	Applied skill ID (absent)	direct	32632390@32632446	X2DamageManager.cpp:209	unchecked(buff parser row: March matched path-insensitively)	2	DamageEffect:2	APPLIED_SKILL_ID	C1	
+DE	DE.DAMAGE_DATA	BUFF_FACTOR	APPLIED_SKILL_ID	handed-off	unassigned	Applied skill ID (absent)	direct	32632390@32632446	X2DamageManager.cpp:209	unchecked(buff parser row: March matched path-insensitively)	2	DamageEffect:2	APPLIED_SKILL_ID		JUNE2017_CHARACTER_PORT_CHECKLIST.md section 1 (character ports: June skill reform)
 DE	DE.top	(top)	FOLLOW_ON_LINE	implemented	5		direct	31f7aab0@31f7dea4	X2DamageEffect.cpp:1946	same	191	DamageEffect:113 DamageEffect_Character:6 DamageEffect_Dungeon:16 DamageEffect_ETC:8 DamageEffect_INT:48	FOLLOW_ON_LINE		
 DE	DE.top	(top)	MUST_ON_LINE	implemented	5		direct	31f7aab0@31f7e1f3	X2DamageEffect.cpp:1951	same	19	DamageEffect:13 DamageEffect_ETC:5 DamageEffect_INT:1	MUST_ON_LINE		
 DE	DE.positional	[]	BONE_NAME	june-ignores	-		positional				75	DamageEffect:58 DamageEffect_Character:3 DamageEffect_Dungeon:9 DamageEffect_ETC:4 DamageEffect_INT:1	BONE_NAME		
@@ -355,7 +355,7 @@ DE	DE.DAMAGE_DATA	BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ADDITIONAL_ATTACK	BUFF_CHANGE_
 DE	DE.DAMAGE_DATA	BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ADDITIONAL_ATTACK	BUFF_RELATION_TYPE	implemented	unassigned		nested-subtable	32d4c9c0@- 32d42030@32d422f4 32d436b0@32d43956	X2BuffFactor.cpp:1064 X2BuffFactor.cpp:1575 X2BuffFactor.cpp:1858	unchecked(buff parser row: March matched path-insensitively)	2	DamageEffect:1 DamageEffect_INT:1	BUFF_RELATION_TYPE		
 DE	DE.DAMAGE_DATA	BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ADDITIONAL_ATTACK	FIX_VALUE	implemented	unassigned		nested-subtable	32d4c9c0@- 32d42030@- 32d42650@-	X2BuffFactor.cpp:1042 X2BuffFactor.cpp:1556 X2BuffFactor.cpp:1775	unchecked(buff parser row: March matched path-insensitively)	2	DamageEffect:1 DamageEffect_INT:1	FIX_VALUE		
 DE	DE.DAMAGE_DATA	BUFF_FACTOR/BEHAVIOR/BBT_CHANGE_ANIM_SPEED	FIX_VALUE	implemented	unassigned		nested-subtable	32d4c9c0@- 32d42030@- 32d42650@-	X2BuffFactor.cpp:1042 X2BuffFactor.cpp:1556 X2BuffFactor.cpp:1775	unchecked(buff parser row: March matched path-insensitively)	4	DamageEffect:2 DamageEffect_INT:2	FIX_VALUE		
-DE	DE.DAMAGE_DATA	(top)	DAMAGE_SKILL_ID	to-implement	8b		direct	32632390@32632737			16	DamageEffect:16	DAMAGE_SKILL_ID	C1	
+DE	DE.DAMAGE_DATA	(top)	DAMAGE_SKILL_ID	handed-off	8b		direct	32632390@32632737			16	DamageEffect:16	DAMAGE_SKILL_ID		JUNE2017_CHARACTER_PORT_CHECKLIST.md section 1 (character ports: June skill reform)
 DE	DE.PARTICLE	(top)	EFFECT_TYPE	june-ignores	6b		dead-here				7	DamageEffect:7	EFFECT_TYPE		
 DE	DE.DAMAGE_DATA	(top)	CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME	implemented	8a		direct	32632390@32633f70	X2DamageManager.cpp:161	same	2	DamageEffect:1 DamageEffect_Dungeon:1	CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME		
 DE	DE.DAMAGE_DATA	(top)	CREATE_EFFECT_SET_MAIN_EFFECT_DELAYTIME	implemented	8a		direct	32632390@3263427c	X2DamageManager.cpp:162	same	2	DamageEffect:1 DamageEffect_Dungeon:1	CREATE_EFFECT_SET_MAIN_EFFECT_DELAYTIME		
@@ -622,7 +622,7 @@ DE	DE.DAMAGE_DATA	(top)	DAMAGE_DATA_KEY_NAME	implemented	8a		direct	32632390@326
 DE	DE.top	(top)	NUMERICAL_DATA_INDEX	june-ignores	5	Numerical skill data (absent)	dead-here				2	DamageEffect:2	NUMERICAL_DATA_INDEX		
 DE	DE.top	(top)	DAMAGE_TYPE	june-ignores	5		dead-here				2	DamageEffect:2	DAMAGE_TYPE		
 DE	DE.top	(top)	HIT_TYPE	june-ignores	5		dead-here				2	DamageEffect:2	HIT_TYPE		
-DE	DE.top	(top)	APPLIED_SKILL_ID	unsupported	5	Applied skill ID (absent)	direct	31f7aab0@31f7b483			2	DamageEffect:2	APPLIED_SKILL_ID	C1	
+DE	DE.top	(top)	APPLIED_SKILL_ID	handed-off	5	Applied skill ID (absent)	direct	31f7aab0@31f7b483			2	DamageEffect:2	APPLIED_SKILL_ID		JUNE2017_CHARACTER_PORT_CHECKLIST.md section 1 (character ports: June skill reform)
 DE	DE.top	(top)	FORCE_DOWN	june-ignores	5		dead-here				1	DamageEffect:1	FORCE_DOWN		
 DE	DE.DAMAGE_DATA	(top)	APPLY_CRITICAL_DAMAGE_PERCENT	implemented	8a		direct	32632390@3263e462	X2DamageManager.cpp:589	same	2	DamageEffect:2	APPLY_CRITICAL_DAMAGE_PERCENT		
 DE	DE.top	(top)	DAMAGE	june-ignores	5		dead-here				2	DamageEffect:1 DamageEffect_Dungeon:1	DAMAGE		
@@ -792,7 +792,7 @@ ES	ES.EFFECT	(top)	LIMIT_DISTANCE	implemented	3		direct	321e48e0@321ea0b2	X2Effe
 ES	ES.templet	(top)	SOUND%d	implemented	3		direct	321e48e0@-	X2EffectSet.cpp:4200	n/a (sub-table name)	70	EffectSet:51 UIEffectSet:19	SOUND0 SOUND1 SOUND2 SOUND3 SOUND4		
 ES	ES.SOUND	(top)	EVENT_TIME	implemented	3		direct	321e48e0@321edde8	X2EffectSet.cpp:4203	same	70	EffectSet:51 UIEffectSet:19	EVENT_TIME		
 ES	ES.SOUND	(top)	FILE_NAME	implemented	3		direct	321e48e0@321edee9	X2EffectSet.cpp:4204	same	70	EffectSet:51 UIEffectSet:19	FILE_NAME		
-ES	ES.templet	(top)	APPLIED_SKILL_ID	unsupported	2	Applied skill ID (absent)	direct	321e48e0@321e5675	X2EffectSet.cpp:3633	same	170	EffectSet:170	APPLIED_SKILL_ID	C1	
+ES	ES.templet	(top)	APPLIED_SKILL_ID	handed-off	2	Applied skill ID (absent)	direct	321e48e0@321e5675	X2EffectSet.cpp:3633	same	170	EffectSet:170	APPLIED_SKILL_ID		JUNE2017_CHARACTER_PORT_CHECKLIST.md section 1 (character ports: June skill reform)
 ES	ES.EFFECT	(top)	NOT_ALLOW_MEMO	implemented	3		direct	321e48e0@321ea221	X2EffectSet.cpp:3872	same	7	EffectSet:7	NOT_ALLOW_MEMO		
 ES	ES.templet	(top)	SYNC_SHOW_BY_CREATE_UNIT	implemented	2		direct	321e48e0@321e57fa	X2EffectSet.cpp:3635	same	1	EffectSet:1	SYNC_SHOW_BY_CREATE_UNIT		
 ES	ES.EFFECT	(top)	APPLY_UNIT_ROTATION_MIRROR	implemented	3		direct	321e48e0@321e7eec	X2EffectSet.cpp:3779	same	196	EffectSet:162 UIEffectSet:34	APPLY_UNIT_ROTATION_MIRROR		
@@ -895,7 +895,7 @@ DD	InsertDamageData	(top)	DAMAGE_PHYSIC	to-implement	unassigned		direct	32621080
 DD	InsertDamageData	(top)	DAMAGE_PVP_RATE	to-implement	unassigned		direct	32621080@32621356			107	Elsword_DamageData:107	DAMAGE_PVP_RATE	C9	
 DD	InsertDamageData	(top)	DAMAGE_KEY_NAME	to-implement	unassigned		direct	32621080@3262114a			107	Elsword_DamageData:107	DAMAGE_KEY_NAME	C9	
 DD	InsertDamageData	(top)	DAMAGE_ATTACK_TYPE	to-implement	unassigned		direct	32621080@32621cc1			107	Elsword_DamageData:107	DAMAGE_ATTACK_TYPE	C9	
-DD	InsertDamageData	(top)	DAMAGE_SKILL_ID	to-implement	unassigned		direct	32621080@32621b48			103	Elsword_DamageData:103	DAMAGE_SKILL_ID	C9	
+DD	InsertDamageData	(top)	DAMAGE_SKILL_ID	handed-off	unassigned		direct	32621080@32621b48			103	Elsword_DamageData:103	DAMAGE_SKILL_ID		JUNE2017_CHARACTER_PORT_CHECKLIST.md section 1 (character ports: June skill reform)
 DS	DamageSound	(top)	HTD_GUARD_2	implemented	unassigned		direct	32610ff0@32611863	X2DamageManager.cpp:3360	same	49	DamageSound:49	HTD_GUARD_2		
 DS	DamageSound	(top)	HTD_BEEHOUSE	implemented	unassigned		direct	32610ff0@32611666	X2DamageManager.cpp:3351	same	48	DamageSound:48	HTD_BEEHOUSE		
 DS	DamageSound	(top)	HTD_STONE	implemented	unassigned		direct	32610ff0@326112eb	X2DamageManager.cpp:3345	same	48	DamageSound:48	HTD_STONE		
@@ -931,7 +931,7 @@ DE	DE.DAMAGE_DATA	(top)	HIT_ADD_MP_PERCENT	binary-only	8b		binary-only	32632390@
 DE	DE.DAMAGE_DATA	ATTACKER_GET	HP	implemented	8a		binary-only	32632390@32635b56	X2DamageManager.cpp:300	same	0		HP		
 DE	DE.DAMAGE_DATA	EXTRA_DAMAGE	JUMP_SPEED_RATE	implemented	8a		binary-only	32632390@3263740c	X2DamageManager.cpp:391	same	0		JUMP_SPEED_RATE		
 DE	DE.DAMAGE_DATA	ATTACKER_GET	MP	implemented	8a		binary-only	32632390@32635baf	X2DamageManager.cpp:301	same	0		MP		
-DE	DE.DAMAGE_DATA	(top)	NUMERICAL_DATA_NAME	unsupported	8c	Numerical skill data (absent)	binary-only	32632390@3263fcdd	X2DamageManager.cpp:249	same	0		NUMERICAL_DATA_NAME	C1	
+DE	DE.DAMAGE_DATA	(top)	NUMERICAL_DATA_NAME	handed-off	8c	Numerical skill data (absent)	binary-only	32632390@3263fcdd	X2DamageManager.cpp:249	same	0		NUMERICAL_DATA_NAME		JUNE2017_CHARACTER_PORT_CHECKLIST.md section 1 (character ports: June skill reform)
 DE	DE.DAMAGE_DATA	DIVIDE_DAMAGE_FROM_RANGE	RANGE%d	binary-only	8b		binary-only	32632390@-			0		RANGE%d	C4	
 DE	DE.DAMAGE_DATA	EXTRA_DAMAGE	RUNJUMP_SPEED_RATE	implemented	8a		binary-only	32632390@32636f10	X2DamageManager.cpp:382	same	0		RUNJUMP_SPEED_RATE		
 DE	DE.DAMAGE_DATA	(top)	APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID	implemented	8a		binary-only	32630d20@3263127f	X2DamageManager.cpp:4315	unchecked(March: `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` at X2DamageManager.cpp:4315 is not a GetValue key)	0		APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID		
