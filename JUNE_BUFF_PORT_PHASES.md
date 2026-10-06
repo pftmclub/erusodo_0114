@@ -5199,7 +5199,7 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 
 **Play-test (2026-10-06, user: all passed; exe f17026d4, logs read).** The run started after the deploy, exited cleanly (census present), 0 EXCEPTION; 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (unrelated, as before). `ErrorLog.txt:539` `first critical threshold term: anti-critical 1.15, panic time 0 -> attacker's chance -1.15 (March's sign: +1.15)` after BFI 49 on every monster (March's staged value 1.15, June's 0.15: JUNE_BUGS #53). No `first socket …` and no MP-cost line, as expected.
 
-**Decisions (user, 2026-10-06: "follow June").** (1) Item 4: port June's bool argument through `GetActualMPConsume` (June slots 423/424 and the class overrides) and apply the cut where June passes true: added to **16-step3b3** as its first item. (2) Boss terms: no stand-in; they stay dormant offline as in June without a server grade.
+**Decisions (user, 2026-10-06: "follow June").** (1) Item 4: port June's bool argument through `GetActualMPConsume` (June slots 423/424 and the class overrides) and apply the cut where June passes true: added to **16-step3b3** as its first item. (2) Boss terms, **revised by the user the same day ("the proper way")**: no client-side stand-in; the offline server must rank the mobs as the real server did. The real server read `MONSTER_GRADE` from each dungeon stage script (`XSLDungeonSubStage.cpp:197`) and sent it (`XSLDungeon.cpp:391`), and 227 of the client's stage scripts carry the key. The work is a new offline plan, to be created in plan mode (kickoff prompt given to the user, 2026-10-06); the boss terms ported here need no change and go live when it lands, together with JUNE_BUGS #52.
 
 ## Critical files
 
