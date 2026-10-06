@@ -5247,7 +5247,7 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
   - June's tail uses `ebx` = the `32715320` templet (`[esp+0x28]`), not the rank copy. `31fe4730` (InitSocketEffectEx) jumps past it (`@3204f5f6` → `320500f0`), as March's `continue` does.
   - Slots are 1-4, then all-skill 1/2/3/4/6.
   - `3234fbd0`: the categories as `32070510`, default slot 0 → 1.0, max(1 − Σ, 0); `3235a710` applies max(·, 0.8).
-- **Decision facts.** Item 4's bool is confirmed as the Done note has it (it goes to 3b3). The boss-grade facts are corrected above.
+- **Decision facts.** Item 4's bool is confirmed: `3203cf60` `RET 0xc`, `bl = [esp+0x18]` is the 3rd argument, and `test bl,bl` gates both the `32358970(0xb)` term (`@3203cff7`) and the `+0x74dc` cut (`@3203d029`). The callers that pass 1 (`31fd6880`) were not re-checked. The boss-grade facts are corrected above.
 
 **Hygiene.**
 - Fix, `--worktree --files X2GUNPC.cpp X2GUNPC.h --with EXTRA_NPC_STAT JUNE_BUFF_DEBUG`: 1 PASS, 1 PASS~ (one blank line after the ctor), RESULT PASS, 16 deleted lines (all `fb92b03`'s own).
@@ -5259,7 +5259,7 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 
 **Deploy.** `DEPLOY OK: X2_offline.exe is 19,230,208 B, dated 2026-10-06 12:28:01, md5 631619ba9e9013d674f54d67f87f224f, equal to X2/US_SERVICE/x2.exe (2026-10-06 12:27:56); built at mods/june-buff-port 496f07e + 2 uncommitted code file(s).` Those two files are `60d0571`'s. The new `first socket boss grade` text is in the exe. Not launched.
 
-**How to see it in game.** On a battlefield, hit a middle boss (danger-gauge boss). `ErrorLog.txt` then shows `[JUNE_BUFF] first socket boss grade: NPC <id> grade 1, ExtraNPCStat row yes -> boss yes` and, with no damage-to-boss socket, `first socket damage to boss (final damage): rate 1, X -> X` (the same number twice). The damage numbers are unchanged.
+**How to see it in game.** Offline middle bosses spawn through the NOT → `CreateNpcCreatedInfo` → `:987` route with `m_uiBossGroupId = SPAWN_ID ≥ 1`, so they are grade 1. `SHOW_BOSS_NAME` is FALSE in the data, so the `:782` route would give 0. All five Lanox middle bosses have ExtraNPCStat rows (field 1: `NUI_LOW_RAGE_FATHERFIG_FD_BOSS` and `NUI_LOW_SMITH_ALUMINUM_FD_BOSS`; 2: `NUI_LOW_GEYSER_ALUMINUM_FD_BOSS`; 3: `NUI_LOW_MOUNT_BERSERKER_BOSS`; 4: `NUI_LOW_FINALHALL_IGNIA_BOSS`). The older fields' tables are bytecode and were not crossed. So on a Lanox field, hit the middle boss. `ErrorLog.txt` then shows `[JUNE_BUFF] first socket boss grade: NPC <id> grade 1, ExtraNPCStat row yes -> boss yes` and, with no damage-to-boss socket, `first socket damage to boss (final damage): rate 1, X -> X` (the same number twice). The damage numbers are unchanged.
 
 **Open for the user.** When creating the offline mob-ranking plan, include point (b) above. /cost is not available in-session.
 
