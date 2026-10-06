@@ -475,6 +475,29 @@ class CX2DamageManager
 			EDT_ENCHANT_POISON_DOUBLE_PIERCING,
 			EDT_ENCHANT_POISON_DOUBLE_SHOCK,
 			EDT_ENCHANT_POISON_DOUBLE_SNATCH,
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			/// June buff port Phase 16-data: the 18 June-only types June's OptionItemData.lua names, at June's values
+			/// (Enum.lua). June's 66 (EDT_BEDCLOTHES_FEATHER) is EDT_EVENT_SMASH_3 here and is not taken; June's
+			/// renumbered EDT_ENCHANT_* block is not taken either. No March handler: the socket loader drops them.
+			EDT_FIRE_BURST                                  = 68,
+			EDT_RAIN_OF_FIRE                                = 69,
+			EDT_METEOR_STRIKE                               = 70,
+			EDT_VOLCANO                                     = 71,
+			EDT_FIRE_FALL                                   = 72,
+			EDT_EJECTION_BUSTER                             = 145,
+			EDT_SUPREME_PUNISHMENT                          = 146,
+			EDT_SPECTRAL_SPEAR                              = 147,
+			EDT_BALLISTA_BOLT                               = 149,
+			EDT_DECREASE_ENEMY_RESIST                       = 150,
+			EDT_COMMAND_HIT_EXPLOSION                       = 151,
+			EDT_FORWARD300_FLAMEGROUND                      = 152,
+			EDT_FORWARD300_ICEGROUND                        = 153,
+			EDT_FORWARD300_POISONGROUND                     = 154,
+			EDT_FORWARD300_WINDGROUND                       = 155,
+			EDT_COMMAND_10HIT_DECREASE_SKILL_COOLTIME       = 156,
+			EDT_MAGI_HIT_COUNT_ATTACK                       = 157,
+			EDT_DECENT_TO_SHADOW                            = 159,
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 		};
 

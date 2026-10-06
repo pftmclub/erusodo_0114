@@ -80,3 +80,14 @@ June addresses; byte-level CP949 edits.
   June-only and not ported: decode its reader with the `+0x114` element layout.
 - **Item 10, SIEE handlers:** June's loader routes SIEE 11/13/17 buff factors to the custom-use
   pointer (see `16-data.md`); 16-data ports the routing, the handlers are here.
+
+## From 16-data (2026-10-06)
+
+- June's `OptionItemData.lua` and the Enum are in (Lua and C++, `_SOCKET_PARITY`). SIEE 12-20 are now
+  **filed** like June (`31fe4730` accepts 1-20; the caller skips the socket's tail), and SIEE 13/17
+  route to the custom-use pointer. `ProcessSocketEffectEx` has no case for 12-20 yet: item 10 adds
+  them. The loader logs one `[JUNE_BUFF]` line per June-only SIEE / EDT / HMET type.
+- Reach on the loaded data: SIEE 15 on 180 entries, 13 on 27, 14 on 17, the rest ≤ 9; 185 rank-linked
+  (120 + 65); `m_sBuffLevel` (`+0x29c`) on 280. None of the save's 13 socket IDs is in any of these.
+- Not in this phase unless the user says so: the 18 June-only EDTs (179 entries) and `HMET_FEVER`
+  (1 entry), which are logged and dropped / no-op.

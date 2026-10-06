@@ -4925,6 +4925,65 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **Was open for the user.** Before 16-data: accept the window above (185 rank-linked sockets without stats, about 280 conditional buffs inert until 16-step3b), or move 16-step3b items 7-8 ahead of 16-data. /cost not available in-session.
 
+### Phase 16-data — Done (2026-10-06, Opus 5.5 high)
+
+**Landed** (`this commit`, all under `SERV_IRUHADEV_JUNE_SOCKET_PARITY`, no new flag): June's `OptionItemData.lua` wholesale (13,408 entries; March had 7,429), the Enum it needs (Lua and C++), June's SIEE gate and the 13/17 routing. Data staged in `march2014/data036/` and `kom_contents/data036_kom/` (manifest already listed both files). `PACK OK data036` (182 entries; vs live: ~ `Enum.lua`, ~ `OptionItemData.lua`); the copy waits on the user.
+
+**Enum** (`Enum.src.lua`, values from June's `Enum.src.lua`; Phase 2's comment style):
+- `SOCKET_DATA_TYPE`: all 273 June-only members (122-…; none collides). `SOCKET_ITEM_EFFECT_EX`: 12-20. `HYPER_MODE_EFFECTIVE_TYPE`: `HMET_FEVER = 3`, `HMET_END` 3 → 4 (June).
+- `EXTRA_DAMAGE_TYPE`: only the 18 June-only members OptionItemData names (68-72, 145-147, 149-157, 159). **Not taken:** June's `EDT_BEDCLOTHES_FEATHER = 66` (March's C++ has `EDT_EVENT_SMASH_3 = 66`) and June's renumbered `EDT_ENCHANT_*` block (45 conflicts, e.g. FROZEN 101 → 1011; March's C++ keeps 100-144). No June file names a raw EDT number.
+- Global dump of the compiled Enum against the live one: 301 lines added, 1 changed (`HMET_END`), nothing removed.
+
+**C++** (insert-only):
+- `X2SocketItem.h`: the 273 SDT, SIEE 12-20, `HMET_FEVER`/`HMET_END = 4` (`#else` keeps 3). `X2DamageManager.h`: the 18 EDTs, explicit values.
+- What March does with each (step 2):
+  - SDT: March's code switches only on `SDT_SKILL_LV_GROUP` and the three grow-up types (`X2SocketItem.cpp` 542-581, 2830; `X2Unit.cpp` 4676); the new types take the default paths. No handler log needed.
+  - EDT: the loader's switch had no case and dropped them silently. They now get explicit cases that drop them and log once per type.
+  - SIEE 12-20: March's `InitSocketEffectEx` rejected them, so the socket fell through to the stat / extra-damage / buff tail. June `31fe4730` files every SIEE 1-20 (`dec`; `cmp eax,0x13`; `ja`) and `3204f190` then skips the socket's tail (`@3204f5f6`). **Ported:** 12-20 are filed (e.g. SIEE 19's `BUFF_FACTOR_ID` no longer becomes a permanent socket buff). No `ProcessSocketEffectEx` case (handlers not ported). SIEE 15 now reaches `HasSocketAuraFor`, which still answers false (16-step3b).
+  - `HMET_FEVER`: pushed to the awakening list as before; the switch's `default` was an `ASSERT`. It now has an explicit no-op case.
+- Loader routing `32726850 @3273661d..32736630`: HMET 0, else SIEE in {11, 13, 17} → custom-use pointer. 13 and 17 are added.
+- Log, once per type at load: `socket N (first of its type): EXTRA_DAMAGE_TYPE / SIEE / HYPER_MODE_EFFECTIVE_TYPE V NAME … (not ported)`. That is 18 + 9 + 1 = 28 lines at most.
+
+**STR_ID (step 3): nothing to stage.**
+- Descriptions go `m_eDescStringID` → `m_mapSocketDescStrID` → `CKTDXStringTable` (`general.ess`, game directory).
+- The game's `general.ess` has 45,160 entries (36743 "Free", 39285 "…Ballista bolt…"). The packed `StringID_def.lua` already defines all 49 IDs June's file uses.
+- Only `StringID_def*.h` lacks the 20, and no C++ names them. Part 1's 20 came from a load test without `StringID_def.lua`. Its "80 SDT" is 69 distinct names; 97 unresolved = 69 + 9 + 18 + 1.
+
+**Bytecode (step 4).**
+- Compiled `-v mar-2014` (header `1b 4b 4c 81`).
+- Under the bundled KOG LuaJIT, with a stub `g_pCX2SocketItem` and a trap on every Enum table and `_G`:
+  - source Enum + source OptionItemData: 13,408 entries, 0 unresolved;
+  - bytecode Enum + bytecode `StringID_def` + bytecode OptionItemData: the same dump, byte-identical at `%.17g` (md5 `c8e34870…`).
+- md5 `Enum.lua a05b0333…`, `OptionItemData.lua 3e544cb7…`.
+
+**Reach (step 5)**, on the data the game now loads:
+- **IDs.** 247 March IDs gone, 6,226 June-only, 1,366 shared IDs differ (part 1 said 1,367; this compares every field at `%.17g`).
+- **The save.** Its 13 socket IDs (34 items, `sockets`/`random_sockets`) are all identical in both files, and none is June-only, rank-linked, `+0x29c` or SIEE 12-20.
+- **Emulator.** The roll pools (`SocketItemTable.lua`, 3,586 rows, 1,291 IDs) lose none; 840 of their IDs now carry June's rows.
+- **June-only keys,** entries per key:
+  - skill power-rate pair: 2,491;
+  - `m_bSocketExtraction`: 2,485;
+  - `m_fDamageMaximizeRate`: 1,014;
+  - MP return rates: 690 / 647;
+  - specialization A/B: 612;
+  - `m_SkillType`/`m_PowerRate`: 326;
+  - `m_sBuffLevel`: 280;
+  - rank: 120, PVE rank: 65;
+  - `HYPER_MODE_EFFECTIVE_TYPE`: 32;
+  - `m_fAllStatRelLV`: 30;
+  - `DUNGEON_ONLY_TYPE`: 8;
+  - 24 more under 100.
+- **New types.** SDT ≥ 122 on 3,219 entries. SIEE 12-20 on 259 (15: 180, 13: 27, 14: 17, others ≤ 9). New EDTs on 179. `HMET_FEVER` on 1.
+- `SOCKET_DATA_TYPE` is overwritten by the emulator's 122-member seed when `CX2OfflineLuaEnum::Publish` runs at login. `OptionItemData.lua` loads earlier, at StartUp, so it is not affected. The seed is left as is: `SocketItemTable.lua` names March types only.
+
+**Hygiene.** `flagcheck JUNE_SOCKET_PARITY --worktree --files` (4 files): 4 PASS, 0 deleted, 0 non-ASCII, 0 EOL-mismatched, RESULT PASS. Post-commit: in the follow-up commit.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,207,168 B, dated 2026-10-06 08:23:00, md5 6184b9fd9ff94e88f2eb33edeac6c6f1, equal to X2/US_SERVICE/x2.exe (2026-10-06 08:22:56); built at mods/june-buff-port 59dd026 + 4 uncommitted code file(s).` The three new log texts and the type names are in the exe (ASCII). Not launched.
+
+**How to see it in game.** At load, `[JUNE_BUFF]` lines in `ErrorLog.txt`: one per June-only EDT / SIEE / HMET type, plus the rank-linked lines (`is rank-linked … (enchant and skill level-up are)`), now reachable. The equipped sockets read and work as before (identical rows, same description string IDs).
+
+**Open for the user.** The handlers this step logs and does not port: the 18 EDTs and `HMET_FEVER` have no phase yet (SIEE 12-20 are 16-step3b item 10). Say which plan owns them. /cost not available in-session.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`

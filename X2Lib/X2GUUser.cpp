@@ -31752,6 +31752,19 @@ bool CX2GUUser::InitSocketEffectEx( const CX2SocketItem::SocketData& kSocketData
 	case CX2SocketItem::SIEE_ABSORB_HP_NO_REACT:	/// 피격 시 HP 흡수 세트 효과 ( 경직 제거 )
 	case CX2SocketItem::SIEE_ACTIVE_BUFF:			/// 피격 시 버프 적용 효과
 #endif // HAMEL_SECRET_DUNGEON
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June 31fe4730 files every SIEE 1-20 (dec / cmp 0x13 / ja), and its caller 3204f190 then skips the rest of
+	/// the socket (@3204f5f6). March has no ProcessSocketEffectEx case for 12-20, so they do nothing (the loader logs each).
+	case CX2SocketItem::SIEE_PLAY_EFFECTSET:
+	case CX2SocketItem::SIEE_BUFF_WHEN_SUCCESS_ATTACK:
+	case CX2SocketItem::SIEE_PLAY_EFFECTSET_WHEN_SUCCESS_ATTACK:
+	case CX2SocketItem::SIEE_ALWAYS_PLAY_EFFECT_SET:
+	case CX2SocketItem::SIEE_PLAY_EFFECTSET_TO_VICTIM_WHEN_SUCCESS_ATTACK:
+	case CX2SocketItem::SIEE_BUFF_PERIODICALLY:
+	case CX2SocketItem::SIEE_PLAY_EFFECTSET_WHEN_DIE:
+	case CX2SocketItem::SIEE_RETURN_FROM_DEATH:
+	case CX2SocketItem::SIEE_DOWN:
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		break;
 	}
 
@@ -38167,6 +38180,10 @@ void CX2GUUser::ApplyBuffByUseHyperMode()
 				SetSocketOptionHyperCoolTime( sInfoByUseHyperMode.m_fCoolTime );
 #endif //ADJUST_SECRET_ITEM_OPTION
 			}break;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		case CX2SocketItem::HMET_FEVER:						/// June-only (Phase 16-data): no March handler, nothing happens; the loader logs it
+			break;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		default:
 			{
 				/// 각성시 사용할 효과 설정이 이상하네요!!!

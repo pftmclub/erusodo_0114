@@ -18,6 +18,89 @@ const float CX2SocketItem::SocketData::MAX_REPAIR_PRICE_DISCOUNT	= 0.1f;
 const float CX2SocketItem::SocketData::MAX_SUPER_ARMOR_RATE			= 0.5f;
 const float CX2SocketItem::SocketData::MAX_SUPER_ARMOR_TIME			= 10.f;
 const float CX2SocketItem::SocketData::MAX_DUBLE_ATTACK_RATE		= 0.5f;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+
+namespace
+{
+	/// June buff port Phase 16-data. June's OptionItemData.lua names socket types March has no handler for. The loader
+	/// logs each one once, at the first socket of that type; the names are June's Enum.lua's.
+	const char* JuneOnlySocketTypeName( const char cKind_, const int iValue_ )
+	{
+		switch ( cKind_ )
+		{
+		case 'E':
+			switch ( iValue_ )
+			{
+			case CX2DamageManager::EDT_FIRE_BURST: return "EDT_FIRE_BURST";
+			case CX2DamageManager::EDT_RAIN_OF_FIRE: return "EDT_RAIN_OF_FIRE";
+			case CX2DamageManager::EDT_METEOR_STRIKE: return "EDT_METEOR_STRIKE";
+			case CX2DamageManager::EDT_VOLCANO: return "EDT_VOLCANO";
+			case CX2DamageManager::EDT_FIRE_FALL: return "EDT_FIRE_FALL";
+			case CX2DamageManager::EDT_EJECTION_BUSTER: return "EDT_EJECTION_BUSTER";
+			case CX2DamageManager::EDT_SUPREME_PUNISHMENT: return "EDT_SUPREME_PUNISHMENT";
+			case CX2DamageManager::EDT_SPECTRAL_SPEAR: return "EDT_SPECTRAL_SPEAR";
+			case CX2DamageManager::EDT_BALLISTA_BOLT: return "EDT_BALLISTA_BOLT";
+			case CX2DamageManager::EDT_DECREASE_ENEMY_RESIST: return "EDT_DECREASE_ENEMY_RESIST";
+			case CX2DamageManager::EDT_COMMAND_HIT_EXPLOSION: return "EDT_COMMAND_HIT_EXPLOSION";
+			case CX2DamageManager::EDT_FORWARD300_FLAMEGROUND: return "EDT_FORWARD300_FLAMEGROUND";
+			case CX2DamageManager::EDT_FORWARD300_ICEGROUND: return "EDT_FORWARD300_ICEGROUND";
+			case CX2DamageManager::EDT_FORWARD300_POISONGROUND: return "EDT_FORWARD300_POISONGROUND";
+			case CX2DamageManager::EDT_FORWARD300_WINDGROUND: return "EDT_FORWARD300_WINDGROUND";
+			case CX2DamageManager::EDT_COMMAND_10HIT_DECREASE_SKILL_COOLTIME: return "EDT_COMMAND_10HIT_DECREASE_SKILL_COOLTIME";
+			case CX2DamageManager::EDT_MAGI_HIT_COUNT_ATTACK: return "EDT_MAGI_HIT_COUNT_ATTACK";
+			case CX2DamageManager::EDT_DECENT_TO_SHADOW: return "EDT_DECENT_TO_SHADOW";
+			}
+			break;
+		case 'S':
+			switch ( iValue_ )
+			{
+			case CX2SocketItem::SIEE_PLAY_EFFECTSET: return "SIEE_PLAY_EFFECTSET";
+			case CX2SocketItem::SIEE_BUFF_WHEN_SUCCESS_ATTACK: return "SIEE_BUFF_WHEN_SUCCESS_ATTACK";
+			case CX2SocketItem::SIEE_PLAY_EFFECTSET_WHEN_SUCCESS_ATTACK: return "SIEE_PLAY_EFFECTSET_WHEN_SUCCESS_ATTACK";
+			case CX2SocketItem::SIEE_ALWAYS_PLAY_EFFECT_SET: return "SIEE_ALWAYS_PLAY_EFFECT_SET";
+			case CX2SocketItem::SIEE_PLAY_EFFECTSET_TO_VICTIM_WHEN_SUCCESS_ATTACK: return "SIEE_PLAY_EFFECTSET_TO_VICTIM_WHEN_SUCCESS_ATTACK";
+			case CX2SocketItem::SIEE_BUFF_PERIODICALLY: return "SIEE_BUFF_PERIODICALLY";
+			case CX2SocketItem::SIEE_PLAY_EFFECTSET_WHEN_DIE: return "SIEE_PLAY_EFFECTSET_WHEN_DIE";
+			case CX2SocketItem::SIEE_RETURN_FROM_DEATH: return "SIEE_RETURN_FROM_DEATH";
+			case CX2SocketItem::SIEE_DOWN: return "SIEE_DOWN";
+			}
+			break;
+		case 'H':
+			if ( CX2SocketItem::HMET_FEVER == iValue_ )
+				return "HMET_FEVER";
+			break;
+		}
+		return NULL;
+	}
+
+	void ReportJuneOnlySocketType( const char cKind_, const int iValue_, const int iSocketID_ )
+	{
+		const char* szName = JuneOnlySocketTypeName( cKind_, iValue_ );
+		if ( NULL == szName )
+			return;
+
+		static std::set< std::pair< char, int > > s_setReported;
+		if ( false == s_setReported.insert( std::make_pair( cKind_, iValue_ ) ).second )
+			return;
+
+		switch ( cKind_ )
+		{
+		case 'E':
+			CX2JuneBuffCapture::Line( "socket %d (first of its type): EXTRA_DAMAGE_TYPE %d %s is June-only and March has no handler for it, so the socket keeps no extra damage (not ported)",
+				iSocketID_, iValue_, szName );
+			break;
+		case 'S':
+			CX2JuneBuffCapture::Line( "socket %d (first of its type): SIEE %d %s is filed like June (31fe4730), but March has no ProcessSocketEffectEx case for it, so it does nothing (not ported%s)",
+				iSocketID_, iValue_, szName, CX2SocketItem::SIEE_ALWAYS_PLAY_EFFECT_SET == iValue_ ? "; the aura is 16-step3b's" : "" );
+			break;
+		case 'H':
+			CX2JuneBuffCapture::Line( "socket %d (first of its type): HYPER_MODE_EFFECTIVE_TYPE %d %s is June-only and March has no awakening handler for it, so it does nothing (not ported)",
+				iSocketID_, iValue_, szName );
+			break;
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 #ifdef SERV_NEW_ITEM_SYSTEM_2013_05
 /*static*/CX2SocketItem::KItemStatRelLVData CX2SocketItem::ms_KDummyItemStatRelLVData;	
@@ -321,6 +404,30 @@ bool CX2SocketItem::AddSocketData_LUA()
 					ASSERT( !"EDT_ACTIVE_DEBUFF - Not Setting Buff Factor!!" );
 			} break;
 #endif // HAMEL_SECRET_DUNGEON
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June-only types (Phase 16-data): March has no handler, so they are dropped as an unknown type always was; logged once each
+		case CX2DamageManager::EDT_FIRE_BURST:
+		case CX2DamageManager::EDT_RAIN_OF_FIRE:
+		case CX2DamageManager::EDT_METEOR_STRIKE:
+		case CX2DamageManager::EDT_VOLCANO:
+		case CX2DamageManager::EDT_FIRE_FALL:
+		case CX2DamageManager::EDT_EJECTION_BUSTER:
+		case CX2DamageManager::EDT_SUPREME_PUNISHMENT:
+		case CX2DamageManager::EDT_SPECTRAL_SPEAR:
+		case CX2DamageManager::EDT_BALLISTA_BOLT:
+		case CX2DamageManager::EDT_DECREASE_ENEMY_RESIST:
+		case CX2DamageManager::EDT_COMMAND_HIT_EXPLOSION:
+		case CX2DamageManager::EDT_FORWARD300_FLAMEGROUND:
+		case CX2DamageManager::EDT_FORWARD300_ICEGROUND:
+		case CX2DamageManager::EDT_FORWARD300_POISONGROUND:
+		case CX2DamageManager::EDT_FORWARD300_WINDGROUND:
+		case CX2DamageManager::EDT_COMMAND_10HIT_DECREASE_SKILL_COOLTIME:
+		case CX2DamageManager::EDT_MAGI_HIT_COUNT_ATTACK:
+		case CX2DamageManager::EDT_DECENT_TO_SHADOW:
+			{
+				ReportJuneOnlySocketType( 'E', static_cast<int>( socketExtraDamage.m_ExtraDamageType ), pSocketData->m_ID );
+			} break;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		}
 
 		luaManager.EndTable();
@@ -783,12 +890,21 @@ bool CX2SocketItem::AddSocketData_LUA()
 
 	/// 각성시 사용할 효과 설정
 	LUA_GET_VALUE_ENUM( luaManager, "HYPER_MODE_EFFECTIVE_TYPE",				pSocketData->m_eHyperModeEffectiveType, HYPER_MODE_EFFECTIVE_TYPE,	HMET_NONE );
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	ReportJuneOnlySocketType( 'S', static_cast<int>( pSocketData->m_eTypeSocketItemEffectEx ), pSocketData->m_ID );
+	ReportJuneOnlySocketType( 'H', static_cast<int>( pSocketData->m_eHyperModeEffectiveType ), pSocketData->m_ID );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	/// 버프 아이디를 파싱했으며, 아직 버프 정보를 설정한 곳이 없을 때
 	if ( uiBuffFactorId && false == bIsSetBuffFactor )
 	{
 		/// 각성시 혹은 피격서 적용할 버프라면, 따로 저장 ( 기존대로 저장하면 타 구문에서 일괄 처리되어, 오동작이 발생 )
 		if ( HMET_USE_BUFF == pSocketData->m_eHyperModeEffectiveType ||
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			 /// June @3273661d..32736630 also sends SIEE 13 and 17 here
+			 SIEE_BUFF_WHEN_SUCCESS_ATTACK == pSocketData->m_eTypeSocketItemEffectEx ||
+			 SIEE_BUFF_PERIODICALLY == pSocketData->m_eTypeSocketItemEffectEx ||
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			 SIEE_ACTIVE_BUFF == pSocketData->m_eTypeSocketItemEffectEx )
 		{
 			pSocketData->m_ptrBuffFactorCustomUse = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( uiBuffFactorId );
