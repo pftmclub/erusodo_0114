@@ -5775,6 +5775,12 @@ Lines I will read (`python tools/logs.py --tag JUNE_BUFF --grep "hyper-mode sock
 
 Log: `python tools/logs.py --tag JUNE_BUFF --grep "hyper-mode socket"` → `socket 72905 fired: type 1, value 50`, then `72905 skipped: own cool time`.
 
+**Play-test (2026-10-06, user: passed; logs read).**
+- **Exe:** the run (20:36:10) used the deployed exe `f9f26a28`, which contains `b7dce8b`. It exited cleanly (census present) with 0 EXCEPTION. The 2 UNHANDLED are `E_DISABLE_HB_CHECK_REQ`, as before.
+- **Check 1 is confirmed in the log** (`ErrorLog.txt:273-274`, 20:37:06, state 24 = battlefield). 72700 fired as type 2 and 72905 as type 1, value 50, cool time 30 s, in the same awakening. The user saw the MP number.
+- **Check 2 left no line.** The log has no second awakening at all: no `skipped` line and no second `fired`. The game closed at 20:37:20. So the type-1 cool-time skip is not proven by this run's log. It uses the same `SetJuneSocketCoolTime` / `GetJuneSocketCoolTime` path that 3b6's play-test proved for 72700 (skips at 0.055 / 24.5 / 14.5 s).
+- Iivue's item 510 keeps `72700,72701,72905`.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
