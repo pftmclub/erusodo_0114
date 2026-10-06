@@ -5201,6 +5201,68 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 
 **Decisions (user, 2026-10-06: "follow June").** (1) Item 4: port June's bool argument through `GetActualMPConsume` (June slots 423/424 and the class overrides) and apply the cut where June passes true: added to **16-step3b3** as its first item. (2) Boss terms, **revised by the user the same day ("the proper way")**: no client-side stand-in; the offline server must rank the mobs as the real server did. The real server read `MONSTER_GRADE` from each dungeon stage script (`XSLDungeonSubStage.cpp:197`) and sent it (`XSLDungeon.cpp:391`), and 227 of the client's stage scripts carry the key. The work is a new offline plan, to be created in plan mode (kickoff prompt given to the user, 2026-10-06); the boss terms ported here need no change and go live when it lands, together with JUNE_BUGS #52.
 
+### Phase 16-step3b2 — Review (2026-10-06, Opus 5.5 high)
+
+**Verdict.** Items 1-4 and 6 match June (raw disassembly; the piercing switch run under Unicorn), except the boss grade. The Done note's source for it was wrong, and the fix (`60d0571`, `SERV_IRUHADEV_JUNE_SOCKET_PARITY`) **makes the boss terms live on battlefield middle bosses**. One line to revert it is below.
+
+**Fix: the boss grade is June's battlefield value, not the packet's `m_cMonsterGrade`.**
+- `+0xdc` is written only by `323752f0`. The fetch `32384d10` calls it only for an NPC ID with an ExtraNPCStat row (`LANOX_EXTRA_NPC_STAT_PLAN.md` "What each fetch caller passes"), so every other NPC stays at the ctor's 0.
+- The grade is `32384d10`'s 3rd argument:
+  - battlefield `32d528f0`: `KNPCUnitReq +0x52 != 0`. June's `AddNPCData` copies req `+0x52` to NPCData `+0x3d` (`327edc2d`), so that field is `m_bShowBossName`. The Done note's "packet char" at `32d52951` is the level (`+8`).
+  - battlefield `32d539c0`: `NpcCreatedInfo +0xc > 0` = `m_uiBossGroupId` (`@32d539f5`).
+  - dungeon `327ef570`: NPCData `+0x44` = `m_cMonsterGrade` (`@327edc4f`).
+  - `3230d5c9`: 0.
+- `IsJuneSocketBossGrade()` is now `m_iExtraNPCStatMonsterGrade == 1` **and** `HasExtraNPCStat( id )` (`X2GUNPC.cpp`, guarded by `SOCKET_PARITY && EXTRA_NPC_STAT`).
+  - That member is the ExtraNPCStat port's per-spawn copy of exactly these two battlefield values (`X2BattleFieldGame.cpp:786/:1000`).
+  - `m_cJuneSocketMonsterGrade` and its ctor copy are gone (16 of this flag's own lines deleted).
+  - So the Done note's "first version" was June's value, not a stand-in.
+- **Decision (2) as revised by the user (`496f07e`)** said "the boss terms ported here need no change". On the corrected facts that does not hold: `fb92b03` read `m_cMonsterGrade` on battlefields (the offline middle boss sends 2, so never a boss), and no dungeon NPC ever got a grade. **User, 2026-10-06: keep this fix.** The offline ranking plan still owns dungeons. It must (a) send `MONSTER_GRADE` and (b) carry it through `AddNPCData` into the NPC at the dungeon spawn as `m_iExtraNPCStatMonsterGrade`, as June does (NPCData `+0x44` → `327ef71d`).
+- **Kept per NPC.** June keeps `+0xdc` in the shared per-ID unit info, so the last fetch of an ID wins; the ExtraNPCStat port already declined that hazard.
+- **Not plumbed here:** the dungeon grade (`m_cMonsterGrade`, which the emulator sends as 0, so 0 is June's result today).
+- **Safe defaults checked.** A user without sockets has damage-to-boss result 1.0 (basic 1.0 + option 0, `X2GameUnit.cpp:14358`) and defence-to-boss 0, so a boss-grade NPC takes the same damage and deals the same damage as before.
+- JUNE_BUGS #52 is now reached on battlefields: a summon or ally NPC hitting such a boss deals ×2. Row updated. funcmap rows `32286482` / `323752f0` are corrected.
+- **Revert:** `git revert 60d0571` (back to `fb92b03`'s packet grade), or have `IsJuneSocketBossGrade` return false (terms off).
+
+**Checked, no change.**
+- **Attacker terms** `@322852db..32285481`, all inside `[ebp+0x264]==0` (GUT_USER = 0):
+  - enemy-HP-few: `IsSamef(MaxHp, 0)`, NowHp > 0, ratio ≤ 0.3 (`3343bd78` = 0.3f as a double), r ≠ 0, through `+0x72c0`;
+  - the attacker's own 52fc: `0 < r`, through `+0x539c`;
+  - my-HP-few: `0 < r`, then NowHp > 0, then (1 − ratio)·r ≠ 0, through `+0x7590`, with no MaxHp test (#51).
+  - Each is P += P·r, M += M·r, and the x87 stack balances. The block sits after the pet-aura switch and before the memo ×2 at `32285481`.
+- **Piercing** `32285833..32285ccf` under Unicorn (DT 0/1/2 × 11 physic rates × 11 magic rates, including negative, > 0.2 and NaN): **363 cases, 0 mismatches** against `JuneSocketPiercingKeep`. The weapon cases 3-5 read no rate. March's later `fDefencePowerPhysic/Magic` use (`:3020`) reassigns them.
+- **Damage to boss** `32286416..32286541`: `this` is GUT_NPC (`[edi+0x264]==1`), then SMA, then `+0x8fd4`, then the boss term (`+0x7158` result). There is no attacker-type test (#52). The `bl` Space-of-Thought route is not ported (Done note).
+- **My-HP-few defence** `322868d1..3228696a`: the defender (`esi` = `[esp+0x38]`), with June's order `32275ba0` → defender 0xb8 → attacker 0x3d8 → this term → a `+0x470` block → clamp `32286995`. March has nothing between the attacker-skill rate and the clamp.
+- **User DamageReact** `32048800..320488b7`: the boss and 52fc terms are inside `[esi+0x264]==1`. The cap is min(r, 1.0) (NaN passes uncapped, as in the port) and comes before the penetrate test `[ebx+0x4c5]`.
+- **Critical chance** `@32048a87..32048ac8`: the rate is clamped at ≥ 0, plus `32273480`, and the critical fires when GetRandomFloat(1) ≤ that (`SRO_ATTACK_CRITICAL` = 1).
+  - `32273480` = panic (time > 0) − `+0x4eb0` (= `+0x4e10` result) − socket `+0x5a38` × 0.01 (`33478b70`) when > 0.
+  - `m_Panic` is confirmed independently: `+0x26b8` is Stigma (June's DamageReact `@32048ace` reads its time and then `+0x26c4` = `m_DamagePerSec`, March's own pattern), and March's pack runs Stigma, Dryad, Blind, WaterHold, Panic → `0x26b8 + 4·0x11c = 0x2b28`.
+- **Critical damage tables** (index = type − 1):
+  - `3204a834` = `{bbc magic, b35 mix, c1d physic, bbc, b35}`, default physic; `327b5390` has the same shape.
+  - These match the port's switch: MAGIC/WEAPON_MAGIC → `de0`; MIX/WEAPON_MIX → half/half; anything else → `e00`.
+  - The order is + `DD+0x59c` → + afflicted (user only) → × `+0x4ec4` result (inlined `+0x4f64` in the NPC one), and the multiplier applies when ≥ 1.
+  - The NPC-attacker branch is (GetCV + afflicted) × defence.
+- **`32275ba0`:** AT_SPECIAL → GAA(1)·(1 + `0x238` [+ `0x2ec` unless type 13]); AT_NORMAL → GAA(0) **+** `0x2ec`; other types → GAA(type); non-user → 1.0.
+- **Item 6:**
+  - Every March `SumSocketOption` call (equipment, pet aura, riding pet, title, set items `:3469/:3472`, premium `:3128`) runs inside `InitSocketData` after the clear.
+  - June's tail uses `ebx` = the `32715320` templet (`[esp+0x28]`), not the rank copy. `31fe4730` (InitSocketEffectEx) jumps past it (`@3204f5f6` → `320500f0`), as March's `continue` does.
+  - Slots are 1-4, then all-skill 1/2/3/4/6.
+  - `3234fbd0`: the categories as `32070510`, default slot 0 → 1.0, max(1 − Σ, 0); `3235a710` applies max(·, 0.8).
+- **Decision facts.** Item 4's bool is confirmed as the Done note has it (it goes to 3b3). The boss-grade facts are corrected above.
+
+**Hygiene.**
+- Fix, `--worktree --files X2GUNPC.cpp X2GUNPC.h --with EXTRA_NPC_STAT JUNE_BUFF_DEBUG`: 1 PASS, 1 PASS~ (one blank line after the ctor), RESULT PASS, 16 deleted lines (all `fb92b03`'s own).
+- Range after `60d0571`, `--range e002c27^..HEAD --with JUNE_BUFF_DEBUG JUNE_BUFF_NEW_SKILL JUNE_DAMAGEDATA EXTRA_NPC_STAT`:
+  - `files: 14 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+  - `in this flag's files: 24 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+  - `RESULT: PASS`
+  - The 24 deleted lines are the Done note's 8 plus this fix's 16. The PASS~ is the one blank line.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,230,208 B, dated 2026-10-06 12:28:01, md5 631619ba9e9013d674f54d67f87f224f, equal to X2/US_SERVICE/x2.exe (2026-10-06 12:27:56); built at mods/june-buff-port 496f07e + 2 uncommitted code file(s).` Those two files are `60d0571`'s. The new `first socket boss grade` text is in the exe. Not launched.
+
+**How to see it in game.** On a battlefield, hit a middle boss (danger-gauge boss). `ErrorLog.txt` then shows `[JUNE_BUFF] first socket boss grade: NPC <id> grade 1, ExtraNPCStat row yes -> boss yes` and, with no damage-to-boss socket, `first socket damage to boss (final damage): rate 1, X -> X` (the same number twice). The damage numbers are unchanged.
+
+**Open for the user.** When creating the offline mob-ranking plan, include point (b) above. /cost is not available in-session.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
