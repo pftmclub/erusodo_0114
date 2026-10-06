@@ -42,4 +42,9 @@ cite June addresses, byte-level CP949 edits, June's callers take the rate + 1.0 
    (`@3207d3fc`, after the five `KItemStatRelLVData` members) and its reader (start from June's `KItemStatRelLVData`
    users). Port it, or leave it dormant with one line if no reader exists. Reach: 30 June OptionItemData entries.
 
+7. **The per-class hook after the slot loop** (from the 3b5 review). After the `31fe14f0` loop, June's SumSocketOption calls user vslot 485
+   (`+0x794`, `@3204f4df..4ed`) with `( aggregate, templet )`; the base `33093ad0` is a bare `ret 8`. Add it to `CX2GUUser` as an empty
+   virtual with that signature and call it right after 3b5's slot loop, under the flag. It stays dormant: no March class overrides
+   it. The overrides (Lu/Ciel `32b0e670`, Ara `32badc80`) are a checklist §7 row; do not port them here.
+
 A reader that cannot be settled from the disassembly stays dormant with one `[JUNE_BUFF]` line and is listed as open.

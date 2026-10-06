@@ -5638,11 +5638,11 @@ All take the rate + 1.0. A new caller `32369bd0` (not in the kickoff's list) goe
 
 **Live census.** A recount from the staged sources (June OptionItemData + SkillLevelUpSocketGroup, March's class filter applied) gives 2491 / 36373 / 313 / 2491, with 313 group tokens, 2178 skill IDs and 19 groups. That equals the play-test's `ErrorLog.txt:227`. The live `data036.kom` md5 is `cb9ac802`, and both staged `.lua` equal `kom_contents`. March's filter drops 1,829 rows, and none of them is a skill in March's `SKILL_ID`, so no March skill loses a group.
 
-**New open item (moved to checklist §7, D8 rule).** Right after the slot loop, SumSocketOption calls user vslot 485 (`+0x794`, `@3204f4ed`). The base slot `33093ad0` is empty. Two of June's 12 class vtables override it, and both run `31fe14f0` for skills outside the slots:
+**New open item (engine hook -> 16-step3b7, class overrides -> checklist §7; D8 rule).** Right after the slot loop, SumSocketOption calls user vslot 485 (`+0x794`, `@3204f4ed`). The base slot `33093ad0` is empty. Two of June's 12 class vtables override it, and both run `31fe14f0` for skills outside the slots:
 - Lu/Ciel `32b0e670`: 30044-30046 / 30050-30052;
 - Ara `32badc80`: the `32d3f040` list.
 
-This is a new checklist row. Nothing changes in March, which has no Lu/Ciel and no Ara hook.
+D8 split (advisor): the empty hook and its call (`33093ad0` is a bare `ret 8`; engine) go to **16-step3b7** (new item 7 in its kickoff), and the Lu/Ciel and Ara overrides go to a new checklist §7 row. March Ara's class port will override the hook; Lu/Ciel is not in March.
 
 **Hygiene** (`flagcheck.py JUNE_SOCKET_PARITY --range 1d285ef^..HEAD --with JUNE_BUFF_DEBUG`):
 - `files: 7 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
