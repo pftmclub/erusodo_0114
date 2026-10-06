@@ -724,6 +724,51 @@ into data036 as `FieldBonusDrop.src.lua`, with the manifest naming `FieldBonusDr
 
 **User owes:** nothing for 3b. The plan's phases are all done. Still open from earlier reviews: the `IsDropDieState` gap (Phase 3 review, a possible small phase) and whether the 70058 orb was visible.
 
+## Phase 3c - Die states like the server's IsDropDieState
+
+**Scope.** The gap the Phase 3 review found, OK'd by the user on 2026-10-06. Today the offline
+handler pays `NDS_KILL_BY_USER` and `NDS_ALLY` (`Handlers_Room.cpp:2521-2522`). The server's
+`IsDropDieState` (`DungeonRoom.cpp:2576`, `BattleFieldRoom.cpp:853`) pays `KILL_BY_USER`,
+`KILL_SELF` and `BONUS_DROP`. It pays nothing for `ALLY` or `ESCAPE`. The comment at `:2518-2520`
+states the opposite of the server.
+
+**What the client sends** (`X2GUNPC.cpp:13940-13990`, `X2Game.cpp:8240-8262`):
+- `KILL_SELF`: nobody attacked the NPC (`GetGameUnitWhoAttackedMe() == NULL`), with attacker -1.
+- `ALLY`: the *dying* NPC's own AI is `NAT_ALLY` (a summon or ally NPC dying). It does not mean
+  "an ally killed it".
+- `BONUS_DROP`: the dying NPC has `m_bBonusDrop` set (the mana/blood eater kind). Which test wins
+  depends on `ADD_VELDER_ACADEMY_EVENT_MONSTER`; resolve it with the preprocessor, not by reading.
+
+**Run with.** Opus 5.5 / high. `/x2-phase offline-grade 3c`. Depends on the Phase 3b review (done).
+
+**Read list.** "Rules", this section, "Phase 3 - Review" (the "Known gap" paragraph).
+
+**Tasks** (behind `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE`, the plan's one flag; `X2Lib/Offline/`;
+the original gate stays in `#else`).
+1. **The gate.** Pay `KILL_BY_USER`, `KILL_SELF` and `BONUS_DROP`; stop paying `ALLY`. Fix the
+   comment.
+2. **What else keys on the die state** on the server: read the dungeon die handler around
+   `IsDropDieState`'s callers and `BattleFieldRoom.cpp:4392-4394` (`bAddRoomUserKillCount`
+   excludes `KILL_SELF`). For each consumer the offline reward branch feeds (EXP, ED, coins,
+   lottery, static/event drops, 70057/70058, hunt sub-quests and sub-missions, field danger, kill
+   counts), port the server's rule. In particular, decide from the server whether a `KILL_SELF`
+   death counts for hunt quests. Today offline counts only inside the reward branch.
+3. **`BONUS_DROP` items.** The mana/blood eater half of `NpcSpecialDropItem`
+   (`KDropTable.cpp`, after `:1931`; see the comment at `Handlers_Room.cpp:2919`). Port it if
+   its items exist in March `item.kim`; otherwise log and skip.
+4. **Who an `ALLY` death affects offline.** The AI-party bots (memory: AI party project; the
+   client kills its own allies at dungeon clear) and summons. Report from the log what those
+   deaths paid before, and confirm that they pay nothing now.
+5. **Log.** One `[OFFLINE_GRADE]` line when a die state changes the outcome compared with
+   before (for example `KILL_SELF paid`, `ALLY not paid`).
+
+**Done gate.**
+- A normal kill is unchanged.
+- An ally or bot death logs `ALLY` and pays nothing.
+- A `KILL_SELF` death (a monster killed by the stage or a trap, with no player hit) pays as on
+  the server, or the log names why none happened in the run.
+- `BONUS_DROP` is ported or logged as unreachable in March data.
+
 ## Reviews
 
 `1-review`, `2-review`, `3-review`: Opus 5.5 / high. Each checks its phase against the server
