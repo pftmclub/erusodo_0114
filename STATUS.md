@@ -139,6 +139,34 @@ after another. C3, C4, C5, C8b and C9 all edit X2DamageManager.cpp; C6b, C7 and 
 X2DamageEffect.cpp: one at a time within each group (C8b's hit paths are in X2DamageManager.cpp, not
 X2DamageEffect.cpp, per C8a). C4 and C10b-1 both edit `CX2GameUnit::GetFinalDamage`.
 
+## offline-grade - offline monster grade (real-server ranking)
+
+Plan `OFFLINE_MONSTER_GRADE_PHASES.md` · branch `mods/june-buff-port` · log tag `[OFFLINE_GRADE]`
+(offline_server.log) · flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` (the one flag; `_DEBUG` only for
+short-lived lines) · kickoffs `kickoffs/offline-grade/` · created 2026-10-06 (user: "the proper
+way"; socket test follows June, rewards ported in their own phase).
+
+The emulator sends each NPC's monster grade as the real servers did. On dungeons that is the stage
+script's `MONSTER_GRADE` (XSLDungeon), carried client-side to the NPC as June does. On battlefields
+it is the grade per spawn path (XSLBattleField). Then the grade-keyed rewards. The socket boss terms
+(june-buff 16-step3b2) then apply to dungeon grade-1 bosses that have an ExtraNPCStat row
+(JUNE_BUGS #52 goes live with them).
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| 0 | ready: census of the 227 stage scripts (208 bytecode), reach (grade-1 bosses with an ExtraNPCStat row; **stops for the user if small**), June `327edb60`/`327ef71d` check, battlefield data, reward inputs | Opus 5.5 / high | - | `OFFLINE_MONSTER_GRADE_CENSUS.tsv`, plan, kickoffs, funcmap rows (no code) | `0.md` |
+| 1 | blocked (0): dungeon grade script -> packet -> NPCData -> ExtraNPCStat grade | Sonnet 5.5 / high | 0 (june-buff 16-step3b2 review done) | Always.h, X2DungeonSubStage.h/.cpp, Offline/Handlers_Room.cpp, JUNE_BUGS.md (#52 reach) | `1.md` |
+| 1 review | blocked | Opus 5.5 / high | 1 | review (fixes under the flag) | `1-review.md` |
+| 2 | blocked (1): middle-boss loader fix (`SPAWN_GROUP_ID`), grades per spawn path, per-UID grade, middle boss by grade | Sonnet 5.5 / high | 1 | Offline/X2OfflineBattleField.cpp/.h, Offline/Handlers_Room.cpp, JUNE_BUGS.md (#52 reach) | `2.md` |
+| 2 review | blocked | Opus 5.5 / high | 2 | review (fixes under the flag) | `2-review.md` |
+| 3 | blocked (2): EXP/ED x12 boss / x4 middle boss (attribute first), field factors, boss ED piles, 70057/70058, kill-all rule if reachable, MODS.md | Opus 5.5 / high | 2 | Offline/Handlers_Room.cpp, Offline/X2OfflineDropTable.cpp/.h, MODS.md | `3.md` |
+| 3 review | blocked | Opus 5.5 / high | 3 | review (fixes under the flag) | `3-review.md` |
+
+Running together: Phase 0 touches no game code and can run alongside any code session (its funcmap
+rows queue behind other funcmap writers). Phases 1-3 all edit `Handlers_Room.cpp`, so run them one
+at a time. june-buff's 16-step3b2 battlefield middle-boss play-test is likely blocked by the offline
+loader bug Phase 2 fixes (the middle boss probably never spawns offline).
+
 ## Other plans
 
 No `kickoffs/` files yet: `/x2-phase <plan> <phase>` writes the kickoff from the plan doc's
