@@ -14484,6 +14484,26 @@ D3DXVECTOR3 CX2Game::GetEmptyStartPos()
 
 
 // 몬스터 소환 필살기는 스테이지가 끝난 후에 사용할 수 없다는 경고 메세지를 보여주기 위해서 IsSummonSpecialAttack 에 하드코딩 해야 합니다.
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/// June buff port 16-step3b3 item 1 (user 2026-10-06, "follow June"): the summon cases where March sets no power rate (the
+/// switch default, which includes the AI-party bots, Nasod Watch, Entangle Trap, Stone Wall, Fire Blossom, Particle Prism) all
+/// reach June's summon helper 322ece70 too (3230c1a0: default and 0x180/0x1c9/0x1f5/0x61f/0x628/0x629 with flags 0, 0x240, 0,
+/// 10, 0, 0x148: no 0x400 / 0x800), whose power rate is socket term x rate 1.0 x ( 3201ad10 + 1 ) x 31fd7cc0 x 31fea430 x
+/// GetAdditionalAttackByType( AT_SPECIAL ) (@322ed2ae-322ed332). 3201ad10 is 16-step3b5's (0 here). This scales the NPC's
+/// default power rate by the rest; with flag 0x200 June writes the protected factor +0x8ce4 instead, the same product (32759630).
+static void JuneApplySummonPowerRate( CX2GUNPC* pNPC_, CX2GUUser* pUser_, const int iSkillID_ )
+{
+	if ( NULL == pNPC_ || NULL == pUser_ )
+		return;
+
+	float fJuneRate = pUser_->GetSummonPowerRateBySocket( iSkillID_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+	fJuneRate *= pUser_->GetSummonPowerRateByBuff( iSkillID_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+	fJuneRate *= pUser_->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
+	pNPC_->SetDefaultPowerRate( pNPC_->GetDefaultPowerRate() * fJuneRate );
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAllyUID, CX2GUNPC* pNPC, int iHyperMode, CX2UnitManager::NPC_UNIT_ID unitID )
 {
 	// 이브의 소환 필살기에 의해 소환된 몬스터의 경우 npc stat을 직접 설정 해준다
@@ -14630,6 +14650,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						npcStat.m_fDefMagic		* fStatScale	* 1.f );
 #endif SERV_IRUHADEV_OFFLINE
 //}} Iruha : 2026-09-06
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+					/// June buff port 16-step3b3 item 1: June's switch default reaches 322ece70 with flags 0 (3230c1a0 @3230ca64), and its
+					/// NPC -> skill map 31fcf520 returns 0 for an id it does not list (Phase 6b review), so the case skill is 0. The AI-party bots come here.
+					JuneApplySummonPowerRate( pNPC, pUser, 0 );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 
 
@@ -14687,7 +14712,8 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					/// off); the socket term March had in the stat scale moves onto the power rate, as in June (@322ed2bd). Flag 0x200 makes June
 					/// write the rate to the protected factor +0x8ce4 (31e8d610) instead of +0x8ce0; the NPC's power rate 32759630 is
 					/// +0x8ce0 x +0x8ce4, so scaling March's default power rate gives the same product
-					pNPC->SetDefaultPowerRate( pNPC->GetDefaultPowerRate() * pUser->GetSummonPowerRateBySocket( CX2SkillTree::SI_A_EN_DIMENSION_LINK ) );
+					/// (user 2026-10-06, "follow June": the whole June power rate, with the buff terms and AT_SPECIAL, not only the socket term)
+					JuneApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_A_EN_DIMENSION_LINK );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 
@@ -15098,6 +15124,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						pNPC->SetEntangleTrapAttackDuration( pRena->GetEntangleTrapAttackDuration() );
 						pRena->AddEntangleTrap( pNPC );
 					}
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+					/// June buff port 16-step3b3 item 1: Entangle Trap (457 = 0x1c9) reaches 322ece70 with flags 0 (3230c1a0)
+					JuneApplySummonPowerRate( pNPC, pUser, 0 );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //김창한
@@ -15381,6 +15411,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 							pNPC->SetNowHp( 0.f );
 						}
 					}
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+					/// June buff port 16-step3b3 item 1: Stone Wall (501 = 0x1f5) reaches 322ece70 with flags 10
+					JuneApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_A_AEM_STONE_WALL );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 
 #endif AISHA_SECOND_CLASS_CHANGE
@@ -15755,6 +15789,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						const int iSkillLevel = pUser->GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::SI_P_SBH_FIRE_BLOSSOMS, true );
 						pNPC->SetRealatedSkillLevel(iSkillLevel);
 					}
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+					/// June buff port 16-step3b3 item 1: Fire Blossom (1567 = 0x61f) reaches 322ece70 with flags 0 (a passive skill: case skill 0)
+					JuneApplySummonPowerRate( pNPC, pUser, 0 );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 #endif //SERV_ELESIS_SECOND_CLASS_CHANGE //김창한
 #ifdef SERV_9TH_NEW_CHARACTER
@@ -15816,6 +15854,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						}
 
 					}
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+					/// June buff port 16-step3b3 item 1: Particle Prism (1576/1577 = 0x628/0x629) reaches 322ece70 with flags 0x148
+					JuneApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_SA_AN_PARTICLE_PRISM );
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 #endif // SERV_9TH_NEW_CHARACTER
 			}
