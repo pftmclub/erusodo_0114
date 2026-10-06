@@ -5451,6 +5451,14 @@ The bots spawned (`offline_server.log`, ally of 19) and the dungeon was cleared.
 
 No new JUNE_BUGS rows: none found.
 
+**Play-test (2026-10-06, user: regression passed; logs read).**
+- The run started 16:28:54, after the last deploy, and exited cleanly (census present): 0 EXCEPTION.
+  - The exe that ran (md5 `944e95e4`, deployed 16:23:48) is a peer session's build at `6bb652d`, so it contains `9d3dc7f`.
+  - UNHANDLED: 2 `E_DISABLE_HB_CHECK_REQ` (as before) and 1 `EGS_SKIP_CONTINUE_DUNGEON_NOT`. The latter is the offline emulator's continue screen, outside this phase.
+- `ErrorLog.txt:155-222` has the nine load census lines for SIEE 12-20 in the new wording. SIEE 15's line names the missing effect-set buff list.
+- 3b3's lines are unchanged: `:491` MP 300 -> 285, `:499` factor 0.95, `:502` summon x 1.05, `:497` all-skill damage 0.05.
+- As expected there is no `first socket effect fired` line, because no equipped socket on the save has an SIEE type.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
