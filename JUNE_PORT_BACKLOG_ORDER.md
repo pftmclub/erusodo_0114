@@ -241,6 +241,13 @@ Everything from Stages 5 and 6, plus:
 
 Port whatever June UI is still March-shaped once Stages 1–8 have delivered their own dialogs.
 
+- **Effect-alpha option UI** (handed here by june-effect D9, user 2026-10-06).
+  - June-effect C10b-2 builds the engine: the three values in `GameOptions.lua` under June's keys (`MY_EFFECT_ALPHA`,
+    `MY_TEAM_EFFECT_ALPHA`, `ANOTHER_TEAM_EFFECT_ALPHA`), and `CKTDXApp::SetEffectAlpha` / `GetEffectAlpha`.
+  - The UI only has to read and write those.
+  - June's version is the GFx option window (funcmap `32eddbb0`, `32eddcf0`, `32edee60`, `32f246d0`).
+  - Brief: `kickoffs/june-effect/C10b-3.md`.
+
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 
 ---

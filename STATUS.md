@@ -119,13 +119,13 @@ today's Sonnet 5.5.
 | C8c review | handed off (D8) | Opus 5.5 / high | - | - | `C8c-review.md` |
 | C9 | queued (C2 done) | Sonnet 5.5 / high | C2 | X2Main.cpp (bindings), X2DamageManager.cpp, data036 staging (user packs) | `C9.md` |
 | C9 review | blocked | Opus 5.5 / high | C9 | - | `C9-review.md` |
-| C10a | done 2026-10-06: 43 funcmap rows (`Effect C10a`) plus `c10a_alpha_sites.tsv` (265 tag sites). HP-rate = `32273e80`, which overwrites the damage at two sites. Effect alpha spans CKTDXApp storage, GameOptions.lua, the category, the EffectSet/CEffect readers, mesh/particle/slash-trace render, owned NPCs and two Lua binds. 238 class tag sites and the SUPERSONIC gate -> checklist 7c (D8). June's UI is GFx, so it needs a stand-in: **D9 open (user)**. C10b split into -1/-2/-3 | Opus 5.5 / high | C0 (D2-D5), C2 | `funcmap.tsv`, `c10a_alpha_sites.tsv`, plan, checklist 7c (no code) | `C10a.md` |
+| C10a | done 2026-10-06: 43 funcmap rows (`Effect C10a`) plus `c10a_alpha_sites.tsv` (265 tag sites). HP-rate = `32273e80`, which overwrites the damage at two sites. Effect alpha spans CKTDXApp storage, GameOptions.lua, the category, the EffectSet/CEffect readers, mesh/particle/slash-trace render, owned NPCs and two Lua binds. 238 class tag sites and the SUPERSONIC gate -> checklist 7c (D8). June's UI is GFx; D9 (user, same day): engine now, UI later with the June UI port. C10b split into -1/-2/-3 | Opus 5.5 / high | C0 (D2-D5), C2 | `funcmap.tsv`, `c10a_alpha_sites.tsv`, plan, checklist 7c (no code) | `C10a.md` |
 | C10b-1 | blocked (C4): HP-rate damage, flag `SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE`; stages one raw-int test templet in data036 | Sonnet 5.5 / high | C10a, C4 (GetFinalDamage) | X2GameUnit.h/.cpp (GetHpRateDamage, GetFinalDamage), X2GUUser.cpp (DamageReact), data036 DamageEffect.lua (test), `census_completion.py`, JUNE_BUGS.md, Always.h | `C10b-1.md` |
 | C10b-1 review | blocked | Opus 5.5 / high | C10b-1 | - | `C10b-1-review.md` |
 | C10b-2 | blocked (C6b): effect-alpha engine, flag `SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION` | Sonnet 5.5 / high | C10a, C6b (b32 copy; X2DamageEffect.cpp group) | KTDXLIB KTDXApp.h/.cpp, KTDGXMeshPlayer.h/.cpp, KTDGSlashTrace.h/.cpp, KTDGParticleSystem.h/.cpp; X2GameOption.cpp, X2Game.h/.cpp, X2Main.cpp (binds), X2GUUser/X2GUNPC/X2GameUnit (.h/.cpp), X2EffectSet.cpp, X2DamageEffect.cpp, june-buff's X2BuffDisplayer*/custom-function file, `census_completion.py`, Always.h | `C10b-2.md` |
 | C10b-2 review | blocked | Opus 5.5 / high | C10b-2 | - | `C10b-2-review.md` |
-| C10b-3 | blocked (C10b-2, D9): effect-alpha UI stand-in, flag `SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION_UI` | Sonnet 5.5 / high | C10b-2, D9 | X2StateOption.cpp, data034 DLG_UI_Option_*.lua, Always.h | `C10b-3.md` |
-| C10b-3 review | blocked | Opus 5.5 / high | C10b-3 | - | `C10b-3-review.md` |
+| C10b-3 | handed off (D9, 2026-10-06): not run in this plan; the effect-alpha UI goes to the June UI port (`JUNE_PORT_BACKLOG_ORDER.md` Stage 9), which wires C10b-2's `GameOptions.lua` keys | - | - | - | `C10b-3.md` (kept as the UI port's brief) |
+| C10b-3 review | handed off (D9) | - | - | - | `C10b-3-review.md` |
 | C11 | blocked | Sonnet 5.5 / high | C2-C10 (C1 handed off, D7) | - (verification; one .dds staged) | `C11.md` |
 | C12 | blocked | Sonnet 5.5 / high | C11 | docs, MODS.md, maybe Always.h (D6) | `C12.md` |
 
