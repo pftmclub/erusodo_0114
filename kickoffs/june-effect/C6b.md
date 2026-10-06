@@ -177,3 +177,38 @@ the children, so splitting it would leave a flag state that matches neither Marc
 The effect-set buff list is no longer this phase's: the buff port's "Added from the buff port" section, `321e3650` /
 `321ee480` and the SIEE 15 call site in `X2GUUser.cpp`. They are `kickoffs/june-effect/C6c.md`, with their own flag.
 C6c runs after this phase because both edit the same `OnFrameMove_CreateEffect` block.
+
+## Added by the C5 review (2026-10-07; the user: "C6b handles it")
+
+AttackResult's `RT_CREATE_EFFECT_SET` case (`31f85910 @31f86158-31f8672a`) differs from March's single `PlayEffectSet` call in two ways.
+Funcmap rows `31f85910 @31f861e2-31f8672a` and `31f85910 @31f8662d-31f86711`. Identification is done (Opus, C5 review); this phase transcribes.
+Own flag: `SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET` (a separate logical change from `_SPAWN_INHERIT`). Keep the C5 TRACE_NEAREST_BONE block and the LIFTTIME/DELAYTIME blocks where they are.
+
+**June's shape** (handle starts at -1, `@31f86193`; every path then falls through to the `GetEffectSetInstance` block at `@31f8672a`):
+1. **Trace unit** (`CREATE_EFFECT_SET_TRACE_UNIT` and a defender, `[ESP+0x24]`):
+   - `life` = the LIFTTIME delta, else -1 (`@31f861a1-31f861de`; today's code).
+   - **Raid retarget gate** (`@31f861e2-31f8627f`), all of these must hold:
+     - `32481fa0`: June state `0x15` = `XS_BATTLE_FIELD` (funcmap rows 171/1058: June's state numbers differ from March's), and
+       `g_pMain +0x115c`->`3266cdc0( current battle-field ID )` is true. That ID is `[g_pData +0x124 +0x10]`, i.e.
+       `GetBattleFieldManager().GetBattleFieldIdWhereIam()`. `3266cdc0` is a switch on exactly 40033, 40034, 40039, 40040,
+       40041, 40042, 40043 and 40044, June's `VMI_BOSS_RAID_PERKISAS*` / `VMI_BOSS_RAID_ELTRION_MK2_*` (June Enum.lua).
+     - The unit at `g_pMain +0x115c` `+0x8` (`3266cb90`, an observer pointer, `31e56700`) exists, and its UID (vslot `0x54`)
+       equals the trace unit's.
+   - **If the gate holds:** find the nearest unit in the game's unit list (`31aada50 +0x304..+0x308`) that is an NPC
+     (`+0x264 == 1`) whose NPC ID is `0x621` = `NUI_FIELD_BOSS_COLLISION_BOX_1` (March has the enum, `X2UnitManager.h:2154`).
+     - Distance `31c7b560( impactPoint (CEffect +0x660 = DamageData +0x460), unit vslot 0x138( 0 ) )`, strict `<`, from 99999 (`33441c60`).
+     - No alive check.
+     - If found (`@31f86321`): March's call with the trace argument = that NPC. If not (`@31f8642d`): March's call unchanged.
+   - **If the gate fails** (`@31f86521`): March's call.
+   - The C5 call `@31f867ad` still passes the original trace unit (`[ESP+0x24]`), not the box NPC.
+2. **No trace unit** (`@31f8662d-31f86711`): **only with the main-effect mesh** (EBP = `pMeshInst`); without one, no effect set at all.
+   - The call is `PlayEffectSet( name, owner, NULL, false, m_fPowerRate, -1.f, (1,1,1), true, mesh->GetPos() (+0x3f0),
+     rot, dir )`, plus June's trailing 1.0.
+   - `rot` = the mesh's `+0x5b4/+0x5b8/+0x5bc` (CXMeshInstance rotation degrees).
+   - `dir` = `31c82e40` on the mesh: (1,0,0) rotated by `(+0x5b4+0x5a8, +0x5b8+0x5ac, +0x5bc+0x5b0) * 33441c58`. Identify the March equivalent (likely a mesh-instance rotation helper) or transcribe it.
+   - **LIFTTIME is not applied here** (lifetime is the constant -1). Today's March port applies it on both paths, so it must move under the trace-unit branch. Add a `JUNE_BUGS.md` row only if you judge it a quirk.
+
+**Reach in March:**
+- Branch 1's retarget never fires: March has none of those eight maps and no June raid object at `g_pMain +0x115c`. Port the gate verbatim, and stub the boss-unit source under plan rule 5: return NULL, log once to `[JUNE_FX]`, so March's call runs.
+- Branch 2 is live: 2 of 17 `CREATE_EFFECT_SET_NAME` blocks in March `data036/DamageEffect.src.lua` have no TRACE_UNIT, `EffectSet_RAVEN_NUCLEAR` and `EffectSet_SP_B_MASK`. Their sets move from the owner to the main effect's position and rotation.
+  - Play-test: Raven's Nuclear (skill) and whatever uses `SP_B_MASK` (grep the DamageEffect name). The set should appear where the effect is, not on the caster.
