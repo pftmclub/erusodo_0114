@@ -23,6 +23,14 @@ The `funcmap.tsv` rows tagged "Buff Phase 16-step3b2" carry the decodes this pha
 June's whole function where it differs, cite June addresses, byte-level CP949 edits. Count each reader's
 reach on June's `OptionItemData.src.lua` before building, and say it per reader.
 
+0. **Item 4, the MP cost cut** (user decision 2026-10-06: "follow June"). June's `GetActualMPConsume` is slot 423
+   `3203cf60( mp, skill, bool )` (RET 0xc); slot 424 `31fd1840( skill, level, bool )` builds the MP and passes the bool
+   through, and the classes override 424 (March's class `GetActualMPConsume` overrides). With the bool set June
+   multiplies by `1 + 32358970( 0xb ) x 0.01` and cuts the MP by `max( 1 - r, 0.8 )` for the `+0x74dc` result r > 0 on a
+   non-hyper skill (`@3203cffb`, `@3203d02d`); Phase 6b left both out for lack of the argument. Port the argument as June
+   has it: name `32358970` and slot 471 (`31fdbe20`) and the alternate templet `323511f0` first, then map every June
+   caller's bool (the slot refresh `31fd6880` passes 1; `3200f680` and the class sites vary) onto March's callers.
+   Retire 16-step3b2's `socket MP cost cut … not applied` line.
 1. **Item 3b, the summon helper's socket term** (`322ece70 @322ed2bd`). June's power rate for every summoned
    NPC is `(1 + m_fSkillDamageUpRate [+ m_fAllSkillDamageIncreaseRate unless the summoning skill is type 13])
    x [esp+0xb0] x (3201ad10 + 1) x 31fd7cc0 x 31fea430 x GAA(AT_SPECIAL)`, and the stat scale reads no socket

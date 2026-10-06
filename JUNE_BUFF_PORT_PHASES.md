@@ -5157,7 +5157,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 - User reduction (`@32048845`), with an NPC attacker: + boss defence (boss attacker), − this user's own 52fc (when > 0). The sum is then capped at 1.0, as June does. 52fc's two roles are now settled: more attack, and more damage taken from monsters.
 - Critical chance: the attacker's rate + `32273480` is compared with a bare random (vslot `0x1cc` = `3208e0d0`).
   - `32273480` = panic (`+0x2b28`/`+0x2bc4` = `m_Panic`) − the anti-critical result − socket anti-critical × 0.01.
-  - Sign settled: March subtracted the terms from the random, so anti-critical **raised** the chance; June lowers it. June's data follows the new sign except `BFI_DEBUFF_PANIC_PANDEMONIUM` (49, +0.15), which now protects its target (JUNE_BUGS #53).
+  - Sign settled: March subtracted the terms from the random, so anti-critical **raised** the chance; June lowers it. June's data follows the new sign except `BFI_DEBUFF_PANIC_PANDEMONIUM` (49, +0.15), which now protects its target (JUNE_BUGS #53; March's staged value is 1.15, so here the debuff blocks every critical hit).
 - Critical damage (`GetJuneCriticalDamageRate`, both DamageReacts):
   - user attacker: + magic rate / half magic + half physic rate / physic rate, by damage type; + `m_fApplyCriticalDamage`;
   - user DamageReact only: + the socket critical-afflicted option;
@@ -5197,9 +5197,9 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 
 **How to see it in game.** The save has no socket that reaches these readers, so expect no `[JUNE_BUFF] first socket …` lines and no MP-cost line in a dungeon run with skills, critical hits and kills. The one live change that can be seen is the anti-critical sign: put `BFI_DEBUFF_PANIC_PANDEMONIUM` (49) on every monster from the console. The log then shows `first critical threshold term: anti-critical …`, with June's chance negative and March's positive.
 
-**Open for the user.**
-1. Item 4: add June's bool argument to `GetActualMPConsume` and its class overrides, or leave the cut out?
-2. The boss terms are dormant offline (no server sends grade 1). A designed stand-in is possible: grade 1 for an NPC with `m_bHasBossGage` / `m_bShowBossName`. That would be proposed only, not built; the default is no stand-in, as for the kill hook.
+**Play-test (2026-10-06, user: all passed; exe f17026d4, logs read).** The run started after the deploy, exited cleanly (census present), 0 EXCEPTION; 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (unrelated, as before). `ErrorLog.txt:539` `first critical threshold term: anti-critical 1.15, panic time 0 -> attacker's chance -1.15 (March's sign: +1.15)` after BFI 49 on every monster (March's staged value 1.15, June's 0.15: JUNE_BUGS #53). No `first socket …` and no MP-cost line, as expected.
+
+**Decisions (user, 2026-10-06: "follow June").** (1) Item 4: port June's bool argument through `GetActualMPConsume` (June slots 423/424 and the class overrides) and apply the cut where June passes true: added to **16-step3b3** as its first item. (2) Boss terms: no stand-in; they stay dormant offline as in June without a server grade.
 
 ## Critical files
 
