@@ -4856,7 +4856,11 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 - Curve state: `June SocketOptionForm.lua curves loaded` or the missing-curves line.
 - Crit buffs (BTI 26 etc.) without a critical socket no longer raise crit chance (template reach above).
 
-**Open for the user.** (1) Adopt June's `OptionItemData.lua` (it needs the Enum additions above), June's plus March's 247 IDs, or keep March's. (2) Keep June's template given its reach on March's PERCENT crit/defence buffs (it is June's behaviour; a separate flag would let it be switched alone). /cost not available in-session.
+**Play-test (2026-10-06, user: all checks passed; exe f530f04f, after the user copied and packed June's `SocketOptionForm.lua`).** Logs: `June SocketOptionForm.lua curves loaded`; `designed attack range (not June): 10% of attack … (first user: physic 115.9, magic 95.3)`; `first damage roll (physic): base 1159, range 115.9, maximize 0 -> 1190.07 (floor 1043.1, cap 1274.9)`; `first apply BBT 92, change type 1, value 22880`; no `is rank-linked`. Out of scope: 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ`.
+
+**Decisions (user, 2026-10-06): "all June's flow and behaviour".** (1) Adopt June's `OptionItemData.lua` wholesale, without March's 247 IDs: kickoff `16-data`, before 16-step3b. (2) Keep June's template; nothing changes.
+
+**Was open for the user.** (1) Adopt June's `OptionItemData.lua` (it needs the Enum additions above), June's plus March's 247 IDs, or keep March's. (2) Keep June's template given its reach on March's PERCENT crit/defence buffs (it is June's behaviour; a separate flag would let it be switched alone). /cost not available in-session.
 
 ## Critical files
 

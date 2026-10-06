@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 16-step3b` |
 | Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
-| Depends on | Phase 16 steps 2-4 part 1 (done: loader, aggregate, seeds, template, refresh, 92, designed range) |
+| Depends on | 16 review and 16-data (June's OptionItemData + the Enum values, incl. SIEE 12-20, land there) |
 | Flag | `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (same flag; `_DEBUG` for first-read lines) |
 | Log tag | `[JUNE_BUFF]` (`python tools/logs.py --tag JUNE_BUFF`) |
 | Review | `16-review.md` covers part 1; write `16-step3b-review.md` when done |
@@ -47,9 +47,8 @@ be settled from the disassembly stays dormant with one `[JUNE_BUFF]` line and is
    with a log line): decode, then replace the skip.
 9. The loader keys part 1 left out (listed in its Done note): find a reader for each or record
    "no reader".
-10. **BFT_AURA's socket side** (owned by Phase 16 since Phase 8): SIEE 12-20 in the C++ enum
-    (`X2SocketItem.h`) **and** in `march2014/data036/Enum.src.lua` (Lua data change: the Enum
-    pairing hazard in "Starting context" applies, and the staged Enum must ship with this exe),
+10. **BFT_AURA's socket side** (owned by Phase 16 since Phase 8): SIEE 12-20 (the enum values land in
+    16-data; here, their handlers),
     `ProcessSocketEffectEx` case 15 (`32029fff`, called from user slot 484 with 0xf), the
     socket-data `EFFECT_NAME` / interval / `BUFF_FACTOR_ID` list (part 1 loads the list as
     `m_vecConditionalBuff`, `m_bAlwaysPlayEffectSet`), and `CX2GUUser::HasSocketAuraFor`'s inner
