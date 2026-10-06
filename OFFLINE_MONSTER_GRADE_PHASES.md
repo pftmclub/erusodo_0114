@@ -658,7 +658,7 @@ into data036 as `FieldBonusDrop.src.lua`, with the manifest naming `FieldBonusDr
 
 ### Phase 3b - Done
 
-2026-10-06, Opus 5.5 high. Flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE`. **Play-test pending.**
+2026-10-06, Opus 5.5 high. Flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE`. **Play-test waived by the user** (field middle boss too slow to trigger); the review is the only check.
 
 **Data.**
 - `kom_contents/data036_kom/FieldBonusDrop.src.lua` is byte-identical to `KncWX2Server/ServerResource/US/FieldBonusDrop.lua`, BOM and CRLF included. It compiles cleanly.
