@@ -314,6 +314,18 @@ public:
 		/// alive one blocks any further roll until it dies.
 		bool			m_bMiddleBossReserved;
 		int				m_iMiddleBossAlive;
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+		/// NPC UID -> the monster grade the server stored for it
+		/// (KRoomMonsterManager::NPC_DATA::m_cMonsterGrade). Filled wherever a
+		/// UID is issued, including NPCs the client asked for with
+		/// EGS_NPC_UNIT_CREATE_REQ, which keep the grade the client sent.
+		std::map< int, char >	m_mapNpcGrade;
+
+		/// UIDs of the middle-boss set that is still alive
+		/// (KBattleFieldMonsterManager::m_mapAliveMiddleBossList). m_iMiddleBossAlive
+		/// stays non-zero exactly while this is non-empty.
+		std::set< int >			m_setMiddleBossAlive;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 		DWORD			m_dwPlayStartTick;
 
 		//////////////////////////////////////////////////////////////////////////
@@ -411,6 +423,10 @@ public:
 			m_iOldDangerValue	= 0;
 			m_bMiddleBossReserved = false;
 			m_iMiddleBossAlive	= 0;
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+			m_mapNpcGrade.clear();
+			m_setMiddleBossAlive.clear();
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 			m_dwPlayStartTick	= 0;
 			m_vecBot.clear();		///< a fresh room has no bots until auto-party asks
 		}

@@ -513,6 +513,58 @@ void CX2OfflineBattleField::AddBattleFieldData_LUA()
 			LUA_GET_VALUE( kLua, "SHOW_BOSS_NAME",			kBoss.m_bShowBossName,		false );
 			LUA_GET_VALUE( kLua, "BOSS_GAUGE_HP_LINES",		kBoss.m_bBossGaugeHpLines,	false );
 
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+			// The groups are the SPAWN_GROUP_ID table (XSLBattleField.cpp:195, the
+			// client's X2BattleFieldManager.cpp:556). SET_BOSS_GROUP_NAME is not a
+			// table but a string ID for the boss's display name; the server never
+			// reads it and the client only turns it into a name, so it is kept for
+			// the log line and nothing else.
+			LUA_GET_VALUE( kLua, "SET_BOSS_GROUP_NAME", kBoss.m_iBossNameStrID, 0 );
+
+			if( true == kLua.BeginTable( "SPAWN_GROUP_ID" ) )
+			{
+				int i = 1;
+				int iBuf = -1;
+				while( true == kLua.GetValue( i, iBuf ) )
+				{
+					if( iBuf > 0 )
+					{
+						// The server rejects a repeated group ID inside one row
+						// (XSLBattleField.cpp:203-223) rather than spawning it twice.
+						bool bExist = false;
+						size_t d = 0;
+						for( d = 0; d < kBoss.m_vecSpawnGroupID.size(); ++d )
+						{
+							if( kBoss.m_vecSpawnGroupID[d] == iBuf )
+							{
+								bExist = true;
+								break;
+							}
+						}
+
+						if( false == bExist )
+							kBoss.m_vecSpawnGroupID.push_back( iBuf );
+						else
+							CX2OfflineLog::Server( L"[OFFLINE_GRADE] WARN field %d middle boss %d repeats group %d, kept once",
+								iBattleFieldID, kBoss.m_iSpawnID, iBuf );
+					}
+					++i;
+				}
+				kLua.EndTable();
+			}
+
+			// Every row joins the list, SPAWN_ID > 100 included: that is the US build,
+			// where SERV_BATTLEFIELD_EVENT_BOSS_INT is not defined (XSLBattleField.cpp:246).
+			// No shipped row has such an ID (the maximum is 19).
+			if( 0 != kBoss.m_iSpawnID && false == kBoss.m_vecSpawnGroupID.empty() )
+			{
+				kField.m_vecMiddleBoss.push_back( kBoss );
+
+				CX2OfflineLog::Server( L"[OFFLINE_GRADE] field %d middle boss row: spawnID=%d rate=%d risk=%d groups=%u nameStrID=%d",
+					iBattleFieldID, kBoss.m_iSpawnID, kBoss.m_iSpawnRate, kBoss.m_iRiskValue,
+					(unsigned int)kBoss.m_vecSpawnGroupID.size(), kBoss.m_iBossNameStrID );
+			}
+#else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 			if( true == kLua.BeginTable( "SET_BOSS_GROUP_NAME" ) )
 			{
 				int i = 1;
@@ -528,6 +580,7 @@ void CX2OfflineBattleField::AddBattleFieldData_LUA()
 
 			if( 0 != kBoss.m_iSpawnID && false == kBoss.m_vecSpawnGroupID.empty() )
 				kField.m_vecMiddleBoss.push_back( kBoss );
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 			++iIndex;
 			kLua.EndTable();

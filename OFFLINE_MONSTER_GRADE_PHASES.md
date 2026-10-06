@@ -469,7 +469,29 @@ edit `Handlers_Room.cpp`).
 
 ### Phase 2 - Done
 
-(not yet)
+2026-10-06, Sonnet 5.5 high. Flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` (no new flag). **Code done and deployed; play-test pending.**
+
+**What landed** (tasks 1-4):
+- `X2OfflineBattleField.cpp/.h` loader: the middle-boss groups now come from the `SPAWN_GROUP_ID` table (`XSLBattleField.cpp:195`). A repeated group ID in one row is kept once with a WARN, as the server does (`:203-223`). `SET_BOSS_GROUP_NAME` is read as an int string ID (`KMiddleBoss::m_iBossNameStrID`) and only logged. The `SPAWN_ID > 100` rule (`:246`, US without EVENT_BOSS_INT) means every row joins the list, which the loader already did; it is commented and never fires (max SPAWN_ID is 19). One log line per loaded row: `[OFFLINE_GRADE] field <id> middle boss row: spawnID= rate= risk= groups= nameStrID=`.
+- Grade per spawn path: normal 0 (`PickFromGroup`), middle boss 2 (`MakeMiddleBoss`), both unchanged. **Raid grade 1: not reached.** The only raid field, 40026, is never spawned offline (Phase 0 item 4), so no code.
+- `Handlers_Room.cpp` + `X2OfflineServer.h`: `m_mapNpcGrade` (UID -> grade) is filled in `TrackFieldNpc`, `BuildStageNpcData` and `Handler_EGS_NPC_UNIT_CREATE_REQ` (the client-sent grade is kept). `m_setMiddleBossAlive` is the live boss set. `OnFieldNpcDie` now decides the middle boss by set membership, not UID range, and clears the marker with the last member. The factor comes from `GetMonsterTypeFactor` (attribute branch never taken offline): grade 2 = 4, grade 1 = 12, else 1.
+- **Server behaviour added beyond the kickoff text:** `KBattleFieldGameManager::OnNpcUnitDie` returns before touching danger when any middle-boss member is still alive (`bIncreaseDanger = !IsRemainMiddleBoss()`, `BattleFieldRoom.cpp:1783/1833/1869`). The emulator now does the same: normal kills while a boss lives add no danger, and a multi-member boss charges factor 4 once, on its last member. Before, every kill added danger. Log line for those kills: `danger factor 1, danger stays N (middle boss still alive)`.
+- No client change; June's battlefield grade setters untouched.
+- `JUNE_BUGS.md` #52: battlefield reach corrected (live only since this phase; before it no middle boss ever spawned offline).
+
+**Hygiene.** `flagcheck --worktree --files` (the 4 code files):
+`files: 3 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+`RESULT: PASS`
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,234,304 B, dated 2026-10-06 15:48:36, md5 a52fcf24444368be25e2c793056c9617, equal to X2/US_SERVICE/x2.exe (2026-10-06 15:48:31); built at mods/june-buff-port 8c6ef37 + 4 uncommitted code file(s).` The `[OFFLINE_GRADE]` middle-boss, row and "danger stays" strings are in the deployed exe.
+
+**Gate (play-test, not yet done).** Log tag `[OFFLINE_GRADE]`:
+1. A middle boss spawns: `field <id> middle boss NPC <id> grade 2 uid=`, preceded by the `middle boss row` lines at field load.
+2. Its death logs `grade=2 danger factor 4`, once per boss set.
+3. A normal kill while it lives logs `factor 1, danger stays`, and the boss marker survives.
+
+Open questions for the user: none.
 
 ## Phase 3 - Rewards and remaining consumers
 

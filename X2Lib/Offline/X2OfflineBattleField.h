@@ -247,6 +247,9 @@ private:
 		bool				m_bShowBossName;
 		bool				m_bBossGaugeHpLines;
 		std::vector< int >	m_vecSpawnGroupID;	///< every group it brings, all of it
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+		int					m_iBossNameStrID;	///< SET_BOSS_GROUP_NAME, a string ID; log only
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 		KMiddleBoss()
 			: m_iSpawnID( 0 )
@@ -254,6 +257,9 @@ private:
 			, m_iRiskValue( 0 )
 			, m_bShowBossName( false )
 			, m_bBossGaugeHpLines( false )
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+			, m_iBossNameStrID( 0 )
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 		{
 		}
 	};

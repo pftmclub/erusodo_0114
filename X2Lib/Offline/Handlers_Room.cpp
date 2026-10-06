@@ -804,6 +804,10 @@ void CX2OfflineServer::TrackFieldNpc( const KNPCUnitReq& kReq )
 	m_kRoom.m_mapNpcNoDrop[ kReq.m_UID ]= kReq.m_bNoDrop;
 	m_kRoom.m_mapNpcActive[ kReq.m_UID ]= kReq.m_bActive;
 	m_kRoom.m_mapNpcGroup[ kReq.m_UID ]	= kReq.m_iGroupID;
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	// The grade the spawn path chose (XSLBattleField: normal 0, middle boss 2).
+	m_kRoom.m_mapNpcGrade[ kReq.m_UID ]	= kReq.m_cMonsterGrade;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 	++m_kRoom.m_mapAliveByGroup[ kReq.m_iGroupID ];
 	++m_kRoom.m_mapAliveByNpc[ std::make_pair( kReq.m_iGroupID, kReq.m_NPCID ) ];
@@ -814,8 +818,26 @@ void CX2OfflineServer::OnFieldNpcDie( int iNpcUID )
 	// A middle boss is charged at MG_MIDDLE_BOSS_NPC's factor and, more
 	// importantly, unblocks the next roll. Its group ID is 0, which is exactly
 	// how the server marks one, so the group bookkeeping below skips it.
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	// By membership of the live middle-boss set, as the server does
+	// (KBattleFieldMonsterManager::IsMiddleBossMonster / SetMiddleBossMonsterDie),
+	// not by UID range: a respawn issued after the boss has a higher UID than it.
+	const bool bWasMiddleBoss = ( m_kRoom.m_setMiddleBossAlive.erase( iNpcUID ) > 0 );
+
+	char cGrade = 0;
+	{
+		std::map< int, char >::const_iterator mitGr = m_kRoom.m_mapNpcGrade.find( iNpcUID );
+		if( mitGr != m_kRoom.m_mapNpcGrade.end() )
+			cGrade = mitGr->second;
+	}
+
+	// IsRemainMiddleBoss() after the erase: the server charges danger only when no
+	// member of the set is left (BattleFieldRoom.cpp:1783/1833/1869).
+	const bool bIncreaseDanger = m_kRoom.m_setMiddleBossAlive.empty();
+#else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 	const bool bWasMiddleBoss = ( m_kRoom.m_iMiddleBossAlive > 0 &&
 								  iNpcUID >= m_kRoom.m_iMiddleBossAlive );
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 	std::map< int, int >::iterator mitG = m_kRoom.m_mapNpcGroup.find( iNpcUID );
 	if( mitG != m_kRoom.m_mapNpcGroup.end() )
@@ -852,8 +874,14 @@ void CX2OfflineServer::OnFieldNpcDie( int iNpcUID )
 		m_kRoom.m_mapNpcGroup.erase( mitG );
 	}
 
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	// The marker clears with the last member of the set, not the first.
+	if( true == m_kRoom.m_setMiddleBossAlive.empty() )
+		m_kRoom.m_iMiddleBossAlive = 0;
+#else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 	if( true == bWasMiddleBoss )
 		m_kRoom.m_iMiddleBossAlive = 0;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 	//////////////////////////////////////////////////////////////////////////
 	// The danger value. KBattleFieldGameManager::OnNpcUnitDie adds the monster's
@@ -861,7 +889,31 @@ void CX2OfflineServer::OnFieldNpcDie( int iNpcUID )
 	// than clamping - the wrap is what makes the escalation cyclical.
 	CX2OfflineBattleField* pBF = CX2OfflineBattleField::Instance();
 
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+	// CXSLUnitManager::GetMonsterTypeFactor( false, , cGrade ) (XSLUnitManager.cpp:238):
+	// the attribute branch is never taken offline, then middle boss 4, boss 12, else 1.
+	const int iFactor = ( 2 == cGrade ) ? 4 : ( ( 1 == cGrade ) ? 12 : 1 );
+
+	// A kill while a middle-boss member is still alive adds nothing and rolls
+	// nothing: KBattleFieldGameManager::OnNpcUnitDie returns at bIncreaseDanger
+	// == false (BattleFieldGameManager.cpp:80-87).
+	if( false == bIncreaseDanger )
+	{
+		CX2OfflineLog::Server( L"[OFFLINE_GRADE] field kill uid=%d grade=%d danger factor %d, "
+			L"danger stays %d (middle boss still alive)",
+			iNpcUID, (int)cGrade, iFactor, m_kRoom.m_iDangerValue );
+		return;
+	}
+
+	if( 0 != cGrade || true == bWasMiddleBoss )
+	{
+		CX2OfflineLog::Server( L"[OFFLINE_GRADE] field kill uid=%d grade=%d danger factor %d (danger %d -> %d)",
+			iNpcUID, (int)cGrade, iFactor, m_kRoom.m_iDangerValue,
+			m_kRoom.m_iDangerValue + iFactor * pBF->GetDangerEventRate() );
+	}
+#else SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 	const int iFactor = ( true == bWasMiddleBoss ) ? 4 : 1;	///< MTF_MIDDLE_BOSS_NPC : MTF_NORMAL_NPC
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 	m_kRoom.m_iOldDangerValue = m_kRoom.m_iDangerValue;
 	m_kRoom.m_iDangerValue += iFactor * pBF->GetDangerEventRate();
@@ -993,6 +1045,14 @@ void CX2OfflineServer::TickField( KOfflineSession& kSes )
 		// boss set, which is how OnFieldNpcDie recognises one without another map.
 		if( 0 == m_kRoom.m_iMiddleBossAlive )
 			m_kRoom.m_iMiddleBossAlive = vecBoss[i].m_UID;
+
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+		m_kRoom.m_setMiddleBossAlive.insert( vecBoss[i].m_UID );
+
+		CX2OfflineLog::Server( L"[OFFLINE_GRADE] field %d middle boss NPC %d grade %d uid=%d",
+			m_kRoom.m_kInfo.m_iBattleFieldID, vecBoss[i].m_NPCID,
+			(int)vecBoss[i].m_cMonsterGrade, vecBoss[i].m_UID );
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 		KNPCUnitNot kOne;
 		kOne.m_kNPCUnitReq = vecBoss[i];
@@ -1906,6 +1966,9 @@ void CX2OfflineServer::BuildStageNpcData( int iStageID, OUT std::map< int, KNPCL
 			m_kRoom.m_mapNpcID[ iNpcUID ]		= kReq.m_NPCID;
 			m_kRoom.m_mapNpcNoDrop[ iNpcUID ]	= kReq.m_bNoDrop;
 			m_kRoom.m_mapNpcActive[ iNpcUID ]	= kReq.m_bActive;
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+			m_kRoom.m_mapNpcGrade[ iNpcUID ]	= kReq.m_cMonsterGrade;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 			// One line per placed monster. This is the only view into whether a
 			// stage's script data actually arrived, and the ACTIVE flag matters
@@ -2381,6 +2444,10 @@ bool CX2OfflineServer::Handler_EGS_NPC_UNIT_CREATE_REQ( KOfflineSession& kSes, c
 		// at its death, which reports neither.
 		m_kRoom.m_mapNpcNoDrop[ iNpcUID ]	= kNpcNot.m_kNPCUnitReq.m_bNoDrop;
 		m_kRoom.m_mapNpcActive[ iNpcUID ]	= kNpcNot.m_kNPCUnitReq.m_bActive;
+#ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+		// The server keeps the grade the client sent (DungeonRoom.cpp:5803).
+		m_kRoom.m_mapNpcGrade[ iNpcUID ]	= kNpcNot.m_kNPCUnitReq.m_cMonsterGrade;
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 
 		kNot.m_vecNPCUnitAck.push_back( kNpcNot );
 	}
