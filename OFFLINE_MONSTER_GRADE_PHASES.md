@@ -376,7 +376,15 @@ june-buff 16-step3b2 review it waited on is committed (`60d0571`).
 **Deploy.** `DEPLOY OK: X2_offline.exe is 19,232,256 B, dated 2026-10-06 14:32:54, md5 be1c9b56b9c6eb0a6bdbf092f20d074f, equal to X2/US_SERVICE/x2.exe (2026-10-06 14:32:49); built at mods/june-buff-port aab81d7 + 5 uncommitted code file(s).`
 That exe was linked by another session's build with my edits already in the tree, and it also contains that session's uncommitted `X2Game.cpp` edit. The `[OFFLINE_GRADE]` strings are confirmed in the deployed exe.
 
-**Gate (needs the play-test).** Target: reyaa, Lanox Ashes Village Normal (33280), boss `NUI_SMITH_STAIN` 1693.
+**Play-test result (2026-10-06 14:59-15:05, deployed exe md5 `be1c9b56...`, logs read): PASSED, checks 1 and 2.**
+The user played Ranox Burnded Forest Normal (33270) instead of the planned target; its boss `NUI_RAGE_DRYADKENTA` 1686 is grade 1 with a row (census).
+- `offline_server.log:1375`: `[OFFLINE_GRADE] dungeon=33270 stage=3 sub=0 npc=1686 uid=114 grade=1 bossGauge=1`. It is the only `[OFFLINE_GRADE]` line, so no `WARN scriptCheck` lines (expected 0). Stages 0-2 carry no graded NPC.
+- `ErrorLog.txt:624`: `[JUNE_BUFF] first socket boss grade: NPC 1686 grade 1, ExtraNPCStat row yes -> boss yes`.
+- `ErrorLog.txt:625`: `first socket damage to boss (final damage): rate 2, 21618.6 -> 43237.1`. This is JUNE_BUGS #52 live, not the socket item: the rate is exactly 2.0, and the party's AI bots were hitting the boss in that window. The player-attacker socket check (check 3) was not done.
+- The boss died `KILL_BY_USER` at 15:05:11; no UNHANDLED/EXCEPTION lines for this phase (2 `E_DISABLE_HB_CHECK_REQ` UNHANDLED at 14:59-15:00 are unrelated).
+- Not exercised: the scan 50 / near 1000 change has no log line.
+
+**Gate (original text).** Target: reyaa, Lanox Ashes Village Normal (33280), boss `NUI_SMITH_STAIN` 1693.
 1. `offline_server.log` shows `[OFFLINE_GRADE] ... npc=1693 ... grade=1 bossGauge=1`.
 2. `ErrorLog.txt` shows `[JUNE_BUFF] first socket boss grade: NPC 1693 grade 1, ExtraNPCStat row yes -> boss yes`.
 3. Optional: the boss-damage socket (86322 on weapon `item_uid 810`) raising the number on the boss. It needs the user's OK for a save edit, and first confirming that `InitSocketData` sums an equipment socket of that type. Not done.
