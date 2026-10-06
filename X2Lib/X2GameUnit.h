@@ -3793,6 +3793,39 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		JuneEnchantAccumulationRose m_kJuneEnchantAccumulationRose;
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #endif ENCHANT_ACCUMULATION_RATE_MODIFIER
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	public:
+		/// June buff port Phase 15 step 2b (chunk D): the enchant tick and GetFinalDamage helpers. The user host
+		/// (CX2GUUser::CommonFrameMove 32063650) and the NPC hosts (327b53b0, 3276b400) run the same code for these blocks.
+		/// June slot 111 (+0x1bc), the weapon's composed EDT: user 3208e090 returns m_eWeaponEnchantExtraDamageType; NPC 3275aa20
+		/// forwards to the owner's slot 111 when USE_OWNERS_ENCHANT is set and the owner is live. March's getter is not virtual.
+		CX2DamageManager::EXTRA_DAMAGE_TYPE JuneGetWeaponEnchantExtraDamageType();
+		/// June's attacker-table lookup, inlined at each tick and in GetFinalDamage: decompose (32708080) the attacker's slot 111,
+		/// take the first part (bSecondPart_: the second part when it is not EDT_NONE, else the first), then the user map
+		/// (32708ce0) for a user attacker or the NPC map (32708d10) for an NPC one (bUserMapAlways_: the user map for both).
+		static const CX2EnchantItem::EnchantData* JuneGetAttackerEnchantData( CX2GameUnit* pAttacker_, const bool bSecondPart_, const bool bUserMapAlways_ );
+		/// June poison @32067d0c / frozen @3206a228 (NPC @327b8e93 / @327ba9c3): element 3 / 2 builds BFI 1001 / 1014 from the
+		/// attacker's speed lists; re-applied only when absent or when the accumulation rose on the last proc
+		void JuneApplyEnchantSlowDebuff( const int iElement_ );
+		/// June @32068a41 (NPC @327b9fba): BFI 1000 when the shock stun ends with the unit alive
+		void JuneApplyEnchantShockDebuff();
+		/// June @32068ef9 / @3206ae28 (NPC @327b9507 / @327bb698): when poison (3) / frozen (2) ends, its slow debuff goes too
+		void JuneEraseEnchantSlowDebuff( const int iElement_ );
+		/// June's blaze MP drain, right after the tick's HP write (user @32069046, NPC 3276b400 @3276b8a0). Returns the MP before
+		/// it; nothing is drained unless that is > 0 and the attacker is live. bResist_: the user host scales the drain by
+		/// (1 - blaze resist / 500), the NPC host does not (JUNE_BUGS)
+		float JuneEnchantBlazeMpDrain( const bool bResist_ );
+		/// June 322d39e0 (a CX2Game method in June): red "MP- %d" ("MP- %d PERCENT" when bPercent_), skipped while the dialogs
+		/// are hidden (31d03920 = CKTDGUIDialogManager::GetHideDialog)
+		static void JuneDrawMpLossText( const float fValue_, const D3DXVECTOR3& vPos_, const D3DXVECTOR3& vDir_, const bool bPercent_ );
+	protected:
+		struct JuneUseOwnersEnchant
+		{
+			bool m_bUse;	/// June +0x7c7f: INIT_COMPONENT USE_OWNERS_ENCHANT (June 32289090 @32289d44), read by NPC slots 111/112
+			JuneUseOwnersEnchant() : m_bUse( false ) {}
+		};
+		JuneUseOwnersEnchant m_kJuneUseOwnersEnchant;
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		
 
 #ifdef SKILL_30_TEST

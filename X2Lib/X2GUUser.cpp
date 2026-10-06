@@ -16586,9 +16586,16 @@ void CX2GUUser::CommonFrameMove()
 #endif //MODIFY_OVERLAP_EDT_EMOTICON
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June CommonFrameMove 32063650 @32066ad9: the emoticon tiers follow the 1-based accumulation (3 / 2 / live; March 2 / 1 / live)
+	if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation >= 3 ||
+		m_ExtraDamagePack.m_EnchantPoison.m_Accumulation >= 3 ||
+		m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation >= 3 )
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation >= 2 ||
 		m_ExtraDamagePack.m_EnchantPoison.m_Accumulation >= 2 ||
 		m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation >= 2 )
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	{
 		if( m_hSeqEnchant_Exclamation3 == INVALID_PARTICLE_SEQUENCE_HANDLE )
         {
@@ -16621,9 +16628,15 @@ void CX2GUUser::CommonFrameMove()
 		}
 
 	}
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	else if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation >= 2 ||
+		m_ExtraDamagePack.m_EnchantPoison.m_Accumulation >= 2 ||
+		m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation >= 2 )
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	else if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation >= 1 ||
 		m_ExtraDamagePack.m_EnchantPoison.m_Accumulation >= 1 ||
 		m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation >= 1 )
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	{
 		if( m_hSeqEnchant_Exclamation2 == INVALID_PARTICLE_SEQUENCE_HANDLE )
         {
@@ -16901,8 +16914,12 @@ void CX2GUUser::CommonFrameMove()
 
 	#ifdef FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE // 김태환
 			/// 죽을 때 발동되는 스킬 검사 및 처리
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			UpNowHp(-m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec);	/// June @320678fe: no ProcessSkillAtDie in the tick
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			if ( false == ProcessSkillAtDie( m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec ) )
 				UpNowHp(-m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec);
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	#else //FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE
 			UpNowHp(-m_ExtraDamagePack.m_EnchantPoison.m_DamagePerSec);
 	#endif //FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE
@@ -16958,6 +16975,11 @@ void CX2GUUser::CommonFrameMove()
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			/// June @32067d0c..@32068095: the speed cut is BFI 1001 from the attacker's lists, no longer a clamp of the
+			/// local rates; June's ticks read no Slow percent
+			JuneApplyEnchantSlowDebuff( 3 );
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			const CX2EnchantItem::EnchantData* pEnchantData = NULL;
 			if ( g_pX2Game->GetGameType() == CX2Game::GT_PVP )
 			{
@@ -17033,6 +17055,7 @@ void CX2GUUser::CommonFrameMove()
 				}
 #endif ENCHANT_BALANCE_101014
 			}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		}
 		else
 		{
@@ -17188,6 +17211,12 @@ void CX2GUUser::CommonFrameMove()
 							DeleteEffectSetOnCustomState();
 #endif // CUSTOM_DELETE_EFFECT_ON_DAMAGE_REACT
 				}
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+				/// June @32068a3c..@32068d04, still inside this alive branch in June: the shock debuff (BFI 1000). June's
+				/// 32276ce0 just before it stops a damage-react sound list (+0x3f20) March does not have: not ported.
+				if ( GetNowHp() > 0.f )
+					JuneApplyEnchantShockDebuff();
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 
 
@@ -17216,6 +17245,9 @@ void CX2GUUser::CommonFrameMove()
 	{
 		m_ExtraDamagePack.m_EnchantPoison.m_fElapsedTimeToEffectDamage = 0.0f;
 		m_ExtraDamagePack.m_EnchantPoison.m_Accumulation = 0;
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		JuneEraseEnchantSlowDebuff( 3 );	/// June @32068ef9: BTI 946 ends with the poison
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	}
 
 	/// 구 방식 블레이즈 ------------------------------------------------------------------------------------------------------
@@ -17232,8 +17264,12 @@ void CX2GUUser::CommonFrameMove()
 
 	#ifdef FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE // 김태환
 			/// 죽을 때 발동되는 스킬 검사 및 처리
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			SetNowHp( fPrevNow - m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec );	/// June @32069038: no ProcessSkillAtDie in the tick
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			if ( false == ProcessSkillAtDie( m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec ) )
 				SetNowHp( fPrevNow - m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec ); 
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	#else //FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE
 			SetNowHp( fPrevNow - m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec ); 
 	#endif //FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE
@@ -17253,6 +17289,9 @@ void CX2GUUser::CommonFrameMove()
 #endif ENCHANT_BALANCE_101014
 
 			//m_GageManager.CrashMyStateGageBar( D3DXVECTOR2( -7, -7 ), D3DXVECTOR2( 7, 7 ), D3DXCOLOR( 1, 0, 0, 1) );
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			const float fJuneNowMpBefore = JuneEnchantBlazeMpDrain( true );	/// June @32069046..@320691fd, right after the HP write
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 			D3DXVECTOR3 numPos;
 			GetFramePos( &numPos, m_pFrame_Bip01_Head );
@@ -17271,6 +17310,15 @@ void CX2GUUser::CommonFrameMove()
 				g_pData->GetPicChar()->DrawText( (int)( fPrevNow - GetNowHp() ), numPos, GetDirVector(), CKTDGPicChar::AT_CENTER );
 #endif ALWAYS_SCREEN_SHOT_TEST
 #endif REFACTORING_BY_TOOL_TEAM
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+				/// June @320692bc..@32069392: when the unit had MP before the drain, the MP lost as red "MP- n", 80 below the HP number
+				if ( fJuneNowMpBefore > 0.0f )
+				{
+					D3DXVECTOR3 vJuneMpPos = numPos;
+					vJuneMpPos.y -= 80.0f;
+					JuneDrawMpLossText( fJuneNowMpBefore - GetNowMp(), vJuneMpPos, GetDirVector(), false );
+				}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			}
 		}
 	}
@@ -17476,6 +17524,10 @@ void CX2GUUser::CommonFrameMove()
 			}
 
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			/// June @3206a228..@3206a5a2: BFI 1014 from the attacker's lists, as poison's (water resist)
+			JuneApplyEnchantSlowDebuff( 2 );
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			const CX2EnchantItem::EnchantData* pEnchantData = NULL;
 			if ( g_pX2Game->GetGameType() == CX2Game::GT_PVP )
 			{
@@ -17536,6 +17588,7 @@ void CX2GUUser::CommonFrameMove()
 						fRunJumpSpeedRate = fApplySlowFact + fAlpha;
 				}
 			}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		}
 		else
 		{
@@ -17678,6 +17731,9 @@ void CX2GUUser::CommonFrameMove()
 	{
 		m_ExtraDamagePack.m_EnchantFrozen.m_fElapsedTimeToEffectDamage = 0.0f;
 		m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation = 0;
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		JuneEraseEnchantSlowDebuff( 2 );	/// June @3206ae28: BTI 958 ends with the frozen
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	}
 
 	if( m_fGroggyTime > 0.f )

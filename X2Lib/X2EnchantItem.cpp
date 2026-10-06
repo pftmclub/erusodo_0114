@@ -771,9 +771,16 @@ bool CX2EnchantItem::ProcessEnchant( CX2GameUnit* pDefender, CX2DamageManager::D
 	if( NULL == pDamageData )
 		return false;
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June 32708b00 @32708b40: the attacker's slot 111 (an NPC with USE_OWNERS_ENCHANT answers with its owner's weapon EDT)
+	if( null != pDamageData->optrAttackerGameUnit &&
+	    pDamageData->optrAttackerGameUnit->JuneGetWeaponEnchantExtraDamageType() == CX2DamageManager::EDT_NONE )
+		return false;
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	if( null != pDamageData->optrAttackerGameUnit &&
 	    pDamageData->optrAttackerGameUnit->GetEnchantExtraDamageType() == CX2DamageManager::EDT_NONE )
 		return false;
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 	if ( pDamageData->attackType == CX2DamageManager::AT_SPECIAL )
 		return false;
@@ -797,8 +804,13 @@ bool CX2EnchantItem::ProcessEnchant( CX2GameUnit* pDefender, CX2DamageManager::D
 	CX2DamageManager::EXTRA_DAMAGE_TYPE eDecomposedEDT2 = CX2DamageManager::EDT_NONE;
 	int iCount = 0;
 	
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	if( null != pDamageData->optrAttackerGameUnit )	/// June @32708b94: slot 111, as above
+		iCount = DecomposeEnchantExtraDamage( pDamageData->optrAttackerGameUnit->JuneGetWeaponEnchantExtraDamageType(), eDecomposedEDT1, eDecomposedEDT2 );
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	if( null != pDamageData->optrAttackerGameUnit )
 		iCount = DecomposeEnchantExtraDamage( pDamageData->optrAttackerGameUnit->GetEnchantExtraDamageType(), eDecomposedEDT1, eDecomposedEDT2 );
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 
 	CX2DamageManager::EXTRA_DAMAGE_TYPE eBaseDecomposedEDT1 = CX2DamageManager::EDT_NONE;

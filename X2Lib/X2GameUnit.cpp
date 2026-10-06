@@ -2402,6 +2402,13 @@ static void JuneSocketFirstApply( bool& bSeen_, const char* szTerm_, const float
 	CX2JuneBuffCapture::Line( "first socket %s: rate %g, %g -> %g", szTerm_, fRate_, fBefore_, fAfter_ );
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#if defined( SERV_IRUHADEV_JUNE_ENCHANT_PARITY ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
+/// Phase 15 step 2b debug: the first 20 "[JUNE_BUFF] enchant ..." lines of each kind per session (ticks run once a second per unit)
+static bool JuneEnchantDebugBudget( int& iCount_ )
+{
+	return ( iCount_++ < 20 );
+}
+#endif defined( SERV_IRUHADEV_JUNE_ENCHANT_PARITY ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
 
 /// June buff port 16-step3b2 item 2: June 32273480, the defender's critical-threshold term. June's DamageReacts (user
 /// @32048aa2, NPC @327b375f) add it to the attacker's critical rate and compare the sum with a bare GetRandomFloat( 1 )
@@ -2856,6 +2863,25 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 		if( NULL != pEnchantData )
 		{
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			/// June GetFinalDamage @322855ff: tiers on the 1-based accumulation (1 / 2 / 3; anything else keeps 1.0, no assert),
+			/// each debuff scaled by (1 - the defender's water resist / 500)
+			const float fJuneKeep = 1.f - pDefender->GetEnchantResist( CX2EnchantItem::ET_WATER ) / static_cast<float>( CX2EnchantItem::EAR_MAX_VALUE );
+			switch( GetExtraDamagePack().m_EnchantFrozen.m_Accumulation )
+			{
+			case 1:
+				fFronzenDebuffDefenceRate = 1.f - ( (float)pEnchantData->m_FirstDefenceDebuffPercent / 100.f ) * fJuneKeep;
+				break;
+			case 2:
+				fFronzenDebuffDefenceRate = 1.f - ( (float)pEnchantData->m_SecondDefenceDebuffPercent / 100.f ) * fJuneKeep;
+				break;
+			case 3:
+				fFronzenDebuffDefenceRate = 1.f - ( (float)pEnchantData->m_ThirdDefenceDebuffPercent / 100.f ) * fJuneKeep;
+				break;
+			default:
+				break;
+			}
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			switch( GetExtraDamagePack().m_EnchantFrozen.m_Accumulation )
 			{
 			default:
@@ -2876,6 +2902,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 					fFronzenDebuffDefenceRate = 1.f - ( (float)pEnchantData->m_ThirdDefenceDebuffPercent / 100.f);
 				} break;
 			}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		}
 	}
 
@@ -3478,6 +3505,46 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 #endif
 
 	// 5. 피어싱 공격일 경우에 추가 데미지, 무기 공격력의 0.3배
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June GetFinalDamage 32284aa0 @32286559..@32286722: the base is the weapon's attack x ENCHANT_STAT_SCALE[enchant level]
+	/// (gate 32708c50) for a user, physic + magic attack for an NPC; with the attacker's EnchantData it becomes
+	/// m_fPiercingDamageFactor / 100 x base x 0.5 (user table on the second decomposed part, NPC table on the first);
+	/// the defender's wind resist / 500 takes its share off. March: base x 0.4.
+	if( true == pAttDamageData->m_bPenetrate )
+	{
+		float fPiercingDamage = 0.f;
+		const CX2EnchantItem::EnchantData* pJuneEnchantData = NULL;
+		switch( pAttacker->GetGameUnitType() )
+		{
+		case CX2GameUnit::GUT_USER:
+			{
+				CX2GUUser* pGUUSer = (CX2GUUser*)pAttacker;
+				CX2Item* pItem = pGUUSer->GetUnit()->GetInventory().GetEquippingItemByEquipPos( CX2Unit::EP_WEAPON_HAND, false );
+				fPiercingDamage = GetItemAttackPower( pAttacker, pItem );
+				if ( true == CX2EnchantItem::JuneIsEnchantStatScaleOn() && NULL != pItem )
+					fPiercingDamage *= ENCHANT_STAT_SCALE[ pItem->GetItemData().m_EnchantLevel ];
+				pJuneEnchantData = JuneGetAttackerEnchantData( pAttacker, true, false );
+			} break;
+
+		case CX2GameUnit::GUT_NPC:
+			{
+				fPiercingDamage = fPhysicAttack + fMagicAttack;
+				pJuneEnchantData = JuneGetAttackerEnchantData( pAttacker, false, false );
+			} break;
+		}
+		const float fJuneBase = fPiercingDamage;
+		if ( NULL != pJuneEnchantData )
+			fPiercingDamage = pJuneEnchantData->m_fPiercingDamageFactor / 100.f * fPiercingDamage * 0.5f;
+		const float fJuneKeep = 1.f - pDefender->GetEnchantResist( CX2EnchantItem::ET_WIND ) / static_cast<float>( CX2EnchantItem::EAR_MAX_VALUE );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		static int s_iPiercingLines = 0;
+		if ( JuneEnchantDebugBudget( s_iPiercingLines ) )
+			CX2JuneBuffCapture::Line( "enchant piercing: base %g, factor %g, keep %g -> damage %g + %g", fJuneBase,
+				( NULL != pJuneEnchantData ? pJuneEnchantData->m_fPiercingDamageFactor : -1.f ), fJuneKeep, fFinalDamage, fJuneKeep * fPiercingDamage );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		fFinalDamage += fJuneKeep * fPiercingDamage;
+	}
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	if( true == pAttDamageData->m_bPenetrate )
 	{
 		float fPiercingDamage = 0.f;
@@ -3504,6 +3571,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 #endif ENCHANT_BALANCE_101014
 		fFinalDamage += fPiercingDamage;
 	}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 	// SocketOption에 의한 SuperArmor 시에 데미지 30% 감소
 	if ( pDefender->GetGameUnitType() == GUT_USER )
@@ -4166,6 +4234,11 @@ void CX2GameUnit::InitComponent()
 //		LUA_GET_VALUE( m_LuaManager, "BONE_ATTACHED_CAMERA_OFFSET_Z",				m_vBoneAttachedCameraOffset.z,			0.f );
 //		
 //#endif HEAD_ATTACHED_CAMERA_TEST
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		/// June InitComponent 32289090 @32289d44, its last INIT_COMPONENT key (default false). Only June's data037
+		/// Lire_Evoke_trap(_Memo) set it; March's copies of those scripts do not, so it stays off until they are adopted.
+		LUA_GET_VALUE( m_LuaManager, "USE_OWNERS_ENCHANT", m_kJuneUseOwnersEnchant.m_bUse, false );
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 
 		m_LuaManager.EndTable();
@@ -5914,6 +5987,16 @@ void CX2GameUnit::SetSubAttackList( CKTDGXSkinAnim* pXSkinAnim )
 
 const CX2EnchantItem::EnchantData* CX2GameUnit::GetWeaponEnchantData( CX2DamageManager::EXTRA_DAMAGE_TYPE extraDamageType ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June 3275aa80 (NPC slot 112): with USE_OWNERS_ENCHANT and a live owner, the owner's slot 112. March's function is not virtual,
+	/// so the NPC override lives here; the user (31fcb1b0) and the NPC's own table below are March's
+	if ( CX2GameUnit::GUT_NPC == GetGameUnitType() && true == m_kJuneUseOwnersEnchant.m_bUse )
+	{
+		CX2GameUnit* pOwner = const_cast<CX2GUNPC*>( static_cast<const CX2GUNPC*>( this ) )->GetOwnerGameUnit();
+		if ( NULL != pOwner )
+			return pOwner->GetWeaponEnchantData( extraDamageType );
+	}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	if ( GetGameUnitType() == CX2GameUnit::GUT_USER )
 		return g_pData->GetEnchantItem()->GetEnchantData( extraDamageType );
 	else
@@ -6070,6 +6153,196 @@ float CX2GameUnit::JuneEnchantAccumulationRateModifier( CX2DamageManager::Damage
 }
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #endif ENCHANT_ACCUMULATION_RATE_MODIFIER
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+/// June buff port Phase 15 step 2b: June's BFI / BTI of the enchant debuffs (June Enum.lua; March's Enum.lua has the same
+/// names and values, March's C++ enums have none). Their factors and templets are not in March data before Phase 13.
+static const UINT JUNE_BFI_DEBUFF_HARD_BODY		= 1000;	/// shock debuff, BTI 945
+static const UINT JUNE_BFI_DEBUFF_SLOW_POISON	= 1001;	/// poison slow, BTI 946
+static const UINT JUNE_BFI_DEBUFF_SLOW_FROZEN	= 1014;	/// frozen slow, BTI 958
+static const BUFF_TEMPLET_ID JUNE_BTI_DEBUFF_HARD_BODY		= static_cast<BUFF_TEMPLET_ID>( 945 );
+static const BUFF_TEMPLET_ID JUNE_BTI_DEBUFF_SLOW_POISON	= static_cast<BUFF_TEMPLET_ID>( 946 );
+static const BUFF_TEMPLET_ID JUNE_BTI_DEBUFF_SLOW_FROZEN	= static_cast<BUFF_TEMPLET_ID>( 958 );
+
+/// One "[JUNE_BUFF] enchant: BFI n has no factor" line per BFI and session. June null-checks the factor (@32068bfa) and skips silently.
+static bool JuneEnchantDebuffFactorPresent( const CX2BuffFactorPtr& ptrFactor_, const UINT uiBuffFactorID_, const char* szWhat_ )
+{
+	if ( NULL != ptrFactor_ )
+		return true;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
+	static std::set<UINT> s_setReported;
+	if ( s_setReported.insert( uiBuffFactorID_ ).second )
+		CX2JuneBuffCapture::Line( "enchant: BFI %u (%s) has no factor in this data (Phase 13); June skips it, so no %s",
+			uiBuffFactorID_, szWhat_, szWhat_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_LOADER
+	return false;
+}
+
+CX2DamageManager::EXTRA_DAMAGE_TYPE CX2GameUnit::JuneGetWeaponEnchantExtraDamageType()
+{
+	if ( CX2GameUnit::GUT_NPC == GetGameUnitType() && true == m_kJuneUseOwnersEnchant.m_bUse )
+	{
+		/// June reads the owner observer (+0x8d5c) directly; March's getter is the same observer
+		CX2GameUnit* pOwner = static_cast<CX2GUNPC*>( this )->GetOwnerGameUnit();
+		if ( NULL != pOwner )
+			return pOwner->JuneGetWeaponEnchantExtraDamageType();
+	}
+	return m_eWeaponEnchantExtraDamageType;
+}
+
+const CX2EnchantItem::EnchantData* CX2GameUnit::JuneGetAttackerEnchantData( CX2GameUnit* pAttacker_, const bool bSecondPart_, const bool bUserMapAlways_ )
+{
+	if ( NULL == pAttacker_ || NULL == g_pData->GetEnchantItem() )
+		return NULL;
+
+	const bool bUser = ( CX2GameUnit::GUT_USER == pAttacker_->GetGameUnitType() );
+	if ( false == bUser && CX2GameUnit::GUT_NPC != pAttacker_->GetGameUnitType() )
+		return NULL;
+
+	CX2DamageManager::EXTRA_DAMAGE_TYPE eFirst = CX2DamageManager::EDT_NONE;
+	CX2DamageManager::EXTRA_DAMAGE_TYPE eSecond = CX2DamageManager::EDT_NONE;
+	CX2EnchantItem::DecomposeEnchantExtraDamage( pAttacker_->JuneGetWeaponEnchantExtraDamageType(), eFirst, eSecond );
+	const CX2DamageManager::EXTRA_DAMAGE_TYPE ePart = ( true == bSecondPart_ && CX2DamageManager::EDT_NONE != eSecond ) ? eSecond : eFirst;
+
+	if ( true == bUser || true == bUserMapAlways_ )
+		return g_pData->GetEnchantItem()->GetEnchantData( ePart );
+	return g_pData->GetEnchantItem()->GetNPCEnchantData( ePart );
+}
+
+void CX2GameUnit::JuneApplyEnchantSlowDebuff( const int iElement_ )
+{
+	const bool bFrozen = ( 2 == iElement_ );
+	CX2DamageManager::ExtraDamageData& kElement = ( true == bFrozen ? m_ExtraDamagePack.m_EnchantFrozen : m_ExtraDamagePack.m_EnchantPoison );
+
+	CX2GameUnit* pAttacker = kElement.m_optrGameUnit.GetObservable();
+	if ( NULL == pAttacker )
+		return;
+	const CX2EnchantItem::EnchantData* pEnchantData = JuneGetAttackerEnchantData( pAttacker, false, false );
+	if ( NULL == pEnchantData )
+		return;
+
+	/// June indexes the lists with [accumulation - 1] and no bound; the bodies keep it at 1..3 while the element is live,
+	/// so the guard below never fires (June would read the field before the list at 0)
+	const int iIndex = kElement.m_Accumulation - 1;
+	if ( iIndex < 0 || iIndex > 2 )
+		return;
+
+	/// June @32067e9e: each list entry / 100 is the cut; the resist (water for frozen, nature for poison) / 500 gives that
+	/// share of the cut back, and each value is capped at 1
+	const float fResist = GetEnchantResist( true == bFrozen ? CX2EnchantItem::ET_WATER : CX2EnchantItem::ET_NATURE ) / static_cast<float>( CX2EnchantItem::EAR_MAX_VALUE );
+	const float fAnim = 1.0f - pEnchantData->m_arrAttackSpeedDecrease[iIndex] / 100.0f;
+	const float fJump = 1.0f - pEnchantData->m_arrJumpSpeedDecrease[iIndex] / 100.0f;
+	const float fRun = 1.0f - pEnchantData->m_arrMovementSpeedDecrease[iIndex] / 100.0f;
+	float fAnimValue = fAnim + ( 1.0f - fAnim ) * fResist;
+	float fJumpValue = fJump + ( 1.0f - fJump ) * fResist;
+	float fRunValue = fRun + ( 1.0f - fRun ) * fResist;
+	if ( fAnimValue >= 1.0f )
+		fAnimValue = 1.0f;
+	if ( fJumpValue >= 1.0f )
+		fJumpValue = 1.0f;
+	if ( fRunValue >= 1.0f )
+		fRunValue = 1.0f;
+
+	const BUFF_TEMPLET_ID eBuffTempletID = ( true == bFrozen ? JUNE_BTI_DEBUFF_SLOW_FROZEN : JUNE_BTI_DEBUFF_SLOW_POISON );
+	if ( true == HaveUnfinishedBuff( eBuffTempletID ) && false == JuneIsEnchantAccumulationRose( iElement_ ) )
+		return;
+
+	const UINT uiBuffFactorID = ( true == bFrozen ? JUNE_BFI_DEBUFF_SLOW_FROZEN : JUNE_BFI_DEBUFF_SLOW_POISON );
+	CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( uiBuffFactorID );
+	if ( false == JuneEnchantDebuffFactorPresent( ptrBuffFactor, uiBuffFactorID, true == bFrozen ? "frozen slow" : "poison slow" ) )
+		return;
+
+	EraseBuffTempletFromGameUnit( eBuffTempletID );
+	CX2BuffFactorPtr ptrClone = ptrBuffFactor->GetClonePtr();
+	ptrClone->JuneSetBehaviorValue( BBT_CHANGE_ANIM_SPEED, fAnimValue, 2 );		/// BBT 11
+	ptrClone->JuneSetBehaviorValue( BBT_CHANGE_JUMP_POWER, fJumpValue, 2 );		/// BBT 13
+	ptrClone->JuneSetBehaviorValue( BBT_CHANGE_WALK_RUN_SPEED, fRunValue, 2 );	/// BBT 12
+	ptrClone->SetGameUnitBuffFactor( this, -1, true );
+	SetBuffFactorToGameUnit( *ptrClone );
+	m_kJuneEnchantAccumulationRose.m_abRose[iElement_ - 1] = false;	/// June 322727a0( element, 0 )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	static int s_iSlowLines = 0;
+	if ( JuneEnchantDebugBudget( s_iSlowLines ) )
+		CX2JuneBuffCapture::Line( "enchant %s slow: accumulation %d, resist %g, anim %g jump %g run %g (BFI %u)", true == bFrozen ? "frozen" : "poison",
+			iIndex + 1, fResist, fAnimValue, fJumpValue, fRunValue, uiBuffFactorID );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+}
+
+void CX2GameUnit::JuneApplyEnchantShockDebuff()
+{
+	if ( true == HaveUnfinishedBuff( JUNE_BTI_DEBUFF_HARD_BODY ) )
+		EraseBuffTempletFromGameUnit( JUNE_BTI_DEBUFF_HARD_BODY );
+
+	CX2GameUnit* pAttacker = m_ExtraDamagePack.m_EnchantShock.m_optrGameUnit.GetObservable();
+	if ( NULL == pAttacker )
+		return;
+	/// June @32068b18: the second decomposed part when there is one, and the user map for an NPC attacker too (JUNE_BUGS)
+	const CX2EnchantItem::EnchantData* pEnchantData = JuneGetAttackerEnchantData( pAttacker, true, true );
+	if ( NULL == pEnchantData )
+		return;
+
+	CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( JUNE_BFI_DEBUFF_HARD_BODY );
+	if ( false == JuneEnchantDebuffFactorPresent( ptrBuffFactor, JUNE_BFI_DEBUFF_HARD_BODY, "shock debuff" ) )
+		return;
+
+	/// June @32068c22: r = 1 - light resist / 500; physic and magic attack (BBT 7, 8) both become 1 - r x factor, time = time x r
+	CX2BuffFactorPtr ptrClone = ptrBuffFactor->GetClonePtr();
+	const float fKeep = 1.0f - GetEnchantResist( CX2EnchantItem::ET_LIGHT ) / static_cast<float>( CX2EnchantItem::EAR_MAX_VALUE );
+	const float fValue = 1.0f - fKeep * pEnchantData->m_fShockDebuffDamageFactor;
+	const float fTime = static_cast<float>( pEnchantData->m_iShockDebuffTime ) * fKeep;
+	ptrClone->JuneSetBehaviorValue( BBT_CHANGE_PHYSIC_ATTACK, fValue, 2 );
+	ptrClone->JuneSetBehaviorValue( BBT_CHANGE_MAGIC_ATTACK, fValue, 2 );
+	ptrClone->JuneSetTimeFinalizerValue( fTime, false );
+	ptrClone->SetGameUnitBuffFactor( this, -1, true );
+	SetBuffFactorToGameUnit( *ptrClone );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	static int s_iShockLines = 0;
+	if ( JuneEnchantDebugBudget( s_iShockLines ) )
+		CX2JuneBuffCapture::Line( "enchant shock debuff: keep %g, attack x %g, time %g s (BFI %u)", fKeep, fValue, fTime, JUNE_BFI_DEBUFF_HARD_BODY );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+}
+
+void CX2GameUnit::JuneEraseEnchantSlowDebuff( const int iElement_ )
+{
+	const BUFF_TEMPLET_ID eBuffTempletID = ( 2 == iElement_ ? JUNE_BTI_DEBUFF_SLOW_FROZEN : JUNE_BTI_DEBUFF_SLOW_POISON );
+	if ( true == HaveUnfinishedBuff( eBuffTempletID ) )
+		EraseBuffTempletFromGameUnit( eBuffTempletID );
+}
+
+float CX2GameUnit::JuneEnchantBlazeMpDrain( const bool bResist_ )
+{
+	const float fNowMpBefore = GetNowMp();
+	if ( fNowMpBefore > 0.0f )
+	{
+		CX2GameUnit* pAttacker = m_ExtraDamagePack.m_EnchantBlaze.m_optrGameUnit.GetObservable();
+		if ( NULL != pAttacker )
+		{
+			const float fKeep = ( true == bResist_ ? 1.0f - GetEnchantResist( CX2EnchantItem::ET_BLAZE ) / static_cast<float>( CX2EnchantItem::EAR_MAX_VALUE ) : 1.0f );
+			const CX2EnchantItem::EnchantData* pEnchantData = JuneGetAttackerEnchantData( pAttacker, false, false );
+			if ( NULL != pEnchantData )
+			{
+				UpNowMp( -( pEnchantData->m_fBlazeMpDrain * fKeep ) );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				static int s_iDrainLines = 0;
+				if ( JuneEnchantDebugBudget( s_iDrainLines ) )
+					CX2JuneBuffCapture::Line( "enchant blaze MP drain (%s): MP %g, drain %g x keep %g -> MP %g", true == bResist_ ? "user" : "NPC",
+						fNowMpBefore, pEnchantData->m_fBlazeMpDrain, fKeep, GetNowMp() );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			}
+		}
+	}
+	return fNowMpBefore;
+}
+
+void CX2GameUnit::JuneDrawMpLossText( const float fValue_, const D3DXVECTOR3& vPos_, const D3DXVECTOR3& vDir_, const bool bPercent_ )
+{
+	WCHAR wszText[64] = L"";
+	swprintf_s( wszText, 64, ( true == bPercent_ ? L"MP- %d PERCENT" : L"MP- %d" ), static_cast<int>( fValue_ + 0.5 ) );
+	if ( true == g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() )
+		return;
+	if ( NULL != g_pData && NULL != g_pData->GetPicCharRed() )
+		g_pData->GetPicCharRed()->DrawText( wszText, vPos_, vDir_, CKTDGPicChar::AT_CENTER );
+}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 
 // fix!! to do: b3DSound 설정할 수 있게 수정하기

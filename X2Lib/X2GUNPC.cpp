@@ -16617,6 +16617,9 @@ void CX2GUNPC::CommonFrameMoveHost_ExtraDamage()
 			// oasis907 : ±è»óÀ± [2010.10.5] // ¼Ó¼º ºí·¹ÀÌÁî·Î »ç¸Á °¡´É
 			const float fBeforeHP = GetNowHp();
 			UpNowHp(-m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec);
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			const float fJuneNowMpBefore = JuneEnchantBlazeMpDrain( false );	/// June 3276b400 @3276b8a0..: the NPC drain has no resist term
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 #ifdef X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
 			if( g_pMain->GetGameOption().GetOptionList().m_eEffect == CX2GameOption::OL_HIGH
@@ -16649,6 +16652,15 @@ void CX2GUNPC::CommonFrameMoveHost_ExtraDamage()
 #else 
 					g_pData->GetPicChar()->DrawText( static_cast<int>( fBeforeHP - GetNowHp() ), numPos, GetDirVector(), CKTDGPicChar::AT_CENTER );
 #endif ALWAYS_SCREEN_SHOT_TEST
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+					/// June 3276b400 @3276bab0..: when the NPC had MP before the drain, the MP lost as red "MP- n", 80 below the HP number
+					if ( fJuneNowMpBefore > 0.0f )
+					{
+						D3DXVECTOR3 vJuneMpPos = numPos;
+						vJuneMpPos.y -= 80.0f;
+						JuneDrawMpLossText( fJuneNowMpBefore - GetNowMp(), vJuneMpPos, GetDirVector(), false );
+					}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 				}
 			}
 		}
@@ -17496,9 +17508,16 @@ void CX2GUNPC::CommonFrameMove()
 #endif //MODIFY_OVERLAP_EDT_EMOTICON
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June CX2GUNPC::CommonFrameMove 327b53b0 @327b73e7: the emoticon tiers follow the 1-based accumulation (3 / 2 / live)
+	if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation >= 3 ||
+		m_ExtraDamagePack.m_EnchantPoison.m_Accumulation >= 3 ||
+		m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation >= 3 )
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation >= 2 ||
 		m_ExtraDamagePack.m_EnchantPoison.m_Accumulation >= 2 ||
 		m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation >= 2 )
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	{
 		if( m_hSeqEnchant_Exclamation3 == INVALID_PARTICLE_SEQUENCE_HANDLE && m_bAttributeEmotionFlag == true )
         {
@@ -17531,9 +17550,15 @@ void CX2GUNPC::CommonFrameMove()
 			pSeq_Enchant_Exclamation2->SetEmitRate( 0, 0 );
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	else if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation >= 2 ||
+		m_ExtraDamagePack.m_EnchantPoison.m_Accumulation >= 2 ||
+		m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation >= 2 )
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	else if ( m_ExtraDamagePack.m_EnchantBlaze.m_Accumulation >= 1 ||
 		m_ExtraDamagePack.m_EnchantPoison.m_Accumulation >= 1 ||
 		m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation >= 1 )
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	{
 		if( m_hSeqEnchant_Exclamation2 == INVALID_PARTICLE_SEQUENCE_HANDLE && m_bAttributeEmotionFlag == true )
         {
@@ -17882,6 +17907,11 @@ void CX2GUNPC::CommonFrameMove()
 				pSeq_Enchant_Poison_Second->SetEmitRate( 20, 40 );
 			}
 			
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			/// June 327b53b0 @327b8e93..@327b9225 = the user tick's code: BFI 1001 from the attacker's lists (March: the user table's
+			/// Slow percents clamped the local rates)
+			JuneApplyEnchantSlowDebuff( 3 );
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			const CX2EnchantItem::EnchantData* pEnchantData = g_pData->GetEnchantItem()->GetEnchantData( CX2DamageManager::EDT_ENCHANT_POISON );
 			if ( pEnchantData != NULL )
 			{
@@ -17948,6 +17978,7 @@ void CX2GUNPC::CommonFrameMove()
 				}
 #endif ENCHANT_BALANCE_101014
 			}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		}
 		else
 		{
@@ -17984,6 +18015,9 @@ void CX2GUNPC::CommonFrameMove()
 	{
 		m_ExtraDamagePack.m_EnchantPoison.m_fElapsedTimeToEffectDamage = 0.0f;
 		m_ExtraDamagePack.m_EnchantPoison.m_Accumulation = 0;
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		JuneEraseEnchantSlowDebuff( 3 );	/// June @327b9507: BTI 946 ends with the poison
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	}
 
 	if( m_ExtraDamagePack.m_Fire.m_fTime > 0.0f || m_ExtraDamagePack.m_EnchantBlaze.m_fTime > 0.0f )
@@ -18154,6 +18188,10 @@ void CX2GUNPC::CommonFrameMove()
 					StateChange( m_SmallDamageLandFront );
 #endif RIDING_MONSTER
 #endif //BALANCE_PATCH_20110303
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+					/// June @327b9fba..@327ba220, at the end of this alive branch: the shock debuff (BFI 1000)
+					JuneApplyEnchantShockDebuff();
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 				}
 
 				
@@ -18290,6 +18328,10 @@ void CX2GUNPC::CommonFrameMove()
 		{
 			m_bFrozenSlowApplied = true;
 
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			/// June @327ba9c3..@327bad58: BFI 1014 from the attacker's lists, as the user tick
+			JuneApplyEnchantSlowDebuff( 2 );
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			const CX2EnchantItem::EnchantData* pEnchantData = g_pData->GetEnchantItem()->GetEnchantData( CX2DamageManager::EDT_ENCHANT_FROZEN );
 			if ( pEnchantData != NULL )
 			{
@@ -18339,6 +18381,7 @@ void CX2GUNPC::CommonFrameMove()
 						fRunJumpSpeedRate = fApplySlowFact + fAlpha;
 				}
 			}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		}
 
 		if( m_hSeqCold1 == INVALID_PARTICLE_SEQUENCE_HANDLE )
@@ -18492,6 +18535,9 @@ void CX2GUNPC::CommonFrameMove()
 	{
 		m_ExtraDamagePack.m_EnchantFrozen.m_fElapsedTimeToEffectDamage = 0.0f;
 		m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation = 0;
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		JuneEraseEnchantSlowDebuff( 2 );	/// June @327bb698: BTI 958 ends with the frozen
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	}
 
 	if( m_ExtraDamagePack.m_Lightning.m_fTime > 0.0f )

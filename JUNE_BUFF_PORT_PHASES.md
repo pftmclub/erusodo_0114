@@ -4508,6 +4508,48 @@ Ran on Opus 5.5 high, flag `SERV_IRUHADEV_JUNE_ENCHANT_PARITY`. **Stopped after 
 - Checked before closing: March resets the accumulation when the element ends in both ticks (user `X2GUUser.cpp:17215/17353/17677`, NPC `X2GUNPC.cpp:17983/18064/18491`), so the ungated 1-based bodies are safe in the deployed exe.
 - **The deployed exe is an intermediate state: enchant play in it is not representative until 2b.** The bodies are 1-based while March's tick readers are 0-based (poison slow tiers, the enchant visual shift one tier on the first proc), and with March's data R = 0, so March's x2 at stacks is simply gone. No play-test yet. Frozen/poison slows and the tick readers come with 2b, so a check now would measure a half-ported phase.
 
+### Phase 15, step 2b — chunk D Done (2026-10-07)
+
+Ran on Opus 5.5 high, flag `SERV_IRUHADEV_JUNE_ENCHANT_PARITY`. Phase 15's code is complete. New funcmap rows: "Buff Phase 15 step 2b". June bugs #62-#66.
+
+**What landed** (commit: see the STATUS row)
+- **Helpers** (`X2GameUnit.cpp/.h`): June's attacker-table lookup (decompose the attacker's slot 111, then the user or NPC map by the attacker's class), slot-111 accessor, slow and shock debuffs, slow erase, blaze MP drain, `322d39e0` MP text. `X2BuffFactor.h`: `32d418a0`/`32d41910` as `JuneSetBehaviorValue` / `JuneSetTimeFinalizerValue`. The user host (`32063650`) and the NPC hosts (`327b53b0`, `3276b400`) run byte-identical code for these blocks (address-stripped diff), so both call the same helpers.
+- **Ticks (user and NPC):**
+  - Emoticon tiers moved to 3 / 2 / live.
+  - Poison and frozen build BFI 1001 / 1014 from the attacker's lists: `min(1, a + (1-a) x resist/500)`, BBT 11 / 13 / 12, no time change. The debuff is re-applied only when absent or the accumulation rose, then the rose flag is cleared. **The ticks no longer read the Slow percents or clamp the local speed rates.**
+  - When an element ends, its BTI 946 / 958 is erased.
+  - Shock debuff (BFI 1000) when the stun ends with the unit alive: BBT 7 = BBT 8 = `1 - r x m_fShockDebuffDamageFactor`, BFT_TIME = `m_iShockDebuffTime x r`, r = 1 - light resist/500. Step 1's untraced "x" is r.
+  - Blaze tick: when the defender has MP (vslot `0xd8` = GetNowMp, so step 1's "tick damage > 0" was wrong) and the attacker is live, drain `m_fBlazeMpDrain`. The user host also multiplies by (1 - blaze resist/500); the NPC host does not (#63). A red "MP- n" is drawn 80 below the HP number (#64).
+  - The user poison and blaze ticks drop `ProcessSkillAtDie`, as June does. June does death prevention in its user `UpNowHp`/`SetNowHp` overrides (checklist §7, `320072d0`/`3202b9a0`).
+- **GetFinalDamage:**
+  - Piercing term: user base = `GetItemAttackPower(weapon) x ENCHANT_STAT_SCALE`, NPC base = physic + magic. With a table row, the term is `factor/100 x base x 0.5`; then `x (1 - wind resist/500)`. March's was `x 0.4` (#65).
+  - Frozen defence debuff: tiers 1 / 2 / 3, each `x (1 - water resist/500)`.
+- **Kickoff item 2, the Henir function at 1600-1810:** it is `GetItemAttackPower` (June `322727f0`, unit vslot `0x68`). June keeps its Henir check (the bodies dropped theirs), the same 15 event dungeons and the PvP rule. The only change is that the dungeon branch also runs in June's state 23 `XS_PVE_GAME`, which March does not have. Not ported, since none of it is reachable.
+- **`USE_OWNERS_ENCHANT`:** the key is read in `InitComponent` (`@32289d44`), with the member beside the rose flags.
+  - **Hosting:** NPC slot 112 is hosted as an NPC branch at the top of March's non-virtual `GetWeaponEnchantData`. Slot 111 gets a new `JuneGetWeaponEnchantExtraDamageType()`.
+  - **Slot-111 sweep:** the June binary has 27 slot-111 call sites. The ones that matter here are ProcessEnchant `32708b00` (= `X2EnchantItem.cpp:775/801`, now switched to the new accessor), the ticks and the piercing term. The rest are user-only or UI.
+  - **Dormant:** March's `Lire_Evoke_trap(_Memo)` lack the key, so this does nothing yet. A checklist §7 row covers adopting June's scripts.
+- **Not ported:**
+  - `32276ce0`, which stops a damage-react sound list at `+0x3f20` that March does not have.
+  - The removal of the `ALWAYS_SCREEN_SHOT_TEST` gate, which is a build-wide macro.
+- **Data:** June's `AttribEnchantItem.lua` is staged in both directories (`COMPILE OK data036`); #66 covers its `_OLD` row. It is packed with step 2's staged Lua.
+
+**Hygiene / build / pack**
+- worktree flagcheck before commit: `files: 6 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- `DEPLOY OK: X2_offline.exe is 19,271,168 B, dated 2026-10-07 06:21:13, md5 c4c7d0ab324da85dc3c50ac0dd89b1bf, equal to X2/US_SERVICE/x2.exe (2026-10-07 06:20:59); built at mods/june-buff-port 4cf92bb + 6 uncommitted code file(s).` (= this commit's code). The deployed exe contains `MP- %d`, `USE_OWNERS_ENCHANT` and the new log strings.
+- `PACK OK data036`: +AttribEnchantRequireED, ~AttribEnchantItem, ~AttribEnchantRequire, ~Enum against live. **Copy: asked separately.**
+- Save edit for the play-test: Dark (6) is now attribute 3 on Iivue's weapon (item 579, now DOUBLE_BLAZE_SNATCH 3767). Backup: `db_backup/els_db_20261007_062222_pre_attrib_dark_579.sql`.
+
+**How to see it in game**
+- Blaze: Iivue's hits on monsters burn as before, now 1-based. A monster with MP also shows a red "MP- n".
+- Piercing: Freils (item 361, Wind x2). The `[JUNE_BUFF] enchant piercing:` lines give the base, factor and added damage.
+- Snatch: Iivue. Shows the red "HP -n MP -n" text (chunk C).
+- Tooltip: hover over Iivue's weapon.
+- ED cost: an attribute enchant succeeds, and the "GetAttribEnchantRequiredED is not loaded" line is absent.
+
+**Open for the user**
+- **Frozen and poison enchants no longer slow anything until Phase 13 ships BFI 1001/1014, and shock no longer debuffs until BFI 1000 ships.** This is June's code with March data (user decision 2026-10-07: those entries wait for Phase 13). One `[JUNE_BUFF] enchant: BFI n has no factor` line per BFI says so.
+
 ## Phase 16 — Socket-option parity (added 2026-10-04; carries 92 and 78's socket terms)
 
 **Why it exists.** In Phase 5c the user decided, for 92's three questions, "follow June, so no half-baked port". In June the option-data stats are one system, and it has to move together:

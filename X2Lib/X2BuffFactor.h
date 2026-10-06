@@ -921,6 +921,41 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	//void ApplyExternalFactorToBehavior( const BUFF_BEHAVIOR_TYPE eType_, const float fValue_ );
 	void ApplyExternalFactorToFinalizer( const BUFF_FINALIZER_TYPE eType_, const float fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	/// June buff port Phase 15 step 2b: June 32d418a0 ( bbt, value, op ), used by the enchant slow / shock debuffs. The first
+	/// behavior of type eType_ holding more than one value gets value[1] += / *= / = fValue_ (op 0 / 1 / 2); others untouched.
+	void JuneSetBehaviorValue( const BUFF_BEHAVIOR_TYPE eType_, const float fValue_, const int iOperation_ )
+	{
+		for ( UINT i = 0; i < m_pDataBuffFactor->m_vecBuffBehaviorFactors.size(); ++i )
+		{
+			KBuffBehaviorFactor& kFactor = m_pDataBuffFactor->m_vecBuffBehaviorFactors[i];
+			if ( static_cast<UINT>( eType_ ) != kFactor.m_uiType || kFactor.m_vecValues.size() <= 1 )
+				continue;
+			if ( 0 == iOperation_ )
+				kFactor.m_vecValues[1] += fValue_;
+			else if ( 1 == iOperation_ )
+				kFactor.m_vecValues[1] *= fValue_;
+			else if ( 2 == iOperation_ )
+				kFactor.m_vecValues[1] = fValue_;
+			return;
+		}
+	}
+	/// June 32d41910 ( type, value, bAdd ): every BFT_TIME finalizer holding more than one value gets value[1] (FO_NORMAL_TIME)
+	/// = fValue_, or += when bAdd_. June ignores its type argument and tests the finalizer type against 1 (BFT_TIME) itself.
+	void JuneSetTimeFinalizerValue( const float fValue_, const bool bAdd_ )
+	{
+		for ( UINT i = 0; i < m_pDataBuffFactor->m_vecBuffFinalizerFactors.size(); ++i )
+		{
+			KBuffFinalizerFactor& kFactor = m_pDataBuffFactor->m_vecBuffFinalizerFactors[i];
+			if ( static_cast<UINT>( BFT_TIME ) != kFactor.m_uiType || kFactor.m_vecValues.size() <= 1 )
+				continue;
+			if ( bAdd_ )
+				kFactor.m_vecValues[1] += fValue_;
+			else
+				kFactor.m_vecValues[1] = fValue_;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// SetGameUnit
