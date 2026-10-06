@@ -5051,7 +5051,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 ### Phase 16-step3b — Done, items 7-8 (2026-10-06, Opus 5.5 high)
 
-**Landed** under `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (first-apply lines under `_DEBUG`), one commit per item: `7199cd5` (item 7) and the item 8 commit after it. New rows in `june2017_re/funcmap.tsv` are tagged "Buff Phase 16-step3b"; row `322d6f20` is corrected. Items 1-6, 9 and 10 move to **16-step3b2** (`kickoffs/june-buff/16-step3b2.md`).
+**Landed** under `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (first-apply lines under `_DEBUG`), one commit per item: `7199cd5` (item 7) and `1d511ed` (item 8). New rows in `june2017_re/funcmap.tsv` are tagged "Buff Phase 16-step3b"; row `322d6f20` is corrected. Items 1-6, 9 and 10 move to **16-step3b2** (`kickoffs/june-buff/16-step3b2.md`).
 
 **Item 7: the `+0x29c` conditional buffs.** Corrections to step 1: entry `+0xc` is not an HP rate. It is the key `m_fIncreaseDmgEnemyHPFew_HpRate` read as an int and used as a **skill category** (June data: 1-4, 20 sockets each, "Upon using … Skill"). The kill hook buffs **my unit**, not the attacker, and its 0x287 loop walks NPCs, not users.
 - **Skill-use reader** (`CommonStateStart @32060bda..32060ccb`; ported after the CAN_MANA_BREAK block). For every user unit (June has no IsMyUnit test): when the now state has a skill (slot 329 = `GetNowStateSkillID`) and is a skill-slot state, each entry whose `+0xc` equals `32070510`(skill templet) applies its factor at its level.
@@ -5072,7 +5072,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 - Reach: 120 rank + 65 PVE sockets, none with `EFFECT_NAME` (#47) and none with a dropped key; 1 PVE socket is an MP socket. Offline every character's PvP rank is ARRANGE (`DefaultPvpRank`), so rate 1.0. The PvE rank (June `CX2Unit +0xa00 >= 5 ? +0xa0c : 0`) has no March source, so the key is 0: rate 1.0, and 0 for the MP socket. None of these sockets is in the save.
 - Not ported: June's `+0x87b8` resize after every ConvertAndAdd. It is the per-entry cooldown timer vector of June's 0x18-byte `m_vecMpUpByAttacked` element (ticked by `31fda180`, read in `DamageReact` via `31fd9100 @32047d55`); March keeps that timer in the element's `.w`. It is open, outside rank scaling.
 
-**Hygiene.** Item 7 `--worktree --files` (7 files): 5 PASS, 2 PASS~ (a blank separator line), RESULT PASS. The 2 deleted lines are this flag's own `m_iEnemyHPFewHpRate` rename. Item 8 (6 files): 6 PASS, RESULT PASS. The 7 deleted lines are part 1's rank-skip body, replaced.
+**Hygiene.** Item 7 `--worktree --files` (7 files): 5 PASS, 2 PASS~ (a blank separator line), RESULT PASS. The 2 deleted lines are this flag's own `m_iEnemyHPFewHpRate` rename. Item 8 (6 files): 6 PASS, RESULT PASS. The 7 deleted lines are part 1's rank-skip body, replaced. Post-commit `--range 7199cd5^..HEAD --with JUNE_BUFF_DEBUG`: `files: 11 PASS, 2 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 9 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (9 = 2 rename + 7 rank-skip).
 
 **Deploy.** `DEPLOY OK: X2_offline.exe is 19,225,088 B, dated 2026-10-06 10:06:54, md5 2902bd16759e5992f49c4bb06aa79de3, equal to X2/US_SERVICE/x2.exe (2026-10-06 10:06:27); built at mods/june-buff-port 7199cd5 + 6 uncommitted code file(s).` Those 6 files are item 8's. The new log texts and the 10 binding names are in the exe. Not launched.
 
