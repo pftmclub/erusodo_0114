@@ -5391,6 +5391,66 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 
 The bots spawned (`offline_server.log`, ally of 19) and the dungeon was cleared. This matches 3b3's runs: no regression.
 
+### Phase 16-step3b4 — Done (2026-10-06, Opus 5.5 high)
+
+**Landed** in `9d3dc7f` under `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (first-fire lines under `_DEBUG`). The decodes are 11 `funcmap.tsv` rows tagged "Buff Phase 16-step3b4".
+
+**Kickoff corrections.**
+- Socket data `+0x1e8` is `m_fProbability`, not `m_fIntervalTime`. The interval is `+0x1f8`, the same value June passes to the cool-time setter.
+- The interval check is a per-socket cool-time store, not `31fd8b70( id ) > k`: it passes when the stored time is <= 0.0 (`3342e84c`).
+- June changed cases 1-11 as well, so the whole function was ported, as "no partial June updates" requires.
+
+**`ProcessSocketEffectEx` (`32028ba0`), whole.**
+- **Signature.** June takes two more arguments: a random offset and a victim unit. March's two-argument form forwards with 0 and NULL, which is what every June caller pushes except attack success.
+- **Rolls.** Each roll is "random < probability" at June's raw offset: 10-19 for SIEE 1-11 (= March's `SRO_`), 0x18/0x19/0x1c + index for 12/13/18, offset + index for 14/15/16, 0x1f for 20.
+- **Cool-time store.** New `map` at user `+0x8b98`, with get `31fd8b70`, set `31fe0b90` and tick `31fd7bd0` (OnFrameMove, right after the bone shield). SIEE 7 (new), 10 and 11 (instead of March's single `m_fSocketOptionCoolTime`) and every new case gate on it.
+- **11 / 13.** Neither re-applies a buff at its accumulation limit (`322a7c30`). At the limit, BTI 1003 swaps to BFI 1081 and BTI 910 to BFI 940 (cool time `m_iCount`). 13 at the limit with `EFFECT_NAME` plays its sets and erases the buff. With title 930 (Oath of Ruin, `CX2Unit +0x9a0`), 13 also buffs my live ally summons (`322dd7f0`).
+- **The new cases:**
+  - 12/14/16/18 play `EFFECT_NAME` (16 traces the victim);
+  - 15 plays the sets every frame;
+  - 17 applies its custom-use buff whenever its cool time is over;
+  - 19 sets HP to `m_fIncOrDecVal`, applies the socket buff, and resets cool times in PvP (slot 160, June's pushes);
+  - 20 changes to a down state (June USI = GUSI_END + n, March = n - 1; riding variants), using `+0x7e1c` footOnLine and `+0x7e2d` attackerFront.
+
+**Callers**, each at June's place:
+- **12:** DamageReact, after 11.
+- **13 / 14 / 16:** new `ProcessSocketEffectByAttackSuccess` (slot 252, `3202ab70`), at the end of AttackResult. It skips special attacks and `m_fRateModifier` <= 0. Its offset is the defender's UID, low dword.
+- **15:** OnFrameMove, after the riding-key wait.
+- **17:** the top of CommonFrameMove.
+- **18:** the die states' StateEnd.
+- **19:** UpNowHp / SetNowHp death gate (`3202b9a0`), plus CommonEventProcess's one-shot knock-down (`+0x8e78` -> `USI_DAMAGE_DOWN_FRONT`). The other gate, `320072d0`, stays in the checklist.
+- **20:** the top of CommonStateStartFuture, via slot 334 (`3208eb60`, the ten hit-reaction states). A fired 20 skips the rest of the start.
+
+**`HasSocketAuraFor`** is June's loop (`3204e380`), and Phase 8's `unsupported (Phase 16)` line is in `#else`. The loader's SIEE 12-20 census line now says the types are handled (X2SocketItem.cpp; its 2 deleted lines are this flag's own message).
+
+**Case 15 / the aura: degraded, as the kickoff allows.**
+- `EffectSet_Hero_Dungeon_Aura_Buff` is not in any effect set March loads, so the set does not play and one `[JUNE_BUFF] SIEE 15 socket … did not play` line is logged.
+- Even with the set present, June attaches the buffs through an effect-set buff list (`321e3650` -> EffectSetInstance `+0x160` -> `321ee480` in OnFrameMove_CreateEffect). March's `CX2EffectSet` lacks that list, and class code (`32a0e5f0`, `32ab2ff0`, `32ad2bb0`) uses it too. It logs `unsupported (effect-set buff list…)` and is **not ported** (open item 1).
+
+**Reach** in the data March loads (the staged `OptionItemData` is June's):
+- Of the 67 June SIEE 12-14 and 16-19 sockets, all that play effect sets are dead: none of their 32 June effect-set names is in March's EffectSet files.
+- Of their 23 buff factors, only the three Fever sockets' are staged: `2000139`/`140`/`141` (SIEE 13, `BFI_FEVER_*`).
+- Live in March data: those three, SIEE 19 `32153` (HP becomes 1; its buff `BFI_BUFF_SOLESS_TITLE_INVINCIBLE` is not staged) and SIEE 20 `32166` (PVP_ONLY).
+- None of these is on the save's gear.
+
+**Hygiene.**
+- `--worktree --files` (3 files): `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`.
+- `--range 9d3dc7f^..HEAD`: `in this flag's files: 2 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- The 2 deleted lines are the census message above. With `--with JUNE_BUFF_DEBUG JUNE_BUFF_NEW_FINALIZER JUNE_BUFF_NEW_FLAG` the tool also counts 12 untokened `#else`/`#endif`; those are existing lines in those flags' blocks, not this commit's.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,243,008 B, dated 2026-10-06 16:21:45, md5 80e743a7d6cc2f24530138a500e212e5, equal to X2/US_SERVICE/x2.exe (2026-10-06 16:21:40); built at mods/june-buff-port e4efa86 + 3 uncommitted code file(s).` Those 3 files are this commit's. All five new log texts are in the exe. Not launched.
+
+**Seen, not owned.**
+- The same cool-time store also serves June's `GetBasicReducedDamagePercent` (`3201aff0`: per-socket instead of March's single cool time), `32011280`, `322a0180`, `327995c0` and `3206d480`. These are not ported, so March's `m_fSocketOptionCoolTime` and its tick stay for March's remaining users.
+- One class (vtable `334f06fc`) overrides the ten hit-reaction state slots. That goes to checklist section 7.
+
+**Open for the user.**
+1. The effect-set buff list (`321e3650` / `+0x160` / `321ee480`): a 3b4b step, or june-effect's C6b (which edits OnFrameMove_CreateEffect)?
+2. Stage June's SIEE effect sets and buff templets/factors (32 effect sets, 20 missing BFIs, plus the aura's damage effect and mesh) as a data step?
+3. The functional test needs sockets on gear (a save edit; see the hand-off).
+
+No new JUNE_BUGS rows: none found.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
