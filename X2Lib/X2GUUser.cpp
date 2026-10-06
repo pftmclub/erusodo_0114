@@ -3414,10 +3414,19 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 
 			/// 던전전용이랑 대전전용이 각각 블리언 값으로 구분 되어 있어서, 우선순위 선정이 어렵다...
 			/// 그냥 던전전용부터 검사하자.
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			/// June 3204f190 @3204fc31..fc4c: DUNGEON_ONLY (+0x190) -> 1, else PVP_ONLY (+0x191) -> 2. March tested
+			/// m_bDungeonOnly twice, so its PVP_ONLY hyper-mode sockets were PUP_ALL and also fired in dungeons.
+			if ( true == kSocketData.m_bDungeonOnly )
+				bPossibleUsePlace = CX2SocketItem::PUP_DUNGEON_ONLY;
+			else if ( true == kSocketData.m_bPVPOnly )
+				bPossibleUsePlace = CX2SocketItem::PUP_PVP_ONLY;
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			if ( true == kSocketData.m_bDungeonOnly )
 				bPossibleUsePlace = CX2SocketItem::PUP_DUNGEON_ONLY;
 			else if ( true == kSocketData.m_bDungeonOnly )
 				bPossibleUsePlace = CX2SocketItem::PUP_PVP_ONLY;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 			/// 각성시 사용되는 버프 정보 생성
 			CX2SocketItem::InfoByUseHyperMode sInfoByUseHyperMode;
@@ -3432,6 +3441,10 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 				sInfoByUseHyperMode.m_pBuffFactorPtr = kSocketData.m_ptrBuffFactorCustomUse;
 
 			/// 각성시 사용되는 버프 정보 저장
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			sInfoByUseHyperMode.m_fJuneCoolTime				= kSocketData.m_fIntervalTime;	/// June @3204fc66 (+0x1f8)
+			sInfoByUseHyperMode.m_iJuneSocketID				= kSocketData.m_ID;				/// June @3204fc5f (+0x4)
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			m_SocketData.m_vecInfoByUseHyperMode.push_back( sInfoByUseHyperMode );
 		}
 #endif // HAMEL_SECRET_DUNGEON
@@ -39273,6 +39286,113 @@ void CX2GUUser::ApplyBuffByUseHyperMode()
 {
 	if ( NULL == g_pMain )
 		return;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b6: June's ApplyBuffByUseHyperMode is 3206d480, called by the three ApplyHyperModeBuff it
+	/// has (CX2GameUnit 32298590 @32298d00, Ain 32a71a90 @32a71d9f, Add 329e2410 @329e24f0), each only for a user with a
+	/// non-empty list, as March's two callers do. Per entry, in June's order:
+	/// - skip while the socket's own cool time runs (per-socket store +0x8b98 keyed by the socket ID, 31fd8b70 inline
+	///   @3206d4f4; > 0 skips), the store 16-step3b4 ported and the 3b5 reduction shares (keys are socket IDs by design);
+	/// - the place gate by state (June's names from 31d6fd60): XS_PVP_GAME skips DUNGEON_ONLY; XS_DUNGEON_GAME,
+	///   XS_TRAINING_GAME, XS_BATTLE_FIELD (and June's XS_PVE_GAME / XS_PHOTOZONE_GAME, absent here) skip PVP_ONLY;
+	/// - the type (jump table @3206d754): 0 buff (null buff: nothing, no cool time), 1 EraseDebuffAndAddMP, 2 HP x max HP
+	///   (the display only with a game, the cool time always), 3 Fever (16-step3c), anything else skipped silently;
+	/// - every applied entry starts its cool time, m_fIntervalTime (31fe0b90). US March had no hyper-mode cool time at all
+	///   (no ADJUST_SECRET_ITEM_OPTION), so every awakening re-fired every socket.
+	for ( UINT uiIndex = 0; uiIndex < m_SocketData.m_vecInfoByUseHyperMode.size(); ++uiIndex )
+	{
+		const CX2SocketItem::InfoByUseHyperMode& sInfo = m_SocketData.m_vecInfoByUseHyperMode[uiIndex];
+
+		if ( 0.f < GetJuneSocketCoolTime( sInfo.m_iJuneSocketID ) )
+		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			CX2JuneBuffCapture::Line( "hyper-mode socket %d skipped: own cool time %g s left (June 3206d480 @3206d517)",
+				sInfo.m_iJuneSocketID, GetJuneSocketCoolTime( sInfo.m_iJuneSocketID ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			continue;
+		}
+
+		bool bJunePlaceSkip = false;
+		switch( g_pMain->GetNowStateID() )
+		{
+		case CX2Main::XS_PVP_GAME:
+			bJunePlaceSkip = ( CX2SocketItem::PUP_DUNGEON_ONLY == sInfo.m_ePossibleUsePlace );
+			break;
+		case CX2Main::XS_DUNGEON_GAME:
+		case CX2Main::XS_TRAINING_GAME:
+		case CX2Main::XS_BATTLE_FIELD:
+			bJunePlaceSkip = ( CX2SocketItem::PUP_PVP_ONLY == sInfo.m_ePossibleUsePlace );
+			break;
+		default:
+			break;
+		}
+		if ( true == bJunePlaceSkip )
+		{
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			CX2JuneBuffCapture::Line( "hyper-mode socket %d skipped: place %d not allowed in state %d (June 3206d480 @3206d53b)",
+				sInfo.m_iJuneSocketID, static_cast<int>( sInfo.m_ePossibleUsePlace ), static_cast<int>( g_pMain->GetNowStateID() ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			continue;
+		}
+
+		bool bJuneApplied = false;
+		switch ( sInfo.m_eHyperModeEffectiveType )
+		{
+		case CX2SocketItem::HMET_USE_BUFF:						/// @3206d563
+			if ( NULL != sInfo.m_pBuffFactorPtr )
+			{
+				CX2BuffFactorPtr ptrBuffFactorClone = sInfo.m_pBuffFactorPtr->GetClonePtr( 0 );	/// 32089f60( 0 )
+				if ( NULL != ptrBuffFactorClone )
+					SetBuffFactorToGameUnit( *ptrBuffFactorClone );									/// slot 0x224
+				bJuneApplied = true;
+			}
+			break;
+		case CX2SocketItem::HMET_ERASE_DEBUFF_AND_ADD_MP:		/// @3206d5c2
+			EraseDebuffAndAddMP( sInfo.m_fEffectiveValue );
+			bJuneApplied = true;
+			break;
+		case CX2SocketItem::HMET_ADD_HP_IMMEDIATELY:			/// @3206d5e9
+			UpNowHp( GetMaxHp() * sInfo.m_fEffectiveValue, 0.f );					/// slot 0xec
+			if ( NULL != g_pX2Game )
+				g_pX2Game->DisplayAddHPInformation( sInfo.m_fEffectiveValue * 100.f, GetPos(), GetDirVector(), true );	/// 322d37d0, K 3342f360 = 100.0
+			bJuneApplied = true;
+			break;
+		case CX2SocketItem::HMET_FEVER:							/// @3206d6ab
+			{
+				/// June: with g_pData +0x5c set and its 32430b80, a game, and game +0xbd4 clear, game 322d4f80( 30.0, true )
+				/// (a pass over every live user unit), then the cool time. Not ported: HMET_FEVER is 16-step3c's.
+				static bool s_bJuneHyperFeverLogged = false;
+				if ( false == s_bJuneHyperFeverLogged )
+				{
+					s_bJuneHyperFeverLogged = true;
+					CX2JuneBuffCapture::Line( "unsupported (not yet ported, 16-step3c): hyper-mode socket %d HMET_FEVER (June 3206d480 @3206d6ab -> 322d4f80) skipped, no cool time started",
+						sInfo.m_iJuneSocketID );
+				}
+			}
+			break;
+		default:												/// June: unsigned type > 3 skipped (@3206d556)
+			{
+				static bool s_bJuneHyperUnknownLogged = false;
+				if ( false == s_bJuneHyperUnknownLogged )
+				{
+					s_bJuneHyperUnknownLogged = true;
+					CX2JuneBuffCapture::Line( "hyper-mode socket %d: unknown type %d skipped (June 3206d480 skips it)",
+						sInfo.m_iJuneSocketID, static_cast<int>( sInfo.m_eHyperModeEffectiveType ) );
+				}
+			}
+			break;
+		}
+
+		if ( true == bJuneApplied )
+		{
+			SetJuneSocketCoolTime( sInfo.m_iJuneSocketID, sInfo.m_fJuneCoolTime );		/// 31fe0b90
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			CX2JuneBuffCapture::Line( "hyper-mode socket %d fired: type %d, value %g, place %d, state %d, cool time %g s (June 3206d480)",
+				sInfo.m_iJuneSocketID, static_cast<int>( sInfo.m_eHyperModeEffectiveType ), sInfo.m_fEffectiveValue,
+				static_cast<int>( sInfo.m_ePossibleUsePlace ), static_cast<int>( g_pMain->GetNowStateID() ), sInfo.m_fJuneCoolTime );
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+		}
+	}
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	/// 각성시 적용할 버프 정보 순회
 	BOOST_FOREACH( CX2SocketItem::InfoByUseHyperMode sInfoByUseHyperMode, m_SocketData.m_vecInfoByUseHyperMode )
@@ -39346,6 +39466,7 @@ void CX2GUUser::ApplyBuffByUseHyperMode()
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 }
 
 /** @function	: EraseDebuffAndAddMP

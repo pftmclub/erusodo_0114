@@ -25,8 +25,10 @@ Owner decided by the user (2026-10-06): this phase owns the handlers 16-data log
   156 COMMAND_10HIT_DECREASE_SKILL_COOLTIME, 157 MAGI_HIT_COUNT_ATTACK, 159 DECENT_TO_SHADOW.
   They are on 160 June socket entries (16-data review; the Done note's 179 was an over-count). Today the loader's switch (`X2SocketItem.cpp`, the `EXTRA_DAMAGE`
   block) drops them with one log line per type.
-- **`HMET_FEVER` (3)**: 1 socket (74042). Today it is an explicit no-op case in the awakening switch
-  (`X2GUUser.cpp`, after `HMET_ADD_HP_IMMEDIATELY`).
+- **`HMET_FEVER` (3)**: 1 socket (74042, a title, DUNGEON_ONLY, interval 180). Since 16-step3b6 the awakening switch is
+  June's `3206d480` (`CX2GUUser::ApplyBuffByUseHyperMode`, flag branch); its Fever case logs once and starts no cool time.
+  June's case (`@3206d6ab`): with `g_pData +0x5c` set and its `32430b80` true, a game, and game `+0xbd4` clear, it calls
+  game `322d4f80( 30.0, true )` (a pass over every live user unit), then `SetJuneSocketCoolTime( id, m_fJuneCoolTime )`.
 
 **Step 1 (read-only, then stop for the user if the size calls for a split):**
 1. In June (`32726850`'s extra-damage switch, then the damage-manager / game-unit readers of
@@ -35,7 +37,7 @@ Owner decided by the user (2026-10-06): this phase owns the handlers 16-data log
 2. For each type: is it self-contained C++, or does it need June data March lacks (a damage-effect
    `.lua` in `datai016_kom`, an effect set, a BFI from Phase 13)? Check against `june_src_fixed/`
    and what is staged.
-3. Find June's awakening handler for `HMET_FEVER` (the switch March has at the `HMET_*` cases).
+3. Identify `322d4f80`, `32430b80` and `g_pData +0x5c` (the awakening handler itself is `3206d480 @3206d6ab`, see above).
 4. Count the reach: which of the 160 entries the emulator's roll pools (`SocketItemTable.lua`) or the
    save can produce; which drop/box tables hand out items that carry them.
 **Already located, for 150 `DECREASE_ENEMY_RESIST` and 159 `DECENT_TO_SHADOW` (june-effect C8a, funcmap row `32045340 @32045458-32045483`).** June does not store these two in `m_MultipleSocketExtraDamage`. They take a second, June-only list, and it is carried in five places:

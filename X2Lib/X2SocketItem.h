@@ -544,6 +544,10 @@ class CX2SocketItem
 				m_ePossibleUsePlace			= PUP_ALL;
 				m_eHyperModeEffectiveType	= HMET_NONE;
 				m_fEffectiveValue			= 0.f;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+				m_fJuneCoolTime				= 0.f;
+				m_iJuneSocketID				= 0;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef ADJUST_SECRET_ITEM_OPTION //김창한
 				m_fCoolTime					= 0.f;
 #endif //ADJUST_SECRET_ITEM_OPTION
@@ -556,6 +560,13 @@ class CX2SocketItem
 #ifdef ADJUST_SECRET_ITEM_OPTION //김창한
 			float							m_fCoolTime;				/// 적용 후 재사용 가능할때까지의 시간
 #endif //ADJUST_SECRET_ITEM_OPTION
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+			/// June buff port 16-step3b6: June's entry is 24 bytes (SumSocketOption 3204f190 @3204fc22..fca6): place, type,
+			/// buff, value, then the socket's m_fIntervalTime (+0x10, unconditional in June; US has no ADJUST_SECRET_ITEM_OPTION)
+			/// and its socket ID (+0x14), the key of the per-socket cool-time store (+0x8b98) ApplyBuffByUseHyperMode uses.
+			float							m_fJuneCoolTime;
+			int								m_iJuneSocketID;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		};
 		typedef std::pair<POSSIBLE_USE_PLACE, CX2BuffFactorPtr> BuffInfoByUseHyperMode;
 #endif // HAMEL_SECRET_DUNGEON
