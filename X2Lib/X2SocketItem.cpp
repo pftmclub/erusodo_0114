@@ -138,6 +138,13 @@ void	CX2SocketItem::OpenScriptFile( const WCHAR* pFileName, const WCHAR* pFormul
 //}} kimhc // 2011-07-05 // 옵션데이타 수치화 작업
 {
 	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(),  "g_pCX2SocketItem", this );
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_NEW_ITEM_SYSTEM_2013_05
+	/// June buff port 16-step3b5: June 32716860 loads SkillLevelUpSocketGroup.lua (@32716aff) before the option file, so
+	/// the loader's "Group N" tokens (m_eSkillIDForAdditionalPowerRate) find their groups. March loaded it last (below).
+	g_pKTDXApp->LoadLuaTinker( L"SkillLevelUpSocketGroup.lua" );
+#endif // SERV_NEW_ITEM_SYSTEM_2013_05
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	g_pKTDXApp->LoadLuaTinker( pFileName );	
 
 	//{{ kimhc // 2011-07-05 // 옵션데이타 수치화 작업
@@ -153,7 +160,12 @@ void	CX2SocketItem::OpenScriptFile( const WCHAR* pFileName, const WCHAR* pFormul
 #endif // SERV_CASH_ITEM_SOCKET_OPTION
 
 #ifdef SERV_NEW_ITEM_SYSTEM_2013_05 // 오현빈
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// loaded first, above (June 32716860)
+	JuneLogSkillGroupPowerCensus();
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	g_pKTDXApp->LoadLuaTinker( L"SkillLevelUpSocketGroup.lua" );	
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #endif // SERV_NEW_ITEM_SYSTEM_2013_05
 
 }
@@ -172,6 +184,63 @@ const CX2SocketItem::SocketData* CX2SocketItem::GetSocketData( int key ) const
 #endif  X2OPTIMIZE_REMOVE_UNNECESSARY_PTR
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+namespace
+{
+	/// June 327150b0: an m_SkillType entry 1..6 -> June's SKILL_TYPE 6 ST_ACTIVE, 8 ST_PASSIVE, 14/15/16
+	/// ST_SPECIAL_ACTIVE_GRADE_1/2/3, 13 ST_HYPER_ACTIVE_SKILL; anything else 0. March's SKILL_TYPE has no 14-16.
+	int JuneAdditionalPowerSkillType( const int iValue_ )
+	{
+		switch ( iValue_ )
+		{
+		case 1: return 6;
+		case 2: return 8;
+		case 3: return 14;
+		case 4: return 15;
+		case 5: return 16;
+		case 6: return 13;
+		}
+		return 0;
+	}
+
+	/// June 32715110: an m_PowerRate entry 1..6 -> SKILL_POWER_RATE_TYPE 0..5 (5 = June's SPRT_HYPER_CLASS, not in March);
+	/// anything else -1
+	int JuneAdditionalPowerRateType( const int iValue_ )
+	{
+		return ( 1 <= iValue_ && iValue_ <= 6 ) ? iValue_ - 1 : -1;
+	}
+
+	int s_iJuneGroupTokenHits = 0;		/// tokens found as a group (32715680)
+	int s_iJuneSkillTokenHits = 0;		/// tokens taken as a skill ID (no such group)
+}
+
+/// June buff port 16-step3b5: one load-time line on what the skill-group power sockets loaded (no June counterpart)
+void CX2SocketItem::JuneLogSkillGroupPowerCensus() const
+{
+	int iWithMap = 0, iMapEntries = 0, iWithTables = 0, iWithRate = 0;
+	for ( SocketDataMap::const_iterator it = m_mapSocketOptionPool.begin(); it != m_mapSocketOptionPool.end(); ++it )
+	{
+#ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_PTR
+		const SocketData& kSocketData = it->second;
+#else   X2OPTIMIZE_REMOVE_UNNECESSARY_PTR
+		if ( NULL == it->second )
+			continue;
+		const SocketData& kSocketData = *it->second;
+#endif  X2OPTIMIZE_REMOVE_UNNECESSARY_PTR
+		if ( false == kSocketData.m_mapJuneSkillAdditionalPowerRate.empty() )
+		{
+			++iWithMap;
+			iMapEntries += static_cast<int>( kSocketData.m_mapJuneSkillAdditionalPowerRate.size() );
+		}
+		if ( false == kSocketData.m_vecJuneAdditionalPowerSkillType.empty() || false == kSocketData.m_vecJuneAdditionalPowerRateType.empty() )
+			++iWithTables;
+		if ( 0.f != kSocketData.m_fJuneSkillAdditionalPowerRate )
+			++iWithRate;
+	}
+	CX2JuneBuffCapture::Line( "skill-group power sockets: %d with a skill map (%d entries), %d with m_SkillType/m_PowerRate, %d with a rate; tokens: %d groups, %d skill IDs (%d groups in SkillLevelUpSocketGroup.lua)",
+		iWithMap, iMapEntries, iWithTables, iWithRate, s_iJuneGroupTokenHits, s_iJuneSkillTokenHits, static_cast<int>( m_mapSkillUpSocketGroup.size() ) );
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 bool CX2SocketItem::AddSocketData_LUA()
 {
 	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
@@ -698,6 +767,80 @@ bool CX2SocketItem::AddSocketData_LUA()
 		}
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b5, June 32726850 @3272db9e and @3272e298..3272eb3e: skill-group power sockets.
+	/// - m_fSkillAdditionalPowerRate is read into a local first (0 when absent).
+	/// - m_eSkillIDForAdditionalPowerRate (default "Group 0"): equal to "Group 0" (31c1c240, @3272e4e2) or without a space
+	///   (@3272e4ff), nothing below is read. Otherwise each token after a space other than "0" is _wtoi'd; a group of that
+	///   number (32715680: SkillLevelUpSocketGroup.lua, every unit class) inserts { member skill, rate } for each member,
+	///   else the number itself is inserted as a skill ID. Inserts never overwrite (32737f00 / 32821f20): the first wins.
+	/// - A last token "0" skips the rest as well (@3272e72f -> 3272eb3e).
+	/// - Then the float again into the member (@3272ea19) and the two tables, each converted and pushed as is
+	///   (m_SkillType 327150b0 -> +0x98, m_PowerRate 32715110 -> +0xa8; EndTable 32fe9a10 after each).
+	{
+		float fJuneRate = 0.f;
+		LUA_GET_VALUE(	luaManager, "m_fSkillAdditionalPowerRate",		fJuneRate,		0.f );
+		wstring wstrJuneGroup = L"";
+		LUA_GET_VALUE(	luaManager, "m_eSkillIDForAdditionalPowerRate",	wstrJuneGroup,	L"Group 0" );
+
+		bool bJuneReadTables = false;
+		if ( 0 != wstrJuneGroup.compare( L"Group 0" ) )
+		{
+			wstring::size_type uiPos = wstrJuneGroup.find( L" " );
+			if ( wstring::npos != uiPos )
+			{
+				vector<int> vecGroupSkillID;
+				for ( ;; )
+				{
+					const wstring::size_type uiNext = wstrJuneGroup.find( L" ", uiPos + 1 );
+					const bool bLast = ( wstring::npos == uiNext );
+					const wstring wstrToken = bLast ? wstrJuneGroup.substr( uiPos + 1 ) : wstrJuneGroup.substr( uiPos + 1, uiNext - uiPos - 1 );
+					if ( 0 != wstrToken.compare( L"0" ) )
+					{
+						const int iToken = _wtoi( wstrToken.c_str() );
+						if ( GetJuneGroupSkillIDs( iToken, vecGroupSkillID ) )
+						{
+							++s_iJuneGroupTokenHits;
+							for ( UINT uiMember = 0; uiMember < vecGroupSkillID.size(); ++uiMember )
+								pSocketData->m_mapJuneSkillAdditionalPowerRate.insert( std::make_pair( vecGroupSkillID[uiMember], fJuneRate ) );
+						}
+						else
+						{
+							++s_iJuneSkillTokenHits;
+							pSocketData->m_mapJuneSkillAdditionalPowerRate.insert( std::make_pair( iToken, fJuneRate ) );
+						}
+
+						if ( bLast )
+							bJuneReadTables = true;
+					}
+
+					if ( bLast )
+						break;
+					uiPos = uiNext;
+				}
+			}
+		}
+
+		if ( bJuneReadTables )
+		{
+			LUA_GET_VALUE(	luaManager, "m_fSkillAdditionalPowerRate",	pSocketData->m_fJuneSkillAdditionalPowerRate,	0.f );
+
+			if ( luaManager.BeginTable( "m_SkillType" ) == true )
+			{
+				for ( int iIndex = 1, iValue = 0; luaManager.GetValue( iIndex, iValue ) == true; iIndex++ )
+					pSocketData->m_vecJuneAdditionalPowerSkillType.push_back( JuneAdditionalPowerSkillType( iValue ) );
+				luaManager.EndTable();
+			}
+
+			if ( luaManager.BeginTable( "m_PowerRate" ) == true )
+			{
+				for ( int iIndex = 1, iValue = 0; luaManager.GetValue( iIndex, iValue ) == true; iIndex++ )
+					pSocketData->m_vecJuneAdditionalPowerRateType.push_back( JuneAdditionalPowerRateType( iValue ) );
+				luaManager.EndTable();
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef BUFF_TEMPLET_SYSTEM
 	LUA_GET_VALUE(		luaManager, "m_iAddMpValue",							pSocketData->m_iAddMPValue,					0	 );// MP 증가량
 	LUA_GET_VALUE(		luaManager, "m_iMpChangeValue",						pSocketData->m_iMPChangeValue,				0	 );// MP 자연 회복량
@@ -2657,6 +2800,24 @@ void CX2SocketItem::GetSocketPostfix( IN int iSocketID_, OUT wstring& wstrItemDe
 }
 #endif // EU_NEW_ITEM_SYSTEM_PREFIX_TO_POSTFIX
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+/// June 32715680 (buff port 16-step3b5): group iGroupID_'s members from SkillLevelUpSocketGroup.lua (the same map,
+/// June CX2SocketItem +0x40), each member's skill ID whatever its unit class. Clears the vector first; false when the
+/// group does not exist.
+bool CX2SocketItem::GetJuneGroupSkillIDs( IN const int iGroupID_, OUT vector<int>& vecSkillID_ ) const
+{
+	vecSkillID_.clear();
+
+	mapUnitClassSkillGroup::const_iterator it = m_mapSkillUpSocketGroup.find( iGroupID_ );
+	if ( it == m_mapSkillUpSocketGroup.end() )
+		return false;
+
+	BOOST_FOREACH( const SkillLvUpSocketOption& sSkillLvUpSocketOption, it->second )
+		vecSkillID_.push_back( static_cast<int>( sSkillLvUpSocketOption.m_eSkillID ) );
+
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 /** @function : AddSkillLevelUpSocketGroup_LUA
 	@brief : 스킬 레벨업 소켓 그룹 등록
 */

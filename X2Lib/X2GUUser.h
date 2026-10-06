@@ -2787,6 +2787,12 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		/// June buff port 16-step3b3 item 1: the socket part of a summoned NPC's power rate, June 322ece70 @322ed2bd-322ed2f7
 		float						GetSummonPowerRateBySocket( const int iSkillID_ ) const;
+		/// June buff port 16-step3b5: the skill-group power sockets. 31fe14f0 (one equipped slot's skill into the aggregate's map)
+		/// and 3201ad10 (the rate for a skill; callers take it + 1.0)
+		void						AddJuneSkillAdditionalPowerRateBySlot( const CX2SocketItem::SocketData& kSocketData_, const CX2SkillTree::SKILL_ID eSkillID_ );
+		float						GetSkillAdditionalPowerRateJune( const int iSkillID_ ) const;
+		/// June 32000320: one socket's damage reduction for GetBasicReducedDamagePercent (March's helper is ADJUST_SECRET_ITEM_OPTION-only)
+		float						GetJuneSocketReducedDamagePercent( const CX2SocketItem::SocketData& kSocketData_ );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		float						GetSkillRateByBuffBehavior( const CX2SkillTree::SKILL_ID eSkillID_, const BUFF_BEHAVIOR_TYPE eBehaviorType_ ) const;

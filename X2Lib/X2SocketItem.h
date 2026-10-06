@@ -863,6 +863,14 @@ class CX2SocketItem
 			float	m_fAllSkillDamageIncreaseRate;		/// +0x2ec
 			bool	m_bIsRankLinkedStat;				/// +0x294 (June 3204f190's rank branch: scaled copy 320925f0, see SumSocketOption)
 			bool	m_bIsPVERankLinkedStat;				/// +0x58
+			/// 16-step3b5: June's skill-group power sockets. The loader (32726850 @3272e4b5..3272eb3e) fills the
+			/// first three on the socket templet; the per-unit aggregate gets only the map, from the equipped-slot
+			/// pass in SumSocketOption (31fe14f0). ConvertAndAdd (32080670 / 3207cd70) carries none of them.
+			std::map<int, float>	m_mapJuneSkillAdditionalPowerRate;	/// +0x48 { skill, rate }: templet = the "Group N" members
+																		/// (or skill IDs), first insert wins; aggregate = by equipped skill
+			vector<int>		m_vecJuneAdditionalPowerSkillType;		/// +0x98 m_SkillType (327150b0: 1..6 -> June skill type 6, 8, 14, 15, 16, 13)
+			vector<int>		m_vecJuneAdditionalPowerRateType;		/// +0xa8 m_PowerRate (32715110: 1..6 -> power-rate type 0..5)
+			float			m_fJuneSkillAdditionalPowerRate;		/// +0xb8 m_fSkillAdditionalPowerRate (0 unless the group string parsed)
 
 			void InitJuneSocketParity()					/// the ctor's and ReInit's (320922a0) zeroing of the fields above
 			{
@@ -879,6 +887,10 @@ class CX2SocketItem
 				m_fIncreaseDmgEnemyHPFew_DmgRate = m_fIncreaseDefMyHPFew_DefRate = m_fDecreaseDebuffTimeRate = 0.f;
 				m_fDecrease_MPCostRate = m_fIncreaseDmgRate_MyHpFew = m_fAllSkillCooltimeDecreaseRate = m_fAllSkillDamageIncreaseRate = 0.f;
 				m_bIsRankLinkedStat = m_bIsPVERankLinkedStat = false;
+				m_mapJuneSkillAdditionalPowerRate.clear();
+				m_vecJuneAdditionalPowerSkillType.clear();
+				m_vecJuneAdditionalPowerRateType.clear();
+				m_fJuneSkillAdditionalPowerRate = 0.f;
 			}
 
 			/// June 320925f0 (buff port Phase 16-step3b, item 8): the scaled copy SumSocketOption makes of a rank-linked
@@ -1756,6 +1768,11 @@ class CX2SocketItem
 #else
 		CX2SkillTree::SKILL_ID GetSkillIDByUnicClassAndGropID( CX2Unit::UNIT_CLASS eUnitClass_, int iGroupID_ ) const;
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June 32715680 (buff port 16-step3b5): every member's skill ID of group iGroupID_, any unit class. Clears the vector first.
+		bool GetJuneGroupSkillIDs( IN const int iGroupID_, OUT vector<int>& vecSkillID_ ) const;
+		void JuneLogSkillGroupPowerCensus() const;	/// one load-time line after OptionItemData.lua (16-step3b5)
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		const CX2SocketItem::KItemStatRelLVData& GetStatRelLVDataBySocktID( int iSocketID_ ) const;
 
 		static KItemStatRelLVData	ms_KDummyItemStatRelLVData;

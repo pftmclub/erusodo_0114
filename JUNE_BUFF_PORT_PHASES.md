@@ -5561,6 +5561,46 @@ What the counts are:
 
 **Doc repair (this commit):** `8ef55d8` had deleted the 16-step3b2 Review, 16-step3b3 Done and Review, and 16-step3b4 Done sections. None of the four was anywhere else in the repo. They are restored verbatim from `8ef55d8^`. That commit's new decisions block (effect plan C6a2/C6b/C11) replaces 3b4's superseded one, in the 3b4 Done section, instead of sitting at the end of 3b2's Done.
 
+### Phase 16-step3b5 — Done, items 0-3, 6 and the reader (2026-10-06, Opus 5.5 high)
+
+**Landed** under `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (first-apply lines under `_DEBUG`): the commit that adds this note. Decodes: 15 `funcmap.tsv` rows tagged "Buff Phase 16-step3b5". **Split (advisor, by file):** the X2BuffTemplet.cpp / X2GUNPC.cpp callers, `3201f850`, the `+0x8800` store, socket 215434's term and item 5 (`m_fAllStatRelLV`) go to **16-step3b7** (kickoff written).
+
+**Item 0, `GetBasicReducedDamagePercent` (`3201aff0`, whole).** Set options (`+0x893c`) are summed, not first-wins (sum `[esp+0x10]` from 0; Ghidra's `unaff_EBX` is the loop index). A socket with an interval is tried only off its own cool time in 3b4's store and starts it only when the reduction fired (`@3201b0ab` / `@3201b10b`). The first title hit returns its value plus the set sum. `32000320` is a new member, `GetJuneSocketReducedDamagePercent` (March's form plus the `DUNGEON_ONLY_TYPE` test).
+- **Correction to the kickoff and the 3b4 review:** the US build has no `ADJUST_SECRET_ITEM_OPTION` (`Always_US.h:4` undefines it). So March's `GetSocketReducedDamagePercentInCase`, `m_fSocketOptionCoolTime` and its tick do not exist here, and March US is the `#else`: the first set option that fires returns, with no interval at all. June's interval gate is therefore new behaviour on US, and there is no single cool time to retire. The first build failed on exactly this; my two edits inside that dead `#ifdef` were reverted.
+- **JUNE_BUGS #56:** the title loop's `PVP_ONLY` is PvP-or-PvE (`322cc1a0`), the helper's PvP only (`322cc180`). They agree on March, which has no PvE.
+
+**Item 1, the group table.** `32715680` reads `CX2SocketItem +0x40`, filled by June's `AddSkillLevelUpSocketGroup` (`3271a810`), i.e. `SkillLevelUpSocketGroup.lua` and March's own `m_mapSkillUpSocketGroup`. It returns every member's skill, whatever its class (`GetJuneGroupSkillIDs`). Two changes follow June:
+- **Load order.** June loads the group file before the option file (`32716860 @32716aff`); March loaded it last, so every "Group N" would have fallen through to a skill ID. The load moved first.
+- **Data: June's file adopted** (June asset wins). March's had 16 groups / 2,151 rows; June's has 19 / 5,235, and the staged June `OptionItemData` names group 19. 1,829 rows name classes March lacks (Rose, Luciel, Ain, Add/Ara/Elesis jobs); `UNIT_CLASS.X` is nil, the binder rejects class 0, and `ASSERT` is empty in this build (`KTDX.h:855`): no popups. **Side effect:** March's own skill-level-up sockets (`m_vecSkillLevelUpGroupID`) now resolve against June's groups, which is what the staged June `OptionItemData` expects.
+
+**Item 2, the loader** (`32726850 @3272db9e..3272eb3e`). The float goes into a local first. A string equal to "Group 0" or with no space reads nothing more. Each token after a space other than "0" is a group (members inserted) or a skill ID; inserts never overwrite. A last token "0" also skips the rest. Then the float goes into `+0xb8` and `m_SkillType`/`m_PowerRate` (`327150b0`/`32715110`) into `+0x98`/`+0xa8`. The templet's power-rate type (June `+0x174`) is a new `SkillTemplet::m_eJunePowerRateType`: March reads `m_ePowerRate` but keeps it only under the dead `SKILL_LEVEL_UP_BY_POWER_RATE_TYPE`. The 13 entries with tables but no group string carry no rate, and June never reads their tables.
+
+**Item 3, the merge: not ConvertAndAdd.** `32080670`/`3207cd70` carry none of `+0x48`/`+0x98`/`+0xa8`/`+0xb8` (`+0x268` is a plain add, which goes to 3b7). The aggregate map is filled by `31fe14f0`, which `SumSocketOption` calls once per equipped skill slot after the ConvertAndAdd branches rejoin (`@3204f485..4dd`), with the original templet. Step 1 had labelled it "skill-level-up".
+- **Table socket:** each type × power-rate-type pair that matches the slot skill's templet adds `+0xb8`. Its group is ignored, as in June.
+- **No tables:** the rate is added when the skill is in the templet's map.
+- **Dormant on March:** `m_SkillType` 3/4/5 (SA grades 14-16) and `m_PowerRate` 6 (`SPRT_HYPER_CLASS`). June has 5 slots per bar; March has 4 + 4.
+
+**Item 4, the reader `3201ad10`** = `GetSkillAdditionalPowerRateJune( skill )`: the aggregate map. The transcendence and memo fallbacks and the ability term are June-only (0). Callers ported:
+- `SetEquippedSkillLevelCommon` (June `32024b00`, both states);
+- Reflex Magic in DamageReact (`@32046bae`);
+- the summon helper `@322ed2f7`, folded into 3b3's `GetSummonPowerRateBySocket` (same skill).
+
+All take the rate + 1.0. A new caller `32369bd0` (not in the kickoff's list) goes to 3b7. The class callers are a checklist §7 row.
+
+**Item 6:** SIEE 20's comment reworded (hit block +1, riding +5).
+
+**Reach.** June OptionItemData: 2,491 group-power sockets. 313 tokens are groups and 2,178 are skill IDs (e.g. `95003` "Group 5003" = Dimension Link Guardian +10 %). 313 carry tables. The save: 0 of 37 equipped sockets.
+
+**Data.** `SkillLevelUpSocketGroup` staged in `march2014/data036/` (June source plus `mar-2014` bytecode) and `kom_contents/data036_kom/`. `PACK OK data036` (~1 changed: SkillLevelUpSocketGroup.lua). Not copied yet: the copy waits for the user's OK (the exe and data036 ship together).
+
+**Hygiene.** `--worktree --files` (7 code files, `--with JUNE_BUFF_DEBUG`): `files: 7 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 2 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. Both deleted lines are this flag's own: 3b3's `return fRate;` in `GetSummonPowerRateBySocket` (now x the group rate) and 3b4's SIEE 20 comment line (item 6); X2Game.cpp's one changed line is a 3b3 comment.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,242,496 B, dated 2026-10-06 18:13:48, md5 d187a0deef752044e68d6ec5a8981571, equal to X2/US_SERVICE/x2.exe (2026-10-06 18:13:43); built at mods/june-buff-port 2b78b57 + 7 uncommitted code file(s).` The 7 are this phase's. All four new texts are in the exe. Not launched.
+
+**How to see it in game.** Load line `skill-group power sockets: 2491 with a skill map (36373 entries), 313 with m_SkillType/m_PowerRate, 2491 with a rate; tokens: 313 groups, 2178 skill IDs (19 groups in SkillLevelUpSocketGroup.lua)` (always on). Live check with the user's OK: socket 95003 on Iivue's weapon, then `first skill-group power socket on an equipped skill: socket 95003, skill 5003 ... rate 0 -> 0.1` and `first skill-group power rate read: skill 5003, rate 0.1 (power rate x 1.1)`.
+
+**Open for the user.** /cost is not available in-session.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`

@@ -2057,6 +2057,10 @@ public:
 #ifdef SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
 		SKILL_POWER_RATE_TYPE		m_eSkillPowerRateType;
 #endif // SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		SKILL_POWER_RATE_TYPE		m_eJunePowerRateType;	/// June templet +0x174 m_ePowerRate (32216320 @32217cbb). March reads the
+															/// key but keeps it only under SKILL_LEVEL_UP_BY_POWER_RATE_TYPE (off here)
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013
 
@@ -2253,6 +2257,9 @@ public:
 	#ifdef SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
 		,m_eSkillPowerRateType(SPRT_NONE)
 	#endif // SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
+	#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		,m_eJunePowerRateType(SPRT_NONE)
+	#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		{
 			m_vecBuffFactorPtr.clear();
 			m_mapSkillAbility.clear();

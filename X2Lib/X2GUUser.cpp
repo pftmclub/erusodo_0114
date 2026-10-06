@@ -3249,6 +3249,24 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 		m_SocketData.ConvertAndAdd( kSocketData, iSocketLevel_ );
 #endif // SERV_9TH_NEW_CHARACTER
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June 3204f190 @3204f485..3204f4dd (buff port 16-step3b5): where the ConvertAndAdd branches rejoin, each equipped skill
+		/// slot (3288fe00 on the user skill tree, CX2Unit +0x494: bar A 0-4, bar B 5-9) passes its skill and this socket templet
+		/// (not the rank-scaled copy) to 31fe14f0. June has 5 slots per bar; March has EQUIPPED_SKILL_SLOT_COUNT (4).
+		if ( NULL != GetUnit() )
+		{
+			const CX2UserSkillTree& kJuneUserSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+			for ( int iJuneBar = 0; iJuneBar < 2; ++iJuneBar )
+			{
+				for ( int iJuneSlot = 0; iJuneSlot < EQUIPPED_SKILL_SLOT_COUNT; ++iJuneSlot )
+				{
+					const CX2UserSkillTree::SkillSlotData* pJuneSlot = kJuneUserSkillTree.GetSkillSlot( iJuneSlot, 1 == iJuneBar );
+					if ( NULL != pJuneSlot )
+						AddJuneSkillAdditionalPowerRateBySlot( kSocketData, pJuneSlot->m_eID );
+				}
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		
 		//}} kimhc // 2011-07-05 // 옵션데이타 수치화 작업
 		
@@ -6132,6 +6150,13 @@ void CX2GUUser::SetEquippedSkillLevelCommon( const CX2Unit::UnitData& kUnitData_
 		hyperStateData.m_SPLevel = pSkillSlotData->m_iSkillLevel + pSkillSlotData->m_iSkillLevelPlus;
 		hyperStateData.m_fPowerRate = pSkillTemplet->GetSkillPowerRateValue( pSkillSlotData->m_iSkillLevel + pSkillSlotData->m_iSkillLevelPlus );
 		hyperStateData.m_eSkillID = pSkillTemplet->m_eID;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		/// June 32024b00 (this function; @32024d36 / @32024d4d, buff port 16-step3b5): both states' power rate
+		/// x ( 3201ad10( skill ) + 1.0 ) (334355b0 = 1.0)
+		const float fJuneGroupPowerRate = GetSkillAdditionalPowerRateJune( pSkillTemplet->m_eID ) + 1.f;
+		normalStateData.m_fPowerRate *= fJuneGroupPowerRate;
+		hyperStateData.m_fPowerRate *= fJuneGroupPowerRate;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	#else // UPGRADE_SKILL_SYSTEM_2013
 		UserUnitStateData& normalStateData = m_StateList[ normalStateID ];
 		normalStateData.m_SPLevel = pSkillSlotData->m_iSkillLevel + pSkillSlotData->m_iSkillLevelPlus;
@@ -8446,6 +8471,11 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 					const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTemplet->m_eID ) );	/// 스킬 레벨
 	
 					fPowerRate = pSkillTemplet->GetSkillPowerRateValue( iSkillTempletLevel );
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+					/// June DamageReact 320462a0 @32046b9f..32046bbd (buff port 16-step3b5): Reflex Magic's power rate
+					/// x ( 3201ad10( skill ) + 1.0 ), before the reflect-by-buff override below
+					fPowerRate *= GetSkillAdditionalPowerRateJune( pSkillTemplet->m_eID ) + 1.f;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	#else // UPGRADE_SKILL_SYSTEM_2013
 					fPowerRate = pSkillTemplet->m_fPowerRate;
 	#endif // UPGRADE_SKILL_SYSTEM_2013
@@ -22016,7 +22046,122 @@ float CX2GUUser::GetSummonPowerRateBySocket( const int iSkillID_ ) const
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	/// 16-step3b5: June's ( 3201ad10( skill ) + 1.0 ) on the same skill (@322ed2f7, esi as for 31fd7cc0) is folded in here
+	return fRate * ( GetSkillAdditionalPowerRateJune( iSkillID_ ) + 1.f );
+}
+
+/** @function : AddJuneSkillAdditionalPowerRateBySlot
+	@brief : June 31fe14f0 (buff port 16-step3b5), called by SumSocketOption once per equipped skill slot with that slot's skill
+		and the socket templet. With a CX2Unit and a learned templet for the skill (32890720 = GetUserSkillTemplet; June's
+		memo swap 328905b0 has nothing to swap in March):
+		- for every m_SkillType x m_PowerRate pair (+0x98 x +0xa8) where the templet's type (+4) and power-rate type (+0x174,
+		  3 counted as 2) both match, the aggregate's map (+0x48) at the skill gets the templet's +0xb8 rate added (operator[]);
+		- only when both tables are empty: the rate is added when the skill is in the templet's own map (its "Group N" members).
+		The key is 32207210( skill ): June's transcendence ID (templet +0x178), which March's templets do not have, so the skill.
+		A table socket ignores its group, as June's does.
+*/
+void CX2GUUser::AddJuneSkillAdditionalPowerRateBySlot( const CX2SocketItem::SocketData& kSocketData_, const CX2SkillTree::SKILL_ID eSkillID_ )
+{
+	if ( NULL == GetUnit() )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetUnit()->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( eSkillID_ );
+	if ( NULL == pSkillTemplet )
+		return;
+
+	const int iKey = static_cast<int>( eSkillID_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	std::map<int, float>::const_iterator mitBefore = m_SocketData.m_mapJuneSkillAdditionalPowerRate.find( iKey );
+	const float fBefore = ( m_SocketData.m_mapJuneSkillAdditionalPowerRate.end() != mitBefore ) ? mitBefore->second : 0.f;
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+
+	for ( UINT uiType = 0; uiType < kSocketData_.m_vecJuneAdditionalPowerSkillType.size(); ++uiType )
+	{
+		for ( UINT uiRate = 0; uiRate < kSocketData_.m_vecJuneAdditionalPowerRateType.size(); ++uiRate )
+		{
+			int iPowerRateType = static_cast<int>( pSkillTemplet->m_eJunePowerRateType );
+			if ( 3 == iPowerRateType )
+				iPowerRateType = 2;
+
+			if ( static_cast<int>( pSkillTemplet->m_eType ) == kSocketData_.m_vecJuneAdditionalPowerSkillType[uiType] &&
+				iPowerRateType == kSocketData_.m_vecJuneAdditionalPowerRateType[uiRate] )
+				m_SocketData.m_mapJuneSkillAdditionalPowerRate[iKey] += kSocketData_.m_fJuneSkillAdditionalPowerRate;	/// 3207a5e0
+		}
+	}
+
+	if ( true == kSocketData_.m_vecJuneAdditionalPowerSkillType.empty() && true == kSocketData_.m_vecJuneAdditionalPowerRateType.empty() &&
+		kSocketData_.m_mapJuneSkillAdditionalPowerRate.end() != kSocketData_.m_mapJuneSkillAdditionalPowerRate.find( iKey ) )
+		m_SocketData.m_mapJuneSkillAdditionalPowerRate[iKey] += kSocketData_.m_fJuneSkillAdditionalPowerRate;
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	std::map<int, float>::const_iterator mitAfter = m_SocketData.m_mapJuneSkillAdditionalPowerRate.find( iKey );
+	if ( m_SocketData.m_mapJuneSkillAdditionalPowerRate.end() != mitAfter && fBefore != mitAfter->second )
+	{
+		static std::set<int> s_setJuneSlotPowerSeen;
+		if ( true == s_setJuneSlotPowerSeen.insert( iKey ).second )
+			CX2JuneBuffCapture::Line( "first skill-group power socket on an equipped skill: socket %d, skill %d (type %d, power-rate type %d), rate %g -> %g",
+				kSocketData_.m_ID, iKey, static_cast<int>( pSkillTemplet->m_eType ), static_cast<int>( pSkillTemplet->m_eJunePowerRateType ),
+				fBefore, mitAfter->second );
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+}
+
+/** @function : GetSkillAdditionalPowerRateJune
+	@brief : June 3201ad10 (buff port 16-step3b5): the skill-group power socket rate for a skill, which June's callers use as
+		( rate + 1.0 ) on a power rate. The aggregate's map (+0x48, filled by AddJuneSkillAdditionalPowerRateBySlot) by skill.
+		On a miss June tries the skill's transcendence ID (32206d00 / 32207210: templet +0x178) and its skill-memo base ID
+		(324550a0 / 32451ff0, memo types 0x13 / 0x14); March has neither, so a miss is 0. Then June adds:
+		- 32358970( 6 / 10 / 7 / 8 / 9 for skill type 6 / 13 / 14 / 15 / 16 ) x 0.01 (334436a0): June's per-CX2Unit ability
+		  map, absent in March (16-step3b3): 0;
+		- for a hyper skill, socket 215434's own map (a Hyper Active socket under a condition this phase did not decode):
+		  not ported here, see 16-step3b7.
+*/
+float CX2GUUser::GetSkillAdditionalPowerRateJune( const int iSkillID_ ) const
+{
+	float fRate = 0.f;
+	std::map<int, float>::const_iterator mit = m_SocketData.m_mapJuneSkillAdditionalPowerRate.find( iSkillID_ );
+	if ( m_SocketData.m_mapJuneSkillAdditionalPowerRate.end() != mit )
+		fRate = mit->second;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+	if ( 0.f != fRate )
+	{
+		static std::set<int> s_setJuneGroupPowerRead;
+		if ( true == s_setJuneGroupPowerRead.insert( iSkillID_ ).second )
+			CX2JuneBuffCapture::Line( "first skill-group power rate read: skill %d, rate %g (power rate x %g)", iSkillID_, fRate, fRate + 1.f );
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	return fRate;
+}
+
+/** @function : GetJuneSocketReducedDamagePercent
+	@brief : June 32000320 (buff port 16-step3b5 item 0), the one-socket damage reduction GetBasicReducedDamagePercent sums.
+		March's own form, GetSocketReducedDamagePercentInCase, exists only under ADJUST_SECRET_ITEM_OPTION, which the US build
+		undefines (Always_US.h:4). Under GT_PVE (322cc1c0) 0; March has no game type 4. m_fDamageReduce (+0x5c) > 0 and
+		m_fPercentDamageReduce (+0x60) > GetRandomFloat( 0 ) (vslot 0x1cc), then DUNGEON_ONLY (+0x190): dungeon or field and
+		DUNGEON_ONLY_TYPE (+0x18c) 0 or the game's dungeon type (vslot +0x1c8); PVP_ONLY (+0x191): PvP (322cc180); else always.
+		The result is m_fDamageReduce + 0.0 (334350e8), or 0.
+*/
+float CX2GUUser::GetJuneSocketReducedDamagePercent( const CX2SocketItem::SocketData& kSocketData_ )
+{
+	if ( kSocketData_.m_fDamageReduce > 0.0f && kSocketData_.m_fPercentDamageReduce > GetRandomFloat() )
+	{
+		if ( true == kSocketData_.m_bDungeonOnly )
+		{
+			if ( NULL != g_pX2Game && ( CX2Game::GT_DUNGEON == g_pX2Game->GetGameType() || CX2Game::GT_BATTLE_FIELD == g_pX2Game->GetGameType() ) &&
+				( 0 == kSocketData_.m_iDungeonOnlyType || g_pX2Game->GetDungeonType() == kSocketData_.m_iDungeonOnlyType ) )
+				return kSocketData_.m_fDamageReduce;
+		}
+		else if ( true == kSocketData_.m_bPVPOnly )
+		{
+			if ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() )
+				return kSocketData_.m_fDamageReduce;
+		}
+		else
+		{
+			return kSocketData_.m_fDamageReduce;
+		}
+	}
+	return 0.f;
 }
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
@@ -24747,6 +24892,77 @@ float CX2GUUser::GetDashCameraAngleDegree()
 
 float CX2GUUser::GetBasicReducedDamagePercent()
 {
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// June buff port 16-step3b5 item 0: June's GetBasicReducedDamagePercent 3201aff0.
+	/// - Under GT_PVE (322cc1c0: game type 4) it returns 0; March has no game type 4.
+	/// - Set options (+0x893c): all are summed (sum at [esp+0x10], from 0; March returned at the first). A socket with no
+	///   interval (m_fIntervalTime <= 0) adds GetJuneSocketReducedDamagePercent (June 32000320) every time (@3201b2ba). One
+	///   with an interval is tried only off its own cool time in the per-socket store (+0x8b98, inline find 322aa950 @3201b0ab),
+	///   and only a reduction that fired (> 0) starts it (operator[] 3207a5e0 @3201b10b) and is added.
+	/// - Title options (+0x894c): as March, the first that fires returns, now plus the set sum (@3201b2a3). DUNGEON_ONLY also
+	///   needs DUNGEON_ONLY_TYPE 0 or the game's dungeon type; June's PVP_ONLY test here is PvP or PvE (322cc1a0) where
+	///   32000320's is PvP only (322cc180), JUNE_BUGS #56 (the same thing on March, which has no PvE).
+	/// The US build has no ADJUST_SECRET_ITEM_OPTION (Always_US.h:4 undefines it), so March here is the #else below: the first
+	/// set option that fires returns, with no interval and no cool time; June's per-socket interval gate is new on US.
+	float fJuneSetSum = 0.f;
+	for ( int optionIndex = 0; optionIndex < (int)m_vecSetItemOptions.size(); optionIndex++ )
+	{
+		const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( m_vecSetItemOptions[optionIndex] );
+		if ( NULL == pSocketData )
+			continue;
+
+		if ( false == ( 0.f < pSocketData->m_fIntervalTime ) )
+		{
+			fJuneSetSum += GetJuneSocketReducedDamagePercent( *pSocketData );
+		}
+		else if ( false == ( 0.f < GetJuneSocketCoolTime( pSocketData->m_ID ) ) )
+		{
+			const float fReduced = GetJuneSocketReducedDamagePercent( *pSocketData );
+			if ( 0.f < fReduced )
+			{
+				SetJuneSocketCoolTime( pSocketData->m_ID, pSocketData->m_fIntervalTime );
+				fJuneSetSum += fReduced;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+				static bool s_bJuneReducedCoolTimeSeen = false;
+				if ( false == s_bJuneReducedCoolTimeSeen )
+				{
+					s_bJuneReducedCoolTimeSeen = true;
+					CX2JuneBuffCapture::Line( "first socket damage reduction on its own cool time: socket %d, reduced %g, cool time %g s",
+						pSocketData->m_ID, fReduced, pSocketData->m_fIntervalTime );
+				}
+#endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
+			}
+		}
+	}
+
+	for ( int optionIndex = 0; optionIndex < (int)m_vecTitleOptions.size(); optionIndex++ )
+	{
+		const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( m_vecTitleOptions[optionIndex] );
+		if ( NULL == pSocketData )
+			continue;
+
+		if ( pSocketData->m_fDamageReduce > 0.0f && pSocketData->m_fPercentDamageReduce > GetRandomFloat() )
+		{
+			if ( pSocketData->m_bDungeonOnly == true )
+			{
+				if ( g_pX2Game != NULL && ( g_pX2Game->GetGameType() == CX2Game::GT_DUNGEON || g_pX2Game->GetGameType() == CX2Game::GT_BATTLE_FIELD ) &&
+					( 0 == pSocketData->m_iDungeonOnlyType || g_pX2Game->GetDungeonType() == pSocketData->m_iDungeonOnlyType ) )
+					return pSocketData->m_fDamageReduce + fJuneSetSum;
+			}
+			else if ( pSocketData->m_bPVPOnly == true )
+			{
+				if ( g_pX2Game != NULL && g_pX2Game->GetGameType() == CX2Game::GT_PVP )	/// June 322cc1a0: PvP or PvE
+					return pSocketData->m_fDamageReduce + fJuneSetSum;
+			}
+			else
+			{
+				return pSocketData->m_fDamageReduce + fJuneSetSum;
+			}
+		}
+	}
+
+	return fJuneSetSum;
+#else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	float fReducedDamagePer = 0;
 
 	//세트 옵션을 뒤져봐서 감소되는 데미지 옵션이 있는지 확인.
@@ -24836,6 +25052,7 @@ float CX2GUUser::GetBasicReducedDamagePercent()
 //#endif
 
 	return fReducedDamagePer;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 }
 
 
@@ -32552,7 +32769,8 @@ CX2SocketItem::SOCKET_ITEM_EFFECT_EX CX2GUUser::ProcessSocketEffectEx( const CX2
 			}
 		} break;
 
-	case CX2SocketItem::SIEE_DOWN:		/// @3202a650 (CommonStateStartFuture): June's state IDs are GUSI_END + n; March's USI are n - 1
+	case CX2SocketItem::SIEE_DOWN:		/// @3202a650 (CommonStateStartFuture). June's state IDs are not one shift from March's (3b4 review): hit block
+										/// June = March + 1, riding block June = March + 5 (riding wait 0x4c, funcmap 3208ddd0), walk/dash = March
 		{
 			for ( UINT i = 0; i < vecSocketID.size(); ++i )
 			{

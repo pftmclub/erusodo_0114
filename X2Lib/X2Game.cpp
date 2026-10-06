@@ -14489,7 +14489,7 @@ D3DXVECTOR3 CX2Game::GetEmptyStartPos()
 /// switch default, which includes the AI-party bots, Nasod Watch, Entangle Trap, Stone Wall, Fire Blossom, Particle Prism) all
 /// reach June's summon helper 322ece70 too (3230c1a0: default and 0x180/0x1c9/0x1f5/0x61f/0x628/0x629 with flags 0, 0x240, 0,
 /// 10, 0, 0x148: no 0x400 / 0x800), whose power rate is socket term x rate 1.0 x ( 3201ad10 + 1 ) x 31fd7cc0 x 31fea430 x
-/// GetAdditionalAttackByType( AT_SPECIAL ) (@322ed2ae-322ed332). 3201ad10 is 16-step3b5's (0 here). This scales the NPC's
+/// GetAdditionalAttackByType( AT_SPECIAL ) (@322ed2ae-322ed332). 3201ad10 is folded into GetSummonPowerRateBySocket (16-step3b5). This scales the NPC's
 /// default power rate by the rest; with flag 0x200 June writes the protected factor +0x8ce4 instead, the same product (32759630).
 /// 16-step3b3 review: without 0x200 June stores the product in +0x8ce0 (@322ed3ae) rather than scaling it; March's m_fDefaultPowerRate
 /// is still the ctor's 1.0 when these cases run (X2GUNPC.cpp m_fDefaultPowerRate = 1.f; no writer before SetUserSummonedNPCInfo), so

@@ -410,6 +410,10 @@ bool CX2SkillTree::AddSkillTemplet_LUA()
 #ifdef SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
 	pSkillTemplet->m_eSkillPowerRateType = ePowerRate;
 #endif //SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	/// buff port 16-step3b5: the skill-group power sockets match this (June 31fe14f0 reads templet +0x174)
+	pSkillTemplet->m_eJunePowerRateType = ePowerRate;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	LUA_GET_VALUE_ENUM( luaManager,		"m_eActiveSkillUseCondtion",	pSkillTemplet->m_eActiveSkillUseCondtion,		ACTIVE_SKILL_USE_CONDITION,		ASUT_NONE	);
 
