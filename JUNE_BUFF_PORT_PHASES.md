@@ -4919,6 +4919,8 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **Deploy.** `DEPLOY OK: X2_offline.exe is 19,204,608 B, dated 2026-10-06 07:40:56, md5 f42d59d2c5873a5ffa0037cb0b0853c9, equal to X2/US_SERVICE/x2.exe (2026-10-06 07:40:50); built at mods/june-buff-port cfbd8de + 3 uncommitted code file(s).` Both new log texts are in the exe (ASCII), and part 1's old skip text is gone. Not launched.
 
+**Play-test (2026-10-06, user: passed; exe f42d59d2).** Logs: `June SocketOptionForm.lua curves loaded`; `designed attack range (not June): 10% … (first user: physic 115.9, magic 95.3)`; `first damage roll (physic): base 1159, range 115.9, maximize 0 -> 1155.33`; no `is rank-linked` / `must not both be set` (March data). Out of scope: 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ`.
+
 **Open for the user.** Before 16-data: accept the window above (185 rank-linked sockets without stats, about 280 conditional buffs inert until 16-step3b), or move 16-step3b items 7-8 ahead of 16-data. /cost not available in-session.
 
 ## Critical files
