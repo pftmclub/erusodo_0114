@@ -54,6 +54,7 @@ The user's remaining backlog, in the order they listed it:
 | 10 | Emotion system *(added 2026-10-07, user)* | - (found by june-effect C9d) | Not a backlog item but a missing system: June's emotion catalogue, data, items, sit effects and emotion UI. It depends only on Stage 2 (UI framework) and june-effect C9e, so it can run alongside Stages 3-8. Numbered 10 to keep the earlier numbers stable, not because it must go last. |
 | 11 | Division item templets *(added 2026-10-07, june-effect C9f)* | - (found by june-effect C9f) | Not a backlog item but a missing system: June's per-item render and behaviour lists (`AddDivisionItemTemplet_LUA`, 112 types), of which C9f-2 ports only the per-equip effect sets. Its render rules wait on Stage 2. Numbered 11 to keep the earlier numbers stable, not because it must go last. |
 | 12 | Character customize system *(added 2026-10-07, june-effect C9g)* | - (found by june-effect C9g) | Not a backlog item but a missing system: June's `CX2CustomizeManager` (`CharCustomData.lua`) applies cash custom motions, sit motions and effects, faces, textures and skill cut-ins to a character, on the unit, square and viewer. It depends on Stage 10 (sit emotions), Stage 2 (UI) and the user's June `item.kim`. Numbered 12 to keep the earlier numbers stable. |
+| 13 | June `item.kim` adoption *(added 2026-10-07, user)* | - (the user's decision during june-effect C9g) | Not a backlog item but a prerequisite: March loads June's `item.kim`. That needs June's 228-byte record ported, since March's is 188 and both files carry the same header version. Planned in full as `JUNE_ITEM_KIM_PHASES.md` (K0-K4). Stages 11 and 12 depend on it for real data. It touches no other stage's files, so it can run alongside Stages 2-8. Numbered 13 to keep the earlier numbers stable. |
 
 **Concurrency.** At most two code sessions should run at once:
 - Stage 0's buff port, in the main Trunk;
@@ -306,7 +307,7 @@ that an unowned June system gets its own stage. What it covers:
 **Already ported:** the CEPE slice (type 81), by june-effect C9f-2: the binding, the dispatcher shell, parser `32814da0`, the two maps and
 the three play sites. This stage adds parsers and consumers to that shell; it does not re-bind.
 
-**Depends on:** june-effect C9f-2, and Stage 2 (render types) for the render rules. It can run alongside Stages 3-8.
+**Depends on:** june-effect C9f-2, Stage 2 (render types) for the render rules, and Stage 13 (June `item.kim`) for the item ids its lists name. It can run alongside Stages 3-8.
 
 ### Stage 12: character customize system (june-effect C9g, 2026-10-07)
 
@@ -334,8 +335,27 @@ rule that an unowned June system gets its own stage. What it covers:
   `3264f080`). Groups 3 and 4 are used only here.
 
 **Depends on:** june-effect C9g-2 (the PlayByMotionType shell and `AnimationNameTable.lua`), Stage 10 (the sit emotions 0x19-0x3b and
-the EmotionData path the sit sets ride on), Stage 2 (UI framework) for the dialogs, and the user's June `item.kim`. It can run
+the EmotionData path the sit sets ride on), Stage 2 (UI framework) for the dialogs, and Stage 13 (the June `item.kim`). It can run
 alongside Stages 3-8.
+
+### Stage 13: June item.kim adoption (user, 2026-10-07)
+
+The user decided during june-effect C9g to adopt June's `item.kim`. A planning session on 2026-10-07 found that the swap is not a
+drop-in:
+- June's records are 228 B and March's 188, inside the same `KIM ` / `0x1201` header.
+- March's loader accepts June's file and misreads every record without any error.
+
+The full plan is `JUNE_ITEM_KIM_PHASES.md` (STATUS block `june-item-kim`, kickoffs `kickoffs/june-item-kim/`):
+- K0: June's record from the binary, plus `tools/kim.py`.
+- K1: data and code census (save-breakers, out-of-range enums, assets).
+- K2: the loader port behind `SERV_IRUHADEV_JUNE_ITEM_KIM`, a layout check, and the data swap.
+- K3: emulator and save reconciliation.
+- K4: play-test.
+
+Every March id is in June, which adds 61,591 new ids. June's other item tables, and its `SetItemGroup` / `ItemLock` systems, are routed
+by K0/K1, not by this stage.
+
+**Depends on:** nothing. Stages 11 and 12 depend on it for real data.
 
 ---
 

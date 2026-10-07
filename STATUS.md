@@ -207,6 +207,29 @@ rows queue behind other funcmap writers). Phases 1-3 all edit `Handlers_Room.cpp
 at a time. june-buff's 16-step3b2 battlefield middle-boss play-test is likely blocked by the offline
 loader bug Phase 2 fixes (the middle boss probably never spawns offline).
 
+## june-item-kim - June item.kim adoption
+
+Plan `JUNE_ITEM_KIM_PHASES.md` · branch `mods/june-buff-port` · log tag `[JUNE_KIM]` · flags
+`SERV_IRUHADEV_JUNE_ITEM_KIM` (record layout) + `SERV_IRUHADEV_KIM_LAYOUT_CHECK` (structural check) · kickoffs
+`kickoffs/june-item-kim/` · backlog Stage 13 · created 2026-10-07.
+
+March loads June's `item.kim` (111,428 items, 6,740 sets). June's records are 228 B against March's 188, and both files carry the same
+header version (`0x1201`), so March would misread June's file silently. Every March id is in June. The plan ports June's record
+verbatim, adds a layout check, and swaps the file.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| K0 | ready | Opus 5.5 / high | - | Ghidra (read-only), new `tools/kim.py`, `june2017_re/funcmap.tsv`, plan doc | `K0.md` |
+| K1 | blocked | Sonnet 5.5 / high | K0 | `june_item_kim/*.tsv`, plan doc (no code) | `K1.md` |
+| K2 | blocked | Opus 5.5 / high | K1 + user decisions | `X2Item_Preprocessing.inl`, `X2ItemManager.cpp`, `X2ItemManager_Preprocessing.cpp`, K1's guard sites, `Always.h`, `kom_contents/data036_kom/item.kim` | written by K1 |
+| K2 review | blocked | Sonnet 5.5 / high | K2 | review | written by K2 |
+| K3 | blocked | Sonnet 5.5 / high | K2 | `X2Lib/Offline/` (scope fixed by K1) | written by K2 |
+| K4 | blocked | user play-test | K3 | - | written by K3 |
+
+Running together: K0 and K1 touch no game code and can run alongside any code session (K0's funcmap rows queue behind other funcmap
+writers). K2 is the only phase that edits `X2Item_Preprocessing.inl` / `X2ItemManager*.cpp`, and the packed `data036`. Do not run it
+while another session is packing data036.
+
 ## Other plans
 
 No `kickoffs/` files yet: `/x2-phase <plan> <phase>` writes the kickoff from the plan doc's
@@ -214,7 +237,7 @@ phase section (kickoffs/TEMPLATE.md) on first use and shows it before starting.
 
 | Plan | Doc | State (2026-10-04, from the doc's headings; verify before starting) |
 |---|---|---|
-| backlog | `JUNE_PORT_BACKLOG_ORDER.md` | The order of everything below: stage 0 (close open loops, incl. this buff port) -> 1 Atlas/Elysion -> 2 engine remainder -> 3 skill core -> ... -> 9 UI; 10 emotion system; 11 division item templets (added by june-effect C9f); 12 character customize system (added by june-effect C9g). |
+| backlog | `JUNE_PORT_BACKLOG_ORDER.md` | The order of everything below: stage 0 (close open loops, incl. this buff port) -> 1 Atlas/Elysion -> 2 engine remainder -> 3 skill core -> ... -> 9 UI; 10 emotion system; 11 division item templets (added by june-effect C9f); 12 character customize system (added by june-effect C9g); 13 June `item.kim` adoption (planned as `june-item-kim` above, a prerequisite of 11 and 12). |
 | atlas | `ATLAS_PORT_PHASES.md` | Done notes exist through A13. |
 | elysion | `ELYSION_PORT_PHASES.md` | Done notes exist through E15. |
 | lanox | `LANOX_REMAINING_PHASES.md` + `JUNE_UI_PARITY_PHASES.md` | 12 items in phases 0-11; check the doc for which have landed. |
