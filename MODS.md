@@ -2973,6 +2973,29 @@ Only three June templets use the key, so most play shows no `apply` line.
 Revert: undefine the flag; remove `Elsword_DamageData.lua` and its manifest key from `data036_kom` and repack.
 `UnitViewerEffectSetTable.lua` is not part of this change: its consumer is not identified (see the plan's C9 Done note).
 
+### June effect completion C6b: the spawner tail, the effect-set stamps and RT_CREATE_EFFECT_SET
+
+Two flags. **`SERV_IRUHADEV_JUNE_SPAWN_INHERIT`** (needs the damage-effect parse and runtime flags) ports June's five spawner-tail callees
+as `CEffect` methods (`31f8fdb0` parent-to-child state, `31f649d0` damage rate, `31f64c00` attack-trigger copy, `31f65e40` /
+`31f65f90` ignore-defence down the tree) and calls them from the hit, die and CREATE_DAMAGE_EFFECT spawners and RT_CREATE_DAMAGE_EFFECT.
+Every gate flag is set only by class code, so in March the visible changes are that hit and CREATE children inherit the parent's
+`m_iIndex` and `m_bHyper` (die children already inherited the index), and that every damage effect an effect set makes gets
+`m_iIndex` 0 and the owner's state at play time. **`SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET`** (needs `SERV_IRUHADEV_JUNE_DAMAGEDATA`) is
+June's RT_CREATE_EFFECT_SET: with a trace unit, the field-boss collision-box retarget gate (unreachable here: March has no raid
+object, so the boss unit is a stub that returns NULL); without one, the set plays at the main effect's position, rotation and direction,
+and only when the main-effect mesh exists, with no LIFTTIME. `EffectSet_RAVEN_NUCLEAR` and `EffectSet_SP_B_MASK` take that second path:
+their sets now appear where the effect is, not on the caster.
+
+| | before | after |
+|---|---|---|
+| hit / CREATE child `m_iIndex` | -1 | the parent's (Rena's detonations look effects up by it) |
+| effect-set damage effect `m_iIndex` | -1 | 0, and `m_iJuneAttackerStateID` = the owner's state when the set was played |
+| `ErrorLog.txt` / `offline_server.log` | - | `JUNE_FX CE_HIT ... SPAWN_INHERIT / SPAWN_TAIL / CREATE_EFFECT_SET`, `ES_CREATE ... SPAWN_INHERIT_STAMP` |
+
+Revert: undefine the two flags in `KTDXLIB/Always.h` and rebuild all four projects (they sit in the PCH). JUNE_BUGS rows 74-78 record
+the June quirks kept as they are. The save character `NWatcher` (Night Watcher, class 114, level 70, unit 31) was added for the
+play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createchar.sql`.
+
 ## Reverting to stock
 
 Comment out every `#define` listed in the *Defined in* column and rebuild.

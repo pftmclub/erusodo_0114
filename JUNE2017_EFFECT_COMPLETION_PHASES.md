@@ -645,6 +645,42 @@ byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
 
 ---
 
+### C6b - Done (2026-10-07, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_SPAWN_INHERIT`, `SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET`)
+
+**What landed** (`df22a13`, then `6382401` for one log line; `X2DamageEffect.cpp/.h`, `X2EffectSet.cpp/.h`, `X2GameUnit.cpp/.h`, `X2DamageManager.h`, `Always.h`):
+- **The five callees, as CEffect methods** (end of the `DAMAGE_EFFECT_WORK` block): `JuneInheritFromParent` (31f8fdb0), `JuneApplyInheritDamageRate` (31f649d0), `JuneCopyAttackTriggerToChild` (31f64c00), `JuneSetIgnoreDefenceDown` (31f65e40), `JuneSetIgnoreStateDefenceDown` (31f65f90), plus `JuneSpawnTail` (the hit/die order) and two list helpers.
+- **State:** 8 CEffect gate fields (all false/0; only class code sets them), `m_bHyper`; `DamageEffectData` gets `fInheritDamageRate` (1.0), `bInheritIgnoreDefence`, `bInheritIgnoreStateDefence` (also in its `operator=`); `DamageData` gets `m_bCountAsOwnerSkillHit` and `m_iJuneDamageEffectIndex` (-1 in SimpleInit).
+- **Call sites, five:**
+  - hit and die spawners: 31f8fdb0 first in `if( pEffect != NULL )`, the tail after the first-attack copy;
+  - CREATE loop: 31f8fdb0 and 31f64c00 after the INHERIT_DAMAGE block, the other three at the end. The 7d inline damage copy is in `#else`, so it is not applied twice;
+  - RT_CREATE_DAMAGE_EFFECT: 31f8fdb0 only. The live branch is the `#else //ADD_RENA_SYSTEM` one, which discarded the pointer.
+- **Effect set stamps** (C6a2): `m_iDamageEffectIndex` (0) and `m_iOwnerStateIDOnPlay` (-1) on the instance, two base virtuals on `CX2GameUnit`, the `PlayEffectSet` (game-unit overload) stamps, the `OnFrameMove_CreateEffect` stamps and `m_bHyper`, the SDEP tail, the NEXT copy and the NEXT-parse reset. `MODIFY_SET_DAMAGE_DATA`, `LOCAL_ROTATE_EFFECT`, `UPGRADE_RAVEN` and `SERV_RENA_NIGHT_WATCHER` are all ON (`cl /EP` probe), so every one of these sites compiles in.
+- **RT_CREATE_EFFECT_SET** (own flag): branch on the trace-unit pointer. With one: LIFTTIME applies and the field-boss retarget gate runs (state, the eight raid field IDs; March has no raid object, so the boss unit is a stub that returns NULL and logs once, and the nearest-box search is ported behind it). Without one: only with the main-effect mesh, the set plays at its position, `GetRotateDegree()` and `GetDirVec()` (= 31c82e40: Ghidra shows the same (1,0,0) rotated by rotation + local rotation), life -1. June's trailing 1.0 has no March parameter.
+
+**Corrections to the kickoff / C6a text found while porting:**
+- `SetDamageDataNext`'s copy site is `SetDamageDataNextByChainIndex` (the live body); the `:9649` one is the dead `#else`.
+- The child's CREATE entries sit in `m_vecCreateDamageEffect` until `SetDamageEffect` moves them to `m_DamageEffectDataList`, so the list helper walks both. It also walks the touch-land vector (parse-only, exists), so C7 has no list work to redo.
+- The first NEXT table resets `+0x638`, NEXT2.. do not (`@31f79ce9` vs the loop's `@31f79e07`): JUNE_BUGS 77.
+- **Open for june-buff:** June's NEXT parse also resets `m_iJuneAttackSerial` (+0x5e8) to -1 (`@31f79ce3`, and every numbered entry `@31f79e07`); Phase 9b does not. Left alone.
+- JUNE_BUGS 74-78 added (b47 without PvP, always-1 entry marks, untested chain entries, NEXT2 index, LIFTTIME only with a trace unit). The key matrix has no key to flip; its 7d INHERIT_DAMAGE note now names the method.
+
+**Hygiene** (`flagcheck`): SPAWN_INHERIT `--range df22a13^..HEAD`: `files: 6 PASS, 0 PASS~, 0 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`, 2 deleted lines. Those 2 are `6382401` rewriting C6b's own debug line, not base code; net `--base df22a13^ --at HEAD`: `5 PASS, 2 OTHER, 0 FAIL`, **0 deleted**, 0 non-ASCII, 0 EOL-mismatched, 0 encoding change, `RESULT: PASS`. The OTHER rows are `Always.h` (the two `#define`s) and `X2DamageEffect.cpp/.h` (they carry both flags). CREATE_EFFECT_SET `--range`: 0 FAIL, 0 deleted, `RESULT: PASS`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,297,792 B, dated 2026-10-07 11:00:38, md5 fb3456427143e9fd978bbdc639cdf327, equal to X2/US_SERVICE/x2.exe (2026-10-07 11:00:34)`. The strings `SPAWN_INHERIT`, `SPAWN_TAIL`, `SPAWN_INHERIT_STAMP`, `CREATE_EFFECT_SET` are in the exe. Another session (C9) ran `build.py` once while this was in the tree, so an earlier exe (md5 `adda229e`) held step 1 only.
+
+**How to see it** (`python tools/logs.py --tag JUNE_FX`; lines are `JUNE_FX CE_HIT <effect> <key> ...` and `ES_CREATE`, at most one a second per key):
+- `SPAWN_INHERIT`: every child from a hit, die, CREATE and RT_CREATE_DAMAGE_EFFECT spawn: the gate flags (all 0 in March), `hyper`, `index` (the child's `m_iIndex` after the copy).
+- `SPAWN_TAIL`: every hit/die child, with the entry rate (1.000) and the entry flags (0).
+- `SPAWN_INHERIT_STAMP`: every effect-set damage effect, `index=0 ownerState=<state> hyper=<0|1>`.
+- `CREATE_EFFECT_SET`: `path=trace_unit` or `no_trace_unit` per RT_CREATE_EFFECT_SET hit.
+
+**Play-test** (the check that can fail: `m_iIndex` now reaches hit and CREATE children). Character `NWatcher` (Rena, Night Watcher, class 114, level 70, unit 31, 600 SP, no skills learned; created for this test, backup `db_backup/els_db_20261007_104747_pre_createchar.sql`). The dev console cannot reach it: the children come from real hits.
+- Night Watcher's basic arrows are `ARROW_OF_EXPLOSION` (the delay variant after Delayed Firing): hit monsters with X/Z combos and the dash attack, expect one explosion per arrow.
+- Delayed Firing is skill 3227 and Explosion Trap 3225 (active `SKILL_ID` block): learn both in the skill window, put them on quick slots, use them.
+- Log: `JUNE_FX CE_HIT ... SPAWN_INHERIT ... index=` should show the arrow's index on its boom child. A boom that fires twice, or never, is the failure.
+- Optional, rare: `EffectSet_RAVEN_NUCLEAR` (Children's Day Nuclear Sphere item) and `EffectSet_SP_B_MASK` (`DAMAGE_EFFECT_TROCKTA_SP_B`) are the no-trace path.
+
+---
+
 ## C7 - Touch-land runtime (old Phase 10c, step 3)
 
 **Status: not started (an earlier attempt was reverted for porting June offsets).** The spec is the

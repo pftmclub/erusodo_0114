@@ -59,6 +59,8 @@ never port an offset.
       - June's `32089ff0` branch is a no-op with its `{1.0, 1.0}` rates (JUNE_BUGS row 61). Do not port it.
 4. **The call.** In `OnFrameMove_CreateEffect`'s `ET_DAMAGE_EFFECT` case, inside `if( NULL != pEffect )`:
    - call the consumer with `pEffectSetInstance->m_vecBuffFactorList`, right after C6b's stamp block (June `@321ef67b-321ef689`);
+     - **Where that block is (C6b landed `df22a13`):** `X2EffectSet.cpp`, `OnFrameMove_CreateEffect`, between `#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` and `#ifdef RIDING_SYSTEM`. It is one `#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT` block (`SetIndex`, `m_iJuneDamageEffectIndex`, `m_iJuneAttackerStateID`, `JuneSetHyper`, then a `SPAWN_INHERIT_STAMP` log line).
+     - Insert yours directly after that block's `#endif`. June's own order is SetLockOn, stamps, buff list, velocity tag 1, IS_RIGHT, `m_bHyper`; March's velocity and IS_RIGHT blocks sit before the stamps because the kickoff put them there, and the buff list does not depend on either, so there is no June position to hunt for.
    - do not add the EffectData `+0x118` call (`@321ef676`): that list is dead in June.
 5. **The SIEE 15 attach** (`X2GUUser.cpp`, `ProcessSocketEffectEx` case `SIEE_ALWAYS_PLAY_EFFECT_SET`, under `SERV_IRUHADEV_JUNE_SOCKET_PARITY`).
    - Replace the `unsupported (effect-set buff list, 321e3650)` log with `AttachBuffFactorToEffectSet( handle, m_uiBuffFactorID, m_iBuffLevel )` for every `m_vecConditionalBuff` entry with `m_bAlwaysPlayEffectSet` (June `@3202a1aa-3202a1f4`).
