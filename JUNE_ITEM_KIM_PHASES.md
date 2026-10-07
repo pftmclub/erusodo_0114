@@ -183,6 +183,64 @@ Paths:
    - `kim.py dump` of 85003831 shows buff factor 482 in both the June file and the staged March file.
    - `kickoffs/june-item-kim/K1.md` is amended with anything K0 changed, and its STATUS row is set to `ready`.
 
+### Phase K0 - Done
+
+2026-10-07, Opus 5.5 high. No game code, no flag, no build. Landed: `tools/kim.py`, `june_item_kim/k0_record_map.tsv` (the full
+228-byte map: every offset, June key, evidence address, data census, route), 29 `KIM K0` rows in `june2017_re/funcmap.tsv`.
+
+**Loader.** `DoMemoryNotEncrypt` `328101f0` makes March's three checks with `N*0xe8 + 16`: the stride is 228, and June adds no check, so
+there is nothing March cannot reproduce. `GetItemTemplet` `325bb740`, `GetSetItem` `325bb7c0` (set record still **20 B**),
+`ResetItemManager` `31edda90`, `OpenItemScriptFile` `3281c590`, June writer `KProxy2::AddItemTemplet_LUA` `325bcdc0`.
+
+**The map corrects the planning guesses.** Only the starred rows of "Established facts" stand. Changes against March (offsets June / March):
+- +44 `m_fDamageRange` float, +48 `m_ItemIDForMinorUnit` int, +52 `m_ItemEquipmentGroup` int (defaults to the item's own id: the "second id").
+- **`MAX_MODEL_COUNT_A_ITEM` is 8**: AttachFrameName[8] +68 (the guessed +92/+96 are slots 6, 7), ModelName[8] +108 (+132/+136 are
+  slots 6, 7). The writer fills attach [0..1] and models [0..3] (`m_ModelName2/3` are new keys).
+- +100 `m_wstrExpiredDate` (accessor `328671a0`, read by the item-period UI `3218aba0` and the description builder `32e102f0`),
+  +104 `m_wstrPreExpiredDate` (no accessor; June's client never reads it).
+- +224 BYTE `m_eDescriptionInShopType` (`DIST_DEFAULT 0 / MERGE_SOCKET_KR 1 / MERGE_SOCKET_INT 2`), then 3 B of zero padding.
+- Everything else is March's field moved by +12, +28 or +36.
+
+**The pools changed too, and these are K2 must-ports.**
+- Stat is 28 B: `{HP, AtkP, AtkM, 0, 0, DefP, DefM}` (`328d68c0` reads [5]/[6]). March's 5-float read gives every item 0 defence.
+- StatRelLV is 6 B; the sixth byte is `m_fAllStatRelLV`, which buff 16-step3b7's calculator already expects.
+- **flags bit 7 is PvP-equip** (set when a `SAT_PVP_EQUIP` = 40 ability is listed: 240 items). HideSetDesc moved to flags2 bit 1, so
+  March's `GetHideSetDesc` would hide the set text on those 240 items. This agrees with the buff Phase 15 step 2 row on `325bcdc0`.
+- Extra entries stay 8 B, but the key is not `UNIT_TYPE`: the accessors map 1-9 to themselves, 10 to 10 (Lu) or 11 (Ciel) by a bool
+  argument, 11 to 12 (Rose) and 12 to 13 (Ain).
+- `GetNameColor_` gains grade 6 (`IG_LEGEND`), shown as `#CFF6900`.
+
+**Answers.**
+- flags2 bit 2 = `m_bIsForMinorUnit`: Ciel's dummy copy of a Lu item. It is set on 2,582 items, and 429 Lu items point at theirs
+  through +48 (30344 -> 200030344).
+- Item type 14 = `IT_CUSTOM` (June `Enum.src.lua`, `IT_END` = 15): 1,207 customize items such as skill cut-ins.
+- The Extra per-unit-type width is unchanged (8 B), with 13 keys.
+- The model count changed 6 -> 8; the set record is 20 B.
+
+**Routing.**
+| What | Route |
+|---|---|
+| The record, both pools, flags bit 7 / flags2 bit 1, the model count, the Extra key remap, the grade-6 colour | K2 (March already reads each) |
+| `m_wstrPreExpiredDate`, the attach [2..7] / model [4..7] tails | K2 struct only: empty in the data, or never read by June |
+| `m_ItemIDForMinorUnit`, flags2 bit 2, and the Ciel bool of the Extra remap | Stage 8 + the character-port checklist (Lu/Ciel) |
+| Item type 14 | Stage 12 (customize); K2 guards it per K1 |
+| `m_fDamageRange`, `m_ItemEquipmentGroup`, `m_eDescriptionInShopType` (inline readers, not located in K0), item expiry, PvP-equip (flags bit 7, SAT 40 and 44-50), SAT 42/43/51 | new **Stage 16**: June item-side systems |
+| SAT 41 `SAT_ADD_DP_PERCENT_UP` | character-port checklist (Add) |
+| `SetItemGroup.lua` (`g_pCX2SetItemManager:AddSetItemGroupData`), `ItemManager.lua` (`SetItemLock_MaxDay/EDPerDay`), `CoordiItem.lua` (`g_pCoordi_ItemManager`, XOR-built name), and the June-only tables `ResetItemManager` opens (`PackageItemData_INT`, `IceHeaterPreView_INT`, `ItemEtcAccessory`, `CanUseInventoryItem`, `GuildAgitShopItem`, `Synthesis*`, `PetUpgradeItemData`, `EventSealItemData`, `UnlockSocketItem(Data)`) | Stage 16 |
+| `CoboRenderDivisionItemTemplet`, `DivisionItemTemplet`, `RenderDivisionMeshFile`; `TranscendentalClassItem` | Stage 11; Stage 6 |
+
+- **`_LA`.** June loads `Item_LA.kim` + `SetItem_LA.lua` only when `argc == 3` and `argv[1] == "Axeso5"` (`31e480c5` sets `g_pMain+0x708`).
+  US keeps `item.kim`.
+
+**Self-test.** `kim.py diff <March> <June> --common --summary` over all 49,837 shared ids:
+- Non-text fields March also has mismatch on at most 1.7 % of records (socket options, 871): data changes, not misreads.
+- Def: 215 of 38,104. `item_type`, `endurance`, `buff_factors`, `stat_rel_lv`, `hide_set_desc`: 0.
+- Text fields differ most (`desc_in_shop`: 4,854): localisation.
+- Of the 1,293 Extra-list diffs, 1,215 are only June's added keys 10-13.
+- Gate: `kim.py dump <either kim> 85003831` gives `buff_factors = [482]` for both files.
+
+**For the user:** nothing to decide. Stage 16 follows the rule that an unowned June branch gets its own phase.
+
 ## Phase K1 - Data and code census
 
 **Scope.** No code changes, no flag.

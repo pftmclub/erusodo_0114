@@ -1,0 +1,54 @@
+june_ofs	size	type	june_name (Item.lua key)	march_ofs	june_evidence	june_data (item.kim 14JUN17, 111428 items)	route
+0	4	DWORD	m_dwItemID (m_ItemID)	0	writer 325bcdc0 stack rec @-0x548; GetItemTemplet 325bb740 lower_bound + (k*0x39+N)*4+0x10	sorted id table, rec+0 == id[k]	same as March
+4	4	DWORD	m_dwFlags: bit0 fashion, 1 vested, 2 can_enchant, 3 can_use_inventory, 4 no_equip, 5 pc_bang, 6 can_hyper_mode, 7 PVP-EQUIP (set iff a SAT_PVP_EQUIP=40 ability is listed), 8-11 use_type, 12-15 use_condition, 16-19 item_type, 20-23 grade, 24-27 period, 28-31 price_type	4	writer 325bcdc0 @325bf219 sets bit 7 from the SA loop (type 0x28); March bit 7 = FLAG_BIT_HIDE_SET_DESC	bit7=1 on 240 items (= the 240 SAT 40 items); item_type 14 on 1207; grade <= 6	K2: bit 7 is PvP-equip, not HideSetDesc (March would hide set text on 240 items); PvP-equip consumers -> Stage 16
+8	4	DWORD	m_dwFlags2: bit0 PvP item (no June key; ctor 325bb4f0 clears bits 0-2), bit1 m_bHideSetDesc, bit2 m_bIsForMinorUnit	8	writer: m_bHideSetDesc -> |2, m_bIsForMinorUnit -> |4	bit0 0, bit1 0, bit2 2582	K2: GetHideSetDesc reads flags2 bit 1; bit 2 accessor in K2, consumers -> Stage 8 / checklist
+12	4	int	m_iItemLevel (m_ItemLevel)	12	writer piStack_53c	diff vs March: 0 mismatches	same
+16	4	int	m_iQuantity	16	writer iStack_538	169 mismatches (data)	same
+20	4	float	m_fRepairED	20	writer uStack_534	0	same
+24	4	int	m_iRepairVP	24	writer uStack_530	0	same
+28	4	int	m_iPrice	28	writer piStack_52c	124 (data)	same
+32	4	int	m_iPricePvPPoint	32	writer piStack_528	31 (data)	same
+36	4	int	m_iSetID	36	writer piStack_524	355 (data)	same
+40	4	float	m_fAddMaxMP	40	writer puStack_520	0	same
+44	4	float	m_fDamageRange (NEW)	-	writer puStack_51c, key m_fDamageRange @334abdb0	non-zero on 10670 items (weapons, e.g. 7 = 10.0)	reader not located in K0 (inline) -> Stage 16
+48	4	int	m_ItemIDForMinorUnit (NEW)	-	writer uStack_518, key @334ac1c0 (default 0)	429 Lu items -> their Ciel dummy (30344 -> 200030344)	Lu/Ciel -> Stage 8 + character-port checklist
+52	4	int	m_ItemEquipmentGroup (NEW)	-	writer piStack_514, key @334ac150, default = the item's own id	485 differ from own id (30355 -> 30354)	reader not located in K0 (inline) -> Stage 16
+56	4	ofs str	Name	44	accessor 32867140	824 diffs (localisation)	same
+60	4	ofs str	Description	48	accessor 32867160	1607 (data)	same
+64	4	ofs str	DescriptionInShop	52	accessor 32867180	4854 (data)	same
+68	32	ofs str[8]	AttachFrameName[0..7] (m_AttachFrameName, m_AttachFrameName1)	56 ([6])	accessor 328671e0 bounds i > 7; writer fills [0],[1] only	slots 2..7 empty in every record	K2: MAX_MODEL_COUNT_A_ITEM 6 -> 8
+100	4	ofs str	m_wstrExpiredDate (NEW)	-	accessor 328671a0; readers 3218aba0 (item period UI) and 32e102f0 (description builder)	277 items, e.g. 135155 '2017-04-26 09:00:00'	accessor in K2; item auto-delete system -> Stage 16
+104	4	ofs str	m_wstrPreExpiredDate (NEW)	-	writer uStack_4e0; no accessor, no other ms_pData (3373c600) reader	14 items (100002171 auto-delete test weapon)	never read by June's client; carried in the struct only
+108	32	ofs str[8]	ModelName[0..7] (m_ModelName, m_ModelName1, m_ModelName2, m_ModelName3)	80 ([6])	accessor 32867210 bounds i > 7; writer fills [0..3]	[2] 466, [3] 460, [4..7] empty	K2 (March loops MAX_MODEL_COUNT_A_ITEM)
+140	4	ofs str	TextureChangeXETName	104	accessor 32867240	119 (data)	same
+144	4	ofs str	AniXETName	108	accessor 32867270	138	same
+148	4	ofs str	AniName	112	accessor 328672a0	117	same
+152	4	ofs str	ShopImage	116	accessor 328672d0	130	same
+156	4	ofs str	DropViewer	120	accessor 32867300	25	same
+160	4	ofs str	DescriptionInSkillNote	124	accessor 32867330	3	same
+164	4	ofs pool	Stat: 28 B = 7 floats {HP, AtkPhysic, AtkMagic, slot3, slot4, DefPhysic, DefMagic}	128 (20 B, 5 floats)	writer writes 0x1c from m_fBaseHP/AtkPhysic/AtkMagic/DefPhysic/DefMagic into [0],[1],[2],[5],[6]; accessor 32867360; 328d6f60 copies 7 dwords; 328d68c0 reads [5]/[6] as Def	slots 3,4 == 0 in all 75556 stat blocks; diff vs March Def: 215/38104 (data)	K2 (March reads Def at [3]/[4] = 0 on June data)
+168	4	ofs pool	BuffFactorIndices: WORD n + WORD ids	132	accessors 328673a0, 32868060	85003831 -> [482]; 0 diffs	same
+172	4	ofs pool	SpecialAbilityList: DWORD n + 24 B {type, cool, v1, v2, v3, ofsString1}	136	accessors 328673c0, 328673e0 (i*6+1)*4; writer limit type <= 0x34	types 40 (240), 41, 42, 43, 51 beyond March SAT_END 40	same layout; new SATs -> K1 census, then Stage 16
+176	4	ofs pool	SocketOptions: DWORD n + int	140	accessors 32867410, 32867430, 32867f80	871 diffs (data)	same
+180	4	ofs pool	AttachedParticleData: DWORD n + {ofsName, ofsBone}	144	accessors 328674b0, 328674d0	2 diffs	same
+184	4	ofs pool	AttachedMeshData: DWORD n + {ofsName|bit31 jiggle, ofsBone}	148	accessors 32867540, 32867560	1 diff	same
+188	4	ofs pool	Extra: 8 B {key, ofsOrValue}; groups frame offset, scale, rotate, common model, common XET, slash trace	152	accessors 32867660/32867710/328677c0/32867880/32867960 remap UNIT_TYPE 1-9 -> same, 10 -> 10 (Lu) or 11 (Ciel) by a bool arg, 11 -> 12 (Rose), 12 -> 13 (Ain); key names @337358fc; slash 32867a40 keys 0-3	keys 10-13 on 11868 entries; 1215 of 1293 Extra diffs are only those additions	K2: entry width unchanged (8 B); port the remap; keys 10-13 unreachable until Stage 8
+192	4	ofs pool	RandomSocketOptions: DWORD n + int	156	accessor 32867fd0	0 diffs	same
+196	4	ofs pool	StatRelationLevel: 6 B {HP, AtkP, AtkM, DefP, DefM, m_fAllStatRelLV}	160 (5 B)	writer 6 B; accessor 32867380; 328d6f60 reads [0..5]	all_stat == 0 on all 5998 blocks	K2 (feeds buff 16-step3b7's sixth RelLV)
+200	2	short	Endurance	164	writer uStack_480	0 diffs	same
+202	2	short	EnduranceDamageMin	166	writer uStack_47e	0	same
+204	2	short	EnduranceDamageMax	168	writer uStack_47c	0	same
+206	2	USHORT	SummonNpcID (m_Summon_Npc)	170	writer uStack_47a, limit 0x27ea	0	same
+208	1	BYTE	BuyPvpRankCondition	172	writer uStack_478, limit 10	4 (data)	same
+209	1	BYTE	UseLevel	173	writer bStack_477	26	same
+210	1	BYTE	UnitType	174	writer uStack_476, limit 0xc	10-12 on 8572 items	K1 guard (March UT_END 10)
+211	1	BYTE	UnitClass	175	writer uStack_475, limit 0xca	> 122 on 8462 items	K1 guard
+212	1	BYTE	BuffID (m_Buff_ID)	176	writer uStack_474	0	same
+213	1	BYTE	EqipPosition	177	writer uStack_473, limit 0x26	89 (data)	K1 census
+214	1	BYTE	CoolTime	178	writer uStack_472	4	same
+215	1	BYTE	MaxSealCount	179	writer uStack_471	1	same
+216	1	BYTE	MaxAttribEnchantCount	180	writer uStack_470	141	same
+217	1	BYTE	AttributeLevel	181	writer uStack_46f	0	same
+218	6	BYTE[6]	NumFrameOffsets, NumRenderScales, NumRenderRotates, NumCommonItemModelNames, NumCommonItemXETNames, NumSlashTraces	182	writer cStack_46e..cStack_469; accessors read +0xda..+0xdf	-	same
+224	1	BYTE	m_eDescriptionInShopType (NEW): DIST_DEFAULT 0, DIST_MERGE_SOCKET_KR 1, DIST_MERGE_SOCKET_INT 2 (June Enum.src.lua)	-	writer bStack_468, key @334abec4	1 on 195 items, else 0	reader not located in K0 (inline) -> Stage 16
+225	3	pad	padding	-	record copied as 0xe4 bytes (writer @325bd... FUN_31d60a00(rec, 0xe4))	0 in every record	-

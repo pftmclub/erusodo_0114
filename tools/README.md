@@ -12,6 +12,7 @@ has `--help`. Run from the Trunk root. Python 3, standard library only.
 | `docsection.py` | reading a 750 KB plan doc "in full" | x2-phase |
 | `createchar.py` | hand-written INSERTs adding a test character to els_db.sql (backup, March exp, slot/name guards) | x2-create-char |
 | `kom.py` | hand-run `elstools pack` / `compile-dir` and copying `dataNNN_packed.kom` to the game dir (manifest/algo checks, entry diff vs live, backup, md5 verify) | elstools, x2-kom-packed |
+| `kim.py` | hand-written byte probes of `item.kim`: `info` / `dump` / `diff` / `census` / `assets`, March (188 B) and June (228 B) records told apart by stride (map: `june_item_kim/k0_record_map.tsv`) | - |
 | `mdscan.py` | (older) reading a CrashRpt minidump against X2.map | - |
 
 Shared state (every worktree deploys into the same game directory):

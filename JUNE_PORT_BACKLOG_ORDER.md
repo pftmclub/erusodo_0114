@@ -56,6 +56,7 @@ The user's remaining backlog, in the order they listed it:
 | 12 | Character customize system *(added 2026-10-07, june-effect C9g)* | - (found by june-effect C9g) | Not a backlog item but a missing system: June's `CX2CustomizeManager` (`CharCustomData.lua`) applies cash custom motions, sit motions and effects, faces, textures and skill cut-ins to a character, on the unit, square and viewer. It depends on Stage 10 (sit emotions), Stage 2 (UI) and the user's June `item.kim`. Numbered 12 to keep the earlier numbers stable. |
 | 13 | June `item.kim` adoption *(added 2026-10-07, user)* | - (the user's decision during june-effect C9g) | Not a backlog item but a prerequisite: March loads June's `item.kim`. That needs June's 228-byte record ported, since March's is 188 and both files carry the same header version. Planned in full as `JUNE_ITEM_KIM_PHASES.md` (K0-K4). Stages 11 and 12 depend on it for real data. It touches no other stage's files, so it can run alongside Stages 2-8. Numbered 13 to keep the earlier numbers stable. |
 | 14 | Byte-exact June asset extraction *(added 2026-10-07, user)* | - (the user's question: do June assets load in March unchanged?) | Not a backlog item but a prerequisite for porting any June asset faithfully. June's formats load in March unchanged, but elstools cuts 18,571 June V.0.4 entries short. Planned in full as `JUNE_ASSET_EXTRACT_PHASES.md` (X0-X5): an extractor, a packing helper and a long-name engine fix. It touches only tooling, staging and `KGCMassFileManager.cpp`, so it can run alongside Stages 2-8. Every stage that stages June assets benefits from it. |
+| 16 | June item-side systems *(added 2026-10-07, june-item-kim K0)* | - (found by june-item-kim K0) | Not a backlog item but missing systems: June's item templet carries fields and flags March has no reader for (damage range, equipment group, description-in-shop type, item expiry, PvP-equip), and June's `ResetItemManager` opens item tables March never loads (`SetItemGroup`, `ItemManager` item lock, `CoordiItem` and others). It depends on Stage 13 (K2) for the record. Numbered 16 to keep the earlier numbers stable. |
 
 **Concurrency.** At most two code sessions should run at once:
 - Stage 0's buff port, in the main Trunk;
@@ -376,6 +377,34 @@ The full plan is `JUNE_ASSET_EXTRACT_PHASES.md` (STATUS block `june-asset-extrac
 X0 answers the deferred June loader plan's RE items 1-3. The loader port itself stays deferred.
 
 **Depends on:** nothing.
+
+
+### Stage 16: June item-side systems (june-item-kim K0, 2026-10-07)
+
+K0 mapped June's 228-byte item record (`JUNE_ITEM_KIM_PHASES.md` "Phase K0 - Done", `june_item_kim/k0_record_map.tsv`). K2 ports
+the record itself and every field March already reads. The rest has no March owner, so it lands here, one phase per system:
+- **Templet fields with no March reader.** `m_fDamageRange` (+44, 10,670 items), `m_ItemEquipmentGroup` (+52, defaults to the own
+  id, 485 differ) and `m_eDescriptionInShopType` (+224, `DIST_*`, 195 items). June reads them inline; K0 did not locate the readers,
+  so this phase's first step is finding them.
+- **Item expiry.** `m_wstrExpiredDate` (+100, 277 items) is read by the item-period UI `3218aba0` and the description builder
+  `32e102f0`. `m_wstrPreExpiredDate` is never read by June's client.
+- **PvP equipment.** flags bit 7 = has `SAT_PVP_EQUIP` (40, 240 items), plus `SAT_PVP_EQUIP_ENCHANT_LEVEL_7..13` (44-50).
+- **New special abilities.** 42 `SAT_CURR_LEVEL_EXP_PERCENT_UP`, 43 `SAT_STEAL_AMUSEMENT_ITEM`, 51 `SAT_IMMEDIATELY_EXCHANGE_TO_ED`
+  (52 `SAT_ELIANODE_PIECE_EQUIP_TYPE` has no item yet). 41 `SAT_ADD_DP_PERCENT_UP` goes to the character-port checklist (Add).
+- **Set item groups.** `SetItemGroup.lua` (`g_pCX2SetItemManager:AddSetItemGroupData`: linked items and a replacement string per set).
+- **Item lock.** `ItemManager.lua` (`SetItemLock_MaxDay`, `SetItemLock_EDPerDay`).
+- **Coordi catalogue.** `CoordiItem.lua` (`g_pCoordi_ItemManager:AddCoordiItemTemplet`; June builds the file name XOR-encrypted).
+- **Other June-only item tables** opened by `ResetItemManager` `31edda90`: `PackageItemData_INT`, `IceHeaterPreView_INT`,
+  `ItemEtcAccessory` (voice packs), `CanUseInventoryItem` (right-click opens the cash shop), `GuildAgitShopItem`,
+  `SynthesisMaterialTable`, `SynthesisTable_Client`, `PetUpgradeItemData`, `EventSealItemData`, `UnlockSocketItemData`,
+  `UnlockSocketItem`.
+
+Routed elsewhere:
+- the division and render-division tables go to Stage 11;
+- `TranscendentalClassItem` goes to Stage 6;
+- the Lu/Ciel minor-unit fields go to Stage 8.
+
+**Depends on:** Stage 13 (K2).
 
 ---
 

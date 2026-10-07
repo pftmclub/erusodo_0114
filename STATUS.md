@@ -219,8 +219,8 @@ verbatim, adds a layout check, and swaps the file.
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| K0 | ready | Opus 5.5 / high | - | Ghidra (read-only), new `tools/kim.py`, `june2017_re/funcmap.tsv`, plan doc | `K0.md` |
-| K1 | blocked | Sonnet 5.5 / high | K0 | `june_item_kim/*.tsv`, plan doc (no code) | `K1.md` |
+| K0 | **done 2026-10-07** (no code, no flag, no build): June's record mapped from the binary (`june_item_kim/k0_record_map.tsv`, 29 funcmap rows `KIM K0`); stride 228 confirmed (`DoMemoryNotEncrypt` 328101f0: `N*0xe8`, no new check); `MAX_MODEL_COUNT_A_ITEM` 8; **K2 must-ports**: stat pool 7 floats (Def at [5]/[6]), StatRelLV 6 B, flags bit 7 = PvP-equip (HideSetDesc -> flags2 bit 1), Extra key remap 10-13, grade-6 name colour; new fields routed (Lu/Ciel -> Stage 8, `IT_CUSTOM` -> 12, the rest + June-only item tables -> new backlog **Stage 16**); `tools/kim.py` (dump 85003831 = 482 in both files; diff of 49,837 shared ids clean); **user owes:** /cost | Opus 5.5 / high | - | Ghidra (read-only), new `tools/kim.py`, `june2017_re/funcmap.tsv`, plan doc | `K0.md` |
+| K1 | ready | Sonnet 5.5 / high | K0 | `june_item_kim/*.tsv`, plan doc (no code) | `K1.md` (amended by K0) |
 | K2 | blocked | Opus 5.5 / high | K1 + user decisions | `X2Item_Preprocessing.inl`, `X2ItemManager.cpp`, `X2ItemManager_Preprocessing.cpp`, K1's guard sites, `Always.h`, `kom_contents/data036_kom/item.kim` | written by K1 |
 | K2 review | blocked | Sonnet 5.5 / high | K2 | review | written by K2 |
 | K3 | blocked | Sonnet 5.5 / high | K2 | `X2Lib/Offline/` (scope fixed by K1) | written by K2 |
