@@ -1975,6 +1975,26 @@ void CX2SocketItem::PrintOptionInfo_ToExcel( KProtectedType<int> iLevel )
 					}
 				} break;
 #endif // HAMEL_SECRET_DUNGEON
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+			/// June's description switch (327247bf, EDT 10-149) has text for these four only; 68-72 and 151-157 take its
+			/// default (nothing), as March's default does. The STR_IDs have no C++ name here (general.ess has them).
+			case CX2DamageManager::EDT_EJECTION_BUSTER:		/// @32725177
+				{
+					wstrstm << GET_REPLACED_STRING( ( 33483, "i", static_cast<int>( ( socketExtraDamage.m_fRate * 100 ) + 0.5f ) ) );
+				} break;
+			case CX2DamageManager::EDT_SUPREME_PUNISHMENT:	/// @327251e6
+				{
+					wstrstm << GET_REPLACED_STRING( ( 35101, "i", static_cast<int>( ( socketExtraDamage.m_fRate * 100 ) + 0.5f ) ) );
+				} break;
+			case CX2DamageManager::EDT_SPECTRAL_SPEAR:		/// @32725255
+				{
+					wstrstm << GET_REPLACED_STRING( ( 35102, "i", static_cast<int>( ( socketExtraDamage.m_fRate * 100 ) + 0.5f ) ) );
+				} break;
+			case CX2DamageManager::EDT_BALLISTA_BOLT:		/// @327252c1
+				{
+					wstrstm << GET_REPLACED_STRING( ( 39285, "i", static_cast<int>( ( socketExtraDamage.m_fRate * 100 ) + 0.5f ) ) );
+				} break;
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 			default:
 				{
 					ASSERT( !"invalid multiple socket extra damage" );
