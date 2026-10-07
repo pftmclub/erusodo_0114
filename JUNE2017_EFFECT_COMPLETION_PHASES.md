@@ -534,6 +534,44 @@ Checked in Ghidra (read-only) and in the exe bytes:
 
 **Play-test PASSED 2026-10-07** (exe fd7ff8e5, data037 md5 5f6be693; logs read, 0 EXCEPTION). El Tree twice (Tut14c, jtRuneSlayer): one `FURY set ... on=1` per Mars at stage start, about 24 `anim ... rate=2 v=2` (the slash visibly 2x), 4 `dmg ... rate=2 phys 1->2`. Most 2x slashes did not hit: not the port. The NPC hit test is a strict per-frame point sample (`start < anim time < end`), March `CommonFrameMove_TimedEvent` and June `327970d0` alike (decompiled: the `+0x214` anim-time test, no crossing check), so the staged 2.0 rate shrinks Mars's 0.067 window to about 33 ms real and frames step over it; June's own Fury rate is 1.2. March behaviour, so no JUNE_BUGS row. Regression (user, earlier launch, Ruben's second dungeon): BFI 628 on every monster slowed them at once, mid-attack, and they recovered after about 10 s.
 
+### C4c - Review (2026-10-07, Opus 5.5 high)
+
+**Verdict: PASS, no code change.** Deployed exe fd7ff8e5 = HEAD code (`git log 7090255..HEAD` touches no code path; game-dir md5 re-read), nothing to rebuild.
+
+**Checked against June** (raw disassembly with `june2017_re/disasm_range.py`: `327615d0` has no Ghidra function; Ghidra's own server was up):
+- **Parse.**
+  - `@3278a12f-3278a145`: a GetValue miss leaves al = 0, so the default is false, then `32386970( 0x50, v )`.
+  - `@32796366-3279670f`: `BeginTable == 1`, then two `GetValue(float)` calls, each with `fld1` on a miss (`@32796551`, `@32796707`), then `EndTable`.
+  - Port: `FURY_MODE` sits after `FALL_DOWN` with default false; `FURY_DATA` sits after `#endif X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` and inside `X2OPTIMIZE_NPC_NONHOST_SIMULATION` (the C4c probe found that one ON); the ctor sets both members to 1.0.
+- **GetFinalDamage** `@32285757-322857f6`:
+  - The gate is `+0x264 == 1`, then `dynamic_cast`, then byte `+0x8fb7 == 1`, then `322afe40`. The rate is `GetNowStateData()+0x414` and is never tested.
+  - Each local is multiplied only when nonzero: `fucomp` vs 0, then `test ah,0x44 / jnp`, so 0 is skipped and NaN is multiplied.
+  - The DIVIDE call `32622780` comes next.
+  - The port matches; `pAttacker` is already NULL-checked at `X2GameUnit.cpp` GetFinalDamage's top.
+- **ResetAnimSpeed** `327615d0`:
+  - Starts with the skin null return. `IsSamef` (`test ah,0x41`) picks `+0x8b70` or `+0x8b74`.
+  - Fury: `+0x8fb7 == 1`, the bit `0x10000` test, `+0x418`, then `fldz / fucompp / jnp`. A nonzero rate is **stored** over v (not multiplied); 0 is popped.
+  - Then, in order: `x +0x8b64`, `x` the protected `+0x485c`, `x +0x8b6c`, `x +0x8fdc`, comeback `x 4.0`, `SetPlaySpeed`.
+  - There is no `UpdateResultValue` at entry. The port matches in order, and its `#else` is March's body byte-intact (flagcheck 0 deleted).
+- **CheckAndUpdateAdditionalStat** `@322909a2-322909fd`:
+  - If `+0x486c == 1`: the level is read (vslot `0x20c`), the still-set test runs, then `3236cd90` + `320839e0` (that pair = March `CheckAndUpdateResultValueWithOptionData`, `X2BuffTemplet.h`), then vslot `0x3f8`, then `0x3fc(1)`.
+  - The port's `if ( must-change ) { CheckAndUpdate...WithOptionData; ResetAnimSpeed(); }` is equivalent.
+- **Anim-stat writers.**
+  - Every write to `m_AdditionalAnimSpeed` in X2Lib raises must-change: the 4 setters (`X2BuffTemplet.cpp:789-835`), factor insert/update/erase (`:970/:990/:1014`), `InitAdditionalPassiveMultipleAndSum` (`SetPassiveMultiple`/`SetPassiveSum`), and the NPC's own `SetPassiveMultiple`/`SetOptionValue` (`X2GUNPC.cpp` ~`:18736/:18752`).
+  - No accessor returns the object by reference, and nothing else calls `UpdateResultValue()`.
+  - So the gated update cannot leave the result stale or at its ctor 0.
+- **Overrides.** `ResetAnimSpeed()` is overridden only by `CX2GUNPC`. `CX2GUUser`'s 4-argument overload only hides the name.
+- **JUNE_BUGS 94-98:** each matches the disassembly above. #94: replace, not `*=`. #95: the attack rate is untested. #96: NaN passes both `jnp` tests. #97: `31e4d7c0` only stores. #98: the byte has no resetter.
+
+**Hygiene** (`--range 7090255^..HEAD`):
+- `_NPC_FURY_MODE --with JUNE_NPC_ANIM_SPEED`: `files: 1 PASS, 3 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. OTHER = `X2GameUnit.h`, which holds the ANIM_SPEED virtual only.
+- `_NPC_ANIM_SPEED`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR` / same zero line / `RESULT: PASS`. The 5 OTHER are the Fury lines in the same files plus `Always.h`'s other define.
+
+**Staging reverted.**
+- Copied `kom_contents_backup_june_fx_c4c/data037_kom/Thief_Thin_Zero.lua` back (md5 `ab2aad2e`) and deleted the staged `.src.lua`. The backup folder is kept.
+- `PACK OK data037` (`~1 changed: Thief_Thin_Zero.lua`), 9,613,442 B, md5 `c7c0c3b01eb2efb631a8b664aba8c9e1`. That is **byte-identical** to the pre-staging live kom (`kom_backup_tools/data037.kom.20261007_192829`), so no new play-test is needed.
+- The copy to the game dir waits on the user (see STATUS). Until then, El Tree still shows the Fury Mars.
+
 ---
 
 ## C5 - 8b, buff-factor selection, damage triggers, nearest bone
