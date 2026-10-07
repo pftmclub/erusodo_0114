@@ -689,6 +689,42 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 #endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_MATH
+		// June effect completion C4. CAN_ACTIVATE_NASOD_ARMOR_COMBO: June 32632390 @32635559, bool getter 32fe9e40,
+		// default false (@3263575b), to DamageData +0x570. Consumer: CX2GUAdd::SetNasodArmorAttackTarget (329f63a0 @329f64a5).
+		LUA_GET_VALUE( luaManager, "CAN_ACTIVATE_NASOD_ARMOR_COMBO",	pDamageData->m_bCanActivateNasodArmorCombo,	false );
+
+		// June 32632390 @3263575f-32635b0f: DIVIDE_DAMAGE_FROM_RANGE = { RANGE0 = { RANGE = r, DAMAGE_RATE = d }, RANGE1 = ... }.
+		// The sub-tables are named "%s%d" (31c7b980, format @33449104) from index 0 (XOR EDI,EDI @326358ec) and the loop ends at
+		// the first missing one (@32635b05). Inside each, RANGE defaults to 99999 (33441c60) and DAMAGE_RATE to 1.0 (FLD1 @32635912);
+		// 3261a150 inserts (RANGE, DAMAGE_RATE) into DamageData +0x5b0 only when that RANGE is absent, so the first of two equal
+		// RANGEs keeps its rate (JUNE_BUGS). The map is not cleared here: a second parse into the same DamageData adds to it.
+		// Consumer: CEffect::JuneApplyDivideDamageFromRange (32622780), called from GetFinalDamage.
+		if( luaManager.BeginTable( "DIVIDE_DAMAGE_FROM_RANGE", false ) == true )
+		{
+			int iRangeIndex = 0;
+			while( luaManager.BeginTable( "RANGE", iRangeIndex, false ) == true )
+			{
+				float fRange		= 99999.f;
+				float fDamageRate	= 1.f;
+				LUA_GET_VALUE( luaManager, "RANGE",		fRange,		99999.f );
+				LUA_GET_VALUE( luaManager, "DAMAGE_RATE",	fDamageRate,	1.f );
+				pDamageData->m_mapDivideDamageFromRange.insert( std::make_pair( fRange, fDamageRate ) );
+				++iRangeIndex;
+				luaManager.EndTable();
+			}
+			luaManager.EndTable();
+		}
+#endif SERV_IRUHADEV_JUNE_DAMAGE_MATH
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+		// June effect completion C4. DIVISION_NUM: June 32632390 @32632898, int getter 32fe9fd0, default 0 (@32632981), to +0x618.
+		// DIVISION_OFF_TIME: @326329dc, float getter 32fea370, default 0 (FLDZ @32632b16), to +0x61c. Both gate buff application:
+		// CX2GameUnit::JuneCheckDivisionWindow (3227a960, from ApplyBuffToGameUnitInDamageReact), the window tick 322749f0 and the re-arm
+		// below (32622ad0). No June script and no March script sets either key.
+		LUA_GET_VALUE( luaManager, "DIVISION_NUM",			pDamageData->m_iDivisionNum,		0 );
+		LUA_GET_VALUE( luaManager, "DIVISION_OFF_TIME",		pDamageData->m_fDivisionOffTime,	0.f );
+#endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 		luaManager.EndTable();
 
 #ifndef MODIFY_SET_DAMAGE_DATA
@@ -860,6 +896,22 @@ if( null != pDamageData->optrAttackerGameUnit && pDamageData->optrAttackerGameUn
 		}
 	}
 #endif //ADD_RENA_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+	// June effect completion C4: June 32632390 @32640501-32640608 (the success tail, after the +0x5a8 copy). When the attacker is live,
+	// 32622ad0 walks (a copy of) the game's unit list and, for every unit still in it (322ccf50 is only 'pointer is in the +0x304
+	// list', true for each unit of the walk as the body changes no list), calls 32275da0( attacker UID, DIVISION_NUM, DIVISION_OFF_TIME ):
+	// a unit that already holds that window gets its time reset. It runs whatever DIVISION_NUM is; windows exist only for >= 1.
+	if( null != pDamageData->optrAttackerGameUnit && NULL != g_pX2Game )
+	{
+		const UidType uidAttacker = pDamageData->optrAttackerGameUnit->GetUnitUID();
+		const std::vector<CX2GameUnit*>& vecUnit = g_pX2Game->GetUnitList();
+		for( std::vector<CX2GameUnit*>::const_iterator it = vecUnit.begin(); it != vecUnit.end(); ++it )
+		{
+			if( NULL != *it )
+				(*it)->JuneRearmDivisionWindow( uidAttacker, pDamageData->m_iDivisionNum, pDamageData->m_fDivisionOffTime );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 
 	return true;
 }

@@ -8808,6 +8808,58 @@ D3DXVECTOR3 CX2DamageEffect::CEffect::JuneGetLockOnAimPos( const CX2GameUnit* pU
 	return ( GetDistance( vFrom_, vBonePos ) > GetDistance( vFrom_, vPos ) ) ? vPos : vBonePos;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_MATH
+// June effect completion C4. June 32622780 (a DamageData thiscall; the only caller is GetFinalDamage @322857f6): DIVIDE_DAMAGE_FROM_RANGE.
+// It runs when the range map is non-empty (this+0x5b8), the game and its damage-effect manager exist (game +0x3b4), the DamageData's
+// attacker effect handle (+0x14, resolved by 31f64190) gives an effect and the defender (+0x470) is live. dist = the distance (31c7b560)
+// from the effect's position (+0x100 = m_Pos) to the defender's lock-on aim point (vtable slot 0x3e4 with an empty bone name, queried from
+// the effect position = JuneGetLockOnAimPos). The map is walked in ascending RANGE order and the rate is the value of the last entry
+// whose RANGE is not above dist; 1.0 before any. Only a rate below 1.0 scales anything: physic and magic locals are both multiplied.
+// Polarities from june2017_re's x87 emulation (scratchpad c4_x87.py): the walk stops at the first RANGE with dist < RANGE, so a NaN
+// distance takes every entry; the multiply needs rate < 1.0 strictly (1.0, above 1.0 and NaN do nothing: JUNE_BUGS).
+void CX2DamageEffect::CEffect::JuneApplyDivideDamageFromRange( const CX2DamageManager::DamageData& damageData_, float& fPhysic_, float& fMagic_ )
+{
+	if ( true == damageData_.m_mapDivideDamageFromRange.empty() )		// @326227c0-@326227c8
+		return;
+	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetDamageEffect() )	// @326227ce-@3262283d
+		return;
+
+	CX2GameUnit* pDefender = damageData_.optrDefenderGameUnit.GetObservable();		// @32622843-@3262285b
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	CEffect* pEffect = g_pX2Game->GetDamageEffect()->GetInstance( damageData_.hAttackerEffect );	// 31f64190 @3262288a
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	CEffect* pEffect = NULL;
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	if ( NULL == pDefender || NULL == pEffect )						// @3262288f-@32622899
+		return;
+
+	const D3DXVECTOR3 vEffectPos = pEffect->GetPos();					// @3262289f-@326228b3
+	const D3DXVECTOR3 vAimPos = JuneGetLockOnAimPos( pDefender, vEffectPos );	// vslot 0x3e4 @326228ec
+	const float fDist = GetDistance( vEffectPos, vAimPos );			// 31c7b560 @326228f4
+
+	float fRate = 1.f;												// @32622909
+	for ( std::map<float,float>::const_iterator it = damageData_.m_mapDivideDamageFromRange.begin();
+		it != damageData_.m_mapDivideDamageFromRange.end() && !( fDist < it->first ); ++it )	// @32622920-@32622932
+	{
+		fRate = it->second;											// @32622934
+	}
+
+	if ( fRate < 1.f )												// @3262294e-@32622959 (compare with the double 1.0 @334355b0)
+	{
+		fPhysic_ *= fRate;											// @3262295b-@32622964
+		fMagic_ *= fRate;											// @32622967-@32622969
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		static bool s_bRangeLogged = false;
+		if ( false == s_bRangeLogged )
+		{
+			s_bRangeLogged = true;
+			CX2OfflineLog::Server( L"JUNE_FX DIVIDE_DAMAGE_FROM_RANGE scaled a hit (first seen): defender %I64d, distance %.1f, rate %.3f",
+				pDefender->GetUnitUID(), fDist, fRate );
+		}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+	}
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGE_MATH
 // June2017 FUN_322dadd0 (RET 0x14): the seeded pick. Candidates pass JuneIsLockOnCandidate and have
 // their aim point (slot 0x3e4 from the owner) inside LOCK_ON_RANGE_FROM_OWNER; the pick is
 // eligible[ (unsigned)( seed % modulus + 1 ) % count ] (IDIV @322dae65, DIV @322db035). March's

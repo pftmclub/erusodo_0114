@@ -1352,6 +1352,16 @@ class CX2DamageManager
 			bool				m_bCountAsOwnerSkillHit;			/// +0x5fd, no Lua key; set by class code, copied to a child by 31f8fdb0 (b45 branch). SimpleInit @31f8f3ef = 0
 			int					m_iJuneDamageEffectIndex;			/// +0x638: the creating effect set's index stamp (321ee600 @321ef639, SetDamageExceptionProcess @32299712). SimpleInit @31f8f47b = -1
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_MATH
+			/// June effect completion C4. The +0x offsets are June's DamageData layout, cited only.
+			bool				m_bCanActivateNasodArmorCombo;		/// +0x570 CAN_ACTIVATE_NASOD_ARMOR_COMBO (32632390 @32635559, bool getter 32fe9e40, default false); read by CX2GUAdd::SetNasodArmorAttackTarget (329f63a0 @329f64a5)
+			std::map<float,float>	m_mapDivideDamageFromRange;		/// +0x5b0 DIVIDE_DAMAGE_FROM_RANGE: RANGE -> DAMAGE_RATE, ascending by RANGE, first RANGE wins (3261a150); read by CEffect::JuneApplyDivideDamageFromRange (32622780)
+#endif SERV_IRUHADEV_JUNE_DAMAGE_MATH
+#ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+			/// June effect completion C4 (user, 2026-10-06: DIVISION is buff-apply gating, so it sits with the apply gate).
+			int					m_iDivisionNum;						/// +0x618 DIVISION_NUM (32632390 @32632898, int getter 32fe9fd0, default 0); < 1 = no window. Read by CX2GameUnit::JuneCheckDivisionWindow (3227a960)
+			float				m_fDivisionOffTime;					/// +0x61c DIVISION_OFF_TIME (32632390 @326329dc, float getter 32fea370, default 0): seconds a window stays shut
+#endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 			void SimpleInit()
 			{
 				damageType			= DT_PHYSIC;
@@ -1588,6 +1598,14 @@ class CX2DamageManager
 				m_bCountAsOwnerSkillHit					= false;	/// June SimpleInit 31f8ee50 @31f8f3ef: +0x5fd = 0
 				m_iJuneDamageEffectIndex				= -1;		/// @31f8f47b: +0x638 = -1
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_MATH
+				m_bCanActivateNasodArmorCombo			= false;
+				m_mapDivideDamageFromRange.clear();
+#endif SERV_IRUHADEV_JUNE_DAMAGE_MATH
+#ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+				m_iDivisionNum							= 0;		/// June SimpleInit 31f8ee50 @31f8f3e3: +0x618 = 0
+				m_fDivisionOffTime						= 0.f;		/// @31f8f3e9: +0x61c (the parse stores 0 when the key is absent)
+#endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 			}
 
 			void Init()

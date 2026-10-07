@@ -3036,7 +3036,21 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		std::wstring JuneGetNearestCollisionFrameName( IN const D3DXVECTOR3& vPos_ ) const;
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
-		bool CheckDamageDataKeyName( const CX2DamageManager::DamageData* pDamageData_ ) const;	/// June 3227a960
+		/// June effect completion C4 (renamed from CheckDamageDataKeyName): the DIVISION window gate and its tick / re-arm, see X2GameUnit.cpp.
+		struct JuneDivisionKey
+		{
+			UidType		m_uidAttacker;
+			int			m_iDivisionNum;
+			bool operator<( const JuneDivisionKey& rhs_ ) const
+			{
+				if ( m_uidAttacker != rhs_.m_uidAttacker )
+					return m_uidAttacker < rhs_.m_uidAttacker;
+				return m_iDivisionNum < rhs_.m_iDivisionNum;
+			}
+		};
+		bool JuneCheckDivisionWindow( const CX2DamageManager::DamageData* pDamageData_ );		/// June 3227a960
+		void JuneTickDivisionWindow( float fElapsedTime_ );										/// June 322749f0
+		void JuneRearmDivisionWindow( UidType uidAttacker_, int iDivisionNum_, float fTime_ );	/// June 32275da0
 		bool IsBuffBlockedBeforeApply( const CX2BuffFactor& buffFactor_ );						/// June 322a7960 (slot 139, +0x22c)
 #endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 //}}
@@ -4123,6 +4137,11 @@ protected:
 		UidType											m_uidMakeTarget;
 		GAME_UNIT_TYPE									m_eMakeTargetGameUnitType;
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+#ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+		/// June effect completion C4: June CX2GameUnit +0x75e4 (std::map, head +0x75e8). (attacker UID, DIVISION_NUM) -> seconds left
+		/// before that attacker's hit with that DIVISION_NUM may apply buff factors to this unit again.
+		std::map<JuneDivisionKey, float>				m_mapJuneDivisionWindow;
+#endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 		KProtectedType<int>								m_TeamNum;			/// Team 분류 넘버로, 던전에서는 보통 CX2Room::TN_RED 이다.
 //#ifdef PVP_BOSS_COMBAT_TEST
 //		int												m_TeamNumOriginal;		

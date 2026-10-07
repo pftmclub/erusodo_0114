@@ -956,6 +956,11 @@ class CX2DamageEffect
 #endif
 
 				D3DXVECTOR3		GetPos() { return m_Pos; }
+#if defined( SERV_IRUHADEV_JUNE_DAMAGE_MATH ) && defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME )
+				/// June effect completion C4: June 32622780 (a DamageData method there, called from GetFinalDamage). It sits on CEffect here because
+				/// it needs the protected aim-point helper JuneGetLockOnAimPos and the effect's position.
+				static void		JuneApplyDivideDamageFromRange( const CX2DamageManager::DamageData& damageData_, float& fPhysic_, float& fMagic_ );
+#endif defined( SERV_IRUHADEV_JUNE_DAMAGE_MATH ) && defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME )
 #ifdef EVE_ELECTRA
 				D3DXVECTOR3		GetBeforePos() { return m_BeforePos; }
 #endif EVE_ELECTRA

@@ -5439,3 +5439,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              it and slot 200 is false for NPCs. Log tag: JUNE_BUFF.
 #define SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June effect completion C4 (8b damage math). Two DamageData
+//              keys that move damage numbers or targeting, each with its
+//              June consumer: DIVIDE_DAMAGE_FROM_RANGE (RANGE%d tables, map
+//              3261a150, consumer 32622780 from GetFinalDamage @322857f6)
+//              and CAN_ACTIVATE_NASOD_ARMOR_COMBO (@32635559, gate in
+//              CX2GUAdd::SetNasodArmorAttackTarget 329f63a0 @329f64a5).
+//              The ignore-defence keys are June buff port Phase 5c
+//              (SERV_IRUHADEV_JUNE_BUFF_NEW_STAT); DIVISION_NUM and
+//              DIVISION_OFF_TIME are buff-apply gating and live under
+//              SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY (user, 2026-10-06).
+//              Needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME for the range
+//              consumer's aim point. Log tag: JUNE_FX.
+#define SERV_IRUHADEV_JUNE_DAMAGE_MATH
+//////////////////////////////////////////////////////////////////////////

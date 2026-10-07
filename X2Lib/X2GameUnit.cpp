@@ -1213,6 +1213,10 @@ void CX2GameUnit::MultiplyStat( float fFactor )
 		}
 	}
 #endif // SERV_NEW_DEFENCE_DUNGEON
+#ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+	/// June effect completion C4: CX2GameUnit::OnFrameMove 3229ecc0 @3229fab5 ticks the DIVISION window map here, last before 32299af0.
+	JuneTickDivisionWindow( m_fElapsedTime );
+#endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 
 	return S_OK;
 }
@@ -2973,6 +2977,13 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 
 	float fAttackerPhysicDamage = pAttDamageData->damage.fPhysic;
 	float fAttackerMagicDamage = pAttDamageData->damage.fMagic;
+#if defined( SERV_IRUHADEV_JUNE_DAMAGE_MATH ) && defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME )
+	/// June effect completion C4. June 32284aa0 @322857ea-322857f6: the two damage locals ([esp+0x4c] / [esp+0x50], loaded from the
+	/// DamageData's damage at @32285749-32285753) go to 32622780 before the attacker's slot 0x3ac / 0x3b0 hook (March: the
+	/// ModifyFinalDamageByGameUnitType call below). It scales both by the DIVIDE_DAMAGE_FROM_RANGE rate for the effect-to-defender
+	/// distance, only when that rate is below 1.0. Only these locals change, never pAttDamageData->damage.
+	CX2DamageEffect::CEffect::JuneApplyDivideDamageFromRange( *pAttDamageData, fAttackerPhysicDamage, fAttackerMagicDamage );
+#endif defined( SERV_IRUHADEV_JUNE_DAMAGE_MATH ) && defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME )
 	
 	if ( CX2DamageManager::AT_NORMAL == pAttDamageData->attackType )
 #ifdef BALANCE_CODE_NEMESIS_20121213
@@ -16740,7 +16751,7 @@ bool CX2GameUnit::ApplyBuffToGameUnitInDamageReact( const CX2DamageManager::Dama
 		if ( true != CanApplyBuffToGameUnit( eBuffTempletID ) )
 			continue;
 
-		if ( true != CheckDamageDataKeyName( pDamageData_ ) )
+		if ( true != JuneCheckDivisionWindow( pDamageData_ ) )
 			continue;
 
 		if ( vecImmunityAtThisState.end() != std::find( vecImmunityAtThisState.begin(), vecImmunityAtThisState.end(), eBuffTempletID ) )
@@ -16763,18 +16774,87 @@ bool CX2GameUnit::ApplyBuffToGameUnitInDamageReact( const CX2DamageManager::Dama
 	return bBeApplied;
 }
 
-/** @function : CheckDamageDataKeyName
-	@brief : June 3227a960. With the damage data's key index (+0x618) at 1 or more it records (attacker UID, index, +0x61c)
-			 in this unit's map (+0x75e8) and refuses a second hit with the same key. The index is set only by
-			 DAMAGE_DATA_KEY_NAME's registration (FUN_32622220), which is the effect plan's C3; until then June's early
-			 out (index < 1: pass) is the whole function here.
+/** @function : JuneCheckDivisionWindow
+	@brief : June 3227a960 (effect completion C2 corrected the earlier reading: +0x618 is DIVISION_NUM and +0x61c DIVISION_OFF_TIME,
+			 not a DAMAGE_DATA_KEY_NAME index). thiscall on the unit taking the hit with the DamageData, called per buff factor from
+			 ApplyBuffToGameUnitInDamageReact (@322a895e). DIVISION_NUM below 1, or no live attacker: true (the factor goes on). Else
+			 the key (attacker UID via vslot 0x54, DIVISION_NUM) is looked up in this unit's window map (+0x75e4): present -> false
+			 (the factor is refused); absent -> inserted with DIVISION_OFF_TIME as its time, and true. The insert happens before the
+			 immunity list and the pre-apply roll, so a factor they then reject still shuts the window, and the first factor of a
+			 hit shuts it for every later factor of that hit (JUNE_BUGS). 322749f0 ticks the times down (JuneTickDivisionWindow),
+			 32275da0 resets one (JuneRearmDivisionWindow, SetDamageDataFromLUA's tail).
 */
-bool CX2GameUnit::CheckDamageDataKeyName( const CX2DamageManager::DamageData* pDamageData_ ) const
+bool CX2GameUnit::JuneCheckDivisionWindow( const CX2DamageManager::DamageData* pDamageData_ )
 {
-	if ( NULL == pDamageData_ )
+	if ( NULL == pDamageData_ )								// @3227a96f
+		return true;
+	if ( pDamageData_->m_iDivisionNum < 1 )					// @3227a97d
+		return true;
+	if ( null == pDamageData_->optrAttackerGameUnit )		// @3227a986-3227a99b (no attacker object)
 		return true;
 
+	JuneDivisionKey key;
+	key.m_uidAttacker	= pDamageData_->optrAttackerGameUnit->GetUnitUID();
+	key.m_iDivisionNum	= pDamageData_->m_iDivisionNum;
+
+	if ( m_mapJuneDivisionWindow.end() != m_mapJuneDivisionWindow.find( key ) )		// 322aa9c0, compared with the head @3227a9e7
+	{
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		static bool s_bRefusedLogged = false;
+		if ( false == s_bRefusedLogged )
+		{
+			s_bRefusedLogged = true;
+			CX2OfflineLog::Server( L"JUNE_FX DIVISION window refused a buff factor (first seen): unit %I64d, attacker %I64d, DIVISION_NUM %d",
+				GetUnitUID(), key.m_uidAttacker, key.m_iDivisionNum );
+		}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+		return false;
+	}
+
+	m_mapJuneDivisionWindow.insert( std::make_pair( key, pDamageData_->m_fDivisionOffTime ) );	// 322abe80 + 322aa500 @3227aa1e-3227aa2b
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static bool s_bOpenedLogged = false;
+	if ( false == s_bOpenedLogged )
+	{
+		s_bOpenedLogged = true;
+		CX2OfflineLog::Server( L"JUNE_FX DIVISION window opened (first seen): unit %I64d, attacker %I64d, DIVISION_NUM %d, DIVISION_OFF_TIME %.2f",
+			GetUnitUID(), key.m_uidAttacker, key.m_iDivisionNum, pDamageData_->m_fDivisionOffTime );
+	}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 	return true;
+}
+
+/** @function : JuneTickDivisionWindow
+	@brief : June 322749f0, called at the tail of CX2GameUnit::OnFrameMove (3229ecc0 @3229fab5, before 32299af0). Every entry's time
+			 (+0x20) -= the frame's elapsed time (+0x2b0) and the entry is erased when that is <= 0 (x87 emulated, june2017_re
+			 c4_x87: erased at <= 0, kept for NaN).
+*/
+void CX2GameUnit::JuneTickDivisionWindow( float fElapsedTime_ )
+{
+	std::map<JuneDivisionKey, float>::iterator it = m_mapJuneDivisionWindow.begin();
+	while ( m_mapJuneDivisionWindow.end() != it )
+	{
+		it->second -= fElapsedTime_;				// @32274a00-32274a09
+		if ( it->second <= 0.f )					// @32274a0c-32274a1a
+			it = m_mapJuneDivisionWindow.erase( it );	// 32311800
+		else
+			++it;
+	}
+}
+
+/** @function : JuneRearmDivisionWindow
+	@brief : June 32275da0 (this, attacker UID, DIVISION_NUM, time), only caller 32622ad0: if this unit holds that window, its time is
+			 set to fTime_ (June's SetDamageDataFromLUA passes DIVISION_OFF_TIME for every unit of the game).
+*/
+void CX2GameUnit::JuneRearmDivisionWindow( UidType uidAttacker_, int iDivisionNum_, float fTime_ )
+{
+	JuneDivisionKey key;
+	key.m_uidAttacker	= uidAttacker_;
+	key.m_iDivisionNum	= iDivisionNum_;
+
+	std::map<JuneDivisionKey, float>::iterator it = m_mapJuneDivisionWindow.find( key );	// 322aa9c0 @32275dce
+	if ( m_mapJuneDivisionWindow.end() != it )
+		it->second = fTime_;																// @32275de0-32275de4
 }
 
 /** @function : IsBuffBlockedBeforeApply

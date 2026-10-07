@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include "X2GUAdd.h"
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_MATH
+#include "Offline/X2OfflineLog.h"	/// CX2OfflineLog: the one-shot JUNE_FX line in SetNasodArmorAttackTarget (June effect completion C4)
+#endif SERV_IRUHADEV_JUNE_DAMAGE_MATH
 
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환 ( 캐릭터 추가용 )
 
@@ -9848,6 +9851,34 @@ const bool CX2GUAdd::GetPossibleNonstopSummonPylon() const
 */
 void CX2GUAdd::SetNasodArmorAttackTarget( IN const CX2DamageManager::DamageData& pDamageData_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_MATH
+	// June effect completion C4. June 329f63a0 @329f64a5-329f64bf: after the g_pX2Game, m_fHpPercentUp <= 0, live defender and
+	// defenderType == AT_UNIT tests, a hit sets a target only when DamageData +0x570 (CAN_ACTIVATE_NASOD_ARMOR_COMBO) == 1 or the byte
+	// set at the top of June's function is: a switch on DamageData +0x590 (USED_SKILL_ID) over 0x7211, 0x7212, 0x7220, 0x7221 =
+	// 29201 / 29202 / 29216 / 29217, June's reform skills RNSI_A_AN_PHASE_SHIFT, RNSI_A_AN_PULSE_BULLET and their _UPGRADE versions.
+	// This build has no reform skill IDs: the two March skills of those names pass in their place (they are the FantasyTracer targets
+	// handled below), the _UPGRADE pair has no March skill. User decision 2026-10-07: follow June. March's DamageEffect data has no
+	// CAN_ACTIVATE_NASOD_ARMOR_COMBO line (June's has 52, all Add's), so until June's DamageEffect data is adopted no other hit sets
+	// the Nasod armor target.
+	if( false == pDamageData_.m_bCanActivateNasodArmorCombo
+#ifdef SERV_ADD_LUNATIC_PSYKER
+		&& CX2SkillTree::SI_A_AN_PULSE_BULLET != pDamageData_.m_eUsedSkillID
+		&& CX2SkillTree::SI_A_AN_PHASE_SHIFT != pDamageData_.m_eUsedSkillID
+#endif SERV_ADD_LUNATIC_PSYKER
+		)
+	{
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		static bool s_bGateLogged = false;
+		if( false == s_bGateLogged )
+		{
+			s_bGateLogged = true;
+			CX2OfflineLog::Server( L"JUNE_FX NASOD_COMBO gate (first seen): a hit by skill %d without CAN_ACTIVATE_NASOD_ARMOR_COMBO sets no Nasod armor target (June 329f63a0)",
+				static_cast<int>( pDamageData_.m_eUsedSkillID ) );
+		}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+		return;
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGE_MATH
 	if( NULL != g_pX2Game &&
 		0.f  >= pDamageData_.m_fHpPercentUp &&
 		null != pDamageData_.optrDefenderGameUnit &&
