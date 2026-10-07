@@ -4,6 +4,9 @@
 #if defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_DAMAGEDATA && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+#if defined( SERV_IRUHADEV_JUNE_NPC_FURY_MODE ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_NPC_FURY_MODE && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 
 const double CX2GameUnit::RANDOM_SEED_RESET_TIME = 0.3;
 
@@ -2977,6 +2980,40 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 
 	float fAttackerPhysicDamage = pAttDamageData->damage.fPhysic;
 	float fAttackerMagicDamage = pAttDamageData->damage.fMagic;
+#ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+	/// June effect completion C4c. June 32284aa0 @32285757-322857e8: an NPC attacker (unit type GUT_NPC, then dynamic_cast)
+	/// with its Fury byte set and FURY_MODE on its current state multiplies each damage local by that state's
+	/// ATTACK_POWER_RATE_FURY when the local is nonzero (FUCOMP / TEST AH,0x44 / JNP: 0 skipped, NaN multiplied). The rate is
+	/// never tested, so a rate of 0 zeroes the damage. June runs this before 32622780 (DIVIDE_DAMAGE_FROM_RANGE, below).
+	if ( GUT_NPC == pAttacker->GetGameUnitType() )
+	{
+		const CX2GUNPC* pJuneFuryNPC = dynamic_cast<const CX2GUNPC*>( pAttacker );
+		float fJuneFuryRate = 1.f;
+		if ( NULL != pJuneFuryNPC && true == pJuneFuryNPC->JuneGetFuryAttackPowerRate( fJuneFuryRate ) )
+		{
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+			const float fJuneFuryPhysicBefore = fAttackerPhysicDamage;
+			const float fJuneFuryMagicBefore = fAttackerMagicDamage;
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+			if ( 0.f != fAttackerPhysicDamage )
+				fAttackerPhysicDamage *= fJuneFuryRate;
+			if ( 0.f != fAttackerMagicDamage )
+				fAttackerMagicDamage *= fJuneFuryRate;
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+			/// About one line a second.
+			static DWORD s_dwJuneFuryDamageLogged = 0;
+			const DWORD dwJuneFuryNow = ::GetTickCount();
+			if ( dwJuneFuryNow - s_dwJuneFuryDamageLogged >= 1000 )
+			{
+				s_dwJuneFuryDamageLogged = dwJuneFuryNow;
+				CX2OfflineLog::Server( L"JUNE_FX FURY dmg npc=%I64d state=%d rate=%g phys %g->%g magic %g->%g",
+					pJuneFuryNPC->GetUnitUID(), pJuneFuryNPC->GetNowStateID(), fJuneFuryRate,
+					fJuneFuryPhysicBefore, fAttackerPhysicDamage, fJuneFuryMagicBefore, fAttackerMagicDamage );
+			}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
 #if defined( SERV_IRUHADEV_JUNE_DAMAGE_MATH ) && defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME )
 	/// June effect completion C4. June 32284aa0 @322857ea-322857f6: the two damage locals ([esp+0x4c] / [esp+0x50], loaded from the
 	/// DamageData's damage at @32285749-32285753) go to 32622780 before the attacker's slot 0x3ac / 0x3b0 hook (March: the
@@ -14554,7 +14591,18 @@ void CX2GameUnit::CheckAndUpdateAdditionalStat()
 	m_AdditionalPhysicDefence.CheckAndUpdateResultValue();
 	m_AdditionalMagicDefence.CheckAndUpdateResultValue();
 
+#ifdef SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
+	/// June effect completion C4c. June 32290920 @322909a2-322909fd: only when the anim stat must change, update it (the
+	/// same call as below) and then call ResetAnimSpeed (vslot 0x3f8: the NPC's 327615d0, empty for users). June then calls
+	/// vslot 0x3fc( 1 ), 3208ddc0 = ret 4 in every CX2GU* vtable: a no-op, not ported.
+	if ( m_AdditionalAnimSpeed.GetMustChangeResultValue() )
+	{
+		m_AdditionalAnimSpeed.CheckAndUpdateResultValueWithOptionData( &CX2SocketItem::GetFinalAnimationSpeedPercent, GetUnitLevel() );
+		ResetAnimSpeed();
+	}
+#else SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
 	m_AdditionalAnimSpeed.CheckAndUpdateResultValueWithOptionData( &CX2SocketItem::GetFinalAnimationSpeedPercent, GetUnitLevel() );
+#endif SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
 	
 	m_AdditionalWalkSpeed.CheckAndUpdateResultValueWithOptionData( &CX2SocketItem::GetFinalMoveSpeedPercent, GetUnitLevel(), 0.5f );
 	m_AdditionalDashSpeed.CheckAndUpdateResultValueWithOptionData( &CX2SocketItem::GetFinalMoveSpeedPercent, GetUnitLevel(), 0.5f );

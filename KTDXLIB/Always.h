@@ -5542,3 +5542,34 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              "JUNE_FX hp-rate" in offline_server.log (JUNE_FX_DEBUG).
 #define SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June 2017 effect completion C4c: NPC Fury mode (June raid
+//              bosses). State key FURY_MODE (bool, false) and the FURY_DATA
+//              table (ATTACK_POWER_RATE_FURY / ANIM_SPEED_RATE_FURY, 1.0) in
+//              CX2GUNPC::LoadStateData (June 32784c00); the NPC Fury byte
+//              (June +0x8fb7) with Lua SetFuryMode / GetFuryMode (31e4d7c0 /
+//              31e4d7d0); CX2GameUnit::GetFinalDamage multiplies an attacker
+//              NPC's nonzero damage locals by the rate (June @32285757),
+//              before DIVIDE_DAMAGE_FROM_RANGE. The anim half (rate REPLACES
+//              the speed) sits in ResetAnimSpeed and also needs
+//              SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED. Log: "JUNE_FX FURY" in
+//              offline_server.log (JUNE_FX_DEBUG).
+#define SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June 2017 effect completion C4c: June's NPC anim-speed rework.
+//              CX2GUNPC::ResetAnimSpeed = June's whole 327615d0: no
+//              m_AdditionalAnimSpeed.UpdateResultValue() at entry, then x the
+//              Rose factor (+0x8b6c) and the Hero-dungeon factor (+0x8fdc),
+//              both 1.0 with no March writer (checklist 7f / phase C4d). It is
+//              a CX2GameUnit virtual (June slot 0x3f8, empty base) that
+//              CheckAndUpdateAdditionalStat calls when the anim stat must
+//              change (June 32290920 @322909a2).
+#define SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
+//////////////////////////////////////////////////////////////////////////

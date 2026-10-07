@@ -3337,6 +3337,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, const BUFF_CHANGE_TYPE eChangeType_, const KBuffIdentity& BuffIdentity_ );
 		
 		void CheckAndUpdateAdditionalStat();
+#ifdef SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
+		/// June effect completion C4c: June vslot 0x3f8. CX2GameUnit and CX2GUUser are empty (31f3f070 = ret); CX2GUNPC
+		/// overrides it (327615d0). CX2GUUser's ResetAnimSpeed( float, bool, bool, float ) only hides the name.
+		virtual void ResetAnimSpeed() {}
+#endif SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
 
 		void InitAdditionalStatOptionValue();
 		void InitAdditionalBasicStatValue();

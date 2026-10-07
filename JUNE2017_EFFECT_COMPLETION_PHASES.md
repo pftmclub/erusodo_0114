@@ -510,6 +510,28 @@ Checked in Ghidra (read-only) and in the exe bytes:
 
 **Hygiene, deploy, play-test:** none. This phase has no code and no build. **User owes:** /cost.
 
+### C4c - Done (2026-10-07, Opus 5.5 high)
+
+**Landed** (commit in STATUS; flags `SERV_IRUHADEV_JUNE_NPC_FURY_MODE` + `SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED`, both new): kickoff items 1-7 as listed there, June addresses cited at each site.
+- `X2GUNPC.h/.cpp`: `FLAG_FURY_MODE` appended before `FLAG_MAX` (after the ARA sound flags, which index by +1/+2); StateData `m_fAttackPowerRateFury` / `m_fAnimSpeedRateFury` (1.0); `FURY_MODE` parse after `FALL_DOWN`; `FURY_DATA` at the end of `LoadStateData`, after `#endif X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE`; `m_bFuryMode` (cleared in `CommonConstructor` only), `SetFuryMode` / `GetFuryMode` (+ `JuneGetFuryAttackPowerRate`, the gate as a public helper so `X2GameUnit.cpp` needs no `StateData`); `m_fRoseSummonAnimSpeedRate` / `m_fMultiplicationAnimSpeed` (1.0, no writer: checklist 7f / C4d, both updated with the names); June's whole `ResetAnimSpeed` (March body in `#else`).
+- `X2GameUnit.h/.cpp`: `virtual void ResetAnimSpeed() {}`; `CheckAndUpdateAdditionalStat` updates the anim stat only on must-change and then calls it (March line in `#else`); the `GetFinalDamage` multiply between the locals' load and `JuneApplyDivideDamageFromRange`. `X2Main.cpp`: the two binds.
+
+**Pre-checks.**
+1. `cl /EP` probe on an `stdafx.h` TU (US_SERVICE defines): `X2OPTIMIZE_NPC_NONHOST_SIMULATION=ON`, `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE=ON`.
+2. `CX2GUNPC::OnFrameMove` reaches `CX2GameUnit::OnFrameMove`, which runs `OnFrameMoveBuff` then `CheckAndUpdateAdditionalStat`, for host and non-host. Its three early returns are a battlefield NPC before its first sync packet, `NOT_RENDER_NPC_GAME_EDIT`'s hide, and the adaptive frame skip (`E_FAIL` on in-between frames, which only defers a whole frame). Must-change survives a skipped frame.
+3. Added: dropping `UpdateResultValue()` is safe only if every anim-stat write raises must-change. All four setters (`SetBasicStatValue`, `SetOptionValue`, `SetPassiveSum`, `SetPassiveMultiple`, `X2BuffTemplet.cpp:789-835`) and the factor insert/update set it. Init's 0 -> 1.0 basic value therefore triggers the update.
+4. March's `ResetAnimSpeed` had no other caller in buff code. Consequence (June's behaviour): **an NPC slow or haste now changes its play speed at once**; in March it waited for the next state start or timed event.
+
+**Deviations.** Log lines are `JUNE_FX FURY ...` in `offline_server.log` (`CX2OfflineLog::Server`, unbracketed like C10b-1), not the kickoff's `[JUNE_FX]` in ErrorLog: read them with `logs.py --grep "JUNE_FX FURY"`. Lines: `set` (every call), `dmg` (about 1/s), `anim` (first 200). JUNE_BUGS 94-98.
+**Census:** it tracks DamageEffect / EffectSet / DamageData roots only (`census.tsv` roots DD/DE/DS/ES/ESD), so the four NPC state keys have no rows to flip.
+
+**Hygiene** (`--worktree --files` the 6 code files): `_NPC_FURY_MODE --with JUNE_NPC_ANIM_SPEED`: `files: 1 PASS, 3 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`, `0 deleted line(s)`, `RESULT: PASS` (OTHER = `X2GameUnit.h`, ANIM_SPEED only). `_NPC_ANIM_SPEED` alone: `files: 1 PASS, 0 PASS~, 0 DEFINE, 5 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s)`, `RESULT: PASS` (OTHER = the Fury lines in the same files). Range lines after the commit: in the follow-up commit below.
+**Deploy** (`--pch force`, new virtual in `X2GameUnit.h`): `DEPLOY OK: X2_offline.exe is 19,314,688 B, dated 2026-10-07 19:23:05, md5 fd7ff8e5d20ddff57b422479a9fca33e, equal to X2/US_SERVICE/x2.exe (2026-10-07 19:23:00); built at mods/june-buff-port ee76e7c + 6 uncommitted code file(s).` (the 6 = this phase's). Exe holds `SetFuryMode`, `GetFuryMode`, `FURY_DATA`, both rate keys and the three `JUNE_FX FURY` formats.
+
+**Test staging (revert after the play-test; the review kickoff has the steps).** Mars (`NUI_THIEF_THIN_ZERO`, 13 of the El Tree's spawns, dungeon 30000), `kom_contents/data037_kom/Thief_Thin_Zero.src.lua` (decompiled, three edits marked `C4c TEST STAGING`): `START` gets `LUA_STATE_START_FUNC` -> `slot2:SetFuryMode(true)` (June's call form); `THIEF_THIN_ZERO_ATTACK` (melee slash, attack box) gets `FURY_MODE = TRUE`, `FURY_DATA = { 2.0, 2.0 }`. Original bytecode: `kom_contents_backup_june_fx_c4c/data037_kom/Thief_Thin_Zero.lua` (md5 `ab2aad2e`). `PACK OK data037` (`~1 changed: Thief_Thin_Zero.lua`). `copy data037` waits for the user's yes.
+
+**In game** (El Tree, any character): Mars's slash plays at 2x (`ATTACK` only; walk/wait normal) and hits about 2x; `JUNE_FX FURY set` once per Mars, `anim ... rate=2 v=2` (more when buffed), `dmg ... rate=2 phys a->2a`. Regression: any other dungeon shows no FURY line, and a slowed monster slows at once.
+
 ---
 
 ## C5 - 8b, buff-factor selection, damage triggers, nearest bone

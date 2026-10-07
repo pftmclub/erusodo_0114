@@ -345,7 +345,7 @@ C4 ports the engine side under `SERV_IRUHADEV_JUNE_DAMAGE_MATH` (range rate, Nas
 
 ### 7f. NPC anim-speed hook that only character code drives (from June effect completion C4b)
 
-June effect completion C4c ports the engine side under `SERV_IRUHADEV_JUNE_NPC_FURY_MODE`. That includes the NPC anim-speed factor (June NPC `+0x8b6c`, default 1.0), which June's `CX2GUNPC::ResetAnimSpeed` (`327615d0`) multiplies in. Its only writer is Rose class code, so the character ports bring it (D8, no question).
+June effect completion C4c ports the engine side. The NPC anim-speed factor (June NPC `+0x8b6c`, default 1.0) is `CX2GUNPC::m_fRoseSummonAnimSpeedRate` under `SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED` (C4c, 2026-10-07; no setter yet, the Rose port adds one), and June's `CX2GUNPC::ResetAnimSpeed` (`327615d0`) multiplies it in. Its only writer is Rose class code, so the character ports bring it (D8, no question).
 
 | June | Class | What it does | What the port must bring |
 |---|---|---|---|

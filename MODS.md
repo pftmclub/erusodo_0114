@@ -55,6 +55,8 @@ column.
 | `SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET` | 2026-10-07 (June effect completion C9e) | `KTDXLIB/Always.h` (end; the viewer site also needs `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER`) | `X2Lib/X2Unit.h` (`GetJuneEmotionEffectSetName`), `X2Lib/X2GUUser.h`/`.cpp` (`m_hJuneEmotionSetEffectSet`, ctor, `PlayEmotion`, `OnFrameMove`, dtor), `X2Lib/X2SquareUnit.h`/`.cpp` (`m_hJuneEmotionEffectSet`, `StopJuneEmotionEffectSet`, ctor, dtor, `StateStart`, `PlayEmotion`), `X2Lib/X2TFieldGame.cpp` (`RemoveUnit`), `X2Lib/X2UnitViewerUI.cpp` (`PlayEmotion`), `X2Lib/X2BaseUnitViewerUI.cpp` (`JuneViewerFxPlay` NULL-skin return) | -- |
 | `SERV_IRUHADEV_OFFLINE_NPC_UID_BASE` (offline design, not server/June) | 2026-10-07 (june-buff Phase 14) | `KTDXLIB/Always.h` (end) | `X2Lib/Offline/X2OfflineServer.h` (room `Clear()`: monster UIDs start at 1,000,000) | -- |
 | `SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE` | 2026-10-07 (June effect completion C10b-1) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_DAMAGEDATA`) | `X2Lib/X2GameUnit.h`/`.cpp` (`GetHpRateDamage`, the `GetFinalDamage` call before the `<= 0` clamp), `X2Lib/X2GUUser.cpp` (`DamageReact`, before the shown-damage copy) | -- |
+| `SERV_IRUHADEV_JUNE_NPC_FURY_MODE` | 2026-10-07 (June effect completion C4c) | `KTDXLIB/Always.h` (end; the anim half also needs `SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED`) | `X2Lib/X2GUNPC.h`/`.cpp` (`FLAG_FURY_MODE`, StateData rates, `LoadStateData` `FURY_MODE` + `FURY_DATA`, `m_bFuryMode`, `SetFuryMode`/`GetFuryMode`/`JuneGetFuryAttackPowerRate`, the `ResetAnimSpeed` replace), `X2Lib/X2GameUnit.cpp` (`GetFinalDamage`, before the range rate), `X2Lib/X2Main.cpp` (2 binds) | -- |
+| `SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED` | 2026-10-07 (June effect completion C4c) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUNPC.h`/`.cpp` (two 1.0 factors, June's `ResetAnimSpeed` body), `X2Lib/X2GameUnit.h` (virtual `ResetAnimSpeed`), `X2Lib/X2GameUnit.cpp` (`CheckAndUpdateAdditionalStat` anim block) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL` | 2026-10-07 (june-buff Phase 14b) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUUser.h`/`.cpp` (`m_bJuneInstanceKill`, `HaveInstanceKillDebuff`, set and kill in `DamageReact`), `X2Lib/X2BuffTempletManager.cpp` (load line) | -- |
 | `SERV_IRUHADEV_JUNE_TUTORIAL_MODE` | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (before the 14b block) | `X2Lib/X2Main.h`/`.cpp` (out-of-line `SetIsPlayingTutorial`, `JuneOnExitTutorialRestoreKeys`, `m_bJuneTutorialKeyLatch`), `X2KeyPad.h`/`.cpp`, `X2DungeonGame.cpp` (Release), `X2GUUser.cpp` (clamp, RT_FLY, StartEnd), `X2Game.cpp`, `X2State.cpp`, `X2UIManager.cpp`, `X2UIQuestNew.h`/`.cpp`, `X2StateDungeonGame.cpp`, `X2SlideShot.cpp`, `X2PetManager.cpp`, `X2PlayGuide.cpp`, `X2UIQuickSlot.cpp`, `X2StateServerSelect.cpp` | -- |
 | `SERV_IRUHADEV_OFFLINE_FIRST_SELECT` (offline emulator) | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (next to the above) | `X2Lib/Offline/Handlers_Unit.cpp` (`PushSelectUnitNotifications`, 5_NOT) | `SERV_IRUHADEV_OFFLINE` |
@@ -3131,6 +3133,20 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
   `GetFinalDamage` and again in a user defender's `DamageReact`, as June (JUNE_BUGS 93). March data sets neither key, so nothing
   changes in play; the C10b-1 play-test used a temporary edit of `ARROW_OF_EXPLOSION` in data036 (reverted after the test).
   **Revert:** undefine it and rebuild all projects.
+
+### June effect completion C4c: NPC Fury mode and June's NPC anim speed
+
+- **`SERV_IRUHADEV_JUNE_NPC_FURY_MODE`.** June's raid-boss Fury mode. An NPC state may set `FURY_MODE = TRUE` and a
+  `FURY_DATA = { ATTACK_POWER_RATE_FURY, ANIM_SPEED_RATE_FURY }` table (each 1.0 when absent); NPC Lua turns the NPC's Fury byte on
+  and off with `SetFuryMode( bool )` / `GetFuryMode()`. While the byte is on and the current state has `FURY_MODE`, the NPC's
+  nonzero damage locals are multiplied by the attack rate in `GetFinalDamage` (before the range rate), and the anim rate
+  **replaces** the state's speed in `ResetAnimSpeed` (that half also needs the next flag). No March script uses any of it; the C4c
+  play-test staged Mars (`Thief_Thin_Zero.lua`, data037; original in `kom_contents_backup_june_fx_c4c`). JUNE_BUGS 94-98.
+  **Revert:** undefine it and rebuild all projects (the keys are then ignored and the two Lua calls are unbound).
+- **`SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED`.** `CX2GUNPC::ResetAnimSpeed` is June's: no stat update at entry; it multiplies in two
+  June factors that stay 1.0 here (Rose summons, checklist 7f; Hero dungeons, phase C4d), and it is now a `CX2GameUnit` virtual
+  that `CheckAndUpdateAdditionalStat` calls whenever a buff changes the anim stat (empty for users), so NPC slows and hastes apply
+  at once instead of at the next state change. **Revert:** undefine it and rebuild all projects.
 
 ## Reverting to stock
 

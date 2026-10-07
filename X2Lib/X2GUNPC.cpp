@@ -6,6 +6,9 @@
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
+#if defined( SERV_IRUHADEV_JUNE_NPC_FURY_MODE ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_NPC_FURY_MODE && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 
 //#ifdef  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 #define X2GUNPC_RECEIVE_FRAME_COUNT_MAX_GAB     (70*10)
@@ -2694,6 +2697,15 @@ void CX2GUNPC::CommonConstructor()
 	m_iMonsterBuffGroupID					= 0;	/// June ctor 32762670 @327633a1 (EBX = 0)
 #endif SERV_IRUHADEV_JUNE_BUFF_GROUP
 //}}
+//{{ Iruha : 2026-10-07 // June effect completion C4c (JUNE2017_EFFECT_COMPLETION_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+	m_bFuryMode								= false;	/// June ctor 32762670 @327633f2 (word 0 at +0x8fb6)
+#endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+#ifdef SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
+	m_fMultiplicationAnimSpeed				= 1.f;		/// June @32763443 (+0x8fdc)
+	m_fRoseSummonAnimSpeedRate				= 1.f;		/// June @3276346a (+0x8b6c)
+#endif SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
+//}}
 
 
 #ifdef ADDED_NPC_REMAINING_WHEN_SUBSTAGE_CLEAR
@@ -5214,6 +5226,12 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
 
 	LUA_GET_VALUE( luaManager_, "FALL_DOWN", bTemp, true );
     NOWSTATE_SET_FLAG( FALL_DOWN, bTemp );
+#ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+	/// June effect completion C4c. June 32784c00 @3278a088-3278a145: a bool, default false (al = 0 on a miss @3278a138),
+	/// set into the state's flag bitset. June reads it after FALL_DOWN (and its own IS_APPLY_CINEMATIC_UI), before the attack box.
+	LUA_GET_VALUE( luaManager_, "FURY_MODE", bTemp, false );
+    NOWSTATE_SET_FLAG( FURY_MODE, bTemp );
+#endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
 
 
 	// attack box 
@@ -6534,6 +6552,17 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
     ParsingBuffFactorID( nowStateData, luaManager_ );
 
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+
+#ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+	/// June effect completion C4c. June 32784c00 @32796366-3279670f: the two Fury rates exist only inside a FURY_DATA
+	/// sub-table; a missing key reads 1.0 (fld1 @32796551 / @32796707), no table keeps the StateData ctor's 1.0.
+	if ( luaManager_.BeginTable( "FURY_DATA" ) == true )
+	{
+		LUA_GET_VALUE( luaManager_, "ATTACK_POWER_RATE_FURY",	nowStateData.m_fAttackPowerRateFury,	1.f );
+		LUA_GET_VALUE( luaManager_, "ANIM_SPEED_RATE_FURY",		nowStateData.m_fAnimSpeedRateFury,		1.f );
+		luaManager_.EndTable();
+	}
+#endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
 
 }
 
@@ -27905,10 +27934,80 @@ void CX2GUNPC::SetUnitFadeScale(float fEndTime, float x, float y, float z)
 }
 
 
+//{{ Iruha : 2026-10-07 // June effect completion C4c (JUNE2017_EFFECT_COMPLETION_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+/** @function : SetFuryMode
+	@brief : June 31e4d7c0 (mov [ecx+0x8fb7], arg). Stores the byte only: no ResetAnimSpeed, so the Fury anim speed
+			 follows at the NPC's next ResetAnimSpeed (state start, timed event, anim stat change).
+*/
+void CX2GUNPC::SetFuryMode( bool bFuryMode_ )
+{
+	m_bFuryMode = bFuryMode_;
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	CX2OfflineLog::Server( L"JUNE_FX FURY set npc=%I64d state=%d on=%d", GetUnitUID(), GetNowStateID(), ( bFuryMode_ ? 1 : 0 ) );
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+}
+
+/** @function : JuneGetFuryAttackPowerRate
+	@brief : June GetFinalDamage 32284aa0 @32285781-322857a6: the attacker NPC's Fury byte (+0x8fb7) is 1 and its current
+			 state has FURY_MODE (322afe40); then the rate is that state's ATTACK_POWER_RATE_FURY (+0x414), never tested.
+*/
+bool CX2GUNPC::JuneGetFuryAttackPowerRate( float& fRate_ ) const
+{
+	if ( true != m_bFuryMode )
+		return false;
+
+	const StateData& nowStateData = GetNowStateData();
+	if ( false == NOWSTATE_FLAG( FURY_MODE ) )
+		return false;
+
+	fRate_ = nowStateData.m_fAttackPowerRateFury;
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+//}}
 void CX2GUNPC::ResetAnimSpeed()
 {
 	if( m_pXSkinAnim != NULL )
 	{
+#ifdef SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
+		/// June effect completion C4c: June's whole 327615d0 (a CX2GameUnit virtual in June, slot 0x3f8). No
+		/// m_AdditionalAnimSpeed.UpdateResultValue() here: June's CheckAndUpdateAdditionalStat (32290920) updates the anim
+		/// stat when it must change and then calls this.
+		float fAnimSpeedValue = ( IsSamef( m_fTimedEventAnimSpeed ) ? m_fAnimSpeed : m_fTimedEventAnimSpeed );
+#ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+		/// June @3276161c-32761664: Fury byte set and FURY_MODE on the current state -> a nonzero ANIM_SPEED_RATE_FURY
+		/// REPLACES the speed so far (not *=; 0 is skipped, NaN is stored). The factors below still apply on top.
+		bool bJuneFuryAnim = false;
+		if ( true == m_bFuryMode )
+		{
+			const StateData& nowStateData = GetNowStateData();
+			if ( true == NOWSTATE_FLAG( FURY_MODE ) && 0.f != nowStateData.m_fAnimSpeedRateFury )
+			{
+				fAnimSpeedValue = nowStateData.m_fAnimSpeedRateFury;
+				bJuneFuryAnim = true;
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+		fAnimSpeedValue *= m_fBornAnimSpeedRate;			/// June +0x8b64
+		fAnimSpeedValue *= GetAnimSpeedValue();				/// June protected +0x485c
+		fAnimSpeedValue *= m_fRoseSummonAnimSpeedRate;		/// June +0x8b6c (Rose: checklist 7f)
+		fAnimSpeedValue *= m_fMultiplicationAnimSpeed;		/// June +0x8fdc (Hero dungeon: phase C4d)
+
+		if ( m_NPCFrameData.syncData.bComeBackState )		/// June +0x8472
+			fAnimSpeedValue *= 4.0f;
+
+		m_pXSkinAnim->SetPlaySpeed( fAnimSpeedValue );
+#if defined( SERV_IRUHADEV_JUNE_NPC_FURY_MODE ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		static int s_iJuneFuryAnimLogged = 0;
+		if ( true == bJuneFuryAnim && s_iJuneFuryAnimLogged < 200 )
+		{
+			++s_iJuneFuryAnimLogged;
+			CX2OfflineLog::Server( L"JUNE_FX FURY anim npc=%I64d state=%d rate=%g v=%g", GetUnitUID(), GetNowStateID(),
+				GetNowStateData().m_fAnimSpeedRateFury, fAnimSpeedValue );
+		}
+#endif // SERV_IRUHADEV_JUNE_NPC_FURY_MODE && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+#else SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
 		m_AdditionalAnimSpeed.UpdateResultValue();
 
 		/// m_fTimedEventAnimSpeed가 주어져 있으면 m_fTimedEventAnimSpeed를 사용 아니면 m_fAnimSpeed를 사용
@@ -27920,6 +28019,7 @@ void CX2GUNPC::ResetAnimSpeed()
 			fAnimSpeedValue *= 4.0f;
 
 		m_pXSkinAnim->SetPlaySpeed( fAnimSpeedValue );
+#endif SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
 	}
 }
 

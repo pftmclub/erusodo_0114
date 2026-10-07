@@ -1058,6 +1058,9 @@ class CX2GUNPC : public CX2GameUnit
                 FLAG_SOUND_SET2_USE_HYPER_SOUND,
                 FLAG_SOUND_SET2_USE_BERSERK_SOUND,
 #endif  ARA_CHARACTER_BASE
+#ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+				FLAG_FURY_MODE,		/// June effect completion C4c: June bit 0x50 (32784c00 @3278a145); appended, June's enum does not line up with March's
+#endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
 				FLAG_MAX
             };
             std::bitset<FLAG_MAX>       m_bitsetFlags;
@@ -1183,6 +1186,10 @@ class CX2GUNPC : public CX2GameUnit
 //#endif TRANSFORMER_TEST
 
             char                        m_cEquivalentReactionState;
+#ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+            float                       m_fAttackPowerRateFury;	/// June effect completion C4c: June StateData +0x414, FURY_DATA.ATTACK_POWER_RATE_FURY (1.0)
+            float                       m_fAnimSpeedRateFury;	/// June StateData +0x418, FURY_DATA.ANIM_SPEED_RATE_FURY (1.0)
+#endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
 
             StateData()
                 :
@@ -1281,6 +1288,10 @@ class CX2GUNPC : public CX2GameUnit
 //                , m_cKeyEventFailNextStateID( -1 )
 //#endif  TRANSFORMER_TEST
                 , m_cEquivalentReactionState( 0 )
+#ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+                , m_fAttackPowerRateFury( 1.f )		/// June StateData ctor 32393dc0 @3239422f
+                , m_fAnimSpeedRateFury( 1.f )		/// June @32394235
+#endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
             {
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
                 StateData& nowStateData = *this;
@@ -3094,6 +3105,13 @@ class CX2GUNPC : public CX2GameUnit
 		int GetMonsterBuffGroupID() const { return m_iMonsterBuffGroupID; }
 #endif SERV_IRUHADEV_JUNE_BUFF_GROUP
 //}}
+//{{ Iruha : 2026-10-07 // June effect completion C4c (JUNE2017_EFFECT_COMPLETION_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+		void SetFuryMode( bool bFuryMode_ );		/// June 31e4d7c0 (Lua: SetFuryMode); stores only, the speed follows at the next ResetAnimSpeed
+		bool GetFuryMode() const { return m_bFuryMode; }	/// June 31e4d7d0 (Lua: GetFuryMode)
+		bool JuneGetFuryAttackPowerRate( float& fRate_ ) const;	/// June GetFinalDamage @32285781-322857a6 gate: Fury byte && FURY_MODE on the current state
+#endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+//}}
 
 #ifdef USE_UNIT_FOG_RENDER_PARAM //JHKang
 		void SetFogNPC( float fNearX_, float fFarX_, float fNearY_, float fFarY_, float fDensity_, D3DXCOLOR fogColor_ )
@@ -4447,6 +4465,15 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
 		int							m_iMonsterBuffGroupID;		/// June +0x8f70: BUFF_GROUP_ID (INIT_COMPONENT) or SetMonsterBuffGroupID; 0 = none
 #endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+//}}
+//{{ Iruha : 2026-10-07 // June effect completion C4c (JUNE2017_EFFECT_COMPLETION_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+		bool						m_bFuryMode;				/// June +0x8fb7: written only by SetFuryMode; cleared in CommonConstructor, never on Init, ReInit, state change or death
+#endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+#ifdef SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
+		float						m_fRoseSummonAnimSpeedRate;	/// June +0x8b6c (1.0): its only writer is Rose's vslot 0x860 32ab0560 (checklist 7f)
+		float						m_fMultiplicationAnimSpeed;	/// June +0x8fdc (1.0): its only writer is the Hero-dungeon CreateGUNPC tail 327ef570 (phase C4d)
+#endif SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
 //}}
 #ifdef ADDED_NPC_REMAINING_WHEN_SUBSTAGE_CLEAR
 		bool						m_bIsRemainingNpcWhenStageCleard;	// Stage, SubStage 가 클리어 되더라도

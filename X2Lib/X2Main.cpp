@@ -4610,6 +4610,12 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2GUNPC>( L, "SetMonsterBuffGroupID",			&CX2GUNPC::SetMonsterBuffGroupID );	/// June 31e4d770 (bound @31e0c790)
 #endif SERV_IRUHADEV_JUNE_BUFF_GROUP
 //}}
+//{{ Iruha : 2026-10-07 // June effect completion C4c (JUNE2017_EFFECT_COMPLETION_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+	lua_tinker::class_def<CX2GUNPC>( L, "SetFuryMode",					&CX2GUNPC::SetFuryMode );	/// June 31e4d7c0 (bound @31e0ad15)
+	lua_tinker::class_def<CX2GUNPC>( L, "GetFuryMode",					&CX2GUNPC::GetFuryMode );	/// June 31e4d7d0 (bound @31e0ae4a)
+#endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+//}}
 
 	lua_tinker::class_add<CX2GUUser>( L, "CX2GUUser" );
 	lua_tinker::class_inh<CX2GUUser, CX2GameUnit>( L );
