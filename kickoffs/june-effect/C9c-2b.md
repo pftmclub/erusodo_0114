@@ -7,7 +7,7 @@
 | Depends on | C9c-1 (its table lookup and load) and C9c-2a (done 2026-10-07) |
 | Flag | new `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER` (needs C9c-1's `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE`) |
 | Log tag | `JUNE_FX` in ErrorLog.txt (the C9c lines are unbracketed: read them with `grep JUNE_FX ErrorLog.txt`, as C9c-1 found) |
-| Review | `kickoffs/june-effect/C9c-2b-review.md` (the phase writes it when done) |
+| Review | `kickoffs/june-effect/C9c-2b-review.md` (the phase writes it when done; it also reviews C9c-2a, which had no review of its own) |
 
 ## Read first (and nothing else from the plan docs unless you need it)
 
@@ -119,3 +119,11 @@ code stays reachable in `#else`.
   of these the save has (`els_db.sql` unit classes; add a character with `/x2-create-char` if needed);
 - the Little Devil orb still shows exactly as before;
 - 0 EXCEPTION.
+
+**When writing `C9c-2b-review.md`:** C9c-2a had no review of its own, so the review kickoff must also re-verify C9c-2a in Ghidra, not just
+check this phase's transcription. Have it check:
+- every funcmap row tagged `Effect C9c-2a`, starting with the `candidate` rows (`viewer+0x1d8` = `m_ePlayedEmotion`, `31f99f70`,
+  `31fa4980`);
+- the verdicts in `june2017_re/c9c2a_hardcode_map.tsv`, including the 11-live-rows count (`SPK_LobbyReadyAction` has no March motion;
+  `ALD_LobbyWait` vs `ALD_lobbyWait`);
+- the draw ownership claim (a managed viewer's effects are reached by both the DG manager and `32957330`).
