@@ -1133,6 +1133,7 @@ UNHANDLED packet is `E_DISABLE_HB_CHECK_REQ` (not this phase).
 
 Open question for the user: should June's other emotion effect branch (`32355a50`: a set per emotion, kept at `+0x9434`, stopped in
 OnFrameMove and the dtor, with the `+0x93dc` / `+0x93ec` handle vectors) get its own phase? No plan row owns it.
+**Answered 2026-10-07:** yes, follow June -> **C9d** (Opus, identification, `kickoffs/june-effect/C9d.md`), then a Sonnet port C9e.
 
 ---
 
