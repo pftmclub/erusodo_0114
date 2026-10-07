@@ -681,6 +681,59 @@ byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
 - Log: `JUNE_FX CE_HIT ... SPAWN_INHERIT ... index=` should show the arrow's index on its boom child. A boom that fires twice, or never, is the failure.
 - Optional, rare: `EffectSet_RAVEN_NUCLEAR` (Children's Day Nuclear Sphere item) and `EffectSet_SP_B_MASK` (`DAMAGE_EFFECT_TROCKTA_SP_B`) are the no-trace path.
 
+### C6b - Review (2026-10-07, Opus 5.5 high; also covers C6a2's identification)
+
+**Verdict: C6b is correct against June. No code changed, so there was no build or deploy; the deployed exe is still fb345642.**
+**One C6a identification gap was found**, which led to a re-diff of every spawner window. Three engine gaps and one C3 consumer came out of it. All are identified and routed below (funcmap rows tagged `Effect C6b review`).
+
+**Checked in Ghidra (read-only):**
+- **The five callees, re-read in full:**
+  - `31f8fdb0`: branch for branch. b5c scales the **child's** main effect (ECX = EDI); b46 copies parent to child.
+  - `31f649d0`: the FLT_EPSILON gate, own damage plus every NEXT table, and entries die/CREATE/hit/touch-land only when rate >= 0.
+  - `31f64c00`: 29/30 are pushed onto the child (`EBP+0x744`).
+  - `31f65e40` and `31f65f90`: own PvP flag too, untested NEXT entries, entries always set to 1.
+- **The callers of each callee:**
+  - Every engine caller maps to a ported March site. Touch-land `31f81ba0` is C7's.
+  - The `329xxxxx` callers are class code (checklist 7a).
+- **Entry ownership:** the entry lists are parsed per instance, and the hit and die spawners work on copies. The rate multiply cannot leak, and `SetDamageEffect` moves and clears the CREATE list, so nothing is counted twice.
+- **C6a2 stamps** (`321ee600 @321ef639-321ef66d`):
+  - CEffect `+0xb00`, `+0x838` (= DD `+0x638`) and `+0x7e0` (= DD `+0x5e0`) are written unconditionally; `m_bHyper` comes from `+0x20` at `@321ef6d8`.
+  - **PlayEffectSet:** the vslot `0x248` argument is `PUSH ESI` at `@321e1ffa`, scheduled early (base `RET 0x4`), and `+0x15c` is stored last at `@321e20ce`.
+  - None of the six other overloads (`321e2120`, `2340`, `25d0`, `26d0`, `2790`, `28d0`) writes either.
+- **The four DD `+0x638` writers:**
+  - SimpleInit `@31f8f47b`;
+  - SDEP `@3229971e`, after the serial wrap; June's early-outs skip it, as March's returns do;
+  - the NEXT copy `@31f79b87`;
+  - the NEXT reset `@31f79ce9`, where NEXT2.. reset only `+0x5e8` (`@31f79e07`, JUNE_BUGS 77).
+- **C6a2's negative verdicts hold:** `ADD_RENA_SYSTEM` is OFF (`flagprobe.py`; `RIDING_SYSTEM`, `SERV_RENA_NIGHT_WATCHER`, `X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE` are ON).
+- **RT_CREATE_EFFECT_SET:**
+  - The branch is on `[ESP+0x24]` = flag ? defender : 0, which is March's `pTraceUnit`. LIFTTIME applies on the trace path only.
+  - The gate is `32481fa0` (state `0x15`) plus `3266cdc0` (`0x9c61/62/67-6c` = 40033, 40034, 40039-40044). The stub returns NULL.
+  - The no-trace argument list matches the port exactly; June's trailing 1.0 is extra. March's `GetDirVec` = `31c82e40`.
+- **`PlayEffectSet`'s `pGameUnit`** is NULL-tested at `X2EffectSet.cpp:3185`, before both new unit calls.
+
+**Deviation, not fixed:** the effect-set stamp block sits just inside `#ifdef RIDING_SYSTEM` (`X2EffectSet.cpp:1098`), not before it as the kickoff said. `RIDING_SYSTEM` is ON, so the behaviour is identical; it would only matter if that flag were ever turned off.
+
+**Correction to C6a** (row `31f85910 @31f860f2-31f8614d`): "RT_CREATE_DAMAGE_EFFECT calls `31f8fdb0` only" holds for the five callees. But June also calls `SetScale( DD +0x498 )` and `31f6ea20` on that child. The re-diff that followed turned up:
+- **C3** (kickoff note): `CREATE_DAMAGE_EFFECT_NAME_SCALE_X/Y/Z` (DD `+0x498`). Its three SetScale consumers are RT_CREATE, the CREATE_DAMAGE_EFFECT_RATE spawn `@31f86a76`, and the user AttackResult. The (1,1,1) default runs on every child, and it is not proven to be a no-op.
+- **C7** (kickoff "Added by the C6b review"; all three do nothing on March data, while June's DamageEffect uses them):
+  1. `31f6ea20` plus CEffect `+0xb18` (-1, class-set) plus base vslot `0x328`. Flag `_SPAWN_INHERIT`.
+  2. The CREATE loop's inlined INHERIT_CRITICAL adds (`@31f89d52`; row `31f8af50`'s "not the CREATE loop" is wrong; 14 June uses).
+  3. The die spawner's INHERITLOCKONDATA consumer (`@31f83110`; the key is parsed and never read; 12 June uses; the matrix row says `implemented` and is parse-only).
+- **Checklist 7a:** the `+0xb18` writer `32bb0bd6` and the vslot `0x328` overrides.
+
+**Hygiene** (`flagcheck --range df22a13^..HEAD`):
+- SPAWN_INHERIT: `files: 6 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR`, `in this flag's files: 2 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- CREATE_EFFECT_SET: `files: 0 PASS, 0 PASS~, 0 DEFINE, 9 OTHER (other flags), 0 FAIL, 0 ERROR`, 0 deleted, `RESULT: PASS`.
+- **OTHER rows:**
+  - `Always.h` carries both defines. Its `tok! 1` is the `#endif` of the two `#if defined(...) #error` dependency guards, which carry no flag token.
+  - `X2DamageEffect.cpp/.h` carry both flags.
+  - The other seven files only mention SPAWN_INHERIT.
+- The 2 deleted lines are `6382401` rewriting C6b's own debug line.
+- Census unchanged, as expected: C6b had no key to flip.
+
+**No new play-test** (no code change). The C6b play-test stands.
+
 ---
 
 ## C7 - Touch-land runtime (old Phase 10c, step 3)
