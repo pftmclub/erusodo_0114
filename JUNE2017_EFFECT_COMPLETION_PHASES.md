@@ -570,7 +570,7 @@ Checked in Ghidra (read-only) and in the exe bytes:
 **Staging reverted.**
 - Copied `kom_contents_backup_june_fx_c4c/data037_kom/Thief_Thin_Zero.lua` back (md5 `ab2aad2e`) and deleted the staged `.src.lua`. The backup folder is kept.
 - `PACK OK data037` (`~1 changed: Thief_Thin_Zero.lua`), 9,613,442 B, md5 `c7c0c3b01eb2efb631a8b664aba8c9e1`. That is **byte-identical** to the pre-staging live kom (`kom_backup_tools/data037.kom.20261007_192829`), so no new play-test is needed.
-- The copy to the game dir waits on the user (see STATUS). Until then, El Tree still shows the Fury Mars.
+- `COPY OK data037: ...\data\data037.kom  9613442 bytes, 1915 entries, md5 c7c0c3b01eb2efb631a8b664aba8c9e1` (user yes; backup of the staged kom `kom_backup_tools/data037.kom.20261007_194417`). El Tree's Mars is back to March; any exe pairs with it.
 
 ---
 
