@@ -1072,6 +1072,64 @@ No visible change: the viewer consumer is C9c-2b and the `PlayEmotion` path is i
 **Play-test PASSED 2026-10-07** (exe d8917e2f, run 13:57-13:59, after deploy): `ErrorLog.txt` line 144 `JUNE_FX UNIT_VIEWER_FX_LOAD UnitViewerEffectSetTable.lua loaded=1 rows=18 skipped_duplicate=0 skipped_bad_args=0` (`X2UnitManager.cpp`, `OpenJuneUnitViewerEffectSetTable`), 0 EXCEPTION, clean exit with the census; C9's `DAMAGE_DATA_LOAD ... rows=107` still loads. `tools/logs.py --tag JUNE_FX` printed no ErrorLog lines (its filter wants the bracketed form `[JUNE_FX]`; these lines are unbracketed), so read it with `grep UNIT_VIEWER ErrorLog.txt`. The only UNHANDLED packet is `E_DISABLE_HB_CHECK_REQ` (not this phase).
 Open question for the user: none.
 
+### C9c-1 - Review (2026-10-07, Opus 5.5 high): one finding fixed (June's stop side of the PlayEmotion handle), one hygiene note
+
+**Play-test read first.** The Done note's run (exe `d8917e2f`): `JUNE_FX UNIT_VIEWER_FX_LOAD UnitViewerEffectSetTable.lua loaded=1 rows=18
+skipped_duplicate=0 skipped_bad_args=0`, 0 EXCEPTION. `skipped_bad_args=0` means every argument of all 18 rows had its Lua type. The
+port's one deliberate difference (a wrong-typed row is dropped where June's typed read would give 0 = "any") therefore cannot change any row.
+
+**Checked against June (Ghidra, read-only).**
+- `3237a1f0`: 7 args (motion `char*`, type, class, set `char*`, float, bool, duo). The node is filled `+0x44..+0x54` as the port's struct.
+  Insert only when `31e58a40` find == end, so first row wins. June converts with `MultiByteToWideChar(CP_ACP)` and the port with UTF-8.
+  All 36 names are ASCII, so the result is identical.
+- `323760f0`: miss on absent key; `+0x44 != 0 && != 31eca1d0(class)`; `+0x48 != 0 && != class`; `duo != 2 && != +0x54`; then copy out
+  `+0x28` / `+0x4c` / `+0x50`. The order is the port's.
+  - `31eca1d0` agrees with March's `UNIT_CLASS` enum for every class March has, across all 9 types. Spot-checked: 1/10/11/22/100/101/112 -> 1;
+    7/28/31/118/119 -> 7; 9/32/122 -> 9.
+  - The port's templet `m_UnitType` gives the same value. A class with no templet gives 0, as June's `default`.
+- `31ee6100`: `32376f10` opens Correlate (`3345be48` @`31ee61f5`), then `32379690`, then SelectVoice, AnimationName, and UnitViewer
+  (`3345bdb0` @`31ee6224`). The port opens UnitViewer right after Correlate, outside `REFORM_SKILL_NOTE_UI`, via `OpenDataScriptFile`
+  (`LoadLuaTinker`, main state). Correct. `32379690` is also not ported, alongside the two opens the Done note lists.
+- `32043380`: the motion arg is `wstrEmotionType` (the same string June tests for `empty()`). The class is `GetUnit() +0x38`; the duo is
+  `+0x8e90 == 1` (March 0). The handle is stored only when `!= -1` (@`32043ccc`), as the port does. The `32296f30` tag @`32043cf0` is
+  named in the Done note. C10b-2 has not landed (queued), so the tag stays out.
+
+**Finding (fixed here, same flag): the stop side of `+0x943c` was not ported.** `dispsweep 943c 9438` found 5 more June sites.
+`+0x9438` is the **emotion id** that played the set (`param_2` @`32043cda`), not "its manager"; the funcmap row is corrected.
+- `31fcf490` @`32043b64`, before the unit-manager check: emotion = 0, `StopEffectSet( +0x943c )`. Ported at the top of the PlayEmotion
+  block, gated only on `g_pData`.
+- On a hit: also store `eEmotionId` (`@32043cda`).
+- `CX2GUUser::OnFrameMove` @`3206ed75` (= `31fcf4d0`, which has no xrefs): if the handle is valid and the emotion != `m_ePlayedEmotion` (`+0x89d8`),
+  clear and stop. Ported right after `CX2GameUnit::OnFrameMove`, before `IncrementLocalRelativePosTimers` (`31fc8b90`, confirmed).
+- `~CX2GUUser` `3203a620` (13 class-dtor callers) @`3203afb7-afd1`, before the stick-shake prompt @`3203aff3`: clear and stop. Ported at
+  the dtor head, before Phase 8's stick-shake block.
+- ctor `@32041dcf`: `+0x9438 = 0` -> `m_eJuneEmotionEffectSetEmotion = ET_NONE` (0).
+
+March's `StopEffectSet( Handle& )` returns at once on `INVALID_EFFECTSET_HANDLE`, so the two paths that now run live (every emote and
+every user dtor) are no-ops. `GetUIEffectSet()` is `&m_UIEffectSet`, which lives as long as `g_pData`. June's second `321dafb0`
+argument (0) has no March counterpart (one-arg signature).
+Funcmap: rows `31fcf490`, `31fcf4d0`, `3203a620` added; `32043380` corrected.
+Out of scope, unowned: the June-only `32355a50` emotion branch (`+0x9434`, and the `+0x93dc` / `+0x93ec` vectors in OnFrameMove and
+the dtor). See the open question.
+
+**Hygiene.**
+- Fix (`flagcheck ... --worktree --files X2GUUser.cpp X2GUUser.h`): `files: 2 PASS`, `0 deleted line(s)`, `RESULT: PASS`.
+- C9c-1's commit alone (`--range c9476fa^..c9476fa`): `files: 4 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+  `RESULT: PASS`.
+- The 3 OTHER rows are 14b's `SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL` code: the `Always.h` define, `X2GUUser.cpp` +55, `X2GUUser.h` +9.
+  `c9476fa` committed it whole; 14b's own commit `e5bad74` came after. The Done note's "not in my commit" is wrong for those hunks.
+  History is not rewritten. Both flags are on and both phases passed their play-tests.
+- Tool note: `logs.py --tag JUNE_FX` misses the unbracketed `JUNE_FX ...` lines; read them with `grep UNIT_VIEWER ErrorLog.txt`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,283,968 B, dated 2026-10-07 14:20:42, md5 f7b368060e27e455819fa517b6b50522, equal to X2/US_SERVICE/x2.exe (2026-10-07 14:20:37)`. Built on `227cb9b` plus this fix and nothing else uncommitted.
+
+**Play-test (regression; the new paths are inert apart from the invalid-handle stops).** Pass means `rows=18` still loads, the run
+has 0 EXCEPTION and exits cleanly with no `X2_*.tmp` crash bundle, after emotes in a village and a dungeon entered and left.
+
+Open question for the user: should June's other emotion effect branch (`32355a50`: a set per emotion, kept at `+0x9434`, stopped in
+OnFrameMove and the dtor, with the `+0x93dc` / `+0x93ec` handle vectors) get its own phase? No plan row owns it.
+
 ---
 
 ### C9c-2a - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build)

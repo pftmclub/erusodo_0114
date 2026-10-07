@@ -972,6 +972,7 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	m_bReserveSitReadyEmotion = false;
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 	m_hJuneEmotionEffectSet = INVALID_EFFECTSET_HANDLE;
+	m_eJuneEmotionEffectSetEmotion = CX2Unit::ET_NONE;	// June ctor 3203e850 @32041dcf: +0x9438 = 0
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 #endif
 
@@ -1252,6 +1253,15 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 
 CX2GUUser::~CX2GUUser(void)
 {
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+	// C9c-1 review: June ~CX2GUUser 3203a620 @3203afb7-3203afd1 (before the stick-shake prompt @3203aff3) clears +0x9438
+	// and stops the PlayEmotion effect set (+0x943c) on the UI effect-set manager. No-op on an invalid handle.
+	if( NULL != g_pData )
+	{
+		m_eJuneEmotionEffectSetEmotion = CX2Unit::ET_NONE;
+		g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionEffectSet );
+	}
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	/// June buff port Phase 8: the user dtor drops the stick-shake prompt (June @3203aff3)
 	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetMajorParticle() )
@@ -6742,6 +6752,16 @@ HRESULT CX2GUUser::OnFrameMove( double fTime, float fElapsedTime )
 	KTDXPROFILE();
 
 	CX2GameUnit::OnFrameMove( fTime, fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+	// C9c-1 review: June CX2GUUser::OnFrameMove 3206eaf0 @3206ed75-3206edb9 (after CX2GameUnit::OnFrameMove 3229ecc0, before
+	// IncrementLocalRelativePosTimers 31fc8b90; same body as 31fcf4d0): once the emotion that played the PlayEmotion effect
+	// set is no longer m_ePlayedEmotion (+0x89d8), clear +0x9438 and stop the set (+0x943c).
+	if( INVALID_EFFECTSET_HANDLE != m_hJuneEmotionEffectSet && m_eJuneEmotionEffectSetEmotion != m_ePlayedEmotion && NULL != g_pData )
+	{
+		m_eJuneEmotionEffectSetEmotion = CX2Unit::ET_NONE;
+		g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionEffectSet );
+	}
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
     IncrementLocalRelativePosTimers( fElapsedTime );
@@ -29023,6 +29043,13 @@ bool CX2GUUser::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId, wstring &wstrEmoti
 		// are not used on this path. INERT in March: only Rose/Ain rows (Emotion_Sad / SitReady / SitWait / StandUp) match
 		// and neither type exists here. June then tags the instance with 32296f30( handle, category 1, by pointer ):
 		// that helper is C10b-2's and is not ported yet.
+		// C9c-1 review: June 31fcf490, called @32043b64 before the unit-manager check: clear +0x9438 and stop the previous
+		// PlayEmotion effect set (+0x943c) on the UI effect-set manager. No-op on an invalid handle.
+		if( NULL != g_pData )
+		{
+			m_eJuneEmotionEffectSetEmotion = CX2Unit::ET_NONE;
+			g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionEffectSet );
+		}
 		if( NULL != g_pData && NULL != g_pData->GetUnitManager() && NULL != GetUnit() )
 		{
 			std::wstring wstrJuneEffectSetName;
@@ -29033,7 +29060,11 @@ bool CX2GUUser::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId, wstring &wstrEmoti
 			{
 				const CX2EffectSet::Handle hJuneEffectSet = g_pData->GetUIEffectSet()->PlayEffectSet( wstrJuneEffectSetName, this );
 				if( INVALID_EFFECTSET_HANDLE != hJuneEffectSet )
+				{
+					// June @32043cda / @32043ce2: +0x9438 = the emotion id, +0x943c = the handle
+					m_eJuneEmotionEffectSetEmotion = eEmotionId;
 					m_hJuneEmotionEffectSet = hJuneEffectSet;
+				}
 			}
 		}
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE

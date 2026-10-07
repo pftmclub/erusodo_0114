@@ -3968,6 +3968,7 @@ public:
 		bool											m_bReserveSitReadyEmotion;
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 		CX2EffectSet::Handle							m_hJuneEmotionEffectSet;	// June CX2GUUser +0x943c: the UnitViewerEffectSetTable hit played by PlayEmotion
+		CX2Unit::EMOTION_TYPE							m_eJuneEmotionEffectSetEmotion;	// June +0x9438: the emotion that played it (ctor 0; stopped once m_ePlayedEmotion differs)
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 #endif
 
