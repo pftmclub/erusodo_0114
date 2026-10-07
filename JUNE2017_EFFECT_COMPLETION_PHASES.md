@@ -1293,6 +1293,11 @@ all level 70 and without gear or skills. The save already had `Freils` (Deadly C
   The repo's staged `data118_kom` still holds 97 other staged June files (+3 changed) that were never packed; `EMK_Fire001.dds` was added there too.
 - **Lunatic Psyker "add 3d" missing:** user said skip.
 Deploy after the fix: `DEPLOY OK: X2_offline.exe is 19,312,640 B, dated 2026-10-07 17:11:10, md5 0eb0990bcd9df99e0ee30aaf894dbec1, equal to X2/US_SERVICE/x2.exe (2026-10-07 17:11:05); built at mods/june-buff-port fc01407 + 1 uncommitted code file(s).`
+**Play-test 2 PASSED (user, 2026-10-07 17:13-17:14, exe 0eb0990b, after the data118 copy):** user said the fixes are good. Log read (`ErrorLog.txt`, run after deploy):
+`UNIT_VIEWER_FX_LOAD ... loaded=1 rows=18`; `UNIT_VIEWER_FX_PLAY` + `CREATE` for `EffectSet_RNW_LobbyReadyAction` (mesh, `Dummy1_Rhand`), `EffectSet_RTR_LobbyReadyAction` (mesh, `Bip01_L_Hand`),
+`EffectSet_ETK_LobbyReadyAction` twice (1 mesh + 4 crescent-cut particles each) and `EffectSet_EMK_LobbyWait_LobbyReadyAction` (`MagicKnightHandFire`); 0 `NOT PLAYED` / `NOT CREATED`;
+no particle parse message; 0 EXCEPTION; only UNHANDLED is `E_DISABLE_HB_CHECK_REQ` (not this phase). No two back-to-back `SBH_LobbyWait` PLAY lines (JUNE_BUGS 85 stays "not counted"; this run did not play SBH).
+The first play-test (before the fix) covered SPK, SBH, ALP, CDC and the orb ("as expected"). The unrelated noise in the log (`MOTION_*_EMOTION_BBABBABBA.X`, `final_delete_unit`) is older.
 
 Open question for the user: none. **User owes:** play-test, then /cost.
 
