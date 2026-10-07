@@ -1128,7 +1128,7 @@ the dtor). See the open question.
 has 0 EXCEPTION and exits cleanly with no `X2_*.tmp` crash bundle, after emotes in a village and a dungeon entered and left.
 **Regression play-test PASSED 2026-10-07** (exe `f7b36806`, run 14:23:23-14:24:34, after deploy): State.log shows village -> dungeon ->
 village; ErrorLog line 144 `JUNE_FX UNIT_VIEWER_FX_LOAD ... loaded=1 rows=18 skipped_duplicate=0 skipped_bad_args=0`; 0 EXCEPTION, clean exit
-(census present), no new `X2_*.tmp`. Emotes leave no packet offline, so the logs neither show nor rule out the emote check. The only
+(census present), no new `X2_*.tmp`. Emotes leave no packet offline; the user confirmed the emote check passed. The only
 UNHANDLED packet is `E_DISABLE_HB_CHECK_REQ` (not this phase).
 
 Open question for the user: should June's other emotion effect branch (`32355a50`: a set per emotion, kept at `+0x9434`, stopped in
