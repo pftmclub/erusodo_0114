@@ -452,6 +452,12 @@ rank10=52 pvp_equip=240 minor_unit=2582` (a different number means a misplaced f
 accepted / 188 refused, March kim 188 accepted / 228 refused; armour shows its
 defence; a Mini-me item equips in the face slot; a Legend item's name is orange with `[Legend]` in its tooltip.
 
+**Play-test (2026-10-08, reyaa / Rena Grand Archer): passed.** ErrorLog: `loaded items=111428 sets=6740 stride=228 size=67557756
+workingset=654 MB peak_workingset=654 MB private=738 MB` and both census lines exactly as predicted (every field at June's offset);
+no layout mismatch, no new UNHANDLED/EXCEPTION. Equipped top shows defence; the Legend ring (188834, added to the save, backup
+`db_backup/els_db_20261008_062020_pre_k2_legend_ring.sql`) shows the orange name and `[Legend]`; Mini-me 81081 (bill category 22)
+bought from the cash shop, equipped in the face slot, renders.
+
 **Open.** None for the user. Deploy order matters: exe and the 26 koms go together (a K2 exe refuses March's kim and then crashes;
 an exe without the flags misreads June's kim silently, e.g. a `Trunk_elysion` deploy whose `Always.h` predates K2).
 
