@@ -844,6 +844,13 @@ byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
 - **Census** (`census.py`, 2026-10-07): the 8 `InsertDamageData` rows (+ the `InsertDamageData` top row) are `implemented`; the 3 `ES.Description`
   rows are `declined`; the only FAIL is the pre-existing HP-rate item (owner C10). `unassigned` is now 0 outside the nested buff parser.
 
+**Play-test fix (2026-10-07, after `509f15c`).** With the file packed, the client closed silently at loading, with no crash dump and no
+log line. A `DD_TRACE` build located it: the first call from the file entered `InsertDamageData_LUA` and died in the first
+`LUA_GET_VALUE`. The cause was the loader running the file through `KLuaManager( L, 0, true )`, which creates a **new Lua thread**.
+The handler's `KLuaManager( GetLuaState() )` then read the main state's stack instead of the call's table, and the error escaped
+every pcall. A probe of the same call made from C++ on the main state worked. The loader now uses `g_pKTDXApp->LoadLuaTinker`, as
+`CX2EffectSet::OpenScriptFile` does for its callbacks. The trace flag was removed.
+
 **Declined: `EffectSet_Description.lua`.** June's client never names the file (C2): `32378e20` is `AddNPCTemplet_LUA`, `32680da0` is
 `AddNextStepPackage_LUA`, and the census matched their `DESC`/`NAME`/`VERSION` keys by name only. March reads it only under `#ifdef EFFECT_TOOL`.
 

@@ -3345,9 +3345,12 @@ bool CX2DamageManager::OpenJuneDamageDataScript( const WCHAR* wszFileName )
 	if( NULL == wszFileName || NULL == wszFileName[0] )
 		return false;
 
-	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState(), 0, true );
+	// Run the file on the main Lua state (LoadLuaTinker), as CX2EffectSet::OpenScriptFile does for its
+	// AddEffectSetTemplet callbacks. A KLuaManager( L, 0, true ) runs it in a new Lua thread, so the
+	// handler's KLuaManager( GetLuaState() ) read the main state's stack instead of the call's table
+	// and the error escaped every pcall: the client closed silently (C9 play-test 2026-10-07).
 	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "g_pDamageManager", this );
-	const bool bLoaded = g_pKTDXApp->LoadAndDoMemory( &luaManager, wszFileName );
+	const bool bLoaded = g_pKTDXApp->LoadLuaTinker( wszFileName );
 
 	// load-time: offline_server.log is not open yet, so this goes to ErrorLog.txt (as ES_LOAD does)
 	WCHAR wszJuneFx[512] = {0};
