@@ -32,7 +32,7 @@ system the user is placing (C9d's open question). Where June reads EmotionData, 
 1. **`32355a50` helper.** Add one function shared by all three classes (e.g. a static on `CX2Unit`), taking an `int`. It returns the
    11 names for June's raw ids, with June's enum names in comments (`0x1c` = `ET_EMOTION_AVATAR15`, ...), and `L""` otherwise.
 2. **`CX2GUUser`, handle `+0x9434`.**
-   - Member: init `INVALID_EFFECTSET_HANDLE` in the ctor (`@32041dca`).
+   - Member: init `INVALID_EFFECTSET_HANDLE` in the ctor (`@32041dc9`, the same `-1` as `+0x943c` `@32041dd5`).
    - **PlayEmotion:** immediately before C9c-1's block, the same place in June (`@32043a33`, just before `31fcf490`). If the name is
      non-empty and `g_pData`: stop the handle if valid, then `handle = GetUIEffectSet()->PlayEffectSet( name, this )` with defaults.
      Store it unconditionally (June stores -1 too) and do not tag it.
@@ -47,17 +47,23 @@ system the user is placing (C9d's open question). Where June reads EmotionData, 
    - Member: init `INVALID` in the ctor (`323f8080`).
    - **PlayEmotion:** after the avatar-sound name switch and before `if( m_pAvatarEmotionSound != NULL )` (March `:3762`, June
      `@323ff8c5`, between the sound switch and the sound open). Play with `PlayEffectSet( name, CX2SquareUnitPtr this )` on
-     `GetUIEffectSet()`. There is **no stop before the play** here: keep that, and add a `JUNE_BUGS.md` row if it can leak a handle.
+     `GetUIEffectSet()`. There is **no stop before the play**, as in June. None is needed: `StateChange( pszEmotionStateName )` (`:3721`)
+     runs `StateStart` synchronously (`:2155`), and StateStart stops `+0x7ac` first. No JUNE_BUGS row.
      June widened the enclosing condition to its own avatar list (missing system); say so in a comment.
-   - **StateStart:** at June's site (`@323fbcbd-323fbd77`), always stop `+0x7ac`. Leave out the `323f34a0` sit-item call; it belongs
-     to the missing system.
+   - **StateStart:** right after the `PLAY_SPEED` read (`:2234`), before the `#ifdef UNIT_EMOTION` branch (`:2236`). This is June's
+     `@323fbcbd-323fbd77`, after its PLAY_SPEED read `@323fbc93`. If `g_pData`, always stop `+0x7ac`. Leave out the `323f34a0` sit-item
+     call, which belongs to the missing system.
    - **Dtor** (`@323f7b36`): stop it.
-   - `323f4640`'s only caller `323af8f0` is unidentified. Port it only if you can name a March counterpart; otherwise record it in the
-     Done note.
+   - **`CX2TFieldGame::RemoveUnit`** (June `323af8f0 @323af9e6`, March `X2TFieldGame.cpp:1112`): for the leaving unit, before
+     `m_UserUnitList.erase`, do June's `323f4640`: stop `+0x7ac` and set it to INVALID.
+     - Leave out the `323f34a0`, `323f6fb0( 0 )` sit-item calls.
+     - Also leave out `323f56d0`, which is not identified; record it in the Done note.
+     - `CX2SquareGame::RemoveUnit` / `CX2WeddingGame::RemoveUnit` are not June callers of `323f4640`; leave them alone.
 4. **`CX2UnitViewerUI::PlayEmotion`** (`31fa52b0 @31fa5995-31fa59d2`). After March's gates (`:6336-6347`), before
    `if( m_pXSkinAnim != NULL )`: if the name is non-empty, call C9c-2b's Play with `( GetXSkinAnim(), name, group 1 )`.
    - Group 1 is stopped by the viewer dtor (C9c-2b) and by June's sit-item block (missing system). Note that in the Done note.
-   - Check what June's play does with a NULL skin anim, and keep that behaviour.
+   - June passes `GetXSkinAnim()` unchecked. `32959640` returns at once on a NULL skin anim (`@32959680`), so C9c-2b's Play must keep
+     that early return. Do not add an outer NULL check.
 5. **Staging.**
    - Append the 11 templets verbatim to March's `UIEffectSet` (decompile, append, compile; never a wholesale replace). Do the same with
      the 5 mesh-player entries in `UIMajorXMeshPlayer.txt`.

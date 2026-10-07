@@ -1227,8 +1227,10 @@ Both have March counterparts, so both are in C9e.
   - the 11 (plus 41) keep it;
   - every other id stops it unless EmotionData gives a non-empty `UI_EFFECT_SET`. With no EmotionData in March, that case is June's NULL
     path: always stop.
-- **Dtor** `@3203af9f`; **ctor** `@32041dca` (= -1).
-- **Square:** play `@323ff8c5`; stop on every `StateStart` (`323fad80 @323fbd70`), in the dtor (`323f7760 @323f7b36`) and in `323f4640`.
+- **Dtor** `@3203af9f`; **ctor** `@32041dc9` (= -1).
+- **Square:** play `@323ff8c5`. It stops on every `StateStart` (`323fad80 @323fbd70`), in the dtor (`323f7760 @323f7b36`), and in
+  `CX2TFieldGame::RemoveUnit` (`323af8f0`, via `323f4640`).
+  - There is no stop before the play, and nothing leaks: March's `StateChange` (`:3721`) runs `StateStart` synchronously before the play.
 
 **4. `+0x93dc` / `+0x93ec` / `+0x940c` are a second June-only system: equipped-item sit effects.**
 - `3203e1b0` reads a `CX2Unit +0xa44` map (key `3264c980`: sit 7, cash1 8, cash2 13, cash3 14) and the item templet's per-mode effect list
