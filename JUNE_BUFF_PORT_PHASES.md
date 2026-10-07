@@ -4382,7 +4382,14 @@ Load summary `1130 loaded + 0 placeholder(s)`, 0 EXCEPTION.
 
 **Deploy.** `DEPLOY OK: X2_offline.exe is 19,275,264 B, dated 2026-10-07 13:13:51, md5 4593250760e37c42a96ad95db62c9113, equal to X2/US_SERVICE/x2.exe (2026-10-07 13:13:47); built at mods/june-buff-port a68b45d + 3 uncommitted code file(s).` The 3 files are this phase's. The `#else` token was added after the build; it is a comment only.
 
-**Play-test owed (regression + UID fix):** the load summary without debug lines; check 9's icons surviving a field move; monster UIDs from 1000000 in `offline_server.log`.
+**Regression play-test PASSED 2026-10-07** (user; exe 45932507, run 13:18-13:21, logs read, clean exit, 0 EXCEPTION):
+- Henir Light's icon survived two field moves.
+- `FIELDNPC field 40029 placing 26 monster(s), UIDs 1000000..1000025` (and 40030: `1000000..1000029`); dungeon spawns `1000025`, `1000026`.
+- Dungeon 30000 cleared: 22 kills, +1674 EXP, +3864 ED, 210 drop lines, 28 `[OFFLINE_GRADE]` lines, quest lines.
+- `ErrorLog.txt`: the load summary is unchanged (`1130 loaded + 0 placeholder(s)`), the reworded `IS_STORE_BUFF on 119 templet(s): kept over a game change` line appears, and no debug-only `first ...` line.
+- The guild Chance to Reverse line shows target `1000013`.
+
+**Phase 14 closed; the buff port's phases are all done.**
 
 ---
 
