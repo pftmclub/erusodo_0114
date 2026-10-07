@@ -6114,6 +6114,63 @@ Iivue's item 579 keeps the three sockets.
 
 **No new play-test.** The fix changes no tooltip on today's data.
 
+### Phase 16-step3c2 — Done (2026-10-07, Opus 5.5 high)
+
+**Landed** (commit below this note's). EDT 156 is under `SERV_IRUHADEV_JUNE_SOCKET_EDT`, which now also `#error`s without `_JUNE_BUFF_BEHAVIOR_PARITY` / `_JUNE_BUFF_ENUM`. HMET_FEVER has a new flag, `SERV_IRUHADEV_JUNE_SOCKET_FEVER` (`#error`s without `_SOCKET_PARITY`). Decodes are in `funcmap.tsv`: "Buff Phase 16-step3c2" notes on six rows, plus new rows `3234ded0`, `3208dd20` and `3208dc40`.
+- **EDT 156** (`X2GameUnit.cpp`, `JuneProcessSocketExtraDamage`). It is identical on both sides: user `@32039514`, NPC `@3279d323`.
+  - **Gate:** an `AT_COMMAND` hit by a `GUT_USER` attacker that has a `CX2Unit`.
+  - **Clock:** `[337676e8] +0x80` is `g_pKTDXApp->m_dTime`. June's ctor `31c17ed0` zeroes `+0x80` as a double right after `m_fConstElapsedTime`, as March's ctor does.
+  - **Cool-down:** within 1.0 s of the stored float time, nothing happens.
+  - **10th hit:** the user's skill tree gets the clamped rate, BTI 778 is erased, and the counter is set to `( 0, now )`.
+  - **Below 10:** BFI 804 at the raw LEVEL, then `( count, old time )`.
+- **New `CX2GUUser` members:** `m_iJuneCommandHitCount` / `m_fJuneCommandHitTime` (June `+0x9474/+0x9478`), set together by `SetJuneCommandHit` (= `32070e40`). Both are zeroed in the ctor (`@32041e20/26`) and never in ReInit.
+- **`CX2UserSkillTree::ReduceLeftSkillCoolTimeByRateJune`** = `32893e00`, reached through `3234ded0`, the CX2Unit `+0x494` thunk.
+  - Order: bar A, then bar B.
+  - Filter: `IsResetCoolTimeTarget( type, templet, true, bool )`, which is 328922f0's filter as June inlines it.
+  - Write: `left *= 1 - rate`, written only on a change. `SetMySkillCoolTimeList` runs either way.
+  - The lists are **not** cleared (unlike `ResetLeftSkillCoolTimeByBuff`).
+  - Gage index is `i` / `i + 4` (June's is `+5`).
+- **HMET_FEVER** (`X2GUUser.cpp`, `3206d480 @3206d6ab`).
+  - Gate: party manager && `DoIHaveParty()` && `g_pX2Game` && the game's pass flag clear.
+  - If it passes: `PartyFeverAllUser( 30.f, true )`, then the shared tail's cool time.
+  - In the June call, EDI = entry `+0xc`, so `[edi+8]`/`[edi+4]` are the socket ID and cool time, not the type.
+  - A closed gate starts no cool time.
+  - The 16-step3b6 log is the `#else`.
+- **`CX2Game::PartyFeverAllUser( float, bool bTitle_ )`** = `322d4f80`: March's body plus the following.
+  - `m_bJunePartyFeverInProgress` (June `+0xbd4`; initialised to 0 at `@3230778b`; its only readers are the HMET gate and the function's own end). It is set for a title pass and cleared at the end.
+  - The flag is what stops recursion. The pass's `ForceChangeHyperModeWithoutMotion` calls `ApplyHyperModeBuff` (`X2GUUser.cpp` ForceChangeHyperModeWithoutMotion), which reaches HMET_FEVER again.
+  - `Fever_Mode_Title` replaces `Fever_Mode` on a title pass.
+  - The rest matches March line for line: Add DP 3000.0 at rate 1.0 (`3344f34c`), HP > 0.0, flare at 512/384, sound on the focus unit else my unit.
+  - March's caller (`X2PartyManager.cpp`, the party-fever packet) passes `false`, as June `32434f60 @324350c9` does. The third June caller, `323c5aa8` (`DancingKing_Fever01.ogg`), is June-only.
+- **Not ported (open for the review):** June's MP line is `SetNowMp( GetMaxMp(), IsMyUnit() )`.
+  - The bool is June's gage-data `SetNowMp( float, bool )` (`3208dd20` -> gage vslot 8), an API change March lacks everywhere. The funcmap row's earlier "GetMaxMp( vslot 0x198 )" was a misread and is corrected.
+- **Particle data:** `Fever_Mode_Title` is in June's `GameMajorParticle3.txt` and not in March's (`kom_contents/data036_kom/GameMajorParticle3.txt` has Fever_Mode, 01-03). `CreateSequence` returns NULL silently, and one `[JUNE_BUFF]` line says so. Staging June's particle file is a separate decision.
+- **JUNE_BUGS:**
+  - #71: the time moves only at the 10th hit, so the 1.0 s is a lock-out after each reduction. This corrects step 1's "1.0 s minimum gap".
+  - #72: June reads the attacker's type before the NULL check. Guarded here.
+
+**Hygiene** (`--worktree`, my 8 code files): `JUNE_SOCKET_FEVER`: `3 PASS, 5 OTHER, 0 FAIL`, `0 deleted`, RESULT PASS. `JUNE_SOCKET_EDT`: `4 PASS, 4 OTHER, 0 FAIL`, `4 deleted`, RESULT PASS.
+- The 4 deleted lines are 16-step3c's own combined 156/157 placeholder case, now split.
+- `X2GUUser.cpp` is OTHER for both flags because it holds both.
+- The first build failed because the new `CX2GUUser` accessors sat in a protected section. A `public:`/`protected:` pair inside the flag block fixed it.
+- Range lines: in the next commit.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,280,384 B, dated 2026-10-07 09:27:53, md5 4f358da19ac2f4c6d25cf347c6925d79, equal to X2/US_SERVICE/x2.exe (2026-10-07 09:27:47); built at mods/june-buff-port c22d1a3 + 9 uncommitted code file(s).` The log formats and `Fever_Mode_Title` are in the exe. The build also carries a peer session's uncommitted `Always.h` hunk (Phase 13: `SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF` turned on), which is theirs to commit. Not launched.
+
+**Dormant on today's data.**
+- March's scripts never make an `AT_COMMAND` hit, and BFI 804 / BTI 778 are June buff data (Phase 13).
+- The offline emulator gives the player no party (`m_iPartyUID = 0`), so Fever's gate stays shut. The party-fever packet path is unreachable offline too.
+
+**Save.** Iivue gets two sockets; backup at `db_backup/els_db_20261007_091031_pre_socket_3c2_156_fever.sql`:
+- item 579 gains 100036000 (EDT 156, 1 %, dungeon-only weapon socket);
+- item 510 gains 74042 (HMET_FEVER, June title socket, dungeon-only, 180 s).
+
+**How to see it in game.** In a dungeon with Iivue, `ErrorLog.txt` should show:
+- after hitting monsters, `socket EXTRA_DAMAGE_TYPE 156 fired (first this run): attack type 0|1, attacker user -> nothing`;
+- after awakening, `hyper-mode socket 74042 HMET_FEVER (first this run): gate closed (party manager 1, have party 0, ...)`.
+
+**Open for the user.** /cost. Whether to stage June's `GameMajorParticle3.txt` (`Fever_Mode_Title`) is a later call; no party exists offline to show it.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`

@@ -5308,3 +5308,36 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SOCKET_EDT needs SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #endif
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June buff port Phase 16-step3c2 (JUNE_BUFF_PORT_PHASES.md):
+//              EDT 156 COMMAND_10HIT_DECREASE_SKILL_COOLTIME, under
+//              SERV_IRUHADEV_JUNE_SOCKET_EDT above (it extends
+//              CX2GameUnit::JuneProcessSocketExtraDamage): the user's
+//              command-hit count and time (June +0x9474/+0x9478, 32070e40)
+//              and June's cool-time reducer 32893e00 on CX2UserSkillTree.
+//              That needs the reset lists of _JUNE_BUFF_BEHAVIOR_PARITY and
+//              AT_COMMAND from _JUNE_BUFF_ENUM.
+#if defined(SERV_IRUHADEV_JUNE_SOCKET_EDT) && ( !defined(SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY) || !defined(SERV_IRUHADEV_JUNE_BUFF_ENUM) )
+#error SERV_IRUHADEV_JUNE_SOCKET_EDT needs SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY and SERV_IRUHADEV_JUNE_BUFF_ENUM
+#endif
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June buff port Phase 16-step3c2 (JUNE_BUFF_PORT_PHASES.md):
+//              the hyper-mode socket type HMET_FEVER (June 3206d480
+//              @3206d6ab). With a party, a game and no fever pass running it
+//              calls June's PartyFeverAllUser( 30.0, true ), then starts the
+//              socket's cool time. June's PartyFeverAllUser (322d4f80) is
+//              March's plus a title bool: the game's pass flag (+0xbd4, which
+//              stops the awakening it grants from re-entering Fever) and the
+//              Fever_Mode_Title particle. March's party-fever packet caller
+//              passes false, as June's (32434f60) does. Needs
+//              SERV_IRUHADEV_JUNE_SOCKET_PARITY (the hyper-mode socket list).
+#define SERV_IRUHADEV_JUNE_SOCKET_FEVER
+#if defined(SERV_IRUHADEV_JUNE_SOCKET_FEVER) && !defined(SERV_IRUHADEV_JUNE_SOCKET_PARITY)
+#error SERV_IRUHADEV_JUNE_SOCKET_FEVER needs SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#endif
+//////////////////////////////////////////////////////////////////////////

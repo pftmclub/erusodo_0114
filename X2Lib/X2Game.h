@@ -536,7 +536,12 @@ class CX2Game : public CKTDXStage
 
 		bool						IsAllUserDead();
 		bool 						IsAllUserHPPercentMoreThan( float fHPPercent );
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_FEVER
+		void 						PartyFeverAllUser( float fAddHyperModeTime, bool bTitle_ );	/// June 322d4f80
+		bool						IsJunePartyFeverInProgress() const { return m_bJunePartyFeverInProgress; }
+#else SERV_IRUHADEV_JUNE_SOCKET_FEVER
 		void 						PartyFeverAllUser( float fAddHyperModeTime );
+#endif SERV_IRUHADEV_JUNE_SOCKET_FEVER
 
 		void						UpdateNpcNameColor( const int iMyLevel_ );
 
@@ -1720,6 +1725,9 @@ protected:
 
 		bool						m_bBGMOn;	/// 사용 안함 (모두 true 임)
 		bool						m_bLastKillCheck;	/// 지금 죽인 애를 끝으로 게임이 끝이라면..(던전과 PVP에는 끝이라는게 존재하지만 마을과 필드에는 존재하지 않음..)
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_FEVER
+		bool						m_bJunePartyFeverInProgress;	/// June +0xbd4: set for a PartyFeverAllUser( ..., true ) pass (init 0 @3230778b)
+#endif SERV_IRUHADEV_JUNE_SOCKET_FEVER
 		float						m_fLastKillWaitTime;	/// 이 값이 0이 된 이후부터 lastKillCheck를 true로 할지 false로 할 지를 판단 함
 		float						m_fLastKillWaitTimeAfterRebirth; /// 부활 한 사람이 부활 직후에는 HP가 0이 되어 버려서 m_bLastKillCheck가 true가 되는데 그 경우를 방지하기 위한 타이머
 

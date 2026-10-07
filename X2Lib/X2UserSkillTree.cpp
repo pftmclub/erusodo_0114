@@ -2821,6 +2821,50 @@ bool CX2UserSkillTree::ApplyResetCoolTime( SkillSlotData& slotData_, const CX2Sk
 	CX2GageManager::GetInstance()->SetMySkillCoolTimeList( iGageIndex_, fNewCoolTime );
 	return bChanged;
 }
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+/** @function : ReduceLeftSkillCoolTimeByRateJune
+	@brief : June 32893e00, reached only through CX2Unit 3234ded0 (skill tree = unit +0x494) from EDT 156 (user @320395cf,
+			 NPC @3279d3e2) and Lanox 32011280. No gage manager (324943c0): nothing. Bar A's five slots, then bar B's (+0x260):
+			 a slot with an acquired skill whose ID is in FORCE_SKILL_ID (+0x478) applies; otherwise relationship (12) and
+			 hyper-active (13) skills only with the bool, and IGNORE_SKILL_ID (+0x468) skips. That is 328922f0's filter for
+			 any skill type, which June inlines here; IsResetCoolTimeTarget is that filter. Apply: left *= 1 - rate, written
+			 only when it changes, then SetMySkillCoolTimeList (32489230) with the slot's value either way. Unlike 32896600
+			 the lists are not cleared. June has 5 slots per bar (gage index 0-4 / 5-9); March's 4 give 0-3 / 4-7. June's
+			 skill-ID remaps (328905b0 bar A, 32205c00 bar B) are June-only; GetUserSkillTemplet is the lookup here, as in
+			 ResetLeftSkillCoolTimeByBuff.
+*/
+void CX2UserSkillTree::ReduceLeftSkillCoolTimeByRateJune( const float fRate_, const bool bIncludeRelationAndHyper_ )
+{
+	CX2GageManager* pGageManager = CX2GageManager::GetInstance();
+	if ( NULL == pGageManager )
+		return;
+
+	const int iSizeOfIndex = ARRAY_SIZE( m_aEquippedSkill );
+	for ( int iBar = 0; iBar < 2; ++iBar )
+	{
+		SkillSlotData* aSlotData = ( 0 == iBar ? m_aEquippedSkill : m_aEquippedSkillSlotB );
+		for ( int iCurrentIndex = 0; iCurrentIndex < iSizeOfIndex; ++iCurrentIndex )
+		{
+			SkillSlotData& slotData = aSlotData[iCurrentIndex];
+			if ( 0 >= static_cast<int>( slotData.m_eID ) )
+				continue;
+
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetUserSkillTemplet( slotData.m_eID );
+			if ( NULL == pSkillTemplet
+				|| false == IsResetCoolTimeTarget( pSkillTemplet->m_eType, pSkillTemplet, true, bIncludeRelationAndHyper_ ) )
+				continue;
+
+			const float fNowCoolTime = slotData.m_fCoolTimeLeft;
+			const float fNewCoolTime = fNowCoolTime * ( 1.f - fRate_ );
+			if ( fNewCoolTime != fNowCoolTime )
+				slotData.m_fCoolTimeLeft = fNewCoolTime;
+
+			const float fCoolTimeLeft = slotData.m_fCoolTimeLeft;
+			pGageManager->SetMySkillCoolTimeList( iCurrentIndex + iBar * iSizeOfIndex, fCoolTimeLeft );
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #endif	NEW_SKILL_2010_11

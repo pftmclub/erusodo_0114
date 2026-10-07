@@ -3440,6 +3440,14 @@ public:
 		/// tick 31fd7bd0 (OnFrameMove: minus the elapsed time, erased at 0 or below)
 		float	GetJuneSocketCoolTime( const int iSocketID_ ) const;
 		void	SetJuneSocketCoolTime( const int iSocketID_, const float fCoolTime_ ) { m_mapJuneSocketCoolTime[iSocketID_] = fCoolTime_; }
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+	public:		/// CX2GameUnit::JuneProcessSocketExtraDamage calls these on the attacker; the section here is protected
+		/// June 32070e40 (EDT 156 only): sets the command-hit count +0x9474 and its time +0x9478 together
+		void	SetJuneCommandHit( const int iCount_, const float fTime_ ) { m_iJuneCommandHitCount = iCount_; m_fJuneCommandHitTime = fTime_; }
+		int		GetJuneCommandHitCount() const { return m_iJuneCommandHitCount; }
+		float	GetJuneCommandHitTime() const { return m_fJuneCommandHitTime; }
+	protected:
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 		void	CheckJuneSocketCoolTime( const float fElapsedTime_ );
 		/// June 322a7c30 (CX2GameUnit): the unit's buff of this BTI has reached its templet's accumulation limit (only when the limit is above 1)
 		bool	IsBuffAtAccumulationLimitJune( const BUFF_TEMPLET_ID eBuffTempletID_ ) const;
@@ -4200,6 +4208,10 @@ public:
 	float m_fJuneAddPhysicAttackCriticalDamageRate;	/// June +0x8dfc, 16-step3b2 (ctor 0, June @32040df6)
 	map<int, float> m_mapJuneSocketCoolTime;		/// June +0x8b98, 16-step3b4 (per-socket cool time; never cleared but by the dtor)
 	bool m_bJuneSocketReturnFromDeathDown;			/// June +0x8e78, 16-step3b4 (ctor 0 @32040e48; CommonEventProcess knocks the unit down once)
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+	int m_iJuneCommandHitCount;		/// June +0x9474, 16-step3c2 (ctor 0 @32041e20; ReInit leaves it)
+	float m_fJuneCommandHitTime;	/// June +0x9478, 16-step3c2 (ctor 0 @32041e26; a float copy of g_pKTDXApp->GetTime())
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //±Ë√¢«—

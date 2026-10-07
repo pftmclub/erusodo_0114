@@ -13014,7 +13014,7 @@ static void JunePlaySocketEdtEffectSet( const int iType_, const WCHAR* wszName_,
 			 the hit user) and the NPC one 327995c0 (this = the hit NPC). The two June switches are the same but for three
 			 differences, which bNpcDefender_ selects: 146/147 have a case only on the user side, 152-155 only on the NPC side,
 			 and 151's attacker IsMyUnit gate (vslot 0x198) is on the user side only.
-			 156 is 16-step3c2's; 157 calls June's Lanox Secret Ammo 322a0180 (character-port checklist 7). Both are logged.
+			 156 is 16-step3c2's (below); 157 calls June's Lanox Secret Ammo 322a0180 (character-port checklist 7) and is logged.
 */
 void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageData* pDamageData_, const CX2DamageManager::ExtraDamageData& extraDamageData_,
 	const bool bNpcDefender_ )
@@ -13175,13 +13175,62 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 			JunePlaySocketEdtEffectSet( iType, wszName, pAttacker, vOne, GetLandPos(), GetRotateDegree(), vZero );
 		} break;
 
+	/// 156 (user @32039514, NPC @3279d323, the same on both sides; 16-step3c2): only an AT_COMMAND hit by a user with a CX2Unit.
+	/// Nothing within 1.0 s (334355b0) of the user's command-hit time (+0x9478, a float copy of g_pKTDXApp m_dTime +0x80);
+	/// otherwise the count (+0x9474) goes up. At 10: the user's skill tree takes 32893e00( clamp( DAMAGE_PER_SEC, 0, 1 ),
+	/// false ) (32622300 keeps the rate raw), BTI 778 BTI_COMMAND_10HIT_DECREASE_SKILL_COOLTIME is erased (3229e160) and
+	/// 32070e40( 0, now ). Below 10: BFI 804 BFI_COMMAND_10HIT_DECREASE_SKILL_COOLTIME at the socket's raw LEVEL on the
+	/// user (vslot 0x21c) and 32070e40( count, the old time ) (@3203962e): the time moves only at 10, so the 1.0 s
+	/// lock-out follows a reduction, not each hit (JUNE_BUGS). June reads the attacker's type before checking it for NULL.
 	case CX2DamageManager::EDT_COMMAND_10HIT_DECREASE_SKILL_COOLTIME:
+		{
+			if ( CX2DamageManager::AT_COMMAND != pDamageData_->attackType || NULL == pAttacker || GUT_USER != pAttacker->GetGameUnitType() )
+			{
+				if ( true == JuneSocketEdtFirstTime( iType ) )
+					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): attack type %d, attacker %s -> nothing (June counts only AT_COMMAND hits by a user)",
+						iType, static_cast<int>( pDamageData_->attackType ),
+						NULL == pAttacker ? "none" : ( GUT_USER == pAttacker->GetGameUnitType() ? "user" : "not a user" ) );
+				break;
+			}
+
+			CX2GUUser* pUser = static_cast<CX2GUUser*>( pAttacker );
+			if ( NULL == pUser->GetUnit() )
+				break;
+
+			const float fLastTime = pUser->GetJuneCommandHitTime();
+			if ( g_pKTDXApp->GetTime() - static_cast<double>( fLastTime ) <= 1.0 )
+				break;
+
+			const int iCount = pUser->GetJuneCommandHitCount() + 1;
+			if ( 10 <= iCount )
+			{
+				float fRate = extraDamageData_.m_DamagePerSec;
+				if ( 1.f <= fRate )
+					fRate = 1.f;
+				else if ( 0.f >= fRate )
+					fRate = 0.f;
+
+				pUser->GetUnit()->AccessUnitData().m_UserSkillTree.ReduceLeftSkillCoolTimeByRateJune( fRate, false );
+				pUser->EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( 778 ) );
+				pUser->SetJuneCommandHit( 0, static_cast<float>( g_pKTDXApp->GetTime() ) );
+				if ( true == JuneSocketEdtFirstTime( iType + 20000 ) )
+					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d: 10th command hit (first this run): left skill cool times x %g, BTI 778 erased", iType, 1.f - fRate );
+			}
+			else
+			{
+				const int iLevel = extraDamageData_.m_iLevel;
+				const bool bSet = pUser->SetBuffFactorToGameUnitByBuffFactorID( 804, static_cast<UINT>( iLevel ) );
+				pUser->SetJuneCommandHit( iCount, fLastTime );
+				if ( true == JuneSocketEdtFirstTime( iType + 10000 ) )
+					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d: command hit %d counted (first this run): BFI 804 level %d on the attacker -> %s", iType, iCount, iLevel,
+						true == bSet ? "set" : "not set (its factor is June buff data: Phase 13)" );
+			}
+		} break;
+
 	case CX2DamageManager::EDT_MAGI_HIT_COUNT_ATTACK:
 		{
 			if ( true == JuneSocketEdtFirstTime( iType ) )
-				CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): not ported (%s)", iType,
-					CX2DamageManager::EDT_MAGI_HIT_COUNT_ATTACK == extraDamageData_.m_ExtraDamageType ?
-					"June 322a0180 Lanox Secret Ammo, character-port checklist 7" : "16-step3c2" );
+				CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): not ported (June 322a0180 Lanox Secret Ammo, character-port checklist 7)", iType );
 		} break;
 
 	default:

@@ -1911,7 +1911,11 @@ bool CX2PartyManager::Handler_EGS_PARTY_CHANGE_NUM_OF_PER_NOT( HWND hWnd, UINT u
 					if( NULL != g_pX2Game->GetMyUnit() )
 					{
 						const float MAGIC_HYPER_MODE_TIME = 30.f;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_FEVER
+						g_pX2Game->PartyFeverAllUser( MAGIC_HYPER_MODE_TIME, false );	/// June 32434f60 @324350c9 pushes false
+#else SERV_IRUHADEV_JUNE_SOCKET_FEVER
 						g_pX2Game->PartyFeverAllUser( MAGIC_HYPER_MODE_TIME );
+#endif SERV_IRUHADEV_JUNE_SOCKET_FEVER
 					}
 				}
 			}

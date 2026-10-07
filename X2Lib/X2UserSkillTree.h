@@ -322,6 +322,10 @@ public:		/// public function
 		const BUFF_CHANGE_TYPE eChangeType_, const float fCoolTimeRate_, const bool bIsRelativeAllSkill_, const int iSkillSlotType_ );
 	void SetResetCoolTimeIgnoreSkillID( const vector<int>& vecSkillID_ ) { m_vecResetCoolTimeIgnoreSkillID = vecSkillID_; }
 	void SetResetCoolTimeForceSkillID( const vector<int>& vecSkillID_ ) { m_vecResetCoolTimeForceSkillID = vecSkillID_; }
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+	/// June 32893e00 (EDT 156, through CX2Unit 3234ded0): every equipped skill's left cool time *= 1 - rate; keeps both lists
+	void ReduceLeftSkillCoolTimeByRateJune( const float fRate_, const bool bIncludeRelationAndHyper_ );
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 private:
 	bool IsResetCoolTimeTarget( const CX2SkillTree::SKILL_TYPE eSkillType_, const CX2SkillTree::SkillTemplet* pSkillTemplet_,
 		const bool bIsRelativeAllSkill_, const bool bForceSet_ ) const;

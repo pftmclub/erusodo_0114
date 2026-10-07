@@ -718,6 +718,10 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 , m_fJuneAddPhysicAttackCriticalDamageRate(0.f)
 , m_bJuneSocketReturnFromDeathDown( false )
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+, m_iJuneCommandHitCount( 0 )
+, m_fJuneCommandHitTime( 0.f )
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //±èÃ¢ÇÑ
 , m_bSetCustomRenderParam( false )
@@ -39493,6 +39497,40 @@ void CX2GUUser::ApplyBuffByUseHyperMode()
 			bJuneApplied = true;
 			break;
 		case CX2SocketItem::HMET_FEVER:							/// @3206d6ab
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_FEVER
+			{
+				/// June: g_pData's party manager (+0x5c) with DoIHaveParty (32430b80), a game, and the game's fever-pass flag
+				/// (+0xbd4) clear -> PartyFeverAllUser( 30.0 (33441b9c), true ) (322d4f80), then the cool time below. A closed
+				/// gate starts no cool time. The flag stops re-entry: the pass's ForceChangeHyperModeWithoutMotion reaches this
+				/// function again through ApplyHyperModeBuff. Offline the emulator gives the player no party, so the gate stays shut.
+				if ( NULL != g_pData->GetPartyManager() && true == g_pData->GetPartyManager()->DoIHaveParty()
+					&& NULL != g_pX2Game && false == g_pX2Game->IsJunePartyFeverInProgress() )
+				{
+					g_pX2Game->PartyFeverAllUser( 30.f, true );
+					bJuneApplied = true;
+
+					static bool s_bJuneHyperFeverFiredLogged = false;
+					if ( false == s_bJuneHyperFeverFiredLogged )
+					{
+						s_bJuneHyperFeverFiredLogged = true;
+						CX2JuneBuffCapture::Line( "hyper-mode socket %d HMET_FEVER fired (first this run): party fever 30 s with the title particle, cool time %g s (June 3206d480 @3206d6ab)",
+							sInfo.m_iJuneSocketID, sInfo.m_fJuneCoolTime );
+					}
+				}
+				else
+				{
+					static bool s_bJuneHyperFeverGateLogged = false;
+					if ( false == s_bJuneHyperFeverGateLogged )
+					{
+						s_bJuneHyperFeverGateLogged = true;
+						CX2JuneBuffCapture::Line( "hyper-mode socket %d HMET_FEVER (first this run): gate closed (party manager %d, have party %d, game %d, pass running %d), nothing and no cool time, as in June",
+							sInfo.m_iJuneSocketID, NULL != g_pData->GetPartyManager() ? 1 : 0,
+							( NULL != g_pData->GetPartyManager() && true == g_pData->GetPartyManager()->DoIHaveParty() ) ? 1 : 0,
+							NULL != g_pX2Game ? 1 : 0, ( NULL != g_pX2Game && true == g_pX2Game->IsJunePartyFeverInProgress() ) ? 1 : 0 );
+					}
+				}
+			}
+#else SERV_IRUHADEV_JUNE_SOCKET_FEVER
 			{
 				/// June: with g_pData +0x5c set and its 32430b80, a game, and game +0xbd4 clear, game 322d4f80( 30.0, true )
 				/// (a pass over every live user unit), then the cool time. Not ported: HMET_FEVER is 16-step3c's.
@@ -39504,6 +39542,7 @@ void CX2GUUser::ApplyBuffByUseHyperMode()
 						sInfo.m_iJuneSocketID );
 				}
 			}
+#endif SERV_IRUHADEV_JUNE_SOCKET_FEVER
 			break;
 		default:												/// June: unsigned type > 3 skipped (@3206d556)
 			{

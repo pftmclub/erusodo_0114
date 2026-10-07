@@ -330,6 +330,9 @@ m_bSkillSlotJustChanged(true)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	m_bStickShakeBothKeys = false;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_FEVER
+	m_bJunePartyFeverInProgress = false;
+#endif SERV_IRUHADEV_JUNE_SOCKET_FEVER
 
 #ifdef	ELOG_STATISTICS_NEW_DATA
 	m_kGameStatistics.Init();
@@ -6101,6 +6104,72 @@ bool CX2Game::IsAllUserDead()
 }
 
 // 모든 유저를 각성시키고, MP를 full로
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_FEVER
+/** @function : PartyFeverAllUser
+	@brief : June 322d4f80. March's function plus bTitle_: with it the game's pass flag (+0xbd4) is set for the pass, so a
+			 hyper-mode Fever socket reached again through the awakening below finds it set and does nothing, and the first
+			 particle is Fever_Mode_Title instead of Fever_Mode. The flag is cleared at the end whenever it is set. The rest
+			 is March's, line for line: the live-user loop (state vslot 0x174 != GUSI_DIE, HP > 0; Add vslot 0x2a4( 3000.0,
+			 1.0 ), else vslot 0x550 ForceChangeHyperModeWithoutMotion), full MP, Alarm_Fever.ogg on the focus unit else my
+			 unit (32276220( name, true, false )), the four sequences on g_pData's game major particle (+0x84).
+			 June's MP line is SetNowMp( GetMaxMp(), IsMyUnit() ) (vslots 0xf8 / 0xdc / 0x198): the second argument belongs to
+			 June's gage-data SetNowMp (vslot 8), which March's does not have, so March's one-argument call stays.
+*/
+void CX2Game::PartyFeverAllUser( float fAddHyperModeTime, bool bTitle_ )
+{
+	if ( true == bTitle_ )
+		m_bJunePartyFeverInProgress = true;
+
+	{
+#ifndef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
+		CSLock locker( m_csGameIntruder );
+#endif	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
+		BOOST_TEST_FOREACH( CX2GUUser*, pUser, m_UserUnitList )
+		{
+			if( NULL == pUser )
+				continue;
+
+			if( CX2GameUnit::GUSI_DIE == pUser->GetGameUnitState() )
+				continue;
+
+			if( pUser->GetNowHp() <= 0.f )
+				continue;
+
+#ifdef SERV_9TH_NEW_CHARACTER
+			if ( CX2Unit::UT_ADD == pUser->GetUnitType() )
+				pUser->UpNowDPValue( 3000.f, 1.f );
+			else
+#endif //SERV_9TH_NEW_CHARACTER
+				pUser->ForceChangeHyperModeWithoutMotion( fAddHyperModeTime );
+
+			pUser->SetNowMp( pUser->GetMaxMp() );
+		}
+	}
+
+	if( NULL != GetFocusUnit() )
+		GetFocusUnit()->PlaySound( L"Alarm_Fever.ogg" );
+	else if( NULL != GetMyUnit() )
+		GetMyUnit()->PlaySound( L"Alarm_Fever.ogg" );
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqFever =
+		GetMajorParticle()->CreateSequence( NULL, ( true == bTitle_ ? L"Fever_Mode_Title" : L"Fever_Mode" ), 0,0,0 );
+	if ( true == bTitle_ && NULL == pSeqFever )
+	{
+		static bool s_bJuneFeverTitleLogged = false;
+		if ( false == s_bJuneFeverTitleLogged )
+		{
+			s_bJuneFeverTitleLogged = true;
+			CX2JuneBuffCapture::Line( "unsupported (data not packed): eventsequence \"Fever_Mode_Title\" is missing from GameMajorParticle3.txt (June's has it), so the Fever socket's title particle draws nothing (June 322d4f80)" );
+		}
+	}
+	GetMajorParticle()->CreateSequence( NULL,  L"Fever_Mode01", 0,0,0 );
+	GetMajorParticle()->CreateSequence( NULL,  L"Fever_Mode02", 0,0,0 );
+	GetMajorParticle()->CreateSequence( NULL,  L"Flare_Fever_Mode03", 512,384,0 );
+
+	if ( true == m_bJunePartyFeverInProgress )
+		m_bJunePartyFeverInProgress = false;
+}
+#else SERV_IRUHADEV_JUNE_SOCKET_FEVER
 void CX2Game::PartyFeverAllUser( float fAddHyperModeTime )
 {
 	{
@@ -6149,6 +6218,7 @@ void CX2Game::PartyFeverAllUser( float fAddHyperModeTime )
 
 
 
+#endif SERV_IRUHADEV_JUNE_SOCKET_FEVER
 bool CX2Game::RebirthUserUnit( UidType unitUID, int startPosIndex )
 {
 #ifdef SERV_PVP_NEW_SYSTEM
