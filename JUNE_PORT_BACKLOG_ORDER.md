@@ -53,6 +53,7 @@ The user's remaining backlog, in the order they listed it:
 | 9 | UI sweep | 6 | Whatever June UI no earlier stage delivered. See "Why UI is last" below. |
 | 10 | Emotion system *(added 2026-10-07, user)* | - (found by june-effect C9d) | Not a backlog item but a missing system: June's emotion catalogue, data, items, sit effects and emotion UI. It depends only on Stage 2 (UI framework) and june-effect C9e, so it can run alongside Stages 3-8. Numbered 10 to keep the earlier numbers stable, not because it must go last. |
 | 11 | Division item templets *(added 2026-10-07, june-effect C9f)* | - (found by june-effect C9f) | Not a backlog item but a missing system: June's per-item render and behaviour lists (`AddDivisionItemTemplet_LUA`, 112 types), of which C9f-2 ports only the per-equip effect sets. Its render rules wait on Stage 2. Numbered 11 to keep the earlier numbers stable, not because it must go last. |
+| 12 | Character customize system *(added 2026-10-07, june-effect C9g)* | - (found by june-effect C9g) | Not a backlog item but a missing system: June's `CX2CustomizeManager` (`CharCustomData.lua`) applies cash custom motions, sit motions and effects, faces, textures and skill cut-ins to a character, on the unit, square and viewer. It depends on Stage 10 (sit emotions), Stage 2 (UI) and the user's June `item.kim`. Numbered 12 to keep the earlier numbers stable. |
 
 **Concurrency.** At most two code sessions should run at once:
 - Stage 0's buff port, in the main Trunk;
@@ -275,9 +276,10 @@ Found by june-effect C9d (`JUNE2017_EFFECT_COMPLETION_PHASES.md`, "C9d - Done"; 
   unit (`31fac950`), and the data-driven `IsAvatarEmotion` (`3234cb00`). The hard-coded emotions (Keroro, Twice, Xmas box, Maid ...) sit
   outside the file, in `3234cb00`'s fallback list and the per-class sound switches.
 - **Unlocks:** `CHANGE_EMOTION_CONDITION` (`CEC_SET_ITEM`, `CEC_ITEM`), checked against the inventory.
-- **Cash sits and equipped-item sit effects:** the `EMOTION_CASH*_SIT*` states; `3203e1b0` and the `+0x93dc`/`+0x93ec`/`+0x940c` vectors;
-  the CX2Unit `+0xa44` map (insert site not yet found); the item templet's per-mode effect list (`32651ab0`); square twins `+0x714`/`+0x724`;
-  the viewer's group 1/2 block (`31fa52b0 @31fa5645`).
+- **Cash sits:** the `EMOTION_CASH*_SIT*` states (emotion ids). The equipped-item sit effects C9d listed here (`3203e1b0`, the
+  `+0x93dc`/`+0x93ec`/`+0x940c` vectors, the CX2Unit `+0xa44` map, `32651ab0`, square `+0x714`/`+0x724`, the viewer's group 1/2 block
+  `31fa52b0 @31fa5645`) are June's customize system: moved to **Stage 12** by june-effect C9g (`32651ab0` is `CX2CustomizeManager`,
+  not the item templet; `+0xa44` holds applied customizations). Stage 12 depends on this stage for the sit emotion ids.
 - **June's rewritten `PlayEmotion`** in `CX2GUUser`, `CX2SquareUnit` and `CX2UnitViewerUI`, their EmotionData `UI_EFFECT_SET` paths
   (the second writers of `+0x9434` / `+0x7ac`), and June's two-seater (`0x2c`/`0x2d`) handling.
 - **Assets and UI:** per-class emotion motions, sounds, the 5 June-only mesh players C9e lists, `DLG_ChatBox_Emotion_List.lua`.
@@ -305,6 +307,35 @@ that an unowned June system gets its own stage. What it covers:
 the three play sites. This stage adds parsers and consumers to that shell; it does not re-bind.
 
 **Depends on:** june-effect C9f-2, and Stage 2 (render types) for the render rules. It can run alongside Stages 3-8.
+
+### Stage 12: character customize system (june-effect C9g, 2026-10-07)
+
+Found by june-effect C9g (`JUNE2017_EFFECT_COMPLETION_PHASES.md`, "C9g - Done"; funcmap rows `Effect C9g`). June's
+`CX2CustomizeManager` (embedded in `CX2Main` at `+0x9e4`, Lua `g_pCustomizeManager`) applies cash "custom" items to a character:
+lobby motions, sit motions, face and texture, skill cut-ins and viewer effect sets. March has none of it. Planned under the standing
+rule that an unowned June system gets its own stage. What it covers:
+- **The data:**
+  - `CharCustomData.lua` + `CharCustomData_INT.lua`, parsed by `326525d0`: `AddCustomPeriodItem`, `AddFreeMotion`,
+    `AddReplaceCustomID`, `AddFreeSkillCutIn`, and the motion / sit / face / texture / skill-cut-in blocks. There are 1,270 `ITEM_ID`s;
+    1,066 are in June's `item.kim`, which the user plans to adopt.
+  - Also `CharCustomPreviewData.lua` (`3264d790`), `CustomItemHide.lua`, and the `Cash1-6_*` motions in June's `Motion_*_Common.x`.
+- **The unit side:** the applied-customize map on `CX2Unit` (`+0xa44`, keys 1 motion, 2 face/texture, 7/8/0xd/0xe sit) and how
+  it is filled (insert site not found yet).
+- **The viewer side:**
+  - the members `+0xf48..+0x11d0`: six custom motion names, three sit-name arrays, the sit-key and per-motion effect-set maps;
+  - `ApplyCustomize` `31fa89b0`, `ResetCustomize` `31fa4980`, and the motion-list load `31fa8230`;
+  - the custom pre-pass of PlayByMotionType, `31fa5c90`, whose cases 0/3/6 play the custom motion and its group-1 set
+    (`31f968a0`); its data-independent head is ported by june-effect C9g-2;
+  - the custom sit sets, groups 1/2: `31fa4ec0`/`31fa4e10`, `31fa5140`/`31fa5180`, and PlayEmotion's block `@31fa5645`;
+  - the HABIT helpers `31fa5050` / `323eeea0`.
+- **The square side:** StateStart's custom WAIT set (`323fad80 @323fb795/@323fde30`, group 1) and the GUUser / square sit-effect
+  vectors that C9d listed under Stage 10 (`3203e1b0`, `+0x93dc`/`+0x93ec`/`+0x940c`, square `+0x714`/`+0x724`).
+- **The UI:** the customize preview dialogs. `3224b340` / `3224d0f0` play group 3; `32d77220` plays groups 3 and 4 (`3264f350`,
+  `3264f080`). Groups 3 and 4 are used only here.
+
+**Depends on:** june-effect C9g-2 (the PlayByMotionType shell and `AnimationNameTable.lua`), Stage 10 (the sit emotions 0x19-0x3b and
+the EmotionData path the sit sets ride on), Stage 2 (UI framework) for the dialogs, and the user's June `item.kim`. It can run
+alongside Stages 3-8.
 
 ---
 

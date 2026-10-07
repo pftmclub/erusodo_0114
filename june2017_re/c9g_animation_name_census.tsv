@@ -1,0 +1,390 @@
+class	type	june_name	march_name	march_line	june_name_in_march_motion	june_name_in_june_motion	march_playtype	june_playtype	verdict
+UC_ELSWORD_KNIGHT	0	Knight_LobbyWait	Knight_LobbyWait	4056	yes(prefix)	yes	XAP_LOOP	XAP_LOOP	same name
+UC_ELSWORD_KNIGHT	1	Knight_LobbyWait	Knight_LobbyWait	4269	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELSWORD_KNIGHT	2	Knight_LobbyWait	Knight_LobbyWait	4465	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELSWORD_KNIGHT	3	Knight_LobbyDownLanding	Knight_LobbyDownLanding	4661	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELSWORD_KNIGHT	4	Knight_LobbyReadyAction	Knight_LobbyReadyAction	4887	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELSWORD_LORD_KNIGHT	0	LK_LobbyWait	LK_LobbyWait	4111	yes	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_ELSWORD_LORD_KNIGHT	1	LK_LobbyWait	LK_LobbyWait	4329	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELSWORD_LORD_KNIGHT	2	LK_LobbyWait	LK_LobbyWait	4526	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELSWORD_LORD_KNIGHT	3	LK_LobbyDownLanding	LK_LobbyDownLanding	4748	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELSWORD_LORD_KNIGHT	4	LK_LobbyReadyAction	LK_LobbyReadyAction	4974	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELSWORD_MAGIC_KNIGHT	0	MagicKnight_LobbyWait	MagicKnight_LobbyWait	4059	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_ELSWORD_MAGIC_KNIGHT	1	MagicKnight_LobbyWait	MagicKnight_LobbyWait	4275	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELSWORD_MAGIC_KNIGHT	2	MagicKnight_LobbyWait	MagicKnight_LobbyWait	4471	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELSWORD_MAGIC_KNIGHT	3	MagicKnight_LobbyDownLanding	MagicKnight_LobbyDownLanding	4667	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELSWORD_MAGIC_KNIGHT	4	MagicKnight_LobbyReadyAction	MagicKnight_LobbyReadyAction	4893	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELSWORD_RUNE_SLAYER	0	RS_LobbyWait	RS_LobbyWait	4114	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_ELSWORD_RUNE_SLAYER	1	RS_LobbyWait	RS_LobbyWait	4330	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELSWORD_RUNE_SLAYER	2	RS_LobbyWait	RS_LobbyWait	4527	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELSWORD_RUNE_SLAYER	3	RS_LobbyDownLanding	RS_LobbyDownLanding	4749	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELSWORD_RUNE_SLAYER	4	RS_LobbyReadyAction	RS_LobbyReadyAction	4975	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELSWORD_SHEATH_KNIGHT	0	ETK_LobbyWait	ETK_LobbyWait	4063	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_ELSWORD_SHEATH_KNIGHT	1	ETK_LobbyWait	ETK_LobbyWait	4282	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELSWORD_SHEATH_KNIGHT	2	ETK_LobbyWait	ETK_LobbyWait	4478	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELSWORD_SHEATH_KNIGHT	3	ETK_LobbyDownLanding	ETK_LobbyDownLanding	4674	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELSWORD_SHEATH_KNIGHT	4	ETK_LobbyReadyAction	ETK_LobbyReadyAction	4900	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELSWORD_INFINITY_SWORD	0	EIS_LobbyWait	EIS_LobbyWait	4118	yes(prefix)	yes	XAP_LOOP	XAP_LOOP	same name
+UC_ELSWORD_INFINITY_SWORD	1	EIS_LobbyWait	EIS_LobbyWait	4332	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELSWORD_INFINITY_SWORD	2	EIS_LobbyWait	EIS_LobbyWait	4529	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELSWORD_INFINITY_SWORD	3	EIS_LobbyDownLanding	EIS_LobbyDownLanding	4751	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELSWORD_INFINITY_SWORD	4	EIS_LobbyReadyAction	EIS_LobbyReadyAction	4977	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_150	0	LK_LobbyWait			yes	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_150	1	LK_LobbyWait			yes	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_150	2	LK_LobbyWait			yes	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_150	3	LK_LobbyDownLanding			yes	yes		XAP_ONE_WAIT	inert: class not in March
+UC_150	4	LK_LobbyReadyAction			yes	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ARME_HIGH_MAGICIAN	0	HM_LobbyWait	HM_LobbyWait	4078	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_ARME_HIGH_MAGICIAN	3	HM_LobbyDownLanding	HM_LobbyDownLanding	4701	yes(prefix)	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARME_HIGH_MAGICIAN	4	HM_LobbyReadyAction	HM_LobbyReadyAction	4927	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARME_ELEMENTAL_MASTER	0	EM_LobbyWait	EM_LobbyWait	4135	yes(prefix)	yes	XAP_LOOP	XAP_LOOP	same name
+UC_ARME_ELEMENTAL_MASTER	1	EM_LobbyWait	EM_LobbyWait	4341	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ARME_ELEMENTAL_MASTER	2	EM_LobbyWait	EM_LobbyWait	4538	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ARME_ELEMENTAL_MASTER	3	EM_LobbyDownLanding	EM_LobbyDownLanding	4760	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARME_ELEMENTAL_MASTER	4	EM_LobbyReadyAction	EM_LobbyReadyAction	4986	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARME_DARK_MAGICIAN	0	DM_LobbyWait	DM_LobbyWait	4081	yes(prefix)	yes	XAP_LOOP	XAP_LOOP	same name
+UC_ARME_DARK_MAGICIAN	3	DM_LobbyDownLanding	DM_LobbyDownLanding	4707	yes(prefix)	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARME_DARK_MAGICIAN	4	DM_LobbyReadyAction	DM_LobbyReadyAction	4933	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARME_VOID_PRINCESS	0	VP_LobbyWait	VP_LobbyWait	4138	yes(prefix)	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_ARME_VOID_PRINCESS	1	VP_LobbyWait	VP_LobbyWait	4342	yes(prefix)	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ARME_VOID_PRINCESS	2	VP_LobbyWait	VP_LobbyWait	4539	yes(prefix)	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ARME_VOID_PRINCESS	3	VP_LobbyDownLanding	VP_LobbyDownLanding	4761	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARME_VOID_PRINCESS	4	VP_LobbyReadyAction	VP_LobbyReadyAction	4987	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARME_BATTLE_MAGICIAN	0	BM_LobbyWait	BM_LobbyWait	4085	yes	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_ARME_BATTLE_MAGICIAN	1	BM_LobbyWait			yes	yes(prefix)		XAP_LOOP	new row (March used the default)
+UC_ARME_BATTLE_MAGICIAN	2	BM_LobbyWait			yes	yes(prefix)		XAP_LOOP	new row (March used the default)
+UC_ARME_BATTLE_MAGICIAN	3	BM_LobbyDownLanding	BM_LobbyDownLanding	4714	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARME_BATTLE_MAGICIAN	4	BM_LobbyReadyAction	BM_LobbyReadyAction	4940	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARME_DIMENSION_WITCH	0	DW_LobbyWait	DW_LobbyWait	4142	yes	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_ARME_DIMENSION_WITCH	1	DW_LobbyWait	DW_LobbyWait	4344	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ARME_DIMENSION_WITCH	2	DW_LobbyWait	DW_LobbyWait	4541	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ARME_DIMENSION_WITCH	3	DW_LobbyDownLanding	DW_LobbyDownLanding	4763	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARME_DIMENSION_WITCH	4	DW_LobbyReadyAction	DW_LobbyReadyAction	4989	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_LIRE_COMBAT_RANGER	0	CR_LobbyWait	CR_LobbyWait	4067	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_LIRE_COMBAT_RANGER	1	CR_LobbyWait	CR_LobbyWait	4289	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_LIRE_COMBAT_RANGER	2	CR_LobbyWait2	CR_LobbyWait2	4485	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_LIRE_COMBAT_RANGER	3	CR_LobbyDownLanding	CR_LobbyDownLanding	4681	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_LIRE_COMBAT_RANGER	4	CR_LobbyReadyAction	CR_LobbyReadyAction	4907	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_LIRE_WIND_SNEAKER	0	LWS_LobbyWait	LWS_LobbyWait	4123	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_LIRE_WIND_SNEAKER	1	LWS_LobbyWait	LWS_LobbyWait	4335	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_LIRE_WIND_SNEAKER	2	LWS_LobbyWait	LWS_LobbyWait	4532	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_LIRE_WIND_SNEAKER	3	LWS_LobbyDownLanding	LWS_LobbyDownLanding	4754	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_LIRE_WIND_SNEAKER	4	LWS_LobbyReadyAction	LWS_LobbyReadyAction	4980	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_LIRE_SNIPING_RANGER	0	SR_LobbyWait	SR_LobbyWait	4070	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_LIRE_SNIPING_RANGER	1	SR_LobbyWait	SR_LobbyWait	4295	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_LIRE_SNIPING_RANGER	2	SR_LobbyWait2	SR_LobbyWait2	4492	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_LIRE_SNIPING_RANGER	3	SR_LobbyDownLanding	SR_LobbyDownLanding	4687	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_LIRE_SNIPING_RANGER	4	SR_LobbyReadyAction	SR_LobbyReadyAction	4913	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_LIRE_GRAND_ARCHER	0	LGA_LobbyWait	LGA_LobbyWait	4126	yes(prefix)	yes	XAP_LOOP	XAP_LOOP	same name
+UC_LIRE_GRAND_ARCHER	1	LGA_LobbyWait	LGA_LobbyWait	4336	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_LIRE_GRAND_ARCHER	2	LGA_LobbyWait	LGA_LobbyWait	4533	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_LIRE_GRAND_ARCHER	3	LGA_LobbyDownLanding	LGA_LobbyDownLanding	4755	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_LIRE_GRAND_ARCHER	4	LGA_LobbyReadyAction	LGA_LobbyReadyAction	4981	yes(prefix)	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_LIRE_TRAPPING_RANGER	0	RTR_LobbyWait	RTR_LobbyWait	4074	yes(prefix)	yes	XAP_LOOP	XAP_LOOP	same name
+UC_LIRE_TRAPPING_RANGER	1	RTR_LobbyWait	RTR_LobbyWait	4302	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_LIRE_TRAPPING_RANGER	2	RTR_LobbyWait	RTR_LobbyWait	4499	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_LIRE_TRAPPING_RANGER	3	RTR_LobbyDownLanding	RTR_LobbyDownLanding	4694	yes(prefix)	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_LIRE_TRAPPING_RANGER	4	RTR_LobbyReadyAction	RTR_LobbyReadyAction	4920	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_LIRE_NIGHT_WATCHER	0	RNW_LobbyWait	RNW_LobbyWait	4130	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_LIRE_NIGHT_WATCHER	1	RNW_LobbyWait	RNW_LobbyWait	4338	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_LIRE_NIGHT_WATCHER	2	RNW_LobbyWait	RNW_LobbyWait	4535	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_LIRE_NIGHT_WATCHER	3	RNW_LobbyDownLanding	RNW_LobbyDownLanding	4757	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_LIRE_NIGHT_WATCHER	4	RNW_LobbyReadyAction	RNW_LobbyReadyAction	4983	yes(prefix)	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_RAVEN_SOUL_TAKER	0	ST_LobbyWait	ST_LobbyWait	4089	yes(prefix)	yes	XAP_LOOP	XAP_LOOP	same name
+UC_RAVEN_SOUL_TAKER	1	ST_LobbyWait	ST_LobbyWait	4309	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_RAVEN_SOUL_TAKER	2	ST_LobbyWait2	ST_LobbyWait2	4506	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_RAVEN_SOUL_TAKER	3	ST_LobbyDownLanding	ST_LobbyDownLanding	4721	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_RAVEN_SOUL_TAKER	4	ST_LobbyReadyAction	ST_LobbyReadyAction	4947	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_RAVEN_BLADE_MASTER	0	RBM_LobbyWait	RBM_LobbyWait	4148	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_RAVEN_BLADE_MASTER	1	RBM_LobbyWait	RBM_LobbyWait	4349	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_RAVEN_BLADE_MASTER	2	RBM_LobbyWait	RBM_LobbyWait	4546	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_RAVEN_BLADE_MASTER	3	RBM_LobbyDownLanding	RBM_LobbyDownLanding	4768	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_RAVEN_BLADE_MASTER	4	RBM_LobbyReadyAction	RBM_LobbyReadyAction	4994	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_RAVEN_OVER_TAKER	0	OT_LobbyWait	OT_LobbyWait	4092	yes	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_RAVEN_OVER_TAKER	1	OT_LobbyWait1	OT_LobbyWait1	4314	no	no	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_RAVEN_OVER_TAKER	2	OT_LobbyWait2	OT_LobbyWait2	4511	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_RAVEN_OVER_TAKER	3	OT_LobbyDownLanding	OT_LobbyDownLanding	4726	yes(prefix)	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_RAVEN_OVER_TAKER	4	OT_LobbyReadyAction	OT_LobbyReadyAction	4952	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_RAVEN_RECKLESS_FIST	0	RRF_LobbyWait	RRF_LobbyWait	4151	yes	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_RAVEN_RECKLESS_FIST	1	RRF_LobbyWait	RRF_LobbyWait	4352	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_RAVEN_RECKLESS_FIST	2	RRF_LobbyWait	RRF_LobbyWait	4549	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_RAVEN_RECKLESS_FIST	3	RRF_LobbyDownLanding	RRF_LobbyDownLanding	4771	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_RAVEN_RECKLESS_FIST	4	RRF_LobbyReadyAction	RRF_LobbyReadyAction	4997	yes(prefix)	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_RAVEN_WEAPON_TAKER	0	RWT_LobbyWait	RWT_LobbyWait	4096	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_RAVEN_WEAPON_TAKER	3	RWT_LobbyDownLanding	RWT_LobbyDownLanding	4733	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_RAVEN_WEAPON_TAKER	4	RWT_LobbyReadyAction	RWT_LobbyReadyAction	4959	yes(prefix)	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_RAVEN_VETERAN_COMMANDER	0	RVC_LobbyWait	RVC_LobbyWait	4156	yes(prefix)	yes	XAP_LOOP	XAP_LOOP	same name
+UC_RAVEN_VETERAN_COMMANDER	1	RVC_LobbyWait	RVC_LobbyWait	4356	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_RAVEN_VETERAN_COMMANDER	2	RVC_LobbyWait	RVC_LobbyWait	4553	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_RAVEN_VETERAN_COMMANDER	3	RVC_LobbyDownLanding	RVC_LobbyDownLanding	4775	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_RAVEN_VETERAN_COMMANDER	4	RVC_LobbyReadyAction	RVC_LobbyReadyAction	5001	yes(prefix)	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_EVE_EXOTIC_GEAR	0	EG_LobbyWait	EG_LobbyWait	4100	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_EVE_EXOTIC_GEAR	1	EG_LobbyWait	EG_LobbyWait	4319	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_EVE_EXOTIC_GEAR	2	EG_LobbyWait2	EG_LobbyWait2	4516	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_EVE_EXOTIC_GEAR	3	EG_LobbyDownLanding	EG_LobbyDownLanding	4739	yes(prefix)	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_EVE_EXOTIC_GEAR	4	EG_LobbyReadyAction	EG_LobbyReadyAction	4965	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_EVE_CODE_NEMESIS	0	NS_LobbyWait	NS_LobbyWait	4163	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_EVE_CODE_NEMESIS	1	NS_LobbyWait	NS_LobbyWait	4362	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_EVE_CODE_NEMESIS	2	NS_LobbyWait	NS_LobbyWait	4559	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_EVE_CODE_NEMESIS	3	NS_LobbyDownLanding	NS_LobbyDownLanding	4781	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_EVE_CODE_NEMESIS	4	NS_LobbyReadyAction	NS_LobbyReadyAction	5007	yes(prefix)	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_EVE_ARCHITECTURE	0	AT_LobbyWait	AT_LobbyWait	4103	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_EVE_ARCHITECTURE	1	AT_LobbyWait	AT_LobbyWait	4322	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_EVE_ARCHITECTURE	2	AT_LobbyWait2	AT_LobbyWait2	4519	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_EVE_ARCHITECTURE	3	AT_LobbyDownLanding	AT_LobbyDownLanding	4742	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_EVE_ARCHITECTURE	4	AT_LobbyReadyAction	AT_LobbyReadyAction	4968	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_EVE_CODE_EMPRESS	0	EP_LobbyWait	EP_LobbyWait	4166	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_EVE_CODE_EMPRESS	1	EP_LobbyWait	EP_LobbyWait	4365	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_EVE_CODE_EMPRESS	2	EP_LobbyWait	EP_LobbyWait	4562	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_EVE_CODE_EMPRESS	3	EP_LobbyDownLanding	EP_LobbyDownLanding	4784	yes(prefix)	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_EVE_CODE_EMPRESS	4	EP_LobbyReadyAction	EP_LobbyReadyAction	5010	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_EVE_ELECTRA	0	PR_LobbyWait	PR_LobbyWait	4107	yes(prefix)	yes	XAP_LOOP	XAP_LOOP	same name
+UC_EVE_ELECTRA	1	PR_LobbyWait	PR_LobbyWait	4326	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_EVE_ELECTRA	2	PR_LobbyWait	PR_LobbyWait	4523	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_EVE_ELECTRA	3	PR_LobbyDownLanding	PR_LobbyDownlanding	4746	case:PR_LobbyDownlanding	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	June renamed the motion: adopt June's motion file
+UC_EVE_ELECTRA	4	PR_LobbyReadyAction	PR_LobbyReadyAction	4971	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_EVE_BATTLE_SERAPH	0	BS_LobbyWait	BS_LobbyWait	4173	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_EVE_BATTLE_SERAPH	1	BS_LobbyWait	BS_LobbyWait	4371	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_EVE_BATTLE_SERAPH	2	BS_LobbyWait	BS_LobbyWait	4568	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_EVE_BATTLE_SERAPH	3	BS_LobbyDownLanding	BS_LobbyDownLanding	4790	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_EVE_BATTLE_SERAPH	4	BS_LobbyReadyAction	BS_LobbyReadyAction	5016	yes(prefix)	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_CHUNG_FURY_GUARDIAN	0	CFG_LobbyWait	CFG_LobbyWait	4180	yes(prefix)	yes	XAP_LOOP	XAP_LOOP	same name
+UC_CHUNG_FURY_GUARDIAN	1	CFG_LobbyWait	CFG_LobbyWait	4378	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_CHUNG_FURY_GUARDIAN	2	CFG_LobbyWait	CFG_LobbyWait	4575	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_CHUNG_FURY_GUARDIAN	3	CFG_LobbyDownLanding	CFG_LobbyDownLanding	4797	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_CHUNG_FURY_GUARDIAN	4	CFG_LobbyReadyAction	CFG_LobbyReadyAction	5023	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_CHUNG_IRON_PALADIN	0	CIP_LobbyWait	CIP_LobbyWait	4197	yes	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_CHUNG_IRON_PALADIN	1	CIP_LobbyWait	CIP_LobbyWait	4395	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_CHUNG_IRON_PALADIN	2	CIP_LobbyWait	CIP_LobbyWait	4592	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_CHUNG_IRON_PALADIN	3	CIP_LobbyDownLanding	CIP_LobbyDownLanding	4814	yes(prefix)	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_CHUNG_IRON_PALADIN	4	CIP_LobbyReadyAction	CIP_LobbyReadyAction	5040	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_CHUNG_SHOOTING_GUARDIAN	0	CSG_LobbyWait	CSG_LobbyWait	4183	yes	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_CHUNG_SHOOTING_GUARDIAN	1	CSG_LobbyWait	CSG_LobbyWait	4381	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_CHUNG_SHOOTING_GUARDIAN	2	CSG_LobbyWait	CSG_LobbyWait	4578	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_CHUNG_SHOOTING_GUARDIAN	3	CSG_LobbyDownLanding	CSG_LobbyDownLanding	4800	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_CHUNG_SHOOTING_GUARDIAN	4	CSG_LobbyReadyAction	CSG_LobbyReadyAction	5026	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_CHUNG_DEADLY_CHASER	0	CDC_LobbyWait	CDC_LobbyWait	4200	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_CHUNG_DEADLY_CHASER	1	CDC_LobbyWait	CDC_LobbyWait	4398	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_CHUNG_DEADLY_CHASER	2	CDC_LobbyWait	CDC_LobbyWait	4595	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_CHUNG_DEADLY_CHASER	3	CDC_LobbyDownLanding	CDC_LobbyDownLanding	4817	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_CHUNG_DEADLY_CHASER	4	CDC_LobbyReadyAction	CDC_LobbyReadyAction	5043	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_CHUNG_SHELLING_GUARDIAN	0	CHG_LobbyWait	CHG_LobbyWait	4190	yes	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_CHUNG_SHELLING_GUARDIAN	1	CHG_LobbyWait	CHG_LobbyWait	4388	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_CHUNG_SHELLING_GUARDIAN	2	CHG_LobbyWait	CHG_LobbyWait	4585	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_CHUNG_SHELLING_GUARDIAN	3	CHG_LobbyDownLanding	CHG_LobbyDownLanding	4807	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_CHUNG_SHELLING_GUARDIAN	4	CHG_LobbyReadyAction	CHG_LobbyReadyAction	5033	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_CHUNG_TACTICAL_TROOPER	0	CTT_LobbyWait	CTT_LobbyWait	4206	yes	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_CHUNG_TACTICAL_TROOPER	1	CTT_LobbyWait	CTT_LobbyWait	4404	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_CHUNG_TACTICAL_TROOPER	2	CTT_LobbyWait	CTT_LobbyWait	4601	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_CHUNG_TACTICAL_TROOPER	3	CTT_LobbyDownLanding	CTT_LobbyDownLanding	4823	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_CHUNG_TACTICAL_TROOPER	4	CTT_LobbyReadyAction	CTT_LobbyReadyAction	5049	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARA_LITTLE_HSIEN	0	ALH_LobbyWait	ALH_LobbyWait	4211	yes(prefix)	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_ARA_LITTLE_HSIEN	1	ALH_LobbyWait	ALH_LobbyWait	4409	yes(prefix)	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ARA_LITTLE_HSIEN	2	ALH_LobbyWait	ALH_LobbyWait	4606	yes(prefix)	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ARA_LITTLE_HSIEN	3	ALH_LobbyDownLanding	ALH_LobbyDownLanding	4828	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARA_LITTLE_HSIEN	4	ALH_LobbyReadyAction	ALH_LobbyReadyAction	5054	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARA_SAKRA_DEVANAM	0	ASD_LobbyWait	ASD_LobbyWait	4214	yes(prefix)	yes	XAP_LOOP	XAP_LOOP	same name
+UC_ARA_SAKRA_DEVANAM	1	ASD_LobbyWait	ASD_LobbyWait	4412	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ARA_SAKRA_DEVANAM	2	ASD_LobbyWait	ASD_LobbyWait	4609	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ARA_SAKRA_DEVANAM	3	ASD_LobbyDownLanding	ASD_LobbyDownLanding	4831	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARA_SAKRA_DEVANAM	4	ASD_LobbyReadyAction	ASD_LobbyReadyAction	5057	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARA_LITTLE_DEVIL	0	ALD_LobbyWait	ALD_lobbyWait	4227	case:ALD_lobbyWait	yes(prefix)	XAP_LOOP	XAP_LOOP	June renamed the motion: adopt June's motion file
+UC_ARA_LITTLE_DEVIL	1	ALD_LobbyWait	ALD_lobbyWait	4425	case:ALD_lobbyWait	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	June renamed the motion: adopt June's motion file; play type changes
+UC_ARA_LITTLE_DEVIL	2	ALD_LobbyWait	ALD_lobbyWait	4622	case:ALD_lobbyWait	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	June renamed the motion: adopt June's motion file; play type changes
+UC_ARA_LITTLE_DEVIL	3	ALD_LobbyDownLanding	ALD_LobbyDownLanding	4844	yes(prefix)	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARA_LITTLE_DEVIL	4	ALD_LobbyReadyAction	ALD_LobbyReadyAction	5070	yes(prefix)	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARA_YAMA_RAJA	0	AYR_LobbyWait	AYR_LobbyWait	4230	yes	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_ARA_YAMA_RAJA	1	AYR_LobbyWait	AYR_LobbyWait	4428	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ARA_YAMA_RAJA	2	AYR_LobbyWait	AYR_LobbyWait	4625	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ARA_YAMA_RAJA	3	AYR_LobbyDownLanding	AYR_LobbyDownLanding	4847	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ARA_YAMA_RAJA	4	AYR_LobbyReadyAction	AYR_LobbyReadyAtcion	5073	no	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	June renamed the motion: adopt June's motion file
+UC_ARA_LITTLE_SPECTER	0	ALS_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_ARA_LITTLE_SPECTER	1	ALS_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_ARA_LITTLE_SPECTER	2	ALS_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_ARA_LITTLE_SPECTER	3	ALS_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ARA_LITTLE_SPECTER	4	ALS_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ARA_ASURA	0	AA_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ARA_ASURA	1	AA_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ARA_ASURA	2	AA_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ARA_ASURA	3	AA_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ARA_ASURA	4	AA_LobbyReadyAction			no	yes(prefix)		XAP_ONE_WAIT	inert: class not in March
+UC_ELESIS_SABER_KNIGHT	0	SSK_LobbyWait	SSK_LobbyWait	4219	yes(prefix)	yes	XAP_LOOP	XAP_LOOP	same name
+UC_ELESIS_SABER_KNIGHT	1	SSK_LobbyWait	SSK_LobbyWait	4417	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELESIS_SABER_KNIGHT	2	SSK_LobbyWait	SSK_LobbyWait	4614	yes(prefix)	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELESIS_SABER_KNIGHT	3	SSK_LobbyDownLanding	SSK_LobbyDownLanding	4836	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELESIS_SABER_KNIGHT	4	SSK_LobbyReadyAction	SSK_LobbyReadyaction	5062	case:SSK_LobbyReadyaction	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	June renamed the motion: adopt June's motion file
+UC_ELESIS_GRAND_MASTER	0	SGM_LobbyWait	SGM_LobbyWait	4236	yes(prefix)	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_ELESIS_GRAND_MASTER	1	SGM_LobbyWait	SGM_LobbyWait	4433	yes(prefix)	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELESIS_GRAND_MASTER	2	SGM_LobbyWait	SGM_LobbyWait	4630	yes(prefix)	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELESIS_GRAND_MASTER	3	SGM_LobbyDownLanding	SGM_LobbyDownLanding	4853	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELESIS_GRAND_MASTER	4	SGM_LobbyReadyAction	SGM_LobbyReadyAction	5080	yes(prefix)	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELESIS_PYRO_KNIGHT	0	SPK_LobbyWait	SPK_LobbyWait	4222	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_ELESIS_PYRO_KNIGHT	1	SPK_LobbyWait	SPK_LobbyWait	4420	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELESIS_PYRO_KNIGHT	2	SPK_LobbyWait	SPK_LobbyWait	4617	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELESIS_PYRO_KNIGHT	3	SPK_LobbyDownLanding	SPK_LobbyDownLanding	4839	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELESIS_PYRO_KNIGHT	4	SPK_LobbyReadyAction	SPK_LobbyReadyaction	5065	case:SPK_LobbyReadyaction	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	June renamed the motion: adopt June's motion file
+UC_ELESIS_BLAZING_HEART	0	SBH_LobbyWait	SBH_LobbyWait	4239	yes	yes	XAP_LOOP	XAP_LOOP	same name
+UC_ELESIS_BLAZING_HEART	1	SBH_LobbyWait	SBH_LobbyWait	4436	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELESIS_BLAZING_HEART	2	SBH_LobbyWait	SBH_LobbyWait	4633	yes	yes	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ELESIS_BLAZING_HEART	3	SBH_LobbyDownLanding	SBH_LobbyDownLanding	4856	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELESIS_BLAZING_HEART	4	SBH_LobbyReadyAction	SBH_LobbyReadyAction	5083	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ELESIS_DARK_KNIGHT	0	SDK_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_ELESIS_DARK_KNIGHT	1	SDK_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_ELESIS_DARK_KNIGHT	2	SDK_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_ELESIS_DARK_KNIGHT	3	SDK_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ELESIS_DARK_KNIGHT	4	SDK_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ELESIS_CRIMSON_AVENGER	0	SCA_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_ELESIS_CRIMSON_AVENGER	1	SCA_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_ELESIS_CRIMSON_AVENGER	2	SCA_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_ELESIS_CRIMSON_AVENGER	3	SCA_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ELESIS_CRIMSON_AVENGER	4	SCA_LobbyReadyAction			no	yes(prefix)		XAP_ONE_WAIT	inert: class not in March
+UC_ADD_PSYCHIC_TRACER	0	APT_LobbyWait	APT_LobbyWait	4246	yes	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_ADD_PSYCHIC_TRACER	1	APT_LobbyWait	APT_LobbyWait	4442	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ADD_PSYCHIC_TRACER	2	APT_LobbyWait	APT_LobbyWait	4639	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ADD_PSYCHIC_TRACER	3	APT_LobbyDownLanding	APT_LobbyDownLanding	4862	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ADD_PSYCHIC_TRACER	4	APT_LobbyReadyAction	APT_LobbyReadyAction	5089	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ADD_LUNATIC_PSYKER	0	ALP_LobbyWait	ALP_LobbyWait	4252	yes	yes(prefix)	XAP_LOOP	XAP_LOOP	same name
+UC_ADD_LUNATIC_PSYKER	1	ALP_LobbyWait	ALP_LobbyWait	4448	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ADD_LUNATIC_PSYKER	2	ALP_LobbyWait	ALP_LobbyWait	4645	yes	yes(prefix)	XAP_ONE_WAIT	XAP_LOOP	same name; play type changes
+UC_ADD_LUNATIC_PSYKER	3	ALP_LobbyDownLanding	ALP_LobbyDownLanding	4868	yes	yes(prefix)	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ADD_LUNATIC_PSYKER	4	ALP_LobbyReadyAction	ALP_LobbyReadyAction	5095	yes	yes	XAP_ONE_WAIT	XAP_ONE_WAIT	same name
+UC_ADD_ARC_TRACER	0	AAT_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ADD_ARC_TRACER	1	AAT_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ADD_ARC_TRACER	2	AAT_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ADD_ARC_TRACER	3	AAT_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ADD_ARC_TRACER	4	AAT_LobbyReadyAction			no	yes(prefix)		XAP_ONE_WAIT	inert: class not in March
+UC_ADD_MASTERMIND	0	AMM_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ADD_MASTERMIND	1	AMM_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ADD_MASTERMIND	2	AMM_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ADD_MASTERMIND	3	AMM_LobbyDownLanding			no	yes(prefix)		XAP_ONE_WAIT	inert: class not in March
+UC_ADD_MASTERMIND	4	AMM_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ADD_TIME_TRACER	0	ATT_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ADD_TIME_TRACER	1	ATT_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ADD_TIME_TRACER	2	ATT_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ADD_TIME_TRACER	3	ATT_LobbyDownLanding			no	yes(prefix)		XAP_ONE_WAIT	inert: class not in March
+UC_ADD_TIME_TRACER	4	ATT_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ADD_DIABOLIC_ESPER	0	ADE_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ADD_DIABOLIC_ESPER	1	ADE_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ADD_DIABOLIC_ESPER	2	ADE_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ADD_DIABOLIC_ESPER	3	ADE_LobbyDownLanding			no	yes(prefix)		XAP_ONE_WAIT	inert: class not in March
+UC_ADD_DIABOLIC_ESPER	4	ADE_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_LUCIEL_DUO	0	LobbyWait			yes	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_DUO	1	LobbyWait			yes	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_DUO	2	LobbyWait			yes	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_DUO	3	LobbyDownLanding			yes	yes		XAP_ONE_WAIT	inert: class not in March
+UC_LUCIEL_DUO	4	LobbyReadyAction			yes	yes		XAP_ONE_WAIT	inert: class not in March
+UC_LUCIEL_CHILIARCH	0	LLC_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_CHILIARCH	1	LLC_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_CHILIARCH	2	LLC_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_CHILIARCH	3	LLC_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_LUCIEL_CHILIARCH	4	LLC_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_LUCIEL_DREAD_LORD	0	LLD_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_DREAD_LORD	1	LLD_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_DREAD_LORD	2	LLD_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_DREAD_LORD	3	LLD_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_LUCIEL_DREAD_LORD	4	LLD_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_LUCIEL_ROYAL_GUARD	0	LCG_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_LUCIEL_ROYAL_GUARD	1	LCG_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_LUCIEL_ROYAL_GUARD	2	LCG_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_LUCIEL_ROYAL_GUARD	3	LCG_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_LUCIEL_ROYAL_GUARD	4	LCG_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_LUCIEL_NOBLESSE	0	LCN_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_NOBLESSE	1	LCN_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_NOBLESSE	2	LCN_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_NOBLESSE	3	LCN_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_LUCIEL_NOBLESSE	4	LCN_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_LUCIEL_DIABLURA	0	LDB_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_DIABLURA	1	LDB_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_DIABLURA	2	LDB_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_DIABLURA	3	LDB_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_LUCIEL_DIABLURA	4	LDB_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_LUCIEL_DEMONIO	0	LDN_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_DEMONIO	1	LDN_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_DEMONIO	2	LDN_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_LUCIEL_DEMONIO	3	LDN_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_LUCIEL_DEMONIO	4	LDN_LobbyReadyAction			no	yes(prefix)		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_GUNNER	1	LobbyWait_UNIT_VIEWER			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_ROSE_GUNNER	6	LobbyWaitHabit			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_BLOODIA	0	RBD_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_ROSE_BLOODIA	1	RBD_LobbyWait_UNIT_VIEWER			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_BLOODIA	2	RBD_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_ROSE_BLOODIA	3	RBD_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_BLOODIA	4	RBD_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_BLOODIA	6	RBD_LobbyWaitHabit			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_HEAVY_BARREL	0	RHB_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_HEAVY_BARREL	1	RHB_LobbyWait_UNIT_VIEWER			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_HEAVY_BARREL	2	RHB_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_HEAVY_BARREL	3	RHB_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_HEAVY_BARREL	4	RHB_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_HEAVY_BARREL	6	RHB_LobbyWaitHabit			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_METAL_HEART	0	RMH_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_METAL_HEART	1	RMH_LobbyWait_UNIT_VIEWER			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_METAL_HEART	2	RMH_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_METAL_HEART	3	RMH_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_METAL_HEART	4	RMH_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_METAL_HEART	6	RMH_LobbyWaitHabit			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_VALKYRIE	0	RVK_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_VALKYRIE	1	RVK_LobbyWait_UNIT_VIEWER			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_ROSE_VALKYRIE	2	RVK_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_VALKYRIE	3	RVK_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_VALKYRIE	4	RVK_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_VALKYRIE	6	RVK_LobbyWaitHabit			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_CRIMSON_ROSE	0	RCR_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_CRIMSON_ROSE	1	RCR_LobbyWait_UNIT_VIEWER			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_CRIMSON_ROSE	2	RCR_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_CRIMSON_ROSE	3	RCR_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_CRIMSON_ROSE	4	RCR_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_CRIMSON_ROSE	6	RCR_LobbyWaitHabit			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_STORM_TROOPER	0	RST_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_STORM_TROOPER	1	RST_LobbyWait_UNIT_VIEWER			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_ROSE_STORM_TROOPER	2	RST_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_STORM_TROOPER	3	RST_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_STORM_TROOPER	4	RST_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_STORM_TROOPER	6	RST_LobbyWaitHabit			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_OPTIMUS	0	ROM_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_OPTIMUS	1	ROM_LobbyWait_UNIT_VIEWER			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_OPTIMUS	2	ROM_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_OPTIMUS	3	ROM_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_OPTIMUS	4	ROM_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_OPTIMUS	6	ROM_LobbyWaitHabit			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_FREYJA	0	RFY_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_FREYJA	1	RFY_LobbyWait_UNIT_VIEWER			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_FREYJA	2	RFY_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_ROSE_FREYJA	3	RFY_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_FREYJA	4	RFY_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_ROSE_FREYJA	6	RFY_LobbyWaitHabit			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_AIN_LOFTY_EXACTER	0	ALE_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_AIN_LOFTY_EXACTER	1	ALE_LobbyWait_UNIT_VIEWER			no	no		XAP_LOOP	inert: class not in March
+UC_AIN_LOFTY_EXACTER	2	ALE_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_AIN_LOFTY_EXACTER	3	ALE_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_AIN_LOFTY_EXACTER	4	ALE_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_AIN_ARME_THAUMATURGY	0	AAH_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_AIN_ARME_THAUMATURGY	1	AAH_LobbyWait_UNIT_VIEWER			no	no		XAP_LOOP	inert: class not in March
+UC_AIN_ARME_THAUMATURGY	2	AAH_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_AIN_ARME_THAUMATURGY	3	AAH_LobbyDownLanding			no	yes(prefix)		XAP_ONE_WAIT	inert: class not in March
+UC_AIN_ARME_THAUMATURGY	4	AAH_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_AIN_LOFTY_ANPASSEN	0	ALA_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_AIN_LOFTY_ANPASSEN	1	ALA_LobbyWait_UNIT_VIEWER			no	no		XAP_LOOP	inert: class not in March
+UC_AIN_LOFTY_ANPASSEN	2	ALA_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_AIN_LOFTY_ANPASSEN	3	ALA_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_AIN_LOFTY_ANPASSEN	4	ALA_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_AIN_ERBLUHEN_EMOTION	0	AEE_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_AIN_ERBLUHEN_EMOTION	1	AEE_LobbyWait_UNIT_VIEWER			no	no		XAP_LOOP	inert: class not in March
+UC_AIN_ERBLUHEN_EMOTION	2	AEE_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_AIN_ERBLUHEN_EMOTION	3	AEE_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_AIN_ERBLUHEN_EMOTION	4	AEE_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_AIN_LOFTY_WANDERER	0	ALW_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_AIN_LOFTY_WANDERER	1	ALW_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_AIN_LOFTY_WANDERER	2	ALW_LobbyWait			no	yes		XAP_LOOP	inert: class not in March
+UC_AIN_LOFTY_WANDERER	3	ALW_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_AIN_LOFTY_WANDERER	4	ALW_LobbyReadyAction			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_AIN_APOSTASIA	0	AAP_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_AIN_APOSTASIA	1	AAP_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_AIN_APOSTASIA	2	AAP_LobbyWait			no	yes(prefix)		XAP_LOOP	inert: class not in March
+UC_AIN_APOSTASIA	3	AAP_LobbyDownLanding			no	yes		XAP_ONE_WAIT	inert: class not in March
+UC_AIN_APOSTASIA	4	AAP_LobbyReadyAction			no	yes(prefix)		XAP_ONE_WAIT	inert: class not in March
+DEFAULT	0		LobbyWait	4258			XAP_LOOP	XAP_LOOP	March default (June 32375ee0 default is the same name)
+DEFAULT	1		LobbyWait1	4454			XAP_ONE_WAIT	XAP_LOOP	March default (June 32375ee0 default is the same name)
+DEFAULT	2		LobbyWait2	4651			XAP_ONE_WAIT	XAP_LOOP	March default (June 32375ee0 default is the same name)
+DEFAULT	3		LobbyDownLanding	4874			XAP_ONE_WAIT	XAP_ONE_WAIT	March default (June 32375ee0 default is the same name)
+DEFAULT	4		LobbyReadyAction	5101			XAP_ONE_WAIT	XAP_ONE_WAIT	March default (June 32375ee0 default is the same name)
