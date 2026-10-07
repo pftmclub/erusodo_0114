@@ -1012,6 +1012,13 @@ play-test; update matrix and MODS.md.
 
 **Play-test:** none required; the fix is inert (rate -1). The optional check: throw a bomb or Chung's Elastic Bomb and look for `TOUCH_LAND_GATE entries=0`.
 
+**Play-test (2026-10-07, logs read): the optional check passed.**
+- Run on exe 4438a923 (started after the deploy); 0 EXCEPTION; 2 UNHANDLED, both the known `E_DISABLE_HB_CHECK_REQ`.
+- 48 `JUNE_FX CE_HIT` lines: 17 `TOUCH_LAND_GATE`, 18 `SPAWN_INHERIT`, 13 `SPAWN_TAIL`.
+- Every gate line is `entries=0 gravity.y=-2000.0` with `velocityBefore.y < 0 < velocity.y`, on `CHUNG_ELASTIC_BOMB` (e.g. -671.6 -> 560.2) and `HAND_GRENADE_0` (e.g. -1400.0 -> 700.0). So `m_vVelocityBefore` and the gate work on real bounces.
+- None of `TOUCH_LAND`, `CREATE_DAMAGE_EFFECT_RATE`, `CREATE_DAMAGE_EFFECT_INHERIT`, `INHERITLOCKONDATA` or `CREATE_LOCKON_COPY` appeared, as expected on March data.
+- What is still open, carried to C11: the `TOUCH_LAND` spawn on June data and `CREATE_LOCKON_COPY`.
+
 ---
 
 ## C8 - Hit path, second half (old Phase 9)
