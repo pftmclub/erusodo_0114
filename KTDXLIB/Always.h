@@ -5524,3 +5524,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              site. Log tag: JUNE_FX (nothing logs).
 #define SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June 2017 effect completion C10b-1 (D4): HP-rate damage.
+//              CX2GameUnit::GetHpRateDamage (June 32273e80) overwrites the
+//              damage with HP_RATE_DAMAGE_TYPE 1 now HP / 2 max HP times
+//              HP_RATE_DAMAGE_VALUE, only while now HP > 1.0. Called on the
+//              defender in GetFinalDamage (June @3228696a-32286990, before
+//              the <= 0 clamp) and on this in CX2GUUser::DamageReact (June
+//              @32049727, before the shown-damage copy), so a user defender
+//              is overwritten twice (JUNE_BUGS #93). June's gate 322726f0
+//              (RNSI_SA_ALP_SUPERSONIC only) is the Rena port's (checklist
+//              7c); here the call is unconditional. Needs
+//              SERV_IRUHADEV_JUNE_DAMAGEDATA (the two parsed fields). Log:
+//              "JUNE_FX hp-rate" in offline_server.log (JUNE_FX_DEBUG).
+#define SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE
+//////////////////////////////////////////////////////////////////////////

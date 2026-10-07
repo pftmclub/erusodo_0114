@@ -3030,6 +3030,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void JuneApplyMultipleDamageByDebuff( IN OUT float& fDamage_, IN const CX2DamageManager::DamageData& damageData_ );
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #endif SERV_IRUHADEV_JUNE_BUFF_BINDING
+#if defined( SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE ) && defined( SERV_IRUHADEV_JUNE_DAMAGEDATA )
+		/// June 32273e80 (effect completion C10b-1): HP_RATE_DAMAGE_TYPE/_VALUE overwrite *pfDamage_ (this = the defender)
+		void GetHpRateDamage( IN OUT float* pfDamage_, IN const CX2DamageManager::DamageData* pDamageData_ );
+#endif // SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE && SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 		/// June 32278580 (effect completion C5): the frame name of this unit's collision point nearest vPos_ (empty without one).
 		/// Outside SERV_IRUHADEV_JUNE_BUFF_BINDING (C5 review): it has no buff dependency and X2EffectSet.cpp calls it.

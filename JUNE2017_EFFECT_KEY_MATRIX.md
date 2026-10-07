@@ -72,7 +72,7 @@ when its rows leave `to-implement`; `python june2017_re/census.py --summary` pri
 - PASS every `handed-off` / `declined` row names its receiver (document + phase or section)
 - PASS definition item 3: every binary-only row has a March parse site (3 sited; 7 owed to the phase that closes them: C10 1, C3 6)
 - PASS definition item 1, numerical skill data (June SetDamageDataFromLUA override, 32632390@3263fe41): handed-off to JUNE2017_CHARACTER_PORT_CHECKLIST.md section 1 (character ports: June skill reform) (D7 2026-10-06: C1a found every block uses June reform skill IDs no March character learns); 1913 of 7948 June DAMAGE_DATA* blocks depend on it
-- **FAIL** definition item 1, HP-rate damage (HP_RATE_DAMAGE_TYPE/VALUE; C10a confirms the formula): 7 of 7948 June DAMAGE_DATA* blocks get damage only from it, and March lacks it (owner C10, flag not named yet). By file: DamageEffect_ETC.lua 4, DamageEffect_Dungeon.lua 1, DamageEffect_Character.lua 1, DamageEffect_INT.lua 1. First: DamageEffect_2017_Teacher_Benders_Laser/DAMAGE_DATA, DamageEffect_Abnormal_State_AttackDummy/DAMAGE_DATA, DamageEffect_ITEM_PVP_PHOENIX_Attack/DAMAGE_DATA
+- PASS definition item 1, HP-rate damage (HP_RATE_DAMAGE_TYPE/VALUE; C10a confirms the formula): 0 of 7948 June DAMAGE_DATA* blocks get damage only from it
 
 ## Summary
 
@@ -431,8 +431,8 @@ The full spec is in the plan, Phases 4a and 4b.
 | `CAN_REVENGE` | june-ignores(dead-here) |  | 7 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
 | `CLEAR_SCREEN` | june-ignores(dead-here) |  | 3 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
 | `DAMAGE` | june-ignores(dead-here) |  | 2 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
-| `DAMAGE_DATA_MEMO` | june-ignores(unread) |  | 9 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:15007 |  |  |  |
-| `DAMAGE_DATA_NEXT_MEMO` | june-ignores(unread) |  | 2 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:39210 |  |  |  |
+| `DAMAGE_DATA_MEMO` | june-ignores(unread) |  | 9 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:15050 |  |  |  |
+| `DAMAGE_DATA_NEXT_MEMO` | june-ignores(unread) |  | 2 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:39270 |  |  |  |
 | `DAMAGE_DATA_NEXT_MEMO%d` | june-ignores(unread) |  | 4 | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |  |  | 2 names |
 | `DAMAGE_TYPE` | june-ignores(dead-here) |  | 2 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
 | `DamageTime` | june-ignores(typo) |  | 1 | data typo of `DAMAGE_TIME` (this scope, decrypted in 31f7aab0); the binary never reads this spelling |  |  |  |
@@ -478,8 +478,8 @@ The full spec is in the plan, Phases 4a and 4b.
 | `INIT_EXTRA_DAMAGE_BEFORE_LOAD` | to-implement | 8b | 4 | direct 32632390@32635e57 |  |  | e.g. DamageEffect:ELSWORD_MAELSTROM |
 | `ONYL_ATTACK_USER` | to-implement | 8b | 1 | direct 32632390@3263f60a |  |  | e.g. DamageEffect_ETC:DamageEffect_Abnormal_State_Dummy |
 | `PAUSE_NPC_AI_TIME` | to-implement | 8b | 1 | direct 32632390@3263f977 |  |  | e.g. DamageEffect_INT:SPECIAL_ITEM_LUCKY_BAG_C_Explosion |
-| `HP_RATE_DAMAGE_TYPE` | unsupported(HP-rate damage (absent)) | 8c | 8 | direct 32632390@3263f2ad | X2DamageManager:254 | same [June enum = 0] | compiled elsewhere: X2DamageManager:254; raw literal 2 (X2Lib/X2DamageManager.cpp:254); bare id 2; e.g. DamageEffect_Character:DamageEffect_SA_ALP_SupersonicFX |
-| `HP_RATE_DAMAGE_VALUE` | unsupported(HP-rate damage (absent)) | 8c | 8 | direct 32632390@3263f45f | X2DamageManager:259 | same [June float = 0] | compiled elsewhere: X2DamageManager:259; raw literal 2 (X2Lib/X2DamageManager.cpp:259); bare id 1; e.g. DamageEffect_Character:DamageEffect_SA_ALP_SupersonicFX |
+| `HP_RATE_DAMAGE_TYPE` | unsupported(HP-rate damage (absent)) | 8c | 8 | direct 32632390@3263f2ad | X2DamageManager:254 | same [June enum = 0] | compiled elsewhere: X2DamageManager:254; raw literal 2 (X2Lib/X2DamageManager.cpp:254); bare id 6; e.g. DamageEffect_Character:DamageEffect_SA_ALP_SupersonicFX |
+| `HP_RATE_DAMAGE_VALUE` | unsupported(HP-rate damage (absent)) | 8c | 8 | direct 32632390@3263f45f | X2DamageManager:259 | same [June float = 0] | compiled elsewhere: X2DamageManager:259; raw literal 2 (X2Lib/X2DamageManager.cpp:259); bare id 3; e.g. DamageEffect_Character:DamageEffect_SA_ALP_SupersonicFX |
 | `APPLIED_MEMO_ID` | binary-only | 8b |  | binary-only 32632390@326325cc |  |  |  |
 | `CREATE_DAMAGE_EFFECT_NAME_SCALE_X` | binary-only | 8b |  | binary-only 32632390@32633724 |  |  |  |
 | `CREATE_DAMAGE_EFFECT_NAME_SCALE_Y` | binary-only | 8b |  | binary-only 32632390@326339df |  |  |  |
@@ -1998,7 +1998,7 @@ evidence. An unsupported row that March parses that way stays `unsupported`, wit
 | Natural force | `NATURAL_FORCE` | **gated-off** | Rena natural-force code exists, but only under `ADD_RENA_SYSTEM`, which is off under `US_SERVICE` | 0 | 122 in 9 files (`X2Lib/X2GULire_ElvenRanger.cpp`, `X2Lib/X2GageData.h`) | `ADD_RENA_SYSTEM` off | 13 in 4 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2GUNPC.cpp`) |
 | Skill memo | `MEMO` | **present** | compiled in: `ADD_MEMO_1ST_CLASS` is ON under `US_SERVICE` (March reads memo keys June does not; see *March reads it, June does not*) | X2DamageManager.cpp 7, X2DamageEffect.cpp 5, X2EffectSet.cpp 5 | 31 in 5 files (`X2Lib/X2GUUser.cpp`, `X2Lib/X2GameUnit.cpp`) | `ADD_MEMO_1ST_CLASS` ON, `BALANCE_PATCH_20131107` ON | 8 in 3 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2EffectSet.cpp`) |
 | Numerical skill data | `NUMERICAL_DATA` | **absent** | no identifier anywhere (a plan-listed absent system) | 0 | 0 | - | 14 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
-| HP-rate damage | `HP_RATE_DAMAGE` | **absent** | no identifier anywhere, and no `HP_RATE_DAMAGE_TYPE` enum (a plan-listed absent system) | 0 | 0 | - | 14 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
+| HP-rate damage | `HP_RATE_DAMAGE` | **absent** | no identifier anywhere, and no `HP_RATE_DAMAGE_TYPE` enum (a plan-listed absent system) | 0 | 0 | - | 22 in 5 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2GameUnit.cpp`) |
 | Applied skill ID | `^APPLIED_SKILL_ID$` | **absent** | no March identifier for the key (a plan-listed absent system); the search is by the key's own name. June's two DamageData readers, `ParsingBuffFactorID`'s `_ULTIMATE` gate (`31fcf3e0`, unidentified, Phase 8b) and the numerical-data override (`32632390@3263fe41-32640054`), have no March counterpart. `DamageData::m_eUsedSkillID` (`SERV_ARA_CHANGE_CLASS_SECOND`) is a C++-set skill ID, not this key (Phase 8c) | 0 | 0 | - | 46 in 8 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2EffectSet.cpp`) |
 | Nasod armor combo | `NASOD_ARMOR_COMBO` | **present-elsewhere** | compiled in: Add's Nasod-armor combo states (`X2GUAdd`) under `SERV_9TH_NEW_CHARACTER`, which is ON | 0 | 51 in 2 files (`X2Lib/X2GUAdd.cpp`, `X2Lib/X2GUAdd.h`) | `SERV_ADD_LUNATIC_PSYKER` ON, `SERV_9TH_NEW_CHARACTER` ON | 6 in 3 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
 | Combination point | `COMBINATION_POINT` | **absent** | no March identifier for the key (a plan-listed absent system); the search is by the key's own name | 0 | 0 | - | 7 in 2 files (`X2Lib/X2DamageManager.cpp`, `X2Lib/X2DamageManager.h`) |
@@ -3099,10 +3099,10 @@ formats are tokenizers, not Lua, and their keywords are **plaintext** in the Jun
 
 | Scope | Key | Status | June | March | June uses | March uses | Runtime / system |
 |---|---|---|---|---|---|---|---|
-| `MP.event` | `ANINAME` | implemented | `31c85378` | `KTDGXMeshPlayer.cpp:1211` | 7636 | 3700 |  |
+| `MP.event` | `ANINAME` | implemented | `31c85378` | `KTDGXMeshPlayer.cpp:1211` | 7636 | 3705 |  |
 | `MP.event` | `ANISPEED` | implemented | `31c853e6` | `KTDGXMeshPlayer.cpp:1212` | 790 | 279 |  |
 | `MP.event` | `BLACKHOLETIME` | implemented | `31c856ab` | `KTDGXMeshPlayer.cpp:1226` | 0 | 0 | binary-only (no June data uses it) |
-| `MP.event` | `COLOR` | implemented | `31c8548f` | `KTDGXMeshPlayer.cpp:1214` | 12187 | 6455 |  |
+| `MP.event` | `COLOR` | implemented | `31c8548f` | `KTDGXMeshPlayer.cpp:1214` | 12187 | 6466 |  |
 | `MP.event` | `CRASH` | implemented | `31c856e0` | `KTDGXMeshPlayer.cpp:1227` | 32 | 1 |  |
 | `MP.event` | `DIRSPEED` | implemented | `31c85676` | `KTDGXMeshPlayer.cpp:1225` | 1167 | 323 |  |
 | `MP.event` | `LIGHTFLOWIMPACT` | implemented | `31c8574a` | `KTDGXMeshPlayer.cpp:1229` | 1 | 1 |  |
@@ -3112,7 +3112,7 @@ formats are tokenizers, not Lua, and their keywords are **plaintext** in the Jun
 | `MP.event` | `RENDER_TYPE` | implemented | `31c857db` | `KTDGXMeshPlayer.cpp:1232` | 678 | 140 |  |
 | `MP.event` | `RESETCRASH` | implemented | `31c85715` | `KTDGXMeshPlayer.cpp:1228` | 1 | 0 |  |
 | `MP.event` | `ROTATE` | implemented | `31c85641` | `KTDGXMeshPlayer.cpp:1224` | 2857 | 1137 |  |
-| `MP.event` | `SIZE` | implemented | `31c85503` | `KTDGXMeshPlayer.cpp:1216` | 8243 | 3953 |  |
+| `MP.event` | `SIZE` | implemented | `31c85503` | `KTDGXMeshPlayer.cpp:1216` | 8243 | 3958 |  |
 | `MP.event` | `SLASHTRACE` | implemented | `31c8543c` | `KTDGXMeshPlayer.cpp:1213` | 777 | 329 |  |
 | `MP.event` | `SOUND` | implemented | `31c857ad` | `KTDGXMeshPlayer.cpp:1231` | 0 | 0 | binary-only (no June data uses it) |
 | `MP.event` | `TEX0UV` | implemented | `31c855a2` | `KTDGXMeshPlayer.cpp:1221` | 111 | 45 |  |
@@ -3124,13 +3124,13 @@ formats are tokenizers, not Lua, and their keywords are **plaintext** in the Jun
 | `MP.templet` | `ALPHATEST` | implemented | `31c8ba19` | `KTDGXMeshPlayer.cpp:1036` | 93 | 1 |  |
 | `MP.templet` | `ANIPACKAGE` | implemented | `31c8bba0` | `KTDGXMeshPlayer.cpp:1074` | 9 | 1 |  |
 | `MP.templet` | `APPLYUNITSCALE` | implemented | `31c8b9fc` | `KTDGXMeshPlayer.cpp:1029` | 266 | 42 |  |
-| `MP.templet` | `BILLBOARDTYPE` | implemented | `31c8b874` | `KTDGXMeshPlayer.cpp:1000` | 7379 | 3475 |  |
+| `MP.templet` | `BILLBOARDTYPE` | implemented | `31c8b874` | `KTDGXMeshPlayer.cpp:1000` | 7379 | 3480 |  |
 | `MP.templet` | `BLACKHOLEPOS` | implemented | `31c8b700` | `KTDGXMeshPlayer.cpp:963` | 0 | 0 | binary-only (no June data uses it) |
 | `MP.templet` | `CARTOONTEXTYPE` | implemented | `31c8b2af` | `KTDGXMeshPlayer.cpp:893` | 4 | 10 |  |
 | `MP.templet` | `CHANGETEXXET` | implemented | `31c8bb5d` | `KTDGXMeshPlayer.cpp:1072` | 165 | 92 |  |
 | `MP.templet` | `CRASHLAND` | implemented | `31c8b9df` | `KTDGXMeshPlayer.cpp:1027` | 398 | 205 |  |
 | `MP.templet` | `CULLMODE` | implemented | `31c8b344` | `KTDGXMeshPlayer.cpp:911` | 228 | 61 |  |
-| `MP.templet` | `DESTBLENDMODE` | implemented | `31c8b7e5` | `KTDGXMeshPlayer.cpp:982` | 7408 | 3584 |  |
+| `MP.templet` | `DESTBLENDMODE` | implemented | `31c8b7e5` | `KTDGXMeshPlayer.cpp:982` | 7408 | 3589 |  |
 | `MP.templet` | `DIELIFETIME` | implemented | `31c8b458` | `KTDGXMeshPlayer.cpp:933` | 0 | 0 | binary-only (no June data uses it) |
 | `MP.templet` | `DIEPLAYCOUNT` | implemented | `31c8b42e` | `KTDGXMeshPlayer.cpp:932` | 0 | 0 | binary-only (no June data uses it) |
 | `MP.templet` | `DIETYPE` | implemented | `31c8b0f9` | `KTDGXMeshPlayer.cpp:839` | 12 | 5 |  |
@@ -3140,30 +3140,30 @@ formats are tokenizers, not Lua, and their keywords are **plaintext** in the Jun
 | `MP.templet` | `FORCELAYER` | implemented | `31c8b9a8` | `KTDGXMeshPlayer.cpp:1025` | 198 | 26 |  |
 | `MP.templet` | `GRAVITY` | implemented | `31c8b6b6` | `KTDGXMeshPlayer.cpp:962` | 241 | 160 |  |
 | `MP.templet` | `LANDPOS` | implemented | `31c8b4f4` | `KTDGXMeshPlayer.cpp:937` | 0 | 0 | binary-only (no June data uses it) |
-| `MP.templet` | `LAYER` | implemented | `31c8b51a` | `KTDGXMeshPlayer.cpp:938` | 7412 | 3588 |  |
-| `MP.templet` | `LIFETIME` | implemented | `31c8b40e` | `KTDGXMeshPlayer.cpp:931` | 5721 | 2081 |  |
-| `MP.templet` | `LIFETYPE` | implemented | `31c8b0df` | `KTDGXMeshPlayer.cpp:838` | 7412 | 3591 |  |
+| `MP.templet` | `LAYER` | implemented | `31c8b51a` | `KTDGXMeshPlayer.cpp:938` | 7412 | 3593 |  |
+| `MP.templet` | `LIFETIME` | implemented | `31c8b40e` | `KTDGXMeshPlayer.cpp:931` | 5721 | 2086 |  |
+| `MP.templet` | `LIFETYPE` | implemented | `31c8b0df` | `KTDGXMeshPlayer.cpp:838` | 7412 | 3596 |  |
 | `MP.templet` | `LIGHTFLOWWIDE` | implemented | `31c8b49e` | `KTDGXMeshPlayer.cpp:935` | 1 | 1 |  |
-| `MP.templet` | `LIGHTPOS` | implemented | `31c8b66c` | `KTDGXMeshPlayer.cpp:961` | 548 | 313 |  |
-| `MP.templet` | `MESHNAME` | implemented | `31c8bb31` | `KTDGXMeshPlayer.cpp:1071` | 7411 | 3591 |  |
-| `MP.templet` | `MESHTYPE` | implemented | `31c8b188` | `KTDGXMeshPlayer.cpp:857` | 7412 | 3591 |  |
+| `MP.templet` | `LIGHTPOS` | implemented | `31c8b66c` | `KTDGXMeshPlayer.cpp:961` | 548 | 316 |  |
+| `MP.templet` | `MESHNAME` | implemented | `31c8bb31` | `KTDGXMeshPlayer.cpp:1071` | 7411 | 3596 |  |
+| `MP.templet` | `MESHTYPE` | implemented | `31c8b188` | `KTDGXMeshPlayer.cpp:857` | 7412 | 3596 |  |
 | `MP.templet` | `MULTITEXXET` | implemented | `31c8bb71` | `KTDGXMeshPlayer.cpp:1073` | 5 | 2 |  |
 | `MP.templet` | `NOT_CHECK_LAND_TIME` | implemented | `31c8b5c9` | `KTDGXMeshPlayer.cpp:943` | 375 | 152 |  |
 | `MP.templet` | `OUTLINEWIDE` | implemented | `31c8b478` | `KTDGXMeshPlayer.cpp:934` | 521 | 301 |  |
-| `MP.templet` | `PLAYCOUNT` | implemented | `31c8b3e4` | `KTDGXMeshPlayer.cpp:930` | 2625 | 1699 |  |
-| `MP.templet` | `RENDERTYPE` | implemented | `31c8b21a` | `KTDGXMeshPlayer.cpp:875` | 1002 | 423 |  |
+| `MP.templet` | `PLAYCOUNT` | implemented | `31c8b3e4` | `KTDGXMeshPlayer.cpp:930` | 2625 | 1704 |  |
+| `MP.templet` | `RENDERTYPE` | implemented | `31c8b21a` | `KTDGXMeshPlayer.cpp:875` | 1002 | 428 |  |
 | `MP.templet` | `SET_LAND_HEIGHT_ON_START` | implemented | `31c8b98b` | `KTDGXMeshPlayer.cpp:1023` | 42 | 8 |  |
 | `MP.templet` | `SLASH_TRACE_CURVE_TYPE` | implemented | `31c8b5a7` | `KTDGXMeshPlayer.cpp:942` | 194 | 55 |  |
 | `MP.templet` | `SLASH_TRACE_NOT_CULL` | implemented | `31c8ba53` | `KTDGXMeshPlayer.cpp:1050` | 14 | 0 | `SetIsForceNotCull` on both slash traces after AddObjectChain (31c8d140 @31c8df76, @31c8e09c); June tests it in the sort loop 31ceb5f0 @31ceb6b7 |
 | `MP.templet` | `SLASH_TRACE_TEXTURE` | implemented | `31c8bbcf` | `KTDGXMeshPlayer.cpp:1075` | 465 | 69 |  |
 | `MP.templet` | `SLASH_TRACE_TYPE` | implemented | `31c8b585` | `KTDGXMeshPlayer.cpp:941` | 397 | 116 |  |
-| `MP.templet` | `SOURCEBLENDMODE` | implemented | `31c8b7c8` | `KTDGXMeshPlayer.cpp:981` | 7408 | 3584 |  |
+| `MP.templet` | `SOURCEBLENDMODE` | implemented | `31c8b7c8` | `KTDGXMeshPlayer.cpp:981` | 7408 | 3589 |  |
 | `MP.templet` | `USEDIEEVENT` | implemented | `31c8b8fd` | `KTDGXMeshPlayer.cpp:1018` | 26 | 75 |  |
 | `MP.templet` | `USELAND` | implemented | `31c8b96e` | `KTDGXMeshPlayer.cpp:1021` | 266 | 126 |  |
 | `MP.templet` | `USESLASHTRACE` | implemented | `31c8b9c2` | `KTDGXMeshPlayer.cpp:1026` | 577 | 196 |  |
 | `MP.templet` | `WIREFRAME` | implemented | `31c8ba70` | `KTDGXMeshPlayer.cpp:1051` | 0 | 0 | binary-only (no June data uses it); Draw sets D3DFILL_WIREFRAME around both mesh paths and restores the previous fill mode (31c839c0 @31c839ed, @31c83d4b) |
-| `MP.templet` | `ZENABLE` | implemented | `31c8b917` | `KTDGXMeshPlayer.cpp:1019` | 3770 | 2023 |  |
-| `MP.templet` | `ZWRITEENABLE` | implemented | `31c8b934` | `KTDGXMeshPlayer.cpp:1020` | 1886 | 844 |  |
+| `MP.templet` | `ZENABLE` | implemented | `31c8b917` | `KTDGXMeshPlayer.cpp:1019` | 3770 | 2028 |  |
+| `MP.templet` | `ZWRITEENABLE` | implemented | `31c8b934` | `KTDGXMeshPlayer.cpp:1020` | 1886 | 849 |  |
 | `MP.templet` | `USEMESHBILLBOARD` | march-only | - | `KTDGXMeshPlayer.cpp:1032` | 0 | 0 |  |
 | `PS.event` | `BLACKHOLETIME` | implemented | `31cf20bb` | `KTDGParticleSystem.cpp:1707` | 61 | 38 |  |
 | `PS.event` | `COLOR` | implemented | `31cf1fc1` | `KTDGParticleSystem.cpp:1702` | 85859 | 34431 |  |

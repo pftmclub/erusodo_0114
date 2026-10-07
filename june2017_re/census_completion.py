@@ -47,7 +47,7 @@ SYSTEM_DISPOSITION = {
     'Applied skill ID': ('handed-off', '%s section 1 (character ports: June skill reform)' % CHECKLIST, None,
                          'D7 2026-10-06: its readers (numerical override, memo/ultimate gate) need the June skill system'),
     'Effect-alpha option': ('build', 'C10', None, 'D2 2026-10-05: build'),
-    'HP-rate damage': ('build', 'C10', None, 'D4 2026-10-05: build'),
+    'HP-rate damage': ('build', 'C10', 'SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE', 'D4 2026-10-05: build (C10b-1 2026-10-07)'),
     'Combination point': ('handed-off', '%s section 3 (Lu/Ciel port)' % CHECKLIST, None,
                           'D5 2026-10-06: C2 found the only reader in CX2GULuciel (32b14bc0); port it with Lu/Ciel'),
     'Natural force': ('handed-off', '%s section 3 (Rena port)' % CHECKLIST, None,
@@ -202,7 +202,8 @@ def _src_hp_rate(t):
 DAMAGE_SOURCES = [
     ('numerical skill data (June SetDamageDataFromLUA override, 32632390@3263fe41)', _src_numerical,
      'SERV_IRUHADEV_JUNE_NUMERICAL_DATA', 'C1', 'Numerical skill data'),
-    ('HP-rate damage (HP_RATE_DAMAGE_TYPE/VALUE; C10a confirms the formula)', _src_hp_rate, None, 'C10', 'HP-rate damage'),
+    ('HP-rate damage (HP_RATE_DAMAGE_TYPE/VALUE; C10a confirms the formula)', _src_hp_rate,
+     'SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE', 'C10', 'HP-rate damage'),
 ]
 
 

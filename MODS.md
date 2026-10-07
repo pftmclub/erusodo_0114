@@ -54,6 +54,7 @@ column.
 | `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER` | 2026-10-07 (June effect completion C9c-2b) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE`, `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` and `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME`; the play and create lines also need `SERV_IRUHADEV_JUNE_FX_DEBUG`) | `X2Lib/X2BaseUnitViewerUI.h`/`.cpp` (the player: entries, Play, Stop, update, create pass, sound pass, Prepare, Draw, `NotifyShowObjectChanged`, ctor, dtor), `X2Lib/X2UnitViewerUI.h`/`.cpp` (re-parent under `CX2BaseUnitViewerUI`, `PlayAnim` / `OnFrameMove` request queue, the base calls, the dtor stops, the land-dirty byte, nine retired hard-codes), `X2Lib/X2EffectSet.cpp` (`JuneRunViewerMeshTriggers`) |
 | `SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET` | 2026-10-07 (June effect completion C9e) | `KTDXLIB/Always.h` (end; the viewer site also needs `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER`) | `X2Lib/X2Unit.h` (`GetJuneEmotionEffectSetName`), `X2Lib/X2GUUser.h`/`.cpp` (`m_hJuneEmotionSetEffectSet`, ctor, `PlayEmotion`, `OnFrameMove`, dtor), `X2Lib/X2SquareUnit.h`/`.cpp` (`m_hJuneEmotionEffectSet`, `StopJuneEmotionEffectSet`, ctor, dtor, `StateStart`, `PlayEmotion`), `X2Lib/X2TFieldGame.cpp` (`RemoveUnit`), `X2Lib/X2UnitViewerUI.cpp` (`PlayEmotion`), `X2Lib/X2BaseUnitViewerUI.cpp` (`JuneViewerFxPlay` NULL-skin return) | -- |
 | `SERV_IRUHADEV_OFFLINE_NPC_UID_BASE` (offline design, not server/June) | 2026-10-07 (june-buff Phase 14) | `KTDXLIB/Always.h` (end) | `X2Lib/Offline/X2OfflineServer.h` (room `Clear()`: monster UIDs start at 1,000,000) | -- |
+| `SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE` | 2026-10-07 (June effect completion C10b-1) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_DAMAGEDATA`) | `X2Lib/X2GameUnit.h`/`.cpp` (`GetHpRateDamage`, the `GetFinalDamage` call before the `<= 0` clamp), `X2Lib/X2GUUser.cpp` (`DamageReact`, before the shown-damage copy) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL` | 2026-10-07 (june-buff Phase 14b) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUUser.h`/`.cpp` (`m_bJuneInstanceKill`, `HaveInstanceKillDebuff`, set and kill in `DamageReact`), `X2Lib/X2BuffTempletManager.cpp` (load line) | -- |
 | `SERV_IRUHADEV_JUNE_TUTORIAL_MODE` | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (before the 14b block) | `X2Lib/X2Main.h`/`.cpp` (out-of-line `SetIsPlayingTutorial`, `JuneOnExitTutorialRestoreKeys`, `m_bJuneTutorialKeyLatch`), `X2KeyPad.h`/`.cpp`, `X2DungeonGame.cpp` (Release), `X2GUUser.cpp` (clamp, RT_FLY, StartEnd), `X2Game.cpp`, `X2State.cpp`, `X2UIManager.cpp`, `X2UIQuestNew.h`/`.cpp`, `X2StateDungeonGame.cpp`, `X2SlideShot.cpp`, `X2PetManager.cpp`, `X2PlayGuide.cpp`, `X2UIQuickSlot.cpp`, `X2StateServerSelect.cpp` | -- |
 | `SERV_IRUHADEV_OFFLINE_FIRST_SELECT` (offline emulator) | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (next to the above) | `X2Lib/Offline/Handlers_Unit.cpp` (`PushSelectUnitNotifications`, 5_NOT) | `SERV_IRUHADEV_OFFLINE` |
@@ -3119,6 +3120,14 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
 - **C4 review (2026-10-07):** `DamageData::SimpleInit` no longer resets `CAN_ACTIVATE_NASOD_ARMOR_COMBO` or clears the
   range map, as June (`31f8ee50` / `31f8f550`): a re-used DamageData keeps earlier `RANGE`s (JUNE_BUGS 91). The ctor sets the
   bool false. Dormant on today's data; reverting is the same flag.
+
+### June effect completion C10b-1: HP-rate damage
+
+- **`SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE`.** A DamageEffect hit with `HP_RATE_DAMAGE_TYPE` 1 / 2 replaces the damage with the defender's
+  now HP / max HP times `HP_RATE_DAMAGE_VALUE` (June `32273e80`), while its now HP is above 1.0. It runs on the defender in
+  `GetFinalDamage` and again in a user defender's `DamageReact`, as June (JUNE_BUGS 93). March data sets neither key, so nothing
+  changes in play; the C10b-1 play-test used a temporary edit of `ARROW_OF_EXPLOSION` in data036 (reverted after the test).
+  **Revert:** undefine it and rebuild all projects.
 
 ## Reverting to stock
 

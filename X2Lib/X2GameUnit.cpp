@@ -3683,6 +3683,18 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#if defined( SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE ) && defined( SERV_IRUHADEV_JUNE_DAMAGEDATA )
+	/// June2017 GetFinalDamage 32284aa0 @3228696a-32286990 (effect completion C10b-1): after the my-HP-few multiply
+	/// (@322868d1-32286968) the DamageData's defender (+0x470) overwrites the damage with its HP-rate damage
+	/// (32273e80); the clamp below is June's @32286995-322869aa. June first asks 322726f0( DD, defender ), which is
+	/// false only for RNSI_SA_ALP_SUPERSONIC (29058) on some NPCs: Rena reform-skill material, handed to the Rena port
+	/// (checklist 7c, D8), so in March the call is unconditional.
+	{
+		CX2GameUnit* pJuneHpRateDefender = pAttDamageData->optrDefenderGameUnit.GetObservable();
+		if ( NULL != pJuneHpRateDefender )
+			pJuneHpRateDefender->GetHpRateDamage( &fFinalDamage, pAttDamageData );
+	}
+#endif // SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE && SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 	// 최종데미지가 0보다 작다면 0으로 보정
 	if( fFinalDamage <= 0.f )
@@ -3711,6 +3723,46 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	return fFinalDamage;
 }
 
+#if defined( SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE ) && defined( SERV_IRUHADEV_JUNE_DAMAGEDATA )
+/** @function : GetHpRateDamage
+	@brief : June 32273e80 (effect completion C10b-1; RET 8, ECX = the defender). HP_RATE_DAMAGE_TYPE 1 (HRDT_NOW_HP):
+		*pfDamage_ = GetNowHp() * HP_RATE_DAMAGE_VALUE; 2 (HRDT_MAX_HP): GetMaxHp() * value. June writes only when the gage
+		(+0xc04) and its HP gage (+0x20) exist and the now HP is > 1.0 strictly (fld1/fcomp, test ah,5; jp: <= and
+		unordered skip). Any other type, or the gate failing, leaves *pfDamage_ alone. It overwrites, it never adds.
+		March: CX2GageData::GetNowHp returns 0.0 without an HP gage, so "gage exists and now HP > 1.0" is both of June's
+		existence checks; March's GetMaxHp dereferences the gage, which the gate has already proved.
+*/
+void CX2GameUnit::GetHpRateDamage( IN OUT float* pfDamage_, IN const CX2DamageManager::DamageData* pDamageData_ )
+{
+	const int iType = pDamageData_->m_iHpRateDamageType;
+	if ( 1 != iType && 2 != iType )		/// June Enum.lua HP_RATE_DAMAGE_TYPE: HRDT_NOW_HP = 1, HRDT_MAX_HP = 2
+		return;
+
+	if ( NULL == GetGageData() || !( GetGageData()->GetNowHp() > 1.0f ) )
+		return;
+
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	const float fJuneBefore = *pfDamage_;
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+
+	if ( 1 == iType )
+		*pfDamage_ = GetNowHp() * pDamageData_->m_fHpRateDamageValue;
+	else
+		*pfDamage_ = GetMaxHp() * pDamageData_->m_fHpRateDamageValue;
+
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	/// One line per write, capped. A user defender writes twice per hit (GetFinalDamage, then DamageReact).
+	static int s_iJuneHpRateLogged = 0;
+	if ( s_iJuneHpRateLogged < 60 )
+	{
+		++s_iJuneHpRateLogged;
+		CX2OfflineLog::Server( L"JUNE_FX hp-rate def=%s type=%d value=%.3f now=%.1f max=%.1f damage %.1f -> %.1f",
+			( GUT_USER == GetGameUnitType() ? L"user" : L"npc" ), iType, pDamageData_->m_fHpRateDamageValue,
+			GetNowHp(), GetMaxHp(), fJuneBefore, *pfDamage_ );
+	}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+}
+#endif // SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE && SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 // C5 review: needs GetBuffAccumulationCountNow, which exists only under SERV_IRUHADEV_JUNE_BUFF_BINDING.
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BINDING

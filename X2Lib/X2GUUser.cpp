@@ -9905,6 +9905,13 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #endif //SERV_9TH_NEW_CHARACTER
 
 		// UI상 타격된 데미지를 보여주기 위한 용도
+#if defined( SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE ) && defined( SERV_IRUHADEV_JUNE_DAMAGEDATA )
+		/// June2017 CX2GUUser::DamageReact 320462a0 @3204971b-32049727 (effect completion C10b-1): this->GetHpRateDamage
+		/// ( &damage, DD ) after the provoke zero, the attacker-class hooks, 322cfca0 and the execute block, before the
+		/// attacker's vslot 0x304 and the shown-damage copy (@3204975b). GetFinalDamage already wrote it once, so this
+		/// second write drops whatever DamageReact took off or added in between (JUNE_BUGS #93, verbatim).
+		GetHpRateDamage( &fFinalDamage, pDamageData );
+#endif // SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE && SERV_IRUHADEV_JUNE_DAMAGEDATA
 		float fFinalDamageToShow = fFinalDamage;
 #ifdef ALWAYS_SCREEN_SHOT_TEST
 		if( g_pInstanceData->GetScreenShotTest() == false)
