@@ -1747,6 +1747,60 @@ division system:
 
 **User owes:** /cost. C9f-2 (Sonnet 5.5 high) starts after the running C4c commits, because both touch `X2Main.cpp`.
 
+### C9f-2 - Done (2026-10-07, Opus 5.5 high; flag `SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET`; inert, regression play-test pending)
+
+**Landed** (`dde622a`; MODS.md "June effect completion C9f-2"). June verbatim, **inert**: none of the 5 item ids is in March's `item.kim`.
+- **Item manager**: `AddDivisionItemTemplet_LUA` (`32818480`), bound once on `CX2ItemManager` in `X2Main.cpp`. It sits outside
+  `#ifndef X2OPTIMIZE_ITEM_TEMPLET_PREPROCESSING`, which is ON (`AddItemTemplet` there is dead code). June has no proxy bind: `32818480` has one
+  xref (`31db330e`), and every push to that `class_def` (`31e75970`) is a `328xxxxx` item-manager method. The kickoff's "one binding per proxy" does
+  not match June. The dispatcher skips `m_eReadType` 0/2 or a failed getter, and returns for 55/85 and 89-93 (Stage 11 comments). Every other type
+  runs `32814da0`, the only chain parser ported. The parser keeps both first-wins inserts, the 0x51 group key and the clamp.
+  `GetConditionEquipPlayEffectSet` (`3280b640`), `IsDivisionItem` (`32807db0`). Loaded in `ResetItemManager` after `ItemConvertTable.lua`.
+- **`CX2Eqip`**: June's five members (ctor tail), `3295ca60`, `32961060`. The global elapsed time is `g_pKTDXApp->GetElapsedTime()`: June's
+  `+0x2c` protected float is initialised to 1/85 in ctor `31c17ed0`, which is March's `m_fConstElapsedTime`. `X2EffectSet.h` is included after
+  `X2Eqip.h`, so `X2Eqip.h` repeats the handle typedef with a forward-declared tag.
+- **GUUser** (`31fd8140`, play `@32065d57-32066052`, last position `+0x94d4` ctor 0 `@32043273` / stored at the end of `CommonFrameMove`
+  `@3206cee2`). The play block is in the live `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` branch only (ON per `cl /P`, `june2017_re/flagprobe.py`),
+  between `SetRenderParam` and `OnFrameMove`.
+- **Square** (`323f5920`, play `@32402089-32402292`, `+0x7c0` ctor 0 `@323f90cb` / tail store). June's order: HANABI, `323f17b0`,
+  `param_1[400]` = `m_fCanNotInputTime` decrement, June-only sit-wait blocks, CEPE. So the block goes after `MODIFY_LINEMAP_JUMPUP_IN_VILLAGE`.
+  `StopJuneEquipEffectSets` (`323f56d0`) is in `RemoveUnit` after C9e's stop. C9e's comment there ("323f56d0 is not identified") is left as is,
+  with a note under it.
+- **Viewer**: `GetJuneDivisionEquips` (`31fa2f20`), and `JuneViewerFxIsPlaying` (`329581c0`) on `CX2BaseUnitViewerUI`. The play block goes after
+  `UpdateTitle()`, since `31f91d10` (title-id compare) is `UpdateTitle`. It is skipped for `UVS_FIELD`: `+0xf14` is `m_eUnitViewerState`, because
+  `SetUnit` `31faa6f0` stores `eState` there `@31faa73c` and state 3 loads the Field motion. June's `+0xfa4` is written together with `+0xe58` =
+  `m_eOldMotionType` by `31fa7ef0`, and June `PlayEmotion` tests `+0xe58 == 4` (READY). Only June's random-wait path zeroes `+0xfa4` alone, and only
+  for types 1-2, which pass the `<= 2` test either way. The test is an unsigned `JA`.
+- **JUNE_BUGS 100-102** (all latent): first-wins group map; the miss path releases without a stop; no equip-dtor stop.
+
+**Data** (`data036`; backups in the session scratchpad):
+- `Enum.lua` gets June's `DIVISION_ITEM_TEMPLET_TYPE`, `READ_TYPE` and `CONDITION_EQUIP_PLAY_EFFECT_SET`, verbatim.
+- `RenderDivisionItemTemplet.lua` is June's file verbatim (113 blocks), with a new manifest entry `"2"`. All 95 enum references resolve.
+- `UIEffectSet.lua`: 78 + 6 = **84** templets.
+- `UIMajorXMeshPlayer.txt` gets `Mesh_AC_Lowbody_Set7_Shake` / `_2P` before the closing brace. March's parser knows all their keys.
+- The 29 particles already resolve. The two meshes' binaries (`AC_Lowbody_Set7_Shake.x`, `AC_Lowbody_Set7_Tail_2P.xet`) exist only in June's
+  `data002` and are not staged (inert path).
+- Round trips (MODS "Phase 11" method):
+  - `Enum`: the old bytecode equals a fresh compile of the old source, and the decompile is old + 126 lines exactly.
+  - `UIEffectSet`: the same check, old + 390 lines exactly.
+  - `RenderDivisionItemTemplet`: the decompile has the same 8164 lines as June's source.
+- `PACK OK data036: ...data036_packed.kom` 191 entries, 6644810 bytes; vs live: `+1 added` (`RenderDivisionItemTemplet.lua`), `~3 changed` (`Enum.lua`, `UIEffectSet.lua`, `UIMajorXMeshPlayer.txt`). **Not copied yet** (asks the user).
+
+**Hygiene** (`--worktree --files` the 16 code files): `files: 13 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Range (`--range dde622a^..dde622a`): the same three lines, `RESULT: PASS`.
+The two PASS~ are the blank line after each new function block.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,329,024 B, dated 2026-10-07 20:24:08, md5 f433332e91f796e75dca57a9a1242f23, equal to X2/US_SERVICE/x2.exe (2026-10-07 20:24:03); built at mods/june-buff-port b045c37 + 16 uncommitted code file(s).` (the 16 = this phase's). The exe holds `RenderDivisionItemTemplet.lua` and `EQUIP_FX_LOAD` (UTF-16) and `AddDivisionItemTemplet_LUA`.
+
+**Play-test (regression):** village, character select, a dungeon, back to the village, clean exit.
+Pass = 0 EXCEPTION and no new `X2_*.tmp`, with these log lines:
+- `JUNE_FX EQUIP_FX_LOAD file=RenderDivisionItemTemplet.lua loaded=1 lists=5 items=5 group81=5 skipped_duplicate=0`;
+- `ES_LOAD UIEffectSet.lua loaded=1 templets=84`;
+- `UNIT_VIEWER_FX_LOAD ... rows=18` unchanged.
+
+**User owes:** the play-test above, then /cost.
+
 ---
 
 ## C10 - Decided absent systems
