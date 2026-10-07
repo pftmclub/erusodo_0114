@@ -2112,9 +2112,9 @@ Ghidra was read-only. Fixes are under the same flag, `SERV_IRUHADEV_JUNE_ANIMATI
 
 **Stale comment, not changed:** `X2UnitViewerUI.cpp:2030` (C9c-2b's flag) still says the ALD row "never matches". With June's `ALD_LobbyWait` it now does, as the C9g-2 hand-off said.
 
-**Hygiene** (`--range 0a2336d^..HEAD --with JUNE_FX_DEBUG`): HYGIENE_LINES
+**Hygiene** (`--range 0a2336d^..HEAD --with JUNE_FX_DEBUG`): `files: 8 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
 The one deleted line in the flag's files is this flag's own Stage-12 comment, which was rewritten.
-**Deploy:** pending: `build.py --deploy` at 05:26 failed in a peer's mid-edit C9h-2a files (`X2NPCUnitViewerUI.cpp` `IsAnimExist`, `X2EffectSet.cpp` `m_bPlayedOnUnitViewer` not yet declared), nothing deployed; the deployed exe is still C9g-2's `fee6eb1f`. The change is inert today, so the next good build of this tree carries it.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,339,776 B, dated 2026-10-08 06:12:03, md5 c49f362852f888c3efaf987cd62a9a4b, equal to X2/US_SERVICE/x2.exe (2026-10-08 05:45:54); built at mods/june-buff-port e9cfdca + 9 uncommitted code file(s).` The 05:26 attempt failed in C9h-2a's then-uncommitted files. Deploying was then held until june-item-kim K2's koms were live (its uncommitted code reads June's `item.kim`). `X2UnitViewerUI.obj` (05:44:57) is newer than the edit (05:17:12). The exe also carries K2's uncommitted code.
 
 **Next owners.** C9h-2a / 2b / 3 have kickoffs. Stage 10 has its inline prompt in `JUNE_PORT_BACKLOG_ORDER.md`. Stage 12 now has `kickoffs/june-backlog/stage12-plan.md`.
 **User owes:** a short regression look (character select still animates), then /cost.
