@@ -649,3 +649,5 @@ sounds and meshes against March kom_contents. Output: JUNE_EMOTION_SYSTEM_PHASES
 the three PlayEmotion rewrites, assets, chat-box UI, emulator if any packet carries
 the new ids), kickoffs, and a STATUS block. Never launch X2_offline.exe without asking.
 ```
+
+**Stage 12, character customize system** (Opus 5.5 high): `kickoffs/june-backlog/stage12-plan.md` (written by the june-effect C9g-2 review, 2026-10-08).

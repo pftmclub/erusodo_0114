@@ -4064,7 +4064,8 @@ void CX2UnitViewerUI::PlayByMotionType( CX2UnitViewerUI::UNIT_VIEWER_UI_MOTION_T
 	// 31fa5c90 head, the data-independent part. +0xe5c = m_ePlayedEmotion is reset unless the viewer state is 10 (a June-only
 	// state: March's enum ends at UVS_WATCH = 8). +0xe60 (a byte only PlayEmotion's customize path sets) and +0xd82 (duo shown)
 	// have no March member. The customize WAIT shortcut (types 1-2 with a custom WAIT name) and the custom-motion jump table
-	// (31fa6370, 31f968a0 custom effect sets, the sit arrays) are backlog Stage 12: in March the function always returns false.
+	// (31fa6370, 31f968a0 custom effect sets, the sit arrays) are backlog Stage 12. The one table branch of that jump table
+	// (HABIT without a custom habit, @31fa5fae) is ported in the switch below (C9g-2 review).
 #ifdef UNIT_EMOTION
 	if( 10 != static_cast<int>( m_eUnitViewerState ) )
 		m_ePlayedEmotion = CX2Unit::ET_NONE;
@@ -4122,6 +4123,15 @@ void CX2UnitViewerUI::PlayByMotionType( CX2UnitViewerUI::UNIT_VIEWER_UI_MOTION_T
 			if( CX2Unit::UT_EVE == m_pUnit->GetType() && NULL != m_pSound_Eve_LevelUp )
 				m_pSound_Eve_LevelUp->Play( false, false );
 		} break;
+	case UVUMT_HABIT:
+		// C9g-2 review: 31fa5c90's case 6 with no custom habit (+0xf90 == 0, always in March) @31fa5fae-31fa5ff6 looks up
+		// GetAnimationName( class, HABIT ) itself and, when the name is non-empty, plays it ONE_WAIT with bTransition 0
+		// (PlayAnim( name, 2, 0, 2 ), the caller's argument ignored) and returns true, so 31fa7ef0 plays nothing more; an empty
+		// name returns false and 31fa7ef0 plays it with the caller's bTransition. June does that lookup before 31fa7ef0's
+		// unit test; the test stays first here. The unit-type 0xa (Lu/Ciel) second play @31fa60dc is inert in March.
+		// No March caller passes HABIT and no March class has a HABIT row (customize / Rose: backlog Stage 12, checklist 7g).
+		PlayAnim( wstrAnimName.c_str(), CKTDGXSkinAnim::XAP_ONE_WAIT, wstrAnimName.empty() ? bTransition : false );
+		break;
 	case UVUMT_SIT_READY:
 		PlayAnim( L"Emotion_SitReady", CKTDGXSkinAnim::XAP_ONE_WAIT, bTransition );
 		break;

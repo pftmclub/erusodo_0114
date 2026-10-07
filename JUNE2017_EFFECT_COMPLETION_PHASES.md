@@ -2064,6 +2064,61 @@ the 1 pushed before the branch; the register sites hold 1 (`MOV EBX,1` / `MOV EB
 
 Review: `kickoffs/june-effect/C9g-2-review.md`. **User owes:** /cost.
 
+### C9g-2 - Review (2026-10-08, Opus 5.5 high): one transcription fix (HABIT's table branch, inert in March); everything else confirmed
+
+Ghidra was read-only. Fixes are under the same flag, `SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE`; funcmap row `Effect C9g-2 review`.
+
+**Fixed: HABIT (type 6) was missing `31fa5c90`'s table branch.** The C9g-2 note said every jump-table case of `31fa5c90` is customize-only. Case 6 is not.
+- With no custom habit (`+0xf90 == 0`, always in March), it calls `GetAnimationName( class, 6 )` itself (`@31fa5fae`).
+- A non-empty name plays `PlayAnim( name, ONE_WAIT, bTransition 0 )` (`@31fa5ff1`) and returns true, so `31fa7ef0` plays nothing more.
+- An empty name falls through to `31fa7ef0`'s `L""` with the caller's bTransition.
+- The port played the name with the caller's bTransition (true). Now `case UVUMT_HABIT` plays with `false` when the name is non-empty.
+- It is unreachable today: no March caller passes HABIT, and no March class has a HABIT row. Its future callers are Stage 12 and checklist 7g.
+
+**Confirmed against Ghidra:**
+
+| What | Result |
+|---|---|
+| `31fa7ef0` stores | `+0xfa0`, `+0xe58`, `+0xfa4`, then `+0x1dc` (7 -> 2, 8 -> 1) |
+| Unit / unit-manager test | after the pre-pass |
+| Rose remap (`+0xaf0[0] == 0xb`) | WAIT -> WAIT1 only in state 1 (`UVS_CASHSHOP`); WAIT1/2 -> WAIT |
+| Play types | 0-2 and 8 LOOP (0); 5, 7, 9 and default ONE_WAIT (2) |
+| `PlayAnim`'s 4th argument | 2 (both duos), which is March's main model |
+| Eve sound | `+0xe54` (`31d414d0( 0, 0 )`) |
+| Literals | `Emotion_SitReady` / `SitWait` / `StandUp` |
+
+- **`31fa5c90` head:** it resets `+0xe5c` unless state 10 and clears `+0xe60`. The group stops (cash shop 0..2, else 0..4, plus `+0xd82 = 1`) run before the `type > 9` exit, so WAIT_DELETE (10) still stops. Jump table `31fa6370`:
+  - types 1/2/4/5 return false at once;
+  - 0/3 stop only group 1 (already stopped by the head) and find nothing in the empty map;
+  - 7/8/9 return false on an empty sit slot;
+  - nothing else stops or plays.
+- **Table:**
+  - `3237a060` takes typed args (nil reads 0 / NULL) and converts with `MultiByteToWideChar( CP_ACP )`. The port uses UTF-8, which is equivalent: all 48,873 bytes of the source are ASCII.
+  - `3238b0e0` frees the new node on an equal key, so the first row wins.
+  - `32375ee0` keys (class, type), and its 11 defaults are verbatim (6 = `L""`).
+  - Class: June reads `CX2Unit +0x38`, the port `GetClass()`. They are the same value, because every `m_pUnitTemplet` assignment uses `m_UnitData.m_UnitClass` (`X2Unit.cpp:55/215/333-342`).
+- **Load order:** `@31ee6217` comes before `@31ee6224`. Play-test load line: `rows=384 inserted=230 skipped_duplicate=154 class_none=160`.
+- **Frame move:** `31fa8ce0` (1,217 instructions) writes `+0x1d8` only, at `@31fa8d46`. The only other writer of `m_iJuneFxTriggerCode2` is PlayByMotionType, so bypassing the per-frame zero is right.
+- **Square:** `323f2320` stores `GetAnimationName( class, 0 )` to `+0x64c`, guarded only by the unit manager. Each of the 51 cases in March's switch assigns only `m_wstrLobbyWaitMotionName` and nothing else. The only name the table changes is `ALD_lobbyWait` -> `ALD_LobbyWait`. Every March class is listed, so no class picks up the new default. `323f9680` and the sit loop are Stage 10/12.
+- **Call sites:** `32511eb3` is `push 1` ... `push 5`. `324e7e27/63` push ebx = 1, then type 0. `32d7c962` pushes 0, then type = ebx. The mapping holds.
+
+**Data.**
+- The four `data033` files equal June's extracts (md5 EL_Lobby `e28a2874`, ARA_Common `8ff0af55`, EVE_Common `d12da42e`). ARA_Lobby is June's 1,466,551 bytes plus the one appended `1`.
+- A strict length-prefixed name diff of March's originals (`%TEMP%/c9g2_backup033`) against them finds exactly the five renamed names March-only.
+- Nothing else plays the old spellings:
+  - **C++:** only the `#else` branches and the viewer's two `wcscmp` tests.
+  - **4,851 compiled March Lua scripts:** none of the five strings appears.
+  - **Two face `.XET`s:** they name `ALD_lobbyWait` (Ara) and `SSK_`/`SPK_LobbyReadyaction` (EL). XET lookup is `_wcsicmp` (`KTDXDeviceXET_Preprocessing.cpp:65`, `X2OPTIMIZE_TET_XET_PREPROCESSING` on), so the faces still match June's spellings.
+
+**Stale comment, not changed:** `X2UnitViewerUI.cpp:2030` (C9c-2b's flag) still says the ALD row "never matches". With June's `ALD_LobbyWait` it now does, as the C9g-2 hand-off said.
+
+**Hygiene** (`--range 0a2336d^..HEAD --with JUNE_FX_DEBUG`): HYGIENE_LINES
+The one deleted line in the flag's files is this flag's own Stage-12 comment, which was rewritten.
+**Deploy:** pending: `build.py --deploy` at 05:26 failed in a peer's mid-edit C9h-2a files (`X2NPCUnitViewerUI.cpp` `IsAnimExist`, `X2EffectSet.cpp` `m_bPlayedOnUnitViewer` not yet declared), nothing deployed; the deployed exe is still C9g-2's `fee6eb1f`. The change is inert today, so the next good build of this tree carries it.
+
+**Next owners.** C9h-2a / 2b / 3 have kickoffs. Stage 10 has its inline prompt in `JUNE_PORT_BACKLOG_ORDER.md`. Stage 12 now has `kickoffs/june-backlog/stage12-plan.md`.
+**User owes:** a short regression look (character select still animates), then /cost.
+
 ---
 
 ### C9h - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build): the pet viewer sets are a viewer + engine slice; the reserved sets are the in-game riding pet's -> C9h-2a/2b/3
