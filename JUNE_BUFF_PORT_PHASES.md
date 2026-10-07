@@ -4568,7 +4568,7 @@ The setter's June half:
 
 **How to see it:** create a level-1 character, select it, and the tutorial starts. In it there is no quick slot or menu bar, I/K do nothing, and a monster hit at HP 1 leaves HP 1 (log `tutorial clamp:`). Leave the tutorial (log `key map ... restored`). Select the character again: no tutorial (log `select #2 -> m_bFirstSelect 0`).
 
-**Open for the user:** June rewrote `CX2UIManager::SetShowUI`, `CX2UIQuickSlot::SetEnable` and the quick-quest toggle body around June-only systems (the guide manager, gage-manager cooltime UI, `3266d250`). Only their tutorial terms are ported; the rest belongs to the June UI parity work (`JUNE_UI_PARITY_PHASES.md`).
+**Open for the user:** June rewrote `CX2UIManager::SetShowUI`, `CX2UIQuickSlot::SetEnable` and the quick-quest toggle body around June-only systems (the guide manager, gage-manager cooltime UI, `3266d250`). Only their tutorial terms are ported. **Answered 2026-10-07:** the rest goes to the June UI work (`JUNE_PORT_BACKLOG_ORDER.md` Stage 9, item added).
 
 **Play-test passed 2026-10-07, logs read.** Run 17:31:42, after the deploy, on exe `0eb0990b` (a peer's later build at `fc01407`, which contains `6c9b694`); 0 EXCEPTION. All five checks were reported passed by the user:
 - **First select:** `first select: unit 39 select #1 -> m_bFirstSelect 1 (lv 1, exp 0)`, then `EGS_CREATE_TUTORIAL_ROOM_REQ` and `tutorial keys: default key map applied to 41 action(s), 41 kept` (Tut14c, Elsword Swordsman). On exit at 17:33:55: `... restored to 41 action(s)`.

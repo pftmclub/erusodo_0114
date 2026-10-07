@@ -248,6 +248,19 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   - The UI only has to read and write those.
   - June's version is the GFx option window (funcmap `32eddbb0`, `32eddcf0`, `32edee60`, `32f246d0`).
   - Brief: `kickoffs/june-effect/C10b-3.md`.
+- **The non-tutorial rest of three June UI rewrites** (handed here by june-buff 14c, user 2026-10-07).
+  - 14c ported only their tutorial-flag terms, under `SERV_IRUHADEV_JUNE_TUTORIAL_MODE`: `CX2UIManager::SetShowUI` (June `32154820`), `CX2UIQuickSlot::SetEnable` (`3294c460`) and `CX2UIQuestNew::ToggleUserShowQuickQuestDLG` (`323ddfe0`).
+  - What is left in `SetShowUI`:
+    - the shop-open early return (`g_pData+0x290 +0xd8`);
+    - the state switch around the now-state call (vslot `0x104`);
+    - the quick-slot terms `3266d250` and training -> hidden;
+    - the minimap call (`32481fa0` / `+4 == 6`);
+    - the gage-manager cooltime UI (`324943c0`, `32489e30`, `3248ac30`);
+    - `32150f50`, `32151980`, `32457e70` / `32457b40` and `32676150` / `326765f0`;
+    - the guide-manager step gates on the skill and riding slots (`+0xe4 < 3`), which need the June-only `CX2TutorialGuideManager`.
+  - What is left in `SetEnable`: the `+0x100` / `+0x101` slot-count modes and the unit `+0xdba` term.
+  - What is left in the toggle body: the double refresh `31c91850`, the June-only `g_pMain+0x2aa` mirror and the `32e904d0` call.
+  - Rows: `june2017_re/c14c_tutorial_reads.tsv`; Done note: `JUNE_BUFF_PORT_PHASES.md` "Phase 14c — Done".
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 
