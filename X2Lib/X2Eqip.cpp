@@ -315,7 +315,9 @@ bool CX2Eqip::StepJuneEquipEffectSetTimer( int* pSel )
 		return false;
 	}
 
-	if( kRecord.m_fStartTime < m_fJuneEquipEffectSetStartTime )		// strict; a NaN START_TIME never plays
+	// @32961233-32961244: fld acc, fld START_TIME, fcompp, TEST AH,1 (C0), JNE play. C0 is also set when unordered, so START_TIME
+	// < acc strictly OR a NaN on either side plays (C9f-2 review; equal accumulates).
+	if( !( kRecord.m_fStartTime >= m_fJuneEquipEffectSetStartTime ) )
 	{
 		m_fJuneEquipEffectSetStartTime = 0.f;
 		return true;

@@ -1829,6 +1829,67 @@ Pass = 0 EXCEPTION and no new `X2_*.tmp`, with these log lines:
 
 **User owes:** /cost. Next: `C9f-2 review` (Opus 5.5 high).
 
+### C9f-2 - Review (2026-10-07, Opus 5.5 high): two transcription fixes (both inert), everything else matches June
+
+Read-only in Ghidra and with `june2017_re/disasm_range.py` (raw bytes) against `dde622a`. Both fixes are under `SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET`.
+
+**Fixed:**
+1. **Dispatcher `32818480`: types 55/85 and 89-93 do reach the parser.** The jump-table targets are `328186a7` = `32816d60( table )` and
+   `328186b5` = `328161d0( table, m_eType )`. Each ends in `jmp 328186d1`, which is the chain after its first call (`32814170`). So they
+   replace only that first call and then run `32810700`, `328144f0`, **`32814da0`**, `32817470` and `32815af0`. C9f read them as separate
+   exits, and the port `return`ed. The returns are gone, so every block that passes the `m_eReadType` gate is parsed.
+   The load counts do not change: in June's file only block 95 (type 81) has `m_EffectSetList`, and block 0 is type 85.
+2. **Timer step `32961060` @`32961233-32961244`: NaN polarity.** The code is `fld acc; fld START_TIME; fcompp; test ah,1; jne play`. C0 is
+   also set when the compare is unordered, so a NaN on either side **plays**. The port's `START_TIME < acc` accumulated instead, and its
+   comment said so. It is now `!( START_TIME >= acc )`. Equal values still accumulate.
+- The funcmap rows `32818480` and `32961060` are corrected (tagged `C9f-2 review`).
+- The C9f-2 kickoff's "types 55, 85 and 89-93 -> a comment" wording was the source of fix 1. That kickoff is consumed, so it is left as is.
+
+**Confirmed against June:**
+- **Parser `32814da0`.** Six keys and their getters (int / wstring / float). Defaults on a failed getter: 0 / L"".
+- **Clamp** @`328157c8-32815801`. `FCOM 100.0; TEST AH,0x41; JNZ` sends below, equal and NaN to the low test. That test is
+  `FCOMP 0; TEST AH,5; JP keep`, so only a value below 0 becomes 0, and NaN is kept.
+- **Item and group inserts.** The `m_eItemID` loop runs 1..n until a getter fails. The item-id map is first-wins (`32825df0` / `32825c30`).
+  The group key is `0x51` @`328159e9`, inserted after the loop only when the set is non-empty, first-wins.
+- **Dispatcher.** `m_eReadType` 0 / 2 or a failed getter skips the block. A failed `m_eType` getter reads as 0 (`neg/sbb/and`).
+  The byte table @`32818748` gives 55/85 -> 0, 89-93 -> 1, all other types -> 2.
+- **`32961060`.** The roll needs `0 < percent` (`TEST AH,5; JP`; NaN gives no roll) and `0 <= sel < 3`.
+  It rolls when `timer >= limit`, and a NaN accumulates. The switch fires on `rand()%100 < percent` (strict).
+- **Elapsed time.** It is the global `+0x2c/+0x30/+0x34` protected float, which is March's `GetElapsedTime()` = `m_fConstElapsedTime`
+  (1/85, `KTDXApp.cpp:337`).
+- **GUUser.**
+  - Order `@32065d57-32066052`: record, `31fd8140`, templet, `32961060`, `GetShowObject` (`31fae370`), then the play.
+  - Miss path: `3295ca60( 0 )`, `+0x15f4 = 0`, `+0x15fc = 0`. A switch play zeroes `+0x15fc`.
+  - Placement: `32963c80` is called @`32065bb4`, before the `3295c960` block and before `OnFrameMove` @`32066083`.
+  - `31fd8140`: USI_WAIT = 13 (`GUSI_END` 5 + 8), skill vslot `0x524`, `!(len > 1.0)`, and the 3/0 cases via `dec`/`jne`.
+- **Square** `@32402089-32402292`. The templet test comes before the lookup. There is no `GetShowObject` test. Sel is 1, the timer is
+  `+0x1600`, and `+0x7c0` is stored after the loop. `323f5920` byte-compares `m_StateID` with `GetStateID("WAIT")` and does no skill test.
+  `323f56d0` stops only on a record hit with a templet (`3295ca60( 1 )`).
+  - Recorded deviation: June calls `31fa2f20` on `m_pUnitViewer` without a NULL test (`324020a8`); the port guards it.
+- **Viewer** `@31fa9ab8-31fa9cb0`. The `+0xf14 == 3` skip, then record, `329581c0` (`EFFECT_SET_NAME`, rec+4), and the condition chain
+  `<= 0` / `<= 2 && +0xfa4 JA 2` / `== 3`. Sel is 2, the group is 1, the switch zeroes `+0x1604`, and the handle is never stored.
+  - June calls `31fa7ef0` (PlayByMotionType) right before this block (@`31fa9ab3`). March reads the `m_eOldMotionType` left by its own
+    PlayByMotionType. That is C9g-2's rewrite; this review changes nothing there.
+- **`CX2Eqip`.** March has one ctor and no early return. The five members, `3295ca60` (`bStop` and handle != -1, then -1) and the typedef
+  were checked.
+- **Data (`data036` staged).**
+  - `Enum.src.lua` has June's three tables verbatim: 114 + 6 + 6 = 126 lines, one definition each.
+  - `RenderDivisionItemTemplet.src.lua` is byte-identical to June's (113 blocks).
+  - `UIEffectSet.src.lua` has 84 templets; the 6 CEPE sets are June's chunks verbatim.
+  - `UIMajorXMeshPlayer.txt` has both `Mesh_AC_Lowbody_Set7_Shake*` templets.
+  - No repack: the data is unchanged.
+
+**Hygiene.** `--worktree --files X2Lib/X2ItemManager.cpp X2Lib/X2Eqip.cpp`: `files: 2 PASS`, `16 deleted line(s)`, `RESULT: PASS`.
+The 16 deleted lines are this flag's own `dde622a` lines, replaced. Range `dde622a^..HEAD`: RANGE_LINES.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,333,120 B, dated 2026-10-07 21:06:56, md5 5e72f88f9fc71cdfc79cc93778e6a84a, equal to X2/US_SERVICE/x2.exe (2026-10-07 21:06:50); built at mods/june-buff-port 9ba5b91 + 2 uncommitted code file(s).` (the 2 = this review's)
+
+**Play-test (regression only; nothing new is reachable).** Village, character select, a dungeon, back to the village, clean exit.
+Expect 0 EXCEPTION, no new `X2_*.tmp`, and the same lines as C9f-2:
+`EQUIP_FX_LOAD ... loaded=1 lists=5 items=5 group81=5 skipped_duplicate=0`, `templets=84`, `rows=18`.
+
+**User owes:** the regression play-test, then "check logs"; /cost.
+
 ---
 
 ### C9g - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build): groups 1-4 are June's customize system; PlayByMotionType is a June rewrite -> C9g-2

@@ -189,21 +189,13 @@ void CX2ItemManager::AddDivisionItemTemplet_LUA()
 	if( false == luaManager.GetValue( "m_eType", iType ) )
 		iType = 0;
 
-	// Types 55..93 go through June's byte table 32818748 / jump table 3281873c.
-	if( 55 == iType || 85 == iType )
-	{
-		// DITT_CUSTOM_RENDER / DITT_TEST_RENDER_DIVISION_SETTING -> June 328186a7: not ported (JUNE_PORT_BACKLOG_ORDER.md Stage 11)
-		return;
-	}
-	if( 89 <= iType && iType <= 93 )
-	{
-		// DITT_NEW_ENCHANT_ITEM_* -> June 328186b5: not ported (Stage 11)
-		return;
-	}
-
-	// Every other type (81 included) -> June's default chain 328186c4, each parser on the same table: 32814170( m_eType ),
-	// 32810700, 328144f0, 32814da0, 32817470, 32815af0. Only 32814da0 (DITT_CONDITION_EQUIP_PLAY_EFFECT_SET) is ported; the other
-	// five are Stage 11.
+	// Types 55..93 go through June's byte table 32818748 / jump table 3281873c; each target replaces only the chain's FIRST call
+	// and then jumps back into the chain (@328186d1), so every type reaches 32814da0 (C9f-2 review):
+	// - 55 / 85 (DITT_CUSTOM_RENDER / DITT_TEST_RENDER_DIVISION_SETTING) -> 328186a7: 32816d60( table ), jmp 328186d1 (Stage 11);
+	// - 89..93 (DITT_NEW_ENCHANT_ITEM_*) -> 328186b5: 328161d0( table, m_eType ), jmp 328186d1 (Stage 11);
+	// - every other type (81 included) -> 328186c4: 32814170( table, m_eType ) (Stage 11), then 328186d1.
+	// 328186d1 is the rest of the chain, each parser on the same table: 32810700, 328144f0, 32814da0, 32817470, 32815af0. Only
+	// 32814da0 (DITT_CONDITION_EQUIP_PLAY_EFFECT_SET) is ported; the others are JUNE_PORT_BACKLOG_ORDER.md Stage 11.
 	ParseJuneConditionEquipPlayEffectSet( luaManager );
 }
 
