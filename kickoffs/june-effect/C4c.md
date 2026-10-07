@@ -5,7 +5,7 @@
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C4c` |
 | Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
 | Depends on | C4b (done 2026-10-07; its findings are below) |
-| Flag | `SERV_IRUHADEV_JUNE_NPC_FURY_MODE` (new, in `KTDXLIB/Always.h`); diagnostics behind the shared `SERV_IRUHADEV_JUNE_FX_DEBUG` |
+| Flag | `SERV_IRUHADEV_JUNE_NPC_FURY_MODE` (Fury: items 1-3 and the Fury branch of item 4) and `SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED` (June's NPC anim-speed rework: items 4-5 without the Fury branch, which sits under both flags), both new in `KTDXLIB/Always.h`; diagnostics behind the shared `SERV_IRUHADEV_JUNE_FX_DEBUG` |
 | Log tag | `[JUNE_FX]` in ErrorLog.txt (`python tools/logs.py --tag JUNE_FX`) |
 | Review | `kickoffs/june-effect/C4c-review.md` (the phase writes it when done) |
 
@@ -16,7 +16,16 @@ python tools/docsection.py JUNE2017_EFFECT_COMPLETION_PHASES.md "C4 - Review (20
 grep -n "Effect C4b\|Effect C4 review" june2017_re/funcmap.tsv
 ```
 
-`CX2GameUnit::GetFinalDamage` is also C10b-1's: do not run in parallel with it. Peers edit
+`CX2GameUnit::GetFinalDamage` is also C10b-1's: do not run in parallel with it, and do not start while a peer has
+uncommitted `X2GameUnit.cpp` work (check `git status --short`).
+
+**Two checks before items 1, 4 and 5 (prove them with a `#pragma message` or `cl /P`, never by reading `#ifdef`s):**
+- `X2OPTIMIZE_NPC_NONHOST_SIMULATION` and `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` are live in `US_SERVICE`
+  (`KTDX.h:281` / `:342` define them, possibly under an outer conditional). `LoadStateData`/`GetNowStateData`
+  sit inside the first, the `CAMERA_CRASH` block inside the second: if either is off, the `#else` path is the live one.
+- `CX2GameUnit::CheckAndUpdateAdditionalStat()` runs every frame for NPCs, host and non-host (its per-frame call
+  follows `OnFrameMoveBuff` in `X2GameUnit.cpp`; find every gate on that path). If it does not, dropping
+  `UpdateResultValue()` from `ResetAnimSpeed` (item 4) kills buff slows/haste on monsters: stop and report. Peers edit
 `X2GameUnit.cpp` often: re-find every anchor by function name and bytes, not by line number.
 
 ## C4b findings (what to port, with June addresses)
@@ -47,7 +56,7 @@ Every item below is one funcmap row tagged `Effect C4b`. Cite the June address i
      - `v *= m_fBornAnimSpeedRate`;
      - `v *= GetAnimSpeedValue()`;
      - `v *= m_fRoseSummonAnimSpeedRate` (June `+0x8b6c`, new member, 1.0 in `CommonConstructor`; no March writer, the Rose writer is checklist 7f);
-     - `v *= m_fMultiplicationAnimSpeed` (June `+0x8fdc`, new member, 1.0 in `CommonConstructor`; its June writer is the Hero-dungeon `CreateGUNPC` tail `327ef570`, which is **not** ported because March has no hero dungeons);
+     - `v *= m_fMultiplicationAnimSpeed` (June `+0x8fdc`, new member, 1.0 in `CommonConstructor`; its June writer is the Hero-dungeon `CreateGUNPC` tail `327ef570`, ported dormant by **C4d**);
      - `if bComeBackState: v *= 4.0f`;
      - `SetPlaySpeed( v )`.
    - The member names are suggestions: name them in March style.
@@ -70,12 +79,12 @@ Every item below is one funcmap row tagged `Effect C4b`. Cite the June address i
 
 **Not ported, and why:**
 - The Rose writer (`32ab0560`) is checklist 7f.
-- The Hero-dungeon table, its Lua bind `Add_HeroDungeon_ExtraStatForException` and the `CreateGUNPC` tail: March has no hero dungeons.
+- The Hero-dungeon table, its Lua bind `Add_HeroDungeon_ExtraStatForException` and the `CreateGUNPC` tail: phase **C4d** (`C4d.md`), dormant (March has no hero dungeons).
 - June's `IS_APPLY_CINEMATIC_UI` and `DAMAGE_RATE_OF_PART` neighbours belong to other systems and are not Fury.
 
 ## Task
 
-Port items 1-7 under `SERV_IRUHADEV_JUNE_NPC_FURY_MODE`, with the original code in `#else` wherever behaviour is replaced (items 4 and 5). Keep June's quirks verbatim.
+Port items 1-7 under the two flags above (one `#define` each; the Fury replace inside `ResetAnimSpeed` under both), with the original code in `#else` wherever behaviour is replaced (items 4 and 5). Keep June's quirks verbatim.
 
 **Diagnostics** go behind `SERV_IRUHADEV_JUNE_FX_DEBUG`, as `CX2OfflineLog::Server` / `ErrorLogMsg` lines:
 - `[JUNE_FX] FURY set npc=<uid> on=<0/1>` in `SetFuryMode`;
