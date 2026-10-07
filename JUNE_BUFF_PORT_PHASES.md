@@ -4271,7 +4271,7 @@ Then read `ErrorLog.txt` for this phase's lines only: any `DLG_BuffManager.lua` 
 
 **Kickoff:** `kickoffs/june-buff/13.md` - start it with `/x2-phase june-buff 13`. The inline prompt that stood here was retired on 2026-10-04; `kickoffs/` is the source of truth.
 
-### Phase 13 — Done (2026-10-07, Sonnet 5.5 medium): staged, packed, deployed; copy and play-test owed
+### Phase 13 — Done (2026-10-07, Sonnet 5.5 medium, `fd6a1f5`): staged, packed, deployed; copy and play-test owed
 
 **Gate.** `buff_census.py`: BBT/BFT/BDT not handled 0, custom-function gap = the 4 June tags with no June reader (FLASH_BANG, TRAPPINGARROW_FUNGUS, BLOOD_REVENGE_COUNTER per 9b item 5; BLOOD_RUNAWAY has no case in June's switch and only Elesis reads it, checklist §7). The 4b key scan still listed 8 type/key pairs (26 uses); each is a key June's own reader does not read (reader addresses from the plan's RE notes: 75 `32d46800`/`32e75360`, 79 `32d42650`/`32e755a0`, 100 `32d4b020`, 104 empty parse/identity), so they went into `NOT_READ_BY_JUNE_TYPE` (`buff_census.py`) and the scan reads 0 pairs. **Not re-read in Ghidra this session: the review spot-checks 3 of them.**
 
