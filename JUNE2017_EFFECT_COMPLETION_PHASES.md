@@ -532,6 +532,8 @@ Checked in Ghidra (read-only) and in the exe bytes:
 
 **In game** (El Tree, any character): Mars's slash plays at 2x (`ATTACK` only; walk/wait normal) and hits about 2x; `JUNE_FX FURY set` once per Mars, `anim ... rate=2 v=2` (more when buffed), `dmg ... rate=2 phys a->2a`. Regression: in another dungeon, BFI 628 (`MOTION_SLOWDOWN_WIND_BLAST`, anim x0.15, 10 s) slows monsters at once and they recover after 10 s; no FURY line.
 
+**Play-test PASSED 2026-10-07** (exe fd7ff8e5, data037 md5 5f6be693; logs read, 0 EXCEPTION). El Tree twice (Tut14c, jtRuneSlayer): one `FURY set ... on=1` per Mars at stage start, about 24 `anim ... rate=2 v=2` (the slash visibly 2x), 4 `dmg ... rate=2 phys 1->2`. Most 2x slashes did not hit: not the port. The NPC hit test is a strict per-frame point sample (`start < anim time < end`), March `CommonFrameMove_TimedEvent` and June `327970d0` alike (decompiled: the `+0x214` anim-time test, no crossing check), so the staged 2.0 rate shrinks Mars's 0.067 window to about 33 ms real and frames step over it; June's own Fury rate is 1.2. March behaviour, so no JUNE_BUGS row. Regression (user, earlier launch, Ruben's second dungeon): BFI 628 on every monster slowed them at once, mid-attack, and they recovered after about 10 s.
+
 ---
 
 ## C5 - 8b, buff-factor selection, damage triggers, nearest bone
