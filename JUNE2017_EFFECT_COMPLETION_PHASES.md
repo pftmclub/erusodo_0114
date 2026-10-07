@@ -1409,7 +1409,11 @@ sit-emotion stops `31fa5140` / `31fa5180`. Kickoff `C9g.md`.
 The 88 deletions are this flag's own lines, rewritten by `c2029da` and by this review (the moved frame-move blocks). Against the base `c71621a^`, all five files show 0 deleted lines (`git diff --numstat`).
 The 31 OTHER rows are peer commits in the range (`4ca07e7` C10b-1 and others). The 4 `tok!` are existing `JUNE_FX_DEBUG` `#else`/`#endif` lines in `X2EffectSet.cpp`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,313,152 B, dated 2026-10-07 17:52:02, md5 a87b307beb07ca847b5a1382f153d4b9, equal to X2/US_SERVICE/x2.exe (2026-10-07 17:51:57); built at mods/june-buff-port 9a8e26f + 4 uncommitted code file(s).` (the four are this review's)
-**User owes:** a short regression play-test (hand-off in the reply), then /cost.
+**Regression play-test PASSED** (user, 2026-10-07 17:55-17:57, exe a87b307b; logs read, run after deploy): `UNIT_VIEWER_FX_LOAD ... rows=18`;
+PLAY + CREATE for `EffectSet_ETK_LobbyReadyAction` twice (1 mesh + 4 crescent cuts), `EffectSet_EMK_LobbyWait_LobbyReadyAction` (`MagicKnightHandFire`),
+`EffectSet_CDC_LobbyReadyAction` (both mini-guns), `EffectSet_SPK_LobbyWait_LobbyReadyAction` (P02 at once, P01 0.1 s later as its START_TIME says);
+0 `NOT PLAYED` / `NOT CREATED`, 0 EXCEPTION, clean exit (census present); the only UNHANDLED is `E_DISABLE_HB_CHECK_REQ` (not this phase).
+**User owes:** /cost.
 
 ---
 
