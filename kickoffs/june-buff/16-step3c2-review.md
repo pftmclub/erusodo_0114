@@ -41,7 +41,7 @@ Review 16-step3c2 against June:
 - **`CX2Game::PartyFeverAllUser( float, bool )`** against `322d4f80`, line by line:
   - The flag is set only with `bTitle` and cleared at the end if it is set.
   - The loop: state != `GUSI_DIE`, HP > 0, Add `UpNowDPValue( 3000, 1 )`, else `ForceChangeHyperModeWithoutMotion`.
-  - The MP line. June's `SetNowMp( GetMaxMp(), IsMyUnit() )` bool is June's gage API and was not ported; decide whether that is right.
+  - The MP line. June's `SetNowMp( GetMaxMp(), IsMyUnit() )` bool was not ported: `322b3010` clamps as March and only adds June-only tallies (`+0x100/+0x104/+0x10c`). Confirm that reading.
   - The sound order.
   - The four sequences, with the Title swap.
   - The callers: March's `X2PartyManager.cpp` passes `false` (June `32434f60 @324350c9`), and `323c5aa8` is June-only.

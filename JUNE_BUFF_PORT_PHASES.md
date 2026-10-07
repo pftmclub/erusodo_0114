@@ -6170,8 +6170,10 @@ Iivue's item 579 keeps the three sockets.
   - `Fever_Mode_Title` replaces `Fever_Mode` on a title pass.
   - The rest matches March line for line: Add DP 3000.0 at rate 1.0 (`3344f34c`), HP > 0.0, flare at 512/384, sound on the focus unit else my unit.
   - March's caller (`X2PartyManager.cpp`, the party-fever packet) passes `false`, as June `32434f60 @324350c9` does. The third June caller, `323c5aa8` (`DancingKing_Fever01.ogg`), is June-only.
-- **Not ported (open for the review):** June's MP line is `SetNowMp( GetMaxMp(), IsMyUnit() )`.
-  - The bool is June's gage-data `SetNowMp( float, bool )` (`3208dd20` -> gage vslot 8), an API change March lacks everywhere. The funcmap row's earlier "GetMaxMp( vslot 0x198 )" was a misread and is corrected.
+- **MP line, checked and not ported:** June's is `SetNowMp( GetMaxMp(), IsMyUnit() )`. The funcmap row's earlier "GetMaxMp( vslot 0x198 )" was a misread and is corrected.
+  - The bool goes to June's gage-data `SetNowMp( float, bool, int )`, CX2GageData vslot 8 = `322b3010` (RTTI vtable `33487acc`).
+  - That function clamps exactly as March's. With the bool set it also adds the change to June-only tallies (`+0x100` MP gained, `+0x104` MP spent) and keeps the previous value in `+0x10c`.
+  - So the MP Fever sets is March's. The tallies are June's gage API, which no ported reader uses.
 - **Particle data:** `Fever_Mode_Title` is in June's `GameMajorParticle3.txt` and not in March's (`kom_contents/data036_kom/GameMajorParticle3.txt` has Fever_Mode, 01-03). `CreateSequence` returns NULL silently, and one `[JUNE_BUFF]` line says so. Staging June's particle file is a separate decision.
 - **JUNE_BUGS:**
   - #71: the time moves only at the 10th hit, so the 1.0 s is a lock-out after each reduction. This corrects step 1's "1.0 s minimum gap".
@@ -6186,18 +6188,19 @@ Iivue's item 579 keeps the three sockets.
 **Deploy.** `DEPLOY OK: X2_offline.exe is 19,280,384 B, dated 2026-10-07 09:27:53, md5 4f358da19ac2f4c6d25cf347c6925d79, equal to X2/US_SERVICE/x2.exe (2026-10-07 09:27:47); built at mods/june-buff-port c22d1a3 + 9 uncommitted code file(s).` The log formats and `Fever_Mode_Title` are in the exe. The build also carries a peer session's uncommitted `Always.h` hunk (Phase 13: `SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF` turned on), which is theirs to commit. Not launched.
 
 **Dormant on today's data.**
-- March's scripts never make an `AT_COMMAND` hit, and BFI 804 / BTI 778 are June buff data (Phase 13).
+- March's scripts never make an `AT_COMMAND` hit. Checked: `attackType` comes only from the damage data's `ATTACK_TYPE` key (`X2DamageManager.cpp:157`), and no `.lua` in any `kom_contents/*_kom` names `AT_COMMAND` except Enum and `BattleFieldBuffFactor`.
+- BFI 804 / BTI 778 are June buff data. Phase 13 landed them meanwhile (`fd6a1f5`), so 156 now stays dormant on the missing `AT_COMMAND` hits alone.
 - The offline emulator gives the player no party (`m_iPartyUID = 0`), so Fever's gate stays shut. The party-fever packet path is unreachable offline too.
 
 **Save.** Iivue gets two sockets; backup at `db_backup/els_db_20261007_091031_pre_socket_3c2_156_fever.sql`:
 - item 579 gains 100036000 (EDT 156, 1 %, dungeon-only weapon socket);
-- item 510 gains 74042 (HMET_FEVER, June title socket, dungeon-only, 180 s).
+- item 510 gains 74042 (HMET_FEVER, June title socket, dungeon-only, 180 s). `SumSocketOption` has no socket-type filter, only the game-type gate, so a title socket on an item is filed.
 
 **How to see it in game.** In a dungeon with Iivue, `ErrorLog.txt` should show:
 - after hitting monsters, `socket EXTRA_DAMAGE_TYPE 156 fired (first this run): attack type 0|1, attacker user -> nothing`;
 - after awakening, `hyper-mode socket 74042 HMET_FEVER (first this run): gate closed (party manager 1, have party 0, ...)`.
 
-**Open for the user.** /cost. Whether to stage June's `GameMajorParticle3.txt` (`Fever_Mode_Title`) is a later call; no party exists offline to show it.
+**Open for the user.** /cost. JUNE_BUGS #72's NULL guard departs from June without a `JUNE_FIX` flag, because June's order would crash; say if you want it flagged. Whether to stage June's `GameMajorParticle3.txt` (`Fever_Mode_Title`) is a later call; no party exists offline to show it.
 
 ## Critical files
 
