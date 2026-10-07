@@ -850,6 +850,8 @@ log line. A `DD_TRACE` build located it: the first call from the file entered `I
 The handler's `KLuaManager( GetLuaState() )` then read the main state's stack instead of the call's table, and the error escaped
 every pcall. A probe of the same call made from C++ on the main state worked. The loader now uses `g_pKTDXApp->LoadLuaTinker`, as
 `CX2EffectSet::OpenScriptFile` does for its callbacks. The trace flag was removed.
+Re-test passed (exe md5 `03e657f7`, `113a3a9`): `ErrorLog.txt` has `JUNE_FX DAMAGE_DATA_LOAD Elsword_DamageData.lua loaded=1 rows=107
+skipped_empty_name=0 skipped_duplicate=0`. The client reached a dungeon with 0 EXCEPTION, and data036.kom is live (`COPY OK`, md5 `569113df`).
 
 **Declined: `EffectSet_Description.lua`.** June's client never names the file (C2): `32378e20` is `AddNPCTemplet_LUA`, `32680da0` is
 `AddNextStepPackage_LUA`, and the census matched their `DESC`/`NAME`/`VERSION` keys by name only. March reads it only under `#ifdef EFFECT_TOOL`.
