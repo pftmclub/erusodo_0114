@@ -6116,7 +6116,7 @@ Iivue's item 579 keeps the three sockets.
 
 ### Phase 16-step3c2 — Done (2026-10-07, Opus 5.5 high)
 
-**Landed** (commit below this note's). EDT 156 is under `SERV_IRUHADEV_JUNE_SOCKET_EDT`, which now also `#error`s without `_JUNE_BUFF_BEHAVIOR_PARITY` / `_JUNE_BUFF_ENUM`. HMET_FEVER has a new flag, `SERV_IRUHADEV_JUNE_SOCKET_FEVER` (`#error`s without `_SOCKET_PARITY`). Decodes are in `funcmap.tsv`: "Buff Phase 16-step3c2" notes on six rows, plus new rows `3234ded0`, `3208dd20` and `3208dc40`.
+**Landed** (`480b48b`). EDT 156 is under `SERV_IRUHADEV_JUNE_SOCKET_EDT`, which now also `#error`s without `_JUNE_BUFF_BEHAVIOR_PARITY` / `_JUNE_BUFF_ENUM`. HMET_FEVER has a new flag, `SERV_IRUHADEV_JUNE_SOCKET_FEVER` (`#error`s without `_SOCKET_PARITY`). Decodes are in `funcmap.tsv`: "Buff Phase 16-step3c2" notes on six rows, plus new rows `3234ded0`, `3208dd20` and `3208dc40`.
 - **EDT 156** (`X2GameUnit.cpp`, `JuneProcessSocketExtraDamage`). It is identical on both sides: user `@32039514`, NPC `@3279d323`.
   - **Gate:** an `AT_COMMAND` hit by a `GUT_USER` attacker that has a `CX2Unit`.
   - **Clock:** `[337676e8] +0x80` is `g_pKTDXApp->m_dTime`. June's ctor `31c17ed0` zeroes `+0x80` as a double right after `m_fConstElapsedTime`, as March's ctor does.
@@ -6153,7 +6153,7 @@ Iivue's item 579 keeps the three sockets.
 - The 4 deleted lines are 16-step3c's own combined 156/157 placeholder case, now split.
 - `X2GUUser.cpp` is OTHER for both flags because it holds both.
 - The first build failed because the new `CX2GUUser` accessors sat in a protected section. A `public:`/`protected:` pair inside the flag block fixed it.
-- Range lines: in the next commit.
+- Range (`--range 480b48b^..HEAD`): `JUNE_SOCKET_EDT`: `files: 4 PASS, 5 OTHER (other flags), 0 FAIL, 0 ERROR`; `4 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token`; RESULT PASS. `JUNE_SOCKET_FEVER`: `files: 3 PASS, 6 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s)`; RESULT PASS. Always.h is OTHER for both (it holds both defines and the new `#error`s).
 
 **Deploy.** `DEPLOY OK: X2_offline.exe is 19,280,384 B, dated 2026-10-07 09:27:53, md5 4f358da19ac2f4c6d25cf347c6925d79, equal to X2/US_SERVICE/x2.exe (2026-10-07 09:27:47); built at mods/june-buff-port c22d1a3 + 9 uncommitted code file(s).` The log formats and `Fever_Mode_Title` are in the exe. The build also carries a peer session's uncommitted `Always.h` hunk (Phase 13: `SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF` turned on), which is theirs to commit. Not launched.
 
