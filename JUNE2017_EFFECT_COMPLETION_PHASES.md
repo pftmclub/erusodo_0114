@@ -1784,7 +1784,7 @@ division system:
   - `Enum`: the old bytecode equals a fresh compile of the old source, and the decompile is old + 126 lines exactly.
   - `UIEffectSet`: the same check, old + 390 lines exactly.
   - `RenderDivisionItemTemplet`: the decompile has the same 8164 lines as June's source.
-- `PACK OK data036: ...data036_packed.kom` 191 entries, 6644810 bytes; vs live: `+1 added` (`RenderDivisionItemTemplet.lua`), `~3 changed` (`Enum.lua`, `UIEffectSet.lua`, `UIMajorXMeshPlayer.txt`). **Not copied yet** (asks the user).
+- `PACK OK data036: ...data036_packed.kom` 191 entries, 6644810 bytes; vs live: `+1 added` (`RenderDivisionItemTemplet.lua`), `~3 changed` (`Enum.lua`, `UIEffectSet.lua`, `UIMajorXMeshPlayer.txt`). Copied (user said yes): `COPY OK data036: ...\data\data036.kom  6644810 bytes, 191 entries, md5 00106631ffc3cf71a4b89c07f7c6b3fe`, backup `kom_backup_tools/data036.kom.20261007_202656`.
 
 **Hygiene** (`--worktree --files` the 16 code files): `files: 13 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
