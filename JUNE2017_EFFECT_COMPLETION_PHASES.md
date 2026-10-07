@@ -1242,7 +1242,7 @@ Nothing was built, so there are no hygiene or deploy lines. **User owes:** /cost
   `Pulsewave_Summon_Boss_SpecialAttackB01/02`, `ShockWave_Summon_Boss_SpecialAttackB`, `UI_Eve_Party_Event_StartEffect` (2,049,998 B, 2729 sequences).
   `PACK OK data036` (`~2 changed`: those two). Every June-only key in that file (AniXet, ChangeTexXet, CullMode, FinalParticleList, MeshRenderType,
   TraceParticleList, WireFrame) is already parsed by `KTDGParticleSystem.cpp`. The orb's `SA_AYR_ORB_KI_Main_S_P01` lost March's `Zenable = false`.
-- **Docs**: JUNE_BUGS rows 79-86; checklist 7d (ALD orb, duo model, Rose / Ain rows, what June's player loses); MODS; review kickoff (re-verifies C9c-2a).
+- **Docs**: JUNE_BUGS rows 79-86; checklist 7e (ALD orb, duo model, Rose / Ain rows, what June's player loses); MODS; review kickoff (re-verifies C9c-2a).
 
 **Open / recorded, not decided here**
 - `SetHideSelectUnitWeapon` has no June counterpart that I could identify (GhidraMCP was not running). Its four callers (`X2UICharInfo.cpp:1230`,

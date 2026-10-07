@@ -317,7 +317,7 @@ option, the category (`CX2Game::GetEffectAlphaCondition`), the EffectSet/CEffect
 | 8 sites (`32c89310`, `32c89460`, `32c895b0`; `32296da0` handles) | Rena | as above | as above |
 | `322726f0`: the HP-rate gate in `GetFinalDamage` returns false for `RNSI_SA_ALP_SUPERSONIC` (29058) against an NPC defender (GameUnitType 1) when it has `+0x8aeb` / `+0x8ae9` set, vslots `0x3c8` / `0x3cc` / `0x430` true, or `+0x8e80` set, or when its `+0x8f08` is 1 or 2 | Rena | Supersonic's HP-rate damage skips some NPCs | the gate's false branch, with the reform skill. C10b-1 calls `GetHpRateDamage` unconditionally until then |
 
-### 7d. Unit-viewer effect rows that only character code drives (from June effect completion C9c-2b)
+### 7e. Unit-viewer effect rows that only character code drives (from June effect completion C9c-2b)
 
 C9c-2b ports June's unit-viewer effect player under `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER`. It retires nine of March's hand-made class
 effects (MagicKnight, SPK, SBH, ALP, CDC, ETK/EIS, RTR, RNW: the table's 11 live rows now drive them). The rows below are the parts that need
