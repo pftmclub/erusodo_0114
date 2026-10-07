@@ -2006,6 +2006,61 @@ The user hears this at C9g-2's hand-off.
 
 ---
 
+### C9h - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build): the pet viewer sets are a viewer + engine slice; the reserved sets are the in-game riding pet's -> C9h-2a/2b/3
+
+Read-only in Ghidra. 27 funcmap rows `Effect C9h`. These rows correct C9g in two places:
+- `ResetRidingPet` does **not** stop group 1 itself;
+- `ResetPet` takes **3** arguments (`RET 0xc`).
+
+**1. The June diff, key by key.**
+- **Unchanged against March:** the INIT_SYSTEM and INIT_MOTION keys and their defaults (outline 1.2 = `CARTOON_OUTLINE_WIDTH`), the level clamp, and `OpenXSkinMesh(..., L"Bip01")`. March's `m_pChangeTexXET` shadowing is March's own and June has it too.
+- **ResetPet `32e50de0`:**
+  - A third `char` argument, the pet **variant**. When `iLv == 3`, the variant is non-zero and the templet has 4 steps, the motion file becomes `...N.x` and the XET becomes `...N.xet`. A hard-coded suffix from `326cc990` takes over the XET in two cases: pet 39 uses `H.xet`, and pet 134 with variant 1-2 uses `2.xet`.
+  - After ResetRenderParam it stops group 1, then plays `INIT_EFFECT.UNIT_VIEWER_EFFECT_SET_LIST` into group 1.
+- **ResetRidingPet `32e51ea0`:**
+  - `RIDINGPET_UNIT_VIEWER_EFFECT_SET_LIST` plays into group 1.
+  - `RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET` plays on the **UI effect set** through the new overload `321e28d0 (name, skin)`. That overload sets the June instance flag `+0xdd`, and the handles go to a new viewer vector at `+0x2a8`.
+- **The `+0xdd` flag:**
+  - It moves a set to screen space, read from the viewer bone, in GetEffectPosition `@321dd0e0`.
+  - A particle created on such a set gets OverUI, `PT_2D_PLANE` and ResolutionConvert (`@321f2522`).
+- **The viewer's new members:** IsAnimExist `32e4fe30`, a handle stop `32e4fde0`, and a SetScale `32e4fcf0` that also scales the handles. Ctor and dtor change to match.
+
+**2. The reserved UI effect sets belong to the in-game `CX2RidingPet`, not the viewer.**
+- `32d2b0d0` (INIT_EFFECT) loads the 4-tuples into a map at `+0x4d0`.
+- June's riding-pet StateChange `32d2f560` does three things:
+  - it stops every playing entry whose delete condition is `RESDC_STATE_CHANGE` (1), then the state's `DELETE_RESERVED_UI_EFFECT_SET` indices;
+  - it plays a per-state UI-set list into `+0x4b0` or `+0x4c0`;
+  - it calls `32d2bad0`, which plays `PLAY_RESERVED_UI_EFFECT_SET`. With `RESPC_NOT_PLAY` (1), an entry that is already playing is not replayed.
+- The enums are `RESERVED_EFFECT_SET_PLAY_COND {NONE 0, NOT_PLAY 1}` and `RESERVED_UI_EFFECT_SET_DELETE_COND {NONE 0, STATE_CHANGE 1}`. **March's `Enum.lua` has neither.**
+- The same StateChange carries 24 more June-only keys (funcmap `32d2f560`). That makes it a riding-pet engine rewrite -> **C9h-3**.
+
+**3. `32228c90` = March `CX2CashShop::ResetPetViewer`, and its only caller `32234b10` = `PetPreview`.** June rewrote both:
+- a `type != -1` guard;
+- the clear and the group-1 stop come first;
+- the 1.4 scale for pets 35-36;
+- `Wait_Transform`;
+- the position is the `+0x51c` vector plus June offsets, with a second offset pair under Stage 12's preview flag `3379fce4`;
+- PetPreview flips a coin between a pet and a riding pet, then runs a pre-equip-list hide.
+
+March's three no-argument hides became inline blocks in June: SetOpen `3223d680`, UpdateDLGPetViewerUI `3223c5d0`, and `322383c0` (whose March counterpart is unconfirmed). Pet-info clears are at `32902000`, `32902700` and `328fce40`. -> **C9h-2b**.
+
+**4. Reach.**
+- **March data:** 0. None of the 8 June scripts that carry these keys is in March (Santagirl, Jet Ski, Lord of Inferno and `_2P`, Raul Puppet, Cat Maru, Dog Kkogi, Pporu Rickshaw), and March's enums lack all 8 ids.
+- **June preview items for those pets:** 16, all in June's `item.kim` (1 in March's). After Stage 13 they preview an id that March cannot resolve; `ResetPet` / `ResetRidingPet` return false, as in June.
+- **March pets that do reach:** 39 and 134 (the variant branch, which waits on the variant byte); 4 preview items, 4 in June's `item.kim` and 2 in March's.
+- **Pets 35-36** (the 1.4 scale) have no preview row in June's `PetPreView.lua`.
+
+**Routing.**
+- **C9h-2a** (Sonnet 5.5 high, flag `SERV_IRUHADEV_JUNE_PET_VIEWER_FX`): the viewer, the `321e28d0` overload, `+0xdd` and its three consumers, and `326cc990`.
+- **C9h-2b** (Opus 5.5 high, flag `SERV_IRUHADEV_JUNE_PET_PREVIEW`): `ResetPetViewer` + `PetPreview`, the hide sites, and the pet-info clears.
+- **C9h-3** (Opus 5.5 high, identify): the riding-pet engine rewrite.
+- **Backlog Stage 17** (new): the pet variant byte (a June `KPetInfo` field at `+0xca`, the in-game pet `326e5cf0`, and the save) and the 8 June-only pets and riding pets.
+- **JUNE_BUGS 104-106.**
+
+**User owes:** /cost.
+
+---
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),

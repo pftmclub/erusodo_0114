@@ -56,7 +56,8 @@ The user's remaining backlog, in the order they listed it:
 | 12 | Character customize system *(added 2026-10-07, june-effect C9g)* | - (found by june-effect C9g) | Not a backlog item but a missing system: June's `CX2CustomizeManager` (`CharCustomData.lua`) applies cash custom motions, sit motions and effects, faces, textures and skill cut-ins to a character, on the unit, square and viewer. It depends on Stage 10 (sit emotions), Stage 2 (UI) and the user's June `item.kim`. Numbered 12 to keep the earlier numbers stable. |
 | 13 | June `item.kim` adoption *(added 2026-10-07, user)* | - (the user's decision during june-effect C9g) | Not a backlog item but a prerequisite: March loads June's `item.kim`. That needs June's 228-byte record ported, since March's is 188 and both files carry the same header version. Planned in full as `JUNE_ITEM_KIM_PHASES.md` (K0-K4). Stages 11 and 12 depend on it for real data. It touches no other stage's files, so it can run alongside Stages 2-8. Numbered 13 to keep the earlier numbers stable. |
 | 14 | Byte-exact June asset extraction *(added 2026-10-07, user)* | - (the user's question: do June assets load in March unchanged?) | Not a backlog item but a prerequisite for porting any June asset faithfully. June's formats load in March unchanged, but elstools cuts 18,571 June V.0.4 entries short. Planned in full as `JUNE_ASSET_EXTRACT_PHASES.md` (X0-X5): an extractor, a packing helper and a long-name engine fix. It touches only tooling, staging and `KGCMassFileManager.cpp`, so it can run alongside Stages 2-8. Every stage that stages June assets benefits from it. |
-| 16 | June item-side systems *(added 2026-10-07, june-item-kim K0)* | - (found by june-item-kim K0) | Not a backlog item but missing systems: June's item templet carries fields and flags March has no reader for (damage range, equipment group, description-in-shop type, item expiry, PvP-equip), and June's `ResetItemManager` opens item tables March never loads (`SetItemGroup`, `ItemManager` item lock, `CoordiItem` and others). It depends on Stage 13 (K2) for the record. Numbered 16 to keep the earlier numbers stable. |
+| 16 | June item-side systems *(added 2026-10-07, june-item-kim K0)* | - (found by june-item-kim K0) | Not a backlog item but missing systems: June's item templet carries fields and flags March has no reader for (damage range, equipment group, description-in-shop type, item expiry, PvP-equip), and June's `ResetItemManager` opens item tables March never loads (`SetItemGroup`, `ItemManager` item lock, `CoordiItem` and others). It depends on Stage 13 (K2) for the record. Numbered 17 to keep the earlier numbers stable. |
+| 17 | Pet and riding-pet remainder *(added 2026-10-07, june-effect C9h)* | - (found by june-effect C9h) | Not a backlog item but missing data and one packet field: June's pet **variant** byte (a `KPetInfo` field read by the pet-info viewer, the in-game pet and `ResetPet`'s texture-variant branch) and June's 8 pets / riding pets that March has no enum, templet or script for. Its code waits on june-effect C9h-2a (the viewer half) and C9h-3 (the riding-pet engine). Numbered 17 to keep the earlier numbers stable. |
 
 **Concurrency.** At most two code sessions should run at once:
 - Stage 0's buff port, in the main Trunk;
@@ -405,6 +406,29 @@ Routed elsewhere:
 - the Lu/Ciel minor-unit fields go to Stage 8.
 
 **Depends on:** Stage 13 (K2).
+
+---
+
+### Stage 17: Pet and riding-pet remainder (june-effect C9h, 2026-10-07)
+
+june-effect C9h mapped June's pet and riding-pet viewer changes (`JUNE2017_EFFECT_COMPLETION_PHASES.md` "C9h - Done"). The engine
+half is planned there (C9h-2a/2b/3). Two pieces are not effect work and have no March owner, so they land here:
+- **The pet variant byte.** June's `ResetPet` takes a third argument. With a non-zero variant at evolution step 3, it swaps the motion
+  and texture to `...N.x` / `...N.xet`, or to the hard-coded `H.xet` (pet 39) / `2.xet` (pet 134, variants 1-2) from `326cc990`.
+  - The pet-info viewer (`328f0aa0`) passes a June `KPetInfo` byte at `+0xca`, and the in-game pet (`326e5cf0`) uses the same suffix
+    lookup.
+  - Porting it means a shared-header field (`CommonPacket.h`, so the flag also goes in `ServerDefine.h`), Put/Get, an `X2OfflineDB`
+    column, the emulator's pet handlers, and whatever June uses to set the byte (not identified yet).
+  - Reach: pets 39 (`PUI_GRIM_REAPER_REBIRTH`) and 134 (`PUI_SHERIFF_NORM`) are March pets.
+- **June's pet / riding-pet roster.** Eight pets carry the new viewer and reserved effect-set keys, and none is in March:
+  - the pet: `PET_Santagirl`;
+  - the riding pets: `RidingPet_Jet_Ski`, `RidingPet_Lord_Of_Inferno`, `RidingPet_Lord_Of_Inferno_2P`, `RidingPet_Raul_Puppet`,
+    `RidingPet_Cat_Maru`, `RidingPet_Dog_Kkogi`, `RidingPet_Pporu_Rickshaw`.
+
+  Each needs its enum, templet, script, motions and effect sets. 16 June preview items (`PetPreView.lua`) point at them, and all 16 are
+  in June's `item.kim`.
+
+**Depends on:** june-effect C9h-2a and C9h-3 (the code they would exercise), Stage 13 (the items), Stage 14 (byte-exact assets).
 
 ---
 
