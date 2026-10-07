@@ -973,6 +973,45 @@ play-test; update matrix and MODS.md.
 
 **Open for the user:** none. The kickoff's "find a June templet with TOUCH_LAND_DAMAGE_EFFECT" has no March answer: June's only user is Rose's `DamageEffect_A_RMH_KS_83_Grenade`, and its owner is the character port or June-data re-adoption (C11).
 
+### C7 - Review (2026-10-07, Opus 5.5 high)
+
+**Verdict: correct against June, with one transcription fix.** The fix is NaN polarity in `31f6ea20`, under `SERV_IRUHADEV_JUNE_SPAWN_INHERIT`. It changes nothing on March data.
+
+**Checked against June** (raw disassembly via `disasm_range.py` / Ghidra, read-only):
+- **Gate** `@31f8a2e8-31f8a38b`: `0 > gravity.y`, `0 > velocityBefore.y` (`test ah,0x41; jne`), `0 < velocity.y` (`test ah,5; jp`). All strict, and NaN skips, as ported. No once-flag.
+- **Mesh** `31c87b80 @31c87c8e-31c87cc4`: the `+0x534..+0x53c -> +0x54c..+0x554` snapshot sits in the `m_fAniTimeBefore` block, after the per-frame-simulation return. March places it the same way, and no June offset is read. `X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION` is ON (`flagprobe.py`).
+- **Spawner** `31f81ba0` (`dis_31f81ba0.txt`), traced block by block:
+  - guard chain; invoke-rate test (`+0xb04` != 0 = type != `DET_ARROW_OF_EXPLOSION` (0); random > `+0x720` skips);
+  - `+0x74` angle `+0x118` into both angle vectors; position `+0x10c`;
+  - `+0x75` rotated offset (the z branch's direction `(-dz, 0, dx)` is March's swap) or the plain offset;
+  - CreateInstance's 17 arguments `(owner, name, +0x1d8, pos, rot, axis, +0x130, 0, -1, forceDown, 1, -1, -1, 0, -1, 0, 0)`: March's overload with its own defaults;
+  - then `31f8af50`, `31f8fdb0`, buff factor, life clock `+0x448`, rate `+0x724` > 0, scale `entry x +0xa5c`, `SetScaleByUnit(+0xaa0)` (= `m_vHitDamageScaleByUnit`: `31f76100` writes `+0xaa0`/`+0xaac`), `+0xacd`, max life `+0x84` > 0, first-attack, tail.
+  - Every guarding macro is ON except `ADD_RENA_SYSTEM` (OFF, as in the hit and die spawners).
+- **Ctor hook** `@31f7f612-31f7f62b`: `+0xb18 = -1.0`, then the ctor-argument owner's vslot `0x328`, when that owner is non-null.
+- **RT_CREATE** `@31f86140-31f86148`: `31f6ea20` runs unconditionally after `31f8fdb0`.
+- **CREATE loop** `@31f89d52-31f89d82`: the crit adds sit between SetScale and `31f8fdb0`. They are inside C7's existing `DAMAGEEFFECT_RUNTIME` block (`#ifdef` at cpp :2918).
+- **Lock-on copy** `@31f89e02-31f89e34`: both types non-zero; the child's type is saved, then operator=, then the type is restored.
+- **Die copy** `@31f83110-31f83126`: entry `+0x9c` == 1, then operator=. There is no type test or keep, and it sits between first-attack and the tail.
+- **`31f8c280`**: copies `+0x0..+0x3c` (not the padding at `+0x14`), **skips `+0x40..+0x4f`** (the set), then copies `+0x50..+0xc0` with the wstring at `+0x8c`. `JuneAssignLockOnData`'s swap/assign/swap-back is exactly that.
+- **`31f6ea20`** body: the type switch, HIT_ADD_MP `*=`, TECH_POINT `*= ftol(rate)`, with ST0 = the rate on both paths. JUNE_BUGS 103 is present.
+
+**Fix:** the guard (`@31f6ea3a-31f6ea49`: `fcom` rate vs 0, `test ah,0x41`, `jnp return`) returns on `< 0` and `== 0` only. **A NaN rate goes on.** This was checked by JIT-running the exact x87 bytes (scratch harness after `x87test.py`): -1 and 0 return; 0.5, 1 and NaN proceed. C7 wrote `false == ( rate > 0.f )`, which returns on NaN. It is now `m_fJuneCreateDamageEffectRate <= 0.f` (X2Lib has no `FloatingPointModel`, so `/fp:precise` keeps NaN false). funcmap row `31f6ea20` is corrected.
+
+**Hygiene:**
+- Range `8973e18^..HEAD`, single flag: TOUCH_LAND `files: 2 PASS, 0 PASS~, 1 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS`. Its one bare `#endif` is the `#error` guard's.
+- SPAWN_INHERIT and DAMAGEEFFECT_RUNTIME, single flag: `1 PASS, 4 OTHER, 1 ERROR`, `RESULT: FAIL`. Each ERROR is an Always.h `#error` dependency guard (`:5628`, `:5362`). A single-flag strip of either one cannot compile by design, so they are checked over the dependency closure instead:
+  - SPAWN_INHERIT `--with JUNE_TOUCH_LAND`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s) ... 2 #else/#endif without the flag token` (the two guards' bare `#endif`s); `RESULT: PASS`.
+  - DAMAGEEFFECT_RUNTIME `--with JUNE_SPAWN_INHERIT JUNE_TOUCH_LAND`: `files: 1 PASS, 1 PASS~, 1 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s)`; `RESULT: PASS`. The PASS~ is C7's blank line after `JuneAssignLockOnData`.
+  - This is a known limit: any later range that touches Always.h gets the same single-flag ERROR for these flags. Use the closure.
+- Worktree after the fix: SPAWN_INHERIT `--files X2Lib/X2DamageEffect.cpp` `1 PASS, 0 FAIL, 0 ERROR`. Its `1 deleted line(s)` is C7's own replaced condition line inside the flag's block. `RESULT: PASS`.
+- `census.py` moved as the Exit says: the TOUCH_LAND runtime rows read `C7 done`, with the INHERITLOCKONDATA row added. The matrix rows are corrected.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,333,120 B, dated 2026-10-07 21:13:12, md5 4438a92347b2041b5dce62e89116ec5c, equal to X2/US_SERVICE/x2.exe (2026-10-07 21:13:07); built at mods/june-buff-port a8758a3 + 1 uncommitted code file(s).` The one file is this fix, committed with this note.
+
+**Exit, third leg: not met.** "A `JUNE_FX TOUCH_LAND` line fires in play on a June damage effect that uses it" cannot be met on March data. June's only user is Rose's `DamageEffect_A_RMH_KS_83_Grenade`. The leg, plus the still-unobserved `TOUCH_LAND_GATE` and `CREATE_LOCKON_COPY` lines, is carried to `kickoffs/june-effect/C11.md` ("Added by the june-effect C7 review"). The user may instead stage a temporary touch-land entry now (the C4c precedent); that is their call.
+
+**Play-test:** none required; the fix is inert (rate -1). The optional check: throw a bomb or Chung's Elastic Bomb and look for `TOUCH_LAND_GATE entries=0`.
+
 ---
 
 ## C8 - Hit path, second half (old Phase 9)

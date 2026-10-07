@@ -10184,9 +10184,11 @@ void CX2DamageEffect::CEffect::JuneSpawnTail( CEffect* pChild_, const DamageEffe
 // June 31f6ea20 (effect completion C7, funcmap rows 31f6ea20 / CEffect+0xb18): this = the parent, the argument = the child made by
 // RT_CREATE_DAMAGE_EFFECT (only caller, AttackResult @31f86148). Nothing happens unless the child exists and the rate (June +0xb18)
 // is above 0; only class code sets the rate (checklist 7a), so in March it stays -1 and this returns.
+// The rate test is June's polarity (@31f6ea3a-31f6ea49: fcom against 0, test ah,0x41, jnp return): it returns on <= 0 only, so a
+// NaN rate goes on (x87-emulated in the C7 review); "<= 0.f" keeps that under /fp:precise, "!( > 0.f )" would not.
 void CX2DamageEffect::CEffect::JuneApplyCreateDamageEffectRate( CEffect* pChild_ )
 {
-	if( NULL == pChild_ || false == ( m_fJuneCreateDamageEffectRate > 0.f ) )
+	if( NULL == pChild_ || m_fJuneCreateDamageEffectRate <= 0.f )
 		return;
 
 	CX2DamageManager::DamageData& kChildData = pChild_->GetDamageData();
