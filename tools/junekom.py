@@ -376,31 +376,75 @@ def cmd_extract(args):
         raise SystemExit("--out is inside %s: June's tree is only written with --overwrite --backup <dir>" % JUNE_ROOT)
     if args.backup and os.path.normcase(os.path.abspath(args.backup)) == os.path.normcase(os.path.abspath(args.out)):
         raise SystemExit("--backup must not be --out (e.g. <June data>\\_extract_backup)")
-    st, found, bad = collections.Counter(), set(), 0
+    t0 = time.time()
+    tasks = []
     for p in koms:
         k = Kom(p)
-        for e in k.entries:
-            if want and e["name"].lower() not in want:
-                continue
-            with open(p, "rb") as f:
-                f.seek(e["offset"]); raw = f.read(e["csize"])
-            out, err = decode(e, raw, k.v04)
-            found.add(e["name"].lower())
+        ents = [e for e in k.entries if not want or e["name"].lower() in want]
+        for chunk in _chunks(ents, args.chunk_mb << 20):
+            tasks.append((p, k.stem, k.v04, chunk, args.out, args.overwrite, args.backup, args.verbose))
+    tasks.sort(key=lambda t: -sum(_cost(e) for e in t[3]))
+    st, found = collections.Counter(), set()
+    def consume(res):
+        c, msgs, names = res
+        st.update(c); found.update(names)
+        for m in msgs:
+            print(m)
+        sys.stdout.flush()
+    if args.jobs <= 1 or len(tasks) <= 1:
+        for t in tasks:
+            consume(_extract_chunk(t))
+    else:
+        import multiprocessing
+        with multiprocessing.Pool(args.jobs, initializer=_worker_init) as pool:
+            for res in pool.imap_unordered(_extract_chunk, tasks):
+                consume(res)
+    bad = st["failed"]
+    missing = sorted(want - found)
+    for n in missing:
+        print("NOT FOUND in any given kom: %s" % n)
+    print("EXTRACT %s: new %d, replaced %d, identical %d, refused %d, failed %d, not found %d, %.0f s" % (
+        "OK" if not bad and not missing and not st["refused"] else "INCOMPLETE",
+        st["new"], st["replaced"], st["identical"], st["refused"], bad, len(missing), time.time() - t0))
+    return 1 if bad or missing or st["refused"] else 0
+
+def _cost(e):
+    return e["csize"] * (1 if e["algo"] == 0 else 25)  # crude: cipher bytes cost ~25x an inflate
+
+def _chunks(ents, chunk_cost):
+    cur, cost = [], 0
+    for e in ents:
+        if cur and cost + _cost(e) > chunk_cost:
+            yield cur
+            cur, cost = [], 0
+        cur.append(e); cost += _cost(e)
+    if cur:
+        yield cur
+
+def _extract_chunk(task):
+    """Worker: decode, compare, back up and write one slice of a kom. Each (kom, name) path is owned by one task."""
+    path, stem, v04, ents, out_root, overwrite, backup, verbose = task
+    st, msgs, names = collections.Counter(), [], []
+    with open(path, "rb") as f:
+        for e in ents:
+            f.seek(e["offset"]); raw = f.read(e["csize"])
+            out, err = decode(e, raw, v04)
+            names.append(e["name"].lower())
             if out is None:
-                print("FAIL %s/%s: %s" % (k.stem, e["name"], err)); bad += 1
+                msgs.append("FAIL %s/%s: %s" % (stem, e["name"], err)); st["failed"] += 1
                 continue
-            dst = _long(os.path.join(args.out, k.stem + "_kom", e["name"]))
+            dst = _long(os.path.join(out_root, stem + "_kom", e["name"]))
             if os.path.isfile(dst):
                 old = open(dst, "rb").read()
                 if old == out:
                     st["identical"] += 1; continue
-                if not args.overwrite:
-                    print("DIFFERS (left alone, no --overwrite): %s (%d B on disk, %d B decoded)" % (dst, len(old), len(out)))
+                if not overwrite:
+                    msgs.append("DIFFERS (left alone, no --overwrite): %s (%d B on disk, %d B decoded)" % (dst, len(old), len(out)))
                     st["refused"] += 1; continue
-                if args.backup:
-                    bk = _long(os.path.join(args.backup, k.stem + "_kom", e["name"]))
+                if backup:
+                    bk = _long(os.path.join(backup, stem + "_kom", e["name"]))
                     if os.path.isfile(bk) and open(bk, "rb").read() != old:
-                        print("REFUSED: backup %s exists with other content" % bk); st["refused"] += 1; continue
+                        msgs.append("REFUSED: backup %s exists with other content" % bk); st["refused"] += 1; continue
                     os.makedirs(os.path.dirname(bk), exist_ok=True)
                     if not os.path.isfile(bk):
                         shutil.copy2(dst, bk)
@@ -409,18 +453,12 @@ def cmd_extract(args):
                 st["new"] += 1
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             tmp = dst + ".part"
-            with open(tmp, "wb") as f:
-                f.write(out)
+            with open(tmp, "wb") as f2:
+                f2.write(out)
             os.replace(tmp, dst)
-            if args.verbose:
-                print("%s/%s %d B" % (k.stem, e["name"], len(out)))
-    missing = sorted(want - found)
-    for n in missing:
-        print("NOT FOUND in any given kom: %s" % n)
-    print("EXTRACT %s: new %d, replaced %d, identical %d, refused %d, failed %d, not found %d" % (
-        "OK" if not bad and not missing and not st["refused"] else "INCOMPLETE",
-        st["new"], st["replaced"], st["identical"], st["refused"], bad, len(missing)))
-    return 1 if bad or missing or st["refused"] else 0
+            if verbose:
+                msgs.append("%s/%s %d B" % (stem, e["name"], len(out)))
+    return st, msgs, names
 
 # --------------------------------------------------------------------------- verify
 
@@ -611,6 +649,8 @@ def main():
     s.add_argument("--overwrite", action="store_true", help="replace an existing file whose bytes differ")
     s.add_argument("--backup", help="copy each replaced file to <backup>/<stem>_kom/<Name> first")
     s.add_argument("-v", "--verbose", action="store_true")
+    s.add_argument("--jobs", type=int, default=max(1, (os.cpu_count() or 2) - 1))
+    s.add_argument("--chunk-mb", type=int, default=64, help="work unit size (cost-weighted MB)")
     s = sub.add_parser("verify")
     s.add_argument("koms", nargs="*")
     s.add_argument("--sample", type=int, default=0, help="N entries per (algo, csize%%8) class per kom")
