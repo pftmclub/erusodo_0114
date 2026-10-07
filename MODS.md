@@ -3037,6 +3037,25 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
   only the `_INT` Christmas master, BFI 10066) dies at the next damaging hit: June's user `DamageReact` (`320462a0`) sets HP to 0
   after the hit's damage. Monsters are unaffected (June has no NPC reader). The load line now says `... ported`.
   **Revert:** undefine it and rebuild all projects (the debuff becomes a plain slow again).
+
+### June effect completion C4: damage math (range rate, Nasod combo gate, DIVISION window)
+
+- **`SERV_IRUHADEV_JUNE_DAMAGE_MATH`.** Two changes, both dormant on today's data (no March or June script sets the keys they read
+  except the Nasod one):
+  - *Formula (June `32622780`, from `GetFinalDamage` `@322857f6`).* The two damage locals (physic, magic) are each multiplied by
+    `DIVIDE_DAMAGE_FROM_RANGE`'s rate when it is below 1.0: rate = the `DAMAGE_RATE` of the last `RANGE%d` entry whose `RANGE` is not
+    above the distance from the effect to the defender's aim point (1.0 before any). It runs before the class damage hook, on the
+    locals only. Nothing changes without the key. Parse: `DIVIDE_DAMAGE_FROM_RANGE = { RANGE0 = { RANGE, DAMAGE_RATE }, ... }`.
+  - *Gate (June `329f63a0`).* `CX2GUAdd::SetNasodArmorAttackTarget` sets Add's Nasod armor target only for a hit whose DamageData has
+    `CAN_ACTIVATE_NASOD_ARMOR_COMBO = TRUE`, or whose skill is `SI_A_AN_PULSE_BULLET` / `SI_A_AN_PHASE_SHIFT`. March's data has no
+    such line, so **Add's other hits no longer set that target** until June's DamageEffect data is adopted (user, 2026-10-07).
+  **Revert:** undefine it and rebuild all projects (the target is set on every hit again; no range scaling).
+- **`SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY` (extended).** `CheckDamageDataKeyName` became `JuneCheckDivisionWindow`: with
+  `DIVISION_NUM >= 1` a unit refuses a second buff-factor application from the same (attacker, `DIVISION_NUM`) for `DIVISION_OFF_TIME`
+  seconds (window map ticked at the end of `CX2GameUnit::OnFrameMove`, re-armed at the end of `SetDamageDataFromLUA`). Dormant: no
+  data sets either key. Reverting it means undefining the whole flag.
+- No ignore-defence number changes: those keys are June buff port Phase 5c (`SERV_IRUHADEV_JUNE_BUFF_NEW_STAT`).
+
 ## Reverting to stock
 
 Comment out every `#define` listed in the *Defined in* column and rebuild.

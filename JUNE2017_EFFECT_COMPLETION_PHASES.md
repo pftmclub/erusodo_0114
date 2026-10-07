@@ -392,7 +392,7 @@ stop and flag it. CP949 byte-level edits; build, deploy, ASK before launching; u
 
 ## C4 - 8b, damage math
 
-**Status: not started. Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and
+**Status: code done 2026-10-07 (see "C4 - Done" below; review queued). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and
 `3261a150`.
 
 - **Keys:** `IGNORE_DEFENCE_ON_PVP`, `IGNORE_DEFENCE_RATE`, `IGNORE_DEFENCE_RATE_ON_PVP`,
@@ -413,6 +413,32 @@ from C2). Transcribe parse + consumer for each C4 key under a new SERV_IRUHADEV_
 flag, every formula cited. CP949 byte-level edits; build, deploy, ASK before launching; record
 before/after damage numbers; update matrix and MODS.md.
 ```
+
+### C4 - Done (2026-10-07, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_DAMAGE_MATH`, plus `SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY` extended)
+
+**What landed** (commit `c1c74e2` (code) and the follow-up commit (the `BeginTable` arity below, docs`; details in `MODS.md`, "C4: damage math"). C2's decisions applied: the `IGNORE_DEFENCE*` keys were already June buff port Phase 5c's (parse + both DamageReacts + `GetFinalDamage` block `3228568a`), `DAMAGE_SKILL_ID` is C1's, and `DIVISION_NUM` / `DIVISION_OFF_TIME` are buff-apply gating, so they follow the user's 2026-10-06 decision and sit under `SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY`, not `_DAMAGE_MATH`.
+- **`DIVIDE_DAMAGE_FROM_RANGE`** (`_DAMAGE_MATH`). Parse in `SetDamageDataFromLUA` (`32632390 @3263575f-32635b0f`): `DIVIDE_DAMAGE_FROM_RANGE = { RANGE0 = { RANGE, DAMAGE_RATE }, RANGE1 = ... }`. The sub-tables are named `"%s%d"` (`31c7b980`) from index **0** and the loop ends at the first missing one; `RANGE` defaults to 99999, `DAMAGE_RATE` to 1.0; the map insert keeps the first of two equal `RANGE`s (`3261a150`). Consumer `CEffect::JuneApplyDivideDamageFromRange` (= `32622780`), called in `GetFinalDamage` between the two damage locals and `ModifyFinalDamageByGameUnitType`, as June's `@322857f6` sits before the attacker's hook; it changes the locals only, never `damage`. dist = effect position (`m_Pos`) to the defender's aim point (`JuneGetLockOnAimPos`, June slot `0x3e4`; user = `GetPos`, base = the zero vector); rate = value of the last `RANGE` not above dist (default 1.0); physic and magic are scaled only for rate **< 1.0**.
+- **`CAN_ACTIVATE_NASOD_ARMOR_COMBO`** (`_DAMAGE_MATH`). Parse as a bool (default false). Gate in `CX2GUAdd::SetNasodArmorAttackTarget` (`329f63a0 @329f64a5`): C2's open "local" is a switch at the function top on `USED_SKILL_ID` over 29201 / 29202 / 29216 / 29217 (June reform `RNSI_A_AN_PHASE_SHIFT` / `_PULSE_BULLET` and their `_UPGRADE`). This build has no reform IDs, so the two March skills of those names pass instead; the rest goes to checklist 7d. **User decision (2026-10-07): follow June and accept that Add's other hits set no Nasod armor target until DamageEffect data is adopted** (March data has 0 uses of the key, June's has 52, all Add's). One-shot log `JUNE_FX NASOD_COMBO gate (first seen)`.
+- **DIVISION window** (`_BUFF_REACT_APPLY`). `CheckDamageDataKeyName` (a stub from buff Phase 10, wrongly named) became `JuneCheckDivisionWindow` (`3227a960`): with `DIVISION_NUM >= 1` the unit keeps a map (attacker UID, `DIVISION_NUM`) -> seconds; a present key refuses the factor, an absent one is inserted with `DIVISION_OFF_TIME`. Tick `JuneTickDivisionWindow` (`322749f0`) at the end of `CX2GameUnit::OnFrameMove`, re-arm `JuneRearmDivisionWindow` (`32275da0`) from the end of `SetDamageDataFromLUA` through `32622ad0`'s unit walk (`322ccf50` is only "pointer is in the unit list", so the port iterates `GetUnitList()` directly). Parse: `DIVISION_NUM` int default 0, `DIVISION_OFF_TIME` float default 0.
+- **x87 polarities settled** (harness `c4_x87.py`, same technique as `x87test.py`; funcmap rows `Effect C4`): the walk stops at the first `RANGE` with dist < `RANGE` (NaN takes every entry), the multiply needs rate < 1.0 strictly (1.0, above 1.0 and NaN do nothing), the tick erases at time <= 0 (NaN keeps). JUNE_BUGS 87 (DIVISION window shut by a later-rejected factor / the first factor of a hit) and 88 (first duplicate `RANGE` wins, rate >= 1.0 ignored).
+- **June-only items routed, not ported:** the hard-coded `USED_SKILL_ID == 30205` (Luciel, `RNSI_A_LLC_BACKSTAB`) force of `IGNORE_DEFENCE*` in both DamageReacts (`@320483e4`, `@327b33cf`) and the four reform IDs -> checklist 7d. Found, not owned: an unidentified NPC-attacker block in `GetFinalDamage @32285757-322857e8`, just before the DIVIDE call (funcmap, status `candidate`; needs Opus identification).
+
+**Hygiene.** `flagcheck JUNE_DAMAGE_MATH --worktree --files <the 8 code files>`:
+```
+files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 ERROR
+in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)
+RESULT: PASS        (--range c1c74e2^..c1c74e2; the 4 OTHER rows are the REACT_APPLY lines in X2DamageManager.*/X2GameUnit.*)
+```
+`flagcheck JUNE_BUFF_REACT_APPLY` on the same files: `RESULT: PASS`, 1 deleted line in `X2GameUnit.h` (the renamed declaration) and 8 in `X2GameUnit.cpp` (the old `CheckDamageDataKeyName` stub, replaced by the real functions; both are buff Phase 10's own flag lines, an OTHER row).
+
+**Deploy:** ``DEPLOY OK: X2_offline.exe is 19,307,008 B, dated 2026-10-07 15:08:32, md5 ca2f1a7e98760f0bbff0c623e8e54e70, equal to X2/US_SERVICE/x2.exe (2026-10-07 15:08:27); built at mods/june-buff-port c1c74e2 + 7 uncommitted code file(s).` (the 7 are a peer's C9c-2b files plus this follow-up). The first build failed on a stale PCH (a header edit landed inside another session's PCH compile) and on a missing `Offline/X2OfflineLog.h` include in `X2GUAdd.cpp`; `--pch force` fixed the first. All four log strings and the four key names are in the deployed exe (narrow and UTF-16).`
+**Census** (`census.py`): `census.py` after the follow-up: `CAN_ACTIVATE_NASOD_ARMOR_COMBO`, `DIVISION_NUM`, `DIVISION_OFF_TIME`, `DIVIDE_DAMAGE_FROM_RANGE` and `RANGE%d` are all `implemented` (the last two only after `BeginTable( "DIVIDE_DAMAGE_FROM_RANGE" )` / `BeginTable( "RANGE", i )` replaced my first `, false` spelling: the census reads a 2nd argument as an index, and the log flag is unused in `KLuaManagerProxy`); no row is open for C4. Still open: C3 19, C10 6, C11 3. The one FAIL line is C10's HP-rate item, unchanged. Matrix and `census.tsv` regenerated.
+
+**Exit.** The plan's exit asked for before/after damage numbers on one ignore-defence skill and one division skill. They cannot be recorded: no June or March script uses `DIVISION_NUM`, `DIVISION_OFF_TIME`, `DIVIDE_DAMAGE_FROM_RANGE` or `RANGE%d`, and the ignore-defence keys did not change (buff 5c). The play-test is therefore a regression check (damage numbers unchanged in a dungeon) plus the Nasod gate line for an Add.
+
+**How to see it in game:** nothing changes for existing data, so the check is a regression one. Play a dungeon with any character (NWatcher, Night Watcher, level 70, is the one used for the effect tests): damage numbers and kills behave as before, no crash. The only visible change is Add's Nasod armor targeting: an Add (create one with `/x2-create-char AddTest 32 40`, Psychic Tracer) logs `JUNE_FX NASOD_COMBO gate (first seen) ...` in `offline_server.log` on the first hit and no longer sets the Nasod armor target on normal hits. No line for DIVISION or `DIVIDE_DAMAGE_FROM_RANGE` is expected: no data uses them. Log tag `JUNE_FX` (`python tools/logs.py --tag JUNE_FX`).
+
+**Open for the review:** (1) the Nasod gate's March-skill mapping; (2) the re-arm's list walk; (3) the unidentified NPC block before DIVIDE. JUNE_BUGS rows 87-88 were numbered after a peer's uncommitted 79-86.
 
 ---
 

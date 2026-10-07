@@ -700,10 +700,10 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		// 3261a150 inserts (RANGE, DAMAGE_RATE) into DamageData +0x5b0 only when that RANGE is absent, so the first of two equal
 		// RANGEs keeps its rate (JUNE_BUGS). The map is not cleared here: a second parse into the same DamageData adds to it.
 		// Consumer: CEffect::JuneApplyDivideDamageFromRange (32622780), called from GetFinalDamage.
-		if( luaManager.BeginTable( "DIVIDE_DAMAGE_FROM_RANGE", false ) == true )
+		if( luaManager.BeginTable( "DIVIDE_DAMAGE_FROM_RANGE" ) == true )
 		{
 			int iRangeIndex = 0;
-			while( luaManager.BeginTable( "RANGE", iRangeIndex, false ) == true )
+			while( luaManager.BeginTable( "RANGE", iRangeIndex ) == true )
 			{
 				float fRange		= 99999.f;
 				float fDamageRate	= 1.f;
