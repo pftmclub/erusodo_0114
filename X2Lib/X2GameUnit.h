@@ -2958,6 +2958,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
         virtual const std::vector<BUFF_TEMPLET_ID>& GetVecImmunityAtThisState() const = NULL;
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 		bool ApplyBuffToGameUnitInDamageReact( const CX2DamageManager::DamageData* pDamageData_ );
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+		/// June-only socket EXTRA_DAMAGE_TYPEs, one body for the user (32034e50) and NPC (327995c0) Process_ExtraDamage (X2GameUnit.cpp)
+		void JuneProcessSocketExtraDamage( const CX2DamageManager::DamageData* pDamageData_, const CX2DamageManager::ExtraDamageData& extraDamageData_,
+			const bool bNpcDefender_ );
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		virtual bool SetBuffFactorToGameUnitByBuffFactorID( const UINT uiBuffFactorId_, IN const UINT uiLevel_ = 1 );

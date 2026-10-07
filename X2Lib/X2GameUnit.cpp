@@ -725,6 +725,9 @@ void CX2GameUnit::ReInit( bool bUseTeamPos, int startPosIndex )
 	m_DamageData.Init();
 	m_DamageData.m_SocketExtraDamage	= m_SocketData.m_SocketExtraDamage;
 	m_DamageData.m_MultipleExtraDamage	= m_SocketData.m_MultipleSocketExtraDamage;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+	m_DamageData.m_vecJuneSecondExtraDamage	= m_SocketData.m_vecJuneSecondSocketExtraDamage;	/// June ReInit 322a6071 (+0x754 <- +0x458)
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 
 
 
@@ -12983,6 +12986,210 @@ UCHAR CX2GameUnit::GetBuffAccumulationCountNowInFactor( const BUFF_TEMPLET_ID eB
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 //}}
 
+//{{ Iruha : 2026-10-07 // June buff port Phase 16-step3c (JUNE_BUFF_PORT_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+/// One "[JUNE_BUFF]" line per key and run (an EXTRA_DAMAGE_TYPE, or an effect-set name below)
+static bool JuneSocketEdtFirstTime( const int iKey_ )
+{
+	static std::set<int> s_setLogged;
+	return s_setLogged.insert( iKey_ ).second;
+}
+
+/// PlayEffectSet as every June spawn case below calls it (321e1e60): owned by the attacker, no trace target, not hyper, no power
+/// rate or life time, custom position. June's trailing 1.0 is March's behaviour. A name March's data lacks gives an invalid handle.
+static void JunePlaySocketEdtEffectSet( const int iType_, const WCHAR* wszName_, CX2GameUnit* pAttacker_, const D3DXVECTOR3& vScale_,
+	const D3DXVECTOR3& vPos_, const D3DXVECTOR3& vRotateDegree_, const D3DXVECTOR3& vDirVector_ )
+{
+	CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( wszName_, pAttacker_, NULL, false, -1.f, -1.f,
+		vScale_, true, vPos_, vRotateDegree_, vDirVector_ );
+
+	static std::set<wstring> s_setLoggedName;
+	if ( true == s_setLoggedName.insert( wstring( wszName_ ) ).second )
+		CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): effect set %S %s", iType_, wszName_,
+			INVALID_EFFECTSET_HANDLE != hEffectSet ? "played" : "is not in the loaded data, nothing plays (june-effect re-adoption)" );
+}
+
+/** @function : JuneProcessSocketExtraDamage
+	@brief : June's cases for the socket EXTRA_DAMAGE_TYPEs March lacks, from the user Process_ExtraDamage 32034e50 (this =
+			 the hit user) and the NPC one 327995c0 (this = the hit NPC). The two June switches are the same but for three
+			 differences, which bNpcDefender_ selects: 146/147 have a case only on the user side, 152-155 only on the NPC side,
+			 and 151's attacker IsMyUnit gate (vslot 0x198) is on the user side only.
+			 156 is 16-step3c2's; 157 calls June's Lanox Secret Ammo 322a0180 (character-port checklist 7). Both are logged.
+*/
+void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageData* pDamageData_, const CX2DamageManager::ExtraDamageData& extraDamageData_,
+	const bool bNpcDefender_ )
+{
+	const int iType = static_cast<int>( extraDamageData_.m_ExtraDamageType );
+	CX2GameUnit* pAttacker = pDamageData_->optrAttackerGameUnit.GetObservable();
+	const D3DXVECTOR3 vZero( 0.f, 0.f, 0.f );
+	const D3DXVECTOR3 vOne( 1.f, 1.f, 1.f );
+
+	switch ( extraDamageData_.m_ExtraDamageType )
+	{
+	/// 68-72 (user @32038ccc-@32038ff3, NPC @3279c96d-@3279cca5): at the attacker's own position (GetPos), rotation and direction
+	case CX2DamageManager::EDT_FIRE_BURST:
+	case CX2DamageManager::EDT_RAIN_OF_FIRE:
+	case CX2DamageManager::EDT_METEOR_STRIKE:
+	case CX2DamageManager::EDT_VOLCANO:
+	case CX2DamageManager::EDT_FIRE_FALL:
+		{
+			if ( NULL == pAttacker )
+				break;
+
+			const WCHAR* wszName = L"EffectSet_EDT_Fire_Burst";
+			switch ( extraDamageData_.m_ExtraDamageType )
+			{
+			case CX2DamageManager::EDT_RAIN_OF_FIRE:	wszName = L"EffectSet_EDT_Rain_of_Fire";	break;
+			case CX2DamageManager::EDT_METEOR_STRIKE:	wszName = L"EffectSet_EDT_Meteor_Strike";	break;
+			case CX2DamageManager::EDT_VOLCANO:			wszName = L"EffectSet_EDT_Volcano";			break;
+			case CX2DamageManager::EDT_FIRE_FALL:		wszName = L"EffectSet_EDT_Fire_Fall";		break;
+			default:																				break;
+			}
+			JunePlaySocketEdtEffectSet( iType, wszName, pAttacker, vOne, pAttacker->GetPos(), pAttacker->GetRotateDegree(), pAttacker->GetDirVector() );
+		} break;
+
+	/// 145 (user @32038728, NPC @3279c855), 146 and 147 (user only, @3203883c / @32038a1f): June-class skill effect sets at the
+	/// attacker's Bip01, zero direction, only while the server's code event is on (g_pInstanceData->IsEnableCode, 31e5a860:
+	/// 2119 for 145, 2154 for 146/147). Nothing sends EGS_UPDATE_CODE_EVENT_NOT offline, so June's own gate keeps them off.
+	case CX2DamageManager::EDT_EJECTION_BUSTER:
+	case CX2DamageManager::EDT_SUPREME_PUNISHMENT:
+	case CX2DamageManager::EDT_SPECTRAL_SPEAR:
+		{
+			if ( true == bNpcDefender_ && CX2DamageManager::EDT_EJECTION_BUSTER != extraDamageData_.m_ExtraDamageType )
+				break;
+
+			const int iCodeEvent = ( CX2DamageManager::EDT_EJECTION_BUSTER == extraDamageData_.m_ExtraDamageType ? 2119 : 2154 );
+			if ( NULL == g_pInstanceData || false == g_pInstanceData->IsEnableCode( iCodeEvent ) )
+			{
+				if ( true == JuneSocketEdtFirstTime( iType ) )
+					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): code event %d is off (no server sends it), nothing plays, as in June",
+						iType, iCodeEvent );
+				break;
+			}
+			if ( NULL == pAttacker )
+				break;
+
+			const D3DXVECTOR3 vBonePos = pAttacker->GetBonePos( L"Bip01" );
+			switch ( extraDamageData_.m_ExtraDamageType )
+			{
+			case CX2DamageManager::EDT_EJECTION_BUSTER:
+				JunePlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_SDK_EJECTION_BUSTER_Attack_1000_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
+				break;
+			case CX2DamageManager::EDT_SUPREME_PUNISHMENT:
+				JunePlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LLD_SUPREME_PUNISHMENT_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
+				JunePlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LLD_SUPREME_PUNISHMENT_Mother_Projectile_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
+				break;
+			default:
+				JunePlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LCN_SPECTRAL_SPEAR_FX_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
+				JunePlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LCN_SPECTRAL_SPEAR_Damage_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
+				JunePlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LCN_SPECTRAL_SPEAR_Specter_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
+				break;
+			}
+		} break;
+
+	/// 149 (user @320390bb, NPC @3279cd71): at the hit point (DamageData +0x460), the attacker's rotation and direction, scaled
+	/// by the attacker's vslot 0x24 (3208e2b0: the protected vector at +0x686c, which June's ctor @322a4f8b fills first with
+	/// 1,1,1, as March's ctor does m_vBasicScale, X2GameUnit.cpp:77)
+	case CX2DamageManager::EDT_BALLISTA_BOLT:
+		{
+			if ( NULL == pAttacker )
+				break;
+
+			const D3DXVECTOR3 vScale( pAttacker->m_vBasicScale.x, pAttacker->m_vBasicScale.y, pAttacker->m_vBasicScale.z );
+			JunePlaySocketEdtEffectSet( iType, L"EffectSet_EDT_BALLISTA_BOLT", pAttacker, vScale, pDamageData_->impactPoint,
+				pAttacker->GetRotateDegree(), pAttacker->GetDirVector() );
+		} break;
+
+	/// 150 (user @320391d2, NPC @3279ce8e) BFI 787 BFI_DECREASE_ENEMY_RESIST, 159 (@32039191 / @3279ce4b) BFI 1118
+	/// BFI_DECENT_TO_SHADOW: on this (hit) unit, created by the attacker (vslot 0x220 = ...AndCreatorID, bIsUserID true even
+	/// for an NPC attacker, as June pushes 1), at the socket's LEVEL. Both come from the second socket list.
+	case CX2DamageManager::EDT_DECREASE_ENEMY_RESIST:
+	case CX2DamageManager::EDT_DECENT_TO_SHADOW:
+		{
+			if ( NULL == pAttacker )
+				break;
+
+			const UINT uiBuffFactorID = ( CX2DamageManager::EDT_DECREASE_ENEMY_RESIST == extraDamageData_.m_ExtraDamageType ? 787 : 1118 );
+			const int iLevel = extraDamageData_.m_iLevel;
+			const bool bSet = SetBuffFactorToGameUnitByBuffFactorIDAndCreatorID( uiBuffFactorID, pAttacker->GetUnitUID(), true, static_cast<UINT>( iLevel ) );
+			if ( true == JuneSocketEdtFirstTime( iType ) )
+				CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): BFI %u level %d on the hit unit -> %s", iType, uiBuffFactorID, iLevel,
+					true == bSet ? "set" : "not set (its factor is June buff data: Phase 13)" );
+		} break;
+
+	/// 151 (user @32039213, NPC @3279ced1): the attacker stacks BFI 788 (BFI_COMMAND_HIT_EXPLOSION) per hit; at 10 stacks of
+	/// BTI 762 (BTI_COMMAND_HIT_EXPLOSION, read by 322a0090) it loses them and this hit's magic then physic damage take
+	/// DAMAGE_PER_SEC (32622300 keeps it raw). The hit's damage is read later in DamageReact (GetFinalDamage), as in June @3204843b.
+	case CX2DamageManager::EDT_COMMAND_HIT_EXPLOSION:
+		{
+			if ( NULL == pAttacker )
+				break;
+			if ( false == bNpcDefender_ && false == pAttacker->IsMyUnit() )
+				break;
+
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+			const BUFF_TEMPLET_ID eStackTempletID = static_cast<BUFF_TEMPLET_ID>( 762 );
+			if ( 10 <= pAttacker->GetBuffAccumulationCountNowInFactor( eStackTempletID ) )
+			{
+				pAttacker->EraseBuffTempletFromGameUnit( eStackTempletID );
+
+				CX2DamageManager::DamageData* pDamageData = const_cast<CX2DamageManager::DamageData*>( pDamageData_ );
+				const float fDamageRate = extraDamageData_.m_DamagePerSec;
+				pDamageData->damage.fMagic	*= fDamageRate;
+				pDamageData->damage.fPhysic	*= fDamageRate;
+				if ( true == JuneSocketEdtFirstTime( iType + 10000 ) )
+					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d: 10th stack, damage x %g (first this run)", iType, fDamageRate );
+			}
+			else
+			{
+				const int iLevel = extraDamageData_.m_iLevel;
+				const bool bSet = pAttacker->SetBuffFactorToGameUnitByBuffFactorID( 788, static_cast<UINT>( iLevel ) );
+				if ( true == JuneSocketEdtFirstTime( iType ) )
+					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): BFI 788 level %d on the attacker -> %s", iType, iLevel,
+						true == bSet ? "set" : "not set (its factor is June buff data: Phase 13)" );
+			}
+#else SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+			if ( true == JuneSocketEdtFirstTime( iType ) )
+				CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d: needs SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER (322a0090), skipped", iType );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+		} break;
+
+	/// 152-155 (NPC only, @3279cf61 / @3279d047 / @3279d13b / @3279d22f): owned by the attacker, at the hit NPC's land position
+	/// (NPC vslot 0x134 GetLandPos(false)) and rotation, zero direction
+	case CX2DamageManager::EDT_FORWARD300_FLAMEGROUND:
+	case CX2DamageManager::EDT_FORWARD300_ICEGROUND:
+	case CX2DamageManager::EDT_FORWARD300_POISONGROUND:
+	case CX2DamageManager::EDT_FORWARD300_WINDGROUND:
+		{
+			if ( false == bNpcDefender_ || NULL == pAttacker )
+				break;
+
+			const WCHAR* wszName = L"EffectSet_Socket_HeroDungeonSet_FlameGround";
+			switch ( extraDamageData_.m_ExtraDamageType )
+			{
+			case CX2DamageManager::EDT_FORWARD300_ICEGROUND:	wszName = L"EffectSet_Socket_HeroDungeonSet_IceGround";		break;
+			case CX2DamageManager::EDT_FORWARD300_POISONGROUND:	wszName = L"EffectSet_Socket_HeroDungeonSet_PoisonGround";	break;
+			case CX2DamageManager::EDT_FORWARD300_WINDGROUND:	wszName = L"EffectSet_Socket_HeroDungeonSet_WindGround";	break;
+			default:																										break;
+			}
+			JunePlaySocketEdtEffectSet( iType, wszName, pAttacker, vOne, GetLandPos(), GetRotateDegree(), vZero );
+		} break;
+
+	case CX2DamageManager::EDT_COMMAND_10HIT_DECREASE_SKILL_COOLTIME:
+	case CX2DamageManager::EDT_MAGI_HIT_COUNT_ATTACK:
+		{
+			if ( true == JuneSocketEdtFirstTime( iType ) )
+				CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): not ported (%s)", iType,
+					CX2DamageManager::EDT_MAGI_HIT_COUNT_ATTACK == extraDamageData_.m_ExtraDamageType ?
+					"June 322a0180 Lanox Secret Ammo, character-port checklist 7" : "16-step3c2" );
+		} break;
+
+	default:
+		break;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
+//}}
 /** @function : EraseBuffTempletFromGameUnit
 	@brief : 걸려있는 버프 중 템플릿ID와 일치하는 버프 해제
 	@param : 버프템플릿ID(eBuffTempletID_)

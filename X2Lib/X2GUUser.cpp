@@ -3119,6 +3119,9 @@ void CX2GUUser::InitSocketData()
 
 	m_DamageData.m_SocketExtraDamage	= m_SocketData.m_SocketExtraDamage;
 	m_DamageData.m_MultipleExtraDamage	= m_SocketData.m_MultipleSocketExtraDamage;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+	m_DamageData.m_vecJuneSecondExtraDamage	= m_SocketData.m_vecJuneSecondSocketExtraDamage;	/// June InitSocketData 3206e917 (+0x754 <- +0x458)
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 
 #ifdef BUFF_TEMPLET_SYSTEM	
 	// 버프에 의한 소켓효과
@@ -3352,6 +3355,14 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 			m_SocketData.m_MultipleSocketExtraDamage.insert( m_SocketData.m_MultipleSocketExtraDamage.begin(), 
 				kSocketData.m_MultipleSocketExtraDamage.begin(), kSocketData.m_MultipleSocketExtraDamage.end() );
 		}
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+		/// June 3204f190 @3204f874: the second list (+0x384) folds into the aggregate's (+0x458) the same way, at the front
+		if( false == kSocketData.m_vecJuneSecondSocketExtraDamage.empty() )
+		{
+			m_SocketData.m_vecJuneSecondSocketExtraDamage.insert( m_SocketData.m_vecJuneSecondSocketExtraDamage.begin(),
+				kSocketData.m_vecJuneSecondSocketExtraDamage.begin(), kSocketData.m_vecJuneSecondSocketExtraDamage.end() );
+		}
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 		/// -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -10660,6 +10671,20 @@ void CX2GUUser::DamageReact_ExtraDamage( CX2DamageManager::DamageData* pDamageDa
 		}
 	}	
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+	/// June 3203c9a0 @3203ce96: the second socket list (150/159) is rolled last, for every attack type; each entry is
+	/// level-corrected (31fe6db0) just before its roll
+	for( int i=0; i<(int)pDamageData->m_vecJuneSecondExtraDamage.size(); i++ )
+	{
+		LevelCorrectionExtraDamage( pDamageData, &pDamageData->m_vecJuneSecondExtraDamage[i] );
+		const CX2DamageManager::ExtraDamageData& secondExtraDamageData = pDamageData->m_vecJuneSecondExtraDamage[i];
+		if( GetRandomFloat( CKTDXRandomNumbers::SRO_ATTACK_EXTRA_DAMAGE_MULTIPLE + i ) < secondExtraDamageData.m_fRate )
+		{
+			Process_ExtraDamage( pDamageData, secondExtraDamageData );
+		}
+	}
+
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 #if defined( _SERVICE_ ) 
 	ELSWORD_VIRTUALIZER_END
 #endif
@@ -11758,6 +11783,30 @@ void CX2GUUser::Process_ExtraDamage( const CX2DamageManager::DamageData* pDamage
 		} break;
 #endif // HAMEL_SECRET_DUNGEON
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+	/// June-only socket types (16-step3c): June 32034e50's cases, in CX2GameUnit::JuneProcessSocketExtraDamage with the NPC's
+	case CX2DamageManager::EDT_FIRE_BURST:
+	case CX2DamageManager::EDT_RAIN_OF_FIRE:
+	case CX2DamageManager::EDT_METEOR_STRIKE:
+	case CX2DamageManager::EDT_VOLCANO:
+	case CX2DamageManager::EDT_FIRE_FALL:
+	case CX2DamageManager::EDT_EJECTION_BUSTER:
+	case CX2DamageManager::EDT_SUPREME_PUNISHMENT:
+	case CX2DamageManager::EDT_SPECTRAL_SPEAR:
+	case CX2DamageManager::EDT_BALLISTA_BOLT:
+	case CX2DamageManager::EDT_DECREASE_ENEMY_RESIST:
+	case CX2DamageManager::EDT_COMMAND_HIT_EXPLOSION:
+	case CX2DamageManager::EDT_FORWARD300_FLAMEGROUND:
+	case CX2DamageManager::EDT_FORWARD300_ICEGROUND:
+	case CX2DamageManager::EDT_FORWARD300_POISONGROUND:
+	case CX2DamageManager::EDT_FORWARD300_WINDGROUND:
+	case CX2DamageManager::EDT_COMMAND_10HIT_DECREASE_SKILL_COOLTIME:
+	case CX2DamageManager::EDT_MAGI_HIT_COUNT_ATTACK:
+	case CX2DamageManager::EDT_DECENT_TO_SHADOW:
+		{
+			JuneProcessSocketExtraDamage( pDamageData, extraDamageData, false );
+		} break;
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 	default:
 		{
 			ASSERT( !"EDT_NONE extra damage" );
@@ -36683,6 +36732,21 @@ void CX2GUUser::SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamage
 		}
 	}
 #endif
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+	/// June 32045340 @3204540d-32045483: a hit with magic or physic damage above 0 from a user attacker takes that user's
+	/// second socket list (aggregate +0x458 -> DamageData +0x3b4) when it carries none of its own
+	if ( ( 0.f < pDamageData_->damage.fMagic || 0.f < pDamageData_->damage.fPhysic ) &&
+		null != pDamageData_->optrAttackerGameUnit &&
+		CX2GameUnit::GUT_USER == pDamageData_->optrAttackerGameUnit->GetGameUnitType() )
+	{
+		CX2GUUser* pAttackerUser = static_cast<CX2GUUser*>( pDamageData_->optrAttackerGameUnit.GetObservable() );
+		if ( false == pAttackerUser->m_SocketData.m_vecJuneSecondSocketExtraDamage.empty() &&
+			true == pDamageData_->m_vecJuneSecondExtraDamage.empty() )
+		{
+			pDamageData_->m_vecJuneSecondExtraDamage = pAttackerUser->m_SocketData.m_vecJuneSecondSocketExtraDamage;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 }
 #endif //MODIFY_SET_DAMAGE_DATA
 

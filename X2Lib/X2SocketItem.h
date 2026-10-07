@@ -707,6 +707,9 @@ class CX2SocketItem
 			
 			CX2BuffFactorPtr							m_ptrBuffFactor;
 			//vector<CX2BuffFactorPtr>					m_vecBuffFactorPtr;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+			vector<CX2DamageManager::ExtraDamageData>	m_vecJuneSecondSocketExtraDamage;	/// June +0x384 (aggregate +0x458): EDT 150/159
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 			CX2DamageManager::ExtraDamageData			m_SocketExtraDamage;				// 중복안되는 extra damage
 			vector<CX2DamageManager::ExtraDamageData>	m_MultipleSocketExtraDamage;		// 중복 되는, 즉, 여러개 동시에 적용될 수 있는 extra damage
 			
@@ -1170,6 +1173,9 @@ class CX2SocketItem
 
 				m_SocketExtraDamage.Init();
 				m_MultipleSocketExtraDamage.resize( 0 );
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+				m_vecJuneSecondSocketExtraDamage.resize( 0 );
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 
 				for( int i=0; i< (int)CX2EnchantItem::ET_END ; i++ )
 				{

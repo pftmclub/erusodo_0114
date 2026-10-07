@@ -5290,3 +5290,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              compose 32707ce0, decompose 32708080 and base type 327087e0.
 #define SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June buff port Phase 16-step3c (JUNE_BUFF_PORT_PHASES.md):
+//              June's handlers for the June-only socket EXTRA_DAMAGE_TYPEs
+//              (user 32034e50 / NPC 327995c0 Process_ExtraDamage): the effect-set
+//              spawns 68-72, 145-147, 149, 152-155, the buff calls 150/159, the
+//              10-stack hit 151, June's second socket list (150/159) through
+//              SumSocketOption, InitSocketData/ReInit, SetDamageExceptionProcess
+//              and both DamageReact_ExtraDamage tails, and June's raw
+//              DAMAGE_PER_SEC for 151/156 in GetCalcPerDamage (32622300).
+//              156 and HMET_FEVER are 16-step3c2; 157 is the Lanox port's.
+//              Needs SERV_IRUHADEV_JUNE_SOCKET_PARITY (the EDT enumerators).
+#define SERV_IRUHADEV_JUNE_SOCKET_EDT
+#if defined(SERV_IRUHADEV_JUNE_SOCKET_EDT) && !defined(SERV_IRUHADEV_JUNE_SOCKET_PARITY)
+#error SERV_IRUHADEV_JUNE_SOCKET_EDT needs SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#endif
+//////////////////////////////////////////////////////////////////////////

@@ -499,7 +499,17 @@ bool CX2SocketItem::AddSocketData_LUA()
 		case CX2DamageManager::EDT_MAGI_HIT_COUNT_ATTACK:
 		case CX2DamageManager::EDT_DECENT_TO_SHADOW:
 			{
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+				/// June 32726850 @3272926f: 150 and 159 go to the second list (+0x384, @32729310), the rest to the multiple list
+				/// (+0x374) like March's smash types. 156 and 157 have no handler here yet (Process_ExtraDamage logs them)
+				if ( CX2DamageManager::EDT_DECREASE_ENEMY_RESIST == socketExtraDamage.m_ExtraDamageType ||
+					CX2DamageManager::EDT_DECENT_TO_SHADOW == socketExtraDamage.m_ExtraDamageType )
+					pSocketData->m_vecJuneSecondSocketExtraDamage.push_back( socketExtraDamage );
+				else
+					pSocketData->m_MultipleSocketExtraDamage.push_back( socketExtraDamage );
+#else SERV_IRUHADEV_JUNE_SOCKET_EDT
 				ReportJuneOnlySocketType( 'E', static_cast<int>( socketExtraDamage.m_ExtraDamageType ), pSocketData->m_ID );
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 			} break;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		}

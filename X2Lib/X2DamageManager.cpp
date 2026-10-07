@@ -3693,6 +3693,12 @@ float CX2DamageManager::ExtraDamageData::GetCalcPerDamage(int iUnitLevel, float 
 	case CX2DamageManager::EDT_LEG_WOUND:
 		fPerDamage = 82.f;
 		break;
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+	/// June 32622300 (case 0x97/0x9c): these two keep their scripted DAMAGE_PER_SEC (151's damage rate, 156's cool-time rate)
+	case CX2DamageManager::EDT_COMMAND_HIT_EXPLOSION:
+	case CX2DamageManager::EDT_COMMAND_10HIT_DECREASE_SKILL_COOLTIME:
+		return m_DamagePerSec;
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 	}
 
 	if(g_pX2Game != NULL && g_pX2Game->GetGameType() == CX2Game::GT_PVP)

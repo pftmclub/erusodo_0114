@@ -1074,6 +1074,9 @@ class CX2DamageManager
 			vector<ExtraDamageData>	m_MultipleExtraDamage;			/// 아이템 소켓 옵션에 의한 extra_damage, 중복 되는 것
 
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+			vector<ExtraDamageData>	m_vecJuneSecondExtraDamage;		/// June +0x3b4: the second socket list (150/159), rolled at the end of DamageReact_ExtraDamage
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 			AttackerGet				attackerGet;
 			D3DXVECTOR2				backSpeed;
 			float					fForceDownValue;
@@ -1591,6 +1594,9 @@ class CX2DamageManager
 				
 				m_SocketExtraDamage.Init();
 				m_MultipleExtraDamage.resize(0);
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+				m_vecJuneSecondExtraDamage.resize(0);
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 			}
 
 			void PushBuffFactor( CX2BuffFactorPtr ptrBuffFactor_, const bool bClearExistedFactor_ = true )

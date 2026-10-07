@@ -1811,7 +1811,11 @@ void CX2CustomFunctionByBuffMarkOfCommand::DoMarkOfCommand( CX2GameUnit* pGameUn
 		damageData_.reActResult != CX2DamageManager::RT_DUMMY_DAMAGE &&
 		damageData_.reActResult != CX2DamageManager::RT_SENSOR &&
 		damageData_.hitType != CX2DamageManager::HT_GROUND_HIT &&
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		false == damageData_.JuneIsAttackTrigger( CX2DamageManager::DTT_MARK_OF_COMMANDER ) &&	/// June 32610fb0( 3 ) @3236df5b (16-step3c)
+#else SERV_IRUHADEV_JUNE_DAMAGEDATA
 		damageData_.m_eDamageTrigger != CX2DamageManager::DTT_MARK_OF_COMMANDER &&
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		damageData_.m_bNoDamage == false &&
 		null != damageData_.optrAttackerGameUnit &&
 		m_checkElapsedTime.CheckAndResetElapsedTime() )
@@ -2084,7 +2088,11 @@ static bool JuneGetTargetHitPos( const CX2GameUnit* pAttacker_, const CX2GameUni
 		|| CX2DamageManager::RT_DUMMY_DAMAGE == damageData_.reActResult
 		|| CX2DamageManager::RT_SENSOR == damageData_.reActResult
 		|| CX2DamageManager::HT_GROUND_HIT == damageData_.hitType
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		|| true == damageData_.JuneIsAttackTrigger( JUNE_DTT_PANDEMONIUM_FEAR )	/// June 32610fb0( 6 ) @3236e306 (16-step3c)
+#else SERV_IRUHADEV_JUNE_DAMAGEDATA
 		|| JUNE_DTT_PANDEMONIUM_FEAR == static_cast<int>( damageData_.m_eDamageTrigger )
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		|| true == damageData_.m_bNoDamage
 		|| null == damageData_.optrAttackerGameUnit
 		|| false == m_checkElapsedTime.CheckAndResetElapsedTime() )
@@ -2157,7 +2165,11 @@ static bool JuneCustomFunctionDamageReactGuards( const CX2DamageManager::DamageD
 		|| CX2DamageManager::RT_DUMMY_DAMAGE == damageData_.reActResult
 		|| CX2DamageManager::RT_SENSOR == damageData_.reActResult
 		|| CX2DamageManager::HT_GROUND_HIT == damageData_.hitType
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		|| true == damageData_.JuneIsAttackTrigger( iTrigger_ )	/// June 32610fb0( 7 ) @323704cb (16-step3c)
+#else SERV_IRUHADEV_JUNE_DAMAGEDATA
 		|| iTrigger_ == static_cast<int>( damageData_.m_eDamageTrigger )
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		|| true == damageData_.m_bNoDamage
 		|| null == damageData_.optrAttackerGameUnit )
 		return false;

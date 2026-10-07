@@ -10584,6 +10584,13 @@ void CX2GUNPC::DamageReact_ExtraDamage( CX2DamageManager::DamageData* pDamageDat
 		LevelCorrectionExtraDamage(pDamageData, &pDamageData->m_MultipleExtraDamage[i]);
 	}
 #endif MULTIPLE_EXTRA_DAMAGE_LEVEL_CORRECTION
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+	/// June 3279d620: the NPC level-corrects the second socket list (150/159) here, with the others
+	for( int i=0; i<(int)pDamageData->m_vecJuneSecondExtraDamage.size(); i++ )
+	{
+		LevelCorrectionExtraDamage(pDamageData, &pDamageData->m_vecJuneSecondExtraDamage[i]);
+	}
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 #endif SOCKET_EXTRA_DAMAGE_LEVEL_CORRECTION
 	//}} 
 
@@ -10721,6 +10728,22 @@ void CX2GUNPC::DamageReact_ExtraDamage( CX2DamageManager::DamageData* pDamageDat
 		}
 	}	
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+	/// June 3279d620 @3279dbba: the second socket list (150/159) is rolled last, for every attack type
+	for( int i=0; i<(int)pDamageData->m_vecJuneSecondExtraDamage.size(); i++ )
+	{
+		const CX2DamageManager::ExtraDamageData& secondExtraDamageData = pDamageData->m_vecJuneSecondExtraDamage[i];
+		if( GetRandomFloat( CKTDXRandomNumbers::SRO_ATTACK_EXTRA_DAMAGE_MULTIPLE + i ) < secondExtraDamageData.m_fRate )
+		{
+			Process_ExtraDamage( pDamageData, secondExtraDamageData
+#ifdef  X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
+				, bAttackedByMe
+#endif  X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
+				);
+		}
+	}
+
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 #if defined( _SERVICE_ ) 
 	ELSWORD_VIRTUALIZER_END
 #endif
@@ -11817,6 +11840,30 @@ void CX2GUNPC::Process_ExtraDamage( const CX2DamageManager::DamageData* pDamageD
 		} break;
 #endif // HAMEL_SECRET_DUNGEON
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+	/// June-only socket types (16-step3c): June 327995c0's cases, in CX2GameUnit::JuneProcessSocketExtraDamage with the user's
+	case CX2DamageManager::EDT_FIRE_BURST:
+	case CX2DamageManager::EDT_RAIN_OF_FIRE:
+	case CX2DamageManager::EDT_METEOR_STRIKE:
+	case CX2DamageManager::EDT_VOLCANO:
+	case CX2DamageManager::EDT_FIRE_FALL:
+	case CX2DamageManager::EDT_EJECTION_BUSTER:
+	case CX2DamageManager::EDT_SUPREME_PUNISHMENT:
+	case CX2DamageManager::EDT_SPECTRAL_SPEAR:
+	case CX2DamageManager::EDT_BALLISTA_BOLT:
+	case CX2DamageManager::EDT_DECREASE_ENEMY_RESIST:
+	case CX2DamageManager::EDT_COMMAND_HIT_EXPLOSION:
+	case CX2DamageManager::EDT_FORWARD300_FLAMEGROUND:
+	case CX2DamageManager::EDT_FORWARD300_ICEGROUND:
+	case CX2DamageManager::EDT_FORWARD300_POISONGROUND:
+	case CX2DamageManager::EDT_FORWARD300_WINDGROUND:
+	case CX2DamageManager::EDT_COMMAND_10HIT_DECREASE_SKILL_COOLTIME:
+	case CX2DamageManager::EDT_MAGI_HIT_COUNT_ATTACK:
+	case CX2DamageManager::EDT_DECENT_TO_SHADOW:
+		{
+			JuneProcessSocketExtraDamage( pDamageData, extraDamageData, true );
+		} break;
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 	default:
 		{
 			ASSERT( !"EDT_NONE extra damage" );
