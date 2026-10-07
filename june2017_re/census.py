@@ -492,6 +492,7 @@ RT_7C = '7c'
 RT_7D = '7d'
 RT_7E = '7e'
 RT_9 = '9'
+RT_C7 = 'C7'   # June effect completion C7 (JUNE2017_EFFECT_COMPLETION_PHASES.md)
 RUNTIME = [
     # (root, rel, key, phase, state, verdict, June branch, March site)
     ('ES.EFFECT', (), 'ZOFFSET_USE_UNIT_IS_RIGHT', RT_4A, 'done', 'new',
@@ -733,9 +734,9 @@ RUNTIME = [
     ('DE.top', (), 'ONLY_RELATIONSHIP', RT_7D, 'done', 'semantics-differ',
      '3262b6e0@3262ba35-3262ba49: a defender that is not GUT_USER (+0x264 != 0) is skipped outright, where March static_casts any unit to CX2GUUser; the relationship-UID test @3262ba4f-3262ba93 is March\'s (ADDED_RELATIONSHIP_SYSTEM ON)', 'CX2DamageManager::EffectToUnit'),
     ('DE.top', (), 'INHERIT_CRITICAL_RATE', RT_7D, 'done', 'new',
-     '31f8af50@31f8af58-31f8af6d: child DamageData CRITICAL_RATE (+0x510, 32632390@3263c197) += the parent\'s, right after each hit (31f810c0@31f81987), die (31f82210@31f82f36) and touch-land (31f81ba0@31f81ffd) child spawn; not the CREATE_DAMAGE_EFFECT loop or RT_CREATE_DAMAGE_EFFECT. Touch-land runtime is not ported', 'CreateHitDamageEffect, CreateDieDamageEffect'),
+     '31f8af50@31f8af58-31f8af6d: child DamageData CRITICAL_RATE (+0x510, 32632390@3263c197) += the parent\'s, right after each hit (31f810c0@31f81987), die (31f82210@31f82f36) and touch-land (31f81ba0@31f81ffd) child spawn, and inlined in the CREATE_DAMAGE_EFFECT loop (31f88790@31f89d52-31f89d82, Effect C6b review; ported C7); not RT_CREATE_DAMAGE_EFFECT', 'CreateHitDamageEffect, CreateDieDamageEffect, CreateTouchLandDamageEffect, the CREATE_DAMAGE_EFFECT loop'),
     ('DE.top', (), 'INHERIT_CRITICAL_DAMAGE_RATE', RT_7D, 'done', 'new',
-     '31f8af50@31f8af73-31f8af88: the same for APPLY_CRITICAL_DAMAGE_PERCENT (+0x59c, 32632390@3263e629)', 'CreateHitDamageEffect, CreateDieDamageEffect'),
+     '31f8af50@31f8af73-31f8af88: the same for APPLY_CRITICAL_DAMAGE_PERCENT (+0x59c, 32632390@3263e629), at the same four sites', 'CreateHitDamageEffect, CreateDieDamageEffect, CreateTouchLandDamageEffect, the CREATE_DAMAGE_EFFECT loop'),
     ('DE.CREATE_DAMAGE_EFFECT', (), 'INHERIT_DAMAGE', RT_7D, 'done', 'new',
      '7c: the flag onto the child @31f89cf5-31f89cfb. 7d: its readers are not DamageReact / AttackResult. 31f8fdb0@31f8feb1-31f8fecc (called @31f89d8b, after the flag is set): child damage PHYSIC / MAGIC (+0x38 / +0x3c, 32632390@326357ec / @3263588d) = the parent\'s; SetDamageDataNext 31f799c0@31f79b54-31f79b75 keeps it across a DAMAGE_DATA_NEXT change. Only this loop sets the child flag', 'OnFrameMove (CREATE_DAMAGE_EFFECT loop), SetDamageDataNextByChainIndex'),
     ('DE.HIT_DAMAGE_EFFECT', (), 'INHERIT_LIFE_TIME', RT_7D, 'done', 'new',
@@ -759,8 +760,8 @@ RUNTIME = [
     # rather than shipped with a raw-offset gate or an incomplete spawner. No deployed data uses any
     # of the three sub-tables; the exit for the two done ones is a clean build matching the cited
     # branches.
-    ('DE.top', (), 'TOUCH_LAND_DAMAGE_EFFECT%d', RT_7E, 'deferred', 'new',
-     'gate OnFrameMove @31f8a2a4-31f8a394 (right after the die-check, before DAMAGE_DATA_CHANGE_TIME) settled: x87-emulated (june2017_re/x87test.py), mesh(+0x47c)<0 && mesh(+0x550)<0 && m_vVelocity.y(+0x538)>0, all strict -- the third is the OPPOSITE polarity from the earlier unemulated guess (this correction stands even though the port is deferred). +0x47c is read by two functions (31c87b80 @31c87ef1/31c8817a) not otherwise identified; +0x54c/+0x550/+0x554 is a plain per-frame copy of m_vVelocity written by 31c87b80 @31c87cac-31c87cc4 -- looks like a June-only member March\'s CXMeshInstance does not have at all, not a rename of an existing one. Position = m_BeforePos (+0x10c, confirmed by writer scan) with APPLY_ROTATE_ORIGIN (m_AngleDegree, CEffect +0x118) settled too. Spawner 31f81ba0 diffed against CreateHitDamageEffect: shares the position/rotate-origin/APPLY_ROTATED_OFFSET shape, but ALSO has an invoke-rate skip (@31f81cd4-31f81d24, FLD [+0x720]; FCOMPP; TEST AH,5; JNP), a damage-rate multiply (@31f82076-31f820ad, child +0x238/+0x23c *= [+0x724]), a force-down-rate branch matching CreateHitDamageEffect\'s #ifdef INHERIT_FORCEDOWNRATE arm rather than the #else one copied here, plus SetScaleByUnit/+0xacd-copy/SetMaxLifeTime -- none of which the shipped code has. Handed to Phase 10 (KTDGXMeshPlayer templet keys), which already owns CXMeshInstance member identification -- see its section\'s handoff paragraph.', '-'),
+    ('DE.top', (), 'TOUCH_LAND_DAMAGE_EFFECT%d', RT_C7, 'done', 'new',
+     'Effect C7 (was 7e deferred): gate OnFrameMove 31f88790@31f8a2e8-31f8a38b right after the die check: m_Gravity.y (mesh +0x47c, row mesh+0x478) < 0 && m_vVelocityBefore.y (mesh +0x550, row mesh+0x54c, a new CXMeshInstance member) < 0 && m_vVelocity.y (+0x538) > 0, all strict (x87-emulated, x87test.py); no once-flag. The GetLandPosition probe @31f8a2a4-31f8a2e3 is unread and March GetLandPosition is const: not repeated. Body 31f83380 (scratch copy 31f8e750, not observable) -> spawner 31f81ba0 ported block for block (funcmap row 31f81ba0). No March DamageEffect uses the table.', 'CX2DamageEffect::CEffect::JuneTouchLandDamageEffect, CreateTouchLandDamageEffect'),
     ('DE.top', (), 'DIE_CREATE_NPC%d', RT_7E, 'done', 'new',
      'templet list +0xc8 (loader 31f66230@31f662a7); an E8-caller scan confirms all six June call sites of 31f70330 pair it immediately before 31f83400 (= March\'s own SetDieDamageEffect, which already calls CreateDieDamageEffect); March calls SetDieDamageEffect from exactly 5 active sites (DestroyInstanceHandle, DestroyInstance(CEffect*&), and OnFrameMove x3), covering 5 of June\'s 6 -- the 6th, the LockOnData 31f75e20 prelude, is a gap left by Phase 7b (LockOnData never calls SetDieDamageEffect at all), not this phase\'s to close -> create-NPC request 31f8b010 per entry -> CX2Game::CreateNPCReq (X2Game.h:587, EGS_NPC_UNIT_CREATE_REQ, answered offline); argument order settled by disassembling 31f8b010 and tracking ESP through its pushes, corroborated by 3 exact enum-value matches (TN_MONSTER==2, TN_NONE==-1, NCT_NONE==0) and an existing March call in the same shape (X2GUChung.cpp:17128)', 'CX2DamageEffect::CEffect::JuneDieCreateNpc'),
     ('DE.HIT_EFFECT_SET', (), 'HIT_EFFECT_SET%d', RT_7E, 'done', 'new',
@@ -771,9 +772,15 @@ RUNTIME = [
      '31f70330: 31f8b010( isLocal gate, entry +0x4=unitID, level=0 const, bActive=true, CEffect position +0x1f4..+0x1fc=m_vMainEffectPosition, bRight, fDelayTime=0, bNoDrop=true, iKeyCode=-1, eTeam=owner GetTeam() (owner +0x278 XOR value, confirmed via TN_MONSTER==2), eAIType=NAT_ALLY, iAllyUID=owner GetUnitUID(), bElite=false, eAllyTeam=TN_NONE, eCreateMonsterType=NCT_NONE ) per entry', 'CX2DamageEffect::CEffect::JuneDieCreateNpc'),
     ('DE.DIE_CREATE_NPC', (), 'EVENT_TIME', RT_7E, 'done', '-',
      '31f70330 does not read entry +0x0; confirmed by disassembly, not just the decompile -- parsed-not-used, no delay implemented', 'CX2DamageEffect::CEffect::JuneDieCreateNpc')] + [
-    ('DE.TOUCH_LAND_DAMAGE_EFFECT', (), k, RT_7E, 'deferred', 'new',
-     '31f81ba0 (the touch-land spawner): its position/rotate-origin/APPLY_ROTATED_OFFSET shape was diffed against CreateHitDamageEffect and settled, but the spawner is missing blocks CreateHitDamageEffect does not have (invoke-rate, damage-rate multiply, force-down-rate, SetScaleByUnit, SetMaxLifeTime) and the gate needs two unidentified CXMeshInstance offsets -- deferred as a whole rather than ported partially. Handed to Phase 10.', '-')
-    for k in ('DAMAGE_EFFECT_NAME', 'APPLY_ROTATE', 'PASSIVE_PARTICLE_X', 'PASSIVE_PARTICLE_Y', 'PASSIVE_PARTICLE_Z')]
+    ('DE.TOUCH_LAND_DAMAGE_EFFECT', (), 'DAMAGE_EFFECT_NAME', RT_C7, 'done', 'new',
+     '31f81ba0@31f81f35-31f81feb: the entry name (+0x4) to CreateInstance 31f8ff00 at m_BeforePos (+0x10c), rotation m_AngleDegree under APPLY_ROTATE_ORIGIN (+0x74) else zero, APPLY_ROTATED_OFFSET (+0x75) / OFFSET as the hit spawner, then the full post-create list and the C6b tail', 'CX2DamageEffect::CEffect::CreateTouchLandDamageEffect'),
+    ('DE.TOUCH_LAND_DAMAGE_EFFECT', (), 'APPLY_ROTATE', RT_C7, 'done', '-',
+     '31f81ba0 never reads entry +0x3c (no POSITION_TYPE switch: the position is always m_BeforePos); parsed-not-used', 'CX2DamageEffect::CEffect::CreateTouchLandDamageEffect')] + [
+    ('DE.TOUCH_LAND_DAMAGE_EFFECT', (), k, RT_C7, 'done', '-',
+     '31f81ba0 never reads the passive-particle scale (the only entry fields it reads are +0x4, +0x50-+0x64, +0x74/+0x75, +0x80, +0x84, +0xad, +0xb0, +0xb4/+0xb5); parsed-not-used', 'CX2DamageEffect::CEffect::CreateTouchLandDamageEffect')
+    for k in ('PASSIVE_PARTICLE_X', 'PASSIVE_PARTICLE_Y', 'PASSIVE_PARTICLE_Z')] + [
+    ('DE.DIE_DAMAGE_EFFECT', (), 'INHERITLOCKONDATA', RT_C7, 'done', 'new',
+     '31f82210@31f83110-31f83126 (Effect C6b review): entry +0x9c set -> child LockOnData (+0x920) = the parent one via June LockOnData::operator= 31f8c280 (every member but the pre-lock-on hit set +0x40); no type kept, no type test. Was parse-only before C7', 'CreateDieDamageEffect, JuneAssignLockOnData')]
 # the EffectSet scopes whose March-read rows must all have a RUNTIME entry, at every sub-path
 # (check_runtime). ES.Description is EFFECT_TOOL-only (COMPILED_OUT): the game never reads it.
 RUNTIME_SCOPES = ('ES.templet', 'ES.EFFECT', 'ES.CAMERA_SHAKE', 'ES.SOUND')

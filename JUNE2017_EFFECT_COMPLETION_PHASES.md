@@ -947,6 +947,30 @@ build, deploy, ASK before launching; find a June templet with TOUCH_LAND_DAMAGE_
 play-test; update matrix and MODS.md.
 ```
 
+### C7 - Done (2026-10-07, Opus 5.5 high (kickoff named Sonnet 5.5; the user chose to continue); flag `SERV_IRUHADEV_JUNE_TOUCH_LAND`, plus `SERV_IRUHADEV_JUNE_SPAWN_INHERIT` and `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME` extended)
+
+**What landed** (`8973e18`; `KTDGXMeshPlayer.h/.cpp`, `X2DamageEffect.h/.cpp`, `X2GameUnit.h`, `Always.h`):
+- **Mesh** (`TOUCH_LAND`): `CXMeshInstance::m_vVelocityBefore` (June +0x54c): ctor 0 (`@31c8d718`), snapshot `= m_vVelocity` in OnFrameMove's X2OPTIMIZE block before `m_fAniTimeBefore` (June `@31c87cac`, the same block, after the per-frame-simulation return), `GetVelocityBefore()`. `GetGravity()` added; m_Gravity had only a setter. No June offset is read.
+- **Gate** (`TOUCH_LAND`): in `CEffect::OnFrameMove` right after the die check, `GetGravity().y < 0 && GetVelocityBefore().y < 0 && GetVelocity().y > 0` -> `JuneTouchLandDamageEffect()` (31f83380). No once-flag. June's `GetLandPosition` probe (`@31f8a2a4-31f8a2e3`) is not repeated: its results are unread and March's `GetLandPosition` is `const`. 31f83380's scratch copy (31f8e750, a funcmap candidate) is not observable, since the spawner and tail only read entries. March therefore spawns from `m_vecTouchLandDamageEffect` directly.
+- **Spawner** `CreateTouchLandDamageEffect` (31f81ba0), every block of `dis_31f81ba0.txt` in June order:
+  - guard chain, invoke-rate skip (March's hit test), rotation = `m_AngleDegree` under APPLY_ROTATE_ORIGIN else 0, position = `m_BeforePos`, rotated/plain offset;
+  - `CreateInstance( m_fLandPos as is, force-down = inherit ? m_fForceDownRate : 1 )`, crit adds, `JuneInheritFromParent`, buff factor, life time, hit damage rate, `SetScale( entry * m_vHitDamageScale )`, `SetScaleByUnit( m_vHitDamageScaleByUnit )`, `SetInheritForceDownRate`, `SetMaxLifeTime` (a plain store, as June's +0x44c write), first-attack (`ADD_RENA_SYSTEM`, off), `JuneSpawnTail`.
+- **C6b-review gap 1** (`SPAWN_INHERIT`): `m_fJuneCreateDamageEffectRate` (+0xb18, -1 after LINK_EFFECT_RATE), then `pGameUnit->JuneOnDamageEffectCreated( this )` (new base virtual, vslot 0x328, no-op), `JuneApplyCreateDamageEffectRate` (31f6ea20) after `JuneInheritFromParent` in RT_CREATE_DAMAGE_EFFECT. The `(int)` truncation is kept: JUNE_BUGS 103.
+- **Gap 2** (`DAMAGEEFFECT_RUNTIME`): the CREATE loop's inlined crit adds, right before its `JuneInheritFromParent`.
+- **Gap 3** (`DAMAGEEFFECT_RUNTIME`): `JuneAssignLockOnData` (31f8c280: swap the destination's `m_setPreLockOnTarget` out, implicit assign, swap back). It is used by the die spawner's INHERITLOCKONDATA (after the first-attack block, before the tail; no type kept or tested) and by the CREATE loop's copy (`#else` keeps March's `=`). **The loop change is live in March:** a lock-on CREATE child no longer inherits the parent's hit list.
+
+**Bookkeeping:** funcmap rows 31f83380, 31f81ba0, mesh+0x54c, 31f6ea20, CEffect+0xb18, 3208ddc0, 31f88790 @31f89d52, 31f82210 @31f83110 and 31f8c280 are tagged `Effect C7: PORTED`. `census.py`: the 7e TOUCH_LAND rows are now `C7 done` (APPLY_ROTATE and PASSIVE_PARTICLE_* are `-`: 31f81ba0 never reads them), a new `DE.DIE_DAMAGE_EFFECT INHERITLOCKONDATA` runtime row, and the INHERIT_CRITICAL rows name the CREATE loop and the touch-land spawner. The matrix is regenerated (census.py: every check PASS, matrix and census.tsv rewritten; the rest of the matrix diff is re-cited X2DamageEffect line numbers). MODS.md has a table row and a C7 section.
+
+**Hygiene** (`flagcheck --worktree`): TOUCH_LAND `files: 2 PASS, 3 OTHER, 0 FAIL`; SPAWN_INHERIT `1 PASS, 4 OTHER, 0 FAIL`; DAMAGEEFFECT_RUNTIME `1 PASS, 4 OTHER, 0 FAIL`. Each has 0 deleted lines, 0 non-ASCII, 0 EOL-mismatched and 0 encoding changes, `RESULT: PASS`. The OTHER rows are files that carry the other two flags. All three stripped together (`--with`): `3 PASS, 1 PASS~, 1 OTHER, 0 FAIL`. The PASS~ is one blank separator line after the new `JuneAssignLockOnData` `#endif`. Range `--range 8973e18^..HEAD`: TOUCH_LAND `2 PASS, 1 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`, 0 deleted, `RESULT: PASS` (its one bare `#endif` is the `#error` guard's, the house pattern). SPAWN_INHERIT and DAMAGEEFFECT_RUNTIME: `1 PASS, 4 OTHER, 0 FAIL, 1 ERROR`, 0 deleted. Each ERROR is an Always.h dependency guard the tool cannot evaluate (`#if defined(..TOUCH_LAND) && !defined(..SPAWN_INHERIT)` at 5628; C6b's own guard at 5362), not a code file.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,333,120 B, dated 2026-10-07 20:49:08, md5 e59da04f4d517917130377696b3f3fd0, equal to X2/US_SERVICE/x2.exe (2026-10-07 20:49:02); built at mods/june-buff-port 762aae6 + 6 uncommitted code file(s).` (the six are this phase's, committed as 8973e18). The strings `TOUCH_LAND_GATE`, `CREATE_DAMAGE_EFFECT_RATE`, `CREATE_DAMAGE_EFFECT_INHERIT`, `INHERITLOCKONDATA`, `CREATE_LOCKON_COPY` are in the exe.
+
+**How to see it** (`python tools/logs.py --grep "JUNE_FX CE_HIT"`; offline_server.log, at most one line a second per effect and key):
+- `TOUCH_LAND_GATE entries=0 gravity.y=… velocityBefore.y=… velocity.y=…`: any March damage effect whose main mesh bounces off land, e.g. the `Bomb`/`Apple` meshes (`BOMB`, `APPLE`, `POISON_POCKET`), Chung's `HandGrenade1` (`CHUNG_ELASTIC_BOMB`), Raven VC's napalm / back-slide grenades, `NasodDrillerDynamite*`. This is the only C7 line March data can produce. It proves `m_vVelocityBefore` works.
+- `TOUCH_LAND`, `CREATE_DAMAGE_EFFECT_RATE`, `CREATE_DAMAGE_EFFECT_INHERIT`, `INHERITLOCKONDATA` cannot fire on March data (0 users; the rate is class-set). Seeing one is a finding.
+- `CREATE_LOCKON_COPY parentPreLockOn=N childKept=0`: a lock-on CREATE child whose parent had already hit someone. This is the live change.
+
+**Open for the user:** none. The kickoff's "find a June templet with TOUCH_LAND_DAMAGE_EFFECT" has no March answer: June's only user is Rose's `DamageEffect_A_RMH_KS_83_Grenade`, and its owner is the character port or June-data re-adoption (C11).
+
 ---
 
 ## C8 - Hit path, second half (old Phase 9)

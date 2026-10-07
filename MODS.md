@@ -61,6 +61,7 @@ column.
 | `SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET` | 2026-10-07 (June effect completion C9f-2) | `KTDXLIB/Always.h` (end; the viewer half also needs `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER`) | `X2Lib/X2ItemManager.h`/`.cpp` (two maps, `AddDivisionItemTemplet_LUA` dispatcher, CEPE parser, lookups, load + log line), `X2Lib/X2Main.cpp` (bind), `X2Lib/X2Data.cpp` (`ResetItemManager` load), `X2Lib/X2Eqip.h`/`.cpp` (handle + timers, release, timer step), `X2Lib/X2GUUser.h`/`.cpp`, `X2Lib/X2SquareUnit.h`/`.cpp` (condition, play, last position; square stop), `X2Lib/X2TFieldGame.cpp` (`RemoveUnit` stop), `X2Lib/X2UnitViewerUI.h`/`.cpp` (group filter, viewer play), `X2Lib/X2BaseUnitViewerUI.h`/`.cpp` (`IsPlaying`) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL` | 2026-10-07 (june-buff Phase 14b) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUUser.h`/`.cpp` (`m_bJuneInstanceKill`, `HaveInstanceKillDebuff`, set and kill in `DamageReact`), `X2Lib/X2BuffTempletManager.cpp` (load line) | -- |
 | `SERV_IRUHADEV_JUNE_TUTORIAL_MODE` | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (before the 14b block) | `X2Lib/X2Main.h`/`.cpp` (out-of-line `SetIsPlayingTutorial`, `JuneOnExitTutorialRestoreKeys`, `m_bJuneTutorialKeyLatch`), `X2KeyPad.h`/`.cpp`, `X2DungeonGame.cpp` (Release), `X2GUUser.cpp` (clamp, RT_FLY, StartEnd), `X2Game.cpp`, `X2State.cpp`, `X2UIManager.cpp`, `X2UIQuestNew.h`/`.cpp`, `X2StateDungeonGame.cpp`, `X2SlideShot.cpp`, `X2PetManager.cpp`, `X2PlayGuide.cpp`, `X2UIQuickSlot.cpp`, `X2StateServerSelect.cpp` | -- |
+| `SERV_IRUHADEV_JUNE_TOUCH_LAND` | 2026-10-07 (June effect completion C7) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_SPAWN_INHERIT`) | `KTDXLIB/KTDGXMeshPlayer.h`/`.cpp` (`m_vVelocityBefore`, ctor init, per-frame snapshot, `GetGravity` / `GetVelocityBefore`), `X2Lib/X2DamageEffect.h`/`.cpp` (OnFrameMove gate, `JuneTouchLandDamageEffect`, `CreateTouchLandDamageEffect`); C7's other three items extend `SERV_IRUHADEV_JUNE_SPAWN_INHERIT` (`X2GameUnit.h` vslot 0x328, CEffect ctor hook, `JuneApplyCreateDamageEffectRate`) and `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME` (CREATE-loop INHERIT_CRITICAL, `JuneAssignLockOnData`, die INHERITLOCKONDATA) | -- |
 | `SERV_IRUHADEV_OFFLINE_FIRST_SELECT` (offline emulator) | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (next to the above) | `X2Lib/Offline/Handlers_Unit.cpp` (`PushSelectUnitNotifications`, 5_NOT) | `SERV_IRUHADEV_OFFLINE` |
 | `SERV_IRUHADEV_JUNE_BUFF_DEBUG` | 2026-10-04, **disabled 2026-10-07** (june-buff Phase 14) | `KTDXLIB/Always.h:4787` (`#define` commented out; re-enable to diagnose) | ~250 `[JUNE_BUFF] first ...` debug sites across `X2Lib` (buff templets, game units, users, NPCs, `X2Main.cpp`'s `JuneBuffTestNewStat_LUA` console hook) | -- |
 
@@ -3170,6 +3171,33 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
   manifest entry added); `UIEffectSet.lua` + 6 sets; `UIMajorXMeshPlayer.txt` + 2 mesh templets. One `JUNE_FX EQUIP_FX_LOAD`
   line in ErrorLog.txt. JUNE_BUGS 100-102. **Revert:** undefine it and rebuild all projects. The data can stay: with the flag off
   nothing loads `RenderDivisionItemTemplet.lua`, and the extra enum tables and sets are unused.
+
+### June effect completion C7: touch-land runtime and three spawner gaps
+
+- **`SERV_IRUHADEV_JUNE_TOUCH_LAND`** (needs `SERV_IRUHADEV_JUNE_SPAWN_INHERIT`). `CXMeshInstance` gets June's previous-frame
+  velocity (`m_vVelocityBefore`, snapshotted next to `m_fAniTimeBefore` every frame). `CEffect::OnFrameMove` runs June's bounce gate
+  right after the die check: gravity down, falling last frame, rising now. While it holds, June's touch-land spawner (`31f81ba0`)
+  spawns every `TOUCH_LAND_DAMAGE_EFFECT%d` entry at `m_BeforePos` and runs the C6b tail. No March DamageEffect has the table, so
+  nothing spawns. The gate itself fires on any bouncing effect and logs `JUNE_FX CE_HIT <effect> TOUCH_LAND_GATE entries=0`.
+- **`SERV_IRUHADEV_JUNE_SPAWN_INHERIT`, extended.** A new base virtual `CX2GameUnit::JuneOnDamageEffectCreated` (June vslot 0x328, a
+  no-op) is called on the owner from every CEffect ctor. RT_CREATE_DAMAGE_EFFECT now also runs `31f6ea20`, which scales the child's
+  damage, HIT_ADD_MP and TECH_POINT by `m_fJuneCreateDamageEffectRate`. That rate stays -1 unless class code sets it, so nothing
+  changes in March.
+- **`SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`, extended.**
+  - The CREATE_DAMAGE_EFFECT loop now applies INHERIT_CRITICAL_RATE / _DAMAGE_RATE, as the hit and die spawners do.
+  - DIE entries' INHERITLOCKONDATA now copies the parent's LockOnData to the child. March used to parse the key and ignore it.
+  - Both lock-on copies use June's assignment (`JuneAssignLockOnData`), which leaves the child's pre-lock-on hit set alone. **Live
+    in March:** a CREATE child with lock-on no longer inherits the parent's list of units already hit. The in-range target picks
+    (June `322d7670` / `322daa10`) skip the units in that list.
+  - March data uses neither INHERIT_CRITICAL nor INHERITLOCKONDATA.
+
+| | before | after |
+|---|---|---|
+| CREATE child's pre-lock-on hit set | the parent's | the child's own (empty at birth) |
+| `offline_server.log` | - | `JUNE_FX CE_HIT ... TOUCH_LAND_GATE / TOUCH_LAND / CREATE_DAMAGE_EFFECT_RATE / CREATE_DAMAGE_EFFECT_INHERIT / INHERITLOCKONDATA / CREATE_LOCKON_COPY` |
+
+Revert: undefine `SERV_IRUHADEV_JUNE_TOUCH_LAND` (KTDXLIB too: the mesh member) and rebuild all four projects. The other two
+items go with their own flags. JUNE_BUGS 103 records the TECH_POINT truncation.
 
 ## Reverting to stock
 
