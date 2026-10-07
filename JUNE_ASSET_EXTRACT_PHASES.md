@@ -146,6 +146,73 @@ Paths:
 **Stop and ask** if June validates something per entry that a repack cannot reproduce, or if the seed table is built at runtime
 from data we do not have.
 
+### Phase X0 - Done
+
+2026-10-08, Opus 5.5. This was read-only RE: no code, no flag, no build. Ghidra functions are renamed `KOM_*`, `Blowfish_*` and
+`SHA1_*`. Evidence is in 18 `XKOM X0` rows in `june2017_re/funcmap.tsv` and in two tables:
+- `june2017_re/v04_manifest_keys.tsv` (200 keys);
+- `june2017_re/v04_seed_table.tsv` (300 MappedIDs).
+
+**Neither stop condition fired.** June checks nothing per entry, and the seed table is static.
+
+1. **Manifest.**
+   - `KOM_OpenMassFile` 31c4ddb0 checks the manifest adler32 against header `0x40` @31c4e67c. It hashes the stored bytes, before
+     decryption.
+   - For V.0.4 only, it calls `KOM_XorManifest12` 31c4ade0 @31c4e6df, keyed `0x33447114 + (size%200)*12`. This is a bytewise XOR
+     with a key that repeats every 12 bytes.
+   - `KOM_ParseManifest` 31c4d350 checks the FileTime sum (hex text) == `0x3C` @31c4dd27 and the count == `0x34` @31c4dd46.
+   - Back in 31c4ddb0, the last offset must equal the file size @31c4e777.
+   - **Proved on all 77 V.0.4 manifests:** the adler32, count and FileTime sum match, and the XML parses.
+2. **MappedID to seed.**
+   - The parser rotates the 8-char MappedID **right** by `Size & 7` (@31c4db44), so `key[i] = id[(i-r) mod 8]`. It looks the result
+     up in hash_map `0x3376d550` (`MappedIdMap_find` 31c55490 @31c4dc6f) and stores the index (1..300) at entry `+0x30`. A miss or a
+     V.0.3 entry stores 0.
+   - The map is **static**: 300 inserts in `KOM_MgrCtor_BuildMappedIdMap` 31c516d0. The plan expected about 998 seeds, a figure
+     from elstools' notes; the binary has 300.
+   - `seed = sum mod 2^32 of the 5 dwords at 0x33445428 + idx*20` (31c47a00 @31c47b3d), printed with `"%u"`. The key is SHA-1 of
+     that decimal string, 20 bytes.
+   - **All 105,354 V.0.4 entries resolve,** algo 0 and algo 3 included.
+3. **Blowfish** (`Blowfish_Init` 31d26c20, `Blowfish_Crypt` 31d26270).
+   - P (`3344e170`) and S (`3344e1b8`) are **standard**: 0 diffs from pi over 1,042 words.
+   - Words are big-endian. Mode 0 = ECB decrypt (1 = CBC decrypt, 2 = CBC encrypt). The IV is zero and unused.
+   - **Tail rule:** 31d26270 throws "Incorrect buffer length" unless `len % 8 == 0`, so June passes `len - (len & 7)` (@31c47bee..bf5).
+     **The last 1-7 bytes are stored plaintext**: they are the zlib adler32 tail. elstools loses them. That is the truncation.
+   - **No per-entry check.** `Checksum` = `FileTime` = adler32 of the stored payload (3,469/3,469 entries in 5 koms). June stores it
+     at entry `+0x28`, and `KOM_ReadMemberRaw` 31c4b940 never reads it (it reads +0x1c/20/24/2c/30 only). A V.0.3 repack is
+     unaffected.
+4. **Decode dispatch** is by algorithm (`KOM_ReadMemberRaw` 31c4b940 @31c4ba19..26):
+   - **algo 0:** inflated in 31c4b940.
+   - **algo 2:** raw, then `KOM_DecodeMemberAlgo2` 31c47a00.
+     - seed index > 0 (every V.0.4 entry): Blowfish as in item 3.
+     - index 0 (V.0.3): key C (`fde108ec…`) CRC cipher with **no trailer**. Its seed loop is the plain step
+       `crc=(crc>>8)^T[b^k^crc_lo]` (@31c47d58..80), March's `CRC_32.h` `CalculateWithoutEncrypt`, followed by
+       `CalculateAndDecrypt`. This agrees with Established facts.
+   - **algo 3:** buffer `CompressedSize+4` (@31c4ba26), then `KOM_LoadAlgo3KeyC` 31c310e0, in every version.
+     - Its seed loop is the **NOT form** (@31c31476..8c), as in crypto.cpp.
+     - It regenerates 4 bytes at `buf+CompressedSize` from the reverse table `CRC32_GetTable()+0x400` (@31c3156e..31c31691).
+     - It sets `src += 4` when `CompressedSize >= 4` (@31c3169f) and calls `uncompress(.., CompressedSize)` @31c31707.
+     - The same inlined sequence also appears in 31d77310 (x3), 31f57330, 31cd5910, 325c2100 and 31e46300. These were not examined.
+       The patcher variant 31c4efd0 was not examined either.
+5. **Gate.** `CHUNG_GIGANTIC_IMPACT_Bottom_Broken_SP.dds` (`data002.kom`, CompressedSize 12735, %8 = 7) decodes by hand:
+   - it inflates to **22000 B**;
+   - its zlib adler32 `8e4a4e09` matches;
+   - elstools' 21,996 B is a prefix of it.
+6. **Sample proof** (scratchpad oracle): 1,504 entries across all 77 V.0.4 koms and about a quarter of the V.0.3 koms, every
+   algorithm and every `CompressedSize % 8` class. **0 failures:**
+
+   | Version | algo 0 | algo 2 | algo 3 |
+   |---|---|---|---|
+   | V.0.4 | 92 | 877 | 27 |
+   | V.0.3 | 85 | 421 | 2 |
+
+   The full census is X1's `verify`.
+
+**For X1:** `kickoffs/june-asset-extract/X1.md` carries the pitfalls:
+- the two seed loops;
+- the plaintext tail;
+- the name codepage;
+- runtime: pure-Python Blowfish takes about 2 s per entry including key setup, so cache the 300 schedules and use multiprocessing.
+
 ## Phase X1 - tools/junekom.py
 
 **Scope.** A read-only June kom reader, stdlib only, with a pure-Python Blowfish using X0's tables.

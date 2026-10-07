@@ -247,8 +247,8 @@ fix.
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| X0 | ready | Opus 5.5 / high | - | Ghidra (read-only), `june2017_re/funcmap.tsv`, new `june2017_re/v04_*.tsv`, plan doc | `X0.md` |
-| X1 | blocked | Opus 5.5 / high | X0 | new `tools/junekom.py`, `tools/README.md` | written by X0 |
+| X0 | **done 2026-10-08** (read-only RE, no code): manifest key table proved on all 77 V.0.4 manifests; MappedID rotated right by Size&7 -> static 300-entry map -> seed (5-dword sum, `%u`, SHA-1); standard Blowfish ECB over `len&~7` only, tail plaintext (the elstools truncation); per-entry Checksum never read; algo 2 vs algo 3 key-C seed loops differ; CHUNG test entry -> 22000 B; sample 1,504 entries 0 failures; 18 funcmap rows `XKOM X0`, Ghidra renamed; **user owes:** /cost | Opus 5.5 / high | - | Ghidra (read-only), `june2017_re/funcmap.tsv`, `june2017_re/v04_*.tsv`, plan doc | `X0.md` |
+| X1 | **ready** | Opus 5.5 / high | X0 | new `tools/junekom.py`, `tools/README.md` | `X1.md` |
 | X2 | blocked | Sonnet 5.5 / high | X1 | `14JUN17\data\*_kom\` (backup first), `JUNE2017_ASSET_CLOSURE.md` | written by X1 |
 | X3 | blocked | Sonnet 5.5 / high | X1 | `tools/kom.py` | written by X1 |
 | X4 | ready | Opus 5.5 / high | - | `KTDXLIB/KGCMassFileManager.cpp`, `KTDXLIB/Always.h` | `X4.md` |
