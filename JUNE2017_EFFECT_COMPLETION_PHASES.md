@@ -1368,7 +1368,7 @@ motions, sounds and the chat-box emotion list. Where should it go?
 - **Data** (`data036`): `UIEffectSet.lua` = C9c-2b's sets + the 11 templets appended verbatim from June's source (`UIEffectSet.src.lua` appended, `kom.py compile`);
   `UIMajorXMeshPlayer.txt` = March's + the 5 entries (`Mesh_Emotion_2015XMas_Box_Ready`/`_End`, `Emotion_2016Maid_Kettle`/`_Teacup`/`_Duster`) inserted before the closing brace.
   All keys parse (`LifeTime`, `LightPos` included); the 26 particles of the 11 sets resolve in the committed `UIMajorParticle.txt`.
-  `PACK OK data036: ... 190 entries, 6625437 bytes, ~2 changed (UIEffectSet.lua, UIMajorXMeshPlayer.txt)`. **Not copied yet: the user decides (see below).**
+  `PACK OK data036: ... 190 entries, 6625437 bytes, ~2 changed (UIEffectSet.lua, UIMajorXMeshPlayer.txt)`. **Copied (user said yes): `COPY OK data036: ...data036.kom 6625437 bytes, 190 entries, md5 9f7546891c60793f7216767a52ad2398`, backup `kom_backup_tools/data036.kom.20261007_170807`.**
 - **Not ported, by the kickoff**: the `+0x93dc` / `+0x93ec` / `+0x940c` sit-item vectors and every `EmotionData` path (the missing emotion system, Stage 10);
   `323f34a0` / `323f6fb0( 0 )`; June's skin-anim gate around the `StateStart` stop (inert either way); **`323f56d0`** (called in `RemoveUnit` beside `323f4640`,
   not identified: the review identifies it).
@@ -1387,7 +1387,7 @@ reach the exe if a call site compiled with the flag), and `X2.map` holds `CX2Squ
 **How to see it in game.** You cannot: it is inert. The regression play-test is the review's: emote in the village, in the character select and in a dungeon, village -> dungeon -> village,
 clean exit. 0 EXCEPTION, no new `X2_*.tmp`, the C9c line `UNIT_VIEWER_FX_LOAD ... rows=18` unchanged. Once `data036` is copied the 11 templets load with the other sets (`EffectSet` load lines unchanged).
 
-**Question for the user:** copy the packed `data036` into the game (`/x2-kom-packed copy data036`)? It adds only data nothing can reach yet; the code does not need it. **User owes:** the copy decision, /cost.
+**User owes:** the regression play-test, then /cost.
 
 ---
 
