@@ -592,7 +592,7 @@ Checked in Ghidra (read-only) and in the exe bytes:
   - June's loader (`3258c470 @3258e244`) is not ported. No STATUS row owns Hero-dungeon mode; buff 16-step3b decision 1 left it dormant.
 - **Log (not June):** once per run, at the first dungeon NPC: `JUNE_FX HERO_ANIM ... rows=0 ... dungeon=<id> hero=0` in ErrorLog.txt.
 
-**Hygiene:** worktree flagcheck PASS (`_HERO_NPC_ANIM_SPEED`: 5 PASS, 1 PASS~ blank line, 1 DEFINE, 0 deleted; `_JUNE_NPC_ANIM_SPEED` on the two compound-guarded files: 2 PASS). RANGE_PLACEHOLDER
+**Hygiene:** worktree flagcheck PASS (`_HERO_NPC_ANIM_SPEED`: 5 PASS, 1 PASS~ blank line, 1 DEFINE, 0 deleted; `_JUNE_NPC_ANIM_SPEED` on the two compound-guarded files: 2 PASS). Committed `2cf5fef`; range flagcheck `2cf5fef^..2cf5fef`: 5 PASS, 1 PASS~, 1 DEFINE, 0 FAIL, 0 deleted, RESULT PASS.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,316,736 B, dated 2026-10-07 20:06:05, md5 aa9143e1f31906afc9b30beae800065c` (built at `23106ff` + this phase's 7 files). The exe holds the wide `JUNE_FX HERO_ANIM` string and the bind name.
 **In game:** nothing changes. Run any dungeon; ErrorLog.txt gets one `JUNE_FX HERO_ANIM` line with `rows=0` and `hero=0`.
 **Also:** MODS.md (row + section), JUNE_BUGS 99. **User owes:** the regression play-test, /cost.
