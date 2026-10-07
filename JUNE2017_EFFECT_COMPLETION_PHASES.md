@@ -971,6 +971,71 @@ Elsword_DamageData.lua loaded=1 rows=107 skipped_empty_name=0 skipped_duplicate=
 **Deploy:** none. Nothing changed, and the tree holds a peer's uncommitted `Always.h` / `X2GageManager.cpp` / `X2GameUnit.cpp` edits.
 The deployed exe is still `03e657f7`, the one the play-test passed on. No new play-test. Next: C9b.
 
+### C9b - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build)
+
+**Verdict: port it, as C9c-1 / C9c-2a / C9c-2b below.** The table is June's data-driven replacement for every class effect March
+hard-codes in `CX2UnitViewerUI`. All 13 live rows reproduce effects March already draws by hand. Funcmap: 12 new rows tagged `Effect C9b`,
+and 3 rows corrected in place (`31ee6100`, `31fa3010`, `329585f0`). Per-row reach is in `june2017_re/c9b_unitviewer_rows.tsv`.
+
+**1. Loader.** `32597410` is June's `CX2StateStartUp` load body (`X2StateStartUp.cpp:239-240` order). **Correction:** `31ee6100` is
+**`CX2Data::ResetUnitManager`**; after `OpenDataScriptFile( CorrelateUnitClassTemplet.lua )` (`32376f10`) it opens `SelectVoiceTable`,
+`AnimationNameTable`, then `UnitViewerEffectSetTable.lua` @`31ee6224`. March counterpart: `X2Data.cpp:1824`, after Correlate at `:1835`.
+
+**2. `31fa3010` = `CX2UnitViewerUI::PlayAnim( name, playType, bTransition, which )`.** Its callers are the 9 `LobbyDownLanding` sites
+(`X2StateCreateUnit`) and `323fad80`. `which` 0/1/2 = main skin anim `+0x1e8` / duo minor `+0xd7c` / both. After the anim it clears the
+request vector `+0x11a0`, stops group-0 viewer effects (`329594c0`), looks the motion up (`323760f0`; 0 = any type/class, 2 = any duo,
+first row wins) and, on a hit, pushes a 0x30 request `{ set name, UNIT_TYPE, UNIT_CLASS, start time, loop, 0 }`. No hard-coded particles.
+- **Drain:** `31fa8ce0`, the per-model frame move inside `OnFrameMove` (`31faa550`). A request plays once the anim time reaches its start
+  time (0 = at once), via `32959640( skin anim, request, group 0 )`, and is then erased.
+- **Re-arm:** when the anim time is exactly 0.0 (the loop wrapped), `loop = true` rows are queued again.
+
+**3. The other two callers.** `31fa8ce0` is the re-arm above. `32043380` = **`CX2GUUser::PlayEmotion`** (`X2GUUser.cpp:28817`):
+- it looks up the emotion motion, plays the set at once on `g_pData +0x9c` with the unit as owner, keeps the handle at `+0x943c`, and tags
+  it via `32296f30` (C10a site 32043cf0, "with host"); start time and loop are not used;
+- only Rose/Ain rows match, and neither class exists in March, so the path is inert;
+- `+0x9c` = `m_UIEffectSet`: the `_INT` opens in `32597410` go to `+0x9c` and then `+0xe0`, March's UI-then-Game order
+  (`X2Data.h:567-568`), and all 15 sets live only in June's `UIEffectSet.src.lua`.
+
+**4. March has both hooks but no player.** June's viewer does not call `CX2EffectSet::PlayEffectSet`; it runs its own player on a base
+viewer class: `32959640` plays (`ET_MESH_PLAYER_UI_MAJOR` / `ET_PARTICLE_UI_MAJOR` into lists `+0x194` / `+0x1a4`, plus the templet's
+`+0x70` list), `329585f0` updates each frame (bone trace, `FOLLOW_UNIT_VIEWER_SCALE`, `ANIMTIME_ON_START_UNITVIEWER` triggers: the runtime
+owner of those "owner open" census rows), `329594c0` / `32959250` stop.
+
+March's `CX2BaseUnitViewerUI` is empty and `PlayEffectSet` takes only a game unit, square unit or pet as owner, so C9c ports the player.
+June's own viewer effects (`31fa52b0`, `31fa4ec0`, `31f91b70`, `323fad80`, `32e50de0`) also use it; they are out of scope.
+
+**Reach.**
+- **13 rows are live** once staged. March's `UIEffectSet.lua` has none of the 15 sets; the two SBH sets are only in the game
+  `EffectSet.lua`. Every particle and mesh those 13 name is already in March's `UIMajorParticle.txt` / `UIMajorXMeshPlayer.txt`.
+- **4 rows are inert by class** (Rose/Ain). **1 is inert by duo** (`LDN_LobbyWait`).
+- **March's hard-code:** handles created in `SetUnit` (`:1985`) and used in `PlayAnim`, `OnFrameMove`, `NotifyShowObjectChanged`,
+  `OnFrameRender_Draw`, `Render_DrawForAvartaScreenCapture` and `PlayByMotionType`. The handles are `m_hSeqHandFire`, `*SPK1/2`,
+  `*HandElectricALP1/2`, `*EnergyBullet1-3`, SBH, crescent cut, and the ETK/CDC/RTR/RNW meshes.
+- None of these names is a plain string in June code (only `MagicKnightHandFire`, in GU SwordMan `32d07090`). Upgrade, enchant and
+  emblem particles stay.
+
+**D8 (no question):** the duo minor model (`+0xd7c`/`+0xd80-0xd82`), the `DT_MINOR` row and `LDB_LobbyReadyAction` (`+0x11d8`) go to
+`JUNE2017_CHARACTER_PORT_CHECKLIST.md`. March always passes duo 0.
+
+**Port list.**
+- **C9c-1 (Sonnet), new flag:**
+  - bind `AddUnitViewerEffectSet`, with the map, first-wins insert and lookup (June's three gates);
+  - load the file in `ResetUnitManager` after Correlate, under the new flag, not inside `REFORM_SKILL_NOTE_UI`. `OpenDataScriptFile` uses
+    `LoadLuaTinker` on the main state (C9's failure was a new Lua thread);
+  - add a `JUNE_FX` load-count line, then stage and pack the file;
+  - port the `PlayEmotion` consumer (inert). The `32296f30` tag goes in only if C10b-2 has landed it; otherwise it is a note for C10b-2.
+- **C9c-2a (Opus, no code):** identify the player's helpers (`3295a080`, `3295a400`, `32959970`, `32959e40`, `32959250`, `32957980`,
+  `329582b0`, `32957170`, the `+0x70` list) and `329585f0`'s per-entry update; map each hard-coded site to its row.
+- **C9c-2b (Sonnet), one phase so nothing regresses in between:**
+  - the player, and the `PlayAnim` / `OnFrameMove` hooks in June's order;
+  - stage the 15 templets verbatim into March's `UIEffectSet.lua` (decompile, append, compile; never the rolled-back wholesale replace);
+  - retire the hard-code with `#else` intact.
+
+  Check: the exact-0.0 re-arm may queue `SBH_LobbyWait` / `ALP_LobbyWait` twice on the first frame. Keep June's order; add a `JUNE_BUGS`
+  row if it reproduces.
+
+Open question for the user: none.
+
 ---
 
 ## C10 - Decided absent systems
