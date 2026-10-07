@@ -1194,6 +1194,68 @@ Nothing was built, so there are no hygiene or deploy lines. **User owes:** /cost
 
 ---
 
+### C9d - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build)
+
+**Verdict: two systems, not one.** The per-emotion effect set (`32355a50`) is effect wiring and is ported as **C9e**, inert. Everything
+that would make it reachable is **June's emotion system**, which March lacks; that goes to the user (open question below).
+Funcmap: 22 rows tagged `Effect C9d`. Ghidra was read-only.
+
+**1. The ids.** June's `EMOTION_TYPE` (`Enum.lua`) runs to `ET_END = 65`; March's ends at `ET_EMOTION_AVATAR7 = 15`. Ids 0-15 are equal
+(flagprobe: `CRAYONPOP_SECOND_EMOTION`, `CRAYONPOP_EMOTION_WITH_MUSIC` ON). The 11 sets belong to `0x1c-0x20` = AVATAR15-19 (Keroro),
+`0x23` = AVATAR22, `0x26` = AVATAR25 (Twice), `0x27`/`0x28` = AVATAR26/27 (Xmas box), `0x2f`/`0x30` = AVATAR31/32 (Maid).
+- **None of the 11 is in June's `EmotionData.lua`.** That file holds 20 entries: AVATAR1-7, 13, 29, 30 and 33-41. The 11 are code-only:
+  - `3234cb00` (June's `IsAvatarEmotion`) falls back to a hard list;
+  - `323fef90` has a hard sound switch.
+
+  Porting `EmotionData.lua` alone would not reach them.
+- **Where June's emotions come from:** `AddEmotionData` -> `32375250` (`GetEmotionData`, unit-manager map `+0x108`), with
+  `CHANGE_EMOTION_CONDITION` (set items, items), motions, sounds and `DLG_ChatBox_Emotion_List.lua`. March has none of it: no Lua
+  `EMOTION_TYPE` beyond a 4-entry Phase 11 stub, no file, no bind.
+
+**2. Callers.**
+- `323fef90` = `CX2SquareUnit::PlayEmotion` (March `X2SquareUnit.cpp:3616`): plays into `+0x7ac` through the square-unit overload `321e2120`.
+- `31fa52b0` = `CX2UnitViewerUI::PlayEmotion` (March `:6269`): plays through the C9c-2b viewer player `32959640( skin anim, name, group 1 )`.
+  This corrects C9b's "June's own viewer effect".
+
+Both have March counterparts, so both are in C9e.
+
+**3. The `+0x9434` lifecycle (GUUser).**
+- **PlayEmotion** `@32043a33-32043b62`, just before C9c-1's `31fcf490`: if `+0x9434` is valid, stop it. Then play the set with every
+  default on `g_pData +0x9c` and store the handle unconditionally (no `32296f30` tag).
+- **OnFrameMove** `@3206eb64-3206ed70` switches on `m_ePlayedEmotion` (jump table decoded in funcmap):
+  - sit and cash-sit ids stop the set;
+  - the 11 (plus 41) keep it;
+  - every other id stops it unless EmotionData gives a non-empty `UI_EFFECT_SET`. With no EmotionData in March, that case is June's NULL
+    path: always stop.
+- **Dtor** `@3203af9f`; **ctor** `@32041dca` (= -1).
+- **Square:** play `@323ff8c5`; stop on every `StateStart` (`323fad80 @323fbd70`), in the dtor (`323f7760 @323f7b36`) and in `323f4640`.
+
+**4. `+0x93dc` / `+0x93ec` / `+0x940c` are a second June-only system: equipped-item sit effects.**
+- `3203e1b0` reads a `CX2Unit +0xa44` map (key `3264c980`: sit 7, cash1 8, cash2 13, cash3 14) and the item templet's per-mode effect list
+  (`32651ab0`). The insert site was not found; March has neither the map nor the field.
+- The drains in OnFrameMove, the dtor and PlayEmotion, and the viewer's group-1/2 block (`@31fa5645-31fa5983`), belong to it, not to C9e.
+- `3204a860` re-runs mode 5 from CommonFrameMove.
+
+**5. Assets.** All 11 templets are in June's `UIEffectSet.src.lua` (7 also in June's `EffectSet`); none are in March.
+- Their particles resolve in the staged `UIMajorParticle.txt`, which C9c-2b replaced with June's today (re-check after it commits).
+- 5 mesh players are June-only: `Mesh_Emotion_2015XMas_Box_Ready`/`_End`, `Emotion_2016Maid_Kettle`/`_Teacup`/`_Duster`
+  (`2015xmas_Box_*.x`, `Emotion_2016Maid_*.X`).
+
+**Port list (C9e, Sonnet, new flag, inert):** see `kickoffs/june-effect/C9e.md`. It covers the `32355a50` helper, the GUUser branch,
+OnFrameMove case, dtor and ctor, the square play and its 3 stops, the viewer play (after C9c-2b), and staging the 11 templets plus the 5
+mesh-player entries.
+
+**Open question for the user:** June's emotion system is a missing system that no backlog stage owns. It covers EMOTION_TYPE 16-64,
+`EmotionData.lua` + bind + `GetEmotionData`, the data-driven `IsAvatarEmotion`, cash sits, emotion items, the sit-item effects in §4,
+motions, sounds and the chat-box emotion list. Where should it go?
+- (a) its own backlog stage (recommended);
+- (b) Stage 8, which already lists `EmotionData` for Lu/Ciel;
+- (c) Stage 9 UI sweep.
+
+**User owes:** the answer, /cost.
+
+---
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),
