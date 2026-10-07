@@ -28,6 +28,7 @@ june_site	june_func	march_function	march_site	category	action	note
 32465b3d	324659a0	CX2StateMenu::ShortCutKeyProcess (F12 guide book)	X2StateMenu.cpp:3609	HAS	-
 31fbde85	31fbde80	CX2TutorialGuideManager (g_pMain+0x8c4) IsPlayingTutorial	none	JUNEONLY	listed	getter, callers 321549d6 32154e0b 31f0d9b6 323de049 323e1c7d
 31fbdfbe	31fbdfa0	CX2TutorialGuideManager refresh UI	none	JUNEONLY	listed	UIManager+0x8a / state+0x378
+31fcea1c	31fcea10	CX2GUUser vslot 0x6fc (base of Eve 32978e80; 12 user vtables; per-frame input-state filter, March name not identified)	none	JUNEONLY	listed	in the tutorial, masks the unit's input block (+0x86da) by the guide step (guide manager 31d70b00 +0xe4 -> 320708f0); June-only guide manager. Added by the 14c review (the sweep had it, the tsv did not)
 323de049	323ddfe0	CX2UIQuestNew::ToggleUserShowQuickQuestDLG	X2UIQuestNew.h:723	MISSING	PORTED (gate)	!HideDialog && state != TRAINING && (!tutorial || !m_bUserShowQuickQuestDLG); g_pMain+0x2aa mirror and June's body changes not ported
 323e1c7d	323e1bf0	CX2UIQuestNew::UICustomEventProc UQNCM_CHECK_QUICK_QUEST	X2UIQuestNew.cpp:616	MISSING	PORTED	m_bUser && tutorial -> Detail dialog (+0x510) CheckBox_QuickQuest SetChecked(true), return true
 324cc1b0	324cb020	CX2StateDungeonGame::LoadUI	X2StateDungeonGame.cpp:689	HAS	-
@@ -80,13 +81,13 @@ june_site	june_func	march_function	march_site	category	action	note
 327cfaea	327cf620	CX2DungeonGame::SubStageStart	X2DungeonGame.cpp:1239	HAS	-	funcmap row corrected
 327d1df5	327d1d40	CX2DungeonGame::SubStageOpen	X2DungeonGame.cpp:1056	HAS	-
 327d49d7	327d4790	CX2DungeonGame::OnFrameRender	X2DungeonGame.cpp:359	HAS	-
-327f0685	327f05c0	CX2DungeonSubStage::ClearSubStage (Lua)	X2DungeonSubStage.cpp:477	MISSING	NOT PORTED (breaks March)	June: clear only if tutorial || auth >= 1; June clears through the server, March through this Lua call, so an auth-0 save would stop clearing
+327f0685	327f05c0	CX2DungeonSubStage::ClearSubStage (Lua)	X2DungeonSubStage.cpp:477	MISSING	NOT PORTED (breaks March)	June @327f067a-327f0699: clear only if tutorial || MyUser+0x2c >= 1 (auth). Callers are the same 33 scripts in June (june_src_fixed) and March (kom_contents): 8 Dungeon_ElTutorial_*, 23 Dungeon_Training_*, 2 Dungeon_Arcade_*; no ordinary dungeon calls it. Porting the gate would stop March's training-school and arcade stage clears for an auth-0 save; June's replacement clear path is its server-driven result restructure (324cf3d0, JUNEONLY). Reason corrected by the 14c review
 3289cf55	3289cf20	CX2PlayGuide::IsShowGuide	X2PlayGuide.cpp:897	MISSING	PORTED	DUNGEON_GAME && tutorial -> false
 3289d096	3289d090	CX2PlayGuide::StartGoEffect	X2PlayGuide.cpp:1057	MISSING	PORTED	!tutorial
 3289e193	3289e180	CX2PlayGuide::OnFrameMove_Tutorial	X2PlayGuide.cpp:708	HAS	-
 328ad9d4	328ad970	unidentified June object at g_pData+0x454	none	JUNEONLY	listed	class tier 2 && !tutorial
 3294c631	3294c460	CX2UIQuickSlot::SetEnable	X2UIQuickSlot.cpp:1744	MISSING	PORTED	disabled slot SetShow(!tutorial); June's other SetEnable changes not ported
-32978ec2	32978e80	CX2GUEve vslot 0x6fc	none	CHAR	checklist §7	uses guide manager +0xe4
+32978ec2	32978e80	CX2GUEve vslot 0x6fc	none	CHAR	checklist §7	uses guide manager +0xe4 ; the tutorial term is the same June-only guide-manager input mask as the base slot 31fcea10 (320708f0 on +0x86da by guide step), so the character port drops it with the guide manager (14c review)
 32a59534	32a53e10	CX2GUAin::InitComponent	none	CHAR	checklist §7	tutorial -> 32a31900(0)
 32ab451f	32ab4480	CX2GURose wait-habit check	none	CHAR	checklist §7
 32b74065	32b73ff0	CX2GUEL::DamageReact (Iron Will)	X2GUEL.cpp:3305	CHAR	checklist §7

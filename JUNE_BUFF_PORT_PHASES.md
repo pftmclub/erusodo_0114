@@ -4577,6 +4577,62 @@ The setter's June half:
 - **Regression on Iivue (unit 19):** the dungeon ran, and the death was followed by a skipped continue. `select #1 -> m_bFirstSelect 1 (lv 80)` is harmless: the tutorial needs level 1.
 - **UNHANDLED:** 5 `E_DISABLE_HB_CHECK_REQ` (known) and 1 `EGS_SKIP_CONTINUE_DUNGEON_NOT` (the regression death's continue skip). Neither is this phase's.
 
+### Phase 14c — Review (2026-10-07, Opus 5.5 high)
+
+**Verdict: PASS, no code findings.** No code changed, so there was no rebuild. The range is `6c9b694^..6c9b694`; `git log -S` finds no later commit touching the flag or the latch. `flagcheck --range 6c9b694^..6c9b694 --with SERV_IRUHADEV_OFFLINE_FIRST_SELECT` gives:
+- `files: 14 PASS, 3 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`
+- `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 5 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+- `RESULT: PASS`
+
+The OTHER row is `Handlers_Unit.cpp`, under `_OFFLINE_FIRST_SELECT`. The 5 EOL lines are LF lines inside `X2UIManager.cpp`'s LF-native `SetShowUI`. There are no deleted lines.
+
+**Completeness: one gap, fixed in the tsv.** `sweep_main_tutorial.py` gives 91 sites. One, `31fcea1c`, had no row.
+- It is the CX2GUUser base of vslot `0x6fc` (`334788f0 - 334781f4`; 12 user vtables, Eve overrides it).
+- In the tutorial it masks the unit's input block `+0x86da` by the June-only guide manager's step (`31d70b00 +0xe4` -> `320708f0`).
+- It is now a JUNEONLY row. Eve's `32978ec2` row stays CHAR, with a note that its tutorial term is the same guide-manager mask.
+- There are no ebp-based `+0x16a/16b` operands, and no wide read of `+0x168` behind a `g_pMain` load. The only out-of-line getter is `31fbde80`.
+
+**PORTED rows, read against June.**
+- **Clamp** `@32049b37-32049b6e`: `state == 0x12` (June's enum, = March `XS_TRAINING_GAME`, funcmap `31d6fd60`) or `+0x16a == 1`, then `HP <= 0` -> vslot `0xf4` `SetNowHp(1.0)`.
+- **RT_FLY:** the break is `IsSuperArmor && !tutorial && !dd+0x3ec` (`@31feb404-31feb42c`). The mirror sits in the `FlyCount <= 2` branch: `+0x304 = +0x3dc * -1.0` (double `33436c90` = -1.0), then y. Nothing in between writes x.
+- **StartEnd** `@3201b480-3201b4a1`: `IsMyUnit && !tutorial && !+0x8b61`. June writes `+0x8b61 = 1` at its tail `@3201b8d3`, which is `m_bStarted` (`X2GUUser.cpp:27259`, after the check, ctor false). So a first start still plays the fanfare.
+- **Quick quest.**
+  - The toggle `323ddfe0` is `!HideDialog && state != 0x12 && !(tutorial && shown)`, as ported.
+  - In `323e1bf0`, `+0x510` is the second dialog handle, the one `DLG_UI_NEW_Quest_Detail` loads (`323d1d32`; `+0x508` is the list's). So the Detail `CheckBox_QuickQuest` is right. The checkbox gets `SetChecked(true, false)` and the case returns true.
+- **First select:** `esp+0x142` = `kEvent+0x12a`. GET `320e9a80` reads it as a bool (`330523e0`, tag `0x0c`) right after the bingo struct (`+0xda`), the same position as March's Get (`CommonPacket.cpp:8260`).
+- **Keys.**
+  - The setter `31d716c0` stores the byte, then needs `g_pMain`, `+0x7ec` and a clear latch.
+  - `31f5e290` and `31f5d4a0` loop over June's actions, skipping `0x33-0x35`.
+  - Apply sends `< 0x50` -> DIK, else 0. Restore skips `< 0` (`-1 < v`).
+  - So `bSkipUnset_` on the restore is June's, not a third deviation.
+- **Register compares:**
+  - `325c6eb1`: `bl` = 1, DIK_ESCAPE/RBUTTON; the branch is `je` to the epilogue `325c7110` = return.
+  - `326cd942`: `bl` = 1 (`@326cd93d`).
+  - `3289cf55`: `al` = 1. It is the switch case for state 11 = DUNGEON_GAME; states 12/13 return false, as March's two RESULT cases do.
+- **Also matched:** loading `@324cffb2` (`-2` or `> -2 && tutorial`), riding `@322f8014`, shortcut `@31f0d9a1-31f0d9c9` (vslot `0x204` behind `!guide && !tutorial`), Go `@3289d096`, game pet `@326cdb5e`, quick slot `@3294c631` (`SetShow(!tutorial)`, then `SetEnable(false)`).
+- **tsv bookkeeping:** `324cff10` has two rows. `324cffc9` is MISSING/ported; `324d0205` is HAS.
+
+**Listed rows.**
+- **QuitGame** sits behind June's `game+0x2ad` (`@324d1642`).
+- **CREATE_UNIT_ACK** sits behind ACK byte `+0x3a9` (`@3255b5b2`), still unnamed.
+- **End delay:** `327ca142` is inside June's clear setter `327ca110` (`+0x748/+0xc48/+0xce8`). All three confirmed.
+- **ClearSubStage `327f0685`:** not porting it stands, but the reason was wrong.
+  - The same 33 scripts call it in June and in March: 8 ElTutorial, 23 Training, 2 Arcade. No ordinary dungeon does.
+  - So the gate would stop **training-school and arcade** clears for an auth-0 save, not dungeon clears in general.
+  - The tsv row has been corrected.
+
+**#else and deviations.**
+- With the flag off: the inline setter is back, there is no latch member or ctor line, the KeyPad members and methods are gone, and the three out-of-line bodies are gone.
+- With `_OFFLINE_FIRST_SELECT` off, `m_bFirstSelect` is false.
+- The two declared deviations are needed:
+  - The restore guard (JUNE_BUGS #89): June's empty-map restore throws in `at()`.
+  - `find()` in the loop: June uses `at()` (`31f61fc0`); March's own sibling loops also give 0 for an out-of-range index.
+- The backup `clear()` after a restore is part of the #89 guard; June leaves the copy. It cannot be seen, because the latch is only set alongside a fresh copy.
+
+**Note for the user:** the two flags go together. With `JUNE_TUTORIAL_MODE` on and `OFFLINE_FIRST_SELECT` off, a new character never auto-enters the tutorial: the client needs `m_bFirstSelect` and the emulator sends false. Neither Always.h block says so. Always.h and MODS.md carry a peer's uncommitted edits, so the line goes there in the next commit that owns them.
+
+**Deploy:** none (no code change). The live exe already holds `6c9b694`; its play-test passed.
+
 ---
 
 ## Phase 15 — Enchant system parity (attribute enchant rework)
