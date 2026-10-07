@@ -2175,7 +2175,7 @@ March's three no-argument hides became inline blocks in June: SetOpen `3223d680`
 
 **User owes:** /cost.
 
-### C9h-2a - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_PET_VIEWER_FX`; inert, regression play-test pending)
+### C9h-2a - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_PET_VIEWER_FX`; inert, regression play-test PASSED 2026-10-08)
 
 **Landed** (MODS.md "June effect completion C9h-2a"). Whole port of the viewer and engine slice; nothing in March data reaches it, so nothing visible changes except the base viewer's player now also running for pet / riding-pet previews.
 - **`CX2NPCUnitViewerUI`**: handle vector (June `+0x2a8`; the typedef is repeated in the header because `X2EffectSet.h` is included after it), dtor frees it without stopping (JUNE_BUGS 105);
@@ -2205,7 +2205,9 @@ March's three no-argument hides became inline blocks in June: SetOpen `3223d680`
 
 **How to see it.** Regression only: open the cash shop, preview one pet and one riding pet; open pet info, view the pet and the riding pet. They look as before; ErrorLog.txt has no `JUNE_FX PET_VIEWER` line (nothing in March plays a viewer list); 0 EXCEPTION.
 
-Review: `kickoffs/june-effect/C9h-2a-review.md`. **User owes:** regression play-test, /cost.
+**Play-test 2026-10-08:** exe `c49f3628`, run 06:15-06:19; 0 EXCEPTION, no `JUNE_FX PET_VIEWER` line, cash shop opened 3 times, pet lists loaded; the user confirmed previews and pet-info looked as before.
+
+Review: `kickoffs/june-effect/C9h-2a-review.md`. **User owes:** /cost.
 
 ---
 
