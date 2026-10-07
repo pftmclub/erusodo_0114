@@ -4449,6 +4449,12 @@ After 14b, the buff port's own scope is complete. What remains is owned elsewher
 
 **How to see it in game:** apply BFI 10066 on yourself; the first monster hit after that kills you outright, and `offline_server.log`/`ErrorLog.txt` gets the `instance kill` line.
 
+**Play-test passed 2026-10-07, logs read** (run 13:57:54, after the deploy, on exe d8917e2f; 0 EXCEPTION):
+- The load line reads `IS_INSTANCE_KILL_DEBUFF on 3 templet(s): ported`, and `_INT` factors loaded 69 + 0 placeholders.
+- Check 1: `instance kill: user UID 19 ... HP 105458 -> 0` at 13:58:25, on Iivue (level 80). It is the only instance-kill line in the run.
+- Check 2 (monsters): user only, so by design it logs nothing. The later hits on monsters log only socket lines, with no extra kill line.
+- 2 `E_DISABLE_HB_CHECK_REQ` UNHANDLED: unrelated to this phase.
+
 **Open question for the user:** June's training clamp also accepts `g_pMain+0x16a == 1` (`@32049b40`). That is a June-only CX2Main flag with dozens of readers across the binary, a separate system. It is not ported. Should it get its own phase?
 
 ---
