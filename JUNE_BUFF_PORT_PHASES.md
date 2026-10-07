@@ -4455,7 +4455,36 @@ After 14b, the buff port's own scope is complete. What remains is owned elsewher
 - Check 2 (monsters): user only, so by design it logs nothing. The later hits on monsters log only socket lines, with no extra kill line.
 - 2 `E_DISABLE_HB_CHECK_REQ` UNHANDLED: unrelated to this phase.
 
-**Open question for the user:** June's training clamp also accepts `g_pMain+0x16a == 1` (`@32049b40`). That is a June-only CX2Main flag with dozens of readers across the binary, a separate system. It is not ported. Should it get its own phase?
+**Open question for the user:** June's training clamp also accepts `g_pMain+0x16a == 1` (`@32049b40`). That is a June-only CX2Main flag with dozens of readers across the binary, a separate system. It is not ported. **Answered 2026-10-07: it gets its own phase, 14c.**
+
+
+## Phase 14c — CX2Main +0x16a mode flag (June-only)
+
+Added 2026-10-07 (user: "get its own phase"). This came out of 14b: June's user DamageReact training clamp (`@32049b37-32049b6e`) runs when `g_pMain+0x8c == XS_TRAINING_GAME` (March's test) **or** when `g_pMain+0x16a == 1`. It then raises a 0 HP to 1, so the player cannot die.
+
+**What is known:**
+- The byte is a June-only CX2Main member.  It is written by setter `31d716c0`, which has about 19 call sites, most in `324c..3251`. That setter also latches `+0x16b` once and touches the key-config manager at `g_pMain+0x7ec` (`31f5e290`). See funcmap row `31d716c0` (Phase 7e: the riding key in KeyProcess `@322f8014` is skipped while it is set).
+- The ctor `31e46300` zeroes it (`@31e4967f`).
+- A byte-compare sweep that requires a nearby `g_pMain` load finds 68 reads. The sweep is in the 14b session's scratch; re-run it as the scope says.
+
+**Scope:**
+- RE: name the flag from its setter's callers and any Lua binding or `xorstrings.tsv` key. Then classify every reader as engine or character code, and every caller as reachable in March or not.  For example, if the flag is set only by a June-only UI or game mode, the whole system has no reach in March.
+- Port under a new `SERV_IRUHADEV_JUNE_MAIN_MODE_FLAG` (rename it once the flag is identified):
+  - the member and its setter;
+  - every engine reader whose function March has, including the 14b training clamp;
+  - the setter's callers where March has the caller.
+- Character-code readers go to `JUNE2017_CHARACTER_PORT_CHECKLIST.md` §7 (standing rule D8). Readers in June-only systems are listed, not ported.
+- If nothing in March can set the flag, say so with the evidence. Still port the member, the setter and the readers that March has, so the clamp matches June; the flag then stays false, which is June's behaviour without that mode.
+
+**Run with:** Opus 5.5, high effort.
+
+**Done gate:**
+- Every reader and caller is classified, with a `funcmap.tsv` row each (or one `.tsv` if there are many).
+- The port is flag-clean (range flagcheck PASS).
+- The play-test, or a proven absence, follows from what the flag turns out to be.
+- A Done note under this section, and the STATUS row is updated.
+
+**Kickoff:** `kickoffs/june-buff/14c.md`.
 
 ---
 
