@@ -253,9 +253,9 @@ fix.
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | X0 | **done 2026-10-08** (read-only RE, no code): manifest key table proved on all 77 V.0.4 manifests; MappedID rotated right by Size&7 -> static 300-entry map -> seed (5-dword sum, `%u`, SHA-1); standard Blowfish ECB over `len&~7` only, tail plaintext (the elstools truncation); per-entry Checksum never read; algo 2 vs algo 3 key-C seed loops differ; CHUNG test entry -> 22000 B; sample 1,504 entries 0 failures; 18 funcmap rows `XKOM X0`, Ghidra renamed; **user owes:** /cost | Opus 5.5 / high | - | Ghidra (read-only), `june2017_re/funcmap.tsv`, `june2017_re/v04_*.tsv`, plan doc | `X0.md` |
-| X1 | **ready** | Opus 5.5 / high | X0 | new `tools/junekom.py`, `tools/README.md` | `X1.md` |
-| X2 | blocked | Sonnet 5.5 / high | X1 | `14JUN17\data\*_kom\` (backup first), `JUNE2017_ASSET_CLOSURE.md` | written by X1 |
-| X3 | blocked | Sonnet 5.5 / high | X1 | `tools/kom.py` | written by X1 |
+| X1 | **done 2026-10-08** (tooling, no build): `tools/junekom.py` list/extract/verify/selftest; full `verify` 258 koms, 222,811 entries, 0 failed, 0 header problems; vs elstools extracts 18,571 short-prefix (all Blowfish), 117 `data101` different (all valid `xof`), 1,143 missing; all 51 short `update/` files at June size (2 Ranox KSMs hand-patched `Wait01`->`Wait`, 1 TET a different version); user rule: June files byte-exact, unsupported -> Ghidra engine phase; **user owes:** /cost | Opus 5.5 / high | X0 | new `tools/junekom.py`, `tools/README.md` | `X1.md` |
+| X2 | **ready** | Sonnet 5.5 / high | X1 | `14JUN17\data\*_kom\` (backup first), `JUNE2017_ASSET_CLOSURE.md`, `june2017_re/x2_repack_list.tsv` | `X2.md` |
+| X3 | **ready** (dry-run gate wants X2's list) | Sonnet 5.5 / high | X1 | `tools/kom.py` | `X3.md` |
 | X4 | ready | Opus 5.5 / high | - | `KTDXLIB/KGCMassFileManager.cpp`, `KTDXLIB/Always.h` | `X4.md` |
 | X4 review | blocked | Sonnet 5.5 / high | X4 | review | written by X4 |
 | X5 | blocked | Sonnet 5.5 / high, then user play-test | X2, X3, X4 | `kom_contents/dataNNN_kom/` (the koms X2 lists) | written by X3 |

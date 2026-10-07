@@ -25,6 +25,10 @@ June koms natively, **stays deferred**. This plan only extracts files and repack
 
 ## Rules
 
+- **June files are byte-exact, inside data included (user, 2026-10-08).** No hand edits to a June asset, not even a one-byte
+  repair such as the `Wait01` -> `Wait` length patch found in X1. If March cannot load or use June's exact file, do not touch the
+  file. Plan a phase that traces June's loader for that format in Ghidra (`ghidra` skill, `unpacked_x2.exe`) and ports the support
+  into March behind a `SERV_IRUHADEV_` flag.
 - **Never overwrite June's extracted tree in place without a backup.** X2 writes exact copies only where they differ, and backs up
   the file it replaces first.
 - **The packing rules are enforced by the tool, not by memory:**
@@ -231,6 +235,55 @@ from data we do not have.
    - `verify` over all 258 June koms reports 0 failures;
    - the 51 known-short `march2014/update/` files come out at June's manifest size;
    - `data101.kom`'s 117 files come out valid.
+
+### Phase X1 - Done
+
+2026-10-08, Opus 5.5. This phase is tooling only: no flag, no build, no deploy.
+
+`tools/junekom.py` provides `list`, `extract`, `verify` and `selftest`, plus a line in `tools/README.md`. It ports X0's oracle step for
+step and dispatches by algorithm, as X0's Done note item 4 describes.
+- **Blowfish.** P/S are regenerated from pi, not read from the exe. It decrypts ECB over `len & ~7` and leaves the tail as stored.
+  Each process caches one unrolled decryptor per seed index, at about 1 MB/s.
+- **Strict decode.** Inflate must reach the end of the stream with no trailing bytes, zlib's own adler32 must pass, and the size must
+  equal the manifest.
+- **Extract layout** is `<out>/<stem>_kom/<Name>`, with `\\?\` long paths.
+- **Writing June's tree.** It refuses to write anywhere under `14JUN17\` without `--overwrite --backup <dir>`. Identical files are
+  skipped, and each replaced file is backed up first.
+
+**Gates, all met:**
+1. **Selftest.**
+   - Two standard Blowfish vectors pass.
+   - CHUNG (`data002`, csize 12735, %8 = 7) decodes to 22000 B, adler32 `8e4a4e09`.
+2. **`verify --compare <June data>`:** 258 koms, **222,811 entries ok, 0 failed, 0 header problems** (V.0.3 too), 7.3 GB, 921 s on 15
+   jobs. The two `*_packed.kom` files in June's dir are not June archives and are skipped by name.
+
+   | version | algo 0 | algo 2 | algo 3 |
+   |---|---|---|---|
+   | V.0.3 | 44,252 | 72,973 key C | 232 |
+   | V.0.4 | 16,262 | 81,901 Blowfish | 7,191 |
+
+   - **Per-entry Checksum** equals the adler32 of the stored payload on **all 222,811** entries. June never reads it.
+   - **Compare against the elstools extracts:**
+     - 202,980 same;
+     - **18,571 short-prefix**, every one a Blowfish entry (the Established-facts count, exactly);
+     - **117 different**, all in `data101`;
+     - 1,143 missing: 1,087 in `data101_kom` and 56 in `datai026_kom` / `datai027_kom`.
+   - Per kom: `june2017_re/x1_verify_per_kom.tsv`. Per-entry compare rows (X2's work list, about 20k rows, not committed):
+     `python tools/junekom.py verify --compare "<June data>" --report <file>`, which writes `<file>_compare.tsv`.
+3. **`data101`.**
+   - All 2,183 entries decode.
+   - The 117 that differ from the corrupt extract all start `xof 0303bzip`.
+   - `velder_bridge_burning_Stage1_bridge_stain01_ap.Y` = 1,465 B.
+4. **The 51 `march2014/update/` files:** all 51 come out at June's manifest size, each from exactly one June kom
+   (`june2017_re/x1_short51.tsv`). 48 update copies are strict byte prefixes of June's file. Three are not:
+   - **`Motion_NPC_Ranox_FACEOFF.x`, `Motion_NPC_Ranox_SYOTA.x` (data013):** the cut copy was **hand-patched**. The final string length
+     was changed 6 -> 4, so `Wait01` reads as `Wait`. June's file has `Wait01` intact.
+   - **`DLG_Common_Button03_NEW.TET` (data063):** not a short copy. June's entry is algo 0 (never truncated), and June's own extract
+     equals `junekom`'s output. The 2,464 B update file is a different version (0x1a entries vs June's 0x1c). The closure table filed
+     it as truncated by mistake. X2 corrects that row.
+
+**User rule (2026-10-08):** June files go in byte-exact, including their inside data (see Rules). The two patched KSMs are restaged
+from June in X5. If March then fails to use one, that is an engine phase, not an asset edit.
 
 ## Phase X2 - Re-extract and re-baseline
 

@@ -13,6 +13,7 @@ has `--help`. Run from the Trunk root. Python 3, standard library only.
 | `createchar.py` | hand-written INSERTs adding a test character to els_db.sql (backup, March exp, slot/name guards) | x2-create-char |
 | `kom.py` | hand-run `elstools pack` / `compile-dir` and copying `dataNNN_packed.kom` to the game dir (manifest/algo checks, entry diff vs live, backup, md5 verify) | elstools, x2-kom-packed |
 | `kim.py` | hand-written byte probes of `item.kim`: `info` / `dump` / `diff` / `census` / `assets`, March (188 B) and June (228 B) records told apart by stride (map: `june_item_kim/k0_record_map.tsv`) | - |
+| `junekom.py` | elstools on June 2017 koms, which cuts 1-7 bytes off V.0.4 Blowfish entries: `list` / `extract` / `verify` / `selftest`, June's own decode for V.0.3 + V.0.4 algo 0/2/3 (strict inflate, size == manifest), header checks, `verify --compare` against an extract tree (read-only on the `.kom`s; June's `*_kom` tree only with `--overwrite --backup`) | - |
 | `mdscan.py` | (older) reading a CrashRpt minidump against X2.map | - |
 
 Shared state (every worktree deploys into the same game directory):
