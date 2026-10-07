@@ -3111,6 +3111,9 @@ class CX2GUNPC : public CX2GameUnit
 		bool GetFuryMode() const { return m_bFuryMode; }	/// June 31e4d7d0 (Lua: GetFuryMode)
 		bool JuneGetFuryAttackPowerRate( float& fRate_ ) const;	/// June GetFinalDamage @32285781-322857a6 gate: Fury byte && FURY_MODE on the current state
 #endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+#if defined( SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED ) && defined( SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED )
+		void SetMultiplicationAnimSpeed( float fRate_ ) { m_fMultiplicationAnimSpeed = fRate_; }	/// June stores +0x8fdc directly (327ef570 @327ef8a4, phase C4d); the speed follows at the next ResetAnimSpeed
+#endif defined( SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED ) && defined( SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED )
 //}}
 
 #ifdef USE_UNIT_FOG_RENDER_PARAM //JHKang

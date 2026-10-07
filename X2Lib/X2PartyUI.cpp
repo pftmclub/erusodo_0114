@@ -22,12 +22,20 @@ static void JunePartyUILog( const WCHAR* wszMsg )
 // June FUN_32931be0: Hero dungeon IDs (100000..100532, 110001..110310, 120000, 120010).
 // March has none of them, so this is always false here; kept so the June
 // branches read as June wrote them.
+#ifdef SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
+// Shared since effect completion C4d: one copy, in CX2DungeonManager.
+static bool JuneIsHeroDungeon( int iDungeonID )
+{
+	return CX2DungeonManager::JuneIsHeroDungeon( iDungeonID );
+}
+#else SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
 static bool JuneIsHeroDungeon( int iDungeonID )
 {
 	return ( 100000 <= iDungeonID && iDungeonID < 100533 ) ||
 		( 110001 <= iDungeonID && iDungeonID < 110311 ) ||
 		120000 == iDungeonID || 120010 == iDungeonID;
 }
+#endif SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
 
 // June FUN_32863880: event dungeons that show no difficulty boxes at all
 // (41480, 41490, 41500, 41510; June-only content, never present in March).

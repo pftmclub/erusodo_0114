@@ -70,6 +70,41 @@ bool CX2DungeonManager::AddDefaultRoomTitle_LUA( int iStringIndex )
 	return true;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
+//{{ Iruha : 2026-10-07 // June effect completion C4d (JUNE2017_EFFECT_COMPLETION_PHASES.md)
+/// June 327db2c0 (bound in 31d95080 @31dc3faa/@31dc41db): walks the argument table's rows from index 1. Each row is
+/// appended first (327e7dd0 = resize( size + 1 )) and then filled, so there is no dedupe, and nothing clears the list:
+/// June's HeroDungeonData_Client.lua calls it twice (6 + 6 rows). March loads no such file (C4d Done note).
+void CX2DungeonManager::Add_HeroDungeon_ExtraStatForException_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+
+	for( int iRow = 1; true == luaManager.BeginTable( iRow ); ++iRow )
+	{
+		m_vecHeroDungeonExtraStatForException.resize( m_vecHeroDungeonExtraStatForException.size() + 1 );
+		HeroDungeonExtraStatForException& kRow = m_vecHeroDungeonExtraStatForException.back();
+
+		int iValue = 0;		// June: local reset to 0 before each int key, stored only on a hit, else 0
+		kRow.m_iDungeonID = ( true == luaManager.GetValue( "DUNGEON_ID", iValue ) ) ? iValue : 0;
+		iValue = 0;
+		kRow.m_iNPCID = ( true == luaManager.GetValue( "NPC_ID", iValue ) ) ? iValue : 0;
+		if( false == luaManager.GetValue( "MULTIPLICATION_ANIM_SPEED", kRow.m_fMultiplicationAnimSpeed ) )
+			kRow.m_fMultiplicationAnimSpeed = 1.f;
+
+		luaManager.EndTable();
+	}
+}
+
+/// June 32931be0: Hero dungeon IDs 100000..100532, 110001..110310, 120000 and 120010. None exists in March.
+/*static*/ bool CX2DungeonManager::JuneIsHeroDungeon( int iDungeonID )
+{
+	return ( 100000 <= iDungeonID && iDungeonID < 100533 ) ||
+		( 110001 <= iDungeonID && iDungeonID < 110311 ) ||
+		120000 == iDungeonID || 120010 == iDungeonID;
+}
+//}}
+#endif SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
+
 /** @function : AddDungeonData_LUA
 	@brief : DungeonData.lua에 던전추가시 사용
 	@return : bool

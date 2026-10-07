@@ -13,6 +13,21 @@ class CX2DungeonManager
 		bool OpenScriptFile( const WCHAR* pFileName );
 		bool AddDungeonData_LUA();
 		bool AddDefaultRoomTitle_LUA( int iStringIndex );
+#ifdef SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
+		//{{ Iruha : 2026-10-07 // June effect completion C4d (JUNE2017_EFFECT_COMPLETION_PHASES.md)
+		/// June DungeonManager (g_pData +0x44) vector +0x5c/+0x60: 12-byte rows (resize 327e7dd0, /0xc),
+		/// key lengths 25/10/6 in 327db2c0 and the CreateGUNPC tail's +0/+4/+8 reads agree on the layout
+		struct HeroDungeonExtraStatForException
+		{
+			float	m_fMultiplicationAnimSpeed;		/// +0: MULTIPLICATION_ANIM_SPEED (1.0 on a miss)
+			int		m_iDungeonID;					/// +4: DUNGEON_ID (0 on a miss)
+			int		m_iNPCID;						/// +8: NPC_ID (0 on a miss)
+		};
+		void Add_HeroDungeon_ExtraStatForException_LUA();	/// June 327db2c0 (Lua: Add_HeroDungeon_ExtraStatForException)
+		const std::vector<HeroDungeonExtraStatForException>& GetHeroDungeonExtraStatForException() const { return m_vecHeroDungeonExtraStatForException; }
+		static bool JuneIsHeroDungeon( int iDungeonID );	/// June 32931be0 (also X2PartyUI.cpp's)
+		//}}
+#endif SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
 
 		int GetDungeonCount();
 		CX2Dungeon::DungeonData* GetDungeonDataAt( int iIdx );
@@ -102,6 +117,9 @@ private:
 #endif	SERV_SECRET_HELL
 		//}} kimhc // 2010.708 //	비밀던전 개편 작업
 
+#ifdef SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
+		std::vector<HeroDungeonExtraStatForException>	m_vecHeroDungeonExtraStatForException;	/// June +0x5c/+0x60: appended per row, never deduped or cleared
+#endif SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
 #ifdef SERV_NEW_EVENT_TYPES
 		std::map< int, bool >	m_mapDungeonStatus;
 #endif SERV_NEW_EVENT_TYPES

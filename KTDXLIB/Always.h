@@ -5573,3 +5573,19 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              change (June 32290920 @322909a2).
 #define SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June 2017 effect completion C4d: Hero-dungeon NPC anim speed.
+//              CX2DungeonManager gets June's row list (g_pData +0x44 vector
+//              +0x5c, 12-byte { rate, dungeon ID, NPC ID }) and its Lua bind
+//              Add_HeroDungeon_ExtraStatForException (327db2c0); the
+//              CreateGUNPC tail (327ef570 @327ef852) sets the NPC's
+//              m_fMultiplicationAnimSpeed from it in a Hero dungeon (June
+//              32931be0, shared with X2PartyUI.cpp). Dormant: March loads no
+//              HeroDungeonData_Client.lua and has no hero dungeons. The tail
+//              also needs SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED. Log, once per
+//              run: "JUNE_FX HERO_ANIM" in ErrorLog.txt.
+#define SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
+//////////////////////////////////////////////////////////////////////////

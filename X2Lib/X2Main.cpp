@@ -3841,6 +3841,9 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_add<CX2DungeonManager>( L, "CX2DungeonManager" );
 	lua_tinker::class_def<CX2DungeonManager>( L, "AddDungeonData",				&CX2DungeonManager::AddDungeonData_LUA );
 	lua_tinker::class_def<CX2DungeonManager>( L, "AddDefaultRoomTitle_LUA",		&CX2DungeonManager::AddDefaultRoomTitle_LUA );
+#ifdef SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
+	lua_tinker::class_def<CX2DungeonManager>( L, "Add_HeroDungeon_ExtraStatForException",	&CX2DungeonManager::Add_HeroDungeon_ExtraStatForException_LUA );	/// June 31d95080 @31dc3faa (name), @31dc41db (push 327db2c0)
+#endif SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
 
 
 

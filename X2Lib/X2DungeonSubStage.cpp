@@ -2477,6 +2477,37 @@ CX2GUNPC*    CX2DungeonSubStage::CreateGUNPC( const NPCData* pNpcData_ )
 	pCX2GUNPC->SetShowBossName( pNpcData_->m_bShowBossName );
 #endif //MODIFY_DUNGEON_STAGING
 
+#if defined( SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED ) && defined( SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED )
+	//{{ Iruha : 2026-10-07 // June effect completion C4d: June 327ef570 @327ef852-327ef8af, after the last setter
+	{
+		// June @327ef852: g_pData +0x70 (= March m_pDungeonRoom, +0x8c here; both 0x2c after the dungeon manager) +0xdc (m_DungeonID), no NULL test.
+		// Both callers run only in a dungeon game (SwapToGameNPCUnit: GT_DUNGEON; CX2DungeonStage::CreateStageNPCs), as :64 does.
+		const int iDungeonID = (int)g_pData->GetDungeonRoom()->GetDungeonID();
+		const std::vector<CX2DungeonManager::HeroDungeonExtraStatForException>& vecHeroStat = g_pData->GetDungeonManager()->GetHeroDungeonExtraStatForException();
+
+		// Not June (June logs nothing): say once per run what the table holds, so a regression run shows the dormant path ran
+		static bool s_bJuneHeroAnimLogged = false;
+		if( false == s_bJuneHeroAnimLogged )
+		{
+			s_bJuneHeroAnimLogged = true;
+			WCHAR wszLog[512] = {0};
+			StringCchPrintfW( wszLog, ARRAY_SIZE(wszLog), L"JUNE_FX HERO_ANIM Add_HeroDungeon_ExtraStatForException rows=%d (0 = HeroDungeonData_Client.lua not loaded; March has no hero dungeons), dungeon=%d hero=%d",
+				(int)vecHeroStat.size(), iDungeonID, ( true == CX2DungeonManager::JuneIsHeroDungeon( iDungeonID ) ? 1 : 0 ) );
+			ErrorLogMsg( XEM_ERROR142, wszLog );
+		}
+
+		if( true == CX2DungeonManager::JuneIsHeroDungeon( iDungeonID ) )
+		{
+			// June compares the dungeon ID, then the NPC templet's ID ([+0x85f8]); the walk never breaks, so the last match wins (JUNE_BUGS #99)
+			for( UINT i = 0; i < vecHeroStat.size(); ++i )
+			{
+				if( vecHeroStat[i].m_iDungeonID == iDungeonID && vecHeroStat[i].m_iNPCID == (int)pCX2GUNPC->GetNPCTemplet().m_nNPCUnitID )
+					pCX2GUNPC->SetMultiplicationAnimSpeed( vecHeroStat[i].m_fMultiplicationAnimSpeed );
+			}
+		}
+	}
+	//}}
+#endif defined( SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED ) && defined( SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED )
 	return pCX2GUNPC;
 
 }// CX2DungeonSubStage::CreateGUNPC()

@@ -572,6 +572,31 @@ Checked in Ghidra (read-only) and in the exe bytes:
 - `PACK OK data037` (`~1 changed: Thief_Thin_Zero.lua`), 9,613,442 B, md5 `c7c0c3b01eb2efb631a8b664aba8c9e1`. That is **byte-identical** to the pre-staging live kom (`kom_backup_tools/data037.kom.20261007_192829`), so no new play-test is needed.
 - `COPY OK data037: ...\data\data037.kom  9613442 bytes, 1915 entries, md5 c7c0c3b01eb2efb631a8b664aba8c9e1` (user yes; backup of the staged kom `kom_backup_tools/data037.kom.20261007_194417`). El Tree's Mars is back to March; any exe pairs with it.
 
+
+### C4d - Done (2026-10-07, Opus 5.5 high, user OK; flag `SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED`)
+
+**June's Hero-dungeon NPC anim speed, all three pieces, dormant.** Funcmap rows tagged `Effect C4d` (4 new; row `327ef570 @327ef852` updated to "ported").
+- **Bind body found: `327db2c0`** (pushed @31dc41db, name use @31dc3faa). It walks the argument table's rows from index 1. Each row is **appended first** (`327e7dd0` = `resize( size + 1 )`) and then filled, so there is no dedupe and nothing clears the list. Keys: `DUNGEON_ID` -> `+4` (int, 0 on a miss), `NPC_ID` -> `+8` (int, 0), `MULTIPLICATION_ANIM_SPEED` -> `+0` (float, 1.0). The layout is confirmed twice: key lengths 10/6/25 in the bind, and the tail's `+4`/`+8`/`+0` reads.
+- **Storage:** `CX2DungeonManager::HeroDungeonExtraStatForException` and `m_vecHeroDungeonExtraStatForException` (June `g_pData +0x44`, vector `+0x5c`).
+- **Bind:** `Add_HeroDungeon_ExtraStatForException_LUA` (void, as June). It is bound in `X2Main.cpp` next to `AddDefaultRoomTitle_LUA`.
+- **`CreateGUNPC` tail:** at the end of `CX2DungeonSubStage::CreateGUNPC`, after the last setter, as June. It needs `_JUNE_NPC_ANIM_SPEED` too.
+  - The gate is `JuneIsHeroDungeon( room dungeon ID )`. June's `g_pData +0x70` is March's `m_pDungeonRoom`. The offsetprobe puts March's room at +0x8c and its DungeonManager at +0x60; June has them at +0x70/+0x44, the same 0x2c apart. `m_DungeonID` sits at +0xdc in both.
+  - The walk compares the dungeon ID first, then `GetNPCTemplet().m_nNPCUnitID` (June `[+0x85f8]`), and sets the NPC's factor through the new `CX2GUNPC::SetMultiplicationAnimSpeed`.
+  - It never breaks, so the last match wins (JUNE_BUGS **99**, latent).
+  - June has no NULL test on the room, and the port has none either. Both callers run only inside a dungeon game, where `:64` already reads the room unguarded.
+- **`JuneIsHeroDungeon` is shared:** it is now `CX2DungeonManager::JuneIsHeroDungeon` (June `32931be0`). `X2PartyUI.cpp`'s static calls it under the new flag, and its own copy is kept in `#else`.
+- **Not staged, and the file would not load in March:**
+  - `HeroDungeonData_Client.lua` is not in March's data.
+  - Its line 1 calls `Add_HeroDungeon_AbsoluteMonsterTeleport`, and none of the four sibling `Add_HeroDungeon_*` binds exists in March, so the script would stop there.
+  - March's `DungeonEnum` has no `DI_*_HERO_*` and `Enum.lua` no `NUI_ELSION_*` / `NUI_ELYSION_BOSS_*`.
+  - June's loader (`3258c470 @3258e244`) is not ported. No STATUS row owns Hero-dungeon mode; buff 16-step3b decision 1 left it dormant.
+- **Log (not June):** once per run, at the first dungeon NPC: `JUNE_FX HERO_ANIM ... rows=0 ... dungeon=<id> hero=0` in ErrorLog.txt.
+
+**Hygiene:** worktree flagcheck PASS (`_HERO_NPC_ANIM_SPEED`: 5 PASS, 1 PASS~ blank line, 1 DEFINE, 0 deleted; `_JUNE_NPC_ANIM_SPEED` on the two compound-guarded files: 2 PASS). RANGE_PLACEHOLDER
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,316,736 B, dated 2026-10-07 20:06:05, md5 aa9143e1f31906afc9b30beae800065c` (built at `23106ff` + this phase's 7 files). The exe holds the wide `JUNE_FX HERO_ANIM` string and the bind name.
+**In game:** nothing changes. Run any dungeon; ErrorLog.txt gets one `JUNE_FX HERO_ANIM` line with `rows=0` and `hero=0`.
+**Also:** MODS.md (row + section), JUNE_BUGS 99. **User owes:** the regression play-test, /cost.
+
 ---
 
 ## C5 - 8b, buff-factor selection, damage triggers, nearest bone

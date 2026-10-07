@@ -57,6 +57,7 @@ column.
 | `SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE` | 2026-10-07 (June effect completion C10b-1) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_DAMAGEDATA`) | `X2Lib/X2GameUnit.h`/`.cpp` (`GetHpRateDamage`, the `GetFinalDamage` call before the `<= 0` clamp), `X2Lib/X2GUUser.cpp` (`DamageReact`, before the shown-damage copy) | -- |
 | `SERV_IRUHADEV_JUNE_NPC_FURY_MODE` | 2026-10-07 (June effect completion C4c) | `KTDXLIB/Always.h` (end; the anim half also needs `SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED`) | `X2Lib/X2GUNPC.h`/`.cpp` (`FLAG_FURY_MODE`, StateData rates, `LoadStateData` `FURY_MODE` + `FURY_DATA`, `m_bFuryMode`, `SetFuryMode`/`GetFuryMode`/`JuneGetFuryAttackPowerRate`, the `ResetAnimSpeed` replace), `X2Lib/X2GameUnit.cpp` (`GetFinalDamage`, before the range rate), `X2Lib/X2Main.cpp` (2 binds) | -- |
 | `SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED` | 2026-10-07 (June effect completion C4c) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUNPC.h`/`.cpp` (two 1.0 factors, June's `ResetAnimSpeed` body), `X2Lib/X2GameUnit.h` (virtual `ResetAnimSpeed`), `X2Lib/X2GameUnit.cpp` (`CheckAndUpdateAdditionalStat` anim block) | -- |
+| `SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED` | 2026-10-07 (June effect completion C4d) | `KTDXLIB/Always.h` (end; the `CreateGUNPC` tail and the setter also need `SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED`) | `X2Lib/X2DungeonManager.h`/`.cpp` (row list, `Add_HeroDungeon_ExtraStatForException_LUA`, shared `JuneIsHeroDungeon`), `X2Lib/X2Main.cpp` (bind), `X2Lib/X2DungeonSubStage.cpp` (`CreateGUNPC` tail + one log line), `X2Lib/X2GUNPC.h` (`SetMultiplicationAnimSpeed`), `X2Lib/X2PartyUI.cpp` (its `JuneIsHeroDungeon` calls the shared one) |
 | `SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL` | 2026-10-07 (june-buff Phase 14b) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUUser.h`/`.cpp` (`m_bJuneInstanceKill`, `HaveInstanceKillDebuff`, set and kill in `DamageReact`), `X2Lib/X2BuffTempletManager.cpp` (load line) | -- |
 | `SERV_IRUHADEV_JUNE_TUTORIAL_MODE` | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (before the 14b block) | `X2Lib/X2Main.h`/`.cpp` (out-of-line `SetIsPlayingTutorial`, `JuneOnExitTutorialRestoreKeys`, `m_bJuneTutorialKeyLatch`), `X2KeyPad.h`/`.cpp`, `X2DungeonGame.cpp` (Release), `X2GUUser.cpp` (clamp, RT_FLY, StartEnd), `X2Game.cpp`, `X2State.cpp`, `X2UIManager.cpp`, `X2UIQuestNew.h`/`.cpp`, `X2StateDungeonGame.cpp`, `X2SlideShot.cpp`, `X2PetManager.cpp`, `X2PlayGuide.cpp`, `X2UIQuickSlot.cpp`, `X2StateServerSelect.cpp` | -- |
 | `SERV_IRUHADEV_OFFLINE_FIRST_SELECT` (offline emulator) | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (next to the above) | `X2Lib/Offline/Handlers_Unit.cpp` (`PushSelectUnitNotifications`, 5_NOT) | `SERV_IRUHADEV_OFFLINE` |
@@ -3147,6 +3148,14 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
   June factors that stay 1.0 here (Rose summons, checklist 7f; Hero dungeons, phase C4d), and it is now a `CX2GameUnit` virtual
   that `CheckAndUpdateAdditionalStat` calls whenever a buff changes the anim stat (empty for users), so NPC slows and hastes apply
   at once instead of at the next state change. **Revert:** undefine it and rebuild all projects.
+
+### June effect completion C4d: Hero-dungeon NPC anim speed
+
+- **`SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED`.** June's Hero-dungeon row list (`Add_HeroDungeon_ExtraStatForException`: dungeon ID,
+  NPC ID, anim-speed rate) on `g_pDungeonManager`, and June's `CreateGUNPC` tail that gives a matching NPC that rate in a Hero
+  dungeon (last match wins, JUNE_BUGS 99). Dormant: March loads no `HeroDungeonData_Client.lua` and has no Hero dungeon, so the
+  list stays empty and nothing changes in play. One `JUNE_FX HERO_ANIM` line per run in ErrorLog.txt says so.
+  **Revert:** undefine it and rebuild all projects.
 
 ## Reverting to stock
 
