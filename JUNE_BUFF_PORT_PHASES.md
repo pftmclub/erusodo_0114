@@ -5986,6 +5986,36 @@ Offsets, heights, random terms, the elapsed-time reset and the EVE tail match Ma
 
 **Open for the user.** /cost. Next june-buff phase: 16-step3c (`kickoffs/june-buff/16-step3c.md` exists), still blocked on june-effect C5.
 
+### Phase 16-step3c — Step 1, read-only (2026-10-07, Opus 5.5 high)
+
+**Located** (11 rows in `june2017_re/funcmap.tsv`, "Buff Phase 16-step3c step 1"). No code changed.
+- **Loader** `32726850 @3272926f`: 16 of the 18 go to `m_MultipleSocketExtraDamage` (`+0x374`), as March's smash types do. 150 and 159 go to the second list (`+0x384`). The `EXTRA_DAMAGE` keys are March's.
+- **Handlers** are in both `Process_ExtraDamage` functions: user `32034e50` and NPC `327995c0`.
+  - **68-72** (both sides), **149** (both sides), **152-155** (NPC only): `PlayEffectSet` on the attacker. The 68-72 position is the attacker's own; 149's is the hit point; 152-155's is the NPC's. Self-contained C++.
+  - **145** (both sides), **146/147** (user only): gated on `g_pInstanceData->IsEnableCode( 2119 / 2154 )` (`31e5a860`). That is a server code event, so June's own gate answers false offline.
+  - **150** (BFI 787) / **159** (BFI 1118): the defender takes the factor via `...AndCreatorID`, at the socket's level. Carried by June's second list in five places (C8a row 1346 + the kickoff), rolled at the tail of both `DamageReact_ExtraDamage` functions.
+  - **151**: needs 10 stacks of BTI 762, then the hit's physic/magic `*=` `m_DamagePerSec` (live: June calls `GetFinalDamage` after the extra-damage pass, `@3204843b`, as March does at `:9245`). Below 10 stacks it adds BFI 788. Only the user side has the attacker `vslot 0x198` gate.
+  - **156**: `AT_COMMAND` hits only, with a 1.0 s minimum gap and a count of 10. At 10 it calls `32893e00` (left cool times `*= 1 - rate` over the equipped slots, using the ignore/force lists ported in buff 4b-i) and erases BTI 778; below 10 it adds BFI 804. New user members `+0x9474/+0x9478`.
+  - **157** = `322a0180`, Lanox Secret Ammo, already on checklist §7 (16-step3b4 review).
+- **HMET_FEVER** `@3206d6ab` needs a party manager with `DoIHaveParty()`, a game, and game `+0xbd4` clear. Then it calls `322d4f80` = June's `PartyFeverAllUser( 30.0, true )`: March's function plus a title bool, the `+0xbd4` re-entry flag and a `Fever_Mode_Title` particle. Only then does it set the socket cool time.
+- **NPC preamble** (per-socket cool time on EDD `+0x114/+0x118`) is inert for sockets. The loader never sets the descriptor's `+0x48/+0x4c` that `3208c4ce` copies into it.
+
+**Data each needs** (March's live data has none of it):
+- the 16 effect sets: June `EffectSet.src.lua` / `EffectSet_INT.src.lua` -> june-effect re-adoption;
+- BFI 787/788/804/1118 and BTI 762/778: the Enum names exist, but only June's `BattleFieldBuff*` define them -> Phase 13;
+- `AT_COMMAND` hits: March's scripts never set it (56 June script files do) -> character ports;
+- code events 2119/2154: no server.
+
+March's `PlayEffectSet` returns silently on an unknown name (`X2EffectSet.cpp:3148`).
+
+**Reach (step 4).** 160 EDT entries + 1 Fever:
+- 0 in the emulator's roll pools (`SocketItemTable.lua`), `ItemRandomSocket.lua` or the save (`sockets`/`random_sockets`).
+- 0 in March's live `TitleTable.lua` / `SocketGroupDataForCashAvatar.lua` (decompiled for this). June's TitleTable names 7 (32109, 32133, 32134, 32154-32156, 74042), but the save's 26 titles are March titles.
+- `Item.kim`, scanned as int32: only 74042, 6 hits, not checked as socket fields.
+- **Every handler is dormant on today's data.** A save edit can put an ID on an item. Even then, the effect-set types draw nothing until june-effect re-adoption, and the buff types do nothing until Phase 13.
+
+**Split proposal: waiting on the user** (below, and in the hand-off).
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
