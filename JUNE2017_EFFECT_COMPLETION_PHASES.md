@@ -1512,7 +1512,13 @@ Checked against June in Ghidra (read-only) and the exe bytes (`disasm_range.py`,
 
 **Hygiene of the fixes** (`--worktree --files X2Lib/X2GUUser.cpp X2Lib/X2SquareUnit.cpp`): RESULT PASS. `X2SquareUnit.cpp` PASS (+3 -2:
 the 2 deleted lines are this flag's own old comment line and condition). `X2GUUser.cpp` OTHER, because the move spans two flags. Its 49
-deleted lines are the two moved blocks. With both flags stripped, the worktree equals HEAD, minus HEAD's extra blank. Range: see below.
+deleted lines are the two moved blocks. With both flags stripped, the worktree equals HEAD, minus HEAD's extra blank.
+Range (`--range b3ed2a3^..b3ed2a3`):
+- `JUNE_EMOTION_EFFECT_SET`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `2 deleted line(s)` (the square lines above), every
+  other count 0; `RESULT: PASS`.
+- `JUNE_UNIT_VIEWER_EFFECT_TABLE`: `files: 0 PASS, 0 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`; all counts 0; `RESULT: PASS`.
+
+The OTHER rows are this commit's two files, and each holds both flags' changes.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,313,152 B, dated 2026-10-07 17:40:43, md5 30a7d90c9eea6c7b5d5c2b80f463d20b, equal to X2/US_SERVICE/x2.exe (2026-10-07 17:40:38); built at mods/june-buff-port 2751f9c + 5 uncommitted code file(s).`
 The 5 are the 2 files of this review plus a peer's C10b-1 work in progress (`Always.h`, `X2GameUnit.cpp/.h`, and one hunk in `X2GUUser.cpp` at `DamageReact`), so that work is in this exe too.
