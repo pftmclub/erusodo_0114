@@ -51,6 +51,7 @@ column.
 | `SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN` (designed, not server/June) | 2026-10-06 (offline grade Phase 3c) | `KTDXLIB/Always.h:5281` | `X2Lib/Offline/Handlers_Room.cpp` (a paid field kill with share >= 0.5 counts for hunt quests without a field drop row; since the Phase 3c review a row-less field monster also still drops its quest items, while its special, static and eater items stay off as on the server) | -- |
 | `SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE` | 2026-10-07 (June effect completion C9) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_DAMAGEDATA`) | `X2Lib/X2DamageManager.h`/`.cpp` (`JuneDamageDataRecord`, `InsertDamageData_LUA`, `OpenJuneDamageDataScript`, `JuneApplyDamageDataRecord`; ctor load; apply after the `DAMAGE_DATA_KEY_NAME` read), `X2Lib/X2Main.cpp` (`CX2DamageManager` class bind) | -- |
 | `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE` | 2026-10-07 (June effect completion C9c-1) | `KTDXLIB/Always.h` (end; the load line also needs `SERV_IRUHADEV_JUNE_FX_DEBUG`) | `X2Lib/X2UnitManager.h`/`.cpp` (`JuneUnitViewerEffectSet`, `AddUnitViewerEffectSet_LUA`, `GetUnitViewerEffectSet`, `OpenJuneUnitViewerEffectSetTable`), `X2Lib/X2Main.cpp` (`AddUnitViewerEffectSet` bind), `X2Lib/X2Data.cpp` (`ResetUnitManager` load), `X2Lib/X2GUUser.h`/`.cpp` (`m_hJuneEmotionEffectSet`, `PlayEmotion` consumer; C9c-1 review: `m_eJuneEmotionEffectSetEmotion` and the stop sites in `PlayEmotion`, `OnFrameMove` and the dtor) | -- |
+| `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER` | 2026-10-07 (June effect completion C9c-2b) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE`, `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` and `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME`; the play and create lines also need `SERV_IRUHADEV_JUNE_FX_DEBUG`) | `X2Lib/X2BaseUnitViewerUI.h`/`.cpp` (the player: entries, Play, Stop, update, create pass, sound pass, Prepare, Draw, `NotifyShowObjectChanged`, ctor, dtor), `X2Lib/X2UnitViewerUI.h`/`.cpp` (re-parent under `CX2BaseUnitViewerUI`, `PlayAnim` / `OnFrameMove` request queue, the base calls, the dtor stops, the land-dirty byte, nine retired hard-codes), `X2Lib/X2EffectSet.cpp` (`JuneRunViewerMeshTriggers`) |
 | `SERV_IRUHADEV_OFFLINE_NPC_UID_BASE` (offline design, not server/June) | 2026-10-07 (june-buff Phase 14) | `KTDXLIB/Always.h` (end) | `X2Lib/Offline/X2OfflineServer.h` (room `Clear()`: monster UIDs start at 1,000,000) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL` | 2026-10-07 (june-buff Phase 14b) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUUser.h`/`.cpp` (`m_bJuneInstanceKill`, `HaveInstanceKillDebuff`, set and kill in `DamageReact`), `X2Lib/X2BuffTempletManager.cpp` (load line) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_DEBUG` | 2026-10-04, **disabled 2026-10-07** (june-buff Phase 14) | `KTDXLIB/Always.h:4787` (`#define` commented out; re-enable to diagnose) | ~250 `[JUNE_BUFF] first ...` debug sites across `X2Lib` (buff templets, game units, users, NPCs, `X2Main.cpp`'s `JuneBuffTestNewStat_LUA` console hook) | -- |
@@ -2995,6 +2996,33 @@ wrong-typed argument (e.g. an enum name March lacks, which would read as 0 = "an
 Data: staged with `june2017_re/stage_june_fx.py --only UnitViewerEffectSetTable.lua --apply` (`UnitViewerEffectSetTable` added to its `LUA10`),
 packed and copied into `data036.kom`.
 Revert: undefine the flag; remove `UnitViewerEffectSetTable.lua` and its manifest key from `data036_kom` and repack.
+
+### June effect completion C9c-2b: the unit-viewer effect player and the retired class effects
+
+New flag **`SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER`**. June's character-select / lobby viewer does not use `CX2EffectSet::PlayEffectSet`: it
+runs its own effect player on `CX2BaseUnitViewerUI` (vtable `3347113c`), driven by the C9c-1 table. This phase ports that player, the two
+`CX2UnitViewerUI` hooks that feed it, a no-set variant of the mesh trigger runner, and retires the hand-made class effects the table now plays.
+
+| | before | after |
+|---|---|---|
+| `CX2UnitViewerUI` base | `CKTDGObject` (the empty `CX2BaseUnitViewerUI` only under `MONSTER_TROPHY`, off) | `CX2BaseUnitViewerUI`; the base holds the player (June's own layout). `CX2NPCUnitViewerUI` inherits the base `NotifyShowObjectChanged`, a no-op on its empty lists |
+| `PlayAnim` | anim, then hand-made emit-rate switches | anim, clear the request queue, stop group 0, `GetUnitViewerEffectSet( name, class, duo 0 )`, queue the hit |
+| `OnFrameMove` | hand-made handles followed their bones | copy the trigger codes, base update (entry), re-arm and drain the queue after the skin frame move, base update again after the equip loop |
+| class effects | MagicKnight, SPK, SBH, ALP, CDC, ETK/EIS (+crescent cut), RTR, RNW made in `SetUnit` / `PlayAnim` | not made; the table sets play them (the Little Devil orb stays) |
+| `data036.kom` | `UIEffectSet.lua` 52 sets; `UIMajorParticle.txt` March's (593 KB, 858 sequences) | + the 15 June sets; June's whole `UIMajorParticle.txt` (2719 sequences) + 10 March-only sequences re-appended |
+
+Not changed on purpose: the per-frame, draw, prepare, notify and avatar-capture sites of the retired handles. They test the handle first, and the
+handles are never made under the flag, so they do nothing. Not ported: the particle child-sequence draw (`31cf4890`: March chains child sequences
+itself), mesh `+0x15c` and sequence `+0x415` / `+0x45a` (unidentified or write-only), `EffectSet_SpaceMoonRabbit_motionFX` (June-only), the
+`SetHideSelectUnitWeapon` counterpart (its four callers run right after a unit is set, in a wait motion, when June creates nothing).
+Deliberate differences from June: a set missing from the UI effect set is logged and skipped (June dereferences it); the sound pass skips a set
+with no UI-major mesh or particle (June faults); `EFFECT_SET_TOGGLE_VISIBILITY_TIMER` on the viewer trigger path is skipped and logged once (user,
+2026-10-07). June quirks kept: JUNE_BUGS rows 79-86.
+Data: `UIEffectSet.lua` = March's decompiled source + the 15 June blocks (`kom_contents/data036_kom/UIEffectSet.src.lua`, compiled mar-2014);
+`UIMajorParticle.txt` = `14JUN17/data/data036_kom/UIMajorParticle.txt` (2,042,192 B, equal to the June kom entry) with the 10 March-only sequences
+before its last brace (`CHUNG_HOWLING01/02`, `CHUNG_STEEL_EDGE02`, `Nasod_King_SpellAttack_Splitlight06`, `PET_PETTE_BERTHE_STEB_3_Attack_C`,
+`..._Attack_C_02`, `Pulsewave_Summon_Boss_SpecialAttackB01/02`, `ShockWave_Summon_Boss_SpecialAttackB`, `UI_Eve_Party_Event_StartEffect`).
+Revert: undefine the flag, rebuild all four projects (the flag sits in the PCH); restore the two files from `kom_backup_tools/data036.kom.*` and repack.
 
 ### June effect completion C6b: the spawner tail, the effect-set stamps and RT_CREATE_EFFECT_SET
 

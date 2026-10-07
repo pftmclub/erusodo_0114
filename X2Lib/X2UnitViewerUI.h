@@ -3,11 +3,16 @@
 
 #include "./X2BaseUnitViewerUI.h"
 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// June effect completion C9c-2b: June's CX2UnitViewerUI derives from CX2BaseUnitViewerUI, which holds the effect player
+	class CX2UnitViewerUI : public CX2BaseUnitViewerUI
+#else SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 #ifdef MONSTER_TROPHY
 	class CX2UnitViewerUI : public CX2BaseUnitViewerUI
 #else 
 	class CX2UnitViewerUI : public CKTDGObject
 #endif MONSTER_TROPHY
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 {
 	public:
 
@@ -389,5 +394,20 @@
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqHandElectricALP1;
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqHandElectricALP2;
 #endif //SERV_ADD_LUNATIC_PSYKER
+
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+		// June 31fa3010 request queue (+0x11a0): one 0x30-byte entry per pending set, drained by the frame move 31fa8ce0
+		struct JuneViewerFxRequest
+		{
+			std::wstring	m_wstrSetName;
+			int				m_iUnitType;
+			int				m_iUnitClass;
+			float			m_fStartTime;
+			bool			m_bLoop;
+
+			JuneViewerFxRequest() : m_iUnitType( 0 ), m_iUnitClass( 0 ), m_fStartTime( 0.f ), m_bLoop( false ) {}
+		};
+		std::vector<JuneViewerFxRequest>					m_vecJuneViewerFxRequest;
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 
 };

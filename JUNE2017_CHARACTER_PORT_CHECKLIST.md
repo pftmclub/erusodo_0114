@@ -317,6 +317,19 @@ option, the category (`CX2Game::GetEffectAlphaCondition`), the EffectSet/CEffect
 | 8 sites (`32c89310`, `32c89460`, `32c895b0`; `32296da0` handles) | Rena | as above | as above |
 | `322726f0`: the HP-rate gate in `GetFinalDamage` returns false for `RNSI_SA_ALP_SUPERSONIC` (29058) against an NPC defender (GameUnitType 1) when it has `+0x8aeb` / `+0x8ae9` set, vslots `0x3c8` / `0x3cc` / `0x430` true, or `+0x8e80` set, or when its `+0x8f08` is 1 or 2 | Rena | Supersonic's HP-rate damage skips some NPCs | the gate's false branch, with the reform skill. C10b-1 calls `GetHpRateDamage` unconditionally until then |
 
+### 7d. Unit-viewer effect rows that only character code drives (from June effect completion C9c-2b)
+
+C9c-2b ports June's unit-viewer effect player under `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER`. It retires nine of March's hand-made class
+effects (MagicKnight, SPK, SBH, ALP, CDC, ETK/EIS, RTR, RNW: the table's 11 live rows now drive them). The rows below are the parts that need
+a class or system this build does not have. The verdicts are in `june2017_re/c9c2a_hardcode_map.tsv`.
+
+| June | Class | What it does | What the port must bring |
+|---|---|---|---|
+| `UnitViewerEffectSetTable.lua` row `ALD_LobbyWait` -> `EffectSet_ALD_LobbyWait` (3 particles, staged and inert) | Ara (Little Devil) | June renamed the anim to `ALD_LobbyWait`; March's `Motion_ARA_Common.x` and `X2UnitViewerUI.cpp` still say `ALD_lobbyWait`, and the table lookup is case-sensitive, so the row never matches. March's hand-made orb (`m_hSeqEnergyBullet1-3`: ctor, dtor, `OnFrameMove`, `PlayAnim`, `NotifyShowObjectChanged`, `OnFrameRender_Draw`, `SetUnit`) was **kept** (user 2026-10-07) | adopt June's `Motion_ARA_Common.x` and the spelling together, then retire the three handles under the player's flag (the same `#ifdef ... #else` the other eight got) |
+| duo minor model: `+0xd7c` skin anim, `+0xd80-0xd82` (duo type, shown flags), the `DT_MINOR` row `LDN_LobbyWait` -> `EffectSet_LDN_Start_Ciel` (8 particles), `LDB_LobbyReadyAction` flag `+0x11d8`, and the second per-model frame move (`31fa8ce0` with its last argument 0) | Lu/Ciel | March passes duo 0 to `GetUnitViewerEffectSet` and runs one frame move; the minor model does not exist | the duo viewer model, then pass the model's duo type in `PlayAnim` and run the frame move per model |
+| rows `Emotion_Sad` -> `EffectSet_Gunner_Sad` (`UT_ROSE`) and `Emotion_SitReady` / `Emotion_SitWait` / `Emotion_StandUp` -> `EffectSet_Ain_*` (`UT_AIN`), all staged | Rose, Ain | inert: no such class in March | nothing; they match once the class exists (the emotion path is `CX2GUUser::PlayEmotion`, C9c-1) |
+| lost under June's player: the SBH / ALP end windows and forced emit rates (March stopped the particles at 2.95 s / 2.19 s / 4.5 s, June's `UIMajorParticle.txt` has the stop times), the CDC / ETK / RTR / RNW weapon-equipped gate, the class-change mesh outline, and the effects in the avatar screen capture | Elesis, Lunatic Psyker, Chung, Elsword, Rena | June's player has none of them | nothing to port; listed so a missing outline or capture effect is not read as a regression |
+
 ### 7d. Damage-math hooks that only character code or June's data drives (from June effect completion C4)
 
 C4 ports the engine side under `SERV_IRUHADEV_JUNE_DAMAGE_MATH` (range rate, Nasod combo gate) and `SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY` (DIVISION window). Two June pieces are keyed on reform skill IDs this build does not have, so the character ports bring them (D8, no question).

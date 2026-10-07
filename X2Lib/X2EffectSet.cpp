@@ -403,6 +403,88 @@ static void JuneRunMeshTriggers( CX2EffectSet* pEffectSet_, CKTDGXMeshPlayer::CX
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+// June2017 FUN_321dfc40, the unit viewer's branch (caller 329585f0 @ 32958b12, declared in X2BaseUnitViewerUI.cpp):
+// no set, so the triggers run on the viewer entry's skin anim and the two viewer codes (viewer +0x1d8 / +0x1dc), each
+// folded by FUN_3264ca10, the first non-zero one matched against BOUND_MOTION_TYPE_LIST (@ 321dfd9d); the start time is
+// ANIMTIME_ON_START_UNITVIEWER. Without a set STOP_TRACING_ON_TRIGGER is skipped (@ 321dff38).
+// EFFECT_SET_TOGGLE_VISIBILITY_TIMER, which June writes through the null set (@ 321dff8f), is skipped and logged once
+// (user decision 2026-10-07; JUNE_BUGS.md). The 15 unit-viewer templets carry no trigger key.
+void JuneRunViewerMeshTriggers( CKTDGXMeshPlayer::CXMeshInstance* pMesh_, CX2EffectSet::EffectData* pEffectData_,
+								std::vector<CX2EffectSet::MeshTriggerData>& vecTrigger_, CKTDGXSkinAnim* pSkinAnim_,
+								int iCode1_, int iCode2_ )
+{
+	// @ 321dfc6b-321dfc9b: nothing without the skin anim or while the mesh is blocked (+0x635)
+	if( NULL == pMesh_ || NULL == pEffectData_ || NULL == pSkinAnim_ || true == pMesh_->GetTriggerBlocked() )
+		return;
+
+	if( true == vecTrigger_.empty() )
+	{
+		// @ 321dffd0-321e0033: the inline MESH_TRIGGER_DATA, as the game branch
+		const CX2EffectSet::MeshTriggerData& kTrigger = pEffectData_->m_MeshTriggerData;
+		if( 0.f <= kTrigger.m_fTriggerTime && false == pMesh_->GetTriggerAnimPlayed() && kTrigger.m_fTriggerTime <= pSkinAnim_->GetNowAnimationTime() )
+			pMesh_->ChangeAnimByTrigger( kTrigger.m_wstrMotionName.c_str(), static_cast<CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE>( kTrigger.m_iPlayType ), -1.f, true, 0.f );
+		return;
+	}
+
+	// @ 321dfd9d: the first non-zero folded code
+	int iEmotion = JuneFoldTriggerEmotion( iCode1_ );
+	if( 0 == iEmotion )
+		iEmotion = JuneFoldTriggerEmotion( iCode2_ );
+
+	for( UINT iTrigger = 0; iTrigger < vecTrigger_.size(); ++iTrigger )
+	{
+		CX2EffectSet::MeshTriggerData& kTrigger = vecTrigger_[iTrigger];
+		if( true == kTrigger.m_bFiredOnce )
+			continue;
+		if( false == JuneTriggerBoundTo( kTrigger, iEmotion ) )
+			continue;
+
+		// armed when the skin plays another anim than when it last fired, or the same one's play count changed
+		if( 0 != kTrigger.m_wstrTriggeredAnimName.compare( pSkinAnim_->GetNowAnimName() ) ||
+			( kTrigger.m_iTriggeredPlayCount != pSkinAnim_->GetNowPlayCount() && pSkinAnim_->GetNowAnimationTime() <= pSkinAnim_->GetMaxAnimationTime() ) )
+			kTrigger.m_bArmed = true;
+
+		if( false == kTrigger.m_bArmed || kTrigger.m_fTriggerTime > pSkinAnim_->GetNowAnimationTime() )
+			continue;
+
+		// ANIMTIME_ON_START_UNITVIEWER gives the start time while its first-use byte is set; ONCE clears that byte
+		float fStartTime = 0.f;
+		CX2EffectSet::AnimTimeOnStartData& kAnimTimeOnStart = kTrigger.m_AnimTimeOnStartUnitViewer;
+		if( true == kAnimTimeOnStart.m_bFirstUse )
+		{
+			fStartTime = kAnimTimeOnStart.m_fTime;
+			kAnimTimeOnStart.m_bFirstUse = ( false == kAnimTimeOnStart.m_bOnce );
+		}
+
+		pMesh_->ChangeAnimByTrigger( kTrigger.m_wstrMotionName.c_str(), static_cast<CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE>( kTrigger.m_iPlayType ), 1.f, kTrigger.m_bUseMeshTransition, fStartTime );
+		kTrigger.m_iTriggeredPlayCount = pSkinAnim_->GetNowPlayCount();
+		kTrigger.m_wstrTriggeredAnimName = pSkinAnim_->GetNowAnimName();
+		kTrigger.m_bArmed = false;
+
+		if( true == kTrigger.m_bTriggerOnce )
+			kTrigger.m_bFiredOnce = true;
+		// STOP_TRACING_ON_TRIGGER: skipped without a set (@ 321dff38)
+		if( NULL != g_pData && NULL != g_pData->GetUIEffectSet() )
+		{
+			for( UINT iSet = 0; iSet < kTrigger.m_vecTriggerEffectSetName.size(); ++iSet )
+				g_pData->GetUIEffectSet()->PlayEffectSetByMeshPlayer( kTrigger.m_vecTriggerEffectSetName[iSet].c_str(), pMesh_->GetHandle(), CX2EffectSet::ET_MESH_PLAYER_UI_MAJOR );
+		}
+		if( true == kTrigger.m_bUseEffectSetToggleVisibilityTimer )
+		{
+			// June @ 321dff8f writes set +0x55 / +0x58 through the null set; skipped here, logged once
+			static bool s_bLogged = false;
+			if( false == s_bLogged )
+			{
+				s_bLogged = true;
+				ErrorLogMsg( XEM_ERROR142, L"JUNE_FX UNIT_VIEWER_FX_TRIGGER EFFECT_SET_TOGGLE_VISIBILITY_TIMER skipped on the viewer path: June writes it through a null set (321dff8f)" );
+			}
+		}
+		if( true == kTrigger.m_bBlockTrigger )
+			pMesh_->SetTriggerBlock( kTrigger.m_fBlockTriggerTime );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 // June2017 FUN_321ee600 @ 321efa34-321efa5d (the same in all eight cases): TRACE_MATRIX_IN_FIELD looks
 // the target mesh up in g_pData's UI-major mesh player, whatever the entry's EFFECT_TYPE. In the field
 // there is no game, and effect sets play on the UI players.

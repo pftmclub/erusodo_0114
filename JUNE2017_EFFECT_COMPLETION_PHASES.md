@@ -1220,6 +1220,54 @@ Nothing was built, so there are no hygiene or deploy lines. **User owes:** /cost
 
 ---
 
+### C9c-2b - Done (2026-10-07, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER`; play-test pending)
+
+**Landed** (this commit, `git log --grep C9c-2b`; details in `MODS.md`, "June effect completion C9c-2b"):
+- **Player on the base viewer** (`X2BaseUnitViewerUI.h/.cpp`, June's layout): the entry (`+0x00..+0x3c`), the four vectors, `+0x190` show,
+  `+0x1d4` land-dirty, `+0x1d8/+0x1dc` trigger codes; Play `32959640`, Stop `329594c0` / `32959250`, create pass `32957980`, per-entry update
+  `329585f0` (three trace branches, FOLLOW_UNIT_VIEWER_SCALE, show, triggers, land), sound pass `329582b0`, Prepare `32957260`, Draw `32957330`
+  (meshes, then particles; `PushStates` + draw), `NotifyShowObjectChanged` `32957760`, ctor `31fae120`, dtor `31fae1a0`, land position `32957170` with
+  the lowest-bone helper `31d2b080` (frame tree walk).
+- **`CX2UnitViewerUI`** re-parented under the base (insert-only `#ifdef`). `PlayAnim` `31fa3010`: clear queue, stop group 0, `GetUnitViewerEffectSet`
+  (duo 0), queue. `OnFrameMove` `31fa8ce0`: codes + base update at entry (before the skin frame move), re-arm `@31fa9271` and drain `@31fa93f6`
+  after it, base update again after the equip loop. Base calls from Notify / Prepare / Draw; dtor stops groups 0..4; `SetPositionOnScr` sets `+0x1d4`.
+- **Trigger variant** `JuneRunViewerMeshTriggers` (`X2EffectSet.cpp`, `321dfc40 @viewer`): first non-zero folded code, ANIMTIME_ON_START_UNITVIEWER,
+  STOP_TRACING skipped, EFFECT_SET_TOGGLE_VISIBILITY_TIMER skipped and logged once (user decision), JUNE_BUGS 86.
+- **Retired hard-code** (`#ifdef ... #else original #endif`): the `SetUnit` creation of the MagicKnight, SPK, SBH, ALP, CDC, ETK/EIS, RTR and RNW
+  handles, and the `PlayAnim` emit / `m_bShow*` / crescent-cut blocks for them. The Little Devil orb is untouched. Every other site of a retired
+  handle (`OnFrameMove`, Notify, Prepare, Draw, avatar capture, `SetHideSelectUnitWeapon`) tests the handle first, so it is a no-op: not edited.
+- **Data** (`data036`): `UIEffectSet.lua` = March's 52 sets + the 15 June blocks (37,072 B compiled, `kom.py status` was in sync first);
+  `UIMajorParticle.txt` = June's file (2,042,192 B = the June kom entry; braces balanced) + the **10 March-only sequences** before its last brace:
+  `CHUNG_HOWLING01/02`, `CHUNG_STEEL_EDGE02`, `Nasod_King_SpellAttack_Splitlight06`, `PET_PETTE_BERTHE_STEB_3_Attack_C`, `..._Attack_C_02`,
+  `Pulsewave_Summon_Boss_SpecialAttackB01/02`, `ShockWave_Summon_Boss_SpecialAttackB`, `UI_Eve_Party_Event_StartEffect` (2,049,998 B, 2729 sequences).
+  `PACK OK data036` (`~2 changed`: those two). Every June-only key in that file (AniXet, ChangeTexXet, CullMode, FinalParticleList, MeshRenderType,
+  TraceParticleList, WireFrame) is already parsed by `KTDGParticleSystem.cpp`. The orb's `SA_AYR_ORB_KI_Main_S_P01` lost March's `Zenable = false`.
+- **Docs**: JUNE_BUGS rows 79-86; checklist 7d (ALD orb, duo model, Rose / Ain rows, what June's player loses); MODS; review kickoff (re-verifies C9c-2a).
+
+**Open / recorded, not decided here**
+- `SetHideSelectUnitWeapon` has no June counterpart that I could identify (GhidraMCP was not running). Its four callers (`X2UICharInfo.cpp:1230`,
+  `X2UIWatch.cpp:646`, `X2Community.cpp:11914`, `X2GULire_ElvenRanger.cpp:252`) run right after a unit is set, in a wait / down-landing motion; June creates
+  nothing at `SetUnit` and the table meshes live only from the ready-action `PlayAnim` to the next one. The review checks this.
+- `31cf4890` (draw of a particle's child sequences) is not ported: March's `CreateSequence` chains child sequences itself, so only the DG manager draws them.
+- Mesh `+0x15c`, sequence `+0x415` / `+0x45a`: unidentified or write-only, not ported. `EffectSet_SpaceMoonRabbit_motionFX`: June-only, dead.
+- Deliberate differences from June: a set missing from the UI effect set is logged and skipped (June dereferences it); the sound pass is skipped
+  without a skin (June faults, JUNE_BUGS 80); a failed create is retried every frame as June does, with its log line written once.
+- Draw ownership (C9c-2a): a managed viewer's effects are reached by both the DG manager and the viewer's Draw. Kept as June has it; if the
+  play-test shows doubled (brighter) effects, add a JUNE_BUGS row. C9c-2a's `31f99f70`, `viewer+0x1d8`, `31fa4980` candidates are the review's.
+
+**Hygiene.** `flagcheck JUNE_UNIT_VIEWER_EFFECT_PLAYER --with JUNE_FX_DEBUG --worktree --files <6 code files>`:
+`files: 1 PASS, 4 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (the PASS~ are the blank separator lines I inserted next to the flag blocks).
+(the 2 `tok!` are existing `#endif` / `#else` lines of JUNE_FX_DEBUG blocks in `X2EffectSet.cpp` (1200, 3698), not in this phase's insertion).
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,307,008 B, dated 2026-10-07 14:56:39, md5 e30f79f8e0e04878595f252bd72bfd2d, equal to X2/US_SERVICE/x2.exe (2026-10-07 14:56:34); built at mods/june-buff-port 5354ad3 + 13 uncommitted code file(s).` Another session's `build.py --deploy --pch force` linked this exe from the shared tree (my files included: `UNIT_VIEWER_FX_PLAY`, `UNIT_VIEWER_FX_CREATE`, `UNIT_VIEWER_FX_TRIGGER` and the `retried every frame` text are in it, UTF-16). **Data:** `COPY OK data036: ...data036.kom 6624522 bytes, 190 entries, md5 e931a22ccc58a4655e0882b732d0b69c` (user said yes; backup `kom_backup_tools/data036.kom.20261007_151116`). Another session's C4 edits (`X2DamageEffect`, `X2DamageManager`, `X2GameUnit`, `X2GUAdd`) were in that build too; they are committed since as `c1c74e2`.
+
+**How to see it in game** (hand-off in the reply): the 11 live rows by class; the log lines are `JUNE_FX UNIT_VIEWER_FX_PLAY <set> group=0 meshes=<n>
+particles=<n> sounds=<n>` and `UNIT_VIEWER_FX_CREATE <set> mesh|particle <name> bone=<bone>` in `ErrorLog.txt` (unbracketed: `grep JUNE_FX ErrorLog.txt`).
+Test characters added to the save (backups in `db_backup/`): `MagicKnightT` (uid 32), `SheathKnightT` (33), `InfinitySwordT` (34), `TrapRangerT` (35), `LunaticPsykerT` (36),
+all level 70 and without gear or skills. The save already had `Freils` (Deadly Chaser), `eresisu` (Pyro Knight), `ElesisBH` (Blazing Heart), `NWatcher` (Night Watcher).
+Open question for the user: none. **User owes:** play-test, then /cost.
+
+---
+
 ### C9d - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build)
 
 **Verdict: two systems, not one.** The per-emotion effect set (`32355a50`) is effect wiring and is ported as **C9e**, inert. Everything

@@ -281,6 +281,12 @@ CX2UnitViewerUI::~CX2UnitViewerUI(void)
 #ifdef ADD_UPGRADE_WEAPON_PARTICLE
 	DeleteUpgradeWeaponParticle();
 #endif ADD_UPGRADE_WEAPON_PARTICLE
+
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// June 31fab920 @31fabc53: the viewer's dtor stops the effect groups 0..4 (the base dtor then stops group 1 and every sound)
+	for( int iJuneFxGroup = 0; iJuneFxGroup < 5; ++iJuneFxGroup )
+		JuneViewerFxStop( iJuneFxGroup );
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 }
 
 
@@ -313,6 +319,14 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 		SAFE_CLOSE( m_pAvatarEmotionSound );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// June 31fa8ce0 @31fa8d46-31fa8d4c, at the frame move's entry: the two trigger codes (+0x1d8 = m_ePlayedEmotion candidate,
+	// +0x1dc = motion type 7/8, never in March) are copied, then the base viewer's update runs
+	m_iJuneFxTriggerCode1 = static_cast<int>( m_ePlayedEmotion );
+	m_iJuneFxTriggerCode2 = 0;
+	CX2BaseUnitViewerUI::OnFrameMove( fTime, fElapsedTime );
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+
 	m_pXSkinAnim->SetBillBoardType( m_BillBoardType );
 
 
@@ -330,6 +344,43 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 	m_pXSkinAnim->GetMatrix().Scale( GetMatrix().GetScale() );
 
 	m_pXSkinAnim->OnFrameMove( fTime, fElapsedTime );
+
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// re-arm @31fa9271: when the skin's anim time is exactly 0.0, the current motion is looked up again and a row whose
+	// loop is set is queued once more (June's ctor 31fac890 forces the request's loop to 1)
+	if( 0.f == m_pXSkinAnim->GetNowAnimationTime() && NULL != g_pData && NULL != g_pData->GetUnitManager() )
+	{
+		std::wstring wstrJuneFxSet;
+		float fJuneFxStart = 0.f;
+		bool bJuneFxLoop = false;
+		if( true == g_pData->GetUnitManager()->GetUnitViewerEffectSet( m_pXSkinAnim->GetNowAnimName(), m_pUnit->GetClass(), 0,
+				wstrJuneFxSet, fJuneFxStart, bJuneFxLoop ) && true == bJuneFxLoop )
+		{
+			JuneViewerFxRequest kJuneFxRequest;
+			kJuneFxRequest.m_wstrSetName = wstrJuneFxSet;
+			if( NULL != m_pUnit->GetUnitTemplet() )
+				kJuneFxRequest.m_iUnitType = static_cast<int>( m_pUnit->GetUnitTemplet()->m_UnitType );
+			kJuneFxRequest.m_iUnitClass = static_cast<int>( m_pUnit->GetClass() );
+			kJuneFxRequest.m_fStartTime = fJuneFxStart;
+			kJuneFxRequest.m_bLoop = true;
+			m_vecJuneViewerFxRequest.push_back( kJuneFxRequest );
+		}
+	}
+
+	// drain @31fa93f6: a request plays once the anim time reaches its start time (0 = at once), then is erased
+	for( size_t iJuneFxRequest = 0; iJuneFxRequest < m_vecJuneViewerFxRequest.size(); )
+	{
+		const JuneViewerFxRequest& kJuneFxRequest = m_vecJuneViewerFxRequest[iJuneFxRequest];
+		if( fabs( kJuneFxRequest.m_fStartTime ) <= 0.0009f || kJuneFxRequest.m_fStartTime <= m_pXSkinAnim->GetNowAnimationTime() )
+		{
+			const std::wstring wstrJuneFxSet = kJuneFxRequest.m_wstrSetName;
+			JuneViewerFxPlay( m_pXSkinAnim, wstrJuneFxSet, 0 );
+			m_vecJuneViewerFxRequest.erase( m_vecJuneViewerFxRequest.begin() + iJuneFxRequest );
+		}
+		else
+			++iJuneFxRequest;
+	}
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 
 
 //{{ robobeg : 2008-10-17
@@ -404,6 +455,10 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 //}} robobeg : 2008-10-17
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// June 31fa8ce0 @31fa9639: the base viewer's update runs a second time after the equip loop (June runs it twice per frame)
+	CX2BaseUnitViewerUI::OnFrameMove( fTime, fElapsedTime );
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 	CKTDGXRenderer::RenderParam* pRenderParam = m_pXSkinAnim->GetRenderParam();
 
 	pRenderParam->renderType		= CKTDGXRenderer::RT_CARTOON_BLACK_EDGE;
@@ -995,6 +1050,10 @@ void CX2UnitViewerUI::SetPickUnit(bool val)
 void CX2UnitViewerUI::NotifyShowObjectChanged()
 {
 	//CKTDGObject::SetShowObject( bShow );
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// June 31f96ad0 @31f96afd: the base viewer's NotifyShowObjectChanged runs first
+	CX2BaseUnitViewerUI::NotifyShowObjectChanged();
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 
     BOOST_TEST_FOREACH( const ViewEquipMap::value_type&, value, m_ViewEquipMap )
     {
@@ -1135,6 +1194,10 @@ CKTDGXRenderer::RenderParam* CX2UnitViewerUI::GetRenderParam()
 /*virtual*/
 RENDER_HINT   CX2UnitViewerUI::OnFrameRender_Prepare()
 {
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// June 31f974b0: the base viewer's Prepare runs first
+	CX2BaseUnitViewerUI::OnFrameRender_Prepare();
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
     if ( !m_sbShow || m_pXSkinAnim == NULL || m_pUnit == NULL)
         return RENDER_HINT_NORENDER;
 
@@ -1580,6 +1643,11 @@ void    CX2UnitViewerUI::OnFrameRender_Draw()
 #endif SERV_RENA_NIGHT_WATCHER
 	}
 	//}}
+
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// June 31fa00b0 @31fa2ef7: the base viewer's Draw runs last, after the equips
+	CX2BaseUnitViewerUI::OnFrameRender_Draw();
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 }
 
 //}} robobeg : 2008-10-17
@@ -1861,6 +1929,32 @@ void CX2UnitViewerUI::PlayAnim( const WCHAR* pName, CKTDGXSkinAnim::XSKIN_ANIM_P
 		m_pXSkinAnim->ChangeAnim( pName, bTransition );
 		m_pXSkinAnim->Play( playType );
 	}
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// June 31fa3010: after the anim the request queue is cleared, the group-0 viewer effects are stopped, and the motion is
+	// looked up (duo 0 = March's only model): a hit queues { set, UNIT_TYPE, UNIT_CLASS, start time, loop }
+	m_vecJuneViewerFxRequest.clear();
+	JuneViewerFxStop( 0 );
+	if( NULL != pName && NULL != m_pUnit && NULL != g_pData && NULL != g_pData->GetUnitManager() )
+	{
+		std::wstring wstrJuneFxSet;
+		float fJuneFxStart = 0.f;
+		bool bJuneFxLoop = false;
+		if( true == g_pData->GetUnitManager()->GetUnitViewerEffectSet( pName, m_pUnit->GetClass(), 0, wstrJuneFxSet, fJuneFxStart, bJuneFxLoop ) )
+		{
+			JuneViewerFxRequest kJuneFxRequest;
+			kJuneFxRequest.m_wstrSetName = wstrJuneFxSet;
+			if( NULL != m_pUnit->GetUnitTemplet() )
+				kJuneFxRequest.m_iUnitType = static_cast<int>( m_pUnit->GetUnitTemplet()->m_UnitType );
+			kJuneFxRequest.m_iUnitClass = static_cast<int>( m_pUnit->GetClass() );
+			kJuneFxRequest.m_fStartTime = fJuneFxStart;
+			kJuneFxRequest.m_bLoop = bJuneFxLoop;
+			m_vecJuneViewerFxRequest.push_back( kJuneFxRequest );
+		}
+	}
+
+	// the hand-coded class effects below (MagicKnight hand fire, SPK fire) are retired: the table rows drive them now.
+	// The Little Devil orb stays (its row is keyed ALD_LobbyWait, March's anim is ALD_lobbyWait: it never matches).
+#else SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 
 	if( m_hSeqHandFire != INVALID_PARTICLE_SEQUENCE_HANDLE )
 	{
@@ -1906,6 +2000,7 @@ void CX2UnitViewerUI::PlayAnim( const WCHAR* pName, CKTDGXSkinAnim::XSKIN_ANIM_P
 		}
 	}
 #endif //NEW_CHARACTER_EL
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // ±èÅÂÈ¯
 	if( m_hSeqEnergyBullet1 != INVALID_PARTICLE_SEQUENCE_HANDLE &&
@@ -1939,6 +2034,9 @@ void CX2UnitViewerUI::PlayAnim( const WCHAR* pName, CKTDGXSkinAnim::XSKIN_ANIM_P
 	}
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// the m_bShow* writes, the crescent-cut particles and the weapon meshes below are retired (CDC, ETK/EIS, RTR, RNW rows)
+#else SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 #ifdef CHUNG_SECOND_CLASS_CHANGE
 	if( wcscmp( pName, L"CDC_LobbyReadyAction" ) == 0 )
 		m_bShowGun = true;
@@ -1978,6 +2076,7 @@ void CX2UnitViewerUI::PlayAnim( const WCHAR* pName, CKTDGXSkinAnim::XSKIN_ANIM_P
 	else
 		m_bShowRNWTrapSword = false;
 #endif SERV_RENA_NIGHT_WATCHER
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 }
 
 
@@ -2134,6 +2233,10 @@ void CX2UnitViewerUI::SetUnit( CX2Unit* pUnit, CX2UnitViewerUI::UNIT_VIEWER_STAT
 #endif
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// the MagicKnight hand fire and the SPK fire particles made here are retired: the table rows (UnitViewerEffectSetTable.lua)
+	// play them from PlayAnim. The Little Devil orb below stays.
+#else SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 	if ( m_hSeqHandFire != INVALID_PARTICLE_SEQUENCE_HANDLE )
 	{
 		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqHandFire );
@@ -2198,6 +2301,7 @@ void CX2UnitViewerUI::SetUnit( CX2Unit* pUnit, CX2UnitViewerUI::UNIT_VIEWER_STAT
 		}
 	}
 #endif //NEW_CHARACTER_EL
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // ±èÅÂÈ¯
 	g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqEnergyBullet1 );
@@ -2261,6 +2365,10 @@ void CX2UnitViewerUI::SetUnit( CX2Unit* pUnit, CX2UnitViewerUI::UNIT_VIEWER_STAT
 		}
 	}
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
+
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// the SBH, ALP, CDC, ETK/EIS, RTR and RNW handles made below are retired: the table rows play their effects from PlayAnim
+#else SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE	  // ±èÁ¾ÈÆ, ¿¤¸®½Ã½º 1-2 ±×·£µå ¸¶½ºÅÍ, 2-2 ºí·¹ÀÌÂ¡ ÇÏÆ®
 	g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqHandFireSBH1 );
@@ -2494,6 +2602,7 @@ void CX2UnitViewerUI::SetUnit( CX2Unit* pUnit, CX2UnitViewerUI::UNIT_VIEWER_STAT
 		}
 	}
 #endif	SERV_RENA_NIGHT_WATCHER
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 
 	DeleteEnchantWeaponEffect();
 	if ( m_pUnit != NULL && m_pUnit->GetUnitTemplet() != NULL )
@@ -6194,6 +6303,10 @@ void CX2UnitViewerUI::SetPositionOnScr(float x, float y, float z, float scale)	/
 	if ( NULL != m_pXSkinAnim )
 #endif // FIX_REFORM_ENTRY_POINT_3RD	// ±èÁ¾ÈÆ, ÁøÀÔ ±¸Á¶ °³Æí 3Â÷ ( Å©·¡½Ã ) ¼öÁ¤
 		m_pXSkinAnim->GetMatrix().Move( GetMatrix().GetPos() );
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// June 31f99f70 @31f9a153: the viewer's move sets the base viewer's land-dirty byte (+0x1d4)
+	m_bJuneFxLandDirty = true;
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 	
 }
 

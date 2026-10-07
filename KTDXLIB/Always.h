@@ -5443,6 +5443,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-07
+// Description: June effect completion C9c-2b. June's unit-viewer effect
+//              player (CX2BaseUnitViewerUI, vtable 3347113c): Play 32959640,
+//              per-frame update 329585f0, create pass 32957980, sound pass
+//              329582b0, stop 329594c0 / 32959250, Prepare 32957260, Draw
+//              32957330, NotifyShowObjectChanged 32957760, dtor 31fae1a0;
+//              the CX2UnitViewerUI hooks PlayAnim 31fa3010 and OnFrameMove
+//              31fa8ce0 (request queue); the no-set viewer variant of the mesh
+//              trigger runner (321dfc40); and the retirement of the nine
+//              hard-coded class effects that UnitViewerEffectSetTable.lua now
+//              drives (the Little Devil orb is kept). Needs
+//              SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE. Log tag: JUNE_FX.
+#define SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
 // Description: June effect completion C4 (8b damage math). Two DamageData
 //              keys that move damage numbers or targeting, each with its
 //              June consumer: DIVIDE_DAMAGE_FROM_RANGE (RANGE%d tables, map
