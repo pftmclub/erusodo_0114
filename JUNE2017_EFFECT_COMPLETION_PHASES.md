@@ -458,6 +458,58 @@ Checked in Ghidra (read-only) and in the exe bytes:
 **Deploy** (`--pch force`: a peer build had compiled the PCH 72 s after the header edit): `DEPLOY OK: X2_offline.exe is 19,311,616 B, dated 2026-10-07 15:52:52, md5 006df66ef6e6d81a204f6f6580f8e624, equal to X2/US_SERVICE/x2.exe (2026-10-07 15:52:47); built at mods/june-buff-port d5f442f + 1 uncommitted code file(s).` (the one file is this fix).
 **In game:** nothing visible (no data uses the range or DIVISION keys; the Nasod gate is unchanged). No new play-test: C4's regression play-test stands. C10b-1 is unblocked. JUNE_BUGS rows 87-88 were numbered after a peer's uncommitted 79-86.
 
+### C4b - Done (2026-10-07, Opus 5.5 high; identification only, no code)
+
+**June's NPC Fury mode, end to end.** All of it is in `june2017_re/funcmap.tsv`, 14 rows tagged `Effect C4b`. No row of the system is left at `candidate`. Read-only Ghidra, capstone sweeps (`dispsweep.py`, `funcdis.py`, `vtslot.py`) and an `offsetprobe.py` sizeof probe.
+- **Settled first.**
+  - `31e8a990` is March's `GetNowStateData()`: in-range index, else 0.
+  - The `EBP` at `@327964b2` is the parser's own `StateData&`, the same one the `FURY_MODE` store writes. `[esp+0x1c]` is the first argument. Every float store to that slot follows a `push`.
+  - `32784c00` = March `CX2GUNPC::LoadStateData( StateData&, InitData&, KLuaManager& )`.
+- **Parse.**
+  - `FURY_MODE`: a bool, default false, `NOWSTATE_SET_FLAG` bit 0x50. It comes after `FALL_DOWN` and June's `IS_APPLY_CINEMATIC_UI`, and before `ENABLE_ATTACK_BOX`.
+  - `ATTACK_POWER_RATE_FURY` (StateData `+0x414`) and `ANIM_SPEED_RATE_FURY` (`+0x418`) are read only inside a `FURY_DATA` sub-table. That table name is plaintext in the exe.
+  - Each rate defaults to 1.0, both on a missing key (`fld1`) and in the StateData ctor `32393dc0`.
+  - June has 83 flags, March 76 (`FLAG_MAX`, probed). June's `FALL_DOWN` is 26 where March's is 24, so the enums do not line up. The port appends a new `FLAG_FURY_MODE`.
+  - All five names are confirmed from two sources: `xorstrings.tsv` and the June Lua plaintext.
+- **The Fury byte `+0x8fb7`.**
+  - Its only writers are the common ctor (cleared) and `SetFuryMode(bool)` `31e4d7c0`. Its readers are `GetFuryMode()` `31e4d7d0`, `GetFinalDamage` and `ResetAnimSpeed`. Both binds are confirmed by xorstring and plaintext.
+  - Nothing server-driven, no HP threshold, no reset on Init, ReInit or state change. Raid Lua turns it on and off: Red Dragon P2 by position and a timer, Eltrion MK2 by a time table.
+- **Readers.**
+  - **Damage:** in `GetFinalDamage`, each nonzero damage local is multiplied by `+0x414`, as the C4 review had it. Re-traced.
+  - **Animation:** the NPC's `ResetAnimSpeed` `327615d0`. When the byte and the flag are set, the base speed (`m_fAnimSpeed`, or the timed-event speed) is **replaced** by a nonzero `+0x418`. It is not multiplied. The born rate, the buff rate and the comeback x4 still apply on top.
+  - Nothing else reads bit 80, `+0x414` or `+0x418`: the scan covered every `GetNowStateData` call and every `and reg, 0x10000`. There is no UI, effect or sound tied to Fury.
+- **No partial update: June's `ResetAnimSpeed` changed in four more ways, all in C4c's port list.**
+  1. It is a `CX2GameUnit` virtual (slot `0x3f8`). The base and `CX2GUUser` versions are empty.
+  2. It no longer calls `m_AdditionalAnimSpeed.UpdateResultValue()`. Instead, June's `CheckAndUpdateAdditionalStat` (`32290920`) runs the update only when the must-change flag is set, then calls `ResetAnimSpeed()`. Slot `0x3fc` is a no-op in every unit class.
+  3. A factor `+0x8b6c`, default 1.0. Its only writer is `CX2GURose` slot `0x860`, from the passive `RNSI_P_ROM_OPEN_MIND` on Rose's summons. That writer goes to checklist **7f** (D8).
+  4. A factor `+0x8fdc`, default 1.0. Its only writer is the `CreateGUNPC` tail `327ef570`, from Hero dungeon `Add_HeroDungeon_ExtraStatForException`. March has no hero dungeons, so the writer is not ported, the same call as buff 16-step3b's decision 1. Only the member and its multiply are ported.
+- **Reach.** Only five June raid scripts use the keys: `RAID_ELTRION_MK2_PHASE1`, `_PHASE3`, `_PHASE3_BG`, `_PHASE3_BH` and `Raid_Red_Dragon_Phase2`. No March or adopted script does. The play-test therefore needs a staged test NPC (C4c kickoff).
+
+**Port list for C4c.** Flag `SERV_IRUHADEV_JUNE_NPC_FURY_MODE`; the kickoff has the detail.
+- `X2GUNPC.h`/`.cpp`:
+  - `FLAG_FURY_MODE`;
+  - the `StateData` members `m_fAttackPowerRateFury` and `m_fAnimSpeedRateFury` (1.0);
+  - the two parse sites;
+  - `m_bFuryMode` (cleared in `CommonConstructor`), `SetFuryMode` and `GetFuryMode`;
+  - two anim factors, 1.0 in `CommonConstructor`;
+  - June's whole `ResetAnimSpeed` body.
+- `X2GameUnit.h`/`.cpp`:
+  - a virtual empty `ResetAnimSpeed()`;
+  - the `CheckAndUpdateAdditionalStat` anim block;
+  - the `GetFinalDamage` multiply, before `JuneApplyDivideDamageFromRange`.
+- `X2Main.cpp`: the two binds.
+- `KTDXLIB/Always.h`.
+
+**JUNE_BUGS candidates for C4c:**
+- Fury anim replaces the base speed rather than multiplying it.
+- A zero anim rate is skipped, but the attack rate is never tested (0 zeroes the damage).
+- NaN is stored or multiplied.
+- `SetFuryMode` does not refresh the speed until the next `ResetAnimSpeed`.
+- The byte survives every state, death and ReInit.
+- The Hero-table walk's last match wins (recorded, not ported).
+
+**Hygiene, deploy, play-test:** none. This phase has no code and no build. **User owes:** /cost.
+
 ---
 
 ## C5 - 8b, buff-factor selection, damage triggers, nearest bone
