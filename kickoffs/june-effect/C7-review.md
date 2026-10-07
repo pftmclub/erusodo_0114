@@ -23,7 +23,7 @@ Review C7's commit(s) against the June binary and the plan's C7 section: the gat
 Also review the three items the C6b review added to C7 (kickoff "Added by the C6b review"; funcmap rows tagged `Effect C6b review`):
 - `31f6ea20` at RT_CREATE_DAMAGE_EFFECT (`@31f86148`), the CEffect `+0xb18` member (-1), and the base vslot `0x328` hook in the ctor (`@31f7f61e-31f7f62b`), under `SERV_IRUHADEV_JUNE_SPAWN_INHERIT`. Check that the `(int)` truncation is kept and has a JUNE_BUGS row.
 - The CREATE loop's inlined INHERIT_CRITICAL adds (`@31f89d52-31f89d82`).
-- The die spawner's INHERITLOCKONDATA copy (`@31f83110-31f83126`), with the key matrix row corrected.
+- The die spawner's INHERITLOCKONDATA copy (`@31f83110-31f83126`), with the key matrix row corrected. It must use June's `LockOnData::operator=` (`31f8c280`: every member except `m_setPreLockOnTarget`), and so must the CREATE loop's existing copy (`@31f89e2b`).
 - Both of the last two go under `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`, so run flagcheck for that flag too.
 
 The plan's model rule is "transcription on Sonnet, then an Opus review"; this is that review.

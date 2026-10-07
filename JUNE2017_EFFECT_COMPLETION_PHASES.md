@@ -705,7 +705,11 @@ byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
   - SDEP `@3229971e`, after the serial wrap; June's early-outs skip it, as March's returns do;
   - the NEXT copy `@31f79b87`;
   - the NEXT reset `@31f79ce9`, where NEXT2.. reset only `+0x5e8` (`@31f79e07`, JUNE_BUGS 77).
-- **C6a2's negative verdicts hold:** `ADD_RENA_SYSTEM` is OFF (`flagprobe.py`; `RIDING_SYSTEM`, `SERV_RENA_NIGHT_WATCHER`, `X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE` are ON).
+- **C6a2's three negative verdicts hold:**
+  - `ADD_RENA_SYSTEM` is OFF (`flagprobe.py`; `RIDING_SYSTEM`, `SERV_RENA_NIGHT_WATCHER`, `X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE` are ON).
+  - EffectData `+0x118` has no writer: `321f4690`'s four callers push onto instance `+0x160` (`321e3650`, `3730`, `3830`) or onto a local vector (`32ad31b8`).
+  - `m_iIndex` 0 cannot reach Rena: `GetInstanceByIndex` is fed only by `StartOfDelayedFiringData::m_iArrowIndex`, which is filled from `DET_*_GROUND` effects' `GetIndex()`, and `CreateDamageEffectIndex` returns `unitIndex*100 + 1..100`, never 0.
+- **The kickoff's JUNE_FX item** (rate, gates, index) is split over `SPAWN_TAIL` (entry rate and flags) and `SPAWN_INHERIT` (gates, `hyper`, `index`). C6b's play-test log shows 26 of each.
 - **RT_CREATE_EFFECT_SET:**
   - The branch is on `[ESP+0x24]` = flag ? defender : 0, which is March's `pTraceUnit`. LIFTTIME applies on the trace path only.
   - The gate is `32481fa0` (state `0x15`) plus `3266cdc0` (`0x9c61/62/67-6c` = 40033, 40034, 40039-40044). The stub returns NULL.
@@ -720,6 +724,8 @@ byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
   1. `31f6ea20` plus CEffect `+0xb18` (-1, class-set) plus base vslot `0x328`. Flag `_SPAWN_INHERIT`.
   2. The CREATE loop's inlined INHERIT_CRITICAL adds (`@31f89d52`; row `31f8af50`'s "not the CREATE loop" is wrong; 14 June uses).
   3. The die spawner's INHERITLOCKONDATA consumer (`@31f83110`; the key is parsed and never read; 12 June uses; the matrix row says `implemented` and is parse-only).
+     - It goes through June's `LockOnData::operator=` `31f8c280`, which copies every member except `m_setPreLockOnTarget`.
+     - March's implicit copy carries that set. That also affects the CREATE loop's existing lock-on copy (`@31f89e2b`), which C7 switches to the June copy.
 - **Checklist 7a:** the `+0xb18` writer `32bb0bd6` and the vslot `0x328` overrides.
 
 **Hygiene** (`flagcheck --range df22a13^..HEAD`):
