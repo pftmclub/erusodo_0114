@@ -1,0 +1,213 @@
+field	value	count_march	count_june	flag	example_id
+item_type	1	7142	16897		7
+item_type	2	34619	67159		1
+item_type	3	1553	6738		30001
+item_type	5	460	724		72000
+item_type	6	240	445		61205
+item_type	7	4699	16464		69285
+item_type	8	982	1400		90000
+item_type	9	37	75		70000
+item_type	11	105	319		601001
+item_type	14	0	1207	OUT_OF_MARCH_RANGE(IT_NUM 0..13)	162427
+item_grade	0	5	0		85000926
+item_grade	1	2709	6214		1035
+item_grade	2	7096	15242		130
+item_grade	3	22967	32172		120
+item_grade	4	16761	57366		1
+item_grade	5	299	305		100
+item_grade	6	0	129		30388
+use_type	0	6642	22434		30573
+use_type	1	34552	66857		1
+use_type	2	7577	18864		7
+use_type	3	1066	3273		30001
+use_condition	1	7773	23157		30000
+use_condition	2	24524	66423		22
+use_condition	3	17540	21848		1
+period_type	0	11096	55446		1
+period_type	1	34145	46024		100
+period_type	2	4596	9958		61205
+shop_price_type	0	11718	57038		63
+shop_price_type	1	57	57		78840
+shop_price_type	2	38062	54333		1
+unit_type	0	6931	18449		30000
+unit_type	1	7453	11889		1
+unit_type	2	7178	11726		15
+unit_type	3	7180	11734		8
+unit_type	4	7055	11696		28
+unit_type	5	6899	11466		35
+unit_type	6	6003	10972		56
+unit_type	7	660	7566		30123
+unit_type	8	461	3756		71
+unit_type	9	17	3602		83
+unit_type	10	0	5436	OUT_OF_MARCH_RANGE(UT_END-1 0..9)	30344
+unit_type	11	0	1949	OUT_OF_MARCH_RANGE(UT_END-1 0..9)	30435
+unit_type	12	0	1187	OUT_OF_MARCH_RANGE(UT_END-1 0..9)	30578
+unit_class	0	7159	18786		30000
+unit_class	1	4334	8472		1
+unit_class	2	4243	8290		15
+unit_class	3	4269	8337		8
+unit_class	4	4247	8264		28
+unit_class	5	3776	7826		35
+unit_class	6	3589	7925		56
+unit_class	7	567	5476		30123
+unit_class	8	432	3658		71
+unit_class	9	17	3509		83
+unit_class	10	20	53		22
+unit_class	11	20	51		23
+unit_class	12	20	45		24
+unit_class	13	20	45		25
+unit_class	14	19	45		26
+unit_class	15	20	46		27
+unit_class	16	39	44		99240
+unit_class	17	39	46		99250
+unit_class	18	39	43		99260
+unit_class	19	38	42		99270
+unit_class	20	24	29		40000
+unit_class	21	24	29		40060
+unit_class	22	544	549		40500
+unit_class	23	546	552		40510
+unit_class	24	544	551		40520
+unit_class	25	545	551		40530
+unit_class	26	545	550		40540
+unit_class	27	550	596		40550
+unit_class	28	12	22		41590
+unit_class	29	7	16		41725
+unit_class	30	7	16		41726
+unit_class	31	9	19		41730
+unit_class	32	0	14		41762
+unit_class	33	0	14		41780
+unit_class	34	0	22		41788
+unit_class	35	0	17		41815
+unit_class	36	0	15		41828
+unit_class	37	0	18		41934
+unit_class	38	0	18		41935
+unit_class	39	0	13		42101
+unit_class	40	0	13		42033
+unit_class	41	0	13		42049
+unit_class	42	0	13		42093
+unit_class	43	0	13		42065
+unit_class	44	0	13		42137
+unit_class	45	0	13		42182
+unit_class	46	0	13		42198
+unit_class	100	957	1005		42
+unit_class	101	957	1005		43
+unit_class	102	862	1004		46
+unit_class	103	863	1005		47
+unit_class	104	864	1006		48
+unit_class	105	863	1005		49
+unit_class	106	782	1012		52
+unit_class	107	781	1011		53
+unit_class	108	946	1123		54
+unit_class	109	947	1124		55
+unit_class	110	612	784		40260
+unit_class	111	612	784		40320
+unit_class	112	575	711		69
+unit_class	113	581	719		41000
+unit_class	114	580	716		70
+unit_class	115	578	715		41100
+unit_class	116	578	715		41150
+unit_class	117	584	792		41200
+unit_class	118	14	1917		41650
+unit_class	119	15	63		41737
+unit_class	120	11	15		41745
+unit_class	121	11	15		41750
+unit_class	122	0	15		41768
+unit_class	123	0	17	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	41774
+unit_class	124	0	16	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	41797
+unit_class	125	0	11	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	41821
+unit_class	126	0	12	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	41834
+unit_class	127	0	13	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	135637
+unit_class	128	0	13	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	135643
+unit_class	129	0	15	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	42109
+unit_class	130	0	13	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	42041
+unit_class	131	0	13	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	42057
+unit_class	132	0	13	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	42085
+unit_class	133	0	13	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	42073
+unit_class	134	0	16	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	42145
+unit_class	135	0	16	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	42190
+unit_class	136	0	15	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	42206
+unit_class	200	0	5328	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	30344
+unit_class	201	0	1839	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	30435
+unit_class	202	0	1099	OUT_OF_MARCH_RANGE(last UNIT_CLASS 0..122)	30578
+eqip_position	0	6063	19893		61205
+eqip_position	1	460	724		72000
+eqip_position	2	7142	16897		7
+eqip_position	6	1198	6664		1
+eqip_position	7	17	173		2
+eqip_position	8	8296	14956		3
+eqip_position	9	8265	14580		4
+eqip_position	10	8238	14547		5
+eqip_position	11	8544	14910		6
+eqip_position	14	0	22		470311
+eqip_position	17	262	827		30015
+eqip_position	18	229	1010		30021
+eqip_position	19	100	293		30005
+eqip_position	20	345	1440		30007
+eqip_position	21	209	1041		30002
+eqip_position	22	166	525		30031
+eqip_position	23	104	288		30011
+eqip_position	24	50	117		30001
+eqip_position	25	88	427		69914
+eqip_position	26	0	475		30427
+eqip_position	27	0	305		30270
+eqip_position	36	7	7		40940
+eqip_position	38	54	1307		42220
+special_ability_type	1	51	63		72000
+special_ability_type	2	56	87		70030
+special_ability_type	3	17	27		72500
+special_ability_type	4	2	4		77070
+special_ability_type	5	17	28		72500
+special_ability_type	6	16	25		72500
+special_ability_type	8	1	1		104900
+special_ability_type	9	2	8		163154
+special_ability_type	10	3	10		164571
+special_ability_type	11	9	18		98003
+special_ability_type	12	3	4		131661
+special_ability_type	13	75	142		70000
+special_ability_type	16	10	18		70083
+special_ability_type	17	8	9		70081
+special_ability_type	18	32	83		77210
+special_ability_type	19	48	103		70055
+special_ability_type	20	4	4		70081
+special_ability_type	21	7	8		160938
+special_ability_type	22	6	7		160938
+special_ability_type	23	4	11		78060
+special_ability_type	24	5	8		77320
+special_ability_type	25	3	3		67004140
+special_ability_type	26	2	2		67004140
+special_ability_type	27	1	2		60001529
+special_ability_type	28	1	2		60001529
+special_ability_type	29	4	7		60001529
+special_ability_type	30	4	4		77330
+special_ability_type	31	3	4		92295
+special_ability_type	33	4	6		85001866
+special_ability_type	34	230	308		78620
+special_ability_type	35	1	2		90000996
+special_ability_type	36	1	1		210000120
+special_ability_type	37	2	2		60007090
+special_ability_type	38	0	1		78905
+special_ability_type	39	1	2		185080
+special_ability_type	40	0	240	OUT_OF_MARCH_RANGE(SAT_END-1 0..39)	69865
+special_ability_type	41	0	1	OUT_OF_MARCH_RANGE(SAT_END-1 0..39)	100001054
+special_ability_type	42	0	5	OUT_OF_MARCH_RANGE(SAT_END-1 0..39)	78989
+special_ability_type	43	0	1	OUT_OF_MARCH_RANGE(SAT_END-1 0..39)	78977
+special_ability_type	51	0	2	OUT_OF_MARCH_RANGE(SAT_END-1 0..39)	188854
+extra_key	0	11	47	OUT_OF_MARCH_RANGE(UNIT_TYPE 1..9 1..9)	81290
+extra_key	1	1158	3429		30000
+extra_key	2	1263	3638		30000
+extra_key	3	1295	3615		30000
+extra_key	4	1344	3883		30000
+extra_key	5	1327	3718		30000
+extra_key	6	1209	3484		30000
+extra_key	7	1262	3453		30000
+extra_key	8	1147	3147		30000
+extra_key	9	1103	3131		30000
+extra_key	10	0	3062	OUT_OF_MARCH_RANGE(UNIT_TYPE 1..9 1..9)	30164
+extra_key	11	0	2852	OUT_OF_MARCH_RANGE(UNIT_TYPE 1..9 1..9)	30164
+extra_key	12	0	2815	OUT_OF_MARCH_RANGE(UNIT_TYPE 1..9 1..9)	30165
+extra_key	13	0	3139	OUT_OF_MARCH_RANGE(UNIT_TYPE 1..9 1..9)	30164
+flags_bit7(June=PvP equip)	0	49837	111188		1
+flags_bit7(June=PvP equip)	1	0	240		69865
+flags2_bit2	0	49837	108846		1
+flags2_bit2	1	0	2582	OUT_OF_MARCH_RANGE(March flags2 bit0 only 0..0)	30385
+hide_set_desc	0	49837	111428		1

@@ -288,6 +288,65 @@ Write `.tsv`s under `june_item_kim/`, plus a Done note of at most about 60 lines
      shown, and how save-breakers are handled.
    - `K2.md` is amended.
 
+### Phase K1 - Done
+
+2026-10-08, Sonnet 5.5 high. No game code, no flag, no build. Landed in `june_item_kim/` (scripts `k1_ids.py`, `k1_census.py`; they
+need the decompiled staged March tables and a save copy in `K1_SCRATCH`, see their headers): `k1_reachable_ids.tsv`,
+`k1_reachable_diff.tsv` + `_summary.tsv`, `k1_save_breakers.tsv`, `k1_newly_visible.tsv`, `k1_enum_census.tsv`, `k1_enum_names.tsv`,
+`k1_cross_ids.tsv`, `k1_assets_reachable.tsv`, `k1_assets_all.tsv`, `k1_assets_to_adopt.tsv`, `k1_code_census.tsv` (66 rows).
+
+**Which path loads today (task 7).** `item.kim`. The last `ErrorLog.txt` (2026-10-07 21:20) holds 91 `ErrorEnum(72)` lines and none names
+`item.kim`, `Item.lua` or `SetItem.lua` (`KEM_ERROR72` is `LoadAndDoMemory`'s file-not-found line, `KTDXApp.h:530-570`, so the log shows
+`ErrorEnum(72)`, not the macro name). No `Item.lua`/`SetItem.lua` exists in any extracted kom or loose in the game dir, so the Lua
+fallback has nothing to load; `CASH_SHOP_TOOL_PLAN.md:136-142` ("no .kim anywhere") is stale.
+
+**Reachable set (task 1).** 22 id sources by call shape (`k1_ids.py` header). 58,387 distinct ids hit a kim: 46,110 in both, 12,277
+June-only, **0 March ids missing from June**. Sources that are stand-ins: cube = `ServerResource/US/RandomItemTable.lua` (the
+staged copy would not decompile; it is newer than the tree, so 3,961 of its ids are June-only).
+- **Save-breakers: none.** 91 equipped rows, 8 units, every one has a record in both kims and no gating field differs (`eqip_position`,
+  unit type/class, use type/condition, level, `no_equip`). What does change on 27 equipped items: `set_id` 0 -> a set on 20 (Ara
+  41460-41500, Elesis 41720-24, 130134-38, 133125-29: they gain set bonuses) and default socket ids on 7. June wins; no handling.
+- **66 reachable items change equip slot, 64 of them 17 -> 26.** June 26/27 are `EP_AC_MINIME`/`EP_AC_EARRING`; March has no slot
+  there (`EP_AC_TEMP2`, unused). They are the Mini-me items, equippable in March today as a face accessory. June has 475 items at 26
+  (127 reachable) and 305 at 27 (9 reachable). **Decision D2.**
+- Other reachable diffs (`_summary.tsv`): socket ids 845, set id 355, Def 214, Atk 142, quantity 146, price 124, 58 unit-class and 20
+  unit-type fixes (0 -> the right class), eqip 66, Lu/Ciel/Rose/Ain Extra keys on 780. Data changes, not misreads.
+
+**Enum census (task 2, `k1_enum_census.tsv`).** Out of March's range, all unreachable: item type 14 (1,207), unit type 10-12 (8,572),
+unit class 123-136 and 200-202 (8,462), SA 40-43 and 51 (249 records), Extra key 10-13, flags2 bit 2 (2,582). Reachable: **none**.
+Eqip stays <= 38, grade <= 6. `buy_pvp_rank` 9 (31 items) and 10 (52) exceed March's `PVP_RANK` (max 9; 10 = `PVPRANK_MAX`): none
+reachable, but hovering one crashes (`X2ItemSlotManager.cpp:3552`, null `GetPVPEmblemData`; checked). SAT 0-39 and `ITEM_TYPE` 0-13 have
+the same names at the same numbers in March and June (`k1_enum_names.tsv`, 0 different), so the SA pool layout claim holds.
+
+**Cross-table (task 3, `k1_cross_ids.tsv`).** Buff factors: 46 ids, 0 absent from the staged `Enum.lua`. Socket ids: 0 absent from
+`OptionItemData.lua`. Sets: 0 June items point to a missing set. Gaps: 2 set-option ids (31701, 35300; 19 refs) absent from
+`OptionItemData`; March has 0 (K2 guard: log). Random-socket ids are not `OptionItemData` ids (March has the same 5 misses): no gap.
+`SocketOptionForm.lua` holds functions only, no ids.
+
+**Assets (task 4).** Index = every file under `kom_contents` + the game dir (103,894 names); `drop_viewer` and particle names are not files
+and are not checked. (a) **39 reachable March-item asset names change to a file March lacks, on 28 ids** (`k1_assets_reachable.tsv`,
+`march-visible`; Lu/Ciel/Rose/Ain keys excluded: those units do not exist): e.g. 90003060-67 Ara/Elsword.. INT hair/hand meshes + shop
+images, 129716-18 `_old_Event_Foot30`. (b) **294 newly visible `cash_product` rows, 122 with a missing file (268 names)**, 36,190 of
+111,428 June ids overall (`k1_assets_all.tsv`, unreachable mostly). **Every one of the 268 + 39 names exists in a June kom**
+(`k1_assets_to_adopt.tsv` names the kom: data191, data143, data016, datai023, ...). 119 other missing names (110 package-item
+`HQ_Shop_Item_*.dds`, 9 cube) exist in no June kom. **Decision D1.**
+
+**Code census (task 5, `k1_code_census.tsv`; 66 rows: 22 K2-change, 9 guard+skip+log, 9 extend, 26 negative).** Checked by hand: the
+struct/loader sites, `X2ItemSlotManager.cpp:3552`, `X2BeginningGame.cpp:946`, `X2Unit.cpp:589`, `CreateShopImageNameList`. Highest risk:
+(1) struct + `DoMemoryNotEncrypt` (K2); (2) the PvP-emblem deref; (3) the 5- vs 7-float stat pool (Def reads 0); (4) `EP_END`-sized arrays
+indexed by eqip position (safe only because `SERV_NEW_ONE_PIECE_AVATAR_SLOT` is on for US); (5) 39 unguarded `GetItemTemplet(id)->`
+sites (safe: 0 reachable id is missing); (6) `item.kim` skipped if a June `Item.lua` appears; (7) memory; (8) three O(n) lists at 2.3x
+(`CreateShopImageNameList` runs every launch, ~8 MB for 111k; cheat list; personal-shop autocomplete). No array is sized `IT_NUM`,
+`IG_NUM` or `SAT_END`; the Extra readers are searches, so keys 10-13 just default.
+
+**Memory (task 6).** `X2_offline.exe` header Characteristics 0x0103: **not LargeAddressAware** (2 GB). June's entry is zlib, 6.2 MB packed,
+67.5 MB inflated. `LoadAndDoMemory` takes a 67.5 MB buffer (above the pooled buckets, `BUCKET_NUMS` 23 = 4 MB max, so it is freed after
+the load), then `vector::assign` copies it into one retained 67.5 MB block: **peak about 141 MB, 67.5 MB retained**, both contiguous,
+during `CX2Data::ResetItemManager` at startup (load order against texture init not measured). Headroom looks adequate; no copy-free
+load proposed unless the K4 working-set line says otherwise. K2 logs the working set after load.
+
+**Handed to K2/K3 / not K1:** gold coin 127041 is in June's kim (K3 task 4). **Open decisions** are one STATUS row (`decision`).
+
 ## Phase K2 - Loader port and data swap
 
 **Flags:** `SERV_IRUHADEV_JUNE_ITEM_KIM`, `SERV_IRUHADEV_KIM_LAYOUT_CHECK`.

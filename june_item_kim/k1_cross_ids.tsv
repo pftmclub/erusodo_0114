@@ -1,0 +1,15 @@
+check	count	detail
+june buff-factor ids used (distinct)	46	
+june buff-factor ids absent from staged Enum.lua BUFF_FACTOR_ID (distinct)	0	[]
+  ... of which carried by a reachable id	0	{}
+OptionItemData.lua socket option ids defined	13408	
+june socket_options ids absent from OptionItemData (distinct / items)	0 / 0	[]
+june random_socket_options ids absent from OptionItemData (distinct / items)	168 / 1252	[2030, 3020, 3030, 3040, 3050, 4008, 4009, 5004, 5010, 5100, 5120, 5130, 6900, 10010103, 10010203, 10010303, 10010403, 10010503, 10010603, 10010703]
+june items whose set_id has no set record	0	[]
+march items whose set_id has no set record (baseline)	24	[259160, 259170, 259180, 259190, 259200, 259210, 259220, 259230, 259240, 259250, 259260, 259270, 260220, 260230, 260240, 260250, 260260, 260270, 260280, 260290]
+set options referenced by June set records: see k1 section in the plan (set option ids are in OptionItemData too)		
+june set option refs absent from OptionItemData (refs / distinct ids)	19 / 2	[31701, 35300] (of 52425 refs)
+BASELINE march socket_options absent from OptionItemData (distinct)	0	
+BASELINE march random_socket_options absent from OptionItemData (distinct)	5	[2030, 3020, 3040, 4008, 4009]
+BASELINE march set option refs absent from OptionItemData (refs / distinct)	0 / 0	[]
+june random_socket ids absent from OptionItemData AND from SocketItemTable.lua AddSocketRandomData (distinct)	168	[2030, 3020, 3030, 3040, 3050, 4008, 4009, 5004, 5010, 5100, 5120, 5130, 6900, 10010103, 10010203, 10010303, 10010403, 10010503, 10010603, 10010703]
