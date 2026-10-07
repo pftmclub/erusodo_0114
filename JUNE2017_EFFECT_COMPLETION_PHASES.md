@@ -1387,7 +1387,9 @@ reach the exe if a call site compiled with the flag), and `X2.map` holds `CX2Squ
 **How to see it in game.** You cannot: it is inert. The regression play-test is the review's: emote in the village, in the character select and in a dungeon, village -> dungeon -> village,
 clean exit. 0 EXCEPTION, no new `X2_*.tmp`, the C9c line `UNIT_VIEWER_FX_LOAD ... rows=18` unchanged. Once `data036` is copied the 11 templets load with the other sets (`EffectSet` load lines unchanged).
 
-**User owes:** the regression play-test, then /cost.
+**Regression play-test PASSED 2026-10-07** (exe `f1966238`, run 17:09:27-17:10:44, after the `data036` copy; logs read): State.log login -> server select -> village -> dungeon -> village; ErrorLog `JUNE_FX ES_LOAD UIEffectSet.lua loaded=1 templets=78` (67 + the 11) and `UNIT_VIEWER_FX_LOAD ... rows=18 skipped_duplicate=0 skipped_bad_args=0` unchanged; 0 EXCEPTION, clean exit (census + `SHUTDOWN clean`), no new `X2_*.tmp` (the newest is from 2026-10-03). The only UNHANDLED packet is `E_DISABLE_HB_CHECK_REQ` (not this phase). The `GameMajorParticle24+` KEM_ERROR136 lines are old and unrelated. Emotes leave no packet offline, so the user's emote check is the evidence that they did not fault.
+
+**User owes:** /cost.
 
 ---
 
