@@ -5629,3 +5629,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_TOUCH_LAND needs SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June effect completion C9g-2 (JUNE2017_EFFECT_COMPLETION_PHASES.md):
+//              June's AnimationNameTable.lua and CX2UnitViewerUI::PlayByMotionType
+//              (31fa7ef0): g_pUnitManager:AddAnimationName (3237a060) + the
+//              GetAnimationName lookup (32375ee0), loaded in ResetUnitManager
+//              (31ee6100); UNIT_VIEWER_UI_MOTION_TYPE renumbered to June's
+//              (HABIT 6, SIT_READY 7, SIT_WAIT 8, STANDUP 9, WAIT_DELETE 10);
+//              PlayByMotionType takes the lobby motion name from the table, with
+//              June's head (emotion reset, effect group stops) and bTransition;
+//              the square's lobby WAIT name (323f2320) comes from the table too.
+//              Log: "JUNE_FX ANIM_NAME_LOAD" in ErrorLog.txt (JUNE_FX_DEBUG).
+//              The head's group stops need
+//              SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER.
+#define SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
+//////////////////////////////////////////////////////////////////////////

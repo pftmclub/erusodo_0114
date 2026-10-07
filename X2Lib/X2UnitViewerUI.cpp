@@ -299,7 +299,12 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 	// (m_ePlayedEmotion, confirmed by the C9c-2b review from PlayEmotion 31fa52b0's sit/stand gates), +0x1dc = motion type
 	// 7/8 (never in March), then the base viewer's update
 	m_iJuneFxTriggerCode1 = static_cast<int>( m_ePlayedEmotion );
+#ifdef SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
+	// June 31fa8ce0 @31fa8d32-31fa8d46 writes only +0x1d8 here: +0x1dc is stored by PlayByMotionType (31fa7ef0), so no
+	// per-frame reset (the reset above was a C9c-2b simplification: motion types 7/8 did not exist in March)
+#else SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 	m_iJuneFxTriggerCode2 = 0;
+#endif SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 	CX2BaseUnitViewerUI::OnFrameMove( fTime, fElapsedTime );
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 
@@ -4038,6 +4043,100 @@ void CX2UnitViewerUI::UpdateEquipSlotVisibility()
 }
 #endif	NOT_RENDERING_OTHER_EQUIP_POS
 
+#ifdef SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
+// June2017 CX2UnitViewerUI::PlayByMotionType 31fa7ef0 ( type, bTransition ): a rewrite over AnimationNameTable.lua (the
+// lookup is CX2UnitManager::GetAnimationName 32375ee0) of March's per-class PlayAnim switch kept in the #else below.
+// Written in June's order: the stores and the customize pre-pass head (31fa5c90) run before the unit tests.
+void CX2UnitViewerUI::PlayByMotionType( CX2UnitViewerUI::UNIT_VIEWER_UI_MOTION_TYPE motionType, bool bTransition )
+{
+	// @31fa7ef0 stores. +0xfa0 = 0 is June's float idle (HABIT) timer, compared with +0xf9c in 31fa8ce0 @31fa9a1f, which
+	// plays HABIT behind +0xf90 (customize habit) or unit type 0xb (June Rose): neither exists in March (backlog Stage 12 /
+	// the character port), so there is no member to reset. +0xfa4 is a copy of the type that only June's customize preview
+	// (32228af0, ==7) reads: not stored. +0xe58 = m_eOldMotionType.
+#ifdef UNIT_EMOTION
+	m_eOldMotionType = motionType;
+#endif
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// +0x1dc: SIT_READY -> 2, SIT_WAIT -> 1, else 0 (the viewer effect trigger code)
+	m_iJuneFxTriggerCode2 = ( UVUMT_SIT_READY == motionType ) ? 2 : ( ( UVUMT_SIT_WAIT == motionType ) ? 1 : 0 );
+#endif
+
+	// 31fa5c90 head, the data-independent part. +0xe5c = m_ePlayedEmotion is reset unless the viewer state is 10 (a June-only
+	// state: March's enum ends at UVS_WATCH = 8). +0xe60 (a byte only PlayEmotion's customize path sets) and +0xd82 (duo shown)
+	// have no March member. The customize WAIT shortcut (types 1-2 with a custom WAIT name) and the custom-motion jump table
+	// (31fa6370, 31f968a0 custom effect sets, the sit arrays) are backlog Stage 12: in March the function always returns false.
+#ifdef UNIT_EMOTION
+	if( 10 != static_cast<int>( m_eUnitViewerState ) )
+		m_ePlayedEmotion = CX2Unit::ET_NONE;
+#endif
+	if( UVUMT_HABIT != motionType && UVUMT_SIT_READY != motionType && UVUMT_SIT_WAIT != motionType )
+	{
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+		// cash shop: groups 0..2 (329594c0), else 0..4 (31fac190)
+		if( UVS_CASHSHOP == m_eUnitViewerState )
+		{
+			JuneViewerFxStop( 0 );
+			JuneViewerFxStop( 1 );
+			JuneViewerFxStop( 2 );
+		}
+		else
+		{
+			for( int iJuneFxGroup = 0; iJuneFxGroup < 5; ++iJuneFxGroup )
+				JuneViewerFxStop( iJuneFxGroup );
+		}
+#endif
+	}
+
+	// @31fa7ef0 after the pre-pass: needs the unit and the unit manager
+	if( NULL == m_pUnit || NULL == g_pData || NULL == g_pData->GetUnitManager() )
+		return;
+
+	int iMotionType = static_cast<int>( motionType );
+
+	// unit type 0xb (June UT_ROSE; March's UNIT_TYPE ends at UT_ADD, so inert): WAIT -> WAIT1 in the cash shop, WAIT1/WAIT2 -> WAIT
+	if( NULL != m_pUnit->GetUnitTemplet() && 11 == static_cast<int>( m_pUnit->GetUnitTemplet()->m_UnitType ) )
+	{
+		if( UVUMT_WAIT == iMotionType )
+		{
+			if( UVS_CASHSHOP == m_eUnitViewerState )
+				iMotionType = UVUMT_WAIT1;
+		}
+		else if( UVUMT_WAIT1 == iMotionType || UVVMT_WAIT2 == iMotionType )
+			iMotionType = UVUMT_WAIT;
+	}
+
+	const std::wstring wstrAnimName = g_pData->GetUnitManager()->GetAnimationName( m_pUnit->GetClass(), iMotionType );
+
+	switch( iMotionType )
+	{
+	case UVUMT_WAIT:
+	case UVUMT_WAIT1:
+	case UVVMT_WAIT2:
+		PlayAnim( wstrAnimName.c_str(), CKTDGXSkinAnim::XAP_LOOP, bTransition );
+		break;
+	case UVUMT_LEVEL_UP:
+		{
+			PlayAnim( wstrAnimName.c_str(), CKTDGXSkinAnim::XAP_ONE_WAIT, bTransition );
+
+			// = March's Eve level-up sound (June 31d414d0( 0, 0 ) on +0xe54)
+			if( CX2Unit::UT_EVE == m_pUnit->GetType() && NULL != m_pSound_Eve_LevelUp )
+				m_pSound_Eve_LevelUp->Play( false, false );
+		} break;
+	case UVUMT_SIT_READY:
+		PlayAnim( L"Emotion_SitReady", CKTDGXSkinAnim::XAP_ONE_WAIT, bTransition );
+		break;
+	case UVUMT_SIT_WAIT:
+		PlayAnim( L"Emotion_SitWait", CKTDGXSkinAnim::XAP_LOOP, bTransition );
+		break;
+	case UVUMT_STANDUP:
+		PlayAnim( L"Emotion_StandUp", CKTDGXSkinAnim::XAP_ONE_WAIT, bTransition );
+		break;
+	default:
+		PlayAnim( wstrAnimName.c_str(), CKTDGXSkinAnim::XAP_ONE_WAIT, bTransition );
+		break;
+	}
+}
+#else SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 void CX2UnitViewerUI::PlayByMotionType( CX2UnitViewerUI::UNIT_VIEWER_UI_MOTION_TYPE motionType )
 {
 #ifdef UNIT_EMOTION
@@ -5128,6 +5227,7 @@ void CX2UnitViewerUI::PlayByMotionType( CX2UnitViewerUI::UNIT_VIEWER_UI_MOTION_T
 	}
 }
 
+#endif SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 int CX2UnitViewerUI::GetEnchantExtraDamageType()
 {
 	CX2DamageManager::EXTRA_DAMAGE_TYPE finalExtraDamageType = CX2DamageManager::EDT_NONE;

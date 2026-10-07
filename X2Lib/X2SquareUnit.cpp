@@ -910,6 +910,13 @@ void CX2SquareUnit::InitParticle()
 */
 void CX2SquareUnit::InitWaitMotion()
 {
+#ifdef SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
+	// June 323f2320 (323fa700 runs it when the customize WAIT test 323f92f0 is false: always, in March): the lobby WAIT name is
+	// GetAnimationName( class, WAIT ) of AnimationNameTable.lua, replacing the per-class switch below. The sit / stand names
+	// 323fa700 also sets (types 7-9) belong to backlog Stage 10 (emotion system).
+	if( NULL != g_pData && NULL != g_pData->GetUnitManager() )
+		m_wstrLobbyWaitMotionName = g_pData->GetUnitManager()->GetAnimationName( GetUnit()->GetClass(), 0 );
+#else SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 	switch( GetUnit()->GetClass() )
 	{
 	case CX2Unit::UC_ELSWORD_SWORDMAN:
@@ -1088,6 +1095,7 @@ void CX2SquareUnit::InitWaitMotion()
 		break;
 #endif //SERV_ADD_LUNATIC_PSYKER
 	}
+#endif SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 }
 
 /** @function 	: RidingOn

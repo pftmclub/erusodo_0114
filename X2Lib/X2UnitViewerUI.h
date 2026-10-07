@@ -16,6 +16,24 @@
 {
 	public:
 
+#ifdef SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
+		// June2017 Enum.lua UNIT_VIEWER_UI_MOTION_TYPE (HABIT 6, SIT 7-9, WAIT_DELETE 6 -> 10); March's identifiers are kept
+		enum UNIT_VIEWER_UI_MOTION_TYPE
+		{
+			UVUMT_NONE = -1,
+			UVUMT_WAIT = 0,
+			UVUMT_WAIT1,
+			UVVMT_WAIT2,
+			UVVMT_DOWN_LANDING,
+			UVUMT_READY,
+			UVUMT_LEVEL_UP,
+			UVUMT_HABIT,
+			UVUMT_SIT_READY,
+			UVUMT_SIT_WAIT,
+			UVUMT_STANDUP,
+			UVUMT_WAIT_DELETE,
+		};
+#else SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 		enum UNIT_VIEWER_UI_MOTION_TYPE
 		{
 			UVUMT_WAIT = 0,
@@ -28,6 +46,7 @@
 			UVUMT_WAIT_DELETE,
 //#endif //SERV_UNIT_WAIT_DELETE
 		};
+#endif SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 
 		enum UNIT_VIEWER_STATE
 		{
@@ -119,7 +138,11 @@
 		
 		static void SetShowUnitViewerUI( bool bShow ) { m_sbShow = bShow; }
 
+#ifdef SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
+		void PlayByMotionType( CX2UnitViewerUI::UNIT_VIEWER_UI_MOTION_TYPE motionType, bool bTransition = true );
+#else SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 		void PlayByMotionType( CX2UnitViewerUI::UNIT_VIEWER_UI_MOTION_TYPE motionType );
+#endif SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 		void GetJuneDivisionEquips( int iDivisionType, std::vector<CX2EqipPtr>& vecOut );	// June 31fa2f20
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET

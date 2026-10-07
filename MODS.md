@@ -3172,6 +3172,22 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
   line in ErrorLog.txt. JUNE_BUGS 100-102. **Revert:** undefine it and rebuild all projects. The data can stay: with the flag off
   nothing loads `RenderDivisionItemTemplet.lua`, and the extra enum tables and sets are unused.
 
+### June effect completion C9g-2: June's PlayByMotionType and AnimationNameTable.lua
+
+- **`SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE`.** June replaced March's per-class lobby motion switch in `CX2UnitViewerUI::PlayByMotionType`
+  (`X2UnitViewerUI.cpp`, 1,090 lines, kept in the `#else`) with a lookup in `AnimationNameTable.lua` (384 rows): `g_pUnitManager:AddAnimationName`,
+  `CX2UnitManager::GetAnimationName`, loaded in `ResetUnitManager`. `UNIT_VIEWER_UI_MOTION_TYPE` is renumbered to June's (HABIT 6, SIT 7-9,
+  WAIT_DELETE 6 -> 10); `PlayByMotionType` takes `bool bTransition = true` and runs June's head first (`m_ePlayedEmotion` reset, viewer effect
+  group stops 0..4, cash shop 0..2). `CX2SquareUnit::InitWaitMotion` takes its WAIT name from the table. WAIT1/WAIT2 now loop; the table drives the
+  Little Devil orb (March's keyed `ALD_lobbyWait` hard-code never fires again) and the Pyro Knight ready-action fire. Log: `JUNE_FX ANIM_NAME_LOAD`
+  (`rows=384 inserted=230 skipped_duplicate=154 class_none=160`: 31 June classes are missing from March's Lua `UNIT_CLASS` and load as class 0).
+- **Data.** `data036`: `Enum.lua` + `UNIT_VIEWER_UI_MOTION_TYPE`, `AnimationNameTable.lua` (+ manifest entry). `data033`: June's `Motion_EL_Lobby.x`,
+  `Motion_ARA_Lobby.x` (1 byte repaired: appended `1`, user's choice), `Motion_ARA_Common.x`, `Motion_EVE_Common.x` replace March's (June renamed 7
+  motions: `PR_LobbyDownLanding`, `ALD_LobbyWait`, `AYR_LobbyReadyAction`, `SSK_/SPK_LobbyReadyAction`).
+- **Revert.** Undefine the flag and rebuild all projects; and **restore March's four motion files** (backups `%TEMP%/c9g2_backup033`, or the
+  kom backup `kom_backup_tools/data033.kom.20261008_042838`): with the flag off March's code asks for `PR_LobbyDownlanding`, `ALD_lobbyWait`,
+  `AYR_LobbyReadyAtcion`, `SSK_/SPK_LobbyReadyaction`, which June's files no longer carry. The `data036` additions can stay (unused).
+
 ### June effect completion C7: touch-land runtime and three spawner gaps
 
 - **`SERV_IRUHADEV_JUNE_TOUCH_LAND`** (needs `SERV_IRUHADEV_JUNE_SPAWN_INHERIT`). `CXMeshInstance` gets June's previous-frame

@@ -2006,6 +2006,64 @@ The user hears this at C9g-2's hand-off.
 
 ---
 
+### C9g-2 - Done (2026-10-07/08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE`; play-test pending)
+
+**Landed** (MODS.md "June effect completion C9g-2"). June's `PlayByMotionType` `31fa7ef0` over `AnimationNameTable.lua`, whole function:
+- **Enum** (`X2UnitViewerUI.h`): `UVUMT_NONE -1`, WAIT..LEVEL_UP 0-5, `HABIT 6`, `SIT_READY 7`, `SIT_WAIT 8`, `STANDUP 9`, `WAIT_DELETE 10`. Every
+  caller names the enum (no number is stored or compared), so the renumber is safe. `PlayByMotionType( type, bool bTransition = true )`.
+- **Table** (`X2UnitManager`): bind `AddAnimationName` (`3237a060`, `X2Main.cpp`), map keyed (class, type), **first row wins** (`3238b0e0` frees the
+  new node on an equal key), a nil class reads 0 and is inserted (June's typed reads), `GetAnimationName` (`32375ee0`, defaults verbatim, no class-0
+  fallback). Loaded in `ResetUnitManager` before the C9c-1 table (`31ee6217` before `31ee6224`). A script rerun of the load against March's
+  `UNIT_CLASS` (56 entries) predicts `rows=384 inserted=230 skipped_duplicate=154 class_none=160`, as the kickoff expected.
+- **`PlayByMotionType`**, June's order: `m_eOldMotionType`, `m_iJuneFxTriggerCode2` (7 -> 2, 8 -> 1), the `31fa5c90` head (`m_ePlayedEmotion = ET_NONE`
+  unless state 10; group stops 0..4, cash shop 0..2, skipped for types 6/7/8), then the unit tests, the Rose remap (type 0xb, inert), the name, `PlayAnim`
+  (0-2 LOOP, 8 LOOP, rest ONE_WAIT), Eve's level-up sound, 7/8/9 with their literal names. Customize jump table / custom WAIT shortcut: cited, Stage 12.
+- **Square**: `InitWaitMotion` takes `GetAnimationName( class, WAIT )` (`323f2320`; `323fa700` calls it when the customize test `323f92f0` is false).
+  The 7/8/9 names `323fa700` also sets are Stage 10.
+- **C9c-2b's per-frame `m_iJuneFxTriggerCode2 = 0`** is bypassed under this flag: June's frame move (`31fa8d32-31fa8d46`) writes only `+0x1d8`.
+
+**Call-site mapping (corrects the funcmap row).** All 55 June callers pass `bTransition` 1 except `32d7c962` (the customize preview, Stage 12).
+The "literal 0" sites were the *type* (the thiscall's last push); `PUSH 0` at `3251248a`, `324e361c`, `32532461`, `32228c65`, `324e7e27/63` is type WAIT with
+the 1 pushed before the branch; the register sites hold 1 (`MOV EBX,1` / `MOV EBP,1`); `325648d3` pushes type 0xa (WAIT_DELETE, = March
+`X2StateServerSelect.cpp:7102`) or 3. So March's default `true` **is** June's behaviour; no March caller needs an argument.
+
+**Identified, not ported** (funcmap rows `Effect C9g-2`):
+- `+0xfa0` = float idle (HABIT) timer, `+0xf9c` its limit; `31fa8ce0 @31fa99f1-31fa9ab8` plays HABIT (type 6) behind `+0xf90` (customize) or unit
+  type 0xb (Rose). No March member -> Stage 12 / checklist 7g. `+0xfa4` = type copy, read only by the customize preview `32228af0`.
+  `+0xe60` = byte set only by PlayEmotion's customize path (`@31fa5c30`), cleared here. `+0xd82` = duo shown.
+- `31fa5c90` returns false for type >= 10 or -1 (`XOR AL,AL @31fa634a`), so WAIT_DELETE plays `LobbyLose`; `SERV_UNIT_WAIT_DELETE` is on for US
+  (`ServerDefine_US.h:48`), as in March. No JUNE_BUGS row (no June quirk ported).
+- `SelectVoiceTable.lua` (opened between Correlate and this table) is still unported; C9c-1's "not ported here" comment is stale for AnimationNameTable.
+
+**Data.**
+- `data036`: `Enum.src.lua` + June's `UNIT_VIEWER_UI_MOTION_TYPE` (decompile = old + 14 lines exactly); `AnimationNameTable.lua` (June source verbatim,
+  decompile = source, 384 rows) + manifest `"AnimationNameTable.lua": "2"`. `PACK OK data036` 192 entries, `+1 added, ~1 changed` (Enum.lua).
+- `data033`: June's `Motion_EL_Lobby.x` (data206), `Motion_ARA_Lobby.x`, `Motion_ARA_Common.x` (data205), `Motion_EVE_Common.x` (data203) replace March's
+  (sizes 2007749 / 1466552 / 6054910 / 6062982; algo 0 as before). Names re-checked with a length-prefixed parse: March-only names are only the
+  renamed ones (`PR_LobbyDownlanding`, `ALD_lobbyWait`, `AYR_LobbyReadyAtcion`, `SSK_/SPK_LobbyReadyaction`). **Wholeness gate:** 3 files extract at
+  the manifest size; **`Motion_ARA_Lobby.x` was 1 byte short** (last name field: length 5, `Wait` present; elstools `-v jun-2017` identical; raw entry
+  not decodable here). The user chose "append `1`" (2026-10-08): it is the only repaired file, = `Wait1` as `Motion_EL_Lobby` ends. Backups of March's files:
+  `%TEMP%/c9g2_backup033`, `c9g2_backup036`. `PACK OK data033`; sizes equal the live kom except the 4 (the other 122 show `~` from recompression).
+- `COPY OK` (user said yes): data033 md5 `b939e2ba...` (backup `data033.kom.20261008_042838`), data036 md5 `f709405e...` (backup `data036.kom.20261008_042837`).
+
+**Hygiene** (`--worktree --files` the 8 code files): `files: 7 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,323,904 B, dated 2026-10-07 22:11:03, md5 fee6eb1fb848f26aaf249c2e0ef2f83f, equal to X2/US_SERVICE/x2.exe (2026-10-07 21:58:49); built at mods/june-buff-port 2931339 + 8 uncommitted code file(s).`
+`ANIM_NAME_LOAD`, `AnimationNameTable.lua` (UTF-16) and `AddAnimationName` are in the exe.
+
+**The user hears this.**
+- With June's `ALD_LobbyWait` the table row plays the same three orb particles as March's kept orb hard-code (`X2UnitViewerUI.cpp:2090`, keyed `ALD_lobbyWait`);
+  that hard-code now never fires. Not removed (user's earlier call).
+- The SPK ready-action fire (lost in C9c-2b) comes back through the table. WAIT1/WAIT2 now loop (`X2Room.cpp:1704/1709`).
+- One data file is repaired by a byte: `Motion_ARA_Lobby.x`.
+
+**How to see it.** Play-test below, then "check logs": `python tools/logs.py --grep "JUNE_FX ANIM_NAME"` should show
+`loaded=1 rows=384 inserted=230 skipped_duplicate=154 class_none=160`, 0 EXCEPTION, no missing-motion line for the 7 renamed names.
+Review: `kickoffs/june-effect/C9g-2-review.md`. **User owes:** /cost.
+
+---
+
 ### C9h - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build): the pet viewer sets are a viewer + engine slice; the reserved sets are the in-game riding pet's -> C9h-2a/2b/3
 
 Read-only in Ghidra. 27 funcmap rows `Effect C9h`. These rows correct C9g in two places:

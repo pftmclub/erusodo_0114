@@ -3631,6 +3631,10 @@ void CX2Main::RegisterLuabind()
 	// June2017 FUN_31d95080: "AddUnitViewerEffectSet" decrypted @31db63a2, pushed @31db64e2 (0x3237a1f0).
 	lua_tinker::class_def<CX2UnitManager>( L, "AddUnitViewerEffectSet",	&CX2UnitManager::AddUnitViewerEffectSet_LUA );
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+#ifdef SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
+	// June2017 FUN_31d95080: "AddAnimationName" decrypted @31db61d0, pushed @31db62b1 (0x3237a060).
+	lua_tinker::class_def<CX2UnitManager>( L, "AddAnimationName",	&CX2UnitManager::AddAnimationName_LUA );
+#endif SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
 	// June2017 FUN_31d95080: "CX2DamageManager" class block @31e16bcb, "InsertDamageData_LUA" decrypted @31e16d8d,
 	// pushed @31e16eae (0x32621080). Elsword_DamageData.lua calls g_pDamageManager:InsertDamageData_LUA.

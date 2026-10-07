@@ -308,6 +308,94 @@ bool CX2UnitManager::OpenJuneUnitViewerEffectSetTable( const WCHAR* pFileName )
 	return bLoaded;
 }
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+#ifdef SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
+// June2017 CX2UnitManager::AddAnimationName_LUA (FUN_3237a060; bind name decrypted @31db61d0, pushed @31db62b1).
+// Lua call: g_pUnitManager:AddAnimationName( UNIT_CLASS, UNIT_VIEWER_UI_MOTION_TYPE, name ). June's typed reads give 0 for a
+// nil enum (a class March's Lua UNIT_CLASS lacks), so such a row is inserted under class 0 (counted as class_none), and a
+// nil name inserts an empty string. The insert is std::map's (3238b0e0 frees the new node on an equal key): first row wins.
+// Stack: 1 = the unit manager, 2 = class, 3 = type, 4 = name.
+bool CX2UnitManager::AddAnimationName_LUA()
+{
+	lua_State* L = g_pKTDXApp->GetLuaBinder()->GetLuaState();
+
+	++m_iJuneAnimationNameRows;
+
+	const int iClass = static_cast<int>( lua_tointeger( L, 2 ) );
+	const int iType = static_cast<int>( lua_tointeger( L, 3 ) );
+	if( 0 == iClass )
+		++m_iJuneAnimationNameClassNone;
+
+	std::wstring wstrName;
+	const char* pszName = lua_tostring( L, 4 );
+	if( NULL != pszName )
+		ConvertUtf8ToWCHAR( wstrName, pszName );
+
+	if( true == m_mapJuneAnimationName.insert( std::make_pair( std::make_pair( iClass, iType ), wstrName ) ).second )
+	{
+		++m_iJuneAnimationNameInserted;
+		return true;
+	}
+
+	++m_iJuneAnimationNameSkippedDuplicate;
+	return false;
+}
+
+// June2017 FUN_32375ee0: a hit returns the row's name; a miss returns the per-type default (March's hard-coded defaults;
+// type 10 = June's WAIT_DELETE, L"LobbyLose"); an unknown type returns L"". June does not fall back to a class-0 row.
+std::wstring CX2UnitManager::GetAnimationName( CX2Unit::UNIT_CLASS eUnitClass, int iMotionType ) const
+{
+	std::map< std::pair<int,int>, std::wstring >::const_iterator it =
+		m_mapJuneAnimationName.find( std::make_pair( static_cast<int>( eUnitClass ), iMotionType ) );
+	if( m_mapJuneAnimationName.end() != it )
+		return it->second;
+
+	switch( iMotionType )
+	{
+	case 0:		return L"LobbyWait";
+	case 1:		return L"LobbyWait1";
+	case 2:		return L"LobbyWait2";
+	case 3:		return L"LobbyDownLanding";
+	case 4:		return L"LobbyReadyAction";
+	case 5:		return L"LobbyLevelUp";
+	case 6:		return L"";
+	case 7:		return L"Emotion_SitReady";
+	case 8:		return L"Emotion_SitWait";
+	case 9:		return L"Emotion_StandUp";
+	case 10:	return L"LobbyLose";
+	default:	break;
+	}
+	return L"";
+}
+
+// Loader half (June 31ee6100 @31ee6217 runs 32376f10 = LoadLuaTinker on the file, after SelectVoiceTable.lua (not ported)
+// and before UnitViewerEffectSetTable.lua). Load time: offline_server.log is not open yet, so the count line goes to ErrorLog.txt.
+bool CX2UnitManager::OpenJuneAnimationNameTable( const WCHAR* pFileName )
+{
+	m_mapJuneAnimationName.clear();
+	m_iJuneAnimationNameRows = 0;
+	m_iJuneAnimationNameInserted = 0;
+	m_iJuneAnimationNameSkippedDuplicate = 0;
+	m_iJuneAnimationNameClassNone = 0;
+
+	const bool bLoaded = OpenDataScriptFile( pFileName );
+
+	WCHAR wszJuneFx[512] = {0};
+	if( false == bLoaded )
+	{
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX ANIM_NAME_LOAD file=%s loaded=0 NOT LOADED: file missing or failed to run; the lobby motions use March's defaults. Pack it into data036.kom.", pFileName );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	else
+	{
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX ANIM_NAME_LOAD file=%s loaded=1 rows=%d inserted=%d skipped_duplicate=%d class_none=%d",
+			pFileName, m_iJuneAnimationNameRows, m_iJuneAnimationNameInserted, m_iJuneAnimationNameSkippedDuplicate, m_iJuneAnimationNameClassNone );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	return bLoaded;
+}
+#endif SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 //{{ robobeg : 2011-01-24
 void    CX2UnitManager::CreateUnitLuaSpace()
 {

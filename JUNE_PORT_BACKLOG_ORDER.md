@@ -331,7 +331,8 @@ rule that an unowned June system gets its own stage. What it covers:
   - the members `+0xf48..+0x11d0`: six custom motion names, three sit-name arrays, the sit-key and per-motion effect-set maps;
   - `ApplyCustomize` `31fa89b0`, `ResetCustomize` `31fa4980`, and the motion-list load `31fa8230`;
   - the custom pre-pass of PlayByMotionType, `31fa5c90`, whose cases 0/3/6 play the custom motion and its group-1 set
-    (`31f968a0`); its data-independent head is ported by june-effect C9g-2;
+    (`31f968a0`); its data-independent head is ported by june-effect C9g-2 (done 2026-10-08, with `AnimationNameTable.lua` and the
+    renumbered enum; the viewer's HABIT idle timer `+0xf9c` / `+0xfa0`, `31fa8ce0 @31fa99f1`, is this stage's);
   - the custom sit sets, groups 1/2: `31fa4ec0`/`31fa4e10`, `31fa5140`/`31fa5180`, and PlayEmotion's block `@31fa5645`;
   - the HABIT helpers `31fa5050` / `323eeea0`.
 - **The square side:** StateStart's custom WAIT set (`323fad80 @323fb795/@323fde30`, group 1) and the GUUser / square sit-effect

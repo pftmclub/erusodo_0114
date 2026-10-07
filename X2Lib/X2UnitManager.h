@@ -3155,6 +3155,19 @@ class CX2UnitManager
 		int												m_iJuneUnitViewerEffectSetSkippedBadArgs;
 	public:
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+#ifdef SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
+		// June2017 AnimationNameTable.lua: one row per (UNIT_CLASS, motion type) (3237a060 inserts, 32375ee0 looks up).
+		bool OpenJuneAnimationNameTable( const WCHAR* pFileName );
+		bool AddAnimationName_LUA();
+		std::wstring GetAnimationName( CX2Unit::UNIT_CLASS eUnitClass, int iMotionType ) const;
+	private:
+		std::map< std::pair<int,int>, std::wstring >	m_mapJuneAnimationName;		// key = ( class, type ), compared in that order
+		int												m_iJuneAnimationNameRows;
+		int												m_iJuneAnimationNameInserted;
+		int												m_iJuneAnimationNameSkippedDuplicate;
+		int												m_iJuneAnimationNameClassNone;
+	public:
+#endif SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 #ifdef REFORM_SKILL_NOTE_UI
 		void GetLowRankUnitClass( OUT vector<CX2Unit::UNIT_CLASS>& vecUnitClass_, IN CX2Unit::UNIT_CLASS eUnitClass_ );
 		void AddCorrelateUnitClass_LUA();
