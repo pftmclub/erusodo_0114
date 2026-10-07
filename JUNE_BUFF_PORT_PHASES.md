@@ -4521,6 +4521,55 @@ Added 2026-10-07 (user: "get its own phase"). This came out of 14b: June's user 
 
 **Kickoff:** `kickoffs/june-buff/14c.md`.
 
+### Phase 14c — Done (2026-10-07, Opus 5.5 high)
+
+**The flag is March's own.** June's `CX2Main +0x16a` is `m_bIsPlayingTutorial`; setter `31d716c0` = `SetIsPlayingTutorial`. Proof: `32563560` is `Handler_EGS_SELECT_UNIT_5_NOT` (June event 0x2e; level 1 && EXP 0 -> set true, as `X2StateServerSelect.cpp:4280`), and `CX2StateDungeonRoom::UISetting` `324e6130` pins `+0x168/169/16a/16c` = PlayFieldDungeon / ExitFieldDungeon / PlayingTutorial / ExitingTutorial (`:1849`). `+0x16b` is a new June once-latch. Flag renamed `SERV_IRUHADEV_JUNE_TUTORIAL_MODE`; the phase became a diff against March's ~90 reads.
+
+**RE.** `june2017_re/sweep_main_tutorial.py` finds 91 `[reg+0x16a/16b]` operands (70 behind a `g_pMain` load), plus the 5 callers of `31fbde80` (a June-only `CX2TutorialGuideManager` at `g_pMain+0x8c4`) and the 20 setter calls. Every one is classified, one row each, in `june2017_re/c14c_tutorial_reads.tsv`:
+- **HAS** (March already reads it the same way): most rows, covering the state classes, DungeonGame, the chat box, UI and the play guide.
+- **MISSING -> ported:** listed below.
+- **MISSING -> listed, not ported:**
+  - `324d1654` QuitGame: June-only gates and a June-only string.
+  - `3255b5c3` CREATE_UNIT_ACK: gated on an unnamed ACK byte `+0x3a9`.
+  - `327f0685` ClearSubStage (`tutorial || auth >= 1`): **not ported because it breaks March.** March clears through this Lua call, so an auth-0 save would stop clearing stages.
+  - The ServerSelect ctor's extra entry-point helper `32576d10`.
+  - `SetShowUI`'s guide-step rows and the rest of June's `SetShowUI` / `SetEnable` / quick-quest toggle rewrites. These depend on June-only systems.
+- **JUNEONLY:** the guide manager, the in-game result phase machine `324cf3d0` / `324dbb30`, the photozone state, `327ca142`'s end delay (part of that restructure), and `328ad970`.
+- **CHAR** (to checklist §7): Eve, Ain, Rose, EL, Ara and Elsword readers, plus the Rose / Ain tutorial skip in CREATE_UNIT_ACK.
+- **NOTMAIN:** `327989e0` (an NPC data struct) and `32dcb570` (the `CX2UISynthesisItem` ctor).
+
+funcmap: `31d716c0` confirmed; new rows `31f5e290`, `31f5d4a0`, `31f5da70`, `327d2160`, `31fbde80` and the tsv; `327cf620` corrected to `CX2DungeonGame::SubStageStart`.
+
+**Ported** (flag `SERV_IRUHADEV_JUNE_TUTORIAL_MODE`; March in `#else`). In the tutorial:
+- the user DamageReact clamp keeps HP at 1 (`@32049b40`), with an always-on `tutorial clamp:` line;
+- RT_FLY: super armor does not stop a launch, and the back speed's x is mirrored (`31feabd0`; June's DamageData byte `+0x3ec` is absent here, so it reads as false);
+- StartEnd: no fanfare, and the fanfare now needs `!m_bStarted` everywhere (`3201b460`);
+- no riding key (`322f7170`) and no shortcut keys (`31f0d390`; March's `COMBOTREE_IN_TUTORIAL` K exception goes);
+- SetShowUI hides the quick slot, the quick quest and the menu bar (dungeon and field);
+- TAB cannot hide a shown quick quest, and its checkbox is re-ticked (`323ddfe0`, `323e1bf0`);
+- the stage-change loading dialogs show (`324cff10`);
+- ESC skips a slide-show frame instead of ending the scene (`325c6b50`);
+- no pets (`326cd8a0`, `326cda80`);
+- the play guide and the Go arrow are hidden (`3289cf20`, `3289d090`);
+- a disabled quick slot is hidden (`3294c460`);
+- select-unit needs `m_bFirstSelect` (`kEvent +0x12a`, the bool after the bingo block in GET `320e9a80`).
+
+The setter's June half:
+- `SetIsPlayingTutorial` is now out of line. On the first true it keeps the key map, fills March's default keys and applies them to the keyboard locally, with no server write (`31f5e290`), then sets the latch `m_bJuneTutorialKeyLatch`.
+- `CX2DungeonGame::Release`, while exiting the tutorial, restores the kept map and clears the latch (`327d2160` -> `31f5d4a0`). The restore is guarded by the latch and a non-empty copy (JUNE_BUGS #89, crash in March otherwise).
+- JUNE_BUGS #90: the latch survives a tutorial left any other way.
+- June's default table is keyed by June's longer GAMEACTION enum, so March's `DefaultSlotData` values are used.
+
+**Emulator** (`SERV_IRUHADEV_OFFLINE_FIRST_SELECT`, user 2026-10-07: "track real first select"): 5_NOT sends `m_bFirstSelect` as live does (`GSUserFunction.cpp:5755`, this character's select count == 0). The count lives in `settings` rows `select_count.<uid>`, so there is no schema change. It logs `[JUNE_BUFF] first select: ...`. Every existing level-1, 0-EXP character will auto-enter the tutorial once on its next select.
+
+**Hygiene:** code commit `6c9b694` (range for the review: `6c9b694^..6c9b694`). `flagcheck --range 6c9b694^..6c9b694 --with SERV_IRUHADEV_OFFLINE_FIRST_SELECT`: `files: 14 PASS, 3 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 5 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. The PASS~ rows are the blank line after a block (`X2DungeonGame.cpp`, `X2Main.cpp`, `X2UIQuestNew.cpp`). The OTHER row is `Handlers_Unit.cpp`, which is under `SERV_IRUHADEV_OFFLINE_FIRST_SELECT`. The 5 EOL notes are LF lines inside `X2UIManager.cpp`'s LF-native `SetShowUI`. MODS.md has rows and a section for both flags.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,311,616 B, dated 2026-10-07 15:42:38, md5 fdfd5cc9656faabc2ea54bac42f9c085, equal to X2/US_SERVICE/x2.exe (2026-10-07 15:42:34); built at mods/june-buff-port a64e371 + 20 uncommitted code file(s).` (the 20th file is a peer's `X2DamageManager.h`). The phase strings were checked present in the deployed exe: `tutorial clamp:`, `tutorial keys:` ×3, `[JUNE_BUFF] first select` and `CheckBox_QuickQuest`.
+
+**How to see it:** create a level-1 character, select it, and the tutorial starts. In it there is no quick slot or menu bar, I/K do nothing, and a monster hit at HP 1 leaves HP 1 (log `tutorial clamp:`). Leave the tutorial (log `key map ... restored`). Select the character again: no tutorial (log `select #2 -> m_bFirstSelect 0`).
+
+**Open for the user:** June rewrote `CX2UIManager::SetShowUI`, `CX2UIQuickSlot::SetEnable` and the quick-quest toggle body around June-only systems (the guide manager, gage-manager cooltime UI, `3266d250`). Only their tutorial terms are ported; the rest belongs to the June UI parity work (`JUNE_UI_PARITY_PHASES.md`).
+
 ---
 
 ## Phase 15 — Enchant system parity (attribute enchant rework)

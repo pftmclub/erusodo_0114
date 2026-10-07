@@ -54,6 +54,8 @@ column.
 | `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER` | 2026-10-07 (June effect completion C9c-2b) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE`, `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE` and `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME`; the play and create lines also need `SERV_IRUHADEV_JUNE_FX_DEBUG`) | `X2Lib/X2BaseUnitViewerUI.h`/`.cpp` (the player: entries, Play, Stop, update, create pass, sound pass, Prepare, Draw, `NotifyShowObjectChanged`, ctor, dtor), `X2Lib/X2UnitViewerUI.h`/`.cpp` (re-parent under `CX2BaseUnitViewerUI`, `PlayAnim` / `OnFrameMove` request queue, the base calls, the dtor stops, the land-dirty byte, nine retired hard-codes), `X2Lib/X2EffectSet.cpp` (`JuneRunViewerMeshTriggers`) |
 | `SERV_IRUHADEV_OFFLINE_NPC_UID_BASE` (offline design, not server/June) | 2026-10-07 (june-buff Phase 14) | `KTDXLIB/Always.h` (end) | `X2Lib/Offline/X2OfflineServer.h` (room `Clear()`: monster UIDs start at 1,000,000) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL` | 2026-10-07 (june-buff Phase 14b) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUUser.h`/`.cpp` (`m_bJuneInstanceKill`, `HaveInstanceKillDebuff`, set and kill in `DamageReact`), `X2Lib/X2BuffTempletManager.cpp` (load line) | -- |
+| `SERV_IRUHADEV_JUNE_TUTORIAL_MODE` | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (before the 14b block) | `X2Lib/X2Main.h`/`.cpp` (out-of-line `SetIsPlayingTutorial`, `JuneOnExitTutorialRestoreKeys`, `m_bJuneTutorialKeyLatch`), `X2KeyPad.h`/`.cpp`, `X2DungeonGame.cpp` (Release), `X2GUUser.cpp` (clamp, RT_FLY, StartEnd), `X2Game.cpp`, `X2State.cpp`, `X2UIManager.cpp`, `X2UIQuestNew.h`/`.cpp`, `X2StateDungeonGame.cpp`, `X2SlideShot.cpp`, `X2PetManager.cpp`, `X2PlayGuide.cpp`, `X2UIQuickSlot.cpp`, `X2StateServerSelect.cpp` | -- |
+| `SERV_IRUHADEV_OFFLINE_FIRST_SELECT` (offline emulator) | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (next to the above) | `X2Lib/Offline/Handlers_Unit.cpp` (`PushSelectUnitNotifications`, 5_NOT) | `SERV_IRUHADEV_OFFLINE` |
 | `SERV_IRUHADEV_JUNE_BUFF_DEBUG` | 2026-10-04, **disabled 2026-10-07** (june-buff Phase 14) | `KTDXLIB/Always.h:4787` (`#define` commented out; re-enable to diagnose) | ~250 `[JUNE_BUFF] first ...` debug sites across `X2Lib` (buff templets, game units, users, NPCs, `X2Main.cpp`'s `JuneBuffTestNewStat_LUA` console hook) | -- |
 
 What each one does:
@@ -3065,6 +3067,21 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
   only the `_INT` Christmas master, BFI 10066) dies at the next damaging hit: June's user `DamageReact` (`320462a0`) sets HP to 0
   after the hit's damage. Monsters are unaffected (June has no NPC reader). The load line now says `... ported`.
   **Revert:** undefine it and rebuild all projects (the debuff becomes a plain slow again).
+
+### June buff port, Phase 14c: the tutorial flag (CX2Main +0x16a)
+
+- **`SERV_IRUHADEV_JUNE_TUTORIAL_MODE`.** June's `CX2Main +0x16a` is March's `m_bIsPlayingTutorial`. This ports June's reads of it
+  that March lacks (classification: `june2017_re/c14c_tutorial_reads.tsv`): in the tutorial HP stops at 1, super armor does not
+  stop a launch, there is no start fanfare (and outside it the fanfare plays once per unit, `m_bStarted`), no riding key, no
+  shortcut keys (March's K-key combo-tree exception is gone), the quick slot / quick quest / menu bar are hidden, the quick quest
+  cannot be hidden with TAB, stage changes show the loading dialogs, ESC no longer ends a slide show, no pets, no play guide or
+  Go arrow, disabled quick slots are hidden. The first `SetIsPlayingTutorial( true )` swaps in the default keys locally and the
+  tutorial's `CX2DungeonGame::Release` puts the player's keys back. Character select starts the tutorial only on the server's
+  first-select bool. **Revert:** undefine it and rebuild all projects.
+- **`SERV_IRUHADEV_OFFLINE_FIRST_SELECT`.** The emulator sends `m_bFirstSelect` as live does (this character's select count == 0),
+  counted in `els_db.sql` `settings` rows `select_count.<unit uid>` (no schema change). **Revert:** undefine it (the bool goes
+  back to false, so with the flag above still on the tutorial never auto-starts); the rows can be deleted with
+  `DELETE FROM settings WHERE name LIKE 'select_count.%';`.
 
 ### June effect completion C4: damage math (range rate, Nasod combo gate, DIVISION window)
 
