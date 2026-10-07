@@ -1356,6 +1356,12 @@ public:
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
 				// kimhc // 2010.02.10 // Get 핸들러 추가
 				D3DXVECTOR3 GetVelocity() const { return m_vVelocity; }
+#ifdef SERV_IRUHADEV_JUNE_TOUCH_LAND
+				// June effect completion C7: the touch-land gate (CEffect::OnFrameMove 31f88790 @31f8a2e8-31f8a387) reads
+				// m_Gravity (June +0x478) and the previous frame's velocity (June +0x54c).
+				D3DXVECTOR3 GetGravity() const { return m_Gravity; }
+				D3DXVECTOR3 GetVelocityBefore() const { return m_vVelocityBefore; }
+#endif SERV_IRUHADEV_JUNE_TOUCH_LAND
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 				// June2017 velocity modifiers (CXMeshInstance +0x568 in June); see the .cpp
 				void AddVelocityModifier( IN bool bAdd_, IN const D3DXVECTOR3& vValue_ );
@@ -1547,6 +1553,9 @@ public:
 #endif EVENT_SCENE
 				D3DXVECTOR3					m_vVelocity;
 				D3DXVECTOR3					m_vVelocityFinal;
+#ifdef SERV_IRUHADEV_JUNE_TOUCH_LAND
+				D3DXVECTOR3					m_vVelocityBefore;		/// June2017 CXMeshInstance +0x54c: m_vVelocity as it stood when this frame began (OnFrameMove 31c87b80 @31c87cac-31c87cc4)
+#endif SERV_IRUHADEV_JUNE_TOUCH_LAND
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
                 D3DXVECTOR3                 m_vVelocityToAccumPos;
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION_VELOCITY_ACCUM_BUG_FIX

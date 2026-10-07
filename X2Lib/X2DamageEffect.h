@@ -1254,6 +1254,7 @@ class CX2DamageEffect
 				float						m_fMainEffectLifeTimeRate;				/// +0xb60
 				bool						m_bHyper;								/// +0xb64, stamped by the effect set (OnFrameMove_CreateEffect @321ef6d5)
 				bool						m_bInheritAttackTriggerType;			/// +0xb65
+				float						m_fJuneCreateDamageEffectRate;			/// +0xb18, ctor -1.f (31f7aab0 @31f7f612-31f7f618); set by class code only (checklist 7a)
 
 				void JuneGetNextTables( std::vector<CX2DamageManager::DamageData*>& vecTables_ );	/// m_pDamageDataNext (when set) + the NEXT2.. chain: June's +0xd8 vector
 				void JuneCollectSpawnEntries( std::vector<DamageEffectData*>& vecEntries_ );		/// June's die + CREATE + hit + touch-land entry lists
@@ -1263,10 +1264,16 @@ class CX2DamageEffect
 				void JuneSetIgnoreDefenceDown( bool bValue_ );						/// June 31f65e40, this = the child
 				void JuneSetIgnoreStateDefenceDown( bool bValue_ );					/// June 31f65f90, this = the child
 				void JuneSpawnTail( CEffect* pChild_, const DamageEffectData* pData_ );	/// the hit and die spawners' tail, in June's order
+				void JuneApplyCreateDamageEffectRate( CEffect* pChild_ );			/// June 31f6ea20, this = the parent (RT_CREATE_DAMAGE_EFFECT)
 				public:
 				void JuneSetHyper( bool bHyper_ ) { m_bHyper = bHyper_; }
 				protected:
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+#ifdef SERV_IRUHADEV_JUNE_TOUCH_LAND
+				// June effect completion C7: TOUCH_LAND_DAMAGE_EFFECT%d's runtime.
+				void JuneTouchLandDamageEffect();											/// June 31f83380, called from OnFrameMove @31f8a38b
+				void CreateTouchLandDamageEffect( vector<DamageEffectData*>& vecTouchLandDamageEffect );	/// June 31f81ba0
+#endif SERV_IRUHADEV_JUNE_TOUCH_LAND
 #ifdef SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET
 				CX2GameUnit* JuneFindFieldBossCollisionBox( CX2GameUnit* pTraceUnit_ );	/// June 31f85910 @31f861e2-31f86521 (RT_CREATE_EFFECT_SET); NULL = March's own call
 #endif SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET

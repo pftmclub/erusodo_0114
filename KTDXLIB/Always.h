@@ -5609,3 +5609,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER.
 #define SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June effect completion C7 (JUNE2017_EFFECT_COMPLETION_PHASES.md,
+//              old Phase 10c step 3): TOUCH_LAND_DAMAGE_EFFECT%d's runtime.
+//              CXMeshInstance gets June's previous-frame velocity
+//              (m_vVelocityBefore, June mesh +0x54c); CEffect::OnFrameMove
+//              runs June's bounce gate (31f88790 @31f8a2a4-31f8a394:
+//              gravity.y < 0, previous velocity.y < 0, velocity.y > 0) and
+//              the touch-land spawner (31f83380 -> 31f81ba0) with the C6b
+//              spawner tail. INERT in March: no March DamageEffect uses the
+//              table. Log: "JUNE_FX CE_HIT <effect> TOUCH_LAND" and
+//              "TOUCH_LAND_GATE" in offline_server.log (JUNE_FX_DEBUG).
+//              Needs SERV_IRUHADEV_JUNE_SPAWN_INHERIT.
+#define SERV_IRUHADEV_JUNE_TOUCH_LAND
+#if defined(SERV_IRUHADEV_JUNE_TOUCH_LAND) && !defined(SERV_IRUHADEV_JUNE_SPAWN_INHERIT)
+#error SERV_IRUHADEV_JUNE_TOUCH_LAND needs SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+#endif
+//////////////////////////////////////////////////////////////////////////

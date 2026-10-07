@@ -1370,6 +1370,10 @@ CKTDGXMeshPlayer::CXMeshInstance::CXMeshInstance( CKTDGXMeshPlayer* pMeshPlayer,
 
 	INIT_VECTOR3( m_vVelocity, 0.0f,0.0f,0.0f );
 	INIT_VECTOR3( m_vVelocityFinal, 0.0f,0.0f,0.0f );
+#ifdef SERV_IRUHADEV_JUNE_TOUCH_LAND
+	// June2017 CXMeshInstance ctor 31c8d140 @31c8d718-31c8d724: the previous-frame velocity starts at 0.
+	INIT_VECTOR3( m_vVelocityBefore, 0.0f,0.0f,0.0f );
+#endif SERV_IRUHADEV_JUNE_TOUCH_LAND
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
     INIT_VECTOR3( m_vVelocityToAccumPos, 0.0f,0.0f,0.0f );
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
@@ -1767,6 +1771,11 @@ HRESULT CKTDGXMeshPlayer::CXMeshInstance::OnFrameMove( double fTime, float fElap
 #endif STOP_UNIT_STOP_EFFECT_TEST
 
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
+#ifdef SERV_IRUHADEV_JUNE_TOUCH_LAND
+	// June2017 CXMeshInstance::OnFrameMove 31c87b80 @31c87c8e-31c87cc4: the velocity is snapshotted with the two time
+	// snapshots below, after the per-frame-simulation early return and before the state switch moves the mesh.
+	m_vVelocityBefore = m_vVelocity;
+#endif SERV_IRUHADEV_JUNE_TOUCH_LAND
     m_fAniTimeBefore = m_fAniTime;
     m_fGlobalTimeBefore = m_fGlobalTime;
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION_VELOCITY_ACCUM_BUG_FIX

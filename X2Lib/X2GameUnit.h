@@ -3452,6 +3452,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		/// June effect completion C6b: two base virtuals the effect set's index stamp uses. Luciel's and Ain's overrides are class code (checklist 7a).
 		virtual void JuneStampEffectSetIndex( CX2EffectSet::EffectSetInstance* pEffectSetInstance_ ) {}	/// June vslot 0x248 (3226e220), base no-op
 		virtual int GetJuneDamageEffectIndex() const { return -1; }											/// June vslot 0x2e0 (31abe300), base -1
+		/// June effect completion C7: run on the owner late in every CEffect ctor (June 31f7aab0 @31f7f61e-31f7f62b). CX2GameUnit, CX2GUUser
+		/// and CX2GUNPC all hold the base (3208ddc0, RET 4); the class overrides that seed the create-damage-effect rate are checklist 7a.
+		virtual void JuneOnDamageEffectCreated( CX2DamageEffect::CEffect* pEffect_ ) {}						/// June vslot 0x328 (3208ddc0), base no-op
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		/// June buff port Phase 7: the unit stores of BBT 73 (June list +0x67cc), 94 (sets +0x65d4 / +0x65e4, list +0x65c4) and 95 (list +0x75ac)

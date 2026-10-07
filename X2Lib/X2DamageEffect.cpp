@@ -129,6 +129,19 @@ static void JuneFxHit( const WCHAR* pwszEffect_, const WCHAR* pwszBranch_, const
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+// June2017 FUN_31f8c280 = LockOnData::operator= (effect completion C7, funcmap row 31f8c280): every member is copied except the
+// pre-lock-on hit set (June LockOnData +0x40, March m_setPreLockOnTarget), which the destination keeps. March's implicit operator=
+// copies the set too since Phase 7b added it, so June's two callers (the die spawner's INHERITLOCKONDATA @31f83126 and the
+// CREATE_DAMAGE_EFFECT loop @31f89e2b) use this instead.
+static void JuneAssignLockOnData( CX2DamageEffect::LockOnData& kDest_, const CX2DamageEffect::LockOnData& kSource_ )
+{
+	std::set<UidType> setKeptPreLockOnTarget;
+	setKeptPreLockOnTarget.swap( kDest_.m_setPreLockOnTarget );
+	kDest_ = kSource_;
+	kDest_.m_setPreLockOnTarget.swap( setKeptPreLockOnTarget );
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 CX2DamageEffect::CX2DamageEffect(void)
 //{{ robobeg : 2008-10-28
 : m_LuaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState(), 0, true )
@@ -2136,6 +2149,14 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	/// SetLinkMainEffectByPos() 를 쓰기 위해 필요한 길이 배율
 	PLUA_GET_VALUE( m_pLuaManager, "LINK_EFFECT_RATE",			m_fLinkEffectRate,		-1.f );
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+	// June2017 FUN_31f7aab0 (CEffect ctor) @31f7f612-31f7f62b (effect completion C7): right after LINK_EFFECT_RATE, the
+	// create-damage-effect rate (June +0xb18) starts at -1.0 (0x334380f0), then the owner given to the ctor, when there is one,
+	// is told about the new effect (vslot 0x328). The base does nothing; class overrides (checklist 7a) seed the rate.
+	m_fJuneCreateDamageEffectRate = -1.f;
+	if( NULL != pGameUnit )
+		pGameUnit->JuneOnDamageEffectCreated( this );
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
@@ -2867,7 +2888,18 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 								LockOnData& kLockOnData = pEffect->GetLockOnData();
 								LOCK_ON_TYPE lockontype = kLockOnData.m_LockOnType;
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+								// June2017 FUN_31f88790 @31f89e2b (effect completion C7): June's LockOnData::operator= (31f8c280), which leaves the
+								// child's pre-lock-on hit set alone instead of handing it the parent's.
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+								if( false == GetLockOnData().m_setPreLockOnTarget.empty() )
+									JuneFxHit( GetName(), L"CREATE_LOCKON_COPY", L"%s parentPreLockOn=%d childKept=%d", pData->damageEffectName.c_str(),
+										(int)GetLockOnData().m_setPreLockOnTarget.size(), (int)kLockOnData.m_setPreLockOnTarget.size() );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+								JuneAssignLockOnData( kLockOnData, GetLockOnData() );
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 								kLockOnData = GetLockOnData();
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 								kLockOnData.m_LockOnType = lockontype;
 							}								
 		#endif
@@ -2925,6 +2957,19 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 									pData->damageEffectName.c_str(), m_DamageData.damage.fPhysic, m_DamageData.damage.fMagic );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 							}
+							// June2017 FUN_31f88790 @31f89d52-31f89d82 (effect completion C7): the CREATE_DAMAGE_EFFECT loop inlines 31f8af50's two adds
+							// (no CALL, so the C6a xref scan missed them), after SetScale and before 31f8fdb0: INHERIT_CRITICAL_RATE /
+							// INHERIT_CRITICAL_DAMAGE_RATE add the parent's CRITICAL_RATE / APPLY_CRITICAL_DAMAGE_PERCENT onto the child's.
+							if( true == m_bInheritCriticalRate )
+								pEffect->GetDamageData().m_fCriticalRate += m_DamageData.m_fCriticalRate;
+							if( true == m_bInheritCriticalDamageRate )
+								pEffect->GetDamageData().m_fApplyCriticalDamage += m_DamageData.m_fApplyCriticalDamage;
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+							if( true == m_bInheritCriticalRate || true == m_bInheritCriticalDamageRate )
+								JuneFxHit( GetName(), L"CREATE_DAMAGE_EFFECT_INHERIT", L"%s critRate=%d->%.3f critDamage=%d->%.3f",
+									pData->damageEffectName.c_str(), (int)m_bInheritCriticalRate, pEffect->GetDamageData().m_fCriticalRate,
+									(int)m_bInheritCriticalDamageRate, pEffect->GetDamageData().m_fApplyCriticalDamage );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 							// June2017 FUN_31f88790 @31f89d8b: 31f8fdb0 on every CREATE_DAMAGE_EFFECT child, unconditionally, once the INHERIT_DAMAGE flag
 							// (@31f89cfb) is set. June calls it ahead of INHERIT_BUFF_FACTOR; the fields it writes are independent of that block.
@@ -3155,6 +3200,23 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 			return;
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_TOUCH_LAND
+		// June2017 FUN_31f88790 (CEffect::OnFrameMove) @31f8a2e8-31f8a38b (effect completion C7): right after the die check, the
+		// touch-land gate. The main mesh must be bouncing off land this frame: gravity pulls down (m_Gravity.y < 0, mesh +0x47c), it
+		// was falling last frame (m_vVelocityBefore.y < 0, +0x550) and rises now (m_vVelocity.y > 0, +0x538); all strict, NaN fails
+		// (x87-emulated in Phase 7e, june2017_re/x87test.py). No once-flag: 31f83380 runs on every frame the gate holds.
+		// @31f8a2a4-31f8a2e3: June first runs GetLandPosition( m_BeforePos, LINE_RADIUS ) and never reads the result. March's
+		// GetLandPosition is const, so the probe changes nothing and is not repeated here.
+		if( pMeshInst->GetGravity().y < 0.f && pMeshInst->GetVelocityBefore().y < 0.f && pMeshInst->GetVelocity().y > 0.f )
+		{
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneFxHit( GetName(), L"TOUCH_LAND_GATE", L"entries=%d gravity.y=%.1f velocityBefore.y=%.1f velocity.y=%.1f",
+				(int)m_DamageEffectDataInLua.m_vecTouchLandDamageEffect.size(), pMeshInst->GetGravity().y,
+				pMeshInst->GetVelocityBefore().y, pMeshInst->GetVelocity().y );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+			JuneTouchLandDamageEffect();
+		}
+#endif SERV_IRUHADEV_JUNE_TOUCH_LAND
 		if( pMeshInst->GetXSkinAnim()->EventTimer( m_fDamageDataChangeTime ) == true && m_fDamageDataChangeTime != -1.0f )
 		{
 			m_fDamageDataChangeTime = -1.0f;
@@ -4888,6 +4950,8 @@ void CX2DamageEffect::CEffect::AttackResult()
 						CX2DamageEffect::CEffect* pJuneCreatedEffect = m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), m_fPowerRate,
 							m_DamageData.impactPoint, angle, angle, m_fLandPos );
 						JuneInheritFromParent( pJuneCreatedEffect );
+						// @31f86148 (effect completion C7): then 31f6ea20, whether or not the child was created (it null-tests inside).
+						JuneApplyCreateDamageEffectRate( pJuneCreatedEffect );
 #else SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 						m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), m_fPowerRate,
 							m_DamageData.impactPoint, angle, angle, m_fLandPos );
@@ -7438,6 +7502,20 @@ void CX2DamageEffect::CEffect::CreateDieDamageEffect( vector<DamageEffectData*>&
 				pEffect->GetDamageData().m_eFirstAttack = m_DamageData.m_eFirstAttack;
 				pEffect->GetDamageData().m_RelateSkillData = m_DamageData.m_RelateSkillData;
 #endif //ADD_RENA_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+				// June2017 FUN_31f82210 @31f83110-31f83126 (effect completion C7): INHERITLOCKONDATA (entry +0x9c, DIE entries only) gives
+				// the child the parent's LockOnData through June's LockOnData::operator= (31f8c280): the child's own lock-on type is not
+				// kept and the parent's type is not tested (unlike the CREATE_DAMAGE_EFFECT loop's copy), and the child keeps its own
+				// pre-lock-on hit set. March parsed the key and never read it.
+				if( true == pData->bInheritLockOnData )
+				{
+					JuneAssignLockOnData( pEffect->GetLockOnData(), GetLockOnData() );
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+					JuneFxHit( GetName(), L"INHERITLOCKONDATA", L"%s lockOnType=%d unit=%I64d npc=%d", pData->damageEffectName.c_str(),
+						(int)pEffect->GetLockOnData().m_LockOnType, pEffect->GetLockOnData().m_LockOnUnitUID, pEffect->GetLockOnData().m_LockOnNPCUID );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+				}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 				// June2017 FUN_31f82210 @31f83137-31f8316f: the same tail as the hit spawner, after the first-attack copy.
 				JuneSpawnTail( pEffect, pData );
@@ -10102,7 +10180,225 @@ void CX2DamageEffect::CEffect::JuneSpawnTail( CEffect* pChild_, const DamageEffe
 		(int)m_bInheritAttackTriggerType );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 }
+
+// June 31f6ea20 (effect completion C7, funcmap rows 31f6ea20 / CEffect+0xb18): this = the parent, the argument = the child made by
+// RT_CREATE_DAMAGE_EFFECT (only caller, AttackResult @31f86148). Nothing happens unless the child exists and the rate (June +0xb18)
+// is above 0; only class code sets the rate (checklist 7a), so in March it stays -1 and this returns.
+void CX2DamageEffect::CEffect::JuneApplyCreateDamageEffectRate( CEffect* pChild_ )
+{
+	if( NULL == pChild_ || false == ( m_fJuneCreateDamageEffectRate > 0.f ) )
+		return;
+
+	CX2DamageManager::DamageData& kChildData = pChild_->GetDamageData();
+	switch( kChildData.damageType )		// DamageData +0x0: DT_PHYSIC scales PHYSIC, DT_MAGIC scales MAGIC, any other type neither
+	{
+	case CX2DamageManager::DT_PHYSIC:
+		kChildData.damage.fPhysic *= m_fJuneCreateDamageEffectRate;
+		break;
+
+	case CX2DamageManager::DT_MAGIC:
+		kChildData.damage.fMagic *= m_fJuneCreateDamageEffectRate;
+		break;
+
+	default:
+		break;
+	}
+	// HIT_ADD_MP (DamageData +0x3f8; a protected float in June, whose re-store and registration 323101d0 March has no counterpart for)
+	kChildData.fHitAddMP *= m_fJuneCreateDamageEffectRate;
+	// TECH_POINT (DamageData +0x34, int) times the rate truncated to an int (ftol 32fe25f0), so a rate below 1 zeroes it: June as is (JUNE_BUGS)
+	kChildData.techPoint *= static_cast<int>( m_fJuneCreateDamageEffectRate );
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	JuneFxHit( GetName(), L"CREATE_DAMAGE_EFFECT_RATE", L"child=%s rate=%.3f type=%d physic=%.3f magic=%.3f hitAddMP=%.3f techPoint=%d",
+		pChild_->GetName(), m_fJuneCreateDamageEffectRate, (int)kChildData.damageType, kChildData.damage.fPhysic, kChildData.damage.fMagic,
+		kChildData.fHitAddMP, kChildData.techPoint );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+}
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+
+#ifdef SERV_IRUHADEV_JUNE_TOUCH_LAND
+//////////////////////////////////////////////////////////////////////////
+// June2017 effect completion C7 (old Phase 10c step 3): TOUCH_LAND_DAMAGE_EFFECT%d's runtime.
+// June 31f83380, called from OnFrameMove @31f8a38b when the gate holds: each entry of the instance's touch-land list (+0xa8, by value)
+// is copied into a scratch list (+0xa38, 31f8e750), the spawner 31f81ba0 spawns from the copy, and the copy is freed (31f8c660 /
+// 31f8b5f0). The spawner and its tail only read the entries, so March spawns from the instance's own list directly.
+void CX2DamageEffect::CEffect::JuneTouchLandDamageEffect()
+{
+	CreateTouchLandDamageEffect( m_DamageEffectDataInLua.m_vecTouchLandDamageEffect );
+}
+
+// June 31f81ba0 (read in full: june2017_re/ghidra/dis_31f81ba0.txt; funcmap row 31f81ba0). The shape of CreateHitDamageEffect, with
+// these differences: no POSITION_TYPE switch (the position is always m_BeforePos), the rotation is m_AngleDegree or zero, m_fLandPos
+// goes to CreateInstance as is, and the post-create steps run in June's order.
+void CX2DamageEffect::CEffect::CreateTouchLandDamageEffect( vector<DamageEffectData*>& vecTouchLandDamageEffect )
+{
+	KTDXPROFILE();
+
+	// @31f81bae-31f81ca2: the guard chain CreateHitDamageEffect has (g_pX2Game, a live owner, a live main mesh)
+	if( NULL == g_pX2Game ||
+		null == m_optrOwnerUnit ||
+		false == g_pX2Game->GetMajorXMeshPlayer()->IsLiveInstanceHandle( m_hMeshInstHandle ) )
+	{
+		return;
+	}
+
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_hMeshInstHandle );
+	if( NULL == pMeshInst )
+		return;
+
+	for( UINT i = 0; i < vecTouchLandDamageEffect.size(); i++ )
+	{
+		DamageEffectData* pData = vecTouchLandDamageEffect[i];
+
+		D3DXVECTOR3 vAxisAngleDegree( 0, 0, 0 );
+		D3DXVECTOR3 vRotateAngleDegree( 0, 0, 0 );
+
+		// @31f81cd4-31f81d24: the invoke-rate skip, the same test as CreateHitDamageEffect (funcmap 31f810c0 @31f811ed-31f81259)
+#ifdef SERV_RENA_NIGHT_WATCHER
+		if( DET_ARROW_OF_EXPLOSION != GetType() )
+#endif SERV_RENA_NIGHT_WATCHER
+		{
+			if( GetOwnerUnit() != NULL )
+			{
+				if( GetOwnerUnit()->GetRandomFloat() > GetDamageData().m_fHitDamageEffectInvokeRate )
+					continue;
+			}
+		}
+
+		// @31f81d2c-31f81d5d: APPLY_ROTATE_ORIGIN (entry +0x74) takes m_AngleDegree for both angles, else both stay zero.
+		// The entry's APPLY_ROTATE, ROTATE_X/Y/Z, POSITION_TYPE and BONE_NAME are parsed and never read here.
+		if( true == pData->bApplyRotateOrigin )
+		{
+			vAxisAngleDegree = m_AngleDegree;
+			vRotateAngleDegree = vAxisAngleDegree;
+		}
+
+		// @31f81d61-31f81d80: the position is always m_BeforePos
+		D3DXVECTOR3 vPosition = m_BeforePos;
+
+		// @31f81d84-31f81f03: APPLY_ROTATED_OFFSET (entry +0x75) as CreateHitDamageEffect's block (GetDirVec 31c82e40), else the plain offset
+		if( true == pData->bApplyRotatedOffset )
+		{
+			D3DXVECTOR3 vDirVector = pMeshInst->GetDirVec();
+
+			if( 0.f != vDirVector.y )
+			{
+				vDirVector.y = 0.f;
+				D3DXVec3Normalize( &vDirVector, &vDirVector );
+			}
+			if( 0.f != pData->vOffset.x )
+			{
+				vPosition += vDirVector * pData->vOffset.x;
+			}
+			if( 0.f != pData->vOffset.y )
+			{
+				vPosition.y += pData->vOffset.y;
+			}
+			if( 0.f != pData->vOffset.z )
+			{
+				if( vDirVector.y != 0.f )
+				{
+					vDirVector.y = vDirVector.z;
+					vDirVector.z = vDirVector.x;
+					vDirVector.x = -vDirVector.y;
+					vDirVector.y = 0.f;
+					D3DXVec3Normalize( &vDirVector, &vDirVector );
+				}
+				else
+				{
+					vDirVector.y = vDirVector.z;
+					vDirVector.z = vDirVector.x;
+					vDirVector.x = -vDirVector.y;
+					vDirVector.y = 0.f;
+				}
+				vPosition += vDirVector * pData->vOffset.z;
+			}
+		}
+		else
+		{
+			vPosition += pData->vOffset;
+		}
+
+		if( m_pManager != NULL )
+		{
+			// @31f81f1a-31f81f35: INHERIT_FORCEDOWNRATE's rate (+0xacd ? +0xad0 : 1.0); @31f81f5c-31f81feb: CreateInstance with
+			// m_fLandPos as is (no min with the position) and the rest at March's defaults
+			float fForceDownRate = 1.f;
+			if( true == m_bInheritForceDownRate )
+				fForceDownRate = m_fForceDownRate;
+			CEffect* pEffect = m_pManager->CreateInstance( m_optrOwnerUnit.GetObservable(), pData->damageEffectName.c_str(), m_fPowerRate,
+															vPosition, vRotateAngleDegree, vAxisAngleDegree,
+															m_fLandPos, false, -1.f, fForceDownRate );
+
+			if( pEffect != NULL )
+			{
+				// @31f81ffd: 31f8af50, INHERIT_CRITICAL_RATE / INHERIT_CRITICAL_DAMAGE_RATE
+				if( true == m_bInheritCriticalRate )
+					pEffect->GetDamageData().m_fCriticalRate += m_DamageData.m_fCriticalRate;
+				if( true == m_bInheritCriticalDamageRate )
+					pEffect->GetDamageData().m_fApplyCriticalDamage += m_DamageData.m_fApplyCriticalDamage;
+
+				// @31f82005: 31f8fdb0, the parent's state
+				JuneInheritFromParent( pEffect );
+
+				// @31f8200a-31f8202f: INHERIT_BUFF_FACTOR (entry +0x80), only when the parent has buff factors
+				if ( pData->bInheritBuffFactor && !GetDamageData().m_vecBuffFactorPtr.empty() )
+					pEffect->GetDamageData().m_vecBuffFactorPtr = GetDamageData().m_vecBuffFactorPtr;
+
+				// @31f82034-31f82070: INHERIT_LIFE_TIME (entry +0xad): the child main effect continues the parent's life clock
+				if( true == pData->bInheritLifeTime )
+				{
+					CKTDGXMeshPlayer::CXMeshInstance* pParentMainEffect = GetMainEffect();
+					CKTDGXMeshPlayer::CXMeshInstance* pChildMainEffect = pEffect->GetMainEffect();
+					if( NULL != pParentMainEffect && NULL != pChildMainEffect )
+						pChildMainEffect->SetNowLifeTime( pParentMainEffect->GetNowLifeTime() );
+				}
+
+				// @31f82076-31f820ad: the hit damage-effect damage rate (DamageData +0x524) when above 0
+				if( 0.f < GetDamageData().m_fHitDamageEffectDamageRate )
+				{
+					pEffect->GetDamageData().damage.fPhysic *= GetDamageData().m_fHitDamageEffectDamageRate;
+					pEffect->GetDamageData().damage.fMagic	*= GetDamageData().m_fHitDamageEffectDamageRate;
+				}
+
+				// @31f820ad-31f8210b: SetScale( entry SCALE_X/Y/Z times the parent's hit damage-effect scale +0xa5c )
+				pEffect->SetScale( D3DXVECTOR3( pData->vScale.x * m_vHitDamageScale.x, pData->vScale.y * m_vHitDamageScale.y, pData->vScale.z * m_vHitDamageScale.z ) );
+#ifdef GIANT_UNIT_GIANT_EFFECT_TEST
+				// @31f82110-31f82119: SetScaleByUnit( +0xaa0 ), the same member the hit spawner passes
+				pEffect->SetScaleByUnit( m_vHitDamageScaleByUnit );
+#endif GIANT_UNIT_GIANT_EFFECT_TEST
+
+#ifdef INHERIT_FORCEDOWNRATE
+				// @31f8211e-31f82124
+				pEffect->SetInheritForceDownRate( m_bInheritForceDownRate );
+#endif INHERIT_FORCEDOWNRATE
+
+#ifdef SERV_ELESIS_SECOND_CLASS_CHANGE
+				// @31f8212a-31f8214e: max life (mesh +0x44c, a plain store as March's SetMaxLifeTime) from the entry's life time when above 0
+				CKTDGXMeshPlayer::CXMeshInstance* pMeshInstTouchLandEffect = pEffect->GetMainEffect();
+				if( NULL != pMeshInstTouchLandEffect && pData->fLifeTime > 0.f )
+					pMeshInstTouchLandEffect->SetMaxLifeTime( pData->fLifeTime );
+#endif SERV_ELESIS_SECOND_CLASS_CHANGE
+
+#ifdef ADD_RENA_SYSTEM
+				// @31f82154-31f82167: the first-attack copy
+				pEffect->GetDamageData().m_eFirstAttack = m_DamageData.m_eFirstAttack;
+				pEffect->GetDamageData().m_RelateSkillData = m_DamageData.m_RelateSkillData;
+#endif ADD_RENA_SYSTEM
+
+				// @31f8216e-31f821b5: the spawner tail (31f649d0, 31f64c00, 31f65e40 / 31f65f90)
+				JuneSpawnTail( pEffect, pData );
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+				JuneFxHit( GetName(), L"TOUCH_LAND", L"%s pos=(%.1f,%.1f,%.1f) rotateOrigin=%d rotatedOffset=%d scale=(%.3f,%.3f,%.3f) forceDown=%.3f",
+					pData->damageEffectName.c_str(), vPosition.x, vPosition.y, vPosition.z, (int)pData->bApplyRotateOrigin,
+					(int)pData->bApplyRotatedOffset, pData->vScale.x, pData->vScale.y, pData->vScale.z, fForceDownRate );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+			}
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_TOUCH_LAND
 #ifdef SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET
 // June2017 FUN_31f85910 @31f861e2-31f86521 (effect completion C6b; funcmap rows Effect C5 review): RT_CREATE_EFFECT_SET with a trace unit looks for the
 // field boss's collision box. Gate, all of which must hold:
