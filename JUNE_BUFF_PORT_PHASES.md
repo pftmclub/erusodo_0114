@@ -6014,7 +6014,43 @@ March's `PlayEffectSet` returns silently on an unknown name (`X2EffectSet.cpp:31
 - `Item.kim`, scanned as int32: only 74042, 6 hits, not checked as socket fields.
 - **Every handler is dormant on today's data.** A save edit can put an ID on an item. Even then, the effect-set types draw nothing until june-effect re-adoption, and the buff types do nothing until Phase 13.
 
-**Split proposal: waiting on the user** (below, and in the hand-off).
+**Split (user, 2026-10-07): two sub-steps.** 16-step3c = everything below but 156 and Fever; 156 + `HMET_FEVER` -> **16-step3c2** (`kickoffs/june-buff/16-step3c2.md`).
+
+### Phase 16-step3c — Done (2026-10-07, Opus 5.5 high)
+
+**Landed** (`c980691`, new flag `SERV_IRUHADEV_JUNE_SOCKET_EDT`, which `#error`s without `_SOCKET_PARITY`; the compares are under `SERV_IRUHADEV_JUNE_DAMAGEDATA`):
+- **Loader** (`X2SocketItem.cpp`): 150/159 go to a new `SocketData::m_vecJuneSecondSocketExtraDamage` (June `+0x384`); the other 16 go to `m_MultipleSocketExtraDamage`. The 16-data "not ported" log is the `#else`.
+- **Second list, in all five places:**
+  - `DamageData::m_vecJuneSecondExtraDamage` (`+0x3b4`), cleared in `Init`;
+  - the fold in `SumSocketOption` (`@3204f874`);
+  - `InitSocketData` (`3206e917`) and the base `ReInit` (`322a6071`);
+  - the user `SetDamageExceptionProcess` copy at the function's end (`@3204540d..32045483`, before the `0x780` hook that C8b adds);
+  - both `DamageReact_ExtraDamage` tails, run for every attack type, offset `SRO_ATTACK_EXTRA_DAMAGE_MULTIPLE + i`. The user tail level-corrects per entry; the NPC function does it at the top.
+- **Cases**: `CX2GameUnit::JuneProcessSocketExtraDamage` holds one body for both switches. `bNpcDefender_` selects June's three differences: 146/147 are user-only, 152-155 are NPC-only, and 151's `IsMyUnit` gate is user-only.
+  - Effect-set spawns 68-72, 145-147, 149, 152-155. 145-147 are behind `g_pInstanceData->IsEnableCode( 2119 / 2154 )`.
+  - 150/159: BFI 787/1118 via `...AndCreatorID`.
+  - 151: 10 stacks of BTI 762, then magic and physic `*=` `m_DamagePerSec`; otherwise BFI 788.
+  - 156 and 157: logged as "not ported" (16-step3c2; Lanox checklist 7).
+- **`GetCalcPerDamage`**: June `32622300` cases `0x97`/`0x9c` keep the raw `DAMAGE_PER_SEC` for 151/156. Without this, 151's level correction would turn its 1.05 into 0.
+- **Trigger compares**: `X2BuffTemplet.cpp` `:1814/:2087/:2160` -> `JuneIsAttackTrigger( 3 / 6 / 7 )`. March's `DTT_MARK_OF_COMMANDER` is 3 in this build (`EVE_ELECTRA` and `SERV_ADD_CHUNG_SHELLING_GUARDIAN` are on).
+- **149's scale** is a candidate decode: June `vslot 0x24` reads `+0x686c`, the first scale member June's ctor fills with (1,1,1) (`@322a4f8b`). That is March's `m_vBasicScale`.
+- **Logs** (`[JUNE_BUFF]`, `ErrorLog.txt`), once per type or effect-set name per run: `socket EXTRA_DAMAGE_TYPE n fired (first this run): ...`. Each line says whether the set played, whether the BFI was set, or that the code event is off.
+- **JUNE_BUGS** #67 (146/147 user-only), #68 (151 has no NPC-side gate), #69 (150/159 creator always "user").
+
+**Hygiene** (`--range c980691^..HEAD`): `JUNE_SOCKET_EDT`: `files: 7 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 1 #else/#endif without the flag token`; RESULT PASS. `JUNE_DAMAGEDATA --files X2BuffTemplet.cpp`: 1 PASS, 0 deleted, RESULT PASS. The PASS~ is X2GameUnit.cpp's `//{{ //}}` markers. The one bare `#endif` is Always.h's `#error` guard, the same as `DAMAGEEFFECT_RUNTIME`'s. X2BuffTemplet.cpp is OTHER for the new flag: its compares sit inside `JUNE_BUFF_CUSTOM_FUNCTION`, under `JUNE_DAMAGEDATA`, as the kickoff asked.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,277,312 B, dated 2026-10-07 08:02:01, md5 67b7d78efb3a63bb29789103a3d5edd0, equal to X2/US_SERVICE/x2.exe (2026-10-07 08:01:57); built at mods/june-buff-port 9f0f4ae + 10 uncommitted code file(s).` The log format and `EffectSet_Socket_HeroDungeonSet_FlameGround` are in the exe. Not launched.
+
+**Save.** Item 579 (Iivue, Code: Empress) gains 100004019 (150, rate 1, level 20), 100007019 (151, +20 %) and 100031019 (152, 20 %). All three are dungeon-only. Backup: `db_backup/els_db_20261007_075439_pre_socket_edt_3c.sql`.
+
+**How to see it in game.** In any dungeon, hit monsters with Iivue. `ErrorLog.txt` should get three first-fire lines:
+- 150 BFI 787 "not set";
+- 151 BFI 788 "not set";
+- 152's effect set "not in the loaded data".
+
+Nothing visible changes; every handler is dormant until june-effect re-adoption (effect sets) and Phase 13 (BFIs).
+
+**Open for the user.** /cost.
 
 ## Critical files
 
