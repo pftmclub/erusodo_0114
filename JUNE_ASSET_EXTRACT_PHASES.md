@@ -319,6 +319,42 @@ from June in X5. If March then fails to use one, that is an engine phase, not an
    Print what it staged, per kom.
 3. **Done gate:** a dry run over the X2 repack list shows the kom chosen per file and 0 refusals except the 5 long names.
 
+### Phase X3 - Done
+
+2026-10-08, Sonnet 5.5. Tooling only: no flag, no build, no deploy. `tools/kom.py stage-june <name|list-file>` (docstring and
+`tools/README.md` updated).
+
+- **Source of bytes.** Imports `junekom`, builds the name index over all 258 June koms (about 8 s), and strict-decodes every June copy
+  of a name (end of stream, no trailing bytes, adler32, size == manifest). It does not read June's `*_kom` extract dirs and does not
+  depend on X2 having run. Several copies: identical bytes pick one (the kom with an existing staged dir, then the lowest number);
+  differing bytes refuse and list the koms. Checked with a synthetic pair (same entry twice: one hash; two entries: two hashes).
+  Real June has 0 names in more than one kom.
+- **Kom choice.** March's number if a live kom (`elstools inspect` of every `data/*.kom`, cached in `.build/`) or a staged
+  `kom_contents/dataNNN_kom/` already has the name, else June's number. The March spelling of the name is kept. A name March has in
+  several koms is refused (none exist today). A kom number with no staged dir gets a new one and is labelled `NEW kom dir`.
+- **Manifest.** `.lua`/`.txt`/`.kim` `"2"`, everything else `"0"` (live data036: every `.txt` and `item.kim` are 2). A key already
+  listed keeps its value and the plan line says so (two lua at `"0"` are the user's parked exceptions). Keys are appended by text:
+  an existing manifest keeps its own line ending (153 of 190 are LF, 37 CRLF), a new one is CRLF, 2-space indent, no trailing newline.
+- **Refusals:** not in June; undecodable or disagreeing copies; name over 59 characters unless `--long-names`; path separator.
+  Refusals do not stop the others; exit code 4 if any. A replaced staged file is first copied to
+  `<kom_contents>\..\kom_backup_stage_june\<stamp>\dataNNN_kom\`. Writes are `.part` + replace. `--plan-out F` writes a TSV.
+  Never writes into June's tree or the game dir.
+
+**Gate (dry run).** X2 has not run, so the list is the 51 names of `june2017_re/x1_short51.tsv` (the closure's "Extractor defect"
+table is the same 51) plus the 5 long names:
+- 51 names: 8 koms, 51 replace, 0 refused: data002 17, data013 7, data014 1, data023 19, data043 3, data063 2, data142 1, data215 1.
+  Every file is already staged in March (the short copy), so every line reads `replace`. Plan: `.build/x3_dry51.tsv` (not committed).
+- 51 + 5 long: the 5 long names are the only refusals (63, 63, 63, 61, 64 characters).
+- With `--long-names` the 5 land in: `EffectSet_Moonlight_Rhapsody_..._Display_01/02/03.tga` -> data048 (new, June's kom; March has
+  no copy); `Trigger_Hamel_..._Water_A.x` -> data110 (already staged and identical to June);
+  `Elysion_Soless_..._Dash_Combo.ogg` -> **data197, which has no live archive and no staged dir**. X5 must confirm the client
+  mounts a new data197 (its kickoff says so).
+- Real write tested in a scratch `X2_KOM_CONTENTS`: a replace (backup made; bytes equal June's and differ from the hand-patched
+  March copy at the `Wait01` bytes), a new file in an existing LF manifest, a new kom dir with a CRLF manifest, and the three
+  refusals. Nothing in the real `kom_contents` was written.
+
+**Owes the user:** `/cost`. Next: X2 (the repack list), X4, then X5 (kickoff written).
+
 ## Phase X4 - SERV_IRUHADEV_KOM_LONG_NAMES
 
 **Scope.** KTDXLIB engine change, independent of X0-X3.

@@ -7,6 +7,7 @@
     python tools/kom.py copy data036            # kom_contents/data036_packed.kom -> <game dir>/data036.kom
     python tools/kom.py status                  # recently touched archives that need a pack / a copy
     python tools/kom.py status data036          # one archive in detail (entry diff vs the live kom)
+    python tools/kom.py stage-june <name|list-file> [--dry-run]   # June's exact file -> kom_contents/dataNNN_kom/ + manifest
 
 pack  : runs `elstools pack -i <dir> -o <packed> -v mar-2014`. NOTE (measured 2026-10-06): the pack is
         DIRECTORY-driven, not manifest-driven - it packs every file in the dir except *.src.lua and
@@ -23,6 +24,16 @@ copy  : refuses while X2_offline.exe runs, if the kom_contents dir is newer than
         if the packed kom DROPS entries the live kom has (--allow-removed overrides). Backs the
         live kom up to <kom_contents>/../kom_backup_tools/ (newest 5 kept per archive), copies via
         a .part file + atomic replace, verifies size+md5 and the entry count, prints `COPY OK`.
+
+stage-june: for each name (or each line / `name` column of a list file) finds June's file with tools/junekom.py's strict
+        decoder (June's own algorithms; refuses anything that does not decode to the manifest size, or whose June
+        copies in different koms differ), picks the kom (March's number if a live kom or a staged dir already has
+        the name, else June's), copies the exact bytes into kom_contents/dataNNN_kom/ and appends the manifest key
+        (.lua/.txt/.kim "2", everything else "0"; a key already listed keeps its value; the file's own line ending
+        is kept, a new manifest is CRLF with 2-space indent and no trailing newline). REFUSES a name March has in
+        several koms, a name over 59 characters (unless --long-names, for after X4), a name not in June. A replaced
+        staged file is backed up to <kom_contents>/../kom_backup_stage_june/<stamp>/. --dry-run writes nothing;
+        --plan-out F writes the per-file plan as TSV. Never writes into June's tree or the game dir.
 
 Exit codes: 0 ok, 1 failed, 2 usage, 3 game running, 4 refused (stale pack / dropped entries /
 manifest mismatch).  Paths can be overridden with X2_GAME_DIR, X2_KOM_CONTENTS.
@@ -345,6 +356,277 @@ def cmd_copy(name, allow_removed, force):
     p("COPY OK %s: %s  %d bytes, %d entries, md5 %s" % (name, pa["live"], os.path.getsize(pa["live"]), n, md5(pa["live"])))
 
 
+# ----------------------------------------------------------------------------------------------
+# stage-june: June's exact file -> March's kom_contents/dataNNN_kom/ + its _manifest.json value
+LONG_NAME = 59          # longest name March's loader takes until SERV_IRUHADEV_KOM_LONG_NAMES (X4) is on
+STAGE_BACKUP_ROOT = os.path.join(os.path.dirname(KOM_ROOT), "kom_backup_stage_june")
+LIVE_CACHE = os.path.join(TRUNK, ".build", "stage_june_live_index.json")
+ALGO2_EXT = (".lua", ".txt", ".kim")   # measured in live data036 (.txt all 2, item.kim 2); everything else 0
+
+
+def manifest_value(name):
+    return "2" if name.lower().endswith(ALGO2_EXT) else "0"
+
+
+def _junekom():
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import junekom
+    return junekom
+
+
+def _stage_task(task):
+    """Worker: strict-decode every June copy of one name. Returns (key, [(stem, err, sha1, size)], data|None)."""
+    key, cands, want_bytes = task
+    jk = _junekom()
+    rows, first = [], None
+    for path, stem, v04, e in cands:
+        with open(path, "rb") as f:
+            f.seek(e["offset"])
+            raw = f.read(e["csize"])
+        out, err = jk.decode(e, raw, v04)
+        if out is None:
+            rows.append((stem, err, "", 0))
+            continue
+        rows.append((stem, "", hashlib.sha1(out).hexdigest(), len(out)))
+        if first is None and want_bytes:
+            first = out
+    return key, rows, first if len({r[2] for r in rows}) == 1 and all(not r[1] for r in rows) else None
+
+
+def live_names():
+    """lower(name) -> {kom stem: name as March spells it}, from `elstools inspect` of every live kom (cached by size+mtime)."""
+    cache = {}
+    try:
+        with open(LIVE_CACHE, "r", encoding="utf-8") as f:
+            cache = json.load(f)
+    except (OSError, ValueError):
+        pass
+    out, fresh = {}, {}
+    for fn in sorted(os.listdir(GAME_DIR)):
+        if not re.fullmatch(r"(?i)datai?\d{3}\.kom", fn):
+            continue
+        full = os.path.join(GAME_DIR, fn)
+        st = os.stat(full)
+        sig = [st.st_size, st.st_mtime_ns]
+        ent = cache.get(fn)
+        if ent and ent["sig"] == sig:
+            names = ent["names"]
+        else:
+            names = [e["name"] for e in inspect(full)["files"]]
+        fresh[fn] = {"sig": sig, "names": names}
+        stem = fn[:-4].lower()
+        for n in names:
+            out.setdefault(n.lower(), {})[stem] = n
+    os.makedirs(os.path.dirname(LIVE_CACHE), exist_ok=True)
+    with open(LIVE_CACHE, "w", encoding="utf-8") as f:
+        json.dump(fresh, f)
+    return out
+
+
+def staged_names():
+    """lower(name) -> {kom stem: spelling on disk}, from every kom_contents/dataNNN_kom/ (top-level files only)."""
+    out = {}
+    for d in sorted(os.listdir(KOM_ROOT)):
+        m = re.fullmatch(r"(?i)(datai?\d{3})_kom", d)
+        full = os.path.join(KOM_ROOT, d)
+        if not m or not os.path.isdir(full):
+            continue
+        for e in os.scandir(full):
+            if e.is_file() and e.name != "_manifest.json" and not e.name.lower().endswith(".src.lua"):
+                out.setdefault(e.name.lower(), {})[m.group(1).lower()] = e.name
+    return out
+
+
+def read_names(arg):
+    """A name, or a list file: one name per line, or a TSV whose header has a `name` column. '#' lines are comments."""
+    if not os.path.isfile(arg):
+        return [arg]
+    with open(arg, "r", encoding="utf-8-sig") as f:
+        lines = [l.rstrip("\r\n") for l in f if l.strip() and not l.lstrip().startswith("#")]
+    if lines and "\t" in lines[0]:
+        head = [h.strip().lower() for h in lines[0].split("\t")]
+        if "name" in head:
+            i = head.index("name")
+            return [l.split("\t")[i].strip() for l in lines[1:] if len(l.split("\t")) > i and l.split("\t")[i].strip()]
+        die(2, "list file %s is a TSV with no `name` column (header: %s)" % (arg, head))
+    return [l.strip() for l in lines]
+
+
+def add_manifest_keys(d, items):
+    """Append {name: value} to <d>/_manifest.json by text, in the file's own line ending. New file: CRLF house format.
+    Existing keys are left as they are. Returns the number of keys added."""
+    mp = os.path.join(d, "_manifest.json")
+    have = {}
+    if os.path.isfile(mp):
+        with open(mp, "rb") as f:
+            raw = f.read()
+        have = {k.lower() for k in json.loads(raw.decode("utf-8-sig"))}
+    else:
+        raw = None
+    items = [(n, v) for n, v in items if n.lower() not in have]
+    if not items:
+        return 0
+    rows = ['  %s: %s' % (json.dumps(n, ensure_ascii=False), json.dumps(v)) for n, v in items]
+    if raw is None:
+        text = "{\r\n" + ",\r\n".join(rows) + "\r\n}"
+    else:
+        eol = "\r\n" if b"\r\n" in raw else "\n"
+        s = raw.decode("utf-8")
+        end = s.rstrip().rfind("}")
+        if end < 0:
+            die(1, "%s has no closing brace; not touching it" % mp)
+        body = s[:end].rstrip()
+        sep = "" if body.endswith("{") else ","
+        text = body + sep + eol + (","+eol).join(rows) + eol + s[end:]
+    tmp = mp + ".part"
+    with open(tmp, "wb") as f:
+        f.write(text.encode("utf-8"))
+    os.replace(tmp, mp)
+    return len(items)
+
+
+def cmd_stage_june(args, dry, long_names, jobs, plan_out):
+    jk = _junekom()
+    names, seen = [], set()
+    for a in args:
+        for n in read_names(a):
+            if n.lower() not in seen:
+                seen.add(n.lower())
+                names.append(n)
+    p("== stage-june%s: %d name(s)" % (" (DRY RUN, nothing is written)" if dry else "", len(names)))
+    t0 = time.time()
+    koms, _skipped = jk.all_koms()
+    june = {}
+    for kp in koms:
+        k = jk.Kom(kp)
+        for e in k.entries:
+            june.setdefault(e["name"].lower(), []).append((kp, k.stem, k.v04, e))
+    live, staged = live_names(), staged_names()
+    p("  index: %d June names in %d koms, %d live March names, %d staged names (%.0fs)" % (
+        len(june), len(koms), len(live), len(staged), time.time() - t0))
+
+    plan, refused = {}, []   # key -> dict(name, stem, src, cands, dst_name)
+    for n in names:
+        key = n.lower()
+        cands = june.get(key)
+        if not cands:
+            refused.append((n, "", "not in any June kom")); continue
+        if "/" in n or "\\" in n:
+            refused.append((n, "", "name has a path separator")); continue
+        if len(n) > LONG_NAME and not long_names:
+            refused.append((n, "", "name is %d characters (limit %d until X4's flag is on; --long-names to stage anyway)" % (len(n), LONG_NAME))); continue
+        where = dict(live.get(key, {}))
+        for stem, sp in staged.get(key, {}).items():
+            where.setdefault(stem, sp)
+        if len(where) > 1:
+            refused.append((n, "", "March already has it in %d koms: %s" % (len(where), ", ".join(sorted(where))))); continue
+        if where:
+            (stem, spelling), = where.items()
+            origin = "March"
+        else:
+            # June's number; several identical copies -> prefer a kom whose staged dir already exists, then the lowest number
+            stems = sorted({c[1] for c in cands}, key=lambda s: (not os.path.isdir(os.path.join(KOM_ROOT, s + "_kom")), s))
+            stem, spelling, origin = stems[0], cands[0][3]["name"], "June"
+        plan[key] = dict(name=spelling, stem=stem, origin=origin, cands=cands)
+
+    # strict decode of every June copy (identical bytes -> any copy will do; differing -> refuse and list the koms)
+    tasks = [(k, v["cands"], not dry) for k, v in plan.items()]
+    tasks.sort(key=lambda t: -sum(c[3]["csize"] * (1 if c[3]["algo"] == 0 else 25) for c in t[1]))
+    if jobs > 1 and len(tasks) > 8:
+        import multiprocessing
+        with multiprocessing.Pool(jobs) as pool:
+            results = list(pool.imap_unordered(_stage_task, tasks, chunksize=4))
+    else:
+        results = [_stage_task(t) for t in tasks]
+    data = {}
+    for key, rows, first in results:
+        v = plan[key]
+        bad = [r for r in rows if r[1]]
+        if bad:
+            refused.append((v["name"], v["stem"], "June file does not decode strictly: " + "; ".join("%s: %s" % (r[0], r[1]) for r in bad)))
+            del plan[key]
+        elif len({r[2] for r in rows}) > 1:
+            refused.append((v["name"], v["stem"], "June koms disagree: " + ", ".join("%s=%d B/%s" % (r[0], r[3], r[2][:8]) for r in rows)))
+            del plan[key]
+        else:
+            v["size"], v["sha1"], v["junes"] = rows[0][3], rows[0][2], sorted(r[0] for r in rows)
+            data[key] = first
+
+    # per-kom plan / write
+    by_kom = {}
+    for key, v in plan.items():
+        by_kom.setdefault(v["stem"], []).append(key)
+    stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    totals = {"new": 0, "replace": 0, "same": 0}
+    tsv = ["name\tkom\tchosen_by\tjune_koms\tsize\tstate\tmanifest"]
+    for stem in sorted(by_kom):
+        d = os.path.join(KOM_ROOT, stem + "_kom")
+        newkom = not os.path.isdir(d)
+        man = {}
+        if os.path.isfile(os.path.join(d, "_manifest.json")):
+            man = {k.lower(): v for k, v in load_manifest(d).items()}
+        keys = sorted(by_kom[stem], key=lambda k: plan[k]["name"].lower())
+        cnt = {"new": 0, "replace": 0, "same": 0}
+        listing, added = [], []
+        for key in keys:
+            v = plan[key]
+            dst = os.path.join(d, v["name"])
+            if os.path.isfile(dst):
+                with open(dst, "rb") as f:
+                    cur = f.read()
+                state = "same" if hashlib.sha1(cur).hexdigest() == v["sha1"] else "replace"
+            else:
+                state = "new"
+            cnt[state] += 1
+            want = manifest_value(v["name"])
+            have = man.get(key)
+            mnote = want if have is None else ("kept %s" % have if have == want else "kept %s (rule says %s)" % (have, want))
+            if have is None:
+                added.append((v["name"], want))
+            listing.append("    %-8s %-52s %9d B  %s%s  manifest %s" % (
+                state, v["name"], v["size"], v["origin"] + "'s " + stem, "" if len(v["junes"]) == 1 else "  [June copies: %s, identical]" % ",".join(v["junes"]), mnote))
+            tsv.append("\t".join([v["name"], stem, v["origin"], ",".join(v["junes"]), str(v["size"]), state, mnote]))
+            if not dry and state != "same":
+                if state == "replace":
+                    bk = os.path.join(STAGE_BACKUP_ROOT, stamp, stem + "_kom", v["name"])
+                    os.makedirs(os.path.dirname(bk), exist_ok=True)
+                    shutil.copy2(dst, bk)
+                os.makedirs(d, exist_ok=True)
+                tmp = dst + ".part"
+                with open(tmp, "wb") as f:
+                    f.write(data[key])
+                os.replace(tmp, dst)
+        if not dry and added:
+            add_manifest_keys(d, added)
+        for k2 in cnt:
+            totals[k2] += cnt[k2]
+        p("  %s%s: %d name(s): %d new, %d replaced, %d identical; %d manifest key(s) %s" % (
+            stem, " (NEW kom dir; no live archive of that number)" if newkom else "", len(keys), cnt["new"], cnt["replace"], cnt["same"],
+            len(added), "to add" if dry else "added"))
+        if len(plan) <= 200:
+            for l in listing:
+                p(l)
+    for n, stem, why in sorted(refused, key=lambda r: r[0].lower()):
+        p("  REFUSED %s%s: %s" % (n, " (" + stem + ")" if stem else "", why))
+        tsv.append("\t".join([n, stem, "", "", "", "REFUSED", why]))
+    if len(plan) > 200:
+        p("  (more than 200 names: per-file lines are in --plan-out)")
+    if plan_out:
+        with open(plan_out, "w", encoding="utf-8", newline="\n") as f:
+            f.write("\n".join(tsv) + "\n")
+        p("  plan written: %s" % plan_out)
+    if not dry and plan:
+        os.makedirs(STAGE_BACKUP_ROOT, exist_ok=True)
+        p("  replaced files were backed up under %s\\%s" % (STAGE_BACKUP_ROOT, stamp))
+    p("STAGE-JUNE %s: %d kom(s), %d staged (%d new, %d replaced, %d identical), %d refused, %.0fs" % (
+        "DRY RUN" if dry else ("OK" if not refused else "PARTIAL"), len(by_kom), len(plan),
+        totals["new"], totals["replace"], totals["same"], len(refused), time.time() - t0))
+    if not dry and plan:
+        p("Next: kom.py pack %s   (then ask before `copy`)" % " ".join(sorted(by_kom)))
+    if refused:
+        sys.exit(4)
+
+
 def cmd_status(names, days):
     detail = bool(names)
     if not names:
@@ -391,8 +673,15 @@ def cmd_status(names, days):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for c in ("pack", "compile", "copy", "status"):
+    for c in ("pack", "compile", "copy", "status", "stage-june"):
         s = sub.add_parser(c)
+        if c == "stage-june":
+            s.add_argument("koms", nargs="+", help="a file name, or a list file (one name per line, or a TSV with a `name` column)")
+            s.add_argument("--dry-run", action="store_true", help="print the plan, write nothing")
+            s.add_argument("--long-names", action="store_true", help="allow names over 59 characters (only once X4's flag is on)")
+            s.add_argument("--jobs", type=int, default=max(1, (os.cpu_count() or 2) - 1), help="decode workers for big lists")
+            s.add_argument("--plan-out", help="write the per-file plan as a TSV")
+            continue
         s.add_argument("koms", nargs="*" if c == "status" else "+", help="data036 | 036 | 36 | datai001 ...")
         if c == "copy":
             s.add_argument("--allow-removed", action="store_true", help="copy even if the packed kom drops entries the live kom has")
@@ -402,6 +691,9 @@ def main():
         if c == "pack":
             s.add_argument("--allow-unlisted", action="store_true", help="pack files the manifest does not list (they get algo 2)")
     a = ap.parse_args()
+    if a.cmd == "stage-june":
+        cmd_stage_june(a.koms, a.dry_run, a.long_names, a.jobs, a.plan_out)
+        return
     names = [norm(k) for k in a.koms]
     if a.cmd == "status":
         cmd_status(names, a.days)
