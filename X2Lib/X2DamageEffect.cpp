@@ -9920,10 +9920,15 @@ void CX2DamageEffect::CEffect::JuneInheritFromParent( CEffect* pChild_ )
 	pChild_->m_iApplyEffectAlphaConditionByOption		= m_iApplyEffectAlphaConditionByOption;
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-	JuneFxHit( GetName(), L"SPAWN_INHERIT", L"child=%s gates ignoreState=%d ownerSkillHit=%d buffFactor=%d ignoreDefence=%d lifeRate=%d(%.3f) trigger=%d hyper=%d childInheritDamage=%d",
+#ifdef SERV_RENA_NIGHT_WATCHER
+	const int iJuneChildIndex = pChild_->m_iIndex;	// the child's m_iIndex after the copy (June +0xb00): Rena's CheckDamageEffectType looks effects up by it
+#else SERV_RENA_NIGHT_WATCHER
+	const int iJuneChildIndex = -1;
+#endif SERV_RENA_NIGHT_WATCHER
+	JuneFxHit( GetName(), L"SPAWN_INHERIT", L"child=%s gates ignoreState=%d ownerSkillHit=%d buffFactor=%d ignoreDefence=%d lifeRate=%d(%.3f) trigger=%d hyper=%d childInheritDamage=%d index=%d",
 		pChild_->GetName(), (int)m_bInheritIgnoreStateDefence, (int)m_bInheritCountAsOwnerSkillHit, (int)m_bInheritBuffFactorToChild,
 		(int)m_bInheritIgnoreDefence, (int)m_bInheritMainEffectLifeTimeRate, m_fMainEffectLifeTimeRate, (int)m_bInheritAttackTriggerType,
-		(int)m_bHyper, (int)pChild_->m_bInheritDamageFromMaster );
+		(int)m_bHyper, (int)pChild_->m_bInheritDamageFromMaster, iJuneChildIndex );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 }
 
