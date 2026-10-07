@@ -3100,6 +3100,9 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
   seconds (window map ticked at the end of `CX2GameUnit::OnFrameMove`, re-armed at the end of `SetDamageDataFromLUA`). Dormant: no
   data sets either key. Reverting it means undefining the whole flag.
 - No ignore-defence number changes: those keys are June buff port Phase 5c (`SERV_IRUHADEV_JUNE_BUFF_NEW_STAT`).
+- **C4 review (2026-10-07):** `DamageData::SimpleInit` no longer resets `CAN_ACTIVATE_NASOD_ARMOR_COMBO` or clears the
+  range map, as June (`31f8ee50` / `31f8f550`): a re-used DamageData keeps earlier `RANGE`s (JUNE_BUGS 91). The ctor sets the
+  bool false. Dormant on today's data; reverting is the same flag.
 
 ## Reverting to stock
 

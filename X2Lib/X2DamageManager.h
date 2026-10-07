@@ -1599,8 +1599,9 @@ class CX2DamageManager
 				m_iJuneDamageEffectIndex				= -1;		/// @31f8f47b: +0x638 = -1
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_MATH
-				m_bCanActivateNasodArmorCombo			= false;
-				m_mapDivideDamageFromRange.clear();
+				/// C4 review: June's SimpleInit (31f8ee50) and Init (31f8f550) reset neither +0x570 (CAN_ACTIVATE_NASOD_ARMOR_COMBO)
+				/// nor the +0x5b0 range map, so a re-used DamageData keeps its last parse's value and its earlier RANGEs (JUNE_BUGS).
+				/// The ctor (DamageData()) sets the bool; the map starts empty from its own constructor.
 #endif SERV_IRUHADEV_JUNE_DAMAGE_MATH
 #ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 				m_iDivisionNum							= 0;		/// June SimpleInit 31f8ee50 @31f8f3e3: +0x618 = 0
@@ -1652,6 +1653,12 @@ class CX2DamageManager
 
 			DamageData()
 			{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_MATH
+				/// C4 review: June's ctor 31f8f620 builds the +0x5b0 map empty (@31f8fd09-31f8fd3f) and never writes +0x570, which
+				/// stays undefined until the first parse (SetDamageDataFromLUA always writes it, default false). false stands in
+				/// for that undefined byte.
+				m_bCanActivateNasodArmorCombo = false;
+#endif SERV_IRUHADEV_JUNE_DAMAGE_MATH
 				Init();
 			}
 

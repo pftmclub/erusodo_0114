@@ -392,7 +392,7 @@ stop and flag it. CP949 byte-level edits; build, deploy, ASK before launching; u
 
 ## C4 - 8b, damage math
 
-**Status: code done 2026-10-07 (see "C4 - Done" below; review queued). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and
+**Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and
 `3261a150`.
 
 - **Keys:** `IGNORE_DEFENCE_ON_PVP`, `IGNORE_DEFENCE_RATE`, `IGNORE_DEFENCE_RATE_ON_PVP`,
@@ -438,7 +438,25 @@ RESULT: PASS        (--range c1c74e2^..c1c74e2; the 4 OTHER rows are the REACT_A
 
 **How to see it in game:** nothing changes for existing data, so the check is a regression one. Play a dungeon with any character (NWatcher, Night Watcher, level 70, is the one used for the effect tests): damage numbers and kills behave as before, no crash. The only visible change is Add's Nasod armor targeting: an Add (create one with `/x2-create-char AddTest 32 40`, Psychic Tracer) logs `JUNE_FX NASOD_COMBO gate (first seen) ...` in `offline_server.log` on the first hit and no longer sets the Nasod armor target on normal hits. No line for DIVISION or `DIVIDE_DAMAGE_FROM_RANGE` is expected: no data uses them. Log tag `JUNE_FX` (`python tools/logs.py --tag JUNE_FX`).
 
-**Open for the review:** (1) the Nasod gate's March-skill mapping; (2) the re-arm's list walk; (3) the unidentified NPC block before DIVIDE. JUNE_BUGS rows 87-88 were numbered after a peer's uncommitted 79-86.
+**Open for the review:** (1) the Nasod gate's March-skill mapping; (2) the re-arm's list walk; (3) the unidentified NPC block before DIVIDE.
+
+### C4 - Review (2026-10-07, Opus 5.5 high)
+
+**Verdict: correct against June, with one init deviation fixed** (flag `SERV_IRUHADEV_JUNE_DAMAGE_MATH`, `X2DamageManager.h` only).
+Checked in Ghidra (read-only) and in the exe bytes:
+- **DIVIDE parse** (`32632390 @3263575f-32635b0f`): March's `KLuaManager::BeginTable( name, i )` formats `"%s%d"`, so `RANGE0`..; defaults read from the exe: `33441c60` = 99999.0, `FLD1`; insert `3261a150` is the parse's only caller (`@32635ae5`).
+- **Consumer `32622780`**: empty-map / game / damage-effect-manager / defender / `GetInstance( +0x14, live )` early-outs; dist from `CEffect +0x100` to vslot `0x3e4` (empty name) = `JuneGetLockOnAimPos`; walk `TEST AH,5 / JNP` = stop at the first `dist < RANGE` (NaN takes all); multiply `FCOM 1.0 (334355b0) / JP` = rate < 1.0 only; both locals by the same rate. The call site `@322857f6` follows the locals' load and June's Fury block and precedes the attacker hook (`+0x3ac`/`+0x3b0`), as ported. The definition is already inside `_DAMAGEEFFECT_RUNTIME` (`X2DamageEffect.cpp:8647`), so its guard matches the declaration's.
+- **PvE / PvP:** none of the three consumers (`32622780`, `329f63a0`'s gate, `3227a960`) tests the game type; the only PvP split is the ignore-defence rates (buff 5c, unchanged by C4).
+- **Nasod gate** (`329f63a0`): top switch on `+0x590` over `0x7211/0x7212/0x7220/0x7221`, gate `+0x570 != 1 && byte != 1` -> function end. March's body is all inside its `if`, so the early `return` is equivalent. Judgement (1) confirmed (the March skills stand in for the reform IDs); (2) is the user's 2026-10-07 decision; June's body after the gate is rewritten (memo swap `328905b0`, FantasyTracer on the switch byte, new default targeting): Add's class code -> checklist 7d row (added).
+- **DIVISION:** `3227a960` (null / `< 1` / no live attacker -> true; find -> false; insert `+0x61c` -> true), tick `322749f0` (erase at `<= 0`, NaN kept; `CX2GameUnit::OnFrameMove` has one return in both builds, June ticks `@3229fab5` near the end), re-arm `32275da0`, loop `32622ad0` and its call `@32640608` (args: attacker UID via vslot `0x54`, `*[esp+0xbc]` = `+0x618`, `*[esp+0xb8]` = `+0x61c`; only when `31e55680` says the attacker is live). Judgement (3) confirmed: the body changes no list, so iterating `GetUnitList()` directly is equivalent.
+- **Fixed: DamageData reset.** June's `SimpleInit` (`31f8ee50`) resets `+0x618/+0x61c` (as ported) but not `+0x570` or the range map, `Init` (`31f8f550`) neither, and the ctor (`31f8f620`) builds the map empty and never writes `+0x570`. C4 had put `= false` and `.clear()` in `SimpleInit`. Now: nothing in `SimpleInit`; the ctor sets the bool false (stand-in for June's undefined byte; every parse rewrites it, default false `@3263575b`). JUNE_BUGS 91. Funcmap's JUNE_BUGS citations corrected (79 -> 87, 80 -> 88).
+
+**Found, not owned -> new phases C4b (identify, Opus) + C4c (port, Sonnet).** The NPC block at `GetFinalDamage @32285757-322857e8` is June's raid-boss **Fury mode**: attacker NPC (`dynamic_cast<CX2GUNPC*>`, type descriptors read from the exe), NPC byte `+0x8fb7` == 1, current state `FURY_MODE` (bitset bit 80, `322afe40`), rate = StateData `+0x414` = `ATTACK_POWER_RATE_FURY` (parse `32784c00 @327963cb`), each damage local multiplied when nonzero. March has no Fury key; June uses it in raid scripts only. Not a DamageData key and not per-class, so neither C4's nor a character port's: per the standing rule it gets its own phases (kickoffs `C4b.md`, `C4c.md`). Funcmap row now `confirmed` + 5 rows (`Effect C4 review`).
+
+**Hygiene.** `flagcheck --range c1c74e2^..HEAD` before the fix: `_DAMAGE_MATH` `files: 4 PASS, 0 PASS~, 1 DEFINE, 10 OTHER, 0 FAIL, 0 ERROR`, `2 deleted line(s)` (C4's own `BeginTable` respelling), `RESULT: PASS`; `_BUFF_REACT_APPLY` `files: 1 PASS, 0 PASS~, 0 DEFINE, 14 OTHER, 0 FAIL, 0 ERROR`, `1 deleted line(s)` (in `X2GameUnit.h`, the renamed declaration; the `X2GameUnit.cpp` -8 is buff Phase 10's own stub and call site), `RESULT: PASS`. OTHER rows: each flag's lines in the other flag's files, plus the peer's C9c-2b commit `c71621a` inside the range. The fix (`--worktree --files X2Lib/X2DamageManager.h`): `files: 1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `2 deleted line(s)` (the two `SimpleInit` resets C4 itself added), `RESULT: PASS`; the post-commit range line is in the commit message.
+**Census:** all ten C4 rows (`IGNORE_DEFENCE*`, the Nasod key, `DIVISION_*`, `DIVIDE_DAMAGE_FROM_RANGE`, `RANGE%d`) `implemented`; `census.tsv` unchanged.
+**Deploy** (`--pch force`: a peer build had compiled the PCH 72 s after the header edit): `DEPLOY OK: X2_offline.exe is 19,311,616 B, dated 2026-10-07 15:52:52, md5 006df66ef6e6d81a204f6f6580f8e624, equal to X2/US_SERVICE/x2.exe (2026-10-07 15:52:47); built at mods/june-buff-port d5f442f + 1 uncommitted code file(s).` (the one file is this fix).
+**In game:** nothing visible (no data uses the range or DIVISION keys; the Nasod gate is unchanged). No new play-test: C4's regression play-test stands. C10b-1 is unblocked. JUNE_BUGS rows 87-88 were numbered after a peer's uncommitted 79-86.
 
 ---
 
