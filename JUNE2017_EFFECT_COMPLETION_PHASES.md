@@ -2209,6 +2209,49 @@ March's three no-argument hides became inline blocks in June: SetOpen `3223d680`
 
 Review: `kickoffs/june-effect/C9h-2a-review.md`. **User owes:** /cost.
 
+### C9h-2a - Review (2026-10-08, Opus 5.5 high): no finding, no code change
+
+**Play-test read first:** C9h-2a's regression run (exe `c49f3628`, 0 EXCEPTION, no `JUNE_FX PET_VIEWER` line) was read and recorded in the Done note above.
+
+**Checked against June (Ghidra read-only, plus literals read from `unpacked_x2.exe`).**
+- **The variant branch, `32e50de0 @32e517f1-32e51a6f`.** Stack offsets are normalised to the ESP at `@32e517f1`.
+  - Locals: `+0x17` is the clamped iLv (written `@32e50e40/71`), `+0x118` is cVariant, `+0x40` is the petId copy (`@32e50e31`), `+0x70` is the motion string, `+0x8c` is the XET string (OpenXET's argument `@32e51aa9`), and `+0x54`, `+0xa8` and `+0xc4` are scratch strings.
+  - Tests: the templet's `+0x6c` size uses stride 0x1c and is compared as `AL == 4`. The guards are `len > 3` and `len > 5`. `substr(0, len-3)` and `substr(0, len-5)` are each moved into a scratch string with `31aa92b0` (= `operator=(&&)`), so the motion scratch cannot leak into the XET.
+  - Literals: `334b58ec/f4/fc` are `1.x`/`2.x`/`3.x`, and `334b58d4`/`334b5198`/`334b58e0` are `1.xet`/`2.xet`/`3.xet`. `31aa9200` is assign, not append.
+  - The suffix is used when `31c1c240(L"") != 0`, i.e. when it is non-empty. The suffix call needs `g_pData` and `+0x328`.
+  - Everything matches `X2NPCUnitViewerUI.cpp:184-223`.
+- **`326cc990`**: pet 0x27 gives `H.xet` (`334b518c`). Pet 0x86 with `(byte)(v-1) <= 1` gives `2.xet`. Anything else gives `L""`. Matches.
+- **ResetRidingPet, `32e51ea0 @32e52ad1-32e52ce0`.** The whole function has no `329594c0` call. `BY_UIEFFECTSET` (`33525eac`) is collected first, then `RIDINGPET_UNIT_VIEWER_EFFECT_SET_LIST` (`33531ab0`) plays into group 1. After INIT_EFFECT closes, each name goes through `321e28d0`, gated on `g_pData`, and a handle other than -1 is pushed to `+0x2a8`. Matches.
+- **`321e28d0`.** A null templet or a null skin gives -1. `321e1bf0` is called with (templet, skin, 0, 0, null square ptr, 0 pet). `+0xdd = 1` is stored on the returned instance (`@321e29de`). Matches `PlayEffectSet(name, skin)`.
+- **Reach of the consumers (not checked by C9h-2a).** A no-owner instance gets mode 2 in June: the ctor `321df230` takes the `@321df570` else. March does the same: `X2EffectSet.cpp:4651` gives `ESM_FIELD` (= 2). June's switch `@321dce8f` sends 2 to `321dd013`, the case that holds both viewer branches. So both position consumers run.
+- **The `+0xdd` consumers.**
+  - **`@321dd0e0`**: BONE_NAME `+0x40`, then `+0x9c`. Both empty keeps vPos (0,0,0). `31d38a20` gives the frame translation, or 0 without a frame. Then `+512.0`, `(y-384.0)` is rounded to float and multiplied by `-1.0`, and z = 0. The jump to `321dd531` is the plain return (no `321d9820` offset).
+  - **`@321dd926`**: same transform. Found/not-found goes to `bBoneFound`, the miss zeroes x and y, and the result reaches `321ddd58`, which is the return without an offset.
+  - **`@321f2522`**: EDI is the new sequence (`[EDI+0x430]` is its handle `@321f246a`). `+0x170 = 1`, `+0x1c0 = 1` (`PT_2D_PLANE` = 1 in March's enum), `+0x2f4 = 1`.
+  - All three match.
+- **Frame hooks.**
+  - `32e4f600` jumps over the skin block when there is no skin (`@32e4f60a`, to `@32e4f748`) and always ends in `329585f0`.
+  - `32e4f820` calls `32957260` only on the shown path, and returns the skin's hint.
+  - `32e4f8f0 @32e4f939` reloads ECX = this and JMPs to `32957330`, which confirms C9h-2a's correction 1.
+- **Handle stop / SetScale / IsAnimExist.**
+  - `32e4fde0` copies `[ESI]` to `[ESP+0xc]` and stops that copy, never erasing it (correction 2 confirmed).
+  - `32e4fcf0` writes `+0x70..+0x78` and `+0x7c = 0`. The ctor `321df230 @321df32e-33f` has the order `+0x6c` / `+0x70` / `+0x7c`, which is March's `m_fPowerRateScale`, `m_vScale`, `m_bDamageEffectScale` (`X2EffectSet.h:715-719`).
+  - `31d39100` returns 0 on a miss and the map value on a hit, so a found NULL entry also returns false. `JuneIsAnimSetExist` does the same.
+  - **One deliberate deviation:** `IsAnimExist` adds a `NULL == pName` guard. June would build a wstring from the pointer. The only caller passes a literal, so the guard is kept.
+- **`+0xe0` (`@321dd1a3`, `@321dd9dc`)** is not ported, which is right; it belongs to C9h-3.
+
+**Hygiene** (`flagcheck JUNE_PET_VIEWER_FX --range e9cfdca^..HEAD`):
+`files: 5 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 9 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 26 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`.
+- **The 2 bare `#endif`s** (`tok! 2` on the DEFINE row) close the two `#if defined(...) #error` dependency guards under the `#define` in `Always.h`. They are not flag blocks.
+- **All 9 OTHER rows are `f1549a6`**, K2's `JUNE_ITEM_KIM` / `KIM_LAYOUT_CHECK` commit inside the range. Each has +0 lines for this flag.
+- **The 26 EOL lines** are ResetPet's group-1 block. It sits after `ResetRenderParam();`, which is an LF line in a mixed file (419 CRLF / 218 LF). The 0 deleted lines show that no existing line ending changed.
+
+**Deploy:** none. Nothing changed, and the tree holds a peer's uncommitted C9h-2b edits (`Always.h`, `X2CashShop.cpp`, `X2UIPetInfo.cpp`). The deployed exe is still `c49f3628`, which the regression play-test passed on. No new play-test.
+
+Next: C9h-2b (Opus 5.5 high) and C9h-3 (Opus 5.5 high); both kickoffs exist. **User owes:** /cost.
+
 ---
 
 ## C10 - Decided absent systems
