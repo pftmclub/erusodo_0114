@@ -55,6 +55,7 @@ The user's remaining backlog, in the order they listed it:
 | 11 | Division item templets *(added 2026-10-07, june-effect C9f)* | - (found by june-effect C9f) | Not a backlog item but a missing system: June's per-item render and behaviour lists (`AddDivisionItemTemplet_LUA`, 112 types), of which C9f-2 ports only the per-equip effect sets. Its render rules wait on Stage 2. Numbered 11 to keep the earlier numbers stable, not because it must go last. |
 | 12 | Character customize system *(added 2026-10-07, june-effect C9g)* | - (found by june-effect C9g) | Not a backlog item but a missing system: June's `CX2CustomizeManager` (`CharCustomData.lua`) applies cash custom motions, sit motions and effects, faces, textures and skill cut-ins to a character, on the unit, square and viewer. It depends on Stage 10 (sit emotions), Stage 2 (UI) and the user's June `item.kim`. Numbered 12 to keep the earlier numbers stable. |
 | 13 | June `item.kim` adoption *(added 2026-10-07, user)* | - (the user's decision during june-effect C9g) | Not a backlog item but a prerequisite: March loads June's `item.kim`. That needs June's 228-byte record ported, since March's is 188 and both files carry the same header version. Planned in full as `JUNE_ITEM_KIM_PHASES.md` (K0-K4). Stages 11 and 12 depend on it for real data. It touches no other stage's files, so it can run alongside Stages 2-8. Numbered 13 to keep the earlier numbers stable. |
+| 14 | Byte-exact June asset extraction *(added 2026-10-07, user)* | - (the user's question: do June assets load in March unchanged?) | Not a backlog item but a prerequisite for porting any June asset faithfully. June's formats load in March unchanged, but elstools cuts 18,571 June V.0.4 entries short. Planned in full as `JUNE_ASSET_EXTRACT_PHASES.md` (X0-X5): an extractor, a packing helper and a long-name engine fix. It touches only tooling, staging and `KGCMassFileManager.cpp`, so it can run alongside Stages 2-8. Every stage that stages June assets benefits from it. |
 
 **Concurrency.** At most two code sessions should run at once:
 - Stage 0's buff port, in the main Trunk;
@@ -356,6 +357,25 @@ Every March id is in June, which adds 61,591 new ids. June's other item tables, 
 by K0/K1, not by this stage.
 
 **Depends on:** nothing. Stages 11 and 12 depend on it for real data.
+
+### Stage 14: Byte-exact June asset extraction (user, 2026-10-07)
+
+The user asked whether June's non-lua/kim assets load in March without changing them. An investigation the same day found that they
+do:
+- the formats match: DDS, TGA, `.x/.y` (KSM/KME v0x200, the same X templates), TET/XET v0x0100, Vorbis, and June's `XRenderer.fx`;
+- the extraction does not: elstools cuts 18,571 V.0.4 Blowfish entries short (about 4,900 damaged), and `data101_kom` is corrupt.
+
+The full plan is `JUNE_ASSET_EXTRACT_PHASES.md` (STATUS block `june-asset-extract`, kickoffs `kickoffs/june-asset-extract/`):
+- X0: V.0.4 container RE.
+- X1: `tools/junekom.py`.
+- X2: re-extract.
+- X3: `kom.py stage-june`, which enforces the algorithm, placement, duplicate and long-name rules.
+- X4: `SERV_IRUHADEV_KOM_LONG_NAMES`.
+- X5: trial pack and play-test.
+
+X0 answers the deferred June loader plan's RE items 1-3. The loader port itself stays deferred.
+
+**Depends on:** nothing.
 
 ---
 

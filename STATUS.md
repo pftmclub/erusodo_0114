@@ -230,6 +230,30 @@ Running together: K0 and K1 touch no game code and can run alongside any code se
 writers). K2 is the only phase that edits `X2Item_Preprocessing.inl` / `X2ItemManager*.cpp`, and the packed `data036`. Do not run it
 while another session is packing data036: `kom_contents/data036_kom/` is shared staging with Atlas/Elysion.
 
+## june-asset-extract - June non-lua assets, byte-exact, in March koms
+
+Plan `JUNE_ASSET_EXTRACT_PHASES.md` · branch `mods/june-buff-port` · log tag `[KOM_LONG]` · flag
+`SERV_IRUHADEV_KOM_LONG_NAMES` · kickoffs `kickoffs/june-asset-extract/` · backlog Stage 14 · created 2026-10-07.
+
+**The answer.** June's non-lua/kim asset formats load in March unchanged. What breaks is the extraction: elstools cuts 18,571 June
+V.0.4 entries short, about 4,900 of them damaged, and `data101_kom` is corrupt. Three packing rules also apply: manifest algorithm
+values, cross-kom duplicates, and names over 59 characters. This plan builds a byte-exact extractor, a packing helper and a long-name
+fix.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| X0 | ready | Opus 5.5 / high | - | Ghidra (read-only), `june2017_re/funcmap.tsv`, new `june2017_re/v04_*.tsv`, plan doc | `X0.md` |
+| X1 | blocked | Opus 5.5 / high | X0 | new `tools/junekom.py`, `tools/README.md` | written by X0 |
+| X2 | blocked | Sonnet 5.5 / high | X1 | `14JUN17\data\*_kom\` (backup first), `JUNE2017_ASSET_CLOSURE.md` | written by X1 |
+| X3 | blocked | Sonnet 5.5 / high | X1 | `tools/kom.py` | written by X1 |
+| X4 | ready | Opus 5.5 / high | - | `KTDXLIB/KGCMassFileManager.cpp`, `KTDXLIB/Always.h` | `X4.md` |
+| X4 review | blocked | Sonnet 5.5 / high | X4 | review | written by X4 |
+| X5 | blocked | Sonnet 5.5 / high, then user play-test | X2, X3, X4 | `kom_contents/dataNNN_kom/` (the koms X2 lists) | written by X3 |
+
+Running together: X0 touches no code and can run alongside anything; its funcmap rows queue behind other funcmap writers. X4 is
+independent of X0-X3, but it edits `KTDXLIB/Always.h`, so run it when no other code session holds uncommitted `Always.h` edits.
+X2/X5 touch shared staging; do not run X5 while another session is packing the same kom.
+
 ## Other plans
 
 No `kickoffs/` files yet: `/x2-phase <plan> <phase>` writes the kickoff from the plan doc's
@@ -237,7 +261,7 @@ phase section (kickoffs/TEMPLATE.md) on first use and shows it before starting.
 
 | Plan | Doc | State (2026-10-04, from the doc's headings; verify before starting) |
 |---|---|---|
-| backlog | `JUNE_PORT_BACKLOG_ORDER.md` | The order of everything below: stage 0 (close open loops, incl. this buff port) -> 1 Atlas/Elysion -> 2 engine remainder -> 3 skill core -> ... -> 9 UI; 10 emotion system; 11 division item templets (added by june-effect C9f); 12 character customize system (added by june-effect C9g); 13 June `item.kim` adoption (planned as `june-item-kim` above, a prerequisite of 11 and 12). |
+| backlog | `JUNE_PORT_BACKLOG_ORDER.md` | The order of everything below: stage 0 (close open loops, incl. this buff port) -> 1 Atlas/Elysion -> 2 engine remainder -> 3 skill core -> ... -> 9 UI; 10 emotion system; 11 division item templets (added by june-effect C9f); 12 character customize system (added by june-effect C9g); 13 June `item.kim` adoption (planned as `june-item-kim` above, a prerequisite of 11 and 12); 14 byte-exact June asset extraction (planned as `june-asset-extract` above). |
 | atlas | `ATLAS_PORT_PHASES.md` | Done notes exist through A13. |
 | elysion | `ELYSION_PORT_PHASES.md` | Done notes exist through E15. |
 | lanox | `LANOX_REMAINING_PHASES.md` + `JUNE_UI_PARITY_PHASES.md` | 12 items in phases 0-11; check the doc for which have landed. |
