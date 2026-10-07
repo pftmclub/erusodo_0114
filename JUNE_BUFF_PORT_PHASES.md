@@ -6072,7 +6072,12 @@ Iivue's item 579 keeps the three sockets.
 - `JUNE_DAMAGEDATA --files X2Lib/X2BuffTemplet.cpp`: `1 PASS`, 0 deleted, RESULT PASS.
 
 **Checked in June:**
-- **Loader.** The play-test proved 150 reached the NPC tail and 151 reached the multiple list. 159 has no sample.
+- **Loader.** The byte table `32737230` was read from `unpacked_x2.exe`. Case 3 (`32729310`, the second list) is exactly {150, 159}, and case 1 (the multiple list) holds the other 16. March's loader reads June 151's `IGNORE_RESIST` (`X2SocketItem.cpp:376`).
+- **Tails.**
+  - User `3203c9a0`: every `AT_SPECIAL`/early exit jumps to `@3203ce96`. DD `+0x3b4` is referenced only there. The roll is vslot `0x1cc( i + 4 )` (`SRO_ATTACK_EXTRA_DAMAGE_MULTIPLE` = 4) with `rand < rate`.
+  - NPC `3279d620`: `+0x3b4` appears only in the top correction (`@3279d6dd`) and the tail (`@3279dbba`).
+  - Neither function rolls the attacker's second list in the AT_EFFECT block.
+- **Description text** (`4027497`): June `@32725177` / `@327251e6` / `@32725288` / `@327252f4` push STR `0x82cb` / `0x891d` / `0x891e` / `0x9975` with format `3345784c`, after ×100.0 + 0.5 and `_ftol` truncation (`32fe25f0`). This matches the port's `( rate * 100 ) + 0.5f`. The last two were read from raw bytes, because Ghidra's listing skips them.
 - **Carriage**, all five places:
   - InitSocketData `3206e917` copies aggregate `+0x458` to DD `+0x754`.
   - The `SetDamageExceptionProcess` copy reads `[attacker+0x87b4]+0x458`. `+0x87b4` is June's pointer to the same per-unit aggregate (funcmap 943), March's inline `m_SocketData`. Its condition is `0 < magic || 0 < physic` (FCOM `+0x3c`, then `+0x38`), `+0x264 == 0` (GUT_USER), and DD `+0x3b4` empty. It runs before the `0x780` hook.
@@ -6099,7 +6104,7 @@ Iivue's item 579 keeps the three sockets.
 **Fixed: the second list's description** (open from the Done note).
 - June's desc `@32725365` runs: single list, then multiple list (`+0x448`), then, when that is empty, the second list (`+0x458`). The second list's loop body is compiled away, so it prints nothing. Only an empty second list reaches `3271f310`, the rest of the chain (it opens with STR 28644 / 500 = March's `m_fDamageReduce` branch).
 - March kept walking its chain, so a 150/159 socket that also had a later option would print it, where June prints nothing.
-- Fix: an empty `else if( false == m_vecJuneSecondSocketExtraDamage.empty() )` branch before `m_fDamageReduce`, `X2SocketItem.cpp` (`GetSocketDesc`), same flag. Today's 150/159 entries carry no other option, so no tooltip changes.
+- Fix: an empty `else if( false == m_vecJuneSecondSocketExtraDamage.empty() )` branch before `m_fDamageReduce`, `X2SocketItem.cpp` (`GetSocketDesc`), same flag. None of June's 21 entries for 150/159 (title 32155 and 100004000-100004019) carries another option, so no tooltip changes.
 - `--worktree --files X2Lib/X2SocketItem.cpp`: 1 PASS, 0 deleted, RESULT PASS.
 - Committed `ef924fb`. `JUNE_SOCKET_EDT --range c980691^..HEAD`: `files: 9 PASS, 1 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s)`; RESULT PASS.
 
