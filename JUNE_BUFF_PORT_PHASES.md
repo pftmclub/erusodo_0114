@@ -6018,7 +6018,7 @@ March's `PlayEffectSet` returns silently on an unknown name (`X2EffectSet.cpp:31
 
 ### Phase 16-step3c — Done (2026-10-07, Opus 5.5 high)
 
-**Landed** (`c980691`, new flag `SERV_IRUHADEV_JUNE_SOCKET_EDT`, which `#error`s without `_SOCKET_PARITY`; the compares are under `SERV_IRUHADEV_JUNE_DAMAGEDATA`):
+**Landed** (`c980691` + `4027497`, new flag `SERV_IRUHADEV_JUNE_SOCKET_EDT`, which `#error`s without `_SOCKET_PARITY`; the compares are under `SERV_IRUHADEV_JUNE_DAMAGEDATA`):
 - **Loader** (`X2SocketItem.cpp`): 150/159 go to a new `SocketData::m_vecJuneSecondSocketExtraDamage` (June `+0x384`); the other 16 go to `m_MultipleSocketExtraDamage`. The 16-data "not ported" log is the `#else`.
 - **Second list, in all five places:**
   - `DamageData::m_vecJuneSecondExtraDamage` (`+0x3b4`), cleared in `Init`;
@@ -6032,6 +6032,8 @@ March's `PlayEffectSet` returns silently on an unknown name (`X2EffectSet.cpp:31
   - 151: 10 stacks of BTI 762, then magic and physic `*=` `m_DamagePerSec`; otherwise BFI 788.
   - 156 and 157: logged as "not ported" (16-step3c2; Lanox checklist 7).
 - **`GetCalcPerDamage`**: June `32622300` cases `0x97`/`0x9c` keep the raw `DAMAGE_PER_SEC` for 151/156. Without this, 151's level correction would turn its 1.05 into 0.
+- **Description text** (`4027497`): June's multiple-list description switch (`327247bf`, EDT 10-149) prints STR 33483 / 35101 / 35102 / 39285 with the rate as a percent for 145 / 146 / 147 / 149. The other 14 hit its default and print nothing, which is also what March's default does. The routing now sends them into that branch, so the four cases are added. The IDs have no C++ name, so they are passed as numbers. The second list's description (150/159) is unchanged: open for the review.
+- **Where the copy runs**: `SetDamageExceptionProcess` is called on the **attacker** from `SetDamageDataFromLUA` (`X2DamageManager.cpp:694`), so skill and effect hits carry the second list too.
 - **Trigger compares**: `X2BuffTemplet.cpp` `:1814/:2087/:2160` -> `JuneIsAttackTrigger( 3 / 6 / 7 )`. March's `DTT_MARK_OF_COMMANDER` is 3 in this build (`EVE_ELECTRA` and `SERV_ADD_CHUNG_SHELLING_GUARDIAN` are on).
 - **149's scale** is a candidate decode: June `vslot 0x24` reads `+0x686c`, the first scale member June's ctor fills with (1,1,1) (`@322a4f8b`). That is March's `m_vBasicScale`.
 - **Logs** (`[JUNE_BUFF]`, `ErrorLog.txt`), once per type or effect-set name per run: `socket EXTRA_DAMAGE_TYPE n fired (first this run): ...`. Each line says whether the set played, whether the BFI was set, or that the code event is off.
@@ -6039,7 +6041,7 @@ March's `PlayEffectSet` returns silently on an unknown name (`X2EffectSet.cpp:31
 
 **Hygiene** (`--range c980691^..HEAD`): `JUNE_SOCKET_EDT`: `files: 7 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 1 #else/#endif without the flag token`; RESULT PASS. `JUNE_DAMAGEDATA --files X2BuffTemplet.cpp`: 1 PASS, 0 deleted, RESULT PASS. The PASS~ is X2GameUnit.cpp's `//{{ //}}` markers. The one bare `#endif` is Always.h's `#error` guard, the same as `DAMAGEEFFECT_RUNTIME`'s. X2BuffTemplet.cpp is OTHER for the new flag: its compares sit inside `JUNE_BUFF_CUSTOM_FUNCTION`, under `JUNE_DAMAGEDATA`, as the kickoff asked.
 
-**Deploy.** `DEPLOY OK: X2_offline.exe is 19,277,312 B, dated 2026-10-07 08:02:01, md5 67b7d78efb3a63bb29789103a3d5edd0, equal to X2/US_SERVICE/x2.exe (2026-10-07 08:01:57); built at mods/june-buff-port 9f0f4ae + 10 uncommitted code file(s).` The log format and `EffectSet_Socket_HeroDungeonSet_FlameGround` are in the exe. Not launched.
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,277,312 B, dated 2026-10-07 08:02:01, md5 67b7d78efb3a63bb29789103a3d5edd0, equal to X2/US_SERVICE/x2.exe (2026-10-07 08:01:57); built at mods/june-buff-port 9f0f4ae + 10 uncommitted code file(s).` The log format and `EffectSet_Socket_HeroDungeonSet_FlameGround` are in the exe. After the description commit: `DEPLOY OK: X2_offline.exe is 19,278,336 B, dated 2026-10-07 08:07:02, md5 e1c3f2aebbb2ba3e2785cb79aa2038c5, equal to X2/US_SERVICE/x2.exe (2026-10-07 08:06:57); built at mods/june-buff-port d7c5a98 + 1 uncommitted code file(s).` Not launched.
 
 **Save.** Item 579 (Iivue, Code: Empress) gains 100004019 (150, rate 1, level 20), 100007019 (151, +20 %) and 100031019 (152, 20 %). All three are dungeon-only. Backup: `db_backup/els_db_20261007_075439_pre_socket_edt_3c.sql`.
 
