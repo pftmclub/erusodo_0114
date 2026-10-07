@@ -1736,6 +1736,34 @@ still acts on the damage after `GetFinalDamage`.
 `max=4608.0` (`452.1 / 450.9 / 474.7 -> 460.8`). The arrow edit was reverted afterwards: the recompiled `DamageEffect.lua` is
 byte-identical to the pre-test one, `PACK OK`, `COPY OK data036` (user yes) md5 9f754689 = C9e's, so the live kom is the pre-test archive.
 
+**C10b-1 - Review (2026-10-07, Opus 5.5 high): PASS, no code findings, nothing rebuilt.** All checks ran read-only in Ghidra against `4ca07e7`.
+- *GetHpRateDamage `32273e80`*: matches instruction for instruction. Type 1 calls `31e4f900` (GetNowHp), type 2 calls `31e551a0` (GetMaxHp);
+  both multiply by DD `+0x5f8`. The gate reads the protected now-HP at HP gage `+4` (the same field `31e4f900` reads) with `fld1/fcomp`,
+  `test ah,5`, `jp`: a write only for now > 1.0, never on equal or NaN. It overwrites and has no other branch. March's
+  `CX2GageData::GetNowHp` returns 0.0 without an HP gage (`X2GageData.h:200`), so the March gate equals June's two null checks.
+- *Callers*: `xrefs_to 32273e80` = `@32049727` and `@32286990` only. No NPC or class-override site exists, so JUNE_BUGS 93's "NPC written once" holds.
+- *GetFinalDamage*: `@3228696a` is reached from every exit of the my-HP-few block (`@322868e9/32286901/3228692a/32286966`). The
+  defender comes from DD `+0x470` (`31e55340`), then gate `322726f0` (checklist 7c, row present), call `@32286990`, then clamp
+  `@32286995` (0 unless 0 < damage). The March block is at function scope, directly after `#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY`. The clamp
+  differs only for NaN: June writes 0, March's `<= 0` keeps NaN. That clamp is March's own code, not this flag's.
+- *DamageReact*: June's order is BBT 78 add, provoke zero `@32049565`, attacker-Add vslot `0x6d4` `@320495ca` (Add `329e25b0` = March's
+  `SERV_9TH_NEW_CHARACTER` `SetStasisfieldHitValue`), Elesis `0x4f8/0x4fc` (by value; only `CX2GUEL` overrides), class-0xa multiply, `322cfca0`,
+  execute block, HP-rate `@32049727`, then vslot `0x304` (only Rose overrides it, `32aa9c70`; empty for User/Add) and the shown copy `@3204975b`.
+  March's call sits after the stasis block and before `fFinalDamageToShow`, which is June's order for the steps March has. Enclosing gate:
+  March `X2GUUser.cpp:9297` `IsDamagedReaction && !m_bNoDamage` = June `@320483a4..320483bc` (`3226de80`, DD byte `+0x4dc`).
+- *JUNE_BUGS 93*: the row is correct. It now also names the three June-only steps the second write discards (C10d) and the xref proof.
+- *Census*: `PASS definition item 1, HP-rate damage ...: 0 of 7948 June DAMAGE_DATA* blocks get damage only from it`. The 0 counts blocks
+  whose only source has *not landed*; the 7 HP-rate-only blocks are covered by the flag. The regenerated matrix/tsv changed only line numbers
+  from peers' edits and were left uncommitted.
+- *Test vehicle*: no `C10b-1`/`HP_RATE_DAMAGE` line is left in `kom_contents/data036_kom/DamageEffect.src.lua` (only studio `DRAIN_HP_RATE`); the live
+  `data036.kom` md5 is `9f7546891c60793f7216767a52ad2398`, the pre-test archive.
+
+Hygiene (`--range 4ca07e7^..HEAD`): `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR` /
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag
+token, 0 encoding change(s)` / `RESULT: PASS`. Both OTHER rows are peer commit `b3ed2a3` (C9e review: the emotion blocks were moved in
+`X2GUUser.cpp`, 5 lines in `X2SquareUnit.cpp`, under `JUNE_EMOTION_EFFECT_SET` / `JUNE_UNIT_VIEWER_EFFECT_TABLE`). It has no `HP_RATE` lines, and its
+-49 are that move, not this flag's. Not checked: a user defender in play (the play-test produced only `def=npc` lines). The code path was verified by reading instead.
+
 ---
 
 ## C11 - Verification on June data
