@@ -1804,6 +1804,12 @@ CX2ItemManager* CX2Data::ResetItemManager()
 #ifdef SERV_NEW_ITEM_SYSTEM_2013_05
 	m_pItemManager->OpenScriptFile( L"ItemConvertTable.lua" );
 #endif //SERV_NEW_ITEM_SYSTEM_2013_05
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+	// June2017 ResetItemManager 31edda90 loads ... ItemConvertTable.lua, ItemManager.lua, CoordiItem.lua (encrypted),
+	// CoboRenderDivisionItemTemplet.lua, DivisionItemTemplet.lua, RenderDivisionItemTemplet.lua, GuildAgitShopItem.lua ... March loads
+	// none of the five after ItemConvertTable.lua; only RenderDivisionItemTemplet.lua carries the CEPE block (the other two: Stage 11).
+	m_pItemManager->OpenJuneDivisionItemTempletFile( L"RenderDivisionItemTemplet.lua" );
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 #ifdef MODIFY_FIND_SHOP_IMAGE_FILE_NAME
 	m_pItemManager->CreateShopImageNameList();

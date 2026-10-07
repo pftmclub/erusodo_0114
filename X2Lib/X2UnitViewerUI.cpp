@@ -1012,6 +1012,56 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
     
 
     UpdateTitle();
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// June2017 31fa8ce0 @31fa9ab8-31fa9cb0: the per-equip CEPE play, after UpdateTitle (31f91d10 @31fa99ec) and June's own random-wait
+	// block, through the viewer effect player with group 1. Skipped for a UVS_FIELD viewer (+0xf14 == 3; SetUnit 31faa6f0 stores
+	// eState there @31faa73c and loads the Field motion for 3), because CX2SquareUnit::OnFrameMove plays those itself, so a square unit
+	// does not play the set twice. The motion type June tests (+0xfa4) is written with +0xe58 = m_eOldMotionType by 31fa7ef0; only
+	// June's random-wait path zeroes it alone, for types 1-2, which pass this test either way. The handle is NEVER stored, so the timer
+	// step always sees "not live" and IsPlaying (329581c0) is the only replay guard.
+	if( UVS_FIELD != m_eUnitViewerState && NULL != g_pData && NULL != g_pData->GetItemManager() )
+	{
+		std::vector<CX2EqipPtr> vecJuneEquip;
+		GetJuneDivisionEquips( CX2ItemManager::JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecJuneEquip );
+
+		for( size_t iJuneEquip = 0; iJuneEquip < vecJuneEquip.size(); ++iJuneEquip )
+		{
+			CX2EqipPtr pJuneEquip = vecJuneEquip[iJuneEquip];
+			if( NULL == pJuneEquip || NULL == pJuneEquip->GetJuneItemTemplet() )
+				continue;
+
+			// a miss, the set already playing, or the condition not met (<= 0; 1-2 while the motion type is above the three waits,
+			// an unsigned JA @31fa9c42; > 3) -> +0x15f4 = 0
+			CX2ItemManager::JuneConditionEquipPlayEffectSet kJuneRecord;
+			if( false == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( pJuneEquip->GetItemID(), kJuneRecord ) ||
+				true == JuneViewerFxIsPlaying( kJuneRecord.m_wstrEffectSetName ) ||
+				kJuneRecord.m_eCondition <= 0 ||
+				( kJuneRecord.m_eCondition <= 2 && static_cast<unsigned int>( m_eOldMotionType ) > 2 ) ||
+				kJuneRecord.m_eCondition > 3 )
+			{
+				pJuneEquip->ResetJuneEquipEffectSetStartTime();
+				continue;
+			}
+
+			int iJuneSel = 2;
+			if( false == pJuneEquip->StepJuneEquipEffectSetTimer( &iJuneSel ) )
+				continue;
+
+			// 32959640( GetXSkinAnim 31fac3c0, name, group 1 ); switch timer +0x1604 zeroed after the switch play
+			if( 3 == iJuneSel )
+			{
+				JuneViewerFxPlay( m_pXSkinAnim, kJuneRecord.m_wstrSwitchEffectSetName, 1 );
+				pJuneEquip->ResetJuneEquipEffectSetSwitchTime( 2 );
+			}
+			else
+			{
+				JuneViewerFxPlay( m_pXSkinAnim, kJuneRecord.m_wstrEffectSetName, 1 );
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 //#endif
 
 //#ifndef _SERVICE_
@@ -1042,6 +1092,23 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+// June2017 31fa2f20: walk the viewer's equip map (+0x1fc = m_ViewEquipMap, so UID order), skip a NULL equip, and with
+// g_pData +0x34 set push the equip when its m_ItemID (+0x1a0) is in the given DITT type's set (32807db0).
+void CX2UnitViewerUI::GetJuneDivisionEquips( int iDivisionType, std::vector<CX2EqipPtr>& vecOut )
+{
+	for( ViewEquipMap::iterator it = m_ViewEquipMap.begin(); it != m_ViewEquipMap.end(); ++it )
+	{
+		CX2EqipPtr pEquip = it->second;
+		if( NULL == pEquip )
+			continue;
+
+		if( NULL != g_pData && NULL != g_pData->GetItemManager()
+			&& true == g_pData->GetItemManager()->IsDivisionItem( iDivisionType, pEquip->GetItemID() ) )
+			vecOut.push_back( pEquip );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 void CX2UnitViewerUI::SetPickUnit(bool val)
 {
 	m_bPickUnit = val;	

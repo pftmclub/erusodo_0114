@@ -5589,3 +5589,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              run: "JUNE_FX HERO_ANIM" in ErrorLog.txt.
 #define SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June 2017 effect completion C9f-2: June's per-equip effect
+//              sets (DITT_CONDITION_EQUIP_PLAY_EFFECT_SET = 81), the one
+//              slice of June's division-item-templet system that is ported.
+//              CX2ItemManager binds AddDivisionItemTemplet_LUA (dispatcher
+//              32818480, parser 32814da0 only; the rest is backlog Stage 11)
+//              and ResetItemManager loads RenderDivisionItemTemplet.lua.
+//              CX2Eqip gets June's handle + timers (3295ca60 / 32961060);
+//              GUUser CommonFrameMove, CX2SquareUnit::OnFrameMove and the
+//              unit viewer's frame move play the set on the UI effect set;
+//              CX2TFieldGame::RemoveUnit stops it (323f56d0). INERT in March:
+//              none of June's 5 item ids is in March's item.kim. Log:
+//              "JUNE_FX EQUIP_FX_LOAD" in ErrorLog.txt (JUNE_FX_DEBUG).
+//              The viewer half also needs
+//              SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER.
+#define SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+//////////////////////////////////////////////////////////////////////////

@@ -276,6 +276,9 @@ CX2SquareUnit::CX2SquareUnit( bool bMyUnit, CX2Unit* pUnit, const WCHAR* pScript
 #ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 	m_hJuneEmotionEffectSet = INVALID_EFFECTSET_HANDLE;	// June ctor 323f8080 @323f871b: +0x7ac = -1
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+	m_vJuneLastPos = D3DXVECTOR3( 0.f, 0.f, 0.f );	// June ctor 323f8080 @323f90cb-323f90dc: +0x7c0 = 0 (fldz @323f9095)
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 #ifdef SERV_ED_MONITORING_IN_GAME
 	m_iED = 0;
@@ -420,6 +423,56 @@ void CX2SquareUnit::StopJuneEmotionEffectSet()
 	m_hJuneEmotionEffectSet = INVALID_EFFECTSET_HANDLE;
 }
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+// June2017 323f56d0, only caller CX2TFieldGame::RemoveUnit 323af8f0 @323af9f6: if g_pData +0x34, take m_pUnitViewer's group-81
+// equips (31fa2f20( 0x51 ), only when the viewer is set); for each with m_pItemTemplet and a 3280b640 hit, 3295ca60( true ) = stop
+// the per-equip set and forget its handle.
+void CX2SquareUnit::StopJuneEquipEffectSets()
+{
+	if( NULL == g_pData || NULL == g_pData->GetItemManager() )
+		return;
+
+	std::vector<CX2EqipPtr> vecJuneEquip;
+	if( NULL != m_pUnitViewer )
+		m_pUnitViewer->GetJuneDivisionEquips( CX2ItemManager::JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecJuneEquip );
+
+	for( size_t iJuneEquip = 0; iJuneEquip < vecJuneEquip.size(); ++iJuneEquip )
+	{
+		CX2EqipPtr pJuneEquip = vecJuneEquip[iJuneEquip];
+		if( NULL == pJuneEquip || NULL == pJuneEquip->GetJuneItemTemplet() )
+			continue;
+
+		CX2ItemManager::JuneConditionEquipPlayEffectSet kJuneRecord;
+		if( true == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( pJuneEquip->GetItemID(), kJuneRecord ) )
+			pJuneEquip->ReleaseJuneEquipEffectSet( true );
+	}
+}
+
+// June2017 323f5920: the per-equip effect-set condition for a square unit.
+// 1 CEPE_WAIT: m_SyncData.m_StateID (+0x3c4) == GetStateID( "WAIT" ) (323f5870, string 3347e734).
+// 2 CEPE_NOT_MOVE: |m_SyncData.m_Pos (+0x3c8) - +0x7c0| <= 1.0 (NaN -> true: TEST AH,0x41 @323f59c1); no skill test here.
+// 3 CEPE_ALWYAS: true. Other: false.
+bool CX2SquareUnit::CheckJuneEquipEffectSetCondition( const CX2ItemManager::JuneConditionEquipPlayEffectSet& kRecord )
+{
+	switch( kRecord.m_eCondition )
+	{
+	case CX2ItemManager::JUNE_CEPE_WAIT:
+		return ( m_SyncData.m_StateID == GetStateID( "WAIT" ) );
+
+	case CX2ItemManager::JUNE_CEPE_NOT_MOVE:
+		{
+			const D3DXVECTOR3 vJuneMove = m_SyncData.m_Pos - m_vJuneLastPos;
+			return !( D3DXVec3Length( &vJuneMove ) > 1.f );
+		}
+
+	case CX2ItemManager::JUNE_CEPE_ALWYAS:
+		return true;
+
+	default:
+		return false;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 #pragma region ~CX2SquareUnit
 CX2SquareUnit::~CX2SquareUnit(void)
 {
@@ -1595,6 +1648,57 @@ HRESULT	CX2SquareUnit::OnFrameMove( double fTime, float fElapsedTime )
 	if( m_fCanNotInputTime > 0.f )
 		m_fCanNotInputTime -= fElapsedTime;
 #endif //MODIFY_LINEMAP_JUMPUP_IN_VILLAGE
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+	// June2017 CX2SquareUnit::OnFrameMove 32400620 @32402089-32402292: the per-equip CEPE play. June's order here: HANABI, 323f17b0,
+	// the m_fCanNotInputTime decrement (above), June's sit-wait and +0x193 blocks (the missing emotion system), this block, then the
+	// last-position store. Equips = m_pUnitViewer's group-81 equips (31fa2f20( 0x51 ); June does not test the viewer for NULL here).
+	// Unlike GUUser, the templet is tested BEFORE the lookup and there is no GetShowObject test. Owner kind 1 = switch timer +0x1600.
+	if( NULL != g_pData && NULL != g_pData->GetItemManager() )
+	{
+		std::vector<CX2EqipPtr> vecJuneEquip;
+		if( NULL != m_pUnitViewer )
+			m_pUnitViewer->GetJuneDivisionEquips( CX2ItemManager::JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecJuneEquip );
+
+		for( size_t iJuneEquip = 0; iJuneEquip < vecJuneEquip.size(); ++iJuneEquip )
+		{
+			CX2EqipPtr pJuneEquip = vecJuneEquip[iJuneEquip];
+			if( NULL == pJuneEquip || NULL == pJuneEquip->GetJuneItemTemplet() )
+				continue;
+
+			CX2ItemManager::JuneConditionEquipPlayEffectSet kJuneRecord;
+			if( false == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( pJuneEquip->GetItemID(), kJuneRecord ) ||
+				false == CheckJuneEquipEffectSetCondition( kJuneRecord ) )
+			{
+				// a miss or a condition not met: released WITHOUT a stop (3295ca60( false ); JUNE_BUGS.md), +0x15f4 = 0, +0x1600 = 0
+				pJuneEquip->ReleaseJuneEquipEffectSet( false );
+				pJuneEquip->ResetJuneEquipEffectSetStartTime();
+				pJuneEquip->ResetJuneEquipEffectSetSwitchTime( 1 );
+				continue;
+			}
+
+			int iJuneSel = 1;
+			if( false == pJuneEquip->StepJuneEquipEffectSetTimer( &iJuneSel ) )
+				continue;
+
+			// the square-unit overload 321e2120( name, CX2SquareUnitPtr this ) on the UI effect set
+			CX2EffectSet::Handle hJuneEquipSet = INVALID_EFFECTSET_HANDLE;
+			if( 3 == iJuneSel )
+			{
+				hJuneEquipSet = g_pData->GetUIEffectSet()->PlayEffectSet( kJuneRecord.m_wstrSwitchEffectSetName, CX2SquareUnitPtr( this ) );
+				pJuneEquip->ResetJuneEquipEffectSetSwitchTime( 1 );
+			}
+			else
+			{
+				hJuneEquipSet = g_pData->GetUIEffectSet()->PlayEffectSet( kJuneRecord.m_wstrEffectSetName, CX2SquareUnitPtr( this ) );
+			}
+			if( INVALID_EFFECTSET_HANDLE != hJuneEquipSet )
+				pJuneEquip->SetJuneEquipEffectSetHandle( hJuneEquipSet );
+		}
+	}
+
+	// @32402292-324022b0: +0x7c0 = m_SyncData.m_Pos (+0x3c8), read by CEPE_NOT_MOVE
+	m_vJuneLastPos = m_SyncData.m_Pos;
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 	return S_OK;
 }

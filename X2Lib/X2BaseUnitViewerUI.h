@@ -22,6 +22,9 @@ public:
 	void	JuneViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const std::wstring& wstrSetName_, int iGroup_ );	// 32959640
 	void	JuneViewerFxStop( int iGroup_ );												// 329594c0
 	void	JuneViewerFxStopSounds( int iGroup_ );											// 32959250
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+	bool	JuneViewerFxIsPlaying( const std::wstring& wstrSetName_ );						// 329581c0
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 #else SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 	CX2BaseUnitViewerUI(void) {};
 	virtual ~CX2BaseUnitViewerUI(void) {};

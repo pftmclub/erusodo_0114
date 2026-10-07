@@ -1140,6 +1140,11 @@ void CX2TFieldGame::RemoveUnit( UidType unitUID )
 			// 323f56d0 is not identified, so neither is called.
 			pCX2FieldUnit->StopJuneEmotionEffectSet();
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+			// June CX2TFieldGame::RemoveUnit 323af8f0 @323af9f6, right after 323f4640 (@323af9e6): 323f56d0 stops the leaving unit's
+			// per-equip effect sets (identified by phase C9f, after the comment above was written).
+			pCX2FieldUnit->StopJuneEquipEffectSets();
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 			m_UserUnitList.erase( m_UserUnitList.begin() + i );	
 			break;
 		}

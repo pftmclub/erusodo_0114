@@ -534,6 +534,49 @@ class CX2ItemManager
 		int		GetChangeCashPoint(int TempItemID);
 #endif SERV_KEEP_ITEM_SHOW_CASHSHOP
 
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+		// June2017 division item templets (g_pItemManager:AddDivisionItemTemplet_LUA, RenderDivisionItemTemplet.lua). March has
+		// none of that system; only the DITT_CONDITION_EQUIP_PLAY_EFFECT_SET (81) slice is ported (June effect completion C9f-2).
+		// The dispatcher's other targets and the other five parsers are JUNE_PORT_BACKLOG_ORDER.md Stage 11. The two maps are
+		// generic (type -> item ids, item id -> record), so Stage 11 only adds parsers.
+		enum JUNE_DIVISION_ITEM_TEMPLET_TYPE
+		{
+			JUNE_DITT_LOOP_ANIM_ITEM_ID					= 72,	// 0x48: the GUUser CommonFrameMove block before CEPE (3295c960, Stage 11)
+			JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET	= 81,	// 0x51: the group key hard-coded in 32814da0
+		};
+		// June Enum.lua CONDITION_EQUIP_PLAY_EFFECT_SET (June's own spelling ALWYAS kept)
+		enum JUNE_CONDITION_EQUIP_PLAY_EFFECT_SET
+		{
+			JUNE_CEPE_NONE		= 0,
+			JUNE_CEPE_WAIT		= 1,
+			JUNE_CEPE_NOT_MOVE	= 2,
+			JUNE_CEPE_ALWYAS	= 3,
+		};
+		// one m_EffectSetList%d record (June +0x380 map node +0x10; the offsets below are the record's)
+		struct JuneConditionEquipPlayEffectSet
+		{
+			int				m_eCondition;				// +0x00 m_eCondition
+			std::wstring	m_wstrEffectSetName;		// +0x04 EFFECT_SET_NAME
+			float			m_fStartTime;				// +0x20 START_TIME
+			std::wstring	m_wstrSwitchEffectSetName;	// +0x24 SWITCH_EFFECT_SET_NAME
+			float			m_fSwitchEffectPercent;		// +0x40 SWITCH_EFFECT_PERCENT, clamped to 0..100 (NaN kept)
+			float			m_fSwitchLimitTime;			// +0x44 SWITCH_LIMIT_TIME
+
+			JuneConditionEquipPlayEffectSet() : m_eCondition( 0 ), m_fStartTime( 0.f ), m_fSwitchEffectPercent( 0.f ), m_fSwitchLimitTime( 0.f ) {}
+		};
+
+		void	AddDivisionItemTemplet_LUA();																	// 32818480
+		bool	OpenJuneDivisionItemTempletFile( const WCHAR* pFileName );										// the load in ResetItemManager 31edda90
+		bool	GetConditionEquipPlayEffectSet( int iItemID, JuneConditionEquipPlayEffectSet& kRecord ) const;	// 3280b640
+		bool	IsDivisionItem( int iDivisionType, int iItemID ) const;										// 32807db0
+	private:
+		void	ParseJuneConditionEquipPlayEffectSet( KLuaManager& luaManager );								// 32814da0
+		std::map< int, std::set<int> >						m_mapJuneDivisionItemGroup;				// June +0x230: DITT type -> item ids
+		std::map< int, JuneConditionEquipPlayEffectSet >	m_mapJuneConditionEquipPlayEffectSet;	// June +0x380: item id -> record
+		int		m_iJuneEquipFxLists;				// load-line counters (this port's, not June's)
+		int		m_iJuneEquipFxSkippedDuplicate;
+	public:
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 	protected:
 		//{{ 080721.hoons.
 #ifndef	X2OPTIMIZE_ITEM_TEMPLET_PREPROCESSING

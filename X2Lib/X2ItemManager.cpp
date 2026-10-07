@@ -13,6 +13,10 @@ CX2ItemManager::CX2ItemManager(void)
 #ifdef IN_ITEM_KIM_USE_HIDE_SET_DESC
 	m_mapHideSetDescItem.clear();
 #endif //IN_ITEM_KIM_USE_HIDE_SET_DESC
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+	m_iJuneEquipFxLists = 0;
+	m_iJuneEquipFxSkippedDuplicate = 0;
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 }
 
 CX2ItemManager::~CX2ItemManager(void)
@@ -164,6 +168,159 @@ void CX2ItemManager::ClearManufactureResultGroupData()
 #endif	NEW_CHARACTER_CHUNG
 //}} kimhc // 2010.12.9 //  2010-12-23 New Character CHUNG
 
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+// June2017 CX2ItemManager::AddDivisionItemTemplet_LUA (32818480; bound by 31d95080 @31db330e on CX2ItemManager only: every push to
+// the same class_def 31e75970 is a 328xxxxx item-manager method, and 32818480 has that one xref, so no proxy binding). One call per
+// g_pItemManager:AddDivisionItemTemplet_LUA block; June reads the block with KLuaManager( state, 1, 0 ) (32fead40).
+// The block is skipped when the m_eReadType getter fails or the value is 0 / 2 (RT_NONE / RT_SERVER_ONLY). A failed m_eType getter
+// reads as 0 (neg/sbb/and @32818686-3281868d), so such a block still runs the default chain.
+void CX2ItemManager::AddDivisionItemTemplet_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+#ifndef X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+	TableBind( &luaManager, g_pKTDXApp->GetLuaBinder() );
+#endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+
+	int iReadType = 0;
+	if( false == luaManager.GetValue( "m_eReadType", iReadType ) || 0 == iReadType || 2 == iReadType )
+		return;
+
+	int iType = 0;
+	if( false == luaManager.GetValue( "m_eType", iType ) )
+		iType = 0;
+
+	// Types 55..93 go through June's byte table 32818748 / jump table 3281873c.
+	if( 55 == iType || 85 == iType )
+	{
+		// DITT_CUSTOM_RENDER / DITT_TEST_RENDER_DIVISION_SETTING -> June 328186a7: not ported (JUNE_PORT_BACKLOG_ORDER.md Stage 11)
+		return;
+	}
+	if( 89 <= iType && iType <= 93 )
+	{
+		// DITT_NEW_ENCHANT_ITEM_* -> June 328186b5: not ported (Stage 11)
+		return;
+	}
+
+	// Every other type (81 included) -> June's default chain 328186c4, each parser on the same table: 32814170( m_eType ),
+	// 32810700, 328144f0, 32814da0, 32817470, 32815af0. Only 32814da0 (DITT_CONDITION_EQUIP_PLAY_EFFECT_SET) is ported; the other
+	// five are Stage 11.
+	ParseJuneConditionEquipPlayEffectSet( luaManager );
+}
+
+// June2017 32814da0. It runs on EVERY block that reaches the default chain, not only on m_eType 81. For i = 0, 1, ... while the table
+// "m_EffectSetList%d" (fmt 33449104) opens: read the record (XOR-encrypted key names, decoded; a failed getter leaves 0 / L""), clamp
+// SWITCH_EFFECT_PERCENT (> 100 -> 100, < 0 -> 0, NaN kept: @328157c8-32815801), then put each m_eItemID entry 1..n into the item-id
+// map (+0x380; std::map insert, so the FIRST record for an id wins) and into a per-call set. After the loop a non-empty set goes
+// into the group map (+0x230) under the hard-coded key 0x51 = 81, again first wins: a later block's group-81 set is dropped while
+// its records stay (JUNE_BUGS.md).
+void CX2ItemManager::ParseJuneConditionEquipPlayEffectSet( KLuaManager& luaManager )
+{
+	std::set<int> setItemID;
+
+	int iList = 0;
+	char szListName[256] = {0};
+	StringCchPrintfA( szListName, ARRAY_SIZE(szListName), "m_EffectSetList%d", iList );
+	while( true == luaManager.BeginTable( szListName ) )
+	{
+		JuneConditionEquipPlayEffectSet kRecord;
+		if( false == luaManager.GetValue( "m_eCondition", kRecord.m_eCondition ) )
+			kRecord.m_eCondition = 0;
+		if( false == luaManager.GetValue( "EFFECT_SET_NAME", kRecord.m_wstrEffectSetName ) )
+			kRecord.m_wstrEffectSetName = L"";
+		if( false == luaManager.GetValue( "START_TIME", kRecord.m_fStartTime ) )
+			kRecord.m_fStartTime = 0.f;
+		if( false == luaManager.GetValue( "SWITCH_EFFECT_SET_NAME", kRecord.m_wstrSwitchEffectSetName ) )
+			kRecord.m_wstrSwitchEffectSetName = L"";
+		if( false == luaManager.GetValue( "SWITCH_EFFECT_PERCENT", kRecord.m_fSwitchEffectPercent ) )
+			kRecord.m_fSwitchEffectPercent = 0.f;
+		if( false == luaManager.GetValue( "SWITCH_LIMIT_TIME", kRecord.m_fSwitchLimitTime ) )
+			kRecord.m_fSwitchLimitTime = 0.f;
+
+		if( kRecord.m_fSwitchEffectPercent > 100.0 )			// double 3342f360
+			kRecord.m_fSwitchEffectPercent = 100.f;			// float 334355b8
+		else if( kRecord.m_fSwitchEffectPercent < 0.f )
+			kRecord.m_fSwitchEffectPercent = 0.f;
+
+		++m_iJuneEquipFxLists;
+
+		if( true == luaManager.BeginTable( "m_eItemID" ) )
+		{
+			int iItemID = 0;
+			int iIndex = 1;
+			while( true == luaManager.GetValue( iIndex, iItemID ) )
+			{
+				if( false == m_mapJuneConditionEquipPlayEffectSet.insert( std::make_pair( iItemID, kRecord ) ).second )
+					++m_iJuneEquipFxSkippedDuplicate;
+				setItemID.insert( iItemID );
+				++iIndex;
+			}
+			luaManager.EndTable();
+		}
+
+		luaManager.EndTable();
+		++iList;
+		StringCchPrintfA( szListName, ARRAY_SIZE(szListName), "m_EffectSetList%d", iList );
+	}
+
+	if( false == setItemID.empty() )
+		m_mapJuneDivisionItemGroup.insert( std::make_pair( static_cast<int>( JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET ), setItemID ) );
+}
+
+// June2017 3280b640: a hit on the item-id map (+0x380, end +0x384) copies the record out and returns true.
+bool CX2ItemManager::GetConditionEquipPlayEffectSet( int iItemID, JuneConditionEquipPlayEffectSet& kRecord ) const
+{
+	std::map< int, JuneConditionEquipPlayEffectSet >::const_iterator it = m_mapJuneConditionEquipPlayEffectSet.find( iItemID );
+	if( m_mapJuneConditionEquipPlayEffectSet.end() == it )
+		return false;
+
+	kRecord = it->second;
+	return true;
+}
+
+// June2017 32807db0: true when the id is in the given DITT type's set (+0x230 map, end +0x234).
+bool CX2ItemManager::IsDivisionItem( int iDivisionType, int iItemID ) const
+{
+	std::map< int, std::set<int> >::const_iterator it = m_mapJuneDivisionItemGroup.find( iDivisionType );
+	if( m_mapJuneDivisionItemGroup.end() == it )
+		return false;
+
+	return ( it->second.end() != it->second.find( iItemID ) );
+}
+
+// The load half. June's ResetItemManager (31edda90) runs RenderDivisionItemTemplet.lua with g_pItemManager = this; only that file
+// carries the CEPE block. load-time: offline_server.log is not open yet, so the count line goes to ErrorLog.txt (as
+// UNIT_VIEWER_FX_LOAD does). lists = m_EffectSetList tables read, items = item ids with a record, group81 = ids in the group-81
+// set, skipped_duplicate = item ids whose record was dropped because an earlier record already held the id (first wins).
+bool CX2ItemManager::OpenJuneDivisionItemTempletFile( const WCHAR* pFileName )
+{
+	m_iJuneEquipFxLists = 0;
+	m_iJuneEquipFxSkippedDuplicate = 0;
+
+	const bool bLoaded = OpenScriptFile( pFileName );
+
+	int iGroup81 = 0;
+	std::map< int, std::set<int> >::const_iterator itGroup = m_mapJuneDivisionItemGroup.find( JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET );
+	if( m_mapJuneDivisionItemGroup.end() != itGroup )
+		iGroup81 = static_cast<int>( itGroup->second.size() );
+
+	WCHAR wszJuneFx[512] = {0};
+	if( false == bLoaded )
+	{
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX EQUIP_FX_LOAD file=%s loaded=0 lists=%d items=%d group81=%d skipped_duplicate=%d NOT LOADED: file missing or failed to run; per-equip effect sets stay off. Pack it into data036.kom.",
+			pFileName, m_iJuneEquipFxLists, static_cast<int>( m_mapJuneConditionEquipPlayEffectSet.size() ), iGroup81, m_iJuneEquipFxSkippedDuplicate );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	else
+	{
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX EQUIP_FX_LOAD file=%s loaded=1 lists=%d items=%d group81=%d skipped_duplicate=%d",
+			pFileName, m_iJuneEquipFxLists, static_cast<int>( m_mapJuneConditionEquipPlayEffectSet.size() ), iGroup81, m_iJuneEquipFxSkippedDuplicate );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	return bLoaded;
+}
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 bool CX2ItemManager::OpenScriptFile( const WCHAR* pFileName )
 {
 	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(),  "g_pItemManager", this );

@@ -3528,6 +3528,11 @@ void CX2Main::RegisterLuabind()
 #ifndef	X2OPTIMIZE_ITEM_TEMPLET_PREPROCESSING
 	lua_tinker::class_def<CX2ItemManager>( L, "AddItemTemplet",				&CX2ItemManager::AddItemTemplet_LUA );
 #endif	//X2OPTIMIZE_ITEM_TEMPLET_PREPROCESSING
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+	// June2017 FUN_31d95080 @31db330e: pushes 0x32818480 to the CX2ItemManager class_def 31e75970. Outside the
+	// X2OPTIMIZE_ITEM_TEMPLET_PREPROCESSING guard above, which is ON here (AddItemTemplet goes through the proxies instead).
+	lua_tinker::class_def<CX2ItemManager>( L, "AddDivisionItemTemplet_LUA",	&CX2ItemManager::AddDivisionItemTemplet_LUA );
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 	lua_tinker::class_def<CX2ItemManager>( L, "AddShopItemList_LUA",		&CX2ItemManager::AddShopItemList_LUA );
 	lua_tinker::class_def<CX2ItemManager>( L, "AddShopItemGroup_LUA",		&CX2ItemManager::AddShopItemGroup_LUA );
 	lua_tinker::class_def<CX2ItemManager>( L, "AddRandomItemTemplet",		&CX2ItemManager::AddRandomItemTemplet_LUA );

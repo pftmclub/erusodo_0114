@@ -258,8 +258,73 @@ CX2Eqip::CX2Eqip( CX2Item* pItem, CKTDGXSkinAnimPtr pUnitXSkinAnim, int enchantL
 
 	m_bResourceLoadReserved = bLoad;
 	//EquipResourceLoad(bLoad);
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+	// June ctor 32961280: +0x15f8 = -1 early (before the templet stores), then at its tail +0x15f4 = 0 and +0x15fc / +0x1600 /
+	// +0x1604 = 0. Nothing reads them in between and March's ctor has no early return, so all five are set here.
+	m_fJuneEquipEffectSetStartTime = 0.f;
+	m_hJuneEquipEffectSet = INVALID_EFFECTSET_HANDLE;
+	m_afJuneEquipEffectSetSwitchTime[0] = 0.f;
+	m_afJuneEquipEffectSetSwitchTime[1] = 0.f;
+	m_afJuneEquipEffectSetSwitchTime[2] = 0.f;
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 }//CX2Eqip::CX2Eqip()
+
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+// June2017 3295ca60: stop the per-equip effect set (+0x15f8) on the UI effect set (g_pData +0x9c) only when bStop and the handle is
+// valid; the handle is forgotten (-1) either way. The GUUser and square miss paths pass false, so the set plays on to its own end;
+// only the square's RemoveUnit stop (323f56d0) passes true. June has no CX2Eqip dtor stop (3 callers only). Both: JUNE_BUGS.md.
+void CX2Eqip::ReleaseJuneEquipEffectSet( bool bStop )
+{
+	if( true == bStop && NULL != g_pData && INVALID_EFFECTSET_HANDLE != m_hJuneEquipEffectSet )
+		g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEquipEffectSet );
+	m_hJuneEquipEffectSet = INVALID_EFFECTSET_HANDLE;
+}
+
+// June2017 32961060: the per-equip effect-set timer step; true = play now. *pSel is the owner kind (0 GUUser, 1 square, 2 viewer);
+// the switch roll turns it into 3 = play the switch set (the timer is NOT reset here: the caller zeroes it when it plays the switch).
+// Elapsed time is the global one: June reads the protected float at g_pKTDXApp +0x2c, whose ctor value is 1/85 = m_fConstElapsedTime.
+// So the first play waits START_TIME, and a set that ended replays about one frame later.
+bool CX2Eqip::StepJuneEquipEffectSetTimer( int* pSel )
+{
+	if( NULL == g_pData || NULL == g_pData->GetItemManager() )
+		return false;
+
+	CX2ItemManager::JuneConditionEquipPlayEffectSet kRecord;
+	if( false == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( m_ItemID, kRecord ) )
+		return false;
+
+	// switch roll: only for a positive percent (NaN: no) and an owner kind 0..2
+	if( 0.f < kRecord.m_fSwitchEffectPercent && 0 <= *pSel && *pSel < 3 )
+	{
+		if( m_afJuneEquipEffectSetSwitchTime[*pSel] >= kRecord.m_fSwitchLimitTime )	// NaN on either side -> accumulate
+		{
+			if( static_cast<float>( rand() % 100 ) < kRecord.m_fSwitchEffectPercent )		// strict
+				*pSel = 3;
+		}
+		else
+		{
+			m_afJuneEquipEffectSetSwitchTime[*pSel] += g_pKTDXApp->GetElapsedTime();
+		}
+	}
+
+	// GetEffectSetInstance 321d97c0 on g_pData +0x9c: a live set keeps the accumulator at START_TIME
+	if( NULL != g_pData->GetUIEffectSet()->GetEffectSetInstance( m_hJuneEquipEffectSet ) )
+	{
+		m_fJuneEquipEffectSetStartTime = kRecord.m_fStartTime;
+		return false;
+	}
+
+	if( kRecord.m_fStartTime < m_fJuneEquipEffectSetStartTime )		// strict; a NaN START_TIME never plays
+	{
+		m_fJuneEquipEffectSetStartTime = 0.f;
+		return true;
+	}
+
+	m_fJuneEquipEffectSetStartTime += g_pKTDXApp->GetElapsedTime();
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 
 // destructor.

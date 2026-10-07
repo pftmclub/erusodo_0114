@@ -58,6 +58,7 @@ column.
 | `SERV_IRUHADEV_JUNE_NPC_FURY_MODE` | 2026-10-07 (June effect completion C4c) | `KTDXLIB/Always.h` (end; the anim half also needs `SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED`) | `X2Lib/X2GUNPC.h`/`.cpp` (`FLAG_FURY_MODE`, StateData rates, `LoadStateData` `FURY_MODE` + `FURY_DATA`, `m_bFuryMode`, `SetFuryMode`/`GetFuryMode`/`JuneGetFuryAttackPowerRate`, the `ResetAnimSpeed` replace), `X2Lib/X2GameUnit.cpp` (`GetFinalDamage`, before the range rate), `X2Lib/X2Main.cpp` (2 binds) | -- |
 | `SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED` | 2026-10-07 (June effect completion C4c) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUNPC.h`/`.cpp` (two 1.0 factors, June's `ResetAnimSpeed` body), `X2Lib/X2GameUnit.h` (virtual `ResetAnimSpeed`), `X2Lib/X2GameUnit.cpp` (`CheckAndUpdateAdditionalStat` anim block) | -- |
 | `SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED` | 2026-10-07 (June effect completion C4d) | `KTDXLIB/Always.h` (end; the `CreateGUNPC` tail and the setter also need `SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED`) | `X2Lib/X2DungeonManager.h`/`.cpp` (row list, `Add_HeroDungeon_ExtraStatForException_LUA`, shared `JuneIsHeroDungeon`), `X2Lib/X2Main.cpp` (bind), `X2Lib/X2DungeonSubStage.cpp` (`CreateGUNPC` tail + one log line), `X2Lib/X2GUNPC.h` (`SetMultiplicationAnimSpeed`), `X2Lib/X2PartyUI.cpp` (its `JuneIsHeroDungeon` calls the shared one) |
+| `SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET` | 2026-10-07 (June effect completion C9f-2) | `KTDXLIB/Always.h` (end; the viewer half also needs `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER`) | `X2Lib/X2ItemManager.h`/`.cpp` (two maps, `AddDivisionItemTemplet_LUA` dispatcher, CEPE parser, lookups, load + log line), `X2Lib/X2Main.cpp` (bind), `X2Lib/X2Data.cpp` (`ResetItemManager` load), `X2Lib/X2Eqip.h`/`.cpp` (handle + timers, release, timer step), `X2Lib/X2GUUser.h`/`.cpp`, `X2Lib/X2SquareUnit.h`/`.cpp` (condition, play, last position; square stop), `X2Lib/X2TFieldGame.cpp` (`RemoveUnit` stop), `X2Lib/X2UnitViewerUI.h`/`.cpp` (group filter, viewer play), `X2Lib/X2BaseUnitViewerUI.h`/`.cpp` (`IsPlaying`) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL` | 2026-10-07 (june-buff Phase 14b) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUUser.h`/`.cpp` (`m_bJuneInstanceKill`, `HaveInstanceKillDebuff`, set and kill in `DamageReact`), `X2Lib/X2BuffTempletManager.cpp` (load line) | -- |
 | `SERV_IRUHADEV_JUNE_TUTORIAL_MODE` | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (before the 14b block) | `X2Lib/X2Main.h`/`.cpp` (out-of-line `SetIsPlayingTutorial`, `JuneOnExitTutorialRestoreKeys`, `m_bJuneTutorialKeyLatch`), `X2KeyPad.h`/`.cpp`, `X2DungeonGame.cpp` (Release), `X2GUUser.cpp` (clamp, RT_FLY, StartEnd), `X2Game.cpp`, `X2State.cpp`, `X2UIManager.cpp`, `X2UIQuestNew.h`/`.cpp`, `X2StateDungeonGame.cpp`, `X2SlideShot.cpp`, `X2PetManager.cpp`, `X2PlayGuide.cpp`, `X2UIQuickSlot.cpp`, `X2StateServerSelect.cpp` | -- |
 | `SERV_IRUHADEV_OFFLINE_FIRST_SELECT` (offline emulator) | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (next to the above) | `X2Lib/Offline/Handlers_Unit.cpp` (`PushSelectUnitNotifications`, 5_NOT) | `SERV_IRUHADEV_OFFLINE` |
@@ -3156,6 +3157,19 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
   dungeon (last match wins, JUNE_BUGS 99). Dormant: March loads no `HeroDungeonData_Client.lua` and has no Hero dungeon, so the
   list stays empty and nothing changes in play. One `JUNE_FX HERO_ANIM` line per run in ErrorLog.txt says so.
   **Revert:** undefine it and rebuild all projects.
+
+### June effect completion C9f-2: per-equip effect sets (DITT_CONDITION_EQUIP_PLAY_EFFECT_SET)
+
+- **`SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET`.** June's division-item-templet loader (`g_pItemManager:AddDivisionItemTemplet_LUA`, its
+  dispatcher and only the CEPE parser; the rest of the system is backlog Stage 11), loaded from `RenderDivisionItemTemplet.lua`
+  in `ResetItemManager`, and the per-equip effect set it drives: an equip whose displayed item id has a record plays its set on
+  the UI effect set from GUUser `CommonFrameMove`, `CX2SquareUnit::OnFrameMove` and the unit viewer (group 1), with June's
+  WAIT / NOT_MOVE / ALWAYS conditions, start delay and random switch set; `RemoveUnit` stops it. **Inert**: none of June's 5
+  item ids is in March's `item.kim`. Data (data036): `Enum.lua` + June's `DIVISION_ITEM_TEMPLET_TYPE`, `READ_TYPE`,
+  `CONDITION_EQUIP_PLAY_EFFECT_SET` (appended verbatim, as Phase 11 did); `RenderDivisionItemTemplet.lua` (June verbatim,
+  manifest entry added); `UIEffectSet.lua` + 6 sets; `UIMajorXMeshPlayer.txt` + 2 mesh templets. One `JUNE_FX EQUIP_FX_LOAD`
+  line in ErrorLog.txt. JUNE_BUGS 100-102. **Revert:** undefine it and rebuild all projects. The data can stay: with the flag off
+  nothing loads `RenderDivisionItemTemplet.lua`, and the extra enum tables and sets are unused.
 
 ## Reverting to stock
 

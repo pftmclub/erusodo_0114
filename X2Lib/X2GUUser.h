@@ -3974,6 +3974,10 @@ public:
 		CX2EffectSet::Handle							m_hJuneEmotionSetEffectSet;	// June CX2GUUser +0x9434: the per-emotion effect set of 32355a50 (ctor -1)
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #endif
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+		D3DXVECTOR3										m_vJuneLastFramePos;	// June CX2GUUser +0x94d4: GetPos() at the end of the last CommonFrameMove (ctor 0)
+		bool											CheckJuneEquipEffectSetCondition( const CX2ItemManager::JuneConditionEquipPlayEffectSet& kRecord );	// 31fd8140
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 		bool											m_bSocketSuperArmor;
 		float											m_fSocketSuperArmor;

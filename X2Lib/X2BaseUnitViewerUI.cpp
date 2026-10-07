@@ -347,6 +347,33 @@ void CX2BaseUnitViewerUI::JuneViewerFxStopSounds( int iGroup_ )
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+// 329581c0 (effect completion C9f-2): true when a mesh entry (+0x194), then a particle entry (+0x1a4), has this set name (entry +0x10)
+// and a live own handle (+0x3c != -1 and 31c83970 / 31cefdd0 find it). Only the viewer's per-equip CEPE play asks (31fa8ce0 @31fa9bed).
+bool CX2BaseUnitViewerUI::JuneViewerFxIsPlaying( const std::wstring& wstrSetName_ )
+{
+	for( size_t i = 0; i < m_vecJuneFxMesh.size(); ++i )
+	{
+		const JuneViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
+		if( NULL != pEntry && wstrSetName_ == pEntry->m_wstrSetName && INVALID_MESH_INSTANCE_HANDLE != pEntry->m_hMesh
+			&& NULL != g_pData && NULL != g_pData->GetUIMajorXMeshPlayer()
+			&& NULL != g_pData->GetUIMajorXMeshPlayer()->GetMeshInstance( pEntry->m_hMesh ) )
+			return true;
+	}
+
+	for( size_t i = 0; i < m_vecJuneFxParticle.size(); ++i )
+	{
+		const JuneViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
+		if( NULL != pEntry && wstrSetName_ == pEntry->m_wstrSetName && INVALID_PARTICLE_SEQUENCE_HANDLE != pEntry->m_hSeq
+			&& NULL != g_pData && NULL != g_pData->GetUIMajorParticle()
+			&& NULL != g_pData->GetUIMajorParticle()->GetInstanceSequence( pEntry->m_hSeq ) )
+			return true;
+	}
+
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+
 // 32957980: the create pass, the end of 329585f0. An entry with an effect, a skin and no handle is created once its
 // START_TIME is reached, at the bone plus POSITION_OFFSET, with the viewer as owner.
 void CX2BaseUnitViewerUI::JuneViewerFxCreatePass()

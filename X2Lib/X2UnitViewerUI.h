@@ -120,6 +120,9 @@
 		static void SetShowUnitViewerUI( bool bShow ) { m_sbShow = bShow; }
 
 		void PlayByMotionType( CX2UnitViewerUI::UNIT_VIEWER_UI_MOTION_TYPE motionType );
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+		void GetJuneDivisionEquips( int iDivisionType, std::vector<CX2EqipPtr>& vecOut );	// June 31fa2f20
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 		static bool GetUnitClicked() { return m_sbUnitClicked; }
 		static void SetUnitClicked( bool bCheck ) { m_sbUnitClicked = bCheck; }

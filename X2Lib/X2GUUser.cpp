@@ -978,6 +978,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	m_hJuneEmotionSetEffectSet = INVALID_EFFECTSET_HANDLE;	// June ctor 3203e850 @32041dc9: +0x9434 = -1
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #endif
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+	m_vJuneLastFramePos = D3DXVECTOR3( 0.f, 0.f, 0.f );	// June ctor 3203e850 @32043273-3204327f: +0x94d4 = 0 (fldz @3204323a)
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 	m_fSocketSuperArmor = 0.f;
 	m_bSocketSuperArmor = false;
@@ -16054,6 +16057,35 @@ void CX2GUUser::CommonFrameMoveFuture_TimedEvent()
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+// June2017 31fd8140: the per-equip effect-set condition for a GUUser.
+// 1 CEPE_WAIT: the now state is USI_WAIT (June: the state record index ((protected +0x7cbc) - list base +0x7cec) / 100 == 13).
+// 2 CEPE_NOT_MOVE: false in a skill state (vslot 0x524 GetNowStateSkillID != 0), else moved <= 1.0 since the last frame
+//   (|GetPos( false ) - +0x94d4| against 3342e850; NaN -> true: TEST AH,0x41 @31fd81e0). 3 CEPE_ALWYAS: true. 0 or other: false.
+bool CX2GUUser::CheckJuneEquipEffectSetCondition( const CX2ItemManager::JuneConditionEquipPlayEffectSet& kRecord )
+{
+	switch( kRecord.m_eCondition )
+	{
+	case CX2ItemManager::JUNE_CEPE_WAIT:
+		return ( USI_WAIT == GetNowStateID() );
+
+	case CX2ItemManager::JUNE_CEPE_NOT_MOVE:
+		{
+			if( 0 != static_cast<int>( GetNowStateSkillID() ) )
+				return false;
+
+			const D3DXVECTOR3 vJuneMove = m_vJuneLastFramePos - GetPos();
+			return !( D3DXVec3Length( &vJuneMove ) > 1.f );
+		}
+
+	case CX2ItemManager::JUNE_CEPE_ALWYAS:
+		return true;
+
+	default:
+		return false;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 void CX2GUUser::CommonFrameMove()
 {
 //#ifndef SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
@@ -16537,6 +16569,45 @@ void CX2GUUser::CommonFrameMove()
 				//pCX2Eqip->OnFrameMove( m_fTime, m_fElapsedTime * m_AdvanceTimeCount, m_pXSkinAnim->GetRenderParam() );
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 				pCX2Eqip->SetRenderParam( m_fTime, m_fElapsedTime , m_pXSkinAnim->GetRenderParam() );
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+				// June2017 CommonFrameMove 32063650 @32065d57-32066052: the per-equip CEPE play, after SetRenderParam (32963c80) and
+				// June's DITT_LOOP_ANIM_ITEM_ID (72) block 3295c960 (backlog Stage 11), before OnFrameMove (@32066083). This is the live
+				// X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE branch (ON per cl /P); the #else below is dead in this build. Played on the UI effect
+				// set (g_pData +0x9c), in dungeons too. INERT in March: none of June's 5 item ids is in item.kim.
+				if( NULL != g_pData && NULL != g_pData->GetItemManager() )
+				{
+					CX2ItemManager::JuneConditionEquipPlayEffectSet kJuneRecord;
+					if( false == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( pCX2Eqip->GetItemID(), kJuneRecord ) ||
+						false == CheckJuneEquipEffectSetCondition( kJuneRecord ) )
+					{
+						// a miss or a condition not met: 3295ca60( false ) releases the handle WITHOUT stopping it (JUNE_BUGS.md),
+						// then +0x15f4 = 0 and the GUUser switch timer +0x15fc = 0
+						pCX2Eqip->ReleaseJuneEquipEffectSet( false );
+						pCX2Eqip->ResetJuneEquipEffectSetStartTime();
+						pCX2Eqip->ResetJuneEquipEffectSetSwitchTime( 0 );
+					}
+					else if( NULL != pCX2Eqip->GetJuneItemTemplet() )
+					{
+						int iJuneSel = 0;
+						if( true == pCX2Eqip->StepJuneEquipEffectSetTimer( &iJuneSel ) && true == pCX2Eqip->GetShowObject() )
+						{
+							// PlayEffectSet 321e1e60 with owner this and March's defaults (June's trailing 1.0 is March's default too)
+							CX2EffectSet::Handle hJuneEquipSet = INVALID_EFFECTSET_HANDLE;
+							if( 3 == iJuneSel )
+							{
+								hJuneEquipSet = g_pData->GetUIEffectSet()->PlayEffectSet( kJuneRecord.m_wstrSwitchEffectSetName, this );
+								pCX2Eqip->ResetJuneEquipEffectSetSwitchTime( 0 );
+							}
+							else
+							{
+								hJuneEquipSet = g_pData->GetUIEffectSet()->PlayEffectSet( kJuneRecord.m_wstrEffectSetName, this );
+							}
+							if( INVALID_EFFECTSET_HANDLE != hJuneEquipSet )
+								pCX2Eqip->SetJuneEquipEffectSetHandle( hJuneEquipSet );
+						}
+					}
+				}
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 				pCX2Eqip->OnFrameMove( m_fTime, m_fElapsedTime );
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 				pCX2Eqip->SetRenderParam( m_fTime, m_fElapsedTime 
@@ -18855,6 +18926,10 @@ void CX2GUUser::CommonFrameMove()
 		SetShowInvincible( 0.5f );
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+	// June2017 CommonFrameMove @3206cee2-3206cef6, its last store (before 32296b10): +0x94d4 = GetPos( 0 ), read by CEPE_NOT_MOVE
+	m_vJuneLastFramePos = GetPos();
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 }
 
 

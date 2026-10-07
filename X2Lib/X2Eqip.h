@@ -17,6 +17,15 @@ typedef boost::intrusive_ptr<CX2Eqip>  CX2EqipPtr;
 typedef boost::shared_ptr<CX2Eqip>  CX2EqipPtr;
 #endif  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
 //}} seojt // 2009-1-13, 15:47
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+// June effect completion C9f-2: CX2Eqip keeps an effect-set handle (June +0x15f8), but X2EffectSet.h is included after this header
+// (X2Main.h:112 / :142), so the handle type is named here exactly as X2EffectSet.h:33-34 defines it (an identical typedef; the tag is
+// only a template parameter, so its forward declaration is enough).
+#ifdef  X2OPTIMIZE_HANDLE_VALIDITY_CHECK
+struct  CX2EffectSet_EffectSetInstance_TAG;
+typedef KHandleType<int,CX2EffectSet_EffectSetInstance_TAG>     CX2EffectSet_EffectSetInstanceHandle;
+#endif  X2OPTIMIZE_HANDLE_VALIDITY_CHECK
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 
 //어태치 애니메이션 장비는 3개의 애니메이션을 가진다
@@ -132,6 +141,16 @@ class CX2Eqip : public CKTDGObject
 		const WCHAR*			GetAniXETNameHyper() const	{ return m_AniXETNameHyper.c_str(); }
 
 		int						GetItemID()	const			{ return m_ItemID; }
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+		// June effect completion C9f-2: the per-equip effect set of DITT_CONDITION_EQUIP_PLAY_EFFECT_SET (June +0x15f4..+0x1604).
+		// June's play sites read the equip's own templet (+0x198) and id (+0x1a0 = m_ItemID, the DISPLAYED templet's id).
+		const CX2Item::ItemTemplet*	GetJuneItemTemplet() const	{ return m_pItemTemplet; }
+		void	ReleaseJuneEquipEffectSet( bool bStop );			// 3295ca60
+		bool	StepJuneEquipEffectSetTimer( int* pSel );			// 32961060
+		void	SetJuneEquipEffectSetHandle( const CX2EffectSet_EffectSetInstanceHandle& hHandle ) { m_hJuneEquipEffectSet = hHandle; }
+		void	ResetJuneEquipEffectSetStartTime() { m_fJuneEquipEffectSetStartTime = 0.f; }						// +0x15f4 = 0
+		void	ResetJuneEquipEffectSetSwitchTime( int iSel ) { m_afJuneEquipEffectSetSwitchTime[iSel] = 0.f; }	// +0x15fc + 4 * sel = 0
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 		UidType					GetItemUID() const			{ return m_ItemUID; }
 		CX2Unit::EQIP_POSITION	GetEqipPos() const			{ return m_EqipPos; }
 
@@ -372,6 +391,11 @@ private:
 #ifdef EQUIP_ATTACHED_PARTICLE_TEST
 		AttachedParticleGroup		m_AttachedParticleGroup;
 #endif EQUIP_ATTACHED_PARTICLE_TEST
+#ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+		float									m_fJuneEquipEffectSetStartTime;			// June +0x15f4: start accumulator (ctor 0)
+		CX2EffectSet_EffectSetInstanceHandle	m_hJuneEquipEffectSet;					// June +0x15f8: handle on the UI effect set (ctor -1)
+		float									m_afJuneEquipEffectSetSwitchTime[3];	// June +0x15fc / +0x1600 / +0x1604: switch timers, 0 GUUser / 1 square / 2 viewer (ctor 0)
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 
 		bool						m_bResourceLoadReserved;		// 객체 생성후에 리소스 로딩 할지 말지
