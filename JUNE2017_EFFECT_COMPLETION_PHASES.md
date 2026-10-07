@@ -1807,75 +1807,62 @@ Pass = 0 EXCEPTION and no new `X2_*.tmp`, with these log lines:
 
 ### C9g - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build): groups 1-4 are June's customize system; PlayByMotionType is a June rewrite -> C9g-2
 
-Read-only in Ghidra. 30 funcmap rows `Effect C9g`. Three earlier rows are corrected by new rows:
-- `31fa4980` is **not** DeleteEnchantWeaponEffect;
-- `31fa5c90` is not PlayByMotionType;
-- `32651ab0` is not on the item manager.
-
-Census: `june2017_re/c9g_animation_name_census.tsv` (script `c9g_animation_name_census.py`).
+Read-only in Ghidra. 30 funcmap rows `Effect C9g`; new rows correct `31fa4980` (**not** DeleteEnchantWeaponEffect), `31fa5c90` (not
+PlayByMotionType) and `32651ab0` (not the item manager). Census: `june2017_re/c9g_animation_name_census.tsv` (script `.py` beside it).
 
 **Who plays each group** (every `32959640` caller):
-
-| Group | Played by | Owner |
-|---|---|---|
-| 0 | `UnitViewerEffectSetTable` (`31fa8ce0`) | C9c-2b, ported |
-| 1 | per-emotion sets (`31fa52b0`), CEPE (`31fa8ce0`) | C9e, C9f-2, ported |
-| 1 | EmotionData `UI_EFFECT_SET` (`31fa52b0 @31fa5a0a`) | Stage 10 |
-| 1 | custom per-motion sets (`31f968a0`, played by `31fa5c90` and square StateStart `323fad80`); custom SIT_READY sets (`31fa4ec0(4,..,1)`) | Stage 12 (new) |
-| 1 | pet / riding-pet viewer `INIT_EFFECT` lists (`32e50de0` = `CX2NPCUnitViewerUI::ResetPet`, `32e51ea0` = `ResetRidingPet`) | **C9h** (new) |
-| 2 | custom SIT_WAIT sets (`31fa4ec0(5,..,2)`) | Stage 12 |
-| 3, 4 | customize preview dialogs (`3224b340`, `3224d0f0`, `32d77220`) | Stage 12 |
+- **Group 0:** the effect table (C9c-2b, ported).
+- **Group 1:**
+  - ported: the per-emotion sets and CEPE (C9e, C9f-2);
+  - Stage 10: EmotionData `UI_EFFECT_SET` (`31fa52b0 @31fa5a0a`);
+  - Stage 12: the custom per-motion sets (`31f968a0`, played by `31fa5c90` and square StateStart `323fad80`) and the custom
+    SIT_READY sets;
+  - C9h: the pet / riding-pet `INIT_EFFECT` lists (`ResetPet` `32e50de0`, `ResetRidingPet` `32e51ea0`).
+- **Group 2:** the custom SIT_WAIT sets (Stage 12).
+- **Groups 3-4:** the customize preview dialogs `3224b340` / `3224d0f0` / `32d77220` (Stage 12).
 
 **The stops.**
-- `31fa4980` is June's customize reset. It clears six custom motion names, three sit arrays and two maps, then stops 0..4. It is
-  called by `ApplyCustomize(1)` `31fa89b0` and the preview UI.
-- June keeps March's enchant particles (`31f9eeb0` uses `Weapon_Lire_Property01_M_Poison`): nothing of `m_hSeqWeapon_*` was replaced,
-  and there is nothing to retire.
-- `31fa5140`/`31fa5180` replay the custom sit sets, keyed by sit emotion (Stage 12).
-- The derived dtor's 0..4 stop is already ported (`X2UnitViewerUI.cpp:288`).
+- `31fa4980` = June's customize reset. It clears six custom motion names, three sit arrays and two maps, then stops 0..4. Callers
+  are `ApplyCustomize(1)` `31fa89b0` and the preview UI.
+- June keeps March's enchant particles (`31f9eeb0`): nothing of `m_hSeqWeapon_*` was replaced.
+- `31fa5140`/`31fa5180` replay the sit sets (Stage 12).
+- The dtor's 0..4 stop is already ported (`X2UnitViewerUI.cpp:288`).
 
-**PlayByMotionType is `31fa7ef0`, a rewrite.** It calls `31fa5c90` (the customize pre-pass) first.
-- **The pre-pass head is data-independent.** It does two things:
+**PlayByMotionType = `31fa7ef0`, a rewrite.** It first calls the customize pre-pass `31fa5c90`.
+- **The pre-pass head is data-independent:**
   - `m_ePlayedEmotion = ET_NONE` unless the viewer state is June's 10;
-  - unless the type is HABIT/SIT_READY/SIT_WAIT, it stops groups 0..4 (0..2 in `UVS_CASHSHOP`).
-- **`+0xf14`** = `m_eUnitViewerState`. **`+0xf74`** is the length of the custom WAIT string, not a flag.
-- **Names come from `GetAnimationName` `32375ee0`**, over `AnimationNameTable.lua`, with March's defaults as fallback. The table also
+  - except for HABIT/SIT_READY/SIT_WAIT, it stops groups 0..4 (0..2 in `UVS_CASHSHOP`).
+- `+0xf14` = `m_eUnitViewerState`; `+0xf74` = the length of the custom WAIT string.
+- **Names come from `GetAnimationName` `32375ee0`** over `AnimationNameTable.lua`, with March's defaults as fallback. The table also
   replaces the square's lobby-wait switch (`323f2320`).
-- **June renumbered the enum:** HABIT 6, SIT 7/8/9, WAIT_DELETE 6 -> 10.
-- **WAIT1/WAIT2 now play `XAP_LOOP`.** March plays them `XAP_ONE_WAIT` (`X2Room.cpp:1704/1709`).
-- **The Eve level-up sound is kept**, at `31d414d0`.
+- **The enum is renumbered:** HABIT 6, SIT 7-9, WAIT_DELETE 6 -> 10.
+- **WAIT1/WAIT2 loop** in June; March plays them once (`X2Room.cpp:1704/1709`).
+- **The Eve level-up sound is kept.**
+- **The second argument `bTransition` is not always 1:** literal 0 at two sites and a register at about eight (funcmap row);
+  C9g-2 maps them first.
 
-**Census** (384 June rows):
+**Census** (384 rows):
 
 | Rows | Verdict |
 |---|---|
-| 160 | June-only classes (inert) |
+| 160 | classes missing from March's Lua `UNIT_CLASS`; they load as `UC_NONE` (expect `inserted=230 skipped_duplicate=154`) |
 | 133 | same name as March |
 | 82 | same name, play type changes |
-| 2 | new rows: BM WAIT1/2 = `BM_LobbyWait`, present in March |
+| 2 | new BM rows (motion present) |
 | 7 | June renamed the motion |
 
-The 7 renamed rows are `PR_LobbyDownLanding`, `ALD_LobbyWait` x3, `AYR_LobbyReadyAction` and `SSK_`/`SPK_LobbyReadyAction`. March spells
-them `Downlanding`, `lobbyWait`, `ReadyAtcion` and `Readyaction`. June's motion files carry the new spellings, and C9g-2 adopts four of
-them. No March-only motion name is lost, apart from token-scan junk.
-
-**Consequences for the user** (no question: nothing March has is lost):
-- With June's ALD name, June's table row plays the same three orb particles as March's kept orb hard-code. That hard-code then never
-  matches.
-- The SPK ready-action fire that the C9c-2b review gave up returns.
+The 7 renamed rows are `PR_LobbyDownLanding`, `ALD_LobbyWait` x3, `AYR_LobbyReadyAction` and `SSK_`/`SPK_LobbyReadyAction`; C9g-2 adopts
+4 June motion files. As a result, June's table plays the ALD orb, so the kept hard-code goes dead, and SPK's ready-action fire returns.
+The user hears this at C9g-2's hand-off.
 
 **Reach.**
-- In March data, groups 2-4 have no reach. 13 of the 1,270 `CharCustomData` `ITEM_ID`s are in March's `item.kim` (LE-int search),
-  none in the save.
-- **The user will adopt June's `item.kim` (2026-10-07):** it holds 1,066 of them, so Stage 12 is reachable data, not inert.
-- The pet rows are June-only pets.
+- Groups 2-4 have none in March data: 13 of the 1,270 custom ids are in March's `item.kim`, none in the save.
+- The user will adopt June's `item.kim`, which has 1,066 of them, so Stage 12 is real data.
 
-**Routing.**
-- **C9g-2** (`kickoffs/june-effect/C9g-2.md`, Sonnet 5.5 high, flag `SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE`): the enum, the table and
-  its lookup, PlayByMotionType + the pre-pass head, the square WAIT name, and June's four motion files.
-- **C9h** (`C9h.md`, Opus 5.5 high, identify): `ResetPet`/`ResetRidingPet` and the reserved UI effect sets.
-- **Backlog Stage 12** (`JUNE_PORT_BACKLOG_ORDER.md`): June's character customize system. It takes the sit-effect bullets that C9d had
-  put under Stage 10; C9d's "item templet" reading of `32651ab0` was wrong, it is `CX2CustomizeManager`.
+**Routing:**
+- **C9g-2** (Sonnet 5.5 high, flag `SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE`);
+- **C9h** (Opus 5.5 high, identify);
+- new **backlog Stage 12**, the character customize system, which takes over C9d's sit-effect bullets from Stage 10.
 
 **User owes:** /cost.
 
