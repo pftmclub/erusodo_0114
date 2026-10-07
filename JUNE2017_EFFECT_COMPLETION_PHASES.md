@@ -1379,7 +1379,7 @@ motions, sounds and the chat-box emotion list. Where should it go?
 
 **Hygiene.** `flagcheck JUNE_EMOTION_EFFECT_SET --worktree --files <9 code files>`: `files: 7 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`
-(the PASS~ is the one blank line I put after the helper in `X2Unit.h`). Range line (after the commit): see the review.
+(the PASS~ is the one blank line I put after the helper in `X2Unit.h`). Range (`--range 9e86741^..9e86741`): `files: 7 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; same `in this flag's files` line (all zeros); `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,313,152 B, dated 2026-10-07 17:01:48, md5 f1966238bff0202979961b5cf774df05, equal to X2/US_SERVICE/x2.exe (2026-10-07 17:01:44); built at mods/june-buff-port 2847079 + 9 uncommitted code file(s).`
 `--pch force` (Always.h, X2Unit.h, X2GUUser.h, X2SquareUnit.h are all in the PCH). **Proof the code is in the exe** (nothing logs): all 11 set names are in `x2.exe` as UTF-16 (1 hit each; the helper is inline, so they only
 reach the exe if a call site compiled with the flag), and `X2.map` holds `CX2SquareUnit::StopJuneEmotionEffectSet`.
