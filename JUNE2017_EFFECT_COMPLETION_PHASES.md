@@ -1934,7 +1934,12 @@ The 16 deleted lines are this flag's own `dde622a` lines, replaced. Range `dde62
 Expect 0 EXCEPTION, no new `X2_*.tmp`, and the same lines as C9f-2:
 `EQUIP_FX_LOAD ... loaded=1 lists=5 items=5 group81=5 skipped_duplicate=0`, `templets=84`, `rows=18`.
 
-**User owes:** the regression play-test, then "check logs"; /cost.
+**Regression play-test PASSED 2026-10-07** (run 21:18:37-21:20:41; logs read). The exe was `4438a923`, a later redeploy built at `a8758a3` + 1 uncommitted peer file, so it contains this review's fixes.
+- State.log: login -> server select -> village -> dungeon -> village -> server select.
+- ErrorLog: `JUNE_FX EQUIP_FX_LOAD file=RenderDivisionItemTemplet.lua loaded=1 lists=5 items=5 group81=5 skipped_duplicate=0`, `ES_LOAD UIEffectSet.lua loaded=1 templets=84`, `UNIT_VIEWER_FX_LOAD ... rows=18 skipped_duplicate=0`.
+- 0 EXCEPTION, clean exit (census present), no new `X2_*.tmp` (newest 2026-10-03). The 2 UNHANDLED are `E_DISABLE_HB_CHECK_REQ`, not this phase.
+
+**User owes:** /cost.
 
 ---
 
