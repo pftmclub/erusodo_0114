@@ -2060,6 +2060,8 @@ the 1 pushed before the branch; the register sites hold 1 (`MOV EBX,1` / `MOV EB
 
 **How to see it.** Play-test below, then "check logs": `python tools/logs.py --grep "JUNE_FX ANIM_NAME"` should show
 `loaded=1 rows=384 inserted=230 skipped_duplicate=154 class_none=160`, 0 EXCEPTION, no missing-motion line for the 7 renamed names.
+**Play-test 2026-10-08 (partial):** exe `fee6eb1f`, runs 04:55 and 04:58; ErrorLog line 157 `JUNE_FX ANIM_NAME_LOAD ... loaded=1 rows=384 inserted=230 skipped_duplicate=154 class_none=160`; State.log reached `XS_SERVER_SELECT` then `XS_VILLAGE_MAP`; 0 EXCEPTION, clean exit, no new crash bundle, no missing-motion line. Room ready/unready and the level-up result were **not played** (user waived them, 2026-10-08): they use the same `PlayByMotionType` path as character select (types 0-2, 4, 5), so the review checks them by reading code.
+
 Review: `kickoffs/june-effect/C9g-2-review.md`. **User owes:** /cost.
 
 ---
