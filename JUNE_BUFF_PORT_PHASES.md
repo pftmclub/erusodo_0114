@@ -4610,6 +4610,11 @@ The OTHER row is `Handlers_Unit.cpp`, under `_OFFLINE_FIRST_SELECT`. The 5 EOL l
   - `326cd942`: `bl` = 1 (`@326cd93d`).
   - `3289cf55`: `al` = 1. It is the switch case for state 11 = DUNGEON_GAME; states 12/13 return false, as March's two RESULT cases do.
 - **Also matched:** loading `@324cffb2` (`-2` or `> -2 && tutorial`), riding `@322f8014`, shortcut `@31f0d9a1-31f0d9c9` (vslot `0x204` behind `!guide && !tutorial`), Go `@3289d096`, game pet `@326cdb5e`, quick slot `@3294c631` (`SetShow(!tutorial)`, then `SetEnable(false)`).
+- **SetShowUI `32154820`:** all four sites test the getter `== 1`.
+  - The quick quest gets `push 0`, else `+0x88` (`m_bShowUI`) (`@321549a4`). The two menu bars get `push 0`, else `ebx` (`bVal`) (`@32154bc1`, `@32154e0b`); the dungeon one also calls the guide manager `31fbddf0`.
+  - The quick slot (`@321549d6`) is stored in member `+0x8a` instead of a direct call. The value is: tutorial -> 0; then `3266d250` -> 1; then state `0x12` (training) -> 0; else `m_bShowUI`.
+  - The port keeps only the tutorial term. The training and `3266d250` terms are the rest of June's rewrite, which the user sent to Stage 9.
+- **Emulator:** `unit_uid` is `AUTOINCREMENT` (`X2OfflineDB.cpp:40`), so a recreated character cannot inherit a deleted one's `select_count`. `PushSelectUnitNotifications` has one caller, the select handler. Live reads the count (`GSUserFunction.cpp:5755`) before incrementing it (`:6072`), and so does the emulator.
 - **tsv bookkeeping:** `324cff10` has two rows. `324cffc9` is MISSING/ported; `324d0205` is HAS.
 
 **Listed rows.**
@@ -4619,6 +4624,7 @@ The OTHER row is `Handlers_Unit.cpp`, under `_OFFLINE_FIRST_SELECT`. The 5 EOL l
 - **ClearSubStage `327f0685`:** not porting it stands, but the reason was wrong.
   - The same 33 scripts call it in June and in March: 8 ElTutorial, 23 Training, 2 Arcade. No ordinary dungeon does.
   - So the gate would stop **training-school and arcade** clears for an auth-0 save, not dungeon clears in general.
+  - How June's training and arcade dungeons clear without it was not verified.
   - The tsv row has been corrected.
 
 **#else and deviations.**
