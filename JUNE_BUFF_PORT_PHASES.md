@@ -4552,6 +4552,36 @@ Ran on Opus 5.5 high, flag `SERV_IRUHADEV_JUNE_ENCHANT_PARITY`. Phase 15's code 
 **Open for the user**
 - **Frozen and poison enchants no longer slow anything until Phase 13 ships BFI 1001/1014, and shock no longer debuffs until BFI 1000 ships.** This is June's code with March data (user decision 2026-10-07: those entries wait for Phase 13). One `[JUNE_BUFF] enchant: BFI n has no factor` line per BFI says so.
 
+### Phase 15 — Review (2026-10-07, Opus 5.5 high)
+
+**PASS: no transcription errors, no code change.** The deployed exe stays c4c7d0ab (= `6322917` code), so there is nothing to rebuild or play-test. The June sites were read with `disasm_range.py` and hand-traced: the x87 helper's symbolic trace loses track on these blocks, so its output was not used.
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_ENCHANT_PARITY --range 835b5ef^..HEAD --with SERV_IRUHADEV_JUNE_BUFF_DEBUG`
+- `files: 15 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 11 OTHER (other flags), 0 FAIL, 0 ERROR`
+- `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+- `RESULT: PASS`
+- The 11 OTHER rows are two peer commits in the same files: `ba39843` (effect completion C5) and `9835190` (C5 review), under `SERV_IRUHADEV_JUNE_DAMAGEDATA` and related flags. `9835190`'s 4 + 2 deleted lines are a rewritten `+0x4c3` comment in `X2DamageManager.h` and the `JuneGetNearestCollisionFrameName` declaration in `X2GameUnit.h`, re-added under `_JUNE_DAMAGEDATA`. Neither is an enchant line.
+
+**Spot-checks (kickoff), all match**
+- **Slow chain `@32067e82..@32067fa5`:** constants `0x3342f360` = 100.0 and `0x33458fa8` = 500.0. The lists are indexed `[accumulation - 1]` (ED `+0x4c/+0x58/+0x64 + 4·acc`). Each value is `v = (1 - x/100) + (1 - (1 - x/100))·resist/500` and is set to 1.0 when `v ≥ 1` (`test ah,0x41`). The resist is GetEnchantResist(3 = ET_NATURE). Anim / jump / run go to BBT 11 / 13 / 12, op 2. Re-apply gate: `3227b860(946)` absent, or present with `32272780(3)`. A null factor (`@320680bd`) skips the rose clear, as the port does. The decompose output used is the first part. Frozen (user `@3206a228`, NPC `@327ba9c3`) and NPC poison (`@327b8e93`) have the same shape, with 958 / 1014 / ET 2 and 946 / 1001 / ET 3.
+- **Shock `@32068c22..@32068c93`:** `r = 1 - GetEnchantResist(5 = ET_LIGHT)/500`. BBT 7 and BBT 8 are both `1 - r × ED+0x4c`. `32d41910(1, fild ED+0x48 × r, 0)`. BTI 945 is erased first, before the attacker check. Both attacker classes use second-else-first and `32708ce0` (the user map; JUNE_BUGS #62). `SetGameUnitBuffFactor(this, -1 (64-bit), 1)`.
+- **Piercing `@3228660a..@322866e4`:** `0x3342ebc8` = 0.5. User base: vslot `0x68`(attacker, weapon, 2 = DT_MIX) × `ENCHANT_STAT_SCALE[item+0x18]` under `32708c50`; then second-else-first on the user map. NPC base: the physic + magic locals; then the first part on the NPC map (#65). With no table row, the unscaled base is kept. Wind = ET 4, then `× keep` and add.
+- **Setters** `32d418a0` / `32d41910`: the first matching BBT with ≥2 values gets op 0/1/2 on `value[1]`; every BFT_TIME (type 1) with ≥2 values gets set, or add when `bAdd`; the type argument is ignored. Both are as ported.
+- **March enum numbers behind the constants:** BBT_CHANGE_PHYSIC/MAGIC_ATTACK = 7/8, ANIM_SPEED/WALK_RUN_SPEED/JUMP_POWER = 11/12/13 (implicit, counted from `X2BuffFactor.h:12`), BFT_TIME = 1, ET_BLAZE..ET_DARK = 1..6. The clone (`GetClonePtr`) deep-copies `BUFF_FACTOR`, so the setters never touch the manager's template.
+
+**Other kickoff items**
+- **Chunk A:** all 78 `EDT_ENCHANT_*` in the flag block of `X2DamageManager.h` equal June's `Enum.src.lua` and March's staged Enum (0 diffs). Every one of the 78 decompose cases returns parts that sum to the composed value, with count 1 exactly when the second part is `EDT_NONE`. Compose is the element sum.
+- **B1 / C:** the loader zero-inits all new fields and caps each list at 3. Blaze `3229b250` does the lookup (vslot `0x1c0`, null → exit), then clears `+0x7c7c`, then `cmp 3 / jge` → +1 and rose = 1. The port has the same order. The rose index map is blaze / frozen / poison = 0 / 1 / 2, as `32272780(element 1..3)`.
+- **Frozen tiers `@322855ff`:** slot 112 of `this` (EDT 1011), then resist `ET_WATER` of the defender local `[esp+0x38]` (the same local the piercing block uses). Tiers 1 / 2 / 3 → ED `+0x24/+0x28/+0x2c`, `1 - (int/100)·keep`; anything else stays 1.0.
+- **Host placement:** the user shock call sits after the HP>0 block and re-checks HP. That is equivalent: in June the branch is inside the block (`@3206886e` skips to `@32068d06`), and nothing runs between the two. The NPC call is the last statement of its HP>0 block. Blaze MP drain: the user host scales by blaze resist (vslot `0x30c`(1) / 500, `@320691de`); the NPC host does `UpNowMp(-ED+0x40)` with no resist (`@3276b95d`, #63). Both use the first part.
+- **`USE_OWNERS_ENCHANT` sweep:** `X2GameUnit.cpp:4377` is `ProcessEnchantExtraDamage` = June `322a0510`, one of the 13 slot-112 sites, and it goes through `GetWeaponEnchantData`. The bodies and the frozen block go through it too (`X2OPTIMIZE_REMOVE_UNNECESSARY_PTR` is defined, `KTDX.h:338`). The remaining `GetEnchantExtraDamageType()` callers do not reach an owner-enchant NPC: `Weapon::InitEnchantParticleForSword/Bow` (gated to `GUT_USER`), `X2GUUser.cpp:25750` (user), and `X2UnitViewerUI` (its own function). `X2GUNPC.cpp:3623/3657/29869` read the NPC's own member for its particles and debug name.
+
+**Not settled (no effect on the verdict)**
+- The NPC piercing base `[esp+0x28]+[esp+0x2c]` was not traced to its last store. The skill / socket multiplies land on those locals, so it is consistent with March's post-modifier `fPhysicAttack + fMagicAttack`, which the port keeps.
+- Float rounding: June stores some intermediates as float (`1 - x/100`, `r`). The port's expressions can differ from June in the last bit; the effect is ≤1 ulp.
+
+**Logs:** the 2b play-test run (06:53) is still the latest; this phase's lines are as recorded above. Nothing new to read.
+
 ## Phase 16 — Socket-option parity (added 2026-10-04; carries 92 and 78's socket terms)
 
 **Why it exists.** In Phase 5c the user decided, for 92's three questions, "follow June, so no half-baked port". In June the option-data stats are one system, and it has to move together:
