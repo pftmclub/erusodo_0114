@@ -95,8 +95,14 @@ namespace
 				iSocketID_, iValue_, szName, CX2SocketItem::SIEE_ALWAYS_PLAY_EFFECT_SET == iValue_ ? "; its aura buff needs June's effect-set buff list (not ported)" : "" );
 			break;
 		case 'H':
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_FEVER
+			/// 16-step3c2: HMET_FEVER (the only June-only type) is handled by ApplyBuffByUseHyperMode now; the line stays as a load census
+			CX2JuneBuffCapture::Line( "socket %d (first of its type): HYPER_MODE_EFFECTIVE_TYPE %d %s is June-only and handled like June (3206d480 @3206d6ab: party fever, needs a party)",
+				iSocketID_, iValue_, szName );
+#else SERV_IRUHADEV_JUNE_SOCKET_FEVER
 			CX2JuneBuffCapture::Line( "socket %d (first of its type): HYPER_MODE_EFFECTIVE_TYPE %d %s is June-only and March has no awakening handler for it, so it does nothing (not ported)",
 				iSocketID_, iValue_, szName );
+#endif SERV_IRUHADEV_JUNE_SOCKET_FEVER
 			break;
 		}
 	}

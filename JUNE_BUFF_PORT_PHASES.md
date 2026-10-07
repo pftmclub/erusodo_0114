@@ -6206,6 +6206,12 @@ Iivue's item 579 keeps the three sockets.
 - after hitting monsters, `socket EXTRA_DAMAGE_TYPE 156 fired (first this run): attack type 0|1, attacker user -> nothing`;
 - after awakening, `hyper-mode socket 74042 HMET_FEVER (first this run): gate closed (party manager 1, have party 0, ...)`.
 
+**Play-test (2026-10-07, exe 093fea85): PASSED, logs read.** The run was after the deploy, with a clean exit, 0 EXCEPTION, and the usual 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ`. `ErrorLog.txt`:
+- `:476` `socket EXTRA_DAMAGE_TYPE 156 fired (first this run): attack type 0, attacker user -> nothing`;
+- `:493` `hyper-mode socket 74042 HMET_FEVER (first this run): gate closed (party manager 1, have party 0, game 1, pass running 0)`.
+- 3c's lines now show Phase 13's data: 151 `BFI 788 ... -> set` and `10th stack, damage x 1.2`, and 150 `BFI 787 ... -> set`.
+- Fix: `:149`, the 16-data loader census, still said Fever had "no awakening handler ... (not ported)". It now says Fever is handled (`X2SocketItem.cpp`, same flag, `#else` = old text; flagcheck PASS). `DEPLOY OK: X2_offline.exe is 19,280,384 B, dated 2026-10-07 09:44:18, md5 38881800afad1e0a119902f0b8295bbf, equal to X2/US_SERVICE/x2.exe (2026-10-07 09:44:12); built at mods/june-buff-port 4efc904 + 1 uncommitted code file(s).` It is a log text change only, so there is no new play-test.
+
 **Open for the user.** /cost. JUNE_BUGS #72's NULL guard departs from June without a `JUNE_FIX` flag, because June's order would crash; say if you want it flagged. Whether to stage June's `GameMajorParticle3.txt` (`Fever_Mode_Title`) is a later call; no party exists offline to show it.
 
 ## Critical files
