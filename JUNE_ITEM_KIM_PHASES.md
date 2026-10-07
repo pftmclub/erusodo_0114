@@ -243,13 +243,20 @@ Write `.tsv`s under `june_item_kim/`, plus a Done note of at most about 60 lines
    - Existing member names stay, so the call sites compile untouched. New members get June's names.
    - `BOOST_STATIC_ASSERT( sizeof(CX2Item::KItemFormatTemplet) == 228 )` under the flag, and `== 188` in `#else`.
    - A changed model count or Extra width goes under the flag too.
+   - **Prove the flag is seen** (the `CommonPacket.h` precedent: there, a header reached before `Always.h` compiles `#else` with no
+     error, and here the `== 188` assert would pass with it):
+     - put a `#pragma message` inside the flag-on branch and read it in the build output;
+     - grep the includers. Only `X2Lib/X2Item.h:19` includes the `.inl` today, so check that `X2Item.h` is reached after `KTDX.h`.
 2. **`SERV_IRUHADEV_KIM_LAYOUT_CHECK` in `DoMemoryNotEncrypt`.**
    - Derive the file's stride: `(offset of the setID table - 16 - 4N) / N`. Find that offset by scanning for the first `setID`
      past the records, or by checking that `rec[k]+0 == itemID[k]`.
-   - Require the id at record +0 to equal the id table at the first record, the last record and every 997th record, at the compiled
-     `sizeof`.
+   - Require the id at record +0 to equal the id table at index 1, the last index, and every 997th index, at the compiled `sizeof`.
+     Do not sample record 0: it sits at `16 + 4N` in both layouts, so it proves nothing.
    - On a mismatch, refuse and log `[JUNE_KIM] layout mismatch: file stride %d != compiled %d`. The refusal falls into the existing
      `KEM_ERROR72` / Lua path.
+   - **That path has nothing to load.** No `Item.lua` is staged in `data036_kom`, so the fallback yields no items, and the client will
+     likely crash at the first unchecked `GetItemTemplet`. The mismatch line must therefore be written and flushed *before*
+     `DoMemoryNotEncrypt` returns, so the crash log still names the cause. That is the whole point of the check.
    - On success, log `[JUNE_KIM] loaded items=%d sets=%d stride=%d`.
 3. **Lua fallback writer** (`KProxy2` / `PostProcess`).
    - Under the flag it writes June's layout, with June-only fields 0 or empty.
@@ -260,6 +267,9 @@ Write `.tsv`s under `june_item_kim/`, plus a Done note of at most about 60 lines
 5. **Accessors and consumers** for the fields K0 routed to "port in K2".
 6. **Data.**
    - Back up the staged March kim as `item.kim.march_patched` in the session scratchpad and next to `march_data\data036\`.
+   - `kom_contents\data036_kom\` is shared staging with the Atlas/Elysion worktree (`ATLAS_PORT_PHASES.md` "Shared-staging merge
+     rule"). Neither port stages `item.kim`, so the file is this plan's alone. Pack data036 only when no other session is packing it,
+     and diff the staged directory against the live kom first so you don't ship someone's half-staged files.
    - Copy June's `item.kim` into `kom_contents\data036_kom\`. Keep the manifest entry `"item.kim": "2"`. Do not add `item_LA.kim`.
    - Run `kim.py dump` on 85003830/1 and confirm 481/482. That retires buff Phase 13 to-do 2; say so in its doc.
    - Run `/elstools pack data036`. Verify by extracting the packed kom and comparing every entry's md5: only `item.kim` may differ.
@@ -330,3 +340,6 @@ Check the following:
   June; K0 or K1 proposes a backlog stage.
 - **Items of June-only characters** (unit type > 10). Unreachable until Stage 8; K2 only guards them.
 - **Bulk asset adoption for the 61,591 new ids.** K1 checks reachable items only.
+- **The cash shop editor** (`CASH_SHOP_TOOL_PLAN.md`). It does not parse the kim: it runs the luac `Item.lua` from an older install
+  in an embedded Lua 5.1. So the stride change cannot break it. It will not list June's new items, though; that is a follow-up for
+  that plan.

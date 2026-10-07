@@ -228,7 +228,7 @@ verbatim, adds a layout check, and swaps the file.
 
 Running together: K0 and K1 touch no game code and can run alongside any code session (K0's funcmap rows queue behind other funcmap
 writers). K2 is the only phase that edits `X2Item_Preprocessing.inl` / `X2ItemManager*.cpp`, and the packed `data036`. Do not run it
-while another session is packing data036.
+while another session is packing data036: `kom_contents/data036_kom/` is shared staging with Atlas/Elysion.
 
 ## Other plans
 
