@@ -2117,7 +2117,8 @@ The one deleted line in the flag's files is this flag's own Stage-12 comment, wh
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,339,776 B, dated 2026-10-08 06:12:03, md5 c49f362852f888c3efaf987cd62a9a4b, equal to X2/US_SERVICE/x2.exe (2026-10-08 05:45:54); built at mods/june-buff-port e9cfdca + 9 uncommitted code file(s).` The 05:26 attempt failed in C9h-2a's then-uncommitted files. Deploying was then held until june-item-kim K2's koms were live (its uncommitted code reads June's `item.kim`). `X2UnitViewerUI.obj` (05:44:57) is newer than the edit (05:17:12). The exe also carries K2's uncommitted code.
 
 **Next owners.** C9h-2a / 2b / 3 have kickoffs. Stage 10 has its inline prompt in `JUNE_PORT_BACKLOG_ORDER.md`. Stage 12 now has `kickoffs/june-backlog/stage12-plan.md`.
-**User owes:** a short regression look (character select still animates), then /cost.
+**User owes:** /cost.
+**Play-test 2026-10-08 (regression) PASSED:** exe `c49f3628`, run 06:15-06:19. ErrorLog line 157: `JUNE_FX ANIM_NAME_LOAD ... loaded=1 rows=384 inserted=230 skipped_duplicate=154 class_none=160`. `UNIT_VIEWER_FX_PLAY EffectSet_ALD_LobbyWait` played through the table, so the Little Devil's lobby anim name is June's `ALD_LobbyWait`. States went through `XS_SERVER_SELECT`, `XS_VILLAGE_MAP` and `XS_BATTLE_FIELD`. No missing lobby-motion line, 0 EXCEPTION, clean exit, no new crash bundle. Out of scope, not this phase's: 3 `E_DISABLE_HB_CHECK_REQ` UNHANDLED and the `MOTION_*_EMOTION_*` open misses.
 
 ---
 
