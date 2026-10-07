@@ -1639,7 +1639,7 @@ overwrites). March's `CX2GageData::GetNowHp` returns 0.0 without an HP gage, so 
 - *Test vehicle:* TEMPORARY edit of `ARROW_OF_EXPLOSION` (Night Watcher's basic arrow) in `kom_contents/data036_kom/DamageEffect.src.lua`:
   `HP_RATE_DAMAGE_TYPE = 2`, `HP_RATE_DAMAGE_VALUE = 0.1` inside `DAMAGE_DATA`, `PHYSIC = 0.5` kept, marked `C10b-1 TEST` with the restore
   steps. The staged source compiled byte-identical to the staged bytecode before the edit. `PACK OK data036` (~1 changed:
-  `DamageEffect.lua`); copy pending the user's yes. Its boom (`ARROW_OF_EXPLOSION_BOOM`) has its own DAMAGE_DATA: one line per arrow hit.
+  `DamageEffect.lua`); `COPY OK data036` (md5 f040c412, user yes). Its boom (`ARROW_OF_EXPLOSION_BOOM`) has its own DAMAGE_DATA: one line per arrow hit.
   **Revert the edit + repack after the play-test.** The console `jC` route was not used (never proven; T3 crashed in that path).
 - *Log:* `JUNE_FX hp-rate def=<user|npc> type value now max damage <before> -> <after>` in `offline_server.log`, first 60 writes
   (`JUNE_FX_DEBUG`); unbracketed, so read it with `python tools/logs.py --grep "JUNE_FX hp-rate"`.
