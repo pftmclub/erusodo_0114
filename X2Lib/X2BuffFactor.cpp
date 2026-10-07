@@ -2937,7 +2937,13 @@ bool CX2BuffFactor::ParsingChangConsumeMpRateBehavior( KLuaManager& luaManager_,
 		BuffBehaviorFactor.m_vecValues.push_back( static_cast<float>( eChangeType ) );
 
 		float fSkillId = 0.f;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+		/// June 32d472b0 (BBT 63 parse): SKILL_ID is optional, 0 when absent (the skill reader 32039a50 treats 0 as "any skill").
+		/// June's own BFI_BUFF_CHEAT_CODE_ELETRONIC_MP_REDUCE (880) has none; March's required key made it a load placeholder.
+		LUA_GET_VALUE( luaManager_, "SKILL_ID", fSkillId, 0.0f );
+#else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		LUA_GET_VALUE_RETURN( luaManager_, "SKILL_ID", fSkillId, 0.0f, return DISPLAY_ERROR( L"SKILL_ID" ) );
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		BuffBehaviorFactor.m_vecValues.push_back( fSkillId );
 
 		switch ( eChangeType )
