@@ -6239,6 +6239,56 @@ Iivue's item 579 keeps the three sockets.
 
 **Open for the user.** /cost. JUNE_BUGS #72's NULL guard departs from June without a `JUNE_FIX` flag, because June's order would crash; say if you want it flagged. Whether to stage June's `GameMajorParticle3.txt` (`Fever_Mode_Title`) is a later call; no party exists offline to show it.
 
+### Phase 16-step3c2 — Review (2026-10-07, Opus 5.5 high)
+
+**Verdict: PASS, no code change.** 16-step3c2 matches June on every kickoff item. I read June in Ghidra and in raw capstone disassembly of `unpacked_x2.exe`, and read the constants from the binary.
+
+- **EDT 156, user `@32039514` and NPC `@3279d323` (the two are byte-identical).**
+  - Gate: `attackType` (`+8`) `== 2`, then the attacker's `+0x264 == 0` read through the observer, then the NULL test, then `+0x867c`. #72's order is real on both sides.
+  - Time: `fld [+0x9478]` is kept as a float (`[esp+0x24]`), then `fsubr qword [g_pKTDXApp+0x80]`, compared against `334355b0` = 1.0 (double). `test ah,0x41 / jne` means `<= 1.0` does nothing.
+  - 10th hit: `inc`, `cmp 0xa / jl`. The clamp is `1.0 <= r` -> 1, `0 >= r` -> 0. Then `3234ded0( r, false )` (ecx = `+0x867c`), then `3229e160( 0x30a )`, which funcmap gives as erase-by-BTI. Then `32070e40( 0, (float)now )`.
+  - Below 10: vslot `0x21c( 804, 0, level (+0x60), 0, 0 )`. This is the same argument shape as 151's BFI 788 push (`@320392a6`), which the 3c review mapped to `SetBuffFactorToGameUnitByBuffFactorID( id, level )`. Then `32070e40( count, [esp+0x24] )`, the old time (#71).
+  - Members: the ctor zeroes both (`@32041e20` `mov`, `@32041e26` `fst`). A raw scan of `.text` for the `+0x9474` / `+0x9478` displacements finds only ctor, setter `32070e40`, the user reader and the NPC reader. `32070e40`'s only callers are the 4 EDT sites, and ReInit `32022380` never touches the pair.
+- **`32893e00` vs `ReduceLeftSkillCoolTimeByRateJune`.**
+  - No gage manager (`324943c0`) means it returns.
+  - It loops bar A's slots fully, then bar B's (`+0x260`). The gage index is `i` / `i + 5` (March: `+4`).
+  - Filter: the force list `+0x478` applies the reduction. Otherwise, types 12/13 pass only with the bool, and then the ignore list `+0x468` skips. This is `IsResetCoolTimeTarget( type, templet, true, bool )` exactly.
+  - It writes `left * (1 - r)` only on a change, then re-reads the slot for `32489230` either way. Neither list is cleared.
+- **HMET_FEVER `@3206d6ab`.**
+  - Gate: `g_pData+0x5c`, then `32430b80 == 1`, then `g_pX2Game`, then `+0xbd4 == 0`.
+  - Then `322d4f80( 30.0 (33441b9c), 1 )`, then `31fe0b90( [edi+8], [edi+4] )`. A closed gate jumps straight to the next entry.
+  - The port's shared tail only does `SetJuneSocketCoolTime` and a debug line.
+- **`322d4f80` vs `PartyFeverAllUser`, line by line.**
+  - `+0xbd4` is set only when `bTitle == 1`, and cleared at the end if it is 1.
+  - It skips units with state != 4. It requires HP > `3342e84c` (0.0).
+  - Unit type 9 gets vslot `0x2a4( 3000.0 (3344f34c), 1.0 )`. Every other unit gets `0x550( time )`.
+  - MP: `0x198` IsMyUnit is pushed first. `0xdc` = `3208dc40` returns with a bare `ret` (no argument). `0xf8` = `3208dd20` ends with `ret 8`. So the line is `SetNowMp( GetMaxMp(), IsMyUnit() )`.
+  - Gage `322b3010` clamps as March's `CX2GageData::SetNowMp` does: `< 0.0 (334350e8)` is kept, above max goes to max.
+  - Sound: vslot `0x9c` focus, else `0x98` my unit, with `PlaySound( L"Alarm_Fever.ogg", true, false )`, which are March's defaults.
+  - The four sequences use `Title`/plain as the first. Flare is at 512 / 384.
+- **Callers.** `xrefs_to 322d4f80` gives 3: `32434f60 @324350c9` pushes 0, `3206d6ff` (Fever) pushes 1, and `323c5aa8` (June-only).
+- **JUNE_BUGS #71/#72:** the reading and reach are right.
+- **Done-note nit:** in `322b3010`, `+0x10c` = previous MP is written on every call, before the bool test. Only the `+0x100` / `+0x104` tallies need the bool. The funcmap row already says so.
+- **New, filed to checklist §7 (D8):**
+  - June's `CX2GUAin` overrides user vslot `0x550` `ForceChangeHyperModeWithoutMotion` with `32a638c0`. The other 12 user classes share `31ff7300`, so Fever and the party-fever packet reach it.
+  - The override is the base plus a `+0x9614` snapshot of `GetRemainHyperModeTime` around the vslot `0xc0` call.
+  - March's function is non-virtual, so the Ain port makes it virtual.
+
+**Hygiene** (range `480b48b^..HEAD`):
+- `JUNE_SOCKET_EDT`: `files: 4 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 7 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 4 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- `JUNE_SOCKET_FEVER`: `files: 4 PASS, 0 PASS~, 0 DEFINE, 7 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s)`, the rest 0; `RESULT: PASS`.
+- **The 4 deleted lines** are 16-step3c's own combined 156/157 placeholder (1 comment line + the 3-line log), inside the flag's region. Flag-off is still the base.
+- **OTHER rows:**
+  - `Always.h` holds both defines.
+  - `X2GUUser.cpp` holds both flags.
+  - Each flag's files that hold only the other flag show as OTHER.
+  - `fd6a1f5` `Always.h` is the peer's Phase 13 (`_STORE_BUFF` on), not this phase.
+  - `9f63584` `X2SocketItem.cpp` is 3c2's own census text, read, and it PASSes under FEVER.
+
+**Deploy:** no rebuild. `git diff --stat 4efc904..HEAD` over the code trees shows only `X2SocketItem.cpp` (+6), which is in exe 38881800. The game dir's `X2_offline.exe` md5 is `38881800afad1e0a119902f0b8295bbf`, the 3c2 census-fix deploy. No play-test.
+
+**Open for the user:** /cost. #72's NULL guard is still unflagged (guarded without `JUNE_FIX`); say if you want it under a flag.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`
