@@ -49,6 +49,7 @@ column.
 | `SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY` | 2026-10-05 (June buff port Phase 10) | `KTDXLIB/Always.h:5004` | `X2Lib/X2DamageManager.h`/`.cpp` (`IS_AURA_BUFF`, `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`) | -- |
 | `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` | 2026-10-06 (offline grade Phases 1-3c) | `KTDXLIB/Always.h:5263` | `X2Lib/X2DungeonSubStage.h`/`.cpp` (stage-script grade -> NPCData), `X2Lib/Offline/Handlers_Room.cpp`, `X2OfflineServer.h`, `X2OfflineBattleField.h`/`.cpp`, `X2OfflineDropTable.h`/`.cpp` | -- |
 | `SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN` (designed, not server/June) | 2026-10-06 (offline grade Phase 3c) | `KTDXLIB/Always.h:5281` | `X2Lib/Offline/Handlers_Room.cpp` (a paid field kill with share >= 0.5 counts for hunt quests without a field drop row; since the Phase 3c review a row-less field monster also still drops its quest items, while its special, static and eater items stay off as on the server) | -- |
+| `SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE` | 2026-10-07 (June effect completion C9) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_DAMAGEDATA`) | `X2Lib/X2DamageManager.h`/`.cpp` (`JuneDamageDataRecord`, `InsertDamageData_LUA`, `OpenJuneDamageDataScript`, `JuneApplyDamageDataRecord`; ctor load; apply after the `DAMAGE_DATA_KEY_NAME` read), `X2Lib/X2Main.cpp` (`CX2DamageManager` class bind) | -- |
 
 What each one does:
 
@@ -2951,6 +2952,26 @@ Flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` (`KTDXLIB/Always.h`), one flag for al
 **Needs packing:** `FieldBonusDrop.lua` in data036 (packed by `kom.py pack data036`; without it the bonus items are off and logged).
 **Revert:** undefine the flag and rebuild all four projects (it sits in the PCH). Rewards, coins and drops go back to the flat x1
 rates, and no middle boss spawns on fields again. The extra data036 entry is then unused and harmless.
+
+### June effect completion C9: Elsword_DamageData.lua (the `DAMAGE_DATA_KEY_NAME` table)
+
+New flag **`SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE`** (needs `SERV_IRUHADEV_JUNE_DAMAGEDATA`). June loads a
+107-entry table from `Elsword_DamageData.lua` in the damage manager's ctor (`32620940` from `32622080`),
+one record per `DAMAGE_KEY_NAME`, and a `DAMAGE_DATA` block that carries `DAMAGE_DATA_KEY_NAME` has the record
+copied over its damage type, PVP rate, tech point, physic/magic, force-down, hit-add-MP, applied skill ID
+(only when non-zero) and attack type (`32622220` @`3263edee`). March parsed the key and stored it, with no reader.
+
+| | before | after |
+|---|---|---|
+| `Elsword_DamageData.lua` | not opened | opened in the ctor; `ErrorLog.txt` gets `JUNE_FX DAMAGE_DATA_LOAD ... rows=N` |
+| `CX2DamageManager` in Lua | not bound | bound with `InsertDamageData_LUA` (`g_pDamageManager`) |
+| `DAMAGE_DATA_KEY_NAME` | stored, unused | record applied right after the read (miss: logged once per name, nothing applied) |
+
+Data: `Elsword_DamageData.lua` is staged in `kom_contents/data036_kom/` (ljconv route, manifest key added
+with `june2017_re/stage_june_fx.py --only Elsword_DamageData.lua --apply`) and packed into `data036.kom`.
+Only three June templets use the key, so most play shows no `apply` line.
+Revert: undefine the flag; remove `Elsword_DamageData.lua` and its manifest key from `data036_kom` and repack.
+`UnitViewerEffectSetTable.lua` is not part of this change: its consumer is not identified (see the plan's C9 Done note).
 
 ## Reverting to stock
 

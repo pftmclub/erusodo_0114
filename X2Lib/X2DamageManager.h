@@ -1800,10 +1800,43 @@ class CX2DamageManager
 			const WCHAR*		m_pwszPrevTemplet;
 		};
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
+		/// Effect completion C9: June's Elsword_DamageData.lua table. One record per DAMAGE_KEY_NAME, built by
+		/// InsertDamageData_LUA (June FUN_32621080) and copied onto a DamageData by JuneApplyDamageDataRecord
+		/// (June FUN_3261a1a0 + FUN_3264a5d0) when a DAMAGE_DATA block names it with DAMAGE_DATA_KEY_NAME.
+		/// Field order is June's record order (rec[0]..rec[8]).
+		struct JuneDamageDataRecord
+		{
+			int		m_iDamageType;			/// rec[0]: 0 physic, 1 magic, 2 mix; computed from PHYSIC/MAGIC, not read
+			float	m_fPvpRate;				/// rec[1]: DAMAGE_PVP_RATE, default 1.0
+			int		m_iTechPoint;			/// rec[2]: DAMAGE_TECH_POINT
+			float	m_fPhysic;				/// rec[3]: DAMAGE_PHYSIC (0 unless > 0)
+			float	m_fMagic;				/// rec[4]: DAMAGE_MAGIC (0 when PHYSIC > 0 and MAGIC <= 0)
+			float	m_fForceDown;			/// rec[5]: DAMAGE_DOWN_POINT
+			float	m_fHitAddMP;			/// rec[6]: DAMAGE_ADDMP
+			int		m_iAppliedSkillID;		/// rec[7]: DAMAGE_SKILL_ID (copied only when non-zero; skill reform = character ports)
+			int		m_iAttackType;			/// rec[8]: DAMAGE_ATTACK_TYPE
+
+			JuneDamageDataRecord()
+				: m_iDamageType( 0 ), m_fPvpRate( 1.0f ), m_iTechPoint( 0 ), m_fPhysic( 0.0f ), m_fMagic( 0.0f )
+				, m_fForceDown( 0.0f ), m_fHitAddMP( 0.0f ), m_iAppliedSkillID( 0 ), m_iAttackType( 0 )
+			{
+			}
+		};
+
+		bool	InsertDamageData_LUA();
+		bool	OpenJuneDamageDataScript( const WCHAR* wszFileName );
+		bool	JuneApplyDamageDataRecord( const std::wstring& wstrKeyName_, DamageData* pDamageData_ );
+#endif SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
 	private:
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 		const WCHAR*	m_pwszJuneDamageDataTemplet;	/// Phase 8c, see SetJuneDamageDataTemplet
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
+		std::map<std::wstring, JuneDamageDataRecord>	m_mapJuneDamageDataRecord;	/// June CX2DamageManager +0x4bfc map (C9)
+		int		m_iJuneDamageDataSkippedEmptyName;		/// InsertDamageData_LUA calls skipped: empty DAMAGE_KEY_NAME
+		int		m_iJuneDamageDataSkippedDuplicate;		/// InsertDamageData_LUA calls skipped: name already present (first wins)
+#endif SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
 		bool CollisionDataCheckFromUnitToUnit( CX2GameUnit* pAttackerGameUnit_, 
 			const CKTDXCollision::CollisionDataListSet& setDefenderCollisionDataList_,
 			CKTDXCollision::CollisionType& collisionType_, D3DXVECTOR3* pImpactPos_ );

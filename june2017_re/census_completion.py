@@ -58,6 +58,10 @@ SYSTEM_DISPOSITION = {
 BUFF_RECEIVER = ('%s Phase 8 (BFT 14-17 finalizers; nested BFT_AURA = 14); the BBT behaviors landed in 4b/7/7b, data in 13' % BUFF_PLAN)
 
 
+ES_DESCRIPTION_RECEIVER = ('JUNE2017_EFFECT_COMPLETION_PHASES.md C9 (declined; June 32378e20 = AddNPCTemplet_LUA and '
+                           '32680da0 = AddNextStepPackage_LUA, funcmap rows 1287-1288; the file is not named in the binary)')
+
+
 def _nested_buff_factor(r):
     return r['root'] == 'DE.DAMAGE_DATA' and tuple(r['rel'][:1]) == ('BUFF_FACTOR',)
 
@@ -75,6 +79,8 @@ def disposition_of(r):
     if sysn in SYSTEM_DISPOSITION:      # first: the plan gives C1 all four APPLIED_SKILL_ID rows, nested one included
         d, who, _flag, note = SYSTEM_DISPOSITION[sysn]
         return (d, who, note)
+    if r['root'] == 'ES.Description':
+        return ('declined', ES_DESCRIPTION_RECEIVER, 'C9 2026-10-07: June never names EffectSet_Description.lua (C2)')
     if _nested_buff_factor(r):
         return ('handed-off', BUFF_RECEIVER, 'plan "Not in this definition": nested BUFF_FACTOR/* belongs to the buff port')
     return None

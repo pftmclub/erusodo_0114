@@ -100,6 +100,11 @@ CX2DamageManager::CX2DamageManager(void)
 #ifdef ELSWORD_WAY_OF_SWORD
 	OpenWayOfSwordScript( L"WayOfSword.lua" );
 #endif ELSWORD_WAY_OF_SWORD
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
+	// June2017 FUN_32622080 @326221da: the damage manager ctor calls FUN_32620940 (opens L"Elsword_DamageData.lua"
+	// @334af12c) right after FUN_3261aee0 (= OpenWayOfSwordScript).
+	OpenJuneDamageDataScript( L"Elsword_DamageData.lua" );
+#endif SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
 #endif //WORLD_TOOL
 }
 
@@ -619,6 +624,15 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		// manager (FUN_32622220 @3263edee) when non-empty. Parsed only: the registration's
 		// purpose and reader are not identified.
 		LUA_GET_VALUE(		luaManager, "DAMAGE_DATA_KEY_NAME",		pDamageData->m_wstrDamageDataKeyName,	L"" );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
+		// June2017 FUN_32632390 @3263edee: when the name is non-empty, FUN_3261a1a0 looks it up in the damage
+		// manager's table and FUN_3264a5d0 writes the record onto the DamageData. It runs after every key above
+		// has been read (so the record overwrites PHYSIC/MAGIC, TECH_POINT, FORCE_DOWN, HIT_ADD_MP, PVP_RATE,
+		// ATTACK_TYPE, DAMAGE_TYPE) and before the NUMERICAL_DATA override @3263fe41 (handed off, D7).
+		// No key read after this point stores into a record field.
+		if( false == pDamageData->m_wstrDamageDataKeyName.empty() )
+			JuneApplyDamageDataRecord( pDamageData->m_wstrDamageDataKeyName, pDamageData );
+#endif SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
 
 		// June2017 FUN_32632390 @3263d396-3263d405: ADDITIONAL_ATTACK_TRIGGER_TYPE. The list is cleared on every parse
 		// (FUN_3221db80, even when the key is absent, so DAMAGE_DATA_NEXT does not inherit its parent's list), then
@@ -3262,6 +3276,142 @@ bool CX2DamageManager::CollisionDataToUnit( DamageData* pDamageData )
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
+// June2017 CX2DamageManager::InsertDamageData_LUA (FUN_32621080; bind name decrypted @31e16d8d, pushed @31e16eae).
+// One call per Elsword_DamageData.lua entry. An empty DAMAGE_KEY_NAME is skipped and so is a name already in the
+// table (@32621080 looks it up with FUN_326411f0 and bails when found): the first entry wins. Record layout and the
+// damage-type computation are June's (@32621e1d-32621e60): PHYSIC <= 0 -> type 1 (magic), PHYSIC slot stays 0;
+// PHYSIC > 0 and MAGIC > 0 -> type 2 (mix); otherwise type 0 (physic), MAGIC slot stays 0.
+bool CX2DamageManager::InsertDamageData_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+
+	std::wstring wstrKeyName;
+	LUA_GET_VALUE( luaManager, "DAMAGE_KEY_NAME", wstrKeyName, L"" );
+	if( true == wstrKeyName.empty() )
+	{
+		++m_iJuneDamageDataSkippedEmptyName;
+		return false;
+	}
+	if( m_mapJuneDamageDataRecord.end() != m_mapJuneDamageDataRecord.find( wstrKeyName ) )
+	{
+		++m_iJuneDamageDataSkippedDuplicate;
+		return false;
+	}
+
+	JuneDamageDataRecord kRecord;
+	float fPhysic = 0.0f;
+	float fMagic = 0.0f;
+	LUA_GET_VALUE( luaManager, "DAMAGE_PVP_RATE",		kRecord.m_fPvpRate,			1.0f );
+	LUA_GET_VALUE( luaManager, "DAMAGE_MAGIC",			fMagic,						0.0f );
+	LUA_GET_VALUE( luaManager, "DAMAGE_PHYSIC",			fPhysic,					0.0f );
+	LUA_GET_VALUE( luaManager, "DAMAGE_ADDMP",			kRecord.m_fHitAddMP,		0.0f );
+	LUA_GET_VALUE( luaManager, "DAMAGE_TECH_POINT",		kRecord.m_iTechPoint,		0 );
+	LUA_GET_VALUE( luaManager, "DAMAGE_DOWN_POINT",		kRecord.m_fForceDown,		0.0f );
+	LUA_GET_VALUE( luaManager, "DAMAGE_SKILL_ID",		kRecord.m_iAppliedSkillID,	0 );
+	LUA_GET_VALUE( luaManager, "DAMAGE_ATTACK_TYPE",	kRecord.m_iAttackType,		0 );
+
+	if( fPhysic <= 0.0f )
+	{
+		kRecord.m_iDamageType = 1;
+		kRecord.m_fMagic = fMagic;
+	}
+	else if( 0.0f < fMagic )
+	{
+		kRecord.m_iDamageType = 2;
+		kRecord.m_fPhysic = fPhysic;
+		kRecord.m_fMagic = fMagic;
+	}
+	else
+	{
+		kRecord.m_iDamageType = 0;
+		kRecord.m_fPhysic = fPhysic;
+	}
+
+	m_mapJuneDamageDataRecord.insert( std::make_pair( wstrKeyName, kRecord ) );
+	return true;
+}
+
+// June2017 FUN_32620940: clears the table, then FUN_32620150 reads the file (the script calls
+// g_pDamageManager:InsertDamageData_LUA once per entry). The Lua global is declared here, before the file runs.
+// A file that is not packed leaves the table empty and DAMAGE_DATA_KEY_NAME applies nothing, which is June's own
+// behaviour for a name it does not know; it is logged here so the missing file is visible.
+bool CX2DamageManager::OpenJuneDamageDataScript( const WCHAR* wszFileName )
+{
+	m_mapJuneDamageDataRecord.clear();
+	m_iJuneDamageDataSkippedEmptyName = 0;
+	m_iJuneDamageDataSkippedDuplicate = 0;
+
+	if( NULL == wszFileName || NULL == wszFileName[0] )
+		return false;
+
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState(), 0, true );
+	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "g_pDamageManager", this );
+	const bool bLoaded = g_pKTDXApp->LoadAndDoMemory( &luaManager, wszFileName );
+
+	// load-time: offline_server.log is not open yet, so this goes to ErrorLog.txt (as ES_LOAD does)
+	WCHAR wszJuneFx[512] = {0};
+	if( false == bLoaded )
+	{
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX DAMAGE_DATA_LOAD %s NOT LOADED: file missing or failed to run; DAMAGE_DATA_KEY_NAME will apply nothing. Pack it into data036.kom.", wszFileName );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	else
+	{
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX DAMAGE_DATA_LOAD %s loaded=1 rows=%d skipped_empty_name=%d skipped_duplicate=%d",
+			wszFileName, static_cast<int>( m_mapJuneDamageDataRecord.size() ), m_iJuneDamageDataSkippedEmptyName, m_iJuneDamageDataSkippedDuplicate );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	return bLoaded;
+}
+
+// June2017 FUN_3261a1a0 (lookup by name; false when absent, nothing applied, no log in June) then FUN_3264a5d0
+// (record -> DamageData): +0 damage type, +0x538 PVP_RATE, +0x34 TECH_POINT, +0x38 PHYSIC, +0x3c MAGIC,
+// +0x3f0 FORCE_DOWN, +0x3f8 HIT_ADD_MP, +0x5c4 APPLIED_SKILL_ID only when non-zero, +0x8 ATTACK_TYPE.
+// (March members found by key, not by offset: the June offsets were checked against each key's store in FUN_32632390.)
+bool CX2DamageManager::JuneApplyDamageDataRecord( const std::wstring& wstrKeyName_, DamageData* pDamageData_ )
+{
+	if( NULL == pDamageData_ )
+		return false;
+
+	std::map<std::wstring, JuneDamageDataRecord>::const_iterator it = m_mapJuneDamageDataRecord.find( wstrKeyName_ );
+	if( m_mapJuneDamageDataRecord.end() == it )
+	{
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		static std::set<std::wstring> s_setMissLogged;
+		if( true == s_setMissLogged.insert( wstrKeyName_ ).second )
+			CX2OfflineLog::Server( L"JUNE_FX DAMAGE_DATA_KEY miss name=%s: not in Elsword_DamageData.lua (rows=%d), nothing applied",
+				wstrKeyName_.c_str(), static_cast<int>( m_mapJuneDamageDataRecord.size() ) );
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+		return false;
+	}
+
+	const JuneDamageDataRecord& kRecord = it->second;
+	pDamageData_->damageType			= static_cast<DAMAGE_TYPE>( kRecord.m_iDamageType );
+#ifdef SKILL_BALANCE_20110728
+	pDamageData_->m_fPvpRate			= kRecord.m_fPvpRate;
+#endif SKILL_BALANCE_20110728
+	pDamageData_->techPoint				= kRecord.m_iTechPoint;
+	pDamageData_->damage.fPhysic		= kRecord.m_fPhysic;
+	pDamageData_->damage.fMagic			= kRecord.m_fMagic;
+	pDamageData_->fForceDownValue		= kRecord.m_fForceDown;
+	pDamageData_->fHitAddMP				= kRecord.m_fHitAddMP;
+	if( 0 != kRecord.m_iAppliedSkillID )
+		pDamageData_->m_iAppliedSkillID	= kRecord.m_iAppliedSkillID;
+	pDamageData_->attackType			= static_cast<ATTACK_TYPE>( kRecord.m_iAttackType );
+
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static std::set<std::wstring> s_setHitLogged;
+	if( true == s_setHitLogged.insert( wstrKeyName_ ).second )
+		CX2OfflineLog::Server( L"JUNE_FX DAMAGE_DATA_KEY apply name=%s type=%d physic=%.3f magic=%.3f tech=%d force_down=%.3f add_mp=%.3f pvp=%.3f skill=%d attack_type=%d",
+			wstrKeyName_.c_str(), kRecord.m_iDamageType, kRecord.m_fPhysic, kRecord.m_fMagic, kRecord.m_iTechPoint,
+			kRecord.m_fForceDown, kRecord.m_fHitAddMP, kRecord.m_fPvpRate, kRecord.m_iAppliedSkillID, kRecord.m_iAttackType );
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
 bool CX2DamageManager::OpenDamageSoundScript( const WCHAR* wszFileName )
 {
 	if ( NULL == wszFileName || NULL == wszFileName[0] )

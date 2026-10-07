@@ -762,7 +762,7 @@ Every gate is a June reform skill (`RNSI_*`, absent from March's enum). The help
 
 ## C9 - The June effect files March still does not open
 
-**Status: not started. Model:** Sonnet 5, high (identification is from C2).
+**Status: code done 2026-10-07 (play-test owed); the UnitViewer half is not ported, see the Done note and C9b. Model:** Sonnet 5, high (identification is from C2).
 
 - **`Elsword_DamageData.lua`:** 107 `InsertDamageData_LUA` calls, 9 keys, all `unassigned` today.
   Bind `InsertDamageData_LUA` the way June does (`32621080`), store it the way June stores it,
@@ -784,6 +784,52 @@ plan's Starting context. Bind and consume the three files June loads that March 
 June; stage them via june2017_re/stage_june_fx.py and name every file I must pack. CP949
 byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
 ```
+
+### C9 - Done (2026-10-07, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE`)
+
+**What landed** (details in `MODS.md`, "June effect completion C9"; pure insertions). The flag needs `SERV_IRUHADEV_JUNE_DAMAGEDATA`.
+- **`Elsword_DamageData.lua`**: `CX2DamageManager` is now bound in Lua (`X2Main.cpp`, with `InsertDamageData_LUA` = June `32621080`),
+  the ctor loads the file after `OpenWayOfSwordScript` (`OpenJuneDamageDataScript` = `32620940`, from `32622080` @`326221da`), and
+  `SetDamageDataFromLUA` applies the record right after the `DAMAGE_DATA_KEY_NAME` read (`JuneApplyDamageDataRecord` = `3261a1a0` +
+  `3264a5d0`, call @`3263edee`).
+- **Record, settled from `32621080`** (the two roles C2 left open): `rec[0]` is the damage type, computed (PHYSIC <= 0 -> 1 with MAGIC kept;
+  both > 0 -> 2; else 0 with MAGIC zeroed), `rec[5]` is `DAMAGE_DOWN_POINT` -> `fForceDownValue`. Each June `DamageData` offset was
+  checked against its key's store in `32632390` (funcmap rows tagged `Effect C9`), and March members are used by key. First entry wins on a
+  duplicate name; an empty name is skipped. `DAMAGE_SKILL_ID` is copied when non-zero as June does (skill reform stays handed off, D7).
+- **Order**: the apply sits after every March key and before the (handed-off) NUMERICAL_DATA override, as June's. No key June reads after
+  `3263edee` stores into a record field.
+- **Staged**: `june2017_re/stage_june_fx.py` gained `--only NAME` (the full plan is the rolled-back Phase 11 set and must not be applied
+  wholesale; `stage_plan.tsv` is untouched, the plan goes to `stage_plan_only.tsv`). `Elsword_DamageData` is in `LUA10`.
+  `--only Elsword_DamageData.lua --apply` added exactly one file to `kom_contents/data036_kom/` and one manifest key.
+- **Packed**: `python tools/kom.py pack data036` -> `PACK OK data036` (189 entries, `+1 added, -0 removed, ~0 changed`, `+ Elsword_DamageData.lua`).
+  **Not copied to the game yet** (asks the user first).
+- **Census** (`census.py`, 2026-10-07): the 8 `InsertDamageData` rows (+ the `InsertDamageData` top row) are `implemented`; the 3 `ES.Description`
+  rows are `declined`; the only FAIL is the pre-existing HP-rate item (owner C10). `unassigned` is now 0 outside the nested buff parser.
+
+**Declined: `EffectSet_Description.lua`.** June's client never names the file (C2): `32378e20` is `AddNPCTemplet_LUA`, `32680da0` is
+`AddNextStepPackage_LUA`, and the census matched their `DESC`/`NAME`/`VERSION` keys by name only. March reads it only under `#ifdef EFFECT_TOOL`.
+
+**Not done: `UnitViewerEffectSetTable.lua` (the viewer half).** The plan's Exit does not count it, and it is identification, not
+transcription: `31fa3010` (20+ call sites from `323fad80`) looks the motion name up (`323760f0`) and pushes a 0x30-byte request into a vector
+that another function drains; it also sets `this+0x11d8` for `LDB_LobbyReadyAction`. The bulk loader that calls `31ee6100`
+(`32597410`) is not in funcmap, so even where March should call the loader is unconfirmed. Porting the bind and the table with no consumer
+would be inert, so the file is **not staged and not bound**. Proposed new phase **C9b** (Opus, no code): identify the viewer play path
+(`31fa3010`/`31fa8ce0`/`32043380`, the queue and its drain, `32597410`) and decide whether March's `CX2UnitViewerUI::PlayAnim` can take it.
+`DUO_TYPE`, `UNIT_TYPE.UT_NONE` and `UNIT_CLASS.UC_NONE` already exist in March's `Enum.lua`.
+
+**Hygiene.** `flagcheck JUNE_DAMAGE_DATA_TABLE --worktree --files <my 4 files>`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. The two OTHER rows are a **peer session's** uncommitted C6b edits (`SERV_IRUHADEV_JUNE_SPAWN_INHERIT`) in `Always.h` and `X2DamageManager.h`; I committed only my hunks.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,297,280 B, dated 2026-10-07 10:45:46, md5 adda229ec56700e76e92cf1b7e8022e3, equal to X2/US_SERVICE/x2.exe (2026-10-07 10:45:42)`
+(the build also contained the peer's uncommitted C6b edits).
+
+**How to see it in game.** After `data036.kom` is copied and the game starts, `ErrorLog.txt` has
+`JUNE_FX DAMAGE_DATA_LOAD Elsword_DamageData.lua loaded=1 rows=N ...` (expected N close to 107 minus duplicate names). Only three June
+blocks carry `DAMAGE_DATA_KEY_NAME`, all in files March does not run today: `GetSA_RVK_Freezing_Bullet_Explosion( slot0 )` and a fixed
+name (the "high-mobility cast, outside calc" record) in `DamageEffect.lua`, and the "Mecha Drop explosion" record in `DamageEffect_INT.lua`.
+Both fixed names are in the table. So in a March play-test `offline_server.log` will normally show **no** `DAMAGE_DATA_KEY` line: an
+absent `apply` line is not a failure. The load line in `ErrorLog.txt` is the proof for this phase.
+Open question for the user: none; C9b is proposed above.
 
 ---
 

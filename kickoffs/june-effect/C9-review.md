@@ -18,7 +18,7 @@ Also read: `june2017_re/funcmap.tsv` rows the phase cites, and its commits (`git
 
 ## Task
 
-Review C9's commit(s) against the June binary and the plan's C9 section: the InsertDamageData_LUA binding and storage against 32621080, the UnitViewerEffectSetTable consumer, the EffectSet_Description decision (game code vs tool code), and the staged files named for packing.
+Review C9's commit(s) against the June binary and the plan's C9 section: the InsertDamageData_LUA binding, storage and the record apply against 32621080 / 3261a1a0 / 3264a5d0 (flag `SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE`), the EffectSet_Description decline (C2's reason), and the staged `Elsword_DamageData.lua` (packed into data036). The UnitViewerEffectSetTable half was deliberately not ported (consumer unidentified): it is C9b, not a finding here. Read the play-test result first: the `JUNE_FX DAMAGE_DATA_LOAD ... rows=N` line in ErrorLog.txt (`python tools/logs.py --tag JUNE_FX`).
 
 The plan's model rule is "transcription on Sonnet, then an Opus review"; this is that review.
 Hygiene is one command: `python tools/flagcheck.py <FLAG> --range <first C9 commit>^..HEAD`

@@ -3,6 +3,7 @@
     python stage_june_fx.py            # dry run: writes stage_plan.tsv, prints the summary
     python stage_june_fx.py --apply    # copies files, updates _manifest.json, backs up what it replaces
     python stage_june_fx.py --revert --check   # what a revert would do; writes nothing
+    python stage_june_fx.py --only NAME.lua [--apply]   # C9: stage just the named files (never the rolled-back full set)
     python stage_june_fx.py --revert   # undo --apply: restore replaced files from the backup, delete
                                        # added files and their manifest keys, move the .src.lua back
 
@@ -45,7 +46,8 @@ BACKUP = os.path.join(os.path.dirname(fxdata.MAR_STAGE), 'kom_contents_backup_ju
 TRIAL_LUA = os.path.join(fxdata.CACHE, 'june_b')   # ljconv output, same bytes as Phase 10b
 LUA10 = ['EffectSet', 'EffectSet_INT', 'UIEffectSet', 'UIEffectSet_INT', 'DamageEffect',
          'DamageEffect_Character', 'DamageEffect_Dungeon', 'DamageEffect_ETC', 'DamageEffect_INT',
-         'DamageSound']
+         'DamageSound',
+         'Elsword_DamageData']    # Effect completion C9: InsertDamageData_LUA's table (107 entries), new to March
 TXT_RE = re.compile(r'^(Game|UI)(Major|Minor)(Particle|XMeshPlayer)\d*\.txt$', re.I)
 MERGED_SRC = ['EffectSet.src.lua', 'DamageEffect.src.lua']
 KOM_NUM = re.compile(r'^data(i?)(\d+)$', re.I)
@@ -74,7 +76,7 @@ def lua_paths():
     return out
 
 
-def main(apply):
+def main(apply, only=None):
     mar = fxdata.Build('march', fxdata.MAR_DATA, fxdata.MAR_STAGE)
     jun = fxdata.Build('june', fxdata.JUNE_DATA, fxdata.JUNE_DATA)
     upd = fxdata.update_inventory()
@@ -92,6 +94,15 @@ def main(apply):
         if v in (('june-only', 'missing'), ('march-live', 'differs'),
                  ('march-live', 'truncated-in-march')):
             wanted.setdefault(r['name'].lower(), ('june', 'closure %s/%s' % v))
+
+    if only:
+        # Effect completion C9: stage named files only (the full plan below is the rolled-back Phase 11 set
+        # and must not be applied wholesale). The plan goes to stage_plan_only.tsv, not stage_plan.tsv,
+        # so Phase 11's --revert record is untouched.
+        want = {n.lower() for n in only}
+        missing = sorted(want - set(wanted))
+        assert not missing, 'not in the plan: %s' % ', '.join(missing)
+        wanted = dict((k, v) for k, v in wanted.items() if k in want)
 
     rows = []
     for low, (kind, reason) in sorted(wanted.items()):
@@ -136,7 +147,7 @@ def main(apply):
         rows.append(dict(action='conflict' if conflict else action, name=dname, kom=kom,
                          reason=reason, note='; '.join([srcnote] + conflict), src=src, dst=dst))
 
-    with open(os.path.join(HERE, 'stage_plan.tsv'), 'w', encoding='utf-8', newline='') as f:
+    with open(os.path.join(HERE, 'stage_plan_only.tsv' if only else 'stage_plan.tsv'), 'w', encoding='utf-8', newline='') as f:
         w = csv.DictWriter(f, ['action', 'kom', 'name', 'reason', 'note', 'src', 'dst'],
                            delimiter='\t', lineterminator='\n')
         w.writeheader()
@@ -153,7 +164,7 @@ def main(apply):
                       and not os.path.isdir(os.path.join(fxdata.MAR_STAGE, r['kom'] + '_kom'))})
     print('new kom_contents dirs needed:', newdirs)
     if apply:
-        do_apply(rows)
+        do_apply(rows, merged_src=not only)
 
 
 def algo(n):
@@ -197,9 +208,9 @@ def manifest_add(d, names):
     return len(names)
 
 
-def do_apply(rows):
+def do_apply(rows, merged_src=True):
     os.makedirs(BACKUP, exist_ok=True)
-    for s in MERGED_SRC:
+    for s in (MERGED_SRC if merged_src else []):
         p = os.path.join(fxdata.MAR_STAGE, 'data036_kom', s)
         if os.path.exists(p):
             os.makedirs(os.path.join(BACKUP, 'data036_kom'), exist_ok=True)
@@ -296,4 +307,7 @@ if __name__ == '__main__':
     if '--revert' in sys.argv:
         do_revert('--check' not in sys.argv)
     else:
-        main('--apply' in sys.argv)
+        only = None
+        if '--only' in sys.argv:
+            only = [a for a in sys.argv[sys.argv.index('--only') + 1:] if not a.startswith('--')]
+        main('--apply' in sys.argv, only)

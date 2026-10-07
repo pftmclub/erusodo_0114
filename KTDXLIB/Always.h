@@ -5343,3 +5343,22 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SOCKET_FEVER needs SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #endif
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June effect completion C9 (JUNE2017_EFFECT_COMPLETION_PHASES.md):
+//              June's Elsword_DamageData.lua table. Binds
+//              CX2DamageManager::InsertDamageData_LUA (June 32621080), loads
+//              Elsword_DamageData.lua in the damage manager ctor (June
+//              32620940 from 32622080 @326221da) and applies a record onto a
+//              DamageData when a DAMAGE_DATA block carries
+//              DAMAGE_DATA_KEY_NAME (June 32622220 @3263edee). The key is
+//              already parsed under SERV_IRUHADEV_JUNE_DAMAGEDATA, so that
+//              flag is required. Needs Elsword_DamageData.lua packed into
+//              data036.kom; flag-on without the file logs it and applies
+//              nothing.
+#define SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
+#if defined(SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE) && !defined(SERV_IRUHADEV_JUNE_DAMAGEDATA)
+#error SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE needs SERV_IRUHADEV_JUNE_DAMAGEDATA
+#endif SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
+//////////////////////////////////////////////////////////////////////////

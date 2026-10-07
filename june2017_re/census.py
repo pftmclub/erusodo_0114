@@ -434,10 +434,12 @@ ROOTS = [
     ('ES.CAMERA_SHAKE', 'ES', r'CAMERA_SHAKE%d', None, [(ES_CPP, 'CX2EffectSet::AddEffectSetTemplet_LUA', ('CAMERA_SHAKE%d',))], '3', 'EffectSet'),
     ('ES.SOUND', 'ES', r'SOUND%d', None, [(ES_CPP, 'CX2EffectSet::AddEffectSetTemplet_LUA', ('SOUND%d',))], '3', 'EffectSet'),
     # EffectSet_Description.lua: March reads it only under #ifdef EFFECT_TOOL (X2EffectSet.cpp:3380),
-    # compiled out of the client; June's reader is not identified. Not in any phase.
+    # compiled out of the client. C9 declines it: June's client never names the file (C2, funcmap rows
+    # 32378e20 / 32680da0 are AddNPCTemplet_LUA / AddNextStepPackage, matched by key name only).
     ('ES.Description', 'ESD', None, [], [(ES_CPP, 'CX2EffectSet::AddEffectSet_Description_LUA', ())], 'unassigned',
      'EffectSet_Description (effect-tool only)'),
-    ('InsertDamageData', 'DD', None, [0x32621080], [], 'unassigned', 'InsertDamageData_LUA (Elsword_DamageData.lua)'),
+    # C9 (2026-10-07): March's reader is CX2DamageManager::InsertDamageData_LUA (SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE).
+    ('InsertDamageData', 'DD', None, [0x32621080], [(DM_CPP, 'CX2DamageManager::InsertDamageData_LUA', ())], '9', 'InsertDamageData_LUA (Elsword_DamageData.lua)'),
     ('DamageSound', 'DS', None, [0x32610ff0], [(DM_CPP, 'CX2DamageManager::ParseDamageSoundBlock', ('*',))], 'unassigned', 'DamageSound'),
 ]
 ROOT = dict((r[0], r) for r in ROOTS)

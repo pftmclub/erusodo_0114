@@ -3619,6 +3619,12 @@ void CX2Main::RegisterLuabind()
 #endif // REFORM_SKILL_NOTE_UI
 
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
+	// June2017 FUN_31d95080: "CX2DamageManager" class block @31e16bcb, "InsertDamageData_LUA" decrypted @31e16d8d,
+	// pushed @31e16eae (0x32621080). Elsword_DamageData.lua calls g_pDamageManager:InsertDamageData_LUA.
+	lua_tinker::class_add<CX2DamageManager>( L, "CX2DamageManager" );
+	lua_tinker::class_def<CX2DamageManager>( L, "InsertDamageData_LUA",	&CX2DamageManager::InsertDamageData_LUA );
+#endif SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
 	lua_tinker::class_add<CX2UIUnitManager>( L, "CX2UIUnitManager" );
 	lua_tinker::class_def<CX2UIUnitManager>( L, "ClearAllUIUnit",		&CX2UIUnitManager::ClearAllUIUnit );
 
