@@ -445,7 +445,11 @@ X2/US_SERVICE/x2.exe (2026-10-08 05:45:54); built at mods/june-buff-port e9cfdca
 `#pragma message` printed in both the X2Lib and X2 compiles; the deployed exe carries the layout-mismatch, census, ShopImageName,
 emblem-guard and Lua-fallback strings and `#CFF6900`.
 
-**How to see it.** `[JUNE_KIM] loaded items=111428 sets=6740 stride=228 ...` and two `census` lines in ErrorLog.txt; armour shows its
+**How to see it.** `[JUNE_KIM] loaded items=111428 sets=6740 stride=228 ...` and two `census` lines in ErrorLog.txt whose counts
+prove the offsets (computed with `tools/kim.py` from the staged kim): `unit_type>=UT_END(10)=8572 unit_class>=UC_END(124)=8445
+IT_CUSTOM=1207 eqip>=EP_END(39)=0 eqip26=475 eqip27=305`, `SAT>=SAT_END(40) records=249 types=[40,41,42,43,51] buy_pvp_rank9=31
+rank10=52 pvp_equip=240 minor_unit=2582` (a different number means a misplaced field). Stride probe ported to Python: June kim 228
+accepted / 188 refused, March kim 188 accepted / 228 refused; armour shows its
 defence; a Mini-me item equips in the face slot; a Legend item's name is orange with `[Legend]` in its tooltip.
 
 **Open.** None for the user. Deploy order matters: exe and the 26 koms go together (a K2 exe refuses March's kim and then crashes;

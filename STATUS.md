@@ -13,6 +13,11 @@ of them edits code, or their "Touches" do not share a file, and (c) both commit 
 paths. Builds queue through one lock (all worktrees share it). Read-only steps (RE, reviews
 that find nothing, planning) can always run alongside.
 
+**Worktrees and the game dir (2026-10-08, june-item-kim K2 `f1549a6`):** the live `data036.kom` ships June's 228-byte `item.kim`.
+An exe deployed from a worktree (e.g. `Trunk_elysion`) whose `Always.h` lacks `SERV_IRUHADEV_JUNE_ITEM_KIM` and
+`SERV_IRUHADEV_KIM_LAYOUT_CHECK` reads it at 188 bytes per record **silently** (wrong items everywhere, no error). Merge K2 into a
+worktree before deploying from it.
+
 States: `done` · `review` (done, review pending) · `play-test` (waiting on the user) ·
 `ready` (can start) · `queued` (could start, but the user ordered another plan first) ·
 `blocked` (dependency not done) · `decision` (waiting on a user decision).
