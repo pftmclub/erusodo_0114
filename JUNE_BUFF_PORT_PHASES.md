@@ -4413,6 +4413,40 @@ Added 2026-10-07. This is the last stored buff key whose consumer is not ported.
 
 After 14b, the buff port's own scope is complete. What remains is owned elsewhere: checklist §7 class hooks, june-effect C6c (auras, SIEE 15), BFT 16 (no transcendence slot in March), and the June bugs kept verbatim in JUNE_BUGS.md.
 
+### Phase 14b — Done (2026-10-07, Opus 5.5 high)
+
+**RE: June has one reader.** All addresses have `funcmap.tsv` rows; row 325 is updated and there are 6 new rows (`Buff Phase 14b`).
+- `dispsweep.py 6ba4 6ba8 6bac` has 8 hits:
+  - the setter `32082710`;
+  - the user DamageReact `320462a0`. funcdis reports it as `f=32045dc0`, a merge with CanApplyBuffToGameUnit that has no padding between them; Ghidra's xrefs name `320462a0`;
+  - the GameUnit ctor `322a2700` and dtor `322a0730`;
+  - two EH unwind funclets (`332b3d51`, `332b48f9`: `add ecx,0x6ba4; jmp 31c20770`).
+- The setter has 2 xrefs, both in `320462a0`. Slot 200 `31fe4150` sits in all 13 user vtables (13 DATA xrefs). The `+0x320` vtable-load sweep finds one virtual call, `@320471ac`; its other 9 hits are field reads. The NPC DamageReact never touches the bool.
+- **Set** (`@320471a9`): inside the `IsDamagedReaction` block, after the last-hit serial and before DoCustomFunction / ApplyBuffToGameUnitInDamageReact. The hit that *applies* the debuff therefore does not kill.
+- **Read** (`@32049b70`): after `UpNowHp( -dmg )` and the training clamp. If the bool is set, June clears it and calls `SetNowHp( 0 )` (slot 61, the user override `3202ff60`, so a BBT 101 ignore-HP-decrease buff still blocks it). March's SOFTBODY block is dead here (`FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE` is defined), so nothing runs between the clamp and the kill, as in June.
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL`, insert-only; flag off = March):
+- `CX2GUUser::HaveInstanceKillDebuff()` walks `m_vecBuffTempletPtr` (June `+0xe14`, the vector HaveThisBuff `3227baf0` walks).
+- The `KProtectedType<bool> m_bJuneInstanceKill` member, its set, and the kill.
+- An always-on `[JUNE_BUFF] instance kill: ...` line per fire.
+- The load line now says `IS_INSTANCE_KILL_DEBUFF on 3 templet(s): ported`. NOT_SAVE_GAGEMANAGER keeps its own "no June reader found" line.
+- Design note: June keeps the bool in CX2GameUnit. It lives in CX2GUUser here because only the user DamageReact reads or writes it (per the sweep), which keeps `X2GameUnit.h` out of this phase.
+- No JUNE_BUGS row: every damaging hit re-writes the bool before the read, so a stale value cannot fire.
+
+**Reach.**
+- `BTI_AMUSEMENT_ITEM_WATER_BALLOON_IN_DAMAGE` (810) and `_PRESS_IN_DAMAGE` (813) have no factor in March. June applies them only from inline BUFF_FACTORs in `DamageEffect_ETC.lua` (`:1384`, `:1873`), a June file March does not ship, and nothing in March's koms or `X2Lib` names them. They are unreachable here.
+- `BTI_BUFF_CHRISTMAS_MASTER` is reached by `BFI_BUFF_CHRISTMAS_MASTER` = 10066 (`_INT`, loaded: 69 `_INT` factors, 0 placeholders). Its level 1 is 0.65 walk/run speed with `NORMAL_TIME` 9999. No item or effect in March applies it, so the play-test uses the console.
+
+**Hygiene:** `flagcheck --worktree`: 1 PASS, 3 OTHER (the peer's uncommitted C9c-1 `JUNE_UNIT_VIEWER_EFFECT_TABLE` hunks in the same files), 0 deleted, 0 encoding changes, RESULT: PASS.
+
+**Commits.** The peer's C9c-1 commit `c9476fa` staged whole files, so it carries this phase's hunks in `Always.h`, `X2GUUser.cpp`, `X2GUUser.h` and the STATUS rows (all verified intact; history not rewritten on a shared branch). The phase's own commit has the load line (`X2BuffTempletManager.cpp`), funcmap, this note and the review kickoff. For the review, take the range `20ecd9d..<14b commit>`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,283,456 B, dated 2026-10-07 13:52:04, md5 d8917e2f820962fe11434f6936778693, equal to X2/US_SERVICE/x2.exe (2026-10-07 13:51:59); built at mods/june-buff-port 20ecd9d + 8 uncommitted code file(s).` A peer's build linked it. Both phase strings were checked present in the deployed exe.
+
+**How to see it in game:** apply BFI 10066 on yourself; the first monster hit after that kills you outright, and `offline_server.log`/`ErrorLog.txt` gets the `instance kill` line.
+
+**Open question for the user:** June's training clamp also accepts `g_pMain+0x16a == 1` (`@32049b40`). That is a June-only CX2Main flag with dozens of readers across the binary, a separate system. It is not ported. Should it get its own phase?
+
 ---
 
 ## Phase 15 — Enchant system parity (attribute enchant rework)
