@@ -595,7 +595,8 @@ Checked in Ghidra (read-only) and in the exe bytes:
 **Hygiene:** worktree flagcheck PASS (`_HERO_NPC_ANIM_SPEED`: 5 PASS, 1 PASS~ blank line, 1 DEFINE, 0 deleted; `_JUNE_NPC_ANIM_SPEED` on the two compound-guarded files: 2 PASS). Committed `2cf5fef`; range flagcheck `2cf5fef^..2cf5fef`: 5 PASS, 1 PASS~, 1 DEFINE, 0 FAIL, 0 deleted, RESULT PASS.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,316,736 B, dated 2026-10-07 20:06:05, md5 aa9143e1f31906afc9b30beae800065c` (built at `23106ff` + this phase's 7 files). The exe holds the wide `JUNE_FX HERO_ANIM` string and the bind name.
 **In game:** nothing changes. Run dungeon 30000; ErrorLog.txt gets one `JUNE_FX HERO_ANIM` line with `rows=0`, `dungeon=30000` and `hero=0` (read it with `python tools/logs.py --grep "JUNE_FX HERO_ANIM"`; `--tag JUNE_FX` matches nothing).
-**Also:** MODS.md (row + section), JUNE_BUGS 99. **User owes:** the regression play-test, /cost.
+**Also:** MODS.md (row + section), JUNE_BUGS 99.
+**Play-test PASSED 2026-10-07** (El Tree 30000; logs read, run after the aa9143e1 deploy): exactly one `JUNE_FX HERO_ANIM ... rows=0 ... dungeon=30000 hero=0` (`CreateGUNPC`, `X2DungeonSubStage.cpp:2496`), 0 EXCEPTION, clean exit. **User owes:** /cost.
 
 ---
 
