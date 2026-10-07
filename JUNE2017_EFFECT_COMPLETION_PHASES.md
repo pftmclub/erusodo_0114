@@ -1404,7 +1404,10 @@ The 17:13 run logged no particle parse error (only the old `GameMajorParticleNN`
 refresh), `PlayByMotionType` `31fa5c90` / `31fac190` (stops 0..4, or 0/1/2, on a motion change; `+0xf14` / `+0xf74` unidentified) and the
 sit-emotion stops `31fa5140` / `31fa5180`. Kickoff `C9g.md`.
 
-**Hygiene.** RANGE_LINES
+**Hygiene.** `flagcheck JUNE_UNIT_VIEWER_EFFECT_PLAYER --with JUNE_FX_DEBUG --range c71621a^..HEAD`: `files: 6 PASS, 5 PASS~ (blank/marker only), 1 DEFINE, 31 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 88 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 4 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+The 88 deletions are this flag's own lines, rewritten by `c2029da` and by this review (the moved frame-move blocks). Against the base `c71621a^`, all five files show 0 deleted lines (`git diff --numstat`).
+The 31 OTHER rows are peer commits in the range (`4ca07e7` C10b-1 and others). The 4 `tok!` are existing `JUNE_FX_DEBUG` `#else`/`#endif` lines in `X2EffectSet.cpp`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,313,152 B, dated 2026-10-07 17:52:02, md5 a87b307beb07ca847b5a1382f153d4b9, equal to X2/US_SERVICE/x2.exe (2026-10-07 17:51:57); built at mods/june-buff-port 9a8e26f + 4 uncommitted code file(s).` (the four are this review's)
 **User owes:** a short regression play-test (hand-off in the reply), then /cost.
 
