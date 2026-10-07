@@ -4439,7 +4439,11 @@ After 14b, the buff port's own scope is complete. What remains is owned elsewher
 
 **Hygiene:** `flagcheck --worktree`: 1 PASS, 3 OTHER (the peer's uncommitted C9c-1 `JUNE_UNIT_VIEWER_EFFECT_TABLE` hunks in the same files), 0 deleted, 0 encoding changes, RESULT: PASS.
 
-**Commits.** The peer's C9c-1 commit `c9476fa` staged whole files, so it carries this phase's hunks in `Always.h`, `X2GUUser.cpp`, `X2GUUser.h` and the STATUS rows (all verified intact; history not rewritten on a shared branch). The phase's own commit has the load line (`X2BuffTempletManager.cpp`), funcmap, this note and the review kickoff. For the review, take the range `20ecd9d..<14b commit>`.
+**Commits.** The peer's C9c-1 commit `c9476fa` staged whole files, so it carries this phase's hunks in `Always.h`, `X2GUUser.cpp`, `X2GUUser.h` and the STATUS rows (all verified intact; history not rewritten on a shared branch). The phase's own commit has the load line (`X2BuffTempletManager.cpp`), funcmap, this note and the review kickoff. For the review, take the range `20ecd9d..e5bad74`. Range flagcheck (`--range 20ecd9d..e5bad74 --with SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE`):
+`files: 2 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+- The PASS~ is the blank line after the helper's `#endif` in `X2GUUser.cpp`.
+- The 4 OTHER rows are C9c-1's own files.
+- MODS.md has a row and a section for the flag.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,283,456 B, dated 2026-10-07 13:52:04, md5 d8917e2f820962fe11434f6936778693, equal to X2/US_SERVICE/x2.exe (2026-10-07 13:51:59); built at mods/june-buff-port 20ecd9d + 8 uncommitted code file(s).` A peer's build linked it. Both phase strings were checked present in the deployed exe.
 

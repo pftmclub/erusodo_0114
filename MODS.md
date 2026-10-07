@@ -52,6 +52,7 @@ column.
 | `SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE` | 2026-10-07 (June effect completion C9) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_DAMAGEDATA`) | `X2Lib/X2DamageManager.h`/`.cpp` (`JuneDamageDataRecord`, `InsertDamageData_LUA`, `OpenJuneDamageDataScript`, `JuneApplyDamageDataRecord`; ctor load; apply after the `DAMAGE_DATA_KEY_NAME` read), `X2Lib/X2Main.cpp` (`CX2DamageManager` class bind) | -- |
 | `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE` | 2026-10-07 (June effect completion C9c-1) | `KTDXLIB/Always.h` (end; the load line also needs `SERV_IRUHADEV_JUNE_FX_DEBUG`) | `X2Lib/X2UnitManager.h`/`.cpp` (`JuneUnitViewerEffectSet`, `AddUnitViewerEffectSet_LUA`, `GetUnitViewerEffectSet`, `OpenJuneUnitViewerEffectSetTable`), `X2Lib/X2Main.cpp` (`AddUnitViewerEffectSet` bind), `X2Lib/X2Data.cpp` (`ResetUnitManager` load), `X2Lib/X2GUUser.h`/`.cpp` (`m_hJuneEmotionEffectSet`, `PlayEmotion` consumer) | -- |
 | `SERV_IRUHADEV_OFFLINE_NPC_UID_BASE` (offline design, not server/June) | 2026-10-07 (june-buff Phase 14) | `KTDXLIB/Always.h` (end) | `X2Lib/Offline/X2OfflineServer.h` (room `Clear()`: monster UIDs start at 1,000,000) | -- |
+| `SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL` | 2026-10-07 (june-buff Phase 14b) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUUser.h`/`.cpp` (`m_bJuneInstanceKill`, `HaveInstanceKillDebuff`, set and kill in `DamageReact`), `X2Lib/X2BuffTempletManager.cpp` (load line) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_DEBUG` | 2026-10-04, **disabled 2026-10-07** (june-buff Phase 14) | `KTDXLIB/Always.h:4787` (`#define` commented out; re-enable to diagnose) | ~250 `[JUNE_BUFF] first ...` debug sites across `X2Lib` (buff templets, game units, users, NPCs, `X2Main.cpp`'s `JuneBuffTestNewStat_LUA` console hook) | -- |
 
 What each one does:
@@ -3030,6 +3031,12 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
   its clear-all on a field move wiped her buff icons (`CX2GageManager` matches on the UID alone, as June's `32489980` does).
   **Revert:** undefine it (monsters number from 1 again; the icon wipe comes back for any character whose UID a monster reaches).
 
+### June buff port, Phase 14b: IS_INSTANCE_KILL_DEBUFF consumer
+
+- **`SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL`.** A player carrying a buff templet with `IS_INSTANCE_KILL_DEBUFF` (in March data
+  only the `_INT` Christmas master, BFI 10066) dies at the next damaging hit: June's user `DamageReact` (`320462a0`) sets HP to 0
+  after the hit's damage. Monsters are unaffected (June has no NPC reader). The load line now says `... ported`.
+  **Revert:** undefine it and rebuild all projects (the debuff becomes a plain slow again).
 ## Reverting to stock
 
 Comment out every `#define` listed in the *Defined in* column and rebuild.

@@ -15,7 +15,9 @@ python tools/docsection.py JUNE_BUFF_PORT_PHASES.md "Starting context" "Phase 14
 ```
 
 Also `june2017_re/funcmap.tsv` rows `31fe4150`, `320471a9`, `32049b70`, `32082710`, `322a51bb`,
-`322a0ed5`, `332b3d51`, and the phase's commit (`git log --oneline --grep="Phase 14b"`).
+`322a0ed5`, `332b3d51`. **The code is in two commits:** the `Always.h` define and every `X2GUUser.cpp`/`.h`
+hunk landed in the peer's C9c-1 commit `c9476fa` (it staged whole files), and `e5bad74` has the load line
+(`X2BuffTempletManager.cpp`), funcmap and the Done note. Review the range `20ecd9d..e5bad74`.
 
 ## Task
 
@@ -33,7 +35,8 @@ Review Phase 14b's commit against June `320462a0` (CX2GUUser::DamageReact):
   DamageReact reads it in June (the sweep), so the move is behaviour-neutral.
 
 Hygiene is one command, not a fresh script:
-`python tools/flagcheck.py SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL --range <14b commit>^..HEAD`.
+`python tools/flagcheck.py SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL --range 20ecd9d..e5bad74 --with SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE`
+(the `--with` folds in C9c-1's flag, which shares `c9476fa`; without it the X2GUUser files show as OTHER).
 Paste its `files:` / `in this flag's files:` / `RESULT:` lines into the review. Explain every
 OTHER row and every deleted line; a FAIL or ERROR is a finding.
 
