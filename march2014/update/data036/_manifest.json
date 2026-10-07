@@ -1,4 +1,8 @@
 {
+  "BattleFieldBuffFactor.lua": "2",
+  "BattleFieldBuffFactor_INT.lua": "2",
+  "BattleFieldBuffTemplet.lua": "2",
+  "BattleFieldBuffTemplet_INT.lua": "2",
   "BuffTemplet.lua": "2",
   "BuffTemplet_INT.lua": "2",
   "NewNPCStat.lua": "2",

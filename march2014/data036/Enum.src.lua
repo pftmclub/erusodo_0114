@@ -285,7 +285,12 @@ UNIT_TYPE = {
 	-- cross-checked against the transcoded bytecode executed with the vendored luajit.
 	--}}
 	UT_AIN = 12,
-	UT_ROSE = 11
+	UT_ROSE = 11,
+	--{{ Iruha : 2026-10-07 // June buff port Phase 13 (JUNE_BUFF_PORT_PHASES.md)
+	-- UT_LUCIEL: BattleFieldBuffTemplet.lua's UNIT_TYPE render-param entries (BDT_RENDER_PARAM_BY_UNIT_TYPE) name it.
+	-- June's value (Enum.src.lua:312). March's UT_END = 10 is left as it is: C++ UT_END is 10 and no Lua reads it.
+	--}}
+	UT_LUCIEL = 10
 }
 UNIT_CLASS = {
 	UC_LIRE_GRAND_ARCHER = 103,
@@ -5091,7 +5096,14 @@ SKILL_TYPE = {
 	ST_PASSIVE_MAGIC_ATTACK = 2,
 	ST_SPECIAL_ACTIVE = 7,
 	ST_GUILD_PASSIVE_PHYSIC_ATTACK_MAGIC_DEFENCE = 9,
-	ST_GUILD_PASSIVE = 11
+	ST_GUILD_PASSIVE = 11,
+	--{{ Iruha : 2026-10-07 // June buff port Phase 13 (JUNE_BUFF_PORT_PHASES.md)
+	-- BattleFieldBuffFactor.lua's BBT_CHANGE_SKILL_DAMAGE blocks name these three; a nil SKILL_TYPE rejects the whole factor
+	-- (ParsingChangeSkillDamageBehavior). June's values (Enum.src.lua:7133/7140/7145). ST_CORE/ST_CORE_PASSIVE are not named by any adopted file.
+	--}}
+	ST_SPECIAL_ACTIVE_GRADE_1 = 14,
+	ST_SPECIAL_ACTIVE_GRADE_2 = 15,
+	ST_SPECIAL_ACTIVE_GRADE_3 = 16
 }
 ACTIVE_SKILL_USE_CONDITION = {
 	ASUT_AIR_ONLY = 4,
@@ -12294,4 +12306,14 @@ NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE = {
 ROSE_WEAPON_ATTACK_TYPE = {
 	RWAT_REVOLVER_BLADE = 5,
 	RWAT_REVOLVER_CHAIN = 4
+}
+--{{ Iruha : 2026-10-07 // June buff port Phase 13 (JUNE_BUFF_PORT_PHASES.md)
+-- New table: June's BattleFieldBuffTemplet.lua (BTI 820) and BattleFieldBuffFactor.lua (BFI 843) index it;
+-- without it both files abort at that entry. Values verbatim from June's Enum.src.lua:17838.
+--}}
+SKILL_SLOT_TYPE = {
+	SKILL_SLOT_TC = 3,
+	SKILL_SLOT_B = 2,
+	SKILL_SLOT_None = 0,
+	SKILL_SLOT_A = 1
 }

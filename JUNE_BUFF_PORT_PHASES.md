@@ -4271,6 +4271,34 @@ Then read `ErrorLog.txt` for this phase's lines only: any `DLG_BuffManager.lua` 
 
 **Kickoff:** `kickoffs/june-buff/13.md` - start it with `/x2-phase june-buff 13`. The inline prompt that stood here was retired on 2026-10-04; `kickoffs/` is the source of truth.
 
+### Phase 13 — Done (2026-10-07, Sonnet 5.5 medium): staged, packed, deployed; copy and play-test owed
+
+**Gate.** `buff_census.py`: BBT/BFT/BDT not handled 0, custom-function gap = the 4 June tags with no June reader (FLASH_BANG, TRAPPINGARROW_FUNGUS, BLOOD_REVENGE_COUNTER per 9b item 5; BLOOD_RUNAWAY has no case in June's switch and only Elesis reads it, checklist §7). The 4b key scan still listed 8 type/key pairs (26 uses); each is a key June's own reader does not read (reader addresses from the plan's RE notes: 75 `32d46800`/`32e75360`, 79 `32d42650`/`32e755a0`, 100 `32d4b020`, 104 empty parse/identity), so they went into `NOT_READ_BY_JUNE_TYPE` (`buff_census.py`) and the scan reads 0 pairs. **Not re-read in Ghidra this session: the review spot-checks 3 of them.**
+
+**What was staged** (compiled `mar-2014` from `june_src_fixed/data036_kom/*.src.lua`, not re-decompiled):
+- `BattleFieldBuffTemplet.lua`, `BattleFieldBuffFactor.lua` (replace March's), `BattleFieldBuffTemplet_INT.lua`, `BattleFieldBuffFactor_INT.lua` (new), plus their `.src.lua`, in `march2014/update/data036/` and `kom_contents/data036_kom/`. Both `_manifest.json` files got the new keys (`"2"`, CRLF, no trailing newline).
+- `Enum.src.lua`/`Enum.lua` (`march2014/data036/` = `kom_contents`, md5 `990265dd…`): `SKILL_SLOT_TYPE` table (the Phase 3 R1 hazard), and two more gaps the unknown-member pass found: `UT_LUCIEL = 10` (3 displayer entries) and `SKILL_TYPE.ST_SPECIAL_ACTIVE_GRADE_1/2/3 = 14/15/16` (a nil there rejects the whole BBT 89 factor: 14 factors would have been placeholders). `ST_CORE`/`ST_CORE_PASSIVE` are not named by any adopted file, so not added. `UT_END` stays 10 (C++ value; no Lua reads it).
+- `item.kim`: the Heretic potions' factor WORDs 362/363 -> 481/482 (offsets 20107070/20107414; re-verified by the item-id +132 pointer; those two bytes are the only difference, `item.kim.orig` kept in the session scratchpad).
+- **`_STORE_BUFF` turned on** (`Always.h`, hygiene PASS, 119 templets flagged `IS_STORE_BUFF = TRUE`).
+- **Kept on purpose:** the `BFI_DEBUFF_TELEPORT_CONSUME_MP` Enum alias, because the live `NewSkillTempletVer2.lua` still names it (re-grepped 2026-10-07; removing it would drop 77 factors).
+- JUNE_BUGS #73 (BTI_DEBUFF_DRON_SLOW_EFFECT's `RENDER_TYPE.SMRT_...` is nil in June too).
+
+**Checks before packing** (scratch, not committed):
+- `buff_trial_predict.py`: 1001 templets, 0 fail; 1199 factor slots (1130 + 69 `_INT`), 0 placeholders, 0 ordinal rejects.
+- A real LuaJIT run of the four `.src.lua` files with the staged Enum (stub manager, `_G` logger): 0 runtime errors, 929 + 72 templets, 1130 + 69 factors, 0 duplicates, every factor has a numeric BTI; the only unknown globals are `STR_ID_*` (1198; all defined by March's `StringID_def.lua`).
+- Static `Table.Member` pass: only `RENDER_TYPE.SMRT_CARTOON_BLACK_EDGE_ALPHA` is unresolved, and June's Enum lacks it too.
+- March's old files named 4 BTIs June lacks (3 potion BTIs + a string artifact) and 1 BFI (the alias).
+
+**Expected load summary** (written before any run): `[JUNE_BUFF] load summary: templets 1001 loaded, 0 failed, 0 duplicate; factors 1130 loaded + 0 placeholder(s); _INT factors 69 loaded + 0 placeholder(s); ordinal rejects 0 (+ 0 _INT)`; no `unsupported`, no `KEM_ERROR73`/`XEM_ERROR2`, and the 55 `BFI N requested but not loaded` lines of earlier runs gone.
+
+**Pack list.** One archive: `data036` (`kom_contents/data036_packed.kom`, 188 entries, packed with `tools/kom.py pack`; `PACK OK`). Against the live `data036.kom`: **+2** `BattleFieldBuffFactor_INT.lua`, `BattleFieldBuffTemplet_INT.lua`; **~4** `BattleFieldBuffFactor.lua`, `BattleFieldBuffTemplet.lua`, `Enum.lua`, `item.kim`. Phases 2, 10, 11 and 12 are already live (`kom.py status`: data036, data057, datai021, datai020, data034, data037 all in sync). **Not copied** (the user's go; the plan wants the Opus review first).
+
+**Build.** `DEPLOY OK: X2_offline.exe is 19,280,384 B, dated 2026-10-07 09:27:53, md5 4f358da19ac2f4c6d25cf347c6925d79, equal to X2/US_SERVICE/x2.exe (2026-10-07 09:27:47); built at mods/june-buff-port c22d1a3 + 9 uncommitted code file(s).` Those 9 files are `_STORE_BUFF` (mine) and 16-step3c2's work, committed as `480b48b`; its build and mine were one tree. My first attempt failed on that session's half-written header (`GetJuneCommandHitTime` protected), then succeeded after it settled. No new log strings in this phase.
+
+**Hygiene.** `flagcheck.py JUNE_BUFF_STORE_BUFF --worktree --files KTDXLIB/Always.h`: `files: 0 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR` / `4 deleted line(s)` (the flag's own 4 comment lines, rewritten) / `RESULT: PASS`.
+
+**Open for the user.** (1) Copy `data036` now, or after `/x2-phase june-buff 13 review` (Opus; the plan requires it before the pack hand-off). (2) `/cost`.
+
 ## Phase 14 — Play-test sweep and close-out
 
 **Steps**

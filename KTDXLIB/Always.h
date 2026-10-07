@@ -5128,11 +5128,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              IS_STORE_BUFF factors (32494560 + predicate 32499c10), so only
 //              those carry into the next field or dungeon; flagged buffs skip
 //              their finish calls. ~CX2Game and the five Delete*Unit* pass
-//              true. OFF BY DEFAULT (user, 2026-10-05): March's live templets
-//              carry no IS_STORE_BUFF key, so with this on no buff would carry
-//              over at all. Turn it on with Phase 13's June templet data.
+//              true. ON with Phase 13 (user, 2026-10-05: turn it on in the
+//              same build as June's templets): March's old live templets
+//              carried no IS_STORE_BUFF key, so it stayed off until June's
+//              BattleFieldBuffTemplet.lua (119 flagged templets) shipped.
+//              Comment out to restore the no-carry-over behaviour.
 //              Requires SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY.
-//#define SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
+#define SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

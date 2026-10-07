@@ -690,6 +690,18 @@ NOT_READ_BY_JUNE_TYPE.update({
     # no caller; factory 32ec36f0 case 12 runs the base template 32ec0580 and slot 12 is the base 32ec5990 (true)
     ('FINALIZER', 'BFT_RIDING_ON_OR_NOT', 'templet'): {'FINISH_WHEN_RIDING_ON': '32ec0580 -> base slot 12 32ec5990 (32ebfd60 is uncalled)'},
     ('FINALIZER', 'BFT_RIDING_ON_OR_NOT', 'factor'): {'FINISH_WHEN_RIDING_ON': '32d44230 (empty parse)'},
+    # Phase 13 (2026-10-07): the last 8 pairs, each against the June reader the plan's RE notes name
+    # ("Phase 1 -- Done, part 1a" factor-parse list, and the 5b/6/7 transcription notes for 75, 79, 100, 104).
+    ('BEHAVIOR', 'BBT_CHANGE_COOLTIME_RATE_BY_SKILLTYPE', 'factor'): {
+        'BUFF_RELATION_TYPE': '32d4b020 (per SKILL_CATEGORY_n reads SKILL_TYPE, BUFF_CHANGE_TYPE, count, VALUE)'},
+    ('BEHAVIOR', 'BBT_CHANGE_NOW_FORCE_DOWN_PER_SECOND', 'factor'): {'BUFF_RELATION_TYPE': '32d42650 (reads BUFF_CHANGE_TYPE, FIX_VALUE)'},
+    ('BEHAVIOR', 'BBT_CHANGE_NOW_FORCE_DOWN_PER_SECOND', 'templet'): {
+        'BUFF_CHANGE_TYPE': '32e755a0 (reads TIME_INTERVAL only)', 'BUFF_RELATION_TYPE': '32e755a0 (reads TIME_INTERVAL only)',
+        'DRAW_TEXT': '32e755a0 (reads TIME_INTERVAL only)'},
+    ('BEHAVIOR', 'BBT_DOUBLE_ATTACK_BUFF', 'factor'): {'BUFF_RELATION_TYPE': '32d46800 (reads BUFF_CHANGE_TYPE, PERCENT)'},
+    ('BEHAVIOR', 'BBT_DOUBLE_ATTACK_BUFF', 'templet'): {'BUFF_RELATION_TYPE': '32e75360 (reads BUFF_CHANGE_TYPE only)'},
+    ('BEHAVIOR', 'BBT_JUMP_IMPOSSIBLE', 'factor'): {'BUFF_RELATION_TYPE': '32d45b60 (empty parse)'},
+    ('BEHAVIOR', 'BBT_JUMP_IMPOSSIBLE', 'templet'): {'BUFF_RELATION_TYPE': 'Identity class, slot 12 = base 32ec5990'},
 })
 
 
