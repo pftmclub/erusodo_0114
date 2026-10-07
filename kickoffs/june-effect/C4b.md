@@ -42,6 +42,10 @@ Identify, with June addresses, everything the C4c port needs:
    `CX2GUNPC` state parse (`StateData`, `X2GUNPC.h` `FLAG_*` enum) would take each. Check whether
    June's `FLAG_*` enum otherwise lines up with March's (bit 80 is June's numbering; the March port
    adds a new enum value, it does not reuse 80).
+   Two C4-review readings rest on shape, not proof; settle both first: `31e8a990` is the NPC's
+   *current* StateData (a 0x448-byte record vector at `(+0x85fc)+0x78`, indexed by the protected
+   byte `+0x8454`: tie it to March `CX2GUNPC`'s now-state index and state vector), and the `EBP`
+   reloaded at `@327964b2` before the `+0x414` store is the same StateData the `FURY_MODE` site writes.
 2. **The NPC byte `+0x8fb7`.** Every writer and reader (`june2017_re/offsetprobe.py` or a capstone
    sweep over `CX2GUNPC` code): what turns Fury on and off (an HP threshold, a Lua bind, a trigger,
    a server packet?), and whether any of it is server-driven (offline: design a stand-in only if
