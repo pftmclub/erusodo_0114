@@ -4457,6 +4457,41 @@ After 14b, the buff port's own scope is complete. What remains is owned elsewher
 
 **Open question for the user:** June's training clamp also accepts `g_pMain+0x16a == 1` (`@32049b40`). That is a June-only CX2Main flag with dozens of readers across the binary, a separate system. It is not ported. **Answered 2026-10-07: it gets its own phase, 14c.**
 
+### Phase 14b — Review (2026-10-07, Opus 5.5 high)
+
+**Verdict: PASS, no findings in the code.** Nothing changed, so there was no rebuild. The deployed exe is the phase's own build plus later peers' builds. The range is `20ecd9d..e5bad74`; the code is in `c9476fa` and `e5bad74`.
+
+**Reader completeness.** I re-ran `dispsweep.py 6ba4 6ba8 6bac`.
+- `0x6ba4` has 8 hits: the setter, the DamageReact read (`32049b76`), the ctor, the dtor and the 2 EH funclets.
+- The other 2 hits are `[esp + 0x6ba4]` stack-frame stores, in `31d95080` (`@31de090f`) and `321aa5d0` (`@321ad79b`). They are not member accesses. The Done note's "8 hits" named only 6 of them.
+- `0x6ba8` and `0x6bac` add only the read, the setter and the same `31d95080` stack stores. The protected-type check word is read as `[lea +0x6ba4] + 8`.
+- The `funcmap.tsv` row `32049b70` now names the stack hits.
+
+**Slot 200.**
+- Of the 83 `mov r, [r+0x320]` loads in `.text`, exactly one is a vtable load followed by `call r`: `@320471ac`. There is no `call`/`jmp [r+0x320]` form.
+- Ghidra finds 13 DATA xrefs to `31fe4150`. Each is slot 200 of a distinct user-class vtable (RTTI differs), and every one has slot 61 = `3202ff60`.
+- Slot 24 (DamageReact) is overridden per class, so I disassembled all 12 overrides. Each one calls the base `320462a0`, so the kill does not depend on class, in June or in the port.
+
+**Placement.** I checked the order against June's disassembly:
+- The set is `@320471a9` → `call [vt+0x320]` → `32082710` → `32275650` → `322a88c0`. In March it sits after `SetJuneLastHitAttackSerial` and before `DoCustomFunctionByBuffInDamageReact` / `ApplyBuffToGameUnitInDamageReact`, which matches.
+- The kill is UpNowHp (slot 59 `+0xec` `@32049b30`), then the clamp, then `@32049b70`. The `+0x6ba4` test, the `32082710(0)` clear and slot 61 `SetNowHp(0)`. The only jumps into `32049b70` come from the clamp (`@32049b47`, `@32049b5b`), so June reaches the kill only along the UpNowHp path, as the port does.
+- `FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE` is unconditional (`Always.h:858`, `#if` depth 0), so the SOFTBODY block is dead.
+- **No stale bool:** the kill's block (`X2GUUser.cpp:9241`) is gated on `IsDamagedReaction && !m_bNoDamage`, and `IsDamagedReaction` reads only `reActResult`. Nothing writes `reActResult` between the set block (`8708-9159`) and that gate. So every read follows a fresh set in the same call.
+
+**The kill and the `#else`.**
+- `SetNowHp( 0.f )` resolves to the user override (BBT 101 gate), as June's slot 61 does.
+- `KProtectedType<bool>`'s default ctor stores `bool()` = false, matching June's ctor `322a51bb`.
+- With the flag off, the member, the helper, the set and the kill are all gone, and the load line is March's text again.
+- The CX2GUUser placement is behaviour-neutral: per the sweep, nothing outside the user DamageReact touches `+0x6ba4`.
+
+**Hygiene** (`flagcheck --range 20ecd9d..e5bad74 --with SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE`):
+`files: 2 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+- The PASS~ is the blank line after the helper's `#endif`.
+- The 4 OTHER rows (`X2Data.cpp`, `X2Main.cpp`, `X2UnitManager.cpp`/`.h`) are C9c-1's files, which `c9476fa` shares.
+- No line was deleted.
+
+**Open, not this review's:** the `g_pMain+0x16a` clamp belongs to Phase 14c. With this review, the buff port's own scope is complete.
+
 
 ## Phase 14c — CX2Main +0x16a mode flag (June-only)
 
