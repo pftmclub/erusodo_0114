@@ -1076,68 +1076,58 @@ Open question for the user: none.
 
 ### C9c-2a - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build)
 
-**Landed.** 19 funcmap rows tagged `Effect C9c-2a`, plus 3 in-place corrections to C9b's `329585f0` row:
-- `Bip01_Footsteps` is a USE_LAND_POSITION override, not a fallback;
-- dead entries are **not** erased;
-- the hard-coded set is `EffectSet_SpaceMoonRabbit_motionFX`.
+**Landed** (`47ed7ed` + follow-up):
+- 19 funcmap rows tagged `Effect C9c-2a`;
+- C9b's `329585f0` row corrected in place: `Bip01_Footsteps` is a USE_LAND_POSITION override; dead entries are **not** erased; the set is
+  `..._motionFX`;
+- the per-site map `june2017_re/c9c2a_hardcode_map.tsv`;
+- the C9c-2b kickoff.
 
-The per-site hard-code map is `june2017_re/c9c2a_hardcode_map.tsv`. The C9c-2b kickoff is written.
-
-**1. Play `32959640`.** It creates nothing; it pushes 0x40-byte entries:
-- `+0` EffectData, `+4` skin anim (ref-counted), `+8` group, `+0x0c` trace-target mesh handle, `+0x10` set name;
-- `+0x2c` a copy of MESH_TRIGGER_DATA_LIST (EffectData `+0x1d4`), `+0x3c` own handle;
-- only `ET_MESH_PLAYER_UI_MAJOR` / `ET_PARTICLE_UI_MAJOR`. Templet `+0x70` is `m_vecSoundData`, copied into a pending-sound list.
-
-`+0x190` = "effects shown", set to 1 by Play, never cleared. The final loop (`+0x0c` = `+0x3c`) wires BONE_TRACE_TARGET_MESH targets.
+**1. Play `32959640`** pushes 0x40-byte entries and creates nothing:
+- fields: `+0` EffectData, `+4` skin (ref-counted), `+8` group, `+0x0c` trace-target mesh, `+0x10` set name, `+0x2c` copy of
+  MESH_TRIGGER_DATA_LIST, `+0x3c` own handle;
+- only UI-major meshes and particles are taken; templet `+0x70` (`m_vecSoundData`) goes to a pending-sound list;
+- `+0x190` = "shown": set to 1 by Play, never cleared.
 
 **2. Per frame `329585f0`** = `CX2BaseUnitViewerUI::OnFrameMove`. It traces, then creates (`32957980`), then plays sounds (`329582b0`).
-- **Create:** once START_TIME is reached, at bone + POSITION_OFFSET, with the viewer as owner. Meshes take ROTATE through SetRotateDegree;
-  particles take it through `m_AddRotateRel`, and SCALE through `m_ScaleFactor` (USE_EFFECT_SCALE_IN_UNIT_VIEWER, not in `XS_PVP_ROOM`).
-  A viewer outside the DG manager removes its particles from the manager.
-- **Trace:** TRACE is never read, so every entry follows its bone; TRACE_MATRIX uses the DX matrix. FOLLOW_UNIT_VIEWER_SCALE copies
-  `GetMatrix().GetScale()` (meshes `SetScale`, particles `m_ScaleFactor`). Show = `+0x190`.
-- **Triggers:** `321dfc40` runs with a NULL set and two viewer codes (`+0x1d8` ~ `m_ePlayedEmotion`, `+0x1dc` = 0 in March), using
-  ANIMTIME_ON_START_UNITVIEWER.
-- **SpaceMoonRabbit:** a June-only `EmotionData` set; March has no set, particles or file, so it is a dead branch.
+- **Create:** once START_TIME is reached, at bone + POSITION_OFFSET, with the viewer as owner. ROTATE goes to `SetRotateDegree` (meshes)
+  or `m_AddRotateRel` (particles). SCALE goes to `m_ScaleFactor` when USE_EFFECT_SCALE_IN_UNIT_VIEWER is set, except in `XS_PVP_ROOM`.
+- **Trace:** TRACE is never read, so every entry follows its bone. FOLLOW_UNIT_VIEWER_SCALE copies `GetMatrix().GetScale()`.
+- **Triggers:** `321dfc40` runs with a NULL set and two viewer codes, using ANIMTIME_ON_START_UNITVIEWER.
+- **Draw** `32957330`: `PushStates` + `OnFrameRender_Draw` on every shown entry, without testing DG membership.
+  - March chains every effect at creation; June un-chains only the particles of an unmanaged viewer.
+  - So a managed viewer's effects are reached twice. March's `m_bFixed` meshes already are.
+- **SpaceMoonRabbit** (`..._motionFX`) is June-only: dead in March.
 
-**3. Stop.** `329594c0(group)` destroys the meshes and particles of that group only. `32959250` stops the sounds (group 5 = every sound).
-Both dtors stop group 0: the viewer stops 0..4, the base stops 1 and then every sound.
+**3. Stop.** `329594c0(group)` destroys one group's meshes and particles. `32959250` stops sounds (group 5 = all).
+The viewer dtor stops groups 0..4; the base dtor stops group 1 and then every sound.
 
-**4. State goes in `CX2BaseUnitViewerUI`.** June's RTTI and vtable `3347113c` hold the player (OnFrameMove, Prepare, Draw,
-NotifyShowObjectChanged), and June's NPC viewer uses it too. March's `CX2NPCUnitViewerUI` already derives from the empty base.
-C9c-2b re-parents `CX2UnitViewerUI` insert-only under its flag.
+**4. State goes in `CX2BaseUnitViewerUI`.** June's RTTI and vtable `3347113c` hold the player; June's NPC viewer uses it too. March's NPC
+viewer already derives from the empty base and overrides 3 of the 4 virtuals; the 4th becomes a no-op. C9c-2b re-parents
+`CX2UnitViewerUI` insert-only.
 
-**5. Map.**
-- The live rows are **11, not 13**:
-  - `SPK_LobbyReadyAction` is not in March's `Motion_EL_Lobby.x` and nothing plays it;
-  - `ALD_LobbyWait` is June's spelling. June renamed the anim in `Motion_ARA_Common.x`; March has `ALD_lobbyWait`, and the map is
-    case-sensitive.
-- Nine hard-codes retire. The ALD orb stays (user decision, below). Enchant, upgrade, emblem and APINK particles have no row and stay.
-- Behaviour that changes under June:
-  - SBH/ALP lose their end windows and forced emit rates;
-  - meshes lose the weapon-equipped gate and the class-change outline;
-  - nothing is drawn in the avatar screen capture.
+**5. Map: 11 live rows, not 13.**
+- `SPK_LobbyReadyAction` has no March motion and nothing plays it.
+- `ALD_LobbyWait` is June's renamed anim; March's is `ALD_lobbyWait`, and the map is case-sensitive.
+- Nine hard-codes retire. Enchant, upgrade, emblem and APINK effects have no row and stay.
+- Lost under June: the SBH/ALP end windows and forced emit rates, the meshes' weapon gate and outline, and effects in the avatar capture.
 
-**6. Templets.** The staged `UIEffectSet.lua` decompiles cleanly with mar-2014. A round trip gives the same bytecode size, a source that
-differs only in table-key order (52 sets), and no non-ASCII. `kom.py status data036` was in sync before C9c-1's pack.
+**6. Templets.** The staged `UIEffectSet.lua` round-trips clean with mar-2014: same bytecode size, only key order differs, 52 sets.
 
-**June quirks for C9c-2b's JUNE_BUGS rows** (all inert on the 15 sets):
+**Quirks for C9c-2b's JUNE_BUGS** (inert on the 15 sets):
 - cumulative TRACE_MATRIX offset;
-- no null test on the sound skin anim;
-- dead mesh-to-mesh link store `@32957bfc`;
-- one land particle refreshed per dirty flag;
-- null write of TOGGLE_VISIBILITY on the viewer trigger path.
+- no null test on the sound skin;
+- dead link store `@32957bfc`;
+- one land particle per dirty flag.
 
 **Decisions (user, 2026-10-07):**
-- (a) **keep the ALD orb hard-code**; stage the templet; add a checklist §7 row so the Ara port takes June's motion file and spelling together;
-- (b) **guard** the null TOGGLE_VISIBILITY write, with a JUNE_BUGS row.
+- (a) **keep the ALD orb hard-code**, stage its templet, add a checklist §7 row;
+- (b) **guard** the null TOGGLE_VISIBILITY write on the viewer trigger path, with a JUNE_BUGS row;
+- (c) **adopt June's whole `UIMajorParticle.txt`** and re-append the 10 March-only sequences. March drove `MagicKnightHandFire` (no emit
+  rate) and `SBH_LobbyWait01-03` / `ADD_LP_LobbyWait01-02` (never stop) from code.
 
-**Left for C9c-2b:**
-- June's `SetHideSelectUnitWeapon` counterpart is unidentified;
-- `32957330`'s inner draw is a candidate;
-- mesh `+0x15c` and seq `+0x415` stores are unidentified.
-
-No hygiene or deploy lines: nothing was built. **User owes:** /cost.
+**Left for C9c-2b:** June's `SetHideSelectUnitWeapon` counterpart, `31cf4890`'s March equivalent, mesh `+0x15c` and seq `+0x415`.
+Nothing was built, so there are no hygiene or deploy lines. **User owes:** /cost.
 
 ---
 

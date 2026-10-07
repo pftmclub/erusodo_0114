@@ -39,10 +39,21 @@ code stays reachable in `#else`.
      - Play `32959640`, create pass `32957980`, per-entry update `329585f0 @detail`, sound pass `329582b0`;
      - stop group `329594c0` and stop sounds `32959250`;
      - land position `32957170`, plus the lowest-bone helper `31d2b080`, which has no March counterpart;
-     - the overrides `OnFrameMove` (= `329585f0`), `OnFrameRender_Prepare` (`32957260`), `OnFrameRender_Draw` (`32957330`; transcribe
-       its inner draw from Ghidra, C9c-2a left it a candidate) and `NotifyShowObjectChanged` (`32957760`);
+     - the overrides `OnFrameMove` (= `329585f0`), `OnFrameRender_Prepare` (`32957260`), `OnFrameRender_Draw` (`32957330`) and
+       `NotifyShowObjectChanged` (`32957760`);
      - ctor `31fae120` and dtor `31fae1a0`: the dtor stops group 1 and then every sound (group 5).
-   - `CX2NPCUnitViewerUI` gets nothing new: its lists stay empty. Say so in the Done note.
+   - **Draw** (`32957330`) is March's own fixed-mode pattern, applied to every live entry whose `GetShowObject()` is true:
+     `CKTDGStateManager::PushStates( GetRenderStateID() )`, then `OnFrameRender_Draw()`. Meshes come first, then particles.
+     - A particle also draws its particles' child sequences (`31cf4890`). Find March's equivalent, or record it.
+     - Who draws what:
+       - March chains every mesh and every particle into the DG manager at creation.
+       - June un-chains only the particles of an unmanaged viewer (`!IsManagedByDGManager()` -> `RemoveObjectChain`).
+       - So a managed viewer's shown effects are reached by both the DG manager and this draw. Meshes are reached by both in either case,
+         as March's `m_bFixed` meshes already are.
+     - Keep June's behaviour. If the play-test shows doubled effects, add a JUNE_BUGS row.
+   - `CX2NPCUnitViewerUI` overrides `OnFrameMove`, `OnFrameRender_Prepare` and `OnFrameRender_Draw` but not `NotifyShowObjectChanged`.
+     That one becomes the base's, which is a no-op on its empty lists; June's NPC vtable inherits it the same way. Nothing else changes for
+     it. Say so in the Done note.
 2. **The viewer trigger variant.**
    - March's `JuneRunMeshTriggers` dereferences the set on its first line, so add a no-set variant for `321dfc40 @viewer`. It takes the
      skin anim, the two viewer codes (folded with March's `JuneFoldTriggerEmotion`, first non-zero wins) and ANIMTIME_ON_START_UNITVIEWER.
@@ -71,6 +82,17 @@ code stays reachable in `#else`.
    - Copy the `.src.lua` beside it, never the `.std.luac`: the packer refuses unlisted files.
    - Append the 15 June templets verbatim, then `kom.py compile data036`, `/elstools pack data036`, and ask before `/x2-kom-packed copy`.
    - `EffectSet_SBH_*` exist in March only in the game `EffectSet.lua`; append June's to the UI file anyway.
+   - **User decision 2026-10-07: adopt June's whole `UIMajorParticle.txt`** (data036), from `14JUN17\data\data036_kom\`.
+     - March drove six of these particles from code; under June's player they need June's own values:
+       - `MagicKnightHandFire` has no emit rate in March (June: 50);
+       - `SBH_LobbyWait01-03` and `ADD_LP_LobbyWait01-02` never stop in March (trigger time 99999/9999; June: 0.7/0.4/0.9).
+     - C9c-2a checked June's file: 2,042,192 B, 2719 sequences, CRLF, braces balanced (2720/2720), ends `}\r\n`. So it is not the
+       truncated-extract case, but compare its size with the June kom entry before trusting it.
+     - **10 March sequences are not in June's file:** `CHUNG_HOWLING01/02`, `CHUNG_STEEL_EDGE02`, `Nasod_King_SpellAttack_Splitlight06`,
+       `PET_PETTE_BERTHE_STEB_3_Attack_C(_02)`, `Pulsewave_Summon_Boss_SpecialAttackB01/02`, `ShockWave_Summon_Boss_SpecialAttackB`,
+       `UI_Eve_Party_Event_StartEffect`. Append March's blocks for them verbatim, so no name March reads goes missing, and list them in
+       the Done note.
+     - The manifest algo stays as it is. Pack, and ask before copy.
 5. **Retire the hard-code** under the flag, site by site from the `.tsv`, with `#else` intact.
    - **User decision 2026-10-07: KEEP the ALD orb** (`m_hSeqEnergyBullet1-3`, `SERV_ARA_CHANGE_CLASS_SECOND`).
    - The reason: June's row is keyed `ALD_LobbyWait`, but March's motion file and calls say `ALD_lobbyWait`, so the row never matches here.
