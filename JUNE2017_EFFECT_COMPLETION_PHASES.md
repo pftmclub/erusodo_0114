@@ -1632,7 +1632,7 @@ particle, slash trace and two buff displayers, hence the three-way split.
 registers the alpha flag in `SYSTEM_DISPOSITION`.
 *D9, answered the same day:* engine now; the UI goes to the June UI port (backlog Stage 9). C10b-3 is not run here.
 
-**C10b-1 - Done (2026-10-07, Opus 5.5 high, user OK'd Opus for a Sonnet phase; flag `SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE`; play-test pending).**
+**C10b-1 - Done (2026-10-07, Opus 5.5 high, user OK'd Opus for a Sonnet phase; flag `SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE`; play-test PASSED 2026-10-07).**
 Commit `4ca07e7`. `CX2GameUnit::GetHpRateDamage` = June `32273e80` (type 1 now HP, 2 max HP, times the value; only while now HP > 1.0;
 overwrites). March's `CX2GageData::GetNowHp` returns 0.0 without an HP gage, so `gage && now > 1.0` is both of June's existence checks.
 - *GetFinalDamage* (Ghidra, `32284aa0`): the my-HP-few multiply is `@322868d1..32286968`, the HP-rate site `@3228696a..32286990` (the
@@ -1668,6 +1668,11 @@ UTF-16 string `JUNE_FX hp-rate def=%s` is in the deployed exe).
 **How to see it in game:** NWatcher (Night Watcher, class 114, Lv 70) hits a monster with basic X/Z arrows: each arrow hit takes 10 % of
 the monster's max HP, and the log line's `->` value equals `max x 0.1`. The number on screen can differ: the NPC's own DamageReact
 still acts on the damage after `GetFinalDamage`.
+
+**Play-test result (2026-10-07, logs read): passed.** Run 17:47-17:49 on exe 30a7d90c, 0 EXCEPTION, clean exit. Four
+`JUNE_FX hp-rate def=npc type=2 value=0.100` lines, each `->` exactly max HP x 0.1: `max=5224.0 damage 479.8 -> 522.4`, then three on
+`max=4608.0` (`452.1 / 450.9 / 474.7 -> 460.8`). The arrow edit was reverted afterwards: the recompiled `DamageEffect.lua` is
+byte-identical to the pre-test one, `PACK OK`, `COPY OK data036` (user yes) md5 9f754689 = C9e's, so the live kom is the pre-test archive.
 
 ---
 
