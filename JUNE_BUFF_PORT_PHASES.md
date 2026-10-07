@@ -4629,7 +4629,7 @@ The OTHER row is `Handlers_Unit.cpp`, under `_OFFLINE_FIRST_SELECT`. The 5 EOL l
   - `find()` in the loop: June uses `at()` (`31f61fc0`); March's own sibling loops also give 0 for an out-of-range index.
 - The backup `clear()` after a restore is part of the #89 guard; June leaves the copy. It cannot be seen, because the latch is only set alongside a fresh copy.
 
-**Note for the user:** the two flags go together. With `JUNE_TUTORIAL_MODE` on and `OFFLINE_FIRST_SELECT` off, a new character never auto-enters the tutorial: the client needs `m_bFirstSelect` and the emulator sends false. Neither Always.h block says so. Always.h and MODS.md carry a peer's uncommitted edits, so the line goes there in the next commit that owns them.
+**Note for the user:** the two flags go together. With `JUNE_TUTORIAL_MODE` on and `OFFLINE_FIRST_SELECT` off, a new character never auto-enters the tutorial: the client needs `m_bFirstSelect` and the emulator sends false. MODS.md already says so (the `_OFFLINE_FIRST_SELECT` revert note); the Always.h blocks do not, which is cosmetic and was left alone because an Always.h comment forces a full rebuild.
 
 **Deploy:** none (no code change). The live exe already holds `6c9b694`; its play-test passed.
 
