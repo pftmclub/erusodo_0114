@@ -4476,7 +4476,7 @@ After 14b, the buff port's own scope is complete. What remains is owned elsewher
 - The set is `@320471a9` → `call [vt+0x320]` → `32082710` → `32275650` → `322a88c0`. In March it sits after `SetJuneLastHitAttackSerial` and before `DoCustomFunctionByBuffInDamageReact` / `ApplyBuffToGameUnitInDamageReact`, which matches.
 - The kill is UpNowHp (slot 59 `+0xec` `@32049b30`), then the clamp, then `@32049b70`. The `+0x6ba4` test, the `32082710(0)` clear and slot 61 `SetNowHp(0)`. The only jumps into `32049b70` come from the clamp (`@32049b47`, `@32049b5b`), so June reaches the kill only along the UpNowHp path, as the port does.
 - `FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE` is unconditional (`Always.h:858`, `#if` depth 0), so the SOFTBODY block is dead.
-- **No stale bool:** the kill's block (`X2GUUser.cpp:9241`) is gated on `IsDamagedReaction && !m_bNoDamage`, and `IsDamagedReaction` reads only `reActResult`. Nothing writes `reActResult` between the set block (`8708-9159`) and that gate. So every read follows a fresh set in the same call.
+- **No stale bool:** the kill's block (`X2GUUser.cpp:9241`) is gated on `IsDamagedReaction && !m_bNoDamage`, and `IsDamagedReaction` reads only `reActResult`. Nothing writes `reActResult` between the set block (`8708-9159`) and that gate. So every read follows a fresh set in the same call. June has the same second gate, `@320483a4`: a second `IsDamagedReaction` (`3226de80`), then `DamageData+0x4dc` (`m_bNoDamage`, per the `32632390` row) must be 0. Both failure branches go to `3204a6d3`, past the kill. So neither side can fire on a stale bool, and no JUNE_BUGS row is needed.
 
 **The kill and the `#else`.**
 - `SetNowHp( 0.f )` resolves to the user override (BBT 101 gate), as June's slot 61 does.
