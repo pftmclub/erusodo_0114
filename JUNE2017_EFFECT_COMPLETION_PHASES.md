@@ -1880,7 +1880,7 @@ Read-only in Ghidra and with `june2017_re/disasm_range.py` (raw bytes) against `
   - No repack: the data is unchanged.
 
 **Hygiene.** `--worktree --files X2Lib/X2ItemManager.cpp X2Lib/X2Eqip.cpp`: `files: 2 PASS`, `16 deleted line(s)`, `RESULT: PASS`.
-The 16 deleted lines are this flag's own `dde622a` lines, replaced. Range `dde622a^..HEAD`: RANGE_LINES.
+The 16 deleted lines are this flag's own `dde622a` lines, replaced. Range `dde622a^..HEAD`: `files: 15 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 6 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 16 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 16 deleted lines are the same replaced flag lines (in `4ad8395`); the 6 OTHER are peer commit `8973e18` (C7: `JUNE_TOUCH_LAND` and others), not this flag.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,333,120 B, dated 2026-10-07 21:06:56, md5 5e72f88f9fc71cdfc79cc93778e6a84a, equal to X2/US_SERVICE/x2.exe (2026-10-07 21:06:50); built at mods/june-buff-port 9ba5b91 + 2 uncommitted code file(s).` (the 2 = this review's)
 
