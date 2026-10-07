@@ -1,6 +1,17 @@
 #pragma once
 #include "x2baseunitviewerui.h"
 
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+// June effect completion C9h-2a: CX2NPCUnitViewerUI keeps the UI effect-set handles it plays (June +0x2a8). X2EffectSet.h
+// is included after this header (X2Main.h), so the handle type is declared here the way X2EffectSet.h:33-34 declares it:
+// the tag only forward-declared, the typedef repeated (the same type, so the repeat is legal).
+#ifndef X2OPTIMIZE_HANDLE_VALIDITY_CHECK
+#error SERV_IRUHADEV_JUNE_PET_VIEWER_FX needs X2OPTIMIZE_HANDLE_VALIDITY_CHECK (the effect-set handle is a KHandleType)
+#endif
+struct CX2EffectSet_EffectSetInstance_TAG;
+typedef KHandleType<int,CX2EffectSet_EffectSetInstance_TAG>     CX2EffectSet_EffectSetInstanceHandle;
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+
 class CX2NPCUnitViewerUI : public CX2BaseUnitViewerUI
 {
 private:
@@ -20,9 +31,20 @@ public:
 	void PlayAnim( const WCHAR* pName, CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE playType = CKTDGXSkinAnim::XAP_LOOP, bool bTransition = false );
 	void SetPosition( const D3DXVECTOR3& vPosition );
 	void SetScale( const D3DXVECTOR3& vScale );
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+	bool IsAnimExist( const WCHAR* pName );		// 32e4fe30
+	void JuneStopUIEffectSets();					// 32e4fde0
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 
 #ifdef SERV_PET_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+	// June 32e50de0 takes the pet variant as a third char (June KPetInfo +0xca, passed by the pet-info caller 328f0aa0). March
+	// has no variant byte on KPetInfo or the in-game pet: every March caller leaves it 0. The byte and the June pet roster that
+	// uses it are backlog Stage 17.
+	bool ResetPet( int petId, char iLv, char cVariant = 0 );
+#else SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 	bool ResetPet( int petId, char iLv );
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 	bool GetForceBillBoard() { return m_bForceBillBoard; }
 	float GetScale() { return m_fScale; }
 #endif
@@ -43,6 +65,13 @@ private:
 
 	CKTDXDeviceXSkinMesh*				m_pChangeTexXET;
 #endif
+
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+	// June +0x2a8, a vector<CX2EffectSet::Handle>: the UI effect sets ResetRidingPet plays by RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET.
+	// The destructor frees it without stopping them (JUNE_BUGS 105); the stop (JuneStopUIEffectSets) works on a copy of each handle
+	// and never erases (JUNE_BUGS 104).
+	std::vector<CX2EffectSet_EffectSetInstanceHandle>	m_vecJuneUIEffectSetHandle;
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 };
 
 

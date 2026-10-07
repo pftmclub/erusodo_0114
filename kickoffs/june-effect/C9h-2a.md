@@ -31,12 +31,12 @@ offset and constant is in the `Effect C9h` funcmap rows; transcribe them, do not
 2. **Frame hooks (June has them, March's NPC viewer does not).**
    - `OnFrameMove` `32e4f600` ends with the base player update (`329585f0` = `CX2BaseUnitViewerUI::OnFrameMove`, `@32e4f75c`).
    - `OnFrameRender_Prepare` `32e4f820` calls `32957260`.
-   - `OnFrameRender_Draw` `32e4f8f0` calls no base Draw; keep that.
+   - `OnFrameRender_Draw` `32e4f8f0` tail-calls the base draw `32957330` after the skin's own draw (C9h-2a corrected this line: the kickoff said "no base Draw", the disassembly reloads ECX = this and JMPs).
 
    Read each June function and place the call where June has it. Without these, group-1 sets never update or render.
 3. **New methods.**
    - `IsAnimExist( const WCHAR* )` `32e4fe30`. Map `31d34110` (the skin-anim has-animation lookup) to March's KTDGXSkinAnim equivalent and cite it.
-   - The handle stop `32e4fde0`: guarded by `g_pData` and `GetUIEffectSet()`; it stops each handle, sets it to -1 and never erases (JUNE_BUGS 104).
+   - The handle stop `32e4fde0`: guarded by `g_pData` and `GetUIEffectSet()`; it stops a stack COPY of each handle (the vector entry is not set to -1; C9h-2a corrected this line) and never erases (JUNE_BUGS 104).
    - June's `SetScale` `32e4fcf0`: March's body, plus each live handle's instance gets `m_vScale = scale` and `m_bDamageEffectScale = false`.
      Confirm the `+0x70/+0x7c` names against March's `EffectSetInstance` members.
 4. **`ResetPet( int petId, char iLv, char cVariant = 0 )` = `32e50de0`.**

@@ -2027,6 +2027,17 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						// June2017 FUN_321ee600 @ 321f24f4-321f251d: the new particle takes the set's show flag (+0xdc)
 						JuneSetEffectInstanceShow( pEffectInstance, pEffectSetInstance->m_bShowObject );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+						// June2017 FUN_321ee600 @321f2522-321f253c, right after that show-flag copy: a particle created on a set played on
+						// a unit viewer (+0xdd) is an over-UI (+0x170), 2D-plane (+0x1c0 = 1, PT_2D_PLANE), resolution-converted (+0x2f4)
+						// sequence
+						if( true == pEffectSetInstance->m_bPlayedOnUnitViewer )
+						{
+							pParticleSequence->SetOverUI( true );
+							pParticleSequence->SetParticleType( CKTDGParticleSystem::PT_2D_PLANE );
+							pParticleSequence->SetResolutionConvert( true );
+						}
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 					}
 				} break;
 			}
@@ -3510,6 +3521,30 @@ CX2EffectSet::Handle CX2EffectSet::PlayEffectSetByPet( const wstring& wstrEffect
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+/** @function : PlayEffectSet( name, skin )
+	@brief : June2017 321e28d0 (thiscall on g_pData +0x9c, RET 0xc: the handle comes back through a hidden out pointer, args name and
+			 a ref-counted skin anim; only caller CX2NPCUnitViewerUI::ResetRidingPet @32e52c89). A null templet or a null skin
+			 answers an invalid handle; else the instance is made with no owner, no trace target, no square unit and no pet
+			 (_CreateEffectSetInstance 321e1bf0, which can still refuse), its viewer flag (+0xdd) is set, and its handle returned.
+*/
+CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const WCHAR* pwszEffectSetName, CKTDGXSkinAnimPtr pXSkinAnim )
+{
+	EffectSetData* pEffectSetData = GetEffectSetTemplet( std::wstring( pwszEffectSetName ) );
+	if( NULL == pEffectSetData )
+		return INVALID_EFFECTSET_HANDLE;
+
+	if( pXSkinAnim == NULL )
+		return INVALID_EFFECTSET_HANDLE;
+
+	EffectSetInstance* pEffectSetInstance = _CreateEffectSetInstance( pEffectSetData, pXSkinAnim, NULL, NULL, CX2SquareUnitPtr(), NULL );
+	if( NULL == pEffectSetInstance )
+		return INVALID_EFFECTSET_HANDLE;
+
+	pEffectSetInstance->m_bPlayedOnUnitViewer = true;
+	return pEffectSetInstance->m_hHandle;
+}
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 void CX2EffectSet::StopEffectSet( CX2EffectSet::Handle& hHandle )
 {
 	if( INVALID_EFFECTSET_HANDLE == hHandle )
@@ -4635,6 +4670,9 @@ CX2EffectSet::EffectSetInstance::EffectSetInstance( EffectSetData* pEffectSetDat
 	m_bStopTracingOnTrigger = false;
 	// ... sets the show flag (+0xdc, @ 321df3e3) and clears the sound copy flag (+0x181, @ 321df6f8)
 	m_bShowObject = true;
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+	m_bPlayedOnUnitViewer = false;		// +0xdd of the same word store (@321df3e3)
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 	m_bSoundPlayDataCopied = false;
 	m_bToggleVisibilityPending = false;
 	m_fToggleVisibilityTimer = 0.f;
@@ -4898,6 +4936,31 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPosition( EffectData* pEff
 				SetEffectSetOffset( vPos, pEffectData->m_vPositionOffset );
 #endif //FIX_BONE_TRACE_TARGET_MESH_UNIT_TRACE
 			}
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+			// June2017 GetEffectPosition 321dcd30 @321dd0e0-321dd19e, the else of the square-unit test of mode 2 (ESM_FIELD, @321dd018 JZ):
+			// a set played on a unit viewer (+0xdd) that has a skin anim (+0x8) reads the bone of that skin anim, BONE_NAME (+0x40) first,
+			// RIDING_PET_BONE_NAME (+0x9c) when that is empty, no bone when both are (vPos stays (0,0,0), @321dd16e); an unknown bone is
+			// (0,0,0) (31d38a20 GetCloneFrame, the frame's combineMatrix translation +0xc0..+0xc8). Then x += 512.0, y = (y - 384.0) * -1.0,
+			// z = 0 (doubles 3347e350 / 3347e348 / 33436c90), the screen position the viewer draws at. It jumps to the end (@321dd531):
+			// there is no SetEffectSetOffset on this path. June's next branch (@321dd1a3, +0xe0) is the in-game riding pet's, C9h-3.
+			else if( true == m_bPlayedOnUnitViewer && m_pXSkinAnim != NULL )
+			{
+				const std::wstring* pwstrBoneName = NULL;
+				if( false == pEffectData->m_PositionBoneName.empty() )
+					pwstrBoneName = &pEffectData->m_PositionBoneName;
+				else if( false == pEffectData->m_PosRidingPetBoneName.empty() )
+					pwstrBoneName = &pEffectData->m_PosRidingPetBoneName;
+
+				if( NULL != pwstrBoneName )
+					m_pXSkinAnim->GetCloneFramePosition( pwstrBoneName->c_str(), vPos );
+
+				vPos.x = static_cast<float>( vPos.x + 512.0 );
+				const float fJuneY = static_cast<float>( vPos.y - 384.0 );
+				vPos.y = static_cast<float>( fJuneY * -1.0 );
+				vPos.z = 0.f;
+				return vPos;
+			}
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 			
 		} break;
 
@@ -6314,6 +6377,11 @@ bool CX2EffectSet::EffectSetInstance::GetEffectPositionByTargetMesh( OUT D3DXVEC
 			 June-only holders (instance override bone +0x130, UI viewer +0xdd, +0xe0, riding pet +0xd8) are
 			 keyless and absent here, as in GetEffectPosition.
 */
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+// C9h-2a extends the doc comment above: the UI viewer holder (+0xdd) IS ported, in the ESM_FIELD case below. It sits in the
+// non-empty-name path (the GROUP_NAME and UpdateEffect callers always pass <base>_GROUPCHILD_<n>); only its empty-name
+// RIDING_PET_BONE_NAME fallback (@321dd960) stays out, with the other empty-name branches. The +0xe0 and +0xd8 holders are still absent.
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPositionByBoneName( IN EffectData* pEffectData, IN const std::wstring& wstrBoneName_, OUT bool& bBoneFound_ )
 {
 	D3DXVECTOR3 vPos( 0.f, 0.f, 0.f );
@@ -6398,6 +6466,22 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPositionByBoneName( IN Eff
 					bBoneFound_ = m_pSquareUnit->GetUnitViewer()->GetXSkinAnim()->GetCloneFramePosition( pwszBoneName, vPos );
 				SetEffectSetOffset( vPos, pEffectData->m_vPositionOffset, pEffectData );
 			}
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+			// June2017 321dd590 @321dd926-321dd9d7, the else of the square-unit test of mode 2 (@321dd848 JZ): the same viewer branch as
+			// GetEffectPosition's, with the bone the caller asked for (a non-empty name; the GROUP_NAME loop and UpdateEffect pass
+			// <base>_GROUPCHILD_<n>). The bone is found when the viewer's skin anim has a frame of that name, and the position goes through
+			// the same x + 512.0, (y - 384.0) * -1.0, z = 0, with no SetEffectSetOffset. Only the empty-name fallback of that branch (June
+			// @321dd960: RIDING_PET_BONE_NAME) is not ported: an empty name returned at the top of this function, as for every mode.
+			else if( true == m_bPlayedOnUnitViewer && m_pXSkinAnim != NULL )
+			{
+				bBoneFound_ = m_pXSkinAnim->GetCloneFramePosition( pwszBoneName, vPos );
+				vPos.x = static_cast<float>( vPos.x + 512.0 );
+				const float fJuneY = static_cast<float>( vPos.y - 384.0 );
+				vPos.y = static_cast<float>( fJuneY * -1.0 );
+				vPos.z = 0.f;
+				return vPos;
+			}
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 		} break;
 
 #ifdef SERV_PET_SYSTEM

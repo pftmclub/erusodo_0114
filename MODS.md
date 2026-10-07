@@ -3172,6 +3172,21 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
   line in ErrorLog.txt. JUNE_BUGS 100-102. **Revert:** undefine it and rebuild all projects. The data can stay: with the flag off
   nothing loads `RenderDivisionItemTemplet.lua`, and the extra enum tables and sets are unused.
 
+### June effect completion C9h-2a: June's pet / riding-pet viewer effect sets (viewer and engine half)
+
+- **`SERV_IRUHADEV_JUNE_PET_VIEWER_FX`** (needs `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER` and `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME`, `#error`
+  guards). `CX2NPCUnitViewerUI` gets June's handle vector (`+0x2a8`), the three base-viewer hooks (`OnFrameMove` / `Prepare` / `Draw` now call
+  `CX2BaseUnitViewerUI`'s, as June's do), `IsAnimExist`, the handle stop (stops a copy of each handle, never erases), a `SetScale` that also
+  scales the live handles, `ResetPet( id, lv, cVariant = 0 )` (variant branch, group-1 stop, `UNIT_VIEWER_EFFECT_SET_LIST` into group 1) and
+  `ResetRidingPet` (viewer list into group 1 with no stop, `RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET` through the new
+  `CX2EffectSet::PlayEffectSet( name, skin )`). Engine: the instance's viewer flag (June `+0xdd`) and its three consumers (screen-space bone
+  position in `GetEffectPosition` and `GetEffectPositionByBoneName`, over-UI / 2D-plane / resolution-converted particles). `CX2PetManager` gets
+  the variant XET suffix helper, `CKTDGXSkinAnim` a find-based `JuneIsAnimSetExist` (March's `GetAnimSet( name )` inserts on a miss).
+- **Inert in March data**: none of June's 8 pets / riding pets with these keys is in March, and no March caller passes a variant. The only visible
+  change is the base viewer's per-frame player now also running for pet / riding-pet previews. Log: `JUNE_FX PET_VIEWER` in ErrorLog.txt,
+  written only when something played.
+- **Revert.** Undefine the flag in `KTDXLIB/Always.h` and rebuild all projects. No data changed.
+
 ### June effect completion C9g-2: June's PlayByMotionType and AnimationNameTable.lua
 
 - **`SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE`.** June replaced March's per-class lobby motion switch in `CX2UnitViewerUI::PlayByMotionType`

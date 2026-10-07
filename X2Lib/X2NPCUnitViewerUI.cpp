@@ -27,6 +27,10 @@ CX2NPCUnitViewerUI::~CX2NPCUnitViewerUI(void)
 #ifdef SERV_PET_SYSTEM
 	SAFE_CLOSE( m_pChangeTexXET );
 #endif
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+	// June ~CX2NPCUnitViewerUI 32e52e60: frees m_vecJuneUIEffectSetHandle without stopping the sets in it (no 321dafb0, no 32e4fde0),
+	// so a UI effect set played on this viewer keeps running on the UI effect-set manager after the viewer is gone. JUNE_BUGS 105.
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 }
 
 
@@ -81,7 +85,11 @@ bool CX2NPCUnitViewerUI::ResetNPC( CX2UnitManager::NPC_UNIT_ID eNPCID )
 }
 
 #ifdef SERV_PET_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+bool CX2NPCUnitViewerUI::ResetPet( int petId, char iLv, char cVariant /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 bool CX2NPCUnitViewerUI::ResetPet( int petId, char iLv )
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 {
 	CX2PetManager::PetTemplet *pTemplet = g_pData->GetPetManager()->GetPetTemplet( (CX2PetManager::PET_UNIT_ID)petId );
 	if( pTemplet == NULL )
@@ -167,6 +175,53 @@ bool CX2NPCUnitViewerUI::ResetPet( int petId, char iLv )
 	{
 		LUA_GET_VALUE( luaManager, "MOTION_FILE_NAME", motionFileName, L"" );
 		LUA_GET_VALUE( luaManager, "MOTION_CHANGE_TEX_XET", wstrChangeTex, L"" );		
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+		// June 32e50de0 @32e517f1-32e51a6f, still inside INIT_MOTION: a pet evolved to step 3 (iLv after the clamp above) with a
+		// non-zero variant, whose templet has 4 steps (the +0x6c vector, m_Evolution_Step_ScriptName), swaps the last characters of
+		// the motion file ("N.x" -> variant 1 / 2 / else 3) and of the XET ("N.xet" -> 326cc990's suffix, else 1 / 2 / 3 .xet).
+		// Each swap needs the name to be longer than the part it cuts (3 and 5). No variant byte exists in March: cVariant is 0
+		// from every March caller, so this cannot fire until backlog Stage 17.
+		if( 3 == iLv && 0 != cVariant && 4 == static_cast<char>( pTemplet->m_Evolution_Step_ScriptName.size() ) )
+		{
+			const std::wstring wstrJuneMotionBefore = motionFileName;
+			const std::wstring wstrJuneXetBefore = wstrChangeTex;
+
+			if( motionFileName.length() > 3 )
+			{
+				std::wstring wstrJuneMotion = motionFileName.substr( 0, motionFileName.length() - 3 );
+				if( 1 == cVariant )
+					wstrJuneMotion += L"1.x";
+				else if( 2 == cVariant )
+					wstrJuneMotion += L"2.x";
+				else
+					wstrJuneMotion += L"3.x";
+				motionFileName = wstrJuneMotion;
+			}
+
+			if( wstrChangeTex.length() > 5 )
+			{
+				std::wstring wstrJuneXet = wstrChangeTex.substr( 0, wstrChangeTex.length() - 5 );
+				std::wstring wstrJuneSuffix = L"";
+				if( NULL != g_pData && NULL != g_pData->GetPetManager() )
+					wstrJuneSuffix = g_pData->GetPetManager()->JuneGetVariantXetSuffix( petId, cVariant );
+				if( true == wstrJuneSuffix.empty() )
+				{
+					if( 1 == cVariant )
+						wstrJuneSuffix = L"1.xet";
+					else if( 2 == cVariant )
+						wstrJuneSuffix = L"2.xet";
+					else
+						wstrJuneSuffix = L"3.xet";
+				}
+				wstrChangeTex = wstrJuneXet + wstrJuneSuffix;
+			}
+
+			WCHAR wszJuneFx[512] = {0};
+			StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_VIEWER variant pet=%d variant=%d motion=%s->%s xet=%s->%s",
+				petId, static_cast<int>( cVariant ), wstrJuneMotionBefore.c_str(), motionFileName.c_str(), wstrJuneXetBefore.c_str(), wstrChangeTex.c_str() );
+			ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		}
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 		luaManager.EndTable(); // INIT_MOTION
 	}
 
@@ -190,6 +245,34 @@ bool CX2NPCUnitViewerUI::ResetPet( int petId, char iLv )
 	m_pXSkinAnim->AddModelXSkinMesh( m_pXSkinMesh, m_pXSkinMesh->GetXET(), NULL, m_pChangeTexXET );
 
 	ResetRenderParam();
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+	// June 32e50de0 @32e51cf2-32e51e73, after ResetRenderParam (32e4f770): stop group 1 (329594c0), then INIT_EFFECT.
+	// UNIT_VIEWER_EFFECT_SET_LIST[1..99] plays into group 1 (32959640( skin, name, 1 )). A missing table plays nothing.
+	JuneViewerFxStop( 1 );
+	int iJuneGroup1 = 0;
+	if( true == luaManager.BeginTable( "INIT_EFFECT" ) )
+	{
+		if( true == luaManager.BeginTable( "UNIT_VIEWER_EFFECT_SET_LIST" ) )
+		{
+			std::wstring wstrJuneSetName = L"";
+			for( int iIndex = 1; iIndex < 100; ++iIndex )
+			{
+				if( false == luaManager.GetValue( iIndex, wstrJuneSetName ) )
+					break;
+				JuneViewerFxPlay( m_pXSkinAnim, wstrJuneSetName, 1 );
+				++iJuneGroup1;
+			}
+			luaManager.EndTable(); // UNIT_VIEWER_EFFECT_SET_LIST
+		}
+		luaManager.EndTable(); // INIT_EFFECT
+	}
+	if( 0 < iJuneGroup1 )
+	{
+		WCHAR wszJuneFx[256] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_VIEWER reset=pet id=%d group1=%d uiset=0", petId, iJuneGroup1 );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 
 	return true;
 }
@@ -228,6 +311,10 @@ bool CX2NPCUnitViewerUI::ResetPet( int petId, char iLv )
 
 		m_pXSkinAnim->OnFrameMove( fTime, fElapsedTime );
 	}
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+	// June 32e4f600 @32e4f75c ends with the base player update (329585f0 = CX2BaseUnitViewerUI::OnFrameMove), skin or not
+	CX2BaseUnitViewerUI::OnFrameMove( fTime, fElapsedTime );
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 
 
 	return S_OK;
@@ -275,6 +362,11 @@ void CX2NPCUnitViewerUI::ResetRenderParam()
 
 	if( RENDER_HINT::NORENDER != renderHintResult.m_eHint )
 		m_pXSkinAnim->SetInstantShow( true );
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+	// June 32e4f820: on the shown path, after the skin's own prepare, the base prepare (32957260) runs and its hint is dropped;
+	// the skin's hint is the one returned
+	CX2BaseUnitViewerUI::OnFrameRender_Prepare();
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 
 	return renderHintResult;
 }//CX2UnitViewerUI::OnFrameRender_Prepare()
@@ -296,6 +388,11 @@ void CX2NPCUnitViewerUI::ResetRenderParam()
 
 
 	m_pXSkinAnim->OnFrameRender_Draw();
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+	// June 32e4f8f0 @32e4f939 tail-calls the base draw (32957330) with this viewer after the skin's own draw (the kickoff and funcmap
+	// had it as "no base Draw"; the disassembly reloads ECX = this). March's base draw only draws particles of an unmanaged viewer.
+	CX2BaseUnitViewerUI::OnFrameRender_Draw();
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 }
 
 
@@ -356,8 +453,51 @@ void CX2NPCUnitViewerUI::SetScale( const D3DXVECTOR3& vScale )
 	{
 		m_pXSkinAnim->GetMatrix().Scale( GetMatrix().GetScale() );
 	}
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+	// June 32e4fcf0: every live UI effect set this viewer played also takes the scale, and no longer follows the damage-effect
+	// scale (m_vScale = scale, m_bDamageEffectScale = false: June +0x70..+0x78 / +0x7c, ctor 321df230 order m_fPowerRateScale,
+	// m_vScale, m_bDamageEffectScale; March probe 0x5c / 0x64 / 0x70). A stale handle answers NULL and is skipped.
+	if( NULL != g_pData )
+	{
+		for( size_t i = 0; i < m_vecJuneUIEffectSetHandle.size(); ++i )
+		{
+			CX2EffectSet::EffectSetInstance* pJuneInstance = g_pData->GetUIEffectSet()->GetEffectSetInstance( m_vecJuneUIEffectSetHandle[i] );
+			if( NULL != pJuneInstance )
+			{
+				pJuneInstance->m_vScale = vScale;
+				pJuneInstance->m_bDamageEffectScale = false;
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 }
 
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+// June 32e4fe30: false without a skin anim, else the skin anim's has-animation lookup (31d34110 -> 31d39100, no insert on a miss)
+bool CX2NPCUnitViewerUI::IsAnimExist( const WCHAR* pName )
+{
+	if( m_pXSkinAnim == NULL || NULL == pName )
+		return false;
+
+	return m_pXSkinAnim->JuneIsAnimSetExist( pName );
+}
+
+// June 32e4fde0: with g_pData, each handle of the vector goes to the UI effect-set manager's stop (321dafb0, called as thiscall on
+// g_pData +0x9c). June stops a COPY of the handle: the vector entry keeps its (now stale) value, and the vector is never erased
+// (JUNE_BUGS 104). June's 321dafb0 queues the stop in the manager (+0x30, drained by DeleteEffect 321e3ee0); March has the
+// immediate StopEffectSet( Handle& ), which earlier phases (C9c-1, C9d, C9f) already use for every 321dafb0 call.
+void CX2NPCUnitViewerUI::JuneStopUIEffectSets()
+{
+	if( NULL == g_pData )
+		return;
+
+	for( size_t i = 0; i < m_vecJuneUIEffectSetHandle.size(); ++i )
+	{
+		CX2EffectSet::Handle hJuneCopy = m_vecJuneUIEffectSetHandle[i];
+		g_pData->GetUIEffectSet()->StopEffectSet( hJuneCopy );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 #ifdef RIDING_SYSTEM
 bool CX2NPCUnitViewerUI::ResetRidingPet( int RidingPetId )
 {
@@ -438,6 +578,59 @@ bool CX2NPCUnitViewerUI::ResetRidingPet( int RidingPetId )
 	m_pXSkinAnim->AddModelXSkinMesh( m_pXSkinMesh, m_pXSkinMesh->GetXET(), NULL, m_pChangeTexXET );
 
 	ResetRenderParam();
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+	// June 32e51ea0 @32e52ad1-32e52ce0, after ResetRenderParam: there is NO group-1 stop in this function (JUNE_BUGS 106; the cash
+	// shop stops group 1 before calling, the pet-info caller 328f74e0 does not). INIT_EFFECT.RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET[1..99]
+	// is collected first, then RIDINGPET_UNIT_VIEWER_EFFECT_SET_LIST[1..99] plays into group 1, and once the tables are closed each
+	// collected name plays on the UI effect set through the skin overload (321e28d0), its handle going into m_vecJuneUIEffectSetHandle.
+	std::vector<std::wstring> vecJuneUiSetName;
+	int iJuneGroup1 = 0;
+	if( true == luaManager.BeginTable( "INIT_EFFECT" ) )
+	{
+		std::wstring wstrJuneSetName = L"";
+		if( true == luaManager.BeginTable( "RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET" ) )
+		{
+			for( int iIndex = 1; iIndex < 100; ++iIndex )
+			{
+				if( false == luaManager.GetValue( iIndex, wstrJuneSetName ) )
+					break;
+				vecJuneUiSetName.push_back( wstrJuneSetName );
+			}
+			luaManager.EndTable(); // RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET
+		}
+		if( true == luaManager.BeginTable( "RIDINGPET_UNIT_VIEWER_EFFECT_SET_LIST" ) )
+		{
+			for( int iIndex = 1; iIndex < 100; ++iIndex )
+			{
+				if( false == luaManager.GetValue( iIndex, wstrJuneSetName ) )
+					break;
+				JuneViewerFxPlay( m_pXSkinAnim, wstrJuneSetName, 1 );
+				++iJuneGroup1;
+			}
+			luaManager.EndTable(); // RIDINGPET_UNIT_VIEWER_EFFECT_SET_LIST
+		}
+		luaManager.EndTable(); // INIT_EFFECT
+	}
+	int iJuneUiSet = 0;
+	if( NULL != g_pData )
+	{
+		for( size_t i = 0; i < vecJuneUiSetName.size(); ++i )
+		{
+			CX2EffectSet::Handle hJuneUiSet = g_pData->GetUIEffectSet()->PlayEffectSet( vecJuneUiSetName[i].c_str(), m_pXSkinAnim );
+			if( INVALID_EFFECTSET_HANDLE != hJuneUiSet )
+			{
+				m_vecJuneUIEffectSetHandle.push_back( hJuneUiSet );
+				++iJuneUiSet;
+			}
+		}
+	}
+	if( 0 < iJuneGroup1 || 0 < iJuneUiSet )
+	{
+		WCHAR wszJuneFx[256] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_VIEWER reset=riding id=%d group1=%d uiset=%d", RidingPetId, iJuneGroup1, iJuneUiSet );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 
 	return true;
 }

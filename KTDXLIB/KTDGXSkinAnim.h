@@ -172,6 +172,16 @@ class CKTDGXSkinAnim : public CKTDGObject
 		void SetUseTex( int index, bool bUse ){ m_bUseTex[index] = bUse; }
 		LPD3DXANIMATIONSET GetAnimSet( int index ){ return m_vAnimSetList[index]; }
 		LPD3DXANIMATIONSET GetAnimSet( const WCHAR* name ){ return m_mAnimSetList[name]; }
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+		// June2017 31d39100 (the by-name GetAnimSet, behind 31d34110): finds first and answers NULL on a miss. March's
+		// GetAnimSet( name ) above uses operator[], which inserts a NULL entry for every name it is asked about, so the
+		// has-animation test CX2NPCUnitViewerUI::IsAnimExist (32e4fe30) uses this one.
+		bool JuneIsAnimSetExist( const WCHAR* name )
+		{
+			std::map<std::wstring, LPD3DXANIMATIONSET>::const_iterator it = m_mAnimSetList.find( name );
+			return it != m_mAnimSetList.end() && NULL != it->second;
+		}
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 		int GetIndexByName( const WCHAR* name ){ return m_mIndexByName[name]; }
 
 		bool IsAnimationEnd(){ return m_bAnimEnd; }

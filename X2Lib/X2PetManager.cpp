@@ -1617,6 +1617,23 @@ CX2PetManager::PetTemplet *CX2PetManager::GetPetTemplet(PET_UNIT_ID pid)
 	return pPetTemplet;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+/** @function : JuneGetVariantXetSuffix
+	@brief : June2017 326cc990( out, &petId, &cVariant ): L"H.xet" for pet 39 (PUI_GRIM_REAPER_REBIRTH, 0x27); L"2.xet" for pet 134
+			 (PUI_SHERIFF_NORM, 0x86) with variant 1 or 2 ( (byte)( v - 1 ) < 2 ); else L"". Only caller here: CX2NPCUnitViewerUI::ResetPet
+			 (June's other caller, the in-game pet 326e5cf0, goes with the variant byte, backlog Stage 17).
+*/
+std::wstring CX2PetManager::JuneGetVariantXetSuffix( const int& iPetId_, const char& cVariant_ )
+{
+	std::wstring wstrSuffix = L"";
+	if( PUI_GRIM_REAPER_REBIRTH == iPetId_ )
+		wstrSuffix = L"H.xet";
+	else if( PUI_SHERIFF_NORM == iPetId_ && ( 1 == cVariant_ || 2 == cVariant_ ) )
+		wstrSuffix = L"2.xet";
+	return wstrSuffix;
+}
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+
 int	CX2PetManager::GetPetInventorySlotSize( PET_UNIT_ID pid, char cEvolutionStep )
 {
 	PetTemplet *pPetTemplet = GetPetTemplet( pid );

@@ -826,6 +826,13 @@ public:
 		// (FUN_321de4f0) hands it to every effect; SYNC_SHOW_BY_CREATE_UNIT keeps it equal to the owner's,
 		// and a particle takes it when it is created (FUN_321ee600 @ 321f251d).
 		bool							m_bShowObject;
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+		// June2017 EffectSetInstance +0xdd, 0 in the ctor FUN_321df230 (@321df3e3, a word store 0x0001 for +0xdc/+0xdd): set to 1
+		// only by PlayEffectSet( name, skin ) (321e28d0, a set played on a unit viewer). GetEffectPosition and
+		// GetEffectPositionByBoneName then read the viewer bone's screen position, and a particle created on the set is a
+		// 2D, resolution-converted, over-UI sequence (FUN_321ee600 @321f2522). The +0xe0 holder beside it is C9h-3's.
+		bool							m_bPlayedOnUnitViewer;
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 
 		// June2017 EffectSetInstance +0x55 / +0x58: a trigger's EFFECT_SET_TOGGLE_VISIBILITY_TIMER (FUN_321dfc40
 		// @ 321dff89-321dff96), counted down by OnFrameMove_UpdateEffect (FUN_321e0080 @ 321e0105-321e0140).
@@ -974,6 +981,9 @@ public:
 #endif
 
 	CX2EffectSet::Handle PlayEffectSet( const wstring& wstrEffectSetName, CX2SquareUnitPtr pSquareUnit );
+#ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+	CX2EffectSet::Handle PlayEffectSet( const WCHAR* pwszEffectSetName, CKTDGXSkinAnimPtr pXSkinAnim );	// June 321e28d0, no owner: unit viewers
+#endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 	CX2EffectSet::Handle PlayEffectSet( const wstring& wstrEffectSetName, CX2GameUnit* pGameUnit, CX2GameUnit* pTraceTargetGameUnit = NULL, 
 		bool bHyper = false, float fPowerRate = -1.f, float fLifeTime = -1.f, D3DXVECTOR3 vScale = D3DXVECTOR3( 1, 1, 1 ), 
 		bool bCustomPosition = false, const D3DXVECTOR3& vPosition = D3DXVECTOR3( 0, 0, 0 ), const D3DXVECTOR3& vRotationDegree = D3DXVECTOR3( 0, 0, 0 ), const D3DXVECTOR3& vDirVector = D3DXVECTOR3( 0, 0, 0 ) );

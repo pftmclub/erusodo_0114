@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C9h-2b` |
 | Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` |
-| Depends on | C9h-2a (the viewer's handle stop `32e4fde0`, IsAnimExist and SetScale must exist) |
+| Depends on | C9h-2a (done: `CX2NPCUnitViewerUI::JuneStopUIEffectSets()` = `32e4fde0`, `IsAnimExist( const WCHAR* )` = `32e4fe30`, `SetScale` = `32e4fcf0`, `ResetPet( id, lv, cVariant = 0 )`; flag `SERV_IRUHADEV_JUNE_PET_VIEWER_FX`) |
 | Flag | `SERV_IRUHADEV_JUNE_PET_PREVIEW` (+ `_DEBUG` only if you need temporary lines) |
 | Log tag | `JUNE_FX PET_PREVIEW` (`python tools/logs.py --grep "JUNE_FX PET_PREVIEW"`) |
 | Review | `kickoffs/june-effect/C9h-2b-review.md` (write it when done, Opus 5.5 high) |

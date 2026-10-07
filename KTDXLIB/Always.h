@@ -5647,3 +5647,31 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER.
 #define SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June effect completion C9h-2a (JUNE2017_EFFECT_COMPLETION_PHASES.md):
+//              the viewer and engine half of June's pet / riding-pet viewer effect
+//              sets. CX2NPCUnitViewerUI (handle vector +0x2a8, the base viewer
+//              frame / prepare / draw hooks, IsAnimExist 32e4fe30, the handle stop
+//              32e4fde0, SetScale 32e4fcf0), ResetPet( id, lv, cVariant )
+//              32e50de0 (variant branch + the XET suffix helper 326cc990 on
+//              CX2PetManager + the group-1 list), ResetRidingPet 32e51ea0, and the
+//              engine: CX2EffectSet::PlayEffectSet( name, skin ) 321e28d0 with the
+//              instance's viewer flag (+0xdd) and its three consumers (screen-space
+//              position, OverUI / 2D particles, the by-bone-name position).
+//              INERT in March data: none of June's 8 pets / riding pets that carry
+//              these keys is in March. Log: "JUNE_FX PET_VIEWER" in ErrorLog.txt.
+//              Needs SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER (the viewer player
+//              and the base viewer hooks) and SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+//              (the instance's show flag and the by-bone-name position).
+#define SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+#if defined(SERV_IRUHADEV_JUNE_PET_VIEWER_FX) && !defined(SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER)
+#error SERV_IRUHADEV_JUNE_PET_VIEWER_FX needs SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+#endif
+#if defined(SERV_IRUHADEV_JUNE_PET_VIEWER_FX) && !defined(SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME)
+#error SERV_IRUHADEV_JUNE_PET_VIEWER_FX needs SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#endif
+//////////////////////////////////////////////////////////////////////////
+

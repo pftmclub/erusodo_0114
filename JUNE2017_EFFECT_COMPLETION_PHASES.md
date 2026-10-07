@@ -2174,6 +2174,38 @@ March's three no-argument hides became inline blocks in June: SetOpen `3223d680`
 
 **User owes:** /cost.
 
+### C9h-2a - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_PET_VIEWER_FX`; inert, regression play-test pending)
+
+**Landed** (MODS.md "June effect completion C9h-2a"). Whole port of the viewer and engine slice; nothing in March data reaches it, so nothing visible changes except the base viewer's player now also running for pet / riding-pet previews.
+- **`CX2NPCUnitViewerUI`**: handle vector (June `+0x2a8`; the typedef is repeated in the header because `X2EffectSet.h` is included after it), dtor frees it without stopping (JUNE_BUGS 105);
+  the three base hooks (`OnFrameMove` `329585f0` after the skin block, `Prepare` `32957260` on the shown path, hint dropped, `Draw` `32957330`); `IsAnimExist`; `JuneStopUIEffectSets` (= `32e4fde0`); `SetScale` that also scales live handles;
+  `ResetPet( id, lv, cVariant = 0 )` with the variant branch, the group-1 stop and `UNIT_VIEWER_EFFECT_SET_LIST`; `ResetRidingPet` (viewer list into group 1, no stop; by-UI list through the new overload). Load lines `JUNE_FX PET_VIEWER reset=<pet|riding> id= group1= uiset=` and `... variant ...` go to ErrorLog.txt, only when something played.
+- **Engine**: `CX2EffectSet::PlayEffectSet( const WCHAR*, CKTDGXSkinAnimPtr )` (`321e28d0`), instance flag `m_bPlayedOnUnitViewer` (`+0xdd`), consumers: `GetEffectPosition` (ESM_FIELD, no square unit), `GetEffectPositionByBoneName`, particle creation (OverUI, `PT_2D_PLANE`, resolution convert).
+  `CX2PetManager::JuneGetVariantXetSuffix` (`326cc990`); `CKTDGXSkinAnim::JuneIsAnimSetExist` (`KTDGXSkinAnim.h`, outside the kickoff's touch list).
+
+**Corrections to C9h (kickoff, funcmap, JUNE_BUGS fixed in this commit).**
+1. `OnFrameRender_Draw` `32e4f8f0` does call the base draw: it reloads ECX = this and JMPs to `32957330` (`@32e4f939`). The kickoff said "no base Draw".
+2. `32e4fde0` stops a stack copy of each handle (`MOV ECX,[ESI]` -> `[ESP+0xc]`): the vector entries are **not** set to -1 and stay stale. JUNE_BUGS 104 and funcmap row `32e4fde0` reworded.
+3. `321dafb0` is June's deferred `StopEffectSet( Handle&, bool )` queue push (`32116c20` = `vector<pair<int,bool>>::push_back` on `this+0x30`, drained by `321e3ee0`). Ported as March's immediate `StopEffectSet`, as C9c-1, C9d and C9f already did.
+4. `31d34110` / `31d39100` = a find-based by-name anim lookup (NULL on a miss, no insert). March's `GetAnimSet( name )` is `operator[]` and inserts, so `JuneIsAnimSetExist` is find-based.
+5. The `+0xdd` branch in `GetEffectPosition` still runs the `+512`, `(y-384)*-1`, `z = 0` transform when both bone names are empty (vPos is (0,0,0) there); no `SetEffectSetOffset` on either path. The `GetEffectPositionByBoneName` consumer is reachable (non-empty `<base>_GROUPCHILD_<n>` names) and ported; only its empty-name riding-pet fallback stays out (comment extended).
+   Doubles read from `unpacked_x2.exe`: `3347e350` 512.0, `3347e348` 384.0, `33436c90` -1.0.
+
+**Evidence.** `+0x328` is `m_pPetManager`: June's own `ResetPet` calls `GetPetTemplet` (`326cbcf0`) through `[g_pData+0x328]` (`@32e50e35-32e50e44`); March's offset is `0x298` (probe), which is only March's layout. `+0x6c` = `m_Evolution_Step_ScriptName` and `+0x7c` = `m_Evolution_Step_InitLuaTemplet` (March probe `0x6c` / `0x7c`). SetScale members: a vec3 + bool at June `+0x70/+0x7c`, March `0x64/0x70` (`m_vScale`, `m_bDamageEffectScale`).
+`PlayEffectSet` hands the handle back through a hidden out pointer (`KHandleType` is not POD); the three args are out, name, skin.
+
+**Hygiene** (`--worktree --files` the 8 code files): `files: 5 PASS, 2 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` (the OTHER row is `Always.h`: another session's K2 flags sit beside mine);
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 26 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` (the 26 are ResetPet's group-1 block, inserted into an LF stretch of a mixed-EOL file); `RESULT: PASS`.
+**Build:** `BUILD OK: X2/US_SERVICE/x2.exe 19,339,776 B, 2026-10-08 05:45:54`. `JUNE_FX PET_VIEWER reset=pet`, `reset=riding` and `variant` are in the exe (UTF-16).
+**Deploy: held.** Another session (june-item-kim K2) has uncommitted code that reads June's 228-byte `item.kim`; the game directory still has March's, so an exe deployed now would stop at boot. Deploy with `python tools/build.py --deploy` once K2 says its koms are live.
+**A tooling trap hit once:** a bytepatch spec with a repeated `@@ file` section for the same file drops the earlier sections' edits silently. The first apply lost most of this phase's edits; flagcheck still said PASS (it checks what is there) and the compile caught it. One `@@ file` per file.
+
+**Reach (named for the play-test).** March's `PetPreView.lua` (data036) pet previews: 500010 (Ancient Pporu), 500150 (Mystic), 500020 (Tree Knight), 90002050 / 90002070 (Sheriff, pet 134, the variant branch's pet); riding-pet previews 550000 (Mobi), 550010 (Koucika), 550020 (Ancient Pporu riding), 550030 (Scorpion R), 269731. Pet 39 has no March preview row.
+
+**How to see it.** Regression only: open the cash shop, preview one pet and one riding pet; open pet info, view the pet and the riding pet. They look as before; ErrorLog.txt has no `JUNE_FX PET_VIEWER` line (nothing in March plays a viewer list); 0 EXCEPTION.
+
+Review: `kickoffs/june-effect/C9h-2a-review.md`. **User owes:** regression play-test, /cost.
+
 ---
 
 ## C10 - Decided absent systems
