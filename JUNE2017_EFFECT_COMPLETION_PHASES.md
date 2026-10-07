@@ -1596,6 +1596,71 @@ Pass = 0 EXCEPTION, no new `X2_*.tmp`, and `UNIT_VIEWER_FX_LOAD ... rows=18` plu
 
 **User owes:** /cost.
 
+### C9f - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build): June's per-equip effect sets = `DITT_CONDITION_EQUIP_PLAY_EFFECT_SET`, one slice of a missing system
+
+Read-only, in Ghidra and the exe bytes. 17 funcmap rows are tagged `Effect C9f`: the 6 C9e-review rows are confirmed or corrected, and 11 are new.
+The full semantics are in those rows; this note keeps the map.
+
+**What the system is.** "CEPE" is one of June's 112 `DIVISION_ITEM_TEMPLET_TYPE`s (81). March has **none** of that system: no
+`AddDivisionItemTemplet_LUA`, no `DITT_*`, no `+0x230` / `+0x380` maps on `CX2ItemManager`.
+- **Loader.** June's `ResetItemManager` (`31edda90`) loads `RenderDivisionItemTemplet.lua` (113 blocks) and `DivisionItemTemplet.lua` (24).
+  - Each block goes to the dispatcher `32818480`. It skips `m_eReadType` 0/2. It sends `m_eType` 55, 85 and 89-93 to their own targets, and every other type to a chain of six parsers.
+  - `32814da0`, one of the six, reads `m_EffectSetList%d` on every block.
+  - June's only CEPE block is in `RenderDivisionItemTemplet.lua`: `m_EffectSetList0-4`, items 289162, 289165, 30572, 291516 and 291518.
+- **Record**: `{ m_eCondition, EFFECT_SET_NAME, START_TIME, SWITCH_EFFECT_SET_NAME, SWITCH_EFFECT_PERCENT (clamped 0-100), SWITCH_LIMIT_TIME }`.
+  - It goes into the item-id map `+0x380` and into the group map `+0x230[81]`. Both inserts keep the first entry.
+  - The key names are XOR-encrypted in the exe. Decoded by hand, they match the Lua exactly.
+- **Conditions** (`CONDITION_EQUIP_PLAY_EFFECT_SET`): 1 WAIT, 2 NOT_MOVE, 3 ALWYAS (June's spelling).
+  - GUUser `31fd8140`: WAIT = state `USI_WAIT` (13). NOT_MOVE = not in a skill state, and moved <= 1.0 since last frame (`+0x94d4`).
+  - Square `323f5920`: WAIT = `GetStateID("WAIT")`. NOT_MOVE = moved <= 1.0 (`+0x7c0`).
+  - Viewer: motion type <= 2 (the three waits).
+- **Equip state** (`CX2Eqip`, June ctor `32961280`):
+  - `+0x15f4` start accumulator;
+  - `+0x15f8` effect-set handle;
+  - `+0x15fc` / `+0x1600` / `+0x1604` switch timers, one per owner kind (GUUser / square / viewer).
+  - The key is `m_ItemID` (`+0x1a0`), the displayed templet's id. The gate is `m_pItemTemplet` (`+0x198`).
+- **Timer step `32961060`.**
+  - The first play waits `START_TIME`, and a set that ended replays about a frame later.
+  - Once a switch timer reaches `SWITCH_LIMIT_TIME`, each play rolls `rand()%100 < SWITCH_EFFECT_PERCENT` for the switch set. The caller zeroes the timer when the switch set plays.
+  - It uses the global elapsed time.
+- **Play sites** (all on `g_pData +0x9c`, the UI effect set, in dungeons too):
+  - GUUser `CommonFrameMove`, in the `m_ViewEqipList` loop before each equip's `OnFrameMove`;
+  - square `OnFrameMove`, with the equips from `m_pUnitViewer` filtered by group 81;
+  - viewer `31fa8ce0`, through June's viewer player, group 1. The handle is never stored. The site is skipped for `UVS_FIELD` viewers, so a square unit does not play the set twice.
+- **Stops**: `RemoveUnit` -> `323f56d0` stops (true). The GUUser/square miss paths release the handle without stopping it (false). There is no equip-dtor stop.
+
+**Reach: inert in March.**
+- None of the 5 ids is in March's `item.kim`. Control: all 280 item ids in the save, and the beginner-gear ids, are found there as LE ints.
+- None is on the save or in `cash_product`.
+- None of the 6 sets is in March's staged `UIEffectSet.src.lua`.
+- The proof for C9f-2 is therefore a load line with the right counts, plus a regression play-test.
+
+**What blocks loading June's file in March.** A scan of every global `RenderDivisionItemTemplet.src.lua` touches:
+- `RENDER_TYPE`, `CARTOON_TEX_TYPE`, `D3DCULL`, `D3DBLEND`, `D3DXVECTOR3`, `D3DXCOLOR`, `TRUE` and `FALSE` exist in March.
+- **`DIVISION_ITEM_TEMPLET_TYPE` (81 members used), `CONDITION_EQUIP_PLAY_EFFECT_SET` and `READ_TYPE` do not.** The first block would raise
+  "attempt to index nil", and the rest of the file would not run.
+
+**Port list (C9f-2, `kickoffs/june-effect/C9f-2.md` has the details):**
+- the item-manager binding, the dispatcher shell, parser `32814da0`, the two maps, and the load line;
+- `CX2Eqip`'s five members, `3295ca60` and `32961060`; the viewer group filter `31fa2f20`;
+- the GUUser, square and viewer condition checks and play blocks, plus the two last-position members;
+- `323f56d0` in `RemoveUnit`, beside C9e's `StopJuneEmotionEffectSet()`;
+- the data (Q1) and three latent JUNE_BUGS rows (first-wins group map; the miss path releases without stopping; no equip-dtor stop).
+
+**Not ported: backlog Stage 11** (`JUNE_PORT_BACKLOG_ORDER.md`, standing rule: an unowned June system gets its own stage). It holds the rest of the
+division system:
+- the dispatcher's other targets and the five other parsers;
+- `DivisionItemTemplet.lua` / `CoboRenderDivisionItemTemplet.lua`;
+- the `DITT_LOOP_ANIM_ITEM_ID` (72) block that precedes CEPE in GUUser's loop (`3295c960`).
+
+**Open question for the user (Q1, blocks C9f-2's data step only).** May C9f-2 append June's `DIVISION_ITEM_TEMPLET_TYPE`,
+`CONDITION_EQUIP_PLAY_EFFECT_SET` and `READ_TYPE` tables, verbatim, to the end of March's `Enum.src.lua` (data036)?
+- None of the three names exists in March, so no value moves.
+- Adopting June's whole `Enum.lua` would move shared values.
+- If no, C9f-2 ships the code only and does not stage the file. The loader logs the missing file, and the feature stays off.
+
+**User owes:** the answer to Q1, then `/x2-phase june-effect C9f-2` on Sonnet 5.5 high; /cost.
+
 ---
 
 ## C10 - Decided absent systems

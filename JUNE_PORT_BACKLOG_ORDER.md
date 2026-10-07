@@ -52,6 +52,7 @@ The user's remaining backlog, in the order they listed it:
 | 8 | New characters: Lu/Ciel, Rose, Ain | 2 (new characters) | The largest surface: a new `UNIT_TYPE`, creation, tutorial dungeons and server-side data. It goes last because it reuses everything before it. |
 | 9 | UI sweep | 6 | Whatever June UI no earlier stage delivered. See "Why UI is last" below. |
 | 10 | Emotion system *(added 2026-10-07, user)* | - (found by june-effect C9d) | Not a backlog item but a missing system: June's emotion catalogue, data, items, sit effects and emotion UI. It depends only on Stage 2 (UI framework) and june-effect C9e, so it can run alongside Stages 3-8. Numbered 10 to keep the earlier numbers stable, not because it must go last. |
+| 11 | Division item templets *(added 2026-10-07, june-effect C9f)* | - (found by june-effect C9f) | Not a backlog item but a missing system: June's per-item render and behaviour lists (`AddDivisionItemTemplet_LUA`, 112 types), of which C9f-2 ports only the per-equip effect sets. Its render rules wait on Stage 2. Numbered 11 to keep the earlier numbers stable, not because it must go last. |
 
 **Concurrency.** At most two code sessions should run at once:
 - Stage 0's buff port, in the main Trunk;
@@ -283,6 +284,27 @@ Found by june-effect C9d (`JUNE2017_EFFECT_COMPLETION_PHASES.md`, "C9d - Done"; 
 
 **Depends on:** Stage 2 (UI framework measurement) and june-effect C9e (the `32355a50` helper and the three effect-set handles,
 which this stage widens). Lu/Ciel, Rose and Ain rows stay inert until Stage 8, as C9c-1's Rose/Ain rows do.
+
+### Stage 11: division item templets (june-effect C9f, 2026-10-07)
+
+Found by june-effect C9f (`JUNE2017_EFFECT_COMPLETION_PHASES.md`, "C9f - Done"; funcmap rows `Effect C9f`). June's
+`CX2ItemManager::AddDivisionItemTemplet_LUA` (`32818480`) reads per-item rendering and behaviour lists. There are 112
+`DIVISION_ITEM_TEMPLET_TYPE`s: alpha-blend, cull, cartoon and real-colour render rules, jiggle, accessory hiding, trigger and loop
+animations, the new enchant stones, PC-bang and spa avatars, and more. March has none of this system. Planned under the standing rule
+that an unowned June system gets its own stage. What it covers:
+- **The data:** `RenderDivisionItemTemplet.lua` (113 blocks), `DivisionItemTemplet.lua` (24), `CoboRenderDivisionItemTemplet.lua`,
+  and the `DIVISION_ITEM_TEMPLET_TYPE` / `READ_TYPE` Lua tables.
+- **The dispatcher's other paths:**
+  - types 55 and 85 (`DITT_CUSTOM_RENDER`, `DITT_TEST_RENDER_DIVISION_SETTING`) -> `328186a7`;
+  - types 89-93 (`DITT_NEW_ENCHANT_ITEM_*`) -> `328186b5`;
+  - the five other default-chain parsers: `32814170`, `32810700`, `328144f0`, `32817470`, `32815af0`.
+- **The consumers:** every `IsDivisionItem` (`32807db0`) caller, e.g. the `DITT_LOOP_ANIM_ITEM_ID` (72) block in GUUser's equip loop
+  (`@32065c9f`, `3295c960`). The renderer and equip consumers are not mapped yet; mapping them is this stage's first, read-only phase.
+
+**Already ported:** the CEPE slice (type 81), by june-effect C9f-2: the binding, the dispatcher shell, parser `32814da0`, the two maps and
+the three play sites. This stage adds parsers and consumers to that shell; it does not re-bind.
+
+**Depends on:** june-effect C9f-2, and Stage 2 (render types) for the render rules. It can run alongside Stages 3-8.
 
 ---
 
