@@ -13181,10 +13181,11 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 	/// false ) (32622300 keeps the rate raw), BTI 778 BTI_COMMAND_10HIT_DECREASE_SKILL_COOLTIME is erased (3229e160) and
 	/// 32070e40( 0, now ). Below 10: BFI 804 BFI_COMMAND_10HIT_DECREASE_SKILL_COOLTIME at the socket's raw LEVEL on the
 	/// user (vslot 0x21c) and 32070e40( count, the old time ) (@3203962e): the time moves only at 10, so the 1.0 s
-	/// lock-out follows a reduction, not each hit (JUNE_BUGS). June reads the attacker's type before checking it for NULL.
+	/// lock-out follows a reduction, not each hit (JUNE_BUGS #71). June reads the attacker's type (+0x264) before checking it
+	/// for NULL (@3203951e-3203952c / @3279d32f-3279d33e); kept in June's order (JUNE_BUGS #72, user 2026-10-07: follow June).
 	case CX2DamageManager::EDT_COMMAND_10HIT_DECREASE_SKILL_COOLTIME:
 		{
-			if ( CX2DamageManager::AT_COMMAND != pDamageData_->attackType || NULL == pAttacker || GUT_USER != pAttacker->GetGameUnitType() )
+			if ( CX2DamageManager::AT_COMMAND != pDamageData_->attackType || GUT_USER != pAttacker->GetGameUnitType() )
 			{
 				if ( true == JuneSocketEdtFirstTime( iType ) )
 					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): attack type %d, attacker %s -> nothing (June counts only AT_COMMAND hits by a user)",
@@ -13193,6 +13194,8 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 				break;
 			}
 
+			if ( NULL == pAttacker )
+				break;
 			CX2GUUser* pUser = static_cast<CX2GUUser*>( pAttacker );
 			if ( NULL == pUser->GetUnit() )
 				break;

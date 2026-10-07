@@ -6241,7 +6241,7 @@ Iivue's item 579 keeps the three sockets.
 
 ### Phase 16-step3c2 — Review (2026-10-07, Opus 5.5 high)
 
-**Verdict: PASS, no code change.** 16-step3c2 matches June on every kickoff item. I read June in Ghidra and in raw capstone disassembly of `unpacked_x2.exe`, and read the constants from the binary.
+**Verdict: PASS; one follow-up change (the user's #72 decision, below).** 16-step3c2 matches June on every kickoff item. I read June in Ghidra and in raw capstone disassembly of `unpacked_x2.exe`, and read the constants from the binary.
 
 - **EDT 156, user `@32039514` and NPC `@3279d323` (the two are byte-identical).**
   - Gate: `attackType` (`+8`) `== 2`, then the attacker's `+0x264 == 0` read through the observer, then the NULL test, then `+0x867c`. #72's order is real on both sides.
@@ -6285,9 +6285,11 @@ Iivue's item 579 keeps the three sockets.
   - `fd6a1f5` `Always.h` is the peer's Phase 13 (`_STORE_BUFF` on), not this phase.
   - `9f63584` `X2SocketItem.cpp` is 3c2's own census text, read, and it PASSes under FEVER.
 
-**Deploy:** no rebuild. `git diff --stat 4efc904..HEAD` over the code trees shows only `X2SocketItem.cpp` (+6), which is in exe 38881800. The game dir's `X2_offline.exe` md5 is `38881800afad1e0a119902f0b8295bbf`, the 3c2 census-fix deploy. No play-test.
+**Decision (user, 2026-10-07: "follow June"):** #72 is now June's order (`X2GameUnit.cpp`, same flag). The attack type is checked first, then the attacker's game-unit type is read, then the NULL test. A non-command hit still never reads the attacker, and the first-time log stays NULL-safe. The NULL guard is gone, so a command hit whose attacker was deleted crashes as in June. It stays latent: March makes no `AT_COMMAND` hits. JUNE_BUGS #72 now reads verbatim. Worktree flagcheck: `files: 1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `2 deleted line(s)` = the guarded `if` and the old comment's last line, both 3c2's own; `RESULT: PASS`.
 
-**Open for the user:** /cost. #72's NULL guard is still unflagged (guarded without `JUNE_FIX`); say if you want it under a flag.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,280,384 B, dated 2026-10-07 10:19:27, md5 3c889fa66cb2bb6c9a23026a521b9360, equal to X2/US_SERVICE/x2.exe (2026-10-07 10:19:22); built at mods/june-buff-port 8b14c06 + 1 uncommitted code file(s).` (the review's own `X2GameUnit.cpp`). Not launched.
+
+**Open for the user:** /cost. There is an optional regression run: a dungeon with Iivue should still log `socket EXTRA_DAMAGE_TYPE 156 fired (first this run): attack type 0, attacker user -> nothing`.
 
 ## Critical files
 
