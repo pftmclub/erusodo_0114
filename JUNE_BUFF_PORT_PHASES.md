@@ -4389,7 +4389,29 @@ Load summary `1130 loaded + 0 placeholder(s)`, 0 EXCEPTION.
 - `ErrorLog.txt`: the load summary is unchanged (`1130 loaded + 0 placeholder(s)`), the reworded `IS_STORE_BUFF on 119 templet(s): kept over a game change` line appears, and no debug-only `first ...` line.
 - The guild Chance to Reverse line shows target `1000013`.
 
-**Phase 14 closed; the buff port's phases are all done.**
+**Phase 14 closed, with one miss:** Phase 11 had handed `IS_INSTANCE_KILL_DEBUFF` to Phase 14 triage, and the triage was not done. It is now **Phase 14b** (below).
+
+## Phase 14b — IS_INSTANCE_KILL_DEBUFF consumer
+
+Added 2026-10-07. This is the last stored buff key whose consumer is not ported. The load line still lists it as `unsupported ... IS_INSTANCE_KILL_DEBUFF on 3`.
+- **Templets:** `BTI_AMUSEMENT_ITEM_WATER_BALLOON_IN_DAMAGE`, `BTI_AMUSEMENT_ITEM_PRESS_IN_DAMAGE` and `BTI_BUFF_CHRISTMAS_MASTER` (`_INT`).
+- **June chain:** templet `+0xba` → user slot 200 (`31fe4150`), called from `DamageReact` → protected bool `+0x6ba4` (setter `32082710`). Its readers are not mapped yet.
+
+**Scope:**
+- Map every reader of `+0x6ba4` and port the chain under `SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL`.
+- Or, if June has no reader, prove it and reword the load line.
+- Write a play-test from the March data that applies the three templets.
+
+**Run with:** Opus 5.5, high effort.
+
+**Done gate:**
+- The load line no longer calls the key unported.
+- The behaviour is play-tested, or its absence is proven.
+- The review applies only if code lands.
+
+**Kickoff:** `kickoffs/june-buff/14b.md`.
+
+After 14b, the buff port's own scope is complete. What remains is owned elsewhere: checklist §7 class hooks, june-effect C6c (auras, SIEE 15), BFT 16 (no transcendence slot in March), and the June bugs kept verbatim in JUNE_BUGS.md.
 
 ---
 
