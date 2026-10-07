@@ -969,6 +969,8 @@ play-test; update matrix and MODS.md.
 - `TOUCH_LAND`, `CREATE_DAMAGE_EFFECT_RATE`, `CREATE_DAMAGE_EFFECT_INHERIT`, `INHERITLOCKONDATA` cannot fire on March data (0 users; the rate is class-set). Seeing one is a finding.
 - `CREATE_LOCKON_COPY parentPreLockOn=N childKept=0`: a lock-on CREATE child whose parent had already hit someone. This is the live change.
 
+**Play-test (2026-10-07, logs read): regression passed.** The run used exe e59da04f. 44 `JUNE_FX CE_HIT` lines, all `SPAWN_INHERIT` / `SPAWN_TAIL`: arrow boom, Delayed Firing (index 1, 4, 7 carried from DELAY to GROUND to BOOM), Explosion Trap (fly, ground, bomb) and Trapping Ranger entangle chains. Gates 0, rate 1.000, 0 EXCEPTION, 3 UNHANDLED (the known `E_DISABLE_HB_CHECK_REQ`). None of the C7 lines appeared. For `TOUCH_LAND`, `CREATE_DAMAGE_EFFECT_RATE`, `CREATE_DAMAGE_EFFECT_INHERIT` and `INHERITLOCKONDATA` that is expected. `TOUCH_LAND_GATE` and `CREATE_LOCKON_COPY` were not reached: nothing bounced, and no lock-on CREATE child spawned from a parent that had already hit. Those two stay unobserved; optional for the review.
+
 **Open for the user:** none. The kickoff's "find a June templet with TOUCH_LAND_DAMAGE_EFFECT" has no March answer: June's only user is Rose's `DamageEffect_A_RMH_KS_83_Grenade`, and its owner is the character port or June-data re-adoption (C11).
 
 ---
