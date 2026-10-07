@@ -17590,6 +17590,12 @@ void CX2GameUnit::SetDamageExceptionProcess( OUT CX2DamageManager::DamageData* p
 	if ( m_iJuneAttackSerial < 0 )
 		m_iJuneAttackSerial = 0;
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+	/// June2017 SetDamageExceptionProcess 322990e0 @32299712-3229971e (effect completion C6b): the hit carries the effect-set index stamp
+	/// (the unit's vslot 0x2e0, GetJuneDamageEffectIndex; -1 on the base) after the Phase 9b attacker-state and serial fields. Its only
+	/// readers are Luciel's (checklist 7a), so in March it is written and never read.
+	pDamageData_->m_iJuneDamageEffectIndex = GetJuneDamageEffectIndex();
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 }
 #endif //MODIFY_SET_DAMAGE_DATA
 

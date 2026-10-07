@@ -1347,6 +1347,11 @@ class CX2DamageManager
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
 
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+			/// June effect completion C6b: DamageData members the spawner tail and the effect set stamps use. The +0x offsets are June's layout, cited only.
+			bool				m_bCountAsOwnerSkillHit;			/// +0x5fd, no Lua key; set by class code, copied to a child by 31f8fdb0 (b45 branch). SimpleInit @31f8f3ef = 0
+			int					m_iJuneDamageEffectIndex;			/// +0x638: the creating effect set's index stamp (321ee600 @321ef639, SetDamageExceptionProcess @32299712). SimpleInit @31f8f47b = -1
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 			void SimpleInit()
 			{
 				damageType			= DT_PHYSIC;
@@ -1579,6 +1584,10 @@ class CX2DamageManager
 				m_iJuneAttackSerial						= 0;	/// +0x5e8 = 0
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+				m_bCountAsOwnerSkillHit					= false;	/// June SimpleInit 31f8ee50 @31f8f3ef: +0x5fd = 0
+				m_iJuneDamageEffectIndex				= -1;		/// @31f8f47b: +0x638 = -1
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 			}
 
 			void Init()

@@ -1096,6 +1096,27 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						}
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef RIDING_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+						// June2017 FUN_321ee600 @321ef639-321ef6d8 (effect completion C6b; funcmap rows Effect C6a2), after SetLockOn and the velocity /
+						// follow-line blocks (March's SetLockOn writes neither, so the order is equivalent): the set's stamps overwrite what
+						// SetDamageExceptionProcess wrote during CreateInstance, for every owner. m_bHyper then goes to the damage effect (@321ef6d5).
+	#ifdef SERV_RENA_NIGHT_WATCHER
+						pEffect->SetIndex( pEffectSetInstance->m_iDamageEffectIndex );
+	#endif SERV_RENA_NIGHT_WATCHER
+						pEffect->GetDamageData().m_iJuneDamageEffectIndex = pEffectSetInstance->m_iDamageEffectIndex;
+	#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+						pEffect->GetDamageData().m_iJuneAttackerStateID = pEffectSetInstance->m_iOwnerStateIDOnPlay;
+	#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+						pEffect->JuneSetHyper( pEffectSetInstance->m_bHyper );
+	#if defined(SERV_IRUHADEV_JUNE_FX_DEBUG) && defined(SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME)
+						{
+							WCHAR wszJuneFxStamp[96] = L"";
+							StringCchPrintfW( wszJuneFxStamp, ARRAY_SIZE(wszJuneFxStamp), L"index=%d ownerState=%d hyper=%d",
+								pEffectSetInstance->m_iDamageEffectIndex, pEffectSetInstance->m_iOwnerStateIDOnPlay, (int)pEffectSetInstance->m_bHyper );
+							JuneFxEsCreate( pEffectSetInstance, pEffectData, L"SPAWN_INHERIT_STAMP", wszJuneFxStamp );
+						}
+	#endif
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 						//if ( NULL != pEffect->GetLockOnData() )
 						{
 							if ( NULL != pUnit && CX2GameUnit::GUT_USER == pUnit->GetGameUnitType() )
@@ -3254,6 +3275,11 @@ CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetNa
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+	// June2017 FUN_321e1e60 @321e2029-321e2033 (effect completion C6b): the game unit stamps the instance's damage-effect index (vslot 0x248;
+	// base no-op, Luciel and Ain override it: checklist 7a). The square and pet overloads write neither, so their sets keep 0 / -1.
+	pGameUnit->JuneStampEffectSetIndex( pEffectSetInstance );
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 	pEffectSetInstance->m_bCustomPosition = bCustomPosition;
 	if( true == bCustomPosition )
 	{
@@ -3268,6 +3294,12 @@ CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetNa
 #ifndef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 	m_vecpEffectSetInstance.push_back( pEffectSetInstance );	
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+	// June2017 FUN_321e1e60 @321e20bf-321e20ce: the owner's state when the set was played (unit vslot 0x10c = GetNowStateID), the last store
+	// before the instance is returned. OnFrameMove_CreateEffect hands it to the damage effect it creates, so Sinister Mind's seed reads the
+	// state at play time, not the state at creation.
+	pEffectSetInstance->m_iOwnerStateIDOnPlay = pGameUnit->GetNowStateID();
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 	return pEffectSetInstance->m_hHandle;
 }
 
@@ -4521,6 +4553,11 @@ CX2EffectSet::EffectSetInstance::EffectSetInstance( EffectSetData* pEffectSetDat
 	m_bToggleVisibilityPending = false;
 	m_fToggleVisibilityTimer = 0.f;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+	// June2017 FUN_321df230 (instance ctor), effect completion C6b: +0x1b8 starts at 0 (@321df510, not -1) and +0x15c at -1 (@321df4a9).
+	m_iDamageEffectIndex	= 0;
+	m_iOwnerStateIDOnPlay	= -1;
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 
 
 	m_vecEffectInstanceCreated.resize(0);

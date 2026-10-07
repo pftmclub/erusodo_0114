@@ -3425,6 +3425,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		/// CX2GUNPC slot is 3208dd70, which returns 1.0. SetDamageExceptionProcess scales fHitAddMP by it.
 		virtual float GetChargeMpRateByBuff( const CX2DamageManager::DamageData* pDamageData_ ) const { return 1.0f; }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+		/// June effect completion C6b: two base virtuals the effect set's index stamp uses. Luciel's and Ain's overrides are class code (checklist 7a).
+		virtual void JuneStampEffectSetIndex( CX2EffectSet::EffectSetInstance* pEffectSetInstance_ ) {}	/// June vslot 0x248 (3226e220), base no-op
+		virtual int GetJuneDamageEffectIndex() const { return -1; }											/// June vslot 0x2e0 (31abe300), base -1
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		/// June buff port Phase 7: the unit stores of BBT 73 (June list +0x67cc), 94 (sets +0x65d4 / +0x65e4, list +0x65c4) and 95 (list +0x75ac)
 		void InsertIgnoreStateGuard( const KBuffIdentity& BuffIdentity_ );									/// June 3227b600

@@ -341,6 +341,13 @@ class CX2DamageEffect
 			UINT			uiCreateCount;
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+			// June2017 entry ctor FUN_31f8bf00 (effect completion C6b): the three entry fields the spawner tail
+			// reads. No Lua key writes them; only 31f649d0 (+0xb0) and 31f65e40 / 31f65f90 (+0xb4 / +0xb5) do.
+			float			fInheritDamageRate;			/// June entry +0xb0, default 1.0; 31f649d0 multiplies it so a grandchild inherits the rate
+			bool			bInheritIgnoreDefence;		/// June entry +0xb4, default false; 31f65e40 sets it to 1
+			bool			bInheritIgnoreStateDefence;	/// June entry +0xb5, default false; 31f65f90 sets it to 1
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 			//bool			bForceDie;
 			//bool			bForceDieHit;
 			//int			triggerCount;
@@ -398,6 +405,11 @@ class CX2DamageEffect
 				uiCreateCount			= 0;
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+				fInheritDamageRate			= 1.f;
+				bInheritIgnoreDefence		= false;
+				bInheritIgnoreStateDefence	= false;
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 				//bForceDie		= false;
 				//bForceDieHit	= false;
 				//triggerCount	= -1;
@@ -459,6 +471,11 @@ class CX2DamageEffect
 				uiCreateCount			= t.uiCreateCount;
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+				fInheritDamageRate			= t.fInheritDamageRate;
+				bInheritIgnoreDefence		= t.bInheritIgnoreDefence;
+				bInheritIgnoreStateDefence	= t.bInheritIgnoreStateDefence;
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //±èÃ¢ÇÑ
 				fLifeTime				= t.fLifeTime;
@@ -1221,6 +1238,33 @@ class CX2DamageEffect
 				bool						m_bInheritDamageFromMaster;
 				void SetInheritDamageFromMaster( bool bInherit_ ) { m_bInheritDamageFromMaster = bInherit_; }
 				bool GetInheritDamageFromMaster() const { return m_bInheritDamageFromMaster; }
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+				// June2017 effect completion C6b (funcmap rows tagged Effect C6a): the parent -> child state the spawn
+				// tail copies. The gate flags are seeded only by class code (checklist 7a), so in March they stay false.
+				bool						m_bInheritIgnoreStateDefence;			/// June CEffect +0xb44
+				bool						m_bInheritCountAsOwnerSkillHit;			/// +0xb45 (child DamageData m_bCountAsOwnerSkillHit)
+				bool						m_bInheritBuffFactorToChild;			/// +0xb46
+				bool						m_bInheritIgnoreDefence;				/// +0xb47
+				bool						m_bInheritMainEffectLifeTimeRate;		/// +0xb5c
+				float						m_fMainEffectLifeTimeRate;				/// +0xb60
+				bool						m_bHyper;								/// +0xb64, stamped by the effect set (OnFrameMove_CreateEffect @321ef6d5)
+				bool						m_bInheritAttackTriggerType;			/// +0xb65
+
+				void JuneGetNextTables( std::vector<CX2DamageManager::DamageData*>& vecTables_ );	/// m_pDamageDataNext (when set) + the NEXT2.. chain: June's +0xd8 vector
+				void JuneCollectSpawnEntries( std::vector<DamageEffectData*>& vecEntries_ );		/// June's die + CREATE + hit + touch-land entry lists
+				void JuneInheritFromParent( CEffect* pChild_ );						/// June 31f8fdb0, this = the parent
+				void JuneApplyInheritDamageRate( float fRate_ );					/// June 31f649d0, this = the child
+				void JuneCopyAttackTriggerToChild( CEffect* pChild_ );				/// June 31f64c00, this = the parent
+				void JuneSetIgnoreDefenceDown( bool bValue_ );						/// June 31f65e40, this = the child
+				void JuneSetIgnoreStateDefenceDown( bool bValue_ );					/// June 31f65f90, this = the child
+				void JuneSpawnTail( CEffect* pChild_, const DamageEffectData* pData_ );	/// the hit and die spawners' tail, in June's order
+				public:
+				void JuneSetHyper( bool bHyper_ ) { m_bHyper = bHyper_; }
+				protected:
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+#ifdef SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET
+				CX2GameUnit* JuneFindFieldBossCollisionBox( CX2GameUnit* pTraceUnit_ );	/// June 31f85910 @31f861e2-31f86521 (RT_CREATE_EFFECT_SET); NULL = March's own call
+#endif SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET
 
 				// DAMAGE_EFFECT_DIE_CHECK_CONDITION evaluator (FUN_31f765b0/31f76010, called
 				// OnFrameMove @31f888e5 after IsDyingByCrash): AND of the AND_OPERATION entries, AND-ed

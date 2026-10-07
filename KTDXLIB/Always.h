@@ -5346,6 +5346,42 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-07
+// Description: June effect completion C6b (JUNE2017_EFFECT_COMPLETION_PHASES.md):
+//              what a June damage effect carries from whatever created it.
+//              The five spawner-tail callees as CEffect methods (June
+//              31f8fdb0 parent->child state copy, 31f649d0 damage rate,
+//              31f64c00 attack-trigger copy, 31f65e40 / 31f65f90 ignore
+//              defence), called from the hit, die and CREATE_DAMAGE_EFFECT
+//              spawners and RT_CREATE_DAMAGE_EFFECT; plus the effect set's
+//              three instance stamps (damage-effect index, owner state at
+//              play time, m_bHyper) and the DamageData index it writes.
+//              Needs the damage-effect parse and runtime flags.
+#define SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+#if defined(SERV_IRUHADEV_JUNE_SPAWN_INHERIT) && ( !defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE) || !defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME) )
+#error SERV_IRUHADEV_JUNE_SPAWN_INHERIT needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE and SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+#endif
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June effect completion C6b (JUNE2017_EFFECT_COMPLETION_PHASES.md):
+//              AttackResult's RT_CREATE_EFFECT_SET case as June has it
+//              (31f85910 @31f86158-31f8672a). With a trace unit: the
+//              field-boss collision-box retarget gate (ported; its boss source
+//              is stubbed, March has no raid object). Without one: the set is
+//              played at the main effect's position, rotation and direction,
+//              and only when the main-effect mesh exists; LIFTTIME applies on
+//              the trace-unit path only. A separate change from
+//              SERV_IRUHADEV_JUNE_SPAWN_INHERIT. Needs the LIFTTIME code of
+//              SERV_IRUHADEV_JUNE_DAMAGEDATA.
+#define SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET
+#if defined(SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET) && !defined(SERV_IRUHADEV_JUNE_DAMAGEDATA)
+#error SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET needs SERV_IRUHADEV_JUNE_DAMAGEDATA
+#endif
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
 // Description: June effect completion C9 (JUNE2017_EFFECT_COMPLETION_PHASES.md):
 //              June's Elsword_DamageData.lua table. Binds
 //              CX2DamageManager::InsertDamageData_LUA (June 32621080), loads

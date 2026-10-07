@@ -1858,6 +1858,18 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	m_fOwnerAttackSpeedAttackTimeEnd	= -1.f;
 	m_iDamageDataChangeTimeIndex		= 0;
 	m_bInheritDamageFromMaster		= false;
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+	// June2017 FUN_31f7aab0 (CEffect ctor), effect completion C6b: the spawn gates +0xb44-+0xb47, +0xb5c/+0xb60 and +0xb64/+0xb65
+	// start at 0 (funcmap rows CEffect+0xb44.. tagged Effect C6a). Only class code sets them, so in March they stay 0.
+	m_bInheritIgnoreStateDefence		= false;
+	m_bInheritCountAsOwnerSkillHit		= false;
+	m_bInheritBuffFactorToChild			= false;
+	m_bInheritIgnoreDefence				= false;
+	m_bInheritMainEffectLifeTimeRate	= false;
+	m_fMainEffectLifeTimeRate			= 0.f;
+	m_bHyper							= false;
+	m_bInheritAttackTriggerType			= false;
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 	PLUA_GET_VALUE( m_pLuaManager, "ATTACK_TIME_START",						m_AttackTime.x,						0.0f );
 	PLUA_GET_VALUE( m_pLuaManager, "ATTACK_TIME_END",						m_AttackTime.y,						100.0f );
@@ -2015,6 +2027,13 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	m_DamageEffectDataInLua.m_pDamageDataNext->m_vecBuffFactorPtr.clear();
 #endif //UPGRADE_SKILL_SYSTEM_2013
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+	// June2017 FUN_31f79c20 @31f79ce9 (effect completion C6b): the unnumbered NEXT table resets the effect-set index stamp
+	// (DamageData +0x638) to -1 after the parent copy and before SetDamageDataFromLUA. June resets +0x5e8 (the attack serial)
+	// to -1 at @31f79ce3 too, which Phase 9b did not port (open june-buff item, left alone). The numbered NEXT2.. entries below
+	// reset only +0x5e8 (@31f79e07), so they keep the parent copy's +0x638.
+	m_DamageEffectDataInLua.m_pDamageDataNext->m_iJuneDamageEffectIndex = -1;
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 	// June2017 FUN_31f7aab0 @31f7e86e/31f7e875 -> FUN_31f79c20: "DAMAGE_DATA_NEXT_ULTIMATE" is
 	// tried first only when m_bUseUltimateDamageData (forced false above); "DAMAGE_DATA_NEXT" is
 	// read only if that fails or was never tried -- unlike DAMAGE_DATA/_ULTIMATE, the base key's
@@ -2894,13 +2913,25 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 								// June2017 FUN_31f8fdb0 @31f8feb1-31f8fecc (Phase 7d; called @31f89d8b, after the flag
 								// is set): the child takes the parent's damage in place of its own -- DamageData +0x38
 								// PHYSIC / +0x3c MAGIC (SetDamageDataFromLUA 32632390@326357ec / @3263588d), two floats.
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+								// Effect completion C6b: this copy is now JuneInheritFromParent's b66 branch (31f8fdb0 @31f8feb1), called below
+								// once the flag is set, so it is not applied twice.
+#else SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 								pEffect->GetDamageData().damage.fPhysic	= m_DamageData.damage.fPhysic;
 								pEffect->GetDamageData().damage.fMagic	= m_DamageData.damage.fMagic;
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 								JuneFxHit( GetName(), L"INHERIT_DAMAGE_SPAWN", L"%s physic=%.3f magic=%.3f",
 									pData->damageEffectName.c_str(), m_DamageData.damage.fPhysic, m_DamageData.damage.fMagic );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 							}
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+							// June2017 FUN_31f88790 @31f89d8b: 31f8fdb0 on every CREATE_DAMAGE_EFFECT child, unconditionally, once the INHERIT_DAMAGE flag
+							// (@31f89cfb) is set. June calls it ahead of INHERIT_BUFF_FACTOR; the fields it writes are independent of that block.
+							JuneInheritFromParent( pEffect );
+							// @31f89dbc: 31f64c00 right after INHERIT_BUFF_FACTOR; INHERIT_LIFE_TIME in between only sets the main-effect clock.
+							JuneCopyAttackTriggerToChild( pEffect );
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 							CX2OfflineLog::Server( L"JUNE_FX CE_LOOP %s CREATE_DAMAGE_EFFECT %s spawn=%d/%d pos=(%.3f,%.3f,%.3f) addPos=(%.3f,%.3f,%.3f) dieWithMaster=%d inheritLifeTime=%d inheritDamage=%d",
@@ -2930,6 +2961,15 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 							pEffect->GetDamageData().m_eFirstAttack = m_DamageData.m_eFirstAttack;
 							pEffect->GetDamageData().m_RelateSkillData = m_DamageData.m_RelateSkillData;
 		#endif //ADD_RENA_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+							// June2017 FUN_31f88790 @31f89ee0-31f89f10: the other three callees at the end of the spawn: 31f649d0 with the entry's +0xb0,
+							// then 31f65e40 / 31f65f90 when the entry carries +0xb4 / +0xb5 (31f64c00 ran above, @31f89dbc).
+							pEffect->JuneApplyInheritDamageRate( pData->fInheritDamageRate );
+							if( true == pData->bInheritIgnoreDefence )
+								pEffect->JuneSetIgnoreDefenceDown( m_DamageData.m_bIgnoreDefence );
+							if( true == pData->bInheritIgnoreStateDefence )
+								pEffect->JuneSetIgnoreStateDefenceDown( m_DamageData.m_bIgnoreStateDefence );
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 
 		#ifdef LOOP_CREATE_DAMAGE_EFFECT // 김태환
 							++pData->uiCreateCount;		/// 생성 횟수 갱신
@@ -4842,8 +4882,16 @@ void CX2DamageEffect::CEffect::AttackResult()
 							pDamageEffect->GetDamageData().m_RelateSkillData = m_DamageData.m_RelateSkillData;
 						}
 #else //ADD_RENA_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+						// June2017 FUN_31f85910 @31f86140: RT_CREATE_DAMAGE_EFFECT runs 31f8fdb0 on the new child (the other four callees are
+						// not called here). March threw the pointer away on this branch, so the ADD_RENA_SYSTEM branch above is not the live one.
+						CX2DamageEffect::CEffect* pJuneCreatedEffect = m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), m_fPowerRate,
+							m_DamageData.impactPoint, angle, angle, m_fLandPos );
+						JuneInheritFromParent( pJuneCreatedEffect );
+#else SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 						m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), m_fPowerRate,
 							m_DamageData.impactPoint, angle, angle, m_fLandPos );
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #endif //ADD_RENA_SYSTEM
 
 					}
@@ -4876,7 +4924,34 @@ void CX2DamageEffect::CEffect::AttackResult()
 						if( m_DamageData.m_bCreateEffectSetMainEffectLifetime && NULL != pMeshInst )
 							fMainEffectLifeTime = pMeshInst->GetMaxLifeTime() - pMeshInst->GetNowLifeTime();
 
+#ifdef SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET
+						// June2017 FUN_31f85910 @31f86158-31f8672a (effect completion C6b): handle starts at -1 (@31f86193) and every path falls through to the
+						// GetEffectSetInstance block below. The branch is on the trace-unit pointer, not on CREATE_EFFECT_SET_TRACE_UNIT: the flag with no
+						// defender takes the no-trace path.
+						CX2EffectSet::Handle hEffectSet = INVALID_EFFECTSET_HANDLE;
+						if( NULL != pTraceUnit )
+						{
+							// @31f861e2-31f86521: the field-boss collision-box retarget. The gate holds only in a June raid field (unreachable in March), and
+							// then the set traces the nearest NUI_FIELD_BOSS_COLLISION_BOX_1 instead; otherwise March's call. LIFTTIME applies on this path only.
+							CX2GameUnit* pJuneBoxUnit = JuneFindFieldBossCollisionBox( pTraceUnit );
+							hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( m_DamageData.m_wstrCreateEffectSetName.c_str(), pOwnerGameUnit,
+								( NULL != pJuneBoxUnit ? pJuneBoxUnit : pTraceUnit ), false, m_fPowerRate, fMainEffectLifeTime );
+						}
+						else if( NULL != pMeshInst )
+						{
+							// @31f8662d-31f86711: no trace unit. Only with the main-effect mesh (without one, no effect set at all). The set is played at the mesh's
+							// position (+0x3f0), rotation (+0x5b4/+0x5b8/+0x5bc, GetRotateDegree) and direction (31c82e40 = CXMeshInstance::GetDirVec: (1,0,0)
+							// rotated by the rotation plus the local rotation), life -1: LIFTTIME is not applied. June's trailing 1.0 has no March parameter.
+							hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( m_DamageData.m_wstrCreateEffectSetName.c_str(), pOwnerGameUnit, NULL, false, m_fPowerRate,
+								-1.f, D3DXVECTOR3( 1, 1, 1 ), true, pMeshInst->GetPos(), pMeshInst->GetRotateDegree(), pMeshInst->GetDirVec() );
+						}
+	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+						JuneFxHit( GetName(), L"CREATE_EFFECT_SET", L"%s path=%s mesh=%d handleValid=%d", m_DamageData.m_wstrCreateEffectSetName.c_str(),
+							( NULL != pTraceUnit ? L"trace_unit" : L"no_trace_unit" ), (int)( NULL != pMeshInst ), (int)( INVALID_EFFECTSET_HANDLE != hEffectSet ) );
+	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#else SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET
 						CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( m_DamageData.m_wstrCreateEffectSetName.c_str(), pOwnerGameUnit, pTraceUnit, false, m_fPowerRate, fMainEffectLifeTime );
+#endif SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET
 #else //SERV_IRUHADEV_JUNE_DAMAGEDATA
 						CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( m_DamageData.m_wstrCreateEffectSetName.c_str(), pOwnerGameUnit, pTraceUnit, false, m_fPowerRate );
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
@@ -6912,6 +6987,11 @@ void CX2DamageEffect::CEffect::CreateHitDamageEffect( vector<DamageEffectData*>&
 
 			if( pEffect != NULL )
 			{
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+				// June2017 FUN_31f810c0 @31f8198f: 31f8fdb0 (the parent's state to the child) comes right after the crit inherit 31f8af50
+				// and before INHERIT_BUFF_FACTOR. March's crit block sits after the buff-factor copy here; the fields are independent.
+				JuneInheritFromParent( pEffect );
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 				/// 버프팩터를 상속함
 				if ( pData->bInheritBuffFactor && !GetDamageData().m_vecBuffFactorPtr.empty() )
 					pEffect->GetDamageData().m_vecBuffFactorPtr = GetDamageData().m_vecBuffFactorPtr;
@@ -6984,6 +7064,11 @@ void CX2DamageEffect::CEffect::CreateHitDamageEffect( vector<DamageEffectData*>&
 				pEffect->GetDamageData().m_eFirstAttack = m_DamageData.m_eFirstAttack;
 				pEffect->GetDamageData().m_RelateSkillData = m_DamageData.m_RelateSkillData;
 #endif //ADD_RENA_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+				// June2017 FUN_31f810c0 @31f81afd-31f81b35: the post-create tail, after the first-attack copy: 31f649d0 (the entry's +0xb0
+				// down the child's tree), 31f64c00, then 31f65e40 / 31f65f90 when the entry carries +0xb4 / +0xb5.
+				JuneSpawnTail( pEffect, pData );
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 			}
 		}
 
@@ -7268,6 +7353,11 @@ void CX2DamageEffect::CEffect::CreateDieDamageEffect( vector<DamageEffectData*>&
 #endif INHERIT_FORCEDOWNRATE
 			if( pEffect != NULL )
 			{	
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+				// June2017 FUN_31f82210 @31f82f3e: 31f8fdb0 right after the crit inherit 31f8af50, before INHERIT_BUFF_FACTOR (as the hit spawner).
+				// It copies m_iIndex too, which March already did for die children under SERV_RENA_NIGHT_WATCHER below.
+				JuneInheritFromParent( pEffect );
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 				/// 버프팩터를 상속함
 				if ( pData->bInheritBuffFactor && !GetDamageData().m_vecBuffFactorPtr.empty() )
 					pEffect->GetDamageData().m_vecBuffFactorPtr = GetDamageData().m_vecBuffFactorPtr;
@@ -7348,6 +7438,10 @@ void CX2DamageEffect::CEffect::CreateDieDamageEffect( vector<DamageEffectData*>&
 				pEffect->GetDamageData().m_eFirstAttack = m_DamageData.m_eFirstAttack;
 				pEffect->GetDamageData().m_RelateSkillData = m_DamageData.m_RelateSkillData;
 #endif //ADD_RENA_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+				// June2017 FUN_31f82210 @31f83137-31f8316f: the same tail as the hit spawner, after the first-attack copy.
+				JuneSpawnTail( pEffect, pData );
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 			}
 		}
 	}
@@ -9735,11 +9829,282 @@ void CX2DamageEffect::CEffect::SetDamageDataNextByChainIndex( CX2DamageManager::
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+		// June2017 FUN_31f799c0 @31f79b87/8d (effect completion C6b): the effect-set index stamp (DamageData +0x638) is carried across a NEXT
+		// change. June copies neither +0x5e0 nor +0x5e8 there, which matches Phase 9b.
+		pDamageDataNext->m_iJuneDamageEffectIndex = pDamageData->m_iJuneDamageEffectIndex;
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 		*pDamageData = *pDamageDataNext;
 	}
 }
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+//////////////////////////////////////////////////////////////////////////
+// June2017 effect completion C6b: the spawner tail (funcmap rows tagged Effect C6a). June keeps every DAMAGE_DATA_NEXT table in one vector (+0xd8)
+// and every spawn entry in four lists on the instance (die +0x8, CREATE +0x78, hit +0x98, touch-land +0xa8). March keeps the first NEXT table in
+// m_pDamageDataNext (NULL when the effect has none, where June's vector is simply empty) and NEXT2.. in m_vecDamageDataNextChain; the lists are
+// m_DamageEffectDataInLua's, parsed per instance, so a change reaches only this effect and what it spawns later.
+void CX2DamageEffect::CEffect::JuneGetNextTables( std::vector<CX2DamageManager::DamageData*>& vecTables_ )
+{
+	if( NULL != m_DamageEffectDataInLua.m_pDamageDataNext )
+		vecTables_.push_back( m_DamageEffectDataInLua.m_pDamageDataNext );
+	// June's three callees do not null-test the vector's entries (JUNE_BUGS); March's chain entries are never NULL, so none is added.
+	vecTables_.insert( vecTables_.end(), m_DamageEffectDataInLua.m_vecDamageDataNextChain.begin(), m_DamageEffectDataInLua.m_vecDamageDataNextChain.end() );
+}
+
+void CX2DamageEffect::CEffect::JuneCollectSpawnEntries( std::vector<DamageEffectData*>& vecEntries_ )
+{
+	// June 31ed7480 x3 builds die + CREATE + hit; the touch-land list (by value in June) is walked beside it.
+	vecEntries_.insert( vecEntries_.end(), m_DamageEffectDataInLua.m_vecDieDamageEffect.begin(), m_DamageEffectDataInLua.m_vecDieDamageEffect.end() );
+	// June's CREATE list: SetDamageEffect moves March's from m_vecCreateDamageEffect to m_DamageEffectDataList, so only one of the two holds entries.
+	vecEntries_.insert( vecEntries_.end(), m_DamageEffectDataInLua.m_vecCreateDamageEffect.begin(), m_DamageEffectDataInLua.m_vecCreateDamageEffect.end() );
+	vecEntries_.insert( vecEntries_.end(), m_DamageEffectDataList.begin(), m_DamageEffectDataList.end() );
+	vecEntries_.insert( vecEntries_.end(), m_DamageEffectDataInLua.m_vecHitDamageEffect.begin(), m_DamageEffectDataInLua.m_vecHitDamageEffect.end() );
+	vecEntries_.insert( vecEntries_.end(), m_DamageEffectDataInLua.m_vecTouchLandDamageEffect.begin(), m_DamageEffectDataInLua.m_vecTouchLandDamageEffect.end() );
+}
+
+// June 31f8fdb0 (called by the hit, die, touch-land and CREATE_DAMAGE_EFFECT spawners and RT_CREATE_DAMAGE_EFFECT): this = the parent, the
+// argument = the child (NULL returns). The gate flags are set only by class code, so in March only the unconditional m_iIndex, m_bHyper and
+// alpha-option copies and the child's own b66 branch act.
+void CX2DamageEffect::CEffect::JuneInheritFromParent( CEffect* pChild_ )
+{
+	if( NULL == pChild_ )
+		return;
+
+	// b45: the child's DamageData +0x5fd and its flag
+	if( true == m_bInheritCountAsOwnerSkillHit )
+	{
+		pChild_->m_DamageData.m_bCountAsOwnerSkillHit	= m_DamageData.m_bCountAsOwnerSkillHit;
+		pChild_->m_bInheritCountAsOwnerSkillHit			= m_bInheritCountAsOwnerSkillHit;
+	}
+	// b44: IGNORE_STATE_DEFENCE (DamageData +0x541)
+	if( true == m_bInheritIgnoreStateDefence )
+	{
+		pChild_->m_DamageData.m_bIgnoreStateDefence		= m_DamageData.m_bIgnoreStateDefence;
+		pChild_->m_bInheritIgnoreStateDefence			= m_bInheritIgnoreStateDefence;
+	}
+	// b46: the buff-factor vector INHERIT_BUFF_FACTOR copies (DamageData +0x40), whole (31e9bef0)
+	if( true == m_bInheritBuffFactorToChild )
+	{
+		pChild_->m_DamageData.m_vecBuffFactorPtr		= m_DamageData.m_vecBuffFactorPtr;
+		pChild_->m_bInheritBuffFactorToChild			= m_bInheritBuffFactorToChild;
+	}
+	// b47: IGNORE_DEFENCE (+0x528) and not IGNORE_DEFENCE_ON_PVP (+0x529); 31f65e40 and tag 16 set both. June as is (JUNE_BUGS)
+	if( true == m_bInheritIgnoreDefence )
+	{
+		pChild_->m_DamageData.m_bIgnoreDefence			= m_DamageData.m_bIgnoreDefence;
+		pChild_->m_bInheritIgnoreDefence				= m_bInheritIgnoreDefence;
+	}
+	// b5c: the rate, and the child main effect's max life times it when the rate is above 0
+	if( true == m_bInheritMainEffectLifeTimeRate )
+	{
+		pChild_->m_fMainEffectLifeTimeRate = m_fMainEffectLifeTimeRate;
+		CKTDGXMeshPlayer::CXMeshInstance* pChildMainEffect = pChild_->GetMainEffect();
+		if( NULL != pChildMainEffect && m_fMainEffectLifeTimeRate > 0.f )
+			pChildMainEffect->SetMaxLifeTime( pChildMainEffect->GetMaxLifeTime() * m_fMainEffectLifeTimeRate );
+		pChild_->m_bInheritMainEffectLifeTimeRate = m_bInheritMainEffectLifeTimeRate;
+	}
+	// the child's own b66 (INHERIT_DAMAGE, set only by the CREATE_DAMAGE_EFFECT loop @31f89cfb): the child takes the parent's damage
+	// (DamageData +0x38 / +0x3c), the copy March's CREATE loop did inline since Phase 7d
+	if( true == pChild_->m_bInheritDamageFromMaster )
+	{
+		pChild_->m_DamageData.damage.fPhysic			= m_DamageData.damage.fPhysic;
+		pChild_->m_DamageData.damage.fMagic				= m_DamageData.damage.fMagic;
+	}
+	// unconditionally: b64 (m_bHyper), b00 (m_iIndex), b32 (the effect-alpha option)
+	pChild_->m_bHyper									= m_bHyper;
+#ifdef SERV_RENA_NIGHT_WATCHER
+	pChild_->m_iIndex									= m_iIndex;
+#endif SERV_RENA_NIGHT_WATCHER
+	pChild_->m_iApplyEffectAlphaConditionByOption		= m_iApplyEffectAlphaConditionByOption;
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	JuneFxHit( GetName(), L"SPAWN_INHERIT", L"child=%s gates ignoreState=%d ownerSkillHit=%d buffFactor=%d ignoreDefence=%d lifeRate=%d(%.3f) trigger=%d hyper=%d childInheritDamage=%d",
+		pChild_->GetName(), (int)m_bInheritIgnoreStateDefence, (int)m_bInheritCountAsOwnerSkillHit, (int)m_bInheritBuffFactorToChild,
+		(int)m_bInheritIgnoreDefence, (int)m_bInheritMainEffectLifeTimeRate, m_fMainEffectLifeTimeRate, (int)m_bInheritAttackTriggerType,
+		(int)m_bHyper, (int)pChild_->m_bInheritDamageFromMaster );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+}
+
+// June 31f649d0: this = the child, called with the spawning entry's +0xb0. Returns unless the rate differs from 1.0 by more than FLT_EPSILON
+// (@31f649e0; the constants 334355b0 / 334490f8). Entry +0xb0 starts at 1.0 and only this function and class code change it, so in March
+// every call is a no-op.
+void CX2DamageEffect::CEffect::JuneApplyInheritDamageRate( float fRate_ )
+{
+	if( fabs( (double)fRate_ - 1.0 ) <= (double)FLT_EPSILON )
+		return;
+
+	m_DamageData.damage.fPhysic	*= fRate_;
+	m_DamageData.damage.fMagic	*= fRate_;
+
+	std::vector<CX2DamageManager::DamageData*> vecTables;
+	JuneGetNextTables( vecTables );
+	for( size_t i = 0; i < vecTables.size(); i++ )
+	{
+		vecTables[i]->damage.fPhysic	*= fRate_;
+		vecTables[i]->damage.fMagic		*= fRate_;
+	}
+
+	// only for a rate >= 0 (fldz; fcom): the entries' own rates follow, so a grandchild spawned later inherits it
+	if( fRate_ >= 0.f )
+	{
+		std::vector<DamageEffectData*> vecEntries;
+		JuneCollectSpawnEntries( vecEntries );
+		for( size_t i = 0; i < vecEntries.size(); i++ )
+		{
+			if( NULL != vecEntries[i] )
+				vecEntries[i]->fInheritDamageRate *= fRate_;
+		}
+	}
+}
+
+// June 31f64c00: this = the parent, the argument = the child. The parent's ADDITIONAL_ATTACK_TRIGGER_TYPE values 0x1d and 0x1e go onto the
+// child's list (June Enum.lua DTT_RCR_TRANSCENDENCE_REVOLVER / _NOT_REVOLVER, Rose; March's DAMAGE_TRIGGER_TYPE ends at 6, so literals). Then,
+// under b65, the child takes the parent's ATTACK_TRIGGER_TYPE and the whole list (32853ff0 assign, replacing the pushes).
+void CX2DamageEffect::CEffect::JuneCopyAttackTriggerToChild( CEffect* pChild_ )
+{
+	if( NULL == pChild_ )
+		return;
+
+	for( std::vector<int>::const_iterator it = m_DamageData.m_vecAdditionalAttackTriggerType.begin(); it != m_DamageData.m_vecAdditionalAttackTriggerType.end(); ++it )
+	{
+		if( 29 == *it || 30 == *it )
+			pChild_->m_DamageData.m_vecAdditionalAttackTriggerType.push_back( *it );
+	}
+
+	if( true == m_bInheritAttackTriggerType )
+	{
+		pChild_->m_bInheritAttackTriggerType				= true;
+		pChild_->m_DamageData.m_eDamageTrigger				= m_DamageData.m_eDamageTrigger;
+		pChild_->m_DamageData.m_vecAdditionalAttackTriggerType	= m_DamageData.m_vecAdditionalAttackTriggerType;
+	}
+}
+
+// June 31f65e40: this = the child, called with the parent's IGNORE_DEFENCE when the spawning entry's +0xb4 is set. Own IGNORE_DEFENCE and
+// IGNORE_DEFENCE_ON_PVP, every NEXT table's, and +0xb4 = 1 on every spawn entry, true even when the value is false, so a descendant takes
+// the parent's value over its own Lua one (JUNE_BUGS). The NEXT tables are not null-tested in June (JUNE_BUGS).
+void CX2DamageEffect::CEffect::JuneSetIgnoreDefenceDown( bool bValue_ )
+{
+	m_DamageData.m_bIgnoreDefence		= bValue_;
+	m_DamageData.m_bIgnoreDefenceOnPvp	= bValue_;
+
+	std::vector<CX2DamageManager::DamageData*> vecTables;
+	JuneGetNextTables( vecTables );
+	for( size_t i = 0; i < vecTables.size(); i++ )
+	{
+		vecTables[i]->m_bIgnoreDefence		= bValue_;
+		vecTables[i]->m_bIgnoreDefenceOnPvp	= bValue_;
+	}
+
+	std::vector<DamageEffectData*> vecEntries;
+	JuneCollectSpawnEntries( vecEntries );
+	for( size_t i = 0; i < vecEntries.size(); i++ )
+	{
+		if( NULL != vecEntries[i] )
+			vecEntries[i]->bInheritIgnoreDefence = true;
+	}
+}
+
+// June 31f65f90: as 31f65e40 for IGNORE_STATE_DEFENCE (DamageData +0x541) and the entries' +0xb5.
+void CX2DamageEffect::CEffect::JuneSetIgnoreStateDefenceDown( bool bValue_ )
+{
+	m_DamageData.m_bIgnoreStateDefence = bValue_;
+
+	std::vector<CX2DamageManager::DamageData*> vecTables;
+	JuneGetNextTables( vecTables );
+	for( size_t i = 0; i < vecTables.size(); i++ )
+		vecTables[i]->m_bIgnoreStateDefence = bValue_;
+
+	std::vector<DamageEffectData*> vecEntries;
+	JuneCollectSpawnEntries( vecEntries );
+	for( size_t i = 0; i < vecEntries.size(); i++ )
+	{
+		if( NULL != vecEntries[i] )
+			vecEntries[i]->bInheritIgnoreStateDefence = true;
+	}
+}
+
+// The hit and die spawners' tail in June's order (31f810c0 @31f81afd-31f81b35, 31f82210 @31f83137-31f8316f): this = the parent,
+// the argument = the child just created, pData = the spawning entry.
+void CX2DamageEffect::CEffect::JuneSpawnTail( CEffect* pChild_, const DamageEffectData* pData_ )
+{
+	if( NULL == pChild_ || NULL == pData_ )
+		return;
+
+	pChild_->JuneApplyInheritDamageRate( pData_->fInheritDamageRate );
+	JuneCopyAttackTriggerToChild( pChild_ );
+	if( true == pData_->bInheritIgnoreDefence )
+		pChild_->JuneSetIgnoreDefenceDown( m_DamageData.m_bIgnoreDefence );
+	if( true == pData_->bInheritIgnoreStateDefence )
+		pChild_->JuneSetIgnoreStateDefenceDown( m_DamageData.m_bIgnoreStateDefence );
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	JuneFxHit( GetName(), L"SPAWN_TAIL", L"child=%s rate=%.3f entryIgnoreDefence=%d entryIgnoreStateDefence=%d parentTrigger=%d",
+		pChild_->GetName(), pData_->fInheritDamageRate, (int)pData_->bInheritIgnoreDefence, (int)pData_->bInheritIgnoreStateDefence,
+		(int)m_bInheritAttackTriggerType );
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+}
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+#ifdef SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET
+// June2017 FUN_31f85910 @31f861e2-31f86521 (effect completion C6b; funcmap rows Effect C5 review): RT_CREATE_EFFECT_SET with a trace unit looks for the
+// field boss's collision box. Gate, all of which must hold:
+//   1. 32481fa0: June state 0x15 (XS_BATTLE_FIELD) and the current field (GetBattleFieldIdWhereIam, [g_pData +0x124 +0x10]) passes 3266cdc0, a switch on
+//      exactly 40033, 40034, 40039-40044 (June VMI_BOSS_RAID_PERKISAS* / VMI_BOSS_RAID_ELTRION_MK2_*, which March's enum lacks);
+//   2. the unit held by the raid object at g_pMain +0x115c (+0x8, 3266cb90, an observer) exists and its UID equals the trace unit's.
+// Then the nearest NPC with ID 0x621 (NUI_FIELD_BOSS_COLLISION_BOX_1) to the impact point wins: distance 31c7b560( impactPoint, GetPos( 0 ) ), strict <,
+// from 99999 (33441c60), no alive check. NULL (no gate, no unit, no box) leaves March's own call. March has no raid object, so part 2 is a stub that
+// returns NULL and says so once in the log (plan rule 5); part 1 cannot hold in March either, so the search below is unreachable today.
+CX2GameUnit* CX2DamageEffect::CEffect::JuneFindFieldBossCollisionBox( CX2GameUnit* pTraceUnit_ )
+{
+	if( NULL == pTraceUnit_ || NULL == g_pX2Game || NULL == g_pMain || NULL == g_pData )
+		return NULL;
+
+	if( CX2Main::XS_BATTLE_FIELD != g_pMain->GetNowStateID() )
+		return NULL;
+
+	switch( g_pData->GetBattleFieldManager().GetBattleFieldIdWhereIam() )
+	{
+	case 40033: case 40034: case 40039: case 40040: case 40041: case 40042: case 40043: case 40044:
+		break;
+	default:
+		return NULL;
+	}
+
+	// part 2: June's raid object (g_pMain +0x115c) does not exist here, so there is no boss unit to compare with the trace unit's UID
+	CX2GameUnit* pJuneRaidBossUnit = NULL;
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	static bool s_bJuneRaidObjectLogged = false;
+	if( false == s_bJuneRaidObjectLogged )
+	{
+		s_bJuneRaidObjectLogged = true;
+		JuneFxHit( GetName(), L"CREATE_EFFECT_SET", L"raid object (g_pMain +0x115c) absent in March: boss unit stubbed to NULL, field=%u", g_pData->GetBattleFieldManager().GetBattleFieldIdWhereIam() );
+	}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	if( NULL == pJuneRaidBossUnit || pJuneRaidBossUnit->GetUnitUID() != pTraceUnit_->GetUnitUID() )
+		return NULL;
+
+	CX2GameUnit* pNearestBox = NULL;
+	float fNearestDistance = 99999.f;
+	for( int i = 0; i < g_pX2Game->GetUnitNum(); i++ )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+		if( NULL == pUnit || CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() )
+			continue;
+		if( false == static_cast<CX2GUNPC*>( pUnit )->IsUnitID( CX2UnitManager::NUI_FIELD_BOSS_COLLISION_BOX_1 ) )
+			continue;
+
+		const D3DXVECTOR3 vDiff = pUnit->GetPos() - m_DamageData.impactPoint;
+		const float fDistance = D3DXVec3Length( &vDiff );
+		if( fDistance < fNearestDistance )
+		{
+			fNearestDistance = fDistance;
+			pNearestBox = pUnit;
+		}
+	}
+	return pNearestBox;
+}
+#endif SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET
 #endif DAMAGE_EFFECT_WORK
 //}} kimhc // 2009-10-20 // DamageEffect.lua에 있는 테이블 로드(독구름)
 

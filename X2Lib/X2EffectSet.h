@@ -809,6 +809,13 @@ public:
 		// June2017 EffectSetInstance +0x180: the creator's facing when the set was created
 		// (FUN_321df230 @ 321df51c-321df576), read by USE_IS_RIGHT_WHEN_CREATE
 		bool							m_bIsRightWhenCreate;
+#ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+		// June2017 effect completion C6b: two instance stamps (funcmap rows tagged Effect C6a2). June +0x1b8,
+		// ctor 0 (321df230 @321df510): the damage-effect index the unit's vslot 0x248 wrote at play time.
+		// June +0x15c, ctor -1 (@321df4a9): the owner's state when the set was played (PlayEffectSet @321e20bf).
+		int								m_iDamageEffectIndex;
+		int								m_iOwnerStateIDOnPlay;
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 
 		// June2017 EffectSetInstance +0x54, cleared by the ctor FUN_321df230 (@ 321df323): set only by a
 		// mesh trigger's STOP_TRACING_ON_TRIGGER (FUN_321dfc40 @ 321dff2e-321dff3c, Phase 4b stage 3).
