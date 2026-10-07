@@ -51,6 +51,7 @@ The user's remaining backlog, in the order they listed it:
 | 7 | Remaining March characters | 2, 3, 5 (per-class trees) | Repeats a proven recipe per character: revamp, the June-only later class paths, transcendence and the skill tree. |
 | 8 | New characters: Lu/Ciel, Rose, Ain | 2 (new characters) | The largest surface: a new `UNIT_TYPE`, creation, tutorial dungeons and server-side data. It goes last because it reuses everything before it. |
 | 9 | UI sweep | 6 | Whatever June UI no earlier stage delivered. See "Why UI is last" below. |
+| 10 | Emotion system *(added 2026-10-07, user)* | - (found by june-effect C9d) | Not a backlog item but a missing system: June's emotion catalogue, data, items, sit effects and emotion UI. It depends only on Stage 2 (UI framework) and june-effect C9e, so it can run alongside Stages 3-8. Numbered 10 to keep the earlier numbers stable, not because it must go last. |
 
 **Concurrency.** At most two code sessions should run at once:
 - Stage 0's buff port, in the main Trunk;
@@ -250,6 +251,26 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 
+### Stage 10: emotion system (user, 2026-10-07)
+
+Found by june-effect C9d (`JUNE2017_EFFECT_COMPLETION_PHASES.md`, "C9d - Done"; funcmap rows `Effect C9d`). March's `EMOTION_TYPE` ends at
+`ET_EMOTION_AVATAR7 = 15`; June's runs to `ET_END = 65`. What June has and March lacks:
+- **The catalogue:** `EMOTION_TYPE` 16-64 (AVATAR8-41, `ET_OTHER_WORK_SITREADY`, `ET_RIDING_PET_TRANSFORM`, `ET_EMOTION_CASH1-3_*`,
+  `ET_TWO_SEATER_SUB_INDEX_1_SIT_*`), as both the C++ enum and the Lua `EMOTION_TYPE` table (March's Lua has a 4-entry stub).
+- **The data:** `EmotionData.lua` (`AddEmotionData`, 20 entries), `CX2UnitManager::GetEmotionData` (`32375250`), `UI_EFFECT_SET` per
+  unit (`31fac950`), and the data-driven `IsAvatarEmotion` (`3234cb00`). The hard-coded emotions (Keroro, Twice, Xmas box, Maid ...) sit
+  outside the file, in `3234cb00`'s fallback list and the per-class sound switches.
+- **Unlocks:** `CHANGE_EMOTION_CONDITION` (`CEC_SET_ITEM`, `CEC_ITEM`), checked against the inventory.
+- **Cash sits and equipped-item sit effects:** the `EMOTION_CASH*_SIT*` states; `3203e1b0` and the `+0x93dc`/`+0x93ec`/`+0x940c` vectors;
+  the CX2Unit `+0xa44` map (insert site not yet found); the item templet's per-mode effect list (`32651ab0`); square twins `+0x714`/`+0x724`;
+  the viewer's group 1/2 block (`31fa52b0 @31fa5645`).
+- **June's rewritten `PlayEmotion`** in `CX2GUUser`, `CX2SquareUnit` and `CX2UnitViewerUI`, their EmotionData `UI_EFFECT_SET` paths
+  (the second writers of `+0x9434` / `+0x7ac`), and June's two-seater (`0x2c`/`0x2d`) handling.
+- **Assets and UI:** per-class emotion motions, sounds, the 5 June-only mesh players C9e lists, `DLG_ChatBox_Emotion_List.lua`.
+
+**Depends on:** Stage 2 (UI framework measurement) and june-effect C9e (the `32355a50` helper and the three effect-set handles,
+which this stage widens). Lu/Ciel, Rose and Ain rows stay inert until Stage 8, as C9c-1's Rose/Ain rows do.
+
 ---
 
 ## Open decisions that gate stages
@@ -445,4 +466,21 @@ Standing rules) and every earlier stage's Done notes for which DLG_* files they
 adopted. Census June DLG_* / UI_* files still March-shaped in the live koms, group
 them by the system behind them, and drop any whose backing system is absent (log
 why). Output: JUNE_UI_SWEEP_PHASES.md.
+```
+
+**Stage 10, emotion system** (Opus 5.5 high):
+```
+Plan backlog Stage 10 (June emotion system). Read JUNE_PORT_BACKLOG_ORDER.md
+(Stage 10, Standing rules), JUNE2017_EFFECT_COMPLETION_PHASES.md "C9d - Done" and
+"C9e - Done" (if C9e has run), every funcmap row tagged "Effect C9d", and in
+june_src_fixed/: EmotionData.src.lua, Enum.src.lua (EMOTION_TYPE,
+CHANGE_EMOTION_CONDITION), DLG_ChatBox_Emotion_List.src.lua. First RE what C9d left
+open: the AddEmotionData bind and the EmotionData struct, the CX2Unit +0xa44 insert
+site, the item-templet key behind 32651ab0, June PlayEmotion in all three classes
+(GUUser 32043380, SquareUnit 323fef90, UnitViewerUI 31fa52b0) end to end, the
+two-seater ids, and how the chat box lists and unlocks emotions. Census the motions,
+sounds and meshes against March kom_contents. Output: JUNE_EMOTION_SYSTEM_PHASES.md
+(enum + Lua table, EmotionData loader, unlocks, cash sits and item sit effects,
+the three PlayEmotion rewrites, assets, chat-box UI, emulator if any packet carries
+the new ids), kickoffs, and a STATUS block. Never launch X2_offline.exe without asking.
 ```

@@ -1328,7 +1328,7 @@ motions, sounds and the chat-box emotion list. Where should it go?
 - (b) Stage 8, which already lists `EmotionData` for Lu/Ciel;
 - (c) Stage 9 UI sweep.
 
-**User owes:** the answer, /cost.
+**Answered 2026-10-07: (a).** It is `JUNE_PORT_BACKLOG_ORDER.md` Stage 10 (stage details + Opus planning prompt). **User owes:** /cost.
 
 ---
 
