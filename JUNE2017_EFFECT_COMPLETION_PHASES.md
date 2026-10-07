@@ -1038,7 +1038,7 @@ Open question for the user: none.
 
 ---
 
-### C9c-1 - Done (2026-10-07, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE`; play-test pending)
+### C9c-1 - Done (2026-10-07, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE`; play-test PASSED 2026-10-07)
 
 **What landed** (details in `MODS.md`, "June effect completion C9c-1"; pure insertions; the load line needs `SERV_IRUHADEV_JUNE_FX_DEBUG`):
 - **Table + bind** (`X2UnitManager.h/.cpp`, `X2Main.cpp`): `AddUnitViewerEffectSet` = `3237a1f0`. Seven arguments exceed lua_tinker's member
@@ -1068,7 +1068,8 @@ uncommitted `X2BuffTempletManager.cpp` (14b) edit, which is not in my commit.
 
 **How to see it in game.** Start the game (data036.kom is already copied), reach the login screen, close it, say "check logs":
 `python tools/logs.py --tag JUNE_FX` should show `JUNE_FX UNIT_VIEWER_FX_LOAD UnitViewerEffectSetTable.lua loaded=1 rows=18 skipped_duplicate=0 skipped_bad_args=0`, with 0 EXCEPTION.
-No visible change: the viewer consumer is C9c-2b and the `PlayEmotion` path is inert. Not yet play-tested.
+No visible change: the viewer consumer is C9c-2b and the `PlayEmotion` path is inert.
+**Play-test PASSED 2026-10-07** (exe d8917e2f, run 13:57-13:59, after deploy): `ErrorLog.txt` line 144 `JUNE_FX UNIT_VIEWER_FX_LOAD UnitViewerEffectSetTable.lua loaded=1 rows=18 skipped_duplicate=0 skipped_bad_args=0` (`X2UnitManager.cpp`, `OpenJuneUnitViewerEffectSetTable`), 0 EXCEPTION, clean exit with the census; C9's `DAMAGE_DATA_LOAD ... rows=107` still loads. `tools/logs.py --tag JUNE_FX` printed no ErrorLog lines (its filter wants the bracketed form `[JUNE_FX]`; these lines are unbracketed), so read it with `grep UNIT_VIEWER ErrorLog.txt`. The only UNHANDLED packet is `E_DISABLE_HB_CHECK_REQ` (not this phase).
 Open question for the user: none.
 
 ---
