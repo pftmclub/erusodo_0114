@@ -52,6 +52,8 @@ the pet-info riding view's clears the same way.
 
    `32234380` reads June's pre-equip list model (`3265ec70`, keyed by `+0x528`). If March's `m_vecPreEquipItemID` can answer the same question, use it and cite it. If it cannot, that list model is June cash-shop UI (backlog Stage 9): stop and route it rather than inventing a substitute.
 4. **The inline hides** at March's three no-argument call sites, and the pet-info clears, as June has them.
+5. **The pet-info pet viewer** (`X2UIPetInfo.cpp:1183`, June `328f0aa0`) keeps passing `cVariant` 0, with a comment citing the June
+   `KPetInfo +0xca` byte and backlog Stage 17. The cash shop passes June's explicit `ResetPet( id, 3, 0 )`.
 
 **Done gate:** the strings `JUNE_FX PET_PREVIEW` are in the deployed exe; one line per preview, `JUNE_FX PET_PREVIEW item=<n> pet=<n> riding=<n> pick=<pet|riding|none>`.
 

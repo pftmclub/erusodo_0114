@@ -43,7 +43,8 @@ offset and constant is in the `Effect C9h` funcmap rows; transcribe them, do not
    - The variant branch `@32e517f1-32e51a6f`, transcribed exactly: the `iLv == 3` test, the templet's 4-entry `+0x6c` vector (identify that member in March's `PetTemplet`), and the `substr` lengths and suffixes.
    - The suffix helper `326cc990` goes on `CX2PetManager`. Confirm `g_pData+0x328` is `m_pPetManager` with a `cl` offset probe.
    - Then stop group 1 (`JuneViewerFxStop( 1 )`) and play `INIT_EFFECT.UNIT_VIEWER_EFFECT_SET_LIST[1..99]` into group 1 (`JuneViewerFxPlay`).
-   - March callers keep passing 2 arguments, so `cVariant` is 0 (C9h-2b ports the cash shop's explicit 0). The pet-info variant byte is **Stage 17**: leave one cited comment at `X2UIPetInfo.cpp:1183`. Do not edit that file here.
+   - March callers keep passing 2 arguments, so `cVariant` is 0. The pet-info variant byte (June `KPetInfo +0xca`, passed by `328f0aa0`) is
+     **Stage 17**: say so in the comment on the `cVariant` parameter. Do not touch `X2UIPetInfo.cpp` or `X2CashShop.cpp` here (C9h-2b owns both callers).
 5. **`ResetRidingPet` = `32e51ea0`.**
    - `RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET` is collected first.
    - `RIDINGPET_UNIT_VIEWER_EFFECT_SET_LIST` plays into group 1 with **no stop** (JUNE_BUGS 106).
