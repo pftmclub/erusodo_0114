@@ -210,6 +210,104 @@ bool CX2UnitManager::OpenDataScriptFile( const WCHAR* pFileName )
 
 	return true;
 }
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+// June2017 CX2UnitManager::AddUnitViewerEffectSet_LUA (FUN_3237a1f0; bind name decrypted @31db63a2, pushed @31db64e2).
+// Lua call: g_pUnitManager:AddUnitViewerEffectSet( motion, UNIT_TYPE, UNIT_CLASS, effect-set name, start time, loop, DUO_TYPE ).
+// Seven arguments is one more than lua_tinker's member functor takes, so the handler reads the Lua stack itself
+// (index 1 = the unit manager, 2..8 = the arguments). The row goes in only when the motion key is absent: the
+// first row wins and a later duplicate is dropped silently (3238b220 / 32389940 insert).
+bool CX2UnitManager::AddUnitViewerEffectSet_LUA()
+{
+	lua_State* L = g_pKTDXApp->GetLuaBinder()->GetLuaState();
+
+	// A nil argument (an enum name March does not have) would read as 0 = "any type/class/duo" and widen the row,
+	// so a row with a wrong-typed argument is dropped and counted instead.
+	if( LUA_TSTRING != lua_type( L, 2 ) || LUA_TNUMBER != lua_type( L, 3 ) || LUA_TNUMBER != lua_type( L, 4 ) ||
+		LUA_TSTRING != lua_type( L, 5 ) || LUA_TNUMBER != lua_type( L, 6 ) || LUA_TBOOLEAN != lua_type( L, 7 ) ||
+		LUA_TNUMBER != lua_type( L, 8 ) )
+	{
+		++m_iJuneUnitViewerEffectSetSkippedBadArgs;
+		return false;
+	}
+
+	std::wstring wstrMotion;
+	ConvertUtf8ToWCHAR( wstrMotion, lua_tostring( L, 2 ) );
+	if( m_mapJuneUnitViewerEffectSet.end() != m_mapJuneUnitViewerEffectSet.find( wstrMotion ) )
+	{
+		++m_iJuneUnitViewerEffectSetSkippedDuplicate;
+		return false;
+	}
+
+	JuneUnitViewerEffectSet kRow;
+	kRow.m_iUnitType	= static_cast<int>( lua_tointeger( L, 3 ) );
+	kRow.m_iUnitClass	= static_cast<int>( lua_tointeger( L, 4 ) );
+	ConvertUtf8ToWCHAR( kRow.m_wstrEffectSetName, lua_tostring( L, 5 ) );
+	kRow.m_fStartTime	= static_cast<float>( lua_tonumber( L, 6 ) );
+	kRow.m_bLoop		= ( 0 != lua_toboolean( L, 7 ) );
+	kRow.m_iDuoType		= static_cast<int>( lua_tointeger( L, 8 ) );
+
+	m_mapJuneUnitViewerEffectSet.insert( std::make_pair( wstrMotion, kRow ) );
+	return true;
+}
+
+// June2017 FUN_323760f0. Gates in June's order: a miss when the motion is absent; the entry's UNIT_TYPE is non-zero and
+// differs from the class's type (June FUN_31eca1d0 maps class -> type; here the class's templet type); the entry's
+// UNIT_CLASS is non-zero and differs from the class; the duo argument is not 2 (= any) and differs from the entry's.
+// Otherwise the name, start time and loop flag are copied out.
+bool CX2UnitManager::GetUnitViewerEffectSet( const std::wstring& wstrMotion, CX2Unit::UNIT_CLASS eUnitClass, int iDuoType,
+	std::wstring& wstrEffectSetName, float& fStartTime, bool& bLoop )
+{
+	std::map<std::wstring, JuneUnitViewerEffectSet>::const_iterator it = m_mapJuneUnitViewerEffectSet.find( wstrMotion );
+	if( m_mapJuneUnitViewerEffectSet.end() == it )
+		return false;
+
+	const JuneUnitViewerEffectSet& kRow = it->second;
+
+	int iUnitType = static_cast<int>( CX2Unit::UT_NONE );
+	const CX2Unit::UnitTemplet* pUnitTemplet = GetUnitTemplet( eUnitClass );
+	if( NULL != pUnitTemplet )
+		iUnitType = static_cast<int>( pUnitTemplet->m_UnitType );
+
+	if( 0 != kRow.m_iUnitType && kRow.m_iUnitType != iUnitType )
+		return false;
+	if( 0 != kRow.m_iUnitClass && kRow.m_iUnitClass != static_cast<int>( eUnitClass ) )
+		return false;
+	if( 2 != iDuoType && iDuoType != kRow.m_iDuoType )
+		return false;
+
+	wstrEffectSetName	= kRow.m_wstrEffectSetName;
+	fStartTime			= kRow.m_fStartTime;
+	bLoop				= kRow.m_bLoop;
+	return true;
+}
+
+// Loader half (June 31ee6100 @31ee6224 runs OpenDataScriptFile on the file; 32376f10 = LoadLuaTinker on the main state).
+// load-time: offline_server.log is not open yet, so the count line goes to ErrorLog.txt (as DAMAGE_DATA_LOAD does).
+bool CX2UnitManager::OpenJuneUnitViewerEffectSetTable( const WCHAR* pFileName )
+{
+	m_mapJuneUnitViewerEffectSet.clear();
+	m_iJuneUnitViewerEffectSetSkippedDuplicate = 0;
+	m_iJuneUnitViewerEffectSetSkippedBadArgs = 0;
+
+	const bool bLoaded = OpenDataScriptFile( pFileName );
+
+	WCHAR wszJuneFx[512] = {0};
+	if( false == bLoaded )
+	{
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX UNIT_VIEWER_FX_LOAD %s loaded=0 NOT LOADED: file missing or failed to run; the unit-viewer effect table stays empty. Pack it into data036.kom.", pFileName );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	else
+	{
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX UNIT_VIEWER_FX_LOAD %s loaded=1 rows=%d skipped_duplicate=%d skipped_bad_args=%d",
+			pFileName, static_cast<int>( m_mapJuneUnitViewerEffectSet.size() ), m_iJuneUnitViewerEffectSetSkippedDuplicate, m_iJuneUnitViewerEffectSetSkippedBadArgs );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+	return bLoaded;
+}
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 //{{ robobeg : 2011-01-24
 void    CX2UnitManager::CreateUnitLuaSpace()
 {

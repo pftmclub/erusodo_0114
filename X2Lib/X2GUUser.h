@@ -3966,6 +3966,9 @@ public:
 #ifdef UNIT_EMOTION
 		CX2Unit::EMOTION_TYPE							m_ePlayedEmotion;		
 		bool											m_bReserveSitReadyEmotion;
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+		CX2EffectSet::Handle							m_hJuneEmotionEffectSet;	// June CX2GUUser +0x943c: the UnitViewerEffectSetTable hit played by PlayEmotion
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 #endif
 
 		bool											m_bSocketSuperArmor;
@@ -4213,6 +4216,12 @@ public:
 	float m_fJuneCommandHitTime;	/// June +0x9478, 16-step3c2 (ctor 0 @32041e26; a float copy of g_pKTDXApp->GetTime())
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
+	/// June buff port Phase 14b: June +0x6ba4 (a protected bool; ctor 322a2700, setter 32082710), written by DamageReact
+	/// from HaveInstanceKillDebuff and consumed (cleared, HP to 0) after UpNowHp in the same function
+	KProtectedType<bool> m_bJuneInstanceKill;
+	bool HaveInstanceKillDebuff() const;	/// June CX2GUUser slot 200 (31fe4150); base and NPC return false
+#endif SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //김창한
 	bool		m_bSetCustomRenderParam;			/// 정의한 m_RenderParam의 값을 그대로 적용할 수 있게하기 위한 변수.

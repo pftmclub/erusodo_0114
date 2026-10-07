@@ -970,6 +970,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef UNIT_EMOTION
 	m_ePlayedEmotion = CX2Unit::ET_NONE;
 	m_bReserveSitReadyEmotion = false;
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+	m_hJuneEmotionEffectSet = INVALID_EFFECTSET_HANDLE;
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 #endif
 
 	m_fSocketSuperArmor = 0.f;
@@ -7969,6 +7972,19 @@ bool CX2GUUser::StateChange( int state, int subState, bool bDirectChange /* = fa
     return true;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
+/// June buff port Phase 14b, CX2GUUser slot 200 (31fe4150): true when any templet on the unit (+0xe14..+0xe18, the
+/// m_vecBuffTempletPtr HaveThisBuff 3227baf0 walks) has IS_INSTANCE_KILL_DEBUFF (+0xba). No finished/world test, as June
+bool CX2GUUser::HaveInstanceKillDebuff() const
+{
+	for ( vector<CX2BuffTempletPtr>::const_iterator vItr = m_vecBuffTempletPtr.begin(); m_vecBuffTempletPtr.end() != vItr; ++vItr )
+	{
+		if ( NULL != *vItr && true == (*vItr)->IsInstanceKillDebuff() )
+			return true;
+	}
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
 void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 {
 #if defined( _SERVICE_ ) 
@@ -8696,6 +8712,11 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		/// serial (DamageData +0x5e8) as this unit's last-hit serial (+0x40dc)
 		SetJuneLastHitAttackSerial( pDamageData->m_iJuneAttackSerial );
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+#ifdef SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
+		/// June buff port Phase 14b, @320471a9-320471c1: right after the last-hit serial and before this hit's own
+		/// buffs apply, so the hit that applies the debuff does not kill; the next damaging hit does
+		m_bJuneInstanceKill = HaveInstanceKillDebuff();
+#endif SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
 		DoCustomFunctionByBuffInDamageReact( *pDamageData );
 		const bool bBuffApplied = ApplyBuffToGameUnitInDamageReact( pDamageData );
 //{{ Iruha : 2026-10-05 // June buff port Phase 10b (JUNE_BUFF_PORT_PHASES.md)
@@ -10028,6 +10049,18 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 				if( GetNowHp() <= 0.f )
 					SetNowHp( 1.f );
 			}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
+			/// June buff port Phase 14b, @32049b70-32049ba1: after UpNowHp and the training clamp, clear the bool and set
+			/// HP to 0 (slot 61, the user SetNowHp 3202ff60, so a BBT 101 ignore-HP-decrease buff still blocks it, as June)
+			if ( true == m_bJuneInstanceKill )
+			{
+				const float fJuneHpBefore = GetNowHp();
+				m_bJuneInstanceKill = false;
+				SetNowHp( 0.f );
+				CX2JuneBuffCapture::Line( "instance kill: user UID %I64d carried an IS_INSTANCE_KILL_DEBUFF templet at the hit, HP %g -> %g (June 320462a0 @32049b70)",
+					GetUnitUID(), fJuneHpBefore, GetNowHp() );
+			}
+#endif SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
 
 		/// 죽을 때 발동되는 스킬들을 함수 하나에 통합
 #ifndef FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE // 김태환
@@ -28982,6 +29015,28 @@ bool CX2GUUser::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId, wstring &wstrEmoti
 			m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
 
 		m_ePlayedEmotion = eEmotionId;
+
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+		// June 32043380 @32043b69-32043cf5, after the anim and before the emotion sound: look the emotion motion up in
+		// UnitViewerEffectSetTable.lua (unit class, duo 0 = DT_MAJOR: March has no duo) and, on a hit, play the set on the
+		// UI effect-set manager (g_pData +0x9c) with this unit as owner, keeping the handle (+0x943c). Start time and loop
+		// are not used on this path. INERT in March: only Rose/Ain rows (Emotion_Sad / SitReady / SitWait / StandUp) match
+		// and neither type exists here. June then tags the instance with 32296f30( handle, category 1, by pointer ):
+		// that helper is C10b-2's and is not ported yet.
+		if( NULL != g_pData && NULL != g_pData->GetUnitManager() && NULL != GetUnit() )
+		{
+			std::wstring wstrJuneEffectSetName;
+			float fJuneStartTime = 0.f;
+			bool bJuneLoop = false;
+			if( true == g_pData->GetUnitManager()->GetUnitViewerEffectSet( wstrEmotionType, GetUnit()->GetClass(), 0,
+				wstrJuneEffectSetName, fJuneStartTime, bJuneLoop ) )
+			{
+				const CX2EffectSet::Handle hJuneEffectSet = g_pData->GetUIEffectSet()->PlayEffectSet( wstrJuneEffectSetName, this );
+				if( INVALID_EFFECTSET_HANDLE != hJuneEffectSet )
+					m_hJuneEmotionEffectSet = hJuneEffectSet;
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 
 		if( eEmotionId == CX2Unit::ET_EMOTION_AVATAR1 || eEmotionId == CX2Unit::ET_EMOTION_AVATAR3 || 
 			eEmotionId == CX2Unit::ET_EMOTION_AVATAR4 || eEmotionId == CX2Unit::ET_EMOTION_AVATAR5 

@@ -5411,3 +5411,31 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              32489980 does). Found by june-buff Phase 14's check 9.
 #define SERV_IRUHADEV_OFFLINE_NPC_UID_BASE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June effect completion C9c-1. June's UnitViewerEffectSetTable.lua
+//              (18 AddUnitViewerEffectSet calls) is read into a per-motion map on
+//              CX2UnitManager (June 3237a1f0 insert, first row wins; 323760f0 lookup),
+//              loaded in CX2Data::ResetUnitManager after CorrelateUnitClassTemplet.lua
+//              (June 31ee6100 @31ee6224), and CX2GUUser::PlayEmotion plays the hit's
+//              effect set on the UI effect-set manager (June 32043380). The unit-viewer
+//              consumer (PlayAnim / OnFrameMove) is C9c-2b. Log tag: JUNE_FX.
+#define SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June buff port Phase 14b (JUNE_BUFF_PORT_PHASES.md): the
+//              consumer of the templet key IS_INSTANCE_KILL_DEBUFF. June's
+//              CX2GUUser::DamageReact (320462a0) records, on every damaging
+//              hit and before the hit's own buffs apply, whether the user
+//              carries a templet with the key (slot 200, 31fe4150) in a
+//              protected bool (+0x6ba4, setter 32082710); after UpNowHp and
+//              the training-game clamp, a set bool is cleared and HP is set
+//              to 0 (@32049b70). User only: the NPC DamageReact never calls
+//              it and slot 200 is false for NPCs. Log tag: JUNE_BUFF.
+#define SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
+//////////////////////////////////////////////////////////////////////////

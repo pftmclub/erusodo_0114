@@ -1,2 +1,2 @@
 action	kom	name	reason	note	src	dst
-add	data036	Elsword_DamageData.lua	June effect lua (ljconv)	ljconv	F:\elsword stuff\elsword_2014\els_2014\ElswordFiles\ready_and_built\ProjectX2_SVN\ProjectX2_SVN\source\EU_CN_US\Trunk\june2017_re\assets_cache\june_b\Elsword_DamageData.lua	F:\elsword stuff\elsword_2014\els_2014\237311\24965799\kom_contents\data036_kom\Elsword_DamageData.lua
+add	data036	UnitViewerEffectSetTable.lua	June effect lua (ljconv)	ljconv	F:\elsword stuff\elsword_2014\els_2014\ElswordFiles\ready_and_built\ProjectX2_SVN\ProjectX2_SVN\source\EU_CN_US\Trunk\june2017_re\assets_cache\june_b\UnitViewerEffectSetTable.lua	F:\elsword stuff\elsword_2014\els_2014\237311\24965799\kom_contents\data036_kom\UnitViewerEffectSetTable.lua

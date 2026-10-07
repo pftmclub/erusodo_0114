@@ -47,7 +47,8 @@ TRIAL_LUA = os.path.join(fxdata.CACHE, 'june_b')   # ljconv output, same bytes a
 LUA10 = ['EffectSet', 'EffectSet_INT', 'UIEffectSet', 'UIEffectSet_INT', 'DamageEffect',
          'DamageEffect_Character', 'DamageEffect_Dungeon', 'DamageEffect_ETC', 'DamageEffect_INT',
          'DamageSound',
-         'Elsword_DamageData']    # Effect completion C9: InsertDamageData_LUA's table (107 entries), new to March
+         'Elsword_DamageData',    # Effect completion C9: InsertDamageData_LUA's table (107 entries), new to March
+         'UnitViewerEffectSetTable']    # Effect completion C9c-1: AddUnitViewerEffectSet's table (18 rows), new to March
 TXT_RE = re.compile(r'^(Game|UI)(Major|Minor)(Particle|XMeshPlayer)\d*\.txt$', re.I)
 MERGED_SRC = ['EffectSet.src.lua', 'DamageEffect.src.lua']
 KOM_NUM = re.compile(r'^data(i?)(\d+)$', re.I)

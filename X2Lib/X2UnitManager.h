@@ -3132,6 +3132,29 @@ class CX2UnitManager
 #endif
 
 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+		// June2017 UnitViewerEffectSetTable.lua: one row per motion name (3237a1f0 inserts, 323760f0 looks up).
+		struct JuneUnitViewerEffectSet
+		{
+			std::wstring	m_wstrEffectSetName;	// June node +0x28
+			int				m_iUnitType;			// +0x44, 0 = any
+			int				m_iUnitClass;			// +0x48, 0 = any
+			float			m_fStartTime;			// +0x4c
+			bool			m_bLoop;				// +0x50
+			int				m_iDuoType;				// +0x54, DUO_TYPE
+			JuneUnitViewerEffectSet() : m_iUnitType( 0 ), m_iUnitClass( 0 ), m_fStartTime( 0.f ), m_bLoop( false ), m_iDuoType( 0 ) {}
+		};
+
+		bool OpenJuneUnitViewerEffectSetTable( const WCHAR* pFileName );
+		bool AddUnitViewerEffectSet_LUA();
+		bool GetUnitViewerEffectSet( const std::wstring& wstrMotion, CX2Unit::UNIT_CLASS eUnitClass, int iDuoType,
+			std::wstring& wstrEffectSetName, float& fStartTime, bool& bLoop );
+	private:
+		std::map<std::wstring, JuneUnitViewerEffectSet>	m_mapJuneUnitViewerEffectSet;
+		int												m_iJuneUnitViewerEffectSetSkippedDuplicate;
+		int												m_iJuneUnitViewerEffectSetSkippedBadArgs;
+	public:
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 #ifdef REFORM_SKILL_NOTE_UI
 		void GetLowRankUnitClass( OUT vector<CX2Unit::UNIT_CLASS>& vecUnitClass_, IN CX2Unit::UNIT_CLASS eUnitClass_ );
 		void AddCorrelateUnitClass_LUA();

@@ -1837,6 +1837,11 @@ CX2UnitManager* CX2Data::ResetUnitManager( const WCHAR* pFileName, const WCHAR* 
 	m_pUnitManager->OpenDataScriptFile( L"CorrelateUnitClassTemplet.lua");
 #endif // REFORM_SKILL_NOTE_UI
 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+	// June 31ee6100 @31ee6224: UnitViewerEffectSetTable.lua is the last OpenDataScriptFile, after CorrelateUnitClassTemplet.lua.
+	// June's SelectVoiceTable.lua and AnimationNameTable.lua opens in between are not ported here.
+	m_pUnitManager->OpenJuneUnitViewerEffectSetTable( L"UnitViewerEffectSetTable.lua" );
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 	return m_pUnitManager;
 }
 

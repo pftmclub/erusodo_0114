@@ -50,6 +50,7 @@ column.
 | `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` | 2026-10-06 (offline grade Phases 1-3c) | `KTDXLIB/Always.h:5263` | `X2Lib/X2DungeonSubStage.h`/`.cpp` (stage-script grade -> NPCData), `X2Lib/Offline/Handlers_Room.cpp`, `X2OfflineServer.h`, `X2OfflineBattleField.h`/`.cpp`, `X2OfflineDropTable.h`/`.cpp` | -- |
 | `SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN` (designed, not server/June) | 2026-10-06 (offline grade Phase 3c) | `KTDXLIB/Always.h:5281` | `X2Lib/Offline/Handlers_Room.cpp` (a paid field kill with share >= 0.5 counts for hunt quests without a field drop row; since the Phase 3c review a row-less field monster also still drops its quest items, while its special, static and eater items stay off as on the server) | -- |
 | `SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE` | 2026-10-07 (June effect completion C9) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_DAMAGEDATA`) | `X2Lib/X2DamageManager.h`/`.cpp` (`JuneDamageDataRecord`, `InsertDamageData_LUA`, `OpenJuneDamageDataScript`, `JuneApplyDamageDataRecord`; ctor load; apply after the `DAMAGE_DATA_KEY_NAME` read), `X2Lib/X2Main.cpp` (`CX2DamageManager` class bind) | -- |
+| `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE` | 2026-10-07 (June effect completion C9c-1) | `KTDXLIB/Always.h` (end; the load line also needs `SERV_IRUHADEV_JUNE_FX_DEBUG`) | `X2Lib/X2UnitManager.h`/`.cpp` (`JuneUnitViewerEffectSet`, `AddUnitViewerEffectSet_LUA`, `GetUnitViewerEffectSet`, `OpenJuneUnitViewerEffectSetTable`), `X2Lib/X2Main.cpp` (`AddUnitViewerEffectSet` bind), `X2Lib/X2Data.cpp` (`ResetUnitManager` load), `X2Lib/X2GUUser.h`/`.cpp` (`m_hJuneEmotionEffectSet`, `PlayEmotion` consumer) | -- |
 | `SERV_IRUHADEV_OFFLINE_NPC_UID_BASE` (offline design, not server/June) | 2026-10-07 (june-buff Phase 14) | `KTDXLIB/Always.h` (end) | `X2Lib/Offline/X2OfflineServer.h` (room `Clear()`: monster UIDs start at 1,000,000) | -- |
 | `SERV_IRUHADEV_JUNE_BUFF_DEBUG` | 2026-10-04, **disabled 2026-10-07** (june-buff Phase 14) | `KTDXLIB/Always.h:4787` (`#define` commented out; re-enable to diagnose) | ~250 `[JUNE_BUFF] first ...` debug sites across `X2Lib` (buff templets, game units, users, NPCs, `X2Main.cpp`'s `JuneBuffTestNewStat_LUA` console hook) | -- |
 
@@ -2974,6 +2975,25 @@ with `june2017_re/stage_june_fx.py --only Elsword_DamageData.lua --apply`) and p
 Only three June templets use the key, so most play shows no `apply` line.
 Revert: undefine the flag; remove `Elsword_DamageData.lua` and its manifest key from `data036_kom` and repack.
 `UnitViewerEffectSetTable.lua` is not part of this change: its consumer is not identified (see the plan's C9 Done note).
+
+### June effect completion C9c-1: UnitViewerEffectSetTable.lua (the unit-manager half)
+
+New flag **`SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE`**. June keeps a per-motion table of "play this effect set" rows on the unit manager
+(`3237a1f0` insert, first row wins; `323760f0` lookup with three gates: unit type, unit class, duo) and fills it from
+`UnitViewerEffectSetTable.lua` (18 rows) at the end of `CX2Data::ResetUnitManager` (`31ee6100` @`31ee6224`). March had no table.
+
+| | before | after |
+|---|---|---|
+| `UnitViewerEffectSetTable.lua` | not opened | opened after `CorrelateUnitClassTemplet.lua`, outside `REFORM_SKILL_NOTE_UI`, on the main Lua state; `ErrorLog.txt` gets `JUNE_FX UNIT_VIEWER_FX_LOAD ... loaded=1 rows=18 skipped_duplicate=0 skipped_bad_args=0` |
+| `g_pUnitManager:AddUnitViewerEffectSet` | not bound | bound; the handler reads the Lua stack itself (7 arguments, one more than lua_tinker's member functor takes) |
+| `CX2GUUser::PlayEmotion` | anim + sound only | looks the emotion motion up and plays the hit on the UI effect-set manager (inert in March: only Rose/Ain rows match) |
+
+Not ported here: June's `SelectVoiceTable.lua` / `AnimationNameTable.lua` opens between Correlate and this file; the `32296f30` tag after the
+`PlayEmotion` play (C10b-2's helper); the viewer consumer (`PlayAnim` / `OnFrameMove`, C9c-2b). Deliberate difference from June: a row with a
+wrong-typed argument (e.g. an enum name March lacks, which would read as 0 = "any") is dropped and counted in `skipped_bad_args`.
+Data: staged with `june2017_re/stage_june_fx.py --only UnitViewerEffectSetTable.lua --apply` (`UnitViewerEffectSetTable` added to its `LUA10`),
+packed and copied into `data036.kom`.
+Revert: undefine the flag; remove `UnitViewerEffectSetTable.lua` and its manifest key from `data036_kom` and repack.
 
 ### June effect completion C6b: the spawner tail, the effect-set stamps and RT_CREATE_EFFECT_SET
 

@@ -1038,6 +1038,41 @@ Open question for the user: none.
 
 ---
 
+### C9c-1 - Done (2026-10-07, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE`; play-test pending)
+
+**What landed** (details in `MODS.md`, "June effect completion C9c-1"; pure insertions; the load line needs `SERV_IRUHADEV_JUNE_FX_DEBUG`):
+- **Table + bind** (`X2UnitManager.h/.cpp`, `X2Main.cpp`): `AddUnitViewerEffectSet` = `3237a1f0`. Seven arguments exceed lua_tinker's member
+  functor (6), so the handler is no-arg and reads the Lua stack (1 = manager, 2..8 = motion, UNIT_TYPE, UNIT_CLASS, set name, start, loop, DUO).
+  First row wins. A wrong-typed argument drops the row (`skipped_bad_args`); June's typed reads would give 0 = "any", which would widen the row.
+- **Lookup** `GetUnitViewerEffectSet` = `323760f0`, gates in June's order (type, class, duo != 2 and != row). Class -> type uses the class's templet
+  `m_UnitType` where June calls `31eca1d0` (a class switch; same mapping for March's classes; the review spot-checks it).
+- **Load** in `CX2Data::ResetUnitManager` (`X2Data.cpp`) after the Correlate open, outside `REFORM_SKILL_NOTE_UI`, via `OpenDataScriptFile`
+  (`LoadLuaTinker`, main state). June's `SelectVoiceTable.lua` / `AnimationNameTable.lua` opens in between are **not ported**.
+- **`PlayEmotion`** (`X2GUUser.cpp`, after `m_ePlayedEmotion = eEmotionId`, before the sound, as `32043380`): lookup with the emotion motion
+  name, the unit's class, duo 0; on a hit `g_pData->GetUIEffectSet()->PlayEffectSet( name, this )`, handle kept in `m_hJuneEmotionEffectSet`
+  (`+0x943c`). **Inert in March** (only Rose/Ain rows match; not tested).
+  **For C10b-2:** June then calls `32296f30( handle, category 1, by pointer )` at `32043cf5`. The helper is not in March yet, so the tag is not
+  ported; the site is the end of the `if( INVALID_EFFECTSET_HANDLE != hJuneEffectSet )` branch in `PlayEmotion`.
+- **Data**: `UnitViewerEffectSetTable` added to `LUA10` in `stage_june_fx.py`; `--only UnitViewerEffectSetTable.lua --apply` staged one file and one
+  manifest key. Enum check: `UT_ROSE` = 11, `UT_AIN` = 12, `DT_MAJOR` 0, `DT_MINOR` 1 are in `Enum.src.lua` and in the compiled `Enum.lua`.
+  `PACK OK data036` (190 entries, `+1 added, -0 removed, ~0 changed`); `COPY OK data036` (user said "copy"; md5 `62318ebb`, backup
+  `kom_backup_tools/data036.kom.20261007_133401`).
+
+**Hygiene.** `flagcheck JUNE_UNIT_VIEWER_EFFECT_TABLE --with JUNE_FX_DEBUG --worktree --files <my 7 files>`:
+`files: 5 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS` (`X2UnitManager.h`'s 23 inserted lines were first LF next to an LF anchor; converted to CRLF to match the file's majority).
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,283,456 B, dated 2026-10-07 13:52:04, md5 d8917e2f820962fe11434f6936778693, equal to X2/US_SERVICE/x2.exe (2026-10-07 13:51:59)`;
+`UNIT_VIEWER_FX_LOAD`, `UnitViewerEffectSetTable.lua` (UTF-16) and `AddUnitViewerEffectSet` are in the deployed exe. The build also contained a peer's
+uncommitted `X2BuffTempletManager.cpp` (14b) edit, which is not in my commit.
+
+**How to see it in game.** Start the game (data036.kom is already copied), reach the login screen, close it, say "check logs":
+`python tools/logs.py --tag JUNE_FX` should show `JUNE_FX UNIT_VIEWER_FX_LOAD UnitViewerEffectSetTable.lua loaded=1 rows=18 skipped_duplicate=0 skipped_bad_args=0`, with 0 EXCEPTION.
+No visible change: the viewer consumer is C9c-2b and the `PlayEmotion` path is inert. Not yet play-tested.
+Open question for the user: none.
+
+---
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),
