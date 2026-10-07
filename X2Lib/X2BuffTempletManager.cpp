@@ -703,9 +703,17 @@ void CX2BuffTempletManager::LogLoadSummary() const
 		if ( mItr->second->IsNotSaveGageManager() )
 			++uiNotSaveGageManager;
 	}
+#ifdef SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
+	/// Phase 11b ported IS_STORE_BUFF's consumer (June's keep-store clear 3229fb10) and Phase 13 turned it on
+	CX2JuneBuffCapture::Line( "IS_STORE_BUFF on %u templet(s): kept over a game change (June keep-store clear 3229fb10; world buffs among them return through the world-buff records)", uiStoreBuff );
+	if ( 0 < uiInstanceKillDebuff + uiNotSaveGageManager )
+		CX2JuneBuffCapture::Line( "unsupported (stored, consumer not ported): IS_INSTANCE_KILL_DEBUFF on %u (June DamageReact via 31fe4150), NOT_SAVE_GAGEMANAGER on %u (no June reader found)",
+			uiInstanceKillDebuff, uiNotSaveGageManager );
+#else // SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 	if ( 0 < uiStoreBuff + uiInstanceKillDebuff + uiNotSaveGageManager )
 		CX2JuneBuffCapture::Line( "unsupported (stored, consumer not ported): IS_STORE_BUFF on %u templet(s) (June keep-store clear 3229fb10), IS_INSTANCE_KILL_DEBUFF on %u (June DamageReact via 31fe4150), NOT_SAVE_GAGEMANAGER on %u (no June reader found)",
 			uiStoreBuff, uiInstanceKillDebuff, uiNotSaveGageManager );
+#endif SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_LOADER

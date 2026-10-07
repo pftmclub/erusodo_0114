@@ -408,7 +408,11 @@ public:
 			m_mapNpcID.clear();
 			m_mapNpcNoDrop.clear();
 			m_mapNpcActive.clear();
+#ifdef SERV_IRUHADEV_OFFLINE_NPC_UID_BASE
+			m_iNextNpcUID		= 1000000;		///< offline design: above every save unit UID (12-30), so no monster shares a character's UID (UID-only lookups such as CX2GageManager's icon list)
+#else // SERV_IRUHADEV_OFFLINE_NPC_UID_BASE
 			m_iNextNpcUID		= 1;			///< RoomMonsterManager.cpp:20 seeds it the same way
+#endif SERV_IRUHADEV_OFFLINE_NPC_UID_BASE
 			m_mapDropItem.clear();
 			m_iNextDropUID		= 1;
 			m_mapDropED.clear();

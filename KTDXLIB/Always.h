@@ -4782,7 +4782,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              first time each new ChangeStat-class type lands on a unit, and a
 //              one-shot line the first time its read site changes a value.
 //              Removable: undefine it and no log string remains.
-#define SERV_IRUHADEV_JUNE_BUFF_DEBUG
+//              Disabled 2026-10-07 by Phase 14's close-out (play-test sweep
+//              passed); define it again to bring the lines back.
+//#define SERV_IRUHADEV_JUNE_BUFF_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -5397,4 +5399,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined(SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE) && !defined(SERV_IRUHADEV_JUNE_DAMAGEDATA)
 #error SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE needs SERV_IRUHADEV_JUNE_DAMAGEDATA
 #endif SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: Offline design (not June, not March; user 2026-10-07): the
+//              emulator numbers monsters from 1,000,000 instead of 1. The real
+//              server seeds 1 (RoomMonsterManager.cpp:20), which is safe live
+//              because character UIDs are large; the offline save's are 12-30,
+//              so monster #19 shared Iivue's UID and its clear-all wiped her
+//              buff icons (CX2GageManager matches on the UID alone, as June's
+//              32489980 does). Found by june-buff Phase 14's check 9.
+#define SERV_IRUHADEV_OFFLINE_NPC_UID_BASE
 //////////////////////////////////////////////////////////////////////////

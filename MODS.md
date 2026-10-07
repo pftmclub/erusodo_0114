@@ -50,6 +50,8 @@ column.
 | `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` | 2026-10-06 (offline grade Phases 1-3c) | `KTDXLIB/Always.h:5263` | `X2Lib/X2DungeonSubStage.h`/`.cpp` (stage-script grade -> NPCData), `X2Lib/Offline/Handlers_Room.cpp`, `X2OfflineServer.h`, `X2OfflineBattleField.h`/`.cpp`, `X2OfflineDropTable.h`/`.cpp` | -- |
 | `SERV_IRUHADEV_OFFLINE_FIELD_QUEST_NO_ROW_DESIGN` (designed, not server/June) | 2026-10-06 (offline grade Phase 3c) | `KTDXLIB/Always.h:5281` | `X2Lib/Offline/Handlers_Room.cpp` (a paid field kill with share >= 0.5 counts for hunt quests without a field drop row; since the Phase 3c review a row-less field monster also still drops its quest items, while its special, static and eater items stay off as on the server) | -- |
 | `SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE` | 2026-10-07 (June effect completion C9) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_DAMAGEDATA`) | `X2Lib/X2DamageManager.h`/`.cpp` (`JuneDamageDataRecord`, `InsertDamageData_LUA`, `OpenJuneDamageDataScript`, `JuneApplyDamageDataRecord`; ctor load; apply after the `DAMAGE_DATA_KEY_NAME` read), `X2Lib/X2Main.cpp` (`CX2DamageManager` class bind) | -- |
+| `SERV_IRUHADEV_OFFLINE_NPC_UID_BASE` (offline design, not server/June) | 2026-10-07 (june-buff Phase 14) | `KTDXLIB/Always.h` (end) | `X2Lib/Offline/X2OfflineServer.h` (room `Clear()`: monster UIDs start at 1,000,000) | -- |
+| `SERV_IRUHADEV_JUNE_BUFF_DEBUG` | 2026-10-04, **disabled 2026-10-07** (june-buff Phase 14) | `KTDXLIB/Always.h:4787` (`#define` commented out; re-enable to diagnose) | ~250 `[JUNE_BUFF] first ...` debug sites across `X2Lib` (buff templets, game units, users, NPCs, `X2Main.cpp`'s `JuneBuffTestNewStat_LUA` console hook) | -- |
 
 What each one does:
 
@@ -2995,6 +2997,18 @@ their sets now appear where the effect is, not on the caster.
 Revert: undefine the two flags in `KTDXLIB/Always.h` and rebuild all four projects (they sit in the PCH). JUNE_BUGS rows 74-78 record
 the June quirks kept as they are. The save character `NWatcher` (Night Watcher, class 114, level 70, unit 31) was added for the
 play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createchar.sql`.
+
+### June buff port, Phase 14: play-test sweep and close-out
+
+- **`SERV_IRUHADEV_JUNE_BUFF_DEBUG` disabled.** The one-shot `[JUNE_BUFF] first apply/read ...` lines, the per-event
+  stick-shake/aura/custom-function lines and the `JuneBuffTestNewStat_LUA` console hook are compiled out. The load-time lines
+  (load summary, socket census, rank tables, world buffs) stay. **Revert:** uncomment the `#define` and rebuild all projects.
+- **`SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF`** also rewords the stale load line: `IS_STORE_BUFF on 119 templet(s): kept over a game
+  change ...` replaces the `unsupported ... IS_STORE_BUFF` text (its consumer was ported in 11b and turned on in 13).
+- **`SERV_IRUHADEV_OFFLINE_NPC_UID_BASE` (offline design).** The emulator numbers monsters from 1,000,000. The real server starts
+  at 1, which is safe live because character UIDs are large; the save's are 12-30, so a field's 19th monster shared Iivue's UID and
+  its clear-all on a field move wiped her buff icons (`CX2GageManager` matches on the UID alone, as June's `32489980` does).
+  **Revert:** undefine it (monsters number from 1 again; the icon wipe comes back for any character whose UID a monster reaches).
 
 ## Reverting to stock
 

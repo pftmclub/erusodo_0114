@@ -44,30 +44,30 @@ The user decided (2026-10-02):
 
 ## Model, effort, review
 
-| Phase | Item | Depends on | Kind | Model | Effort | Review |
-|---|---|---|---|---|---|---|
-| 0 | Branch, doc, `buff_census.py` | – | tooling, read-only | Sonnet 5.5 | medium | none |
-| 1 | June buff engine RE map | 0 | Ghidra, read-only | Opus 5.5 | **xhigh** | none (self-check vs census) |
-| 2 | Enum reconciliation (Lua + C++) | 1 | data + C++ | Sonnet 5.5 | high | required (Opus 5.5) |
-| 3 | Loader hardening + `[JUNE_BUFF]` logging | 1, 2 | C++ | Opus 5.5 | high | required |
-| 4a | Templet/factor top-level parity (stacking, replace, conditions) | 3 | C++ | Opus 5.5 | high | required |
-| 4b | Existing BBT/BFT/BDT parser + runtime parity | 3 | C++ | Opus 5.5 | high | required |
-| 5 | New BBT group A: ChangeStat types (76, 85–87, 96, 108, 109) | 2, 4b | C++ transcription | Sonnet 5.5 | high | required (Opus 5.5) |
-| 5b | Group A: transcription-ready stat types (79–84, 93, 106, 107) | 5 | C++ transcription | Sonnet 5.5 | high | required (Opus 5.5) |
-| 5c | Group A: rewritten hosts (78, 88, 92) | 5b, 4b | C++ (June host rewrites) | Opus 5.5 | high | required |
-| 6 | New BBT group B: skill-scoped (75, 91, 103; classes of 89, 90, 98–100) | 5, 4b | C++ transcription | Sonnet 5.5 | high | required (Opus 5.5) |
-| 6b | Group B: hosts of 89, 90, 98, 99, 100 | 6 | C++ (June host rewrites) | Opus 5.5 | high | required |
-| 7 | New BBT group C: flags/immunity with ready readers (73, 94, 95, 104, 105) | 2, 4a | C++ | Opus 5.5 | high | required |
-| 7b | Group C: rewritten hosts, per-class virtuals (74, 77, 97, 101, 102, 110) | 7 | C++ (new mechanisms) | Opus 5.5 | high | required |
-| 8 | New finalizers + UDP counter sync | 2, 4b | C++ (new mechanisms) | Opus 5.5 | high | required |
-| 9 | Custom-function buffs (17 June BTIs) | 4b | C++ (new classes) | Opus 5.5 | high | required |
-| 10 | Buff groups + June-only script bindings | 3 | C++ + data | Opus 5.5 | high | required |
-| 11 | Premium/world buffs (`BuffTemplet.lua`) + offline path | 3 | C++ + data (+ offline) | Opus 5.5 | high | required |
-| 12 | Buff icons/UI assets | 2 | data | Sonnet 5.5 | medium | light |
-| 13 | Adopt June buff data, build, hand off pack | 4–12 | data + build | Sonnet 5.5 | medium | required (Opus 5.5) |
-| 14 | Play-test sweep + close-out | 13 | verify + root-cause | Opus 5.5 | high | none |
-| 15 | Enchant system parity (added 2026-10-04) | – | RE + C++ + data | Opus 5.5 | high | required |
-| 16 | Socket-option parity, then BBT 92 (added 2026-10-04, from 5c) | 5c | RE + C++ + data | Opus 5.5 | high | required |
+| Phase | Item | Depends on | Kind | Model | Effort | Review | Done |
+|---|---|---|---|---|---|---|---|
+| 0 | Branch, doc, `buff_census.py` | – | tooling, read-only | Sonnet 5.5 | medium | none | 2026-10-02 |
+| 1 | June buff engine RE map | 0 | Ghidra, read-only | Opus 5.5 | **xhigh** | none (self-check vs census) | 2026-10-03 |
+| 2 | Enum reconciliation (Lua + C++) | 1 | data + C++ | Sonnet 5.5 | high | required (Opus 5.5) | 2026-10-03 |
+| 3 | Loader hardening + `[JUNE_BUFF]` logging | 1, 2 | C++ | Opus 5.5 | high | required | 2026-10-03 |
+| 4a | Templet/factor top-level parity (stacking, replace, conditions) | 3 | C++ | Opus 5.5 | high | required | 2026-10-03 |
+| 4b | Existing BBT/BFT/BDT parser + runtime parity | 3 | C++ | Opus 5.5 | high | required | 2026-10-04 |
+| 5 | New BBT group A: ChangeStat types (76, 85–87, 96, 108, 109) | 2, 4b | C++ transcription | Sonnet 5.5 | high | required (Opus 5.5) | 2026-10-04 |
+| 5b | Group A: transcription-ready stat types (79–84, 93, 106, 107) | 5 | C++ transcription | Sonnet 5.5 | high | required (Opus 5.5) | 2026-10-04 |
+| 5c | Group A: rewritten hosts (78, 88, 92) | 5b, 4b | C++ (June host rewrites) | Opus 5.5 | high | required | 2026-10-04 (92 -> 16) |
+| 6 | New BBT group B: skill-scoped (75, 91, 103; classes of 89, 90, 98–100) | 5, 4b | C++ transcription | Sonnet 5.5 | high | required (Opus 5.5) | 2026-10-04 |
+| 6b | Group B: hosts of 89, 90, 98, 99, 100 | 6 | C++ (June host rewrites) | Opus 5.5 | high | required | 2026-10-04 |
+| 7 | New BBT group C: flags/immunity with ready readers (73, 94, 95, 104, 105) | 2, 4a | C++ | Opus 5.5 | high | required | 2026-10-04 |
+| 7b | Group C: rewritten hosts, per-class virtuals (74, 77, 97, 101, 102, 110) | 7 | C++ (new mechanisms) | Opus 5.5 | high | required | 2026-10-05 (with 7c-7e) |
+| 8 | New finalizers + UDP counter sync | 2, 4b | C++ (new mechanisms) | Opus 5.5 | high | required | 2026-10-05 |
+| 9 | Custom-function buffs (17 June BTIs) | 4b | C++ (new classes) | Opus 5.5 | high | required | 2026-10-05 (9a-9c) |
+| 10 | Buff groups + June-only script bindings | 3 | C++ + data | Opus 5.5 | high | required | 2026-10-05 (with 10b) |
+| 11 | Premium/world buffs (`BuffTemplet.lua`) + offline path | 3 | C++ + data (+ offline) | Opus 5.5 | high | required | 2026-10-05 (with 11b) |
+| 12 | Buff icons/UI assets | 2 | data | Sonnet 5.5 | medium | light | 2026-10-04 |
+| 13 | Adopt June buff data, build, hand off pack | 4–12 | data + build | Sonnet 5.5 | medium | required (Opus 5.5) | 2026-10-07 |
+| 14 | Play-test sweep + close-out | 13 | verify + root-cause | Opus 5.5 | high | none | 2026-10-07 |
+| 15 | Enchant system parity (added 2026-10-04) | – | RE + C++ + data | Opus 5.5 | high | required | 2026-10-07 |
+| 16 | Socket-option parity, then BBT 92 (added 2026-10-04, from 5c) | 5c | RE + C++ + data | Opus 5.5 | high | required | 2026-10-07 (through 16-step3c2) |
 
 Phases 5–9 are independent of each other and can run in any order, except inside a group: 5 → 5b → 5c (92 needs Phase 4b's BBT 7/8 second members), 5 → 6 → 6b (91 shares 85/86's host function) and 7 → 7b. Kickoff and review prompts for the unfinished phases are in `kickoffs/june-buff/` (see `STATUS.md`). Phase 13 must come last among the data phases.
 
@@ -4347,6 +4347,42 @@ Run after the user had already copied `data036` (09:32) and played it, so the "b
 **Run with:** Opus 5.5, high effort.
 
 **Kickoff:** `kickoffs/june-buff/14.md` - start it with `/x2-phase june-buff 14`. The inline prompt that stood here was retired on 2026-10-04; `kickoffs/` is the source of truth.
+
+### Phase 14 — Done (2026-10-07, Opus 5.5 high)
+
+**Sweep (exe 3c889fa6, run 11:19-11:28, user: all passed; logs read).** Real June IDs only: the earlier phases' throwaway setup lines are dead, because factor IDs 362 and up are now June factors. `BTI_DEBUFF_SILENCE` has no June factor, so the debuff check used 795.
+
+| Group | Check (Iivue, Code: Empress unless noted) | Evidence (`ErrorLog.txt`) |
+|---|---|---|
+| stat | BFI 1109 Spell of Destroy, x2 on monsters | `first apply BBT 108, change type 3, value 2`, `first read BBT 108` |
+| skill type | BFI 756 Limit Over (needs Phase 13's `ST_SPECIAL_ACTIVE_GRADE_1-3`) | `first apply BBT 89 ... BTI 730, 4 pair(s), first type 6 rate 1.15` |
+| debuff | BFI 795 Silent Rage silence, 5 s | skills blocked (user); March BBT, no line |
+| immunity | BFI 779 Bloodlust, then BFI 82 stun | `first apply BBT 94 ... BTI 753`, `first read BBT 94: IMMUNE_BUFF_TEMPLATE_ID refused BTI (52)` |
+| finalizer 15 | BFI 836 hold, 4 shakes | prompt shown, counts 1-4, `BFT 15 end hook, BTI 812` (twice: JUNE_BUGS #15) |
+| finalizer 14 | BFI 770 aura | `aura (BFT 14) ended, BTI 744` at once (player auras wait for june-effect C6c); 16 not testable (no TC slot) |
+| custom function | BFI 30 Phantom Sword (jtLordKnight), BFI 56 on all monsters | `custom function created: BTI 29 (PhantomSword)`, `BTI 62 (MarkOfCommand)` |
+| mob-applied | Ranox Burned Forest Normal, Mag Stones apply BFI 512 to themselves | 0 `requested but not loaded` (BFI 512 was the trial-load's missing factor) |
+| premium | Arcanum from the cash shop, used in a field | world-buff lines, icon carried (user) |
+
+Load summary `1130 loaded + 0 placeholder(s)`, 0 EXCEPTION.
+
+**Check 9 (store buff over a map change): two findings, from a temporary trace (`SERV_IRUHADEV_JUNE_BUFF_STORE_TRACE`, removed).**
+1. **June behaviour, not a defect.** The test buff, Giant Potion BTI 191, is a world buff as well as a store buff (101 of the 119 store templets are). The gage save's collector skips world buffs: March's `GetBuffFactor` and June's `3229fd80` both test templet `+0x65` (finished) and `+0x66` (world). So the trace logged `1 store` on the unit and `0 store factor(s) kept`. Real elixirs come back through the world-buff records (Phase 11), as the Arcanum did.
+2. **Offline defect, fixed.** The icons vanished at every field move, while the effects stayed. `EGS_JOIN_BATTLE_FIELD` keeps the game and deletes the old field's monsters. Each monster's clear-all ends in `ClearBuffList( its UID )`, which matches on the UID alone (March's `CX2GageManager::ClearBuffList`, June's `32489980`, called unconditionally at the end of `3229fb10`). The emulator numbers monsters from 1, as the real server does (`RoomMonsterManager.cpp:20`), and the save's characters are 12-30, so monster 19 cleared Iivue's icons. The sweep found no code that keeps a monster UID in a narrower type than `int` (UDP packets carry `int`, AI-party bots are negative, the lock-on tests are `< 0`). **Fix (user, 2026-10-07): new flag `SERV_IRUHADEV_OFFLINE_NPC_UID_BASE`**, which seeds `m_iNextNpcUID` at 1,000,000 (`X2Lib/Offline/X2OfflineServer.h`). It predates the buff port: any death of monster 19 already wiped Iivue's icons.
+
+**Close-out.**
+- `SERV_IRUHADEV_JUNE_BUFF_DEBUG` commented out. The build is clean with it off, and no `#else` of it exists.
+- The stale `unsupported ... IS_STORE_BUFF` load line is reworded under `_STORE_BUFF`, with the original in `#else`.
+- MODS.md (2 rows + a section), checklist §7 ("Buff blockers cleared"), and a Done column on this doc's phase table.
+
+**Hygiene.**
+- `flagcheck.py OFFLINE_NPC_UID_BASE --worktree --files KTDXLIB/Always.h X2Lib/Offline/X2OfflineServer.h X2Lib/X2BuffTempletManager.cpp`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR` / `0 deleted line(s) ... 0 #else/#endif without the flag token` / `RESULT: PASS`.
+- `JUNE_BUFF_STORE_BUFF`, same files: `files: 1 PASS, ... 2 OTHER, 0 FAIL` / `0 deleted` / `RESULT: PASS`.
+- Each OTHER is the other flag's file. The one deleted line in `Always.h` is the DEBUG `#define`, commented out on purpose.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,275,264 B, dated 2026-10-07 13:13:51, md5 4593250760e37c42a96ad95db62c9113, equal to X2/US_SERVICE/x2.exe (2026-10-07 13:13:47); built at mods/june-buff-port a68b45d + 3 uncommitted code file(s).` The 3 files are this phase's. The `#else` token was added after the build; it is a comment only.
+
+**Play-test owed (regression + UID fix):** the load summary without debug lines; check 9's icons surviving a field move; monster UIDs from 1000000 in `offline_server.log`.
 
 ---
 

@@ -200,6 +200,16 @@ The buff port (`JUNE_BUFF_PORT_PHASES.md`, "Phase 4b-i, part 3") ports the buff 
 stops at the character boundary. Each item below is June character code that reads or drives a
 buff-side store. Port it with the character, whole, and wire it to the store named here.
 
+**Buff blockers cleared (june-buff Phase 14, 2026-10-07).** The buff engine and June's buff data are
+in: every June BBT/BFT/BDT has a handler, and `data036` ships June's `BattleFieldBuffTemplet`/`Factor`
+(1001 templets, 1130 factors + 69 `_INT`, 0 placeholders) and the Enum gaps (`SKILL_SLOT_TYPE`,
+`UT_LUCIEL`, `ST_SPECIAL_ACTIVE_GRADE_1-3`). A June character script's `BUFF_TEMPLET_ID`/`BUFF_FACTOR_ID`
+now resolves and applies; the sweep played one buff per group (stat, skill type, flag/immunity, the new
+finalizers, custom functions, mob-applied, premium). What is left on the buff side for a character is
+only this section's rows (the class-side hooks) and section 1's numerical data. The debug lines are
+compiled out now (`SERV_IRUHADEV_JUNE_BUFF_DEBUG` off); re-enable it to see a ported class's first
+apply/read lines.
+
 | June | Class | What it does | Buff-side store in March |
 |---|---|---|---|
 | `32bb22d0` / `32bb2740` (vslots 49/50, `HyperModeBuffEffectStart/End`) | Ara | Start: when `+0x9744 > 0` and the buff hyper count `< 3`, a loop over June-only members; End: writes the count back to 0 | `CX2GameUnit::GetHyperModeCountByBuff()` (June `+0x6844`). **March has both functions, June reworked them: port each whole.** |
