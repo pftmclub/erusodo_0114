@@ -4570,6 +4570,13 @@ The setter's June half:
 
 **Open for the user:** June rewrote `CX2UIManager::SetShowUI`, `CX2UIQuickSlot::SetEnable` and the quick-quest toggle body around June-only systems (the guide manager, gage-manager cooltime UI, `3266d250`). Only their tutorial terms are ported; the rest belongs to the June UI parity work (`JUNE_UI_PARITY_PHASES.md`).
 
+**Play-test passed 2026-10-07, logs read.** Run 17:31:42, after the deploy, on exe `0eb0990b` (a peer's later build at `fc01407`, which contains `6c9b694`); 0 EXCEPTION. All five checks were reported passed by the user:
+- **First select:** `first select: unit 39 select #1 -> m_bFirstSelect 1 (lv 1, exp 0)`, then `EGS_CREATE_TUTORIAL_ROOM_REQ` and `tutorial keys: default key map applied to 41 action(s), 41 kept` (Tut14c, Elsword Swordsman). On exit at 17:33:55: `... restored to 41 action(s)`.
+- **Second select:** `select #2 -> m_bFirstSelect 0 (lv 2, exp 1500)`, then the village, with no keys line.
+- **Second tutorial run:** a manual tutorial entry right after select #3 (`m_bFirstSelect 0`, level 2) applied the default keys again. The latch had been cleared by the first exit. The run gave 5 `tutorial clamp: user UID 39 reached HP 0 ..., HP set to 1` lines (17:35:34-59), and the keys were restored at 17:36:06.
+- **Regression on Iivue (unit 19):** the dungeon ran, and the death was followed by a skipped continue. `select #1 -> m_bFirstSelect 1 (lv 80)` is harmless: the tutorial needs level 1.
+- **UNHANDLED:** 5 `E_DISABLE_HB_CHECK_REQ` (known) and 1 `EGS_SKIP_CONTINUE_DUNGEON_NOT` (the regression death's continue skip). Neither is this phase's.
+
 ---
 
 ## Phase 15 — Enchant system parity (attribute enchant rework)
