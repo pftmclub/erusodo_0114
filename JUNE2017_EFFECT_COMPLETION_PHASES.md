@@ -1460,6 +1460,67 @@ clean exit. 0 EXCEPTION, no new `X2_*.tmp`, the C9c line `UNIT_VIEWER_FX_LOAD ..
 
 **User owes:** /cost.
 
+### C9e - Review (2026-10-07, Opus 5.5 high): two findings fixed (GUUser placement, incl. C9c-1's block; square StateStart gate), `323f56d0` -> new phase C9f
+
+Checked against June in Ghidra (read-only) and the exe bytes (`disasm_range.py`, the jump table read from `unpacked_x2.exe`).
+- **Hygiene** (`flagcheck JUNE_EMOTION_EFFECT_SET --range 9e86741^..HEAD`): `files: 7 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  The OTHER row is the peer commit `c2029da` (C9c-2b play-test 1, `..._VIEWER_EFFECT_PLAYER`) in `X2BaseUnitViewerUI.cpp`. It does not touch C9e's lines.
+
+**Correct as ported**
+- **`32355a50`**: the 11 ids and the 11 UTF-16 strings match. Each name occurs once in June's `UIEffectSet.src.lua`. `0x1c-0x20` = Keroro, Kururu,
+  Giroro, Dororo, Tamama.
+- **GUUser `OnFrameMove`**: decoded from the bytes (targets `32070188` = `3206eba6`/`3206ebc6`/`3206ed75`/`3206ebdd`).
+  - Stop: 1-3, 25-27, 54-59. Keep: 28-32, 35, 38-41, 47, 48. Default: everything else, including 0 and > 59 (the `JA`).
+  - The default path skips only the `+0x93dc`/`+0x93ec` drains, then stops `+0x9434` when `GetEmotionData` is NULL (`@3206ed63`). This matches the port.
+- **The play**: it plays only when the name is not empty (`31cda210` against `L""`) and `g_pData +0x9c` is set. It stops a valid old handle first and stores the new one.
+- **Square**:
+  - play `@323ff8c5-323ff93e` (`321e2120( name, this )`, no stop first, stored into `+0x7ac`);
+  - dtor `@323f7b36`;
+  - `323f4640` (its `323f34a0( 0 )` is the sit-item system).
+- **Viewer** `@31fa5995-31fa59d2` (`32959640( 31fac3c0(), name, 1 )` on a non-empty name).
+- **NULL skin anim** (`32959680`): June jumps to the shared tail `3295987e`, not to an empty return. That tail re-links the trace-target mesh
+  (entry `+0xc` = `+0x3c`) when an entry's EffectData `+0xfc` == 1. C9c-2b's port returns early on its other two exits (`3295987e` too), so
+  the early return is equivalent. Only the code comment "does nothing for it" is loose. It is left alone: a peer is editing that file.
+- **Data**:
+  - `UIEffectSet.src.lua` = 78 templets, all unique: the 67 first, then the 11 in the helper's order, each identical to June's block. None of
+    the 11 replaced an existing templet.
+  - `UIMajorXMeshPlayer.txt` = March's (`march_data/data036`) plus one 104-line insertion (the 5 templets) before the closing `}`, CRLF kept.
+  - The 26 `ET_PARTICLE_UI_MAJOR` names all resolve in `UIMajorParticle.txt`, and each of the 5 mesh names is there once.
+
+**Finding 1 (fixed, both flags): June plays the per-emotion set and C9c-1's table set before its skin-anim test.**
+- June's skin-anim test is `32071d80 @32043d02` with `JZ @32043d25`, and the anim change comes after it.
+- The per-emotion block (`@32043a33-32043b62`) and C9c-1's block (`31fcf490 @32043b64` stop + table play `@32043b69-32043cf5`) both run
+  before it, right after the guards.
+- The port had both inside March's `if( m_pXSkinAnim != NULL )`. Both now sit after the STANDUP guard and before that test, in June's order,
+  each under its own flag. C9c-1's comment says so.
+- Flags off, the function is now identical to the March base. The moved separator line was dropped, so the extra blank HEAD had after
+  `m_ePlayedEmotion = eEmotionId;` is gone.
+- Effect today: none (inert ids; a GUUser always has a skin anim).
+
+**Finding 2 (fixed): the square `StateStart` stop is gated in June.**
+- The gate is `@323fbca2-323fbcb7`: `m_pUnitViewer` (`+0x2ec`) and `GetXSkinAnim()` (`31fac3c0`). It is now ported verbatim.
+
+**`323f56d0` identified: not ported, planned as C9f.**
+- It walks the leaving unit's viewer equips (`31fa2f20( 0x51 )`). For each equip found in an item-id map (`3280b640`, `g_pData +0x34`), it stops
+  the equip's own effect set (`3295ca60`, `CX2Eqip +0x15f8`).
+- That is a June-only **per-equip effect-set** system. It is played from GUUser `CommonFrameMove @32066027` and from square `32400620 @32402225`,
+  with timers. It is not the emotion system.
+- March has no handle and no map, and no STATUS row or backlog stage owns it. So it is **C9f** (Opus, identify: the loader is not found yet),
+  then C9f-2 (port).
+- Funcmap: 6 rows `Effect C9e review`, all `candidate`.
+
+**Hygiene of the fixes** (`--worktree --files X2Lib/X2GUUser.cpp X2Lib/X2SquareUnit.cpp`): RESULT PASS. `X2SquareUnit.cpp` PASS (+3 -2:
+the 2 deleted lines are this flag's own old comment line and condition). `X2GUUser.cpp` OTHER, because the move spans two flags. Its 49
+deleted lines are the two moved blocks. With both flags stripped, the worktree equals HEAD, minus HEAD's extra blank. Range: see below.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,313,152 B, dated 2026-10-07 17:40:43, md5 30a7d90c9eea6c7b5d5c2b80f463d20b, equal to X2/US_SERVICE/x2.exe (2026-10-07 17:40:38); built at mods/june-buff-port 2751f9c + 5 uncommitted code file(s).`
+The 5 are the 2 files of this review plus a peer's C10b-1 work in progress (`Always.h`, `X2GameUnit.cpp/.h`, and one hunk in `X2GUUser.cpp` at `DamageReact`), so that work is in this exe too.
+
+**Play-test (regression):** an emote in the village, at character select and in a dungeon; village -> dungeon -> village; clean exit.
+Pass = 0 EXCEPTION, no new `X2_*.tmp`, and `UNIT_VIEWER_FX_LOAD ... rows=18` plus `ES_LOAD UIEffectSet.lua loaded=1 templets=78` unchanged.
+**User owes:** the play-test, /cost.
+
 ---
 
 ## C10 - Decided absent systems

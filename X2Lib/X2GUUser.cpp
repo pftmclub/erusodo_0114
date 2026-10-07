@@ -29103,6 +29103,56 @@ bool CX2GUUser::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId, wstring &wstrEmoti
 
 	if( eEmotionId == CX2Unit::ET_STANDUP && m_ePlayedEmotion != CX2Unit::ET_SITWAIT )
 		return false;
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+	// C9e review: June runs this block and C9c-1's below before its skin-anim test (32071d80 @32043d02, JZ @32043d25; the
+	// anim change follows it), so both sit after March's guards and before if( m_pXSkinAnim != NULL ), in June's order.
+	// June 32043380 @32043a33-32043b62, immediately before 31fcf490 @32043b64 (the +0x943c stop below): the per-emotion set of
+	// 32355a50 on the UI effect-set manager (g_pData +0x9c), every PlayEffectSet default, owner this. A previous handle is
+	// stopped first; the new one is stored unconditionally (June stores -1 too) and is NOT tagged with 32296f30.
+	// INERT in March: the name is empty for every id March has. June's EmotionData UI_EFFECT_SET path (@3204429a) is the
+	// missing emotion system.
+	if( NULL != g_pData )
+	{
+		const std::wstring wstrJuneEmotionSetName = CX2Unit::GetJuneEmotionEffectSetName( static_cast<int>( eEmotionId ) );
+		if( false == wstrJuneEmotionSetName.empty() )
+		{
+			g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionSetEffectSet );
+			m_hJuneEmotionSetEffectSet = g_pData->GetUIEffectSet()->PlayEffectSet( wstrJuneEmotionSetName, this );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+	// June 32043380 @32043b69-32043cf5, before the skin-anim test (C9e review: moved here) and the emotion sound: look the emotion motion up in
+	// UnitViewerEffectSetTable.lua (unit class, duo 0 = DT_MAJOR: March has no duo) and, on a hit, play the set on the
+	// UI effect-set manager (g_pData +0x9c) with this unit as owner, keeping the handle (+0x943c). Start time and loop
+	// are not used on this path. INERT in March: only Rose/Ain rows (Emotion_Sad / SitReady / SitWait / StandUp) match
+	// and neither type exists here. June then tags the instance with 32296f30( handle, category 1, by pointer ):
+	// that helper is C10b-2's and is not ported yet.
+	// C9c-1 review: June 31fcf490, called @32043b64 before the unit-manager check: clear +0x9438 and stop the previous
+	// PlayEmotion effect set (+0x943c) on the UI effect-set manager. No-op on an invalid handle.
+	if( NULL != g_pData )
+	{
+		m_eJuneEmotionEffectSetEmotion = CX2Unit::ET_NONE;
+		g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionEffectSet );
+	}
+	if( NULL != g_pData && NULL != g_pData->GetUnitManager() && NULL != GetUnit() )
+	{
+		std::wstring wstrJuneEffectSetName;
+		float fJuneStartTime = 0.f;
+		bool bJuneLoop = false;
+		if( true == g_pData->GetUnitManager()->GetUnitViewerEffectSet( wstrEmotionType, GetUnit()->GetClass(), 0,
+			wstrJuneEffectSetName, fJuneStartTime, bJuneLoop ) )
+		{
+			const CX2EffectSet::Handle hJuneEffectSet = g_pData->GetUIEffectSet()->PlayEffectSet( wstrJuneEffectSetName, this );
+			if( INVALID_EFFECTSET_HANDLE != hJuneEffectSet )
+			{
+				// June @32043cda / @32043ce2: +0x9438 = the emotion id, +0x943c = the handle
+				m_eJuneEmotionEffectSetEmotion = eEmotionId;
+				m_hJuneEmotionEffectSet = hJuneEffectSet;
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 
 	if(m_pXSkinAnim != NULL)
 	{						
@@ -29117,55 +29167,6 @@ bool CX2GUUser::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId, wstring &wstrEmoti
 			m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
 
 		m_ePlayedEmotion = eEmotionId;
-#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
-		// June 32043380 @32043a33-32043b62, immediately before 31fcf490 @32043b64 (the +0x943c stop below): the per-emotion set of
-		// 32355a50 on the UI effect-set manager (g_pData +0x9c), every PlayEffectSet default, owner this. A previous handle is
-		// stopped first; the new one is stored unconditionally (June stores -1 too) and is NOT tagged with 32296f30.
-		// INERT in March: the name is empty for every id March has. June's EmotionData UI_EFFECT_SET path (@3204429a) is the
-		// missing emotion system.
-		if( NULL != g_pData )
-		{
-			const std::wstring wstrJuneEmotionSetName = CX2Unit::GetJuneEmotionEffectSetName( static_cast<int>( eEmotionId ) );
-			if( false == wstrJuneEmotionSetName.empty() )
-			{
-				g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionSetEffectSet );
-				m_hJuneEmotionSetEffectSet = g_pData->GetUIEffectSet()->PlayEffectSet( wstrJuneEmotionSetName, this );
-			}
-		}
-#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
-
-#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
-		// June 32043380 @32043b69-32043cf5, after the anim and before the emotion sound: look the emotion motion up in
-		// UnitViewerEffectSetTable.lua (unit class, duo 0 = DT_MAJOR: March has no duo) and, on a hit, play the set on the
-		// UI effect-set manager (g_pData +0x9c) with this unit as owner, keeping the handle (+0x943c). Start time and loop
-		// are not used on this path. INERT in March: only Rose/Ain rows (Emotion_Sad / SitReady / SitWait / StandUp) match
-		// and neither type exists here. June then tags the instance with 32296f30( handle, category 1, by pointer ):
-		// that helper is C10b-2's and is not ported yet.
-		// C9c-1 review: June 31fcf490, called @32043b64 before the unit-manager check: clear +0x9438 and stop the previous
-		// PlayEmotion effect set (+0x943c) on the UI effect-set manager. No-op on an invalid handle.
-		if( NULL != g_pData )
-		{
-			m_eJuneEmotionEffectSetEmotion = CX2Unit::ET_NONE;
-			g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionEffectSet );
-		}
-		if( NULL != g_pData && NULL != g_pData->GetUnitManager() && NULL != GetUnit() )
-		{
-			std::wstring wstrJuneEffectSetName;
-			float fJuneStartTime = 0.f;
-			bool bJuneLoop = false;
-			if( true == g_pData->GetUnitManager()->GetUnitViewerEffectSet( wstrEmotionType, GetUnit()->GetClass(), 0,
-				wstrJuneEffectSetName, fJuneStartTime, bJuneLoop ) )
-			{
-				const CX2EffectSet::Handle hJuneEffectSet = g_pData->GetUIEffectSet()->PlayEffectSet( wstrJuneEffectSetName, this );
-				if( INVALID_EFFECTSET_HANDLE != hJuneEffectSet )
-				{
-					// June @32043cda / @32043ce2: +0x9438 = the emotion id, +0x943c = the handle
-					m_eJuneEmotionEffectSetEmotion = eEmotionId;
-					m_hJuneEmotionEffectSet = hJuneEffectSet;
-				}
-			}
-		}
-#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 
 		if( eEmotionId == CX2Unit::ET_EMOTION_AVATAR1 || eEmotionId == CX2Unit::ET_EMOTION_AVATAR3 || 
 			eEmotionId == CX2Unit::ET_EMOTION_AVATAR4 || eEmotionId == CX2Unit::ET_EMOTION_AVATAR5 

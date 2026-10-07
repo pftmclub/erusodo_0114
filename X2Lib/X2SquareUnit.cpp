@@ -2253,8 +2253,9 @@ void CX2SquareUnit::StateStart()
 #ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 		// June 323fad80 @323fbcbd-323fbd77, after the PLAY_SPEED read @323fbc93: every StateStart stops the per-emotion set
 		// (+0x7ac). PlayEmotion's StateChange runs this before the set is played, so a new emotion's set survives. June gates the
-		// block on the skin anim and first calls 323f34a0( 0 ) for a non-sit state (the missing sit-item system); neither is ported.
-		if( NULL != g_pData )
+		// block on the skin anim and first calls 323f34a0( 0 ) for a non-sit state (the missing sit-item system, not ported).
+		// C9e review: June's gate @323fbca2-323fbcb7 is m_pUnitViewer (+0x2ec) and its skin anim (31fac3c0), ported verbatim.
+		if( NULL != g_pData && NULL != m_pUnitViewer && NULL != m_pUnitViewer->GetXSkinAnim() )
 			g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionEffectSet );
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 
