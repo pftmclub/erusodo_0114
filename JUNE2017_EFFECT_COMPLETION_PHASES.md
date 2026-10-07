@@ -673,6 +673,8 @@ byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
 - `SPAWN_INHERIT_STAMP`: every effect-set damage effect, `index=0 ownerState=<state> hyper=<0|1>`.
 - `CREATE_EFFECT_SET`: `path=trace_unit` or `no_trace_unit` per RT_CREATE_EFFECT_SET hit.
 
+**Play-test result (2026-10-07, logs read): passed.** 26 `SPAWN_INHERIT` and 26 `SPAWN_TAIL` lines, gates 0, rate 1.000; the index runs unchanged down Delayed Firing (5, 9, 10, 14) and Explosion Trap (7) chains, basic arrows stay -1, one boom per index, 0 exceptions; the user confirmed the later trap (index 8) exploded. `CREATE_EFFECT_SET` was not reached.
+
 **Play-test** (the check that can fail: `m_iIndex` now reaches hit and CREATE children). Character `NWatcher` (Rena, Night Watcher, class 114, level 70, unit 31, 600 SP, no skills learned; created for this test, backup `db_backup/els_db_20261007_104747_pre_createchar.sql`). The dev console cannot reach it: the children come from real hits.
 - Night Watcher's basic arrows are `ARROW_OF_EXPLOSION` (the delay variant after Delayed Firing): hit monsters with X/Z combos and the dash attack, expect one explosion per arrow.
 - Delayed Firing is skill 3227 and Explosion Trap 3225 (active `SKILL_ID` block): learn both in the skill window, put them on quick slots, use them.
