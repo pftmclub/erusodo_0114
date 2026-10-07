@@ -1645,7 +1645,7 @@ The full semantics are in those rows; this note keeps the map.
 - `CX2Eqip`'s five members, `3295ca60` and `32961060`; the viewer group filter `31fa2f20`;
 - the GUUser, square and viewer condition checks and play blocks, plus the two last-position members;
 - `323f56d0` in `RemoveUnit`, beside C9e's `StopJuneEmotionEffectSet()`;
-- the data (Q1) and three latent JUNE_BUGS rows (first-wins group map; the miss path releases without stopping; no equip-dtor stop).
+- the data (the three enum tables, the file, the 6 sets) and three latent JUNE_BUGS rows (first-wins group map; the miss path releases without stopping; no equip-dtor stop).
 
 **Not ported: backlog Stage 11** (`JUNE_PORT_BACKLOG_ORDER.md`, standing rule: an unowned June system gets its own stage). It holds the rest of the
 division system:
@@ -1653,13 +1653,11 @@ division system:
 - `DivisionItemTemplet.lua` / `CoboRenderDivisionItemTemplet.lua`;
 - the `DITT_LOOP_ANIM_ITEM_ID` (72) block that precedes CEPE in GUUser's loop (`3295c960`).
 
-**Open question for the user (Q1, blocks C9f-2's data step only).** May C9f-2 append June's `DIVISION_ITEM_TEMPLET_TYPE`,
-`CONDITION_EQUIP_PLAY_EFFECT_SET` and `READ_TYPE` tables, verbatim, to the end of March's `Enum.src.lua` (data036)?
-- None of the three names exists in March, so no value moves.
-- Adopting June's whole `Enum.lua` would move shared values.
-- If no, C9f-2 ships the code only and does not stage the file. The loader logs the missing file, and the feature stays off.
+**The missing enum tables are not a question: there is precedent.** Effect Phase 11 appended 7 new June tables verbatim to March's
+`Enum.src.lua`, with no flag (MODS.md, "June2017 effect engine: enum data + loader-list gaps (Phase 11)"). C9f-2 does the same for
+`DIVISION_ITEM_TEMPLET_TYPE`, `CONDITION_EQUIP_PLAY_EFFECT_SET` and `READ_TYPE`. None of the three names exists in March.
 
-**User owes:** the answer to Q1, then `/x2-phase june-effect C9f-2` on Sonnet 5.5 high; /cost.
+**User owes:** /cost. C9f-2 (Sonnet 5.5 high) starts after the running C4c commits, because both touch `X2Main.cpp`.
 
 ---
 
