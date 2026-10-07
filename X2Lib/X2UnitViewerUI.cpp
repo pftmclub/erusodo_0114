@@ -6460,6 +6460,19 @@ bool CX2UnitViewerUI::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId, wstring &wst
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// June 31fa52b0 @31fa5995-31fa59d2, after March's gates and before the skin-anim PlayAnim: the per-emotion set of 32355a50
+	// through the viewer player 32959640( main skin anim, name, group 1 ). June passes the skin anim unchecked; the player
+	// returns at once on a NULL one (@32959680). Group 1 is stopped by the viewer dtor and by June's sit-item block (the
+	// missing emotion system). INERT in March: the name is empty for every id March has.
+	{
+		const std::wstring wstrJuneEmotionSetName = CX2Unit::GetJuneEmotionEffectSetName( static_cast<int>( eEmotionId ) );
+		if( false == wstrJuneEmotionSetName.empty() )
+			JuneViewerFxPlay( m_pXSkinAnim, wstrJuneEmotionSetName, 1 );
+	}
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 	if(m_pXSkinAnim != NULL)
 	{		
 		if(eEmotionId == CX2Unit::ET_SITWAIT)

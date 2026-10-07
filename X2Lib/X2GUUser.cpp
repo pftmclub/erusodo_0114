@@ -974,6 +974,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	m_hJuneEmotionEffectSet = INVALID_EFFECTSET_HANDLE;
 	m_eJuneEmotionEffectSetEmotion = CX2Unit::ET_NONE;	// June ctor 3203e850 @32041dcf: +0x9438 = 0
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+	m_hJuneEmotionSetEffectSet = INVALID_EFFECTSET_HANDLE;	// June ctor 3203e850 @32041dc9: +0x9434 = -1
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #endif
 
 	m_fSocketSuperArmor = 0.f;
@@ -1253,6 +1256,12 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 
 CX2GUUser::~CX2GUUser(void)
 {
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+	// June ~CX2GUUser 3203a620 @3203af9f (before the +0x943c stop @3203afb7): StopEffectSet( &+0x9434 ) on the UI effect-set
+	// manager. No-op on an invalid handle. (The +0x93dc / +0x93ec sit-item drains before it are the missing emotion system.)
+	if( NULL != g_pData )
+		g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionSetEffectSet );
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 	// C9c-1 review: June ~CX2GUUser 3203a620 @3203afb7-3203afd1 (before the stick-shake prompt @3203aff3) clears +0x9438
 	// and stops the PlayEmotion effect set (+0x943c) on the UI effect-set manager. No-op on an invalid handle.
@@ -6752,6 +6761,33 @@ HRESULT CX2GUUser::OnFrameMove( double fTime, float fElapsedTime )
 	KTDXPROFILE();
 
 	CX2GameUnit::OnFrameMove( fTime, fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+	// June CX2GUUser::OnFrameMove 3206eaf0 @3206eb64-3206ed70 (after CX2GameUnit::OnFrameMove 3229ecc0, before the +0x943c stop
+	// @3206ed75): switch on m_ePlayedEmotion (+0x89d8), byte table 32070198. The ids are June's raw EMOTION_TYPE values, most of
+	// them not in March's enum, hence the int. EmotionData does not exist in March, so this is June's GetEmotionData == NULL
+	// path: the default case stops +0x9434 (the +0x93dc / +0x93ec sit-item drains it also runs are not ported).
+	if( NULL != g_pData )
+	{
+		switch( static_cast<int>( m_ePlayedEmotion ) )
+		{
+		case 1: case 2: case 3:									// ET_SITWAIT / ET_SITREADY / ET_STANDUP
+		case 25: case 26: case 27:								// ET_CASH_SIT 1
+		case 54: case 55: case 56: case 57: case 58: case 59:	// ET_CASH_SIT 2 / 3
+			g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionSetEffectSet );
+			break;
+
+		case 28: case 29: case 30: case 31: case 32:			// ET_EMOTION_AVATAR15-19
+		case 35:												// ET_EMOTION_AVATAR22
+		case 38: case 39: case 40: case 41:					// ET_EMOTION_AVATAR25-28
+		case 47: case 48:										// ET_EMOTION_AVATAR31 / 32
+			break;												// the set keeps playing
+
+		default:												// 0 = ET_NONE and every other id
+			g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionSetEffectSet );
+			break;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 	// C9c-1 review: June CX2GUUser::OnFrameMove 3206eaf0 @3206ed75-3206edb9 (after CX2GameUnit::OnFrameMove 3229ecc0, before
 	// IncrementLocalRelativePosTimers 31fc8b90; same body as 31fcf4d0): once the emotion that played the PlayEmotion effect
@@ -29074,6 +29110,22 @@ bool CX2GUUser::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId, wstring &wstrEmoti
 			m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
 
 		m_ePlayedEmotion = eEmotionId;
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+		// June 32043380 @32043a33-32043b62, immediately before 31fcf490 @32043b64 (the +0x943c stop below): the per-emotion set of
+		// 32355a50 on the UI effect-set manager (g_pData +0x9c), every PlayEffectSet default, owner this. A previous handle is
+		// stopped first; the new one is stored unconditionally (June stores -1 too) and is NOT tagged with 32296f30.
+		// INERT in March: the name is empty for every id March has. June's EmotionData UI_EFFECT_SET path (@3204429a) is the
+		// missing emotion system.
+		if( NULL != g_pData )
+		{
+			const std::wstring wstrJuneEmotionSetName = CX2Unit::GetJuneEmotionEffectSetName( static_cast<int>( eEmotionId ) );
+			if( false == wstrJuneEmotionSetName.empty() )
+			{
+				g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionSetEffectSet );
+				m_hJuneEmotionSetEffectSet = g_pData->GetUIEffectSet()->PlayEffectSet( wstrJuneEmotionSetName, this );
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 		// June 32043380 @32043b69-32043cf5, after the anim and before the emotion sound: look the emotion motion up in

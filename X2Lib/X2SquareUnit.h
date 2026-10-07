@@ -454,6 +454,9 @@ class CX2SquareUnit : public CKTDGObject
 #ifdef UNIT_EMOTION
 		bool PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionType);
 		CX2Unit::EMOTION_TYPE GetNowEmotionId() { return m_ePlayedEmotion; }
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+		void StopJuneEmotionEffectSet();	// June 323f4640 (stop +0x7ac, then -1); called from CX2TFieldGame::RemoveUnit
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #endif
 
 #ifdef SERV_ED_MONITORING_IN_GAME
@@ -654,6 +657,9 @@ class CX2SquareUnit : public CKTDGObject
 		bool m_bMixedEmotion[AVATAR_EMOTION_NUM];		/// 이모션 X 파일 이미 Mix 되었는지 아닌지 판단
 		CKTDXDeviceSound*				m_pAvatarEmotionSound;	/// 특정 아바타 착용시 이모션 사용하면 나오는 사운드
 
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+		CX2EffectSet::Handle			m_hJuneEmotionEffectSet;	// June CX2SquareUnit +0x7ac: the per-emotion effect set of 32355a50 (ctor -1)
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #ifdef HEAD_ATTACHED_CAMERA_TEST
 		bool m_bOnRollerCoaster; 		
 #endif HEAD_ATTACHED_CAMERA_TEST

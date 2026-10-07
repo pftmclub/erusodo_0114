@@ -1083,6 +1083,29 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 		void SetLoverUnitUID( UidType UID_ ) { m_UnitData.m_iLoverUnitUID = UID_; }
 #endif //SERV_RELATIONSHIP_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+		// June 32355a50: raw emotion id -> UIEffectSet name, L"" for any other id. June's ids come from its EMOTION_TYPE
+		// (Enum.lua, ET_END = 65); March's ends at ET_EMOTION_AVATAR7 = 15, so this never returns a name in March.
+		static std::wstring GetJuneEmotionEffectSetName( const int iEmotionId_ )
+		{
+			switch( iEmotionId_ )
+			{
+			case 0x1c:	return L"EffectSet_Keroro_Haul";				// ET_EMOTION_AVATAR15
+			case 0x1d:	return L"EffectSet_Kururu_Haul";				// ET_EMOTION_AVATAR16
+			case 0x1e:	return L"EffectSet_Giroro_Haul";				// ET_EMOTION_AVATAR17
+			case 0x1f:	return L"EffectSet_Dororo_Haul";				// ET_EMOTION_AVATAR18
+			case 0x20:	return L"EffectSet_Tamama_Haul";				// ET_EMOTION_AVATAR19
+			case 0x23:	return L"EffectSet_Emotion_GirlFriend_Heart";	// ET_EMOTION_AVATAR22
+			case 0x26:	return L"EffectSet_Emotion_Twice";				// ET_EMOTION_AVATAR25
+			case 0x27:	return L"EffectSet_Emotion_2015XMas_Box_Start";	// ET_EMOTION_AVATAR26
+			case 0x28:	return L"EffectSet_Emotion_2015XMas_Box_End";	// ET_EMOTION_AVATAR27
+			case 0x2f:	return L"EffectSet_Emotion_2016Maid_Man";		// ET_EMOTION_AVATAR31
+			case 0x30:	return L"EffectSet_Emotion_2016Maid_girl";		// ET_EMOTION_AVATAR32
+			default:	return L"";
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+
 		static bool IsAvatarEmotion( const CX2Unit::EMOTION_TYPE eEmotioID_ )
 		{
 			switch ( eEmotioID_ )

@@ -1134,6 +1134,12 @@ void CX2TFieldGame::RemoveUnit( UidType unitUID )
 		if( pCX2FieldUnit != NULL && pCX2FieldUnit->GetUID() == unitUID )
 		{
             //CX2SquareUnit::DeleteKTDGObject( pCX2FieldUnit );
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+			// June CX2TFieldGame::RemoveUnit 323af8f0 @323af9e6: for the leaving unit, 323f4640 stops its per-emotion effect set
+			// (+0x7ac) before the list erase. 323f6fb0( 0 ) (+0x734 sit-item bone records) is the missing emotion system and
+			// 323f56d0 is not identified, so neither is called.
+			pCX2FieldUnit->StopJuneEmotionEffectSet();
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 			m_UserUnitList.erase( m_UserUnitList.begin() + i );	
 			break;
 		}

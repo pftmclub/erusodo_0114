@@ -3970,6 +3970,9 @@ public:
 		CX2EffectSet::Handle							m_hJuneEmotionEffectSet;	// June CX2GUUser +0x943c: the UnitViewerEffectSetTable hit played by PlayEmotion
 		CX2Unit::EMOTION_TYPE							m_eJuneEmotionEffectSetEmotion;	// June +0x9438: the emotion that played it (ctor 0; stopped once m_ePlayedEmotion differs)
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+		CX2EffectSet::Handle							m_hJuneEmotionSetEffectSet;	// June CX2GUUser +0x9434: the per-emotion effect set of 32355a50 (ctor -1)
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #endif
 
 		bool											m_bSocketSuperArmor;

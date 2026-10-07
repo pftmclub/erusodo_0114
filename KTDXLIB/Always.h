@@ -5507,3 +5507,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              consumer's aim point. Log tag: JUNE_FX.
 #define SERV_IRUHADEV_JUNE_DAMAGE_MATH
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June effect completion C9e. June's per-emotion effect sets
+//              (32355a50: emotion id -> UIEffectSet name, 11 ids from 0x1c up)
+//              are played by CX2GUUser::PlayEmotion into +0x9434 (stopped in
+//              OnFrameMove and the dtor), by CX2SquareUnit::PlayEmotion into
+//              +0x7ac (stopped on every StateStart, in the dtor and in
+//              CX2TFieldGame::RemoveUnit) and by CX2UnitViewerUI::PlayEmotion
+//              through the viewer player (group 1). INERT in March: March's
+//              EMOTION_TYPE ends at 15, so no id ever matches. The 11 UIEffectSet
+//              templets and 5 mesh-player entries are staged in data036.
+//              Needs SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER for the viewer
+//              site. Log tag: JUNE_FX (nothing logs).
+#define SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+//////////////////////////////////////////////////////////////////////////

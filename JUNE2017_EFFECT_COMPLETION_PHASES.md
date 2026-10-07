@@ -1350,6 +1350,47 @@ motions, sounds and the chat-box emotion list. Where should it go?
 
 ---
 
+### C9e - Done (2026-10-07, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET`; inert, regression play-test pending)
+
+**Landed** (this commit, `git log --grep C9e`; details in `MODS.md`, "June effect completion C9e"). Everything is June verbatim and **inert**: March's
+`EMOTION_TYPE` ends at 15, the 11 June ids start at `0x1c`, so no emote ever matches. Nothing logs.
+- **Helper `32355a50`**: `CX2Unit::GetJuneEmotionEffectSetName( int )`, inline in `X2Unit.h`, June's 11 ids (`0x1c-0x20` Keroro, Kururu, Giroro, Dororo, Tamama;
+  `0x23` GirlFriend_Heart; `0x26` Twice; `0x27`/`0x28` 2015XMas_Box_Start/End; `0x2f`/`0x30` 2016Maid_Man/_girl) with the enum names in comments, `L""` otherwise.
+- **GUUser `+0x9434`** (`m_hJuneEmotionSetEffectSet`): ctor -1; `PlayEmotion` right before C9c-1's block (stop the old handle, play with every default, store
+  unconditionally, no `32296f30` tag); `OnFrameMove` right after `CX2GameUnit::OnFrameMove` (June's switch on `(int)m_ePlayedEmotion`: stop 1-3 / 25-27 / 54-59, keep
+  28-32 / 35 / 38-41 / 47 / 48, default stop = June's `GetEmotionData == NULL` path); dtor head before C9c-1's stop.
+- **SquareUnit `+0x7ac`** (`m_hJuneEmotionEffectSet`): ctor -1; `PlayEmotion` between the sound-name switch and the sound open (`CX2SquareUnitPtr( this )` overload,
+  no stop before the play; intrusive pointer confirmed: `X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR` is defined at `KTDX.h:340`); `StateStart` stop after the PLAY_SPEED read;
+  dtor stop; new public `StopJuneEmotionEffectSet()` (= `323f4640`) called from `CX2TFieldGame::RemoveUnit` before the list erase.
+- **Viewer**: `CX2UnitViewerUI::PlayEmotion` calls `JuneViewerFxPlay( m_pXSkinAnim, name, 1 )` after March's gates (nested under `..._VIEWER_EFFECT_PLAYER`).
+  **Correction to C9c-2b**: its `JuneViewerFxPlay` lacked June's first test (`32959640 @32959680`: `TEST EBX,EBX; JZ 3295987e`, a NULL skin anim returns), so I added
+  `if( NULL == pXSkinAnim_ ) return;` under this flag. Group 1 is stopped by the viewer dtor (C9c-2b) and by June's sit-item block (missing emotion system).
+- **Data** (`data036`): `UIEffectSet.lua` = C9c-2b's sets + the 11 templets appended verbatim from June's source (`UIEffectSet.src.lua` appended, `kom.py compile`);
+  `UIMajorXMeshPlayer.txt` = March's + the 5 entries (`Mesh_Emotion_2015XMas_Box_Ready`/`_End`, `Emotion_2016Maid_Kettle`/`_Teacup`/`_Duster`) inserted before the closing brace.
+  All keys parse (`LifeTime`, `LightPos` included); the 26 particles of the 11 sets resolve in the committed `UIMajorParticle.txt`.
+  `PACK OK data036: ... 190 entries, 6625437 bytes, ~2 changed (UIEffectSet.lua, UIMajorXMeshPlayer.txt)`. **Not copied yet: the user decides (see below).**
+- **Not ported, by the kickoff**: the `+0x93dc` / `+0x93ec` / `+0x940c` sit-item vectors and every `EmotionData` path (the missing emotion system, Stage 10);
+  `323f34a0` / `323f6fb0( 0 )`; June's skin-anim gate around the `StateStart` stop (inert either way); **`323f56d0`** (called in `RemoveUnit` beside `323f4640`,
+  not identified: the review identifies it).
+- **Not staged**: the 5 meshes `2015xmas_Box_Ready.x`, `2015xmas_Box_End.x`, `Emotion_2016Maid_Kettle.X`, `_Teacup.X`, `_Duster.X` ship with the emotion system. The mesh entries
+  name them, but nothing plays them.
+- **Open for the review**: the GUUser play sits inside March's `if( m_pXSkinAnim != NULL )` because C9c-1's block does (kickoff: "immediately before C9c-1's block"); the
+  review checks whether June has `@32043a33` under a skin-anim test.
+
+**Hygiene.** `flagcheck JUNE_EMOTION_EFFECT_SET --worktree --files <9 code files>`: `files: 7 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`
+(the PASS~ is the one blank line I put after the helper in `X2Unit.h`). Range line (after the commit): see the review.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,313,152 B, dated 2026-10-07 17:01:48, md5 f1966238bff0202979961b5cf774df05, equal to X2/US_SERVICE/x2.exe (2026-10-07 17:01:44); built at mods/june-buff-port 2847079 + 9 uncommitted code file(s).`
+`--pch force` (Always.h, X2Unit.h, X2GUUser.h, X2SquareUnit.h are all in the PCH). **Proof the code is in the exe** (nothing logs): all 11 set names are in `x2.exe` as UTF-16 (1 hit each; the helper is inline, so they only
+reach the exe if a call site compiled with the flag), and `X2.map` holds `CX2SquareUnit::StopJuneEmotionEffectSet`.
+
+**How to see it in game.** You cannot: it is inert. The regression play-test is the review's: emote in the village, in the character select and in a dungeon, village -> dungeon -> village,
+clean exit. 0 EXCEPTION, no new `X2_*.tmp`, the C9c line `UNIT_VIEWER_FX_LOAD ... rows=18` unchanged. Once `data036` is copied the 11 templets load with the other sets (`EffectSet` load lines unchanged).
+
+**Question for the user:** copy the packed `data036` into the game (`/x2-kom-packed copy data036`)? It adds only data nothing can reach yet; the code does not need it. **User owes:** the copy decision, /cost.
+
+---
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),

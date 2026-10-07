@@ -150,6 +150,12 @@ CX2BaseUnitViewerUI::~CX2BaseUnitViewerUI(void)
 // 32959640( skin, set name, group ): the templet is the UI effect set's; nothing is created here (32957980 creates)
 void CX2BaseUnitViewerUI::JuneViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const std::wstring& wstrSetName_, int iGroup_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+	// June 32959640 @32959680: the first test is the skin anim (TEST EBX,EBX; JZ 3295987e = the tail, which does nothing for it).
+	// C9c-2b's port lacked it; the per-emotion call of CX2UnitViewerUI::PlayEmotion passes the skin anim unchecked.
+	if( NULL == pXSkinAnim_ )
+		return;
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 	if( NULL == g_pData || NULL == g_pData->GetUIEffectSet() )
 		return;
 

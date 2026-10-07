@@ -273,6 +273,9 @@ CX2SquareUnit::CX2SquareUnit( bool bMyUnit, CX2Unit* pUnit, const WCHAR* pScript
 	for(int i=0; i < AVATAR_EMOTION_NUM; ++i)
 		m_bMixedEmotion[i] = false;
 	m_pAvatarEmotionSound = NULL;
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+	m_hJuneEmotionEffectSet = INVALID_EFFECTSET_HANDLE;	// June ctor 323f8080 @323f871b: +0x7ac = -1
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 
 #ifdef SERV_ED_MONITORING_IN_GAME
 	m_iED = 0;
@@ -407,6 +410,16 @@ void    CX2SquareUnit::AppendToDeviceList( CKTDXDeviceDataList& listInOut_, CX2U
 //}} robobeg : 2011-03-18
 #pragma endregion 디바이스 리스트에 SD 모션, 엠블럼 관련 파티클, 머리 위 삼각뿔 파티클 등 첨부
 
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+// June 323f4640: if g_pData +0x9c, StopEffectSet( &+0x7ac ), then +0x7ac = -1. The 323f34a0( 0 ) sit-item call in it is the
+// missing emotion system. Only caller: CX2TFieldGame::RemoveUnit @323af9e6.
+void CX2SquareUnit::StopJuneEmotionEffectSet()
+{
+	if( NULL != g_pData )
+		g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionEffectSet );
+	m_hJuneEmotionEffectSet = INVALID_EFFECTSET_HANDLE;
+}
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #pragma region ~CX2SquareUnit
 CX2SquareUnit::~CX2SquareUnit(void)
 {
@@ -474,6 +487,11 @@ CX2SquareUnit::~CX2SquareUnit(void)
 //	m_pParticleSystem->DestroyInstanceHandle( m_hSeqEmblem );
 //#endif
 
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+	// June ~CX2SquareUnit 323f7760 @323f7b36: StopEffectSet( &+0x7ac ) on the UI effect-set manager
+	if( NULL != g_pData )
+		g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionEffectSet );
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 	SAFE_CLOSE( m_pAvatarEmotionSound );
 
 }
@@ -2232,6 +2250,13 @@ void CX2SquareUnit::StateStart()
 		LUA_GET_VALUE_ENUM( m_LuaManager, "PLAY_TYPE", playType, CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE, CKTDGXSkinAnim::XAP_ONE_WAIT );
 		float fPlaySpeed;
 		LUA_GET_VALUE( m_LuaManager, "PLAY_SPEED", fPlaySpeed, 1.0f );
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+		// June 323fad80 @323fbcbd-323fbd77, after the PLAY_SPEED read @323fbc93: every StateStart stops the per-emotion set
+		// (+0x7ac). PlayEmotion's StateChange runs this before the set is played, so a new emotion's set survives. June gates the
+		// block on the skin anim and first calls 323f34a0( 0 ) for a non-sit state (the missing sit-item system); neither is ported.
+		if( NULL != g_pData )
+			g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionEffectSet );
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 
 #ifdef UNIT_EMOTION
 		if(m_StateData.m_StateName.compare("EMOTION_STATE") == 0)
@@ -3760,6 +3785,17 @@ bool CX2SquareUnit::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId)
 				break;
 			}
 
+#ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
+			// June 323fef90 @323ff8c5-323ff94b, between the avatar-sound name switch and the sound open: play the per-emotion set of
+			// 32355a50 into +0x7ac with the square-unit overload 321e2120( name, CX2SquareUnitPtr this ). No stop before the play, as in
+			// June: StateChange above already ran StateStart, which stopped +0x7ac. June widened the enclosing condition to its own
+			// avatar-emotion list (the missing emotion system); March's list still ends at AVATAR7, so this is INERT here.
+			{
+				const std::wstring wstrJuneEmotionSetName = CX2Unit::GetJuneEmotionEffectSetName( static_cast<int>( eEmotionId ) );
+				if( false == wstrJuneEmotionSetName.empty() && NULL != g_pData )
+					m_hJuneEmotionEffectSet = g_pData->GetUIEffectSet()->PlayEffectSet( wstrJuneEmotionSetName, CX2SquareUnitPtr( this ) );
+			}
+#endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 			if( m_pAvatarEmotionSound != NULL )
 			{
 				m_pAvatarEmotionSound->Stop();
