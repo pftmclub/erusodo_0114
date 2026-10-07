@@ -1282,6 +1282,18 @@ Nothing was built, so there are no hygiene or deploy lines. **User owes:** /cost
 particles=<n> sounds=<n>` and `UNIT_VIEWER_FX_CREATE <set> mesh|particle <name> bone=<bone>` in `ErrorLog.txt` (unbracketed: `grep JUNE_FX ErrorLog.txt`).
 Test characters added to the save (backups in `db_backup/`): `MagicKnightT` (uid 32), `SheathKnightT` (33), `InfinitySwordT` (34), `TrapRangerT` (35), `LunaticPsykerT` (36), `LittleDevilT` (38, for the kept orb),
 all level 70 and without gear or skills. The save already had `Freils` (Deadly Chaser), `eresisu` (Pyro Knight), `ElesisBH` (Blazing Heart), `NWatcher` (Night Watcher).
+**Play-test 1 (user, 2026-10-07):** 8 of 11 rows fine (SPK, SBH, ALP wait, CDC, orb, ...). Three findings, fixed the same day:
+- **ETK/EIS second sword, RTR and RNW swords: black texture only.** Those three meshes use `RT_CARTOON_BLACK_EDGE` (CDC's gun is `RT_REAL_COLOR`, which was fine).
+  Cause: the base viewer's Draw (a port of `32957330`) drew them a second time outside the DG manager's render-hint setup. March chains every mesh at
+  creation, so the manager already draws them. Fix (same flag): meshes are never drawn by the viewer; particles only when the viewer is unmanaged (when the
+  create pass un-chained them). JUNE_BUGS row 92. Not verified in game yet.
+- **Magic Knight fire looked wrong.** June's `MagicKnightHandFire` is a different particle (texture `EMK_Fire001.dds`, children `MagicKnightHandFire_P01/P02`
+  with `blur_16.dds`); both textures exist only in June's `data118` (asset closure: june-only, missing). Copied a minimal `data118.kom`: the live kom + those two
+  files, nothing else (`COPY OK data118 ... 2745078 bytes, 191 entries, md5 c6027dcd`, user said yes; backup `%TEMP%\kom_backup_tools\data118.kom.20261007_171132`).
+  The repo's staged `data118_kom` still holds 97 other staged June files (+3 changed) that were never packed; `EMK_Fire001.dds` was added there too.
+- **Lunatic Psyker "add 3d" missing:** user said skip.
+Deploy after the fix: `DEPLOY OK: X2_offline.exe is 19,312,640 B, dated 2026-10-07 17:11:10, md5 0eb0990bcd9df99e0ee30aaf894dbec1, equal to X2/US_SERVICE/x2.exe (2026-10-07 17:11:05); built at mods/june-buff-port fc01407 + 1 uncommitted code file(s).`
+
 Open question for the user: none. **User owes:** play-test, then /cost.
 
 ---

@@ -724,31 +724,19 @@ RENDER_HINT CX2BaseUnitViewerUI::OnFrameRender_Prepare()
 	return RENDER_HINT_DEFAULT;
 }
 
-// 32957330: every live mesh entry, then every live particle entry, that is shown: PushStates( GetRenderStateID() ) and
-// OnFrameRender_Draw. DG-manager membership is not tested: a managed viewer's shown effects are reached by both the DG
-// manager and this draw (March's m_bFixed meshes already are). June's child-sequence draw (31cf4890) has no March
-// counterpart that this class can reach: March chains a particle's child sequences itself, so the DG manager draws them.
+// 32957330: June draws every live mesh entry, then every live particle entry, that is shown: PushStates( GetRenderStateID() )
+// and OnFrameRender_Draw, without testing DG-manager membership. March differs here on purpose (play-test 2026-10-07: the
+// cartoon-rendered weapon meshes of ETK/EIS, RTR and RNW came out black-only when drawn a second time from here, outside the
+// DG manager's render-hint setup): March chains every mesh at creation, so the DG manager always draws them and they are not
+// drawn here; a particle is drawn here only when the viewer is unmanaged, i.e. exactly when the create pass took it out of the
+// DG manager (June 32957980: RemoveObjectChain for !IsManagedByDGManager). June's child-sequence draw (31cf4890) has no March
+// counterpart that this class can reach: March chains a particle's child sequences itself.
 /*virtual*/
 void CX2BaseUnitViewerUI::OnFrameRender_Draw()
 {
-	if( NULL == g_pData )
+	if( NULL == g_pData || true == IsManagedByDGManager() )
 		return;
 
-	if( NULL != g_pData->GetUIMajorXMeshPlayer() )
-	{
-		for( size_t i = 0; i < m_vecJuneFxMesh.size(); ++i )
-		{
-			JuneViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
-			if( NULL == pEntry || INVALID_MESH_INSTANCE_HANDLE == pEntry->m_hMesh )
-				continue;
-			CKTDGXMeshPlayer::CXMeshInstance* pMesh = g_pData->GetUIMajorXMeshPlayer()->GetMeshInstance( pEntry->m_hMesh );
-			if( NULL != pMesh && true == pMesh->GetShowObject() )
-			{
-				CKTDGStateManager::PushStates( pMesh->GetRenderStateID() );
-				pMesh->OnFrameRender_Draw();
-			}
-		}
-	}
 	if( NULL != g_pData->GetUIMajorParticle() )
 	{
 		for( size_t i = 0; i < m_vecJuneFxParticle.size(); ++i )
