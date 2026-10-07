@@ -1525,7 +1525,14 @@ The 5 are the 2 files of this review plus a peer's C10b-1 work in progress (`Alw
 
 **Play-test (regression):** an emote in the village, at character select and in a dungeon; village -> dungeon -> village; clean exit.
 Pass = 0 EXCEPTION, no new `X2_*.tmp`, and `UNIT_VIEWER_FX_LOAD ... rows=18` plus `ES_LOAD UIEffectSet.lua loaded=1 templets=78` unchanged.
-**User owes:** the play-test, /cost.
+**Regression play-test PASSED 2026-10-07** (exe `30a7d90c`, run 17:47:19-17:49:20; logs read):
+- State.log: login -> server select -> battle field -> village -> dungeon -> village.
+- ErrorLog: `ES_LOAD UIEffectSet.lua loaded=1 templets=78` and `UNIT_VIEWER_FX_LOAD ... rows=18 skipped_duplicate=0 skipped_bad_args=0`
+  unchanged. The one `UNIT_VIEWER_FX_PLAY` line (`EffectSet_RNW_LobbyReadyAction`, character select) is C9c-2b's.
+- 0 EXCEPTION, clean exit (census + `SHUTDOWN clean`), no new `X2_*.tmp` (the newest is from 2026-10-03). The 2 UNHANDLED are
+  `E_DISABLE_HB_CHECK_REQ`, not this phase.
+
+**User owes:** /cost.
 
 ---
 
