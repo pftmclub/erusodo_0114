@@ -1799,7 +1799,9 @@ Pass = 0 EXCEPTION and no new `X2_*.tmp`, with these log lines:
 - `ES_LOAD UIEffectSet.lua loaded=1 templets=84`;
 - `UNIT_VIEWER_FX_LOAD ... rows=18` unchanged.
 
-**User owes:** the play-test above, then /cost.
+**Regression play-test PASSED 2026-10-07** (exe `f433332e`, run 20:31:18-20:35:24; logs read): State.log login -> server select -> village -> dungeon -> result -> village; ErrorLog `JUNE_FX EQUIP_FX_LOAD file=RenderDivisionItemTemplet.lua loaded=1 lists=5 items=5 group81=5 skipped_duplicate=0`, `ES_LOAD UIEffectSet.lua loaded=1 templets=84`, `UNIT_VIEWER_FX_LOAD ... rows=18 skipped_duplicate=0`, no `XEM_ERROR9`; 0 EXCEPTION, clean exit (census present), no new `X2_*.tmp` (newest 2026-10-03). The 2 UNHANDLED are `E_DISABLE_HB_CHECK_REQ`, not this phase.
+
+**User owes:** /cost. Next: `C9f-2 review` (Opus 5.5 high).
 
 ---
 
