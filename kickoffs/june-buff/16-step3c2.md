@@ -28,7 +28,8 @@ only logs "not ported (16-step3c2)" in `JuneProcessSocketExtraDamage`. Port it t
   happens. Else `++count`; at 10: `32893e00( clamp( m_DamagePerSec, 0, 1 ), false )` on the attacker's user skill tree
   (`32893e00`: the five equipped slots, then the `+0x260` block; force list `+0x478` applies, else types 12/13 only with the
   bool, ignore list `+0x468` skips; left `*= 1 - rate`, then `32489230`), erase BTI 778, `32070e40( 0, now )`;
-  below 10: BFI 804 at the socket level on the attacker (`vslot 0x21c`), `32070e40( count, time )`, so the time is **not**
+  below 10: BFI 804 at the socket level on the attacker (`vslot 0x21c`; the level is the raw EDD `+0x60`, never the
+  corrected one, as 150/151 push it: 16-step3c review, JUNE_BUGS #70), `32070e40( count, time )`, so the time is **not**
   refreshed below 10 (check this in the disassembly: `@3203962e` pushes the old time).
 - `32893e00` is new on `CX2UserSkillTree`, beside buff 4b-i's RSCT port (the same two lists). Transcribe; do not approximate it
   with `ResetLeftSkillCoolTimeByBuff`.

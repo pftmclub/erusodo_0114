@@ -6060,6 +6060,54 @@ Iivue's item 579 keeps the three sockets.
 
 **Open for the user.** /cost.
 
+### Phase 16-step3c — Review (2026-10-07, Opus 5.5 high)
+
+**Verdict: correct against June. One gap fixed:** the second list's description branch (below). Ghidra checks were read-only.
+
+**Hygiene** (`--range c980691^..HEAD`, before the fix):
+- `JUNE_SOCKET_EDT`: `files: 8 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 1 #else/#endif without the flag token, 0 encoding change(s)`; RESULT PASS.
+  - The PASS~ is X2GameUnit.cpp's `//{{ //}}` markers.
+  - The OTHER is X2BuffTemplet.cpp: its compares belong to `JUNE_DAMAGEDATA`.
+  - The bare `#endif` is Always.h's `#error` guard.
+- `JUNE_DAMAGEDATA --files X2Lib/X2BuffTemplet.cpp`: `1 PASS`, 0 deleted, RESULT PASS.
+
+**Checked in June:**
+- **Loader.** The play-test proved 150 reached the NPC tail and 151 reached the multiple list. 159 has no sample.
+- **Carriage**, all five places:
+  - InitSocketData `3206e917` copies aggregate `+0x458` to DD `+0x754`.
+  - The `SetDamageExceptionProcess` copy reads `[attacker+0x87b4]+0x458`. `+0x87b4` is June's pointer to the same per-unit aggregate (funcmap 943), March's inline `m_SocketData`. Its condition is `0 < magic || 0 < physic` (FCOM `+0x3c`, then `+0x38`), `+0x264 == 0` (GUT_USER), and DD `+0x3b4` empty. It runs before the `0x780` hook.
+  - Both tails run after March's `AT_SPECIAL` block, offset `SRO_ATTACK_EXTRA_DAMAGE_MULTIPLE + i`.
+- **Names.** All 16 effect-set names match June's strings byte for byte (`3347754c..33477878`, `334ba388..334ba498`), in June's spawn order. The NPC switch has no 146/147 and the user switch has no 152-155 (JUNE_BUGS #67).
+- **Spawn arguments.**
+  - 145 (`@32038728`): attacker vslot `0x84( out, "Bip01" )` (`3344a594`), rotation vslot `0x150`, zero direction, (1,1,1), trailing 1.0.
+  - 149 (`@320390bb`): scale from vslot `0x24`, position DD `+0x460`, rotation `0x150`, direction `0x16c`.
+  - 152 (`@3279cf61`): owner = attacker (EDI); rotation `0x150` and `GetLandPos( 0 )` (`0x134`) come from the hit NPC (ESI).
+- **150/159** (`@320391a1`): vslot `0x220( BFI, attacker UID, 1, EDD +0x60 )` on the hit unit, as ported.
+- **151** (`@32039213`):
+  - user gate vslot `0x198`;
+  - `322a0090( 762 ) >= 10` -> `3229e160( 762 )`, then DD `+0x3c` (magic), then `+0x38` (physic) `*=` EDD `+0x18`;
+  - else slot `0x21c( 788, 0, EDD +0x60, 0, 0 )` (Phase 10's decode: the third dword is the level).
+  - The NPC side (`@3279ced1`) has no gate (#68).
+- **Level 0 on 151 is June's.** Both level corrections (`31fe6db0`, and the NPC's) write only EDD `+0x18` and `+0x3c`, never the `+0x60` level. June's own entry 100007019 has `LEVEL = 0`, so June pushes BFI 788 at level 0, exactly as the play-test logged. 150's 20 is its explicit `LEVEL`. -> JUNE_BUGS **#70**.
+- **Trigger compares.**
+  - `@3236df5b` / `@3236e306` / `@323704cb` push 3 / 6 / 7 to `32610fb0`, and a nonzero result rejects. The ports' polarity matches.
+  - The guard helper's only caller passes 7.
+  - Probe (`cl -Zs`, X2Lib US_SERVICE defines): `EVE_ELECTRA` ON and `SERV_ADD_CHUNG_SHELLING_GUARDIAN` ON, so `DTT_MARK_OF_COMMANDER` = 3.
+- **149's scale stays a labelled candidate.** `3208e2b0` has no Ghidra function to disassemble. June's ctor fills `+0x686c` first with (1,1,1). March declares `m_vBasicScale` before `m_vTransScale` (`X2GameUnit.h:4416`). The two differ only during a scale transition.
+- **`GetCalcPerDamage`**: only 151/156 return raw. Unchanged.
+
+**Fixed: the second list's description** (open from the Done note).
+- June's desc `@32725365` runs: single list, then multiple list (`+0x448`), then, when that is empty, the second list (`+0x458`). The second list's loop body is compiled away, so it prints nothing. Only an empty second list reaches `3271f310`, the rest of the chain (it opens with STR 28644 / 500 = March's `m_fDamageReduce` branch).
+- March kept walking its chain, so a 150/159 socket that also had a later option would print it, where June prints nothing.
+- Fix: an empty `else if( false == m_vecJuneSecondSocketExtraDamage.empty() )` branch before `m_fDamageReduce`, `X2SocketItem.cpp` (`GetSocketDesc`), same flag. Today's 150/159 entries carry no other option, so no tooltip changes.
+- `--worktree --files X2Lib/X2SocketItem.cpp`: 1 PASS, 0 deleted, RESULT PASS.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,278,336 B, dated 2026-10-07 08:41:52, md5 78af45a8aea34b6fb4bed685d0d66112, equal to X2/US_SERVICE/x2.exe (2026-10-07 08:41:46); built at mods/june-buff-port dc5f118 + 1 uncommitted code file(s).` Not launched.
+
+**16-step3c2 kickoff checked.** Added: the BFI 804 push uses the raw EDD `+0x60` level, as 150/151 do.
+
+**No new play-test.** The fix changes no tooltip on today's data.
+
 ## Critical files
 
 - `X2Lib/X2BuffFactor.h/.cpp`

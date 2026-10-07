@@ -2002,6 +2002,13 @@ void CX2SocketItem::PrintOptionInfo_ToExcel( KProtectedType<int> iLevel )
 			}
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
+	/// June 327247bf @32725365 (16-step3c review): with the multiple list empty, a non-empty second list (150/159) is walked
+	/// and prints nothing, and the rest of this chain (June 3271f310, from m_fDamageReduce on) is skipped for that socket
+	else if( false == m_vecJuneSecondSocketExtraDamage.empty() )
+	{
+	}
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 	else if ( m_fDamageReduce > 0.0f )
 	{
 #ifdef ADJUST_SECRET_ITEM_OPTION //±Ë√¢«—
