@@ -6052,6 +6052,12 @@ March's `PlayEffectSet` returns silently on an unknown name (`X2EffectSet.cpp:31
 
 Nothing visible changes; every handler is dormant until june-effect re-adoption (effect sets) and Phase 13 (BFIs).
 
+**Play-test (2026-10-07, exe e1c3f2ae): PASSED, logs read.** Run after deploy, clean exit, 0 EXCEPTION (2 UNHANDLED = the usual `E_DISABLE_HB_CHECK_REQ`). `ErrorLog.txt`:
+- `:527` `socket EXTRA_DAMAGE_TYPE 151 fired (first this run): BFI 788 level 0 on the attacker -> not set (its factor is June buff data: Phase 13)`;
+- `:532` `... 150 fired ...: BFI 787 level 20 on the hit unit -> not set`: the second list reached the NPC tail;
+- `:533` `... 152 fired ...: effect set EffectSet_Socket_HeroDungeonSet_FlameGround is not in the loaded data`.
+Iivue's item 579 keeps the three sockets.
+
 **Open for the user.** /cost.
 
 ## Critical files
