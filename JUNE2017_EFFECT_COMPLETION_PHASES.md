@@ -583,7 +583,7 @@ Checked in Ghidra (read-only) and in the exe bytes:
   - The gate is `JuneIsHeroDungeon( room dungeon ID )`. June's `g_pData +0x70` is March's `m_pDungeonRoom`. The offsetprobe puts March's room at +0x8c and its DungeonManager at +0x60; June has them at +0x70/+0x44, the same 0x2c apart. `m_DungeonID` sits at +0xdc in both.
   - The walk compares the dungeon ID first, then `GetNPCTemplet().m_nNPCUnitID` (June `[+0x85f8]`), and sets the NPC's factor through the new `CX2GUNPC::SetMultiplicationAnimSpeed`.
   - It never breaks, so the last match wins (JUNE_BUGS **99**, latent).
-  - June has no NULL test on the room, and the port has none either. Both callers run only inside a dungeon game, where `:64` already reads the room unguarded.
+  - June has no NULL test on the room, and the port has none either. Both callers run only inside a dungeon game. Its one creation site is `CX2StateDungeonGame::CreateGame`, and for every mode (tutorial and training included) `CX2DungeonGame::GameLoading` -> `DungeonLoading` already reads the room unguarded to build the dungeon, before any NPC spawns. The only in-state `DeleteDungeonRoom` (`X2StateDungeonGame.cpp:2653`) is inside `#if 0`.
 - **`JuneIsHeroDungeon` is shared:** it is now `CX2DungeonManager::JuneIsHeroDungeon` (June `32931be0`). `X2PartyUI.cpp`'s static calls it under the new flag, and its own copy is kept in `#else`.
 - **Not staged, and the file would not load in March:**
   - `HeroDungeonData_Client.lua` is not in March's data.
@@ -594,7 +594,7 @@ Checked in Ghidra (read-only) and in the exe bytes:
 
 **Hygiene:** worktree flagcheck PASS (`_HERO_NPC_ANIM_SPEED`: 5 PASS, 1 PASS~ blank line, 1 DEFINE, 0 deleted; `_JUNE_NPC_ANIM_SPEED` on the two compound-guarded files: 2 PASS). Committed `2cf5fef`; range flagcheck `2cf5fef^..2cf5fef`: 5 PASS, 1 PASS~, 1 DEFINE, 0 FAIL, 0 deleted, RESULT PASS.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,316,736 B, dated 2026-10-07 20:06:05, md5 aa9143e1f31906afc9b30beae800065c` (built at `23106ff` + this phase's 7 files). The exe holds the wide `JUNE_FX HERO_ANIM` string and the bind name.
-**In game:** nothing changes. Run any dungeon; ErrorLog.txt gets one `JUNE_FX HERO_ANIM` line with `rows=0` and `hero=0`.
+**In game:** nothing changes. Run dungeon 30000; ErrorLog.txt gets one `JUNE_FX HERO_ANIM` line with `rows=0`, `dungeon=30000` and `hero=0` (read it with `python tools/logs.py --grep "JUNE_FX HERO_ANIM"`; `--tag JUNE_FX` matches nothing).
 **Also:** MODS.md (row + section), JUNE_BUGS 99. **User owes:** the regression play-test, /cost.
 
 ---

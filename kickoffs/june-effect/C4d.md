@@ -6,7 +6,7 @@
 | Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
 | Depends on | C4c (it adds the NPC member this phase writes: June `+0x8fdc`, the `MULTIPLICATION_ANIM_SPEED` factor; C4c named it `CX2GUNPC::m_fMultiplicationAnimSpeed`, under `SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED`, with no setter: add one here) |
 | Flag | `SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED` (new, in `KTDXLIB/Always.h`) |
-| Log tag | `[JUNE_FX]` in ErrorLog.txt (`python tools/logs.py --tag JUNE_FX`) |
+| Log tag | `JUNE_FX HERO_ANIM` in ErrorLog.txt, unbracketed: `python tools/logs.py --grep "JUNE_FX HERO_ANIM"` (`--tag JUNE_FX` matches nothing; corrected by C4d itself) |
 | Review | none unless the port grows past the three pieces below (the C4c review can take a look) |
 
 ## Read first (and nothing else from the plan docs unless you need it)
