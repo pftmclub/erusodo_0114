@@ -720,6 +720,9 @@ public:
 	void UserShowQuickQuestDLG( bool forOpen );
 	void InitUserShowQuickQuestDLG( bool forOpen );
 	void UpdateQuickQuestDLG(bool bResetExpand = false, bool bUpdateOngoingQuest = true); //오현빈 // 2012-10-02 // ResetQuestUI에서 호출되었을 경우에는 UpdateOngoingQuestInfo중복 수행 하지 않도록 인자 추가(bUpdateOngoingQuest)
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+	void ToggleUserShowQuickQuestDLG();		/// June buff port Phase 14c: out of line (X2UIQuestNew.cpp), June 323ddfe0's gate
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	void ToggleUserShowQuickQuestDLG()
 	{ 
 #ifdef FIX_UI_OFF_TAB_OFF
@@ -729,6 +732,7 @@ public:
 		m_bUserShowQuickQuestDLG = !m_bUserShowQuickQuestDLG; 
 		UpdateQuickQuestDLG();UserShowQuickQuestDLG(m_bUserShowQuickQuestDLG); ShowUIDesc(false); 
 	}
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	bool	m_bShowQuickQuestDLG;	// 시스템 상 강제로 행해지는 퀵퀘스트창의 온오프
 	bool	m_bUserShowQuickQuestDLG; // 유저가 원하는 퀵퀘스트창의 온오프
 

@@ -4185,10 +4185,20 @@ void CX2UIManager::SetShowUI(bool bVal, bool bForce/* = false*/)
 		SetShowRidingPetSkillSlot( false );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+	/// June buff port Phase 14c, CX2UIManager::SetShowUI 32154820 @321549d6-321549f3: no quick slot in the tutorial
+	SetShowQuickSlot( true == g_pMain->GetIsPlayingTutorial() ? false : m_bShowUI );
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	SetShowQuickSlot(m_bShowUI);
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	SetShowMinimapUI(m_bShowUI);
 	SetShowGageUI(m_bShowUI);
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+	/// June @321549a4-321549c4: no quick-quest window in the tutorial
+	SetShowQucikQuest( true == g_pMain->GetIsPlayingTutorial() ? false : m_bShowUI );
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	SetShowQucikQuest(m_bShowUI);
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	SetShowPlayGuide(m_bShowUI);
 
 #ifdef FIELD_BOSS_RAID
@@ -4206,7 +4216,13 @@ void CX2UIManager::SetShowUI(bool bVal, bool bForce/* = false*/)
 	{
 	case CX2Main::XS_DUNGEON_GAME:
 		{
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+			/// June @32154bc1-32154bd6: no menu bar in the tutorial dungeon (June also calls its June-only guide manager
+			/// 31fbddf0 here)
+			SetShowMenu( true == g_pMain->GetIsPlayingTutorial() ? false : bVal );
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 			SetShowMenu(bVal);
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 			SetShowResurrectionStone(bVal);
 			SetShowCinematicUI(bVal);
 			SetShowFeverUI(bVal);
@@ -4243,7 +4259,12 @@ void CX2UIManager::SetShowUI(bool bVal, bool bForce/* = false*/)
 			SetShowFeverUI(bVal);
 			SetShowResurrectionStone(bVal);
 			SetShowCinematicUI(bVal);
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+			/// June @32154e0b-32154e1a (battle field): no menu bar in the tutorial
+			SetShowMenu( true == g_pMain->GetIsPlayingTutorial() ? false : bVal );
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 			SetShowMenu(bVal);
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 
 #ifdef SERV_BATTLEFIELD_MIDDLE_BOSS
 			CX2BattleFieldGame* pBattleFieldGame = static_cast<CX2BattleFieldGame*>(g_pX2Game);

@@ -5713,8 +5713,15 @@ void CX2Game::KeyProcess()
 				}
 
 
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+				/// June buff port Phase 14c, CX2Game::KeyProcess 322f7170 @322f7ff3-322f801b: no riding key in the tutorial
+				if( NULL != g_pChatBox && false == g_pChatBox->GetFocusChatEditBox() && GET_KEY_STATE( GA_RIDING ) == TRUE &&
+					( NULL != g_pMain->GetNowState() && static_cast<CX2State*>(g_pMain->GetNowState())->GetEnableShortCutKey() ) &&
+					false == g_pMain->GetIsPlayingTutorial() )
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 				if( NULL != g_pChatBox && false == g_pChatBox->GetFocusChatEditBox() && GET_KEY_STATE( GA_RIDING ) == TRUE &&
 					( NULL != g_pMain->GetNowState() && static_cast<CX2State*>(g_pMain->GetNowState())->GetEnableShortCutKey() ))
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 				{
 					CX2RidingPetManager* pRidingPetManager = CX2RidingPetManager::GetInstance();
 					if( NULL != pRidingPetManager && true == pRidingPetManager->GetHasRidingPet() )

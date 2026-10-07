@@ -911,6 +911,12 @@ bool CX2PlayGuide::IsShowGuide()
 	//PVP, DUNGEON RESULT üũ
 	switch(g_pMain->GetNowStateID() )
 	{
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+	case CX2Main::XS_DUNGEON_GAME:	/// June buff port Phase 14c, CX2PlayGuide::IsShowGuide 3289cf20 @3289cf4b: hidden in the tutorial
+		if( true == g_pMain->GetIsPlayingTutorial() )
+			return false;
+		break;
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	case CX2Main::XS_PVP_RESULT:
 	case CX2Main::XS_DUNGEON_RESULT:
 		{
@@ -1054,8 +1060,15 @@ bool CX2PlayGuide::GuideOrderManager::GetGuideListEmpty() const
 
 void CX2PlayGuide::StartGoEffect()
 {
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+	/// June buff port Phase 14c, CX2PlayGuide::StartGoEffect 3289d090 @3289d091-3289d09d: no Go effect in the tutorial
+	if ( false == g_pMain->GetIsPlayingTutorial() &&
+		INVALID_PARTICLE_SEQUENCE_HANDLE == m_hParticleGo &&
+		CX2Main::XS_VILLAGE_MAP == g_pMain->GetNowStateID() )
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hParticleGo &&
 		CX2Main::XS_VILLAGE_MAP == g_pMain->GetNowStateID() )
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	{
 		if( NULL != g_pData->GetUIMinorParticle() )
 		{

@@ -995,7 +995,32 @@ void CX2OfflineServer::PushSelectUnitNotifications( KOfflineSession& kSes, const
 		// button is inert and there is no way to find out later whether the
 		// rest of the plumbing works.
 		kNot.m_bCashShopOpen	= true;
+#ifdef SERV_IRUHADEV_OFFLINE_FIRST_SELECT
+		// June buff port Phase 14c (user, 2026-10-07: track the real first
+		// select). Live: GSUserFunction.cpp:5755, m_bFirstSelect = this
+		// character's CGCT_SELECT_CHAR statistic == 0. The count is kept per
+		// unit in a settings row ('select_count.<uid>'), so no schema change.
+		// June's client starts the first-select tutorial only on true.
+		{
+			char szSelectKey[64];
+			_snprintf( szSelectKey, 64, "select_count.%I64d", kRow.m_nUnitUID );
+			szSelectKey[63] = '\0';
+
+			int iSelectCount = 0;
+			CX2OfflineDB* pSelectDB = CX2OfflineDB::Instance();
+			if( NULL != pSelectDB )
+			{
+				pSelectDB->GetSetting( szSelectKey, iSelectCount );
+				pSelectDB->SetSetting( szSelectKey, iSelectCount + 1 );
+			}
+			kNot.m_bFirstSelect	= ( 0 == iSelectCount );
+
+			CX2OfflineLog::Server( L"[JUNE_BUFF] first select: unit %I64d select #%d -> m_bFirstSelect %d (lv %d, exp %d)",
+				kRow.m_nUnitUID, iSelectCount + 1, kNot.m_bFirstSelect ? 1 : 0, kRow.m_iLevel, kRow.m_iEXP );
+		}
+#else SERV_IRUHADEV_OFFLINE_FIRST_SELECT
 		kNot.m_bFirstSelect		= false;
+#endif SERV_IRUHADEV_OFFLINE_FIRST_SELECT
 
 		Reply( kSes, EGS_SELECT_UNIT_5_NOT, kNot );
 	}

@@ -666,6 +666,12 @@ void CX2PetManager::CreatePet(UidType uMasterUid, CX2PET::PetInfo& petInfo, bool
 		break;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+	/// June buff port Phase 14c, CX2PetManager::CreatePet 326cd8a0 @326cd93a-326cd949: no pet in the tutorial (June also
+	/// refuses its June-only dungeon 41450 here)
+	if( true == g_pMain->GetIsPlayingTutorial() )
+		return;
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 #ifdef SERV_PVP_NEW_SYSTEM
 	if( g_pX2Room != NULL )
 	{
@@ -742,6 +748,12 @@ CX2PETPtr CX2PetManager::CreateGamePet(UidType uMasterUid, CX2PET::PetInfo& petI
 		break;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+	/// June buff port Phase 14c, CX2PetManager::CreateGamePet 326cda80 @326cdb4c-326cdb65: no pet in the tutorial (June also
+	/// refuses its June-only dungeon 41450 and an official-PvP room flag here)
+	if( true == g_pMain->GetIsPlayingTutorial() )
+		return CX2PETPtr();
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	if( pPetTemplet == NULL )
 		return CX2PETPtr();
 

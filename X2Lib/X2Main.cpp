@@ -1489,6 +1489,9 @@ m_pMemoryHolder( NULL )
 	m_bIsExitFieldDungeon   = false;
 	m_bIsPlayingTutorial 	= false;
 	m_bIsExitingTutorial 	= false;
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+	m_bJuneTutorialKeyLatch	= false;
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	m_StateIDBeforeTutorial = XS_INVALID;
 	m_iRandLoadingBG		= 0;
 
@@ -16780,3 +16783,30 @@ bool CX2Main::ToggleUnlimitedSkillUse()
 	return m_bUnlimitedSkillUse;
 }
 #endif //TOGGLE_UNLIMITED_SKILL_USE
+
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+/// June buff port Phase 14c, CX2Main::SetIsPlayingTutorial 31d716c0: store the flag (+0x16a); on a true with the key pad
+/// present and the once-latch (+0x16b) clear, apply the default keys locally (31f5e290) and set the latch.
+void CX2Main::SetIsPlayingTutorial( bool bPlaying )
+{
+	m_bIsPlayingTutorial = bPlaying;
+
+	if( true == bPlaying && NULL != m_pKeyPad && false == m_bJuneTutorialKeyLatch )
+	{
+		m_pKeyPad->JuneApplyTutorialDefaultKeys();
+		m_bJuneTutorialKeyLatch = true;
+	}
+}
+
+/// June 327d2160 (CX2DungeonGame::Release 327d2240 @327d23fb, when exiting the tutorial): restore the key map saved by
+/// 31f5e290 (31f5d4a0) and clear the latch. June restores whenever the key pad exists; here only while the latch is set,
+/// because March also raises m_bIsExitingTutorial on paths that never entered the tutorial (JUNE_BUGS.md).
+void CX2Main::JuneOnExitTutorialRestoreKeys()
+{
+	if( NULL != m_pKeyPad && true == m_bJuneTutorialKeyLatch )
+	{
+		m_pKeyPad->JuneRestoreKeysAfterTutorial();
+		m_bJuneTutorialKeyLatch = false;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE

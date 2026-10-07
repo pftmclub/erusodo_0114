@@ -611,8 +611,25 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		return true;
 
 
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	case UQNCM_CHECK_QUICK_QUEST:
 		{
+			/// June buff port Phase 14c, CX2UIQuestNew::UICustomEventProc 323e1bf0 @323e1c67-323e1cad: in the tutorial a shown
+			/// quick quest stays shown; the Detail dialog's CheckBox_QuickQuest is ticked back and the event is consumed
+			if( true == m_bUserShowQuickQuestDLG && true == g_pMain->GetIsPlayingTutorial() )
+			{
+				if( NULL != m_pDLGUIQuestDetail )
+				{
+					CKTDGUICheckBox* pJuneCheck = static_cast< CKTDGUICheckBox* >( m_pDLGUIQuestDetail->GetControl( L"CheckBox_QuickQuest" ) );
+					if( NULL != pJuneCheck )
+						pJuneCheck->SetChecked( true, false );
+				}
+				return true;
+			}
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+	case UQNCM_CHECK_QUICK_QUEST:
+		{
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 			UserShowQuickQuestDLG(!m_bUserShowQuickQuestDLG);
 #ifdef QUEST_GUIDE
 			switch ( g_pMain->GetNowStateID() )
@@ -7207,3 +7224,22 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_POINT_COUNT_SYSTEM_NOT( HWND hWnd, UINT uM
 	return true;
 }
 #endif //SERV_POINT_COUNT_SYSTEM
+
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+/// June buff port Phase 14c, CX2UIQuestNew::ToggleUserShowQuickQuestDLG 323ddfe0: March's inline body (X2UIQuestNew.h) under
+/// June's gate @323de00b-323de031: no toggle in the training game, and in the tutorial a shown quick quest cannot be hidden.
+/// June also mirrors the new value into a June-only CX2Main byte (+0x2aa) and runs its refresh twice; not ported.
+void CX2UIQuestNew::ToggleUserShowQuickQuestDLG()
+{
+#ifdef FIX_UI_OFF_TAB_OFF
+	if( g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() == true )
+		return;
+#endif //FIX_UI_OFF_TAB_OFF
+	if( CX2Main::XS_TRAINING_GAME == g_pMain->GetNowStateID() )
+		return;
+	if( true == g_pMain->GetIsPlayingTutorial() && true == m_bUserShowQuickQuestDLG )
+		return;
+	m_bUserShowQuickQuestDLG = !m_bUserShowQuickQuestDLG;
+	UpdateQuickQuestDLG();UserShowQuickQuestDLG(m_bUserShowQuickQuestDLG); ShowUIDesc(false);
+}
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE

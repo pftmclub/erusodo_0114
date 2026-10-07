@@ -10064,11 +10064,26 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			//}}AFX
 //#endif PVP_BOSS_COMBAT_TEST
 
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+			/// June buff port Phase 14c, CX2GUUser::DamageReact 320462a0 @32049b32-32049b6e: the training clamp also runs
+			/// in the tutorial (g_pMain+0x8c == XS_TRAINING_GAME || g_pMain+0x16a == 1), so HP 0 is raised to 1
+			if( g_pMain->GetNowStateID() == CX2Main::XS_TRAINING_GAME || true == g_pMain->GetIsPlayingTutorial() )
+			{
+				if( GetNowHp() <= 0.f )
+				{
+					SetNowHp( 1.f );
+					if( true == g_pMain->GetIsPlayingTutorial() )
+						CX2JuneBuffCapture::Line( "tutorial clamp: user UID %I64d reached HP 0 in the tutorial, HP set to %g (June 320462a0 @32049b40)",
+							GetUnitUID(), GetNowHp() );
+				}
+			}
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 			if( g_pMain->GetNowStateID() == CX2Main::XS_TRAINING_GAME )
 			{
 				if( GetNowHp() <= 0.f )
 					SetNowHp( 1.f );
 			}
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
 			/// June buff port Phase 14b, @32049b70-32049ba1: after UpNowHp and the training clamp, clear the bool and set
 			/// HP to 0 (slot 61, the user SetNowHp 3202ff60, so a BBT 101 ignore-HP-decrease buff still blocks it, as June)
@@ -12243,8 +12258,16 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 			SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_BUFF_SUPER_AMOR_FOR_RIDING ) );
 #endif //RIDING_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+		/// June buff port Phase 14c, CX2GUUser::DamageReactStateChange 31feabd0, RT_FLY @31feb404-31feb42c: super armor
+		/// stops the launch only outside the tutorial, and only while June's DamageData byte +0x3ec is clear (a June-only
+		/// key with no March counterpart, so it reads as false here)
+		if ( IsSuperArmor() && false == g_pMain->GetIsPlayingTutorial() )
+			break;
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 		if ( IsSuperArmor() )
 			break;
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 
 		if( m_FlyCount > 2 )
 		{
@@ -12252,6 +12275,12 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 		}
 		else
 		{
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+			/// June @31feb44e-31feb47a: in the tutorial a super-armoured unit also takes the hit's back speed in x,
+			/// mirrored (nowSpeed.x = backSpeed.x * -1.0, the double at 33436c90)
+			if ( IsSuperArmor() && true == g_pMain->GetIsPlayingTutorial() )
+				m_PhysicParam.nowSpeed.x = pDamageData->backSpeed.x * -1.f;
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 			m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
 		}
 
@@ -27084,7 +27113,17 @@ void CX2GUUser::StartEnd()
 {
 	CommonStateEnd();
 
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+	/// June buff port Phase 14c, CX2GUUser::StartEnd 3201b460 @3201b47c-3201b49f: the start fanfare (Fight.ogg and the
+	/// GameStart / GameFight particles) is for my unit outside the tutorial, and only before m_bStarted (+0x8b61) is set
+#ifdef FIX_QUICK_SLOT_USE_DUNGEON_PLAY
+	if( IsMyUnit() == true && false == g_pMain->GetIsPlayingTutorial() && false == m_bStarted )
+#else FIX_QUICK_SLOT_USE_DUNGEON_PLAY
+	if( IsMyUnit() == true && false == g_pMain->GetIsPlayingTutorial() )
+#endif FIX_QUICK_SLOT_USE_DUNGEON_PLAY
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	if( IsMyUnit() == true )
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	{
 #ifdef SERV_PLAY_WITH_CHAR_PARTY_BONUS_EXP		/// 던전 시작할 때, "아라와 함깨 파티하면 경험치 올라가는 버프" 를 갖고 있다면 공존의 축제와 같은 UI 표기 해주자
 		if( NULL != g_pData && NULL != g_pData->GetUIMajorParticle() &&

@@ -1246,7 +1246,13 @@ HRESULT CX2StateDungeonGame::OnFrameRender()
 	{
 		if( m_pDungeonGame->GetGameState() != CX2Game::GS_PLAY )
 		{
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+			/// June buff port Phase 14c, CX2StateDungeonGame UI render pass 324cff10 @324cffb2-324cffd0: in the tutorial the
+			/// loading dialogs also cover a stage change (m_NextStageNum > -2), not only the dungeon load (-2)
+			if( m_NextStageNum == -2 || ( m_NextStageNum > -2 && true == g_pMain->GetIsPlayingTutorial() ) )
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 			if( m_NextStageNum == -2 )
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 			{
 				if( m_pDLGLoadingState != NULL)
 				{

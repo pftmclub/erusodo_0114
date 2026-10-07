@@ -1741,7 +1741,13 @@ void CX2UIQuickSlot::SetEnable( bool val )
 		{
 			CX2SlotItem* pItemSlot = (CX2SlotItem*)m_SlotList[i];
 #ifdef SERV_EXPAND_QUICK_SLOT
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+			/// June buff port Phase 14c, CX2UIQuickSlot::SetEnable 3294c460 @3294c62a-3294c63f: a disabled slot is hidden in the
+			/// tutorial (SetShow( g_pMain+0x16a != 1 ))
+			pItemSlot->SetShow( false == g_pMain->GetIsPlayingTutorial() );
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 			pItemSlot->SetShow(true);
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 #endif SERV_EXPAND_QUICK_SLOT
 			pItemSlot->SetEnable( false );
 		}

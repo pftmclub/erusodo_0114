@@ -725,7 +725,15 @@ HRESULT CX2State::OnFrameMove( double fTime, float fElapsedTime )
 
 	HandleMsgByESC();
 	
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+	/// June buff port Phase 14c, CX2State::OnFrameMove 31f0d390 @31f0d996-31f0d9cb: no shortcut keys in the tutorial.
+	/// June also skips them while its June-only CX2TutorialGuideManager (g_pMain+0x8c4, 31fbdab0) is active; March has none.
+	/// This drops March's COMBOTREE_IN_TUTORIAL K-key exception, as June does.
+	if( false == g_pMain->GetIsPlayingTutorial() )
+		ShortCutKeyProcess();
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	ShortCutKeyProcess();
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 
 
 //{{ kimhc // 2010.4.12 // 비밀던전 작업(일일퀘스트 시스템)

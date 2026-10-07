@@ -189,6 +189,16 @@ public:
 	bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	bool UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 	bool UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+	/// June buff port Phase 14c: the tutorial's local default keys (June 31f5e290) and their restore (31f5d4a0)
+	void JuneApplyTutorialDefaultKeys();
+	void JuneRestoreKeysAfterTutorial();
+private:
+	void JuneSetDefaultKeyPadMap();
+	int  JuneApplyKeyPadMapToKeyboard( bool bSkipUnset_ );
+	KeyMap				m_JuneKeyPadMapBeforeTutorial;	/// June CX2KeyPad +0x28: the map in use when the tutorial started
+public:
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 #pragma endregion ÇÔ¼ö
 
 #pragma region private function

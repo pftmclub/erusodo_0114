@@ -5428,6 +5428,39 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-07
+// Description: June buff port Phase 14c (JUNE_BUFF_PORT_PHASES.md). June's
+//              CX2Main +0x16a is March's m_bIsPlayingTutorial (setter
+//              31d716c0 = SetIsPlayingTutorial). This flag ports June's reads
+//              of it that March lacks: the user DamageReact training clamp
+//              (@32049b40), RT_FLY super armor (31feabd0), the start fanfare
+//              (3201b460), the riding key (322f7170), shortcut keys
+//              (31f0d390), SetShowUI (32154820), the quick-quest toggle
+//              (323ddfe0, 323e1bf0), the dungeon loading render (324cff10),
+//              the slide-show ESC (325c6b50), pets (326cd8a0, 326cda80), the
+//              play guide (3289cf20, 3289d090), the quick slot (3294c460),
+//              the select-unit first-select test (32563560); and the setter's
+//              June half: default keys on the first tutorial entry (31f5e290,
+//              latch +0x16b) restored on the tutorial exit (327d2160 ->
+//              31f5d4a0). Classification: june2017_re/c14c_tutorial_reads.tsv.
+//              Log tag: JUNE_BUFF.
+#define SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
+// Description: June buff port Phase 14c, offline emulator half (user,
+//              2026-10-07: track the real first select). KEGS_SELECT_UNIT_5_NOT
+//              ::m_bFirstSelect is sent as the live server does
+//              (GSUserFunction.cpp:5755: this character's select count == 0),
+//              counted per unit in els_db.sql settings rows
+//              'select_count.<unit uid>'. Needs SERV_IRUHADEV_OFFLINE.
+#define SERV_IRUHADEV_OFFLINE_FIRST_SELECT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-07
 // Description: June buff port Phase 14b (JUNE_BUFF_PORT_PHASES.md): the
 //              consumer of the templet key IS_INSTANCE_KILL_DEBUFF. June's
 //              CX2GUUser::DamageReact (320462a0) records, on every damaging

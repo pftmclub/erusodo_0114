@@ -85,7 +85,13 @@ void CX2SlideShot::OnFrameMove( float fElapsedTime )
 				|| g_pKTDXApp->GetDIManager()->GetMouse()->GetButtonState(MOUSE_RBUTTON) == TRUE )
 #endif FIX_BESMA_SECRET_DUNGEON_EVENT_SCENE
 			{
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+				/// June buff port Phase 14c, CX2SlideShot::OnFrameMove 325c6b50 @325c6e9d-325c6ebb: ESC / right click in the
+				/// tutorial no longer ends the scene (June's function has no ScenEnd); that frame's scene step is skipped
+				return;
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 				ScenEnd();
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 			}
 
 			if( g_pX2Game != NULL )

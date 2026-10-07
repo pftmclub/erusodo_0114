@@ -1459,7 +1459,12 @@ class CX2Main : public CKTDXStage
 		void			SetTutorialRandomLoadingBG( int iRandIndex ) { m_iRandLoadingBG = iRandIndex; }
 		int				GetTutorialRandomLoadingBG() { return m_iRandLoadingBG; }
 		const bool		GetIsPlayingTutorial() { return m_bIsPlayingTutorial; }
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+		void			SetIsPlayingTutorial( bool bPlaying );		/// June buff port Phase 14c: June 31d716c0 (X2Main.cpp)
+		void			JuneOnExitTutorialRestoreKeys();			/// June 327d2160's key half (called by CX2DungeonGame::Release)
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 		void			SetIsPlayingTutorial( bool bPlaying ) { m_bIsPlayingTutorial = bPlaying; }
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 		const bool		GetIsExitingTutorial() { return m_bIsExitingTutorial; }
 		void			SetIsExitingTutorial( bool bExiting ) { m_bIsExitingTutorial = bExiting; }
 		X2_STATE		GetStateIDBeforeTutorial() { return m_StateIDBeforeTutorial; }
@@ -2352,6 +2357,9 @@ class CX2Main : public CKTDXStage
 		bool				m_bIsExitFieldDungeon;
 		bool				m_bIsPlayingTutorial;
 		bool				m_bIsExitingTutorial;
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+		bool				m_bJuneTutorialKeyLatch;	/// June CX2Main +0x16b: default keys applied once per tutorial (31d716c0, reset 327d2160)
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 		X2_STATE			m_StateIDBeforeTutorial;
 		int					m_iRandLoadingBG;
 

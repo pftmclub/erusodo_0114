@@ -156,6 +156,14 @@ CX2DungeonGame::~CX2DungeonGame(void)
 	if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_hBossName )
 		GetMinorParticle()->DestroyInstanceHandle(m_hBossName);
 
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+	/// June buff port Phase 14c, CX2DungeonGame::Release 327d2240 @327d23fb -> 327d2160: when the tutorial is being left,
+	/// restore the keys the tutorial replaced (31f5d4a0) and clear the latch. 327d2160's other calls drive June-only
+	/// systems (the tutorial guide manager, its event scene and play-guide UI) and are not ported.
+	if( NULL != g_pMain && true == g_pMain->GetIsExitingTutorial() )
+		g_pMain->JuneOnExitTutorialRestoreKeys();
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+
 	CX2Game::Release();	/// 상위 클래스의 소멸자가 나중에 호출
 }
 

@@ -1,0 +1,95 @@
+june_site	june_func	march_function	march_site	category	action	note
+31d716c7	31d716c0	CX2Main::SetIsPlayingTutorial	X2Main.h:1462	SETTER	PORTED	June adds: on true, key pad present and latch +0x16b clear -> 31f5e290 (backup +0x28 = +0x8 map, defaults 31f5da70(0), apply to keyboard, no server write), latch = 1
+31d716e4/31d716f2	31d716c0	CX2Main::SetIsPlayingTutorial	none	SETTER	PORTED	+0x16b once-latch (m_bJuneTutorialKeyLatch)
+31e4967f	31e46300 (ctor)	CX2Main::CX2Main	X2Main.cpp:1490	HAS	-	ctor zero
+327d21ea	327d2160 (from CX2DungeonGame::Release 327d2240 @327d23fb)	CX2DungeonGame::Release	X2DungeonGame.cpp:130	MISSING	PORTED (key half)	reads +0x16c (exiting); restore 31f5d4a0 + latch = 0 ported; event scene 3226a260, SlideShot+0x88, guide manager 31fc3cc0, PlayGuide 3289e270, UIManager hook, MyUnit+0xde8 are June-only; guarded by the latch (JUNE_BUGS)
+32049b40	320462a0	CX2GUUser::DamageReact training clamp	X2GUUser.cpp:10067	MISSING	PORTED	(state == XS_TRAINING_GAME || tutorial) && HP <= 0.0f (3342e84c) -> SetNowHp(1)
+31ea9704	31ea9660	CX2ChatBox::Handler_EGS_MEGAPHONE_MESSAGE_NOT	X2ChatBox.cpp:7117	HAS	-	return in tutorial; June adds states 0x10/0x19/0x1a
+31eb91f6	31eb6c20	CX2ChatBox::OnFrameMove (Enter key)	X2ChatBox.cpp:704	HAS	-	June adds PVE_GAME 0x17
+31eb92ba	31eb6c20	CX2ChatBox::OnFrameMove case PHOTOZONE_GAME	none	JUNEONLY	listed	photozone state
+31f0d9a7/31f0d9b6	31f0d390	CX2State::OnFrameMove	X2State.cpp:728	MISSING	PORTED	ShortCutKeyProcess only if !tutorial; June also needs !guideMgr active (31fbdab0) and reads the flag again via 31fbde80 (guide manager, June-only); drops March COMBOTREE_IN_TUTORIAL
+31f11e7c	31f118c0	CX2State::ShortCutKeyProcess (M key)	X2State.cpp:4356	HAS	-	June adds !IsBesteraDungeon (32931bc0, June-only)
+31feb41c	31feabd0	CX2GUUser::DamageReactStateChange RT_FLY	X2GUUser.cpp:12246	MISSING	PORTED	break on super armor only if !tutorial && !pDD+0x3ec (June-only DamageData byte, false here)
+31feb466	31feabd0	CX2GUUser::DamageReactStateChange RT_FLY	X2GUUser.cpp:12255	MISSING	PORTED	FlyCount <= 2 && super armor && tutorial -> nowSpeed.x = backSpeed.x * -1.0 (33436c90)
+3201b48d	3201b460	CX2GUUser::StartEnd	X2GUUser.cpp:27087	MISSING	PORTED	fanfare if IsMyUnit && !tutorial && !m_bStarted (+0x8b61)
+3202a855	3202a800	CX2GUUser::InitByGameType	X2GUUser.cpp:35484	HAS	-	June adds game type 4
+32154721	32154680	CX2UIManager::OnStateChange	X2UIManager.cpp:3283	HAS	-
+321548d0	32154820	CX2UIManager::SetShowUI (riding skill slots)	X2UIManager.cpp:4176	JUNEONLY	listed	tutorial && guideMgr(g_pMain+0x8c4)+0xe4 < 3 -> slots hidden; guide step is June-only
+3215491b	32154820	CX2UIManager::SetShowUI (skill slot)	X2UIManager.cpp:4184	JUNEONLY	listed	same guide-step gate
+321549a4	32154820	CX2UIManager::SetShowUI (quick quest)	X2UIManager.cpp:4191	MISSING	PORTED	SetShowQuickQuestDLG(tutorial ? false : m_bShowUI)
+321549d6	32154820	CX2UIManager::SetShowUI (quick slot)	X2UIManager.cpp:4188	MISSING	PORTED	tutorial (via 31fbde80) -> quick slot hidden; June's other quick-slot terms (3266d250, training) are part of June's SetShowUI rewrite, not ported
+32154bc1	32154820	CX2UIManager::SetShowUI DUNGEON_GAME	X2UIManager.cpp:4209	MISSING	PORTED	SetShowMenu(tutorial ? false : bVal); June's guide call 31fbddf0 not ported
+32154e0b	32154820	CX2UIManager::SetShowUI BATTLE_FIELD	X2UIManager.cpp:4246	MISSING	PORTED	SetShowMenu(tutorial ? false : bVal) (via 31fbde80)
+32265b7d	32265890	CX2MiniMapUI::UICustomEventProc	X2MiniMapUI.cpp:208	HAS	-
+322f8014	322f7170	CX2Game::KeyProcess riding key	X2Game.cpp:5716	MISSING	PORTED	riding key needs !tutorial
+322f82ed	322f7170	CX2Game::KeyProcess	X2Game.cpp:5783	HAS	-
+3233b2e8	3233b290	CX2QuestManager::CheckItemCollection	X2QuestManager.cpp:4479	HAS	-	June adds PVE 0x17
+3244cde2	3244c8c0	CX2EmblemManager::OnFrameMove	X2EmblemManager.cpp:503	HAS	-
+32465b3d	324659a0	CX2StateMenu::ShortCutKeyProcess (F12 guide book)	X2StateMenu.cpp:3609	HAS	-
+31fbde85	31fbde80	CX2TutorialGuideManager (g_pMain+0x8c4) IsPlayingTutorial	none	JUNEONLY	listed	getter, callers 321549d6 32154e0b 31f0d9b6 323de049 323e1c7d
+31fbdfbe	31fbdfa0	CX2TutorialGuideManager refresh UI	none	JUNEONLY	listed	UIManager+0x8a / state+0x378
+323de049	323ddfe0	CX2UIQuestNew::ToggleUserShowQuickQuestDLG	X2UIQuestNew.h:723	MISSING	PORTED (gate)	!HideDialog && state != TRAINING && (!tutorial || !m_bUserShowQuickQuestDLG); g_pMain+0x2aa mirror and June's body changes not ported
+323e1c7d	323e1bf0	CX2UIQuestNew::UICustomEventProc UQNCM_CHECK_QUICK_QUEST	X2UIQuestNew.cpp:616	MISSING	PORTED	m_bUser && tutorial -> Detail dialog (+0x510) CheckBox_QuickQuest SetChecked(true), return true
+324cc1b0	324cb020	CX2StateDungeonGame::LoadUI	X2StateDungeonGame.cpp:689	HAS	-
+324ce945	324ce940	CX2StateDungeonGame::MoveToRubenVillage	X2StateDungeonGame.cpp:6645	HAS	-	setter call 324ce9ed[0] + 0x16c=1 = :6657/:6660
+324cf41d	324cf3d0	June per-state result phase machine (vslot 53)	none	JUNEONLY	listed	ends in EGS_RESULT_SUCCESS_REQ 0x10c
+324cffc9	324cff10	CX2StateDungeonGame::OnFrameRender	X2StateDungeonGame.cpp:1249	MISSING	PORTED	loading dialogs if NextStage == -2 || (> -2 && tutorial)
+324d0205	324cff10	CX2StateDungeonGame::OnFrameRender	X2StateDungeonGame.cpp:1295	HAS	-
+324d1654	324d1580	CX2StateDungeonGame::QuitGame	X2StateDungeonGame.cpp:928	MISSING	listed	tutorial branch adds June-only gates (game+0x2ad, g_pData+0x274, 3226a010, MyUser+0x94 size, level > 4) and June-only STR 0xa931; not portable without them
+324d8dfa	324d8890	CX2StateDungeonGame::OnFrameMove	X2StateDungeonGame.cpp:1101	HAS	-
+324d906b	324d8f70	CX2StateDungeonGame::UICustomEventProc DGUCM_GAME_EXIT_OK	X2StateDungeonGame.cpp:1511	HAS	-	setter 324d9076[0] = :1513
+324dacec	324d9f80	CX2StateDungeonGame ctor	X2StateDungeonGame.cpp:302	HAS	-
+324dbb9a	324dbb30	June-new CX2StateDungeonGame::Handler_EGS_RESULT_ALL_UNIT_SUCCESS_NOT	none	JUNEONLY	listed	part of 324cf3d0's in-game result flow; setter 324dbba5[0]
+324e2667/324e2697/324e4c86	324e2660/324e2690/324e4c40	CX2StateDungeonRoom::OnFrameRender (June 3-pass split)	X2StateDungeonRoom.cpp:390	HAS	-
+324e618d	324e6130	CX2StateDungeonRoom::UISetting	X2StateDungeonRoom.cpp:1849/1883	HAS	-	setter 324e62dc[0] = :1875
+324e9536	324e93b0	CX2StateDungeonRoom::EnterTutorial	X2StateDungeonRoom.cpp:3106	HAS	-	setter [1]
+324ea645	324ea5e0	CX2StateDungeonRoom::OnFrameMove	X2StateDungeonRoom.cpp:126	HAS	-
+32512d89/3251304c	3250f6c0	CX2StateDungeonResult::OnFrameMove	X2StateDungeonResult.cpp:1312/1501	HAS	-
+32513c89	32513980	CX2StateDungeonResult::UICustomEventProc	X2StateDungeonResult.cpp:1809	HAS	-	setter 32513c94[0]
+32515f67	32515f00	CX2StateDungeonResult::Handler_EGS_RESULT_ALL_UNIT_SUCCESS_NOT	X2StateDungeonResult.cpp:1987	HAS	-	setter 32515f72[0]
+3251e9d3	3251e730	CX2StatePVPGame::LoadUI	X2StatePVPGame.cpp:277	HAS	-
+32531457/32531487/32537519	32531450/32531480/325374d0	CX2StatePVPRoom::OnFrameRender (3 passes)	X2StatePVPRoom.cpp:549	HAS	-
+32539efe	32539cd0	CX2StatePVPRoom::EnterTutorial	X2StatePVPRoom.cpp:4041	HAS	-	setter [1]
+32543217/32543237/32543266	32543210/32543230/32543260	CX2StatePvPLobby::OnFrameRender (3 passes)	X2StatePvPLobby.cpp:264	HAS	-
+3254318b	32543180	CX2StatePvPLobby::EnterTutorial	X2StatePvPLobby.cpp:2238	HAS	-	setter [1]
+32545f05	32545ea0	CX2StatePvPLobby::OnFrameMove	X2StatePvPLobby.cpp:224	HAS	-
+32549038	325485f0	CX2StatePvPLobby ctor	X2StatePvPLobby.cpp:122	HAS	-
+3255b5c3	3255b100	CX2StateCreateUnit::Handler_EGS_CREATE_UNIT_ACK	X2StateCreateUnit.cpp:2647	MISSING	listed	June sets the flag only when kEvent byte +0x3a9 == 0 (unnamed ACK field); not portable until named
+3255b5f6/3255b612	3255b100	CX2StateCreateUnit::Handler_EGS_CREATE_UNIT_ACK	none	CHAR	checklist §7	Rose (UT 0xb) / Ain (UT 0xc) skip the tutorial under instance flags 0x8df / 0x26
+32558fad/32559146/3255a1af	32558860	CX2StateCreateUnit::UICustomEventProc	X2StateCreateUnit.cpp:731/749/1056	HAS	-	setter [1]/[0]/[1]
+325636d2	32563560	CX2StateServerSelect::Handler_EGS_SELECT_UNIT_5_NOT	X2StateServerSelect.cpp:4280	MISSING	PORTED	level 1 && EXP 0 && m_bFirstSelect (kEvent+0x12a, the bool after the bingo block in GET 320e9a80); emulator sends the live value (SERV_IRUHADEV_OFFLINE_FIRST_SELECT)
+32566cf7	32566c70	CX2StateServerSelect::Handler_EGS_SELECT_UNIT_4_NOT	X2StateServerSelect.cpp:4088	HAS	-	setter [1]
+32567306	325672c0	CX2StateServerSelect::Handler_EGS_STATE_CHANGE_VILLAGE_MAP_REQ	X2StateServerSelect.cpp:5333	HAS	-
+3256adf0	3256ac50	CX2StateServerSelect::Handler_EGS_CONNECT_ACK	X2StateServerSelect.cpp:7869	HAS	-	setter 3256adfb[0]
+325713a8	325712b0	CX2StateServerSelect::Handler_EGS_GET_MY_INVENTORY_ACK	X2StateServerSelect.cpp:5532	HAS	-
+32576db4	32576d10	CX2StateServerSelect channel-list tail (June helper)	X2StateServerSelect.cpp:11682	HAS	-
+32576f79	32576e00	CX2StateServerSelect::Handler_EGS_ENTRY_POINT_GET_CHANNEL_LIST_ACK	X2StateServerSelect.cpp:11682	HAS	-
+3257785a	32576ff0	CX2StateServerSelect ctor	X2StateServerSelect.cpp:506	HAS	listed	flag read matches; June's tutorial branch also calls its entry-point helper 32576d10 first (channel list REQ 0x487), a June entry-point flow change, not ported
+3257a6d4	32578bc0	CX2StateServerSelect::UICustomEventProc SUSUCM_START_TUTORIAL_CANCEL	X2StateServerSelect.cpp:1842	HAS	-	setter [0]
+3257b47c	32578bc0	CX2StateServerSelect::UICustomEventProc RE_CONNECT_CHANNEL_SERVER_OK	X2StateServerSelect.cpp:2305	HAS	-	setter 3257b489[0]
+325c6eb1	325c6b50	CX2SlideShot::OnFrameMove	X2SlideShot.cpp:82	MISSING	PORTED	(ESC || RBTN) && tutorial -> skip the frame (no ScenEnd in June)
+326cd942	326cd8a0	CX2PetManager::CreatePet	X2PetManager.cpp:669	MISSING	PORTED	no pet in the tutorial; June-only dungeon 41450 term listed
+326cdb5e	326cda80	CX2PetManager::CreateGamePet	X2PetManager.cpp:745	MISSING	PORTED	same; June's official-PvP term (DAT_33775868+0xf4) listed
+326ef265	326ef1a0	CX2PET::SetInfo	X2Pet.cpp:463	HAS	-
+327991df/32799281	327989e0	CX2GUNPC vslot 0x424	none	NOTMAIN	-	base is [this+0x85fc]
+327ca142	327ca110	June CX2DungeonGame dungeon-clear setter	X2DungeonSubStage.cpp:1291	JUNEONLY	listed	end delay tutorial ? 2.0 : 1.0 (March 7.0) belongs to June's server-driven clear restructure (324cf3d0)
+327ca281	327ca1b0	CX2DungeonGame end-delay tick	X2DungeonSubStage.cpp:182	HAS	-
+327cadf8	327cadf0	CX2DungeonGame::TutorialFrameMove	X2DungeonGame.cpp:2568	HAS	-
+327cc0d1	327cbd60	CX2DungeonGame::GameLoading	X2DungeonGame.cpp:584	HAS	-
+327cd6ed	327cd1b0	CX2DungeonGame::StageLoad	X2DungeonGame.cpp:756	HAS	-
+327cfaea	327cf620	CX2DungeonGame::SubStageStart	X2DungeonGame.cpp:1239	HAS	-	funcmap row corrected
+327d1df5	327d1d40	CX2DungeonGame::SubStageOpen	X2DungeonGame.cpp:1056	HAS	-
+327d49d7	327d4790	CX2DungeonGame::OnFrameRender	X2DungeonGame.cpp:359	HAS	-
+327f0685	327f05c0	CX2DungeonSubStage::ClearSubStage (Lua)	X2DungeonSubStage.cpp:477	MISSING	NOT PORTED (breaks March)	June: clear only if tutorial || auth >= 1; June clears through the server, March through this Lua call, so an auth-0 save would stop clearing
+3289cf55	3289cf20	CX2PlayGuide::IsShowGuide	X2PlayGuide.cpp:897	MISSING	PORTED	DUNGEON_GAME && tutorial -> false
+3289d096	3289d090	CX2PlayGuide::StartGoEffect	X2PlayGuide.cpp:1057	MISSING	PORTED	!tutorial
+3289e193	3289e180	CX2PlayGuide::OnFrameMove_Tutorial	X2PlayGuide.cpp:708	HAS	-
+328ad9d4	328ad970	unidentified June object at g_pData+0x454	none	JUNEONLY	listed	class tier 2 && !tutorial
+3294c631	3294c460	CX2UIQuickSlot::SetEnable	X2UIQuickSlot.cpp:1744	MISSING	PORTED	disabled slot SetShow(!tutorial); June's other SetEnable changes not ported
+32978ec2	32978e80	CX2GUEve vslot 0x6fc	none	CHAR	checklist §7	uses guide manager +0xe4
+32a59534	32a53e10	CX2GUAin::InitComponent	none	CHAR	checklist §7	tutorial -> 32a31900(0)
+32ab451f	32ab4480	CX2GURose wait-habit check	none	CHAR	checklist §7
+32b74065	32b73ff0	CX2GUEL::DamageReact (Iron Will)	X2GUEL.cpp:3305	CHAR	checklist §7
+32bb0e2c	32bb0da0	CX2GUAra::InitComponent	X2GUAra.cpp:3017	CHAR	checklist §7	tutorial -> force power 3
+32d1af6c	32d1ac60	CX2GUElsword_SwordMan::DamageReact	X2GUElsword_SwordMan.cpp:566	CHAR	checklist §7	special reaction needs !tutorial
+32dcb79f	32dcb570	CX2UISynthesisItem ctor	none	NOTMAIN	-	this = CX2UISynthesisItem

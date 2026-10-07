@@ -4277,8 +4277,16 @@ bool CX2StateServerSelect::Handler_EGS_SELECT_UNIT_5_NOT( HWND hWnd, UINT uMsg, 
 
 #ifdef SERV_ARA_FIRST_SELECT_TUTORIAL
 		/// 캐릭터의 첫 접속이면
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+		/// June buff port Phase 14c, Handler_EGS_SELECT_UNIT_5_NOT 32563560 @3256369e-325636d2: the tutorial also needs the
+		/// server's first-select bool (kEvent +0x12a in June = m_bFirstSelect, read right after the bingo block as here)
+		if ( 1 == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_Level &&
+			0 == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_EXP &&
+			true == kEvent.m_bFirstSelect )
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 		if ( 1 == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_Level &&
 			0 == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_EXP )
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 		{
 			m_bReserveEnterTutorial = true;
 			g_pMain->SetIsPlayingTutorial( true );	/// 튜토리얼 실행
