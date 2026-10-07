@@ -1,7 +1,13 @@
 #define KX2ITEMMANAGER_FORMAT_MAGIC           (MAKEFOURCC('K','I','M',' '))
 #define KX2ITEMMANAGER_FORMAT_VERSION         0x1201
 
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+/// June item.kim K2: June's record holds 8 attach-frame and 8 model slots (accessors 328671e0 / 32867210 refuse i > 7)
+static const int        MAX_MODEL_COUNT_A_ITEM = 8;
+#pragma message( "SERV_IRUHADEV_JUNE_ITEM_KIM: June 228-byte KItemFormatTemplet compiled in (X2Item_Preprocessing.inl)" )
+#else
 static const int        MAX_MODEL_COUNT_A_ITEM = 6;
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
 enum ITEM_TYPE
 {
@@ -21,6 +27,9 @@ enum ITEM_TYPE
 	IT_PET,				/// 펫
 	IT_RIDING,			/// 탈것
 //#endif //SERV_UPGRADE_TRADE_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	IT_CUSTOM,			/// June item.kim K2: June ITEM_TYPE.IT_CUSTOM = 14 (Enum.src.lua), 1,207 customize items; backlog Stage 12 owns them
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	IT_NUM,
 };
 
@@ -233,6 +242,11 @@ struct KItemFormatStatData
 	float m_fBaseHP;
 	float m_fAtkPhysic;
 	float m_fAtkMagic;
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	/// June item.kim K2: June's stat pool is 7 floats {HP, AtkP, AtkM, [3], [4], DefP, DefM}: the writer 325bcdc0 writes 0x1c bytes,
+	/// 328d68c0 reads Def at [5]/[6]. [3] and [4] are 0 in all 75,556 June stat blocks and no June reader was found, so no June name.
+	float m_afJuneStatSlot3_4[2];
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
 	//방어
 	float m_fDefPhysic;
@@ -243,6 +257,10 @@ struct KItemFormatStatData
 		m_fBaseHP			= 0;
 		m_fAtkPhysic		= 0;
 		m_fAtkMagic			= 0;
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+		m_afJuneStatSlot3_4[0]	= 0;
+		m_afJuneStatSlot3_4[1]	= 0;
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
 		m_fDefPhysic		= 0;
 		m_fDefMagic			= 0;
@@ -304,6 +322,11 @@ struct KItemFormatStatRelLVData
 	//방어
 	BYTE m_byDefPhysicRelLV;
 	BYTE m_byDefMagicRelLV;
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	/// June item.kim K2: June's StatRelationLevel pool is 6 bytes; the sixth is m_fAllStatRelLV (writer 325bcdc0; 328d6f60 reads [0..5]),
+	/// the term buff 16-step3b7's calculator already adds to every stat. 0 in all 5,998 June blocks.
+	BYTE m_byAllStatRelLV;
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
 	KItemFormatStatRelLVData()
 	{
@@ -313,11 +336,18 @@ struct KItemFormatStatRelLVData
 
 		m_byDefPhysicRelLV	= 0;
 		m_byDefMagicRelLV	= 0;
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+		m_byAllStatRelLV	= 0;
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	}
 
 	inline bool IsValideCheck() const
 	{
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+		return 0 != (m_byBaseHPRelLV + m_byAtkPhysicRelLV + m_byAtkMagicRelLV + m_byDefPhysicRelLV + m_byDefMagicRelLV + m_byAllStatRelLV);
+#else
 		return 0 != (m_byBaseHPRelLV + m_byAtkPhysicRelLV + m_byAtkMagicRelLV + m_byDefPhysicRelLV + m_byDefMagicRelLV);
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	}
 	void AddStat( const KItemFormatStatRelLVData& sStatRelLVData_)
 	{
@@ -326,6 +356,9 @@ struct KItemFormatStatRelLVData
 		this->m_byAtkMagicRelLV += sStatRelLVData_.m_byAtkMagicRelLV;
 		this->m_byDefPhysicRelLV += sStatRelLVData_.m_byDefPhysicRelLV;
 		this->m_byDefMagicRelLV += sStatRelLVData_.m_byDefMagicRelLV;
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+		this->m_byAllStatRelLV += sStatRelLVData_.m_byAllStatRelLV;
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	}
 	bool operator < ( const KItemFormatStatRelLVData& rhs ) const 
 	{
@@ -351,6 +384,13 @@ struct KItemFormatStatRelLVData
 
 		if( m_byDefMagicRelLV < rhs.m_byDefMagicRelLV )
 			return true;
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+		else if( m_byDefMagicRelLV > rhs.m_byDefMagicRelLV )
+			return false;
+
+		if( m_byAllStatRelLV < rhs.m_byAllStatRelLV )
+			return true;
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
 		return false;
 	}
@@ -362,6 +402,9 @@ struct KItemFormatStatRelLVData
 		m_byAtkMagicRelLV = 0;
 		m_byDefPhysicRelLV = 0;
 		m_byDefMagicRelLV = 0;
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+		m_byAllStatRelLV = 0;
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	}
 };
 //#endif // ADD_ITEM_TEMPLET_ITEM
@@ -439,7 +482,11 @@ struct    KItemFormatTemplet : public CX2ItemTemplet_Base
         FLAG_BIT_IS_PC_BANG = 5,
         FLAG_BIT_CAN_HYPER_MODE = 6,
 //#ifdef HIDE_SET_DESCRIPTION
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	FLAG_BIT_PVP_EQUIP = 7,		/// June item.kim K2: set iff a SAT_PVP_EQUIP (40) ability is listed (writer 325bcdc0 @325bf219); HideSetDesc is flags2 bit 1
+#else
 	FLAG_BIT_HIDE_SET_DESC = 7,
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 //#endif HIDE_SET_DESCRIPTION
         FLAG_POS_USE_TYPE = 8,
         FLAG_NUM_USE_TYPE = 4,
@@ -460,6 +507,10 @@ struct    KItemFormatTemplet : public CX2ItemTemplet_Base
 	{
 //#ifdef SERV_PVP_EQUIPMENT
 		FLAG_BIT_PVP_ITEM = 0,
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+		FLAG_BIT2_HIDE_SET_DESC = 1,		/// June item.kim K2: m_bHideSetDesc -> flags2 |2 (writer 325bcdc0)
+		FLAG_BIT2_IS_FOR_MINOR_UNIT = 2,	/// June item.kim K2: m_bIsForMinorUnit -> flags2 |4, Ciel's dummy copy of a Lu item (Stage 8)
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 //#endif // SERV_PVP_EQUIPMENT
 	};//
 //#endif ADD_FLAGS_ITEM_PREPROCESSING
@@ -472,8 +523,18 @@ struct    KItemFormatTemplet : public CX2ItemTemplet_Base
     void    SetVested( bool bVested )                       { _SetBit( FLAG_BIT_VESTED, bVested ); }
     bool    GetVested() const                               { return _GetBit( FLAG_BIT_VESTED ); }
 //#ifdef HIDE_SET_DESCRIPTION
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+    /// June item.kim K2: HideSetDesc moved to flags2 bit 1; flags bit 7 is PvP-equip (consumers: backlog Stage 16)
+    void    SetHideSetDesc( bool bHideSetDesc )             { _SetBit2( FLAG_BIT2_HIDE_SET_DESC, bHideSetDesc ); }
+    bool    GetHideSetDesc() const                          { return _GetBit2( FLAG_BIT2_HIDE_SET_DESC ); }
+    void    SetPvpEquip( bool bPvpEquip )                   { _SetBit( FLAG_BIT_PVP_EQUIP, bPvpEquip ); }
+    bool    GetPvpEquip() const                             { return _GetBit( FLAG_BIT_PVP_EQUIP ); }
+    void    SetIsForMinorUnit( bool bIsForMinorUnit )       { _SetBit2( FLAG_BIT2_IS_FOR_MINOR_UNIT, bIsForMinorUnit ); }
+    bool    GetIsForMinorUnit() const                       { return _GetBit2( FLAG_BIT2_IS_FOR_MINOR_UNIT ); }
+#else
     void    SetHideSetDesc( bool bHideSetDesc )     	    { _SetBit( FLAG_BIT_HIDE_SET_DESC, bHideSetDesc ); }
     bool    GetHideSetDesc() const                          { return _GetBit( FLAG_BIT_HIDE_SET_DESC ); }
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 //#endif HIDE_SET_DESCRIPTION
 //#ifdef SERV_PVP_EQUIPMENT
     void    SetPvpItem( bool bPvpItem )              	    { _SetBit2( FLAG_BIT_PVP_ITEM, bPvpItem ); }
@@ -519,6 +580,15 @@ struct    KItemFormatTemplet : public CX2ItemTemplet_Base
     int     GetSetID() const                                { return m_iSetID; }
     void    SetAddMaxMP( float fAddMaxMP )                  { m_fAddMaxMP = fAddMaxMP; }
     float   GetAddMaxMP() const                             { return m_fAddMaxMP; }
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+    /// June item.kim K2: June-only record fields (k0_record_map.tsv); their consumers are backlog Stage 8 / 16
+    float   GetDamageRange() const                          { return m_fDamageRange; }
+    int     GetItemIDForMinorUnit() const                   { return m_iItemIDForMinorUnit; }
+    int     GetItemEquipmentGroup() const                   { return m_iItemEquipmentGroup; }
+    int     GetDescriptionInShopType() const                { return (int) m_byDescriptionInShopType; }
+    BYTE    GetJuneRawEqipPosition() const                  { return m_byEqipPosition; }     /// the stored value, before the D2 remap and the EP_END guard (load census)
+    const wchar_t*  GetExpiredDate() const;
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
 
     void    SetEndurance( int iEndurance )                  { m_sEndurance = (SHORT) iEndurance; }
@@ -548,7 +618,25 @@ struct    KItemFormatTemplet : public CX2ItemTemplet_Base
     void    SetUnitClass( CX2Unit::UNIT_CLASS eUnitClass )  { m_byUnitClass = (BYTE) eUnitClass; }
     CX2Unit::UNIT_CLASS GetUnitClass() const                { return (CX2Unit::UNIT_CLASS) m_byUnitClass; }
     void    SetEqipPosition( CX2Unit::EQIP_POSITION eEqipPosition ) { m_byEqipPosition = (BYTE) eEqipPosition; }
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+    CX2Unit::EQIP_POSITION GetEqipPosition() const
+    {
+#ifdef SERV_IRUHADEV_JUNE_KIM_MINIME_REMAP
+        /// June item.kim K2, decision D2 (stand-in, not June): June's 26 EP_AC_MINIME and 27 EP_AC_EARRING are slots March lacks.
+        /// The Mini-me items sat at 17 in March's kim, so they keep equipping there; backlog Stage 16 ports June's slots and drops this.
+        if ( 26 == m_byEqipPosition )
+            return CX2Unit::EP_AC_FACE1;
+        if ( 27 == m_byEqipPosition )
+            return CX2Unit::EP_AC_FACE2;
+#endif SERV_IRUHADEV_JUNE_KIM_MINIME_REMAP
+        /// guard: EP_END-sized arrays all over CX2Unit / CX2UnitViewerUI are indexed by this; out of range equips nowhere (counted at load)
+        if ( m_byEqipPosition >= CX2Unit::EP_END )
+            return CX2Unit::EP_NONE;
+        return (CX2Unit::EQIP_POSITION) m_byEqipPosition;
+    }
+#else
     CX2Unit::EQIP_POSITION GetEqipPosition() const          { return (CX2Unit::EQIP_POSITION) m_byEqipPosition; }
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 #endif  X2OPTIMIZE_SCRIPT_PREPROCESSING_TOOL
 
     void    SetUseLevel( int iUseLevel )                    { m_byUseLevel = (BYTE) iUseLevel; }
@@ -605,11 +693,22 @@ struct    KItemFormatTemplet : public CX2ItemTemplet_Base
     unsigned        GetNumAttachedMeshData() const;
     void            GetAttachedMeshData( unsigned i, const wchar_t** ppwszOutMeshName = NULL, const wchar_t** ppwszOutBoneName = NULL, bool* pbOutJiggle = NULL ) const;
 #ifndef X2OPTIMIZE_SCRIPT_PREPROCESSING_TOOL
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+    /// June item.kim K2: June's Extra readers (32867660 / 32867710 / 328677c0 / 32867880 / 32867960) take the unit type and a
+    /// Lu/Ciel bool and search for a key: 1-9 the same, 10 -> 10 (Lu) or 11 (Ciel), 11 -> 12 (Rose), 12 -> 13 (Ain), anything else 0
+    const D3DXVECTOR3&  GetFrameOffset( CX2Unit::UNIT_TYPE eUnitType, bool bIsMinorUnit_ = false ) const;
+    const D3DXVECTOR3&  GetRenderScale( CX2Unit::UNIT_TYPE eUnitType, bool bIsMinorUnit_ = false ) const;
+    const D3DXVECTOR3&  GetRenderRotate( CX2Unit::UNIT_TYPE eUnitType, bool bIsMinorUnit_ = false ) const;
+    const wchar_t*  GetCommonItemModelName( CX2Unit::UNIT_TYPE eUnitType, bool bIsMinorUnit_ = false ) const;
+	const wchar_t*  GetCommonItemXETName( CX2Unit::UNIT_TYPE eUnitType, bool bIsMinorUnit_ = false ) const;
+    static DWORD    _GetJuneExtraKey( CX2Unit::UNIT_TYPE eUnitType_, bool bIsMinorUnit_ );
+#else
     const D3DXVECTOR3&  GetFrameOffset( CX2Unit::UNIT_TYPE eUnitType ) const;
     const D3DXVECTOR3&  GetRenderScale( CX2Unit::UNIT_TYPE eUnitType ) const;
     const D3DXVECTOR3&  GetRenderRotate( CX2Unit::UNIT_TYPE eUnitType ) const;
     const wchar_t*  GetCommonItemModelName( CX2Unit::UNIT_TYPE eUnitType ) const;
 	const wchar_t*  GetCommonItemXETName( CX2Unit::UNIT_TYPE eUnitType ) const;
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	void            GetSlashTraceColors( D3DXCOLOR& dwOut_, D3DXCOLOR& dwOutTip_, D3DXCOLOR& dwOutHyper_, D3DXCOLOR& dwOutHyperTip_, CX2Unit::UNIT_TYPE eUnitType_ = CX2Unit::UT_NONE ) const;
 #else
 	void            GetSlashTraceColors( D3DXCOLOR& dwOut_, D3DXCOLOR& dwOutTip_, D3DXCOLOR& dwOutHyper_, D3DXCOLOR& dwOutHyperTip_) const;
@@ -617,6 +716,12 @@ struct    KItemFormatTemplet : public CX2ItemTemplet_Base
 
     static const BYTE*     GetData() { return ms_pData; }
     static const wchar_t*      GetWideString( DWORD dwOffset_ );
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+    /// June item.kim K2: "[JUNE_KIM]" lines in ErrorLog.txt, flushed per line. JuneKimGuard writes the first hit of a kind and
+    /// then the running count at 10, 100, 1000, ... so a guard that fires per frame stays readable.
+    static void     JuneKimLine( const char* szFormat_, ... );
+    static void     JuneKimGuard( const char* szKind_, const char* szFormat_, ... );
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
     class LessID 
     {
@@ -819,6 +924,11 @@ private:
     int         m_iPricePvPPoint;   // int m_PricePvPPoint;
     int         m_iSetID;           // int m_SetID;
     float       m_fAddMaxMP;
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+    float       m_fDamageRange;         /// June +44 m_fDamageRange (weapons; reader not located in K0, Stage 16)
+    int         m_iItemIDForMinorUnit;  /// June +48 m_ItemIDForMinorUnit (Lu item -> its Ciel dummy, Stage 8)
+    int         m_iItemEquipmentGroup;  /// June +52 m_ItemEquipmentGroup (writer default: the item's own id, Stage 16)
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
 // 어느 본에 붙는가
     DWORD        m_dwOffset_Name; // wstring m_Name
@@ -826,6 +936,10 @@ private:
     DWORD        m_dwOffset_DescriptionInShop; // wstring m_DescriptionInShop;
     DWORD        m_adwOffset_AttachFrameName[MAX_MODEL_COUNT_A_ITEM]; //<- wstring?
     //wstring                        m_AttachFrameName[ MAX_MODEL_COUNT_A_ITEM ];
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+    DWORD        m_dwOffset_ExpiredDate;     /// June +100 m_wstrExpiredDate (accessor 328671a0; item expiry is Stage 16)
+    DWORD        m_dwOffset_PreExpiredDate;  /// June +104 m_wstrPreExpiredDate (no accessor: June's client never reads it)
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
 
     DWORD        m_adwOffset_ModelName[MAX_MODEL_COUNT_A_ITEM];
@@ -879,6 +993,10 @@ private:
     BYTE        m_byNumCommonItemModelNames; 
     BYTE        m_byNumCommonItemXETNames;
     BYTE        m_byNumSlashTraces;
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+    BYTE        m_byDescriptionInShopType;  /// June +224 m_eDescriptionInShopType: DIST_DEFAULT 0 / MERGE_SOCKET_KR 1 / MERGE_SOCKET_INT 2 (Stage 16)
+    BYTE        m_abyJunePadding[3];        /// June +225..+227, 0 in every record
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
     // 항상 4byte align 되도록 BYTE padding 한다.
 
@@ -900,6 +1018,11 @@ private:
 #pragma pack( pop )
 
 BOOST_STATIC_ASSERT( sizeof(KItemFormatTemplet)/4*4 == sizeof(KItemFormatTemplet) );
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+BOOST_STATIC_ASSERT( sizeof(KItemFormatTemplet) == 228 );       /// June item.kim K2: June's stride (DoMemoryNotEncrypt 328101f0 checks N*0xe8 = id + record)
+BOOST_STATIC_ASSERT( sizeof(KItemFormatStatData) == 28 );
+BOOST_STATIC_ASSERT( sizeof(KItemFormatStatRelLVData) == 6 );
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 BOOST_STATIC_ASSERT( IT_NUM <= (1<<KItemFormatTemplet::FLAG_NUM_ITEM_TYPE) );
 BOOST_STATIC_ASSERT( IG_NUM <= (1<<KItemFormatTemplet::FLAG_NUM_ITEM_GRADE) );
 BOOST_STATIC_ASSERT( PT_NUM <= (1<<KItemFormatTemplet::FLAG_NUM_PERIOD_TYPE) );

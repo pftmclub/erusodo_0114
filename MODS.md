@@ -3230,6 +3230,26 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
 Revert: undefine `SERV_IRUHADEV_JUNE_TOUCH_LAND` (KTDXLIB too: the mesh member) and rebuild all four projects. The other two
 items go with their own flags. JUNE_BUGS 103 records the TECH_POINT truncation.
 
+### June item.kim adoption K2: June's 228-byte item record and June's item.kim
+
+- **`SERV_IRUHADEV_JUNE_ITEM_KIM` and June's `item.kim` go together.** The flag compiles June's `KItemFormatTemplet` (228 B, K0 map
+  `june_item_kim/k0_record_map.tsv`), `MAX_MODEL_COUNT_A_ITEM` 8, the 7-float stat pool and the 6-byte stat-level pool, flags bit 7 =
+  PvP-equip (HideSetDesc moved to flags2 bit 1), June's Extra key remap, `IT_CUSTOM` = 14 (sorts as `ST_SPECIAL`, as June), the grade-6
+  name colour, tooltip label (STR 34930 "Legend") and drop colour, a load census and the PvP-emblem NULL guard (June has none; a March
+  gap). `data036`'s `item.kim` is June's file (67,557,756 B, 111,428 items, 6,740 sets), manifest value unchanged (`"2"`).
+- **`SERV_IRUHADEV_KIM_LAYOUT_CHECK`** (independent, stays on): `DoMemoryNotEncrypt` reads the file's record stride from the data and
+  refuses a file that does not match the compiled struct, with a `[JUNE_KIM] layout mismatch` line in ErrorLog.txt. The refusal falls to
+  the Lua path, which has no `Item.lua`, so the client then crashes at the first item lookup: the line names the cause. **An exe built
+  without both flags (e.g. a worktree whose `Always.h` predates K2) reads June's kim at 188 B per record silently. Keep worktrees in step.**
+- **`SERV_IRUHADEV_JUNE_KIM_MINIME_REMAP`** (decision D2, a stand-in, not June): eqip 26 -> 17 and 27 -> 18 so the Mini-me items and
+  earrings keep equipping. Backlog Stage 16 ports June's two slots and removes it.
+- **Assets (decision D1).** 501 June files that June items name and March lacked, staged into the same-numbered `kom_contents/dataNNN_kom/`
+  (manifest `"0"`): 19 existing koms gain files, 6 are new (`data158`, `data159`, `data185`, `data191`, `data192`, `data211`). List and
+  short-copy bytes: `june_item_kim/k2_assets_staged.tsv`; 79 names exist in no June kom and stay missing.
+- **Revert.** Undefine the three flags in `KTDXLIB/Always.h`, rebuild all four projects, and put March's kim back in
+  `kom_contents/data036_kom/item.kim`: `march_data/data036/item.kim.march_patched` (the buff Phase 13 patched copy), then repack and copy
+  data036. The staged assets can stay (nothing March names reads them). Pre-K2 koms: `kom_contents/../kom_backup_tools/`.
+
 ## Reverting to stock
 
 Comment out every `#define` listed in the *Defined in* column and rebuild.

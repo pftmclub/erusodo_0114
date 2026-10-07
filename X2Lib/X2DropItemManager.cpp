@@ -288,6 +288,13 @@ void CX2DropItemManager::RenderName()
 			case CX2Item::IG_LOW:
 				color = 0xff555555;
 				break;
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+			case CX2Item::IG_LEGEND:
+				color = 0xffff6900;		/// June item.kim K2: June 32739c30 case 6 (@32739fcf): r 1, g 105/255, b 0, a 1
+				break;
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
 			default:
 				color = 0xffffffff;

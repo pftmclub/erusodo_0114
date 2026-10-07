@@ -335,6 +335,144 @@ bool CX2ItemManager::OpenScriptFile( const WCHAR* pFileName )
 
 #ifdef	X2OPTIMIZE_ITEM_TEMPLET_PREPROCESSING
 
+#ifdef SERV_IRUHADEV_KIM_LAYOUT_CHECK
+/// June item.kim K2: the record size this build reads, pinned for both layouts (the stride check below compares the file with it)
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+BOOST_STATIC_ASSERT( sizeof(CX2Item::KItemFormatTemplet) == 228 );
+#else
+BOOST_STATIC_ASSERT( sizeof(CX2Item::KItemFormatTemplet) == 188 );
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
+/// June item.kim K2: a "[JUNE_KIM]" line in ErrorLog.txt, flushed before the caller goes on (a refused kim is followed by a crash)
+static void IruhaKimLayoutLine( const char* szFormat_, ... )
+{
+    char szLine[1024] = { 0, };
+    va_list vaList;
+    va_start( vaList, szFormat_ );
+    _vsnprintf_s( szLine, _countof( szLine ), _TRUNCATE, szFormat_, vaList );
+    va_end( vaList );
+
+    KLOG( "ErrorLog.txt" ) << "[JUNE_KIM] " << szLine << fileout;
+}
+
+/// June item.kim K2: the file's record stride, read from the data instead of assumed (the header is 'KIM ' 0x1201 in both the
+/// March 188-byte and the June 228-byte layouts). Record k starts at 16 + 4N + k*stride and its first dword is id[k]. Record 0 sits
+/// at 16 + 4N in every layout, so it proves nothing and is not sampled: index 1, every 997th index and the last index are. The
+/// smallest stride (a multiple of 4, up to 1024) at which every sample matches is the file's; 0 = no stride matched.
+static DWORD IruhaKimFileStride( const BYTE* pData_, long nSize_, DWORD dwNumItems_ )
+{
+    if ( dwNumItems_ < 2 )
+        return 0;
+    const unsigned __int64 qwRecordBase = (unsigned __int64) sizeof(CX2Item::KItemFormatHeader) + (unsigned __int64) sizeof(DWORD) * dwNumItems_;
+    if ( qwRecordBase > (unsigned __int64) nSize_ )
+        return 0;
+    const DWORD* pdwID = (const DWORD*) ( pData_ + sizeof(CX2Item::KItemFormatHeader) );
+    for ( DWORD dwStride = 4; dwStride <= 1024; dwStride += 4 )
+    {
+        bool bMatch = true;
+        DWORD k = 1;
+        while ( true )
+        {
+            const unsigned __int64 qwOffset = qwRecordBase + (unsigned __int64) k * dwStride;
+            if ( qwOffset + sizeof(DWORD) > (unsigned __int64) nSize_
+                || *( (const DWORD*) ( pData_ + qwOffset ) ) != pdwID[k] )
+            {
+                bMatch = false;
+                break;
+            }
+            if ( k == dwNumItems_ - 1 )
+                break;
+            k = ( k < 997 ) ? 997 : k + 997;
+            if ( k > dwNumItems_ - 1 )
+                k = dwNumItems_ - 1;
+        }
+        if ( true == bMatch )
+            return dwStride;
+    }
+    return 0;
+}
+
+/// June item.kim K2: the line the play-test reads after a good load, with the process memory at the load's peak (the decompressed
+/// buffer and its copy are both alive here; K1 estimated about 141 MB peak, 67.5 MB retained, in a process that is not LargeAddressAware)
+static void IruhaKimLoadedLine( DWORD dwNumItems_, DWORD dwNumSetIDs_, DWORD dwStride_, long nSize_ )
+{
+    PROCESS_MEMORY_COUNTERS_EX kMemory;
+    ZeroMemory( &kMemory, sizeof(kMemory) );
+    kMemory.cb = sizeof(kMemory);
+    GetProcessMemoryInfo( GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*) &kMemory, sizeof(kMemory) );
+    const SIZE_T MEGA = 1024 * 1024;
+    IruhaKimLayoutLine( "loaded items=%u sets=%u stride=%u size=%ld workingset=%u MB peak_workingset=%u MB private=%u MB",
+        dwNumItems_, dwNumSetIDs_, dwStride_, nSize_, (unsigned) ( kMemory.WorkingSetSize / MEGA ),
+        (unsigned) ( kMemory.PeakWorkingSetSize / MEGA ), (unsigned) ( kMemory.PrivateUsage / MEGA ) );
+}
+#endif SERV_IRUHADEV_KIM_LAYOUT_CHECK
+
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+/// June item.kim K2: one pass over every record after a good load: the June values March has no slot, enum or handler for, each
+/// guarded where it is read (JUNE_ITEM_KIM_PHASES.md K1, june_item_kim/k1_code_census.tsv). Counts only; nothing is changed here.
+static void IruhaJuneKimCensus( const CX2ItemManager* pItemManager_ )
+{
+    int iUnitType = 0, iUnitClass = 0, iCustom = 0, iEqipEnd = 0, iEqip26 = 0, iEqip27 = 0, iSpecialAbility = 0;
+    int iPvpRank9 = 0, iPvpRank10 = 0, iPvpEquip = 0, iMinorUnit = 0;
+    std::set<int> setSpecialAbilityType;
+    const unsigned uNumItems = pItemManager_->GetItemNum();
+    for ( unsigned u = 0; u != uNumItems; ++u )
+    {
+        const CX2Item::ItemTemplet* pTemplet = pItemManager_->GetItemTempletFromIndex( u );
+        if ( NULL == pTemplet )
+            continue;
+        if ( (int) pTemplet->GetUnitType() >= (int) CX2Unit::UT_END )
+            ++iUnitType;
+        if ( (int) pTemplet->GetUnitClass() >= (int) CX2Unit::UC_END )
+            ++iUnitClass;
+        if ( CX2Item::IT_CUSTOM == pTemplet->GetItemType() )
+            ++iCustom;
+        const BYTE byEqip = pTemplet->GetJuneRawEqipPosition();
+        if ( byEqip >= (BYTE) CX2Unit::EP_END )
+            ++iEqipEnd;
+        if ( 26 == byEqip )
+            ++iEqip26;
+        if ( 27 == byEqip )
+            ++iEqip27;
+        bool bSpecialAbility = false;
+        for ( unsigned uSA = 0; uSA != pTemplet->GetNumSpecialAbility(); ++uSA )
+        {
+            const int iType = (int) pTemplet->GetSpecialAbility( uSA ).GetType();
+            if ( iType >= (int) CX2Item::SAT_END )
+            {
+                bSpecialAbility = true;
+                setSpecialAbilityType.insert( iType );
+            }
+        }
+        if ( true == bSpecialAbility )
+            ++iSpecialAbility;
+        if ( 9 == (int) pTemplet->GetBuyPvpRankCondition() )
+            ++iPvpRank9;
+        if ( 10 == (int) pTemplet->GetBuyPvpRankCondition() )
+            ++iPvpRank10;
+        if ( true == pTemplet->GetPvpEquip() )
+            ++iPvpEquip;
+        if ( true == pTemplet->GetIsForMinorUnit() )
+            ++iMinorUnit;
+    }
+
+    std::string strTypes;
+    for ( std::set<int>::const_iterator sit = setSpecialAbilityType.begin(); sit != setSpecialAbilityType.end(); ++sit )
+    {
+        char szType[16] = { 0, };
+        sprintf_s( szType, _countof( szType ), strTypes.empty() ? "%d" : ",%d", *sit );
+        strTypes += szType;
+    }
+#ifdef SERV_IRUHADEV_JUNE_KIM_MINIME_REMAP
+    const char* szRemap = "on (26->17, 27->18; stand-in until backlog Stage 16)";
+#else
+    const char* szRemap = "off";
+#endif SERV_IRUHADEV_JUNE_KIM_MINIME_REMAP
+    IruhaKimLayoutLine( "census unit_type>=UT_END(%d)=%d unit_class>=UC_END(%d)=%d IT_CUSTOM=%d eqip>=EP_END(%d)=%d eqip26=%d eqip27=%d remap %s",
+        (int) CX2Unit::UT_END, iUnitType, (int) CX2Unit::UC_END, iUnitClass, iCustom, (int) CX2Unit::EP_END, iEqipEnd, iEqip26, iEqip27, szRemap );
+    IruhaKimLayoutLine( "census SAT>=SAT_END(%d) records=%d types=[%s] buy_pvp_rank9=%d rank10=%d pvp_equip=%d minor_unit=%d (all inert or guarded where read)",
+        (int) CX2Item::SAT_END, iSpecialAbility, strTypes.c_str(), iPvpRank9, iPvpRank10, iPvpEquip, iMinorUnit );
+}
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 bool    CX2ItemManager::DoMemoryNotEncrypt( const char* pBuffer, long nSize )
 {
 	if( pBuffer != NULL && nSize >= sizeof(CX2Item::KItemFormatHeader) )
@@ -344,12 +482,33 @@ bool    CX2ItemManager::DoMemoryNotEncrypt( const char* pBuffer, long nSize )
             && kHeader.m_dwVersion == KX2ITEMMANAGER_FORMAT_VERSION )
         {
             DWORD dwNumItem = kHeader.m_dwNumItems;
+#ifdef SERV_IRUHADEV_KIM_LAYOUT_CHECK
+            const DWORD dwCompiledStride = sizeof(CX2Item::KItemFormatTemplet);
+            const DWORD dwFileStride = IruhaKimFileStride( (const BYTE*) pBuffer, nSize, dwNumItem );
+            const unsigned __int64 qwNeedSize = (unsigned __int64) sizeof(CX2Item::KItemFormatHeader)
+                + (unsigned __int64) dwNumItem * ( sizeof(DWORD) + dwCompiledStride )
+                + (unsigned __int64) kHeader.m_dwNumSetIDs * ( sizeof(DWORD) + sizeof(CX2Item::KItemFormatSetItemData) );
+            if ( dwFileStride != dwCompiledStride || qwNeedSize > (unsigned __int64) nSize )
+            {
+                IruhaKimLayoutLine( "layout mismatch: file stride %u != compiled %u (0 = no stride matched; items=%u sets=%u size=%ld need=%I64u). "
+                    "item.kim refused: the client falls back to KEM_ERROR72 / Item.lua, which data036.kom does not ship, so expect a crash at the "
+                    "first item lookup. Ship June's 228-byte item.kim with SERV_IRUHADEV_JUNE_ITEM_KIM on, or March's 188-byte one with it off.",
+                    dwFileStride, dwCompiledStride, dwNumItem, kHeader.m_dwNumSetIDs, nSize, qwNeedSize );
+                return false;
+            }
+#endif SERV_IRUHADEV_KIM_LAYOUT_CHECK
             if ( nSize >= (int) ( sizeof(CX2Item::KItemFormatHeader) + dwNumItem * ( sizeof(DWORD) + sizeof(CX2Item::KItemFormatTemplet) ) ) )
             {
                 m_vecItemTempletInfo.resize( 0 );
                 const BYTE* pData = (const BYTE*) pBuffer;
                 m_vecItemTempletInfo.assign( &pData[0], &pData[nSize] );
                 CX2Item::KItemFormatTemplet::_SetData( &m_vecItemTempletInfo.front() );
+#ifdef SERV_IRUHADEV_KIM_LAYOUT_CHECK
+                IruhaKimLoadedLine( dwNumItem, kHeader.m_dwNumSetIDs, dwFileStride, nSize );
+#endif SERV_IRUHADEV_KIM_LAYOUT_CHECK
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+                IruhaJuneKimCensus( this );
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
                 return true;
             }
         }
@@ -441,6 +600,13 @@ bool	CX2ItemManager::OpenItemScriptFile( const WCHAR* pKimFile, unsigned uNumScr
             }
 
             kProxy2.PostProcess();
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+            /// June item.kim K2: KProxy2 fills the June struct through the same setters, so this dev path writes June's 228-byte layout,
+            /// but Item.lua has no keys for the June-only fields and they stay 0. X2ScriptPreprocessingTool (not built here) does not
+            /// include Always.h and still writes March's 188-byte kim.
+            CX2Item::KItemFormatTemplet::JuneKimLine( "Lua fallback: item.kim was not used; %u item(s) built from Item.lua with June-only fields defaulted (damage range, minor-unit id, equipment group, expiry dates, desc-in-shop type, all-stat level)",
+                (unsigned) kProxy.m_setItemIDs.size() );
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
             if ( kProxy2.m_kFileSerializer.GetSize() < sizeof(CX2Item::KItemFormatHeader) )
             {
@@ -4239,6 +4405,21 @@ int	CX2ItemManager::GetConvertResultItemID( int iTargetItemID_ )
 #ifdef MODIFY_FIND_SHOP_IMAGE_FILE_NAME
 void CX2ItemManager::CreateShopImageNameList()
 {
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	/// June item.kim K2: this dev listing walks every item at each launch (111,428 with June's kim, about 8 MB of text). Skip it while
+	/// ShopImageName.txt is newer than data036.kom (the archive that ships item.kim); otherwise write it and log how long it took.
+	{
+		WIN32_FILE_ATTRIBUTE_DATA kListFile, kKomFile;
+		if ( FALSE != GetFileAttributesExW( L"ShopImageName.txt", GetFileExInfoStandard, &kListFile )
+			&& FALSE != GetFileAttributesExW( L"data036.kom", GetFileExInfoStandard, &kKomFile )
+			&& CompareFileTime( &kListFile.ftLastWriteTime, &kKomFile.ftLastWriteTime ) > 0 )
+		{
+			CX2Item::KItemFormatTemplet::JuneKimLine( "ShopImageName.txt is newer than data036.kom: listing skipped (%u items)", GetItemNum() );
+			return;
+		}
+	}
+	const DWORD dwJuneKimListStart = GetTickCount();
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	std::ofstream ofs;
 	ofs.open( "ShopImageName.txt" );
 	if( false == ofs.is_open() )
@@ -4269,6 +4450,9 @@ void CX2ItemManager::CreateShopImageNameList()
 
 	ofs << strmResourceList.str();
 
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	CX2Item::KItemFormatTemplet::JuneKimLine( "ShopImageName.txt written: %u items in %u ms", uiNumItems, (unsigned) ( GetTickCount() - dwJuneKimListStart ) );
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	ofs.flush();
 	ofs.close();
 }

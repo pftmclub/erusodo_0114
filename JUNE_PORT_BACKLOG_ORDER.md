@@ -396,6 +396,12 @@ the record itself and every field March already reads. The rest has no March own
 - **Item expiry.** `m_wstrExpiredDate` (+100, 277 items) is read by the item-period UI `3218aba0` and the description builder
   `32e102f0`. `m_wstrPreExpiredDate` is never read by June's client.
 - **PvP equipment.** flags bit 7 = has `SAT_PVP_EQUIP` (40, 240 items), plus `SAT_PVP_EQUIP_ENCHANT_LEVEL_7..13` (44-50).
+  Also June's buy-PvP rank 10 (`PVPRANK_RANK_STAR`, 52 items): March registers no emblem for it, so K2 guards the tooltip deref
+  (`X2ItemSlotManager.cpp` `WriteStringForRestrictionPurchaseToDesc`; June has no NULL check there, `32e09910`). Porting June's
+  rank-10 emblem (`PVPEmblem_Season2.lua`) makes the guard dead.
+- **June's equip slots 26/27** (`EP_AC_MINIME`, `EP_AC_EARRING`; 475 / 305 items). K2 stands in with
+  `SERV_IRUHADEV_JUNE_KIM_MINIME_REMAP` (26 -> 17, 27 -> 18, decision D2, 2026-10-08). This phase ports June's two slots (enum,
+  `EP_END`, viewer/unit arrays, equip UI) and **removes that flag**.
 - **New special abilities.** 42 `SAT_CURR_LEVEL_EXP_PERCENT_UP`, 43 `SAT_STEAL_AMUSEMENT_ITEM`, 51 `SAT_IMMEDIATELY_EXCHANGE_TO_ED`
   (52 `SAT_ELIANODE_PIECE_EQUIP_TYPE` has no item yet). 41 `SAT_ADD_DP_PERCENT_UP` goes to the character-port checklist (Add).
 - **Set item groups.** `SetItemGroup.lua` (`g_pCX2SetItemManager:AddSetItemGroupData`: linked items and a replacement string per set).

@@ -912,6 +912,17 @@ std::wstring CX2UIWatch::GetSlotItemDescByTID( CX2Item* pItem, int itemTID, bool
                 slotItemDesc += GET_STRING( STR_ID_939 );
                 slotItemDesc += L"]";
 			} break;
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+		case CX2Item::IG_LEGEND:
+			{
+                /// June item.kim K2: June 3288a5d0 case 6 (@3288acad): "[" + STR 34930 "Legend" + "]" (literal: not in March's StringID enum)
+                slotItemDesc += L"[";
+                slotItemDesc += GET_STRING( 34930 );
+                slotItemDesc += L"]";
+			} break;
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 		default:
 			{
 				// nothing

@@ -1127,6 +1127,18 @@ std::wstring CX2ItemSlotManager::GetSlotItemDescByTID( CX2Item* pItem, int itemT
 		{
 			slotItemDesc += GET_STRING( STR_ID_261 );
 		} break;
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	case CX2Item::IG_LEGEND:
+		{
+			/// June item.kim K2: June 32e102f0 case 6 (@32e10d8e): "[" + STR 34930 "Legend" (general.ess; March's C++ StringID enum
+			/// stops at 30534, so the number is literal) + "]". STR 257-261 carry their own brackets, 34930 does not.
+			slotItemDesc += L"[";
+			slotItemDesc += GET_STRING( 34930 );
+			slotItemDesc += L"]";
+		} break;
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	default:
 		{
 			// nothing
@@ -3552,6 +3564,15 @@ void CX2ItemSlotManager::SplitDescHeight( wstring* pOrgStr, wstring* pTempStr, i
 */
 void CX2ItemSlotManager::WriteStringForRestrictionPurchaseToDesc( const CX2PVPEmblem::PVP_RANK ePvpRankConditionForPurchase_, const CX2PVPEmblem::PVP_RANK eMyPvpRank_, wstring& wstrSlotItemDesc_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	/// June item.kim K2 guard: June items carry buy-PvP ranks March registers no emblem for (rank 10 = June PVPRANK_RANK_STAR on 52
+	/// items, none reachable); GetPVPEmblemData returns NULL for them and the line below would dereference it. Skip the line and log.
+	if ( NULL == g_pMain->GetPVPEmblem()->GetPVPEmblemData( ePvpRankConditionForPurchase_ ) )
+	{
+		CX2Item::KItemFormatTemplet::JuneKimGuard( "pvp_emblem", "buy-PvP rank %d has no emblem in March: the tooltip's purchase-restriction line is skipped", (int) ePvpRankConditionForPurchase_ );
+		return;
+	}
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	wstring wstrBuff = GET_REPLACED_STRING( ( STR_ID_13598, "L", g_pMain->GetPVPEmblem()->GetPVPEmblemData( ePvpRankConditionForPurchase_ )->m_EmblemName ) );
 	
 	if ( eMyPvpRank_ < ePvpRankConditionForPurchase_ )

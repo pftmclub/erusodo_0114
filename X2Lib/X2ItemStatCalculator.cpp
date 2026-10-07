@@ -210,6 +210,11 @@ void CX2ItemStatCalculator::CalculateItemStat( OUT CX2Item::KItemFormatStatData&
 		kStatRelationAddLV.m_fAtkMagicRelLV		+= static_cast<float>(kItemTempletStatRelationLV.m_byAtkMagicRelLV);
 		kStatRelationAddLV.m_fDefPhysicRelLV	+= static_cast<float>(kItemTempletStatRelationLV.m_byDefPhysicRelLV);
 		kStatRelationAddLV.m_fDefMagicRelLV		+= static_cast<float>(kItemTempletStatRelationLV.m_byDefMagicRelLV);
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+		kStatRelationAddLV.m_fAllStatRelLV		+= static_cast<float>(kItemTempletStatRelationLV.m_byAllStatRelLV);	/// June item.kim K2: 328d6f60 adds the templet's sixth byte too
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	}
 
 	// 연동 레벨이 설정되어있지 않다면 기본 스탯 구하기

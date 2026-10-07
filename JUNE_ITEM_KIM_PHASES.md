@@ -397,6 +397,60 @@ load proposed unless the K4 working-set line says otherwise. K2 logs the working
    copy.
 8. **Finish** per x2-phase. Write `K2-review.md` and `K3.md`.
 
+### Phase K2 - Done
+
+2026-10-08, Opus 5.5 high. Commit: the one carrying this note (`June item.kim Phase K2: ...`). Flags (all `KTDXLIB/Always.h`): `SERV_IRUHADEV_JUNE_ITEM_KIM`, `SERV_IRUHADEV_KIM_LAYOUT_CHECK`,
+`SERV_IRUHADEV_JUNE_KIM_MINIME_REMAP` (D2 stand-in, `#error` without the first). All edits insert-only, CP949 via `bytepatch`.
+
+**Code.**
+- `X2Item_Preprocessing.inl`: June's 228-byte record (static asserts 228 / stat 28 / RelLV 6; `== 188` in `#else`), `MAX_MODEL_COUNT_A_ITEM` 8
+  (`#pragma message` seen in the X2Lib build), `IT_CUSTOM` = 14, stat pool 7 floats (`m_afJuneStatSlot3_4`), RelLV `m_byAllStatRelLV`
+  (ctor/Init/AddStat/`IsValideCheck`/`operator<`), flags bit 7 `FLAG_BIT_PVP_EQUIP` with HideSetDesc on flags2 bit 1 and minor-unit on bit 2,
+  getters for the June-only fields, `GetEqipPosition` = D2 remap + `>= EP_END` -> `EP_NONE` guard (every EP_END array site at once).
+- `X2Item_Preprocessing.cpp`: Extra readers take June's key (`_GetJuneExtraKey`, from `32867660`: 1-9 same, 10 -> 10/11 by the Lu/Ciel bool,
+  11/12 -> +1, else 0; the 10 callers compile unchanged via `bIsMinorUnit_ = false`); `GetNameColor_` grade 6 `#CFF6900`; `GetExpiredDate`;
+  `JuneKimLine` / `JuneKimGuard` (first hit, then 10, 100, ...).
+- `X2ItemManager.cpp`: layout check (stride read from the data: index 1, every 997th, last; size bound incl. the set table; refusal line
+  flushed before `return false`), `loaded ... workingset` line, load census (2 lines), Lua-fallback line, `CreateShopImageNameList` skipped
+  while `ShopImageName.txt` is newer than `data036.kom` (else timed).
+- Grade 6 / type 14 from June (subagent Ghidra pass): tooltip label `[` + STR 34930 "Legend" + `]` (`32e102f0`; `X2ItemSlotManager.cpp`),
+  UIWatch label (`3288a5d0`), drop colour `0xffff6900` (`32739c30`), `IT_CUSTOM` sorts as `ST_SPECIAL` (`32869aa0`, not `ST_NONE` as K1
+  proposed: June wins). No change, June has no case 6 either: pickup sound (`3273b150`), seal check (`32171b50`). `GetRequireEDFactor`: June
+  has no C++, it runs `AttribEnchantRequireED.lua` (LEGEND 8), which March already calls under `_JUNE_ENCHANT_PARITY`; the C++ is the
+  missing-script fallback, left alone.
+- Guards: PvP emblem NULL (`WriteStringForRestrictionPurchaseToDesc`; June has no check, rank 10 has an emblem there: routed to Stage 16).
+  Set options 31701/35300: every March and June `GetSocketData` consumer already null-checks (silent skip in both); no edit.
+- `X2ItemStatCalculator.cpp`: the templet's all-stat byte feeds `m_fAllStatRelLV` (with `_JUNE_SOCKET_PARITY`). The IN_HOUSE dev tooltip
+  is not extended (0 in all June data).
+- Not touched: `X2Lib/Offline/` (K3), the cheat list and personal-shop autocomplete (note only, 2.3x n; revisit if K4 shows a stall).
+
+**Hygiene** (`flagcheck --worktree --files <the 9 code files>`; the `--range` run after commit is in the hand-off):
+`JUNE_ITEM_KIM`: 6 PASS, 1 PASS~ (blank line), 2 OTHER (`Always.h`, `X2ItemManager.cpp`: LAYOUT_CHECK blocks), 0 FAIL, 0 deleted, RESULT PASS;
+`KIM_LAYOUT_CHECK`: 9 OTHER, RESULT PASS; `JUNE_KIM_MINIME_REMAP --with JUNE_ITEM_KIM` (it is nested in it): 1 PASS, RESULT PASS.
+17 `eol!` (LF lines inserted next to CRLF anchors in mixed-EOL `X2Item_Preprocessing.cpp`) and bare `#else` lines (`tok!`) are style only.
+The `== 188` assert sits in `X2ItemManager.cpp`'s LAYOUT_CHECK block (both layouts pinned there), not in the struct's `#else`.
+
+**Data.** `data036_kom/item.kim` = June's (md5 `a16b6f6e…`, 111,428 items, 6,740 sets, stride 228); backups `item.kim.march_patched` in the
+scratchpad and `march_data/data036/`. `kim.py dump` 85003830/1 -> `[481]` / `[482]` (buff Phase 13 to-do 2 retired, noted there). D1:
+501 June files staged into 25 koms (6 new: data158/159/185/191/192/211; 48 short copies, 2-35 B per kom), list
+`june_item_kim/k2_assets_staged.tsv` (+ 79 names in no June kom). Pre-stage dir-vs-live diff: all clean. Packed-vs-live md5 per entry:
+every entry of all 26 koms
+extracted from live and packed: data036 differs by `item.kim` only, every other kom only gains the staged names, 0 removed
+(`june_item_kim/k2_kom_md5_check.txt`; its `~_manifest.json` rows are the extractor's own generated manifest). The pack's
+thousands of "changed" rows are compressed size only (same raw size, same algo, same md5). `/x2-kom-packed copy`: 26 `COPY OK`
+(user approved 2026-10-08), e.g. `COPY OK data036: ... data036.kom 10652987 bytes, 192 entries, md5 1a078acb914b81a11052bf29e67e22cc`.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,339,776 B, dated 2026-10-08 06:12:03, md5 c49f362852f888c3efaf987cd62a9a4b, equal to
+X2/US_SERVICE/x2.exe (2026-10-08 05:45:54); built at mods/june-buff-port e9cfdca + 9 uncommitted code file(s).` (the 9 are K2's). The
+`#pragma message` printed in both the X2Lib and X2 compiles; the deployed exe carries the layout-mismatch, census, ShopImageName,
+emblem-guard and Lua-fallback strings and `#CFF6900`.
+
+**How to see it.** `[JUNE_KIM] loaded items=111428 sets=6740 stride=228 ...` and two `census` lines in ErrorLog.txt; armour shows its
+defence; a Mini-me item equips in the face slot; a Legend item's name is orange with `[Legend]` in its tooltip.
+
+**Open.** None for the user. Deploy order matters: exe and the 26 koms go together (a K2 exe refuses March's kim and then crashes;
+an exe without the flags misreads June's kim silently, e.g. a `Trunk_elysion` deploy whose `Always.h` predates K2).
+
 ## Phase K2 review
 
 **Run with:** Sonnet 5.5 high.

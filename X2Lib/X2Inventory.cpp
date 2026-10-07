@@ -768,6 +768,13 @@ CX2Inventory::SORT_TYPE CX2Inventory::GetSortTypeByItemTemplet( const CX2ItemTem
 			}
 			break;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+		case CX2Item::IT_CUSTOM:		/// June item.kim K2: June 32869aa0 (byte table 32869b40, index 13 -> 4): item type 14 sorts as ST_SPECIAL
+			{
+				sortType = ST_SPECIAL;
+			}
+			break;
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 		}
 	}
 

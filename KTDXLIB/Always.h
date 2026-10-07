@@ -5675,3 +5675,51 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif
 //////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June item.kim adoption K2 (JUNE_ITEM_KIM_PHASES.md): June's
+//              228-byte KItemFormatTemplet, field for field from the K0 map
+//              (june_item_kim/k0_record_map.tsv; June DoMemoryNotEncrypt
+//              328101f0 checks N*0xe8): MAX_MODEL_COUNT_A_ITEM 8, the 7-float
+//              stat pool, the 6-byte StatRelLV pool, flags bit 7 = PvP-equip
+//              with HideSetDesc on flags2 bit 1, June's Extra key remap
+//              (32867660..), IT_CUSTOM = 14, the grade-6 name colour, a load
+//              census and the guards K1 listed. GOES WITH June's item.kim in
+//              data036.kom: switch both together (KIM_LAYOUT_CHECK below
+//              refuses a mismatch, loudly). Log: "[JUNE_KIM]" in ErrorLog.txt.
+#define SERV_IRUHADEV_JUNE_ITEM_KIM
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June item.kim adoption K2: CX2ItemManager::DoMemoryNotEncrypt
+//              derives the file's record stride from the data (record k's
+//              first dword == id[k] at index 1, the last index and every 997th)
+//              and refuses a file whose stride is not the compiled
+//              sizeof(KItemFormatTemplet), with a "[JUNE_KIM] layout mismatch"
+//              line flushed before it returns. Independent of
+//              SERV_IRUHADEV_JUNE_ITEM_KIM and meant to stay on in both
+//              directions (a 188 kim under the June struct, or the reverse).
+#define SERV_IRUHADEV_KIM_LAYOUT_CHECK
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June item.kim adoption K2, decision D2 (2026-10-08): a STAND-IN,
+//              not June. June puts the Mini-me items on eqip 26
+//              (EP_AC_MINIME) and earrings on 27 (EP_AC_EARRING), slots March
+//              does not have; the templet accessor maps 26 -> 17 (EP_AC_FACE1,
+//              where March's kim had the Mini-me items) and 27 -> 18
+//              (EP_AC_FACE2) so they keep equipping. Backlog Stage 16 ports
+//              June's two slots and removes this flag. Log: the load census
+//              line "[JUNE_KIM] census ... eqip26->17 / eqip27->18".
+#define SERV_IRUHADEV_JUNE_KIM_MINIME_REMAP
+#ifdef SERV_IRUHADEV_JUNE_KIM_MINIME_REMAP
+#ifndef SERV_IRUHADEV_JUNE_ITEM_KIM
+#error SERV_IRUHADEV_JUNE_KIM_MINIME_REMAP needs SERV_IRUHADEV_JUNE_ITEM_KIM
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
+#endif SERV_IRUHADEV_JUNE_KIM_MINIME_REMAP
+//////////////////////////////////////////////////////////////////////////

@@ -50,6 +50,12 @@ const wchar_t*      CX2Item::KItemFormatTemplet::GetNameColor_() const
 		return L"#CFFFFFF";
 	case CX2Item::IG_LOW:
 		return L"#C888888";
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+	case CX2Item::IG_LEGEND:
+		return L"#CFF6900";		/// June item.kim K2: June 32867e80, jump table 32867ebc, grade 6
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	}
 	
 	return L"#CFFFFFF";
@@ -139,6 +145,45 @@ const wchar_t*  CX2Item::KItemFormatTemplet::GetDescriptionInSkillNote() const
 {
     return  GetWideString( m_dwOffset_DescriptionInSkillNote );
 }
+
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+/// June item.kim K2: June 328671a0 (readers: the item period UI 3218aba0, the description builder 32e102f0; ported by Stage 16)
+const wchar_t*  CX2Item::KItemFormatTemplet::GetExpiredDate() const
+{
+    return  GetWideString( m_dwOffset_ExpiredDate );
+}
+
+/*static*/ void CX2Item::KItemFormatTemplet::JuneKimLine( const char* szFormat_, ... )
+{
+    char szLine[1024] = { 0, };
+    va_list vaList;
+    va_start( vaList, szFormat_ );
+    _vsnprintf_s( szLine, _countof( szLine ), _TRUNCATE, szFormat_, vaList );
+    va_end( vaList );
+
+    KLOG( "ErrorLog.txt" ) << "[JUNE_KIM] " << szLine << fileout;     /// flushed per line, like CX2JuneBuffCapture::Line
+}
+
+/*static*/ void CX2Item::KItemFormatTemplet::JuneKimGuard( const char* szKind_, const char* szFormat_, ... )
+{
+    static std::map< std::string, int > s_mapJuneKimGuardCount;
+    const int iCount = ++s_mapJuneKimGuardCount[ std::string( NULL != szKind_ ? szKind_ : "" ) ];
+
+    int iPower = 1;                     /// write hit 1, 10, 100, 1000, ...
+    while ( iPower < iCount && iPower < 100000000 )
+        iPower *= 10;
+    if ( iPower != iCount )
+        return;
+
+    char szLine[768] = { 0, };
+    va_list vaList;
+    va_start( vaList, szFormat_ );
+    _vsnprintf_s( szLine, _countof( szLine ), _TRUNCATE, szFormat_, vaList );
+    va_end( vaList );
+
+    JuneKimLine( "guard %s hit %d: %s", NULL != szKind_ ? szKind_ : "", iCount, szLine );
+}
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
 const CX2Item::KItemFormatStatData&  CX2Item::KItemFormatTemplet::GetStatData() const
 {
@@ -355,7 +400,25 @@ void        CX2Item::KItemFormatTemplet::GetAttachedMeshData( unsigned i, const 
 
 #ifndef  X2OPTIMIZE_SCRIPT_PREPROCESSING_TOOL
 
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+/// June item.kim K2: the key June's five Extra readers search for (32867660 and its four siblings, the same switch):
+/// UNIT_TYPE 1-9 -> the same, 10 -> 10 (Lu) or 11 (Ciel, the bool), 11 -> 12 (Rose), 12 -> 13 (Ain), anything else -> 0.
+/*static*/ DWORD CX2Item::KItemFormatTemplet::_GetJuneExtraKey( CX2Unit::UNIT_TYPE eUnitType_, bool bIsMinorUnit_ )
+{
+    const DWORD dwUnitType = (DWORD) (BYTE) eUnitType_;     /// June passes the unit type as a byte
+    if ( dwUnitType >= 1 && dwUnitType <= 9 )
+        return dwUnitType;
+    if ( 10 == dwUnitType )
+        return bIsMinorUnit_ ? 11 : 10;
+    if ( 11 == dwUnitType || 12 == dwUnitType )
+        return dwUnitType + 1;
+    return 0;
+}
+
+const D3DXVECTOR3&  CX2Item::KItemFormatTemplet::GetFrameOffset( CX2Unit::UNIT_TYPE eUnitType, bool bIsMinorUnit_ ) const
+#else
 const D3DXVECTOR3&  CX2Item::KItemFormatTemplet::GetFrameOffset( CX2Unit::UNIT_TYPE eUnitType ) const
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 {
     unsigned    uNumFrameOffset = (unsigned) m_byNumFrameOffsets;
     if ( m_dwOffset_Extra != 0 && uNumFrameOffset != 0 )
@@ -363,14 +426,22 @@ const D3DXVECTOR3&  CX2Item::KItemFormatTemplet::GetFrameOffset( CX2Unit::UNIT_T
         const KItemFormatType_OffsetOrValue* pData = (const KItemFormatType_OffsetOrValue*)( ms_pData + m_dwOffset_Extra );
         for( unsigned u = 0; u != uNumFrameOffset; ++u )
         {
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+            if ( pData[u].m_dwType == _GetJuneExtraKey( eUnitType, bIsMinorUnit_ ) )
+#else
             if ( (CX2Unit::UNIT_TYPE) pData[u].m_dwType == eUnitType )
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
                 return _GetD3DXVECTOR( pData[u].m_dwOffsetOrValue, false );
         }//for
     }//if
     return  ms_vZero;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+const D3DXVECTOR3&  CX2Item::KItemFormatTemplet::GetRenderScale( CX2Unit::UNIT_TYPE eUnitType, bool bIsMinorUnit_ ) const
+#else
 const D3DXVECTOR3&  CX2Item::KItemFormatTemplet::GetRenderScale( CX2Unit::UNIT_TYPE eUnitType ) const
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 {
     unsigned    uNumScales = (unsigned) m_byNumRenderScales;
     if ( m_dwOffset_Extra != 0 && uNumScales != 0 )
@@ -379,14 +450,22 @@ const D3DXVECTOR3&  CX2Item::KItemFormatTemplet::GetRenderScale( CX2Unit::UNIT_T
             (const KItemFormatType_OffsetOrValue*)( ms_pData + m_dwOffset_Extra + sizeof(KItemFormatType_OffsetOrValue)*m_byNumFrameOffsets);
         for( unsigned u = 0; u != uNumScales; ++u )
         {
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+            if ( pData[u].m_dwType == _GetJuneExtraKey( eUnitType, bIsMinorUnit_ ) )
+#else
             if ( (CX2Unit::UNIT_TYPE) pData[u].m_dwType == eUnitType )
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
                 return _GetD3DXVECTOR( pData[u].m_dwOffsetOrValue, true );
         }//for
     }//if
     return  ms_vOne;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+const D3DXVECTOR3&  CX2Item::KItemFormatTemplet::GetRenderRotate( CX2Unit::UNIT_TYPE eUnitType, bool bIsMinorUnit_ ) const
+#else
 const D3DXVECTOR3&  CX2Item::KItemFormatTemplet::GetRenderRotate( CX2Unit::UNIT_TYPE eUnitType ) const
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 {
     unsigned    uNumRotates = (unsigned) m_byNumRenderRotates;
     if ( m_dwOffset_Extra != 0 && uNumRotates != 0 )
@@ -396,14 +475,22 @@ const D3DXVECTOR3&  CX2Item::KItemFormatTemplet::GetRenderRotate( CX2Unit::UNIT_
             + sizeof(KItemFormatType_OffsetOrValue)*(m_byNumFrameOffsets+m_byNumRenderScales) );
         for( unsigned u = 0; u != uNumRotates; ++u )
         {
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+            if ( pData[u].m_dwType == _GetJuneExtraKey( eUnitType, bIsMinorUnit_ ) )
+#else
             if ( (CX2Unit::UNIT_TYPE) pData[u].m_dwType == eUnitType )
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
                 return _GetD3DXVECTOR( pData[u].m_dwOffsetOrValue, false );
         }//for
     }//if
     return  ms_vZero;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+const wchar_t*  CX2Item::KItemFormatTemplet::GetCommonItemModelName( CX2Unit::UNIT_TYPE eUnitType, bool bIsMinorUnit_ ) const
+#else
 const wchar_t*  CX2Item::KItemFormatTemplet::GetCommonItemModelName( CX2Unit::UNIT_TYPE eUnitType ) const
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 {
     unsigned    uNumModelNames = (unsigned) m_byNumCommonItemModelNames;
     if ( m_dwOffset_Extra != 0 && uNumModelNames != 0 )
@@ -414,14 +501,22 @@ const wchar_t*  CX2Item::KItemFormatTemplet::GetCommonItemModelName( CX2Unit::UN
                 *(m_byNumFrameOffsets+m_byNumRenderScales+m_byNumRenderRotates) );
         for( unsigned u = 0; u != uNumModelNames; ++u )
         {
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+            if ( pData[u].m_dwType == _GetJuneExtraKey( eUnitType, bIsMinorUnit_ ) )
+#else
             if ( (CX2Unit::UNIT_TYPE) pData[u].m_dwType == eUnitType )
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
                 return GetWideString( pData[u].m_dwOffsetOrValue );
         }//for
     }//if
     return  L"";
 }
 
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+const wchar_t*  CX2Item::KItemFormatTemplet::GetCommonItemXETName( CX2Unit::UNIT_TYPE eUnitType, bool bIsMinorUnit_ ) const
+#else
 const wchar_t*  CX2Item::KItemFormatTemplet::GetCommonItemXETName( CX2Unit::UNIT_TYPE eUnitType ) const
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 {
     unsigned    uNumXETNames = (unsigned) m_byNumCommonItemXETNames;
     if ( m_dwOffset_Extra != 0 && uNumXETNames != 0 )
@@ -432,7 +527,11 @@ const wchar_t*  CX2Item::KItemFormatTemplet::GetCommonItemXETName( CX2Unit::UNIT
                 *(m_byNumFrameOffsets+m_byNumRenderScales+m_byNumRenderRotates+m_byNumCommonItemModelNames) );
         for( unsigned u = 0; u != uNumXETNames; ++u )
         {
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+            if ( pData[u].m_dwType == _GetJuneExtraKey( eUnitType, bIsMinorUnit_ ) )
+#else
             if ( (CX2Unit::UNIT_TYPE) pData[u].m_dwType == eUnitType )
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
                 return GetWideString( pData[u].m_dwOffsetOrValue );
         }//for
     }//if
