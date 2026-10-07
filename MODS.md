@@ -3011,7 +3011,7 @@ runs its own effect player on `CX2BaseUnitViewerUI` (vtable `3347113c`), driven 
 |---|---|---|
 | `CX2UnitViewerUI` base | `CKTDGObject` (the empty `CX2BaseUnitViewerUI` only under `MONSTER_TROPHY`, off) | `CX2BaseUnitViewerUI`; the base holds the player (June's own layout). `CX2NPCUnitViewerUI` inherits the base `NotifyShowObjectChanged`, a no-op on its empty lists |
 | `PlayAnim` | anim, then hand-made emit-rate switches | anim, clear the request queue, stop group 0, `GetUnitViewerEffectSet( name, class, duo 0 )`, queue the hit |
-| `OnFrameMove` | hand-made handles followed their bones | copy the trigger codes, base update (entry), re-arm and drain the queue after the skin frame move, base update again after the equip loop |
+| `OnFrameMove` | hand-made handles followed their bones | copy the trigger codes and run the base update as the first statements (before the unit test); after the skin frame move, the equip loop and the render-param block: re-arm and drain the queue, then the base update again (order corrected by the C9c-2b review) |
 | class effects | MagicKnight, SPK, SBH, ALP, CDC, ETK/EIS (+crescent cut), RTR, RNW made in `SetUnit` / `PlayAnim` | not made; the table sets play them (the Little Devil orb stays) |
 | `data036.kom` | `UIEffectSet.lua` 52 sets; `UIMajorParticle.txt` March's (593 KB, 858 sequences) | + the 15 June sets; June's whole `UIMajorParticle.txt` (2719 sequences) + 10 March-only sequences re-appended |
 
@@ -3019,9 +3019,12 @@ Not changed on purpose: the per-frame, draw, prepare, notify and avatar-capture 
 handles are never made under the flag, so they do nothing. Not ported: the particle child-sequence draw (`31cf4890`: March chains child sequences
 itself), mesh `+0x15c` and sequence `+0x415` / `+0x45a` (unidentified or write-only), `EffectSet_SpaceMoonRabbit_motionFX` (June-only), the
 `SetHideSelectUnitWeapon` counterpart (its four callers run right after a unit is set, in a wait motion, when June creates nothing).
-Deliberate differences from June: a set missing from the UI effect set is logged and skipped (June dereferences it); the sound pass skips a set
+Deliberate differences from June: a set missing from the UI effect set is also logged (June skips it silently; corrected by the C9c-2b review); the sound pass skips a set
 with no UI-major mesh or particle (June faults); `EFFECT_SET_TOGGLE_VISIBILITY_TIMER` on the viewer trigger path is skipped and logged once (user,
 2026-10-07). June quirks kept: JUNE_BUGS rows 79-86.
+C9c-2b review (same flag): Play's trace-target tail (`@3295987e`), the land refresh read once per frame (JUNE_BUGS 82 retracted), the target-mesh
+branch's frame test, the viewer trigger's non-zero code test, and the frame-move order; all inert on the 15 table sets. Pyro Knight's ready-action
+fire is lost (June's row is keyed `SPK_LobbyReadyAction`, March's anim is `SPK_LobbyReadyaction`; user accepted 2026-10-07, checklist 7e).
 Data: `UIEffectSet.lua` = March's decompiled source + the 15 June blocks (`kom_contents/data036_kom/UIEffectSet.src.lua`, compiled mar-2014);
 `UIMajorParticle.txt` = `14JUN17/data/data036_kom/UIMajorParticle.txt` (2,042,192 B, equal to the June kom entry) with the 10 March-only sequences
 before its last brace (`CHUNG_HOWLING01/02`, `CHUNG_STEEL_EDGE02`, `Nasod_King_SpellAttack_Splitlight06`, `PET_PETTE_BERTHE_STEB_3_Attack_C`,

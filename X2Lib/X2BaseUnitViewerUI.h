@@ -34,7 +34,7 @@ protected:
 	std::vector<JuneViewerFxSound*>			m_vecJuneFxPendingSound;	// +0x1b4 pending sounds (0x30 bytes)
 	std::vector<JuneViewerFxPlayingSound*>	m_vecJuneFxPlayingSound;	// +0x1c4 playing sounds (8 bytes)
 	bool									m_bJuneFxShow;				// +0x190, set by Play, never cleared
-	bool									m_bJuneFxLandDirty;			// +0x1d4, set when the viewer moves
+	bool									m_bJuneFxLandDirty;			// +0x1d4, set by SetPositionOnScr (June 31f99f70); read once per frame
 	int										m_iJuneFxTriggerCode1;		// +0x1d8, written by the viewer's frame move (m_ePlayedEmotion)
 	int										m_iJuneFxTriggerCode2;		// +0x1dc, motion type 7 -> 2, 8 -> 1, else 0 (always 0 in March)
 
@@ -42,5 +42,6 @@ private:
 	void			JuneViewerFxCreatePass();																	// 32957980
 	void			JuneViewerFxSoundPass();																	// 329582b0
 	D3DXVECTOR3		JuneViewerFxLandPosition( bool bUseLand_, CKTDGXSkinAnim* pXSkinAnim_ );					// 32957170
+	void			JuneViewerFxLinkTraceTargets();																// 32959640 @3295987e
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 };

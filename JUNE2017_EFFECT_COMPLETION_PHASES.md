@@ -1355,6 +1355,61 @@ Open question for the user: none. **User owes:** play-test, then /cost.
 
 ---
 
+### C9c-2b - Review (2026-10-07, Opus 5.5 high): five transcription fixes (all inert in March today), one C9c-2a verdict corrected (SPK), JUNE_BUGS 82 retracted, groups 1-4 -> new phase C9g
+
+Checked against June in Ghidra (read-only): every function the kickoff lists, plus `31fa52b0`, `31f9a860`, `31fa89b0`, `31faa150` and the 200 functions
+at `31f9xxxx-31faxxxx` (the `SetHideSelectUnitWeapon` search). funcmap: 3 rows corrected, 3 added (`Effect C9c-2b review`).
+
+**C9c-2a re-verified**
+- `viewer+0x1d8` = `m_ePlayedEmotion`: **confirmed**. June's PlayEmotion `31fa52b0` gates on `+0xe5c` exactly as March gates on `m_ePlayedEmotion` (`:6454-6459`).
+- `31f99f70` = the viewer's move: **confirmed**. June's `SetPositionOnScr` is `31f9a860`, which calls it; seven other June sites call it directly. March
+  moves viewers by hand at those sites, so only `SetPositionOnScr` sets the dirty byte. Inert: no particle of the 15 table sets uses land.
+- `31fa4980`: **likely** June's `DeleteEnchantWeaponEffect`. It also stops group 0 on an equip refresh. Not ported -> **C9g** (below).
+- **11 live rows: the count holds, one reason was wrong.** March *has* the Pyro Knight motion: `SPK_LobbyReadyaction` (lower-case a, data033
+  `Motion_EL_Lobby.x`), and `PlayByMotionType` plays it (`:4996`). June renamed it `SPK_LobbyReadyAction` (data206), the same case as ALD. So
+  March's hand-made SPK fire was live on the ready action, and retiring it lost that. **User 2026-10-07: accept the loss.** Recorded in checklist
+  7e and in `c9c2a_hardcode_map.tsv`. `ALD_lobbyWait` / `ALD_LobbyWait` confirmed in both motion files.
+- Draw ownership: as C9c-2b's play-test fix (JUNE_BUGS 92). Particles of a managed viewer are drawn once, by the DG manager, not twice as in June.
+
+**C9c-2b against the binary.** These match June: Stop / stop-sounds, the create pass, the update's three branches, `FOLLOW_UNIT_VIEWER_SCALE`
+and show, the sound pass, Prepare, Notify, ctor/dtor, `PlayAnim` `31fa3010`, the inline trigger (`-1, true, 0`), the armed test, and
+`ANIMTIME_ON_START_UNITVIEWER`. The deliberate differences hold: a create that fails is retried every frame, and a set without a skin plays no
+sound (JUNE_BUGS 80). "June dereferences a missing set" was wrong: June tests it (`@329596a4`) and skips silently, as the port does (the comment
+is fixed). Fixed under the same flag:
+1. **Land refresh** (`329585f0 @32958b1f-32958b31`). June copies `+0x1d4` once, before the particle loop, so it refreshes every land particle
+   that frame. The port stopped after the first. **JUNE_BUGS 82 is retracted** (not a June bug).
+2. **Play's tail `@3295987e` was missing.** It runs on every call, even when nothing is pushed (no skin `@32959680`, no set `@32959694`, no
+   templet `@329596a4`). It re-links `BONE_TRACE_TARGET_MESH` targets over every entry. Now `JuneViewerFxLinkTraceTargets()`.
+3. **Target-mesh branch (c).** June moves nothing unless the bone's frame is found on the target's skin; the port called `GetBonePos` anyway
+   (meshes and particles).
+4. **Viewer trigger** (`321dfc40 @321dfd9d`). June searches `BOUND_MOTION_TYPE_LIST` only with a non-zero code. The port fired a trigger bound
+   to 0 with no emotion playing.
+5. **Frame-move order** (`31fa8ce0`). The first base update is now June's first statement (`@31fa8d32-31fa8d4c`): before the `m_pUnit` test,
+   `EmotionFrameMove` and the avatar-sound stop. The re-arm, the drain and the second update now follow the equip loop and the render-param
+   block, as in June (`@31fa9271`, `@31fa93f6`, `@31fa9639`). Behaviour is unchanged today: the equip loop touches neither the anim time nor
+   the entries.
+
+Items 2 and 3 matter only for `BONE_TRACE_TARGET_MESH` sets (C9e's three emotion sets, inert). Item 4 matters only for trigger lists (none in the
+15 sets). Item 1 matters only for land particles (none).
+
+**`SetHideSelectUnitWeapon`: no June counterpart, the no-op stands.** No viewer-range function switches on those classes (the only `0x6f` hit,
+`31f9d570`, is an item-id switch). Every March caller runs `PlayByMotionType` -> `PlayAnim` first, and that stops group 0.
+**Retired sites:** only creation and the `m_bShow*` / crescent-cut writes are behind `#else`; every other site tests the handle. The orb is untouched.
+**Data:** `UIMajorParticle.txt`: 2,729 sequences, no duplicates, braces balance. The last sequence is `CHUNG_STEEL_EDGE02` (not `CHUNG_HOWLING01`).
+The 17:13 run logged no particle parse error (only the old `GameMajorParticleNN` probes). The orb's `ZEnable = FALSE` loss is confirmed (June has none).
+`UIEffectSet.lua` = 78 templets in the log (52 + 15 + C9e's 11). JUNE_BUGS 79-81 and 83-86 are real as written; 85 stays not counted.
+**Guard flags** (`flagprobe`): `MODIFY_EFFECT_SET_TRACE_BONE`, `FIX_BONE_TRACE_TARGET_MESH_UNIT_TRACE`, `FIX_ICE_HEATER_EVENT` and `RIDING_SYSTEM` are all ON.
+
+**New phase C9g** (standing rule, unowned June branch): June's viewer groups 1-4 and their stops. That covers `31fa4980` (stops 0..4 on an equip
+refresh), `PlayByMotionType` `31fa5c90` / `31fac190` (stops 0..4, or 0/1/2, on a motion change; `+0xf14` / `+0xf74` unidentified) and the
+sit-emotion stops `31fa5140` / `31fa5180`. Kickoff `C9g.md`.
+
+**Hygiene.** RANGE_LINES
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,313,152 B, dated 2026-10-07 17:52:02, md5 a87b307beb07ca847b5a1382f153d4b9, equal to X2/US_SERVICE/x2.exe (2026-10-07 17:51:57); built at mods/june-buff-port 9a8e26f + 4 uncommitted code file(s).` (the four are this review's)
+**User owes:** a short regression play-test (hand-off in the reply), then /cost.
+
+---
+
 ### C9d - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build)
 
 **Verdict: two systems, not one.** The per-emotion effect set (`32355a50`) is effect wiring and is ported as **C9e**, inert. Everything

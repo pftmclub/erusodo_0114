@@ -294,6 +294,15 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 {
 	KTDXPROFILE();
 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// June 31fa8ce0 @31fa8d32-31fa8d4c, the frame move's first statements (before any unit or skin test): +0x1d8 = +0xe5c
+	// (m_ePlayedEmotion, confirmed by the C9c-2b review from PlayEmotion 31fa52b0's sit/stand gates), +0x1dc = motion type
+	// 7/8 (never in March), then the base viewer's update
+	m_iJuneFxTriggerCode1 = static_cast<int>( m_ePlayedEmotion );
+	m_iJuneFxTriggerCode2 = 0;
+	CX2BaseUnitViewerUI::OnFrameMove( fTime, fElapsedTime );
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+
 	if ( m_pUnit == NULL )
 		return false;
 
@@ -319,14 +328,6 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 		SAFE_CLOSE( m_pAvatarEmotionSound );
 	}
 
-#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
-	// June 31fa8ce0 @31fa8d46-31fa8d4c, at the frame move's entry: the two trigger codes (+0x1d8 = m_ePlayedEmotion candidate,
-	// +0x1dc = motion type 7/8, never in March) are copied, then the base viewer's update runs
-	m_iJuneFxTriggerCode1 = static_cast<int>( m_ePlayedEmotion );
-	m_iJuneFxTriggerCode2 = 0;
-	CX2BaseUnitViewerUI::OnFrameMove( fTime, fElapsedTime );
-#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
-
 	m_pXSkinAnim->SetBillBoardType( m_BillBoardType );
 
 
@@ -344,43 +345,6 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 	m_pXSkinAnim->GetMatrix().Scale( GetMatrix().GetScale() );
 
 	m_pXSkinAnim->OnFrameMove( fTime, fElapsedTime );
-
-#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
-	// re-arm @31fa9271: when the skin's anim time is exactly 0.0, the current motion is looked up again and a row whose
-	// loop is set is queued once more (June's ctor 31fac890 forces the request's loop to 1)
-	if( 0.f == m_pXSkinAnim->GetNowAnimationTime() && NULL != g_pData && NULL != g_pData->GetUnitManager() )
-	{
-		std::wstring wstrJuneFxSet;
-		float fJuneFxStart = 0.f;
-		bool bJuneFxLoop = false;
-		if( true == g_pData->GetUnitManager()->GetUnitViewerEffectSet( m_pXSkinAnim->GetNowAnimName(), m_pUnit->GetClass(), 0,
-				wstrJuneFxSet, fJuneFxStart, bJuneFxLoop ) && true == bJuneFxLoop )
-		{
-			JuneViewerFxRequest kJuneFxRequest;
-			kJuneFxRequest.m_wstrSetName = wstrJuneFxSet;
-			if( NULL != m_pUnit->GetUnitTemplet() )
-				kJuneFxRequest.m_iUnitType = static_cast<int>( m_pUnit->GetUnitTemplet()->m_UnitType );
-			kJuneFxRequest.m_iUnitClass = static_cast<int>( m_pUnit->GetClass() );
-			kJuneFxRequest.m_fStartTime = fJuneFxStart;
-			kJuneFxRequest.m_bLoop = true;
-			m_vecJuneViewerFxRequest.push_back( kJuneFxRequest );
-		}
-	}
-
-	// drain @31fa93f6: a request plays once the anim time reaches its start time (0 = at once), then is erased
-	for( size_t iJuneFxRequest = 0; iJuneFxRequest < m_vecJuneViewerFxRequest.size(); )
-	{
-		const JuneViewerFxRequest& kJuneFxRequest = m_vecJuneViewerFxRequest[iJuneFxRequest];
-		if( fabs( kJuneFxRequest.m_fStartTime ) <= 0.0009f || kJuneFxRequest.m_fStartTime <= m_pXSkinAnim->GetNowAnimationTime() )
-		{
-			const std::wstring wstrJuneFxSet = kJuneFxRequest.m_wstrSetName;
-			JuneViewerFxPlay( m_pXSkinAnim, wstrJuneFxSet, 0 );
-			m_vecJuneViewerFxRequest.erase( m_vecJuneViewerFxRequest.begin() + iJuneFxRequest );
-		}
-		else
-			++iJuneFxRequest;
-	}
-#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 
 
 //{{ robobeg : 2008-10-17
@@ -455,10 +419,6 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 //}} robobeg : 2008-10-17
 	}
 
-#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
-	// June 31fa8ce0 @31fa9639: the base viewer's update runs a second time after the equip loop (June runs it twice per frame)
-	CX2BaseUnitViewerUI::OnFrameMove( fTime, fElapsedTime );
-#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 	CKTDGXRenderer::RenderParam* pRenderParam = m_pXSkinAnim->GetRenderParam();
 
 	pRenderParam->renderType		= CKTDGXRenderer::RT_CARTOON_BLACK_EDGE;
@@ -510,6 +470,48 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 		pRenderParam->color				= 0xffffffff;
 		pRenderParam->bAlphaBlend		= false;
 	}	
+
+#ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
+	// June 31fa8ce0 runs these after the skin update, the equip loop (+0x1fc) and the render-param block: the re-arm @31fa9271,
+	// the drain @31fa93f6, then (after a June-only +0xf28 mesh show loop) the base viewer's second update @31fa9639.
+	// re-arm: when the skin's anim time is exactly 0.0, the current motion is looked up again and a row whose loop is set is
+	// queued once more (June's ctor 31fac890 forces the request's loop to 1)
+	if( 0.f == m_pXSkinAnim->GetNowAnimationTime() && NULL != g_pData && NULL != g_pData->GetUnitManager() )
+	{
+		std::wstring wstrJuneFxSet;
+		float fJuneFxStart = 0.f;
+		bool bJuneFxLoop = false;
+		if( true == g_pData->GetUnitManager()->GetUnitViewerEffectSet( m_pXSkinAnim->GetNowAnimName(), m_pUnit->GetClass(), 0,
+				wstrJuneFxSet, fJuneFxStart, bJuneFxLoop ) && true == bJuneFxLoop )
+		{
+			JuneViewerFxRequest kJuneFxRequest;
+			kJuneFxRequest.m_wstrSetName = wstrJuneFxSet;
+			if( NULL != m_pUnit->GetUnitTemplet() )
+				kJuneFxRequest.m_iUnitType = static_cast<int>( m_pUnit->GetUnitTemplet()->m_UnitType );
+			kJuneFxRequest.m_iUnitClass = static_cast<int>( m_pUnit->GetClass() );
+			kJuneFxRequest.m_fStartTime = fJuneFxStart;
+			kJuneFxRequest.m_bLoop = true;
+			m_vecJuneViewerFxRequest.push_back( kJuneFxRequest );
+		}
+	}
+
+	// drain: a request plays once the anim time reaches its start time (0 = at once), then is erased
+	for( size_t iJuneFxRequest = 0; iJuneFxRequest < m_vecJuneViewerFxRequest.size(); )
+	{
+		const JuneViewerFxRequest& kJuneFxRequest = m_vecJuneViewerFxRequest[iJuneFxRequest];
+		if( fabs( kJuneFxRequest.m_fStartTime ) <= 0.0009f || kJuneFxRequest.m_fStartTime <= m_pXSkinAnim->GetNowAnimationTime() )
+		{
+			const std::wstring wstrJuneFxSet = kJuneFxRequest.m_wstrSetName;
+			JuneViewerFxPlay( m_pXSkinAnim, wstrJuneFxSet, 0 );
+			m_vecJuneViewerFxRequest.erase( m_vecJuneViewerFxRequest.begin() + iJuneFxRequest );
+		}
+		else
+			++iJuneFxRequest;
+	}
+
+	// the base viewer's second update (June runs it twice per frame)
+	CX2BaseUnitViewerUI::OnFrameMove( fTime, fElapsedTime );
+#endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 	
 	if( m_hSeqHandFire != INVALID_PARTICLE_SEQUENCE_HANDLE )
 	{

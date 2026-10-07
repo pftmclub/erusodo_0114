@@ -147,9 +147,49 @@ CX2BaseUnitViewerUI::~CX2BaseUnitViewerUI(void)
 	m_vecJuneFxParticle.clear();
 }
 
+// 32959640 @3295987e, the tail of every Play call (also when nothing was pushed): if any mesh entry's EffectData is a
+// BONE_TRACE_TARGET_MESH, every mesh entry's trace target becomes its own handle (-1 while it is not created yet) and every
+// particle entry whose own EffectData is a BONE_TRACE_TARGET_MESH takes the first such mesh entry's handle. It walks the
+// entries of every earlier Play too, so live entries are re-linked (C9c-2b review: the port had skipped it as a no-op).
+void CX2BaseUnitViewerUI::JuneViewerFxLinkTraceTargets()
+{
+#ifdef MODIFY_EFFECT_SET_TRACE_BONE
+	JuneViewerFxEntry* pTargetEntry = NULL;
+	for( size_t i = 0; i < m_vecJuneFxMesh.size(); ++i )
+	{
+		JuneViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
+		if( NULL != pEntry && NULL != pEntry->m_pEffectData && true == pEntry->m_pEffectData->m_bBoneTraceTargetMesh )
+		{
+			pTargetEntry = pEntry;
+			break;
+		}
+	}
+	if( NULL == pTargetEntry )
+		return;
+
+	for( size_t i = 0; i < m_vecJuneFxMesh.size(); ++i )
+	{
+		if( NULL != m_vecJuneFxMesh[i] )
+			m_vecJuneFxMesh[i]->m_hTraceTargetMesh = m_vecJuneFxMesh[i]->m_hMesh;
+	}
+	for( size_t i = 0; i < m_vecJuneFxParticle.size(); ++i )
+	{
+		JuneViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
+		if( NULL != pEntry && NULL != pEntry->m_pEffectData && true == pEntry->m_pEffectData->m_bBoneTraceTargetMesh )
+			pEntry->m_hTraceTargetMesh = pTargetEntry->m_hMesh;
+	}
+#endif MODIFY_EFFECT_SET_TRACE_BONE
+}
+
 // 32959640( skin, set name, group ): the templet is the UI effect set's; nothing is created here (32957980 creates)
 void CX2BaseUnitViewerUI::JuneViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const std::wstring& wstrSetName_, int iGroup_ )
 {
+	// @32959680 / @32959694 / @329596a4: no skin anim, no UI effect set or no templet jumps to the tail (3295987e), which still runs (C9c-2b review)
+	if( NULL == pXSkinAnim_ )
+	{
+		JuneViewerFxLinkTraceTargets();
+		return;
+	}
 #ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 	// June 32959640 @32959680: the first test is the skin anim (TEST EBX,EBX; JZ 3295987e = the tail, which does nothing for it).
 	// C9c-2b's port lacked it; the per-emotion call of CX2UnitViewerUI::PlayEmotion passes the skin anim unchecked.
@@ -157,12 +197,16 @@ void CX2BaseUnitViewerUI::JuneViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const
 		return;
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 	if( NULL == g_pData || NULL == g_pData->GetUIEffectSet() )
+	{
+		JuneViewerFxLinkTraceTargets();
 		return;
+	}
 
 	CX2EffectSet::EffectSetData* pSetData = g_pData->GetUIEffectSet()->GetEffectSetTemplet( wstrSetName_ );
 	if( NULL == pSetData )
 	{
-		// June dereferences the templet without a test; a missing set is logged once instead of faulting
+		// June tests the templet (321da420 result, @329596a4: JZ to the tail) and skips the push silently; the port also logs it once
+		JuneViewerFxLinkTraceTargets();
 		static std::set<std::wstring> s_setLogged;
 		if( true == s_setLogged.insert( wstrSetName_ ).second )
 		{
@@ -216,8 +260,8 @@ void CX2BaseUnitViewerUI::JuneViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const
 		m_vecJuneFxPendingSound.push_back( pSound );
 	}
 
-	// June @3295987e then points the BONE_TRACE_TARGET_MESH links at the entries' own +0x3c, which is still -1 here
-	// (nothing is created yet): a no-op, so nothing is stored. The links are made by the create pass.
+	// @3295987e: the tail (the create pass makes the links of entries created later)
+	JuneViewerFxLinkTraceTargets();
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 	WCHAR wszPlay[512] = {0};
@@ -533,8 +577,8 @@ void CX2BaseUnitViewerUI::JuneViewerFxSoundPass()
 
 // 329585f0: the per-frame update. Walks the mesh entries, then the particle entries, then the create and sound passes.
 // June quirks kept (JUNE_BUGS.md): TRACE is never read (every live entry follows its bone), TRACE_MATRIX adds
-// POSITION_OFFSET to its own position every frame, dead entries are not erased, only one land particle is refreshed per
-// dirty flag, and the show byte (+0x190) is written into every effect each frame and never cleared.
+// POSITION_OFFSET to its own position every frame, dead entries are not erased, and the show byte (+0x190) is written into
+// every effect each frame and never cleared.
 /*virtual*/
 HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 {
@@ -576,22 +620,23 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 			}
 			else
 			{
-				// (c) the target mesh's skin
+				// (c) the target mesh's skin; June (@3295883b) moves nothing unless the bone's frame is found there, for both
+				// the TRACE_MATRIX and the GetBonePos case (C9c-2b review)
 				CKTDGXMeshPlayer::CXMeshInstance* pTarget = pMeshPlayer->GetMeshInstance( pEntry->m_hTraceTargetMesh );
 				if( NULL != pTarget && NULL != pTarget->GetXSkinAnim() )
 				{
 					const WCHAR* pwszBone = JuneViewerFxBoneName( pEffectData );
-					if( true == pEffectData->m_bTraceMatrix )
+					CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pTarget->GetXSkinAnim()->GetCloneFrame( pwszBone );
+					if( NULL != pFrame )
 					{
-						CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pTarget->GetXSkinAnim()->GetCloneFrame( pwszBone );
-						if( NULL != pFrame )
+						if( true == pEffectData->m_bTraceMatrix )
 						{
 							pMesh->SetUseDXMatrix( pFrame->combineMatrix );
 							pMesh->SetPos( pMesh->GetPos() + pEffectData->m_vPositionOffset );
 						}
+						else
+							pMesh->SetPos( pTarget->GetBonePos( pwszBone ) );
 					}
-					else
-						pMesh->SetPos( pTarget->GetBonePos( pwszBone ) );
 				}
 			}
 
@@ -608,6 +653,9 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 		}
 	}
 
+	// June @32958b1f-32958b31: the land-dirty byte is read once, before the particle loop; clearing it inside the loop does not
+	// stop the later particles of the same frame (C9c-2b review: the port refreshed only the first, JUNE_BUGS 82 retracted)
+	const bool bJuneFxLandDirty = m_bJuneFxLandDirty;
 	CKTDGParticleSystem* pParticleSystem = g_pData->GetUIMajorParticle();
 	if( NULL != pParticleSystem )
 	{
@@ -647,22 +695,22 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 			}
 			else if( NULL != pMeshPlayer )
 			{
-				// (c) the target mesh's skin
+				// (c) the target mesh's skin; as for meshes, nothing moves unless the bone's frame is found there (@32958d4a)
 				CKTDGXMeshPlayer::CXMeshInstance* pTarget = pMeshPlayer->GetMeshInstance( pEntry->m_hTraceTargetMesh );
 				if( NULL != pTarget && NULL != pTarget->GetXSkinAnim() )
 				{
 					const WCHAR* pwszBone = JuneViewerFxBoneName( pEffectData );
-					if( true == pEffectData->m_bTraceMatrix )
+					CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pTarget->GetXSkinAnim()->GetCloneFrame( pwszBone );
+					if( NULL != pFrame )
 					{
-						CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pTarget->GetXSkinAnim()->GetCloneFrame( pwszBone );
-						if( NULL != pFrame )
+						if( true == pEffectData->m_bTraceMatrix )
 						{
 							pSeq->SetUseDXMatrix( pFrame->combineMatrix );
 							pSeq->SetPosition( pSeq->GetPosition() + pEffectData->m_vPositionOffset, false, false );
 						}
+						else
+							pSeq->SetPosition( pTarget->GetBonePos( pwszBone ), false, false );
 					}
-					else
-						pSeq->SetPosition( pTarget->GetBonePos( pwszBone ), false, false );
 				}
 			}
 
@@ -675,7 +723,7 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 			pSeq->SetShowObject( m_bJuneFxShow );
 
 			// the land height, refreshed while the viewer's land-dirty byte (+0x1d4) is set
-			if( true == m_bJuneFxLandDirty && true == pSeq->GetUseLand() )
+			if( true == bJuneFxLandDirty && true == pSeq->GetUseLand() )
 			{
 				const float fLandY = JuneViewerFxLandPosition( true, pXSkinAnim ).y;
 				if( false == JuneViewerFxIsSamef( pSeq->GetLandPosition(), fLandY ) )

@@ -431,6 +431,10 @@ void JuneRunViewerMeshTriggers( CKTDGXMeshPlayer::CXMeshInstance* pMesh_, CX2Eff
 	int iEmotion = JuneFoldTriggerEmotion( iCode1_ );
 	if( 0 == iEmotion )
 		iEmotion = JuneFoldTriggerEmotion( iCode2_ );
+	// @ 321dfd9d: the viewer branch tests the list only with a non-zero code; with both codes 0 nothing fires, whatever
+	// BOUND_MOTION_TYPE_LIST holds (C9c-2b review: the port matched a bound 0 here)
+	if( 0 == iEmotion )
+		return;
 
 	for( UINT iTrigger = 0; iTrigger < vecTrigger_.size(); ++iTrigger )
 	{
