@@ -350,3 +350,15 @@ June effect completion C4c ports the engine side. The NPC anim-speed factor (Jun
 | June | Class | What it does | What the port must bring |
 |---|---|---|---|
 | `32ab0560` (`CX2GURose` vtable `334e8b5c`, slot `0x860`, argument = an NPC) | Rose | Reads a skill value: `this->32007c40( 0x2d, 31423 RNSI_P_ROM_OPEN_MIND, 1, &v )`, with `v` starting at 1.0. When that read succeeds and the NPC is one of Rose's summons (`NUI_SI_SA_RG_RX78_LAND_RUNNER` 2175 and `_UPGRADE` 2194, `NUI_SA_RMH_GALE_FORCE` 2206, `NUI_SA_RMH_EZ_8_COUNT_DOWN` 2209, `NUI_SA_ROM_ARMORED_TEMPEST` 2526), it sets the NPC's anim-speed factor to `v`. For `NUI_SA_RFY_CLAYMORE` (2398) it instead calls `SetMultiplyPowerRate_LUA( 1.15 )` and writes two of Rose's own members (`+0x994c`, `+0x9948`). | The whole slot body, with Rose, her reform passive and the summon NPCs. It writes into the member C4c adds (funcmap row `32ab0560`). |
+
+### 7g. Item-templet fields only character code reads (from june-item-kim K0)
+
+June-item-kim K2 ports June's 228-byte item record, so these fields exist once June's `item.kim` is in. Their consumers are
+per-class, so the character ports bring them (D8, no question). Map: `june_item_kim/k0_record_map.tsv`.
+
+| June | Class | What it is | What the port must bring |
+|---|---|---|---|
+| record +48 `m_ItemIDForMinorUnit` (int) | Lu/Ciel | On 429 Lu items, the id of the matching Ciel dummy item (30344 -> 200030344). | Whatever equips or shows the Ciel copy of Lu's gear (reader not located in K0). |
+| record +8 flags2 bit 2 `m_bIsForMinorUnit` | Lu/Ciel | Set on 2,582 items: the Ciel dummies. | The same consumer. K2 adds only the accessor. |
+| Extra accessors `32867660`..`32867960`, bool argument | Lu/Ciel | Unit type 10 maps to Extra key 10 (Lu) or 11 (Ciel) by that bool. 11 maps to 12 (Rose) and 12 to 13 (Ain). | Callers that pass the Ciel bool. K2 ports the remap with the bool defaulting to false. |
+| special ability 41 `SAT_ADD_DP_PERCENT_UP` | Add | 1 item (100001054). | The ability's effect on Add's DP. |

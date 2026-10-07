@@ -241,6 +241,8 @@ Everything from Stages 5 and 6, plus:
 - `Dungeon_Tutorial_{Luciel,Rose,Ain}`;
 - Lu/Ciel's duo mechanics (`DUO_TYPE`, `HIT_ADD_COMBINATION_POINT`) and Rose's `ROSE_WEAPON_TYPE`;
 - activating the dormant Rose/Ain/Lu/Ciel code from the buff port.
+- the item-templet fields June-item-kim K0 found for them: Lu/Ciel's minor-unit item id and flag, the Extra keys 10-13,
+  and their item-type and unit-class guards from K2 (character-port checklist 7g).
 
 **Hard gate:** the live-DB starter-item rows (below).
 
@@ -336,6 +338,9 @@ rule that an unowned June system gets its own stage. What it covers:
   vectors that C9d listed under Stage 10 (`3203e1b0`, `+0x93dc`/`+0x93ec`/`+0x940c`, square `+0x714`/`+0x724`).
 - **The UI:** the customize preview dialogs. `3224b340` / `3224d0f0` play group 3; `32d77220` plays groups 3 and 4 (`3264f350`,
   `3264f080`). Groups 3 and 4 are used only here.
+
+- **Item type 14** is June's `IT_CUSTOM` (1,207 customize items in June's `item.kim`, e.g. skill cut-ins). June-item-kim K2 guards
+  it; this stage reads it (june-item-kim K0).
 
 **Depends on:** june-effect C9g-2 (the PlayByMotionType shell and `AnimationNameTable.lua`), Stage 10 (the sit emotions 0x19-0x3b and
 the EmotionData path the sit sets ride on), Stage 2 (UI framework) for the dialogs, and Stage 13 (the June `item.kim`). It can run
