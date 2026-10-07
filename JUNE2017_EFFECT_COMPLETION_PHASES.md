@@ -878,6 +878,40 @@ Both fixed names are in the table. So in a March play-test `offline_server.log` 
 absent `apply` line is not a failure. The load line in `ErrorLog.txt` is the proof for this phase.
 Open question for the user: none; C9b is proposed above.
 
+### C9 - Review (2026-10-07, Opus 5.5 high): no finding, no code change
+
+**Play-test read first.** `ErrorLog.txt` (run 12:00:04, exe md5 `03e657f7` = the `113a3a9` deploy): `JUNE_FX DAMAGE_DATA_LOAD
+Elsword_DamageData.lua loaded=1 rows=107 skipped_empty_name=0 skipped_duplicate=0`, 0 EXCEPTION. June's source has 107
+`DAMAGE_KEY_NAME`s and none repeats, so 107 is the full table.
+
+**Checked against June (Ghidra, read-only).**
+- `32621080` `InsertDamageData_LUA`: the 9 keys were decoded by length and getter (string / float `32fea370` / int `32fe9fd0`), and each
+  maps to the record slot C9 uses. Defaults: PVP 1.0, the rest 0. The two int keys (TECH_POINT, ATTACK_TYPE) are masked to 0 when the read
+  fails, which settles census.tsv's two `unchecked-default` rows: March's 0 is June's. The empty name is skipped, and so is a name already
+  in the map (`326411f0` find != `+0x4c00` end), so the first entry wins. The type branch is the same as March's:
+  PHYSIC <= 0 -> 1, MAGIC kept, PHYSIC 0; MAGIC > 0 -> 2; else 0, MAGIC 0.
+- `3264a5d0` apply: `+0`, `+0x538`, `+0x38`, `+0x3c`, `+0x3f0`, `+0x3f8` (protected, written when different; March's unconditional
+  write gives the same value), `+0x34`, `+0x5c4` only when non-zero, `+0x8`. This matches `JuneApplyDamageDataRecord` field for field.
+  `32622220` seeds the out-record with PVP 1.0 and applies only on a hit.
+- Call site `3263edee`: inside `SetDamageDataFromLUA`, after `DAMAGE_DATA_KEY_NAME`, only when the length is non-zero. March: X2DamageManager.cpp:633.
+- **Clobber check.** Every June store to a record offset after `3263edee` (`3263ff9c`/`ffa7` physic/magic, `ffb7` PVP, `ffc9` tech,
+  `ffd8` add-MP) is inside the `3263fe41`..`32640054` block, which is gated on NUMERICAL_DATA / APPLIED_SKILL_ID (handed off, D7).
+  Between the parse start and the apply, March modifies none of the record's fields. Its only `fPowerRate` use is `m_ExtraDamage`.
+  After the apply, the only March writer is `SetDamageExceptionProcess` (`MODIFY_SET_DAMAGE_DATA` is defined), June's per-unit post-step.
+- `32620940` loader: it clears the map, then reads `L"Elsword_DamageData.lua"`. The `LoadLuaTinker` fix (`113a3a9`) is right: the
+  handler's `KLuaManager` reads the call's table off the main state.
+- ES.Description decline: not re-checked in Ghidra. It rests on C2's identification (`32378e20` = AddNPCTemplet_LUA,
+  `32680da0` = AddNextStepPackage_LUA). Census: 9 `InsertDamageData` rows `implemented`, 3 `ES.Description` rows `declined`, as Exit says.
+
+**Hygiene** (`flagcheck SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE --range 509f15c^..HEAD`):
+`files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 8 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 2 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. The 2 deleted lines are `113a3a9` replacing this flag's own `KLuaManager( L, 0, true )` and `LoadAndDoMemory` lines from
+`509f15c`, not studio code. All 8 OTHER rows are `df22a13`, the peer's C6b commit (`SPAWN_INHERIT` / `CREATE_EFFECT_SET`) inside the range.
+
+**Deploy:** none. Nothing changed, and the tree holds a peer's uncommitted `Always.h` / `X2GageManager.cpp` / `X2GameUnit.cpp` edits.
+The deployed exe is still `03e657f7`, the one the play-test passed on. No new play-test. Next: C9b.
+
 ---
 
 ## C10 - Decided absent systems
