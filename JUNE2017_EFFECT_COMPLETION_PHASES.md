@@ -1619,6 +1619,43 @@ particle, slash trace and two buff displayers, hence the three-way split.
 registers the alpha flag in `SYSTEM_DISPOSITION`.
 *D9, answered the same day:* engine now; the UI goes to the June UI port (backlog Stage 9). C10b-3 is not run here.
 
+**C10b-1 - Done (2026-10-07, Opus 5.5 high, user OK'd Opus for a Sonnet phase; flag `SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE`; play-test pending).**
+Commit `4ca07e7`. `CX2GameUnit::GetHpRateDamage` = June `32273e80` (type 1 now HP, 2 max HP, times the value; only while now HP > 1.0;
+overwrites). March's `CX2GageData::GetNowHp` returns 0.0 without an HP gage, so `gage && now > 1.0` is both of June's existence checks.
+- *GetFinalDamage* (Ghidra, `32284aa0`): the my-HP-few multiply is `@322868d1..32286968`, the HP-rate site `@3228696a..32286990` (the
+  funcmap's `32286930` start is inside the multiply), and March's existing `if( <= 0 ) = 0` is June's clamp `@32286995..322869aa`. The call
+  sits between them, on the DamageData's defender, unconditionally (the SUPERSONIC gate `322726f0` is checklist 7c, D8).
+- *CX2GUUser::DamageReact*: June runs the provoke zero, the attacker-class hooks, `322cfca0`, an execute block, then HP-rate `@32049727`,
+  then the attacker's vslot `0x304` and the shown-damage copy (`@3204975b`). March has only the first of those, so the call goes
+  right before `fFinalDamageToShow`: the number shown is the post-write value, as June. Double overwrite kept -> JUNE_BUGS 93.
+- *Not owned by any row* (standing rule -> new phase **C10d**, Opus, identify): June's DamageReact steps between the BBT 78 block and the
+  HP-rate call (`0x6d4` / `0x4f8` / `0x4fc` attacker hooks, a class-0xa multiply, `322cfca0`'s x0.5, the `+0xbbc` execute block, the
+  attacker's `0x304`), user and NPC side. Kickoff `kickoffs/june-effect/C10d.md`.
+- *Parity (kickoff item 5):* March drops no zero-damage hit before `GetFinalDamage` (no gate reads `damage.fPhysic/fMagic`; the only
+  gate is a missing `REACT_TYPE` -> `RT_NO_DAMAGE`). All 7 of June's HP-rate-only blocks set a damaging `REACT_TYPE` (2/4/5), so on
+  March they deal their HP-rate damage, not 0.
+- *Census:* `census_completion.py` names the flag in `DAMAGE_SOURCES` and `SYSTEM_DISPOSITION`; `census.py`: `PASS definition item 1,
+  HP-rate damage ...: 0 of 7948 June DAMAGE_DATA* blocks get damage only from it` (matrix regenerated in the same commit).
+- *Test vehicle:* TEMPORARY edit of `ARROW_OF_EXPLOSION` (Night Watcher's basic arrow) in `kom_contents/data036_kom/DamageEffect.src.lua`:
+  `HP_RATE_DAMAGE_TYPE = 2`, `HP_RATE_DAMAGE_VALUE = 0.1` inside `DAMAGE_DATA`, `PHYSIC = 0.5` kept, marked `C10b-1 TEST` with the restore
+  steps. The staged source compiled byte-identical to the staged bytecode before the edit. `PACK OK data036` (~1 changed:
+  `DamageEffect.lua`); copy pending the user's yes. Its boom (`ARROW_OF_EXPLOSION_BOOM`) has its own DAMAGE_DATA: one line per arrow hit.
+  **Revert the edit + repack after the play-test.** The console `jC` route was not used (never proven; T3 crashed in that path).
+- *Log:* `JUNE_FX hp-rate def=<user|npc> type value now max damage <before> -> <after>` in `offline_server.log`, first 60 writes
+  (`JUNE_FX_DEBUG`); unbracketed, so read it with `python tools/logs.py --grep "JUNE_FX hp-rate"`.
+
+Hygiene: `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 0 deleted
+line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` /
+`RESULT: PASS` (`--range 4ca07e7^..4ca07e7`).
+
+`DEPLOY OK: X2_offline.exe is 19,313,152 B, dated 2026-10-07 17:40:43, md5 30a7d90c9eea6c7b5d5c2b80f463d20b, equal to X2/US_SERVICE/x2.exe
+(2026-10-07 17:40:38); built at mods/june-buff-port 2751f9c + 5 uncommitted code file(s).` (a peer's build compiled these edits; the
+UTF-16 string `JUNE_FX hp-rate def=%s` is in the deployed exe).
+
+**How to see it in game:** NWatcher (Night Watcher, class 114, Lv 70) hits a monster with basic X/Z arrows: each arrow hit takes 10 % of
+the monster's max HP, and the log line's `->` value equals `max x 0.1`. The number on screen can differ: the NPC's own DamageReact
+still acts on the damage after `GetFinalDamage`.
+
 ---
 
 ## C11 - Verification on June data
