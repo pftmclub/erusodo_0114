@@ -6139,3 +6139,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 #endif SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: C9h-8: June's damage-effect sound play CEffect::OnFrameMove_SoundData 31f6eca0.
+//              March opened each SOUND<n> with OpenSound ( closed by name in the dtor, CLOSE_SOUND_TEST )
+//              and played it once, ignoring LOOP. June calls the device PlaySound( name, LOOP,
+//              THREE_DIMENSIONAL_SOUND, 1 ) @31f6edd2 ( auto-release on, C9h-7a ), keeps { channel, FMOD sound }
+//              in CEffect +0xb34 when DELETE_WHEN_EFFECT_END is set, then Set3DPosition; no AddSound. The
+//              CEffect dtor 31f78550 @31f785d1 stops each kept channel that still plays its own sound
+//              ( or whose GetCurrentSound fails ). Off = March's OpenSound / Set3DPosition / Play / AddSound.
+//              Log: "JUNE_FX DE_SOUND" in offline_server.log (_DEBUG only).
+#define SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
+#define SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
+#if !defined(SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE) || !defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE)
+#error SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND needs SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE and SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+#endif
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
+//////////////////////////////////////////////////////////////////////////

@@ -1373,6 +1373,11 @@ class CX2DamageEffect
 				vector<CameraData>					m_CameraDataList;
 				vector<ScreenData>					m_ScreenDataList;
 				vector<SoundData>					m_SoundDataList;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
+				/// June CEffect +0xb34 ( 8-byte entries, pushed by 3207b770 @31f6edfd ): { FMOD channel +0x60, FMOD sound +0x5c }
+				/// of each DELETE_WHEN_EFFECT_END sound; stopped in the dtor 31f78550 @31f785d1. Raw FMOD pointers ( JUNE_BUGS ).
+				vector< std::pair< FMOD_CHANNEL*, FMOD_SOUND* > >	m_vecJuneDeleteWhenEffectEndSound;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 
 				//std::vector< CKTDXDeviceSound* >	m_vecPlayingLoopSound;			// play중인 loop sound를 이펙트가 사라질 때 꺼주기 위해서
 

@@ -804,6 +804,24 @@ void CKTDXDeviceSound::Set3DPosition( const D3DXVECTOR3& pos )
 	m_vFmodPos.z = pos.z; 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
+// June 31d41710: only with a channel ( +0x60 ); store the position ( +0x4c ), Update3DPosition ( 31d411c0 ),
+// and when that returns true FMOD_Channel_SetPaused( m_pChannel, false ) ( 31d6293a -> fmodex.dll RVA 0x96100 ).
+// Without a channel the position is not stored.
+void CKTDXDeviceSound::JuneSet3DPositionAndUpdate( const D3DXVECTOR3& pos )
+{
+	if( NULL == m_pChannel )
+		return;
+
+	m_vFmodPos.x = pos.x;
+	m_vFmodPos.y = pos.y;
+	m_vFmodPos.z = pos.z;
+
+	if( true == Update3DPosition() )
+		FMOD_Channel_SetPaused( m_pChannel, false );
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
+
 bool CKTDXDeviceSound::IsPlaying()
 {
 	KTDXPROFILE();
@@ -905,7 +923,16 @@ bool CKTDXDeviceSound::Update3DPosition()
 	FMOD_RESULT result = FMOD_Channel_Set3DAttributes( m_pChannel, &m_vFmodPos, NULL );
 	if( FMOD_OK != result )
 	{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
+		// June Update3DPosition 31d411c0 @31d411ee-31d41236: the error line carries the result and the file
+		// ( format string 3344fdf8 ), 512-byte buffer. June's +0x70 is its own copy of the ctor's fileName
+		// ( ctor @31d419af ), the same string March keeps as m_DeviceID ( CKTDXDevice( fileName, DT_SOUND ) ).
+		WCHAR wszJuneText[256] = {0};
+		StringCchPrintfW( wszJuneText, ARRAY_SIZE(wszJuneText), L"result : %d, File : %s", (int) result, m_DeviceID.c_str() );
+		ErrorLogMsg( KEM_ERROR381, wszJuneText );
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 		ErrorLog( KEM_ERROR381 );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 		return false;
 	}
 	else

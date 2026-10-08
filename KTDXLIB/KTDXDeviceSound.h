@@ -28,6 +28,13 @@ public:
 	// June: the manager reads +0x60 = m_pChannel to match the ended channel (31cdcbb0)
 	FMOD_CHANNEL* GetChannel() const { return m_pChannel; }
 #endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
+	// June CEffect::OnFrameMove_SoundData 31f6eca0 @31f6ede4 reads +0x5c = m_pSound for its DELETE_WHEN_EFFECT_END pair
+	FMOD_SOUND* GetSound() const { return m_pSound; }
+	// June 31d41710 ( no symbol; its only caller is that sound play @31f6ee0e ). June keeps March's store-only
+	// Set3DPosition too ( 31d41070 ); this one also applies the position to the playing channel.
+	void JuneSet3DPositionAndUpdate( const D3DXVECTOR3& pos );
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 	void Set3DPosition( const D3DXVECTOR3& pos );
 	void SetMax3DDistance( float fMaxDistance );
 	void SetVolume( float fVolume );

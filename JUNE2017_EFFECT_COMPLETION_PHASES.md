@@ -3761,6 +3761,44 @@ then C9h-7a.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,386,368 B, dated 2026-10-08 17:06:44, md5 fa2af5980bce6d2b08c0cac56b49b795, equal to X2/US_SERVICE/x2.exe (2026-10-08 17:06:39)`. `JUNE_FX SOUND_RELEASE` strings in the exe: 0 (`_DEBUG` off).
 **Play-test:** none owed (the fixed site is the defence-dungeon summon-card ACK, not reachable offline). next C9h-8.
 
+### C9h-8 - Done (2026-10-08, Opus 5.5 high; flag `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND` + `_DEBUG` (on for the play-test), log `JUNE_FX DE_SOUND`; data036 LOOP rows set to June's FALSE (user); play-test pending)
+
+**June's damage-effect sound, mapped** (funcmap rows `Effect C9h-8`, 11):
+- **The play `31f6eca0`.** It matches March except at the play itself. The timing tests (`USE_GLOBAL_TIME` vs mesh `+0x3e0`, otherwise the skin `EventTimer`), `rand() % 100 < iRate`, and the erase whether played or not are all unchanged.
+- **What June changed:**
+  - It calls the device `PlaySound( name, LOOP, THREE_DIMENSIONAL_SOUND, 1 )` instead of `OpenSound` + `Play()`.
+  - With `DELETE_WHEN_EFFECT_END` it pushes `{ m_pChannel +0x60, m_pSound +0x5c }` into `+0xb34`.
+  - It then calls `31d41710( pos )`.
+  - It drops `AddSound`. The `CLOSE_SOUND_TEST` map at `+0x8e4` is never fed in June: only the ctor and dtor touch it, so the dtor's `CloseSound` walks an empty map.
+- **Corrections:**
+  - The pair is **channel first**; the C9h-7 row said sound, channel.
+  - March's open was not "never closed": `CLOSE_SOUND_TEST` (`Always.h:2869`) closed it by name in the dtor.
+- **The stopper.** It is only in `~CEffect` `31f78550 @31f785d1`, which runs before `CloseSound` and on every pooled free. For each entry with a channel:
+  - `FMOD_Channel_GetCurrentSound` fails: `Stop` anyway.
+  - It succeeds and the sound matches: `Stop`.
+  - It succeeds with a different sound: skip.
+  - Then the list is emptied.
+- **`31d41710` is a June-only device method.** Its one caller is this play (E8 scan). With a channel, it stores the position, calls `Update3DPosition`, and on success `FMOD_Channel_SetPaused( false )`; `31d6293a` resolves to fmodex RVA `0x96100`. Without a channel it stores nothing. June keeps March's store-only `Set3DPosition` as `31d41070`. The difference matters: called after the play, March's version would leave the channel at the device's previous position.
+- **June's `Update3DPosition` `31d411c0`** adds `result : %d, File : %s` to `KEM_ERROR381`. `+0x70` is June's own copy of the ctor's file name, the same value as `m_DeviceID`.
+
+**Port** (insert-only, March in `#else`):
+- `X2DamageEffect.cpp`: the play (`PlaySound`, push, `JuneSet3DPositionAndUpdate`, no `AddSound`) and the dtor stopper.
+- `X2DamageEffect.h`: `m_vecJuneDeleteWhenEffectEndSound`.
+- `KTDXDeviceSound.h/.cpp`: `GetSound()`, `JuneSet3DPositionAndUpdate` (June `31d41710`), and the `Update3DPosition` error text.
+- `Always.h`: the flag, with an `#error` unless `JUNE_SOUND_AUTO_RELEASE` and `JUNE_DAMAGEEFFECT_PARSE` are on.
+- JUNE_BUGS **134** (raw FMOD handles; stop on error) and **135** (a LOOP sound's device reference is never released).
+
+**Reach** (census of the Lua sources):
+- **March `DamageEffect.src.lua`:** 1,154 sounds; no `DELETE_WHEN_EFFECT_END` or `THREE_DIMENSIONAL_SOUND`; **13 `LOOP = TRUE`** (Aisha EM XZ, Eve EP dash ZZ / ZZZ / jump ZX, Add pylon ×2, PvP bots).
+- **June:** the same 13 are `FALSE`; 38 sounds set `DELETE_WHEN_EFFECT_END` (Ain, Rose KS-83, Add NasodArmor XXX, Eve Atomic Shield); 5 `LOOP = TRUE`, all with DELETE.
+- **Under June's code, March's 13 would loop forever and stack**, so this is a break. **User 2026-10-08: use June's FALSE.** The 13 rows in `kom_contents/data036_kom/DamageEffect.src.lua` now read `LOOP = FALSE -- C9h-8 ... Restore TRUE if the flag is off`; they were recompiled (`COMPILE OK data036`) and packed.
+  - `PACK OK data036` reports `~0 changed` because it compares sizes, and the constant swap keeps the size. By md5 the packed kom is `ad48d728…` and the live one `cb5625f6…`.
+  - Until C11 the list and stopper are unreachable on March data. The visible change is the play path, plus 3D placement applied after the play.
+
+**Hygiene** (`flagcheck JUNE_DAMAGEEFFECT_SOUND --worktree --files` the 5 code files): 2 PASS, 1 PASS~ (one blank line), 2 OTHER (`Always.h` peers' blocks; `X2DamageEffect.cpp` = the `_DEBUG && OFFLINE` log blocks), 0 FAIL, 0 deleted, 0 non-ASCII, 0 encoding change; RESULT: PASS.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,409,920 B, dated 2026-10-08 21:14:44, md5 561222164aeae84747f51182fad1f869, equal to X2/US_SERVICE/x2.exe (2026-10-08 21:14:39); built at mods/june-buff-port 920eafe + 7 uncommitted code file(s)` (the 7 include a peer's C9h-4f `X2GUUser` work). The 4 `JUNE_FX DE_SOUND` / `result : %d, File : %s` strings are in the exe. data036: packed, copy asked in the hand-off.
+**Play-test** (STATUS row): jtCodeEmpress, Eve EP dash ZZ / ZZZ and jump ZX, expecting `JUNE_FX DE_SOUND … play … loop=0`, no droning, 0 EXCEPTION. next: C9h-8 review.
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),

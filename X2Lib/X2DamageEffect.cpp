@@ -4,6 +4,15 @@
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_RANOX_EFFECT_DEBUG2
 
+#if defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND_DEBUG) && defined(SERV_IRUHADEV_OFFLINE)
+#include "Offline/X2OfflineLog.h"
+// JUNE_FX DE_SOUND <effect> <what> <detail>: one line per damage-effect sound play, list push and dtor
+// stop ( C9h-8 ). Discrete events, not per frame, so no throttle. offline_server.log.
+static void JuneDeSoundLog( const WCHAR* pwszEffect_, const WCHAR* pwszWhat_, const WCHAR* pwszDetail_ )
+{
+	CX2OfflineLog::Server( L"JUNE_FX DE_SOUND %s %s %s", ( NULL != pwszEffect_ ? pwszEffect_ : L"-" ), pwszWhat_, pwszDetail_ );
+}
+#endif
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #ifdef SERV_IRUHADEV_OFFLINE
 #include "Offline/X2OfflineLog.h"
@@ -2260,6 +2269,31 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 CX2DamageEffect::CEffect::~CEffect()
 {
 	KTDXPROFILE();
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
+	// June ~CEffect 31f78550 @31f785d1-31f78646, first after the owner callback and before the +0x8e4
+	// CloseSound @31f7864c: per kept { channel, sound } with a channel, FMOD_Channel_GetCurrentSound
+	// ( 3322b17e ); a failed call stops anyway ( @31f7860f ), a matching sound stops ( @31f78605 ), another
+	// sound is skipped. Stop results are ignored. Then the list is emptied ( @31f78646 ).
+	for( UINT uiJune = 0; uiJune < m_vecJuneDeleteWhenEffectEndSound.size(); ++uiJune )
+	{
+		FMOD_CHANNEL* pJuneChannel = m_vecJuneDeleteWhenEffectEndSound[uiJune].first;
+		if( NULL == pJuneChannel )
+			continue;
+
+		FMOD_SOUND* pJuneCurrentSound = NULL;
+		const FMOD_RESULT eJuneResult = FMOD_Channel_GetCurrentSound( pJuneChannel, &pJuneCurrentSound );
+		const bool bJuneStop = ( FMOD_OK != eJuneResult || pJuneCurrentSound == m_vecJuneDeleteWhenEffectEndSound[uiJune].second );
+		if( true == bJuneStop )
+			FMOD_Channel_Stop( pJuneChannel );
+#if defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND_DEBUG) && defined(SERV_IRUHADEV_OFFLINE)
+		WCHAR wszJuneDetail[96] = {0};
+		StringCchPrintfW( wszJuneDetail, ARRAY_SIZE(wszJuneDetail), L"entry=%u fmod=%d match=%d",
+			uiJune, (int) eJuneResult, ( FMOD_OK == eJuneResult && pJuneCurrentSound == m_vecJuneDeleteWhenEffectEndSound[uiJune].second ) ? 1 : 0 );
+		JuneDeSoundLog( m_Name.c_str(), ( true == bJuneStop ? ( FMOD_OK != eJuneResult ? L"stop-err" : L"stop" ) : L"skip" ), wszJuneDetail );
+#endif
+	}
+	m_vecJuneDeleteWhenEffectEndSound.clear();
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 
 
 	//BOOST_TEST_FOREACH( CKTDXDeviceSound*, pSound, m_vecPlayingLoopSound )
@@ -3437,6 +3471,38 @@ void CX2DamageEffect::CEffect::OnFrameMove_SoundData()
 		{
 			if( rand()%100 < pSoundData->iRate )
 			{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
+				// June 31f6eca0 @31f6edd2: the device PlaySound( name, LOOP +0x25, THREE_DIMENSIONAL_SOUND +0x27, 1 ),
+				// which plays ( March's Play() ignored LOOP ). Found branch: no reference; open branch: one reference,
+				// released at the channel's END ( C9h-7a ), so a LOOP channel keeps it ( JUNE_BUGS ). No AddSound.
+				CKTDXDeviceSound* pSound = g_pKTDXApp->GetDeviceManager()->PlaySound( pSoundData->fileName.c_str(), pSoundData->bLoop, pSoundData->bThreeDimensionalSound, true );
+#if defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND_DEBUG) && defined(SERV_IRUHADEV_OFFLINE)
+				{
+					WCHAR wszJuneDetail[160] = {0};
+					StringCchPrintfW( wszJuneDetail, ARRAY_SIZE(wszJuneDetail), L"%s loop=%d 3d=%d del=%d dev=%d channel=%d",
+						pSoundData->fileName.c_str(), pSoundData->bLoop ? 1 : 0, pSoundData->bThreeDimensionalSound ? 1 : 0,
+						pSoundData->bDeleteWhenEffectEnd ? 1 : 0, ( NULL != pSound ) ? 1 : 0, ( NULL != pSound && NULL != pSound->GetChannel() ) ? 1 : 0 );
+					JuneDeSoundLog( m_Name.c_str(), L"play", wszJuneDetail );
+				}
+#endif
+				if( NULL != pSound )
+				{
+					// @31f6eddd: DELETE_WHEN_EFFECT_END ( +0x26 ) pushes { m_pChannel +0x60, m_pSound +0x5c } into +0xb34
+					if( true == pSoundData->bDeleteWhenEffectEnd )
+					{
+						m_vecJuneDeleteWhenEffectEndSound.push_back( std::make_pair( pSound->GetChannel(), pSound->GetSound() ) );
+#if defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND_DEBUG) && defined(SERV_IRUHADEV_OFFLINE)
+						WCHAR wszJuneDetail[96] = {0};
+						StringCchPrintfW( wszJuneDetail, ARRAY_SIZE(wszJuneDetail), L"%s entries=%u",
+							pSoundData->fileName.c_str(), (UINT) m_vecJuneDeleteWhenEffectEndSound.size() );
+						JuneDeSoundLog( m_Name.c_str(), L"push", wszJuneDetail );
+#endif
+					}
+					// @31f6ee0e: June's set-and-apply 31d41710( mesh instance +0x3f0 ) after the play ( March: store-only
+					// Set3DPosition before the play, which Play applies )
+					pSound->JuneSet3DPositionAndUpdate( pMeshInst->GetPos() );
+				}
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 				CKTDXDeviceSound* pSound = g_pKTDXApp->GetDeviceManager()->OpenSound( pSoundData->fileName.c_str() );
 				if( NULL != pSound )
 				{
@@ -3467,6 +3533,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_SoundData()
 					m_SoundCloseManager.AddSound( pSoundData->fileName );
 #endif CLOSE_SOUND_TEST
 				}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 			}
 
 			m_SoundDataList.erase( m_SoundDataList.begin() + i );
