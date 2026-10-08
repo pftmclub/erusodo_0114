@@ -990,7 +990,7 @@ RESULT: PASS
 
 **Open questions:** none.
 
-### C6c - Review (2026-10-08, Sonnet 5.5 high at the user's choice; no code change, no build; exe `40b97943` stays deployed)
+### C6c - Review (2026-10-08, Sonnet 5.5 pass, then redone independently on Opus 5.5 high; no code change, no build; exe `40b97943` stays deployed)
 
 **Verdict: C6c is correct against June. No transcription finding.** Checked in the disassembly (`june2017_re/funcdis.py`, read-only):
 - **`321ee480` consumer** (`@321ee4dd-321ee58e`): entry = 0x18 B {BFI +0, level +4, mods begin/end +8/+0xc}; mod = 0x10 B {kind byte +0, type +4, op +8, value +0xc}. Per entry: `31ef6990` + `326c32a0` (GetBuffFactorPtr) with **no null test**, `32089f60` clone at `[entry+4]`, then the mod loop, then `321f5130` on effect `+0x200` (DamageData) with bClear = 1 **inside the loop**. Port: same order, `PushBuffFactor( ptrClone, true )` per entry (JUNE_BUGS 59, verbatim); the clone is at the entry's level; March's copy ctor deep-copies `BUFF_FACTOR`, so the template is never modified.
@@ -1001,6 +1001,13 @@ RESULT: PASS
 - **`321e3650` / SIEE 15** (`@3202a1aa-3202a1f4`): June skips on handle -1 (`@3202a1a5`), loops `+0x29c` entries (0x10 B), tests byte `+9` (`m_bAlwaysPlayEffectSet`), calls `321e3650( handle, [+0], [+4] )` = (BFI, level). Port: INVALID handle `continue`s before the loop, same test, same args; `GetEffectSetInstance` returns NULL for a stale handle, as the decode does. The old "unsupported" line sits in `#else`, inside the `SOCKET_PARITY` case.
 - **JUNE_BUGS 60 guard (user: guard):** a null `GetBuffFactorPtr` skips the entry, logs once per BFI, `#else` keeps June's unguarded line. One consequence: BFI 0 (which `GetBuffFactorPtr` returns null for silently) is also skipped and logged once; June would crash on it. No change.
 - No June offset is ported (store is a typed `std::vector<BuffFactorListEntry>`).
+- **Opus pass, added checks:**
+  - **`32d418a0`, reused from buff 15-2b:** the first behavior with type == arg and >= 2 values gets value[1] += / *= / = (op 0/1/2), then returns; any other op also returns; a type match with < 2 values moves on to the next behavior. `JuneSetBehaviorValue` does the same.
+  - **`32089f60`** is new 0x70, refcount 0, `320844a0( src data, level )`, then the identity `+0x68/+0x6c` is copied. That is March's `CX2BuffFactor( rhs, uiLevel )` (deep copy plus `m_DataBuffIdentity`).
+  - **`321e3650`:** handle -1 returns. It checks the top 2 bits against the set id `+0x40`, the low word < the slot count, a non-null slot and the stamp word. Then it pushes {BFI, level, empty mod vector}. March's `GetEffectSetInstance` (`DecomposeHandle`, index, stamp) rejects the same handles.
+  - **`321f5130`:** with bClear set, the old factors are erased and `326309f0` (PushSocketAndTemporaryBuffFactor) runs. Then `32d4d670( attacker, -1, -1, 1 )` = March's `SetGameUnitBuffFactor( attacker, iCreatorUID = -1, bIsUserUID = true )` defaults (`ADD_LIVE_CREATOR_FINALIZER` is ON). Then a push. March's extra clone carries the modified data over unchanged.
+  - **Instance lifetime:** March creates every `EffectSetInstance` with `new` (`X2EffectSet.cpp:3238/3338/3445/3517`) and deletes it; nothing pools or resets it, so the list always starts empty.
+  - **Order:** March runs the list after its velocity / IS_RIGHT blocks and before SetLockOn. June runs SetLockOn, the stamps, the list, then `321db1b0` and IS_RIGHT. None of those neighbours reads or writes `m_vecBuffFactorPtr`, and nothing else in `X2EffectSet.cpp` does either, so the order is equivalent.
 
 **Hygiene** (`flagcheck --range 496cd83^..496cd83`):
 ```
