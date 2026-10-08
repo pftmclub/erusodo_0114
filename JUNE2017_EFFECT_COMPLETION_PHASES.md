@@ -2834,7 +2834,7 @@ March keeps the old values in all three cases, which is the behaviour June's sna
 
 ### C9h-5 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the village-NPC effect set is one key in June's `CX2TFieldNpc` rewrite -> Elysion E1 step 6, backlog Stage 18
 
-Read-only in Ghidra. There are 22 funcmap rows tagged `Effect C9h-5`. The 44-block `OnFrameMove` diff is in `june2017_re/c9h5_fieldnpc_onframemove_diff.md`. No C9h-5b: this is not an effect-engine slice.
+Read-only in Ghidra. There are 23 funcmap rows tagged `Effect C9h-5`. The 44-block `OnFrameMove` diff is in `june2017_re/c9h5_fieldnpc_onframemove_diff.md`. No C9h-5b: this is not an effect-engine slice.
 
 **1. The key.**
 - NPC `+0x198` is March's `m_pHouseTemplet`. June's `HouseParsing` (`324f3260`) writes `EVENT_NPC` to templet `+0x1e8` (`@324fbf54`, then the start/wait/active floats in March's order). It writes **`EFFECT_SET_NAME`** to `+0x5e8` (`@324febb4`, `L""` on a miss) through the same templet register.
@@ -2857,6 +2857,11 @@ There is no `GetUnitRotation` branch. The dtor does not touch the raw pointer. T
 
 **4. `OnFrameMove` changed throughout** (44 blocks: 13 June-only, about 25 June-only members). The second skin, `MultiTex`, a motion-name map from 8 `*_MOTION_NAME` keys (June's defaults equal March's literals, plus `Talkloop` / `TalkWait`) and a motion queue are new. So are the quest-conditional messages (`325ca0b0`), `Upgrade/Service/Trade_Talk`, the house 40082 / 40129 branches and `bOnlyClickable`. The talk and bye blocks were moved into `325ccf60` and `325ca2f0`, not yet diffed. The friendship branches are gated on `IsEnableCode( 2215 )` (`@325cec47`).
 - **Corrects C9h-4:** `323bddf0` is `CX2TFieldNpc` reading templet `bOnlyClickable` (`+0x5a1`), not a riding-pet getter. Its funcmap row and the Stage 17 bullet are fixed.
+- **Checked in raw disassembly** (the diff was drafted from the decompile):
+  - The quest button follows only `m_nNewQuestNormal` (`SETG` @325cebcd).
+  - June has no `_Down.dds` talk-mark literal.
+  - The draft's "dead `+0x239`" was wrong. `CX2TFieldGame` `323b5970 @323b72fa` sets it, so block 15 runs and discards its result. The diff file is corrected; 23 rows now, not 22.
+  - March's `EffectSet.lua` is bytecode with plaintext constants, so the grep was valid.
 
 **The 56 June-only `HouseParsing` keys** (use VAs in the funcmap / the diff file):
 - **mesh and render:** `NPCMeshName2nd`, `NPCAniTex2nd`, `AlphaBlend1stMesh`, `AlphaBlend2ndMesh`, `NoEdge2ndMesh`, `OutlineWidthMesh`, `bApplyAlphaTest`, `UseRenderOption`, `UseAlphaBlend`, `MultiTex`, `SrcBlend`, `DestBlend`, `Color`, `EFFECT_SET_NAME`;

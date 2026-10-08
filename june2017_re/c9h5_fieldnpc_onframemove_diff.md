@@ -26,10 +26,10 @@ Conventions. VAs come from a raw capstone pass (`onfm_raw.asm`). Ghidra's listin
     - March excludes only 40021 POSTBOX.
     - June excludes 40021 POSTBOX, **40082 HI_AGIT_BANK**, m_vPos == (0,0,0), !m_bCanTalkNpc, and **40143-40146** (SPA_INNER_NPC_RUBEN/RANOX, ELYSION_RED/BLUE_TREE).
     - Excluded NPCs jump to block 19. A hidden dialog skips to block 20.
-15. **325ce95b-325ce9b9** SERV_EPIC_QUEST completable check. Gated by **+0x239** (June-only bool). Calls `3232fff0` GetCompletableQuest(T+0x214 m_NPCList[0]), then `32505560` destroys the vector. March 490-500. **changed: result discarded, never sets bQuest.** +0x239 is only zeroed by the ctor (325d18f0 word write), so the block is likely dead.
+15. **325ce95b-325ce9b9** SERV_EPIC_QUEST completable check. Gated by **+0x239** (June-only bool). Calls `3232fff0` GetCompletableQuest(T+0x214 m_NPCList[0]), then `32505560` destroys the vector. March 490-500. **changed: result discarded, never sets bQuest.** *(C9h-5 check: the block is live. `CX2TFieldGame` `323b5970 @323b72fa` / `@323b7303` writes +0x239 = 1 / 0 on the NPC (EDI carries +0x5b0) right after its quest-info refresh `325c81a0`, which is outside 325c8000-325d3000. The call runs and its vector is thrown away.)*
 16. **325ce9b9-325ceaec** quest-mark priority: CompNorm(+0x444)->+0x228, CompRep(+0x440)->+0x22c, FairLv(+0x448)->+0x21c, NewRep(+0x430)->+0x220, Do(+0x43c)->+0x224, then Pos(x+60,y+30) and Show(true). March 504-542. **same.**
 17. **325ceaec-325cebb8** event quest: +0x438>0 gives Seq(+0x218) Pos(x-50,y+20) Show. March 544-554. **same.**
-18. **325cebb8-325cec2f** quest button. bQuest = `SETG` (m_nNewQuestNormal +0x434 > 0) **only**. If !`321524d0` GetShow(June 5 / March 5 QUEST_RECEIVE) && dlg && !**+0x5a8**: `32ec84e0` GetShopType(1), `32ecd610` SetShopType(1,b,0,0), `32ec90b0` SetKeyEvent. bQuest is written to **+0x238** (June-only). March 556-588. **changed:**
+18. **325cebb8-325cec2f** quest button. bQuest = `SETG` (m_nNewQuestNormal +0x434 > 0) **only**. If !`321524d0` GetShow(June 5 / March 5 QUEST_RECEIVE) && dlg && !**+0x5a8**: `32ec84e0` GetShopType(1), `32ecd610` SetShopType(1,b,0,0), `32ec90b0` SetKeyEvent. bQuest is written to **+0x238** (June-only). March 556-588. **changed** (C9h-5 confirmed in raw disassembly: `SETG bl` @325cebcd overwrites every earlier bQuest, so this is likely a deliberate June change):
     - completable, quest-mark and event-quest results no longer raise the button;
     - the +0x5a8 gate is new;
     - SetShopType takes 4 args.
@@ -39,7 +39,7 @@ Conventions. VAs come from a raw capstone pass (`onfm_raw.asm`). Ghidra's listin
     - March: none.
 20. **325ceddd-325cf25a** in-area display (March 595-678), **changed**. Branch on m_bInArea && GetShowObject:
     - JoinNpc: hides InArea, quest, event **and +0x230**.
-    - Else, when !`323bddf0` and (!event || canTalk): `323bddf0` = `T+0x5a1`, key `bOnlyClickable`. The mark timer at 0.5/1.0 s picks `One_Use_Up.dds` for 40021/40028/**40082/40145/40146** and `Npc_Talk_UP.dds` otherwise. **All three timer branches use the Up texture; `*_Down.dds` never appears.** Then Show(InArea, canTalk), Show(quest/event, true), and **40147 HI_SPA_PPORU** hides InArea again.
+    - Else, when !`323bddf0` and (!event || canTalk): `323bddf0` = `T+0x5a1`, key `bOnlyClickable`. The mark timer at 0.5/1.0 s picks `One_Use_Up.dds` for 40021/40028/**40082/40145/40146** and `Npc_Talk_UP.dds` otherwise. **All three timer branches use the Up texture; `*_Down.dds` never appears.** (C9h-5 confirmed: June's exe has no `_Down.dds` talk-mark literal anywhere, and each `_Up` literal has one reference: @325cef88 / @325ceff8.) Then Show(InArea, canTalk), Show(quest/event, true), and **40147 HI_SPA_PPORU** hides InArea again.
     - Else branch: shows InArea only if canTalk && !bOnlyClickable.
 21. **325cf25a-325cf2bd** not in area: Seq(+0x214) Show(false). March 679-686. **same.**
 22. **325cf2bd-325cf6b6** joined for more than 1.2 s (March 688-767), **changed**. Gate gains **+0x1a6** (June-only "in conversation" bool: set in 325ccf60, cleared in 325ca2f0).
@@ -98,7 +98,7 @@ Conventions. VAs come from a raw capstone pass (`onfm_raw.asm`). Ghidra's listin
   - `32696fa0`, `321cd500`, `325d1d70`, `32679e10`, `325c9e70` (friendship);
   - `325ca920` motion-queue end; `3214f1b0`/`32150800` agit-bank UI; `323bddf0` bOnlyClickable; `32ee3860`.
 - **JUNE_BUGS candidates:**
-  1. The quest button ignores completable, marked and event quests (block 18). The +0x239 completable check is dead (block 15).
+  1. The quest button ignores completable, marked and event quests (block 18; confirmed, likely deliberate). The +0x239 completable check runs but its result is discarded (block 15; corrected by C9h-5: not dead).
   2. June UIs 9/0xb/0xa run SetHouseName, the bye message and the June message every frame (block 28). Not checked in play.
   3. The talk-mark blink is gone: Up only, the 0.5/1.0 s timer is dead (block 20).
   4. Skin 2 plays Wait01 while skin 1 plays a queued motion (block 37).

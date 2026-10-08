@@ -339,12 +339,20 @@ with the session cost, then commit on mods/elysion-port.
      offline): port the gate and the calls as June has them; the manager
      `32696fa0` and the sequencer `325c9e70` belong to backlog **Stage 18**.
      Whichever lands second wires the calls.
-   - **Behaviour change in March villages** (June wins): the quest button
-     follows only new normal quests, the talk mark no longer blinks (`_Down`
-     never shown), and static NPCs with a `TalkWait` anim play it while
-     joined. Add JUNE_BUGS rows for the five candidates the diff file lists,
-     plus the effect instance's raw `+0xe0` pointer if the queued stop lets it
-     read a freed NPC.
+   - **Behaviour change in March villages** (June wins).
+     - The quest button follows only new normal quests: `SETG` @325cebcd,
+       confirmed in raw disassembly.
+     - The talk mark no longer blinks: June has no `_Down.dds` literal
+       (confirmed).
+     - Static NPCs with a `TalkWait` anim play it while joined (per the diff;
+       confirm in Ghidra).
+     - The `+0x239` completable-quest call is live and its result is
+       discarded. `+0x239` is set by `CX2TFieldGame` `323b5970 @323b72fa`,
+       which belongs in E1 too.
+
+     Add JUNE_BUGS rows for the diff file's candidates. Add one more for the
+     effect instance's raw `+0xe0` pointer if the queued stop lets it read a
+     freed NPC.
    - **Assets (E2 / E13):** `EffectSet_Elysion_NPC_Ver_ring`, `_Dyurenda_AC`,
      `_Teo_ring` (June `EffectSet.lua` and `UIEffectSet.lua`) and their
      `NPC_Elysion_*` particles; the three houses are `HI_BERNARD`,
@@ -352,7 +360,10 @@ with the session cost, then commit on mods/elysion-port.
 
 **Done when:** census reports no unread key/binding owned by E1; build rc=0,
 new literals in the exe; existing villages unchanged (their files carry none
-of these keys — confirm with the census).
+of these keys — confirm with the census), **except** step 6's June behaviour
+changes, which come from code, not keys: each one is listed in the Done note
+and confirmed in the play-test, never reverted to March's *(amended by
+june-effect C9h-5, 2026-10-08)*.
 
 **Run with:** Opus 5.5, high effort. Required review.
 
