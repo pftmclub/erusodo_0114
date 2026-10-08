@@ -300,6 +300,42 @@ from June in X5. If March then fails to use one, that is an engine phase, not an
 4. **Done gate:** a re-run of the size census shows 0 June files short of the manifest, and the repack list is in the Done note or a
    `.tsv`.
 
+### Phase X2 - Done
+
+2026-10-08, Sonnet 5.5. Data only: no flag, no build, no deploy. Nothing was written to a `.kom` or the game dir.
+
+1. **Work list** (`junekom.py verify --compare`, 1,194 s): 258 koms, 222,811 entries ok, 0 failed; vs June's extracts
+   18,571 short-prefix + 117 different + 1,143 missing, exactly X1's numbers.
+2. **Exact copies** (`extract --all --overwrite --backup`, 856 s): `EXTRACT OK: new 1143, replaced 18688 (=18571+117), identical 202980,
+   refused 0, failed 0`. Originals of the 18,688 replaced files are in `14JUN17\data\_extract_backup\dataNNN_kom\`.
+3. **March copies** (`x2_repack_list.tsv`, 281 rows, 16 koms; columns name / March kom / June kom / class / March size / June size / note).
+   Compared every `march2014/update/` and `kom_contents/` file with a June name against June's now-exact tree. Rows are keyed by
+   (name, March kom); the March kom number always equals June's, no name sits in two March koms, none is over 59 characters.
+   - **277 short-prefix** (March is a strict prefix of June's file): 14 dds, 130 tga, 111 x, 22 y. 49 of them are `update/` files;
+     data014 holds 182. One update file is not in X1's 51: `BossRaid_Abyss_Smog.dds` 87507 vs 87508 (why X1 missed it was not
+     investigated; the other 228 never came through `update/`).
+   - **2 hand-patched:** `Motion_NPC_Ranox_FACEOFF.x`, `_SYOTA.x` (data013), in `update/` and staged.
+   - **2 different-version:** `DLG_Common_Button03_NEW.TET` is not truncated; March has 26 entries and 26 names, June 28, and every
+     March name is in June (June adds `ERDA_ISLAND_NORMAL`, `ERDA_ISLAND_OVER`), so the key check passes. `DLG_Common_Button03_NEW.tga`
+     is the same size and header with 59,325 pixel bytes different (it is not in X1's 51). Neither needs a user decision.
+   - 4 `*_Sorted.X` meshes (Lire/Ara cash gear, 2-23 B short of June) are March-native versions, not short copies; they stay out.
+   - **Cross-check:** `kom.py stage-june x2_repack_list.tsv --dry-run` (X3) = 16 koms, 281 replaced, 0 new, 0 refused.
+4. **Not on the list, decided by me, shown for the record:** `june2017_re/x2_march_native_diff.tsv` has 4,397 non-lua files that are
+   in `kom_contents/` under a June name but differ from June in content (1549 tga, 989 dds, 847 x, 622 y, 219 xet, 112 tet, 34 txt,
+   25 ogg, ...). None is in `update/`, so none was ever ported from June: they are March's own versions. X5 does not restage them.
+   If the user wants June's copy wholesale for any of them (the "June asset wins" memory), that is a separate scoped phase. Also
+   excluded: 4,872 `.lua` differences (different compile) and 213 `_manifest.json` name coincidences.
+5. **Closure doc.** `JUNE2017_ASSET_CLOSURE.md` is generated; its "Extractor defect" section was rewritten in `june2017_re/assets.py`
+   (fixed by `junekom.py`, TET different-version, Ranox hand-patched, repack list named) and regenerated. Verdicts now: same 3,535
+   (was 3,159), differs 76 (59), unverified 2 (1), june-only missing 3,620 (3,622), march-only 4, nowhere 156; **same-prefix 364,
+   truncated-in-march 15 and update-only 12 are gone** (the 15 plus the update copies show as `differs`, with a note, and are all on
+   the repack list). The 2 unverified are `Blur_16.dds` and `Velder_Gate_Stage2_Wall_BlueTile01.dds`: no March copy at manifest size.
+
+**Gate.** `verify --compare` re-run (997 s): `same 222811`, 0 short-prefix, 0 different, 0 missing; `VERIFY OK: 258 koms, 222811 entries ok,
+0 failed, 0 header problems`. Files: `.build/junekom/x2_before*.tsv`, `x2_after*.tsv` (not committed).
+
+**For X5:** the plan text says "49 live short copies"; the real count is 281 in 16 koms (kickoff updated). Owes the user: `/cost`.
+
 ## Phase X3 - Packing helper
 
 **Scope.** Tooling.

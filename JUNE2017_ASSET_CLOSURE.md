@@ -10,7 +10,7 @@ the list for the user, who packs.
   executing the converted bytecode (route (b), see Phase 10b in the plan), so the code-built
   `Get*` templets are included. Plus `DamageSound.lua` and `Elsword_DamageData.lua`.
 - Templets reached: 45385 effect sets / damage effects / particle / mesh-player templets.
-- File nodes: 7392 (mesh 3535, other 7, sound 652, tex 3058, xet 140).
+- File nodes: 7393 (mesh 3535, other 7, sound 652, tex 3059, xet 140).
 - Meshes (`.x`/`.y`: DirectX `xof` txt/bin/bzip, and KOG `KSM`/`KME`) and `.xet` files were opened
   and the texture names they embed followed. 0 file(s) could not be parsed (listed below).
 - Completeness gate: 0 string value(s) met on the way were neither an edge nor a known
@@ -20,15 +20,12 @@ the list for the user, who packs.
 
 | where | verdict | files |
 |---|---|---|
-| june-only | missing | 3622 |
-| march-live | differs | 59 |
+| june-only | missing | 3620 |
+| march-live | differs | 76 |
 | march-live | march-only | 4 |
-| march-live | same | 3159 |
-| march-live | same-prefix | 364 |
-| march-live | truncated-in-march | 15 |
-| march-live | unverified | 1 |
+| march-live | same | 3535 |
+| march-live | unverified | 2 |
 | nowhere | nowhere | 156 |
-| update-only | pending-pack | 12 |
 
 Meaning:
 
@@ -47,9 +44,9 @@ Meaning:
 - **nowhere**: referenced by June's data but present in neither build: June's own dangling asset.
 - **march-live / march-only**: March has it, June's archives do not (June's data still names it).
 
-## Differs: March ships a different file under the same name (59)
+## Differs: March ships a different file under the same name (76)
 
-Atlases first. `June copies` marks `/shortN` where elstools extracted June's file N bytes short. **Shared atlases: 0** of the closure's textures have a `.tet` partner in either build (March ships 1309 `.tet` files); the effect data references none of their textures, so no swap in this list moves an atlas swatch. `March effect-templet users` counts March particle / mesh-player templets naming the file, plus the meshes those templets use that embed it. It is a **lower bound** on the blast radius, not the whole of it: character, map and UI meshes that embed the same texture, and non-effect scripts, are not counted, so 0 does not mean safe to swap.
+Atlases first. `June copies` marks `/shortN` where elstools extracted June's file N bytes short. **Shared atlases: 0** of the closure's textures have a `.tet` partner in either build (March ships 1319 `.tet` files); the effect data references none of their textures, so no swap in this list moves an atlas swatch. `March effect-templet users` counts March particle / mesh-player templets naming the file, plus the meshes those templets use that embed it. It is a **lower bound** on the blast radius, not the whole of it: character, map and UI meshes that embed the same texture, and non-effect scripts, are not counted, so 0 does not mean safe to swap.
 
 | kind | file | atlas | March effect-templet users | evidence | June copies | March live | update/ | notes |
 |---|---|---|---|---|---|---|---|---|
@@ -57,14 +54,20 @@ Atlases first. `June copies` marks `/shortN` where elstools extracted June's fil
 | mesh | AVP_SUMMON_BAT_MESH_EFFECT.X |  | 7 | size 15265 vs 9177 | data011/15265 | data011/9177 |  |  |
 | mesh | CHUNG_Cannon_Effect02.X |  | 23 | size 2577 vs 2576 | data117/2577 | data117/2576 |  |  |
 | mesh | DummyAttackBox_100x50x50_tall2.x |  | 5 | size 2897 vs 895 | data132/2897 | data132/895 |  |  |
+| mesh | Ejection_Buster_Oura5.Y |  | 3 | size 2370 vs 2369 | data142/2370 | data142/2369 | data142/2369 | update/data142 copy is 1 bytes short of June |
 | mesh | elsword_active_panThomSword_sword.X |  | 3 | size 8581 vs 8635 | data118/8581 | data118/8635 |  |  |
-| mesh | Elsword_SI_SA_Sonic_Blade_Mesh01.X |  | 7 | size 5421 vs 4912 | data118/5421 | data118/4912 |  |  |
+| mesh | Elsword_SI_SA_Sonic_Blade_Mesh01.X |  | 8 | size 5421 vs 4912 | data118/5421 | data118/4912 |  |  |
 | mesh | Elsword_SisKnight_sword_base.X |  | 2 | size 8365 vs 4734 | data118/8365 | data118/4734 |  |  |
 | mesh | Ent_AttackRisingTree.X |  | 4 | size 14735 vs 6977 | data002/14735 | data002/6977 |  |  |
-| mesh | Eve_DashAttackZ_Blade01.X |  | 1 | size 15380 vs 8391 | data002/15380/short1 | data002/8391 |  |  |
+| mesh | Eve_DashAttackZ_Blade01.X |  | 1 | size 15380 vs 8391 | data002/15380 | data002/8391 |  |  |
 | mesh | event_Benders_El.X |  | 2 | size 4080 vs 2913 | data005/4080 | data005/2913 |  |  |
+| mesh | FIRE_DEVIL_SKA_SAB_EF_Ready.X |  | 1 | size 436041 vs 436039 | data002/436041 | data002/436039 | data002/436039 | update/data002 copy is 2 bytes short of June |
+| mesh | FIRE_DEVIL_SKA_SAB_Wavelength_A.X |  | 2 | size 6811 vs 6810 | data002/6811 | data002/6810 | data002/6810 | update/data002 copy is 1 bytes short of June |
 | mesh | FireBall01_GhostMagician.X |  | 9 | size 9337 vs 4641 | data002/9337 | data002/4641 |  |  |
+| mesh | FireImpactG04.Y |  | 1 | size 1012 vs 1009 | data002/1012 | data002/1009 | data002/1009 | update/data002 copy is 3 bytes short of June |
 | mesh | GuardianStrike01.X |  | 1 | size 4034 vs 5444 | data048/4034 | data048/5444 |  |  |
+| mesh | IPLITAN_AttackA_Fire2_M.X |  | 1 | size 4185 vs 4183 | data002/4185 | data002/4183 | data002/4183 | update/data002 copy is 2 bytes short of June |
+| mesh | IPLITAN_FireM03.Y |  | 1 | size 3163 vs 3161 | data002/3163 | data002/3161 | data002/3161 | update/data002 copy is 2 bytes short of June |
 | mesh | Karoo_Attack_A_First_Nal.x |  | 1 | size 2494 vs 1541 | data136/2494 | data136/1541 |  |  |
 | mesh | Karoo_Attack_A_Force_Nal.x |  | 1 | size 3104 vs 2091 | data136/3104 | data136/2091 |  |  |
 | mesh | Karoo_Attack_A_Second_Nal.x |  | 1 | size 2527 vs 1619 | data136/2527 | data136/1619 |  |  |
@@ -81,10 +84,13 @@ Atlases first. `June copies` marks `/shortN` where elstools extracted June's fil
 | mesh | Karoo_Special_Attack_A_Tornado04.x |  | 1 | size 14562 vs 10265 | data136/14562 | data136/10265 |  |  |
 | mesh | Karoo_Special_Attack_A_Tornado05.x |  | 1 | size 24606 vs 15974 | data136/24606 | data136/15974 |  |  |
 | mesh | Karoo_Special_Attack_A_Tornado_Loop_M01_RE.x |  | 3 | size 175945 vs 77770 | data136/175945 | data136/77770 |  |  |
+| mesh | MAG_STONE_Fire_AttackB.X |  | 3 | size 157829 vs 157828 | data002/157829 | data002/157828 | data002/157828 | update/data002 copy is 1 bytes short of June |
+| mesh | MAG_STONE_Fire_Dummy01.X |  | 1 | size 482 vs 481 | data002/482 | data002/481 | data002/481 | update/data002 copy is 1 bytes short of June |
 | mesh | Motion_Elder_Secret_Boss_Stone.x |  | 6 | size 36175 vs 25533 | data006/36175 | data006/25533 |  |  |
 | mesh | NEPHILIM_DashAttackA_01.X |  | 2 | size 33143 vs 17025 | data100/33143 | data100/17025 |  |  |
 | mesh | NUI_BLOODY_GLITER_BOMB_Bomb_Effect.X |  | 4 | size 7233 vs 4409 | data100/7233 | data100/4409 |  |  |
 | mesh | P_RNW_SEED_OF_RUIN_OBJ.X |  | 3 | size 4910 vs 3097 | data121/4910 | data121/3097 |  |  |
+| mesh | RAGE_DRYADKENTA_Tail.Y |  | 1 | size 3891 vs 3889 | data002/3891 | data002/3889 | data002/3889 | update/data002 copy is 2 bytes short of June |
 | mesh | Raven_SI_SA_ROT_VKJ_Spear_Mesh01.X |  | 1 | size 10063 vs 11173 | data120/10063 | data120/11173 |  |  |
 | mesh | Riding_Bbori_AttackX_AttackBox.X |  | 2 | size 3986 vs 949 | data140/3986 | data140/949 |  |  |
 | mesh | Riding_Mobi_Misail.x |  | 4 | size 10762 vs 5602 | data140/10762 | data140/5602 |  |  |
@@ -94,53 +100,45 @@ Atlases first. `June copies` marks `/shortN` where elstools extracted June's fil
 | mesh | SA_ARA_TEMPEST_DANCE_BLADE_KNOT.X |  | 2 | size 3482 vs 2304 | data132/3482 | data132/2304 |  |  |
 | mesh | SD_pa_source.X |  | 6 | size 2302 vs 2027 | data125/2302 | data125/2027 |  |  |
 | mesh | SI_A_LSR_ENTANGLE_Effect_Seed.X |  | 6 | size 58716 vs 61405 | data121/58716 | data121/61405 |  |  |
+| mesh | SMITH_RUNNER_Attack_Mesh02.X |  | 1 | size 3995 vs 3993 | data002/3995 | data002/3993 | data002/3993 | update/data002 copy is 2 bytes short of June |
+| mesh | SMITH_STAIN_Weapon_M01.X |  | 1 | size 10943 vs 10942 | data002/10943 | data002/10942 | data002/10942 | update/data002 copy is 1 bytes short of June |
+| mesh | Trace_CycleDummy01.X |  | 1 | size 1202 vs 1201 | data002/1202 | data002/1201 | data002/1201 | update/data002 copy is 1 bytes short of June |
 | mesh | VP_ComboZ3_Effect.X |  | 1 | size 7828 vs 8949 | data116/7828 | data116/8949 |  |  |
 | mesh | Wally8th_JumpAttack.x |  | 2 | size 4325 vs 2114 | data006/4325 | data006/2114 |  |  |
 | tex | ADD_NAJANG_002.tga |  | 0 | size 3622 vs 12332 | data147/3622 | data147/12332 |  |  |
 | tex | AN_Formation_TRACE.tga |  | 3 | sha1 | data147/812 | data147/812 |  |  |
-| tex | ColorBallRed2.dds |  | 12 | size 1152 vs 4224 | data048/1152 | data048/4224 |  |  |
-| tex | EL_FIRE_06.dds |  | 6 | prefix | data142/16512/short24 | data142/16512 |  |  |
+| tex | CHUNG_GIGANTIC_IMPACT_Bottom_Broken_SP.dds |  | 1 | size 22000 vs 21996 | data002/22000 | data002/21996 | data002/21996 | update/data002 copy is 4 bytes short of June |
+| tex | ColorBallRed2.dds |  | 14 | size 1152 vs 4224 | data048/1152 | data048/4224 |  |  |
+| tex | EL_FIRE_06.dds |  | 6 | sha1 | data142/16512 | data142/16512 |  |  |
 | tex | EL_FIRE_BALL.dds |  | 1 | sha1 | data142/16512 | data142/16512 |  |  |
+| tex | FIRE_DEVIL_BERSERKER_INCHANT_AttackA_Ready_Fire.dds |  | 2 | size 4224 vs 4223 | data002/4224 | data002/4223 | data002/4223 | update/data002 copy is 1 bytes short of June |
 | tex | GlowBall_G.tga |  | 3 | size 4646 vs 4140 | data002/4646 | data002/4140 |  |  |
 | tex | Gungnir01.tga |  | 1 | size 49196 vs 66086 | data121/49196 | data121/66086 |  |  |
 | tex | HoldCircle.dds |  | 1 | sha1 | data048/65664 | data048/65664 |  |  |
-| tex | LobbyLevelUp02.tga |  | 0 | size 65580 vs 262694 | data002/65580 | data002/262694 |  |  |
+| tex | LobbyLevelUp02.tga |  | 3 | size 65580 vs 262694 | data002/65580 | data002/262694 |  |  |
+| tex | Magi_P01.dds |  | 1 | size 16512 vs 16504 | data002/16512 | data002/16504 | data002/16504 | update/data002 copy is 8 bytes short of June |
 | tex | Mesh_ADD_Basic_Weapon.tga |  | 1 | sha1 | data148/49702 | data148/49702 |  |  |
 | tex | Mesh_Ara_Cash_Face.tga |  | 1 | sha1 | data131/49196 | data131/49196 |  |  |
-| tex | Music_Note01.dds |  | 4 | sha1 | data116/2176 | data116/2176 |  |  |
+| tex | Music_Note01.dds |  | 7 | sha1 | data116/2176 | data116/2176 |  |  |
 | tex | NUI_Karis_Map01.tga |  | 1 | size 49196 vs 66086 | data136/49196 | data136/66086 |  |  |
 | tex | NUI_Karis_Map06.tga |  | 1 | size 49196 vs 66086 | data136/49196 | data136/66086 |  |  |
 | tex | PPORU_WILLIAM_SANTA.tga |  | 0 | sha1 | data012/66086 | data012/66086 |  |  |
 | tex | SA_ARA_TEMPEST_DANCE_BLADE_DEST.dds |  | 1 | size 32896 vs 43832 | data132/32896 | data132/43832 |  |  |
+| tex | SKA_flame7.dds |  | 3 | size 87536 vs 87534 | data002/87536 | data002/87534 | data002/87534 | update/data002 copy is 2 bytes short of June |
+| tex | SKA_Lion_Impact01.dds |  | 1 | size 32896 vs 32831 | data002/32896 | data002/32831 | data002/32831 | update/data002 copy is 65 bytes short of June |
 
-## Truncated in March: live copy is a broken port of June's file (15)
+## Truncated in March: live copy is a broken port of June's file (0)
 
-| kind | file | atlas | March effect-templet users | evidence | June copies | March live | update/ | notes |
-|---|---|---|---|---|---|---|---|---|
-| mesh | Ejection_Buster_Oura5.Y |  | 3 | March copy == elstools-truncated June extraction | data142/2370/short1 | data142/2369 | data142/2369 | update/data142 copy is 1 bytes short of June |
-| mesh | FIRE_DEVIL_SKA_SAB_EF_Ready.X |  | 1 | March copy == elstools-truncated June extraction | data002/436041/short2 | data002/436039 | data002/436039 | update/data002 copy is 2 bytes short of June |
-| mesh | FIRE_DEVIL_SKA_SAB_Wavelength_A.X |  | 2 | March copy == elstools-truncated June extraction | data002/6811/short1 | data002/6810 | data002/6810 | update/data002 copy is 1 bytes short of June |
-| mesh | FireImpactG04.Y |  | 1 | March copy == elstools-truncated June extraction | data002/1012/short3 | data002/1009 | data002/1009 | update/data002 copy is 3 bytes short of June |
-| mesh | IPLITAN_AttackA_Fire2_M.X |  | 1 | March copy == elstools-truncated June extraction | data002/4185/short2 | data002/4183 | data002/4183 | update/data002 copy is 2 bytes short of June |
-| mesh | IPLITAN_FireM03.Y |  | 1 | March copy == elstools-truncated June extraction | data002/3163/short2 | data002/3161 | data002/3161 | update/data002 copy is 2 bytes short of June |
-| mesh | MAG_STONE_Fire_Dummy01.X |  | 1 | March copy == elstools-truncated June extraction | data002/482/short1 | data002/481 | data002/481 | update/data002 copy is 1 bytes short of June |
-| mesh | RAGE_DRYADKENTA_Tail.Y |  | 1 | March copy == elstools-truncated June extraction | data002/3891/short2 | data002/3889 | data002/3889 | update/data002 copy is 2 bytes short of June |
-| mesh | SMITH_RUNNER_Attack_Mesh02.X |  | 1 | March copy == elstools-truncated June extraction | data002/3995/short2 | data002/3993 | data002/3993 | update/data002 copy is 2 bytes short of June |
-| mesh | SMITH_STAIN_Weapon_M01.X |  | 1 | March copy == elstools-truncated June extraction | data002/10943/short1 | data002/10942 | data002/10942 | update/data002 copy is 1 bytes short of June |
-| mesh | Trace_CycleDummy01.X |  | 1 | March copy == elstools-truncated June extraction | data002/1202/short1 | data002/1201 | data002/1201 | update/data002 copy is 1 bytes short of June |
-| tex | CHUNG_GIGANTIC_IMPACT_Bottom_Broken_SP.dds |  | 1 | March copy == elstools-truncated June extraction | data002/22000/short4 | data002/21996 | data002/21996 | update/data002 copy is 4 bytes short of June |
-| tex | Magi_P01.dds |  | 1 | March copy == elstools-truncated June extraction | data002/16512/short8 | data002/16504 | data002/16504 | update/data002 copy is 8 bytes short of June |
-| tex | SKA_flame7.dds |  | 2 | March copy == elstools-truncated June extraction | data002/87536/short2 | data002/87534 | data002/87534 | update/data002 copy is 2 bytes short of June |
-| tex | SKA_Lion_Impact01.dds |  | 1 | March copy == elstools-truncated June extraction | data002/32896/short65 | data002/32831 | data002/32831 | update/data002 copy is 65 bytes short of June |
+None.
 
-## June-only: needed for adoption, March has no copy (3622)
+## June-only: needed for adoption, March has no copy (3620)
 
 The user packs these (lua as algo 2, everything else algo 0, as the March client reads them). Rows whose evidence reads *extracted copy is short* have no byte-exact extraction: the copy lacks its last N bytes (`/shortN`). The user reports such copies work in the March client, and the lost tail is usually not content (see *Extractor defect*), but they are not byte-identical to June.
 
 | kind | file | atlas | March effect-templet users | evidence | June copies | March live | update/ | notes |
 |---|---|---|---|---|---|---|---|---|
-| mesh | 2015xmas_Box_End.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/10342/short2 |  |  |  |
-| mesh | 2015xmas_Box_Ready.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/11388/short3 |  |  |  |
+| mesh | 2015xmas_Box_End.x |  | 1 | exact copy available | data002/10342 |  |  |  |
+| mesh | 2015xmas_Box_Ready.x |  | 1 | exact copy available | data002/11388 |  |  |  |
 | mesh | 2016Halloween_Wing.x |  | 0 | exact copy available | data002/85872 |  |  |  |
 | mesh | A_LLD_CHAINS_OF_BONDAGE_RESTRICTION.x |  | 0 | exact copy available | data157/65609 |  |  |  |
 | mesh | AA_FIRE_FOX_Hand_M01.X |  | 0 | exact copy available | data132/9167 |  |  |  |
@@ -166,12 +164,12 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | AAH_A_FantasiEgebilde_Speer_Spear.x |  | 0 | exact copy available | data212/7363 |  |  |  |
 | mesh | AAP_COMMAND_ZZZZZ_SLASH.x |  | 0 | exact copy available | data212/4774 |  |  |  |
 | mesh | AAP_Dash_Jump_Combo_ZZZX_SPHERE.y |  | 0 | exact copy available | data212/16799 |  |  |  |
-| mesh | AAP_Dash_Jump_Combo_ZZZX_SPHERE_02.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/16798/short1 |  |  |  |
+| mesh | AAP_Dash_Jump_Combo_ZZZX_SPHERE_02.y |  | 0 | exact copy available | data212/16798 |  |  |  |
 | mesh | AAP_ENDE_DER_WELT_SCYTHE_EFFECT.Y |  | 0 | exact copy available | data212/16642 |  |  |  |
 | mesh | AAP_ENDE_DER_WELT_SCYTHE_TRACE.y |  | 0 | exact copy available | data212/1455 |  |  |  |
 | mesh | AAP_ENDE_DER_WELT_SCYTHE_TRACE_01.y |  | 0 | exact copy available | data212/1453 |  |  |  |
 | mesh | AAP_ENDE_DER_WELT_SCYTHE_TRACE_02.y |  | 0 | exact copy available | data212/1884 |  |  |  |
-| mesh | AAP_FESSELN_LINK.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/16649/short1 |  |  |  |
+| mesh | AAP_FESSELN_LINK.x |  | 0 | exact copy available | data212/16649 |  |  |  |
 | mesh | AAP_FESSELN_PROJECTILE.y |  | 0 | exact copy available | data212/975 |  |  |  |
 | mesh | AAP_GOTTVERGESSEN_SENSE_SCYTHE.X |  | 0 | exact copy available | data212/16234 |  |  |  |
 | mesh | AAS_NINE_TAILED_FOX.X |  | 0 | exact copy available | data132/400744 |  |  |  |
@@ -179,44 +177,44 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | AAS_NINE_TAILED_FOX_DUMMY01.X |  | 0 | exact copy available | data132/10502 |  |  |  |
 | mesh | AAS_NINE_TAILED_FOX_P01.Y |  | 0 | exact copy available | data132/2410 |  |  |  |
 | mesh | AAS_NINE_TAILED_FOX_THUNDER01.X |  | 0 | exact copy available | data132/19141 |  |  |  |
-| mesh | Aat_PanzerBusterFiremMemo01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/32481/short1 |  |  |  |
+| mesh | Aat_PanzerBusterFiremMemo01.X |  | 0 | exact copy available | data147/32481 |  |  |  |
 | mesh | ABH_CIRCUIT_M01.y |  | 0 | exact copy available | data212/1991 |  |  |  |
-| mesh | ABH_CIRCUIT_M02.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/2218/short1 |  |  |  |
+| mesh | ABH_CIRCUIT_M02.y |  | 0 | exact copy available | data212/2218 |  |  |  |
 | mesh | ABH_CIRCUIT_M03.y |  | 0 | exact copy available | data212/2215 |  |  |  |
-| mesh | ABH_CIRCUIT_M06.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/2676/short3 |  |  |  |
+| mesh | ABH_CIRCUIT_M06.y |  | 0 | exact copy available | data212/2676 |  |  |  |
 | mesh | ABH_CIRCUIT_M07.y |  | 0 | exact copy available | data212/8918 |  |  |  |
-| mesh | ABH_RUNE_M02.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/3124/short1 |  |  |  |
-| mesh | ABH_RUNE_M03.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1731/short2 |  |  |  |
-| mesh | ABH_RUNE_M04.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/723/short2 |  |  |  |
+| mesh | ABH_RUNE_M02.Y |  | 0 | exact copy available | data212/3124 |  |  |  |
+| mesh | ABH_RUNE_M03.y |  | 0 | exact copy available | data212/1731 |  |  |  |
+| mesh | ABH_RUNE_M04.y |  | 0 | exact copy available | data212/723 |  |  |  |
 | mesh | ABH_TRIANGLE_M01.y |  | 0 | exact copy available | data212/1246 |  |  |  |
 | mesh | ABOX_150x50x50_Center.X |  | 0 | exact copy available | data002/982 |  |  |  |
 | mesh | ABOX_350x50x50_Center.x |  | 0 | exact copy available | data002/1178 |  |  |  |
 | mesh | ABOX_50x50x50.x |  | 0 | exact copy available | data002/953 |  |  |  |
 | mesh | ABOX_ASD_Continuity_Strikr_Explosion.X |  | 0 | exact copy available | data002/1437 |  |  |  |
 | mesh | ABOX_DAMAGE_OBJECT.X |  | 0 | exact copy available | data002/3631 |  |  |  |
-| mesh | ABOX_RCR_Dancing_Rush.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1090/short1 |  |  |  |
+| mesh | ABOX_RCR_Dancing_Rush.x |  | 0 | exact copy available | data002/1090 |  |  |  |
 | mesh | AC_Bentoos_Yousei.X |  | 0 | exact copy available | data002/112525 |  |  |  |
-| mesh | AC_CorpseBride_butterfly.X |  | 0 | exact copy available | data002/2720 |  |  |  |
-| mesh | AC_CorpseBride_T2.Y |  | 0 | exact copy available | data002/584 |  |  |  |
-| mesh | AC_CorpseBride_T3.Y |  | 0 | exact copy available | data002/584 |  |  |  |
-| mesh | AC_EL_Lowbody_Event28_P01.Y |  | 0 | exact copy available | data002/1422 |  |  |  |
-| mesh | AC_EL_Lowbody_Event28_P02.Y |  | 0 | exact copy available | data002/1432 |  |  |  |
-| mesh | AC_EL_Lowbody_Event28_P03.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/602/short1 |  |  |  |
-| mesh | AC_EL_Lowbody_Event28_P04.X |  | 0 | exact copy available | data002/9694 |  |  |  |
-| mesh | AC_EL_Lowbody_Event28_P05.X |  | 0 | exact copy available | data002/6807 |  |  |  |
-| mesh | AC_Lowbody_BlueSplash01.y |  | 0 | exact copy available | data002/1727 |  |  |  |
-| mesh | AC_Lowbody_BlueSplash01_2p.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1730/short1 |  |  |  |
-| mesh | AC_Lowbody_BlueSplash02.y |  | 0 | exact copy available | data002/1727 |  |  |  |
-| mesh | AC_Lowbody_BlueSplash02_2p.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1730/short1 |  |  |  |
-| mesh | AC_Lowbody_BlueSplash03.y |  | 0 | exact copy available | data002/1727 |  |  |  |
-| mesh | AC_Lowbody_BlueSplash03_2p.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1730/short1 |  |  |  |
-| mesh | AC_Lowbody_Set7_Shake.x |  | 0 | exact copy available | data002/7901 |  |  |  |
-| mesh | AC_StarSquare_01.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1788/short3 |  |  |  |
-| mesh | AC_StarSquare_02.y |  | 0 | exact copy available | data002/2149 |  |  |  |
-| mesh | AC_StarSquare_03.y |  | 0 | exact copy available | data002/1783 |  |  |  |
-| mesh | AC_StarSquare_04.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3099/short2 |  |  |  |
-| mesh | AC_StarSquare_MagicCircle_01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/890/short1 |  |  |  |
-| mesh | AC_Upbody_Event37_P1.y |  | 0 | exact copy available | data002/2936 |  |  |  |
+| mesh | AC_CorpseBride_butterfly.X |  | 2 | exact copy available | data002/2720 |  |  |  |
+| mesh | AC_CorpseBride_T2.Y |  | 3 | exact copy available | data002/584 |  |  |  |
+| mesh | AC_CorpseBride_T3.Y |  | 2 | exact copy available | data002/584 |  |  |  |
+| mesh | AC_EL_Lowbody_Event28_P01.Y |  | 13 | exact copy available | data002/1422 |  |  |  |
+| mesh | AC_EL_Lowbody_Event28_P02.Y |  | 15 | exact copy available | data002/1432 |  |  |  |
+| mesh | AC_EL_Lowbody_Event28_P03.Y |  | 12 | exact copy available | data002/602 |  |  |  |
+| mesh | AC_EL_Lowbody_Event28_P04.X |  | 11 | exact copy available | data002/9694 |  |  |  |
+| mesh | AC_EL_Lowbody_Event28_P05.X |  | 11 | exact copy available | data002/6807 |  |  |  |
+| mesh | AC_Lowbody_BlueSplash01.y |  | 1 | exact copy available | data002/1727 |  |  |  |
+| mesh | AC_Lowbody_BlueSplash01_2p.y |  | 1 | exact copy available | data002/1730 |  |  |  |
+| mesh | AC_Lowbody_BlueSplash02.y |  | 3 | exact copy available | data002/1727 |  |  |  |
+| mesh | AC_Lowbody_BlueSplash02_2p.y |  | 2 | exact copy available | data002/1730 |  |  |  |
+| mesh | AC_Lowbody_BlueSplash03.y |  | 1 | exact copy available | data002/1727 |  |  |  |
+| mesh | AC_Lowbody_BlueSplash03_2p.y |  | 1 | exact copy available | data002/1730 |  |  |  |
+| mesh | AC_Lowbody_Set7_Shake.x |  | 2 | exact copy available | data002/7901 |  |  |  |
+| mesh | AC_StarSquare_01.y |  | 1 | exact copy available | data002/1788 |  |  |  |
+| mesh | AC_StarSquare_02.y |  | 1 | exact copy available | data002/2149 |  |  |  |
+| mesh | AC_StarSquare_03.y |  | 1 | exact copy available | data002/1783 |  |  |  |
+| mesh | AC_StarSquare_04.y |  | 1 | exact copy available | data002/3099 |  |  |  |
+| mesh | AC_StarSquare_MagicCircle_01.Y |  | 1 | exact copy available | data002/890 |  |  |  |
+| mesh | AC_Upbody_Event37_P1.y |  | 2 | exact copy available | data002/2936 |  |  |  |
 | mesh | ADB_CIRCUIT_01.y |  | 0 | exact copy available | data147/2061 |  |  |  |
 | mesh | ADB_CIRCUIT_02.y |  | 0 | exact copy available | data147/1421 |  |  |  |
 | mesh | ADD_Apo_Attack_B_Mesh01.X |  | 0 | exact copy available | data147/48127 |  |  |  |
@@ -224,55 +222,55 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | ADD_Apocalypes_Display02.Y |  | 0 | exact copy available | data147/592 |  |  |  |
 | mesh | ADD_Apocalypes_Display03.Y |  | 0 | exact copy available | data147/599 |  |  |  |
 | mesh | ADD_Apocalypes_Display04.Y |  | 0 | exact copy available | data147/592 |  |  |  |
-| mesh | ADD_Apocalypes_Display05.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/594/short1 |  |  |  |
+| mesh | ADD_Apocalypes_Display05.Y |  | 0 | exact copy available | data147/594 |  |  |  |
 | mesh | ADD_Apocalypes_Display06.Y |  | 0 | exact copy available | data147/597 |  |  |  |
 | mesh | ADD_Apocalypes_Dummy01.X |  | 0 | exact copy available | data147/9118 |  |  |  |
-| mesh | ADD_APOCALYPSE_Cube001.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/882/short1 |  |  |  |
-| mesh | ADD_APOCALYPSE_Cube002.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/954/short1 |  |  |  |
+| mesh | ADD_APOCALYPSE_Cube001.Y |  | 0 | exact copy available | data147/882 |  |  |  |
+| mesh | ADD_APOCALYPSE_Cube002.Y |  | 0 | exact copy available | data147/954 |  |  |  |
 | mesh | ADD_APOCALYPSE_Cube003.Y |  | 0 | exact copy available | data147/1016 |  |  |  |
 | mesh | ADD_AT_Win_Dummy01.X |  | 0 | exact copy available | data147/13549 |  |  |  |
 | mesh | ADD_Countdown_Bomb_Mesh_01.X |  | 0 | exact copy available | data147/4320 |  |  |  |
-| mesh | ADD_Cube_Map01_01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/1244/short3 |  |  |  |
-| mesh | ADD_Cube_Map01_02.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/1194/short1 |  |  |  |
+| mesh | ADD_Cube_Map01_01.X |  | 0 | exact copy available | data147/1244 |  |  |  |
+| mesh | ADD_Cube_Map01_02.X |  | 0 | exact copy available | data147/1194 |  |  |  |
 | mesh | ADD_Cube_Map01_03.Y |  | 0 | exact copy available | data147/593 |  |  |  |
 | mesh | ADD_Cycle_SPARK02.X |  | 0 | exact copy available | data147/18881 |  |  |  |
 | mesh | ADD_Drone_Activator_Generate.X |  | 0 | exact copy available | data147/7573 |  |  |  |
-| mesh | ADD_Installation_Drone_Generate_Dummy01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/722/short1 |  |  |  |
-| mesh | ADD_MM_Drone_Activator_Dummy01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/804/short3 |  |  |  |
-| mesh | ADD_MM_Effect_Color01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/818/short1 |  |  |  |
+| mesh | ADD_Installation_Drone_Generate_Dummy01.X |  | 0 | exact copy available | data147/722 |  |  |  |
+| mesh | ADD_MM_Drone_Activator_Dummy01.X |  | 0 | exact copy available | data147/804 |  |  |  |
+| mesh | ADD_MM_Effect_Color01.Y |  | 1 | exact copy available | data147/818 |  |  |  |
 | mesh | ADD_MM_Effect_Color02.Y |  | 0 | exact copy available | data147/813 |  |  |  |
 | mesh | ADD_MM_Phantom_Seeker_Dummy_01.X |  | 0 | exact copy available | data147/2113 |  |  |  |
-| mesh | ADD_MM_ROCKON_02.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/858/short1 |  |  |  |
-| mesh | ADD_MM_ROCKON_03.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/924/short3 |  |  |  |
+| mesh | ADD_MM_ROCKON_02.Y |  | 0 | exact copy available | data147/858 |  |  |  |
+| mesh | ADD_MM_ROCKON_03.Y |  | 0 | exact copy available | data147/924 |  |  |  |
 | mesh | ADD_MM_ROCKON_04.Y |  | 0 | exact copy available | data147/608 |  |  |  |
-| mesh | ADD_MM_tech001.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/708/short3 |  |  |  |
+| mesh | ADD_MM_tech001.Y |  | 0 | exact copy available | data147/708 |  |  |  |
 | mesh | ADD_MM_tech002.x |  | 0 | exact copy available | data147/1333 |  |  |  |
 | mesh | ADD_MM_Win2.X |  | 0 | exact copy available | data147/155642 |  |  |  |
 | mesh | ADD_Panzer_Buster_Aiming001.Y |  | 0 | exact copy available | data147/1337 |  |  |  |
-| mesh | ADD_Panzer_Buster_Aiming002.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/1516/short3 |  |  |  |
+| mesh | ADD_Panzer_Buster_Aiming002.Y |  | 0 | exact copy available | data147/1516 |  |  |  |
 | mesh | ADD_Panzer_Buster_Aiming003.Y |  | 0 | exact copy available | data147/1383 |  |  |  |
-| mesh | ADD_Panzer_Buster_Aiming_01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/3251/short2 |  |  |  |
-| mesh | ADD_Panzer_Buster_Aiming_RED.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/946/short1 |  |  |  |
+| mesh | ADD_Panzer_Buster_Aiming_01.X |  | 0 | exact copy available | data147/3251 |  |  |  |
+| mesh | ADD_Panzer_Buster_Aiming_RED.X |  | 0 | exact copy available | data147/946 |  |  |  |
 | mesh | ADD_Panzer_Buster_Fire_001.X |  | 0 | exact copy available | data147/18728 |  |  |  |
 | mesh | ADD_Panzer_Buster_Fire_002.X |  | 0 | exact copy available | data147/8069 |  |  |  |
-| mesh | ADD_Panzer_Buster_Start_Dummy_01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/834/short1 |  |  |  |
+| mesh | ADD_Panzer_Buster_Start_Dummy_01.X |  | 0 | exact copy available | data147/834 |  |  |  |
 | mesh | ADD_particle_02.Y |  | 0 | exact copy available | data147/1545 |  |  |  |
 | mesh | ADD_Phantom_Seeker_MESH_01.X |  | 0 | exact copy available | data147/7166 |  |  |  |
 | mesh | ADD_Phantom_Seeker_Trace_01.X |  | 0 | exact copy available | data147/1967 |  |  |  |
 | mesh | ADD_psionic_generate_Cristal_01.Y |  | 0 | exact copy available | data147/1471 |  |  |  |
-| mesh | ADD_psionic_generate_DronMesh_01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/27022/short1 |  |  |  |
-| mesh | ADD_psionic_generate_MESH_01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/1754/short1 |  |  |  |
-| mesh | ADD_PULSE_GATLING_Dron_Mesh.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/12390/short2 |  |  |  |
-| mesh | ADD_PULSE_GATLING_FollowDrone_Mesh.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/12682/short1 |  |  |  |
+| mesh | ADD_psionic_generate_DronMesh_01.X |  | 0 | exact copy available | data147/27022 |  |  |  |
+| mesh | ADD_psionic_generate_MESH_01.X |  | 0 | exact copy available | data147/1754 |  |  |  |
+| mesh | ADD_PULSE_GATLING_Dron_Mesh.X |  | 0 | exact copy available | data147/12390 |  |  |  |
+| mesh | ADD_PULSE_GATLING_FollowDrone_Mesh.X |  | 0 | exact copy available | data147/12682 |  |  |  |
 | mesh | ADD_Rushing_Drone_MESH_01.X |  | 0 | exact copy available | data147/3280 |  |  |  |
-| mesh | ADD_Shooting_Chaser_Attack_BIM.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/37890/short3 |  |  |  |
-| mesh | ADD_Shooting_Chaser_AttackM.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/16102/short1 |  |  |  |
+| mesh | ADD_Shooting_Chaser_Attack_BIM.X |  | 0 | exact copy available | data147/37890 |  |  |  |
+| mesh | ADD_Shooting_Chaser_AttackM.X |  | 0 | exact copy available | data147/16102 |  |  |  |
 | mesh | ADD_Shooting_Chaser_Projectile_01.X |  | 0 | exact copy available | data147/7685 |  |  |  |
-| mesh | ADD_Star_Fall_Attack_BIM_01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/12184/short1 |  |  |  |
-| mesh | ADD_Star_Fall_Attack_BIM_02.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/6611/short2 |  |  |  |
+| mesh | ADD_Star_Fall_Attack_BIM_01.Y |  | 0 | exact copy available | data147/12184 |  |  |  |
+| mesh | ADD_Star_Fall_Attack_BIM_02.Y |  | 0 | exact copy available | data147/6611 |  |  |  |
 | mesh | ADD_Star_Fall_Attack_Mesh.X |  | 0 | exact copy available | data147/15697 |  |  |  |
-| mesh | ADD_Star_Fall_AttackBox.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/1002/short1 |  |  |  |
-| mesh | ADD_Star_Fall_Explode_006.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/844/short3 |  |  |  |
+| mesh | ADD_Star_Fall_AttackBox.x |  | 0 | exact copy available | data147/1002 |  |  |  |
+| mesh | ADD_Star_Fall_Explode_006.Y |  | 0 | exact copy available | data147/844 |  |  |  |
 | mesh | ADD_Star_Fall_FollowDrone_Mesh.X |  | 0 | exact copy available | data147/11986 |  |  |  |
 | mesh | ADD_Star_Fall_Start_Display01.X |  | 0 | exact copy available | data147/5521 |  |  |  |
 | mesh | ADD_Ultimate_Fury_Attack_Mesh.X |  | 0 | exact copy available | data147/9004 |  |  |  |
@@ -280,33 +278,33 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | ADD_Ultimate_Fury_Follow_Mesh.X |  | 0 | exact copy available | data147/70626 |  |  |  |
 | mesh | ADD_Ultimate_Fury_Start_Display01.X |  | 0 | exact copy available | data147/6357 |  |  |  |
 | mesh | ADD_Ultimate_Fury_Start_Dummy01.X |  | 0 | exact copy available | data147/672 |  |  |  |
-| mesh | ADE_Cycle_Spark01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/21538/short1 |  |  |  |
+| mesh | ADE_Cycle_Spark01.X |  | 0 | exact copy available | data147/21538 |  |  |  |
 | mesh | ADE_FORCE_NOVA_P01.Y |  | 0 | exact copy available | data147/13807 |  |  |  |
-| mesh | ADE_MOONLIGHT_D01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/8319/short2 |  |  |  |
+| mesh | ADE_MOONLIGHT_D01.X |  | 2 | exact copy available | data147/8319 |  |  |  |
 | mesh | ADE_MOONLIGHT_D02.X |  | 0 | exact copy available | data147/6642 |  |  |  |
 | mesh | ADE_MOONLIGHT_D03.X |  | 0 | exact copy available | data147/6819 |  |  |  |
-| mesh | ADE_PARANOIA_CP001.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/3396/short3 |  |  |  |
-| mesh | ADE_PARANOIA_CP002.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/3610/short1 |  |  |  |
+| mesh | ADE_PARANOIA_CP001.Y |  | 0 | exact copy available | data147/3396 |  |  |  |
+| mesh | ADE_PARANOIA_CP002.Y |  | 0 | exact copy available | data147/3610 |  |  |  |
 | mesh | ADE_PARANOIA_CP01.X |  | 0 | exact copy available | data147/281218 |  |  |  |
 | mesh | ADE_PARANOIA_LP01.X |  | 0 | exact copy available | data147/2024 |  |  |  |
 | mesh | ADE_PE03.Y |  | 0 | exact copy available | data147/9375 |  |  |  |
 | mesh | ADE_PE04.Y |  | 0 | exact copy available | data147/13621 |  |  |  |
-| mesh | ADE_PS01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/2388/short3 |  |  |  |
+| mesh | ADE_PS01.Y |  | 0 | exact copy available | data147/2388 |  |  |  |
 | mesh | ADE_PS02.Y |  | 0 | exact copy available | data147/2479 |  |  |  |
 | mesh | ADE_REVERSE_CIRCLE_GATE01.Y |  | 0 | exact copy available | data147/22444 |  |  |  |
 | mesh | ADE_REVERSE_CIRCLE_GATE02.Y |  | 0 | exact copy available | data147/2846 |  |  |  |
-| mesh | ADE_REVERSE_CIRCLE_GATE03.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/2818/short1 |  |  |  |
+| mesh | ADE_REVERSE_CIRCLE_GATE03.Y |  | 0 | exact copy available | data147/2818 |  |  |  |
 | mesh | ADE_REVERSE_CIRCLE_GATE04.Y |  | 0 | exact copy available | data147/7901 |  |  |  |
 | mesh | ADE_REVERSE_STIGMA_Tri01.Y |  | 0 | exact copy available | data147/1153 |  |  |  |
-| mesh | ADE_Win_P01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/1012/short3 |  |  |  |
+| mesh | ADE_Win_P01.Y |  | 0 | exact copy available | data147/1012 |  |  |  |
 | mesh | ADE_Win_P02.Y |  | 0 | exact copy available | data147/999 |  |  |  |
-| mesh | ADE_Win_P03.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/2605/short1 |  |  |  |
+| mesh | ADE_Win_P03.Y |  | 0 | exact copy available | data147/2605 |  |  |  |
 | mesh | ADM_CIRCUIT_MESH1.Y |  | 0 | exact copy available | data147/4934 |  |  |  |
-| mesh | ADM_Cube01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/740/short3 |  |  |  |
-| mesh | ADM_Display01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/748/short3 |  |  |  |
+| mesh | ADM_Cube01.Y |  | 0 | exact copy available | data147/740 |  |  |  |
+| mesh | ADM_Display01.Y |  | 0 | exact copy available | data147/748 |  |  |  |
 | mesh | ADM_Display02.Y |  | 0 | exact copy available | data147/750 |  |  |  |
-| mesh | ADM_Display03.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/748/short3 |  |  |  |
-| mesh | ADM_Display04.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/748/short3 |  |  |  |
+| mesh | ADM_Display03.Y |  | 0 | exact copy available | data147/748 |  |  |  |
+| mesh | ADM_Display04.Y |  | 0 | exact copy available | data147/748 |  |  |  |
 | mesh | ADM_Display05.Y |  | 0 | exact copy available | data147/749 |  |  |  |
 | mesh | ADM_DP_DUMMY.X |  | 0 | exact copy available | data147/464 |  |  |  |
 | mesh | ADM_PlasmaCutter_Laser.X |  | 0 | exact copy available | data116/11077 |  |  |  |
@@ -317,36 +315,36 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | AEE_Start_FX.X |  | 0 | exact copy available | data212/10257 |  |  |  |
 | mesh | AEM_FrozenEdge_Dummy.X |  | 0 | exact copy available | data116/1148 |  |  |  |
 | mesh | AEM_ICICLE_SPEAR_Charge_Particle.x |  | 0 | exact copy available | data002/2737 |  |  |  |
-| mesh | AEM_ICICLE_SPEAR_Die_Particle.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2418/short1 |  |  |  |
+| mesh | AEM_ICICLE_SPEAR_Die_Particle.x |  | 0 | exact copy available | data002/2418 |  |  |  |
 | mesh | AHM_ComboLightning01.Y |  | 0 | exact copy available | data116/1013 |  |  |  |
 | mesh | AIN_AAH_Attack_Z_Sword.X |  | 0 | exact copy available | data212/8206 |  |  |  |
 | mesh | AIN_AAH_Brocken_Phantasm_SPEAR.X |  | 0 | exact copy available | data212/6195 |  |  |  |
-| mesh | AIN_AAH_Brocken_Phantasm_SPEAR_Rotate.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/7396/short1 |  |  |  |
-| mesh | AIN_AAH_ERST_DER_LETZT_Break.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/884/short3 |  |  |  |
+| mesh | AIN_AAH_Brocken_Phantasm_SPEAR_Rotate.x |  | 0 | exact copy available | data212/7396 |  |  |  |
+| mesh | AIN_AAH_ERST_DER_LETZT_Break.y |  | 0 | exact copy available | data212/884 |  |  |  |
 | mesh | AIN_AAH_ERST_DER_LETZT_SWORD.X |  | 0 | exact copy available | data212/26634 |  |  |  |
-| mesh | AIN_AAH_ERST_DER_LETZT_WAVE.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1587/short2 |  |  |  |
+| mesh | AIN_AAH_ERST_DER_LETZT_WAVE.y |  | 0 | exact copy available | data212/1587 |  |  |  |
 | mesh | AIN_AAH_ERST_DER_LETZT_WIRE.y |  | 0 | exact copy available | data212/11318 |  |  |  |
 | mesh | Ain_AAH_FRAGARACH_Ball.y |  | 0 | exact copy available | data212/5438 |  |  |  |
 | mesh | Ain_AAH_FRAGARACH_Ball_Blue.y |  | 0 | exact copy available | data212/3513 |  |  |  |
 | mesh | AIN_AAH_FRAGARACH_Dummy.x |  | 0 | exact copy available | data212/7398 |  |  |  |
 | mesh | Ain_AAP_NICHTS_FELD.y |  | 0 | exact copy available | data212/583 |  |  |  |
-| mesh | Ain_AAP_TOTENTANZ_EYE_INSIDE.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1140/short3 |  |  |  |
+| mesh | Ain_AAP_TOTENTANZ_EYE_INSIDE.y |  | 0 | exact copy available | data212/1140 |  |  |  |
 | mesh | Ain_AAP_TOTENTANZ_EYE_OUTSIDE.y |  | 0 | exact copy available | data212/1073 |  |  |  |
 | mesh | Ain_AAP_TOTENTANZ_EYE_UV.y |  | 0 | exact copy available | data212/2496 |  |  |  |
-| mesh | AIN_AEE_FLAMME_EMOTION_M01.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1003/short2 |  |  |  |
+| mesh | AIN_AEE_FLAMME_EMOTION_M01.y |  | 0 | exact copy available | data212/1003 |  |  |  |
 | mesh | AIN_AEE_FLAMME_EMOTION_M02.y |  | 0 | exact copy available | data212/3050 |  |  |  |
-| mesh | AIN_AEE_SA_RUNE01.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/2330/short1 |  |  |  |
-| mesh | AIN_AEE_SA_RUNE03.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1570/short1 |  |  |  |
+| mesh | AIN_AEE_SA_RUNE01.y |  | 0 | exact copy available | data212/2330 |  |  |  |
+| mesh | AIN_AEE_SA_RUNE03.y |  | 0 | exact copy available | data212/1570 |  |  |  |
 | mesh | AIN_AEE_SA_RUNE04.y |  | 0 | exact copy available | data212/1729 |  |  |  |
 | mesh | AIN_AEE_SA_RUNE05.y |  | 0 | exact copy available | data212/694 |  |  |  |
 | mesh | Ain_Ala_Active_Mark_Core.y |  | 0 | exact copy available | data212/1009 |  |  |  |
 | mesh | Ain_Ala_Active_Mark_Outside_Wing.y |  | 0 | exact copy available | data212/1495 |  |  |  |
 | mesh | Ain_Ala_BIZZSPHERE_Mesh.x |  | 0 | exact copy available | data212/14031 |  |  |  |
 | mesh | AIN_ALA_Dash_JumpCombo_X_Projectile.X |  | 0 | exact copy available | data212/2105 |  |  |  |
-| mesh | Ain_Ala_DIAMANT_REGEN_Mesh1.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/699/short2 |  |  |  |
-| mesh | Ain_Ala_Sa_Mark_Character.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1059/short2 |  |  |  |
-| mesh | Ain_Ala_Sa_Mark_Core.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1011/short2 |  |  |  |
-| mesh | Ain_Ala_Sa_Mark_DotCircle.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/652/short3 |  |  |  |
+| mesh | Ain_Ala_DIAMANT_REGEN_Mesh1.y |  | 0 | exact copy available | data212/699 |  |  |  |
+| mesh | Ain_Ala_Sa_Mark_Character.y |  | 0 | exact copy available | data212/1059 |  |  |  |
+| mesh | Ain_Ala_Sa_Mark_Core.y |  | 0 | exact copy available | data212/1011 |  |  |  |
+| mesh | Ain_Ala_Sa_Mark_DotCircle.y |  | 1 | exact copy available | data212/652 |  |  |  |
 | mesh | Ain_Ala_Sa_Mark_Outside_Wing.y |  | 0 | exact copy available | data212/1808 |  |  |  |
 | mesh | AIN_ALE_Combo_ZZZXX_SWORD.X |  | 0 | exact copy available | data212/3237 |  |  |  |
 | mesh | AIN_ALE_Combo_ZZZXX_SWORD_Summon.y |  | 0 | exact copy available | data212/2558 |  |  |  |
@@ -357,60 +355,60 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Ain_ALW_GEIST_HERRSCHAFT_P01.y |  | 0 | exact copy available | data212/1270 |  |  |  |
 | mesh | Ain_ALW_GEIST_HERRSCHAFT_P01_Wire.y |  | 0 | exact copy available | data212/8940 |  |  |  |
 | mesh | Ain_ALW_GEIST_HERRSCHAFT_P02.y |  | 0 | exact copy available | data212/1743 |  |  |  |
-| mesh | Ain_ALW_REFLEXION_JIN_Dummy.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5650/short1 |  |  |  |
+| mesh | Ain_ALW_REFLEXION_JIN_Dummy.x |  | 0 | exact copy available | data002/5650 |  |  |  |
 | mesh | Ain_ALW_Trace_P03.x |  | 0 | exact copy available | data212/2449 |  |  |  |
-| mesh | Ain_APP_CASTING_MARK.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/947/short2 |  |  |  |
-| mesh | AIN_Attack_Z_Sword.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/4660/short3 |  |  |  |
+| mesh | Ain_APP_CASTING_MARK.y |  | 0 | exact copy available | data212/947 |  |  |  |
+| mesh | AIN_Attack_Z_Sword.X |  | 0 | exact copy available | data212/4660 |  |  |  |
 | mesh | AIN_Attack_ZZZX_Dagger.X |  | 0 | exact copy available | data212/3993 |  |  |  |
 | mesh | AIN_BOHREN_VEREISEN_ICEEFFECT_DUMMY.X |  | 0 | exact copy available | data212/727 |  |  |  |
-| mesh | AIN_Combo_X_EL_CIRCLE_Dummy.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1739/short2 |  |  |  |
-| mesh | Ain_Creation_Particle_02.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/852/short3 |  |  |  |
+| mesh | AIN_Combo_X_EL_CIRCLE_Dummy.X |  | 0 | exact copy available | data212/1739 |  |  |  |
+| mesh | Ain_Creation_Particle_02.y |  | 3 | exact copy available | data212/852 |  |  |  |
 | mesh | Ain_Creation_Particle_04_6gon.X |  | 0 | exact copy available | data212/1648 |  |  |  |
 | mesh | Ain_Creation_Particle_04_6gon.y |  | 0 | exact copy available | data212/1536 |  |  |  |
 | mesh | Ain_Creation_Square_01.y |  | 0 | exact copy available | data212/887 |  |  |  |
-| mesh | Ain_Creation_SWORD_01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/3771/short2 |  |  |  |
+| mesh | Ain_Creation_SWORD_01.X |  | 0 | exact copy available | data212/3771 |  |  |  |
 | mesh | Ain_CreativeMagic_Explosion_P01.X |  | 0 | exact copy available | data212/4368 |  |  |  |
-| mesh | Ain_CreativeMagic_Explosion_P02.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/14541/short1 |  |  |  |
-| mesh | Ain_CycleMagic_Charging_P02.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1090/short1 |  |  |  |
-| mesh | Ain_CycleMagic_Cylinder_P01.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/2869/short2 |  |  |  |
+| mesh | Ain_CreativeMagic_Explosion_P02.X |  | 0 | exact copy available | data212/14541 |  |  |  |
+| mesh | Ain_CycleMagic_Charging_P02.Y |  | 0 | exact copy available | data212/1090 |  |  |  |
+| mesh | Ain_CycleMagic_Cylinder_P01.y |  | 0 | exact copy available | data212/2869 |  |  |  |
 | mesh | Ain_CycleMagic_Cylinder_P02.y |  | 0 | exact copy available | data212/4141 |  |  |  |
 | mesh | Ain_CycleMagic_Cylinder_P03.y |  | 0 | exact copy available | data212/4200 |  |  |  |
 | mesh | Ain_CycleMagic_MagicalBelt.Y |  | 0 | exact copy available | data212/2021 |  |  |  |
 | mesh | Ain_Cylinderparts_Mesh.y |  | 0 | exact copy available | data212/607 |  |  |  |
-| mesh | AIN_DAGGER_01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/4683/short2 |  |  |  |
-| mesh | AIN_Dash_Jump_Combo_Z_Spear.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/4076/short3 |  |  |  |
+| mesh | AIN_DAGGER_01.X |  | 0 | exact copy available | data212/4683 |  |  |  |
+| mesh | AIN_Dash_Jump_Combo_Z_Spear.X |  | 0 | exact copy available | data212/4076 |  |  |  |
 | mesh | Ain_Disparate_Force_Power_Of_El_Wait_FX_Dummy.X |  | 0 | exact copy available | data212/3761 |  |  |  |
-| mesh | Ain_dot_Circle.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/668/short3 |  |  |  |
-| mesh | AIN_DRITT_STILETT_DAGGER.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/7415/short2 |  |  |  |
-| mesh | AIN_DRITT_STILETT_DAGGER_PROJECTILE.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/3596/short3 |  |  |  |
-| mesh | AIN_Dritt_Stilett_Projectile_Dummy.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1787/short2 |  |  |  |
+| mesh | Ain_dot_Circle.y |  | 0 | exact copy available | data212/668 |  |  |  |
+| mesh | AIN_DRITT_STILETT_DAGGER.X |  | 0 | exact copy available | data212/7415 |  |  |  |
+| mesh | AIN_DRITT_STILETT_DAGGER_PROJECTILE.x |  | 0 | exact copy available | data212/3596 |  |  |  |
+| mesh | AIN_Dritt_Stilett_Projectile_Dummy.x |  | 0 | exact copy available | data212/1787 |  |  |  |
 | mesh | AIN_DRITT_STILETT_START_GEOSPHERE_ROTATE.x |  | 0 | exact copy available | data212/3357 |  |  |  |
 | mesh | Ain_Eid_Core_Basic.y |  | 0 | exact copy available | data212/929 |  |  |  |
-| mesh | Ain_Eid_Core_Mut.y |  | 0 | exact copy available | data212/927 |  |  |  |
-| mesh | Ain_Eid_Core_Rein.y |  | 0 | exact copy available | data212/926 |  |  |  |
-| mesh | Ain_Eid_Core_Wille.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/922/short1 |  |  |  |
-| mesh | Ain_Eid_Mark_Mut.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1362/short1 |  |  |  |
-| mesh | Ain_Eid_Mark_Rein.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1362/short1 |  |  |  |
-| mesh | Ain_Eid_Mark_Wille.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1363/short2 |  |  |  |
-| mesh | Ain_Eid_Outline.y |  | 0 | exact copy available | data212/1710 |  |  |  |
+| mesh | Ain_Eid_Core_Mut.y |  | 1 | exact copy available | data212/927 |  |  |  |
+| mesh | Ain_Eid_Core_Rein.y |  | 1 | exact copy available | data212/926 |  |  |  |
+| mesh | Ain_Eid_Core_Wille.y |  | 1 | exact copy available | data212/922 |  |  |  |
+| mesh | Ain_Eid_Mark_Mut.y |  | 0 | exact copy available | data212/1362 |  |  |  |
+| mesh | Ain_Eid_Mark_Rein.y |  | 0 | exact copy available | data212/1362 |  |  |  |
+| mesh | Ain_Eid_Mark_Wille.y |  | 0 | exact copy available | data212/1363 |  |  |  |
+| mesh | Ain_Eid_Outline.y |  | 3 | exact copy available | data212/1710 |  |  |  |
 | mesh | AIN_ELFE_LOOP.Y |  | 0 | exact copy available | data212/91194 |  |  |  |
-| mesh | Ain_Erst_Bohren_Aimming_P02.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/3186/short1 |  |  |  |
+| mesh | Ain_Erst_Bohren_Aimming_P02.y |  | 0 | exact copy available | data212/3186 |  |  |  |
 | mesh | AIN_ERST_BOHREN_SPEAR_SPIN.x |  | 0 | exact copy available | data212/6869 |  |  |  |
 | mesh | AIN_ERST_BOHREN_SPEAR_SUMMON.X |  | 0 | exact copy available | data212/887 |  |  |  |
-| mesh | Ain_Erst_Der_Letzt_Mark_01.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/851/short2 |  |  |  |
+| mesh | Ain_Erst_Der_Letzt_Mark_01.y |  | 0 | exact copy available | data212/851 |  |  |  |
 | mesh | Ain_Erst_Der_Letzt_Mark_02.y |  | 0 | exact copy available | data212/1248 |  |  |  |
-| mesh | Ain_Erst_Der_Letzt_Mark_03.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/4867/short2 |  |  |  |
-| mesh | Ain_Erst_Der_Letzt_Mark_04.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/684/short3 |  |  |  |
-| mesh | AIN_FX_Combo_X_EL_CIRCLE_P01.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/3812/short3 |  |  |  |
+| mesh | Ain_Erst_Der_Letzt_Mark_03.y |  | 0 | exact copy available | data212/4867 |  |  |  |
+| mesh | Ain_Erst_Der_Letzt_Mark_04.y |  | 0 | exact copy available | data212/684 |  |  |  |
+| mesh | AIN_FX_Combo_X_EL_CIRCLE_P01.y |  | 0 | exact copy available | data212/3812 |  |  |  |
 | mesh | Ain_FX_ENERGYDOME.X |  | 0 | exact copy available | data212/6008 |  |  |  |
 | mesh | AIN_FX_GEOMETRY_SQUARE_02_MOTION.x |  | 0 | exact copy available | data212/5416 |  |  |  |
-| mesh | AIN_FX_HAND_SUMMONFIGURE.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1859/short2 |  |  |  |
-| mesh | AIN_FX_MAGIC_CIRCLE_01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1635/short2 |  |  |  |
-| mesh | AIN_FX_MAGIC_CIRCLE_01.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1467/short2 |  |  |  |
+| mesh | AIN_FX_HAND_SUMMONFIGURE.x |  | 0 | exact copy available | data212/1859 |  |  |  |
+| mesh | AIN_FX_MAGIC_CIRCLE_01.X |  | 0 | exact copy available | data212/1635 |  |  |  |
+| mesh | AIN_FX_MAGIC_CIRCLE_01.y |  | 0 | exact copy available | data212/1467 |  |  |  |
 | mesh | AIN_FX_MAGIC_CIRCLE_01_ROTATE.x |  | 0 | exact copy available | data212/9967 |  |  |  |
 | mesh | AIN_FX_MAGIC_CIRCLE_02.X |  | 0 | exact copy available | data212/1609 |  |  |  |
-| mesh | AIN_FX_MAGIC_CIRCLE_02.y |  | 0 | exact copy available | data212/5686 |  |  |  |
-| mesh | AIN_FX_MAGIC_CIRCLE_02_ROTATE.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/7275/short1 |  |  |  |
+| mesh | AIN_FX_MAGIC_CIRCLE_02.y |  | 6 | exact copy available | data212/5686 |  |  |  |
+| mesh | AIN_FX_MAGIC_CIRCLE_02_ROTATE.x |  | 0 | exact copy available | data212/7275 |  |  |  |
 | mesh | AIN_FX_MAGIC_CIRCLE_03.y |  | 0 | exact copy available | data212/1448 |  |  |  |
 | mesh | AIN_FX_RING_NEW.X |  | 0 | exact copy available | data212/5762 |  |  |  |
 | mesh | AIN_FX_TEL_POSE.Y |  | 0 | exact copy available | data212/91672 |  |  |  |
@@ -418,35 +416,35 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | AIN_FX_WORD_01.X |  | 0 | exact copy available | data212/1039 |  |  |  |
 | mesh | AIN_FX_WORD_01_MOTION.x |  | 0 | exact copy available | data212/1696 |  |  |  |
 | mesh | AIN_Helix.x |  | 0 | exact copy available | data212/7664 |  |  |  |
-| mesh | AIN_HYPERACTIVE_TELEPORT_SCENE1.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/113584/short1 |  |  |  |
+| mesh | AIN_HYPERACTIVE_TELEPORT_SCENE1.Y |  | 0 | exact copy available | data212/113584 |  |  |  |
 | mesh | AIN_HYPERACTIVE_TELEPORT_SCENE10.Y |  | 0 | exact copy available | data212/114002 |  |  |  |
 | mesh | AIN_HYPERACTIVE_TELEPORT_SCENE3.Y |  | 0 | exact copy available | data212/113854 |  |  |  |
 | mesh | AIN_HYPERACTIVE_TELEPORT_SCENE5.Y |  | 0 | exact copy available | data212/114030 |  |  |  |
 | mesh | AIN_HYPERACTIVE_TELEPORT_SCENE7.Y |  | 0 | exact copy available | data212/113967 |  |  |  |
-| mesh | AIN_HYPERACTIVE_TELEPORT_SCENE8.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/114121/short1 |  |  |  |
-| mesh | AIN_ISMAEL_WIRE_01.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/5244/short3 |  |  |  |
+| mesh | AIN_HYPERACTIVE_TELEPORT_SCENE8.Y |  | 0 | exact copy available | data212/114121 |  |  |  |
+| mesh | AIN_ISMAEL_WIRE_01.y |  | 0 | exact copy available | data212/5244 |  |  |  |
 | mesh | AIN_ISMAEL_WIRE_02.y |  | 0 | exact copy available | data212/4882 |  |  |  |
-| mesh | AIN_ISMAEL_WIRE_03.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1986/short1 |  |  |  |
+| mesh | AIN_ISMAEL_WIRE_03.y |  | 0 | exact copy available | data212/1986 |  |  |  |
 | mesh | AIN_Jump_Attack_Z_CONE.Y |  | 0 | exact copy available | data212/1272 |  |  |  |
 | mesh | AIN_Jump_Attack_Z_Spear.X |  | 0 | exact copy available | data212/6906 |  |  |  |
 | mesh | Ain_Pendulum.y |  | 0 | exact copy available | data212/7969 |  |  |  |
 | mesh | AIN_POWER_OF_GOD_MESH01.Y |  | 0 | exact copy available | data212/701 |  |  |  |
-| mesh | AIN_POWER_OF_GOD_MESH03.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/771/short2 |  |  |  |
+| mesh | AIN_POWER_OF_GOD_MESH03.y |  | 0 | exact copy available | data212/771 |  |  |  |
 | mesh | AIN_POWER_OF_GOD_MESH05.y |  | 0 | exact copy available | data212/702 |  |  |  |
 | mesh | AIN_POWER_OF_GOD_MESH06.y |  | 0 | exact copy available | data212/837 |  |  |  |
 | mesh | AIN_POWER_OF_GOD_MESH07.y |  | 0 | exact copy available | data212/702 |  |  |  |
-| mesh | AIN_SA_ALE_FLAMME_EMOTION_P01.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1164/short3 |  |  |  |
-| mesh | AIN_SA_ALE_FLAMME_EMOTION_P02.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1708/short3 |  |  |  |
+| mesh | AIN_SA_ALE_FLAMME_EMOTION_P01.y |  | 0 | exact copy available | data212/1164 |  |  |  |
+| mesh | AIN_SA_ALE_FLAMME_EMOTION_P02.y |  | 0 | exact copy available | data212/1708 |  |  |  |
 | mesh | AIN_SA_ALE_FLAMME_EMOTION_P03.y |  | 0 | exact copy available | data212/1729 |  |  |  |
-| mesh | AIN_SA_ALE_FLAMME_EMOTION_P04.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1570/short1 |  |  |  |
+| mesh | AIN_SA_ALE_FLAMME_EMOTION_P04.y |  | 0 | exact copy available | data212/1570 |  |  |  |
 | mesh | AIN_SA_ALE_FLAMME_EMOTION_P05.y |  | 0 | exact copy available | data212/1157 |  |  |  |
-| mesh | AIN_SA_ALE_FLAMME_EMOTION_P06.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1068/short3 |  |  |  |
-| mesh | AIN_Sakrosankt_Zertreten_Dagger_Throw.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/4003/short2 |  |  |  |
+| mesh | AIN_SA_ALE_FLAMME_EMOTION_P06.y |  | 0 | exact copy available | data212/1068 |  |  |  |
+| mesh | AIN_Sakrosankt_Zertreten_Dagger_Throw.X |  | 0 | exact copy available | data212/4003 |  |  |  |
 | mesh | AIN_Sakrosankt_Zertreten_Spear_Throw.X |  | 0 | exact copy available | data212/3461 |  |  |  |
 | mesh | AIN_Sakrosankt_Zertreten_Weapon_Throw.X |  | 0 | exact copy available | data212/4112 |  |  |  |
-| mesh | AIN_SCHWERT_PLATZEN_FIRE.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/2228/short3 |  |  |  |
+| mesh | AIN_SCHWERT_PLATZEN_FIRE.X |  | 0 | exact copy available | data212/2228 |  |  |  |
 | mesh | Ain_TOTENTANZ_Dummy.X |  | 0 | exact copy available | data212/614 |  |  |  |
-| mesh | Ain_Triagle_Mesh.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/603/short2 |  |  |  |
+| mesh | Ain_Triagle_Mesh.y |  | 0 | exact copy available | data212/603 |  |  |  |
 | mesh | Ain_Triagle_Pointlight.y |  | 0 | exact copy available | data212/1293 |  |  |  |
 | mesh | Ain_Weapon_Summon_Ractangle.y |  | 0 | exact copy available | data212/781 |  |  |  |
 | mesh | Aisha_LightningBolts_AP01.Y |  | 0 | exact copy available | data116/2031 |  |  |  |
@@ -481,7 +479,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | ALS_RESTRAINTS_SPECTER_TRACE03.X |  | 0 | exact copy available | data132/1746 |  |  |  |
 | mesh | ALS_RESTRAINTS_SPECTER_TRACE04.Y |  | 0 | exact copy available | data132/668 |  |  |  |
 | mesh | ALS_SHAKE_CHAOS_01.Y |  | 0 | exact copy available | data132/668 |  |  |  |
-| mesh | ALS_SHAKE_CHAOS_02.Y |  | 0 | exact copy available | data132/1422 |  |  |  |
+| mesh | ALS_SHAKE_CHAOS_02.Y |  | 2 | exact copy available | data132/1422 |  |  |  |
 | mesh | ALS_SPECTER_OF_BLADE_MESH01.X |  | 0 | exact copy available | data132/17181 |  |  |  |
 | mesh | ALS_SPECTER_OF_BLADE_MESH_F01.X |  | 0 | exact copy available | data132/17350 |  |  |  |
 | mesh | ALS_SPECTER_OF_BLADE_TRACE01.X |  | 0 | exact copy available | data132/3206 |  |  |  |
@@ -506,7 +504,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | ALS_TRACE_P04.X |  | 0 | exact copy available | data132/3443 |  |  |  |
 | mesh | ALS_TRACE_P05.X |  | 0 | exact copy available | data132/938 |  |  |  |
 | mesh | ALS_VERITABLE_PANDEMONIUM_P01.Y |  | 0 | exact copy available | data132/1030 |  |  |  |
-| mesh | ALS_VERITABLE_PANDEMONIUM_P02.Y |  | 0 | exact copy available | data132/736 |  |  |  |
+| mesh | ALS_VERITABLE_PANDEMONIUM_P02.Y |  | 1 | exact copy available | data132/736 |  |  |  |
 | mesh | ALS_VERITABLE_PANDEMONIUM_P04.Y |  | 0 | exact copy available | data132/721 |  |  |  |
 | mesh | ALS_VIEW_BETWEEN_H1.X |  | 0 | exact copy available | data132/34912 |  |  |  |
 | mesh | ALS_VIEW_BETWEEN_H1_TRACE.X |  | 0 | exact copy available | data132/5923 |  |  |  |
@@ -516,26 +514,26 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | ALS_VIEW_BETWEEN_H2_TRACE02.X |  | 0 | exact copy available | data132/6652 |  |  |  |
 | mesh | ALW_ALPTRAUM_LoopAttack_RING.y |  | 0 | exact copy available | data212/40611 |  |  |  |
 | mesh | ALW_Combo_XXZ_PROJECTILE.X |  | 0 | exact copy available | data212/3413 |  |  |  |
-| mesh | ALW_Combo_XXZ_PROJECTILE_TRACE.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/739/short2 |  |  |  |
+| mesh | ALW_Combo_XXZ_PROJECTILE_TRACE.y |  | 0 | exact copy available | data212/739 |  |  |  |
 | mesh | ALW_Combo_XXZZ_Bomb.y |  | 0 | exact copy available | data212/12925 |  |  |  |
 | mesh | ALW_Dash_JumpCombo_X_TWIST.y |  | 0 | exact copy available | data212/7370 |  |  |  |
-| mesh | ALW_REFLEXION_Dummy.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3676/short1 |  |  |  |
-| mesh | ALW_WECHSEL_EYE_LV01.y |  | 0 | exact copy available | data212/678 |  |  |  |
+| mesh | ALW_REFLEXION_Dummy.X |  | 0 | exact copy available | data002/3676 |  |  |  |
+| mesh | ALW_WECHSEL_EYE_LV01.y |  | 1 | exact copy available | data212/678 |  |  |  |
 | mesh | ALW_WECHSEL_EYE_LV02.y |  | 0 | exact copy available | data212/672 |  |  |  |
 | mesh | ALW_WECHSEL_EYE_LV03.y |  | 0 | exact copy available | data212/672 |  |  |  |
 | mesh | ALW_Win_EF01.X |  | 0 | exact copy available | data212/6888 |  |  |  |
 | mesh | AMM_ChargedImpulsar_Mesh.X |  | 0 | exact copy available | data147/14419 |  |  |  |
 | mesh | AMM_DashJumpComboXZ.X |  | 0 | exact copy available | data147/47239 |  |  |  |
-| mesh | Amusement_Item_Press_Mash.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/10886/short1 |  |  |  |
+| mesh | Amusement_Item_Press_Mash.X |  | 0 | exact copy available | data002/10886 |  |  |  |
 | mesh | AmusementItemPhoenix_Wing.Y |  | 0 | exact copy available | data002/20397 |  |  |  |
 | mesh | ANGER_FOREST_ENT_Special_Attack.X |  | 0 | exact copy available | data002/7665 |  |  |  |
 | mesh | ANGER_FOREST_ENT_Special_Attack_1.X |  | 0 | exact copy available | data002/14305 |  |  |  |
-| mesh | APP_ENDE_DER_WELT_SCYTHE.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/19819/short3 |  |  |  |
+| mesh | APP_ENDE_DER_WELT_SCYTHE.X |  | 0 | exact copy available | data212/19819 |  |  |  |
 | mesh | APP_ENDE_DER_WELT_WORMHALL.y |  | 0 | exact copy available | data212/15306 |  |  |  |
 | mesh | APP_TOTENTANZ_EYE_P01.y |  | 0 | exact copy available | data212/960 |  |  |  |
-| mesh | APP_TOTENTANZ_EYE_P02.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1019/short2 |  |  |  |
-| mesh | APP_TOTENTANZ_EYE_P03.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/2476/short3 |  |  |  |
-| mesh | APP_TOTENTANZ_EYE_P04.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/890/short1 |  |  |  |
+| mesh | APP_TOTENTANZ_EYE_P02.y |  | 0 | exact copy available | data212/1019 |  |  |  |
+| mesh | APP_TOTENTANZ_EYE_P03.y |  | 0 | exact copy available | data212/2476 |  |  |  |
+| mesh | APP_TOTENTANZ_EYE_P04.y |  | 0 | exact copy available | data212/890 |  |  |  |
 | mesh | ARA_WeaponTraceDummy01.X |  | 0 | exact copy available | data132/1014 |  |  |  |
 | mesh | ASD_Continuity_Strikr_Weapon.X |  | 0 | exact copy available | data132/13910 |  |  |  |
 | mesh | ASD_Dragon_Head.Y |  | 0 | exact copy available | data132/45040 |  |  |  |
@@ -546,10 +544,10 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | ATT_ArmorCombo_X_AttackBox.X |  | 0 | exact copy available | data147/853 |  |  |  |
 | mesh | ATT_ArmorComboZZZZ_Gate.X |  | 0 | exact copy available | data147/31647 |  |  |  |
 | mesh | ATT_ArmorComboZZZZ_Gate_02.X |  | 0 | exact copy available | data147/30539 |  |  |  |
-| mesh | ATT_Combo_ZZXX_Attack_Box.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/818/short1 |  |  |  |
+| mesh | ATT_Combo_ZZXX_Attack_Box.x |  | 0 | exact copy available | data147/818 |  |  |  |
 | mesh | ATT_MAXIMUM_STRIKE_ARMS01.Y |  | 0 | exact copy available | data147/20116 |  |  |  |
-| mesh | ATT_Maximum_Strike_Ball_AttackBox.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/1011/short2 |  |  |  |
-| mesh | ATT_Maximum_Strike_Dummy01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/626/short1 |  |  |  |
+| mesh | ATT_Maximum_Strike_Ball_AttackBox.X |  | 0 | exact copy available | data147/1011 |  |  |  |
+| mesh | ATT_Maximum_Strike_Dummy01.X |  | 0 | exact copy available | data147/626 |  |  |  |
 | mesh | ATT_Maximum_Strike_W.Y |  | 0 | exact copy available | data147/2990 |  |  |  |
 | mesh | ATT_Stardust_Shower_Rupture.X |  | 0 | exact copy available | data147/59598 |  |  |  |
 | mesh | ATT_Void_Field_Attack_Line.X |  | 0 | exact copy available | data147/1750 |  |  |  |
@@ -558,36 +556,36 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | ATT_Void_Field_Semicircle.Y |  | 0 | exact copy available | data147/12592 |  |  |  |
 | mesh | ATT_Void_Impact_Rupture_01.X |  | 0 | exact copy available | data147/25622 |  |  |  |
 | mesh | ATT_Void_Impact_Rupture_02.X |  | 0 | exact copy available | data147/62200 |  |  |  |
-| mesh | ATT_VoidImpactRuptureMemo01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/136244/short1 |  |  |  |
-| mesh | ATT_VoidImpactRuptureMemo02.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/491240/short1 |  |  |  |
-| mesh | AttackBox_ALW_SCHMERZ_02.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1323/short2 |  |  |  |
-| mesh | AttackBox_BUFF_A_SBH_FLAME_PROTECTION.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/907/short2 |  |  |  |
-| mesh | AttackBox_EBS_Laser_Pole.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1011/short2 |  |  |  |
+| mesh | ATT_VoidImpactRuptureMemo01.X |  | 0 | exact copy available | data147/136244 |  |  |  |
+| mesh | ATT_VoidImpactRuptureMemo02.X |  | 0 | exact copy available | data147/491240 |  |  |  |
+| mesh | AttackBox_ALW_SCHMERZ_02.X |  | 0 | exact copy available | data002/1323 |  |  |  |
+| mesh | AttackBox_BUFF_A_SBH_FLAME_PROTECTION.x |  | 0 | exact copy available | data002/907 |  |  |  |
+| mesh | AttackBox_EBS_Laser_Pole.X |  | 0 | exact copy available | data002/1011 |  |  |  |
 | mesh | AttackBox_ELSION_DECEPTOR_B_Fire.x |  | 0 | exact copy available | data002/1369 |  |  |  |
 | mesh | AttackBox_Eltrion_MK2_MagneticField.x |  | 0 | exact copy available | data002/3238 |  |  |  |
 | mesh | AttackBox_Eltrion_Weapon.x |  | 0 | exact copy available | data002/1411 |  |  |  |
 | mesh | AttackBox_Pet_HOYA_Attack_A_frontSlash.X |  | 0 | exact copy available | data002/1913 |  |  |  |
-| mesh | AttackBox_Pet_HOYA_Attack_B_frontSlash.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1947/short2 |  |  |  |
-| mesh | AttackBox_Pet_HOYA_Attack_C_frontSlash.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1900/short3 |  |  |  |
-| mesh | AttackBox_Riding_Perkisas_AttackC.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1090/short1 |  |  |  |
-| mesh | AttackBox_Riding_Perkisas_AttackC_Fireball.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/875/short2 |  |  |  |
+| mesh | AttackBox_Pet_HOYA_Attack_B_frontSlash.X |  | 0 | exact copy available | data002/1947 |  |  |  |
+| mesh | AttackBox_Pet_HOYA_Attack_C_frontSlash.X |  | 0 | exact copy available | data002/1900 |  |  |  |
+| mesh | AttackBox_Riding_Perkisas_AttackC.X |  | 0 | exact copy available | data002/1090 |  |  |  |
+| mesh | AttackBox_Riding_Perkisas_AttackC_Fireball.X |  | 0 | exact copy available | data002/875 |  |  |  |
 | mesh | AttackBox_Riding_Reindeer_Attack_C_01.X |  | 0 | exact copy available | data002/1294 |  |  |  |
 | mesh | AttackBox_Riding_Reindeer_Attack_C_02.X |  | 0 | exact copy available | data002/1494 |  |  |  |
 | mesh | AttackBox_Riding_Reindeer_Attack_X.X |  | 0 | exact copy available | data002/797 |  |  |  |
-| mesh | AttackBox_Riding_Reindeer_Attack_Z.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/948/short3 |  |  |  |
+| mesh | AttackBox_Riding_Reindeer_Attack_Z.X |  | 0 | exact copy available | data002/948 |  |  |  |
 | mesh | AttackBox_Riding_Reindeer_JumpAttack_Z.X |  | 0 | exact copy available | data002/800 |  |  |  |
 | mesh | AVP_Aging_Crack01.Y |  | 0 | exact copy available | data116/18946 |  |  |  |
 | mesh | AVP_SummonBatMillions_Projectile.X |  | 0 | exact copy available | data116/8873 |  |  |  |
 | mesh | AYR_RaksasaFire_Dummy.X |  | 0 | exact copy available | data132/725 |  |  |  |
 | mesh | AYR_RaksasaFire_Dummy1.X |  | 0 | exact copy available | data132/477 |  |  |  |
 | mesh | AYR_RestrictionEnergy_Spear.X |  | 0 | exact copy available | data132/17109 |  |  |  |
-| mesh | B_EL3_HIT_01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/652/short3 |  |  |  |
+| mesh | B_EL3_HIT_01.Y |  | 0 | exact copy available | data142/652 |  |  |  |
 | mesh | B_EL3_HIT_02.Y |  | 0 | exact copy available | data142/653 |  |  |  |
-| mesh | Baal_Skill_C_Attack.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/9899/short2 |  |  |  |
+| mesh | Baal_Skill_C_Attack.X |  | 0 | exact copy available | data002/9899 |  |  |  |
 | mesh | Baal_SkillC_Attack_MGrow1.X |  | 0 | exact copy available | data002/3437 |  |  |  |
 | mesh | BatBig_SuperSonicWaves_Re.X |  | 0 | exact copy available | data002/3191 |  |  |  |
 | mesh | BatBig_SuperSonicWaves_Re2.X |  | 0 | exact copy available | data009/6954 |  |  |  |
-| mesh | BBBCar_AttackZ_Ramp.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/531/short2 |  |  |  |
+| mesh | BBBCar_AttackZ_Ramp.X |  | 0 | exact copy available | data002/531 |  |  |  |
 | mesh | BBBCar_HeadLight_position.X |  | 0 | exact copy available | data002/590 |  |  |  |
 | mesh | Behemoth_Boss_Lock_P.Y |  | 0 | exact copy available | data002/2929 |  |  |  |
 | mesh | BEHEMOTHSOUL_AttackA_LM.X |  | 0 | exact copy available | data002/3965 |  |  |  |
@@ -596,34 +594,34 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | BEHEMOTHSOUL_AttackA_RM2.X |  | 0 | exact copy available | data002/4263 |  |  |  |
 | mesh | BEHEMOTHSOUL_AttackA_RM3.X |  | 0 | exact copy available | data002/2517 |  |  |  |
 | mesh | BEHEMOTHSOUL_Hand.x |  | 0 | exact copy available | data002/82443 |  |  |  |
-| mesh | BEHEMOTHSOUL_Hand_T1.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3458/short1 |  |  |  |
+| mesh | BEHEMOTHSOUL_Hand_T1.X |  | 0 | exact copy available | data002/3458 |  |  |  |
 | mesh | BEHEMOTHSOUL_Hand_T2.X |  | 0 | exact copy available | data002/3152 |  |  |  |
 | mesh | BEHEMOTHSOUL_MagicAttackA_M.X |  | 0 | exact copy available | data002/5133 |  |  |  |
 | mesh | BEHEMOTHSOUL_MagicAttackA_M2.X |  | 0 | exact copy available | data002/4938 |  |  |  |
 | mesh | BEHEMOTHSOUL_MagicAttackB_M.X |  | 0 | exact copy available | data002/4705 |  |  |  |
 | mesh | BEHEMOTHSOUL_MagicAttackB_M2.X |  | 0 | exact copy available | data002/4566 |  |  |  |
-| mesh | BEHEMOTHSOUL_MagicAttackB_WaveL.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2690/short1 |  |  |  |
+| mesh | BEHEMOTHSOUL_MagicAttackB_WaveL.X |  | 0 | exact copy available | data002/2690 |  |  |  |
 | mesh | BEHEMOTHSOUL_MagicAttackB_WaveL2.X |  | 0 | exact copy available | data002/2639 |  |  |  |
 | mesh | BEHEMOTHSOUL_MagicAttackB_WaveR.X |  | 0 | exact copy available | data002/2655 |  |  |  |
 | mesh | BEHEMOTHSOUL_MagicAttackB_WaveR2.X |  | 0 | exact copy available | data002/2608 |  |  |  |
 | mesh | BEHEMOTHTail_Lock_Dummy.X |  | 0 | exact copy available | data002/687 |  |  |  |
-| mesh | BEHEMOTHTail_Lock_M1.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2154/short1 |  |  |  |
+| mesh | BEHEMOTHTail_Lock_M1.X |  | 0 | exact copy available | data002/2154 |  |  |  |
 | mesh | BEHEMOTHTail_Lock_M2.X |  | 0 | exact copy available | data002/3253 |  |  |  |
-| mesh | BEHEMOTHTail_Lock_M3.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2451/short2 |  |  |  |
+| mesh | BEHEMOTHTail_Lock_M3.X |  | 0 | exact copy available | data002/2451 |  |  |  |
 | mesh | Benders_EL_Direction_Dummy01.X |  | 0 | exact copy available | data002/574 |  |  |  |
 | mesh | Besma_Air_Ship_Direct_DUMMY01.X |  | 0 | exact copy available | data002/569 |  |  |  |
 | mesh | BlackCat_AttackC_Hologram.y |  | 0 | exact copy available | data002/99344 |  |  |  |
-| mesh | BlackCat_Scan_AttackC.y |  | 0 | exact copy available | data002/8702 |  |  |  |
+| mesh | BlackCat_Scan_AttackC.y |  | 1 | exact copy available | data002/8702 |  |  |  |
 | mesh | BlackCat_Scan_Mesh.y |  | 0 | exact copy available | data002/9314 |  |  |  |
-| mesh | BLOOD_CUTTER_Weapon.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/27274/short1 |  |  |  |
-| mesh | BLOOD_CUTTER_Weapon_T01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/740/short3 |  |  |  |
+| mesh | BLOOD_CUTTER_Weapon.X |  | 0 | exact copy available | data142/27274 |  |  |  |
+| mesh | BLOOD_CUTTER_Weapon_T01.X |  | 0 | exact copy available | data142/740 |  |  |  |
 | mesh | BLOOD_CUTTER_Weapon_TRACE.X |  | 0 | exact copy available | data142/2504 |  |  |  |
 | mesh | BoneDragonSkillC_AttackMesh01.X |  | 0 | exact copy available | data002/2001 |  |  |  |
 | mesh | BoneDragonSkillC_Bone01.Y |  | 0 | exact copy available | data002/2304 |  |  |  |
 | mesh | Boss_Apocalypse_EVENT_2.Y |  | 0 | exact copy available | data002/845 |  |  |  |
 | mesh | Boss_Apocalypse_EVENT_3.Y |  | 0 | exact copy available | data002/845 |  |  |  |
-| mesh | Boss_Herbaon_Arms01.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3947/short2 |  |  |  |
-| mesh | Boss_HernaShield_Arms.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/620/short3 |  |  |  |
+| mesh | Boss_Herbaon_Arms01.y |  | 0 | exact copy available | data002/3947 |  |  |  |
+| mesh | Boss_HernaShield_Arms.Y |  | 0 | exact copy available | data002/620 |  |  |  |
 | mesh | Boss_HernaShield_Crown.Y |  | 0 | exact copy available | data002/945 |  |  |  |
 | mesh | Brutal_Cutter_Weapon_T.X |  | 0 | exact copy available | data142/22916 |  |  |  |
 | mesh | Brutal_Cutter_Weapon_W.X |  | 0 | exact copy available | data142/34799 |  |  |  |
@@ -632,58 +630,58 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | BUFF_PHANTOM_CIRCLE_4.Y |  | 0 | exact copy available | data157/579 |  |  |  |
 | mesh | BUFF_PHANTOM_CIRCLE_5.Y |  | 0 | exact copy available | data157/574 |  |  |  |
 | mesh | BUFF_PHANTOM_CIRCLE_Rune.Y |  | 0 | exact copy available | data157/587 |  |  |  |
-| mesh | BumBleBee_C_AttackX_M1.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2324/short3 |  |  |  |
+| mesh | BumBleBee_C_AttackX_M1.X |  | 0 | exact copy available | data002/2324 |  |  |  |
 | mesh | BumBleBee_C_AttackX_M2.X |  | 0 | exact copy available | data002/2329 |  |  |  |
 | mesh | BumBleBee_C_AttackX_M3.X |  | 0 | exact copy available | data002/2108 |  |  |  |
 | mesh | BumBleBee_C_SkillC_E1.Y |  | 0 | exact copy available | data002/13534 |  |  |  |
-| mesh | BumBleBee_C_SkillC_E2.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/18950/short3 |  |  |  |
+| mesh | BumBleBee_C_SkillC_E2.Y |  | 0 | exact copy available | data002/18950 |  |  |  |
 | mesh | BumBleBeeAttackZ_M01.X |  | 0 | exact copy available | data002/1543 |  |  |  |
 | mesh | BumBleBeeAttackZ_M02.X |  | 0 | exact copy available | data002/1550 |  |  |  |
 | mesh | BumBleBeeAttackZ_M2_01.X |  | 0 | exact copy available | data002/1568 |  |  |  |
-| mesh | BumBleBeeAttackZ_M2_02.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1578/short1 |  |  |  |
-| mesh | butterfly_Sit01.X |  | 0 | exact copy available | data002/2368 |  |  |  |
-| mesh | butterfly_Sit02.X |  | 0 | exact copy available | data002/2336 |  |  |  |
-| mesh | butterfly_Sit03.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2330/short1 |  |  |  |
-| mesh | C_EL3_TR_01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/2458/short1 |  |  |  |
+| mesh | BumBleBeeAttackZ_M2_02.X |  | 0 | exact copy available | data002/1578 |  |  |  |
+| mesh | butterfly_Sit01.X |  | 1 | exact copy available | data002/2368 |  |  |  |
+| mesh | butterfly_Sit02.X |  | 1 | exact copy available | data002/2336 |  |  |  |
+| mesh | butterfly_Sit03.X |  | 1 | exact copy available | data002/2330 |  |  |  |
+| mesh | C_EL3_TR_01.X |  | 0 | exact copy available | data142/2458 |  |  |  |
 | mesh | C_EL3_TR_02.X |  | 0 | exact copy available | data142/2393 |  |  |  |
 | mesh | Card_01.X |  | 0 | exact copy available | data002/1304 |  |  |  |
-| mesh | Cash03_Common_Emotion_Moon01.Y |  | 0 | exact copy available | data002/6318 |  |  |  |
-| mesh | Cash03_Common_Emotion_MoonA01.Y |  | 0 | exact copy available | data002/6319 |  |  |  |
-| mesh | Cash03_Common_Emotion_MoonCrystal_UV.Y |  | 0 | exact copy available | data002/7950 |  |  |  |
-| mesh | Cash03_Common_Emotion_Sit_DarkC.Y |  | 0 | exact copy available | data002/6323 |  |  |  |
+| mesh | Cash03_Common_Emotion_Moon01.Y |  | 1 | exact copy available | data002/6318 |  |  |  |
+| mesh | Cash03_Common_Emotion_MoonA01.Y |  | 1 | exact copy available | data002/6319 |  |  |  |
+| mesh | Cash03_Common_Emotion_MoonCrystal_UV.Y |  | 3 | exact copy available | data002/7950 |  |  |  |
+| mesh | Cash03_Common_Emotion_Sit_DarkC.Y |  | 1 | exact copy available | data002/6323 |  |  |  |
 | mesh | Cash03_Common_Emotion_Sit_MainDummy.X |  | 0 | exact copy available | data002/31156 |  |  |  |
 | mesh | Cash03_Common_Emotion_Sit_MainDummyA.X |  | 0 | exact copy available | data002/30543 |  |  |  |
 | mesh | Cash03_Common_Emotion_Sit_MainDummyB.X |  | 0 | exact copy available | data002/30543 |  |  |  |
 | mesh | Cash03_Common_Emotion_Sit_MainDummyCrystal.X |  | 0 | exact copy available | data002/30553 |  |  |  |
 | mesh | Cash03_Common_Emotion_Sit_MainDummyDarkC.X |  | 0 | exact copy available | data002/30548 |  |  |  |
 | mesh | Cash19_Common_Emotion_Sit.X |  | 0 | exact copy available | data002/40233 |  |  |  |
-| mesh | Cash19_EmotionSit_P01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5332/short3 |  |  |  |
+| mesh | Cash19_EmotionSit_P01.Y |  | 6 | exact copy available | data002/5332 |  |  |  |
 | mesh | Cash1_Emotion_Sit.X |  | 0 | exact copy available | data002/24081 |  |  |  |
 | mesh | Cash20_Common_Emotion_Sit.X |  | 0 | exact copy available | data002/40527 |  |  |  |
 | mesh | Cash21_Common_EF_Baton.X |  | 0 | exact copy available | data002/1566 |  |  |  |
-| mesh | Cash21_Common_EF_Baton_Boy.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1500/short3 |  |  |  |
+| mesh | Cash21_Common_EF_Baton_Boy.X |  | 0 | exact copy available | data002/1500 |  |  |  |
 | mesh | Cash21_Common_Emotion_Sit_Card.X |  | 0 | exact copy available | data002/79500 |  |  |  |
 | mesh | Cash21_Common_Emotion_Sit_Hat.X |  | 0 | exact copy available | data002/19327 |  |  |  |
 | mesh | Cash21_Common_Emotion_Sit_Rabbit.X |  | 0 | exact copy available | data002/301953 |  |  |  |
 | mesh | Cash21A_Common_Emotion_Sit_Card.X |  | 0 | exact copy available | data002/80048 |  |  |  |
 | mesh | Cash21A_Common_Emotion_Sit_Hat.X |  | 0 | exact copy available | data002/19328 |  |  |  |
 | mesh | Cash21A_Common_Emotion_Sit_Rabbit.X |  | 0 | exact copy available | data002/301958 |  |  |  |
-| mesh | Cash22_Sit.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/26212/short1 |  |  |  |
+| mesh | Cash22_Sit.X |  | 0 | exact copy available | data002/26212 |  |  |  |
 | mesh | Cash22_Sit_2p.X |  | 0 | exact copy available | data002/26220 |  |  |  |
 | mesh | Cash23_Emotion_Sit.X |  | 0 | exact copy available | data002/14648 |  |  |  |
 | mesh | Cash23_Emotion_SitA.X |  | 0 | exact copy available | data002/2185 |  |  |  |
-| mesh | Cash24_Emotion_Sit.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/42467/short1 |  |  |  |
+| mesh | Cash24_Emotion_Sit.X |  | 0 | exact copy available | data002/42467 |  |  |  |
 | mesh | Cash25_Emotion_Sit.X |  | 0 | exact copy available | data002/212290 |  |  |  |
 | mesh | Cash25_Emotion_Sit_2p.X |  | 0 | exact copy available | data002/212293 |  |  |  |
 | mesh | Cash26_Emotion_Sit.x |  | 0 | exact copy available | data002/155879 |  |  |  |
 | mesh | Cash28_Emotion_Sit.X |  | 0 | exact copy available | data002/57364 |  |  |  |
-| mesh | Cash29_Coin_Particle_M01.X |  | 0 | exact copy available | data002/1269 |  |  |  |
-| mesh | Cash29_Coin_Particle_M08.x |  | 0 | exact copy available | data002/3462 |  |  |  |
+| mesh | Cash29_Coin_Particle_M01.X |  | 4 | exact copy available | data002/1269 |  |  |  |
+| mesh | Cash29_Coin_Particle_M08.x |  | 1 | exact copy available | data002/3462 |  |  |  |
 | mesh | Cash29_Emotion_Sit.X |  | 0 | exact copy available | data002/110694 |  |  |  |
 | mesh | Cash2_Chung_Emotion_Sit_Book.X |  | 0 | exact copy available | data117/2530 |  |  |  |
-| mesh | Cash2_Emotion_Sit.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/111239/short2 |  |  |  |
-| mesh | Cash30_Candy_Particle_M01.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3674/short1 |  |  |  |
-| mesh | Cash30_Custom_HyperEffect_Start_P01.y |  | 0 | exact copy available | data002/885 |  |  |  |
+| mesh | Cash2_Emotion_Sit.X |  | 0 | exact copy available | data002/111239 |  |  |  |
+| mesh | Cash30_Candy_Particle_M01.x |  | 1 | exact copy available | data002/3674 |  |  |  |
+| mesh | Cash30_Custom_HyperEffect_Start_P01.y |  | 4 | exact copy available | data002/885 |  |  |  |
 | mesh | Cash30_Emotion_Sit.X |  | 0 | exact copy available | data002/73011 |  |  |  |
 | mesh | Cash32_Emotion_Sit.X |  | 0 | exact copy available | data002/58100 |  |  |  |
 | mesh | Cash33_Egg_FX.x |  | 0 | exact copy available | data002/3808 |  |  |  |
@@ -695,43 +693,43 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Cash36_Emotion_Sit_M.X |  | 0 | exact copy available | data002/786319 |  |  |  |
 | mesh | Cash36_Emotion_Sit_M_A.X |  | 0 | exact copy available | data002/786333 |  |  |  |
 | mesh | Cash36_Emotion_Sit_W.X |  | 0 | exact copy available | data002/788048 |  |  |  |
-| mesh | Cash36_Emotion_Sit_W_A.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/787621/short2 |  |  |  |
-| mesh | Cash37_Emotion_Sit_Chair.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/11586/short1 |  |  |  |
+| mesh | Cash36_Emotion_Sit_W_A.X |  | 0 | exact copy available | data002/787621 |  |  |  |
+| mesh | Cash37_Emotion_Sit_Chair.x |  | 0 | exact copy available | data002/11586 |  |  |  |
 | mesh | Cash38_Emotion_Sit.x |  | 0 | exact copy available | data002/23459 |  |  |  |
-| mesh | Cash38_Emotion_Sit_Pen.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5850/short1 |  |  |  |
-| mesh | Cash39_Emotion_Sit_Cup.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1876/short3 |  |  |  |
+| mesh | Cash38_Emotion_Sit_Pen.x |  | 0 | exact copy available | data002/5850 |  |  |  |
+| mesh | Cash39_Emotion_Sit_Cup.X |  | 0 | exact copy available | data002/1876 |  |  |  |
 | mesh | Cash39_Emotion_Sit_Wait.X |  | 0 | exact copy available | data002/13502 |  |  |  |
 | mesh | Cash39A_Emotion_Sit_Wait.X |  | 0 | exact copy available | data002/403732 |  |  |  |
 | mesh | Cash40_Emotion_Sit.X |  | 0 | exact copy available | data002/1852730 |  |  |  |
-| mesh | Cash41_Emotion_Sit.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1023765/short1 |  |  |  |
+| mesh | Cash41_Emotion_Sit.X |  | 0 | exact copy available | data002/1023765 |  |  |  |
 | mesh | Cash41A_Emotion_Sit.X |  | 0 | exact copy available | data002/1399051 |  |  |  |
 | mesh | Cash42_Emotion_Sit.X |  | 0 | exact copy available | data002/83163 |  |  |  |
-| mesh | Cash50_Custom_HyperEffect_Start_P01.y |  | 0 | exact copy available | data002/2344 |  |  |  |
-| mesh | Cash50_Custom_HyperEffect_Start_P02.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/899/short2 |  |  |  |
-| mesh | Cash50_Custom_HyperEffect_Start_P04.y |  | 0 | exact copy available | data002/1046 |  |  |  |
-| mesh | Cash6_Chung_Custom_WaitHabit.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/21608/short3 |  |  |  |
-| mesh | Cash6_Common_Custom_WaitHabit.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/20164/short1 |  |  |  |
-| mesh | Cash_AC_Arm_1770_Sorted.x |  | 0 | exact copy available | data002/2647 |  |  |  |
-| mesh | Cash_AC_ARM_Set2_Cup.X |  | 0 | exact copy available | data002/35126 |  |  |  |
-| mesh | Cash_AC_ARM_Set2_Water.X |  | 0 | exact copy available | data002/5032 |  |  |  |
-| mesh | Cash_AC_ARM_Set2A_Cup.X |  | 0 | exact copy available | data002/35124 |  |  |  |
-| mesh | Cash_AC_ARM_Set2A_Water.X |  | 0 | exact copy available | data002/5033 |  |  |  |
-| mesh | Cash_AC_Back1_Set1_1.X |  | 0 | exact copy available | data002/4354 |  |  |  |
-| mesh | Cash_AC_Back1_Set1_2.X |  | 0 | exact copy available | data002/4030 |  |  |  |
-| mesh | Cash_AC_Face1_Set1_1.X |  | 0 | exact copy available | data002/9140 |  |  |  |
-| mesh | Cash_AC_Face1_Set1_1A.X |  | 0 | exact copy available | data002/9140 |  |  |  |
-| mesh | Cash_AC_Face1_Set1_2.X |  | 0 | exact copy available | data002/5528 |  |  |  |
-| mesh | Cash_AC_Foot_Set2A_Wind.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1362/short1 |  |  |  |
-| mesh | Cash_AC_Lowbody_1770_Sorted_1.Y |  | 0 | exact copy available | data002/653 |  |  |  |
-| mesh | Cash_AC_Lowbody_Set7_4.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1292/short3 |  |  |  |
-| mesh | Cash_AC_Lowbody_Set7_6.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/652/short3 |  |  |  |
-| mesh | Cash_Wakeup_lightning_Start.X |  | 0 | exact copy available | data002/2609 |  |  |  |
-| mesh | Cash_Wakeup_Lightning_Start_Spark.X |  | 0 | exact copy available | data002/1037 |  |  |  |
+| mesh | Cash50_Custom_HyperEffect_Start_P01.y |  | 2 | exact copy available | data002/2344 |  |  |  |
+| mesh | Cash50_Custom_HyperEffect_Start_P02.y |  | 1 | exact copy available | data002/899 |  |  |  |
+| mesh | Cash50_Custom_HyperEffect_Start_P04.y |  | 2 | exact copy available | data002/1046 |  |  |  |
+| mesh | Cash6_Chung_Custom_WaitHabit.X |  | 0 | exact copy available | data002/21608 |  |  |  |
+| mesh | Cash6_Common_Custom_WaitHabit.X |  | 0 | exact copy available | data002/20164 |  |  |  |
+| mesh | Cash_AC_Arm_1770_Sorted.x |  | 1 | exact copy available | data002/2647 |  |  |  |
+| mesh | Cash_AC_ARM_Set2_Cup.X |  | 1 | exact copy available | data002/35126 |  |  |  |
+| mesh | Cash_AC_ARM_Set2_Water.X |  | 1 | exact copy available | data002/5032 |  |  |  |
+| mesh | Cash_AC_ARM_Set2A_Cup.X |  | 1 | exact copy available | data002/35124 |  |  |  |
+| mesh | Cash_AC_ARM_Set2A_Water.X |  | 1 | exact copy available | data002/5033 |  |  |  |
+| mesh | Cash_AC_Back1_Set1_1.X |  | 2 | exact copy available | data002/4354 |  |  |  |
+| mesh | Cash_AC_Back1_Set1_2.X |  | 2 | exact copy available | data002/4030 |  |  |  |
+| mesh | Cash_AC_Face1_Set1_1.X |  | 1 | exact copy available | data002/9140 |  |  |  |
+| mesh | Cash_AC_Face1_Set1_1A.X |  | 1 | exact copy available | data002/9140 |  |  |  |
+| mesh | Cash_AC_Face1_Set1_2.X |  | 2 | exact copy available | data002/5528 |  |  |  |
+| mesh | Cash_AC_Foot_Set2A_Wind.Y |  | 6 | exact copy available | data002/1362 |  |  |  |
+| mesh | Cash_AC_Lowbody_1770_Sorted_1.Y |  | 1 | exact copy available | data002/653 |  |  |  |
+| mesh | Cash_AC_Lowbody_Set7_4.y |  | 4 | exact copy available | data002/1292 |  |  |  |
+| mesh | Cash_AC_Lowbody_Set7_6.y |  | 1 | exact copy available | data002/652 |  |  |  |
+| mesh | Cash_Wakeup_lightning_Start.X |  | 1 | exact copy available | data002/2609 |  |  |  |
+| mesh | Cash_Wakeup_Lightning_Start_Spark.X |  | 5 | exact copy available | data002/1037 |  |  |  |
 | mesh | Cash_Wakeup_powermorph_Twist.y |  | 0 | exact copy available | data002/4494 |  |  |  |
 | mesh | Character_Dungeon_BOSS_Waiting_Dummy.X |  | 0 | exact copy available | data002/3942 |  |  |  |
-| mesh | Chilling_Hedghog_Freezing01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/660/short3 |  |  |  |
+| mesh | Chilling_Hedghog_Freezing01.Y |  | 0 | exact copy available | data002/660 |  |  |  |
 | mesh | Chung_Cash6_Common_Custom_WaitHabit_Gun_L.x |  | 0 | exact copy available | data002/12410 |  |  |  |
-| mesh | Chung_Cash6_Common_Custom_WaitHabit_Gun_R.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/12120/short2 |  |  |  |
+| mesh | Chung_Cash6_Common_Custom_WaitHabit_Gun_R.x |  | 0 | exact copy available | data002/12120 |  |  |  |
 | mesh | Corgi_bone.x |  | 0 | exact copy available | data002/3727 |  |  |  |
 | mesh | Crest_of_Time_Time_Back.X |  | 0 | exact copy available | data147/1745 |  |  |  |
 | mesh | Crest_of_Time_Time_Start.X |  | 0 | exact copy available | data147/2435 |  |  |  |
@@ -740,31 +738,31 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | CSI_CHUNG_Cannon_Effect03.X |  | 0 | exact copy available | data117/2481 |  |  |  |
 | mesh | CTT_Cannon_Prison_jul.y |  | 0 | exact copy available | data002/1169 |  |  |  |
 | mesh | CTT_Cannon_Prison_Line.Y |  | 0 | exact copy available | data002/1061 |  |  |  |
-| mesh | CTT_Cannon_Prison_Misille.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3291/short2 |  |  |  |
-| mesh | CTT_Cannon_Prison_Misille_ELE.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3996/short3 |  |  |  |
+| mesh | CTT_Cannon_Prison_Misille.Y |  | 0 | exact copy available | data002/3291 |  |  |  |
+| mesh | CTT_Cannon_Prison_Misille_ELE.Y |  | 0 | exact copy available | data002/3996 |  |  |  |
 | mesh | CTT_Cannon_Prison_PTION.X |  | 0 | exact copy available | data002/4224 |  |  |  |
 | mesh | Dark_Drabaki_Attack_Rock.X |  | 0 | exact copy available | data002/2206 |  |  |  |
 | mesh | Dark_Drabaki_S1_Attack_C_Tail.X |  | 0 | exact copy available | data002/198713 |  |  |  |
 | mesh | Dark_Drabaki_S1_Attack_D_Tail.X |  | 0 | exact copy available | data002/189504 |  |  |  |
 | mesh | Dark_Drabaki_S1_Attack_E_Tail.X |  | 0 | exact copy available | data002/189165 |  |  |  |
 | mesh | Dark_Drabaki_S2_Attack_A_Tail.X |  | 0 | exact copy available | data002/189576 |  |  |  |
-| mesh | Dark_Drabaki_S2_Attack_B_Tail.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/189880/short1 |  |  |  |
-| mesh | Dark_Drabaki_S2_Attack_C_Tail.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/198987/short1 |  |  |  |
-| mesh | Dark_Drabaki_S2_Attack_E_Dummy01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/578/short1 |  |  |  |
-| mesh | Dark_Drabaki_S3_Attack_C_Tail.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/188987/short1 |  |  |  |
-| mesh | Dark_Drabaki_S3_Attack_D_Tail.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/189256/short1 |  |  |  |
+| mesh | Dark_Drabaki_S2_Attack_B_Tail.X |  | 0 | exact copy available | data002/189880 |  |  |  |
+| mesh | Dark_Drabaki_S2_Attack_C_Tail.X |  | 0 | exact copy available | data002/198987 |  |  |  |
+| mesh | Dark_Drabaki_S2_Attack_E_Dummy01.X |  | 0 | exact copy available | data002/578 |  |  |  |
+| mesh | Dark_Drabaki_S3_Attack_C_Tail.X |  | 0 | exact copy available | data002/188987 |  |  |  |
+| mesh | Dark_Drabaki_S3_Attack_D_Tail.X |  | 0 | exact copy available | data002/189256 |  |  |  |
 | mesh | Dark_Drabaki_S3_Attack_E_Tail.X |  | 0 | exact copy available | data002/198910 |  |  |  |
 | mesh | Dark_Drabaki_S3_Attack_F_Fire.X |  | 0 | exact copy available | data002/965 |  |  |  |
-| mesh | Dark_Drabaki_S3_Attack_F_Fire02.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/8650/short2 |  |  |  |
+| mesh | Dark_Drabaki_S3_Attack_F_Fire02.X |  | 0 | exact copy available | data002/8650 |  |  |  |
 | mesh | Dark_Drabaki_S3_H_AttackBox.X |  | 0 | exact copy available | data002/1715 |  |  |  |
 | mesh | Dark_Drabaki_Start_WorldDummy01.X |  | 0 | exact copy available | data002/609 |  |  |  |
 | mesh | Dark_Drabaki_Time_Out_Dummy01.X |  | 0 | exact copy available | data002/645 |  |  |  |
 | mesh | DARK_MAGICIAN_BOSS_Attack_B001.Y |  | 0 | exact copy available | data002/933 |  |  |  |
 | mesh | DARK_MAGICIAN_BOSS_Attack_B01.X |  | 0 | exact copy available | data002/885 |  |  |  |
-| mesh | Darkchaser_TIRE_Light.y |  | 0 | exact copy available | data002/5957 |  |  |  |
+| mesh | Darkchaser_TIRE_Light.y |  | 1 | exact copy available | data002/5957 |  |  |  |
 | mesh | DEBUFF_AIN_2ST_LINE_EL_KEIM_01.y |  | 0 | exact copy available | data212/711 |  |  |  |
 | mesh | DEBUFF_AIN_2ST_LINE_EL_KEIM_02.y |  | 0 | exact copy available | data212/737 |  |  |  |
-| mesh | Dekal_Mo1.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/866/short1 |  |  |  |
+| mesh | Dekal_Mo1.x |  | 0 | exact copy available | data002/866 |  |  |  |
 | mesh | Dekal_Mo2.x |  | 0 | exact copy available | data002/865 |  |  |  |
 | mesh | Demension_Blader_Laser_MEMO.X |  | 0 | exact copy available | data119/15269 |  |  |  |
 | mesh | DESPERADO_BRAKE_Dark.Y |  | 0 | exact copy available | data157/1209 |  |  |  |
@@ -773,15 +771,15 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | DEVIL_SKA_Dying.Y |  | 0 | exact copy available | data002/263093 |  |  |  |
 | mesh | DIABOLIC_DISASTER_Floor_ALLaddGLOW.Y |  | 0 | exact copy available | data157/568 |  |  |  |
 | mesh | Disparate_Force_Power_Of_God_Active_Attack_Arrow.X |  | 0 | exact copy available | data212/1921 |  |  |  |
-| mesh | Disparate_Force_Power_Of_God_Active_Attack_Arrow_Wire.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/1939/short2 |  |  |  |
+| mesh | Disparate_Force_Power_Of_God_Active_Attack_Arrow_Wire.X |  | 0 | exact copy available | data212/1939 |  |  |  |
 | mesh | Divine_Blade_Sword.Y |  | 0 | exact copy available | data002/10621 |  |  |  |
-| mesh | DJ_6st_AC_2.Y |  | 0 | exact copy available | data002/2021 |  |  |  |
-| mesh | DJ_6st_AC_7.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1388/short3 |  |  |  |
-| mesh | DJ_6st_AC_7_Blue.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/714/short1 |  |  |  |
-| mesh | DJ_6st_AC_Rune.Y |  | 0 | exact copy available | data002/582 |  |  |  |
-| mesh | DJ_6st_AC_Side_1.Y |  | 0 | exact copy available | data002/624 |  |  |  |
-| mesh | DJ_6st_AC_Side_2.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/628/short3 |  |  |  |
-| mesh | DJ_6st_AC_Side_3.Y |  | 0 | exact copy available | data002/621 |  |  |  |
+| mesh | DJ_6st_AC_2.Y |  | 2 | exact copy available | data002/2021 |  |  |  |
+| mesh | DJ_6st_AC_7.Y |  | 1 | exact copy available | data002/1388 |  |  |  |
+| mesh | DJ_6st_AC_7_Blue.Y |  | 1 | exact copy available | data002/714 |  |  |  |
+| mesh | DJ_6st_AC_Rune.Y |  | 4 | exact copy available | data002/582 |  |  |  |
+| mesh | DJ_6st_AC_Side_1.Y |  | 2 | exact copy available | data002/624 |  |  |  |
+| mesh | DJ_6st_AC_Side_2.Y |  | 2 | exact copy available | data002/628 |  |  |  |
+| mesh | DJ_6st_AC_Side_3.Y |  | 2 | exact copy available | data002/621 |  |  |  |
 | mesh | DoubleSlash_FM1.Y |  | 0 | exact copy available | data118/1530 |  |  |  |
 | mesh | DoubleSlash_FM2.Y |  | 0 | exact copy available | data118/1798 |  |  |  |
 | mesh | DoubleSlash_FM3.Y |  | 0 | exact copy available | data118/3710 |  |  |  |
@@ -789,17 +787,17 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | DoubleSlash_FM5.Y |  | 0 | exact copy available | data118/1972 |  |  |  |
 | mesh | DoubleSlash_M1.X |  | 0 | exact copy available | data118/1933 |  |  |  |
 | mesh | DoubleSlash_M2.X |  | 0 | exact copy available | data118/1931 |  |  |  |
-| mesh | DoubleSlash_M3.X |  | 0 | exact copy available | data118/1936 |  |  |  |
+| mesh | DoubleSlash_M3.X |  | 2 | exact copy available | data118/1936 |  |  |  |
 | mesh | DoubleSlash_SwordWY01.Y |  | 0 | exact copy available | data118/6153 |  |  |  |
 | mesh | DREAD_WEAPON_sawtooth.X |  | 0 | exact copy available | data142/16500 |  |  |  |
-| mesh | DREAD_WEAPON_TRACE01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/6401/short1 |  |  |  |
+| mesh | DREAD_WEAPON_TRACE01.X |  | 0 | exact copy available | data142/6401 |  |  |  |
 | mesh | DREAD_WEAPON_TRACE02.X |  | 0 | exact copy available | data142/2521 |  |  |  |
 | mesh | Dummy_EffectSet_Eltrion3p_A_Sb_Point_Set.X |  | 0 | exact copy available | data002/583 |  |  |  |
 | mesh | Dummy_Eltrion2p_S1_A_l_READY_Alarm.X |  | 0 | exact copy available | data002/560 |  |  |  |
-| mesh | Dummy_Eltrion2p_S2_Hand_Alarm.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/540/short3 |  |  |  |
+| mesh | Dummy_Eltrion2p_S2_Hand_Alarm.X |  | 0 | exact copy available | data002/540 |  |  |  |
 | mesh | Dummy_Eltrion_Angry_ArmL.x |  | 0 | exact copy available | data002/2000 |  |  |  |
 | mesh | Dummy_Eltrion_Angry_HEAD.x |  | 0 | exact copy available | data002/825 |  |  |  |
-| mesh | Dummy_Eltrion_Angry_WingR.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/810/short1 |  |  |  |
+| mesh | Dummy_Eltrion_Angry_WingR.x |  | 0 | exact copy available | data002/810 |  |  |  |
 | mesh | Dummy_Move_RedD_AC.X |  | 0 | exact copy available | data002/1215 |  |  |  |
 | mesh | Dummy_Per3P_D_D_Ready.x |  | 0 | exact copy available | data002/641 |  |  |  |
 | mesh | Dummy_Per3P_Human_Start_Direct_Chair.x |  | 0 | exact copy available | data002/493 |  |  |  |
@@ -813,9 +811,9 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Dummy_Trace_JetSki_GUIDELIGHT.x |  | 0 | exact copy available | data002/1854 |  |  |  |
 | mesh | DummyABox_100x50x50.X |  | 0 | exact copy available | data002/904 |  |  |  |
 | mesh | DummyAttackBox_1500x50x50.X |  | 0 | exact copy available | data002/2306 |  |  |  |
-| mesh | DummyAttackBox_150x150x150.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/842/short1 |  |  |  |
-| mesh | DummyAttackBox_150x250x50.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1730/short1 |  |  |  |
-| mesh | DummyAttackBox_150x50x50.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/956/short3 |  |  |  |
+| mesh | DummyAttackBox_150x150x150.X |  | 0 | exact copy available | data002/842 |  |  |  |
+| mesh | DummyAttackBox_150x250x50.X |  | 0 | exact copy available | data002/1730 |  |  |  |
+| mesh | DummyAttackBox_150x50x50.x |  | 0 | exact copy available | data002/956 |  |  |  |
 | mesh | DummyAttackBox_1750x1750x200_Circle.X |  | 0 | exact copy available | data002/2850 |  |  |  |
 | mesh | DummyAttackBox_200x50x50.X |  | 0 | exact copy available | data002/926 |  |  |  |
 | mesh | DummyAttackBox_200x50x50_X.x |  | 0 | exact copy available | data002/1252 |  |  |  |
@@ -824,11 +822,11 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | DummyAttackBox_300x50x50_Front.X |  | 0 | exact copy available | data002/1078 |  |  |  |
 | mesh | DummyAttackBox_500x50x50.X |  | 0 | exact copy available | data002/1326 |  |  |  |
 | mesh | DummyAttackBox_50x100x50.X |  | 0 | exact copy available | data002/1029 |  |  |  |
-| mesh | DummyAttackBox_50x150x50.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1124/short3 |  |  |  |
+| mesh | DummyAttackBox_50x150x50.X |  | 0 | exact copy available | data002/1124 |  |  |  |
 | mesh | DummyAttackBox_50x200x50.X |  | 0 | exact copy available | data002/1025 |  |  |  |
-| mesh | DummyAttackBox_50x300x50.X |  | 1 | extracted copy is short (elstools algo-2 tail loss) | data002/1171/short2 |  |  |  |
-| mesh | DummyAttackBox_50x50x300.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1218/short1 |  |  |  |
-| mesh | DummyAttackBox_50x50x50_Round_Center.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1402/short1 |  |  |  |
+| mesh | DummyAttackBox_50x300x50.X |  | 1 | exact copy available | data002/1171 |  |  |  |
+| mesh | DummyAttackBox_50x50x300.X |  | 0 | exact copy available | data002/1218 |  |  |  |
+| mesh | DummyAttackBox_50x50x50_Round_Center.X |  | 0 | exact copy available | data002/1402 |  |  |  |
 | mesh | DummyAttackBox_550x300x50.X |  | 0 | exact copy available | data002/3717 |  |  |  |
 | mesh | DummyAttackBox_600x50x50.X |  | 0 | exact copy available | data002/1321 |  |  |  |
 | mesh | DummyAttackBox_800x50x50.X |  | 0 | exact copy available | data002/1221 |  |  |  |
@@ -836,7 +834,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | DummyAttackBox_CTT_Bombing_Artillerry.X |  | 0 | exact copy available | data002/1525 |  |  |  |
 | mesh | DummyAttackBox_LDB_MORTALFEAR_Launch.X |  | 0 | exact copy available | data002/1224 |  |  |  |
 | mesh | DummyAttackBox_Per3P_D_D_Fire.x |  | 0 | exact copy available | data002/1007 |  |  |  |
-| mesh | DummyAttackBox_Per3P_D_E_Fire.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3091/short2 |  |  |  |
+| mesh | DummyAttackBox_Per3P_D_E_Fire.x |  | 0 | exact copy available | data002/3091 |  |  |  |
 | mesh | DummyAttackBox_Per3P_H_H_Fire.x |  | 0 | exact copy available | data002/1424 |  |  |  |
 | mesh | DummyAttackBox_RedD_sohan_300x50x50_F.x |  | 0 | exact copy available | data002/967 |  |  |  |
 | mesh | DummyAttackBox_RedDragon_MOVE_3000x50x50_F.x |  | 0 | exact copy available | data002/2148 |  |  |  |
@@ -857,22 +855,22 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | EEP_GenocideRipperA05.X |  | 0 | exact copy available | data119/54800 |  |  |  |
 | mesh | EEP_GenocideRipperA06.X |  | 0 | exact copy available | data119/55424 |  |  |  |
 | mesh | EEP_SpaceWrench_AttackMesh.X |  | 0 | exact copy available | data119/5580 |  |  |  |
-| mesh | Effect_AttackC_Dash_01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/129263/short1 |  |  |  |
+| mesh | Effect_AttackC_Dash_01.X |  | 0 | exact copy available | data002/129263 |  |  |  |
 | mesh | Effect_AttackC_Dash_02.X |  | 0 | exact copy available | data002/130369 |  |  |  |
 | mesh | Effect_AttackC_Dash_03.X |  | 0 | exact copy available | data002/199420 |  |  |  |
 | mesh | Effect_AttackC_Dash_04.X |  | 0 | exact copy available | data002/154141 |  |  |  |
-| mesh | Effect_Constellation_Mesh.X |  | 0 | exact copy available | data002/4218 |  |  |  |
+| mesh | Effect_Constellation_Mesh.X |  | 1 | exact copy available | data002/4218 |  |  |  |
 | mesh | Effect_Giroro_Rocket.X |  | 0 | exact copy available | data002/2934 |  |  |  |
-| mesh | Effect_Goldring_Mesh.x |  | 0 | exact copy available | data002/6612 |  |  |  |
+| mesh | Effect_Goldring_Mesh.x |  | 1 | exact copy available | data002/6612 |  |  |  |
 | mesh | Effect_Pet_Tamama_Attack_M01.X |  | 0 | exact copy available | data002/4262 |  |  |  |
 | mesh | Effect_Pet_Tamama_Attack_P01.X |  | 0 | exact copy available | data002/1776 |  |  |  |
 | mesh | Effect_Riding_Nightmare_Projectile.X |  | 0 | exact copy available | data002/9251 |  |  |  |
-| mesh | Effect_Riding_reindeer_AttackC_Ice.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1523/short2 |  |  |  |
+| mesh | Effect_Riding_reindeer_AttackC_Ice.X |  | 0 | exact copy available | data002/1523 |  |  |  |
 | mesh | Effect_Riding_reindeer_AttackC_projectile.X |  | 0 | exact copy available | data002/8355 |  |  |  |
 | mesh | Effect_Riding_reindeer_AttackC_projectile_Tornado.X |  | 0 | exact copy available | data002/39602 |  |  |  |
-| mesh | Effect_Riding_reindeer_AttackZ.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/9008/short2 |  |  |  |
-| mesh | EffectSet_Riding_reindeer_AttackX.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/72161/short3 |  |  |  |
-| mesh | EffectSet_Riding_reindeer_JumpAttackZ.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/19190/short1 |  |  |  |
+| mesh | Effect_Riding_reindeer_AttackZ.X |  | 0 | exact copy available | data002/9008 |  |  |  |
+| mesh | EffectSet_Riding_reindeer_AttackX.X |  | 0 | exact copy available | data002/72161 |  |  |  |
+| mesh | EffectSet_Riding_reindeer_JumpAttackZ.X |  | 0 | exact copy available | data002/19190 |  |  |  |
 | mesh | Effectset_SCA_Lose.X |  | 0 | exact copy available | data142/327453 |  |  |  |
 | mesh | EIS_BladeCircleDummy.X |  | 0 | exact copy available | data118/1230 |  |  |  |
 | mesh | EIS_BladeCircleWeapon.X |  | 0 | exact copy available | data118/8972 |  |  |  |
@@ -882,14 +880,14 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | EIS_InfinityStrikeT5.Y |  | 0 | exact copy available | data118/115248 |  |  |  |
 | mesh | EIS_InpinityChacer_Dummy.X |  | 0 | exact copy available | data118/2485 |  |  |  |
 | mesh | Ejection_Buster_Oura.Y |  | 0 | exact copy available | data142/624 |  |  |  |
-| mesh | Ejection_Buster_Oura3.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/1323/short2 |  |  |  |
+| mesh | Ejection_Buster_Oura3.Y |  | 0 | exact copy available | data142/1323 |  |  |  |
 | mesh | Ejection_Buster_Oura4.Y |  | 0 | exact copy available | data142/1190 |  |  |  |
 | mesh | Ejection_Buster_Oura6.Y |  | 0 | exact copy available | data142/1149 |  |  |  |
 | mesh | Ejection_Buster_Weapon.X |  | 0 | exact copy available | data142/47252 |  |  |  |
-| mesh | El_Crystal_Red.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2499/short2 |  |  |  |
-| mesh | El_Crystal_Yellow.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2499/short2 |  |  |  |
-| mesh | ELISION_CIRCLE_OBJEC_EF.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3147/short2 |  |  |  |
-| mesh | ELISION_CIRCLE_OBJEC_EF_1.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3170/short1 |  |  |  |
+| mesh | El_Crystal_Red.Y |  | 0 | exact copy available | data002/2499 |  |  |  |
+| mesh | El_Crystal_Yellow.Y |  | 0 | exact copy available | data002/2499 |  |  |  |
+| mesh | ELISION_CIRCLE_OBJEC_EF.X |  | 0 | exact copy available | data002/3147 |  |  |  |
+| mesh | ELISION_CIRCLE_OBJEC_EF_1.X |  | 0 | exact copy available | data002/3170 |  |  |  |
 | mesh | ELK_ArmageddonBladeB01.Y |  | 0 | exact copy available | data118/10525 |  |  |  |
 | mesh | ELK_ArmageddonBladeM01.X |  | 0 | exact copy available | data118/11482 |  |  |  |
 | mesh | ELK_Grand_Cross_Big.X |  | 0 | exact copy available | data002/1485 |  |  |  |
@@ -903,30 +901,30 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | ELK_WIND_SLICER_M01.Y |  | 0 | exact copy available | data118/4123 |  |  |  |
 | mesh | ELK_WIND_SLICER_M02.Y |  | 0 | exact copy available | data118/1386 |  |  |  |
 | mesh | Elpierce_rune_mesh01.y |  | 0 | exact copy available | data002/688 |  |  |  |
-| mesh | Elsion4_Tree_Glow_5.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1139/short2 |  |  |  |
+| mesh | Elsion4_Tree_Glow_5.Y |  | 1 | exact copy available | data002/1139 |  |  |  |
 | mesh | Elsion_6st_Floor_Fire.x |  | 0 | exact copy available | data002/1410 |  |  |  |
 | mesh | Elsion_BombPang_Mesh.X |  | 0 | exact copy available | data002/10734 |  |  |  |
 | mesh | ELSION_COMMANDER_STEALTH.X |  | 0 | exact copy available | data002/19947 |  |  |  |
 | mesh | ELSION_COMMANDER_STEALTH_EYE.X |  | 0 | exact copy available | data002/12390 |  |  |  |
 | mesh | ELSION_DEFENDER_A_ARM.Y |  | 0 | exact copy available | data002/2477 |  |  |  |
 | mesh | ELSION_DEFENDER_C_ARM.Y |  | 0 | exact copy available | data002/1358 |  |  |  |
-| mesh | ELSION_DEFENDER_C_ARM_ADD.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1364/short3 |  |  |  |
+| mesh | ELSION_DEFENDER_C_ARM_ADD.Y |  | 0 | exact copy available | data002/1364 |  |  |  |
 | mesh | ELSION_DirectEarth.x |  | 0 | exact copy available | data002/494 |  |  |  |
-| mesh | ELSION_HIGHTTEM_A_Weapon.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2019/short2 |  |  |  |
-| mesh | Elsion_Key_Object_Cristal.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2154/short1 |  |  |  |
+| mesh | ELSION_HIGHTTEM_A_Weapon.y |  | 0 | exact copy available | data002/2019 |  |  |  |
+| mesh | Elsion_Key_Object_Cristal.Y |  | 0 | exact copy available | data002/2154 |  |  |  |
 | mesh | Elsion_Key_Object_Dying.X |  | 0 | exact copy available | data002/46096 |  |  |  |
-| mesh | ELSION_LIBYA_B_PUNCH.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2514/short1 |  |  |  |
+| mesh | ELSION_LIBYA_B_PUNCH.y |  | 0 | exact copy available | data002/2514 |  |  |  |
 | mesh | ELSION_Maya_Weapon_Circle.y |  | 0 | exact copy available | data002/7454 |  |  |  |
 | mesh | ELSION_NEWDEFENDER_A_ARM.Y |  | 0 | exact copy available | data002/4469 |  |  |  |
-| mesh | ELSION_NEWDEFENDER_B_ARM.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5771/short2 |  |  |  |
+| mesh | ELSION_NEWDEFENDER_B_ARM.Y |  | 0 | exact copy available | data002/5771 |  |  |  |
 | mesh | ELSION_PROTO_A_ARM.Y |  | 0 | exact copy available | data002/2096 |  |  |  |
-| mesh | ELSION_PROVER_B_Fire_Spider.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2251/short2 |  |  |  |
-| mesh | ELSION_shiledpim_dying.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2608/short1 |  |  |  |
+| mesh | ELSION_PROVER_B_Fire_Spider.Y |  | 0 | exact copy available | data002/2251 |  |  |  |
+| mesh | ELSION_shiledpim_dying.Y |  | 0 | exact copy available | data002/2608 |  |  |  |
 | mesh | ELSION_SILENCE_a_ARM.Y |  | 0 | exact copy available | data002/2913 |  |  |  |
-| mesh | Elsion_SkyCross_Camera1.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5898/short1 |  |  |  |
+| mesh | Elsion_SkyCross_Camera1.X |  | 0 | exact copy available | data002/5898 |  |  |  |
 | mesh | ELSION_SUVEILLAN_Event_Hanh_L.Y |  | 0 | exact copy available | data002/9054 |  |  |  |
-| mesh | ELSION_SUVEILLAN_Event_HEAD.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/4722/short1 |  |  |  |
-| mesh | ELSION_SUVEILLAN_Event_Should_L.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2802/short1 |  |  |  |
+| mesh | ELSION_SUVEILLAN_Event_HEAD.Y |  | 0 | exact copy available | data002/4722 |  |  |  |
+| mesh | ELSION_SUVEILLAN_Event_Should_L.Y |  | 0 | exact copy available | data002/2802 |  |  |  |
 | mesh | ELSION_SUVEILLAN_Event_Should_R.Y |  | 0 | exact copy available | data002/2785 |  |  |  |
 | mesh | Elsword_RollingSmash_L01.Y |  | 0 | exact copy available | data118/766 |  |  |  |
 | mesh | Elsword_RollingSmash_L03.Y |  | 0 | exact copy available | data118/5349 |  |  |  |
@@ -940,22 +938,22 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Eltrion2p_Chest.Y |  | 0 | exact copy available | data002/7483 |  |  |  |
 | mesh | Eltrion2p_Chest_Beam.Y |  | 0 | exact copy available | data002/7733 |  |  |  |
 | mesh | Eltrion2p_Chest_BeamOUt.Y |  | 0 | exact copy available | data002/7636 |  |  |  |
-| mesh | Eltrion2p_Dron_A_Ready_Plane.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/804/short3 |  |  |  |
+| mesh | Eltrion2p_Dron_A_Ready_Plane.Y |  | 0 | exact copy available | data002/804 |  |  |  |
 | mesh | Eltrion2p_Dron_A_Sphere.Y |  | 0 | exact copy available | data002/3801 |  |  |  |
 | mesh | Eltrion2p_Dron_C_FIRE_Dron.Y |  | 0 | exact copy available | data002/9821 |  |  |  |
-| mesh | Eltrion2p_Dron_C_Line.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/748/short3 |  |  |  |
+| mesh | Eltrion2p_Dron_C_Line.Y |  | 0 | exact copy available | data002/748 |  |  |  |
 | mesh | Eltrion2p_EXb_Head_Glow.Y |  | 0 | exact copy available | data002/53300 |  |  |  |
 | mesh | Eltrion2p_Gimmic_light.Y |  | 0 | exact copy available | data002/840 |  |  |  |
-| mesh | Eltrion2p_PartDestruction_Smoke.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/979/short2 |  |  |  |
-| mesh | Eltrion2p_S1_A_l_READY_AlarmUp.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1043/short2 |  |  |  |
-| mesh | Eltrion2p_S1_EX_c_FIRE_Basic.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3079/short2 |  |  |  |
+| mesh | Eltrion2p_PartDestruction_Smoke.Y |  | 0 | exact copy available | data002/979 |  |  |  |
+| mesh | Eltrion2p_S1_A_l_READY_AlarmUp.Y |  | 0 | exact copy available | data002/1043 |  |  |  |
+| mesh | Eltrion2p_S1_EX_c_FIRE_Basic.Y |  | 0 | exact copy available | data002/3079 |  |  |  |
 | mesh | Eltrion2p_S1_EX_c_FIRE_Floor.Y |  | 0 | exact copy available | data002/949 |  |  |  |
-| mesh | Eltrion2p_S2EX_FIRE_AttackLine.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/948/short3 |  |  |  |
-| mesh | Eltrion2p_s2EX_FIRE_Bomb.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1036/short3 |  |  |  |
+| mesh | Eltrion2p_S2EX_FIRE_AttackLine.Y |  | 0 | exact copy available | data002/948 |  |  |  |
+| mesh | Eltrion2p_s2EX_FIRE_Bomb.Y |  | 0 | exact copy available | data002/1036 |  |  |  |
 | mesh | Eltrion2p_S2EX_Ready_GuideLine.Y |  | 0 | exact copy available | data002/1128 |  |  |  |
-| mesh | Eltrion2p_S2EX_Ready_Ring.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1651/short2 |  |  |  |
-| mesh | Eltrion2p_S2EX_Ready_Sign.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1098/short1 |  |  |  |
-| mesh | Eltrion2p_s3Wing_Shoulder.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/11105/short2 |  |  |  |
+| mesh | Eltrion2p_S2EX_Ready_Ring.Y |  | 0 | exact copy available | data002/1651 |  |  |  |
+| mesh | Eltrion2p_S2EX_Ready_Sign.Y |  | 1 | exact copy available | data002/1098 |  |  |  |
+| mesh | Eltrion2p_s3Wing_Shoulder.Y |  | 0 | exact copy available | data002/11105 |  |  |  |
 | mesh | Eltrion2p_s3Wing_Shoulder_EDIT.Y |  | 0 | exact copy available | data002/11107 |  |  |  |
 | mesh | Eltrion2p_Start_GateLight.Y |  | 0 | exact copy available | data002/21679 |  |  |  |
 | mesh | Eltrion2p_Start_GateLight_Position.X |  | 0 | exact copy available | data002/4761 |  |  |  |
@@ -964,16 +962,16 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Eltrion2p_Start_HealRing_R.Y |  | 0 | exact copy available | data002/4396 |  |  |  |
 | mesh | Eltrion2p_Start_HealRing_RR.Y |  | 0 | exact copy available | data002/1117 |  |  |  |
 | mesh | Eltrion2p_Start_HealRing_stay_D.Y |  | 0 | exact copy available | data002/7802 |  |  |  |
-| mesh | Eltrion2p_Start_HealRing_stay_U.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/7793/short1 |  |  |  |
+| mesh | Eltrion2p_Start_HealRing_stay_U.Y |  | 0 | exact copy available | data002/7793 |  |  |  |
 | mesh | Eltrion3p_A_Center_MainPannel.Y |  | 0 | exact copy available | data002/2997 |  |  |  |
 | mesh | Eltrion3p_A_Line_L_Ready_Act.Y |  | 0 | exact copy available | data002/910 |  |  |  |
-| mesh | Eltrion3p_A_Line_Panell.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5156/short3 |  |  |  |
+| mesh | Eltrion3p_A_Line_Panell.X |  | 0 | exact copy available | data002/5156 |  |  |  |
 | mesh | Eltrion3p_A_Line_Panell_Glow.Y |  | 0 | exact copy available | data002/1118 |  |  |  |
 | mesh | Eltrion3p_A_Outside_Floor.Y |  | 0 | exact copy available | data002/848 |  |  |  |
 | mesh | Eltrion3p_A_Sa_EX_Glow.Y |  | 0 | exact copy available | data002/793 |  |  |  |
 | mesh | Eltrion3p_A_Sa_LaunchPad.Y |  | 0 | exact copy available | data002/4734 |  |  |  |
 | mesh | Eltrion3p_A_Sa_Target_MeshNew.Y |  | 0 | exact copy available | data002/1199 |  |  |  |
-| mesh | Eltrion3p_A_Sa_Target_Point.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/763/short2 |  |  |  |
+| mesh | Eltrion3p_A_Sa_Target_Point.Y |  | 0 | exact copy available | data002/763 |  |  |  |
 | mesh | Eltrion3p_A_Sb_MainAct.Y |  | 0 | exact copy available | data002/973 |  |  |  |
 | mesh | Eltrion3p_Alarm.Y |  | 0 | exact copy available | data002/840 |  |  |  |
 | mesh | Eltrion3p_B_A_Bomb.Y |  | 0 | exact copy available | data002/2814 |  |  |  |
@@ -981,34 +979,34 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Eltrion3p_B_B_Eltrion3p_UPele.Y |  | 0 | exact copy available | data002/15721 |  |  |  |
 | mesh | Eltrion3p_B_B_Fire_Up.Y |  | 0 | exact copy available | data002/974 |  |  |  |
 | mesh | Eltrion3p_B_B_Panell.Y |  | 0 | exact copy available | data002/5137 |  |  |  |
-| mesh | Eltrion3p_B_B_Ready.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2970/short1 |  |  |  |
-| mesh | Eltrion3p_B_D_Pannell.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/4690/short1 |  |  |  |
-| mesh | Eltrion3p_B_E_Main.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/932/short3 |  |  |  |
-| mesh | Eltrion3p_B_EX_Ready_Line.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/875/short2 |  |  |  |
-| mesh | Eltrion3p_BackRune.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/698/short1 |  |  |  |
-| mesh | Eltrion3p_C_A_Alarm_Y.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1066/short1 |  |  |  |
+| mesh | Eltrion3p_B_B_Ready.Y |  | 0 | exact copy available | data002/2970 |  |  |  |
+| mesh | Eltrion3p_B_D_Pannell.Y |  | 0 | exact copy available | data002/4690 |  |  |  |
+| mesh | Eltrion3p_B_E_Main.Y |  | 0 | exact copy available | data002/932 |  |  |  |
+| mesh | Eltrion3p_B_EX_Ready_Line.Y |  | 0 | exact copy available | data002/875 |  |  |  |
+| mesh | Eltrion3p_BackRune.Y |  | 0 | exact copy available | data002/698 |  |  |  |
+| mesh | Eltrion3p_C_A_Alarm_Y.Y |  | 0 | exact copy available | data002/1066 |  |  |  |
 | mesh | Eltrion3p_Hand_L.Y |  | 0 | exact copy available | data002/7271 |  |  |  |
 | mesh | Eltrion3p_Hand_R.Y |  | 0 | exact copy available | data002/7325 |  |  |  |
-| mesh | Eltrion3p_Pannell.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5106/short1 |  |  |  |
+| mesh | Eltrion3p_Pannell.Y |  | 0 | exact copy available | data002/5106 |  |  |  |
 | mesh | Eltrion3p_S_1st_UP_RING_Plane.Y |  | 0 | exact copy available | data002/2952 |  |  |  |
 | mesh | Eltrion3p_S_BH_Side.Y |  | 0 | exact copy available | data002/21429 |  |  |  |
 | mesh | Eltrion3p_S_BH_SideWing.Y |  | 0 | exact copy available | data002/11014 |  |  |  |
 | mesh | Eltrion3p_Start_Giji_ALL.Y |  | 0 | exact copy available | data002/92357 |  |  |  |
 | mesh | Eltrion3p_Start_Giji_RED.Y |  | 0 | exact copy available | data002/43268 |  |  |  |
-| mesh | Eltrion3p_StateB_BodyCore_Glow.Y |  | 0 | exact copy available | data002/22428 |  |  |  |
+| mesh | Eltrion3p_StateB_BodyCore_Glow.Y |  | 1 | exact copy available | data002/22428 |  |  |  |
 | mesh | Eltrion3p_StateEX_Glow.Y |  | 0 | exact copy available | data002/2896 |  |  |  |
 | mesh | Eltrion3p_Waist.Y |  | 0 | exact copy available | data002/3590 |  |  |  |
-| mesh | Eltrion_Angry_body.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/559965/short2 |  |  |  |
+| mesh | Eltrion_Angry_body.Y |  | 0 | exact copy available | data002/559965 |  |  |  |
 | mesh | Eltrion_Angry_HEAD_Glow.Y |  | 0 | exact copy available | data002/27926 |  |  |  |
-| mesh | Eltrion_Angry_WingR_Glow.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/18770/short1 |  |  |  |
+| mesh | Eltrion_Angry_WingR_Glow.Y |  | 0 | exact copy available | data002/18770 |  |  |  |
 | mesh | Eltrion_dying_laser_P1.X |  | 0 | exact copy available | data002/2521 |  |  |  |
 | mesh | Eltrion_dying_laser_P2.X |  | 0 | exact copy available | data002/4993 |  |  |  |
-| mesh | ELTRION_JR_Light.Y |  | 0 | exact copy available | data002/793 |  |  |  |
+| mesh | ELTRION_JR_Light.Y |  | 1 | exact copy available | data002/793 |  |  |  |
 | mesh | ELTRION_JR_Missile.x |  | 0 | exact copy available | data002/5800 |  |  |  |
 | mesh | ELTRION_JR_Missile_Dummy01.X |  | 0 | exact copy available | data002/743 |  |  |  |
 | mesh | Eltrion_Start_Dome.y |  | 0 | exact copy available | data002/8489 |  |  |  |
 | mesh | Eltrion_Weapon_ele_Y.y |  | 0 | exact copy available | data002/1775 |  |  |  |
-| mesh | Elysion_BgEffectCube.Y |  | 0 | exact copy available | data002/1341 |  |  |  |
+| mesh | Elysion_BgEffectCube.Y |  | 5 | exact copy available | data002/1341 |  |  |  |
 | mesh | ELYSION_COMMAND_OBJ_2.x |  | 0 | exact copy available | data002/1526 |  |  |  |
 | mesh | ELYSION_EMPEROR_Wing1.X |  | 0 | exact copy available | data002/9792 |  |  |  |
 | mesh | ELYSION_EMPEROR_Wing2.X |  | 0 | exact copy available | data002/9175 |  |  |  |
@@ -1018,25 +1016,25 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | ELYSION_IMPRINT_Wing1.x |  | 0 | exact copy available | data002/10425 |  |  |  |
 | mesh | ELYSION_IMPRINT_Wing1.Y |  | 0 | exact copy available | data002/4437 |  |  |  |
 | mesh | ELYSION_IMPRINT_Wing2.x |  | 0 | exact copy available | data002/27758 |  |  |  |
-| mesh | ELYSION_OBJECT_BOXRASER.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5255/short1 |  |  |  |
+| mesh | ELYSION_OBJECT_BOXRASER.X |  | 0 | exact copy available | data002/5255 |  |  |  |
 | mesh | ELYSION_OBJECT_BOXRASER_FX_2.X |  | 0 | exact copy available | data002/1983 |  |  |  |
 | mesh | Elysion_Soless_B_Knife.X |  | 0 | exact copy available | data002/9177 |  |  |  |
 | mesh | Elysion_Soless_WIng.Y |  | 0 | exact copy available | data002/8780 |  |  |  |
-| mesh | Elysion_Village_NPC_BILLBOARD_Ho.Y |  | 0 | exact copy available | data002/1189 |  |  |  |
-| mesh | Elysion_villeage_post.Y |  | 0 | exact copy available | data002/621 |  |  |  |
+| mesh | Elysion_Village_NPC_BILLBOARD_Ho.Y |  | 2 | exact copy available | data002/1189 |  |  |  |
+| mesh | Elysion_villeage_post.Y |  | 1 | exact copy available | data002/621 |  |  |  |
 | mesh | EMK_DashJumpComboZ3_Dummy.X |  | 0 | exact copy available | data118/697 |  |  |  |
 | mesh | EMK_RisingSlashM.Y |  | 0 | exact copy available | data118/6994 |  |  |  |
 | mesh | EMK_SwordWaveM01.X |  | 0 | exact copy available | data118/1929 |  |  |  |
 | mesh | EMK_SwordWaveM02.X |  | 0 | exact copy available | data118/1921 |  |  |  |
 | mesh | EMK_SwordWaveM03.X |  | 0 | exact copy available | data118/2223 |  |  |  |
 | mesh | EMK_SwordWaveM04.X |  | 0 | exact copy available | data118/1990 |  |  |  |
-| mesh | Emotion_2016Maid_Duster.X |  | 0 | exact copy available | data002/6977 |  |  |  |
-| mesh | Emotion_2016Maid_Kettle.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/14136/short1 |  |  |  |
-| mesh | Emotion_2016Maid_Teacup.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/8475/short2 |  |  |  |
+| mesh | Emotion_2016Maid_Duster.X |  | 1 | exact copy available | data002/6977 |  |  |  |
+| mesh | Emotion_2016Maid_Kettle.X |  | 1 | exact copy available | data002/14136 |  |  |  |
+| mesh | Emotion_2016Maid_Teacup.X |  | 1 | exact copy available | data002/8475 |  |  |  |
 | mesh | EmpireSword_Mesh01.y |  | 0 | exact copy available | data142/4025 |  |  |  |
 | mesh | EmpireSword_Mesh02.Y |  | 0 | exact copy available | data142/847 |  |  |  |
 | mesh | ENS_EC_Hole_10.Y |  | 0 | exact copy available | data002/561 |  |  |  |
-| mesh | ENS_EC_Hole_2.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/570/short1 |  |  |  |
+| mesh | ENS_EC_Hole_2.Y |  | 0 | exact copy available | data002/570 |  |  |  |
 | mesh | ENS_EC_Hole_4.y |  | 0 | exact copy available | data002/585 |  |  |  |
 | mesh | ENS_Extreming_Cutting_Harf.Y |  | 0 | exact copy available | data002/577 |  |  |  |
 | mesh | ENS_EXTREMING_CUTTING_Spear.X |  | 0 | exact copy available | data002/7906 |  |  |  |
@@ -1063,21 +1061,21 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Eve_IllusionStrike_MeshA_MEMO.X |  | 0 | exact copy available | data119/5731 |  |  |  |
 | mesh | Eve_IllusionStrike_MeshB_MEMO.X |  | 0 | exact copy available | data119/5732 |  |  |  |
 | mesh | eve_particleRay_laser_New.x |  | 0 | exact copy available | data119/2190 |  |  |  |
-| mesh | Event_AC_Lowbody37.X |  | 0 | exact copy available | data002/159940 |  |  |  |
+| mesh | Event_AC_Lowbody37.X |  | 1 | exact copy available | data002/159940 |  |  |  |
 | mesh | EVIL_CLAW_HAND.X |  | 0 | exact copy available | data157/195517 |  |  |  |
-| mesh | eviltracer3_diorama1.y |  | 0 | exact copy available | data002/669 |  |  |  |
-| mesh | eviltracer3_diorama1_1.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/700/short3 |  |  |  |
-| mesh | eviltracer3_diorama1_2.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/714/short1 |  |  |  |
+| mesh | eviltracer3_diorama1.y |  | 1 | exact copy available | data002/669 |  |  |  |
+| mesh | eviltracer3_diorama1_1.y |  | 1 | exact copy available | data002/700 |  |  |  |
+| mesh | eviltracer3_diorama1_2.y |  | 1 | exact copy available | data002/714 |  |  |  |
 | mesh | eviltracer3_seteffect.y |  | 0 | exact copy available | data002/1416 |  |  |  |
 | mesh | F_CHASER_OF_DARKNESS_Projectile.X |  | 0 | exact copy available | data157/6780 |  |  |  |
 | mesh | F_CHASERofDARKNESS_Projectile.Y |  | 0 | exact copy available | data157/6280 |  |  |  |
 | mesh | F_SOUL_INFEST_StartDummy01.X |  | 0 | exact copy available | data157/641 |  |  |  |
 | mesh | F_StandUpAttack_TraceDummy01.X |  | 0 | exact copy available | data157/617 |  |  |  |
 | mesh | FIRE_FOX_Hand_MESH01.X |  | 0 | exact copy available | data132/38009 |  |  |  |
-| mesh | FireImpactG01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1595/short2 |  |  |  |
-| mesh | FireImpactG02.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2843/short2 |  |  |  |
+| mesh | FireImpactG01.Y |  | 0 | exact copy available | data002/1595 |  |  |  |
+| mesh | FireImpactG02.Y |  | 1 | exact copy available | data002/2843 |  |  |  |
 | mesh | FireImpactG03.Y |  | 0 | exact copy available | data002/3158 |  |  |  |
-| mesh | FX_MAGIC_CIRCLE.X |  | 0 | exact copy available | data002/1887 |  |  |  |
+| mesh | FX_MAGIC_CIRCLE.X |  | 5 | exact copy available | data002/1887 |  |  |  |
 | mesh | ghost_dummy_01.x |  | 0 | exact copy available | data002/7243 |  |  |  |
 | mesh | ghost_dummy_02.x |  | 0 | exact copy available | data002/7255 |  |  |  |
 | mesh | GM_AC.X |  | 0 | exact copy available | datai007/13275 |  |  |  |
@@ -1128,7 +1126,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Gunner_ReadyLM02.X |  | 0 | exact copy available | data184/93433 |  |  |  |
 | mesh | Gunner_ReadyLM03.X |  | 0 | exact copy available | data184/2867 |  |  |  |
 | mesh | Gunner_ReadyP01.Y |  | 0 | exact copy available | data184/1715 |  |  |  |
-| mesh | Gunner_ReadyP02.Y |  | 0 | exact copy available | data184/580 |  |  |  |
+| mesh | Gunner_ReadyP02.Y |  | 1 | exact copy available | data184/580 |  |  |  |
 | mesh | Gunner_RHB_ProtonBombM1.X |  | 0 | exact copy available | data184/22395 |  |  |  |
 | mesh | gunner_RHB_SteyrAntitank_W1.X |  | 0 | exact copy available | data184/19679 |  |  |  |
 | mesh | Gunner_Sad_mascot.X |  | 0 | exact copy available | data184/119048 |  |  |  |
@@ -1151,7 +1149,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | HA_RFY_D_DAY_ThrowUnit.X |  | 0 | exact copy available | data184/176699 |  |  |  |
 | mesh | HA_RFY_D_DAY_ThrowUnit.Y |  | 0 | exact copy available | data184/134085 |  |  |  |
 | mesh | Halloween_Teddy_Bear_Attack_F01.X |  | 0 | exact copy available | data002/34875 |  |  |  |
-| mesh | Halloween_Teddy_Bear_Bim_Y01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1444/short3 |  |  |  |
+| mesh | Halloween_Teddy_Bear_Bim_Y01.Y |  | 0 | exact copy available | data002/1444 |  |  |  |
 | mesh | Halloween_Teddy_Bear_Bim_Y02.Y |  | 0 | exact copy available | data002/1433 |  |  |  |
 | mesh | Halloween_Teddy_Bear_Bim_Y03.Y |  | 0 | exact copy available | data002/1400 |  |  |  |
 | mesh | Halloween_Teddy_Eye_Light_Y01.Y |  | 0 | exact copy available | data002/3525 |  |  |  |
@@ -1162,15 +1160,15 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | HellStonePM01.Y |  | 0 | exact copy available | data116/4679 |  |  |  |
 | mesh | Ice_mesh01.X |  | 0 | exact copy available | data002/1062 |  |  |  |
 | mesh | IGNIA_AttackC_Ready02.Y |  | 0 | exact copy available | data002/115539 |  |  |  |
-| mesh | IgnitionShire_AttackFire01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data140/898/short1 |  |  |  |
+| mesh | IgnitionShire_AttackFire01.Y |  | 0 | exact copy available | data140/898 |  |  |  |
 | mesh | IgnitionShire_JumpAttackZ01.Y |  | 0 | exact copy available | data140/133961 |  |  |  |
 | mesh | IgnitionShire_SkillC_MainDummy01.X |  | 0 | exact copy available | data140/787 |  |  |  |
-| mesh | IgnitionShire_SkillC_SubDummy01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data140/3192/short2 |  |  |  |
-| mesh | IgnitionShire_WaitFireF_Foot01.Y |  | 0 | exact copy available | data140/2216 |  |  |  |
-| mesh | IgnitionShire_WaitFireHead01.Y |  | 0 | exact copy available | data140/1861 |  |  |  |
+| mesh | IgnitionShire_SkillC_SubDummy01.X |  | 0 | exact copy available | data140/3192 |  |  |  |
+| mesh | IgnitionShire_WaitFireF_Foot01.Y |  | 2 | exact copy available | data140/2216 |  |  |  |
+| mesh | IgnitionShire_WaitFireHead01.Y |  | 2 | exact copy available | data140/1861 |  |  |  |
 | mesh | IPLITAN_FireM02.Y |  | 0 | exact copy available | data002/2849 |  |  |  |
 | mesh | IPLITAN_FireM04.Y |  | 0 | exact copy available | data002/217306 |  |  |  |
-| mesh | karis_motion.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/845463/short3 |  |  |  |
+| mesh | karis_motion.x |  | 0 | exact copy available | data002/845463 |  |  |  |
 | mesh | LCG_Combo_Projectile_AttackBox.X |  | 0 | exact copy available | data157/1790 |  |  |  |
 | mesh | LCG_DEMONIC_BREATH_Dummy.x |  | 0 | exact copy available | data157/2901 |  |  |  |
 | mesh | LCG_Demonic_Breath_Dummy01.X |  | 0 | exact copy available | data157/660 |  |  |  |
@@ -1272,7 +1270,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | LDB_Lu_Horn_Glow.X |  | 0 | exact copy available | data157/16596 |  |  |  |
 | mesh | LDB_MORTALFEAR_Rune.Y |  | 0 | exact copy available | data157/579 |  |  |  |
 | mesh | LDB_NIGHTMAREHowling_Sphere.Y |  | 0 | exact copy available | data157/592 |  |  |  |
-| mesh | LDB_NIGHTMAREHowling_SphereCircle.Y |  | 0 | exact copy available | data157/577 |  |  |  |
+| mesh | LDB_NIGHTMAREHowling_SphereCircle.Y |  | 1 | exact copy available | data157/577 |  |  |  |
 | mesh | LDB_PHANTOM_RUSH_Ciel.Y |  | 0 | exact copy available | data157/178002 |  |  |  |
 | mesh | LDB_PHANTOM_RUSH_Lu.Y |  | 0 | exact copy available | data157/165454 |  |  |  |
 | mesh | LDB_PHANTOMRUSHChain_Punch.Y |  | 0 | exact copy available | data157/26917 |  |  |  |
@@ -1289,7 +1287,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | LDN_DESPERADO_Park_Smoke.Y |  | 0 | exact copy available | data157/574 |  |  |  |
 | mesh | LDN_DIABOLIC_DISASTER_BlackHole.Y |  | 0 | exact copy available | data157/629 |  |  |  |
 | mesh | LDN_DIABOLIC_DISASTER_BlackHole_1.Y |  | 0 | exact copy available | data157/632 |  |  |  |
-| mesh | LDN_DIABOLIC_DISASTER_BlackHole_2.Y |  | 0 | exact copy available | data157/634 |  |  |  |
+| mesh | LDN_DIABOLIC_DISASTER_BlackHole_2.Y |  | 1 | exact copy available | data157/634 |  |  |  |
 | mesh | LDN_DIABOLIC_DISASTER_Ciel_After_Shadow.Y |  | 0 | exact copy available | data157/148677 |  |  |  |
 | mesh | LDN_DIABOLIC_DISASTER_Hole_Impact.Y |  | 0 | exact copy available | data157/572 |  |  |  |
 | mesh | LDN_GARDEN_OF_HAURES_FloorADD.Y |  | 0 | exact copy available | data157/594 |  |  |  |
@@ -1308,15 +1306,15 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | LDN_SILENT_RAGE_Shadow_6.Y |  | 0 | exact copy available | data157/149997 |  |  |  |
 | mesh | LDN_SILENT_RAGE_Shadow_7.Y |  | 0 | exact copy available | data157/146835 |  |  |  |
 | mesh | LDN_SILENT_RAGE_Star.Y |  | 0 | exact copy available | data157/571 |  |  |  |
-| mesh | LDN_Start_Ciel_Plant_Big.Y |  | 0 | exact copy available | data157/728 |  |  |  |
-| mesh | LDN_Start_Ciel_Plant_Mid.Y |  | 0 | exact copy available | data157/828 |  |  |  |
-| mesh | LDN_Start_Ciel_Plant_Small.Y |  | 0 | exact copy available | data157/765 |  |  |  |
+| mesh | LDN_Start_Ciel_Plant_Big.Y |  | 2 | exact copy available | data157/728 |  |  |  |
+| mesh | LDN_Start_Ciel_Plant_Mid.Y |  | 1 | exact copy available | data157/828 |  |  |  |
+| mesh | LDN_Start_Ciel_Plant_Small.Y |  | 1 | exact copy available | data157/765 |  |  |  |
 | mesh | LDN_Start_Lu_Evil_SHADOW.X |  | 0 | exact copy available | data157/311003 |  |  |  |
 | mesh | LDN_Win1_Ciel_GUN.X |  | 0 | exact copy available | data157/15873 |  |  |  |
 | mesh | LDN_XXXXXXX_XXZX_Ver_Ciel_Hand.Y |  | 0 | exact copy available | data157/32002 |  |  |  |
 | mesh | LenaNormalArrow.Y |  | 0 | exact copy available | data121/1113 |  |  |  |
 | mesh | LenaNormalArrowGrow.Y |  | 0 | exact copy available | data121/1118 |  |  |  |
-| mesh | Light.Y |  | 0 | exact copy available | data002/1238 |  |  |  |
+| mesh | Light.Y |  | 1 | exact copy available | data002/1238 |  |  |  |
 | mesh | LLC_BACKSTAB_Mesh01.X |  | 0 | exact copy available | data157/2273 |  |  |  |
 | mesh | LLC_BLASTING_FEAR_Mesh01.X |  | 0 | exact copy available | data157/8187 |  |  |  |
 | mesh | LLC_BLASTING_FEAR_Mesh02.X |  | 0 | exact copy available | data157/2327 |  |  |  |
@@ -1331,90 +1329,90 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | LLD_DESCENT_DARKNESS_MainDummy.X |  | 0 | exact copy available | data157/838 |  |  |  |
 | mesh | LLD_F_FearAbsorptionM01.Y |  | 0 | exact copy available | data157/3180 |  |  |  |
 | mesh | LLD_FearAbsorptionM01.Y |  | 0 | exact copy available | data157/3361 |  |  |  |
-| mesh | LLD_FireMeshSmoke.Y |  | 0 | exact copy available | data157/7498 |  |  |  |
+| mesh | LLD_FireMeshSmoke.Y |  | 2 | exact copy available | data157/7498 |  |  |  |
 | mesh | LLD_M_Bullet.Y |  | 0 | exact copy available | data157/3568 |  |  |  |
 | mesh | LLD_SummonDarknessAttackA2_T01.X |  | 0 | exact copy available | data157/4469 |  |  |  |
 | mesh | LLD_SummonDarknessAttackA2_T02.X |  | 0 | exact copy available | data157/4464 |  |  |  |
 | mesh | LLD_SummonDarknessAttackA_T01.X |  | 0 | exact copy available | data157/4470 |  |  |  |
 | mesh | LLD_SummonDarknessAttackA_T02.X |  | 0 | exact copy available | data157/4462 |  |  |  |
 | mesh | LLD_SummonDarknessC_Wave01.Y |  | 0 | exact copy available | data157/606 |  |  |  |
-| mesh | LLG_EvilFace_M01.Y |  | 0 | exact copy available | data157/1165 |  |  |  |
+| mesh | LLG_EvilFace_M01.Y |  | 3 | exact copy available | data157/1165 |  |  |  |
 | mesh | LuCiel_Chair_01.X |  | 0 | exact copy available | data157/43007 |  |  |  |
 | mesh | LuCiel_Note_01.X |  | 0 | exact copy available | data157/4953 |  |  |  |
 | mesh | LuCiel_Pen_01.X |  | 0 | exact copy available | data157/3713 |  |  |  |
-| mesh | LW00_F.Y |  | 0 | exact copy available | data002/1333 |  |  |  |
+| mesh | LW00_F.Y |  | 1 | exact copy available | data002/1333 |  |  |  |
 | mesh | M137GatlingGun_Fire01.Y |  | 0 | exact copy available | data184/1308 |  |  |  |
-| mesh | M18A1_Claymore.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/4411/short2 |  |  |  |
+| mesh | M18A1_Claymore.X |  | 0 | exact copy available | data002/4411 |  |  |  |
 | mesh | M_SOUL_INFEST_StartDummy01.X |  | 0 | exact copy available | data157/16497 |  |  |  |
 | mesh | M_StandUpAttack_TraceDummy01.X |  | 0 | exact copy available | data157/635 |  |  |  |
 | mesh | maid_mop.X |  | 0 | exact copy available | data002/4054 |  |  |  |
 | mesh | Marionette_Dummy.X |  | 0 | exact copy available | data002/479 |  |  |  |
-| mesh | Mesh_AC_CelestialSphere_Dummy.X |  | 0 | exact copy available | data002/1767 |  |  |  |
-| mesh | Mesh_AC_Common_Lowbody_Event30_P03.Y |  | 0 | exact copy available | data002/560 |  |  |  |
-| mesh | Mesh_AC_Common_Lowbody_Event30_P03_Leaf_Big.Y |  | 0 | exact copy available | data002/925 |  |  |  |
-| mesh | Mesh_AC_Common_Lowbody_Event30_P03_Leaf_Mid.Y |  | 0 | exact copy available | data002/1072 |  |  |  |
-| mesh | Mesh_AC_Common_Lowbody_Event30_P03_Leaf_Small.Y |  | 0 | exact copy available | data002/853 |  |  |  |
+| mesh | Mesh_AC_CelestialSphere_Dummy.X |  | 1 | exact copy available | data002/1767 |  |  |  |
+| mesh | Mesh_AC_Common_Lowbody_Event30_P03.Y |  | 1 | exact copy available | data002/560 |  |  |  |
+| mesh | Mesh_AC_Common_Lowbody_Event30_P03_Leaf_Big.Y |  | 1 | exact copy available | data002/925 |  |  |  |
+| mesh | Mesh_AC_Common_Lowbody_Event30_P03_Leaf_Mid.Y |  | 1 | exact copy available | data002/1072 |  |  |  |
+| mesh | Mesh_AC_Common_Lowbody_Event30_P03_Leaf_Small.Y |  | 2 | exact copy available | data002/853 |  |  |  |
 | mesh | Mesh_AC_StarSquare_MagicCircle_Dummy.X |  | 0 | exact copy available | data002/183769 |  |  |  |
-| mesh | Mesh_Add_AC_Master_LV_P01.Y |  | 0 | exact copy available | data002/888 |  |  |  |
-| mesh | Mesh_Ain_Lobbywait_FX_RING.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1787/short2 |  |  |  |
-| mesh | Mesh_Ara_AC_Master_LV_P01.Y |  | 0 | exact copy available | data002/886 |  |  |  |
-| mesh | Mesh_Area_Shilder_12.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1315/short2 |  |  |  |
+| mesh | Mesh_Add_AC_Master_LV_P01.Y |  | 1 | exact copy available | data002/888 |  |  |  |
+| mesh | Mesh_Ain_Lobbywait_FX_RING.y |  | 3 | exact copy available | data002/1787 |  |  |  |
+| mesh | Mesh_Ara_AC_Master_LV_P01.Y |  | 1 | exact copy available | data002/886 |  |  |  |
+| mesh | Mesh_Area_Shilder_12.y |  | 0 | exact copy available | data002/1315 |  |  |  |
 | mesh | Mesh_Area_Shilder_23.y |  | 0 | exact copy available | data002/1373 |  |  |  |
-| mesh | Mesh_Arme_AC_Master_LV_P01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/882/short1 |  |  |  |
-| mesh | Mesh_Chung_AC_Master_LV_P01.Y |  | 0 | exact copy available | data002/889 |  |  |  |
+| mesh | Mesh_Arme_AC_Master_LV_P01.Y |  | 1 | exact copy available | data002/882 |  |  |  |
+| mesh | Mesh_Chung_AC_Master_LV_P01.Y |  | 1 | exact copy available | data002/889 |  |  |  |
 | mesh | Mesh_Common_AC_Lowbody_287642_Sorted.X |  | 0 | exact copy available | data016/186168 |  |  |  |
 | mesh | Mesh_Common_AC_Upbody_110004078_Sorted.X |  | 0 | exact copy available | datai007/62749 |  |  |  |
 | mesh | Mesh_Common_AC_Upbody_2016_Xmas_Gift_Sorted.X |  | 0 | exact copy available | data016/28170 |  |  |  |
 | mesh | Mesh_Common_Cash43_Ceta.x |  | 0 | exact copy available | data002/369678 |  |  |  |
 | mesh | Mesh_Common_Cash43_Wood1.x |  | 0 | exact copy available | data002/25027 |  |  |  |
 | mesh | Mesh_Common_Cash43_Wood2.x |  | 0 | exact copy available | data002/103895 |  |  |  |
-| mesh | Mesh_Common_Cash_AC_Face1_1770_Sorted.y |  | 0 | exact copy available | data002/6358 |  |  |  |
+| mesh | Mesh_Common_Cash_AC_Face1_1770_Sorted.y |  | 2 | exact copy available | data002/6358 |  |  |  |
 | mesh | Mesh_Common_Cash_AC_Face1_Set4_Sorted.X |  | 0 | exact copy available | data016/1270 |  |  |  |
 | mesh | Mesh_Common_Cash_AC_Upbody_1450_Sorted.x |  | 0 | exact copy available | data016/1536 |  |  |  |
 | mesh | Mesh_Common_Cash_Emotion_Sit27.x |  | 0 | exact copy available | data002/16706 |  |  |  |
 | mesh | Mesh_Common_Cash_Emotion_Sit31.X |  | 0 | exact copy available | data002/78157 |  |  |  |
 | mesh | Mesh_Common_Cash_Emotion_Sit31_Sub.X |  | 0 | exact copy available | data002/70753 |  |  |  |
 | mesh | Mesh_Common_Event_AC_ARM_186031_Sorted.X |  | 0 | exact copy available | data016/1505 |  |  |  |
-| mesh | Mesh_EL_AC_Master_LV_P01.Y |  | 0 | exact copy available | data002/886 |  |  |  |
-| mesh | Mesh_Elsword_AC_Master_LV_P01.Y |  | 0 | exact copy available | data002/880 |  |  |  |
-| mesh | Mesh_Eve_AC_Master_LV_P01.Y |  | 0 | exact copy available | data002/881 |  |  |  |
+| mesh | Mesh_EL_AC_Master_LV_P01.Y |  | 1 | exact copy available | data002/886 |  |  |  |
+| mesh | Mesh_Elsword_AC_Master_LV_P01.Y |  | 1 | exact copy available | data002/880 |  |  |  |
+| mesh | Mesh_Eve_AC_Master_LV_P01.Y |  | 1 | exact copy available | data002/881 |  |  |  |
 | mesh | Mesh_Eve_AC_Upbody_Event38_sorted.X |  | 0 | exact copy available | data018/60960 |  |  |  |
 | mesh | Mesh_Event36_Ascension_Effect.X |  | 0 | exact copy available | data002/847 |  |  |  |
 | mesh | Mesh_Event37_AttackMesh.X |  | 0 | exact copy available | data002/7708 |  |  |  |
 | mesh | Mesh_Event37_Dying_AttackMesh.X |  | 0 | exact copy available | data002/12870 |  |  |  |
-| mesh | Mesh_Floor_Hurrycane.x |  | 0 | exact copy available | data002/2335 |  |  |  |
-| mesh | Mesh_JetSki_Attack_C_shark.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/41047/short3 |  |  |  |
-| mesh | Mesh_JetSki_Attack_C_tuna.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/15547/short1 |  |  |  |
-| mesh | Mesh_JetSki_Attack_C_tunaS.X |  | 0 | exact copy available | data002/16212 |  |  |  |
+| mesh | Mesh_Floor_Hurrycane.x |  | 1 | exact copy available | data002/2335 |  |  |  |
+| mesh | Mesh_JetSki_Attack_C_shark.X |  | 1 | exact copy available | data002/41047 |  |  |  |
+| mesh | Mesh_JetSki_Attack_C_tuna.X |  | 1 | exact copy available | data002/15547 |  |  |  |
+| mesh | Mesh_JetSki_Attack_C_tunaS.X |  | 1 | exact copy available | data002/16212 |  |  |  |
 | mesh | Mesh_JetSki_Shark_Y.Y |  | 0 | exact copy available | data002/20416 |  |  |  |
-| mesh | Mesh_JetSkiTan.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/4292/short3 |  |  |  |
+| mesh | Mesh_JetSkiTan.x |  | 0 | exact copy available | data002/4292 |  |  |  |
 | mesh | Mesh_Jewel.x |  | 0 | exact copy available | data002/2894 |  |  |  |
-| mesh | Mesh_Lire_AC_Master_LV_P01.Y |  | 0 | exact copy available | data002/878 |  |  |  |
-| mesh | Mesh_Luciel_AC_Master_LV_P01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/876/short3 |  |  |  |
-| mesh | Mesh_PC_LuCiel_Stand.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/69366/short3 |  |  |  |
+| mesh | Mesh_Lire_AC_Master_LV_P01.Y |  | 1 | exact copy available | data002/878 |  |  |  |
+| mesh | Mesh_Luciel_AC_Master_LV_P01.Y |  | 1 | exact copy available | data002/876 |  |  |  |
+| mesh | Mesh_PC_LuCiel_Stand.X |  | 0 | exact copy available | data002/69366 |  |  |  |
 | mesh | Mesh_Per3P_Bow.x |  | 0 | exact copy available | data002/3784 |  |  |  |
-| mesh | Mesh_Per3P_Bow_B.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3787/short2 |  |  |  |
-| mesh | Mesh_Per3P_Dril.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/7002/short1 |  |  |  |
+| mesh | Mesh_Per3P_Bow_B.x |  | 0 | exact copy available | data002/3787 |  |  |  |
+| mesh | Mesh_Per3P_Dril.Y |  | 0 | exact copy available | data002/7002 |  |  |  |
 | mesh | Mesh_Per3P_FireBall_Hurry.Y |  | 0 | exact copy available | data002/6934 |  |  |  |
 | mesh | Mesh_Per3P_FireBall_Line.Y |  | 0 | exact copy available | data002/6946 |  |  |  |
-| mesh | Mesh_Per3P_Human_Start_Direct_Chair.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/21556/short1 |  |  |  |
+| mesh | Mesh_Per3P_Human_Start_Direct_Chair.x |  | 0 | exact copy available | data002/21556 |  |  |  |
 | mesh | Mesh_Perkisas_Arm_R.Y |  | 0 | exact copy available | data002/14775 |  |  |  |
-| mesh | Mesh_Perkisas_Harpoon.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/4084/short3 |  |  |  |
-| mesh | Mesh_Perkisas_Harpoon.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3859/short2 |  |  |  |
-| mesh | Mesh_Perkisas_Jewel_01.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1604/short3 |  |  |  |
-| mesh | Mesh_Perkisas_Jewel_02.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1578/short1 |  |  |  |
+| mesh | Mesh_Perkisas_Harpoon.x |  | 0 | exact copy available | data002/4084 |  |  |  |
+| mesh | Mesh_Perkisas_Harpoon.Y |  | 0 | exact copy available | data002/3859 |  |  |  |
+| mesh | Mesh_Perkisas_Jewel_01.x |  | 0 | exact copy available | data002/1604 |  |  |  |
+| mesh | Mesh_Perkisas_Jewel_02.x |  | 0 | exact copy available | data002/1578 |  |  |  |
 | mesh | Mesh_Perkisas_Jewel_03.x |  | 0 | exact copy available | data002/1521 |  |  |  |
 | mesh | Mesh_Perkisas_Jewel_04.x |  | 0 | exact copy available | data002/1241 |  |  |  |
 | mesh | Mesh_Perkisas_Jewel_05.x |  | 0 | exact copy available | data002/1512 |  |  |  |
-| mesh | Mesh_Perkisas_Jewel_06.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1219/short2 |  |  |  |
+| mesh | Mesh_Perkisas_Jewel_06.x |  | 0 | exact copy available | data002/1219 |  |  |  |
 | mesh | Mesh_Perkisas_Jewel_07.x |  | 0 | exact copy available | data002/2265 |  |  |  |
 | mesh | Mesh_Perkisas_Jewel_08.x |  | 0 | exact copy available | data002/959 |  |  |  |
-| mesh | Mesh_Perkisas_Jewel_09.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1355/short2 |  |  |  |
-| mesh | Mesh_Perkisas_Jewel_10.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1578/short1 |  |  |  |
+| mesh | Mesh_Perkisas_Jewel_09.x |  | 0 | exact copy available | data002/1355 |  |  |  |
+| mesh | Mesh_Perkisas_Jewel_10.x |  | 0 | exact copy available | data002/1578 |  |  |  |
 | mesh | Mesh_PerP3_D_E_Ready_Alarm.Y |  | 0 | exact copy available | data002/2104 |  |  |  |
 | mesh | Mesh_PIMPIM_B_Project.Y |  | 0 | exact copy available | data002/4136 |  |  |  |
-| mesh | Mesh_Raven_AC_Master_LV_P01.Y |  | 0 | exact copy available | data002/885 |  |  |  |
-| mesh | Mesh_Rose_M_Event_Weapon10_Sorted.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data185/20410/short3 |  |  |  |
+| mesh | Mesh_Raven_AC_Master_LV_P01.Y |  | 1 | exact copy available | data002/885 |  |  |  |
+| mesh | Mesh_Rose_M_Event_Weapon10_Sorted.X |  | 0 | exact copy available | data185/20410 |  |  |  |
 | mesh | Mesh_Rose_R_Event_Weapon31_Sorted.X |  | 0 | exact copy available | data185/11354 |  |  |  |
 | mesh | MESH_Seed_Of_Ruin_Pol_1.X |  | 0 | exact copy available | data002/9308 |  |  |  |
 | mesh | Mesh_Soless_FXSword_Z.X |  | 0 | exact copy available | data002/9154 |  |  |  |
@@ -1426,39 +1424,39 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Motion_Ciel_LDN_Evil.X |  | 0 | exact copy available | data218/3807505 |  |  |  |
 | mesh | Motion_EEP_FERDINAND_FX.X |  | 0 | exact copy available | data011/641572 |  |  |  |
 | mesh | Motion_Eid.x |  | 0 | exact copy available | data002/638 |  |  |  |
-| mesh | Motion_Lu_LDB_Evil.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data208/3994120/short1 |  |  |  |
+| mesh | Motion_Lu_LDB_Evil.x |  | 0 | exact copy available | data208/3994120 |  |  |  |
 | mesh | Motion_PVE_Trap.X |  | 0 | exact copy available | data012/20635 |  |  |  |
-| mesh | Motion_S_CIRCLE_CTRL_MESH.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/7418/short1 |  |  |  |
-| mesh | Motion_S_CIRCLE_CTRL_MESH_1.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2424/short1 |  |  |  |
-| mesh | Motion_S_CIRCLE_CTRL_MESH_3.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/19942/short3 |  |  |  |
+| mesh | Motion_S_CIRCLE_CTRL_MESH.x |  | 0 | exact copy available | data002/7418 |  |  |  |
+| mesh | Motion_S_CIRCLE_CTRL_MESH_1.X |  | 0 | exact copy available | data002/2424 |  |  |  |
+| mesh | Motion_S_CIRCLE_CTRL_MESH_3.x |  | 0 | exact copy available | data002/19942 |  |  |  |
 | mesh | Motion_SA_RG_RX78_LAND_RUNNER.X |  | 0 | exact copy available | data189/64196 |  |  |  |
-| mesh | NBG_Buster_Shell.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1148/short3 |  |  |  |
+| mesh | NBG_Buster_Shell.X |  | 0 | exact copy available | data002/1148 |  |  |  |
 | mesh | NBG_Laser01.X |  | 0 | exact copy available | data002/4303 |  |  |  |
 | mesh | NBG_Laser02.Y |  | 0 | exact copy available | data002/823 |  |  |  |
 | mesh | NBG_Laser03.Y |  | 0 | exact copy available | data002/9822 |  |  |  |
-| mesh | NBG_Power_Booster.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/68514/short3 |  |  |  |
-| mesh | NBG_Shell.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3010/short1 |  |  |  |
+| mesh | NBG_Power_Booster.Y |  | 0 | exact copy available | data002/68514 |  |  |  |
+| mesh | NBG_Shell.X |  | 0 | exact copy available | data002/3010 |  |  |  |
 | mesh | NBG_Shell01.X |  | 0 | exact copy available | data002/6062 |  |  |  |
 | mesh | NBG_Shell02.X |  | 0 | exact copy available | data002/6011 |  |  |  |
 | mesh | NETHER_SHREDDER_HAND.X |  | 0 | exact copy available | data157/677588 |  |  |  |
 | mesh | NPC_Elysion_Dyurenda_AC.x |  | 0 | exact copy available | data002/71512 |  |  |  |
 | mesh | NPC_Elysion_Dyurenda_AC_IN.x |  | 0 | exact copy available | data002/32844 |  |  |  |
-| mesh | NPC_Elysion_Dyurenda_ring.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1098/short1 |  |  |  |
-| mesh | NPC_Elysion_Teo_ring.y |  | 0 | exact copy available | data002/1232 |  |  |  |
-| mesh | NPC_Elysion_ver_ring.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/828/short3 |  |  |  |
+| mesh | NPC_Elysion_Dyurenda_ring.y |  | 2 | exact copy available | data002/1098 |  |  |  |
+| mesh | NPC_Elysion_Teo_ring.y |  | 2 | exact copy available | data002/1232 |  |  |  |
+| mesh | NPC_Elysion_ver_ring.y |  | 2 | exact copy available | data002/828 |  |  |  |
 | mesh | NUCLEAR_NEW_AttackBox.X |  | 0 | exact copy available | data120/8295 |  |  |  |
 | mesh | Optimus_shield.X |  | 0 | exact copy available | data002/9419 |  |  |  |
-| mesh | OptimusAttackX_Dummy01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/906/short1 |  |  |  |
+| mesh | OptimusAttackX_Dummy01.X |  | 0 | exact copy available | data002/906 |  |  |  |
 | mesh | OptimusAttackX_M01.X |  | 0 | exact copy available | data002/2480 |  |  |  |
-| mesh | OptimusAttackX_M02.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2500/short3 |  |  |  |
-| mesh | OptimusAttackX_M03.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2500/short3 |  |  |  |
-| mesh | OptimusAttackZ_M01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1740/short3 |  |  |  |
+| mesh | OptimusAttackX_M02.X |  | 0 | exact copy available | data002/2500 |  |  |  |
+| mesh | OptimusAttackX_M03.X |  | 0 | exact copy available | data002/2500 |  |  |  |
+| mesh | OptimusAttackZ_M01.X |  | 0 | exact copy available | data002/1740 |  |  |  |
 | mesh | OptimusAttackZ_M02.X |  | 0 | exact copy available | data002/1727 |  |  |  |
 | mesh | OptimusAttackZ_M2_01.X |  | 0 | exact copy available | data002/1766 |  |  |  |
-| mesh | OptimusAttackZ_M2_02.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1755/short2 |  |  |  |
+| mesh | OptimusAttackZ_M2_02.X |  | 0 | exact copy available | data002/1755 |  |  |  |
 | mesh | OptimusPrime_Weapon.X |  | 0 | exact copy available | data002/7836 |  |  |  |
 | mesh | OptimusSkillC_Dummy.X |  | 0 | exact copy available | data002/806 |  |  |  |
-| mesh | OptimusSkillC_M01.X |  | 0 | exact copy available | data002/1862 |  |  |  |
+| mesh | OptimusSkillC_M01.X |  | 1 | exact copy available | data002/1862 |  |  |  |
 | mesh | OptimusSkillC_M02.X |  | 0 | exact copy available | data002/1878 |  |  |  |
 | mesh | OptimusSkillC_M03.X |  | 0 | exact copy available | data002/1920 |  |  |  |
 | mesh | P1_MOVE_Start_position.x |  | 0 | exact copy available | data002/919 |  |  |  |
@@ -1466,23 +1464,23 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Per3P_Chair.Y |  | 0 | exact copy available | data002/21363 |  |  |  |
 | mesh | Per3P_H_A_Combo_EF.x |  | 0 | exact copy available | data002/56580 |  |  |  |
 | mesh | Per3P_H_A_Fire_EF.x |  | 0 | exact copy available | data002/51688 |  |  |  |
-| mesh | Perkisas_ENDING_MOTION_1.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/612671/short1 |  |  |  |
-| mesh | Perkisas_Ending_Sword.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/42718/short1 |  |  |  |
+| mesh | Perkisas_ENDING_MOTION_1.x |  | 0 | exact copy available | data002/612671 |  |  |  |
+| mesh | Perkisas_Ending_Sword.Y |  | 0 | exact copy available | data002/42718 |  |  |  |
 | mesh | Perkisas_Ending_Sword_ALL.Y |  | 0 | exact copy available | data002/42714 |  |  |  |
-| mesh | PerkisasP2_Harpoon_Fire_Rune_After.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1300/short3 |  |  |  |
+| mesh | PerkisasP2_Harpoon_Fire_Rune_After.x |  | 0 | exact copy available | data002/1300 |  |  |  |
 | mesh | PerkisasP2_Harpoon_Fire_Rune_Before.x |  | 0 | exact copy available | data002/1688 |  |  |  |
-| mesh | PerkisasP2_T_F_Stone.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5691/short2 |  |  |  |
-| mesh | Pet_Alice_Explosion_Card_Jorker.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1322/short1 |  |  |  |
+| mesh | PerkisasP2_T_F_Stone.y |  | 0 | exact copy available | data002/5691 |  |  |  |
+| mesh | Pet_Alice_Explosion_Card_Jorker.X |  | 0 | exact copy available | data002/1322 |  |  |  |
 | mesh | Pet_Alice_STEB_3_Attack_CardGlow.X |  | 0 | exact copy available | data002/163251 |  |  |  |
 | mesh | Pet_Alice_STEB_3_Attack_light_M01.X |  | 0 | exact copy available | data002/1942 |  |  |  |
-| mesh | Pet_Bboru_Attack01_Brazil_Event.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/4084/short3 |  |  |  |
+| mesh | Pet_Bboru_Attack01_Brazil_Event.X |  | 0 | exact copy available | data002/4084 |  |  |  |
 | mesh | Pet_ChillingHedghog_AttackBox01.X |  | 0 | exact copy available | data002/1239 |  |  |  |
 | mesh | Pet_Dororo_Attack_Shuriken.X |  | 0 | exact copy available | data106/5170 |  |  |  |
 | mesh | PET_Guardian_Wolf.Y |  | 0 | exact copy available | data002/59826 |  |  |  |
 | mesh | PET_Guardian_Wolf_Jr.Y |  | 0 | exact copy available | data002/25347 |  |  |  |
 | mesh | Pet_Hoya_Attack_C_Slash_05.X |  | 0 | exact copy available | data002/18200 |  |  |  |
-| mesh | Pet_Hoya_Attack_C_Slash_06.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/25667/short1 |  |  |  |
-| mesh | Pet_MEDUSA_STEB_1_ATTACK_A_ATTACKBOX.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/811/short2 |  |  |  |
+| mesh | Pet_Hoya_Attack_C_Slash_06.X |  | 0 | exact copy available | data002/25667 |  |  |  |
+| mesh | Pet_MEDUSA_STEB_1_ATTACK_A_ATTACKBOX.X |  | 0 | exact copy available | data002/811 |  |  |  |
 | mesh | Pet_MEDUSA_STEB_2_ATTACK_B_ATTACKBOX.X |  | 0 | exact copy available | data002/912 |  |  |  |
 | mesh | Pet_MEDUSA_STEB_3_ATTACK_C_ATTACKBOX.X |  | 0 | exact copy available | data002/976 |  |  |  |
 | mesh | Pet_MEDUSA_STEB_3_ATTACK_C_M01.X |  | 0 | exact copy available | data002/1609 |  |  |  |
@@ -1495,14 +1493,14 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | PET_PUMPKIN_RABBIT_Fire_MOVE.x |  | 0 | exact copy available | data002/28067 |  |  |  |
 | mesh | Pet_Tamama_Attack_Wave.Y |  | 0 | exact copy available | data002/1801 |  |  |  |
 | mesh | PhantomSteed_AttackFire01.Y |  | 0 | exact copy available | data140/894 |  |  |  |
-| mesh | PhantomSteed_WaitFireF_Foot01.Y |  | 0 | exact copy available | data140/2209 |  |  |  |
-| mesh | PhantomSteed_WaitFireHead01.Y |  | 0 | exact copy available | data140/1853 |  |  |  |
+| mesh | PhantomSteed_WaitFireF_Foot01.Y |  | 2 | exact copy available | data140/2209 |  |  |  |
+| mesh | PhantomSteed_WaitFireHead01.Y |  | 2 | exact copy available | data140/1853 |  |  |  |
 | mesh | Phoenix_Talon_Mesh_M.X |  | 0 | exact copy available | data118/27789 |  |  |  |
 | mesh | PhoenixStrike_MagicM01.X |  | 0 | exact copy available | data121/6330 |  |  |  |
 | mesh | PhoenixStrike_MagicP01.Y |  | 0 | exact copy available | data121/1788 |  |  |  |
 | mesh | Position_Eltrion3p_A_Basic_Arm.X |  | 0 | exact copy available | data002/558 |  |  |  |
-| mesh | Position_Eltrion3p_B_A_BigHand.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/626/short1 |  |  |  |
-| mesh | Position_Eltrion3p_bg_L.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1610/short1 |  |  |  |
+| mesh | Position_Eltrion3p_B_A_BigHand.X |  | 0 | exact copy available | data002/626 |  |  |  |
+| mesh | Position_Eltrion3p_bg_L.X |  | 0 | exact copy available | data002/1610 |  |  |  |
 | mesh | Position_Eltrion3p_bg_R.X |  | 0 | exact copy available | data002/1593 |  |  |  |
 | mesh | Position_Eltrion3p_bg_Razor.Y |  | 0 | exact copy available | data002/3952 |  |  |  |
 | mesh | Position_Eltrion3p_bg_Razor_L_Glow.Y |  | 0 | exact copy available | data002/4021 |  |  |  |
@@ -1511,25 +1509,25 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Position_LDB_DARK_PLASMA.X |  | 0 | exact copy available | data157/908 |  |  |  |
 | mesh | Position_LDN_DIABOLIC_DISASTER.X |  | 0 | exact copy available | data157/671 |  |  |  |
 | mesh | Position_LDN_SHADOW_FURY.X |  | 0 | exact copy available | data157/4898 |  |  |  |
-| mesh | Power_Of_God_Active_Attack_Spear.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/3715/short2 |  |  |  |
+| mesh | Power_Of_God_Active_Attack_Spear.x |  | 0 | exact copy available | data212/3715 |  |  |  |
 | mesh | Power_Of_God_Command_Attack_POSE_1.x |  | 0 | exact copy available | data212/146010 |  |  |  |
 | mesh | Power_Of_God_Command_Attack_POSE_2.x |  | 0 | exact copy available | data212/91710 |  |  |  |
-| mesh | Power_Of_God_Command_Attack_POSE_3.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/144129/short2 |  |  |  |
+| mesh | Power_Of_God_Command_Attack_POSE_3.x |  | 0 | exact copy available | data212/144129 |  |  |  |
 | mesh | Pporu_AirDash.X |  | 0 | exact copy available | data002/145259 |  |  |  |
 | mesh | PTION_6st_Soless_Change.X |  | 0 | exact copy available | data002/801 |  |  |  |
-| mesh | PTION_CTT_Cannon_Prison_1.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/859/short2 |  |  |  |
-| mesh | PTion_SA_EEP_Tesla_Flare.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/595/short2 |  |  |  |
-| mesh | PTion_Seed_Of_Ruin_Pole.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/843/short2 |  |  |  |
+| mesh | PTION_CTT_Cannon_Prison_1.X |  | 0 | exact copy available | data002/859 |  |  |  |
+| mesh | PTion_SA_EEP_Tesla_Flare.X |  | 0 | exact copy available | data002/595 |  |  |  |
+| mesh | PTion_Seed_Of_Ruin_Pole.X |  | 0 | exact copy available | data002/843 |  |  |  |
 | mesh | PVE_Hamel_WIN_01.Y |  | 3 | exact copy available | data002/645 |  |  |  |
 | mesh | PVE_V_HKS_SP_Attack_M01.X |  | 0 | exact copy available | data002/7783 |  |  |  |
 | mesh | PVE_V_KFT_SP_Laiser.X |  | 0 | exact copy available | data002/7789 |  |  |  |
 | mesh | PVE_VELDER_WIN_01.Y |  | 3 | exact copy available | data002/672 |  |  |  |
 | mesh | QUICK_PIERCING_Weapon.Y |  | 0 | exact copy available | data132/16630 |  |  |  |
 | mesh | RaulPuppet_AttadkX_M01.Y |  | 0 | exact copy available | data002/40870 |  |  |  |
-| mesh | RaulPuppet_AttadkZ_AttackBox.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1100/short3 |  |  |  |
+| mesh | RaulPuppet_AttadkZ_AttackBox.x |  | 0 | exact copy available | data002/1100 |  |  |  |
 | mesh | RaulPuppet_AttadkZ_P01.X |  | 0 | exact copy available | data002/3153 |  |  |  |
 | mesh | RaulPuppet_AttadkZ_P01.Y |  | 0 | exact copy available | data002/1112 |  |  |  |
-| mesh | RaulPuppet_SkillC_Dummy01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/9564/short3 |  |  |  |
+| mesh | RaulPuppet_SkillC_Dummy01.X |  | 0 | exact copy available | data002/9564 |  |  |  |
 | mesh | Raven_HarpoonSpearFire_M1.Y |  | 0 | exact copy available | data120/754 |  |  |  |
 | mesh | Raven_HarpoonSpearFire_M2.Y |  | 0 | exact copy available | data120/648 |  |  |  |
 | mesh | Raven_Seven_Burst_MEMO_F01.Y |  | 0 | exact copy available | data120/580 |  |  |  |
@@ -1569,7 +1567,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | RCR_BloodySpike_T3_1.X |  | 0 | exact copy available | data184/934 |  |  |  |
 | mesh | RCR_Chain_Viper_Weapon.x |  | 0 | exact copy available | data002/57565 |  |  |  |
 | mesh | RCR_Chain_Viper_Weapon_project.x |  | 0 | exact copy available | data002/20384 |  |  |  |
-| mesh | RCR_Dancing_Rush_weapon.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/78280/short1 |  |  |  |
+| mesh | RCR_Dancing_Rush_weapon.x |  | 0 | exact copy available | data002/78280 |  |  |  |
 | mesh | RCR_DashJumpComboXZ_T1.X |  | 0 | exact copy available | data184/1885 |  |  |  |
 | mesh | RCR_DashJumpComboZ_Weapon.X |  | 0 | exact copy available | data184/40035 |  |  |  |
 | mesh | RCR_DashJumpComboZX_Weapon1.X |  | 0 | exact copy available | data184/30941 |  |  |  |
@@ -1599,16 +1597,16 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | RCR_Win2_Weapon.X |  | 0 | exact copy available | data184/247488 |  |  |  |
 | mesh | RCR_Win_Weapon.X |  | 0 | exact copy available | data184/137642 |  |  |  |
 | mesh | Red_Dragon_Head_weapon.x |  | 0 | exact copy available | data002/87288 |  |  |  |
-| mesh | Red_Dragon_Head_weapon_Attack_Box.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3163/short1 |  |  |  |
-| mesh | Red_Dragon_P1_Attack_A_Crumble_A.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/52825/short3 |  |  |  |
+| mesh | Red_Dragon_Head_weapon_Attack_Box.x |  | 0 | exact copy available | data002/3163 |  |  |  |
+| mesh | Red_Dragon_P1_Attack_A_Crumble_A.X |  | 0 | exact copy available | data002/52825 |  |  |  |
 | mesh | Red_Dragon_P1_Attack_B_Crumble.X |  | 0 | exact copy available | data002/390467 |  |  |  |
-| mesh | Red_Dragon_P1_Attack_F_L_AttackBox.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2012/short1 |  |  |  |
-| mesh | Red_Dragon_Weapon_Head_Ef.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/104755/short1 |  |  |  |
-| mesh | RedD_AC_basic_Big.Y |  | 0 | exact copy available | data002/6009 |  |  |  |
-| mesh | RedD_AC_basic_Small.Y |  | 0 | exact copy available | data002/4484 |  |  |  |
-| mesh | RedD_AC_Floor_Big.Y |  | 0 | exact copy available | data002/4456 |  |  |  |
-| mesh | RedD_AC_Floor_Small.Y |  | 0 | exact copy available | data002/4469 |  |  |  |
-| mesh | RedDragon_P1_MOVE_Breath_Basic_ADD.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/890/short1 |  |  |  |
+| mesh | Red_Dragon_P1_Attack_F_L_AttackBox.X |  | 0 | exact copy available | data002/2012 |  |  |  |
+| mesh | Red_Dragon_Weapon_Head_Ef.x |  | 0 | exact copy available | data002/104755 |  |  |  |
+| mesh | RedD_AC_basic_Big.Y |  | 1 | exact copy available | data002/6009 |  |  |  |
+| mesh | RedD_AC_basic_Small.Y |  | 3 | exact copy available | data002/4484 |  |  |  |
+| mesh | RedD_AC_Floor_Big.Y |  | 6 | exact copy available | data002/4456 |  |  |  |
+| mesh | RedD_AC_Floor_Small.Y |  | 2 | exact copy available | data002/4469 |  |  |  |
+| mesh | RedDragon_P1_MOVE_Breath_Basic_ADD.y |  | 0 | exact copy available | data002/890 |  |  |  |
 | mesh | RedDragon_P1_MOVE_Breath_CENTER_ADD.y |  | 0 | exact copy available | data002/967 |  |  |  |
 | mesh | Rena_AeroStrafe_Arrow_M01.X |  | 0 | exact copy available | data121/5096 |  |  |  |
 | mesh | Rena_Arrow_AM01.X |  | 0 | exact copy available | data121/4343 |  |  |  |
@@ -1616,7 +1614,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Rena_ArrowMagicM01.X |  | 0 | exact copy available | data121/6428 |  |  |  |
 | mesh | Rena_ArrowMagicP01.Y |  | 0 | exact copy available | data121/1786 |  |  |  |
 | mesh | Rena_ArrowMagicP02.Y |  | 0 | exact copy available | data121/2813 |  |  |  |
-| mesh | Rena_ArrowMagicP03.Y |  | 0 | exact copy available | data121/664 |  |  |  |
+| mesh | Rena_ArrowMagicP03.Y |  | 5 | exact copy available | data121/664 |  |  |  |
 | mesh | Rena_CrazyShot_Arrow.X |  | 0 | exact copy available | data121/2001 |  |  |  |
 | mesh | Rena_CrazyShot_Arrow.Y |  | 0 | exact copy available | data121/1356 |  |  |  |
 | mesh | Rena_CrazyShot_Arrow01.X |  | 0 | exact copy available | data121/2385 |  |  |  |
@@ -1676,40 +1674,40 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Riding_Ascalon_AttackC_Attackbox.X |  | 0 | exact copy available | data002/806 |  |  |  |
 | mesh | Riding_Ascalon_AttackX_Attackbox.X |  | 0 | exact copy available | data002/904 |  |  |  |
 | mesh | Riding_Ascalon_AttackZ_Attackbox.X |  | 0 | exact copy available | data002/847 |  |  |  |
-| mesh | Riding_Ascalon_JumpAttackZ_Attackbox.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/964/short3 |  |  |  |
+| mesh | Riding_Ascalon_JumpAttackZ_Attackbox.X |  | 0 | exact copy available | data002/964 |  |  |  |
 | mesh | Riding_BigCat_AirDashM1.X |  | 0 | exact copy available | data002/33316 |  |  |  |
 | mesh | Riding_BigCat_SkillC.X |  | 0 | exact copy available | data002/78846 |  |  |  |
 | mesh | Riding_Cat_AttackX1.Y |  | 0 | exact copy available | data002/29434 |  |  |  |
 | mesh | Riding_Cat_AttackX2.Y |  | 0 | exact copy available | data002/29269 |  |  |  |
 | mesh | Riding_Cat_JumpZ1.X |  | 0 | exact copy available | data002/2415 |  |  |  |
 | mesh | Riding_Cat_SkillC_M1.Y |  | 0 | exact copy available | data002/29413 |  |  |  |
-| mesh | Riding_Corgi_AirDash2.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/74058/short1 |  |  |  |
+| mesh | Riding_Corgi_AirDash2.X |  | 0 | exact copy available | data002/74058 |  |  |  |
 | mesh | Riding_Corgi_AttackX1.Y |  | 0 | exact copy available | data002/43995 |  |  |  |
-| mesh | Riding_Corgi_AttackX2.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/44013/short1 |  |  |  |
+| mesh | Riding_Corgi_AttackX2.Y |  | 0 | exact copy available | data002/44013 |  |  |  |
 | mesh | Riding_GaleForce_X_P1.Y |  | 0 | exact copy available | data140/71980 |  |  |  |
-| mesh | Riding_Hellhound_Projectile.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3250/short1 |  |  |  |
+| mesh | Riding_Hellhound_Projectile.X |  | 0 | exact copy available | data002/3250 |  |  |  |
 | mesh | Riding_LARVA_Chili01.X |  | 0 | exact copy available | data002/5325 |  |  |  |
 | mesh | Riding_LARVA_JumpZ_AttavkBox.X |  | 0 | exact copy available | data002/982 |  |  |  |
 | mesh | Riding_LARVA_Sausage01.X |  | 0 | exact copy available | data002/4528 |  |  |  |
-| mesh | Riding_LARVA_Z_AttavkBox.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/946/short1 |  |  |  |
+| mesh | Riding_LARVA_Z_AttavkBox.X |  | 0 | exact copy available | data002/946 |  |  |  |
 | mesh | Riding_N_G_ELTRION_Weapons_Lhand.X |  | 0 | exact copy available | data002/6183 |  |  |  |
 | mesh | Riding_N_G_ELTRION_Weapons_Lhand_E.X |  | 0 | exact copy available | data002/5349 |  |  |  |
-| mesh | Riding_N_G_ELTRION_Weapons_Rhand.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5890/short1 |  |  |  |
-| mesh | Riding_N_G_ELTRION_Weapons_Rhand_E.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5153/short1 |  |  |  |
+| mesh | Riding_N_G_ELTRION_Weapons_Rhand.X |  | 0 | exact copy available | data002/5890 |  |  |  |
+| mesh | Riding_N_G_ELTRION_Weapons_Rhand_E.X |  | 0 | exact copy available | data002/5153 |  |  |  |
 | mesh | Riding_NoNo_Attack_Z1.X |  | 0 | exact copy available | data002/945 |  |  |  |
 | mesh | Riding_NoNo_Attack_Z2.X |  | 0 | exact copy available | data002/5216 |  |  |  |
-| mesh | Riding_NoNo_SkillC_Projectile.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/12490/short1 |  |  |  |
-| mesh | Riding_Pet_LAVA_Hit01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2058/short1 |  |  |  |
-| mesh | Riding_Rakshasa.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/207791/short1 |  |  |  |
+| mesh | Riding_NoNo_SkillC_Projectile.X |  | 0 | exact copy available | data002/12490 |  |  |  |
+| mesh | Riding_Pet_LAVA_Hit01.X |  | 0 | exact copy available | data002/2058 |  |  |  |
+| mesh | Riding_Rakshasa.x |  | 0 | exact copy available | data002/207791 |  |  |  |
 | mesh | Riding_Ramiel_AttackX_Trace.x |  | 0 | exact copy available | data140/10839 |  |  |  |
 | mesh | Riding_Ramiel_AttackZ_Trace.x |  | 0 | exact copy available | data140/8055 |  |  |  |
 | mesh | Riding_Ramiel_Jump_AttackZ_Trace.x |  | 0 | exact copy available | data140/4311 |  |  |  |
-| mesh | Riding_Teddy_Bear_Attack_Z_01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2164/short3 |  |  |  |
-| mesh | Riding_Teddy_Bear_Attack_Z_02.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2978/short1 |  |  |  |
+| mesh | Riding_Teddy_Bear_Attack_Z_01.X |  | 0 | exact copy available | data002/2164 |  |  |  |
+| mesh | Riding_Teddy_Bear_Attack_Z_02.X |  | 0 | exact copy available | data002/2978 |  |  |  |
 | mesh | Riding_Teddy_Bear_JumpAttack_Z_Kick.Y |  | 0 | exact copy available | data002/729 |  |  |  |
 | mesh | Riding_Teddy_Bear_Skill_C_Effect01.X |  | 0 | exact copy available | data002/60985 |  |  |  |
 | mesh | Riding_Teddy_Bear_Skill_C_Effect02.X |  | 0 | exact copy available | data002/60985 |  |  |  |
-| mesh | Riding_Theta_Attack_Z_M01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1340/short3 |  |  |  |
+| mesh | Riding_Theta_Attack_Z_M01.X |  | 0 | exact copy available | data002/1340 |  |  |  |
 | mesh | RMH_EX_S_VIPER_Attack_A.X |  | 0 | exact copy available | data184/58715 |  |  |  |
 | mesh | RMH_EX_S_VIPER_Dying.X |  | 0 | exact copy available | data184/60611 |  |  |  |
 | mesh | RMH_EX_S_VIPER_Start.X |  | 0 | exact copy available | data184/58938 |  |  |  |
@@ -1759,7 +1757,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | ROM_G_0_BattleRoid_Machine.X |  | 0 | exact copy available | data184/264076 |  |  |  |
 | mesh | ROM_G_0_BattleRoid_MachineFX1.X |  | 0 | exact copy available | data184/173893 |  |  |  |
 | mesh | ROM_G_EX_Ancient_Buster_Machin.X |  | 0 | exact copy available | data002/181293 |  |  |  |
-| mesh | ROM_G_EX_Ancient_Buster_Machin_Still.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/158752/short2 |  |  |  |
+| mesh | ROM_G_EX_Ancient_Buster_Machin_Still.Y |  | 0 | exact copy available | data002/158752 |  |  |  |
 | mesh | ROM_G_EX_MagneticForce_Mesh.X |  | 0 | exact copy available | data184/27598 |  |  |  |
 | mesh | ROM_Guarder_Dummy.X |  | 0 | exact copy available | data184/477 |  |  |  |
 | mesh | ROM_Guarder_Mesh.X |  | 0 | exact copy available | data184/31608 |  |  |  |
@@ -1786,7 +1784,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | ROM_Win_Weapon.X |  | 0 | exact copy available | data184/229822 |  |  |  |
 | mesh | Roo_highLightMagical.Y |  | 0 | exact copy available | data157/672 |  |  |  |
 | mesh | Rose_Sa_Rfy_Valhalla_Wing.X |  | 0 | exact copy available | data002/35694 |  |  |  |
-| mesh | Rose_Stand_AuraM1.Y |  | 0 | exact copy available | data184/2504 |  |  |  |
+| mesh | Rose_Stand_AuraM1.Y |  | 3 | exact copy available | data184/2504 |  |  |  |
 | mesh | ROT_GuardianStrike_F01.Y |  | 0 | exact copy available | data120/797 |  |  |  |
 | mesh | ROT_HellDive_M01.X |  | 0 | exact copy available | data120/2885 |  |  |  |
 | mesh | ROT_HellDive_M02.X |  | 0 | exact copy available | data120/1932 |  |  |  |
@@ -1800,7 +1798,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | ROT_NUCLEAR_NEW10.X |  | 0 | exact copy available | data120/10791 |  |  |  |
 | mesh | ROT_NUCLEAR_NEW11.X |  | 0 | exact copy available | data120/1907 |  |  |  |
 | mesh | RRF_DevastatingStrike_Arm.X |  | 0 | exact copy available | data120/44050 |  |  |  |
-| mesh | RRF_POWER_BOMB_7.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/564/short3 |  |  |  |
+| mesh | RRF_POWER_BOMB_7.y |  | 0 | exact copy available | data002/564 |  |  |  |
 | mesh | RRF_PowerBomber_Dummy01.X |  | 0 | exact copy available | data120/695 |  |  |  |
 | mesh | RRF_XCrash_FireDummy.x |  | 0 | exact copy available | data120/942 |  |  |  |
 | mesh | RRF_XCrash_ScrachDummy.x |  | 0 | exact copy available | data120/508 |  |  |  |
@@ -1812,7 +1810,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | RSR_AncientTriggerLaser2_3.Y |  | 0 | exact copy available | data184/1709 |  |  |  |
 | mesh | RSR_AncientTriggerLaser2_AttackBox.X |  | 0 | exact copy available | data184/888 |  |  |  |
 | mesh | RSR_AncientTriggerLaser2_Fire1.Y |  | 0 | exact copy available | data184/2620 |  |  |  |
-| mesh | RSR_AncientTriggerLaser2_Fire2.Y |  | 0 | exact copy available | data184/5596 |  |  |  |
+| mesh | RSR_AncientTriggerLaser2_Fire2.Y |  | 1 | exact copy available | data184/5596 |  |  |  |
 | mesh | RSR_FM92_MK2_ProjectileM.X |  | 0 | exact copy available | data184/9009 |  |  |  |
 | mesh | RSR_FM92_MK2_ProjectileM2.X |  | 0 | exact copy available | data184/1494 |  |  |  |
 | mesh | RSR_FM92_MK2_Weapon.X |  | 0 | exact copy available | data184/21386 |  |  |  |
@@ -1858,9 +1856,9 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | RVK_Win2_mascot.X |  | 0 | exact copy available | data184/77607 |  |  |  |
 | mesh | RVK_Win_mascot.X |  | 0 | exact copy available | data184/53312 |  |  |  |
 | mesh | RVK_Win_Weapon.X |  | 0 | exact copy available | data184/30018 |  |  |  |
-| mesh | RW00_F.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1330/short1 |  |  |  |
-| mesh | RW01_1F.Y |  | 0 | exact copy available | data002/886 |  |  |  |
-| mesh | RW01_2F.Y |  | 0 | exact copy available | data002/887 |  |  |  |
+| mesh | RW00_F.Y |  | 1 | exact copy available | data002/1330 |  |  |  |
+| mesh | RW01_1F.Y |  | 1 | exact copy available | data002/886 |  |  |  |
+| mesh | RW01_2F.Y |  | 1 | exact copy available | data002/887 |  |  |  |
 | mesh | S3_DESTROY_A_Parts_Object_XFROM_FX.X |  | 0 | exact copy available | data002/26881 |  |  |  |
 | mesh | SA_ADW_IMPACT_ZONE_Attackbox.X |  | 0 | exact copy available | data116/1031 |  |  |  |
 | mesh | SA_LLD_DANCING_BLADE_Ground.x |  | 0 | exact copy available | data157/2275 |  |  |  |
@@ -1869,19 +1867,19 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | SA_LLD_PHANTOM_BLADE_Trace02.X |  | 0 | exact copy available | data157/6680 |  |  |  |
 | mesh | Sander_Secret_Stage_Ring.X |  | 0 | exact copy available | data135/19008 |  |  |  |
 | mesh | SBQ_BLOODSWORD_WIND_M01.X |  | 0 | exact copy available | data142/1862 |  |  |  |
-| mesh | SBQ_BLOODSWORD_WIND_M02.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/1854/short1 |  |  |  |
+| mesh | SBQ_BLOODSWORD_WIND_M02.X |  | 0 | exact copy available | data142/1854 |  |  |  |
 | mesh | SBQ_DUMMY01.X |  | 0 | exact copy available | data142/1184 |  |  |  |
 | mesh | SCA_CRIMSON_BREAK_P01.Y |  | 0 | exact copy available | data142/657 |  |  |  |
 | mesh | SCA_CRIMSON_BREAK_PE01.X |  | 0 | exact copy available | data142/6314 |  |  |  |
-| mesh | SCA_CRIMSON_BREAK_PE02.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/7035/short2 |  |  |  |
+| mesh | SCA_CRIMSON_BREAK_PE02.Y |  | 0 | exact copy available | data142/7035 |  |  |  |
 | mesh | SCA_CRIMSON_BREAK_PT01.Y |  | 0 | exact copy available | data142/997 |  |  |  |
 | mesh | SCA_FATE_SMASHER_BLADE01.X |  | 0 | exact copy available | data142/52726 |  |  |  |
 | mesh | SCA_FATE_SMASHER_BLADE01.Y |  | 0 | exact copy available | data142/52514 |  |  |  |
 | mesh | SCA_FATE_SMASHER_DUMMY01.X |  | 0 | exact copy available | data142/581 |  |  |  |
 | mesh | SCA_FATE_SMASHER_P01.X |  | 0 | exact copy available | data142/24585 |  |  |  |
 | mesh | SCA_SHADE_THE_ILLUSION_P01.Y |  | 0 | exact copy available | data142/7069 |  |  |  |
-| mesh | SCA_SHADOW_EDGE_Projectile.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/4268/short3 |  |  |  |
-| mesh | SCORPION_KING_SPECIAL_ATTACK01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1506/short1 |  |  |  |
+| mesh | SCA_SHADOW_EDGE_Projectile.X |  | 0 | exact copy available | data142/4268 |  |  |  |
+| mesh | SCORPION_KING_SPECIAL_ATTACK01.X |  | 0 | exact copy available | data002/1506 |  |  |  |
 | mesh | SDK_BRANDISH_BREAKER_DUMMY01.x |  | 0 | exact copy available | data142/1365 |  |  |  |
 | mesh | SDK_BURNING_PHANTOM_P001.Y |  | 0 | exact copy available | data142/1240 |  |  |  |
 | mesh | SDK_BURNING_PHANTOM_PE01.X |  | 0 | exact copy available | data142/6026 |  |  |  |
@@ -1889,21 +1887,21 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | SDK_BURNING_PHANTOM_StartDummy.X |  | 0 | exact copy available | data142/505 |  |  |  |
 | mesh | SDK_BURNING_PHANTOM_Storm001.Y |  | 0 | exact copy available | data142/4873 |  |  |  |
 | mesh | SDK_EJECTION_BUSTER_Attack01.X |  | 0 | exact copy available | data142/951 |  |  |  |
-| mesh | SDK_Ejection_Buster_Blade01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/922/short1 |  |  |  |
-| mesh | SDK_INJECTION_STIGMA_Blade01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/48368/short2 |  |  |  |
+| mesh | SDK_Ejection_Buster_Blade01.Y |  | 0 | exact copy available | data142/922 |  |  |  |
+| mesh | SDK_INJECTION_STIGMA_Blade01.X |  | 0 | exact copy available | data142/48368 |  |  |  |
 | mesh | SFL_MAGIC_RUNE.Y |  | 0 | exact copy available | data142/4229 |  |  |  |
 | mesh | SFL_MESH01.y |  | 0 | exact copy available | data142/12946 |  |  |  |
 | mesh | SFL_MESH02.X |  | 0 | exact copy available | data142/559 |  |  |  |
-| mesh | SFL_MESH03.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/2315/short2 |  |  |  |
+| mesh | SFL_MESH03.X |  | 0 | exact copy available | data142/2315 |  |  |  |
 | mesh | SGM_GigaBlast_Sword.Y |  | 0 | exact copy available | data142/10820 |  |  |  |
-| mesh | SGM_GigaBlast_Sword_Charge001.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/12387/short1 |  |  |  |
+| mesh | SGM_GigaBlast_Sword_Charge001.X |  | 0 | exact copy available | data142/12387 |  |  |  |
 | mesh | SGM_GigaBlast_Sword_M.X |  | 0 | exact copy available | data142/10678 |  |  |  |
 | mesh | SGM_ProjectileWeaponM01.X |  | 0 | exact copy available | data142/10566 |  |  |  |
-| mesh | SGM_ProvokeReadyTM01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/930/short1 |  |  |  |
-| mesh | SHADE_THE_ILLUSION_Shadow.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/169031/short3 |  |  |  |
+| mesh | SGM_ProvokeReadyTM01.X |  | 0 | exact copy available | data142/930 |  |  |  |
+| mesh | SHADE_THE_ILLUSION_Shadow.X |  | 0 | exact copy available | data142/169031 |  |  |  |
 | mesh | shadowMaster_motion.x |  | 0 | exact copy available | data002/618335 |  |  |  |
 | mesh | SI_A_ALS_MANA_DRAIN_01.Y |  | 0 | exact copy available | data132/621 |  |  |  |
-| mesh | SI_HA_ABH_CLIMAX_dummy.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/8451/short2 |  |  |  |
+| mesh | SI_HA_ABH_CLIMAX_dummy.X |  | 0 | exact copy available | data212/8451 |  |  |  |
 | mesh | SI_HA_ABH_CLIMAX_dummyLAND.X |  | 0 | exact copy available | data212/669 |  |  |  |
 | mesh | SI_HA_LLD_DESCENT_DARKNESS_HAMMER_BoneLHand.X |  | 0 | exact copy available | data157/12749 |  |  |  |
 | mesh | SI_HA_LLD_DESCENT_DARKNESS_MASIN_ST1.X |  | 0 | exact copy available | data157/292451 |  |  |  |
@@ -1918,10 +1916,10 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Sinister_Mind_Plant_2.Y |  | 0 | exact copy available | data157/15197 |  |  |  |
 | mesh | Sinister_Mind_Plant_3.Y |  | 0 | exact copy available | data157/19157 |  |  |  |
 | mesh | Sinsu_Attack_X_Start_001.Y |  | 0 | exact copy available | data002/56323 |  |  |  |
-| mesh | Sinsu_Attack_X_Start_Fire01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5290/short1 |  |  |  |
+| mesh | Sinsu_Attack_X_Start_Fire01.X |  | 0 | exact copy available | data002/5290 |  |  |  |
 | mesh | Sinsu_Attack_Z2_Fire01.X |  | 0 | exact copy available | data002/1399 |  |  |  |
 | mesh | Sinsu_Attack_Z2_Fire02.X |  | 0 | exact copy available | data002/1721 |  |  |  |
-| mesh | Sinsu_Attack_Z_E_Fire01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2994/short1 |  |  |  |
+| mesh | Sinsu_Attack_Z_E_Fire01.X |  | 0 | exact copy available | data002/2994 |  |  |  |
 | mesh | Sinsu_Attack_Z_Fire01.X |  | 0 | exact copy available | data002/2207 |  |  |  |
 | mesh | Sinsu_Attack_Z_Fire02.X |  | 0 | exact copy available | data002/2432 |  |  |  |
 | mesh | Sinsu_Fox_Attack_Z_Fire_Dummy.X |  | 0 | exact copy available | data002/2782 |  |  |  |
@@ -1929,67 +1927,67 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | Sinsu_Fox_Fire_Attack_X2_AttackBox.X |  | 0 | exact copy available | data002/862 |  |  |  |
 | mesh | Sinsu_Fox_Fire_Attack_Z_Dummy.X |  | 0 | exact copy available | data002/726 |  |  |  |
 | mesh | Sinsu_Fox_Fire_JumpAttack_Z.X |  | 0 | exact copy available | data002/2261 |  |  |  |
-| mesh | Sinsu_JumpAttack_Z_Fire01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2386/short1 |  |  |  |
+| mesh | Sinsu_JumpAttack_Z_Fire01.X |  | 0 | exact copy available | data002/2386 |  |  |  |
 | mesh | Sinsu_JumpAttack_Z_Fire02.X |  | 0 | exact copy available | data002/2175 |  |  |  |
 | mesh | Sinsu_JumpAttack_Z_Fire03.X |  | 0 | exact copy available | data002/1696 |  |  |  |
 | mesh | Sinsu_JumpAttack_Z_Fire04.X |  | 0 | exact copy available | data002/2950 |  |  |  |
 | mesh | Sinsu_PowerDash_Fire01.X |  | 0 | exact copy available | data002/2806 |  |  |  |
-| mesh | Sinsu_PowerDash_Fire02.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/4594/short1 |  |  |  |
+| mesh | Sinsu_PowerDash_Fire02.X |  | 0 | exact copy available | data002/4594 |  |  |  |
 | mesh | SKA_SA_A.X |  | 0 | exact copy available | data002/2506 |  |  |  |
-| mesh | SkyCross_KeyObject_P1.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1044/short3 |  |  |  |
-| mesh | SlashTrace_BlackCat_Dummy.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/628/short3 |  |  |  |
+| mesh | SkyCross_KeyObject_P1.Y |  | 0 | exact copy available | data002/1044 |  |  |  |
+| mesh | SlashTrace_BlackCat_Dummy.X |  | 0 | exact copy available | data002/628 |  |  |  |
 | mesh | SlideDoubleKick_M1.X |  | 0 | exact copy available | data121/1844 |  |  |  |
 | mesh | SlideDoubleKick_M2.X |  | 0 | exact copy available | data121/1842 |  |  |  |
-| mesh | Soless_C_BlackHole_Knife.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/14837/short2 |  |  |  |
-| mesh | Soless_C_BlackHole_Rune.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/570/short1 |  |  |  |
+| mesh | Soless_C_BlackHole_Knife.x |  | 0 | exact copy available | data002/14837 |  |  |  |
+| mesh | Soless_C_BlackHole_Rune.Y |  | 0 | exact copy available | data002/570 |  |  |  |
 | mesh | Soless_Disappear_Shadow01.Y |  | 0 | exact copy available | data002/174841 |  |  |  |
 | mesh | Soless_Disappear_Shadow01_Ver7.Y |  | 0 | exact copy available | data002/143563 |  |  |  |
 | mesh | Soless_Disappear_Shadow02.Y |  | 0 | exact copy available | data002/165683 |  |  |  |
 | mesh | SOLESS_MOONLIGHT_SLASH_BLADE.X |  | 0 | exact copy available | data002/2125 |  |  |  |
-| mesh | Soless_Weapon_Fire1.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2322/short1 |  |  |  |
+| mesh | Soless_Weapon_Fire1.Y |  | 0 | exact copy available | data002/2322 |  |  |  |
 | mesh | SonicBlade_M1.X |  | 0 | exact copy available | data118/2076 |  |  |  |
 | mesh | SonicBlade_M2.X |  | 0 | exact copy available | data118/2069 |  |  |  |
 | mesh | SonicBlade_M3.X |  | 0 | exact copy available | data118/2080 |  |  |  |
 | mesh | SonicBlade_Wind.Y |  | 0 | exact copy available | data118/5269 |  |  |  |
-| mesh | SpaceMrabbit_carrot.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/3092/short3 |  |  |  |
+| mesh | SpaceMrabbit_carrot.Y |  | 0 | exact copy available | data002/3092 |  |  |  |
 | mesh | spaceship_mesh_01.Y |  | 0 | exact copy available | data002/11801 |  |  |  |
 | mesh | spaceship_mesh_02.Y |  | 0 | exact copy available | data002/11801 |  |  |  |
-| mesh | Speciel_Attack_D_FX.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/60230/short1 |  |  |  |
+| mesh | Speciel_Attack_D_FX.x |  | 0 | exact copy available | data002/60230 |  |  |  |
 | mesh | SpiralBlast_F.Y |  | 0 | exact copy available | data118/650 |  |  |  |
 | mesh | SpiralBlast_F2.Y |  | 0 | exact copy available | data118/1514 |  |  |  |
 | mesh | SpiralBlast_M01.X |  | 0 | exact copy available | data118/1868 |  |  |  |
 | mesh | SpiralBlast_M02.X |  | 0 | exact copy available | data118/1867 |  |  |  |
 | mesh | SpiralBlast_M03.X |  | 0 | exact copy available | data118/1872 |  |  |  |
-| mesh | SPK_InfernalBlade_WeaponM01.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/10603/short2 |  |  |  |
-| mesh | SPK_InfernalBlade_WeaponM01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/9760/short1 |  |  |  |
+| mesh | SPK_InfernalBlade_WeaponM01.x |  | 0 | exact copy available | data142/10603 |  |  |  |
+| mesh | SPK_InfernalBlade_WeaponM01.Y |  | 0 | exact copy available | data142/9760 |  |  |  |
 | mesh | SSK_Extinction_Projectile01.Y |  | 0 | exact copy available | data142/5519 |  |  |  |
 | mesh | SSK_Extinction_Projectile02.Y |  | 0 | exact copy available | data142/1302 |  |  |  |
 | mesh | starline.x |  | 0 | exact copy available | data002/1749 |  |  |  |
 | mesh | SUMMON_FAMILIAR_Mesh01.X |  | 0 | exact copy available | data157/7678 |  |  |  |
 | mesh | SUMMON_FAMILIAR_Mesh02.Y |  | 0 | exact copy available | data157/1129 |  |  |  |
-| mesh | Suveillan_Core_A.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1202/short1 |  |  |  |
+| mesh | Suveillan_Core_A.Y |  | 0 | exact copy available | data002/1202 |  |  |  |
 | mesh | Suveillan_Core_B.Y |  | 0 | exact copy available | data002/1221 |  |  |  |
 | mesh | Suveillan_Magic_Attack_C_ef2_L.y |  | 0 | exact copy available | data002/815 |  |  |  |
-| mesh | Suveillan_Magic_Attack_C_ef2_R.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/844/short3 |  |  |  |
+| mesh | Suveillan_Magic_Attack_C_ef2_R.y |  | 0 | exact copy available | data002/844 |  |  |  |
 | mesh | Suveillan_Magic_Attack_C_ef_Big_L.y |  | 0 | exact copy available | data002/2328 |  |  |  |
 | mesh | Suveillan_Magic_Attack_C_ef_Big_R.y |  | 0 | exact copy available | data002/2320 |  |  |  |
-| mesh | Suveillan_Magic_Attack_C_ef_L.y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2331/short2 |  |  |  |
+| mesh | Suveillan_Magic_Attack_C_ef_L.y |  | 0 | exact copy available | data002/2331 |  |  |  |
 | mesh | Suveillan_Magic_Attack_C_ef_R.y |  | 0 | exact copy available | data002/2329 |  |  |  |
 | mesh | Teddy_Bear_Attack_Ball_01.X |  | 0 | exact copy available | data002/30025 |  |  |  |
 | mesh | Teddy_Bear_Attack_Ball_02.X |  | 0 | exact copy available | data002/28348 |  |  |  |
-| mesh | Teddy_Bear_Attack_Eye_01.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/602/short1 |  |  |  |
-| mesh | Teddy_Bear_Pet_paperplane.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1372/short3 |  |  |  |
+| mesh | Teddy_Bear_Attack_Eye_01.X |  | 0 | exact copy available | data002/602 |  |  |  |
+| mesh | Teddy_Bear_Pet_paperplane.X |  | 0 | exact copy available | data002/1372 |  |  |  |
 | mesh | Teddy_Bear_Pet_paperplane01.Y |  | 0 | exact copy available | data002/952 |  |  |  |
 | mesh | Theta_Attack_C_M01.x |  | 0 | exact copy available | data002/87510 |  |  |  |
 | mesh | Theta_Attack_C_M02.x |  | 0 | exact copy available | data002/168022 |  |  |  |
 | mesh | Theta_Attack_C_M03.x |  | 0 | exact copy available | data002/154299 |  |  |  |
-| mesh | Theta_Attack_X_M01.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/51736/short1 |  |  |  |
+| mesh | Theta_Attack_X_M01.x |  | 0 | exact copy available | data002/51736 |  |  |  |
 | mesh | TRAPPING_ARROW_FUNGUS_Grow01.X |  | 0 | exact copy available | data121/5026 |  |  |  |
 | mesh | TRAPPING_ARROW_FUNGUS_MESH01.X |  | 0 | exact copy available | data121/6910 |  |  |  |
 | mesh | Triangle_Thorn.y |  | 0 | exact copy available | data212/581 |  |  |  |
 | mesh | Tutorial_Change_Motion_ShadowMaster_ALL_byss.x |  | 0 | exact copy available | data002/475080 |  |  |  |
 | mesh | TUTORIAL_Rose_weapon_point.x |  | 0 | exact copy available | data002/519 |  |  |  |
-| mesh | TUTORIAL_Rose_weapon_Trace.x |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/571/short2 |  |  |  |
+| mesh | TUTORIAL_Rose_weapon_Trace.x |  | 0 | exact copy available | data002/571 |  |  |  |
 | mesh | UI_AIN_DAGGER_01.X |  | 0 | exact copy available | data002/4061 |  |  |  |
 | mesh | UnlimitedBlade_Body.Y |  | 0 | exact copy available | data118/22328 |  |  |  |
 | mesh | UnlimitedBladeM01.X |  | 0 | exact copy available | data118/2254 |  |  |  |
@@ -2011,23 +2009,23 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | ViolentAttackM1_01.X |  | 0 | exact copy available | data121/1806 |  |  |  |
 | mesh | ViolentAttackM1_02.X |  | 0 | exact copy available | data121/1799 |  |  |  |
 | mesh | ViolentAttackP01.X |  | 0 | exact copy available | data121/7402 |  |  |  |
-| mesh | WaitHabit_Fish_big.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/17480/short2 |  |  |  |
+| mesh | WaitHabit_Fish_big.X |  | 0 | exact copy available | data002/17480 |  |  |  |
 | mesh | WaitHabit_Fish_small.X |  | 0 | exact copy available | data002/16107 |  |  |  |
 | mesh | Wally_Castle_Roof_Stage1_Direct_A01.X |  | 0 | exact copy available | data002/119044 |  |  |  |
 | mesh | Wally_Castle_Roof_Stage1_Direct_A02.X |  | 0 | exact copy available | data002/164529 |  |  |  |
 | mesh | Wally_Castle_Roof_Stage1_Direct_A03.X |  | 0 | exact copy available | data002/131609 |  |  |  |
-| mesh | Wally_Castle_Roof_Stage1_Direct_A04.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/152504/short2 |  |  |  |
+| mesh | Wally_Castle_Roof_Stage1_Direct_A04.X |  | 0 | exact copy available | data002/152504 |  |  |  |
 | mesh | Win01_Effect.X |  | 0 | exact copy available | data132/265494 |  |  |  |
-| mesh | WM_AC_basic_Small.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1178/short1 |  |  |  |
-| mesh | WM_AC_Floor_Big.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1740/short3 |  |  |  |
-| mesh | WM_AC_Floor_Small.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1707/short2 |  |  |  |
+| mesh | WM_AC_basic_Small.Y |  | 2 | exact copy available | data002/1178 |  |  |  |
+| mesh | WM_AC_Floor_Big.Y |  | 1 | exact copy available | data002/1740 |  |  |  |
+| mesh | WM_AC_Floor_Small.Y |  | 1 | exact copy available | data002/1707 |  |  |  |
 | mesh | WolfFangHit_LM1.X |  | 0 | exact copy available | data120/1977 |  |  |  |
 | mesh | WolfFangHit_LM2.X |  | 0 | exact copy available | data120/1965 |  |  |  |
 | mesh | WolfFangHit_RM1.X |  | 0 | exact copy available | data120/1950 |  |  |  |
 | mesh | WolfFangHit_RM2.X |  | 0 | exact copy available | data120/1939 |  |  |  |
-| mesh | Wood_Controller.X |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/21969/short1 |  |  |  |
+| mesh | Wood_Controller.X |  | 0 | exact copy available | data002/21969 |  |  |  |
 | mesh | Y_2017_Student_PPoru_Attack_A_Book.Y |  | 0 | exact copy available | data002/2528 |  |  |  |
-| mesh | Y_ALE_Brocken_AushauenIllusion_Slash_01.Y |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/153271/short1 |  |  |  |
+| mesh | Y_ALE_Brocken_AushauenIllusion_Slash_01.Y |  | 0 | exact copy available | data002/153271 |  |  |  |
 | sound | ADD_AMM_AimingNova_HIT.ogg |  | 0 | exact copy available | data223/40878 |  |  |  |
 | sound | ADD_AMM_ChargedImpulsar_BLACKHOLE.ogg |  | 0 | exact copy available | data223/20791 |  |  |  |
 | sound | ADD_Apo_Attack02_Explo.ogg |  | 0 | exact copy available | data223/127505 |  |  |  |
@@ -2340,7 +2338,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | sound | SUVEILLAN_Attack_D_Fire2.ogg |  | 0 | exact copy available | data182/45337 |  |  |  |
 | sound | Time_Light_Cha_Dying.ogg |  | 0 | exact copy available | data222/62372 |  |  |  |
 | sound | Time_Light_Cha_Start.ogg |  | 0 | exact copy available | data222/68594 |  |  |  |
-| tex | 2016_Hanbok_Ghost_P02.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
+| tex | 2016_Hanbok_Ghost_P02.dds |  | 2 | exact copy available | data002/5616 |  |  |  |
 | tex | 2016Halloween_wing.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | 2016Halloween_wing_A.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | A_ELSION_PROVER_B_Fire_Spider.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
@@ -2356,41 +2354,41 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | ABH_RUNE_T02.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | ABH_RUNE_T03.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | ABH_RUNELINE.tga |  | 0 | exact copy available | data212/4646 |  |  |  |
-| tex | ABH_RUNELINE_green.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/4646/short1 |  |  |  |
-| tex | AC_Arm_SunBlooming01.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/16512/short255 |  |  |  |
-| tex | AC_Arm_SunBlooming02.dds |  | 0 | exact copy available | data002/1152 |  |  |  |
+| tex | ABH_RUNELINE_green.tga |  | 0 | exact copy available | data212/4646 |  |  |  |
+| tex | AC_Arm_SunBlooming01.dds |  | 1 | exact copy available | data002/16512 |  |  |  |
+| tex | AC_Arm_SunBlooming02.dds |  | 1 | exact copy available | data002/1152 |  |  |  |
 | tex | AC_Bentoos_Yousei.dds |  | 0 | exact copy available | data002/2176 |  |  |  |
 | tex | AC_BlueSplash_01.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
-| tex | AC_BlueSplash_01_2p.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/16512/short6 |  |  |  |
+| tex | AC_BlueSplash_01_2p.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | AC_BlueSplash_02.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | AC_BlueSplash_02_2p.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | AC_BlueSplash_03.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | AC_BlueSplash_03_2p.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | AC_CorpseBride_T2.dds |  | 0 | exact copy available | data002/4224 |  |  |  |
 | tex | AC_CorpseBride_T3.dds |  | 0 | exact copy available | data002/4224 |  |  |  |
-| tex | AC_LABA_Flower01.dds |  | 0 | exact copy available | data002/1520 |  |  |  |
+| tex | AC_LABA_Flower01.dds |  | 2 | exact copy available | data002/1520 |  |  |  |
 | tex | AC_Lowbody_Set7_Tail.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | AC_LOWBODY_SET7_TAIL_2P.TGA |  | 0 | exact copy available | data002/49196 |  |  |  |
 | tex | AC_StarSquare_MagicCircle_01.TGA |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | AC_Upbody33_P1.dds |  | 0 | exact copy available | data002/4224 |  |  |  |
+| tex | AC_Upbody33_P1.dds |  | 1 | exact copy available | data002/4224 |  |  |  |
 | tex | AC_Upbody_Event37_P.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | AC_Upbody_Sunny01.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
-| tex | AC_Upbody_Sunny011.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
-| tex | AC_Upbody_Sunny02.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
-| tex | AC_Upbody_Sunny021.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
+| tex | AC_Upbody_Sunny01.dds |  | 1 | exact copy available | data002/16512 |  |  |  |
+| tex | AC_Upbody_Sunny011.dds |  | 2 | exact copy available | data002/16512 |  |  |  |
+| tex | AC_Upbody_Sunny02.dds |  | 1 | exact copy available | data002/16512 |  |  |  |
+| tex | AC_Upbody_Sunny021.dds |  | 2 | exact copy available | data002/16512 |  |  |  |
 | tex | ADB_CIRCUIT_01.tga |  | 0 | exact copy available | data147/65580 |  |  |  |
 | tex | ADB_CIRCUIT_02.tga |  | 0 | exact copy available | data147/66086 |  |  |  |
-| tex | ADD_Countdown_Bomb01.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/16512/short192 |  |  |  |
-| tex | ADD_Countdown_Bomb02.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/16512/short192 |  |  |  |
-| tex | ADD_Countdown_Bomb03.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/16512/short192 |  |  |  |
-| tex | ADD_Countdown_Bomb_Dynamo.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/49702/short2 |  |  |  |
-| tex | ADD_Cube_Map01.tga |  | 0 | exact copy available | data147/12838 |  |  |  |
+| tex | ADD_Countdown_Bomb01.dds |  | 0 | exact copy available | data147/16512 |  |  |  |
+| tex | ADD_Countdown_Bomb02.dds |  | 0 | exact copy available | data147/16512 |  |  |  |
+| tex | ADD_Countdown_Bomb03.dds |  | 0 | exact copy available | data147/16512 |  |  |  |
+| tex | ADD_Countdown_Bomb_Dynamo.tga |  | 0 | exact copy available | data147/49702 |  |  |  |
+| tex | ADD_Cube_Map01.tga |  | 1 | exact copy available | data147/12838 |  |  |  |
 | tex | ADD_EXTINCTION_Trace02.dds |  | 0 | exact copy available | data147/2176 |  |  |  |
 | tex | ADD_GlowBall_G01.tga |  | 0 | exact copy available | data147/3116 |  |  |  |
-| tex | ADD_HitTrace01.dds |  | 0 | exact copy available | data147/8320 |  |  |  |
+| tex | ADD_HitTrace01.dds |  | 2 | exact copy available | data147/8320 |  |  |  |
 | tex | ADD_Installation_Drone_Change_1nd.dds |  | 0 | exact copy available | data147/16512 |  |  |  |
 | tex | ADD_Installation_Drone_Change_2nd.dds |  | 0 | exact copy available | data147/16512 |  |  |  |
-| tex | ADD_Installation_Drone_Change_3nd.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/16512/short91 |  |  |  |
+| tex | ADD_Installation_Drone_Change_3nd.dds |  | 0 | exact copy available | data147/16512 |  |  |  |
 | tex | ADD_Light001.tga |  | 0 | exact copy available | data147/49196 |  |  |  |
 | tex | ADD_MM_Display.tga |  | 0 | exact copy available | data147/49196 |  |  |  |
 | tex | ADD_MM_Display001.tga |  | 0 | exact copy available | data147/49702 |  |  |  |
@@ -2399,7 +2397,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | ADD_MM_Display004.tga |  | 0 | exact copy available | data147/49702 |  |  |  |
 | tex | ADD_MM_Display005.tga |  | 0 | exact copy available | data147/49702 |  |  |  |
 | tex | ADD_MM_Display006.tga |  | 0 | exact copy available | data147/49196 |  |  |  |
-| tex | ADD_MM_DRONE_DYNAMO.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/49702/short1 |  |  |  |
+| tex | ADD_MM_DRONE_DYNAMO.tga |  | 0 | exact copy available | data147/49702 |  |  |  |
 | tex | ADD_MM_ROCKON001.dds |  | 0 | exact copy available | data147/65664 |  |  |  |
 | tex | ADD_MM_ROCKON01.tga |  | 1 | exact copy available | data147/197158 |  |  |  |
 | tex | ADD_MM_ROCKON02.tga |  | 0 | exact copy available | data147/49702 |  |  |  |
@@ -2409,29 +2407,29 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | ADD_Panzer_Buster_Aiming_001.tga |  | 0 | exact copy available | data147/196652 |  |  |  |
 | tex | ADD_psionic_generate_1P.tga |  | 0 | exact copy available | data147/49702 |  |  |  |
 | tex | ADD_psionic_generate_Cristal_2P.tga |  | 0 | exact copy available | data147/12838 |  |  |  |
-| tex | ADD_PULSE_GATLING_Dron.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/49702/short2 |  |  |  |
+| tex | ADD_PULSE_GATLING_Dron.tga |  | 0 | exact copy available | data147/49702 |  |  |  |
 | tex | ADD_RingAlpha.tga |  | 0 | exact copy available | data147/16428 |  |  |  |
-| tex | ADD_shooting_chaser.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/49702/short1 |  |  |  |
-| tex | ADD_SHOOTING_CHASER_BLACK.TGA |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/49196/short1 |  |  |  |
+| tex | ADD_shooting_chaser.tga |  | 0 | exact copy available | data147/49702 |  |  |  |
+| tex | ADD_SHOOTING_CHASER_BLACK.TGA |  | 0 | exact copy available | data147/49196 |  |  |  |
 | tex | ADD_Spark_Ball001.dds |  | 0 | exact copy available | data147/8320 |  |  |  |
 | tex | ADE_CG001.dds |  | 2 | exact copy available | data147/1152 |  |  |  |
-| tex | ADE_GRAVITY_BURSTER_M01.dds |  | 1 | extracted copy is short (elstools algo-2 tail loss) | data147/1152/short2 |  |  |  |
+| tex | ADE_GRAVITY_BURSTER_M01.dds |  | 1 | exact copy available | data147/1152 |  |  |  |
 | tex | ADE_L_light.dds |  | 0 | exact copy available | data147/2176 |  |  |  |
 | tex | ADE_PS01.dds |  | 0 | exact copy available | data147/16512 |  |  |  |
 | tex | ADM_CIRCUIT_01.tga |  | 0 | exact copy available | data147/66086 |  |  |  |
 | tex | ADM_CIRCUIT_03.TGA |  | 0 | exact copy available | data147/65580 |  |  |  |
-| tex | ADM_CUBE_MAP_01.TGA |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/12332/short2 |  |  |  |
+| tex | ADM_CUBE_MAP_01.TGA |  | 0 | exact copy available | data147/12332 |  |  |  |
 | tex | ADM_CUBE_MAP_02.tga |  | 0 | exact copy available | data147/12838 |  |  |  |
 | tex | ADM_PlasmaCutter.dds |  | 0 | exact copy available | data116/8320 |  |  |  |
 | tex | AEM_Lightning_Trace01.dds |  | 0 | exact copy available | data116/8320 |  |  |  |
 | tex | Ain_3Line_Projectile.tga |  | 0 | exact copy available | data212/197158 |  |  |  |
-| tex | AIN_AAH_Brocken_Phantasm_SPEAR_Trace.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/5616/short4 |  |  |  |
+| tex | AIN_AAH_Brocken_Phantasm_SPEAR_Trace.dds |  | 0 | exact copy available | data212/5616 |  |  |  |
 | tex | AIN_AAH_ERST_DER_LETZT_SWORD.tga |  | 0 | exact copy available | data212/262694 |  |  |  |
 | tex | AIN_AAP_CHAOS_FELD_field.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
-| tex | Ain_AAP_NICHTS_FELD.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/65580/short1 |  |  |  |
-| tex | AIN_AASI_SA_AEE_ELFE_LOOP.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/16428/short2 |  |  |  |
+| tex | Ain_AAP_NICHTS_FELD.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
+| tex | AIN_AASI_SA_AEE_ELFE_LOOP.tga |  | 0 | exact copy available | data212/16428 |  |  |  |
 | tex | AIN_ABSCHLUSS_START.dds |  | 0 | exact copy available | data212/87536 |  |  |  |
-| tex | Ain_Ala_BIZZ.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/65580/short1 |  |  |  |
+| tex | Ain_Ala_BIZZ.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | Ain_Ala_BIZZSPHERE.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | Ain_ALa_Command_Projectile.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | Ain_Ala_CommandMark_P01.dds |  | 0 | exact copy available | data212/22000 |  |  |  |
@@ -2448,12 +2446,12 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Ain_Ala_SAMark_Wing_P01.dds |  | 0 | exact copy available | data212/22000 |  |  |  |
 | tex | AIN_ALA_SAMARK_WING_P01_MONO.DDS |  | 0 | exact copy available | data212/22000 |  |  |  |
 | tex | AIN_ALE_CIRCLE_N1.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
-| tex | Ain_Ale_Dagger_Trace.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/65580/short1 |  |  |  |
+| tex | Ain_Ale_Dagger_Trace.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | AIN_ALE_RUNE_N1.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | AIN_ALE_splash.tga |  | 0 | exact copy available | data212/1048620 |  |  |  |
 | tex | Ain_ALW_Needle_Map.tga |  | 0 | exact copy available | data212/16934 |  |  |  |
 | tex | Ain_ALW_Spiral_P01.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
-| tex | Ain_ALW_Spiral_P02.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/12838/short1 |  |  |  |
+| tex | Ain_ALW_Spiral_P02.tga |  | 0 | exact copy available | data212/12838 |  |  |  |
 | tex | Ain_ALW_Spiral_P03.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | Ain_ALW_Trace_P01_CCW.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | Ain_ALW_Trace_P02_Black.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
@@ -2463,7 +2461,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Ain_Aurora_light.dds |  | 0 | exact copy available | data212/22000 |  |  |  |
 | tex | Ain_Combo_XXXBACKX_MARK_01.TGA |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | Ain_Creation_Particle_02.tga |  | 0 | exact copy available | data212/12838 |  |  |  |
-| tex | Ain_Creation_Particle_Glow.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
+| tex | Ain_Creation_Particle_Glow.tga |  | 1 | exact copy available | data212/65580 |  |  |  |
 | tex | Ain_CreatMagic_BG_P01.dds |  | 0 | exact copy available | data212/22000 |  |  |  |
 | tex | Ain_CreatMagic_BG_P02.dds |  | 0 | exact copy available | data212/22000 |  |  |  |
 | tex | Ain_CycleMagic_Charging_P02.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
@@ -2472,32 +2470,32 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Ain_dot_Circle.tga |  | 0 | exact copy available | data212/49702 |  |  |  |
 | tex | Ain_Eid_Basic.dds |  | 0 | exact copy available | data212/22000 |  |  |  |
 | tex | Ain_Eid_Color.tga |  | 0 | exact copy available | data212/49196 |  |  |  |
-| tex | Ain_Eid_Mark_Mut.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/65580/short2 |  |  |  |
+| tex | Ain_Eid_Mark_Mut.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | Ain_Eid_Mark_Rein.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
-| tex | Ain_Eid_Mark_Wille.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/65580/short1 |  |  |  |
+| tex | Ain_Eid_Mark_Wille.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | Ain_Eid_Mut.dds |  | 0 | exact copy available | data212/22000 |  |  |  |
-| tex | Ain_Eid_Rein.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/22000/short1 |  |  |  |
+| tex | Ain_Eid_Rein.dds |  | 0 | exact copy available | data212/22000 |  |  |  |
 | tex | Ain_Eid_Wille.dds |  | 0 | exact copy available | data212/22000 |  |  |  |
 | tex | AIN_ERST_BOHREN_HIT_01.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
-| tex | Ain_Erst_Der_Letzt_Mark_01.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/66086/short1 |  |  |  |
+| tex | Ain_Erst_Der_Letzt_Mark_01.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | Ain_Erst_Der_Letzt_Mark_02.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | AIN_FONT.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | AIN_FONT_A.tga |  | 0 | exact copy available | data212/16428 |  |  |  |
 | tex | AIN_FONT_C.tga |  | 0 | exact copy available | data212/16428 |  |  |  |
-| tex | AIN_FONT_I.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/16428/short1 |  |  |  |
+| tex | AIN_FONT_I.tga |  | 0 | exact copy available | data212/16428 |  |  |  |
 | tex | AIN_FONT_K.tga |  | 0 | exact copy available | data212/16428 |  |  |  |
 | tex | AIN_FONT_L.tga |  | 0 | exact copy available | data212/16428 |  |  |  |
 | tex | AIN_FONT_M.tga |  | 0 | exact copy available | data212/16428 |  |  |  |
 | tex | AIN_FONT_V.tga |  | 0 | exact copy available | data212/16428 |  |  |  |
-| tex | Ain_FX_ENERGYDOME.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/66086/short1 |  |  |  |
+| tex | Ain_FX_ENERGYDOME.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | AIN_FX_MAGIC_CIRCLE_01.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
-| tex | AIN_FX_MAGIC_CIRCLE_02.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/65580/short1 |  |  |  |
+| tex | AIN_FX_MAGIC_CIRCLE_02.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | AIN_FX_RING_MARK.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | AIN_FX_TEL_POSE.tga |  | 0 | exact copy available | data212/12838 |  |  |  |
-| tex | AIN_FX_WORD_01.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/66086/short2 |  |  |  |
-| tex | Ain_FX_WORD_01_MOTION.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/66086/short1 |  |  |  |
+| tex | AIN_FX_WORD_01.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
+| tex | Ain_FX_WORD_01_MOTION.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | AIN_FX_WORD_02.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
-| tex | Ain_God_Triangle_1.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/65580/short1 |  |  |  |
+| tex | Ain_God_Triangle_1.tga |  | 4 | exact copy available | data212/65580 |  |  |  |
 | tex | AIN_helixtex.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | Ain_Impact_p01.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | ain_NICHTS_rune01.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
@@ -2512,23 +2510,23 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | AIN_SA_AEE_FLAMME_EMOTION_P01.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | AIN_SA_AEE_FLAMME_EMOTION_P02.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | AIN_SA_ALE_FLAMME_EMOTION_P01.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
-| tex | AIN_SA_ALE_FLAMME_EMOTION_P02.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/66086/short1 |  |  |  |
-| tex | AIN_SA_ALE_FLAMME_EMOTION_P03.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/66086/short1 |  |  |  |
+| tex | AIN_SA_ALE_FLAMME_EMOTION_P02.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
+| tex | AIN_SA_ALE_FLAMME_EMOTION_P03.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | AIN_SA_ALE_FLAMME_EMOTION_P04.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
-| tex | AIN_SA_ALE_FLAMME_EMOTION_P05.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/66086/short2 |  |  |  |
+| tex | AIN_SA_ALE_FLAMME_EMOTION_P05.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | AIN_SA_ALE_FLAMME_EMOTION_P06.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | AIN_SA_ALE_FLAMME_EMOTION_P07.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | Ain_Spark_Ball001.dds |  | 0 | exact copy available | data212/16512 |  |  |  |
-| tex | Ain_Stand_Aura_P01.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | Ain_Sword_Z_trace.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/66086/short1 |  |  |  |
-| tex | Ain_Triagle_Map.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/65580/short1 |  |  |  |
+| tex | Ain_Stand_Aura_P01.tga |  | 2 | exact copy available | data002/65580 |  |  |  |
+| tex | Ain_Sword_Z_trace.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
+| tex | Ain_Triagle_Map.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | Ain_Weapon_all.tga |  | 0 | exact copy available | data212/262694 |  |  |  |
 | tex | Ain_Weapon_Light.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
-| tex | Ain_Weapon_Summon_Ractangle.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/66086/short1 |  |  |  |
-| tex | Ain_Weapon_Trace.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/5616/short4 |  |  |  |
+| tex | Ain_Weapon_Summon_Ractangle.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
+| tex | Ain_Weapon_Trace.dds |  | 0 | exact copy available | data212/5616 |  |  |  |
 | tex | Ain_Wire_MAP.tga |  | 0 | exact copy available | data212/16934 |  |  |  |
-| tex | Aish_Memorise_reflect.dds |  | 0 | exact copy available | data048/16512 |  |  |  |
-| tex | Aish_Memorise_reflect01.dds |  | 0 | exact copy available | data048/16512 |  |  |  |
+| tex | Aish_Memorise_reflect.dds |  | 9 | exact copy available | data048/16512 |  |  |  |
+| tex | Aish_Memorise_reflect01.dds |  | 9 | exact copy available | data048/16512 |  |  |  |
 | tex | Aisha_LightningBolt01.dds |  | 0 | exact copy available | data116/32896 |  |  |  |
 | tex | Aisha_MagicCircle_Buff01.dds |  | 0 | exact copy available | data116/32896 |  |  |  |
 | tex | Aisha_MagicCircle_DARK01.dds |  | 0 | exact copy available | data116/32896 |  |  |  |
@@ -2539,16 +2537,16 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Aisha_ReadyRing_blue01.dds |  | 0 | exact copy available | data116/8320 |  |  |  |
 | tex | Aisha_ReadyRing_Violet01.dds |  | 0 | exact copy available | data116/8320 |  |  |  |
 | tex | ALA_Blatt_Blume_Basic_Trace.dds |  | 0 | exact copy available | data212/5616 |  |  |  |
-| tex | ALA_Blatt_Blume_Mute_Trace.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/5616/short2 |  |  |  |
-| tex | ALA_Blatt_Blume_Rein_Trace.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/5616/short1 |  |  |  |
-| tex | Alchemist_Arms001.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65664/short23 |  |  |  |
+| tex | ALA_Blatt_Blume_Mute_Trace.dds |  | 0 | exact copy available | data212/5616 |  |  |  |
+| tex | ALA_Blatt_Blume_Rein_Trace.dds |  | 0 | exact copy available | data212/5616 |  |  |  |
+| tex | Alchemist_Arms001.dds |  | 1 | exact copy available | data002/65664 |  |  |  |
 | tex | ALE_Fessel_Heilig_Chain.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | ALE_Fessel_Heilig_Link.tga |  | 0 | exact copy available | data212/16428 |  |  |  |
 | tex | ALH_LinkFlower_Square01.dds |  | 0 | exact copy available | data132/32896 |  |  |  |
 | tex | Alice_Card_Jocker.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Alice_Explosion_01.tga |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | ALS_flame_001.dds |  | 0 | exact copy available | data132/1152 |  |  |  |
-| tex | ALS_FOX_ARMS01.dds |  | 0 | exact copy available | data132/262272 |  |  |  |
+| tex | ALS_FOX_ARMS01.dds |  | 1 | exact copy available | data132/262272 |  |  |  |
 | tex | ALS_FOX_ARMS02.dds |  | 0 | exact copy available | data132/65664 |  |  |  |
 | tex | ALS_FOX_ARMS03.dds |  | 0 | exact copy available | data132/65664 |  |  |  |
 | tex | ALS_FOX_ARMS04.dds |  | 0 | exact copy available | data132/16512 |  |  |  |
@@ -2557,7 +2555,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | ALS_FOX_ARMS07.dds |  | 0 | exact copy available | data132/16512 |  |  |  |
 | tex | ALS_FOX_GROW01.tga |  | 0 | exact copy available | data132/16428 |  |  |  |
 | tex | ALS_FOX_HAND_TRACE01.dds |  | 0 | exact copy available | data132/16512 |  |  |  |
-| tex | ALS_FOX_HAND_TRACE01.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/66086/short1 |  |  |  |
+| tex | ALS_FOX_HAND_TRACE01.tga |  | 0 | exact copy available | data142/66086 |  |  |  |
 | tex | ALS_FOX_HAND_TRACE02.dds |  | 0 | exact copy available | data132/65664 |  |  |  |
 | tex | ALS_FOX_HAND_TRACE03.dds |  | 0 | exact copy available | data132/16512 |  |  |  |
 | tex | ALS_MANA_DRAIN_P01_Y.dds |  | 0 | exact copy available | data132/4224 |  |  |  |
@@ -2571,7 +2569,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | ALW_ALPTRAUM_LoopAttack_RING.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | ALW_Combo_XXZ_PROJECTILE_Trace.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | ALW_WECHSE_EXPLOSION_liquid_P01.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
-| tex | ALW_WECHSEL_EYE_LV01.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/66086/short2 |  |  |  |
+| tex | ALW_WECHSEL_EYE_LV01.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | ALW_WECHSEL_EYE_LV02.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | ALW_WECHSEL_EYE_LV03.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | ALW_WECHSEL_EYE_LV03_WHITE.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
@@ -2581,17 +2579,17 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Amusement_Item_Lock.dds |  | 0 | exact copy available | data048/22000 |  |  |  |
 | tex | Amusement_Item_PowerUp.dds |  | 0 | exact copy available | data048/22000 |  |  |  |
 | tex | Amusement_Item_Shield.dds |  | 0 | exact copy available | data048/22000 |  |  |  |
-| tex | Amusement_Item_SuperStar.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data048/22000/short4 |  |  |  |
+| tex | Amusement_Item_SuperStar.dds |  | 0 | exact copy available | data048/22000 |  |  |  |
 | tex | Amusement_Item_Thief.dds |  | 0 | exact copy available | data048/22000 |  |  |  |
 | tex | Amusement_Item_Thief_1.dds |  | 0 | exact copy available | data048/22000 |  |  |  |
 | tex | ANGER_FOREST_ENT_Special_Attack.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
-| tex | anvil_Hit_Impact01.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
+| tex | anvil_Hit_Impact01.dds |  | 4 | exact copy available | data002/16512 |  |  |  |
 | tex | APP_ENDE_DER_WELT_EYE_P01.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | APP_ENDE_DER_WELT_EYE_P02.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | APP_ENDE_DER_WELT_SCYTHE.tga |  | 0 | exact copy available | data212/197158 |  |  |  |
 | tex | APP_ENDE_DER_WELT_SCYTHE_TRACE.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | APP_TOTENTANZ_EYE_P05.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
-| tex | April_Fools_Note_P01.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5616/short2 |  |  |  |
+| tex | April_Fools_Note_P01.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
 | tex | April_Fools_Note_P02.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
 | tex | April_Fools_Note_P03.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
 | tex | April_Fools_Pig_Hungry.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
@@ -2599,89 +2597,88 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | ASD_Open_Mind_Hit1.dds |  | 0 | exact copy available | data132/2176 |  |  |  |
 | tex | Attribute_Hand_SkyBlue_2.dds |  | 0 | exact copy available | data002/2872 |  |  |  |
 | tex | Attribute_Hand_Violet_2.dds |  | 0 | exact copy available | data002/2872 |  |  |  |
-| tex | Attribute_Hand_Yellow_2.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2872/short2 |  |  |  |
+| tex | Attribute_Hand_Yellow_2.dds |  | 0 | exact copy available | data002/2872 |  |  |  |
 | tex | AURA_DEPRAVITY_ACCEL.dds |  | 0 | exact copy available | data157/65664 |  |  |  |
 | tex | AURA_DEPRAVITY_ACCEL_S.dds |  | 0 | exact copy available | data157/4224 |  |  |  |
-| tex | Barrier_Ball_ASEDIT.tga |  | 0 | exact copy available | data002/262188 |  |  |  |
+| tex | Barrier_Ball_ASEDIT.tga |  | 1 | exact copy available | data002/262188 |  |  |  |
 | tex | bear_attack.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | bearmaid_Burble.tga |  | 0 | exact copy available | data002/4140 |  |  |  |
+| tex | bearmaid_Burble.tga |  | 2 | exact copy available | data002/4140 |  |  |  |
 | tex | BEFREIUNG_FELD_hole.tga |  | 0 | exact copy available | data212/810044 |  |  |  |
-| tex | BEHEMOTHSOUL_Flame.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/16512/short1 |  |  |  |
+| tex | BEHEMOTHSOUL_Flame.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | BEHEMOTHSOUL_Hand.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | BEHEMOTHSOUL_HAND_TRACE01.dds |  | 0 | exact copy available | data002/65664 |  |  |  |
-| tex | benders_skillcut.tga |  | 0 | exact copy available | data002/921644 |  |  |  |
+| tex | benders_skillcut.tga |  | 1 | exact copy available | data002/921644 |  |  |  |
 | tex | BerserkerBlade01.dds |  | 0 | exact copy available | data120/65664 |  |  |  |
-| tex | black_01.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
+| tex | black_01.dds |  | 14 | exact copy available | data002/16512 |  |  |  |
 | tex | BlackCat_AttackC_Glow.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | BlackCat_AttackX_Projectile_Laser.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/262188/short1 |  |  |  |
+| tex | BlackCat_AttackX_Projectile_Laser.tga |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | BlackCat_SCAN.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
 | tex | BlackCat_ShockWAVE.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | BlackSmith_Arms001.dds |  | 0 | exact copy available | data002/65664 |  |  |  |
-| tex | BlackSmithUpgrade_Text.dds |  | 0 | exact copy available | data002/65664 |  |  |  |
+| tex | BlackSmith_Arms001.dds |  | 1 | exact copy available | data002/65664 |  |  |  |
+| tex | BlackSmithUpgrade_Text.dds |  | 1 | exact copy available | data002/65664 |  |  |  |
 | tex | Blocking_Net2.tga |  | 0 | exact copy available | data012/66086 |  |  |  |
-| tex | BLOOD_CUTTER_Weapon.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/16512/short17 |  |  |  |
-| tex | Blur_16.dds |  | 0 | exact copy available | data118/384 |  |  |  |
+| tex | BLOOD_CUTTER_Weapon.dds |  | 0 | exact copy available | data142/16512 |  |  |  |
 | tex | Body_Strengthen01.tga |  | 0 | exact copy available | data002/32812 |  |  |  |
 | tex | BoneDragonSkillC_AttackMesh01.dds |  | 0 | exact copy available | data002/8320 |  |  |  |
-| tex | Booster_Blue.tga |  | 3 | extracted copy is short (elstools algo-2 tail loss) | data140/65580/short2 |  |  |  |
+| tex | Booster_Blue.tga |  | 3 | exact copy available | data140/65580 |  |  |  |
 | tex | Booster_Pink.tga |  | 3 | exact copy available | data140/65580 |  |  |  |
 | tex | Boss_Apocalypse_EVENT_2.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | Boss_Apocalypse_EVENT_3.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | Boss_Page1.dds |  | 0 | exact copy available | data002/131200 |  |  |  |
 | tex | Boss_Page1.tga |  | 0 | exact copy available | data181/786982 |  |  |  |
 | tex | BUFF_PHANTOM_CIRCLE_Rune.tga |  | 0 | exact copy available | data157/49702 |  |  |  |
-| tex | Burble_Water_circle.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | Burble_Water_necle.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
+| tex | Burble_Water_circle.dds |  | 2 | exact copy available | data002/22000 |  |  |  |
+| tex | Burble_Water_necle.dds |  | 1 | exact copy available | data002/22000 |  |  |  |
 | tex | Card_01.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Cash01_Common_Emotion_Sit.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Cash02_Common_Emotion_Sit01.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
-| tex | Cash02_Common_Emotion_Sit02.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/16512/short6 |  |  |  |
+| tex | Cash02_Common_Emotion_Sit02.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | Cash02_Common_Emotion_Sit03.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
-| tex | Cash03_Common_Emotion_Sit_Moon.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65664/short75 |  |  |  |
+| tex | Cash03_Common_Emotion_Sit_Moon.dds |  | 0 | exact copy available | data002/65664 |  |  |  |
 | tex | Cash03_Common_Emotion_Sit_MoonA.dds |  | 0 | exact copy available | data002/65664 |  |  |  |
 | tex | Cash03_Common_Emotion_Sit_MoonB.dds |  | 0 | exact copy available | data002/65664 |  |  |  |
 | tex | Cash03_Common_Emotion_Sit_MoonCrystal.dds |  | 0 | exact copy available | data002/65664 |  |  |  |
 | tex | Cash03_Common_Emotion_Sit_MoonDark_C.dds |  | 0 | exact copy available | data002/65664 |  |  |  |
-| tex | Cash03_MoonStart_01.dds |  | 0 | exact copy available | data002/640 |  |  |  |
+| tex | Cash03_MoonStart_01.dds |  | 4 | exact copy available | data002/640 |  |  |  |
 | tex | Cash08_Common_Emotion_Sit.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | Cash08_Common_Emotion_Sit02.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Cash20_Common_Emotion_Sit.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
-| tex | Cash20_Common_Emotion_Sit02.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/49702/short1 |  |  |  |
+| tex | Cash20_Common_Emotion_Sit02.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Cash30_Custom_HyperEffect_Start_P01.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | Cash30_Custom_HyperEffect_Start_P02.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5616/short1 |  |  |  |
-| tex | Cash30_Custom_HyperEffect_Start_P04_Arrow_01.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/22000/short5 |  |  |  |
-| tex | Cash30_Custom_HyperEffect_Start_P04_Arrow_02.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | Cash30_Custom_HyperEffect_Start_P04_Arrow_03.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
+| tex | Cash30_Custom_HyperEffect_Start_P02.dds |  | 9 | exact copy available | data002/5616 |  |  |  |
+| tex | Cash30_Custom_HyperEffect_Start_P04_Arrow_01.dds |  | 4 | exact copy available | data002/22000 |  |  |  |
+| tex | Cash30_Custom_HyperEffect_Start_P04_Arrow_02.dds |  | 4 | exact copy available | data002/22000 |  |  |  |
+| tex | Cash30_Custom_HyperEffect_Start_P04_Arrow_03.dds |  | 4 | exact copy available | data002/22000 |  |  |  |
 | tex | Cash33_Emotion_Sit.dds |  | 0 | exact copy available | data002/4224 |  |  |  |
-| tex | Cash38_Emotion_Sit.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/197158/short1 |  |  |  |
-| tex | Cash41_Common_Emotion_Sit.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/197158/short1 |  |  |  |
-| tex | Cash41_gradient_Bar.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | cash41_particle.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/4140/short2 |  |  |  |
+| tex | Cash38_Emotion_Sit.tga |  | 0 | exact copy available | data002/197158 |  |  |  |
+| tex | Cash41_Common_Emotion_Sit.tga |  | 0 | exact copy available | data002/197158 |  |  |  |
+| tex | Cash41_gradient_Bar.tga |  | 2 | exact copy available | data002/65580 |  |  |  |
+| tex | cash41_particle.tga |  | 1 | exact copy available | data002/4140 |  |  |  |
 | tex | Cash42_Common_Emotion_Sit.tga |  | 0 | exact copy available | data002/262694 |  |  |  |
 | tex | Cash50_Custom_HyperEffect_Start_P01.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
 | tex | Cash50_Custom_HyperEffect_Start_P02.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | Cash50_Custom_HyperEffect_Start_P03.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Cash50_Custom_HyperEffect_Start_P04.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | Cash50_Custom_HyperEffect_Start_P10.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/22000/short2 |  |  |  |
+| tex | Cash50_Custom_HyperEffect_Start_P03.tga |  | 10 | exact copy available | data002/16428 |  |  |  |
+| tex | Cash50_Custom_HyperEffect_Start_P04.tga |  | 1 | exact copy available | data002/65580 |  |  |  |
+| tex | Cash50_Custom_HyperEffect_Start_P10.dds |  | 1 | exact copy available | data002/22000 |  |  |  |
 | tex | Cash_AC_Foot_Set2A_Wind.dds |  | 0 | exact copy available | data002/4224 |  |  |  |
-| tex | Cash_AC_Lowbody_1770_Sorted_1.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/66086/short1 |  |  |  |
-| tex | Cash_AC_Lowbody_Set6.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | Cash_Wakeup_Lightning_Start_Spark_01.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/22000/short14 |  |  |  |
-| tex | catsleep.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65580/short1 |  |  |  |
-| tex | CenterLight_Gray01_cross.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
+| tex | Cash_AC_Lowbody_1770_Sorted_1.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
+| tex | Cash_AC_Lowbody_Set6.tga |  | 6 | exact copy available | data002/65580 |  |  |  |
+| tex | Cash_Wakeup_Lightning_Start_Spark_01.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
+| tex | catsleep.tga |  | 2 | exact copy available | data002/65580 |  |  |  |
+| tex | CenterLight_Gray01_cross.dds |  | 2 | exact copy available | data002/22000 |  |  |  |
 | tex | CFG_BurstWolf01.dds |  | 0 | exact copy available | data117/32896 |  |  |  |
 | tex | CHAIN_DRAW_03_TILE_A_128_arpha.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | CHAIN_DRAW_03_TILE_RW_128.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | chair.tga |  | 0 | exact copy available | data002/197158 |  |  |  |
-| tex | Chemistry_LevelUp_Text01.dds |  | 0 | exact copy available | data002/65664 |  |  |  |
-| tex | Cherry_Blossom_02.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
+| tex | Chemistry_LevelUp_Text01.dds |  | 1 | exact copy available | data002/65664 |  |  |  |
+| tex | Cherry_Blossom_02.dds |  | 2 | exact copy available | data002/5616 |  |  |  |
 | tex | Chilling_Hedghog_Freezing01.dds |  | 0 | exact copy available | data002/8320 |  |  |  |
-| tex | Chrysanthemum_01.dds |  | 0 | exact copy available | data002/8320 |  |  |  |
-| tex | CHUNG_CANNON_EFFECT02_RED.DDS |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/87536/short1 |  |  |  |
+| tex | Chrysanthemum_01.dds |  | 1 | exact copy available | data002/8320 |  |  |  |
+| tex | CHUNG_CANNON_EFFECT02_RED.DDS |  | 0 | exact copy available | data002/87536 |  |  |  |
 | tex | chung_dreadChase_shellSmall.tga |  | 0 | exact copy available | data002/4646 |  |  |  |
 | tex | Chung_Hit_Impact01.tga |  | 0 | exact copy available | data117/65580 |  |  |  |
 | tex | CHUNG_Sit2_Note01.dds |  | 0 | exact copy available | data117/2304 |  |  |  |
-| tex | Clam.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
+| tex | Clam.dds |  | 2 | exact copy available | data002/22000 |  |  |  |
 | tex | CLAYMORE.dds |  | 0 | exact copy available | data002/2872 |  |  |  |
 | tex | CREST_OF_TIME_Ring.dds |  | 0 | exact copy available | data147/87536 |  |  |  |
 | tex | CREST_OF_TIME_Time.tga |  | 0 | exact copy available | data147/66086 |  |  |  |
@@ -2691,17 +2688,17 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | CSG_Shell_Trace01.dds |  | 0 | exact copy available | data117/8320 |  |  |  |
 | tex | CSI_CHUNG_Cannon_Effect02.dds |  | 0 | exact copy available | data117/43832 |  |  |  |
 | tex | Dark_Bead.tga |  | 1 | exact copy available | data002/65580 |  |  |  |
-| tex | Dark_Drabaki_Attack_Rock.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/12332/short1 |  |  |  |
+| tex | Dark_Drabaki_Attack_Rock.tga |  | 0 | exact copy available | data002/12332 |  |  |  |
 | tex | Dark_Drabaki_Eye_Grow01.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | Dark_Drabaki_Eye_Grow02.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | Dark_Drabaki_Fire01.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | Dark_Drabaki_GroundCrack002.dds |  | 0 | exact copy available | data002/4224 |  |  |  |
-| tex | DARK_DRABAKI_ROCK01.TGA |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/196652/short1 |  |  |  |
+| tex | DARK_DRABAKI_ROCK01.TGA |  | 0 | exact copy available | data002/196652 |  |  |  |
 | tex | Darkchaser_Tire.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
 | tex | Debuff_Chaos_New.tga |  | 0 | exact copy available | data048/65580 |  |  |  |
 | tex | Debuff_Fear_New.tga |  | 0 | exact copy available | data048/65580 |  |  |  |
-| tex | DEBUFF_MANA_BREAK.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data048/65580/short1 |  |  |  |
-| tex | DEBUFF_SLEEP.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/22000/short1 |  |  |  |
+| tex | DEBUFF_MANA_BREAK.tga |  | 0 | exact copy available | data048/65580 |  |  |  |
+| tex | DEBUFF_SLEEP.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
 | tex | DEKAL_SPECIEL_D_FLOORSTONE.TGA |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | DIVINE_BLADE_SWORD_1.DDS |  | 0 | exact copy available | data002/22000 |  |  |  |
 | tex | DJ_6st_AC_2.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
@@ -2716,27 +2713,27 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | DragonStrike.dds |  | 0 | exact copy available | data132/8320 |  |  |  |
 | tex | Drone.tga |  | 0 | exact copy available | data012/49702 |  |  |  |
 | tex | DropItemEventCubic02.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
-| tex | Dust_Shot_Trace.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/824/short2 |  |  |  |
+| tex | Dust_Shot_Trace.dds |  | 0 | exact copy available | data002/824 |  |  |  |
 | tex | EBS_inductionTrace_trace2.dds |  | 0 | exact copy available | data147/22000 |  |  |  |
 | tex | EBS_LASER_POLE_1.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | EBS_LASER_POLE_2.tga |  | 0 | exact copy available | data002/197158 |  |  |  |
 | tex | EBS_SA_ENERGETICHEART_WING_WHITE.DDS |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | EEP_CycleLensFlare01.dds |  | 0 | exact copy available | data119/32896 |  |  |  |
+| tex | EEP_CycleLensFlare01.dds |  | 1 | exact copy available | data119/32896 |  |  |  |
 | tex | Effect_Giroro_Rocket.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | Effect_Riding_Nightmare_Projectile.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | Effect_Riding_reindeer_AttackC_Ice.dds |  | 0 | exact copy available | data002/4224 |  |  |  |
 | tex | Effect_Riding_reindeer_AttackC_Ice.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
 | tex | Effect_Riding_reindeer_AttackC_Ice02.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | Effect_Riding_reindeer_AttackC_Tornado.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
-| tex | Effect_Riding_reindeer_AttackZ.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/49702/short1 |  |  |  |
+| tex | Effect_Riding_reindeer_AttackZ.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Effect_Tamama_Attack_laser.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | Effect_Tamama_Attack_laser_01.tga |  | 0 | exact copy available | data002/262694 |  |  |  |
 | tex | Effect_Weapon_archer.tga |  | 0 | exact copy available | data212/49702 |  |  |  |
 | tex | Effect_Weapon_Sword.tga |  | 0 | exact copy available | data212/49702 |  |  |  |
-| tex | EffectSet_Cash_AC_Upbody_1450_Sorted_Blue.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
-| tex | EffectSet_Cash_AC_Upbody_1450_Sorted_Red.dds |  | 0 | exact copy available | data002/2872 |  |  |  |
-| tex | EffectSet_Cash_AC_Upbody_1450_Sorted_Red_small.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
-| tex | EffectSet_Cash_AC_Upbody_1450_Sorted_Yellow.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5616/short3 |  |  |  |
+| tex | EffectSet_Cash_AC_Upbody_1450_Sorted_Blue.dds |  | 1 | exact copy available | data002/5616 |  |  |  |
+| tex | EffectSet_Cash_AC_Upbody_1450_Sorted_Red.dds |  | 1 | exact copy available | data002/2872 |  |  |  |
+| tex | EffectSet_Cash_AC_Upbody_1450_Sorted_Red_small.dds |  | 1 | exact copy available | data002/5616 |  |  |  |
+| tex | EffectSet_Cash_AC_Upbody_1450_Sorted_Yellow.dds |  | 1 | exact copy available | data002/5616 |  |  |  |
 | tex | EffectSet_DJ_6st_AC_Rune.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | EffectSet_DJ_6st_AC_Rune_Chung.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | EffectSet_DJ_6st_AC_Rune_RED.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
@@ -2765,13 +2762,13 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | EL_C_SDK_ZZZXX_Trace.tga |  | 0 | exact copy available | data142/65580 |  |  |  |
 | tex | El_Crystal_Red.tga |  | 0 | exact copy available | data002/49196 |  |  |  |
 | tex | El_Crystal_Yellow.tga |  | 0 | exact copy available | data002/49196 |  |  |  |
-| tex | EL_Lady.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data048/1048620/short2 |  |  |  |
+| tex | EL_Lady.tga |  | 0 | exact copy available | data048/1048620 |  |  |  |
 | tex | Elixir_Chaser_trace_Lunacy.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
 | tex | ELK_ArmageddonBladeM01.dds |  | 0 | exact copy available | data118/32896 |  |  |  |
 | tex | ELK_StormSword.dds |  | 0 | exact copy available | data118/16512 |  |  |  |
 | tex | ELK_WIND_SLICER_01.tga |  | 0 | exact copy available | data118/16428 |  |  |  |
 | tex | ELK_WIND_SLICER_02.tga |  | 0 | exact copy available | data118/66086 |  |  |  |
-| tex | elpierce_Rune.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65580/short1 |  |  |  |
+| tex | elpierce_Rune.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | Elsion_Boss_HernaShield_S.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | ELSWORD_01_ASSAULTSLASH03_WHITE.DDS |  | 0 | exact copy available | data002/22000 |  |  |  |
 | tex | elsword_active_finalStrike_particle_WHITE.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
@@ -2780,19 +2777,19 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | ELSWORD_SONIC_BLADE_Ground.tga |  | 0 | exact copy available | data118/16934 |  |  |  |
 | tex | Elsword_Trace01.dds |  | 0 | exact copy available | data118/65664 |  |  |  |
 | tex | Eltrion2p_Dron_spi.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
-| tex | ELTRION2P_ENDING_HEAD3POINT.TGA |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/12332/short1 |  |  |  |
+| tex | ELTRION2P_ENDING_HEAD3POINT.TGA |  | 0 | exact copy available | data002/12332 |  |  |  |
 | tex | Eltrion2p_EX_Bomb.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | Eltrion2p_Floor.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | Eltrion2p_Gimmic_Light.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
-| tex | ELTRION2P_S1_A_L_READY_ALARM_GLOW.DDS |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/11064/short2 |  |  |  |
+| tex | ELTRION2P_S1_A_L_READY_ALARM_GLOW.DDS |  | 0 | exact copy available | data002/11064 |  |  |  |
 | tex | Eltrion2p_S2ex_ReadySign.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | Eltrion2p_S2ex_SignLLine.tga |  | 0 | exact copy available | data002/262694 |  |  |  |
-| tex | Eltrion2p_S2wing_SHOULDER.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/12838/short1 |  |  |  |
-| tex | Eltrion2p_SkillCutIn_EDIT.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/349712/short2 |  |  |  |
+| tex | Eltrion2p_S2wing_SHOULDER.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
+| tex | Eltrion2p_SkillCutIn_EDIT.dds |  | 0 | exact copy available | data002/349712 |  |  |  |
 | tex | Eltrion2p_Start_GateLight.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Eltrion2p_Start_HealRing.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | Eltrion2p_Start_HealRing_Dwon.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
-| tex | Eltrion3p_A_Center_Fire_MainAct.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/12838/short2 |  |  |  |
+| tex | Eltrion3p_A_Center_Fire_MainAct.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | Eltrion3p_A_Line_L_Ready_Act.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | Eltrion3p_A_Outside_Floor.tga |  | 0 | exact copy available | data002/12332 |  |  |  |
 | tex | ELTRION3P_A_SA_1ST_MISILE.TGA |  | 0 | exact copy available | data002/12332 |  |  |  |
@@ -2804,28 +2801,28 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Eltrion3p_BG_ZajorGlow.tga |  | 0 | exact copy available | data002/3622 |  |  |  |
 | tex | Eltrion3p_C_A_Alarm_Y.tga |  | 0 | exact copy available | data002/12332 |  |  |  |
 | tex | Eltrion3p_C_B_Targer_Ready_Big.tga |  | 0 | exact copy available | data002/49196 |  |  |  |
-| tex | Eltrion3p_Pannell.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/12838/short1 |  |  |  |
-| tex | Eltrion3p_REALending.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/262188/short2 |  |  |  |
+| tex | Eltrion3p_Pannell.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
+| tex | Eltrion3p_REALending.tga |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | Eltrion3p_S_1st_UP_RING_Plane.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | Eltrion3p_SkillCutIn_EDIT.dds |  | 0 | exact copy available | data002/349712 |  |  |  |
 | tex | Eltrion3p_Start_Giji3.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | Eltrion3p_Start_Giji4.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
-| tex | Eltrion3p_Start_Giji5.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/12838/short1 |  |  |  |
-| tex | Eltrion3p_Start_Giji6.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/12838/short1 |  |  |  |
+| tex | Eltrion3p_Start_Giji5.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
+| tex | Eltrion3p_Start_Giji6.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | Eltrion3p_StateB_BodyCore_Glow.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
 | tex | Eltrion3p_Waist.tga |  | 0 | exact copy available | data002/49196 |  |  |  |
 | tex | Eltrion_anggry_Wing_glow.tga |  | 0 | exact copy available | data002/16934 |  |  |  |
 | tex | Eltrion_DronNife.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | Eltrion_Gatherglass.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/262188/short1 |  |  |  |
+| tex | Eltrion_Gatherglass.tga |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | Eltrion_MK2_airgun.tga |  | 0 | exact copy available | data012/49196 |  |  |  |
 | tex | Eltrion_MK2_airgun04.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | Eltrion_MK2_airplatform05.tga |  | 0 | exact copy available | data012/196652 |  |  |  |
 | tex | Eltrion_MK2_airplatform06.tga |  | 0 | exact copy available | data012/196652 |  |  |  |
 | tex | Eltrion_MK2_weapon02.tga |  | 0 | exact copy available | data012/196652 |  |  |  |
 | tex | Eltrion_MK2_wing.tga |  | 0 | exact copy available | data012/49196 |  |  |  |
-| tex | Eltrion_NeckParticle.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1574/short1 |  |  |  |
-| tex | Eltrion_satrt_DOM.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65580/short1 |  |  |  |
-| tex | Eltrion_Weapon_ELECTRIC.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/262694/short1 |  |  |  |
+| tex | Eltrion_NeckParticle.tga |  | 0 | exact copy available | data002/1574 |  |  |  |
+| tex | Eltrion_satrt_DOM.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
+| tex | Eltrion_Weapon_ELECTRIC.tga |  | 0 | exact copy available | data002/262694 |  |  |  |
 | tex | EltrionMK2_Rune.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | EltrionMK2_Weapon_HEAD.tga |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | ELYSION_3STAGE_OBJECT_7_DARK.DDS |  | 0 | exact copy available | data002/349680 |  |  |  |
@@ -2847,20 +2844,19 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | ELYSION_EMPEROR_Wing_S.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | Elysion_eve_SkillCutIn.tga |  | 0 | exact copy available | data002/915500 |  |  |  |
 | tex | elysion_NEW_dekal_mo.tga |  | 0 | exact copy available | data002/714796 |  |  |  |
-| tex | elysion_NEW_dekal_mo2.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/262188/short2 |  |  |  |
+| tex | elysion_NEW_dekal_mo2.tga |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | Elysion_Soless_AP01_1.dds |  | 0 | exact copy available | data180/8320 |  |  |  |
-| tex | Elysion_Soless_AP01_1.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/66086/short1 |  |  |  |
+| tex | Elysion_Soless_AP01_1.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | Elysion_Soless_AP01_3.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | Elysion_Soless_mon01.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Elysion_Soless_sword.dds |  | 0 | exact copy available | data180/32896 |  |  |  |
-| tex | Elysion_villeage_AP_enchant.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/66086/short2 |  |  |  |
+| tex | Elysion_villeage_AP_enchant.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | Elysion_villeage_AP_wave.dds |  | 0 | exact copy available | data180/4224 |  |  |  |
 | tex | Elysion_villeage_post.tga |  | 0 | exact copy available | data013/49196 |  |  |  |
-| tex | Elysion_villeage_post00.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
+| tex | Elysion_villeage_post00.tga |  | 1 | exact copy available | data002/66086 |  |  |  |
 | tex | Elysion_villeage_screen.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | Elysion_villeage_topwing01.tga |  | 0 | exact copy available | data180/49196 |  |  |  |
 | tex | EMK_Fire00.dds |  | 0 | exact copy available | data118/4224 |  |  |  |
-| tex | EMK_Fire001.dds |  | 0 | exact copy available | data118/4224 |  |  |  |
 | tex | EMK_MagicBlade01.dds |  | 0 | exact copy available | data118/16512 |  |  |  |
 | tex | Emotion_2016Maid_Duster.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | Empire_H01.tga |  | 0 | exact copy available | data142/262188 |  |  |  |
@@ -2879,14 +2875,14 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Eve_Stand_MLV.dds |  | 0 | exact copy available | data002/87536 |  |  |  |
 | tex | EVE_SummonMagicSquare01.dds |  | 0 | exact copy available | data119/19728 |  |  |  |
 | tex | Event_AC_ARM_186031.dds |  | 0 | exact copy available | data016/16512 |  |  |  |
-| tex | Event_AC_ARM_186031_01.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Event_AC_ARM_186031_02.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Event_AC_ARM_186031_03.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/16428/short2 |  |  |  |
-| tex | Event_AC_ARM_186031_04.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
+| tex | Event_AC_ARM_186031_01.tga |  | 3 | exact copy available | data002/16428 |  |  |  |
+| tex | Event_AC_ARM_186031_02.tga |  | 3 | exact copy available | data002/16428 |  |  |  |
+| tex | Event_AC_ARM_186031_03.tga |  | 3 | exact copy available | data002/16428 |  |  |  |
+| tex | Event_AC_ARM_186031_04.tga |  | 4 | exact copy available | data002/16428 |  |  |  |
 | tex | eviltracer3_bracelet.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
-| tex | eviltracer3_diorama1.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65580/short1 |  |  |  |
+| tex | eviltracer3_diorama1.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | eviltracer3_diorama1_1.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | eviltracer3_diorama1_2.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65580/short2 |  |  |  |
+| tex | eviltracer3_diorama1_2.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | F_CHASER_OF_DARKNESS_Projectile.dds |  | 0 | exact copy available | data157/2176 |  |  |  |
 | tex | FB_IE_Thunder01.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | FB_IE_Wing_trace_quad.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
@@ -2902,7 +2898,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Female_Water.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | Female_Wind.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | FIELD_BOSS_B_IRON_ELTRION_Hand.tga |  | 0 | exact copy available | data012/786476 |  |  |  |
-| tex | Field_Boss_Dark_Snake_Body.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data012/786982/short1 |  |  |  |
+| tex | Field_Boss_Dark_Snake_Body.tga |  | 0 | exact copy available | data012/786982 |  |  |  |
 | tex | Field_Boss_Dark_Snake_Head.tga |  | 0 | exact copy available | data012/786982 |  |  |  |
 | tex | Field_Boss_Dark_Snake_Smoke01.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | FIELD_BOSS_F_IRON_ELTRION_Foot.tga |  | 0 | exact copy available | data012/197158 |  |  |  |
@@ -2913,11 +2909,11 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | FIELD_BOSS_F_IRON_ELTRION_PART.tga |  | 0 | exact copy available | data012/197158 |  |  |  |
 | tex | FIELD_BOSS_F_IRON_ELTRION_PART_FX.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | FIELD_BOSS_F_IRON_ELTRION_UpbodyA.tga |  | 0 | exact copy available | data012/197158 |  |  |  |
-| tex | FIELD_BOSS_F_IRON_ELTRION_UpbodyB.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data012/197158/short1 |  |  |  |
+| tex | FIELD_BOSS_F_IRON_ELTRION_UpbodyB.tga |  | 0 | exact copy available | data012/197158 |  |  |  |
 | tex | FIELD_BOSS_F_IRON_ELTRION_wing.tga |  | 0 | exact copy available | data012/197158 |  |  |  |
 | tex | Fire_Small_Trace01.dds |  | 0 | exact copy available | data120/640 |  |  |  |
 | tex | FireImpactG01.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
-| tex | FireImpactGrow01.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/4224/short9 |  |  |  |
+| tex | FireImpactGrow01.dds |  | 0 | exact copy available | data002/4224 |  |  |  |
 | tex | foldingfan_trace.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
 | tex | FOX_HAND_F01.dds |  | 0 | exact copy available | data132/16512 |  |  |  |
 | tex | FX_MAGIC_CIRCLE_02.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
@@ -2926,18 +2922,18 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | G-0_BattleRoid_R03.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
 | tex | G-0_BattleRoid_R04.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
 | tex | G18C_Freeze_Grenade.dds |  | 0 | exact copy available | data184/2176 |  |  |  |
-| tex | Glave_EyeLight01.dds |  | 0 | exact copy available | data002/2176 |  |  |  |
+| tex | Glave_EyeLight01.dds |  | 4 | exact copy available | data002/2176 |  |  |  |
 | tex | GM_AC.tga |  | 0 | exact copy available | datai007/49702 |  |  |  |
 | tex | GuideArrow01.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | GuideArrow02.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
-| tex | GuideArrow02_white.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
+| tex | GuideArrow02_white.dds |  | 37 | exact copy available | data002/22000 |  |  |  |
 | tex | GuideArrow_AC_Gray.dds |  | 6 | exact copy available | datai001/22000 |  |  |  |
 | tex | Gunner_FireHit01.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
 | tex | Gunner_FireHit02.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
 | tex | Gunner_FireHit03.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
-| tex | Gunner_FireWave02.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
+| tex | Gunner_FireWave02.dds |  | 1 | exact copy available | data184/8320 |  |  |  |
 | tex | Gunner_FireWave03.dds |  | 0 | exact copy available | data184/32896 |  |  |  |
-| tex | Gunner_FireWave04.dds |  | 0 | exact copy available | data184/32896 |  |  |  |
+| tex | Gunner_FireWave04.dds |  | 1 | exact copy available | data184/32896 |  |  |  |
 | tex | Gunner_FireWave05.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
 | tex | Gunner_FootSmoke01.dds |  | 0 | exact copy available | data184/16512 |  |  |  |
 | tex | Gunner_FootSmoke02.dds |  | 0 | exact copy available | data184/16512 |  |  |  |
@@ -2953,7 +2949,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Gunner_HeadShot_skull_04.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
 | tex | Gunner_KickTrace01.dds |  | 0 | exact copy available | data184/16512 |  |  |  |
 | tex | Gunner_LaserBazookaM1.dds |  | 1 | exact copy available | data184/16512 |  |  |  |
-| tex | Gunner_LightGrow01.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
+| tex | Gunner_LightGrow01.dds |  | 4 | exact copy available | data184/8320 |  |  |  |
 | tex | Gunner_LightningHit01.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
 | tex | Gunner_MusketFire01.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
 | tex | Gunner_OperationLase_Thunder1.tga |  | 0 | exact copy available | data184/197158 |  |  |  |
@@ -2972,63 +2968,63 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Gunner_SwitchingWeapon_C.dds |  | 0 | exact copy available | data184/32896 |  |  |  |
 | tex | Gunner_SwitchingWeapon_M.dds |  | 0 | exact copy available | data184/32896 |  |  |  |
 | tex | Gunner_SwitchingWeapon_R.dds |  | 0 | exact copy available | data184/32896 |  |  |  |
-| tex | Gunner_WhiteFire01.dds |  | 0 | exact copy available | data184/4224 |  |  |  |
+| tex | Gunner_WhiteFire01.dds |  | 4 | exact copy available | data184/4224 |  |  |  |
 | tex | Halloween_Bear_fireWork.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | Halloween_Bear_Pet01.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
-| tex | Halloween_Pumpkin_Effect01.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1152/short8 |  |  |  |
+| tex | Halloween_Pumpkin_Effect01.dds |  | 0 | exact copy available | data002/1152 |  |  |  |
 | tex | Halloween_Teddybear_FX01.dds |  | 0 | exact copy available | data002/32896 |  |  |  |
 | tex | Hamel_guardianStone_M01.dds |  | 0 | exact copy available | data125/4224 |  |  |  |
-| tex | heart.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | heart_purple.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | HELLPUTT_GuideArrow02_Blue.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/22000/short2 |  |  |  |
-| tex | HENIR_LIGHT_04.DDS |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/87536/short3 |  |  |  |
+| tex | heart.tga |  | 4 | exact copy available | data002/65580 |  |  |  |
+| tex | heart_purple.tga |  | 1 | exact copy available | data002/65580 |  |  |  |
+| tex | HELLPUTT_GuideArrow02_Blue.dds |  | 5 | exact copy available | data002/22000 |  |  |  |
+| tex | HENIR_LIGHT_04.DDS |  | 0 | exact copy available | data002/87536 |  |  |  |
 | tex | hexagon_map_1.tga |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | hexagon_map_2.tga |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | Hit_LDN_Lu_Evil_Gather_DARK.dds |  | 0 | exact copy available | data157/87536 |  |  |  |
 | tex | HQ_GuildPvp_King.dds |  | 0 | exact copy available | datai001/5616 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_0_1.dds |  | 0 | exact copy available | data050/699192 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_10_1.dds |  | 0 | exact copy available | data050/699192 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_10_2.dds |  | 0 | exact copy available | data050/699192 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_10_3.dds |  | 0 | exact copy available | data050/87536 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_10_4.dds |  | 0 | exact copy available | data050/43832 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_10_5.dds |  | 0 | exact copy available | data050/87536 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_11_1.dds |  | 0 | exact copy available | data050/699192 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_11_2.dds |  | 0 | exact copy available | data050/349680 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_11_3.dds |  | 0 | exact copy available | data050/349680 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_12.dds |  | 0 | exact copy available | data050/131200 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_1_1.dds |  | 0 | exact copy available | data050/174904 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_1_2.dds |  | 0 | exact copy available | data050/349680 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_1_3.dds |  | 0 | exact copy available | data050/174904 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_2_1.dds |  | 0 | exact copy available | data050/349680 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_2_2.dds |  | 0 | exact copy available | data050/349680 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_2_3.dds |  | 0 | exact copy available | data050/349680 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_3_1.dds |  | 0 | exact copy available | data050/699192 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_3_2.dds |  | 0 | exact copy available | data050/174904 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_3_3.dds |  | 0 | exact copy available | data050/174904 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_4_1.dds |  | 0 | exact copy available | data050/349680 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_4_2.dds |  | 0 | exact copy available | data050/349680 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_4_3.dds |  | 0 | exact copy available | data050/349680 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_4_4.dds |  | 0 | exact copy available | data050/349680 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_5_1.dds |  | 0 | exact copy available | data050/699192 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_5_2.dds |  | 0 | exact copy available | data050/349680 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_5_3.dds |  | 0 | exact copy available | data050/349680 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_6_1.dds |  | 0 | exact copy available | data050/87536 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_6_2.dds |  | 0 | exact copy available | data050/174904 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_7_1.dds |  | 0 | exact copy available | data050/174904 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_7_2.dds |  | 0 | exact copy available | data050/174904 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_7_3.dds |  | 0 | exact copy available | data050/87536 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_7_4.dds |  | 0 | exact copy available | data050/87536 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_8_1.dds |  | 0 | exact copy available | data050/87536 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_8_2.dds |  | 0 | exact copy available | data050/699192 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_9_1.dds |  | 0 | exact copy available | data050/699192 |  |  |  |
-| tex | HQ_Present_Luciel_Prol_9_2.dds |  | 0 | exact copy available | data050/699192 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_0_1.dds |  | 1 | exact copy available | data050/699192 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_10_1.dds |  | 1 | exact copy available | data050/699192 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_10_2.dds |  | 1 | exact copy available | data050/699192 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_10_3.dds |  | 1 | exact copy available | data050/87536 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_10_4.dds |  | 1 | exact copy available | data050/43832 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_10_5.dds |  | 1 | exact copy available | data050/87536 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_11_1.dds |  | 1 | exact copy available | data050/699192 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_11_2.dds |  | 1 | exact copy available | data050/349680 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_11_3.dds |  | 1 | exact copy available | data050/349680 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_12.dds |  | 1 | exact copy available | data050/131200 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_1_1.dds |  | 1 | exact copy available | data050/174904 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_1_2.dds |  | 1 | exact copy available | data050/349680 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_1_3.dds |  | 1 | exact copy available | data050/174904 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_2_1.dds |  | 1 | exact copy available | data050/349680 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_2_2.dds |  | 1 | exact copy available | data050/349680 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_2_3.dds |  | 1 | exact copy available | data050/349680 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_3_1.dds |  | 1 | exact copy available | data050/699192 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_3_2.dds |  | 1 | exact copy available | data050/174904 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_3_3.dds |  | 1 | exact copy available | data050/174904 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_4_1.dds |  | 1 | exact copy available | data050/349680 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_4_2.dds |  | 1 | exact copy available | data050/349680 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_4_3.dds |  | 1 | exact copy available | data050/349680 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_4_4.dds |  | 1 | exact copy available | data050/349680 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_5_1.dds |  | 1 | exact copy available | data050/699192 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_5_2.dds |  | 1 | exact copy available | data050/349680 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_5_3.dds |  | 1 | exact copy available | data050/349680 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_6_1.dds |  | 1 | exact copy available | data050/87536 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_6_2.dds |  | 1 | exact copy available | data050/174904 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_7_1.dds |  | 1 | exact copy available | data050/174904 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_7_2.dds |  | 1 | exact copy available | data050/174904 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_7_3.dds |  | 1 | exact copy available | data050/87536 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_7_4.dds |  | 1 | exact copy available | data050/87536 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_8_1.dds |  | 1 | exact copy available | data050/87536 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_8_2.dds |  | 1 | exact copy available | data050/699192 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_9_1.dds |  | 1 | exact copy available | data050/699192 |  |  |  |
+| tex | HQ_Present_Luciel_Prol_9_2.dds |  | 1 | exact copy available | data050/699192 |  |  |  |
 | tex | HQ_PvpFlag.dds |  | 0 | exact copy available | datai001/19504 |  |  |  |
 | tex | ice_Texture01.tga |  | 0 | exact copy available | data002/49196 |  |  |  |
 | tex | Icon_no_ox.tga |  | 0 | exact copy available | data048/13268 |  |  |  |
-| tex | IgnitionShire_WaitFire01.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65580/short1 |  |  |  |
+| tex | IgnitionShire_WaitFire01.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | IPLITAN_Fire01_Red.dds |  | 2 | exact copy available | data002/16512 |  |  |  |
 | tex | JETSKI_ATTACK_X.DDS |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | JetSki_water_dash.dds |  | 0 | exact copy available | data002/11088 |  |  |  |
+| tex | JetSki_water_dash.dds |  | 4 | exact copy available | data002/11088 |  |  |  |
 | tex | JR_ZOMBIE_A_Loop_A_Layout_RED.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
 | tex | JR_ZOMBIE_B_Loop_B_Layout_GREEN.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
 | tex | JR_ZOMBIE_READY_1.DDS |  | 0 | exact copy available | data002/22000 |  |  |  |
@@ -3038,19 +3034,19 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | KA_EvilFace05.dds |  | 0 | exact copy available | data157/16512 |  |  |  |
 | tex | Keroro_AttackC_Circle.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
 | tex | Keroro_AttackZ_Fire.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
-| tex | Keroro_do.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Keroro_gi.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Keroro_Ke.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/16428/short1 |  |  |  |
-| tex | Keroro_ku.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Keroro_ma.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Keroro_Ro.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/16428/short2 |  |  |  |
-| tex | Keroro_roro.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Keroro_rororo.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Keroro_ru.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Keroro_ta.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
+| tex | Keroro_do.tga |  | 2 | exact copy available | data002/16428 |  |  |  |
+| tex | Keroro_gi.tga |  | 2 | exact copy available | data002/16428 |  |  |  |
+| tex | Keroro_Ke.tga |  | 2 | exact copy available | data002/16428 |  |  |  |
+| tex | Keroro_ku.tga |  | 2 | exact copy available | data002/16428 |  |  |  |
+| tex | Keroro_ma.tga |  | 2 | exact copy available | data002/16428 |  |  |  |
+| tex | Keroro_Ro.tga |  | 2 | exact copy available | data002/16428 |  |  |  |
+| tex | Keroro_roro.tga |  | 2 | exact copy available | data002/16428 |  |  |  |
+| tex | Keroro_rororo.tga |  | 2 | exact copy available | data002/16428 |  |  |  |
+| tex | Keroro_ru.tga |  | 2 | exact copy available | data002/16428 |  |  |  |
+| tex | Keroro_ta.tga |  | 2 | exact copy available | data002/16428 |  |  |  |
 | tex | lavafire_1.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | LCG_GunBeam01.dds |  | 0 | exact copy available | data157/16512 |  |  |  |
-| tex | LCG_Hit01.dds |  | 0 | exact copy available | data157/8320 |  |  |  |
+| tex | LCG_Hit01.dds |  | 2 | exact copy available | data157/8320 |  |  |  |
 | tex | LCG_Weapon_Ammo01.dds |  | 0 | exact copy available | data157/2176 |  |  |  |
 | tex | LCM_Hyper_Weapon_LU.tga |  | 0 | exact copy available | data157/66086 |  |  |  |
 | tex | LCN_CubeGrow01.dds |  | 0 | exact copy available | data157/640 |  |  |  |
@@ -3072,22 +3068,22 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | LD_M_Slicer01.dds |  | 0 | exact copy available | data157/16512 |  |  |  |
 | tex | LD_M_Trace01.dds |  | 0 | exact copy available | data157/16512 |  |  |  |
 | tex | LD_MagicSquare01.dds |  | 0 | exact copy available | data157/32896 |  |  |  |
-| tex | LD_MagicSquare02.dds |  | 0 | exact copy available | data157/32896 |  |  |  |
-| tex | LD_MagicSquare03.dds |  | 0 | exact copy available | data157/8320 |  |  |  |
+| tex | LD_MagicSquare02.dds |  | 1 | exact copy available | data157/32896 |  |  |  |
+| tex | LD_MagicSquare03.dds |  | 4 | exact copy available | data157/8320 |  |  |  |
 | tex | LD_MagicSquare03_Big.dds |  | 0 | exact copy available | data157/32896 |  |  |  |
 | tex | LD_MagicSquare04.dds |  | 0 | exact copy available | data157/32896 |  |  |  |
 | tex | LD_MagicSquare04_S.dds |  | 0 | exact copy available | data157/8320 |  |  |  |
 | tex | LD_MagicSquare05.dds |  | 0 | exact copy available | data157/32896 |  |  |  |
 | tex | LD_MagicSquare05_S.dds |  | 0 | exact copy available | data157/8320 |  |  |  |
-| tex | LD_MagicSquare06.dds |  | 0 | exact copy available | data157/8320 |  |  |  |
-| tex | LD_MagicSquare07.dds |  | 0 | exact copy available | data157/8320 |  |  |  |
+| tex | LD_MagicSquare06.dds |  | 4 | exact copy available | data157/8320 |  |  |  |
+| tex | LD_MagicSquare07.dds |  | 2 | exact copy available | data157/8320 |  |  |  |
 | tex | LD_MagicSquare08.dds |  | 0 | exact copy available | data157/4224 |  |  |  |
-| tex | LD_MagicSquare09.dds |  | 0 | exact copy available | data157/32896 |  |  |  |
+| tex | LD_MagicSquare09.dds |  | 1 | exact copy available | data157/32896 |  |  |  |
 | tex | LD_MagicSquare_Piece01.dds |  | 0 | exact copy available | data157/1152 |  |  |  |
 | tex | LD_MagicSquare_Piece02.dds |  | 0 | exact copy available | data157/1152 |  |  |  |
 | tex | LD_PUNISHING_ACCEL.dds |  | 0 | exact copy available | data157/65664 |  |  |  |
 | tex | LD_PUNISHING_ACCEL_S.dds |  | 0 | exact copy available | data157/4224 |  |  |  |
-| tex | LD_RingAlpha.dds |  | 0 | exact copy available | data157/8320 |  |  |  |
+| tex | LD_RingAlpha.dds |  | 2 | exact copy available | data157/8320 |  |  |  |
 | tex | LD_SLICER_01.dds |  | 0 | exact copy available | data157/2176 |  |  |  |
 | tex | LD_Slicer_trace_02.dds |  | 0 | exact copy available | data157/65664 |  |  |  |
 | tex | LD_Slicer_trace_03.dds |  | 0 | exact copy available | data157/32896 |  |  |  |
@@ -3124,18 +3120,18 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | LDN_SILENT_RAGE_Star.dds |  | 0 | exact copy available | data157/87536 |  |  |  |
 | tex | LDN_SINISTER_MIND_SEED.DDS |  | 0 | exact copy available | data157/11064 |  |  |  |
 | tex | LDN_Start_Ciel_plant.tga |  | 0 | exact copy available | data157/16428 |  |  |  |
-| tex | Light_Cha_Start_P03.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/5616/short3 |  |  |  |
+| tex | Light_Cha_Start_P03.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
 | tex | light_glow01.dds |  | 0 | exact copy available | data121/4224 |  |  |  |
 | tex | lightcylinder.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
 | tex | Lightning02_EDIT.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
-| tex | Lightning_01.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | Lightning_02.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | Lightning_03.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/22000/short2 |  |  |  |
-| tex | Lightning_04.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | Lightning_05.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | LIGHTNING_06.DDS |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/22000/short2 |  |  |  |
-| tex | Lightning_07.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | Lightning_08.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
+| tex | Lightning_01.dds |  | 3 | exact copy available | data002/22000 |  |  |  |
+| tex | Lightning_02.dds |  | 3 | exact copy available | data002/22000 |  |  |  |
+| tex | Lightning_03.dds |  | 3 | exact copy available | data002/22000 |  |  |  |
+| tex | Lightning_04.dds |  | 3 | exact copy available | data002/22000 |  |  |  |
+| tex | Lightning_05.dds |  | 3 | exact copy available | data002/22000 |  |  |  |
+| tex | LIGHTNING_06.DDS |  | 0 | exact copy available | data002/22000 |  |  |  |
+| tex | Lightning_07.dds |  | 3 | exact copy available | data002/22000 |  |  |  |
+| tex | Lightning_08.dds |  | 3 | exact copy available | data002/22000 |  |  |  |
 | tex | Lightning_Eve_Spit_Fire01_RE.tga |  | 0 | exact copy available | data002/262694 |  |  |  |
 | tex | LLC_FX_Weapon_Blue.dds |  | 0 | exact copy available | data157/8320 |  |  |  |
 | tex | LLC_FX_Weapon_Green.dds |  | 0 | exact copy available | data157/8320 |  |  |  |
@@ -3155,35 +3151,35 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | LuCiel_Chair_01.dds |  | 0 | exact copy available | data157/32896 |  |  |  |
 | tex | Luciel_ZX_UI_Blur.dds |  | 0 | exact copy available | data157/22000 |  |  |  |
 | tex | Luciel_ZX_UI_No.dds |  | 0 | exact copy available | data157/22000 |  |  |  |
-| tex | Magic_Aurora_light.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
+| tex | Magic_Aurora_light.dds |  | 5 | exact copy available | data002/22000 |  |  |  |
 | tex | MAGICSQUARELIGHT02_RED_RE.TGA |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | Maid_Mop.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
-| tex | MARIONETTE_STEB_3_Special_A_Walking.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65580/short1 |  |  |  |
+| tex | MARIONETTE_STEB_3_Special_A_Walking.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | mascot01.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
 | tex | mascot02.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
-| tex | Mash_Common_AC_Face1_Event29.tga |  | 0 | exact copy available | data016/16428 |  |  |  |
-| tex | Mash_Common_AC_Face1_Event29_Tail_01.tga |  | 0 | exact copy available | data002/12332 |  |  |  |
-| tex | Mash_Common_AC_Face1_Event29_Tail_02.tga |  | 0 | exact copy available | data002/12332 |  |  |  |
-| tex | Mash_Common_AC_Face1_Event29_Tail_03.tga |  | 0 | exact copy available | data002/12332 |  |  |  |
-| tex | Mash_Common_AC_Face1_Event29_Tail_04.tga |  | 0 | exact copy available | data002/12332 |  |  |  |
-| tex | Mash_Common_AC_Face1_Event29_Tail_05.tga |  | 0 | exact copy available | data002/12332 |  |  |  |
-| tex | Mash_Common_AC_Face1_Event29A.tga |  | 0 | exact copy available | data016/16428 |  |  |  |
-| tex | Mash_Common_AC_Face1_Event29a_Tail_01.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Mash_Common_AC_Face1_Event29a_Tail_02.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Mash_Common_AC_Face1_Event29a_Tail_03.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Mash_Common_AC_Face1_Event29a_Tail_04.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Mash_Common_AC_Face1_Event29a_Tail_05.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/16428/short1 |  |  |  |
-| tex | Mash_Dragon_Body.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data012/3145772/short1 |  |  |  |
+| tex | Mash_Common_AC_Face1_Event29.tga |  | 1 | exact copy available | data016/16428 |  |  |  |
+| tex | Mash_Common_AC_Face1_Event29_Tail_01.tga |  | 1 | exact copy available | data002/12332 |  |  |  |
+| tex | Mash_Common_AC_Face1_Event29_Tail_02.tga |  | 1 | exact copy available | data002/12332 |  |  |  |
+| tex | Mash_Common_AC_Face1_Event29_Tail_03.tga |  | 1 | exact copy available | data002/12332 |  |  |  |
+| tex | Mash_Common_AC_Face1_Event29_Tail_04.tga |  | 1 | exact copy available | data002/12332 |  |  |  |
+| tex | Mash_Common_AC_Face1_Event29_Tail_05.tga |  | 1 | exact copy available | data002/12332 |  |  |  |
+| tex | Mash_Common_AC_Face1_Event29A.tga |  | 1 | exact copy available | data016/16428 |  |  |  |
+| tex | Mash_Common_AC_Face1_Event29a_Tail_01.tga |  | 1 | exact copy available | data002/16428 |  |  |  |
+| tex | Mash_Common_AC_Face1_Event29a_Tail_02.tga |  | 1 | exact copy available | data002/16428 |  |  |  |
+| tex | Mash_Common_AC_Face1_Event29a_Tail_03.tga |  | 1 | exact copy available | data002/16428 |  |  |  |
+| tex | Mash_Common_AC_Face1_Event29a_Tail_04.tga |  | 1 | exact copy available | data002/16428 |  |  |  |
+| tex | Mash_Common_AC_Face1_Event29a_Tail_05.tga |  | 1 | exact copy available | data002/16428 |  |  |  |
+| tex | Mash_Dragon_Body.tga |  | 0 | exact copy available | data012/3145772 |  |  |  |
 | tex | Mash_Dragon_Body_Small.tga |  | 0 | exact copy available | data002/197158 |  |  |  |
 | tex | Mash_Dragon_Wing.tga |  | 0 | exact copy available | data012/786982 |  |  |  |
 | tex | Mash_Dragon_Wing_Small.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | MASK_128.tga |  | 0 | exact copy available | data002/16934 |  |  |  |
-| tex | MasterOfTrick_Party01.dds |  | 0 | exact copy available | data002/1152 |  |  |  |
-| tex | MasterOfTrick_Party02.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/1152/short2 |  |  |  |
+| tex | MasterOfTrick_Party01.dds |  | 2 | exact copy available | data002/1152 |  |  |  |
+| tex | MasterOfTrick_Party02.dds |  | 7 | exact copy available | data002/1152 |  |  |  |
 | tex | MAYA_F_GATHER_P.TGA |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | maya_RRune.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | maya_weapon.tga |  | 0 | exact copy available | data181/49196 |  |  |  |
-| tex | Mesh_AC_CelestialSphere_Dummy.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/66086/short1 |  |  |  |
+| tex | Mesh_AC_CelestialSphere_Dummy.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | Mesh_AC_Common_Lowbody_Event30_P03.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | Mesh_AC_Common_Lowbody_Event30_P03_Leaf.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
 | tex | MESH_ADD_AC_LOWBODY_EVENT28_A.TGA |  | 0 | exact copy available | data002/12332 |  |  |  |
@@ -3191,31 +3187,31 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | MESH_AISA_AC_LOWBODY_EVENT28_A.TGA |  | 0 | exact copy available | data002/12332 |  |  |  |
 | tex | MESH_ARA_AC_LOWBODY_EVENT28_A.TGA |  | 0 | exact copy available | data002/12332 |  |  |  |
 | tex | Mesh_Ara_ASD_Cash_Weapon.dds |  | 0 | exact copy available | data132/8320 |  |  |  |
-| tex | Mesh_Ara_Cash_Weapon1450_Circle.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
-| tex | Mesh_Ara_Cash_Weapon1450_sakura.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
-| tex | MESH_CHUNG_AC_LOWBODY_EVENT28_A.TGA |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/12332/short2 |  |  |  |
+| tex | Mesh_Ara_Cash_Weapon1450_Circle.dds |  | 1 | exact copy available | data002/5616 |  |  |  |
+| tex | Mesh_Ara_Cash_Weapon1450_sakura.dds |  | 1 | exact copy available | data002/5616 |  |  |  |
+| tex | MESH_CHUNG_AC_LOWBODY_EVENT28_A.TGA |  | 0 | exact copy available | data002/12332 |  |  |  |
 | tex | Mesh_Ciel_LCG_Weapon.tga |  | 0 | exact copy available | data159/49196 |  |  |  |
 | tex | Mesh_Ciel_LCG_Weapon_B.tga |  | 0 | exact copy available | data159/49196 |  |  |  |
 | tex | Mesh_Ciel_LDN_Cash_Foot_Transform.tga |  | 0 | exact copy available | data159/49702 |  |  |  |
 | tex | Mesh_Ciel_LDN_Cash_Hair_Transform.tga |  | 0 | exact copy available | data159/49196 |  |  |  |
-| tex | Mesh_Ciel_LDN_Cash_Hand_Transform.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data159/49702/short1 |  |  |  |
+| tex | Mesh_Ciel_LDN_Cash_Hand_Transform.tga |  | 0 | exact copy available | data159/49702 |  |  |  |
 | tex | Mesh_Ciel_LDN_Cash_Lowbody_Transform.tga |  | 0 | exact copy available | data159/49702 |  |  |  |
-| tex | Mesh_Ciel_LDN_Cash_Transform_Weapon_A.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data159/49196/short1 |  |  |  |
+| tex | Mesh_Ciel_LDN_Cash_Transform_Weapon_A.tga |  | 0 | exact copy available | data159/49196 |  |  |  |
 | tex | Mesh_Ciel_LDN_Cash_Upbody_Transform.tga |  | 0 | exact copy available | data159/49702 |  |  |  |
 | tex | Mesh_Ciel_LDN_Cash_Weapon_Rifle.tga |  | 0 | exact copy available | data157/49702 |  |  |  |
 | tex | Mesh_Ciel_LDN_Face_Transform.tga |  | 0 | exact copy available | data159/49196 |  |  |  |
 | tex | Mesh_Common_201602_Motion_AC.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_AC_Face1_Event36.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
-| tex | Mesh_Common_AC_Lowbody_287642.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data016/49702/short2 |  |  |  |
-| tex | Mesh_Common_AC_Upbody1_110004078_Sorted.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/4224/short4 |  |  |  |
+| tex | Mesh_Common_AC_Lowbody_287642.tga |  | 0 | exact copy available | data016/49702 |  |  |  |
+| tex | Mesh_Common_AC_Upbody1_110004078_Sorted.dds |  | 0 | exact copy available | data002/4224 |  |  |  |
 | tex | Mesh_Common_AC_Upbody1_110004078_Sorted.tga |  | 0 | exact copy available | datai007/65580 |  |  |  |
-| tex | Mesh_Common_AC_Upbody_161178.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data016/66086/short1 |  |  |  |
-| tex | Mesh_Common_AC_Upbody_161178A.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data016/66086/short1 |  |  |  |
+| tex | Mesh_Common_AC_Upbody_161178.tga |  | 1 | exact copy available | data016/66086 |  |  |  |
+| tex | Mesh_Common_AC_Upbody_161178A.tga |  | 1 | exact copy available | data016/66086 |  |  |  |
 | tex | Mesh_Common_AC_Upbody_Event38_01.tga |  | 0 | exact copy available | data016/49702 |  |  |  |
 | tex | Mesh_Common_AC_Upbody_Event38_02.tga |  | 0 | exact copy available | data016/65580 |  |  |  |
 | tex | Mesh_Common_AC_Upbody_Xmasbag.tga |  | 0 | exact copy available | data016/49702 |  |  |  |
 | tex | Mesh_Common_BossRaid_Legend_Weapon01.tga |  | 0 | exact copy available | data143/12838 |  |  |  |
-| tex | Mesh_Common_BossRaid_Legend_Weapon01_END.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/12332/short2 |  |  |  |
+| tex | Mesh_Common_BossRaid_Legend_Weapon01_END.tga |  | 0 | exact copy available | data002/12332 |  |  |  |
 | tex | Mesh_Common_Cash23_Common_Emotion_Sit.tga |  | 0 | exact copy available | data002/49196 |  |  |  |
 | tex | Mesh_Common_Cash24_Common_Emotion_Sit.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | MESH_COMMON_CASH24_COMMON_EMOTION_SITA.TGA |  | 0 | exact copy available | data002/66086 |  |  |  |
@@ -3225,14 +3221,14 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Mesh_Common_Cash_AC_Arm_1770.tga |  | 0 | exact copy available | data016/66086 |  |  |  |
 | tex | Mesh_Common_Cash_AC_ARM_Set2.dds |  | 0 | exact copy available | data002/8320 |  |  |  |
 | tex | Mesh_Common_Cash_AC_ARM_Set2A.dds |  | 0 | exact copy available | data002/8320 |  |  |  |
-| tex | Mesh_Common_Cash_AC_Face1_1770.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data016/49702/short2 |  |  |  |
-| tex | Mesh_Common_Cash_AC_Face1_Set1.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/16512/short1 |  |  |  |
+| tex | Mesh_Common_Cash_AC_Face1_1770.tga |  | 0 | exact copy available | data016/49702 |  |  |  |
+| tex | Mesh_Common_Cash_AC_Face1_Set1.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | Mesh_Common_Cash_AC_Face2_Set1.dds |  | 0 | exact copy available | data016/16512 |  |  |  |
 | tex | Mesh_Common_Cash_AC_Face2_Set1A.dds |  | 0 | exact copy available | data016/16512 |  |  |  |
 | tex | Mesh_Common_Cash_AC_Face5_Set8.tga |  | 0 | exact copy available | data016/49702 |  |  |  |
 | tex | MESH_COMMON_CASH_AC_FACE5_SET8A.TGA |  | 0 | exact copy available | data016/49196 |  |  |  |
-| tex | Mesh_Common_Cash_AC_Upbody_287865_Effect.tga |  | 0 | exact copy available | data002/12332 |  |  |  |
-| tex | Mesh_Common_Cash_Emotion_Sit21_01.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/49702/short1 |  |  |  |
+| tex | Mesh_Common_Cash_AC_Upbody_287865_Effect.tga |  | 1 | exact copy available | data002/12332 |  |  |  |
+| tex | Mesh_Common_Cash_Emotion_Sit21_01.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit21_01A.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit21_02.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit21_02A.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
@@ -3241,17 +3237,17 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Mesh_Common_Cash_Emotion_Sit21_04.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit21_04A.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit22_01.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
-| tex | Mesh_Common_Cash_Emotion_Sit22_02.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/49702/short2 |  |  |  |
+| tex | Mesh_Common_Cash_Emotion_Sit22_02.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit22_03.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
-| tex | Mesh_Common_Cash_Emotion_Sit22A_01.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/49702/short2 |  |  |  |
+| tex | Mesh_Common_Cash_Emotion_Sit22A_01.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit22A_02.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit22A_03.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit25.tga |  | 0 | exact copy available | data002/196652 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit25_01.tga |  | 0 | exact copy available | data002/196652 |  |  |  |
-| tex | Mesh_Common_Cash_Emotion_Sit25_02.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65580/short1 |  |  |  |
+| tex | Mesh_Common_Cash_Emotion_Sit25_02.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit25A.tga |  | 0 | exact copy available | data002/196652 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit25A_01.tga |  | 0 | exact copy available | data002/196652 |  |  |  |
-| tex | Mesh_Common_Cash_Emotion_Sit25A_02.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65580/short1 |  |  |  |
+| tex | Mesh_Common_Cash_Emotion_Sit25A_02.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit26.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit26_01.tga |  | 0 | exact copy available | data002/16934 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit26_02.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
@@ -3259,13 +3255,13 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Mesh_Common_Cash_Emotion_Sit27.tga |  | 0 | exact copy available | data002/197158 |  |  |  |
 | tex | MESH_COMMON_CASH_EMOTION_SIT27A.TGA |  | 0 | exact copy available | data002/197158 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit28.tga |  | 0 | exact copy available | data002/262694 |  |  |  |
-| tex | MESH_COMMON_CASH_EMOTION_SIT28_A.TGA |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/262188/short1 |  |  |  |
-| tex | Mesh_Common_Cash_Emotion_Sit29_01.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/197158/short1 |  |  |  |
+| tex | MESH_COMMON_CASH_EMOTION_SIT28_A.TGA |  | 0 | exact copy available | data002/262188 |  |  |  |
+| tex | Mesh_Common_Cash_Emotion_Sit29_01.tga |  | 0 | exact copy available | data002/197158 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit29_02.tga |  | 0 | exact copy available | data002/49196 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit29_03.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit29_04.tga |  | 0 | exact copy available | data002/12332 |  |  |  |
-| tex | MESH_COMMON_CASH_EMOTION_SIT29A_01.TGA |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/196652/short1 |  |  |  |
-| tex | MESH_COMMON_CASH_EMOTION_SIT29A_02.TGA |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/49196/short1 |  |  |  |
+| tex | MESH_COMMON_CASH_EMOTION_SIT29A_01.TGA |  | 0 | exact copy available | data002/196652 |  |  |  |
+| tex | MESH_COMMON_CASH_EMOTION_SIT29A_02.TGA |  | 0 | exact copy available | data002/49196 |  |  |  |
 | tex | MESH_COMMON_CASH_EMOTION_SIT29A_04.TGA |  | 0 | exact copy available | data002/12332 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit30.tga |  | 0 | exact copy available | data002/197158 |  |  |  |
 | tex | MESH_COMMON_CASH_EMOTION_SIT30_A.TGA |  | 0 | exact copy available | data002/197158 |  |  |  |
@@ -3277,19 +3273,19 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | MESH_COMMON_CASH_EMOTION_SIT32A.TGA |  | 0 | exact copy available | data002/49196 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit34.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit34A.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
-| tex | Mesh_Common_Cash_Emotion_Sit36.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/197158/short1 |  |  |  |
+| tex | Mesh_Common_Cash_Emotion_Sit36.tga |  | 0 | exact copy available | data002/197158 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit36_01.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit36A.tga |  | 0 | exact copy available | data002/197158 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit36A_01.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit38_01.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit39.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit39_01.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
-| tex | Mesh_Common_Cash_Emotion_Sit39_02.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/49702/short1 |  |  |  |
+| tex | Mesh_Common_Cash_Emotion_Sit39_02.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_Common_Cash_Emotion_Sit39_03.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | MESH_COMMON_CASH_EMOTION_SIT39A.TGA |  | 0 | exact copy available | data002/49196 |  |  |  |
-| tex | Mesh_Common_Cash_Emotion_Sit40.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/196652/short1 |  |  |  |
+| tex | Mesh_Common_Cash_Emotion_Sit40.tga |  | 0 | exact copy available | data002/196652 |  |  |  |
 | tex | MESH_COMMON_CASH_EMOTION_SIT40A.TGA |  | 0 | exact copy available | data002/196652 |  |  |  |
-| tex | Mesh_Common_Event_AC_Upbody37_01.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/4224/short65 |  |  |  |
+| tex | Mesh_Common_Event_AC_Upbody37_01.dds |  | 0 | exact copy available | data002/4224 |  |  |  |
 | tex | Mesh_EL_AC_Lowbody_event28_A.tga |  | 0 | exact copy available | data002/12332 |  |  |  |
 | tex | Mesh_EL_AC_Lowbody_event28_S.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | Mesh_EL_SCA_Cash_Shadow.tga |  | 0 | exact copy available | data142/262694 |  |  |  |
@@ -3297,16 +3293,16 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Mesh_Elsword_BossRaid_Legend_Weapon01_END.tga |  | 0 | exact copy available | data002/49196 |  |  |  |
 | tex | MESH_ES_AC_LOWBODY_EVENT28_A.TGA |  | 0 | exact copy available | data002/12332 |  |  |  |
 | tex | MESH_EVE_AC_LOWBODY_EVENT28_A.TGA |  | 0 | exact copy available | data002/12332 |  |  |  |
-| tex | Mesh_Eve_Event_Weapon36.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data018/49196/short2 |  |  |  |
+| tex | Mesh_Eve_Event_Weapon36.tga |  | 0 | exact copy available | data018/49196 |  |  |  |
 | tex | MESH_LENA_AC_LOWBODY_EVENT28_A.TGA |  | 0 | exact copy available | data002/12332 |  |  |  |
-| tex | Mesh_Lu_Cash_Hair1370.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data158/49702/short1 |  |  |  |
-| tex | Mesh_Lu_LDB_Transform_Face.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data158/49196/short1 |  |  |  |
+| tex | Mesh_Lu_Cash_Hair1370.tga |  | 0 | exact copy available | data158/49702 |  |  |  |
+| tex | Mesh_Lu_LDB_Transform_Face.tga |  | 0 | exact copy available | data158/49196 |  |  |  |
 | tex | Mesh_Lu_LDB_Transform_Foot.tga |  | 0 | exact copy available | data158/49702 |  |  |  |
 | tex | Mesh_Lu_LDB_Transform_Hair.tga |  | 0 | exact copy available | data158/49702 |  |  |  |
 | tex | Mesh_Lu_LDB_Transform_Hand.tga |  | 0 | exact copy available | data158/49702 |  |  |  |
 | tex | Mesh_Lu_LDB_Transform_Lowbody.tga |  | 0 | exact copy available | data158/66086 |  |  |  |
 | tex | Mesh_Lu_LDB_Transform_Upbody.tga |  | 0 | exact copy available | data158/49702 |  |  |  |
-| tex | MESH_LUCIEL_AC_LOWBODY_EVENT28_A.TGA |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/16428/short2 |  |  |  |
+| tex | MESH_LUCIEL_AC_LOWBODY_EVENT28_A.TGA |  | 0 | exact copy available | data002/16428 |  |  |  |
 | tex | Mesh_LUNA_BLADE_02.dds |  | 0 | exact copy available | data118/65664 |  |  |  |
 | tex | Mesh_LUNA_BLADE_B.dds |  | 0 | exact copy available | data118/65664 |  |  |  |
 | tex | Mesh_Nine_Tailed_Fox_Body.tga |  | 0 | exact copy available | data132/49702 |  |  |  |
@@ -3314,17 +3310,17 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Mesh_Nine_Tailed_Fox_Foreleg.tga |  | 0 | exact copy available | data132/49702 |  |  |  |
 | tex | Mesh_Nine_Tailed_Fox_Tail.tga |  | 0 | exact copy available | data132/49702 |  |  |  |
 | tex | Mesh_PC_Ain_Stand3.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
-| tex | Mesh_PC_LuCiel_Stand.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/197158/short1 |  |  |  |
+| tex | Mesh_PC_LuCiel_Stand.tga |  | 0 | exact copy available | data002/197158 |  |  |  |
 | tex | Mesh_PC_LuCiel_Stand2.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Mesh_PC_LuCiel_Stand3.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
-| tex | Mesh_Per3P_FireBall_Hurry.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/262188/short1 |  |  |  |
+| tex | Mesh_Per3P_FireBall_Hurry.tga |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | MESH_RAVEN_AC_LOWBODY_EVENT28_A.TGA |  | 0 | exact copy available | data002/12332 |  |  |  |
 | tex | Mesh_Raven_RVC_Cash_Weapon.dds |  | 0 | exact copy available | data120/8320 |  |  |  |
 | tex | Mesh_Rose_A_RFY_Cash_Weapon.tga |  | 0 | exact copy available | data185/49702 |  |  |  |
-| tex | Mesh_Rose_Cash_Lowbody.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data185/49702/short1 |  |  |  |
+| tex | Mesh_Rose_Cash_Lowbody.tga |  | 0 | exact copy available | data185/49702 |  |  |  |
 | tex | Mesh_Rose_H_Event_Weapon10.tga |  | 0 | exact copy available | data185/49702 |  |  |  |
 | tex | Mesh_Rose_H_Event_Weapon31.tga |  | 0 | exact copy available | data185/49702 |  |  |  |
-| tex | Mesh_Rose_H_RFY_Cash_Weapon.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data185/49702/short2 |  |  |  |
+| tex | Mesh_Rose_H_RFY_Cash_Weapon.tga |  | 0 | exact copy available | data185/49702 |  |  |  |
 | tex | Mesh_Rose_M_RFY_Cash_Weapon.tga |  | 0 | exact copy available | data185/49702 |  |  |  |
 | tex | Mesh_Rose_R_Event_Weapon10.tga |  | 0 | exact copy available | data185/49702 |  |  |  |
 | tex | Mesh_Rose_R_Event_Weapon31.tga |  | 0 | exact copy available | data185/49702 |  |  |  |
@@ -3342,8 +3338,8 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Motion_SOLESS_Weapon.tga |  | 0 | exact copy available | data181/66086 |  |  |  |
 | tex | Nasod_Rupture01.dds |  | 0 | exact copy available | data147/87536 |  |  |  |
 | tex | Nasod_Rupture03.tga |  | 0 | exact copy available | data147/262188 |  |  |  |
-| tex | NBG_Laser01.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/66086/short1 |  |  |  |
-| tex | NBG_Laser02.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65580/short1 |  |  |  |
+| tex | NBG_Laser01.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
+| tex | NBG_Laser02.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | NBG_Shell.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | NEIL_SNIPER_M.dds |  | 0 | exact copy available | data184/16512 |  |  |  |
 | tex | NELL_CLOSE.TGA |  | 0 | exact copy available | data002/65580 |  |  |  |
@@ -3354,8 +3350,8 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Nightmare_Saw.tga |  | 0 | exact copy available | data048/262188 |  |  |  |
 | tex | NPC_Elysion_Dyurenda_AC.tga |  | 0 | exact copy available | data013/66086 |  |  |  |
 | tex | NPC_Elysion_Dyurenda_Energy.tga |  | 0 | exact copy available | data013/49702 |  |  |  |
-| tex | NPC_Elysion_Dyurenda_ring.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data013/66086/short1 |  |  |  |
-| tex | NPC_Elysion_Teodor_AC.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/66086/short2 |  |  |  |
+| tex | NPC_Elysion_Dyurenda_ring.tga |  | 0 | exact copy available | data013/66086 |  |  |  |
+| tex | NPC_Elysion_Teodor_AC.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | NPC_Elysion_VERENADE_Alpha.tga |  | 0 | exact copy available | data013/66086 |  |  |  |
 | tex | NUI_ELSION_Boss_Surveillance.tga |  | 0 | exact copy available | data181/786982 |  |  |  |
 | tex | NUI_ELSION_DEFENDER_Small_White.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
@@ -3363,12 +3359,12 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | NUI_ELSION_LIBYA.tga |  | 0 | exact copy available | data181/197158 |  |  |  |
 | tex | NUI_ELSION_NEWDEFENDER_Small_wh.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | NUI_ELSION_PIMPIM_Body.tga |  | 0 | exact copy available | data181/49702 |  |  |  |
-| tex | NUI_ELSION_PROTO_Small_White.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/12332/short1 |  |  |  |
-| tex | NUI_ELSION_SILENCE_Small_White.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/12838/short2 |  |  |  |
+| tex | NUI_ELSION_PROTO_Small_White.tga |  | 0 | exact copy available | data002/12332 |  |  |  |
+| tex | NUI_ELSION_SILENCE_Small_White.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
 | tex | NUI_ELYSION_BOMB_PANG.tga |  | 0 | exact copy available | data181/65580 |  |  |  |
 | tex | NUI_ELYSION_BOSS_HERBAON_AC.tga |  | 0 | exact copy available | data181/66086 |  |  |  |
 | tex | NUI_ELYSION_IMPRINT_Wing.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
-| tex | NUI_ELYSION_IMPRINT_Wing_S.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/66086/short2 |  |  |  |
+| tex | NUI_ELYSION_IMPRINT_Wing_S.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | NUI_ELYSION_IMPRINT_Wing_S_A.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | NUI_ELYSION_M_SOLESS.tga |  | 0 | exact copy available | data181/786982 |  |  |  |
 | tex | NUI_ELYSION_M_SOLESS_Face.tga |  | 0 | exact copy available | data181/262694 |  |  |  |
@@ -3387,14 +3383,14 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | PerkisasP2_Harpoon_Fire_Rune_After_Dere.tga |  | 0 | exact copy available | data002/16934 |  |  |  |
 | tex | PerkisasP2_Harpoon_Fire_Rune_Before.tga |  | 0 | exact copy available | data002/148006 |  |  |  |
 | tex | PerkisasP2_Harpoon_Fire_Rune_Floor.tga |  | 0 | exact copy available | data002/147500 |  |  |  |
-| tex | PERKISASP2_M_DASH_READY_GATHER.DDS |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/22000/short4 |  |  |  |
+| tex | PERKISASP2_M_DASH_READY_GATHER.DDS |  | 0 | exact copy available | data002/22000 |  |  |  |
 | tex | PerkisasP2_M_Dash_Ready_Start_Rune_MotionBlur.tga |  | 0 | exact copy available | data002/64044 |  |  |  |
 | tex | PerkisasP2_T_F_Stone.tga |  | 0 | exact copy available | data002/131116 |  |  |  |
-| tex | PerkisasRune.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/22000/short2 |  |  |  |
+| tex | PerkisasRune.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
 | tex | Pet_Alice_card_glow_01.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | Pet_Alice_card_normal.TGA |  | 0 | exact copy available | data002/16428 |  |  |  |
 | tex | Pet_Alice_STEB_3_Attack_light.tga |  | 0 | exact copy available | data002/16934 |  |  |  |
-| tex | Pet_Dororo_Attack_Shuriken.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2176/short2 |  |  |  |
+| tex | Pet_Dororo_Attack_Shuriken.dds |  | 0 | exact copy available | data002/2176 |  |  |  |
 | tex | Pet_MEDUSA_STEB_3_ATTACK_C_M01.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | Pet_MEDUSA_STEB_3_ATTACK_C_M02.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | pet_MILLENNIAFOX_FEVER_ghostAttackA_Black_P01.dds |  | 0 | exact copy available | datai001/2176 |  |  |  |
@@ -3404,19 +3400,19 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | PET_PETTE_PPORU_STEB_3_Brazil_Event_Ball.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | PET_PUMPKIN_RABBIT_Attack.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Pet_unicorn_lightning_dark_model.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
-| tex | Phantom.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data147/49702/short1 |  |  |  |
+| tex | Phantom.tga |  | 0 | exact copy available | data147/49702 |  |  |  |
 | tex | PhantomSteed_WaitFire01.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | PhantomSteed_WhiteFire01.dds |  | 0 | exact copy available | data002/2176 |  |  |  |
 | tex | PROTECT_GUARD_MAGIC_Map02_Gray.dds |  | 2 | exact copy available | datai001/22000 |  |  |  |
-| tex | PROTECT_GUARD_MAGIC_Map03_white.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/22000/short1 |  |  |  |
+| tex | PROTECT_GUARD_MAGIC_Map03_white.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
 | tex | PROTECT_GUARD_MAGIC_Map08_Red.dds |  | 0 | exact copy available | data002/87536 |  |  |  |
-| tex | PVE_Hamel_WIN_01.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/197158/short1 |  |  |  |
+| tex | PVE_Hamel_WIN_01.tga |  | 0 | exact copy available | data002/197158 |  |  |  |
 | tex | PVE_V_KFT_SP_Laiser.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
-| tex | PVE_VELDER_WIN_01.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/197158/short1 |  |  |  |
+| tex | PVE_VELDER_WIN_01.tga |  | 0 | exact copy available | data002/197158 |  |  |  |
 | tex | Quantumbomb.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
 | tex | QUICK_PIERCING_Weapon_Effect.tga |  | 0 | exact copy available | data132/66086 |  |  |  |
 | tex | RAGE_DRYADKENTA_2.dds |  | 2 | exact copy available | data002/8320 |  |  |  |
-| tex | Rakshasa_Impact.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/262188/short1 |  |  |  |
+| tex | Rakshasa_Impact.tga |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | Raven_HarpoonSpearFire_M1.dds |  | 0 | exact copy available | data120/32896 |  |  |  |
 | tex | raven_powrUp_circle_Gray.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
 | tex | Raven_Seven_Burst_MEMO_F.tga |  | 0 | exact copy available | data120/66086 |  |  |  |
@@ -3424,15 +3420,15 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | RCR_Blood_And_Chains_P1.dds |  | 0 | exact copy available | data184/16512 |  |  |  |
 | tex | RCR_GunGuard_Arms.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
 | tex | REA_CLOSE.TGA |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | Rea_nomal.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/66086/short1 |  |  |  |
-| tex | REA_SMILE.TGA |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65580/short1 |  |  |  |
+| tex | Rea_nomal.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
+| tex | REA_SMILE.TGA |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | Red_Dragon2_harpoon03.tga |  | 0 | exact copy available | data012/49702 |  |  |  |
 | tex | Red_Dragon_flag.dds |  | 0 | exact copy available | data023/8320 |  |  |  |
 | tex | Red_Dragon_footpad01.dds |  | 0 | exact copy available | data023/8320 |  |  |  |
 | tex | Red_Dragon_footpad02.dds |  | 0 | exact copy available | data023/8320 |  |  |  |
 | tex | Red_Dragon_footpad03.dds |  | 0 | exact copy available | data023/8320 |  |  |  |
-| tex | Red_Dragon_Hand.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/197158/short1 |  |  |  |
-| tex | Red_Dragon_jewellery.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data023/8320/short14 |  |  |  |
+| tex | Red_Dragon_Hand.tga |  | 0 | exact copy available | data002/197158 |  |  |  |
+| tex | Red_Dragon_jewellery.dds |  | 0 | exact copy available | data023/8320 |  |  |  |
 | tex | Red_Dragon_wall04.dds |  | 0 | exact copy available | data023/8320 |  |  |  |
 | tex | RedD_AC_basic.dds |  | 0 | exact copy available | data002/2176 |  |  |  |
 | tex | RedD_AC_Floor_Big.dds |  | 0 | exact copy available | data002/4224 |  |  |  |
@@ -3440,7 +3436,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | RedDragon_pinger_sp.dds |  | 0 | exact copy available | data002/22032 |  |  |  |
 | tex | RedDragon_Rune.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
 | tex | RedDragon_toe.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | RedDragon_toe_SP.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/22000/short1 |  |  |  |
+| tex | RedDragon_toe_SP.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
 | tex | Rena_ArrowMagic001.dds |  | 0 | exact copy available | data121/65664 |  |  |  |
 | tex | Rena_ArrowMagic001G.dds |  | 0 | exact copy available | data121/65664 |  |  |  |
 | tex | Rena_CrazyShot_Arrow.dds |  | 0 | exact copy available | data121/8320 |  |  |  |
@@ -3453,30 +3449,30 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | RFY_NeilTheSniper_telescope.dds |  | 0 | exact copy available | data184/65664 |  |  |  |
 | tex | RickShaw_Pporu.tga |  | 0 | exact copy available | data140/197158 |  |  |  |
 | tex | RickShaw_Pporu_Face.tga |  | 0 | exact copy available | data140/49702 |  |  |  |
-| tex | RickShaw_Pporu_Lowbody.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data140/49702/short1 |  |  |  |
-| tex | Riding_Ascalon_AttackC_Howling.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65664/short62 |  |  |  |
+| tex | RickShaw_Pporu_Lowbody.tga |  | 0 | exact copy available | data140/49702 |  |  |  |
+| tex | Riding_Ascalon_AttackC_Howling.dds |  | 0 | exact copy available | data002/65664 |  |  |  |
 | tex | Riding_Baal_EF01.dds |  | 0 | exact copy available | data002/2176 |  |  |  |
 | tex | Riding_Baal_Trace01.dds |  | 0 | exact copy available | data002/4224 |  |  |  |
 | tex | Riding_Cat_body.tga |  | 0 | exact copy available | data140/197158 |  |  |  |
-| tex | Riding_Cat_Face.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data140/197158/short2 |  |  |  |
-| tex | RIDING_GODBEAST_DARK001.TGA |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/262188/short2 |  |  |  |
+| tex | Riding_Cat_Face.tga |  | 0 | exact copy available | data140/197158 |  |  |  |
+| tex | RIDING_GODBEAST_DARK001.TGA |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | Riding_GodBeast_Dark002.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | RIDING_GODBEAST_DARK003.DDS |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | RIDING_GODBEAST_DARK004.DDS |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | Riding_GodBeast_Fire001.tga |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | Riding_GodBeast_Fire002.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | Riding_Hellhound_Projectile.dds |  | 0 | exact copy available | data002/8320 |  |  |  |
-| tex | Riding_LAVA_Chili01.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/8320/short15 |  |  |  |
+| tex | Riding_LAVA_Chili01.dds |  | 0 | exact copy available | data002/8320 |  |  |  |
 | tex | Riding_LAVA_Sausage01.dds |  | 0 | exact copy available | data002/8320 |  |  |  |
-| tex | Riding_NONO_obj.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/4224/short2 |  |  |  |
+| tex | Riding_NONO_obj.dds |  | 0 | exact copy available | data002/4224 |  |  |  |
 | tex | Riding_Pet_LAVA_Hit01.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | Riding_Pet_LAVA_Hit02.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
+| tex | Riding_Pet_LAVA_Hit02.dds |  | 2 | exact copy available | data002/22000 |  |  |  |
 | tex | Riding_Pet_LAVA_Hit03.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | Riding_Ramiel_Lightning.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data140/22000/short5 |  |  |  |
+| tex | Riding_Ramiel_Lightning.dds |  | 2 | exact copy available | data140/22000 |  |  |  |
 | tex | Riding_Ramiel_Lightning2.dds |  | 0 | exact copy available | data140/5616 |  |  |  |
 | tex | Riding_Ramiel_Lightning3.tga |  | 0 | exact copy available | data140/65580 |  |  |  |
 | tex | Riding_Ramiel_Sword_Trace.dds |  | 0 | exact copy available | data118/2176 |  |  |  |
-| tex | Riding_Ramiel_Sword_Trace.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data140/12332/short2 |  |  |  |
+| tex | Riding_Ramiel_Sword_Trace.tga |  | 0 | exact copy available | data140/12332 |  |  |  |
 | tex | Riding_Reindeer_AttackZ_P15.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | Riding_Reindeer_AttackZ_P17.tga |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | Riding_TeddyBear_Brown_Body.tga |  | 0 | exact copy available | data140/49702 |  |  |  |
@@ -3484,17 +3480,17 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Riding_TeddyBear_White_Body.tga |  | 0 | exact copy available | data140/49196 |  |  |  |
 | tex | Riding_TeddyBear_White_Face.tga |  | 0 | exact copy available | data140/49196 |  |  |  |
 | tex | Riding_WelshCorgi_Body.tga |  | 0 | exact copy available | data140/197158 |  |  |  |
-| tex | Riding_WelshCorgi_Face.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data140/197158/short1 |  |  |  |
+| tex | Riding_WelshCorgi_Face.tga |  | 0 | exact copy available | data140/197158 |  |  |  |
 | tex | Riding_WelshCorgi_gum.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
-| tex | RidingRaulPuppetLightning01.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/32896/short4 |  |  |  |
+| tex | RidingRaulPuppetLightning01.dds |  | 0 | exact copy available | data002/32896 |  |  |  |
 | tex | RingAlpha.tga |  | 0 | exact copy available | data212/66086 |  |  |  |
 | tex | RoadofAisha001.dds |  | 0 | exact copy available | data116/65664 |  |  |  |
 | tex | ROM_G0_BattleRoid_Mark.dds |  | 0 | exact copy available | data184/32896 |  |  |  |
 | tex | ROM_G4_Frisbee_Wind.dds |  | 0 | exact copy available | data184/16512 |  |  |  |
 | tex | ROM_G_Mark1.dds |  | 0 | exact copy available | data184/16512 |  |  |  |
 | tex | ROM_G_MODE_T1.dds |  | 0 | exact copy available | data184/16512 |  |  |  |
-| tex | Roo_flame01.dds |  | 0 | exact copy available | data157/1152 |  |  |  |
-| tex | Roo_highLightMagical.dds |  | 2 | exact copy available | data157/4224 |  |  |  |
+| tex | Roo_flame01.dds |  | 7 | exact copy available | data157/1152 |  |  |  |
+| tex | Roo_highLightMagical.dds |  | 3 | exact copy available | data157/4224 |  |  |  |
 | tex | Roo_Masin_Arm01 MK2.tga |  | 0 | exact copy available | data157/197158 |  |  |  |
 | tex | Roo_Masin_Arm01.dds |  | 0 | exact copy available | data157/32896 |  |  |  |
 | tex | ROO_MASIN_ARM01_MEMO.TGA |  | 0 | exact copy available | data157/196652 |  |  |  |
@@ -3533,7 +3529,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | Rose_RMT_galeforce_02.tga |  | 0 | exact copy available | data184/49702 |  |  |  |
 | tex | Rose_RMT_galeforce_02_2.tga |  | 0 | exact copy available | data184/49702 |  |  |  |
 | tex | Rose_RMT_LockOn_01.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
-| tex | Rose_Stand_Aura_T1.tga |  | 0 | exact copy available | data184/65580 |  |  |  |
+| tex | Rose_Stand_Aura_T1.tga |  | 1 | exact copy available | data184/65580 |  |  |  |
 | tex | Rose_weapon_crossmore.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
 | tex | ROT_FireBall01.dds |  | 0 | exact copy available | data120/16512 |  |  |  |
 | tex | ROT_GuardianStrike_F.tga |  | 0 | exact copy available | data120/16428 |  |  |  |
@@ -3542,7 +3538,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | RSR_AncientTriggerCurrent2.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
 | tex | RSR_AncientTriggerLaser01.dds |  | 0 | exact copy available | data184/32896 |  |  |  |
 | tex | RSR_AncientTriggerLaser02.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
-| tex | RSR_ANCIENTTRIGGERLASER02_RED.DDS |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/16512/short104 |  |  |  |
+| tex | RSR_ANCIENTTRIGGERLASER02_RED.DDS |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | RSR_FM92_MK2_ProjectileT1.dds |  | 0 | exact copy available | data184/2176 |  |  |  |
 | tex | RSR_MindOfShapshooter01.tga |  | 0 | exact copy available | data121/49196 |  |  |  |
 | tex | RST_BladeTrace01.dds |  | 0 | exact copy available | data120/16512 |  |  |  |
@@ -3566,51 +3562,51 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | SA_ALH_MOONLIGHT_SLASH_BLADE02.dds |  | 0 | exact copy available | data132/65664 |  |  |  |
 | tex | SA_ALH_MOONLIGHT_SLASH_BLADE02_BLUR.dds |  | 0 | exact copy available | data002/87536 |  |  |  |
 | tex | SA_LLD_DANCING_BLADE_SpinWind01.dds |  | 0 | exact copy available | data157/65664 |  |  |  |
-| tex | SA_SGM_WAR_PRELUDE_AURA_DEBUFF.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/22000/short5 |  |  |  |
-| tex | SA_Stand_MAGIC_EL.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/87536/short4 |  |  |  |
+| tex | SA_SGM_WAR_PRELUDE_AURA_DEBUFF.dds |  | 0 | exact copy available | data142/22000 |  |  |  |
+| tex | SA_Stand_MAGIC_EL.dds |  | 0 | exact copy available | data142/87536 |  |  |  |
 | tex | Sander_Secret_Stage_Alpha01.dds |  | 0 | exact copy available | data135/16512 |  |  |  |
 | tex | Sander_Secret_Stage_Alpha01.tga |  | 0 | exact copy available | data135/66086 |  |  |  |
 | tex | Sander_Secret_Stage_Alpha03.dds |  | 0 | exact copy available | data135/65664 |  |  |  |
 | tex | SCA_BLOOD_CUTTER_TRACE02.dds |  | 0 | exact copy available | data142/32896 |  |  |  |
-| tex | SCA_BLOOD_CUTTER_TRACE02ver2.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/16512/short1 |  |  |  |
-| tex | SCA_CRIMSON_BREAK_TRACE01.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/65664/short251 |  |  |  |
+| tex | SCA_BLOOD_CUTTER_TRACE02ver2.dds |  | 0 | exact copy available | data142/16512 |  |  |  |
+| tex | SCA_CRIMSON_BREAK_TRACE01.dds |  | 0 | exact copy available | data142/65664 |  |  |  |
 | tex | SCA_FATE_SMASHER_P01.dds |  | 0 | exact copy available | data142/65664 |  |  |  |
 | tex | SCA_Projectile001.dds |  | 1 | exact copy available | data142/4224 |  |  |  |
 | tex | SCA_SLICER_01.dds |  | 1 | exact copy available | data142/4224 |  |  |  |
-| tex | SCALDIC_SWORD_01_RE.TGA |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/65580/short1 |  |  |  |
+| tex | SCALDIC_SWORD_01_RE.TGA |  | 0 | exact copy available | data142/65580 |  |  |  |
 | tex | SCALDIC_SWORD_01_RERE.TGA |  | 0 | exact copy available | data142/65580 |  |  |  |
-| tex | ScreenLayer_Black.dds |  | 0 | exact copy available | data002/176 |  |  |  |
-| tex | SDK_BRANDISH_BREAKER_P01.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/16512/short185 |  |  |  |
-| tex | SDK_BRUTAL_CUTTER_W01.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data142/16512/short1 |  |  |  |
+| tex | ScreenLayer_Black.dds |  | 4 | exact copy available | data002/176 |  |  |  |
+| tex | SDK_BRANDISH_BREAKER_P01.dds |  | 0 | exact copy available | data142/16512 |  |  |  |
+| tex | SDK_BRUTAL_CUTTER_W01.dds |  | 0 | exact copy available | data142/16512 |  |  |  |
 | tex | SDK_BURNING_PHANTOM_P01.dds |  | 0 | exact copy available | data142/4224 |  |  |  |
 | tex | SFL_CIRCLE_TEX01.DDS |  | 0 | exact copy available | data142/22000 |  |  |  |
 | tex | SFL_TEX01.tga |  | 0 | exact copy available | data142/66086 |  |  |  |
-| tex | Shader_Light_Aura.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/2176/short30 |  |  |  |
+| tex | Shader_Light_Aura.dds |  | 0 | exact copy available | data002/2176 |  |  |  |
 | tex | shark.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | SI_SA_ALS_SHADOW_KNOT_FINAL.dds |  | 0 | exact copy available | data132/65664 |  |  |  |
 | tex | SI_SA_ALS_SHADOW_KNOT_FINAL.tga |  | 0 | exact copy available | data132/262188 |  |  |  |
 | tex | Sin_Fire_Pattern.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | sinsu_star_light.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | Sit2_SunLight01.dds |  | 0 | exact copy available | data002/32896 |  |  |  |
-| tex | Sit2_SunLight02.dds |  | 0 | exact copy available | data002/32896 |  |  |  |
-| tex | SKA_flame2_White.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
+| tex | Sit2_SunLight01.dds |  | 3 | exact copy available | data002/32896 |  |  |  |
+| tex | Sit2_SunLight02.dds |  | 1 | exact copy available | data002/32896 |  |  |  |
+| tex | SKA_flame2_White.dds |  | 2 | exact copy available | data002/22000 |  |  |  |
 | tex | SKA_FLAME3.DDS |  | 1 | exact copy available | data002/87536 |  |  |  |
 | tex | SKA_FLAME5_GRAY.DDS |  | 0 | exact copy available | data002/22000 |  |  |  |
 | tex | SKA_flame6.dds |  | 1 | exact copy available | data002/87536 |  |  |  |
 | tex | SKA_Ghost3.dds |  | 2 | exact copy available | data002/16512 |  |  |  |
 | tex | SKA_Lock.dds |  | 1 | exact copy available | data002/22000 |  |  |  |
-| tex | Skill_Bonus.tga |  | 0 | exact copy available | data048/262188 |  |  |  |
+| tex | Skill_Bonus.tga |  | 1 | exact copy available | data048/262188 |  |  |  |
 | tex | Skill_Strengthen01.tga |  | 0 | exact copy available | data002/32812 |  |  |  |
 | tex | SlashTrace_BlackCat.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
-| tex | SnowBall_Effect01.dds |  | 0 | exact copy available | data002/32896 |  |  |  |
-| tex | SnowFlake_Effect01.dds |  | 0 | exact copy available | data002/640 |  |  |  |
+| tex | SnowBall_Effect01.dds |  | 4 | exact copy available | data002/32896 |  |  |  |
+| tex | SnowFlake_Effect01.dds |  | 10 | exact copy available | data002/640 |  |  |  |
 | tex | soket_earth_quake_smog01.tga |  | 0 | exact copy available | data002/16934 |  |  |  |
-| tex | soket_wind_stom_wind01_water.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
+| tex | soket_wind_stom_wind01_water.dds |  | 3 | exact copy available | data002/22000 |  |  |  |
 | tex | sol.tga |  | 0 | exact copy available | data181/1920044 |  |  |  |
-| tex | soles_SkillCutIn_EDIT.dds |  | 0 | exact copy available | data002/262272 |  |  |  |
+| tex | soles_SkillCutIn_EDIT.dds |  | 1 | exact copy available | data002/262272 |  |  |  |
 | tex | Soless_Atttack_C_Rune.tga |  | 0 | exact copy available | data002/262188 |  |  |  |
 | tex | Soless_bleedingSlicer_trace.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
-| tex | SOLESS_F_GATHER_P.DDS |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/16512/short184 |  |  |  |
+| tex | SOLESS_F_GATHER_P.DDS |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | Soless_Ground.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | Soless_MagicSquare01.dds |  | 0 | exact copy available | data002/65664 |  |  |  |
 | tex | Soless_MagicSquare02.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
@@ -3618,59 +3614,59 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | soless_roon_1.dds |  | 0 | exact copy available | data002/65664 |  |  |  |
 | tex | Soless_SlashTrace_Texture_Fire.dds |  | 0 | exact copy available | data002/11064 |  |  |  |
 | tex | Spa_ruben_egg.dds |  | 0 | exact copy available | data002/1152 |  |  |  |
-| tex | space_rabit_star.tga |  | 0 | exact copy available | data002/16428 |  |  |  |
-| tex | Spinning_Crescent_4.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65580/short2 |  |  |  |
+| tex | space_rabit_star.tga |  | 3 | exact copy available | data002/16428 |  |  |  |
+| tex | Spinning_Crescent_4.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | SpiralBlast_Re.dds |  | 0 | exact copy available | data118/65664 |  |  |  |
 | tex | SPK_InfeRnalBladeWeapon_New01.tga |  | 0 | exact copy available | data142/49702 |  |  |  |
 | tex | SpreadLight01_S.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
-| tex | SpreadLightNoAlpha01.dds |  | 0 | exact copy available | data118/8320 |  |  |  |
+| tex | SpreadLightNoAlpha01.dds |  | 5 | exact copy available | data118/8320 |  |  |  |
 | tex | SSK_Extinction_Projectile01.dds |  | 0 | exact copy available | data142/16512 |  |  |  |
 | tex | ST_DarkFireBall_Center.dds |  | 0 | exact copy available | data184/16512 |  |  |  |
-| tex | StarCross_White.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | StarCross_White_Small.dds |  | 0 | exact copy available | data002/2872 |  |  |  |
-| tex | StarFish.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
-| tex | StarSquare_Aura_purple.dds |  | 0 | exact copy available | data002/4224 |  |  |  |
+| tex | StarCross_White.tga |  | 31 | exact copy available | data002/65580 |  |  |  |
+| tex | StarCross_White_Small.dds |  | 2 | exact copy available | data002/2872 |  |  |  |
+| tex | StarFish.dds |  | 2 | exact copy available | data002/22000 |  |  |  |
+| tex | StarSquare_Aura_purple.dds |  | 1 | exact copy available | data002/4224 |  |  |  |
 | tex | StarSquare_White.dds |  | 0 | exact copy available | data002/2176 |  |  |  |
 | tex | Stat_Xmas_Debuff.tga |  | 0 | exact copy available | data048/90044 |  |  |  |
 | tex | Steyr.dds |  | 0 | exact copy available | data184/8320 |  |  |  |
 | tex | Stone_white.tga |  | 0 | exact copy available | data002/4140 |  |  |  |
-| tex | STORM_FX_P00.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/49196/short1 |  |  |  |
-| tex | STORM_FX_P03.tga |  | 0 | exact copy available | data002/49196 |  |  |  |
+| tex | STORM_FX_P00.tga |  | 1 | exact copy available | data002/49196 |  |  |  |
+| tex | STORM_FX_P03.tga |  | 2 | exact copy available | data002/49196 |  |  |  |
 | tex | Summon_FUNGUS01.tga |  | 0 | exact copy available | data048/1048620 |  |  |  |
 | tex | Surveillance_Target_AA.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | Surveillance_Target_B.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | SWAT_Ac_Dis1.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/16512/short181 |  |  |  |
+| tex | SWAT_Ac_Dis1.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | SWAT_Ac_Dis2.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | swordfish.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
-| tex | Teddy_Bear_Pet_paperplane.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/640/short4 |  |  |  |
+| tex | Teddy_Bear_Pet_paperplane.dds |  | 0 | exact copy available | data002/640 |  |  |  |
 | tex | Teddy_Bear_Pet_star.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | Teddy_Bear_Pet_star_W.dds |  | 0 | exact copy available | data002/16512 |  |  |  |
 | tex | Teddy_cup.dds |  | 0 | exact copy available | data023/2176 |  |  |  |
 | tex | Teddy_kettle.dds |  | 0 | exact copy available | data023/8320 |  |  |  |
-| tex | Teddybear_Attack_Ball.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/66086/short1 |  |  |  |
+| tex | Teddybear_Attack_Ball.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
 | tex | Theta_Attack_C_M02.tga |  | 0 | exact copy available | data002/16934 |  |  |  |
 | tex | Theta_Attack_z_particle.dds |  | 0 | exact copy available | data002/5616 |  |  |  |
 | tex | Theta_Attack_Z_Slash.dds |  | 0 | exact copy available | data002/87536 |  |  |  |
-| tex | Thorn_triangle_tex.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data212/65580/short2 |  |  |  |
-| tex | TRANS_Rune.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | Transcendence_WakeUp_Power_White.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | TreasureHunt_Arms001.dds |  | 0 | exact copy available | data002/65664 |  |  |  |
+| tex | Thorn_triangle_tex.tga |  | 0 | exact copy available | data212/65580 |  |  |  |
+| tex | TRANS_Rune.tga |  | 1 | exact copy available | data002/65580 |  |  |  |
+| tex | Transcendence_WakeUp_Power_White.tga |  | 3 | exact copy available | data002/65580 |  |  |  |
+| tex | TreasureHunt_Arms001.dds |  | 1 | exact copy available | data002/65664 |  |  |  |
 | tex | treasurehunter_ghost.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
 | tex | tuna.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Tutorial_Ain_AP_portal08_Gray.tga |  | 0 | exact copy available | data212/262188 |  |  |  |
-| tex | TUTORIAL_Rose_weapon_Trace.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/22000/short4 |  |  |  |
-| tex | UI_Transcendence_01.dds |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data048/4224/short15 |  |  |  |
-| tex | valentine_heart.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
+| tex | TUTORIAL_Rose_weapon_Trace.dds |  | 0 | exact copy available | data002/22000 |  |  |  |
+| tex | UI_Transcendence_01.dds |  | 2 | exact copy available | data048/4224 |  |  |  |
+| tex | valentine_heart.tga |  | 4 | exact copy available | data002/65580 |  |  |  |
 | tex | VERITABLE_PANDEMONIUM_T01.dds |  | 0 | exact copy available | data132/16512 |  |  |  |
 | tex | VINCENT_Attack_A_Cross.tga |  | 0 | exact copy available | data002/65580 |  |  |  |
-| tex | VINCENT_Cute_Toon.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/65580/short2 |  |  |  |
+| tex | VINCENT_Cute_Toon.tga |  | 1 | exact copy available | data002/65580 |  |  |  |
 | tex | WELSHCORGI_ATTACK_Z.TGA |  | 0 | exact copy available | data002/16428 |  |  |  |
 | tex | White_ALL.tga |  | 0 | exact copy available | data157/806 |  |  |  |
-| tex | WhitePoint.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/16934/short1 |  |  |  |
+| tex | WhitePoint.tga |  | 0 | exact copy available | data002/16934 |  |  |  |
 | tex | WinterMessenger_AC_T1.tga |  | 0 | exact copy available | data002/49702 |  |  |  |
 | tex | Wood_Controller.tga |  | 0 | exact copy available | data002/66086 |  |  |  |
-| tex | Y_2017_Student_PPoru_Attack_A_Book.tga |  | 0 | extracted copy is short (elstools algo-2 tail loss) | data002/12838/short2 |  |  |  |
-| xet | AC_Lowbody_Set7_Tail_2P.xet |  | 0 | exact copy available | data002/154 |  |  |  |
+| tex | Y_2017_Student_PPoru_Attack_A_Book.tga |  | 0 | exact copy available | data002/12838 |  |  |  |
+| xet | AC_Lowbody_Set7_Tail_2P.xet |  | 1 | exact copy available | data002/154 |  |  |  |
 | xet | ADD_Shooting_Chaser.XET |  | 0 | exact copy available | data147/156 |  |  |  |
 | xet | ADM_CUBE_MAP1.xet |  | 0 | exact copy available | data147/126 |  |  |  |
 | xet | ADM_CUBECIRCUIT.xet |  | 0 | exact copy available | data147/124 |  |  |  |
@@ -3682,7 +3678,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | xet | AIN_POWER_OF_GOD_MESH03.XET |  | 0 | exact copy available | data212/154 |  |  |  |
 | xet | AMM_Charged_Impulsar.XET |  | 0 | exact copy available | data147/144 |  |  |  |
 | xet | Benders_Nasod_Card_FrozenBeam.xet |  | 0 | exact copy available | data002/130 |  |  |  |
-| xet | BG_Elysion_Big_1.xet |  | 0 | exact copy available | data002/122 |  |  |  |
+| xet | BG_Elysion_Big_1.xet |  | 1 | exact copy available | data002/122 |  |  |  |
 | xet | Cash24_Common_Emotion_SitA.xet |  | 0 | exact copy available | data002/218 |  |  |  |
 | xet | Cash26a_Common_Emotion.xet |  | 0 | exact copy available | data002/190 |  |  |  |
 | xet | Cash27a_Common_Emotion_Sit.xet |  | 0 | exact copy available | data002/190 |  |  |  |
@@ -3693,16 +3689,16 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | xet | Cash36A_Common_Emotion_Sit.xet |  | 0 | exact copy available | data002/356 |  |  |  |
 | xet | Cash39_Common_Emotion_Sit.xet |  | 0 | exact copy available | data002/190 |  |  |  |
 | xet | Cash40A_Common_Emotion_Sit.xet |  | 0 | exact copy available | data002/190 |  |  |  |
-| xet | Cash_Wakeup_lightning_Start.XET |  | 0 | exact copy available | data002/484 |  |  |  |
-| xet | Cash_Wakeup_Lightning_Start_Spark.XET |  | 0 | exact copy available | data002/912 |  |  |  |
+| xet | Cash_Wakeup_lightning_Start.XET |  | 1 | exact copy available | data002/484 |  |  |  |
+| xet | Cash_Wakeup_Lightning_Start_Spark.XET |  | 5 | exact copy available | data002/912 |  |  |  |
 | xet | CTT_FATAL_CANNON_2.xet |  | 0 | exact copy available | data002/160 |  |  |  |
 | xet | Dark_Drabaki_Rock01.XET |  | 0 | exact copy available | data002/166 |  |  |  |
 | xet | Dekal_Speciel_D_FloorStone.xet |  | 0 | exact copy available | data002/180 |  |  |  |
 | xet | Divine_Blade_Sword_1.xet |  | 0 | exact copy available | data002/138 |  |  |  |
-| xet | DJ_6st_AC_5_Blue.xet |  | 0 | exact copy available | data002/134 |  |  |  |
-| xet | DJ_6st_AC_Side_Blue.xet |  | 0 | exact copy available | data002/134 |  |  |  |
+| xet | DJ_6st_AC_5_Blue.xet |  | 1 | exact copy available | data002/134 |  |  |  |
+| xet | DJ_6st_AC_Side_Blue.xet |  | 3 | exact copy available | data002/134 |  |  |  |
 | xet | Dragon_Jewel_A.xet |  | 0 | exact copy available | data002/120 |  |  |  |
-| xet | EffectSet_DJ_6st_AC_Rune_Blue.xet |  | 0 | exact copy available | data002/176 |  |  |  |
+| xet | EffectSet_DJ_6st_AC_Rune_Blue.xet |  | 2 | exact copy available | data002/176 |  |  |  |
 | xet | Elsion_Boss_HernaShield_Attack_Rock.xet |  | 0 | exact copy available | data002/216 |  |  |  |
 | xet | Elsion_SPHERE_ATK_A_P2.XET |  | 0 | exact copy available | data002/176 |  |  |  |
 | xet | Elsion_SPHERE_ATK_A_P3.XET |  | 0 | exact copy available | data002/168 |  |  |  |
@@ -3718,11 +3714,11 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | xet | eve_IllusionRay_Memo.xet |  | 0 | exact copy available | data119/160 |  |  |  |
 | xet | ExtremeRuneBuster_Blue.xet |  | 0 | exact copy available | data118/146 |  |  |  |
 | xet | ExtremeRuneBuster_Green.xet |  | 0 | exact copy available | data118/146 |  |  |  |
-| xet | Henir_Light_04.xet |  | 0 | exact copy available | data002/130 |  |  |  |
+| xet | Henir_Light_04.xet |  | 4 | exact copy available | data002/130 |  |  |  |
 | xet | JetSki_Attack_X.xet |  | 0 | exact copy available | data002/148 |  |  |  |
 | xet | JR_ZOMBIE_Ready_1.xet |  | 0 | exact copy available | data002/144 |  |  |  |
 | xet | LCG_GunBeam01.xet |  | 0 | exact copy available | data002/130 |  |  |  |
-| xet | LDB_LAND_CRASHER_None_Ele.xet |  | 0 | exact copy available | data157/170 |  |  |  |
+| xet | LDB_LAND_CRASHER_None_Ele.xet |  | 2 | exact copy available | data157/170 |  |  |  |
 | xet | LDB_LANDCRASHER_2nd_BOMB.xet |  | 0 | exact copy available | data157/168 |  |  |  |
 | xet | LDN_PUNISHER_Hole.Xet |  | 0 | exact copy available | data157/130 |  |  |  |
 | xet | LDN_RAPID_IMPACT_BigToeSP.xet |  | 0 | exact copy available | data157/158 |  |  |  |
@@ -3730,18 +3726,18 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | xet | Luciel_DarkMasin.xet |  | 0 | exact copy available | data157/260 |  |  |  |
 | xet | MagicSquareLight02_Red_RE.xet |  | 0 | exact copy available | data002/162 |  |  |  |
 | xet | MAYA_D_GATHER_P.xet |  | 0 | exact copy available | data002/144 |  |  |  |
-| xet | Mesh_ADD_AC_Lowbody_event28_A.XET |  | 0 | exact copy available | data002/182 |  |  |  |
-| xet | Mesh_AISA_AC_Lowbody_event28_A.XET |  | 0 | exact copy available | data002/184 |  |  |  |
-| xet | Mesh_ARA_AC_Lowbody_event28_A.XET |  | 0 | exact copy available | data002/182 |  |  |  |
+| xet | Mesh_ADD_AC_Lowbody_event28_A.XET |  | 1 | exact copy available | data002/182 |  |  |  |
+| xet | Mesh_AISA_AC_Lowbody_event28_A.XET |  | 1 | exact copy available | data002/184 |  |  |  |
+| xet | Mesh_ARA_AC_Lowbody_event28_A.XET |  | 2 | exact copy available | data002/182 |  |  |  |
 | xet | Mesh_Chain_Viper_Link.xet |  | 0 | exact copy available | data002/144 |  |  |  |
-| xet | Mesh_CHUNG_AC_Lowbody_event28_A.XET |  | 0 | exact copy available | data002/186 |  |  |  |
+| xet | Mesh_CHUNG_AC_Lowbody_event28_A.XET |  | 1 | exact copy available | data002/186 |  |  |  |
 | xet | Mesh_Common_Cash_Emotion_Sit31_A.xet |  | 0 | exact copy available | data002/192 |  |  |  |
 | xet | Mesh_Common_Cash_Emotion_Sit31_A_Sub.xet |  | 0 | exact copy available | data002/190 |  |  |  |
-| xet | Mesh_ES_AC_Lowbody_event28_A.XET |  | 0 | exact copy available | data002/180 |  |  |  |
-| xet | Mesh_EVE_AC_Lowbody_event28_A.XET |  | 0 | exact copy available | data002/182 |  |  |  |
-| xet | Mesh_LENA_AC_Lowbody_event28_A.XET |  | 0 | exact copy available | data002/184 |  |  |  |
-| xet | Mesh_LuCiel_AC_Lowbody_event28_A.xet |  | 0 | exact copy available | data002/188 |  |  |  |
-| xet | Mesh_RAVEN_AC_Lowbody_event28_A.XET |  | 0 | exact copy available | data002/186 |  |  |  |
+| xet | Mesh_ES_AC_Lowbody_event28_A.XET |  | 1 | exact copy available | data002/180 |  |  |  |
+| xet | Mesh_EVE_AC_Lowbody_event28_A.XET |  | 1 | exact copy available | data002/182 |  |  |  |
+| xet | Mesh_LENA_AC_Lowbody_event28_A.XET |  | 1 | exact copy available | data002/184 |  |  |  |
+| xet | Mesh_LuCiel_AC_Lowbody_event28_A.xet |  | 1 | exact copy available | data002/188 |  |  |  |
+| xet | Mesh_RAVEN_AC_Lowbody_event28_A.XET |  | 1 | exact copy available | data002/186 |  |  |  |
 | xet | Motion_NELL.XET |  | 0 | exact copy available | data002/396 |  |  |  |
 | xet | Motion_REA.XET |  | 0 | exact copy available | data002/390 |  |  |  |
 | xet | Per3P_H_C_Fire_B.xet |  | 0 | exact copy available | data002/180 |  |  |  |
@@ -3757,27 +3753,14 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | xet | SFL_COMBO_RERETEX.xet |  | 0 | exact copy available | data142/142 |  |  |  |
 | xet | SFL_COMBO_RETEX.xet |  | 0 | exact copy available | data142/138 |  |  |  |
 | xet | SGM_CROSS_SLASH_3.xet |  | 0 | exact copy available | data002/182 |  |  |  |
-| xet | SKA_flame3.xet |  | 0 | exact copy available | data002/140 |  |  |  |
+| xet | SKA_flame3.xet |  | 1 | exact copy available | data002/140 |  |  |  |
 | xet | Soless_Atttack_A_Black_Hole_Rune.xet |  | 0 | exact copy available | data002/172 |  |  |  |
 | xet | Soless_B_Knife_Alarm.xet |  | 0 | exact copy available | data002/154 |  |  |  |
 | xet | SOLESS_F_GATHER_P.xet |  | 0 | exact copy available | data002/148 |  |  |  |
 
-## Pending pack: staged but not in a live archive (12)
+## Pending pack: staged but not in a live archive (0)
 
-| kind | file | atlas | March effect-templet users | evidence | June copies | March live | update/ | notes |
-|---|---|---|---|---|---|---|---|---|
-| mesh | DEVIL_BERSERKER_Dying.X |  | 1 |  | data002/83390 |  | data002/83390 |  |
-| mesh | DEVIL_BERSERKER_INCHANT_Dying.X |  | 1 |  | data002/83413 |  | data002/83413 |  |
-| mesh | IGNIA_AttackA_FireM1.X |  | 1 |  | data002/1974 |  | data002/1974 |  |
-| mesh | IGNIA_AttackC_Ready01.Y |  | 2 |  | data002/115455 |  | data002/115455 |  |
-| mesh | MAG_STONE_Fire_AttackB.X |  | 3 |  | data002/157829/short1 |  | data002/157828 | update/data002 copy is 1 bytes short of June |
-| mesh | MOUNT_MAG_STONE_Dying.X |  | 1 |  | data002/96286 |  | data002/96286 |  |
-| tex | ELSION_BOSS_HERNASHIELD_ATTACK_ROCK.DDS |  | 1 |  | data002/8320 |  | data002/8320 |  |
-| tex | FIRE_DEVIL_BERSERKER_INCHANT_AttackA_Ready_Fire.dds |  | 2 |  | data002/4224/short1 |  | data002/4223 | update/data002 copy is 1 bytes short of June |
-| tex | FIRE_DEVIL_BERSERKER_INCHANT_AttackA_Ready_Fire_01.dds |  | 2 |  | data002/4224 |  | data002/4224 |  |
-| xet | FIRE_DEVIL_CHAIN_STONE_Attack_A.xet |  | 2 |  | data002/124 |  | data002/124 |  |
-| xet | LOW_FINALHALL_STONE_FD_01.xet |  | 2 |  | data002/340 |  | data002/340 |  |
-| xet | MAG_STONE_FD_01.xet |  | 3 |  | data002/116 |  | data002/116 |  |
+None.
 
 ## Nowhere: referenced by June, present in neither build (156)
 
@@ -3852,7 +3835,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | mesh | SunFlower_Symbol_Mesh.X |  | 0 |  |  |  |  |  |
 | mesh | TRANSCENDENCE_EVE_1.X |  | 0 |  |  |  |  |  |
 | other | 0 |  | 0 |  |  |  |  |  |
-| other | 1 |  | 0 |  |  |  |  |  |
+| other | 1 |  | 1 |  |  |  |  |  |
 | other | Pet_Halloween_fariy_Attack_summon_A |  | 0 |  |  |  |  |  |
 | other | Pet_Halloween_fariy_Attack_summon_B1 |  | 0 |  |  |  |  |  |
 | other | Pet_Halloween_fariy_Attack_summon_B2 |  | 0 |  |  |  |  |  |
@@ -3919,7 +3902,7 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | FireWave01.dds |  | 1 |  |  |  |  |  |
 | tex | HummingWind04.tga |  | 2 |  |  |  |  |  |
 | tex | Karoo_Stom_Tornado_Base.tga |  | 2 |  |  |  |  |  |
-| tex | Lightning02.dds |  | 0 |  |  |  |  |  |
+| tex | Lightning02.dds |  | 1 |  |  |  |  |  |
 | tex | Lire_01_SpinningKick02_AS.tga |  | 1 |  |  |  |  |  |
 | tex | Nasod_King_Laser03.tga |  | 1 |  |  |  |  |  |
 | tex | nemespire.tga |  | 0 |  |  |  |  |  |
@@ -3940,41 +3923,51 @@ The user packs these (lua as algo 2, everything else algo 0, as the March client
 | tex | WhitePointSmall.tga |  | 0 |  |  |  |  |  |
 | tex | Wolf_Break.tga |  | 1 |  |  |  |  |  |
 
-## Unverified (1)
+## Unverified (2)
 
 | kind | file | atlas | March effect-templet users | evidence | June copies | March live | update/ | notes |
 |---|---|---|---|---|---|---|---|---|
-| tex | Velder_Gate_Stage2_Wall_BlueTile01.dds |  | 3 | March copy not in kom_contents at manifest size | data101/349652/noext | data101/349652 |  |  |
+| tex | Blur_16.dds |  | 7 | March copy not in kom_contents at manifest size | data118/384 | data118/384 |  |  |
+| tex | Velder_Gate_Stage2_Wall_BlueTile01.dds |  | 3 | March copy not in kom_contents at manifest size | data101/349652 | data101/349652 |  |  |
 
-## Extractor defect: elstools truncates June algo-2 entries
+## Extractor defect: elstools truncates June algo-2 entries (FIXED by `tools/junekom.py`, X2 2026-10-08)
 
-For June2017's archives (`KOG GC TEAM MASSFILE V.0.4.`), `elstools extract` writes about a quarter
-of the algo-2 entries 1-255 bytes **short** of the manifest size. It does this with every `-v`
-option, and the pre-existing `14JUN17\data\*_kom` dirs have the same defect. Proof that it is lost
-data and not padding: a truncated DDS is short of the size its own header's dimensions and mip
-count require (e.g. `CHUNG_GIGANTIC_IMPACT_Bottom_Broken_SP.dds` 21996 vs 22000), and a truncated
-bzip `.x`/`.y`'s last MSZIP block does not inflate to its declared size. Padding with NULs does
-not repair it: the stream then overshoots.
+For June2017's archives (`KOG GC TEAM MASSFILE V.0.4.`), `elstools extract` wrote 18,571 algo-2 entries
+1-7 bytes **short** of the manifest size (June Blowfish-decrypts only `len & ~7` and stores the tail in
+plain text; elstools dropped it), and `data101_kom` was corrupt (117 files wrong, 1,143 missing). Proof that it
+was lost data and not padding: a truncated DDS is short of the size its own header's dimensions and mip
+count require (e.g. `CHUNG_GIGANTIC_IMPACT_Bottom_Broken_SP.dds` 21996 vs 22000).
 
-**How much it matters.** Usually little. The user reports that extracted June files work in the
-March client when packed with the right algorithm (lua algo 2, everything else algo 0). What is
-lost is the tail: for a DDS, the smallest mip levels; for a binary `.x`/`.y`, in the samples read,
-mostly the closing-brace tokens (`0b 00`) after the last texture name, i.e. no mesh data. Not always:
-`FireImpactG04.Y` loses the end of a `VertexDuplicationIndices` list and `Spa_Ranox_G01_water01.y`
-210 bytes of a data run. So a short copy is usable, but it is not June's file.
+**Fixed.** `tools/junekom.py` (Phase X0 RE, X1 tool) decodes every June entry byte-exactly (258 koms, 222,811
+entries, 0 failed). X2 rewrote June's own `14JUN17\data\*_kom` trees with it: 18,571 short-prefix + 117
+different replaced, 1,143 missing added (`EXTRACT OK`; originals backed up in `14JUN17\data\_extract_backup\`).
+The `same-prefix` and `truncated-in-march` verdicts above are therefore resolved by this regeneration: June's
+copy is now exact for every file, so each file is `same`, `differs` or `missing` on SHA-1.
 
-Files ported from those extractions carry the same short tail. Over all of `march2014/update/` (not
-only this closure), 51 files are short of June's manifest size; 49 of them are live at the
-truncated size. Nothing was changed. The file's own header is the evidence where the format has one:
+**What is still short is March's own copies.** `june2017_re/x2_repack_list.tsv` lists every March file
+(`march2014/update/` and `kom_contents/`) that is a June file in a short or altered form: 277 short-prefix,
+2 hand-patched, 2 different-version. Phase X5 restages June's exact file for each. Specific rows:
+
+- `DLG_Common_Button03_NEW.TET` is **not truncated**: it is a different version (March 26 entries, June 28;
+  every March name is in June, June adds `ERDA_ISLAND_NORMAL` / `ERDA_ISLAND_OVER`). X1 and the table below
+  once filed it as truncated by mistake.
+- `DLG_Common_Button03_NEW.tga` is also a different version (same size and header, 59,325 pixel bytes differ).
+- `Motion_NPC_Ranox_FACEOFF.x` and `Motion_NPC_Ranox_SYOTA.x` are **hand-patched** short copies: the final
+  string length was changed 6 -> 4 so `Wait01` reads `Wait`. June's file has `Wait01` intact. Rule (user,
+  2026-10-08): June files are byte-exact, so X5 restages June's file and any resulting engine gap is its own phase.
+
+For the record, the `march2014/update/` files short of June's manifest size (52; 52 live at the short
+size), with the file's own header as evidence where the format has one:
 
 | update/ | file | bytes | June manifest | internal evidence | March live |
 |---|---|---|---|---|---|
+| data023 | BossRaid_Abyss_smog.dds | 87507 | 87508 | DDS header needs 87508, file has 87507 | data023/87507 (TRUNCATED) |
 | data002 | CHUNG_GIGANTIC_IMPACT_Bottom_Broken_SP.dds | 21996 | 22000 | DDS header needs 22000, file has 21996 | data002/21996 (TRUNCATED) |
 | data063 | DLG_Common_Button03_NEW.TET | 2464 | 2628 | no internal size check for this format | data063/2464 (TRUNCATED) |
 | data063 | DLG_Common_Button04_NEW.tga | 1048618 | 1048620 | no internal size check for this format | data063/1048618 (TRUNCATED) |
 | data215 | DLG_UI_Image_01.tga | 1048618 | 1048620 | no internal size check for this format | data215/1048618 (TRUNCATED) |
 | data142 | Ejection_Buster_Oura5.Y | 2369 | 2370 | MSZIP inflates fully (the lost bytes follow the stream) | data142/2369 (TRUNCATED) |
-| data002 | FIRE_DEVIL_BERSERKER_INCHANT_AttackA_Ready_Fire.dds | 4223 | 4224 | DDS header needs 4224, file has 4223 | - |
+| data002 | FIRE_DEVIL_BERSERKER_INCHANT_AttackA_Ready_Fire.dds | 4223 | 4224 | DDS header needs 4224, file has 4223 | data002/4223 (TRUNCATED) |
 | data002 | FIRE_DEVIL_SKA_SAB_EF_Ready.X | 436039 | 436041 | MSZIP inflates fully (the lost bytes follow the stream) | data002/436039 (TRUNCATED) |
 | data002 | FIRE_DEVIL_SKA_SAB_Wavelength_A.X | 6810 | 6811 | MSZIP inflates fully (the lost bytes follow the stream) | data002/6810 (TRUNCATED) |
 | data002 | FireImpactG04.Y | 1009 | 1012 | MSZIP BROKEN: MSZIP block at 0x14: 3001 bytes, header says 3007 | data002/1009 (TRUNCATED) |
@@ -3983,7 +3976,7 @@ truncated size. Nothing was changed. The file's own header is the evidence where
 | data043 | HQ_BOSS_NAME_FIRE_DEVIL_JIN.dds | 349674 | 349680 | DDS header needs 349680, file has 349674 | data043/349674 (TRUNCATED) |
 | data002 | IPLITAN_AttackA_Fire2_M.X | 4183 | 4185 | MSZIP BROKEN: MSZIP block at 0x14: 21366 bytes, header says 21372 | data002/4183 (TRUNCATED) |
 | data002 | IPLITAN_FireM03.Y | 3161 | 3163 | MSZIP inflates fully (the lost bytes follow the stream) | data002/3161 (TRUNCATED) |
-| data002 | MAG_STONE_Fire_AttackB.X | 157828 | 157829 | no internal size check for this format | - |
+| data002 | MAG_STONE_Fire_AttackB.X | 157828 | 157829 | no internal size check for this format | data002/157828 (TRUNCATED) |
 | data002 | MAG_STONE_Fire_Dummy01.X | 481 | 482 | MSZIP inflates fully (the lost bytes follow the stream) | data002/481 (TRUNCATED) |
 | data002 | Magi_P01.dds | 16504 | 16512 | DDS header needs 16512, file has 16504 | data002/16504 (TRUNCATED) |
 | data013 | Motion_NPC_Ranox_FACEOFF.x | 1212545 | 1212547 | no internal size check for this format | data013/1212545 (TRUNCATED) |
