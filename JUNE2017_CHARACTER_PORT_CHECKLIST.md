@@ -395,3 +395,16 @@ delegates, and March has no `31fd2af0`. Funcmap rows `Effect C9h-6`.
 | June | Class | What the port must bring |
 |---|---|---|
 | `32d223e0` Elsword, `32cede00` Arme, `32cb06d0` Lire, `32c641a0` Raven, `329c8a00` Eve, `32c1f530` Chung, `32bd09d0` Ara, `32b8c470` Elesis, `32a28e00` Add; June-only `32b46580` Luciel, `32ad9b60` Rose, `32a71eb0` Ain | all 12 | Nothing for the snapshot. The same functions set state byte `+0x11` = 1 on the normal and hyper entries (`+0x10` = `m_bHyperState`). `+0x11` is an unidentified June-only `UserUnitStateData` field, so settle it when the class function is ported. |
+
+### 7j. DamageReact damage steps that only class code drives (from June effect completion C10d)
+
+June's user and NPC `DamageReact` run a few class steps between the BBT 78 add and the shown-damage copy. june-effect C10e ports
+the engine half: the empty virtuals (CX2GUUser `0x4f8` / `0x4fc`, CX2GameUnit `0x304`) and their call sites. The class bodies
+below come with the class. Funcmap rows `Effect C10d`.
+
+| June | Class | What the port must bring |
+|---|---|---|
+| `32b7beb0` (CX2GUUser vslot `0x4f8`, attacker side) | Elesis | Override of C10e's empty hook, called with `( DD, damage )` when Elesis hits a user (`320462a0 @32049626`) or an NPC (`327b1f30 @327b446d`, inside the level-damage / attacker gate). When she is not in state vslot `0x200`, vslot `0x724` > 0, DD `+0x564` is 1..3 and vslot `0x674` == 2, it creates a damage effect whose power is vslot `0x724` x damage. |
+| `32b898a0` (CX2GUUser vslot `0x4fc`, attacker side) | Elesis | Override of the second empty hook, called right after `0x4f8`. Gates: not vslot `0x200`; short `+0x9748` != 0; DD attack type != `AT_SPECIAL`; the DD defender is set; a defender buff test (`3227baf0`); a random roll (vslot `0x1cc`) < float `+0x974c`. Then it creates an effect scaled by the damage. Name the members from Elesis's June scripts when ported. |
+| `320462a0 @3204963d-32049674` + `32aebaf0` | Lu/Ciel (`UT_LUCIEL` 10, backlog Stage 8) | An inline step in the user `DamageReact`, with no virtual: if this unit's type is 10 and `32aebaf0( damage x 0.2 )` returns true, then damage x 0.8. `32aebaf0` returns false unless `BTI_BUFF_SHADOW_LU` 478 or `BTI_BUFF_SHADOW_CIEL` 479 is on. Otherwise it drains `+0x968c` by its argument, erases both buffs once that reaches <= 0, and returns true. The port inserts the step after C10e's `0x4f8`/`0x4fc` call and before `322cfca0`, which is June's order. |
+| `32aa9c70` (CX2GameUnit vslot `0x304`, attacker side) | Rose | Override of C10e's empty hook, called with `( damage, DD )` after the HP-rate step (user) or `322cfca0` (NPC). It acts only when DD `APPLIED_SKILL_ID` == `RNSI_A_RCR_BLOOD_BULLET` (31306). k = 1, or with a DD defender and a non-zero `322a0090( 99 )` count, k = count x skill value `0x31` + 1, after which 99 is erased. Then `322780b0( skill value 0x3f x damage x k )`. |

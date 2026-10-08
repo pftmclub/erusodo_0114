@@ -59,6 +59,7 @@ The user's remaining backlog, in the order they listed it:
 | 16 | June item-side systems *(added 2026-10-07, june-item-kim K0)* | - (found by june-item-kim K0) | Not a backlog item but missing systems: June's item templet carries fields and flags March has no reader for (damage range, equipment group, description-in-shop type, item expiry, PvP-equip), and June's `ResetItemManager` opens item tables March never loads (`SetItemGroup`, `ItemManager` item lock, `CoordiItem` and others). It depends on Stage 13 (K2) for the record. Numbered 16 to keep the earlier numbers stable. |
 | 17 | Pet and riding-pet remainder *(added 2026-10-07, june-effect C9h)* | - (found by june-effect C9h) | Not a backlog item but missing data and one packet field: June's pet **variant** byte (a `KPetInfo` field read by the pet-info viewer, the in-game pet and `ResetPet`'s texture-variant branch) and June's 8 pets / riding pets that March has no enum, templet or script for. Its code waits on june-effect C9h-2a (the viewer half) and C9h-3 (the riding-pet engine). Numbered 17 to keep the earlier numbers stable. |
 | 18 | NPC friendship system *(added 2026-10-08, june-effect C9h-5)* | - (found by june-effect C9h-5) | Not a backlog item but a missing system: June's per-NPC friendship (likeability) manager `32696fa0`, its gift / level-up / daily-reward talks, the friendship talk sequencer and the friendship marks on village NPCs. Every reach is gated on code event 2215, which the offline emulator never enables. Elysion E1 ports the gated call sites in `CX2TFieldNpc`. |
+| 19 | June event dungeons *(added 2026-10-08, june-effect C10d)* | - (found by june-effect C10d) | Not a backlog item but missing content: June's event dungeons (e.g. `DI_EVENT_2017_TREASURE` 41470 and `DI_EVENT_ALCHEMY_LAB` 41350) carry engine gimmicks in `DamageReact`, a `CX2Game` manager and June-only NPC classes (`CX2GUKiddayNPC`). March has none of these dungeon IDs; its highest is 41311. Nothing reaches them until the dungeons themselves are ported. |
 
 **Concurrency.** At most two code sessions should run at once:
 - Stage 0's buff port, in the main Trunk;
@@ -520,6 +521,27 @@ june-effect C9h-5 diffed June's `CX2TFieldNpc::OnFrameMove` (`june2017_re/c9h5_f
 - **Still to identify:** the manager's loader, data file and packets. Name them when this stage is planned.
 
 **Depends on:** Elysion E1 (the call sites), and a decision to emulate code event 2215.
+
+### Stage 19: June event dungeons (june-effect C10d, 2026-10-08)
+
+june-effect C10d found two June damage steps that exist only for event dungeons. March has neither dungeon. Funcmap rows `Effect C10d`.
+- **`DI_EVENT_2017_TREASURE` (41470).**
+  - `327c9560` creates a manager at `CX2Game +0xbbc` (ctor `32d5c830`) only in this dungeon. It holds a score and a unit list.
+  - `CX2GUKiddayNPC` removes itself from the list in its dtor (`327555a0`). `327554e0` adds score.
+  - User `DamageReact @3204968f-32049719`: a hit from a listed unit sets the damage to 10% of the user's max HP and gives 2 s of force/show invincibility.
+  - The 41470 start hook `31d87420` (buff 7d review) is part of the same dungeon.
+- **`DI_EVENT_ALCHEMY_LAB` (41350).** NPC `DamageReact @327b452f-327b47a4`.
+  - The gate: dungeon `+0xc44 +8 == 4`, and the hitting effect is not `EVENT_SPECIAL_ITEM_EFFECT_WIND[_EDT]`.
+  - At or below 20% HP the damage becomes 3e9 (and `327be3e0` fires).
+  - Above 20% the NPC heals 25% of its max HP and gets its attack x1.5 (`SetNPCStat`).
+- **Still to identify** when this stage is planned:
+  - the list's writers;
+  - the other `+0xbbc` readers (`322d0110`, `322f0372`, `323dc5xx`/`323ddxxx`, `327d5704`);
+  - the Kidday/AprilFools/Note NPC classes;
+  - the dungeons' June scripts and enums;
+  - every other event dungeon June has and March does not.
+
+**Depends on:** nothing in code. It is content, so plan it after Stage 1 has proven how a June dungeon is brought over.
 
 ## Open decisions that gate stages
 

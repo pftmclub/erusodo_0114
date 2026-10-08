@@ -3137,6 +3137,54 @@ token, 0 encoding change(s)` / `RESULT: PASS`. Both OTHER rows are peer commit `
 `X2GUUser.cpp`, 5 lines in `X2SquareUnit.cpp`, under `JUNE_EMOTION_EFFECT_SET` / `JUNE_UNIT_VIEWER_EFFECT_TABLE`). It has no `HP_RATE` lines, and its
 -49 are that move, not this flag's. Not checked: a user defender in play (the play-test produced only `def=npc` lines). The code path was verified by reading instead.
 
+**C10d - Done (2026-10-08, Opus 5.5 high; identification, no code).** There is no flag, build or play-test, as in C10a. The work was read in
+Ghidra, in raw bytes and with `vtslot.py`. 15 funcmap rows are tagged `Effect C10d`. Each step between the BBT 78 add and the
+shown-damage copy is listed here with its owner, in June's order.
+
+*User `DamageReact` (`320462a0`).* Every step runs at function scope, because the level-damage skip `@3204940c` lands on the provoke zero.
+
+| June | Step | March | Owner |
+|---|---|---|---|
+| `@32049565` | provoke zero | has it (`SERV_ELESIS_SECOND_CLASS_CHANGE`) | - |
+| `@32049572` | attacker Add vslot `0x6d4` = stasis hit value (Add `329e25b0`) | has it (`SetStasisfieldHitValue`) | - |
+| `@320495d8` | attacker-user vslots `0x4f8` / `0x4fc( DD, dmg )`. CX2GUUser-only slots, empty in User; only Elesis overrides them | no | empty virtuals + call -> **C10e**; bodies -> checklist 7j |
+| `@3204963d` | `UT_LUCIEL` (10) shadow shield: `32aebaf0( dmg x 0.2 )` true -> dmg x 0.8 (BTI 478/479, pool `+0x968c`) | no | checklist 7j (Lu/Ciel) |
+| `@32049678` | `322cfca0`: x0.5 in **PvP** game type with PvP room `PGT_AMUSEMENT_ITEM` (8), for attack types != `AT_COMMAND` | no; inert on March data | **C10e** |
+| `@3204968f` | attacker in the `CX2Game +0xbbc` list -> dmg = own max HP x 0.1, plus 2 s force/show invincible | no | backlog **Stage 19** (`DI_EVENT_2017_TREASURE`) |
+| `@32049727` | HP-rate | C10b-1 | - |
+| `@3204972c` | attacker vslot `0x304( dmg, DD )`. CX2GameUnit slot, empty for User and NPC; only Rose overrides it | no | empty virtual + call -> **C10e**; Rose body -> checklist 7j |
+
+*NPC `DamageReact` (`327b1f30`).*
+- The level-damage skip `@327b421b` and the attacker-invalid skip `@327b42aa` both jump to `327b4484`, so the Add `0x6d4` and Elesis
+  `0x4f8`/`0x4fc` calls sit inside that gate, as March's NPC stasis call does.
+- Then, at function scope:
+  - socket **2000145** (`@327b4484`), the cool-time cut on hit -> **C10e**:
+    - user flag `+0x7ca8`, set in `SumSocketOption`;
+    - a 3 % roll, against 1 % in the text;
+    - a 0.5 s internal cool-down `+0x7cac`;
+    - `ResetLeftSkillCoolTimeByBuff( ST_ACTIVE, -5.0, false, BCT_FIX_VALUE, 1.0, true, 0 )`;
+  - the `DI_EVENT_ALCHEMY_LAB` block (`@327b452f`) -> **Stage 19**;
+  - `322cfca0` -> **C10e**;
+  - attacker `0x304` -> **C10e**;
+  - slot 6 (already ported).
+
+*Corrections to the buff 9a review's list* (`JUNE_BUFF_PORT_PHASES.md` 3424-3433). That text is frozen, so the corrections live here:
+- `322cfca0` is PvP, not "dungeon mode `+0xd8 == 8`". The gate is `GetGameType() == GT_PVP`, and `g_pData +0x6c` is the PvP room.
+- "`+0x7ca8` buff apply" is socket 2000145's skill cool-time cut.
+- "NPC 41350" is the dungeon `DI_EVENT_ALCHEMY_LAB`. At or below 20 % HP the damage becomes 3e9. Above 20 %, a branch the 9a list
+  missed heals the NPC by 25 % of its max HP and sets its attack x1.5.
+- The user "execute" block is the `DI_EVENT_2017_TREASURE` manager: a hit from a listed NPC costs 10 % of max HP. It is not an execute.
+
+*Owners.*
+- **C10e** (Sonnet 5.5 high; kickoff `kickoffs/june-effect/C10e.md`; flags `SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS` and
+  `..._SOCKET_COOLTIME_ON_HIT`): the three empty hooks with their call sites, `322cfca0`, and socket 2000145's five sites.
+- **Checklist 7j** (new): the Elesis `32b7beb0` / `32b898a0` bodies, the Lu/Ciel step plus `32aebaf0`, and the Rose `32aa9c70` body.
+- **Backlog Stage 19** (new, "June event dungeons"): both `DI_EVENT_*` blocks, the `+0xbbc` manager (`32d5c830`..) and `CX2GUKiddayNPC`.
+  March has neither dungeon ID; its highest is 41311.
+
+*Open for the user:* nothing. One crash case is decided in the C10e kickoff. June reads a null attacker at `327b449c`, and March
+keeps the null check; C10e owes a JUNE_BUGS row for it.
+
 ---
 
 ## C11 - Verification on June data
