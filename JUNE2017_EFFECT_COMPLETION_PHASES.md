@@ -986,6 +986,8 @@ RESULT: PASS
 
 **How to see it in game:** nothing reaches the list in March data (no `EffectSet_Hero_Dungeon_Aura_Buff`, no Fever SIEE 13-20 socket in any save), so this is a regression check: skills that make damage effects through effect sets must still apply their own buffs and debuffs, and `grep "BUFF_LIST" offline_server.log ErrorLog.txt` must print nothing. The end-to-end aura check waits for C11 (June effect files), june-buff Phase 13 (the BFIs) and a socket save edit.
 
+**Play-test PASSED 2026-10-08** (run 16:30-16:37 on exe `40b97943`, which contains C6c; user: all checks passed): `jtLordKnight` used all seven equipped skills (Windmill, Sonic Blade, Double Slash, Flame Geyser, Endurance, Armageddon Blade, Fatal Fury) in a dungeon, no visible change; `BUFF_LIST` lines: 0 in ErrorLog.txt, 0 in offline_server.log; 0 EXCEPTION, clean exit, no crash bundle. Next: C6c review.
+
 **Open questions:** none.
 
 ## C7 - Touch-land runtime (old Phase 10c, step 3)
