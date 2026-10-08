@@ -2269,6 +2269,17 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 CX2DamageEffect::CEffect::~CEffect()
 {
 	KTDXPROFILE();
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_NOTIFY_OWNER_FIRST
+	// June ~CEffect 31f78550 @31f78584-31f785cf: NOTIFY_TO_OWNER_WHEN_DIE ( +0xb13 ) is the dtor's first act, before
+	// the DELETE_WHEN_EFFECT_END stopper; owner = m_optrOwnerUnit ( +0x1dc, -0x1a0 ), vslot 0x2c4 ( base 3208ddc0 = no-op,
+	// Add 329f73a0 ). June passes the CEffect* and Add reads its m_DamageData ( +0x200 ) +0x590 / +0x4dc, so March's
+	// DamageData& signature carries the same values; the signature and Add's body are the character port's ( checklist 7 ).
+	if( true == m_bShouldNotifyToOwnerUnitWhenDie &&
+		null != m_optrOwnerUnit )
+	{
+		m_optrOwnerUnit->DieDamageEffectProc( m_DamageData );
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_NOTIFY_OWNER_FIRST
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 	// June ~CEffect 31f78550 @31f785d1-31f78646, first after the owner callback and before the +0x8e4
 	// CloseSound @31f7864c: per kept { channel, sound } with a channel, FMOD_Channel_GetCurrentSound
@@ -2378,6 +2389,9 @@ CX2DamageEffect::CEffect::~CEffect()
 	}
 	m_vecDieDamageEffect.clear();
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_NOTIFY_OWNER_FIRST
+	// June: moved to the top of the dtor ( 31f78550 @31f78584 ); no second call later in June's dtor.
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_NOTIFY_OWNER_FIRST
 #ifdef NOTIFY_TO_OWNER_UNIT_WHEN_DAMAGE_EFFECT_DIE
 	// µ¥¹ÌÁö ÀÌÆåÆ®¸¦ »ý¼ºÇÑ À¯´Ö °´Ã¼¿¡°Ô¸¸ ºÒ·Á Áü
 	if( true == m_bShouldNotifyToOwnerUnitWhenDie &&
@@ -2386,6 +2400,7 @@ CX2DamageEffect::CEffect::~CEffect()
 		m_optrOwnerUnit->DieDamageEffectProc(m_DamageData);
 	}
 #endif // NOTIFY_TO_OWNER_UNIT_WHEN_DAMAGE_EFFECT_DIE
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_NOTIFY_OWNER_FIRST
 
 	if( true == m_BlackHoleData.m_bEnabled && NULL != g_pX2Game )
 	{
@@ -3480,7 +3495,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_SoundData()
 				{
 					WCHAR wszJuneDetail[160] = {0};
 					StringCchPrintfW( wszJuneDetail, ARRAY_SIZE(wszJuneDetail), L"%s loop=%d 3d=%d del=%d dev=%d channel=%d",
-						pSoundData->fileName.c_str(), pSoundData->bLoop ? 1 : 0, pSoundData->bThreeDimensionalSound ? 1 : 0,
+						pSoundData->fileName.c_str(), pSoundData->bLoop ? 1 : 0, (int) *( const unsigned char* ) &pSoundData->bThreeDimensionalSound,
 						pSoundData->bDeleteWhenEffectEnd ? 1 : 0, ( NULL != pSound ) ? 1 : 0, ( NULL != pSound && NULL != pSound->GetChannel() ) ? 1 : 0 );
 					JuneDeSoundLog( m_Name.c_str(), L"play", wszJuneDetail );
 				}

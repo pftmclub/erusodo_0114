@@ -4016,6 +4016,58 @@ then C9h-7a.
 - 29 lines `dev=0`: `Eve_Dash_Combo_ZZ.ogg` (13) / `Eve_Dash_Combo_ZZZ.ogg` (16) are in no March kom (only the `Eve_EP_` variants are), so `ErrorEnum(351)` comes from `PlaySound`. June's data names the same files. This is a studio data gap that predates the port; March's `OpenSound` failed on them too.
 next: C9h-8 review.
 
+### C9h-8 - Review (2026-10-08, Opus 5.5 high): the play, stopper and device method match June; two verbatim June quirks added, the owner notify moved to the dtor head; `_DEBUG` stays on for one re-test
+
+**Checked against June, no finding** (read-only disasm; funcmap rows `Effect C9h-8` and `C9h-8 review`):
+- **The play `31f6eca0`:**
+  - `PlaySound( name, +0x25 LOOP, +0x27 3D, 1 )`.
+  - Pair stores: `+0x5c` at `[esp+0x1c]` before the `push edx`, `+0x60` at the same slot after it, so `.first` = channel.
+  - The push is gated on `+0x26`; `31d41710( mesh +0x3f0 )` runs for every non-null device.
+  - The erase runs for a failed rate roll (`jge 31f6ee17`) and for a null device.
+  - Offsets `0x20` / `0x24..0x27` are confirmed by the parse's key buffers: DELETE (22 chars) -> `+0x26`, THREE_DIMENSIONAL (23) -> `+0x27`.
+- **The stopper `@31f785d1-31f78646`:**
+  - Null channel -> skip; GetCurrentSound fails -> Stop; match -> Stop; different sound -> skip; then the list is emptied.
+  - It runs before `CloseSound @31f7864c`.
+  - dispsweep `b34 b38 b3c`: the CEffect hits are only the ctor, the dtor and the push.
+- **`31d41710`:** no channel returns before the store; `SetPaused( 0 )` only when `Update3DPosition` returns 1.
+  - `333bcf14` -> `61e16100` = fmodex RVA `0x96100`, the only export there: `FMOD_Channel_SetPaused` (export table read directly).
+- **`31d411c0`:** the buffer is 0x200 bytes (the port's `WCHAR[256]` is the same size).
+  - `+0x70` is assigned from the ctor's by-value fileName `@31d419af`, the same argument the base ctor `31d40f00` gets `@31d41953` = `m_DeviceID`.
+- **Data:** the 13 `LOOP = FALSE -- C9h-8` rows equal June's for the same templet, `SOUND<n>` and file.
+  - The live `data036.kom` has been repacked since C9h-8 (C3d-2: md5 `f7a27248…`, 22:12).
+  - Its `DamageEffect.lua` entry (extracted) is byte-identical (md5 `83230a62…`) to `kom_contents/data036_kom/DamageEffect.lua`, which is newer than the edited `.src.lua`.
+- **Play-test:**
+  - C9h-8's run: 108 `play` lines, all `loop=0`.
+  - The later C3d-2 run (22:36): 186 `play` lines, `loop=1` none, 0 push / stop / skip, 0 EXCEPTION.
+
+**Found, ported under the same flag:**
+- **JUNE_BUGS 138: June never copies THREE_DIMENSIONAL_SOUND.**
+  - The assign `31f8c600`, the uninitialized copy `31f8ce80` and LoadSoundData's inlined push `@31f74821-31f7489b` all copy only up to `+0x26`.
+  - So every list entry's `+0x27` is whatever byte the storage held, and the play passes it as the 3D flag. The 6 Ain rows that set the key never get their value in June.
+  - Port: `SoundData::operator=` skips the field under `JUNE_DAMAGEEFFECT_SOUND` (copy in `#else`). The `_DEBUG` play line now prints the raw byte (`3d=<n>`).
+- **JUNE_BUGS 139: June passes the `+0x70` wstring *object* to `%s`** (`rep movsd` ×7, `add esp, 0x28`).
+  - Port: `m_DeviceID` itself, not `.c_str()`.
+  - Error path only (a failed `Set3DAttributes`).
+
+**Found, new flag `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_NOTIFY_OWNER_FIRST`** (no-partial rule: same function):
+- June's `~CEffect` starts with `NOTIFY_TO_OWNER_WHEN_DIE` (`+0xb13`, `@31f78584-31f785cf`), owner vslot `0x2c4`, before the stopper. March calls `DieDamageEffectProc` late in the dtor.
+- The port moves the call to the head; the late block is in `#else`.
+- June's argument is the `CEffect*`. Add (`329f73a0`, the only override) reads only its `m_DamageData` `+0x590` / `+0x4dc`, so March's `DamageData&` carries the same values.
+- The signature and Add's second ID (`RNSI_A_AN_PHASE_SHIFT_UPGRADE` 29216) -> **checklist 7m** (D8).
+- `#error` unless `NOTIFY_TO_OWNER_UNIT_WHEN_DAMAGE_EFFECT_DIE` (`Always.h:415`) is on.
+
+**Hygiene** (`--worktree --files`):
+- `JUNE_DAMAGEEFFECT_SOUND` (+ `_DEBUG`): 2 PASS, 1 OTHER (`X2DamageEffect.cpp` also holds the new flag).
+- `NOTIFY_OWNER_FIRST`: 2 OTHER (`Always.h` peers' blocks; `X2DamageEffect.cpp` other flags).
+- 0 FAIL, 0 non-ASCII, 0 encoding change; RESULT PASS both.
+- The 2 deleted lines are C9h-8's own: the debug `3d=` argument and the `c_str()` argument.
+- Compiled form: `KTDXDeviceSound.obj` passes `m_DeviceID` as `rep movs` ×7 from `this+8`, a bitwise copy with no `basic_string` copy constructor, the same as June.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,411,968 B, dated 2026-10-08 23:19:46, md5 e2d031c8eba284e2b0188652816f4a24, equal to X2/US_SERVICE/x2.exe (2026-10-08 23:19:41); built at mods/june-buff-port 23c917a + 10 uncommitted code file(s)`.
+- A peer's build compiled this tree at 23:10-23:13, after these edits (obj files newer than the sources); this run relinked nothing.
+- The 10 files include the peers' in-progress `X2GUNPC` / `X2GUUser` / `X2Game` / `X2GameUnit` and the socket-cooltime block in `Always.h`.
+
+**Re-test owed** (the review changed code): the same jtCodeEmpress EP combos. Read the `3d=` byte; listen for sounds that now play without distance falloff. `_DEBUG` goes off after that read.
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),

@@ -6224,3 +6224,18 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Log: "JUNE_FX socket-cooltime" in offline_server.log ( JUNE_FX_DEBUG ).
 #define SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: C9h-8 review: June's CEffect dtor 31f78550 @31f78584-31f785cf calls the owner's NOTIFY_TO_OWNER_WHEN_DIE
+//              hook ( vslot 0x2c4 ) first, before the DELETE_WHEN_EFFECT_END stopper; March calls DieDamageEffectProc
+//              late in the dtor. Off = March's late call. June's CEffect* argument and Add's second skill id are the
+//              character port's ( checklist 7 ).
+#define SERV_IRUHADEV_JUNE_DAMAGEEFFECT_NOTIFY_OWNER_FIRST
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_NOTIFY_OWNER_FIRST
+#ifndef NOTIFY_TO_OWNER_UNIT_WHEN_DAMAGE_EFFECT_DIE
+#error SERV_IRUHADEV_JUNE_DAMAGEEFFECT_NOTIFY_OWNER_FIRST needs NOTIFY_TO_OWNER_UNIT_WHEN_DAMAGE_EFFECT_DIE
+#endif NOTIFY_TO_OWNER_UNIT_WHEN_DAMAGE_EFFECT_DIE
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_NOTIFY_OWNER_FIRST
+//////////////////////////////////////////////////////////////////////////

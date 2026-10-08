@@ -583,7 +583,13 @@ class CX2DamageEffect
 				bLoop = t.bLoop;
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 				bDeleteWhenEffectEnd = t.bDeleteWhenEffectEnd;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
+				// June leaves THREE_DIMENSIONAL_SOUND ( +0x27 ) out of every SoundData copy: the assign 31f8c600, the
+				// uninitialized copy 31f8ce80 and LoadSoundData's inlined push @31f74821-31f7489b copy +0x00..+0x26 only,
+				// so a list entry's flag is whatever byte the new storage held ( JUNE_BUGS 138 ). Verbatim: not copied.
+#else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 				bThreeDimensionalSound = t.bThreeDimensionalSound;
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
 
 				return *this;
