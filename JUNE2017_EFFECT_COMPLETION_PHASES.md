@@ -542,7 +542,7 @@ deployed exe is unchanged.
 
 ## C3d-1 - identify: widening the user state id to 16 bits (D10 (a))
 
-**Status: ready (D10 answered 2026-10-08). Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3d-1.md`.
+**Status: done 2026-10-08 (see the Done note below). Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3d-1.md`.
 
 - **Scope:** every March site that stores, casts, compares, serializes or indexes a user state id as 8 bits (`UserUnitStateData::stateID`,
   `SyncData::nowState` and its Put/Get or sync packing, the `m_StateList` key, `UCHAR` casts, arrays sized 256, Lua binds that pass a
@@ -551,11 +551,55 @@ deployed exe is unchanged.
   `USER_STATE_ID` in data036; any saved or Lua-visible class state id), and the NPC side if it shares the type.
 - **Exit:** a site list (`june2017_re/c3d1_state_id_sites.tsv`), funcmap rows `(C3d-1)`, C3d-2's kickoff with the flag name.
 
+### C3d-1 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build)
+
+Site list `june2017_re/c3d1_state_id_sites.tsv` (19 rows), 9 funcmap rows `(C3d-1)`. March values come from the compiler: the new
+`june2017_re/enumprobe.py` probes any enum or constant with the nine class headers included. Ghidra was read-only.
+
+1. **What widens (C3d-2, `SERV_IRUHADEV_JUNE_USER_STATE_ID16`).** These sites:
+   - `UserUnitStateData::stateID`;
+   - the `UserUnitStateDataMap` key;
+   - `SyncData::nowState`. In June it is a protected short: Future `+0x7e6c`, Now `+0x810c`; `31fe6a40`, `3203c3a0`;
+   - `UnitCondition::nextState`. It is shared with the NPC, and June widened it for both: user `320348c0` writes a short at `+0x7de4`,
+     NPC `32758ea0` a word. It becomes signed `short`, keeping the `-1` sentinel;
+   - the two `(UCHAR)` casts in `GetGameUnitState*`;
+   - `m_OldStateId`, which is write-only;
+   - the sync packet's `m_ucNowState`. June's bit 1 is 2 bytes (`32d5be30`).
+
+   The NPC's own `nowState` stays a byte in June and in March.
+2. **June's container is a vector, not a map.** Registration `31fd89b0` = `UpdateUserUnitStateData( USHORT, table, data )`: an
+   overflow log, then `vec[id]`. Lookups fall back to `vec[0]`, and the now-state data is a pointer whose id is recomputed. March keeps
+   its `map`: `operator[]` default-inserts where the vector holds a default entry, so only the key widens.
+3. **`nowAction` widened too.** The checklist row `+0x7e84` guessed `nowState`. It is Future `nowAction`, and `0x1c` is March
+   `UAI_RELEASE_FORMATION_MODE` (`cl`: 28, Add). The row is corrected. C3d-2 widens `nowAction` and its packet field under a second flag,
+   `SERV_IRUHADEV_JUNE_USER_ACTION_ID16`. The helpers that take a `UCHAR` action stay as they are.
+4. **The +3 shift.** The three `USI_BOUNDING_*` go after `#endif //RIDING_SYSTEM`, directly before `USI_END`. That is June's relative
+   order; June's intervening event states have no March counterpart.
+   - Probed today, Lua = C++: `USI_END` 88, Chung's last 255, `ASI_DASH_COMBO_X` 121.
+   - After the shift: 91 / 258 / 124.
+   - `Enum.lua`'s `CHUNG_STATE_ID` / `ARA_STATE_ID` are `USI_END`-relative and are read by `Chung_Iron_Cannon.lua` (the guard-state
+     list), `Ara_Martial_Artist.lua` and data037's `Npc_Chung_01..05`. **So C3d-2 adds the Lua rows and repacks data036, and the exe and
+     kom deploy together.** C3d-3's kickoff is amended to match.
+   - The literal ESSI / AVSI / LESI / RSI / ENSI tables (training dungeons) are already 44 off C++ (`ESSI_COMBO_X1` 60 vs 104). June
+     carries the same literals, so they stay.
+   - No class state id is saved: none in `X2OfflineDB` or the offline handlers, no replay struct, no Lua bind taking a user state.
+5. **No new effect, and one test needs a new character.** The widening changes nothing in play: no id goes above 255 until the shift.
+   After it, only Deadly Chaser's Rapid Cannon (256 / 257) and Iron Paladin's Artillery Nova (6210 -> 258) land above 255. The save
+   has neither job, so C3d-2's test creates one.
+
+**Found on the way.**
+- June's `32d5be30` carries 15 more sync fields March lacks (bit `0x400000` and 14 more at `+0x1c..+0x75`). They are dormant offline
+  (no UDP peers). New identify phase **C3e** (kickoff written).
+- `X2TrainingGameUI.cpp:98/277/343` compare via `(const char)`. This already breaks any id above 127, but the training literals are
+  small, so it is unchanged. June's form of that function was not located.
+
+**Open for the user:** none.
+
 ## C3d-2 - port: the 16-bit user state id
 
-**Status: blocked on C3d-1. Model:** Sonnet 5.5, high, then an Opus review. Kickoff written by C3d-1.
+**Status: ready (C3d-1 done 2026-10-08). Model:** Sonnet 5.5, high, then an Opus review. Kickoff `kickoffs/june-effect/C3d-2.md`.
 
-- **Scope:** C3d-1's site list, behind one flag; nothing else changes. **Not with:** C3c (both edit `X2GUUser.h/.cpp`).
+- **Scope:** C3d-1's site list behind `SERV_IRUHADEV_JUNE_USER_STATE_ID16` (with the three reserved ids and Enum.lua's rows, data036 packed), plus `nowAction` behind `SERV_IRUHADEV_JUNE_USER_ACTION_ID16` (C3d-1 item 3); nothing else changes. **Not with:** C3c or C9h-4f (all edit `X2GUUser.h/.cpp`).
 - **Exit:** builds with the flag on and off; a regression play-test across several classes (state changes, skills, riding, a dungeon
   run; Chung's top states still reachable) with 0 EXCEPTION.
 
@@ -566,6 +610,15 @@ deployed exe is unchanged.
 - **Scope:** C3b item 2: the user RT_BOUNDING case, the three `USI_BOUNDING_*` states, the five `CX2GUUser` handlers, `m_vBoundingBackSpeed`,
   the last-attacker UID / unit type (`+0x40e0` / `+0x40e8`, written next to buff 9b's `+0x40dc` serial), the registration in March's nine
   class InitStates with June's state tables in their data036 scripts (+ `Enum.lua`, packed), and the NPC half (`32769060`, `3275d900`, `3275a070`).
+
+## C3e - identify: June's user-sync packet extension
+
+**Status: ready (found by C3d-1, 2026-10-08). Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3e.md`.
+
+- **Scope:** the 15 fields June's `KDYNAMIC_UNIT_USER_SYNC::Deserialize` (`32d5be30`) reads and March's packet lacks (bit `0x400000`, and
+  bits `0x10000-0x200000` / `0x1000000-0x40000000`). For each: width, the June `SyncData` member it comes from and decodes into, its
+  readers, and its reach offline (the packet is sent only with UDP peers).
+- **Exit:** funcmap rows `Effect C3e`, a port phase per field with a March counterpart, owners for the rest.
 
 ---
 
