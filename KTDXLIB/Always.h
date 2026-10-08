@@ -5783,7 +5783,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              keys, SUPER_ARMOR_NOT_RED written only under SUPER_ARMOR.
 //              Log: "JUNE_FX RIDINGPET_STATE" in ErrorLog.txt (_DEBUG only).
 #define SERV_IRUHADEV_JUNE_RIDINGPET_STATE
-#define SERV_IRUHADEV_JUNE_RIDINGPET_STATE_DEBUG
+//#define SERV_IRUHADEV_JUNE_RIDINGPET_STATE_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
