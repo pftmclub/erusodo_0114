@@ -12,6 +12,12 @@ are not ported yet cost memory but show nothing.
 ## Rules (the user's decisions, 2026-10-08)
 
 - **All costume items go into `cash_product`**: every fashion-flagged item in June's kim (about 38,850 new rows), all unit types.
+- **Also every character's GM weapon** (user, 2026-10-08: "like Elsword is 128015, Rena is 128017"). These are real gear (not
+  fashion-flagged, so the costume rule does not catch them), one weapon per character, found by name in June's kim:
+  Elsword 128015, Aisha 128019, Rena 128017, Raven 128078, Eve 28005, Chung 128080, Ara 181869, Elesis 183248 (Korean name,
+  untranslated), Add 183648, Luciel 184921, Rose 186038 (`Rose's GM Guns`), Ain 188856. Each has a matching GM top piece (+1 id:
+  128016, 128020, 128018, 128079, 28006, 128081, 181870, 183249, 183649, 184922, 186039, 188857); the user asked for weapons only,
+  so S0 adds the weapons and the top pieces are a one-line extension if the user wants them. Same price, row and file-check rules.
 - **Price is 1 KC per product** ("just like right now": every existing row is `price = 1`).
 - **A load-time file check decides what the client is offered.** A costume's meshes, textures and shop image must exist (through the
   mass file manager). Rows that fail stay in the DB and are not put in the catalog; they appear on their own once their files arrive
@@ -45,6 +51,10 @@ are not ported yet cost memory but show nothing.
    before the kim is loaded): for every fashion-flagged item in the item manager's templet table that has no `cash_product` row,
    `INSERT OR IGNORE` a row (new `product_no` after the current max, price 1, quantity 1, the category from step 1), in one
    `Begin()/Commit()` transaction. Idempotent: a second launch adds nothing. Log the inserted count and the time it took.
+2b. **GM weapons.** The same top-up for the 12 ids above (a fixed list in the code, with the kim name as a cross-check: log a line if an
+   id's name stops containing "GM"). They are real gear, so step 1 must also find which billing category the shop gives a non-fashion
+   weapon (none of the 2,378 rows is one: `CategoryFor` puts real gear in the "etc" tab, but that is the CSSC enum, not the billing
+   number). Do not guess; ask the user if the table has no tab for it.
 3. **File check.** When building the catalog, withhold a row whose item's model, texture and shop-image names are not in the mounted koms.
    Use the same lookup the loader already uses (`GetMassFileManager()`), not a directory scan. Log offered/withheld per part.
 4. **Timing.** Log (`[COSTUME_SHOP]`) the time EnsureLoaded takes and the catalog size. The play-test measures opening the shop and
