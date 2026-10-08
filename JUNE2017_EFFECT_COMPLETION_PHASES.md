@@ -3564,6 +3564,66 @@ Files: `X2RidingPet.h/.cpp`, `X2GUUser.h`, `X2GameUnit.h/.cpp`, `X2SquareUnit.h/
 
 **C9h-4e play-test (2026-10-08): check 1 passed (6 pets, `all_option=2` each); check 2 passed, plus one bug: a mount swapped without dismounting, then a character change, leaves the pet invisible until the owner moves.** Logs: those pets have a `RIDINGPET_FX loader` line and no `village state=5` line (no StateChange at creation); my village block did not run then, so it is not 4e's code. Fix `SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE` (+ `_DEBUG` on): a loaded village pet with no StateChange takes its wait state from OnFrameMove (log `JUNE_FX RIDINGPET_ENTRY_STATE`). Not proven to be the cause until retested. `DEPLOY OK: X2_offline.exe is 19,406,848 B, dated 2026-10-08 20:26:43, md5 0d6a90cdb76816011c9abd48bf4e77b9`.
 
+### C9h-4e - Review (2026-10-08, Opus 5.5 high): no transcription finding; JUNE_BUGS 129 narrowed (a transformer-only June exception); data037 round trip proven; both `_DEBUG` flags off (committed, not deployed)
+
+**Code, checked against June** (capstone over `32d2f560` / `32d2c8b0`, keys from `xordecrypt.py 0x32d2f560`, Ghidra xrefs):
+- **Order in the user block = the port:** SPEED_TIME, gravity (`@32d31b1b` / `@32d31d40`), INVINCIBLE (`@32d31f05`), SUPER_ARMOR / _NOT_RED / _TIME, the sound list (clear `+0x85c4` `@32d326fb`, SOUND_PLAY via `32078fd0`, ALL_OPTION `@32d32827`), cameras, SKILL / BWALK / WALK / DASH, UPDOWN (`@32d3424b`), `LoadEffectSetFromScript` (`@32d343b5`), ON_STATE_END / ON_DAMAGE_REACT / ON_DIE, OFF_RIDING / ON_SKILL_STATE_END.
+- **Miss defaults and stores match:**
+  - gravity: both reads miss to `fldz`; both are read first, then START goes to `+0x84f8` and END to `+0x84fc`;
+  - UPDOWN: miss `[3346ede8]` = 9999.0, stored to `+0x8ca4`, no clamp call;
+  - OFF_RIDING: miss = `bl` after `xor bl, bl` (false), stored to `+0x8628`;
+  - SKILL_STATE_END: miss = `al` 0, stored to `+0x862b`.
+- **Sound loops match:**
+  - SOUND_PLAY: time -1, name `L""` (`3344f1f4`), rate 100 (`ebp = edi + 0x64` with `edi` 0), only-if false.
+  - ALL_OPTION, both copies (user `@32d32853-@32d330d3`, village `@32d35163-@32d359fb`) = `JuneLoadSoundPlayAllOption`: NAME `""`, PLAY_TIME -1, RATE 100, ONLY_IF false, MAX_DISTANCE -1, 3D true, LOOP false.
+  - DELETE_CONDITION, in both copies: erase all (`@32d3302e` / `@32d35951`), then read from 1 until a miss.
+- **Village block `@32d350e0` = the port:**
+  - It is reached from the game test `@32d31114-@32d31150` only when the protected game pointer `[3372c0fc]` is unset.
+  - `ebp` is still `this` (`@32d2f59b`), so `[ebp+0x238] -> +0x24c = 0` is the pet's own anim (= `ResetOneshotPerformed`).
+  - The owner uid is the 8 bytes at `+0x438`, and `ecx = [33775870]` for `323a8dd0`.
+  - Then `323f1730`, clear `+0x5dc`, refill. Nothing in the block uses a game.
+- **Future `32d2c8b0 @32d2d52f-@32d2d763` matches:**
+  - `32d3e2f0` / `32d3e330` run on the user;
+  - table names are `"%s%d"` from index 0;
+  - push rows `{ time miss 0, can miss 1 }` go to `+0x8b14`, pass rows `{ 0, miss 0 }` to `+0x8b24`, which are March's Future `m_vecCanPushUnit` / `m_vecCanPassUnit` (`CommonStateStartFuture`).
+
+**JUNE_BUGS 129: the verdict stands, the claim is narrowed** (46 callers of `32d3cb10`).
+- **The square's 8 are as the Done note says:** `323fec40` and 7 in `323fad80`.
+- **The rest are game-only:**
+  - `3249d150` / `324bd250` / `324d1de0` call the user's StateChange `32043380`, then `32071c10` (GetRidingPet);
+  - `32a08150` is Add's StateStart;
+  - the other ~33 are `CX2GUUser` methods, and `32d3cff0` comes from the user's StateChange `320347d0`.
+- **New: a transformer-only exception.**
+  - `32d3cf40` (TRANSFORM_VILLAGE / _REVERSE_VILLAGE, pet type `+0x350` 0x20 / 0x21 only) is called from the square's state request `323fef90 @323ff0c7` (state 0x18), outside the square's StateChange.
+  - The request usually goes on to the square's StateChange `@323ff597`, which wipes the list again. On its early exits (`+0x794`, `323f3090` refusing, `[g+0x1f1]`, `3234e610` null) the refill survives.
+  - Unreachable in March (no transformer pet, Stage 17).
+  - Row 129 and funcmap row `323fec40` updated; new funcmap row `323fef90 @323ff0c7`.
+
+**Data:**
+- **Live kom = the packed one:** the live `data037.kom` (md5 `1f3126cf`) is the packed kom, extracted with elstools.
+- **The 14 `RidingPet_*.lua` are June's scripts:**
+  - their size and string set equal June's original (`junekom.py extract`), and the header goes 0x82 -> 0x81;
+  - the bytes differ only by the opcode numbering;
+  - the live bytecode decompiles to the same lines as `june_src_fixed/data037_kom/*.src.lua` (a multiset match for all 14; only the table-hash key order differs);
+  - no `.src.lua` is in the kom.
+- **`RidingPet_GodBeast_Fire` is still March's.** Its 15 assets are not staged (asset port P3 is `waiting (P2)`), so it stays held, and P3's kickoff carries it.
+
+**`SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE`** (added after this kickoff was written):
+- not June's code; its own flag; retest passed; flagcheck PASS (below);
+- it keys on C9h-3b's first-change gate `m_bJuneFirstStateChanged`;
+- whether the pre-C9h-3b exe showed the pet in this case was never tested;
+- **keep or drop is the user's call** (kept).
+
+**`_DEBUG` off:** `SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS_DEBUG` and `SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE_DEBUG` are commented out in `Always.h` (bytepatch, 2 lines). **No build, no deploy.** The tree holds the peer C3d-2's uncommitted 16-bit state id, which shifts every class state id by 3 and must reach the game together with its data036. The deployed exe (`e2c02f4f`, a peer's 21:58 deploy) still prints both tags; the next deploy carries the switch. No behaviour change, so no play-test.
+
+**Hygiene** (`--range c0cd5fe^..HEAD`, `--files` = the 8 code files / `X2RidingPet.cpp Always.h`; `Always.h`'s other +26 lines are the peer's C3d-2 defines, not staged):
+```
+JUNE_RIDINGPET_USER_KEYS (+_DEBUG):    files: 7 PASS, 0 PASS~, 2 DEFINE, 6 OTHER, 0 FAIL, 0 ERROR; 3 deleted, 0 non-ASCII, 0 EOL-mismatched, 1 #else/#endif without the token, 0 encoding changes; RESULT: PASS
+JUNE_FIX_RIDINGPET_ENTRY_STATE (+_DEBUG): files: 1 PASS, 0 PASS~, 2 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR; 3 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the token, 0 encoding changes; RESULT: PASS
+```
+- **The 3 deleted lines are peers'** (C9h-4f's `_INJECT` removal in `8b56f68`, and its `_DEBUG` switch in `037fce2`).
+- **The `#else` without the token** is the original sound loop (see the Done note).
+
 ### C9h-4f - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_USEFUL_VALUE` + `_DEBUG` and the temporary `_INJECT` (both now OFF); log `JUNE_FX USEFUL_VALUE`; play-test PASSED 2026-10-08, logs read)
 
 Files: `X2GUUser.h/.cpp`, `Always.h`. Funcmap rows `(C9h-4f)` (8), reader census `june2017_re/c9h4f_useful_value_readers.tsv`, checklist row in 7h.
