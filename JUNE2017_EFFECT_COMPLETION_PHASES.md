@@ -4061,6 +4061,8 @@ next: C9h-8 review.
 - `NOTIFY_OWNER_FIRST`: 2 OTHER (`Always.h` peers' blocks; `X2DamageEffect.cpp` other flags).
 - 0 FAIL, 0 non-ASCII, 0 encoding change; RESULT PASS both.
 - The 2 deleted lines are C9h-8's own: the debug `3d=` argument and the `c_str()` argument.
+- Range (`--range c3a723c^..HEAD`, both flags + `_DEBUG`): 5 PASS, 1 PASS~, 2 DEFINE, 21 OTHER, 0 FAIL; RESULT PASS.
+  - Of the 5 deleted lines, 3 are peers' `Always.h` define switch-offs (riding-pet `_DEBUG` / `ENTRY_STATE`) and 2 are the C9h-8 lines this review replaced.
 - Compiled form: `KTDXDeviceSound.obj` passes `m_DeviceID` as `rep movs` ×7 from `this+8`, a bitwise copy with no `basic_string` copy constructor, the same as June.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,411,968 B, dated 2026-10-08 23:19:46, md5 e2d031c8eba284e2b0188652816f4a24, equal to X2/US_SERVICE/x2.exe (2026-10-08 23:19:41); built at mods/june-buff-port 23c917a + 10 uncommitted code file(s)`.
 - A peer's build compiled this tree at 23:10-23:13, after these edits (obj files newer than the sources); this run relinked nothing.
