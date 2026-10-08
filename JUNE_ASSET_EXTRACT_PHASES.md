@@ -494,6 +494,66 @@ name and no load error for the mesh or its texture.
 Check flag hygiene, and that flag-off is byte-identical in behaviour. Check that no buffer is overrun anywhere the 60-char struct is
 copied, and that names of 59 characters or fewer take the old path.
 
+### Phase X4 - Review
+
+2026-10-08, Opus 5.5 (the user chose to run it on Opus instead of Sonnet). **Verdict: PASS, no code change, no build.** Reviewed
+`10ff360` and `e880aad` against `KTDXLIB/KGCMassFileManager.{h,cpp}`.
+
+**Hygiene** (`flagcheck --range 10ff360^..HEAD`): `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL,
+0 ERROR`, `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif
+without the flag token, 0 encoding change(s)`, `RESULT: PASS`. The OTHER row is peer commit `f1efeaa` (C9h-3b), which comments out
+`SERV_IRUHADEV_JUNE_RIDINGPET_STATE_DEBUG` in `Always.h`. It is not X4's.
+
+**The five kickoff checks.**
+1. **Flag off is the old code.** Every hunk is an insert. The one replaced line, `AddMassFile`'s `m_mapMassFile.insert( Info.strFileName ...)`,
+   is intact in the `#else`.
+2. **The 59-character boundary is right.** `MultiByteToWideChar(..., -1, NULL, 0)` counts the NUL. A 59-character name gives 60, which
+   is not `> MASSFILE_NAMESIZE`, so it takes the old path. A 60-character name gives 61 and gets a side-map entry. The lookup log's
+   `size() <= MASSFILE_NAMESIZE - 1` uses the same threshold.
+3. **No overrun from X4.** The long name is only written to `m_mapLongMemberFileName`, the `m_mapMassFile` key and the log string.
+   `grep GetLongMemberFileName|m_mapLongMemberFileName` finds no other use. The existing copies the Done note lists are unchanged.
+   Outside the manager, the only reader of `strFileName` is `KTDXApp.h:567`, and nothing outside it uses `MASSFILE_NAMESIZE`.
+   - **Pre-existing, not X4's:** `LoadRealFile` (`:1393`) and `LoadTwoRealFiles` (about `:1582`) do an unbounded
+     `StrCpyW( pOut->strFileName, <caller's name> )` into the `WCHAR[60]` under `WCHAR_DIR`.
+   - This build has no `MASS_FILE_FIRST`, so every lookup tries the loose file first. A **loose** file of 60+ characters in the
+     game dir would therefore overrun `retInfo`.
+   - Today there are none: `os.walk` of the game dir finds 0 non-kom names over 59 characters. Recorded for X5. Bounding the copy
+     is outside X4's scope, so that is the user's call.
+4. **Index alignment.** The key is `m_vecMemberFileHeader.size()`, read inside the same `<File>` element whose `push_back` follows the
+   attribute loop. There is one push per `<File>`. The V.0.1/V.0.2 binary path never adds an entry, because its names are 60-char by
+   format. The map is cleared on the line after `m_vecMemberFileHeader.clear()`.
+5. **Upper-casing.** `MakeUpperCase(std::wstring&)` and `MakeUpperCase(WCHAR*)` (`KTDXCommonFunc.h:75-90`) run the same `towupper`
+   loop, and `LoadDataFile` uses the wstring one.
+
+**Lookup log.** `KomLongNameLogFound` sits on the three live hit paths only, never in the `MASS_FILE_FIRST` branches: `LoadTwoDataFiles`
+first and second file, and `LoadDataFile`. X5's paths reach it.
+- The wide `LoadTwoDataFiles` (`:1054`, the call `KTDXDeviceTexture.cpp:56` makes for `.tga`) forwards to the instrumented `std::string`
+  body.
+- The `std::string` `LoadDataFile` (`:984`) forwards to the instrumented wide body (`:884`), and `KTDXDeviceSound` passes its
+  `m_DeviceID` wstring there for `.ogg`.
+
+**Notes, none blocking.**
+- **The lookup log depends on an unrelated flag.** `KomLongNameLogFound` is defined inside `#ifdef NEW_MAIL_LOG`, but it is called
+  from code outside that guard. It builds because `Always.h:1310` defines `NEW_MAIL_LOG`. If that line were ever undefined, flag-on
+  would fail to compile with C3861. This is a fix for whenever the file is next touched; it is not worth a rebuild alone.
+- **The cut-key duplicate lookup is dead code.** `INT_KOM_DUPLICATE`'s `find( Info.strFileName )` would miss a long name's key, but
+  nothing in the tree defines `INT_KOM_DUPLICATE`.
+- **A duplicate long name is still reported by its cut name.** With `NOT_ALLOW_DUPLICATE_FILES` (`Always.h:3245`), the duplicate
+  path's `KEM_ERROR132` text and the `_IN_HOUSE_` MessageBox name the cut copy. The `[KOM_LONG] ... DUPLICATE` line names the full
+  one, but it is mount-time, so it is lost.
+- **Reverting the flag is not clean once X5 packs long names.** With the flag off, long names fall back to the cut key. Two names
+  that share their first 59 characters then collide, and `NOT_ALLOW_DUPLICATE_FILES` rejects the whole kom: it `delete`s
+  `pMassFile` while `m_vecMassFile` still holds it, and `_IN_HOUSE_` adds a MessageBox. Undefining the flag after X5 therefore
+  means reverting data048 and data197 too.
+
+**X5 buffer risk.** No caller-side name buffer under 64 characters was found on the texture, sound, mesh or particle paths. The
+grep covered `WCHAR`/`char` arrays named `*Name*`/`*File*`/`*Path*` in `KTDXLIB`/`X2Lib`, which are all 100 or more (`255`,
+`MAX_PATH`, `X2LocalMapUI.cpp:1678` `[100]`), plus every `MASSFILE_NAMESIZE` use. The texture and sound devices pass their
+`m_DeviceID` wstring, and the manager converts into `[255]`. The X5 play-test is the real check: a June EffectSet or sound-table
+field could still cut a name before it reaches the device.
+
+**Owes the user:** `/cost`.
+
 ## Phase X5 - Trial pack and play-test
 
 **Run with:** Sonnet 5.5 high, then the user's play-test.
