@@ -64,6 +64,7 @@ column.
 | `SERV_IRUHADEV_JUNE_TOUCH_LAND` | 2026-10-07 (June effect completion C7) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_SPAWN_INHERIT`) | `KTDXLIB/KTDGXMeshPlayer.h`/`.cpp` (`m_vVelocityBefore`, ctor init, per-frame snapshot, `GetGravity` / `GetVelocityBefore`), `X2Lib/X2DamageEffect.h`/`.cpp` (OnFrameMove gate, `JuneTouchLandDamageEffect`, `CreateTouchLandDamageEffect`); C7's other three items extend `SERV_IRUHADEV_JUNE_SPAWN_INHERIT` (`X2GameUnit.h` vslot 0x328, CEffect ctor hook, `JuneApplyCreateDamageEffectRate`) and `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME` (CREATE-loop INHERIT_CRITICAL, `JuneAssignLockOnData`, die INHERITLOCKONDATA) | -- |
 | `SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST`, `SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL` | 2026-10-08 (June effect completion C6c) | `KTDXLIB/Always.h` (end; the list needs `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` and `SERV_IRUHADEV_JUNE_ENCHANT_PARITY`, the fix needs the list) | `X2Lib/X2EffectSet.h`/`.cpp` (`BuffFactorListEntry` / `BuffFactorListMod`, `EffectSetInstance::m_vecBuffFactorList`, `AttachBuffFactorToEffectSet`, `ApplyBuffFactorListToDamageEffect`, the call in `OnFrameMove_CreateEffect`), `X2Lib/X2BuffFactor.h` (`JuneSetFinalizerValue`), `X2Lib/X2GUUser.cpp` (SIEE 15 attach in `ProcessSocketEffectEx`) | -- |
 | `SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION`, plus the C3c part of `SERV_IRUHADEV_JUNE_DAMAGEDATA` | 2026-10-08 (June effect completion C3c) | `KTDXLIB/Always.h` (before the costume-shop block; the `_DAMAGEDATA` part needs `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`) | `X2Lib/X2GameUnit.h`/`.cpp` (`StateParam::setSuperArmorCondition`, `JuneCollectUnitsAround`, `JuneIsPacketBuffRefused`, the two additions in `SetKBuffFactorPacketToGameUnit`), `X2Lib/X2GUUser.h`/`.cpp` (`JuneIsSuperArmorAgainst`, `CommonStateStart` parse, six `DamageReactStateChange` cases, `Process_ExtraDamage` EDT_TRANSIT_DEBUFF member loop), `X2Lib/X2DamageEffect.h` (friend), `X2Lib/X2DamageManager.cpp` (two rule-5 log blocks off, BOUNDING text) | -- |
+| `SERV_IRUHADEV_JUNE_USER_STATE_ID16`, `SERV_IRUHADEV_JUNE_USER_ACTION_ID16` | 2026-10-08 (June effect completion C3d-2) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUUser.h` (`SyncData::nowState` / `nowAction`, `UserUnitStateData::stateID`, `UserUnitStateDataMap` key, the two `GetGameUnitState*` casts, `m_OldStateId`, `USI_BOUNDING_*`), `X2GameUnit.h` (`UnitCondition::nextState`), `X2UDPPacket.h` (`m_ucNowState` / `m_ucNowAction`, **P2P wire format**); **data036 `Enum.lua` ships with the exe** | -- (P2P only) |
 | `SERV_IRUHADEV_OFFLINE_FIRST_SELECT` (offline emulator) | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (next to the above) | `X2Lib/Offline/Handlers_Unit.cpp` (`PushSelectUnitNotifications`, 5_NOT) | `SERV_IRUHADEV_OFFLINE` |
 | `SERV_IRUHADEV_JUNE_BUFF_DEBUG` | 2026-10-04, **disabled 2026-10-07** (june-buff Phase 14) | `KTDXLIB/Always.h:4787` (`#define` commented out; re-enable to diagnose) | ~250 `[JUNE_BUFF] first ...` debug sites across `X2Lib` (buff templets, game units, users, NPCs, `X2Main.cpp`'s `JuneBuffTestNewStat_LUA` console hook) | -- |
 
@@ -3323,6 +3324,20 @@ that is `ATTACK_OUR_TEAM`; an NPC no longer heals a dead NPC; a user-owned effec
 `31fcee10`).
 
 Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEDATA` and rebuild all four projects (it also turns off the earlier phases that flag owns).
+
+### C3d-2: 16-bit user state id and action id (2026-10-08)
+
+`SERV_IRUHADEV_JUNE_USER_STATE_ID16` widens the user state id from a byte to 16 bits, as June does (sites: `june2017_re/c3d1_state_id_sites.tsv`),
+and reserves June's `USI_BOUNDING_DOWN` / `_LANDCRASH` / `_UP` just before `USI_END`: **every class state id shifts by 3** (`USI_END` 88 -> 91,
+Chung's last 255 -> 258, `ASI_DASH_COMBO_X` 121 -> 124). `SERV_IRUHADEV_JUNE_USER_ACTION_ID16` widens `SyncData::nowAction` and its packet field.
+
+**The exe and data036 must deploy together.** `Enum.lua`'s `CHUNG_STATE_ID` / `ARA_STATE_ID` are `USI_END`-relative and are read by
+`Chung_Iron_Cannon.lua` (guard-state list), `Ara_Martial_Artist.lua` (chain system) and data037 `Npc_Chung_01..05`. A flag-on exe with the old
+data036, or the old exe with the new data036, leaves Chung's guard list and Ara's skill-chain ids off by 3. data036's `Enum.src.lua` gained the three
+rows at `GUSI_END + 83..85` and `USI_END = GUSI_END + 86`.
+
+Revert: undefine both flags, restore `Enum.src.lua`'s `USI_END = GUSI_END + 83` (drop the three rows), `kom.py compile` + `pack` data036, rebuild all
+four projects and deploy exe and kom together.
 
 ## Reverting to stock
 

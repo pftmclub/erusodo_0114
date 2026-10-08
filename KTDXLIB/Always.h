@@ -6173,3 +6173,29 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: C3d-2: June's 16-bit user state id ( C3d-1 sites, june2017_re/c3d1_state_id_sites.tsv ).
+//              March kept the user state id in a byte, so Chung's last state ( 255 ) already aliased the -1
+//              sentinel and nothing could go above it. June widens: UserUnitStateData::stateID, the
+//              UserUnitStateDataMap key, SyncData::nowState ( KProtectedType<short>, 32072ae0 ),
+//              UnitCondition::nextState ( signed short, user 320348c0 @32034a79 / NPC 32758ea0 ), the two
+//              GetGameUnitState* casts, m_OldStateId and the P2P sync field ( 32d5be30 bit 1 = 2 bytes, the
+//              name m_ucNowState is kept ). Also reserves June's three bounding ids USI_BOUNDING_DOWN / _LANDCRASH
+//              / _UP just before USI_END ( every class state id shifts by 3 ); data036 Enum.lua gets the same
+//              rows, so the exe and data036 must reach the game together. Nothing enters those states yet ( C3d-3 ).
+//              Off = March's byte state id.
+#define SERV_IRUHADEV_JUNE_USER_STATE_ID16
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: C3d-2: June also widened the user action id: SyncData::nowAction is a protected short ( Future
+//              +0x7e84, 31fe9a90 @31fe9b0d ) and the P2P sync field is 2 bytes ( 32d5be30 bit 2, the name
+//              m_ucNowAction is kept ). GetActionSyncData / SetActionSyncData and
+//              IsAvaliableActionDuringDamageReact( UCHAR ) stay 8-bit ( action ids are < 32 ). Off = byte.
+#define SERV_IRUHADEV_JUNE_USER_ACTION_ID16
+//////////////////////////////////////////////////////////////////////////

@@ -291,8 +291,16 @@ struct KDYNAMIC_UNIT_USER_SYNC
 #else SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
     USHORT              m_usDataFieldFlag;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_USER_STATE_ID16
+	USHORT				m_ucNowState;	// June 32d5be30 bit 1: 2 bytes ( name kept )
+#else SERV_IRUHADEV_JUNE_USER_STATE_ID16
 	UCHAR				m_ucNowState;
+#endif SERV_IRUHADEV_JUNE_USER_STATE_ID16
+#ifdef SERV_IRUHADEV_JUNE_USER_ACTION_ID16
+	USHORT				m_ucNowAction;	// June 32d5be30 bit 2: 2 bytes ( name kept )
+#else SERV_IRUHADEV_JUNE_USER_ACTION_ID16
 	UCHAR				m_ucNowAction;
+#endif SERV_IRUHADEV_JUNE_USER_ACTION_ID16
 	char				m_cStateChangeNum;
 
 	USHORT              m_usPosX;

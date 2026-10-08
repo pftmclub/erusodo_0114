@@ -923,7 +923,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 
 		struct UnitCondition	//상황을 나타내는 파라메터
 		{
+#ifdef SERV_IRUHADEV_JUNE_USER_STATE_ID16
+			short			nextState;	// June widened the shared struct: user 320348c0 @32034a79 writes a short ( +0x7de4 ), NPC 32758ea0 a word; signed, -1 stays the sentinel
+#else SERV_IRUHADEV_JUNE_USER_STATE_ID16
 			char			nextState;
+#endif SERV_IRUHADEV_JUNE_USER_STATE_ID16
 			char			nextSubState;
 			float			fStateTime;			/// 스테이트 시작으로 부터 경과된 시간
 			float			fStateTimeBack;		/// 스테이트 시작으로 부터 이전 프레임까지 경과된 시간

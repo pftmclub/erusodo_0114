@@ -439,6 +439,13 @@ public:
 
 #endif //RIDING_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_USER_STATE_ID16
+		// June Enum.lua USI_BOUNDING_DOWN / _LANDCRASH / _UP ( GUSI_END + 115 / 116 / 117 ), after the event states
+		// March does not have and before USI_END. Reserved ids only: nothing registers or enters them until C3d-3.
+		USI_BOUNDING_DOWN,
+		USI_BOUNDING_LANDCRASH,
+		USI_BOUNDING_UP,
+#endif SERV_IRUHADEV_JUNE_USER_STATE_ID16
 		USI_END,
 	};
 
@@ -809,9 +816,17 @@ public:
 		struct SyncData
 		{
 			DWORD					dwFrameMoveCount;
+#ifdef SERV_IRUHADEV_JUNE_USER_STATE_ID16
+			KProtectedType<USHORT>	nowState;	// June 31fe6a40 / 3203c3a0: protected 16-bit ( Future +0x7e6c, Now +0x810c )
+#else SERV_IRUHADEV_JUNE_USER_STATE_ID16
 			KProtectedType<UCHAR>	nowState;
+#endif SERV_IRUHADEV_JUNE_USER_STATE_ID16
 			KProtectedType<char>	nowSubState;
+#ifdef SERV_IRUHADEV_JUNE_USER_ACTION_ID16
+			KProtectedType<USHORT>	nowAction;	// June 31fe9a90 @31fe9b0d: protected 16-bit ( Future +0x7e84 )
+#else SERV_IRUHADEV_JUNE_USER_ACTION_ID16
 			KProtectedType<UCHAR>	nowAction;
+#endif SERV_IRUHADEV_JUNE_USER_ACTION_ID16
 
 			bool					bDirectChange;
 			char					stateChangeNum;
@@ -959,7 +974,11 @@ public:
 		struct UserUnitStateData
 		{
 //{{ robobeg : 2008-10-28
+#ifdef SERV_IRUHADEV_JUNE_USER_STATE_ID16
+			USHORT				stateID;	// June 31fd89b0 UpdateUserUnitStateData( USHORT ... ): 16-bit id
+#else SERV_IRUHADEV_JUNE_USER_STATE_ID16
 			UCHAR				stateID;
+#endif SERV_IRUHADEV_JUNE_USER_STATE_ID16
 			//wstring				stateTable;
 //}} robobeg : 2008-10-28
 			char				m_SPLevel;
@@ -1052,7 +1071,11 @@ public:
 				return *this;
 			}
 		};
+#ifdef SERV_IRUHADEV_JUNE_USER_STATE_ID16
+		typedef map<USHORT, UserUnitStateData> UserUnitStateDataMap;	// June 31fd89b0: vector indexed by a word id; March keeps the map, only the key widens
+#else SERV_IRUHADEV_JUNE_USER_STATE_ID16
 		typedef map<UCHAR, UserUnitStateData> UserUnitStateDataMap;
+#endif SERV_IRUHADEV_JUNE_USER_STATE_ID16
 
 
 //#ifndef NOT_USE_DICE_ROLL
@@ -1623,7 +1646,11 @@ public:
 		virtual bool				GetIsRight() const							{ return m_FrameDataNow.syncData.bIsRight; }
 		virtual bool				GetIsRightBefore() const					{ return m_FrameDataNowBefore.syncData.bIsRight; }
 
+#ifdef SERV_IRUHADEV_JUNE_USER_STATE_ID16
+		virtual GAME_UNIT_STATE_ID	GetGameUnitState() const					{ return (GAME_UNIT_STATE_ID)( (USHORT) m_FrameDataNow.syncData.nowState); }	// June reads nowState & 0xffff ( 3203c3a0 @3203c536 )
+#else SERV_IRUHADEV_JUNE_USER_STATE_ID16
 		virtual GAME_UNIT_STATE_ID	GetGameUnitState() const					{ return (GAME_UNIT_STATE_ID)( (UCHAR) m_FrameDataNow.syncData.nowState); }
+#endif SERV_IRUHADEV_JUNE_USER_STATE_ID16
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		/// June buff port Phase 7b: CX2GUUser slot 96 (June 31fcee80) is true while a BBT_INVINCIBLE buff is on
 		virtual bool				GetInvincible()	const					{ return IsInvincibleByBuff() || m_FrameDataNow.stateParam.bInvincible; }
@@ -1655,7 +1682,11 @@ public:
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
 #ifdef FIX_MEDITATION_RUN
+#ifdef SERV_IRUHADEV_JUNE_USER_STATE_ID16
+		virtual GAME_UNIT_STATE_ID	GetGameUnitStateFuture() const			{ return (GAME_UNIT_STATE_ID)( (USHORT) m_FrameDataFuture.syncData.nowState); }	// June 31fe6a40 / 320348c0 compare the word
+#else SERV_IRUHADEV_JUNE_USER_STATE_ID16
 		virtual GAME_UNIT_STATE_ID	GetGameUnitStateFuture() const			{ return (GAME_UNIT_STATE_ID)( (UCHAR) m_FrameDataFuture.syncData.nowState); }
+#endif SERV_IRUHADEV_JUNE_USER_STATE_ID16
 #endif FIX_MEDITATION_RUN
 
 		virtual float				GetUnitWidth( bool bFuture ) const		{ return GetFrameData( bFuture ).unitCondition.fUnitWidth;	}
@@ -4415,7 +4446,11 @@ private:
 #endif BUFF_TEMPLET_SYSTEM
 
 #ifdef SERV_ELSWORD_INFINITY_SWORD
+#ifdef SERV_IRUHADEV_JUNE_USER_STATE_ID16
+		USHORT			m_OldStateId;	// write-only; keeps a stored state id from truncating
+#else SERV_IRUHADEV_JUNE_USER_STATE_ID16
 		UCHAR			m_OldStateId;	// 이전 스테이트를 저장함 (언젠간 써먹을곳이 있지 않을까?)
+#endif SERV_IRUHADEV_JUNE_USER_STATE_ID16
 #endif
 
 

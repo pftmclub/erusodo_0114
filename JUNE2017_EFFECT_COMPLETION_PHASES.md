@@ -667,6 +667,48 @@ Site list `june2017_re/c3d1_state_id_sites.tsv` (19 rows), 9 funcmap rows `(C3d-
 - **Exit:** builds with the flag on and off; a regression play-test across several classes (state changes, skills, riding, a dungeon
   run; Chung's top states still reachable) with 0 EXCEPTION.
 
+### C3d-2 - Done (2026-10-08, Sonnet 5.5 high)
+
+Flags `SERV_IRUHADEV_JUNE_USER_STATE_ID16` and `SERV_IRUHADEV_JUNE_USER_ACTION_ID16` (`KTDXLIB/Always.h`, end). Commit: see `git log` for "C3d-2".
+
+**What landed** (site numbers = `june2017_re/c3d1_state_id_sites.tsv`):
+- Rows 1-3, 5-6 (`X2GUUser.h`): `UserUnitStateData::stateID` and `m_OldStateId` -> `USHORT`; `UserUnitStateDataMap` key -> `USHORT`;
+  `SyncData::nowState` -> `KProtectedType<USHORT>`; the two `GetGameUnitState*` casts -> `(USHORT)`.
+- Row 4 (`X2GameUnit.h`): `UnitCondition::nextState` -> signed `short` (shared with the NPC; `-1` stays the sentinel).
+- Rows 7-9 (`X2UDPPacket.h`): `m_ucNowState` -> `USHORT` (name kept); `_Serialize` / `_Deserialize` are templates, so the cpp needs no edit.
+- Row 10 (own flag ACTION_ID16): `SyncData::nowAction` -> `KProtectedType<USHORT>`, `m_ucNowAction` -> `USHORT`. The `UCHAR` action helpers stay.
+- Row 16: `USI_BOUNDING_DOWN / _LANDCRASH / _UP` between `#endif //RIDING_SYSTEM` and `USI_END`; data036 `Enum.src.lua` got the same rows at
+  `GUSI_END + 83..85`, `USI_END` `+ 86`, compiled and packed (`PACK OK data036`; the only entry that differs from the live kom is `Enum.lua`).
+- No `.cpp` edit: rows 8-9, 11-15, 17-19 are untouched, as the tsv says.
+
+**Gate.**
+- Enum probe (`enumprobe.py`, flag on): `USI_END` 91, `CSI_A_CIP_ARTILLERY_NOVA_FIRE` 258, `ASI_DASH_COMBO_X` 124, `USI_BOUNDING_DOWN` 88. = Lua (91 + 167, 91 + 33).
+- Completeness, `/Zs /w14244 /w14242` on 14 TUs, flag off vs on (`june2017_re/c3d2_warndiff.py`; it comments the two defines out of `Always.h` for the
+  off pass and restores it). All 14 compile in both passes (`X2UDPPacket.cpp` needs `/FIstdafx.h` alone; checked separately, 0 warnings, rc 0).
+  - `cl` reported `X2GUUser.cpp` lines 35 higher with the flag on (= the lines added to `X2GUUser.h`) from the first warning on, so the file:line
+    diff was matched with that offset: 18 warning sites moved by exactly +35 and are unchanged in text.
+  - What is left is exactly the intended set: `X2GUNPC.cpp:7617` (row 14, short -> char), and three `nowAction` -> `UCHAR` sites
+    (`X2GUUser.cpp` 24173, 24702, 41362: `IsAvaliableActionDuringDamageReact( UCHAR )`, row 10). **No missed state-id site.**
+  - Open for the review: why the line numbers shift (not understood; the offset matches the header's added lines, nothing in the `.cpp` changed).
+- Flag-off build: the off pass above compiled every TU; the shipped exe is flag-on.
+
+**Hygiene** (`flagcheck --worktree --files Always.h X2GUUser.h X2GameUnit.h X2UDPPacket.h`):
+```
+STATE_ID16:  files: 1 PASS, 0 PASS~, 0 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR
+             in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)
+             RESULT: PASS
+ACTION_ID16: files: 0 PASS, 0 PASS~, 0 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 ERROR   (the two flags share files; OTHER = the other flag)
+             in this flag's files: 0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)
+             RESULT: PASS
+```
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,410,432 B, dated 2026-10-08 22:21:54, md5 6db35bc54e7dbc559ea2345bdade8bdf, equal to X2/US_SERVICE/x2.exe (2026-10-08 22:21:50); built at mods/june-buff-port 50e2246 + 4 uncommitted code file(s).`
+
+**data036 is packed, not yet copied.** `kom_contents/data036_packed.kom` holds the new `Enum.lua`; the exe and the kom must reach the game together
+(the exe is already deployed, so the user's yes to `/x2-kom-packed copy data036` completes it). MODS.md has the row and the "ship together" note.
+
+**Play-test:** the eight checks in `kickoffs/june-effect/C3d-2.md` (states above 255, Chung guard list, Freils skills, Ara chain, every class, riding, a full
+clear). The save rows were re-read today: RapidT 42 slot 0 = 6218, NovaT 43 slot 0 = 6210, arasss 24 = 7001 **A**, 7200 **S**, 7214 **D**, 7010 **C**.
+
 ## C3d-3 - port: the bounding back-speed state
 
 **Status: blocked on C3d-2, C9h-4f and C3c. Model:** Sonnet 5.5, high, then an Opus review. Kickoff `kickoffs/june-effect/C3d-3.md`.
