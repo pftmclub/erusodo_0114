@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C9h-4f` |
 | Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` |
-| Depends on | C9h-4c (same two parse sites in `X2GUUser.cpp`, so not at the same time as 4a / 4b / 4d) |
+| Depends on | C9h-4c (same two parse sites in `X2GUUser.cpp`, so not at the same time as 4a / 4b / 4d). Not with C3d-2 (added by C3d-1: it widens `X2GUUser.h/.cpp` state types) |
 | Flag | `SERV_IRUHADEV_JUNE_USEFUL_VALUE` (+ `_DEBUG` only if you need temporary lines) |
 | Log tag | `JUNE_FX USEFUL_VALUE` |
 | Review | write `kickoffs/june-effect/C9h-4f-review.md` when done (Opus 5.5 high) |

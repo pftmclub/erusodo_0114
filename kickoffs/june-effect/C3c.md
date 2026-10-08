@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C3c` |
 | Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
-| Depends on | C3b (done 2026-10-08). Not in parallel with C9h-4f or C8b: same `X2GUUser.cpp` areas (CommonStateStart, DamageReact) |
+| Depends on | C3b (done 2026-10-08). Not in parallel with C9h-4f or C8b: same `X2GUUser.cpp` areas (CommonStateStart, DamageReact). Not with C3d-2 either (added by C3d-1: it widens `X2GUUser.h/.cpp` state types) |
 | Flag | new `SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION` (items 1-2); extend `SERV_IRUHADEV_JUNE_DAMAGEDATA` (item 3). C3b's kickoff said only `_DAMAGEDATA`; the parse + check + 22-site rewrite is a logical change of its own |
 | Log tag | `JUNE_FX C3c` (`python tools/logs.py --grep "JUNE_FX C3c"`) |
 | Review | `kickoffs/june-effect/C3c-review.md` (write it when done) |
