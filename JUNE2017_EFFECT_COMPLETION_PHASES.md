@@ -3440,7 +3440,7 @@ Other notes:
 | `327f4210` Go (SubStageGo* particle start) | `X2DungeonStage.cpp:333` (`X2PlayGuide.cpp:1077` keeps 1) |
 | `3250f680` Count / ResultStamp / LevelUpBGM (= `CX2StateDungeonResult::OnFrameMove`) | `X2StateDungeonResult.cpp` :490, :681, :1176, :1509, :1521 (Arcade / Training results keep 1: no June site) |
 | `3293b5e0` NewStage_Open | `X2LocalMapUI.cpp` :1393, :1594 |
-| `32952930` UseItem | `X2UIQuickSlot.cpp` :903, :2405 |
+| `32952930` UseItem | `X2UIQuickSlot.cpp` :903, :2405 (**review: :2405 is June's `32951f70`, which passes 1; fixed, so 25 sites, not 26**) |
 | `32e2b608` MagicEnchant_Success | none (June-only) |
 
 - `X2StateDungeonResult.cpp:520` (`Count.ogg`, true) sits inside a `/* ... */` block (dead code), so it was **not** edited (`flagcheck` cannot evaluate a directive inside a comment).
@@ -3458,6 +3458,57 @@ Other notes:
 **Play-test PASSED 2026-10-08** (run 16:30-16:37, exe `40b97943`; user: all checks passed; logs read). Five sounds ran the whole chain `open ... fmod=0 channel=1 ref=1 deleted=1` -> `queue` -> `close <NAME> ref=1 deleted=1`: `SKILL_EQUIP`, `SKILL_UNEQUIP`, `QUESTREWARD`, `CAMERA_ZOOMIN`, `CAMERA_ZOOMOUT` (the 15:58 run also did `UI_QUICKQUEST_CHECK`, `QUESTCOMPLETE_ELSWORD`). 0 EXCEPTION, clean exit, no crash bundle.
 - **Add check (`AddTest`, Psychic Tracer, X X Z Z + Z taps, 3 times): no crash, but JUNE_BUGS 125's path was not reached.** `ADD_EFFECT05.OGG` (and `ADD_EFFECT10.OGG`) logged one `open` with `fmod=-1 channel=0`: the first play returned no channel, so no callback was registered, and every later play took the found branch (no callback). The device was never released, so `StopLoopSound` never touched freed memory.
 - **For the review:** many first opens show `fmod=-1 channel=0` (game-start / character-select voices, `QUESTACCEPT`, `PORTAL`, `SKILL_REFRESH`, the Add clips), and such a sound is then never auto-released for the session. Check whether June's open branch behaves the same (Play returning before a channel exists on a fresh load), or whether this is a March difference.
+
+### C9h-7a - Review (2026-10-08, Opus 5.5 high): one transcription error fixed (the defence-dungeon quick-slot ACK passes 1); `_DEBUG` off
+
+**Engine vs June: all four pieces match.**
+- **Callback `31cdcca0`:** `cmp [esp+8],0` (END), then `31cdcbb0` on `[g_pKTDXApp]+0x1f4`, `xor eax,eax`, `ret 0x10`. The port's added NULL guard on the app and the manager changes nothing.
+- **Queue `31cdcbb0`:** lock `+0xc4`, map walk, `[dev+4]==1`, dynamic cast, `[+0x60]==channel`, push `+0x240`, break.
+- **Close `31cdd8d0`:** NULL or count <= 0 returns. At count >= 2, CAS `31d4d310` returns when it takes.
+  - **A failed CAS falls through** to the locked `InterlockedDecrement` `31d4d300` and erases + deletes at zero (find by `+8`, node `+0x24` == device). That is June's only way for the "> 1" branch to end in an erase: another thread must change the count between the read and the CAS.
+  - In March every `m_RefCount` writer (`RefDevice` / `UnrefDevice`, `KTDXDevice.cpp:170-186`) holds `m_csDeviceState`. So the port's locked read-and-decrement cannot fail, and the result is the same.
+- **Drain `31cde8d0`:** `jne @31cde8ea -> 31cde8fb` skips only `ProcessForegroundQueue`; the close loop and the clear run every frame. This matches the port after the post-deploy fix.
+
+**Census re-trace:**
+- **`3250f680`'s 4 `ebp` sites are proven 0**, no longer inferred from March's arguments.
+  - `3251029b`, `3251094c`, `325130c5` and `325131b2` are reached only from cases 3 / 9 / 20 / 24 of the state switch `3250fc56` (`[+0x30c]-1`, table `325138e8`).
+  - The only `ebp` write before that dispatch is `xor ebp,ebp @3250fc01`. A backward walk over direct edges finds no `ebp` write between any case entry and its call; the `inc ebp` blocks belong to other cases.
+- **`32e2b608`:** `mov ebx,1 @32e2b41b`, no other write (`lea ebx,[ebx]` is a no-op).
+- **`324c7ce0` = the square-game `MsgProc`** = `X2StateSquareGame.cpp:354`, confirmed by structure: WM_LBUTTONDOWN, PShop talkbox hit `324c8260`, guest check `+0x31`, the sound, then `ToggleUI( 0x12 )`.
+  - The Done note's "June has no such site" for `X2UIManufacture.cpp:295` is loose: June's other `X2_Button_Mouse_Up` site, `32e03200` (not identified), passes 1. The March site keeps 1 either way.
+- **`327f4210` = `CX2DungeonStage::StartGoEffect`** (`SubStageGo*`) and **`3289d090` (1) = `CX2PlayGuide::StartGoEffect`** (`SubStageGoRight_UI`): confirmed.
+- **`3293b5e0` -> `X2LocalMapUI.cpp` :1393 / :1594: confirmed by structure** (it was mapped from the sound name before).
+  - The sound follows `GetShow` / `GetEnable` (vslots +0x6c / +0x64), the newly-opened test `3293d940` and the drop-down `32935910`. That is March's `UpdateDungeonButtons`.
+  - The two March sites are the two `#ifdef` versions of that function.
+- **`32952930` -> `X2UIQuickSlot.cpp` was half wrong; fixed.** June has three `UseItem.ogg` handlers. The quick slot's packet switch `32952e40` sends:
+  - `0x110` and `0x656` to `32952930`, which passes 0;
+  - `0x3eb` to `32951f70`, which passes 1;
+  - `0x5d2` to `32951d10`, which passes 1.
+  - **Which ACK is which:** `KeyEventProcess` `32951670` sends `0x3ea` and waits for `0x3eb` (`3294ea00`) when `+0x100` is set (March `GetIsSummonCardSlot()`); otherwise it sends `0x10f` and waits for `0x110` (`3294e290`). In March's preprocessed enum, `EGS_USE_QUICK_SLOT_REQ/ACK` = `0x119/0x11a` and `EGS_USE_DEFENCE_DUNGEON_QUICK_SLOT_REQ/ACK` = `0x3f1/0x3f2`.
+  - So `32952930` = `Handler_EGS_USE_QUICK_SLOT_ACK` (:903, 0, right), and **`32951f70` = `Handler_EGS_USE_DEFENCE_DUNGEON_QUICK_SLOT_ACK` (:2409), which passes 1**.
+  - **Fix:** `X2UIQuickSlot.cpp:2410` now passes `true` explicitly, with a comment, under the same flag. March passes `false` at **25** sites, not 26.
+- **Missed-site sweep:** every stored `GetDeviceManager()->PlaySound(` result in X2Lib / X2 / KTDXLIB (assignment, including Add's split `m_pLoopSound =`; `return`; `push_back`; argument) is one of the audit's 16 sites. No other receiver stores a device-manager handle.
+
+**Play-test (16:30 run) and `channel=0`:**
+- Five sounds ran `open` -> `queue` -> `close ref=1 deleted=1`. Every close was `ref=1`, so the count > 1 branch was never exercised in game. 0 EXCEPTION, no crash.
+- **Add (JUNE_BUGS 125):** no crash; the path was not reached. Reported only, no fix.
+- **`fmod=-1 channel=0` behaves the same in June; it is not a port defect.**
+  - `Play` returned before `FMOD_System_PlaySound`: there is no `KEM_ERROR374` in the log.
+  - June's `Play` `31d414d0` has the same early returns: DS init `+0x34`, mute `+0x36`, state `+0x44 != 2`, system `+0x58`, sound `+0x5c` after `_CheckLoadFMODSound`. June's `31cdd4e0` registers only on a non-NULL channel.
+  - So in June too, a sound whose first (open) play gets no channel keeps that open's reference for the whole session, as March did before the port.
+  - The cause is runtime state, not the file. `QUESTCOMPLETE_ELSWORD` / `UI_QUICKQUEST_CHECK` got a channel in the 15:58 run. In the 16:30 run, every `channel=0` line is before 16:36 and every later open has a channel.
+  - Candidate (unconfirmed): `PLAY_PROMOTION_MOVIE` (`Always.h:361`) mutes sound on entering server select (`X2StateServerSelect.cpp:293`) until the intro-movie block restores it.
+
+**What changed:**
+- `X2UIQuickSlot.cpp:2410` (`true`).
+- `Always.h`: `_DEBUG` commented out, and the description now names the defence-dungeon exception.
+- funcmap: 5 rows `Effect C9h-7a review`.
+- No kom, no data.
+- No new JUNE_BUGS row: `0x656` sharing `32952930` is June's dispatch, not a bug.
+
+**Hygiene** (`flagcheck JUNE_SOUND_AUTO_RELEASE --with ..._DEBUG --worktree --files KTDXLIB/Always.h X2Lib/X2UIQuickSlot.cpp`): 1 PASS, 1 DEFINE, 0 FAIL; 3 deleted lines = our own (the `Always.h` description line and the `_DEBUG` `#define`, now commented, and the replaced flagged `false` line); 0 non-ASCII, 0 EOL-mismatched, 0 encoding change; RESULT: PASS.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,386,368 B, dated 2026-10-08 17:06:44, md5 fa2af5980bce6d2b08c0cac56b49b795, equal to X2/US_SERVICE/x2.exe (2026-10-08 17:06:39)`. `JUNE_FX SOUND_RELEASE` strings in the exe: 0 (`_DEBUG` off).
+**Play-test:** none owed (the fixed site is the defence-dungeon summon-card ACK, not reachable offline). **Open for the user:** `/cost`; next C9h-8.
 
 ## C10 - Decided absent systems
 

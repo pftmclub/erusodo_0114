@@ -2407,7 +2407,8 @@ bool CX2UIQuickSlot::Handler_EGS_USE_DEFENCE_DUNGEON_QUICK_SLOT_ACK( HWND hWnd, 
 			}
 
 #ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
-			g_pKTDXApp->GetDeviceManager()->PlaySound( L"UseItem.ogg", false, false, false );
+			// June 32951f70 = this handler ( deletes June event 0x3eb = March EGS_USE_DEFENCE_DUNGEON_QUICK_SLOT_ACK 0x3f2 ) passes 1 (C9h-7a review)
+			g_pKTDXApp->GetDeviceManager()->PlaySound( L"UseItem.ogg", false, false, true );
 #else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 			g_pKTDXApp->GetDeviceManager()->PlaySound( L"UseItem.ogg", false, false );
 #endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE

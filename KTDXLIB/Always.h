@@ -6014,11 +6014,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              sound, village NPC near sound, wedding duration sound, emblem sound,
 //              the two Lua wrappers, and the dropped-handle sites: square talkbox click,
 //              dungeon Go, dungeon result Count / ResultStamp / LevelUpBGM, local map
-//              NewStage_Open, quick slot UseItem). The square (JUNE_BUGS 122) and Add
+//              NewStage_Open, quick slot UseItem; the defence-dungeon quick slot ACK
+//              keeps 1, as June 32951f70: C9h-7a review). The square (JUNE_BUGS 122) and Add
 //              (JUNE_BUGS 125) keep June's 1 and June's use-after-free, no guard.
 //              Log: "JUNE_FX SOUND_RELEASE" in ErrorLog.txt (_DEBUG only).
 #define SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
-#define SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE_DEBUG
+//#define SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
