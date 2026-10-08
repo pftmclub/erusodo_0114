@@ -3137,6 +3137,13 @@ June's three effect-set delete conditions, the hyper check and the played-handle
 
 **Play-test owed** (`_DEBUG` still on; turn it off after the logs), character `jtLordKnight` (Lord Knight, unit 25), no console: (1) a multi-stage dungeon, a skill right before the next stage loads -> `JUNE_FX EFFECT_SET_DELETE stage_end n=.. unit=25`; (2) get hit within 0.5 s of starting a skill without super armor -> its effects cut, `damage_react_all n=.. extra=<skill id>`; (3) a riding-pet summon / unsummon and a few skills as before, 0 EXCEPTION.
 
+**Play-test 2 (2026-10-08 16:30-16:37, exe `40b97943`, `_DEBUG` on; user: all checks passed; logs read): (1) and (3) confirmed, (2) has no log evidence.**
+- (1) One `stage_end` line per stage load for every unit that played: `jtLordKnight` (unit 25) `n=0 extra=0` at 16:31:14 and `n=0 extra=2` at 16:32:28; `AddTest` (37) and `reyaa` (12) `n=0 extra=0`. The list fills (Endurance pressed at the exit), but no set was still live at a stage load, so a live stop was not observed.
+- (2) **0 `damage_react_check` lines.** That line prints on every DamageReact a user takes in a state with a skill id != 0, before the 0.5 s test, so no hit inside a skill state reached the effect-set half (Endurance = `SI_A_ES_ENDURANCE` 1203, key Q, no SUPER_ARMOR / INVINCIBLE in `ESSI_SI_A_ES_ENDURANCE`, set at time 0). Either the hits landed outside the state, the reaction was 0 / 0xb / 0xc, or the state carries skill id 0. The user reported the glow cut on a hit; the log cannot confirm it. For the review to settle.
+- (3) `reyaa` summon / unsummon in village and dungeon: no `off_riding` line (expected: no March pet uses OFF_RIDING), no lingering effect.
+- 0 EXCEPTION, clean exit, no crash bundle; 4 UNHANDLED = `E_DISABLE_HB_CHECK_REQ` (unrelated).
+- `_DEBUG` is now off in `Always.h` (committed with these results; the deployed exe `40b97943` still has it on, the next build drops it). A retest of (2) needs it back on.
+
 ### C9h-4b - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_NPC_SOUND` + `SERV_IRUHADEV_JUNE_SQUARE_SOUND`, each + `_DEBUG` on for the play-test; logs `JUNE_FX NPC_SOUND`, `JUNE_FX SQUARE_SOUND`; play-test PASSED, logs read; `_DEBUG` off)
 
 Files: `X2GUNPC.h/.cpp`, `X2SquareUnit.h/.cpp`, `X2EventScene.cpp`, `Always.h`. 12 funcmap rows `Effect C9h-4b`, JUNE_BUGS 119-121 (+ row 116's "Reached?" updated).
