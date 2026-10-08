@@ -108,7 +108,6 @@ Phases 5–9 are independent of each other and can run in any order, except insi
    - Opus 5.5 defaults to `medium`, so every Opus kickoff says `high` (Phase 1: `xhigh`).
    - Sonnet 5.5 defaults to `high`. Phases 12 and 13 set `medium`: their work is scripted and their gates are numeric.
 9. **Measure and revise.**
-   - At the end of each phase, record the session's cost or usage in the phase's "Done" note. Use `/cost` dollars on API billing; on a subscription, record the usage or limit consumption instead.
    - **A Phase 7 type may move to Sonnet** only if Phase 1 marked it transcription-ready. Clean results from Phases 5 and 6 do not justify it: they only show that Sonnet transcribes faithfully, not that it can build a mechanism March lacks.
    - **Upgrade Phases 5 and 6 to Opus** if their reviews find value or layout errors.
 10. **Scope of the required reviews (keeps the Sonnet saving real).**
@@ -410,7 +409,6 @@ before going on. Record the baseline in the doc and commit.
   - Each unread behavior/finalizer/displayer key carries an `owner`: the phase of the type it sits under (4b if March already handles the type, 5–8 if not). `--phase 4b` therefore never lists a key that belongs to a Phase 5–8 type, and `--phase 6` lists `SKILL_CATEGORY_n`.
   - The Lua-binding "present/ABSENT" check scans the preprocessed March sources, so a binding added under an OFF flag does not count.
 - **Phase grouping in the report.** Types map to Phases 5–8 exactly as listed under "Phases 5–7" and "Phase 8". If Phase 1 re-splits them, edit `PHASE_BBT_VALUES` and `PHASE_BFT_VALUES` at the top of the script.
-- **Cost.** Not recorded for this session (no `/cost` figure was available).
 
 ### Census baseline (2026-10-02, before any port work)
 
@@ -492,7 +490,7 @@ binding/key in the ledger, and identify FUN_31fcf3e0 / FUN_3227baf0
 "June buff function map" table into the doc (address -> March symbol -> phase).
 Every Phase 5/6 type must meet the doc's "transcription-ready bar", because those
 phases run on Sonnet without RE; mark any type that can't as "Opus-only". Adjust the
-Phase 5-9 grouping if the RE warrants it. Record this session's /cost in the Done note.
+Phase 5-9 grouping if the RE warrants it.
 Commit.
 ```
 
@@ -721,7 +719,7 @@ in its order, so Phases 5b-9 can transcribe. For each item, record parse/store/r
 pseudocode at the June addresses in the Per-type map, and add confirmed funcmap.tsv rows.
 Read stores with the method in "How to read June's stores" (EBP bases, ADD-immediates,
 the +0x1a0 sub-object). Promote a type to "transcription-ready" only when it meets the bar.
-Record this session's /cost in a Done note. Commit.
+Commit.
 ```
 
 ### Phase 1c, item 1 — Phase 6 classes (2026-10-03)
@@ -1345,7 +1343,6 @@ Read-only Ghidra, same method as items 1–3. Uncarved slots were read with `buf
 - **Cost, fourth 1c session (item 4)** (subscription, `/usage` at the end of the session, 2026-10-03): the 5-hour session window was **64% used**, and the week (all models) 11%. The window was shared with other sessions (19 sessions in 24h), so not all of it is item 4. `/ghidra` accounted for 42% of the last 24h, and 90% of usage was at >150k context.
 - **Cost, third 1c session (items 3 and 5):** not readable in-session; ask the user.
 - **Item 5 is reduced.** Phase 4a already named `322a6960`'s virtuals (`+0x210` `CanApplyBuffToGameUnit`, `+0x224` `SetBuffFactorToGameUnit`, `+0x234` empty, `+0x770` BFT 15/16 scaling) and `OnFrameMoveBuff` (`3229d620`). Only `CreateAndInsertCustomFunctionByBuff` remains (from `CX2BuffCustomFunctionBehaviorTemplet::SetFactor` `32e79b00`).
-- **Cost:** `/cost` is not readable from inside the session. Ask the user and add it here, for both the first 1c session and the second.
 
 **Phase 1c is complete** (items 1-5). Open RE for the Opus sessions that pick these types up: the `0x1b` handler and reply (Phase 8), `+0x8eac` locality (BFT 16), `32ec18f0` byte equality, naming `322f7170`, and the slot-476 type-16 formula (Phase 10).
 
@@ -1442,8 +1439,6 @@ me naming both staging places. Commit.
 - **Pack:** `Enum.lua` from `kom_contents/data036_kom/` (same bytes as `march2014/data036/Enum.lua`) goes into `data036.kom`, paired with this exe. Per the pairing hazard, it ships only together with it.
 
 **Review.** Done 2026-10-03; see "Phase 2 — Review" below.
-
-**Cost.** Not recorded: no `/cost` figure was available in-session. Ask the user.
 
 ### Phase 2 — Review (2026-10-03, Opus 5.5 high)
 
@@ -1596,8 +1591,6 @@ dir) gives an unsupported list matching buff_census.py. Build, deploy, commit.
 - **Phase 13:** the trial directory is throwaway. Delete it once Phase 3 is confirmed; it holds only hardlinks and copies.
 
 **Review.** Done; see "Phase 3 — Review" below. No code defects. Exit check 1 is met. Exit check 2's expected line above is wrong as staged (finding R1).
-
-**Cost.** Not recorded (no `/cost` figure in-session).
 
 ### Phase 3 — Review (2026-10-03, Opus 5.5 high)
 
@@ -1854,8 +1847,6 @@ A trial of June's files would also exercise `ACCUMULATION_MULTIPLIER`'s new defa
 - `32d4d190`'s condition reads;
 - **HP-rate operand order in `3227c4b0`.** The port reads stat `+0x20`'s protected float at `+4` as now-HP and the one at `+0x10` as max-HP (rate = now/max). The data (`HP_RATE 0.2`, `CHECK_HP_RATE_UP FALSE` = "at or below 20%") supports that, but the gauge layout was not confirmed in asm.
 
-**Cost.** Not recorded (no `/cost` figure in-session).
-
 ### Phase 4a — Review (2026-10-03, Opus 5.5 high)
 
 Independent review of `a546850`, `9133871` and `aeb6a21` (`SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY`). It used fresh scratch scripts only; none of the Phase 4a session's scripts were reused. They were:
@@ -1912,8 +1903,6 @@ Ghidra was used read-only.
 2. **RE, `ParsingBuffFactor`:** "June reads `APPLIED_SKILL_ID` only at damage-data level" → it is also read at effect level (`31f7aab0`) and effect-set level (`32024ff0`, `321e48e0`), and never inside a factor table. The exclusion is unchanged.
 3. **RE, by-ID entry:** "The only writer of those two bytes is the templet ctor (`326c4995`, zero)" → the ctor writes `+0xa9` with the word store at `326c498e` and `+0xaa` at `326c4995`; the copy ctor `322ad860` copies both. The conclusion is unchanged.
 4. **Done note:** "Every inserted byte is ASCII and CRLF" is true, but CRLF does not match `X2Game.h`'s LF region (R2).
-
-**Review cost.** `/cost` is not readable from inside the session; ask the user.
 
 ## Phase 4b — Existing BBT/BFT/BDT parity
 
@@ -2153,7 +2142,7 @@ Rules for all seven sessions:
 - **June bugs and quirks are kept verbatim; never ask** (user, 2026-10-04, after the Phase 7 review asked about the 94 restack leak). If June has a leak, an off-by-one, a value it always sends as 0, or an odd order, port it exactly, and add a row to `JUNE_BUGS.md` in the same commit. That is not a design decision. Ask only when copying June would break March: a crash, an unloadable script, or a missing enum or system.
 - Done means: `buff_census.py` lists none of the phase's types, the build is rc=0 with the PCH invalidated (`touch X2Lib/stdafx.cpp`), and the strings are in the deployed exe. `buff_census.py --phase <N>` lists the whole census group (for 5b, 5c and 7b that is wider than the sub-phase), so check the named types only.
 - Write a per-type **"how to see it in game"** line (a June BTI/BFI and where it comes from) into the Done note, for Phase 14.
-- Record the session's `/cost` or usage in the Done note. Commit.
+- Commit.
 - A fresh Opus 5.5 review follows each phase (rule 10). Its prompt is under each phase. Review fixes go in the same phase's Done note.
 
 ---
@@ -2193,7 +2182,7 @@ Record where 85/86's block landed in SetDamageExceptionProcess (Phase 6 needs it
 Done means: buff_census.py --phase 5 lists none of these seven types, the build is
 rc=0, and the strings are in the deployed exe. Write a per-type "how to see it in game"
 line (a June BTI/BFI and where it comes from) into the Phase 5 Done note for Phase 14.
-Record this session's /cost there. Commit.
+Commit.
 Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
 the dev console (END key) wherever it can reach the check, and give me copy-ready
 commands with every value already filled in (real BFI/BTI numbers, no placeholders).
@@ -2216,7 +2205,7 @@ CP949 hygiene (run `file` on every touched file and check `git diff --stat`). Sp
 2-3 types directly in Ghidra at the June addresses in the map (read-only); if a
 spot-check fails, re-check the whole phase. Fix clear transcription errors under the
 same flag; hand design decisions back to me. Write the findings into the doc as
-"Phase 5 -- Review", record this session's /cost, and commit.
+"Phase 5 -- Review", and commit.
 Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
 the dev console (END key) wherever it can reach the check, and give me copy-ready
 commands with every value already filled in (real BFI/BTI numbers, no placeholders).
@@ -2270,7 +2259,7 @@ NOT reverse-engineer or guess it: skip it, mark it "Opus-only", and keep going. 
 means: buff_census.py --phase 5b lists none of these nine types (it will still list 78,
 88 and 92, which are Phase 5c), the build is rc=0, and the strings are in the deployed
 exe. Write a per-type "how to see it in game" line into the Phase 5b Done note for
-Phase 14. Record this session's /cost there. Commit.
+Phase 14. Commit.
 Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
 the dev console (END key) wherever it can reach the check, and give me copy-ready
 commands with every value already filled in (real BFI/BTI numbers, no placeholders).
@@ -2294,7 +2283,7 @@ verbatim index bug, 106/107 user-only reader, and SERV_IRUHADEV_ / #else / CP949
 directly in Ghidra at the June addresses in the doc (read-only); if a spot-check
 fails, re-check the whole phase. Fix clear transcription errors under the same flag;
 hand design decisions back to me. Write the findings into the doc as "Phase 5b --
-Review", record this session's /cost, and commit.
+Review", and commit.
 Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
 the dev console (END key) wherever it can reach the check, and give me copy-ready
 commands with every value already filled in (real BFI/BTI numbers, no placeholders).
@@ -2344,8 +2333,7 @@ formula. Use flag SERV_IRUHADEV_JUNE_BUFF_NEW_STAT. If a type needs a design dec
 stop that type, write the question in the Done note, and continue with the others. Done
 means: buff_census.py --phase 5b lists none of 78, 88, 92 (or says which are deferred
 and why), the build is rc=0, and the strings are in the deployed exe. Write a per-type
-"how to see it in game" line into the Done note for Phase 14. Record this session's
-/cost. Commit.
+"how to see it in game" line into the Done note for Phase 14. Commit.
 Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
 the dev console (END key) wherever it can reach the check, and give me copy-ready
 commands with every value already filled in (real BFI/BTI numbers, no placeholders).
@@ -2370,7 +2358,7 @@ one of these is a damage-path change, diff the flag-off build path against March
 reading the #else branches. Spot-check 2 of the 3 types directly in Ghidra
 (read-only); if a spot-check fails, re-check the whole phase. Fix clear transcription
 errors under the same flag; hand design decisions back to me. Write the findings into
-the doc as "Phase 5c -- Review", record this session's /cost, and commit.
+the doc as "Phase 5c -- Review", and commit.
 Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
 the dev console (END key) wherever it can reach the check, and give me copy-ready
 commands with every value already filled in (real BFI/BTI numbers, no placeholders).
@@ -2428,8 +2416,7 @@ flag SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL. If the doc does not settle a type, do NO
 reverse-engineer or guess it: skip it, mark it "Opus-only", and keep going. Done means:
 buff_census.py --phase 6 lists none of the eight types, the build is rc=0, and the
 strings are in the deployed exe. Write a per-type "how to see it in game" line into
-the Phase 6 Done note for Phase 14 (89/90/98/99/100 say "inert until 6b"). Record this
-session's /cost there. Commit.
+the Phase 6 Done note for Phase 14 (89/90/98/99/100 say "inert until 6b"). Commit.
 Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
 the dev console (END key) wherever it can reach the check, and give me copy-ready
 commands with every value already filled in (real BFI/BTI numbers, no placeholders).
@@ -2455,7 +2442,7 @@ type 56), 91's unconditional host, and SERV_IRUHADEV_ / #else / CP949 hygiene (r
 89/90/98/99/100 was edited. Spot-check 2-3 types directly in Ghidra (read-only); if a
 spot-check fails, re-check the whole phase. Fix clear transcription errors under the same
 flag; hand design decisions back to me. Write the findings into the doc as "Phase 6 --
-Review", record this session's /cost, and commit.
+Review", and commit.
 Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
 the dev console (END key) wherever it can reach the check, and give me copy-ready
 commands with every value already filled in (real BFI/BTI numbers, no placeholders).
@@ -2514,7 +2501,7 @@ Moved to `JUNE_BUFF_PORT_ARCHIVE.md` (same heading); `tools/docsection.py` follo
 
 **How to see it in game (Phase 14).** June numbers from `june_src_fixed/data036_kom/` (BFI = ordinal). 89: `BFI_BUFF_2013_DEFENSE_BUFF` 195 / `BFI_BUFF_OVER_STRIKE` 707: skill damage numbers of the listed skill types rise, summons included. 90: `BFI_SI_A_LWS_NATURE_FORCE` 23: ×1.3 on the listed skill ids. 98: `BFI_TRANSCENDENTAL_SLOT_ATTACK_EFFECT` 843: needs the transcendence slot (none in March). 99: no June data. 100: `BFI_BUFF_OVER_STRIKE_RSR_TRANSCENDENCE` 918: cooldowns of the grade skill types 10% shorter, in a field or dungeon only (no game, no 100). All of them need June's `SKILL_TYPE` grade names in the Enum (Phase 6 finding 1).
 
-**Open for the user / review.** (1) Raven's three state-power-rate assignments overwrite the buff terms for those states (checklist §7; June not checked). (2) `GetSummonPowerRateByBuff` uses the March case's skill, where June derives the skill from the NPC (`31fcf520`/`31fcf430`, not read in this phase). The review may confirm that June's mapping gives the same skill per case. (3) **Ferdinand** (`NUI_SI_HA_FERDINAND`, June flags `0x260`): June writes this case's buff-scaled rate to the NPC's `+0x8ce4` member, not to `+0x8ce0` (the default power rate). The port multiplies March's default power rate, the member March uses for this case. Dropping that one site would be a design change, so it is the user's call. (4) **Cooldown writes** go through March's `SetSkillCoolTimeLeft`. That applies the item-event cut `GetSkillCoolTimeDecreaseRate` again (`SERV_BALANCE_FINALITY_SKILL_EVENT` is on, `ServerDefine_Global.h:1238`). June's writer `32893880` does the same with `3234cc10` (same item 60008065, same skill list), so the double cut matches June. March's setter also resets relationship and hyper-active skills to their templet time (`FINALITY_SKILL_SYSTEM`), which June's writer does not do: 100 cannot change those two skill types on March. (5) **Cost:** `/cost` cannot be read from inside the session: user, please paste it here.
+**Open for the user / review.** (1) Raven's three state-power-rate assignments overwrite the buff terms for those states (checklist §7; June not checked). (2) `GetSummonPowerRateByBuff` uses the March case's skill, where June derives the skill from the NPC (`31fcf520`/`31fcf430`, not read in this phase). The review may confirm that June's mapping gives the same skill per case. (3) **Ferdinand** (`NUI_SI_HA_FERDINAND`, June flags `0x260`): June writes this case's buff-scaled rate to the NPC's `+0x8ce4` member, not to `+0x8ce0` (the default power rate). The port multiplies March's default power rate, the member March uses for this case. Dropping that one site would be a design change, so it is the user's call. (4) **Cooldown writes** go through March's `SetSkillCoolTimeLeft`. That applies the item-event cut `GetSkillCoolTimeDecreaseRate` again (`SERV_BALANCE_FINALITY_SKILL_EVENT` is on, `ServerDefine_Global.h:1238`). June's writer `32893880` does the same with `3234cc10` (same item 60008065, same skill list), so the double cut matches June. March's setter also resets relationship and hyper-active skills to their templet time (`FINALITY_SKILL_SYSTEM`), which June's writer does not do: 100 cannot change those two skill types on March.
 
 **Play-test hand-off (dev console, END; `settings.auth_level` = 3 is set).** The setup lines are Phase 6's 363/366/367/368 lines, which ran in game, with their ids renumbered to 362–365 (the last load logged `factors 361 loaded`) and 100's value changed from −0.1 to −0.5. They have not been run with these ids. **Character: jtCodeEmpress (Eve, Code: Empress, Lv 80).** It has Dimension Link Guardian (5003, summons the Nasod Element / Fire Eve, one of the patched summon cases), Space Wrench (5014), Illusion Stinger (5000) and Illusion Strike (5200) in the slot A row, skill types 7 and 6. The summon check cannot be done from the console on any character: it needs a character whose own skill summons one of the 14 patched NPCs. (Skill ids from the active `UPGRADE_SKILL_SYSTEM_2013` enum, `X2SkillTree.h:85`. An earlier draft read them from the inactive `#else` enum.) The buffs last 60 s.
 
@@ -2605,7 +2592,7 @@ Log lines read afterwards: `first host BBT …` and any `[JUNE_BUFF]` line namin
 
 **Build.** `BUILD OK: X2/US_SERVICE/x2.exe 19,092,992 B, 2026-10-04 20:11:39` (`X2Game.obj` recompiled 20:11:30). The first deploy was refused while the game ran; after it closed: `DEPLOY OK: X2_offline.exe is 19,092,992 B, dated 2026-10-04 20:13:31, md5 5a81b0eeecba7c4891b937da79c7aba1, equal to X2/US_SERVICE/x2.exe (2026-10-04 20:11:39); built at mods/june-buff-port c3010ac.` Range check `--range c3010ac^..c3010ac`: `1 PASS`, `RESULT: PASS`.
 
-**Answers to the Done note's open items.** (2) Answered and fixed, above. (1), (3) and (4) are unchanged. (4)'s claim that June's writer applies the event cut again was not re-read. (5) `/cost`: user, please paste it.
+**Answers to the Done note's open items.** (2) Answered and fixed, above. (1), (3) and (4) are unchanged. (4)'s claim that June's writer applies the event cut again was not re-read.
 
 **Play-test hand-off (dev console, END).**
 - **Where:** a field or dungeon, fresh launch, as **jtCodeEmpress** (Eve, Code: Empress, Lv 80).
@@ -2683,7 +2670,6 @@ Open:
 2. `DeleteNonControlDebuff` erases from `m_vecBuffTempletPtr`. If a 95 buff were created from inside a loop over that vector (e.g. `BBT_CREATE_BUFF_FACTOR` during `OnFrameMoveBuff`), the loop would shift. June has the same order. Parity, not guarded.
 3. 73 and 104 take June's level-slice default branch (empty factor → `[0, 0]`), as June does; their classes ignore the values.
 4. 73's flag stays on the attacker's DamageData for later targets of a multi-target hit (verbatim).
-5. Cost: `/cost` cannot be read from inside the session. User, please paste it here.
 
 **Play-test hand-off** (dev console, END). Use 6b's line shape, one factor per line, ids 362–367 in order after a **fresh launch** (`factors 361 loaded`). Checked from source, never run. Every buff lasts 30 s. Id map: 362 → 73 (BTI 990073, debuff), 363 → 94 (990094, `ALL_DEBUFF = TRUE`, empty list), 364 → 95 (990095), 365 → 104 (990104, debuff), 366 → BBT 4 dash-impossible (990004, debuff, a non-control test target), 367 → 105 (990105, EDT 100–105). Checks, in order, waiting 30 s between them:
 1. 104 on self: no jumping.
@@ -2745,8 +2731,6 @@ The 4 are the plain `#else` lines (the two stubs and the two jump gates), as the
 
 **Phase 14 notes (carried).** The Done note's items 1–4 stand: the EDT renumbering, `DeleteNonControlDebuff` erasing inside a loop, empty level slices for 73/104, and 73's flag sticking on multi-target DamageData.
 
-**Cost.** `/cost` cannot be read from inside the session. User, please paste it here.
-
 ---
 
 ### Phase 7b — group C: rewritten hosts and per-class virtuals (Opus)
@@ -2798,7 +2782,6 @@ The 4 are the plain `#else` lines (the two stubs and the two jump gates), as the
 2. `CommonStateStart` clears the damage byte after its carry block, which makes the carry block vestigial (`JUNE_BUGS.md` #10).
 3. A `DT_BUFF` hit no longer reaches `DamageFlushMp` / `FlushForceDown` (whole branch gated). The user `DamageReact` takes the hit's `NO_DETONATION` unconditionally (March's `SERV_9TH_NEW_CHARACTER` keep-on-DT_BUFF test is gone).
 4. Not ported, non-buff: NPC slot 95's per-attacker invincible list (`+0x83f0`); the user HP overrides' death gates, `g_pData` vector clear, previous-HP store (gage `+0x108`) and low-HP UI (checklist §7). `CHECK_NEVER_MOVE_TRUE` (`+0xbb`, the condition next to `CAN_DETONATION`, both chains) **is** ported. No June script uses `CAN_DETONATION` or `CHECK_NEVER_MOVE_TRUE`.
-5. Cost: `/cost` cannot be read from inside the session. User, please paste it here.
 
 **How to see it in game (Phase 14; June data, needs Phase 13).**
 - 74: `BFI_BUFF_ASSAULT_STRIKE` 468 → BTI 431 (skill buff): no detonation charge while it lasts.
@@ -2866,8 +2849,6 @@ Log lines read afterwards: `first apply BBT 74/77/97/101/102/110`, `first read B
 
 **Doc fix.** `JUNE_BUGS.md` #10 said `DamageReactStateChange`'s tail keeps the damage byte past the state change. It does not: `StateChange` only queues `DoStateEndStartFuture`, and `DoStateEndStart` (`OnFrameMove`, `X2GUUser.cpp:6802`) runs `CommonStateEnd` first, which clears the byte before the carry block reads it. The byte lives from the hit to the next state switch, which is shorter than March, where the carry worked. The row is corrected; the behaviour is June's and unchanged.
 
-**Cost.** `/cost` cannot be read from inside the session. User, please paste it here.
-
 ### Phase 7c — BBT 110 host: TryHyperModeStateChange and June's awakening lockout (Opus)
 
 **Why.** Phase 7b decision (a): the user chose option A (2026-10-05). Port June's awakening check whole, with the two June systems it reads.
@@ -2934,7 +2915,6 @@ Log lines read afterwards: `first apply BBT 74/77/97/101/102/110`, `first read B
   - **C:** leave it out. Throw items then never lock awakening or skills, and awakening never locks items.
 
   Until you choose, 110 works fully and the interlock is off.
-- Cost: `/cost` cannot be read from inside the session. User, please paste it here.
 
 **How to see it in game (Phase 14).** 110: `BFI_DEBUFF_VOID_FIELD` 475 → BTI 437. Ctrl does nothing from wait/walk/dash while it lasts; inside a skill's cancel window it still awakens (#11).
 
@@ -2996,7 +2976,6 @@ Log lines read afterwards: `first apply BBT 110` and `first read BBT 110: TryHyp
 
 **For the user.**
 - Decision (b) still stands. The interlock window is short: from the awakening key until the Now-side StateStart, not the whole awakening. That makes option B's arm cheaper to reason about, but it is still your call.
-- `/cost`: please paste it here.
 
 ### Phase 7d — June's quick-slot item check and the special-item interlock (Opus)
 
@@ -3100,7 +3079,7 @@ The 2 are plain `#else` lines in `X2UIQuickSlot.cpp`; each holds March's text ve
 
 Log check (`python tools/logs.py --tag JUNE_BUFF`): `first arm quick-slot special item wait: item 78390, 10 s` must appear, and `armed before the start and then refused` must **not**.
 
-**Open for the user:** none blocking. `/cost`: please paste it here.
+**Open for the user:** none blocking.
 
 ### Phase 7d — Review (2026-10-05)
 
@@ -3142,7 +3121,7 @@ Log check (`python tools/logs.py --tag JUNE_BUFF`): `first arm quick-slot specia
 
 The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each holding March verbatim. No build: nothing changed.
 
-**For the user.** Decision (c): A, B, C or D, and whether SAT 38's refusal goes with it. `kickoffs/june-buff/7e.md` is written for A plus SAT 38. `/cost`: please paste it here.
+**For the user.** Decision (c): A, B, C or D, and whether SAT 38's refusal goes with it. `kickoffs/june-buff/7e.md` is written for A plus SAT 38.
 
 **Decision (c) = B (user, 2026-10-05):** port June's start-motion delay timer `+0x92cc` with `322f5140`. Read before rewriting the 7e kickoff:
 - `StageData::LoadData` `327f4e30` reads `START_MOTION` (byte `+0`, default false) and `START_MOTION_DELAYTIME` (float `+0xac`, **default 0**). So `ebp` at StageLoad `@327cdafb` is the StageData.
@@ -3230,7 +3209,7 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 **How to see it in game:** the hand-off below. The proof lines are `first pre-start quick-slot allow (322f5140)` (tutorial) and `first start-motion delay end (31fcf040)` (any dungeon start).
 
-**Open for the user:** none blocking. `/cost`: please paste it here.
+**Open for the user:** none blocking.
 
 ### Phase 7e — Review (2026-10-05)
 
@@ -3284,7 +3263,7 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
 
 **Build and deploy.** `DEPLOY OK: X2_offline.exe is 19,116,032 B, dated 2026-10-05 10:14:34, md5 be4fb8fe51ec74869ba07b26325001ac, equal to X2/US_SERVICE/x2.exe (2026-10-05 10:14:30); built at mods/june-buff-port a6684e4 + 3 uncommitted code file(s).` The three files are this fix's own (`X2GUAra.cpp`, `X2GUUser.h`, `Always.h`), committed as is right after. **Not launched.**
 
-**Play-test (2026-10-05, user; exe `be4fb8fe`, run 10:24:43 after the 10:14 deploy): both regression checks passed by eye** (Ara FP cancel into a skill; field throw item, skills back afterwards). `ErrorLog.txt:195` `first arm quick-slot special item wait: item 78390, 10 s`; load baseline unchanged (`factors 361 loaded`, the same 5 ordinal rejects); 0 exceptions (2 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, unrelated). `/cost`: please paste it here.
+**Play-test (2026-10-05, user; exe `be4fb8fe`, run 10:24:43 after the 10:14 deploy): both regression checks passed by eye** (Ara FP cancel into a skill; field throw item, skills back afterwards). `ErrorLog.txt:195` `first arm quick-slot special item wait: item 78390, 10 s`; load baseline unchanged (`factors 361 loaded`, the same 5 ordinal rejects); 0 exceptions (2 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, unrelated).
 
 ## Phase 8 — New finalizers and counter sync
 
@@ -3367,7 +3346,7 @@ The 2 are the plain `#else` lines at `X2UIQuickSlot.cpp:473` and `:570`, each ho
   - The 3 deleted lines are `f52a21b` rewriting 2 comment lines and the `SpecialAttackNoStageChange` condition, all inside this flag's own `CountReservedSkillUse`.
   - The PASS~ is the blank line before the new block in `X2BuffFinalizerTemplet.cpp`.
 
-**No build or deploy:** nothing changed. **Owed by the user:** /cost only.
+**No build or deploy:** nothing changed.
 
 ## Phase 9 — Custom-function buffs
 
@@ -3775,8 +3754,6 @@ Flags `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` (items 1–2), and two new ones:
 - `DEPLOY OK: X2_offline.exe is 19,141,120 B, dated 2026-10-05 13:11:12, md5 0b06cc942de046ab571c58019de43230, equal to X2/US_SERVICE/x2.exe (2026-10-05 13:11:07); built at mods/june-buff-port 48c3072 + 1 uncommitted code file(s).` (that file is exactly `e6757fb`; 512 B smaller than `58398ae2`, the dropped branch).
 - Not play-tested: it shows only with one of those memos equipped, and the result is the plain buff, the same as without the memo.
 
-**Owed by the user:** /cost.
-
 ## Phase 10b — The DamageData buff keys' readers (added 2026-10-05 by Phase 10)
 
 Phase 10 parses and stores `IS_AURA_BUFF` and `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` (flag `SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY`); their readers are this phase's.
@@ -3817,7 +3794,7 @@ Phase 10 parses and stores `IS_AURA_BUFF` and `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`
 
 **Play-test (2026-10-05, user; exe `3e033022`, run 13:46:30 after the 13:41 deploy): passed, regression (melee, projectile, being hit).** `ErrorLog.txt:192` `guild Chance to Reverse checked on a hit too (first seen): attacker 25, target 18` (jtLordKnight's melee). No `aura buff skipped` and no `aura hit on` lines, as expected with no `IS_AURA_BUFF` data; no `not checked` line this run. Load baseline unchanged (361 factors, 5 ordinal rejects, 3 groups / 109 debuffs); 0 exceptions. The 3 `E_DISABLE_HB_CHECK_REQ` UNHANDLED packets are not this phase's.
 
-**Owed by the user:** /cost. Next: `/x2-phase june-buff 10b review` (Opus 5.5, high).
+Next: `/x2-phase june-buff 10b review` (Opus 5.5, high).
 
 ### Phase 10b — Review (2026-10-05)
 
@@ -3853,7 +3830,7 @@ Phase 10 parses and stores `IS_AURA_BUFF` and `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT`
 
 **Play-test (2026-10-05, user; exe `826c409e`, run 14:02:22 after the 14:00 deploy): passed.** `ErrorLog.txt:192` `guild Chance to Reverse checked on a hit too (first seen): attacker 25, target 4` (both UIDs real). Load baseline unchanged (361 factors, 5 ordinal rejects, 3 groups / 109 debuffs); 0 exceptions; the 2 `E_DISABLE_HB_CHECK_REQ` UNHANDLED are not this phase's.
 
-**Owed by the user:** /cost. Next: `/x2-phase june-buff 11` (Opus 5.5, high).
+Next: `/x2-phase june-buff 11` (Opus 5.5, high).
 
 ## Phase 11 — Premium/world buffs and the offline path
 
@@ -4305,7 +4282,7 @@ Then read `ErrorLog.txt` for this phase's lines only: any `DLG_BuffManager.lua` 
 - **The placeholder: BFI 880 `BFI_BUFF_CHEAT_CODE_ELETRONIC_MP_REDUCE` (BTI 854).** June's BBT 63 parse (`32d472b0`, read in Ghidra: `32fea370` fails -> `SKILL_ID = 0`, then `PERCENT` when the type is 3) treats `SKILL_ID` as optional; March's `ParsingChangConsumeMpRateBehavior` required it. June's reader `32039a50` takes v[1] == 0 as "any skill". Fixed under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY` (`X2BuffFactor.cpp`, original in `#else`; flagcheck `files: 1 PASS`, `0 deleted`, `RESULT: PASS`). The other 6 BBT 63 factors carry a `SKILL_ID` and are unchanged. Exe after the fix: `DEPLOY OK: X2_offline.exe is 19,280,384 B, dated 2026-10-07 09:40:22, md5 093fea85d5cceb5f59b1ddf3aff35db3, equal to X2/US_SERVICE/x2.exe (2026-10-07 09:40:17); built at mods/june-buff-port 73a2c58 + 1 uncommitted code file(s).` **Confirmed 2026-10-07 09:41 (exe 093fea85, logs read): `factors 1130 loaded + 0 placeholder(s)`, the rest of the line equals the prediction, 0 `requested but not loaded`, no `KEM_ERROR73`/`XEM_ERROR2`.** No repack needed (data unchanged).
 - Stale text: line `unsupported (stored, consumer not ported): IS_STORE_BUFF on 119 ...` predates 11b and is wrong for `IS_STORE_BUFF` now (its consumer is ported and on); `IS_INSTANCE_KILL_DEBUFF` (3) is the real unported one. Left as it is; the review may reword it.
 
-**Open for the user.** `/cost`; then `/x2-phase june-buff 13 review` (Opus), after which Phase 14.
+then `/x2-phase june-buff 13 review` (Opus), after which Phase 14.
 
 ### Phase 13 — Review (2026-10-07, Opus 5.5 high): PASS, nothing to fix
 
@@ -5319,7 +5296,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **Decisions (user, 2026-10-06): "all June's flow and behaviour".** (1) Adopt June's `OptionItemData.lua` wholesale, without March's 247 IDs: kickoff `16-data`, before 16-step3b. (2) Keep June's template; nothing changes.
 
-**Was open for the user.** (1) Adopt June's `OptionItemData.lua` (it needs the Enum additions above), June's plus March's 247 IDs, or keep March's. (2) Keep June's template given its reach on March's PERCENT crit/defence buffs (it is June's behaviour; a separate flag would let it be switched alone). /cost not available in-session.
+**Was open for the user.** (1) Adopt June's `OptionItemData.lua` (it needs the Enum additions above), June's plus March's 247 IDs, or keep March's. (2) Keep June's template given its reach on March's PERCENT crit/defence buffs (it is June's behaviour; a separate flag would let it be switched alone).
 
 ### Phase 16 — Review (2026-10-06, Opus 5.5 high)
 
@@ -5382,7 +5359,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **Decision (user, 2026-10-06): accept the window.** 16-data runs next; 16-step3b does items 7-8 (conditional buffs, rank scaling) first.
 
-**Was open for the user.** Before 16-data: accept the window above (185 rank-linked sockets without stats, about 280 conditional buffs inert until 16-step3b), or move 16-step3b items 7-8 ahead of 16-data. /cost not available in-session.
+**Was open for the user.** Before 16-data: accept the window above (185 rank-linked sockets without stats, about 280 conditional buffs inert until 16-step3b), or move 16-step3b items 7-8 ahead of 16-data.
 
 ### Phase 16-data — Done (2026-10-06, Opus 5.5 high)
 
@@ -5451,7 +5428,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **Play-test 2 (2026-10-06, exe aa173377): PASSED, logs read.** 0 `without both` lines (180 before), the 28 per-type lines; `BFI … not loaded` 52 → 42 (the SIEE 15 factors now go to the conditional list, as in June, not through `GetBuffFactorPtr`).
 
-**Decided (user, 2026-10-06).** The 18 EDT handlers and `HMET_FEVER` go to a new **16-step3c** (after 16-step3b and june-effect C5; kickoff written). SIEE 12-20 stay 16-step3b item 10. /cost not available in-session.
+**Decided (user, 2026-10-06).** The 18 EDT handlers and `HMET_FEVER` go to a new **16-step3c** (after 16-step3b and june-effect C5; kickoff written). SIEE 12-20 stay 16-step3b item 10.
 
 ### Phase 16-data — Review (2026-10-06, Opus 5.5 high)
 
@@ -5595,7 +5572,7 @@ This session ran step 1 only. No code, Lua, build or Ghidra annotations were cha
 
 **Play-test (2026-10-06, user: passed; exe 6cce4121, data036 2f9247de; logs read).** The run started after the deploy (`ErrorLog.txt` 10:46:34). `ErrorLog.txt:238-244`: the seven `June-only, not ported: g_pData:…` lines; `:245` `June rank tables: PVP 11, PVE 10, PVE for MP 10 row(s)`; no `did not load`. Field → dungeon (`State.log:142`, 75 `NPC_UNIT_DIE` packets) → field, clean exit (census present): 0 EXCEPTION. 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` are unrelated, as before. There were no rank-linked, skill-use or kill lines, as expected: the save has no socket that reaches them.
 
-**Open for the user.** Nothing new. /cost not available in-session.
+**Open for the user.** Nothing new.
 
 ### Phase 16-step3b2 — Done, items 1-4 and 6 (2026-10-06, Opus 5.5 high)
 
@@ -5722,7 +5699,7 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 
 **Play-test (2026-10-06, user: regression passed; exe 631619ba, logs read).** The run started after the deploy (`ErrorLog.txt` 12:50:03) and exited cleanly (census present): 0 EXCEPTION, 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (unrelated). Load lines as before (`:151` load summary, `:245` rank tables 11/10/10, `:249` curves). The dungeon run (`State.log:188`) shows skills (`:628`, `:654`), the first damage roll (`:629`) and a sub-stage clear (`:633-635`). No `first socket boss grade` line appeared, as expected: no middle boss was hit.
 
-**Open for the user.** When creating the offline mob-ranking plan, include point (b) above. /cost is not available in-session.
+**Open for the user.** When creating the offline mob-ranking plan, include point (b) above.
 
 ### Phase 16-step3b3 — Done, items 0-2 (2026-10-06, Opus 5.5 high)
 
@@ -5774,8 +5751,6 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 **Finding, kept verbatim (JUNE_BUGS #55).** `:288` `first socket item recovery: item 230040, HP recovery -1` comes from the equip pass at unit init: `CX2GUUser::Init` calls `InitEqip` (`X2GUUser.cpp:1549`, every equipped item through `UseItemSpecialAbility`) before `InitAdditionalBasicStatValue` (`:1554`), so the HP-recovery result is still its constructor 0 and `[64]` is −1. June has the same order (`3204ea20`: vslot `0x7a0` = `32024510` `@3204ead3`, then the basics `32271540` `@3204eaf2`; the protected-float ctor `31c204b0` starts at 0), so June reads −1 there too. Potions used during play read 1.0 (the basics plus the per-frame refresh). Only an equipped item that carries an HP/MP SAT is affected (it heals 0, or MP % × 0, at init). The debug line fires for any item, so this line alone shows nothing was lost.
 
 **Item 1b (user 2026-10-06, "follow June"), `02691f4`.** The summon cases where March sets no power rate all reach June's `322ece70` too: the switch default (flags 0, which includes the AI-party bots), Nasod Watch (0x240), Entangle Trap (0), Stone Wall (10), Fire Blossom (0) and Particle Prism (0x148). None has 0x400 or 0x800. A file-local `JuneApplySummonPowerRate` scales their default power rate by June's whole rate: socket term × 89 × 90 × 98 (`GetSummonPowerRateByBuff`) × `GetAdditionalAttackByType( AT_SPECIAL )`. This replaces item 1's socket-only Nasod Watch line and goes past Phase 6b's "buff terms only on the 14 sites" for these six cases. Case skill: March's own (Dimension Link, Stone Wall, Particle Prism), else 0. `--worktree --files X2Lib/X2Game.cpp`: 1 PASS, 1 deleted line (item 1's own Nasod Watch line), RESULT: PASS. `DEPLOY OK: X2_offline.exe is 19,232,256 B, dated 2026-10-06 14:32:54, md5 be1c9b56b9c6eb0a6bdbf092f20d074f, equal to X2/US_SERVICE/x2.exe (2026-10-06 14:32:49); built at mods/june-buff-port aab81d7 + 5 uncommitted code file(s).` Four of the five are a peer session's uncommitted offline-monster-grade work (`Always.h`, `Handlers_Room.cpp`, `X2DungeonSubStage.cpp/.h`); they are built into this exe too. **Play-test (2026-10-06, user: all passed; exe be1c9b56, logs read).** The run started after the deploy and exited cleanly: 0 EXCEPTION, 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (as before). The three AI-party bots spawned at 14:55:32 (`offline_server.log`, ally of unit 19, stat rates 1.00, so the stat line is unchanged). In the same second `ErrorLog.txt:538` logged `first socket summon power rate: skill 0 x 1.05 (skill damage 0, all-skill 0.05)`, before the first Dimension Link Guardian cast at 14:55:51 (`:563`), so the default case (the bots) took the June rate. Items 0 and 2 and the cooldown logged as in the first play-test (`:530` MP 300 -> 285, `:541` factor 0.95).
-
-**Open for the user.** /cost is not available in-session.
 
 ### Phase 16-step3b3 — Review (2026-10-06, Opus 5.5 high)
 
@@ -5839,7 +5814,7 @@ March's Lua never sets APPLIED_SKILL_ID, so the hyper test is always false.
 
 **Closed.** The kickoff's open design question (the socket term on the no-power-rate summons and the default case) was settled by the user's item 1b decision ("follow June").
 
-**Open for the user.** /cost. Regression play-test: Iivue (Code: Empress) dungeon run with the bots, Dimension Link Guardian, one HP and one MP potion; expect 3b3's first-apply lines (`skill 0 x 1.05` at bot spawn, `MP 300 -> 285`, factor 0.95, JUNE_BUGS #55's `HP recovery -1` at init) and 0 EXCEPTION. No character on the save has Entangle, Stone Wall or Scarlet Rose/Fire Blossoms, so the three changed cases are not exercised.
+Regression play-test: Iivue (Code: Empress) dungeon run with the bots, Dimension Link Guardian, one HP and one MP potion; expect 3b3's first-apply lines (`skill 0 x 1.05` at bot spawn, `MP 300 -> 285`, factor 0.95, JUNE_BUGS #55's `HP recovery -1` at init) and 0 EXCEPTION. No character on the save has Entangle, Stone Wall or Scarlet Rose/Fire Blossoms, so the three changed cases are not exercised.
 
 **Play-test (2026-10-06, user: passed; exe f6f22eb2, logs read).** The run started 15:37:36, after the deploy, and exited cleanly (census present): 0 EXCEPTION; 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (unrelated, as before). `ErrorLog.txt` lines:
 - `:490` `first socket item recovery: item 230040, HP recovery -1` (JUNE_BUGS #55, at init);
@@ -6063,8 +6038,6 @@ All take the rate + 1.0. A new caller `32369bd0` (not in the kickoff's list) goe
 - `:283` `first skill-group power socket on an equipped skill: socket 95003, skill 5003 (type 7, power-rate type 0), rate 0 -> 0.1` (the no-table path of `31fe14f0`);
 - `:286` `first skill-group power rate read: skill 5003, rate 0.1 (power rate x 1.1)` (the reader, at the slot-state setup);
 - 3b3's lines unchanged (`:285` MP 300 -> 285, `:292` summon x 1.05, `:298` all-skill 1.05). No reduction-on-cool-time line: no equipped set option has an interval, as expected.
-
-**Open for the user.** /cost is not available in-session.
 
 ### Phase 16-step3b5 — Review (2026-10-06, Opus 5.5 high)
 
@@ -6295,7 +6268,6 @@ Offsets, heights, random terms, the elapsed-time reset and the EVE tail match Ma
 - `:266` the socket 215434 not-ported line, once.
 - `:227/:262/:265` 3b5's lines unchanged (census, socket 95003 -> skill 5003 x 1.1).
 - Iivue's item 579 keeps `40110,74035,95003,120000009`.
-**Open for the user.** /cost is not available in-session.
 
 ### Phase 16-step3b7 — Review (2026-10-06, Opus 5.5 high)
 
@@ -6336,7 +6308,7 @@ Offsets, heights, random terms, the elapsed-time reset and the EVE tail match Ma
 - `JUNE_BUFF_NEW_SKILL` and `JUNE_BUFF_CUSTOM_FUNCTION`, each `--files X2Lib/X2GUNPC.cpp`: the same two count lines with `files: 0 PASS ... 1 OTHER`, 0 deleted, `RESULT: PASS`.
 - The OTHER row is X2GUNPC.cpp, whose 17 lines belong to the three flags together. `JUNE_SOCKET_PARITY --with JUNE_BUFF_NEW_SKILL JUNE_BUFF_CUSTOM_FUNCTION --files X2Lib/X2GUNPC.cpp` gives `files: 1 PASS`, 0 deleted, `RESULT: PASS`.
 
-**Open for the user.** /cost. Next june-buff phase: 16-step3c (`kickoffs/june-buff/16-step3c.md` exists), still blocked on june-effect C5.
+Next june-buff phase: 16-step3c (`kickoffs/june-buff/16-step3c.md` exists), still blocked on june-effect C5.
 
 ### Phase 16-step3c — Step 1, read-only (2026-10-07, Opus 5.5 high)
 
@@ -6409,8 +6381,6 @@ Nothing visible changes; every handler is dormant until june-effect re-adoption 
 - `:532` `... 150 fired ...: BFI 787 level 20 on the hit unit -> not set`: the second list reached the NPC tail;
 - `:533` `... 152 fired ...: effect set EffectSet_Socket_HeroDungeonSet_FlameGround is not in the loaded data`.
 Iivue's item 579 keeps the three sockets.
-
-**Open for the user.** /cost.
 
 ### Phase 16-step3c — Review (2026-10-07, Opus 5.5 high)
 
@@ -6530,7 +6500,7 @@ Iivue's item 579 keeps the three sockets.
 - 3c's lines now show Phase 13's data: 151 `BFI 788 ... -> set` and `10th stack, damage x 1.2`, and 150 `BFI 787 ... -> set`.
 - Fix: `:149`, the 16-data loader census, still said Fever had "no awakening handler ... (not ported)". It now says Fever is handled (`X2SocketItem.cpp`, same flag, `#else` = old text; flagcheck PASS). `DEPLOY OK: X2_offline.exe is 19,280,384 B, dated 2026-10-07 09:44:18, md5 38881800afad1e0a119902f0b8295bbf, equal to X2/US_SERVICE/x2.exe (2026-10-07 09:44:12); built at mods/june-buff-port 4efc904 + 1 uncommitted code file(s).` It is a log text change only, so there is no new play-test.
 
-**Open for the user.** /cost. JUNE_BUGS #72's NULL guard departs from June without a `JUNE_FIX` flag, because June's order would crash; say if you want it flagged. Whether to stage June's `GameMajorParticle3.txt` (`Fever_Mode_Title`) is a later call; no party exists offline to show it.
+JUNE_BUGS #72's NULL guard departs from June without a `JUNE_FIX` flag, because June's order would crash; say if you want it flagged. Whether to stage June's `GameMajorParticle3.txt` (`Fever_Mode_Title`) is a later call; no party exists offline to show it.
 
 ### Phase 16-step3c2 — Review (2026-10-07, Opus 5.5 high)
 
@@ -6582,7 +6552,7 @@ Iivue's item 579 keeps the three sockets.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,280,384 B, dated 2026-10-07 10:19:27, md5 3c889fa66cb2bb6c9a23026a521b9360, equal to X2/US_SERVICE/x2.exe (2026-10-07 10:19:22); built at mods/june-buff-port 8b14c06 + 1 uncommitted code file(s).` (the review's own `X2GameUnit.cpp`). Not launched.
 
-**Open for the user:** /cost. There is an optional regression run: a dungeon with Iivue should still log `socket EXTRA_DAMAGE_TYPE 156 fired (first this run): attack type 0, attacker user -> nothing`.
+There is an optional regression run: a dungeon with Iivue should still log `socket EXTRA_DAMAGE_TYPE 156 fired (first this run): attack type 0, attacker user -> nothing`.
 
 ## Critical files
 

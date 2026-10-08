@@ -32,4 +32,4 @@ SERV_IRUHADEV_ / CP949 hygiene (run `file` on every touched file and check `git 
 small change means the file was re-encoded). Spot-check 2-3 host sites directly in Ghidra
 (read-only); if a spot-check fails, re-check the whole phase. Fix clear transcription
 errors under the same flag; hand design decisions back to me. Write the findings into the
-doc as "Phase 6b -- Review", record this session's /cost, and commit.
+doc as "Phase 6b -- Review", and commit.

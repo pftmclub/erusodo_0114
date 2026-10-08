@@ -33,5 +33,4 @@ with exactly June's body, 94's two verbatim quirks, 95's DeleteNonControlDebuff 
 #else / CP949 hygiene (run `file` on every touched file and check `git diff --stat`).
 Spot-check 2-3 types directly in Ghidra (read-only); if a spot-check fails, re-check the
 whole phase. Fix clear transcription errors under the same flag; hand design decisions
-back to me. Write the findings into the doc as "Phase 7 -- Review", record this session's
-/cost, and commit.
+back to me. Write the findings into the doc as "Phase 7 -- Review", and commit.

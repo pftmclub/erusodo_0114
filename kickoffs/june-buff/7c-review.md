@@ -57,5 +57,5 @@ deleted line; a FAIL or ERROR is a finding.
 Spot-check items directly in Ghidra (read-only); if one fails, re-check the whole phase. Fix clear
 transcription errors under the same flag (then `tools/build.py --deploy`). Hand design decisions
 back to the user. **Decision (b), the quick-slot arm, is the user's**: do not port it in the review.
-Write "Phase 7c -- Review" into the plan doc, update the 7c review row in STATUS.md, record /cost,
+Write "Phase 7c -- Review" into the plan doc, update the 7c review row in STATUS.md,
 and commit with explicit pathspecs.

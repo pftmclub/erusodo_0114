@@ -526,7 +526,7 @@ deployed exe is unchanged.
 - **C3c** (Sonnet 5.5 high, kickoff written): items 1 and 3. Inert on March data, except DOWN's dropped `SetNowForceDown( 0 )`, which is live.
 - **C3d** (kickoff written, blocked on D10 and C9h-4f): item 2.
 
-**Open for the user:** D10 (decisions table). `/cost`. *D10 answered the same day: (a); C3d is split into C3d-1 / C3d-2 / C3d-3 below.*
+**Open for the user:** D10 (decisions table). *D10 answered the same day: (a); C3d is split into C3d-1 / C3d-2 / C3d-3 below.*
 
 ---
 
@@ -687,7 +687,7 @@ Checked in Ghidra (read-only) and in the exe bytes:
 - The byte survives every state, death and ReInit.
 - The Hero-table walk's last match wins (recorded, not ported).
 
-**Hygiene, deploy, play-test:** none. This phase has no code and no build. **User owes:** /cost.
+**Hygiene, deploy, play-test:** none. This phase has no code and no build.
 
 ### C4c - Done (2026-10-07, Opus 5.5 high)
 
@@ -775,7 +775,7 @@ Checked in Ghidra (read-only) and in the exe bytes:
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,316,736 B, dated 2026-10-07 20:06:05, md5 aa9143e1f31906afc9b30beae800065c` (built at `23106ff` + this phase's 7 files). The exe holds the wide `JUNE_FX HERO_ANIM` string and the bind name.
 **In game:** nothing changes. Run dungeon 30000; ErrorLog.txt gets one `JUNE_FX HERO_ANIM` line with `rows=0`, `dungeon=30000` and `hero=0` (read it with `python tools/logs.py --grep "JUNE_FX HERO_ANIM"`; `--tag JUNE_FX` matches nothing).
 **Also:** MODS.md (row + section), JUNE_BUGS 99.
-**Play-test PASSED 2026-10-07** (El Tree 30000; logs read, run after the aa9143e1 deploy): exactly one `JUNE_FX HERO_ANIM ... rows=0 ... dungeon=30000 hero=0` (`CreateGUNPC`, `X2DungeonSubStage.cpp:2496`), 0 EXCEPTION, clean exit. **User owes:** /cost.
+**Play-test PASSED 2026-10-07** (El Tree 30000; logs read, run after the aa9143e1 deploy): exactly one `JUNE_FX HERO_ANIM ... rows=0 ... dungeon=30000 hero=0` (`CreateGUNPC`, `X2DungeonSubStage.cpp:2496`), 0 EXCEPTION, clean exit.
 
 ---
 
@@ -1686,7 +1686,7 @@ viewer already derives from the empty base and overrides 3 of the 4 virtuals; th
   rate) and `SBH_LobbyWait01-03` / `ADD_LP_LobbyWait01-02` (never stop) from code.
 
 **Left for C9c-2b:** June's `SetHideSelectUnitWeapon` counterpart, `31cf4890`'s March equivalent, mesh `+0x15c` and seq `+0x415`.
-Nothing was built, so there are no hygiene or deploy lines. **User owes:** /cost.
+Nothing was built, so there are no hygiene or deploy lines.
 
 ---
 
@@ -1751,7 +1751,7 @@ Deploy after the fix: `DEPLOY OK: X2_offline.exe is 19,312,640 B, dated 2026-10-
 no particle parse message; 0 EXCEPTION; only UNHANDLED is `E_DISABLE_HB_CHECK_REQ` (not this phase). No two back-to-back `SBH_LobbyWait` PLAY lines (JUNE_BUGS 85 stays "not counted"; this run did not play SBH).
 The first play-test (before the fix) covered SPK, SBH, ALP, CDC and the orb ("as expected"). The unrelated noise in the log (`MOTION_*_EMOTION_BBABBABBA.X`, `final_delete_unit`) is older.
 
-Open question for the user: none. **User owes:** play-test, then /cost.
+Open question for the user: none. **User owes:** play-test.
 
 ---
 
@@ -1813,7 +1813,6 @@ The 31 OTHER rows are peer commits in the range (`4ca07e7` C10b-1 and others). T
 PLAY + CREATE for `EffectSet_ETK_LobbyReadyAction` twice (1 mesh + 4 crescent cuts), `EffectSet_EMK_LobbyWait_LobbyReadyAction` (`MagicKnightHandFire`),
 `EffectSet_CDC_LobbyReadyAction` (both mini-guns), `EffectSet_SPK_LobbyWait_LobbyReadyAction` (P02 at once, P01 0.1 s later as its START_TIME says);
 0 `NOT PLAYED` / `NOT CREATED`, 0 EXCEPTION, clean exit (census present); the only UNHANDLED is `E_DISABLE_HB_CHECK_REQ` (not this phase).
-**User owes:** /cost.
 
 ---
 
@@ -1877,7 +1876,7 @@ motions, sounds and the chat-box emotion list. Where should it go?
 - (b) Stage 8, which already lists `EmotionData` for Lu/Ciel;
 - (c) Stage 9 UI sweep.
 
-**Answered 2026-10-07: (a).** It is `JUNE_PORT_BACKLOG_ORDER.md` Stage 10 (stage details + Opus planning prompt). **User owes:** /cost.
+**Answered 2026-10-07: (a).** It is `JUNE_PORT_BACKLOG_ORDER.md` Stage 10 (stage details + Opus planning prompt).
 
 ---
 
@@ -1919,8 +1918,6 @@ reach the exe if a call site compiled with the flag), and `X2.map` holds `CX2Squ
 clean exit. 0 EXCEPTION, no new `X2_*.tmp`, the C9c line `UNIT_VIEWER_FX_LOAD ... rows=18` unchanged. Once `data036` is copied the 11 templets load with the other sets (`EffectSet` load lines unchanged).
 
 **Regression play-test PASSED 2026-10-07** (exe `f1966238`, run 17:09:27-17:10:44, after the `data036` copy; logs read): State.log login -> server select -> village -> dungeon -> village; ErrorLog `JUNE_FX ES_LOAD UIEffectSet.lua loaded=1 templets=78` (67 + the 11) and `UNIT_VIEWER_FX_LOAD ... rows=18 skipped_duplicate=0 skipped_bad_args=0` unchanged; 0 EXCEPTION, clean exit (census + `SHUTDOWN clean`), no new `X2_*.tmp` (the newest is from 2026-10-03). The only UNHANDLED packet is `E_DISABLE_HB_CHECK_REQ` (not this phase). The `GameMajorParticle24+` KEM_ERROR136 lines are old and unrelated. Emotes leave no packet offline, so the user's emote check is the evidence that they did not fault.
-
-**User owes:** /cost.
 
 ### C9e - Review (2026-10-07, Opus 5.5 high): two findings fixed (GUUser placement, incl. C9c-1's block; square StateStart gate), `323f56d0` -> new phase C9f
 
@@ -1994,8 +1991,6 @@ Pass = 0 EXCEPTION, no new `X2_*.tmp`, and `UNIT_VIEWER_FX_LOAD ... rows=18` plu
 - 0 EXCEPTION, clean exit (census + `SHUTDOWN clean`), no new `X2_*.tmp` (the newest is from 2026-10-03). The 2 UNHANDLED are
   `E_DISABLE_HB_CHECK_REQ`, not this phase.
 
-**User owes:** /cost.
-
 ### C9f - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build): June's per-equip effect sets = `DITT_CONDITION_EQUIP_PLAY_EFFECT_SET`, one slice of a missing system
 
 Read-only, in Ghidra and the exe bytes. 17 funcmap rows are tagged `Effect C9f`: the 6 C9e-review rows are confirmed or corrected, and 11 are new.
@@ -2057,7 +2052,7 @@ division system:
 `Enum.src.lua`, with no flag (MODS.md, "June2017 effect engine: enum data + loader-list gaps (Phase 11)"). C9f-2 does the same for
 `DIVISION_ITEM_TEMPLET_TYPE`, `CONDITION_EQUIP_PLAY_EFFECT_SET` and `READ_TYPE`. None of the three names exists in March.
 
-**User owes:** /cost. C9f-2 (Sonnet 5.5 high) starts after the running C4c commits, because both touch `X2Main.cpp`.
+C9f-2 (Sonnet 5.5 high) starts after the running C4c commits, because both touch `X2Main.cpp`.
 
 ### C9f-2 - Done (2026-10-07, Opus 5.5 high; flag `SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET`; inert, regression play-test pending)
 
@@ -2113,7 +2108,7 @@ Pass = 0 EXCEPTION and no new `X2_*.tmp`, with these log lines:
 
 **Regression play-test PASSED 2026-10-07** (exe `f433332e`, run 20:31:18-20:35:24; logs read): State.log login -> server select -> village -> dungeon -> result -> village; ErrorLog `JUNE_FX EQUIP_FX_LOAD file=RenderDivisionItemTemplet.lua loaded=1 lists=5 items=5 group81=5 skipped_duplicate=0`, `ES_LOAD UIEffectSet.lua loaded=1 templets=84`, `UNIT_VIEWER_FX_LOAD ... rows=18 skipped_duplicate=0`, no `XEM_ERROR9`; 0 EXCEPTION, clean exit (census present), no new `X2_*.tmp` (newest 2026-10-03). The 2 UNHANDLED are `E_DISABLE_HB_CHECK_REQ`, not this phase.
 
-**User owes:** /cost. Next: `C9f-2 review` (Opus 5.5 high).
+Next: `C9f-2 review` (Opus 5.5 high).
 
 ### C9f-2 - Review (2026-10-07, Opus 5.5 high): two transcription fixes (both inert), everything else matches June
 
@@ -2179,8 +2174,6 @@ Expect 0 EXCEPTION, no new `X2_*.tmp`, and the same lines as C9f-2:
 - ErrorLog: `JUNE_FX EQUIP_FX_LOAD file=RenderDivisionItemTemplet.lua loaded=1 lists=5 items=5 group81=5 skipped_duplicate=0`, `ES_LOAD UIEffectSet.lua loaded=1 templets=84`, `UNIT_VIEWER_FX_LOAD ... rows=18 skipped_duplicate=0`.
 - 0 EXCEPTION, clean exit (census present), no new `X2_*.tmp` (newest 2026-10-03). The 2 UNHANDLED are `E_DISABLE_HB_CHECK_REQ`, not this phase.
 
-**User owes:** /cost.
-
 ---
 
 ### C9g - Done (2026-10-07, Opus 5.5 high; no code, no flag, no build): groups 1-4 are June's customize system; PlayByMotionType is a June rewrite -> C9g-2
@@ -2242,8 +2235,6 @@ The user hears this at C9g-2's hand-off.
 - **C9h** (Opus 5.5 high, identify);
 - new **backlog Stage 12**, the character customize system, which takes over C9d's sit-effect bullets from Stage 10.
 
-**User owes:** /cost.
-
 ---
 
 ### C9g-2 - Done (2026-10-07/08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE`; play-test pending)
@@ -2302,7 +2293,7 @@ the 1 pushed before the branch; the register sites hold 1 (`MOV EBX,1` / `MOV EB
 `loaded=1 rows=384 inserted=230 skipped_duplicate=154 class_none=160`, 0 EXCEPTION, no missing-motion line for the 7 renamed names.
 **Play-test 2026-10-08 (partial):** exe `fee6eb1f`, runs 04:55 and 04:58; ErrorLog line 157 `JUNE_FX ANIM_NAME_LOAD ... loaded=1 rows=384 inserted=230 skipped_duplicate=154 class_none=160`; State.log reached `XS_SERVER_SELECT` then `XS_VILLAGE_MAP`; 0 EXCEPTION, clean exit, no new crash bundle, no missing-motion line. Room ready/unready and the level-up result were **not played** (user waived them, 2026-10-08): they use the same `PlayByMotionType` path as character select (types 0-2, 4, 5), so the review checks them by reading code.
 
-Review: `kickoffs/june-effect/C9g-2-review.md`. **User owes:** /cost.
+Review: `kickoffs/june-effect/C9g-2-review.md`.
 
 ### C9g-2 - Review (2026-10-08, Opus 5.5 high): one transcription fix (HABIT's table branch, inert in March); everything else confirmed
 
@@ -2357,7 +2348,6 @@ The one deleted line in the flag's files is this flag's own Stage-12 comment, wh
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,339,776 B, dated 2026-10-08 06:12:03, md5 c49f362852f888c3efaf987cd62a9a4b, equal to X2/US_SERVICE/x2.exe (2026-10-08 05:45:54); built at mods/june-buff-port e9cfdca + 9 uncommitted code file(s).` The 05:26 attempt failed in C9h-2a's then-uncommitted files. Deploying was then held until june-item-kim K2's koms were live (its uncommitted code reads June's `item.kim`). `X2UnitViewerUI.obj` (05:44:57) is newer than the edit (05:17:12). The exe also carries K2's uncommitted code.
 
 **Next owners.** C9h-2a / 2b / 3 have kickoffs. Stage 10 has its inline prompt in `JUNE_PORT_BACKLOG_ORDER.md`. Stage 12 now has `kickoffs/june-backlog/stage12-plan.md`.
-**User owes:** /cost.
 **Play-test 2026-10-08 (regression) PASSED:** exe `c49f3628`, run 06:15-06:19. ErrorLog line 157: `JUNE_FX ANIM_NAME_LOAD ... loaded=1 rows=384 inserted=230 skipped_duplicate=154 class_none=160`. `UNIT_VIEWER_FX_PLAY EffectSet_ALD_LobbyWait` played through the table, so the Little Devil's lobby anim name is June's `ALD_LobbyWait`. States went through `XS_SERVER_SELECT`, `XS_VILLAGE_MAP` and `XS_BATTLE_FIELD`. No missing lobby-motion line, 0 EXCEPTION, clean exit, no new crash bundle. Out of scope, not this phase's: 3 `E_DISABLE_HB_CHECK_REQ` UNHANDLED and the `MOTION_*_EMOTION_*` open misses.
 
 ---
@@ -2413,8 +2403,6 @@ March's three no-argument hides became inline blocks in June: SetOpen `3223d680`
 - **Backlog Stage 17** (new): the pet variant byte (a June `KPetInfo` field at `+0xca`, the in-game pet `326e5cf0`, and the save) and the 8 June-only pets and riding pets.
 - **JUNE_BUGS 104-106.**
 
-**User owes:** /cost.
-
 ### C9h-2a - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_PET_VIEWER_FX`; inert, regression play-test PASSED 2026-10-08)
 
 **Landed** (MODS.md "June effect completion C9h-2a"). Whole port of the viewer and engine slice; nothing in March data reaches it, so nothing visible changes except the base viewer's player now also running for pet / riding-pet previews.
@@ -2447,7 +2435,7 @@ March's three no-argument hides became inline blocks in June: SetOpen `3223d680`
 
 **Play-test 2026-10-08:** exe `c49f3628`, run 06:15-06:19; 0 EXCEPTION, no `JUNE_FX PET_VIEWER` line, cash shop opened 3 times, pet lists loaded; the user confirmed previews and pet-info looked as before.
 
-Review: `kickoffs/june-effect/C9h-2a-review.md`. **User owes:** /cost.
+Review: `kickoffs/june-effect/C9h-2a-review.md`.
 
 ### C9h-2a - Review (2026-10-08, Opus 5.5 high): no finding, no code change
 
@@ -2490,7 +2478,7 @@ Review: `kickoffs/june-effect/C9h-2a-review.md`. **User owes:** /cost.
 
 **Deploy:** none. Nothing changed, and the tree holds a peer's uncommitted C9h-2b edits (`Always.h`, `X2CashShop.cpp`, `X2UIPetInfo.cpp`). The deployed exe is still `c49f3628`, which the regression play-test passed on. No new play-test.
 
-Next: C9h-2b (Opus 5.5 high) and C9h-3 (Opus 5.5 high); both kickoffs exist. **User owes:** /cost.
+Next: C9h-2b (Opus 5.5 high) and C9h-3 (Opus 5.5 high); both kickoffs exist.
 
 ### C9h-2b - Done (2026-10-08, Opus 5.5 high; flag `SERV_IRUHADEV_JUNE_PET_PREVIEW`; play-test PASSED 2026-10-08)
 
@@ -2541,7 +2529,7 @@ Next: C9h-2b (Opus 5.5 high) and C9h-3 (Opus 5.5 high); both kickoffs exist. **U
 - `pick=none`: non-pet items;
 - one `hide item=550010`: the next riding item (550021) took its pre-equip slot, so June's trailing hide fired.
 
-Review: `kickoffs/june-effect/C9h-2b-review.md`. **User owes:** /cost.
+Review: `kickoffs/june-effect/C9h-2b-review.md`.
 
 ### C9h-2b - Review (2026-10-08, Opus 5.5 high): no finding, no code change
 
@@ -2582,7 +2570,7 @@ The DEFINE row's +23 lines are the comment block, the `#define`, and the `#if de
 
 **Deploy:** none, since nothing changed. The deployed exe is still `1a00382e`, which passed the play-test. No new play-test is needed.
 
-Next: C9h-2c (Opus 5.5 high, identify; its kickoff exists). **User owes:** /cost.
+Next: C9h-2c (Opus 5.5 high, identify; its kickoff exists).
 
 ---
 
@@ -2645,7 +2633,7 @@ Next: C9h-2c (Opus 5.5 high, identify; its kickoff exists). **User owes:** /cost
 - The alternative is 0, which shifts every date by `-_timezone`.
 - Either way it is inert on June's data.
 
-**User owes:** /cost and that answer. Next: `/x2-phase june-effect C9h-2d` on Sonnet 5.5 high.
+and that answer. Next: `/x2-phase june-effect C9h-2d` on Sonnet 5.5 high.
 
 ---
 
@@ -2685,7 +2673,6 @@ The exe also holds a peer's uncommitted riding-pet work (X2RidingPet*, X2GUUser*
 **Play-test (2026-10-08, logs read)**: 152 `skip` lines (all `pet=0`) and one `loaded=241 skipped=152` line (the session loaded the item manager once), 0 EXCEPTION, no popup.
 `PetPreView` picks: 550042/41/40 -> riding 7/6/5 (Red / Dark / Ice Hameling, new), 84001272/73 -> pets 98/99 (`PUI_PANDA_STICK_RED_F` / `BLUE_F`, June's change), 500610 / 90002060 / 90002100 -> pets 29 / 136 / 137 as before, 550030 -> riding 4.
 
-**Open for the user**: /cost.
 **Next**: `/x2-phase june-effect C9h-2d review` on Opus 5.5 high. Also `C9h-2e` (identify, Opus 5.5 high).
 
 ### C9h-2d - Review (2026-10-08, Opus 5.5 high): no finding, no code change, no deploy
@@ -2720,7 +2707,7 @@ The exe also holds a peer's uncommitted riding-pet work (X2RidingPet*, X2GUUser*
 - The 4 OTHER rows are peers' commits inside the range: `10ff360` (X4, `SERV_IRUHADEV_KOM_LONG_NAMES`: Always.h + KGCMassFileManager.h/.cpp) and `f1efeaa` (C9h-3b, `RIDINGPET_STATE_DEBUG` off, Always.h +1/-1).
 - The 5 lines without the flag token are bare `#else` (X2ItemManager.cpp 2, .h 2, X2State.cpp 1). Every `#endif` carries the token.
 
-**Open for the user**: /cost. **Next**: `C9h-2e` (identify, Opus 5.5 high).
+**Next**: `C9h-2e` (identify, Opus 5.5 high).
 
 ---
 
@@ -2766,8 +2753,6 @@ There are 17 funcmap rows tagged `Effect C9h-2e`. The `32344880` row corrects C9
 - **Virtual `+0x100` (the event-icon system) -> backlog Stage 9 (UI sweep)**, new bullet: check the `STATE_MENU_UI_CUSTOM_MSG` ids and the 29 dialogs against March first.
 
 No JUNE_BUGS row: nothing here is ported.
-
-**Open for the user**: /cost.
 
 ---
 
@@ -2823,8 +2808,6 @@ They also correct C9h-2b's `324943c0`: it is not `CX2RidingPetManager`, which is
 
 Kickoffs written: `C9h-3a.md`, `C9h-3b.md`, `C9h-4.md`, `C9h-5.md`; STATUS rows added. C9h-3a and C9h-3b both edit StateChange, so run them one after the other. C9h-4 and C9h-5 can run alongside either.
 
-**User owes:** /cost.
-
 ### C9h-3a - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX` + `_DEBUG` (off), log `JUNE_FX RIDINGPET_FX`; play-test pending)
 
 The in-game riding pet's UI effect sets are ported whole, with the engine holder they play through. Files: `X2EffectSet.h/.cpp`, `X2RidingPet.h/.cpp`, `X2RidingPetManager.cpp`, `Always.h`, `data036` `Enum.lua`. Read-only Ghidra; funcmap rows tagged `Effect C9h-3a` (6), JUNE_BUGS 108 corrected and 118 added.
@@ -2859,7 +2842,7 @@ The in-game riding pet's UI effect sets are ported whole, with the engine holder
 - **If a set floats at the origin or behind the pet,** that is the holder position branch: tell me the pet and the state.
 - **Logs:** `python tools/logs.py --grep "JUNE_FX RIDINGPET_FX"` shows one `loader` line per summon (`reserved=0 by_uieffectset=0` expected on March data), 0 EXCEPTION.
 
-**Open for the user:** `/x2-kom-packed copy data036` (say "copy data036"; it only adds the two Enum tables); `/cost`.
+**Open for the user:** `/x2-kom-packed copy data036` (say "copy data036"; it only adds the two Enum tables).
 ### C9h-3a - Review (2026-10-08, Opus 5.5 high): no transcription finding, no code change, no deploy
 
 **Play-test:** run before this review (STATUS: 5 loader lines, `reserved=0 by_uieffectset=0`, 0 EXCEPTION; data036 copied 10:17). `info_id=-1` in those lines is log-only: `m_Info` is set by `SetInfo` (`X2RidingPet.cpp:547`) after the loader runs, and June's loader logs nothing. Left as is.
@@ -2898,7 +2881,7 @@ The in-game riding pet's UI effect sets are ported whole, with the engine holder
 - The four `8ec9968` OTHER rows are a peer's offline-emulator commit (riding pet into the dungeon), under other flags.
 - The one deleted line is `1eb9563`, a peer's removal of a CRLF-only blank line in `Always.h`, outside this flag's block.
 
-**User owes:** `/cost`. Next: `/x2-phase june-effect C9h-4b` (Sonnet 5.5 high), ready.
+Next: `/x2-phase june-effect C9h-4b` (Sonnet 5.5 high), ready.
 
 ### C9h-3b - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_RIDINGPET_STATE` + `_DEBUG`, log `JUNE_FX RIDINGPET_STATE`)
 
@@ -2951,7 +2934,7 @@ The riding pet's `StateChange` / `StateChangeFuture` now follow June (`32d2f560`
 - `RESULT: PASS`
 - The deleted line is f1efeaa's `#define ..._DEBUG`, now commented out (DEFINE row). The 13 OTHER rows are peers' commits `7ba2f9d` (C9h-2d) and `10ff360` (X4). The 5 lines without the token are this flag's own bare `#else` (X2GUUser.cpp 1, X2RidingPet.cpp 4); the Done note's "original #else/#endif" was wrong.
 
-**Also:** `C9h-3a.md` line numbers updated for C9h-3b's inserts. **Open for the user**: /cost. **Next**: C9h-3a (Sonnet 5.5 high), or the identify phases C9h-2e / C9h-5 / C9h-6 (Opus 5.5 high).
+**Also:** `C9h-3a.md` line numbers updated for C9h-3b's inserts. **Next**: C9h-3a (Sonnet 5.5 high), or the identify phases C9h-2e / C9h-5 / C9h-6 (Opus 5.5 high).
 
 ### C9h-4 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the June keys are a sound system, a cancel-after, three delete conditions -> C9h-4a..4e
 
@@ -3022,8 +3005,6 @@ its cancel tests are March's: time >= 0 and below the riding pet's anim time). ~
 Kickoffs written: `C9h-4a.md` .. `C9h-4e.md`, with STATUS rows. C9h-4a, 4c and 4d share `X2GUUser.cpp`, so run them one at a time; 4b can
 run alongside 4c or 4d.
 
-**User owes:** /cost.
-
 ### C9h-4a - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_UNIT_SOUND` + `_DEBUG` (on for the play-test), log `JUNE_FX UNIT_SOUND`; play-test pending)
 
 Files: `X2GameUnit.h/.cpp`, `X2GUUser.h/.cpp`, `Always.h`. Funcmap rows `Effect C9h-4a`. JUNE_BUGS 117.
@@ -3056,7 +3037,7 @@ RESULT: PASS
 
 **Limit of the play-test:** no March script carries the new keys, so every attach is `DCS_NONE` and the stoppers never find a handle. `_DEBUG` writes `attach ... list=0` per sound played; the stop lines and `state_play` need June data (4e's riding pets, or a hand-made script). Only the player's erase can change what a March script does (Chung's mid-state timer resets).
 
-**Open for the user:** none. **User owes:** the play-test below, `/cost`.
+**Open for the user:** none. **User owes:** the play-test below.
 
 ### C9h-4a - Review (2026-10-08, Opus 5.5 high): no transcription finding, one stale comment fixed (comment only), no deploy
 
@@ -3104,7 +3085,7 @@ RESULT: PASS
   - The PASS~ 2 are the blank lines after the early-clear `#endif` and after the `CUSTOM_STATE_DELETE_SOUND` `#endif`.
   - The 2 tokenless lines are the bare `#else` in CommonStateStart and in CommonFrameMove_TimedEvent.
 
-**C9h-4b kickoff:** checked; it reads this Done note for the shipped names. One line added: its flags need `SERV_IRUHADEV_JUNE_UNIT_SOUND` on, and the NPC passes skill id 0 to the attach. **Open for the user:** /cost. **Next:** C9h-4b, C9h-4c or C9h-4d (Sonnet 5.5 high; 4c and 4d one at a time).
+**C9h-4b kickoff:** checked; it reads this Done note for the shipped names. One line added: its flags need `SERV_IRUHADEV_JUNE_UNIT_SOUND` on, and the NPC passes skill id 0 to the attach. **Next:** C9h-4b, C9h-4c or C9h-4d (Sonnet 5.5 high; 4c and 4d one at a time).
 
 ### C9h-4c - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_UPDOWN_CANCEL`, `_COMMON_CANCEL`, `_CANCEL_CLAMP` + the two `_DEBUG` (on for the play-test); logs `JUNE_FX UPDOWN_CANCEL`, `JUNE_FX CANCEL_CLAMP`; play-test run, logs read: 17 attack_z lines, 0 clamp lines, 0 EXCEPTION)
 
@@ -3136,7 +3117,7 @@ RESULT: PASS
 
 **How to see it in game (play-test hand-off is in the reply):** inert on March data except the clamp. `JUNE_FX UPDOWN_CANCEL attack_z ...` prints the four cancel-after values per RIDING_ATTACK_Z entry; `JUNE_FX CANCEL_CLAMP ...` prints one line per value the clamp changed (state id, key, old value), so one session shows whether March data uses values below 0.1.
 
-**Decided:** the clamp (`SERV_IRUHADEV_JUNE_CANCEL_CLAMP`) is kept (user, 2026-10-08: it follows June). Play-test: 17 riding `attack_z` lines and a 30 s Lord Knight field run, 0 clamp lines in both. **User owes:** `/cost`.
+**Decided:** the clamp (`SERV_IRUHADEV_JUNE_CANCEL_CLAMP`) is kept (user, 2026-10-08: it follows June). Play-test: 17 riding `attack_z` lines and a 30 s Lord Knight field run, 0 clamp lines in both.
 
 ### C9h-4c - Review (2026-10-08, Opus 5.5 high): no transcription finding; `_DEBUG` flags off; the clamp's March reach measured (35 states, all identical in June)
 
@@ -3191,7 +3172,7 @@ The OTHER row is `87439b3`, C9h-4b's `_DEBUG` lines in `Always.h`. The worktree 
 - The 7 files are this review's `Always.h` lines plus a peer's in-progress C9h-4d: `SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE` + `_DEBUG`, in X2GUUser, X2GameUnit, X2GUNPC and X2StateDungeonGame.
 - A scan of the exe: `JUNE_FX UPDOWN_CANCEL` and `JUNE_FX CANCEL_CLAMP` are absent, in both UTF-16 and narrow form. `UPDOWN_CANCEL_AFTER` and `USE_COMMON_CANCEL_AFTER` are present.
 
-**Next kickoff:** `C9h-4d.md` was checked; nothing here changes it. `C9h-4f.md` already places `USEFUL_VALUE` after the clamp. **Open for the user:** `/cost`.
+**Next kickoff:** `C9h-4d.md` was checked; nothing here changes it. `C9h-4f.md` already places `USEFUL_VALUE` after the clamp.
 
 ### C9h-6 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the snapshot exists because June's running state data are pointers; March copies them by value, so a port would never change anything -> no port, routing only
 
@@ -3244,8 +3225,6 @@ March keeps the old values in all three cases, which is the behaviour June's sna
 - **Engine side -> backlog Stage 3, new sub-step 3f**: decide whether to adopt June's pointer model for the running state data. Only that reproduces (a)-(c); if adopted, the snapshot is ported with it.
 - No JUNE_BUGS row: nothing here is ported.
 
-**Open for the user**: /cost.
-
 ### C9h-4d - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE` + `_DEBUG` (on for the play-test); log `JUNE_FX EFFECT_SET_DELETE`; play-test run, logs read: new exe, 0 EXCEPTION, 0 phase lines; data036 copied)
 
 June's three effect-set delete conditions, the hyper check and the played-handle list are ported. Files: `X2GameUnit.h/.cpp`, `X2GUUser.h/.cpp`, `X2GUNPC.cpp`, `X2StateDungeonGame.cpp`, `Always.h`, `data036` `Enum.lua`. Ghidra read-only; 8 funcmap rows `Effect C9h-4d`; JUNE_BUGS 123-124; key matrix: the two `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` rows flipped from "deferred".
@@ -3280,8 +3259,6 @@ June's three effect-set delete conditions, the hyper check and the played-handle
 **Data:** `Enum.src.lua` got `DCES_SKILL_STATE_END = 5`; `kom.py compile data036` = `COMPILE OK`; `kom.py pack data036` = `PACK OK data036 ... 192 entries, 10655716 bytes ... ~1 changed: Enum.lua`. **Copied 2026-10-08 13:21** (`COPY OK`, md5 `cb5625f6`; backup `kom_backup_tools/data036.kom.20261008_132140`). **Play-test (Lord Knight, jtLordKnight): `logs.py` = run after deploy, 0 EXCEPTION, 0 `JUNE_FX EFFECT_SET_DELETE` lines, as expected on March data** (2 unrelated `E_DISABLE_HB_CHECK_REQ` UNHANDLED lines, not this phase's).
 
 **How to see it in game.** Nothing visible changes on March data. Regression play-test: a dungeon stage change with a skill effect set running, a riding-pet summon / unsummon, a few skills and state changes; expect no change, 0 EXCEPTION, and no `JUNE_FX EFFECT_SET_DELETE` line.
-
-**Open for the user:** `/cost`.
 
 ### C9h-4d - Review (2026-10-08, Opus 5.5 high): four transcription findings fixed under the same flag; the port is **live on March data** now; `_DEBUG` kept on for one play-test
 
@@ -3368,7 +3345,7 @@ Then say "check logs"; I read `JUNE_FX NPC_SOUND` (play / stop / clear lines, ca
 
 **Logs (2026-10-08 12:45-12:49, exe 8875aac0 = this code + peers' work):** 0 EXCEPTION; NPC `play ... n=1`, `clear state_end n=1..2` and one `stop dtor n=1` on offline monster units 1000001-4; SQUARE `stop state_end n=0` at each of 6 dismounts (units 12, 18); no crash on stage change. The only UNHANDLED is the known `E_DISABLE_HB_CHECK_REQ`. Both `_DEBUG` flags turned off afterwards (comment-only `Always.h` change).
 
-**Open for the user:** `/cost`. Review: `kickoffs/june-effect/C9h-4b-review.md` (Opus 5.5 high).
+Review: `kickoffs/june-effect/C9h-4b-review.md` (Opus 5.5 high).
 
 ### C9h-4b - Review (2026-10-08, Opus 5.5 high): no transcription finding, no code change, no deploy; the device `PlaySound` 4th argument is June's sound auto-release, not neutral -> C9h-7
 
@@ -3414,7 +3391,7 @@ SQUARE: files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 8 OTHER (other fla
 
 **What changed:** no code, so no build and no deploy. 6 funcmap rows tagged `Effect C9h-4b review` (row `323f17b0 (C9h-4b)` corrected); JUNE_BUGS 122; a STATUS row and `kickoffs/june-effect/C9h-7.md`. C9h-4e stays blocked: C9h-4d is not done.
 
-**Open for the user:** `/cost`, and the C9h-7 decision (port June's sound auto-release, or keep March's cached devices).
+, and the C9h-7 decision (port June's sound auto-release, or keep March's cached devices).
 
 ### C9h-5 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the village-NPC effect set is one key in June's `CX2TFieldNpc` rewrite -> Elysion E1 step 6, backlog Stage 18
 
@@ -3466,8 +3443,6 @@ There is no `GetUnitRotation` branch. The dtor does not touch the raw pointer. T
 - **Friendship manager and sequencer -> new backlog Stage 18.** Whichever of E1 and Stage 18 lands second wires the calls.
 - No JUNE_BUGS row: nothing is ported. E1 records the diff file's five candidates when it ports them.
 
-**Open for the user**: /cost.
-
 ### C9h-7 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): June's sound auto-release is one unref per opened device; user chose **(b) port verbatim** -> C9h-7a
 
 **How it works in June** (funcmap rows `Effect C9h-7`):
@@ -3518,7 +3493,7 @@ Other notes:
 
 **What changed:** no code, no build, no deploy. 21 funcmap rows `Effect C9h-7`, census + audit `.tsv`, JUNE_BUGS 125 (+ 122's Port cell), STATUS rows C9h-7 / 7a / 8, kickoffs `C9h-7a.md` and `C9h-8.md`, backlog Stage 2 line (world-event timeline).
 
-**Open for the user:** `/cost`; then C9h-7a.
+then C9h-7a.
 
 ### C9h-7a - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE` + `_DEBUG` (on for the play-test); log `JUNE_FX SOUND_RELEASE`; play-test pending)
 
@@ -3613,7 +3588,7 @@ Other notes:
 
 **Hygiene** (`flagcheck JUNE_SOUND_AUTO_RELEASE --with ..._DEBUG --worktree --files KTDXLIB/Always.h X2Lib/X2UIQuickSlot.cpp`): 1 PASS, 1 DEFINE, 0 FAIL; 3 deleted lines = our own (the `Always.h` description line and the `_DEBUG` `#define`, now commented, and the replaced flagged `false` line); 0 non-ASCII, 0 EOL-mismatched, 0 encoding change; RESULT: PASS.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,386,368 B, dated 2026-10-08 17:06:44, md5 fa2af5980bce6d2b08c0cac56b49b795, equal to X2/US_SERVICE/x2.exe (2026-10-08 17:06:39)`. `JUNE_FX SOUND_RELEASE` strings in the exe: 0 (`_DEBUG` off).
-**Play-test:** none owed (the fixed site is the defence-dungeon summon-card ACK, not reachable offline). **Open for the user:** `/cost`; next C9h-8.
+**Play-test:** none owed (the fixed site is the defence-dungeon summon-card ACK, not reachable offline). next C9h-8.
 
 ## C10 - Decided absent systems
 

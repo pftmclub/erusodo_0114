@@ -108,7 +108,6 @@ The report now prints each pair's origin split `(templet/factor/inline)`.
   - `32d47620`'s ChangeStat relation slice and case 1 (indices 2, 4, 5, 6);
   - the -1.0 pushes in `32d45040`/`32d42030`;
   - `32e7dbb0`'s count/full-orb order.
-- **Cost:** `/cost` cannot be read from inside the session; ask the user.
 
 **Kickoff for 4b-i part 2** (Opus 5.5 high):
 
@@ -192,8 +191,6 @@ Independent review of `3f51f2b` and `905d514` (`SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR
 - `x2.exe` is 19,009,536 B, md5 **`82bfdc8532245b35b5412d25653eb9e7`** (the pre-fix build was `218167fb…`). It was copied to the game directory as `X2_offline.exe`; the names were read programmatically, the md5 matches and all 5 key strings are present.
 - **Not launched.** There are no Lua changes, so no pack is needed.
 - `253581c`/`5850872` (Phase 1c item 4, committed by another session during this review) touch only the doc and `funcmap.tsv`, so this exe contains no other code change.
-
-**Review cost.** `/cost` is not readable from inside the session; ask the user.
 
 ### Phase 4b-i, part 2 — progress (2026-10-03), launch check pending
 
@@ -340,8 +337,6 @@ to BEHAVIOR_PARITY's dependency note. Build, deploy, commit; record where you st
 - `32274d60`'s clamp at 0.
 - Count March's RSCT templets by change type (behavior changes, first bullet).
 
-**Cost:** `/cost` is not readable from inside the session; ask the user.
-
 ### Phase 4b-i part 2 — Review (2026-10-03, Opus 5.5 high)
 
 Independent review of `05f5230` (NeverMove), `22d63b3` (ResetSkillCoolTime) and `014c8e1` (damage reader + AttackByType), all under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`. `c67ccab` (offline auth level) was checked for hygiene only. The review was read-only on code; nothing was built or deployed.
@@ -398,8 +393,6 @@ Fresh tools only:
 5. **SWAP reports a change even when the value is unchanged** (`bl = 1` on every SWAP that passes the guard). The port already does this; the part 2 phrase "Only SWAP and FIX report a change" is right but should read "SWAP always, FIX when the value moved".
 
 **funcmap.tsv:** 1 row added ("Buff Phase 4b-i part 2 review"): `32890620`, confirmed.
-
-**Review cost:** `/cost` is not readable from inside the session; ask the user.
 
 ### Phase 4b-i, part 3 — progress (2026-10-03)
 
@@ -562,8 +555,6 @@ Another session may have uncommitted edits in the doc: stage only your own hunks
 deploy, commit; record where you stopped.
 ```
 
-**Cost:** `/cost` is not readable from inside the session; ask the user.
-
 ### Phase 4b-i part 3 — Review (2026-10-03, Opus 5.5 high)
 
 Independent review of `b553529`, `061eb71`, `06521c3`, `00583b2` and `67bbb82`. The code is `061eb71`, under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`; no code file changed after it. The review was read-only on code: nothing was edited, built or deployed.
@@ -674,8 +665,6 @@ byte-level CP949 edits, insert-only, flag-off unifdef check per file. Another se
 have uncommitted edits in the doc: stage only your own hunks. Build, deploy, commit;
 record where you stopped.
 ```
-
-**Review cost:** `/cost` is not readable from inside the session; ask the user.
 
 ### Phase 4b-i, part 4 — progress (2026-10-04), launch check pending
 
@@ -845,8 +834,6 @@ may have uncommitted edits in the doc: stage only your own hunks. Build, deploy,
 record where you stopped.
 ```
 
-**Cost:** `/cost` is not readable from inside the session; ask the user.
-
 ### Phase 4b-i part 4 — Review (2026-10-04, Opus 5.5 high)
 
 Independent review of code commit `b9999a2` (under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`), debug commit `16a6d78` (hygiene only), and doc commits `6b0f0c9`, `06868a2`, `a1e1422`, `0f4ca0b` and `16e057c`. Read-only on code: nothing was edited, built or deployed.
@@ -909,8 +896,6 @@ Fresh tools only; part 4's patch and unifdef scripts were not reused:
 - 2 are candidates: `31fdbe20`, and the basic-setter sites `32281560`/`322816f8`.
 
 **Build and deploy:** none, because there is no code defect. The deployed exe is still the `16a6d78` debug build (`ce13bcb3…`).
-
-**Review cost:** `/cost` is not readable from inside the session; ask the user.
 
 ### Phase 4b-i, part 5 — Done (2026-10-04), play-tested
 
@@ -1085,8 +1070,6 @@ displayer pairs cleared. Another session may have uncommitted edits in the doc: 
 your own hunks. Build, deploy, commit; record where you stopped.
 ```
 
-**Cost:** `/cost` is not readable from inside the session; ask the user.
-
 ### Phase 4b-i part 5 — Review (2026-10-04, Opus 5.5 high)
 
 Independent review of code commits `7ea72b2` and `3bbf7d2` (under `SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY`), the revert `d34de09`, and doc commits `30aa0cb`, `5e5adef` and `5bc9586` (the manifest note). Read-only on code: nothing was edited, built or deployed.
@@ -1152,8 +1135,6 @@ Fresh tools only; part 5's patch and unifdef scripts were not reused:
 - 5 supersede or refine rows: `322a7660` (R2), `327bdb60` (R3), `32369da0` (R6), `32369f10` and `3229d320` (R4).
 
 **Build and deploy:** none, because there is no code defect. The deployed exe is still `b7379faa…` (`3bbf7d2`).
-
-**Review cost:** `/cost` is not readable from inside the session; ask the user.
 
 ### Phase 4b-ii — RE (2026-10-04)
 
@@ -1325,8 +1306,6 @@ Time's slots 14/15 (set/get duration) have no caller outside the vtable and are 
    - the "not diffed byte for byte" list above;
    - whether any March runtime path reaches a buff `DISPLAY_ERROR` outside the five redirected files.
 
-**Cost:** `/cost` is not readable from inside the session; ask the user.
-
 **Kickoff for the 4b-ii review** (Opus 5.5 high). It runs on its own; it is read-only unless it finds a code defect, which it then fixes, rebuilds and deploys.
 
 ```
@@ -1403,8 +1382,6 @@ Fresh tools only; the session's patch and unifdef scripts were not reused:
 - The seven displayer parses and four finalizer parses diffed above.
 
 **Build and deploy:** none, because there is no code defect. The deployed exe is still `806e2223…` (`256c26d`).
-
-**Review cost:** `/cost` is not readable from inside the session; ask the user.
 
 ### Phase 4b-iii — Done (2026-10-04), play-test pending
 
@@ -1526,8 +1503,6 @@ Not exercisable from the console, so left to the review: the `DT_BUFF` hitted ga
 4. Unifdef, build, deploy, md5 and the user's play-test: **met**.
 5. Review with no open code defect: **met** (see "Phase 4b-iii — Review" below).
 
-**Cost:** `/cost` is not readable from inside the session; ask the user.
-
 **Kickoff for the 4b-iii review** (Opus 5.5 high):
 
 ```
@@ -1605,8 +1580,6 @@ Fresh tools only; the session's patch, unifdef and `dispxref` scripts were not r
 
 **Phase 4b: complete.** All five "done when" items are met. Phase 5 starts next.
 
-**Review cost:** `/cost` is not readable from inside the session; ask the user.
-
 ### Phase 5 — Done (2026-10-04), play-tested (user)
 
 **Result.** All seven types are ported under `SERV_IRUHADEV_JUNE_BUFF_NEW_STAT`; none is Opus-only. `buff_census.py --phase 5` no longer lists any of them (March "handles 79", was 72). Client build `US_SERVICE` rc=0 for KTDXLIB, X2Lib (PCH invalidated with `touch X2Lib/stdafx.cpp`) and X2. `git diff --stat`: 351 insertions, 0 deletions; `file` on every touched file unchanged. Deployed `X2/US_SERVICE/x2.exe` as `X2_offline.exe` (names read programmatically: `x2.exe`, `x2.exe.bak`, `x2.fx`, `X2_offline.exe`): 19,040,256 B, md5 **`407067dcf1f31a0ca858f39c1db3eb4d`**, byte-identical to the build output. The exe contains all seven `BBT_*` key strings (ASCII and UTF-16) and the debug strings `first apply BBT`, `first read BBT`, `console hook BBT`, `JuneBuffTestNewStat_LUA`. **Not launched.** The four read sites (fixed-damage path and main path of `GetFinalDamage`, melee and range branches of `SetDamageExceptionProcess`) were each proven compiled in under `US_SERVICE` with a temporary `#pragma message` and a one-file compile (removed again; `git status` clean afterwards).
@@ -1659,8 +1632,6 @@ All seven also got: templet-factory case (`CX2BuffChangeStatBehaviorTemplet`), I
 | 96 | `BFI_AMUSEMENT_ITEM_SUPER` 822 | an amusement item | damage of ranged command attacks |
 | 108 | `BFI_SPELL_OF_DESTROY` 1109 (`BTI_SPELL_OF_DESTROY` 1028); also `BFI_ERDA_SPELL_OF_SOURCE` 1111 | a spell buff | your hits on monsters deal more |
 | 109 | `BFI_SPELL_OF_BATTLE` 1110; also `BFI_ERDA_SPELL_OF_SOURCE` 1111 | a spell buff | monsters' (or enemy players') hits on you deal more |
-
-**Cost.** `/cost` cannot be read from inside the session: user, please paste it here. *(Not invented.)*
 
 **Play-test hand-off (dev console, END key; `settings.auth_level` = 3 is already set).** Every line below is **checked from source only and never run**: the hook is bound with `lua_tinker::class_def<CX2GameUnit>` exactly like `SetBuffFactorToGameUnitByBuffFactorID_LUA`, `GetNPCUnit` returns `nil` for an empty slot, and `CX2GUNPC` inherits the method (the doc's earlier note). The `value` is a multiplier for `change type 3` (percent) and a plain percent for `1`. Undo any check by repeating its line with the last argument `0`.
 
@@ -1766,8 +1737,6 @@ Independent review of code commit `d899606` (against its parent `d0aa29c`) and d
 
 **Log lines to read afterwards:** `[JUNE_BUFF] console hook BBT 76 …` and `[JUNE_BUFF] first apply BBT 76 …`. The Add path has no debug line of its own; the DP bar is the check.
 
-**Review cost:** `/cost` cannot be read from inside the session. User, please paste it here.
-
 ### Phase 5b — Done (2026-10-04), play-tested (user, logs checked)
 
 **Play-test (2026-10-04, user, deployed exe `b981a4c1…`): all four console checks ran; `ErrorLog.txt` (read after the run) agrees and holds no runtime error, popup or `[JUNE_BUFF]` failure line other than the paste noise below.**
@@ -1821,8 +1790,6 @@ All nine are in the factor-parse switch of **both** macro lists and in the templ
 | 80–84 | `BFI_BUFF_RALLY_OF_HERO_LEVEL_1`/`_2`/`_3` 99 / 100 / 101 (BTI 118 / 119 / 120), `…_FOR_HERODUNGEON` 748 (BTI 722), `BFI_BUFF_RESERVATION_FOR_HERODUNGEON` 750 (BTI 724) | an item buff (a week long, `NORMAL_TIME` 604800) | level 1: attack ×( 1.06 + 0.35 × ( 4 − players ) ), defences and max HP ×( 1.06 + 0.07 × ( 4 − players ) ); with one player that is ×2.11 and ×1.27 |
 | 93 | `BFI_DECREASE_ENEMY_RESIST` 787 (BTI 761, 10 s, `FIX_VALUE` −1…−30 by level), `BFI_DECENT_TO_SHADOW` 1118 (BTI 1037) | a monster skill (`CX2GUNPC` slot 183 is its only caller and is dead) | the six element defences drop by the level's value |
 | 106 / 107 | `BFI_BUFF_PVP_ACCESSORY_SET_FORCE_DOWN` 1101 (BTI 1020, `FIX_VALUE` 0.6, 7 s), one factor carrying both | PvP accessory set | in PvP only: the force down of hits taken changes by the value |
-
-**Cost.** `/cost` cannot be read from inside the session: user, please paste it here. *(Not invented.)*
 
 **Play-test hand-off (dev console, END key; `settings.auth_level` = 3 is already set).** Every line below was **syntax-checked** with a Lua parser and, for the three definition lines, run against a mock manager to confirm the tables build and carry the ids named; none has run in the game. The factor numbers rely on `ErrorLog.txt`'s last load summary (`factors 361 loaded`, so the next free factor id is 362): if you changed or repacked the buff Lua since, the ids in the lines may need shifting by the same amount (the log will say). Paste the *definition* line once per game session; pasting it twice only logs a duplicate.
 
@@ -1955,8 +1922,6 @@ Independent review of code commit `9b79255` (against its parent `6f4f3d7`) and d
   - The default level slice that 106/107 use (ported wholesale in 4b-i) was not re-read in asm. Check 1 below tests it with a level-dependent value.
 
 **`funcmap.tsv`:** three rows were added ("Buff Phase 5b review"): `32e76710` (the range tests and the corrected owner), `32fe2626` (`__ftol2`, candidate), and `3226fd94` (update case 6/84, no `SetMaxHp`).
-
-**Review cost:** `/cost` cannot be read from inside the session. User, please paste it here.
 
 **Play-test result (2026-10-04, user; exe `b981a4c1…`; `ErrorLog.txt` session from the 15:25:43 load summary, `factors 361 loaded`). All checks pass.**
 - **Setup:** both definitions were accepted. There is no `ordinal reject` line and no `[JUNE_BUFF]` line naming `990106`, `990081`, `362` or `363`.
@@ -2246,8 +2211,6 @@ The kickoff's two blockers do not fire: Phase 4b-i part 4 landed the second ("ra
 | 88 | `BFI_DEBUFF_CUTTING_SWORD_IGNORE_DEFENCE` 630 (BTI 540; `IGNORE_DEFENCE_RATE` 1, ended by `BFT_HITTED_COUNT`) | a skill debuff | Hits on the debuffed unit ignore its whole defence until its hit count runs out. |
 | 92 | deferred. Factors include `BFI_SI_P_EIS_LIGHTNING_STEP` 81, `BFI_BUFF_PHANTOM_CIRCLE` 783, `BFI_SPA_STRONG_BUFF` 949 (`FIX` 10) and `BFI_ALWAYS_SPA_BUFF_2` 1029 (`FIX` 5) | skills, items | nothing until Q1–Q3 are answered |
 
-**Cost.** `/cost` cannot be read from inside the session. User, please paste it here. *(Not invented.)*
-
 **Play-test (2026-10-04, user): both checks pass.**
 - **88: pass.** On the first try, hits were visibly harder. The log has `first apply BBT 88 (ignore defence): BTI 990088, rate 1`, then `first read BBT 88: piercing defence factor 0 (buff rate 1, damage data rate 0)`.
 - **78: pass after a retest; the first "no change" was a display artefact.**
@@ -2392,8 +2355,6 @@ How the lines were checked:
 **Not reachable from the console, and why** (in addition to the Done note's list):
 - **78's user-side host** (a hit taken by the player) cannot fire offline. `CX2GUNPC::GetAdditionalAttackDamage` returns 0 unless the NPC has an owner (`X2GUNPC.cpp:30611`), and the base returns 0. A player only takes additional damage from another player or an owned summon, which means PvP. It is the same block as the NPC side, which the play-test proved.
 
-**Cost.** `/cost` cannot be read from inside the session. User, please paste it here. *(Not invented.)*
-
 **Play-test hand-off (optional regression; dev console, END key).** The review changed no code, and the exe in the game directory already passed both of the Done note's checks. One path that play-test did not show is 88 **expiring**, i.e. the erase. It has no log line, so this check is visual only.
 
 1. **The no-defence debuff wears off (type 88).**
@@ -2428,7 +2389,6 @@ How the lines were checked:
   - `17:7:40 first read BBT 88: piercing defence factor 0 (buff rate 1, damage data rate 0)`
 - **No reject of 362 or 363,** and no other `[JUNE_BUFF]` line after load.
 - **The load summary is the known baseline:** `factors 361 loaded`, ordinal rejects 5 (481–483, 372, 373), as recorded in Phase 3. Nothing from this phase.
-- **Review complete.** The `/cost` line above is still the user's to paste.
 
 ### Phase 6 — Done (2026-10-04), play-tested (user checks 1-2; logs checked for 3 and the clean check 4)
 
@@ -2499,8 +2459,6 @@ How the lines were checked:
 | 99 | none (June data does not use it) | – | **inert until 6b**; no data |
 | 100 | `BFI_BUFF_OVER_STRIKE_RSR_TRANSCENDENCE` 918 (BTI 888, `VALUE` −0.1) | a skill buff | **inert until 6b**; later: cooldowns 10 % shorter for the three grade types |
 | 103 | `BFI_BUFF_RAPID_GUARDIAN` 991 (BTI 936, `VALUE` 2) | a skill buff | your skill cooldown timers run twice as fast for the grade skill types (`ACTIVE`, `GRADE_1..3`) |
-
-**Cost.** `/cost` cannot be read from inside the session: user, please paste it here. *(Not invented.)*
 
 **Play-test hand-off (dev console, END key; `settings.auth_level` = 3 is already set).**
 
@@ -2734,8 +2692,6 @@ How the lines were checked:
 - 91's live host path (`SetDamageExceptionProcess` → the slot-109 virtual) is read-verified. No March player attack carries a non-zero `APPLIED_SKILL_ID`, so it can only be seen on the one monster-side effect; the review's check below shows the reader and fix 1. A DEBUG one-shot inside the override would prove the dispatch; that is the user's call, and it was not added.
 - 75's user side (a monster's hit on you) was not covered by the Phase 6 play-test, which only had you hitting monsters. Check 1 below covers it.
 
-**Cost.** `/cost` cannot be read from inside the session: user, please paste it here. *(Not invented.)*
-
 **Play-test (2026-10-04, user; exe `f413b8bf…`, run started 18:47:56 after the 18:41 deploy; `ErrorLog.txt` and `offline_server.log` read afterwards).**
 - **Load:** the baseline as before: `factors 361 loaded`, 5 ordinal rejects (481–483, 372, 373), 1 duplicate BTI (87). No `ordinal reject BFI 362` or `363`.
 - **1 (75, the player side): passed** (user). `ErrorLog.txt:174` `first apply BBT 75 … BTI 990075, rate 1`, then `:175` `first read BBT 75: the attacker's double-attack roll succeeded (rate 1)` after a monster's hit.
@@ -2848,7 +2804,7 @@ SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL with the original code in #else. Done means: e
 of 89, 90, 98, 99, 100 has its host wired (or a written reason it does not), the build
 is rc=0, and the strings are in the deployed exe. Write per-type "how to see it in
 game" lines (a June BTI/BFI and where it comes from) into the Phase 6b Done note for
-Phase 14, and note the 98 -> BFT 16 ordering for Phase 8. Record this session's /cost.
+Phase 14, and note the 98 -> BFT 16 ordering for Phase 8.
 Commit.
 Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
 the dev console (END key) wherever it can reach the check, and give me copy-ready
@@ -2874,7 +2830,7 @@ SERV_IRUHADEV_ / CP949 hygiene (run `file` on every touched file and check `git 
 small change means the file was re-encoded). Spot-check 2-3 host sites directly in Ghidra
 (read-only); if a spot-check fails, re-check the whole phase. Fix clear transcription
 errors under the same flag; hand design decisions back to me. Write the findings into the
-doc as "Phase 6b -- Review", record this session's /cost, and commit.
+doc as "Phase 6b -- Review", and commit.
 Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
 the dev console (END key) wherever it can reach the check, and give me copy-ready
 commands with every value already filled in (real BFI/BTI numbers, no placeholders).
@@ -2906,7 +2862,7 @@ a design decision, stop it, write the question in the doc, and continue. Done me
 buff_census.py --phase 7 lists none of 73, 94, 95, 104, 105 (74, 77, 97, 101, 102 and
 110 are Phase 7b), the build is rc=0, and the strings are in the deployed exe. Write a
 per-type "how to see it in game" line (a June BTI/BFI and where it comes from) into the
-Phase 7 Done note for Phase 14. Record this session's /cost there. Commit.
+Phase 7 Done note for Phase 14. Commit.
 Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
 the dev console (END key) wherever it can reach the check, and give me copy-ready
 commands with every value already filled in (real BFI/BTI numbers, no placeholders).
@@ -2929,8 +2885,7 @@ with exactly June's body, 94's two verbatim quirks, 95's DeleteNonControlDebuff 
 #else / CP949 hygiene (run `file` on every touched file and check `git diff --stat`).
 Spot-check 2-3 types directly in Ghidra (read-only); if a spot-check fails, re-check the
 whole phase. Fix clear transcription errors under the same flag; hand design decisions
-back to me. Write the findings into the doc as "Phase 7 -- Review", record this session's
-/cost, and commit.
+back to me. Write the findings into the doc as "Phase 7 -- Review", and commit.
 Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
 the dev console (END key) wherever it can reach the check, and give me copy-ready
 commands with every value already filled in (real BFI/BTI numbers, no placeholders).
@@ -2968,7 +2923,7 @@ first, commit, and record where the rest resumes. Done means: buff_census.py --p
 lists nothing but the enum-only 111 and 112 (or says which types are deferred and why),
 the build is rc=0, and the strings are in the deployed exe. Write a per-type "how to see
 it in game" line (a June BTI/BFI and where it comes from) into the Phase 7b Done note for
-Phase 14. Record this session's /cost there. Commit.
+Phase 14. Commit.
 Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
 the dev console (END key) wherever it can reach the check, and give me copy-ready
 commands with every value already filled in (real BFI/BTI numbers, no placeholders).
@@ -2996,7 +2951,7 @@ re-encoded). Because every one of these touches a state machine every unit runs,
 #else branches and confirm the flag-off path equals March. Spot-check 2-3 types
 directly in Ghidra (read-only); if a spot-check fails, re-check the whole phase. Fix clear
 transcription errors under the same flag; hand design decisions back to me. Write the
-findings into the doc as "Phase 7b -- Review", record this session's /cost, and commit.
+findings into the doc as "Phase 7b -- Review", and commit.
 Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)" in the doc. Test through
 the dev console (END key) wherever it can reach the check, and give me copy-ready
 commands with every value already filled in (real BFI/BTI numbers, no placeholders).
@@ -3180,7 +3135,7 @@ under NEW_STAT). Port June's whole function
 wherever it differs; cite June addresses; never invent a value; byte-level CP949 edits;
 flag-off unifdef per file; count the reach on March's live data before building. Build,
 deploy, commit; write a Done note with per-item "how to see it in game" lines and
-record /cost. Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)".
+Play-test hand-off: follow "Play-test hand-off (Phase 5 onward)".
 ```
 
 ## Phase 11 — the March server's buff system (2026-10-05)

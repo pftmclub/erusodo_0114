@@ -73,7 +73,7 @@ Verify against `git log --oneline -15` before claiming a phase is done; STATUS c
    strings are in the deployed exe if the phase's gate asks for it.
 3. **Done note** in the plan doc, under the phase: what landed (commit, flag), hygiene lines
    from flagcheck, the deploy line, per-item "how to see it in game", open questions for the
-   user, `/cost` if the user gives it. **Keep it under ~60 lines**; long RE tables go to a
+   user. **Keep it under ~60 lines**; long RE tables go to a
    `.tsv` (e.g. `june2017_re/funcmap.tsv`) or the plan's archive file, and the note links them.
 4. **STATUS.md**: update this phase's row (state, commit, what the user owes) in the same commit.
 5. **Review kickoff**: if the phase needs a review and `kickoffs/<plan>/<phase>-review.md` does

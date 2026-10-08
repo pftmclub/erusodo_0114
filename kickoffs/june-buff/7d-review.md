@@ -57,4 +57,4 @@ deleted line; a FAIL or ERROR is a finding.
 Spot-check items directly in Ghidra (read-only); if one fails, re-check the whole phase. Fix clear
 transcription errors under the same flag (then `tools/build.py --deploy`); hand design decisions
 back to the user. Write "Phase 7d -- Review" into the plan doc, update the 7d review row in
-STATUS.md, record /cost, and commit.
+STATUS.md, and commit.

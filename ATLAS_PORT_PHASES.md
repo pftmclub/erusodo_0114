@@ -170,8 +170,6 @@ selection*; condensed:
    against the A1 maps (enum values both sides, key names, switch coverage,
    flag/`#else`/CP949 hygiene, staging + manifests). It spot-checks 2–3 items
    in Ghidra and escalates to a full re-check only if one fails.
-7. Record each session's cost in the phase's "Done" note (`/cost` on API
-   billing, usage/limit consumption on a subscription).
 
 ---
 

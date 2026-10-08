@@ -334,7 +334,7 @@ from June in X5. If March then fails to use one, that is an engine phase, not an
 **Gate.** `verify --compare` re-run (997 s): `same 222811`, 0 short-prefix, 0 different, 0 missing; `VERIFY OK: 258 koms, 222811 entries ok,
 0 failed, 0 header problems`. Files: `.build/junekom/x2_before*.tsv`, `x2_after*.tsv` (not committed).
 
-**For X5:** the plan text says "49 live short copies"; the real count is 281 in 16 koms (kickoff updated). Owes the user: `/cost`.
+**For X5:** the plan text says "49 live short copies"; the real count is 281 in 16 koms (kickoff updated).
 
 ## Phase X3 - Packing helper
 
@@ -389,7 +389,7 @@ table is the same 51) plus the 5 long names:
   March copy at the `Wait01` bytes), a new file in an existing LF manifest, a new kom dir with a CRLF manifest, and the three
   refusals. Nothing in the real `kom_contents` was written.
 
-**Owes the user:** `/cost`. Next: X2 (the repack list), X4, then X5 (kickoff written).
+Next: X2 (the repack list), X4, then X5 (kickoff written).
 
 ## Phase X4 - SERV_IRUHADEV_KOM_LONG_NAMES
 
@@ -485,7 +485,7 @@ The other 5 long names are staged in X5.
 `[KOM_LONG] found TRIGGER_HAMEL_FROZEN_WATER_HALL_STAGE3_STONE_STATUE_WATER_A.X` (09:21:22). There was no `KEM_ERROR136` for the
 name and no load error for the mesh or its texture.
 
-**Open:** mount-time `ErrorLog.txt` loss (above), pre-existing, not X4's. **Owes the user:** `/cost`.
+**Open:** mount-time `ErrorLog.txt` loss (above), pre-existing, not X4's.
 
 ## Phase X4 review
 
@@ -552,8 +552,6 @@ grep covered `WCHAR`/`char` arrays named `*Name*`/`*File*`/`*Path*` in `KTDXLIB`
 `m_DeviceID` wstring, and the manager converts into `[255]`. The X5 play-test is the real check: a June EffectSet or sound-table
 field could still cut a name before it reaches the device.
 
-**Owes the user:** `/cost`.
-
 ## Phase X5 - Trial pack and play-test
 
 **Run with:** Sonnet 5.5 high, then the user's play-test.
@@ -608,7 +606,7 @@ play-test. Aluminum is a Hard/Expert-only mid-boss of Ranox Ashes Village (stage
 the user saw its name plate; Ranox village shop NPCs Ryota (`SYOTA`) and Pesop (`FACEOFF`) work like the regular client. `ErrorLog.txt`:
 0 KEM_ERROR lines for the whole run, 0 packet exceptions. **Not exercised (deferred, not failed):** `Spa_Ranox_G01_water01.y` (no map in the
 run loaded it), the Moonlight Rhapsody `.tga` (Add not ported) and the Elysion `.ogg` / `data197.kom` (Elysion not ported).
-**Logs after the play-test:** `logs.py --tag KOM_LONG` + `ErrorLog.txt` KEM_ERROR88/89/343/390/95/96/87/136/132. **Owes the user:** `/cost`.
+**Logs after the play-test:** `logs.py --tag KOM_LONG` + `ErrorLog.txt` KEM_ERROR88/89/343/390/95/96/87/136/132.
 
 ## Out of scope (routed, not dropped)
 

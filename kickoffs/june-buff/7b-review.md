@@ -35,7 +35,7 @@ re-encoded). Because every one of these touches a state machine every unit runs,
 #else branches and confirm the flag-off path equals March. Spot-check 2-3 types
 directly in Ghidra (read-only); if a spot-check fails, re-check the whole phase. Fix clear
 transcription errors under the same flag; hand design decisions back to me. Write the
-findings into the doc as "Phase 7b -- Review", record this session's /cost, and commit.
+findings into the doc as "Phase 7b -- Review", and commit.
 
 ## Scope as landed (Phase 7b, commit 25f51ed; added after the phase)
 
