@@ -2556,14 +2556,14 @@ Read-only work in Ghidra and capstone. Results:
 - **The nation reader.** June's `SOUND_PLAY` reader `32078fd0` tries `SOUND_PLAYn_<JP|US|BR>` first, keyed by
   `CX2Main::m_dwNationFlag`. March already has that member, and its US config sets `NF_US`, so no stand-in is needed and the reader
   resolves to March's name. June renumbered `NF_BR` to 0x700.
-- **The user player** `31fea120` erases each record after it plays, so a looping state plays its sound once per entry. That is the one
-  visible change on March data.
+- **The user player** `31fea120` erases each record after it plays. March already plays a record once per state entry (CommonStateStart
+  resets the oneshot timer, X2GUUser.cpp:14596), so this differs only where class code resets the timer mid-state (Chung, 12 sites).
 - **Reach.** March's scripts carry none of the new keys. The only exception is `FIRE_DEVIL_CHAIN_BALL`'s `SOUND_PLAY_EX`, which no NPC
   reader reads, in June or in March. June's riding pets (51 of 57, including all 15 of March's) carry `SOUND_PLAY_ALL_OPTION`, and so do
   26 NPC / summon scripts (Elysion, Erda, Rose and Ain).
 
 **2. `UPDOWN_CANCEL_AFTER`** -> **C9h-4c**. Default 9999.0. The engine reader is June's `RidingAttackZEventProcess` (up/down -> RIDING_WAIT;
-June's cancel tests are a strict `> 0`). ~27 class EventProcess readers (Elsword 25, Raven 1, Lire 1) go to checklist 7h. Its neighbour
+its cancel tests are March's: time >= 0 and below the riding pet's anim time). ~27 class EventProcess readers (Elsword 25, Raven 1, Lire 1) go to checklist 7h. Its neighbour
 `USE_COMMON_CANCEL_AFTER` (10 June scripts) is unmapped, and C9h-4c identifies it.
 
 **3. `LoadEffectSetFromScript` (`32024ff0`)** -> **C9h-4d**.

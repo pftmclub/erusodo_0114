@@ -14,7 +14,7 @@
 ```sh
 python tools/docsection.py JUNE2017_EFFECT_COMPLETION_PHASES.md "C9h-4 - Done" "C9h-3b - Done"
 grep -n "Effect C9h-4\|Effect C9h-3b" june2017_re/funcmap.tsv
-grep -P "\tridingpet\t" june2017_re/c9h4_unit_key_census.tsv
+awk -F'\t' '$3=="ridingpet"' june2017_re/c9h4_unit_key_census.tsv
 ```
 
 March: `X2Lib/X2RidingPet.cpp`, i.e. StateChange's user block and C9h-3b's end-of-block comment, plus StateChangeFuture.
@@ -41,13 +41,16 @@ Replace C9h-3b's comment with June's writes (`32d2f560 @32d3110d-32d35a05`, `32d
   `DELETE_CONDITION_SOUND` is already in `Enum.lua`.
 - **Pack.** Pack the archive that holds them, and **ask the user before the copy**.
 
-**Reach.** This is the first visible change of the C9h-4 family. Each of March's 15 pets plays its summon and start sounds through
-`SOUND_PLAY_ALL_OPTION`, in a dungeon and in a village.
+**Reach.** This is the first change in the C9h-4 family that the user can see. Each of March's 15 pets plays its summon and start
+sounds through `SOUND_PLAY_ALL_OPTION`, in a dungeon and in a village. Their June entries set only `PLAY_TIME` and `SOUND_NAME` (two or
+three per pet). They have no `LOOP` and no `DELETE_CONDITION`, so they keep the `DCS_NONE` seed and nothing ever stops them; each one
+just plays once.
 
 **Play-test:**
 - summon each kind of pet (Mobi, Hameling, Pporu, Oberon, Koucika, Scorpion, GodBeast) in a village and in a dungeon;
-- listen for the summon and start sounds;
-- the sounds must stop on a state change (`DCS_STATE_END`), and nothing may loop forever after unsummon.
+- each summon and start sound plays once;
+- nothing loops;
+- nothing is silent that the previous exe played.
 
 **Done gate:** a `JUNE_FX RIDINGPET_USER_KEYS` line per StateChange that wrote a June key while `_DEBUG` is on; strings in the deployed
 exe; `PACK OK` / `COPY OK` lines.

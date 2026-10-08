@@ -14,7 +14,7 @@
 ```sh
 python tools/docsection.py JUNE2017_EFFECT_COMPLETION_PHASES.md "C9h-4 - Done"
 grep -n "Effect C9h-4" june2017_re/funcmap.tsv
-grep -P "^(SOUND|STATE_SOUND|CUSTOM_STATE_DELETE_SOUND|DELETE_CONDITION)" june2017_re/c9h4_unit_key_census.tsv
+grep -E "^(SOUND|STATE_SOUND|CUSTOM_STATE_DELETE_SOUND|DELETE_CONDITION)" june2017_re/c9h4_unit_key_census.tsv
 ```
 
 March: `X2Lib/X2GameUnit.h:1346` (`SoundPlayData`), `X2Lib/X2GUUser.cpp` CommonStateStart sound block (:15181), CommonFrameMove_TimedEvent's
@@ -61,10 +61,15 @@ Port June's sound system on `CX2GameUnit` and the user, whole. The funcmap rows 
 - The NPC, square-unit and event-scene sides belong to C9h-4b.
 - The riding pet's writes belong to C9h-4e.
 
-**Reach.** No March user script carries the new keys, but June's player is not inert: March replays a record on every loop of the
-animation, and June erases it after the first play. A state whose animation loops (a WAIT habit, a held walk or dash) plays its
-`SOUND_PLAY` once per state entry. That is June's behaviour, so keep it, and make it the play-test's main check (compare footstep and
-voice sounds with the previous exe).
+**Reach.** No March user script carries the new keys. June's player erases each record after it plays, and March already plays a
+record once per state entry: `CommonStateStart` resets the oneshot timer (X2GUUser.cpp:14596). Erasing therefore changes nothing except
+where class code resets the timer in the middle of a state (`ClearAnimEventTimerOneshotNow`, 12 sites in `X2GUChung.cpp`). There
+March replays the state's sounds and June does not. That is June's behaviour, so keep it.
+
+The play-test is a regression pass:
+- voices and hit sounds of any class, in a dungeon;
+- Chung's states that reset the timer, compared with the previous exe;
+- the same with a riding pet summoned.
 
 **Done gate:** one `JUNE_FX UNIT_SOUND` line per attach while `_DEBUG` is on (name, conditions, list), and the strings are in the
 deployed exe.

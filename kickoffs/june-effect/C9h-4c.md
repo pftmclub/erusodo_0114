@@ -26,8 +26,9 @@ March: `X2Lib/X2GUUser.cpp` CommonStateStartFuture's cancel-afters (:14489) and 
      CommonStateStart (`@3205f6f8`), after `USE_COMMON_CANCEL_AFTER` and before `SKILL_CANCEL_AFTER_FLY`.
    - **`USE_COMMON_CANCEL_AFTER`** (`@320563b0`) is the June-only key next to it, in 10 June scripts. Nobody has mapped it. Identify its
      member and consumer here. Port it with this flag if it is engine; if only class code reads it, add a row to checklist 7h.
-2. **June's `RidingAttackZEventProcess`** (`32031e60`), the whole function. Its order, keys and the strict `0 < time` tests are in its
-   funcmap row; March's macros test `>= 0`, and June's own test wins. Port it under this flag:
+2. **June's `RidingAttackZEventProcess`** (`32031e60`), the whole function. Its order and keys are in its funcmap row. Its tests are
+   March's: time >= 0, and time below the riding pet's anim time. What is new is the UPDOWN branch after WALK and the `3202f460` callee.
+   Port it under this flag:
    - It replaces March's `RidingAttackZEventProcess` for state `RIDING_ATTACK_Z`.
    - It is also what June's `DoFrameMoveFuture` runs on the riding pet's ONGROUND arm (`320347d0 @32034872`). Replace C9h-3b's
      fall-through comment there with that call.
@@ -38,9 +39,8 @@ March: `X2Lib/X2GUUser.cpp` CommonStateStartFuture's cancel-afters (:14489) and 
    (`32cb9ee0`) read `+0x8ca4` in their own EventProcess. Checklist 7h lists them; the character ports bring them.
 
 **Reach.** The key is only in June-only riding pets (Lord_Of_Inferno, Lord_Of_Inferno_2P, Perkisas) and in June's `RAVEN_FIGHTER`. The
-riding pet's write of it comes in C9h-4e. On March data the only visible change is the strict `> 0` test: a March riding-pet state that
-sets a cancel-after of exactly 0 no longer cancels at time 0. The play-test is a riding-pet regression pass: Z attack, then cancel by walk,
-dash and skill.
+riding pet's write of it comes in C9h-4e. The phase is inert on March data, so the play-test is a riding-pet regression pass: Z attack,
+then cancel by walk, dash and skill.
 
 **Done gate:** a `JUNE_FX UPDOWN_CANCEL` line per RIDING_ATTACK_Z entry while `_DEBUG` is on (the four cancel-after values), and the
 strings are in the deployed exe.
