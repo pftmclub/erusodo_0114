@@ -2346,6 +2346,58 @@ Next: C9h-2c (Opus 5.5 high, identify; its kickoff exists). **User owes:** /cost
 
 ---
 
+### C9h-2c - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): June's preview table is March's plus dated / event rows nobody uses; the port is its loader -> C9h-2d
+
+15 funcmap rows `Effect C9h-2c` (one upgraded: `32808770`).
+
+**Headline.** June's lookup equals March's on June's own data.
+- All 393 rows of June's `PetPreView.lua` pass 2-3 arguments (283 pet with the default type, 10 explicit `PPT_PET`, 100
+  `PPT_RIDING_PET`). No row uses the second id, the dates or the code event.
+- With those fields empty, every matching row pushes its pet, and the result is `vec[ rand() % size ]`, or `-1` on a miss.
+  That is March's `GetPreviewIDByItemID` (`X2ItemManager.cpp:4304`). `rand()` survives.
+
+**Map.**
+- **Object.** The item manager (`g_pData+0x34`, ctor `3281f490`). `g_pCashItemManager` is March's own Lua name for it
+  (`X2ItemManager.cpp:320`), and June loads `PetPreView.lua` from `ResetItemManager` `31edda90`, as March does.
+  - Row: `32822b60`, 0x4c bytes: item, pet, type, second id, start/end `wstring`, code event.
+  - Vector: `+0x1cc`.
+- **Loader `32812ce0`.** Bound as `AddPetPreViewData`; June builds the name XOR'd, and C9h-2c decoded it from
+  `31db13af..` plus the keys `@31db143a..`.
+  - Arguments: (item, pet, type, second id, a5, a6).
+  - Both strings given: they are the dates. Only a5 given: code event = `atoi(a5)`.
+  - It skips `item <= 0 || pet <= 0` silently: no popup, no latch, no templet check.
+- **Lookup `32808770`.** Each date or event row either adds its pet, or, once its window or event is on, swaps in the
+  second id. The pet is removed first, the swapped id is added once, and an out-of-window row falls back to the pet only if
+  neither id is already there. The branch table is in the funcmap row.
+  - "Now" is `CX2Data::GetServerCurrentTime` `31edca50` (= March `X2Data.cpp:2614`).
+  - The dates parse through `31c55270`: `ConvertStringToCTime`, then a shift of (`CX2Data+0x470` - `_timezone`). The
+    `+0x470` member is June-only, and its writer was not found.
+  - The event test `32822650` is a June-only `std::set<int>` at `g_pInstanceData+0xa94`, not March's `IsEnableCode` map
+    `+0xa18`. June's `EGS_UPDATE_CODE_EVENT_NOT` handler `31f00970` fills it, together with `+0xa18` and a second set `+0xaa4`.
+    The emulator never sends that packet, so the set stays empty.
+
+**Data.**
+- 152 of June's 393 rows name a pet March's `Enum.lua` lacks: 85 pet rows (44 names) and 67 riding rows (36 names). The
+  names are listed by the C9h-2c census; they are backlog Stage 17's.
+- 241 rows resolve to the same values in both enums.
+- All 332 distinct items are in the live `item.kim` (June's, since K2).
+- June's file is a superset of March's preview items.
+- **Hazard for adopting it on March's loader:** under `_IN_HOUSE_` (on in US_SERVICE), the first row that resolves to 0
+  pops a box and sets `static bHasInvalidData`, and every later row is then rejected. June's loader has no such block, which
+  is why the port takes June's loader.
+
+**Routed.**
+- Self-contained on March's item manager -> new port phase **C9h-2d** (Sonnet 5.5 high, flag
+  `SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP`): loader, lookup, the two externals (set `+0xa94` with June's handler and packet
+  sets; the `+0x470` time-zone member), June's `PetPreView.lua`. Kickoff `kickoffs/june-effect/C9h-2d.md`.
+- The same row type also backs June's **ice-heater preview** rewrite: loader `3281a0d0` (`AddIceHeaterItemData`, map
+  `+0x1b0`) and lookup `328136f0` (set `+0xaa4`). That is not the pet preview, and it has no owner, so it goes to backlog
+  **Stage 16** as one line. All 9,545 of June's IceHeaterPreView rows pass 4 arguments.
+
+**User owes:** /cost. Next: `/x2-phase june-effect C9h-2d` on Sonnet 5.5 high.
+
+---
+
 ### C9h-3 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the riding pet's UI sets port now; its StateChange splits three ways -> C9h-3a/3b/4/5, Stage 17
 
 Read-only in Ghidra. There are 43 funcmap rows tagged `Effect C9h-3`. They correct C9h in four places:

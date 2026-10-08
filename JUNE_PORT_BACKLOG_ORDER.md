@@ -411,6 +411,9 @@ the record itself and every field March already reads. The rest has no March own
   `ItemEtcAccessory` (voice packs), `CanUseInventoryItem` (right-click opens the cash shop), `GuildAgitShopItem`,
   `SynthesisMaterialTable`, `SynthesisTable_Client`, `PetUpgradeItemData`, `EventSealItemData`, `UnlockSocketItemData`,
   `UnlockSocketItem`.
+- **Ice-heater preview rewrite** (june-effect C9h-2c, 2026-10-08): loader `3281a0d0` (`AddIceHeaterItemData`, rows into map
+  `+0x1b0`) and lookup `328136f0` (date windows or the code-event set `g_pInstanceData+0xaa4` pick a second id, then two
+  `std::set`s and a `rand()` pick). Same 0x4c row as the pet preview (C9h-2d); June's 9,545 IceHeaterPreView rows all pass 4 args.
 
 Routed elsewhere:
 - the division and render-division tables go to Stage 11;
