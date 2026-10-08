@@ -2448,6 +2448,40 @@ The exe also holds a peer's uncommitted riding-pet work (X2RidingPet*, X2GUUser*
 **Open for the user**: /cost.
 **Next**: `/x2-phase june-effect C9h-2d review` on Opus 5.5 high. Also `C9h-2e` (identify, Opus 5.5 high).
 
+### C9h-2d - Review (2026-10-08, Opus 5.5 high): no finding, no code change, no deploy
+
+**Play-test read first:** the PASSED run above (exe `affec372`, 152 `skip` lines, `loaded=241 skipped=152`, 0 EXCEPTION).
+
+**Checked against June (Ghidra read-only, literals read from `unpacked_x2.exe`).**
+- **Lookup `32808770`, re-decompiled; every branch matches `GetPreviewIDByItemID` (`X2ItemManager.cpp`).**
+  - Row copy: `[2] == type && [0] == item`. "Now" = `31edca50`, taken only on the `code == 0` path.
+  - `code == 0`, `[3] < 1`: `31c1c240` is `wstring::compare( const wchar_t* )` (strlen, then `31c1c1a0( 0, size, s, n )`), and `3344f1f4` reads `00 00` (`L""`).
+    - So `JZ` = equal = empty: either date empty -> push the pet (`@32808abd`, `@32808ad6`, ECX = `+0x10` then `+0x2c`).
+    - Otherwise: a failed parse skips; `start < now` and `now < end` (both `CTime::operator<`) push.
+  - `code == 0`, `[3] >= 1`: no empty test. In window: `find([3])` misses -> `find([1])`, erase on a hit (`325f3d20`), push `[3]`. Out of window or a failed parse: push `[1]` when neither is present. This equals `JunePreviewUseSecond` / `UsePet`.
+  - `code != 0`: `DAT_33775864` (= `g_pInstanceData`, confirmed by the handler's `+0xa18`) is null, or `32822650` misses -> `[3] < 1` skip, else the fallback; a hit -> `[3] < 1` push, else the swap. Matches.
+  - Tail: empty vector -> `OR EAX,-1` (`@32808bce`, and the head's empty-table `JZ`). Otherwise `@32808bda` `rand()`, `XOR EDX,EDX; DIV ESI` (unsigned) -> `vec[ rand() % size ]`. Matches.
+- **Loader `32812ce0`.** Item and pet are tested with `JLE` (signed `<= 0` -> silent skip). `a5 && a6` -> both converted by `31c335e0`.
+  - `31c335e0` = `toWideString( p, -1 )`: `MultiByteToWideChar( 0 = CP_ACP, ... )`, `-1` drops the NUL, the same as `KncUtil.h:222`.
+  - Otherwise both are set to `L""` (`31f54a10( 3344f1f4 )`). Code starts at `XOR EAX,EAX` and becomes `atoi( a5 )` only when `a5 && !a6`. Matches.
+  - **Which string is the start:** a5 is assigned to `[ESP+0x44]`, which becomes the 5th argument of `32822b60`. The row ctor copies its 5th argument to `+0x10`, and the lookup parses `+0x10` and tests it as `start < now`. So a5 is the start date, as ported.
+  - The argument order into the row is (item, pet, type, second, a5, a6, code), the same as `PREVIEW_PET_DATA`'s ctor.
+- **`31c55270`.** On a parse failure it returns false with no shift; otherwise `time += (__int64)offset - (__int64)_timezone` (`CDQ; SUB; SBB; ADD; ADC`). `31edcea0` = `MOV EAX,[ECX+0x470]; CDQ`. Both match (`CTimeSpan( GetServerUtcOffset() - lTimeZone )`, an `__int64` int member).
+- **Packet `320de0f0`.** The map (tag 0x18) at `+0`, then a set (0x16) at `+0x10`, then a set (0x16) at `+0x20`. This matches Put/Get (map, A, B).
+- **Handler `31f00970`.** Under `g_pInstanceData != 0` it assigns the map to `+0xa18`, set A to `+0xa94` and set B to `+0xaa4`, then `32344880()` and the vtable `+0x100`. Nothing else: no NEW_YEAR / CHECK_POWER blocks, so dropping them is right. The tail is not ported, the Done note says so, and STATUS has row C9h-2e (kickoff `C9h-2e.md` exists).
+- **Missing Lua arguments.** `KNCSDK/Src/lua_tinker.cpp` `read<const char*>` = `lua_tostring` (nil -> NULL), `read<int>` = `lua_tonumber` (0), and `lua2enum` = `(T)(int)lua_tonumber` (0 = `PPT_PET`).
+- **Data.** `kom_contents/data036_kom/PetPreView.src.lua` is byte-identical to `june_src_fixed`'s. The live `data036.kom` against the pre-copy backup `data036.kom.20261008_083402` (`elstools inspect`): +0 added, -0 removed, changed `PetPreView.lua` only. `kom.py status data036`: in sync.
+- **The `+0x470` init** (`X2Data.cpp`, in the ctor) is outside every `#if`. The item manager's two counters are not set in its ctor, but they are zeroed before the only `PetPreView.lua` load, so this is not a finding.
+
+**Hygiene**: `flagcheck JUNE_PET_PREVIEW_LOOKUP --range 7ba2f9d^..HEAD`:
+- `files: 8 PASS, 0 PASS~ (blank/marker only), 2 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 ERROR`
+- `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 5 #else/#endif without the flag token, 0 encoding change(s)`
+- `RESULT: PASS`
+- The 4 OTHER rows are peers' commits inside the range: `10ff360` (X4, `SERV_IRUHADEV_KOM_LONG_NAMES`: Always.h + KGCMassFileManager.h/.cpp) and `f1efeaa` (C9h-3b, `RIDINGPET_STATE_DEBUG` off, Always.h +1/-1).
+- The 5 lines without the flag token are bare `#else` (X2ItemManager.cpp 2, .h 2, X2State.cpp 1). Every `#endif` carries the token.
+
+**Open for the user**: /cost. **Next**: `C9h-2e` (identify, Opus 5.5 high).
+
 ---
 
 ### C9h-3 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the riding pet's UI sets port now; its StateChange splits three ways -> C9h-3a/3b/4/5, Stage 17
