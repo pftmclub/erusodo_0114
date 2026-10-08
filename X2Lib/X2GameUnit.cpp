@@ -3631,6 +3631,13 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 		if ( pUser->GetTimeSocketSuperArmor() > 0.0f )
 			fFinalDamage *= 0.7f;
 	}
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+	// June2017 CX2GameUnit::GetFinalDamage 32284aa0 @3228676a-32286786 (effect completion C3): right after the socket super-armor block, a defender
+	// that is super armored (vslot 153 with arg 0 == IsSuperArmor(), funcmap rows 3229a669 / 32758440) takes the DamageData's
+	// DAMAGE_RATE_TO_SUPERAMOR (+0x620, default 1.0) as a multiplier (cmp al, 1 @32286778).
+	if( true == pDefender->IsSuperArmor() )
+		fFinalDamage *= pAttDamageData->m_fDamageRateToSuperArmor;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 
 #ifdef RENA_SECOND_CLASS_CHANGE
@@ -3669,6 +3676,18 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 #endif
 	}
 #endif NEW_SKILL_2010_11
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+	// June2017 CX2GameUnit::GetFinalDamage 32284aa0 @3228682a-32286879 (effect completion C3): after the Atomic Shield block, PAUSE_NPC_AI_TIME
+	// (+0x624) > 0 (fldz; fcomp; test ah,5; jp = x87test.py mask 0x05: runs for mem > 0, NaN skips) pauses the NPC in the DamageData's
+	// defender optr (+0x470; 31e55680 validity, 31e55340 deref, unit type +0x264 == 1): 3275b330( time ) is CX2GUNPC::SetTimePauseNPCAI
+	// (stores +0x8648, and for time > 0 resets the AI target and sets the AI message to SCT_AI_WAIT, as March's does).
+	if( 0.f < pAttDamageData->m_fPauseNpcAiTime )
+	{
+		CX2GameUnit* pJunePauseNpcUnit = pAttDamageData->optrDefenderGameUnit.GetObservable();
+		if( NULL != pJunePauseNpcUnit && CX2GameUnit::GUT_NPC == pJunePauseNpcUnit->GetGameUnitType() )
+			static_cast<CX2GUNPC*>( pJunePauseNpcUnit )->SetTimePauseNPCAI( pAttDamageData->m_fPauseNpcAiTime );
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 	//}} JHKang / 강정훈 / 2010/11/29 / 아토믹 쉴드 데미지 감소
 
 
@@ -12692,6 +12711,32 @@ void CX2GameUnit::UpNowHpPerHitbyAttackPower( IN const float fHitAddHpPer_ )
 	g_pData->GetPicCharGreen()->DrawText( wszBuf, pos, GetDirVector(), CKTDGPicChar::AT_CENTER );
 }
 #endif //ADD_MEMO_1ST_CLASS
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+/** @function	: JuneUpNowMpPerHitOthersPercent
+	@brief		: June2017 CX2GameUnit 322736f0 ( this, float percent, float textOffsetY ) (effect completion C3, HIT_ADD_MP_PERCENT): the MP twin of
+				  UpNowHpPerHitOthers. MP += max( 1.0, MaxMp * percent ) (vslot 0xdc GetMaxMp, vslot 0xf0 UpNowMp), then the text "MP +%d" (the int
+				  is ftol-truncated, 32fe25f0; wide string 33487238) is drawn at GetPos() + ( 0, textOffsetY, 0 ) with the CX2Data blue pic char
+				  (g_pData +0x158, tested for NULL @322737a3; the HP twin draws green, +0x15c). Both June callers pass 140.0 ([33443958]).
+*/
+void CX2GameUnit::JuneUpNowMpPerHitOthersPercent( IN const float fHitAddMpPercent_, IN const float fTextOffsetY_ )
+{
+	float fAddMp = 1.f;
+	if( 1.f < GetMaxMp() * fHitAddMpPercent_ )
+		fAddMp = GetMaxMp() * fHitAddMpPercent_;
+
+	UpNowMp( fAddMp );
+
+	D3DXVECTOR3 pos = GetPos();
+	pos.y += fTextOffsetY_;
+
+	WCHAR wszBuf[256] = {0,};
+	StringCchPrintf( wszBuf, 256, L"MP +%d", static_cast<int>( fAddMp ) );
+
+	if( NULL != g_pData->GetPicCharBlue() )
+		g_pData->GetPicCharBlue()->DrawText( wszBuf, pos, GetDirVector(), CKTDGPicChar::AT_CENTER );
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 /** @function : SetBuffFactorToDamageData
 	@brief : 버프팩터 ID로 게임유닛의 데미지데이터에 버프팩터 추가

@@ -3277,6 +3277,38 @@ June's per-class attach variants `321e3730` / `321e3830` and the class callers a
   `kom_contents/data036_kom/item.kim`: `march_data/data036/item.kim.march_patched` (the buff Phase 13 patched copy), then repack and copy
   data036. The staged assets can stay (nothing March names reads them). Pre-K2 koms: `kom_contents/../kom_backup_tools/`.
 
+### June effect completion C3: the straightforward DamageData keys
+
+Flag: `SERV_IRUHADEV_JUNE_DAMAGEDATA` (extended, no new flag). All 19 keys are parsed into new `DamageData` / `ExtraDamageData`
+members with June's defaults (`SimpleInit` / `Init`), and each consumer June has is ported at its March site.
+
+| key | June parse | March consumer (June consumer) |
+|---|---|---|
+| `ATTACK_ONLY_ME` | `+0x50d` | the six hit paths (`X2DamageManager.cpp`: Ground / Area / UnitToUnit: UID == the caller's `attackUnitUID`; Mesh / CollisionData / EffectToUnit: attacker (the effect's owner) UID == defender UID), and both `DamageReact`s' invincible gate |
+| `ONYL_ATTACK_USER` | `+0x5fc` | UnitToUnit, MeshToUnit, CollisionDataToUnit, EffectToUnit: non-user defenders are skipped |
+| `ADD_CHECK_DAMAGE_UNIT_NUM` | `+0x4d8` | `AreaHit`: result count = count + the key when the loop stopped on `DAMAGE_UNIT_NUM`; feeds the MP drain and the return value |
+| `FORCE_BACK_SPEED` | `+0x3ec` | user and NPC `DamageReact`: the back-speed block also runs for a super-armored / dummy (NPC: guarding, frozen) hit |
+| `DAMAGE_LIGHT_TIME` | `+0x5ec` | user `DamageReact` (DT_BUFF clears the timer), NPC `DamageReact`, user `AttackResult` (own `m_DamageData`) |
+| `EXCEPT_ME_HP_UP` | `+0x50c` | NPC `DamageReact`: no HP heal and no heal effect for a hit from the same NPC (low UID dword); HP heal also needs `GetNowHp() > 0` |
+| `DAMAGE_RATE_TO_SUPERAMOR` | `+0x620` | `CX2GameUnit::GetFinalDamage`: x the key when the defender is super armored |
+| `PAUSE_NPC_AI_TIME` | `+0x624` | `GetFinalDamage`: `SetTimePauseNPCAI` on an NPC defender when > 0 |
+| `HIT_ADD_MP_PERCENT` | `+0x410` | `CEffect::AttackResult` and `CX2GUUser::AttackResult`: new `CX2GameUnit::JuneUpNowMpPerHitOthersPercent` ("MP +%d" in the blue pic char) |
+| `IGNORE_ATTACK_SUCCESS` | `+0x628` | `CEffect::AttackResult`: an effect hit sets a user owner's future-frame `unitCondition.bHit` unless the key is set (new `CX2GUUser::JuneSetAttackSuccess`) |
+| `CREATE_DAMAGE_EFFECT_NAME_SCALE_X/Y/Z` | `+0x498` | `SetScale` on the RT_CREATE_DAMAGE_EFFECT child (CEffect and user `AttackResult`) and on the random-spawn child |
+| `INIT_EXTRA_DAMAGE_BEFORE_LOAD` | local | `ExtraDamageData::Init` (+ release of `m_ptrBuffFactor`) before the EXTRA_DAMAGE table is read |
+| `EDT_MANA_DAMAGE_WITH_NO_DISPLAY` | (8a) | both `Process_ExtraDamage`s: the "MP -" text is skipped for the no-display flag |
+
+**Parsed and stored, no behaviour (rule 5 log once per key per templet):** `ADD_MEMBER_COUNT` / `_DISTANCE` (no June reader found),
+`BOUNDING_BACK_SPEED_X/Y` (their reader is `DamageReactStateChange`'s bounding case behind the unidentified armour-level check
+`31fd86b0`), `APPLIED_MEMO_ID` (its reader is the skill-memo switch, C8b). `FORCE_BACK_SPEED` has the same `DamageReactStateChange`
+gate as a second consumer (6 sites, `31fd86b0`); only its `DamageReact` half is ported.
+
+**Live in March today** (the data does not set the new keys, but these paths now differ): an invincible unit takes a DT_BUFF hit
+that is `ATTACK_OUR_TEAM`; an NPC no longer heals a dead NPC; a user-owned effect hit marks the owner's future-frame `bHit` (June's
+`31fcee10`).
+
+Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGEDATA` and rebuild all four projects (it also turns off the earlier phases that flag owns).
+
 ## Reverting to stock
 
 Comment out every `#define` listed in the *Defined in* column and rebuild.

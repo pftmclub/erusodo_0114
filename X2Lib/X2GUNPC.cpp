@@ -9121,6 +9121,15 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		pDamageData->m_fHpPercentUp == 0.f && 
 		pDamageData->m_fMpPercentUp == 0.f && 
 #endif
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		// June2017 CX2GUNPC::DamageReact 327b1f30 @327b2632-327b2649 (effect completion C3): same DT_BUFF exception as the user's @3204675e: the
+		// invincible reject is skipped for a DT_BUFF hit that is ATTACK_OUR_TEAM (+0x500) or ATTACK_ONLY_ME (+0x50d).
+#ifdef DUNGEON_ITEM
+		( CX2DamageManager::DT_BUFF != pDamageData->damageType || ( false == pDamageData->m_bAttackOurTeam && false == pDamageData->m_bAttackOnlyMe ) ) &&
+#else
+		( CX2DamageManager::DT_BUFF != pDamageData->damageType || false == pDamageData->m_bAttackOnlyMe ) &&
+#endif DUNGEON_ITEM
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		CX2DamageManager::RT_THROW != pDamageData->reActType )
 	{
 		pDamageData->reActResult = CX2DamageManager::RT_NO_DAMAGE;
@@ -9511,7 +9520,13 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
     float fPrevNowSpeedX = m_PhysicParam.nowSpeed.x;
 #endif  X2OPTIMIZE_NPC_NONHOST_SIMULATION
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+	// June2017 CX2GUNPC::DamageReact 327b1f30 @327b2ec6-327b2f03 (effect completion C3): the back-speed block is skipped for a super-armored, guarding
+	// or frozen (ExtraDamage Frozen time > 0, protected +0x1730) NPC unless FORCE_BACK_SPEED (+0x3ec) == 1 (@327b2efa).
+	if( ( IsSuperArmor() != true && m_bGuard != true && m_ExtraDamagePack.m_Frozen.m_fTime <= 0.f ) || true == pDamageData->m_bForceBackSpeed )
+#else SERV_IRUHADEV_JUNE_DAMAGEDATA
 	if( IsSuperArmor() != true && m_bGuard != true && m_ExtraDamagePack.m_Frozen.m_fTime <= 0.f )	// 빙결시 움직이지 않도록 수정
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 	{        
 #ifdef X2OPTIMIZE_NPC_NONHOST_SIMULATION
 	    if( bLocalUnit == true || bDamageReactStateChange == true )
@@ -9740,7 +9755,14 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #endif DAMAGE_REACT_STOPTIME_CONDITION_FIX
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+	// June2017 CX2GUNPC::DamageReact 327b1f30 @327b3215-327b3230 (effect completion C3): the timer is raised to the DamageData's DAMAGE_LIGHT_TIME
+	// (+0x5ec) when that is not lower (fcompp + test ah,1); unlike the user's, an NPC has no DT_BUFF branch.
+	if( pDamageData->m_fDamageLightTime >= m_DamageLightTime )
+		m_DamageLightTime = pDamageData->m_fDamageLightTime;
+#else SERV_IRUHADEV_JUNE_DAMAGEDATA
 	m_DamageLightTime = 0.2f;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
  
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
 
@@ -10569,6 +10591,41 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #endif
 	//}}
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+#ifdef DUNGEON_ITEM
+	// June2017 CX2GUNPC::DamageReact 327b1f30 @327b5073-327b5171 (effect completion C3): EXCEPT_ME_HP_UP (+0x50c) == 1 with an NPC attacker whose
+	// UID low dword (+0x270, vslot 0x54) equals this unit's marks the heal as "mine": the HP is not raised and the heal effect is not played
+	// (BL tested @327b50e2 and @327b5173); the MP part is not gated. June also requires NowHp > 0 for the HP part (@327b50b0-327b50c0).
+	bool bJuneExceptMeHpUp = false;
+	{
+		CX2GameUnit* pJuneHealer = pDamageData->optrAttackerGameUnit.GetObservable();
+		if( true == pDamageData->m_bExceptMeHpUp && NULL != pJuneHealer && CX2GameUnit::GUT_NPC == pJuneHealer->GetGameUnitType()
+			&& static_cast<int>( pJuneHealer->GetUnitUID() ) == static_cast<int>( GetUnitUID() ) )
+			bJuneExceptMeHpUp = true;
+	}
+
+	if( pDamageData->m_fHpPercentUp > 0.f && GetNowHp() > 0.f )
+	{
+		float fUpRate = GetMaxHp() * pDamageData->m_fHpPercentUp;
+		float fHpUp = GetNowHp() + fUpRate;
+		if( false == bJuneExceptMeHpUp )
+			SetNowHp( fHpUp );
+	}
+
+	if(pDamageData->m_fMpPercentUp > 0.f)
+	{
+		float fUpRate = GetMaxMp() * pDamageData->m_fMpPercentUp;
+		float fMpUp = GetNowMp() + fUpRate;
+		SetNowMp( fMpUp );
+	}
+
+	if( ( pDamageData->m_fHpPercentUp > 0.f || pDamageData->m_fMpPercentUp > 0.f ) && false == bJuneExceptMeHpUp )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet(L"EffectSet_Heal", (CX2GameUnit*)this );
+		PlaySound( L"Nasod_Healer_Heal.ogg" );
+	}
+#endif DUNGEON_ITEM
+#else SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef DUNGEON_ITEM
 	if(pDamageData->m_fHpPercentUp > 0.f)
 	{
@@ -10590,6 +10647,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		PlaySound( L"Nasod_Healer_Heal.ogg" );
 	}
 #endif
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 	// 타격받았을경우 이펙트 종료를 위해
 	// DELETE_EFFECT_SET_ON_DAMAGE_REACT가 TRUE인 경우 등록된 현재 스테이트의 effectset들을 지운다.	
 	if( IsSuperArmor() == false && 
@@ -11258,6 +11316,12 @@ void CX2GUNPC::Process_ExtraDamage( const CX2DamageManager::DamageData* pDamageD
 					if( g_pMain->GetGameOption().GetOptionList().m_eEffect == CX2GameOption::OL_HIGH || bAttackedByMe == true )
 #endif//X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
 					{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+						// June2017 CX2GUNPC::Process_ExtraDamage 327995c0 @32799b91 (effect completion C3): the MP-loss text is skipped when ExtraDamageData
+						// +0x101 (EDT_MANA_DAMAGE_WITH_NO_DISPLAY) is set; the MP change and m_bHitedDrainMana still run.
+						if( false == extraDamageData.m_bManaDamageWithNoDisplay )
+						{
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 						std::wstringstream strStream;
 						strStream << L"MP -" << (1.f - extraDamageData.m_fDamageRate) * 100.f << L"%";
 						D3DXVECTOR3 pos = GetPos();
@@ -11265,6 +11329,9 @@ void CX2GUNPC::Process_ExtraDamage( const CX2DamageManager::DamageData* pDamageD
 						if( NULL != g_pData->GetPicCharRed() )
 							g_pData->GetPicCharRed()->DrawText( strStream.str().c_str(), pos, GetDirVector(), CKTDGPicChar::AT_CENTER );
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+						}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 					}
 
 					m_bHitedDrainMana = false;
@@ -11277,12 +11344,20 @@ void CX2GUNPC::Process_ExtraDamage( const CX2DamageManager::DamageData* pDamageD
 					if( g_pMain->GetGameOption().GetOptionList().m_eEffect == CX2GameOption::OL_HIGH || bAttackedByMe == true )
 #endif//X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
 					{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+						// June2017 CX2GUNPC::Process_ExtraDamage 327995c0 @32799c90: same no-display test for the plain MP-loss text.
+						if( false == extraDamageData.m_bManaDamageWithNoDisplay )
+						{
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 						std::wstringstream strStream;
 						strStream << L"MP -" << (int)extraDamageData.m_Damage;
 						D3DXVECTOR3 pos = GetPos();
 						pos.y += 50.0f + (0 * 30.0f);
 						if( NULL != g_pData->GetPicCharRed() )
 							g_pData->GetPicCharRed()->DrawText( strStream.str().c_str(), pos, GetDirVector(), CKTDGPicChar::AT_CENTER );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+						}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 					}
 
 					m_bHitedDrainMana = true;

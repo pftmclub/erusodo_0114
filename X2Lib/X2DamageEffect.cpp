@@ -4776,6 +4776,27 @@ void CX2DamageEffect::CEffect::AttackResult()
 		if( 0.f < m_DamageData.fHitAddHPbyAttackPower ) /// 공격 성공시, 체력 회복 설정(공격자 물마공 평균에 비례)
 			pOwnerGameUnit->UpNowHpPerHitbyAttackPower( m_DamageData.fHitAddHPbyAttackPower );
 #endif //ADD_MEMO_1ST_CLASS
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		// June2017 CEffect::AttackResult 31f85910 @31f85a9b-31f85b36 (effect completion C3), after the two HP terms above (+0x404 @31f85a2f, +0x5a0 @31f85a77):
+		// HIT_ADD_MP_PERCENT (+0x410, CEffect +0x610): |x - 0.0| > FLT_EPSILON ([334490f8]) -> owner->322736f0( x, 140.0 [33443958] ).
+		if( fabsf( m_DamageData.m_fHitAddMpPercent ) > 1.1920928955078125e-07f )
+			pOwnerGameUnit->JuneUpNowMpPerHitOthersPercent( m_DamageData.m_fHitAddMpPercent, 140.f );
+		// @31f85b07-31f85b24: an effect whose owner is a user marks the owner's attack as successful unless IGNORE_ATTACK_SUCCESS (+0x628, CEffect
+		// +0x828, @31f85b10) is set: 31fcee10( owner, true, true ) = unitCondition.bHit of the FUTURE frame. June then also runs 31fcee40( owner, false )
+		// @31f85b2d (a short hit counter at unit +0x80ce, no March member; not ported, see JUNE2017_EFFECT_KEY_MATRIX.md).
+		if( CX2GameUnit::GUT_USER == pOwnerGameUnit->GetGameUnitType() && false == m_DamageData.m_bIgnoreAttackSuccess )
+			static_cast<CX2GUUser*>( pOwnerGameUnit )->JuneSetAttackSuccess( true, true );
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		{
+			static bool s_bJuneC3AttackSuccessLogged = false;
+			if( false == s_bJuneC3AttackSuccessLogged && CX2GameUnit::GUT_USER == pOwnerGameUnit->GetGameUnitType() && false == m_DamageData.m_bIgnoreAttackSuccess )
+			{
+				s_bJuneC3AttackSuccessLogged = true;
+				CX2OfflineLog::Server( L"JUNE_FX C3 ATTACK_SUCCESS first user-owned effect hit %s: owner bHit (future frame) set", m_Name.c_str() );
+			}
+		}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
     }      
 
 
@@ -4949,6 +4970,25 @@ void CX2DamageEffect::CEffect::AttackResult()
 						// not called here). March threw the pointer away on this branch, so the ADD_RENA_SYSTEM branch above is not the live one.
 						CX2DamageEffect::CEffect* pJuneCreatedEffect = m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), m_fPowerRate,
 							m_DamageData.impactPoint, angle, angle, m_fLandPos );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+						// June2017 CEffect::AttackResult 31f85910 @31f86117-31f86138 (effect completion C3): every non-null RT_CREATE_DAMAGE_EFFECT child gets
+						// SetScale( m_DamageData +0x498 = CREATE_DAMAGE_EFFECT_NAME_SCALE_X/Y/Z, default 1,1,1 ) via 31f6ff60 -> 31f6fdc0, before 31f8fdb0 @31f86140.
+						// June multiplies the main-effect part by a per-instance base (+0xb24, (1,1,1) from the ctor unless DamageData +0x5d0 differs); March's
+						// SetScale is absolute, which equals June's for that default base, and the hit / die spawners already call it with (1,1,1) defaults.
+						if( NULL != pJuneCreatedEffect )
+							pJuneCreatedEffect->SetScale( m_DamageData.m_vCreateDamageEffectNameScale );
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+						{
+							static bool s_bJuneC3NameScaleLogged = false;
+							if( false == s_bJuneC3NameScaleLogged && NULL != pJuneCreatedEffect )
+							{
+								s_bJuneC3NameScaleLogged = true;
+								CX2OfflineLog::Server( L"JUNE_FX C3 NAME_SCALE first RT_CREATE_DAMAGE_EFFECT child of %s: SetScale( %.3f, %.3f, %.3f )", m_Name.c_str(),
+									m_DamageData.m_vCreateDamageEffectNameScale.x, m_DamageData.m_vCreateDamageEffectNameScale.y, m_DamageData.m_vCreateDamageEffectNameScale.z );
+							}
+						}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 						JuneInheritFromParent( pJuneCreatedEffect );
 						// @31f86148 (effect completion C7): then 31f6ea20, whether or not the child was created (it null-tests inside).
 						JuneApplyCreateDamageEffectRate( pJuneCreatedEffect );
@@ -5113,9 +5153,19 @@ void CX2DamageEffect::CEffect::AttackResult()
 								pOwnerGameUnit->GetRandomFloat() <= m_DamageData.m_fCreateDamageEffectRate ) )
 						{
 							D3DXVECTOR3 angle = pMeshInst->GetXSkinAnim()->GetMatrix().GetRotateDegree();
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+							// June2017 CEffect::AttackResult 31f85910 @31f86a45-31f86a76 (effect completion C3): the random-spawn child gets SetScale( DamageData
+							// +0x498 ) when the owner is a user (+0x264 == 0). June runs 31fcd640( owner ) first (the class callback at +0x8dc0, none in March).
+							CX2DamageEffect::CEffect* pJuneRandomEffect = m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), 
+								pOwnerGameUnit->GetHitCreateDamageEffectPowerRate(),
+								m_DamageData.impactPoint, angle, angle, m_fLandPos );
+							if( NULL != pJuneRandomEffect && CX2GameUnit::GUT_USER == pOwnerGameUnit->GetGameUnitType() )
+								pJuneRandomEffect->SetScale( m_DamageData.m_vCreateDamageEffectNameScale );
+#else SERV_IRUHADEV_JUNE_DAMAGEDATA
 							m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), 
 								pOwnerGameUnit->GetHitCreateDamageEffectPowerRate(),
 								m_DamageData.impactPoint, angle, angle, m_fLandPos );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 						}						
 #endif
 

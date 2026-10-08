@@ -109,7 +109,7 @@ Matched by exact sub-path under the `DAMAGE_DATA*` table (`charport_scan.py`, se
 | `IGNORE_DEFENCE_DECLINE` | to-implement | 8b group 1 | `ELESIS_KNIGHT` ×2 |
 | `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID`, `…_RELATIVE_SKILL_ID` | to-implement | 8b group 2 | `Elsword_SwordMan` ×1 each |
 | **`APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID`** | binary-only | 8b, **missing from 8b's resume groups** | `Elsword_SwordMan` ×1 |
-| **`DAMAGE_RATE_TO_SUPERAMOR`** | binary-only | 8b, **missing from 8b's resume groups** | `Luciel_Duo` ×2 |
+| **`DAMAGE_RATE_TO_SUPERAMOR`** | **implemented, June effect completion C3** (parse + the `GetFinalDamage` multiply for a super-armored defender) | 8b, **missing from 8b's resume groups** | `Luciel_Duo` ×2 |
 
 **The two bold rows are the trap that prompted this document.**
 - The census calls them `binary-only`: no June *effect* file uses them.
@@ -409,3 +409,9 @@ below come with the class. Funcmap rows `Effect C10d`.
 | `32b898a0` (CX2GUUser vslot `0x4fc`, attacker side) | Elesis | Override of the second empty hook, called right after `0x4f8`. Gates: not vslot `0x200`; short `+0x9748` != 0; DD attack type != `AT_SPECIAL`; the DD defender is set; a defender buff test (`3227baf0`); a random roll (vslot `0x1cc`) < float `+0x974c`. Then it creates an effect scaled by the damage. Name the members from Elesis's June scripts when ported. |
 | `320462a0 @3204963d-32049674` + `32aebaf0` | Lu/Ciel (`UT_LUCIEL` 10, backlog Stage 8) | An inline step in the user `DamageReact`, with no virtual: if this unit's type is 10 and `32aebaf0( damage x 0.2 )` returns true, then damage x 0.8. `32aebaf0` returns false unless `BTI_BUFF_SHADOW_LU` 478 or `BTI_BUFF_SHADOW_CIEL` 479 is on. Otherwise it drains `+0x968c` by its argument, erases both buffs once that reaches <= 0, and returns true. The port inserts the step after C10e's `0x4f8`/`0x4fc` call and before `322cfca0`, which is June's order. |
 | `32aa9c70` (CX2GameUnit vslot `0x304`, attacker side) | Rose | Override of C10e's empty hook, called with `( damage, DD )` after the HP-rate step (user) or `322cfca0` (NPC). It acts only when DD `APPLIED_SKILL_ID` == `RNSI_A_RCR_BLOOD_BULLET` (31306). k = 1, or with a DD defender and a non-zero `322a0090( 99 )` count, k = count x skill value `0x31` + 1, after which 99 is erased. Then `322780b0( skill value 0x3f x damage x k )`. |
+
+### 7k. Class-set callback that only class code drives (from June effect completion C3)
+
+| What | June | Notes |
+|---|---|---|
+| Callback at `CX2GUUser +0x8dc0` | `31fcd640( this )` runs `jmp [this + 0x8dc0]` when it is non-zero | Called after the `SetScale` of every RT_CREATE_DAMAGE_EFFECT child: `CX2GUUser::AttackResult 32012b50 @32013d66` and `CEffect::AttackResult 31f85910 @31f86a50` (random-spawn child, owner a user). Nothing in the engine writes the pointer, so it is a class hook. March has no member and the port does not call it. The class port that finds a writer adds the member and the two calls (`X2GUUser.cpp` RT_CREATE_DAMAGE_EFFECT case; `X2DamageEffect.cpp` random spawn). |

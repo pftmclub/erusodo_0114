@@ -724,6 +724,11 @@ class CX2DamageManager
 			/// EDT_MANA_DAMAGE_WITH_NO_DISPLAY remap (FUN_32632390 @3263620d). Its reader is not
 			/// ported yet (Phase 8b), so nothing in March consults it.
 			bool					m_bManaDamageWithNoDisplay;
+			/// June effect completion C3: ExtraDamageData +0x104 ADD_MEMBER_COUNT (int, default 0) and +0x108 ADD_MEMBER_COUNT_DISTANCE
+			/// (protected float, default -1.0: Init 31f8d4d0 @31f8dd80). Parsed in the EXTRA_DAMAGE table (FUN_32632390 @326375e9 / @32637772).
+			/// No reader was found in Process_ExtraDamage, DamageReact_ExtraDamage or the unit's ExtraDamage code: see JUNE2017_EFFECT_KEY_MATRIX.md.
+			int						m_iAddMemberCount;
+			float					m_fAddMemberCountDistance;
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 			//{{ 2011-04 에 패치될 청 캐시 스킬
@@ -803,6 +808,8 @@ class CX2DamageManager
 				// March-side reset, so a reused ExtraDamageData cannot keep a stale flag. June's own
 				// reset site was not located: its init (FUN_31f8d4d0) clears +0x100 but not +0x101.
 				m_bManaDamageWithNoDisplay		= false;
+				m_iAddMemberCount				= 0;
+				m_fAddMemberCountDistance		= -1.f;	/// June 31f8d4d0 @31f8dd80: [334380f0] = -1.0
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 				//{{ 2011-04 에 패치될 청 캐시 스킬
 #ifdef	CASH_SKILL_FOR_CHUNG_2011_04				
@@ -874,6 +881,8 @@ class CX2DamageManager
 				m_bFixedDamage					= data.m_bFixedDamage;
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 				m_bManaDamageWithNoDisplay		= data.m_bManaDamageWithNoDisplay;
+				m_iAddMemberCount				= data.m_iAddMemberCount;
+				m_fAddMemberCountDistance		= data.m_fAddMemberCountDistance;
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 				//{{ 2011-04 에 패치될 청 캐시 스킬
 #ifdef	CASH_SKILL_FOR_CHUNG_2011_04				
@@ -1330,6 +1339,22 @@ class CX2DamageManager
 			int					m_iNumericalDataIndex;				/// NUMERICAL_DATA_INDEX (a stack local in June)
 			std::wstring		m_wstrNumericalDataName;			/// NUMERICAL_DATA_NAME (a stack local in June)
 			int					m_iRoseWeaponAttackType;			/// ROSE_WEAPON_ATTACK_TYPE (+0x600)
+			/// June effect completion C3: DamageData members of the straightforward keys (JUNE2017_EFFECT_COMPLETION_PHASES.md C3). The +0x
+			/// offsets are June's DamageData layout, cited only; each default is June's SimpleInit (31f8ee50) value.
+			float				m_fBoundingBackSpeedX;				/// BOUNDING_BACK_SPEED_X (+0x3e4, 0.0)
+			float				m_fBoundingBackSpeedY;				/// BOUNDING_BACK_SPEED_Y (+0x3e8, 0.0)
+			bool				m_bForceBackSpeed;					/// FORCE_BACK_SPEED (+0x3ec, false)
+			float				m_fHitAddMpPercent;					/// HIT_ADD_MP_PERCENT (+0x410, protected float in June, 0.0)
+			int					m_iAddCheckDamageUnitNum;			/// ADD_CHECK_DAMAGE_UNIT_NUM (+0x4d8, 0)
+			D3DXVECTOR3			m_vCreateDamageEffectNameScale;		/// CREATE_DAMAGE_EFFECT_NAME_SCALE_X/Y/Z (+0x498, (1,1,1))
+			bool				m_bExceptMeHpUp;					/// EXCEPT_ME_HP_UP (+0x50c, false)
+			bool				m_bAttackOnlyMe;					/// ATTACK_ONLY_ME (+0x50d, false)
+			int					m_iAppliedMemoID;					/// APPLIED_MEMO_ID (+0x5c8, 0)
+			float				m_fDamageLightTime;					/// DAMAGE_LIGHT_TIME (+0x5ec, SimpleInit 0.2)
+			bool				m_bOnylAttackUser;					/// ONYL_ATTACK_USER (+0x5fc, studio typo kept, false)
+			float				m_fDamageRateToSuperArmor;			/// DAMAGE_RATE_TO_SUPERAMOR (+0x620, 1.0)
+			float				m_fPauseNpcAiTime;					/// PAUSE_NPC_AI_TIME (+0x624, 0.0)
+			bool				m_bIgnoreAttackSuccess;				/// IGNORE_ATTACK_SUCCESS (+0x628, false)
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 //{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY
@@ -1580,6 +1605,20 @@ class CX2DamageManager
 				m_iNumericalDataIndex					= 0;
 				m_wstrNumericalDataName					= L"";
 				m_iRoseWeaponAttackType					= -1;	/// RWAT_NONE in June's Enum.lua
+				m_fBoundingBackSpeedX					= 0.f;
+				m_fBoundingBackSpeedY					= 0.f;
+				m_bForceBackSpeed						= false;
+				m_fHitAddMpPercent						= 0.f;
+				m_iAddCheckDamageUnitNum				= 0;
+				m_vCreateDamageEffectNameScale			= D3DXVECTOR3( 1.f, 1.f, 1.f );	/// June 31f8f387-31f8f3ab (fld1)
+				m_bExceptMeHpUp							= false;
+				m_bAttackOnlyMe							= false;
+				m_iAppliedMemoID						= 0;
+				m_fDamageLightTime						= 0.2f;		/// June 31f8f3b7: [3346eeb8] = 0.2f
+				m_bOnylAttackUser						= false;
+				m_fDamageRateToSuperArmor				= 1.f;		/// June 31f8f43d-31f8f43f
+				m_fPauseNpcAiTime						= 0.f;		/// June 31f8f445
+				m_bIgnoreAttackSuccess					= false;
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 //{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY

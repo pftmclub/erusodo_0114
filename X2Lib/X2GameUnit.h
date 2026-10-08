@@ -3278,6 +3278,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void	UpNowHpPerHitbyAttackPower( IN const float fHitAddHpPer_ );	/// 공격 성공시, 공격자의 체력 회복 처리( 공격자의 물마공 평균에 비례 )
 #endif //ADD_MEMO_1ST_CLASS
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		/// June effect completion C3: June 322736f0, the MP twin of UpNowHpPerHitOthers (HIT_ADD_MP_PERCENT: MP += max( 1, MaxMp * percent ), "MP +%d" text)
+		void	JuneUpNowMpPerHitOthersPercent( IN const float fHitAddMpPercent_, IN const float fTextOffsetY_ );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+
  		/// 좌우반전
 		void CreateAndInsertReverseLeftRightByBuff( const KBuffIdentity& BuffIdentity_ );
 		void ToggleReverseLeftRightByBuff( const KBuffIdentity& BuffIdentity_ );

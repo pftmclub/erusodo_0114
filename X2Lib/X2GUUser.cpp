@@ -8292,6 +8292,15 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		pDamageData->m_fHpPercentUp == 0.f && 
 		pDamageData->m_fMpPercentUp == 0.f && 
 #endif
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		// June2017 CX2GUUser::DamageReact 320462a0 @3204675e-32046775 (effect completion C3): an invincible unit still takes a DT_BUFF hit that
+		// is ATTACK_OUR_TEAM (+0x500) or ATTACK_ONLY_ME (+0x50d): June's reject @32046775 is skipped for those (jne @32046783).
+#ifdef DUNGEON_ITEM
+		( CX2DamageManager::DT_BUFF != pDamageData->damageType || ( false == pDamageData->m_bAttackOurTeam && false == pDamageData->m_bAttackOnlyMe ) ) &&
+#else
+		( CX2DamageManager::DT_BUFF != pDamageData->damageType || false == pDamageData->m_bAttackOnlyMe ) &&
+#endif DUNGEON_ITEM
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		CX2DamageManager::RT_THROW != pDamageData->reActType )
 	{
 		pDamageData->reActResult = CX2DamageManager::RT_NO_DAMAGE;
@@ -8454,12 +8463,18 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	}
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+	// June2017 CX2GUUser::DamageReact 320462a0 @32046f3d-32046f5d (effect completion C3): the back-speed block runs for a unit that is not super
+	// armored and not hit by a dummy damage (reActType 7); FORCE_BACK_SPEED (+0x3ec) == 1 runs it for those two cases as well (@32046f56).
+	if( ( IsSuperArmor() != true && pDamageData->reActType != CX2DamageManager::RT_DUMMY_DAMAGE ) || true == pDamageData->m_bForceBackSpeed )
+#else SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef NEW_SKILL_2010_11
 	if( IsSuperArmor() != true &&
 		pDamageData->reActType != CX2DamageManager::RT_DUMMY_DAMAGE) // oasis907 : 김상윤 [2010.12.3] // 더미 데미지가 이속에 영향 주지 않도록
 #else
 	if( IsSuperArmor() != true )	// 빙결시 움직이지 않도록 수정
 #endif NEW_SKILL_2010_11
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 	{
 		if( pDamageData->m_bWBackSpeed == true )
 		{
@@ -9339,7 +9354,30 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #endif DAMAGE_REACT_STOPTIME_CONDITION_FIX
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+	// June2017 CX2GUUser::DamageReact 320462a0 @32048377-3204839b (effect completion C3): a DT_BUFF hit clears the unit's damage-light timer
+	// (this +0xd6c); any other hit raises it to the DamageData's DAMAGE_LIGHT_TIME (+0x5ec, default 0.2) unless that is lower
+	// (fcompp @3204838c + test ah,1: stored for DAMAGE_LIGHT_TIME >= timer, NaN keeps the timer).
+	if( CX2DamageManager::DT_BUFF == pDamageData->damageType )
+		m_DamageLightTime = 0.f;
+	else if( pDamageData->m_fDamageLightTime >= m_DamageLightTime )
+		m_DamageLightTime = pDamageData->m_fDamageLightTime;
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	{
+		static bool s_bJuneC3DamageLightTimeLogged = false;
+		if( false == s_bJuneC3DamageLightTimeLogged )
+		{
+			s_bJuneC3DamageLightTimeLogged = true;
+			WCHAR wszJuneFx[256] = {0};
+			StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX C3 DAMAGE_LIGHT_TIME first user DamageReact: DD %.3f, timer now %.3f, damageType %d",
+				pDamageData->m_fDamageLightTime, m_DamageLightTime, static_cast<int>( pDamageData->damageType ) );
+			ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		}
+	}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+#else SERV_IRUHADEV_JUNE_DAMAGEDATA
 	m_DamageLightTime = 0.2f;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 	if( true == IsDamagedReaction( pDamageData ) &&
 		false == pDamageData->m_bNoDamage )
@@ -11142,6 +11180,12 @@ void CX2GUUser::Process_ExtraDamage( const CX2DamageManager::DamageData* pDamage
 					float fDamageMP = GetNowMp() * extraDamageData.m_fDamageRate;
 					SetNowMp( fDamageMP );
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+					// June2017 CX2GUUser::Process_ExtraDamage 32034e50 @320353d4 (effect completion C3, 8a's carried-over reader): the MP-loss text is
+					// skipped when ExtraDamageData +0x101 (EDT_MANA_DAMAGE_WITH_NO_DISPLAY) is set; the MP change and m_bHitedDrainMana still run.
+					if( false == extraDamageData.m_bManaDamageWithNoDisplay )
+					{
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 					std::wstringstream strStream;
 					strStream << L"MP -" << (1.f - extraDamageData.m_fDamageRate) * 100.f << L"%";
 					D3DXVECTOR3 pos = GetPos();
@@ -11149,6 +11193,9 @@ void CX2GUUser::Process_ExtraDamage( const CX2DamageManager::DamageData* pDamage
 					if( NULL != g_pData->GetPicCharRed() )
 						g_pData->GetPicCharRed()->DrawText( strStream.str().c_str(), pos, GetDirVector(), CKTDGPicChar::AT_CENTER );
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+					}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 					m_bHitedDrainMana = false;
 
 					bGetExtraDamage = true;
@@ -11157,6 +11204,11 @@ void CX2GUUser::Process_ExtraDamage( const CX2DamageManager::DamageData* pDamage
 				{
 					UpNowMp(-1* extraDamageData.m_Damage);
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+					// June2017 CX2GUUser::Process_ExtraDamage 32034e50 @320354b4: same no-display test for the plain MP-loss text.
+					if( false == extraDamageData.m_bManaDamageWithNoDisplay )
+					{
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 					std::wstringstream strStream;
 					strStream << L"MP -" << (int)extraDamageData.m_Damage;
 					D3DXVECTOR3 pos = GetPos();
@@ -11164,6 +11216,9 @@ void CX2GUUser::Process_ExtraDamage( const CX2DamageManager::DamageData* pDamage
 					if( NULL != g_pData->GetPicCharRed() )
 						g_pData->GetPicCharRed()->DrawText( strStream.str().c_str(), pos, GetDirVector(), CKTDGPicChar::AT_CENTER );
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+					}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 					m_bHitedDrainMana = true;
 
 					bGetExtraDamage = true;
@@ -12951,7 +13006,14 @@ void CX2GUUser::AttackResult()
 
 	bool bCheckRevenge = false;
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+	// June2017 CX2GUUser::AttackResult 32012b50 @32012cb5-32012ce1 (effect completion C3): the timer is raised to the attacker's own DamageData
+	// DAMAGE_LIGHT_TIME (this +0x98c = m_DamageData +0x5ec, 0x3a0 + 0x5ec) when that is not lower than the timer (fcompp + test ah,1).
+	if( m_DamageData.m_fDamageLightTime >= m_DamageLightTime )
+		m_DamageLightTime = m_DamageData.m_fDamageLightTime;
+#else SERV_IRUHADEV_JUNE_DAMAGEDATA
 	m_DamageLightTime = 0.2f;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 
 	if( IsMyUnit() == true )
@@ -13312,6 +13374,12 @@ void CX2GUUser::AttackResult()
 	if( 0.f < m_DamageData.fHitAddHPbyAttackPower ) /// 공격 성공시, 체력 회복 설정(공격자 물마공 평균에 비례)
 		UpNowHpPerHitbyAttackPower( m_DamageData.fHitAddHPbyAttackPower );
 #endif //ADD_MEMO_1ST_CLASS
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+	// June2017 CX2GUUser::AttackResult 32012b50 @320138d8-32013939 (effect completion C3): HIT_ADD_MP_PERCENT right after the two HP terms
+	// above (+0x404 @32013872, +0x5a0 @320138b4): |x - 0.0| > FLT_EPSILON (1.1920929e-07, [334490f8]) -> 322736f0( x, 140.0 [33443958] ).
+	if( fabsf( m_DamageData.m_fHitAddMpPercent ) > 1.1920928955078125e-07f )
+		JuneUpNowMpPerHitOthersPercent( m_DamageData.m_fHitAddMpPercent, 140.f );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 #ifdef DUNGEON_ITEM
 
@@ -13427,8 +13495,18 @@ void CX2GUUser::AttackResult()
 				NULL != g_pX2Game->GetDamageEffect() )
 			{
 				// fix!! damage effect이름과 powerrate를 입력 받을 수 있게
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+				// June2017 CX2GUUser::AttackResult 32012b50 @32013d35-32013d5f (effect completion C3): the RT_CREATE_DAMAGE_EFFECT child gets
+				// SetScale( DamageData +0x498 = CREATE_DAMAGE_EFFECT_NAME_SCALE_X/Y/Z, default 1,1,1 ). June then runs 31fcd640( this ) @32013d66, which
+				// calls the class callback at this +0x8dc0 when set; no March member (class-set), see JUNE2017_EFFECT_KEY_MATRIX.md.
+				CX2DamageEffect::CEffect* pJuneCreatedEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, m_DamageData.m_wstrCreateDamageEffectName.c_str(),
+					GetPowerRate(), m_DamageData.impactPoint, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+				if( NULL != pJuneCreatedEffect )
+					pJuneCreatedEffect->SetScale( m_DamageData.m_vCreateDamageEffectNameScale );
+#else SERV_IRUHADEV_JUNE_DAMAGEDATA
 				g_pX2Game->GetDamageEffect()->CreateInstance( this, m_DamageData.m_wstrCreateDamageEffectName.c_str(),
 					GetPowerRate(), m_DamageData.impactPoint, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 			}
 		} break;
 
@@ -13464,9 +13542,18 @@ void CX2GUUser::AttackResult()
 				( GetHitCreateDamageEffectRate() > 0.f && GetRandomFloat() <= GetHitCreateDamageEffectRate() ) || 
 				( m_DamageData.m_fCreateDamageEffectRate > 0.f && GetRandomFloat() <= m_DamageData.m_fCreateDamageEffectRate ) )
 			{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+				// June2017 CX2GUUser::AttackResult 32012b50 @32014024-3201404e (effect completion C3): the random-spawn child gets the same SetScale.
+				CX2DamageEffect::CEffect* pJuneRandomEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, m_DamageData.m_wstrCreateDamageEffectName.c_str(),
+					GetHitCreateDamageEffectPowerRate(), 
+					m_DamageData.impactPoint, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+				if( NULL != pJuneRandomEffect )
+					pJuneRandomEffect->SetScale( m_DamageData.m_vCreateDamageEffectNameScale );
+#else SERV_IRUHADEV_JUNE_DAMAGEDATA
 				g_pX2Game->GetDamageEffect()->CreateInstance( this, m_DamageData.m_wstrCreateDamageEffectName.c_str(),
 					GetHitCreateDamageEffectPowerRate(), 
 					m_DamageData.impactPoint, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 			}						
 		}		
 #endif

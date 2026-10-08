@@ -281,6 +281,57 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		LUA_GET_VALUE( luaManager, "ROSE_WEAPON_ATTACK_TYPE",		pDamageData->m_iRoseWeaponAttackType,	-1 );
 		if( -1 != pDamageData->m_iRoseWeaponAttackType )
 			JuneDamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"ROSE_WEAPON_ATTACK_TYPE", L"Rose weapon system", pDamageData->m_iRoseWeaponAttackType );
+
+		// ---- June effect completion C3: the straightforward DamageData keys (JUNE2017_EFFECT_COMPLETION_PHASES.md C3). Each is read with
+		// June's getter and default into a DamageData member; the consumers are cited at their March sites. ----
+		// June2017 FUN_32632390 @326325cc-326326e4: APPLIED_MEMO_ID, int getter 32fe9fd0 @326326d4, 0 when absent (neg/sbb mask
+		// @326326d9-326326e0), stored @326326eb to +0x5c8. Binary-only: no June script sets it. Its one reader is the skill-memo
+		// DamageData switch 3202ac40 (skips the memo when +0x5c8 is set and differs from the entry type): effect completion C8b.
+		LUA_GET_VALUE( luaManager, "APPLIED_MEMO_ID",					pDamageData->m_iAppliedMemoID,					0 );
+		if( 0 != pDamageData->m_iAppliedMemoID )
+			JuneDamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"APPLIED_MEMO_ID", L"skill-memo system (reader 3202ac40, C8b)", pDamageData->m_iAppliedMemoID );
+
+		// June2017 FUN_32632390 @32633724-32633ef5: CREATE_DAMAGE_EFFECT_NAME_SCALE_X (@32633724), _Y (@326339df), _Z (@32633c8d), float
+		// getters, default 1.0 (fld1 @326336a2) into a local vector, stored to +0x498/+0x49c/+0x4a0 @32633ed0-32633eef. Binary-only.
+		// Read by the RT_CREATE_DAMAGE_EFFECT children's SetScale (CEffect::AttackResult, CX2GUUser::AttackResult).
+		LUA_GET_VALUE( luaManager, "CREATE_DAMAGE_EFFECT_NAME_SCALE_X",	pDamageData->m_vCreateDamageEffectNameScale.x,	1.f );
+		LUA_GET_VALUE( luaManager, "CREATE_DAMAGE_EFFECT_NAME_SCALE_Y",	pDamageData->m_vCreateDamageEffectNameScale.y,	1.f );
+		LUA_GET_VALUE( luaManager, "CREATE_DAMAGE_EFFECT_NAME_SCALE_Z",	pDamageData->m_vCreateDamageEffectNameScale.z,	1.f );
+
+		// June2017 FUN_32632390 @326381bd-32638389 / @32638389-32638555: BOUNDING_BACK_SPEED_X / _Y, float getter 32fea370 (@3263837c /
+		// @3263854d), default 0.0 (fldz), to +0x3e4 / +0x3e8. Their reader is DamageReactStateChange's bounding case (31feabd0
+		// @31feb6c6 / @31feb6d8 writes them to unit +0x40f0 / +0x40f4 after the vslot 0x81c armour check 31fd86b0), which has no
+		// confirmed March counterpart yet: logged once per key per templet, no behaviour (effect completion C3 flag, Opus).
+		LUA_GET_VALUE( luaManager, "BOUNDING_BACK_SPEED_X",				pDamageData->m_fBoundingBackSpeedX,				0.f );
+		LUA_GET_VALUE( luaManager, "BOUNDING_BACK_SPEED_Y",				pDamageData->m_fBoundingBackSpeedY,				0.f );
+		if( 0.f != pDamageData->m_fBoundingBackSpeedX || 0.f != pDamageData->m_fBoundingBackSpeedY )
+		{
+			WCHAR wszJuneValue[48] = L"";
+			StringCchPrintfW( wszJuneValue, ARRAY_SIZE(wszJuneValue), L"%.3f, %.3f", pDamageData->m_fBoundingBackSpeedX, pDamageData->m_fBoundingBackSpeedY );
+			JuneDamageDataUnsupported( pwszJuneTemplet, pTableName, L"BOUNDING_BACK_SPEED_X/Y", L"bounding back-speed state change (31feabd0 / 31fd86b0 not identified)", wszJuneValue );
+		}
+		// June2017 FUN_32632390 @32638555-326386c0: FORCE_BACK_SPEED, bool getter 32fe9e40 @326386b5, false when absent, to +0x3ec.
+		LUA_GET_VALUE( luaManager, "FORCE_BACK_SPEED",					pDamageData->m_bForceBackSpeed,					false );
+		// June2017 FUN_32632390 @32638e2e-32639047: HIT_ADD_MP_PERCENT, float getter 32fea370 @32638fb6, default 0.0, protected float at
+		// +0x410 (March keeps a plain float). Binary-only. Read by CEffect::AttackResult @31f85a9b and CX2GUUser::AttackResult @320138d8.
+		LUA_GET_VALUE( luaManager, "HIT_ADD_MP_PERCENT",				pDamageData->m_fHitAddMpPercent,				0.f );
+		// June2017 FUN_32632390 @3263ab94-3263adad: ADD_CHECK_DAMAGE_UNIT_NUM, int getter @3263ad9e, default 0, to +0x4d8 (AreaHit).
+		LUA_GET_VALUE( luaManager, "ADD_CHECK_DAMAGE_UNIT_NUM",			pDamageData->m_iAddCheckDamageUnitNum,			0 );
+		// June2017 FUN_32632390 @3263bba7-3263bd01 (EXCEPT_ME_HP_UP, bool @3263bcf6, to +0x50c) and @3263bd01-3263be4b (ATTACK_ONLY_ME,
+		// bool @3263be3b, to +0x50d), default false.
+		LUA_GET_VALUE( luaManager, "EXCEPT_ME_HP_UP",					pDamageData->m_bExceptMeHpUp,					false );
+		LUA_GET_VALUE( luaManager, "ATTACK_ONLY_ME",					pDamageData->m_bAttackOnlyMe,					false );
+		// June2017 FUN_32632390 @3263edf3-3263ef73: DAMAGE_LIGHT_TIME, float getter @3263ef62, default 0.2 ([3346eeb8]), to +0x5ec.
+		LUA_GET_VALUE( luaManager, "DAMAGE_LIGHT_TIME",					pDamageData->m_fDamageLightTime,				0.2f );
+		// June2017 FUN_32632390 @3263f093-3263f256: IGNORE_ATTACK_SUCCESS, bool getter @3263f24b, false, to +0x628.
+		LUA_GET_VALUE( luaManager, "IGNORE_ATTACK_SUCCESS",				pDamageData->m_bIgnoreAttackSuccess,			false );
+		// June2017 FUN_32632390 @3263f5ca-3263f733: ONYL_ATTACK_USER (studio typo, kept), bool getter @3263f723, false, to +0x5fc.
+		LUA_GET_VALUE( luaManager, "ONYL_ATTACK_USER",					pDamageData->m_bOnylAttackUser,					false );
+		// June2017 FUN_32632390 @3263f733-3263f932: DAMAGE_RATE_TO_SUPERAMOR, float getter @3263f920, default 1.0, to +0x620. Binary-only
+		// (used by June's Luciel_Duo, JUNE2017_CHARACTER_PORT_CHECKLIST.md section 2).
+		LUA_GET_VALUE( luaManager, "DAMAGE_RATE_TO_SUPERAMOR",			pDamageData->m_fDamageRateToSuperArmor,			1.f );
+		// June2017 FUN_32632390 @3263f932-3263fadb: PAUSE_NPC_AI_TIME, float getter @3263faa1, default 0.0, to +0x624.
+		LUA_GET_VALUE( luaManager, "PAUSE_NPC_AI_TIME",					pDamageData->m_fPauseNpcAiTime,					0.f );
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 //{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DAMAGEDATA_KEY
@@ -342,6 +393,23 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		LUA_GET_VALUE( luaManager, "PVP_RATE", pDamageData->m_fPvpRate, 1.0f );
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		// June2017 FUN_32632390 @32635dea-32636058 (effect completion C3): INIT_EXTRA_DAMAGE_BEFORE_LOAD, bool getter 32fe9e40 @3263603f,
+		// false when absent. When true, 31f8e430 runs on DamageData +0x50 (the ExtraDamageData) right before the EXTRA_DAMAGE table
+		// is read: it releases the shared pointer at ED +8 and falls into ExtraDamageData::Init (31f8d4d0). March's ED keeps its
+		// shared pointer in m_ptrBuffFactor (HAMEL_SECRET_DUNGEON) and Init() does not reset it, so it is released here as June does.
+		{
+			bool bJuneInitExtraDamageBeforeLoad = false;
+			LUA_GET_VALUE( luaManager, "INIT_EXTRA_DAMAGE_BEFORE_LOAD",	bJuneInitExtraDamageBeforeLoad,	false );
+			if( true == bJuneInitExtraDamageBeforeLoad )
+			{
+#ifdef HAMEL_SECRET_DUNGEON
+				pDamageData->m_ExtraDamage.m_ptrBuffFactor = CX2BuffFactorPtr();
+#endif // HAMEL_SECRET_DUNGEON
+				pDamageData->m_ExtraDamage.Init();
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		if( luaManager.BeginTable( "EXTRA_DAMAGE" ) == true )
 		{
 			LUA_GET_VALUE_ENUM( luaManager, "EXTRA_DAMAGE_TYPE",	pDamageData->m_ExtraDamage.m_ExtraDamageType,	EXTRA_DAMAGE_TYPE,	EDT_NONE );
@@ -415,6 +483,23 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 			LUA_GET_VALUE( luaManager, "JUMP_SPEED_RATE",		fValue,	0.f );
 			pDamageData->m_ExtraDamage.m_fJumpRate = fValue;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+			// June2017 FUN_32632390 @326375a9-32637711 (ADD_MEMBER_COUNT, int getter 32fe9fd0 @32637702, default 0, to ED +0x104) and
+			// @32637711-32637bc4 (ADD_MEMBER_COUNT_DISTANCE, float getter 32fea370 @3263791a, default -1.0 [334380f0], protected float at
+			// ED +0x108): the last two keys of the EXTRA_DAMAGE table. Effect completion C3: no reader of either was found in June
+			// (Process_ExtraDamage 32034e50 / 327995c0, DamageReact_ExtraDamage 3203c9a0, ProcessEnchantExtraDamage and the damage
+			// manager never touch ED +0x104/+0x108), so they are stored and logged once per key per templet (plan rule 5).
+			LUA_GET_VALUE( luaManager, "ADD_MEMBER_COUNT",				pDamageData->m_ExtraDamage.m_iAddMemberCount,			0 );
+			LUA_GET_VALUE( luaManager, "ADD_MEMBER_COUNT_DISTANCE",	pDamageData->m_ExtraDamage.m_fAddMemberCountDistance,	-1.f );
+			if( 0 != pDamageData->m_ExtraDamage.m_iAddMemberCount )
+				JuneDamageDataUnsupportedInt( GetJuneDamageDataTemplet(), pTableName, L"ADD_MEMBER_COUNT", L"ExtraDamage member-count reader (not identified)", pDamageData->m_ExtraDamage.m_iAddMemberCount );
+			if( -1.f != pDamageData->m_ExtraDamage.m_fAddMemberCountDistance )
+			{
+				WCHAR wszJuneValue[32] = L"";
+				StringCchPrintfW( wszJuneValue, ARRAY_SIZE(wszJuneValue), L"%.3f", pDamageData->m_ExtraDamage.m_fAddMemberCountDistance );
+				JuneDamageDataUnsupported( GetJuneDamageDataTemplet(), pTableName, L"ADD_MEMBER_COUNT_DISTANCE", L"ExtraDamage member-count reader (not identified)", wszJuneValue );
+			}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 			luaManager.EndTable();
 		}
 
@@ -1356,6 +1441,16 @@ bool CX2DamageManager::GroundHit( DamageData* pDamageData, bool bAttackOnlyThisU
 				continue;
 #endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
 //}}
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+			// June2017 GroundHit 32623110 @32623c9f (the +0x50d displacement; decodes as the cmp just before): ATTACK_ONLY_ME replaces the
+			// whole team block with "only the unit whose UID is attackUnitUID" (@32623d77 on a match, @326245ce = continue otherwise).
+			if( true == pDamageData->m_bAttackOnlyMe )
+			{
+				if( pDefender->GetUnitUID() != attackUnitUID )
+					continue;
+			}
+			else
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef DUNGEON_ITEM
 			if( pDamageData->m_bAttackOurTeam == true )
 			{
@@ -1551,6 +1646,16 @@ bool CX2DamageManager::AreaHit( DamageData* pDamageData, bool bAttackOnlyThisUni
 			continue;
 #endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
 //}}
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		// June2017 AreaHit 32624610 @326248eb: cmp byte [+0x50d], 0. ATTACK_ONLY_ME: the unit whose UID is attackUnitUID (vslot 0x54 vs the
+		// caller's UidType, @326248f4-32624911) is hit and the team block @3262491c-326249ba is skipped; any other unit is skipped.
+		if( true == pDamageData->m_bAttackOnlyMe )
+		{
+			if( pDefender->GetUnitUID() != attackUnitUID )
+				continue;
+		}
+		else
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef DUNGEON_ITEM
 		if( pDamageData->m_bAttackOurTeam == true )
 		{
@@ -1633,10 +1738,24 @@ bool CX2DamageManager::AreaHit( DamageData* pDamageData, bool bAttackOnlyThisUni
 	}
 
 	int nCount = 0;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+	// June2017 AreaHit 32624610 @32624a82-32624b2e (effect completion C3): when the loop stops on its DAMAGE_UNIT_NUM limit
+	// (+0x4d4 <= count, tested at the top of every iteration), the result count is count + ADD_CHECK_DAMAGE_UNIT_NUM (+0x4d8);
+	// every other exit leaves it equal to count. The MP drain below and the return value use the result.
+	bool bJuneAreaHitLimitBreak = false;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 	for(UINT i=0; i<vecAreaHitUnitIndex.size(); ++i)
 	{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		if((int)nCount >= pDamageData->m_iDamageUnitNum)
+		{
+			bJuneAreaHitLimitBreak = true;
+			break;
+		}
+#else SERV_IRUHADEV_JUNE_DAMAGEDATA
 		if((int)nCount >= pDamageData->m_iDamageUnitNum)
 			break;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 		sAreaHitUnit AreaHitUnit = vecAreaHitUnitIndex[i];
 		pDefender = g_pX2Game->GetUnit( AreaHitUnit.unitIndex );
@@ -1673,6 +1792,12 @@ bool CX2DamageManager::AreaHit( DamageData* pDamageData, bool bAttackOnlyThisUni
 		}		
 	}   	
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+	// June2017 AreaHit 32624610 @32624b2e-32624b8c: piVar12 = nCount, or nCount + ADD_CHECK_DAMAGE_UNIT_NUM after the limit break;
+	// it feeds the MP drain ( * ED m_Damage ) and the return value (count >= 1).
+	if( true == bJuneAreaHitLimitBreak )
+		nCount += pDamageData->m_iAddCheckDamageUnitNum;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 	if( pAttacker != NULL && pDamageData->m_bDrainMana == true )
 	{
 		std::wstringstream strStream;
@@ -1812,6 +1937,20 @@ bool CX2DamageManager::UnitToUnit( DamageData* pDamageData, bool bAttackOnlyThis
 			continue;
 #endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
 //}}
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		// June2017 UnitToUnit 32625000 @32625291 (after the team block, both paths): ONYL_ATTACK_USER (+0x5fc, studio typo kept) == 1 skips every
+		// defender that is not a user (unit type +0x264 != GUT_USER). Pure test, so its place among the other continues does not matter.
+		if( true == pDamageData->m_bOnylAttackUser && CX2GameUnit::GUT_USER != pDefender->GetGameUnitType() )
+			continue;
+		// June2017 UnitToUnit 32625000 @32625163 (the +0x50d displacement): ATTACK_ONLY_ME, same shape as AreaHit (defender UID == lVar2,
+		// the caller's attackUnitUID, enters @32625291 and skips the team block; any other UID is skipped @32625634).
+		if( true == pDamageData->m_bAttackOnlyMe )
+		{
+			if( pDefender->GetUnitUID() != attackUnitUID )
+				continue;
+		}
+		else
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef DUNGEON_ITEM
 		if( pDamageData->m_bAttackOurTeam == true )
 		{
@@ -2408,6 +2547,19 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 //}}
 #ifdef DUNGEON_ITEM
 		CX2GameUnit *pAttackUnit = pAttacker->GetOwnerUnit();
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		// June2017 EffectToUnit 3262b6e0 @3262bb7e-3262bb8e: ONYL_ATTACK_USER skips every non-user defender (cmp [esi+0x264], 0, esi = defender).
+		if( true == pDamageData->m_bOnylAttackUser && CX2GameUnit::GUT_USER != pDefender->GetGameUnitType() )
+			continue;
+		// June2017 EffectToUnit 3262b6e0 @3262b933: cmp byte [+0x50d], 0. ATTACK_ONLY_ME: the effect's owner (31f8b560) UID must equal the
+		// defender's (@3262b93c-3262b966), then the team block is skipped (jmp @3262ba35).
+		if( true == pDamageData->m_bAttackOnlyMe )
+		{
+			if( NULL == pAttackUnit || pAttackUnit->GetUnitUID() != pDefender->GetUnitUID() )
+				continue;
+		}
+		else
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		if( pDamageData->m_bAttackOurTeam == true )
 		{			
 			if( pAttackUnit->GetTeam() != pDefender->GetTeam() )
@@ -2912,6 +3064,19 @@ bool CX2DamageManager::MeshToUnit( DamageData* pDamageData )
 			continue;
 #endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
 //}}
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		// June2017 MeshToUnit 32625670 @3262827c-326282a8 (the defender loop filter): ONYL_ATTACK_USER skips every non-user defender.
+		if( true == pDamageData->m_bOnylAttackUser && CX2GameUnit::GUT_USER != pDefender->GetGameUnitType() )
+			continue;
+		// June2017 MeshToUnit 32625670 @32625852: cmp byte [+0x50d], 0. ATTACK_ONLY_ME: no caller UID here; the attacker's UID (vslot 0x54)
+		// must equal the defender's (@32625864-3262587b), then the team block is skipped (jmp @326258f4).
+		if( true == pDamageData->m_bAttackOnlyMe )
+		{
+			if( NULL == pAttacker || pAttacker->GetUnitUID() != pDefender->GetUnitUID() )
+				continue;
+		}
+		else
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef DUNGEON_ITEM
 		if( pDamageData->m_bAttackOurTeam == true )
 		{
@@ -3146,6 +3311,19 @@ bool CX2DamageManager::CollisionDataToUnit( DamageData* pDamageData )
 			continue;
 #endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
 //}}
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		// June2017 CollisionDataToUnit 32628890 @326289c7-326289e1: ONYL_ATTACK_USER skips every non-user defender (cmp [defender+0x264], 0).
+		if( true == pDamageData->m_bOnylAttackUser && CX2GameUnit::GUT_USER != pDefender->GetGameUnitType() )
+			continue;
+		// June2017 CollisionDataToUnit 32628890 @32628a5c (the +0x50d displacement): ATTACK_ONLY_ME, attacker UID == defender UID
+		// (@32628a66-32628a8a), then the team block is skipped.
+		if( true == pDamageData->m_bAttackOnlyMe )
+		{
+			if( NULL == pAttacker || pAttacker->GetUnitUID() != pDefender->GetUnitUID() )
+				continue;
+		}
+		else
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef DUNGEON_ITEM
 		if( pDamageData->m_bAttackOurTeam == true )
 		{

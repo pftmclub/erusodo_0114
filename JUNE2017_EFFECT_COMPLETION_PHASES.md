@@ -361,7 +361,7 @@ User answers (2026-10-06): **D5 = port with Lu/Ciel** (handed-off, `census_compl
 
 ## C3 - 8b, straightforward keys
 
-**Status: not started. Model:** Sonnet 5, high, then an Opus review.
+**Status: code done 2026-10-08 (see "C3 - Done" below; play-test pending; identification left -> C3b). Model:** Sonnet 5, high, then an Opus review.
 
 - **Keys:** `INIT_EXTRA_DAMAGE_BEFORE_LOAD`, `ADD_MEMBER_COUNT`/`_DISTANCE`,
   `BOUNDING_BACK_SPEED_X/Y`, `FORCE_BACK_SPEED`, `ADD_CHECK_DAMAGE_UNIT_NUM`, `EXCEPT_ME_HP_UP`,
@@ -387,6 +387,40 @@ SERV_IRUHADEV_JUNE_DAMAGEDATA. A consumer in a function not yet 'confirmed' is i
 stop and flag it. CP949 byte-level edits; build, deploy, ASK before launching; update matrix
 (rerun census.py) and MODS.md.
 ```
+
+### C3 - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_DAMAGEDATA` extended, no new flag; play-test pending)
+
+**What landed** (commit `{COMMIT}`; details in `MODS.md`, "June effect completion C3"). `flagcheck JUNE_DAMAGEDATA --worktree --files <the 8 code files>`:
+```
+files: 6 PASS, 2 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR
+in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)
+RESULT: PASS
+```
+`--range {RANGE}`: {RANGE_LINES}
+
+- **Scope corrections** (the kickoff predates the buff port and C2): `IS_AURA_BUFF` and `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` were parsed and read by buff Phase 10b (`implemented` in the census); `DAMAGE_DATA_KEY_NAME` went to C9 (C2 row 1273); `ADD_MEMBER_COUNT` / `_DISTANCE` are **ExtraDamageData** keys (+0x104 / +0x108, the last two keys of the EXTRA_DAMAGE table: its `BeginTable` failure target `@326379bc` sits inside their range), not DamageData keys.
+- **Parse** (`SetDamageDataFromLUA`, June's getter and default per key, cited by address; defaults from `SimpleInit 31f8ee50`, whose values differ from the parse default for none of them): `ATTACK_ONLY_ME`, `ONYL_ATTACK_USER`, `ADD_CHECK_DAMAGE_UNIT_NUM`, `FORCE_BACK_SPEED`, `BOUNDING_BACK_SPEED_X/Y`, `EXCEPT_ME_HP_UP`, `DAMAGE_LIGHT_TIME` (0.2), `IGNORE_ATTACK_SUCCESS`, `PAUSE_NPC_AI_TIME`, `DAMAGE_RATE_TO_SUPERAMOR` (1.0), `HIT_ADD_MP_PERCENT`, `CREATE_DAMAGE_EFFECT_NAME_SCALE_X/Y/Z` (1,1,1), `APPLIED_MEMO_ID`, `INIT_EXTRA_DAMAGE_BEFORE_LOAD` (a local: `31f8e430` + `ExtraDamageData::Init` before the table), `ADD_MEMBER_COUNT` / `_DISTANCE` (ED members; also in `Init()` and `Copy()`). `DamageData` copies by `operator=`, so no hand-written copy drops a member.
+- **Consumers ported:** every row in `MODS.md`'s table. The new `funcmap.tsv` rows (24, tag `(C3)`) hold the addresses, the x87 polarity of each branch, and the findings below.
+  - `GetFinalDamage`: SUPERAMOR is `vslot 0x264( 0 )` = IsSuperArmor (rows 3229a669 / 32758440), PAUSE_NPC_AI_TIME is `3275b330` = `CX2GUNPC::SetTimePauseNPCAI` (same body as March's). Polarity of `fldz; fcomp; test ah,5; jp` run through `x87test.py` (mask 0x05): continues for t > 0, NaN skips.
+  - The unit's `m_DamageData` sits at `this + 0x3a0` in June (`HP_PERCENT_UP` read at `+0x8a4`), which settled the user-side readers (`+0x7b0` = HIT_ADD_MP_PERCENT, `+0x98c` = DAMAGE_LIGHT_TIME).
+  - `HIT_ADD_MP_PERCENT`'s action `322736f0` is new: `CX2GameUnit::JuneUpNowMpPerHitOthersPercent` ("MP +%d", blue pic char, offset 140.0). June's HP twin `32273540` multiplies by a gage factor March's `UpNowHpPerHitOthers` lacks: **not touched** (not C3's key, factor source unidentified; funcmap row).
+  - `IGNORE_ATTACK_SUCCESS`'s action `31fcee10` = set `unitCondition.bHit` (future frame) on a user owner: new `CX2GUUser::JuneSetAttackSuccess`. Its sibling `31fcee40` (a `short` hit counter in the frame data, incremented for every user-owned effect hit) has no March member: not ported (C3b).
+  - `CREATE_DAMAGE_EFFECT_NAME_SCALE`: three `SetScale` sites (CEffect RT_CREATE child, CEffect random spawn, `CX2GUUser::AttackResult` RT_CREATE child + random spawn). **The (1,1,1) default is not a pure no-op in principle, and is one in practice:** June's `SetScale` multiplies the main-effect scale by a per-instance base (`+0xb24`, (1,1,1) from the ctor `@31f7b35c`; the ctor itself calls `SetScale( s, s, s )` with `s` = DD `+0x5d0` = 1.0, `@31f7c7eb`), March's is absolute: equal for that base. March already runs `SetScale( entry SCALE x parent scale )` with (1,1,1) defaults on every hit / die / CREATE child, so the call adds no new class of behaviour. If the review wants it proven in play, an RT_CREATE_DAMAGE_EFFECT skill with a mesh template that carries a non-unit scale is the test.
+  - `31fcd640( this )` after those SetScale calls = the class callback at `+0x8dc0` (class-set, no March member): not ported, checklist 7k.
+- **Behaviour that is live in March now** (June parity; the review decides): a user-owned effect hit marks the owner's future-frame `bHit`; an invincible unit takes a DT_BUFF hit that is `ATTACK_OUR_TEAM` (March had no exemption); an NPC heal needs `GetNowHp() > 0`. Everything else is inert until June data (no March script sets the new keys).
+- **Parsed and stored, no behaviour (rule 5 log once per key per templet):** `ADD_MEMBER_COUNT` / `_DISTANCE` (no reader anywhere in June's `.text`: displacement sweep for ED `+0x104/+0x108/+0x10c/+0x110` finds none in `Process_ExtraDamage`, `DamageReact_ExtraDamage`, `ProcessEnchantExtraDamage` or the manager), `BOUNDING_BACK_SPEED_X/Y` and `FORCE_BACK_SPEED`'s second consumer (`DamageReactStateChange 31feabd0`, behind `31fd86b0` = an armour-level check with no March counterpart), `APPLIED_MEMO_ID` (reader `3202ac40`, C8b). -> **C3b** (Opus, identification) then a port phase.
+- JUNE_BUGS 127 (ATTACK_ONLY_ME on the UID-driven paths hits nobody with the default `-1`) and 128 (EXCEPT_ME_HP_UP compares the UID's low dword). `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 2 (SUPERAMOR now engine-complete) and new 7k.
+- **Census:** `census.py` ran clean (all checks PASS, `open rows by owner: C10 6, C11 3`): the 19 C3 rows are `implemented` (parsed with a March site); no row is owned by C3 any more. The regenerated matrix and `census.tsv` replace the committed ones (the diff is line-number drift in every `X2DamageManager:N` reference, as in C4); two hand-edited `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` rows (C9h-4d) that the generator would have reverted to `deferred` were restored by hand, and the new consumers are noted in each row's last column. **8b is not marked done**: C3 closes its groups 4 and 5, but groups 1-3 are C4 / C5 (done) and `ADD_MEMBER_COUNT`, `BOUNDING_BACK_SPEED_X/Y`, `FORCE_BACK_SPEED`'s second consumer and `APPLIED_MEMO_ID` still have no behaviour (C3b, C8b).
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,387,392 B, dated 2026-10-08 15:40:03, md5 4ee4c47b7f1e340c6124959d0d938449, equal to X2/US_SERVICE/x2.exe (2026-10-08 15:39:55)`. The new key strings and the three `JUNE_FX C3` log strings are in the deployed exe (checked by byte search).
+
+**Play-test hand-off** (character `jtLordKnight`, user 25, Lord Knight, level 80; the dev console is not needed: no March data sets the new keys, so this is a regression pass over the paths that now run). ASK me before the game is launched.
+1. **Where:** any dungeon. **Do:** normal attacks, then three skills (at least one that throws a projectile or a wave), get hit once by a monster, kill a few. **Look for:** damage numbers, hit-stop and hit reactions feel exactly as before; no freeze, no crash. **If not:** note the skill and say "check logs".
+2. **Where:** the same run. **Do:** nothing extra. **Look for** (I read them; `python tools/logs.py --grep "JUNE_FX C3"`): one `DAMAGE_LIGHT_TIME first user DamageReact` line (DD 0.200, damageType 0..6), one `ATTACK_SUCCESS first user-owned effect hit <name>` line when one of your skills' effects connects, and one `NAME_SCALE first RT_CREATE_DAMAGE_EFFECT child` line only if a skill of yours creates a child damage effect. The other new branches need June data and print nothing.
+3. **Chains:** use your normal combo and any skill whose follow-up depends on the attack connecting: it continues after a hit and does not continue after a miss. This is the one check that can fail for the live `bHit` change.
+Log tag I will read: `JUNE_FX C3` (+ `0 EXCEPTION`).
+
+**Left to others (named, not changed):** C3b (identification, then its port: armour level, bounding back-speed state, ADD_MEMBER_COUNT reader, hit counter `31fcee40`); C8b (`APPLIED_MEMO_ID`'s reader); the class callback `+0x8dc0` and `UpNowHpPerHitOthers`'s gage factor (character ports).
 
 ---
 

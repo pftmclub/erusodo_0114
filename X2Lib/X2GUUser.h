@@ -1662,6 +1662,10 @@ public:
 		virtual float				GetUnitHeight( bool bFuture ) const		{ return GetFrameData( bFuture ).unitCondition.fUnitHeight; }
 
 		bool						GetAttackSuccess( bool bFuture )		{ return GetFrameData( bFuture ).unitCondition.bHit; }
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		/// June effect completion C3: June 31fcee10( this, bool, bool bFuture ) (CEffect::AttackResult @31f85b1f, IGNORE_ATTACK_SUCCESS): unitCondition.bHit of the future (+0x7e2c) or now (+0x80cc) frame
+		void						JuneSetAttackSuccess( bool bVal_, bool bFuture_ )	{ if( true == bFuture_ ) m_FrameDataFuture.unitCondition.bHit = bVal_; else m_FrameDataNow.unitCondition.bHit = bVal_; }
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 
 //#ifdef  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK

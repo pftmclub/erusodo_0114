@@ -30,3 +30,18 @@ Spot-check 2-3 sites directly in Ghidra (read-only); if one fails, re-check the 
 Fix clear transcription errors under the same flag (then `tools/build.py --deploy`); hand design
 decisions back to the user. Write "C3 - Review" under the phase in the plan, update the
 STATUS.md row, and commit. Never launch X2_offline.exe; ask the user.
+
+## Notes from the C3 session (2026-10-08) for the reviewer
+
+- The review's own hygiene run needs the commit range; the Done note names the commit.
+- C3 ported 19 keys' parse and these consumers; `funcmap.tsv` rows tagged `(C3)` hold every address. Spot-check at least these in Ghidra:
+  `GetFinalDamage @3228676a-32286786` (SUPERAMOR gate, `vslot 0x264( 0 )` = IsSuperArmor) and `@3228682a-32286879` (PAUSE_NPC_AI_TIME, mask 0x05 / jp: continues for t > 0);
+  the six `+0x50d` tests (`AreaHit @326248eb`, `MeshToUnit @32625852`, `EffectToUnit @3262b933`, ...);
+  the NPC `DamageReact @327b5073-327b5171` (EXCEPT_ME_HP_UP gates only the HP heal and the heal effect; new `GetNowHp() > 0`).
+- **Behaviour that is live in March now** (decide whether it is intended June parity): an effect hit by a user-owned effect sets the owner's
+  future-frame `unitCondition.bHit` unless `IGNORE_ATTACK_SUCCESS` (`31fcee10` @31f85b1f); an invincible unit takes DT_BUFF hits that are
+  ATTACK_OUR_TEAM; the NPC heal needs `GetNowHp() > 0`. The matching hit counter `31fcee40` was not ported (no March member).
+- **Not ported, flagged as identification (phase C3b, Opus):** `31fd86b0` (armour-level check) and the `DamageReactStateChange` bounding case
+  (FORCE_BACK_SPEED's second consumer, BOUNDING_BACK_SPEED_X/Y), the ADD_MEMBER_COUNT reader, `31fcee40`'s readers.
+- `CEffect::SetScale` vs June's base multiply: the matrix and the funcmap row `32012b50 @32013d35` argue the default (1,1,1) is equivalent;
+  confirm, or ask for the RT_CREATE_DAMAGE_EFFECT play-test with a scaled child.
