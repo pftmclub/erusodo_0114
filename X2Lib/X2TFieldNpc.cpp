@@ -1550,7 +1550,11 @@ HRESULT	CX2TFieldNpc::OnFrameMove( double fTime, float fElapsedTime )
 					}
 					else
 					{
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+						m_pNearPlaySound = g_pKTDXApp->GetDeviceManager()->PlaySound( m_wstrNearSoundFileName.c_str(), false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 						m_pNearPlaySound = g_pKTDXApp->GetDeviceManager()->PlaySound( m_wstrNearSoundFileName.c_str(), false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 						if( m_pNearPlaySound != NULL )
 						{
 							m_pNearPlaySound->Set3DPosition( GetPos() );

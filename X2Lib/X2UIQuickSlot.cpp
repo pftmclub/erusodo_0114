@@ -900,7 +900,11 @@ bool CX2UIQuickSlot::Handler_EGS_USE_QUICK_SLOT_ACK( HWND hWnd, UINT uMsg, WPARA
 				return true;
 			}
 
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+			g_pKTDXApp->GetDeviceManager()->PlaySound( L"UseItem.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 			g_pKTDXApp->GetDeviceManager()->PlaySound( L"UseItem.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 
 			KInventoryItemInfo& kInventorySlotInfo = kEvent.m_InventorySlotInfo;
 
@@ -2402,7 +2406,11 @@ bool CX2UIQuickSlot::Handler_EGS_USE_DEFENCE_DUNGEON_QUICK_SLOT_ACK( HWND hWnd, 
 				return true;
 			}
 
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+			g_pKTDXApp->GetDeviceManager()->PlaySound( L"UseItem.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 			g_pKTDXApp->GetDeviceManager()->PlaySound( L"UseItem.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 
 			KInventoryItemInfo& kInventorySlotInfo = kEvent.m_InventorySlotInfo;
 

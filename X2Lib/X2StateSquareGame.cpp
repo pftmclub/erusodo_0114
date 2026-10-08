@@ -351,7 +351,11 @@ bool CX2StateSquareGame::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				}
 
 				//join
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+				g_pKTDXApp->GetDeviceManager()->PlaySound( L"X2_Button_Mouse_Up.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 				g_pKTDXApp->GetDeviceManager()->PlaySound( L"X2_Button_Mouse_Up.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 				if(g_pData->GetUIManager() != NULL)
 					g_pData->GetUIManager()->ToggleUI(CX2UIManager::UI_MENU_PERSONAL_SHOP, true, unitUIDToFind);
 				return true;

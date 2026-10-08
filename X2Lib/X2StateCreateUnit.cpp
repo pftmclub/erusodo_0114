@@ -1396,7 +1396,11 @@ void CX2StateCreateUnit::SelectElSword()
 		m_pCreateUnitSelectSound->Stop();
 		SAFE_CLOSE( m_pCreateUnitSelectSound );
 	}
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"ElswordVoice_Introduce.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"ElswordVoice_Introduce.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 #endif //ADD_PLAY_SOUND
 }
 
@@ -1526,7 +1530,11 @@ void CX2StateCreateUnit::SelectArme()
 		m_pCreateUnitSelectSound->Stop();
 		SAFE_CLOSE( m_pCreateUnitSelectSound );
 	}
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"AishaVoice_Introduce.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"AishaVoice_Introduce.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 #endif //ADD_PLAY_SOUND
 }
 
@@ -1654,7 +1662,11 @@ void CX2StateCreateUnit::SelectLire()
 		m_pCreateUnitSelectSound->Stop();
 		SAFE_CLOSE( m_pCreateUnitSelectSound );
 	}
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"RenaVoice_Introduce.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"RenaVoice_Introduce.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 #endif //ADD_PLAY_SOUND
 }
 
@@ -1779,7 +1791,11 @@ void CX2StateCreateUnit::SelectRaven()
 		m_pCreateUnitSelectSound->Stop();
 		SAFE_CLOSE( m_pCreateUnitSelectSound );
 	}
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"RavenVoice_Introduce.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"RavenVoice_Introduce.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 #endif //ADD_PLAY_SOUND
 }
 
@@ -1904,7 +1920,11 @@ void CX2StateCreateUnit::SelectEve()
 		m_pCreateUnitSelectSound->Stop();
 		SAFE_CLOSE( m_pCreateUnitSelectSound );
 	}			
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"EveVoice_Introduce.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"EveVoice_Introduce.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 #endif //ADD_PLAY_SOUND
 }
 
@@ -2035,7 +2055,11 @@ void CX2StateCreateUnit::SelectChung()
 		m_pCreateUnitSelectSound->Stop();
 		SAFE_CLOSE( m_pCreateUnitSelectSound );
 	}
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"ChungVoice_Introduce.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"ChungVoice_Introduce.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 #endif //ADD_PLAY_SOUND
 }
 
@@ -2175,7 +2199,11 @@ void CX2StateCreateUnit::SelectAra()
 		m_pCreateUnitSelectSound->Stop();
 		SAFE_CLOSE( m_pCreateUnitSelectSound );
 	}		
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"AraVoice_Introduce.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"AraVoice_Introduce.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 #endif //ADD_PLAY_SOUND
 }
 #pragma endregion ÇÔ¼ö
@@ -2305,7 +2333,11 @@ void CX2StateCreateUnit::SelectElesis()
 		m_pCreateUnitSelectSound->Stop();
 		SAFE_CLOSE( m_pCreateUnitSelectSound );
 	}				
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"ElesisVoice_Introduce.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"ElesisVoice_Introduce.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 #endif //ADD_PLAY_SOUND
 }
 #endif // NEW_CHARACTER_EL
@@ -2446,7 +2478,11 @@ void CX2StateCreateUnit::SelectAdd()
 		m_pCreateUnitSelectSound->Stop();
 		SAFE_CLOSE( m_pCreateUnitSelectSound );
 	}				
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"AddVoice_Introduce.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	m_pCreateUnitSelectSound = g_pKTDXApp->GetDeviceManager()->PlaySound(L"AddVoice_Introduce.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 #endif //ADD_PLAY_SOUND
 }
 #endif //SERV_9TH_NEW_CHARACTER

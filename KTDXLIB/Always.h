@@ -6000,3 +6000,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June effect completion C9h-7a. June's sound-device auto-release, verbatim
+//              (C9h-7, user decision (b)): CKTDXDeviceManager::PlaySound 31ce0e10 gets a
+//              4th parameter (default true = OUR choice; June has none recoverable); in
+//              the open branch the sound's channel gets an FMOD END callback (31cdd4e0 /
+//              31cdcca0) that queues the device (31cdcbb0); the device manager's
+//              OnFrameMove (31cde8d0) closes each queued device with one unref
+//              (31cdd8d0), erase + delete only at zero. March passes false at the
+//              counterparts of June's zero sites (create-unit voices, server-select
+//              sound, village NPC near sound, wedding duration sound, emblem sound,
+//              the two Lua wrappers, and the dropped-handle sites: square talkbox click,
+//              dungeon Go, dungeon result Count / ResultStamp / LevelUpBGM, local map
+//              NewStage_Open, quick slot UseItem). The square (JUNE_BUGS 122) and Add
+//              (JUNE_BUGS 125) keep June's 1 and June's use-after-free, no guard.
+//              Log: "JUNE_FX SOUND_RELEASE" in ErrorLog.txt (_DEBUG only).
+#define SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#define SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE_DEBUG
+//////////////////////////////////////////////////////////////////////////

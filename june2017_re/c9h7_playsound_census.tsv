@@ -89,11 +89,11 @@ site	func	arg4	name	handle	after
 324f10d2	324f0e00	1	Portal.ogg	dropped	mov eax, dword ptr [0x33775860] ; mov ecx, dword ptr [eax + 0x32c] ; test ecx, ecx ; je 0x324f10ed
 3250a9d1	3250a800	1	Portal.ogg	dropped	pop esi ; mov al, 1 ; pop ebx ; mov ecx, dword ptr [esp + 0x14]
 3251029b	3250f680	ebp=0	Count.ogg	dropped	jmp 0x325138b2 ; cmp byte ptr [ebx + 0x3a3], 0 ; je 0x325102b3 ; fild dword ptr [edi + 0x10]
-3251094c	3250f680	ebp (unresolved; handle dropped)	ResultStamp.ogg	dropped	mov eax, dword ptr [edi + 0x7c] ; dec eax ; cmp eax, 7 ; ja 0x32510bd3
+3251094c	3250f680	ebp=0 (C9h-7a: the same register is the false bLoop / b3D at the site; March counterparts are (false, false); handle dropped)	ResultStamp.ogg	dropped	mov eax, dword ptr [edi + 0x7c] ; dec eax ; cmp eax, 7 ; ja 0x32510bd3
 325123a6	3250f680	1	LevelUp.ogg	dropped	fld dword ptr [0x334380f0] ; push 0 ; fstp dword ptr [ebx + 0x2e0] ; mov ecx, dword ptr [0x337676e8]
 325123ce	3250f680	0	LevelUpBGM.ogg	dropped	fldz  ; push -1 ; push 0 ; push ecx
-325130c5	3250f680	ebp (unresolved; handle dropped)	Count.ogg	dropped	fild dword ptr [esp + 0x54] ; fstp dword ptr [esp + 0x14] ; fld dword ptr [ebx + 0x358] ; fld dword ptr [esp + 0x14]
-325131b2	3250f680	ebp (unresolved; handle dropped)	Count.ogg	dropped	fld dword ptr [ebx + 0x358] ; fld dword ptr [ebx + 0x3a4] ; fcompp  ; fnstsw ax
+325130c5	3250f680	ebp=0 (C9h-7a: the same register is the false bLoop / b3D at the site; March counterparts are (false, false); handle dropped)	Count.ogg	dropped	fild dword ptr [esp + 0x54] ; fstp dword ptr [esp + 0x14] ; fld dword ptr [ebx + 0x358] ; fld dword ptr [esp + 0x14]
+325131b2	3250f680	ebp=0 (C9h-7a: the same register is the false bLoop / b3D at the site; March counterparts are (false, false); handle dropped)	Count.ogg	dropped	fld dword ptr [ebx + 0x358] ; fld dword ptr [ebx + 0x3a4] ; fcompp  ; fnstsw ax
 32550b8d	32550aa0	1		dropped	cmp dword ptr [esp + 0x20], esi ; jb 0x32550ba5 ; mov edx, dword ptr [esp + 0xc] ; push edx
 32552d68	32552860	ebx=0	ElswordVoice_Introduce.ogg	STORE dword ptr [esi + 0x718]	mov dword ptr [esi + 0x718], eax ; mov ecx, dword ptr [esp + 0x38] ; mov dword ptr fs:[0], ecx ; pop ecx
 325532f8	32552da0	ebx=0	AishaVoice_Introduce.ogg	STORE dword ptr [esi + 0x718]	mov dword ptr [esi + 0x718], eax ; mov ecx, dword ptr [esp + 0x38] ; mov dword ptr fs:[0], ecx ; pop ecx
@@ -222,7 +222,7 @@ site	func	arg4	name	handle	after
 32e21e54	32e21d50	1	Item_Pick_And_Drop.ogg	dropped	mov eax, dword ptr [0x33775860] ; mov ecx, dword ptr [eax + 0x2cc] ; push 0x1f ; call 0x321524d0
 32e2a998	32e2a840	1	MagicStone_MouseOver.ogg	dropped	mov byte ptr [esi + 0x231], 0 ; add dword ptr [esp + 0x34], 0x20 ; add edi, 4 ; cmp edi, 0x18
 32e2ad7a	32e2ab80	1	MagicStone_EquipSuccess.ogg	dropped	mov ecx, dword ptr [esp + 0x7c] ; pop edi ; pop esi ; pop ebx
-32e2b608	32e2b400	ebx (unresolved; handle dropped)	MagicEnchant_Success.ogg	dropped	pop ebx ; pop edi ; pop ebp ; add esp, 0x18
+32e2b608	32e2b400	ebx=1 (C9h-7a: mov ebx,1 at 32e2b41b; handle dropped; June-only sound, no March site)	MagicEnchant_Success.ogg	dropped	pop ebx ; pop edi ; pop ebp ; add esp, 0x18
 32e2ee4c	32e2e1e0	1	MagicStone_MouseOver.ogg	dropped	mov ecx, dword ptr [esp + 0x54] ; mov edx, dword ptr [ecx + 4] ; lea eax, [esp + 0xb4] ; mov dword ptr [esp + 0x4c], eax
 32e2f788	32e2f0d0	1	MagicStone_PutDown.ogg	dropped	dec ebp ; mov ecx, 2 ; mov dword ptr [esp + 0x14], ebp ; cmp dword ptr [esi + 0x170], ecx
 32e322c3	32e32280	1	Item_Pick_And_Drop.ogg	dropped	mov edx, dword ptr [esi] ; mov eax, dword ptr [edx + 0x40] ; mov ecx, esi ; call eax

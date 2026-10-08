@@ -216,7 +216,11 @@ void CX2WeddingManager::OnFrameMove_Sound()
 		if( -1.f != CurrentBehavior.m_fDurationTime )
 		{
 			CX2WeddingBehavior::Behavior_DurationTimeSound DurationTimeSound;
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+			DurationTimeSound.m_pSound = g_pKTDXApp->GetDeviceManager()->PlaySound( CurrentBehavior.m_wstrSoundFileName.c_str(), false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 			DurationTimeSound.m_pSound = g_pKTDXApp->GetDeviceManager()->PlaySound( CurrentBehavior.m_wstrSoundFileName.c_str(), false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 
 			if( NULL != DurationTimeSound.m_pSound )
 			{

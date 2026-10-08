@@ -3240,6 +3240,44 @@ Other notes:
 
 **Open for the user:** `/cost`; then C9h-7a.
 
+### C9h-7a - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE` + `_DEBUG` (on for the play-test); log `JUNE_FX SOUND_RELEASE`; play-test pending)
+
+**What landed** (15 code files; `KTDXLIB/Always.h` defines both flags):
+- `CKTDXDeviceManager::PlaySound( name, bLoop, b3D, bJuneAutoRelease_ = true )` (`31ce0e10`). The default `true` is **ours** (June has none). In the **open** branch only, after `Play`, `FMOD_Channel_SetCallback( pSound->GetChannel(), JuneSoundAutoReleaseCallback )` (`31cdd4e0` / `31cdcca0`) when the flag is true and the channel is not NULL. The found branch is March's: no reference, no callback.
+- Callback: END (type 0, first enumerator) -> `JuneQueueAutoRelease` (`31cdcbb0`: first `DT_SOUND` device whose `m_pChannel` is the ended one, push, break, under `m_DeviceLock`) -> `return FMOD_OK`. `GetChannel()` is a flag-gated getter in `KTDXDeviceSound.h`.
+- Drain in `OnFrameMove` (`31cde8d0`): **every frame**, outside the first-frame gate (June's `jne @31cde8ea` skips only `ProcessForegroundQueue`). Close each queued device, then `clear()`.
+- Close = `JuneCloseDeviceByPointer` (`31cdd8d0`), **not** March's `CloseDevice( name )` (that one deletes at a count <= 0 and does not compare the map pointer). Count <= 0 returns; > 1 one decrement under `m_csDeviceState` (June: lock-free CAS; March's `m_RefCount` is a plain int); else `UnrefDevice` under `m_DeviceLock`, find by device ID, erase only if the map holds this pointer, delete inside the lock. `31c4a0d0( this+0x108 )` (unidentified) left out.
+- IAT `007a0458` = the only target of the `31d4d4e0` thunk; its import is the FMOD Ex ordinal Ghidra calls `setCallback`. The call takes (channel, callback) = the C API `FMOD_Channel_SetCallback` of March's `fmod.h`. It links (the call had never been compiled before). Threading: `FMOD_System_Update` runs only in `KTDSManager.cpp:195` (main thread), no lock on the drain, as in June.
+
+**Census corrections** (`c9h7_playsound_census.tsv`): the 3 unresolved `3250f680` registers are `ebp = 0` (the same register is the false `bLoop` / `b3D` at the site; March counterparts are `(false, false)`). The 4th, `32e2b608` (`MagicEnchant_Success`, June-only), is `ebx = 1`. So June has **27 zero sites** and 215 one-sites (not 24 / 214).
+
+**Per-site arguments (final): `false` passed at 26 March call sites**, every other site keeps the default `true`.
+
+| June zero site | March site(s) edited |
+|---|---|
+| 12 create-unit voices `32552860..` | `X2StateCreateUnit.cpp` x9 (Luciel / Rose / Ain: no March class) |
+| `3255f240` PlaySoundSelect | `X2StateServerSelect.cpp:12106` (`ADD_PLAY_SOUND`, no macro) |
+| `325cdfa0` near sound | `X2TFieldNpc.cpp:1553` |
+| `326ba0c0` duration sound | `X2WeddingManager.cpp:219` (non-duration branch :230 keeps 1, as June) |
+| `3244c8c0` emblem | `X2EmblemManager.cpp:432` |
+| `31be4734` / `31be4894` Lua wrappers | `KTDXApp.cpp` `PlaySound2D_LUA` / `PlaySound_LUA` |
+| `324c7ce0` X2_Button_Mouse_Up (square MsgProc: talkbox click, then `ToggleUI`) | `X2StateSquareGame.cpp:354` (`X2UIManufacture.cpp:295` keeps 1: June has no such site) |
+| `327f4210` Go (SubStageGo* particle start) | `X2DungeonStage.cpp:333` (`X2PlayGuide.cpp:1077` keeps 1) |
+| `3250f680` Count / ResultStamp / LevelUpBGM (= `CX2StateDungeonResult::OnFrameMove`) | `X2StateDungeonResult.cpp` :490, :681, :1176, :1509, :1521 (Arcade / Training results keep 1: no June site) |
+| `3293b5e0` NewStage_Open | `X2LocalMapUI.cpp` :1393, :1594 |
+| `32952930` UseItem | `X2UIQuickSlot.cpp` :903, :2405 |
+| `32e2b608` MagicEnchant_Success | none (June-only) |
+
+- `X2StateDungeonResult.cpp:520` (`Count.ogg`, true) sits inside a `/* ... */` block (dead code), so it was **not** edited (`flagcheck` cannot evaluate a directive inside a comment).
+- Reach note: every one of these sounds that `SoundReady` preloads takes the found branch anyway, so the argument only matters for a non-preloaded open.
+- The square (`+0x5ec`, JUNE_BUGS 122) and Add (`PlayLoopSound`, JUNE_BUGS 125) keep the default 1 and June's use-after-free; no guard, no class file touched. JUNE_BUGS 122 / 125 Port cells updated.
+
+**Hygiene** (`flagcheck JUNE_SOUND_AUTO_RELEASE --with ..._DEBUG --worktree --files <15 files>`): files: 13 PASS, 1 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR; in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 `#else`/`#endif` without the flag token, 0 encoding change(s); RESULT: PASS.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,376,640 B, dated 2026-10-08 14:46:13, md5 9cc6fcd7e0348b979ffc53d52f01a90d, equal to X2/US_SERVICE/x2.exe`. Strings in the exe: `JUNE_FX SOUND_RELEASE ` x2, ` deleted=` x1.
+**Not changed:** no kom, no data. 5 funcmap rows `Effect C9h-7a`.
+
+**How to see it in game:** the play-test hand-off below. A non-preloaded sound that is played and ends gives `queue <NAME>` then `close <NAME> ref=1 deleted=1`. Every later play of it reloads the file (a small load hitch is possible; none was measured yet).
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),

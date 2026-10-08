@@ -330,7 +330,11 @@ void CX2DungeonStage::StartGoEffect( CX2DungeonSubStage::GO_TYPE goType )
 		m_hParticleGo		= g_pX2Game->GetMajorParticle()->CreateSequenceHandle( NULL,  L"SubStageGoDown", 500.0f, 600.0f, 0.0f, 1, 1 );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+	g_pKTDXApp->GetDeviceManager()->PlaySound( L"Go.ogg", true, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	g_pKTDXApp->GetDeviceManager()->PlaySound( L"Go.ogg", true, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 }
 
 void CX2DungeonStage::StopGoEffect()

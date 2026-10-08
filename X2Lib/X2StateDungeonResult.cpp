@@ -487,7 +487,11 @@ HRESULT CX2StateDungeonResult::OnFrameMove( double fTime, float fElapsedTime )
 							{
 								m_bAnimateScoreBG = false;
 								m_DungeonResultAniOrder = DRAO_COMBO_SCORE;
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+								g_pKTDXApp->GetDeviceManager()->PlaySound( L"Count.ogg", true, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 								g_pKTDXApp->GetDeviceManager()->PlaySound( L"Count.ogg", true, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 							}
 						}
 					} break;
@@ -678,7 +682,11 @@ HRESULT CX2StateDungeonResult::OnFrameMove( double fTime, float fElapsedTime )
 
 						if ( m_bUIMyTotalRankStart == true )
 						{
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+							g_pKTDXApp->GetDeviceManager()->PlaySound( L"ResultStamp.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 							g_pKTDXApp->GetDeviceManager()->PlaySound( L"ResultStamp.ogg", false, false);
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 
 							//m_pParticleElMark	= g_pData->GetUIMajorParticle()->CreateSequence( NULL,  L"El_Mark", 0,0,0, 1000, 1000, 1, 1 );
 
@@ -1173,7 +1181,11 @@ HRESULT CX2StateDungeonResult::OnFrameMove( double fTime, float fElapsedTime )
 									//if( g_pKTDXApp->GetDSManager()->GetInit() == true && g_pKTDXApp->GetDSManager()->GetMP3Play() != NULL )
 									//	g_pKTDXApp->GetDSManager()->GetMP3Play()->Play( L"LevelUpBGM.ogg" );
 
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+									g_pKTDXApp->GetDeviceManager()->PlaySound( L"LevelUpBGM.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 									g_pKTDXApp->GetDeviceManager()->PlaySound( L"LevelUpBGM.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 
 									g_pData->GetUIMajorParticle()->CreateSequence( NULL,  L"LevelUp", 233, 458, 0, 1000, 1000, 1, 1, 1 );
 									CKTDGParticleSystem::CParticleEventSequence* pPartInst = NULL;
@@ -1506,7 +1518,11 @@ HRESULT CX2StateDungeonResult::OnFrameMove( double fTime, float fElapsedTime )
 						else
 						{
 							m_fEXP += (fElapsedTime * DELTA_FOR_ED_AND_EXP);
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+							g_pKTDXApp->GetDeviceManager()->PlaySound( L"Count.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 							g_pKTDXApp->GetDeviceManager()->PlaySound( L"Count.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 						}
 
 						if ( m_fEXP >= static_cast< float >( iEXP ) )
@@ -1518,7 +1534,11 @@ HRESULT CX2StateDungeonResult::OnFrameMove( double fTime, float fElapsedTime )
 
 				#else	REAL_TIME_ELSWORD
 						if ( m_fEXP < (float)( pDungeonResultUnitInfo->GetTotalExp() ) ) 
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+							g_pKTDXApp->GetDeviceManager()->PlaySound( L"Count.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 							g_pKTDXApp->GetDeviceManager()->PlaySound( L"Count.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 
 						if ( m_fEXP >= (float)( pDungeonResultUnitInfo->GetTotalExp() ) )
 						{

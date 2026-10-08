@@ -12103,7 +12103,11 @@ void CX2StateServerSelect::PlaySoundSelect( CX2Unit::UNIT_TYPE eUnitType_, SOUND
 			m_pSound->Stop();
 			SAFE_CLOSE( m_pSound );
 		}
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+		m_pSound = g_pKTDXApp->GetDeviceManager()->PlaySound(wstrSoundName.c_str(), false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 		m_pSound = g_pKTDXApp->GetDeviceManager()->PlaySound(wstrSoundName.c_str(), false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	}
 }
 #endif //ADD_PLAY_SOUND

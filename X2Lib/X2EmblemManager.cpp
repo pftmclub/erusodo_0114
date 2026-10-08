@@ -429,7 +429,11 @@ void CX2EmblemManager::OnFrameMove( float fElpaseTime )
 		{
 			if ( m_fSoundPlayingCheckTime >= sEmblemPopupSound.m_fStartTime && false == sEmblemPopupSound.m_bIsPlaying)
 			{
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+				CKTDXDeviceSound* pSound = g_pKTDXApp->GetDeviceManager()->PlaySound( sEmblemPopupSound.m_wstrSoundFileName.c_str(), false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 				CKTDXDeviceSound* pSound = g_pKTDXApp->GetDeviceManager()->PlaySound( sEmblemPopupSound.m_wstrSoundFileName.c_str(), false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 				m_vecPlayingEmblemSound.push_back( pSound );
 				sEmblemPopupSound.m_bIsPlaying = true;
 			}

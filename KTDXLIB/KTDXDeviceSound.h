@@ -24,6 +24,10 @@ public:
 	void Stop();
 
 	bool IsPlaying();
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+	// June: the manager reads +0x60 = m_pChannel to match the ended channel (31cdcbb0)
+	FMOD_CHANNEL* GetChannel() const { return m_pChannel; }
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	void Set3DPosition( const D3DXVECTOR3& pos );
 	void SetMax3DDistance( float fMaxDistance );
 	void SetVolume( float fVolume );

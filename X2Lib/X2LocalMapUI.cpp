@@ -1390,7 +1390,11 @@ void CX2LocalMapUI::UpdateDungeonButtons( CX2LocationManager::LOCAL_MAP_ID eLoca
 			if( true == g_pData->GetMyUser()->GetSelectUnit()->IsNewlyOpenedDungeon( (int) eDungeonID ) )
 			{
 				DropDownDungeonButton( pControl );
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+				g_pKTDXApp->GetDeviceManager()->PlaySound( L"NewStage_Open.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 				g_pKTDXApp->GetDeviceManager()->PlaySound( L"NewStage_Open.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 			}
 		}
 	}
@@ -1591,7 +1595,11 @@ void CX2LocalMapUI::UpdateDungeonButtons( CX2LocationManager::LOCAL_MAP_ID eLoca
 				}
 				DropDownDungeonButton( pControl );	
 
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+				g_pKTDXApp->GetDeviceManager()->PlaySound( L"NewStage_Open.ogg", false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 				g_pKTDXApp->GetDeviceManager()->PlaySound( L"NewStage_Open.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 			}
 		}
 	}

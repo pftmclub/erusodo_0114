@@ -2645,7 +2645,11 @@ void CKTDXApp::PlaySound2D_LUA( char* pFileName )
 {
 	wstring fileName;
 	ConvertUtf8ToWCHAR( fileName, pFileName );
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+	GetDeviceManager()->PlaySound( fileName.c_str(), false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	GetDeviceManager()->PlaySound( fileName.c_str(), false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 }
 
 
@@ -2653,7 +2657,11 @@ void CKTDXApp::PlaySound_LUA( char* pFileName )
 {
 	wstring fileName;
 	ConvertUtf8ToWCHAR( fileName, pFileName );
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+	GetDeviceManager()->PlaySound( fileName.c_str(), false, true, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	GetDeviceManager()->PlaySound( fileName.c_str() );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 }
 
 void CKTDXApp::StopSound_LUA( char* pFileName )
