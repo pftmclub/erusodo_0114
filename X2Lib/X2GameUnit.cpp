@@ -7288,6 +7288,10 @@ void CX2GameUnit::DeleteEffectSetOnDamageReact()
 		g_pX2Game->GetEffectSet()->StopEffectSet( hHandle );
 	}
 	m_vecEffectSetToDeleteOnDamageReact.resize(0);
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+	/// June 3228a270 @3228a2d1: after the DAMAGE_REACT stops, a user hit early in a skill state stops every effect set played in it ( C9h-4d review )
+	JuneStopPlayedEffectSetOnEarlyDamageReact();
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 }
 
 /** @function : MakeEffectSetBeDeletedWhenDie
@@ -7331,7 +7335,8 @@ static void JuneEffectSetDeleteLog( const WCHAR* pwszEvent_, int iCount_, int iE
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
 
 /// June 3228a190 (STAGE_END, +0x3ea0) and 3228a3b0 (OFF_RIDING, +0x3ee0): stop every handle of the list ( June queues the stop, 321dafb0;
-/// March stops at once ), then resize( 0 ). The result is how many valid handles were stopped.
+/// March stops at once ), then resize( 0 ). The result is how many live instances were stopped ( the debug count; C9h-4d review: with
+/// STAGE_END on by default the list holds every played handle, mostly ended ones, which stop nothing ).
 static int JuneStopEffectSetHandles( std::vector< CX2EffectSet::Handle >& vecHandle_ )
 {
 	int iStopped = 0;
@@ -7339,7 +7344,7 @@ static int JuneStopEffectSetHandles( std::vector< CX2EffectSet::Handle >& vecHan
 	{
 		BOOST_TEST_FOREACH( CX2EffectSet::Handle, hHandle, vecHandle_ )
 		{
-			if( INVALID_EFFECTSET_HANDLE != hHandle )
+			if( NULL != g_pX2Game->GetEffectSet()->GetEffectSetInstance( hHandle ) )
 				++iStopped;
 			g_pX2Game->GetEffectSet()->StopEffectSet( hHandle );
 		}
@@ -7391,6 +7396,38 @@ void CX2GameUnit::JuneDeleteEffectSetOnSkillStateEnd()
 	}
 }
 
+/// June 3228a270 @3228a2d1-3228a39f, the second block of DeleteEffectSetOnDamageReact ( C9h-4d review ): a user ( +0x264 == 0 ) whose now-state
+/// skill id is not 0 ( vslot 0x524 = GetNowStateSkillID, test / je ) and whose state time is below 0.5 ( vslot 0x414( false ) reads +0x8088 =
+/// the Now unitCondition.fStateTime: vslot 0x124 = GetUnitCondition returns +0x8084; fcomp 0.5 / test ah,5 / jp, so NaN skips ) stops every
+/// live instance of +0x3e90 ( June queues the stop via 321dafb0, March stops at once ). The list is NOT cleared here; 3228a120 drains it at
+/// CommonStateEnd. Called from DeleteEffectSetOnDamageReact, so the user's DamageReact, the shock-enchant end and the NPC ( skipped ) all reach it.
+void CX2GameUnit::JuneStopPlayedEffectSetOnEarlyDamageReact()
+{
+	if( GUT_USER != GetGameUnitType() || NULL == g_pX2Game || NULL == g_pX2Game->GetEffectSet() )
+		return;
+
+	const int iNowStateSkillID = static_cast<int>( static_cast<CX2GUUser*>( this )->GetNowStateSkillID() );
+	if( 0 == iNowStateSkillID )
+		return;
+
+	const float fStateTime = GetUnitCondition( false ).fStateTime;
+	if( false == ( fStateTime < 0.5f ) )
+		return;
+
+	int iStopped = 0;
+	BOOST_TEST_FOREACH( CX2EffectSet::Handle, hHandle, m_vecJuneEffectSetPlayed )
+	{
+		if( NULL == g_pX2Game->GetEffectSet()->GetEffectSetInstance( hHandle ) )
+			continue;
+		CX2EffectSet::Handle hStop = hHandle;
+		g_pX2Game->GetEffectSet()->StopEffectSet( hStop );
+		++iStopped;
+	}
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+	if( 0 < iStopped )
+		JuneEffectSetDeleteLog( L"damage_react_all", iStopped, iNowStateSkillID, static_cast<int>( GetUnitUID() ) );
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+}
 /// June 3228a120 (callers: the user's and the NPC's CommonStateEnd, right after 3228a200 = DeleteEffectSetOnStateEnd): walks +0x3e90, the
 /// handle of every played effect set, and calls 321da070 on each live instance, then resize( 0 ). 321da070 = EffectSetInstance::StopCreateNewEffect:
 /// when the templet has STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE ( EffectSetData +0x50 ) it marks every effect of the instance as created, so the

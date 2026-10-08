@@ -802,7 +802,7 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #endif DELETE_EFFECTSET_ON_CUSTOM_STATE
 	m_bHyperEffectSet = false;
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
-	m_bJuneDeleteEffectSetOnStageEnd = false;
+	m_bJuneDeleteEffectSetOnStageEnd = true;	/// June ctor 3203e850 @32042300: word 1 at +0x8624 ( STAGE_END on, STATE_END off ); C9h-4d review
 	m_bJuneDeleteEffectSetOffRiding = false;
 	m_bJuneDeleteEffectSetOnSkillStateEnd = false;
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
@@ -10615,6 +10615,13 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		CX2DamageManager::RT_DUMMY_DAMAGE != pDamageData->reActResult 
 		&& CX2DamageManager::RT_FLIP_DIFF_DIR_DUMMY_DAMAGE != pDamageData->reActResult 
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+		/// June DamageReact 320462a0 @3204a6f7-3204a714: the whole effect-set half ( 3228a270, the sound stop 32276ce0 and the custom-state
+		/// delete 3228a420 ) also skips reActResult 0, 0xb and 0xc ( C9h-4d review; routed here by C9h-4a )
+		&& CX2DamageManager::RT_NO_DAMAGE != pDamageData->reActResult
+		&& CX2DamageManager::RT_CREATE_DAMAGE_EFFECT != pDamageData->reActResult
+		&& CX2DamageManager::RT_CREATE_EFFECT_SET != pDamageData->reActResult
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 		)
 	{
 		DeleteEffectSetOnDamageReact();
@@ -20980,13 +20987,13 @@ void CX2GUUser::CommonStateEnd()
 #endif //SKILLSTRING_IN_SKILLTEMPLET
 
 #ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND
-	/// June CommonStateEnd @320157fc: 32276ca0 sits between 3228a200 and 3228a120 ( = DeleteEffectSetOnStateEnd ): stop the DCS_STATE_END sounds
+	/// June CommonStateEnd @320157fc: 32276ca0 sits between 3228a200 ( = DeleteEffectSetOnStateEnd ) and 3228a120 ( StopCreateNewEffect walker, C9h-4d ): stop the DCS_STATE_END sounds
 	StopSoundOnStateEnd();
 #endif SERV_IRUHADEV_JUNE_UNIT_SOUND
 	DeleteEffectSetOnStateEnd();
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
-	/// June CommonStateEnd @32015800: 3228a120 right after 3228a200 ( = DeleteEffectSetOnStateEnd, +0x3ec0 ) and the sound stop; it is NOT
-	/// DeleteEffectSetOnStateEnd ( C9h-4a / C9h-4b's comments above say so ): it walks +0x3e90 for STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE
+	/// June CommonStateEnd @32015803: 3228a120 right after 3228a200 ( = DeleteEffectSetOnStateEnd, +0x3ec0 ) and the sound stop; it is NOT
+	/// DeleteEffectSetOnStateEnd: it walks +0x3e90 for STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE
 	JuneStopCreateNewEffectOnStateEnd();
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 
@@ -41099,8 +41106,8 @@ void CX2GUUser::LoadEffectSetFromScript( IN KLuaManager& luaManager )
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 	/// June 32024ff0 @3202695e-32028134: three June-only delete bytes ( +0x8624 STAGE_END, +0x8628 OFF_RIDING, +0x862b SKILL_STATE_END ),
-	/// read among the March ones; a miss stores 0
-	LUA_GET_VALUE( m_LuaManager, "DELETE_EFFECT_SET_ON_STAGE_END",			m_bJuneDeleteEffectSetOnStageEnd,		false );
+	/// read among the March ones; a miss stores 1 for STAGE_END ( @32026b04, as the ctor ) and 0 for the other two ( C9h-4d review )
+	LUA_GET_VALUE( m_LuaManager, "DELETE_EFFECT_SET_ON_STAGE_END",			m_bJuneDeleteEffectSetOnStageEnd,		true );
 	LUA_GET_VALUE( m_LuaManager, "DELETE_EFFECT_SET_OFF_RIDING",			m_bJuneDeleteEffectSetOffRiding,		false );
 	LUA_GET_VALUE( m_LuaManager, "DELETE_EFFECT_SET_ON_SKILL_STATE_END",	m_bJuneDeleteEffectSetOnSkillStateEnd,	false );
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
@@ -41162,7 +41169,9 @@ void CX2GUUser::CommonFrameMove_EffectSet( float fNowAnimationTime )
 #endif DELETE_EFFECTSET_ON_CUSTOM_STATE
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
-			/// June 32007570: STAGE_END -> +0x3ea0, OFF_RIDING -> +0x3ee0, SKILL_STATE_END and a skill id above 0 -> { handle, skill id } into +0x3f00
+			/// June 32007570: STAGE_END -> +0x3ea0, OFF_RIDING -> +0x3ee0, SKILL_STATE_END -> { handle, skill id } into +0x3f00 only when the id is
+			/// above 0; otherwise June leaves the function ( @32007837 jle to the epilogue 320078f1 ): no AddEffectSetDeleteCondition, no erase of
+			/// the entry, no later entry this frame, so the entry plays again next frame ( JUNE_BUGS 126, C9h-4d review )
 			if( true == m_bJuneDeleteEffectSetOnStageEnd )
 				m_vecJuneEffectSetToDeleteOnStageEnd.push_back( hEffectSetInst );
 			if( true == m_bJuneDeleteEffectSetOffRiding )
@@ -41170,8 +41179,9 @@ void CX2GUUser::CommonFrameMove_EffectSet( float fNowAnimationTime )
 			if( true == m_bJuneDeleteEffectSetOnSkillStateEnd )
 			{
 				const int iNowStateSkillID = static_cast<int>( GetNowStateSkillID() );
-				if( 0 < iNowStateSkillID )
-					m_vecJuneEffectSetToDeleteOnSkillStateEnd.push_back( std::make_pair( hEffectSetInst, iNowStateSkillID ) );
+				if( 0 >= iNowStateSkillID )
+					return;
+				m_vecJuneEffectSetToDeleteOnSkillStateEnd.push_back( std::make_pair( hEffectSetInst, iNowStateSkillID ) );
 			}
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 

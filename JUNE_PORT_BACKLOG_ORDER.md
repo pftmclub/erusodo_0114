@@ -507,6 +507,11 @@ half is planned there (C9h-2a/2b/3). Two pieces are not effect work and have no 
   Elysion E1. The four readers above were not re-checked against that offset coincidence.)*
 - **The `CX2Pet` loader's `SOUND_PLAY_ALL_OPTION`** (`326ef840`, 8 fields, via the nation reader). Only June's `PET_Pette_HEDGEHOG_STEB_1..3`
   use it, and they are not in March. `CX2Pet` has its own `SoundPlayData` (X2Pet.h:136), so this is a separate change from C9h-4a's.
+- **The riding templet's `+0x15c` byte and the user's `+0x93da` copy** (june-effect C9h-4d review, 2026-10-08). Riding-on `3204d120 @3204d232` copies
+  `RidingPetTemplet +0x15c` (June-only, after `+0x158`, zeroed by the templet reset `@32204b5e`) into user `+0x93da`; riding-off `@3204d335` clears it
+  right after `3228a3b0`. Readers: `31fe4030` (riding on and the byte set -> buff `0x20` handling via `3227baf0` / vslot `0x250`), `31fd5b80`
+  (forces the show argument of the equipped-item loop `+0x8834` to false), `3204dfc8`, class code `329e54bf` / `329e555c` / `32a52dfa` /
+  `32a52f0e` / `32bae235` / `32bae633` / `32bf0a43`. March has neither the templet field nor the member; the templet key was not decoded.
 
 ---
 

@@ -24035,12 +24035,12 @@ void CX2GUNPC::CommonStateEnd()
 #endif // SERV_ELESIS_SECOND_CLASS_CHANGE // ±èÁ¾ÈÆ, ¿¤¸®½Ã½º 1-2 ±×·£µå ¸¶½ºÅÍ, 2-2 ºí·¹ÀÌÂ¡ ÇÏÆ®
 
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
-	/// June NPC CommonStateEnd 3277ee10 @3277f850 ( C9h-4b ): 32276ca0 between 3228a200 and 3228a120 ( = DeleteEffectSetOnStateEnd ), as the user's
+	/// June NPC CommonStateEnd 3277ee10 @3277f850 ( C9h-4b ): 32276ca0 between 3228a200 ( = DeleteEffectSetOnStateEnd ) and 3228a120 ( C9h-4d ), as the user's
 	StopSoundOnStateEnd();
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND
 	DeleteEffectSetOnStateEnd();
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
-	/// June NPC CommonStateEnd 3277ee10 @3277f860: 3228a120 right after 3228a200 and the sound stop ( see the user's, C9h-4d )
+	/// June NPC CommonStateEnd 3277ee10 @3277f857: 3228a120 right after 3228a200 and the sound stop ( see the user's, C9h-4d )
 	JuneStopCreateNewEffectOnStateEnd();
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 

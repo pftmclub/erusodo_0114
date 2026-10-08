@@ -3043,6 +3043,38 @@ June's three effect-set delete conditions, the hyper check and the played-handle
 
 **Open for the user:** `/cost`.
 
+### C9h-4d - Review (2026-10-08, Opus 5.5 high): four transcription findings fixed under the same flag; the port is **live on March data** now; `_DEBUG` kept on for one play-test
+
+**Confirmed in Ghidra / capstone (read-only):**
+- `3228a120` / `3228a200` / `321da070` as the Done note says. `EffectSetInstance` ctor `321df230`: `+0x80` = `m_pEffectSetData`; the next `vector<bool>` has its words at `+0x84` and `_Mysize` at `+0x94` (`+0x90` allocator) = `m_vecEffectInstanceCreated`, March's next member.
+- `3227a570`: jump table `3227a650` in case order. 1..4 -> `+0x3eb0` / `+0x3ec0` / `+0x3ed0` / `+0x3ef0` (March's four lists). The `+0x3e90` push comes before the switch, once per condition. Case 5: `+0x264 == 0`, `jle` on vslot `0x524`.
+- Parse tail: `xordecrypt.py 0x32024ff0`, 14 buffers ok. Store order `+0x8624` STAGE_END, `+0x8625` STATE_END, `+0x8626` DAMAGE_REACT, `+0x8627` DIE, `+0x8628` OFF_RIDING, `+0x8629` CUSTOM, `+0x862a` CUSTOM..DAMAGE_REACT, `+0x862b` SKILL_STATE_END.
+- Hyper check `@32027e17`: now-state pointer `+0x7cbc` -> `+0x10 == 1` and `[+0x862c] == 0`. March's `DoStateEndStart` copies the state into `m_NowStateData` (`X2GUUser.cpp:6656`) before `StateStart` -> the parse, so the port reads the new state, as June does.
+- Stoppers (raw `E8`/`E9` scan of `.text`, no absolute refs): `3228a190` only `@324d966b`, `3228a3b0` only `@3204d330`, `3228a490` only `@320606a2`, `3228a120` `@32015803` / `@3277f857`. `3228a490` = the port (guards, keep-if-same-id, stop + erase).
+- `+0x93da`: a June-only user byte copied from `RidingPetTemplet +0x15c` at riding-on (`@3204d232`) and cleared at riding-off. March's `SetRidingOn` does not cover it. Not this phase's -> backlog Stage 17 (readers in the funcmap row).
+- Reach of `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE`: March `kom_contents/data036_kom/EffectSet.src.lua` 0 (all `*.lua` under `kom_contents` 0). June `june_src_fixed/data036_kom/EffectSet.src.lua` 2: `EffectSet_DashJumpComboXAutoGun_Last`, `..._SilverBullet_Last` (Chung).
+- Data: live `data036.kom` md5 `cb5625f6` (= the copy). vs `kom_backup_tools/data036.kom.20261008_132140`: 192 = 192 entries, changed only `Enum.lua`; `DCES_SKILL_STATE_END = 5` after `DCES_CUSTOM_STATE = 4`.
+- Handles carry a generation stamp (`ComposeHandle( wIndex, m_wStamp )`, `X2EffectSet.cpp:3247`), so stale handles in the lists stop nothing.
+
+**Findings (all fixed under `SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE`).**
+1. **STAGE_END defaults to 1.** Parse miss `@32026b04: mov byte [edi], 1` (every other key stores 0) and ctor `@32042300` (word 1 at `+0x8624`). Ctor and parse now default to `true`. Every effect set a user plays is stopped at the next dungeon stage load unless its state says `DELETE_EFFECT_SET_ON_STAGE_END = FALSE`. JUNE_BUGS 124 is now live (the list grows outside dungeons).
+2. **`3228a270` (= `DeleteEffectSetOnDamageReact`) has a second block, not ported.** After the DAMAGE_REACT stops:
+   - the conditions are user, `GetNowStateSkillID() != 0`, and vslot `0x414( false ) < 0.5`;
+   - it stops every live `+0x3e90` handle and does not clear the list;
+   - vslot `0x414` `3208e240` reads `+0x8088` (Now) or `+0x7de8` (Future); vslot `0x124` = `GetUnitCondition` returns `+0x8084`, so this is `fStateTime`.
+
+   New `JuneStopPlayedEffectSetOnEarlyDamageReact`, called at the end of March's `DeleteEffectSetOnDamageReact` (all three callers; the NPC is skipped inside).
+3. **The user DamageReact guard** (`@3204a6f7-3204a714`) also skips reActResult 0 / 0xb / 0xc for the whole effect-set half (`3228a270`, `32276ce0`, `3228a420`). C9h-4a applied it to the sound stop only and routed the rest here (funcmap row 2000). Now three `&&` lines in March's `if` (`X2GUUser.cpp:10618`).
+4. **The play site leaves the function** when SKILL_STATE_END is set and the skill id is <= 0 (`@32007837 jle` -> epilogue `320078f1`): no `AddEffectSetDeleteCondition`, no erase, so the entry replays every frame. Ported as `return;`, JUNE_BUGS 126 (June-only key; inert on March data).
+- The `_DEBUG` stop count now counts live instances (with STAGE_END on, the list is mostly ended handles). Comment fixes: call addresses `@32015803` / `@3277f857`, and C9h-4a / 4b's "( = DeleteEffectSetOnStateEnd )" now sits on `3228a200`.
+- Routed: class code that pushes `+0x3f00` directly or calls `3227a570` -> checklist 7h (new row); the riding pet's `+0x8628` / `+0x862b` writes (`32d2f560 @32d34d43` / `@32d35023`) are already in `C9h-4e.md`.
+
+**Hygiene.** `flagcheck JUNE_EFFECT_SET_DELETE --with ..._DEBUG --worktree --files <4 code files>`: 2 PASS, 2 OTHER (comment-only fixes inside C9h-4a / 4b's `JUNE_UNIT_SOUND` / `JUNE_NPC_SOUND` blocks), 0 FAIL; 2 deleted lines = C9h-4d's own flagged lines replaced (vs the pre-C9h-4d base: insert-only, see the range run in the commit message), 0 non-ASCII, 0 EOL mismatch, 0 encoding change; RESULT: PASS.
+
+**Deploy.** **Not deployed yet.** `build.py --deploy` failed in a peer's uncommitted C6c work (`X2EffectSet.cpp(3722): C2039 GetBuffTempletManager`, flag `SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST`), not in this review's files; nothing was deployed. The commit holds only this review's hunks (shared files staged via `update-index`). The next successful `build.py --deploy` of the tree (the peer's, or `/x2-phase june-effect C9h-4d review` re-run as "deploy") carries it.
+
+**Play-test owed after the deploy** (`_DEBUG` still on; turn it off after the logs), character `jtLordKnight` (Lord Knight, unit 25), no console: (1) a multi-stage dungeon, a skill right before the next stage loads -> `JUNE_FX EFFECT_SET_DELETE stage_end n=.. unit=25`; (2) get hit within 0.5 s of starting a skill without super armor -> its effects cut, `damage_react_all n=.. extra=<skill id>`; (3) a riding-pet summon / unsummon and a few skills as before, 0 EXCEPTION.
+
 ### C9h-4b - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_NPC_SOUND` + `SERV_IRUHADEV_JUNE_SQUARE_SOUND`, each + `_DEBUG` on for the play-test; logs `JUNE_FX NPC_SOUND`, `JUNE_FX SQUARE_SOUND`; play-test PASSED, logs read; `_DEBUG` off)
 
 Files: `X2GUNPC.h/.cpp`, `X2SquareUnit.h/.cpp`, `X2EventScene.cpp`, `Always.h`. 12 funcmap rows `Effect C9h-4b`, JUNE_BUGS 119-121 (+ row 116's "Reached?" updated).

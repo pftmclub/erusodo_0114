@@ -2922,6 +2922,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void JuneDeleteEffectSetOffRiding();		/// June 3228a3b0
 		void JuneDeleteEffectSetOnSkillStateEnd();	/// June 3228a490 (user only)
 		void JuneStopCreateNewEffectOnStateEnd();	/// June 3228a120 (the +0x3e90 list of every played handle -> 321da070)
+		void JuneStopPlayedEffectSetOnEarlyDamageReact();	/// June 3228a270 @3228a2d1 (DeleteEffectSetOnDamageReact's second block, user only)
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 		void PushEffectSetToDeleteOnDie( const CX2EffectSet::Handle& hEffectSet_ ) { m_vecEffectSetToDeleteOnDie.push_back(hEffectSet_); }
 
