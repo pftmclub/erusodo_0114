@@ -545,8 +545,8 @@ RUNTIME = [
     ('ES.EFFECT', (), 'USE_EFFECT_SCALE_IN_UNIT_VIEWER', RT_4A, '-', 'outside-effectset', 'read only by the unit viewer: 32957980@32957e8e; no reader in 0x321d0000-0x32208000 except the parser', '-'),
     ('ES.templet', (), 'OVERLAP', RT_4A, 'done', 'new',
      '321d9f30 from the factory 321e1bf0@321e1c68-321e1c77: no new instance while one of the templet lives with the same trace target', '_CreateEffectSetInstance'),
-    ('ES.templet', (), 'STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE', RT_4A, 'deferred', 'new',
-     '321da070 via unit 3228a120 over unit+0x3e90 on state change; the writer of that list is not located', 'unit side'),
+    ('ES.templet', (), 'STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE', RT_4A, '**implemented (C9h-4d)**', 'new',
+     '321da070 via unit 3228a120 over unit+0x3e90 on state change; the writer of that list is 3227a570 (AddEffectSetDeleteCondition), ported with it', 'unit side'),
     ('ES.templet', (), 'SYNC_SHOW_BY_CREATE_UNIT', RT_4B, 'done', 'new',
      '321e0080@321e077d-321e07e9, per effect: the owner\'s GetShowObject() against the set\'s show flag -> SetShowObject on the whole set (321de4f0); at creation particles take the set flag (321ee600@321f251d)', 'OnFrameMove_UpdateEffect, creation'),
     ('ES.templet', (), 'APPLIED_SKILL_ID', RT_4A, 'done', 'unsupported',
@@ -3394,6 +3394,9 @@ def note_s(r):
     rt = RUNTIME_BY_KEY.get((r['root'], r['rel'], r['key']))
     if rt:
         out.append('runtime %s: %s (%s)' % (rt[3], rt[5], rt[4]))
+    kn = C0.KEY_NOTES.get(r['key'])
+    if kn and r['status'] == 'implemented':
+        out.append(kn)
     return '; '.join(out)
 
 

@@ -64,3 +64,7 @@ Update MODS.md: close the "Known gap", and add the `_DAMAGE_EXCEPTION` entry. Ev
 - UnitToUnit: any melee on that shaman.
 
 Each check expects a `JUNE_FX HIT` line with its path tag. Also add the Mag Charger re-run for T6 (`/CM "MAG_CHARGER" 0 70`), and ask how many Mag Chargers were on screen.
+
+## Added by C3 (2026-10-08)
+
+C3 added `DamageData::m_iAppliedMemoID` (`APPLIED_MEMO_ID`, June DD `+0x5c8`, default 0; parsed in `SetDamageDataFromLUA`, logged once per templet as unsupported). Its one June reader is the skill-memo DamageData switch `3202ac40` (the `0x758` memo hook this phase stubs): the memo is skipped when `+0x5c8` is set and differs from the entry's type. Read the member instead of re-parsing the key, and drop the unsupported log line when the switch is wired (`X2DamageManager.cpp`, the `APPLIED_MEMO_ID` block).

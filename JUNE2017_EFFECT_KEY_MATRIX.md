@@ -478,7 +478,7 @@ The full spec is in the plan, Phases 4a and 4b.
 | `ROSE_WEAPON_ATTACK_TYPE` | handed-off |  | 38 | direct 32632390@326400bc | X2DamageManager:281 | same [June int = -1] |  |
 | `ADDITIONAL_ATTACK_TRIGGER_TYPE` | implemented |  | 58 | direct 32632390 | X2DamageManager:727 | n/a (sub-table name) |  |
 | `ADD_CHECK_DAMAGE_UNIT_NUM` | implemented |  | 2 | direct 32632390@3263abf5 | X2DamageManager:319 | same [June int = 0] | C3: AreaHit result count |
-| `APPLIED_MEMO_ID` | implemented |  |  | binary-only 32632390@326325cc | X2DamageManager:290 | same [June enum = 0] | C3: parsed and stored (+0x5c8), logged; reader = skill-memo switch 3202ac40 (C8b) |
+| `APPLIED_MEMO_ID` | implemented |  |  | binary-only 32632390@326325cc | X2DamageManager:290 | same [June enum = 0] | binary-only: no June data uses it; C3: parsed and stored (+0x5c8), logged; reader = skill-memo switch 3202ac40 (C8b, queued) |
 | `APPLY_CRITICAL_DAMAGE_PERCENT` | implemented |  | 2 | direct 32632390@3263e462 | X2DamageManager:698 | same [June float = 0] |  |
 | `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID` | implemented |  | 1 | direct 32630d20 | X2DamageManager:4792 | n/a (sub-table name) |  |
 | `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` | implemented |  |  | binary-only 32630d20@3263127f | X2DamageManager:4777 | unchecked(March: `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` at X2DamageManager.cpp:4777 is not a GetValue key) [June enum = 0] | binary-only: no June data uses it |
@@ -515,9 +515,9 @@ The full spec is in the plan, Phases 4a and 4b.
 | `CLEAR_SCREEN_COLOR_G` | implemented |  | 435 | direct 32632390@32639c0f | X2DamageManager:584 | same [June float = 1] |  |
 | `CLEAR_SCREEN_COLOR_R` | implemented |  | 435 | direct 32632390@32639a57 | X2DamageManager:583 | same [June float = 1] |  |
 | `CREATE_DAMAGE_EFFECT_NAME` | implemented |  | 155 | direct 32632390@326334db | X2DamageManager:181 | same [June string = ''] |  |
-| `CREATE_DAMAGE_EFFECT_NAME_SCALE_X` | implemented |  |  | binary-only 32632390@32633724 | X2DamageManager:297 | same [June float = 1] | C3: SetScale on RT_CREATE_DAMAGE_EFFECT children (3 sites); binary-only: no June data uses it |
-| `CREATE_DAMAGE_EFFECT_NAME_SCALE_Y` | implemented |  |  | binary-only 32632390@326339df | X2DamageManager:298 | same [June float = 1] | C3: see _X; binary-only: no June data uses it |
-| `CREATE_DAMAGE_EFFECT_NAME_SCALE_Z` | implemented |  |  | binary-only 32632390@32633c8d | X2DamageManager:299 | same [June float = 1] | C3: see _X; binary-only: no June data uses it |
+| `CREATE_DAMAGE_EFFECT_NAME_SCALE_X` | implemented |  |  | binary-only 32632390@32633724 | X2DamageManager:297 | same [June float = 1] | binary-only: no June data uses it; C3: SetScale on RT_CREATE_DAMAGE_EFFECT children (3 sites) |
+| `CREATE_DAMAGE_EFFECT_NAME_SCALE_Y` | implemented |  |  | binary-only 32632390@326339df | X2DamageManager:298 | same [June float = 1] | binary-only: no June data uses it; C3: see _X |
+| `CREATE_DAMAGE_EFFECT_NAME_SCALE_Z` | implemented |  |  | binary-only 32632390@32633c8d | X2DamageManager:299 | same [June float = 1] | binary-only: no June data uses it; C3: see _X |
 | `CREATE_DAMAGE_EFFECT_RATE` | implemented |  |  | binary-only 32632390@32634571 | X2DamageManager:192 | same [June float = 0] | binary-only: no June data uses it |
 | `CREATE_EFFECT_SET_MAIN_EFFECT_DELAYTIME` | implemented |  | 2 | direct 32632390@3263427c | X2DamageManager:187 | same [June bool = 0] |  |
 | `CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME` | implemented |  | 2 | direct 32632390@32633f70 | X2DamageManager:186 | same [June bool = 0] |  |
@@ -531,7 +531,7 @@ The full spec is in the plan, Phases 4a and 4b.
 | `DAMAGE_DISTANCE` | implemented |  | 42 | direct 32632390@3263a6c7 | X2DamageManager:599 | same [June float = 99999] |  |
 | `DAMAGE_LIGHT_TIME` | implemented |  | 5 | direct 32632390@3263ee3a | X2DamageManager:325 | same [June float = 0.2] | C3: user DamageReact + AttackResult, NPC DamageReact |
 | `DAMAGE_LINEGROUP` | implemented |  | 20 | direct 32632390@3263a557 | X2DamageManager:598 | same [June bool = 0] |  |
-| `DAMAGE_RATE_TO_SUPERAMOR` | implemented |  |  | binary-only 32632390@3263f787 | X2DamageManager:332 | same [June float = 1] | C3: GetFinalDamage multiply for a super-armored defender; binary-only: no June effect data uses it, June's Luciel_Duo does |
+| `DAMAGE_RATE_TO_SUPERAMOR` | implemented |  |  | binary-only 32632390@3263f787 | X2DamageManager:332 | same [June float = 1] | binary-only: no June data uses it; C3: GetFinalDamage multiply for a super-armored defender (June's Luciel_Duo uses it) |
 | `DAMAGE_TRIGGER_CONDITION` | implemented |  |  | binary-only 32632390@3263e92b | X2DamageManager:766 | same [June int = -1] | binary-only: no June data uses it |
 | `DAMAGE_TRIGGER_DATA` | implemented |  | 1 | direct 32632390 | X2DamageManager:746 | n/a (sub-table name) |  |
 | `DAMAGE_TYPE` | implemented |  | 7264 | direct 32632390@32632b5a | X2DamageManager:161 | same [June enum = 0] |  |
@@ -561,7 +561,7 @@ The full spec is in the plan, Phases 4a and 4b.
 | `HIT_ADD_HP_PERCENT` | implemented |  | 3 | direct 32632390@32638c66 | X2DamageManager:571 | same [June float = 0] |  |
 | `HIT_ADD_HP_PERCENT_ATTACKPOWER` | implemented |  | 1 | direct 32632390@3263e6c4 | X2DamageManager:699 | same [June float = 0] |  |
 | `HIT_ADD_MP` | implemented |  | 3105 | direct 32632390@32638ac9 | X2DamageManager:568 | same [June float = 6] |  |
-| `HIT_ADD_MP_PERCENT` | implemented |  |  | binary-only 32632390@32638e7f | X2DamageManager:317 | same [June float = 0] | C3: CEffect::AttackResult + CX2GUUser::AttackResult (322736f0); binary-only: no June data uses it |
+| `HIT_ADD_MP_PERCENT` | implemented |  |  | binary-only 32632390@32638e7f | X2DamageManager:317 | same [June float = 0] | binary-only: no June data uses it; C3: CEffect::AttackResult + CX2GUUser::AttackResult (322736f0) |
 | `HIT_DAMAGE_EFFECT_INVOKE_RATE` | implemented |  | 36 | direct 32632390@3263beae | X2DamageManager:634 | same [June float = 1] |  |
 | `HIT_GAP` | implemented |  | 3748 | direct 32632390@3263a479 | X2DamageManager:596 | same [June float = 0] |  |
 | `HIT_TYPE` | implemented |  | 7291 | direct 32632390@32632d91 | X2DamageManager:163 | same [June enum = 0] |  |
@@ -1466,7 +1466,7 @@ The full spec is in the plan, Phases 4a and 4b.
 | `NAME` | implemented |  | 8600 | direct 321e48e0@321e49a4 | X2EffectSet:3883 | same [June string = ''] | runtime 4a: same (-) |
 | `OVERLAP` | implemented |  | 2 | direct 321e48e0@321e5594 | X2EffectSet:3916 | same [June bool = 0] | runtime 4a: new (done) |
 | `SOUND%d` | implemented |  | 70 | direct 321e48e0 | X2EffectSet:4485 | n/a (sub-table name) | 5 names; runtime 4b: new (done) |
-| `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` | implemented |  | 2 | direct 321e48e0@321e4c9b | X2EffectSet:3912 | same [June bool = 0] | runtime: implemented in C9h-4d (`JUNE_EFFECT_SET_DELETE`) |
+| `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` | implemented |  | 2 | direct 321e48e0@321e4c9b | X2EffectSet:3912 | same [June bool = 0] | runtime 4a: new (**implemented (C9h-4d)**) |
 | `SYNC_SHOW_BY_CREATE_UNIT` | implemented |  | 1 | direct 321e48e0@321e57fa | X2EffectSet:3920 | same [June bool = 0] | runtime 4b: new (done) |
 | `BONE_NAME` | june-ignores(other-level) |  | 2 | June reads `BONE_NAME` only at level EFFECT%d of 321e48e0 (321e6165); not at `(top)` |  |  |  |
 | `BONE_TRACE_TARGET_MESH` | june-ignores(other-level) |  | 1 | June reads `BONE_TRACE_TARGET_MESH` only at level EFFECT%d of 321e48e0 (321e9ceb); not at `(top)` |  |  |  |

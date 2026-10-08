@@ -360,3 +360,28 @@ def summary_lines(rows):
     lines = ['handed-off/declined: %d' % len(ho)]
     lines.append('open rows by owner: ' + ', '.join('%s %d' % kv for kv in sorted(own.items())))
     return lines
+
+
+# Hand-written consumer notes for `implemented` rows, appended to the matrix's last column by census.note_s (so a regeneration
+# keeps them). Keyed by the bare key name. C3 (JUNE2017_EFFECT_COMPLETION_PHASES.md "C3 - Done"): what the key does in March.
+KEY_NOTES = {
+    'ADD_MEMBER_COUNT': 'C3: parsed into ExtraDamageData +0x104, stored, logged; no June reader found (C3b)',
+    'ADD_MEMBER_COUNT_DISTANCE': 'C3: parsed into ExtraDamageData +0x108, stored, logged; no June reader found (C3b)',
+    'BOUNDING_BACK_SPEED_X': 'C3: parsed, stored, logged; reader = DamageReactStateChange 31feabd0 @31feb6c6 behind 31fd86b0 (C3b)',
+    'BOUNDING_BACK_SPEED_Y': 'C3: parsed, stored, logged; reader = DamageReactStateChange 31feabd0 @31feb6d8 behind 31fd86b0 (C3b)',
+    'FORCE_BACK_SPEED': 'C3: DamageReact (user 320462a0 @32046f56, NPC 327b1f30 @327b2efa) ported; the six DamageReactStateChange tests behind 31fd86b0 are C3b',
+    'APPLIED_MEMO_ID': 'C3: parsed and stored (+0x5c8), logged; reader = skill-memo switch 3202ac40 (C8b, queued)',
+    'ATTACK_ONLY_ME': 'C3: six hit paths + both DamageReact invincible gates',
+    'ONYL_ATTACK_USER': 'C3: UnitToUnit / MeshToUnit / CollisionDataToUnit / EffectToUnit',
+    'ADD_CHECK_DAMAGE_UNIT_NUM': 'C3: AreaHit result count',
+    'DAMAGE_LIGHT_TIME': 'C3: user DamageReact + AttackResult, NPC DamageReact',
+    'EXCEPT_ME_HP_UP': 'C3: NPC DamageReact heal gate',
+    'IGNORE_ATTACK_SUCCESS': 'C3: CEffect::AttackResult (bHit of the owner, 31fcee10); 31fcee40 counter not ported (C3b)',
+    'INIT_EXTRA_DAMAGE_BEFORE_LOAD': 'C3: parse-time ExtraDamageData reset (31f8e430)',
+    'PAUSE_NPC_AI_TIME': 'C3: GetFinalDamage -> SetTimePauseNPCAI (3275b330)',
+    'DAMAGE_RATE_TO_SUPERAMOR': "C3: GetFinalDamage multiply for a super-armored defender (June's Luciel_Duo uses it)",
+    'HIT_ADD_MP_PERCENT': 'C3: CEffect::AttackResult + CX2GUUser::AttackResult (322736f0)',
+    'CREATE_DAMAGE_EFFECT_NAME_SCALE_X': 'C3: SetScale on RT_CREATE_DAMAGE_EFFECT children (3 sites)',
+    'CREATE_DAMAGE_EFFECT_NAME_SCALE_Y': 'C3: see _X',
+    'CREATE_DAMAGE_EFFECT_NAME_SCALE_Z': 'C3: see _X',
+}
