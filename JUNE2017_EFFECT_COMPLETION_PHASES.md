@@ -2303,6 +2303,47 @@ Next: C9h-2b (Opus 5.5 high) and C9h-3 (Opus 5.5 high); both kickoffs exist. **U
 
 Review: `kickoffs/june-effect/C9h-2b-review.md`. **User owes:** /cost.
 
+### C9h-2b - Review (2026-10-08, Opus 5.5 high): no finding, no code change
+
+**Play-test read first:** the PASSED run above (exe `1a00382e`, 0 EXCEPTION, 15 `JUNE_FX PET_PREVIEW` lines).
+
+**Checked against June (Ghidra read-only, literals read from `unpacked_x2.exe`).**
+- **ResetPetViewer `32228c90`.**
+  - The guard is `+0xec` non-null and `type != -1`, and the -1 path does nothing at all. Then come `32e4fde0` and `329594c0(1)`, before the item test (`JS` on the id, then `+0xf0 == item`).
+  - The type test is `DEC EAX; JZ` (1 = `PPT_RIDING_PET`, `X2ItemManager.h:15`). Pets call `32e50de0( id, 3, 0 )`, and `0x23..0x24` load `3344f240` = 1.4f. The riding scale `3343777c` is 0.5f, and other pets get `FLD1`.
+  - The order is SetScale `32e4fcf0`, the inline show, `IsAnimExist( 33482ab4 "Wait_Transform" )`, PlayAnim( name or `33474724 "Wait"`, 0, 1 ), then `+0x170 = 1`, then SetPosition. The else branch is the inline hide with `+0xf0 = -1`.
+  - `33733604/08/0c` = (260,-30,0) and `33733610/14/18` = (-230,-200,0), read-only (2 readers each: `32228c90` and `3224d0f0`).
+  - **`+0x51c`, scanned across the whole `.text`:** the cash shop's only writers are its ctor `322533c0 @32253ef3` and SetOpen `@3223e1a3`, and both store zero.
+    - Two non-cash-shop ctors (`31cbb9d0`, `31e46300`) also store zero there.
+    - The 9 `LEA [reg+0x51c]` sites are other classes, where `+0x51c` is an object, not a float vector. One is `32306600`, a base ctor that stores vtable `33441d84` there. The others read a container head from `[+0x51c+4]`.
+    - None of them is reached from the cash shop's ctor (vtable `334843b4`, base `32e1c600`).
+    - **So the preview stands at June's (260,-30,0), as decided.**
+- **PetPreview `32234b10`.**
+  - It returns when `g_pData+0x34` is null. Both lookups run, and both are tested with `JLE` (`< 1`).
+  - `rand()` (`@32234b4e`) runs only when both hit, and a non-zero `% 2` picks riding. A miss on both gives ( -1, item, -1 ).
+  - The trailing hide checks `+0xf0 != -1` and `!32234380`, then the viewer. It runs SetShowObject(false), `32e4fde0`, group 1, then `+0xf0 = -1`. Matches.
+- **`32234380` = March `CheckPreEqipItem` + the templet-null test: confirmed, with a sharper reason.**
+  - For every unit other than type 10, June keys the list by `322551c0(templet)`: bit `+8>>2`, with the `+0x528` override.
+  - June's InsertPreEquipItem `3224cb20` inserts with that same key, both the forced and the toggled path. So "in its own list" asks the same thing as March's single-list find. `SAVE_CASH_SHOP_PRE_EQUIP_ITEM_LIST` is off in US (`InHouse5.h:788`, commented).
+  - `+0x528` is non-zero only for type 10. SetOpen stores 0 `@3223d9df` on every other unit. A second writer, `3224c250`, toggles it only under type 10; it is called from the Scaleform handler `@3224eef1` and from `@3224c852`.
+  - That corrects the Done note's "the two lists differ only for type 10": they differ by item for every unit, and the conclusion stands. Two funcmap rows were added.
+- **The three hides** (SetOpen `@3223e56d`, UpdateDLGPetViewerUI `@3223c763`, take-off-all `@322385b0`) all run `32e4fde0`, group 1, hide, `+0xf0 = -1`.
+  - Take-off-all pushes `EBP`, which is set to 1 `@3223854b` and is callee-saved up to `@322385c5`.
+  - `grep ResetPetViewer(` finds no no-argument call left.
+  - **Correction to the Done note:** a call left behind would *not* "hide nothing". March's header default type is `PPT_PET` (0), so it passes the guard, runs the stops and hides. That is harmless, because none is left.
+- **Pet info.** Select_Tab `@32902236-3290226f` and SetShow `@32903116-32903148` both stop `+0xb8` before `+0x3c`.
+  - The members were identified by June's own use rather than a March sizeof walk: `+0x3c` receives `ResetPet` (`328f0aa0 @328f0be3`) and `+0xb8` receives `ResetRidingPet` (`328f74e0 @328f75f2`). So they are the pet viewer and the riding viewer.
+
+**Hygiene** (`flagcheck JUNE_PET_PREVIEW --range 9687d8c^..HEAD`):
+`files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`.
+The DEFINE row's +23 lines are the comment block, the `#define`, and the `#if defined(...) / #error / #endif` dependency guard on `JUNE_PET_VIEWER_FX`.
+
+**Deploy:** none, since nothing changed. The deployed exe is still `1a00382e`, which passed the play-test. No new play-test is needed.
+
+Next: C9h-2c (Opus 5.5 high, identify; its kickoff exists). **User owes:** /cost.
+
 ---
 
 ### C9h-3 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the riding pet's UI sets port now; its StateChange splits three ways -> C9h-3a/3b/4/5, Stage 17
