@@ -89,6 +89,13 @@ public:
 		/// EGS_FEED_PETS_REQ names only the food item, not the pet, so this is
 		/// the only place the offline server can look up which one to feed.
 		UidType			m_nSummonedPetUID;
+#ifdef SERV_IRUHADEV_OFFLINE_ROOM_RIDING_PET
+		/// Which riding pet EGS_SUMMON_RIDING_PET_REQ last summoned - 0 when none is
+		/// out. The real server put it into every KRoomUserInfo it built, which is
+		/// how a mount rides from the village into a dungeon; MakeRoomUserInfo
+		/// reads it from here.
+		UidType			m_nSummonedRidingPetUID;
+#endif SERV_IRUHADEV_OFFLINE_ROOM_RIDING_PET
 
 		/// Phase 28. Set once by RestoreSummonedPet (from Handler_EGS_SELECT_
 		/// UNIT_REQ) when a persisted pet needs to be re-spawned, and cleared by
@@ -120,6 +127,9 @@ public:
 			, m_iSavedHyper( -1 )
 			, m_iSavedAbil( -1 )
 			, m_nSummonedPetUID( 0 )
+#ifdef SERV_IRUHADEV_OFFLINE_ROOM_RIDING_PET
+			, m_nSummonedRidingPetUID( 0 )
+#endif SERV_IRUHADEV_OFFLINE_ROOM_RIDING_PET
 			, m_bPetRestorePending( false )
 			, m_tNextJackpotAt( 0 )
 		{

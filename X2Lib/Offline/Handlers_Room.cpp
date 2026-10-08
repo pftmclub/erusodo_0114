@@ -190,6 +190,33 @@ void CX2OfflineServer::MakeRoomUserInfo( const KOfflineUnitRow& kRow, OUT KRoomU
 	kOut.m_bIsGuestUser		= false;
 	kOut.m_bIsPvpNpc		= false;
 
+#ifdef SERV_IRUHADEV_OFFLINE_ROOM_RIDING_PET
+	// The mount the character is riding. The real server put it into every room
+	// slot, and CX2Room::SlotData::SetOrClearRidingPetInfo (X2Room.cpp:2501) CLEARS
+	// the unit's riding pet info when the slot carries none - so without this a mount
+	// summoned in the village vanished on entering a dungeon while the manager still
+	// said "riding" and the skill / quick slot UI stayed in its mount state.
+	// The session that summoned it is found by the unit.
+	for( std::map< KSession*, KOfflineSession >::const_iterator it = m_mapSession.begin(); it != m_mapSession.end(); ++it )
+	{
+		if( it->second.m_nSelectedUnitUID != kRow.m_nUnitUID || 0 == it->second.m_nSummonedRidingPetUID )
+			continue;
+
+		std::vector< KOfflineRidingPetRow > vecRidingPet;
+		CX2OfflineDB::Instance()->LoadRidingPets( kRow.m_nUnitUID, vecRidingPet );
+		for( size_t i = 0; i < vecRidingPet.size(); ++i )
+		{
+			if( vecRidingPet[i].m_nRidingPetUID != (__int64)it->second.m_nSummonedRidingPetUID )
+				continue;
+
+			kOut.m_iRidingPetUID	= (UidType)vecRidingPet[i].m_nRidingPetUID;
+			kOut.m_usRidingPetID	= (USHORT)vecRidingPet[i].m_iRidingPetID;
+			break;
+		}
+		break;
+	}
+#endif SERV_IRUHADEV_OFFLINE_ROOM_RIDING_PET
+
 	// The worn title, and the reason it has to be here rather than only in
 	// KUnitInfo. CX2Unit::UnitData::SetKRoomUserInfo does
 	//     m_iTitleId = data.m_iTitleID;

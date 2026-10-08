@@ -2402,6 +2402,9 @@ bool CX2OfflineServer::Handler_EGS_SUMMON_RIDING_PET_REQ( KOfflineSession& kSes,
 
 		MakeRidingPetInfo( vecPet[i], kAck.m_kRidingPetInfo );
 		kAck.m_iOK = NetError::NET_OK;
+#ifdef SERV_IRUHADEV_OFFLINE_ROOM_RIDING_PET
+		kSes.m_nSummonedRidingPetUID = vecPet[i].m_nRidingPetUID;	///< MakeRoomUserInfo hands it to the dungeon
+#endif SERV_IRUHADEV_OFFLINE_ROOM_RIDING_PET
 		break;
 	}
 
@@ -2439,6 +2442,10 @@ bool CX2OfflineServer::Handler_EGS_UNSUMMON_RIDING_PET_REQ( KOfflineSession& kSe
 		pDB->SaveRidingPet( kSes.m_nSelectedUnitUID, vecPet[i] );
 
 		kAck.m_iOK = NetError::NET_OK;
+#ifdef SERV_IRUHADEV_OFFLINE_ROOM_RIDING_PET
+		if( kSes.m_nSummonedRidingPetUID == vecPet[i].m_nRidingPetUID )
+			kSes.m_nSummonedRidingPetUID = 0;
+#endif SERV_IRUHADEV_OFFLINE_ROOM_RIDING_PET
 		break;
 	}
 
@@ -2453,6 +2460,10 @@ bool CX2OfflineServer::Handler_EGS_RELEASE_RIDING_PET_REQ( KOfflineSession& kSes
 
 	KEGS_RELEASE_RIDING_PET_ACK kAck;
 	kAck.m_iRidingPetUID	= kReq.m_iRidingPetUID;
+#ifdef SERV_IRUHADEV_OFFLINE_ROOM_RIDING_PET
+	if( (__int64)kReq.m_iRidingPetUID == (__int64)kSes.m_nSummonedRidingPetUID )
+		kSes.m_nSummonedRidingPetUID = 0;
+#endif SERV_IRUHADEV_OFFLINE_ROOM_RIDING_PET
 	kAck.m_iOK				= true == CX2OfflineDB::Instance()->DeleteRidingPet(
 									kSes.m_nSelectedUnitUID, (__int64)kReq.m_iRidingPetUID )
 								? NetError::NET_OK

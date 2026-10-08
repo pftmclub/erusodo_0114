@@ -5856,3 +5856,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: offline emulator: a riding pet summoned in the village rides into the
+//              dungeon. The session remembers the summoned mount and
+//              MakeRoomUserInfo puts its UID / ID into the room slot, as the real
+//              server did. Without it CX2Room::SlotData::SetOrClearRidingPetInfo
+//              cleared the unit's mount on entering a dungeon while the manager
+//              still said "riding" (quick slot / skill UI stuck in mount state).
+//              Found in the C9h-3a play-test; not caused by it.
+#define SERV_IRUHADEV_OFFLINE_ROOM_RIDING_PET
+//////////////////////////////////////////////////////////////////////////
