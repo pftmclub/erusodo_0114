@@ -709,6 +709,46 @@ ACTION_ID16: files: 0 PASS, 0 PASS~, 0 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 
 **Play-test PASSED (user, 2026-10-08; logs checked 22:36-22:42 run, after deploy):** 0 EXCEPTION, UNHANDLED = 5x `E_DISABLE_HB_CHECK_REQ` (baseline), clean exit census; ErrorLog holds only the usual missing-particle noise. The eight checks in `kickoffs/june-effect/C3d-2.md` (states above 255, Chung guard list, Freils skills, Ara chain, every class, riding, a full
 clear). The save rows were re-read today: RapidT 42 slot 0 = 6218, NovaT 43 slot 0 = 6210, arasss 24 = 7001 **A**, 7200 **S**, 7214 **D**, 7010 **C**.
 
+### C3d-2 - Review (2026-10-08, Opus 5.5 high): correct against June and the site list; no code change, no build, no deploy
+
+**Hygiene.** `flagcheck JUNE_USER_STATE_ID16 --range 30efc54^..HEAD`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR` /
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+`JUNE_USER_ACTION_ID16`, same range: `0 PASS, 0 PASS~, 0 DEFINE, 4 OTHER, 0 FAIL, 0 ERROR` / same zeros / `RESULT: PASS`.
+OTHER = the two flags share `X2GUUser.h` / `X2UDPPacket.h`; `Always.h` holds both defines; `X2GameUnit.h` is STATE_ID16 only. No deleted line.
+
+**1. Sites, case by case** (`c3d1_state_id_sites.tsv`, commit `30efc54`). Rows 1-7, 10 and 16 match their "C3d-2 action". Row 1 is `stateID` USHORT.
+Row 2 is `map<USHORT, ...>`. Row 3 is `KProtectedType<USHORT>`; June's setter is `<short>`, but every June reader masks `& 0xffff`, so the value is the same.
+Row 4 is a signed `short` `nextState`. Row 5 is the two `(USHORT)` casts. Row 6 is `m_OldStateId`. Row 7 is `m_ucNowState` USHORT.
+Row 10 is `nowAction` and `m_ucNowAction` USHORT.
+Rows 8-9, 11-15 and 17-19 are untouched: the commit edits no `.cpp`. `_Serialize` / `_Deserialize` (`X2UDPPacket.cpp:3-20`) are `sizeof(T)` templates.
+`Enum.src.lua`: the C3d-2 delta against `march2014/data036/Enum.src.lua` is exactly the three `USI_BOUNDING_*` rows (`+83..85`) and `USI_END` `+86`, in June's relative order.
+**2. Completeness, re-run independently.** The scan compiled **committed HEAD** `43a1733`, not the working tree, because a peer had `X2GUUser.cpp/.h` dirty. It was an export with `cl` on a short F: path (VS2010 cannot open the long scratch paths).
+It ran flag-on `/Zs /w14244 /w14242` over the **127** X2Lib TUs that name a state-id expression, not the 14.
+- **Filter A:** every 16 -> 8-bit conversion. It found the three `IsAvaliableActionDuringDamageReact( UCHAR )` sites (24173 / 24702 / 41362), `X2GUNPC.cpp:7617`,
+  `X2StateServerSelect.cpp:10177` (gamepad map, unrelated), and one the Done note did not list: `X2GUUser.cpp:41426`. That is `GetActionSyncData`'s
+  `make_pair( iIndex, nowAction )` into `map<int, UCHAR>`, reported at `<utility>(163)`. It is inside row 10's decision (the action helpers stay 8-bit; ids < 32).
+  C3d-2's file:line diff could not see it, because `utility(163)` already warned in both passes for an unrelated `BONUS_TYPE` pair.
+- **Filter B:** every narrowing to `char`/`UCHAR`/`BYTE` from any type whose source line names a state id. This covers `GetNowStateID()`, which returns `int` and so warns as int -> char in both passes.
+  It found only NPC, pet and square/field-unit state ids (`X2GUNPC.cpp` 4789 / 5978 / 26539, `X2Pet.cpp`, `X2State.cpp`, `X2TFieldGame.cpp`), plus the intended `:7617`. **No user state id is narrowed implicitly.**
+- `X2StateArcadeResult.cpp` fails `/Zs`; it is not in `X2Lib_2010.vcxproj`, so it is dead.
+- **The 35-line shift (Done note's open question).** It does not reproduce. A flag-off pass of the same HEAD copy puts all 30 shared `X2GUUser.cpp` warnings at the same lines as flag-on.
+  The compiler does not shift lines with the header. The likeliest cause is `X2GUUser.cpp` changing between C3d-2's two passes (peers edit it, as one does today). The verdict is unaffected.
+**3. Readers the compiler cannot see** (grep over `X2Lib`):
+- Explicit byte casts: the C3d-1 rows 12 / 15, plus one the tsv missed, `X2StateDungeonGame.cpp:3952` (`char nowUserStateID = (char)GetNowStateID()`). It is dead:
+  `m_bShowSkilList` is only set under `OLD_COMBO_LIST_UI`, which the `cl /P` probe settles as undefined. The tsv's row 12 now names it.
+- None of the rest exists: no user-state Lua bind (only `CX2GUNPC::GetNowStateID` is bound), no state id in `Offline/` (its `GetNowStateID` hits are `g_pMain`'s X2 state), no `%c` print, no 256-array.
+- **The +3 shift** turns a signed-`char` reader's 125-127 into 128-130. That matters only for the dead casts above and the training literals (row 15), so nothing changes.
+- The `-1` sentinel cannot index `m_StateList[65535]`. The `nowState = nextState` copy (`X2GUUser.cpp:6604` at HEAD) runs only when `stateChangeNum` differs, both start at 0, and only `StateChange` bumps it after writing a real id.
+- **Layout parity.** `X2UDPPacket.cpp` is excluded from the build and compiled inside `X2Packet.cpp` after `stdafx.h`. `X2Packet.h` is reached at `X2Main.h:138`, after `KTDX.h` (`:7`), so no TU sees the narrow structs.
+**4. Lua.** `grep -ac USI_BOUNDING_DOWN` on the compiled `data036_kom/Enum.lua` = 1. `data036_packed.kom` md5 = game-dir `data036.kom` = `f7a27248...`; `kom.py status data036` reads `in sync`.
+The literal tables are untouched (`ESSI_COMBO_X1` / `AVSI_COMBO_X1` 60, `LESI_COMBO_X1` 70, `RSI_COMBO_X` 63).
+**5. June (Ghidra, read-only).**
+- `32034a77`: `MOV word [ESI+0x7de4],DI`, then `byte [+0x7de6] = 0xff`, i.e. a 16-bit `nextState` and `nextSubState = -1`.
+- `32d5be30`: bit `0x1` reads 2 bytes into `+4` and bit `0x2` reads 2 bytes into `+6`. Bit `0x4` reads 1 byte into `+8`, and bit `0x400000` reads 1 byte into `+9`, which is C3e's.
+- These are the same offsets as March's widened struct after the DWORD flag.
+
+**Finding:** none needing code. The tsv row 12 addition is documentation. The deployed exe is C9h-4e's `a0344cec`, built on top of C3d-2. It stays, and so does data036 `f7a27248`; no new play-test.
+
 ## C3d-3 - port: the bounding back-speed state
 
 **Status: blocked on C3d-2, C9h-4f and C3c. Model:** Sonnet 5.5, high, then an Opus review. Kickoff `kickoffs/june-effect/C3d-3.md`.
