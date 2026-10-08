@@ -7,19 +7,54 @@ Two record layouts exist under the same header version, told apart by stride:
                       June writer 325bcdc0, accessors 328670f0..32868060)
 Anything else is an error.
 
-  python tools/kim.py info   <kim>
-  python tools/kim.py dump   <kim> <id> [<id> ...]
+  python tools/kim.py info   [kim]
+  python tools/kim.py dump   [kim] <id> [<id> ...]
+  python tools/kim.py find   [kim] [--name TEXT] [--re RX] [--where FIELD<op>VALUE ...] [--ids LIST]
+                                   [--cols a,b,c] [--sort FIELD [--desc]] [--limit N] [--count|--tsv|--json]
+  python tools/kim.py set    [kim] <set_id ...> | <words from the set name>
+  python tools/kim.py census [kim] --field <name> [--top N]   (--list-fields)
+  python tools/kim.py assets [kim] --ids <file|list> | --all
   python tools/kim.py diff   <kimA> <kimB> --ids <file|list> | --common [N]
-  python tools/kim.py census <kim> --field <name> [--top N]   (--list-fields)
-  python tools/kim.py assets <kim> --ids <file|list> | --all
+  python tools/kim.py kims   (list the aliases below)
+
+<kim> is a path or an alias: staged (default: kom_contents data036_kom, June's since K2), june, march,
+march_patched. Fields are one namespace for find --where/--cols/--sort and census --field
+(census --list-fields). Enum fields take names (item_type=IT_WEAPON, unit_class=elesis_knight); a value
+with no sourced name prints as a number. Pool fields (special_ability_type, buff_factor,
+socket_option, ...) match if ANY element matches; != and !~ mean NO element matches.
 
 Stdlib only. Never writes anything.
 """
 import argparse
 import collections
+import hashlib
+import json
 import os
+import re
 import struct
 import sys
+
+# Named kims; any command taking a <kim> also takes one of these. Single-kim commands default to "staged".
+GAME_ROOT = "F:/elsword stuff/elsword_2014/els_2014/237311"
+KIM_ALIASES = collections.OrderedDict([
+    ("staged", ("24965799/kom_contents/data036_kom/item.kim",
+                "what /elstools pack puts into data036.kom (June's since K2)")),
+    ("june", ("14JUN17/data/data036_kom/item.kim", "June 2017 original")),
+    ("march", ("24965799/march_data/data036/item.kim", "March 2014 original")),
+    ("march_patched", ("24965799/march_data/data036/item.kim.march_patched",
+                       "March + buff Phase 13 patch (the pre-K2 staged kim)")),
+])
+
+
+def resolve_kim(spec):
+    if spec in KIM_ALIASES:
+        return GAME_ROOT + "/" + KIM_ALIASES[spec][0]
+    return spec
+
+
+def is_kim_spec(tok):
+    return tok in KIM_ALIASES or (os.path.isfile(tok) and not tok.isdigit())
+
 
 MAGIC = 0x204D494B  # 'KIM '
 VERSION = 0x1201
@@ -93,6 +128,126 @@ EXTRA_KEYS = {1: "Elsword", 2: "Aisha", 3: "Rena", 4: "Raven", 5: "Eve", 6: "Chu
 SLASH_KEYS = {0: "SLASH_TRACE", 1: "SLASH_TRACE_TIP", 2: "HYPER_SLASH_TRACE",
               3: "HYPER_SLASH_TRACE_TIP"}
 
+# ---------------------------------------------------------------- enum names
+# Labels only; values never get guessed. A value with no sourced name prints as its bare number.
+def _seq(names, start=0):
+    return {start + k: n for k, n in enumerate(names)}
+
+
+# X2Lib/X2Item_Preprocessing.inl. IT_CUSTOM = 14 and IG_LEGEND = 6 are behind
+# SERV_IRUHADEV_JUNE_ITEM_KIM / SERV_IRUHADEV_JUNE_ENCHANT_PARITY there (June values).
+ENUM_ITEM_TYPE = _seq(["IT_NONE", "IT_WEAPON", "IT_DEFENCE", "IT_ACCESSORY", "IT_SKILL", "IT_QICK_SLOT",
+                       "IT_MATERIAL", "IT_SPECIAL", "IT_QUEST", "IT_OUTLAY", "IT_ETC", "IT_SKILL_MEMO",
+                       "IT_PET", "IT_RIDING", "IT_CUSTOM"])
+ENUM_ITEM_GRADE = _seq(["IG_NONE", "IG_UNIQUE", "IG_ELITE", "IG_RARE", "IG_NORMAL", "IG_LOW", "IG_LEGEND"])
+ENUM_USE_TYPE = _seq(["UT_NONE", "UT_SKIN", "UT_ATTACH_ANIM", "UT_ATTACH_NORMAL"])
+ENUM_USE_CONDITION = _seq(["UC_NONE", "UC_ANYONE", "UC_ONE_UNIT", "UC_ONE_CLASS"])
+ENUM_PERIOD_TYPE = _seq(["PT_INFINITY", "PT_ENDURANCE", "PT_QUANTITY"])
+ENUM_SHOP_PRICE_TYPE = _seq(["SPT_NONE", "SPT_CASH", "SPT_GP"])
+# SAT 0..39 from the .inl; 41..52 June-only from june_item_kim/k1_enum_names.tsv. 40 has no source.
+ENUM_SAT = _seq(["SAT_NONE", "SAT_HP_UP", "SAT_MP_UP", "SAT_REMOVE_CURSE", "SAT_REMOVE_SLOW",
+                 "SAT_REMOVE_FIRE", "SAT_REMOVE_POISON", "SAT_RECIPE", "SAT_SUPPLEMENT_ITEM",
+                 "SAT_HYPER_MODE", "SAT_SOUL_GAGE_UP", "SAT_SHOW_OPPONENT_MP",
+                 "SAT_UP_MP_AT_ATTACK_OR_DAMAGE", "SAT_HP_PERCENT_UP", "SAT_TEAM_HP_UP", "SAT_TEAM_MP_UP",
+                 "SAT_PEPPER_RUN", "SAT_TRANSFORM_UNIT_SCALE", "SAT_SPECIAL_SKILL", "SAT_MP_PERCENT_UP",
+                 "SAT_POWER_RATE_UP", "SAT_MOVE_SPEED_UP", "SAT_JUMP_SPEED_UP", "SAT_MP_REGENERATION",
+                 "SAT_USE_HYPER", "SAT_PHYSIC_ATTACK_UP", "SAT_MAGIC_ATTACK_UP", "SAT_PHYSIC_DEFENCE_UP",
+                 "SAT_MAGIC_DEFENCE_UP", "SAT_SUPERARMOR", "SAT_SUMMON_SPIRIT", "SAT_REMOVE_FROZEN",
+                 "SAT_TRANSFORM_MONSTER", "SAT_WAY_OF_SWORD_GAUGE_UP", "SAT_SUMMON_MONSTER",
+                 "SAT_FORCE_CRITICAL_MAX", "SAT_ENABLE_ATTACK_MONSTER", "SAT_ARA_FORCE_POWER_PERCENT_UP",
+                 "SAT_RETURN_TO_BASE_AT_PVE", "SAT_RIDINGPET_STAMINA_PERCENT_UP"])
+ENUM_SAT.update(_seq(["SAT_ADD_DP_PERCENT_UP", "SAT_CURR_LEVEL_EXP_PERCENT_UP", "SAT_STEAL_AMUSEMENT_ITEM",
+                      "SAT_PVP_EQUIP_ENCHANT_LEVEL_7", "SAT_PVP_EQUIP_ENCHANT_LEVEL_8",
+                      "SAT_PVP_EQUIP_ENCHANT_LEVEL_9", "SAT_PVP_EQUIP_ENCHANT_LEVEL_10",
+                      "SAT_PVP_EQUIP_ENCHANT_LEVEL_11", "SAT_PVP_EQUIP_ENCHANT_LEVEL_12",
+                      "SAT_PVP_EQUIP_ENCHANT_LEVEL_13", "SAT_IMMEDIATELY_EXCHANGE_TO_ED",
+                      "SAT_ELIANODE_PIECE_EQUIP_TYPE"], 41))
+# X2Lib/X2Unit.h UNIT_TYPE 0..9. June 10..12 per accessor 32867660 (see EXTRA_KEYS): 10 Lu/Ciel, 11 Rose, 12 Ain.
+ENUM_UNIT_TYPE = _seq(["UT_NONE", "UT_ELSWORD", "UT_ARME", "UT_LIRE", "UT_RAVEN", "UT_EVE", "UT_CHUNG",
+                       "UT_ARA", "UT_ELESIS", "UT_ADD"])
+ENUM_UNIT_TYPE_JUNE = {10: "UT_LU_CIEL", 11: "UT_ROSE", 12: "UT_AIN"}
+# X2Lib/X2Unit_PreHeader.h EQIP_POSITION; 38 needs SERV_NEW_ONE_PIECE_AVATAR_SLOT, on for US (EP_END = 39,
+# JUNE_ITEM_KIM_PHASES.md K1). June 26/27 are EP_AC_MINIME/EP_AC_EARRING (K1), March's unused TEMP2/3.
+ENUM_EQIP = _seq(["EP_NONE", "EP_QUICK_SLOT", "EP_WEAPON_HAND", "EP_WEAPON_TEMP1", "EP_WEAPON_TEMP2",
+                  "EP_WEAPON_TEMP3", "EP_DEFENCE_HAIR", "EP_DEFENCE_FACE", "EP_DEFENCE_BODY", "EP_DEFENCE_LEG",
+                  "EP_DEFENCE_HAND", "EP_DEFENCE_FOOT", "EP_DEFENCE_TEMP1", "EP_DEFENCE_TEMP2",
+                  "EP_DEFENCE_TEMP3", "EP_AC_TITLE", "EP_AC_HAIR", "EP_AC_FACE1", "EP_AC_FACE2", "EP_AC_FACE3",
+                  "EP_AC_BODY", "EP_AC_LEG", "EP_AC_ARM", "EP_AC_RING", "EP_AC_NECKLESS", "EP_AC_WEAPON",
+                  "EP_AC_TEMP2", "EP_AC_TEMP3", "EP_AC_TEMP4", "EP_AC_TEMP5", "EP_SKILL_1", "EP_SKILL_2",
+                  "EP_SKILL_3", "EP_SKILL_TEMP1", "EP_SKILL_TEMP2", "EP_SKILL_TEMP3", "EP_RAVEN_LEFT_ARM",
+                  "EP_WEAPON_SECOND", "EP_ONEPIECE_FASHION"])
+ENUM_EQIP_JUNE = {26: "EP_AC_MINIME", 27: "EP_AC_EARRING"}
+
+
+def _unit_classes():
+    """CX2Unit::UNIT_CLASS 1..122 (March, resolved) from tools/createchar.py; June's 123+ stay numeric."""
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import createchar
+        return {k: "UC_" + v for k, v in createchar.CLASSES.items()}
+    except Exception:
+        return {}
+
+
+_ENUM_CACHE = {}
+
+
+def enum_table(field, era):
+    """name table for an enum-valued field in this era, or None."""
+    key = (field, era)
+    if key in _ENUM_CACHE:
+        return _ENUM_CACHE[key]
+    t = None
+    if field == "item_type":
+        t = ENUM_ITEM_TYPE
+    elif field == "item_grade":
+        t = ENUM_ITEM_GRADE
+    elif field == "use_type":
+        t = ENUM_USE_TYPE
+    elif field == "use_condition":
+        t = ENUM_USE_CONDITION
+    elif field == "period_type":
+        t = ENUM_PERIOD_TYPE
+    elif field == "shop_price_type":
+        t = ENUM_SHOP_PRICE_TYPE
+    elif field in ("special_ability_type", "special_abilities.type"):
+        t = ENUM_SAT
+    elif field == "unit_type":
+        t = dict(ENUM_UNIT_TYPE)
+        if era == "June":
+            t.update(ENUM_UNIT_TYPE_JUNE)
+    elif field == "unit_class":
+        t = dict(_unit_classes())
+        t[0] = "UC_NONE"
+    elif field == "eqip_position":
+        t = dict(ENUM_EQIP)
+        if era == "June":
+            t.update(ENUM_EQIP_JUNE)
+    _ENUM_CACHE[key] = t
+    return t
+
+
+def enum_label(field, value, era):
+    t = enum_table(field, era)
+    if t is None or not isinstance(value, int):
+        return None
+    return t.get(value)
+
+
+def enum_parse(field, text, era):
+    """'IT_WEAPON' / 'weapon' / '1' -> 1 for enum fields; None if the field has no table or no match."""
+    t = enum_table(field, era)
+    if t is None:
+        return None
+    want = text.strip().upper()
+    hits = [v for v, n in t.items() if n == want or n.split("_", 1)[-1] == want]
+    if len(hits) == 1:
+        return hits[0]
+    if len(hits) > 1:
+        raise SystemExit("%s=%s is ambiguous: %s" % (field, text, ", ".join(t[h] for h in hits)))
+    return None
+
+
 # March limits for census out-of-range reports (cited from the March source).
 MARCH_LIMITS = {
     "item_type": (0, 13, "IT_NUM = 14 (X2Item_Preprocessing.inl ITEM_TYPE)"),
@@ -112,6 +267,7 @@ MARCH_LIMITS = {
 # ---------------------------------------------------------------- reader
 class Kim:
     def __init__(self, path):
+        path = resolve_kim(path)
         self.path = path
         with open(path, "rb") as fh:
             self.b = fh.read()
@@ -125,6 +281,7 @@ class Kim:
         self.rec_ofs = HDR + 4 * self.n
         self.stride = self._detect_stride()
         self.L = LAYOUTS[self.stride]
+        self.kinds = {n: kind for n, _, kind in self.L["fields"]}
         self.setid_ofs = self.rec_ofs + self.stride * self.n
         self.setrec_ofs = self.setid_ofs + 4 * self.nsets
         self._index = None
@@ -174,17 +331,26 @@ class Kim:
         return None if k is None else self.rec_ofs + self.stride * k
 
     # -- record
+    def _rec_struct(self):
+        """One Struct for the whole record (fields in offset order, gaps padded); same values as
+        unpacking field by field, several times faster over a full-table scan."""
+        if "_struct" not in self.L:
+            fmt, pos, names = "<", 0, []
+            for name, off, kind in sorted(self.L["fields"], key=lambda f: f[1]):
+                fmt += "x" * (off - pos) + ("I" if kind in "sP" else kind)
+                pos = off + struct.calcsize("<" + ("I" if kind in "sP" else kind))
+                names.append(name)
+            order = [n for n, _, _ in self.L["fields"]]
+            self.L["_struct"] = (struct.Struct(fmt), [names.index(n) for n in order], order)
+        return self.L["_struct"]
+
     def raw(self, item_id):
         base = self.rec_base(item_id)
         if base is None:
             return None
-        r = collections.OrderedDict()
-        for name, off, kind in self.L["fields"]:
-            if kind in "sP":
-                r[name] = self.u32(base + off)
-            else:
-                r[name] = struct.unpack_from("<" + kind, self.b, base + off)[0]
-        return r
+        st, idx, order = self._rec_struct()
+        vals = st.unpack_from(self.b, base)
+        return collections.OrderedDict((n, vals[i]) for n, i in zip(order, idx))
 
     def record(self, item_id):
         r = self.raw(item_id)
@@ -381,15 +547,16 @@ def out(s=""):
 def cmd_info(a):
     k = Kim(a.kim)
     out("%s: %s layout, stride %d, %d items, %d sets, %d bytes" % (
-        a.kim, k.L["era"], k.stride, k.n, k.nsets, len(k.b)))
+        k.path, k.L["era"], k.stride, k.n, k.nsets, len(k.b)))
     ids = k.ids()
     if ids:
         out("ids %d .. %d" % (ids[0], ids[-1]))
+    out("md5 %s" % hashlib.md5(k.b).hexdigest())
 
 
 def cmd_dump(a):
     k = Kim(a.kim)
-    out("# %s: %s layout, stride %d" % (a.kim, k.L["era"], k.stride))
+    out("# %s: %s layout, stride %d" % (k.path, k.L["era"], k.stride))
     for item_id in a.ids:
         rec = k.record(item_id)
         if rec is None:
@@ -407,7 +574,8 @@ def cmd_dump(a):
             elif v in ("", 0, [], None) and not a.all and key not in ("id",):
                 continue
             else:
-                out("  %s = %s" % (key, v))
+                lab = enum_label(key, v, k.L["era"])
+                out("  %s = %s%s" % (key, v, "  (%s)" % lab if lab else ""))
         if rec.get("set_id"):
             s = k.set_record(rec["set_id"])
             out("  set -> %s" % (s if s else "set id %d not in the set table" % rec["set_id"]))
@@ -454,66 +622,94 @@ def cmd_diff(a):
         out("%-40s %7d / %d" % (key, mism[key], seen[key]))
 
 
+STAT_NAMES = {188: ["hp", "atk_physic", "atk_magic", "def_physic", "def_magic"],
+              228: ["hp", "atk_physic", "atk_magic", "slot3", "slot4", "def_physic", "def_magic"]}
+STAT_REL_NAMES = ["hp", "atk_physic", "atk_magic", "def_physic", "def_magic", "all_stat"]
+# Derived names that are aliases of a flag bit, per layout (see Kim.record).
+DERIVED_BITS = {
+    188: {"hide_set_desc": ("flags", 7), "pvp_item": ("flags2", 0)},
+    228: {"hide_set_desc": ("flags2", 1), "pvp_item": ("flags2", 0), "is_for_minor_unit": ("flags2", 2),
+          "pvp_equip": ("flags", 7)},
+}
+
+
+def field_values(k, r, field, decode_strings=True):
+    """Every value of `field` in raw record r, as a list (pool fields can hold several, or none).
+    The one field namespace shared by `census --field` and `find --where` / `--cols`."""
+    fl, fl2 = r["flags"], r["flags2"]
+    if field in r:
+        if decode_strings and k.kinds[field] == "s":
+            return [k.wstr(r[field])]
+        return [r[field]]
+    if field in dict(FLAG_NIBBLES):
+        return [(fl >> dict(FLAG_NIBBLES)[field]) & 0xF]
+    if field in dict(FLAG_BITS):
+        return [(fl >> dict(FLAG_BITS)[field]) & 1]
+    if field in DERIVED_BITS[k.stride]:
+        word, bit = DERIVED_BITS[k.stride][field]
+        return [((fl if word == "flags" else fl2) >> bit) & 1]
+    if field == "flags_bit7" or field == "hide_set_desc_flags_bit7":
+        return [(fl >> 7) & 1]
+    if field.startswith("flags2_bit"):
+        return [(fl2 >> int(field[10:])) & 1]
+    if field == "special_ability_type":
+        o = r["ofs_special_abilities"]
+        return [k.u32(o + 4 + 24 * j) for j in range(k.u32(o))] if o else []
+    if field in ("extra_key", "slash_key"):
+        o = r["ofs_extra"]
+        cnt = sum(r[c] for c in ("n_frame_offsets", "n_render_scales", "n_render_rotates",
+                                 "n_common_model", "n_common_xet"))
+        if not o:
+            return []
+        if field == "extra_key":
+            return [k.u32(o + 8 * j) for j in range(cnt)]
+        return [k.u32(o + 8 * (cnt + j)) for j in range(r["n_slash_traces"])]
+    if field.startswith("stat."):
+        o, names, sub = r["ofs_stat"], STAT_NAMES[k.stride], field[5:]
+        if sub not in names:
+            raise SystemExit("unknown field %r in the %s layout (use --list-fields)" % (field, k.L["era"]))
+        return [struct.unpack_from("<f", k.b, o + 4 * names.index(sub))[0]] if o else []
+    if field.startswith("stat_rel_lv."):
+        o, names, sub = r["ofs_stat_rel_lv"], STAT_REL_NAMES[:k.L["stat_rel"]], field[12:]
+        if sub not in names:
+            raise SystemExit("unknown field %r in the %s layout (use --list-fields)" % (field, k.L["era"]))
+        return [k.b[o + names.index(sub)]] if o else []
+    if field in ("n_buff_factors", "buff_factor"):
+        o = r["ofs_buff_factors"]
+        cnt = struct.unpack_from("<H", k.b, o)[0] if o else 0
+        if field == "n_buff_factors":
+            return [cnt]
+        return list(struct.unpack_from("<%dH" % cnt, k.b, o + 2)) if cnt else []
+    if field in ("socket_option", "random_socket_option"):
+        o = r["ofs_" + field + "s"]
+        return list(struct.unpack_from("<%di" % k.u32(o), k.b, o + 4)) if o else []
+    if field in ("attached_particle", "attached_mesh"):
+        o = r["ofs_" + field + "s"]
+        if not o:
+            return []
+        return [k.wstr(k.u32(o + 4 + 8 * j) & 0x7FFFFFFF) for j in range(k.u32(o))]
+    if field == "set_name":
+        s = k.set_record(r["set_id"]) if r["set_id"] else None
+        return [s["name"]] if s else []
+    raise SystemExit("unknown field %r (use --list-fields)" % field)
+
+
 def census_values(k, field):
     """Yield (id, value) for a census field, including derived and pool fields."""
     for item_id in k.ids():
-        r = k.raw(item_id)
-        fl, fl2 = r["flags"], r["flags2"]
-        if field in r:
-            yield item_id, r[field]
-        elif field in dict(FLAG_NIBBLES):
-            yield item_id, (fl >> dict(FLAG_NIBBLES)[field]) & 0xF
-        elif field in dict(FLAG_BITS):
-            yield item_id, (fl >> dict(FLAG_BITS)[field]) & 1
-        elif field == "flags_bit7" or field == "hide_set_desc_flags_bit7":
-            yield item_id, (fl >> 7) & 1
-        elif field.startswith("flags2_bit"):
-            yield item_id, (fl2 >> int(field[10:])) & 1
-        elif field == "special_ability_type":
-            o = r["ofs_special_abilities"]
-            if o:
-                for j in range(k.u32(o)):
-                    yield item_id, k.u32(o + 4 + 24 * j)
-        elif field in ("extra_key", "slash_key"):
-            o = r["ofs_extra"]
-            cnt = sum(r[c] for c in ("n_frame_offsets", "n_render_scales", "n_render_rotates",
-                                     "n_common_model", "n_common_xet"))
-            if not o:
-                continue
-            if field == "extra_key":
-                for j in range(cnt):
-                    yield item_id, k.u32(o + 8 * j)
-            else:
-                for j in range(r["n_slash_traces"]):
-                    yield item_id, k.u32(o + 8 * (cnt + j))
-        elif field.startswith("stat."):
-            o = r["ofs_stat"]
-            if o:
-                names = (["hp", "atk_physic", "atk_magic", "def_physic", "def_magic"]
-                         if k.stride == 188 else
-                         ["hp", "atk_physic", "atk_magic", "slot3", "slot4", "def_physic", "def_magic"])
-                sub = field[5:]
-                if sub in names:
-                    yield item_id, struct.unpack_from("<f", k.b, o + 4 * names.index(sub))[0]
-        elif field == "stat_rel_lv.all_stat":
-            o = r["ofs_stat_rel_lv"]
-            if o and k.stride == 228:
-                yield item_id, k.b[o + 5]
-        elif field == "n_buff_factors":
-            o = r["ofs_buff_factors"]
-            yield item_id, struct.unpack_from("<H", k.b, o)[0] if o else 0
-        else:
-            raise SystemExit("unknown field %r (use --list-fields)" % field)
+        for v in field_values(k, k.raw(item_id), field, decode_strings=True):
+            yield item_id, v
 
 
 def census_fields(k):
     names = [n for n, _, _ in k.L["fields"]]
     names += [n for n, _ in FLAG_BITS] + [n for n, _ in FLAG_NIBBLES]
+    names += sorted(DERIVED_BITS[k.stride])
     names += ["flags_bit7", "flags2_bit0", "flags2_bit1", "flags2_bit2", "flags2_bit3",
-              "special_ability_type", "extra_key", "slash_key", "n_buff_factors",
-              "stat.hp", "stat.atk_physic", "stat.atk_magic", "stat.def_physic", "stat.def_magic"]
-    if k.stride == 228:
-        names += ["stat.slot3", "stat.slot4", "stat_rel_lv.all_stat"]
+              "special_ability_type", "extra_key", "slash_key", "n_buff_factors", "buff_factor",
+              "socket_option", "random_socket_option", "attached_particle", "attached_mesh", "set_name"]
+    names += ["stat." + n for n in STAT_NAMES[k.stride]]
+    names += ["stat_rel_lv." + n for n in STAT_REL_NAMES[:k.L["stat_rel"]]]
     return names
 
 
@@ -533,7 +729,7 @@ def cmd_census(a):
         hist[v] += 1
         example.setdefault(v, item_id)
     out("# %s (%s, stride %d): field %s, %d values, %d distinct" % (
-        a.kim, k.L["era"], k.stride, a.field, sum(hist.values()), len(hist)))
+        k.path, k.L["era"], k.stride, a.field, sum(hist.values()), len(hist)))
     rows = sorted(hist.items(), key=lambda kv: (-kv[1], str(kv[0])))
     if not a.by_count:
         try:
@@ -584,6 +780,194 @@ def cmd_assets(a):
                 out("%d\t%s\t%s" % (item_id, kind, name))
 
 
+WHERE_RE = re.compile(r"^\s*([\w.]+)\s*(!=|!~|<=|>=|=|~|<|>)\s*(.*?)\s*$")
+DEFAULT_COLS = "id,name,item_type,item_grade,unit_class,eqip_position,use_level"
+
+
+def parse_where(k, expr):
+    m = WHERE_RE.match(expr)
+    if not m:
+        raise SystemExit("bad --where %r: want FIELD OP VALUE, OP one of = != < <= > >= ~ !~" % expr)
+    field, op, text = m.groups()
+    if field not in census_fields(k):
+        raise SystemExit("unknown field %r in the %s layout (kim.py census --list-fields)" % (field, k.L["era"]))
+    num = enum_parse(field, text, k.L["era"]) if op not in ("~", "!~") else None
+    if num is None:
+        try:
+            num = int(text, 0)
+        except ValueError:
+            try:
+                num = float(text)
+            except ValueError:
+                num = None
+    if num is None and enum_table(field, k.L["era"]) is not None and op not in ("~", "!~"):
+        raise SystemExit("%s=%s: not a number or a known %s name" % (field, text, field))
+    return field, op, text, num
+
+
+def _cmp(v, op, text, num):
+    if isinstance(v, str) or num is None or op in ("~", "!~"):
+        a, b = (v if isinstance(v, str) else str(v)).lower(), text.lower()
+        if op in ("~", "!~"):
+            return b in a
+        if op in ("=", "!="):
+            return a == b
+    else:
+        a, b = (round(v, 4) if isinstance(v, float) else v), num
+        if op in ("=", "!="):
+            return a == b
+    return {"<": a < b, "<=": a <= b, ">": a > b, ">=": a >= b}[op]
+
+
+def where_ok(vals, cond):
+    """Multi-valued fields match if ANY element matches; != and !~ mean NO element matches."""
+    field, op, text, num = cond
+    if op in ("!=", "!~"):
+        return not any(_cmp(v, op, text, num) for v in vals)
+    return any(_cmp(v, op, text, num) for v in vals)
+
+
+def fmt_cell(k, field, vals, raw=False, width=0):
+    parts = []
+    for v in vals:
+        lab = None if raw else enum_label(field, v, k.L["era"])
+        if lab:
+            parts.append(lab)
+        elif isinstance(v, float):
+            f = round(v, 4)
+            parts.append("%d" % f if f == int(f) else repr(f))
+        else:
+            parts.append(str(v).replace("\r", " ").replace("\n", " ").replace("\t", " "))
+    s = ",".join(parts)
+    if width and len(s) > width:
+        s = s[: width - 3] + "..."
+    return s
+
+
+def cmd_find(a):
+    k = Kim(a.kim)
+    conds = [parse_where(k, w) for w in a.where]
+    name_re = re.compile(a.re, re.I) if a.re else None
+    name_sub = a.name.lower() if a.name else None
+    cols = [c.strip() for c in a.cols.split(",") if c.strip()]
+    for c in cols:
+        if c not in census_fields(k):
+            raise SystemExit("unknown column %r in the %s layout (kim.py census --list-fields)" % (c, k.L["era"]))
+    ids = parse_ids(a.ids) if a.ids else k.ids()
+    hits, missing = [], []
+    for item_id in ids:
+        r = k.raw(item_id)
+        if r is None:
+            missing.append(item_id)
+            continue
+        if name_sub or name_re:
+            nm = k.wstr(r["name"])
+            if name_sub and name_sub not in nm.lower():
+                continue
+            if name_re and not name_re.search(nm):
+                continue
+        if all(where_ok(field_values(k, r, c[0]), c) for c in conds):
+            hits.append(item_id)
+    if a.count:
+        out(str(len(hits)))
+        return
+    if a.sort:
+        key, rev = (a.sort[1:], True) if a.sort.startswith("-") else (a.sort, a.desc)
+        if key not in census_fields(k):
+            raise SystemExit("unknown --sort field %r" % key)
+
+        def sk(i):
+            v = field_values(k, k.raw(i), key)
+            return (0, v[0]) if v else (1, 0)
+        hits.sort(key=sk, reverse=rev)
+    shown = hits if not a.limit else hits[: a.limit]
+    rows = [[field_values(k, k.raw(i), c) for c in cols] for i in shown]
+    if a.json:
+        doc = []
+        for row in rows:
+            d = collections.OrderedDict()
+            for c, vals in zip(cols, row):
+                d[c] = vals[0] if len(vals) == 1 else (None if not vals else vals)
+                labs = [enum_label(c, v, k.L["era"]) for v in vals]
+                if any(labs):
+                    d[c + "_name"] = labs[0] if len(labs) == 1 else labs
+            doc.append(d)
+        out(json.dumps(doc, ensure_ascii=False, indent=1))
+    elif a.tsv:
+        out("\t".join(cols))
+        for row in rows:
+            out("\t".join(fmt_cell(k, c, v, a.raw) for c, v in zip(cols, row)))
+    else:
+        cells = [[fmt_cell(k, c, v, a.raw, a.width) for c, v in zip(cols, row)] for row in rows]
+        w = [max([len(c)] + [len(r[j]) for r in cells]) for j, c in enumerate(cols)]
+        out("  ".join(c.ljust(w[j]) for j, c in enumerate(cols)).rstrip())
+        for r in cells:
+            out("  ".join(x.ljust(w[j]) for j, x in enumerate(r)).rstrip())
+    for i in missing:
+        sys.stderr.write("%d: not in this kim\n" % i)
+    summary = "# %d matched of %d scanned, showing %d%s (%s layout, %s)" % (
+        len(hits), len(ids), len(shown), "" if len(shown) == len(hits) else " (--limit 0 for all)",
+        k.L["era"], k.path)
+    if a.json or a.tsv:
+        sys.stderr.write(summary + "\n")  # keep stdout machine-readable
+    else:
+        out(summary)
+
+
+def cmd_set(a):
+    k = Kim(a.kim)
+    set_ids = list(struct.unpack_from("<%dI" % k.nsets, k.b, k.setid_ofs)) if k.nsets else []
+    want = [int(t) for t in a.query if t.isdigit()]
+    words = " ".join(t for t in a.query if not t.isdigit()).lower()
+    if words:
+        want += [s for s in set_ids if words in k.set_record(s)["name"].lower()]
+    if not want:
+        raise SystemExit("give set ids and/or words from a set name")
+    for n, sid in enumerate(want):
+        if a.limit and n >= a.limit:
+            out("... %d more sets (--limit 0 for all)" % (len(want) - n))
+            break
+        s = k.set_record(sid)
+        if s is None:
+            out("set %d: not in this kim" % sid)
+            continue
+        out("== set %d  %s  max_level=%d" % (sid, s["name"], s["max_level"]))
+        for parts, opt in s["need_parts_and_option"]:
+            out("  %d parts -> socket option %d" % (parts, opt))
+        for i in s["items"]:
+            r = k.raw(i)
+            if r is None:
+                out("  %d  (not in the item table)" % i)
+                continue
+            out("  %d  %s  [%s, %s]" % (i, k.wstr(r["name"]),
+                                       fmt_cell(k, "eqip_position", field_values(k, r, "eqip_position")),
+                                       fmt_cell(k, "unit_class", field_values(k, r, "unit_class"))))
+
+
+def cmd_kims(a):
+    for name, (rel, what) in KIM_ALIASES.items():
+        path = resolve_kim(name)
+        if not os.path.isfile(path):
+            out("%-14s MISSING  %s" % (name, path))
+            continue
+        k = Kim(path)
+        out("%-14s %-5s %6d items %5d sets  %s\n%14s %s" % (name, k.L["era"], k.n, k.nsets, what, "", path))
+
+
+SINGLE_KIM_CMDS = ("info", "dump", "census", "assets", "find", "set")
+
+
+def default_kim(argv):
+    """Let single-kim commands omit <kim>: insert 'staged' when the next token is not a kim."""
+    if argv and argv[0] in SINGLE_KIM_CMDS:
+        nxt = argv[1] if len(argv) > 1 else None
+        if nxt is None or not is_kim_spec(nxt):
+            if nxt and (nxt.lower().endswith(".kim") or "/" in nxt or "\\" in nxt):
+                raise SystemExit("%s: no such kim file (aliases: %s)" % (nxt, ", ".join(KIM_ALIASES)))
+            argv = [argv[0], "staged"] + argv[1:]
+    return argv
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd")
@@ -604,11 +988,31 @@ def main(argv=None):
     s = sub.add_parser("assets"); s.add_argument("kim")
     g = s.add_mutually_exclusive_group(required=True)
     g.add_argument("--ids"); g.add_argument("--all", action="store_true")
+    s = sub.add_parser("find"); s.add_argument("kim")
+    s.add_argument("--name", help="case-insensitive substring of the item name")
+    s.add_argument("--re", help="regex on the item name (case-insensitive)")
+    s.add_argument("--where", action="append", default=[], metavar="FIELD<op>VALUE",
+                   help="repeatable, all must hold; op = != < <= > >= ~ !~")
+    s.add_argument("--ids", help="only these ids: file (first column) or comma/space list")
+    s.add_argument("--cols", default=DEFAULT_COLS, help="columns (default %s)" % DEFAULT_COLS)
+    s.add_argument("--sort", help="sort by FIELD (--sort=-FIELD or --desc for descending)")
+    s.add_argument("--desc", action="store_true", help="with --sort: descending")
+    s.add_argument("--limit", type=int, default=50, help="max rows shown (0 = all; default 50)")
+    s.add_argument("--width", type=int, default=48, help="truncate table cells (0 = never)")
+    s.add_argument("--raw", action="store_true", help="numbers, no enum names")
+    g = s.add_mutually_exclusive_group()
+    g.add_argument("--count", action="store_true", help="print only the match count")
+    g.add_argument("--tsv", action="store_true")
+    g.add_argument("--json", action="store_true")
+    s = sub.add_parser("set"); s.add_argument("kim"); s.add_argument("query", nargs="+")
+    s.add_argument("--limit", type=int, default=20, help="max sets shown (0 = all)")
+    sub.add_parser("kims")
+    argv = default_kim(list(sys.argv[1:] if argv is None else argv))
     a = p.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     fn = {"info": cmd_info, "dump": cmd_dump, "diff": cmd_diff, "census": cmd_census,
-          "assets": cmd_assets}.get(a.cmd)
+          "assets": cmd_assets, "find": cmd_find, "set": cmd_set, "kims": cmd_kims}.get(a.cmd)
     if not fn:
         p.print_help()
         return 2
