@@ -729,7 +729,10 @@ It ran flag-on `/Zs /w14244 /w14242` over the **127** X2Lib TUs that name a stat
   `make_pair( iIndex, nowAction )` into `map<int, UCHAR>`, reported at `<utility>(163)`. It is inside row 10's decision (the action helpers stay 8-bit; ids < 32).
   C3d-2's file:line diff could not see it, because `utility(163)` already warned in both passes for an unrelated `BONUS_TYPE` pair.
 - **Filter B:** every narrowing to `char`/`UCHAR`/`BYTE` from any type whose source line names a state id. This covers `GetNowStateID()`, which returns `int` and so warns as int -> char in both passes.
-  It found only NPC, pet and square/field-unit state ids (`X2GUNPC.cpp` 4789 / 5978 / 26539, `X2Pet.cpp`, `X2State.cpp`, `X2TFieldGame.cpp`), plus the intended `:7617`. **No user state id is narrowed implicitly.**
+  It found only NPC, pet and square/field-unit state ids (`X2GUNPC.cpp` 4789 / 5978 / 26539, `X2Pet.cpp`, `X2State.cpp`, `X2TFieldGame.cpp`), plus the intended `:7617`.
+- **Filter C**, for narrowing through an intermediate variable. It reads all 127 to-8-bit warnings in `X2GUUser.cpp/.h`, `X2GameUnit.cpp` and the nine class `.cpp` by hand.
+  They are `lastTouchLineIndex`, `m_SPLevel`, `nextSubState`, crit type, counts, cannon balls and local directions, plus the three action sites. **No user state id is narrowed implicitly.**
+- C9h-4e's deployed exe `a0344cec` was built at `997287e`, a descendant of `30efc54`, so it does carry C3d-2.
 - `X2StateArcadeResult.cpp` fails `/Zs`; it is not in `X2Lib_2010.vcxproj`, so it is dead.
 - **The 35-line shift (Done note's open question).** It does not reproduce. A flag-off pass of the same HEAD copy puts all 30 shared `X2GUUser.cpp` warnings at the same lines as flag-on.
   The compiler does not shift lines with the header. The likeliest cause is `X2GUUser.cpp` changing between C3d-2's two passes (peers edit it, as one does today). The verdict is unaffected.
