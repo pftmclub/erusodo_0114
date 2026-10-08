@@ -162,6 +162,7 @@ The planning session writes `JUNE_ENGINE_REMAINDER_PHASES.md` (full kickoff belo
 - the 7 missing `RENDER_TYPE`s in `KTDGXRenderer`, plus `CUSTOM_RENDER_STATE`;
 - June's `.fx` set, adopted once the parameter and technique contract matches, with March's renderer brought to June wherever it does not;
 - any other June engine-side difference that the census finds in renderer or skin-mesh code March already has. The no-partial rule applies.
+- **`CX2World` world-event timeline** *(from june-effect C9h-7, 2026-10-08)*: June-only. `CX2World::OnFrameMove` `32802140` ticks `32801580` over three event tracks of the world `+0x34` object (0x58-byte -> `327fc8c0`, 0x38 -> `328004a0`, 0x3c -> `32800e10`: type 1 sound with the device auto-release, type 3 world `+0x18c/+0x190`, types 4..8 game / unit actions). Map the loader and the data first; reach in March data is unknown.
 
 **Measure** (findings only; these size Stages 5, 8 and 9):
 - **Models.** Per-character mesh, motion and texture diff between March (`24965799/kom_contents`) and June. Is there a new base model, new motions only, or nothing? See [[march-kom-contents-extract]] for the size rule.

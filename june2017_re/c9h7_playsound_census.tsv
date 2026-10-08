@@ -1,0 +1,243 @@
+site	func	arg4	name	handle	after
+31be47ac	31be4734	0		dropped	cmp dword ptr [ebp - 0x18], esi ; jb 0x31be47c2 ; mov eax, dword ptr [ebp - 0x2c] ; push eax
+31be490c	31be4894	0		dropped	cmp dword ptr [ebp - 0x18], esi ; jb 0x31be4922 ; mov eax, dword ptr [ebp - 0x2c] ; push eax
+31d7e42e	31d7d8c0	1		dropped	mov edi, dword ptr [esp + 0x44] ; mov edx, dword ptr [esp + 0x24] ; mov eax, dword ptr [esp + 0x28] ; mov dword ptr [edi], edx
+31d7ee8a	31d7ea40	1		dropped	mov edi, dword ptr [esp + 0x20] ; mov edx, dword ptr [esp + 0x18] ; mov eax, dword ptr [esp + 0x1c] ; mov dword ptr [edi], edx
+31d7f9d3	31d7efc0	1		dropped	mov edi, dword ptr [esp + 0x38] ; mov edx, dword ptr [esp + 0x2c] ; mov eax, dword ptr [esp + 0x30] ; mov dword ptr [edi], edx
+31ec1998	31ebb850	1		dropped	push 0x33459960 ; lea ecx, [esp + 0x37c] ; call 0x31aa1670 ; fld1 
+31ef7af6	31ef7ad0	1	Event_Dungeon_Attack_Alert.ogg	dropped	ret  ; int3  ; int3  ; int3 
+31f04885	31f04710	1	Portal.ogg	dropped	mov ecx, dword ptr [0x33775860] ; mov ecx, dword ptr [ecx + 0x32c] ; test ecx, ecx ; je 0x31f048a1
+31f06163	31f06000	1	Event_Dungeon_Defence_Failed.ogg	dropped	mov ecx, dword ptr [esp + 0xc] ; mov dword ptr fs:[0], ecx ; pop ecx ; pop esi
+31f5d224	31f5d1d0	1	Skill_Equip.ogg	dropped	mov ecx, dword ptr [esi + 0x10] ; mov edx, dword ptr [ebp + 0x10] ; lea edi, [ebp + 0x10] ; lea eax, [esi + 0x10]
+31f6edd2	31f6eca0	1		test	mov ebx, eax ; test ebx, ebx ; je 0x31f6ee13 ; cmp byte ptr [edi + ebp + 0x26], 0
+31fc52a3	31fc4fa0	1	Tuto_Ui_Notice01.ogg	dropped	mov eax, dword ptr [edi + 0xe4] ; push eax ; mov ecx, edi ; call 0x31fc46d0
+31fdb49c	31fdb390	1	CielVoice_Revival.ogg	dropped	cmp dword ptr [esp + 0x20], esi ; jb 0x31fdb4b4 ; mov edx, dword ptr [esp + 0xc] ; push edx
+31ff1729	31ff15d0	1	Lose.ogg	dropped	pop esi ; ret  ; push 0x33722a70 ; mov ecx, 0x33722a70
+31ff17af	31ff15d0	1	Lose.ogg	dropped	ret  ; int3  ; int3  ; int3 
+320147a2	32014660	1	Win.ogg	dropped	pop esi ; pop edi ; add esp, 8 ; ret 
+32063018	32061bf0	1	Dama.ogg	dropped	mov ecx, dword ptr [esi + 0xc04] ; fld dword ptr [0x334355b8] ; push ecx ; fstp dword ptr [esp]
+32172d23	32172790	1		dropped	mov ecx, dword ptr [edi] ; sub esp, 8 ; mov eax, esp ; mov dword ptr [eax], ecx
+321730fc	32172de0	1	Fire_Machine_Start.ogg	dropped	mov ecx, dword ptr [esp + 0x28] ; mov dword ptr fs:[0], ecx ; pop ecx ; pop edi
+3217a0ed	3217a060	1	Item_Pick_And_Drop.ogg	dropped	mov edx, dword ptr [esi] ; mov eax, dword ptr [edx + 0x40] ; mov ecx, esi ; call eax
+3218bc72	3218bb40	1	Item_Pick_And_Drop.ogg	dropped	mov ecx, dword ptr [esi + 0x164] ; pop ebp ; pop ebx ; test ecx, ecx
+321a2863	321a2750	1	Item_Pick_And_Drop.ogg	dropped	jmp 0x321a2936 ; push ebx ; sub esp, 0x1c ; mov ecx, esp
+321a2c23	321a29a0	1	Item_Pick_And_Drop.ogg	dropped	push 2 ; mov ecx, edi ; call 0x31fc9d90 ; test al, al
+321a2ceb	321a29a0	1	Item_Pick_And_Drop.ogg	dropped	mov eax, dword ptr [0x33775860] ; mov ecx, dword ptr [eax + 0x68] ; cmp ecx, ebp ; je 0x321a2d14
+321a3200	321a30d0	1	Item_Pick_And_Drop.ogg	dropped	mov ecx, dword ptr [0x33775860] ; mov eax, dword ptr [ecx + 0x68] ; cmp eax, edi ; je 0x321a3225
+321a921b	321a4fe9	1 (function bounds desync; push 1 at 321a9210)		dropped	
+321aa930	321aa5d0	1		dropped	mov edx, dword ptr [0x33775860] ; mov eax, dword ptr [edx + 0x33c] ; lea ecx, [esp + 0xc4] ; mov byte ptr [eax + 0x1a], 0
+321aaf88	321aa5d0	1	TreeDay_Event.ogg	dropped	jmp 0x321aaf91 ; fstp st(0) ; mov ecx, dword ptr [esi + 0x2c8] ; push 0
+3220ab49	3220a350	1	SkillTree_SkillUp.ogg	dropped	mov edx, dword ptr [esp + 0x28] ; push edx ; mov ecx, ebp ; call 0x328908f0
+3220ab76	3220a350	1	SkillTree_SkillMaster.ogg	dropped	lea ecx, [esp + 0x14] ; push ecx ; lea edx, [esp + 0x1c] ; push edx
+3220abe0	3220a350	1	SkillTree_SkillRootOpen.ogg	dropped	mov edx, dword ptr [esp + 0x40] ; mov eax, dword ptr [esp + 0x3c] ; mov ecx, dword ptr [0x33775860] ; mov ecx, dword ptr [ecx + 0x2ec]
+3220af74	3220ad40	1	SkillTree_SkillDown.ogg	dropped	mov edx, dword ptr [esp + 0x40] ; mov eax, dword ptr [esp + 0x3c] ; mov ecx, dword ptr [0x33775860] ; mov ebp, dword ptr [esp + 0x34]
+32211846	32210c70	1	SkillTree_SkillDown.ogg	dropped	mov eax, dword ptr [0x33775860] ; test eax, eax ; je 0x3221186f ; mov eax, dword ptr [eax + 0x68]
+322644ae	32264170	1	QuestNew.ogg	dropped	push 0x33486a5c ; mov ecx, esi ; call 0x31d41c90 ; mov ecx, eax
+322646be	32264170	1	PostLetterNew.ogg	dropped	push 0x33486a98 ; mov ecx, esi ; call 0x31d41c90 ; mov ecx, eax
+322d69bb	322d68f0	1	Common_Item_PetWhistle_Attack.ogg	dropped	mov ecx, dword ptr [esi + 0x1fc] ; push 0 ; push 1 ; push ecx
+322d69f4	322d68f0	1	Common_Item_PetWhistle_CheerUp.ogg	dropped	mov eax, dword ptr [esi + 0x1f4] ; push 0 ; push 1 ; push eax
+322d6b13	322d68f0	1 (eax: cmp eax, 1 / jne guards the push)	Common_Item_PetWhistle_Attack.ogg	dropped	mov eax, dword ptr [esi + 0x1fc] ; push 0 ; push 1 ; push eax
+322d6b4a	322d68f0	1	Common_Item_PetWhistle_CheerUp.ogg	dropped	mov edx, dword ptr [esi + 0x1f4] ; push 0 ; push 1 ; push edx
+322e1b84	322e07e0	1	Skill_Refresh.ogg	dropped	mov edx, dword ptr [edi] ; mov eax, dword ptr [edx + 0x98] ; mov ecx, edi ; call eax
+3239b415	3239b1d0	1	Anvil_Hit.ogg	dropped	mov ecx, dword ptr [esp + 0x24] ; mov dword ptr fs:[0], ecx ; pop ecx ; pop edi
+3239b5a8	3239b430	1	Anvil_GetItem.ogg	dropped	mov ecx, dword ptr [esp + 0xc] ; mov dword ptr fs:[0], ecx ; pop ecx ; pop edi
+3239eb14	3239e9a0	1	Job_Select.ogg	dropped	lea ecx, [esp + 0x10] ; mov dword ptr [esp + 0x58], 0xffffffff ; call 0x3239f920 ; mov al, 1
+3239ecfa	3239eb50	1	Job_Select.ogg	dropped	mov ecx, dword ptr [0x33775860] ; mov eax, dword ptr [ecx + 0x68] ; cmp dword ptr [eax + 0x90], ebx ; je 0x3239ed27
+323ac3c5	323ac300	1	Portal.ogg	dropped	mov ecx, dword ptr [esp + 0x10] ; pop esi ; xor ecx, esp ; mov al, 1
+323b543f	323b52d0	1	LevelUp.ogg	dropped	xor ecx, ecx ; push 0x1e ; mov word ptr [esp + 0x38], cx ; mov ebp, 7
+323c5aed	323c5310	1	DancingKing_Transformation01.ogg	dropped	mov ecx, dword ptr [esi + 0x14] ; call 0x32756320 ; mov ecx, dword ptr [esi + 0x14] ; mov edi, dword ptr [ecx]
+323c5e55	323c5310	1	Event_Boss_Dancing_Zombie_Wrong.ogg	dropped	mov ecx, dword ptr [esi + 0x10] ; push edi ; add ecx, 8 ; call 0x323c6db0
+323c5ec3	323c5310	1	Event_Boss_Dancing_Zombie_Step01.ogg	dropped	test ebx, ebx ; je 0x323c5f06 ; push 1 ; push 0x7f
+323c5eed	323c5310	1	Event_Boss_Dancing_Zombie_Step02.ogg	dropped	test ebx, ebx ; je 0x323c5f06 ; push 1 ; push 0x80
+323c5fef	323c5310	1	Event_Boss_Dancing_Zombie_Correct.ogg	dropped	mov ecx, dword ptr [esi + 0x10] ; push edi ; add ecx, 8 ; call 0x323c6db0
+323c60dd	323c5310	1	Event_Boss_Dancing_Zombie_Wrong.ogg	dropped	mov ecx, dword ptr [esi + 0x10] ; push edi ; add ecx, 8 ; call 0x323c6db0
+323cd6aa	323cd570	1		dropped	cmp dword ptr [esp + 0x1c], 8 ; mov dword ptr [esp + 0x4c], 0xffffffff ; jb 0x323cd6cb ; mov edx, dword ptr [esp + 8]
+323cd6f3	323cd570	1	UI_quickQuest_check.ogg	dropped	mov ecx, dword ptr [esp + 0x44] ; mov dword ptr fs:[0], ecx ; pop ecx ; pop ebx
+323d2ce2	323d2c60	1	QuestReward.ogg	dropped	mov al, byte ptr [esp + 0x4cc] ; mov byte ptr [edi + 0x179], al ; mov ecx, dword ptr [0x33775860] ; mov ecx, dword ptr [ecx + 0x4c]
+323e2ab5	323e1bf0	1	QuestReward.ogg	dropped	mov eax, dword ptr [esp + 0x28] ; mov ecx, dword ptr [esi + 0x750] ; push eax ; push ecx
+323e4de4	323e4cb0	1	QuestAccept.ogg	dropped	mov ecx, ebp ; call 0x323d4390 ; mov ecx, dword ptr [0x33775860] ; mov edx, dword ptr [edi]
+323f199f	323f17b0	1		test	test eax, eax ; je 0x323f19b4 ; lea ecx, [esi + 0x10] ; push ecx
+3240841f	32408240	1	Guild_Open.ogg	dropped	lea ecx, [esp + 0x7c] ; mov dword ptr [esp + 0x98], 2 ; call 0x31ecda30 ; lea ecx, [esp + 0x10]
+324135e4	32413040	1	Guild_Welcome.ogg	dropped	lea ecx, [esp + 0x20] ; mov dword ptr [esp + 0x198], 0xffffffff ; call 0x3241ab80 ; mov al, 1
+32432d61	32432cb0	1	Battle_Atena_Start.ogg	dropped	mov ecx, dword ptr [0x3377585c] ; cmp dword ptr [ecx + 0x6a0], edi ; lea esi, [ecx + 0x6a0] ; jne 0x32432d7f
+32434c56	32434a30	1	PartyLeave.ogg	dropped	mov ecx, dword ptr [esp + 0x1c] ; mov eax, dword ptr [0x33775860] ; mov eax, dword ptr [eax + 0x5c] ; mov edx, dword ptr [esp + 0x18]
+32435189	32434f60	1	Battle_Atena_Success.ogg	dropped	mov ecx, dword ptr [0x3377585c] ; cmp dword ptr [ecx + 0x6a0], ebx ; lea esi, [ecx + 0x6a0] ; jne 0x324351a7
+32437aa1	32437560	1	Battle_Atena_Fail.ogg	dropped	jmp 0x32437aad ; mov ebx, 8 ; cmp dword ptr [esp + 0x4c], ebx ; jb 0x32437ac0
+32439760	32438fa0	1	Battle_Atena_Start.ogg	dropped	push 1 ; mov ecx, esi ; call 0x32431750 ; lea ecx, [esp + 0x54]
+3243a303	32439c20	1	PartyJoin.ogg	dropped	mov eax, dword ptr [esp + 0x51c] ; mov ecx, dword ptr [eax] ; push eax ; push ecx
+3243acd5	3243a8f0	1	PartyInvited.ogg	dropped	cmp dword ptr [esp + 0xa0], 8 ; mov edx, dword ptr [esp + 0x8c] ; jae 0x3243acf2 ; lea edx, [esp + 0x8c]
+3243b84f	3243b060	1	Battle_Atena_Fail.ogg	dropped	cmp dword ptr [esp + 0x6c], 8 ; jb 0x3243b868 ; mov edx, dword ptr [esp + 0x58] ; push edx
+3243c503	3243c260	1	Battle_Atena_Fail.ogg	dropped	mov edx, dword ptr [0x3377585c] ; mov eax, dword ptr [edx + 0x90] ; cmp eax, edi ; je 0x3243c51f
+3243c57e	3243c260	1	Battle_Atena_Fail.ogg	dropped	mov ecx, dword ptr [0x3377585c] ; mov eax, dword ptr [ecx + 0x90] ; cmp eax, edi ; je 0x3243c95c
+3243c62a	3243c260	1	Battle_Atena_Fail.ogg	dropped	mov edx, dword ptr [0x3377585c] ; mov eax, dword ptr [edx + 0x90] ; cmp eax, edi ; je 0x3243c646
+3243d319	3243d1d0	1	Battle_Atena_Success.ogg	dropped	movsx ecx, byte ptr [esp + 0x15] ; movsx eax, byte ptr [esp + 0x14] ; push ecx ; mov ecx, dword ptr [esp + 0x14]
+3243d608	3243d1d0	1	Battle_Atena_Success.ogg	dropped	call 0x31c31060 ; mov edx, dword ptr [esp + 0x20] ; push edx ; sub esp, 0x1c
+3243e4e8	3243d840	1	Battle_Atena_Start.ogg	dropped	mov ecx, dword ptr [esp + 0x24] ; push 1 ; call 0x32431750 ; mov edx, dword ptr [esp + 0x488]
+3244c6af	3244c4b0	1	ES_FieldRaidBoss_Gate_Notice.ogg	dropped	jmp 0x3244c868 ; call 0x3269f140 ; mov ecx, eax ; call 0x3269e8f0
+3244c918	3244c8c0	0		local dword ptr [esp + 0x18]	lea ecx, [esp + 0x14] ; push ecx ; lea ecx, [esi + 0x34] ; mov dword ptr [esp + 0x18], eax
+32468ab4	324685c0	1	LevelUp.ogg	dropped	call 0x31c31060 ; cmp byte ptr [eax + 0x40], 0 ; je 0x32468b42 ; push 0x3342f1d0
+32486e07	32486c10	1		dropped	cmp dword ptr [esp + 0x24], esi ; jb 0x32486e1f ; mov eax, dword ptr [esp + 0x10] ; push eax
+324aebcb	324ae9b0	1	UI_2017ErdaIsland_WARN_01.ogg	dropped	fld dword ptr [esi + 0x1c] ; fstp dword ptr [esp + 0x18] ; fld dword ptr [esp + 0x18] ; fld1 
+324aed0f	324ae9b0	1	UI_2017ErdaIsland_WARN_01.ogg	dropped	pop edi ; pop ebp ; pop ebx ; pop esi
+324c18e2	324c1020	1	LevelUp.ogg	dropped	fld dword ptr [0x334380f0] ; mov eax, dword ptr [esp + 0x38] ; push 1 ; fstp dword ptr [eax + 0x2e0]
+324c190e	324c1020	1	LevelUpBGM.ogg	dropped	fldz  ; push -1 ; push 0 ; push ecx
+324c7f9e	324c7ce0	ebp=0	X2_Button_Mouse_Up.ogg	dropped	mov edx, dword ptr [0x33775860] ; mov ecx, dword ptr [edx + 0x2cc] ; cmp ecx, ebp ; je 0x324c7fc6
+324d0efa	324d08a0	1	Alarm_DialogueBox.ogg	dropped	lea ecx, [esp + 0x2c] ; mov dword ptr [esp + 0x70], 0xffffffff ; call 0x32414880 ; fldz 
+324d7e0f	324d7680	1	Alarm_DialogueBox.ogg	dropped	jmp 0x324d7ee8 ; fld1  ; push 1 ; fst dword ptr [esp + 0x18]
+324ea021	324e9560	1	Difficulty_Open.ogg	dropped	cmp bl, 1 ; jne 0x324ea07c ; cmp dword ptr [esp + 0x14c], 0 ; je 0x324ea07c
+324f07a4	324f0750	1	Portal.ogg	dropped	mov ecx, dword ptr [0x33775860] ; mov ecx, dword ptr [ecx + 0x32c] ; test ecx, ecx ; je 0x324f07c0
+324f10d2	324f0e00	1	Portal.ogg	dropped	mov eax, dword ptr [0x33775860] ; mov ecx, dword ptr [eax + 0x32c] ; test ecx, ecx ; je 0x324f10ed
+3250a9d1	3250a800	1	Portal.ogg	dropped	pop esi ; mov al, 1 ; pop ebx ; mov ecx, dword ptr [esp + 0x14]
+3251029b	3250f680	ebp=0	Count.ogg	dropped	jmp 0x325138b2 ; cmp byte ptr [ebx + 0x3a3], 0 ; je 0x325102b3 ; fild dword ptr [edi + 0x10]
+3251094c	3250f680	ebp (unresolved; handle dropped)	ResultStamp.ogg	dropped	mov eax, dword ptr [edi + 0x7c] ; dec eax ; cmp eax, 7 ; ja 0x32510bd3
+325123a6	3250f680	1	LevelUp.ogg	dropped	fld dword ptr [0x334380f0] ; push 0 ; fstp dword ptr [ebx + 0x2e0] ; mov ecx, dword ptr [0x337676e8]
+325123ce	3250f680	0	LevelUpBGM.ogg	dropped	fldz  ; push -1 ; push 0 ; push ecx
+325130c5	3250f680	ebp (unresolved; handle dropped)	Count.ogg	dropped	fild dword ptr [esp + 0x54] ; fstp dword ptr [esp + 0x14] ; fld dword ptr [ebx + 0x358] ; fld dword ptr [esp + 0x14]
+325131b2	3250f680	ebp (unresolved; handle dropped)	Count.ogg	dropped	fld dword ptr [ebx + 0x358] ; fld dword ptr [ebx + 0x3a4] ; fcompp  ; fnstsw ax
+32550b8d	32550aa0	1		dropped	cmp dword ptr [esp + 0x20], esi ; jb 0x32550ba5 ; mov edx, dword ptr [esp + 0xc] ; push edx
+32552d68	32552860	ebx=0	ElswordVoice_Introduce.ogg	STORE dword ptr [esi + 0x718]	mov dword ptr [esi + 0x718], eax ; mov ecx, dword ptr [esp + 0x38] ; mov dword ptr fs:[0], ecx ; pop ecx
+325532f8	32552da0	ebx=0	AishaVoice_Introduce.ogg	STORE dword ptr [esi + 0x718]	mov dword ptr [esi + 0x718], eax ; mov ecx, dword ptr [esp + 0x38] ; mov dword ptr fs:[0], ecx ; pop ecx
+32553888	32553330	ebx=0	RenaVoice_Introduce.ogg	STORE dword ptr [esi + 0x718]	mov dword ptr [esi + 0x718], eax ; mov ecx, dword ptr [esp + 0x38] ; mov dword ptr fs:[0], ecx ; pop ecx
+32553dd8	325538c0	ebx=0	RavenVoice_Introduce.ogg	STORE dword ptr [esi + 0x718]	mov dword ptr [esi + 0x718], eax ; mov ecx, dword ptr [esp + 0x38] ; mov dword ptr fs:[0], ecx ; pop ecx
+32554321	32553e10	ebx=0	EveVoice_Introduce.ogg	STORE dword ptr [esi + 0x718]	mov dword ptr [esi + 0x718], eax ; mov ecx, dword ptr [esp + 0x38] ; mov dword ptr fs:[0], ecx ; pop ecx
+32554868	32554350	ebx=0	ChungVoice_Introduce.ogg	STORE dword ptr [esi + 0x718]	mov dword ptr [esi + 0x718], eax ; mov ecx, dword ptr [esp + 0x38] ; mov dword ptr fs:[0], ecx ; pop ecx
+32554db2	325548a0	ebx=0	AraVoice_Introduce.ogg	STORE dword ptr [esi + 0x718]	mov dword ptr [esi + 0x718], eax ; mov ecx, dword ptr [esp + 0x38] ; mov dword ptr fs:[0], ecx ; pop ecx
+325552ef	32554de0	ebx=0	ElesisVoice_Introduce.ogg	STORE dword ptr [esi + 0x718]	mov dword ptr [esi + 0x718], eax ; mov ecx, dword ptr [esp + 0x38] ; mov dword ptr fs:[0], ecx ; pop ecx
+325559c0	32555320	ebx=0	AddVoice_Introduce.ogg	STORE dword ptr [esi + 0x718]	mov dword ptr [esi + 0x718], eax ; mov ecx, dword ptr [esp + 0x3c] ; mov dword ptr fs:[0], ecx ; pop ecx
+3255611d	325559f0	ebp=0	LucielVoice_Introduce.ogg	STORE dword ptr [esi + 0x718]	mov dword ptr [esi + 0x718], eax ; mov ecx, dword ptr [esp + 0x3c] ; mov dword ptr fs:[0], ecx ; pop ecx
+3255682f	32556150	ebp=0	RoseVoice_Introduce.ogg	STORE dword ptr [esi + 0x718]	mov dword ptr [esi + 0x718], eax ; mov ecx, dword ptr [esp + 0x3c] ; mov dword ptr fs:[0], ecx ; pop ecx
+32556f33	32556860	ebx=0	AinVoice_Introduce.ogg	STORE dword ptr [esi + 0x718]	mov dword ptr [esi + 0x718], eax ; mov ecx, dword ptr [esp + 0x3c] ; mov dword ptr fs:[0], ecx ; pop ecx
+3255f368	3255f240	ebx=0		STORE dword ptr [esi + 0x490]	mov dword ptr [esi + 0x490], eax ; cmp dword ptr [esp + 0x28], edi ; jb 0x3255f386 ; mov edx, dword ptr [esp + 0x14]
+325aec47	325aec00	1		dropped	pop esi ; ret  ; int3  ; int3 
+325c637e	325c6303	1		dropped	mov ecx, dword ptr [ebp - 0x30] ; lea eax, [ebp - 0x2c] ; push eax ; add ecx, 0x50
+325c9c51	325c9c00	1		test	test eax, eax ; je 0x325c9c69 ; push -1 ; push 0
+325ca82c	325ca2b0	1	Camera_ZoomOut.ogg	dropped	mov edx, dword ptr [0x33775860] ; mov ecx, dword ptr [edx + 0x2cc] ; push ebx ; push ebx
+325cd767	325ccf60	1	Camera_ZoomIn.ogg	dropped	mov edx, dword ptr [esi + 0x24c] ; mov eax, dword ptr [0x33775860] ; mov ecx, dword ptr [eax + 0x2cc] ; push edx
+325d0d56	325cdfa0	0		STORE dword ptr [esi + 0x4b0]	mov dword ptr [esi + 0x4b0], eax ; test eax, eax ; je 0x325d0daa ; mov ecx, dword ptr [esi + 0x5b8]
+325ff440	325ff3a0	1	Achievement_List_Renew.ogg	dropped	mov dword ptr [esp + 0x28], 0xffffffff ; cmp dword ptr [esp + 0x10], edi ; je 0x325ff46a ; lea ecx, [esp + 0x10]
+32602b55	32602a10	1	Achievement_Mouse_Right_Click.ogg	dropped	mov al, 1 ; pop esi ; ret 0x10 ; call 0x326012f0
+32664667	326645ef	1		dropped	cmp dword ptr [ebp - 0x18], esi ; jb 0x3266467d ; mov eax, dword ptr [ebp - 0x2c] ; push eax
+32674229	32673cb0	1	Job_LevelUp.ogg	dropped	lea ecx, [esp + 0xa0] ; call 0x32414880 ; lea ecx, [esp + 0x4c] ; mov dword ptr [esp + 0x100], 0xffffffff
+326ba191	326ba0c0	0		local dword ptr [esp + 0xc]	mov dword ptr [esp + 0xc], eax ; test eax, eax ; je 0x326ba1dd ; fldz 
+326ba1d8	326ba0c0	1		dropped	mov edx, dword ptr [esp + 0x18] ; mov eax, dword ptr [esi + 0x34] ; mov ecx, dword ptr [esi + 0x38] ; push edx
+326c5c9c	326c5c50	1	TreasureChest_Appear.ogg	dropped	mov byte ptr [edi + 0x69], 0 ; pop edi ; pop esi ; ret 
+32714a83	32713c10	1		dropped	mov ecx, dword ptr [0x33775860] ; call 0x31edefe0 ; mov ecx, dword ptr [esp + 0x20] ; mov dword ptr [ecx + 0x14], eax
+327ce62e	327cdf70	1	Boss_Finish.ogg	dropped	fldz  ; push 0 ; push ecx ; fst dword ptr [esp + 0x38]
+327ce988	327cdf70	1	Boss_Finish.ogg	dropped	mov ecx, esi ; call 0x322ceab0 ; fldz  ; push -1
+327d2ff8	327d2aa0	1	Bestera_RankUp_01.ogg	dropped	mov dword ptr [ebp + 0xe0c], ebx ; mov ecx, dword ptr [esp + 0xf8] ; mov dword ptr fs:[0], ecx ; pop ecx
+327f4413	327f4210	0	Go.ogg	dropped	pop esi ; ret 4 ; int3  ; int3 
+3283be44	3283bc20	1	Post_ItemDrop.ogg	dropped	mov ecx, dword ptr [esp + 0x48] ; pop edi ; pop esi ; pop ebp
+3283d51e	3283d4c0	1	Post_ItemDrop.ogg	dropped	push 0x334bdfe0 ; lea ecx, [esi + 0x144] ; call 0x31d41c90 ; mov ecx, eax
+32840f92	328408b0	1	Post_ItemDrop.ogg	dropped	mov ecx, ebp ; call 0x3283ce80 ; push 0x334bdfe0 ; lea ecx, [ebp + 0x144]
+32841d0b	328410b0	1	Post_ItemDrop.ogg	dropped	mov ecx, esi ; call 0x3283ce80 ; push 0x334bdfe0 ; lea ecx, [esi + 0x144]
+3284ab57	3284aad0	1	Post_ItemDrop.ogg	dropped	push 0x334bdfe0 ; lea ecx, [esi + 0x144] ; call 0x31d41c90 ; mov ecx, eax
+32874f9e	32874f10	1	Item_Pick_And_Drop.ogg	dropped	mov edx, dword ptr [ebp] ; mov eax, dword ptr [edx + 0x40] ; mov ecx, ebp ; call eax
+3289d147	3289d090	1	Go.ogg	dropped	pop esi ; pop ecx ; ret  ; int3 
+3289e2f7	3289e270	1	Tuto_Ui_Jump01.ogg	dropped	mov edi, dword ptr [esi + 0xc] ; test edi, edi ; je 0x3289e31f ; mov ecx, edi
+3289fc27	3289fb30	1	Event_Dungeon_Hit_Alert.ogg	dropped	jmp 0x3289fcc6 ; push 0x334c1248 ; lea ecx, [esi + 0x80] ; call 0x31d15c10
+328bda8d	328bd560	1	Boss_Finish.ogg	dropped	fldz  ; push 0 ; push ecx ; fst dword ptr [esp + 0x28]
+328bdde7	328bd560	1	Boss_Finish.ogg	dropped	mov ecx, edi ; call 0x322ceab0 ; fldz  ; push -1
+328bfd70	328bfc40	1	UI_2017ErdaIsland_NOTIFY_01.ogg	dropped	or ebp, 0xffffffff ; push ebx ; cmp dword ptr [esi + 0xedc], ebp ; je 0x328bfdd6
+328c3450	328c3400	1		test	test eax, eax ; je 0x328c348c ; push esi ; lea ecx, [esp + 0x10]
+328d13a4	328d10b0	1	Lose.ogg	dropped	mov byte ptr [esp + 0x17], 0 ; jmp 0x328d1832 ; call 0x31c31060 ; mov al, byte ptr [eax + 0x40]
+328d1538	328d10b0	1	Win.ogg	dropped	mov byte ptr [esp + 0x17], 1 ; jmp 0x328d1832 ; call 0x31c31060 ; mov al, byte ptr [eax + 0x40]
+328d9d30	328d9cf0	1	Skill_UnEquip.ogg	dropped	cmp byte ptr [esi + 0x14], 0 ; mov eax, dword ptr [esi + 0x10] ; je 0x328d9d41 ; add eax, 5
+328d9f0c	328d9ea0	1	Skill_Equip.ogg	dropped	test esi, esi ; je 0x328d9f33 ; cmp byte ptr [esi + 0x14], 0 ; mov esi, dword ptr [esi + 0x10]
+328d9f52	328d9ea0	1	Skill_Equip.ogg	dropped	cmp byte ptr [esi + 0x14], 0 ; mov eax, dword ptr [esi + 0x10] ; je 0x328d9f63 ; add eax, 5
+328dbb95	328db990	1	Skill_Equip.ogg	dropped	mov edx, dword ptr [0x33775860] ; mov eax, dword ptr [esi] ; mov ecx, dword ptr [edx + 0x50] ; mov edx, dword ptr [esp + 0x38]
+328dbbe2	328db990	1	Skill_Equip.ogg	dropped	mov eax, dword ptr [0x33775860] ; mov edx, dword ptr [esi] ; mov ecx, dword ptr [eax + 0x50] ; mov eax, dword ptr [esp + 0x18]
+328e6855	328e6550	1	Skill_Equip.ogg	dropped	mov eax, dword ptr [esi + 0xc] ; mov ecx, dword ptr [0x33775860] ; mov ecx, dword ptr [ecx + 0x50] ; push eax
+328e68cb	328e6550	1	Skill_Equip.ogg	dropped	mov ecx, dword ptr [esi + 0xc] ; push ecx ; add ebp, 5 ; push ebp
+328e6908	328e6550	1	Skill_Equip.ogg	dropped	mov ecx, dword ptr [esi + 0xc] ; push ecx ; push 9 ; mov edx, dword ptr [0x33775860]
+328fbc31	328fb930	1	Item_Pick_And_Drop.ogg	dropped	mov edx, dword ptr [esi] ; mov eax, dword ptr [edx + 0x40] ; mov ecx, esi ; call eax
+32918bdb	32918410	1	Item_Pick_And_Drop.ogg	dropped	mov edx, dword ptr [esi] ; mov eax, dword ptr [edx + 0x40] ; mov ecx, esi ; call eax
+3291d9e1	3291d830	1	Item_Pick_And_Drop.ogg	dropped	pop edi ; mov al, 1 ; pop esi ; add esp, 0x18
+329212b4	32921070	1	Item_Pick_And_Drop.ogg	dropped	pop ebx ; pop esi ; pop edi ; mov al, 1
+3292dd7d	3292dcb0	1	TechNote_FlipBook.ogg	dropped	mov eax, dword ptr [0x33775860] ; mov eax, dword ptr [eax + 0x68] ; mov ecx, dword ptr [eax + 0x90] ; push ebx
+329306ae	32930500	1	TechNote_CompleteWriting.ogg	dropped	mov ecx, dword ptr [esp + 0xec] ; mov dword ptr fs:[0], ecx ; pop ecx ; pop edi
+3293bfcf	3293b5e0	0	NewStage_Open.ogg	dropped	mov esi, dword ptr [esp + 0x40] ; inc esi ; lea ecx, [esp + 0x20] ; mov dword ptr [esp + 0x40], esi
+3294056d	32940390	1	Item_Pick_And_Drop.ogg	dropped	pop ebp ; pop ebx ; pop edi ; mov al, 1
+3294365e	329435b0	1	Item_Pick_And_Drop.ogg	dropped	mov edx, dword ptr [esi] ; mov eax, dword ptr [edx + 0x40] ; mov ecx, esi ; call eax
+3294f570	3294f290	1	Item_Pick_And_Drop.ogg	dropped	mov edx, dword ptr [esi] ; mov eax, dword ptr [edx + 0x40] ; mov ecx, esi ; call eax
+32951dc7	32951d10	1	UseItem.ogg	dropped	mov ecx, dword ptr [0x33775860] ; mov eax, dword ptr [ecx + 0x68] ; mov ecx, dword ptr [eax + 0x90] ; push esi
+32952035	32951f70	1	UseItem.ogg	dropped	movsx ecx, word ptr [esp + 0x41] ; mov eax, dword ptr [0x33775860] ; mov eax, dword ptr [eax + 0x68] ; movsx edx, byte ptr [esp + 0x40]
+32952a09	32952930	0	UseItem.ogg	dropped	mov ecx, dword ptr [0x33775860] ; mov eax, dword ptr [ecx + 0x68] ; mov edi, dword ptr [eax + 0x90] ; movsx edx, word ptr [esp + 0x45]
+329b6966	329b6810	1	Eve_MEB_Condense_power.ogg	dropped	jmp 0x329b72cb ; lea ecx, [esi + 0x9778] ; mov word ptr [esi + 0x9784], bp ; call 0x3298d8d0
+329b704b	329b6810	1	Eve_MEB_Condense_power.ogg	dropped	mov eax, dword ptr [ebx + 8] ; fld1  ; lea edx, [esp + 0x18] ; fstp dword ptr [esp + 0x18]
+329b7223	329b6810	1	Eve_MEB_Condense_power.ogg	dropped	jmp 0x329b72cb ; lea ecx, [esi + 0x9aa0] ; mov word ptr [ecx + 0xc], bp ; call 0x329978d0
+329c7957	329c5bc0	1	Eve_MEB_FullCharge.ogg	dropped	jmp 0x329c7972 ; lea eax, [ebp + 0x7d14] ; push eax ; push 0
+329c885c	329c5bc0	1	Eve_MEB_FullCharge.ogg	dropped	jmp 0x329c8877 ; lea eax, [ebp + 0x7d14] ; push eax ; push 0
+329e26a4	329e2660	1		STORE dword ptr [esi + 0x9608]	mov dword ptr [esi + 0x9608], eax ; pop esi ; ret 0xc ; int3 
+329e482e	329e47e0	1	Add_Effect05.ogg	STORE dword ptr [esi + 0x9608]	mov dword ptr [esi + 0x9608], eax ; pop esi ; ret  ; int3 
+329e491e	329e48d0	1	Add_Effect10.ogg	STORE dword ptr [esi + 0x9608]	mov dword ptr [esi + 0x9608], eax ; pop esi ; ret  ; int3 
+329e4974	329e4930	1	ADD_Panzer_AIM01.ogg	STORE dword ptr [esi + 0x9608]	mov dword ptr [esi + 0x9608], eax ; mov eax, dword ptr [esi] ; mov edx, dword ptr [eax + 0x7c0] ; mov ecx, esi
+329e49d4	329e4990	1	ADD_Panzer_AIM01.ogg	STORE dword ptr [esi + 0x9608]	mov dword ptr [esi + 0x9608], eax ; mov eax, dword ptr [esi] ; mov edx, dword ptr [eax + 0x7c0] ; mov ecx, esi
+329e4a3e	329e49f0	1	ADD_PULSE_BULLET_CHARGE_01.ogg	STORE dword ptr [esi + 0x9608]	mov dword ptr [esi + 0x9608], eax ; pop esi ; ret  ; int3 
+329f1da6	329f1970	1	Add_Reverse_Reactor_Connect.ogg	dropped	mov ecx, 0x3372c0fc ; call 0x31aada50 ; mov edx, dword ptr [eax] ; mov ecx, eax
+329f7fb3	329f7d10	1	Add_Reverse_Reactor_ConnectCancel.ogg	dropped	ret  ; int3  ; int3  ; int3 
+32a27ad5	32a27900	1	ADD_ATT_DroneStart01.ogg	dropped	cmp dword ptr [esi + 0x96c0], edi ; ja 0x32a27af0 ; test bl, bl ; jne 0x32a27af0
+32a2876f	32a28350	1	Eve_MEB_Condense_power.ogg	dropped	jmp 0x32a287d8 ; lea ecx, [esi + 0x9ad8] ; mov word ptr [ecx + 0xc], 0 ; call 0x329fe190
+32a80224	32a801e0	1		STORE dword ptr [esi + 0x96f4]	mov dword ptr [esi + 0x96f4], eax ; pop esi ; ret 0xc ; int3 
+32ab8ad9	32ab8890	1	Rose_HB_Flamethrower_Fire.ogg	STORE dword ptr [esi + 0x96f4]	mov dword ptr [esi + 0x96f4], eax ; mov dword ptr [esp + 0x70], 0xffffffff ; cmp dword ptr [esp + 0x14], ebx ; je 0x32ab8b09
+32aba71a	32aba550	1	Rose_SR_PamperoBooster_Fire.ogg	STORE dword ptr [esi + 0x96f4]	mov dword ptr [esi + 0x96f4], eax ; mov edx, dword ptr [esp + 0x10] ; mov dword ptr [esi + 0x98d0], edx ; mov dword ptr [esp + 0x70], 0xffffffff
+32d52f81	32d52b60	1	ES_FieldRaidBoss_Gate_Open.ogg	dropped	mov ecx, dword ptr [esp + 0x130] ; pop edi ; pop esi ; pop ebp
+32d58fc5	32d58e90	1		dropped	mov eax, 0x66666667 ; imul edi ; sar edx, 2 ; mov ecx, edx
+32d943cd	32d941a0	1	ItemUpgrade_Success.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x18], eax
+32d94419	32d941a0	1 (fork: push 1 at 32d943c2 precedes the jcc)	ItemUpgrade_NoChange.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x18], eax
+32d97275	32d97050	1	Item_Pick_And_Drop.ogg	dropped	mov edx, dword ptr [0x33775860] ; mov ecx, dword ptr [ebp + 0x84] ; mov edx, dword ptr [edx + 0x68] ; mov eax, dword ptr [ebp + 0x80]
+32d97cb2	32d97c20	1	Item_Pick_And_Drop.ogg	dropped	mov edx, dword ptr [0x33775860] ; mov ecx, dword ptr [ebp + 0x84] ; mov edx, dword ptr [edx + 0x68] ; mov eax, dword ptr [ebp + 0x80]
+32dbb5fc	32dbb5c0	1	Item_Pick_And_Drop.ogg	dropped	mov edx, dword ptr [0x337a8de0] ; mov dword ptr [edx], 0 ; mov al, 1 ; ret 8
+32dbbafd	32dbb930	1	Item_Pick_And_Drop.ogg	dropped	pop ebp ; pop ebx ; pop edi ; mov al, 1
+32dca83f	32dca6a0	1	Post_ItemDrop.ogg	dropped	pop edi ; pop esi ; pop ebp ; mov al, 1
+32dcac4c	32dca6a0	1	Post_ItemDrop.ogg	dropped	mov edi, dword ptr [esi + 0x144] ; cmp edi, dword ptr [esi + 0x148] ; je 0x32dcacb3 ; mov ebp, dword ptr [esp + 0x1c]
+32dcc997	32dcc890	1	Post_ItemDrop.ogg	dropped	mov al, 1 ; mov ecx, dword ptr [esp + 0xf4] ; mov dword ptr fs:[0], ecx ; pop ecx
+32dd3eae	32dd3ca0	1	ItemUpgrade_NoChange.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32dd3f39	32dd3ca0	1	ItemUpgrade_NoChange.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32dd3fc4	32dd3ca0	1	ItemUpgrade_DownGrade.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32dd4033	32dd3ca0	1	ItemUpgrade_Initial.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32dd409f	32dd3ca0	1	ItemUpgrade_Disappear.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32dd44dd	32dd3ca0	1	Strengthen_Success2.ogg	dropped	jmp 0x32dd44e8 ; mov ebp, dword ptr [esp + 0x30] ; cmp dword ptr [esp + 0x100], 8 ; mov dword ptr [esp + 0x130], 0xffffffff
+32dd5179	32dd4b30	1	ItemUpgrade_NoChange.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32dd5204	32dd4b30	1	ItemUpgrade_NoChange.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32dd528f	32dd4b30	1	ItemUpgrade_DownGrade.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32dd52fe	32dd4b30	1	ItemUpgrade_Initial.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32dd536e	32dd4b30	1	ItemUpgrade_Disappear.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32dd57a3	32dd4b30	1	Strengthen_Success2.ogg	dropped	cmp dword ptr [esp + 0x100], 8 ; mov dword ptr [esp + 0x130], 0xffffffff ; jb 0x32dd57cd ; mov eax, dword ptr [esp + 0xec]
+32dea98b	32dea5d0	1	ItemUpgrade_NoChange.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x18], eax
+32deaa16	32dea5d0	1	ItemUpgrade_NoChange.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x18], eax
+32deaaa1	32dea5d0	1	ItemUpgrade_DownGrade.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x18], eax
+32deab10	32dea5d0	1	ItemUpgrade_Initial.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x18], eax
+32deab80	32dea5d0	1	ItemUpgrade_Disappear.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x18], eax
+32deae04	32dea5d0	1	Strengthen_Success2.ogg	dropped	cmp dword ptr [esp + 0xf4], 8 ; mov dword ptr [esp + 0x108], edi ; jb 0x32deae2a ; mov ecx, dword ptr [esp + 0xe0]
+32deb899	32deb4e0	1	ItemUpgrade_NoChange.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32deb924	32deb4e0	1	ItemUpgrade_NoChange.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32deb9af	32deb4e0	1	ItemUpgrade_DownGrade.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32deba1e	32deb4e0	1	ItemUpgrade_Initial.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32deba8e	32deb4e0	1	ItemUpgrade_Disappear.ogg	dropped	push 0x204 ; call 0x32fe243e ; add esp, 4 ; mov dword ptr [esp + 0x1c], eax
+32debec3	32deb4e0	1	Strengthen_Success2.ogg	dropped	cmp dword ptr [esp + 0x100], 8 ; mov dword ptr [esp + 0x130], 0xffffffff ; jb 0x32debeed ; mov eax, dword ptr [esp + 0xec]
+32e039da	32e03200	1	X2_Button_Mouse_Up.ogg	dropped	push 0 ; mov ecx, edi ; call 0x31c947d0 ; push eax
+32e08d14	32e08c00	1	Item_Pick_And_Drop.ogg	dropped	pop ebp ; pop ebx ; pop edi ; mov al, 1
+32e1f19d	32e1efd0	1	Item_Pick_And_Drop.ogg	dropped	pop ebp ; pop ebx ; pop edi ; mov al, 1
+32e20a54	32e1f810	1	Item_Pick_And_Drop.ogg	dropped	mov edx, dword ptr [esi] ; mov eax, dword ptr [edx + 0x40] ; mov ecx, esi ; call eax
+32e21e54	32e21d50	1	Item_Pick_And_Drop.ogg	dropped	mov eax, dword ptr [0x33775860] ; mov ecx, dword ptr [eax + 0x2cc] ; push 0x1f ; call 0x321524d0
+32e2a998	32e2a840	1	MagicStone_MouseOver.ogg	dropped	mov byte ptr [esi + 0x231], 0 ; add dword ptr [esp + 0x34], 0x20 ; add edi, 4 ; cmp edi, 0x18
+32e2ad7a	32e2ab80	1	MagicStone_EquipSuccess.ogg	dropped	mov ecx, dword ptr [esp + 0x7c] ; pop edi ; pop esi ; pop ebx
+32e2b608	32e2b400	ebx (unresolved; handle dropped)	MagicEnchant_Success.ogg	dropped	pop ebx ; pop edi ; pop ebp ; add esp, 0x18
+32e2ee4c	32e2e1e0	1	MagicStone_MouseOver.ogg	dropped	mov ecx, dword ptr [esp + 0x54] ; mov edx, dword ptr [ecx + 4] ; lea eax, [esp + 0xb4] ; mov dword ptr [esp + 0x4c], eax
+32e2f788	32e2f0d0	1	MagicStone_PutDown.ogg	dropped	dec ebp ; mov ecx, 2 ; mov dword ptr [esp + 0x14], ebp ; cmp dword ptr [esi + 0x170], ecx
+32e322c3	32e32280	1	Item_Pick_And_Drop.ogg	dropped	mov edx, dword ptr [esi] ; mov eax, dword ptr [edx + 0x40] ; mov ecx, esi ; call eax
+32e5d0db	32e5d0a0	1	Hero_Dungeon_Buff_STOP.ogg	dropped	fldz  ; push -1 ; push 0 ; push ecx
+32e5d131	32e5d0a0	1	Hero_Dungeon_Buff_HP.ogg	dropped	fldz  ; mov eax, dword ptr [0x33775860] ; push -1 ; push 0
+32e5d18f	32e5d0a0	1	Hero_Dungeon_Buff_MP.ogg	dropped	fldz  ; mov edx, dword ptr [0x33775860] ; push -1 ; push 0
+32e5d1ea	32e5d0a0	1	Hero_Dungeon_Buff_SKILL.ogg	dropped	fldz  ; push -1 ; push 0 ; push ecx
+32ec733f	32ec7240	1	Alarm_SpaPporu.ogg	dropped	mov eax, dword ptr [esp + 0x1c] ; or ecx, 0xffffffff ; mov dword ptr [esp + 0x14], ecx ; test eax, eax
+32ecd5a3	32eccf60	1	Succeed.ogg	dropped	push 0 ; call 0x32696fa0 ; mov ecx, eax ; call 0x32679de0
+32ed080c	32ecd610	1	UI_MouseClick_Keypad.ogg	dropped	mov edx, dword ptr [0x33775860] ; mov ecx, dword ptr [edx + 0x2cc] ; push 0x17 ; call 0x321524d0
+32ed5bac	32ed5af0	1	Fight.ogg	dropped	mov edi, dword ptr [0x333bc990] ; push 0x33722a70 ; mov ecx, 0x33722a70 ; call edi
+32ed5cf2	32ed5af0	1	SmithStain_Impact01.ogg	dropped	mov ecx, dword ptr [esi + 0xd50] ; mov edx, dword ptr [ecx] ; mov eax, dword ptr [edx + 0x68] ; push ebx
+32ed5dea	32ed5af0	1	Ara_RockCrash2.ogg	dropped	mov ecx, dword ptr [esi + 0xd54] ; pop edi ; pop ebp ; cmp ecx, ebx
+32f14bc1	32f14980	1	MessageAlarm.ogg	dropped	mov ecx, dword ptr [esi + 8] ; lea edx, [esp + 0x38] ; push edx ; call 0x32e90410
+32f150df	32f14d70	1	MessageAlarm.ogg	dropped	lea ecx, [esp + 0x38] ; push ecx ; mov ecx, dword ptr [esi + 8] ; call 0x32e90410
+32f15a4a	32f153e0	1	MessageAlarm.ogg	dropped	lea ecx, [esp + 0xf0] ; push ecx ; mov ecx, dword ptr [ebp + 8] ; call 0x32e90410
+32f16ab8	32f164b0	1	MessageAlarm.ogg	dropped	mov ecx, dword ptr [edi + 8] ; lea eax, [esp + 0x38] ; push eax ; call 0x32e90410
+32f1845e	32f18130	1	MessageAlarm.ogg	dropped	mov eax, dword ptr [0x33775860] ; cmp eax, ebp ; je 0x32f1850e ; mov ecx, dword ptr [eax + 0x2cc]

@@ -3188,6 +3188,53 @@ There is no `GetUnitRotation` branch. The dtor does not touch the raw pointer. T
 
 **Open for the user**: /cost.
 
+### C9h-7 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): June's sound auto-release is one unref per opened device; user chose **(b) port verbatim** -> C9h-7a
+
+**How it works in June** (funcmap rows `Effect C9h-7`):
+- The device `PlaySound` `31ce0e10` has two branches.
+  - **Found** (the device is already in the map): `LoadDevice` + `Play`, with no reference taken and no callback. This is March's branch.
+  - **Open**: `OpenSound( name, 10, b3D, -1.f )` (+1 ref), `Play`, then `31cdd4e0( m_pChannel )` only when arg 4 is 1.
+- At the channel's END, the FMOD callback `31cdcca0` calls `31cdcbb0`. It queues the first sound device whose current `m_pChannel` (`+0x60`) is the ended channel. The device manager's `OnFrameMove` `31cde8d0` then calls June's `CloseDevice( CKTDXDevice* )` `31cdd8d0` on each queued device: **one unref**, then erase + delete only at zero.
+- **Corrections to the C9h-4b review.**
+  - `[dev+4] == 1` is `m_DeviceType == DT_SOUND`, not a ref count. The count is `+0x48`.
+  - The release is an unref, not a forced free: a device that someone else opened survives it.
+  - March does have a channel callback (`KTDXDeviceSound.cpp:607`), but its body is empty and it is compiled out (`CHECK_VOICE_IN_SLIDESHOT`).
+- **Nothing else touches `+0x240`.** The only other accessors are the ctor `31ce2520` and the dtor `31ce2220` (dispsweep).
+- **There is no game-code window between the queue and the delete.**
+  - June's stage chain (app ctor `31c17ed0`) is `CKTDSManager` (FMOD update) first and the device manager fifth, with only engine stages between them.
+  - March has the same order (`KTDXApp.cpp:439-451`).
+  - A replay changes `m_pChannel`, so a stopped-then-replayed device is not queued.
+- **The other `31cdd4e0` caller** is `32800e10`: June's `CX2World` world-event timeline. Its type-1 event plays a sound and does not keep the handle. The system is June-only -> backlog Stage 2.
+
+**Census** (`june2017_re/c9h7_playsound_census.tsv`, script `c9h7_playsound_census.py`, corrects the review's 174 / 9): 242 call sites.
+- 214 pass 1 and 24 pass 0.
+- 4 pass a register the script could not resolve (`3250f680` x3, `32e2b608`). All four drop the handle.
+- The 4th parameter has no recoverable default: every site pushes all four arguments.
+- **The 24 zero sites:** 16 keep the handle, and they are exactly March's keep-sites (12 create-unit voices `+0x718`, `PlaySoundSelect` `+0x490`, the TFieldNpc near sound `+0x4b0`, the wedding duration sound, the emblem vector). The other 8 drop it: the two Lua wrappers `31be4734` / `31be4894`, `X2_Button_Mouse_Up`, `Count`, `LevelUpBGM`, `Go`, `NewStage_Open`, `UseItem`.
+
+**March audit** (`june2017_re/c9h7_playsound_handle_audit.tsv`): 16 March call sites store the handle. June passes 0 at each one that keeps it across frames, with two exceptions:
+- **The square** (`+0x5ec`, JUNE_BUGS 122). Latent: the list stays empty on March data until C9h-4e.
+- **`CX2GUAdd::PlayLoopSound`** `329e2660` (`m_pLoopSound` / `+0x9608`, arg 1). **JUNE_BUGS 125, reachable.**
+  - `bLoop` is ignored, so the "loop" sound is a one-shot clip.
+  - Neither March nor June preloads `Add_Effect05` / `Add_Effect10` / `ADD_PULSE_BULLET_CHARGE_01` (June's Add `READY_SOUND` is empty).
+  - So a state that outlasts its clip calls `Stop()` on freed memory.
+
+Other notes:
+- Lua cannot hold a handle: the only bindings are the two `void` app wrappers.
+- `NpcPlaySound` is a June rewrite (`325c9c00`: stop the previous sound by name, 2D only, keeps the name) -> Elysion E1 step 6.
+
+**Unowned, routed** (plan-unowned rule): June's damage-effect sound play `31f6eca0`.
+- March opens with `OpenSound` and never closes. June uses `PlaySound( name, LOOP, THREE_DIMENSIONAL_SOUND, 1 )`, plus a `{ FMOD sound, channel }` list at `CEffect +0xb34` for `DELETE_WHEN_EFFECT_END`.
+- Those keys are parsed by `JUNE_DAMAGEEFFECT_PARSE` but never consumed -> **C9h-8**.
+
+**The user's decision (2026-10-08): (b) port verbatim, in a follow-up row (C9h-7a).**
+- The square and Add keep June's argument 1 and June's bug (JUNE_BUGS 122 / 125: Port = verbatim, C9h-7a).
+- C9h-7a's default choice: the new parameter defaults to **true** (June's majority), and March passes 0 exactly where June does. So no class file needs an edit.
+
+**What changed:** no code, no build, no deploy. 21 funcmap rows `Effect C9h-7`, census + audit `.tsv`, JUNE_BUGS 125 (+ 122's Port cell), STATUS rows C9h-7 / 7a / 8, kickoffs `C9h-7a.md` and `C9h-8.md`, backlog Stage 2 line (world-event timeline).
+
+**Open for the user:** `/cost`; then C9h-7a.
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),
