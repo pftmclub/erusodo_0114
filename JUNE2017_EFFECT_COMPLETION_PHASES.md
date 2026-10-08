@@ -114,6 +114,7 @@ Not in this definition, handed to their owners (C0 records each hand-off):
 | D7 | **Answered 2026-10-06: hand C1 off to the character ports** (C1a's recommendation). Census: `Numerical skill data` and `Applied skill ID` are `handed-off`, receiver `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 1, and `DAMAGE_SKILL_ID` follows them (`KEY_SYSTEM`); item 1's numerical line passes as handed off. C1b and its review are not run here. Question: C1a found that every numerical block uses a June reform skill ID (21000-32605) no March character learns, and June's `NewSkillTempletVer2.lua` is a different skill system. (a) hand off, (b) adopt June's file now, (c) dormant port? | (a) hand off | character ports |
 | D8 | **Answered 2026-10-06: (a) hand off, and as a standing rule (user): anything in this plan that belongs to a character port is handed to the character ports, not ported here.** So all of C8c (every per-class `SetDamageExceptionProcess` block, Ara's `0x780` body) goes to `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 7b; C8c and its review are not run here. Original question (C8a): June re-keys three passives March characters have now. Rena's Powerful Bowstring (3405 -> 23405) and Sharp Kick (3400 -> 23400) are the same skills under reform IDs. Aisha's Battle Magician Fitness block (2413) is gone, and in its place Magical Staff (22409) applies the same two abilities (`SA_FORCE_DOWN_RANGE_REL`, `SA_MP_GAIN_ON_HIT_REL`). No March character learns a reform ID, so a verbatim port switches the three passives off. (a) hand the three blocks to the Rena/Aisha character ports, March's blocks stay until then; (b) port verbatim in C8c now | (a) hand off: the D7 precedent, and the port that brings the reform skills turns them on together | C8c (the Rena and Aisha parts only) |
 | D9 | **Answered 2026-10-06 (user): build the engine now, and the UI later with the June UI port.** C10b-2 keeps the values in `GameOptions.lua` under June's own keys, so that port only has to wire them up. C10b-3 is handed to `JUNE_PORT_BACKLOG_ORDER.md` Stage 9 (UI sweep), with `kickoffs/june-effect/C10b-3.md` as its brief. Original question (C10a): the effect-alpha option's UI. June's option window is Scaleform GFx: `32f246d0` (`DW_GAME_SET_VALUE`, one of 39 `DW_*` GFx data wrappers) pushes `fEffectAlphaMineValue` / `fEffectAlphaMyTeamValue` / `fEffectAlphaOtherTeamValue` into a Flash movie. March has no GFx, so June's UI cannot be ported, and C10b-3 builds a designed stand-in under its own flag. (a) three sliders (my / my team / other team effects, 10-100 %) in March's option window `DLG_UI_Option_Back_New.lua` (data034), wired like `Slider_Sound_Volume` in `X2StateOption.cpp`; (b) no UI: the `GameOptions.lua` keys (C10b-2) plus a dev-console line; (c) defer the UI | (a): D2 asked for a UI, and the sound sliders are March's own pattern for a 0-1 value | C10b-3 |
+| D10 | **Open (C3b, 2026-10-08).** June's RT_BOUNDING hit puts a user into three new user states, `USI_BOUNDING_DOWN` / `_LANDCRASH` / `_UP` (June `GUSI_END + 115..117`). They cannot be added to March as is. March's user state id is a `UCHAR` (`UserUnitStateData::stateID`, `SyncData::nowState`), and Chung's last state, `CSI_A_CIP_ARTILLERY_NOVA_FIRE`, is already **255** (`cl` probe), so three more `USI_*` entries before `USI_END` overflow it. June widened the id to 16 bits: registration `31fd89b0` reads a word into a vector state list, and checklist 7's row for `+0x7e84` has the future `nowState` as a protected short. Options: **(a)** a new engine phase (Opus identifies, Sonnet ports) widens March's user state id to 16 bits as June did (`stateID`, `nowState`, the `m_StateList` key, every `UCHAR` cast and sync field; offline only). Then C3d ports the bounding case, the five handlers and the NPC half. **(b)** hand the user half to the character ports (only class code registers the states: Eve, Add, Raven, Ain, Rose, Lu/Ciel), with the widening as the checklist's blocker; C3d ports only the NPC half now. **(c)** park C3d whole until a character port needs it. | (a): any June class with more states than March's (Chung is already at 255) needs the widening anyway, and doing it once in the engine keeps C3d a straight port. RT_BOUNDING is in no March script, so nothing waits on it in play. | C3d |
 
 **Census plumbing (Sonnet):**
 - add the status `handed-off`, with `receiver` = document + phase, for the hand-off rows above;
@@ -461,6 +462,90 @@ on an invincible unit, and the NPC heal's NowHp > 0 test are June's code as read
 Post-commit (`e16806f`), `flagcheck --range e16806f^..e16806f`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `2 deleted line(s)` (the two rewritten comment lines) / `RESULT: PASS`.
 
 No new play-test. Next: C3b (Opus 5.5 high, identification only).
+
+---
+
+## C3b - identify the armour-level check, the bounding state, ADD_MEMBER_COUNT's reader and the hit counter
+
+**Status: done 2026-10-08 (no code). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3b.md`.
+
+### C3b - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build)
+
+19 new funcmap rows tagged `(C3b)` / `Effect C3b`, plus corrections to C3's rows `31fd86b0`, `31feabd0 @31feb6a7`, `31fcee40` and
+`ExtraDamageData+0x104`. The per-case table of `DamageReactStateChange` is in `june2017_re/c3b_damage_react_sites.tsv`. March enum values were
+settled with the compiler (an `offsetprobe`-style `cl /Zs` probe), not by counting lines. No code, so there is no flagcheck and no build; the
+deployed exe is unchanged.
+
+1. **`31fd86b0` = June's directional / typed super armour** (`JuneIsSuperArmorAgainst( bAttackerFront, DD )`).
+   - The body: the super-armour list (`m_vecSuperArmorPtr`) non-empty -> true; `stateParam.bSuperArmor` false -> false. Otherwise a new per-state
+     `set<int>` filters by `SUPER_ARMOR_CONDITION`: `SAC_FRONT` 0 = only against hits from the front, `SAC_NORMAL_ATTACK` 1 = not against
+     `AT_SPECIAL`, `SAC_SPECIAL_ATTACK` 2 = only against `AT_SPECIAL`.
+   - The parse: `CommonStateStart` reads `SUPER_ARMOR_FRONT` (inserts `SAC_FRONT` and sets `bSuperArmor`) and the `SUPER_ARMOR_CONDITION`
+     int list.
+   - March has neither key, and no March script sets them. With an empty set the check equals March's `IsSuperArmor()`.
+   - **C3's count was wrong.** There are 22 calls, not 6. Of the 6 `FORCE_BACK_SPEED` tests, 4 follow the check and 2 follow `IsSuperArmor`
+     (FLY `@31feb425`, which is buff 14c's tutorial block at `X2GUUser.cpp:12421`, and DRAG_UP `@31feb58b`).
+   - FORCE's second consumer: a super-armoured unit still takes the vertical knock speed (`31feb28f`). The same happens to a front-armoured
+     unit hit from the front, even without the key.
+   - Two other June differences: DOWN has no `SetNowForceDown( 0 )` (March has it under `FIX_FORCE_DOWN_INITIALIZE_BUG`), and there is a
+     pre-switch class block at `+0x9175` (checklist 7l). -> **C3c.**
+2. **`BOUNDING_BACK_SPEED_X/Y`** feed June's RT_BOUNDING case.
+   - The case writes `m_vBoundingBackSpeed` (x mirrored by facing), then `StateChange( USI_BOUNDING_DOWN )` in the air or
+     `USI_BOUNDING_LANDCRASH` on the ground.
+   - Five `CX2GUUser` base handlers run the states (DOWN -> LANDCRASH on landing; LANDCRASH -> UP at `USEFUL_VALUE0[1]`; UP starts with the
+     stored speed, then goes to AIR_FALL / AIR_DOWN_LANDING).
+   - Only class code registers the states (Eve, Add, Ain, Rose, Raven, Lu/Ciel). The NPC twin is `32769060` with three new common-state types
+     (`0x21..0x23`), and no June NPC script names them.
+   - March's RT_BOUNDING case is dead code (`BOUNDING_COMBO_TEST` off), and no March script uses RT_BOUNDING.
+   - **Blocked:** March's user state id is a `UCHAR` and Chung's last state is already 255 (cl). June widened the id to 16 bits. -> **D10**
+     (user), then **C3d**.
+3. **`ADD_MEMBER_COUNT` / `_DISTANCE` reader found.** It is user `Process_ExtraDamage` (`32034e50`) case `EDT_TRANSIT_DEBUFF`.
+   - Flow: after `attacker->ProcessTransitDebuff( DD, this )` (as March), it collects up to N units around the attacker (`32294e30`, a June-only
+     collector; the distance defaults to 1000 when not > 0). Each of those units also runs `ProcessTransitDebuff( DD, this )`.
+   - C3's sweep missed it because it reads DamageData-relative `+0x154 / +0x158`: always the main `m_ExtraDamage` (JUNE_BUGS row with C3c).
+   - The NPC twin is March's.
+   - June's `ProcessTransitDebuff` (`322a8240`) is March's `FIX_EDT_ENCHANT` body, but applies factors one by one (`322a6d00`). -> **C3c.**
+4. **`31fcee40`'s counter has no reader in June.**
+   - Its getter `31fcee60` has no caller.
+   - No read of unitCondition `+0xe` follows any of the 110 `GetUnitCondition` (`3208e120`) calls or the 214 inline base uses.
+   - Only the increment and two state-start resets exist. Dead code: not ported, no checklist row.
+
+**Found on the way.**
+- The USEFUL_VALUE **Now set** (`+0x8eb8..+0x8ef0`, CommonStateStart `@32060cd9`) is the one the bounding LANDCRASH handler reads.
+- `kickoffs/june-effect/C9h-4f.md` named only the Future set's readers. It now has an "Added by C3b" paragraph: the kickoff file is the
+  source of truth, and the plan's inline copy is frozen.
+- C3d depends on C9h-4f.
+
+**Class side -> checklist 7l (new):**
+- Add's `0x81c` caller `32a07fc0 @32a080cc`;
+- the six classes' bounding state registration and their `*_DAMAGE_BOUNDING_*` state tables;
+- the Lu/Ciel bounding-target hook `32b38cb0`;
+- the `+0x9175` block.
+
+**Port phases:**
+- **C3c** (Sonnet 5.5 high, kickoff written): items 1 and 3. Inert on March data, except DOWN's dropped `SetNowForceDown( 0 )`, which is live.
+- **C3d** (kickoff written, blocked on D10 and C9h-4f): item 2.
+
+**Open for the user:** D10 (decisions table). `/cost`.
+
+---
+
+## C3c - port: super-armour condition, DamageReactStateChange's gates, ADD_MEMBER_COUNT
+
+**Status: ready (C3b done 2026-10-08). Model:** Sonnet 5.5, high, then an Opus review. Kickoff `kickoffs/june-effect/C3c.md`.
+
+- **Scope:** C3b items 1 and 3 (funcmap rows `(C3b)`, `june2017_re/c3b_damage_react_sites.tsv`). New flag `SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION`
+  (parse, check, the 22 sites, the 6 FORCE tests, DOWN's `SetNowForceDown`); `SERV_IRUHADEV_JUNE_DAMAGEDATA` extended for the TRANSIT reader.
+- **Not with:** C9h-4f or C8b (`X2GUUser.cpp` CommonStateStart / DamageReact areas).
+- **Exit:** strings in the deployed exe; a regression play-test (get knocked down, launched and dragged up in a dungeon) with 0 EXCEPTION;
+  census rows `ADD_MEMBER_COUNT*` / `FORCE_BACK_SPEED` leave "parsed only".
+
+## C3d - port: the bounding back-speed state (blocked on D10)
+
+**Status: blocked on D10 and C9h-4f (and after C3c, same function). Model:** decided with D10. Kickoff `kickoffs/june-effect/C3d.md`.
+
+- **Scope:** C3b item 2: the user RT_BOUNDING case, the five `CX2GUUser` handlers, `m_vBoundingBackSpeed`, the last-attacker UID / unit type
+  (`+0x40e0` / `+0x40e8`, written next to buff 9b's `+0x40dc` serial), and the NPC half (`32769060`, `3275d900`, `3275a070`). The shape depends on D10's answer.
 
 ---
 

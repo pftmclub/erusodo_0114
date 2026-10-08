@@ -1,0 +1,28 @@
+case	reActResult (June = March, cl)	June range	site	call	arg bAttackerFront	guard before the call	when true	March counterpart
+SMALL	1 / 18 FLIP_SAME_DIR / 21 FLIP_DIFF_DIR	31feae0b-31feaf58 (air branch shared with BIG at 31feb039)	31feae21	vslot 0x81c	0	-	FORCE_BACK_SPEED (DD +0x3ec) test @31feae27: clear -> break (31feb741)	X2GUUser.cpp:12205 IsSuperArmor() -> break
+SMALL			31feae41	vslot 0x81c	0	-	FORCE block 31feb28f	(none)
+SMALL			31feae61	vslot 0x81c	1	bAttackerFront (+0x7e2d) == 1	FORCE block 31feb28f	(none)
+SMALL			31feaf02	vslot 0x81c	1	ground branch, bAttackerFront	break (no state)	(none; unreachable after 31feae61, kept verbatim)
+BIG	2 / 17 REFLECT	31feaf7d-31feb0f5	31feaf93	vslot 0x81c	0	-	FORCE test @31feaf99: clear -> break	X2GUUser.cpp:12263
+BIG			31feafb3	vslot 0x81c	0	-	FORCE block 31feb28f	(none)
+BIG			31feafd3	vslot 0x81c	1	bAttackerFront	FORCE block 31feb28f	(none)
+BIG			31feb09f	vslot 0x81c	1	ground branch, bAttackerFront	break	(none)
+DOWN	3	31feb0fa-31feb28a	31feb13b	vslot 0x81c	0	after the riding buff (BFI 0xc7)	FORCE test @31feb141: clear -> break	X2GUUser.cpp:12312 (March also has SetNowForceDown( 0 ) at :12359, FIX_FORCE_DOWN_INITIALIZE_BUG ON; June has no such call)
+DOWN			31feb15b	vslot 0x81c	0	-	FORCE block 31feb28f	(none)
+DOWN			31feb17b	vslot 0x81c	1	bAttackerFront	FORCE block 31feb28f	(none)
+DOWN			31feb1c1	vslot 0x81c	1	OnSomethingFuture (+0x7e1c), bAttackerFront	break	(none)
+UP	4	31feb2a0-31feb3c4	31feb2e8	vslot 0x81c	0	after SetNowHit + riding buff	FORCE test @31feb2ee: clear -> break	X2GUUser.cpp:12374
+UP			31feb330	vslot 0x81c	0	after nowSpeed.y = backSpeed.y (/ (FlyCount - 1) when > 2)	break (speed kept, no state)	(none)
+UP			31feb350	vslot 0x81c	1	bAttackerFront	break	(none)
+UP			31feb377	vslot 0x81c	1	after ResetOnSomethingFuture, bAttackerFront	break	(none)
+FLY	5	31feb3c9-31feb572	31feb410	vslot 0x264( 0 ) = IsSuperArmor	-	and not tutorial (g_pMain +0x16a)	FORCE test @31feb425: clear -> break	X2GUUser.cpp:12421-12430 (buff Phase 14c JUNE_TUTORIAL_MODE; its comment says +0x3ec reads false: C3c adds m_bForceBackSpeed)
+FLY			31feb499	vslot 0x81c	0	after the y speed (tutorial x mirror @31feb44e)	break	(none)
+FLY			31feb4b9	vslot 0x81c	1	bAttackerFront	break	(none)
+FLY			31feb4e0	vslot 0x81c	1	after ResetOnSomethingFuture, bAttackerFront	break	(none)
+DRAG_UP	16	31feb577-31feb64e	31feb585	vslot 0x264( 0 ) = IsSuperArmor	-	-	FORCE test @31feb58b: clear -> break	X2GUUser.cpp:12504
+DRAG_UP			31feb5b1	vslot 0x81c	0	after nowSpeed.y = backSpeed.y	break	(none)
+DRAG_UP			31feb5d1	vslot 0x81c	1	bAttackerFront	break	(none)
+DRAG_UP			31feb5f8	vslot 0x81c	1	after ResetOnSomethingFuture, bAttackerFront	break	(none)
+FORCE block	-	31feb28f-31feb29b	-	-	-	-	nowSpeed.y = DD backSpeed.y (+0x3e0); break: no state change	(none)
+BOUNDING	15	31feb68f-31feb71a	31feb69d	vslot 0x264( 0 ) = IsSuperArmor	-	-	break (no FORCE test)	X2GUUser.cpp:12590 (BOUNDING_COMBO_TEST, off): C3d
+totals				22 x vslot 0x81c (SMALL 4, BIG 4, DOWN 4, UP 4, FLY 3, DRAG_UP 3); 6 FORCE tests (4 after 0x81c, 2 after IsSuperArmor)				
