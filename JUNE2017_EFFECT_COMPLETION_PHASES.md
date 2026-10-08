@@ -4068,6 +4068,8 @@ next: C9h-8 review.
 - A peer's build compiled this tree at 23:10-23:13, after these edits (obj files newer than the sources); this run relinked nothing.
 - The 10 files include the peers' in-progress `X2GUNPC` / `X2GUUser` / `X2Game` / `X2GameUnit` and the socket-cooltime block in `Always.h`.
 
+**Notify move not play-testable yet** (user 2026-10-09: Add is not playable before its port): the only March row with `NOTIFY_TO_OWNER_WHEN_DIE` is `DamageEffect_Add_Phase_Shift`, and the only non-empty owner hook is Add's, so nothing reaches the moved call until the Add port (checklist 7m), which verifies it.
+
 **Re-test owed** (the review changed code): the same jtCodeEmpress EP combos. Read the `3d=` byte; listen for sounds that now play without distance falloff. `_DEBUG` goes off after that read.
 
 ## C10 - Decided absent systems
