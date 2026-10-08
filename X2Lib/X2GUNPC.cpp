@@ -9,6 +9,9 @@
 #if defined( SERV_IRUHADEV_JUNE_NPC_FURY_MODE ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_NPC_FURY_MODE && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+#if defined( SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 
 //#ifdef  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 #define X2GUNPC_RECEIVE_FRAME_COUNT_MAX_GAB     (70*10)
@@ -10284,10 +10287,63 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 					}
 				}
 #endif //SERV_9TH_NEW_CHARACTER
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
+				/// June CX2GUNPC::DamageReact 327b1f30 @327b4434-327b4482: inside the level-damage / attacker gate ( the skips
+				/// @327b421b and @327b42aa both land on 327b4484 ), after the stasis call: a user attacker with a unit gets
+				/// vslots 0x4f8, then 0x4fc, with ( DD, damage )
+				if ( GUT_USER == pDamageData->optrAttackerGameUnit.GetObservable()->GetGameUnitType() )
+				{
+					CX2GUUser* pJuneAttackerUser = static_cast< CX2GUUser* >( pDamageData->optrAttackerGameUnit.GetObservable() );
+					if ( NULL != pJuneAttackerUser && NULL != pJuneAttackerUser->GetUnit() )
+					{
+						pJuneAttackerUser->OnAttackerDamageReact_Slot4F8( pDamageData, fFinalDamage );
+						pJuneAttackerUser->OnAttackerDamageReact_Slot4FC( pDamageData, fFinalDamage );
+					}
+				}
+#endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
 			}
 		}		
 		//}} kimhc // 2011-07-05 // 옵션데이타 수치화 작업
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
+		/// June CX2GUNPC::DamageReact 327b1f30 @327b4484-327b452f, function scope after the gate. An attacker that is a user
+		/// with a unit, +0x7ca8 set, GetRandomFloat( 0 ) < 0.03 ( 3344f248, a double; strict: June masks C3, so equal skips )
+		/// and the +0x7cac cool-down not above 0: every active skill's cool time -5 s, cool-down = 0.5 ( 3343777c ).
+		/// JUNE_BUGS 136: the code rolls 3 % against the option text's 1 %, kept. JUNE_BUGS 137: June reads the attacker's
+		/// +0x264 with no null test ( @327b449c ), March keeps the null test.
+		if ( null != pDamageData->optrAttackerGameUnit && GUT_USER == pDamageData->optrAttackerGameUnit->GetGameUnitType() )
+		{
+			CX2GUUser* pJuneSocketUser = static_cast< CX2GUUser* >( pDamageData->optrAttackerGameUnit.GetObservable() );
+			if ( NULL != pJuneSocketUser && NULL != pJuneSocketUser->GetUnit() && true == pJuneSocketUser->m_bJuneSocketCoolTimeOnHit )
+			{
+				const float fJuneRoll = pJuneSocketUser->GetRandomFloat( 0 );
+				const bool bJuneProc = ( fJuneRoll < 0.03 ) && false == ( 0.f < pJuneSocketUser->m_fJuneSocketCoolTimeOnHitCool );
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+				static int s_iJuneSocketCoolTimeRollLogged = 0;
+				if ( bJuneProc || s_iJuneSocketCoolTimeRollLogged < 5 )
+				{
+					if ( false == bJuneProc )
+						++s_iJuneSocketCoolTimeRollLogged;
+					CX2OfflineLog::Server( L"JUNE_FX socket-cooltime roll user=%I64d roll=%.4f cooldown=%.2f proc=%d",
+						pJuneSocketUser->GetUnitUID(), fJuneRoll, pJuneSocketUser->m_fJuneSocketCoolTimeOnHitCool, ( bJuneProc ? 1 : 0 ) );
+				}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+				if ( true == bJuneProc )
+				{
+					pJuneSocketUser->ResetLeftSkillCoolTimeByBuff( CX2SkillTree::ST_ACTIVE, -5.0f, false, BCT_FIX_VALUE, 1.0f, true, 0 );
+					pJuneSocketUser->m_fJuneSocketCoolTimeOnHitCool = 0.5f;
+				}
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
+		/// June @327b47a4-327b4800, function scope, after the socket block and before the custom-function slot 6: 322cfca0 on
+		/// the game, then the attacker's vslot 0x304( damage, DD ) ( skipped for a null attacker )
+		if ( NULL != g_pX2Game )
+			g_pX2Game->JunePvpAmusementHalveDamage( pDamageData, &fFinalDamage );
+		if ( null != pDamageData->optrAttackerGameUnit )
+			pDamageData->optrAttackerGameUnit->OnDamageDoneToDefender_Slot304( fFinalDamage, pDamageData );
+#endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
 		// 데미지가 보여야 하는 경우 (아토믹 실드에 맞은 경우에는 보이지 않아야 함)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 		/// June 327b1f30 @327b4802-327b480a: slot 6 with the final damage, after the attacker's vslot 0x304 and right

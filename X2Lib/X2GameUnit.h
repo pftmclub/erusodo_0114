@@ -3097,6 +3097,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		/// June 32273e80 (effect completion C10b-1): HP_RATE_DAMAGE_TYPE/_VALUE overwrite *pfDamage_ (this = the defender)
 		void GetHpRateDamage( IN OUT float* pfDamage_, IN const CX2DamageManager::DamageData* pDamageData_ );
 #endif // SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE && SERV_IRUHADEV_JUNE_DAMAGEDATA
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
+		/// effect completion C10e: June CX2GameUnit vslot 0x304 ( User and NPC 33093ad0 are empty ), called on the DamageData's
+		/// attacker with the final damage, user @3204972c and NPC @327b4800. Only CX2GURose overrides it ( 32aa9c70, checklist 7j ).
+		virtual void OnDamageDoneToDefender_Slot304( float fDamage_, const CX2DamageManager::DamageData* pDamageData_ ) {}
+#endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 		/// June 32278580 (effect completion C5): the frame name of this unit's collision point nearest vPos_ (empty without one).
 		/// Outside SERV_IRUHADEV_JUNE_BUFF_BINDING (C5 review): it has no buff dependency and X2EffectSet.cpp calls it.

@@ -3,6 +3,9 @@
 #if defined( SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+#if defined( SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 #if defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_DAMAGEDATA && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
@@ -1183,6 +1186,11 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	m_fQuickSlotSpecialItemWaitTime	= -1.f;
 	m_bHyperModeStartedByInput		= false;
 #endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
+	/// effect completion C10e, CX2GUUser ctor (June 3203e850 @3203e928)
+	m_bJuneSocketCoolTimeOnHit			= false;
+	m_fJuneSocketCoolTimeOnHitCool		= 0.f;
+#endif SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
 #ifdef SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 	/// June buff port Phase 7e, CX2GUUser ctor (June 3203e850 @32041c8b: the x87 stack holds 334380f0 = -1.0f)
 	m_fStartMotionDelayTime			= -1.f;
@@ -3522,6 +3530,23 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 			m_SocketData.m_vecInfoByUseHyperMode.push_back( sInfoByUseHyperMode );
 		}
 #endif // HAMEL_SECRET_DUNGEON
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
+		/// effect completion C10e: June CX2GUUser::SumSocketOption 3204f190 @3204fff5-32050002, right before the cool-time cut
+		/// block below (@32050009): socket id ( SocketData +4 ) == 2000145 sets the user's +0x7ca8.
+		const int JUNE_SOCKET_ID_COOLTIME_ON_HIT = 2000145;
+		if ( JUNE_SOCKET_ID_COOLTIME_ON_HIT == kSocketData.m_ID )
+		{
+			m_bJuneSocketCoolTimeOnHit = true;
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+			static int s_iJuneSocketCoolTimeSetLogged = 0;
+			if ( s_iJuneSocketCoolTimeSetLogged < 20 )
+			{
+				++s_iJuneSocketCoolTimeSetLogged;
+				CX2OfflineLog::Server( L"JUNE_FX socket-cooltime flag set user=%I64d socket=%d", GetUnitUID(), kSocketData.m_ID );
+			}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+		}
+#endif SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		/// June buff port 16-step3b2 item 6: June 3204f190 @32050009..320500eb, the last thing each socket does (after its
 		/// +0x896c socket-ID push and the socket-2000145 user flag +0x7ca8, neither in March): with a CX2Unit, the templet's
@@ -7190,6 +7215,17 @@ HRESULT CX2GUUser::OnFrameMove( double fTime, float fElapsedTime )
 		m_fSlotChangeLeftCoolTime -= fElapsedTime;
 #endif // FIX_SKILL_SLOT_CHANGE_BUG
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
+	/// effect completion C10e: June CX2GUUser::OnFrameMove 3206eaf0 @3207001b-32070053, just before the start-motion delay:
+	/// while the proc cool-down is above 0 it loses the elapsed time ( +0x2b0 = m_fElapsedTime ) and clamps at 0
+	if ( 0.f < m_fJuneSocketCoolTimeOnHitCool )
+	{
+		m_fJuneSocketCoolTimeOnHitCool -= m_fElapsedTime;
+		if ( m_fJuneSocketCoolTimeOnHitCool < 0.f )
+			m_fJuneSocketCoolTimeOnHitCool = 0.f;
+	}
+#endif SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
+
 #ifdef SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 	/// June buff port Phase 7e, the tail of CX2GUUser::OnFrameMove (June 3206eaf0 @32070053-e2, after the Now pop loop)
 	if ( m_fStartMotionDelayTime >= 0.f )		/// fcom; test ah, 0x41; jp: taken only below 0
@@ -9999,6 +10035,23 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			}
 		}
 #endif //SERV_9TH_NEW_CHARACTER
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
+		/// June CX2GUUser::DamageReact 320462a0 @320495d8-3204963b: a valid user attacker with a unit ( the stasis block's gate
+		/// without the Add type test ) gets vslots 0x4f8, then 0x4fc, with ( DD, damage ). Function scope.
+		if ( null != pDamageData->optrAttackerGameUnit && GUT_USER == pDamageData->optrAttackerGameUnit->GetGameUnitType() )
+		{
+			CX2GUUser* pJuneAttackerUser = static_cast< CX2GUUser* >( pDamageData->optrAttackerGameUnit.GetObservable() );
+			if ( NULL != pJuneAttackerUser && NULL != pJuneAttackerUser->GetUnit() )
+			{
+				pJuneAttackerUser->OnAttackerDamageReact_Slot4F8( pDamageData, fFinalDamage );
+				pJuneAttackerUser->OnAttackerDamageReact_Slot4FC( pDamageData, fFinalDamage );
+			}
+		}
+		/// June @32049678-3204968a: 322cfca0 on the game, after the attacker hooks ( and the Lu/Ciel shield and the 2017 event
+		/// block, neither ported ), before the HP-rate call
+		if ( NULL != g_pX2Game )
+			g_pX2Game->JunePvpAmusementHalveDamage( pDamageData, &fFinalDamage );
+#endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
 
 		// UI상 타격된 데미지를 보여주기 위한 용도
 #if defined( SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE ) && defined( SERV_IRUHADEV_JUNE_DAMAGEDATA )
@@ -10008,6 +10061,11 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		/// second write drops whatever DamageReact took off or added in between (JUNE_BUGS #93, verbatim).
 		GetHpRateDamage( &fFinalDamage, pDamageData );
 #endif // SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE && SERV_IRUHADEV_JUNE_DAMAGEDATA
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
+		/// June @3204972c-32049750: the attacker's vslot 0x304( damage, DD ), after the HP-rate call, before the shown copy
+		if ( null != pDamageData->optrAttackerGameUnit )
+			pDamageData->optrAttackerGameUnit->OnDamageDoneToDefender_Slot304( fFinalDamage, pDamageData );
+#endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
 		float fFinalDamageToShow = fFinalDamage;
 #ifdef ALWAYS_SCREEN_SHOT_TEST
 		if( g_pInstanceData->GetScreenShotTest() == false)
@@ -30438,6 +30496,10 @@ void CX2GUUser::UpdateSocketDataAndEnchantData()
 
 	m_vecBuffFactorPtr.resize( 0 );
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
+	/// effect completion C10e: June 3204b4c0 @3204b5a0, after the delegate clear and before the sum
+	m_bJuneSocketCoolTimeOnHit = false;
+#endif SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
 	ClearAllDelegateProcess();
 
 	InitSocketData();

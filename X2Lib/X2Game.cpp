@@ -10968,6 +10968,32 @@ bool CX2Game::CanUseQuickSlotItemBeforeStart( bool bHenirPractice_ )
 
 	return GetMyUnit()->GetStartMotionDelayTime() < 0.f;
 }
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
+/// effect completion C10e: June CX2Game 322cfca0( DamageData*, float* ). DD and g_pData set, GetGameType() ( vslot 0x10c ) == GT_PVP,
+/// the PvP room ( g_pData +0x6c ) set with PVP_GAME_TYPE ( +0xd8 ) == 8 and DD attackType ( +8 ) != 2: *damage *= 0.5 ( 3342ebc8 ).
+/// March's enums stop at PGT_TAG 3 and (without SERV_IRUHADEV_JUNE_BUFF_ENUM) AT_SPECIAL 1, so both values are named here.
+/// Inert on March data: there is no PvP room of type 8 and no offline PvP.
+void CX2Game::JunePvpAmusementHalveDamage( const CX2DamageManager::DamageData* pDamageData_, float* pfDamage_ )
+{
+	const int JUNE_PGT_AMUSEMENT_ITEM	= 8;	/// June Enum.lua:736 PVP_GAME_TYPE
+	const int JUNE_AT_COMMAND			= 2;	/// June Enum.lua ATTACK_TYPE
+
+	if ( NULL == pDamageData_ || NULL == g_pData )
+		return;
+
+	if ( GT_PVP != GetGameType() )
+		return;
+
+	CX2PVPRoom* pPVPRoom = g_pData->GetPVPRoom();
+	if ( NULL == pPVPRoom || JUNE_PGT_AMUSEMENT_ITEM != static_cast<int>( pPVPRoom->GetPVPGameType() ) )
+		return;
+
+	if ( JUNE_AT_COMMAND == static_cast<int>( pDamageData_->attackType ) )
+		return;
+
+	*pfDamage_ *= 0.5f;
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
 void CX2Game::CheckQuickSlotItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet_, CX2GUUser* pUser_, bool* pbAllow_, bool* pbWaitingAck_ )
 {
 	if ( NULL == pItemTemplet_ )

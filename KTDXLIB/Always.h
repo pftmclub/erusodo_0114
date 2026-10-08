@@ -6201,3 +6201,26 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              IsAvaliableActionDuringDamageReact( UCHAR ) stay 8-bit ( action ids are < 32 ). Off = byte.
 #define SERV_IRUHADEV_JUNE_USER_ACTION_ID16
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: C10e: June's common CX2GUUser / CX2GUNPC::DamageReact steps March lacked. Two empty CX2GUUser
+//              attacker hooks ( June vslots 0x4f8 / 0x4fc, called with ( DamageData, damage ) on a user attacker, user
+//              DamageReact 320462a0 @320495d8, NPC 327b1f30 @327b4434 ), the CX2GameUnit damage-done hook ( slot 0x304,
+//              user @3204972c, NPC @327b47d2 ) and CX2Game::JunePvpAmusementHalveDamage ( 322cfca0: x0.5 in a PvP room of
+//              type 8, for attack types other than 2 ). The three hooks are empty here ( bodies are Elesis / Rose, checklist
+//              7j ) and 322cfca0 is inert on March data. Off = March's DamageReact without them.
+#define SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: C10e: socket option 2000145 ( text "1% Chance to decrease Cooldown time by 5 seconds", code 3% ).
+//              CX2GUUser +0x7ca8 ( set while summing the sockets ) and +0x7cac ( 0.5 s internal cool-down ), and the
+//              NPC DamageReact consumer 327b1f30 @327b4484: a user hit rolls GetRandomFloat < 0.03 and cuts every
+//              active skill's cool time by 5 s. Off = the option does nothing.
+//              Log: "JUNE_FX socket-cooltime" in offline_server.log ( JUNE_FX_DEBUG ).
+#define SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
+//////////////////////////////////////////////////////////////////////////

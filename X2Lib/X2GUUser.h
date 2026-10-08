@@ -3048,6 +3048,20 @@ public:
 		bool	IsRidingKeySkillWaiting() const { return -1.f != m_fRidingKeySkillWaitTime; }	/// 329cc370
 		float	m_fRidingKeySkillWaitTime;
 #endif SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
+		/// effect completion C10e: June's CX2GUUser-only vslots 0x4f8 / 0x4fc, called from the user and NPC DamageReact on
+		/// a user attacker ( DamageData, the damage so far ). June's CX2GUUser body 33093ad0 is empty; only CX2GUEL overrides
+		/// them ( 32b7beb0 / 32b898a0, checklist 7j ).
+		virtual void OnAttackerDamageReact_Slot4F8( const CX2DamageManager::DamageData* pDamageData_, float fDamage_ ) {}
+		virtual void OnAttackerDamageReact_Slot4FC( const CX2DamageManager::DamageData* pDamageData_, float fDamage_ ) {}
+#endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
+		/// effect completion C10e: socket option 2000145. +0x7ca8 is set by SumSocketOption ( 3204f190 @3204fff5 ) and
+		/// cleared in UpdateSocketDataAndEnchantData ( @3204b5a0 ), +0x7cac is the 0.5 s cool-down between procs
+		/// ( ctor @3203e928, OnFrameMove @3207001b ), both read by CX2GUNPC::DamageReact ( 327b1f30 @327b4484 ).
+		bool	m_bJuneSocketCoolTimeOnHit;
+		float	m_fJuneSocketCoolTimeOnHitCool;
+#endif SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 		/// June buff port Phase 8: CX2GUUser's slot 181 (3204e380) and slot 182 (32039bf0)
 		virtual bool HasSocketAuraFor( const int iSocketEffectEx_, const BUFF_TEMPLET_ID eBuffTempletID_ ) const;

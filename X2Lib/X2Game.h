@@ -1091,6 +1091,10 @@ class CX2Game : public CKTDXStage
 		bool						IsNowStageStartMotion();
 		bool						CanUseQuickSlotItemBeforeStart( bool bHenirPractice_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
+		/// effect completion C10e: June 322cfca0( DamageData, float* damage ), called from the user and NPC DamageReact
+		void						JunePvpAmusementHalveDamage( const CX2DamageManager::DamageData* pDamageData_, float* pfDamage_ );
+#endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 		/// June buff port Phase 8: June's CX2Game +0xbae, whether left and right are both held this frame (KeyProcess, 322cfc60).
 		/// OnFrameMoveBuff's SHAKE_DECREASE trigger reads it

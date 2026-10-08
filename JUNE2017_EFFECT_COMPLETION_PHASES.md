@@ -4230,6 +4230,36 @@ shown-damage copy is listed here with its owner, in June's order.
 *Open for the user:* nothing. One crash case is decided in the C10e kickoff. June reads a null attacker at `327b449c`, and March
 keeps the null check; C10e owes a JUNE_BUGS row for it.
 
+**C10e - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS` + `SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT`; play-test pending).**
+Every step cites June by address. The test is on the socket half; the three hooks and `322cfca0` are inert on March data.
+
+*Hooks (flag `..._DAMAGE_REACT_HOOKS`).*
+- `CX2GUUser::OnAttackerDamageReact_Slot4F8` / `_Slot4FC( DD, damage )` are empty virtuals, June vslots `0x4f8` / `0x4fc` (body `33093ad0`; only Elesis overrides, checklist 7j).
+  - User `DamageReact`: after the `SERV_9TH_NEW_CHARACTER` stasis block, at function scope (`@320495d8-3204963b`): attacker is a user with a unit.
+  - NPC `DamageReact`: inside the `m_bLvDamage == false` / attacker-non-null block, right after March's stasis call. Ghidra confirmed `@327b4434-327b4482` falls through into `@327b4484`, and the two skips `@327b421b` / `@327b42aa` land on `327b4484`.
+- `CX2GameUnit::OnDamageDoneToDefender_Slot304( damage, DD )` is an empty virtual, June slot `0x304`, called on the attacker. User: after the C10b-1 HP-rate block, before `fFinalDamageToShow` (`@3204972c`). NPC: after `322cfca0`, before `DoCustomFunctionByBuffInNpcFinalDamage` (`@327b4800`).
+- `CX2Game::JunePvpAmusementHalveDamage( DD, float* )` = `322cfca0`: DD and `g_pData` set, `GetGameType() == GT_PVP`, PvP room `GetPVPGameType() == 8` (`JUNE_PGT_AMUSEMENT_ITEM`, June `Enum.lua:736`), `attackType != 2` (`JUNE_AT_COMMAND`, June `ATTACK_TYPE`) -> `*= 0.5f`. Both are plain `int` constants inside the function: `AT_COMMAND` exists in March only under `SERV_IRUHADEV_JUNE_BUFF_ENUM`, and March's `PVP_GAME_TYPE` ends at `PGT_TAG`. User: after the hooks, before the HP-rate block (`@32049678`). NPC: before the `0x304` call (`@327b47a4`).
+
+*Socket 2000145 (flag `..._SOCKET_COOLTIME_ON_HIT`).* Public `CX2GUUser::m_bJuneSocketCoolTimeOnHit` (+0x7ca8) and `m_fJuneSocketCoolTimeOnHitCool` (+0x7cac).
+- ctor sets false / 0.0 (`@3203e928`).
+- `UpdateSocketDataAndEnchantData` clears the bool between `ClearAllDelegateProcess` and `InitSocketData` (`@3204b5a0`).
+- `SumSocketOption` sets it when `kSocketData.m_ID == 2000145`, just before the cool-time cut block (`@3204fff5-32050002`).
+- `OnFrameMove` ticks the cool-down by `m_fElapsedTime` (June `+0x2b0`, same `+0x2b0` as C4's division window) and clamps at 0, before the start-motion block (`@3207001b-32070053`).
+- Consumer in NPC `DamageReact`, function scope after the gate, before `322cfca0`: user attacker with a unit and the bool set -> roll `GetRandomFloat( 0 )` on the **attacker** (vslot `0x1cc` on `EDI`) `< 0.03` as a **double** (`3344f248`), cool-down not above 0 -> `ResetLeftSkillCoolTimeByBuff( ST_ACTIVE, -5.0f, false, BCT_FIX_VALUE, 1.0f, true, 0 )`, then cool-down = 0.5. Pushed arguments `@327b4507-327b451d` read back as 6 / -5.0 / 0 / 1 / 1.0 / 1 / 0, which are `ST_ACTIVE` = 6 and `BCT_FIX_VALUE` = 1 in March.
+- `JUNE_BUGS.md` **136** (code 3 % vs text 1 %, kept) and **137** (June's no-null-test read at `327b449c`; March keeps its null test).
+- Log (`JUNE_FX_DEBUG`, `offline_server.log`): `JUNE_FX socket-cooltime flag set user=... socket=...` (first 20) and `JUNE_FX socket-cooltime roll user= roll= cooldown= proc=0|1` (every proc, plus the first 5 misses).
+
+Hygiene (`flagcheck --worktree --files <my 7 files>`): `DAMAGE_REACT_HOOKS`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 4 OTHER (the socket flag's lines in the same files), 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. `SOCKET_COOLTIME_ON_HIT`: `0 PASS, 4 OTHER, 0 FAIL` / same zeros / `RESULT: PASS`. Range lines: see the commit-time line below.
+
+`DEPLOY OK: X2_offline.exe is 19,411,968 B, dated 2026-10-08 23:19:46, md5 e2d031c8eba284e2b0188652816f4a24, equal to X2/US_SERVICE/x2.exe (2026-10-08 23:19:41); built at mods/june-buff-port 23c917a + 10 uncommitted code file(s).` Both `JUNE_FX socket-cooltime` strings are in the exe (UTF-16, 1 hit each).
+
+**Test vehicle (a save edit, backed up).** Accessory `100002826` "Elsword's Mysterious El Lord Chronicle" (sockets `1601,1501,5211,2000145`, `EP_AC_WEAPON`, use level 0) now sits in the Accessory bag of **jtLordKnight** (unit 25, Elsword's Lord Knight, Lv 80), item_uid 1336. Backup: `db_backup/els_db_20261008_c10e_pre_socket_accessory.sql`. To undo: `delete from item where item_uid = 1336`. `100002827..33`, `100003886/7` are the same item for the other classes.
+
+**Play-test (a 3 % roll needs many hits).** jtLordKnight: equip the accessory from the Accessory tab (double-click it; it is an `EP_AC_WEAPON` accessory), enter any dungeon with a monster that survives many hits, cast **Endurance** (active, slot 4 in the save) first so its cool-down is visible, then hit with normal attacks and Sonic Blade. Expect about one proc per 33 hits: the active skills' timers jump down 5 s at once. Log: `python tools/logs.py --grep "JUNE_FX socket-cooltime"` -> one `flag set` line at the unit load, at least one `proc=1`.
+
+*Open for the user:* nothing. Review kickoff: `kickoffs/june-effect/C10e-review.md`.
+
+
 ---
 
 ## C11 - Verification on June data
