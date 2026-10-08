@@ -2779,6 +2779,54 @@ RESULT: PASS
 
 **Open for the user:** none. **User owes:** the play-test below, `/cost`.
 
+### C9h-4a - Review (2026-10-08, Opus 5.5 high): no transcription finding, one stale comment fixed (comment only), no deploy
+
+**Play-test:** passed before this review (STATUS; logs read, `_DEBUG` off in `dc9610c`). The deployed exe (10:12:57, md5 `3f3dd8bf`, a peer's later build) has the keys and no `JUNE_FX UNIT_SOUND` string, so `_DEBUG` is off there.
+
+**Checked against June (Ghidra / capstone read-only, literals from `unpacked_x2.exe`).**
+- **ALL_OPTION keys** (`@3205d1cc-3205da78`, XOR buffers `0x3379d61c..0x3379d65c`). All eight decoded: `SOUND_NAME` (wstring getter `32feae90` -> rec `+0x4`), `PLAY_TIME` (`32fea370` float -> `+0x0`), `RATE` (`32fe9fd0` int -> `+0x20`), `ONLY_IF_MY_UNIT` (`32fe9e40` bool -> `+0x24`), `MAX_SOUND_DISTANCE` (float -> `+0x28`), `ENABLE_3D_SOUND` (bool -> `+0x2c`), `LOOP` (bool -> `+0x40`); `DELETE_CONDITION` is plaintext (`33476588`).
+  - The decoder printed `ONLY_IF_MY_UNITU`. That is an artifact: `XOR BL,BL` stores the terminator at `+0x5ff`.
+  - Defaults on a miss: "", -1.0 (`334380f0`), 100, false (BL = 0), -1.0, true, false. June's data carries six of the eight names (in 40 `june_src_fixed` files); `MAX_SOUND_DISTANCE` and `ENABLE_3D_SOUND` appear only in the binary.
+- **DELETE_CONDITION replaces the seed.** `31ecace0` is `erase( begin, end )` on rec `+0x30` (`@3205d9d2`), followed by `GetValue( 1.. )` and push_back. EndTable runs only when the table opened. Matches.
+- **SOUND_PLAY_EX** (`@3205cff8-3205d1cc`).
+  - Rows are 1-based; `[1]` is the name, `[2]` the time (default 0), `[3..]` the conditions.
+  - Per row, `31ecace0` clears the condition vector. `32079650( name, time, &conds )` builds the record (rate 100, onlyIfMyUnit 0, distance -1, 3D 1, loop 0) and copies the row's conditions with no seed.
+  - An empty name jumps to the single EndTable at `@3205d19b`, which leaves `SOUND_PLAY_EX` open (JUNE_BUGS 117). Matches.
+- **Other readers.** `SOUND_PLAY` goes through `32078fd0` (flag 0 / 1000 plain, `"%s%d_%s"` with `JP` / `US` / `BR` at 0x200 / 0x400 / 0x700, plain fallback; AL returned). `STATE_SOUND_PLAY` (`@3205da78-3205db96`) clears `+0x85d4`, reads plain names, defaults -1 / "" / 100 / false. Anchor: June runs `ATTACK_TIME`, then `32005780`, then the block; March runs `ATTACK_TIME`, then `StopTime_StateStart()`, then the block.
+- **Stop sites.**
+  - DamageReact `@3204a6f7-3204a71f`: one guard (7, 0x16, 0, 0xb, 0xc) for both `3228a270` and `32276ce0`. The port gates the sound on all five.
+  - Shock block `@32068a3c`: after `3228a270` / `3228a420`.
+  - CommonStateEnd: `32009ae0 @320153c7`, then `3228a200`, `32276ca0 @320157fc`, `3228a120`.
+  - CommonStateStart: `32009ae0 @32057de1`; `CUSTOM_STATE_DELETE_SOUND` (bool, miss false) -> `32276d60` right after `3228a420`; `3228a490`, `32278200 @320606a9`.
+  - ReInit `@32022455` (after the `+0x85c4` clear) and the dtor `@3203a68b`.
+  - Attach jump table `3227a808`: 1 `+0x3f20`, 2 `+0x3f30`, 3 `+0x3f40`, 4 `+0x3f50`, 5 `+0x3f60` (user, skill > 0). Each stopper reads its own list.
+  - Order differences that change nothing:
+    - June's CommonStateEnd runs the reserved-buff loop and a skin-anim call before `32009ae0`;
+    - June runs four unmapped calls before `32278200`, where March runs `DoCustomFunctionByBuffInCommonStateStart` / `ApplyDrainHpBuff` after it.
+    - Neither touches the sound lists: only the players attach.
+- **DIE `32276d20`.** Ghidra has no function there. A raw scan found 0 `E8` / `E9` targets and 0 absolute dwords pointing at it, so JUNE_BUGS 116 stands.
+- **Players.**
+  - `31fea120`: due = oneshot `+0x24c` < t and `31d28e10` (March's `EventTimerOneshot`), or the riding pet's anim (`+0x683c`, vslot 0x200).
+    - The roll is `rand % 100 < rate`. Only-if-my-unit uses vslot 0x198 (`31ff1f30` = IsMyUnit) with 3D off.
+    - Then `32276220( name, 3D, loop )` (param 3 sets the 3D position, param 4 is the play loop), attach if non-null, and erase in both cases. A failed roll or another unit's record is kept.
+  - STATE player (`@31ff396f`): `m_bGrap` skips the record, `(name, 1 or 0, 0)`, pushes the handle (null too), never erases.
+  - vslot 0x524 = `3208e410` GetNowStateSkillID.
+- **`+0x9108` = `m_bGrap`.** June `31fd2920` is March's `SetGrap` line for line: count <= 0 or false clears `+0x84f3` (`m_bDisableGravity`) and `+0x9108`; otherwise HP > 0 runs StateChange( `+0x9110` GetGrapStateID ), zeroes nowSpeed, and sets `+0x9108`.
+- **Regression.** Every reader of the user's `m_vecSoundPlayData` only clears it or appends to it: CommonStateStart, ReInit, and the riding pet's StateChange `X2RidingPet.cpp:1184`, through `AccessSoundPlayData`. No code indexes it or caches its size, so the erase is safe. On March data the only visible change is Chung's mid-state replay.
+
+**Finding (comment only).** `X2GUUser.cpp:17638`, inside `SERV_IRUHADEV_JUNE_ENCHANT_PARITY` (`6322917`), said June's `32276ce0` list was "not ported". C9h-4a ported it, so the line now says so. A bytepatch replace of one line: encoding and EOL unchanged; `flagcheck JUNE_ENCHANT_PARITY --worktree --files X2Lib/X2GUUser.cpp` PASS, with 1 deleted line (the replaced comment). It does not change the binary, so nothing is rebuilt.
+
+**Hygiene** (`flagcheck JUNE_UNIT_SOUND --range 5dc4944^..HEAD --with JUNE_UNIT_SOUND_DEBUG`):
+- `files: 3 PASS, 1 PASS~ (blank/marker only), 2 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+- `in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)`
+- `RESULT: PASS`
+- Explanations:
+  - The deleted line is `dc9610c`'s `#define ..._DEBUG`, now commented out (the DEFINE row). The Done note blamed a peer's blank line.
+  - The PASS~ 2 are the blank lines after the early-clear `#endif` and after the `CUSTOM_STATE_DELETE_SOUND` `#endif`.
+  - The 2 tokenless lines are the bare `#else` in CommonStateStart and in CommonFrameMove_TimedEvent.
+
+**C9h-4b kickoff:** checked; it reads this Done note for the shipped names. One line added: its flags need `SERV_IRUHADEV_JUNE_UNIT_SOUND` on, and the NPC passes skill id 0 to the attach. **Open for the user:** /cost. **Next:** C9h-4b, C9h-4c or C9h-4d (Sonnet 5.5 high; 4c and 4d one at a time).
+
 ### C9h-6 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the snapshot exists because June's running state data are pointers; March copies them by value, so a port would never change anything -> no port, routing only
 
 There are 23 funcmap rows tagged `Effect C9h-6`. The sweep of `[reg + 0x9538..0x956c]` found 69 hits, a few of them `mov reg, imm` decode artefacts.

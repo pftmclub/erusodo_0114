@@ -22,6 +22,10 @@ with `tools/bytepatch.py`.
 
 ## Task
 
+C9h-4a's pieces are defined under `SERV_IRUHADEV_JUNE_UNIT_SOUND` (the record's `m_vecDeleteCondition` / `m_bLoop`,
+`CX2GameUnit::JuneBeginSoundPlayTable`, `AttachSoundDeleteCondition`, the `StopSoundOn*` stoppers), so both new flags need it on. The NPC
+passes skill id 0 to the attach, since case 5 is user-only in June (`3227a740` tests `+0x264`).
+
 **NPC** (`SERV_IRUHADEV_JUNE_NPC_SOUND`).
 - **LoadStateData** (`32784c00 @3278dad8-3278f103`): `SOUND_PLAY` through C9h-4a's reader, plus `SOUND_PLAY_ALL_OPTION` with its eight
   fields and `DELETE_CONDITION`.

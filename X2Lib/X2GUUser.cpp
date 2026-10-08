@@ -17635,7 +17635,7 @@ void CX2GUUser::CommonFrameMove()
 				}
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 				/// June @32068a3c..@32068d04, still inside this alive branch in June: the shock debuff (BFI 1000). June's
-				/// 32276ce0 just before it stops a damage-react sound list (+0x3f20) March does not have: not ported.
+				/// 32276ce0 just before it stops the damage-react sound list (+0x3f20): ported by C9h-4a (SERV_IRUHADEV_JUNE_UNIT_SOUND, above).
 				if ( GetNowHp() > 0.f )
 					JuneApplyEnchantShockDebuff();
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
