@@ -288,6 +288,28 @@ with the session cost, then commit on mods/elysion-port.
    `VillageParsing` and the runtime that moves the player (June's version).
 4. Add the matching C++ enum for `VILLAGENPC_RELATIONDATA_TYPE` with explicit
    values equal to A3's Lua values.
+5. *(Added by june-effect C9h-2e, 2026-10-08; rows are funcmap `Effect C9h-2e`.)*
+   Step 1's June addresses:
+   - loaders `3233b680` (ByQuest) and `32340720` (ByVillage);
+   - lookups `32340320` and `323446c0`;
+   - the 0x388 row (`+0` quest, `+4` house, `+0xc` code event, `+0x80`
+     village), plus ByQuest's second 0x14-byte shape at `+0xbc`.
+
+   Port all three entry points:
+   - village NPC creation `323ba5f0`;
+   - the per-quest refresh `32340630` (from three quest-UI handlers);
+   - the code-event refresh `32344880`, called from
+     `Handler_EGS_UPDATE_CODE_EVENT_NOT`'s `SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP`
+     block on `mods/june-buff-port`.
+
+   The TFieldGame side is `323b7ff0` (replace), `323a9ed0` (remove) and
+   `323b8970` (restore).
+
+   Reach on March data:
+   - the 27 code-event rows (event 2308, quest 0) stay dormant offline;
+   - the ByVillage row for `VMI_SPA_RANOX` (1501, a **March** village) swaps its
+     billboard to June's `UI_NPC_BILLBOARD_SPA.lua`, which March lacks. Settle
+     this row before claiming "existing villages unchanged".
 
 **Done when:** census reports no unread key/binding owned by E1; build rc=0,
 new literals in the exe; existing villages unchanged (their files carry none

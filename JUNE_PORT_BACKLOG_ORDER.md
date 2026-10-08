@@ -143,6 +143,13 @@ Start from `ATLAS_PORT_PHASES.md`'s Phase A0 kickoff. That doc owns the shared g
 
 **Hand-offs to later stages:** the inert quest keys, the dormant quest-driven NPC swaps (Yuno → Hyper Yuno → Nono), and the deferred quest movies (e.g. the Elysion clear movie, quest 22336) all go to Stage 4. Record them in the Atlas/Elysion Done notes as they are found.
 
+**Handed in by june-effect C9h-2e (2026-10-08):** Elysion E1's NPC relation system has three entry points, not one:
+- village NPC creation `323ba5f0`;
+- the per-quest refresh `32340630`, called from three quest-UI handlers;
+- the code-event refresh `32344880`.
+
+The last is the tail of `Handler_EGS_UPDATE_CODE_EVENT_NOT` (`31f00970`). On `mods/june-buff-port` that handler's flag-on block (`SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP`, C9h-2d) already copies June's map and two sets but does not make the call. Add the call there, behind E1's own flag; whichever branch merges second wires it. Rows: funcmap `Effect C9h-2e`.
+
 ### Stage 2: engine remainder and measurements
 
 The planning session writes `JUNE_ENGINE_REMAINDER_PHASES.md` (full kickoff below).
@@ -269,6 +276,15 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   - What is left in `SetEnable`: the `+0x100` / `+0x101` slot-count modes and the unit `+0xdba` term.
   - What is left in the toggle body: the double refresh `31c91850`, the June-only `g_pMain+0x2aa` mirror and the `32e904d0` call.
   - Rows: `june2017_re/c14c_tutorial_reads.tsv`; Done note: `JUNE_BUFF_PORT_PHASES.md` "Phase 14c — Done".
+- **June's code-event menu icons (`EventButtonAddSystem`)** (handed here by june-effect C9h-2e, 2026-10-08). March has no counterpart; its menu hard-codes `IF_EVENT_ENABLED` blocks.
+  - Data: `data036` `EventButtonIconInfo.lua`, 29 rows on 6 states, loaded by `AddEventButtonIconInfo` (`31ee94a0`, into `g_pData+0x584`, 0x58-byte rows) and `AddEventButtonIconUsingState` (`31ee39f0`, set `+0x594`).
+  - Runtime: three `CX2State` virtuals that June inserted. In the base they are empty.
+    - `CX2StateMenu` `+0xfc` adds one icon (`324637d0`, layout `3245d2b0`).
+    - `+0x100` refreshes icons by code event and level (`3245d3a0`). `Handler_EGS_UPDATE_CODE_EVENT_NOT` calls it last; C9h-2d left that call out.
+    - `+0x104` handles the class-up notice buttons (`3245abd0`).
+  - Check against March first: the `STATE_MENU_UI_CUSTOM_MSG` ids the rows send, and the 29 `DLG_UI_Menu_*_Event*.lua` dialogs.
+  - Inert offline: nothing enables a code event, because the emulator never sends the packet.
+  - Rows: funcmap `Effect C9h-2e`.
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 
