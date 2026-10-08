@@ -23,6 +23,24 @@ namespace
 	/// loaded at all. The real curve is roughly quadratic; this keeps a
 	/// tutorial run from awarding literally nothing while the log shouts.
 	const int SYNTHETIC_EXP_L1 = 9;
+
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	/// K3. The loader never gated a drop case on the item having a templet, so
+	/// June's item.kim does not change the row counts above. What it changes is how
+	/// many cases name an item the client cannot resolve (a floor drop with no
+	/// templet has nothing to draw, and pickup logs "ITEM WARNING no templet").
+	/// Counted at the three places a case is built, logged once by EnsureLoaded.
+	int s_iJuneKimUnresolvedCases = 0;
+
+	void JuneKimCountUnresolved( int iItemID )
+	{
+		if( NULL != g_pData && NULL != g_pData->GetItemManager() &&
+			NULL == g_pData->GetItemManager()->GetItemTemplet( iItemID ) )
+		{
+			++s_iJuneKimUnresolvedCases;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -217,6 +235,16 @@ void CX2OfflineDropTable::EnsureLoaded()
 		m_iNpcExpRows, m_iMonsterRows, m_iItemCaseRows,
 		(unsigned int)m_mapDropGroup.size(), m_iStaticRows, m_iStaticCaseRows );
 
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	// K3. The row counts above are the same under either item.kim (no templet gate
+	// here); the number that moves is the cases naming an item with no templet.
+	CX2OfflineLog::Server( L"[JUNE_KIM] drop table: %d npc-exp, %d monster, %d item case(s), %d static"
+		L" case(s) loaded (no templet gate, so unchanged by item.kim); %d case(s) name an item"
+		L" with no templet (floor drop would have nothing to draw)",
+		m_iNpcExpRows, m_iMonsterRows, m_iItemCaseRows, m_iStaticCaseRows,
+		s_iJuneKimUnresolvedCases );
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
+
 	if( 0 == m_iNpcExpRows )
 	{
 		CX2OfflineLog::Server(
@@ -300,6 +328,9 @@ void CX2OfflineDropTable::ReadDropBlock( const char* szKeyField, bool bBattleFie
 				kCase.m_fProb	= fProb;
 				kCase.m_bGroup	= false;
 
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+				JuneKimCountUnresolved( iItemID );
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 				kReward.m_vecItemCase.push_back( kCase );
 				++m_iItemCaseRows;
 			}
@@ -441,6 +472,9 @@ void CX2OfflineDropTable::ReadStaticBlock( const char* szKeyField, bool bBattleF
 				kCase.m_fProb	= fProb;
 				kCase.m_bGroup	= false;		///< a static row never names a group
 
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+				JuneKimCountUnresolved( iItemID );
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 				vecCase.push_back( kCase );
 				++m_iStaticCaseRows;
 			}
@@ -489,6 +523,9 @@ void CX2OfflineDropTable::AddToGroup_LUA( int iGroupID, int iItemID, float fProb
 	kCase.m_fProb	= fProbability;
 	kCase.m_bGroup	= false;			///< a group never contains another group
 
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	JuneKimCountUnresolved( iItemID );
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	m_mapDropGroup[ iGroupID ].push_back( kCase );
 }
 

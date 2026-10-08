@@ -109,6 +109,15 @@ void CX2OfflineCashShop::EnsureLoaded()
 		L" %d dropped for having no item templet",
 		(int)m_vecProduct.size(), m_iRows, m_iDroppedRows );
 
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	// K3. With March's item.kim 294 more rows were dropped here (K1,
+	// june_item_kim/k1_newly_visible.tsv); under June's they resolve. The dropped
+	// count that is left is rows no June item.kim names either.
+	CX2OfflineLog::Server( L"[JUNE_KIM] cash shop products: %d of %d cash_product row(s) loaded,"
+		L" %d dropped for no templet (March's item.kim dropped 294 more: K1 count)",
+		(int)m_vecProduct.size(), m_iRows, m_iDroppedRows );
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
+
 	if( true == m_vecProduct.empty() )
 	{
 		CX2OfflineLog::Server(

@@ -235,6 +235,15 @@ void CX2OfflineRandomItem::EnsureLoaded()
 		m_iCubeRows, (unsigned int)m_mapCubeKey.size(), m_iGroupCaseRows,
 		(unsigned int)m_mapGroup.size(), m_iPresentationRows );
 
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	// K3. A cube whose own item has no templet is dropped above (CubeDropped counts
+	// that gate and two other refusals); June's item.kim resolves more of them, so
+	// compare this line with the pre-K2 CUBE line in an older log.
+	CX2OfflineLog::Server( L"[JUNE_KIM] cubes: %d loaded, %d refused (no templet for the cube item, or"
+		L" other refusal), %d group case(s)",
+		m_iCubeRows, m_iCubeDropped, m_iGroupCaseRows );
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
+
 	if( m_iCubeDropped > 0 )
 	{
 		CX2OfflineLog::Server( L"CUBE     NOTE %d cube templet(s) dropped - no item templet for the"

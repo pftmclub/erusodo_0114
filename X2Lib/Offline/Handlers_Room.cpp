@@ -2999,6 +2999,11 @@ bool CX2OfflineServer::Handler_EGS_WORLD_TRIGGER_RELOCATION_REQ( KOfflineSession
 	// The gold bar above 1999 (KDropTable.cpp:1176, SERV_BATTLE_FIELD_BOSS, live on
 	// US). Reachable once a boss pays x12 or a field middle boss x4 x20. The client
 	// takes 127041 as ED under FIELD_BOSS_RAID (X2ItemManager.h:448, Always.h:582).
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	// K3: June's item.kim HAS the 127041 row ("Gold ED Bars", type 7, DropCoinGoldBar), so
+	// with it the GetItemTemplet test below passes and the stand-in never fires. It stays
+	// as the degrade path for a March item.kim; nothing to decide.
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	// But March's item.kim has no 127041 row, and a floor drop with no templet has
 	// nothing to draw. So the gold coin stands in for its picture, logged once.
 	// The value is unaffected: it lives in m_mapDropED, keyed by drop UID.

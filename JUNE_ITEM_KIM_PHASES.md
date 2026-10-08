@@ -553,6 +553,37 @@ No re-play-test is needed.
    - Gold coin 127041 (`Handlers_Room.cpp:2974-2975`, "March's item.kim has no 127041 row"): check June. If June has the row, decide
      with the offline-grade owner whether the floor-drop workaround stays.
 
+### Phase K3 - Done
+
+2026-10-08, Sonnet 5.5 high. Flag `SERV_IRUHADEV_JUNE_ITEM_KIM` (no new flag). Five files in `X2Lib/Offline/`, all ASCII/LF, all insert-only.
+
+1. **Save-breakers: none** (K1). Confirmed from the post-K2 run: `offline_server.log` 0 `ITEM     WARNING no templet`; ErrorLog has the
+   `[JUNE_KIM] loaded` line (1).
+2. **Cash shop** (`X2OfflineCashShop.cpp`): one line `[JUNE_KIM] cash shop products: N of M cash_product row(s) loaded, D dropped for no
+   templet (March's item.kim dropped 294 more: K1 count)`. The "before" is K1's count (294, `k1_newly_visible.tsv`), not computed at
+   runtime (no March kim loaded). The 79 asset names in no June kom stay missing: nothing to decide until a product misbehaves.
+3. **Cubes and drops.** `X2OfflineRandomItem.cpp`: `[JUNE_KIM] cubes: %d loaded, %d refused, %d group case(s)` after the CUBE line.
+   `X2OfflineDropTable.cpp`: the loader **never gated a case on a templet** (its comments said it did), so its row counts do not move
+   with the kim. Instead it counts cases (monster item, static, group) naming an item with no templet:
+   `[JUNE_KIM] drop table: ... %d case(s) name an item with no templet`. A drop pointing at one would have nothing to draw.
+4. **Comments.** `X2OfflineInventory.cpp`: class-9 `GBASE_ITEM` note that its ids now resolve (row stays unreachable).
+   `Handlers_Room.cpp` gold coin: June's kim has 127041 ("Gold ED Bars", type 7, `DropCoinGoldBar`, shop image `HQ_Shop_Item_127041.dds`).
+   `EDCoinItemID` already tests `GetItemTemplet( GOLD_BAR_ED_ITEM_ID )` before falling back to the gold coin, so under June's kim the
+   stand-in never fires and under a March kim it still does. **Nothing to decide**: it stays as the degrade path (no question asked).
+5. **IT_CUSTOM.** `SuitableCategory` gives `IT_CUSTOM` (14) `ST_SPECIAL` (logged once, `[JUNE_KIM] item N is IT_CUSTOM`), and
+   `IsSuitableSlot` accepts it in `ST_SPECIAL`. Matches K2's client sort (June `32869aa0`). No type-14 item is reachable (K1), so this
+   is a consistency edit; whether any reward gives one is Stage 12.
+
+**Hygiene** (`flagcheck JUNE_ITEM_KIM --worktree --files <the 5>`): 2 PASS, 3 PASS~ (blank line), 0 OTHER, 0 FAIL, 0 deleted,
+0 non-ASCII, 0 EOL mismatch, RESULT PASS.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,387,392 B, dated 2026-10-08 16:51:33, md5 131c16ebe8b6b4118dc8d23325e6d7c9, equal to
+X2/US_SERVICE/x2.exe (2026-10-08 16:51:28); built at mods/june-buff-port 4132fd4 + 5 uncommitted code file(s).` The four new strings
+(`cash shop products`, `cubes:`, `drop table:`, `is IT_CUSTOM`) are in the exe. No kom change (koms live since K2).
+
+**How to see it.** First shop open: `[JUNE_KIM] cash shop products`. Boot: `[JUNE_KIM] cubes`. First dungeon: `[JUNE_KIM] drop table`
+(all in `offline_server.log`). K4 reads them.
+
 ## Phase K4 - Play-test and close
 
 **Run with:** the user's play-test. Claude reads the logs.

@@ -107,6 +107,22 @@ void CX2OfflineInventory::Release()
 	case CX2Item::IT_QUEST:			return CX2Inventory::ST_QUEST;
 	case CX2Item::IT_QICK_SLOT:		return CX2Inventory::ST_QUICK_SLOT;
 	case CX2Item::IT_SKILL_MEMO:	return CX2Inventory::ST_SPECIAL;
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	// K3. June 32869aa0 (byte table 32869b40, index 13 -> 4): IT_CUSTOM sorts as
+	// ST_SPECIAL, and K2's client does the same. The emulator has to agree or a
+	// type-14 item lands in a bag the client does not show it in.
+	case CX2Item::IT_CUSTOM:
+		{
+			static bool s_bLogged = false;
+			if( false == s_bLogged )
+			{
+				s_bLogged = true;
+				CX2OfflineLog::Server( L"[JUNE_KIM] item %d is IT_CUSTOM (type 14): placed in the special"
+					L" bag as June sorts it (logged once)", iItemID );
+			}
+			return CX2Inventory::ST_SPECIAL;
+		}
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	default:						return CX2Inventory::ST_NONE;
 	}
 }
@@ -143,6 +159,10 @@ void CX2OfflineInventory::Release()
 		return ( CX2Item::IT_MATERIAL == pTemplet->GetItemType() );
 
 	case CX2Inventory::ST_SPECIAL:
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+		if( CX2Item::IT_CUSTOM == pTemplet->GetItemType() )		///< K3, see SuitableCategory
+			return true;
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 		return ( CX2Item::IT_SPECIAL    == pTemplet->GetItemType() ||
 				 CX2Item::IT_SKILL_MEMO == pTemplet->GetItemType() );
 
@@ -1192,6 +1212,10 @@ namespace
 	/// database on 2026-09-15, they are distinct - Elesis (8) and class 9
 	/// (unreachable, since gup_create_unit rejects any class outside 1..8) both
 	/// have their own gear and costume IDs.
+#ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
+	/// K3: with June's item.kim the class-9 ids (112991.., 41757..) now resolve to
+	/// templets too. The row stays unreachable for the reason above.
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	struct KBaseItemSet
 	{
 		int	m_iUnitClass;
