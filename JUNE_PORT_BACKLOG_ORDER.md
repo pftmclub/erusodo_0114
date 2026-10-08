@@ -515,6 +515,11 @@ half is planned there (C9h-2a/2b/3). Two pieces are not effect work and have no 
 
 ---
 
+- **The riding pet's collision boxes** (june-effect C9h-4e, 2026-10-08). June's `INIT_SYSTEM` carries `ENABLE_USER_COLLISION_BOX` (a bool) and
+  `ENABLE_RIDING_PET_COLLISION_BOX` (a bone-name list) in 5 of March's riding-pet scripts (GodBeast_Fire, the three Oberon 650s, Scorpion Type R; the other June pets were not counted).
+  March has no reader (inert), and June's version of all 14 adopted pets dropped `CAN_PUSH_UNIT` / `CAN_PASS_UNIT` (Scorpion's `PASS_DASH` no longer passes through
+  monsters). Identify the reader (Ghidra: the `INIT_SYSTEM` loader of `CX2RidingPet`) and port it with the pets.
+
 ### Stage 18: NPC friendship system (june-effect C9h-5, 2026-10-08)
 
 june-effect C9h-5 diffed June's `CX2TFieldNpc::OnFrameMove` (`june2017_re/c9h5_fieldnpc_onframemove_diff.md`, blocks 19, 26, 30, 32 and 33). The village NPC calls into a June-only friendship system. March has none of it.
