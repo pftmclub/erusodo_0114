@@ -276,7 +276,7 @@ now"); a load-time file check offers only the ones whose files exist, so the res
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| S0 | **ready** (decisions made by the user 2026-10-08: scope, price 1, file check) | Sonnet 5.5 / high, then user play-test | june-item-kim K4 (done) | `X2Lib/Offline/X2OfflineCashShop.cpp/.h`, `X2OfflineDB` (read/insert only), `KTDXLIB/Always.h`, `costume_shop/` | `S0.md` |
+| S0 | **built + deployed, awaiting play-test** (38,844 rows written into els_db.sql by costume_shop/insert_products.py, no seeder; client file check built; user owes the play-test, then "check logs") | Sonnet 5.5 / high, then user play-test | june-item-kim K4 (done) | `X2Lib/Offline/X2OfflineCashShop.cpp/.h`, `X2OfflineDB` (read/insert only), `KTDXLIB/Always.h`, `costume_shop/` | `S0.md` |
 
 ## june-asset-extract - June non-lua assets, byte-exact, in March koms
 

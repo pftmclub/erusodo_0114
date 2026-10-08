@@ -68,6 +68,40 @@ are not ported yet cost memory but show nothing.
 5. Done gate: flagcheck PASS, `build.py --deploy`, Done note under this heading, STATUS row, a play-test hand-off (open the shop on a
    character, browse every costume tab, buy and equip one new costume, then one for each other tab; first launch writes the rows).
 
+### S0 - Done (2026-10-08)
+
+**Landed.** Flag `SERV_IRUHADEV_COSTUME_SHOP` (`Always.h`), `X2OfflineCashShop.cpp` (load-time file check + `[COSTUME_SHOP]` log),
+`costume_shop/insert_products.py`, `costume_shop/withheld_files.py` + `withheld_files.tsv`. **Deviation from steps 2/2b (user,
+2026-10-08): no C++ top-up / seeder.** The rows were written straight into the game dir's `els_db.sql` by the Python script (a seeder
+can come in a later phase if wanted). Backup: `db_backup/els_db_20261008_172622_pre_costume_shop.sql`.
+
+- **Rows inserted: 38,844** (product_no 2379..41222; 38,832 fashion + 12 GM weapons), price 1, quantity 1, event 0. A second run adds
+  nothing (key = item_id; 39,571 already present). `cash_product` now 41,222 rows, integrity ok.
+- **Skipped on purpose (user: "skip them"):** eqip 0 = 12 packages, eqip 7 = 4 Ain faces, eqip 36 = 7 Raven left arms; none has a tab.
+- **Category map** (eqip -> billing, `CashShopCategory.lua` numbers; accessories checked against the 2,378 live rows):
+  2->11 weapon, 8->12 body, 9->13 leg, 6->14 hair, 10->15 hand, 11->16 foot, 38->17 one-piece (table only; `SERV_NEW_ONE_PIECE_AVATAR_SLOT`
+  is on for US), 25->21, 17/18/19/26/27->22 (26/27 have only non-fashion precedent), 20->23, 21->24 (majority 33 vs 16), 22->25, 23->26, 24->27.
+- **Plan fact corrected:** the live rows DO include non-fashion weapons: 277 rows (eqip 2, item type 1) sit in billing 11. So the GM
+  weapons go to 11 with that precedent and no question was needed. All 12 GM names contain "GM" (Elesis's is Korean `...GM...`).
+- **File check** (client, rows with product_no > 2378 only): model 0..7, texture-xet, ani-xet, shop-image, "" and "0" = no asset,
+  directory prefix stripped, one `IsValidFile` per distinct name. Unit type >= `UT_END` (10) is offered unchecked. Per the Python
+  reproduction against the deployed koms (name index 105,075): **19,017 offered after the check, 14,564 withheld, 5,263 offered
+  unchecked** (Lu / Ciel / Rose / Ain). 592 of the withheld miss only an `HQ_Shop_*.dds` shop image. Per-category numbers are in
+  `withheld_files.py`'s output; the list for the june-asset-port is `costume_shop/withheld_files.tsv` (item, category, unit type, names).
+  The play-test checks that the logged counts equal these.
+- **Known side effect:** the shop's "all characters" checkbox shows the 5,263 unchecked items with blank icons.
+- **Hygiene:** flagcheck `--worktree --files KTDXLIB/Always.h X2Lib/Offline/X2OfflineCashShop.cpp`: 0 PASS, 1 PASS~ (3 blank lines),
+  1 DEFINE, 0 FAIL; 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 encoding change. RESULT: PASS.
+- **Deploy:** DEPLOY OK: X2_offline.exe is 19,390,976 B, dated 2026-10-08 17:53:01, md5 82822aa7e9f98d12500e6f37420ee415, equal to
+  X2/US_SERVICE/x2.exe (2026-10-08 17:52:56); built at mods/june-buff-port 007555f + 2 uncommitted code file(s). `[COSTUME_SHOP]` is in the exe.
+- **Open risk:** per-click cost of a 41k-product catalog (estimated 14x); the log line gives the EnsureLoaded time, tab clicks are by feel.
+  If it stutters the fix is a cached filtered list in the client (separate flag, ask first).
+
+**Play-test hand-off** (log tag `[COSTUME_SHOP]`): launch with `start_offline.bat`, open the cash shop on any character (the first open
+loads the catalog; the product pages arrive in about 100 packets). Look for: (1) all fashion tabs filled, including the one-piece tab;
+(2) buy one new costume of each tab, claim it from the deposit, equip it, confirm it renders; (3) tab-switch and scroll feel; (4) a
+withheld item (for example item 48, missing its shop image) must NOT be listed. If not: tell me which tab/item. Then say "check logs".
+
 ## Close
 
 The user's play-test. Then Claude reads `logs.py --tag COSTUME_SHOP`, and the `june-asset-port` hand-off gets the withheld list

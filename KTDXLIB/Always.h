@@ -6052,3 +6052,17 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL needs SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 #endif SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: Costume shop S0. The offline cash shop catalog (cash_product, written into els_db.sql by
+//              costume_shop/insert_products.py) now holds every June fashion item and every character's GM
+//              weapon at price 1. With this flag CX2OfflineCashShop::EnsureLoaded withholds, from the catalog
+//              it hands the client, a row of that batch (product_no > 2378) whose model, texture-xet, ani-xet
+//              or shop-image file is not in the mounted koms, unless the item's unit type is a character this
+//              client does not have yet (>= CX2Unit::UT_END). The rows stay in the DB and appear by themselves
+//              once the files arrive. Logs [COSTUME_SHOP] offered/withheld counts and the time taken.
+//              Off = every row is offered, as before.
+#define SERV_IRUHADEV_COSTUME_SHOP
+//////////////////////////////////////////////////////////////////////////

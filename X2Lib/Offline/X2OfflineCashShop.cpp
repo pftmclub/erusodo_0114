@@ -12,6 +12,55 @@ CX2OfflineCashShop* CX2OfflineCashShop::ms_pInstance = NULL;
 
 namespace
 {
+#ifdef SERV_IRUHADEV_COSTUME_SHOP
+	/// The seeded catalog (schema v9) ends at product_no 2378; costume_shop/insert_products.py
+	/// numbers its rows from 2379 up. Only those rows get the file check - the original
+	/// 2378 are offered exactly as before.
+	const int COSTUME_SHOP_LAST_SEED_PRODUCT_NO = 2378;
+
+	/// Is this asset name in a mounted kom (or loose)? Empty and "0" mean "no such asset" -
+	/// the kim writes "0" for an unset string - and count as present. A directory prefix is
+	/// stripped, the kom index is flat (same rule as the K1 census, june_item_kim/k1_census.py).
+	/// Each distinct name is asked once.
+	bool CostumeNameMounted( const std::wstring& wstrName, std::map< std::wstring, bool >& mapCache )
+	{
+		if( true == wstrName.empty() || L"0" == wstrName )
+			return true;
+
+		const size_t uSlash = wstrName.find_last_of( L"/\\" );
+		const std::wstring wstrBare = ( std::wstring::npos == uSlash ) ? wstrName : wstrName.substr( uSlash + 1 );
+		if( true == wstrBare.empty() )
+			return true;
+
+		std::map< std::wstring, bool >::const_iterator mit = mapCache.find( wstrBare );
+		if( mapCache.end() != mit )
+			return mit->second;
+
+		bool bOK = false;
+		if( NULL != g_pKTDXApp && NULL != g_pKTDXApp->GetDeviceManager()
+			&& NULL != g_pKTDXApp->GetDeviceManager()->GetMassFileManager() )
+		{
+			bOK = g_pKTDXApp->GetDeviceManager()->GetMassFileManager()->IsValidFile( wstrBare );
+		}
+
+		mapCache[ wstrBare ] = bOK;
+		return bOK;
+	}
+
+	/// The K1 asset set minus the extras: models 0..7, texture-change xet, ani xet, shop image.
+	bool CostumeFilesMounted( const CX2Item::ItemTemplet* pTemplet, std::map< std::wstring, bool >& mapCache )
+	{
+		bool bOK = true;		///< no early out: every name is cached, so the next item is cheaper
+
+		for( int i = 0; i < CX2Item::MAX_MODEL_COUNT_A_ITEM; ++i )
+			bOK = CostumeNameMounted( pTemplet->GetModelName( i ), mapCache ) && bOK;
+
+		bOK = CostumeNameMounted( pTemplet->GetTextureChangeXETName(), mapCache ) && bOK;
+		bOK = CostumeNameMounted( pTemplet->GetAniXETName(), mapCache ) && bOK;
+		bOK = CostumeNameMounted( pTemplet->GetShopImage(), mapCache ) && bOK;
+		return bOK;
+	}
+#endif SERV_IRUHADEV_COSTUME_SHOP
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -69,6 +118,14 @@ void CX2OfflineCashShop::EnsureLoaded()
 		return;
 	}
 
+#ifdef SERV_IRUHADEV_COSTUME_SHOP
+	const DWORD dwCostumeStart = ::GetTickCount();
+	std::map< std::wstring, bool >	mapCostumeNameCache;
+	std::map< int, int >			mapCostumeOffered;		///< billing category -> rows offered (checked and passed)
+	std::map< int, int >			mapCostumeWithheld;		///< billing category -> rows withheld for a missing file
+	int								iCostumeNoCheck = 0;	///< unit type >= UT_END: offered without the check
+#endif SERV_IRUHADEV_COSTUME_SHOP
+
 	for( size_t i = 0; i < vecRow.size(); ++i )
 	{
 		const KOfflineCashProductRow& kRow = vecRow[i];
@@ -87,6 +144,31 @@ void CX2OfflineCashShop::EnsureLoaded()
 			++m_iDroppedRows;
 			continue;
 		}
+
+#ifdef SERV_IRUHADEV_COSTUME_SHOP
+		// Rows added by costume_shop/insert_products.py (product_no > 2378). A character
+		// this client does not have yet is always offered; for the rest every model /
+		// texture / shop-image name must be in the mounted koms, else the row stays in the
+		// DB and out of the catalog until the files arrive.
+		if( kRow.m_iProductNo > COSTUME_SHOP_LAST_SEED_PRODUCT_NO )
+		{
+			const CX2Item::ItemTemplet* pCostume = g_pData->GetItemManager()->GetItemTemplet( kRow.m_iItemID );
+
+			if( (int)pCostume->GetUnitType() >= (int)CX2Unit::UT_END )
+			{
+				++iCostumeNoCheck;
+			}
+			else if( true == CostumeFilesMounted( pCostume, mapCostumeNameCache ) )
+			{
+				++mapCostumeOffered[ kRow.m_iCategoryNo ];
+			}
+			else
+			{
+				++mapCostumeWithheld[ kRow.m_iCategoryNo ];
+				continue;
+			}
+		}
+#endif SERV_IRUHADEV_COSTUME_SHOP
 
 		KProduct kProduct;
 		kProduct.m_iProductNo	= kRow.m_iProductNo;
@@ -117,6 +199,40 @@ void CX2OfflineCashShop::EnsureLoaded()
 		L" %d dropped for no templet (March's item.kim dropped 294 more: K1 count)",
 		(int)m_vecProduct.size(), m_iRows, m_iDroppedRows );
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
+
+#ifdef SERV_IRUHADEV_COSTUME_SHOP
+	{
+		int iOffered = 0, iWithheld = 0;
+		std::map< int, int >::const_iterator mit;
+
+		for( mit = mapCostumeOffered.begin(); mit != mapCostumeOffered.end(); ++mit )
+			iOffered += mit->second;
+		for( mit = mapCostumeWithheld.begin(); mit != mapCostumeWithheld.end(); ++mit )
+			iWithheld += mit->second;
+
+		CX2OfflineLog::Server( L"[COSTUME_SHOP] catalog %d product(s): costume rows %d offered after the file check,"
+			L" %d withheld (missing file), %d offered unchecked (unit type >= UT_END = %d); %d distinct file name(s) asked;"
+			L" EnsureLoaded took %lu ms",
+			(int)m_vecProduct.size(), iOffered, iWithheld, iCostumeNoCheck, (int)CX2Unit::UT_END,
+			(int)mapCostumeNameCache.size(), (unsigned long)( ::GetTickCount() - dwCostumeStart ) );
+
+		// per billing category (11 weapon, 12 body, 13 leg, 14 hair, 15 hand, 16 foot, 17 one-piece, 21..27 accessories)
+		std::map< int, int > mapCat;
+		for( mit = mapCostumeOffered.begin();  mit != mapCostumeOffered.end();  ++mit )	mapCat[ mit->first ];
+		for( mit = mapCostumeWithheld.begin(); mit != mapCostumeWithheld.end(); ++mit )	mapCat[ mit->first ];
+
+		for( mit = mapCat.begin(); mit != mapCat.end(); ++mit )
+		{
+			std::map< int, int >::const_iterator mO = mapCostumeOffered.find( mit->first );
+			std::map< int, int >::const_iterator mW = mapCostumeWithheld.find( mit->first );
+
+			CX2OfflineLog::Server( L"[COSTUME_SHOP]   billing category %2d: %6d offered, %6d withheld",
+				mit->first,
+				mO == mapCostumeOffered.end()  ? 0 : mO->second,
+				mW == mapCostumeWithheld.end() ? 0 : mW->second );
+		}
+	}
+#endif SERV_IRUHADEV_COSTUME_SHOP
 
 	if( true == m_vecProduct.empty() )
 	{
