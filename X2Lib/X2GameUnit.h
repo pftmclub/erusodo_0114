@@ -1343,6 +1343,19 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		};
 
 //-------------------------------------------------------------------------------------------------------
+#ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND
+		/// June 2017 DELETE_CONDITION_SOUND (Enum.lua; values as June's, 3227a740 switch): when a sound handle is stopped
+		enum DELETE_CONDITION_SOUND
+		{
+			DCS_NONE			= 0,
+			DCS_DAMAGE_REACT	= 1,
+			DCS_STATE_END		= 2,
+			DCS_DIE				= 3,
+			DCS_CUSTOM_STATE	= 4,
+			DCS_SKILL_STATE_END	= 5,
+		};
+
+#endif SERV_IRUHADEV_JUNE_UNIT_SOUND
 		struct SoundPlayData 
 		{
 			float			m_SoundPlayTime;		/// 시작 시간
@@ -1351,6 +1364,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			bool			m_bOnlyIfMyUnit;		/// 
 			float			m_fMaxSoundDistance;	/// 사운드 최대 거리
 			bool			m_b3DSound;
+#ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND
+			std::vector<int>	m_vecDeleteCondition;	/// June 320795c0 +0x30: DELETE_CONDITION_SOUND values; the ctor seeds one DCS_NONE
+			bool			m_bLoop;				/// June +0x40
+#endif SERV_IRUHADEV_JUNE_UNIT_SOUND
 
             SoundPlayData()
               : m_SoundPlayTime( -1.f )
@@ -1359,6 +1376,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
               , m_bOnlyIfMyUnit( false )
               , m_fMaxSoundDistance( -1.f )
               , m_b3DSound( true ) 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND
+              , m_vecDeleteCondition( static_cast<size_t>( 1 ), static_cast<int>( DCS_NONE ) )	/// June 320795c0 @32079635
+              , m_bLoop( false )
+#endif SERV_IRUHADEV_JUNE_UNIT_SOUND
             {
             }
 		};
@@ -2513,6 +2534,17 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		CKTDXDeviceSound*			PlaySound( const WCHAR* pName, bool b3DSound = true, bool bLoop = false );
 		void						PlaySound_LUA( const char* pName );
 		void						StopSound_LUA( const char* pName );
+#ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND
+		/// June 32078fd0: BeginTable( name + index ), nation-suffixed first ( g_pMain->GetNationFlag() ), plain name as the fallback
+		static bool					JuneBeginSoundPlayTable( KLuaManager& luaManager_, const char* pszName_, int iIndex_ );
+		/// June 3227a740: sort a played sound into the delete-condition lists. iNowStateSkillID_ is the user's GetNowStateSkillID() (vslot 0x524 in June, which is CX2GUUser-only in March); the NPC passes 0
+		void						AttachSoundDeleteCondition( CKTDXDeviceSound* pSound_, const vector<int>& vecDeleteCondition_, int iNowStateSkillID_ );
+		void						StopSoundOnDamageReact();	/// June 32276ce0
+		void						StopSoundOnStateEnd();		/// June 32276ca0
+		void						StopSoundOnDie();			/// June 32276d20 (no caller in June, JUNE_BUGS 116; none here)
+		void						StopSoundOnCustomState();	/// June 32276d60
+		void						StopSoundOnSkillStateEnd( int iNowStateSkillID_ );	/// June 32278200 (user only)
+#endif SERV_IRUHADEV_JUNE_UNIT_SOUND
 		
 		void						ClearHitUnitList_LUA()
 		{ 
@@ -4232,6 +4264,14 @@ protected:
 		vector<SoundPlayData>							m_vecSoundPlayLoop;		/// NPC 그중에서 벨더 비던의 글리터 등을 만드는 POT 에서만 현재 사용 중
 		vector<CKTDXDeviceSound*>						m_vecLoopSound;		/// 각 스테이트에 있는 LOOP_SOUND를 NPC가 죽거나, STOP_LOOP_SOUND가 true 인 스테이트를 만났을 때 종료됨
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+#ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND
+		/// June CX2GameUnit +0x3f20 / +0x3f30 / +0x3f40 / +0x3f50 / +0x3f60: sound handles by delete condition (the dtor frees them without stopping)
+		std::vector<CKTDXDeviceSound*>						m_vecSoundToDeleteOnDamageReact;
+		std::vector<CKTDXDeviceSound*>						m_vecSoundToDeleteOnStateEnd;
+		std::vector<CKTDXDeviceSound*>						m_vecSoundToDeleteOnDie;
+		std::vector<CKTDXDeviceSound*>						m_vecSoundToDeleteOnCustomState;
+		std::vector< std::pair< CKTDXDeviceSound*, int > >	m_vecSoundToDeleteOnSkillStateEnd;	/// { sound, skill id }
+#endif SERV_IRUHADEV_JUNE_UNIT_SOUND
 
 		CX2ComboManager*								m_pComboManager;	/// 자기 유저만 있으면 되는 것을 왜.. 다른 유저와 NPC 것 까지.. 생성하는가..
 //{{ robobeg : 2013-11-04

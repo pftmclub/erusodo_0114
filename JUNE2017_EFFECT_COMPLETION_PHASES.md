@@ -2709,6 +2709,40 @@ run alongside 4c or 4d.
 
 **User owes:** /cost.
 
+### C9h-4a - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_UNIT_SOUND` + `_DEBUG` (on for the play-test), log `JUNE_FX UNIT_SOUND`; play-test pending)
+
+Files: `X2GameUnit.h/.cpp`, `X2GUUser.h/.cpp`, `Always.h`. Funcmap rows `Effect C9h-4a`. JUNE_BUGS 117.
+
+**What landed**
+- **Record.** `SoundPlayData` gains `m_vecDeleteCondition` (ctor seeds `DCS_NONE`) and `m_bLoop`; `CX2GameUnit::DELETE_CONDITION_SOUND` enum (values as `Enum.lua`).
+- **Nation reader `32078fd0`** = `CX2GameUnit::JuneBeginSoundPlayTable`: flag 0 or 1000 plain, else `<name><n>_<JP|US|BR>` (0x200 / 0x400 / 0x700) then the plain name. On March US (`NF_US` 0x400) it probes `_US`, always misses, falls back.
+- **Lists, attach, stoppers.** Five lists on `CX2GameUnit`, `AttachSoundDeleteCondition` (`3227a740`), `StopSoundOn{DamageReact,StateEnd,Die,CustomState}`, `StopSoundOnSkillStateEnd`. DIE is ported and called nowhere (JUNE_BUGS 116). `GetNowStateSkillID` is `CX2GUUser`-only in March, so callers pass it in.
+- **Dangling check (kickoff step 3).** `PlaySound` opens the device (ref +1) and nothing closes it, and March's NPC already stores and `Stop()`s such pointers: no dangling, no JUNE_BUGS row.
+- **CommonStateStart**: `JuneClearStateSounds` early; `CUSTOM_STATE_DELETE_SOUND` after the effect-set one; June's sound block in June's order: `SOUND_PLAY` (reader), `SOUND_PLAY_EX` (rows `{name, time, conditions...}`, no seed), `SOUND_PLAY_ALL_OPTION<n>` (8 keys, `DELETE_CONDITION` replaces the seed: `31ecace0` is `erase(all)`), `STATE_SOUND_PLAY<n>` into a second list; March's `SOUND_SET` block follows unchanged; `StopSoundOnSkillStateEnd` at the end.
+- **Players.** `JunePlaySoundRecords` (`31fea120`: erases a record once played, also when `PlaySound` returned null; keeps it when not due, roll lost, or only-if-my-unit elsewhere) and `JunePlayStateSoundRecords` (never erases, 3D on, loop off, no attach, keeps the handle). Both replace March's loop in `CommonFrameMove_TimedEvent` (March's loop stays in the `#else`). Due test = March's `EventTimerOneshot` (June's `+0x24c` is `m_fAnimOneshotTimer`).
+- **Stop calls.** DamageReact, the shock-enchant block, CommonStateEnd (before `DeleteEffectSetOnStateEnd`), CommonStateStart.
+
+**Corrections to C9h-4 (found here)**
+- **A fifth stopper, `32009ae0`**, which C9h-4 and the kickoff missed: it clears the `STATE_SOUND_PLAY` records and `Stop()`s their handles (`+0x85e4`). Callers: CommonStateStart `@32057de1`, CommonStateEnd `@320153c7`, ReInit `@32022455`, the dtor `@3203a68b`. Ported as `JuneClearStateSounds` at all four.
+- **The `STATE_SOUND_PLAY` player is not a copy of `31fea120`** (see above); `31fdf4c0` is the reserved-buff apply, not sound; `+0x9108` is `m_bGrap` (`31fd2982` clears it with `m_bDisableGravity`, as `SetGrap(false)`), so June's `break` equals March's `continue`.
+- **June's DamageReact guard is wider than March's:** it also skips `reActResult` 0, 0xb, 0xc. The sound stop uses June's guard; March's `DeleteEffectSetOnDamageReact` keeps its own (effect-set half: C9h-4d).
+
+**Not ported:** `EmotionFrameMove`'s replay (Stage 10), NPC / square / event scene (C9h-4b), the riding pet's writes (C9h-4e), `3228a490` (C9h-4d), `USE_DIFFERENT_SOUND_WHEN_IN_SPECIAL` (JP-only; absent from June's US player).
+
+**Hygiene** (`flagcheck JUNE_UNIT_SOUND --with ..._DEBUG --worktree --files ...`):
+```
+files: 3 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR
+in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)
+RESULT: PASS
+```
+(The 1 deleted line is a peer's uncommitted blank line in `Always.h`, not in my commit. The PASS~ is two blank lines I inserted; the two tokenless lines are `#else`.)
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,360,256 B, dated 2026-10-08 09:42:40, md5 6310e571063e8f58de27c566d33f6019, equal to X2/US_SERVICE/x2.exe (2026-10-08 09:42:34); built at mods/june-buff-port 28ce76c + 5 uncommitted code file(s).` The `JUNE_FX UNIT_SOUND` strings and the six keys are in the exe. A comment-only edit followed the build.
+
+**Limit of the play-test:** no March script carries the new keys, so every attach is `DCS_NONE` and the stoppers never find a handle. `_DEBUG` writes `attach ... list=0` per sound played; the stop lines and `state_play` need June data (4e's riding pets, or a hand-made script). Only the player's erase can change what a March script does (Chung's mid-state timer resets).
+
+**Open for the user:** none. **User owes:** the play-test below, `/cost`.
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),

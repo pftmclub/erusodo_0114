@@ -6489,6 +6489,163 @@ CKTDXDeviceSound* CX2GameUnit::PlaySound( const WCHAR* pName, bool b3DSound, boo
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND
+/// June 32078fd0 (called by the user's CommonStateStart, the NPC's LoadStateData, the event scene and the square unit): the SOUND_PLAY
+/// table reader. A nation flag of 0 or 1000 (decimal; the decompile prints 1000, not 0x1000) opens "<name><index>". Any other flag first
+/// tries "<name><index>_<suffix>" with June's literals 0x200 "JP", 0x400 "US", 0x700 "BR" (any other flag: an empty suffix, which
+/// misses), then falls back to "<name><index>". June's NF_BR is 0x700; March's enum gives NF_BR 0x1000 and 0x700 to NF_VN. June's
+/// literals are kept, so March's own BR/VN builds would swap, which this US build never meets. March's US flag is NF_US = 0x400
+/// (the same value as June's), and no corpus carries a "_US" table, so every read here falls back to the plain name.
+bool CX2GameUnit::JuneBeginSoundPlayTable( KLuaManager& luaManager_, const char* pszName_, int iIndex_ )
+{
+	DWORD dwNationFlag = 0;
+#ifdef CLIENT_USE_NATION_FLAG
+	if( NULL != g_pMain )
+		dwNationFlag = g_pMain->GetNationFlag();
+#endif CLIENT_USE_NATION_FLAG
+
+	if( 0 == dwNationFlag || 1000 == dwNationFlag )
+		return luaManager_.BeginTable( pszName_, iIndex_ );
+
+	const char* pszSuffix = "";
+	if( 0x200 == dwNationFlag )
+		pszSuffix = "JP";
+	else if( 0x400 == dwNationFlag )
+		pszSuffix = "US";
+	else if( 0x700 == dwNationFlag )
+		pszSuffix = "BR";
+
+	char szName[255] = {0,};
+	StringCchPrintfA( szName, ARRAY_SIZE( szName ), "%s%d_%s", pszName_, iIndex_, pszSuffix );
+	if( true == luaManager_.BeginTable( szName ) )
+		return true;
+
+	return luaManager_.BeginTable( pszName_, iIndex_ );
+}
+
+#ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
+static void JuneUnitSoundLog( const WCHAR* pwszEvent_, const WCHAR* pwszList_, CKTDXDeviceSound* pSound_, int iUnitUID_ )
+{
+	WCHAR wszJuneFx[256] = {0};
+	StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX UNIT_SOUND %s list=%s name=%s unit=%d",
+		pwszEvent_, pwszList_, ( NULL != pSound_ ) ? pSound_->GetDeviceID().c_str() : L"(null)", iUnitUID_ );
+	ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+}
+#endif SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
+
+/// June 3227a740 (thiscall( sound, vector<int>& ), callers 31fea120, the emotion 3204a860, the NPC 327970d0): every condition in the
+/// record's list pushes the handle into one list: 1 -> +0x3f20, 2 -> +0x3f30, 3 -> +0x3f40, 4 -> +0x3f50 (push_back 31f8b860); 5 pushes
+/// { sound, skill id } into +0x3f60 only when the unit is a user ( m_GameUnitType +0x264 == 0 ) and vslot 0x524 ( GetNowStateSkillID )
+/// is above 0. 0 and anything else are ignored. The same handle can sit in several lists, and in one list several times.
+void CX2GameUnit::AttachSoundDeleteCondition( CKTDXDeviceSound* pSound_, const vector<int>& vecDeleteCondition_, int iNowStateSkillID_ )
+{
+	for( vector<int>::const_iterator it = vecDeleteCondition_.begin(); it != vecDeleteCondition_.end(); ++it )
+	{
+		switch( *it )
+		{
+		case DCS_DAMAGE_REACT:
+			m_vecSoundToDeleteOnDamageReact.push_back( pSound_ );
+			break;
+		case DCS_STATE_END:
+			m_vecSoundToDeleteOnStateEnd.push_back( pSound_ );
+			break;
+		case DCS_DIE:
+			m_vecSoundToDeleteOnDie.push_back( pSound_ );
+			break;
+		case DCS_CUSTOM_STATE:
+			m_vecSoundToDeleteOnCustomState.push_back( pSound_ );
+			break;
+		case DCS_SKILL_STATE_END:
+			if( GUT_USER == GetGameUnitType() && iNowStateSkillID_ > 0 )
+				m_vecSoundToDeleteOnSkillStateEnd.push_back( std::make_pair( pSound_, iNowStateSkillID_ ) );
+			break;
+		default:
+			break;
+		}
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
+	{
+		WCHAR wszList[96] = {0};
+		int iLen = 0;
+		for( vector<int>::const_iterator it = vecDeleteCondition_.begin(); it != vecDeleteCondition_.end() && iLen < 80; ++it )
+		{
+			int iWritten = swprintf_s( wszList + iLen, ARRAY_SIZE( wszList ) - iLen, ( 0 == iLen ) ? L"%d" : L",%d", *it );
+			if( iWritten < 0 )
+				break;
+			iLen += iWritten;
+		}
+		JuneUnitSoundLog( L"attach", ( 0 == iLen ) ? L"(none)" : wszList, pSound_, static_cast<int>( GetUnitUID() ) );
+	}
+#endif SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
+}
+
+/// June 32276ce0 / 32276ca0 / 32276d20 / 32276d60: CKTDXDeviceSound::Stop ( 31d416c0 ) on every non-null handle of one list, then
+/// clear it. The handle's reference is never released ( PlaySound opens the device and nothing closes it ), so a stored pointer cannot
+/// dangle; the sound device is shared per file name, so a stop also cuts any other instance of that file.
+static void JuneStopSoundList( vector<CKTDXDeviceSound*>& vecSound_, const WCHAR* pwszList_, int iUnitUID_ )
+{
+	for( vector<CKTDXDeviceSound*>::iterator it = vecSound_.begin(); it != vecSound_.end(); ++it )
+	{
+		if( NULL != *it )
+		{
+#ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
+			JuneUnitSoundLog( L"stop", pwszList_, *it, iUnitUID_ );
+#endif SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
+			( *it )->Stop();
+		}
+	}
+	vecSound_.resize( 0 );
+}
+
+void CX2GameUnit::StopSoundOnDamageReact()
+{
+	JuneStopSoundList( m_vecSoundToDeleteOnDamageReact, L"damage_react", static_cast<int>( GetUnitUID() ) );
+}
+
+void CX2GameUnit::StopSoundOnStateEnd()
+{
+	JuneStopSoundList( m_vecSoundToDeleteOnStateEnd, L"state_end", static_cast<int>( GetUnitUID() ) );
+}
+
+/// June 32276d20: no caller anywhere in June's image (JUNE_BUGS 116), so a DCS_DIE sound is never stopped. Ported, called nowhere.
+void CX2GameUnit::StopSoundOnDie()
+{
+	JuneStopSoundList( m_vecSoundToDeleteOnDie, L"die", static_cast<int>( GetUnitUID() ) );
+}
+
+void CX2GameUnit::StopSoundOnCustomState()
+{
+	JuneStopSoundList( m_vecSoundToDeleteOnCustomState, L"custom_state", static_cast<int>( GetUnitUID() ) );
+}
+
+/// June 32278200 (only caller: the user's CommonStateStart @320606a9): users only. Every { sound, skill id } pair whose skill id differs
+/// from the unit's now-state skill id is stopped and erased; the pairs of the skill that is still running stay.
+void CX2GameUnit::StopSoundOnSkillStateEnd( int iNowStateSkillID_ )
+{
+	if( GUT_USER != GetGameUnitType() )
+		return;
+
+	for( vector< std::pair< CKTDXDeviceSound*, int > >::iterator it = m_vecSoundToDeleteOnSkillStateEnd.begin(); it != m_vecSoundToDeleteOnSkillStateEnd.end(); )
+	{
+		if( iNowStateSkillID_ == it->second )
+		{
+			++it;
+			continue;
+		}
+
+		if( NULL != it->first )
+		{
+#ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
+			JuneUnitSoundLog( L"stop", L"skill_state_end", it->first, static_cast<int>( GetUnitUID() ) );
+#endif SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
+			it->first->Stop();
+		}
+		it = m_vecSoundToDeleteOnSkillStateEnd.erase( it );
+	}
+}
+
+#endif SERV_IRUHADEV_JUNE_UNIT_SOUND
 void CX2GameUnit::PlaySound_LUA( const char* pName )
 {
 	if( NULL == pName )

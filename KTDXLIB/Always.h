@@ -5803,3 +5803,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Log: "[KOM_LONG] <kom> <name>" in ErrorLog.txt, once per long name.
 #define SERV_IRUHADEV_KOM_LONG_NAMES
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June effect completion C9h-4a: June's unit sound system on
+//              CX2GameUnit and the user (funcmap rows "Effect C9h-4"): the
+//              SoundPlayData record gains DELETE_CONDITION_SOUND values (the ctor
+//              seeds DCS_NONE) and LOOP; the nation-suffix SOUND_PLAY reader
+//              32078fd0; the five delete-condition sound lists and their
+//              stoppers (attach 3227a740; damage react / state end / custom
+//              state / skill state end; DIE 32276d20 is ported and never called,
+//              JUNE_BUGS 116); the user's CommonStateStart keys SOUND_PLAY_EX,
+//              SOUND_PLAY_ALL_OPTION, STATE_SOUND_PLAY, CUSTOM_STATE_DELETE_SOUND;
+//              June's player 31fea120 (erases each record once played), the
+//              STATE_SOUND_PLAY player and its stopper 32009ae0 (state start /
+//              end, ReInit, dtor). Inert on March's scripts (none carries the keys).
+//              Log: "JUNE_FX UNIT_SOUND" in ErrorLog.txt (_DEBUG only).
+#define SERV_IRUHADEV_JUNE_UNIT_SOUND
+#define SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
+//////////////////////////////////////////////////////////////////////////

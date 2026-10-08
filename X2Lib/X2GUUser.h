@@ -3729,6 +3729,14 @@ public:
 		vector<D3DXVECTOR2>								m_Stop2OtherList;
 		vector<D3DXVECTOR2>								m_Stop2MyList;
         std::vector<SoundPlayData>                      m_vecSoundPlayData;
+#ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND
+		std::vector<SoundPlayData>						m_vecStateSoundPlayData;	/// June user +0x85d4: STATE_SOUND_PLAY records (the player never erases them)
+		std::vector<CKTDXDeviceSound*>					m_vecStateSound;			/// June user +0x85e4: the handles that player started (stopped by 32009ae0)
+		bool	JuneSoundEventTimer( float fTime_ );		/// the due test shared by both players (June 31fea120 / 31ff27c0)
+		void	JunePlaySoundRecords();						/// June 31fea120: SOUND_PLAY / _EX / _ALL_OPTION records, each erased once played
+		void	JunePlayStateSoundRecords();				/// June 31ff27c0 @31ff396f: STATE_SOUND_PLAY records
+		void	JuneClearStateSounds();						/// June 32009ae0: clear the STATE_SOUND_PLAY records and stop their handles
+#endif SERV_IRUHADEV_JUNE_UNIT_SOUND
 		std::vector<TIME_SPEED> m_vecSpeedFactor;	/// 유저만 사용중, 스크립트 상에서 특정 시간대에 스피드를 줄때 사용
 
 		std::vector< EffectSetToPlay >                  m_vecEffectSetToPlay;	/// 플레이 되야 하는 이펙트 셋
