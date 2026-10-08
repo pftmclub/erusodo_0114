@@ -30497,7 +30497,8 @@ void CX2GUUser::UpdateSocketDataAndEnchantData()
 	m_vecBuffFactorPtr.resize( 0 );
 
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
-	/// effect completion C10e: June 3204b4c0 @3204b5a0, after the delegate clear and before the sum
+	/// effect completion C10e: June 3204b4c0 @3204b5a0, after the +0xe24 resize and before the delegate clear ( 3207bfe0 =
+	/// ClearAllDelegateProcess, June clears 5 vectors to March's 4 ) and the sum
 	m_bJuneSocketCoolTimeOnHit = false;
 #endif SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
 	ClearAllDelegateProcess();

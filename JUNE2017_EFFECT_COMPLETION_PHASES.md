@@ -4324,6 +4324,42 @@ Hygiene (`flagcheck --worktree --files <my 7 files>`): `DAMAGE_REACT_HOOKS`: `fi
 - The in-game 5 s drop on the active skills' timers was the user's check ("test passed").
 *Open for the user:* nothing. Review kickoff: `kickoffs/june-effect/C10e-review.md`.
 
+**C10e - Review (2026-10-09, Opus 5.5 high): PASS. Two edge-case transcription fixes and one comment fix, all under `..._SOCKET_COOLTIME_ON_HIT`. Rebuilt.**
+Every check below was read-only in Ghidra against `19584d0`; the constants were read from `unpacked_x2.exe`.
+- *User hooks*: the order matches June exactly:
+  - `0x6d4` (`@320495c4`), then the attacker gate (`31e55680` valid, `+0x264 == 0`, unit `+0x867c`);
+  - then `0x4f8` and `0x4fc`, each pushed as ( EBX = DD, damage ) (`@32049613-3204963b`);
+  - then Lu/Ciel (not ported), `322cfca0( DD, &damage )` `@3204968a`, the 2017 event block (not ported), HP-rate `@32049727`;
+  - then the attacker `0x304( damage, ESI = DD )`, skipped only for a null attacker (`@3204972c-32049750`), and the shown copy `@3204975b`.
+- *NPC hooks*: inside the gate: `0x6d4` `@327b442c`, then `0x4f8` / `0x4fc` with ( EBX = DD, damage ) (EBX is DD: `[EBX+0x57c]` is the `m_bLvDamage` skip). Both skips land on `327b4484`.
+  At function scope, in this order: socket `@327b4484-327b452f`, ALCHEMY_LAB (Stage 19), `322cfca0` `@327b47cd`, `0x304( damage, DD )` `@327b4800`, slot 6 `@327b480a`. March has the same order.
+- *`322cfca0`*: matches instruction for instruction:
+  - DD and `g_pData` null tests, then `GetGameType` vslot `0x10c` `DEC EAX` (= `GT_PVP` 1, March `X2Game.h:61`);
+  - PvP room `g_pData +0x6c` null test, then `+0xd8 == 8`;
+  - `DD +8 == 2` -> return, then `FMUL double 3342ebc8` = 0.5.
+  - March's `GetPVPRoom()` is a plain `return m_pPVPRoom`. March's `NULL != g_pX2Game` guards at both call sites are an addition: June calls through the game getter with no test. Harmless, because DamageReact runs only in a game.
+- *Socket 2000145*:
+  - ctor `@3203e928`: byte = BL, and BL = 0 (`XOR EBX,EBX` `@3203e8a2`); float = 0.0.
+  - Sum `@3204fff5`: `[EBX+4] == 0x1e8511`. It is the last per-socket step before the cool-time cut, after June's `+0x896c` push, and March has it inside the same loop.
+  - Tick `@3207001b`: runs only when `0 < cool` (NaN skips); subtracts `+0x2b0`; clamps when the new value is `< 0`. Same as March.
+  - Consumer: roll first, cool-down second (March also rolls on every hit). The pushes read back as ( 6, `33476cd8` = -5.0f, 0, 1, 1.0, 1, 0 ), with `ST_ACTIVE` = 6 and `BCT_FIX_VALUE` = 1 (`X2BuffFactor.h:206`). The cool-down is set to `3343777c` = 0.5f.
+- **Fixed (`X2GUNPC.cpp:10321`)**:
+  - (1) `3344f248` is the double `0.029999999329447746`, which is `0.03f` widened, not `0.03`. March's `fJuneRoll < 0.03` let a roll equal to `0.03f` proc where June does not, so it now reads `< 0.03f`.
+  - (2) June's cool-down test is `FLDZ; FCOMP [+0x7cac]; test ah,1; jnz skip`, so a NaN skips. `false == ( 0.f < cool )` let a NaN proc, so it now reads `0.f >= cool`.
+  - Neither case occurs in play, so the play-test result stands.
+- **Comment fix (`X2GUUser.cpp:30500`)**: June's reset `@3204b5a0` sits *before* `3207bfe0`. `3207bfe0` is `ClearAllDelegateProcess`: it clears 5 vectors to March's 4, and the extra one is June's. March's placement was already right. The comment, and the Done note's "between ClearAllDelegateProcess and InitSocketData", had the order backwards.
+- *JUNE_BUGS 136 / 137*: both correct. 137: `@327b449c` `XOR EAX,EAX` then `CMP [EAX+0x264]`.
+- *Log* (run 05:05-05:09, exe b37daed2 = C9h-8 review deploy, which contains `19584d0`): re-read with `logs.py`; the lines match the Done note. 0 EXCEPTION, clean exit.
+
+Hygiene, worktree (`--files X2GUNPC.cpp X2GUUser.cpp`):
+- `SOCKET_COOLTIME_ON_HIT`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR` / `4 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. The 4 deleted lines are this flag's own C10e lines, replaced by the fix.
+- `DAMAGE_REACT_HOOKS`: `0 PASS, 2 OTHER (the socket flag's fix), 0 FAIL`, `0 deleted`, `RESULT: PASS`.
+- The range lines are in the STATUS row.
+
+`DEPLOY OK: X2_offline.exe is 19,411,456 B, dated 2026-10-09 05:19:24, md5 ef524c3e71fc40c32af8f5c2f0a27613, equal to X2/US_SERVICE/x2.exe (2026-10-09 05:19:19); built at mods/june-buff-port 61e768f + 2 uncommitted code file(s).`
+
+*Owed (optional, not blocking):* one regression run on ef524c3e with jtLordKnight, looking for one `proc=1` line. Next: C10b-2 (`kickoffs/june-effect/C10b-2.md`).
+
 
 ---
 

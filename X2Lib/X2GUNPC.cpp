@@ -10307,8 +10307,9 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
 		/// June CX2GUNPC::DamageReact 327b1f30 @327b4484-327b452f, function scope after the gate. An attacker that is a user
-		/// with a unit, +0x7ca8 set, GetRandomFloat( 0 ) < 0.03 ( 3344f248, a double; strict: June masks C3, so equal skips )
-		/// and the +0x7cac cool-down not above 0: every active skill's cool time -5 s, cool-down = 0.5 ( 3343777c ).
+		/// with a unit, +0x7ca8 set, GetRandomFloat( 0 ) < 0.03f ( 3344f248 is a double holding 0.03f widened, 0.0299999993;
+		/// strict: June masks C3, so equal skips ) and the +0x7cac cool-down not above 0 ( FLDZ; FCOMP; test ah,1: a NaN
+		/// skips too ): every active skill's cool time -5 s, cool-down = 0.5 ( 3343777c ).
 		/// JUNE_BUGS 136: the code rolls 3 % against the option text's 1 %, kept. JUNE_BUGS 137: June reads the attacker's
 		/// +0x264 with no null test ( @327b449c ), March keeps the null test.
 		if ( null != pDamageData->optrAttackerGameUnit && GUT_USER == pDamageData->optrAttackerGameUnit->GetGameUnitType() )
@@ -10317,7 +10318,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			if ( NULL != pJuneSocketUser && NULL != pJuneSocketUser->GetUnit() && true == pJuneSocketUser->m_bJuneSocketCoolTimeOnHit )
 			{
 				const float fJuneRoll = pJuneSocketUser->GetRandomFloat( 0 );
-				const bool bJuneProc = ( fJuneRoll < 0.03 ) && false == ( 0.f < pJuneSocketUser->m_fJuneSocketCoolTimeOnHitCool );
+				const bool bJuneProc = ( fJuneRoll < 0.03f ) && ( 0.f >= pJuneSocketUser->m_fJuneSocketCoolTimeOnHitCool );	/// C10e review
 #if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 				static int s_iJuneSocketCoolTimeRollLogged = 0;
 				if ( bJuneProc || s_iJuneSocketCoolTimeRollLogged < 5 )
