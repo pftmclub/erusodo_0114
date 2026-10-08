@@ -2495,7 +2495,7 @@ There are 17 funcmap rows tagged `Effect C9h-2e`. The `32344880` row corrects C9
 - It then replaces (`323b7ff0`), removes (`323a9ed0`) or restores (`323b8970`) the field NPC.
 - **The 0x388 row:** `+0` QUEST_ID, `+4` TARGET_NPC_HOUSE_ID, `+0xc` `m_iUseCodeEventTriger` (-1 = no gate; otherwise March's `IsEnableCode` test on instance map `+0xa18`), `+0x80` VILLAGE_ID.
 - **Where the rows come from:** `g_pQuestManager:AddVillageNpcRelationDataByQuest_LUA` (`3233b680`) and `...ByVillage_LUA` (`32340720`), in `data034` `DLG_Map_House_NPC_RelationData.lua`.
-  - ByQuest has 36 rows: 3 change, 6 not-show (the second 0x14-byte shape at `+0xbc`), and 27 code-event rows, all event 2308 with quest 0.
+  - ByQuest has 36 rows: 3 change, 6 not-show (likely the second 0x14-byte shape at `+0xbc`), and 27 code-event rows, all event 2308 with quest 0.
   - ByVillage has 11 rows.
 - **March has none of this.** It is the NPC relation system that **Elysion E1** already plans to port whole; that plan has not started and has no worktree yet.
 - E1 needs three entry points, not one:
