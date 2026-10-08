@@ -2968,7 +2968,7 @@ Files: `X2GUNPC.h/.cpp`, `X2SquareUnit.h/.cpp`, `X2EventScene.cpp`, `Always.h`. 
 
 **Corrections to C9h-4:** the default SOUND_PLAY records go to StateData `+0x204`, not `+0x2a4` (that is `m_vecSetSoundPlayLoopValue`); the two "read sites" per reader are one rotated loop; the NPC reads `CUSTOM_STATE_DELETE_SOUND` (once, into a state flag).
 
-**Not ported:** June's device `PlaySound` 4th argument (1; acts only on a freshly opened device, `31cdd4e0` registers a callback), KTDXLIB's signature is unchanged. The riding pet's call of the square stopper (C9h-4e). The `CX2Pet` `SOUND_PLAY_ALL_OPTION` reader (Stage 17).
+**Not ported:** June's device `PlaySound` 4th argument (1; acts only on a freshly opened device, `31cdd4e0` registers a callback), KTDXLIB's signature is unchanged (**corrected by the review:** it is June's sound auto-release, which can free a device whose handle the square still holds; leaving it out is the safe side -> C9h-7). The riding pet's call of the square stopper (C9h-4e). The `CX2Pet` `SOUND_PLAY_ALL_OPTION` reader (Stage 17).
 
 **Behaviour on March data (the play-test is a regression pass, not "as before")**
 - **NPC: not inert.** Every March monster sound is pushed; the sounds of the state current at the monster's dtor / ReInit are `Stop()`ped (the list is cleared at every state end; JUNE_BUGS 119). Sound devices are shared per file name, so a removed monster can cut the same sound on another unit. That is June's behaviour; expect it in dungeons with many same-type mobs.
@@ -2997,6 +2997,52 @@ Then say "check logs"; I read `JUNE_FX NPC_SOUND` (play / stop / clear lines, ca
 **Logs (2026-10-08 12:45-12:49, exe 8875aac0 = this code + peers' work):** 0 EXCEPTION; NPC `play ... n=1`, `clear state_end n=1..2` and one `stop dtor n=1` on offline monster units 1000001-4; SQUARE `stop state_end n=0` at each of 6 dismounts (units 12, 18); no crash on stage change. The only UNHANDLED is the known `E_DISABLE_HB_CHECK_REQ`. Both `_DEBUG` flags turned off afterwards (comment-only `Always.h` change).
 
 **Open for the user:** `/cost`. Review: `kickoffs/june-effect/C9h-4b-review.md` (Opus 5.5 high).
+
+### C9h-4b - Review (2026-10-08, Opus 5.5 high): no transcription finding, no code change, no deploy; the device `PlaySound` 4th argument is June's sound auto-release, not neutral -> C9h-7
+
+**Checked against June (Ghidra / capstone, read-only). Everything matches the port.**
+- **The two state keys, re-decoded by hand** (I emulated the initializer and the XOR, without the C9h-4b script):
+  - `@3278d8e0-3278dab7` = `STOP_SOUND_AT_STATE_END`, set `( 0x4e )`. CommonStateEnd `@3277f9bc` tests `[flags+8] & 0x4000`, the same bit.
+  - `@3278929c-32789495` = `CUSTOM_STATE_DELETE_SOUND`, set `( 0x13 )`. CommonStateStart `@327ada97` tests `[flags] & 0x80000`, the same bit.
+- **`+0x8f74`** (a fresh `dispsweep 8f74 8f78 8f7c`). The NPC accesses are exactly the Done note's list: the ctors, the push, ReInit, the dtor (stop `@327a01a3`, free `@327a07a3`), CommonStateEnd, and `3275cf80` (0 callers).
+  - The other hits are user-class layouts and SEH unwind funclets.
+  - The SOUND_PLAY_LOOP loop pushes into `+0x8f5c`, and the die block touches only `+0x8f5c`.
+- **Where each stop sits.** Every stop is in June's order relative to its neighbours (DamageReact, CommonStateEnd, CommonStateStart, ReInit, dtor; the funcmap rows give the addresses).
+  - March runs its staging block earlier than June does, so the `+0x8f74` stop still comes after it.
+  - June zeroes `+0x8f18` after the CUSTOM_STATE stop and the port zeroes it before. The two do not interact.
+- **The NPC player:** `PlaySound( name, 3D, LOOP )`, then the attach even for a NULL handle (March's attach does the same, and the stoppers skip NULL), then SetMax3DDistance, then the push.
+- **ALL_OPTION:** the 7 keys decoded, record offsets `+4 / +0 / +0x20 / +0x24 / +0x28 / +0x2c / +0x40`, defaults `"" / -1 / 100 / false / -1 / true / false`, DELETE_CONDITION erased then read, set 0 only. Identical to the user's reader.
+- **The square player** `323f17b0`: the due test, the riding pet's clock (pet UID `+0x198` = `m_UnitUID`; it applies only when the pet and its anim both exist), the roll, the my-unit gate and the device arguments all match. So does the stopper's position after RemoveRidingPet (`@323f7219`).
+
+**The finding (a design question, not a transcription error): the 4th argument is June's sound auto-release.**
+- **How it works in June.** When the call has just opened the device, argument 1 registers FMOD `Channel::setCallback( 31cdcca0 )` through `31cdd4e0`.
+  - At channel end, `31cdcbb0` queues the device if its count is 1 and its channel is the one that ended.
+  - The sound manager's frame move `31cde8d0` then runs `31cdd8d0` on each queued device: erase it from the map, then the deleting dtor.
+- **What that means for the square.** A finished square sound can be freed while `+0x5ec` still holds its handle. The riding-off `Stop()` then runs on freed memory (JUNE_BUGS 122, latent).
+- **Leaving the argument out is the safe side, not a neutral one.** March has no channel callback (KTDXLIB has no `setCallback`), so the port's handles stay valid, and a device stays cached. The Done note's "Not ported" line is corrected.
+- **Reach in June.** 174 of the 242 `31ce0e10` call sites pass 1, 9 pass 0, and the rest pass a register. The only other caller of `31cdd4e0` is `32800e10`.
+  - The unit `PlaySound` `32276220` opens its device through `31cdf4a0` and never registers the callback.
+  - So C9h-4a's unit lists and the NPC `+0x8f74` list are not exposed (JUNE_BUGS 116 / 119 unchanged).
+- **Routing.** No STATUS row owned this, so it goes to **C9h-7** (planned). Whether to port it is the user's decision: copied verbatim, it exposes every March handle list filled from the device manager's `PlaySound`.
+
+**Regression, from the C9h-4b logs.** As expected: the NPC attaches only `DCS_NONE` (`play ... n=1`); the played-sound list logs `clear state_end` / `stop dtor`; the square logs `stop state_end n=0` per dismount and no `play` line.
+
+**Hygiene** (`flagcheck --range 7ac67a6^..HEAD --with ..._DEBUG`, one run per flag):
+```
+NPC:    files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 7 OTHER (other flags), 0 FAIL, 0 ERROR
+        in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 4 #else/#endif without the flag token, 0 encoding change(s)
+        RESULT: PASS
+SQUARE: files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 8 OTHER (other flags), 0 FAIL, 0 ERROR
+        in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)
+        RESULT: PASS
+```
+- **OTHER rows:** the sibling flag's files; `6310cab` (C9h-4c's commit, inside the range); `Always.h`.
+- **Deleted lines:** only `87439b3`'s `-2/+2`, which comment out the two `_DEBUG` defines.
+- **Tokenless lines:** the `#else`s.
+
+**What changed:** no code, so no build and no deploy. 6 funcmap rows tagged `Effect C9h-4b review` (row `323f17b0 (C9h-4b)` corrected); JUNE_BUGS 122; a STATUS row and `kickoffs/june-effect/C9h-7.md`. C9h-4e stays blocked: C9h-4d is not done.
+
+**Open for the user:** `/cost`, and the C9h-7 decision (port June's sound auto-release, or keep March's cached devices).
 
 ### C9h-5 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the village-NPC effect set is one key in June's `CX2TFieldNpc` rewrite -> Elysion E1 step 6, backlog Stage 18
 
