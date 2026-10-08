@@ -2930,7 +2930,7 @@ Files: `X2GUNPC.h/.cpp`, `X2SquareUnit.h/.cpp`, `X2EventScene.cpp`, `Always.h`. 
   - two June state flags, appended before `FLAG_MAX` (`STOP_SOUND_AT_STATE_END` = June bit 0x4e, `CUSTOM_STATE_DELETE_SOUND` = bit 0x13), their key names decoded from the XOR buffers;
   - the TimedEvent player: `PlaySound( name, 3D, LOOP )`, the attach (skill id 0), `SetMax3DDistance`, then the push into a new member list;
   - the stop calls: DamageReact (June's NPC guard is March's), CommonStateEnd, CommonStateStart on `CUSTOM_STATE_DELETE_SOUND`.
-- **The `+0x8f74` question, answered:** it is **not** March's `m_vecLoopSound`. The SOUND_PLAY_LOOP loop under the main loop pushes into `+0x8f5c` (= March's list); `+0x8f74` is a June-only played-sound list, pushed by every played record (NULL handles too), stopped + cleared in ReInit `3277c2d0` and the dtor `3279fb60`, and in CommonStateEnd `3277ee10` stopped only under `STOP_SOUND_AT_STATE_END` but cleared at every state end. `3275cf80` (stop + clear) has no caller. `offsetprobe` reports March's layout only, so the call was made from the loop structure and a dispsweep of every `+0x8f74` access. A dying NPC's DCS_DIE sound therefore lives until the object's dtor, not forever (JUNE_BUGS 116 updated). Ported as `m_vecJunePlayedSound` + `JuneStopPlayedSounds`.
+- **The `+0x8f74` question, answered:** it is **not** March's `m_vecLoopSound`. The SOUND_PLAY_LOOP loop under the main loop pushes into `+0x8f5c` (= March's list); `+0x8f74` is a June-only played-sound list, pushed by every played record (NULL handles too), stopped + cleared in ReInit `3277c2d0` and the dtor `3279fb60`, and in CommonStateEnd `3277ee10` stopped only under `STOP_SOUND_AT_STATE_END` but cleared at every state end. `3275cf80` (stop + clear) has no caller. `offsetprobe` reports March's layout only, so the call was made from the loop structure and a dispsweep of every `+0x8f74` access. A dying NPC's DCS_DIE sound is therefore stopped at the dtor only if it started in the state current at destruction; an earlier state's sound has left the list unstopped (JUNE_BUGS 116 updated, 120). Ported as `m_vecJunePlayedSound` + `JuneStopPlayedSounds`.
 - **Event scene** (`_NPC_SOUND`): the nation reader on its SOUND_PLAY loop, the only change.
 - **Square unit** (`_SQUARE_SOUND`): the reader; June's player `323f17b0` as `JunePlaySquareSoundRecords` (own anim, or the riding pet's while riding and the pet has an anim; record LOOP and ENABLE_3D_SOUND passed through; a handle whose record lists `DCS_STATE_END` goes into a new list); the stopper `JuneStopSoundOnStateEnd` after `RemoveRidingPet` in ProcessRidingOn's off branch. The dtor needs nothing (the vector frees itself, as June's dtor only frees).
 
@@ -2939,16 +2939,20 @@ Files: `X2GUNPC.h/.cpp`, `X2SquareUnit.h/.cpp`, `X2EventScene.cpp`, `Always.h`. 
 **Not ported:** June's device `PlaySound` 4th argument (1; acts only on a freshly opened device, `31cdd4e0` registers a callback), KTDXLIB's signature is unchanged. The riding pet's call of the square stopper (C9h-4e). The `CX2Pet` `SOUND_PLAY_ALL_OPTION` reader (Stage 17).
 
 **Behaviour on March data (the play-test is a regression pass, not "as before")**
-- **NPC: not inert.** Every March monster sound is pushed and `Stop()`ped at the monster's dtor / ReInit (JUNE_BUGS 119). Sound devices are shared per file name, so a removed monster can cut the same sound on another unit. That is June's behaviour; expect it in dungeons with many same-type mobs.
+- **NPC: not inert.** Every March monster sound is pushed; the sounds of the state current at the monster's dtor / ReInit are `Stop()`ped (the list is cleared at every state end; JUNE_BUGS 119). Sound devices are shared per file name, so a removed monster can cut the same sound on another unit. That is June's behaviour; expect it in dungeons with many same-type mobs.
 - Attach lists stay `DCS_NONE`; the per-condition stoppers find nothing. The two new state flags are never set (no March script has the keys).
 - Square: no March `SQUARE_*.lua` carries `SOUND_PLAY` (5 files checked, bytecode scan), so the player has no records; only the empty stopper runs at every dismount. The 3D default would change a square sound from non-3D to 3D, once a script has one.
 
-**Hygiene** (`flagcheck JUNE_NPC_SOUND --with ..._DEBUG --worktree --files ...`, same for `JUNE_SQUARE_SOUND`):
+**Hygiene** (`flagcheck JUNE_NPC_SOUND --with ..._DEBUG --range HEAD^..HEAD` on `7ac67a6`, same for `JUNE_SQUARE_SOUND`):
 ```
-NPC:    files: 3 PASS, 0 FAIL, 0 ERROR; in this flag's files: 0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 4 #else/#endif without the token (the #else lines), 0 encoding change(s); RESULT: PASS
-SQUARE: files: 2 PASS, 0 FAIL, 0 ERROR; in this flag's files: 0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 2 #else/#endif without the token, 0 encoding change(s); RESULT: PASS
+NPC:    files: 3 PASS, 0 PASS~, 0 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR
+        in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 4 #else/#endif without the flag token, 0 encoding change(s)
+        RESULT: PASS
+SQUARE: files: 2 PASS, 0 PASS~, 0 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 ERROR
+        in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)
+        RESULT: PASS
 ```
-(The OTHER rows are the other flag's files and a peer's uncommitted `Always.h` blocks.)
+(The OTHER rows are the other flag's files; the 4 / 2 tokenless lines are the `#else`s. `Always.h` was staged with only this phase's two blocks: a peer's uncommitted blocks stayed out of the commit.)
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,374,592 B, dated 2026-10-08 11:35:50, md5 a88b65111c050b4ff189cb037a7db6bf, equal to X2/US_SERVICE/x2.exe (2026-10-08 11:35:46); built at mods/june-buff-port bcb3b6a + 8 uncommitted code file(s).` Another session's `build.py --deploy` ran first and linked my edits in (my run reported "nothing needed relinking"); the exe also carries that session's uncommitted C9h-4c work. The strings `JUNE_FX NPC_SOUND`, `JUNE_FX SQUARE_SOUND`, `STOP_SOUND_AT_STATE_END` and `CUSTOM_STATE_DELETE_SOUND` are in it.
 
