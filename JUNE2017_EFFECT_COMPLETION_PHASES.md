@@ -3372,6 +3372,12 @@ Other notes:
 
 **How to see it in game:** the play-test hand-off below. A non-preloaded sound that is played and ends gives `queue <NAME>` then `close <NAME> ref=1 deleted=1`. Every later play of it reloads the file (a small load hitch is possible; none was measured yet).
 
+**Post-deploy fix (found by the 15:58 play-test, in exe `944238b6` / `40b97943`, committed with the play-test results).** The drain was unreachable: the block sat after `CKTDXDeviceManager::OnFrameMove`'s `return S_OK;`. The return now follows the `#endif` (vs the pre-C9h-7a base the file is insert-only: `flagcheck --base aa905d0^` PASS~, 0 deleted). Also, under `_DEBUG`: `JuneQueueAutoRelease` returns after the first match and logs `end-nomatch` when no device owns the ended channel; the open branch logs `open <NAME> fmod=<FMOD_Channel_SetCallback result> channel=<0|1> ref=<arg 4> deleted=<callback registered>`. Worktree flagcheck (both flags, `KTDXDeviceManager.cpp`): PASS, 4 deleted = own flagged lines.
+
+**Play-test PASSED 2026-10-08** (run 16:30-16:37, exe `40b97943`; user: all checks passed; logs read). Five sounds ran the whole chain `open ... fmod=0 channel=1 ref=1 deleted=1` -> `queue` -> `close <NAME> ref=1 deleted=1`: `SKILL_EQUIP`, `SKILL_UNEQUIP`, `QUESTREWARD`, `CAMERA_ZOOMIN`, `CAMERA_ZOOMOUT` (the 15:58 run also did `UI_QUICKQUEST_CHECK`, `QUESTCOMPLETE_ELSWORD`). 0 EXCEPTION, clean exit, no crash bundle.
+- **Add check (`AddTest`, Psychic Tracer, X X Z Z + Z taps, 3 times): no crash, but JUNE_BUGS 125's path was not reached.** `ADD_EFFECT05.OGG` (and `ADD_EFFECT10.OGG`) logged one `open` with `fmod=-1 channel=0`: the first play returned no channel, so no callback was registered, and every later play took the found branch (no callback). The device was never released, so `StopLoopSound` never touched freed memory.
+- **For the review:** many first opens show `fmod=-1 channel=0` (game-start / character-select voices, `QUESTACCEPT`, `PORTAL`, `SKILL_REFRESH`, the Add clips), and such a sound is then never auto-released for the session. Check whether June's open branch behaves the same (Play returning before a channel exists on a fresh load), or whether this is a March difference.
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),

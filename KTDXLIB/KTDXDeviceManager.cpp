@@ -131,7 +131,6 @@ HRESULT CKTDXDeviceManager::OnFrameMove( double fTime, float fElapsedTime )
 		ProcessForegroundQueue( fElapsedTime );
 	}//if
 #endif	X2OPTIMIZE_INFORM_FIRST_FRAME_OF_SIMULATION_LOOP
-	return S_OK;
 #ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	// June 31cde8d0: the drain runs every frame, after ProcessForegroundQueue ( only that is gated
 	// by the first-frame test, jne @31cde8ea -> 31cde8fb ). No lock: the queue is filled on the main thread.
@@ -144,6 +143,7 @@ HRESULT CKTDXDeviceManager::OnFrameMove( double fTime, float fElapsedTime )
 		m_vecJuneAutoRelease.clear();
 	}
 #endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+	return S_OK;
 }
 
 void    CKTDXDeviceManager::ProcessForegroundQueue( float fElapsedTime )
@@ -1153,9 +1153,10 @@ void CKTDXDeviceManager::JuneQueueAutoRelease( FMOD_CHANNEL* pEndedChannel_ )
 		{
 			m_vecJuneAutoRelease.push_back( pSound );
 			JuneSoundReleaseLog( "queue", pSound->GetDeviceID(), -1, 0 );
-			break;
+			return;
 		}
 	}
+	JuneSoundReleaseLog( "end-nomatch", L"-", -1, 0 );
 }
 
 // June 31cdd8d0 ( CloseDevice( CKTDXDevice* ) ): returns at a count <= 0; at a count > 1 one decrement and
@@ -1243,8 +1244,21 @@ out:
 #ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 			// June 31ce0e10 open branch: 31cdd4e0( m_pChannel ) only when the 4th argument is 1 and the channel is not NULL
 			// ( Play returns early when muted / not loaded ). The found branch above takes no reference and no callback.
-			if ( bJuneAutoRelease_ == true && pSound->GetChannel() != NULL )
-				FMOD_Channel_SetCallback( pSound->GetChannel(), JuneSoundAutoReleaseCallback );
+			{
+				int iJuneRegistered = 0;
+				int iJuneResult = -1;
+				if ( bJuneAutoRelease_ == true && pSound->GetChannel() != NULL )
+				{
+					iJuneResult = (int) FMOD_Channel_SetCallback( pSound->GetChannel(), JuneSoundAutoReleaseCallback );
+					iJuneRegistered = 1;
+				}
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE_DEBUG
+				// ref = arg 4 ( auto-release ), deleted = callback registered, then the FMOD result in the name
+				WCHAR wszJuneOpen[64] = {0};
+				StringCchPrintfW( wszJuneOpen, ARRAY_SIZE(wszJuneOpen), L" fmod=%d channel=%d", iJuneResult, ( pSound->GetChannel() != NULL ) ? 1 : 0 );
+				JuneSoundReleaseLog( "open", wstring( deviceIDUpper ) + wszJuneOpen, ( bJuneAutoRelease_ == true ) ? 1 : 0, iJuneRegistered );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE_DEBUG
+			}
 #endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 			return pSound;			
 			//MessageBox(g_pKTDXApp->GetHWND(), pFileName, L"미리 로드 안된 사운드", MB_OK );
