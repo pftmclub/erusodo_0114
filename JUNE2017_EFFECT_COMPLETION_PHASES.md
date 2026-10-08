@@ -2348,7 +2348,7 @@ Next: C9h-2c (Opus 5.5 high, identify; its kickoff exists). **User owes:** /cost
 
 ### C9h-2c - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): June's preview table is March's plus dated / event rows nobody uses; the port is its loader -> C9h-2d
 
-15 funcmap rows `Effect C9h-2c` (one upgraded: `32808770`).
+19 funcmap rows `Effect C9h-2c` (one upgraded: `32808770`).
 
 **Headline.** June's lookup equals March's on June's own data.
 - All 393 rows of June's `PetPreView.lua` pass 2-3 arguments (283 pet with the default type, 10 explicit `PPT_PET`, 100
@@ -2370,11 +2370,15 @@ Next: C9h-2c (Opus 5.5 high, identify; its kickoff exists). **User owes:** /cost
   second id. The pet is removed first, the swapped id is added once, and an out-of-window row falls back to the pet only if
   neither id is already there. The branch table is in the funcmap row.
   - "Now" is `CX2Data::GetServerCurrentTime` `31edca50` (= March `X2Data.cpp:2614`).
-  - The dates parse through `31c55270`: `ConvertStringToCTime`, then a shift of (`CX2Data+0x470` - `_timezone`). The
-    `+0x470` member is June-only, and its writer was not found.
+  - The dates parse through `31c55270`: `ConvertStringToCTime`, then a shift of (`CX2Data+0x470` - `_timezone`).
+    - `+0x470` is June-only. Its one writer is `31edce90`, fed by the 3rd `__int64` of June's wider `EGS_CURRENT_TIME_ACK`
+      (handler `32571b80`, Get `320a2930`). June's ctor `31eef470` never writes it.
+    - Offline it has no source, so it needs a stand-in: an open question for the user, below.
   - The event test `32822650` is a June-only `std::set<int>` at `g_pInstanceData+0xa94`, not March's `IsEnableCode` map
     `+0xa18`. June's `EGS_UPDATE_CODE_EVENT_NOT` handler `31f00970` fills it, together with `+0xa18` and a second set `+0xaa4`.
-    The emulator never sends that packet, so the set stays empty.
+    - Get `320de0f0`: the map, then the two sets.
+    - March's `ClientPacket_Global.h` is reached before `Always.h`, so the port's flag needs the `ServerDefine.h` second home.
+    - The emulator never sends that packet, so the set stays empty.
 
 **Data.**
 - 152 of June's 393 rows name a pet March's `Enum.lua` lacks: 85 pet rows (44 names) and 67 riding rows (36 names). The
@@ -2382,6 +2386,8 @@ Next: C9h-2c (Opus 5.5 high, identify; its kickoff exists). **User owes:** /cost
 - 241 rows resolve to the same values in both enums.
 - All 332 distinct items are in the live `item.kim` (June's, since K2).
 - June's file is a superset of March's preview items.
+- `datai015.kom`'s `PetPreView_1.lua` is a different entry name. March opens only `PetPreView.lua` (`X2Data.cpp:1784`), so
+  data036's copy is the one that loads.
 - **Hazard for adopting it on March's loader:** under `_IN_HOUSE_` (on in US_SERVICE), the first row that resolves to 0
   pops a box and sets `static bHasInvalidData`, and every later row is then rejected. June's loader has no such block, which
   is why the port takes June's loader.
@@ -2394,7 +2400,12 @@ Next: C9h-2c (Opus 5.5 high, identify; its kickoff exists). **User owes:** /cost
   `+0x1b0`) and lookup `328136f0` (set `+0xaa4`). That is not the pet preview, and it has no owner, so it goes to backlog
   **Stage 16** as one line. All 9,545 of June's IceHeaterPreView rows pass 4 arguments.
 
-**User owes:** /cost. Next: `/x2-phase june-effect C9h-2d` on Sonnet 5.5 high.
+**Open question (user):** the stand-in for June's server UTC offset (`CX2Data+0x470`).
+- Proposed: `_timezone`. The shift is then 0, so dates parse as in March.
+- The alternative is 0, which shifts every date by `-_timezone`.
+- Either way it is inert on June's data.
+
+**User owes:** /cost and that answer. Next: `/x2-phase june-effect C9h-2d` on Sonnet 5.5 high.
 
 ---
 
