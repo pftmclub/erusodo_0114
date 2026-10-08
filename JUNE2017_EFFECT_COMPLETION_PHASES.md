@@ -4487,7 +4487,7 @@ Hygiene, worktree (`--files X2GUNPC.cpp X2GUUser.cpp`):
 
 `DEPLOY OK: X2_offline.exe is 19,411,456 B, dated 2026-10-09 05:19:24, md5 ef524c3e71fc40c32af8f5c2f0a27613, equal to X2/US_SERVICE/x2.exe (2026-10-09 05:19:19); built at mods/june-buff-port 61e768f + 2 uncommitted code file(s).`
 
-*Owed (optional, not blocking):* one regression run on ef524c3e with jtLordKnight, looking for one `proc=1` line. Next: C10b-2 (`kickoffs/june-effect/C10b-2.md`).
+*Owed:* nothing (the optional regression run was skipped, user 2026-10-09). Next: C10b-2 (`kickoffs/june-effect/C10b-2.md`).
 
 
 ---
