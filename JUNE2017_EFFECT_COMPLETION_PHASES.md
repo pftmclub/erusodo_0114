@@ -447,7 +447,7 @@ The review's fix: `--worktree --files X2Lib/X2DamageManager.cpp`: `1 PASS` / `RE
 
 **Finding, fixed (comment only):** MeshToUnit's ONYL_ATTACK_USER test is `@326257bb-326257cb`, not `@3262827c` (that range is vector math); UnitToUnit's is `@326252a6-326252b6`.
 Corrected in `X2DamageManager.cpp` (same flag) and funcmap row 2153; the behaviour was already right. **Not rebuilt:** a comment changes no code, and the tree holds
-peers' uncommitted edits (`Always.h`, `KTDXDeviceManager.cpp`, five `Offline/` files) that a build would ship. The deployed exe stays `40b97943` (the C9h-4d review's, built from a head that contains `51d1718`).
+peers' uncommitted edits (`Always.h`, `KTDXDeviceManager.cpp`, five `Offline/` files) that a build would ship. The deployed exe is `131c16eb` (md5 read from the game dir's `X2_offline.exe`, 2026-10-08 16:51, the june-item-kim K3 deploy), built after `51d1718` (15:45), so it contains C3.
 
 **SetScale (the kickoff's question): equivalent today.** June's `31f6fdc0` multiplies by a per-instance base `+0xb24..`. Its only writers are the ctor (`@31f7b35c` = 1;
 `@31f7c80a-31f7c838` = DD `+0x5d0` when IGNORE_MI_HUGE is false) and `31f8aef0`, whose one caller is modifier tag 15 (`321db1b0 @321dbad4`; funcmap row 75 relabelled: a base-scale
@@ -457,6 +457,8 @@ row `IGNORE_MI_HUGE` ("no writer found") is wrong on this point; it is generated
 
 **Live behaviour (the kickoff's question): June parity, kept.** The owner's future `bHit` set by a user-owned effect hit (`31fcee10( 1, 1 )`), the DT_BUFF + ATTACK_OUR_TEAM hit
 on an invincible unit, and the NPC heal's NowHp > 0 test are June's code as read above; standing rule: follow June. The play-test felt no difference.
+
+Post-commit (`e16806f`), `flagcheck --range e16806f^..e16806f`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `2 deleted line(s)` (the two rewritten comment lines) / `RESULT: PASS`.
 
 No new play-test. Next: C3b (Opus 5.5 high, identification only).
 
