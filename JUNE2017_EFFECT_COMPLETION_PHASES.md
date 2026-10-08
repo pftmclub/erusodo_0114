@@ -830,8 +830,8 @@ syncData bases (`31fe6a40`, `3203c3a0`) and the HitCount finalizer (`32ec2300`).
    - The converters `32071ea0` (push) and `320829b0` (pop) copy every member.
    - C3d-1's bases `+0x7e68` / `+0x8108` are the buff counter, not the bases. The slot offsets it gave are right.
 3. **Reach (the kickoff's premise corrected).**
-   - SendFrameData `3203d4d0` copies the send list into the receive list **before** the peer test, as March's `X2GUUser.cpp:24465`
-     does. So every member flows Future -> Now for the local player with no peers; only Serialize / Deserialize are skipped.
+   - SendFrameData `3203d4d0` copies the send list into the receive list **before** the peer test, as March's SendFrameData does
+     (its `m_ReceiveSyncDataList.insert`, `X2GUUser.cpp:24526` at `0836013`). So every member flows Future -> Now for the local player with no peers; only Serialize / Deserialize are skipped.
    - The AI-party bots are `CX2GUNPC`, so no non-local user exists offline, and readers gated on "not my unit" never run.
    - **Local:** N; G once a class drives it; B / I (inert without a dual body); C (harmless: no June line map exceeds 243 lines,
      717 files).
@@ -867,7 +867,8 @@ syncData bases (`31fe6a40`, `3203c3a0`) and the HitCount finalizer (`32ec2300`).
 
 ## C3e-1 - port: June's 16-bit line index and the class-skill float slot (C, G)
 
-**Status: ready (found by C3e, 2026-10-09). Model:** Sonnet 5.5, high, then an Opus review. Kickoff `kickoffs/june-effect/C3e-1.md`.
+**Status: ready (found by C3e, 2026-10-09); not with C3g or C3e-2. Model:** Sonnet 5.5, high, then an Opus review. Kickoff
+`kickoffs/june-effect/C3e-1.md`.
 
 - **Scope:**
   - **C:** widen `lastTouchLineIndex` to 16 bits: `SyncData`, the packet field (bit `0x40`, 2 bytes), `_EncodeUserSyncPos` /
@@ -879,7 +880,7 @@ syncData bases (`31fe6a40`, `3203c3a0`) and the HitCount finalizer (`32ec2300`).
 
 ## C3e-2 - port: June's START / WIN / LOSE variant re-binding (N)
 
-**Status: ready (found by C3e, 2026-10-09); not with C3d-3 (the nine class files). Model:** Sonnet 5.5, high, then an Opus review.
+**Status: ready (found by C3e, 2026-10-09); not with the C3d-3 review (the nine class files), the C3f port (StateChange) or C3e-1. Model:** Sonnet 5.5, high, then an Opus review.
 Kickoff `kickoffs/june-effect/C3e-2.md`.
 
 - **Scope:**
