@@ -2254,7 +2254,7 @@ Next: C9h-2b (Opus 5.5 high) and C9h-3 (Opus 5.5 high); both kickoffs exist. **U
 
 ### C9h-2b - Done (2026-10-08, Opus 5.5 high; flag `SERV_IRUHADEV_JUNE_PET_PREVIEW`; play-test pending)
 
-16 funcmap rows `Effect C9h-2b`. The code is in `X2CashShop.cpp` and `X2UIPetInfo.cpp`, and the flag is in `Always.h`. The flag `#error`s without `SERV_IRUHADEV_JUNE_PET_VIEWER_FX`.
+15 funcmap rows `Effect C9h-2b`. The code is in `X2CashShop.cpp` and `X2UIPetInfo.cpp`, and the flag is in `Always.h`. The flag `#error`s without `SERV_IRUHADEV_JUNE_PET_VIEWER_FX`.
 
 **What landed.**
 - **`ResetPetViewer` = June `32228c90`:**
@@ -2347,7 +2347,7 @@ They also correct C9h-2b's `324943c0`: it is not `CX2RidingPetManager`, which is
   - in a village, sets appear where March showed none;
   - in a dungeon, June plays each name twice (user loader timed, riding pet immediately; JUNE_BUGS 108).
 
-**JUNE_BUGS 107-110** (per-state vector never cleared; the double play and skipped start times; dtor without stop; the hide mirror zeroed by show/hide).
+**JUNE_BUGS 107-111** (per-state vector never cleared; the double play and skipped start times; dtor without stop; the hide mirror zeroed by show/hide; a reserved set stopped (queued) in the same StateChange is skipped by `NOT_PLAY` and dies).
 
 Kickoffs written: `C9h-3a.md`, `C9h-3b.md`, `C9h-4.md`, `C9h-5.md`; STATUS rows added. C9h-3a and C9h-3b both edit StateChange, so run them one after the other. C9h-4 and C9h-5 can run alongside either.
 

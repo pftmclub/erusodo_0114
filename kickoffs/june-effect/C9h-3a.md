@@ -49,14 +49,15 @@ order is in the `Effect C9h-3` funcmap rows: transcribe them, do not re-derive.
    - Two `vector<CX2EffectSet::Handle>`: `+0x4b0` is persistent and `+0x4c0` is per-state.
    - The reserved map `+0x4d0`: `map<int, { deleteCond, playCond, name }>`.
    - Add the helpers `32d29240` (name), `32d292b0` (find a playing set by templet name, scanning `+0x4b0` only), `32d291a0` (show/hide all, then `+0x4ac = 0` unconditionally; JUNE_BUGS 110, keep it) and `32d293e0` (stop all, then clear).
-3. **Loader `32d2b0d0`** (INIT_EFFECT): call it at the end of SetRidingPet and SetGameRidingPet, as June's `32d3cbf0` / `32d3cd10` do.
+3. **Loader `32d2b0d0`** (INIT_EFFECT): call it in SetRidingPet and SetGameRidingPet **right after InitState and before the motion open**, where June's `32d3cbf0` / `32d3cd10` call it (after `32d36600`).
    - The tuple order is `name, index, playCond, deleteCond`.
    - The loop breaks at the first incomplete tuple.
    - BY_UIEFFECTSET handles are pushed into `+0x4b0` even when they are -1.
 4. **StateChange** (only these blocks; C9h-3b owns the rest of the rewrite):
    - the reserved delete blocks `@32d31013` (before the user test);
    - the UI-set block `@32d35a05`: stop `+0x4c0` without clearing it (JUNE_BUGS 107), then the names at odd indices only, then `DELETE_EFFECT_SET_ON_STATE_END` chooses `+0x4c0` or `+0x4b0`;
-   - the tail `32d2bad0` (PLAY_RESERVED_UI_EFFECT_SET), which must run for every state, in game or not.
+   - the tail `32d2bad0` (PLAY_RESERVED_UI_EFFECT_SET), which runs for every state. In a game whose owner user is not found, June jumps from `@32d31193` straight to this tail and skips the UI-set block (and the village block); outside a game both run.
+   - **Keep June's queued-stop outcome (JUNE_BUGS 111).** June's `321dafb0` only queues a stop and `321d97c0` does not check the queue, so a reserved set stopped by the delete blocks still counts as playing for the tail's `RESPC_NOT_PLAY` test and is skipped (then dies). March's StopEffectSet is immediate: collect the reserved handles to stop, run the tail's test treating them as still playing, and stop them after the tail (or an equivalent that gives the same result). Cite it.
 5. **Visibility and lifetime.**
    - June's OnFrameRender_Prepare village branch (`32d2c1e0 @32d2c4b2`): square unit flag `+0x518` vs `+0x4ac`. Identify the March name; March's Prepare tests `GetPlanRender()`.
    - Manager NotifyShowObjectChanged (`321f5cb0`): add the `32d291a0( b )` call at the end.
@@ -68,7 +69,7 @@ order is in the `Effect C9h-3` funcmap rows: transcribe them, do not re-derive.
      `RESERVED_UI_EFFECT_SET_DELETE_COND { RESDC_NONE = 0, RESDC_STATE_CHANGE = 1 }`.
    - Run `/elstools pack data036`, then ask before `/x2-kom-packed copy data036`.
    - Do **not** adopt June's riding-pet scripts here. C9h-4 owns that ordering (June moved each pet's summon and start sounds into `SOUND_PLAY_ALL_OPTION`).
-7. **Logging.** Write one `JUNE_FX RIDINGPET_FX` line per loader run (pet id, reserved count, BY_UIEFFECTSET count) and one per StateChange UI-set block that plays something (state name, count, which vector).
+7. **Logging.** Write one `JUNE_FX RIDINGPET_FX` line per loader run (pet id, reserved count, BY_UIEFFECTSET count). Lines per StateChange UI-set block that plays something (state name, count, which vector) go under `_DEBUG` only: in a village they would fire for every player's pet.
 
 **Reach and the play-test.**
 - The UI-set block runs for every state of every riding pet, the 15 March ones included, because March's scripts already carry `EFFECT_SET_LIST`.
