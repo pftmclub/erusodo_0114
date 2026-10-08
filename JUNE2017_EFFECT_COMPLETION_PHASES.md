@@ -2252,7 +2252,7 @@ Review: `kickoffs/june-effect/C9h-2a-review.md`. **User owes:** /cost.
 
 Next: C9h-2b (Opus 5.5 high) and C9h-3 (Opus 5.5 high); both kickoffs exist. **User owes:** /cost.
 
-### C9h-2b - Done (2026-10-08, Opus 5.5 high; flag `SERV_IRUHADEV_JUNE_PET_PREVIEW`; play-test pending)
+### C9h-2b - Done (2026-10-08, Opus 5.5 high; flag `SERV_IRUHADEV_JUNE_PET_PREVIEW`; play-test PASSED 2026-10-08)
 
 15 funcmap rows `Effect C9h-2b`. The code is in `X2CashShop.cpp` and `X2UIPetInfo.cpp`, and the flag is in `Always.h`. The flag `#error`s without `SERV_IRUHADEV_JUNE_PET_VIEWER_FX`.
 
@@ -2295,7 +2295,13 @@ Next: C9h-2b (Opus 5.5 high) and C9h-3 (Opus 5.5 high); both kickoffs exist. **U
 - **Pet info, switching between the pet and riding-pet tabs:** the viewers show as before.
 - **ErrorLog.txt:** one `JUNE_FX PET_PREVIEW item=<n> pet=<n> riding=<n> pick=<pet|riding|none>` line per equip click; a `hide item=` line when a previewed item leaves the pre-equip list.
 
-Review: `kickoffs/june-effect/C9h-2b-review.md`. **User owes:** the play-test, /cost.
+**Play-test 2026-10-08: PASSED** (user, all checks). Exe `1a00382e`, run 07:23-07:25, 0 EXCEPTION; the 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` are unrelated to this phase. 15 `JUNE_FX PET_PREVIEW` lines:
+- `pick=riding`: 550000, 550010, 550030;
+- `pick=pet`: 90002100 (pet 137), 84001272 (96), 500600 / 500610 / 500620 (28-30);
+- `pick=none`: non-pet items;
+- one `hide item=550010`: the next riding item (550021) took its pre-equip slot, so June's trailing hide fired.
+
+Review: `kickoffs/june-effect/C9h-2b-review.md`. **User owes:** /cost.
 
 ---
 
