@@ -2866,7 +2866,7 @@ RESULT: PASS
 
 **C9h-4b kickoff:** checked; it reads this Done note for the shipped names. One line added: its flags need `SERV_IRUHADEV_JUNE_UNIT_SOUND` on, and the NPC passes skill id 0 to the attach. **Open for the user:** /cost. **Next:** C9h-4b, C9h-4c or C9h-4d (Sonnet 5.5 high; 4c and 4d one at a time).
 
-### C9h-4c - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_UPDOWN_CANCEL`, `_COMMON_CANCEL`, `_CANCEL_CLAMP` + the two `_DEBUG` (on for the play-test); logs `JUNE_FX UPDOWN_CANCEL`, `JUNE_FX CANCEL_CLAMP`; play-test pending)
+### C9h-4c - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_UPDOWN_CANCEL`, `_COMMON_CANCEL`, `_CANCEL_CLAMP` + the two `_DEBUG` (on for the play-test); logs `JUNE_FX UPDOWN_CANCEL`, `JUNE_FX CANCEL_CLAMP`; play-test run, logs read: 17 attack_z lines, 0 clamp lines, 0 EXCEPTION)
 
 Files: `X2GUUser.h/.cpp`, `Always.h`. Funcmap rows `Effect C9h-4c`.
 
