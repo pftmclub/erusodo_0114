@@ -584,6 +584,26 @@ for `CEffect::JuneGetLockOnAimPos`, with an `#error` in `X2GameUnit.cpp` if it i
 force-down invincible fall comes sooner than before (the gage is no longer emptied by the knock-down). The two new JUNE_FX lines do not appear on March data.
 **Open for the user:** nothing; June's Add class hook goes to the Add port (checklist 7l).
 
+### C3c - Review (2026-10-08, Opus 5.5 high): correct against June; no code change; June's force-down flush sits in StateChange -> C3f
+
+**Hygiene.** `X2GUUser.cpp` carries three flags, so both runs treat them as one change and keep to the six code files:
+- `flagcheck JUNE_SUPER_ARMOR_CONDITION --range 57c5651^..57c5651 --with JUNE_TUTORIAL_MODE JUNE_DAMAGEDATA --files <the six>`: `files: 4 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR` / `2 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. OTHER = `X2DamageEffect.h`, `X2GameUnit.cpp` (only `_DAMAGEDATA` blocks).
+- `flagcheck JUNE_DAMAGEDATA`, same form: `files: 6 PASS, ... 0 FAIL, 0 ERROR` / `2 deleted line(s)` / `RESULT: PASS`.
+- The 2 deleted lines are buff 14c's two comment lines, rewritten inside its own `JUNE_TUTORIAL_MODE` block.
+- The kickoff's form `--range 57c5651^..HEAD` FAILs only with ERROR on the older `Always.h:5380` guard `#if defined(...CREATE_EFFECT_SET) && !defined(...DAMAGEDATA)` (as the C3 review recorded); the `c0cd5fe` / `2119f7e` OTHER rows are C9h-4e's.
+- `flagprobe.py`: RIDING_SYSTEM, SEASON3_MONSTER_2010_12, EVE_SECOND_CLASS_CHANGE, CHUNG_FIRST/SECOND_CLASS_CHANGE, SERV_ELESIS_SECOND_CLASS_CHANGE, NEW_SKILL_2010_11, FIX_FORCE_DOWN_INITIALIZE_BUG, FIX_FORCE_DOWN_AND_DETONATION_BUG, BUFF_ICON_UI, FIX_EDT_ENCHANT, TEST_GROUP_GRAP, `_DAMAGEEFFECT_RUNTIME`, `_FX_DEBUG`, `_OFFLINE` all ON.
+
+**Checked against June (Ghidra and the binary, read-only); every site matches the port:**
+1. **The 22 sites** (`31feabd0`, `@31feae0b-31feb64e`). Gate: `0x81c( 0 )` and FORCE (`DD +0x3ec`) clear -> break; then `0x81c( 0 )`, or `+0x7e2d` (Future `bAttackerFront`) and `0x81c( 1 )`, -> FORCE block `31feb28f` (`nowSpeed.y = DD +0x3e0`, no state). State ids by name (`Enum.src.lua`, GUSI_END 5): `0x1a/0x1b` SMALL, `0x1c/0x1d` BIG, `0x1e/0x1f` DOWN, `0x22` AIR_SMALL (SMALL and BIG share `31feb039`), `0x23` AIR_DOWN, `0x27` AIR_UP, `0x28/0x29` AIR_FLY (FLY and DRAG_UP), `0x55` / EBX `0x56` RIDING_DAMAGE_FRONT / BACK. DOWN writes hold `+0x8be8 = 0x26` (AIR_FALL) after each state change only (not after the `@31feb1c1` break or the FORCE block); FLY writes hold `+0x8be8` and grap `+0x9110` = the state; DRAG_UP neither. UP / FLY / DRAG_UP take the speed before `0x81c( 0 )` (`@31feb330`, `@31feb499`, `@31feb5b1`) and clear `+0x7e1c` (ResetOnSomethingFuture) after the two checks. FLY's gate is vslot `0x264` + `g_pMain +0x16a` + FORCE (`@31feb425`), its x mirror `@31feb44e-31feb47a`.
+2. **DOWN's dropped reset.** `SetNowForceDown 32081520` has exactly the four callers of the funcmap row. A sweep of all 1,412 calls to the protected-float writer `323101d0` (615 functions) finds no inlined write to a `+0x60` field (7 hits, all stack locals). June has no reset on the RT_DOWN path: the verdict and JUNE_BUGS 131 stand. **Finding:** `32a33dc0`'s caller `320348c0` is `CX2GUUser::StateChange` (funcmap row 1923), not ForceDownAndDetonationProcess. `@32034931-32034994`: when the Future nowState (`+0x7e6c`, the state being left) equals vslot `0x114` (`3208de60`: `0x1e` DOWN_FRONT), `0x118` (`3208de70`: `0x1f` DOWN_BACK) or `0x490` (`330de330`: `0x25` AIR_DOWN_LANDING), the gage's UpdateFlushForceDown runs. Its other caller `327577d0` is the NPC twin. March runs it from CommonStateStart (`X2GUUser.cpp:16110`, `FIX_FORCE_DOWN_AND_DETONATION_BUG` ON) on **entering** DOWN_FRONT / DOWN_BACK / AIR_DOWN_INVINCIBLE / RIDING_DAMAGE_*, together with UpdateDamageFlushMP and the stun / freeze / groggy clears. Where June put those is not found. Luciel overrides all three getters (`32b4d810` / `32b4d850` / `32b4d9d0`); the other 12 user classes use the base. This is an unowned June change: new phase **C3f** (identify). JUNE_BUGS 131 and funcmap row `31feabd0 (C3c)` are corrected, and a row `320348c0 @32034931-32034994 (C3c review)` is added. The `X2GUUser.cpp` RT_DOWN comment ("cleared only by ForceDownAndDetonationProcess / its flush") is true of the March build; C3f's port corrects it (a peer has the file dirty now). The Done note's "force-down comes sooner" expectation holds only in part until C3f's port lands.
+3. **Parse** (`32057b80`): `@320588e5` SUPER_ARMOR into the local `[esp+0x28]`, stored to `+0x7ff4` when it differs; FRONT into `[esp+0x3d]`; `3260ea70` clears `+0x8030` every time; `32fe9940` / `32fea6e0` from index 1 / `32345580` / `32fe9a10` only when the table opened; FRONT -> local 1, `+0x7ff4` 1, insert 0. `@32058f05` `+0x89fc` = the local; `@32059000` NotRed tests the local. **`31fd86b0`**: `+0x42a0 != +0x42a4` -> true; `+0x7ff4` false -> false; SAC 0 and not front -> false; SAC 2 and DD and `DD +8` (attackType) != 1 (AT_SPECIAL) -> false; SAC 1 and DD and == 1 -> false; else true.
+4. **Collector.** Call `@32036bda-32036c11`: ( vec, `DD +0x154`, dist, -180.0 `[33477e98]`, 180.0 `[3344d398]`, 0, 1 ). Distance `@3203686d` (0 < d keeps it; else, and NaN, 1000.0 `[33437b40]`). Skips as the row says; a unit with no gage (`+0xc04` null) passes the HP test (March `GetNowHp()` = 1). Size factor 0.25 `[33437830]`. Angle z: `@32295114` / `@3229512b` (`test ah,5; jnp`, NaN passes). Distance: `@32295177` (`test ah,0x41; jp`: keeps d <= max, NaN refuses). Member loop `@32036c40-32036c68`: non-null, != attacker, `ProcessTransitDebuff( DD, this )`. The x87 masks were read directly; `x87test.py` was not re-run (no doubt left).
+5. **`322a6d00`** vs `SetKBuffFactorPacketToGameUnit`: order refusal -> find (BTI + unique) -> templet -> clone -> SetFactorFromPacket -> finalizers (vslot `0x18`, clone `+0x34`) -> counters (`+0x64`) -> `0x24c` -> **`0x3e8`** -> push -> icon. The only difference beyond the two ported additions is the slot-250 hook, which buff Phase 11b declined (`X2GameUnit.cpp:13153`; same in SetBuffFactorToGameUnit).
+
+**Nits, left as they are (no behaviour):** the collector's `std::stable_sort` vs June's `_Sort` only reorders equal distances, and every collected unit is processed (JUNE_BUGS 133); `X2DamageManager.cpp`'s `#if 0` closes with `#endif SERV_IRUHADEV_JUNE_DAMAGEDATA` (legal, misleading).
+
+**Not rebuilt** (no code change); the deployed exe `eeabc914` contains C3c. No new play-test.
+
 ## C3d-1 - identify: widening the user state id to 16 bits (D10 (a))
 
 **Status: done 2026-10-08 (see the Done note below). Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3d-1.md`.
@@ -663,6 +683,18 @@ Site list `june2017_re/c3d1_state_id_sites.tsv` (19 rows), 9 funcmap rows `(C3d-
   bits `0x10000-0x200000` / `0x1000000-0x40000000`). For each: width, the June `SyncData` member it comes from and decodes into, its
   readers, and its reach offline (the packet is sent only with UDP peers).
 - **Exit:** funcmap rows `Effect C3e`, a port phase per field with a March counterpart, owners for the rest.
+
+## C3f - identify: June's force-down flush in StateChange
+
+**Status: ready (found by the C3c review, 2026-10-08). Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3f.md`.
+
+- **Scope:** June calls the gage's UpdateFlushForceDown (`32a33dc0`) from `CX2GUUser::StateChange` `320348c0 @32034931-32034994`, when the state
+  being **left** is DOWN_FRONT / DOWN_BACK / AIR_DOWN_LANDING (vslots `0x114` / `0x118` / `0x490`; Luciel overrides all three). March calls
+  ForceDownAndDetonationProcess (`X2GUUser.cpp:40216`, `FIX_FORCE_DOWN_AND_DETONATION_BUG`) from CommonStateStart on **entering** DOWN_FRONT /
+  DOWN_BACK / AIR_DOWN_INVINCIBLE / RIDING_DAMAGE_*, together with UpdateDamageFlushMP and the stun / freeze / groggy clears. Find where June put
+  the detonation flush and the clears (or show they are gone). Cover the NPC twin `327577d0` against March's NPC path (`X2GUNPC.cpp:13101`) and every class override.
+- **Exit:** funcmap rows `Effect C3f`; a port phase (row, flag, kickoff) that follows June and also corrects the C3c RT_DOWN comment in `X2GUUser.cpp`;
+  class overrides go to the checklist.
 
 ---
 
