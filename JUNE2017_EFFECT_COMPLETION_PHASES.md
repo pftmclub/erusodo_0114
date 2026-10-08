@@ -3602,10 +3602,11 @@ RESULT: PASS
   - No table is left open across either call. Every `BeginTable` before them in `CommonStateStartFuture` / `CommonStateStart` is a self-closing `if` or `while`, and run 3 read the injected rows through both sets.
   - The one exception is June's own JUNE_BUGS 117: an empty-name `SOUND_PLAY_EX` row leaves that table open, so June then reads the Now set inside `SOUND_PLAY_EX`. That is ported verbatim and needs no new row.
 - **Readers: two of four notes were wrong** (`funcmap.tsv`, notes only):
-  - `31fc8620` was right: state time > Future[0][0] -> `StateChange( 0xd )`.
-  - `31fc9a20` was right: state time >= Future[0][0] -> `0x6f` when byte `+0x9480 > 0`, else `0x71`.
+  - State names are from June's `Enum.lua` (`GUSI_END` = 5): `0xd` = `USI_WAIT`, `0x6e..0x71` = `USI_EVENT_SNIPER_INIT / _CONTROL_IDLE / _CONTROL_FIRE / _END`, `0x7a` = `USI_BOUNDING_UP`. `0x72..0x76` are not sniper states (PROTON_BOMB / MECA_DROP / GUN_DANCE), and `0x6e` is INIT, not READY (C3d-1 row corrected).
+  - `31fc8620` was right: state time > Future[0][0] -> `USI_WAIT`.
+  - `31fc9a20` was right: state time >= Future[0][0] -> `_CONTROL_IDLE` when signed byte `+0x9480 > 0`, else `_END`.
   - **`3200d450` had the test inverted.** It changes to `0x71` when the target `+0x947c` is null **or the accumulated `+0x9484` > Future[0][0]** (the timer ran out). Only otherwise do the key bytes run: `+0x86eb` -> `dec +0x9480`, `0x70`; `+0x86ef` -> `0x71`.
-  - **`3200d1d0` was misread** (`likely` -> `confirmed`). `322e67c0` is CX2Game's CreateNPC packet fill, so `0x10f6` is an **NPC id**. Vslot `0x198` is the own-unit test, not a target test. The `+0x947c` target is the Neil the Sniper NPC, sent to `NEIL_THE_SNIPER_DYING` through `3275da30`. The `Now[0][0]` distance goes through the line map (`31c5f090`).
+  - **`3200d1d0` was misread** (`likely` -> `confirmed`). `322e67c0` is CX2Game's CreateNPC packet fill, and `0x10f6` = 4342 = `NUI_NEIL_THE_SNIPER_EVENT` in June's Enum, so it is an **NPC id**. Vslot `0x198` is the own-unit test, not a target test. The `+0x947c` target is the Neil the Sniper NPC, sent to `NEIL_THE_SNIPER_DYING` through `3275da30`. The `Now[0][0]` distance goes through `31c5f090`; that it is the line map's `GetFixedDistancePosition` is inferred from the argument shape and marked so.
   - **`3200d3f0` is a separate function** (int3 padding before it, none between it and `3200d450`). It reads no USEFUL_VALUE, but it is the same sniper family's StateStart-shaped handler (target NPC -> `NEIL_THE_SNIPER_IDLE`, else `0x71`). It has a new funcmap row, and it is added to C9h-4g's handler list.
   - `31fd0260` (C3d-3) reads `+0x8eb8` = `JuneGetUsefulValueNow( 0, 0 )`. C3d-3's kickoff now says so, 0-based.
 - **Cleanup (dead-flag deletion only).**
