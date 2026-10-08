@@ -420,6 +420,8 @@ RESULT: PASS
 3. **Chains:** use your normal combo and any skill whose follow-up is gated on "the attack hit". The live change can only make such a follow-up fire **more often**: look for one that now fires when only a projectile / wave connected and the melee swing missed. If you see that, say which skill; it is June's behaviour, but the review decides.
 Log tag I will read: `JUNE_FX C3` (+ `0 EXCEPTION`).
 
+**Play-test run, logs read (2026-10-08, run after the 51d1718 deploy):** 0 EXCEPTION; ErrorLog `JUNE_FX C3 DAMAGE_LIGHT_TIME first user DamageReact: DD 0.200, timer now 0.200, damageType 0`; offline_server.log `JUNE_FX C3 ATTACK_SUCCESS first user-owned effect hit ELSWORD_SONIC_BLADE`; no `NAME_SCALE` line (no RT_CREATE_DAMAGE_EFFECT child hit; that site stays unexercised). The five UNHANDLED packets are `E_DISABLE_HB_CHECK_REQ` (known, ignored). The chain-skill observation (check 3) is the user's.
+
 **Left to others (named, not changed):** C3b (identification, then its port: armour level, bounding back-speed state, ADD_MEMBER_COUNT reader, hit counter `31fcee40`); C8b (`APPLIED_MEMO_ID`'s reader); the class callback `+0x8dc0` and `UpNowHpPerHitOthers`'s gage factor (character ports).
 
 ---
