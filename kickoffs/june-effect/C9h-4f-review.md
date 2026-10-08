@@ -26,9 +26,7 @@ Review the C9h-4f code against June in Ghidra (read-only) and fix transcription 
   between the USEFUL_VALUE block and the other keys in between does not matter unless one of them shares the table cursor: confirm no `BeginTable` is left open across the call.
 - **Readers.** `funcmap.tsv` rows `(C9h-4f)`: `31fc8620` (`*_WAIT_STATE_CHANGE`), `31fc9a20`, `3200d450`, `3200d1d0` (USI_EVENT_SNIPER_*). Confirm the compare directions
   and the state ids written there (they are the notes the next phase, C9h-4g, will port from), and that `3200d3f0` is not a reader.
-- **Data on hand.** March scripts carry no `USEFUL_VALUE`, so with March data only the play-test's console line proves the parse (see the Done note's play-test). Say what the
-  played run showed.
+- **Data on hand.** March scripts carry no `USEFUL_VALUE`; the parse was proved with a temporary injected table (Done note, "Play-test (3 runs)"). Delete the `SERV_IRUHADEV_JUNE_USEFUL_VALUE_INJECT` blocks and the probe block in `JuneParseUsefulValue` and the `_INJECT` / `_DEBUG` defines' leftovers if you judge them dead.
 - **Hygiene:** `python tools/flagcheck.py JUNE_USEFUL_VALUE --with JUNE_USEFUL_VALUE_DEBUG --range <first C9h-4f commit>^..HEAD`.
 
-Fix clear transcription errors under the same flag (then `tools/build.py --deploy`); hand design decisions back to the user. Turn `SERV_IRUHADEV_JUNE_USEFUL_VALUE_DEBUG` off in
-the review commit. Write "C9h-4f - Review" into the plan doc, update the phase's STATUS.md row, check the next kickoff (`C9h-4g.md`, `C3d-3.md`), and commit.
+Fix clear transcription errors under the same flag (then `tools/build.py --deploy`); hand design decisions back to the user. `_DEBUG` and `_INJECT` are already off. Write "C9h-4f - Review" into the plan doc, update the phase's STATUS.md row, check the next kickoff (`C9h-4g.md`, `C3d-3.md`), and commit.
