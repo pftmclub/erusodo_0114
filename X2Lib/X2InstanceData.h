@@ -435,6 +435,14 @@ public:
 
 		return mitEnableCodeEnum->second;
 	}
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+	// June 31f00970 fills the map above plus these two sets from the wider EGS_UPDATE_CODE_EVENT_NOT (Get 320de0f0).
+	// +0xa94 is the pet preview's (test 32822650), +0xaa4 the ice heater preview's (test 32822680, backlog Stage 16).
+	// Nothing sends the packet offline, so both stay empty.
+	void JuneSetCodeEventSets( const std::set< int >& setCodeEventA_, const std::set< int >& setCodeEventB_ ) { m_setJuneCodeEventA = setCodeEventA_; m_setJuneCodeEventB = setCodeEventB_; }
+	bool JuneIsCodeEventOn( int iCode_ ) const { return m_setJuneCodeEventA.end() != m_setJuneCodeEventA.find( iCode_ ); }
+	bool JuneIsCodeEventBOn( int iCode_ ) const { return m_setJuneCodeEventB.end() != m_setJuneCodeEventB.find( iCode_ ); }
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 #endif SERV_CODE_EVENT
 
 #ifdef CLIENT_COUNTRY_ID
@@ -829,6 +837,10 @@ public:
 
 #ifdef SERV_CODE_EVENT
 	std::map< int, bool >		m_mapEnableCodeEnum;
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+	std::set< int >				m_setJuneCodeEventA;	// June +0xa94
+	std::set< int >				m_setJuneCodeEventB;	// June +0xaa4
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 #endif SERV_CODE_EVENT
 
 #ifdef SERV_ELISIS_PREVIOUS_SIS_EVENT

@@ -4655,3 +4655,16 @@
 //              2026-10-05. See the Always.h entry. Comment out both together.
 #define SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June effect completion C9h-2d, client flag (offline only). Also
+//              defined in KTDXLIB/Always.h; this second home exists because
+//              ClientPacket_Global.h (KEGS_UPDATE_CODE_EVENT_NOT's two new
+//              sets) is compiled before Always.h is reachable (X2Main.h:4 ->
+//              X2ServerProtocolLib.h:80 -> X2ServerPacket.h:8 ->
+//              ClientPacket.h:11056). See the Always.h entry. Comment out both
+//              together.
+#define SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+//////////////////////////////////////////////////////////////////////////

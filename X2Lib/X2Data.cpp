@@ -1036,6 +1036,11 @@ CX2Data::CX2Data(void)
 //#endif USER_DEFINED_KEYBOARD_SETTING
 
 	m_TickCountAtGetTime = 0;
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+	// June's ctor 31eef470 never writes +0x470; only the EGS_CURRENT_TIME_ACK handler 32571b80 does, from a 3rd field March's
+	// packet does not have. Offline it therefore stays unwritten: 0 (user: "follow June's", 2026-10-08). JUNE_BUGS.
+	m_iServerUtcOffset = 0;
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 
 #ifdef SERV_LOCAL_RANKING_SYSTEM //지인시스템
 	m_pProfileManager = NULL;
@@ -1781,7 +1786,20 @@ CX2ItemManager* CX2Data::ResetItemManager()
 	m_pItemManager->OpenScriptFile( L"IceHeaterPreView.lua" );
 #endif //ICE_HEATER_PRE_VIEW
 #ifdef PET_PREVIEW
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+	m_pItemManager->m_iJunePetPreviewLoaded = 0;
+	m_pItemManager->m_iJunePetPreviewSkipped = 0;
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 	m_pItemManager->OpenScriptFile( L"PetPreView.lua" );
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+	{
+		// one line per load tells a clean load from a file that Lua aborted half way (June's file: 241 loaded + 152 skipped)
+		WCHAR wszJuneFx[128] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_PREVIEW_LOOKUP loaded=%d skipped=%d",
+			m_pItemManager->m_iJunePetPreviewLoaded, m_pItemManager->m_iJunePetPreviewSkipped );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 #endif // PET_PREVIEW
 
 

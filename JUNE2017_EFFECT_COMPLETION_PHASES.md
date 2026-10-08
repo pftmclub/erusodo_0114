@@ -2409,6 +2409,44 @@ Next: C9h-2c (Opus 5.5 high, identify; its kickoff exists). **User owes:** /cost
 
 ---
 
+### C9h-2d - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP`; play-test owed)
+
+June's pet-preview table, whole. 7 funcmap rows `Effect C9h-2d`; JUNE_BUGS #112.
+
+**What landed** (flag also `#define`d at the end of `ServerDefine.h`, in `SECOND_HOMES`):
+- **Row**: `PREVIEW_PET_DATA` = June's 0x4c row (second id, start / end `wstring`, code event).
+- **Loader `32812ce0`**: 6 arguments, no `_IN_HOUSE_` popup / latch. Each skipped row logs `JUNE_FX PET_PREVIEW_LOOKUP skip item= pet=`.
+  One `JUNE_FX PET_PREVIEW_LOOKUP loaded= skipped=` line per load (X2Data.cpp, after `PetPreView.lua`).
+- **Lookup `32808770`**: re-decompiled, not taken from the funcmap row. A parse failure on the second-id-less path pushes nothing; both bounds are strict; the swap erases the pet only when the second id is absent; `rand() % size`, `-1` on a miss.
+- **Externals**: `CX2InstanceData` sets `+0xa94` / `+0xaa4`; `KEGS_UPDATE_CODE_EVENT_NOT` Put/Get = map, set, set; the handler copies all three. `CX2Data::GetServerUtcOffset()` (int member, sign-extended) and the shifted parse (`31c55270`: `time += offset - _timezone`).
+- **Handler**: June has none of March's NEW_YEAR_2014 / CHECK_POWER blocks, so the flag-on path drops them (inert offline: nothing sends the packet).
+  June's tail, `32344880()` plus the state virtual at `+0x100`, is **not** ported: it is an unidentified code-event list refresh -> **C9h-2e** (identify; kickoff written, STATUS row added).
+- **Data**: June's `PetPreView.src.lua` copied verbatim, compiled, `data036` packed (`PACK OK`; `kom.py status`: only `PetPreView.lua` changed, nothing foreign) and copied (`COPY OK`, md5 `10fba833`, backup `kom_backup_tools/data036.kom.20261008_083402`).
+
+**`+0x470` stand-in** (user: "follow June's"): June's ctor never writes it, so offline it is never set. The port initialises it to **0**
+(the kickoff's second option): every parsed date shifts by `-_timezone`, not March's unshifted parse. Inert today (no row has a date).
+
+**Hygiene**: `flagcheck --worktree --files <10 code files>`:
+- `files: 8 PASS, 0 PASS~ (blank/marker only), 2 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+- `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 5 #else/#endif without the flag token, 0 encoding change(s)` (the 5 are bare `#else`)
+- `RESULT: PASS`
+
+**Deploy**: `DEPLOY OK: X2_offline.exe is 19,348,992 B, dated 2026-10-08 08:20:24, md5 affec3722e7bead5d6f914dbc7a60989, equal to X2/US_SERVICE/x2.exe (2026-10-08 08:20:19); built at mods/june-buff-port 4567c75 + 16 uncommitted code file(s).`
+The exe also holds a peer's uncommitted riding-pet work (X2RidingPet*, X2GUUser*); the new strings are in it (UTF-16 search).
+
+**Reach census** (step 6; `scratchpad` script, March templets = names present in `PetTemplet.lua` / `RidingPetTemplet.lua`):
+- 393 rows: 152 unresolved on March's enums (85 pet + 67 riding) -> skipped, Stage 17's. 241 resolve: 199 have a March templet (174 pet, 25 riding), **42 have none** (34 pet, 8 riding: Oberon custom, Grim Reaper, Hatchling `_F`, Mystic `_F`/`BLUE`, ...).
+- Against March's old 115-row file: 136 of the 241 are new, 94 of them with a templet. 10 March rows are gone from June's file (269731's three riding picks, 500060 / 500070 / 500110 and 84001272 / 84001273 move to the `_F` variants): June wins.
+- The 42 no-templet rows are survivable: `ResetPet` and `ResetRidingPet` return false on a missing templet (X2NPCUnitViewerUI.cpp:89, :502), so the viewer shows nothing; no stop condition.
+- June-new items that are also **in the offline cash shop**: 550040 / 550041 / 550042 (Ice / Dark / Red Hameling riding pets, products 346-348, category 63), all with a March templet.
+
+**How to see it**: cash shop, riding-pet category, preview a Hameling (below). `ErrorLog.txt` after startup: per load 152 `skip` lines and `loaded=241 skipped=152`.
+
+**Open for the user**: /cost.
+**Next**: play-test, then `/x2-phase june-effect C9h-2d review` on Opus 5.5 high. Also `C9h-2e` (identify, Opus 5.5 high).
+
+---
+
 ### C9h-3 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the riding pet's UI sets port now; its StateChange splits three ways -> C9h-3a/3b/4/5, Stage 17
 
 Read-only in Ghidra. There are 43 funcmap rows tagged `Effect C9h-3`. They correct C9h in four places:

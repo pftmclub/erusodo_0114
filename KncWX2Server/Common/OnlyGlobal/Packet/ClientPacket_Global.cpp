@@ -819,11 +819,19 @@ SERIALIZE_DEFINE_GET( KEGS_UPDATE_DUNGEON_STATUS_NOT, obj, ks )
 SERIALIZE_DEFINE_PUT( KEGS_UPDATE_CODE_EVENT_NOT, obj, ks )
 {
 	return PUT( m_mapEnableCodeEnum )
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+		&& PUT( m_setJuneCodeEventA )
+		&& PUT( m_setJuneCodeEventB )
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 		;
 }
 SERIALIZE_DEFINE_GET( KEGS_UPDATE_CODE_EVENT_NOT, obj, ks )
 {
 	return GET( m_mapEnableCodeEnum )
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+		&& GET( m_setJuneCodeEventA )
+		&& GET( m_setJuneCodeEventB )
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 		;
 }
 #endif SERV_CODE_EVENT

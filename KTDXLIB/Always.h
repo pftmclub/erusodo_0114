@@ -5747,6 +5747,26 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_PET_PREVIEW
 //////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June effect completion C9h-2d (JUNE2017_EFFECT_COMPLETION_PHASES.md):
+//              June's pet-preview table whole. The 0x4c row (second id, start /
+//              end date, code event), the 6-argument loader 32812ce0 (no
+//              _IN_HOUSE_ popup / latch; each skipped row is logged), the lookup
+//              32808770 (dated / code-event / second-id rows, rand() pick), June's
+//              code-event sets (+0xa94 / +0xaa4) with the wider
+//              EGS_UPDATE_CODE_EVENT_NOT and its handler's copy, and
+//              CX2Data+0x470 (server UTC offset, 0 offline: "follow June's",
+//              user 2026-10-08).
+//              ALSO #defined at the end of KncWX2Server/Common/ServerDefine.h:
+//              ClientPacket_Global.h is compiled before Always.h is reachable
+//              (X2Main.h:4 -> X2ServerProtocolLib.h:80 -> X2ServerPacket.h:8 ->
+//              ClientPacket.h:11056). Comment out both together.
+//              Log: "JUNE_FX PET_PREVIEW_LOOKUP" in ErrorLog.txt.
+#define SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+//////////////////////////////////////////////////////////////////////////
+
 
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha

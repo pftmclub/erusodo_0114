@@ -12827,6 +12827,12 @@ bool CX2State::Handler_EGS_UPDATE_CODE_EVENT_NOT( HWND hWnd, UINT uMsg, WPARAM w
 
 	if( g_pInstanceData != NULL )
 	{
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+		// June 31f00970: the map, then the two sets ( +0xa94 / +0xaa4 ). June has none of the two event blocks below; it
+		// ends with 32344880() and a state virtual at +0x100, which are routed (STATUS C9h-2e), not ported here.
+		g_pInstanceData->SetCodeEvent( kEvent.m_mapEnableCodeEnum );
+		g_pInstanceData->JuneSetCodeEventSets( kEvent.m_setJuneCodeEventA, kEvent.m_setJuneCodeEventB );
+#else
 		g_pInstanceData->SetCodeEvent( kEvent.m_mapEnableCodeEnum );
 
 #ifdef SERV_NEW_YEAR_EVENT_2014
@@ -12846,6 +12852,7 @@ bool CX2State::Handler_EGS_UPDATE_CODE_EVENT_NOT( HWND hWnd, UINT uMsg, WPARAM w
 			g_pMain->GetMemoryHolder()->UpdateCheckPowerEvent();
 		}
 #endif SERV_EVENT_CHECK_POWER
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 	}
 
 	return true;

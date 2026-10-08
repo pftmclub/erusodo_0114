@@ -381,6 +381,11 @@ class CX2Data : public CKTDXStage
 		
 		__time64_t	GetServerCurrentTime();
 		void SetServerCurrentTime( wstring wstrTime );
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+		// June 31edcea0 (getter, CDQ-extends the int): CX2Data+0x470, the server's UTC offset in seconds
+		__int64	GetServerUtcOffset() { return m_iServerUtcOffset; }
+		int		m_iServerUtcOffset;
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 #ifdef SERVER_CURRENT_TIME_INT64
 		__int64	GetServerCurrentTime64();
 		void SetServerCurrentTimeInt64( __int64 tTime );

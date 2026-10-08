@@ -22,6 +22,31 @@ class CX2ItemManager
 			int iPreviewUnitID;
 			PREVIEW_PET_TYPE ePreviewPetType;
 
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+			// June 32822b60: the 0x4c preview row = item, pet, type, second id, start / end date, code event
+			int iSecondPreviewUnitID;
+			std::wstring wstrStartDate;
+			std::wstring wstrEndDate;
+			int iCodeEvent;
+
+			PREVIEW_PET_DATA( int iCashShopItemID_, int iUnitID_, PREVIEW_PET_TYPE ePreviewPetType_, int iSecondUnitID_, const std::wstring& wstrStartDate_, const std::wstring& wstrEndDate_, int iCodeEvent_ ):
+			iCashShopItemID( iCashShopItemID_ ),
+			iPreviewUnitID( iUnitID_ ),
+			ePreviewPetType( ePreviewPetType_ ),
+			iSecondPreviewUnitID( iSecondUnitID_ ),
+			wstrStartDate( wstrStartDate_ ),
+			wstrEndDate( wstrEndDate_ ),
+			iCodeEvent( iCodeEvent_ )
+			{}
+
+			PREVIEW_PET_DATA():
+			iCashShopItemID( 0 ),
+			iPreviewUnitID( 0 ),
+			ePreviewPetType( PPT_PET ),
+			iSecondPreviewUnitID( 0 ),
+			iCodeEvent( 0 )
+			{}
+#else
 			PREVIEW_PET_DATA( int iCashShopItemID_, int iUnitID_, PREVIEW_PET_TYPE ePreviewPetType_ ):
 			iCashShopItemID( iCashShopItemID_ ),
 			iPreviewUnitID( iUnitID_ ), 
@@ -30,6 +55,7 @@ class CX2ItemManager
 
 			PREVIEW_PET_DATA()
 			{}
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 		};
 #endif // PET_PREVIEW
 
@@ -508,7 +534,16 @@ class CX2ItemManager
 #endif //ICE_HEATER_PRE_VIEW
 
 #ifdef PET_PREVIEW
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+		// June 32812ce0: 6 arguments (item, pet, type, second id, two strings). No default arguments: lua_tinker reads a
+		// missing one as 0 / NULL, which is what June's loader sees.
+		bool	AddPetPreViewData_LUA( int iCashShopItemID_, int iPetUnitID_, PREVIEW_PET_TYPE ePetType_, int iSecondPetUnitID_, const char* pszStartDate_, const char* pszEndDate_ );
+		// per-load counters for the "JUNE_FX PET_PREVIEW_LOOKUP loaded= skipped=" summary (X2Data.cpp ResetItemManager)
+		int		m_iJunePetPreviewLoaded;
+		int		m_iJunePetPreviewSkipped;
+#else
 		bool	AddPetPreViewData_LUA( int iCashShopItemID_, int iPetUnitID_, PREVIEW_PET_TYPE ePetType_ = PPT_PET );
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 		int		GetPreviewPetIdByItemID( int iItemID_ );
 		int		GetPreviewRidingPetIdByItemID( int iItemID_ );
 		int		GetPreviewIDByItemID( int iItemID_, PREVIEW_PET_TYPE ePetType_);

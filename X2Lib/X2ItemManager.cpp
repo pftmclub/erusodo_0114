@@ -4235,6 +4235,44 @@ bool CX2ItemManager::GetIceHeaterItemData( int iIceHeaterItemID_, CX2Unit::UNIT_
 
 
 #ifdef PET_PREVIEW
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+// June 32812ce0 CX2ItemManager::AddPetPreViewData_LUA. Returns silently unless item > 0 && pet > 0: no popup, no latch, no
+// templet check (March's _IN_HOUSE_ block below popped a box on the first row that resolved to 0 and then rejected every
+// later row, and 152 of June's 393 rows name a pet March's Enum.lua lacks). June's skip is silent; the port logs each one
+// ("JUNE_FX PET_PREVIEW_LOOKUP skip", the no-popups rule).
+// Strings (June @32812ce0): both given -> they are the start / end date; otherwise both dates are L"" and, when only the
+// first is given, code event = atoi( first ).
+bool CX2ItemManager::AddPetPreViewData_LUA( int iCashShopItemID_, int iPetUnitID_, PREVIEW_PET_TYPE ePetType_, int iSecondPetUnitID_, const char* pszStartDate_, const char* pszEndDate_ )
+{
+	if( iCashShopItemID_ <= 0 || iPetUnitID_ <= 0 )
+	{
+		++m_iJunePetPreviewSkipped;
+
+		WCHAR wszJuneFx[128] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_PREVIEW_LOOKUP skip item=%d pet=%d", iCashShopItemID_, iPetUnitID_ );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		return false;
+	}
+
+	std::wstring wstrStartDate;
+	std::wstring wstrEndDate;
+	int iCodeEvent = 0;
+
+	if( NULL != pszStartDate_ && NULL != pszEndDate_ )
+	{
+		wstrStartDate = KncUtil::toWideString( pszStartDate_ );
+		wstrEndDate = KncUtil::toWideString( pszEndDate_ );
+	}
+	else if( NULL != pszStartDate_ )
+	{
+		iCodeEvent = atoi( pszStartDate_ );
+	}
+
+	m_vecPetPreViewData.push_back( PREVIEW_PET_DATA( iCashShopItemID_, iPetUnitID_, ePetType_, iSecondPetUnitID_, wstrStartDate, wstrEndDate, iCodeEvent ) );
+	++m_iJunePetPreviewLoaded;
+	return true;
+}
+#else
 bool CX2ItemManager::AddPetPreViewData_LUA( int iCashShopItemID_, int iPetUnitID_, PREVIEW_PET_TYPE ePetType_ /*= PPT_PET*/)
 {
 #ifdef _IN_HOUSE_
@@ -4293,6 +4331,7 @@ bool CX2ItemManager::AddPetPreViewData_LUA( int iCashShopItemID_, int iPetUnitID
 	
 	return true;
 }
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 int CX2ItemManager::GetPreviewPetIdByItemID( int iItemID_ )
 {
 	return GetPreviewIDByItemID( iItemID_, PPT_PET );
@@ -4301,6 +4340,138 @@ int CX2ItemManager::GetPreviewRidingPetIdByItemID( int iItemID_ )
 {
 	return GetPreviewIDByItemID( iItemID_, PPT_RIDING_PET );
 }
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
+namespace
+{
+	bool JunePreviewHas( const std::vector<int>& vecID_, int iID_ )
+	{
+		return vecID_.end() != std::find( vecID_.begin(), vecID_.end(), iID_ );
+	}
+
+	// June 325f3d20 on the found iterator: erases the first match, if any
+	void JunePreviewErase( std::vector<int>& vecID_, int iID_ )
+	{
+		std::vector<int>::iterator vit = std::find( vecID_.begin(), vecID_.end(), iID_ );
+		if( vecID_.end() != vit )
+			vecID_.erase( vit );
+	}
+
+	// June 31c55270: the plain parse (31c55010 = KncUtil::ConvertStringToCTime), then
+	// time += ( CX2Data+0x470 - _timezone ). A failed parse returns false without shifting.
+	bool JunePreviewParseDate( const std::wstring& wstrDate_, CTime& ctDate_ )
+	{
+		if( false == KncUtil::ConvertStringToCTime( wstrDate_, ctDate_ ) )
+			return false;
+
+		long lTimeZone = 0;
+		_get_timezone( &lTimeZone );
+		ctDate_ += CTimeSpan( g_pData->GetServerUtcOffset() - lTimeZone );
+		return true;
+	}
+
+	// June's "second id" in effect: the pet is replaced by the second id (added once)
+	void JunePreviewUseSecond( std::vector<int>& vecID_, int iPetID_, int iSecondID_ )
+	{
+		if( false == JunePreviewHas( vecID_, iSecondID_ ) )
+		{
+			JunePreviewErase( vecID_, iPetID_ );
+			vecID_.push_back( iSecondID_ );
+		}
+	}
+
+	// June's "second id" not in effect: the pet, unless it or the second id is already there
+	void JunePreviewUsePet( std::vector<int>& vecID_, int iPetID_, int iSecondID_ )
+	{
+		if( false == JunePreviewHas( vecID_, iPetID_ ) && false == JunePreviewHas( vecID_, iSecondID_ ) )
+			vecID_.push_back( iPetID_ );
+	}
+}
+
+// June 32808770 CX2ItemManager::GetPreviewIDByItemID( item, type ). The branch table is in funcmap.tsv (Effect C9h-2c).
+// On June's own PetPreView.lua every row has second id 0, no dates and no code event, so every matching row pushes its
+// pet and this equals March's lookup; the rest is the port of June's dated / code-event / second-id rows.
+int	CX2ItemManager::GetPreviewIDByItemID( int iItemID_, PREVIEW_PET_TYPE ePetType_)
+{
+	if( true == m_vecPetPreViewData.empty() )
+		return -1;
+
+	std::vector<int> vecPetID;
+	for( std::vector< PREVIEW_PET_DATA >::const_iterator vit = m_vecPetPreViewData.begin(); vit != m_vecPetPreViewData.end(); ++vit )
+	{
+		const PREVIEW_PET_DATA& PreviewData = *vit;
+		if( iItemID_ != PreviewData.iCashShopItemID || ePetType_ != PreviewData.ePreviewPetType )
+			continue;
+
+		const int iPetID = PreviewData.iPreviewUnitID;
+		const int iSecondID = PreviewData.iSecondPreviewUnitID;
+
+		if( 0 == PreviewData.iCodeEvent )
+		{
+			const CTime ctNow( g_pData->GetServerCurrentTime() );
+
+			if( iSecondID < 1 )
+			{
+				// either date L"" -> always; else only inside ( start < now < end ); a parse failure pushes nothing
+				if( true == PreviewData.wstrStartDate.empty() || true == PreviewData.wstrEndDate.empty() )
+				{
+					vecPetID.push_back( iPetID );
+				}
+				else
+				{
+					CTime ctStart( 0 );
+					CTime ctEnd( 0 );
+					if( true == JunePreviewParseDate( PreviewData.wstrStartDate, ctStart ) &&
+						true == JunePreviewParseDate( PreviewData.wstrEndDate, ctEnd ) &&
+						ctStart < ctNow && ctNow < ctEnd )
+					{
+						vecPetID.push_back( iPetID );
+					}
+				}
+			}
+			else
+			{
+				// no empty-date test: an empty date fails the parse and falls to the pet
+				CTime ctStart( 0 );
+				CTime ctEnd( 0 );
+				if( true == JunePreviewParseDate( PreviewData.wstrStartDate, ctStart ) &&
+					true == JunePreviewParseDate( PreviewData.wstrEndDate, ctEnd ) &&
+					ctStart < ctNow && ctNow < ctEnd )
+				{
+					JunePreviewUseSecond( vecPetID, iPetID, iSecondID );
+				}
+				else
+				{
+					JunePreviewUsePet( vecPetID, iPetID, iSecondID );
+				}
+			}
+		}
+		else
+		{
+			// June 32822650: g_pInstanceData's code-event set +0xa94
+			const bool bEventOn = ( NULL != g_pInstanceData && true == g_pInstanceData->JuneIsCodeEventOn( PreviewData.iCodeEvent ) );
+
+			if( iSecondID < 1 )
+			{
+				if( true == bEventOn )
+					vecPetID.push_back( iPetID );
+			}
+			else if( true == bEventOn )
+			{
+				JunePreviewUseSecond( vecPetID, iPetID, iSecondID );
+			}
+			else
+			{
+				JunePreviewUsePet( vecPetID, iPetID, iSecondID );
+			}
+		}
+	}
+
+	if( true == vecPetID.empty() )
+		return -1;
+
+	return vecPetID[ rand() % vecPetID.size() ];
+}
+#else
 int	CX2ItemManager::GetPreviewIDByItemID( int iItemID_, PREVIEW_PET_TYPE ePetType_)
 {
 	if( true == m_vecPetPreViewData.empty() )
@@ -4323,6 +4494,7 @@ int	CX2ItemManager::GetPreviewIDByItemID( int iItemID_, PREVIEW_PET_TYPE ePetTyp
 	int iPetIDIndex = rand() % vecPetID.size() ;
 	return vecPetID[iPetIDIndex];
 }
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 #endif // PET_PREVIEW
 
 
