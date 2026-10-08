@@ -21210,20 +21210,6 @@ void CX2GUUser::JuneClampCancelAfters( int iStateId_, bool bFuture_ )
 /// loop. A table that opens at i == 5 is closed without being read ( June @32056a95 jge ), so only five rows exist.
 void CX2GUUser::JuneParseUsefulValue( float ( &afTable_ )[5][3], int iStateId_, bool bFuture_ )
 {
-#ifdef SERV_IRUHADEV_JUNE_USEFUL_VALUE_INJECT
-	/// temporary test hook: DoString runs in this unit's own environment ( m_pkLuaState ), where its script defined ESSI_WAIT. false for a class without that table.
-	static bool s_bJuneUsefulInjected = false;
-	if( false == s_bJuneUsefulInjected && USI_WAIT == iStateId_ )
-	{
-		if( true == m_LuaManager.DoString( "ESSI_WAIT.USEFUL_VALUE0 = { 1.5, 2.5, 3.5 }; ESSI_WAIT.USEFUL_VALUE1 = { 4, 5, 6 }", false ) )
-		{
-			s_bJuneUsefulInjected = true;
-			WCHAR wszJuneFx[160] = {0};
-			StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX USEFUL_VALUE inject done unit=%d", static_cast<int>( GetUnitUID() ) );
-			ErrorLogMsg( XEM_ERROR142, wszJuneFx );
-		}
-	}
-#endif SERV_IRUHADEV_JUNE_USEFUL_VALUE_INJECT
 	memset( afTable_, 0, sizeof( afTable_ ) );
 
 	int iRow = 0;
@@ -21250,27 +21236,6 @@ void CX2GUUser::JuneParseUsefulValue( float ( &afTable_ )[5][3], int iStateId_, 
 		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
 	}
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE_DEBUG
-#ifdef SERV_IRUHADEV_JUNE_USEFUL_VALUE_DEBUG
-	/// play-test 1 + 2 (2026-10-08) printed nothing: this probe shows whether the helper runs at all for the wait state and with how many rows
-	static int s_iJuneUsefulProbe = 0;
-	if( 0 == iRow && USI_WAIT == iStateId_ && s_iJuneUsefulProbe < 200 )
-	{
-		++s_iJuneUsefulProbe;
-		WCHAR wszJuneFx[160] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX USEFUL_VALUE probe %s state=%d rows=0 unit=%d",
-			( true == bFuture_ ? L"future" : L"now" ), iStateId_, static_cast<int>( GetUnitUID() ) );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
-	}
-#endif SERV_IRUHADEV_JUNE_USEFUL_VALUE_DEBUG
-#ifdef SERV_IRUHADEV_JUNE_USEFUL_VALUE_INJECT
-	if( iRow > 1 )
-	{
-		WCHAR wszJuneFx[160] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX USEFUL_VALUE inject check %s state=%d row1=%g,%g,%g unit=%d",
-			( true == bFuture_ ? L"future" : L"now" ), iStateId_, afTable_[1][0], afTable_[1][1], afTable_[1][2], static_cast<int>( GetUnitUID() ) );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
-	}
-#endif SERV_IRUHADEV_JUNE_USEFUL_VALUE_INJECT
 }
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
 void CX2GUUser::CommonEventProcess()

@@ -22,7 +22,9 @@ C9h-4f's decode found three June-only blocks that no STATUS row owns (rule: a Ju
    and `32057b80 @32060dda` (Now, vector `+0x8f30`). Decode the element (`32feafd0` reads it, `31f54a10` logs `3344f1f4` on a miss), its readers (`dispsweep.py 8f40 8f44 8f30`) and port it.
 2. **`CUSTOM_OFFSET_NOT_SELECT_UNIT`** (`33478e04`): `320506f0 @32056bf2-32056c4b` reads two floats into `+0x8f54` / `+0x8f58` from a plain key (`32fe9940`). Decode, find readers, port.
 3. **The June-only states that read the `USEFUL_VALUE` sets** (funcmap rows `(C9h-4f)`): each class's `*_WAIT_STATE_CHANGE` (`ENSI_WAIT_STATE_CHANGE` is id `0x82` in the class registered at `329ba9c0`; the shared EventProcess is `31fc8620`) and the
-   `USI_EVENT_SNIPER_*` states `0x6e..0x76` registered by `3202b110` (`31fc9a20`, `3200d450`, `3200d1d0`). They are June states March has no enum row for: design the id placement
+   `USI_EVENT_SNIPER_*` states `0x6e..0x76` registered by `3202b110` (`31fc9a20`, `3200d450`, `3200d1d0`, plus `3200d3f0`, which reads no
+   USEFUL_VALUE but belongs to the same family: its StateStart-shaped handler; funcmap rows corrected by the C9h-4f review: `3200d450` changes to
+   `0x71` when the timer RUNS OUT, `3200d1d0` creates NPC `0x10f6` (own unit only) and sends the target `NEIL_THE_SNIPER_*` NPC to its DYING state). They are June states March has no enum row for: design the id placement
    with `C3d-2`'s ids (`USER_STATE_ID16`), then port the handlers; the per-class registration of `*_WAIT_STATE_CHANGE` is a char-port item (checklist 7h), the shared EventProcess is ours.
    Check first whether any March script or class can reach them at all; if none can, port the engine handler and leave the registration to the class ports (no invented data).
 

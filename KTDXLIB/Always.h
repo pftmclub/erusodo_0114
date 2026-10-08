@@ -6152,9 +6152,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Log: "JUNE_FX USEFUL_VALUE" in ErrorLog.txt (_DEBUG only, one line per parse that found a table).
 #define SERV_IRUHADEV_JUNE_USEFUL_VALUE
 //#define SERV_IRUHADEV_JUNE_USEFUL_VALUE_DEBUG
-// Temporary (C9h-4f play-test 3): each unit runs its script in its OWN Lua environment, so the dev console (global env) cannot reach ESSI_WAIT. With this flag the
-// helper injects USEFUL_VALUE0 / 1 into the unit's own ESSI_WAIT table once, the first time an Elsword unit starts its wait state. Review: delete.
-//#define SERV_IRUHADEV_JUNE_USEFUL_VALUE_INJECT
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
