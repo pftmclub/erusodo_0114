@@ -703,10 +703,10 @@ ACTION_ID16: files: 0 PASS, 0 PASS~, 0 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 
 ```
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,410,432 B, dated 2026-10-08 22:21:54, md5 6db35bc54e7dbc559ea2345bdade8bdf, equal to X2/US_SERVICE/x2.exe (2026-10-08 22:21:50); built at mods/june-buff-port 50e2246 + 4 uncommitted code file(s).`
 
-**data036 is packed, not yet copied.** `kom_contents/data036_packed.kom` holds the new `Enum.lua`; the exe and the kom must reach the game together
+**data036 packed and copied (2026-10-08 22:34, `COPY OK`, md5 `f7a27248...`).** `kom_contents/data036_packed.kom` holds the new `Enum.lua`; the exe and the kom must reach the game together
 (the exe is already deployed, so the user's yes to `/x2-kom-packed copy data036` completes it). MODS.md has the row and the "ship together" note.
 
-**Play-test:** the eight checks in `kickoffs/june-effect/C3d-2.md` (states above 255, Chung guard list, Freils skills, Ara chain, every class, riding, a full
+**Play-test PASSED (user, 2026-10-08; logs checked 22:36-22:42 run, after deploy):** 0 EXCEPTION, UNHANDLED = 5x `E_DISABLE_HB_CHECK_REQ` (baseline), clean exit census; ErrorLog holds only the usual missing-particle noise. The eight checks in `kickoffs/june-effect/C3d-2.md` (states above 255, Chung guard list, Freils skills, Ara chain, every class, riding, a full
 clear). The save rows were re-read today: RapidT 42 slot 0 = 6218, NovaT 43 slot 0 = 6210, arasss 24 = 7001 **A**, 7200 **S**, 7214 **D**, 7010 **C**.
 
 ## C3d-3 - port: the bounding back-speed state
