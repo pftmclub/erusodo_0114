@@ -36,9 +36,11 @@ Hygiene is one command:
 Paste its `files:` / `in this flag's files:` / `RESULT:` lines. Explain every OTHER row and every deleted line; a FAIL or ERROR is a
 finding.
 
-**Log check, if the user has launched the X4 exe:** `logs.py --tag KOM_LONG` should show exactly one line,
-`[KOM_LONG] ./data110.kom TRIGGER_HAMEL_FROZEN_WATER_HALL_STAGE3_STONE_STATUE_WATER_A.X` (the kom path is however
-`AddMassFile` was given it). A `DUPLICATE` suffix is a finding.
+**Log check, if the user has run the X4 console check:** `logs.py --tag KOM_LONG` shows
+`[KOM_LONG] found TRIGGER_HAMEL_FROZEN_WATER_HALL_STAGE3_STONE_STATUE_WATER_A.X` and `ErrorLog.txt` has no `KEM_ERROR136` for it.
+The registration line (`[KOM_LONG] <kom> <name>`) is NOT expected: in this build, nothing logged while the koms are mounted reaches
+`ErrorLog.txt` (X4 Done, play-test 1). Also review the lookup log `KomLongNameLogFound`: it sits on the three live hit paths only
+(`LoadTwoDataFiles` first and second file, `LoadDataFile`), never in the `MASS_FILE_FIRST` branches.
 
 **One X5 risk to record, not to fix here:** a caller-side fixed-size name buffer could still cut a name before it reaches
 `LoadDataFile`. Examples are a particle, mesh or texture name field, or a `WCHAR[64]` in a templet struct. `LoadDataFile(std::string)`

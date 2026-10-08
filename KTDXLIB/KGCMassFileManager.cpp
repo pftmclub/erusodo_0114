@@ -439,6 +439,20 @@ void		KGCMassFileManager::LockMassFileMap()
 //#endif	X2OPTIMIZE_REMOVE_MASS_FILE_MANAGER_LOCK
 
 #ifdef NEW_MAIL_LOG
+#ifdef SERV_IRUHADEV_KOM_LONG_NAMES
+// "[KOM_LONG] found <name>": a lookup hit a member registered under a name longer than MASSFILE_NAMESIZE-1
+// characters. Logged at lookup time as well as at registration, because in this build nothing logged
+// while the koms are mounted reaches ErrorLog.txt (59 missing koms, 0 KEM_ERROR132 lines; X4 Done note).
+static void KomLongNameLogFound( const std::wstring& wstrKey_ )
+{
+	if( wstrKey_.size() <= MASSFILE_NAMESIZE - 1 )
+		return;
+
+	std::string strNameLog;
+	ConvertWCHARToChar( strNameLog, wstrKey_ );
+	KLOG( "ErrorLog.txt" ) << "[KOM_LONG] found " << strNameLog.c_str() << fileout;
+}
+#endif SERV_IRUHADEV_KOM_LONG_NAMES
 #ifdef WCHAR_DIR
 KGCMassFileManager::CMassFile* KGCMassFileManager::AddMassFile(const std::wstring& strKomFileName, OUT bool& bIsDuplicationError_)
 #else WCHAR_DIR
@@ -828,6 +842,9 @@ KGCMassFileManager::LoadTwoDataFiles( std::string strFileName, std::string strFi
 	if( iter != m_mapMassFile.end() )
 	{
 		iter->second.pMassFile->GetMemberFile( *this, iter->second.Index, &retInfo );
+#ifdef SERV_IRUHADEV_KOM_LONG_NAMES
+		KomLongNameLogFound( iter->first );
+#endif SERV_IRUHADEV_KOM_LONG_NAMES
 #ifdef WCHAR_DIR
 		if ( wstrFileName2.empty() == false )
 		{
@@ -835,6 +852,10 @@ KGCMassFileManager::LoadTwoDataFiles( std::string strFileName, std::string strFi
 			
 			if ( iter != m_mapMassFile.end() )
 				iter->second.pMassFile->GetMemberFile( *this, iter->second.Index, &info2 );
+#ifdef SERV_IRUHADEV_KOM_LONG_NAMES
+			if ( iter != m_mapMassFile.end() )
+				KomLongNameLogFound( iter->first );
+#endif SERV_IRUHADEV_KOM_LONG_NAMES
 		}
 #else
 		if ( strFileName2.empty() == false )
@@ -934,6 +955,9 @@ KGCMassFileManager::CMassFile::MASSFILE_MEMBERFILEINFO_PTR  KGCMassFileManager::
 	if( iter != m_mapMassFile.end() )
 	{
 		iter->second.pMassFile->GetMemberFile( *this, iter->second.Index, &retInfo );
+#ifdef SERV_IRUHADEV_KOM_LONG_NAMES
+		KomLongNameLogFound( iter->first );
+#endif SERV_IRUHADEV_KOM_LONG_NAMES
 		return retInfo;
 	}
 	else

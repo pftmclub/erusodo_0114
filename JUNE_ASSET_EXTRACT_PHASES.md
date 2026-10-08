@@ -439,15 +439,26 @@ but it had to change for the new member.
   - `AddMassFile` registers that full name instead of the cut one and logs `[KOM_LONG] <kom> <name>` through `KLOG("ErrorLog.txt")`.
     If the insert fails, the line gets a ` DUPLICATE (not registered)` suffix.
   - Names of 59 characters or fewer never get a side-map entry and run the original expression.
-  - The line is written when the koms are mounted, in the `CX2Main` constructor (`X2Main.cpp:1407`). It survives:
-    `ErrorLogMsg` writes through the same `KLOG` stream, which appends (`KSuperAssert.cpp:128`, `ios::app`). The only code that
-    deletes `ErrorLog.txt` is `CrashPostCallBack` (`X2Main.cpp:429`), after a crash.
+  - **Lookup log (added after the first play-test).** `LoadDataFile` and `LoadTwoDataFiles` (both files), on their live
+    (`#else` of `MASS_FILE_FIRST`) hit paths, log `[KOM_LONG] found <name>` when the hit key is over 59 characters
+    (`KomLongNameLogFound`). The registration line turned out not to be observable; see the play-test below.
   - A non-`WCHAR_DIR` build fails with `#error`.
 
 **Not inert today.** A scan of every live game-dir kom (104,578 names) found one name over 59 characters:
 `data110.kom` `Trigger_Hamel_Frozen_Water_Hall_Stage3_Stone_Statue_Water_A.x` (61). March's own content uses it as a line-map
-trigger mesh (`data040_kom/Hamel_Frozen_Water_Hall_Stage3_LineMap.lua`, `MESH_NAME`). Until now that mesh was never found. With the
-flag on, it is registered at startup and should load.
+trigger mesh (`data040_kom/Hamel_Frozen_Water_Hall_Stage3_LineMap.lua`, `MESH_NAME`). With the flag it is registered under its
+full name. **No March content loads it, though.** The Stage 3 world script (`Hamel_Frozen_Water_Hall_Stage3.lua`) never creates
+that world object, and a trigger's `MESH_NAME` only looks up an existing world object (`CX2World::DoTriggerMesh`,
+`X2World.cpp:1595`). The play-test therefore creates the object from the dev console, copying the world script's own lines for the
+sibling `..._STONE_STATUE_A.X`. The mesh has `Wait` and `down` animations.
+
+**Play-test 1 (exe `6877fb3f`, 2026-10-08 09:00): no `[KOM_LONG]` line, and that proves nothing about X4.** The user reached
+Frozen Water Hall stage index 2 (`State.log` "Stage Loading : 2", Stage3 world meshes). However:
+- **Mount-time logging is lost in this build, and was before X4.** 59 of the 226 kom slots don't exist (data152, data160..., ...),
+  so `AddMassFile` should log 59 `KEM_ERROR132` lines. `ErrorLog.txt` has none. The file was created 2026-08-30 and is truncated
+  in place at each launch, and so is `State.log`. The source has no truncating open of it; the culprit was not found. This is an
+  open item, not fixed here.
+- Hence the lookup log above.
 
 **Hygiene** (`flagcheck --worktree --files` the 3 files): `files: 2 PASS, 1 DEFINE, 0 OTHER, 0 FAIL`, `0 encoding change(s)`,
 `RESULT: PASS`. The one deleted line flagcheck reports in `Always.h` is not X4's. HEAD (peer commit `7ba2f9d`, C9h-2d) has two blank
@@ -457,14 +468,20 @@ so that line is left as the peer committed it.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,352,064 B, dated 2026-10-08 08:51:36, md5 6877fb3fd3f219f2998652161d43dddd, equal to
 X2/US_SERVICE/x2.exe (2026-10-08 08:51:31); built at mods/june-buff-port 4bd51f2 + 3 uncommitted code file(s)` (the 3 are X4's). The
 strings `[KOM_LONG] ` and ` DUPLICATE (not registered)` are in the deployed exe.
+With the lookup log: `DEPLOY OK: X2_offline.exe is 19,351,040 B, dated 2026-10-08 09:18:14, md5 c125e487a251559c92d946d4957b4263,
+... built at mods/june-buff-port eb1aa7f + 2 uncommitted code file(s)`. A peer's 09:18 build linked it, and X4's edit was already on disk.
+`[KOM_LONG] found ` is in the deployed exe. Lookup-log hygiene: `flagcheck --worktree --files KGCMassFileManager.cpp`
+`1 PASS, 0 deleted line(s), 0 encoding change(s)`, `RESULT: PASS`.
 
-**How to see it:**
-1. Launch, then `logs.py --tag KOM_LONG`. Expect exactly one line, for data110's trigger mesh.
-2. Optional, in game: Hamel, Frozen Water Hall, stage 3. Expect the stone-statue water trigger mesh and no `KEM_ERROR136` for it.
+**How to see it** (plan hand-off; dev console, auth 3):
+1. Hamel, Frozen Water Hall, any difficulty, then `g_pX2Game:GoStage( 2 )`.
+2. Paste the console line from the hand-off, which creates the `..._STONE_STATUE_WATER_A.X` world object at the origin.
+3. `logs.py --tag KOM_LONG` shows `[KOM_LONG] found TRIGGER_HAMEL_FROZEN_WATER_HALL_STAGE3_STONE_STATUE_WATER_A.X`, and
+   `ErrorLog.txt` has no `KEM_ERROR136` for that name. With the flag off, the same line gives the 136.
 
 The other 5 long names are staged in X5.
 
-**Open:** none. **Owes the user:** a launch for the log line, and `/cost`.
+**Open:** mount-time `ErrorLog.txt` loss (above), pre-existing, not X4's. **Owes the user:** the console check, and `/cost`.
 
 ## Phase X4 review
 
