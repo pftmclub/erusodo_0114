@@ -573,6 +573,33 @@ field could still cut a name before it reaches the device.
    - `ErrorLog.txt` has no KEM_ERROR88/89/343/390/95/96/87/136/132 for the staged names;
    - `logs.py --tag KOM_LONG` lists the long names.
 
+### Phase X5 - Done (staged, packed, deployed; play-test pending)
+
+2026-10-08, Sonnet 5.5. No code, no flag, no build. Deployed exe is X4's `c125e487` (has `[KOM_LONG] found`; `SERV_IRUHADEV_KOM_FILE_COUNT_226` is on).
+
+- **Staged** (`stage-june june2017_re/x2_repack_list.tsv` + the 5 long names, `--long-names`): `STAGE-JUNE OK: 19 kom(s), 286 staged
+  (4 new, 281 replaced, 1 identical), 0 refused`. The 1 identical is the Hamel 61-char mesh already in data110, so data110 is not
+  repacked. The 4 new: 3 Moonlight Rhapsody `.tga` (data048) and the Elysion `.ogg` (new data197). Backups of replaced staged files:
+  `kom_backup_stage_june61008_092758`.
+- **Packed** (`kom.py pack`, 18 koms: data002 013 014 016 017 019 023 043 048 063 131 142 143 148 185 197 211 215), every
+  `PACK OK`, every entry algo 0. Entry diff vs live: only staged names change (data002 17, 013 7, 014 182, 016 11, 017 1, 019 1, 023 20,
+  043 3, 048 +3, 063 3, 131 7, 142 1, 143 23, 148 1, 185 1, 211 2, 215 1), with two explained exceptions:
+  - **data048 shows ~487 "changed"** besides the 3 added. Decompressed size is identical for all of them; only `comp` differs
+    (live kom was packed with another zlib level, e.g. AeroTornado04.dds 34317 vs 34227). Not a content change.
+  - **data023 WARN: 13 manifest keys have no file** (floor.tga, sky3.tga, treeA.tga ...). They are also absent from the live kom
+    (`-0 removed`), so pre-existing; left alone.
+  - The old `data197_packed.kom` (919,516 B, 2026-10-03, no staged dir) was overwritten by the 1-entry pack (34,237 B).
+- **data197 is mounted.** `X2Main.cpp:799-816` pushes `data%d.kom` for 1..226 into the mount list under
+  `SERV_IRUHADEV_KOM_FILE_COUNT_226` (defined, `Always.h`), so a new `data197.kom` is picked up (data217/223 already work this way).
+- **Copied with the user's OK** (18 `COPY OK`, backups in `kom_backup_tools\*.20261008_0932*`; data197 is new, no backup). Verified: all 18 live
+  koms are byte-equal (md5) to their `_packed.kom`.
+- **Flag hygiene:** not applicable (no code file changed).
+
+**Play-test (user):** see the hand-off in the chat message. Checks: Ranox map mesh `Spa_Ranox_G01_water01.y`; boss name plate
+`HQ_BOSS_NAME_ALUMINUM.dds`; one long-name asset; one hand-patched Ranox motion (`Motion_NPC_Ranox_FACEOFF.x`/`_SYOTA.x`, NPCs `NUI_FACEOFF`
+/ `NUI_SYOTA`). If the Ranox motion fails: do not edit the file; write a Ghidra phase for June's `.x` motion-name loader.
+**Logs after the play-test:** `logs.py --tag KOM_LONG` + `ErrorLog.txt` KEM_ERROR88/89/343/390/95/96/87/136/132. **Owes the user:** `/cost`.
+
 ## Out of scope (routed, not dropped)
 
 - **Reading June koms natively:** the deferred June loader port (memory `june-loader-port-deferred`).
