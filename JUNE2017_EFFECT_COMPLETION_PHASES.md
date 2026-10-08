@@ -2743,6 +2743,59 @@ RESULT: PASS
 
 **Open for the user:** none. **User owes:** the play-test below, `/cost`.
 
+### C9h-6 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the snapshot exists because June's running state data are pointers; March copies them by value, so a port would never change anything -> no port, routing only
+
+There are 23 funcmap rows tagged `Effect C9h-6`. The sweep of `[reg + 0x9538..0x956c]` found 70 hits.
+
+**1. The members.** The snapshot is five delegate pairs (8 bytes each), using March's `UserUnitStateData` layout:
+- **Future side** (from the `+0x7cb0` pointer, cleared together): `+0x9544` OnFrameMoveFuture (`+0x2c`), `+0x954c` OnEventProcess (`+0x44`), `+0x9554` StateEndFuture (`+0x4c`).
+- **Now side** (from `+0x7cbc`, cleared together): `+0x955c` OnFrameMove (`+0x34`), `+0x9564` StateEnd (`+0x54`).
+- The ctor zeroes all five: `3203e850 @32041ff6`, through `32073d20`.
+- **Setter:** `31fd2af0` is the only writer of real values.
+- **Consumers.** Each one prefers the snapshot when it is non-null, else the state's own delegate, else the Common* vslot:
+  - `320347d0` DoFrameMoveFuture: `@3203480e`, `@32034879`;
+  - `31fe6a40` DoStateEndStartFuture: StateEndFuture;
+  - `31fd6b80` DoFrameMove: OnFrameMove;
+  - `3203c3a0` DoStateEndStart: StateEnd.
+- **Clears** are inline: the Future triple in `31fe6a40`, the Now pair at `3203c3a0 @3203c907`. Both run after the new state pointer is stored and before StateStart(Future).
+- **Unreferenced:** `31fd2bc0` (a clear) and `31fcd030` (call-by-id 3..7) have no call, no pointer and no xref. The kickoff's "`31fe6d0a` clears all six" is wrong: that address is inside `31fe6a40` and clears only the Future triple.
+- **Neighbours, not part of the snapshot:** `+0x9538/+0x953c` is an int64 unit UID from the type-0x16 list (`31f23660`, `31f09710`, `31fceba0`; unowned, not swept further). `+0x9540` (word) and `+0x956c` (byte) are separate members.
+
+**2. The gate and the callers.**
+- `31edf580` takes ECX = **`g_pData`** (`33775860`), not `g_pMain`. It calls skill tree `+0x50` -> `322074e0( now skill, slot's old skill )`, a same-skill test:
+  - a direct match; or
+  - the skill-tree map `+0x20` (`322aa950`, `node+0x10`); or
+  - templet `+0x178` (the redirect field Phase 6b named).
+- All **12** callers (not 11) are slot 493 of each class vtable (RTTI), i.e. `SetEquippedSkillFuncBySkillSlotIndex`:
+  - 9 March classes: Elsword, Arme, Lire, Raven, Eve, Chung, Ara, Elesis, Add;
+  - 3 June-only classes: Luciel, Rose, Ain.
+- The setter runs on the slot's normal state, before that entry's `Init()`.
+- Corrected starts: Add is `32a28e00` (Ghidra carves `32a288d0`). Luciel is `32b46580` (the scan's `32b43d10` is Luciel slot 489).
+
+**3. Why June has it, and why March does not need it (item 4).**
+- June's `+0x7cb0/+0x7cbc` point *into* the state vector (`+0x7cec`, 100-byte entries): `31fe6a40` stores `base + index*100`. So the class's `Init()` + rebind of a slot entry rewrites the delegates of the state that is **running**. The snapshot keeps the five delegates that run mid-state until the next state change.
+- March copies by value: `X2GUUser.cpp:6585`, `:6644`, through `operator=` (`X2GUUser.h:1024`), which copies all five delegates.
+- Checks:
+  - no March code writes a delegate into `m_NowStateData` / `m_FutureStateData` (only `m_fPowerRate`, in class code);
+  - the one mid-state `m_StateList` reader, `GetPressedSkillState` (`:37357`), reads the *pressed* slot.
+- So a ported snapshot would always equal the copy, and the port is **inert by construction**.
+
+**4. Reach.** A slot is re-equipped mid-state through `ChangeEquippedSkillState`. The callers are the skill-slot ACK (`X2SkillTree.cpp:1795`, `:1808`), the skill page (`:3976`), another user's slot change (`X2Room.cpp:1670`), and `X2GUUser.cpp:6043`. March is already safe on every one of these paths, so nothing changes in game.
+
+**Residual June-only differences.** A snapshot port would not reproduce them; only June's pointer model would:
+- (a) a snapshotted *null* delegate falls through to the new entry's delegate;
+- (b) the running state then reports the new entry's skill id, hyper byte, `+0x11` byte and OnCameraMove;
+- (c) a second re-equip of the same slot in the same state passes the gate on the *new* skill and overwrites the snapshot.
+
+March keeps the old values in all three cases, which is the behaviour June's snapshot is aiming for.
+
+**Routing (no port kickoff, no new STATUS row):**
+- **Class side -> checklist 7i** (D8): drop the `31fd2af0` call when porting each `SetEquippedSkillFuncBySkillSlotIndex`, and settle state byte `+0x11` there.
+- **Engine side -> backlog Stage 3**: one line. Port the snapshot only if a phase converts `m_NowStateData` / `m_FutureStateData` to June's pointers.
+- No JUNE_BUGS row: nothing here is ported.
+
+**Open for the user**: /cost.
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),

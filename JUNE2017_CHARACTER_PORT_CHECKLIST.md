@@ -384,3 +384,14 @@ class scripts carry, so the character ports bring them (D8, no question). Funcma
 | Elsword 25 functions `32cf8230`..`32d06c50` (e.g. `32d01040`), Raven `32c2b360`, Lire `32cb9ee0` | Elsword, Raven, Lire | Per-class state EventProcess cancel branches. When `UPDOWN_CANCEL_AFTER` (user `+0x8ca4`, C9h-4c's member) is >= 0 and below the anim time (the second skin `+0x8e84` when `+0x8e90`), on the ground, with up or down pressed, they change state. Data: June's `RAVEN_FIGHTER` (and the riding pets C9h-4e covers). | The class states that carry these branches, with the member C9h-4c adds. |
 | `32024ff0` list variants: `EFFECT_SET_LIST_EX_TRANS_1` / `_TRANS_2` / `_EX_NO_TRANS` (picked by the skill-memo entry `31fdbbb0` of `GetNowStateSkillID`, see the `31fdbbb0` row in 7), `EFFECT_SET_LIST_ULTIMATE_EX(_APPLIED_SKILL)`, `EFFECT_SET_LIST_EX_APPLIED_SKILL` (an `APPLIED_SKILL_ID` with level > 0, `31fceab0`), `EFFECT_SET_LIST_FINAL` / `_FINAL_ULTIMATE` (`32020ec0`, picked by the loader's third argument) | every class with June scripts (ELESIS_KNIGHT, Arme_VioletMage, Lire_ElvenRanger, Luciel_Duo, Ain, Ara, Add, Elsword: 23 scripts for `_FINAL`, 10 for `_FINAL_ULTIMATE`) | June's `LoadEffectSetFromScript` reads the plain lists as March does, then these, choosing by skill memo, transcendence, applied-skill level or the ultimate flag. | The selection with the skill system it needs (memo entries, transcendence, the ultimate argument from each class's caller). C9h-4d ports only the delete keys of the same function. |
 | `SOUND_PLAY_EX`, `STATE_SOUND_PLAY`, `CUSTOM_STATE_DELETE_SOUND` data | Add, Elesis, Luciel, Arme, Aisha (18 / 2 / 2 June scripts) | Engine readers ported by C9h-4a; the keys live only in class scripts. | Nothing extra in code: they work once the class scripts are adopted. |
+
+### 7i. Skill-slot re-equip snapshot call (from June effect completion C9h-6)
+
+Every June class's `SetEquippedSkillFuncBySkillSlotIndex` (vslot `0x7b4`, slot 493) calls `31fd2af0( normal state )` before the slot
+state's `Init()`. **Drop that call when porting the function.** June needs it because its running state data are pointers into the
+state vector. March copies the running state by value (`m_NowStateData = m_StateList[...]`), so the copy already keeps the old
+delegates, and March has no `31fd2af0`. Funcmap rows `Effect C9h-6`.
+
+| June | Class | What the port must bring |
+|---|---|---|
+| `32d223e0` Elsword, `32cede00` Arme, `32cb06d0` Lire, `32c641a0` Raven, `329c8a00` Eve, `32c1f530` Chung, `32bd09d0` Ara, `32b8c470` Elesis, `32a28e00` Add; June-only `32b46580` Luciel, `32ad9b60` Rose, `32a71eb0` Ain | all 12 | Nothing for the snapshot. The same functions set state byte `+0x11` = 1 on the normal and hyper entries (`+0x10` = `m_bHyperState`). `+0x11` is an unidentified June-only `UserUnitStateData` field, so settle it when the class function is ported. |
