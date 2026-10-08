@@ -472,6 +472,67 @@ Check the following:
   path and the log line; a deploy is not needed for the negative case.
 - **Kom diff.** The packed kom diff is `item.kim` only.
 
+### Phase K2 - Review
+
+2026-10-08, Opus 5.5 high (the kickoff names Sonnet; the user chose to continue). **Passed, one comment fixed, nothing for the user.**
+
+1. **Offsets: PASS.** The probe was `june_item_kim/k2r_offset_probe.cpp`: `offsetof` / `sizeof` / enum values read out of `cl.exe` errors with X2Lib's
+   US_SERVICE flags through the real `StdAfx.h` chain, and the flag's `#pragma message` printed. Every one of the 55 members sits at K0's
+   offset (+44/48/52, name 56, attach[8] 68, dates 100/104, model[8] 108, strings 140-160, pools 164-196, shorts 200-206,
+   bytes 208-223, desc-in-shop type 224, pad 225). `sizeof` is 228. Stat is 28 B (AtkM 8, slot[3..4] 12, DefP 20, DefM 24). RelLV is 6 B
+   (all-stat at 5). `IT_CUSTOM` 14 (`IT_NUM` 15 <= 16), `MAX_MODEL_COUNT_A_ITEM` 8, flag bits 7 / flags2 1 / 2. Table:
+   `june_item_kim/k2r_offset_probe.tsv`. Flag-off is March's 188 B: the `== 188` assert plus flagcheck's flag-off == base.
+2. **Hygiene: PASS** (`--range f1549a6^..HEAD`).
+   - `JUNE_ITEM_KIM`: 6 PASS, 1 PASS~, 2 OTHER, 0 FAIL, 0 deleted, RESULT PASS.
+   - `KIM_LAYOUT_CHECK`: 9 OTHER, RESULT PASS.
+   - `JUNE_KIM_MINIME_REMAP --with JUNE_ITEM_KIM`: 1 PASS, RESULT PASS.
+   - All three stripped together (`KIM_LAYOUT_CHECK --with JUNE_ITEM_KIM JUNE_KIM_MINIME_REMAP`): 1 PASS~, 1 DEFINE, 7 OTHER, 0 FAIL,
+     RESULT PASS. This is the run that clears `X2ItemManager.cpp`, which mixes two flags.
+   - The OTHER rows: `Always.h` holds the sibling flags' define blocks, and `X2ItemManager.cpp` belongs to `LAYOUT_CHECK`.
+   - The two PASS~ lines are each one blank line outside a flag: after the `GetExpiredDate`/`JuneKim*` `#endif` in
+     `X2Item_Preprocessing.cpp`, and between the `LAYOUT_CHECK` `#endif` and the `JUNE_ITEM_KIM` `#ifdef` in `X2ItemManager.cpp`.
+   - The 17 `eol!` and 16 `tok!` rows are style only. The `== 188` assert is where K2 says it is.
+3. **Layout check: PASS.** Read path: `IruhaKimFileStride` checks index 1, then every 997th, then the last, and returns the smallest stride
+   whose samples all match. A mismatch, or a file smaller than header + N*(4+stride) + S*(4+20), writes `layout mismatch` with
+   `fileout` (flushed) before `return false`. I ran the same logic in Python:
+   - March kim (N 49,837): stride 188, accepted at 188, refused at 228.
+   - June kim (N 111,428): stride 228, refused at 188, accepted at 228.
+4. **Kom diff: PASS** (`june_item_kim/k2r_kom_md5_check.txt`, script `.py`). Each live kom against its pre-K2-copy backup in
+   `kom_backup_tools/` (`*.20261008_0611*`), md5 per entry:
+   - `data036`: +0 -0 ~1, and the one changed entry is `item.kim` (live kom md5 `1a078acb` = K2's `COPY OK`).
+   - The 19 asset koms that already existed: + exactly their `k2_assets_staged.tsv` names, -0, ~0, every added entry algo 0.
+   - The 6 new koms hold exactly their staged names.
+5. **Ghidra: PASS.**
+   - Verified: the Extra remap `32867660`; the grade-6 colour `32867e80` `#CFF6900`; `IT_CUSTOM` -> 4 = `ST_SPECIAL` at `32869aa0`
+     (decompiled as a switch: item types 7/11/14 -> 4); the tooltip and UIWatch labels (`32e102f0` and `3288a5d0`, whose jump tables
+     send grade 6 to `@32e10d8e` / `@3288acad`, each `"[" + STR 0x8872 + "]"`).
+   - June's `[EAX+0x40]` / `[S%1%]%2%` arm sits in all six grade cases. It is the string-ID view inside `GET_STRING`, which March
+     also has (`KTDXStringTable.h:120`), so K2 is not missing an arm.
+   - Drop colour: r 1, g 105/255 (`334b73cc` = 0.41176), b 0 (`334387b0` * `334350e8` = 0), giving `0xffff6900`.
+     **Fixed:** the function is `32739cb0`, not `32739c30` (the case address `@32739fcf` was right). The comment in
+     `X2DropItemManager.cpp` is corrected; K2's Done note keeps the old address.
+   - No case 6 at the pickup sound `3273b150` (grades 1/2/3, else default) or the seal check `32171b50` (cases 1-4).
+6. **Guards: PASS**, one verdict per K1 `guard+skip+log` row:
+   - PvP emblem: `JuneKimGuard` plus `return` (a skip; hits 1, 10, 100, ...; the power-of-ten logic checked).
+   - EP_END: `GetEqipPosition` returns `EP_NONE`, so the item equips nowhere (a skip, not a clamp into a slot). Its count is the load
+     census `eqip>=EP_END=0`, not `JuneKimGuard`.
+   - `GetItemTemplet` NULL (39 sites): moot, since K1 found 0 March ids missing from June.
+   - Cheat list and personal-shop autocomplete: performance rows, deferred by K2 as note-only. The never-clamp rule does not apply.
+   - `ShopImageName`: skipped while the list file is newer than `data036.kom`, timed otherwise.
+   - Lua source selection: plan K2 item 3 replaced K1's "assert absent" with the logged fallback. The writer's June-only fields are
+     0 through `ZeroMemory` in the ctor.
+   - The two D rows: as their A rows.
+   - The D2 remap (26->17, 27->18) **is** a clamp, by the user's decision, under its own flag. It is not a guard.
+   - No June-sized stat struct is copied anywhere else: `X2OfflineInventory.cpp:318` is a by-value local.
+
+**Code change:** the comment address in `X2Lib/X2DropItemManager.cpp:294`, byte-patched. Encoding and EOL classes are unchanged, and
+`flagcheck JUNE_ITEM_KIM --worktree --files X2Lib/X2DropItemManager.cpp` gives 1 PASS, RESULT PASS (the 1 deleted line is that
+comment, inside the flag). **No build or deploy**:
+- a comment-only edit compiles to the same code, so the deployed `c49f3628` already matches HEAD;
+- a peer's `build.py` held the lock while building its own uncommitted C9h work, so a deploy from here would have shipped their files.
+
+No re-play-test is needed.
+
 ## Phase K3 - Emulator and save reconciliation
 
 **Run with:** Sonnet 5.5 high.

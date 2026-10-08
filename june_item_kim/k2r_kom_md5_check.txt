@@ -1,0 +1,27 @@
+OK   data036   base=data036.kom.20261008_061137 entries live=192 base=192 +0 -0 ~1 staged=0 
+OK   data015   base=data015.kom.20261008_061138 entries live=3630 base=3628 +2 -0 ~0 staged=2 
+OK   data016   base=data016.kom.20261008_061139 entries live=1738 base=1705 +33 -0 ~0 staged=33 
+OK   data017   base=data017.kom.20261008_061139 entries live=3696 base=3694 +2 -0 ~0 staged=2 
+OK   data018   base=data018.kom.20261008_061140 entries live=3616 base=3615 +1 -0 ~0 staged=1 
+OK   data019   base=data019.kom.20261008_061141 entries live=3566 base=3563 +3 -0 ~0 staged=3 
+OK   data067   base=data067.kom.20261008_061143 entries live=13565 base=13557 +8 -0 ~0 staged=8 
+OK   data130   base=data130.kom.20261008_061145 entries live=8045 base=8034 +11 -0 ~0 staged=11 
+OK   data131   base=data131.kom.20261008_061145 entries live=1929 base=1894 +35 -0 ~0 staged=35 
+OK   data143   base=data143.kom.20261008_061146 entries live=1562 base=1494 +68 -0 ~0 staged=68 
+OK   data148   base=data148.kom.20261008_061147 entries live=1164 base=1162 +2 -0 ~0 staged=2 
+OK   data158   base=(new kom)                  entries live=3 base=0 +3 -0 ~0 staged=3 
+OK   data159   base=(new kom)                  entries live=3 base=0 +3 -0 ~0 staged=3 
+OK   data185   base=(new kom)                  entries live=1 base=0 +1 -0 ~0 staged=1 
+OK   data191   base=(new kom)                  entries live=93 base=0 +93 -0 ~0 staged=93 
+OK   data192   base=(new kom)                  entries live=15 base=0 +15 -0 ~0 staged=15 
+OK   data211   base=(new kom)                  entries live=3 base=0 +3 -0 ~0 staged=3 
+OK   datai004  base=datai004.kom.20261008_061149 entries live=594 base=587 +7 -0 ~0 staged=7 
+OK   datai005  base=datai005.kom.20261008_061149 entries live=636 base=634 +2 -0 ~0 staged=2 
+OK   datai006  base=datai006.kom.20261008_061150 entries live=1067 base=1066 +1 -0 ~0 staged=1 
+OK   datai007  base=datai007.kom.20261008_061150 entries live=813 base=811 +2 -0 ~0 staged=2 
+OK   datai009  base=datai009.kom.20261008_061151 entries live=585 base=578 +7 -0 ~0 staged=7 
+OK   datai010  base=datai010.kom.20261008_061151 entries live=620 base=619 +1 -0 ~0 staged=1 
+OK   datai011  base=datai011.kom.20261008_061151 entries live=579 base=578 +1 -0 ~0 staged=1 
+OK   datai012  base=datai012.kom.20261008_061152 entries live=584 base=576 +8 -0 ~0 staged=8 
+OK   datai023  base=datai023.kom.20261008_061153 entries live=5394 base=5205 +189 -0 ~0 staged=189 
+RESULT PASS
