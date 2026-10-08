@@ -2528,6 +2528,77 @@ The riding pet's `StateChange` / `StateChangeFuture` now follow June (`32d2f560`
 
 **Play-test (regression pass):** dev console not needed. In a village: summon a riding pet, walk, jump, dash, unsummon, hide / show. In a dungeon: the same plus an attack. Look for: the pet appears at the right place on summon (the first-change gate), nothing freezes, one `JUNE_FX RIDINGPET_STATE` line per state change in `ErrorLog.txt` (`python tools/logs.py --grep "JUNE_FX RIDINGPET_STATE"`). **Review:** `kickoffs/june-effect/C9h-3b-review.md`.
 
+### C9h-4 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the June keys are a sound system, a cancel-after, three delete conditions -> C9h-4a..4e
+
+Read-only work in Ghidra and capstone. Results:
+- 37 funcmap rows tagged `Effect C9h-4`;
+- a census, `june2017_re/c9h4_unit_key_census.tsv` (script `c9h4_unit_key_census.py`; March is counted from the bytecode string constants
+  of `kom_contents`, June from `june_src_fixed`);
+- JUNE_BUGS 116.
+
+**Corrections to C9h-3 and C9h-3b**
+- **Four "June-only" keys are March's.** March already parses `DISABLE_GRAVITY_TIME_*` and `CAN_PUSH/PASS_UNIT_TIME` (X2GUUser.cpp:14328,
+  :14270, :14611), with the same consumers. Only the riding pet writing them is June's.
+  - June's gravity window (`32061bf0 @3206263f`) differs in one thing: its clock is the second skin anim `+0x8e84` when `+0x8e90` is set.
+    Checklist 7, line 224 already owns that.
+- **`32031e60` is in March.** It is `CX2GUUser::RidingAttackZEventProcess` (state 0x58 in all 12 classes, thunk `329cb460`), and
+  `DoFrameMoveFuture` also calls it on the `+0x620` arm. C9h-3b's row said "none in March".
+- **The square unit's sound list** is stopped only by the riding pet: StateChange's village block, and riding-off `323f70a0`.
+- **The `VALUE_POS` reader**, which C9h-3 did not find, is `32005520` (via `320322e0`).
+
+**1. Sound** (the core) -> **C9h-4a** (CX2GameUnit + user), **C9h-4b** (NPC, square unit, event scene).
+- **The record.** June's record is March's `SoundPlayData` plus a delete-condition list (seeded `DCS_NONE`) and LOOP; it is 0x44 bytes.
+- **Three readers fill it:** `SOUND_PLAY`, `SOUND_PLAY_EX` (user only) and `SOUND_PLAY_ALL_OPTION`. `STATE_SOUND_PLAY` fills a second
+  list, and `CUSTOM_STATE_DELETE_SOUND` stops one condition.
+- **Delete conditions.** The attach `3227a740` sorts sounds by `DELETE_CONDITION_SOUND` into five `CX2GameUnit` lists. Five stoppers
+  drain them: damage react, state end, custom state, the skill-id change, and DIE (`32276d20`). **The DIE stopper is never called**
+  (JUNE_BUGS 116).
+- **The nation reader.** June's `SOUND_PLAY` reader `32078fd0` tries `SOUND_PLAYn_<JP|US|BR>` first, keyed by
+  `CX2Main::m_dwNationFlag`. March already has that member, and its US config sets `NF_US`, so no stand-in is needed and the reader
+  resolves to March's name. June renumbered `NF_BR` to 0x700.
+- **The user player** `31fea120` erases each record after it plays, so a looping state plays its sound once per entry. That is the one
+  visible change on March data.
+- **Reach.** March's scripts carry none of the new keys. The only exception is `FIRE_DEVIL_CHAIN_BALL`'s `SOUND_PLAY_EX`, which no NPC
+  reader reads, in June or in March. June's riding pets (51 of 57, including all 15 of March's) carry `SOUND_PLAY_ALL_OPTION`, and so do
+  26 NPC / summon scripts (Elysion, Erda, Rose and Ain).
+
+**2. `UPDOWN_CANCEL_AFTER`** -> **C9h-4c**. Default 9999.0. The engine reader is June's `RidingAttackZEventProcess` (up/down -> RIDING_WAIT;
+June's cancel tests are a strict `> 0`). ~27 class EventProcess readers (Elsword 25, Raven 1, Lire 1) go to checklist 7h. Its neighbour
+`USE_COMMON_CANCEL_AFTER` (10 June scripts) is unmapped, and C9h-4c identifies it.
+
+**3. `LoadEffectSetFromScript` (`32024ff0`)** -> **C9h-4d**.
+- **Bytes.** Eight delete bytes at `+0x8624..+0x862b`. Three are June's: STAGE_END, OFF_RIDING and SKILL_STATE_END.
+- **The hyper check.** `SET_HYPER_EFFECT_SET_CHECK_HYPER_STATE` is June's too.
+- **Where each one stops:**
+  - STAGE_END in the dungeon state's `Handler_EGS_DUNGEON_STAGE_LOAD_NOT` (`324d9550`; the packet layout matched);
+  - OFF_RIDING in the riding-off branch (`3204d120`);
+  - SKILL_STATE_END in CommonStateStart (`3228a490`).
+- **Attach and data.** The attach `3227a570` gains case 5. March's `Enum.lua` lacks `DCES_SKILL_STATE_END = 5`.
+- **The list variants** (`_EX_TRANS_*`, `_ULTIMATE_EX*`, `_APPLIED_SKILL`, `_FINAL*`) select by skill memo, transcendence or
+  applied-skill level -> checklist 7h (D8).
+- **Already in March:** `HYPER_EFFECT_SET`, `EFFECT_SET_LIFE_TIME`, `_ON_CUSTOM_STATE` and `CUSTOM_STATE_..._ON_DAMAGE_REACT`.
+
+**4. The riding pet's user / square writes** -> **C9h-4e**. It runs after C9h-4a..4d and after C9h-3a (same StateChange).
+- It replaces C9h-3b's end-of-block comment with June's writes, including the village sound block `32d350e0`.
+- It then adopts June's scripts for March's 15 riding pets. **Ordering constraint:** not before both sound readers exist. June moved each
+  pet's summon and start sounds from `SOUND_PLAY` to `SOUND_PLAY_ALL_OPTION`, so earlier adoption silences them.
+
+**Routed elsewhere**
+- **Backlog Stage 17:**
+  - `3202f460`, June's `RidingPetSpecialAttackEventProcess` rewrite (transformed state sets and the target search `31fe2420`; every riding
+    EventProcess calls it);
+  - the `VALUE_POS` reader `32005520`;
+  - the `APPLY_RIDINGPET_ANIM_MOVE` readers (`+0x5a1`: Bumblebee and Optimus_Prime);
+  - the `CX2Pet` `SOUND_PLAY_ALL_OPTION` reader `326ef840` (the Hedgehog pets).
+- **Backlog Stage 10:** `EmotionFrameMove`'s riding-sit sound replay (`3204a860`).
+- **Elysion plan:** `AddEffectSetDeleteCondition_LUA` is already on its list, and needs C9h-4d's case 5. The Elysion lasers' sounds need
+  C9h-4b.
+
+Kickoffs written: `C9h-4a.md` .. `C9h-4e.md`, with STATUS rows. C9h-4a, 4c and 4d share `X2GUUser.cpp`, so run them one at a time; 4b can
+run alongside 4c or 4d.
+
+**User owes:** /cost.
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),

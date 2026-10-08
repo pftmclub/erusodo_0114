@@ -372,3 +372,15 @@ per-class, so the character ports bring them (D8, no question). Map: `june_item_
 | record +8 flags2 bit 2 `m_bIsForMinorUnit` | Lu/Ciel | Set on 2,582 items: the Ciel dummies. | The same consumer. K2 adds only the accessor. |
 | Extra accessors `32867660`..`32867960`, bool argument | Lu/Ciel | Unit type 10 maps to Extra key 10 (Lu) or 11 (Ciel) by that bool. 11 maps to 12 (Rose) and 12 to 13 (Ain). | Callers that pass the Ciel bool. K2 ports the remap with the bool defaulting to false. |
 | special ability 41 `SAT_ADD_DP_PERCENT_UP` | Add | 1 item (100001054). | The ability's effect on Add's DP. |
+
+### 7h. Unit-state readers that only class code drives (from June effect completion C9h-4)
+
+June effect completion C9h-4a..4e port the engine side: the sound record and lists, `UPDOWN_CANCEL_AFTER` with June's
+`RidingAttackZEventProcess`, and the effect-set delete conditions. The rows below are read only by class code, or select by data only
+class scripts carry, so the character ports bring them (D8, no question). Funcmap rows `Effect C9h-4`.
+
+| June | Class | What it does | What the port must bring |
+|---|---|---|---|
+| Elsword 25 functions `32cf8230`..`32d06c50` (e.g. `32d01040`), Raven `32c2b360`, Lire `32cb9ee0` | Elsword, Raven, Lire | Per-class state EventProcess cancel branches. When `0 < UPDOWN_CANCEL_AFTER` (user `+0x8ca4`, C9h-4c's member) is at or below the anim time (the second skin `+0x8e84` when `+0x8e90`), on the ground, with up or down pressed, they change state. Data: June's `RAVEN_FIGHTER` (and the riding pets C9h-4e covers). | The class states that carry these branches, with the member C9h-4c adds. |
+| `32024ff0` list variants: `EFFECT_SET_LIST_EX_TRANS_1` / `_TRANS_2` / `_EX_NO_TRANS` (picked by the skill-memo entry `31fdbbb0` of `GetNowStateSkillID`, see the `31fdbbb0` row in 7), `EFFECT_SET_LIST_ULTIMATE_EX(_APPLIED_SKILL)`, `EFFECT_SET_LIST_EX_APPLIED_SKILL` (an `APPLIED_SKILL_ID` with level > 0, `31fceab0`), `EFFECT_SET_LIST_FINAL` / `_FINAL_ULTIMATE` (`32020ec0`, picked by the loader's third argument) | every class with June scripts (ELESIS_KNIGHT, Arme_VioletMage, Lire_ElvenRanger, Luciel_Duo, Ain, Ara, Add, Elsword: 23 scripts for `_FINAL`, 10 for `_FINAL_ULTIMATE`) | June's `LoadEffectSetFromScript` reads the plain lists as March does, then these, choosing by skill memo, transcendence, applied-skill level or the ultimate flag. | The selection with the skill system it needs (memo entries, transcendence, the ultimate argument from each class's caller). C9h-4d ports only the delete keys of the same function. |
+| `SOUND_PLAY_EX`, `STATE_SOUND_PLAY`, `CUSTOM_STATE_DELETE_SOUND` data | Add, Elesis, Luciel, Arme, Aisha (18 / 2 / 2 June scripts) | Engine readers ported by C9h-4a; the keys live only in class scripts. | Nothing extra in code: they work once the class scripts are adopted. |

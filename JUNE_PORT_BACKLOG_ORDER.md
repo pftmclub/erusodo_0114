@@ -293,6 +293,11 @@ Found by june-effect C9d (`JUNE2017_EFFECT_COMPLETION_PHASES.md`, "C9d - Done"; 
 **Depends on:** Stage 2 (UI framework measurement) and june-effect C9e (the `32355a50` helper and the three effect-set handles,
 which this stage widens). Lu/Ciel, Rose and Ain rows stay inert until Stage 8, as C9c-1's Rose/Ain rows do.
 
+- **`EmotionFrameMove`'s riding-sit sound replay** (june-effect C9h-4, 2026-10-08). June's `3204a860` adds a new head that runs while an
+  emotion plays (`+0x89d8`) and its anim has not ended. For emotions 2..3 while riding, it replays the state's sound records on the riding
+  pet's clock (3D forced on, loop off, records not erased) and attaches their delete conditions (`3227a740`). Depends on june-effect
+  C9h-4a (the record and the attach).
+
 ### Stage 11: division item templets (june-effect C9f, 2026-10-07)
 
 Found by june-effect C9f (`JUNE2017_EFFECT_COMPLETION_PHASES.md`, "C9f - Done"; funcmap rows `Effect C9f`). June's
@@ -456,6 +461,17 @@ half is planned there (C9h-2a/2b/3). Two pieces are not effect work and have no 
   reserved keys; DarkChaser and Rakshasa carry the target-search keys (C9h-4).
 
 **Depends on:** june-effect C9h-2a and C9h-3 (the code they would exercise), Stage 13 (the items), Stage 14 (byte-exact assets).
+
+- **June's `RidingPetSpecialAttackEventProcess`** (june-effect C9h-4, 2026-10-08).
+  - `3202f460` rewrites March X2GUUser.cpp:38948: the transformed state-id sets (pet `+0x5a0`) and the target search `31fe2420`
+    (`TARGET_RANGE` / `LIMIT_Z_DEPTH` / `DEGREE_RANGE`, stored by C9h-3b).
+  - Every riding EventProcess calls it (10 callers). C9h-4c ports `RidingAttackZEventProcess` calling March's version meanwhile.
+  - The `VALUE_POS` reader is `32005520`, via `320322e0`.
+  - The data that reaches it is DarkChaser and Rakshasa.
+- **The `APPLY_RIDINGPET_ANIM_MOVE` readers** (`+0x5a1`; getter `323bddf0`, user `32015b30`, square `323b2e80` / `323c2aa0` /
+  `323eef70`, `324f3260`). Bumblebee and Optimus_Prime set it, with the transformer pets above.
+- **The `CX2Pet` loader's `SOUND_PLAY_ALL_OPTION`** (`326ef840`, 8 fields, via the nation reader). Only June's `PET_Pette_HEDGEHOG_STEB_1..3`
+  use it, and they are not in March. `CX2Pet` has its own `SoundPlayData` (X2Pet.h:136), so this is a separate change from C9h-4a's.
 
 ---
 

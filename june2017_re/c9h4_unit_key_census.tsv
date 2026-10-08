@@ -1,0 +1,37 @@
+key	corpus	family	files	examples
+SOUND_PLAY_ALL_OPTION	june	pet	3	PET_Pette_HEDGEHOG_STEB_1, PET_Pette_HEDGEHOG_STEB_2, PET_Pette_HEDGEHOG_STEB_3
+SOUND_PLAY_ALL_OPTION	june	ridingpet	51	RidingPet_Ancient_PPoru, RidingPet_Ancient_PPoru_Naver, RidingPet_Ascalon, RidingPet_Baal, RidingPet_BlueStorm_Mobi, RidingPet_Bumblebee
+SOUND_PLAY_ALL_OPTION	june	unit/npc/other	26	Ain_Apostasia, ELSION_DISION, ELYSION_DIA, ELYSION_L_H_LASER, ELYSION_L_H_LASER_HENIR, ELYSION_L_V_LASER
+SOUND_PLAY_EX	march	unit/npc/other	1	FIRE_DEVIL_CHAIN_BALL
+SOUND_PLAY_EX	june	unit/npc/other	18	Add_NasodRuler, Ain_Arme_Thaumaturgy, Ain_Erbluhen_Emotion, Arme_VioletMage, CSM_Aisha_Voidprincess, ELESIS_KNIGHT
+STATE_SOUND_PLAY	june	unit/npc/other	2	Add_NasodRuler, ELESIS_KNIGHT
+CUSTOM_STATE_DELETE_SOUND	june	unit/npc/other	2	ELESIS_KNIGHT, Luciel_Duo
+DELETE_CONDITION	june	pet	3	PET_Pette_HEDGEHOG_STEB_1, PET_Pette_HEDGEHOG_STEB_2, PET_Pette_HEDGEHOG_STEB_3
+DELETE_CONDITION	june	ridingpet	6	RidingPet_Bumblebee, RidingPet_Lord_Of_Inferno, RidingPet_Lord_Of_Inferno_2P, RidingPet_Optimus_Prime, RidingPet_Perkisas, RidingPet_Pporu_Rickshaw
+DELETE_CONDITION	june	unit/npc/other	48	Add_NasodRuler, Ain_Angel, Ain_Apostasia, Ain_Arme_Thaumaturgy, Ain_Erbluhen_Emotion, Ara_Martial_Artist
+UPDOWN_CANCEL_AFTER	june	ridingpet	3	RidingPet_Lord_Of_Inferno, RidingPet_Lord_Of_Inferno_2P, RidingPet_Perkisas
+UPDOWN_CANCEL_AFTER	june	unit/npc/other	1	RAVEN_FIGHTER
+DISABLE_GRAVITY_TIME_START	march	unit/npc/other	42	Add_NasodRuler, Ara_Martial_Artist, Arme_VioletMage, CSM_PVP_HERO_APPLE, CSM_PVP_HERO_EDAN, CSM_PVP_HERO_NOA
+DISABLE_GRAVITY_TIME_START	june	ridingpet	6	RidingPet_Bumblebee, RidingPet_DarkChaser, RidingPet_Nono, RidingPet_Perkisas, RidingPet_Rakshasa, RidingPet_SpaceMRabbit
+DISABLE_GRAVITY_TIME_START	june	unit/npc/other	143	ADD_CENTER_BOSS_APOCALYPSE, ADD_CENTER_HERO_EDAN, ADD_CENTER_HERO_Q_PROTO_00, A_ROM_G_EX_MAGNETICFORCE, Add_NasodRuler, Ain_Angel
+CAN_PASS_UNIT_TIME	march	unit/npc/other	9	Add_NasodRuler, Ara_Martial_Artist, Arme_VioletMage, Chung_Iron_Cannon, Dimension_Witch_Event, ELESIS_KNIGHT
+CAN_PASS_UNIT_TIME	june	unit/npc/other	28	ADD_CENTER_BOSS_APOCALYPSE, Add_NasodRuler, Ain_Angel, Ain_Arme_Thaumaturgy, Ara_Martial_Artist, Arme_VioletMage
+DELETE_EFFECT_SET_OFF_RIDING	june	ridingpet	6	RidingPet_DarkChaser, RidingPet_Dekal_Chair, RidingPet_Hellhound, RidingPet_NIghtmare, RidingPet_NIghtmare_Black, RidingPet_New_Dekal_Chair
+SET_HYPER_EFFECT_SET_CHECK_HYPER_STATE	june	unit/npc/other	2	Ain_Apostasia, PVP_HERO_DEAR
+EFFECT_SET_LIST_EX_APPLIED_SKILL	june	unit/npc/other	1	ELESIS_KNIGHT
+EFFECT_SET_LIST_ULTIMATE_EX	june	unit/npc/other	4	Arme_VioletMage, ELESIS_KNIGHT, Lire_ElvenRanger, Luciel_Duo
+EFFECT_SET_LIST_ULTIMATE_EX_APPLIED_SKILL	june	unit/npc/other	1	ELESIS_KNIGHT
+EFFECT_SET_LIST_FINAL	june	unit/npc/other	23	Add_NasodRuler, Ain_Angel, Ain_Apostasia, Ain_Arme_Thaumaturgy, Ain_Erbluhen_Emotion, Ara_Martial_Artist
+EFFECT_SET_LIST_FINAL_ULTIMATE	june	unit/npc/other	10	Ain_Angel, Ain_Apostasia, Ain_Arme_Thaumaturgy, Ain_Erbluhen_Emotion, Ara_Martial_Artist, Elsword_SwordMan
+EFFECT_SET_LIST_EX_TRANS_1	june	unit/npc/other	1	ELESIS_KNIGHT
+EFFECT_SET_LIST_EX_NO_TRANS	june	unit/npc/other	1	ELESIS_KNIGHT
+APPLY_RIDINGPET_ANIM_MOVE	june	ridingpet	2	RidingPet_Bumblebee, RidingPet_Optimus_Prime
+TARGET_RANGE	march	pet	140	PET_ANCIENT_PPORU_HALLOW_DARK, PET_ANCIENT_PPORU_HALLOW_FLAME, PET_ANCIENT_PPORU_HALLOW_SPOOK, PET_ANCIENT_PPORU_HALLOW_SPRITE, PET_ANCIENT_PPORU_SHADOW_STEB_1, PET_ANCIENT_PPORU_SHADOW_STEB_2
+TARGET_RANGE	march	unit/npc/other	1817	ALTERA_SECRET_DRILLER_BOSS, ALTERA_SECRET_MINER_FAT_BOSS, ALTERA_SECRET_SCORPION_BOSS, ALTERA_SECRET_TYPE2_BOSS, ANCIENT_CRAB, ANCIENT_ICE_CRAB
+TARGET_RANGE	june	pet	216	PET_ANCIENT_PPORU_HALLOW_DARK, PET_ANCIENT_PPORU_HALLOW_FLAME, PET_ANCIENT_PPORU_HALLOW_SPOOK, PET_ANCIENT_PPORU_HALLOW_SPRITE, PET_ANCIENT_PPORU_SHADOW_STEB_1, PET_ANCIENT_PPORU_SHADOW_STEB_2
+TARGET_RANGE	june	ridingpet	2	RidingPet_DarkChaser, RidingPet_Rakshasa
+TARGET_RANGE	june	unit/npc/other	2867	2016_XMAS_END, 2016_XMAS_PPORU, 2016_XMAS_SNOW1, 2016_XMAS_SNOW2, 2017_Student_Pporu1, 2017_Student_Pporu2
+LIMIT_Z_DEPTH	june	ridingpet	2	RidingPet_DarkChaser, RidingPet_Rakshasa
+DEGREE_RANGE	june	ridingpet	2	RidingPet_DarkChaser, RidingPet_Rakshasa
+VALUE_POS	june	ridingpet	2	RidingPet_DarkChaser, RidingPet_Rakshasa
+SOUND_PLAY\d+_[A-Z]{2}	june	unit/npc/other	9	Add_NasodRuler, Ara_Martial_Artist, Arme_VioletMage, Chung_Iron_Cannon, Elsword_SwordMan, Eve_Nasod
