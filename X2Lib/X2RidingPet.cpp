@@ -121,6 +121,24 @@ CX2RidingPet::~CX2RidingPet(void)
 	if ( false == m_bLoaded )
 		return S_OK;
 
+#ifdef SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE
+	/// A pet created without any StateChange ( the owner enters a village already riding, or the mount is swapped while riding: the offline path
+	/// calls ProcessRidingOn( true ) and the square unit's state does not change ) never gets an anim, so it is invisible until the owner's next
+	/// state change ( the first step ). Once it has loaded, the village pet takes its wait state at once. Not June's code ( June's server sends the
+	/// riding state with the unit ); with a game the user's own riding state starts the pet.
+	if ( NULL == g_pX2Game && NULL != g_pTFieldGame && false == m_bJuneFirstStateChanged )
+	{
+		StateChange( m_WaitState );
+#ifdef SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE_DEBUG
+		{
+			WCHAR wszJuneFx[160] = {0};
+			StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX RIDINGPET_ENTRY_STATE first state change from OnFrameMove: wait state=%d owner=%I64d",
+				static_cast<int>( m_WaitState ), static_cast<__int64>( m_UserUid ) );
+			ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		}
+#endif SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE_DEBUG
+	}
+#endif SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 	/// June 32d2ec80 @32d2f1c6: m_bInitPos is no longer set on every frame (March's line below); it is set on the first frame after the first
 	/// StateChange, and that frame runs GetUserInfo / SetPos a second time after the skin anim's OnFrameMove (June @32d2f19f).

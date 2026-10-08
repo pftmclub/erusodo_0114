@@ -3530,6 +3530,8 @@ Files: `X2RidingPet.h/.cpp`, `X2GUUser.h`, `X2GameUnit.h/.cpp`, `X2SquareUnit.h/
 
 **How to see it in game.** With the new exe and the new `data037.kom`: in a dungeon, summon each pet. The START state plays `<Pet>_Start.ogg` (0.01-0.4 s) and `RidingPet_Summon.ogg` (0.001 s), each once, no loop: the same sounds the old scripts played through `SOUND_PLAY`. `ErrorLog.txt` gets `JUNE_FX RIDINGPET_USER_KEYS user state=... all_option=2` per summon. In a village the pets sound as before (none), with `JUNE_FX RIDINGPET_USER_KEYS village state=... square_records=2` per pet state change.
 
+**C9h-4e play-test (2026-10-08): check 1 passed (6 pets, `all_option=2` each); check 2 passed, plus one bug: a mount swapped without dismounting, then a character change, leaves the pet invisible until the owner moves.** Logs: those pets have a `RIDINGPET_FX loader` line and no `village state=5` line (no StateChange at creation); my village block did not run then, so it is not 4e's code. Fix `SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE` (+ `_DEBUG` on): a loaded village pet with no StateChange takes its wait state from OnFrameMove (log `JUNE_FX RIDINGPET_ENTRY_STATE`). Not proven to be the cause until retested. `DEPLOY OK: X2_offline.exe is 19,406,848 B, dated 2026-10-08 20:26:43, md5 0d6a90cdb76816011c9abd48bf4e77b9`.
+
 ### C9h-5 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the village-NPC effect set is one key in June's `CX2TFieldNpc` rewrite -> Elysion E1 step 6, backlog Stage 18
 
 Read-only in Ghidra. There are 23 funcmap rows tagged `Effect C9h-5`. The 44-block `OnFrameMove` diff is in `june2017_re/c9h5_fieldnpc_onframemove_diff.md`. No C9h-5b: this is not an effect-engine slice.

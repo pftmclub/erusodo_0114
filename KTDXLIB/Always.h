@@ -6120,3 +6120,22 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: C9h-4e play-test finding: a riding pet that is created without any StateChange
+//              (the owner enters a village already riding, or swaps the mount without
+//              dismounting) has no anim and stays invisible until the owner's next state change.
+//              With this flag a loaded village pet that has had no StateChange takes its wait
+//              state from OnFrameMove. Not a June fix: June's server drives the state. Off = the
+//              pet waits for the owner's next state change.
+//              Log: "JUNE_FX RIDINGPET_ENTRY_STATE" in ErrorLog.txt (_DEBUG only).
+#define SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE
+#define SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE
+#ifndef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#error SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE needs SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#endif SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE
+//////////////////////////////////////////////////////////////////////////
