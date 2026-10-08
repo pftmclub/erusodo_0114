@@ -5947,7 +5947,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              sound is pushed and stopped at the dtor / ReInit (June's behaviour).
 //              Log: "JUNE_FX NPC_SOUND" in ErrorLog.txt (_DEBUG only).
 #define SERV_IRUHADEV_JUNE_NPC_SOUND
-#define SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG
+//#define SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
 #ifndef SERV_IRUHADEV_JUNE_UNIT_SOUND
 #error SERV_IRUHADEV_JUNE_NPC_SOUND needs SERV_IRUHADEV_JUNE_UNIT_SOUND
@@ -5967,7 +5967,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              stopper runs (empty) at every dismount.
 //              Log: "JUNE_FX SQUARE_SOUND" in ErrorLog.txt (_DEBUG only).
 #define SERV_IRUHADEV_JUNE_SQUARE_SOUND
-#define SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
+//#define SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND
 #ifndef SERV_IRUHADEV_JUNE_UNIT_SOUND
 #error SERV_IRUHADEV_JUNE_SQUARE_SOUND needs SERV_IRUHADEV_JUNE_UNIT_SOUND

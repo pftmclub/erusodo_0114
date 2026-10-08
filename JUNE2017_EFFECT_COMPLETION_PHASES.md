@@ -2951,7 +2951,7 @@ March keeps the old values in all three cases, which is the behaviour June's sna
 
 **Open for the user**: /cost.
 
-### C9h-4b - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_NPC_SOUND` + `SERV_IRUHADEV_JUNE_SQUARE_SOUND`, each + `_DEBUG` on for the play-test; logs `JUNE_FX NPC_SOUND`, `JUNE_FX SQUARE_SOUND`; play-test pending)
+### C9h-4b - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_NPC_SOUND` + `SERV_IRUHADEV_JUNE_SQUARE_SOUND`, each + `_DEBUG` on for the play-test; logs `JUNE_FX NPC_SOUND`, `JUNE_FX SQUARE_SOUND`; play-test PASSED, logs read; `_DEBUG` off)
 
 Files: `X2GUNPC.h/.cpp`, `X2SquareUnit.h/.cpp`, `X2EventScene.cpp`, `Always.h`. 12 funcmap rows `Effect C9h-4b`, JUNE_BUGS 119-121 (+ row 116's "Reached?" updated).
 
@@ -2994,7 +2994,9 @@ SQUARE: files: 2 PASS, 0 PASS~, 0 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 ERROR
 3. Any dungeon intro scene plays as before.
 Then say "check logs"; I read `JUNE_FX NPC_SOUND` (play / stop / clear lines, capped at 400) and `JUNE_FX SQUARE_SOUND` (one `stop state_end n=0` per dismount). Then turn both `_DEBUG` flags off.
 
-**Open for the user:** the play-test, `/cost`. Review: `kickoffs/june-effect/C9h-4b-review.md` (Opus 5.5 high).
+**Logs (2026-10-08 12:45-12:49, exe 8875aac0 = this code + peers' work):** 0 EXCEPTION; NPC `play ... n=1`, `clear state_end n=1..2` and one `stop dtor n=1` on offline monster units 1000001-4; SQUARE `stop state_end n=0` at each of 6 dismounts (units 12, 18); no crash on stage change. The only UNHANDLED is the known `E_DISABLE_HB_CHECK_REQ`. Both `_DEBUG` flags turned off afterwards (comment-only `Always.h` change).
+
+**Open for the user:** `/cost`. Review: `kickoffs/june-effect/C9h-4b-review.md` (Opus 5.5 high).
 
 ### C9h-5 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the village-NPC effect set is one key in June's `CX2TFieldNpc` rewrite -> Elysion E1 step 6, backlog Stage 18
 
