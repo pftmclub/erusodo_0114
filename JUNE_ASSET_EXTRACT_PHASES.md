@@ -439,6 +439,9 @@ but it had to change for the new member.
   - `AddMassFile` registers that full name instead of the cut one and logs `[KOM_LONG] <kom> <name>` through `KLOG("ErrorLog.txt")`.
     If the insert fails, the line gets a ` DUPLICATE (not registered)` suffix.
   - Names of 59 characters or fewer never get a side-map entry and run the original expression.
+  - The line is written when the koms are mounted, in the `CX2Main` constructor (`X2Main.cpp:1407`). It survives:
+    `ErrorLogMsg` writes through the same `KLOG` stream, which appends (`KSuperAssert.cpp:128`, `ios::app`). The only code that
+    deletes `ErrorLog.txt` is `CrashPostCallBack` (`X2Main.cpp:429`), after a crash.
   - A non-`WCHAR_DIR` build fails with `#error`.
 
 **Not inert today.** A scan of every live game-dir kom (104,578 names) found one name over 59 characters:
