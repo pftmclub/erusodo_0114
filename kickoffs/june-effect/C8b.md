@@ -68,3 +68,13 @@ Each check expects a `JUNE_FX HIT` line with its path tag. Also add the Mag Char
 ## Added by C3 (2026-10-08)
 
 C3 added `DamageData::m_iAppliedMemoID` (`APPLIED_MEMO_ID`, June DD `+0x5c8`, default 0; parsed in `SetDamageDataFromLUA`, logged once per templet as unsupported). Its one June reader is the skill-memo DamageData switch `3202ac40` (the `0x758` memo hook this phase stubs): the memo is skipped when `+0x5c8` is set and differs from the entry's type. Read the member instead of re-parsing the key, and drop the unsupported log line when the switch is wired (`X2DamageManager.cpp`, the `APPLIED_MEMO_ID` block).
+
+## Added by the C3 review (2026-10-08)
+
+Memo case 2 of `3202ac40` writes DD `+0x5d0`. That field is the CEffect ctor's scale: `@31f7c795-31f7c838` with IGNORE_MI_HUGE false calls
+SetScale( s, s, s ) and then stores s into the per-instance **base** `+0xb24..`; June's SetScale `31f6fdc0` multiplies by that base, March's
+`CEffect::SetScale` is absolute. If this phase (or a later one) maps `+0x5d0` to a March member **and** ports the ctor step, it must also port
+the base and make `CEffect::SetScale` multiply by it, all in the same change. Otherwise C3's four `SetScale( CREATE_DAMAGE_EFFECT_NAME_SCALE )`
+calls (default 1,1,1; `X2DamageEffect.cpp` x2, `X2GUUser.cpp` x2) reset a memo-scaled child to 1.0. With `31fdbbb0` stubbed (item 3) the
+switch never runs, so nothing changes while the stub is in place; say so in the Done note. The matrix row `IGNORE_MI_HUGE` ("no writer of that field
+found") is wrong on this point: the writer is this memo case. Same dependency for modifier tag 15: checklist 7a.

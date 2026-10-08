@@ -1938,7 +1938,7 @@ bool CX2DamageManager::UnitToUnit( DamageData* pDamageData, bool bAttackOnlyThis
 #endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
 //}}
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
-		// June2017 UnitToUnit 32625000 @32625291 (after the team block, both paths): ONYL_ATTACK_USER (+0x5fc, studio typo kept) == 1 skips every
+		// June2017 UnitToUnit 32625000 @326252a6-326252b6 (after the team block, both paths): ONYL_ATTACK_USER (+0x5fc, studio typo kept) == 1 skips every
 		// defender that is not a user (unit type +0x264 != GUT_USER). Pure test, so its place among the other continues does not matter.
 		if( true == pDamageData->m_bOnylAttackUser && CX2GameUnit::GUT_USER != pDefender->GetGameUnitType() )
 			continue;
@@ -3065,7 +3065,7 @@ bool CX2DamageManager::MeshToUnit( DamageData* pDamageData )
 #endif SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY
 //}}
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
-		// June2017 MeshToUnit 32625670 @3262827c-326282a8 (the defender loop filter): ONYL_ATTACK_USER skips every non-user defender.
+		// June2017 MeshToUnit 32625670 @326257bb-326257cb (the defender loop filter): ONYL_ATTACK_USER skips every non-user defender.
 		if( true == pDamageData->m_bOnylAttackUser && CX2GameUnit::GUT_USER != pDefender->GetGameUnitType() )
 			continue;
 		// June2017 MeshToUnit 32625670 @32625852: cmp byte [+0x50d], 0. ATTACK_ONLY_ME: no caller UID here; the attacker's UID (vslot 0x54)

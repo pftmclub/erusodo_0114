@@ -361,7 +361,7 @@ User answers (2026-10-06): **D5 = port with Lu/Ciel** (handed-off, `census_compl
 
 ## C3 - 8b, straightforward keys
 
-**Status: code done 2026-10-08 (see "C3 - Done" below; play-test pending; identification left -> C3b). Model:** Sonnet 5, high, then an Opus review.
+**Status: done 2026-10-08 (see "C3 - Done": play-test passed; "C3 - Review": correct against June; identification left -> C3b). Model:** Sonnet 5, high, then an Opus review.
 
 - **Keys:** `INIT_EXTRA_DAMAGE_BEFORE_LOAD`, `ADD_MEMBER_COUNT`/`_DISTANCE`,
   `BOUNDING_BACK_SPEED_X/Y`, `FORCE_BACK_SPEED`, `ADD_CHECK_DAMAGE_UNIT_NUM`, `EXCEPT_ME_HP_UP`,
@@ -423,6 +423,42 @@ Log tag I will read: `JUNE_FX C3` (+ `0 EXCEPTION`).
 **Play-test run, logs read (2026-10-08, run after the 51d1718 deploy):** 0 EXCEPTION; ErrorLog `JUNE_FX C3 DAMAGE_LIGHT_TIME first user DamageReact: DD 0.200, timer now 0.200, damageType 0`; offline_server.log `JUNE_FX C3 ATTACK_SUCCESS first user-owned effect hit ELSWORD_SONIC_BLADE`; no `NAME_SCALE` line (no RT_CREATE_DAMAGE_EFFECT child hit; that site stays unexercised). The five UNHANDLED packets are `E_DISABLE_HB_CHECK_REQ` (known, ignored). Check 3 (chains): the user reports the skills feel the same. **C3 play-test PASSED 2026-10-08.**
 
 **Left to others (named, not changed):** C3b (identification, then its port: armour level, bounding back-speed state, ADD_MEMBER_COUNT reader, hit counter `31fcee40`); C8b (`APPLIED_MEMO_ID`'s reader); the class callback `+0x8dc0` and `UpNowHpPerHitOthers`'s gage factor (character ports).
+
+### C3 - Review (2026-10-08, Opus 5.5 high): correct against June; one citation fixed (comment only), no behaviour change
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_DAMAGEDATA --range 51d1718^..51d1718` (C3's only code commit; 6561d1a / 2db1697 / 061c76c are docs):
+`files: 6 PASS, 2 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `0 deleted line(s), ...` / `RESULT: PASS`.
+`--range 51d1718^..HEAD` (the kickoff's form): `files: 6 PASS, 2 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 1 ERROR` / `1 deleted line(s)` / `RESULT: FAIL`. Both non-PASS rows
+are C9h-4d's later commits, not C3's: OTHER `15f39a5` = its `_DEBUG` diagnostic in `X2GameUnit.cpp`; ERROR `d7ab5cb` = its `EFFECT_SET_DELETE_DEBUG` toggle in
+`Always.h` (the 1 deleted line), where flagcheck trips on the existing `#if defined(SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET) && !defined(SERV_IRUHADEV_JUNE_DAMAGEDATA)` guard.
+The review's fix: `--worktree --files X2Lib/X2DamageManager.cpp`: `1 PASS` / `RESULT: PASS`; its 2 deleted lines are the two C3 comment lines it rewrites.
+`census.py --summary`: every check PASS, `open rows by owner: C10 6, C11 3`, no row owned by C3: the Exit holds.
+
+**Checked against June (Ghidra and the binary, read-only); every site matches the port:**
+- `GetFinalDamage` `@3228676a-32286786` (vslot `0x264`( 0 ) == 1 -> x DD `+0x620`) and `@3228682a-32286879` (ST0 = the `fldz` `@32286790` that `fcom` left; runs for t > 0, NaN skips; optr `+0x470`, type 1, `3275b330`).
+- `AreaHit` `@326248eb` (defender UID vs the caller's UidType argument, team block skipped) and the limit exit `@32624ae4` / `@32624c5b` (only it adds `+0x4d8`); GroundHit and AreaHit have no `+0x5fc` test, as ported.
+- The `+0x50d` / `+0x5fc` tests of UnitToUnit, MeshToUnit, CollisionDataToUnit and EffectToUnit (owner `31f8b560`; the port's NULL-owner guard is March-side safety).
+- User `DamageReact`: invincible reject `@3204675e` (DT_BUFF 6, RT_THROW 14, RT_DUMMY_DAMAGE 7 = March's enums), back-speed gate, DAMAGE_LIGHT_TIME `@32048377` (DT_BUFF -> 0; stored for DD >= timer; NaN keeps). NPC: gate `@327b2632`, back-speed `@327b2ec6` (a NaN frozen time takes the frozen path in both), light time `@327b3215`, heal `@327b5073-327b5171` (BL gates the HP set and the effect only; `NowHp > [3342e84c]` = 0.0).
+- `CEffect::AttackResult` `@31f85a9b-31f85b36` (same game + owner block as March's); `31fcee10( val, bFuture )` = `+0x7e2c` / `+0x80cc`; `31fcee40` = the now-frame short counter (C3b). `322736f0`: max( 1, MaxMp x pct ), NaN -> 1, text int = ftol( fAdd ), `[33443958]` = 140.0. User `AttackResult` light time `@32012cb5` and HIT_ADD_MP.
+- NAME_SCALE: user `+0x838` (= `0x3a0 + 0x498`) on both spawns, `31fcd640` after the RT_CREATE child only; CEffect random spawn `+0x698` behind the user-owner gate.
+- Mana no-display: user `@320353d4` / `@320354b4`, NPC `@32799b91` / `@32799c90`: each skips only the text; `+0x3f90` (m_bHitedDrainMana) is still written.
+- Parse defaults `[3346eeb8]` = 0.2f (DAMAGE_LIGHT_TIME), `[334380f0]` = -1.0 (ADD_MEMBER_COUNT_DISTANCE). DAMAGE_DATA_KEY_NAME: C2 handed it to C9 (funcmap row 1273), which ported it (`InsertDamageData_LUA`).
+- `flagprobe.py`: DUNGEON_ITEM, HAMEL_SECRET_DUNGEON, NEW_SKILL_2010_11, ADD_MEMO_1ST_CLASS all ON, so every `#ifdef`-nested C3 site compiles.
+
+**Finding, fixed (comment only):** MeshToUnit's ONYL_ATTACK_USER test is `@326257bb-326257cb`, not `@3262827c` (that range is vector math); UnitToUnit's is `@326252a6-326252b6`.
+Corrected in `X2DamageManager.cpp` (same flag) and funcmap row 2153; the behaviour was already right. **Not rebuilt:** a comment changes no code, and the tree holds
+peers' uncommitted edits (`Always.h`, `KTDXDeviceManager.cpp`, five `Offline/` files) that a build would ship. The deployed exe stays `40b97943` (the C9h-4d review's, built from a head that contains `51d1718`).
+
+**SetScale (the kickoff's question): equivalent today.** June's `31f6fdc0` multiplies by a per-instance base `+0xb24..`. Its only writers are the ctor (`@31f7b35c` = 1;
+`@31f7c80a-31f7c838` = DD `+0x5d0` when IGNORE_MI_HUGE is false) and `31f8aef0`, whose one caller is modifier tag 15 (`321db1b0 @321dbad4`; funcmap row 75 relabelled: a base-scale
+modifier, not a position offset). March writes neither: `+0x5d0` is memo case 2 of `3202ac40` (C8b, behind the `31fdbbb0` stub) and only tag 1 is ported. So the base is (1,1,1).
+Routed to the C8b kickoff ("Added by the C3 review") and checklist 7a: whoever ports either writer ports the base and a multiplying `CEffect::SetScale` with it. The matrix
+row `IGNORE_MI_HUGE` ("no writer found") is wrong on this point; it is generated, so it is named in the C8b note, not hand-edited.
+
+**Live behaviour (the kickoff's question): June parity, kept.** The owner's future `bHit` set by a user-owned effect hit (`31fcee10( 1, 1 )`), the DT_BUFF + ATTACK_OUR_TEAM hit
+on an invincible unit, and the NPC heal's NowHp > 0 test are June's code as read above; standing rule: follow June. The play-test felt no difference.
+
+No new play-test. Next: C3b (Opus 5.5 high, identification only).
 
 ---
 
