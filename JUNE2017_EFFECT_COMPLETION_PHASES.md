@@ -4070,7 +4070,12 @@ next: C9h-8 review.
 
 **Notify move not play-testable yet** (user 2026-10-09: Add is not playable before its port): the only March row with `NOTIFY_TO_OWNER_WHEN_DIE` is `DamageEffect_Add_Phase_Shift`, and the only non-empty owner hook is Add's, so nothing reaches the moved call until the Add port (checklist 7m), which verifies it.
 
-**Re-test owed** (the review changed code): the same jtCodeEmpress EP combos. Read the `3d=` byte; listen for sounds that now play without distance falloff. `_DEBUG` goes off after that read.
+**Re-test PASSED 2026-10-09** (run 04:50, exe `e2d031c8`, jtCodeEmpress):
+- 24 `play` lines, all `loop=0 dev=1 channel=1`, 0 push / stop / skip, 0 EXCEPTION.
+- Covered: the AT XXZ4 chain, XX↓X bomb, X fireball, EP jump ZX (one of the 13 former LOOP rows; one play each).
+- Raw `3d=` bytes 0 ×5, 55 ×8, 70 ×3, 83 ×8, never 1: JUNE_BUGS 138 as June has it.
+
+**`_DEBUG` off** (`//#define`, 2026-10-09). `DEPLOY OK: X2_offline.exe is 19,411,456 B, dated 2026-10-09 05:03:10, md5 b37daed281a37d29f3cae865ff548250, equal to X2/US_SERVICE/x2.exe (2026-10-09 05:03:05); built at mods/june-buff-port 0cc7042 + 1 uncommitted code file(s)` (the 1 = this `Always.h` change). The exe has 0 `JUNE_FX DE_SOUND` strings and 1 `result : %d, File : %s`. **C9h-8 closed.**
 
 ## C10 - Decided absent systems
 

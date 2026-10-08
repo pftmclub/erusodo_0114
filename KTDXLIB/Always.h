@@ -6168,7 +6168,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              ( or whose GetCurrentSound fails ). Off = March's OpenSound / Set3DPosition / Play / AddSound.
 //              Log: "JUNE_FX DE_SOUND" in offline_server.log (_DEBUG only).
 #define SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
-#define SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND_DEBUG
+//              _DEBUG OFF 2026-10-09 (C9h-8 review re-test passed: 24 plays, loop=0, raw 3d bytes 0/55/70/83).
+//#define SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 #if !defined(SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE) || !defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE)
 #error SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND needs SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE and SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
