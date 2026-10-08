@@ -481,7 +481,11 @@ With the lookup log: `DEPLOY OK: X2_offline.exe is 19,351,040 B, dated 2026-10-0
 
 The other 5 long names are staged in X5.
 
-**Open:** mount-time `ErrorLog.txt` loss (above), pre-existing, not X4's. **Owes the user:** the console check, and `/cost`.
+**Play-test 2 (exe `c125e487`, 2026-10-08 09:20): PASSED.** After "Stage Loading : 2" (09:21:03), the console lines logged
+`[KOM_LONG] found TRIGGER_HAMEL_FROZEN_WATER_HALL_STAGE3_STONE_STATUE_WATER_A.X` (09:21:22). There was no `KEM_ERROR136` for the
+name and no load error for the mesh or its texture.
+
+**Open:** mount-time `ErrorLog.txt` loss (above), pre-existing, not X4's. **Owes the user:** `/cost`.
 
 ## Phase X4 review
 
