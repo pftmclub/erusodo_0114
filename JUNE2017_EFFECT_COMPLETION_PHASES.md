@@ -2409,7 +2409,7 @@ Next: C9h-2c (Opus 5.5 high, identify; its kickoff exists). **User owes:** /cost
 
 ---
 
-### C9h-2d - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP`; play-test owed)
+### C9h-2d - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP`; play-test PASSED 2026-10-08)
 
 June's pet-preview table, whole. 7 funcmap rows `Effect C9h-2d`; JUNE_BUGS #112.
 
@@ -2442,8 +2442,11 @@ The exe also holds a peer's uncommitted riding-pet work (X2RidingPet*, X2GUUser*
 
 **How to see it**: cash shop, riding-pet category, preview a Hameling (below). `ErrorLog.txt` after startup: per load 152 `skip` lines and `loaded=241 skipped=152`.
 
+**Play-test (2026-10-08, logs read)**: 152 `skip` lines (all `pet=0`) and one `loaded=241 skipped=152` line (the session loaded the item manager once), 0 EXCEPTION, no popup.
+`PetPreView` picks: 550042/41/40 -> riding 7/6/5 (Red / Dark / Ice Hameling, new), 84001272/73 -> pets 98/99 (`PUI_PANDA_STICK_RED_F` / `BLUE_F`, June's change), 500610 / 90002060 / 90002100 -> pets 29 / 136 / 137 as before, 550030 -> riding 4.
+
 **Open for the user**: /cost.
-**Next**: play-test, then `/x2-phase june-effect C9h-2d review` on Opus 5.5 high. Also `C9h-2e` (identify, Opus 5.5 high).
+**Next**: `/x2-phase june-effect C9h-2d review` on Opus 5.5 high. Also `C9h-2e` (identify, Opus 5.5 high).
 
 ---
 
