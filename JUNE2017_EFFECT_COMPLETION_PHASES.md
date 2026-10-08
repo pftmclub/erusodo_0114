@@ -3620,7 +3620,13 @@ files: 1 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 F
 in this flag's files: 38 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)
 RESULT: PASS
 ```
-The 38 deleted lines are the dead lines above, all added inside this phase. Range (`b48c9e6^..HEAD`, where the code landed through a peer's commit): see the line below.
+The 38 deleted lines are the dead lines above, all added inside this phase. Range (`flagcheck ... --range b48c9e6^..HEAD`, where the code landed through a peer's commit; 3 commits b48c9e6 / 037fce2 / 8b56f68):
+```
+files: 4 PASS, 0 PASS~ (blank/marker only), 3 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR
+in this flag's files: 39 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)
+RESULT: PASS
+```
+39 deleted = the 38 above + 037fce2's `#define _DEBUG` -> `//#define` (switch-off). Net over the range: insertion only.
 
 **Next:** C9h-4g (Opus 5.5 high, kickoff updated), not at the same time as C3d-2 / C3d-3.
 
