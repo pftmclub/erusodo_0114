@@ -19,8 +19,8 @@ grep -n "^| 10[789] |\|^| 110 |" JUNE_BUGS.md
 ```
 
 March files:
-- `X2Lib/X2RidingPet.h/.cpp`: SetRidingPet :388, SetGameRidingPet :419, StateChange :876, OnFrameRender_Prepare :155, the dtor :42;
-- `X2Lib/X2RidingPetManager.cpp`: NotifyShowObjectChanged :225, RemoveRidingPet :425;
+- `X2Lib/X2RidingPet.h/.cpp`: SetRidingPet :433, SetGameRidingPet :464, StateChange :938, OnFrameRender_Prepare :200, the dtor :59 (lines after C9h-3b);
+- `X2Lib/X2RidingPetManager.cpp`: NotifyShowObjectChanged :234, RemoveRidingPet :434;
 - `X2Lib/X2EffectSet.h/.cpp`: PlayEffectSetByPet :3479, the C9h-2a overload, GetEffectPosition, GetCombineMatrix, GetEffectPositionByBoneName, GetUnitRotation and OnFrameMove_CreateEffect.
 
 All are CP949, so edit them with `tools/bytepatch.py`.

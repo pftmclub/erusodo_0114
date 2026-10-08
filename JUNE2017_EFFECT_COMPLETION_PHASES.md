@@ -2565,6 +2565,32 @@ The riding pet's `StateChange` / `StateChangeFuture` now follow June (`32d2f560`
 
 **Play-test (regression pass):** dev console not needed. In a village: summon a riding pet, walk, jump, dash, unsummon, hide / show. In a dungeon: the same plus an attack. Look for: the pet appears at the right place on summon (the first-change gate), nothing freezes, one `JUNE_FX RIDINGPET_STATE` line per state change in `ErrorLog.txt` (`python tools/logs.py --grep "JUNE_FX RIDINGPET_STATE"`). **Review:** `kickoffs/june-effect/C9h-3b-review.md`.
 
+### C9h-3b - Review (2026-10-08, Opus 5.5 high): no finding, no code change, no deploy
+
+**Play-test read first:** the PASSED run (187 `JUNE_FX RIDINGPET_STATE` lines, Red Hameling, 0 EXCEPTION; exe `6877fb3f` from 4bd51f2 still has `_DEBUG` on, f1efeaa's off lands with the next build).
+
+**Checked against June (Ghidra / capstone read-only, literals read from `unpacked_x2.exe`).**
+- **Slot order.** Decoded the XOR strings before each store in the INIT_STATE loader `32d36600`: `+0x4ec` = `WALK_STATE` (`@32d37459`), `+0x4fc` = `DASH_STATE` (`@32d37a14`), `+0x534` = `SPECIAL_MOVE_STATE` (`@32d390fe`). `32d277f0` returns `+0x4f4` (JUMP_DOWN) and does not touch EDX, which the caller reuses.
+- **Pairs.** `@32d30a3f..@32d30b87`: five independent ifs (WALK, DASH, JUMP_UP or JUMP_DOWN, DASH_JUMP_UP, SPECIAL_MOVE) multiply ANIM_SPEED by the second float (`+0x90/+0x98/+0xa0/+0xa8/+0xb0`); the first goes to a dead slot. Each slot reads the `+0x550..` transform set when `+0x5a0` is set, which March never sets (TRANSFORM is dropped, Stage 17). PASSIVE_SPEED_X (`+0x30c`, read after SPEED_X/Y, before `+0x310`) x `+0xac` = the first float of pair 4 (`@32d35055`). Matches.
+- **Gate (`32d2ec80`).** `+0x1c0` = `m_bInitPos`, `+0x48c` = the first-change byte; the test sits after the first GetUserInfo / SetPos (`DAT_33439c68` = 30.0). The second pair runs only in the (game or village) branch, after the skin anim's OnFrameMove (`+0x238` vslot 1). `32d286c0` is the last call before the return (only xref `@32d2f3b1`). StateChange's `@32d2f5a6` is `if( !+0x48c ) +0x48c = 1`, so a plain set is the same.
+- **`PlayAnimAtPlayEnd` (`32d286c0`).** `+0x2ac` = `m_bAnimEnd` (after `m_PlayType` `+0x2a8`, which `Play` `31d28d00` writes), a non-empty test on `+0x490`, `ChangeAnim( name, false, 0 )`, `Play( 0 = XAP_LOOP )`. Matches.
+- **Check (`32d3cff0`).** `334380f0` = -1.0. Equal -> change; else `FCOMPP` time vs overlap with `TEST AH,5; JP`: time < overlap -> return 1 (wait), time >= overlap -> change. `+0x214` = `m_fAnimCurrTime` (anchored by `+0x224` = `m_NowAnimIndex`, which `ChangeAnim` `31d33fd0` writes). ECX of `31fc8810` is still the user from `@32d3d02e`. `31fc8810` is a `jmp [vtbl+0x7dc]` thunk, so June dispatches virtually, the same as the wrapper's `CommonStateEnd()`. Then `32d2f480` (-> `32d2c8b0` StateChangeFuture), then `32d3cb10` (-> `32d2f560` StateChange). Matches.
+- **User hooks.** `320347d0 @3203484e`: the pet object (`+0x683c`) non-null, GetRidingOn not tested, true skips both event paths. `320348c0 @320348d0` clears `+0x620` as the first statement. The `+0x620` arm comment is in place, and C9h-4c owns it.
+- **Keys and defaults** (`func_strings.tsv` order = the port's order; default stores at each getter): APPLY 0, ORIGINAL / TRANSFORM_SCALE_TIME -1.0, CHECK_..._SPACIAR_BUFF -1 (`> -1` -> `32d2f3d0`), ONGROUND table absent -> `+0x5b8` 0, `+0x5bc` 0 (EBX = 0 from `@32d3003c`), OVERLAP_TIME 0, STATE_NAME "" -> `32d3e450`, PLAY_TYPE 2, TRANSITION true, ANIM_START_TIME 0 and passed in both ChangeAnim branches, TARGET_RANGE 1500 / LIMIT_Z_DEPTH 500 / DEGREE_RANGE 45 / VALUE_POS 0. NOT_RED `@32d3262a`: written only when SUPER_ARMOR == 1. Spellings match `june_src_fixed/data037_kom` (Optimus_Prime ONGROUND, 34 files ANIM_START_TIME).
+- **Init.** June's reset `32d282f0` (only caller: the ctor `@32d3655e`) zeroes `+0x5b8/+0x5bc/+0x620`, the same as the port's ctor values; March's `ClearState` has the ctor as its only caller too.
+- **Not ported on purpose.** `IsValidUser` (`32d2c800`, raw disassembly) = March :796, unchecked dereference included. `+0x5b0/+0x5b4`: inside `32d27000..32d40000` only stores (the reset, StateChange, the ctor); readers through other classes were not swept (389 `.text` hits of the offset, mostly other classes).
+- **JUNE_BUGS 113-115** describe what the code above does.
+
+**Unowned June branch -> C9h-6.** `320347d0` calls user delegates `+0x9544/+0x9548` before OnFrameMoveFuture and `+0x954c/+0x9550` before OnEventProcess. They are a snapshot of the state's delegates taken by `31fd2af0` (11 class-side callers, gated on `GetNowStateSkillID() > 0`). March has neither. They are not riding-pet code, and no row owned them, so they get the identify phase **C9h-6** (`kickoffs/june-effect/C9h-6.md`).
+
+**Hygiene**: `flagcheck JUNE_RIDINGPET_STATE --range d36b1b1^..HEAD --with JUNE_RIDINGPET_STATE_DEBUG`:
+- `files: 1 PASS, 5 PASS~ (blank/marker only), 2 DEFINE, 13 OTHER (other flags), 0 FAIL, 0 ERROR`
+- `in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 5 #else/#endif without the flag token, 0 encoding change(s)`
+- `RESULT: PASS`
+- The deleted line is f1efeaa's `#define ..._DEBUG`, now commented out (DEFINE row). The 13 OTHER rows are peers' commits `7ba2f9d` (C9h-2d) and `10ff360` (X4). The 5 lines without the token are this flag's own bare `#else` (X2GUUser.cpp 1, X2RidingPet.cpp 4); the Done note's "original #else/#endif" was wrong.
+
+**Also:** `C9h-3a.md` line numbers updated for C9h-3b's inserts. **Open for the user**: /cost. **Next**: C9h-3a (Sonnet 5.5 high), or the identify phases C9h-2e / C9h-5 / C9h-6 (Opus 5.5 high).
+
 ### C9h-4 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the June keys are a sound system, a cancel-after, three delete conditions -> C9h-4a..4e
 
 Read-only work in Ghidra and capstone. Results:
