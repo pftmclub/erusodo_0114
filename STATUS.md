@@ -277,6 +277,42 @@ Running together: X0 touches no code and can run alongside anything; its funcmap
 independent of X0-X3, but it edits `KTDXLIB/Always.h`, so run it when no other code session holds uncommitted `Always.h` edits.
 X2/X5 touch shared staging; do not run X5 while another session is packing the same kom.
 
+## june-asset-port - every remaining June non-lua asset in the March client
+
+Plan `JUNE_ASSET_PORT_PHASES.md` · branch `mods/june-buff-port` · log tag `[KOM_MOUNT]` · flag `SERV_IRUHADEV_KOM_MOUNT_DEBUG` (P1,
+short-lived) · kickoffs `kickoffs/june-asset-port/` · backlog Stage 15 · created 2026-10-08.
+
+**The scope.** 117,562 June-only files (10.5 GB raw) are added: 33,819 into 66 kom numbers March has no archive for, 83,692 into
+151 existing koms. The 4,363 non-`.txt` files that collide with a March copy are **replaced by June's**, with no holds (user,
+2026-10-08); P5 only forecasts which March consumers then need fixing, and routes each one. Also: 1,066 unstaged March files restored
+first, loose music/movie/eventscene, and `XRenderer.fx` alone. Inert Scaleform ships too. `.txt` stays with june-effect, `.lua` with
+the ports.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| P0 | ready | Sonnet 5.5 / high | - | `tools/kom.py`, `tools/README.md`, new `june2017_re/asset_port_census.py` + `p0_*.tsv`, `kom_contents/data101_kom` + `data118_kom` (restore only) | `P0.md` |
+| P1 | waiting (P0) | Sonnet 5.5 / high, then user play-test | P0 | `KTDXLIB/KGCMassFileManager.cpp`, `KTDXLIB/Always.h`, `tools/logs.py` | `P1.md` |
+| P1 review | waiting (P1) | Sonnet 5.5 / high | P1 | review (P1 files only if a fix) | `P1-review.md` |
+| P2 | waiting (P1 review) | Sonnet 5.5 / high, then user play-test | P1 review | new `kom_contents/data152,179,214,224,i027_kom`, game dir koms | `P2.md` |
+| P3 | waiting (P2) | Sonnet 5.5 / medium, then user play-test | P2 | 61 new `kom_contents/dataNNN_kom`, game dir koms | `P3.md` |
+| P4a | waiting (P3) | Sonnet 5.5 / medium, then user play-test | P3 | `kom_contents/data001-075_kom`, game dir koms | `P4a.md` |
+| P4b | waiting (P4a) | Sonnet 5.5 / medium, then user play-test | P4a | `kom_contents/data076-150_kom`, game dir koms | `P4b.md` |
+| P4c | waiting (P4b) | Sonnet 5.5 / medium, then user play-test | P4b | `kom_contents/data151-226_kom`, `datai*_kom`, game dir koms | `P4c.md` |
+| P5 | waiting (P0; can run alongside P2-P4) | Opus 5.5 / high | P0 | new `june2017_re/asset_keys.py`, `p5_*.tsv`, `p6/p7/p8_wave.tsv`, owners' docs (`JUNE2017_CHARACTER_PORT_CHECKLIST.md`, ...) | `P5.md` |
+| P5 review | waiting (P5) | Opus 5.5 / high | P5 | review | `P5-review.md` |
+| P6 | waiting (P4c, P5 review) | Sonnet 5.5 / high, then user play-test | P4c, P5 review | koms on `p6_wave.tsv` | `P6.md` |
+| P7 | waiting (P6) | Sonnet 5.5 / high, then user play-test | P6 | koms on `p7_wave.tsv` | `P7.md` |
+| P8 | waiting (P7) | Sonnet 5.5 / high, then user play-test | P7 | koms on `p8_wave.tsv` | `P8.md` |
+| P9 | waiting (P0; independent of the kom waves) | Sonnet 5.5 / high, then user play-test | P0 | game dir `music/`, `movie/`, `eventscene/` | `P9.md` |
+| P10 | waiting (P4a) | Sonnet 5.5 / high, then user play-test | P4a | `kom_contents/data041_kom` (`XRenderer.fx`), game dir data041 | `P10.md` |
+| P11 | conditional (P2/P4 measurements) | Opus 5.5 / high | P2 | `X2/X2_2010.vcxproj` (user approval first) | `P11.md` |
+| P12 | waiting (P3, P4a-c, P6-P10) | Sonnet 5.5 / medium | all | census, STATUS, backlog | `P12.md` |
+
+Running together:
+- P5 (read-only RE plus TSVs) and P9 (loose files) can run alongside the kom waves.
+- The kom waves (P2-P4, P6-P8, P10) run one at a time, because each ends in a copy and a play-test.
+- Do not pack a kom while another session has uncommitted changes in its `kom_contents` dir (data036 above all).
+
 ## atlas - Atlas port (Atlas Station, Fields 01-02, AtlasDevelopment / AtlasCity / Tower)
 
 Plan `ATLAS_PORT_PHASES.md` · branch `mods/elysion-port`, worktree `../Trunk_elysion` (both created by A0) · log tag `[ELYDBG]` ·
@@ -344,7 +380,7 @@ phase section (kickoffs/TEMPLATE.md) on first use and shows it before starting.
 
 | Plan | Doc | State (2026-10-04, from the doc's headings; verify before starting) |
 |---|---|---|
-| backlog | `JUNE_PORT_BACKLOG_ORDER.md` | The order of everything below: stage 0 (close open loops, incl. this buff port) -> 1 Atlas/Elysion -> 2 engine remainder -> 3 skill core -> ... -> 9 UI; 10 emotion system; 11 division item templets (added by june-effect C9f); 12 character customize system (added by june-effect C9g); 13 June `item.kim` adoption (planned as `june-item-kim` above, a prerequisite of 11 and 12); 14 byte-exact June asset extraction (planned as `june-asset-extract` above); 16 June item-side systems (added by june-item-kim K0); 17 pet and riding-pet remainder (added by june-effect C9h: the pet variant byte and June's 8 pets / riding pets); 18 NPC friendship system (added by june-effect C9h-5, gated on code event 2215). |
+| backlog | `JUNE_PORT_BACKLOG_ORDER.md` | The order of everything below: stage 0 (close open loops, incl. this buff port) -> 1 Atlas/Elysion -> 2 engine remainder -> 3 skill core -> ... -> 9 UI; 10 emotion system; 11 division item templets (added by june-effect C9f); 12 character customize system (added by june-effect C9g); 13 June `item.kim` adoption (planned as `june-item-kim` above, a prerequisite of 11 and 12); 14 byte-exact June asset extraction (planned as `june-asset-extract` above); 15 every remaining June non-lua asset (planned as `june-asset-port` above); 16 June item-side systems (added by june-item-kim K0); 17 pet and riding-pet remainder (added by june-effect C9h: the pet variant byte and June's 8 pets / riding pets); 18 NPC friendship system (added by june-effect C9h-5, gated on code event 2215). |
 | atlas | `ATLAS_PORT_PHASES.md` | Not started (the Done-note headings through A13 are empty). Rows: the `atlas` block above (2026-10-08). |
 | elysion | `ELYSION_PORT_PHASES.md` | Not started (the Done-note headings through E15 are empty). Rows: the `elysion` block above (2026-10-08). |
 | lanox | `LANOX_REMAINING_PHASES.md` + `JUNE_UI_PARITY_PHASES.md` | 12 items in phases 0-11; check the doc for which have landed. |

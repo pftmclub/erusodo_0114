@@ -411,6 +411,17 @@ X0 answers the deferred June loader plan's RE items 1-3. The loader port itself 
 **Depends on:** nothing.
 
 
+### Stage 15: Every remaining June non-lua asset (user, 2026-10-08)
+
+After Stage 14's extractor and its trial, the user asked for every June non-lua asset still missing or different in March,
+byte-exact. The plan is `JUNE_ASSET_PORT_PHASES.md` (STATUS block `june-asset-port`, kickoffs `kickoffs/june-asset-port/`).
+- **Scope:** 117,562 June-only files added, and 4,363 colliding files replaced by June's. There are no holds: March consumers that
+  break are routed to their owners.
+- **Also covered:** loose music, movie and eventscene files, and `XRenderer.fx` alone.
+- **Out of scope:** `.txt` stays with june-effect, and `.lua` with the ports.
+
+**Depends on:** Stage 14 (done). Every later stage benefits, because its assets are already in place.
+
 ### Stage 16: June item-side systems (june-item-kim K0, 2026-10-07)
 
 K0 mapped June's 228-byte item record (`JUNE_ITEM_KIM_PHASES.md` "Phase K0 - Done", `june_item_kim/k0_record_map.tsv`). K2 ports
