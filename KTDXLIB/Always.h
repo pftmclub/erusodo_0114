@@ -6081,3 +6081,42 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Off = every row is offered, as before.
 #define SERV_IRUHADEV_COSTUME_SHOP
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June effect completion C9h-4e (JUNE2017_EFFECT_COMPLETION_PHASES.md):
+//              the riding pet's StateChange / StateChangeFuture user and village keys that
+//              C9h-3b left as a comment (June 32d2f560 @32d3110d-32d35a05, 32d2c8b0):
+//              DISABLE_GRAVITY_TIME_START / _END into the user (after SPEED_TIME, miss 0 / 0),
+//              CAN_PUSH_UNIT_TIME / CAN_PASS_UNIT_TIME (Future: the user's Future vectors are
+//              cleared, then refilled), SOUND_PLAY through the nation reader plus
+//              SOUND_PLAY_ALL_OPTION<n> into the user's sound list, UPDOWN_CANCEL_AFTER,
+//              DELETE_EFFECT_SET_OFF_RIDING / _ON_SKILL_STATE_END, and, without a game, the
+//              village block 32d350e0 (the pet's anim oneshot timer 0, the square unit's
+//              DCS_STATE_END stop 323f1730, its sound list cleared and refilled from
+//              SOUND_PLAY_ALL_OPTION<n>). Needs the members and readers of C9h-4a..4d and 3a.
+//              Log: "JUNE_FX RIDINGPET_USER_KEYS" in ErrorLog.txt (_DEBUG only).
+#define SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+#define SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+#ifndef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#error SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS needs SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#ifndef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+#error SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS needs SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+#ifndef SERV_IRUHADEV_JUNE_UNIT_SOUND
+#error SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS needs SERV_IRUHADEV_JUNE_UNIT_SOUND
+#endif SERV_IRUHADEV_JUNE_UNIT_SOUND
+#ifndef SERV_IRUHADEV_JUNE_SQUARE_SOUND
+#error SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS needs SERV_IRUHADEV_JUNE_SQUARE_SOUND
+#endif SERV_IRUHADEV_JUNE_SQUARE_SOUND
+#ifndef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#error SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS needs SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#ifndef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+#error SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS needs SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+//////////////////////////////////////////////////////////////////////////

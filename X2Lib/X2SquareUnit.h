@@ -295,6 +295,9 @@ class CX2SquareUnit : public CKTDGObject
 		bool GetRidingOn() const { return m_SyncData.m_bRidingOn; }
 		void SetRidingOn( IN bool bVal_ ) { m_SyncData.m_bRidingOn = bVal_; }
 		void ProcessRidingOn( IN bool bVal_, IN const KRidingPetInfo& _Info = KRidingPetInfo() );
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+		int JuneRidingPetStateChangeSounds( KLuaManager& luaManager_ );	/// June riding StateChange village block @32d35124 ( C9h-4e ): stop, clear, refill from SOUND_PLAY_ALL_OPTION<n>
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 		bool GetCheckWaitHabitElapsedTime() { return m_ElapsedTimeRidingWaitHabit.CheckElapsedTime(); }
 		void ResetWaitHabitElapsedTime() { m_ElapsedTimeRidingWaitHabit.ResetSumOfElapsedTime(); }
 #endif //RIDING_SYSTEM

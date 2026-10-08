@@ -499,6 +499,9 @@ private:
 	void JunePlayReservedUiSets( IN std::vector< CX2EffectSet::Handle >& vecPendingStop_ );	/// June 32d2bad0, then the queued stops (JUNE_BUGS 111)
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+	void JuneVillageStateChangeSounds();	/// June StateChange village block @32d350e0 ( C9h-4e )
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 	void InitDevice();
 	void InitSystem();
 	void InitMotion();

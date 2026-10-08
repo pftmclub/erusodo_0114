@@ -2560,6 +2560,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void						StopSoundOnCustomState();	/// June 32276d60
 		void						StopSoundOnSkillStateEnd( int iNowStateSkillID_ );	/// June 32278200 (user only)
 #endif SERV_IRUHADEV_JUNE_UNIT_SOUND
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+		/// C9h-4e: the riding pet's two SOUND_PLAY_ALL_OPTION<n> loops ( June 32d2f560 @32d32853-@32d33049 user, @32d35163-@32d359f4 village ): same keys and defaults
+		/// as CommonStateStart's block; appends to vecOut_ and returns how many records were read
+		static int	JuneLoadSoundPlayAllOption( KLuaManager& luaManager_, std::vector<SoundPlayData>& vecOut_ );
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 		
 		void						ClearHitUnitList_LUA()
 		{ 

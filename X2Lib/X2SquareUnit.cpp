@@ -1226,6 +1226,16 @@ void CX2SquareUnit::JuneStopSoundOnStateEnd()
 	m_vecSoundToDeleteOnStateEnd.resize( 0 );
 }
 #endif SERV_IRUHADEV_JUNE_SQUARE_SOUND
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+/// June 32d2f560 @32d35124-@32d359f4 ( C9h-4e ): 323f1730 ( the DCS_STATE_END stop ), the list at +0x5dc cleared ( 32083e40 ), then the riding pet's
+/// SOUND_PLAY_ALL_OPTION<n> records appended. luaManager_ is the riding pet's, with the state's table open. Returns the number of records read.
+int CX2SquareUnit::JuneRidingPetStateChangeSounds( KLuaManager& luaManager_ )
+{
+	JuneStopSoundOnStateEnd();
+	m_vecSoundPlayData.resize( 0 );
+	return CX2GameUnit::JuneLoadSoundPlayAllOption( luaManager_, m_vecSoundPlayData );
+}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 HRESULT	CX2SquareUnit::OnFrameMove( double fTime, float fElapsedTime )
 {
 	typedef std::map< float, bool > EventTimeStampMap;

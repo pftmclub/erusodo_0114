@@ -931,6 +931,49 @@ void CX2RidingPet::StateChangeFuture( IN const char* stateName_ )
 						/// June 32d2c8b0 also reads the CAN_PUSH_UNIT_TIME%d / CAN_PASS_UNIT_TIME%d tables into the user (+0x8b14 / +0x8b24): C9h-4.
 						/// March keeps its plain bool fields where June writes protected values.
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+#ifdef RAVEN_SECOND_CLASS_CHANGE
+						/// June 32d2c8b0, after CAN_PASS_UNIT: 32d3e2f0 / 32d3e330 clear the user's Future vectors ( +0x8b14 / +0x8b24 ), then the tables are read
+						/// 0-based until the first missing one: { time ( miss 0 ), can ( miss true for CAN_PUSH_UNIT_TIME, false for CAN_PASS_UNIT_TIME ) } ( C9h-4e ).
+						/// A pet script with no table therefore empties the user's own vectors on every StateChangeFuture; June does the same.
+						{
+							std::vector<CX2GUUser::TIME_PUSHPASS>& vecJunePush = pUser->JuneAccessCanPushUnitFuture();
+							vecJunePush.clear();
+							int iJunePushIndex = 0;
+							while( m_LuaManager.BeginTable( "CAN_PUSH_UNIT_TIME", iJunePushIndex ) == true )
+							{
+								CX2GUUser::TIME_PUSHPASS junePushPass;
+								LUA_GET_VALUE( m_LuaManager, 1, junePushPass.fTime, 0.0f );
+								LUA_GET_VALUE( m_LuaManager, 2, junePushPass.bCan, true );
+								vecJunePush.push_back( junePushPass );
+								++iJunePushIndex;
+								m_LuaManager.EndTable();
+							}
+
+							std::vector<CX2GUUser::TIME_PUSHPASS>& vecJunePass = pUser->JuneAccessCanPassUnitFuture();
+							vecJunePass.clear();
+							int iJunePassIndex = 0;
+							while( m_LuaManager.BeginTable( "CAN_PASS_UNIT_TIME", iJunePassIndex ) == true )
+							{
+								CX2GUUser::TIME_PUSHPASS junePushPass;
+								LUA_GET_VALUE( m_LuaManager, 1, junePushPass.fTime, 0.0f );
+								LUA_GET_VALUE( m_LuaManager, 2, junePushPass.bCan, false );
+								vecJunePass.push_back( junePushPass );
+								++iJunePassIndex;
+								m_LuaManager.EndTable();
+							}
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS_DEBUG
+							if ( iJunePushIndex > 0 || iJunePassIndex > 0 )
+							{
+								WCHAR wszJuneFx[128] = {0};
+								StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX RIDINGPET_USER_KEYS future state=%d can_push_time=%d can_pass_time=%d",
+									static_cast<int>( m_StateData.m_StateID ), iJunePushIndex, iJunePassIndex );
+								ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+							}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS_DEBUG
+						}
+#endif RAVEN_SECOND_CLASS_CHANGE
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 					}
 				}
 			}
@@ -1084,6 +1127,15 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 					CX2GUUser::PhysicParam& kPhysicParam = pUser->AccessPhysicParam();
 					std::vector<CX2GUUser::TIME_SPEED>& vecSpeedFactor = pUser->AccessSpeedFatorVector();
 					std::vector<CX2GUUser::SoundPlayData>& vecSoundData = pUser->AccessSoundPlayData();
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+					/// C9h-4e: what this StateChange reads from June's keys ( the log line at the end of the user block )
+					float fJuneGravityStart = 0.f;
+					float fJuneGravityEnd = 0.f;
+					int iJuneAllOption = 0;
+					float fJuneUpDown = 9999.f;
+					bool bJuneOffRiding = false;
+					bool bJuneSkillStateEnd = false;
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 
 					//if ( NULL != pFrameData )
 					{
@@ -1120,6 +1172,14 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 						m_LuaManager.EndTable();
 					}
 
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+					/// June 32d2f560 @32d31b1b-@32d31f16, after SPEED_TIME and before INVINCIBLE: both floats are read first ( miss 0 ), then written to the user
+					/// ( +0x84f8 / +0x84fc = m_vDisableGravityInScriptTime ), every state change ( C9h-4e ).
+					LUA_GET_VALUE( m_LuaManager, "DISABLE_GRAVITY_TIME_START", fJuneGravityStart, 0.f );
+					LUA_GET_VALUE( m_LuaManager, "DISABLE_GRAVITY_TIME_END", fJuneGravityEnd, 0.f );
+					pUser->JuneSetDisableGravityInScriptTime( fJuneGravityStart, fJuneGravityEnd );
+
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 					if( m_LuaManager.BeginTable( "INVINCIBLE" ) == true )
 					{
 						float fInvin = -1.0f;
@@ -1180,6 +1240,28 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 					}
 				#endif
 
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+					/// June 32d2f560 @32d326fb-@32d33049 ( C9h-4e ): clear the user's list, SOUND_PLAY<n> through June's nation reader ( 32078fd0, the 4 fields as
+					/// March ), then SOUND_PLAY_ALL_OPTION<n> ( the keys and defaults of C9h-4a's CommonStateStart block ). SOUND_PLAY_EX / STATE_SOUND_PLAY are not read
+					/// here. June's player ( C9h-4a ) erases each record once it has played.
+					index = 0;
+					vecSoundData.resize(0);
+					while( CX2GameUnit::JuneBeginSoundPlayTable( m_LuaManager, "SOUND_PLAY", index ) == true )
+					{
+						CX2GUUser::SoundPlayData sndPlayData;
+
+						LUA_GET_VALUE( m_LuaManager, 1, sndPlayData.m_SoundPlayTime,		-1.0f	);
+						LUA_GET_VALUE( m_LuaManager, 2, sndPlayData.m_SoundPlayName,		L""		);
+						LUA_GET_VALUE( m_LuaManager, 3, sndPlayData.m_SoundPlayRate,		100		);
+						LUA_GET_VALUE( m_LuaManager, 4, sndPlayData.m_bOnlyIfMyUnit,		false	);
+
+						vecSoundData.push_back( sndPlayData );
+
+						index++;
+						m_LuaManager.EndTable();
+					}
+					iJuneAllOption = CX2GameUnit::JuneLoadSoundPlayAllOption( m_LuaManager, vecSoundData );
+#else
 					index = 0;
 					vecSoundData.resize(0);
 					while( m_LuaManager.BeginTable( "SOUND_PLAY", index ) == true )
@@ -1197,6 +1279,7 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 						m_LuaManager.EndTable();
 					}
 
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 					if( pUser->IsFocusUnit() == true && kNowFrameData.stateParam.bResetCamera == true )
 					{
 						kNowFrameData.stateParam.hitCamera = 0;
@@ -1258,6 +1341,12 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 					pUser->SetWalkCancelAfter( fValue );
 					LUA_GET_VALUE(	m_LuaManager, "DASH_CANCEL_AFTER",		fValue,	9999.f );
 					pUser->SetDashCancelAfter( fValue );
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+					/// June 32d2f560 @32d3424b-@32d343ac: UPDOWN_CANCEL_AFTER ( miss 9999.0 ) into the user ( +0x8ca4 ), after DASH and before LoadEffectSetFromScript.
+					/// June's CommonStateStart clamp ( C9h-4c ) is not applied here: the riding pet's StateChange has no call to it ( C9h-4e ).
+					LUA_GET_VALUE( m_LuaManager, "UPDOWN_CANCEL_AFTER", fJuneUpDown, 9999.f );
+					pUser->SetUpDownCancelAfter( fJuneUpDown );
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 
 					pUser->LoadEffectSetFromScript( m_LuaManager );
 
@@ -1270,6 +1359,24 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 					bDeleteEffect= false;
 					LUA_GET_VALUE( m_LuaManager, "DELETE_EFFECT_SET_ON_DIE", bDeleteEffect,	false );
 					pUser->SetDeleteEffectSetOnDie( bDeleteEffect );
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+					/// June 32d2f560 @32d34b55-@32d35023: the two bytes C9h-4d added ( +0x8628 / +0x862b ), after _ON_DIE, miss false. LoadEffectSetFromScript's tail ( 4d ) has
+					/// already read both keys from this same table, so these two writes repeat its values; June reads them twice too ( C9h-4e ).
+					LUA_GET_VALUE( m_LuaManager, "DELETE_EFFECT_SET_OFF_RIDING", bJuneOffRiding, false );
+					pUser->JuneSetDeleteEffectSetOffRiding( bJuneOffRiding );
+					LUA_GET_VALUE( m_LuaManager, "DELETE_EFFECT_SET_ON_SKILL_STATE_END", bJuneSkillStateEnd, false );
+					pUser->JuneSetDeleteEffectSetOnSkillStateEnd( bJuneSkillStateEnd );
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS_DEBUG
+					if ( 0.f != fJuneGravityStart || 0.f != fJuneGravityEnd || iJuneAllOption > 0 || 9999.f != fJuneUpDown || true == bJuneOffRiding || true == bJuneSkillStateEnd )
+					{
+						WCHAR wszJuneFx[256] = {0};
+						StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX RIDINGPET_USER_KEYS user state=%d(%S) gravity=%g/%g sound_records=%d all_option=%d updown=%g off_riding=%d skill_state_end=%d",
+							static_cast<int>( m_StateData.m_StateID ), stateName.c_str(), fJuneGravityStart, fJuneGravityEnd, static_cast<int>( vecSoundData.size() ), iJuneAllOption,
+							fJuneUpDown, bJuneOffRiding ? 1 : 0, bJuneSkillStateEnd ? 1 : 0 );
+						ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+					}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS_DEBUG
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 					/// June 32d2f560 @32d35029: PASSIVE_SPEED_X x the first float of manager pair 4 when the state is SPECIAL_MOVE_STATE (1.0 in June).
@@ -1290,6 +1397,10 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 			/// / game split instead: in a game the state's EFFECT_SET_LIST is read once, by the user loader.)
 			else
 			{
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+				/// June 32d2f560: the village block 32d350e0 comes first, then the state UI set block 32d35a05 ( C9h-4e )
+				JuneVillageStateChangeSounds();
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 				JuneStateChangeUiSets();
 			}
 			/// June 32d2bad0 @32d35f02, for every state: PLAY_RESERVED_UI_EFFECT_SET, then the queued stops of the delete blocks
@@ -1359,6 +1470,36 @@ void CX2RidingPet::PlayAnimAtPlayEnd()
 		m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_LOOP );
 	}
 }
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+/// June 32d2f560 village block @32d350e0-@32d35a05 ( C9h-4e ). Runs only without a game, with the village field game ( [33775870] ) and the square unit of the
+/// pet's owner found ( 323a8dd0 ); either missing skips all of it. In June's order: the pet's own skin anim ( +0x238 ) oneshot timer ( +0x24c ) = 0
+/// ( the kickoff said the square unit's anim; the disassembly says this ), the square's DCS_STATE_END stop ( 323f1730 ), its sound list ( +0x5dc ) cleared and
+/// refilled from SOUND_PLAY_ALL_OPTION<n> only ( no SOUND_PLAY here ). The square's StateStart ( 323fad80 @323fdf97 ) clears the same list again right after the
+/// pet's StateChange returns ( 323fec40 calls the pet, then StateStart ): JUNE_BUGS.
+void CX2RidingPet::JuneVillageStateChangeSounds()
+{
+	if ( NULL == g_pTFieldGame )
+		return;
+
+	CX2SquareUnit* pSquareUnit = g_pTFieldGame->GetSquareUnitByUID( m_UserUid );
+	if ( NULL == pSquareUnit )
+		return;
+
+	if ( NULL != m_pXSkinAnim )
+		m_pXSkinAnim->ResetOneshotPerformed();
+
+	const int iJuneRecords = pSquareUnit->JuneRidingPetStateChangeSounds( m_LuaManager );
+
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS_DEBUG
+	{
+		WCHAR wszJuneFx[160] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX RIDINGPET_USER_KEYS village state=%d square_records=%d",
+			static_cast<int>( m_StateData.m_StateID ), iJuneRecords );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS_DEBUG
+}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 /// June 32d2b0d0 (C9h-3a): INIT_EFFECT.RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET (names, indices 1..99) and RIDINGPET_RESERVED_UI_EFFECT_SET_LIST (name, index,

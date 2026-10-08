@@ -6665,6 +6665,48 @@ void CX2GameUnit::StopSoundOnSkillStateEnd( int iNowStateSkillID_ )
 }
 
 #endif SERV_IRUHADEV_JUNE_UNIT_SOUND
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+/// June 32d2f560 ( C9h-4e ), the user copy @32d32853-@32d33049 and the village copy @32d35163-@32d359f4 are the same loop: SOUND_PLAY_ALL_OPTION<n> =
+/// { SOUND_NAME ( ""), PLAY_TIME ( -1 ), RATE ( 100 ), ONLY_IF_MY_UNIT ( false ), MAX_SOUND_DISTANCE ( -1 ), ENABLE_3D_SOUND ( true ), LOOP ( false ),
+/// DELETE_CONDITION = { ... } }; a DELETE_CONDITION table replaces the ctor's DCS_NONE seed ( erase( all ) @32d35951 ).
+int CX2GameUnit::JuneLoadSoundPlayAllOption( KLuaManager& luaManager_, std::vector<SoundPlayData>& vecOut_ )
+{
+	int iAllOptionIndex = 0;
+	while( luaManager_.BeginTable( "SOUND_PLAY_ALL_OPTION", iAllOptionIndex ) == true )
+	{
+		SoundPlayData sndPlayData;
+
+		LUA_GET_VALUE( luaManager_, "SOUND_NAME",			sndPlayData.m_SoundPlayName,		L""		);
+		LUA_GET_VALUE( luaManager_, "PLAY_TIME",			sndPlayData.m_SoundPlayTime,		-1.0f	);
+		LUA_GET_VALUE( luaManager_, "RATE",					sndPlayData.m_SoundPlayRate,		100		);
+		LUA_GET_VALUE( luaManager_, "ONLY_IF_MY_UNIT",		sndPlayData.m_bOnlyIfMyUnit,		false	);
+		LUA_GET_VALUE( luaManager_, "MAX_SOUND_DISTANCE",	sndPlayData.m_fMaxSoundDistance,	-1.0f	);
+		LUA_GET_VALUE( luaManager_, "ENABLE_3D_SOUND",		sndPlayData.m_b3DSound,				true	);
+		LUA_GET_VALUE( luaManager_, "LOOP",					sndPlayData.m_bLoop,				false	);
+
+		if( luaManager_.BeginTable( "DELETE_CONDITION" ) == true )
+		{
+			sndPlayData.m_vecDeleteCondition.resize( 0 );
+
+			int iCondition = 0;
+			int iConditionIndex = 1;
+			while( luaManager_.GetValue( iConditionIndex, iCondition ) == true )
+			{
+				sndPlayData.m_vecDeleteCondition.push_back( iCondition );
+				++iConditionIndex;
+			}
+			luaManager_.EndTable();
+		}
+
+		vecOut_.push_back( sndPlayData );
+
+		++iAllOptionIndex;
+		luaManager_.EndTable();
+	}
+
+	return iAllOptionIndex;
+}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 void CX2GameUnit::PlaySound_LUA( const char* pName )
 {
 	if( NULL == pName )

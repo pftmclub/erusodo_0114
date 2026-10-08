@@ -3487,6 +3487,40 @@ SQUARE: files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 8 OTHER (other fla
 
 , and the C9h-7 decision (port June's sound auto-release, or keep March's cached devices).
 
+### C9h-4e - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS` + `_DEBUG` (on for the play-test), log `JUNE_FX RIDINGPET_USER_KEYS`; play-test pending)
+
+Files: `X2RidingPet.h/.cpp`, `X2GUUser.h`, `X2GameUnit.h/.cpp`, `X2SquareUnit.h/.cpp`, `Always.h`; data: 14 `RidingPet_*.lua` in `data037`. Ghidra / capstone read-only; 8 funcmap rows `(C9h-4e)`; JUNE_BUGS 129-130.
+
+**What landed (all behind the flag; C9h-3b's comment is left in place, the new code sits at June's positions)**
+- **User block (game).** In June's order, from `32d2f560`'s call list and its XOR-decoded keys:
+  - `DISABLE_GRAVITY_TIME_START` / `_END` after SPEED_TIME and before INVINCIBLE (both read first, miss 0, then written to the user: every pet state change resets the window);
+  - the sound list: clear, `SOUND_PLAY<n>` through C9h-4a's nation reader, then `SOUND_PLAY_ALL_OPTION<n>` (`CX2GameUnit::JuneLoadSoundPlayAllOption`; keys and defaults checked in both June copies);
+  - `UPDOWN_CANCEL_AFTER` (miss 9999.0) after DASH, before `LoadEffectSetFromScript`;
+  - `DELETE_EFFECT_SET_OFF_RIDING` / `_ON_SKILL_STATE_END` after `_ON_DIE`. These repeat what C9h-4d's `LoadEffectSetFromScript` tail already read from the same table; June reads them twice.
+- **StateChangeFuture.** After CAN_PASS_UNIT: the user's Future push / pass vectors (`+0x8b14` / `+0x8b24`, March `m_vecCanPushUnit` / `m_vecCanPassUnit`) are cleared (`32d3e2f0` / `32d3e330`, disassembled), then refilled from `CAN_PUSH_UNIT_TIME<n>` / `CAN_PASS_UNIT_TIME<n>`.
+- **Village block `32d350e0`** (no game only, before C9h-3a's state UI sets): the pet's anim oneshot timer reset, the square's DCS_STATE_END stop (`323f1730`), the square's list cleared and refilled from `SOUND_PLAY_ALL_OPTION<n>` only.
+
+**Corrections (found here)**
+- **The oneshot reset is on the pet's own anim, not the square unit's** (kickoff and funcmap row `32d2f560 @32d3110d-32d35a05` said the square's): `ebp` is the pet (`[ebp+0x43c]` = owner uid) and `[ebp+0x238]` is `m_pXSkinAnim` (`32d286c0` calls ChangeAnim on it). C9h-4b's square player times its records on that anim while riding, so this is the one that matters.
+- **June's village block never survives** (JUNE_BUGS 129): every village pet StateChange comes from the square's `StateChange` `323fec40` (pet first, then `StateStart` `323fad80`, which clears `+0x5dc` at `@323fdf97`) or from inside StateStart before that clear. Ported verbatim. **Pet sounds are heard only in a game**, as in March (March's village path never played them either).
+- **JUNE_BUGS 130:** a pet script without CAN_PUSH / PASS tables (all of March's) empties the user's Future vectors on every StateChangeFuture. Latent: no `RIDING_*` state in June or March class scripts has the tables.
+- **No change on March data except two resets.** Gravity / push / pass: no June class script carries them in a `RIDING_*` state (scanned `june_src_fixed`, 0 blocks), so the resets hit empty values. UPDOWN: written 9999.0 each state change; no March class code reads it.
+
+**The scripts (14 of March's 15 riding pets)**
+- **Source and compile.** June's `RidingPet_*.src.lua` from `june_src_fixed/data037_kom/`, copied byte-for-byte, then `kom.py compile data037` (`COMPILE OK ... 'ok': 14`). Each compiled `.lua` has the same size and string set as June's original bytecode (`junekom.py extract`; header byte 0x82 -> 0x81); no hand edit.
+- **Resolve check.** The keys June adds (`SOUND_PLAY_ALL_OPTION0/1`, `SOUND_NAME`, `PLAY_TIME`, `ENABLE_*_COLLISION_BOX`, `DASH_JUMP_LANDING_STATE` in the Oberon variants) are either read here or ignored by March's parser. Every dotted name and bare global the scripts use is a string constant somewhere in March's script corpus. `ENABLE_USER_COLLISION_BOX` / `ENABLE_RIDING_PET_COLLISION_BOX` have no March reader (inert).
+- **Assets.** Every file name the 14 scripts reference exists in `kom_contents`, except four `.ogg` the March scripts already referenced and lacked (`RidingPet_Ice_Hameling_DashEnd`, `RidingPet_Scorpion_DashJumpLanding`, `RidingPet_Scorpion_Dash_End`, `RidingPet_Nasod_ScooterAngel_AttackZ_Shot`).
+- **`RidingPet_GodBeast_Fire` is NOT adopted (user decision pending).** June's script needs `Motion_Riding_GodBeast_Fire.x`, `Riding_GodBeast_Fire.tga` and 13 `RidingPet_Godbeast_Fire_*.ogg` (June's `data140` / `data141`, not mounted by March); March's own script is a Red Hameling reskin. Adopting it now would load a missing mesh. After the asset port stages those files (P3), copy the June `.src.lua`, `kom.py compile data037`, `pack`, `copy`. The review kickoff checks it.
+- **Pack.** `PACK OK data037 ... 1915 entries, 9613937 bytes`; entry diff against the live kom = exactly the 14 files (`~14 changed`, 0 added, 0 removed). **Copy: waiting for the user's yes and for the new exe (the old exe does not read ALL_OPTION on the pet, so a copy first would silence the summon sounds).**
+
+**Hygiene** (`flagcheck JUNE_RIDINGPET_USER_KEYS --with ..._DEBUG --worktree --files <8 code files>`): files: 7 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR; 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 1 `#else` without the token (the original sound loop), 0 encoding changes; RESULT: PASS.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,405,312 B, dated 2026-10-08 18:26:07, md5 eeabc914b8cf2deab8f2ae39720430d8, equal to X2/US_SERVICE/x2.exe (2026-10-08 18:26:02); built at mods/june-buff-port 61d480c + 11 uncommitted code file(s).` Another session's `build.py --deploy` linked my edits in first (my own X2 step failed on that session's then-uncommitted C3c code, which it fixed; my files compiled in X2Lib); the exe also carries that C3c work (now `57c5651`). The strings `JUNE_FX RIDINGPET_USER_KEYS user state` / `village` / `future` and the keys `UPDOWN_CANCEL_AFTER` / `SOUND_PLAY_ALL_OPTION` are in it.
+
+**Play-test data.** `els_db.sql` (backup `db_backup/els_db_20261008_180843_pre_c9h4e_ridingpets.sql`): reyaa (unit 12, level 80) now owns riding pet ids 1-7 and 11-17: Nasod Mobi (1), Koucika (2), Ancient Pporu (3), Scorpion (4), Ice / Dark / Red Hameling (5 / 6 / 7), Oberon 650 (11), Ancient Pporu Naver (12), Oberon Black Skull (13) / Angel Heart (14), Bluestorm / Goldenfire / Sweetblossom Mobi (15 / 16 / 17).
+
+**How to see it in game.** With the new exe and the new `data037.kom`: in a dungeon, summon each pet. The START state plays `<Pet>_Start.ogg` (0.01-0.4 s) and `RidingPet_Summon.ogg` (0.001 s), each once, no loop: the same sounds the old scripts played through `SOUND_PLAY`. `ErrorLog.txt` gets `JUNE_FX RIDINGPET_USER_KEYS user state=... all_option=2` per summon. In a village the pets sound as before (none), with `JUNE_FX RIDINGPET_USER_KEYS village state=... square_records=2` per pet state change.
+
 ### C9h-5 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the village-NPC effect set is one key in June's `CX2TFieldNpc` rewrite -> Elysion E1 step 6, backlog Stage 18
 
 Read-only in Ghidra. There are 23 funcmap rows tagged `Effect C9h-5`. The 44-block `OnFrameMove` diff is in `june2017_re/c9h5_fieldnpc_onframemove_diff.md`. No C9h-5b: this is not an effect-engine slice.

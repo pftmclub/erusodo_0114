@@ -2297,6 +2297,17 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
 		void SetUpDownCancelAfter( IN float fVal_ ) { m_fUpDownCancelAfter = fVal_; }		/// June +0x8ca4, written by the riding pet's StateChange (C9h-4e)
 #endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
+		/// C9h-4e: the riding pet's StateChange / StateChangeFuture writes ( June 32d2f560 / 32d2c8b0 ): the gravity window ( +0x84f8 / +0x84fc ), the two
+		/// effect-set bytes C9h-4d added ( +0x8628 / +0x862b ) and the Future push / pass vectors ( +0x8b14 / +0x8b24 )
+		void JuneSetDisableGravityInScriptTime( IN float fStart_, IN float fEnd_ ) { m_vDisableGravityInScriptTime.x = fStart_; m_vDisableGravityInScriptTime.y = fEnd_; }
+		void JuneSetDeleteEffectSetOffRiding( IN bool bVal_ ) { m_bJuneDeleteEffectSetOffRiding = bVal_; }
+		void JuneSetDeleteEffectSetOnSkillStateEnd( IN bool bVal_ ) { m_bJuneDeleteEffectSetOnSkillStateEnd = bVal_; }
+#ifdef RAVEN_SECOND_CLASS_CHANGE
+		std::vector<TIME_PUSHPASS>& JuneAccessCanPushUnitFuture() { return m_vecCanPushUnit; }
+		std::vector<TIME_PUSHPASS>& JuneAccessCanPassUnitFuture() { return m_vecCanPassUnit; }
+#endif RAVEN_SECOND_CLASS_CHANGE
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 #ifdef SERV_IRUHADEV_JUNE_CANCEL_CLAMP
 		void JuneClampCancelAfters( int iStateId_, bool bFuture_ );
 #endif SERV_IRUHADEV_JUNE_CANCEL_CLAMP
