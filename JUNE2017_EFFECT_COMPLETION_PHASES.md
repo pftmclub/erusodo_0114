@@ -3825,7 +3825,11 @@ then C9h-7a.
 
 **Hygiene** (`flagcheck JUNE_DAMAGEEFFECT_SOUND --worktree --files` the 5 code files): 2 PASS, 1 PASS~ (one blank line), 2 OTHER (`Always.h` peers' blocks; `X2DamageEffect.cpp` = the `_DEBUG && OFFLINE` log blocks), 0 FAIL, 0 deleted, 0 non-ASCII, 0 encoding change; RESULT: PASS.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,409,920 B, dated 2026-10-08 21:14:44, md5 561222164aeae84747f51182fad1f869, equal to X2/US_SERVICE/x2.exe (2026-10-08 21:14:39); built at mods/june-buff-port 920eafe + 7 uncommitted code file(s)` (the 7 include a peer's C9h-4f `X2GUUser` work). The 4 `JUNE_FX DE_SOUND` / `result : %d, File : %s` strings are in the exe. data036: `COPY OK data036 ... 10655716 bytes, 192 entries, md5 ad48d728211d0345fad4b1100377d7ea` (user yes; backup `kom_backup_tools/data036.kom.20261008_211615`).
-**Play-test** (STATUS row): jtCodeEmpress, Eve EP dash ZZ / ZZZ and jump ZX, expecting `JUNE_FX DE_SOUND … play … loop=0`, no droning, 0 EXCEPTION. next: C9h-8 review.
+**Play-test PASSED 2026-10-08** (run 21:22, exe `56122216`): jtCodeEmpress, EP dash Z / ZZ / ZZZ and jump ZX, user: each sound plays once, nothing drones.
+- `offline_server.log`: 108 `JUNE_FX DE_SOUND … play` lines, all `loop=0 3d=1 del=0`; 0 `push` / `stop` / `skip` lines (March data has no DELETE_WHEN_EFFECT_END); 0 EXCEPTION.
+- 79 lines `dev=1 channel=1`, among them `Eve_EP_Dash_Combo_ZZ` / `_ZZZ` / `Eve_EP_Jump_Combo`, the three formerly `LOOP = TRUE` sounds.
+- 29 lines `dev=0`: `Eve_Dash_Combo_ZZ.ogg` (13) / `Eve_Dash_Combo_ZZZ.ogg` (16) are in no March kom (only the `Eve_EP_` variants are), so `ErrorEnum(351)` comes from `PlaySound`. June's data names the same files. This is a studio data gap that predates the port; March's `OpenSound` failed on them too.
+next: C9h-8 review.
 
 ## C10 - Decided absent systems
 
