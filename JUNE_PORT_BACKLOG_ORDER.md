@@ -440,6 +440,18 @@ half is planned there (C9h-2a/2b/3). Two pieces are not effect work and have no 
   Each needs its enum, templet, script, motions and effect sets. 16 June preview items (`PetPreView.lua`) point at them, and all 16 are
   in June's `item.kim`.
 
+- **June's transformer riding pets** (june-effect C9h-3, 2026-10-08). Bumblebee and Optimus Prime carry `TRANSFORM`,
+  `ORIGINAL/TRANSFORM_SCALE_TIME`, `APPLY_RIDINGPET_ANIM_MOVE`, `CHECK_RIDINGPET_SPACIAR_BUFF` and `ONGROUND_CHANGE_STATE`.
+  - The system is: a second state-id set (`+0x544..`, 22 getters `32d27750-32d279f0`), the toggle `32d281f0` (my unit `+0xe44`, pet info, manager
+    `321f5f70`), the scale picker `32d284d0`, the village states `TRANSFORM(_REVERSE)_VILLAGE` (`32d3cf40`), the SPACIAR buff check `32d2f3d0`
+    (BTI 532), and the user readers of `+0x5a1`.
+  - C9h-3b parses the keys; the consumers land here, with the pets.
+- **C9h-2b's pet-info riding block** (`328fce40 @328fd0d8`). It is gated on `IsEnableCode( 2155 )`, which the offline emulator never sends. Its byte is
+  `+0xd1` of the unnamed June singleton `324943c0` (no vtable, 0xd4 bytes; not `CX2RidingPetManager`), and no writer has been found. Name both
+  if the code event is ever emulated.
+- **The roster is 42 riding pets, not 7.** June has 57 riding-pet scripts; March's 15 are all among them. The 7 named above carry the viewer and
+  reserved keys; DarkChaser and Rakshasa carry the target-search keys (C9h-4).
+
 **Depends on:** june-effect C9h-2a and C9h-3 (the code they would exercise), Stage 13 (the items), Stage 14 (byte-exact assets).
 
 ---

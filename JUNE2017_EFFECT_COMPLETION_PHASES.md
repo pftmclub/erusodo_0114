@@ -2254,6 +2254,60 @@ Next: C9h-2b (Opus 5.5 high) and C9h-3 (Opus 5.5 high); both kickoffs exist. **U
 
 ---
 
+### C9h-3 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the riding pet's UI sets port now; its StateChange splits three ways -> C9h-3a/3b/4/5, Stage 17
+
+Read-only in Ghidra. There are 43 funcmap rows tagged `Effect C9h-3`. They correct C9h in four places:
+- the riding-pet holder is EffectSetInstance **`+0xd8`** (mode 3, `ESM_COMMON`);
+- `+0xe0` is a `CX2TFieldNpc*` (mode 2);
+- there are **two** vectors, `+0x4b0` and `+0x4c0`, not three; C9h's `+0x4b4` is the end pointer;
+- `32d2f560` is `StateChange( const char* )`, not the int overload.
+
+They also correct C9h-2b's `324943c0`: it is not `CX2RidingPetManager`, which is `321f7130` (RTTI).
+
+**1. The UI effect-set system** (-> **C9h-3a**, Sonnet, `SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX`).
+- **Members.** `+0x4ac` is a *hide* mirror. `+0x4b0` holds the persistent handles: INIT `BY_UIEFFECTSET`, the reserved sets, and state sets without delete-on-end. `+0x4c0` holds the per-state handles. The map `+0x4d0` is `map<int, {deleteCond, playCond, name}>`.
+- **Loader.** `32d2b0d0` runs at the end of SetRidingPet and SetGameRidingPet.
+- **StateChange's own blocks.** Reserved deletes run first (delete cond 1, then `DELETE_RESERVED_UI_EFFECT_SET`). At the end comes the riding pet's own `EFFECT_SET_LIST`, played on the UI set through `321e2790`, then `32d2bad0` (`PLAY_RESERVED_UI_EFFECT_SET`).
+- **Visibility and lifetime.** Visibility follows the square unit's `+0x518` in the village Prepare and the manager's NotifyShowObjectChanged. RemoveRidingPet stops everything. The dtor frees without stopping.
+- **Engine.** `321e2790` is PlayEffectSetByPet's shape on a riding pet. Its consumers are GetEffectPosition, GetCombineMatrix, ByBoneName, GetUnitRotation, the create-time anim gate and the dtor.
+- **Data.** June's two RESERVED enums go into March's `Enum.lua` verbatim.
+
+**2. The rest of StateChange / StateChangeFuture.**
+- **Verbatim March moves.** ANIM, push/pass, speeds, SPEED_TIME, INVINCIBLE, SUPER_ARMOR (NOT_RED is now written only under SA), cameras, the four cancel-afters and the three delete flags. June's protected-value writes stay plain March fields.
+- **Riding-pet-local, new** (-> **C9h-3b**, Sonnet, `SERV_IRUHADEV_JUNE_RIDINGPET_STATE`):
+  - `ANIM_START_TIME`;
+  - `ANIM_NAME_AT_PLAY_END` (OnFrameMove `32d286c0`);
+  - `ONGROUND_CHANGE_STATE` (`32d3cff0`, called from the user's land path);
+  - the manager's ten anim-speed rates (ctor 1.0, no writer found);
+  - the stored `TARGET_RANGE` / `LIMIT_Z_DEPTH` / `DEGREE_RANGE` / `VALUE_POS`;
+  - the first-change flag `+0x48c`.
+- **User / square-unit side, unowned** (-> **C9h-4**, Opus identify):
+  - `DISABLE_GRAVITY_TIME_*`, `UPDOWN_CANCEL_AFTER`;
+  - the `SOUND_PLAY_ALL_OPTION` family (user `+0x85c4`, square unit `+0x5dc`) and June's `SOUND_PLAY` reader;
+  - `DELETE_EFFECT_SET_OFF_RIDING` / `_ON_SKILL_STATE_END`, `CAN_PUSH/PASS_UNIT_TIME%d`;
+  - the riding-pet target search `31fe2420`.
+  - The same keys live in June's `CommonStateStart` and `LoadEffectSetFromScript`.
+- **Transformer riding pets** (-> **backlog Stage 17**): `TRANSFORM` (`32d281f0`), the 22 state-id getters, the scale times (`32d284d0`), `TRANSFORM_VILLAGE` (`32d3cf40`), `APPLY_RIDINGPET_ANIM_MOVE` and `CHECK_RIDINGPET_SPACIAR_BUFF`. The kickoff's "already ported" was wrong: Buff Phase 10 recorded it as *not* ported. In June data only Bumblebee and Optimus Prime use them.
+- **`CUSTOM_RENDER_STATE`** (`31fce500` -> user `+0x8e68`) -> backlog Stage 2.
+
+**3. Other routes.**
+- The `+0xe0` field-NPC holder (`321e26d0`, `CX2TFieldNpc::OnFrameMove` `325cdfa0`) -> **C9h-5** (Opus identify).
+- C9h-2b's pet-info riding block (`328fce40 @328fd0d8`) is gated on `IsEnableCode( 2155 )`, which the offline emulator never sends. Its `+0xd1` byte belongs to the unnamed singleton `324943c0` and has no writer found -> Stage 17.
+
+**4. Reach.**
+- June has 57 riding-pet scripts; March has 15, and **all 15 are in June**.
+- The 15 March pets gain only `SOUND_PLAY_ALL_OPTION` from June's versions. That is each pet's summon and start sounds, *moved* out of `SOUND_PLAY`. So adopting June's scripts before C9h-4's reader exists silences them.
+- Every other new key is in the 42 June-only pets (Stage 17). For example, the reserved / viewer keys are in 7, `TRANSFORM` in 2 and the target keys in 2.
+- But the UI-set block (C9h-3a) runs for **every** state of every riding pet, because March's scripts already carry `EFFECT_SET_LIST`:
+  - in a village, sets appear where March showed none;
+  - in a dungeon, June plays each name twice (user loader timed, riding pet immediately; JUNE_BUGS 108).
+
+**JUNE_BUGS 107-110** (per-state vector never cleared; the double play and skipped start times; dtor without stop; the hide mirror zeroed by show/hide).
+
+Kickoffs written: `C9h-3a.md`, `C9h-3b.md`, `C9h-4.md`, `C9h-5.md`; STATUS rows added. C9h-3a and C9h-3b both edit StateChange, so run them one after the other. C9h-4 and C9h-5 can run alongside either.
+
+**User owes:** /cost.
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),
