@@ -4286,7 +4286,7 @@ public:
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
 
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
-		bool																					m_bJuneBoundingStatesReady;	/// C3d-3: the class registered USI_BOUNDING_* ( June_Bounding_States.lua is packed ); the RT_BOUNDING case needs it
+		bool																					m_bJuneBoundingStatesReady;	/// C3d-3: the class registered USI_BOUNDING_* ( the class script carries the tables; none does yet ); the RT_BOUNDING case needs it
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef HYPER_MODE_FIX
 		int						m_iLastStateHyperModeCount;

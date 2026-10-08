@@ -153,6 +153,12 @@ honest only when it is the real number, is labelled with where it came from, and
 is announced in the log. Anything that cannot be sourced that way — a Lua
 *function*, for instance — gets no fallback at all.
 
+## Rule: never invent a new `.lua` file (user, 2026-10-09)
+
+Do not create new `.lua` files: no side files, helper tables or "temporary stand-ins". A new Lua file is allowed only when it is a **server Lua** the client needs packed into a client kom (the user packs it; see the server-Lua rule above).
+
+If a change needs data that lives in an existing Lua (a class script, `DamageEffect`, a monster script) and you cannot reach it safely, do not route around it with a new file. Say what blocks the work, and if it feels beyond the current model (a risky recompile, an equivalence proof, unclear RE), say **"this needs a higher model"** and stop. Editing an existing Lua that has a `.src.lua` is a separate question: ask first, do not assume it from an earlier phase's precedent.
+
 ## Rule: `DataBase/` and `ScriptData/` are a stale snapshot — the live DB is the source of record
 
 The user has access to the **original SQL Server databases** (`Account`,

@@ -12991,7 +12991,7 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 				if ( false == s_bOffLogged )
 				{
 					s_bOffLogged = true;
-					CX2OfflineLog::Server( L"JUNE_FX C3d-3 RT_BOUNDING hit on unit %I64d ignored: the bounding states are not registered ( June_Bounding_States.lua not packed into data036.kom )", GetUnitUID() );
+					CX2OfflineLog::Server( L"JUNE_FX C3d-3 RT_BOUNDING hit on unit %I64d ignored: the bounding states are not registered ( no class registers them: the *_DAMAGE_BOUNDING_* tables are not in the class scripts )", GetUnitUID() );
 				}
 				break;
 			}
@@ -29011,7 +29011,7 @@ void CX2GUUser::JuneBoundingUpEventProcess()
 }
 
 /// June InitState of the 12 classes ( the nine March ones here ): each registers USI_BOUNDING_DOWN / _LANDCRASH / _UP with its own *_DAMAGE_BOUNDING_* tables.
-/// The tables live in June_Bounding_States.lua ( data036 ), a global the shared Lua state sees. A missing table registers none of the three, logs once per
+/// The tables are Lua globals the class script must carry ( June has them inline; March's class scripts do not yet, so no class calls this ). A missing table registers none of the three, logs once per
 /// class, and leaves the RT_BOUNDING case off ( m_bJuneBoundingStatesReady ), so a unit never enters a state that has no table.
 void CX2GUUser::JuneInitBoundingStates( const char* pszPrefix_ )
 {
@@ -29048,7 +29048,7 @@ void CX2GUUser::JuneInitBoundingStates( const char* pszPrefix_ )
 	if( false == bDown || false == bLandCrash || false == bUp )
 	{
 		if( true == bFirstOfClass )
-			CX2OfflineLog::Server( L"JUNE_FX C3d-3 bounding states NOT registered for %hs ( DOWN %d, LANDCRASH %d, UP %d ): June_Bounding_States.lua is missing from data036.kom; RT_BOUNDING stays off",
+			CX2OfflineLog::Server( L"JUNE_FX C3d-3 bounding states NOT registered for %hs ( DOWN %d, LANDCRASH %d, UP %d ): the class script has no such table; RT_BOUNDING stays off",
 				pszPrefix_, bDown, bLandCrash, bUp );
 		return;
 	}

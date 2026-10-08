@@ -29,7 +29,6 @@ C3d-3 found a June state key that no phase owns. `SET_LIMIT_MAX_G_SPEED` is a fl
 1. Identify the key's default and what each reader does with the value (a per-state fall-speed limit, applied where gravity is integrated?).
    Settle every x87 compare with `june2017_re/x87test.py`; verdicts into `june2017_re/funcmap.tsv`, tagged `Effect C3g`.
 2. Port the whole mechanism under the new flag: the member, the user and NPC parse, the readers. No partial port.
-3. June data that sets it: the 27 `*_DAMAGE_BOUNDING_DOWN` tables of `June_Bounding_States.lua` (`= -4000`, the nine March classes).
+3. June data that sets it: the `*_DAMAGE_BOUNDING_DOWN` tables (`= -4000`; they reach March only after C3d-4).
    Grep `june_src_fixed` for the other users first (`grep -rl SET_LIMIT_MAX_G_SPEED june_src_fixed`) and say how many states carry it.
-4. Stage a play-test on a bounding DOWN hit (the C3d-3 staging, Mars in the El Tree, if it is still in the live data037; otherwise state
-   what to use). The check: the unit's fall speed is clamped at the key's value during DOWN.
+4. No staged data exists (the C3d-3 staging was removed). The play-test leg waits for C3d-4; say so in the Done note.

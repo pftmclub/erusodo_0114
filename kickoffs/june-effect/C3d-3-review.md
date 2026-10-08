@@ -26,16 +26,12 @@ Review C3d-3's commit(s) against the June binary (Ghidra read-only; `june2017_re
 2. **The NPC half** `32769060 @32769da7-32769e75`, `3275a070`, `3275d900`: the type order (June 0x21..0x23), `NOT_BOUNDING` @327a678e, and the facing
    test (the NPC compares its own facing, the user case compares both). Confirm `+0x8ac4` is never written on an NPC (sweep `lea` forms too) and
    `322f8920`'s reader at `[ebp+0x8ac4]` is a user.
-3. **The data file.** `kom_contents/data036_kom/June_Bounding_States.src.lua` against `june_src_fixed` (27 tables, byte-equal apart from the header
-   comment); the manifest line; the packed kom holds `June_Bounding_States.lua`. The class scripts were NOT rebuilt (decompile + recompile is not
-   byte-identical): confirm that is still true, and that no class script was touched.
+3. **No data.** The first pass's `June_Bounding_States.lua` and the data037 Mars staging were removed (user rule: no invented Lua). Confirm `kom.py pack data036 data037` shows `~0 changed` and `grep -rn June_Bounding_States X2Lib KTDXLIB` finds nothing.
 4. **Last attacker** `320462a0 @32046f06-32046f27`, `327b1f30 @327b2be6`: the stored type is the attacker's game-unit type (+0x264), the UID the virtual getter.
 5. **Twins checked and left alone** (the Done note gives the evidence; re-check one): March's dead `DamageReactStateChange_CheckOnly` NPC case
    (`X2OPTIMIZE_NPC_NONHOST_SIMULATION_ANALYSIS` is OFF) and the `m_FlyCount++` RT_BOUNDING case (`BOUNDING_COMBO_TEST`, OFF). **Open from the Done note:**
    whether June's DamageReact (`32045dc0`) still counts RT_BOUNDING hits in its fly count (not located by pattern). Find June's counter and decide.
-6. **Staging.** The staged Mars (`Thief_Thin_Zero.lua`, data037) is still live until this review reverts it: copy
-   `kom_contents_backup_june_bounding/data037_kom/Thief_Thin_Zero.lua` (md5 `ab2aad2e`) back, delete the staged `.src.lua`, `/elstools pack data037` (expect
-   `~1 changed`, md5 `c7c0c3b0...` like C4c's revert), ask before `/x2-kom-packed copy data037`.
+6. **Play-test legs** (registration log lines, a bounding hit) wait for C3d-4.
 7. **Hygiene.** `python tools/flagcheck.py JUNE_BOUNDING_STATE --range <first C3d-3 commit>^..HEAD`. Explain the nested `#else`/`#endif X2OPTIMIZE_*` rows.
 
 Fix clear transcription errors under the same flag (then `tools/build.py --deploy`). Write "C3d-3 - Review" under the phase in the plan, update the

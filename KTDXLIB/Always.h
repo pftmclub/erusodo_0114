@@ -6247,7 +6247,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              31feabd0 @31feb68f, NPC 32769060 @32769da7 ) stores BOUNDING_BACK_SPEED_X/Y and enters USI_BOUNDING_DOWN ( in the
 //              air ) or USI_BOUNDING_LANDCRASH ( on the ground ); LANDCRASH goes to USI_BOUNDING_UP after USEFUL_VALUE0[0]
 //              seconds, UP launches with the stored speed. Five CX2GUUser handlers, the last-attacker members, the nine March
-//              classes' InitState registration ( June_Bounding_States.lua in data036, loaded by CreateUnitLuaSpace ) and the
+//              classes' InitState registration ( NOT wired: June's tables are not in March's class scripts yet ) and the
 //              NPC half ( three DAMAGE_BOUNDING_* common-state types, NOT_BOUNDING ). Off = March's dead BOUNDING_COMBO_TEST case.
 //              Log: "JUNE_FX C3d-3" in offline_server.log.
 #define SERV_IRUHADEV_JUNE_BOUNDING_STATE

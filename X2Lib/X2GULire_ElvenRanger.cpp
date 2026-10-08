@@ -1221,10 +1221,6 @@ void CX2GULire_ElvenRanger::InitStateCommon()
 	m_LuaManager.MakeTableReference( "LESI_DAMAGE_AIR_UP", stateData.stateID );
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirUpEventProcess );
 	m_StateList[stateData.stateID] = stateData;
-#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
-	/// June InitState Rena 32ca9dc0 @32cab8c7: USI_BOUNDING_DOWN / _LANDCRASH / _UP with this class's LESI_DAMAGE_BOUNDING_* tables (C3d-3)
-	JuneInitBoundingStates( "LESI_" );
-#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 
 	stateData.Init();
 	stateData.stateID			= USI_DAMAGE_AIR_FLY_FRONT;
