@@ -604,6 +604,10 @@ field could still cut a name before it reaches the device.
 ported), so the long-name and data197 checks are deferred to those character ports; `[KOM_LONG] found` for them is not expected in this
 play-test. Aluminum is a Hard/Expert-only mid-boss of Ranox Ashes Village (stage index 2; Normal only preloads it, its boss is
 `NUI_SMITH_STAIN`): `g_pX2Game:GoStage( 2 )`.
+**Play-test result (2026-10-08, exe `6310e571`): PASSED.** Ash Covered Village Hard, `GoStage( 2 )`: Aluminum spawned (grade 2, gauge on) and
+the user saw its name plate; Ranox village shop NPCs Ryota (`SYOTA`) and Pesop (`FACEOFF`) work like the regular client. `ErrorLog.txt`:
+0 KEM_ERROR lines for the whole run, 0 packet exceptions. **Not exercised (deferred, not failed):** `Spa_Ranox_G01_water01.y` (no map in the
+run loaded it), the Moonlight Rhapsody `.tga` (Add not ported) and the Elysion `.ogg` / `data197.kom` (Elysion not ported).
 **Logs after the play-test:** `logs.py --tag KOM_LONG` + `ErrorLog.txt` KEM_ERROR88/89/343/390/95/96/87/136/132. **Owes the user:** `/cost`.
 
 ## Out of scope (routed, not dropped)
