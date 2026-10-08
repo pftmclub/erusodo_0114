@@ -3160,7 +3160,7 @@ shown-damage copy is listed here with its owner, in June's order.
 - Then, at function scope:
   - socket **2000145** (`@327b4484`), the cool-time cut on hit -> **C10e**:
     - user flag `+0x7ca8`, set in `SumSocketOption`;
-    - a 3 % roll, against 1 % in the text;
+    - a 3 % roll (`< 0.03`, strict), against 1 % in the text;
     - a 0.5 s internal cool-down `+0x7cac`;
     - `ResetLeftSkillCoolTimeByBuff( ST_ACTIVE, -5.0, false, BCT_FIX_VALUE, 1.0, true, 0 )`;
   - the `DI_EVENT_ALCHEMY_LAB` block (`@327b452f`) -> **Stage 19**;
