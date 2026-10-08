@@ -2620,6 +2620,45 @@ The in-game riding pet's UI effect sets are ported whole, with the engine holder
 - **Logs:** `python tools/logs.py --grep "JUNE_FX RIDINGPET_FX"` shows one `loader` line per summon (`reserved=0 by_uieffectset=0` expected on March data), 0 EXCEPTION.
 
 **Open for the user:** `/x2-kom-packed copy data036` (say "copy data036"; it only adds the two Enum tables); `/cost`.
+### C9h-3a - Review (2026-10-08, Opus 5.5 high): no transcription finding, no code change, no deploy
+
+**Play-test:** run before this review (STATUS: 5 loader lines, `reserved=0 by_uieffectset=0`, 0 EXCEPTION; data036 copied 10:17). `info_id=-1` in those lines is log-only: `m_Info` is set by `SetInfo` (`X2RidingPet.cpp:547`) after the loader runs, and June's loader logs nothing. Left as is.
+
+**Checked against June (Ghidra, read-only).**
+- **Game / village split (`32d2f560`).** A scan of every jump in the function finds only the village block's three guards (`@32d350e8`, `@32d35105`, `@32d35154`) entering `[@32d35a05, @32d35f00)`, plus the fall-through from `@32d35a01`. There are no indirect jumps. The user block ends in `JNZ @32d350aa` / `JMP @32d350db`, both to `@32d35f00`; a missing user exits at `@32d31193`. The village block is entered only from the four game-test guards `@32d31114..@32d31150`. So the `else` on `if ( NULL != g_pX2Game )` is right, and JUNE_BUGS 108 stays as re-scoped. The tail runs before the state table's `EndTable` in both builds.
+- **State set block.** The stop loop queues each `+0x4c0` handle through a copy (`321dafb0(&copy, 0)`). `EFFECT_SET_LIST` (`33476f88`) is read at 1, 3 .. 99 and breaks at the first non-string. The XOR-built key decodes to `DELETE_EFFECT_SET_ON_STATE_END` (default false). A handle of -1 is not pushed; a valid one goes to `+0x4c0` or `+0x4b0` by that key, then `321de4f0( +0x4ac == 0 )`. Matches.
+- **Loader `32d2b0d0`.** It reads `INIT_EFFECT`, then BY_UIEFFECTSET (1..99, break), then RESERVED tuples at `base` / `+1` / `+2` / `+3` = name, index, playCond, deleteCond. Bases are 1, 5 .. 97; the loop breaks at the first incomplete tuple. The node is key `+0xc`, deleteCond `+0x10`, playCond `+0x14`, name `+0x18`. `32899920` is a unique map insert (it frees the node on a duplicate key), so the first tuple for an index wins. The plays run after both `EndTable`s, gated on `g_pData + 0x9c` (the decompiler's `local_94` is a stack-slot mix-up). Every handle is pushed into `+0x4b0` with no -1 test (JUNE_BUGS 118). The only callers are `32d3cbf0 @32d3cc86` and `32d3cd10 @32d3ce41`, each right after `32d36600` (INIT_STATE); the call order is the same as March's.
+- **Tail `32d2bad0`, finder `32d292b0`, name `32d29240`, queued stop.**
+  - The tail skips an index only when playCond `+0x14` is 1 and the finder returns a handle. It keeps a name when it compares unequal to `L""`. A handle of -1 is not pushed; a valid one goes to `+0x4b0` and gets show = `+0x4ac == 0`.
+  - The finder scans `+0x4b0` only, matching the templet (`+0x80`) name at `+0x10`. It writes -1 on a miss.
+  - `321dafb0` only pushes `{handle, bool}` onto the effect set's `+0x30` vector and sets the caller's copy to -1. `321d97c0` checks only the handle's index and stamp, with no queue test. So June's queued stop does let the tail find a set that was just stopped, and emulating it (JUNE_BUGS 111) is right.
+  - Delete blocks `@32d31013`: per map node, the finder's handle is stopped when deleteCond `+0x10` == 1. `DELETE_RESERVED_UI_EFFECT_SET` (`33525fa0`) is read as ints and breaks at the first miss.
+  - The only callers of `321e2790`, `32d2bad0`, `32d292b0` and `32d29240` are the ones the port has.
+- **Engine holder.**
+  - `321e2790` matches: a null templet or a null pet gives -1, then `321e1bf0` with no owners. Afterwards `+0xd8` = pet (a counted ref, the old one released), `+0x60` = `+0x68` = -1.0 (`334380f0`), mode 3 (`ESM_COMMON`), `+0x20` = 0, and no scale.
+  - `GetEffectPosition @321dcf6b`: the bone is used only if the name at `+0xac` is non-empty and `320719f0` passes. `320719f0` is loaded `+0x1bc` and anim `+0x238`, which is March's `GetXSkinAnim()`. Otherwise `+0xcb` selects `+0x33c`, else `+0x390`. All exits go straight to `@321dd531`, with no offset.
+  - `GetCombineMatrix @321dc81f` is the raw `32071a10`, frame `+0x9c`, `+0x90`.
+  - `ByBoneName @321dd7ac` follows the same shape with `321f2eb0`; `bBoneFound` is zeroed at entry in both builds.
+  - `GetUnitRotation @321ddf69` returns `+0x324`.
+  - Gate `@321eeb1e`: the effect is skipped while anim time `+0x214` < start + delay; with no anim it falls through.
+  - Completeness: in `CX2EffectSet::OnFrameMove` `321f28f0` and its four callees, `+0xd8` is read only at the gate.
+- **Members.** `RidingPetCondition` (bool, float, float, dirDegree, dir, landPosition) puts `+0x324` / `+0x330` / `+0x33c` in order.
+- **Visibility.**
+  - Prepare `@32d2c4b2`: when `g_pTFieldGame` is set and the square unit is found, `+0x518` is compared with `+0x4ac`. On a difference `32d291a0( !flag )` runs, and if it returns true, `+0x4ac` = flag. Then the no-render return. The March block sits in the same branch.
+  - `32d291a0` shows / hides both vectors, then zeroes `+0x4ac` (JUNE_BUGS 110).
+  - `32d293e0` queues stops on both vectors, then `resize(0)` (`32a2d590`) on each.
+  - `321f5cb0` ends with `32d291a0( bVal )`. Its `32d2e090` call on a show is March's existing `InitPos`.
+  - `321f6190` calls `32d293e0` after the erase.
+  - The dtor `32d2bdd0` calls neither a stop nor `32d293e0` (JUNE_BUGS 109).
+  - `CX2RidingPetPtr( this )` is safe: `X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR` (`KTDX.h:340`) makes it an intrusive pointer.
+- **Data.** Both tables in `kom_contents/data036_kom/Enum.src.lua:12460-12467` are verbatim from `june_src_fixed/data036_kom/Enum.src.lua:17597-17604`. The live `data036.kom` (md5 `d67cc28e`, the same file as `data036_packed.kom`) differs from the pre-copy backup `kom_backup_tools/data036.kom.20261008_101736` only in `Enum.lua` (331,868 -> 332,019 B); both have 192 entries.
+
+**Hygiene** (`flagcheck JUNE_RIDINGPET_UI_FX --range 53d4f10^..HEAD --with JUNE_RIDINGPET_UI_FX_DEBUG`): `files: 4 PASS, 0 PASS~ (blank/marker only), 2 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- The X2EffectSet.cpp OTHER row is the two insert-only correction comments inside `PET_VIEWER_FX` blocks.
+- The four `8ec9968` OTHER rows are a peer's offline-emulator commit (riding pet into the dungeon), under other flags.
+- The one deleted line is `1eb9563`, a peer's removal of a CRLF-only blank line in `Always.h`, outside this flag's block.
+
+**User owes:** `/cost`. Next: `/x2-phase june-effect C9h-4b` (Sonnet 5.5 high), ready.
 
 ### C9h-3b - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_RIDINGPET_STATE` + `_DEBUG`, log `JUNE_FX RIDINGPET_STATE`)
 
