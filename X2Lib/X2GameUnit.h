@@ -1955,6 +1955,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			DCES_STATE_END,
 			DCES_DIE,
 			DCES_CUSTOM_STATE,
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+			DCES_SKILL_STATE_END,	/// June DCES_SKILL_STATE_END = 5 (June Enum.lua DELETE_CONDITION_EFFECT_SET)
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 		};
 
 		struct EffectSetToPlay
@@ -2914,6 +2917,12 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef DELETE_EFFECTSET_ON_CUSTOM_STATE
 		void DeleteEffectSetOnCustomState();
 #endif DELETE_EFFECTSET_ON_CUSTOM_STATE
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+		void JuneDeleteEffectSetOnStageEnd();		/// June 3228a190
+		void JuneDeleteEffectSetOffRiding();		/// June 3228a3b0
+		void JuneDeleteEffectSetOnSkillStateEnd();	/// June 3228a490 (user only)
+		void JuneStopCreateNewEffectOnStateEnd();	/// June 3228a120 (the +0x3e90 list of every played handle -> 321da070)
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 		void PushEffectSetToDeleteOnDie( const CX2EffectSet::Handle& hEffectSet_ ) { m_vecEffectSetToDeleteOnDie.push_back(hEffectSet_); }
 
 #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -4582,6 +4591,12 @@ protected:
 		int	m_iMemoId;
 #endif
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+		std::vector< CX2EffectSet::Handle > m_vecJuneEffectSetPlayed;				/// June +0x3e90: one entry per delete condition of every played handle, drained at CommonStateEnd
+		std::vector< CX2EffectSet::Handle > m_vecJuneEffectSetToDeleteOnStageEnd;	/// June +0x3ea0
+		std::vector< CX2EffectSet::Handle > m_vecJuneEffectSetToDeleteOffRiding;	/// June +0x3ee0
+		std::vector< std::pair< CX2EffectSet::Handle, int > > m_vecJuneEffectSetToDeleteOnSkillStateEnd;	/// June +0x3f00: { handle, skill id }
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 #ifdef SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD
 		bool m_bInGameUnitDestructor;	/// set true at the very top of ~CX2GameUnit(); lets JuneDieCreateNpc() (X2DamageEffect.cpp) avoid calling GetIsRight()/IsMyUnit() -- both pure virtual here -- on an owner unit that is itself mid-destruction
 #endif SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD

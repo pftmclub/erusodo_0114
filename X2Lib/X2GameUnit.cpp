@@ -7320,6 +7320,105 @@ void CX2GameUnit::DeleteEffectSetOnCustomState()
 }
 #endif DELETE_EFFECTSET_ON_CUSTOM_STATE
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+static void JuneEffectSetDeleteLog( const WCHAR* pwszEvent_, int iCount_, int iExtra_, int iUnitUID_ )
+{
+	WCHAR wszJuneFx[256] = {0};
+	StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX EFFECT_SET_DELETE %s n=%d extra=%d unit=%d", pwszEvent_, iCount_, iExtra_, iUnitUID_ );
+	ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+}
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+
+/// June 3228a190 (STAGE_END, +0x3ea0) and 3228a3b0 (OFF_RIDING, +0x3ee0): stop every handle of the list ( June queues the stop, 321dafb0;
+/// March stops at once ), then resize( 0 ). The result is how many valid handles were stopped.
+static int JuneStopEffectSetHandles( std::vector< CX2EffectSet::Handle >& vecHandle_ )
+{
+	int iStopped = 0;
+	if( NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+	{
+		BOOST_TEST_FOREACH( CX2EffectSet::Handle, hHandle, vecHandle_ )
+		{
+			if( INVALID_EFFECTSET_HANDLE != hHandle )
+				++iStopped;
+			g_pX2Game->GetEffectSet()->StopEffectSet( hHandle );
+		}
+	}
+	vecHandle_.resize(0);
+	return iStopped;
+}
+
+void CX2GameUnit::JuneDeleteEffectSetOnStageEnd()
+{
+	const int iStopped = JuneStopEffectSetHandles( m_vecJuneEffectSetToDeleteOnStageEnd );
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+	if( 0 < iStopped )
+		JuneEffectSetDeleteLog( L"stage_end", iStopped, 0, static_cast<int>( GetUnitUID() ) );
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+}
+
+void CX2GameUnit::JuneDeleteEffectSetOffRiding()
+{
+	const int iStopped = JuneStopEffectSetHandles( m_vecJuneEffectSetToDeleteOffRiding );
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+	if( 0 < iStopped )
+		JuneEffectSetDeleteLog( L"off_riding", iStopped, 0, static_cast<int>( GetUnitUID() ) );
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+}
+
+/// June 3228a490: users only, with a game and an effect set. Every { handle, skill id } pair whose skill id differs from the unit's
+/// now-state skill id is stopped and erased; the pairs of the skill that is still running stay.
+void CX2GameUnit::JuneDeleteEffectSetOnSkillStateEnd()
+{
+	if( GUT_USER != GetGameUnitType() || NULL == g_pX2Game || NULL == g_pX2Game->GetEffectSet() )
+		return;
+
+	const int iNowStateSkillID = static_cast<int>( static_cast<CX2GUUser*>( this )->GetNowStateSkillID() );
+	for( vector< std::pair< CX2EffectSet::Handle, int > >::iterator it = m_vecJuneEffectSetToDeleteOnSkillStateEnd.begin(); it != m_vecJuneEffectSetToDeleteOnSkillStateEnd.end(); )
+	{
+		if( iNowStateSkillID == it->second )
+		{
+			++it;
+			continue;
+		}
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+		JuneEffectSetDeleteLog( L"skill_state_end", 1, it->second, static_cast<int>( GetUnitUID() ) );
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+		CX2EffectSet::Handle hHandle = it->first;
+		g_pX2Game->GetEffectSet()->StopEffectSet( hHandle );
+		it = m_vecJuneEffectSetToDeleteOnSkillStateEnd.erase( it );
+	}
+}
+
+/// June 3228a120 (callers: the user's and the NPC's CommonStateEnd, right after 3228a200 = DeleteEffectSetOnStateEnd): walks +0x3e90, the
+/// handle of every played effect set, and calls 321da070 on each live instance, then resize( 0 ). 321da070 = EffectSetInstance::StopCreateNewEffect:
+/// when the templet has STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE ( EffectSetData +0x50 ) it marks every effect of the instance as created, so the
+/// effects that have not started yet never start. ( C9h-4d: the writer of this list is AddEffectSetDeleteCondition. )
+void CX2GameUnit::JuneStopCreateNewEffectOnStateEnd()
+{
+	if( NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+	{
+		BOOST_TEST_FOREACH( CX2EffectSet::Handle, hHandle, m_vecJuneEffectSetPlayed )
+		{
+			CX2EffectSet::EffectSetInstance* pEffectSetInst = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hHandle );
+			if( NULL == pEffectSetInst || NULL == pEffectSetInst->m_pEffectSetData )
+				continue;
+			if( false == pEffectSetInst->m_pEffectSetData->m_bStopCreateNewEffectWhenStateChange )
+				continue;
+
+			const int iSize = static_cast<int>( pEffectSetInst->m_vecEffectInstanceCreated.size() );
+			for( int i = 0; i < iSize; ++i )
+				pEffectSetInst->m_vecEffectInstanceCreated[i] = true;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+			JuneEffectSetDeleteLog( L"stop_create", iSize, 0, static_cast<int>( GetUnitUID() ) );
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+		}
+	}
+	m_vecJuneEffectSetPlayed.resize(0);
+}
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+
 
 #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
@@ -18711,6 +18810,11 @@ void CX2GameUnit::AddEffectSetDeleteCondition( CX2EffectSet::Handle hEffectSetHa
 	BOOST_FOREACH ( DELETE_CONDITION_EFFECT_SET eDeleteCondition, vecDeleteCondition )
 #endif // ADD_TO_EFFECT_SET_LIST_EX_DELETE_CONDITION	  // 김종훈, EFFECT_SET_LIST_EX 테이블의 종료 조건 추가 확장
 	{
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+		/// June 3227a570 @3227a591: every condition of the list pushes the handle into +0x3e90 before the switch ( the DCES_NONE seed too,
+		/// so a handle with n conditions sits n times ); 3228a120 walks it at CommonStateEnd
+		m_vecJuneEffectSetPlayed.push_back( hEffectSetHandle_ );
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 		switch ( eDeleteCondition )
 		{
 		case DCES_DAMAGE_REACT:
@@ -18731,6 +18835,18 @@ void CX2GameUnit::AddEffectSetDeleteCondition( CX2EffectSet::Handle hEffectSetHa
 				m_vecEffectSetToDeleteOnCustomState.push_back( hEffectSetHandle_ );
 	#endif // DELETE_EFFECTSET_ON_CUSTOM_STATE
 			} break;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+		case DCES_SKILL_STATE_END:
+			{
+				/// June 3227a570 case 5 @3227a606: users only, and only while the now state has a skill id above 0 -> { handle, skill id }
+				if( GUT_USER == GetGameUnitType() )
+				{
+					const int iNowStateSkillID = static_cast<int>( static_cast<CX2GUUser*>( this )->GetNowStateSkillID() );
+					if( 0 < iNowStateSkillID )
+						m_vecJuneEffectSetToDeleteOnSkillStateEnd.push_back( std::make_pair( hEffectSetHandle_, iNowStateSkillID ) );
+				}
+			} break;
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 		default:
 			break;
 		}

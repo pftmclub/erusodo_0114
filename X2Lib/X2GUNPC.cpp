@@ -24039,6 +24039,10 @@ void CX2GUNPC::CommonStateEnd()
 	StopSoundOnStateEnd();
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND
 	DeleteEffectSetOnStateEnd();
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+	/// June NPC CommonStateEnd 3277ee10 @3277f860: 3228a120 right after 3228a200 and the sound stop ( see the user's, C9h-4d )
+	JuneStopCreateNewEffectOnStateEnd();
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 
 	DoCustomFunctionByBuffInCommonStateEnd();
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND

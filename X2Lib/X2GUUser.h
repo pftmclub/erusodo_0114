@@ -3753,6 +3753,11 @@ public:
 #ifdef DELETE_EFFECTSET_ON_CUSTOM_STATE
 		bool m_bDeleteEffectSetOnCustomState;	/// m_vecEffectSetToPlay에 있는 것 들을 m_vecEffectSetToPlay에 넣어야 하는지 여부
 #endif DELETE_EFFECTSET_ON_CUSTOM_STATE
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+		bool m_bJuneDeleteEffectSetOnStageEnd;		/// June +0x8624 DELETE_EFFECT_SET_ON_STAGE_END
+		bool m_bJuneDeleteEffectSetOffRiding;		/// June +0x8628 DELETE_EFFECT_SET_OFF_RIDING
+		bool m_bJuneDeleteEffectSetOnSkillStateEnd;	/// June +0x862b DELETE_EFFECT_SET_ON_SKILL_STATE_END
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 		bool m_bHyperEffectSet;	/// 이펙트 셋에 HYPER_NAME을 지정하고, 이것을 설정 하면 HYPER_NAME으로 지정된 이펙트를 실행
 		float m_fEffectSetLifeTime;	/// 이펙트 셋의 플레이 시간...
 #ifdef ADDITIONAL_MEMO

@@ -2793,6 +2793,19 @@ bool CX2StateDungeonGame::DungeonStageLoadNot( HWND hWnd, UINT uMsg, WPARAM wPar
 	KEGS_DUNGEON_STAGE_LOAD_NOT kEvent;
 	DeSerialize( pBuff, &kEvent );
 	CX2PacketLog::PrintLog( &kEvent );
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+	/// June 324d9550 @324d966b ( case 0xae of 324dbc20 ): the first thing after the packet is read: 3228a190 on every user unit stops the
+	/// effect sets that asked for DELETE_EFFECT_SET_ON_STAGE_END
+	if( m_pDungeonGame != NULL )
+	{
+		for( int i = 0; i < m_pDungeonGame->GetUserUnitListSize(); ++i )
+		{
+			CX2GUUser* pJuneUser = m_pDungeonGame->GetUserUnit( i );
+			if( pJuneUser != NULL )
+				pJuneUser->JuneDeleteEffectSetOnStageEnd();
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 
 	//{{ hoons.09-07-15. 스테이지 로딩을 시작하면 이브 캐릭터 들의 메가 일랙트론볼 차지를 리셋해준다.
 	if( m_pDungeonGame != NULL &&

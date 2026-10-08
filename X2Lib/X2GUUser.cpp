@@ -801,6 +801,11 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	m_bDeleteEffectSetOnCustomState = false;
 #endif DELETE_EFFECTSET_ON_CUSTOM_STATE
 	m_bHyperEffectSet = false;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+	m_bJuneDeleteEffectSetOnStageEnd = false;
+	m_bJuneDeleteEffectSetOffRiding = false;
+	m_bJuneDeleteEffectSetOnSkillStateEnd = false;
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 	m_fEffectSetLifeTime = 0.f;
 #ifdef ADDITIONAL_MEMO
     m_iMemoId = 0;
@@ -15647,6 +15652,10 @@ void CX2GUUser::CommonStateStart()
 	LUA_GET_VALUE(	m_LuaManager, "CHANGE_WORLD_COLOR",					m_bChangeWorldColor,		false );
 	LUA_GET_VALUE(	m_LuaManager, "SHOW_SKILL_CUT_IN_TIME",				m_fShowSkillCutInTime,		-1.f );
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+	/// June 32057b80 @320606a2: 3228a490 stops the effect sets of a skill state that has ended ( user only ), first of the two skill-state-end checks
+	JuneDeleteEffectSetOnSkillStateEnd();
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 #ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND
 	/// June 32057b80 @320606a9: 32278200 stops the sounds of a skill state that has ended ( user only ). June runs it after 3228a490 ( the
 	/// effect-set twin, C9h-4d ) and before the FROZEN_TIME unfreeze 3200bde0; neither has a March slot yet, so it sits at the end of
@@ -20975,6 +20984,11 @@ void CX2GUUser::CommonStateEnd()
 	StopSoundOnStateEnd();
 #endif SERV_IRUHADEV_JUNE_UNIT_SOUND
 	DeleteEffectSetOnStateEnd();
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+	/// June CommonStateEnd @32015800: 3228a120 right after 3228a200 ( = DeleteEffectSetOnStateEnd, +0x3ec0 ) and the sound stop; it is NOT
+	/// DeleteEffectSetOnStateEnd ( C9h-4a / C9h-4b's comments above say so ): it walks +0x3e90 for STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE
+	JuneStopCreateNewEffectOnStateEnd();
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 
 	//{{ kimhc // 2010.2.17 //
 // #ifdef	APPLY_MOTION_OFFSET
@@ -39344,6 +39358,10 @@ void CX2GUUser::ProcessRidingOn( IN bool bVal_, IN const KRidingPetInfo& _Info )
 			}
 
 			CX2RidingPetManager::GetInstance()->RemoveRidingPet( GetUnitUID() );
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+			/// June 3204d120 @3204d330: 3228a3b0 stops the OFF_RIDING effect sets right after RemoveRidingPet
+			JuneDeleteEffectSetOffRiding();
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 		}
 		
 		/// 내 유닛인 경우에만 처리
@@ -41079,8 +41097,21 @@ void CX2GUUser::LoadEffectSetFromScript( IN KLuaManager& luaManager )
 	LUA_GET_VALUE( m_LuaManager, "CUSTOM_STATE_DELETE_EFFECT_SET_ON_DAMAGE_REACT",	m_bIsCustomStateDeleteEffectOnDamageReact,	false );
 #endif // CUSTOM_DELETE_EFFECT_ON_DAMAGE_REACT
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+	/// June 32024ff0 @3202695e-32028134: three June-only delete bytes ( +0x8624 STAGE_END, +0x8628 OFF_RIDING, +0x862b SKILL_STATE_END ),
+	/// read among the March ones; a miss stores 0
+	LUA_GET_VALUE( m_LuaManager, "DELETE_EFFECT_SET_ON_STAGE_END",			m_bJuneDeleteEffectSetOnStageEnd,		false );
+	LUA_GET_VALUE( m_LuaManager, "DELETE_EFFECT_SET_OFF_RIDING",			m_bJuneDeleteEffectSetOffRiding,		false );
+	LUA_GET_VALUE( m_LuaManager, "DELETE_EFFECT_SET_ON_SKILL_STATE_END",	m_bJuneDeleteEffectSetOnSkillStateEnd,	false );
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 	LUA_GET_VALUE( m_LuaManager, "HYPER_EFFECT_SET",		m_bHyperEffectSet,		false );
 	LUA_GET_VALUE( m_LuaManager, "EFFECT_SET_LIFE_TIME",	m_fEffectSetLifeTime,	-1.f );
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+	/// June 32024ff0, the last block: when the now state is a hyper state ( UserUnitStateData +0x10 = m_bHyperState, via the now-state pointer
+	/// +0x7cbc ) and HYPER_EFFECT_SET is false, SET_HYPER_EFFECT_SET_CHECK_HYPER_STATE is read into the same flag ( a miss stores 0 )
+	if( true == m_NowStateData.m_bHyperState && false == m_bHyperEffectSet )
+		LUA_GET_VALUE( m_LuaManager, "SET_HYPER_EFFECT_SET_CHECK_HYPER_STATE",	m_bHyperEffectSet,	false );
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 
 }
 
@@ -41129,6 +41160,20 @@ void CX2GUUser::CommonFrameMove_EffectSet( float fNowAnimationTime )
 				m_vecEffectSetToDeleteOnCustomState.push_back( hEffectSetInst );
 			}
 #endif DELETE_EFFECTSET_ON_CUSTOM_STATE
+
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+			/// June 32007570: STAGE_END -> +0x3ea0, OFF_RIDING -> +0x3ee0, SKILL_STATE_END and a skill id above 0 -> { handle, skill id } into +0x3f00
+			if( true == m_bJuneDeleteEffectSetOnStageEnd )
+				m_vecJuneEffectSetToDeleteOnStageEnd.push_back( hEffectSetInst );
+			if( true == m_bJuneDeleteEffectSetOffRiding )
+				m_vecJuneEffectSetToDeleteOffRiding.push_back( hEffectSetInst );
+			if( true == m_bJuneDeleteEffectSetOnSkillStateEnd )
+			{
+				const int iNowStateSkillID = static_cast<int>( GetNowStateSkillID() );
+				if( 0 < iNowStateSkillID )
+					m_vecJuneEffectSetToDeleteOnSkillStateEnd.push_back( std::make_pair( hEffectSetInst, iNowStateSkillID ) );
+			}
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 
 #ifdef MODIFY_EFFECT_SET_DELETE
 #ifdef ADD_TO_EFFECT_SET_LIST_EX_DELETE_CONDITION	  // 김종훈, EFFECT_SET_LIST_EX 테이블의 종료 조건 추가 확장

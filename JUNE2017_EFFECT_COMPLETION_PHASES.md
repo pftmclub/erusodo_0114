@@ -3006,6 +3006,43 @@ March keeps the old values in all three cases, which is the behaviour June's sna
 
 **Open for the user**: /cost.
 
+### C9h-4d - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE` + `_DEBUG` (on for the play-test); log `JUNE_FX EFFECT_SET_DELETE`; play-test pending)
+
+June's three effect-set delete conditions, the hyper check and the played-handle list are ported. Files: `X2GameUnit.h/.cpp`, `X2GUUser.h/.cpp`, `X2GUNPC.cpp`, `X2StateDungeonGame.cpp`, `Always.h`, `data036` `Enum.lua`. Ghidra read-only; 8 funcmap rows `Effect C9h-4d`; JUNE_BUGS 123-124; key matrix: the two `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` rows flipped from "deferred".
+
+**Correction to C9h-4 / C9h-4a / C9h-4b.** `3228a120` is **not** March's `DeleteEffectSetOnStateEnd`; that is `3228a200` (walks `+0x3ec0`, stops each handle).
+- `3228a120` walks `+0x3e90`, the handle of every played effect set, and calls `321da070` on each live instance. `321da070` marks every effect of the instance as created when the templet has `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` (`EffectSetData+0x50`).
+- That makes `+0x3e90` the runtime of the key that the effect rebuild's Phase 4a parsed and deferred ("the writer is not located"). The writer is `3227a570`, ported here.
+- The "( = DeleteEffectSetOnStateEnd )" comments in the `JUNE_UNIT_SOUND` and `JUNE_NPC_SOUND` blocks (`X2GUUser.cpp:20974`, `X2GUNPC.cpp:24038`) are stale. They are C9h-4a / 4b's code, so they were not edited. June's order is `3228a200`, sound stop, `3228a120`; March's sound stop sits before `DeleteEffectSetOnStateEnd()`. The lists are disjoint, so the order does not matter.
+
+**What landed (all behind the flag, `#else` untouched).**
+- **Enum:** `DCES_SKILL_STATE_END = 5` in `CX2GameUnit` and in `Enum.lua` (June's line and position, after `DCES_CUSTOM_STATE`).
+- **Parse** (`CX2GUUser::LoadEffectSetFromScript`, the tail):
+  - three bytes `DELETE_EFFECT_SET_ON_STAGE_END`, `_OFF_RIDING`, `_ON_SKILL_STATE_END`;
+  - `SET_HYPER_EFFECT_SET_CHECK_HYPER_STATE`, read into the hyper flag when `m_NowStateData.m_bHyperState` and `HYPER_EFFECT_SET` is false.
+  - The key name was decoded from June's XOR buffer. `+0x10` of the now-state pointer `+0x7cbc` is `m_bHyperState` (`GetNowStateSkillID` `3208e410` reads `+0xc` of the same pointer).
+- **Play site** (`CommonFrameMove_EffectSet`): three new lists, STAGE_END, OFF_RIDING, `{ handle, skill id }` pairs when the id is above 0.
+- **`AddEffectSetDeleteCondition`:** every handle is pushed once per condition into the played list before the switch (JUNE_BUGS 123); case 5 is user-only, id above 0.
+- **Stoppers:**
+  - STAGE_END at the top of `DungeonStageLoadNot`, for each user unit (June's only caller);
+  - OFF_RIDING after `RemoveRidingPet` in `ProcessRidingOn`'s off branch;
+  - SKILL_STATE_END at the end of `CommonStateStart`, just before C9h-4a's `StopSoundOnSkillStateEnd`.
+- **`JuneStopCreateNewEffectOnStateEnd`** right after `DeleteEffectSetOnStateEnd()` in the user's **and the NPC's** `CommonStateEnd` (the NPC play site feeds the same list; without its consumer the list would grow forever).
+- **Not ported:** the `+0x93da = 0` store after `3228a3b0` (not an effect-set member; the review checks it). The CommonStateStart clears are as June: it clears only `+0x3eb0` / `+0x3ec0` (disassembled `32057b80 @3205ad95`), so the new lists survive state changes.
+- **June queues the stops (`321dafb0`), March stops at once**, as every earlier port. `3228a490` keeps June's guards (game, effect set, user).
+
+**Reach on March data: inert.** The three delete keys and the hyper-check key are June-only (C9h-4's census). `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE`: a grep of `EffectSet*.src.lua` under `kom_contents` found nothing, but that file-name pattern was not checked against the real names, so March data is **not proven** free of it; the review re-checks. The only thing that runs is the played-handle push and its drain at every state end (a `resize( 0 )`). The `_DEBUG` lines print only when something is stopped or marked, so a March play-test prints none. A June effect set with the key (after the asset port) is the live path: `stop_create` lines.
+
+**Hygiene** (`flagcheck JUNE_EFFECT_SET_DELETE --with ..._DEBUG --worktree --files <7 code files>`): files: 4 PASS, 2 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (Always.h: the new block's comment and define), 0 FAIL, 0 ERROR; 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 `#else`/`#endif` without the token, 0 encoding change; RESULT: PASS.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,374,592 B, dated 2026-10-08 13:19:24, md5 779e41742c4649b0ea5f7b54fce70e96, equal to X2/US_SERVICE/x2.exe (2026-10-08 13:19:19)`. The strings `JUNE_FX EFFECT_SET_DELETE %s n=%d extra=%d unit=%d` and the four keys are in the exe.
+
+**Data:** `Enum.src.lua` got `DCES_SKILL_STATE_END = 5`; `kom.py compile data036` = `COMPILE OK`; `kom.py pack data036` = `PACK OK data036 ... 192 entries, 10655716 bytes ... ~1 changed: Enum.lua`. **Not copied: asking the user** (nothing March reads needs it; June's scripts that use value 5 are C9h-4e's / the asset port's).
+
+**How to see it in game.** Nothing visible changes on March data. Regression play-test: a dungeon stage change with a skill effect set running, a riding-pet summon / unsummon, a few skills and state changes; expect no change, 0 EXCEPTION, and no `JUNE_FX EFFECT_SET_DELETE` line.
+
+**Open for the user:** copy data036 (`Enum.lua` only) when you want; `/cost`.
+
 ### C9h-4b - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_NPC_SOUND` + `SERV_IRUHADEV_JUNE_SQUARE_SOUND`, each + `_DEBUG` on for the play-test; logs `JUNE_FX NPC_SOUND`, `JUNE_FX SQUARE_SOUND`; play-test PASSED, logs read; `_DEBUG` off)
 
 Files: `X2GUNPC.h/.cpp`, `X2SquareUnit.h/.cpp`, `X2EventScene.cpp`, `Always.h`. 12 funcmap rows `Effect C9h-4b`, JUNE_BUGS 119-121 (+ row 116's "Reached?" updated).

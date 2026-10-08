@@ -192,7 +192,7 @@ The full spec is in the plan, Phases 4a and 4b.
 | 4a | `ES.templet` (top) | `EVENT_TIMER_TYPE` | same | - | 321ee600@321ee885-321ee96d | OnFrameMove_CreateEffect |
 | 4a | `ES.templet` (top) | `NAME` | same | - | GetEffectSetTemplet 321da420, the first call of PlayEffectSet 321e1e60 | PlayEffectSet |
 | 4a | `ES.templet` (top) | `OVERLAP` | new | done | 321d9f30 from the factory 321e1bf0@321e1c68-321e1c77: no new instance while one of the templet lives with the same trace target | _CreateEffectSetInstance |
-| 4a | `ES.templet` (top) | `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` | new | deferred | 321da070 via unit 3228a120 over unit+0x3e90 on state change; the writer of that list is not located | unit side |
+| 4a | `ES.templet` (top) | `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` | new | **implemented (C9h-4d)** | 321da070 via unit 3228a120 over unit+0x3e90 on state change; the writer of that list is 3227a570 (AddEffectSetDeleteCondition), ported with it | unit side |
 | 4b | `ES.CAMERA_SHAKE` (top) | `EYE_MOVE_RANGE_MAX` | same | - | 321dbcc0@321dc3a7-321dc3fe: type 9 | OnFrameMove_StartCameraShake |
 | 4b | `ES.CAMERA_SHAKE` (top) | `EYE_MOVE_RANGE_MIN` | same | - | 321dbcc0@321dc3a7-321dc3fe: type 9 | OnFrameMove_StartCameraShake |
 | 4b | `ES.CAMERA_SHAKE` (top) | `EYE_MOVE_SPEED_MAX` | same | - | 321dbcc0@321dc3a7-321dc3fe: type 9 | OnFrameMove_StartCameraShake |
@@ -1467,7 +1467,7 @@ The full spec is in the plan, Phases 4a and 4b.
 | `NAME` | implemented |  | 8600 | direct 321e48e0@321e49a4 | X2EffectSet:3716 | same [June string = ''] | runtime 4a: same (-) |
 | `OVERLAP` | implemented |  | 2 | direct 321e48e0@321e5594 | X2EffectSet:3749 | same [June bool = 0] | runtime 4a: new (done) |
 | `SOUND%d` | implemented |  | 70 | direct 321e48e0 | X2EffectSet:4318 | n/a (sub-table name) | 5 names; runtime 4b: new (done) |
-| `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` | implemented |  | 2 | direct 321e48e0@321e4c9b | X2EffectSet:3745 | same [June bool = 0] | runtime 4a: new (deferred) |
+| `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` | implemented |  | 2 | direct 321e48e0@321e4c9b | X2EffectSet:3745 | same [June bool = 0] | runtime: implemented in C9h-4d (`JUNE_EFFECT_SET_DELETE`) |
 | `SYNC_SHOW_BY_CREATE_UNIT` | implemented |  | 1 | direct 321e48e0@321e57fa | X2EffectSet:3753 | same [June bool = 0] | runtime 4b: new (done) |
 | `BONE_NAME` | june-ignores(other-level) |  | 2 | June reads `BONE_NAME` only at level EFFECT%d of 321e48e0 (321e6165); not at `(top)` |  |  |  |
 | `BONE_TRACE_TARGET_MESH` | june-ignores(other-level) |  | 1 | June reads `BONE_TRACE_TARGET_MESH` only at level EFFECT%d of 321e48e0 (321e9ceb); not at `(top)` |  |  |  |

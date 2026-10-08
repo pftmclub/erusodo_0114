@@ -5974,3 +5974,29 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_UNIT_SOUND
 #endif SERV_IRUHADEV_JUNE_SQUARE_SOUND
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June effect completion C9h-4d (JUNE2017_EFFECT_COMPLETION_PHASES.md):
+//              June's effect-set delete conditions. Three June-only bytes of the
+//              user's LoadEffectSetFromScript (DELETE_EFFECT_SET_ON_STAGE_END,
+//              DELETE_EFFECT_SET_OFF_RIDING, DELETE_EFFECT_SET_ON_SKILL_STATE_END)
+//              and SET_HYPER_EFFECT_SET_CHECK_HYPER_STATE, the play site's three
+//              new lists, DCES_SKILL_STATE_END = 5 in AddEffectSetDeleteCondition,
+//              the stoppers (dungeon stage load, riding-off, CommonStateStart),
+//              and June's list of every played handle (+0x3e90) walked at
+//              CommonStateEnd of the user and the NPC: it is the runtime of
+//              STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE (parsed by
+//              SERV_IRUHADEV_JUNE_EFFECTSET_PARSE, never consumed until now).
+//              Inert on March data; the one live path is a June effect set with
+//              STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE.
+//              Log: "JUNE_FX EFFECT_SET_DELETE" in ErrorLog.txt (_DEBUG only).
+#define SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+#define SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+#ifndef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+#error SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE needs SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+//////////////////////////////////////////////////////////////////////////
