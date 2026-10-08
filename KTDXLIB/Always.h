@@ -6131,7 +6131,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              state from OnFrameMove. Not a June fix: June's server drives the state. Off = the
 //              pet waits for the owner's next state change.
 //              Log: "JUNE_FX RIDINGPET_ENTRY_STATE" in ErrorLog.txt (_DEBUG only).
-#define SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE
+//              OFF (user, 2026-10-08, after the C9h-4e review): follow June. June's square riding-on
+//              323f70a0 starts no pet state either, so the pet waits for the owner's next state change.
+//#define SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE
 //#define SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE
 #ifndef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
