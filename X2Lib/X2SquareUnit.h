@@ -651,6 +651,13 @@ class CX2SquareUnit : public CKTDGObject
 		map<float,bool>							m_EventTimeStamp;	/// 사운드 플레이 데이터의 EventCheck를 위한 TimeStamp (SOUND_PLAY를 사용하는 곳이 없다면 이것도 사용할 이유가 없을듯...)
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 		vector<CX2GameUnit::SoundPlayData>		m_vecSoundPlayData;	/// 각 스테이트 Start에서 로드한 SOUND_PLAY 에 대한 데이터 (사용하는 곳이 없음)
+#ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND
+		/// June CX2SquareUnit +0x5ec ( C9h-4b ): the handles of the DCS_STATE_END sounds the square player started. Stopped by JuneStopSoundOnStateEnd ( 323f1730 ) at riding-off;
+		/// June's dtor ( 323f7760 @323f7e24 ) only frees the list.
+		std::vector<CKTDXDeviceSound*>			m_vecSoundToDeleteOnStateEnd;
+		void									JunePlaySquareSoundRecords();
+		void									JuneStopSoundOnStateEnd();
+#endif SERV_IRUHADEV_JUNE_SQUARE_SOUND
 
 		UidType							m_iPartyUID;		/// 파티 Unique 아이디
 

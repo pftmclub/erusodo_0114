@@ -5868,3 +5868,47 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Found in the C9h-3a play-test; not caused by it.
 #define SERV_IRUHADEV_OFFLINE_ROOM_RIDING_PET
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June effect completion C9h-4b (JUNE2017_EFFECT_COMPLETION_PHASES.md):
+//              June's sound records on the NPC and the event scene. NPC: the
+//              SOUND_PLAY nation reader (default and SOUND_SET tables), the
+//              SOUND_PLAY_ALL_OPTION records (set 0), the TimedEvent player with
+//              LOOP and the delete-condition attach, June's played-sound list
+//              (+0x8f74: pushed by the player, stopped at ReInit, the dtor and
+//              the end of a STOP_SOUND_AT_STATE_END state), the NPC stop calls
+//              (damage react, state end, CUSTOM_STATE_DELETE_SOUND). Event scene:
+//              the SOUND_PLAY nation reader. Needs C9h-4a's SERV_IRUHADEV_JUNE_UNIT_SOUND.
+//              Inert on March data except the played-sound list: every March NPC
+//              sound is pushed and stopped at the dtor / ReInit (June's behaviour).
+//              Log: "JUNE_FX NPC_SOUND" in ErrorLog.txt (_DEBUG only).
+#define SERV_IRUHADEV_JUNE_NPC_SOUND
+#define SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+#ifndef SERV_IRUHADEV_JUNE_UNIT_SOUND
+#error SERV_IRUHADEV_JUNE_NPC_SOUND needs SERV_IRUHADEV_JUNE_UNIT_SOUND
+#endif SERV_IRUHADEV_JUNE_UNIT_SOUND
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June effect completion C9h-4b: the village square unit's sound
+//              records. SOUND_PLAY through June's nation reader, June's player
+//              323f17b0 (the riding pet's clock while riding, the record's LOOP and
+//              3D flags, a handle list for DCS_STATE_END sounds, +0x5ec) and the
+//              stopper 323f1730 at riding-off. Needs SERV_IRUHADEV_JUNE_UNIT_SOUND.
+//              Inert on March data: no March SQUARE script carries SOUND_PLAY; the
+//              stopper runs (empty) at every dismount.
+//              Log: "JUNE_FX SQUARE_SOUND" in ErrorLog.txt (_DEBUG only).
+#define SERV_IRUHADEV_JUNE_SQUARE_SOUND
+#define SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND
+#ifndef SERV_IRUHADEV_JUNE_UNIT_SOUND
+#error SERV_IRUHADEV_JUNE_SQUARE_SOUND needs SERV_IRUHADEV_JUNE_UNIT_SOUND
+#endif SERV_IRUHADEV_JUNE_UNIT_SOUND
+#endif SERV_IRUHADEV_JUNE_SQUARE_SOUND
+//////////////////////////////////////////////////////////////////////////

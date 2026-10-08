@@ -1942,6 +1942,50 @@ bool CX2GUNPC::IsJuneSocketBossGrade() const
 }
 #endif defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_EXTRA_NPC_STAT )
 
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG
+/// One ErrorLog line per event, capped at 400 lines for the whole run ( a dungeon starts thousands of sounds ).
+static void JuneNpcSoundLog( const WCHAR* pwszEvent_, const WCHAR* pwszDetail_, int iCount_, int iUnitUID_ )
+{
+	static int s_iLogged = 0;
+	if( s_iLogged > 400 )
+		return;
+	++s_iLogged;
+
+	WCHAR wszJuneFx[256] = {0};
+	if( s_iLogged > 400 )
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX NPC_SOUND log capped at 400 lines" );
+	else
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX NPC_SOUND %s %s n=%d unit=%d", pwszEvent_, pwszDetail_, iCount_, iUnitUID_ );
+	ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+}
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG
+
+/// June 3277c2d0 ( ReInit ) / 3279fb60 ( dtor ): CKTDXDeviceSound::Stop on every non-null handle of the played-sound list ( +0x8f74 ), then clear it
+/// ( 31f8b7e0( 0 ) ). June's CommonStateEnd 3277ee10 @3277f9cb-3277fa0e stops them only when the ending state has STOP_SOUND_AT_STATE_END, and
+/// clears the list either way ( bStop_ false ). The sound devices are shared per file name, so a stop also cuts the same file on another unit.
+void CX2GUNPC::JuneStopPlayedSounds( bool bStop_, const WCHAR* pwszWhy_ )
+{
+	int iStopped = 0;
+	if( true == bStop_ )
+	{
+		for( size_t i = 0; i < m_vecJunePlayedSound.size(); ++i )
+		{
+			CKTDXDeviceSound* pSound = m_vecJunePlayedSound[i];
+			if( NULL != pSound )
+			{
+				pSound->Stop();
+				++iStopped;
+			}
+		}
+	}
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG
+	if( false == m_vecJunePlayedSound.empty() )
+		JuneNpcSoundLog( ( true == bStop_ ) ? L"stop" : L"clear", pwszWhy_, ( true == bStop_ ) ? iStopped : static_cast<int>( m_vecJunePlayedSound.size() ), static_cast<int>( GetUnitUID() ) );
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG
+	m_vecJunePlayedSound.resize( 0 );
+}
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
 CX2GUNPC::~CX2GUNPC(void)
 {
 	// 자신을 참조하는 몬스터들에게 더이상 나를 참조하지 말라고 설정한다.
@@ -2084,6 +2128,10 @@ CX2GUNPC::~CX2GUNPC(void)
 	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqQuestMonster );	
 #endif //GUIDE_QUEST_MONSTER
 
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+	/// June ~CX2GUNPC 3279fb60 @327a01a3-327a0236 ( C9h-4b ): stop and clear the played-sound list, before the loop-sound lists below
+	JuneStopPlayedSounds( true, L"dtor" );
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
 	m_vecSoundPlayLoop.clear();
 	for(int iSound=0; iSound<(int)m_vecLoopSound.size(); ++iSound)
 	{
@@ -2908,6 +2956,10 @@ void CX2GUNPC::ReInit( bool bUseTeamPos, int startPosIndex )
 	CX2GameUnit::ReInit( bUseTeamPos, startPosIndex );
 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+	/// June ReInit 3277c2d0 ( C9h-4b ): stop and clear the played-sound list ( +0x8f74 ) first, then the loop-sound lists as March does
+	JuneStopPlayedSounds( true, L"reinit" );
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
 	m_vecSoundPlayLoop.resize( 0 );
 	for(int iSound=0; iSound<(int)m_vecLoopSound.size(); ++iSound)
 	{
@@ -5202,6 +5254,11 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
     NOWSTATE_SET_FLAG( CUSTOM_STATE_DELETE_EFFECT_SET_ON_STATE_END, bTemp );
 #endif  SERV_ELESIS_SECOND_CLASS_CHANGE	  // 김종훈, 엘리시스 1-2 그랜드 마스터, 2-2 블레이징 하트
 
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+    /// June LoadStateData 32784c00 @327894a7 ( C9h-4b ): CUSTOM_STATE_DELETE_SOUND, a bool state flag ( June bit 0x13 ); CommonStateStart stops the DCS_CUSTOM_STATE sounds when it is set
+    LUA_GET_VALUE( luaManager_, "CUSTOM_STATE_DELETE_SOUND", bTemp, false );
+    NOWSTATE_SET_FLAG( CUSTOM_STATE_DELETE_SOUND, bTemp );
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
     LUA_GET_VALUE( luaManager_, "SWAP_UNIT_WIDTH_HEIGHT", bTemp, false );
     NOWSTATE_SET_FLAG( SWAP_UNIT_WIDTH_HEIGHT, bTemp );
 
@@ -5650,11 +5707,21 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
         nowStateData.m_avecSoundPlayData[i].resize(0);
     }
 
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+    /// June LoadStateData 32784c00 @3278dab7-3278dad3 ( C9h-4b ): STOP_SOUND_AT_STATE_END, a bool state flag ( June bit 0x4e ), read just before SOUND_PLAY
+    bTemp = false;
+    LUA_GET_VALUE( luaManager_, "STOP_SOUND_AT_STATE_END", bTemp, false );
+    NOWSTATE_SET_FLAG( STOP_SOUND_AT_STATE_END, bTemp );
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
 	index = 0;
     {
         std::vector<SoundPlayData>& vecSoundPlayData = nowStateData.m_avecSoundPlayData[ SOUND_SET_DEFUALT ];
         vecSoundPlayData.reserve( luaManager_.GetNumIndexedTables( "SOUND_PLAY" ) );
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+	    while( JuneBeginSoundPlayTable( luaManager_, "SOUND_PLAY", index ) == true )	/// June 32078fd0 @3278db12 / @3278dc0a ( C9h-4b )
+#else
 	    while( luaManager_.BeginTable( "SOUND_PLAY", index ) == true )
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
 	    {
             vecSoundPlayData.resize( vecSoundPlayData.size() + 1 );
 		    CX2GameUnit::SoundPlayData& sndPlayData = vecSoundPlayData.back();
@@ -5742,7 +5809,11 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
 		        {
 			        index = 0;
                     vecSoundPlayData.reserve( luaManager_.GetNumIndexedTables( "SOUND_PLAY" ) );
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+			        while( JuneBeginSoundPlayTable( luaManager_, "SOUND_PLAY", index ) == true )	/// June 32078fd0 @3278e701 / @3278e7fa ( C9h-4b )
+#else
 			        while( luaManager_.BeginTable( "SOUND_PLAY", index ) == true )
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
 			        {
                         vecSoundPlayData.resize( vecSoundPlayData.size() + 1 );
 		                CX2GameUnit::SoundPlayData& sndPlayData = vecSoundPlayData.back();
@@ -5763,6 +5834,47 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
     }
 #endif  ARA_CHARACTER_BASE
 
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+    {
+        /// June LoadStateData 32784c00 @3278e849-3278f11b ( C9h-4b ): SOUND_PLAY_ALL_OPTION<n> = { SOUND_NAME, PLAY_TIME, RATE, ONLY_IF_MY_UNIT, MAX_SOUND_DISTANCE,
+        /// ENABLE_3D_SOUND, LOOP, DELETE_CONDITION = { ... } }, appended to the default sound set ( +0x204 ) AFTER the SOUND_SET tables, so a state that rolled a
+        /// SOUND_SET never plays them ( only set 0 holds them ). Read through the plain table name ( 31c7b980 ), not the nation reader. A DELETE_CONDITION table
+        /// replaces the record's seeded DCS_NONE ( 31ecace0 = erase all ).
+        std::vector<SoundPlayData>& vecAllOptionSoundPlayData = nowStateData.m_avecSoundPlayData[ SOUND_SET_DEFUALT ];
+        int iAllOptionIndex = 0;
+        while( luaManager_.BeginTable( "SOUND_PLAY_ALL_OPTION", iAllOptionIndex ) == true )
+        {
+            CX2GameUnit::SoundPlayData sndPlayData;
+
+            LUA_GET_VALUE( luaManager_, "SOUND_NAME",			sndPlayData.m_SoundPlayName,		L""		);
+            LUA_GET_VALUE( luaManager_, "PLAY_TIME",			sndPlayData.m_SoundPlayTime,		-1.0f	);
+            LUA_GET_VALUE( luaManager_, "RATE",					sndPlayData.m_SoundPlayRate,		100		);
+            LUA_GET_VALUE( luaManager_, "ONLY_IF_MY_UNIT",		sndPlayData.m_bOnlyIfMyUnit,		false	);
+            LUA_GET_VALUE( luaManager_, "MAX_SOUND_DISTANCE",	sndPlayData.m_fMaxSoundDistance,	-1.0f	);
+            LUA_GET_VALUE( luaManager_, "ENABLE_3D_SOUND",		sndPlayData.m_b3DSound,				true	);
+            LUA_GET_VALUE( luaManager_, "LOOP",					sndPlayData.m_bLoop,				false	);
+
+            if( luaManager_.BeginTable( "DELETE_CONDITION" ) == true )
+            {
+                sndPlayData.m_vecDeleteCondition.resize( 0 );
+
+                int iCondition = 0;
+                int iConditionIndex = 1;
+                while( luaManager_.GetValue( iConditionIndex, iCondition ) == true )
+                {
+                    sndPlayData.m_vecDeleteCondition.push_back( iCondition );
+                    ++iConditionIndex;
+                }
+                luaManager_.EndTable();
+            }
+
+            vecAllOptionSoundPlayData.push_back( sndPlayData );
+
+            ++iAllOptionIndex;
+            luaManager_.EndTable();
+        }
+    }
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
     ParseStopTime( nowStateData, luaManager_ );
 
 	//{{ JHKang / 강정훈 / 2011/01/13 / 몬스터 State당 렌더링 방식 변경
@@ -10491,6 +10603,10 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		)
 	{
 		DeleteEffectSetOnDamageReact();
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+		/// June NPC DamageReact 327b1f30 @327b52a8 ( C9h-4b ): 32276ce0 right after 3228a270 ( = DeleteEffectSetOnDamageReact ), inside the same guard ( June's NPC guard is March's )
+		StopSoundOnDamageReact();
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
 	}
 
 #ifdef APPLY_THEMIDA
@@ -14912,6 +15028,12 @@ void CX2GUNPC::CommonStateStart()
 #endif DELETE_EFFECTSET_ON_CUSTOM_STATE
 
     m_iEffectSetToPlayProgress = 0;
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+    /// June CX2GUNPC::CommonStateStart 327ac9d0 @327adaa7 ( C9h-4b ), right after the custom-state effect-set delete: a state with CUSTOM_STATE_DELETE_SOUND stops every
+    /// DCS_CUSTOM_STATE sound ( 32276d60 ). The user reads the key per state start; the NPC reads it once in LoadStateData.
+    if ( NOWSTATE_FLAG( CUSTOM_STATE_DELETE_SOUND ) == true )
+        StopSoundOnCustomState();
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
 #ifdef DELETE_EFFECTSET_ON_CUSTOM_STATE
@@ -20486,12 +20608,25 @@ void CX2GUNPC::CommonFrameMove_TimedEvent()
 		    {
 			    if( rand()%100 < iRate )
 			    {
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+				    /// June CommonFrameMove_TimedEvent 327970d0 @327986b5-32798783 ( C9h-4b ): PlaySound( name, 3D, LOOP ), the delete-condition attach 3227a740 ( the NPC passes no
+				    /// skill id: case 5 is user-only ), March's SetMax3DDistance, then the push into the played-sound list ( +0x8f74 ) below
+				    CKTDXDeviceSound* pSound = PlaySound( soundPlayData.m_SoundPlayName.c_str(), soundPlayData.m_b3DSound, soundPlayData.m_bLoop );
+				    AttachSoundDeleteCondition( pSound, soundPlayData.m_vecDeleteCondition, 0 );
+#else
 				    CKTDXDeviceSound* pSound = PlaySound( soundPlayData.m_SoundPlayName.c_str(), soundPlayData.m_b3DSound );
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
 				    if( NULL != pSound &&
 					    -1 != soundPlayData.m_fMaxSoundDistance )
 				    {
 					    pSound->SetMax3DDistance( soundPlayData.m_fMaxSoundDistance );
 				    }
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+				    m_vecJunePlayedSound.push_back( pSound );	/// June @32798771: pushed even when NULL
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG
+				    JuneNpcSoundLog( L"play", soundPlayData.m_SoundPlayName.c_str(), static_cast<int>( soundPlayData.m_vecDeleteCondition.size() ), static_cast<int>( GetUnitUID() ) );
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
 			    }
 		    }
 	    }
@@ -23899,9 +24034,18 @@ void CX2GUNPC::CommonStateEnd()
 	}
 #endif // SERV_ELESIS_SECOND_CLASS_CHANGE // 김종훈, 엘리시스 1-2 그랜드 마스터, 2-2 블레이징 하트
 
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+	/// June NPC CommonStateEnd 3277ee10 @3277f850 ( C9h-4b ): 32276ca0 between 3228a200 and 3228a120 ( = DeleteEffectSetOnStateEnd ), as the user's
+	StopSoundOnStateEnd();
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
 	DeleteEffectSetOnStateEnd();
 
 	DoCustomFunctionByBuffInCommonStateEnd();
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+	/// June NPC CommonStateEnd 3277ee10 @3277f9cb-3277fa0e ( C9h-4b ): the played-sound list ( +0x8f74 ) is stopped only when the ending state has
+	/// STOP_SOUND_AT_STATE_END ( June bit 0x4e ), and cleared whatever the flag says. June runs this after the staging block and before FinishAndClearAllBuff.
+	JuneStopPlayedSounds( NOWSTATE_FLAG( STOP_SOUND_AT_STATE_END ), L"state_end" );
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
 	/// June CX2GUNPC::CommonStateEnd 3277ee10 @3277fb2e-@3277fbd2: clear-all(false) when the ending state has
 	/// DYING_END (June bit 23) or ESCAPE_END (bit 24), or is one of the four dying states. June's other branch, taken

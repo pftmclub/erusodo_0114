@@ -1115,6 +1115,10 @@ void CX2SquareUnit::ProcessRidingOn( IN bool bVal_, IN const KRidingPetInfo& _In
 			SetRidingOn( bVal_ );
 
 			CX2RidingPetManager::GetInstance()->RemoveRidingPet( GetUID() );
+#ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND
+			/// June 323f70a0 @323f7219 ( C9h-4b ): 323f1730 right after RemoveRidingPet ( 321f6190 ): stop and clear the DCS_STATE_END sounds
+			JuneStopSoundOnStateEnd();
+#endif SERV_IRUHADEV_JUNE_SQUARE_SOUND
 		}
 				
 		if ( IsMyUnit() && NULL != g_pData->GetUIManager() )
@@ -1136,6 +1140,92 @@ void    CX2SquareUnit::NotifyDGManagerChanged( CKTDGManager& refInManager_ )
 //}} robobeg : 2008-10-17
 
 
+#ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND
+#ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
+static void JuneSquareSoundLog( const WCHAR* pwszEvent_, const WCHAR* pwszDetail_, int iCount_, int iUnitUID_ )
+{
+	static int s_iLogged = 0;
+	if( s_iLogged > 200 )
+		return;
+	++s_iLogged;
+
+	WCHAR wszJuneFx[256] = {0};
+	StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX SQUARE_SOUND %s %s n=%d unit=%d", pwszEvent_, pwszDetail_, iCount_, iUnitUID_ );
+	ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+}
+#endif SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
+
+/// June CX2SquareUnit sound player 323f17b0 ( C9h-4b; only caller OnFrameMove 32400620 @32401f75 ), replacing March's loop. Due test = the square's own skin anim
+/// ( +0x51c ); while riding ( +0x3d6 ) and the riding pet ( manager lookup by the unit uid ) has a skin anim, that anim's clock instead. The roll and the my-unit gate are
+/// March's. The device PlaySound is June's 31ce0e10( name, loop, 3D, 1 ): the record's LOOP and ENABLE_3D_SOUND replace March's hard-coded ( false, false ), and its
+/// fourth argument ( 1, acts only on a freshly opened device ) is not ported ( KTDXLIB's signature is unchanged ). A handle goes through 323f1770 ( keeps DCS_STATE_END
+/// only ). Records are not erased.
+void CX2SquareUnit::JunePlaySquareSoundRecords()
+{
+	BOOST_TEST_FOREACH( const CX2GameUnit::SoundPlayData&, soundData, m_vecSoundPlayData )
+	{
+		float fTime = soundData.m_SoundPlayTime;
+		int iRate	= soundData.m_SoundPlayRate;
+
+		bool bDue = false;
+		if( NULL != m_pXSkinAnim )
+			bDue = m_pXSkinAnim->EventTimerOneshot( fTime );
+
+		if( true == GetRidingOn() && NULL != CX2RidingPetManager::GetInstance() )
+		{
+			CX2RidingPetPtr pRidingPetPtr = CX2RidingPetManager::GetInstance()->GetRidingPetPtr( m_UnitUID );
+			if( NULL != pRidingPetPtr && NULL != pRidingPetPtr->GetXSkinAnimPtr() )
+				bDue = pRidingPetPtr->GetXSkinAnimPtr()->EventTimerOneshot( fTime );
+		}
+
+		if( false == bDue )
+			continue;
+
+		if( rand()%100 < iRate )
+		{
+			if( soundData.m_bOnlyIfMyUnit == false || m_bMyUnit == true )
+			{
+				CKTDXDeviceSound* pSound = g_pKTDXApp->GetDeviceManager()->PlaySound( soundData.m_SoundPlayName.c_str(), soundData.m_bLoop, soundData.m_b3DSound );
+				if( NULL != pSound )
+				{
+					int iAttached = 0;
+					for( vector<int>::const_iterator it = soundData.m_vecDeleteCondition.begin(); it != soundData.m_vecDeleteCondition.end(); ++it )
+					{
+						if( CX2GameUnit::DCS_STATE_END == *it )
+						{
+							m_vecSoundToDeleteOnStateEnd.push_back( pSound );
+							++iAttached;
+						}
+					}
+#ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
+					JuneSquareSoundLog( L"play", soundData.m_SoundPlayName.c_str(), iAttached, static_cast<int>( GetUID() ) );
+#endif SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
+				}
+			}
+		}
+	}
+}
+
+/// June 323f1730: Stop on every non-null handle of the DCS_STATE_END list ( 31d416c0 ), then clear it ( 31f8b7e0( 0 ) ). June calls it from the riding-off path
+/// 323f70a0 @323f7219, after RemoveRidingPet; the riding pet's StateChange village block ( C9h-4e ) is its other caller.
+void CX2SquareUnit::JuneStopSoundOnStateEnd()
+{
+	int iStopped = 0;
+	for( size_t i = 0; i < m_vecSoundToDeleteOnStateEnd.size(); ++i )
+	{
+		CKTDXDeviceSound* pSound = m_vecSoundToDeleteOnStateEnd[i];
+		if( NULL != pSound )
+		{
+			pSound->Stop();
+			++iStopped;
+		}
+	}
+#ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
+	JuneSquareSoundLog( L"stop", L"state_end", iStopped, static_cast<int>( GetUID() ) );
+#endif SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
+	m_vecSoundToDeleteOnStateEnd.resize( 0 );
+}
+#endif SERV_IRUHADEV_JUNE_SQUARE_SOUND
 HRESULT	CX2SquareUnit::OnFrameMove( double fTime, float fElapsedTime )
 {
 	typedef std::map< float, bool > EventTimeStampMap;
@@ -1635,6 +1725,10 @@ HRESULT	CX2SquareUnit::OnFrameMove( double fTime, float fElapsedTime )
 	}
 #endif HANABI_VILLAGE
 
+#ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND
+	/// June OnFrameMove 32400620 @32401f75 ( C9h-4b ): 323f17b0 replaces March's sound loop below ( same slot: after the HANABI block, before the m_fCanNotInputTime decrement )
+	JunePlaySquareSoundRecords();
+#else
 	BOOST_TEST_FOREACH( const CX2GameUnit::SoundPlayData&, soundData, m_vecSoundPlayData )
 	{
 		float fTime = soundData.m_SoundPlayTime;
@@ -1652,6 +1746,7 @@ HRESULT	CX2SquareUnit::OnFrameMove( double fTime, float fElapsedTime )
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_SQUARE_SOUND
 #ifdef MODIFY_LINEMAP_JUMPUP_IN_VILLAGE
 	if( m_fCanNotInputTime > 0.f )
 		m_fCanNotInputTime -= fElapsedTime;
@@ -2428,7 +2523,11 @@ void CX2SquareUnit::StateStart()
 
 		m_vecSoundPlayData.resize(0);
 		int iSoundDataIndex = 0;
+#ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND
+		while( true == CX2GameUnit::JuneBeginSoundPlayTable( m_LuaManager, "SOUND_PLAY", iSoundDataIndex ) )	/// June StateStart 323fad80 @323fdfbb / @323fe0ba ( C9h-4b ): the nation reader, 4 fields as March
+#else
 		while( true == m_LuaManager.BeginTable( "SOUND_PLAY", iSoundDataIndex ) )
+#endif SERV_IRUHADEV_JUNE_SQUARE_SOUND
 		{
 			CX2GameUnit::SoundPlayData sndPlayData;
 

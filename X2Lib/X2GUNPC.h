@@ -1061,6 +1061,10 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
 				FLAG_FURY_MODE,		/// June effect completion C4c: June bit 0x50 (32784c00 @3278a145); appended, June's enum does not line up with March's
 #endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+				FLAG_STOP_SOUND_AT_STATE_END,		/// June effect completion C9h-4b: June bit 0x4e (32784c00 @3278dacf, key STOP_SOUND_AT_STATE_END); appended, June's enum does not line up with March's
+				FLAG_CUSTOM_STATE_DELETE_SOUND,		/// June bit 0x13 (@327894a7, key CUSTOM_STATE_DELETE_SOUND), consumed by CommonStateStart @327adaa7
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
 				FLAG_MAX
             };
             std::bitset<FLAG_MAX>       m_bitsetFlags;
@@ -4525,6 +4529,12 @@ class CX2GUNPC : public CX2GameUnit
 
 		std::vector<SoundPlayData>						m_vecSoundPlayLoop;		/// NPC 그중에서 벨더 비던의 글리터 등을 만드는 POT 에서만 현재 사용 중
 		std::vector<CKTDXDeviceSound*>					m_vecLoopSound;		/// 각 스테이트에 있는 LOOP_SOUND를 NPC가 죽거나, STOP_LOOP_SOUND가 true 인 스테이트를 만났을 때 종료됨
+#ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
+		/// June CX2GUNPC +0x8f74 ( C9h-4b ): every sound the TimedEvent player starts, pushed even when PlaySound returned NULL. Stopped and cleared at ReInit and in
+		/// the dtor; at CommonStateEnd it is cleared every time and stopped only when the ending state has STOP_SOUND_AT_STATE_END. June 3275cf80 ( stop + clear ) has no caller.
+		std::vector<CKTDXDeviceSound*>					m_vecJunePlayedSound;
+		void											JuneStopPlayedSounds( bool bStop_, const WCHAR* pwszWhy_ );
+#endif SERV_IRUHADEV_JUNE_NPC_SOUND
 
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 

@@ -2919,6 +2919,47 @@ March keeps the old values in all three cases, which is the behaviour June's sna
 
 **Open for the user**: /cost.
 
+### C9h-4b - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_NPC_SOUND` + `SERV_IRUHADEV_JUNE_SQUARE_SOUND`, each + `_DEBUG` on for the play-test; logs `JUNE_FX NPC_SOUND`, `JUNE_FX SQUARE_SOUND`; play-test pending)
+
+Files: `X2GUNPC.h/.cpp`, `X2SquareUnit.h/.cpp`, `X2EventScene.cpp`, `Always.h`. 12 funcmap rows `Effect C9h-4b`, JUNE_BUGS 119-121 (+ row 116's "Reached?" updated).
+
+**What landed**
+- **NPC** (`_NPC_SOUND`, needs C9h-4a's `_UNIT_SOUND`):
+  - the nation reader in LoadStateData (default set and the SOUND_SET tables; SOUND_PLAY_LOOP keeps the plain one);
+  - `SOUND_PLAY_ALL_OPTION`, appended to set 0 after the SOUND_SET tables;
+  - two June state flags, appended before `FLAG_MAX` (`STOP_SOUND_AT_STATE_END` = June bit 0x4e, `CUSTOM_STATE_DELETE_SOUND` = bit 0x13), their key names decoded from the XOR buffers;
+  - the TimedEvent player: `PlaySound( name, 3D, LOOP )`, the attach (skill id 0), `SetMax3DDistance`, then the push into a new member list;
+  - the stop calls: DamageReact (June's NPC guard is March's), CommonStateEnd, CommonStateStart on `CUSTOM_STATE_DELETE_SOUND`.
+- **The `+0x8f74` question, answered:** it is **not** March's `m_vecLoopSound`. The SOUND_PLAY_LOOP loop under the main loop pushes into `+0x8f5c` (= March's list); `+0x8f74` is a June-only played-sound list, pushed by every played record (NULL handles too), stopped + cleared in ReInit `3277c2d0` and the dtor `3279fb60`, and in CommonStateEnd `3277ee10` stopped only under `STOP_SOUND_AT_STATE_END` but cleared at every state end. `3275cf80` (stop + clear) has no caller. `offsetprobe` reports March's layout only, so the call was made from the loop structure and a dispsweep of every `+0x8f74` access. A dying NPC's DCS_DIE sound therefore lives until the object's dtor, not forever (JUNE_BUGS 116 updated). Ported as `m_vecJunePlayedSound` + `JuneStopPlayedSounds`.
+- **Event scene** (`_NPC_SOUND`): the nation reader on its SOUND_PLAY loop, the only change.
+- **Square unit** (`_SQUARE_SOUND`): the reader; June's player `323f17b0` as `JunePlaySquareSoundRecords` (own anim, or the riding pet's while riding and the pet has an anim; record LOOP and ENABLE_3D_SOUND passed through; a handle whose record lists `DCS_STATE_END` goes into a new list); the stopper `JuneStopSoundOnStateEnd` after `RemoveRidingPet` in ProcessRidingOn's off branch. The dtor needs nothing (the vector frees itself, as June's dtor only frees).
+
+**Corrections to C9h-4:** the default SOUND_PLAY records go to StateData `+0x204`, not `+0x2a4` (that is `m_vecSetSoundPlayLoopValue`); the two "read sites" per reader are one rotated loop; the NPC reads `CUSTOM_STATE_DELETE_SOUND` (once, into a state flag).
+
+**Not ported:** June's device `PlaySound` 4th argument (1; acts only on a freshly opened device, `31cdd4e0` registers a callback), KTDXLIB's signature is unchanged. The riding pet's call of the square stopper (C9h-4e). The `CX2Pet` `SOUND_PLAY_ALL_OPTION` reader (Stage 17).
+
+**Behaviour on March data (the play-test is a regression pass, not "as before")**
+- **NPC: not inert.** Every March monster sound is pushed and `Stop()`ped at the monster's dtor / ReInit (JUNE_BUGS 119). Sound devices are shared per file name, so a removed monster can cut the same sound on another unit. That is June's behaviour; expect it in dungeons with many same-type mobs.
+- Attach lists stay `DCS_NONE`; the per-condition stoppers find nothing. The two new state flags are never set (no March script has the keys).
+- Square: no March `SQUARE_*.lua` carries `SOUND_PLAY` (5 files checked, bytecode scan), so the player has no records; only the empty stopper runs at every dismount. The 3D default would change a square sound from non-3D to 3D, once a script has one.
+
+**Hygiene** (`flagcheck JUNE_NPC_SOUND --with ..._DEBUG --worktree --files ...`, same for `JUNE_SQUARE_SOUND`):
+```
+NPC:    files: 3 PASS, 0 FAIL, 0 ERROR; in this flag's files: 0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 4 #else/#endif without the token (the #else lines), 0 encoding change(s); RESULT: PASS
+SQUARE: files: 2 PASS, 0 FAIL, 0 ERROR; in this flag's files: 0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 2 #else/#endif without the token, 0 encoding change(s); RESULT: PASS
+```
+(The OTHER rows are the other flag's files and a peer's uncommitted `Always.h` blocks.)
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,374,592 B, dated 2026-10-08 11:35:50, md5 a88b65111c050b4ff189cb037a7db6bf, equal to X2/US_SERVICE/x2.exe (2026-10-08 11:35:46); built at mods/june-buff-port bcb3b6a + 8 uncommitted code file(s).` Another session's `build.py --deploy` ran first and linked my edits in (my run reported "nothing needed relinking"); the exe also carries that session's uncommitted C9h-4c work. The strings `JUNE_FX NPC_SOUND`, `JUNE_FX SQUARE_SOUND`, `STOP_SOUND_AT_STATE_END` and `CUSTOM_STATE_DELETE_SOUND` are in it.
+
+**Play-test** (character `reyaa`, user 12, level 80, three riding pets; no console commands needed):
+1. **Dungeon.** Enter any dungeon, kill five or more monsters, change stage once. Sounds as before, except a sound may cut when a corpse disappears. No crash on stage change or on leaving.
+2. **Village.** Summon a riding pet, ride, dismount. Village sounds as before.
+3. Any dungeon intro scene plays as before.
+Then say "check logs"; I read `JUNE_FX NPC_SOUND` (play / stop / clear lines, capped at 400) and `JUNE_FX SQUARE_SOUND` (one `stop state_end n=0` per dismount). Then turn both `_DEBUG` flags off.
+
+**Open for the user:** the play-test, `/cost`. Review: `kickoffs/june-effect/C9h-4b-review.md` (Opus 5.5 high).
+
 ### C9h-5 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the village-NPC effect set is one key in June's `CX2TFieldNpc` rewrite -> Elysion E1 step 6, backlog Stage 18
 
 Read-only in Ghidra. There are 23 funcmap rows tagged `Effect C9h-5`. The 44-block `OnFrameMove` diff is in `june2017_re/c9h5_fieldnpc_onframemove_diff.md`. No C9h-5b: this is not an effect-engine slice.
