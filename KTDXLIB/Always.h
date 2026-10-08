@@ -5821,5 +5821,5 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              end, ReInit, dtor). Inert on March's scripts (none carries the keys).
 //              Log: "JUNE_FX UNIT_SOUND" in ErrorLog.txt (_DEBUG only).
 #define SERV_IRUHADEV_JUNE_UNIT_SOUND
-#define SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
+//#define SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
 //////////////////////////////////////////////////////////////////////////
