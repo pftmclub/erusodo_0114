@@ -24,8 +24,9 @@ The rebuild plan's Starting context predates `tools/`. Ghidra is read-only (`ghi
 ## Task
 
 Every item below is a funcmap row tagged `(C3b)`. Cite June addresses in every comment, keep March's code in `#else`, and name new
-members after the key in March's style. June's StateChange constants are June enum values (June USI = March USI + 1 below `USI_END`):
-always map them **by name** (`june_src_fixed/data036_kom/Enum.src.lua`).
+members after the key in March's style. June's StateChange constants are June enum values. They differ from March's
+by a varying offset (`USI_DAMAGE_SMALL_FRONT` June 0x1a / March 0x19, `USI_RIDING_DAMAGE_FRONT` June 0x55 / March 0x50), so never
+compute one: map each **by name** (`june_src_fixed/data036_kom/Enum.src.lua`).
 
 1. **Super-armour condition** (rows `32057b80 @320588e5-32058d38 (C3b)`, `31fd86b0 (C3b)`).
    - **Parse.** In `CX2GUUser::CommonStateStart` (`X2GUUser.cpp:14857`), keep June's order: `SUPER_ARMOR`, `SUPER_ARMOR_FRONT`, clear
@@ -43,9 +44,10 @@ always map them **by name** (`june_src_fixed/data036_kom/Enum.src.lua`).
      breaks in UP / FLY / DRAG_UP.
    - **FLY's tutorial block.** Buff 14c's block at `X2GUUser.cpp:12421-12430` (`JUNE_TUTORIAL_MODE`) gains June's `&& !FORCE` term, and
      its comment ("+0x3ec ... reads as false") is corrected. Both flags must compile on and off (`flagcheck --with`).
-   - **DOWN.** June has no `SetNowForceDown( 0 )` (March `:12359`, `FIX_FORCE_DOWN_INITIALIZE_BUG` ON). First prove that no store to the
-     force-down member happens in `31feb0fa-31feb28a` or through the gage (`+0xc04`). Then follow June: drop it under the flag, and add a
-     JUNE_BUGS row (June removed a March fix). **This is the one live change.**
+   - **DOWN.** June has no `SetNowForceDown( 0 )` (March `:12359`, `FIX_FORCE_DOWN_INITIALIZE_BUG` ON). First identify June's force-down
+     member and **all its writers** (`dispsweep.py`; March's `SetNowForceDown` body names the member). If June moved the reset elsewhere
+     (state start, landing), port it there. Only if it is gone, follow June: drop it under the flag and add a JUNE_BUGS row (June
+     removed a March fix). **This is the one live change.**
    - **Left out.** The pre-switch `+0x9175` block and the RT_BOUNDING case (C3d) are not ported.
 3. **ADD_MEMBER_COUNT reader** (rows `32034e50 @3203681f-32036c81 (C3b)`, `32294e30 (C3b)`, `322a8240 (C3b)`).
    - **Where.** `CX2GUUser::Process_ExtraDamage`, case `EDT_TRANSIT_DEBUFF` (`X2GUUser.cpp:11634`). After March's

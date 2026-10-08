@@ -27,9 +27,9 @@ D10's row in the decisions table (`C0 - Decisions and census plumbing`) holds th
 - **The members.** `m_vBoundingBackSpeed`, plus the last-attacker UID / unit type that DamageReact writes `@32046f10` / `@32046f21`.
 - **The handlers.** The five `CX2GUUser` base handlers, as virtuals. The Lu/Ciel hook `32b38cb0` is class code (checklist 7l).
 - **The three `USI_BOUNDING_*` states.** In the form D10 chose.
-- **Pre-check.** What June's StateChange does for a class that never registered the states (Elsword, Aisha, Rena, Chung, Ara and Elesis
-  do not). The registration helper `31fd89b0` bounds-checks with a log; follow June and record a JUNE_BUGS row if June leaves the unit
-  in an empty state.
+- **Registration.** All 12 June classes register the states in their own InitState (funcmap row `USI_BOUNDING_DOWN / _LANDCRASH / _UP
+  (C3b)` lists each function), with `*_DAMAGE_BOUNDING_*` tables in each class script. D10 says whether this phase adds them to
+  March's nine classes and their data036 scripts (then also `Enum.lua`'s `USER_STATE_ID`, repacked) or leaves them to the ports.
 - **x87 polarities.** Settle `31fd0291` (`test ah,0x41`) and `31fd0354` with `june2017_re/x87test.py`.
 
 **NPC half.** These are the rows `32769060 @32769da7-32769e75`, `3275d900` and `3275a070`.
