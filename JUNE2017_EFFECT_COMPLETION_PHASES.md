@@ -3564,6 +3564,34 @@ Files: `X2RidingPet.h/.cpp`, `X2GUUser.h`, `X2GameUnit.h/.cpp`, `X2SquareUnit.h/
 
 **C9h-4e play-test (2026-10-08): check 1 passed (6 pets, `all_option=2` each); check 2 passed, plus one bug: a mount swapped without dismounting, then a character change, leaves the pet invisible until the owner moves.** Logs: those pets have a `RIDINGPET_FX loader` line and no `village state=5` line (no StateChange at creation); my village block did not run then, so it is not 4e's code. Fix `SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE` (+ `_DEBUG` on): a loaded village pet with no StateChange takes its wait state from OnFrameMove (log `JUNE_FX RIDINGPET_ENTRY_STATE`). Not proven to be the cause until retested. `DEPLOY OK: X2_offline.exe is 19,406,848 B, dated 2026-10-08 20:26:43, md5 0d6a90cdb76816011c9abd48bf4e77b9`.
 
+### C9h-4f - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_USEFUL_VALUE` + `_DEBUG` (on for the play-test), log `JUNE_FX USEFUL_VALUE`; play-test pending)
+
+Files: `X2GUUser.h/.cpp`, `Always.h`. Funcmap rows `(C9h-4f)` (8), reader census `june2017_re/c9h4f_useful_value_readers.tsv`, checklist row in 7h.
+
+**June's block, decoded** (`320506f0 @32056a15-32056b0e`, `32057b80 @32060cd9-32060dd5`, identical shape)
+- 15 floats are zeroed (5 rows x 3; the kickoff said 14): Future `+0x8ef4..+0x8f2c`, Now `+0x8eb8..+0x8ef0`.
+- `BeginTable( 33478e24 = "USEFUL_VALUE", i, true )` for i = 0, 1, ..: values 1 / 2 / 3 into row i (a miss writes 0.0), `EndTable`. The first missing table ends the loop. A table that opens at i == 5 is closed unread (`jge`), so only five rows exist. This is March's own `EVENT_PROCESS_TIME` loop idiom (`BeginTable( name, index )` appends `%d`).
+- **Engine readers are all June-only states, none reachable in March:** `31fc8620` = EventProcess of each class's `*_WAIT_STATE_CHANGE` (state time > Future[0][0] -> `StateChange( 0xd )`), `31fc9a20` = `USI_EVENT_SNIPER_CONTROL_FIRE` 0x70, `3200d450` and `3200d1d0` (Now) = `USI_EVENT_SNIPER_*` handlers registered by `3202b110`, `31fd0260` = bounding landcrash (C3d-3). **`3200d3f0` in the kickoff is the sweep's wrong start** (no int3 padding): it is the previous function and does not read the set.
+- 109 class-code readers (37 Future, 72 Now) go to the character ports: checklist 7h row (getters named there).
+
+**What landed**
+- `m_afJuneUsefulValueFuture[5][3]` / `m_afJuneUsefulValueNow[5][3]` (ctor-zeroed: ours, June's ctor leaves them), getters `JuneGetUsefulValueFuture / Now( row, col )`.
+- `JuneParseUsefulValue( table, stateId, bFuture )`, called right after the C9h-4c clamp in `CommonStateStartFuture` (Future set) and `CommonStateStart` (Now set).
+- Not ported, on purpose: the handlers above (their states do not exist in March; porting a function nothing registers is dead code). They are written up in funcmap and go to **C9h-4g** (new, kickoff written), together with two June-only keys found in the same parses that no row owned: `USEFUL_STRING` (`+0x8f40` / `+0x8f30` vectors, stride 0x1c) and `CUSTOM_OFFSET_NOT_SELECT_UNIT` (`+0x8f54 / +0x8f58`).
+- **C3d-3's dependency on this phase is met** (the Now set and `JuneGetUsefulValueNow` exist).
+- No JUNE_BUGS row: nothing June does wrong here.
+
+**Hygiene** (`flagcheck JUNE_USEFUL_VALUE --with JUNE_USEFUL_VALUE_DEBUG --worktree --files KTDXLIB/Always.h X2Lib/X2GUUser.h X2Lib/X2GUUser.cpp`, before commit):
+```
+files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR
+in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)
+RESULT: PASS
+```
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,409,920 B, dated 2026-10-08 21:14:23, md5 cba1f25c47209563fa926321ba914ac2, equal to X2/US_SERVICE/x2.exe (2026-10-08 21:14:18); built at mods/june-buff-port 920eafe + 7 uncommitted code file(s).` That build also carried a peer's uncommitted C9h-8 work (`KTDXDeviceSound`, `X2DamageEffect`); the peer's own deploy 20 s later (21:14:44, md5 `561222164aeae847...`, same size) replaced it, and that exe contains this phase's code too (strings re-checked in the deployed file). Strings in the exe: `USEFUL_VALUE` and wide `JUNE_FX USEFUL_VALUE` once each.
+
+**How to see it:** March scripts carry no `USEFUL_VALUE`, so the parse only shows when the play-test injects one through the dev console: set `ESSI_WAIT.USEFUL_VALUE0` / `1` on the Elsword wait table, then enter the wait state. Expect `JUNE_FX USEFUL_VALUE future state=.. rows=2 row0=1.5,2.5,3.5 unit=25` and the same with `now`. Any other state prints nothing. **Not proven by March data:** only the console line proves the parse.
+**Next:** review `kickoffs/june-effect/C9h-4f-review.md` (Opus 5.5 high), then C9h-4g.
+
 ### C9h-5 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the village-NPC effect set is one key in June's `CX2TFieldNpc` rewrite -> Elysion E1 step 6, backlog Stage 18
 
 Read-only in Ghidra. There are 23 funcmap rows tagged `Effect C9h-5`. The 44-block `OnFrameMove` diff is in `june2017_re/c9h5_fieldnpc_onframemove_diff.md`. No C9h-5b: this is not an effect-engine slice.
