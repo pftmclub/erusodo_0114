@@ -339,7 +339,7 @@ that an unowned June system gets its own stage. What it covers:
 **Already ported:** the CEPE slice (type 81), by june-effect C9f-2: the binding, the dispatcher shell, parser `32814da0`, the two maps and
 the three play sites. This stage adds parsers and consumers to that shell; it does not re-bind.
 
-**Depends on:** june-effect C9f-2, Stage 2 (render types) for the render rules, and Stage 13 (June `item.kim`) for the item ids its lists name. It can run alongside Stages 3-8.
+**Depends on:** june-effect C9f-2, Stage 2 (render types) for the render rules, and Stage 13 (June `item.kim`, **done 2026-10-08**: the item ids its lists name now resolve) for the item ids its lists name. It can run alongside Stages 3-8.
 
 ### Stage 12: character customize system (june-effect C9g, 2026-10-07)
 
@@ -371,7 +371,7 @@ rule that an unowned June system gets its own stage. What it covers:
   it; this stage reads it (june-item-kim K0).
 
 **Depends on:** june-effect C9g-2 (the PlayByMotionType shell and `AnimationNameTable.lua`), Stage 10 (the sit emotions 0x19-0x3b and
-the EmotionData path the sit sets ride on), Stage 2 (UI framework) for the dialogs, and Stage 13 (the June `item.kim`). It can run
+the EmotionData path the sit sets ride on), Stage 2 (UI framework) for the dialogs, and Stage 13 (the June `item.kim`, **done 2026-10-08**: its 1,066 customize items and 1,207 type-14 items now resolve). It can run
 alongside Stages 3-8.
 
 ### Stage 13: June item.kim adoption (user, 2026-10-07)

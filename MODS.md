@@ -3166,8 +3166,8 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
   dispatcher and only the CEPE parser; the rest of the system is backlog Stage 11), loaded from `RenderDivisionItemTemplet.lua`
   in `ResetItemManager`, and the per-equip effect set it drives: an equip whose displayed item id has a record plays its set on
   the UI effect set from GUUser `CommonFrameMove`, `CX2SquareUnit::OnFrameMove` and the unit viewer (group 1), with June's
-  WAIT / NOT_MOVE / ALWAYS conditions, start delay and random switch set; `RemoveUnit` stops it. **Inert**: none of June's 5
-  item ids is in March's `item.kim`. Data (data036): `Enum.lua` + June's `DIVISION_ITEM_TEMPLET_TYPE`, `READ_TYPE`,
+  WAIT / NOT_MOVE / ALWAYS conditions, start delay and random switch set; `RemoveUnit` stops it. **Reachable** (was inert
+  until june-item-kim K2, 2026-10-08, put June's `item.kim` live: all 5 item ids are in it). Data (data036): `Enum.lua` + June's `DIVISION_ITEM_TEMPLET_TYPE`, `READ_TYPE`,
   `CONDITION_EQUIP_PLAY_EFFECT_SET` (appended verbatim, as Phase 11 did); `RenderDivisionItemTemplet.lua` (June verbatim,
   manifest entry added); `UIEffectSet.lua` + 6 sets; `UIMajorXMeshPlayer.txt` + 2 mesh templets. One `JUNE_FX EQUIP_FX_LOAD`
   line in ErrorLog.txt. JUNE_BUGS 100-102. **Revert:** undefine it and rebuild all projects. The data can stay: with the flag off

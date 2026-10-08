@@ -617,3 +617,15 @@ X2/US_SERVICE/x2.exe (2026-10-08 16:51:28); built at mods/june-buff-port 4132fd4
 - **The cash shop editor** (`CASH_SHOP_TOOL_PLAN.md`). It does not parse the kim: it runs the luac `Item.lua` from an older install
   in an embedded Lua 5.1. So the stride change cannot break it. It will not list June's new items, though; that is a follow-up for
   that plan.
+
+### Phase K4 - Done
+
+2026-10-08, play-test PASSED (user: all checks), logs read (exe `131c16eb`, run 16:56-17:02, after deploy). Plan closed.
+- ErrorLog: `[JUNE_KIM] loaded items=111428 sets=6740 stride=228 ... workingset=654 MB` (equal to K2's, so K3 added no memory), both census
+  lines identical to K2's; `ErrorEnum(72)` 91 lines = K1's baseline, 0 name `item.kim` / `Item.lua` / `SetItem`; no layout mismatch.
+- offline_server.log: 0 `ITEM WARNING`, 0 EXCEPTION; 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (heartbeat, unrelated).
+  `cash shop products: 2378 of 2378 loaded, 0 dropped` (March's kim dropped 294 more); `cubes: 2870 loaded, 1553 refused, 91965 group
+  case(s)`; `drop table: 80 / 2523 / 19323 / 1259 loaded, 0 case(s) name an item with no templet`. No `IT_CUSTOM` line: none reached.
+- Closed as **reachable**, no inert verdicts: STATUS C9f-2 row, JUNE_BUGS 101 and 102 (all 5 ids 289162, 289165, 30572, 291516, 291518
+  are in June's kim; checked with `kim.py dump`), MODS.md C9f-2 entry, backlog Stages 11 and 12. `JUNE2017_EFFECT_COMPLETION_PHASES.md`
+  "C9f-2 - Done" still says "inert" in its prose: left untouched because another session had it uncommitted; STATUS carries the update.
