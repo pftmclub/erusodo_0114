@@ -580,7 +580,7 @@ field could still cut a name before it reaches the device.
 - **Staged** (`stage-june june2017_re/x2_repack_list.tsv` + the 5 long names, `--long-names`): `STAGE-JUNE OK: 19 kom(s), 286 staged
   (4 new, 281 replaced, 1 identical), 0 refused`. The 1 identical is the Hamel 61-char mesh already in data110, so data110 is not
   repacked. The 4 new: 3 Moonlight Rhapsody `.tga` (data048) and the Elysion `.ogg` (new data197). Backups of replaced staged files:
-  `kom_backup_stage_june61008_092758`.
+  `kom_backup_stage_june\20261008_092758`.
 - **Packed** (`kom.py pack`, 18 koms: data002 013 014 016 017 019 023 043 048 063 131 142 143 148 185 197 211 215), every
   `PACK OK`, every entry algo 0. Entry diff vs live: only staged names change (data002 17, 013 7, 014 182, 016 11, 017 1, 019 1, 023 20,
   043 3, 048 +3, 063 3, 131 7, 142 1, 143 23, 148 1, 185 1, 211 2, 215 1), with two explained exceptions:
