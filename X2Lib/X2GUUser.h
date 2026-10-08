@@ -2281,6 +2281,10 @@ public:
         vector<SoundPlayData>& AccessSoundPlayData() { return m_vecSoundPlayData; }
 
 		void SetStateSuperArmor( IN bool bVal_ ) { m_bStateSuperArmor = bVal_; }
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+		/// June 32d3cff0 calls 31fc8810 (vslot 0x7dc = CommonStateEnd) on the user; CommonStateEnd is protected here
+		void CommonStateEndByRidingPet() { CommonStateEnd(); }
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 		
 		void SetSkillCancelAfter( IN float fVal_ ) { m_fSkillCancelAfter = fVal_; }
 		void SetBWalkCancelAfter( IN float fVal_ ) { m_fBWalkCancelAfter = fVal_; }

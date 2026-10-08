@@ -5746,3 +5746,22 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_PET_PREVIEW needs SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 #endif SERV_IRUHADEV_JUNE_PET_PREVIEW
 //////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June effect completion C9h-3b: the riding pet's StateChange /
+//              StateChangeFuture rewrite for the riding-pet-local keys (June
+//              32d2f560 / 32d2c8b0): ANIM_START_TIME, ANIM_NAME_AT_PLAY_END
+//              (player 32d286c0), ONGROUND_CHANGE_STATE (check 32d3cff0, called
+//              from CX2GUUser::DoFrameMoveFuture; flag +0x620 cleared at the top
+//              of CX2GUUser::StateChange), the manager's ten anim-speed rates
+//              (June ctor 321f6ec0, all 1.0), TARGET_RANGE / LIMIT_Z_DEPTH /
+//              DEGREE_RANGE / VALUE_POS stored only, the first-change flag
+//              (+0x48c, gates OnFrameMove's m_bInitPos), the stored transformer
+//              keys, SUPER_ARMOR_NOT_RED written only under SUPER_ARMOR.
+//              Log: "JUNE_FX RIDINGPET_STATE" in ErrorLog.txt (_DEBUG only).
+#define SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#define SERV_IRUHADEV_JUNE_RIDINGPET_STATE_DEBUG
+//////////////////////////////////////////////////////////////////////////

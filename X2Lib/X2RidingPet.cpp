@@ -30,6 +30,23 @@ CX2RidingPet::CX2RidingPet(void)
 	m_StateBiMap.clear();
 	m_StateDataMap.clear();
 
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+	/// June ctor 32d35fb0 / reset 32d282f0 (offsets in X2RidingPet.h). StateChange overwrites the stored keys on every state.
+	m_bJuneFirstStateChanged	= false;
+	m_wstrJuneAnimNameAtPlayEnd	= L"";
+	m_fJuneTargetRange			= 0.f;
+	m_fJuneLimitZDepth			= 0.f;
+	m_fJuneDegreeRange			= 0.f;
+	m_fJuneValuePos				= 0.f;
+	m_bJuneApplyAnimMove		= false;
+	m_fJuneOriginalScaleTime	= -1.f;
+	m_fJuneTransformScaleTime	= -1.f;
+	m_iJuneCheckSpaciarBuff		= -1;
+	m_fJuneOnGroundOverlapTime	= 0.f;
+	m_iJuneOnGroundState		= 0;
+	m_bJuneOnGroundChanged		= false;
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+
 	ClearState();
 }
 #pragma endregion 생성자
@@ -100,6 +117,12 @@ CX2RidingPet::~CX2RidingPet(void)
 
 	if ( false == m_bLoaded )
 		return S_OK;
+
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+	/// June 32d2ec80 @32d2f1c6: m_bInitPos is no longer set on every frame (March's line below); it is set on the first frame after the first
+	/// StateChange, and that frame runs GetUserInfo / SetPos a second time after the skin anim's OnFrameMove (June @32d2f19f).
+	bool bJuneFirstInit = false;
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 		
 	#pragma region 위치 및 시간 갱신
 	//if ( false == m_bInitPos )
@@ -110,7 +133,15 @@ CX2RidingPet::~CX2RidingPet(void)
 
 		GetUserInfo( vPos, bIsRight );
 		SetPos( vPos, bIsRight );
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+		if ( false == m_bInitPos && true == m_bJuneFirstStateChanged )
+		{
+			m_bInitPos = true;
+			bJuneFirstInit = true;
+		}
+#else
 		m_bInitPos = true;
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 	}
 
 	m_fElapsedTime = fElapsedTime_;
@@ -134,6 +165,17 @@ CX2RidingPet::~CX2RidingPet(void)
 
 		m_pXSkinAnim->GetMatrix().Move( m_SyncData.m_vPos );
 		m_pXSkinAnim->OnFrameMove( fTime_, fElapsedTime_ );
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+		if ( true == bJuneFirstInit )
+		{
+			D3DXVECTOR3 vJunePos = D3DXVECTOR3( 0.f, 0.f, 0.f );
+			bool bJuneIsRight = true;
+			vJunePos.y += 30.f;
+
+			GetUserInfo( vJunePos, bJuneIsRight );
+			SetPos( vJunePos, bJuneIsRight );
+		}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 	}
 	else
 	{
@@ -146,6 +188,9 @@ CX2RidingPet::~CX2RidingPet(void)
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	}
 	#pragma endregion
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+	PlayAnimAtPlayEnd();	/// June @32d2f3b1
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 	
 	return S_OK;
 }
@@ -804,6 +849,10 @@ void CX2RidingPet::StateChangeFuture( IN const char* stateName_ )
 
 		bTableOpen = m_LuaManager.BeginTableByReference( m_StateData.m_StateID );
 		{
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+			/// June 32d2c8b0 reads APPLY_RIDINGPET_ANIM_MOVE first (+0x5a1, miss 0); its user readers are Stage 17
+			LUA_GET_VALUE( m_LuaManager, "APPLY_RIDINGPET_ANIM_MOVE", m_bJuneApplyAnimMove, false );
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 			wstring animName;
 			LUA_GET_VALUE( m_LuaManager, "ANIM_NAME", animName, L"" );
 
@@ -811,13 +860,22 @@ void CX2RidingPet::StateChangeFuture( IN const char* stateName_ )
 			LUA_GET_VALUE_ENUM ( m_LuaManager, "PLAY_TYPE", ePlayType, CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE, CKTDGXSkinAnim::XAP_ONE_WAIT );
 			bool bTransition = true;
 			LUA_GET_VALUE( m_LuaManager, "TRANSITION", bTransition, true );
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+			float fAnimStartTime = 0.f;
+			LUA_GET_VALUE( m_LuaManager, "ANIM_START_TIME", fAnimStartTime, 0.f );
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 
 			if( m_pXSkinAnimFuture != NULL )
 			{
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+				/// June 32d2c8b0: ChangeAnim( name, transition, start ) 31d33fd0
+				m_pXSkinAnimFuture->ChangeAnim( animName.c_str(), bTransition, fAnimStartTime );
+#else
 				if( bTransition == false )
 					m_pXSkinAnimFuture->ChangeAnim( animName.c_str(), false );
 				else
 					m_pXSkinAnimFuture->ChangeAnim( animName.c_str(), true );
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 
 				m_pXSkinAnimFuture->Play( ePlayType );
 			}
@@ -847,6 +905,10 @@ void CX2RidingPet::StateChangeFuture( IN const char* stateName_ )
 						bool bCanPassUnit = false;
 						LUA_GET_VALUE( m_LuaManager, "CAN_PASS_UNIT",	bCanPassUnit,	false );
 						kFutureFrameData.stateParam.bCanPassUnit = bCanPassUnit;
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+						/// June 32d2c8b0 also reads the CAN_PUSH_UNIT_TIME%d / CAN_PASS_UNIT_TIME%d tables into the user (+0x8b14 / +0x8b24): C9h-4.
+						/// March keeps its plain bool fields where June writes protected values.
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 					}
 				}
 			}
@@ -878,6 +940,9 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 // 	if ( false == IsValidUser() )
 // 		return;
 
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+	m_bJuneFirstStateChanged = true;	/// June 32d2f560 @32d2f5b3: before the name lookup, so a miss sets it too
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 	bool bTableOpen = false;
 	std::string stateName = stateName_;
 	StateBiMap::right_const_iterator rightIter = m_StateBiMap.right.find( stateName );
@@ -891,28 +956,95 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 		
 		bTableOpen = m_LuaManager.BeginTableByReference( m_StateData.m_StateID );
 		{
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+			/// June 32d2f560, in June's order. TRANSFORM and the three keys after it belong to the transformer riding pets (backlog Stage 17):
+			/// parsed here so the parser is June's, the consumers are left out (March has no transformer pet and no second state-id set).
+			bool bJuneTransform = false;
+			LUA_GET_VALUE( m_LuaManager, "TRANSFORM", bJuneTransform, false );	/// true -> June 32d281f0 (toggle +0x5a0): Stage 17, dropped here
+			LUA_GET_VALUE( m_LuaManager, "APPLY_RIDINGPET_ANIM_MOVE", m_bJuneApplyAnimMove, false );
+			LUA_GET_VALUE( m_LuaManager, "ORIGINAL_SCALE_TIME", m_fJuneOriginalScaleTime, -1.f );
+			LUA_GET_VALUE( m_LuaManager, "TRANSFORM_SCALE_TIME", m_fJuneTransformScaleTime, -1.f );
+			LUA_GET_VALUE( m_LuaManager, "CHECK_RIDINGPET_SPACIAR_BUFF", m_iJuneCheckSpaciarBuff, -1 );	/// > -1 -> June 32d2f3d0: Stage 17, not called here
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 			wstring animName;
 			LUA_GET_VALUE( m_LuaManager, "ANIM_NAME", animName, L"" );
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+			/// June 32d2f560: ONGROUND_CHANGE_STATE { OVERLAP_TIME (0), STATE_NAME } -> +0x5b8 / +0x5bc (name -> id 32d3e450 = GetStateID);
+			/// absent -> 0 / 0. June also resets +0x5b0 / +0x5b4 to -1.0 here, but nothing reads them (a dead store), so March has no such members.
+			if ( m_LuaManager.BeginTable( "ONGROUND_CHANGE_STATE" ) == true )
+			{
+				LUA_GET_VALUE( m_LuaManager, "OVERLAP_TIME", m_fJuneOnGroundOverlapTime, 0.f );
+				std::string strJuneOnGroundStateName;
+				LUA_GET_VALUE_UTF8( m_LuaManager, "STATE_NAME", strJuneOnGroundStateName, "" );
+				m_iJuneOnGroundState = GetStateID( strJuneOnGroundStateName );
+				m_LuaManager.EndTable();
+			}
+			else
+			{
+				m_fJuneOnGroundOverlapTime = 0.f;
+				m_iJuneOnGroundState = 0;
+			}
+
+			/// June: ANIM_NAME_AT_PLAY_END (+0x490, ""), played by CX2RidingPet::PlayAnimAtPlayEnd from OnFrameMove
+			LUA_GET_VALUE( m_LuaManager, "ANIM_NAME_AT_PLAY_END", m_wstrJuneAnimNameAtPlayEnd, L"" );
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 
 			CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE ePlayType;
 			LUA_GET_VALUE_ENUM ( m_LuaManager, "PLAY_TYPE", ePlayType, CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE, CKTDGXSkinAnim::XAP_ONE_WAIT );
 			bool bTransition = true;
 			LUA_GET_VALUE( m_LuaManager, "TRANSITION", bTransition, true );
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+			float fAnimStartTime = 0.f;
+			LUA_GET_VALUE( m_LuaManager, "ANIM_START_TIME", fAnimStartTime, 0.f );
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 
 			if( m_pXSkinAnim != NULL )
 			{
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+				/// June 32d2f560: ChangeAnim( name, transition, start ) 31d33fd0
+				m_pXSkinAnim->ChangeAnim( animName.c_str(), bTransition, fAnimStartTime );
+#else
 				if( bTransition == false )
 					m_pXSkinAnim->ChangeAnim( animName.c_str(), false );
 				else
 					m_pXSkinAnim->ChangeAnim( animName.c_str(), true );
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 
 				m_pXSkinAnim->Play( ePlayType );
 			}
 
 			float fAnimSpeed = 1.f;
 			LUA_GET_VALUE( m_LuaManager, "ANIM_SPEED", fAnimSpeed, 1.f );
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+			/// June 32d2f560 @32d309e7..@32d30b87: only with a game (g_pX2Game) and the manager, ANIM_SPEED x the second float of the state's pair.
+			/// Every float is 1.0 in June (no writer found), so this multiplies by 1.0; the village path gets the raw ANIM_SPEED.
+			if ( NULL != g_pX2Game && NULL != CX2RidingPetManager::GetInstance() )
+			{
+				const int iJuneNowState = m_StateData.m_StateID;
+				const CX2RidingPetManager* pJuneManager = CX2RidingPetManager::GetInstance();
+
+				if ( iJuneNowState == m_WalkState )
+					fAnimSpeed *= pJuneManager->GetJuneAnimSpeedRate( 0 );
+				if ( iJuneNowState == m_DashState )
+					fAnimSpeed *= pJuneManager->GetJuneAnimSpeedRate( 1 );
+				if ( iJuneNowState == m_JumpUpState || iJuneNowState == m_JumpDownState )	/// June: 32d277f0 returns the jump down state
+					fAnimSpeed *= pJuneManager->GetJuneAnimSpeedRate( 2 );
+				if ( iJuneNowState == m_DashJumpUpState )
+					fAnimSpeed *= pJuneManager->GetJuneAnimSpeedRate( 3 );
+				if ( iJuneNowState == m_SpecialMoveState )
+					fAnimSpeed *= pJuneManager->GetJuneAnimSpeedRate( 4 );
+			}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 			if( m_pXSkinAnim != NULL )
 				m_pXSkinAnim->SetPlaySpeed( fAnimSpeed );
+
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+			/// June 32d2f560: stored only, defaults 1500 / 500 / 45 / 0. The reader is the user's target search 31fe2420 (C9h-4).
+			LUA_GET_VALUE( m_LuaManager, "TARGET_RANGE", m_fJuneTargetRange, 1500.f );
+			LUA_GET_VALUE( m_LuaManager, "LIMIT_Z_DEPTH", m_fJuneLimitZDepth, 500.f );
+			LUA_GET_VALUE( m_LuaManager, "DEGREE_RANGE", m_fJuneDegreeRange, 45.f );
+			LUA_GET_VALUE( m_LuaManager, "VALUE_POS", m_fJuneValuePos, 0.f );
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 
 			if ( NULL != g_pX2Game )
 			{
@@ -988,7 +1120,13 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 
 					bool bSuperArmorNotRed = true;
 					LUA_GET_VALUE( m_LuaManager, "SUPER_ARMOR_NOT_RED", bSuperArmorNotRed,		true );
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+					/// June 32d2f560 @32d3262a: the key is always read, but written to the user only when SUPER_ARMOR is true
+					if ( true == bSuperArmor )
+						kNowFrameData.stateParam.bSuperArmorNotRed		= bSuperArmorNotRed;
+#else
 					kNowFrameData.stateParam.bSuperArmorNotRed		= bSuperArmorNotRed;
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 
 					pUser->SetStateSuperArmor( bSuperArmor );
 
@@ -1104,9 +1242,30 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 					LUA_GET_VALUE( m_LuaManager, "DELETE_EFFECT_SET_ON_DIE", bDeleteEffect,	false );
 					pUser->SetDeleteEffectSetOnDie( bDeleteEffect );
 
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+					/// June 32d2f560 @32d35029: PASSIVE_SPEED_X x the first float of manager pair 4 when the state is SPECIAL_MOVE_STATE (1.0 in June).
+					/// June's block between this point and its start reads the user-side June keys that belong to C9h-4, not ported here:
+					/// DISABLE_GRAVITY_TIME_START / _END, UPDOWN_CANCEL_AFTER, SOUND_PLAY_ALL_OPTION and June's SOUND_PLAY reader (32078fd0),
+					/// DELETE_EFFECT_SET_OFF_RIDING / _ON_SKILL_STATE_END, CAN_PUSH/PASS_UNIT_TIME%d, and the village square-unit sound block;
+					/// CUSTOM_RENDER_STATE (31fce500) is backlog Stage 2.
+					if ( NULL != CX2RidingPetManager::GetInstance() && m_StateData.m_StateID == m_SpecialMoveState )
+						kPhysicParam.passiveSpeed.x *= CX2RidingPetManager::GetInstance()->GetJunePassiveSpeedRate();
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+
 				}
 			}
 		}
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE_DEBUG
+		{
+			WCHAR wszJuneFx[256] = {0};
+			StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX RIDINGPET_STATE state=%d(%S) first=%d atend=%s onground=%d overlap=%g target=%g/%g/%g/%g",
+				static_cast<int>( m_StateData.m_StateID ), stateName.c_str(), m_bJuneFirstStateChanged ? 1 : 0,
+				m_wstrJuneAnimNameAtPlayEnd.empty() ? L"-" : m_wstrJuneAnimNameAtPlayEnd.c_str(),
+				m_iJuneOnGroundState, m_fJuneOnGroundOverlapTime,
+				m_fJuneTargetRange, m_fJuneLimitZDepth, m_fJuneDegreeRange, m_fJuneValuePos );
+			ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE_DEBUG
 		if( bTableOpen == true )
 			m_LuaManager.EndTable();
 	}
@@ -1120,6 +1279,46 @@ void CX2RidingPet::StateChange_LUA( IN const char* stateName_ )
 }
 #pragma endregion 상태 변경
 
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+/// June 32d3cff0. The user is the in-game unit by m_UserUid; June reads the skin anim's time before its other tests and never checks it, March
+/// returns false while the anim is not loaded yet.
+bool CX2RidingPet::OnGroundChangeStateCheck()
+{
+	if ( NULL == g_pX2Game || NULL == m_pXSkinAnim )
+		return false;
+
+	CX2GUUser* pUser = static_cast<CX2GUUser*>( g_pX2Game->GetUserUnitByUID( m_UserUid ) );
+	if ( NULL == pUser )
+		return false;
+
+	if ( true != pUser->IsOnSomethingFuture() )
+		return false;
+
+	if ( RSI_NONE == m_iJuneOnGroundState || RSI_END == m_iJuneOnGroundState || -1 == m_iJuneOnGroundState )
+		return false;
+
+	/// OVERLAP_TIME -1.0 = change at once; otherwise wait until the anim has played that long. The wait returns true too (June), so the
+	/// user's event process stays skipped for the whole wait.
+	if ( -1.f != m_fJuneOnGroundOverlapTime && m_pXSkinAnim->GetNowAnimationTime() < m_fJuneOnGroundOverlapTime )
+		return true;
+
+	m_bJuneOnGroundChanged = true;
+	pUser->CommonStateEndByRidingPet();					/// June 31fc8810 = vslot 0x7dc on the user
+	StateChangeFuture( m_iJuneOnGroundState );
+	StateChange( m_iJuneOnGroundState );
+	return true;
+}
+
+/// June 32d286c0: once the main anim has ended and ANIM_NAME_AT_PLAY_END is set, play that anim (no transition, start 0, XAP_LOOP).
+void CX2RidingPet::PlayAnimAtPlayEnd()
+{
+	if ( NULL != m_pXSkinAnim && true == m_pXSkinAnim->IsAnimationEnd() && false == m_wstrJuneAnimNameAtPlayEnd.empty() )
+	{
+		m_pXSkinAnim->ChangeAnim( m_wstrJuneAnimNameAtPlayEnd.c_str(), false, 0.f );
+		m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_LOOP );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 #ifdef X2OPTIMIZE_GAME_PET_BACKGROUND_LOAD
 #pragma region static InitMotion
 /*static*/

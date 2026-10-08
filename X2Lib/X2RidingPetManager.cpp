@@ -43,6 +43,15 @@ CX2RidingPetManager::CX2RidingPetManager(void)
 #ifdef RIDINGPET_STAMINA_ITEM
 	m_fUpdateNowStamina = 0.0f;
 #endif RIDINGPET_STAMINA_ITEM
+
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+	/// June ctor 321f6ec0: ten floats, all 1.0 (see GetJuneAnimSpeedRate)
+	for ( int iPair = 0; iPair < 5; ++iPair )
+	{
+		m_afJuneStateRate[iPair][0] = 1.0f;
+		m_afJuneStateRate[iPair][1] = 1.0f;
+	}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 }
 #pragma endregion »ý¼ºÀÚ
 

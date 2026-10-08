@@ -2463,6 +2463,33 @@ Kickoffs written: `C9h-3a.md`, `C9h-3b.md`, `C9h-4.md`, `C9h-5.md`; STATUS rows 
 
 **User owes:** /cost.
 
+### C9h-3b - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_RIDINGPET_STATE` + `_DEBUG`, log `JUNE_FX RIDINGPET_STATE`)
+
+The riding pet's `StateChange` / `StateChangeFuture` now follow June (`32d2f560` / `32d2c8b0`) for the riding-pet-local keys. Files: `X2RidingPet.h/.cpp`, `X2RidingPetManager.h/.cpp`, `X2GUUser.h/.cpp`, `Always.h`. Read-only Ghidra plus capstone; funcmap rows `Effect C9h-3b`.
+
+**What landed**
+- **Parsers.** `ANIM_START_TIME` feeds `ChangeAnim( name, transition, start )` in both functions; `APPLY_RIDINGPET_ANIM_MOVE` is read first in the Future parser; `TARGET_RANGE` / `LIMIT_Z_DEPTH` / `DEGREE_RANGE` / `VALUE_POS` are stored (1500 / 500 / 45 / 0; getters for C9h-4).
+- **`ANIM_NAME_AT_PLAY_END`** and its player `PlayAnimAtPlayEnd` (`32d286c0`), the last statement of the loaded block of OnFrameMove.
+- **`ONGROUND_CHANGE_STATE`** + `OnGroundChangeStateCheck` (`32d3cff0`). Its caller is June's `DoFrameMoveFuture` (`320347d0 @32034858`), not a land path: true skips the state's event process. `CommonStateEnd` is protected in March, so `CX2GUUser::CommonStateEndByRidingPet()` wraps it. The pet flag `+0x620` is set by the check and cleared at the top of `CX2GUUser::StateChange( int, bool )` (`320348c0`).
+- **Manager rates.** Ten floats, all 1.0 (no June writer). ANIM_SPEED x the *second* float of the state's pair, only with `g_pX2Game`; PASSIVE_SPEED_X x the *first* float of pair 4, placed after DELETE_EFFECT_SET_ON_SKILL_STATE_END (`@32d35029`). The pair-to-state map was decoded from June's XOR-built INIT_STATE strings (funcmap `32d36600`): pair 0 WALK, 1 DASH, 2 JUMP_UP or JUMP_DOWN, 3 DASH_JUMP_UP, 4 SPECIAL_MOVE. **This corrects funcmap row `321f6ec0`** (it said wait / walk-type).
+- **Transformer keys parsed and stored**, consumers left out (Stage 17): `TRANSFORM` (local), `ORIGINAL_SCALE_TIME`, `TRANSFORM_SCALE_TIME`, `CHECK_RIDINGPET_SPACIAR_BUFF`.
+- **User block:** `SUPER_ARMOR_NOT_RED` written only under `SUPER_ARMOR`. `SUPER_ARMOR_TIME` needed nothing: March's `AccessVecNowSuperArmorTime()` is that container.
+- **First-change flag (`+0x48c`).** Set before the name lookup (a miss sets it too), never cleared. OnFrameMove no longer sets `m_bInitPos` every frame; it sets it on the first frame after the first StateChange and runs GetUserInfo / SetPos a second time after the skin anim's frame move (`32d2ec80 @32d2f19f`).
+- **`IsValidUser`** (`32d2c800`): same as March :751 (including the unchecked dereference). No edit.
+
+**Not ported, with reasons**
+- **`32031e60`** (the `+0x620` arm of `DoFrameMoveFuture`: riding-pet cancel-after checks, then CommonEventProcess) reads C9h-4's cancel-after members and calls `3202f460`. Routed to **C9h-4 item 7** (kickoff edited); March falls through to the state's own `OnEventProcess`. Only June's Optimus_Prime reaches it. This is the advisor-backed correction of the kickoff, which said "the user's land path".
+- The user-side keys (gravity, UPDOWN, SOUND_PLAY_ALL_OPTION, OFF_RIDING / SKILL_STATE_END deletes, CAN_*_TIME) are a comment at the end of the user block, not dead local reads.
+- `+0x5b0` / `+0x5b4` are dead stores in June; not stored.
+
+**Not inert on March data.** The first-change gate changes every pet: before its first StateChange `m_bInitPos` stays false, so the manager's `InitPos` path (NotifyShowObjectChanged) runs its body, and the first frame after the first StateChange repositions the pet once more. Everything else is inert on March data (no script carries the new keys; the rates are 1.0).
+
+**JUNE_BUGS 113-115** (ONGROUND wait skips the event process on every frame; the manager pair's dead float; NOT_RED keeps the old value). Hygiene (worktree, only my files): `files: 1 PASS, 5 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags: Always.h), 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 5 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS` (the 5 are the original `#else` / `#endif` lines of replaced blocks). Range line: see the commit.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,348,992 B, dated 2026-10-08 08:20:24, md5 affec3722e7bead5d6f914dbc7a60989, equal to X2/US_SERVICE/x2.exe (2026-10-08 08:20:19); built at mods/june-buff-port 4567c75 + 16 uncommitted code file(s).` The exe was linked by a peer's build that already contained these edits; `JUNE_FX RIDINGPET_STATE` is in it. The build also contains the peer's uncommitted C9h-2d code.
+
+**Play-test (regression pass):** dev console not needed. In a village: summon a riding pet, walk, jump, dash, unsummon, hide / show. In a dungeon: the same plus an attack. Look for: the pet appears at the right place on summon (the first-change gate), nothing freezes, one `JUNE_FX RIDINGPET_STATE` line per state change in `ErrorLog.txt` (`python tools/logs.py --grep "JUNE_FX RIDINGPET_STATE"`). **Review:** `kickoffs/june-effect/C9h-3b-review.md`.
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),

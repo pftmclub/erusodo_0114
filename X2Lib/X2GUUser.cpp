@@ -6696,8 +6696,19 @@ void CX2GUUser::DoFrameMoveFuture()
 		else
 			CommonFrameMoveFuture();
 
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+		/// June CX2GUUser 320347d0 (its DoFrameMoveFuture) @32034858: with a riding pet object (GetRidingOn is not tested) the pet's ONGROUND check
+		/// runs between OnFrameMoveFuture and the event process; true skips the event process. Else, with the pet's +0x620 flag set (the check
+		/// fired earlier in this state), June runs 32031e60 instead (riding-pet cancel-after checks, then CommonEventProcess): not ported
+		/// here, it reads C9h-4's cancel-after members, so March runs the state's own OnEventProcess. Only June's Optimus_Prime reaches it.
+		const bool bJuneRidingPetSkipEvent = ( NULL != m_ptrRidingPet && true == m_ptrRidingPet->OnGroundChangeStateCheck() );
+
+		if( false == bJuneRidingPetSkipEvent && m_FutureStateData.OnEventProcess != NULL )
+			m_FutureStateData.OnEventProcess();
+#else
 		if( m_FutureStateData.OnEventProcess != NULL )
 			m_FutureStateData.OnEventProcess();
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 	}
 
 	if( true == bTableOpen )
@@ -7736,6 +7747,12 @@ HRESULT CX2GUUser::OnLostDevice()
 bool CX2GUUser::StateChange( int state, bool bDirectChange )
 {
 	KTDXPROFILE();
+
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+	/// June 320348c0 (CX2GUUser::StateChange( int, bool )), first statement: clears the riding pet's ONGROUND flag (+0x620)
+	if ( NULL != m_ptrRidingPet )
+		m_ptrRidingPet->ResetOnGroundChangedState();
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 
 #ifndef BALANCE_ELEMENTAL_MASTER_20130117		/// 버프에 있는 엠피 회복 기능을 사용하므로, 해당 부분은 필요 없다.
 #ifdef FIX_MEDITATION_RUN

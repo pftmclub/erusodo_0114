@@ -435,6 +435,20 @@ public:
 	void StateChange( IN const char* stateName_ );
 	void StateChange_LUA( IN const char* stateName_ );
 
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+	/// June 32d3cff0: ONGROUND_CHANGE_STATE check, called from CX2GUUser::DoFrameMoveFuture (its only caller, 320347d0 @32034858).
+	/// true = the user's event process is skipped this frame (the change fired, or it is still waiting out OVERLAP_TIME).
+	bool OnGroundChangeStateCheck();
+	/// June +0x620: set by the check, cleared at the top of CX2GUUser::StateChange (June 320348c0). Its consumer 32031e60 is C9h-4's.
+	bool GetOnGroundChangedState() const { return m_bJuneOnGroundChanged; }
+	void ResetOnGroundChangedState() { m_bJuneOnGroundChanged = false; }
+	/// June +0x450..+0x45c: stored only; the reader is the user's target search 31fe2420 (C9h-4)
+	float GetJuneTargetRange() const { return m_fJuneTargetRange; }
+	float GetJuneLimitZDepth() const { return m_fJuneLimitZDepth; }
+	float GetJuneDegreeRange() const { return m_fJuneDegreeRange; }
+	float GetJuneValuePos() const { return m_fJuneValuePos; }
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+
 #ifdef FIX_HIT_FLY_RIDING_PET_MOTION // 김태환
 	const RidingPetCondition GetConditionData() const { return m_ConditionData; }
 #endif //FIX_HIT_FLY_RIDING_PET_MOTION
@@ -444,6 +458,10 @@ public:
 #pragma region private
 private:
 	bool IsValidUser();
+
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+	void PlayAnimAtPlayEnd();		/// June 32d286c0, called at the end of OnFrameMove (@32d2f3b1)
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 
 	void InitDevice();
 	void InitSystem();
@@ -504,6 +522,22 @@ private:
 	float		m_fScale;			/// 크기
 	
 	vector<SoundPlayData>	m_vecSoundPlayData;		/// 사운드 데이터
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+	/// June CX2RidingPet members written by StateChange / StateChangeFuture (June offsets in the comments; the layouts differ).
+	bool		m_bJuneFirstStateChanged;		/// +0x48c: set by every StateChange( const char* ), even on a name miss; never cleared. OnFrameMove reads it
+	wstring		m_wstrJuneAnimNameAtPlayEnd;	/// +0x490: ANIM_NAME_AT_PLAY_END
+	float		m_fJuneTargetRange;				/// +0x450: TARGET_RANGE (1500)
+	float		m_fJuneLimitZDepth;				/// +0x454: LIMIT_Z_DEPTH (500)
+	float		m_fJuneDegreeRange;				/// +0x458: DEGREE_RANGE (45)
+	float		m_fJuneValuePos;				/// +0x45c: VALUE_POS (0)
+	bool		m_bJuneApplyAnimMove;			/// +0x5a1: APPLY_RIDINGPET_ANIM_MOVE (user readers are Stage 17)
+	float		m_fJuneOriginalScaleTime;		/// +0x5a4: ORIGINAL_SCALE_TIME (-1.0; consumer 32d284d0 is Stage 17)
+	float		m_fJuneTransformScaleTime;		/// +0x5a8: TRANSFORM_SCALE_TIME (-1.0; consumer 32d284d0 is Stage 17)
+	int			m_iJuneCheckSpaciarBuff;		/// +0x5ac: CHECK_RIDINGPET_SPACIAR_BUFF (-1; consumer 32d2f3d0 is Stage 17)
+	float		m_fJuneOnGroundOverlapTime;		/// +0x5b8: ONGROUND_CHANGE_STATE.OVERLAP_TIME (0)
+	int			m_iJuneOnGroundState;			/// +0x5bc: ONGROUND_CHANGE_STATE.STATE_NAME as a state id (0 = none)
+	bool		m_bJuneOnGroundChanged;			/// +0x620
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 #pragma endregion variable
 
 #pragma region public

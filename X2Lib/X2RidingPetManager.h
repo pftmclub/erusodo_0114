@@ -274,6 +274,15 @@ public:
 	static CX2RidingPetManager* GetInstance();
 	static void DestroyInstance();
 
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+	/// June ctor 321f6ec0 (+0x8c..+0xb0): five pairs of floats, all 1.0, no writer found in June (no store after any of the 229 GetInstance
+	/// calls), so these stay 1.0. CX2RidingPet::StateChange multiplies ANIM_SPEED by the SECOND float of a pair (@32d30a6e..@32d30b6d; the first
+	/// is loaded into a dead stack slot) and PASSIVE_SPEED_X by the FIRST float of pair 4 (@32d35055). Pairs: 0 walk, 1 dash, 2 jump up / jump down,
+	/// 3 dash jump up, 4 special move.
+	float GetJuneAnimSpeedRate( int iPair_ ) const { return m_afJuneStateRate[iPair_][1]; }
+	float GetJunePassiveSpeedRate() const { return m_afJuneStateRate[4][0]; }
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+
 	HRESULT	OnFrameMove( IN double fTime_, IN float fElapsedTime_ );
 	HRESULT OnFrameRender();
 
@@ -393,6 +402,10 @@ private:
 	bool			m_bShow;				/// ≈ª ∞Õ¿ª ∫∏±‚
 
 	static CX2RidingPetManager*	m_pRidingPetManager;
+
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+	float		m_afJuneStateRate[5][2];		/// June +0x8c..+0xb0
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 	RidingPetMap		m_mapRidingPet;			/// ≈ª ∞Õ ∏ 
 	RidingPetTempletMap	m_mapRidingPetTemplet;	/// ≈ª ∞Õ ≈€«√∏¥ ∏ 
 	RidingPetVec		m_vecRemoveRidingPet;	/// ¡¶∞≈«“ ≈ª ∞Õ ∏Ò∑œ
