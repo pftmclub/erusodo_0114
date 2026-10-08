@@ -2290,6 +2290,12 @@ public:
 		void SetBWalkCancelAfter( IN float fVal_ ) { m_fBWalkCancelAfter = fVal_; }
 		void SetWalkCancelAfter( IN float fVal_ ) { m_fWalkCancelAfter = fVal_; }
 		void SetDashCancelAfter( IN float fVal_ ) { m_fDashCancelAfter = fVal_; }
+#ifdef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+		void SetUpDownCancelAfter( IN float fVal_ ) { m_fUpDownCancelAfter = fVal_; }		/// June +0x8ca4, written by the riding pet's StateChange (C9h-4e)
+#endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#ifdef SERV_IRUHADEV_JUNE_CANCEL_CLAMP
+		void JuneClampCancelAfters( int iStateId_, bool bFuture_ );
+#endif SERV_IRUHADEV_JUNE_CANCEL_CLAMP
 		virtual bool CanRidingState();
 #ifdef CHECK_CAMERA_INFO
 		void SetIsLineMapCamera( IN bool bVal_ ) { m_bIsLineMapCamera = bVal_;}
@@ -4172,6 +4178,13 @@ public:
 #ifdef SERV_RAVEN_VETERAN_COMMANDER
 		float					m_fSkillCancelAfterFly;		/// 공중용 스킬 캔슬
 #endif SERV_RAVEN_VETERAN_COMMANDER
+
+#ifdef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+		float					m_fUpDownCancelAfter;		/// June +0x8ca4: UPDOWN_CANCEL_AFTER (C9h-4c)
+#endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#ifdef SERV_IRUHADEV_JUNE_COMMON_CANCEL
+		bool					m_bJuneUseCommonCancelAfter;	/// June +0x8ca0: USE_COMMON_CANCEL_AFTER (C9h-4c)
+#endif SERV_IRUHADEV_JUNE_COMMON_CANCEL
 
 #ifdef HYPER_MODE_FIX
 		int						m_iLastStateHyperModeCount;

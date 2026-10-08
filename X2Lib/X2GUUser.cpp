@@ -1151,6 +1151,13 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	m_fSkillCancelAfterFly	= 9999.f;		/// 공중용 스킬 캔슬
 #endif SERV_RAVEN_VETERAN_COMMANDER
 
+#ifdef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+	m_fUpDownCancelAfter	= 9999.f;		/// June CX2GUUser ctor 3203e850 @32042df9
+#endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#ifdef SERV_IRUHADEV_JUNE_COMMON_CANCEL
+	m_bJuneUseCommonCancelAfter	= false;
+#endif SERV_IRUHADEV_JUNE_COMMON_CANCEL
+
 #ifdef HYPER_MODE_FIX
 	m_iLastStateHyperModeCount	= 0;
 	m_bReserveHyperModeZero		= false;
@@ -6711,6 +6718,13 @@ void CX2GUUser::DoFrameMoveFuture()
 		/// here, it reads C9h-4's cancel-after members, so March runs the state's own OnEventProcess. Only June's Optimus_Prime reaches it.
 		const bool bJuneRidingPetSkipEvent = ( NULL != m_ptrRidingPet && true == m_ptrRidingPet->OnGroundChangeStateCheck() );
 
+#ifdef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+		/// C9h-4c: June 320347d0 @32034872 runs 32031e60 ( = RidingAttackZEventProcess ) here, in any state, when the pet's +0x620 flag is set
+		/// ( the pet object exists, the ONGROUND check above was false ); it replaces the state's OnEventProcess for this frame.
+		if( NULL != m_ptrRidingPet && false == bJuneRidingPetSkipEvent && true == m_ptrRidingPet->GetOnGroundChangedState() )
+			RidingAttackZEventProcess();
+		else
+#endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
 		if( false == bJuneRidingPetSkipEvent && m_FutureStateData.OnEventProcess != NULL )
 			m_FutureStateData.OnEventProcess();
 #else
@@ -14532,6 +14546,19 @@ void CX2GUUser::CommonStateStartFuture()
 	LUA_GET_VALUE(	m_LuaManager, "SKILL_CANCEL_AFTER_FLY",				m_fSkillCancelAfterFly,			9999.f );		/// 공중용 스킬 캔슬
 #endif SERV_RAVEN_VETERAN_COMMANDER
 
+#ifdef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+	/// June CommonStateStartFuture 320506f0 @32056597 (key decrypted @320563b0 for USE_COMMON): both after SKILL_CANCEL_AFTER_FLY's neighbours
+	LUA_GET_VALUE(	m_LuaManager, "UPDOWN_CANCEL_AFTER",				m_fUpDownCancelAfter,			9999.f );
+#endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#ifdef SERV_IRUHADEV_JUNE_COMMON_CANCEL
+	/// June 320506f0 @3205650d: a byte at +0x8ca0, miss false; CommonStateStart (32057b80) does not read it
+	LUA_GET_VALUE(	m_LuaManager, "USE_COMMON_CANCEL_AFTER",			m_bJuneUseCommonCancelAfter,	false );
+#endif SERV_IRUHADEV_JUNE_COMMON_CANCEL
+#ifdef SERV_IRUHADEV_JUNE_CANCEL_CLAMP
+	/// June 320506f0 @320568d3: the clamp follows the last read
+	JuneClampCancelAfters( m_FutureStateData.stateID, true );
+#endif SERV_IRUHADEV_JUNE_CANCEL_CLAMP
+
 #ifdef LINKED_LINEMAP_JUMP_USER_TEST
 	LUA_GET_VALUE( m_LuaManager, "LINK_JUMP_TIME", m_fLinkJumpTime, 1.f );
 	LUA_GET_VALUE( m_LuaManager, "LINK_JUMP_ACCEL_X", m_vLinkJumpAcceleration.x, 0.f );
@@ -15601,6 +15628,15 @@ void CX2GUUser::CommonStateStart()
 #ifdef SERV_RAVEN_VETERAN_COMMANDER
 	LUA_GET_VALUE(	m_LuaManager, "SKILL_CANCEL_AFTER_FLY",				m_fSkillCancelAfterFly,			9999.f );		/// 공중용 스킬 캔슬
 #endif SERV_RAVEN_VETERAN_COMMANDER
+
+#ifdef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+	/// June CommonStateStart 32057b80 @3205f810 (key decrypted @3205f6f8)
+	LUA_GET_VALUE(	m_LuaManager, "UPDOWN_CANCEL_AFTER",				m_fUpDownCancelAfter,			9999.f );
+#endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#ifdef SERV_IRUHADEV_JUNE_CANCEL_CLAMP
+	/// June 32057b80 @3205fa38: the clamp follows the last read
+	JuneClampCancelAfters( m_NowStateData.stateID, false );
+#endif SERV_IRUHADEV_JUNE_CANCEL_CLAMP
 
 #ifdef SERV_EVE_BATTLE_SERAPH
 	LUA_GET_VALUE( m_LuaManager, "IS_NOCHANGE_SPECTRO",		m_FrameDataNow.stateParam.bNoChangSpectro,		false );
@@ -20670,8 +20706,74 @@ void CX2GUUser::CommonCameraMove()
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 
+#ifdef SERV_IRUHADEV_JUNE_CANCEL_CLAMP
+/// June CommonStateStartFuture 320506f0 @320568d3-32056a15 and CommonStateStart 32057b80 @3205fa38-3205fb5f: every cancel-after float is
+/// raised to 0.1 when below it (x87: fcom 0.1 against the value, keep the value when 0.1 <= v or unordered, else 0.1). NaN stays.
+void CX2GUUser::JuneClampCancelAfters( int iStateId_, bool bFuture_ )
+{
+	struct JuneCancelAfterRow { const WCHAR* wszKey; float* pfValue; };
+	const JuneCancelAfterRow aRows[] =
+	{
+#ifdef ELSWORD_SHEATH_KNIGHT
+		{ L"ATTACK_CANCEL_AFTER_EX", &m_fAttackCancelAfterEx },
+		{ L"ATTACK_CANCEL_AFTER", &m_fAttackCancelAfter },
+		{ L"SKILL_CANCEL_AFTER", &m_fSkillCancelAfter },
+		{ L"BWALK_CANCEL_AFTER", &m_fBWalkCancelAfter },
+		{ L"WALK_CANCEL_AFTER", &m_fWalkCancelAfter },
+		{ L"DASH_CANCEL_AFTER", &m_fDashCancelAfter },
+#endif ELSWORD_SHEATH_KNIGHT
+#ifdef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+		{ L"UPDOWN_CANCEL_AFTER", &m_fUpDownCancelAfter },
+#endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#ifdef SERV_RAVEN_VETERAN_COMMANDER
+		{ L"SKILL_CANCEL_AFTER_FLY", &m_fSkillCancelAfterFly },
+#endif SERV_RAVEN_VETERAN_COMMANDER
+	};
+
+	for( int i = 0; i < static_cast<int>( ARRAY_SIZE( aRows ) ); ++i )
+	{
+		float& fValue = *aRows[i].pfValue;
+		if( fValue < 0.1f )
+		{
+#ifdef SERV_IRUHADEV_JUNE_CANCEL_CLAMP_DEBUG
+			WCHAR wszJuneFx[160] = {0};
+			StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX CANCEL_CLAMP %s state=%d key=%s old=%g unit=%d",
+				( true == bFuture_ ? L"future" : L"now" ), iStateId_, aRows[i].wszKey, fValue, static_cast<int>( GetUnitUID() ) );
+			ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+#endif SERV_IRUHADEV_JUNE_CANCEL_CLAMP_DEBUG
+			fValue = 0.1f;
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CANCEL_CLAMP
 void CX2GUUser::CommonEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_COMMON_CANCEL
+	/// June CommonEventProcess 31fe7610 @31fe7618-31fe7902, before everything else: with USE_COMMON_CANCEL_AFTER set the state cancels by
+	/// SKILL ( + the awakening branch: June's own expansion, ported as IF_SKILL_CANCEL_AFTER ), BWALK, WALK, DASH, ATTACK-Z, ATTACK-X, each
+	/// also needing the unit on the ground ( +0x7e1c ). The first hit skips the rest of the block only; the function goes on below.
+	/// BWALK / WALK change to state 13 ( USI_WAIT ), DASH is vslot 0x668, Z / X are vslots 0x4b0 / 0x4b4 ( the combo states ).
+	if( true == m_bJuneUseCommonCancelAfter )
+	{
+		IF_SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+		else if( m_fBWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fBWalkCancelAfter && true == IsOnSomethingFuture() &&
+			( ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight ) ||
+			( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight ) ) )
+		{ StateChange( USI_WAIT ); }
+		else if( m_fWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fWalkCancelAfter && true == IsOnSomethingFuture() &&
+			( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+		{ StateChange( USI_WAIT ); }
+		else if( m_fDashCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fDashCancelAfter && true == IsOnSomethingFuture() &&
+			( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) )
+		{ StateChangeDashIfPossible(); }
+		else if( m_fAttackCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfter && true == IsOnSomethingFuture() &&
+			true == m_InputData.pureZ )
+		{ StateChange( GetComboZStateID() ); }
+		else if( m_fAttackCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfter && true == IsOnSomethingFuture() &&
+			true == m_InputData.pureX )
+		{ StateChange( GetComboXStateID() ); }
+	}
+#endif SERV_IRUHADEV_JUNE_COMMON_CANCEL
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	/// June buff port 16-step3b4, June CommonEventProcess 31fe7610 @31fe7902-1918: after a death gate fired (+0x8e78), the unit is knocked
 	/// down once (June state 0x1e = USI_DAMAGE_DOWN_FRONT). The blocks June runs before it are its CommonEventProcess rewrite (Phase 7c, not ported).
@@ -38588,6 +38690,14 @@ void CX2GUUser::RidingAttackZStart()
 	if ( NULL != m_ptrRidingPet )
 	{
 		m_ptrRidingPet->StateChange( m_ptrRidingPet->m_AttackZState );
+#ifdef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL_DEBUG
+		{
+			WCHAR wszJuneFx[200] = {0};
+			StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX UPDOWN_CANCEL attack_z skill=%g dash=%g walk=%g updown=%g unit=%d",
+				m_fSkillCancelAfter, m_fDashCancelAfter, m_fWalkCancelAfter, m_fUpDownCancelAfter, static_cast<int>( GetUnitUID() ) );
+			ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		}
+#endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL_DEBUG
 
 		switch ( m_ptrRidingPet->GetInfo().m_Id )
 		{
@@ -38618,6 +38728,14 @@ void CX2GUUser::RidingAttackZEventProcess()
 	RIDING_SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 	RIDING_DASH_CANCEL_AFTER( m_fDashCancelAfter )
 	RIDING_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+#ifdef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+	/// June RidingAttackZEventProcess 32031e60: after WALK, the UPDOWN branch ( user +0x8ca4 against the riding pet's anim time, up or down
+	/// pressed ) -> RIDING_WAIT. The skill cancel above is June's 3202f460( 1 ); March's RidingPetSpecialAttackEventProcess( ASUT_GROUND ) stands in.
+	else if( m_fUpDownCancelAfter >= 0.f && NULL != m_ptrRidingPet && NULL != m_ptrRidingPet->GetXSkinAnimFuturePtr() &&
+		m_ptrRidingPet->GetXSkinAnimFuturePtr()->GetNowAnimationTime() > m_fUpDownCancelAfter &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{ StateChange( USI_RIDING_WAIT ); }
+#endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
 
 	CommonEventProcess();
 }

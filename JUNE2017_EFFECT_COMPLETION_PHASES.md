@@ -2866,6 +2866,38 @@ RESULT: PASS
 
 **C9h-4b kickoff:** checked; it reads this Done note for the shipped names. One line added: its flags need `SERV_IRUHADEV_JUNE_UNIT_SOUND` on, and the NPC passes skill id 0 to the attach. **Open for the user:** /cost. **Next:** C9h-4b, C9h-4c or C9h-4d (Sonnet 5.5 high; 4c and 4d one at a time).
 
+### C9h-4c - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_UPDOWN_CANCEL`, `_COMMON_CANCEL`, `_CANCEL_CLAMP` + the two `_DEBUG` (on for the play-test); logs `JUNE_FX UPDOWN_CANCEL`, `JUNE_FX CANCEL_CLAMP`; play-test pending)
+
+Files: `X2GUUser.h/.cpp`, `Always.h`. Funcmap rows `Effect C9h-4c`.
+
+**Corrections to the kickoff (found in Ghidra / capstone)**
+- **`USE_COMMON_CANCEL_AFTER` is already mapped:** a byte at `+0x8ca0`, read only by `CommonStateStartFuture` `320506f0 @3205650d` (miss false). Its one consumer is a block at the top of June's `CommonEventProcess` `31fe7610 @31fe7618-31fe7902` (funcmap Buff 7c said "not ported"). Engine, so ported (flag `_COMMON_CANCEL`).
+- **The clamp (not in the kickoff, not inert).** After the keys are read, `320506f0 @320568d3-32056a1d` and `CommonStateStart` `32057b80 @3205fa38-3205fb5f` raise every cancel-after float to `max( v, 0.1 )` (`fcom` of 0.1 against v, `test ah,0x41; jne keep`; NaN kept). Eight floats: ATTACK_EX, ATTACK, SKILL, BWALK, WALK, DASH, UPDOWN, SKILL_CANCEL_AFTER_FLY. A March script that writes 0 or a negative value (March's `>= 0` guards mean "-1 = off") now cancels at 0.1 s. Own flag so the user can drop it; `_DEBUG` logs each value it changes.
+- **June has two member sets.** Future (`+0x8c88..+0x8ca8`, read by `32031e60` and the class code) and Now (`+0x8d24..+0x8d40`, written by `CommonStateStart`). March has one, written by both parses; kept. UPDOWN is read in both June parses (Now `+0x8d3c`); `USE_COMMON` only in the Future one.
+- **`3202f460( 1 )`** = `RidingPetSpecialAttackEventProcess`; March's default argument is `ASUT_GROUND` (= 1), so the port calls it as March's macro does (Stage 17 owns June's rewrite).
+- **New June-only block** after the clamp (`@32056a15`): `USEFUL_VALUE<n>` float table into `+0x8ef4..+0x8f2c`, read by class code and 3 engine functions. Unowned -> new row **C9h-4f** (kickoff written).
+
+**What landed**
+- `m_fUpDownCancelAfter` (9999.f, ctor `3203e850 @32042df9`), `m_bJuneUseCommonCancelAfter`, `SetUpDownCancelAfter` (for C9h-4e), both parses.
+- `RidingAttackZEventProcess`: the UPDOWN `else if` after WALK (up or down pressed, riding pet anim time above the member) -> `USI_RIDING_WAIT`. Everything else in `32031e60` was March's already.
+- `DoFrameMoveFuture`: pet object exists, ONGROUND check false, pet `+0x620` set -> `RidingAttackZEventProcess()` in any state, in place of the state's OnEventProcess (replaces C9h-3b's fall-through).
+- `CommonEventProcess` block, before everything else, when the byte is set: `IF_SKILL_CANCEL_AFTER` (June's own expansion: skill needs ground, then the awakening branch), BWALK / WALK -> `USI_WAIT` (June state 13), DASH -> `StateChangeDashIfPossible` (vslot `0x668`), ATTACK Z / X -> `GetComboZStateID` / `GetComboXStateID` (vslots `0x4b0` / `0x4b4`); each also needs `IsOnSomethingFuture()` (`+0x7e1c`). The first hit skips the rest of the block only.
+- `JuneClampCancelAfters( stateId, bFuture )`, called after the last read in both parses.
+- Not ported: June's second-skin clock `+0x8e84` (checklist 7 line 224), class UPDOWN readers (checklist 7h), the riding pet's own write of the key (C9h-4e).
+
+**Hygiene** (`flagcheck JUNE_UPDOWN_CANCEL --with ..._UPDOWN_CANCEL_DEBUG _COMMON_CANCEL _CANCEL_CLAMP _CANCEL_CLAMP_DEBUG --worktree --files ...`):
+```
+files: 0 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR
+in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)
+RESULT: PASS
+```
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,376,128 B, dated 2026-10-08 11:45:51, md5 8875aac0449cb6d513070fc3bc30a675, equal to X2/US_SERVICE/x2.exe (2026-10-08 11:45:46); built at mods/june-buff-port 0220a38 + 3 uncommitted code file(s).` Both `JUNE_FX UPDOWN_CANCEL` and `JUNE_FX CANCEL_CLAMP` are in the deployed exe.
+
+**How to see it in game (play-test hand-off is in the reply):** inert on March data except the clamp. `JUNE_FX UPDOWN_CANCEL attack_z ...` prints the four cancel-after values per RIDING_ATTACK_Z entry; `JUNE_FX CANCEL_CLAMP ...` prints one line per value the clamp changed (state id, key, old value), so one session shows whether March data uses values below 0.1.
+
+**Open for the user:** keep or drop the clamp (`SERV_IRUHADEV_JUNE_CANCEL_CLAMP`) once the log shows what it changes. **User owes:** the play-test, `/cost`.
+
 ### C9h-6 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the snapshot exists because June's running state data are pointers; March copies them by value, so a port would never change anything -> no port, routing only
 
 There are 23 funcmap rows tagged `Effect C9h-6`. The sweep of `[reg + 0x9538..0x956c]` found 69 hits, a few of them `mov reg, imm` decode artefacts.

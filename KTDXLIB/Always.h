@@ -5872,6 +5872,68 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-08
+// Description: June effect completion C9h-4c (JUNE2017_EFFECT_COMPLETION_PHASES.md):
+//              UPDOWN_CANCEL_AFTER (user +0x8ca4, miss 9999.0) read in both
+//              CommonStateStart parses, and June's RidingAttackZEventProcess
+//              32031e60 (March's tests + the UPDOWN branch after WALK), which
+//              DoFrameMoveFuture 320347d0 @32034872 also runs on the riding
+//              pet's +0x620 arm (replaces C9h-3b's fall-through). Its skill
+//              cancel calls 3202f460( 1 ), a June rewrite owned by backlog
+//              Stage 17; March's RidingPetSpecialAttackEventProcess( ASUT_GROUND )
+//              stands in. Inert on March data (no March script carries the key).
+//              Log: "JUNE_FX UPDOWN_CANCEL" in ErrorLog.txt (_DEBUG only).
+#define SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#define SERV_IRUHADEV_JUNE_UPDOWN_CANCEL_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#ifndef RIDING_SYSTEM
+#error SERV_IRUHADEV_JUNE_UPDOWN_CANCEL needs RIDING_SYSTEM
+#endif RIDING_SYSTEM
+#ifndef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#error SERV_IRUHADEV_JUNE_UPDOWN_CANCEL needs SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June effect completion C9h-4c: USE_COMMON_CANCEL_AFTER (user
+//              +0x8ca0 byte, read by CommonStateStartFuture only) and its
+//              consumer, a block at the top of June's CommonEventProcess
+//              31fe7610 @31fe7618-31fe7902: with the byte set, the state cancels
+//              by SKILL (+ the awakening branch), BWALK, WALK, DASH, ATTACK Z
+//              and ATTACK X, each also needing the unit on the ground. March's
+//              SKILL_CANCEL_AFTER expansion (JUNE_BUFF_AWAKE_LOCK) is June's
+//              own for the first two. Inert on March data (no March script
+//              carries the key); the clock stays March's m_pXSkinAnimFuture
+//              (June's second skin +0x8e84 is checklist 7).
+#define SERV_IRUHADEV_JUNE_COMMON_CANCEL
+#ifdef SERV_IRUHADEV_JUNE_COMMON_CANCEL
+#ifndef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#error SERV_IRUHADEV_JUNE_COMMON_CANCEL needs SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#endif SERV_IRUHADEV_JUNE_COMMON_CANCEL
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June effect completion C9h-4c: the cancel-after clamp. After
+//              the keys are read, June's CommonStateStartFuture 320506f0
+//              @320568d3-32056a15 and CommonStateStart 32057b80 @3205fa38-
+//              raise every cancel-after float (ATTACK_EX, ATTACK, SKILL,
+//              BWALK, WALK, DASH, UPDOWN, SKILL_CANCEL_AFTER_FLY) to at least
+//              0.1 (a negative or zero value no longer disables the cancel).
+//              NOT inert on March data: any March script that writes a value
+//              below 0.1 changes. The debug flag logs each value it changes.
+//              Log: "JUNE_FX CANCEL_CLAMP" in ErrorLog.txt (_DEBUG only).
+#define SERV_IRUHADEV_JUNE_CANCEL_CLAMP
+#define SERV_IRUHADEV_JUNE_CANCEL_CLAMP_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
 // Description: June effect completion C9h-4b (JUNE2017_EFFECT_COMPLETION_PHASES.md):
 //              June's sound records on the NPC and the event scene. NPC: the
 //              SOUND_PLAY nation reader (default and SOUND_SET tables), the
