@@ -5883,7 +5883,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              stands in. Inert on March data (no March script carries the key).
 //              Log: "JUNE_FX UPDOWN_CANCEL" in ErrorLog.txt (_DEBUG only).
 #define SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
-#define SERV_IRUHADEV_JUNE_UPDOWN_CANCEL_DEBUG
+//#define SERV_IRUHADEV_JUNE_UPDOWN_CANCEL_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
 #ifndef RIDING_SYSTEM
 #error SERV_IRUHADEV_JUNE_UPDOWN_CANCEL needs RIDING_SYSTEM
@@ -5928,7 +5928,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              below 0.1 changes. The debug flag logs each value it changes.
 //              Log: "JUNE_FX CANCEL_CLAMP" in ErrorLog.txt (_DEBUG only).
 #define SERV_IRUHADEV_JUNE_CANCEL_CLAMP
-#define SERV_IRUHADEV_JUNE_CANCEL_CLAMP_DEBUG
+//#define SERV_IRUHADEV_JUNE_CANCEL_CLAMP_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

@@ -2898,6 +2898,61 @@ RESULT: PASS
 
 **Decided:** the clamp (`SERV_IRUHADEV_JUNE_CANCEL_CLAMP`) is kept (user, 2026-10-08: it follows June). Play-test: 17 riding `attack_z` lines and a 30 s Lord Knight field run, 0 clamp lines in both. **User owes:** `/cost`.
 
+### C9h-4c - Review (2026-10-08, Opus 5.5 high): no transcription finding; `_DEBUG` flags off; the clamp's March reach measured (35 states, all identical in June)
+
+**Checked against June (Ghidra / capstone, read-only).**
+- **The clamp is `max( v, 0.1 )`, NaN kept, eight floats in each parse.**
+  - The first float: `fld v; fld qword 0.1; fcom st(1)`, then `test ah,0x41; jne keep`. Kept when 0.1 <= v or unordered.
+  - The other seven: `fcomp st(2)` against the double, then `test ah,5; jp keep` (PF set when C0 is clear, or when C0 and C2 are both set).
+  - The last float, FLY (`[ebx]` = `+0x8ca8` / `+0x8d40`): `jnp` keeps the 0.1. The stored 0.1 is the float `334395e0`.
+  - Future set: `+0x8c90, 8c94, 8c98, 8c9c, 8c8c, 8c88, 8ca4, 8ca8`. Now set: `+0x8d2c, 8d30, 8d34, 8d38, 8d28, 8d24, 8d3c, 8d40`.
+  - Comparing a float against the double 0.1 gives the same result as the port's `v < 0.1f`: 0.1f is the nearest float to 0.1, and the next float down is below 0.1.
+- **The Now set** (`dispsweep 8d24..8d40`). Outside the parse and the ctor, there are two float readers:
+  - (a) `31ff92d0` (THROW_ITEM FrameMove). It copies Now WALK / DASH (`+0x8d34` / `+0x8d38`) into the throw start velocity `+0x8d6c` / `+0x8d70`. March does the same with its single member (`X2GUUser.cpp:26885`, `m_vThrowStartVelocity = { m_fWalkCancelAfter, m_fDashCancelAfter }`). Every THROW_ITEM state, in March and in June, uses WALK 1200..1700 and DASH 60..350, so the clamp never touches the velocity.
+  - (b) Elsword class code (`32d13940`, `32d18490`, `32d1e200..32d1ecc0`), reading Now SKILL / DASH. That is checklist 7h class code, and March's class code reads the same single member.
+  - The other hits are other classes (NPC `327b53b0` and the rest), or byte members at the same offset in other objects.
+  - So nothing makes March's one-member design differ from June's two sets.
+- **`32031e60`.** The anim end (`+0x2ac`) goes to 0x4c. Otherwise GetRidingOn (vslot 0x200) runs the chain, and its false branch goes to 0x4a. That is March's if / else-if order.
+  - The chain: SKILL `+0x8c90` -> `3202f460( 1 )`; DASH `+0x8c9c` (`+0x86e0 / 86dc`) -> vslot 0x668; WALK `+0x8c98` (`+0x86de / 86da`); UPDOWN `+0x8ca4` (`+0x86e6 / 86e2`). WALK and UPDOWN share the 0x4c exit with the anim end, so `USI_RIDING_WAIT` is correct whatever the numbering. Then vslot 0x7d4.
+  - Each test is `t >= 0` (`NAN || (0<t)==(t==0)` skips) and the pet anim's `+0x214` > t.
+  - March's InputData (`X2GameUnit.h:170`) puts pureUp at `+0x86e2` and pureDown at `+0x86e6`, so the input bytes match.
+- **`3202f460`'s argument.** Templet condition 1 requires `param_2 == 1`; condition 2 always passes. `param_2 == 2` picks state 0x59, otherwise 0x58. So 1 = ground = March `ASUT_GROUND` (`ASUT_NONE` 0, `GROUND` 1, `AIR` 2). March's default argument matches.
+- **The `DoFrameMoveFuture` arm** (`@3203484e-32034877`). The order is: `+0x683c` non-null, then `32d3cff0`; true skips the event process. Otherwise, `+0x620` set -> `32031e60`; otherwise the state's delegate runs (`+0x9550`). The port matches.
+- **The `CommonEventProcess` block** (`@31fe7618-31fe7902`).
+  - Every branch tests `t >= 0` with `fldz; fcom(p) t; test ah,0x41; jp`, then `time > t` with `fcompp; test ah,5; jp`, then ground `+0x7e1c == 1`. Only the awakening branch skips the ground test, which matches the macro.
+  - SKILL: vslot `0x7f4( 1 )`; `== 1` ends the block.
+  - Awakening: `322731a0` false, `+0x8723`, HyperModeCount > 0, vslot 0x560, `32070cf0` time, `32070d60` false. Then `+0x8d4c = 1` and vslot 0x6b8 -> StateChange.
+  - BWALK: pureLeft && bIsRight `+0x7e56`, or pureRight && !bIsRight. BWALK and WALK both go to `StateChange( 0xd, 0 )`; March's `USI_WAIT` = GUSI_END (5) + 8 = 13.
+  - DASH: vslot 0x668. Z / X: the same `+0x8c8c`, pureZ `+0x86ea` / pureX `+0x86ee`, vslots 0x4b0 / 0x4b4.
+  - Every exit lands on `31fe7902`, the `+0x8e78` death gate that the port has right after the block.
+
+**The clamp's reach on March data (new, not a defect).** March's data036 class scripts, decompiled with `ljd_fixed.py`, carry 843 cancel-after assignments.
+- None is negative. 35, in 7 classes, are below 0.1 (0, 0.001 or 0.033): Add, Ara, Chung, Elesis and Eve combos and modes, and Raven's RBM / RVC / Weapon Taker combos.
+- **All 35 carry the same value in June's scripts**, and June clamps them too. In those states the cancel opens at 0.1 s, as it does in June. The kept clamp is therefore parity, not drift.
+- The play-tests logged 0 clamp lines because none of these states was entered. Elsword has none.
+- Only the 9 class scripts carry the keys (a `grep -l CANCEL_AFTER` over `kom_contents/data036_kom`).
+- Some class code uses the members as something other than a time:
+  - Lire: `nowSpeed.x +=` WALK (`X2GULire_ElvenRanger.cpp:13169`), and `fReloadAccel =` SKILL (`:13291`, `:13411`, `:13452`);
+  - Elsword: EventTimer( DASH ), and the HarshChaser / PiercingSword range formulas on SKILL.
+  - Both classes have no value below 0.1, so the clamp does not reach any of these uses.
+- Table: `june2017_re/c9h4c_cancel_clamp_census.tsv`.
+
+**Changes:** `SERV_IRUHADEV_JUNE_UPDOWN_CANCEL_DEBUG` and `SERV_IRUHADEV_JUNE_CANCEL_CLAMP_DEBUG` are commented out in `Always.h` (bytepatch; encoding and EOL unchanged). No code change.
+
+**Hygiene** (`flagcheck JUNE_UPDOWN_CANCEL --with _UPDOWN_CANCEL_DEBUG _COMMON_CANCEL _CANCEL_CLAMP _CANCEL_CLAMP_DEBUG --range 6310cab^..HEAD`):
+```
+files: 0 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR
+in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)
+RESULT: PASS
+```
+The OTHER row is `87439b3`, C9h-4b's `_DEBUG` lines in `Always.h`. The worktree run on this review's edit is PASS with 2 deleted lines: the two `#define ..._DEBUG` lines, now commented out.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,372,032 B, dated 2026-10-08 13:10:00, md5 5f0e337202f98351309359a3771dbdac, equal to X2/US_SERVICE/x2.exe (2026-10-08 13:09:55); built at mods/june-buff-port 15bc580 + 7 uncommitted code file(s).`
+- The 7 files are this review's `Always.h` lines plus a peer's in-progress C9h-4d: `SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE` + `_DEBUG`, in X2GUUser, X2GameUnit, X2GUNPC and X2StateDungeonGame.
+- A scan of the exe: `JUNE_FX UPDOWN_CANCEL` and `JUNE_FX CANCEL_CLAMP` are absent, in both UTF-16 and narrow form. `UPDOWN_CANCEL_AFTER` and `USE_COMMON_CANCEL_AFTER` are present.
+
+**Next kickoff:** `C9h-4d.md` was checked; nothing here changes it. `C9h-4f.md` already places `USEFUL_VALUE` after the clamp. **Open for the user:** `/cost`.
+
 ### C9h-6 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the snapshot exists because June's running state data are pointers; March copies them by value, so a port would never change anything -> no port, routing only
 
 There are 23 funcmap rows tagged `Effect C9h-6`. The sweep of `[reg + 0x9538..0x956c]` found 69 hits, a few of them `mov reg, imm` decode artefacts.
