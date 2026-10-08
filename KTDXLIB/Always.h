@@ -6143,6 +6143,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-08
+// Description: C9h-4f: June's USEFUL_VALUE<n> per-state float table. June reads up to five tables
+//              USEFUL_VALUE0..4 of a state ( three floats each, a missing value is 0 ) into two member
+//              sets: CommonStateStartFuture 320506f0 @32056a15 fills the Future set ( +0x8ef4 ), CommonStateStart
+//              32057b80 @32060cd9 fills the Now set ( +0x8eb8 ). March scripts carry no such key, so with March
+//              data both sets stay 0. Readers are June-only states ( bounding landcrash, WAIT_STATE_CHANGE,
+//              the event states ) and class code. Off = the key is never read.
+//              Log: "JUNE_FX USEFUL_VALUE" in ErrorLog.txt (_DEBUG only, one line per parse that found a table).
+#define SERV_IRUHADEV_JUNE_USEFUL_VALUE
+#define SERV_IRUHADEV_JUNE_USEFUL_VALUE_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
 // Description: C9h-8: June's damage-effect sound play CEffect::OnFrameMove_SoundData 31f6eca0.
 //              March opened each SOUND<n> with OpenSound ( closed by name in the dtor, CLOSE_SOUND_TEST )
 //              and played it once, ignoring LOOP. June calls the device PlaySound( name, LOOP,

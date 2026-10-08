@@ -1168,6 +1168,11 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef SERV_IRUHADEV_JUNE_COMMON_CANCEL
 	m_bJuneUseCommonCancelAfter	= false;
 #endif SERV_IRUHADEV_JUNE_COMMON_CANCEL
+#ifdef SERV_IRUHADEV_JUNE_USEFUL_VALUE
+	/// not June (its ctor 3203e850 leaves them to the first state parse): a unit that is read before its first parse sees 0
+	memset( m_afJuneUsefulValueFuture, 0, sizeof( m_afJuneUsefulValueFuture ) );
+	memset( m_afJuneUsefulValueNow, 0, sizeof( m_afJuneUsefulValueNow ) );
+#endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
 
 #ifdef HYPER_MODE_FIX
 	m_iLastStateHyperModeCount	= 0;
@@ -14976,6 +14981,10 @@ void CX2GUUser::CommonStateStartFuture()
 	/// June 320506f0 @320568d3: the clamp follows the last read
 	JuneClampCancelAfters( m_FutureStateData.stateID, true );
 #endif SERV_IRUHADEV_JUNE_CANCEL_CLAMP
+#ifdef SERV_IRUHADEV_JUNE_USEFUL_VALUE
+	/// June 320506f0 @32056a15: right after the clamp, the Future set
+	JuneParseUsefulValue( m_afJuneUsefulValueFuture, m_FutureStateData.stateID, true );
+#endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
 
 #ifdef LINKED_LINEMAP_JUMP_USER_TEST
 	LUA_GET_VALUE( m_LuaManager, "LINK_JUMP_TIME", m_fLinkJumpTime, 1.f );
@@ -16078,6 +16087,10 @@ void CX2GUUser::CommonStateStart()
 	/// June 32057b80 @3205fa38: the clamp follows the last read
 	JuneClampCancelAfters( m_NowStateData.stateID, false );
 #endif SERV_IRUHADEV_JUNE_CANCEL_CLAMP
+#ifdef SERV_IRUHADEV_JUNE_USEFUL_VALUE
+	/// June 32057b80 @32060cd9-32060dd5: the Now set ( June reads it after its other state keys; March has none of them in between )
+	JuneParseUsefulValue( m_afJuneUsefulValueNow, m_NowStateData.stateID, false );
+#endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
 
 #ifdef SERV_EVE_BATTLE_SERAPH
 	LUA_GET_VALUE( m_LuaManager, "IS_NOCHANGE_SPECTRO",		m_FrameDataNow.stateParam.bNoChangSpectro,		false );
@@ -21191,6 +21204,40 @@ void CX2GUUser::JuneClampCancelAfters( int iStateId_, bool bFuture_ )
 	}
 }
 #endif SERV_IRUHADEV_JUNE_CANCEL_CLAMP
+#ifdef SERV_IRUHADEV_JUNE_USEFUL_VALUE
+/// June CommonStateStartFuture 320506f0 @32056a15-32056b0e and CommonStateStart 32057b80 @32060cd9-32060dd5 (identical shape): zero the 15 floats, then
+/// BeginTable( "USEFUL_VALUE", i ) for i = 0, 1, ...: values 1..3 into row i ( a missing value gives 0 ), EndTable. The first missing table ends the
+/// loop. A table that opens at i == 5 is closed without being read ( June @32056a95 jge ), so only five rows exist.
+void CX2GUUser::JuneParseUsefulValue( float ( &afTable_ )[5][3], int iStateId_, bool bFuture_ )
+{
+	memset( afTable_, 0, sizeof( afTable_ ) );
+
+	int iRow = 0;
+	while( m_LuaManager.BeginTable( "USEFUL_VALUE", iRow ) == true )
+	{
+		if( iRow >= 5 )
+		{
+			m_LuaManager.EndTable();
+			break;
+		}
+		LUA_GET_VALUE( m_LuaManager, 1, afTable_[iRow][0], 0.f );
+		LUA_GET_VALUE( m_LuaManager, 2, afTable_[iRow][1], 0.f );
+		LUA_GET_VALUE( m_LuaManager, 3, afTable_[iRow][2], 0.f );
+		iRow++;
+		m_LuaManager.EndTable();
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_USEFUL_VALUE_DEBUG
+	if( iRow > 0 )
+	{
+		WCHAR wszJuneFx[200] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX USEFUL_VALUE %s state=%d rows=%d row0=%g,%g,%g unit=%d",
+			( true == bFuture_ ? L"future" : L"now" ), iStateId_, iRow, afTable_[0][0], afTable_[0][1], afTable_[0][2], static_cast<int>( GetUnitUID() ) );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#endif SERV_IRUHADEV_JUNE_USEFUL_VALUE_DEBUG
+}
+#endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
 void CX2GUUser::CommonEventProcess()
 {
 #ifdef SERV_IRUHADEV_JUNE_COMMON_CANCEL

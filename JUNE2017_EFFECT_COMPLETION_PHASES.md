@@ -3796,7 +3796,7 @@ then C9h-7a.
   - Until C11 the list and stopper are unreachable on March data. The visible change is the play path, plus 3D placement applied after the play.
 
 **Hygiene** (`flagcheck JUNE_DAMAGEEFFECT_SOUND --worktree --files` the 5 code files): 2 PASS, 1 PASS~ (one blank line), 2 OTHER (`Always.h` peers' blocks; `X2DamageEffect.cpp` = the `_DEBUG && OFFLINE` log blocks), 0 FAIL, 0 deleted, 0 non-ASCII, 0 encoding change; RESULT: PASS.
-**Deploy:** `DEPLOY OK: X2_offline.exe is 19,409,920 B, dated 2026-10-08 21:14:44, md5 561222164aeae84747f51182fad1f869, equal to X2/US_SERVICE/x2.exe (2026-10-08 21:14:39); built at mods/june-buff-port 920eafe + 7 uncommitted code file(s)` (the 7 include a peer's C9h-4f `X2GUUser` work). The 4 `JUNE_FX DE_SOUND` / `result : %d, File : %s` strings are in the exe. data036: packed, copy asked in the hand-off.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,409,920 B, dated 2026-10-08 21:14:44, md5 561222164aeae84747f51182fad1f869, equal to X2/US_SERVICE/x2.exe (2026-10-08 21:14:39); built at mods/june-buff-port 920eafe + 7 uncommitted code file(s)` (the 7 include a peer's C9h-4f `X2GUUser` work). The 4 `JUNE_FX DE_SOUND` / `result : %d, File : %s` strings are in the exe. data036: `COPY OK data036 ... 10655716 bytes, 192 entries, md5 ad48d728211d0345fad4b1100377d7ea` (user yes; backup `kom_backup_tools/data036.kom.20261008_211615`).
 **Play-test** (STATUS row): jtCodeEmpress, Eve EP dash ZZ / ZZZ and jump ZX, expecting `JUNE_FX DE_SOUND … play … loop=0`, no droning, 0 EXCEPTION. next: C9h-8 review.
 
 ## C10 - Decided absent systems

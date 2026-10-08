@@ -2311,6 +2311,13 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CANCEL_CLAMP
 		void JuneClampCancelAfters( int iStateId_, bool bFuture_ );
 #endif SERV_IRUHADEV_JUNE_CANCEL_CLAMP
+#ifdef SERV_IRUHADEV_JUNE_USEFUL_VALUE
+		/// C9h-4f: June's USEFUL_VALUE<n> rows ( 5 rows x 3 floats ). Future = +0x8ef4 ( CommonStateStartFuture ), Now = +0x8eb8 ( CommonStateStart ).
+		/// An out-of-range row or column reads 0, like a missing value.
+		void JuneParseUsefulValue( float ( &afTable_ )[5][3], int iStateId_, bool bFuture_ );
+		float JuneGetUsefulValueFuture( IN int iRow_, IN int iColumn_ ) const { return ( 0 <= iRow_ && iRow_ < 5 && 0 <= iColumn_ && iColumn_ < 3 ) ? m_afJuneUsefulValueFuture[iRow_][iColumn_] : 0.f; }
+		float JuneGetUsefulValueNow( IN int iRow_, IN int iColumn_ ) const { return ( 0 <= iRow_ && iRow_ < 5 && 0 <= iColumn_ && iColumn_ < 3 ) ? m_afJuneUsefulValueNow[iRow_][iColumn_] : 0.f; }
+#endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
 		virtual bool CanRidingState();
 #ifdef CHECK_CAMERA_INFO
 		void SetIsLineMapCamera( IN bool bVal_ ) { m_bIsLineMapCamera = bVal_;}
@@ -4217,6 +4224,10 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_COMMON_CANCEL
 		bool					m_bJuneUseCommonCancelAfter;	/// June +0x8ca0: USE_COMMON_CANCEL_AFTER (C9h-4c)
 #endif SERV_IRUHADEV_JUNE_COMMON_CANCEL
+#ifdef SERV_IRUHADEV_JUNE_USEFUL_VALUE
+		float					m_afJuneUsefulValueFuture[5][3];	/// June +0x8ef4: USEFUL_VALUE0..4 of the Future state (C9h-4f)
+		float					m_afJuneUsefulValueNow[5][3];		/// June +0x8eb8: USEFUL_VALUE0..4 of the Now state (C9h-4f)
+#endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
 
 #ifdef HYPER_MODE_FIX
 		int						m_iLastStateHyperModeCount;
