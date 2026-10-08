@@ -2585,6 +2585,42 @@ Kickoffs written: `C9h-3a.md`, `C9h-3b.md`, `C9h-4.md`, `C9h-5.md`; STATUS rows 
 
 **User owes:** /cost.
 
+### C9h-3a - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX` + `_DEBUG` (off), log `JUNE_FX RIDINGPET_FX`; play-test pending)
+
+The in-game riding pet's UI effect sets are ported whole, with the engine holder they play through. Files: `X2EffectSet.h/.cpp`, `X2RidingPet.h/.cpp`, `X2RidingPetManager.cpp`, `Always.h`, `data036` `Enum.lua`. Read-only Ghidra; funcmap rows tagged `Effect C9h-3a` (6), JUNE_BUGS 108 corrected and 118 added.
+
+**A correction of C9h-3 (the kickoff said the opposite).** The riding pet's own state set block (`@32d35a05`: stop `+0x4c0`, `EFFECT_SET_LIST` names, play on the UI set) runs **only without a game**:
+- the in-game user block (`@32d3110d..@32d350db`) ends in `JNZ @32d350aa` / `JMP @32d350db`, both to the tail `@32d35f00`;
+- the only jumps into `@32d35a05` are the village block's guards (`@32d350e8`, `@32d35105`, `@32d35154`) and its fall-through.
+- So a game plays a state's `EFFECT_SET_LIST` once (the user loader `32024ff0`), not twice. JUNE_BUGS 108 is re-scoped to what is real: in a village the names are read at odd indices only (start times skipped). The reserved delete blocks and the tail `32d2bad0` still run for every state. In `CX2RidingPet::StateChange` that is an `else` on `if ( NULL != g_pX2Game )`.
+
+**What landed**
+- **Engine holder.** `EffectSetInstance::m_pRidingPetHolder` (a `CX2RidingPetPtr`, released by the member dtor) and `CX2EffectSet::PlayEffectSet( name, CX2RidingPetPtr )` = `321e2790` (power rate -1, life time -1, `ESM_COMMON`, no scale). Consumers:
+  - `GetEffectPosition @321dcf6b`: RIDING_PET_BONE_NAME bone when the pet's skin anim is loaded, else land position (`m_ConditionData.m_vLandPosition`, pet `+0x33c`), else `GetPos()` (`+0x390`); no `SetEffectSetOffset` on any of the three;
+  - `GetCombineMatrix @321dc81f`;
+  - `GetEffectPositionByBoneName @321dd7ac` (reachable: the GROUP_NAME loop passes a non-empty name; it reads the EffectData's bone, not the caller's);
+  - `GetUnitRotation @321ddf69` (`m_vDirDegree`, `+0x324`);
+  - the create-time anim gate `@321eeb1e`.
+  - The C9h-2a comments at `X2EffectSet.cpp:4945` / `:6383` got correction lines (insert-only: `+0xe0` is the field NPC, C9h-5).
+- **Riding pet.** Members: hide mirror `+0x4ac`, kept vector `+0x4b0`, per-state vector `+0x4c0`, reserved map `+0x4d0`. Helpers `32d29240` / `32d292b0` / `32d291a0` / `32d293e0`. Loader `32d2b0d0` (INIT_EFFECT, called after InitState in both `SetRidingPet` and `SetGameRidingPet`; one log line per run). StateChange: reserved delete blocks `@32d31013` before the game test, the village-only state set block, the tail for every state. Village `OnFrameRender_Prepare`: square unit `+0x518` = `GetPlanRender` (identified by behaviour: June returns the no-render hint when it is set) synced into the mirror. Manager: `NotifyShowObjectChanged` ends with the show / hide, `RemoveRidingPet` stops everything after the erase. The dtor stops nothing (JUNE_BUGS 109).
+- **June's queued stop (JUNE_BUGS 111) is emulated:** the handles stopped by the delete blocks are collected, the tail treats them as still playing (`RESPC_NOT_PLAY` skips a name whose set was just stopped), and they are stopped after the tail.
+- **Data.** `Enum.src.lua` got `RESERVED_EFFECT_SET_PLAY_COND` and `RESERVED_UI_EFFECT_SET_DELETE_COND` verbatim from June; `kom.py compile` rebuilt `Enum.lua`; `kom.py pack data036` = `PACK OK` (192 entries, only `Enum.lua` changed vs the live kom). **Not copied: asking the user** (nothing March reads needs it yet; June's riding-pet scripts are C9h-4e's).
+
+**Reach on March data.** The 15 March riding pets already carry `EFFECT_SET_LIST` (summon `EffectSet_Riding_Pet_Summon`, attacks, dashes). So in a **village** their sets now play on the UI effect set where March showed none; in a game nothing changes except the loader's one log line (no March pet has `INIT_EFFECT`). The tail and delete blocks are inert (no March pet has reserved lists).
+
+**Hygiene** (`flagcheck JUNE_RIDINGPET_UI_FX --with JUNE_RIDINGPET_UI_FX_DEBUG --worktree --files <6 code files>`): `files: 4 PASS, 0 PASS~, 1 DEFINE, 1 OTHER (X2EffectSet.cpp: the two correction comment lines sit inside PET_VIEWER_FX blocks), 0 FAIL, 0 ERROR`; the one deleted line is an unrelated blank line a peer removed from `Always.h`, not in the committed blob; `RESULT: PASS`. Range line after the commit: see the commit note below.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,367,936 B, dated 2026-10-08 10:12:57, md5 3f3dd8bfb30e3a439059a47a72f97dcc, equal to X2/US_SERVICE/x2.exe (2026-10-08 10:12:22); built at mods/june-buff-port 9f23a3a + 6 uncommitted code file(s).` The strings `JUNE_FX RIDINGPET_FX loader`, `RIDINGPET_RESERVED_UI_EFFECT_SET_LIST`, `PLAY_RESERVED_UI_EFFECT_SET` and `DELETE_RESERVED_UI_EFFECT_SET` are in the deployed exe.
+
+**Play-test (character `reyaa`, lv 80, riding pets 4, 5 and 7 in the save).** No dev console needed.
+1. Village: summon a riding pet. **Look for:** the summon effect (`EffectSet_Riding_Pet_Summon`) around the pet, and attack / dash effects when the pet performs them; they should follow the pet and vanish when it stops or is unsummoned.
+2. Village, optional: anything that hides your character (`CX2SquareUnit::SetShowObject( false )`, which the square unit forwards to the pet manager: an NPC cutscene, a full-screen scene) and shows it again. **Look for:** the pet's sets hidden with it and back with it; no stray effect left at the pet's last position after unsummon. Not reachable on demand offline: skip it if nothing hides the character.
+3. Dungeon or battlefield: summon, walk, attack. **Look for:** nothing new (June does not play the riding pet's list on the UI set in a game); no effect lingering after unsummon.
+- **If a set floats at the origin or behind the pet,** that is the holder position branch: tell me the pet and the state.
+- **Logs:** `python tools/logs.py --grep "JUNE_FX RIDINGPET_FX"` shows one `loader` line per summon (`reserved=0 by_uieffectset=0` expected on March data), 0 EXCEPTION.
+
+**Open for the user:** `/x2-kom-packed copy data036` (say "copy data036"; it only adds the two Enum tables); `/cost`.
+
 ### C9h-3b - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_RIDINGPET_STATE` + `_DEBUG`, log `JUNE_FX RIDINGPET_STATE`)
 
 The riding pet's `StateChange` / `StateChangeFuture` now follow June (`32d2f560` / `32d2c8b0`) for the riding-pet-local keys. Files: `X2RidingPet.h/.cpp`, `X2RidingPetManager.h/.cpp`, `X2GUUser.h/.cpp`, `Always.h`. Read-only Ghidra plus capstone; funcmap rows `Effect C9h-3b`.

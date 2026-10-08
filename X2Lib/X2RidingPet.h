@@ -326,6 +326,25 @@ public:
 	};
 	#pragma endregion 상태 데이터
 
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+	/// June RESERVED_EFFECT_SET_PLAY_COND / RESERVED_UI_EFFECT_SET_DELETE_COND (data036 Enum.lua, C9h-3a)
+	enum JUNE_RESERVED_UI_EFFECT_SET_COND
+	{
+		JUNE_RESPC_NONE			= 0,
+		JUNE_RESPC_NOT_PLAY		= 1,	/// do not play when a set of that name is already in the kept vector
+		JUNE_RESDC_NONE			= 0,
+		JUNE_RESDC_STATE_CHANGE	= 1,	/// stopped by the next StateChange
+	};
+
+	/// June reserved UI effect set map node (+0x4d0, std::map<int, node>: key +0xc, deleteCond +0x10, playCond +0x14, name +0x18; INIT_EFFECT.RIDINGPET_RESERVED_UI_EFFECT_SET_LIST)
+	struct JuneReservedUiSet
+	{
+		int				m_iDeleteCond;
+		int				m_iPlayCond;
+		std::wstring	m_wstrName;
+	};
+	typedef std::map< int, JuneReservedUiSet > JuneReservedUiSetMap;
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 	#pragma region typedef
 	typedef boost::bimaps::bimap< char, string > StateBiMap;				/// 기존 두 개의 맵을 사용한 것을 bimap으로 바뀜
 	typedef boost::bimaps::bimap< char, string >::value_type BiMapValue;	/// biMap에 접근하기 위한 값
@@ -448,6 +467,15 @@ public:
 	float GetJuneDegreeRange() const { return m_fJuneDegreeRange; }
 	float GetJuneValuePos() const { return m_fJuneValuePos; }
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+	/// June pet +0x33c / +0x324 (m_ConditionData.m_vLandPosition / m_vDirDegree), read by the UI effect set holder (CX2EffectSet, C9h-3a)
+	const D3DXVECTOR3& GetJuneLandPosition() const { return m_ConditionData.m_vLandPosition; }
+	const D3DXVECTOR3& GetJuneDirDegree() const { return m_ConditionData.m_vDirDegree; }
+	/// June 32d291a0 (callers: the manager's NotifyShowObjectChanged, OnFrameRender_Prepare's village branch): show / hide every UI set, then the hide mirror = false
+	bool JuneShowHideAllUiSets( IN bool bShow_ );
+	/// June 32d293e0 (only caller: the manager's RemoveRidingPet): stop every UI set and clear both vectors
+	void JuneStopAllUiSets();
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 
 #ifdef FIX_HIT_FLY_RIDING_PET_MOTION // 김태환
 	const RidingPetCondition GetConditionData() const { return m_ConditionData; }
@@ -462,6 +490,14 @@ private:
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 	void PlayAnimAtPlayEnd();		/// June 32d286c0, called at the end of OnFrameMove (@32d2f3b1)
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+	void JuneLoadInitEffect();															/// June 32d2b0d0, called by SetRidingPet / SetGameRidingPet after InitState
+	std::wstring JuneGetReservedSetName( IN int iIndex_ ) const;						/// June 32d29240
+	CX2EffectSet::Handle JuneFindReservedSet( IN int iIndex_ );							/// June 32d292b0 (scans the kept vector only)
+	void JuneDeleteReservedUiSets( OUT std::vector< CX2EffectSet::Handle >& vecPendingStop_ );	/// June StateChange @32d31013 (the stops are queued in June)
+	void JuneStateChangeUiSets();														/// June StateChange @32d35a05 (village path only)
+	void JunePlayReservedUiSets( IN std::vector< CX2EffectSet::Handle >& vecPendingStop_ );	/// June 32d2bad0, then the queued stops (JUNE_BUGS 111)
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 
 	void InitDevice();
 	void InitSystem();
@@ -538,6 +574,14 @@ private:
 	int			m_iJuneOnGroundState;			/// +0x5bc: ONGROUND_CHANGE_STATE.STATE_NAME as a state id (0 = none)
 	bool		m_bJuneOnGroundChanged;			/// +0x620
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+	/// June CX2RidingPet UI effect set members (C9h-3a; June offsets in the comments, the layouts differ). All of them are freed by June's dtor
+	/// without stopping the handles (32d2bdd0, JUNE_BUGS 109): neither does March's.
+	bool							m_bJuneUiSetHidden;				/// +0x4ac: hide mirror (players use SetShowObject( !m_bJuneUiSetHidden )); 32d291a0 zeroes it whatever it was asked
+	std::vector< CX2EffectSet::Handle >	m_vecJuneUiSetKept;			/// +0x4b0: INIT BY_UIEFFECTSET, reserved and non-delete-on-end state sets
+	std::vector< CX2EffectSet::Handle >	m_vecJuneUiSetState;		/// +0x4c0: DELETE_EFFECT_SET_ON_STATE_END sets; stopped through copies on every state, never cleared (JUNE_BUGS 107)
+	JuneReservedUiSetMap			m_mapJuneReservedUiSet;			/// +0x4d0
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 #pragma endregion variable
 
 #pragma region public

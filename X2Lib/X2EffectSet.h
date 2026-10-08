@@ -833,6 +833,13 @@ public:
 		// 2D, resolution-converted, over-UI sequence (FUN_321ee600 @321f2522). The +0xe0 holder beside it is C9h-3's.
 		bool							m_bPlayedOnUnitViewer;
 #endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+		// June2017 EffectSetInstance +0xd8 (C9h-3a): the riding pet a set played through PlayEffectSet( name, CX2RidingPetPtr )
+		// (321e2790) follows. Zero in the ctor (FUN_321df230 @321df3dd), an intrusive ref (+8) that the dtor releases (FUN_321e3a80
+		// @321e3d79), so the pet outlives a set that is still playing on it. The mode is ESM_COMMON (3) with no pet (+0xd4) set. June's
+		// +0xe0 beside it is the field NPC's (CX2TFieldNpc, C9h-5), not this one.
+		CX2RidingPetPtr					m_pRidingPetHolder;
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 
 		// June2017 EffectSetInstance +0x55 / +0x58: a trigger's EFFECT_SET_TOGGLE_VISIBILITY_TIMER (FUN_321dfc40
 		// @ 321dff89-321dff96), counted down by OnFrameMove_UpdateEffect (FUN_321e0080 @ 321e0105-321e0140).
@@ -984,6 +991,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 	CX2EffectSet::Handle PlayEffectSet( const WCHAR* pwszEffectSetName, CKTDGXSkinAnimPtr pXSkinAnim );	// June 321e28d0, no owner: unit viewers
 #endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+	CX2EffectSet::Handle PlayEffectSet( const wstring& wstrEffectSetName, CX2RidingPetPtr pRidingPet );	// June 321e2790, on the UI effect set
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 	CX2EffectSet::Handle PlayEffectSet( const wstring& wstrEffectSetName, CX2GameUnit* pGameUnit, CX2GameUnit* pTraceTargetGameUnit = NULL, 
 		bool bHyper = false, float fPowerRate = -1.f, float fLifeTime = -1.f, D3DXVECTOR3 vScale = D3DXVECTOR3( 1, 1, 1 ), 
 		bool bCustomPosition = false, const D3DXVECTOR3& vPosition = D3DXVECTOR3( 0, 0, 0 ), const D3DXVECTOR3& vRotationDegree = D3DXVECTOR3( 0, 0, 0 ), const D3DXVECTOR3& vDirVector = D3DXVECTOR3( 0, 0, 0 ) );

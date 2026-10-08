@@ -913,6 +913,16 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 								continue;
 						}
 #endif //RIDING_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+						// June2017 OnFrameMove_CreateEffect 321ee600 @321eeb1e-321eeb9b (C9h-3a): a set played on a riding pet (+0xd8) whose skin anim
+						// exists (32071a10, +0x238) waits for that anim's own time (+0x214), as the pet branch above does; with no skin anim June falls
+						// through to the generic test below (+0xe0, then the set's own skin anim).
+						else if ( NULL != pEffectSetInstance->m_pRidingPetHolder && NULL != pEffectSetInstance->m_pRidingPetHolder->GetXSkinAnimPtr() )
+						{
+							if( pEffectSetInstance->m_pRidingPetHolder->GetXSkinAnimPtr()->GetNowAnimationTime() < pEffectData->m_fStartAnimTime + pEffectSetInstance->m_fDelayTime )
+								continue;
+						}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 						else
 						{
 							if( 
@@ -3545,6 +3555,36 @@ CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const WCHAR* pwszEffectSetName
 	return pEffectSetInstance->m_hHandle;
 }
 #endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+/** @function : PlayEffectSet( name, CX2RidingPetPtr )
+	@brief : June2017 321e2790 (thiscall on g_pData +0x9c, RET 0xc: the handle comes back through a hidden out pointer; callers are the riding pet's
+			 INIT_EFFECT loader 32d2b0d0, its PLAY_RESERVED_UI_EFFECT_SET tail 32d2bad0 and StateChange's state set block @32d35e3f, always on the UI
+			 effect set). PlayEffectSetByPet's shape on a riding pet: a null templet or a null pet answers an invalid handle; the instance is made with
+			 every owner null (_CreateEffectSetInstance 321e1bf0, which can still refuse), then the holder (+0xd8, a counted ref), m_fPowerRate -1.0
+			 (+0x60), m_fLifeTime -1.0 (+0x68), m_eMode ESM_COMMON (+0) and m_bHyper false (+0x20) are written. No scale write (the ctor's 1,1,1 stays).
+*/
+CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetName, CX2RidingPetPtr pRidingPet )
+{
+	EffectSetData* pEffectSetData = GetEffectSetTemplet( wstrEffectSetName );
+	if( NULL == pEffectSetData )
+		return INVALID_EFFECTSET_HANDLE;
+
+	if( NULL == pRidingPet )
+		return INVALID_EFFECTSET_HANDLE;
+
+	CKTDGXSkinAnimPtr tempPtr;
+	EffectSetInstance* pEffectSetInstance = _CreateEffectSetInstance( pEffectSetData, tempPtr, NULL, NULL, CX2SquareUnitPtr(), NULL );
+	if( NULL == pEffectSetInstance )
+		return INVALID_EFFECTSET_HANDLE;
+
+	pEffectSetInstance->m_pRidingPetHolder = pRidingPet;
+	pEffectSetInstance->m_bHyper = false;
+	pEffectSetInstance->m_fPowerRate = -1.f;
+	pEffectSetInstance->m_fLifeTime = -1.f;
+	pEffectSetInstance->m_eMode = ESM_COMMON;
+	return pEffectSetInstance->m_hHandle;
+}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 void CX2EffectSet::StopEffectSet( CX2EffectSet::Handle& hHandle )
 {
 	if( INVALID_EFFECTSET_HANDLE == hHandle )
@@ -4943,6 +4983,8 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPosition( EffectData* pEff
 			// (0,0,0) (31d38a20 GetCloneFrame, the frame's combineMatrix translation +0xc0..+0xc8). Then x += 512.0, y = (y - 384.0) * -1.0,
 			// z = 0 (doubles 3347e350 / 3347e348 / 33436c90), the screen position the viewer draws at. It jumps to the end (@321dd531):
 			// there is no SetEffectSetOffset on this path. June's next branch (@321dd1a3, +0xe0) is the in-game riding pet's, C9h-3.
+			// C9h-3a correction of the line above: @321dd1a3 (+0xe0) is the field NPC's branch (CX2TFieldNpc, C9h-5), not the riding pet's. The riding
+			// pet holder (+0xd8) is mode 3 (ESM_COMMON), ported in the ESM_COMMON case below (SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX).
 			else if( true == m_bPlayedOnUnitViewer && m_pXSkinAnim != NULL )
 			{
 				const std::wstring* pwstrBoneName = NULL;
@@ -4991,6 +5033,22 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPosition( EffectData* pEff
 				SetEffectSetOffset( vPos, pEffectData->m_vPositionOffset );
 #endif //FIX_BONE_TRACE_TARGET_MESH_UNIT_TRACE
 			}
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+			// June2017 GetEffectPosition 321dcd30 @321dcf6b-321dd00e (C9h-3a), mode 3 with no pet (+0xd4): the riding pet holder (+0xd8). With
+			// RIDING_PET_BONE_NAME (EffectData +0x9c) set and the pet's skin anim loaded (320719f0) the position is that bone (321f2e60 = the pet's
+			// skin anim GetCloneFramePosition, (0,0,0) for an unknown bone); otherwise EffectData +0xcb (m_bLandPosition) picks the pet's land
+			// position (+0x33c = m_ConditionData.m_vLandPosition) else its position (+0x390 = m_SyncData.m_vPos). All three leave at once: there is
+			// NO SetEffectSetOffset (321d9820) on this branch, unlike the pet branch above.
+			else if( NULL != m_pRidingPetHolder )
+			{
+				if( false == pEffectData->m_PosRidingPetBoneName.empty() && NULL != m_pRidingPetHolder->GetXSkinAnim() )
+					vPos = m_pRidingPetHolder->GetBonePos( pEffectData->m_PosRidingPetBoneName.c_str() );
+				else if( true == pEffectData->m_bLandPosition )
+					vPos = m_pRidingPetHolder->GetJuneLandPosition();
+				else
+					vPos = m_pRidingPetHolder->GetPos();
+			}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 		}
 		break;
 #endif
@@ -5236,6 +5294,13 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetUnitRotation( EffectData* pEffec
 			{
 				return m_pPet->GetDirDegree();
 			}
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+			// June2017 GetUnitRotation 321ddea0 @321ddf69 (C9h-3a): the riding pet holder's rotation, pet +0x324..+0x32c = m_ConditionData.m_vDirDegree.
+			else if( m_pRidingPetHolder != NULL )
+			{
+				return m_pRidingPetHolder->GetJuneDirDegree();
+			}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 		} break;
 #endif
 	}
@@ -5348,6 +5413,18 @@ const D3DXMATRIX* CX2EffectSet::EffectSetInstance::GetCombineMatrix( const Effec
 		return ( NULL != pMultiAnimFrame ) ? &pMultiAnimFrame->combineMatrix : NULL;
 	}
 #endif SERV_PET_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+	// @ 321dc81f-321dc8af (C9h-3a): the riding pet holder (+0xd8) with a skin anim (32071a10, +0x238, no loaded test here) gives the combine matrix
+	// of the frame named by RIDING_PET_BONE_NAME (EffectData +0x9c, not BONE_NAME +0x40) on that anim (31d38a20 = GetCloneFrame; +0x90 = combineMatrix);
+	// no skin anim or no frame gives no matrix. +0xe0 (the field NPC, C9h-5) is not ported.
+	if( NULL != m_pRidingPetHolder )
+	{
+		if( NULL == m_pRidingPetHolder->GetXSkinAnimPtr() )
+			return NULL;
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pJuneFrame = m_pRidingPetHolder->GetXSkinAnimPtr()->GetCloneFrame( pEffectData->m_PosRidingPetBoneName.c_str() );
+		return ( NULL != pJuneFrame ) ? &pJuneFrame->combineMatrix : NULL;
+	}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 	// @ 321dc81f-321dc8c1: two more holders (a riding pet, +0xd8, and +0xe0) that March's instance does not have
 	return NULL;
 }
@@ -6381,6 +6458,8 @@ bool CX2EffectSet::EffectSetInstance::GetEffectPositionByTargetMesh( OUT D3DXVEC
 // C9h-2a extends the doc comment above: the UI viewer holder (+0xdd) IS ported, in the ESM_FIELD case below. It sits in the
 // non-empty-name path (the GROUP_NAME and UpdateEffect callers always pass <base>_GROUPCHILD_<n>); only its empty-name
 // RIDING_PET_BONE_NAME fallback (@321dd960) stays out, with the other empty-name branches. The +0xe0 and +0xd8 holders are still absent.
+// C9h-3a correction of the line above: the riding pet holder (+0xd8) IS ported now, in the ESM_COMMON case below (SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX);
+// only the +0xe0 holder (the field NPC's, C9h-5) is still absent.
 #endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPositionByBoneName( IN EffectData* pEffectData, IN const std::wstring& wstrBoneName_, OUT bool& bBoneFound_ )
 {
@@ -6495,6 +6574,21 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPositionByBoneName( IN Eff
 					bBoneFound_ = m_pPet->GetXSkinAnim()->GetCloneFramePosition( pwszBoneName, vPos );
 				SetEffectSetOffset( vPos, pEffectData->m_vPositionOffset, pEffectData );
 			}
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+			// June2017 GetEffectPositionByBoneName 321dd590 @321dd7ac-321dd83e (C9h-3a), mode 3 with no pet: the riding pet holder (+0xd8). Reachable
+			// (a non-empty caller name: the GROUP_NAME loop and UpdateEffect pass <base>_GROUPCHILD_<n>). It reads the EffectData's RIDING_PET_BONE_NAME
+			// (+0x9c), NOT the caller's name: with it set and the pet's skin anim loaded the bone is found (321f2eb0 = bool GetCloneFramePosition); otherwise
+			// the land position / position as in GetEffectPosition and the bone counts as not found. No SetEffectSetOffset here either.
+			else if( NULL != m_pRidingPetHolder )
+			{
+				if( false == pEffectData->m_PosRidingPetBoneName.empty() && NULL != m_pRidingPetHolder->GetXSkinAnim() )
+					bBoneFound_ = m_pRidingPetHolder->GetBonePos( pEffectData->m_PosRidingPetBoneName.c_str(), vPos );
+				else if( true == pEffectData->m_bLandPosition )
+					vPos = m_pRidingPetHolder->GetJuneLandPosition();
+				else
+					vPos = m_pRidingPetHolder->GetPos();
+			}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 		} break;
 #endif SERV_PET_SYSTEM
 	}

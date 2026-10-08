@@ -240,6 +240,11 @@ void CX2RidingPetManager::NotifyShowObjectChanged( IN UidType uUserUid_, IN bool
 
 	if ( NULL != pRidingPet )
 		pRidingPet->SetShowObject( bVal_ );
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+	/// June 321f5cb0 (C9h-3a): the pet found by the UID ends with 32d291a0( bVal_ ), show / hide of every UI set (it zeroes the pet's hide mirror whatever bVal_ is: JUNE_BUGS 110)
+	if ( NULL != pRidingPet )
+		pRidingPet->JuneShowHideAllUiSets( bVal_ );
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 }
 #pragma endregion 
 
@@ -458,6 +463,10 @@ CX2RidingPetManager::RidingPetMap::iterator CX2RidingPetManager::RemoveRidingPet
 		if ( bFind == false )
 			m_vecRemoveRidingPet.push_back( pRidingPet1 );
 		iter = m_mapRidingPet.erase( iter );
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+		/// June 321f6190 (C9h-3a): after the erase the removed pet stops and clears every UI set (32d293e0); its dtor never does (JUNE_BUGS 109)
+		pRidingPet1->JuneStopAllUiSets();
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 	}
 
 	return iter;

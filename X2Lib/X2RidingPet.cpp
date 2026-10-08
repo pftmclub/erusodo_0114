@@ -47,6 +47,9 @@ CX2RidingPet::CX2RidingPet(void)
 	m_bJuneOnGroundChanged		= false;
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+	m_bJuneUiSetHidden = false;		/// June ctor 32d35fb0: +0x4ac = 0, both vectors empty, the map empty
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 	ClearState();
 }
 #pragma endregion »ý¼ºÀÚ
@@ -227,6 +230,19 @@ CX2RidingPet::~CX2RidingPet(void)
 
 		if ( NULL != pUser )
 		{
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+			/// June 32d2c1e0 @32d2c4b2 (C9h-3a), the village branch: the square unit's flag (+0x518 = March's GetPlanRender: June returns no render when it is set,
+			/// as the test below does) is synced into the hide mirror: when they differ every UI set is shown / hidden (32d291a0 returns false only without
+			/// g_pData) and the mirror takes the flag. A game has no such resync (JUNE_BUGS 110).
+			{
+				const bool bJunePlanRender = pUser->GetPlanRender();
+				if ( m_bJuneUiSetHidden != bJunePlanRender )
+				{
+					if ( true == JuneShowHideAllUiSets( !bJunePlanRender ) )
+						m_bJuneUiSetHidden = bJunePlanRender;
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 			if ( true == pUser->GetPlanRender() )
 				return RENDER_HINT_NORENDER;
 		}
@@ -450,6 +466,9 @@ void CX2RidingPet::SetRidingPet( IN lua_State* pPetLuaState_, IN UidType uUserUi
 	InitMotion();
 	InitPhysic();
 	InitState();
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+	JuneLoadInitEffect();	/// June 32d3cbf0 / 32d3cd10 call 32d2b0d0 right after 32d36600 (INIT_STATE) and before the motion open
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 
 	if ( false == m_bLoaded && NULL == m_pXSkinAnim )
 	{
@@ -488,6 +507,9 @@ void CX2RidingPet::SetGameRidingPet( IN lua_State* pPetLuaState_, IN UidType uUs
 	InitMotion();
 	InitPhysic();
 	InitState();
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+	JuneLoadInitEffect();	/// June 32d3cbf0 / 32d3cd10 call 32d2b0d0 right after 32d36600 (INIT_STATE) and before the motion open
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 
 	if ( false == m_bLoaded && NULL == m_pXSkinAnim )
 	{
@@ -1045,6 +1067,13 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 			LUA_GET_VALUE( m_LuaManager, "DEGREE_RANGE", m_fJuneDegreeRange, 45.f );
 			LUA_GET_VALUE( m_LuaManager, "VALUE_POS", m_fJuneValuePos, 0.f );
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+			/// June 32d2f560 @32d31013 (C9h-3a), before the game / user test: the reserved set delete blocks. June only QUEUES these stops (321dafb0), so a
+			/// set stopped here still counts as playing for the tail below (JUNE_BUGS 111); March's StopEffectSet is immediate, so the stops are
+			/// collected and run after the tail.
+			std::vector< CX2EffectSet::Handle > vecJunePendingStop;
+			JuneDeleteReservedUiSets( vecJunePendingStop );
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 
 			if ( NULL != g_pX2Game )
 			{
@@ -1254,6 +1283,18 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 
 				}
 			}
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+			/// June @32d3110d..@32d35f00: with a game (g_pX2Game) the user block ends in a jump to the tail (@32d350db), so the village block and the state
+			/// UI set block below run ONLY without a game; a game whose owner user is not found jumps to the tail from @32d31193 too. (C9h-3 and its kickoff
+			/// read it the other way round; the disassembly says the state set block is village only, which makes JUNE_BUGS 108's double play a village
+			/// / game split instead: in a game the state's EFFECT_SET_LIST is read once, by the user loader.)
+			else
+			{
+				JuneStateChangeUiSets();
+			}
+			/// June 32d2bad0 @32d35f02, for every state: PLAY_RESERVED_UI_EFFECT_SET, then the queued stops of the delete blocks
+			JunePlayReservedUiSets( vecJunePendingStop );
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 		}
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE_DEBUG
 		{
@@ -1319,6 +1360,304 @@ void CX2RidingPet::PlayAnimAtPlayEnd()
 	}
 }
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+/// June 32d2b0d0 (C9h-3a): INIT_EFFECT.RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET (names, indices 1..99) and RIDINGPET_RESERVED_UI_EFFECT_SET_LIST (name, index,
+/// playCond, deleteCond tuples at 1, 5, .. 97; the loop breaks at the first incomplete tuple; a repeated index keeps the first). Once both tables are closed each
+/// BY_UIEFFECTSET name plays on the UI effect set (321e2790) and its handle goes into the kept vector even when it is -1.
+void CX2RidingPet::JuneLoadInitEffect()
+{
+	std::vector< std::wstring > vecUiSetName;
+	int iReserved = 0;
+
+	if ( m_LuaManager.BeginTable( "INIT_EFFECT" ) == true )
+	{
+		if ( m_LuaManager.BeginTable( "RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET" ) == true )
+		{
+			for ( int iIndex = 1; iIndex < 100; ++iIndex )
+			{
+				std::wstring wstrName;
+				if ( false == m_LuaManager.GetValue( iIndex, wstrName ) )
+					break;
+				vecUiSetName.push_back( wstrName );
+			}
+			m_LuaManager.EndTable();
+		}
+
+		if ( m_LuaManager.BeginTable( "RIDINGPET_RESERVED_UI_EFFECT_SET_LIST" ) == true )
+		{
+			for ( int iBase = 1; iBase < 100; iBase += 4 )
+			{
+				std::wstring wstrName;
+				int iSetIndex = 0;
+				int iPlayCond = 0;
+				int iDeleteCond = 0;
+
+				if ( false == m_LuaManager.GetValue( iBase, wstrName ) ||
+					 false == m_LuaManager.GetValue( iBase + 1, iSetIndex ) ||
+					 false == m_LuaManager.GetValue( iBase + 2, iPlayCond ) ||
+					 false == m_LuaManager.GetValue( iBase + 3, iDeleteCond ) )
+					break;
+
+				JuneReservedUiSet kSet;
+				kSet.m_iDeleteCond	= iDeleteCond;
+				kSet.m_iPlayCond	= iPlayCond;
+				kSet.m_wstrName		= wstrName;
+				if ( true == m_mapJuneReservedUiSet.insert( std::make_pair( iSetIndex, kSet ) ).second )
+					++iReserved;
+			}
+			m_LuaManager.EndTable();
+		}
+
+		m_LuaManager.EndTable();
+	}
+
+	if ( NULL != g_pData )
+	{
+		for ( UINT i = 0; i < vecUiSetName.size(); ++i )
+			m_vecJuneUiSetKept.push_back( g_pData->GetUIEffectSet()->PlayEffectSet( vecUiSetName[i], CX2RidingPetPtr( this ) ) );
+	}
+
+	WCHAR wszJuneFx[128] = {0};
+	StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX RIDINGPET_FX loader info_id=%d user=%I64d reserved=%d by_uieffectset=%d",
+		m_Info.m_Id, static_cast<__int64>( m_UserUid ), iReserved, static_cast<int>( vecUiSetName.size() ) );
+	ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+}
+
+/// June 32d29240: the reserved set's name by index, L"" when the index is not in the map
+std::wstring CX2RidingPet::JuneGetReservedSetName( IN int iIndex_ ) const
+{
+	JuneReservedUiSetMap::const_iterator it = m_mapJuneReservedUiSet.find( iIndex_ );
+	if ( it == m_mapJuneReservedUiSet.end() )
+		return std::wstring( L"" );
+
+	return it->second.m_wstrName;
+}
+
+/// June 32d292b0: the first kept handle whose live instance's templet name equals the reserved name of iIndex_ (the per-state vector is never scanned),
+/// else -1. A set that was only queued for stopping is still found: see JunePlayReservedUiSets.
+CX2EffectSet::Handle CX2RidingPet::JuneFindReservedSet( IN int iIndex_ )
+{
+	if ( NULL == g_pData )
+		return INVALID_EFFECTSET_HANDLE;
+
+	const std::wstring wstrName = JuneGetReservedSetName( iIndex_ );
+
+	for ( UINT i = 0; i < m_vecJuneUiSetKept.size(); ++i )
+	{
+		CX2EffectSet::EffectSetInstance* pInstance = g_pData->GetUIEffectSet()->GetEffectSetInstance( m_vecJuneUiSetKept[i] );
+		if ( NULL != pInstance && NULL != pInstance->m_pEffectSetData && pInstance->m_pEffectSetData->m_wstrEffectSetName == wstrName )
+			return m_vecJuneUiSetKept[i];
+	}
+
+	return INVALID_EFFECTSET_HANDLE;
+}
+
+/// June 32d291a0: SetShowObject( bShow_ ) on every live instance of both vectors, then the hide mirror is set to 0 whatever bShow_ was (@32d29229,
+/// JUNE_BUGS 110) and true is returned; false without g_pData.
+bool CX2RidingPet::JuneShowHideAllUiSets( IN bool bShow_ )
+{
+	if ( NULL == g_pData )
+		return false;
+
+	for ( UINT i = 0; i < m_vecJuneUiSetKept.size(); ++i )
+	{
+		CX2EffectSet::EffectSetInstance* pInstance = g_pData->GetUIEffectSet()->GetEffectSetInstance( m_vecJuneUiSetKept[i] );
+		if ( NULL != pInstance )
+			pInstance->SetShowObject( bShow_ );
+	}
+
+	for ( UINT i = 0; i < m_vecJuneUiSetState.size(); ++i )
+	{
+		CX2EffectSet::EffectSetInstance* pInstance = g_pData->GetUIEffectSet()->GetEffectSetInstance( m_vecJuneUiSetState[i] );
+		if ( NULL != pInstance )
+			pInstance->SetShowObject( bShow_ );
+	}
+
+	m_bJuneUiSetHidden = false;
+	return true;
+}
+
+/// June 32d293e0: stop every handle of both vectors (through copies) and clear them
+void CX2RidingPet::JuneStopAllUiSets()
+{
+	if ( NULL == g_pData )
+		return;
+
+	for ( UINT i = 0; i < m_vecJuneUiSetKept.size(); ++i )
+	{
+		CX2EffectSet::Handle hHandle = m_vecJuneUiSetKept[i];
+		g_pData->GetUIEffectSet()->StopEffectSet( hHandle );
+	}
+	m_vecJuneUiSetKept.clear();
+
+	for ( UINT i = 0; i < m_vecJuneUiSetState.size(); ++i )
+	{
+		CX2EffectSet::Handle hHandle = m_vecJuneUiSetState[i];
+		g_pData->GetUIEffectSet()->StopEffectSet( hHandle );
+	}
+	m_vecJuneUiSetState.clear();
+}
+
+/// June StateChange @32d31013-@32d3110d: (1) every reserved set whose delete condition is RESDC_STATE_CHANGE and that is playing, (2) the sets named by
+/// DELETE_RESERVED_UI_EFFECT_SET[1..99]. The handles stay in the kept vector (JUNE_BUGS 107); they are only collected here.
+void CX2RidingPet::JuneDeleteReservedUiSets( OUT std::vector< CX2EffectSet::Handle >& vecPendingStop_ )
+{
+	if ( NULL == g_pData )
+		return;
+
+	for ( JuneReservedUiSetMap::const_iterator it = m_mapJuneReservedUiSet.begin(); it != m_mapJuneReservedUiSet.end(); ++it )
+	{
+		const CX2EffectSet::Handle hHandle = JuneFindReservedSet( it->first );
+		if ( INVALID_EFFECTSET_HANDLE != hHandle && JUNE_RESDC_STATE_CHANGE == it->second.m_iDeleteCond )
+			vecPendingStop_.push_back( hHandle );
+	}
+
+	if ( m_LuaManager.BeginTable( "DELETE_RESERVED_UI_EFFECT_SET" ) == true )
+	{
+		for ( int iIndex = 1; iIndex < 100; ++iIndex )
+		{
+			int iSetIndex = 0;
+			if ( false == m_LuaManager.GetValue( iIndex, iSetIndex ) )
+				break;
+
+			const CX2EffectSet::Handle hHandle = JuneFindReservedSet( iSetIndex );
+			if ( INVALID_EFFECTSET_HANDLE != hHandle )
+				vecPendingStop_.push_back( hHandle );
+		}
+		m_LuaManager.EndTable();
+	}
+}
+
+/// June StateChange @32d35a05-@32d35f00 (no game only, see StateChange): every handle of the per-state vector is stopped through a copy and NOT cleared
+/// (JUNE_BUGS 107); then the state's own EFFECT_SET_LIST names (odd indices 1, 3 .. 99: June skips the start times at the even ones) play on the UI effect
+/// set through the riding pet holder (321e2790), into the per-state vector when DELETE_EFFECT_SET_ON_STATE_END is true and into the kept vector otherwise,
+/// each shown unless the pet is hidden.
+void CX2RidingPet::JuneStateChangeUiSets()
+{
+	if ( NULL == g_pData )
+		return;
+
+	CX2EffectSet* pUIEffectSet = g_pData->GetUIEffectSet();
+
+	for ( UINT i = 0; i < m_vecJuneUiSetState.size(); ++i )
+	{
+		CX2EffectSet::Handle hHandle = m_vecJuneUiSetState[i];
+		pUIEffectSet->StopEffectSet( hHandle );
+	}
+
+	std::vector< std::wstring > vecSetName;
+	if ( m_LuaManager.BeginTable( "EFFECT_SET_LIST" ) == true )
+	{
+		for ( int iIndex = 1; iIndex < 100; iIndex += 2 )
+		{
+			std::wstring wstrName;
+			if ( false == m_LuaManager.GetValue( iIndex, wstrName ) )
+				break;
+			vecSetName.push_back( wstrName );
+		}
+		m_LuaManager.EndTable();
+	}
+
+	bool bDeleteOnStateEnd = false;
+	LUA_GET_VALUE( m_LuaManager, "DELETE_EFFECT_SET_ON_STATE_END", bDeleteOnStateEnd, false );
+
+	for ( UINT i = 0; i < vecSetName.size(); ++i )
+	{
+		const CX2EffectSet::Handle hHandle = pUIEffectSet->PlayEffectSet( vecSetName[i], CX2RidingPetPtr( this ) );
+		if ( INVALID_EFFECTSET_HANDLE == hHandle )
+			continue;
+
+		if ( true == bDeleteOnStateEnd )
+			m_vecJuneUiSetState.push_back( hHandle );
+		else
+			m_vecJuneUiSetKept.push_back( hHandle );
+
+		CX2EffectSet::EffectSetInstance* pInstance = pUIEffectSet->GetEffectSetInstance( hHandle );
+		if ( NULL != pInstance )
+			pInstance->SetShowObject( false == m_bJuneUiSetHidden );
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX_DEBUG
+	if ( false == vecSetName.empty() )
+	{
+		WCHAR wszJuneFx[160] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX RIDINGPET_FX state=%d names=%d vector=%s kept=%d state_vec=%d",
+			static_cast<int>( m_StateData.m_StateID ), static_cast<int>( vecSetName.size() ), bDeleteOnStateEnd ? L"state" : L"kept",
+			static_cast<int>( m_vecJuneUiSetKept.size() ), static_cast<int>( m_vecJuneUiSetState.size() ) );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX_DEBUG
+}
+
+/// June 32d2bad0 (every state, after the blocks above): PLAY_RESERVED_UI_EFFECT_SET[1..99]; an index is skipped when its playCond is RESPC_NOT_PLAY and
+/// a set of its name is already in the kept vector, a name that is empty (an index not in the map) is skipped too; then every collected name plays on the
+/// UI effect set, its handle goes into the kept vector and the instance is shown unless the pet is hidden. No handle is kept per index: "already playing"
+/// is found by templet name (32d292b0). Last the stops of the delete blocks run: June's are queued, so up to here a set stopped by them still counted as
+/// playing and a NOT_PLAY reserved set stopped this state was skipped, then died (JUNE_BUGS 111).
+void CX2RidingPet::JunePlayReservedUiSets( IN std::vector< CX2EffectSet::Handle >& vecPendingStop_ )
+{
+	if ( NULL != g_pData )
+	{
+		std::vector< std::wstring > vecSetName;
+
+		if ( m_LuaManager.BeginTable( "PLAY_RESERVED_UI_EFFECT_SET" ) == true )
+		{
+			for ( int iIndex = 1; iIndex < 100; ++iIndex )
+			{
+				int iSetIndex = 0;
+				if ( false == m_LuaManager.GetValue( iIndex, iSetIndex ) )
+					break;
+
+				int iPlayCond = JUNE_RESPC_NONE;
+				JuneReservedUiSetMap::const_iterator it = m_mapJuneReservedUiSet.find( iSetIndex );
+				if ( it != m_mapJuneReservedUiSet.end() )
+					iPlayCond = it->second.m_iPlayCond;
+
+				if ( JUNE_RESPC_NOT_PLAY == iPlayCond && INVALID_EFFECTSET_HANDLE != JuneFindReservedSet( iSetIndex ) )
+					continue;
+
+				const std::wstring wstrName = JuneGetReservedSetName( iSetIndex );
+				if ( false == wstrName.empty() )
+					vecSetName.push_back( wstrName );
+			}
+			m_LuaManager.EndTable();
+		}
+
+		CX2EffectSet* pUIEffectSet = g_pData->GetUIEffectSet();
+		for ( UINT i = 0; i < vecSetName.size(); ++i )
+		{
+			const CX2EffectSet::Handle hHandle = pUIEffectSet->PlayEffectSet( vecSetName[i], CX2RidingPetPtr( this ) );
+			if ( INVALID_EFFECTSET_HANDLE == hHandle )
+				continue;
+
+			m_vecJuneUiSetKept.push_back( hHandle );
+
+			CX2EffectSet::EffectSetInstance* pInstance = pUIEffectSet->GetEffectSetInstance( hHandle );
+			if ( NULL != pInstance )
+				pInstance->SetShowObject( false == m_bJuneUiSetHidden );
+		}
+
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX_DEBUG
+		if ( false == vecSetName.empty() )
+		{
+			WCHAR wszJuneFx[160] = {0};
+			StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX RIDINGPET_FX state=%d reserved_played=%d kept=%d pending_stop=%d",
+				static_cast<int>( m_StateData.m_StateID ), static_cast<int>( vecSetName.size() ), static_cast<int>( m_vecJuneUiSetKept.size() ),
+				static_cast<int>( vecPendingStop_.size() ) );
+			ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX_DEBUG
+
+		for ( UINT i = 0; i < vecPendingStop_.size(); ++i )
+		{
+			CX2EffectSet::Handle hHandle = vecPendingStop_[i];
+			pUIEffectSet->StopEffectSet( hHandle );
+		}
+	}
+
+	vecPendingStop_.clear();
+}
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 #ifdef X2OPTIMIZE_GAME_PET_BACKGROUND_LOAD
 #pragma region static InitMotion
 /*static*/

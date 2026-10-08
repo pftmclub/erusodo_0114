@@ -5823,3 +5823,36 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #define SERV_IRUHADEV_JUNE_UNIT_SOUND
 //#define SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June effect completion C9h-3a (JUNE2017_EFFECT_COMPLETION_PHASES.md):
+//              the in-game riding pet's UI effect sets, whole. The engine holder
+//              (EffectSetInstance +0xd8, PlayEffectSet( name, CX2RidingPetPtr )
+//              321e2790 and its consumers: GetEffectPosition, GetCombineMatrix,
+//              GetEffectPositionByBoneName, GetUnitRotation, the create-time anim
+//              gate, the dtor release) and the riding pet's side: the INIT_EFFECT
+//              loader 32d2b0d0 (RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET and
+//              RIDINGPET_RESERVED_UI_EFFECT_SET_LIST), the reserved map +0x4d0, the
+//              handle vectors +0x4b0 / +0x4c0, the hide mirror +0x4ac, the helpers
+//              32d29240 / 32d292b0 / 32d291a0 / 32d293e0, StateChange's reserved
+//              delete blocks @32d31013, its village-only state set block @32d35a05
+//              (EFFECT_SET_LIST + DELETE_EFFECT_SET_ON_STATE_END) and the tail
+//              32d2bad0 (PLAY_RESERVED_UI_EFFECT_SET), the village Prepare
+//              show / hide sync, and the manager's NotifyShowObjectChanged /
+//              RemoveRidingPet hooks. June's queued stop (321dafb0) is emulated
+//              (JUNE_BUGS 111). Needs data036 Enum.lua's two RESERVED tables.
+//              Log: "JUNE_FX RIDINGPET_FX" in ErrorLog.txt (loader runs; the
+//              per-state lines need SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX_DEBUG).
+#define SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+//#define SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+#ifndef RIDING_SYSTEM
+#error SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX needs RIDING_SYSTEM
+#endif RIDING_SYSTEM
+#ifndef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#error SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX needs SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+//////////////////////////////////////////////////////////////////////////
