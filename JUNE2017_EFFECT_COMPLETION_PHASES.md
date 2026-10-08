@@ -3210,16 +3210,21 @@ There is no `GetUnitRotation` branch. The dtor does not touch the raw pointer. T
 - 214 pass 1 and 24 pass 0.
 - 4 pass a register the script could not resolve (`3250f680` x3, `32e2b608`). All four drop the handle.
 - The 4th parameter has no recoverable default: every site pushes all four arguments.
-- **The 24 zero sites:** 16 keep the handle, and they are exactly March's keep-sites (12 create-unit voices `+0x718`, `PlaySoundSelect` `+0x490`, the TFieldNpc near sound `+0x4b0`, the wedding duration sound, the emblem vector). The other 8 drop it: the two Lua wrappers `31be4734` / `31be4894`, `X2_Button_Mouse_Up`, `Count`, `LevelUpBGM`, `Go`, `NewStage_Open`, `UseItem`.
+- **The 24 zero sites** = 13 + 3 + 2 + 6:
+  - 13 are March's cross-frame keep-sites: 9 create-unit voices (`+0x718`), `PlaySoundSelect` (`+0x490`), the TFieldNpc near sound (`+0x4b0`), the wedding duration sound and the emblem vector.
+  - 3 are June-only voices (Luciel, Rose, Ain).
+  - 2 are the Lua wrappers `31be4734` / `31be4894`.
+  - 6 drop the handle: `X2_Button_Mouse_Up`, `Count`, `LevelUpBGM`, `Go`, `NewStage_Open`, `UseItem`.
 
 **March audit** (`june2017_re/c9h7_playsound_handle_audit.tsv`): 16 March call sites store the handle. June passes 0 at each one that keeps it across frames, with two exceptions:
 - **The square** (`+0x5ec`, JUNE_BUGS 122). Latent: the list stays empty on March data until C9h-4e.
-- **`CX2GUAdd::PlayLoopSound`** `329e2660` (`m_pLoopSound` / `+0x9608`, arg 1). **JUNE_BUGS 125, reachable.**
+- **`CX2GUAdd::PlayLoopSound`** `329e2660` (`m_pLoopSound` / `+0x9608`, arg 1). **JUNE_BUGS 125.**
   - `bLoop` is ignored, so the "loop" sound is a one-shot clip.
   - Neither March nor June preloads `Add_Effect05` / `Add_Effect10` / `ADD_PULSE_BULLET_CHARGE_01` (June's Add `READY_SOUND` is empty).
-  - So a state that outlasts its clip calls `Stop()` on freed memory.
+  - So a state that outlasts its clip calls `Stop()` on freed memory. The clips are 2.44 / 4.20 / 5.11 s; the state lengths were not measured, so reach is "not counted".
 
 Other notes:
+- **The receiver sweep came back clean.** Every other `->PlaySound(` receiver is a game unit, whose `PlaySound` is an `OpenSound` wrapper. The device manager hands out a sound only through `OpenSound` (which takes a reference) or `PlaySound`; there is no lookup without a reference.
 - Lua cannot hold a handle: the only bindings are the two `void` app wrappers.
 - `NpcPlaySound` is a June rewrite (`325c9c00`: stop the previous sound by name, 2D only, keeps the name) -> Elysion E1 step 6.
 

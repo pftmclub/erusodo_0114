@@ -36,7 +36,9 @@ Port June's auto-release **verbatim** (user decision (b), 2026-10-08). The map i
    - March's `CloseDevice( name )` does the same unref. Reuse it only if the result is identical, and say which one you chose.
    - Leave `31c4a0d0( this+0x108 )` (unidentified) out and record that in the Done note.
 4. **Per-site arguments: June's, verbatim.**
-   - Pass **0** at the March counterparts of June's 24 zero sites. 16 are in the audit `.tsv`: create-unit x9, `PlaySoundSelect`, the TFieldNpc near sound, the wedding duration sound, the emblem, and the two `KTDXApp` Lua wrappers.
+   - Pass **0** at the March counterparts of June's 24 zero sites (13 + 3 + 2 + 6).
+     - 15 are in the audit `.tsv`: the 13 keep-sites (create-unit x9, `PlaySoundSelect`, the TFieldNpc near sound, the wedding duration sound, the emblem) and the two `KTDXApp` Lua wrappers.
+     - The other 3 keep-sites are the Luciel / Rose / Ain voices, which March does not have.
    - Find the March counterparts of the dropped-handle zero sites: `X2_Button_Mouse_Up` (`324c7ce0`), `Count` and `LevelUpBGM` (`3250f680`), `Go` (`327f4210`), `NewStage_Open` (`3293b5e0`), `UseItem` (`32952930`).
    - Settle the 4 unresolved registers by reading their functions: `3250f680` `ebp` x3, `32e2b400` `ebx`.
    - Every other site keeps the default. **The square and Add keep June's 1 and June's bug** (JUNE_BUGS 122 / 125: no fix, no guard).
@@ -48,4 +50,5 @@ Port June's auto-release **verbatim** (user decision (b), 2026-10-08). The map i
 - A play-test run whose log shows `queue` / `close` lines with `deleted=1` for a non-preloaded sound.
 - 0 EXCEPTION, and no new crash bundle in `%TEMP%`.
 - Note any load hitch: a non-preloaded sound is reloaded on every play now.
+- **The play-test hand-off includes or deliberately skips one Add check.** Use an Add character (name and job from `els_db.sql`). Hold `ComboXXZZ` (`X2GUAdd.cpp:4958`), `DashJumpComboXX` (`:5409`) or the Pulse Bullet charge (`:7878`) past its clip (2.44 / 4.20 / 5.11 s). This is JUNE_BUGS 125's path.
 - **Do not fix the Add / square use-after-free.** If a play-test crashes there, stop and report it to the user with the crash bundle: that is the "copying June breaks March" case.
