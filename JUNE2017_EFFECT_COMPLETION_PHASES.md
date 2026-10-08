@@ -2284,11 +2284,11 @@ Next: C9h-2b (Opus 5.5 high) and C9h-3 (Opus 5.5 high); both kickoffs exist. **U
   - June's preview lookup `32808770` (CTime windows, a code event, two ids; `g_pCashItemManager:AddPetPreViewData`) -> new **C9h-2c** (identify).
 
 **Hygiene** (`--worktree --files` Always.h, X2CashShop.cpp, X2UIPetInfo.cpp): `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
-`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. After committing, `--range 9687d8c^..HEAD` gives the same three lines (2 PASS, 1 DEFINE, RESULT: PASS).
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,342,848 B, dated 2026-10-08 07:18:11, md5 1a00382efe082ae2816ae801f0f2f07d, equal to X2/US_SERVICE/x2.exe (2026-10-08 07:17:55); built at mods/june-buff-port 464a972 + 3 uncommitted code file(s).` The 3 files are this phase's. `JUNE_FX PET_PREVIEW item=%d`, `... hide item=` and `Wait_Transform` are in the exe (UTF-16).
 
 **How to see it** (cash shop, then pet info):
-- **A pet item** (500010 Ancient Pporu, 500020 Tree Knight, 500150 Mystic): the pet shows **right of the character**, at June's spot, playing `Wait`. Click it again and it hides.
+- **A pet item** (500010 Ancient Pporu, 500020 Tree Knight, 500150 Mystic): the pet shows toward the right side of the shop window, away from the character (June's spot), playing `Wait`. Click it again and it hides.
 - **A riding-pet item** (550000 Mobi, 550010 Koucika): the riding pet shows there at half scale.
 - **A non-pet item:** nothing changes, and a pet that is still previewed stays.
 - **Take off all, or close and reopen the shop:** the preview hides.
