@@ -277,6 +277,66 @@ Running together: X0 touches no code and can run alongside anything; its funcmap
 independent of X0-X3, but it edits `KTDXLIB/Always.h`, so run it when no other code session holds uncommitted `Always.h` edits.
 X2/X5 touch shared staging; do not run X5 while another session is packing the same kom.
 
+## atlas - Atlas port (Atlas Station, Fields 01-02, AtlasDevelopment / AtlasCity / Tower)
+
+Plan `ATLAS_PORT_PHASES.md` · branch `mods/elysion-port`, worktree `../Trunk_elysion` (both created by A0) · log tag `[ELYDBG]` ·
+flags: the plan's "Flags" table (`LEVEL_CAP_99`, `ELYSION_PORT`, `ELYSION_SCRIPT_A`, ...) · kickoffs `kickoffs/atlas/` · backlog
+Stage 1 · planned 2026-10-03, rows added 2026-10-08 (the plan predates STATUS and was never started: every Done note is empty).
+**Order (user, 2026-10-08): the june-effect plan is completed before this one starts.**
+
+This doc owns the groundwork both halves share (worktree, census, RE maps, level cap, enums); `elysion` below assumes it.
+Phases from A1 on run inside the worktree; update these rows in the main Trunk with a path-limited commit. Before deploying from
+the worktree, check that it carries every exe-side change the live koms need ("Worktrees and the game dir" above).
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| A0 | **queued** (user 2026-10-08: june-effect is finished first; A0 itself has no blocker): create worktree `../Trunk_elysion` on `mods/elysion-port` from the committed `mods/june-buff-port` tip (has K2), make it build (junctions / copies, `build.py` without `--deploy`), `june2017_re/region_census.py` v1 + baseline vs the ledger | Sonnet 5.5 / high | - | new worktree, `june2017_re/region_census.py`, plan doc (no game code) | `A0.md`; light Opus 5.5 review, kickoff written by the phase |
+| A1a | queued: RE + C++ reachability map, both halves (read-only) | Opus 5.5 / **xhigh** | A0 | read-only (Ghidra), plan doc | written on first use |
+| A1b | queued: script-engine map, both halves (read-only) | Opus 5.5 / **xhigh** | A0 (parallel with A1a) | read-only (Ghidra), plan doc | written on first use |
+| A2 | **blocked**: level cap 99 + EXP migration | Opus 5.5 / high | A0, **MARCH_2014_MIGRATION Phase 7** (its board says "not started"; verify) | C++ + data + offline DB | written on first use |
+| A3 | queued: region enums, Lua + C++ (both halves) | Sonnet 5.5 / high, review Opus 5.5 | A1a, A1b | data + C++ | written on first use |
+| A4 | queued: Atlas-half script engine | Opus 5.5 / high | A1b, A3 | C++ | written on first use |
+| A5 | queued: Atlas Station (rest area 1008) | Opus 5.5 / high | A3 | data + C++ switches | written on first use |
+| A6 | queued: Lanox -> Atlas crossing + Fields 01/02 | Opus 5.5 / high | A4, A5 | data + C++ | written on first use |
+| A7 | queued: local map, Atlas half | Opus 5.5 / high | A3 | data + C++ | written on first use |
+| A8 | queued: AtlasDevelopment line (pattern-setter) | Opus 5.5 / high | A4, A6, A7 | data (+ C++ if gaps) | written on first use |
+| A9 | queued: AtlasCity line | Sonnet 5.5 if the census shows 0 open gaps, else Opus 5.5 / high | A8 | data | written on first use |
+| A10 | queued: Tower line | as A9 | A8, JUNE_BUFF Phase 10 (done) | data | written on first use |
+| A11 | queued: asset closure + pack list | Sonnet 5.5 / high, review Opus 5.5 | A5-A10 | data | written on first use |
+| A12 | queued: build, deploy, hand-off | Sonnet 5.5 / medium | A11 | build | written on first use |
+| A13 | queued: play-test sweep + close-out | Opus 5.5 / high | A12 | verify + root-cause | written on first use |
+
+Running together: A1a and A1b are independent (two sessions); A5 and A7 are independent of each other and of A4. A0 only reads
+the main Trunk, so it can run alongside any june-* session.
+
+## elysion - Elysion port (village 20009, Field 03, SkyCrossroads / Adrian / Soless / Memory)
+
+Plan `ELYSION_PORT_PHASES.md` · same branch and worktree as `atlas` · log tag `[ELYDBG]` · flags: the Atlas doc's "Flags" table
+(`ELYSION_VILLAGE`, `JUNE_MOVABLE_LINE`, `JUNE_SIMPLE_DLG`, ...) · kickoffs `kickoffs/elysion/` · backlog Stage 1 · planned
+2026-10-03, rows added 2026-10-08. Quests are deferred to backlog Stage 4.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| E0 | queued: preconditions, census, `ELYSION_SOLESS` decompile | Sonnet 5.5 / medium | Atlas A0-A4 (incl. A2), A7 | tooling | written on first use |
+| E1 | queued: village engine: NPC relation system (all three entry points, incl. the code-event tail: step 5, from june-effect C9h-2e), `DLG_Map_House` keys, in-village warps | Opus 5.5 / high | E0 (+ A1a map) | C++ (new mechanisms) | written on first use |
+| E2 | queued: Elysion village 20009 | Opus 5.5 / high | E1, Atlas A5, A6 | data + C++ switches | written on first use |
+| E3 | queued: Field 03 (+ Field 04 enum check) | Sonnet 5.5 / high, review Opus 5.5 | E2 | data | written on first use |
+| E4 | queued: local map, Elysion page | Opus 5.5 / high | E0, Atlas A7 | C++ + data | written on first use |
+| E5 | queued: moving platforms | Opus 5.5 / high | Atlas A1b, A3 | C++ (new mechanism) | written on first use |
+| E6 | queued: SimpleDLG gauges + dramatic messages | Opus 5.5 / high | Atlas A1b, A3 | C++ (new mechanisms) | written on first use |
+| E7 | queued: Elysion-half bindings + additional world | Opus 5.5 / high | Atlas A1b, A3 | C++ | written on first use |
+| E8 | queued: SkyCrossroads line | Opus 5.5 / high | E2, E4, E7, Atlas A2, A8 | data (+ C++ if gaps) | written on first use |
+| E9 | queued: Adrian line | Sonnet 5.5 if 0 open gaps, else Opus 5.5 / high | E5, E7, E8 | data | written on first use |
+| E10 | queued: Soless line | Opus 5.5 / high | E5-E7, E9 | data + C++ glue | written on first use |
+| E11 | queued: Memory line (finale) | Opus 5.5 / high | E6, E7, E10, JUNE_BUFF Phase 10 (done) | data + C++ glue | written on first use |
+| E12 | queued (optional): Elysion field PvP map | Sonnet 5.5 / high, review Opus 5.5 | E3 | data | written on first use |
+| E13 | queued: asset closure + pack list (Elysion half) | Sonnet 5.5 / high, review Opus 5.5 | E2-E12 | data | written on first use |
+| E14 | queued: build, deploy, hand-off | Sonnet 5.5 / medium | E13 | build | written on first use |
+| E15 | queued: play-test sweep + close-out (whole region) | Opus 5.5 / high | E14 | verify + root-cause | written on first use |
+
+Running together: E1, E5, E6 and E7 are independent, each in its own extra worktree off `mods/elysion-port`, merged back
+E7 -> E5 -> E6 -> E1 (the plan's "Model, effort, review").
+
 ## Other plans
 
 No `kickoffs/` files yet: `/x2-phase <plan> <phase>` writes the kickoff from the plan doc's
@@ -285,7 +345,7 @@ phase section (kickoffs/TEMPLATE.md) on first use and shows it before starting.
 | Plan | Doc | State (2026-10-04, from the doc's headings; verify before starting) |
 |---|---|---|
 | backlog | `JUNE_PORT_BACKLOG_ORDER.md` | The order of everything below: stage 0 (close open loops, incl. this buff port) -> 1 Atlas/Elysion -> 2 engine remainder -> 3 skill core -> ... -> 9 UI; 10 emotion system; 11 division item templets (added by june-effect C9f); 12 character customize system (added by june-effect C9g); 13 June `item.kim` adoption (planned as `june-item-kim` above, a prerequisite of 11 and 12); 14 byte-exact June asset extraction (planned as `june-asset-extract` above); 16 June item-side systems (added by june-item-kim K0); 17 pet and riding-pet remainder (added by june-effect C9h: the pet variant byte and June's 8 pets / riding pets). |
-| atlas | `ATLAS_PORT_PHASES.md` | Done notes exist through A13. |
-| elysion | `ELYSION_PORT_PHASES.md` | Done notes exist through E15. |
+| atlas | `ATLAS_PORT_PHASES.md` | Not started (the Done-note headings through A13 are empty). Rows: the `atlas` block above (2026-10-08). |
+| elysion | `ELYSION_PORT_PHASES.md` | Not started (the Done-note headings through E15 are empty). Rows: the `elysion` block above (2026-10-08). |
 | lanox | `LANOX_REMAINING_PHASES.md` + `JUNE_UI_PARITY_PHASES.md` | 12 items in phases 0-11; check the doc for which have landed. |
 | char-port | `JUNE2017_CHARACTER_PORT_CHECKLIST.md` | Checklist, not phased; buff phases append to section 7. |
