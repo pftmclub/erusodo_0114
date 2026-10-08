@@ -990,6 +990,32 @@ RESULT: PASS
 
 **Open questions:** none.
 
+### C6c - Review (2026-10-08, Sonnet 5.5 high at the user's choice; no code change, no build; exe `40b97943` stays deployed)
+
+**Verdict: C6c is correct against June. No transcription finding.** Checked in the disassembly (`june2017_re/funcdis.py`, read-only):
+- **`321ee480` consumer** (`@321ee4dd-321ee58e`): entry = 0x18 B {BFI +0, level +4, mods begin/end +8/+0xc}; mod = 0x10 B {kind byte +0, type +4, op +8, value +0xc}. Per entry: `31ef6990` + `326c32a0` (GetBuffFactorPtr) with **no null test**, `32089f60` clone at `[entry+4]`, then the mod loop, then `321f5130` on effect `+0x200` (DamageData) with bClear = 1 **inside the loop**. Port: same order, `PushBuffFactor( ptrClone, true )` per entry (JUNE_BUGS 59, verbatim); the clone is at the entry's level; March's copy ctor deep-copies `BUFF_FACTOR`, so the template is never modified.
+- **Mod kinds not swapped:** kind byte 0 -> `32d418a0( type, value, op )` (`JuneSetBehaviorValue`), anything else -> `32d41960` (`JuneSetFinalizerValue`). Arg order type / value / op matches both pushes.
+- **`32d41960` double gate:** `cmp ebp,eax` (type == arg) then `dec eax; jne` (type == 1) -> `type == eType_ && type == BFT_TIME`; `BFT_TIME` is 1 in March's enum (`BFT_NONE = 0`). Port identical.
+- **`32d40dd0`:** count = `(end-begin)>>2` of the entry's value vector; `> 3` or `<= 1` returns (so 2 or 3 only); loop starts at 0 with `test eax,eax; je` skipping index 0; op 0 add, 1 multiply, 2 set, else nothing. Port identical.
+- **Instance list only:** `@321ef676` (EffectData `+0x118`) is dead in June (C6a2) and not called; `@321ef689` (instance `+0x160`) is the one call, placed right after C6b's stamp block, before June's `321db1b0` neighbours, which touch neither DamageData factors nor each other. The call sits inside `#ifdef RIDING_SYSTEM` like the stamps (ON; recorded, not moved).
+- **`321e3650` / SIEE 15** (`@3202a1aa-3202a1f4`): June skips on handle -1 (`@3202a1a5`), loops `+0x29c` entries (0x10 B), tests byte `+9` (`m_bAlwaysPlayEffectSet`), calls `321e3650( handle, [+0], [+4] )` = (BFI, level). Port: INVALID handle `continue`s before the loop, same test, same args; `GetEffectSetInstance` returns NULL for a stale handle, as the decode does. The old "unsupported" line sits in `#else`, inside the `SOCKET_PARITY` case.
+- **JUNE_BUGS 60 guard (user: guard):** a null `GetBuffFactorPtr` skips the entry, logs once per BFI, `#else` keeps June's unguarded line. One consequence: BFI 0 (which `GetBuffFactorPtr` returns null for silently) is also skipped and logged once; June would crash on it. No change.
+- No June offset is ported (store is a typed `std::vector<BuffFactorListEntry>`).
+
+**Hygiene** (`flagcheck --range 496cd83^..496cd83`):
+```
+EFFECTSET_BUFF_LIST alone: files: 4 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 1 ERROR   RESULT: FAIL
+  (the ERROR is Always.h:6050, the FIX flag's own `#if defined(FIX) && !defined(BUFF_LIST)` #error guard: the tool cannot evaluate it, the same class as C6b/C7's)
+with --with SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL: files: 4 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR   RESULT: PASS
+  in this flag's files: 0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)
+FIX_EFFECTSET_BUFF_NULL alone: files: 0 PASS, 0 DEFINE, 5 OTHER, 0 FAIL, 0 ERROR   RESULT: PASS   (its code lives in X2EffectSet.cpp's nested block; counted under the closure)
+```
+Net 0 deleted lines. The two flags are checked as a closure because the FIX flag cannot exist without the first.
+
+**Not verifiable by play-test:** nothing in March data reaches the list (no aura set, no Fever socket), so the end-to-end path (attach, apply, the BFI null guard) waits for C11 + june-buff Phase 13 + a socket save edit. The regression test already passed on `40b97943`.
+
+**Open questions:** none. Next in this plan: `/x2-phase june-effect C8b` (Sonnet 5.5 / high) or `C9h-4e`; both kickoffs exist.
+
 ## C7 - Touch-land runtime (old Phase 10c, step 3)
 
 **Status: not started (an earlier attempt was reverted for porting June offsets).** The spec is the
