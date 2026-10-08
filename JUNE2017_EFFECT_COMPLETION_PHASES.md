@@ -4354,7 +4354,13 @@ Every check below was read-only in Ghidra against `19584d0`; the constants were 
 Hygiene, worktree (`--files X2GUNPC.cpp X2GUUser.cpp`):
 - `SOCKET_COOLTIME_ON_HIT`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR` / `4 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. The 4 deleted lines are this flag's own C10e lines, replaced by the fix.
 - `DAMAGE_REACT_HOOKS`: `0 PASS, 2 OTHER (the socket flag's fix), 0 FAIL`, `0 deleted`, `RESULT: PASS`.
-- The range lines are in the STATUS row.
+- Range `19584d0^..HEAD` (after commit `f7d1a2d`):
+  - `DAMAGE_REACT_HOOKS`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 11 OTHER, 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+  - `SOCKET_COOLTIME_ON_HIT`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 12 OTHER, 0 FAIL, 0 ERROR` / `4 deleted line(s)` (f7d1a2d replacing 19584d0's own lines), others 0 / `RESULT: PASS`.
+  - OTHER rows:
+    - each flag's lines in the other's files (19584d0, f7d1a2d);
+    - Always.h (both defines);
+    - peer commits `2f78eb0` / `d269580` (C9h-8 review: Always.h, KTDXDeviceSound.cpp, X2DamageEffect.h/.cpp), which have no lines of either flag.
 
 `DEPLOY OK: X2_offline.exe is 19,411,456 B, dated 2026-10-09 05:19:24, md5 ef524c3e71fc40c32af8f5c2f0a27613, equal to X2/US_SERVICE/x2.exe (2026-10-09 05:19:19); built at mods/june-buff-port 61e768f + 2 uncommitted code file(s).`
 
