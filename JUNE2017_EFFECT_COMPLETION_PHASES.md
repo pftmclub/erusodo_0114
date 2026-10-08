@@ -2484,6 +2484,53 @@ The exe also holds a peer's uncommitted riding-pet work (X2RidingPet*, X2GUUser*
 
 ---
 
+### C9h-2e - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the handler's tail is two June systems with owners elsewhere -> Elysion E1, backlog Stage 9
+
+There are 17 funcmap rows tagged `Effect C9h-2e`. The `32344880` row corrects C9h-2d's. The binding names were decoded from the XOR-built strings in `31d95080`.
+
+**1. `32344880` = the quest manager re-evaluating village NPC relation data.**
+- `ECX` is `g_pData(33775860)+0x4c`, the quest manager (`+0x50` is the skill tree). The kickoff's `33775860` is `g_pData`, not a class.
+- `33775870` is `g_pTFieldGame`; the function does nothing outside a village.
+- It takes the current village from the location manager (`g_pData+0x268`: `324f1e10`, `324f23a0`). For each house id in that village it looks the house up in June's relation rows: ByQuest `32340320` first, then ByVillage `323446c0`.
+- It then replaces (`323b7ff0`), removes (`323a9ed0`) or restores (`323b8970`) the field NPC.
+- **The 0x388 row:** `+0` QUEST_ID, `+4` TARGET_NPC_HOUSE_ID, `+0xc` `m_iUseCodeEventTriger` (-1 = no gate; otherwise March's `IsEnableCode` test on instance map `+0xa18`), `+0x80` VILLAGE_ID.
+- **Where the rows come from:** `g_pQuestManager:AddVillageNpcRelationDataByQuest_LUA` (`3233b680`) and `...ByVillage_LUA` (`32340720`), in `data034` `DLG_Map_House_NPC_RelationData.lua`.
+  - ByQuest has 36 rows: 3 change, 6 not-show (the second 0x14-byte shape at `+0xbc`), and 27 code-event rows, all event 2308 with quest 0.
+  - ByVillage has 11 rows.
+- **March has none of this.** It is the NPC relation system that **Elysion E1** already plans to port whole; that plan has not started and has no worktree yet.
+- E1 needs three entry points, not one:
+  - village NPC creation `323ba5f0`;
+  - the per-quest refresh `32340630`, called from quest-UI handlers `323e15e0`, `323e1710` and `323e57e0`;
+  - this tail.
+
+**2. Vtable slot `+0x100`: June-only.**
+- In `CX2State` (vtable `3346ac84`) slot `+0x100` is the empty `31f3f070`. Its neighbours `+0xfc` and `+0x104` are the empty `3208ddc0`.
+- March's `CX2State` and `CX2StateMenu` have no virtual for event buttons or class-up notices, so June inserted all three slots. They have no March name.
+- Every `CX2StateMenu` state overrides `+0x100` with `3245d3a0`, which refreshes June's code-event menu icons:
+  - **drop:** icons and popups whose event has turned off are destroyed (maps `+0x44c` and `+0x45c`);
+  - **add:** icons for events that are on and within the unit's level range are added through `+0xfc` (`324637d0`).
+- The icon table is `g_pData+0x584`, filled from `data036` `EventButtonIconInfo.lua` (29 rows) by `EventButtonAddSystem:AddEventButtonIconInfo` (`31ee94a0`) and `AddEventButtonIconUsingState` (`31ee39f0`).
+- `+0x104` (`3245abd0`) is a June-only class-up notice button, recorded as a candidate.
+- March has no counterpart; its menu hard-codes `IF_EVENT_ENABLED` blocks.
+
+**Reach for a March player: none today.**
+- `m_mapEnableCodeEnum`'s only setter is this handler, and the offline emulator never sends the packet. So no code event is ever on, and the handler itself never runs.
+- Even with a ported tail, the 27 code-event NPC rows and all 29 event icons stay dormant.
+- The ungated rows reach players through E1's other two entry points, not through this tail.
+  - E1 has to settle one of them: the ByVillage row for `VMI_SPA_RANOX` is a **March** village (1501), and it swaps the billboard to June's `UI_NPC_BILLBOARD_SPA.lua`, which March lacks.
+
+**Routing (no port kickoff and no new STATUS row; both systems now have owners):**
+- **Tail -> Elysion E1.**
+  - `ELYSION_PORT_PHASES.md` Phase E1 step 5 was added, outside its frozen inline kickoff.
+  - Backlog Stage 1 has a hand-off line: add the call inside C9h-2d's flag-on handler block, behind E1's flag; whichever branch merges second wires it.
+- **Virtual `+0x100` (the event-icon system) -> backlog Stage 9 (UI sweep)**, new bullet: check the `STATE_MENU_UI_CUSTOM_MSG` ids and the 29 dialogs against March first.
+
+No JUNE_BUGS row: nothing here is ported.
+
+**Open for the user**: /cost.
+
+---
+
 ### C9h-3 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the riding pet's UI sets port now; its StateChange splits three ways -> C9h-3a/3b/4/5, Stage 17
 
 Read-only in Ghidra. There are 43 funcmap rows tagged `Effect C9h-3`. They correct C9h in four places:
@@ -2575,9 +2622,9 @@ The riding pet's `StateChange` / `StateChangeFuture` now follow June (`32d2f560`
 - **Gate (`32d2ec80`).** `+0x1c0` = `m_bInitPos`, `+0x48c` = the first-change byte; the test sits after the first GetUserInfo / SetPos (`DAT_33439c68` = 30.0). The second pair runs only in the (game or village) branch, after the skin anim's OnFrameMove (`+0x238` vslot 1). `32d286c0` is the last call before the return (only xref `@32d2f3b1`). StateChange's `@32d2f5a6` is `if( !+0x48c ) +0x48c = 1`, so a plain set is the same.
 - **`PlayAnimAtPlayEnd` (`32d286c0`).** `+0x2ac` = `m_bAnimEnd` (after `m_PlayType` `+0x2a8`, which `Play` `31d28d00` writes), a non-empty test on `+0x490`, `ChangeAnim( name, false, 0 )`, `Play( 0 = XAP_LOOP )`. Matches.
 - **Check (`32d3cff0`).** `334380f0` = -1.0. Equal -> change; else `FCOMPP` time vs overlap with `TEST AH,5; JP`: time < overlap -> return 1 (wait), time >= overlap -> change. `+0x214` = `m_fAnimCurrTime` (anchored by `+0x224` = `m_NowAnimIndex`, which `ChangeAnim` `31d33fd0` writes). ECX of `31fc8810` is still the user from `@32d3d02e`. `31fc8810` is a `jmp [vtbl+0x7dc]` thunk, so June dispatches virtually, the same as the wrapper's `CommonStateEnd()`. Then `32d2f480` (-> `32d2c8b0` StateChangeFuture), then `32d3cb10` (-> `32d2f560` StateChange). Matches.
-- **User hooks.** `320347d0 @3203484e`: the pet object (`+0x683c`) non-null, GetRidingOn not tested, true skips both event paths. `320348c0 @320348d0` clears `+0x620` as the first statement. The `+0x620` arm comment is in place, and C9h-4c owns it.
+- **User hooks.** `320347d0 @3203484e`: the pet object (`+0x683c`) non-null, GetRidingOn not tested, true skips both event paths. `320348c0 @320348d0` clears `+0x620` as the first statement. The `+0x620` arm comment is in place, and C9h-4c owns it. The rest of `320348c0` keeps March's two `DoFrameMoveFuture` re-simulation loops (`@32034b32`, `@32034bb2`; March :7862, :7893).
 - **Keys and defaults** (`func_strings.tsv` order = the port's order; default stores at each getter): APPLY 0, ORIGINAL / TRANSFORM_SCALE_TIME -1.0, CHECK_..._SPACIAR_BUFF -1 (`> -1` -> `32d2f3d0`), ONGROUND table absent -> `+0x5b8` 0, `+0x5bc` 0 (EBX = 0 from `@32d3003c`), OVERLAP_TIME 0, STATE_NAME "" -> `32d3e450`, PLAY_TYPE 2, TRANSITION true, ANIM_START_TIME 0 and passed in both ChangeAnim branches, TARGET_RANGE 1500 / LIMIT_Z_DEPTH 500 / DEGREE_RANGE 45 / VALUE_POS 0. NOT_RED `@32d3262a`: written only when SUPER_ARMOR == 1. Spellings match `june_src_fixed/data037_kom` (Optimus_Prime ONGROUND, 34 files ANIM_START_TIME).
-- **Init.** June's reset `32d282f0` (only caller: the ctor `@32d3655e`) zeroes `+0x5b8/+0x5bc/+0x620`, the same as the port's ctor values; March's `ClearState` has the ctor as its only caller too.
+- **Init.** June's reset `32d282f0` (only caller: the ctor `@32d3655e`) zeroes `+0x5b8/+0x5bc/+0x620`, the same as the port's ctor values (a capstone sweep of `.text` finds one call each to `32d282f0`, `32d286c0`, `32d3cff0`); March's `ClearState` has the ctor as its only caller too.
 - **Not ported on purpose.** `IsValidUser` (`32d2c800`, raw disassembly) = March :796, unchecked dereference included. `+0x5b0/+0x5b4`: inside `32d27000..32d40000` only stores (the reset, StateChange, the ctor); readers through other classes were not swept (389 `.text` hits of the offset, mostly other classes).
 - **JUNE_BUGS 113-115** describe what the code above does.
 
