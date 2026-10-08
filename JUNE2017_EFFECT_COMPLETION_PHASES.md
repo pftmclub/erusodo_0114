@@ -2745,7 +2745,7 @@ RESULT: PASS
 
 ### C9h-6 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the snapshot exists because June's running state data are pointers; March copies them by value, so a port would never change anything -> no port, routing only
 
-There are 23 funcmap rows tagged `Effect C9h-6`. The sweep of `[reg + 0x9538..0x956c]` found 70 hits.
+There are 23 funcmap rows tagged `Effect C9h-6`. The sweep of `[reg + 0x9538..0x956c]` found 69 hits, a few of them `mov reg, imm` decode artefacts.
 
 **1. The members.** The snapshot is five delegate pairs (8 bytes each), using March's `UserUnitStateData` layout:
 - **Future side** (from the `+0x7cb0` pointer, cleared together): `+0x9544` OnFrameMoveFuture (`+0x2c`), `+0x954c` OnEventProcess (`+0x44`), `+0x9554` StateEndFuture (`+0x4c`).
@@ -2791,7 +2791,7 @@ March keeps the old values in all three cases, which is the behaviour June's sna
 
 **Routing (no port kickoff, no new STATUS row):**
 - **Class side -> checklist 7i** (D8): drop the `31fd2af0` call when porting each `SetEquippedSkillFuncBySkillSlotIndex`, and settle state byte `+0x11` there.
-- **Engine side -> backlog Stage 3**: one line. Port the snapshot only if a phase converts `m_NowStateData` / `m_FutureStateData` to June's pointers.
+- **Engine side -> backlog Stage 3, new sub-step 3f**: decide whether to adopt June's pointer model for the running state data. Only that reproduces (a)-(c); if adopted, the snapshot is ported with it.
 - No JUNE_BUGS row: nothing here is ported.
 
 **Open for the user**: /cost.

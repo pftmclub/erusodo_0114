@@ -178,7 +178,7 @@ The planning session writes `JUNE_ENGINE_REMAINDER_PHASES.md` (full kickoff belo
   - Wire in the dormant buff BBT 98 and BFT 16 here.
   - The TC slot exists but stays locked until Stage 6.
 - **3e. Skill tree UI and learn logic to June.** That means `DLG_SkillTree_*`, `DLG_Skill_Tree_Main`, and the emulator's learn/reset handlers.
-- **Engine note from june-effect C9h-6:** June keeps the running state data as pointers into the state vector (`+0x7cb0/+0x7cbc`), so it snapshots five delegates (`31fd2af0`, user `+0x9544..+0x9568`) before a slot re-equip. March copies by value, so this is inert. Port the snapshot only if a step here converts `m_NowStateData`/`m_FutureStateData` to pointers. The class-side call is checklist 7i.
+- **3f. Running state data: June's pointer model (from june-effect C9h-6).** June keeps `m_NowStateData`/`m_FutureStateData` as pointers into the state vector (`+0x7cb0/+0x7cbc`); March copies by value. Decide whether to adopt the pointer model: only that model reproduces C9h-6's residual June behaviour after a mid-state slot re-equip, namely (a) a null snapshotted delegate falls through to the new entry's, (b) the new entry's skill id, hyper byte, `+0x11` and OnCameraMove go live, and (c) a second re-equip overwrites the snapshot. If it is adopted, port the `31fd2af0` snapshot (user `+0x9544..+0x9568`) and its four consumers with it. On March's copies the snapshot alone stays inert. The class-side call is checklist 7i.
 
 **Why here:** this is the single dependency shared by every character stage, by transcendence, and by two buff types. It also closes the 0-damage blocker. The skill tree's *per-class content* is not here; it comes with each character in Stages 5, 7 and 8.
 
