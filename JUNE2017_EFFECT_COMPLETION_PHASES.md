@@ -926,6 +926,32 @@ byte-level; build, deploy, ASK before launching; update matrix and MODS.md.
 
 ---
 
+### C6c - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST`, `SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL`)
+
+**What landed** (`Always.h`, `X2EffectSet.h/.cpp`, `X2BuffFactor.h`, `X2GUUser.cpp`; the flags need `EFFECTSET_RUNTIME` + `ENCHANT_PARITY`, with `#error` guards):
+- **Store:** `EffectSetInstance::m_vecBuffFactorList` (June `+0x160`) of `BuffFactorListEntry { BFI, level, vector<BuffFactorListMod> }`; `BuffFactorListMod { bFinalizer, type, op, value }`. Empty at construction, freed with the instance.
+- **Attach:** `CX2EffectSet::AttachBuffFactorToEffectSet( Handle, BFI, level )` (`321e3650`). An invalid or stale handle returns silently. Rose / Add's `321e3730` / `321e3830` are not ported (checklist 7a).
+- **Consumer:** `ApplyBuffFactorListToDamageEffect( CEffect*, list )` (`321ee480`), called in `OnFrameMove_CreateEffect` right after C6b's stamp block, on the instance list only (EffectData `+0x118` is dead in June, no call). Per entry: factor by BFI, clone at the entry's level, modifiers, `PushBuffFactor( clone, true )` inside the loop (only the last entry survives: JUNE_BUGS 59, verbatim).
+- **Modifiers:** behavior = the existing `JuneSetBehaviorValue` (`32d418a0`, reused); finalizer = new `CX2BuffFactor::JuneSetFinalizerValue` (`32d41960` + `32d40dd0`: type match **and** BFT_TIME, 2 or 3 values, index 0 skipped, op 0 add / 1 multiply / 2 set).
+- **JUNE_BUGS 60 (user: guard):** an unknown BFI is skipped and logged once per BFI (`JUNE_FX BUFF_LIST skipped BFI n`, ErrorLog.txt); `#else` keeps June's unguarded line. JUNE_BUGS 61 not ported (no-op).
+- **SIEE 15:** `ProcessSocketEffectEx` attaches every `m_bAlwaysPlayEffectSet` entry to the set it plays; the old "unsupported" log is in `#else`, nested under the `SOCKET_PARITY` case.
+- **JUNE_FX** (`JUNE_FX_DEBUG`, offline_server.log, throttled 1/s): `ES_CREATE <set> - BUFF_LIST_ATTACH bfi= level= list_size=` and `ES_CREATE - - BUFF_LIST_APPLY entries= kept_bfi=`.
+- Docs: `MODS.md` row and section; funcmap rows `321ee480`, `321e3650`, `EffectSetInstance+0x160`, `32d41960`, `32d40dd0` say PORTED; `32d418a0` notes the reuse.
+
+**Build note:** the first compile failed (`g_pData->GetBuffTempletManager()` does not exist; the manager is `CX2BuffTempletManager::GetInstance()`, as the SIEE 16 code already uses). Fixed before any commit.
+
+**Hygiene** (`flagcheck --worktree --files`):
+```
+files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR
+in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)
+RESULT: PASS
+```
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,381,760 B, dated 2026-10-08 15:05:33, md5 bf609c7b49a69376a2ba4fb4c4be874f, equal to X2/US_SERVICE/x2.exe (2026-10-08 15:05:28); built at mods/june-buff-port 0b33379 + 6 uncommitted code file(s).` The exe holds the strings `BUFF_LIST_ATTACH`, `BUFF_LIST_APPLY` and `BUFF_LIST skipped BFI` (UTF-16, one each). The build also carries a peer's uncommitted `KTDXDeviceManager.cpp`.
+
+**How to see it in game:** nothing reaches the list in March data (no `EffectSet_Hero_Dungeon_Aura_Buff`, no Fever SIEE 13-20 socket in any save), so this is a regression check: skills that make damage effects through effect sets must still apply their own buffs and debuffs, and `grep "BUFF_LIST" offline_server.log ErrorLog.txt` must print nothing. The end-to-end aura check waits for C11 (June effect files), june-buff Phase 13 (the BFIs) and a socket save edit.
+
+**Open questions:** none.
+
 ## C7 - Touch-land runtime (old Phase 10c, step 3)
 
 **Status: not started (an earlier attempt was reverted for porting June offsets).** The spec is the

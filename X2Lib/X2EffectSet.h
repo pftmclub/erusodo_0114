@@ -686,6 +686,28 @@ public:
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
+	// June2017 effect-set buff list (effect completion C6c; funcmap rows Effect C6a2). One entry of EffectSetInstance +0x160 (0x18 B, pushed
+	// by 321f4690): the buff factor id, its level and the modifiers June's class code fills (321e3730 / 321e3830, checklist 7a; the
+	// data-driven attach 321e3650 pushes none). A Mod is 16 B: byte kind (0 = behavior, else finalizer), type, operation, value.
+	struct BuffFactorListMod
+	{
+		bool		m_bFinalizer;	/// +0
+		int			m_iType;		/// +4
+		int			m_iOperation;	/// +8: 0 add, 1 multiply, 2 set
+		float		m_fValue;		/// +0xc
+
+		BuffFactorListMod() : m_bFinalizer( false ), m_iType( 0 ), m_iOperation( 0 ), m_fValue( 0.f ) {}
+	};
+	struct BuffFactorListEntry
+	{
+		UINT						m_uiBuffFactorID;	/// +0
+		int							m_iLevel;			/// +4
+		std::vector<BuffFactorListMod>	m_vecMod;		/// +8
+
+		BuffFactorListEntry() : m_uiBuffFactorID( 0 ), m_iLevel( 0 ) {}
+	};
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 	struct EffectSetInstance
 	{
 		EFFECT_SET_MODE					m_eMode;
@@ -816,6 +838,12 @@ public:
 		int								m_iDamageEffectIndex;
 		int								m_iOwnerStateIDOnPlay;
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
+		// June2017 EffectSetInstance +0x160 (effect completion C6c): the buff factors attached by AttachBuffFactorToEffectSet (321e3650), empty
+		// at construction (321df230 @321df4b3/b9), freed with the instance (dtor 321e3a80). OnFrameMove_CreateEffect hands it to each damage
+		// effect the set creates (321ee480 @321ef689).
+		std::vector<BuffFactorListEntry>	m_vecBuffFactorList;
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 
 		// June2017 EffectSetInstance +0x54, cleared by the ctor FUN_321df230 (@ 321df323): set only by a
 		// mesh trigger's STOP_TRACING_ON_TRIGGER (FUN_321dfc40 @ 321dff2e-321dff3c, Phase 4b stage 3).
@@ -1032,6 +1060,11 @@ public:
 	//}} JHKang / °­Á¤ÈÆ / 2011/01/19
 
 	EffectSetInstance* GetEffectSetInstance( CX2EffectSet::Handle hHandle );
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
+	// June2017 321e3650 / 321ee480 (effect completion C6c)
+	void AttachBuffFactorToEffectSet( CX2EffectSet::Handle hHandle_, UINT uiBuffFactorID_, int iLevel_ );
+	void ApplyBuffFactorListToDamageEffect( CX2DamageEffect::CEffect* pEffect_, const std::vector<BuffFactorListEntry>& vecBuffFactorList_ );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
     bool               IsLiveInstanceHandle( CX2EffectSet::Handle hHandle ) { return GetEffectSetInstance( hHandle ) != NULL; }
     EffectSetInstance* ValidateInstanceHandle( CX2EffectSet::Handle& hHandle )

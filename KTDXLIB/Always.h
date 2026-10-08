@@ -6020,3 +6020,34 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #define SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 #define SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June2017 effect-set buff list (effect completion C6c). EffectSetInstance +0x160
+//              (m_vecBuffFactorList), CX2EffectSet::AttachBuffFactorToEffectSet (321e3650) and
+//              ApplyBuffFactorListToDamageEffect (321ee480, called from OnFrameMove_CreateEffect
+//              @321ef689), the two CX2BuffFactor modifier helpers (32d418a0 reused,
+//              32d41960 / 32d40dd0 new), and SIEE 15's attach (X2GUUser.cpp @3202a1aa-3202a1f4).
+//              June's per-entry PushBuffFactor( clone, true ) is kept verbatim: only the last
+//              entry survives (JUNE_BUGS 59). Needs SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME and
+//              SERV_IRUHADEV_JUNE_ENCHANT_PARITY (JuneSetBehaviorValue = 32d418a0).
+//              Log: "JUNE_FX ES_CREATE ... BUFF_LIST_*" in offline_server.log (JUNE_FX_DEBUG).
+#define SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
+#if defined(SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST) && ( !defined(SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME) || !defined(SERV_IRUHADEV_JUNE_ENCHANT_PARITY) )
+#error SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST needs SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME and SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: JUNE_BUGS 60 fix (user, 2026-10-07: guard it). June 321ee480 has no null test on
+//              GetBuffFactorPtr( BFI ) and crashes on a BFI the manager does not know. With this
+//              flag the entry is skipped and logged once per BFI (ErrorLog.txt, JUNE_FX). Off =
+//              June's unguarded line. Needs SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST.
+#define SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL
+#if defined(SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL) && !defined(SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST)
+#error SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL needs SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
+#endif SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL
+//////////////////////////////////////////////////////////////////////////

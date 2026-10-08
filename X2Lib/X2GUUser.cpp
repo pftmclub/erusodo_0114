@@ -33522,6 +33522,11 @@ CX2SocketItem::SOCKET_ITEM_EFFECT_EX CX2GUUser::ProcessSocketEffectEx( const CX2
 					{
 						if ( true != pSocketData->m_vecConditionalBuff[k].m_bAlwaysPlayEffectSet )
 							continue;
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
+						/// June @3202a1ef: 321e3650( handle, BFI, level ) for every flagged entry (effect completion C6c)
+						g_pX2Game->GetEffectSet()->AttachBuffFactorToEffectSet( hEffectSet, pSocketData->m_vecConditionalBuff[k].m_uiBuffFactorID,
+							pSocketData->m_vecConditionalBuff[k].m_iBuffLevel );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 						static bool s_bAttachReported = false;
 						if ( false == s_bAttachReported )
 						{
@@ -33530,6 +33535,7 @@ CX2SocketItem::SOCKET_ITEM_EFFECT_EX CX2GUUser::ProcessSocketEffectEx( const CX2
 								pSocketData->m_ID, pSocketData->m_vecEffectName[j].c_str(), pSocketData->m_vecConditionalBuff[k].m_uiBuffFactorID,
 								pSocketData->m_vecConditionalBuff[k].m_iBuffLevel );
 						}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 					}
 				}
 

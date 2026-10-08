@@ -1213,6 +1213,12 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						}
 	#endif
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
+						// June2017 FUN_321ee600 @321ef67b-321ef689 (effect completion C6c): the instance's buff list goes to the new damage effect, after the
+						// stamps (June order: stamps, buff list, velocity, IS_RIGHT, hyper; the list depends on none of March's neighbours). The EffectData
+						// +0x118 call @321ef676 is not ported: that list is dead in June (funcmap row EffectData+0x118).
+						ApplyBuffFactorListToDamageEffect( pEffect, pEffectSetInstance->m_vecBuffFactorList );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 						//if ( NULL != pEffect->GetLockOnData() )
 						{
 							if ( NULL != pUnit && CX2GameUnit::GUT_USER == pUnit->GetGameUnitType() )
@@ -3674,6 +3680,92 @@ void CX2EffectSet::StopEffectSetAll()
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
+/// June 321e3650 (effect completion C6c): the handle is decoded as GetEffectSetInstance does (-1 returns, set id / index / stamp checked); an invalid
+/// or stale handle returns silently. Pushes {BFI, level, no modifiers} onto EffectSetInstance +0x160 (321f4690). 321e3730 / 321e3830 (Rose / Add) are
+/// checklist 7a's.
+void CX2EffectSet::AttachBuffFactorToEffectSet( CX2EffectSet::Handle hHandle_, UINT uiBuffFactorID_, int iLevel_ )
+{
+	EffectSetInstance* pInstance = GetEffectSetInstance( hHandle_ );
+	if ( NULL == pInstance )
+		return;
+
+	BuffFactorListEntry kEntry;
+	kEntry.m_uiBuffFactorID	= uiBuffFactorID_;
+	kEntry.m_iLevel			= iLevel_;
+	pInstance->m_vecBuffFactorList.push_back( kEntry );
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	{
+		WCHAR wszJuneFxAttach[96] = L"";
+		StringCchPrintfW( wszJuneFxAttach, ARRAY_SIZE(wszJuneFxAttach), L"bfi=%u level=%d list_size=%d(321e3650)",
+			uiBuffFactorID_, iLevel_, static_cast<int>( pInstance->m_vecBuffFactorList.size() ) );
+		JuneFxEsCreate( pInstance, NULL, L"BUFF_LIST_ATTACH", wszJuneFxAttach );
+	}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+}
+
+/// June 321ee480 (effect completion C6c): per entry, in order: GetBuffFactorPtr( BFI ) (326c32a0), a clone at the entry's level (32089f60), the entry's
+/// modifiers (32d418a0 behaviors / 32d41960 finalizers), then 321f5130 = DamageData::PushBuffFactor( clone, true ). The clear flag is inside the loop, so every
+/// entry wipes the effect's own factors (and the earlier entries') and only the last survives: JUNE_BUGS 59, kept verbatim. 321f5130's rate branch
+/// (32089ff0) is a no-op with June's {1.0, 1.0} (JUNE_BUGS 61), not ported.
+void CX2EffectSet::ApplyBuffFactorListToDamageEffect( CX2DamageEffect::CEffect* pEffect_, const std::vector<BuffFactorListEntry>& vecBuffFactorList_ )
+{
+	if ( NULL == pEffect_ || true == vecBuffFactorList_.empty() )
+		return;
+
+	UINT uiKeptBFI = 0;
+	for ( UINT i = 0; i < vecBuffFactorList_.size(); ++i )
+	{
+		const BuffFactorListEntry& kEntry = vecBuffFactorList_[i];
+
+		CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( kEntry.m_uiBuffFactorID );
+#ifdef SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL
+		/// JUNE_BUGS 60 (user, 2026-10-07): June 321ee4dd-321ee507 has no null test and reads through NULL for an unknown BFI.
+		if ( NULL == ptrBuffFactor )
+		{
+			static std::set<UINT> s_setReportedBFI;
+			if ( true == s_setReportedBFI.insert( kEntry.m_uiBuffFactorID ).second )
+			{
+				WCHAR wszJuneFx[160] = L"";
+				StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX BUFF_LIST skipped BFI %u: not in the buff templet manager (June 321ee480 would crash, JUNE_BUGS 60)",
+					kEntry.m_uiBuffFactorID );
+				ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+			}
+			continue;
+		}
+#else SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL
+		/// June: no null test (JUNE_BUGS 60)
+#endif SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL
+
+		CX2BuffFactorPtr ptrClone = ptrBuffFactor->GetClonePtr( static_cast<UINT>( kEntry.m_iLevel ) );
+		for ( UINT j = 0; j < kEntry.m_vecMod.size(); ++j )
+		{
+			const BuffFactorListMod& kMod = kEntry.m_vecMod[j];
+			if ( false == kMod.m_bFinalizer )
+				ptrClone->JuneSetBehaviorValue( static_cast<BUFF_BEHAVIOR_TYPE>( kMod.m_iType ), kMod.m_fValue, kMod.m_iOperation );
+			else
+				ptrClone->JuneSetFinalizerValue( static_cast<BUFF_FINALIZER_TYPE>( kMod.m_iType ), kMod.m_fValue, kMod.m_iOperation );
+		}
+
+		pEffect_->GetDamageData().PushBuffFactor( ptrClone, true );
+		uiKeptBFI = kEntry.m_uiBuffFactorID;
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	{
+		static DWORD s_dwLastLogged = 0;
+		const DWORD dwNow = timeGetTime();
+		if ( dwNow - s_dwLastLogged >= 1000 )
+		{
+			s_dwLastLogged = dwNow;
+			CX2OfflineLog::Server( L"JUNE_FX ES_CREATE - - BUFF_LIST_APPLY entries=%d kept_bfi=%u(321ee480)",
+				static_cast<int>( vecBuffFactorList_.size() ), uiKeptBFI );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 CX2EffectSet::EffectSetInstance* CX2EffectSet::GetEffectSetInstance( CX2EffectSet::Handle hHandle )
 {
 	if( INVALID_EFFECTSET_HANDLE == hHandle )

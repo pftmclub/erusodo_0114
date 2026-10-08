@@ -62,6 +62,7 @@ column.
 | `SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL` | 2026-10-07 (june-buff Phase 14b) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUUser.h`/`.cpp` (`m_bJuneInstanceKill`, `HaveInstanceKillDebuff`, set and kill in `DamageReact`), `X2Lib/X2BuffTempletManager.cpp` (load line) | -- |
 | `SERV_IRUHADEV_JUNE_TUTORIAL_MODE` | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (before the 14b block) | `X2Lib/X2Main.h`/`.cpp` (out-of-line `SetIsPlayingTutorial`, `JuneOnExitTutorialRestoreKeys`, `m_bJuneTutorialKeyLatch`), `X2KeyPad.h`/`.cpp`, `X2DungeonGame.cpp` (Release), `X2GUUser.cpp` (clamp, RT_FLY, StartEnd), `X2Game.cpp`, `X2State.cpp`, `X2UIManager.cpp`, `X2UIQuestNew.h`/`.cpp`, `X2StateDungeonGame.cpp`, `X2SlideShot.cpp`, `X2PetManager.cpp`, `X2PlayGuide.cpp`, `X2UIQuickSlot.cpp`, `X2StateServerSelect.cpp` | -- |
 | `SERV_IRUHADEV_JUNE_TOUCH_LAND` | 2026-10-07 (June effect completion C7) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_SPAWN_INHERIT`) | `KTDXLIB/KTDGXMeshPlayer.h`/`.cpp` (`m_vVelocityBefore`, ctor init, per-frame snapshot, `GetGravity` / `GetVelocityBefore`), `X2Lib/X2DamageEffect.h`/`.cpp` (OnFrameMove gate, `JuneTouchLandDamageEffect`, `CreateTouchLandDamageEffect`); C7's other three items extend `SERV_IRUHADEV_JUNE_SPAWN_INHERIT` (`X2GameUnit.h` vslot 0x328, CEffect ctor hook, `JuneApplyCreateDamageEffectRate`) and `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME` (CREATE-loop INHERIT_CRITICAL, `JuneAssignLockOnData`, die INHERITLOCKONDATA) | -- |
+| `SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST`, `SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL` | 2026-10-08 (June effect completion C6c) | `KTDXLIB/Always.h` (end; the list needs `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` and `SERV_IRUHADEV_JUNE_ENCHANT_PARITY`, the fix needs the list) | `X2Lib/X2EffectSet.h`/`.cpp` (`BuffFactorListEntry` / `BuffFactorListMod`, `EffectSetInstance::m_vecBuffFactorList`, `AttachBuffFactorToEffectSet`, `ApplyBuffFactorListToDamageEffect`, the call in `OnFrameMove_CreateEffect`), `X2Lib/X2BuffFactor.h` (`JuneSetFinalizerValue`), `X2Lib/X2GUUser.cpp` (SIEE 15 attach in `ProcessSocketEffectEx`) | -- |
 | `SERV_IRUHADEV_OFFLINE_FIRST_SELECT` (offline emulator) | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (next to the above) | `X2Lib/Offline/Handlers_Unit.cpp` (`PushSelectUnitNotifications`, 5_NOT) | `SERV_IRUHADEV_OFFLINE` |
 | `SERV_IRUHADEV_JUNE_BUFF_DEBUG` | 2026-10-04, **disabled 2026-10-07** (june-buff Phase 14) | `KTDXLIB/Always.h:4787` (`#define` commented out; re-enable to diagnose) | ~250 `[JUNE_BUFF] first ...` debug sites across `X2Lib` (buff templets, game units, users, NPCs, `X2Main.cpp`'s `JuneBuffTestNewStat_LUA` console hook) | -- |
 
@@ -3229,6 +3230,32 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
 
 Revert: undefine `SERV_IRUHADEV_JUNE_TOUCH_LAND` (KTDXLIB too: the mesh member) and rebuild all four projects. The other two
 items go with their own flags. JUNE_BUGS 103 records the TECH_POINT truncation.
+
+### June effect completion C6c: the effect-set buff list
+
+Two flags. **`SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST`** (needs `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` and `SERV_IRUHADEV_JUNE_ENCHANT_PARITY`) ports
+June's effect-set buff list: `EffectSetInstance::m_vecBuffFactorList` (June `+0x160`), `CX2EffectSet::AttachBuffFactorToEffectSet` (`321e3650`),
+and `ApplyBuffFactorListToDamageEffect` (`321ee480`), which `OnFrameMove_CreateEffect` calls for each damage effect a set creates, right after
+C6b's stamps. Per entry: the buff factor by id, a clone at the entry's level, the entry's modifiers (`32d418a0` = the existing
+`JuneSetBehaviorValue`; `32d41960` -> `32d40dd0` = the new `CX2BuffFactor::JuneSetFinalizerValue`), then
+`DamageData::PushBuffFactor( clone, true )`. The clear flag is inside the loop, so a non-empty list replaces the effect's own buff factors
+and only the last entry survives (JUNE_BUGS 59, verbatim). SIEE 15 (`SIEE_ALWAYS_PLAY_EFFECT_SET`) now attaches every flagged
+`m_vecConditionalBuff` entry to the set it plays instead of logging "unsupported". **`SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL`** is the
+JUNE_BUGS 60 fix (user, 2026-10-07): an entry whose BFI the buff templet manager does not know is skipped and logged once per BFI
+(`JUNE_FX BUFF_LIST skipped BFI n` in `ErrorLog.txt`); off, June's unguarded line (a NULL read) is back.
+
+In March nothing reaches this yet: June's aura set `EffectSet_Hero_Dungeon_Aura_Buff` is not in March's data and no save carries a
+Fever socket (SIEE 13-20), so no instance gets a list and every consumer call returns at the empty-list test. Modifiers are filled only
+by Rose / Add class code (checklist 7a), so they run inert too.
+
+| | before | after |
+|---|---|---|
+| SIEE 15 with a flagged buff | `unsupported (effect-set buff list, 321e3650)` log, nothing attached | attached to the set; its damage effects carry the buff |
+| effect set with an empty list | - | unchanged (the consumer returns first) |
+| `offline_server.log` (`JUNE_FX_DEBUG`) | - | `JUNE_FX ES_CREATE ... BUFF_LIST_ATTACH / BUFF_LIST_APPLY` |
+
+Revert: undefine the two flags in `KTDXLIB/Always.h` (the fix first, it needs the list) and rebuild all four projects (they sit in the PCH).
+June's per-class attach variants `321e3730` / `321e3830` and the class callers are in the character-port checklist 7a.
 
 ### June item.kim adoption K2: June's 228-byte item record and June's item.kim
 

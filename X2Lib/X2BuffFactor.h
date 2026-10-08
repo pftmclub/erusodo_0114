@@ -956,6 +956,31 @@ public:
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
+	/// June 32d41960 ( type, value, op ) -> 32d40dd0, the finalizer twin of JuneSetBehaviorValue (32d418a0), used by the effect-set buff
+	/// list (effect completion C6c). Every finalizer whose type is eType_ AND is BFT_TIME (June tests the argument against 1) with 2 or 3
+	/// values gets value[1..n-1] += / *= / = fValue_ (op 0 / 1 / 2); index 0 is skipped, any other op does nothing.
+	void JuneSetFinalizerValue( const BUFF_FINALIZER_TYPE eType_, const float fValue_, const int iOperation_ )
+	{
+		for ( UINT i = 0; i < m_pDataBuffFactor->m_vecBuffFinalizerFactors.size(); ++i )
+		{
+			KBuffFinalizerFactor& kFactor = m_pDataBuffFactor->m_vecBuffFinalizerFactors[i];
+			if ( static_cast<UINT>( eType_ ) != kFactor.m_uiType || static_cast<UINT>( BFT_TIME ) != kFactor.m_uiType )
+				continue;
+			if ( 2 != kFactor.m_vecValues.size() && 3 != kFactor.m_vecValues.size() )
+				continue;
+			for ( UINT j = 1; j < kFactor.m_vecValues.size(); ++j )
+			{
+				if ( 0 == iOperation_ )
+					kFactor.m_vecValues[j] += fValue_;
+				else if ( 1 == iOperation_ )
+					kFactor.m_vecValues[j] *= fValue_;
+				else if ( 2 == iOperation_ )
+					kFactor.m_vecValues[j] = fValue_;
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// SetGameUnit
