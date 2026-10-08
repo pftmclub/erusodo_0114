@@ -3145,6 +3145,7 @@ June's three effect-set delete conditions, the hyper check and the played-handle
 - (3) `reyaa` summon / unsummon in village and dungeon: no `off_riding` line (expected: no March pet uses OFF_RIDING), no lingering effect.
 - 0 EXCEPTION, clean exit, no crash bundle; 4 UNHANDLED = `E_DISABLE_HB_CHECK_REQ` (unrelated).
 - `_DEBUG` is now off in `Always.h` (committed with these results; the deployed exe `40b97943` still has it on, the next build drops it). A retest of (2) needs it back on.
+- **User decision 2026-10-08: accept as is** (no retest of (2); the in-game observation stands). C9h-4d is closed; C9h-4e is unblocked.
 
 ### C9h-4b - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_NPC_SOUND` + `SERV_IRUHADEV_JUNE_SQUARE_SOUND`, each + `_DEBUG` on for the play-test; logs `JUNE_FX NPC_SOUND`, `JUNE_FX SQUARE_SOUND`; play-test PASSED, logs read; `_DEBUG` off)
 
