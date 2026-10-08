@@ -17,11 +17,17 @@ are not ported yet cost memory but show nothing.
   Elsword 128015, Aisha 128019, Rena 128017, Raven 128078, Eve 28005, Chung 128080, Ara 181869, Elesis 183248 (Korean name,
   untranslated), Add 183648, Luciel 184921, Rose 186038 (`Rose's GM Guns`), Ain 188856. Each has a matching GM top piece (+1 id:
   128016, 128020, 128018, 128079, 28006, 128081, 181870, 183249, 183649, 184922, 186039, 188857); the user asked for weapons only,
-  so S0 adds the weapons and the top pieces are a one-line extension if the user wants them. Same price, row and file-check rules.
+  so S0 adds the weapons and the top pieces are a one-line extension if the user wants them. Same price and row rules; the unported characters' weapons (Luciel, Rose, Ain) are offered without the file check, like their costumes.
 - **Price is 1 KC per product** ("just like right now": every existing row is `price = 1`).
 - **A load-time file check decides what the client is offered.** A costume's meshes, textures and shop image must exist (through the
   mass file manager). Rows that fail stay in the DB and are not put in the catalog; they appear on their own once their files arrive
-  (Lu/Ciel with their ports, the ~14,800 for existing characters with the june-asset-port). No code or data change then.
+  (the ~14,800 for existing characters with the june-asset-port). No code or data change then.
+  **Exception (user, 2026-10-08): items of characters this client does not have yet are always offered, with no file check.**
+  The test is the item's unit type >= `CX2Unit::UT_END` (10 today: Lu, Ciel, Rose, Ain, ...). The shop's own filter
+  (`CX2CashShop::IsPossibleUsedByMyCharacter`, `m_bAllCharItem` false) already hides them, and nobody can reach them until
+  that character exists. The test follows `UT_END`, so when a character is ported its items fall under the file check by themselves.
+  Known side effect: the shop's "all characters" checkbox (`X2CashShop.cpp:1346`) lists every character's items, so with it
+  ticked these show with blank icons. S0 does not suppress that; the Done note tells the user.
   Log the offered / withheld counts once (`[COSTUME_SHOP]`).
 - Existing rows, the player's wallet and orders are not touched. `product_no` of existing rows does not change.
 - The save is real data: back up `els_db.sql` to `db_backup/` before the first run that writes the new rows (allowed without asking).
