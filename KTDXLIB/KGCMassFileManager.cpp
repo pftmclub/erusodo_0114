@@ -501,7 +501,21 @@ KGCMassFileManager::CMassFile* KGCMassFileManager::AddMassFile(const std::string
 		sFileIndex.Index = i;
 		sFileIndex.pMassFile = pMassFile;
 
+#ifdef SERV_IRUHADEV_KOM_LONG_NAMES
+		// A name over MASSFILE_NAMESIZE-1 characters is registered under its full name, which is what
+		// LoadDataFile looks up; every shorter name takes the original key below unchanged.
+		const WCHAR* pwszLongName = pMassFile->GetLongMemberFileName( (UINT)i );
+		MassFileMap::_Pairib ib = m_mapMassFile.insert( MassFileMap::value_type( ( NULL != pwszLongName ) ? pwszLongName : Info.strFileName, sFileIndex ) );
+		if( NULL != pwszLongName )
+		{
+			std::string strKomLog, strNameLog;
+			ConvertWCHARToChar( strKomLog, strKomFileName.c_str() );
+			ConvertWCHARToChar( strNameLog, pwszLongName );
+			KLOG( "ErrorLog.txt" ) << "[KOM_LONG] " << strKomLog.c_str() << " " << strNameLog.c_str() << ( ib.second ? "" : " DUPLICATE (not registered)" ) << fileout;
+		}
+#else SERV_IRUHADEV_KOM_LONG_NAMES
 		MassFileMap::_Pairib ib = m_mapMassFile.insert( MassFileMap::value_type( Info.strFileName, sFileIndex ) );
+#endif SERV_IRUHADEV_KOM_LONG_NAMES
 
 		if( ib.second == false )
 		{
@@ -1774,6 +1788,9 @@ bool KGCMassFileManager::CMassFile::LoadMassFile( const char* strMassFile )
 	
 	//strcpy( m_strMassFileName, strMassFile );
 	m_vecMemberFileHeader.clear();
+#ifdef SERV_IRUHADEV_KOM_LONG_NAMES
+	m_mapLongMemberFileName.clear();
+#endif SERV_IRUHADEV_KOM_LONG_NAMES
 	memset(&m_MassFileHeader,0,sizeof(MASSFILE_HEADER));
 
 	// 신나는 하드코딩의 세계 
@@ -1883,6 +1900,23 @@ bool KGCMassFileManager::CMassFile::LoadMassFile( const char* strMassFile )
 								WCHAR filename[MASSFILE_NAMESIZE] = {0,};
 								MultiByteToWideChar( CP_ACP, 0, (char*)attribute->children->content, -1, filename, ARRAY_SIZE(filename) );
 								wcsncpy_s( MemberHeader.strFileName, _countof(MemberHeader.strFileName), filename, MASSFILE_NAMESIZE - 1 );
+#ifdef SERV_IRUHADEV_KOM_LONG_NAMES
+								{
+									// The copy above stays as it was (a 60+ character name does not even fit the
+									// conversion buffer). A longer name also keeps its full uppercased form, keyed by
+									// this member's index, for AddMassFile to register.
+									const char* pszManifestName = (char*)attribute->children->content;
+									const int iWideLen = MultiByteToWideChar( CP_ACP, 0, pszManifestName, -1, NULL, 0 );	// includes the NUL
+									if( iWideLen > MASSFILE_NAMESIZE )
+									{
+										std::vector<WCHAR> vecWideName( iWideLen, 0 );
+										MultiByteToWideChar( CP_ACP, 0, pszManifestName, -1, &vecWideName[0], iWideLen );
+										std::wstring wstrLongName( &vecWideName[0] );
+										MakeUpperCase( wstrLongName );
+										m_mapLongMemberFileName[ (UINT)m_vecMemberFileHeader.size() ] = wstrLongName;
+									}
+								}
+#endif SERV_IRUHADEV_KOM_LONG_NAMES
 #else WCHAR_DIR
 					#ifdef	CONVERSION_VS
 								strncpy_s(MemberHeader.strFileName, _countof(MemberHeader.strFileName), (char*)attribute->children->content , MASSFILE_NAMESIZE-1);

@@ -567,6 +567,18 @@ class KGCMassFileManager
 				}				
 #endif WCHAR_DIR
 
+#ifdef SERV_IRUHADEV_KOM_LONG_NAMES
+#ifndef WCHAR_DIR
+#error SERV_IRUHADEV_KOM_LONG_NAMES is written for WCHAR_DIR builds (US: OnlyGlobal/Always_Global.h)
+#endif WCHAR_DIR
+				// Full uppercased manifest name of member uiIndex_ when it is longer than MASSFILE_NAMESIZE-1
+				// characters (the member header keeps the old cut copy); NULL for every shorter name.
+				const WCHAR* GetLongMemberFileName( const UINT uiIndex_ ) const
+				{
+					std::map< UINT, std::wstring >::const_iterator it = m_mapLongMemberFileName.find( uiIndex_ );
+					return ( it != m_mapLongMemberFileName.end() ) ? it->second.c_str() : NULL;
+				}
+#endif SERV_IRUHADEV_KOM_LONG_NAMES
 			private:
 				std::vector<MASSFILE_MEMBERFILEHEADER> m_vecMemberFileHeader;
 				MASSFILE_HEADER						   m_MassFileHeader;
@@ -586,6 +598,12 @@ class KGCMassFileManager
 //#endif	X2OPTIMIZE_MASS_FILE_MANAGER_PER_THREAD_SYNC_IO
 //}} robobeg : 2011-08-16
 				int									   m_iFileVersion;
+#ifdef SERV_IRUHADEV_KOM_LONG_NAMES
+				// member index -> full uppercased name, only for names over MASSFILE_NAMESIZE-1 characters.
+				// A side map, not a bigger strFileName: MASSFILE_MEMBERFILEHEADER is the V.0.1/V.0.2 on-disk
+				// member header, and its sizeof() also places every V.0.3 payload (posRealDataStart).
+				std::map< UINT, std::wstring >		   m_mapLongMemberFileName;
+#endif SERV_IRUHADEV_KOM_LONG_NAMES
 				//CRITICAL_SECTION					   m_csMassFile;
 		};//class CMassFile
 

@@ -5785,3 +5785,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #define SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 #define SERV_IRUHADEV_JUNE_RIDINGPET_STATE_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June asset extraction X4 (JUNE_ASSET_EXTRACT_PHASES.md): kom member
+//              names over 59 characters. KGCMassFileManager cut every manifest
+//              name to MASSFILE_NAMESIZE-1 (59) when it registered it, while
+//              LoadDataFile looks up the full uppercased name, so a longer name
+//              was never found. With the flag a long name keeps its full form in
+//              a side map (CMassFile::m_mapLongMemberFileName; the 60-char member
+//              header is an on-disk format and stays) and is registered under it.
+//              Names of 59 characters or fewer take the original path.
+//              Needs WCHAR_DIR (US: OnlyGlobal/Always_Global.h; #error without).
+//              Live today: data110.kom's 61-char
+//              Trigger_Hamel_Frozen_Water_Hall_Stage3_Stone_Statue_Water_A.x.
+//              Log: "[KOM_LONG] <kom> <name>" in ErrorLog.txt, once per long name.
+#define SERV_IRUHADEV_KOM_LONG_NAMES
+//////////////////////////////////////////////////////////////////////////

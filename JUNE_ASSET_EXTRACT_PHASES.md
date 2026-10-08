@@ -409,6 +409,60 @@ table is the same 51) plus the 5 long names:
    - build + deploy;
    - the review kickoff is written.
 
+### Phase X4 - Done
+
+2026-10-08, Opus 5.5. Flag `SERV_IRUHADEV_KOM_LONG_NAMES` (`KTDXLIB/Always.h`), code in `KTDXLIB/KGCMassFileManager.{h,cpp}`.
+Both files are CP949 and were edited with `bytepatch.py`. Every change is an insert. The header is not in the STATUS Touches column,
+but it had to change for the new member.
+
+**Design check.**
+- **The struct stays at 60 characters.** `MASSFILE_MEMBERFILEHEADER` is the on-disk V.0.1/V.0.2 member header: `LoadMassFile` reads
+  `sizeof()` bytes per member, about `:1803`. V.0.3 also uses the size: the XML branch's `offset` (`:1866`) subtracts
+  `sizeof(MASSFILE_MEMBERFILEHEADER) * count`, and `_GetMemberFile`'s `posRealDataStart` (`:1976`) adds it back. The two cancel,
+  so V.0.3 would survive a bigger struct, but the binary formats rule it out. Long names are therefore kept in a side map.
+- **Users of the name.**
+  - The XML read (`:1880-1895`): `MultiByteToWideChar` into a `WCHAR[60]` fails outright for 60+ characters, and the copy is then
+    cut to 59.
+  - `AddMassFile`'s `m_mapMassFile.insert` (`:504`) was the only place the cut name became a key.
+  - `LoadDataFile` (`:919`), `LoadTwoDataFiles` and `IsValidFile` look the map up by the full uppercased wstring, using 255-char
+    buffers, so they work unchanged.
+  - The by-name `CMassFile::GetMemberFile` linear scan has no callers.
+  - `GetFileName` and the `SaveMassFile`/`ModifyMassFile` packer paths (`:2981`/`:3233`) write the 60-char on-disk header. They
+    are tool-only and untouched.
+  - `pOut->strFileName` (`_GetMemberFile`, `:1961`) still carries the cut copy. Its only reader outside the manager is
+    `KTDXApp.h:567`, and only for `.lua`, as error text.
+  - `MASSFILE_MEMBERFILEINFO_POINTER::operator=` uses `StringCchCopyW` into 60, and the input is never long.
+- **What the flag does.**
+  - In the XML `Name` branch, a name longer than 59 characters (`MultiByteToWideChar` returns more than 60 including the NUL) also
+    keeps its full `MakeUpperCase(wstring)` form in `CMassFile::m_mapLongMemberFileName[index]`. The map is cleared next to
+    `m_vecMemberFileHeader.clear()`.
+  - `AddMassFile` registers that full name instead of the cut one and logs `[KOM_LONG] <kom> <name>` through `KLOG("ErrorLog.txt")`.
+    If the insert fails, the line gets a ` DUPLICATE (not registered)` suffix.
+  - Names of 59 characters or fewer never get a side-map entry and run the original expression.
+  - A non-`WCHAR_DIR` build fails with `#error`.
+
+**Not inert today.** A scan of every live game-dir kom (104,578 names) found one name over 59 characters:
+`data110.kom` `Trigger_Hamel_Frozen_Water_Hall_Stage3_Stone_Statue_Water_A.x` (61). March's own content uses it as a line-map
+trigger mesh (`data040_kom/Hamel_Frozen_Water_Hall_Stage3_LineMap.lua`, `MESH_NAME`). Until now that mesh was never found. With the
+flag on, it is registered at startup and should load.
+
+**Hygiene** (`flagcheck --worktree --files` the 3 files): `files: 2 PASS, 1 DEFINE, 0 OTHER, 0 FAIL`, `0 encoding change(s)`,
+`RESULT: PASS`. The one deleted line flagcheck reports in `Always.h` is not X4's. HEAD (peer commit `7ba2f9d`, C9h-2d) has two blank
+lines after `SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP` and the working tree has one. X4's commit is built from HEAD plus the X4 block,
+so that line is left as the peer committed it.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,352,064 B, dated 2026-10-08 08:51:36, md5 6877fb3fd3f219f2998652161d43dddd, equal to
+X2/US_SERVICE/x2.exe (2026-10-08 08:51:31); built at mods/june-buff-port 4bd51f2 + 3 uncommitted code file(s)` (the 3 are X4's). The
+strings `[KOM_LONG] ` and ` DUPLICATE (not registered)` are in the deployed exe.
+
+**How to see it:**
+1. Launch, then `logs.py --tag KOM_LONG`. Expect exactly one line, for data110's trigger mesh.
+2. Optional, in game: Hamel, Frozen Water Hall, stage 3. Expect the stone-statue water trigger mesh and no `KEM_ERROR136` for it.
+
+The other 5 long names are staged in X5.
+
+**Open:** none. **Owes the user:** a launch for the log line, and `/cost`.
+
 ## Phase X4 review
 
 **Run with:** Sonnet 5.5 high.
