@@ -937,6 +937,10 @@ void CX2GUEve::InitStateCommon()
 	m_LuaManager.MakeTableReference( "ENSI_DAMAGE_AIR_UP", stateData.stateID );
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirUpEventProcess );
 	m_StateList[stateData.stateID] = stateData;
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	/// June InitState Eve 329b8030 @329b9f6d: USI_BOUNDING_DOWN / _LANDCRASH / _UP with this class's ENSI_DAMAGE_BOUNDING_* tables (C3d-3)
+	JuneInitBoundingStates( "ENSI_" );
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 
 	stateData.Init();
 	stateData.stateID			= USI_DAMAGE_AIR_FLY_FRONT;

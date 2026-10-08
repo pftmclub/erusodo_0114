@@ -1124,6 +1124,10 @@ void CX2GUChung::InitStateCommon()
 	m_LuaManager.MakeTableReference( "CSI_DAMAGE_AIR_UP", stateData.stateID );
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirUpEventProcess );
 	m_StateList[stateData.stateID] = stateData;
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	/// June InitState Chung 32c12a30 @32c142e0: USI_BOUNDING_DOWN / _LANDCRASH / _UP with this class's CSI_DAMAGE_BOUNDING_* tables (C3d-3)
+	JuneInitBoundingStates( "CSI_" );
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 
 	stateData.Init();
 	stateData.stateID			= USI_DAMAGE_AIR_FLY_FRONT;

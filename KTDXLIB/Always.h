@@ -6240,3 +6240,24 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif NOTIFY_TO_OWNER_UNIT_WHEN_DAMAGE_EFFECT_DIE
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_NOTIFY_OWNER_FIRST
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-09
+// Description: Effect completion C3d-3: June's bounding back-speed state. DamageReactStateChange's RT_BOUNDING case ( June
+//              31feabd0 @31feb68f, NPC 32769060 @32769da7 ) stores BOUNDING_BACK_SPEED_X/Y and enters USI_BOUNDING_DOWN ( in the
+//              air ) or USI_BOUNDING_LANDCRASH ( on the ground ); LANDCRASH goes to USI_BOUNDING_UP after USEFUL_VALUE0[0]
+//              seconds, UP launches with the stored speed. Five CX2GUUser handlers, the last-attacker members, the nine March
+//              classes' InitState registration ( June_Bounding_States.lua in data036, loaded by CreateUnitLuaSpace ) and the
+//              NPC half ( three DAMAGE_BOUNDING_* common-state types, NOT_BOUNDING ). Off = March's dead BOUNDING_COMBO_TEST case.
+//              Log: "JUNE_FX C3d-3" in offline_server.log.
+#define SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#if defined(SERV_IRUHADEV_JUNE_BOUNDING_STATE) && !defined(SERV_IRUHADEV_JUNE_USER_STATE_ID16)
+#error SERV_IRUHADEV_JUNE_BOUNDING_STATE needs SERV_IRUHADEV_JUNE_USER_STATE_ID16 ( USI_BOUNDING_* )
+#endif
+#if defined(SERV_IRUHADEV_JUNE_BOUNDING_STATE) && !defined(SERV_IRUHADEV_JUNE_USEFUL_VALUE)
+#error SERV_IRUHADEV_JUNE_BOUNDING_STATE needs SERV_IRUHADEV_JUNE_USEFUL_VALUE ( the LANDCRASH timer )
+#endif
+#if defined(SERV_IRUHADEV_JUNE_BOUNDING_STATE) && !defined(SERV_IRUHADEV_JUNE_DAMAGEDATA)
+#error SERV_IRUHADEV_JUNE_BOUNDING_STATE needs SERV_IRUHADEV_JUNE_DAMAGEDATA ( BOUNDING_BACK_SPEED_X/Y )
+#endif
+//////////////////////////////////////////////////////////////////////////

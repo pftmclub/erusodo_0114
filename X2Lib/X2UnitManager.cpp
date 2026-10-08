@@ -465,6 +465,15 @@ void    CX2UnitManager::CreateUnitLuaSpace()
         }//for
     }
 
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	/// C3d-3: June's *_DAMAGE_BOUNDING_* tables for the nine March classes ( the class scripts above are encrypted bytecode that is not rebuilt here ).
+	/// Globals of the shared Lua state; CX2GUUser::JuneInitBoundingStates reads them by name, and degrades visibly when this file is missing.
+	{
+		KLuaManager luaManagerBounding( g_pKTDXApp->GetLuaBinder()->GetLuaState(), 0, true );
+		if ( g_pKTDXApp->LoadAndDoMemory( &luaManagerBounding, L"June_Bounding_States.lua" ) == false )
+			CX2OfflineLog::Server( L"JUNE_FX C3d-3 June_Bounding_States.lua failed to load ( not packed into data036.kom? ): the bounding states stay off" );
+	}
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 }//CX2UnitManager::CreateUnitLuaSpace()
 bool    CX2UnitManager::OpenNPCFiles( const WCHAR* pTempletFile, const WCHAR* pStatFile, const WCHAR* pExtraAbilityFile )
 {

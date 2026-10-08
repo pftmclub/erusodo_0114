@@ -754,11 +754,53 @@ The literal tables are untouched (`ESSI_COMBO_X1` / `AVSI_COMBO_X1` 60, `LESI_CO
 
 ## C3d-3 - port: the bounding back-speed state
 
-**Status: blocked on C3d-2, C9h-4f and C3c. Model:** Sonnet 5.5, high, then an Opus review. Kickoff `kickoffs/june-effect/C3d-3.md`.
+**Status: done (2026-10-09), play-test pending. Model:** Sonnet 5.5, high, then an Opus review. Kickoff `kickoffs/june-effect/C3d-3.md`, review `kickoffs/june-effect/C3d-3-review.md`.
 
 - **Scope:** C3b item 2: the user RT_BOUNDING case, the three `USI_BOUNDING_*` states, the five `CX2GUUser` handlers, `m_vBoundingBackSpeed`,
   the last-attacker UID / unit type (`+0x40e0` / `+0x40e8`, written next to buff 9b's `+0x40dc` serial), the registration in March's nine
   class InitStates with June's state tables in their data036 scripts (+ `Enum.lua`, packed), and the NPC half (`32769060`, `3275d900`, `3275a070`).
+
+### C3d-3 - Done (2026-10-09, Sonnet 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_BOUNDING_STATE` (`KTDXLIB/Always.h`, end; `#error` without `USER_STATE_ID16`, `USEFUL_VALUE`, `DAMAGEDATA`). Commit: see `git log` for "C3d-3". funcmap rows `(C3d-3)`, JUNE_BUGS 140 / 141.
+
+**What landed.**
+- **User case.** `CX2GUUser::DamageReactStateChange`: the RT_BOUNDING case (June `31feabd0 @31feb68f-31feb71a`) replaces March's dead `BOUNDING_COMBO_TEST`
+  case, which stays in `#else`. It ignores a super-armoured unit; stores the mirrored back speed; goes to DOWN (air, `nowSpeed.y = backSpeed.y`) or LANDCRASH (ground, speed 0).
+- **Members and handlers.** `CX2GameUnit`: `m_vJuneBoundingBackSpeed` (+0x40f0), `m_uidJuneLastAttacker` (+0x40e0), `m_eJuneLastAttackerUnitType` (+0x40e8). The five handlers
+  are virtual `CX2GUUser::JuneBounding*`. LANDCRASH's due test is `EventTimerOneshot( JuneGetUsefulValueNow( 0, 0 ) )` on the future anim.
+  x87 settled: `31fd0291` = strictly above, `31fd0354` = `y < 0` falls, equal / NaN reach the landing test.
+- **Last attacker.** Both DamageReacts store it (user before the back-speed gate, NPC before the guard test). June's user store has no null test (JUNE_BUGS 141): March keeps one.
+- **Registration.** `CX2GUUser::JuneInitBoundingStates( prefix )` is called from the nine March classes' InitState (after their `USI_DAMAGE_AIR_UP` block). It registers all three states, or none (logged once per class) when a table is missing; the RT_BOUNDING case checks the result.
+- **Data: a deviation from the kickoff.** The nine March class scripts are bytecode only. Decompiling and recompiling `Elsword_SwordMan.lua` gives the same size but 30,072 of 192,287
+  bytes differ, so they were **not** rebuilt. June's 27 tables (verbatim, identical across classes but for the prefix and Elsword's `EFFECT_SET_LIST`) are in a new data036 file
+  `June_Bounding_States.lua` (+ manifest line, `PACK OK data036`), loaded once by `CX2UnitManager::CreateUnitLuaSpace`. Temporary until June's class scripts are adopted.
+- **NPC half.** Types `STATE_TYPE_DAMAGE_BOUNDING_DOWN / _LANDCRASH / _UP` before `STATE_TYPE_REACTION_STATE_NUMS` (+ names, `m_JuneBounding*` from `m_acStateType`), the RT_BOUNDING case
+  (`32769060`), the bounding-up start in `CommonStateStart` (`3275a070`), key `NOT_BOUNDING` (new NPC flag). The three bytes: `+0x872b` = `m_bNeverMove`, `+0x8ac6` = `NOT_BOUNDING`, `+0x8ac4` =
+  zeroed by the ctor and written by no NPC code (not ported). Row `3275a070` corrected: its Lu/Ciel half compares LANDCRASH, not UP. No NPC script names the states: this half is unreached.
+- `X2DamageManager.cpp`: the "unsupported key" log for `BOUNDING_BACK_SPEED_X/Y` is skipped under the flag (the key is read now).
+
+**Twins checked.** March's NPC `DamageReactStateChange_CheckOnly` RT_BOUNDING case is dead (`X2OPTIMIZE_NPC_NONHOST_SIMULATION_ANALYSIS` OFF) and the `m_FlyCount++` case is `BOUNDING_COMBO_TEST` (OFF). **Open:** I could not find June's fly counter in `32045dc0` by pattern,
+so whether June counts RT_BOUNDING hits there is unchecked (review item 5).
+
+**Found on the way, not ported.** `SET_LIMIT_MAX_G_SPEED` (every `*_DAMAGE_BOUNDING_DOWN` carries `-4000`): a float state key June reads into a protected unit float (`+0x40f8`, user `@32054734`,
+NPC `@32787303`); March reads none. Bounding DOWN falls at March's own speed cap until it is ported. New phase **C3g** (kickoff written, STATUS row).
+
+**Hygiene.** `flagcheck --worktree --files <18 code files>`: `files: 17 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 3 #else/#endif without the flag token` (nested
+`X2OPTIMIZE_*` conditionals inside the flag's blocks), `0 encoding change(s)`; `RESULT: PASS`.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,420,160 B, dated 2026-10-09 05:48:14, md5 69965ce804a3fdd1bdafa23498f73e70, equal to X2/US_SERVICE/x2.exe (2026-10-09 05:48:09); built at mods/june-buff-port ca86a86 + 18 uncommitted code file(s).`
+Strings in the exe: `JUNE_FX C3d-3` (UTF-16), `June_Bounding_States.lua`, `DAMAGE_BOUNDING_LANDCRASH`, `NOT_BOUNDING`.
+Packed: `PACK OK data036` (`+1 added: June_Bounding_States.lua`), `PACK OK data037` (`~1 changed: Thief_Thin_Zero.lua`, the staging). Copy of both waits for the user's yes.
+
+**Test staging (live until the review reverts it).** Mars (`Thief_Thin_Zero`, El Tree, dungeon 30000), `THIEF_THIN_ZERO_ATTACK` (the melee slash): `REACT_TYPE = RT_BOUNDING`,
+`BOUNDING_BACK_SPEED_X = 600`, `BOUNDING_BACK_SPEED_Y = 900`, marked `C3d-3 TEST STAGING`. Original bytecode: `kom_contents_backup_june_bounding/data037_kom/Thief_Thin_Zero.lua` (md5 `ab2aad2e`).
+
+**In game** (El Tree, any character; the exe, data036 and data037 go together): Mars's slash does not knock back as before. The hit player crashes to the ground (anim `DamageAirDownLanding`, 0.16 s), is
+launched up and back (x 600, y 900), falls (AIR_FALL) and lands. Per class: `JUNE_FX C3d-3 bounding states registered for <prefix>` once when that class first enters a game; first hit: `RT_BOUNDING (first seen)` and
+`USI_BOUNDING_UP started`. Without the new data036 the log says `NOT registered ... RT_BOUNDING stays off` and the slash is only ignored.
+
+**Open for the user:** none.
 
 ## C3e - identify: June's user-sync packet extension
 

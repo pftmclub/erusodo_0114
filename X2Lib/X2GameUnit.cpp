@@ -298,6 +298,12 @@ m_fNoSkillTime( 0 )
 	m_iJuneLastHitAttackSerial			= 0;
 	m_bJuneReservedDeath				= false;
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	/// C3d-3: June +0x40e0 / +0x40e8 / +0x40f0 / +0x40f4 ( no June ctor store is needed: the first DamageReact writes them; zero is only for a read before it )
+	m_vJuneBoundingBackSpeed = D3DXVECTOR2( 0.f, 0.f );
+	m_uidJuneLastAttacker = 0;
+	m_eJuneLastAttackerUnitType = GUT_USER;
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 	m_fForceInvincibleTime		= 0.0f;
 	m_fShowInvincibleTime		= 0.0f;
 	m_fShowInvincibleSwapTime	= 0.05f;

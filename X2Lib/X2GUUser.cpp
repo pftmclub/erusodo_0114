@@ -1176,6 +1176,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	memset( m_afJuneUsefulValueFuture, 0, sizeof( m_afJuneUsefulValueFuture ) );
 	memset( m_afJuneUsefulValueNow, 0, sizeof( m_afJuneUsefulValueNow ) );
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	m_bJuneBoundingStatesReady = false;
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 
 #ifdef HYPER_MODE_FIX
 	m_iLastStateHyperModeCount	= 0;
@@ -8510,6 +8513,13 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	}
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	/// June CX2GUUser::DamageReact 320462a0 @32046f06-32046f27 ( C3d-3 ): the attacker's game-unit type ( attacker +0x264 ) and UID become this unit's
+	/// last attacker ( +0x40e8 / +0x40e0 ), read by USI_BOUNDING_UP's Lu/Ciel hook. June reads the attacker unguarded ( its @32046e90 null branch lands on
+	/// the store ); a missing attacker keeps the old value here instead of crashing.
+	if ( NULL != pAttackerUnit )
+		SetJuneLastAttacker( pAttackerUnit->GetGameUnitType(), pAttackerUnit->GetUnitUID() );
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 	// June2017 CX2GUUser::DamageReact 320462a0 @32046f3d-32046f5d (effect completion C3): the back-speed block runs for a unit that is not super
 	// armored and not hit by a dummy damage (reActType 7); FORCE_BACK_SPEED (+0x3ec) == 1 runs it for those two cases as well (@32046f56).
@@ -12967,6 +12977,56 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	case CX2DamageManager::RT_BOUNDING:
+		{
+			/// June CX2GUUser::DamageReactStateChange 31feabd0 @31feb68f-31feb71a ( C3d-3 ): a super-armored unit ignores it; the attacker's facing mirrors BOUNDING_BACK_SPEED_X
+			/// ( the unit's own facing when it differs ), Y is stored as is; in the air DOWN with the hit's own back speed Y, on the ground LANDCRASH with no speed
+			if ( IsSuperArmor() )
+				break;
+
+			if ( false == m_bJuneBoundingStatesReady )
+			{
+				static bool s_bOffLogged = false;
+				if ( false == s_bOffLogged )
+				{
+					s_bOffLogged = true;
+					CX2OfflineLog::Server( L"JUNE_FX C3d-3 RT_BOUNDING hit on unit %I64d ignored: the bounding states are not registered ( June_Bounding_States.lua not packed into data036.kom )", GetUnitUID() );
+				}
+				break;
+			}
+
+			if ( NULL != pAttackerUnit )
+			{
+				float fBackSpeedX = pDamageData->m_fBoundingBackSpeedX;
+				if ( pAttackerUnit->GetIsRight() != GetIsRight() )
+					fBackSpeedX = -fBackSpeedX;
+				SetJuneBoundingBackSpeed( fBackSpeedX, pDamageData->m_fBoundingBackSpeedY );
+			}
+
+			static bool s_bLogged = false;
+			if ( false == s_bLogged )
+			{
+				s_bLogged = true;
+				CX2OfflineLog::Server( L"JUNE_FX C3d-3 RT_BOUNDING (first seen): unit %I64d, %s, back speed ( %.1f, %.1f ), attacker %d",
+					GetUnitUID(), ( false == IsOnSomethingFuture() ) ? L"in the air" : L"on the ground",
+					GetJuneBoundingBackSpeed().x, GetJuneBoundingBackSpeed().y, ( NULL != pAttackerUnit ) ? 1 : 0 );
+			}
+
+			if ( false == IsOnSomethingFuture() )
+			{
+				m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+				StateChange( USI_BOUNDING_DOWN, true );
+			}
+			else
+			{
+				m_PhysicParam.nowSpeed.x = 0.f;
+				m_PhysicParam.nowSpeed.y = 0.f;
+				StateChange( USI_BOUNDING_LANDCRASH, true );
+			}
+		} break;
+
+#else SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef BOUNDING_COMBO_TEST
 
 	case CX2DamageManager::RT_BOUNDING:
@@ -12992,6 +13052,7 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 		} break;
 
 #endif BOUNDING_COMBO_TEST
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef NEW_GRAPPLE_ATTACK
 	case CX2DamageManager::RT_NEW_GRAPPLE:
 		{
@@ -28880,6 +28941,128 @@ void CX2GUUser::DamageAirUpEventProcess()
 	CommonEventProcess();
 }
 
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+/// June 31fd0230 ( vslot 0x5d4, C3d-3 ): the airborne half of the bounding hit. Landing -> LANDCRASH, then the common event process.
+void CX2GUUser::JuneBoundingDownEventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+		StateChange( USI_BOUNDING_LANDCRASH );
+
+	CommonEventProcess();
+}
+
+/// June 31fd0260 ( vslot 0x5d8 ): the ground crash. After USEFUL_VALUE0's first value ( the Now set, +0x8eb8 ) the unit goes to UP. June's due test is
+/// 'value above the skin anim's one-shot mark ( +0x24c; x87 fcom + test ah,0x41 + jne = strictly above, NaN skips ) and EventTimer( value )' on the
+/// future skin anim ( or +0x8e84 for June's alternate model, which March has not ), = EventTimerOneshot( value ), like JuneSoundEventTimer.
+void CX2GUUser::JuneBoundingLandCrashEventProcess()
+{
+	const float fTime = JuneGetUsefulValueNow( 0, 0 );
+	if( NULL != m_pXSkinAnimFuture )
+	{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+		if( true == m_pXSkinAnimFuture->EventTimerOneshot( fTime ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+		if( true == m_pXSkinAnimFuture->EventTimer( fTime ) && true == EventCheck( fTime, true ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+			StateChange( USI_BOUNDING_UP );
+	}
+
+	CommonEventProcess();
+}
+
+/// June 31fc9d20 ( vslot 0x5dc ): the launch speed is the one the RT_BOUNDING case stored ( +0x40f0 / +0x40f4 into nowSpeed +0x304 / +0x308 )
+void CX2GUUser::JuneBoundingUpStateStartFuture()
+{
+	CommonStateStartFuture();
+
+	m_PhysicParam.nowSpeed.x = GetJuneBoundingBackSpeed().x;
+	m_PhysicParam.nowSpeed.y = GetJuneBoundingBackSpeed().y;
+}
+
+/// June 31fd02d0 ( vslot 0x5e0 ): CommonStateStart, then the Lu/Ciel hook ( +0x40e8 == 0, last attacker's CX2Unit type 0xa -> 32b38cb0 ). The hook is class
+/// code and Lu/Ciel is not a March class ( checklist 7l ).
+void CX2GUUser::JuneBoundingUpStateStart()
+{
+	CommonStateStart();
+
+	static bool s_bLogged = false;
+	if( false == s_bLogged )
+	{
+		s_bLogged = true;
+		CX2OfflineLog::Server( L"JUNE_FX C3d-3 USI_BOUNDING_UP started (first seen): unit %I64d, launch speed ( %.1f, %.1f ), last attacker %I64d type %d",
+			GetUnitUID(), GetJuneBoundingBackSpeed().x, GetJuneBoundingBackSpeed().y, GetJuneLastAttackerUID(), static_cast<int>( GetJuneLastAttackerUnitType() ) );
+	}
+}
+
+/// June 31fd0340 ( vslot 0x5e4 ): rising -> nothing; falling ( y < 0, x87 fcomp + test ah,5 + jp: equal and NaN fall through ) -> AIR_FALL, else on the
+/// ground -> AIR_DOWN_LANDING ( March's DamageAirUpEventProcess in the same order ).
+void CX2GUUser::JuneBoundingUpEventProcess()
+{
+	if( 0.f > m_PhysicParam.nowSpeed.y )
+	{
+		StateChange( USI_DAMAGE_AIR_FALL );
+	}
+	else if( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DAMAGE_AIR_DOWN_LANDING );
+	}
+
+	CommonEventProcess();
+}
+
+/// June InitState of the 12 classes ( the nine March ones here ): each registers USI_BOUNDING_DOWN / _LANDCRASH / _UP with its own *_DAMAGE_BOUNDING_* tables.
+/// The tables live in June_Bounding_States.lua ( data036 ), a global the shared Lua state sees. A missing table registers none of the three, logs once per
+/// class, and leaves the RT_BOUNDING case off ( m_bJuneBoundingStatesReady ), so a unit never enters a state that has no table.
+void CX2GUUser::JuneInitBoundingStates( const char* pszPrefix_ )
+{
+	m_bJuneBoundingStatesReady = false;
+
+	UserUnitStateData stateDown;
+	UserUnitStateData stateLandCrash;
+	UserUnitStateData stateUp;
+	char szName[96];
+
+	stateDown.Init();
+	stateDown.stateID = USI_BOUNDING_DOWN;
+	StringCchPrintfA( szName, ARRAY_SIZE( szName ), "%sDAMAGE_BOUNDING_DOWN", pszPrefix_ );
+	const bool bDown = m_LuaManager.MakeTableReference( szName, stateDown.stateID );
+	stateDown.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneBoundingDownEventProcess );
+
+	stateLandCrash.Init();
+	stateLandCrash.stateID = USI_BOUNDING_LANDCRASH;
+	StringCchPrintfA( szName, ARRAY_SIZE( szName ), "%sDAMAGE_BOUNDING_LANDCRASH", pszPrefix_ );
+	const bool bLandCrash = m_LuaManager.MakeTableReference( szName, stateLandCrash.stateID );
+	stateLandCrash.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneBoundingLandCrashEventProcess );
+
+	stateUp.Init();
+	stateUp.stateID = USI_BOUNDING_UP;
+	StringCchPrintfA( szName, ARRAY_SIZE( szName ), "%sDAMAGE_BOUNDING_UP", pszPrefix_ );
+	const bool bUp = m_LuaManager.MakeTableReference( szName, stateUp.stateID );
+	stateUp.StateStartFuture	= SET_CB_FUNC( CX2GUUser, JuneBoundingUpStateStartFuture );
+	stateUp.StateStart		= SET_CB_FUNC( CX2GUUser, JuneBoundingUpStateStart );
+	stateUp.OnEventProcess		= SET_CB_FUNC( CX2GUUser, JuneBoundingUpEventProcess );
+
+	static std::set<std::string> s_setLogged;
+	const bool bFirstOfClass = s_setLogged.insert( pszPrefix_ ).second;
+
+	if( false == bDown || false == bLandCrash || false == bUp )
+	{
+		if( true == bFirstOfClass )
+			CX2OfflineLog::Server( L"JUNE_FX C3d-3 bounding states NOT registered for %hs ( DOWN %d, LANDCRASH %d, UP %d ): June_Bounding_States.lua is missing from data036.kom; RT_BOUNDING stays off",
+				pszPrefix_, bDown, bLandCrash, bUp );
+		return;
+	}
+
+	m_StateList[stateDown.stateID]	= stateDown;
+	m_StateList[stateLandCrash.stateID]	= stateLandCrash;
+	m_StateList[stateUp.stateID]	= stateUp;
+	m_bJuneBoundingStatesReady = true;
+
+	if( true == bFirstOfClass )
+		CX2OfflineLog::Server( L"JUNE_FX C3d-3 bounding states registered for %hs ( USI_BOUNDING_DOWN %d, LANDCRASH %d, UP %d )",
+			pszPrefix_, static_cast<int>( USI_BOUNDING_DOWN ), static_cast<int>( USI_BOUNDING_LANDCRASH ), static_cast<int>( USI_BOUNDING_UP ) );
+}
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 /** @function : DamageAirFlyEventProcess
 	@brief : Fly Type의 공격을 받은 상태의 EventProcess
 */

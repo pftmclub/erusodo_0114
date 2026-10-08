@@ -65,6 +65,7 @@ column.
 | `SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST`, `SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL` | 2026-10-08 (June effect completion C6c) | `KTDXLIB/Always.h` (end; the list needs `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` and `SERV_IRUHADEV_JUNE_ENCHANT_PARITY`, the fix needs the list) | `X2Lib/X2EffectSet.h`/`.cpp` (`BuffFactorListEntry` / `BuffFactorListMod`, `EffectSetInstance::m_vecBuffFactorList`, `AttachBuffFactorToEffectSet`, `ApplyBuffFactorListToDamageEffect`, the call in `OnFrameMove_CreateEffect`), `X2Lib/X2BuffFactor.h` (`JuneSetFinalizerValue`), `X2Lib/X2GUUser.cpp` (SIEE 15 attach in `ProcessSocketEffectEx`) | -- |
 | `SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION`, plus the C3c part of `SERV_IRUHADEV_JUNE_DAMAGEDATA` | 2026-10-08 (June effect completion C3c) | `KTDXLIB/Always.h` (before the costume-shop block; the `_DAMAGEDATA` part needs `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`) | `X2Lib/X2GameUnit.h`/`.cpp` (`StateParam::setSuperArmorCondition`, `JuneCollectUnitsAround`, `JuneIsPacketBuffRefused`, the two additions in `SetKBuffFactorPacketToGameUnit`), `X2Lib/X2GUUser.h`/`.cpp` (`JuneIsSuperArmorAgainst`, `CommonStateStart` parse, six `DamageReactStateChange` cases, `Process_ExtraDamage` EDT_TRANSIT_DEBUFF member loop), `X2Lib/X2DamageEffect.h` (friend), `X2Lib/X2DamageManager.cpp` (two rule-5 log blocks off, BOUNDING text) | -- |
 | `SERV_IRUHADEV_JUNE_USER_STATE_ID16`, `SERV_IRUHADEV_JUNE_USER_ACTION_ID16` | 2026-10-08 (June effect completion C3d-2) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUUser.h` (`SyncData::nowState` / `nowAction`, `UserUnitStateData::stateID`, `UserUnitStateDataMap` key, the two `GetGameUnitState*` casts, `m_OldStateId`, `USI_BOUNDING_*`), `X2GameUnit.h` (`UnitCondition::nextState`), `X2UDPPacket.h` (`m_ucNowState` / `m_ucNowAction`, **P2P wire format**); **data036 `Enum.lua` ships with the exe** | -- (P2P only) |
+| `SERV_IRUHADEV_JUNE_BOUNDING_STATE` | 2026-10-09 (June effect completion C3d-3) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUUser.h/.cpp` (RT_BOUNDING case, 5 handlers, `JuneInitBoundingStates`), `X2GUNPC.h/.cpp` (3 types, `NOT_BOUNDING`, RT_BOUNDING case), `X2GameUnit.h/.cpp` (back speed + last attacker), `X2UnitManager.cpp` (loads the table file), `X2DamageManager.cpp`, the nine class `.cpp`; **data036 `June_Bounding_States.lua` ships with the exe** | -- |
 | `SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS`, `SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT` | 2026-10-08 (June effect completion C10e) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUUser.h/.cpp` (two empty attacker hooks, socket 2000145 bool + cool-down), `X2Lib/X2GUNPC.cpp` (`DamageReact` hooks and the 3 % cool-time cut), `X2Lib/X2GameUnit.h` (empty slot-0x304 hook), `X2Lib/X2Game.h/.cpp` (`JunePvpAmusementHalveDamage`) | -- |
 | `SERV_IRUHADEV_OFFLINE_FIRST_SELECT` (offline emulator) | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (next to the above) | `X2Lib/Offline/Handlers_Unit.cpp` (`PushSelectUnitNotifications`, 5_NOT) | `SERV_IRUHADEV_OFFLINE` |
 | `SERV_IRUHADEV_JUNE_BUFF_DEBUG` | 2026-10-04, **disabled 2026-10-07** (june-buff Phase 14) | `KTDXLIB/Always.h:4787` (`#define` commented out; re-enable to diagnose) | ~250 `[JUNE_BUFF] first ...` debug sites across `X2Lib` (buff templets, game units, users, NPCs, `X2Main.cpp`'s `JuneBuffTestNewStat_LUA` console hook) | -- |
@@ -3339,6 +3340,15 @@ rows at `GUSI_END + 83..85` and `USI_END = GUSI_END + 86`.
 
 Revert: undefine both flags, restore `Enum.src.lua`'s `USI_END = GUSI_END + 83` (drop the three rows), `kom.py compile` + `pack` data036, rebuild all
 four projects and deploy exe and kom together.
+
+### C3d-3: June's bounding back-speed state (2026-10-09)
+
+`SERV_IRUHADEV_JUNE_BOUNDING_STATE` ports June's RT_BOUNDING reaction (`BOUNDING_BACK_SPEED_X/Y`): the hit unit crashes (LANDCRASH), then is launched with the stored speed (UP). June's 27
+`*_DAMAGE_BOUNDING_*` tables are in a new data036 file `June_Bounding_States.lua` (the nine March class scripts are not rebuilt). **Exe and data036 deploy together**; without the file the log says
+`bounding states NOT registered` and RT_BOUNDING is ignored. data037's `Thief_Thin_Zero.lua` carries a TEST STAGING edit (Mars's slash is RT_BOUNDING) until the C3d-3 review reverts it from
+`kom_contents_backup_june_bounding/`.
+
+Revert: undefine the flag and rebuild all four projects; delete `June_Bounding_States.lua` + its manifest line, `pack` data036; restore `Thief_Thin_Zero.lua`.
 
 ## Reverting to stock
 

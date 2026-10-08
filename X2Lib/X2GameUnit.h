@@ -3345,6 +3345,15 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 		void CreateAndInsertCustomFunctionByBuff( const KBuffIdentity& BuffIdentity_, const KBuffBehaviorFactor& kBehaviorFactor_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+		/// C3d-3: June +0x40f0 / +0x40f4 ( the back speed the bounding states launch with ) and +0x40e0 / +0x40e8 ( the last attacker's UID and
+		/// game-unit type, written by both DamageReacts ). The Lu/Ciel hook that reads the last attacker is class code ( checklist 7l ).
+		const D3DXVECTOR2& GetJuneBoundingBackSpeed() const { return m_vJuneBoundingBackSpeed; }
+		void SetJuneBoundingBackSpeed( const float fX_, const float fY_ ) { m_vJuneBoundingBackSpeed.x = fX_; m_vJuneBoundingBackSpeed.y = fY_; }
+		GAME_UNIT_TYPE GetJuneLastAttackerUnitType() const { return m_eJuneLastAttackerUnitType; }
+		UidType GetJuneLastAttackerUID() const { return m_uidJuneLastAttacker; }
+		void SetJuneLastAttacker( const GAME_UNIT_TYPE eUnitType_, const UidType uidAttacker_ ) { m_eJuneLastAttackerUnitType = eUnitType_; m_uidJuneLastAttacker = uidAttacker_; }
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		void EraseCustomFunctionByBuff( const KBuffIdentity& BuffIdentity_ );
 		void DoCustomFunctionByBuffInCommonStateStart();
 		void DoCustomFunctionByBuffInCommonFrameMove();
@@ -5119,6 +5128,11 @@ protected:
 		bool										m_bJuneReservedDeath;			/// June +0x258: CX2GUUser::OnFrameMove kills the user once it is set
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+		D3DXVECTOR2																														m_vJuneBoundingBackSpeed;		/// June +0x40f0 / +0x40f4: set by the RT_BOUNDING case, read by USI_BOUNDING_UP's start
+		UidType																																		m_uidJuneLastAttacker;			/// June +0x40e0: the last attacker's UID ( DamageReact )
+		GAME_UNIT_TYPE																											m_eJuneLastAttackerUnitType;		/// June +0x40e8: the last attacker's game-unit type ( 0 = user )
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		CKTDGXSkinAfterImage*						m_pAfterImage;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		D3DXCOLOR									m_coAfterImageColorByState;	/// June +0x6880: the user state's AFTER_IMAGE_COLOR; EnableAfterImage uses it while no buff after-image is on

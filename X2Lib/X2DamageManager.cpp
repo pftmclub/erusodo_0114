@@ -304,6 +304,9 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		// confirmed March counterpart yet: logged once per key per templet, no behaviour (effect completion C3 flag, Opus).
 		LUA_GET_VALUE( luaManager, "BOUNDING_BACK_SPEED_X",				pDamageData->m_fBoundingBackSpeedX,				0.f );
 		LUA_GET_VALUE( luaManager, "BOUNDING_BACK_SPEED_Y",				pDamageData->m_fBoundingBackSpeedY,				0.f );
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+		// C3d-3: the keys now feed DamageReactStateChange's RT_BOUNDING case ( June 31feabd0 @31feb68f ), so there is nothing to log as unsupported
+#else SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		if( 0.f != pDamageData->m_fBoundingBackSpeedX || 0.f != pDamageData->m_fBoundingBackSpeedY )
 		{
 			WCHAR wszJuneValue[48] = L"";
@@ -314,6 +317,7 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 			JuneDamageDataUnsupported( pwszJuneTemplet, pTableName, L"BOUNDING_BACK_SPEED_X/Y", L"bounding back-speed state change (31feabd0 / 31fd86b0 not identified)", wszJuneValue );
 #endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 		}
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		// June2017 FUN_32632390 @32638555-326386c0: FORCE_BACK_SPEED, bool getter 32fe9e40 @326386b5, false when absent, to +0x3ec.
 		LUA_GET_VALUE( luaManager, "FORCE_BACK_SPEED",					pDamageData->m_bForceBackSpeed,					false );
 		// June2017 FUN_32632390 @32638e2e-32639047: HIT_ADD_MP_PERCENT, float getter 32fea370 @32638fb6, default 0.0, protected float at

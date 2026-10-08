@@ -103,6 +103,11 @@ static const KStateEnumType   s_aStateTypes[] =
         { "DAMAGE_GRAPPLED_BACK", CX2GUNPC::STATE_TYPE_DAMAGE_GRAPPLED_BACK },
         { "DAMAGE_THROWN", CX2GUNPC::STATE_TYPE_DAMAGE_THROWN },
 #endif GRAPPLING_TEST
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+        { "DAMAGE_BOUNDING_DOWN", CX2GUNPC::STATE_TYPE_DAMAGE_BOUNDING_DOWN },
+        { "DAMAGE_BOUNDING_LANDCRASH", CX2GUNPC::STATE_TYPE_DAMAGE_BOUNDING_LANDCRASH },
+        { "DAMAGE_BOUNDING_UP", CX2GUNPC::STATE_TYPE_DAMAGE_BOUNDING_UP },
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
         { "REVENGE_ATTACK", CX2GUNPC::STATE_TYPE_REVENGE_ATTACK },
         { "DYING_LAND_FRONT", CX2GUNPC::STATE_TYPE_DYING_LAND_FRONT },
         { "DYING_LAND_BACK", CX2GUNPC::STATE_TYPE_DYING_LAND_BACK },
@@ -2394,6 +2399,12 @@ void CX2GUNPC::CommonConstructor()
 	m_bNeverMove				= false;
 
 	m_bEnableCondtionTableEventProcess = true;
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	m_JuneBoundingDown = 0;
+	m_JuneBoundingLandCrash = 0;
+	m_JuneBoundingUp = 0;
+	m_bJuneNotBounding = false;
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 	m_bEnableEventProcess		= true;
 	m_bIsActiveMonster			= true;
 	m_AddRotateDegree			= D3DXVECTOR3(0,0,0);
@@ -2992,6 +3003,12 @@ void CX2GUNPC::ReInit( bool bUseTeamPos, int startPosIndex )
 	m_bNeverMove				= false;
 
 	m_bEnableEventProcess		= true;
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	m_JuneBoundingDown = 0;
+	m_JuneBoundingLandCrash = 0;
+	m_JuneBoundingUp = 0;
+	m_bJuneNotBounding = false;
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 
 	m_fCoolTime					= 0.0f;
 
@@ -5270,6 +5287,11 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
 
 	LUA_GET_VALUE( luaManager_, "NEVER_MOVE", bTemp,	false );
     NOWSTATE_SET_FLAG( SET_NEVER_MOVE_VALUE, bTemp );
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+    /// June 327a0fa0 @327a678e ( C3d-3 ): NOT_BOUNDING, a bool state key ( default false ); a state that sets it ignores RT_BOUNDING
+    LUA_GET_VALUE( luaManager_, "NOT_BOUNDING", bTemp, false );
+    NOWSTATE_SET_FLAG( JUNE_NOT_BOUNDING, bTemp );
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 
 	LUA_GET_VALUE( luaManager_, "DYING_END", bTemp, false );
     NOWSTATE_SET_FLAG( DYING_END, bTemp );
@@ -6767,6 +6789,11 @@ void CX2GUNPC::InitState()
     m_CommonState.m_DownDamageAir = initStateData.m_acStateType[ STATE_TYPE_DOWN_DAMAGE_AIR ];
     //m_DownDamageAirLanding = initStateData.m_acStateType[ STATE_TYPE_DOWN_DAMAGE_AIR_LANDING ];
     m_UpDamage = initStateData.m_acStateType[ STATE_TYPE_UP_DAMAGE ];
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+    m_JuneBoundingDown = initStateData.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_DOWN ];
+    m_JuneBoundingLandCrash = initStateData.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_LANDCRASH ];
+    m_JuneBoundingUp = initStateData.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_UP ];
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
     m_FlyDamageFront = initStateData.m_acStateType[ STATE_TYPE_FLY_DAMAGE_FRONT ];
     m_FlyDamageBack = initStateData.m_acStateType[ STATE_TYPE_FLY_DAMAGE_BACK ];
 #ifdef  RIDING_MONSTER
@@ -9454,6 +9481,12 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		bBackAttack = true;
 	}
 #endif
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	/// June CX2GUNPC::DamageReact 327b1f30 @327b2be6-327b2c03 ( C3d-3 ): a hit from a unit stores that attacker's game-unit type and UID ( +0x40e8 / +0x40e0 ),
+	/// ahead of the guard test
+	if( NULL != pAttackerUnit )
+		SetJuneLastAttacker( pAttackerUnit->GetGameUnitType(), pAttackerUnit->GetUnitUID() );
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 
     // 가드여부 판정
 	if( true == m_bUseGuardCollisionBox )
@@ -12947,6 +12980,61 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 #endif GRAPPLING_TEST
 
 
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+		case CX2DamageManager::RT_BOUNDING:
+			{
+				/// June CX2GUNPC::DamageReactStateChange 32769060 @32769da7-32769e75 ( C3d-3 ). Ignored while super armored, never-move, NOT_BOUNDING ( +0x872b / +0x8ac6 ) or
+				/// the unnamed +0x8ac4 ( written by no NPC code: only zeroed by the ctor 32762c5f, so it never blocks ); a guarding NPC with a down-guard state takes it;
+				/// otherwise the attacker's facing ( June compares the NPC's OWN facing == 1 here, the user case compares the two ) mirrors BOUNDING_BACK_SPEED_X, DOWN with the
+				/// hit's back speed Y in the air, LANDCRASH with y = 0 on the ground. A state id 0 changes no state ( StateChange_Reaction_FIRST refuses it ).
+				if( IsSuperArmor() || true == m_bNeverMove || true == m_bJuneNotBounding )
+					break;
+
+				int iJuneBoundingState = 0;
+				if( m_bGuard == true && m_DownDamageLandGuard != 0 )
+				{
+					iJuneBoundingState = m_DownDamageLandGuard;
+				}
+				else
+				{
+					CX2GameUnit* pJuneAttackerUnit = NULL;
+					if( null != pDamageData->optrAttackerGameUnit )
+						pJuneAttackerUnit = pDamageData->optrAttackerGameUnit.GetObservable();
+					if( NULL != pJuneAttackerUnit )
+					{
+						float fBackSpeedX = pDamageData->m_fBoundingBackSpeedX;
+						if( true == GetIsRight() )
+							fBackSpeedX = -fBackSpeedX;
+						SetJuneBoundingBackSpeed( fBackSpeedX, pDamageData->m_fBoundingBackSpeedY );
+					}
+
+					iJuneBoundingState = m_JuneBoundingDown;
+					m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+					if( IsOnSomething() == true )
+					{
+						m_PhysicParam.nowSpeed.y = 0.f;
+						iJuneBoundingState = m_JuneBoundingLandCrash;
+					}
+				}
+
+				static bool s_bLogged = false;
+				if( false == s_bLogged )
+				{
+					s_bLogged = true;
+					CX2OfflineLog::Server( L"JUNE_FX C3d-3 NPC RT_BOUNDING (first seen): npc %I64d, state %d ( down %d, landcrash %d, up %d ), back speed ( %.1f, %.1f )",
+						GetUnitUID(), iJuneBoundingState, m_JuneBoundingDown, m_JuneBoundingLandCrash, m_JuneBoundingUp,
+						GetJuneBoundingBackSpeed().x, GetJuneBoundingBackSpeed().y );
+				}
+
+#ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
+				bTmpStateChanged = StateChange_Reaction_FIRST( iJuneBoundingState, iAttackerUnitIndex,  pDamageData->impactPoint, bRelaxReactionCheck );
+#else   X2OPTIMIZE_NPC_NONHOST_SIMULATION
+				bTmpStateChanged = StateChange( iJuneBoundingState, true );
+#endif  X2OPTIMIZE_NPC_NONHOST_SIMULATION
+				bStateChanged = bStateChanged || bTmpStateChanged;
+			} break;
+
+#else SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef BOUNDING_COMBO_TEST
 
 		case CX2DamageManager::RT_BOUNDING:
@@ -12986,6 +13074,7 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 			} break;
 
 #endif BOUNDING_COMBO_TEST
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 	}
 
 
@@ -14649,6 +14738,16 @@ void CX2GUNPC::CommonStateStart()
 		SetNoDetonationByDamage( false );
 	m_bNowStateDamageReactForDetonation = false;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	/// June CX2GUNPC::CommonStateStart 327ac9d0 @327af3aa -> 3275a070 ( C3d-3 ): entering DAMAGE_BOUNDING_UP launches with the stored back speed ( +0x40f0 / +0x40f4 into
+	/// nowSpeed ). June's second half of 3275a070 ( the Lu/Ciel hook, compared with +0x8708 = LANDCRASH, not UP ) is class code ( checklist 7l ). June does not guard
+	/// the compare; a state id 0 ( the NPC script names no bounding state ) would match nowState 0, which is never entered, so the guard changes nothing.
+	if( 0 != m_JuneBoundingUp && m_NPCFrameData.syncData.nowState == m_JuneBoundingUp )
+	{
+		m_PhysicParam.nowSpeed.x = GetJuneBoundingBackSpeed().x;
+		m_PhysicParam.nowSpeed.y = GetJuneBoundingBackSpeed().y;
+	}
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		
 #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	LoadImmunityAtThisStateFromScript( m_LuaManager );
@@ -15411,6 +15510,13 @@ void CX2GUNPC::CommonStateStart()
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	LUA_GET_VALUE( m_LuaManager, "NEVER_MOVE",	m_bNeverMove,	false );
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	m_bJuneNotBounding = NOWSTATE_FLAG( JUNE_NOT_BOUNDING );
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	LUA_GET_VALUE( m_LuaManager, "NOT_BOUNDING", m_bJuneNotBounding, false );
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 
 	//if( m_bNeverMove == true )
 	{

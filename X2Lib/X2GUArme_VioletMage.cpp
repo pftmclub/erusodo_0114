@@ -1897,6 +1897,10 @@ void CX2GUArme_VioletMage::InitStateCommon()
 	m_LuaManager.MakeTableReference( "AVSI_DAMAGE_AIR_UP", stateData.stateID );
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirUpEventProcess );
 	m_StateList[stateData.stateID] = stateData;
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	/// June InitState Aisha 32ce77b0 @32ce95ad: USI_BOUNDING_DOWN / _LANDCRASH / _UP with this class's AVSI_DAMAGE_BOUNDING_* tables (C3d-3)
+	JuneInitBoundingStates( "AVSI_" );
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 
 	stateData.Init();
 	stateData.stateID			= USI_DAMAGE_AIR_FLY_FRONT;

@@ -2170,6 +2170,17 @@ public:
 		void DamageAirUpEventProcess();
 		// DamageAirFly
 		void DamageAirFlyEventProcess();
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+		// C3d-3: June's bounding states ( vslots 0x5d4 .. 0x5e4 ): DOWN, LANDCRASH, UP
+		virtual void JuneBoundingDownEventProcess();		/// June 31fd0230
+		virtual void JuneBoundingLandCrashEventProcess();		/// June 31fd0260
+		virtual void JuneBoundingUpStateStartFuture();		/// June 31fc9d20
+		virtual void JuneBoundingUpStateStart();		/// June 31fd02d0 ( the Lu/Ciel hook it ends with is class code, checklist 7l )
+		virtual void JuneBoundingUpEventProcess();		/// June 31fd0340
+		/// June InitState of every class ( pszPrefix_ = the class's table prefix, e.g. "ESSI_" ): registers the three states, or none ( logged ) when a table is missing
+		void JuneInitBoundingStates( const char* pszPrefix_ );
+		bool JuneIsBoundingStatesReady() const { return m_bJuneBoundingStatesReady; }
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		// DamageRevenge
 		void DamageRevengeStart();
 		void DamageRevengeCameraMove();
@@ -4274,6 +4285,9 @@ public:
 		float					m_afJuneUsefulValueNow[5][3];		/// June +0x8eb8: USEFUL_VALUE0..4 of the Now state (C9h-4f)
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
 
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+		bool																					m_bJuneBoundingStatesReady;	/// C3d-3: the class registered USI_BOUNDING_* ( June_Bounding_States.lua is packed ); the RT_BOUNDING case needs it
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef HYPER_MODE_FIX
 		int						m_iLastStateHyperModeCount;
 #endif HYPER_MODE_FIX
