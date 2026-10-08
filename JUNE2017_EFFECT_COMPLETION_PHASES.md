@@ -804,12 +804,104 @@ launched up and back (x 600, y 900), falls (AIR_FALL) and lands. Per class: `JUN
 
 ## C3e - identify: June's user-sync packet extension
 
-**Status: ready (found by C3d-1, 2026-10-08). Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3e.md`.
+**Status: done (2026-10-09). Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3e.md`.
 
 - **Scope:** the 15 fields June's `KDYNAMIC_UNIT_USER_SYNC::Deserialize` (`32d5be30`) reads and March's packet lacks (bit `0x400000`, and
   bits `0x10000-0x200000` / `0x1000000-0x40000000`). For each: width, the June `SyncData` member it comes from and decodes into, its
   readers, and its reach offline (the packet is sent only with UDP peers).
 - **Exit:** funcmap rows `Effect C3e`, a port phase per field with a March counterpart, owners for the rest.
+
+### C3e - Done (2026-10-09, Opus 5.5 high; no code, no flag, no build)
+
+The per-field table is `june2017_re/c3e_user_sync_fields.tsv`. It gives each field's bit, wire position, width, plain / protected offsets,
+default, June writer and reader, meaning, reach and route. There are 15 funcmap rows `(C3e)`. Three rows are corrected: C3d-1's two
+syncData bases (`31fe6a40`, `3203c3a0`) and the HitCount finalizer (`32ec2300`). Ghidra was read-only.
+
+1. **Count and width.**
+   - June adds **14 bits, not 15**: 13 plus `0x400000`.
+   - Bits `0x20000` / `0x40000` / `0x80000` carry one member, a second position vector.
+   - Outside the kickoff's list, bit `0x40` (`lastTouchLineIndex`) is **2 bytes** in June; March has 1.
+   - Bit `0x400` is 2 bytes on both sides (`SERV_9TH_NEW_CHARACTER` ON, flagprobe).
+   - Packet `+0x3a..+0x3c` is filled by the sender, but no bit serializes it.
+2. **Two SyncData shapes.**
+   - The lists and SetData use a plain struct of 0x94 bytes.
+   - The unit's Future (`+0x7e34`) and Now (`+0x80d4`) are 0x170-byte protected structs. In them, A-D are plain and E-N are
+     `KProtectedType` slots.
+   - The converters `32071ea0` (push) and `320829b0` (pop) copy every member.
+   - C3d-1's bases `+0x7e68` / `+0x8108` are the buff counter, not the bases. The slot offsets it gave are right.
+3. **Reach (the kickoff's premise corrected).**
+   - SendFrameData `3203d4d0` copies the send list into the receive list **before** the peer test, as March's `X2GUUser.cpp:24465`
+     does. So every member flows Future -> Now for the local player with no peers; only Serialize / Deserialize are skipped.
+   - The AI-party bots are `CX2GUNPC`, so no non-local user exists offline, and readers gated on "not my unit" never run.
+   - **Local:** N; G once a class drives it; B / I (inert without a dual body); C (harmless: no June line map exceeds 243 lines,
+     717 files).
+   - **Wire only:** A (its attacker lookup is user-only), D, J / K, L / M.
+4. **What each one is.**
+   - **A** (`0x400000`, byte): StateChange's re-simulation left Future more than one state change ahead of Now. A victim reads it to
+     drop that attacker from its **per-attacker hit-stop lists**, a June change to SetStopTime (`31ffe4f0` / `31ffe750`).
+   - **B** + **I**: June's dual-body system (Lu/Ciel): the second body's position and the active body.
+   - **C**: the 16-bit line index.
+   - **D**: per-attack-type hit counters. June never syncs them (see the `32ec2300` note).
+   - **E** / **F** / **H**: class members of Lu/Ciel; of Ain, Rose and Lu/Ciel; and of Ain.
+   - **G** (float): a class-skill aim slot. Its drivers are Rose's Neil the Sniper (in base code) and Rena (Grand Archer Random Shot),
+     Eve, Chung and Elesis; also Ain, Rose and Lu/Ciel. Each class was confirmed by vtable.
+   - **J** / **K**: two-seater and custom-sit emotion.
+   - **L** / **M**: damage-number skin items (Damage Custom A / B / Critical, June `item.kim`).
+   - **N**: the START / WIN / LOSE variant index. June rolls it in every class Init, re-binds the state table at StateChange (Future)
+     and DoStateEndStart (Now), and lets the chat box re-roll WIN / LOSE.
+5. **Wire order** (for any port): 1, 2, 4, `0x400000`, 8 .. `0x8000`, `0x10000` .. `0x200000`, `0x800000`, `0x1000000`,
+   **`0x20000000` before `0x2000000`**, `0x4000000`, `0x8000000`, `0x10000000`, `0x40000000`. March's BuffSyncCount (`0x800000`)
+   already follows RelativePos, so June's `0x10000-0x200000` go between those two.
+6. **Routes.**
+   - **C3e-1** (port): C and G's engine member.
+   - **C3e-2** (port): N.
+   - **C3e-3** (identify): A's per-attacker hit-stop.
+   - **Checklist 7n:** G's March-class drivers.
+   - **Backlog:**
+     - Stage 8: B, E, F, H, I, and G's Ain / Rose / Lu/Ciel drivers, Neil included.
+     - Stage 12: J and K.
+     - New **Stage 20**: L and M (damage-number customization).
+   - **D:** not ported. Buff 4b-ii declined ATTACK_TYPE.
+
+**Open for the user:** none.
+
+## C3e-1 - port: June's 16-bit line index and the class-skill float slot (C, G)
+
+**Status: ready (found by C3e, 2026-10-09). Model:** Sonnet 5.5, high, then an Opus review. Kickoff `kickoffs/june-effect/C3e-1.md`.
+
+- **Scope:**
+  - **C:** widen `lastTouchLineIndex` to 16 bits: `SyncData`, the packet field (bit `0x40`, 2 bytes), `_EncodeUserSyncPos` /
+    `_DecodeUserSyncPos`, the sender and SetData. Read June's NPC sync twin for its width, and widen it too if June did.
+  - **G:** add the member, a protected float that defaults to 0, and bit `0x200000` (4 bytes) at June's wire position, plus Future /
+    Now accessors for class code.
+  - No March class drives G yet; checklist 7n lists its drivers.
+- **Exit:** a `/w14244` warning diff, flag off vs on (as C3d-2); the wire order checked against `32d5be30`; a regression play-test.
+
+## C3e-2 - port: June's START / WIN / LOSE variant re-binding (N)
+
+**Status: ready (found by C3e, 2026-10-09); not with C3d-3 (the nine class files). Model:** Sonnet 5.5, high, then an Opus review.
+Kickoff `kickoffs/june-effect/C3e-2.md`.
+
+- **Scope:**
+  - The roll `31fe22d0`, from every class Init, which replaces InitStateCommonRandom's one-time binding.
+  - StateChange's re-bind `31fea640` and DoStateEndStart's re-bind `@3203c449-3203c536`.
+  - The LOSE delegate `+0x8abc` (`31fd65f0` case `0xc`) and the setter `31ecd040`.
+  - The chat box's WIN / LOSE re-roll (`31ec2700 @31ec645c / @31ec6679`).
+  - N's SyncData member and bit `0x40000000` (last on the wire).
+- **Exit:** the start / win motion varies between runs (log tag `JUNE_FX C3e-2`); the chat command identified, then ported or routed.
+
+## C3e-3 - identify: June's per-attacker hit-stop and the state-skip flag (A)
+
+**Status: ready (found by C3e, 2026-10-09). Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3e-3.md`.
+
+- **Scope:**
+  - June's SetStopTime / SetStop2Time (`31ffe4f0` / `31ffe750`): the signature `( float, ?, CX2GameUnit* attacker, bool force )`, the
+    vslots, and every user and NPC caller against March's `SetStopTime( float )`.
+  - The protected byte `+0x7dc8`.
+  - The lists `+0x85a4` / `+0x85b4` and DoFrameMove's tick / erase `@3206fa63-3206fd42`, with what `+0x7df4` / `+0x7df8` are.
+  - A's writer `@32034b37-32034b4a` and its clear `@31fe6aab`.
+  - The NPC twin.
+- **Exit:** funcmap rows `Effect C3e-3` and a port phase (row, flag, kickoff); class callers go to the checklist.
 
 ## C3f - identify: June's force-down flush in StateChange
 

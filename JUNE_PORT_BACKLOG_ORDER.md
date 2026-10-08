@@ -60,6 +60,7 @@ The user's remaining backlog, in the order they listed it:
 | 17 | Pet and riding-pet remainder *(added 2026-10-07, june-effect C9h)* | - (found by june-effect C9h) | Not a backlog item but missing data and one packet field: June's pet **variant** byte (a `KPetInfo` field read by the pet-info viewer, the in-game pet and `ResetPet`'s texture-variant branch) and June's 8 pets / riding pets that March has no enum, templet or script for. Its code waits on june-effect C9h-2a (the viewer half) and C9h-3 (the riding-pet engine). Numbered 17 to keep the earlier numbers stable. |
 | 18 | NPC friendship system *(added 2026-10-08, june-effect C9h-5)* | - (found by june-effect C9h-5) | Not a backlog item but a missing system: June's per-NPC friendship (likeability) manager `32696fa0`, its gift / level-up / daily-reward talks, the friendship talk sequencer and the friendship marks on village NPCs. Every reach is gated on code event 2215, which the offline emulator never enables. Elysion E1 ports the gated call sites in `CX2TFieldNpc`. |
 | 19 | June event dungeons *(added 2026-10-08, june-effect C10d)* | - (found by june-effect C10d) | Not a backlog item but missing content: June's event dungeons (e.g. `DI_EVENT_2017_TREASURE` 41470 and `DI_EVENT_ALCHEMY_LAB` 41350) carry engine gimmicks in `DamageReact`, a `CX2Game` manager and June-only NPC classes (`CX2GUKiddayNPC`). March has none of these dungeon IDs; its highest is 41311. Nothing reaches them until the dungeons themselves are ported. |
+| 20 | Damage-number customization *(added 2026-10-09, june-effect C3e)* | - (found by june-effect C3e) | Not a backlog item but a missing system: June's damage-number skin items (Damage Custom A / B / Critical, Christmas, Nature) pick the font of the numbers a character deals, and the user sync carries the choice to other players. March has none of it. It depends on Stage 13 (the item ids) and touches no other stage's files. Numbered 20 to keep the earlier numbers stable. |
 
 **Concurrency.** At most two code sessions should run at once:
 - Stage 0's buff port, in the main Trunk;
@@ -254,6 +255,10 @@ Everything from Stages 5 and 6, plus:
 - `Dungeon_Tutorial_{Luciel,Rose,Ain}`;
 - Lu/Ciel's duo mechanics (`DUO_TYPE`, `HIT_ADD_COMBINATION_POINT`) and Rose's `ROSE_WEAPON_TYPE`;
 - activating the dormant Rose/Ain/Lu/Ciel code from the buff port.
+- the user-sync members only these classes drive (june-effect C3e, `june2017_re/c3e_user_sync_fields.tsv` rows B, E, F, H, I, G):
+  - Lu/Ciel's dual body: the second-body position (bits `0x20000`-`0x80000`) and the active body (`0x1000000`), on `+0x8e88` / `+0x8e90` / `+0x8e91`;
+  - Lu/Ciel's float (`0x10000`); the class short of Ain (Disparate Force), Rose and Lu/Ciel (`0x100000`); Ain's 10-dword array (`0x20000000`);
+  - their drivers of the class-skill float C3e-1 ports (`0x200000`), including Rose's Neil the Sniper aim (`3200d3f0` / `3200d900`).
 - the item-templet fields June-item-kim K0 found for them: Lu/Ciel's minor-unit item id and flag, the Extra keys 10-13,
   and their item-type and unit-class guards from K2 (character-port checklist 7g).
 
@@ -366,6 +371,10 @@ rule that an unowned June system gets its own stage. What it covers:
   vectors that C9d listed under Stage 10 (`3203e1b0`, `+0x93dc`/`+0x93ec`/`+0x940c`, square `+0x714`/`+0x724`).
 - **The UI:** the customize preview dialogs. `3224b340` / `3224d0f0` play group 3; `32d77220` plays groups 3 and 4 (`3264f350`,
   `3264f080`). Groups 3 and 4 are used only here.
+
+- **The custom-sit / two-seater sync** (june-effect C3e): user-sync bits `0x2000000` / `0x4000000`. `320455e0` writes the customize
+  manager's sit id (`32363280`, map key 7) and the pending emotion byte `+0x94b0`. `320458f0` plays them on other players
+  (`PlayEmotion` `32043380`, the `0x2c` / `0x2d` two-seater). It is wire only, since offline has no other player.
 
 - **Item type 14** is June's `IT_CUSTOM` (1,207 customize items in June's `item.kim`, e.g. skill cut-ins). June-item-kim K2 guards
   it; this stage reads it (june-item-kim K0).
@@ -553,6 +562,22 @@ june-effect C10d found two June damage steps that exist only for event dungeons.
   - every other event dungeon June has and March does not.
 
 **Depends on:** nothing in code. It is content, so plan it after Stage 1 has proven how a June dungeon is brought over.
+
+### Stage 20: damage-number customization (june-effect C3e, 2026-10-09)
+
+Found by june-effect C3e (funcmap row `31fe0f60 / 31fe9ff0 / 31fcfb10 (C3e)`). What June has and March lacks:
+- **The pick:** `31fe0f60`, run for my unit, maps owned items to two indexes 0..3:
+  - 164384 / 164385 / 165089 / 294875 (Damage Custom A / B, Christmas, Nature) -> `CX2Unit +0xe88`;
+  - 164405 / 164406 / 165099 / 294875 (the Critical set) -> `+0xe8c`.
+  Both are mirrored at unit `+0x94b8` / `+0x94bc`.
+- **The sync:** user-sync bits `0x8000000` / `0x10000000` (`31fe9ff0` writes Future, `31fcfb10` copies Now for other players). It is
+  wire only offline.
+- **Still to identify:**
+  - the readers: the `CX2Game` vslot `322cfd70` returns `+0x94bc` by UID, and the damage-number renderer that picks the font;
+  - the font assets;
+  - how the items are owned (inventory lookup `32869c80`).
+
+**Depends on:** Stage 13 (the item ids, done). It touches no other stage's files.
 
 ## Open decisions that gate stages
 

@@ -436,3 +436,19 @@ below come with the class. Funcmap rows `Effect C10d`.
 |---|---|---|
 | `NOTIFY_TO_OWNER_WHEN_DIE` hook signature | `~CEffect 31f78550 @31f785c6-31f785cf`: owner vslot `0x2c4( CEffect* this )`; base `3208ddc0` (no-op, `ret 4`), only override Add `329f73a0` | March's `DieDamageEffectProc( const DamageData& )` keeps its signature; the engine side (the call moved to the dtor head) is ported as `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_NOTIFY_OWNER_FIRST`. June's Add reads only the effect's `m_DamageData` (`+0x200`) through the pointer, so the class port may switch to `CEffect*` or keep `DamageData&`; both carry the same values. |
 | Add's phase-shift die handler | `CX2GUAdd` `329f73a0`: `m_eUsedSkillID` (`DD +0x590`) is `RNSI_A_AN_PHASE_SHIFT` (29201) **or** `RNSI_A_AN_PHASE_SHIFT_UPGRADE` (29216), `m_bNoDamage` (`DD +0x4dc`) is 1, and the phase-shift handle (`+0x9764`) is valid: zero `+0x9758..+0x9760`, handle = -1, then vslot `0x198` (`IsMyUnit`) -> `329f7370( this +0x9750 )` | March checks `SI_A_AN_PHASE_SHIFT` only. The Add port brings the reform IDs and the upgrade ID. |
+
+### 7n. User-sync class-skill float that only class code drives (from June effect completion C3e)
+
+The engine side is ported by june-effect C3e-1 (`SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT`). That phase adds a `SyncData` float (June protected
+slot `+0xa4`, plain `+0x58`, Future `+0x7ed8`, Now `+0x8178`) and user-sync bit `0x200000`. June's class code writes it on Future and reads
+it on Now. Nothing in March drives it until these rows are ported. Classes are confirmed by vtable (funcmap `3200d3f0 / 3200d900 (C3e)`).
+
+| Class | June writer (Future) | June reader (Now) | Notes |
+|---|---|---|---|
+| Rena | `32c88050` (Grand Archer `RNSI_P_RGA_RANDOM_SHOT_PLEASURE`, 23415: +/- by the up / down keys) | `32c86620`, `32c9d420`, `32ca2520` | Registered by `32cb06d0` (Rena vtable `33518d70`). |
+| Eve | `3297d730` | `329a67b0` | Registered by `329c8a00` (Eve vtable `334cfc10`). |
+| Chung | `32c0ba60` | `32c0ba60` | Thunk `32c256f0`, registered by `32c1f530` (Chung vtable `33509e30`). |
+| Elesis | `32b73bf0` (StateStart: base vslot `0x7c0`, then the float = 0) | `32b7d550` | Thunks `32b906b0` / `32b909b0` from `32b864f0` (called by Elesis Init `32b87a60`). |
+
+Rose (Neil the Sniper `RNSI_SA_RFY_NEIL_THE_SNIPER`: `3200d3f0` / `3200d900`, in base code), Ain and Lu/Ciel drive it too. They go to
+backlog Stage 8 with the new characters.
