@@ -600,6 +600,10 @@ field could still cut a name before it reaches the device.
 **Play-test (user):** see the hand-off in the chat message. Checks: Ranox map mesh `Spa_Ranox_G01_water01.y`; boss name plate
 `HQ_BOSS_NAME_ALUMINUM.dds`; one long-name asset; one hand-patched Ranox motion (`Motion_NPC_Ranox_FACEOFF.x`/`_SYOTA.x`, NPCs `NUI_FACEOFF`
 / `NUI_SYOTA`). If the Ranox motion fails: do not edit the file; write a Ghidra phase for June's `.x` motion-name loader.
+**User, 2026-10-08:** the Moonlight Rhapsody `.tga` (Add skill) and the Elysion `.ogg` cannot be played yet (those characters are not
+ported), so the long-name and data197 checks are deferred to those character ports; `[KOM_LONG] found` for them is not expected in this
+play-test. Aluminum is a Hard/Expert-only mid-boss of Ranox Ashes Village (stage index 2; Normal only preloads it, its boss is
+`NUI_SMITH_STAIN`): `g_pX2Game:GoStage( 2 )`.
 **Logs after the play-test:** `logs.py --tag KOM_LONG` + `ErrorLog.txt` KEM_ERROR88/89/343/390/95/96/87/136/132. **Owes the user:** `/cost`.
 
 ## Out of scope (routed, not dropped)
