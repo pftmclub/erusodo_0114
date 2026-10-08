@@ -1179,6 +1179,10 @@ void CX2UIPetInfo::UpdateDLGNPCViewerUI()
 		}
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW
+	// June 328f0aa0 passes a third argument, the pet variant (June KPetInfo +0xca). March's KPetInfo has no such byte,
+	// so this call keeps ResetPet's default variant 0; the byte and the pets that use it are backlog Stage 17.
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW
 #ifdef SERV_PETID_DATA_TYPE_CHANGE //2013.07.02
 	m_pNPCViewerUI->ResetPet( kPetInfo.m_iPetID, kPetInfo.m_cEvolutionStep );
 #else //SERV_PETID_DATA_TYPE_CHANGE
@@ -1301,6 +1305,22 @@ void CX2UIPetInfo::SetShow(bool val, UidType eTab)
 			g_pData->GetUIMajorParticle()->DestroyInstanceHandle(m_hParticle);
 			m_hParticle = INVALID_PARTICLE_SEQUENCE_HANDLE;
 		}
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW
+		// June SetShow 32902700 @32903116 (the close branch): stop both viewers' UI effect sets and group 1, the riding
+		// viewer first.
+#ifdef RIDING_SYSTEM
+		if( NULL != m_pRidingPetViewerUI )
+		{
+			m_pRidingPetViewerUI->JuneStopUIEffectSets();
+			m_pRidingPetViewerUI->JuneViewerFxStop( 1 );
+		}
+#endif //RIDING_SYSTEM
+		if( NULL != m_pNPCViewerUI )
+		{
+			m_pNPCViewerUI->JuneStopUIEffectSets();
+			m_pNPCViewerUI->JuneViewerFxStop( 1 );
+		}
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW
 	}
 
 	
@@ -2829,6 +2849,20 @@ void CX2UIPetInfo::Select_Tab( UidType eTab )
 	m_pDLGUIRidingPetList->SetShowEnable( false, false );
 
 	m_bDetailPoint = false;
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW
+	// June Select_Tab 32902000 @32902243: every tab change stops both viewers' UI effect sets and group 1, the riding
+	// viewer first. The viewers stay shown; the tab's own viewer reset plays them again.
+	if( NULL != m_pRidingPetViewerUI )
+	{
+		m_pRidingPetViewerUI->JuneStopUIEffectSets();
+		m_pRidingPetViewerUI->JuneViewerFxStop( 1 );
+	}
+	if( NULL != m_pNPCViewerUI )
+	{
+		m_pNPCViewerUI->JuneStopUIEffectSets();
+		m_pNPCViewerUI->JuneViewerFxStop( 1 );
+	}
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW
 	CKTDGUIRadioButton* pRadioButtonTab = NULL;
 
 	if( RIDING_PET_TAB_SELECT == m_eTabSelect )

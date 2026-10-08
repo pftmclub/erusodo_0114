@@ -5723,3 +5723,26 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 #endif SERV_IRUHADEV_JUNE_KIM_MINIME_REMAP
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
+// Description: June effect completion C9h-2b (JUNE2017_EFFECT_COMPLETION_PHASES.md):
+//              the cash-shop pet preview and the viewer hide sites, as June has
+//              them. CX2CashShop::ResetPetViewer = June 32228c90 (type -1 guard,
+//              UI-set + group-1 stops first, ResetPet( id, 3, 0 ), the 1.4 scale
+//              for pets 35-36, Wait_Transform, June's position (260,-30,0): the
+//              user chose June's offset 2026-10-08 although March's dialog still
+//              stands the character at x -355), PetPreview = June 32234b10 (both
+//              lookups, the rand() pick, the pre-equip-list hide), the three
+//              no-argument hides as June's inline blocks (SetOpen 3223d680,
+//              UpdateDLGPetViewerUI 3223c5d0, take-off-all 322383c0), and the
+//              pet-info viewer stops (Select_Tab 32902000, SetShow 32902700).
+//              Log: "JUNE_FX PET_PREVIEW" in ErrorLog.txt.
+//              Needs SERV_IRUHADEV_JUNE_PET_VIEWER_FX (the viewer's handle stop
+//              and IsAnimExist, ResetPet's third argument).
+#define SERV_IRUHADEV_JUNE_PET_PREVIEW
+#if defined(SERV_IRUHADEV_JUNE_PET_PREVIEW) && !defined(SERV_IRUHADEV_JUNE_PET_VIEWER_FX)
+#error SERV_IRUHADEV_JUNE_PET_PREVIEW needs SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW
+//////////////////////////////////////////////////////////////////////////

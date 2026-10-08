@@ -2252,6 +2252,51 @@ Review: `kickoffs/june-effect/C9h-2a-review.md`. **User owes:** /cost.
 
 Next: C9h-2b (Opus 5.5 high) and C9h-3 (Opus 5.5 high); both kickoffs exist. **User owes:** /cost.
 
+### C9h-2b - Done (2026-10-08, Opus 5.5 high; flag `SERV_IRUHADEV_JUNE_PET_PREVIEW`; play-test pending)
+
+16 funcmap rows `Effect C9h-2b`. The code is in `X2CashShop.cpp` and `X2UIPetInfo.cpp`, and the flag is in `Always.h`. The flag `#error`s without `SERV_IRUHADEV_JUNE_PET_VIEWER_FX`.
+
+**What landed.**
+- **`ResetPetViewer` = June `32228c90`:**
+  - it does nothing for type -1, and the UI-set and group-1 stops come first;
+  - pets go through `ResetPet( id, 3, 0 )`; the scale is 0.5 for a riding pet, 1.4 for pets 35-36, else 1.0. `PUI_STINKO_HATS_ON` / `PUI_EBONY_HATS_ON` = 35 / 36 by a `cl` `static_assert` probe, with a negative control. `3344f240` is the float 1.4;
+  - `Wait_Transform` falls back to `Wait` (XAP_LOOP = 0, transition true);
+  - the position is **June's `(260,-30,0)`**.
+- **`PetPreview` = June `32234b10`:**
+  - both lookups run and are tested with `< 1`;
+  - `rand()` runs only when both hit, and an odd result picks the riding pet;
+  - the trailing hide fires when the previewed item has left the pre-equip list.
+- **The three no-argument `ResetPetViewer()` calls** became June's inline hides (stops, hide, no previewed item): SetOpen `@3223e56d`, UpdateDLGPetViewerUI `@3223c763`, and take-off-all `322383c0 @322385b0`. Under June's guard a call left behind would hide nothing.
+- **Pet info:** Select_Tab `32902000 @32902243` and SetShow's close branch `32902700 @32903116` stop both viewers' UI sets and group 1, the riding viewer first. `:1183` gets a comment: the variant byte is Stage 17, and the variant stays 0.
+
+**Decisions and findings.**
+- **Position (user, 2026-10-08): June verbatim.**
+  - `+0x51c` is written only as zero (the ctor `@32253ef3`, SetOpen `@3223e1a3`), so June's preview stands at `(260,-30,0)`.
+  - June re-laid its dialog: SetOpen puts the character at `+0x51c + (315,-5030,200)`. March's `ResetUnitViewer` keeps it at `(-355,-5001,200)`, with the pet at `(-270,0,0)`.
+  - Asked as "copying June breaks March"; the user chose June's offset. In March's dialog the preview therefore appears about 615 units right of the character, not beside it.
+- **`32234380` = June's `CheckPreEqipItem`:** June's InsertPreEquipItem `3224cb20` calls it where March's does. June's two lists (map `+0x2c8`, key 0/1) differ only for June's unit type 10 (`+0x528`, SetOpen `@3223d9d2`), so it is ported as March's `CheckPreEqipItem` plus June's templet-null `false`.
+- **Corrections to C9h:**
+  - `3224d0f0` is June's **Scaleform** cash-shop handler (`uMsg 0x467` from the GFx callbacks `32e3ebe0` / `32e3ec10` / `32e425f0`), not a customize preview and not March's `UICustomEventProc`.
+  - `322383c0` is its take-off-all (messages 15 / 19); its hide is the one March's `CSCUM_TAKE_OFF_ALL_ITEM` gets.
+  - `DAT_3379fce4` is the Scaleform customize-preview layout flag (Stage 12) and stays false.
+- **Routed:**
+  - `328fce40 @328fd0d8`: pet info's riding view, under `IsEnableCode( 2155 )` plus byte `+0xd1` of the June-only singleton `324943c0`. This session first named that singleton `CX2RidingPetManager`; C9h-3, committed meanwhile, corrected the name and routed the block to backlog **Stage 17**.
+  - June's preview lookup `32808770` (CTime windows, a code event, two ids; `g_pCashItemManager:AddPetPreViewData`) -> new **C9h-2c** (identify).
+
+**Hygiene** (`--worktree --files` Always.h, X2CashShop.cpp, X2UIPetInfo.cpp): `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,342,848 B, dated 2026-10-08 07:18:11, md5 1a00382efe082ae2816ae801f0f2f07d, equal to X2/US_SERVICE/x2.exe (2026-10-08 07:17:55); built at mods/june-buff-port 464a972 + 3 uncommitted code file(s).` The 3 files are this phase's. `JUNE_FX PET_PREVIEW item=%d`, `... hide item=` and `Wait_Transform` are in the exe (UTF-16).
+
+**How to see it** (cash shop, then pet info):
+- **A pet item** (500010 Ancient Pporu, 500020 Tree Knight, 500150 Mystic): the pet shows **right of the character**, at June's spot, playing `Wait`. Click it again and it hides.
+- **A riding-pet item** (550000 Mobi, 550010 Koucika): the riding pet shows there at half scale.
+- **A non-pet item:** nothing changes, and a pet that is still previewed stays.
+- **Take off all, or close and reopen the shop:** the preview hides.
+- **Pet info, switching between the pet and riding-pet tabs:** the viewers show as before.
+- **ErrorLog.txt:** one `JUNE_FX PET_PREVIEW item=<n> pet=<n> riding=<n> pick=<pet|riding|none>` line per equip click; a `hide item=` line when a previewed item leaves the pre-equip list.
+
+Review: `kickoffs/june-effect/C9h-2b-review.md`. **User owes:** the play-test, /cost.
+
 ---
 
 ### C9h-3 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the riding pet's UI sets port now; its StateChange splits three ways -> C9h-3a/3b/4/5, Stage 17

@@ -1397,7 +1397,19 @@ bool CX2CashShop::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 			ResetNowEquipUI();
 			SetEnableBuyEquippingItem( true );
 #ifdef PET_PREVIEW
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW
+			// June 322383c0 @322385b0 (the take-off-all body): March's no-argument ResetPetViewer() is an inline block in June,
+			// because June's ResetPetViewer ignores the -1 type. It adds the UI-set and group-1 stops.
+			if( NULL != m_pNPCViewerUI )
+			{
+				m_pNPCViewerUI->JuneStopUIEffectSets();
+				m_pNPCViewerUI->JuneViewerFxStop( 1 );
+				m_pNPCViewerUI->SetShowObject( false );
+				m_iPrePetItemID = -1;
+			}
+#else SERV_IRUHADEV_JUNE_PET_PREVIEW
 			ResetPetViewer();
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW
 #endif //PET_PREVIEW
 		}
 		break;
@@ -3008,7 +3020,18 @@ if(g_pTFieldGame != NULL && g_pTFieldGame->GetJoinNpc() == false ) // npcøÕ ¡∂øÏ
 #endif //QUEST_GUIDE
 
 #ifdef PET_PREVIEW
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW
+		// June SetOpen 3223d680 @3223e56d: the inline hide (UI-set and group-1 stops, hide, no previewed item).
+		if( NULL != m_pNPCViewerUI )
+		{
+			m_pNPCViewerUI->JuneStopUIEffectSets();
+			m_pNPCViewerUI->JuneViewerFxStop( 1 );
+			m_pNPCViewerUI->SetShowObject( false );
+			m_iPrePetItemID = -1;
+		}
+#else SERV_IRUHADEV_JUNE_PET_PREVIEW
 		ResetPetViewer();
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW
 #endif //PET_PREVIEW
 
 #ifdef COUPON_SYSTEM
@@ -12500,8 +12523,89 @@ void CX2CashShop::UpdateDLGPetViewerUI()
 			m_pDLGPetPreview->SetHasUnit(static_cast<CKTDGObject*>(m_pNPCViewerUI));
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW
+	// June UpdateDLGPetViewerUI 3223c5d0 @3223c763: the inline hide (UI-set and group-1 stops, hide, no previewed item).
+	if( NULL != m_pNPCViewerUI )
+	{
+		m_pNPCViewerUI->JuneStopUIEffectSets();
+		m_pNPCViewerUI->JuneViewerFxStop( 1 );
+		m_pNPCViewerUI->SetShowObject( false );
+		m_iPrePetItemID = -1;
+	}
+#else SERV_IRUHADEV_JUNE_PET_PREVIEW
 	ResetPetViewer();
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW
 }
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW
+// June effect completion C9h-2b: June's PetPreview, 32234b10.
+void CX2CashShop::PetPreview( int iItemID_ )
+{
+	if ( NULL == g_pData->GetItemManager() )
+		return;
+
+	// June runs both lookups (3280b370 / 3280b380) and tests each with < 1; March's lookups return -1 on a miss.
+	const int iPetID = g_pData->GetItemManager()->GetPreviewPetIdByItemID( iItemID_ );
+	const int iRidingPetID = g_pData->GetItemManager()->GetPreviewRidingPetIdByItemID( iItemID_ );
+
+	// Neither hits: June passes -1 as the type, and ResetPetViewer's type guard turns the call into a no-op.
+	int iPreviewID = -1;
+	CX2ItemManager::PREVIEW_PET_TYPE ePreviewPetType_ = static_cast<CX2ItemManager::PREVIEW_PET_TYPE>( -1 );
+	const WCHAR* pwszPick = L"none";
+	if( iPetID < 1 )
+	{
+		if( 1 <= iRidingPetID )
+		{
+			iPreviewID = iRidingPetID;
+			ePreviewPetType_ = CX2ItemManager::PPT_RIDING_PET;
+			pwszPick = L"riding";
+		}
+	}
+	else
+	{
+		// Both hit: an odd rand() picks the riding pet (@32234b4a); rand() runs only when both hit.
+		if( 1 <= iRidingPetID && 0 != rand() % 2 )
+		{
+			iPreviewID = iRidingPetID;
+			ePreviewPetType_ = CX2ItemManager::PPT_RIDING_PET;
+			pwszPick = L"riding";
+		}
+		else
+		{
+			iPreviewID = iPetID;
+			ePreviewPetType_ = CX2ItemManager::PPT_PET;
+			pwszPick = L"pet";
+		}
+	}
+
+	ResetPetViewer( iPreviewID, iItemID_, ePreviewPetType_ );
+
+	{
+		WCHAR wszJuneFx[256] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_PREVIEW item=%d pet=%d riding=%d pick=%s",
+			iItemID_, iPetID, iRidingPetID, pwszPick );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+
+	// June @32234b81: the previewed item is no longer in the pre-equip list -> hide. June's test 32234380 is March's
+	// CheckPreEqipItem: June's InsertPreEquipItem 3224cb20 calls it where March's InsertPreEquipItem does. June keeps two
+	// lists keyed by +0x528, which only June's unit type 10 sets (SetOpen @3223d9d2); March has no type 10, so one list.
+	// June's test also returns false when the item has no templet (325bb740 null).
+	if( -1 != m_iPrePetItemID &&
+		( NULL == g_pData->GetItemManager()->GetItemTemplet( m_iPrePetItemID ) || false == CheckPreEqipItem( m_iPrePetItemID ) ) &&
+		NULL != m_pNPCViewerUI )
+	{
+		m_pNPCViewerUI->SetShowObject( false );
+		m_pNPCViewerUI->JuneStopUIEffectSets();
+		m_pNPCViewerUI->JuneViewerFxStop( 1 );
+
+		WCHAR wszJuneFx[256] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_PREVIEW hide item=%d (not in the pre-equip list)", m_iPrePetItemID );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+
+		m_iPrePetItemID = -1;
+	}
+}
+#else SERV_IRUHADEV_JUNE_PET_PREVIEW
 void CX2CashShop::PetPreview( int iItemID_ )
 {
 	if ( NULL != g_pData->GetItemManager() )
@@ -12523,11 +12627,60 @@ void CX2CashShop::PetPreview( int iItemID_ )
 		ResetPetViewer( iPetID, iItemID_, ePreviewPetType_);
 	}
 }
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW
 
 /** @function : ResetPetViewer
 	@breif : º±≈√«— ∆Í¿∏∑Œ ∆Í ¿Ø¥÷ ∫‰æÓ ∞ªΩ≈
 	@param : ∆Í ID (iPetID_), ø¨∞·µ» æ∆¿Ã≈€ ID (iItemID)		 
 */
+#ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW
+// June effect completion C9h-2b: June's ResetPetViewer, 32228c90.
+void CX2CashShop::ResetPetViewer(int iPetID_/* = -1*/, int iItemID /*= -1*/, CX2ItemManager::PREVIEW_PET_TYPE ePreviewPetType_/* = PPT_PET*/)
+{
+	// June does nothing for the -1 type, not even a hide; the no-argument hides are inline blocks at their call sites.
+	if( NULL == m_pNPCViewerUI || -1 == static_cast<int>( ePreviewPetType_ ) )
+		return;
+
+	// The stops come first, before the item test.
+	m_pNPCViewerUI->JuneStopUIEffectSets();
+	m_pNPCViewerUI->JuneViewerFxStop( 1 );
+
+	if( 0 <= iPetID_ && m_iPrePetItemID != iItemID )
+	{
+		m_iPrePetItemID = iItemID;
+
+		D3DXVECTOR3 vScale( 1.f, 1.f, 1.f );
+		if( CX2ItemManager::PPT_RIDING_PET == ePreviewPetType_ )
+		{
+			m_pNPCViewerUI->ResetRidingPet( iPetID_ );
+			vScale = D3DXVECTOR3( 0.5f, 0.5f, 0.5f );
+		}
+		else
+		{
+			// June passes level 3 and variant 0 here (the pet-info caller passes its variant byte, backlog Stage 17).
+			m_pNPCViewerUI->ResetPet( iPetID_, 3, 0 );
+			// June: 1.4 for pets 35-36 (PUI_STINKO_HATS_ON / PUI_EBONY_HATS_ON, values checked with a cl probe), else 1.0.
+			if( CX2PetManager::PUI_STINKO_HATS_ON <= iPetID_ && iPetID_ <= CX2PetManager::PUI_EBONY_HATS_ON )
+				vScale = D3DXVECTOR3( 1.4f, 1.4f, 1.4f );
+		}
+		m_pNPCViewerUI->SetScale( vScale );
+		m_pNPCViewerUI->SetShowObject( true );
+		m_pNPCViewerUI->PlayAnim( true == m_pNPCViewerUI->IsAnimExist( L"Wait_Transform" ) ? L"Wait_Transform" : L"Wait",
+			CKTDGXSkinAnim::XAP_LOOP, true );
+		m_pNPCViewerUI->SetOverUI( true );
+		// June: the cash shop's +0x51c vector plus (260,-30,0). +0x51c is only ever zeroed (the ctor @32253ef3, SetOpen
+		// @3223e1a3), so the preview stands at (260,-30,0). June laid its dialog out with the character at x 315
+		// (SetOpen @3223da1c); March's dialog keeps it at x -355 (ResetUnitViewer). The user chose June's offset
+		// (2026-10-08). June's other pair, (-230,-200,0), is used only while the customize-preview layout flag
+		// DAT_3379fce4 is set (backlog Stage 12), which March never sets.
+		m_pNPCViewerUI->SetPosition( D3DXVECTOR3( 260.f, -30.f, 0.f ) );
+		return;
+	}
+
+	m_pNPCViewerUI->SetShowObject( false );
+	m_iPrePetItemID = -1;
+}
+#else SERV_IRUHADEV_JUNE_PET_PREVIEW
 void CX2CashShop::ResetPetViewer(int iPetID_/* = -1*/, int iItemID /*= -1*/, CX2ItemManager::PREVIEW_PET_TYPE ePreviewPetType_/* = PPT_PET*/)
 {
 	if( NULL != m_pNPCViewerUI )
@@ -12567,6 +12720,7 @@ void CX2CashShop::ResetPetViewer(int iPetID_/* = -1*/, int iItemID /*= -1*/, CX2
 		}
 	}
 }
+#endif SERV_IRUHADEV_JUNE_PET_PREVIEW
 #endif //PET_PREVIEW
 
 /** @function : SetShowOtherUI
