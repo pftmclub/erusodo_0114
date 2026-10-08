@@ -594,6 +594,8 @@ field could still cut a name before it reaches the device.
 - **Copied with the user's OK** (18 `COPY OK`, backups in `kom_backup_tools\*.20261008_0932*`; data197 is new, no backup). Verified: all 18 live
   koms are byte-equal (md5) to their `_packed.kom`.
 - **Flag hygiene:** not applicable (no code file changed).
+- **Re-check (2026-10-08):** all 286 staged files byte-equal to June's strictly decoded copy, one staged kom per name, live-kom sizes
+  equal June's, manifest values correct: 0 problems. `kickoffs/june-asset-extract/X5.md` carries a status section for the log check.
 
 **Play-test (user):** see the hand-off in the chat message. Checks: Ranox map mesh `Spa_Ranox_G01_water01.y`; boss name plate
 `HQ_BOSS_NAME_ALUMINUM.dds`; one long-name asset; one hand-patched Ranox motion (`Motion_NPC_Ranox_FACEOFF.x`/`_SYOTA.x`, NPCs `NUI_FACEOFF`
