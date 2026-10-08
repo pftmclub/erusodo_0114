@@ -260,6 +260,19 @@ Running together: K0 and K1 touch no game code and can run alongside any code se
 writers). K2 is the only phase that edits `X2Item_Preprocessing.inl` / `X2ItemManager*.cpp`, and the packed `data036`. Do not run it
 while another session is packing data036: `kom_contents/data036_kom/` is shared staging with Atlas/Elysion.
 
+## costume-shop - every June costume in the offline cash shop
+
+Plan `COSTUME_SHOP_PHASES.md` · branch `mods/june-buff-port` · log tag `[COSTUME_SHOP]` · flag `SERV_IRUHADEV_COSTUME_SHOP` · kickoffs
+`kickoffs/costume-shop/` · created 2026-10-08 (user request after june-item-kim K4).
+
+All 39,582 fashion items of June's kim (every part, every character) into `cash_product` at price 1 (user: "1KC per costume, like right
+now"); a load-time file check offers only the ones whose files exist, so the rest appear by themselves when their files arrive
+(asset port, Lu/Ciel ports). Per-click shop cost is the open risk: S0 logs counts and timing.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| S0 | **ready** (decisions made by the user 2026-10-08: scope, price 1, file check) | Sonnet 5.5 / high, then user play-test | june-item-kim K4 (done) | `X2Lib/Offline/X2OfflineCashShop.cpp/.h`, `X2OfflineDB` (read/insert only), `KTDXLIB/Always.h`, `costume_shop/` | `S0.md` |
+
 ## june-asset-extract - June non-lua assets, byte-exact, in March koms
 
 Plan `JUNE_ASSET_EXTRACT_PHASES.md` · branch `mods/june-buff-port` · log tag `[KOM_LONG]` · flag
