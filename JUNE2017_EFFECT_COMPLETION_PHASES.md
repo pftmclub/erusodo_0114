@@ -4291,7 +4291,7 @@ shown-damage copy is listed here with its owner, in June's order.
 *Open for the user:* nothing. One crash case is decided in the C10e kickoff. June reads a null attacker at `327b449c`, and March
 keeps the null check; C10e owes a JUNE_BUGS row for it.
 
-**C10e - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS` + `SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT`; play-test pending).**
+**C10e - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS` + `SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT`; play-test PASSED 2026-10-09).**
 Every step cites June by address. The test is on the socket half; the three hooks and `322cfca0` are inert on March data.
 
 *Hooks (flag `..._DAMAGE_REACT_HOOKS`).*
@@ -4318,6 +4318,10 @@ Hygiene (`flagcheck --worktree --files <my 7 files>`): `DAMAGE_REACT_HOOKS`: `fi
 
 **Play-test (a 3 % roll needs many hits).** jtLordKnight: equip the accessory from the Accessory tab (double-click it; it is an `EP_AC_WEAPON` accessory), enter any dungeon with a monster that survives many hits, cast **Endurance** (active, slot 4 in the save) first so its cool-down is visible, then hit with normal attacks and Sonic Blade. Expect about one proc per 33 hits: the active skills' timers jump down 5 s at once. Log: `python tools/logs.py --grep "JUNE_FX socket-cooltime"` -> one `flag set` line at the unit load, at least one `proc=1`.
 
+**Play-test result (2026-10-09, logs read): passed.** Run 05:05-05:09 on the deployed exe, 0 EXCEPTION, clean exit (the 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` are not this phase's). jtLordKnight, accessory 100002826 equipped:
+- `JUNE_FX socket-cooltime flag set user=25 socket=2000145` at each unit load (05:06:27, and twice at 05:08:26-27).
+- Rolls: five misses logged, all `> 0.03` (0.5475 / 0.4603 / 0.5745 / 0.6661 / 0.7183), then three `proc=1`: `0.0069` (05:08:42), `0.0284` (05:09:31), `0.0112` (05:09:34). Each had `cooldown=0.00`, and the last two procs are 3 s apart, past the 0.5 s window.
+- The in-game 5 s drop on the active skills' timers was the user's check ("test passed").
 *Open for the user:* nothing. Review kickoff: `kickoffs/june-effect/C10e-review.md`.
 
 
